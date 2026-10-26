@@ -301,6 +301,22 @@ class Mp4HeaderRepairTests(unittest.TestCase):
             with self.assertRaises(RepairUnavailable):
                 mp4repair._display_order(Path("ffprobe"), Path("movie.mp4"), [0, 400, 800])
 
+    def test_a_long_video_can_keep_one_missing_b_frame_in_display_order(self):
+        times = [index * 400 for index in range(10000)]
+        display = [index for group in range(0, len(times), 3)
+                   for index in (group + 1, group + 2, group) if index < len(times)]
+        for missing in ({4}, {4, 8}):
+            with self.subTest(missing=missing):
+                output = b"".join(f"{times[index]}\n".encode() for index in display if index not in missing)
+                with patch.object(mp4repair, "run_task_process", return_value=_Probe(output)):
+                    if len(missing) == 1:
+                        with self.assertLogs(mp4repair.LOGGER, "WARNING"):
+                            order = mp4repair._display_order(Path("ffprobe"), Path("movie.mp4"), times)
+                        self.assertEqual(sorted(range(len(times)), key=order.__getitem__), display)
+                    else:
+                        with self.assertRaises(RepairUnavailable):
+                            mp4repair._display_order(Path("ffprobe"), Path("movie.mp4"), times)
+
     def test_probe_timeout_means_missing_output_and_reports_decoded_frames(self):
         progress = []
 

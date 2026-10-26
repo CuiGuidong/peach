@@ -287,9 +287,32 @@ class MediaRepairRunTests(unittest.TestCase):
         self.assertEqual(self.store.repaired, [2])
         self.assertEqual((state['repaired'], state['failed']), (1, 0))
         saved = json.loads(path.read_text(encoding='utf-8'))
-        self.assertEqual(saved['version'], 2)
+        self.assertEqual(saved['version'], rm_repair.SCAN_CACHE_VERSION)
         self.assertEqual(saved['entries'][rm_repair._key(1, self.media / 'seldom.mp4')],
                          rm_repair.UNAVAILABLE)
+
+    def test_old_ctts_failure_is_checked_again_and_keeps_other_cached_results(self):
+        (self.media / 'favourite.mp4').write_bytes(tail_mp4())
+        entries = {rm_repair._key(asset_id, self.media / name): verdict
+                   for asset_id, name, verdict in (
+                       (1, 'seldom.mp4', rm_repair.UNAVAILABLE),
+                       (2, 'favourite.mp4', rm_repair.UNAVAILABLE),
+                       (3, 'fine.mp4', rm_repair.CLEAN),
+                       (6, 'cut.mp4', rm_repair.UNAVAILABLE))}
+        cache = rm_repair._cache_path(self.contract)
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text(json.dumps({'version': 2, 'entries': entries}), encoding='utf-8')
+
+        state = self.run_once()
+        self.run_once()
+
+        self.assertEqual(self.transcodes.asked, ['favourite.mp4'])
+        self.assertEqual(self.store.repaired, [2])
+        self.assertEqual((state['repaired'], state['failed']), (1, 0))
+        saved = rm_repair._load_cache(self.contract)
+        for asset_id, name in ((1, 'seldom.mp4'), (3, 'fine.mp4'), (6, 'cut.mp4')):
+            key = rm_repair._key(asset_id, self.media / name)
+            self.assertEqual(saved[key], entries[key])
 
     def test_a_current_failed_tail_layout_stays_cached(self):
         (self.media / 'favourite.mp4').write_bytes(tail_mp4())
@@ -321,7 +344,7 @@ class MediaRepairRunTests(unittest.TestCase):
         self.assertEqual(state['repaired'], 1)
         self.assertEqual(self.transcodes.asked, ['favourite.mp4'])
         self.assertEqual(self.store.repaired, [2])
-        self.assertEqual(self.contract.media_repair_job.snapshot()['survey_cache_version'], 2)
+        self.assertEqual(self.contract.media_repair_job.snapshot()['survey_cache_version'], rm_repair.SCAN_CACHE_VERSION)
 
     def test_a_hung_stat_skips_only_that_file(self):
         started = time.monotonic()
