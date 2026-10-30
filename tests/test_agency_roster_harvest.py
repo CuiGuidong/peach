@@ -4,7 +4,6 @@ import sqlite3
 import tempfile
 import types
 import unittest
-from pathlib import Path
 
 from peach.entities import normalize_entity_name
 from support.ledger import fresh_ledger
