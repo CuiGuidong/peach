@@ -1,4 +1,4 @@
-/* search 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
+/* search domain controller: this domain's state and actions; startup installs them together through Application's lifecycle. */
 import { javImageKind } from './../jav-artwork';
 import { preferencesState } from './preferences.js';
 import { coverImage } from './../card-art/markup';
@@ -28,7 +28,7 @@ export function searchCoverImage(card){
   const kind=card?javImageKind({...card,is_jav:!!card.code},preferencesState.appSettings.javImage):'';
   return kind==='cover'?coverImage(card,'big')
     :kind?`<img class="poster still" src="/poster?id=${card.id}&c=4" width="640" height="360" alt="" loading="lazy" data-drop="self">`
-    :'<span class="nopic">无预览</span>';
+    :'<span class="nopic">No preview</span>';
 }
 
 export function finishSearchMorph(){
@@ -86,14 +86,14 @@ searchState.searchActions = {
 searchState.searchHelpers = {
   pool:()=>catalogSuggestions(state,api),
   recommendations:()=>searchRecommendations(api),
-  /* `.pic` 是卡片封面那一格（比例、底色、圆角与模糊垫底都认它），和里面那张图一起由壳给。 */
+  /* `.pic` is the card cover cell (aspect, background, radius, and blur backing all key off it), provided by the shell together with the image inside. */
   coverHtml:card=>`<span class="pic">${card?.thumb_url
     ?`<img src="${esc(card.thumb_url)}" width="640" height="360" alt="" loading="lazy" referrerpolicy="no-referrer" data-drop="self">`
     :card?.sourceWork?feedNewCoverHtml(card):searchCoverImage(card)}</span>`,
   present:menu=>presentMenu(menu),
   dismiss:menu=>dismissMenu(menu),
   wireScroller:row=>wireHorizontalScroller(row),
-  /* 字变了：清空时照着上一刻的字留一段残影，敲进新字就收掉正在散的那段。 */
+  /* The text changed: when cleared, a fading afterimage of the previous text lingers, and typing new characters collapses the one still fading. */
   typed:input=>{
     const next=input.value;
     if(!next&&catalogState.searchValueSnapshot.text)catalogState.clearSearchField(catalogState.searchValueSnapshot);
@@ -131,7 +131,7 @@ applicationEffects.handler($('#searchBack'), 'onclick', ()=>{
 });
 const dismissOutsideSearch=event=>{
   if(event.target.closest('.search'))return;
-  // 输入法收起只把焦点交回页面；建议仍可继续选择。
+  // Dismissing the input method only returns focus to the page; suggestions can still be chosen.
   if(event.type==='focusin'&&(event.target===document.body||event.target===document.documentElement))return;
   if(!$('#q').value)setNarrowSearchOpen(false);
   hideSearchMenu();
@@ -145,14 +145,14 @@ applicationEffects.listen(document, 'keydown', e=>{
     if(settings?.isOpen()){settings.close();return}
     if(!$('#searchMenu').hidden){hideSearchMenu();return}
     if(mediaState.immerseOpen()){immerseApi().close();return}
-    /* 详情开着：Escape 归舞台。焦点在浮窗里时舞台自己已经收了这一下；里层弹层（标签搜索框、右键
-       菜单）先收掉的会 `preventDefault`，那一下只关弹层。焦点落在浮窗外（body）时在这里转给舞台。 */
+    /* Details open: Escape belongs to the stage. With focus in an overlay the stage has already handled it; inner popovers (tag search box, context
+       menu) that close first call `preventDefault`, and that press closes only the popover. With focus outside the overlay (body), hand it to the stage here. */
     if(mediaState.stageOpen()){if(!e.defaultPrevented){e.preventDefault();stageApi().requestEscape()}return}
     if($('#drawer').classList.contains('open')){openDrawer(false);return}
     if(selectMode||selected.size||followSelected.size){setSelectMode(false,true);return}
     return;
   }
-  // 输入态不抢键：搜索框、标签弹窗和任何可编辑区域里的按键归它们自己处理。
+  // Typing contexts do not steal keys: presses inside the search box, the tag dialog, and any editable area belong to those.
   if(isTypingTarget(e.target)||e.ctrlKey||e.metaKey||e.altKey)return;
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
     const imageStep=document.querySelector(`#stage[open] [data-media-carousel]:not([data-carousel-video-active]) [data-follow-image-step="${e.key==='ArrowRight'?1:-1}"]`);
@@ -161,7 +161,7 @@ applicationEffects.listen(document, 'keydown', e=>{
   const video=activeVideo();
   if(video){
     if(e.key==='t'||e.key==='T'){
-      // 影院模式是详情舞台的版式，小窗里没有这个东西可切。
+      // Theater mode is a layout of the details stage; the mini player has nothing like it to switch to.
       e.preventDefault();stageApi()?.toggleTheater();return;
     }
     if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
@@ -170,7 +170,7 @@ applicationEffects.listen(document, 'keydown', e=>{
       return;
     }
     if(e.key===' '||e.key==='k'||e.key==='K'){
-      e.preventDefault();          // 不加这句空格会把页面滚下去
+      e.preventDefault();          // Without this space the page would scroll down
       toggleVideoPlayback(video);
       return;
     }

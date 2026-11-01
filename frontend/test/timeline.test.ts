@@ -5,25 +5,25 @@ import type { VjsPlayer } from '../src/player/types';
 
 afterEach(() => { vi.unstubAllGlobals(); document.body.replaceChildren() });
 
-describe('时间轴索引', () => {
-  it('按预览自身的非均匀时间选择帧，并保留未覆盖区间', () => {
+describe('Timeline index', () => {
+  it('Frames are picked by the preview\'s own non-uniform timestamps, and uncovered intervals are preserved', () => {
     const source = { frames: 3, interval: 0, cues: [[0, 3.5], [3.5, 7], [10, 15]] as [number, number][] };
     expect([0, 3.4, 3.5, 7, 9, 10, 15, 16].map(time => timelineFrame(time, source)))
       .toEqual([0, 0, 1, null, null, 2, 2, null]);
   });
-  it('按固定间隔选择接触印相中的帧', () => {
+  it('Frames for the contact sheet are picked at fixed intervals', () => {
     const source = { frames: 120, interval: 10 };
     expect([0, 9, 10, 999, 1000, 1500].map(time => timelineFrame(time, source)))
       .toEqual([0, 0, 1, 99, 100, 119]);
   });
-  it('无效索引和时刻返回空值', () => {
+  it('Invalid indexes and timestamps return empty values', () => {
     expect(timelineFrame(-1, { frames: 2, interval: 10 })).toBeNull();
     expect(timelineFrame(Infinity, { frames: 2, interval: 10 })).toBeNull();
     expect(timelineFrame(0, { frames: 0, interval: 10 })).toBeNull();
     expect(timelineFrame(0, { frames: 2, interval: 0 })).toBeNull();
     expect(timelineFrame(1, { frames: 1, interval: 0, cues: [[2, 4]] })).toBeNull();
   });
-  it('预览控件使用准确来源，在空隙与图片失败时读取已有缓存', async () => {
+  it('Preview controls use exact sources, reading existing caches during gaps and image failures', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
       source: 'webvtt', frames: 2, interval: 0, columns: 1, rows: 1, cues: [[0, 3], [8, 12]],
       fallback: { source: 'peach', frames: 3, interval: 10, columns: 10, rows: 10 },

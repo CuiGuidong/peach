@@ -1,4 +1,4 @@
-/** 预览索引按开始时刻查找；未覆盖区间返回空值。 */
+/** Preview索引按开始时刻Find；未覆盖区间Back空值. */
 export interface TimelineSheets {
   frames: number; interval: number; columns?: number; rows?: number;
   cues?: [number, number][];

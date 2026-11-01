@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { TAG_PAGE_SIZE } from '../../tag-skeleton';
 
-/** 筛选对应独立页码；换页保留选择，换筛选回到首页。 */
+/** 筛选对应独立页码；换页保留选择，换筛选回到首页. */
 export function useTagPagination(filter: string) {
   const [state, setState] = useState({ filter, pageIndex: 0, pageSize: TAG_PAGE_SIZE });
   const pageIndex = state.filter === filter ? state.pageIndex : 0;

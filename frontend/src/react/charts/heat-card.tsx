@@ -1,9 +1,9 @@
-/* 热力图：统计页的播放时间与口味页的浏览时间共用。
+/* Heatmap: the stats page's playback time and the taste page's browsing time share it.
  *
- * Recharts 没有热力图，EvilCharts 的 Recharts 分支也没有，所以格子仍是自绘的 SVG：一格一个
- * `rect`，浓度是 `fill-opacity`，几何全写成属性。外观对齐同页的 EvilCharts 图：颜色只取
- * `chart-*`，指到一格时其余格子淡下去，浮层与柱状、径向图共用 `./chart-tip.tsx` 那一块面；
- * 页头读数也跟着换，键盘聚焦一格时读的是它。取舍见 ADR-0076。 */
+ * Recharts has no heatmap and neither does EvilCharts' Recharts branch, so cells stay self-drawn SVG: one `rect` per cell,
+ * density as `fill-opacity`, geometry all written as attributes. Looks align with the page's other EvilCharts charts: colors
+ * only from `chart-*`, other cells fade when one is pointed at, and the overlay shares `./chart-tip.tsx`'s surface with bar
+ * and radial charts; the header readout follows too, reading the focused cell under keyboard focus. Trade-offs in ADR-0076. */
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 
@@ -14,14 +14,14 @@ import { dayCalendar, hourGrid, WEEKDAYS, type ActivityCounts, type HeatCell } f
 const SIZE = 14;
 const STEP = 17;
 
-/** 格子与浮层色点的颜色。类名写成整串，Tailwind 扫得到。 */
+/** Cell and overlay dot colors. Class names are written out in full so Tailwind can pick them up. */
 const TONES = {
   4: { fill: 'fill-chart-4', dot: 'bg-chart-4' },
   5: { fill: 'fill-chart-5', dot: 'bg-chart-5' },
 } as const;
 export type HeatTone = keyof typeof TONES;
 
-/** 浮层靠哪一边对齐指到的那一格：两侧各留一成宽，靠边的格子浮层往里放，不被卡片切掉。 */
+/** Which side the popover aligns to the hovered cell: 10% of width is kept on each side, so edge cells pull the popover inward instead of getting clipped by the card. */
 const ANCHOR = {
   start: 'translate-x-0',
   center: '-translate-x-1/2',
@@ -34,7 +34,7 @@ function HeatTooltip(
 ) {
   return (
     <div aria-hidden
-      // oxlint-disable-next-line shadcn/no-inline-styles -- 浮层跟着指到的那一格走，位置是运行期算出的百分比
+      // oxlint-disable-next-line shadcn/no-inline-styles -- the overlay follows the cell pointed at; the position is a percentage computed at runtime
       style={{ left: `${left}%`, top: `${top}%` }}
       className={`pointer-events-none absolute z-10 -mt-2 -translate-y-full ${TIP_SURFACE} ${ANCHOR[anchor]}`}>
       <div className="font-medium text-foreground">{cell.label}</div>
@@ -43,10 +43,10 @@ function HeatTooltip(
   );
 }
 
-/** 读数的三处文字：页头大数旁的单位、浮层那一行的名字、读屏时每一格计数后面的量词。 */
+/** Three pieces of readout wording: the unit next to the page header's big number, the overlay row's name, and the quantifier screen readers speak after each cell's count. */
 export interface HeatWords { unit: string; series: string; cellUnit: string }
 
-/** 一张热力图：一格一个计数，指到哪一格读数就换成哪一格。 */
+/** A heatmap: one count per cell; hover a cell and the number switches to that cell. */
 export function HeatCard(
   { title, words, cells, total, columns, rows, axis, footer, tone }:
   {
@@ -71,8 +71,8 @@ export function HeatCard(
     <section className={CHART_CARD}>
       <ChartHead title={title} figure={(cell ? cell.count : total).toLocaleString()}
         note={cell ? cell.label : words.unit} />
-      {/* 带坐标轴的星期 × 小时有 24 列，压到 320 以下格子和字都读不清，宁可在卡里横滚；
-          每日那张只有 13 列，跟着卡片缩，最近几天不会藏到右边看不见的地方。 */}
+      {/* The week × hour chart with axes has 24 columns; squeezed below 320 neither the cells nor the labels stay legible, so it scrolls horizontally inside the card;
+          the daily chart has only 13 columns and shrinks with the card, so recent days never hide off to the right. */}
       <div className="relative">
         <div className="min-w-0 overflow-x-auto">
           <svg role="img" aria-label={title} onPointerLeave={() => setShown(-1)}
@@ -81,7 +81,7 @@ export function HeatCard(
             {cells.map((item, index) => {
               const { x, y } = at(index);
               return (
-                <rect key={item.key} tabIndex={0} role="img" aria-label={`${item.label}，${item.count} ${words.cellUnit}`}
+                <rect key={item.key} tabIndex={0} role="img" aria-label={`${item.label}, ${item.count} ${words.cellUnit}`}
                   x={x} y={y} width={SIZE} height={SIZE} rx={3} fillOpacity={item.share || 1}
                   opacity={shown >= 0 && shown !== index ? 0.4 : 1}
                   className={item.share
@@ -105,7 +105,7 @@ export function HeatCard(
   );
 }
 
-/** 星期 × 小时的坐标：左边一列星期，顶上每隔两小时一个钟点。 */
+/** Weekday × hour的坐标: 左边一列星期，顶上每隔两小时一个钟点. */
 const HOUR_AXIS = (
   <>
     {WEEKDAYS.map((name, day) => (
@@ -119,9 +119,9 @@ const HOUR_AXIS = (
   </>
 );
 
-/** 一份活跃计数的两张热力图：星期 × 小时，和最近 91 天。
+/** Two heatmaps for one activity count: weekday × hour, and the last 91 days.
  *
- * 没有可用记录时留一张只有 `empty` 那句话的卡。 */
+ * With no usable records, leave a card carrying only the `empty` line. */
 export function ActivityHeat(
   { activity, title, dailyTitle, words, tone, empty }:
   {
@@ -132,13 +132,13 @@ export function ActivityHeat(
   const hours = hourGrid(activity);
   const days = dayCalendar(activity);
   if (!days.cells.length) return <ChartEmpty title={title}>{empty}</ChartEmpty>;
-  /* 两张卡按各自内容的高度排：星期 × 小时有 24 列，格子比每日那张小一半，同行拉成等高
-     会在它下面空出半张卡。 */
+  /* The two cards size to their own content heights: weekday × hour has 24 columns with cells half the size of the daily one, and forcing equal height in the same row
+     would leave half a card of blank space beneath it. */
   return (
     <div className="inline-grid w-full items-start gap-5 lg:grid-cols-2">
       <HeatCard title={title} words={words} tone={tone}
         cells={hours.cells} total={hours.total} columns={24} rows={7} axis={HOUR_AXIS}
-        footer={<><span>星期 × 小时</span><span>{activity?.timezone || 'UTC+08:00'}</span></>} />
+        footer={<><span>Weekday × hour</span><span>{activity?.timezone || 'UTC+08:00'}</span></>} />
       <HeatCard title={dailyTitle} words={words} tone={tone}
         cells={days.cells} total={days.total} columns={13} rows={7}
         footer={<><span>{days.start}</span><span>{days.end}</span></>} />

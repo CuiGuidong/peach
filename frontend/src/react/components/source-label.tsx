@@ -13,7 +13,7 @@ function CloudIcon({ className }: { className?: string }) {
 }
 export const providerIcon = (source: string) => sourceIcons[sourceLocation(source)] ?? CloudIcon;
 
-/** 站点标识经本站缓存读取。 */
+/** The site identity is read through this site's cache. */
 export function SiteLabel({ site, label }: { site: string; label: string }) {
   const [failed, setFailed] = useState(false);
   const source = site === 'javdb' ? '/site-mark?source=javdb' : site === 'missav' ? '/site-mark?domain=missav.com' : null;
@@ -23,7 +23,7 @@ export function SiteLabel({ site, label }: { site: string; label: string }) {
   </span>;
 }
 
-/** 网盘与本地来源共用已登记的标识。 */
+/** Cloud drive and local sources share the registered identifiers. */
 export function SourceLabel({ source, label }: { source: string; label: string }) {
   const location = sourceLocation(source);
   return <span className="inline-flex min-w-0 items-center gap-1.5">

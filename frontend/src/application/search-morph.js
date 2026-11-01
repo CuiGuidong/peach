@@ -1,4 +1,4 @@
-/* 使用项目采样弹簧构造玻璃轮廓，限制在视口内；内容不做横向缩放。 */
+/* 使用项目采样弹簧构造玻璃轮廓，限制在视口内；内容不做横向缩放. */
 export function searchMorphFrames(from,to,base,paddingFrom,paddingTo,easing,viewportWidth){
   const values=easing.startsWith('linear(')?easing.slice(7,-1).split(',').map(Number):[0,1];
   return values.map((progress,index)=>{

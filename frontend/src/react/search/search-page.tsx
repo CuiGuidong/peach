@@ -1,13 +1,15 @@
-/* 顶栏搜索的下拉栏与键盘（`search` 岛）。
+/* The top-bar search's dropdown and keyboard (`search` island).
  *
- * 状态放在一个随组件活着的可变仓里，输入框上的原生事件改它再重画：`#q` 是壳的节点，事件只能用
- * `addEventListener` 接，处理器里要读的是这一刻的值，不是挂上那一刻闭包里的那份。输入法组字期间
- * 的按键读原生事件的 `isComposing`：方向键在挑候选字、回车在定字，都不是给这个菜单的。
+ * State lives in a mutable bin that lives with the component; native events on the input mutate it and re-render: `#q` is the
+ * shell's node, events can only attach via `addEventListener`, and the handlers must read this moment's value, not the one in
+ * the closure from attach time. Keystrokes during IME composition read the native event's `isComposing`: arrows are picking
+ * candidates and Enter is committing a character, none of which belong to this menu.
  *
- * BoardUI 注册表里没有 Combobox／Command（`https://www.boardui.com/r/registry.json`，2026-10-01），
- * React Aria 的 ComboBox 要自己画输入框、选项是 listbox 里的 option：选项里嵌的删记录键、近作
- * 小封面键和最上面那排页签都放不进去。所以这里按遗留层那一套逐条照做：上下环绕着选、回车提交、
- * Escape 先关下拉再清字、空输入回车用占位里那个推荐词。 */
+ * BoardUI's registry has no Combobox or Command (`https://www.boardui.com/r/registry.json`, 2026-10-01), and React Aria's
+ * ComboBox would require drawing the input itself with options as listbox options: the delete-record keys inside options, the
+ * recent-covers key, and the row of tabs at the top would not fit. So this follows the legacy layer's behavior item by item:
+ * wrap-around selection with up/down, Enter submits, Escape closes the dropdown before clearing text, and Enter on empty
+ * input uses the suggested word in the placeholder. */
 import { useLayoutEffect, useReducer, useRef, type MouseEvent, type ReactNode } from 'react';
 import { avatarInner } from '@peach/card-art';
 
@@ -29,21 +31,21 @@ interface Store {
   poolRequest: number;
   recommendations: SuggestGroup[];
   recommendationRequest: number;
-  /** 画的那一刻输入框里的词与洗好的推荐。 */
+  /** The word in the input box and the shuffled recommendations at the moment of rendering. */
   query: string;
   picks: string[];
   suggestFor: string;
   groups: SuggestGroup[];
   tabs: SuggestTab[];
   suggestRequest: number;
-  /** 最近一次不分类补全问的词：聚焦时的数据晚到，框里还是这个词就不再问一遍。 */
+  /** The term from the most recent untyped completion request: late-arriving data on focus is not re-requested while the box still holds that term. */
   asked: string;
   timer: number;
   kind: string;
   active: number;
-  /** 这一次选中是键盘挪的：画完把那一行滚进视野。 */
+  /** This selection was moved with the keyboard: after rendering, scroll that row into view. */
   reveal: boolean;
-  /** 选了一类：画完把下拉栏滚回顶上。 */
+  /** Picked a category: after rendering, scroll the dropdown back to the top. */
   rewind: boolean;
 }
 
@@ -72,7 +74,7 @@ export function SearchPage(props: SearchProps) {
   const root = useRef<HTMLDivElement>(null);
   const [, bump] = useReducer((n: number) => n + 1, 0);
 
-  /* 处理器一次建好、挂在输入框上；读的都是 `latest` 与仓里这一刻的值。 */
+  /* The handler is built once and attached to the input; it reads `latest` and the store's values at this moment. */
   const ops = useRef<ReturnType<typeof createOps> | null>(null);
   ops.current ??= createOps(() => latest.current, s, () => root.current?.closest<HTMLElement>('[data-search-menu]') ?? null, bump);
   const op = ops.current;
@@ -125,7 +127,7 @@ export function SearchPage(props: SearchProps) {
         <a href={group.href} onMouseDown={keep} onClick={event => {
           if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
           event.preventDefault(); op.openPath(group.href!);
-        }}>{group.action || '查看全部'}</a>
+        }}>{group.action || 'View all'}</a>
       ) : null}</h3>
       {group.kind ? <div data-search-items="">{group.options.map(option)}</div> : group.options.map(option)}
       {group.more ? option(group.more) : null}
@@ -143,7 +145,7 @@ export function SearchPage(props: SearchProps) {
       {s.query && model.recent ? section(model.recent) : null}
       {columns(model.left, model.right)}
       {!s.query && model.recent ? section(model.recent) : null}
-      {model.empty ? <p data-search-empty="" role="status">没有找到</p> : null}
+      {model.empty ? <p data-search-empty="" role="status">Nothing found</p> : null}
     </div>
   );
 }
@@ -161,10 +163,10 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
       const data = await apiGet<{ items?: unknown }>(`/api/search-history?limit=${limit}`);
       s.history = Array.isArray(data.items) ? data.items.map(String) : [];
     } catch {
-      // 记录读不到就用手上这份：搜索本身不受影响。
+      // If the record cannot be read, use the copy on hand: search itself is unaffected.
     }
   };
-  /* 搜索本身是只读能力；数据库暂时只读时，历史记录降级为本次页面内存，写失败不妨碍搜索。 */
+  /* Search itself is read-only; while the database is temporarily read-only, history degrades to this page's memory, and a failed write never blocks searching. */
   const rememberSearch = (query: string) => {
     if (!query || !props().historyLimit) return;
     writeHistory([query, ...readHistory().filter((value) => fold(value) !== fold(query))]);
@@ -175,16 +177,16 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     s.pool = [];
     const field = input();
     field.dataset.suggestion = '';
-    field.placeholder = '搜索馆藏';
+    field.placeholder = 'Search the library';
     try {
       const names = await props().helpers.pool();
       if (request !== s.poolRequest) return;
       s.pool = names;
       const pick = names[Math.floor(Math.random() * names.length)] || '';
       field.dataset.suggestion = pick;
-      field.placeholder = pick || '搜索馆藏';
+      field.placeholder = pick || 'Search the library';
     } catch {
-      // 推荐不可用时仍可直接输入搜索。
+      // When recommendations are unavailable, typing a search still works.
     }
   };
   const loadRecommendations = async () => {
@@ -196,11 +198,11 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
       s.recommendations = groups;
       if (focused() && !input().value.trim()) paint();
     } catch {
-      // 推荐读取失败仍可搜索，保留手上的推荐。
+      // If reading recommendations fails, search still works; keep the recommendations already in hand.
     }
   };
-  /* 分组顺序和每组的名字都由 `/api/suggest` 给出，这里照抄。慢的旧响应不许盖掉新的：连敲两个字时
-     先发的那次完全可能后回来。 */
+  /* Group order and each group's name come from `/api/suggest`; copy them verbatim. Slow stale responses must not overwrite newer ones: when typing two characters in a row,
+     the earlier request can easily return later. */
   const loadSuggestions = async (query: string, kind = '') => {
     const request = ++s.suggestRequest;
     if (!kind) s.asked = query;
@@ -228,7 +230,7 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     s.active = -1;
     bump();
   };
-  /** 按此刻的输入与手上的数据画一遍：有东西就掀开，没有就收起。推荐每画一次洗一次。 */
+  /** Paints from the current input and the data on hand: opens when there is something, collapses when there is not. Reshuffling on every paint is recommended. */
   const paint = () => {
     if (s.dismissed) return;
     s.query = input().value.trim();
@@ -241,11 +243,11 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     }
     bump();
   };
-  /* 每一下输入都排一次补全，但只发一次请求。先按手头已有的内容重画一遍；请求返回时核对焦点，
-     点击页面或移到其他控件后不再打开建议。 */
+  /* Schedule completion on every keystroke, but send only one request. First repaint from what is already in hand; when the request returns, check focus,
+     and stop opening suggestions after a page click or a move to another control. */
   const refresh = () => {
     s.active = -1;
-    // 换了词就回到「全部」：上一个词选中的那一类，这个词下可能一条都没有。
+    // A new term resets to "All": the category picked for the previous term may have no hits under this one.
     s.kind = '';
     clearTimeout(s.timer);
     const query = input().value.trim();
@@ -279,14 +281,14 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     if (committed) rememberSearch(query);
     props().actions.search(query);
   };
-  /* 人、公司和系列点开就是资料页，不绕一趟搜索：按名字搜出来的是一屏作品，而用户点的是「这个人」。
-     记进搜索记录的是这个名字，下次聚焦还找得回来。 */
+  /* People, companies, and series open straight into the profile page, no detour through search: searching by name yields a screen of videos, but the user clicked "this person".
+     The name is what gets recorded in search history, so it can be found again the next time focus lands. */
   const openEntity = (kind: string, name: string) => {
     input().blur();
     rememberSearch(name);
     props().actions.openEntity(kind, name);
   };
-  /** 选中一行，点它和回车落在同一处。作品开详情，有资料页的开资料页，其余按这个词搜。 */
+  /** Selects a row; clicking it and pressing Enter land in the same place. Videos open detail, those with a profile page open the profile, the rest search this term. */
   const choose = (entry: SearchOption) => {
     if (entry.type === 'suggest' && entry.item.followMedia && entry.item.id && props().actions.openFollow) {
       input().blur();
@@ -310,7 +312,7 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
   const remove = async (value: string) => {
     await apiSend('/api/search-history', { operation: 'remove', query: value }).catch(() => null);
     writeHistory(readHistory().filter((row) => fold(row) !== fold(value)));
-    // 行没了，键盘选中的下标就指不回同一项，归零重来。推荐不重洗：删一条记录却换了一批推荐，看着像列表自己跳了。
+    // With the rows gone, the keyboard selection index can no longer point back at the same item, so reset to zero. Recommendations do not reshuffle: deleting one record while a different batch of recommendations appears looks like the list jumped on its own.
     s.active = -1;
     bump();
   };
@@ -336,7 +338,7 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     event.preventDefault();
     const picked = options()[s.active];
     close();
-    // 选中某一项时用它原样搜索；没选中才回退到「空输入按 Enter 用推荐词」。
+    // When an item is selected, search with it verbatim; only with no selection does it fall back to 'empty input plus Enter uses the suggested term'.
     if (picked) {
       choose(picked);
       if (picked.type !== 'suggest' || picked.kind !== 'asset') field.blur();
@@ -356,8 +358,8 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     void loadRecommendations();
     void Promise.all([loadHistory(), loadPool()]).then(() => {
       if (!focused()) return;
-      // 带着 `?q=` 进来再点回输入框时，框里已经有词，补全该跟着这个词给。这两份数据回来之前
-      // 人可能已经敲完字、那个词的补全也问过了，同一个词不再问第二遍。
+      // When arriving with `?q=` and focusing back into the input, the field already holds a word and completions should follow it. Until these two pieces of data arrive
+      // The user may have finished typing and that word's completion was already asked; the same word is never asked twice.
       paint();
       if (input().value.trim() !== s.asked) refresh();
     });
@@ -369,19 +371,19 @@ function Tabs({ tabs, kind, onPick, wire }: {
   tabs: SuggestTab[]; kind: string; onPick(kind: string): void; wire(row: Element | null): void;
 }) {
   const row = useRef<HTMLDivElement>(null);
-  // 窄屏页签排不下时右缘渐隐，看得出还能往右拨。
+  // When tabs overflow on narrow screens the right edge fades, showing there is more to swipe to.
   useLayoutEffect(() => { wire(row.current) }, [wire, tabs]);
   const tab = (k: string, label: string, total?: number) => (
     <button key={k || 'all'} type="button" role="tab" data-suggest-kind={k} aria-selected={kind === k}
       data-pill-selected={kind === k ? '' : undefined} data-pill-variant="gray"
-      // 页签选择保留输入焦点，便于继续输入与使用方向键。
+      // Tab selection keeps input focus, so typing and arrow keys keep working.
       onMouseDown={(event) => event.preventDefault()} onClick={() => onPick(k)}>
       {label}{total ? <TabCount value={total} /> : null}
     </button>
   );
   return (
-    <PillTabList ref={row} data-search-tabs="" data-pill-nav="" role="tablist" aria-label="按种类看补全">
-      {tab('', '全部')}
+    <PillTabList ref={row} data-search-tabs="" data-pill-nav="" role="tablist" aria-label="Completion by kind">
+      {tab('', 'All')}
       {tabs.map((t) => tab(t.kind, t.label, t.total))}
     </PillTabList>
   );
@@ -404,7 +406,7 @@ function Row({ entry, active, helpers, onPick, onPeek, onRemove }: {
   if (entry.type === 'more') {
     return (
       <button type="button" data-search-option="more" {...shared} onMouseDown={keep}>
-        查看全部 {entry.total.toLocaleString()} 个视频
+        View all {entry.total.toLocaleString()} videos
         <Sprite name="chevron-right" />
       </button>
     );
@@ -415,9 +417,9 @@ function Row({ entry, active, helpers, onPick, onPeek, onRemove }: {
         <Sprite name={entry.type === 'history' ? 'history' : 'sparkles'} />
         <span>{entry.value}</span>
         {entry.type === 'history' ? (
-          /* 按下就 preventDefault，不让删除键把焦点从输入框抢走：抢走会触发 `#q` 的失焦，那个处理器
-             140ms 后收起整个下拉栏，于是「删一条记录」实际等于「关掉整个下拉栏」。 */
-          <button type="button" data-remove-history={entry.value} aria-label={`删除历史 ${entry.value}`}
+          /* preventDefault on press so the delete key does not steal focus from the input: stealing triggers `#q`'s blur, whose handler
+             collapses the whole dropdown 140ms later, so "delete one history entry" effectively equals "close the whole dropdown". */
+          <button type="button" data-remove-history={entry.value} aria-label={`Delete history ${entry.value}`}
             onMouseDown={keep} onClick={(event) => { event.stopPropagation(); void onRemove(entry.value) }}>
             <Sprite name="x" />
           </button>
@@ -428,8 +430,8 @@ function Row({ entry, active, helpers, onPick, onPeek, onRemove }: {
   const { item, kind } = entry;
   const opens = SUGGEST_PROFILE_KINDS.has(kind) ? kind : undefined;
   if (['asset', 'jav', 'post', 'photo', 'release'].includes(kind)) {
-    /* 作品点开是详情，不是一个搜索词：整句标题填回搜索框，下一次搜索会因为其中任何一个字符对不上
-       而落空。 */
+    /* Opening a video is a detail, not a search term: the whole title goes back into the search box, and the next search falls through because any single
+       character fails to match. */
     const byline = [item.who, item.code ? item.title : ''].filter(Boolean).join(' · ');
     return (
       <button type="button" data-search-option="work" data-open-item={kind === 'asset' ? item.id : undefined} {...shared} onMouseDown={keep}>
@@ -440,20 +442,20 @@ function Row({ entry, active, helpers, onPick, onPeek, onRemove }: {
   }
   const matched = item.matched ? <span data-search-matched="">{item.matched}</span> : null;
   if (kind === 'performer' || kind === 'creator' || kind === 'author') {
-    // 一行里摆得下几部近作就摆几部；窄下拉整排收起，数据照给。
+    // Fit as many recent videos as the row allows; in a narrow dropdown the whole row collapses and the data is still provided.
     const works = item.works ?? [];
-    const sub = item.subtitle || [`${(item.n ?? 0).toLocaleString()} 个视频`, item.agency].filter(Boolean).join(' · ');
+    const sub = item.subtitle || [`${(item.n ?? 0).toLocaleString()} videos`, item.agency].filter(Boolean).join(' · ');
     return (
       <div data-search-option="person" data-open-entity={opens} {...shared} onMouseDown={keep}>
         <Face item={item} kind={kind} />
-        <button type="button" data-search-person="" data-search-meta="" aria-label={`查看 ${entityDisplayName(kind, item.value)}`}>
+        <button type="button" data-search-person="" data-search-meta="" aria-label={`View ${entityDisplayName(kind, item.value)}`}>
           <span data-search-name=""><span>{entityDisplayName(kind, item.value)}</span>{matched}</span>
           <span data-search-sub="">{sub}</span>
         </button>
         {works.length ? (
           <span data-search-peeks="">
             {works.map((card) => (
-              <button key={card.id} type="button" data-open-work={card.id} aria-label={`打开 ${card.code || item.value}`}
+              <button key={card.id} type="button" data-open-work={card.id} aria-label={`Open ${card.code || item.value}`}
                 onMouseDown={keep} onClick={(event) => { event.stopPropagation(); onPeek(card) }}>
                 <Cover card={card} helpers={helpers} />
               </button>
@@ -473,13 +475,13 @@ function Row({ entry, active, helpers, onPick, onPeek, onRemove }: {
   );
 }
 
-/** 小图和卡片同一套取景：卡片那一格（`.pic`）连同里面那张图都归遗留层，这里只定它有多宽。 */
+/** Small images and cards share one framing setup: the card cell (`.pic`) and the image inside it both belong to the legacy layer; this only decides its width. */
 function Cover({ card, helpers }: { card: SuggestCard | null | undefined; helpers: SearchProps['helpers'] }) {
   return <span data-search-pic="" dangerouslySetInnerHTML={{ __html: helpers.coverHtml(card) }} />;
 }
 
-/** 门面一律圆片，走索引页同一条兜底链：人是实体图 → 代表作头像，厂牌是标识，事务所是官网
- *  站点圆标；都取不到就是首字母。一屏几十个，取派生件。 */
+/** Facades are always round chips, following the index page's same fallback chain: people use entity image → representative video avatar; labels use the logo; agencies use the
+ *  official site's round favicon; failing all that, the initial letter. Dozens per screen, so use derived assets. */
 function Face({ item, kind }: { item: SuggestItem; kind: string }) {
   if (item.avatarHtml) return <span data-search-face="" dangerouslySetInnerHTML={{ __html: item.avatarHtml }} />;
   const ref = { id: item.entity_id as number | null | undefined, has_image: item.has_image as boolean | undefined,

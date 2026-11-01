@@ -9,7 +9,7 @@ import type { BlockSlot } from './blockTemplates';
 // the existing cards least. Do not hand-edit - regenerate if the templates or gears change.
 
 export const BLOCK_REFLOWS: BlockSlot[][][] = [
-    // 变体 0 的 12 张让位表，下标 = 被展开的槽位
+    // Variant 0 的 12 images让位表，下标 = 被展开的槽位
     [
         // 展开槽位 0
         [
@@ -192,7 +192,7 @@ export const BLOCK_REFLOWS: BlockSlot[][][] = [
             { x: 6, y: 2, cols: 6, rows: 6 },
         ],
     ],
-    // 变体 1 的 12 张让位表，下标 = 被展开的槽位
+    // Variant 1 的 12 images让位表，下标 = 被展开的槽位
     [
         // 展开槽位 0
         [
@@ -375,7 +375,7 @@ export const BLOCK_REFLOWS: BlockSlot[][][] = [
             { x: 6, y: 2, cols: 6, rows: 6 },
         ],
     ],
-    // 变体 2 的 12 张让位表，下标 = 被展开的槽位
+    // Variant 2 的 12 images让位表，下标 = 被展开的槽位
     [
         // 展开槽位 0
         [
@@ -558,7 +558,7 @@ export const BLOCK_REFLOWS: BlockSlot[][][] = [
             { x: 6, y: 2, cols: 6, rows: 6 },
         ],
     ],
-    // 变体 3 的 12 张让位表，下标 = 被展开的槽位
+    // Variant 3 的 12 images让位表，下标 = 被展开的槽位
     [
         // 展开槽位 0
         [

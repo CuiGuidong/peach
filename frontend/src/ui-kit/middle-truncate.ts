@@ -1,9 +1,9 @@
-/* Geist MiddleTruncate 的 Peach 原生适配层。
-
-   只复用已验证的行为：按容器宽度保留首尾、使用单个省略号、宽度变化后重算、复制与无障碍名称
-   仍提供完整原文。调用方只需给文件名、路径、URL 或 ID 加 data-middle-truncate；标题和说明继续
-   使用末尾省略。随 `peach-app.js` 发出，由 Application 启动与清理全文档的唯一观察者，
-   原生宿主与 React 子树写的属性都归它管。 */
+/* Peach's native adapter over Geist MiddleTruncate.
+ *
+ * Only verified behavior is reused: keep head and tail by container width, use a single ellipsis, recompute on width change,
+ * and still provide the full original for copy and accessible name. Callers only add data-middle-truncate to a file name,
+ * path, URL or ID; titles and descriptions keep tail ellipsis. Shipped with `peach-app.js`, with Application's startup and
+ * the document-wide single observer; attributes written by native hosts and the React subtree are all its business. */
 
 interface TruncateState { full: string; rendered: string; raf: number }
 
@@ -21,8 +21,8 @@ const graphemes=(value:unknown)=>segmenter
   ? [...segmenter.segment(String(value??''))].map(part=>part.segment)
   : Array.from(String(value??''));
 
-/* 纯算法边界单独导出，Node 可直接实测，不需要伪造 DOM。fits(candidate) 由浏览器
-   测量层注入；二分寻找能放下的最长首尾组合，奇数位优先保留开头。 */
+/* The pure algorithm boundary is exported separately so Node can test it directly without faking a DOM. fits(candidate) is injected by the
+   browser measurement layer; the binary search finds the longest head-plus-tail combination that fits, and odd positions prefer keeping the head. */
 function middleTruncateText(value:unknown,fits:(candidate:string)=>boolean):string{
   const parts=graphemes(value);
   if(!parts.length||fits(value as string))return String(value??'');
@@ -41,8 +41,8 @@ const measuredWidth=Object.assign((element:Element,value:string)=>{
   const canvas=measuredWidth.canvas||(measuredWidth.canvas=document.createElement('canvas'));
   const context=canvas.getContext('2d');
   if(!context)return Number.POSITIVE_INFINITY;
-  /* Chromium 会在 font-variant-numeric 等长数字开启时把计算后的 font 简写返回为空串；
-     直接赋值会让 Canvas 静默退回 10px sans-serif，进而低估中文文件名宽度。 */
+  /* Chromium returns the computed font shorthand as an empty string when font-variant-numeric's tabular figures are on;
+     assigning it directly would make Canvas silently fall back to 10px sans-serif, underestimating CJK filename widths. */
   context.font=style.font||`${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
   let width=context.measureText(value).width;
   const letterSpacing=parseFloat(style.letterSpacing);
@@ -52,10 +52,11 @@ const measuredWidth=Object.assign((element:Element,value:string)=>{
   return width;
 },{canvas:null as HTMLCanvasElement|null});
 
-/* 可用宽度默认取元素自己的盒子。带 data-middle-truncate-within 的元素按内容收缩（后面紧跟着
-   别的东西，比如文件名后面的「最大」标记），自己的盒子就是当前文字的宽度——拿它当上限，
-   clientWidth 取整少掉的那不到一像素每一轮都让全文「放不下」，越截越短。这类元素改按父级
-   量：父级的内容宽减去所有兄弟和列间距，剩下的才是文字能占的。 */
+/* Available width defaults to the element's own box. Elements with data-middle-truncate-within shrink to fit content (with
+   something else right behind, like the "max" tag after a file name), so their own box is the current text's width; using it
+   as the ceiling, the sub-pixel rounding loss in clientWidth would declare "does not fit" every round, truncating shorter
+   each time. Such elements measure by the parent instead: the parent's content width minus all siblings and column gaps is
+   what the text can take. */
 const availableWidth=(element:HTMLElement)=>{
   if(element.dataset.middleTruncateWithin===undefined)return element.clientWidth;
   const box=element.parentElement;if(!box)return element.clientWidth;
@@ -98,7 +99,7 @@ const bind=(element:Element)=>{
   if(!observed.has(element)){
     observed.add(element);
     tracked.add(element);
-    /* 按父级量的元素跟着父级的尺寸重算：它自己的盒子只会随文字变，不会随窗口变。 */
+    /* Elements measured against their parent recompute with the parent's size: their own box changes only with the text, never with the window. */
     if(element.dataset.middleTruncateWithin!==undefined&&element.parentElement)resizeObserver?.observe(element.parentElement);
     else resizeObserver?.observe(element);
   }

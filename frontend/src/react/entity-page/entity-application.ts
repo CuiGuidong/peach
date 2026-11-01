@@ -14,7 +14,7 @@ export interface EntityApplicationPorts {
   sortPreference(): { sort: string; dir: string };
 }
 
-/** 资料页地址、动作、等待与照片墙共享一个生命周期；打开意图只消费一次。 */
+/** 资料页地址、动作、等待与照片墙共享一个生命周期；Open意图只消费一次. */
 export function createEntityApplication(ports: EntityApplicationPorts) {
   const entry = createEntityEntryState();
   const helpers: EntityPageHelpers = { ...ports.helpers, portraitImg: entityPortraitImg };

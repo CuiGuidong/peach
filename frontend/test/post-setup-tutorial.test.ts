@@ -1,5 +1,5 @@
-/* 安装教程的状态层。卡片还画在遗留层，但「做到哪了」是这个模块说了算，
- * 所以跳过、折叠、跨页常驻和「签名没变就不重绘」这四条按行为验，不读 app.js 的源码。 */
+/* The setup guide's state layer. The card still renders in the legacy layer, but "how far along" is this module's call,
+ *  so the four behaviors (skip, collapse, persist across pages, and no redraw while the signature is unchanged) are verified by behavior, not by reading app.js source. */
 import { beforeEach, describe, expect, it } from 'vitest';
 
 import {
@@ -20,20 +20,20 @@ import {
 } from '../src/onboarding/post-setup-tutorial';
 
 const task = (key: string, done = false) =>
-  ({ key, done, label: `做 ${key}`, description: '还没开始。', href: `/${key}` });
+  ({ key, done, label: `Do ${key}`, description: 'Not started yet.', href: `/${key}` });
 
 beforeEach(() => {
   localStorage.clear();
 });
 
-describe('安装教程的状态', () => {
-  it('没写过任何键时是干净的未开始状态', () => {
+describe('Setup guide state', () => {
+  it('With no keys ever written it is a clean not-started state', () => {
     expect(postSetupTutorialMarker()).toBe('');
     expect(postSetupTutorialCollapsed()).toBe(false);
     expect([...postSetupTutorialSkipped()]).toEqual([]);
   });
 
-  it('跳过的项目逐条累积，撤销只去掉那一条', () => {
+  it('Skipped items accumulate one by one, and undo removes only that one', () => {
     const skipped = postSetupTutorialSkipped();
     skipped.add('history');
     skipped.add('follow');
@@ -45,14 +45,14 @@ describe('安装教程的状态', () => {
     expect([...postSetupTutorialSkipped()]).toEqual(['follow']);
   });
 
-  it('跳过清单坏掉时当成没跳过，不让教程整块打不开', () => {
-    localStorage.setItem(POST_SETUP_TUTORIAL_SKIPPED_KEY, '{不是数组');
+  it('A broken skip list is treated as nothing skipped, so the tutorial never fails as a whole', () => {
+    localStorage.setItem(POST_SETUP_TUTORIAL_SKIPPED_KEY, '{not an array');
     expect([...postSetupTutorialSkipped()]).toEqual([]);
     localStorage.setItem(POST_SETUP_TUTORIAL_SKIPPED_KEY, '{"history":true}');
     expect([...postSetupTutorialSkipped()]).toEqual([]);
   });
 
-  it('折叠状态写进本地，换一页读到的还是它', () => {
+  it('Collapse state persists locally, and the next page reads the same value', () => {
     setPostSetupTutorialCollapsed(true);
     expect(localStorage.getItem(POST_SETUP_TUTORIAL_COLLAPSED_KEY)).toBe('1');
     expect(postSetupTutorialCollapsed()).toBe(true);
@@ -60,7 +60,7 @@ describe('安装教程的状态', () => {
     expect(postSetupTutorialCollapsed()).toBe(false);
   });
 
-  it('未完成标记不看当前是哪一页，跨页一直成立', () => {
+  it('The unfinished mark ignores the current page and holds across pages', () => {
     setPostSetupTutorialMarker('pending');
     expect(localStorage.getItem(POST_SETUP_TUTORIAL_KEY)).toBe('pending');
     for (const path of ['/', '/taste', '/subscriptions', '/review']) {
@@ -71,25 +71,25 @@ describe('安装教程的状态', () => {
     expect(postSetupTutorialMarker()).toBe('complete');
   });
 
-  it('清单内容没变时签名一致，任何一处变了签名就变', () => {
+  it('The signature matches while the list content is unchanged; any single change alters the signature', () => {
     const tasks = [task('library', true), task('history')];
     expect(postSetupTutorialSignature(tasks)).toBe(postSetupTutorialSignature([...tasks]));
     expect(postSetupTutorialSignature([task('library', true), task('history', true)]))
       .not.toBe(postSetupTutorialSignature(tasks));
     expect(postSetupTutorialSignature([task('library', true)]))
       .not.toBe(postSetupTutorialSignature(tasks));
-    const renamed = [task('library', true), { ...task('history'), description: '已导入 3 份。' }];
+    const renamed = [task('library', true), { ...task('history'), description: 'Imported 3.' }];
     expect(postSetupTutorialSignature(renamed)).not.toBe(postSetupTutorialSignature(tasks));
   });
 
-  it('只有最后发出的那一次取数算数', () => {
+  it('Only the last-issued fetch counts', () => {
     const first = nextPostSetupTutorialRequest();
     const second = nextPostSetupTutorialRequest();
     expect(isCurrentPostSetupTutorialRequest(first)).toBe(false);
     expect(isCurrentPostSetupTutorialRequest(second)).toBe(true);
   });
 
-  it('重新打开清掉跳过与折叠，标记回到未完成', () => {
+  it('Reopening clears skips and folds, returning the mark to unfinished', () => {
     setPostSetupTutorialMarker('complete');
     setPostSetupTutorialCollapsed(true);
     setPostSetupTutorialSkipped(new Set(['history']));
@@ -100,9 +100,9 @@ describe('安装教程的状态', () => {
   });
 });
 
-it('取不到清单时关闭在左、立即重试在右', () => {
+it('When the list cannot load, close sits left and retry-now right', () => {
   const host = document.createElement('div');
   host.innerHTML = postSetupTutorialErrorHtml('');
   expect([...host.querySelectorAll('.post-setup-error-actions button')].map((button) => button.textContent))
-    .toEqual(['关闭', '立即重试']);
+    .toEqual(['Off', 'Retry now']);
 });

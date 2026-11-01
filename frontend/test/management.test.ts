@@ -1,24 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import { cleanupSkeletonHtml, REPAIR_CARD_TEXT, SCAN_CARD_TEXT } from '../src/management';
 
-describe('数据管理首屏', () => {
+describe('Data management first screen', () => {
   const skeleton = () => {
     const root = document.createElement('div');
     root.innerHTML = cleanupSkeletonHtml();
     return root;
   };
-  it('读数卡复用最终排版，名字与图标立即呈现，只有读数画占位', () => {
+  it('Stat cards reuse the final layout with name and icon immediate, and only the count paints a placeholder', () => {
     const stats = skeleton().querySelectorAll('[inert] > div:first-child > div');
     expect([...stats].map(card => card.querySelector('i use')?.getAttribute('href')))
       .toEqual(['#i-square-check-big', '#i-sparkles', '#i-file-stack', '#i-file-archive', '#i-trash']);
     expect([...stats].map(card => card.firstElementChild?.textContent))
-      .toEqual(['人工复核', '高清版', '重复文件', '垃圾文件', '回收站']);
+      .toEqual(['Manual review', 'HD version', 'Duplicates', 'Junk files', 'Trash']);
     for (const card of stats) {
       expect(card.querySelector('strong > .skeleton-text')).not.toBeNull();
       expect(card.lastElementChild?.querySelector('.skeleton-text')).not.toBeNull();
     }
   });
-  it('任务卡按最终顺序排好：扫描与采集、媒体修复两张岛卡，再是整理', () => {
+  it('Task cards are ordered by the final sequence: the scan-and-fetch and media repair island cards, then organize', () => {
     const grid = skeleton().querySelector('[inert] > div:nth-child(2)')!;
     expect([...grid.children].map(card => card.id))
       .toEqual(['libraryProcessing', 'mediaRepair', 'organize']);
@@ -31,7 +31,7 @@ describe('数据管理首屏', () => {
     expect(scan.querySelector('footer > a')?.getAttribute('href')).toBe('/sources');
     expect(grid.querySelector('#mediaRepair p')?.textContent).toBe(REPAIR_CARD_TEXT);
   });
-  it('等数据才能执行的键保持最终变体与尺寸，用原生 disabled 挡住并标成骨架操作键', () => {
+  it('Buttons that need data before running keep their final variant and size, are blocked with native disabled, and are marked as skeleton action buttons', () => {
     const root = skeleton();
     const split = root.querySelector('#libraryProcessing [data-split-button]')!;
     expect(split.getAttribute('data-variant')).toBe('primary');
@@ -40,7 +40,7 @@ describe('数据管理首屏', () => {
     expect(split.querySelector('button:first-child svg')).toBeNull();
     expect(split.querySelector('button:last-child use')?.getAttribute('href')).toBe('#i-chevron-down');
     const repair = root.querySelector('#mediaRepair footer > button')!;
-    expect(repair.textContent).toBe('开始修复');
+    expect(repair.textContent).toBe('Start repair');
     expect(repair.classList.contains('bg-button-primary')).toBe(true);
     expect(repair.hasAttribute('data-skeleton-action')).toBe(true);
     const actions = root.querySelectorAll('button:not([aria-haspopup="listbox"])');
@@ -49,11 +49,11 @@ describe('数据管理首屏', () => {
       expect(button.hasAttribute('data-skeleton-action')).toBe(true);
     }
   });
-  it('链接管理标题与读数立即呈现，条件面板等待真实状态', () => {
+  it('Link management title and count render immediately while the conditions panel waits for real state', () => {
     const root = skeleton();
-    expect(root.querySelector('#link-manager h3')?.textContent).toBe('链接管理');
+    expect(root.querySelector('#link-manager h3')?.textContent).toBe('Link management');
     expect([...root.querySelectorAll('.link-stat-grid > div > span')].map(term => term.textContent))
-      .toEqual(['链接总数', '官网/事务所', '社交账号', '作品资料站']);
+      .toEqual(['Total links', 'Official site/agency', 'Social accounts', 'Video profile sites']);
     expect(root.querySelector('#resource-sync')).toBeNull();
   });
 });

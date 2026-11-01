@@ -1,25 +1,34 @@
-/* 关注页与播放列表页的路由元素（ADR-0031）：页面组匹配到 `BROWSE_ROUTES` 的这两条时挂上，按地址打开那一页，
- * 画进 `#stats`。元素自己什么都不画：页面经 `openManagedRoute` 登记进 `#stats`，由 `ManagedSurface` 画。
+/* The follows and playlists route elements (ADR-0031): mount when the page group matches these two `BROWSE_ROUTES` entries,
+ * open that page by address, and render into `#stats`. The elements render nothing themselves: pages register into `#stats`
+ * via `openManagedRoute` and are rendered by `ManagedSurface`.
  *
- * 什么时候打开同索引页（`usePageOpen`）：挂上、领了页面打开序号（后退前进与不认领的跳转）、壳要求按当前地址重开
- * （`@peach/shell` 的 `pageOpens` 加一）各一次；`pageOpens` 还是 0 时壳没开始路由，元素只挂着；那一刻被详情压着
- * （页面组按背景匹配）就不动，关掉详情时这一页没画着才打开。
+ * When they open, same as the index page (`usePageOpen`): once each on mount, on taking a page-open epoch (back/forward and
+ * unclaimed jumps), and on the shell asking for a reopen at the current address (`pageOpens` +1 in `@peach/shell`); while
+ * `pageOpens` is still 0 the shell has not started routing and the element only mounts; if details are stacked on it at that
+ * moment (the page group matches on background) nothing happens, and when details close, the page opens only if it is not
+ * already rendered.
  *
- * 关注页不按代次挂 key，「回到」与「重新进入」都是同一个元素再开一次，交壳按地址读一遍筛选（`refresh`）：
- * - 关注页还画在 `#stats` 里（资料页压过来时壳只藏起它）就铺开它，就地推筛选、取样种子与一个新的刷新代次：列表
- *   重取、回到顶上，页头、两排与那块玻璃不撤。
- * - 没画着才整页打开：铺骨架、取齐首屏后照离开时记下的位置滚回去（`followScrollY`），没记就回到顶上。刷新代次
- *   没变时首屏命中缓存，列表不重取。
- * 重新进入（已在关注页再点侧栏、检查更新之后去看）由壳决定：重掷取样种子、滚动清零、回到干净的 `/follow`，再
- * 要求重开。关掉关注详情回列表由壳认领写地址、只推筛选，元素不动。深链直接进关注详情时页面组没有背景，不挂这个
- * 元素，列表等关掉详情才打开。后退前进落到压在列表上的关注详情、列表却没画着（中间去过别的页）时，交壳让出
- * `#stats`（`ShellActions.follow.ground`），不画列表。
+ * The follows page does not key by generation: "going back" and "re-entering" both open the same element again and hand the
+ * shell the address to re-read the filters (`refresh`):
+ * - If the follows page is still rendered in `#stats` (the shell only hides it when the profile page stacks over) it spreads it
+ *   open, pushing filters, the sample seed and a new refresh generation in place: the list refetches and scrolls back to the
+ *   top, while the header, both tiers and the glass pane stay.
+ * - Only when not rendered does it open the whole page: lay the skeleton, fetch the first screen, then scroll back to the
+ *   position recorded when leaving (`followScrollY`), or the top if none was recorded. With the refresh generation unchanged,
+ *   the first screen hits cache and the list does not refetch.
+ * Re-entering (already on the follows page, clicking the sidebar again, or after checking updates) is decided by the shell:
+ * reroll the sample seed, reset scroll, return to a clean `/follow`, then ask for a reopen. Closing a follow detail back to the
+ * list has the shell claim the address write and only push filters; the element does nothing. Deep links straight into a follow
+ * detail leave the page group without a background, so this element does not mount and the list waits until details close.
+ * When back/forward lands on a follow detail stacked over the list while the list is not rendered (other pages were visited in
+ * between), hand the shell the yielding of `#stats` (`ShellActions.follow.ground`) and do not render the list.
  *
- * 播放列表页每次打开都整页重开、取最新的那一份。停在这一页时壳要求重读（顶栏「换一批」）就写一个新的刷新代次
- * （`playlistsRevision`），元素推给画着的那一页，页面重取、不重挂。
+ * The playlists page reopens fully on every open and fetches the newest copy. While on the page, when the shell asks for a
+ * reread (the top bar's "Shuffle"), write a new refresh generation (`playlistsRevision`) that the element pushes to the
+ * rendered page; the page refetches without remounting.
  *
- * 两个元素卸下时都不收页面：换到管理区、索引页时由它们认领表面收掉；资料页压过来时壳只藏起 `#stats`，回来还要
- * 接着用。 */
+ * Neither element tears its page down on unmount: switching to management or the index page lets those claim the surface and
+ * tear it down; when the profile page stacks over, the shell only hides `#stats` and it is still needed on return. */
 import { useContext, useEffect, useRef, useSyncExternalStore } from 'react';
 
 import { managedEntry, openManagedRoute, peachHistory, updateManagedRoute } from '@peach/history';
@@ -34,8 +43,8 @@ import { usePageOpen } from './index-entity';
 const statsHost = () => document.getElementById('stats');
 const readPlaylistsRevision = () => playlistsRevision;
 
-/* 取齐首屏时骨架不一次清空：骨架抬成一层淡出，新宿主同时从模糊里清晰起来，同目录网格。宿主放进去之后页面
-   当场画进去，仍在同一个任务里，骨架与整页之间没有空帧。 */
+/* When the first screen is ready, the skeleton is not cleared at once: it lifts into a layer and fades while the new hosts come into focus from blur, same as the catalog grid. Once a host is in place the page
+   paints into it immediately, still within the same task, so no empty frame sits between skeleton and full page. */
 function reveal(container: Element): HTMLElement {
   const host = document.createElement('div');
   host.className = 'peach-react';
@@ -43,7 +52,7 @@ function reveal(container: Element): HTMLElement {
   return host;
 }
 
-/* ── 关注 ── */
+/* ── Follows ── */
 
 async function openFollow(actions: ShellActions, live: () => boolean) {
   const stats = statsHost();
@@ -57,14 +66,14 @@ async function openFollow(actions: ShellActions, live: () => boolean) {
   if (live()) window.scrollTo(restoreY ? { top: restoreY, behavior: 'instant' } : { top: 0, behavior: 'smooth' });
 }
 
-/* `#stats` 里画着、露着的是关注页。 */
+/* What is drawn and shown inside `#stats` is the follows page. */
 function followShown(): boolean {
   const stats = statsHost();
   const entry = stats ? managedEntry(stats) : null;
   return !!stats && !stats.hidden && !!entry && entry.path === '/follow' && entry.host.isConnected;
 }
 
-/** 关注页的元素。 */
+/** The follows page elements. */
 export function FollowMatch() {
   const actions = useContext(ShellActionsContext);
   usePageOpen(useOpenEpoch(), (_fresh, live) => {
@@ -78,9 +87,9 @@ export function FollowMatch() {
   return null;
 }
 
-/* ── 播放列表 ── */
+/* ── Playlist ── */
 
-/* `#stats` 里画着的是播放列表页。 */
+/* What is drawn inside `#stats` is the playlist page. */
 function playlistsShown(stats: HTMLElement | null): stats is HTMLElement {
   const entry = stats ? managedEntry(stats) : null;
   return !!entry && entry.path === '/playlists' && entry.host.isConnected;
@@ -95,7 +104,7 @@ async function openPlaylists(actions: ShellActions, live: () => boolean) {
   if (live()) window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/** 播放列表页的元素。 */
+/** The playlist page elements. */
 export function PlaylistsMatch() {
   const actions = useContext(ShellActionsContext);
   const revision = useSyncExternalStore(subscribeShell, readPlaylistsRevision);

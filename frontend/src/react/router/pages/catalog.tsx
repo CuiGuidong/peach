@@ -1,23 +1,33 @@
-/* 目录的路由元素（ADR-0031「目录由路由树按匹配打开」）：页面组匹配到 `CATALOG_PATHS`（首页、三个筛选态、回收站与
- * 垃圾文件）时挂上，按地址重建目录筛选（`@peach/shell` 的 `state`），再交壳收舞台以外的事：搜索框、侧栏与顶栏、
- * 顶部三层和取数（`ShellActions.catalog`）。
+/* The catalog's route element (ADR-0031, "the catalog is opened by the route tree on match"): mounts when the page group matches
+ * `CATALOG_PATHS` (home, the three filter states, trash and junk files), rebuilds the catalog filters from the address
+ * (`state` in `@peach/shell`), and hands the rest to the shell: search box, sidebar and top bar, the three top tiers, and
+ * fetching (`ShellActions.catalog`).
  *
- * 元素按页面挂 key：首页、三个筛选态与回收站画的是同一张网格，共用一个元素；垃圾文件是另一页。没有背景的作品与
- * 队列地址（深链、刷新）也挂这个元素。换筛选、后退前进与壳要求重开都不重挂，元素在每一轮变化之后的微任务里按下面的
- * 次序判断做哪一件：
- * - 详情压在上面：条目记了背景（页面组按背景匹配）就什么都不做，下面那一页一直画着；没有背景时补画一次目录网格
- *   （`ShellActions.catalog.fill`），详情下面不留一张永远在读的骨架。
- * - 壳要求按当前地址从头重开（`pageOpens` 加一：启动、深链详情关掉补画来处、从管理条进回收站）：整页打开。
- * - 领了新的页面打开序号（后退前进、不认领的跳转）：整页打开；后退前进从别处回到首页时作废顶部三层的缓存、重掷取样种子，
- *   在目录里换来换去沿用这一粒。地址上写了 `seed` 就用它。
- * - 壳认领写了地址（换筛选、换排序、换一批、回首页）：筛选已经由壳写进 `state`，只重取；关掉详情回到压着的那一份
- *   地址、筛选也没变时不重取。这一页要是还没开过（后退落到压在别处之上的详情，挂上时就被盖着），整页打开。
- * `pageOpens` 还是 0 时壳没开始路由，元素只挂着。挂上那一刻按那一次历史变化认没认领分别算作后两种；路由根晚于
- * 壳开始路由才装上时，挂上那一刻算第一种。
+ * Elements are keyed per page: home, the three filter states and trash render the same grid and share one element; junk files
+ * are a separate page. Video and queue addresses without a background (deep links, refresh) also mount this element. Changing
+ * filters, back/forward, and reopen requests from the shell do not remount; in the microtask after each change the element
+ * decides what to do, in this order:
+ * - Details stacked on top: if the entry recorded a background (the page group matches on background) do nothing, the page
+ *   underneath keeps rendering; without a background, backfill the catalog grid once (`ShellActions.catalog.fill`) so no
+ *   forever-loading skeleton stays under the details.
+ * - The shell asks for a full reopen at the current address (`pageOpens` +1: startup, closing a deep-linked details backfills
+ *   its origin, entering trash from the manage bar): open the whole page.
+ * - A new page-open epoch was taken (back/forward, unclaimed jumps): open the whole page; when back/forward returns to home
+ *   from elsewhere, invalidate the top-three-tier cache and reroll the sample seed. Moving around inside the catalog reuses
+ *   the same seed. If the address carries a `seed`, use it.
+ * - The shell claimed the address write (filter change, sort change, new batch, back to home): filters are already written into
+ *   `state` by the shell, so only refetch; when closing details returns to the address it was stacked on and filters did not
+ *   change, do not refetch. If this page was never opened (back/forward landed on details stacked over something else, mounted
+ *   already covered), open the whole page.
+ * While `pageOpens` is still 0 the shell has not started routing and the element only mounts. At mount time, whether that
+ * history change was claimed decides between the latter two cases; if the router root installed after the shell started
+ * routing, mount time counts as the first case.
  *
- * `?state=ads` 落在首页上时不打开，改写成垃圾文件的地址（不加条目），由垃圾文件那一页的元素接着打开。卸载时去处
- * 不是目录、详情、沉浸或资料页，就收起 `#grid` 与首页新作行：这些页面离开目录也留着它们。判断、改写与收起
- * 都排进微任务：路由根在历史变化的同一次调用里同步提交，壳订阅历史早于路由根，它写标题与侧栏的那一轮排在前面。 */
+ * `?state=ads` landing on home does not open; the address is rewritten to the junk-files address (no entry added) and the junk
+ * files page's element opens it. On unmount, if the destination is not the catalog, details, immersive or the profile page,
+ * `#grid` and the home new-releases row are torn down: those pages keep them when leaving the catalog. Deciding, rewriting and
+ * teardown all queue into microtasks: the router root commits synchronously in the same call as the history change, and the
+ * shell subscribes to history before the router root, so its title and sidebar round runs first. */
 import { useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router';
@@ -37,8 +47,8 @@ import { CatalogFolders } from '../../catalog-folders/catalog-folders-page';
 
 const readOpens = () => pageOpens;
 
-/* 每一次历史变化认没认领、变化之前在哪一条路径上。模块一装载就听，排在路由根之前：路由根同步提交那一次读到的
-   已经是这一次。`initialSeq` 是装载那一刻的序号，挂上时序号还是它，说明路由根是装上那一下挂的这一页。 */
+/* Whether each history change was claimed, and which path it was on before the change. Listening starts at module load, ahead of the route root: what the route root's synchronous commit reads
+   is already this change. `initialSeq` is the sequence number at load; if the mounted sequence number still equals it, the route root mounted this very page on attach. */
 const initialSeq = peachHistory.navigation.seq;
 let epoch = peachHistory.navigation.openEpoch;
 let here = peachHistory.navigation.location.pathname;
@@ -49,11 +59,11 @@ peachHistory.listen((navigation) => {
   here = navigation.location.pathname;
 });
 
-/* 首页上的 `?state=ads` 改写成垃圾文件地址那一下：垃圾文件那一页的元素挂上时取走，整页打开。 */
+/* The moment the home page's `?state=ads` is rewritten into the junk files URL: taken away when the junk files page's element mounts, opening the full page. */
 let junkRedirect = false;
 
-/** 元素上一次处理到哪儿：序号、页面打开序号、重开次数，那一刻有没有详情压着、页面组画的是哪一份地址与哪一套筛选，
- *  这一页开过没有。 */
+/** Where the element last got to: its index, page-open sequence, reopen count, whether details was pressed over it at that moment, which address and which filter set the page group rendered,
+ *  and whether this page had been opened. */
 interface Seen {
   seq: number;
   epoch: number;
@@ -75,7 +85,7 @@ function seen(opened: boolean): Seen {
   };
 }
 
-/** 按地址重建的目录筛选，同壳启动时那一份的写法；回收站只钉死状态、清掉别的筛选。产地与缩略图不随地址重读。 */
+/** Catalog filters rebuilt from the URL, written the same way as the shell's startup copy; the trash pins the status only and clears the other filters. Origin and thumbnails are not refetched from the URL. */
 function filtersAt(pathname: string, search: string, entering: boolean, shell: CatalogShell): CatalogFilters {
   const previous: CatalogFilters = { ...state };
   if (pathname === '/trash') return { ...previous, creator: '', studio: '', tag: '', orient: '', state: 'trash', q: '' };
@@ -99,7 +109,7 @@ function filtersAt(pathname: string, search: string, entering: boolean, shell: C
   };
 }
 
-/** 判断这一轮做哪一件，做掉；`mark` 换成这一刻。 */
+/** Which one this judgment round performs, and it performs it; `mark` becomes this moment. */
 function settle(mark: Seen, actions: ShellActions): void {
   const was = { ...mark };
   const now = seen(was.opened);
@@ -134,7 +144,7 @@ function settle(mark: Seen, actions: ShellActions): void {
   shell.open(pathname, { entering, retitle });
 }
 
-/* 去处还画着目录的东西就不收：目录几页之间换页由壳接着画；详情与沉浸压在上面；资料页铺开时只藏起它们。 */
+/* While the destination still renders catalog content, do not tear it down: paging between catalog pages keeps being painted by the shell; details and immersive stack on top; when the profile page spreads out it only hides them. */
 function keepsCatalog(pathname: string): boolean {
   return isCatalogPath(pathname) || pathname === '/trash' || isOverlayPath(pathname) || pathname === '/immerse'
     || !!entityTarget(pathname);
@@ -151,7 +161,7 @@ function CatalogOpen() {
     const own = live.current;
     own.mounted = true;
     const now = seen(!isOverlayPath(peachHistory.navigation.location.pathname));
-    /* 挂上这一刻就记下：之后壳在同一轮里要求重开（`pageOpens` 加一），微任务里比得出来。 */
+    /* Record at mount time: if the shell then asks for a reopen in the same round (`pageOpens` incremented), a microtask comparison can tell the two apart. */
     if (!now.covered && now.opens > 0) {
       if (junkRedirect || last.seq === initialSeq) now.opens = -1;
       else if (!last.claimed) now.epoch = -1;
@@ -164,7 +174,7 @@ function CatalogOpen() {
         if (actions?.catalog && !keepsCatalog(peachHistory.navigation.location.pathname)) actions.catalog.release();
       });
     };
-    // 每次挂上只登记一次；之后的变化由下面那一格排进微任务。
+    // Registers once per mount; later changes are queued into a microtask by the cell below.
   }, []);
   useEffect(() => {
     const own = live.current;
@@ -178,8 +188,8 @@ function CatalogOpen() {
   return null;
 }
 
-/** 目录六条路径共用的元素：首页、三个筛选态与回收站一个 key，垃圾文件另一个；页面组按背景匹配时取背景那一页。
- *  覆盖地址的参数不是数字（`/assets/abc`）时什么都不挂：那不是一条详情，下面也不补画。 */
+/** The element shared by the catalog's six paths: home, three filtered states, and trash share one key; junk files gets another; when the page group matches by background it takes the background's page.
+ *  When the address-override parameter is not numeric (`/assets/abc`), nothing mounts: that is not a details entry, and nothing is painted beneath either. */
 export function CatalogMatch() {
   const { pathname, search } = useLocation();
   useLayoutEffect(() => {

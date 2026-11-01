@@ -1,4 +1,4 @@
-/* 来源视频预览复用 Peach 控件；播放状态只属于当前预览。 */
+/* 来源视频Preview复用 Peach 控件；Playback状态只属于当前Preview. */
 import { mountPlayerQualityControl, mountPlayerSeekPreview, mountPlayerSpinner } from './controls';
 import { disposePlayer } from './dispose';
 import type { PlayerSource, VjsPlayer } from './types';
