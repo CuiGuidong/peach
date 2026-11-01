@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "fa61ed10-6d9d-4b38-8804-83185e39cfc0", e._sentryDebugIdIdentifier = "sentry-dbid-fa61ed10-6d9d-4b38-8804-83185e39cfc0");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3e768ad7-aaae-4532-87a6-6232e645b362", e._sentryDebugIdIdentifier = "sentry-dbid-3e768ad7-aaae-4532-87a6-6232e645b362");
 	} catch {}
 })();
 import { CHART_CARD as e, CategoryTick as t, ChartEmpty as n, ChartHead as r, ChartTip as i, Dot as a, EvilBarChart as o, Layer as s, TIP_SURFACE as c, TIP_SWATCH as l, Text as u, TipRow as d, ZIndexLayer as f, adaptEventsOfChild as p, addAngleAxis as m, categoryAxisWidth as h, combineAxisTicks as g, combineCategoricalDomain as _, combineConfiguredScale as v, combineGraphicalItemTicks as y, createSelector as b, defaultPolarAngleAxisProps as x, degreeToRadian as S, getAxisTypeBasedOnLayout as ee, getClassNameFromUnknown as te, noop as ne, pickAxisType as C, polarToCartesian as w, rechartsScaleFactory as re, removeAngleAxis as ie, resolveDefaultProps as ae, roundTemplateLiteral as oe, selectAngleAxis as T, selectAngleAxisRangeWithReversed as se, selectChartLayout as E, selectDuplicateDomain as D, selectPolarAppliedValues as ce, selectPolarAxisCheckedDomain as le, selectPolarNiceTicks as ue, selectPolarViewBox as de, selectRadiusAxis as fe, selectRadiusAxisRangeWithReversed as pe, selectRealScaleType as me, selectRenderableAxisSettings as he, svgPropertiesAndEvents as O, svgPropertiesNoEvents as k, svgPropertiesNoEventsFromUnknown as ge, tone as _e, useAppDispatch as ve, useAppSelector as A, useIsPanorama as ye, usePolarChartLayout as be } from "./peach-app.chart-tip-CRxYp6KT.js";
@@ -546,8 +546,11 @@ var ot = /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [$e.map((e, t) => /
 	dominantBaseline: "middle",
 	className: "fill-text-secondary text-caption-1-regular",
 	children: t
-}, t))] });
-function st({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o }) {
+}, t))] }), st = () => {
+	let e = -(/* @__PURE__ */ new Date()).getTimezoneOffset(), t = e < 0 ? "-" : "+", n = Math.abs(e);
+	return `UTC${t}${String(Math.trunc(n / 60)).padStart(2, "0")}:${String(n % 60).padStart(2, "0")}`;
+};
+function ct({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o }) {
 	let s = tt(e), c = nt(e);
 	return c.cells.length ? /* @__PURE__ */ (0, J.jsxs)("div", {
 		className: "inline-grid w-full items-start gap-5 lg:grid-cols-2",
@@ -560,7 +563,7 @@ function st({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o 
 			columns: 24,
 			rows: 7,
 			axis: ot,
-			footer: /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [/* @__PURE__ */ (0, J.jsx)("span", { children: "Weekday × hour" }), /* @__PURE__ */ (0, J.jsx)("span", { children: e?.timezone || "UTC+07:00" })] })
+			footer: /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [/* @__PURE__ */ (0, J.jsx)("span", { children: "Weekday × hour" }), /* @__PURE__ */ (0, J.jsx)("span", { children: e?.timezone || st() })] })
 		}), /* @__PURE__ */ (0, J.jsx)($, {
 			title: r,
 			words: i,
@@ -577,7 +580,7 @@ function st({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o 
 	});
 }
 // src/react/components/expandable-ranking.tsx
-function ct({ children: e, className: t = "", previewCount: n = 10 }) {
+function lt({ children: e, className: t = "", previewCount: n = 10 }) {
 	let r = (0, M.useId)(), i = (0, M.useRef)(null), [a, o] = (0, M.useState)(!1), [s, c] = (0, M.useState)(!1), l = M.Children.toArray(e), u = l.length > n;
 	(0, M.useLayoutEffect)(() => {
 		let e = i.current;
@@ -622,6 +625,6 @@ function ct({ children: e, className: t = "", previewCount: n = 10 }) {
 		}) : null]
 	});
 }
-export { st as ActivityHeat, Y as BAR_DOMAIN, Qe as BarCard, ct as ExpandableRanking, q as PolarAngleAxis, I as Polygon, X as barLabel, z as selectPolarAxisScale, V as selectPolarAxisTicks, Pe as selectPolarGraphicalItemAxisTicks };
+export { ct as ActivityHeat, Y as BAR_DOMAIN, Qe as BarCard, lt as ExpandableRanking, q as PolarAngleAxis, I as Polygon, X as barLabel, z as selectPolarAxisScale, V as selectPolarAxisTicks, Pe as selectPolarGraphicalItemAxisTicks };
 
-//# debugId=fa61ed10-6d9d-4b38-8804-83185e39cfc0
+//# debugId=3e768ad7-aaae-4532-87a6-6232e645b362
