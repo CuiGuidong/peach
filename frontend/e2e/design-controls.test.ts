@@ -278,7 +278,7 @@ describe('Design decisions: controls, states, and the home top', () => {
     try {
       const banner = running.page.locator('#toasts [data-processing-dock][role="status"]');
       await banner.waitFor({ state: 'visible', timeout: 15_000 });
-      assert.match(await banner.innerText(), /采集缺失资料 · 38 \/ 100/);
+      assert.match(await banner.innerText(), /Collect missing details · 38 \/ 100/);
       // The circle length is pinned to 100, so the drawn arc is the percentage itself.
       assert.equal(await banner.locator('[role="progressbar"]').getAttribute('aria-valuenow'), '38');
       // The criterion is "not a tone color", not pinned to one specific fill: the running item uses a neutral fill, and yellow and red stay for when something goes wrong.

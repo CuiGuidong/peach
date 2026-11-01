@@ -448,7 +448,7 @@ describe('Scan and scrape controls', () => {
           const elapsed = document.querySelector('[data-processing-dock]')?.textContent?.match(/已等待 (\d+) 秒/);
           return elapsed && Number(elapsed[1]) >= 34;
         }, undefined, { timeout: 5000 });
-        assert.match(await dock.innerText(), /读取配套图片/);
+        assert.match(await dock.innerText(), /Read companion images/);
         assert.doesNotMatch(await dock.innerText(), /预计剩余/);
         const stalledLayout = await layout(page);
         assert.ok(stalledLayout.scrollWidth <= stalledLayout.viewportWidth, JSON.stringify(stalledLayout));

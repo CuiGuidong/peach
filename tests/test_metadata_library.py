@@ -921,7 +921,7 @@ class LibraryNfoTests(unittest.TestCase):
         database.after_commit = lambda: commits.append(alive['value'])
 
         def report(state):
-            if state.get('stage') == '保存待确认资料':
+            if state.get('stage') == 'Save details pending confirmation':
                 alive['value'] = False
 
         with self.assertRaises(InterruptedError):
@@ -1066,7 +1066,7 @@ class LibraryNfoTests(unittest.TestCase):
                                      report=lambda state: reports.append(dict(state)))
         self.assertEqual((result['checked'], result['total'], result['covers']), (2, 2, 1))
         self.assertEqual(result['issue_count'], 1)
-        self.assertEqual(result['issue_preview'][0]['message'], '读取配套图片超时，可稍后重试')
+        self.assertEqual(result['issue_preview'][0]['message'], 'Reading companion images timed out. Try again later.')
         self.assertEqual(len(result['retryable_asset_ids']), 1)
         reading = next(state for state in reports if state['current_action'] == 'reading_local_cover')
         self.assertAlmostEqual(reading['current_deadline_at'] - reading['current_started_at'], 20, places=2)
@@ -1937,7 +1937,7 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual((result['status'], result['issue_count'], result['checked']), ('complete', 0, 1))
         self.assertTrue((self.root / 'generated' / 'posters' / '1_4.jpg').is_file(), '本地海报照常登记')
         local = next(state for state in reports if state.get('current_action') == 'reading_local')
-        self.assertEqual(local['stage'], '检查配套文件')
+        self.assertEqual(local['stage'], 'Check companion files')
         self.assertEqual(local['eta_scope'], '整趟任务')
         prepared = next(state for state in reports if state.get('estimate_pending', {}).get('metadata') == 0)
         self.assertNotIn('local', prepared['estimate_pending'])
@@ -2951,17 +2951,17 @@ class LibraryWatchdogTests(unittest.TestCase):
         self.assertTrue(state['issues_truncated'])
 
     def test_finished_issues_and_interruption_have_distinct_outcomes(self):
-        finished = dict(status='failed', stage='处理结束', completed_at=123,
+        finished = dict(status='failed', stage='Processing complete', completed_at=123,
                         issue_count=14, retryable_asset_ids=[1, 2])
         self.assertEqual(decorate(finished)['outcome'], 'partial')
         self.assertNotIn('outcome', finished)
-        for state in ({**finished, 'stage': '生成预览图'},
+        for state in ({**finished, 'stage': 'Generate preview images'},
                       {**finished, 'outcome': 'interrupted'},
                       {**finished, 'completed_at': None}):
             self.assertEqual(decorate(state)['outcome'], 'interrupted')
         from peach.web_library_processing import public_state
         self.assertEqual(public_state(decorate(finished))['outcome'], 'partial')
-        legacy = dict(status='failed', stage='处理结束', completed_at=123,
+        legacy = dict(status='failed', stage='Processing complete', completed_at=123,
                       issues=[{'asset_id': 1, 'message': '视频抽帧超时'}])
         self.assertEqual(decorate(legacy)['outcome'], 'partial')
 
@@ -3199,7 +3199,7 @@ class LibraryWatchdogTests(unittest.TestCase):
             initial = w_library_processing(contract, {'stage': 'collect'})
             self.assertEqual(run.call_args.kwargs['stage'], 'collect')
             self.assertEqual(initial['requested_stage'], 'collect')
-            self.assertEqual(initial['stage'], '准备采集资料')
+            self.assertEqual(initial['stage'], 'Prepare to collect details')
             w_library_processing(contract, {})
             self.assertEqual(run.call_args.kwargs['stage'], 'all')
             w_library_processing(contract, {'incremental':True})

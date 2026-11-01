@@ -3932,7 +3932,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
             calls.append(kwargs['stage'])
             entered.set()
             checkpoint.wait(5)
-            kwargs['report']({'stage': '生成预览图'})
+            kwargs['report']({'stage': 'Generate preview images'})
             completed.set()
             return {'status': 'complete'}
         with patch('peach.settings_file.active', return_value=config), patch(
