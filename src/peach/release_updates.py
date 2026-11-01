@@ -27,7 +27,7 @@ def download_sources(url: str) -> tuple[str, ...]:
 
 def snapshot() -> dict:
     return {"current_version": __version__, "latest_version": None,
-            "channel": "测试版", "installation": "独立测试包" if distribution.standalone() else "源码运行",
+            "channel": "Beta", "installation": "Standalone beta package" if distribution.standalone() else "Source run",
             "state": "unchecked", "message": "尚未检查", "release_url": RELEASES_URL}
 
 
@@ -89,13 +89,13 @@ def check(*, transport=None) -> dict:
                 continue
         if not releases:
             return dict(result, state="empty" if obtained else "error",
-                        message="暂未找到可下载的测试版。" if obtained else "未能取得版本信息，请重试。")
+                        message="No downloadable beta found yet." if obtained else "Couldn't get version info. Please retry.")
         version, tag, asset, full, directory, release_url = max(releases, key=lambda item: item[0])
         current = _version(result["current_version"])
         if current is None:
             raise ValueError("current version required")
         state = "available" if version > current else "ahead" if version < current else "current"
-        message = {"available": "有新版本可下载。", "ahead": "当前版本高于已发布测试版。", "current": "已是最新测试版。"}[state]
+        message = {"available": "A new version is available.", "ahead": "The current version is newer than the released beta.", "current": "Already on the latest beta."}[state]
         return dict(result, latest_version=tag.removeprefix("v"), state=state, message=message,
                     asset_url=f"{directory}/{asset['name']}",
                     asset_size=asset.get("size", 0), asset_digest=asset.get("digest"),
@@ -105,7 +105,7 @@ def check(*, transport=None) -> dict:
                     full_digest=full.get("digest"),
                     release_url=release_url)
     except (OSError, ValueError, TypeError, TimeoutError, httpx.HTTPError):
-        return dict(result, state="error", message="未能取得版本信息，请重试。")
+        return dict(result, state="error", message="Couldn't get version info. Please retry.")
     finally:
         if transport is None:
             client.close()

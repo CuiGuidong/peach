@@ -3802,7 +3802,7 @@ class DuplicateDetectionTests(unittest.TestCase):
         cases = {
             "完整版": [{"id": 1, "name": "TRE-080.mp4", "duration": 28900}, *parts],
             "广告片": [{"id": 1, "name": "TRE-080.mp4", "duration": 78}, *parts],
-            "缺时长": [{"id": 1, "name": "TRE-080.mp4", "duration": None}, *parts],
+            "Missing duration": [{"id": 1, "name": "TRE-080.mp4", "duration": None}, *parts],
             "两个裸名": [{"id": 1, "name": "TRE-080.mp4", "duration": 9163},
                          {"id": 4, "name": "tre-080.mp4", "duration": 9163}, *parts],
             "标记不从 2 起": [{"id": 1, "name": "TRE-080.mp4", "duration": 9163}, parts[1]],
