@@ -119,6 +119,15 @@ const HOUR_AXIS = (
   </>
 );
 
+/** Fallback for rows computed before the server started labelling its timezone, or for a
+ *  response that carries no `activity`: the browser's own offset, in the same `UTC±HH:MM` shape. */
+const localOffsetLabel = () => {
+  const minutes = -new Date().getTimezoneOffset();
+  const sign = minutes < 0 ? '-' : '+';
+  const abs = Math.abs(minutes);
+  return `UTC${sign}${String(Math.trunc(abs / 60)).padStart(2, '0')}:${String(abs % 60).padStart(2, '0')}`;
+};
+
 /** Two heatmaps for one activity count: weekday × hour, and the last 91 days.
  *
  * With no usable records, leave a card carrying only the `empty` line. */
@@ -138,7 +147,7 @@ export function ActivityHeat(
     <div className="inline-grid w-full items-start gap-5 lg:grid-cols-2">
       <HeatCard title={title} words={words} tone={tone}
         cells={hours.cells} total={hours.total} columns={24} rows={7} axis={HOUR_AXIS}
-        footer={<><span>Weekday × hour</span><span>{activity?.timezone || 'UTC+08:00'}</span></>} />
+        footer={<><span>Weekday × hour</span><span>{activity?.timezone || localOffsetLabel()}</span></>} />
       <HeatCard title={dailyTitle} words={words} tone={tone}
         cells={days.cells} total={days.total} columns={13} rows={7}
         footer={<><span>{days.start}</span><span>{days.end}</span></>} />
