@@ -376,6 +376,9 @@ _INLINE_STUDIO_CODE = re.compile(
 #: 跟任何东西，`ABP-123-鈴村あいり` 这种把演员名写在后面的名字会被当成同一形状。
 _DMM_DELIVERY = re.compile(
     r"^\d{4}([A-Za-z]{2,8}\d{2,5})[-_](?:h264|h265|hhb|mhb|dmb|dm|hq|sd|hd|mhbw|dmbw)$", re.I)
+#: 种子/下载器前缀：`hhd800.com@HUNTB-396`、`qbit@ABW-358` 等，`@` 后面是番号。
+_TORRENT_SOURCE = re.compile(
+    r"^[^@]+@([A-Za-z]{2,8}[-_]\d{2,5})", re.I)
 #: HEYZO 官方文件名把站名写在最前面，番号散在中间：`heyzo_hd_1031_full`。中间那截是
 #: 画质档（`hd`／`lt`／`sd`），不是番号的一部分。站名必须出现——只按「下划线里夹一串
 #: 数字」认的话，创作者目录里的 `Banbi_20歳の…_1080` 同样满足。
@@ -943,6 +946,25 @@ def release_code_from_filename(name: str | None, *, patterns: Iterable[re.Patter
     if custom:
         return custom
     stem = _ASSET_EXTENSION.sub("", str(name or "").strip())
+    # 先试 domain@CODE 格式（如 4k2.com@sdjs-307-v），
+    # 必须在 @strip 之前，否则会把番号一起吃掉。
+    torrent = _TORRENT_SOURCE.match(stem)
+    if torrent:
+        return normalise_code_key(torrent.group(1))
+    # 去掉结尾的 @tag / [@tag]（字幕组、发布组标记）。
+    stem = re.sub(r"@\w[\w.-]*$", "", stem)
+    stem = re.sub(r"\[@[\w.-]+\]$", "", stem)
+    # 先试 JAV 番号提取，避免 western_release_identity 误杀
+    # 形如 FHDTH_SSPD-143、SubthNACS-001Mini 的番号。
+    early = release_code_from_text(stem)
+    if early and is_jav_code(early):
+        return early
+    # 番号嵌在中间（FHDTH_SSPD-143、SubthNACS-001Mini、107SENN-006）：
+    # 搜索所有 2-5 字母 + 连字符 + 1-5 数字，取第一个通过 is_jav_code 的。
+    for m in re.finditer(r"([A-Z]{2,5}-\d{1,5})", stem):
+        candidate = normalise_code_key(m.group(1))
+        if is_jav_code(candidate):
+            return candidate
     wrapper = _FORUM_URL_WRAPPER.fullmatch(stem)
     if wrapper:
         name = wrapper.group(1)
@@ -969,6 +991,9 @@ def release_code_from_filename(name: str | None, *, patterns: Iterable[re.Patter
     delivery = _DMM_DELIVERY.match(stem)
     if delivery:
         return normalise_code_key(delivery.group(1))
+    torrent = _TORRENT_SOURCE.match(stem)
+    if torrent:
+        return normalise_code_key(torrent.group(1))
     heyzo = _HEYZO_FILENAME.search(stem)
     if heyzo:
         return normalise_code_key(f"HEYZO-{heyzo.group(1)}")

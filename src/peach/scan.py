@@ -57,6 +57,9 @@ ARCHIVE = {".zip", ".rar", ".7z", ".tar", ".gz"}
 #: 每攒够这么多行落一次盘，并报一行进度。
 BATCH_SIZE = 2000
 
+#: 小于此大小的文件不登记（DASH 片段、缩略图、损坏文件等）。
+MIN_FILE_SIZE = 50 * 1024 * 1024
+
 #: Kodi／Jellyfin 的影片图片名（单写或挂在片名后面，如 `ABC-123-fanart.jpg`）。
 #: 只在同目录有视频时算附属：没有正片的目录里，`cover.jpg` 是图集自己的封面。
 ARTWORK = frozenset({
@@ -352,6 +355,10 @@ def ingest_path(
     try:
         stat = (directory / name).stat()
     except OSError:
+        return IngestResult(location, str(ledger_path), False)
+    if stat.st_size < MIN_FILE_SIZE:
+        return IngestResult(location, str(ledger_path), False)
+    if medium_of(name) in ("other", "archive"):
         return IngestResult(location, str(ledger_path), False)
     library_roots = tuple(chain.from_iterable(declared_roots.values()))
     if _sidecar_on_disk(name, directory, ledger_path=str(ledger_path), library_roots=library_roots):
@@ -705,6 +712,12 @@ def _scan_location(
                                            ledger_path, directory, entry, direct=read_directory is None)
                 except OSError as error:
                     onerror(error)
+                    continue
+                if stat.st_size < MIN_FILE_SIZE:
+                    continue
+                # 跳过非媒体文件（.iso、.pdf、.exe、.gguf、.dmt 等）
+                # 和压缩包（.zip、.rar）——只收录视频/音频/图片。
+                if medium_of(name) in ("other", "archive"):
                     continue
                 mtime = time.strftime("%Y-%m-%d", time.localtime(stat.st_mtime))
                 here[name] = (stat.st_size, mtime)
