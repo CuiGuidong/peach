@@ -8,7 +8,7 @@ export type NavigationItem<Key extends string = string> = readonly [key: Key, la
 
 export const SIDEBAR_ITEMS = [
   ['', 'Home', 'home'],
-  ['performers', 'Artists', 'user-round'],
+  ['performers', 'Performers', 'user-round'],
   ['studios', 'Labels', 'clapperboard'],
   ['tags', 'Tags', 'tags'],
   ['jav', 'JAV', 'jav'],

@@ -19,7 +19,7 @@ import './shortcuts.css';
 const Star = spriteGlyph('star');
 const Bookmark = spriteGlyph('bookmark-plus');
 const ChevronRight = spriteGlyph('chevron-right');
-const LABELS: Record<string, string> = { performer: 'Artists', creator: 'Creators', studio: 'Studios and labels', series: 'Series', agency: 'Agency', tag: 'Tags' };
+const LABELS: Record<string, string> = { performer: 'Performers', creator: 'Creators', studio: 'Studios and labels', series: 'Series', agency: 'Agency', tag: 'Tags' };
 const GLYPHS = { all: spriteGlyph('star'), performer: spriteGlyph('user-round'), creator: spriteGlyph('user-round'), studio: spriteGlyph('clapperboard'), series: spriteGlyph('film'), agency: spriteGlyph('briefcase'), tag: spriteGlyph('tags'), filters: spriteGlyph('list-filter') };
 const SCOPES = [['all', 'All'], ...Object.entries(LABELS), ['filters', 'Saved filters']];
 

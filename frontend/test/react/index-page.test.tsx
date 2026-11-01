@@ -152,7 +152,7 @@ describe('Roster', () => {
     const fetcher = serve(() => ({ items: [person('Animation authors', { entity_kind:'creator', identity_labels: ['Animation authors'] })], categories:{ animation:1 }, has_more: false }));
     const given = props();
     const host = await open(given);
-    expect(host.querySelector('[data-index-title]')?.textContent).toBe('Artists');
+    expect(host.querySelector('[data-index-title]')?.textContent).toBe('Performers');
     expect(cells(host)[0]?.textContent).toContain('Animation authors');
     expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('All animation authors');
     await click(buttonNamed('Animation authors', host));
@@ -187,7 +187,7 @@ describe('Roster', () => {
     seed(indexKey('performers', '', 'animation'), [person('Animation authors')], false, { animation:1 });
     const given = props({ kind: 'creators', category: 'animation' });
     const host = await open(given);
-    expect(host.querySelector('[data-index-title]')?.textContent).toBe('Artists');
+    expect(host.querySelector('[data-index-title]')?.textContent).toBe('Performers');
     expect(given.route).toHaveBeenCalledTimes(1);
     expect(given.route).toHaveBeenCalledWith(
       expect.objectContaining({ kind: 'performers', scope: 'local', category: 'animation' }), { replace: true });
@@ -205,7 +205,7 @@ describe('Roster', () => {
     serve(() => ({items:[],has_more:false}));
     const given = props();
     const host = await open(given);
-    expect([...host.querySelectorAll('[role="tab"]')].map(item => item.textContent?.trim())).toEqual(['Artists','Sellers','Online']);
+    expect([...host.querySelectorAll('[role="tab"]')].map(item => item.textContent?.trim())).toEqual(['Performers','Sellers','Online']);
     expect(host.querySelectorAll('[role="tablist"]')).toHaveLength(1);
     await click(tab(host,'creators'));
     await settle();

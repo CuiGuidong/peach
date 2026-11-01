@@ -25,7 +25,7 @@ export interface IndexParams {
 }
 
 export const INDEX_TITLES: Readonly<Record<IndexPageKind, string>> = {
-  performers: 'Artists', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series', tags: 'Tags',
+  performers: 'Performers', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series', tags: 'Tags',
 };
 
 /* The performer index layout, same idea as JAV large images: column widths unchanged, only the image stretched from a circle to a vertical frame, so the people per screen stay the same while each face gets bigger; compact is
@@ -36,7 +36,7 @@ const COMPANY_LAYOUTS = [['big', 'Large · Full logo', 'maximize'], ['compact', 
 const SERIES_LAYOUTS = [['big', 'Large · Series images', 'maximize'], ['compact', 'Compact · Series images', 'layout-grid']] as const;
 const MAKER_INDEX_KINDS = [['studios', 'Labels', 'clapperboard'], ['agencies', 'Agency', 'briefcase'], ['series', 'Series', 'file-stack']] as const;
 const INDEX_SCOPES = [['local', 'Local', 'hard-drive'], ['online', 'Online', 'rss']] as const;
-const PEOPLE_INDEX_TABS = [['performers', 'Artists', 'user-round'], ['creators', 'Sellers', 'user-round'], ['online', 'Online', 'rss']] as const;
+const PEOPLE_INDEX_TABS = [['performers', 'Performers', 'user-round'], ['creators', 'Sellers', 'user-round'], ['online', 'Online', 'rss']] as const;
 const TAG_VIEWS = [['cloud', 'Tag cloud', 'tags'], ['alphabet', 'Alphabet', 'text-aa']] as const;
 
 /** The stored layout preference; unrecognized values fall back to large images. */

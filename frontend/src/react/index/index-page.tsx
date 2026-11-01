@@ -51,7 +51,7 @@ const SCOPE_TABS: BoardTab<IndexScope>[] = [
   { value: 'online', label: 'Online', symbol: 'rss' },
 ];
 const PEOPLE_TABS: BoardTab<'performers' | 'creators' | 'online'>[] = [
-  { value: 'performers', label: 'Artists', symbol: 'user-round' },
+  { value: 'performers', label: 'Performers', symbol: 'user-round' },
   { value: 'creators', label: 'Sellers', symbol: 'user-round' },
   { value: 'online', label: 'Online', symbol: 'rss' },
 ];
@@ -289,7 +289,7 @@ export function IndexPage(props: IndexProps) {
 }
 
 const LABELS: Record<IndexKind, string> = {
-  tags: 'Tags', performers: 'Artists', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series',
+  tags: 'Tags', performers: 'Performers', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series',
 };
 
 /** Empty library, no filter results, and online sources without content yet each get an actionable destination. Copy matches the catalog page's empty states

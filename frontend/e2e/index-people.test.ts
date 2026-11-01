@@ -127,7 +127,7 @@ describe('Local and online performers share the roster layout', () => {
     });
   }
   for (const viewport of VIEWPORTS) {
-    for (const [path, selected] of [['/performers', 'Artists'], ['/creators', 'Sellers'],
+    for (const [path, selected] of [['/performers', 'Performers'], ['/creators', 'Sellers'],
       ['/performers?scope=online', 'Online']] as const) {
       it(`The loading placeholder page uses the sibling roster entry (${selected} · ${viewport.name})`, { timeout: 60_000 }, async () => {
         const context = await browser.newContext({
@@ -145,14 +145,14 @@ describe('Local and online performers share the roster layout', () => {
           await page.goto(requiredEnv('PEACH_E2E_ORIGIN') + path, { waitUntil: 'commit' });
           await page.locator('#index [data-skeleton]').first().waitFor();
           assert.equal(await page.locator('#index [role="tablist"]').count(), 1);
-          assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['Artists', 'Sellers', 'Online']);
+          assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['Performers', 'Sellers', 'Online']);
           assert.deepEqual(await page.locator('#index [role="tab"][aria-selected="true"]').allTextContents(), [selected]);
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           const waiting = await headControls(page, {
             search: '#index [data-index-search] [data-rac]', icon: '#index [data-index-search] svg', layout: '#index .ihead .iconswitch' });
           release();
           await page.locator('#index [data-index-page]').waitFor();
-          assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['Artists', 'Sellers', 'Online']);
+          assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['Performers', 'Sellers', 'Online']);
           const ready = await headControls(page, {
             search: '#index [data-index-search] [role="presentation"]', icon: '#index [data-index-search] svg',
             layout: '#index [data-index-layout]' });
@@ -186,7 +186,7 @@ describe('Local and online performers share the roster layout', () => {
           };
         }));
         for (const label of ['Compact · Round avatar', 'Large · Portrait avatar']) {
-          await page.getByRole('tab', { name: 'Artists', exact: true }).click();
+          await page.getByRole('tab', { name: 'Performers', exact: true }).click();
           await page.getByRole('radio', { name: label, exact: true }).press('Space');
           const layout = label.startsWith('Compact') ? 'compact' : 'big';
           await page.locator(`#index [data-index-grid][data-layout="${layout}"]`).waitFor();
@@ -200,7 +200,7 @@ describe('Local and online performers share the roster layout', () => {
           assert.ok(online.every(item => item.width >= 150 && item.contained && item.whiteSpace === 'normal'));
           assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
           assert.equal(await page.locator('#index [role="tablist"]').count(), 1);
-          assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['Artists', 'Sellers', 'Online']);
+          assert.deepEqual(await page.locator('#index [role="tab"]').allTextContents(), ['Performers', 'Sellers', 'Online']);
           await page.getByRole('tab', { name: 'Sellers', exact: true }).click();
           await page.locator('#index [data-index-cell]').first().waitFor();
           await settle(page);
@@ -231,7 +231,7 @@ describe('Local and online performers share the roster layout', () => {
       assert.equal(await page.evaluate(() => history.length), before + 1, 'Normalization must never push an extra history entry');
       assert.equal(await page.evaluate(() => document.body.dataset.surface), '/performers');
       assert.match(await page.title(), /^艺人/);
-      assert.deepEqual(await page.locator('#index [role="tab"][aria-selected="true"]').allTextContents(), ['Artists']);
+      assert.deepEqual(await page.locator('#index [role="tab"][aria-selected="true"]').allTextContents(), ['Performers']);
       assert.equal(requests.length, 1, `The roster is fetched only once: ${requests.join(' | ')}`);
       assert.match(requests[0], /kind=performers/);
       assert.match(requests[0], /category=animation/);

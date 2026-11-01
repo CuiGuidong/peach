@@ -49,7 +49,7 @@ export const ROUTE_META: Readonly<Record<string, RouteMeta>> = {
   '/tasks': { section: 'activity', title: 'Task center', refresh: 'reopen' },
   // A legacy direct address, rewritten to the data management page's anchor; it has no admin identity of its own.
   '/resource-sync': { title: 'Data management' },
-  '/performers': { nav: 'performers', title: 'Artists', reload: 'reopen' },
+  '/performers': { nav: 'performers', title: 'Performers', reload: 'reopen' },
   '/creators': { title: 'Sellers', reload: 'reopen' },
   '/studios': { nav: 'studios', title: 'Labels', reload: 'reopen' },
   '/agencies': { title: 'Agency', reload: 'reopen' },

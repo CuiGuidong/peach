@@ -528,7 +528,7 @@ describe('How the sidebar reads', () => {
         { id: 3, name: 'Alpha', has_image: true, image_version: '9', avatar_focus: { axis: 'x', pct: 30 } }, { id: 4, name: 'Beta' },
       ] },
     } as Partial<DetailItem>));
-    expect(host.querySelector('[data-id-group="performer"] [data-id-label]')?.textContent).toBe('Artists');
+    expect(host.querySelector('[data-id-group="performer"] [data-id-label]')?.textContent).toBe('Performers');
     const framed = host.querySelector<HTMLImageElement>('[data-entity-name="Alpha"] img');
     expect([framed?.getAttribute('src'), framed?.style.objectPosition]).toEqual(['/entity-image?kind=performer&id=3&thumb=1&v=9', '30% 50%']);
     expect(framed?.parentElement).toBe(host.querySelector('[data-entity-name="Alpha"] [data-id-face]'));

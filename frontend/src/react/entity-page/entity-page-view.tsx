@@ -332,7 +332,7 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
   const viewKinds = [roster.length, !onlineOnly, photoCount, followKey].filter(Boolean).length;
   const views: EntityViewKeys | null = viewKinds > 1 ? {
     label: roster.length ? 'Page views' : 'Media kinds',
-    people: roster.length ? { label: kind === 'studio' ? 'Labels' : 'Artists', count: roster.length,
+    people: roster.length ? { label: kind === 'studio' ? 'Labels' : 'Performers', count: roster.length,
       icon: kind === 'studio' ? 'clapperboard' : 'user-round' } : null,
     videos: onlineOnly ? null : { count: entity.asset_count || 0 },
     photos: photoCount ? { count: photoCount } : null,

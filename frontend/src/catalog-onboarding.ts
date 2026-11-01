@@ -41,7 +41,7 @@ export function catalogEmptyHtml({ kind = 'catalog', filtered = false, jav = fal
       ? '<a class="geist-button primary" href="/?loc=&thumb=0">View all content</a><a class="geist-button" href="/data-cleanup#libraryProcessing">Complete video profiles</a>'
       : `<a class="geist-button primary" href="${filtered ? esc(clearCatalogAddress()) : '/?loc=&thumb=0'}">${filtered ? 'Clear filters' : 'View all content'}</a>` });
   if (kind !== 'catalog') {
-    const labels: Record<string, string> = { tags: 'Tags', performers: 'Artists', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series' };
+    const labels: Record<string, string> = { tags: 'Tags', performers: 'Performers', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series' };
     // The online bucket counts what lives on the sources, and naming follows the sources' own usage: a performer page's online tab shows creators from followed sources.
     const onlineLabels: Record<string, string> = { tags: 'Tags', performers: 'Creators' };
     const label = (online ? onlineLabels[kind] : '') || labels[kind] || 'Profile';

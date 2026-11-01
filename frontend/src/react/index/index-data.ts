@@ -28,7 +28,7 @@ export const INDEX_URL = '/api/index';
 
 /** The page header title and the roster basis. */
 export const INDEX_TITLES: Record<IndexKind, string> = {
-  performers: 'Artists', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series', tags: 'Tags',
+  performers: 'Performers', creators: 'Sellers', studios: 'Labels', agencies: 'Agency', series: 'Series', tags: 'Tags',
 };
 
 /** The entity type the index cell maps to; the profile page and the image fetch chain both branch on it. */
