@@ -96,7 +96,7 @@ function Outcome(
             title={partial ? 'Processing ended, some items still need work' : 'Processing unfinished'}
             action={<div className="flex flex-wrap items-center gap-2">
               {partial ? <LinkButton href={ALL_CONTENT_URL} size="small" trailingIcon={RiArrowRightLine}>View all content</LinkButton> : null}
-              {retryable ? <Button variant="secondary" size="small" aria-label="Retry now未完成项" onClick={onRetry}>Retry now</Button> : null}
+              {retryable ? <Button variant="secondary" size="small" aria-label="Retry unfinished items" onClick={onRetry}>Retry now</Button> : null}
             </div>}
             extra={details
               /* Three layers stacked in one notice: one conclusion sentence, one list, one log address. Between each runs

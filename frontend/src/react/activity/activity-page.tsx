@@ -130,11 +130,11 @@ function RunCard(
         {children}
       </div>
       {shown ? <div className="border-t border-separator-border px-5 py-2.5">
-        <Disclosure summary={`任务明细 · ${total.toLocaleString()} items`}
+        <Disclosure summary={`Task details · ${total.toLocaleString()} items`}
           contentClassName="pb-2.5"
           defaultOpen={listed.some((row) => isActive(row))}>
           {shown < total
-            ? <p className="text-caption-1-regular text-text-secondary">Listing {shown.toLocaleString()} items，正在处理的排在前面</p>
+            ? <p className="text-caption-1-regular text-text-secondary">Listing {shown.toLocaleString()} items, in-progress first</p>
             : null}
           <FollowupList rows={listed} />
         </Disclosure>
@@ -209,7 +209,7 @@ function SettledRun(
         : summary.length ? <ul className="flex list-disc flex-col gap-1 pl-5 text-caption-1-regular text-text-secondary wrap-anywhere">
             {summary.map((line, index) => <li key={index}>{line}</li>)}
           </ul> : null}
-      {issues.length ? <Disclosure summary={`问题详情 · ${issues.length} items`} contentClassName="pt-2">
+      {issues.length ? <Disclosure summary={`Issue details · ${issues.length} items`} contentClassName="pt-2">
         <ErrorDetails label="Task issue details">
         <ul className="flex min-w-0 flex-col gap-3" data-task-issues="">
           {issues.map((issue, index) => <li key={`${issue.source}-${index}`} className="flex min-w-0 flex-col gap-1 text-body-2-regular wrap-anywhere">

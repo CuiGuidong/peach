@@ -1681,7 +1681,7 @@ def analyze_history(store_path: Path, output_dir: Path, *, since: str | None = N
         def report_analysis():
             if progress:
                 progress(stage="analyzing", checked=total, total=ceiling,
-                         message=f"分析浏览记录：已处理 {total:,} / {ceiling:,} 条")
+                         message=f"Analyzing browser history: {total:,} / {ceiling:,} processed")
         report_analysis()
         for source_key, visited_at, url, browser, profile, title, bookmark in db.execute(query, params):
             total += 1

@@ -148,7 +148,7 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
         label={`Reading video details · ${metadata.completed} / ${metadata.total}`} value={metadata.completed} total={metadata.total} /></div> : null}
     {metadata && metadata.status !== 'running' && (metadata.status !== 'complete' || metadata.failed > 0)
       ? <Note tone="neutral" action={<Button variant="secondary" {...busyProps(metadataAction.busy === 'retry')}
-        aria-label="Retry now读取作品资料" onClick={() => updateMetadata('retry')}>Retry now</Button>}>{metadata.message || `Video profiles ${metadata.completed} / ${metadata.total} videos`}</Note> : null}
+        aria-label="Retry reading video details" onClick={() => updateMetadata('retry')}>Retry now</Button>}>{metadata.message || `Video profiles ${metadata.completed} / ${metadata.total} videos`}</Note> : null}
     {metadataAction.error ? <Note tone="error">{metadataAction.error}</Note> : null}
     {!waiting && !discoveries.error && !items.length ? <EmptyState icon={RiCompassLine} title={query || tag ? 'No matching recommendations' : 'No videos matching your taste yet'}
       actions={<><ButtonLink size="small" href="/taste" variant="secondary">View taste</ButtonLink>

@@ -34,7 +34,7 @@ function hostOf(url: string): string {
 }
 
 function IndexerSummary({ row, index }: { row: Indexer; index: number }) {
-  const facts = [row.url ? hostOf(row.url) : 'Address not filled', row.enabled ? '已Enabled' : 'Disabled',
+  const facts = [row.url ? hostOf(row.url) : 'Address not filled', row.enabled ? 'Enabled' : 'Disabled',
     row.api_key_set && !row.clear_api_key ? 'API key saved' : row.api_key ? 'API key pending save' : 'No API key'];
   return <span className="flex min-w-0 items-baseline gap-3">
     <span className="shrink-0 text-text-primary">{row.name || `Indexer ${index + 1}`}</span>

@@ -72,7 +72,7 @@ function BrowserForm({ initial, receipt }: { initial: State; receipt(message: st
         <div><Button variant="secondary" type="button" onClick={() => {
           void action.run('copy', async () => navigator.clipboard.writeText(JSON.stringify({
             peach_pairing: 1, base: window.location.origin, token,
-          })), () => receipt('已Copy the pairing info'));
+          })), () => receipt('Pairing info copied'));
         }} {...busyProps(action.busy === 'copy')}>Copy the pairing info</Button></div>
         <Help>Paste the pairing info into "Peach address" in the userscript settings to fill in the address and token.</Help>
       </> : null}

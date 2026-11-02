@@ -37,7 +37,7 @@ function destination(result: FeedLookup, picked: ReadonlySet<string>): { text: s
     if (picked.has(card.id) && card.held_by) holders.set(card.held_by.id, card.held_by.name);
   }
   if (holders.size > 1) {
-    return { text: `所勾的卡分属数据库里不同的人: ${[...holders.values()].join(', ')}，先去Merge再订`, blocked: true };
+    return { text: `The selected cards belong to different people in the database: ${[...holders.values()].join(', ')}. Merge them first, then follow`, blocked: true };
   }
   const [holder] = holders.values();
   if (holder) return { text: `It will file under "${holder}"`, blocked: false };

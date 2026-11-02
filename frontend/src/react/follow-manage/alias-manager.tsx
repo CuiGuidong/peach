@@ -129,7 +129,7 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
       setCanonical('');
       setAlias('');
       void reloadFollowManage();
-      toast('已SaveCreator aliases');
+      toast('Creator aliases saved');
     },
     onError: (cause) => setProblem(errorMessage(cause)),
   });
@@ -151,7 +151,7 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
   const mergeSome = (items: AliasSuggestion[], all: boolean) => {
     if (!items.length) return;
     void confirmModal({
-      title: all ? 'MergeAllCreator aliases' : 'Merge所选Creator aliases',
+      title: all ? 'Merge all creator aliases' : 'Merge selected creator aliases',
       body: `Will merge the following ${items.length} creator groups: ${items.map(
         (item) => `"${item.alias}" into "${item.canonical}"`).join('; ')}.`,
       confirmLabel: all ? 'Merge all aliases' : 'Merge selected aliases',
@@ -307,7 +307,7 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
             <TableColumnControls preferences={suggestionView} label="Creator aliases pending merge" />
             </div>
           </div>
-          <SelectionDock label="Pending merge别名批量操作" visible={chosen.length > 0} count={`${chosen.length} groups selected`}>
+          <SelectionDock label="Pending-merge alias bulk actions" visible={chosen.length > 0} count={`${chosen.length} groups selected`}>
             <Button variant="secondary" size="small" disabled={readOnly} {...busy}
               onClick={() => mergeSome(chosen, false)}>{`Merge selected (${chosen.length})`}</Button>
             <Button variant="ghost" size="small" onClick={() => setRowSelection({})}>Clear selection</Button>
@@ -356,9 +356,9 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
           <TableColumnControls preferences={savedView} label="Saved creator aliases" />
           </div>
         </div>
-        <SelectionDock label="Saved aliases批量操作" visible={savedNames.length > 0} count={`Selected ${savedNames.length} aliases`}>
+        <SelectionDock label="Saved alias bulk actions" visible={savedNames.length > 0} count={`Selected ${savedNames.length} aliases`}>
           <Button variant="secondary" size="small" disabled={readOnly} {...busyProps(drop.isPending)}
-            onClick={() => void confirmModal({ title: 'Remove所选Creator aliases',
+            onClick={() => void confirmModal({ title: 'Remove selected creator aliases',
               body: `Will remove the following ${savedNames.length} aliases, restoring their sources as separate creator groups.`,
               items: savedNames,
               confirmLabel: 'Remove selected aliases', onConfirm: () => drop.mutateAsync(savedNames) })}>

@@ -194,7 +194,7 @@ function MediaFrame({ item, gate, helpers, actions, autoplay, onEnded }: {
       {image !== -2 && item.is_jav && item.code && !item.sample_images?.length && (source.isPending || source.error || source.data?.state === 'partial') ?
         <div data-item-samples-state="">{source.isPending ? <span data-skeleton="samples" role="status" aria-label="Loading sample images" className="relative block h-12 w-20 skeleton-sheen" />
           : <Button variant="secondary" {...busyProps(source.isFetching)} title={source.data?.message || requestErrorMessage(source.error)}
-            aria-label="Retry now样图" onClick={() => { refreshSamples.current = true; void source.refetch() }}>Retry now</Button>}</div> : null}
+            aria-label="Retry samples" onClick={() => { refreshSamples.current = true; void source.refetch() }}>Retry now</Button>}</div> : null}
       {gate === 'offline' ? <OfflineGate item={item} badge={badge} helpers={helpers} actions={actions} />
         : gate === 'disc' ? (
           <div role="status" data-item-gate="disc">

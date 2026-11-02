@@ -141,7 +141,7 @@ describe('System diagnostics in configuration', () => {
           }
         }
         assert.ok((await layout(page)).scrollWidth <= viewport.width);
-        await page.locator('summary').filter({ hasText: /其他检查 ·/ }).click();
+        await page.locator('summary').filter({ hasText: /Other checks ·/ }).click();
         const groups = page.locator('[data-diagnostic-group]');
         assert.ok(await groups.count() > 1);
         const grouping = await groups.first().evaluate(element => {

@@ -20,7 +20,7 @@ export const LIBRARY_ICON_CHOICES = [
   ['lollipop', 'Sweetheart'], ['candy', 'Candy'], ['banana', 'Banana'], ['droplets', 'Wet'], ['venus', 'Female'], ['mars', 'Male'], ['venus-and-mars', 'Couple'],
   ['gem', 'Featured'], ['crown', 'Queen'], ['ribbon', 'Ribbon'], ['shirt', 'Uniform'], ['graduation-cap', 'Student'], ['stethoscope', 'Nurse'], ['glasses', 'Glasses'],
   ['footprints', 'Footprints'], ['hand', 'Hands'], ['flower', 'Flowers'], ['venetian-mask', 'Cosplay'], ['rabbit', 'Bunny girl'], ['paw-print', 'Animal ears'], ['dumbbell', 'Gym'],
-  ['bed-double', 'Bedroom'], ['bath', 'Bathroom'], ['key-round', 'Private'], ['wine', 'Tipsy'], ['cigarette', '烟'], ['moon', 'Night'], ['sparkles', 'Fantasy'],
+  ['bed-double', 'Bedroom'], ['bath', 'Bathroom'], ['key-round', 'Private'], ['wine', 'Tipsy'], ['cigarette', 'Smoking'], ['moon', 'Night'], ['sparkles', 'Fantasy'],
   ['camera', 'Photobook'], ['video', 'Movie'], ['film', 'Movies'], ['image', 'Gallery'], ['gamepad-2', 'Game'], ['star', 'Favorites'], ['tags', 'Theme'],
 ] as const;
 

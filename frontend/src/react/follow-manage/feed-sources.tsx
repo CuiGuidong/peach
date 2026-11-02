@@ -293,7 +293,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
           </a>
         ),
       }),
-      column.accessor((source) => source.last_error ? 'Fetch failed' : source.enabled ? '已Enabled' : 'Paused', {
+      column.accessor((source) => source.last_error ? 'Fetch failed' : source.enabled ? 'Enabled' : 'Paused', {
         id: 'status',
         header: label('status'),
         cell: (context) => <StatusChip source={context.row.original} />,

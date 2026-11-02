@@ -78,7 +78,7 @@ export function PushDiscoveryForm({ initial, receipt }: {
     + (live.queue.failed ? `, ${live.queue.failed} failed intake` : '')
     + (live.queue.pending ? `, ${live.queue.pending} more in the queue` : '');
   const watching = live.local_running
-    ? `正在监视 ${live.local_roots.join(', ')}` : live.local_message || 'Not running';
+    ? `Watching ${live.local_roots.join(', ')}` : live.local_message || 'Not running';
 
   return (
     <Section id="pushDiscovery" title="Discover new files automatically" onSubmit={submit}>

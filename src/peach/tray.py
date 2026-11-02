@@ -942,14 +942,14 @@ class SetupGate:
         return self._waiting
 
     def open_label(self) -> str:
-        return "重新打开设置页" if self._waiting else "打开 Peach"
+        return "Reopen setup page" if self._waiting else "Open Peach"
 
     def open_url(self) -> str:
         return setup_url(self.config) if self._waiting else normal_url(self.config)
 
     def status_line(self) -> str:
         if self._waiting:
-            return "等待完成首次设置"
+            return "Waiting for initial setup"
         return self.manager.status_summary()
 
     def open(self) -> None:
@@ -1100,7 +1100,7 @@ class PeachTray:
             pystray.MenuItem(lambda _item: self.version.build_label, None, enabled=False),
             pystray.MenuItem(lambda _item: self.version.channel_label, None, enabled=False),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("检查更新", self.check_updates),
+            pystray.MenuItem("Check for updates", self.check_updates),
         )
         self.icon = pystray.Icon(
             "Peach",
@@ -1109,26 +1109,26 @@ class PeachTray:
             "Peach · 蜜桃",
             pystray.Menu(
                 pystray.MenuItem(lambda _item: self.gate.open_label(), self.open, default=True),
-                pystray.MenuItem("配置 Peach", lambda *_: webbrowser.open(self.gate.open_url() + "configuration")),
-                pystray.MenuItem(lambda _item: f"状态：{self.gate.status_line()}", pystray.Menu(
+                pystray.MenuItem("Configure Peach", lambda *_: webbrowser.open(self.gate.open_url() + "configuration")),
+                pystray.MenuItem(lambda _item: f"Status: {self.gate.status_line()}", pystray.Menu(
                     lambda: (
                         *(pystray.MenuItem(line, None, enabled=False)
                           for line in self.manager.status_details()),
-                        pystray.MenuItem(menu_text(f"地址：{self.gate.open_url()}"), self.open),
-                        pystray.MenuItem("查看完整配置", lambda *_: webbrowser.open(
+                        pystray.MenuItem(menu_text(f"Address: {self.gate.open_url()}"), self.open),
+                        pystray.MenuItem("View full configuration", lambda *_: webbrowser.open(
                             self.gate.open_url() + "configuration")),
                     ))),
                 pystray.Menu.SEPARATOR,
-                pystray.MenuItem("同步开发进度", self.sync_source,
+                pystray.MenuItem("Sync development progress", self.sync_source,
                                  visible=lambda _: not standalone()),
                 *ledger_menu_items(
                     pystray.MenuItem, self.sync_ledger, self.take_ownership),
-                pystray.MenuItem("重启服务", self.restart),
-                pystray.MenuItem("查看日志", self.open_logs),
-                pystray.MenuItem("导出诊断报告", self.export_diagnostics),
-                pystray.MenuItem("版本与更新", version_menu),
+                pystray.MenuItem("Restart service", self.restart),
+                pystray.MenuItem("View logs", self.open_logs),
+                pystray.MenuItem("Export diagnostics report", self.export_diagnostics),
+                pystray.MenuItem("Version and updates", version_menu),
                 pystray.Menu.SEPARATOR,
-                pystray.MenuItem("退出 Peach", self.exit),
+                pystray.MenuItem("Exit Peach", self.exit),
             ),
         )
 
@@ -1695,7 +1695,7 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
         "Peach · 蜜桃",
         [
             (gate.open_label, gate.open),
-            (lambda: f"状态：{gate.status_line()}", Submenu(lambda: [
+            (lambda: f"Status: {gate.status_line()}", Submenu(lambda: [
                 *((line, None) for line in manager.status_details()),
                 (menu_text(f"地址：{gate.open_url()}"), gate.open),
                 ("查看完整配置", open_configuration),

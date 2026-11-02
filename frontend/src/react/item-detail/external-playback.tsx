@@ -71,7 +71,7 @@ export function ExternalPlayback({ id, onOpened }: { id: number; onOpened?(): vo
           action.setError('');
           try { localStorage.setItem(TARGET_KEY, value) } catch { /* The browser did not allow saving the preference. */ }
         }} />
-      <Button variant="secondary" aria-label="使用外部Playback器Open" disabled={players === null}
+      <Button variant="secondary" aria-label="Open with an external player" disabled={players === null}
         {...busyProps(action.busy === 'open')} onClick={open}>Open</Button>
     </div>
     {action.error || loadError ? <ErrorText>{action.error || loadError}</ErrorText> : null}

@@ -29,7 +29,7 @@ import {
   WANTS_KEY, type Want,
 } from './wants';
 
-const ORIGINS: Record<Want['origin'], string> = { code: '手动Add', feed: 'Subscribe to new releases', follow: 'Follows' };
+const ORIGINS: Record<Want['origin'], string> = { code: 'Added manually', feed: 'Subscribe to new releases', follow: 'Follows' };
 /** How many cards per page in one section: a card carries some twenty nodes, and laying out thousands at once makes a page over a hundred thousand pixels tall. */
 export const WANT_PAGE_SIZE = 20;
 const MAGNET_FILTERS = [['all', 'All'], ['available', 'Has magnet link'], ['missing', 'No magnet link']] as const;
@@ -110,7 +110,7 @@ function WantPhase({ phase, label, rows, row }: {
     <section aria-label={label} data-want-phase={phase} className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
       <h3 className="flex items-baseline gap-2 text-title-2-medium text-text-primary">
-        {label}
+        {label}{' '}
         <span className="text-body-2-regular tabular-nums text-text-secondary">{rows.length.toLocaleString()}</span>
       </h3>
       {phase === 'searching' ? <SegmentedRadioGroup name="want-magnet-filter" aria-label="To-find magnet filter"
@@ -193,7 +193,7 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
   return (
     <div aria-busy={wants.isPending} className="flex flex-col gap-8">
       <div className={cardClass({ padding: 'none', className: 'flex flex-col gap-4 px-6 py-5 max-sm:px-4' })}>
-        <h3 className="text-title-2-medium text-text-primary">按番号Add</h3>
+        <h3 className="text-title-2-medium text-text-primary">Add by code</h3>
         <div className="flex flex-wrap items-end gap-2">
           <div className="min-w-64 grow max-sm:min-w-0">
             <Input aria-label="Code" placeholder="Enter a code, e.g. SSIS-950" value={code}
@@ -215,8 +215,8 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
       {data && !items.length ? (
         <EmptyState size="compact" icon={RiStarLine} title={query ? 'No matching videos' : 'No wanted videos yet'}
           actions={query && clearQuery ? <Button size="small" onClick={clearQuery}>Clear the search</Button>
-            : !query && !readOnly ? <EmptyFocusButton target='input[aria-label="code"]'>Add作品</EmptyFocusButton> : undefined}>
-          {query ? 'Try another code, performer or title.' : '输入番号，Add想看的作品.'}
+            : !query && !readOnly ? <EmptyFocusButton target='input[aria-label="code"]'>Add videos</EmptyFocusButton> : undefined}>
+          {query ? 'Try another code, performer or title.' : 'Enter a code to add videos you want.'}
         </EmptyState>
       ) : null}
 

@@ -241,7 +241,7 @@ function AuthorCard(
             onClick={() => onToggleGroup(!state.all)}>{state.all ? 'Clear select-all' : 'Select all'}</Button>
           <Button variant="secondary" size="small" aria-expanded={open} aria-controls={panel}
             leadingIcon={CollapseChevron}
-            aria-label={`${open ? 'Collapse' : 'Expand'} ${name} 的来源`}
+            aria-label={`${open ? 'Collapse' : 'Expand'} ${name}'s sources`}
             onClick={() => onOpen(!open)}>{open ? 'Collapse' : 'Expand'}</Button>
           </span>
         </span>

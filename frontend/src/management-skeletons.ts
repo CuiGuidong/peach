@@ -19,7 +19,7 @@ export function statsSkeleton(): string {
     <div class="inline-grid w-full grid-cols-3 gap-2 max-sm:grid-cols-2">${Array.from({ length: 3 }, () => `<div class="flex min-w-0 flex-col gap-1 rounded-xl bg-background-tertiary-default p-2.5"><span class="text-caption-1-regular">${text()}</span><b class="text-title-2-medium">${text('3em')}</b><small class="text-caption-1-regular">${text()}</small></div>`).join('')}</div>
   </section>`;
   return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">
-    <p class="text-caption-1-regular text-text-secondary">数据库中的当前统计 · ${text('12em')}</p>
+    <p class="text-caption-1-regular text-text-secondary">Current stats from the database · ${text('12em')}</p>
     <div class="flex flex-col gap-4"><div class="inline-grid w-full grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4" data-stats-metrics>${metrics}</div>
       <div class="flex flex-col gap-5"><div class="inline-grid w-full gap-5 md:grid-cols-2">${radial('Cloud drives and local')}${radial('Media library')}</div>
         <div class="inline-grid w-full gap-5 md:grid-cols-2 xl:grid-cols-3">${['Duration', 'Quality', 'File types'].map(title => `<section class="${chart}"><h3 class="text-title-2-medium">${title}</h3><div class="${placeholder} h-64"></div></section>`).join('')}</div>
@@ -59,7 +59,7 @@ export function tasteSkeleton(): string {
         <div class="flex min-w-0 grow flex-col justify-around gap-3">${bars}</div>
       </section>
       <div class="inline-grid w-full items-start gap-5 lg:grid-cols-2">${heat('Browsing activity time')}${heat('Daily activity')}</div>
-      <section class="${chart}"><h3 class="text-title-2-medium text-text-primary">Creators线索来源</h3><div class="${placeholder} h-72 max-sm:h-48"></div></section>
+      <section class="${chart}"><h3 class="text-title-2-medium text-text-primary">Creator signal sources</h3><div class="${placeholder} h-72 max-sm:h-48"></div></section>
       <section class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col">
         <div class="px-4 pt-3">${track(['Tags', 'Creators', 'Frequently visited sites', 'Browsing leads'])}</div>
         <div class="flex flex-col gap-3 px-4 pt-3.5 pb-4">${Array.from({ length: 5 }, () => `<div class="${placeholder} h-7"></div>`).join('')}</div>

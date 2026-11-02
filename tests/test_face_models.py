@@ -220,9 +220,9 @@ class StatusTests(ModelFilesCase):
 
 class LabelTests(unittest.TestCase):
     def test_every_task_written_by_the_service_has_a_chinese_name(self):
-        self.assertEqual(task_label("face-models"), "下载人脸模型")
-        self.assertEqual(task_label("amane-bridge"), "重建 amane 桥")
-        self.assertEqual(task_label("follow-creator"), "关注作者建档")
+        self.assertEqual(task_label("face-models"), "Download face models")
+        self.assertEqual(task_label("amane-bridge"), "Rebuild the amane bridge")
+        self.assertEqual(task_label("follow-creator"), "File followed creators")
 
 
 if __name__ == "__main__":

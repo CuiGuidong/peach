@@ -47,7 +47,7 @@ function CandidateEvidence({ candidate, row }: { candidate: ReviewCandidate; row
     <div className="min-w-0">
       <Button variant="secondary" size="small" leadingIcon={CollapseChevron}
         aria-expanded={open} aria-controls={panel}
-        aria-label={`${open ? 'Collapse' : 'Expand'} ${candidate.source || 'This source'} 的Source evidence`}
+        aria-label={`${open ? 'Collapse' : 'Expand'} ${candidate.source || 'this source'}'s evidence`}
         onClick={() => setOpen(!open)}>
         <span data-copy-key="review.card.source_evidence">Source evidence</span>{` · ${evidence.length}`}
       </Button>
@@ -119,7 +119,7 @@ export function CandidateChoices(
     );
   }
   return (
-    <RadioGroup aria-label={`${fieldName || 'Profile'}的来源`} value={value} isDisabled={locked}
+    <RadioGroup aria-label={`Source for ${fieldName || 'profile'}`} value={value} isDisabled={locked}
       onChange={onChange}>
       <div className="flex min-w-0 flex-col gap-3">
       {candidates.map((candidate) => (
@@ -197,7 +197,7 @@ export function PendingGenres(
   const genres = pendingGenres(row);
   if (!genres.length) return null;
   return (
-    <div role="group" aria-label="未Archived genre" className="flex flex-col gap-2 border-t border-separator-border pt-4">
+    <div role="group" aria-label="Unarchived genres" className="flex flex-col gap-2 border-t border-separator-border pt-4">
       <h5 className="text-body-2-medium text-text-secondary">{`Unindexed genres · ${genres.length}`}</h5>
       <div role="list" className="flex flex-col">
         {genres.map((genre, index) => (

@@ -30,7 +30,7 @@ export function UserscriptStatus({ enabled, release }: {
   const copyState = status === 'checking' ? 'checking' : status === 'missing' ? 'missing'
     : required ? 'required' : update ? 'available' : status.paired ? enabled ? 'enabled' : 'disabled' : 'unpaired';
   return <>
-    <iframe ref={frame} key={attempt} title="Peach userscript检测" hidden src="/integrations/peach-userscript-bridge" />
+    <iframe ref={frame} key={attempt} title="Peach userscript check" hidden src="/integrations/peach-userscript-bridge" />
     <div aria-live="polite" data-userscript-status="" className={cardClass({ variant: 'raised', bordered: 'line', className: 'flex flex-col gap-3' })}>
       <div className="flex flex-wrap items-center justify-between gap-3"><span className="text-body-medium text-text-primary">Peach userscript</span>
         <ConnectionStatus tone={tone}><span data-copy-key={`userscript.${copyState}.status`}>{label}</span></ConnectionStatus></div>
@@ -44,7 +44,7 @@ export function UserscriptStatus({ enabled, release }: {
         : status.paired ? enabled ? 'Supported sites can add directly to your Peach library.' : 'With browser adding enabled, you can add to the Peach library directly on supported sites.'
         : 'Generate a token, copy the pairing info, then paste and save it in the userscript settings.'}</p>
       <div className="flex flex-wrap items-center gap-2">
-        {status === 'missing' || required || update ? <ExternalLink href={release.install_url}><span data-copy-key={`userscript.${status === 'missing' ? 'install' : 'update'}.action`}>{required || update ? 'Update the userscript' : '安装 Peach userscript'}</span></ExternalLink> : null}
+        {status === 'missing' || required || update ? <ExternalLink href={release.install_url}><span data-copy-key={`userscript.${status === 'missing' ? 'install' : 'update'}.action`}>{required || update ? 'Update the userscript' : 'Install the Peach userscript'}</span></ExternalLink> : null}
         {status === 'missing' ? <ExternalLink href="https://www.tampermonkey.net/faq.php#Q209">Tampermonkey permission setup notes</ExternalLink> : null}
         <Button variant="secondary" type="button" {...busyProps(status === 'checking')}
           onClick={retry}>Detect again</Button>

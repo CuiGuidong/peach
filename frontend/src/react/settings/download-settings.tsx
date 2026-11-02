@@ -407,10 +407,10 @@ function PikPakAccount({ state, settle, receipt, username, setUsername }: CardPr
   return (
     <Section title="PikPak account" icon={<PikPakIcon />} onSubmit={login}
       aside={<StatusLabel tone={account.logged_in ? 'success' : waiting ? 'progress' : outcomeFailed ? 'error' : 'neutral'}>
-        {account.logged_in ? '已Sign in' : waiting ? 'Waiting for sign-in' : outcomeFailed ? 'Sign-in not completed' : '待Sign in'}</StatusLabel>}>
+        {account.logged_in ? 'Signed in' : waiting ? 'Waiting for sign-in' : outcomeFailed ? 'Sign-in not completed' : 'Not signed in'}</StatusLabel>}>
       {account.logged_in ? (
         <FactList>
-          <Fact term="Account">{account.username || '已Sign in'}</Fact>
+          <Fact term="Account">{account.username || 'Signed in'}</Fact>
           {account.method === 'browser' ? (
             <Fact term="Sign-in method">Browser sign-in, renewed by Peach</Fact>
           ) : (

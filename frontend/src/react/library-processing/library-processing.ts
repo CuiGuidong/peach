@@ -231,7 +231,7 @@ export function notesLine(notes: Record<string, number>): string {
   const parts = Object.entries(notes)
     .filter(([key, count]) => NOTE_LABELS[key] && count > 0)
     .map(([key, count]) => `${NOTE_LABELS[key]} ${count.toLocaleString()} videos`);
-  return parts.length ? `外部来源${parts.join(', ')}，7 天内不再问.` : '';
+  return parts.length ? `External sources: ${parts.join(', ')}; not asked again for 7 days.` : '';
 }
 
 /** What it is doing right now: which file, which step, how long it has waited. */

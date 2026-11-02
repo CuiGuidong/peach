@@ -32,7 +32,7 @@ export function TrafficProgress({ traffic, initial = false, detailsOpen, onDetai
   return <div data-processing-traffic="" className="flex min-w-0 flex-col gap-2 text-caption-1-regular text-text-secondary tabular-nums wrap-anywhere">
     {traffic.workload ? <p className="flex flex-wrap gap-x-3 gap-y-1">
       <span>{traffic.unknown_files ? 'Videos found' : 'Videos in scope'} {count(traffic.workload.video_files)} items</span>
-      <span>JAV files {count(traffic.workload.jav_files)} items · 不同番号 {count(traffic.workload.jav_titles)} items</span>
+      <span>JAV files {count(traffic.workload.jav_files)} · {count(traffic.workload.jav_titles)} different codes</span>
     </p> : null}
     {traffic.inventory && !traffic.inventory.complete ? <p role="status">Discovering new files; counts and estimates may still change…</p> : null}
     {traffic.unknown_files && traffic.inventory?.complete !== false ? <p role="status">Some files are unconfirmed, so current counts and estimates are incomplete</p> : null}
@@ -49,7 +49,7 @@ export function TrafficProgress({ traffic, initial = false, detailsOpen, onDetai
         <p className="inline-flex items-center gap-1.5"><RiHardDrive3Line aria-hidden className="size-(--icon-inline) shrink-0" />
           {traffic.inventory && !traffic.inventory.complete ? 'Occupant identified' : 'Expected usage'}</p>
         <p className="text-title-3-semibold text-text-primary">~{size(traffic.disk.estimated_bytes)}</p>
-        {traffic.disk.temporary_bytes > 0 ? <p>抽帧临时文件~{averageSize(traffic.disk.temporary_bytes)}</p> : null}
+        {traffic.disk.temporary_bytes > 0 ? <p>Frame-extraction temp files ~{averageSize(traffic.disk.temporary_bytes)}</p> : null}
         {traffic.disk.volumes.map(volume => <div key={volume.path} className="flex min-w-0 flex-col gap-1">
           <p>{volume.path} remaining {volume.free_bytes == null ? 'Not fetched' : size(volume.free_bytes)}</p>
           {volume.can_fit === false ? <p role="status">Not enough space, short by {size(volume.shortfall_bytes || 0)}</p> : null}
@@ -72,7 +72,7 @@ export function TrafficProgress({ traffic, initial = false, detailsOpen, onDetai
             <span className="shrink-0">{source.connection === 'system' ? 'Follow system' : source.connection === 'unknown' ? 'Connection pending' : source.metered ? 'Proxy' : 'Direct'}</span>
           </div>
           {source.workload?.video_files ? <p className="text-text-tertiary">Videos {count(source.workload.video_files)} items · JAV {count(source.workload.jav_files)} items</p> : null}
-          {source.workload?.pending_jav_titles ? <p className="text-text-tertiary">Missing profiles {count(source.workload.pending_jav_titles)} 部 · 平均~{averageSize(source.workload.metadata_average_bytes || 0)}/video</p> : null}
+          {source.workload?.pending_jav_titles ? <p className="text-text-tertiary">Missing profiles {count(source.workload.pending_jav_titles)} · avg ~{averageSize(source.workload.metadata_average_bytes || 0)}/video</p> : null}
           <div className="flex flex-wrap justify-between gap-x-4 text-text-tertiary">
             {!initial ? <span>Used{source.unobserved.length ? '~' : ''} {size(source.used_bytes)}</span> : null}
             <span>Estimated {forecast(source.estimated_bytes, source.estimated_min_bytes, source.estimated_max_bytes)}</span>

@@ -360,6 +360,26 @@ def ingest_path(
         return IngestResult(location, str(ledger_path), False)
     if medium_of(name) in ("other", "archive"):
         return IngestResult(location, str(ledger_path), False)
+    if "@Vid4Med" in name or "Facebook" in name or "_audio" in name:
+        return IngestResult(location, str(ledger_path), False)
+    # Blacklist: skip clearly non-adult content
+    _NON_ADULT = (
+        "นพ.", "พญ.", "รศ.", "ผศ.", "ร.อ.", "ร.ท.",
+        "Geriatrics", "Hematology", "Nephrology", "Neurology", "Oncology",
+        "Rheumatology", "Nutrition -", "USMLE", "EM Boot Camp",
+        "Vaginal_Delivery", "GYN_", "IELTS", "Video Playlist",
+        "คลิปเข้ม", "Graphpad", "PDPA", "Shopee", "SCB",
+        "Taekwondo", "หยาดน้้ำ", "Prime Video", "videoplayback",
+        "mp4decrypt_out", "Windows XP", ".iso",
+        "WEBRip", "WEB-DL", "HARDSUBBED", "x264", "AAC5.1",
+        "The.Kingmaker", "VIVANT", "Masterchef", "Official.Secrets",
+        "The Office", "Why Making Fun",
+    )
+    if any(pat in name for pat in _NON_ADULT):
+        return IngestResult(location, str(ledger_path), False)
+    # Skip generic episode files (EP1.mp4, EP2.mp4, etc.)
+    if re.match(r"^EP\d+\.\w+$", name):
+        return IngestResult(location, str(ledger_path), False)
     library_roots = tuple(chain.from_iterable(declared_roots.values()))
     if _sidecar_on_disk(name, directory, ledger_path=str(ledger_path), library_roots=library_roots):
         return IngestResult(location, str(ledger_path), True, stat.st_size, sidecar=True)
@@ -718,6 +738,12 @@ def _scan_location(
                 # 跳过非媒体文件（.iso、.pdf、.exe、.gguf、.dmt 等）
                 # 和压缩包（.zip、.rar）——只收录视频/音频/图片。
                 if medium_of(name) in ("other", "archive"):
+                    continue
+                # 跳过已知的非 JAV 标记（网课、Zoom 录屏、纯音轨等）
+                if "@Vid4Med" in name or "Facebook" in name or "_audio" in name:
+                    continue
+                # Whitelist: require JAV code (e.g. SSPY-268) or DMM ID (e.g. deth007hhb)
+                if not re.search(r"[A-Z]{2,5}-\d{1,5}", name) and not re.search(r"[a-z]{4}\d{4,6}[a-z]{2,3}", name):
                     continue
                 mtime = time.strftime("%Y-%m-%d", time.localtime(stat.st_mtime))
                 here[name] = (stat.st_size, mtime)

@@ -30,7 +30,7 @@ export function BrowserSources({ browsers, sources, range, children }:
   return <section className={`${cardClass()} flex flex-col gap-4`} aria-label="Data sources">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h3 className="text-title-2-medium text-text-primary">Data sources</h3>
-      <Button variant="secondary" onClick={() => setAdding(true)} disabled={adding}>Add浏览器</Button>
+      <Button variant="secondary" onClick={() => setAdding(true)} disabled={adding}>Add browser</Button>
     </div>
     {change.error ? <Note tone="error">{errorMessage(change.error)}</Note> : null}
     {adding ? <form className="flex flex-col gap-3" onSubmit={event => {
@@ -70,7 +70,7 @@ export function BrowserSources({ browsers, sources, range, children }:
           }} />
         <Button variant="secondary" size="small" iconOnly leadingIcon={RiDeleteBinLine} {...busyProps(change.isPending)}
           aria-label={`Delete ${browser.name}`} onClick={() => {
-            void confirmModal({ title: `Delete ${browser.name}`, body: 'Remove该浏览器的读取配置和已导入历史、书签，浏览器原文件保留.可以通过Add浏览器重新接入.',
+            void confirmModal({ title: `Delete ${browser.name}`, body: 'Removes this browser\'s read configuration and its imported history and bookmarks. The browser\'s own files are kept. Reconnect later with Add browser.',
               confirmLabel: 'Delete browser source', danger: true, onConfirm: () => change.mutateAsync({ operation: 'delete_browser', id: browser.id }) });
           }} />
         </span>

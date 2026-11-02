@@ -198,7 +198,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
       <Section title="Libraries and folders">
         <Stack>
           <Note tone="success" title="Configuration saved">
-            Peach 正在重新Start.Later自动跳转，或点击<LinkButton href={saved.url} size="small">Enter the library</LinkButton>.
+            Peach is restarting. You will be redirected shortly, or open <LinkButton href={saved.url} size="small">the library</LinkButton>.
           </Note>
         </Stack>
       </Section>
@@ -345,7 +345,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
         <Checkbox isSelected={scanNow} onChange={setScanNow}>After saving, scan and complete details</Checkbox>
         {failure ? <Note tone="error" title="Not saved">{failure}</Note> : null}
       </Stack>
-      <Footer status="Save后 Peach 会重新Start.">
+      <Footer status="Peach restarts after saving.">
         <Button type="submit" {...busyProps(action.busy === 'save')}>Save configuration</Button>
       </Footer>
     </Section>

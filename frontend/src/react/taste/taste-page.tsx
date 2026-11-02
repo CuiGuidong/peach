@@ -507,7 +507,7 @@ export function TastePage(props: TasteProps) {
           {/* Old `.insightswitch`: the evidence came from two mutually exclusive views, shaped as a segmented control rather than two bare buttons. */}
           <TabList aria-label="Data sources for taste analysis" className={SEGMENTED_TRACK}>
             <Tab id="browser" className={SEGMENT}>Browser history</Tab>
-            <Tab id="peach" className={SEGMENT}>Peach plays与评价</Tab>
+            <Tab id="peach" className={SEGMENT}>Peach plays & ratings</Tab>
           </TabList>
           <div className="flex flex-wrap items-center gap-2">
             <Select aria-label="Analysis range" selectedKey={range}

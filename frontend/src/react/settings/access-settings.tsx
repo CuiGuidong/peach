@@ -53,7 +53,7 @@ export function AccessSettings({ initial, receipt }: AccessSettingsProps) {
       current_password: current, password: disable ? '' : password, confirmation: disable ? '' : confirmation,
     }, 'POST', signal), (next) => {
       setState(next); setCurrent(''); setPassword(''); setConfirmation(''); setDisable(false); setFields({});
-      receipt(next.mode === 'open' ? '已Turn off the access password' : 'Configuration saved');
+      receipt(next.mode === 'open' ? 'Access password turned off' : 'Configuration saved');
     }, (cause) => {
       const payload = cause instanceof ApiError ? cause.body as { errors?: FieldErrors; detail?: { errors?: FieldErrors } } : null;
       const errors = payload?.errors || payload?.detail?.errors;

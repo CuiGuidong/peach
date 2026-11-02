@@ -609,7 +609,7 @@ function Empty({ data, filtered, clear, checkAction }: {
   const noMatch = !!data.groups.length || filtered;
   const hasSources = !!data.sources.length;
   return <div data-follow-empty="" className="contents"><EmptyState icon={spriteGlyph(noMatch ? 'search-x' : 'rss')}
-    title={noMatch ? 'No updates under the current filter' : hasSources ? 'No updates yet' : '还没有Follows任何来源'}
+    title={noMatch ? 'No updates under the current filter' : hasSources ? 'No updates yet' : 'No sources followed yet'}
     actions={noMatch ? <Button size="small" onClick={clear}>Clear filters</Button>
       : hasSources ? checkAction : <ButtonLink size="small" href="/subscriptions?tab=add">Add follows</ButtonLink>}>
     {noMatch ? 'Try again after switching media type, creator, source, duration, or tags.'

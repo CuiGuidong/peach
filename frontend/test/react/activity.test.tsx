@@ -52,7 +52,7 @@ const run = (overrides: Partial<TaskRunPayload> = {}): TaskRunPayload => ({
 const followup = (parent: number, overrides: Partial<TaskRunPayload> = {}): TaskRunPayload =>
   run({
     id: 90, task_key: 'entity-avatar', task_label: 'Complete profile images', status: 'succeeded',
-    progress_total: null, progress_current: null, progress_label: '补全资料图片: 涼森れむ',
+    progress_total: null, progress_current: null, progress_label: 'Fill in profile images: 涼森れむ',
     finished_at: '2026-09-11T10:04:00Z', parent_run_id: parent, root_run_id: parent,
     followup_key: 'entity-avatar:performer:12', followup_depth: 1,
     result_summary: { outcome: 'Installed' }, ...overrides,

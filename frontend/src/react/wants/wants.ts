@@ -13,7 +13,7 @@ export const wantFollowKey = (itemId: number) => ['wants', 'follow', itemId] as 
 
 /** The four segments on the list; their order is the order set in the tabs. */
 export const PHASES = [
-  ['searching', 'To find'], ['unreleased', 'Unreleased'], ['given_up', 'Given up for now'], ['acquired', 'In library'],
+  ['searching', 'To find'], ['unreleased', 'Unreleased'], ['given_up', 'Give up for now'], ['acquired', 'In library'],
 ] as const;
 export type Phase = (typeof PHASES)[number][0];
 

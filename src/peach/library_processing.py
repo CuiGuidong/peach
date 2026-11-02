@@ -765,7 +765,7 @@ class ProcessingBusy(JobDeferred):
     """全库处理锁被占着，或者有用户发起的处理在等它；后台定向任务回到队列。"""
 
     def __init__(self, config):
-        super().__init__('等待扫描与采集完成后继续')
+        super().__init__('Waiting for the scan-and-scrape pass to finish')
         self.config = config
 
     def ready(self) -> bool:
@@ -892,11 +892,11 @@ def issue_summary(problems, paused=0):
     if not problems:
         return ''
     if paused >= problems:
-        return f'{problems} 项都卡在来源限流上，等一会儿再跑一次。'
+        return f'All {problems} item(s) are rate-limited by the source. Try again later.'
     if paused:
-        return (f'{problems} 项需要处理，其中 {paused} 项是来源限流，等一会儿再跑；'
-                '其余可重试未完成的部分。')
-    return f'{problems} 项需要处理，可重试未完成的部分。'
+        return (f'{problems} item(s) need attention: {paused} rate-limited by source, try later; '
+                'the rest can be retried now.')
+    return f'{problems} item(s) need attention. You can retry the unfinished parts.'
 
 
 def _issue_classification(message, retryable, paused):

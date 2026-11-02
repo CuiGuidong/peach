@@ -267,9 +267,9 @@ def w_taste_refresh(contract: WebContract, body, *, progress=None, checkpoint=No
             result = w_taste_refresh(contract, {**body, "background": False},
                 progress=lambda **fields: job.update(job_id, **fields),
                 checkpoint=lambda **fields: job.checkpoint(job_id, **fields), resume_state=job.snapshot())
-            job.update(job_id, **result, status="complete", message="้จๅๆต่ง่ฎฐๅฝ•ๆชๅ–ๅพ—" if result["warnings"] else "ๅฃๅ‘ณๅๆๅทฒๆดๆ–ฐ", completed_at=time.time())
+            job.update(job_id, **result, status="complete", message="Completed with warnings" if result["warnings"] else "Refresh complete", completed_at=time.time())
         return job.start(work, restart=True, initial={
-            "stage": "discovering", "message": "ๆญฃๅจๆฅๆพ Peach ไธปๆบไธ็ๆต่งๅจ่ตๆ–"},
+            "stage": "discovering", "message": "Scanning Peach profiles for browsing history"},
             recovery={'background': True, 'window': body.get('window') or 'all'})
     window = str(body.get("window") or "all")
     sources = enabled_history_sources(contract.taste_history_store)
@@ -304,8 +304,8 @@ def w_taste_refresh(contract: WebContract, body, *, progress=None, checkpoint=No
         write_manifest(contract.taste_history_manifest, results, analysis)
     contract.cache_bust()
     if progress:
-        progress(stage="dashboard", checked=0, total=None, message="ๆญฃๅจๆฑๆ€ปๅฃๅ‘ณๅๅธใ€ๆ ็ญพไธๅไฝ่€…ๆ’ๅ")
-    return {"refresh": results, "warnings": [f"{row['browser']} ยท {row['profile']}๏ผ{row['error']}"
+        progress(stage="dashboard", checked=0, total=None, message="Generating dashboard and insights")
+    return {"refresh": results, "warnings": [f"{row['browser']} - {row['profile']} - {row['error']}"
             for row in results if row.get("status") == "failed"], "dashboard": q_taste(contract, {"window": window})}
 
 
@@ -352,10 +352,10 @@ def w_search_history(contract: WebContract, body):
     return {"ok": True, "operation": operation}
 
 _STORAGE_LABELS = {
-    "system": "็ณป็ป็",
-    "local": "่ตๆบ็",
-    "115": "115 ็ฝ‘็",
-    "pikpak": "PikPak ็ฝ‘็",
+    "system": "System",
+    "local": "Local",
+    "115": "115 Cloud",
+    "pikpak": "PikPak Cloud",
 }
 
 

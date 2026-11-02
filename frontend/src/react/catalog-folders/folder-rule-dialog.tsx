@@ -48,7 +48,7 @@ export function FolderRuleDialog({ folder, rule, revision, close }: {
     if (!preview) return;
     void action.run('save', signal => apiSend<{ applied: number; conflicts: number }>('/api/folders/rule', {
       ...body, action: 'save', plan_version: preview.plan_version, expected_revision: revision,
-    }, 'POST', signal), result => finished(`已Save目录用途${result.applied ? `，关联 ${result.applied} items` : ''}`));
+    }, 'POST', signal), result => finished(`Folder purpose saved${result.applied ? `, linked to ${result.applied} items` : ''}`));
   };
   const remove = async () => {
     flushSync(() => setConfirming(true));
@@ -81,8 +81,8 @@ export function FolderRuleDialog({ folder, rule, revision, close }: {
         <Checkbox isSelected={recursive} isDisabled={busy} onChange={value => { setRecursive(value); dirty() }}>Apply to subfolders</Checkbox>
         <Checkbox isSelected={future} isDisabled={busy} onChange={value => { setFuture(value); dirty() }}>New files follow this rule</Checkbox>
         {preview ? <section aria-label="Folder purpose scope" className="flex flex-col gap-3">
-          <p className="text-body-medium">{preview.total} items · 可Apply {preview.applicable} items{preview.conflicts.length ? ` · 保留现有Attribution ${preview.conflicts.length} items` : ''}</p>
-          {preview.withdrawn ? <p className="text-body-2-regular text-text-secondary">Withdraw this rule's existing {preview.withdrawn} items关联，再按当前范围Apply.</p> : null}
+          <p className="text-body-medium">{preview.total} items · {preview.applicable} can apply{preview.conflicts.length ? ` · keeping ${preview.conflicts.length} existing attributions` : ''}</p>
+          {preview.withdrawn ? <p className="text-body-2-regular text-text-secondary">Withdraw this rule's existing {preview.withdrawn} links, then apply to the current scope.</p> : null}
           {preview.sample.length ? <ul className="flex flex-col gap-1 text-body-2-regular text-text-secondary">
             {preview.sample.map(item => <li className="wrap-anywhere" key={item.id}>{item.name}</li>)}
           </ul> : null}

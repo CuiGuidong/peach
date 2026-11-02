@@ -62,7 +62,7 @@ function CreateForm({ toast }: { toast: Toast }) {
       setName('');
       setProblem('');
       void refreshPlaylists();
-      toast('已New playlist', { undo: undoing(() => deletePlaylist(result.playlist.id)) });
+      toast('Playlist created', { undo: undoing(() => deletePlaylist(result.playlist.id)) });
     },
     onError: (cause) => setProblem(errorMessage(cause) || 'Creating failed'),
   });

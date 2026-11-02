@@ -29,7 +29,7 @@ export const AUTO_STAGES: readonly Stage[] = ['probe', 'metadata', 'cover', 'peo
 const PRESETS: readonly (readonly [Preset, string, string])[] = [
   ['auto', 'Auto-complete', 'Fetches online only what is missing'],
   ['local', 'Use local profiles only', 'Never online; local NFO and images only'],
-  ['custom', 'Custom', '逐项选择要做的Steps'],
+  ['custom', 'Custom', 'Pick the steps to run one by one'],
 ];
 
 /** Description of the three handling modes, placed once above the groups: one sentence always visible, the differences folded into an expandable comparison table. */
@@ -105,7 +105,7 @@ export function LibraryColorPicker({ id, name, value: color, onChange }: {
       <Popover triggerRef={trigger} isOpen={open} onOpenChange={setOpen} placement="bottom start" offset={8}
         containerPadding={12} className={MENU_POPOVER_SURFACE}>
         <Dialog aria-label={`Source color of ${name || 'Unnamed library'}`} className="outline-none">
-          <p className="px-1 pb-2 text-body-medium text-text-primary">选择Source color</p>
+          <p className="px-1 pb-2 text-body-medium text-text-primary">Choose a source color</p>
           <div data-accent-grid="" data-library-colors="" role="group">
             <button type="button" data-glow-chip="" aria-pressed={!color} title="No color" aria-label="No color"
               onClick={() => choose('')}>

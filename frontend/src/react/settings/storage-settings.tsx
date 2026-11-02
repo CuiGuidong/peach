@@ -48,7 +48,7 @@ const cleanable = (category: StorageCategory) => category.cleanable && category.
 function Measuring({ job }: { job: StorageState['job'] }) {
   const files = job.files || 0;
   const expected = job.expected_files || 0;
-  const reading = <>Measured <AnimatedNumber value={files} /> items文件 · <AnimatedNumber value={job.bytes || 0} format={fmtSize} /></>;
+  const reading = <>Measured <AnimatedNumber value={files} /> files · <AnimatedNumber value={job.bytes || 0} format={fmtSize} /></>;
   return (
     <div aria-live="polite" className="flex flex-col gap-2">
       {expected
