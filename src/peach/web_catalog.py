@@ -667,7 +667,7 @@ def attach_saved_follow_cards(contract: WebContract, rows):
 
 #: 版次的展示次序：正片在前，处理过的在后。这不是偏好排序，只是要一个稳定的
 #: 锚点——卡片标题取第一个，次序一变卡片就换名字。
-EDITION_ORDER = ("有码", "中字", "无码", "无码破解")
+EDITION_ORDER = ("Censored", "Chinese subs", "Uncensored", "decensored")
 
 
 def _edition_label(row: dict, tags: tuple[str, ...] = ()) -> str:
@@ -677,7 +677,7 @@ def _edition_label(row: dict, tags: tuple[str, ...] = ()) -> str:
     会和卡片上已经显示的徽章各说各话——同一个文件，角标写着无码、分组却当它是正片。
     """
     badges = jav_edition_badges(row.get('name'), row.get('code'), tags)
-    return str(badges[0]) if badges else "有码"
+    return str(badges[0]) if badges else "Censored"
 
 
 def _edition_rows(contract: WebContract, codes) -> list[dict]:

@@ -1,11 +1,11 @@
-"""ๆ•ฐๆฎ้ขๆฟ๏ผๅบ“ๅญ็ป่ฎกใ€ๅญๅจๅทใ€ๅฃๅ‘ณ็ช—ๅฃใ€ๆ็ดขๅๅฒไธ็”ป่ดจ็ฎๆ ใ€
+"""数据面板：库存统计、存储卷、口味窗口、搜索历史与画质目标。
 
-่ฟไธ€ๅ็่พ“ๅบๅ…จๆฏ่ๅๆ•ฐ๏ผๆฒกๆไธ€ๆกๆฏ็็ธๅญ—ๆฎต๏ผๅฎไปฌ่ฆไนๆฅ่ช `COUNT`/`SUM`๏ผ่ฆไนๆฅ่ช
-ๆต่งๅๅฒๅๆไบงๅบ็ JSONใ€ๅ ๆญค่ฟ้็ๅฝๆ•ฐ้ฝๅฏไปฅ่ตฐ `contract.cached()`๏ผไน้ฝๅฟ…้กป่ฝๅจ
-็ผ“ๅญ่ขซ `cache_bust()` ๆธ…ๆๆ—ถๅฎๅ…จไธขๅผ็ป“ๆโ€”โ€”ๅฃๅพ่ง `web_state.WebContract.cached`ใ€
+这一域的输出全是聚合数，没有一条是真相字段：它们要么来自 `COUNT`/`SUM`，要么来自
+浏览历史分析产出的 JSON。因此这里的函数都可以走 `contract.cached()`，也都必须能在
+缓存被 `cache_bust()` 清掉时安全丢弃结果——口径见 `web_state.WebContract.cached`。
 
-ๅญๅจๅทไธ€่่ฏป็ๆฏ็ๅฎๆ่ฝฝ็น๏ผไธๅจ็บฟ็ๆฅๆบ่ฆๆพ็คบๆใ€ๆชๆ่ฝฝใ€่€ไธๆฏ 0 ๅญ—่๏ผ
-ๅฆๅ้ขๆฟไผๆไธ€ๆ•ดๅ—ๅค–็ฝฎ็ๆฅๅ‘ๆใ€็ฉบ็ใ€ใ€
+存储卷一节读的是真实挂载点：不在线的来源要显示成「未挂载」而不是 0 字节，
+否则面板会把一整块外置盘报告成「空的」。
 """
 from __future__ import annotations
 
@@ -59,10 +59,10 @@ def _taste_since(window: str) -> str | None:
 
 
 def taste_inputs(contract: WebContract, window: str) -> tuple:
-    """`q_taste` ่ฏปๅฐ็่ดฆๆฌไนๅค–็ไธ่ฅฟ็็ๆฌ๏ผไธ่ดฆๆฌ็ๆฌๅทไธ€่ตทๆๆ็ๆฟๅฟซ็…ง็็ๆฌใ€
+    """`q_taste` 读到的账本之外的东西的版本，与账本版本号一起构成看板快照的版本。
 
-    ๆต่งๅๅฒๅบ“ใ€ๅๆๆธ…ๅ•ไธๅฏผๅ…ฅ็ฎๅฝ•็”ฑ `scripts/taste_history.py` ๅจ่ฟ็จๅค–ๅ๏ผๆฆๅ•ไธ็
-    ๅๅคดๅ่ฏปๅคดๅ็ฎๅฝ•ใ€ๆๆ—ถ้—ด็ช—็่งๅพ่ตท็นๆฏๅคฉๆป‘ไธ€ๆ ผ๏ผๆๆ—ฅๆ้็ฎ—ไธ€ๆฌกใ€
+    浏览历史库、分析清单与导入目录由 `scripts/taste_history.py` 在进程外写；榜单上的
+    圆头像读头像目录。有时间窗的视图起点每天滑一格，按日期重算一次。
     """
     return (store_version(contract.taste_history_store),
             path_version(contract.taste_history_manifest),
@@ -71,24 +71,24 @@ def taste_inputs(contract: WebContract, window: str) -> tuple:
             (_taste_since(window) or "")[:10])
 
 
-#: ็ๆฟ้็ฎ—ๆ€ๅค็ญ่ฟไนไน…ใ€่ดฆๆฌ้ไธๅฃๅ‘ณๆ— ๅ…ณ็ๅๅ…ฅ๏ผๆ’ญๆ”พใ€ๅ…ณๆณจๆฃ€ๆฅ๏ผไนๅ้็ฎ—ไธๅฐไธ€็ง’๏ผ
-#: ็…งๅธธ็ญๆ–ฐ็ป“ๆ๏ผ่บซไปฝ่พ“ๅ…ฅๅไบๆ–่ฟ็จๅ่ตทๆ—ถ่ฆๅๅ ็ง’๏ผๅฐฑๅ…ๅไธไธ€ไปฝๅนถๆ  `stale`๏ผๅๅฐ
-#: ็ฎ—ๅฎๅๆข๏ผไธ่ฎฉไธ€ไธช้กต้ขๅ ไฝๆ•ดไธชๆๅกใ€
+#: 看板重算最多等这么久。账本里与口味无关的写入（播放、关注检查）之后重算不到一秒，
+#: 照常等新结果；身份输入变了或进程刚起时要十几秒，就先回上一份并标 `stale`，后台
+#: 算完再换，不让一个页面占住整个服务。
 TASTE_FRESH_WAIT = 1.0
 
 
-#: ้็ฎ—ๅคฑ่ดฅๅ๏ผๅไธ€ไปฝ่พ“ๅ…ฅๅจ่ฟๆฎตๆ—ถ้—ดๅ…ไธๅ้็ฎ—๏ผๅคฑ่ดฅๅคๅๆฏ็กฎๅฎๆ€ง็๏ผๅบ“ๆๅใ€ไปฃ็ ้”่ฏฏ๏ผ๏ผ
-#: ้กต้ขๆฏไธค็ง’ไธ€้—ฎๅฐฑๆฏไธค็ง’่ตทไธ€่ถๅฟ…็ถๅคฑ่ดฅ็่ฎก็ฎ—ใ€่พ“ๅ…ฅๅไบใ€ๆ–้กต้ข็นใ€็ซๅณ้่ฏ•ใ€็…งๅธธ้็ฎ—ใ€
+#: 重算失败后，同一份输入在这段时间内不再重算：失败多半是确定性的（库损坏、代码错误），
+#: 页面每两秒一问就每两秒起一趟必然失败的计算。输入变了、或页面点「立即重试」照常重算。
 TASTE_RETRY_AFTER = 300.0
 
-#: ๅฃๅ‘ณ็ๆฟๅฎ้…่ฏปๅฐ็่ดฆๆฌ่กจ๏ผ`test_ledger_revision.DeclaredTablesTests` ็”จ SQLite ๆๆๅ่ฐ
-#: ๅฎๆตๆ ธๅฏนใ€้•ฟไปปๅกๅๅซ็่กจ๏ผๅ…ณๆณจๆฃ€ๆฅใ€่ตๆ–ๅค็็็ถๆ€ไธไปปๅกๅฟ่ทณ๏ผไธ่ฎฉ็ๆฟ้็ฎ—ใ€
+#: 口味看板实际读到的账本表，`test_ledger_revision.DeclaredTablesTests` 用 SQLite 授权回调
+#: 实测核对。长任务写别的表（关注检查、资料处理的状态与任务心跳）不让看板重算。
 TASTE_TABLES = ("asset", "asset_entity", "asset_preference", "entity", "entity_alias",
                 "entity_classification", "entity_link", "follow_source")
 
 
 class _TasteSnapshot:
-    """ไธ€ไธช่ๅดๆ€่ฟ‘็ฎ—ๅบ็็ๆฟใ€ๅฎๅฏนๅบ”็่พ“ๅ…ฅ็ๆฌใ€ๆญฃๅจๅๅฐ้็ฎ—็้ฃไธ€่ถ๏ผไปฅๅๆ€่ฟ‘ไธ€ๆฌกๅคฑ่ดฅใ€"""
+    """一个范围最近算出的看板、它对应的输入版本、正在后台重算的那一趟，以及最近一次失败。"""
 
     def __init__(self):
         self.version = None
@@ -96,7 +96,7 @@ class _TasteSnapshot:
         self.computed_at: str | None = None
         self.worker: threading.Thread | None = None
         self.error: Exception | None = None
-        #: ๆ€่ฟ‘ไธ€ๆฌกๅคฑ่ดฅๅฏนๅบ”็่พ“ๅ…ฅ็ๆฌไธๆ—ถๅป๏ผ`time.monotonic()`๏ผใ€
+        #: 最近一次失败对应的输入版本与时刻（`time.monotonic()`）。
         self.failed_version = None
         self.failed_at = 0.0
 
@@ -106,12 +106,12 @@ _TASTE_LOCK = threading.Lock()
 
 
 def _taste_version(contract: WebContract, window: str):
-    """ๅฃๅ‘ณไพ่ต–่กจ็็ๆฌๅทใ€ไปฃ็ ๆ็บนๅ  `taste_inputs`๏ผ่ฝฌๆ JSON ๅ่ฏปๅ๏ผๅ…ๅญไธ็ฃ็ไธ็
-    ็ๆฌๆ่ฝ็ดๆฅๆฏ”ใ€ไปฃ็ ๆ็บนๅซ็ๆฌๅทไธๅฃๅ‘ณๅๆจกๅ—็ๆบ็ ๏ผๅ็บงๅ่ฝ็็ๆ—งๅฟซ็…งไธ็ฎ—ๆ–ฐ้ฒใ€"""
+    """口味依赖表的版本号、代码指纹加 `taste_inputs`，转成 JSON 再读回，内存与磁盘上的
+    版本才能直接比。代码指纹含版本号与口味各模块的源码，升级后落盘的旧快照不算新鲜。"""
     from .taste_preferences import _policy_fingerprint
     revision = contract.ledger_revision(TASTE_TABLES)
     if revision is None:
-        # ่ดฆๆฌ่ฟๆฒกๆ็ๆฌๅทๆ—ถๆ็ผ“ๅญๆ—ถๆ•ๅๆฎต๏ผๅ `cached_until_changed` ็้€€่ทฏใ€
+        # 账本还没有版本号时按缓存时效分段，同 `cached_until_changed` 的退路。
         revision = f"ttl:{int(time.time() // CACHE_TTL)}"
     return json.loads(json.dumps([revision, _policy_fingerprint(), *taste_inputs(contract, window)],
                                  default=str))
@@ -122,7 +122,7 @@ def _taste_snapshot_path(contract: WebContract, window: str):
 
 
 def _load_taste_snapshot(contract: WebContract, window: str, snapshot: _TasteSnapshot) -> None:
-    """่ฟ็จ้ๅฏๅๅ…ๆฅไธไธ€ๆฌก็็ๆฟ๏ผ่พ“ๅ…ฅๆฒกๅๅฐฑๆฏ็ฐๆ็ป“ๆ๏ผๅไบไนๆไธ€ไปฝๅฏไปฅๅ…ๆพ็คบใ€"""
+    """进程重启后先接上一次的看板：输入没变就是现成结果，变了也有一份可以先显示。"""
     try:
         saved = json.loads(_taste_snapshot_path(contract, window).read_text(encoding="utf-8"))
         snapshot.version, snapshot.payload, snapshot.computed_at = (
@@ -134,7 +134,7 @@ def _load_taste_snapshot(contract: WebContract, window: str, snapshot: _TasteSna
 def _compute_taste_snapshot(contract: WebContract, window: str, version, snapshot: _TasteSnapshot) -> None:
     try:
         payload = q_taste(contract, {"window": window})
-    except Exception as error:  # ๆฒกๆๆ—ง็ป“ๆๆ—ถ่ฏทๆฑ็บฟ็จๅๆ ทๆ็ป่ฐ็”จๆ–น๏ผๆๆ—ง็ป“ๆๆ—ถ้ stale ไธๅ‘
+    except Exception as error:  # 没有旧结果时请求线程原样抛给调用方，有旧结果时随 stale 下发
         with _TASTE_LOCK:
             snapshot.error, snapshot.failed_version, snapshot.failed_at = (
                 error, version, time.monotonic())
@@ -153,14 +153,14 @@ def _compute_taste_snapshot(contract: WebContract, window: str, version, snapsho
 
 
 def taste_snapshot(contract: WebContract, window: str, *, retry: bool = False) -> dict:
-    """`/api/taste`๏ผ่พ“ๅ…ฅ็ๆฌๆฒกๅๅฐฑๅ็ฐๆ็็ๆฟ๏ผๅไบๅฐฑๅจๅๅฐ้็ฎ—ใ€
+    """`/api/taste`：输入版本没变就回现成的看板，变了就在后台重算。
 
-    ้็ฎ—ๅจ `TASTE_FRESH_WAIT` ๅ…ๅฎๆๅฐฑๅๆ–ฐ็ป“ๆ๏ผๆฒกๅฎๆๅ…ๅไธไธ€ไปฝ๏ผๅธฆไธ `stale` ไธ
-    `computed_at`๏ผ้กต้ขๆฎๆญคๆ ๅบๆ•ฐๆฎๆ—ถ้—ดๅนถ็จๅๅ้—ฎใ€ไธ€ไปฝ้ฝๆฒกๆๆ—ถ็ญๅฐ็ฎ—ๅฎใ€ๅไธ€่ๅดๅๆ—ถ
-    ๅชๆไธ€่ถๅจ็ฎ—ใ€
+    重算在 `TASTE_FRESH_WAIT` 内完成就回新结果；没完成先回上一份，带上 `stale` 与
+    `computed_at`，页面据此标出数据时间并稍后再问。一份都没有时等到算完。同一范围同时
+    只有一趟在算。
 
-    ๅไธ€ไปฝ่พ“ๅ…ฅ็ฎ—ๅคฑ่ดฅๅ๏ผ`TASTE_RETRY_AFTER` ๅ…ไธๅ้็ฎ—๏ผๆๆ—ง็ป“ๆๆ—ถๅๆ—ง็ป“ๆๅนถๅธฆ `error`๏ผ
-    ้กต้ขๆฎๆญคๅๆญข่ฝฎ่ฏขใ€็ปๅบ้่ฏ•ๅ…ฅๅฃ๏ผๆฒกๆๆ—ง็ป“ๆๆ—ถๆๅบ้ฃๆฌก็้”่ฏฏใ€`retry` ่ทณ่ฟ่ฟๆฎต็ญๅพ…ใ€
+    同一份输入算失败后，`TASTE_RETRY_AFTER` 内不再重算：有旧结果时回旧结果并带 `error`，
+    页面据此停止轮询、给出重试入口；没有旧结果时抛出那次的错误。`retry` 跳过这段等待。
     """
     _taste_since(window)
     version = _taste_version(contract, window)
@@ -185,7 +185,7 @@ def taste_snapshot(contract: WebContract, window: str, *, retry: bool = False) -
         worker.join(None if empty else TASTE_FRESH_WAIT)
     with _TASTE_LOCK:
         if snapshot.payload is None:
-            raise snapshot.error or RuntimeError("ๅฃๅ‘ณๅๆๆชๅ–ๅพ—")
+            raise snapshot.error or RuntimeError("口味分析未取得")
         stale = snapshot.version != version
         result = {**snapshot.payload, "computed_at": snapshot.computed_at, "stale": stale}
         if stale and snapshot.failed_version == version and snapshot.error is not None:
@@ -193,8 +193,8 @@ def taste_snapshot(contract: WebContract, window: str, *, retry: bool = False) -
         return result
 
 
-#: ๅฃๅ‘ณๆฆ้ไผๅบๅๅคดๅ็ไธคๆ’๏ผไปฅๅ้กต้ขไธ่ฏปๅพ—ๅฐๅฎไปฌ็้ฃๅ ไธชๆฆๅ•้”ฎใ€ๆ ็ญพๆฆๅ’็ฝ‘็ซๆฆ
-#: ไธๅบ่ธ๏ผๅๅ้ฃๆ’ๅบ็ๆฏ็ซ็น favicon๏ผ้ฝไธๅจ่ฟ้ใ€
+#: 口味榜里会出圆头像的两排，以及页面上读得到它们的那几个榜单键。标签榜和网站榜
+#: 不出脸，域名那排出的是站点 favicon，都不在这里。
 TASTE_FACE_RANKINGS = {
     "creator": ("creators", "browser_creators", "peach_creators"),
     "performer": ("performers", "browser_performers", "peach_performers"),
@@ -202,15 +202,15 @@ TASTE_FACE_RANKINGS = {
 
 
 def _attach_taste_face_availability(contract: WebContract, rankings: dict) -> None:
-    """็ปๅฃๅ‘ณๆฆ็ไบบๅ่กๆ ไธใ€ๅฎไฝ“ๅพๅ’ไปฃ่กจไฝๅคดๅๅ–ไธๅ–ๅพ—ๅฐใ€ใ€
+    """给口味榜的人像行标上「实体图和代表作头像取不取得到」。
 
-    ๆฆ่กๅ’ๅซๅค็่บซไปฝๅผ•็”จๅฝข็ถไธไธ€ๆ ท๏ผ`entity_id` ไธ `representative_asset_id` ๆฏ่ก
-    ่ชๅทฑ็ๅ—๏ผไธๆฏๅตๅจ `entity_ref` ้๏ผ๏ผไฝๅคๆฎๆฏๅไธ€ๅฏน๏ผ`has_entity_image()` ๅ 
-    `has_avatar()`ใ€็ผบไบๆ ๅฟ—่ฟไธคๆ’ๅฐฑๅช่ฝๆ— ๆกไปถๅบๅพใ€็ญ 404 ๅๆๅพๆ‘ๆใ€
+    榜行和别处的身份引用形状不一样（`entity_id` 与 `representative_asset_id` 是行
+    自己的列，不是嵌在 `entity_ref` 里），但判据是同一对：`has_entity_image()` 加
+    `has_avatar()`。缺了标志这两排就只能无条件出图、等 404 再把图摘掉。
 
-    ๅไธ€ไธช dict ไผๅๆ—ถๅบ็ฐๅจๅคไธชๆฆๅ•้๏ผ`peach_creators` ๆฏ `creators` ่ฟๆปคๅบๆฅ็
-    ๅญ้๏ผไธๆฏๅฏๆฌ๏ผ๏ผๆ€ไปฅๆๅฏน่ฑก่บซไปฝๅป้ๅๆ ไธ€ๆฌกโ€”โ€”ๅฆๅไปฃ่กจไฝ้ฃๆฌกๆน้ๆฅ่ฏข่ฆๆๆฆๅ•
-    ๆ•ฐ้้ๅค่ท‘ใ€
+    同一个 dict 会同时出现在多个榜单里（`peach_creators` 是 `creators` 过滤出来的
+    子集，不是副本），所以按对象身份去重再标一次——否则代表作那次批量查询要按榜单
+    数量重复跑。
     """
     for kind, keys in TASTE_FACE_RANKINGS.items():
         rows = list({id(row): row for key in keys
@@ -220,8 +220,8 @@ def _attach_taste_face_availability(contract: WebContract, rankings: dict) -> No
         for row in rows:
             row["has_image"] = contract.has_entity_image(kind, row.get("entity_id"))
             row["image_version"] = contract.entity_image_version(kind, row.get("entity_id"))
-            #: ๆฆไธ้ฃ้ข— 30 px ็ๅๅคดๅๅ’ๅซๅคๅไธ€ไปฝ sidecarใ€ๅไธ€ไธชๆข็ฎ—ใ€ๆก่ถๅฐ๏ผๅ ไฝ•
-            #: ๅฑ…ไธญๅๆ่ธ็ไปฃไปท่ถๅคงโ€”โ€”่ฟไธ€ๆ ผ้คไบ่ธๆฒกๆๅซ็ไธ่ฅฟ่ฝ่ฎคไบบใ€
+            #: 榜上那颗 30 px 的圆头像和别处同一份 sidecar、同一个换算。框越小，几何
+            #: 居中切掉脸的代价越大——这一格除了脸没有别的东西能认人。
             row["avatar_focus"] = contract.avatar_focus(kind, row.get("entity_id"))
         attach_avatar_availability(contract, rows, key="representative_asset_id")
 
@@ -235,7 +235,7 @@ def q_taste(contract: WebContract, args=None):
             connection,
             since=_taste_since(window),
         )
-    # ๅ–ๅพๅฏ็”จๆ€งๅจๅบ“่ฟๆฅไนๅค–ๅค๏ผๅฎ่ฏป็ๆฏๅคดๅ็ฎๅฝ•็็ดขๅผ•๏ผไธๆฏ่ดฆๆฌใ€
+    # 取图可用性在库连接之外判：它读的是头像目录的索引，不是账本。
     _attach_taste_face_availability(contract, payload.get("rankings") or {})
     updated_at = None
     try:
@@ -283,7 +283,7 @@ def w_taste_refresh(contract: WebContract, body, *, progress=None, checkpoint=No
         profile_keys = [f'{kind}:{source.browser}:{source.profile}:{source.path}'
                         for kind, selected, _refresh in plans for source in selected]
         if checkpoint and not checkpoint(profile_keys=profile_keys):
-            raise InterruptedError('ๅฃๅ‘ณ่ฏปๅ–ๅทฒๅๆญข')
+            raise InterruptedError('口味读取已停止')
     def profile_progress(**fields):
         if progress:
             progress(**{**fields, 'checked': len(completed), 'total': len(profile_keys)})
@@ -298,7 +298,7 @@ def w_taste_refresh(contract: WebContract, body, *, progress=None, checkpoint=No
                 completed.add(key)
             if checkpoint and not checkpoint(refresh_results=results.copy(), completed_profiles=sorted(completed),
                                               checked=len(completed), total=len(profile_keys)):
-                raise InterruptedError('ๅฃๅ‘ณ่ฏปๅ–ๅทฒๅๆญข')
+                raise InterruptedError('口味读取已停止')
     if contract.taste_history_store.is_file():
         analysis = analyze_history(contract.taste_history_store, contract.taste_history_root, progress=progress)
         write_manifest(contract.taste_history_manifest, results, analysis)
@@ -360,9 +360,9 @@ _STORAGE_LABELS = {
 
 
 def _storage_volumes() -> list[dict[str, object]]:
-    """่ฟ”ๅๅฝ“ๅไธปๆบๅฏ้ช่ฏ็็ณป็ปๅทใ€่ตๆบ็ๅ’็ฝ‘็ๅฎน้ใ€"""
+    """返回当前主机可验证的系统卷、资源盘和网盘容量。"""
     declarations = [("system", _STORAGE_LABELS["system"], system_volume(), True)] + [
-        # ไธ€ไธชๆฅๆบๆๅ ไธชๆ นๅฐฑๅ ่ก๏ผๅๅๆฅๆบ็”จๅบๅทๅบๅ๏ผๅ•ๆ นไธๅ ใ€
+        # 一个来源有几个根就几行；同名来源用序号区分，单根不加。
         (location,
          _STORAGE_LABELS.get(location, location) + (f" {index + 1}" if len(roots) > 1 else ""),
          translate_ledger_path(root), False)
@@ -395,19 +395,19 @@ def _storage_volumes() -> list[dict[str, object]]:
     return volumes
 
 
-#: ๅบ“ๅญไธ€่ๅชๆ•ฐ็ไธ่ฟๅจ็๏ผๆ ใ€ๅทฒๆถๅคฑใ€็่ก็•็€ๅชไธบไธชไบบ่ฎฐๅฝ•๏ผADR-0087๏ผ๏ผไธ็ฎ—ๅบ“ๅญใ€
-#: ๅๆ”ถ็ซ้็็…งๆ—ง็ฎ—่ฟๆฅใ€ๆ’ญๆ”พไธๆถ่ดนไธ€่ๆฏไธชไบบ่ฎฐๅฝ•ๆฌ่บซ๏ผไธๅฅ—่ฟไธ€ๆกใ€
+#: 库存一节只数盘上还在的：标「已消失」的行留着只为个人记录（ADR-0087），不算库存。
+#: 回收站里的照旧算进来。播放与消费一节是个人记录本身，不套这一条。
 PRESENT = "COALESCE(disposal,'')<>'vanished' AND NOT peach_is_local_extra(name,path)"
 PRESENT_A = "COALESCE(a.disposal,'')<>'vanished' AND NOT peach_is_local_extra(a.name,a.path)"
 
 
-#: ่ง้ข‘็ๆ—ถ้•ฟไธ็”ป่ดจๅๆกฃ๏ผ้กบๅบๅ `media_probe.context_fields` ็ๅคๆฎ๏ผ็”ฑ็ญๅฐ้•ฟใ€็”ฑ้ซๅฐไฝใ€
-LENGTH_BANDS = ("้€้ฃ", "็ญ", "ไธญ", "้•ฟ")
-QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "ไฝ็”ป่ดจ")
+#: 视频的时长与画质分档，顺序同 `media_probe.context_fields` 的判据：由短到长、由高到低。
+LENGTH_BANDS = ("速食", "短", "中", "长")
+QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "低画质")
 
 
 def _bands(c, column: str, order: tuple[str, ...]) -> list[dict[str, object]]:
-    """ไธ€ๅ—ๅๆกฃ็่ง้ข‘ๆ•ฐใ€ๅคๆฎ้็ๆกฃไฝๆ้กบๅบๅ…จๅ—ๅบๆฅ๏ผๆฒกๆ่ง้ข‘็่ฏป 0๏ผ่ดฆๆฌ้ๅคๅบ็ๆกฃๆ’ๅจๅ้ขใ€"""
+    """一列分档的视频数。判据里的档位按顺序全列出来，没有视频的读 0；账本里多出的档排在后面。"""
     counts = {row[0]: row[1] for row in c.execute(
         f"SELECT {column},count(*) FROM asset WHERE medium='video' AND {column} IS NOT NULL "
         f"AND {PRESENT} GROUP BY {column}")}
@@ -415,17 +415,17 @@ def _bands(c, column: str, order: tuple[str, ...]) -> list[dict[str, object]]:
     return [{"k": key, "n": counts.get(key, 0)} for key in (*order, *extra)]
 
 
-#: ๅจ็บฟ่ฟฝๆด็ไธ€ๆกๆ’ญๆ”พไธ็ฎ—่ฟๆฅ็ๆกไปถ๏ผๅฎๅ…ณ่”็้ฆ่—่ง้ข‘่ชๅทฑๅทฒ็ปๆ่ฟไธ€้กนใ€ๅ’ `online_played`
-#: ๅไธ€ไธชๅป้๏ผไธ€ไธชไฝๅ“ๅจไธค่พน้ฝๆ’ญ่ฟๅช็ฎ—ไธ€ๆฌกใ€
+#: 在线追更的一条播放不算进来的条件：它关联的馆藏视频自己已经有这一项。和 `online_played`
+#: 同一个去重，一个作品在两边都播过只算一次。
 _ONLINE_ONLY = ("(fi.asset_id IS NULL OR NOT EXISTS(SELECT 1 FROM asset a "
                 "WHERE a.id=fi.asset_id AND {}))")
 
 
 def _play_activity(c, has_follow: bool) -> dict[str, object]:
-    """ๆฏไธชไฝๅ“ๆ€่ฟ‘ไธ€ๆฌกๆ’ญๆ”พ่ฝๅจๅ“ชไธ€ๅคฉใ€ๆๆๅ ็ๅ“ชไธช้’็น๏ผๆๆฌๆบๆ—ถๅบ็ฎ—ใ€
+    """每个作品最近一次播放落在哪一天、星期几的哪个钟点，按本机时区算。
 
-    ๅฝข็ถๅๅฃๅ‘ณ้กต็ `activity`๏ผ`days`ใ€`hours`ใ€`timezone`๏ผ๏ผๅ็ซฏไธคๅคๅ…ฑ็”จไธ€ๅผ ็ญๅๅกใ€
-    ่ดฆๆฌๆฏไธชไฝๅ“ๅช่ฎฐๆ€่ฟ‘ไธ€ๆฌกๆ’ญๆ”พ็ๆ—ถ้—ด๏ผๆ€ไปฅไธ€ไธชไฝๅ“ๅชๅ ไธ€ๆ ผใ€"""
+    形状同口味页的 `activity`（`days`、`hours`、`timezone`），前端两处共用一张热力卡。
+    账本每个作品只记最近一次播放的时间，所以一个作品只占一格。"""
     stamps = [row[0] for row in c.execute(
         "SELECT CAST(last_played AS REAL) FROM asset WHERE last_played IS NOT NULL")]
     if has_follow:
@@ -455,7 +455,7 @@ def _play_activity(c, has_follow: bool) -> dict[str, object]:
 
 
 def _replays(c, has_follow: bool) -> list[dict[str, int]]:
-    """ๆ’ญๆ”พๆฌกๆ•ฐ็ๅๅธ๏ผๆ’ญ่ฟ k ๆฌก็ไฝๅ“ๆๅ ไธชใ€ๅ่ฎกไธ `consumption.played` ็ธๅใ€"""
+    """播放次数的分布：播过 k 次的作品有几个。合计与 `consumption.played` 相同。"""
     counts: dict[int, int] = {}
     rows = list(c.execute("SELECT play_count,count(*) FROM asset WHERE play_count>0 GROUP BY play_count"))
     if has_follow:
@@ -468,17 +468,17 @@ def _replays(c, has_follow: bool) -> list[dict[str, int]]:
     return [{"k": plays, "n": n} for plays, n in sorted(counts.items())]
 
 
-#: ็ป่ฎก้กต่ดฆๆฌ้ฃไธ€ๆฎต่ฏปๅฐ็่กจใ€`tag_not_hidden` ่ฏปๆ ็ญพๅๅฅฝไธๆ ็ญพๅฎไฝ“็ๅซๅ๏ผ
-#: `tag_is_not_a_performer_name` ่ฏปๅฎไฝ“๏ผๅจ็บฟๆ’ญๆ”พ่ฏปๅ…ณๆณจไธๅผ ่กจใ€
+#: 统计页账本那一段读到的表。`tag_not_hidden` 读标签偏好与标签实体的别名，
+#: `tag_is_not_a_performer_name` 读实体，在线播放读关注三张表。
 STATS_TABLES = ("asset", "asset_entity", "entity", "entity_alias", "asset_tag", "asset_tag_preference",
                 "asset_preference", "follow_playback", "follow_item", "follow_source")
 
 
 def q_stats(contract: WebContract):
-    """็ป่ฎก้กต๏ผๅบ“ๅญ / ๅฝ’ๅฑ / ๆ ็ญพ / ๆฌๅฐไธๅจ็บฟๆ’ญๆ”พ / ๅๅญๅจๅทใ€
+    """统计页：库存 / 归属 / 标签 / 本地与在线播放 / 各存储卷。
 
-    ่ดฆๆฌ้ฃไธ€ๆฎตไธๅๅคๆก่ๅ SQL ๅ่ฎกไธ€็ง’ๅค๏ผๆ `STATS_TABLES` ็็ๆฌ็ผ“ๅญ๏ผๅช’ไฝ“ๅบ“ๅ’ๅๅ–่ช่ฎพ็ฝฎ๏ผ
-    ็ญๅๅพๆๆฌๆบๆ—ถๅบๅๆกถ๏ผไธคๆ ทไฝไธบ่พ“ๅ…ฅ่ฟ็ๆฌใ€ๅญๅจๅท่ฏป็ๆฏ็ฃ็ไฝ้๏ผไธ่ดฆๆฌๆ— ๅ…ณ๏ผๆๆ—ถ้—ด่ฟๆใ€
+    账本那一段三十多条聚合 SQL 合计一秒多，按 `STATS_TABLES` 的版本缓存；媒体库划分取自设置，
+    热力图按本机时区分桶，两样作为输入进版本。存储卷读的是磁盘余量，与账本无关，按时间过期。
     """
     config = settings_file.active()
     libraries = [(library, media_libraries.predicate(config, library["id"]))
@@ -486,7 +486,7 @@ def q_stats(contract: WebContract):
     out = dict(contract.cached_until_changed(
         "stats-ledger", lambda: _ledger_stats(contract, libraries),
         repr(libraries), utc_offset_label(datetime.now().astimezone()), tables=STATS_TABLES))
-    # ๅคๅฎๅจ็บฟ่ฆ่ฏปไธ€ๆฌกๅๆ่ฝฝๆ น็้ฆ–ๆก็ฎๅฝ•้กน๏ผ็ฝ‘็ๆ่ฝฝไธไธไพฟๅฎ๏ผๆฒฟ็”จ TTL ็ผ“ๅญใ€
+    # 判定在线要读一次各挂载根的首条目录项，网盘挂载上不便宜，沿用 TTL 缓存。
     out.update(contract.cached("stats-storage", _storage_stats))
     return out
 
@@ -613,7 +613,7 @@ def _storage_stats() -> dict:
         {"root": system["root"], "free": system["free"], "total": system["total"]}
         if system and system["total"] is not None else None
     )
-    out["disk_c"] = out["system_disk"]  # 0.6.x ๅฎขๆท็ซฏๅ…ผๅฎนๅซๅ
+    out["disk_c"] = out["system_disk"]  # 0.6.x 客户端兼容别名
     return out
 
 

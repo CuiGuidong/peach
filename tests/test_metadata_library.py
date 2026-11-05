@@ -602,8 +602,10 @@ class LibraryNfoTests(unittest.TestCase):
     def test_filename_code_families_enter_metadata_collection(self):
         media = self.root / 'media'
         media.mkdir()
+        # MKD 那条不用 .iso：扩展名命中个人黑名单（NON_ADULT_PATTERNS 里的 ".iso"），
+        # 会被扫描过滤器挡掉。
         codes = {'LAF-41.mpg': 'LAF-041', 'MKBD-S94.mkv': 'MKBD-S94',
-                 'MKD-S118.iso': 'MKD-S118', '040221_0012.flv': '040221_0012'}
+                 'MKD-S118.mpg': 'MKD-S118', '040221_0012.flv': '040221_0012'}
         for name in codes:
             (media / name).write_bytes(b'video')
         db = fresh_ledger(self.root)
@@ -2015,16 +2017,16 @@ class LibraryNfoTests(unittest.TestCase):
                           '封面本趟没轮到：本趟采集次数已用完，再跑一次接着采'])
         self.assertEqual({row['severity'] for row in state['issue_preview']}, {'paused'})
         self.assertEqual((state['issue_count'], state['paused_count']), (2, 2))
-        self.assertEqual(state['error'], '2 项都卡在来源限流上，等一会儿再跑一次。')
+        self.assertEqual(state['error'], 'All 2 item(s) are rate-limited by the source. Try again later.')
         self.assertEqual(state['retryable_asset_ids'], [1], '等来源放开之后重试仍然有意义')
 
     def test_the_two_kinds_are_counted_apart_in_the_line_that_sums_them_up(self):
         from peach.library_processing import issue_summary
         self.assertEqual(issue_summary(0), '')
-        self.assertEqual(issue_summary(3), '3 项需要处理，可重试未完成的部分。')
+        self.assertEqual(issue_summary(3), '3 item(s) need attention. You can retry the unfinished parts.')
         self.assertEqual(issue_summary(3, 1),
-                         '3 项需要处理，其中 1 项是来源限流，等一会儿再跑；其余可重试未完成的部分。')
-        self.assertEqual(issue_summary(3, 3), '3 项都卡在来源限流上，等一会儿再跑一次。')
+                         '3 item(s) need attention: 1 rate-limited by source, try later; the rest can be retried now.')
+        self.assertEqual(issue_summary(3, 3), 'All 3 item(s) are rate-limited by the source. Try again later.')
 
     @windows_ledger_roots
     def test_a_source_that_said_no_is_not_asked_again_for_a_week(self):
@@ -2067,7 +2069,7 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual((second['status'], second['issue_count']), ('complete', 0))
         self.assertEqual((first['status'], first['issue_count']), ('failed', 1))
         # 状态文件里没有 `notes` 的任务，读出来要按日志把告知项和问题分开重算。
-        stored = dict(second, status='failed', error='2 项需要处理，可重试未完成的部分。', issue_count=2,
+        stored = dict(second, status='failed', error='2 item(s) need attention. You can retry the unfinished parts.', issue_count=2,
                       issue_preview=[{'asset_id': 1, 'title': 'STP-26232.mp4', 'path': '',
                                       'message': message, 'severity': 'error'}
                                      for message in ('外部来源没有这部片的资料，7 天内不再问',
@@ -2889,7 +2891,7 @@ class LibraryWatchdogTests(unittest.TestCase):
         self.assertTrue(live['stalled'])
         dead = snapshot(config)
         self.assertEqual(dead['status'], 'failed')
-        self.assertIn('中断', dead['error'])
+        self.assertIn('interrupted', dead['error'])
         self.assertEqual(json.loads(path.read_text(encoding='utf-8'))['status'], 'failed')
         # 另一个读取者正好占着锁时读到的也是同一个结论，不会跳回「运行中」。
         with FileLock(str(path) + '.lock', timeout=0):

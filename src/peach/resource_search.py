@@ -134,8 +134,8 @@ def qualities(title: str, tags: list[str], code: str) -> dict:
         (r"(?i)\b(?:h[ ._-]?264|x264|avc)\b", "AVC"),
         (r"(?i)\bav1\b", "AV1")) if re.search(pattern, text)), "")
     editions = jav_edition_badges(title, code, tags)
-    return {"resolution": resolution, "codec": codec, "chinese": "中字" in editions,
-            "uncensored": "无码" in editions or "无码破解" in editions}
+    return {"resolution": resolution, "codec": codec, "chinese": "Chinese subs" in editions,
+            "uncensored": "Uncensored" in editions or "decensored" in editions}
 
 
 def torrent_info_hash(data: bytes) -> str:

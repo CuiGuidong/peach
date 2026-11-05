@@ -50,7 +50,7 @@ export function javTitleParts(it:Item,value=it?.name):{code:string;title:string;
     ?String(it.display_title||'').trim():filenameTitle;
   const title=officialTitle||cleanFallback;
   const badges=Array.isArray(it?.edition_badges)?it.edition_badges.filter(
-    label=>['Chinese subs','Uncensored','Uncensored'].includes(label)):[];
+    label=>['Chinese subs','Uncensored','decensored'].includes(label)):[];
   const dimensions=[Number(it?.width)||0,Number(it?.height)||0];
   if(Math.min(...dimensions)>=2160&&Math.max(...dimensions)>=3840)badges.push('4K');
   return {code:displayCode,title,badges};

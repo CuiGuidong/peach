@@ -624,8 +624,8 @@ class WebDataTests(unittest.TestCase):
         # 同一来源的几个根各占一行，用序号区分；单根来源不带序号。
         self.assertEqual(
             [(row["kind"], row["label"]) for row in stats["storage_volumes"]],
-            [("system", "系统盘"), ("local", "资源盘 1"), ("local", "资源盘 2"),
-             ("115", "115 网盘"), ("pikpak", "PikPak 网盘")],
+            [("system", "System"), ("local", "Local 1"), ("local", "Local 2"),
+             ("115", "115 Cloud"), ("pikpak", "PikPak Cloud")],
         )
         self.assertEqual(stats["storage_summary"], {
             "volumes": 5, "online": 5, "measured": 5,
@@ -1684,7 +1684,7 @@ class WebDataTests(unittest.TestCase):
         con.commit(); con.close()
         groups = rm_web._edition_groups(self.contract, ["ABF-234"])
         self.assertEqual(list(groups), ["ABF-234"])
-        self.assertEqual([item["edition"] for item in groups["ABF-234"]], ["有码", "无码"])
+        self.assertEqual([item["edition"] for item in groups["ABF-234"]], ["Censored", "Uncensored"])
         # 正片在前只是要一个稳定的锚点：次序一变，卡片标题就跟着换。
         self.assertEqual(groups["ABF-234"][0]["id"], 9001)
 
@@ -2909,12 +2909,12 @@ class JavModeAndCoverTests(unittest.TestCase):
         )
         self.assertEqual(subtitled, {
             "display_code": "CJOD-175", "display_title": "",
-            "edition_badges": ["中字"],
+            "edition_badges": ["Chinese subs"],
         })
         self.assertEqual(advertised["display_title"], "")
         self.assertEqual(uncensored["display_title"], "Hinata Mio")
-        self.assertEqual(uncensored["edition_badges"], ["无码"])
-        self.assertEqual(cracked["edition_badges"], ["无码破解"])
+        self.assertEqual(uncensored["edition_badges"], ["Uncensored"])
+        self.assertEqual(cracked["edition_badges"], ["decensored"])
 
     def test_uncensored_release_names_are_not_shown_as_titles(self):
         """无码片的文件名由「发行站 + 番号 + 画质/分卷」拼成，一个标题词都没有。
@@ -2971,7 +2971,7 @@ class JavModeAndCoverTests(unittest.TestCase):
             ("122614_001-1pon-whole1_hd.avi", "122614-947"),
         ):
             self.assertEqual(
-                rm_web.jav_display_metadata(name, code)["edition_badges"], ["无码"], name)
+                rm_web.jav_display_metadata(name, code)["edition_badges"], ["Uncensored"], name)
         # 有码番号不能因为这条判据凭空拿到徽章。
         for name, code in (("ABW-220.mp4", "ABW-220"), ("MIDE-925-4K.mp4", "MIDE-925")):
             self.assertEqual(
@@ -2985,11 +2985,11 @@ class JavModeAndCoverTests(unittest.TestCase):
         ):
             row = rm_web.jav_display_metadata(name, code)
             self.assertEqual(row["display_title"], "", name)
-            self.assertEqual(row["edition_badges"], ["中字"], name)
+            self.assertEqual(row["edition_badges"], ["Chinese subs"], name)
         # `-UN` 和 `-U`／`-UC` 是同一个意思；标题判空后不认它就等于丢掉这条信息。
         self.assertEqual(
             rm_web.jav_display_metadata("ABF-158-UN.mp4", "ABF-158")["edition_badges"],
-            ["无码"])
+            ["Uncensored"])
         # 相邻字母不能被当成版次标记吞掉。
         self.assertEqual(
             rm_web.jav_display_metadata("ABC-123CHAPTER.mp4", "ABC-123")["edition_badges"], [])

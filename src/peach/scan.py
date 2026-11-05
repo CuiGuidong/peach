@@ -57,8 +57,28 @@ ARCHIVE = {".zip", ".rar", ".7z", ".tar", ".gz"}
 #: 每攒够这么多行落一次盘，并报一行进度。
 BATCH_SIZE = 2000
 
-#: 小于此大小的文件不登记（DASH 片段、缩略图、损坏文件等）。
-MIN_FILE_SIZE = 50 * 1024 * 1024
+#: 个人库的非 JAV 内容黑名单（网课、购物、剧集等标记）：命中的名字不进账本。
+#: 单文件登记（`ingest_path`）与整目录扫描（`_scan_location`）走同一份判据。
+NON_ADULT_PATTERNS = (
+    "@Vid4Med", "Facebook", "_audio",
+    "นพ.", "พญ.", "รศ.", "ผศ.", "ร.อ.", "ร.ท.",
+    "Geriatrics", "Hematology", "Nephrology", "Neurology", "Oncology",
+    "Rheumatology", "Nutrition -", "USMLE", "EM Boot Camp",
+    "Vaginal_Delivery", "GYN_", "IELTS", "Video Playlist",
+    "คลิปเข้ม", "Graphpad", "PDPA", "Shopee", "SCB",
+    "Taekwondo", "หยาดน้้ำ", "Prime Video", "videoplayback",
+    "mp4decrypt_out", "Windows XP", ".iso",
+    "WEBRip", "WEB-DL", "HARDSUBBED", "x264", "AAC5.1",
+    "The.Kingmaker", "VIVANT", "Masterchef", "Official.Secrets",
+    "The Office", "Why Making Fun",
+)
+
+
+def name_filtered(name: str) -> bool:
+    """个人黑名单与通用剧集标记（`EP1.mp4`）：这些不进账本。"""
+    if any(pattern in name for pattern in NON_ADULT_PATTERNS):
+        return True
+    return re.match(r"^EP\d+\.\w+$", name) is not None
 
 #: Kodi／Jellyfin 的影片图片名（单写或挂在片名后面，如 `ABC-123-fanart.jpg`）。
 #: 只在同目录有视频时算附属：没有正片的目录里，`cover.jpg` 是图集自己的封面。
@@ -356,29 +376,7 @@ def ingest_path(
         stat = (directory / name).stat()
     except OSError:
         return IngestResult(location, str(ledger_path), False)
-    if stat.st_size < MIN_FILE_SIZE:
-        return IngestResult(location, str(ledger_path), False)
-    if medium_of(name) in ("other", "archive"):
-        return IngestResult(location, str(ledger_path), False)
-    if "@Vid4Med" in name or "Facebook" in name or "_audio" in name:
-        return IngestResult(location, str(ledger_path), False)
-    # Blacklist: skip clearly non-adult content
-    _NON_ADULT = (
-        "นพ.", "พญ.", "รศ.", "ผศ.", "ร.อ.", "ร.ท.",
-        "Geriatrics", "Hematology", "Nephrology", "Neurology", "Oncology",
-        "Rheumatology", "Nutrition -", "USMLE", "EM Boot Camp",
-        "Vaginal_Delivery", "GYN_", "IELTS", "Video Playlist",
-        "คลิปเข้ม", "Graphpad", "PDPA", "Shopee", "SCB",
-        "Taekwondo", "หยาดน้้ำ", "Prime Video", "videoplayback",
-        "mp4decrypt_out", "Windows XP", ".iso",
-        "WEBRip", "WEB-DL", "HARDSUBBED", "x264", "AAC5.1",
-        "The.Kingmaker", "VIVANT", "Masterchef", "Official.Secrets",
-        "The Office", "Why Making Fun",
-    )
-    if any(pat in name for pat in _NON_ADULT):
-        return IngestResult(location, str(ledger_path), False)
-    # Skip generic episode files (EP1.mp4, EP2.mp4, etc.)
-    if re.match(r"^EP\d+\.\w+$", name):
+    if name_filtered(name):
         return IngestResult(location, str(ledger_path), False)
     library_roots = tuple(chain.from_iterable(declared_roots.values()))
     if _sidecar_on_disk(name, directory, ledger_path=str(ledger_path), library_roots=library_roots):
@@ -733,17 +731,7 @@ def _scan_location(
                 except OSError as error:
                     onerror(error)
                     continue
-                if stat.st_size < MIN_FILE_SIZE:
-                    continue
-                # 跳过非媒体文件（.iso、.pdf、.exe、.gguf、.dmt 等）
-                # 和压缩包（.zip、.rar）——只收录视频/音频/图片。
-                if medium_of(name) in ("other", "archive"):
-                    continue
-                # 跳过已知的非 JAV 标记（网课、Zoom 录屏、纯音轨等）
-                if "@Vid4Med" in name or "Facebook" in name or "_audio" in name:
-                    continue
-                # Whitelist: require JAV code (e.g. SSPY-268) or DMM ID (e.g. deth007hhb)
-                if not re.search(r"[A-Z]{2,5}-\d{1,5}", name) and not re.search(r"[a-z]{4}\d{4,6}[a-z]{2,3}", name):
+                if name_filtered(name):
                     continue
                 mtime = time.strftime("%Y-%m-%d", time.localtime(stat.st_mtime))
                 here[name] = (stat.st_size, mtime)

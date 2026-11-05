@@ -265,10 +265,6 @@ class InteractiveInitTests(unittest.TestCase):
         (self.media / "sub").mkdir(parents=True)
         (self.media / "sub" / "ABC-123.mp4").write_bytes(b"0" * 10)
         (self.media / "ABC-124.jpg").write_bytes(b"1")
-        # The fixture media is a few bytes; the small-file scan filter would skip every one of them.
-        size_patcher = mock.patch("peach.scan.MIN_FILE_SIZE", 0)
-        size_patcher.start()
-        self.addCleanup(size_patcher.stop)
         patcher = mock.patch.object(cli.onboarding.certs, "bootstrap_certificates")
         self.certs = patcher.start()
         self.addCleanup(patcher.stop)
@@ -486,10 +482,6 @@ class ScanCommandTests(unittest.TestCase):
         (self.media / "sub").mkdir(parents=True)
         (self.media / "sub" / "ABC-123.mp4").write_bytes(b"0")
         (self.media / "ABC-124.jpg").write_bytes(b"1")
-        # The fixture media is a few bytes; the small-file scan filter would skip every one of them.
-        size_patcher = mock.patch("peach.scan.MIN_FILE_SIZE", 0)
-        size_patcher.start()
-        self.addCleanup(size_patcher.stop)
         config = settings_file.load_config(environ={}, strict=False)
         declared = str(self.media) if NATIVE_WINDOWS else r"R:\media"
         mounts = {} if NATIVE_WINDOWS else {"local": (Path(self.media),)}
