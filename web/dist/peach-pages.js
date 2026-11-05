@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "010066a7-52db-4709-88bb-eb96d4af01ce", e._sentryDebugIdIdentifier = "sentry-dbid-010066a7-52db-4709-88bb-eb96d4af01ce");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "34af5fbd-a7e5-4a6f-a708-a01bdc6c0995", e._sentryDebugIdIdentifier = "sentry-dbid-34af5fbd-a7e5-4a6f-a708-a01bdc6c0995");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -184,7 +184,7 @@ function E() {
 		credentials: "same-origin",
 		body: JSON.stringify({
 			kind: "context",
-			message: "浏览器环境快照",
+			message: "Browser environment snapshot",
 			browser: e
 		})
 	})).catch(() => {});
@@ -216,11 +216,11 @@ function E() {
 			keepalive: !0
 		}).catch(() => {}));
 	};
-	window.addEventListener("error", (e) => r("error", e.error, e.message, e)), window.addEventListener("unhandledrejection", (e) => r("unhandledrejection", e.reason, "Promise 未处理的异常")), document.addEventListener("error", (e) => {
+	window.addEventListener("error", (e) => r("error", e.error, e.message, e)), window.addEventListener("unhandledrejection", (e) => r("unhandledrejection", e.reason, "Unhandled Promise exception")), document.addEventListener("error", (e) => {
 		let t = e.target, n = t instanceof HTMLMediaElement ? t : t instanceof HTMLElement && t.matches("hlsjs-video,dash-video") ? t.querySelector("video") : null, i = t?.error || e.error;
 		if (!n || !i) return;
 		let a = y(n, i);
-		r("media", `媒体播放失败（${a.code}）`, "", void 0, a);
+		r("media", `Media playback failed (${a.code})`, "", void 0, a);
 	}, !0);
 }
 // node_modules/scheduler/cjs/scheduler.production.js
@@ -11204,12 +11204,12 @@ function Ut({ id: e, children: t }) {
 }
 // src/react/pages/error/error-page.tsx
 var Wt = {
-	403: "这里不能打开",
-	404: "四〇四",
-	409: "现在不能这样做"
+	403: "Cannot open here",
+	404: "404",
+	409: "Can't do that right now"
 };
 function Gt(e) {
-	return Wt[e ?? ""] ?? "出了点问题";
+	return Wt[e ?? ""] ?? "Something went wrong";
 }
 function z({ data: e }) {
 	let t = Gt(e.status);
@@ -11221,7 +11221,7 @@ function z({ data: e }) {
 		children: /* @__PURE__ */ (0, R.jsx)(Bt, {
 			href: "/",
 			className: "self-start",
-			children: "返回首页"
+			children: "Back to home"
 		})
 	});
 }
@@ -19207,7 +19207,7 @@ function mm({ label: e, hint: t, tooltip: n, placeholder: r, leadingIcon: i, tra
 }
 mm.displayName = "Input";
 function hm({ data: e }) {
-	let [t, n] = (0, A.useState)(e.error || (e.invalid === "true" ? "访问密码不正确" : ""));
+	let [t, n] = (0, A.useState)(e.error || (e.invalid === "true" ? "Access password is incorrect" : ""));
 	return /* @__PURE__ */ (0, R.jsx)(Vt, {
 		title: "Peach",
 		children: /* @__PURE__ */ (0, R.jsxs)("form", {
@@ -19218,7 +19218,7 @@ function hm({ data: e }) {
 			children: [
 				/* @__PURE__ */ (0, R.jsx)(mm, {
 					id: "login-token",
-					label: "访问密码",
+					label: "Access password",
 					name: "token",
 					type: "password",
 					maxLength: 256,
@@ -19241,12 +19241,12 @@ function hm({ data: e }) {
 					name: "days",
 					value: "30",
 					defaultSelected: !0,
-					children: "保持登录"
+					children: "Keep me signed in"
 				}),
 				/* @__PURE__ */ (0, R.jsx)(zt, {
 					type: "submit",
 					className: "w-full",
-					children: "登录"
+					children: "Sign in"
 				})
 			]
 		})
@@ -19320,22 +19320,22 @@ async function xm(e, t, n) {
 			}
 		});
 	} catch (e) {
-		throw t.signal?.aborted ? e : new bm(0, "连接不到 Peach，请确认它仍在运行后重试");
+		throw t.signal?.aborted ? e : new bm(0, "Cannot reach Peach; confirm it is still running, then retry");
 	}
 	let i = await r.json().catch(() => null);
 	if (!r.ok) throw new bm(r.status, i?.error || n, i?.errors);
 	return i;
 }
-var Sm = (e) => xm(vm, { signal: e }, "没能读取设置题目"), Cm = (e) => xm(ym, {
+var Sm = (e) => xm(vm, { signal: e }, "The settings prompt could not be read"), Cm = (e) => xm(ym, {
 	method: "POST",
 	body: JSON.stringify(e)
-}, "没能完成设置"), wm = (e) => xm(`${ym}/restore`, {
+}, "Setup could not finish"), wm = (e) => xm(`${ym}/restore`, {
 	method: "POST",
 	body: JSON.stringify({ data_root: e })
-}, "没能使用此数据目录"), Tm = async (e) => (await xm(_m, {
+}, "Could not use this data directory"), Tm = async (e) => (await xm(_m, {
 	method: "POST",
 	body: JSON.stringify({ initial: e })
-}, "没能打开文件夹对话框")).path, Em = (e) => e instanceof Error && e.message || "请求失败，请重试", Dm = 8e3, Om = /* @__PURE__ */ new WeakMap();
+}, "The folder dialog could not open")).path, Em = (e) => e instanceof Error && e.message || "The request failed; retry", Dm = 8e3, Om = /* @__PURE__ */ new WeakMap();
 function km(e, t, n) {
 	Am(t, n, () => e.open, (t) => {
 		e.open = t;
@@ -19369,8 +19369,8 @@ function Mm(e, t, n = () => !0) {
 var Nm = [
 	{
 		id: "local",
-		name: "本地磁盘",
-		label: "本地磁盘",
+		name: "Local disk",
+		label: "Local disk",
 		default_cost: "free",
 		cloud: !1,
 		icon: "hard-drive"
@@ -19409,8 +19409,8 @@ var Nm = [
 	},
 	{
 		id: "mounted",
-		name: "其他已挂载网盘",
-		label: "其他已挂载网盘",
+		name: "Other mounted cloud drives",
+		label: "Other mounted cloud drives",
 		default_cost: "metered",
 		cloud: !0,
 		icon: "database"
@@ -19497,25 +19497,25 @@ function Hm({ variant: e = "primary", size: t = "medium", leadingIcon: n, traili
 }
 // src/history/settings-route.ts
 var Um = {
-	appearance: "外观与导航",
-	playback: "浏览与播放",
-	jav: "JAV 与新作",
-	search: "搜索与推荐",
-	content: "内容显示"
+	appearance: "Appearance & navigation",
+	playback: "Browsing & playback",
+	jav: "JAV & new releases",
+	search: "Search & recommendations",
+	content: "Content display"
 }, Wm = {
-	library: "媒体库与入库",
-	subscriptions: "来源与订阅",
-	downloads: "下载渠道",
-	network: "网络与访问",
-	maintenance: "应用与维护",
-	diagnostics: "系统诊断"
+	library: "Library and imports",
+	subscriptions: "Sources and subscriptions",
+	downloads: "Download channels",
+	network: "Network & access",
+	maintenance: "App and maintenance",
+	diagnostics: "System diagnostics"
 };
 [...Object.keys(Um).map((e) => `/settings/${e}`)];
 // src/react/jav/jav-navigation.ts
 var Gm = [
-	["library", "馆藏"],
-	["discover", "发现"],
-	["wants", "想要"]
+	["library", "Library"],
+	["discover", "Discover"],
+	["wants", "Want"]
 ], Km = (e) => Gm.some(([t]) => t === e) ? e : "library", qm = (e) => Km(e) === "library" ? "/?jav=1" : `/jav?tab=${e}`, Jm = (e, t, n, r, i, a) => ({
 	id: e,
 	title: t,
@@ -19527,38 +19527,38 @@ var Gm = [
 	{
 		id: "basics",
 		kind: "interface",
-		title: "认识界面",
-		summary: "4 步认识搜索、导航、作品详情和设置。",
+		title: "Meet the interface",
+		summary: "Four steps through search, navigation, title details, and settings.",
 		steps: [
-			$("search", "搜索馆藏", "输入作品名、番号、艺人、厂牌或标签。搜索结果来自已经入库的内容。", "/", "#q, #searchBtn"),
-			$("navigation", "切换浏览入口", "在侧栏按人物、厂牌和标签浏览。手机上用导航按钮展开侧栏；入口与顺序可以在设置里调整。", "/", "#filterBtn, [data-sidebar-nav]"),
-			$("cards", "打开作品详情", "选择作品查看资料、版本和播放入口。首次扫描尚未入库时，可以先继续认识导航。", "/", "[data-media-grid] > [data-id], [data-catalog-row], [data-media-empty]"),
-			$("preferences", "调整自己的界面", "侧栏底部的设置包含显示与播放偏好；手机上先展开侧栏。媒体目录、网络和后台服务放在其中的 Peach 配置入口。", "/", "#settingsBtn, #filterBtn")
+			$("search", "Search the library", "Type a title, code, performer, label, or tag. Results come from what is already ingested.", "/", "#q, #searchBtn"),
+			$("navigation", "Switch browsing entries", "Browse by people, labels, and tags in the sidebar. On a phone use the navigation button to expand it; entries and their order are adjustable in settings.", "/", "#filterBtn, [data-sidebar-nav]"),
+			$("cards", "Open title details", "Open a title to see details, versions, and play entries. If the first scan has not ingested anything yet, keep exploring the navigation for now.", "/", "[data-media-grid] > [data-id], [data-catalog-row], [data-media-empty]"),
+			$("preferences", "Make the interface yours", "The settings at the bottom of the sidebar hold display and playback preferences; expand the sidebar first on a phone. Media directories, network, and background services live in its Peach configuration entry.", "/", "#settingsBtn, #filterBtn")
 		]
 	},
 	{
 		id: "find-play",
 		kind: "interface",
-		title: "找到并播放",
-		summary: "搜索、筛选、详情、版本、字幕和播放器。",
+		title: "Find and play",
+		summary: "Search, filters, details, versions, subtitles, and the player.",
 		steps: [
-			$("library", "选择媒体库", "导航顶部可以切换全部媒体库或某个媒体库；手机上先展开侧栏。媒体库把不同目录组织成一组。", "/", "#brandHome, #filterBtn"),
-			$("search", "按关键词找内容", "输入作品、番号或人物名称，结合筛选与排序定位内容。搜索记录数量可在搜索与推荐中设置。", "/", "#q, #searchBtn"),
-			$("filter", "筛选与清除", "多个筛选条件会共同缩小结果。找不到内容时先检查媒体库和筛选条件。", "/", "[data-catalog-frame]"),
+			$("library", "Select library", "The top of the navigation switches between all libraries and a single one; expand the sidebar first on a phone. A library groups different directories together.", "/", "#brandHome, #filterBtn"),
+			$("search", "Find content by keyword", "Type a title, code, or person name and combine filters and sorting to pin down what you want. How many searches are remembered is set under Search and recommendations.", "/", "#q, #searchBtn"),
+			$("filter", "Filter and clear", "Several filters narrow results together. When nothing turns up, check the library scope and filters first.", "/", "[data-catalog-frame]"),
 			{
-				...Jm("detail", "作品详情", "这里显示当前作品的标题和源文件工具。评分、人物和标签在下方；有分卷或版本的作品可从馆藏卡片进入相应队列。", "/", "[data-item-title]"),
+				...Jm("detail", "Video details", "This shows the current title's heading and source-file tools. Ratings, people, and tags sit below; titles with parts or versions open their queues from the library card.", "/", "[data-item-title]"),
 				surface: "detail"
 			},
 			{
-				...Jm("player", "播放器控件", "底部控制条提供播放、进度、音量和全屏。右侧齿轮打开播放速度、字幕、画面旋转和清晰度等选项。", "/", "#stage .vjs-control-bar"),
+				...Jm("player", "Player controls", "The bottom control bar covers play, progress, volume, and fullscreen. The gear on the right opens playback speed, subtitles, rotation, quality, and more.", "/", "#stage .vjs-control-bar"),
 				surface: "player"
 			},
 			{
-				...Jm("subtitles", "字幕与播放选项", "从播放器齿轮菜单进入字幕，可以选择已有字幕、加载本地字幕文件或搜索字幕；播放速度和清晰度也在这个菜单中。", "/", "#stage [data-player-subtitles]"),
+				...Jm("subtitles", "Subtitles and playback options", "Open subtitles from the player's gear menu to pick an existing subtitle track, load a local subtitle file, or search for subtitles; playback speed and quality live in the same menu.", "/", "#stage [data-player-subtitles]"),
 				surface: "subtitles"
 			},
 			{
-				...Jm("external", "外部播放器", "在这里选择本地播放器、M3U 播放列表或网络播放地址，再点打开。另一台设备需要能访问当前 Peach 地址。", "/", "#stage [data-local-playback-row]"),
+				...Jm("external", "External player", "Pick a local player, an M3U playlist, or a network play URL here, then press Open. The other device must be able to reach the current Peach address.", "/", "#stage [data-local-playback-row]"),
 				surface: "detail"
 			}
 		]
@@ -19566,149 +19566,149 @@ var Gm = [
 	{
 		id: "save",
 		kind: "interface",
-		title: "保存喜欢的内容",
-		summary: "评分、标记、播放列表与当前播放队列。",
+		title: "Save what you like",
+		summary: "Ratings, marks, playlists, and the current playback queue.",
 		steps: [
 			{
-				...$("marks", "评分", "点击星星给作品评分；下方的喜欢、稍后看和加入播放列表用于保存感兴趣的内容。", "/", "#stage [data-item-rating]"),
+				...$("marks", "Rating", "Click the stars to rate a title; the like, watch-later, and add-to-playlist actions below save what interests you.", "/", "#stage [data-item-rating]"),
 				surface: "detail"
 			},
 			{
-				...$("mark-actions", "标记与加入列表", "喜欢影响口味推荐，稍后看便于回找；加入播放列表可把作品整理到自己的列表。", "/", "#stage [data-item-feedback]"),
+				...$("mark-actions", "Mark and add to lists", "Likes steer taste recommendations, watch-later makes titles easy to find again, and playlists organize titles into your own lists.", "/", "#stage [data-item-feedback]"),
 				surface: "detail"
 			},
-			$("lists", "建立播放列表", "在这里输入名称，创建自己的播放列表。之后从作品详情的加入播放列表按钮添加内容。", "/playlists", "[data-playlist-create]"),
-			$("queue", "从列表开始播放", "选择一张播放列表卡片进入队列，查看和调整播放顺序。没有列表时先创建，再加入作品。", "/playlists", "[data-playlist-card]")
+			$("lists", "Create a playlist", "Type a name here to create your own playlist. Add titles later from the Add to playlist button on a title's details page.", "/playlists", "[data-playlist-create]"),
+			$("queue", "Start playing from a list", "Open a playlist card to reach its queue and review or reorder the playback. With no list yet, create one first, then add titles.", "/playlists", "[data-playlist-card]")
 		]
 	},
 	{
 		id: "entities",
 		kind: "interface",
-		title: "按人物与主题浏览",
-		summary: "从人物、厂牌和标签继续发现相关馆藏。",
+		title: "Browse by people and theme",
+		summary: "Keep discovering related library items through people, labels, and tags.",
 		steps: [
-			$("people", "艺人与创作者", "选择人物卡片进入资料页，查看相关作品、照片与已连接的来源。上方可以切换艺人、卖家与在线人物。", "/performers", "[data-index-body] [data-index-cell], [data-index-body] [data-empty-state]"),
-			$("studios", "厂牌", "选择厂牌卡片集中查看作品。资料页中的作品仍会受到当前媒体库范围影响。", "/studios", "[data-index-body] [data-index-cell], [data-index-body] [data-empty-state]"),
-			$("tags", "标签与主题", "选择标签继续浏览相关馆藏；本地与在线使用不同的标签词表。", "/tags", "[data-index-body] [data-alpha-tag], [data-index-body] [data-tag-chip], [data-index-body] [data-empty-state]"),
-			$("manage-tags", "管理标签", "铅笔按钮打开标签管理，用于整理标签名称和关系；再次点击返回浏览。", "/tags", "[data-tag-mode]")
+			$("people", "Performers and creators", "Open a person card to reach their profile with related titles, photos, and connected sources. The tabs above switch between performers, sellers, and online people.", "/performers", "[data-index-body] [data-index-cell], [data-index-body] [data-empty-state]"),
+			$("studios", "Labels", "Open a label card to browse its titles in one place. Titles inside still follow the current library scope.", "/studios", "[data-index-body] [data-index-cell], [data-index-body] [data-empty-state]"),
+			$("tags", "Tags and themes", "Pick a tag to keep browsing the related library; local and online use different tag vocabularies.", "/tags", "[data-index-body] [data-alpha-tag], [data-index-body] [data-tag-chip], [data-index-body] [data-empty-state]"),
+			$("manage-tags", "Manage tags", "The pencil button opens tag management to tidy tag names and relations; click again to return to browsing.", "/tags", "[data-tag-mode]")
 		]
 	},
 	{
 		id: "jav",
 		kind: "interface",
-		title: "JAV 与追新",
-		summary: "馆藏、新作、想要清单与高清版。",
+		title: "JAV and new-release follows",
+		summary: "Library, new releases, want list, and better versions.",
 		steps: [
-			$("library", "JAV 馆藏", "按番号、出演者和厂牌查找已入库的作品，可以选择官方封面或预览图。", qm("library"), "[data-catalog-frame]"),
-			$("new", "发现推荐", "发现页按口味推荐作品。在这里切换馆藏或外部内容，并按标签筛选。", qm("discover"), "[data-jav-filter] [data-catalog-views]"),
-			$("wants", "查看想要清单", "喜欢的外部作品可以加入想要清单；在这里切换馆藏、发现与想要。", qm("discover"), "[aria-label=\"JAV 分区\"]"),
-			$("quality", "高清版", "待升级卡片列出当前版本信息和判定原因，可以查看版本或查找资源；没有目标时这里显示空状态。", "/quality-goals", "[data-goal-id], #main [data-empty-state]")
+			$("library", "JAV library", "Find ingested titles by code, cast, or label, choosing between the official cover and a preview image.", qm("library"), "[data-catalog-frame]"),
+			$("new", "Discover recommendations", "Discover recommends titles by taste. Switch between library and external content here and filter by tag.", qm("discover"), "[data-jav-filter] [data-catalog-views]"),
+			$("wants", "View the want list", "External titles you like can join the want list; switch between library, discover, and wants here.", qm("discover"), "[aria-label=\"JAV section\"]"),
+			$("quality", "HD version", "The upgrade-pending card lists the current version and why it was flagged, with links to view the version or hunt for resources; with no target it shows an empty state.", "/quality-goals", "[data-goal-id], #main [data-empty-state]")
 		]
 	},
 	{
 		id: "follow",
 		kind: "interface",
-		title: "关注创作者",
-		summary: "多来源更新、同作品合并和来源状态。",
+		title: "Follow creator",
+		summary: "Multi-source updates, same-title merging, and source status.",
 		steps: [
-			$("feed", "集中看关注更新", "来自不同来源的创作者更新汇集在这里，选择一项更新查看内容；尚未关注来源时，按空状态中的入口添加。", "/follow", "[data-follow-item], [data-follow-empty] [data-empty-state]"),
-			$("sources", "管理关注来源", "从列表查看启用状态、采集结果和失败原因；切换到添加区域，添加创作者或订阅来源。", "/subscriptions", "[aria-label=\"关注管理区域\"]"),
-			$("credentials", "按需配置凭据", "部分来源需要登录凭据；先确认要启用的来源，再展开对应站点，填写其要求的信息。", "/settings/subscriptions", "[data-guide-target=\"credentials\"]")
+			$("feed", "See followed updates in one place", "Creator updates from every source gather here; open an update to read it. With no sources followed yet, use the empty state's entry to add some.", "/follow", "[data-follow-item], [data-follow-empty] [data-empty-state]"),
+			$("sources", "Manage followed sources", "The list shows enablement, collection results, and failure reasons; switch to the add area to add creators or subscription sources.", "/subscriptions", "[aria-label=\"Follows management area\"]"),
+			$("credentials", "Configure credentials as needed", "Some sources need login credentials; confirm which sources to enable first, then expand those sites and fill in what they ask for.", "/settings/subscriptions", "[data-guide-target=\"credentials\"]")
 		]
 	},
 	{
 		id: "viewing",
 		kind: "interface",
-		title: "专注观看",
-		summary: "播放墙、沉浸模式与详情小窗。",
+		title: "Focused watching",
+		summary: "The video wall, immersive mode, and the details mini-player.",
 		steps: [
-			$("wall", "播放墙", "播放墙提供多画面观看入口。结束导览后点击进入，再选择要播放的内容。", "/", "#wallBtn"),
-			$("immerse", "沉浸模式", "沉浸模式适合连续观看。点击入口会进入观看流程，请在准备好播放时使用。", "/", "#immerseBtn"),
-			$("mini", "离开详情后继续看", "开启小窗播放后，离开详情可以继续观看。自动播放、小窗和快进步长都在浏览与播放设置中。", "/settings/playback", "#miniplayerSetting")
+			$("wall", "Playback wall", "The video wall offers a multi-screen watching entry. After the tour, click in and pick what to play.", "/", "#wallBtn"),
+			$("immerse", "Immersive mode", "Immersive mode suits back-to-back watching. Its entry starts the watching flow, so use it when you are ready to play.", "/", "#immerseBtn"),
+			$("mini", "Keep watching after leaving details", "With mini-player on, playback keeps going after you leave the details page. Autoplay, the mini-player, and the fast-forward step all live in Browse and playback settings.", "/settings/playback", "#miniplayerSetting")
 		]
 	},
 	{
 		id: "maintenance",
 		kind: "interface",
-		title: "整理与维护",
-		summary: "扫描、补资料、复核、文件整理与回收站。",
+		title: "Organize and maintain",
+		summary: "Scanning, detail backfill, review, file organizing, and the trash.",
 		steps: [
-			$("scan", "扫描与补资料", "在媒体库处理区域选择扫描和资料处理范围。读取策略取决于媒体库配置；导览不会启动任务。", "/data-cleanup", "#libraryProcessing"),
-			$("review", "人工复核", "先按分类找到待复核资料，再查看项目的来源和证据后作决定。", "/review", "[aria-labelledby=\"reviewcategories\"]"),
-			$("organize", "文件整理", "文件整理先查看预览，确认命名与目标目录再执行。资料整理和真实文件操作有不同的影响范围。", "/data-cleanup", "[data-cleanup-organize]"),
-			$("trash", "回收站", "查看已移入回收站的作品，按需要恢复或处理。永久删除前认真核对确认框中的范围。", "/trash", "[data-media-grid] > [data-id], [data-catalog-row], [data-media-empty]"),
-			$("tasks", "任务与失败原因", "任务记录显示处理状态；展开记录查看详情与失败原因。还没有任务时，这里会说明哪些操作会留下记录。", "/tasks", "[data-run-id], #main [data-empty-state]")
+			$("scan", "Scan and backfill details", "Choose the scan and metadata scope in the library processing area. The read policy follows the library configuration; the tour never starts tasks.", "/data-cleanup", "#libraryProcessing"),
+			$("review", "Manual review", "First locate pending details by category, then read each item's sources and evidence before deciding.", "/review", "[aria-labelledby=\"reviewcategories\"]"),
+			$("organize", "File organizing", "File organizing previews first; confirm the naming and target directory before running it. Metadata organizing and real file operations have different blast radii.", "/data-cleanup", "[data-cleanup-organize]"),
+			$("trash", "Trash", "Review titles moved to the trash and restore or process them as needed. Read the confirmation dialog's scope carefully before permanent deletion.", "/trash", "[data-media-grid] > [data-id], [data-catalog-row], [data-media-empty]"),
+			$("tasks", "Tasks and failure reasons", "Task records show processing status; expand a record for details and failure reasons. With no tasks yet, this explains which actions leave records.", "/tasks", "[data-run-id], #main [data-empty-state]")
 		]
 	},
 	{
 		id: "insights",
 		kind: "interface",
-		title: "了解自己的馆藏",
-		summary: "统计、口味，以及浏览历史和书签来源。",
+		title: "Know your own library",
+		summary: "Statistics, taste, plus browsing history and bookmark sources.",
 		steps: [
-			$("stats", "馆藏统计", "选择统计视图查看馆藏、存储和观看情况，各视图中的入口可继续查看相关作品。", "/stats", "[aria-label=\"统计视图\"]"),
-			$("taste", "口味与记录", "在这里切换浏览器记录与 Peach 观看评价，分析各自的口味。", "/taste", "[aria-label=\"口味分析的数据来源\"]"),
-			$("import", "取得浏览历史与书签", "读取浏览器记录需要在运行 Peach 的电脑操作；更多方式菜单可以导入历史或书签文件，适合其它设备。", "/taste", "[data-guide-target=\"history-import\"]"),
-			$("history", "管理记录来源", "已取得的记录来源集中列在这里，可以停用本机浏览器读取或移除已导入的数据源；导览不会修改这些记录。", "/taste", "section[aria-label=\"数据源\"]")
+			$("stats", "Library statistics", "Pick a statistics view for library, storage, and watching overviews; entries inside each view keep leading to the related titles.", "/stats", "[aria-label=\"Statistics views\"]"),
+			$("taste", "Taste and history", "Switch between browser history and Peach watch ratings here; each is analyzed for taste on its own.", "/taste", "[aria-label=\"Taste analysis data sources\"]"),
+			$("import", "Gets browsing history and bookmarks", "Reading browser history happens on the computer running Peach; the More ways menu imports history or bookmark files, which suits other devices.", "/taste", "[data-guide-target=\"history-import\"]"),
+			$("history", "Manage record sources", "The record sources gathered so far are listed here; you can disable local browser reading or remove imported data sources. The tour does not change these.", "/taste", "section[aria-label=\"Data sources\"]")
 		]
 	},
 	{
 		id: "external",
 		kind: "interface",
-		title: "从外部加入内容",
-		summary: "云下载、目录映射与浏览器添加。",
+		title: "Bring content in from outside",
+		summary: "Cloud downloads, directory mapping, and browser additions.",
 		steps: [
-			$("downloads", "配置下载渠道", "先连接支持的渠道，再指定云端目标目录与本地媒体目录。下载完成后按目录规则入库。", "/settings/downloads", "[data-guide-target=\"download\"]"),
-			$("search", "搜索资源", "资源搜索使用配置的索引器。查到结果后还需要你主动选择下载。", "/settings/subscriptions", "[data-guide-target=\"indexers\"]"),
-			$("browser", "浏览器添加 JAV", "用户脚本与 Peach 配对后可从浏览器添加作品。专用令牌、默认渠道和开关在下载渠道里管理。", "/settings/downloads", "[data-guide-target=\"browser\"]")
+			$("downloads", "Configure download channels", "Connect a supported channel first, then set the cloud target directory and the local media directory. After download, ingestion follows the directory rules.", "/settings/downloads", "[data-guide-target=\"download\"]"),
+			$("search", "Search resources", "Resource search uses the configured indexers. Once results appear, choosing to download stays in your hands.", "/settings/subscriptions", "[data-guide-target=\"indexers\"]"),
+			$("browser", "Add JAV via browser", "Once paired with Peach, the userscript adds titles from the browser. The dedicated token, default channel, and switch are managed under Download channels.", "/settings/downloads", "[data-guide-target=\"browser\"]")
 		]
 	},
 	{
 		id: "devices",
 		kind: "interface",
-		title: "手机与其他设备",
-		summary: "访问地址、密码、局域网和公网入口。",
+		title: "Phones and other devices",
+		summary: "Access address, password, LAN, and public entry.",
 		steps: [
-			$("address", "找到访问地址", "同一局域网的设备使用 Peach 的局域网地址。仅本机访问时，其它设备无法连接。", "/settings/network", "[data-guide-target=\"port\"]"),
-			$("password", "访问密码", "能连接到 Peach 的设备按访问密码登录。显示偏好与访问权限是不同的设置。", "/settings/network", "[data-guide-target=\"access\"]"),
-			$("tunnel", "需要时启用公网入口", "Cloudflare 公网入口适合离开局域网后访问，需要按实际部署配置连接信息。", "/settings/network", "[data-guide-target=\"tunnel\"]")
+			$("address", "Find the access address", "Devices on the same LAN use Peach's LAN address. With local-only access, other devices cannot connect.", "/settings/network", "[data-guide-target=\"port\"]"),
+			$("password", "Access password", "Devices that can reach Peach sign in with the access password. Display preferences and access permission are separate settings.", "/settings/network", "[data-guide-target=\"access\"]"),
+			$("tunnel", "Enable the public entry when needed", "The Cloudflare public entry suits access from outside the LAN and needs connection details matching the real deployment.", "/settings/network", "[data-guide-target=\"tunnel\"]")
 		]
 	}
-], Xm = "当前浏览器 · 修改后自动保存", Zm = "跟随馆藏 · 修改后自动保存", Qm = "运行 Peach 的电脑 · 确认后保存配置", $m = (e, t, n = Xm) => t.map(([t, r, i, a, o]) => Jm(t, r, i, `/settings/${e}`, a || `[data-guide-target="${t}"]`, o || n)), eh = [
+], Xm = "This browser · changes save automatically", Zm = "Follows the library · changes save automatically", Qm = "The computer running Peach · confirm to save the configuration", $m = (e, t, n = Xm) => t.map(([t, r, i, a, o]) => Jm(t, r, i, `/settings/${e}`, a || `[data-guide-target="${t}"]`, o || n)), eh = [
 	{
 		id: "appearance",
 		kind: "settings",
 		title: Um.appearance,
-		summary: "主题、光晕与导航入口。",
+		summary: "Theme, glow, and navigation entries.",
 		steps: $m("appearance", [
 			[
 				"theme",
-				"主题",
-				"选择浅色、深色或跟随系统；适合不同光线下阅读。",
+				"Theme",
+				"Pick light, dark, or follow the system; each reads well under different lighting.",
 				"#themeSetting"
 			],
 			[
 				"contrast",
-				"增加对比度",
-				"需要更清楚区分文字与背景时开启。",
+				"Increase contrast",
+				"Turn on when text needs to stand out more clearly from the background.",
 				"#glassContrastSetting"
 			],
 			[
 				"sounds",
-				"界面音效",
-				"控制界面操作反馈音，按自己的使用环境选择。",
+				"Interface sounds",
+				"Controls interface feedback sounds; choose for your own environment.",
 				"#uiSoundsSetting"
 			],
 			[
 				"glow",
-				"侧栏光晕",
-				"控制侧栏背景光晕。开启后，下方显示配色预设和参数；可调整颜色、强度、颗粒、漂移速度、柔化和大小，或恢复默认。玻璃原色只显示适用参数。",
+				"Sidebar glow",
+				"Controls the sidebar background glow. When on, the color presets and parameters appear below; adjust color, intensity, grain, drift speed, softness, and size, or restore defaults. Glass original shows only the parameters that apply.",
 				"#homeGlowSetting"
 			],
 			[
 				"sidebar",
-				"导航入口与顺序",
-				"把常用入口放到侧栏，拖动调整顺序。",
+				"Navigation entries and order",
+				"Puts your common entries in the sidebar; drag to reorder them.",
 				"[data-sidebar-setting]",
 				Zm
 			]
@@ -19718,54 +19718,54 @@ var Gm = [
 		id: "playback",
 		kind: "settings",
 		title: Um.playback,
-		summary: "列表呈现、悬停预览与播放行为。",
+		summary: "List presentation, hover previews, and playback behavior.",
 		steps: $m("playback", [
 			[
 				"batch",
-				"每批作品",
-				"决定列表一次加载多少项。列表较慢时可调小。",
+				"Videos per batch",
+				"Decides how many items a list loads at once. Turn it down if lists feel slow.",
 				"#batchSizeSetting"
 			],
 			[
 				"sort",
-				"默认排序与方向",
-				"决定进入列表时先看什么；随机排序不区分升降序。",
+				"Default sort and direction",
+				"Decides what you see first when opening a list; random order ignores ascending and descending.",
 				"[data-setting-sort-controls]"
 			],
 			[
 				"size",
-				"视频卡片大小",
-				"大图便于看封面，密集显示便于一次浏览更多作品。",
+				"Video card size",
+				"Large images show covers off; the dense grid shows more titles at once.",
 				"#javSizeSetting"
 			],
 			[
 				"versions",
-				"合并分卷与版本",
-				"将同一作品的分卷和版本集中显示；播放时在详情选择。",
+				"Merging parts and versions",
+				"Groups a title's parts and versions together; pick one on the details page when playing.",
 				"#groupCollapseSetting"
 			],
 			[
 				"hover",
-				"悬停预览延迟",
-				"鼠标停留多久后开始预览，单位为秒。容易误触时增加延迟。",
+				"Hover preview delay",
+				"How long the pointer rests before a preview starts, in seconds. Raise the delay when it triggers by accident.",
 				"#hoverDelaySetting"
 			],
 			[
 				"autoplay",
-				"打开详情自动播放",
-				"决定打开作品详情时是否直接播放。需要安静浏览时关闭。",
+				"Playing details opens autoplay",
+				"Decides whether opening a title plays it right away. Turn off for quiet browsing.",
 				"#detailAutoplaySetting"
 			],
 			[
 				"miniplayer",
-				"离开详情后小窗播放",
-				"离开详情时用小窗继续观看；需要专注浏览时关闭。",
+				"Plays in the mini-player after leaving details",
+				"Keeps watching in the mini-player when you leave the details page; turn it off for focused browsing.",
 				"#miniplayerSetting"
 			],
 			[
 				"seek",
-				"快进 / 快退",
-				"设置每次跳转的秒数，按自己的观看习惯调整。",
+				"Skip forward / back",
+				"Sets the seconds per skip; adjust to your own watching habits.",
 				"#seekSecondsSetting"
 			]
 		])
@@ -19774,51 +19774,51 @@ var Gm = [
 		id: "jav-settings",
 		kind: "settings",
 		title: Um.jav,
-		summary: "封面与新作筛选。",
+		summary: "Covers and new-release filters.",
 		steps: $m("jav", [
 			[
 				"names",
-				"女优名称",
-				"选择中文或日文名称；偏好跟随馆藏，其他设备读取同一份设置。",
+				"Performer names",
+				"Choose between Chinese and Japanese names; the preference follows the library, and other devices read the same setting.",
 				"#performerNameLanguageSetting",
 				Zm
 			],
 			[
 				"image",
-				"默认图片",
-				"选择官方封面或预览图作为卡片的默认图像。",
+				"Default image",
+				"Choose the official cover or a preview image as the card's default picture.",
 				"#javImageSetting"
 			],
 			[
 				"limit",
-				"新作显示数量",
-				"控制新作区域一次展示的数量。",
+				"New-releases count",
+				"Controls how many items the new-releases area shows at once.",
 				"#feedLimitSetting"
 			],
 			[
 				"scroll",
-				"自动滚动",
-				"控制新作区域是否自动滚动。",
+				"Auto-scroll",
+				"Controls whether the new-releases area scrolls by itself.",
 				"#feedAutoScrollSetting"
 			],
 			[
 				"compilations",
-				"隐藏大合集",
-				"过滤新作中的大合集，只影响新作展示，馆藏仍可查找。",
+				"Hide large compilations",
+				"Filters large compilations out of new releases; it only affects the new-release view and the library stays searchable.",
 				"#feedHideGroupSetting",
 				Zm
 			],
 			[
 				"solo-compilations",
-				"隐藏单人合集",
-				"过滤新作中的单人合集，只影响新作展示，馆藏仍可查找。",
+				"Hide solo compilations",
+				"Filters single-performer compilations out of new releases; it only affects the new-release view and the library stays searchable.",
 				"#feedHideSoloSetting",
 				Zm
 			],
 			[
 				"excerpts",
-				"隐藏切片",
-				"过滤新作中的切片，只影响新作展示，馆藏仍可查找。",
+				"Hide clips",
+				"Filters clips out of new releases; it only affects the new-release view and the library stays searchable.",
 				"#feedHideExcerptSetting",
 				Zm
 			]
@@ -19828,16 +19828,16 @@ var Gm = [
 		id: "search-settings",
 		kind: "settings",
 		title: Um.search,
-		summary: "搜索记录、推荐数量与口味入口。",
+		summary: "Search history, recommendation counts, and the taste entry.",
 		steps: [...$m("search", [[
 			"history",
-			"搜索记录",
-			"设置保留的搜索记录上限，0 表示不记录。",
+			"Search history",
+			"Caps how many searches are remembered; 0 means none.",
 			"#searchHistoryLimitSetting"
 		]], Zm), ...$m("search", [[
 			"related",
-			"相关推荐数量",
-			"决定详情中显示多少项相关推荐。口味和记录来源在口味页面管理。",
+			"Related recommendation count",
+			"Decides how many related recommendations the details page shows. Taste and record sources are managed on the taste page.",
 			"#relatedLimitSetting"
 		]])]
 	},
@@ -19845,11 +19845,11 @@ var Gm = [
 		id: "content",
 		kind: "settings",
 		title: Um.content,
-		summary: "SFW 模式与画面显示。",
+		summary: "SFW mode and how images display.",
 		steps: $m("content", [[
 			"sfw",
-			"SFW 模式",
-			"隐藏敏感画面并停止悬停预览，适合需要遮挡画面的环境。访问控制请另设访问密码。",
+			"SFW mode",
+			"Hides sensitive frames and stops hover previews, for environments where the screen must stay covered. Set a separate access password for access control.",
 			"#censorSetting"
 		]])
 	},
@@ -19857,57 +19857,57 @@ var Gm = [
 		id: "library",
 		kind: "settings",
 		title: Wm.library,
-		summary: "媒体库、目录、读取与处理方式。",
+		summary: "Libraries, directories, reading, and processing modes.",
 		steps: $m("library", [
 			[
 				"media",
-				"媒体库名称与外观",
-				"名称、图标和来源色帮助区分媒体库。一个媒体库可含多个文件夹，下方的文件夹行配置本机或网盘挂载路径。",
+				"Library name and appearance",
+				"Name, icon, and source color tell libraries apart. One library can hold several folders; the folder rows below configure local or cloud mount paths.",
 				"[data-guide-target=\"media\"] [data-library-head]"
 			],
 			[
 				"folders",
-				"媒体文件夹",
-				"填写媒体目录路径并选择来源。更换已保存的路径时，按页面提示选择重定位原目录或添加另一目录；存在多个媒体库时可以移动文件夹归属。",
+				"Media folders",
+				"Fill in the media directory path and pick a source. When replacing a saved path, follow the page prompt to relocate the original directory or add another one; with several libraries you can move a folder between them.",
 				"[data-guide-target=\"media\"] [data-folder-row]"
 			],
 			[
 				"policy",
-				"媒体库处理方式",
-				"这里选择整个媒体库的处理方式。自定义处理可分别选择探测、资料、封面、人物与预览。",
+				"Library processing mode",
+				"This picks the processing mode for the whole library. Custom processing lets you choose probing, details, covers, people, and previews separately.",
 				"[data-guide-target=\"library-policy\"]"
 			],
 			[
 				"read-policy",
-				"文件夹读取策略",
-				"每个文件夹分别选择读取策略。正常读取允许按处理规则读取视频；代理保护适合计费挂载，限制自动读取视频。",
+				"Folder read policy",
+				"Pick a read policy per folder. Normal reading allows video reads per the processing rules; proxy protection suits metered mounts and limits automatic video reads.",
 				"[data-guide-target=\"media\"] [data-media-read-policy]"
 			],
 			[
 				"mounts",
-				"挂载状态",
-				"文件夹路径旁显示已保存目录的挂载状态；新目录保存前可能没有状态。网盘挂载不可用时先恢复挂载，再运行扫描。",
+				"Mount state",
+				"The saved directory's mount status shows beside the folder path; a new directory may have no status until saved. When a cloud mount is unavailable, restore the mount before running a scan.",
 				"[data-guide-target=\"media\"] [data-folder-row]:has([data-mount]), [data-guide-target=\"mounts\"]"
 			],
 			[
 				"cloud-proxy",
-				"CloudDrive 代理",
-				"数据代理控制文件内容请求，API 代理控制接口请求。分别选择模式、地址与端口，认证需要时填写用户名和密码；它们与 Peach 代理分别配置。"
+				"CloudDrive proxy",
+				"The data proxy covers file content requests and the API proxy covers API requests. Pick a mode, address, and port for each, filling in username and password when authentication needs them; they are configured separately from the Peach proxy."
 			],
 			[
 				"discovery",
-				"自动发现新文件",
-				"可监视本机文件夹或接收 CloudDrive2 通知。Webhook 用来接收事件，路径前缀映射把通知路径对应到媒体目录。"
+				"Auto-discover new files",
+				"Watch local folders or receive CloudDrive2 notifications. A webhook receives events, and the path prefix mapping lines notification paths up with media directories."
 			],
 			[
 				"codes",
-				"番号识别规则",
-				"当文件名无法识别时，检查或补充识别规则。规则会影响之后的识别，请先核对样例。"
+				"Code detection rules",
+				"When a filename is not recognized, review or extend the recognition rules. Rules affect later recognition, so check the samples first."
 			],
 			[
 				"preview",
-				"视频预览",
-				"生成视频预览会读取视频并产生缓存。时间轴预览的开关与采集间隔控制本机磁盘缩略图；抽帧解码方式决定生成预览使用的解码器。修改后自动保存，并受媒体库处理方式与读取策略约束。"
+				"Video previews",
+				"Generating video previews reads the videos and builds a cache. The timeline preview switch and sampling interval control this machine's thumbnails; the frame-extraction decoder decides which decoder preview generation uses. Changes save automatically and stay subject to the library processing mode and read policy."
 			]
 		], Qm)
 	},
@@ -19915,33 +19915,33 @@ var Gm = [
 		id: "subscriptions",
 		kind: "settings",
 		title: Wm.subscriptions,
-		summary: "资料来源、关注、索引器与站点入口。",
+		summary: "Detail sources, follows, indexers, and site entries.",
 		steps: $m("subscriptions", [
 			[
 				"sources",
-				"采集来源与登录状态",
-				"从这个入口查看作品资料来源及登录状态。关注凭据在下方分别管理，按需要启用来源。",
+				"Collection sources and login state",
+				"This entry shows where title details come from and their login state. Follow credentials are managed separately below; enable sources as needed.",
 				"[data-guide-target=\"sources\"]"
 			],
 			[
 				"credentials",
-				"来源凭据",
-				"展开需要使用的站点，按其要求填写登录信息。已保存的字段可以留空保留；操作按站点表单的保存按钮生效。"
+				"Source credentials",
+				"Expand the sites you use and fill in the login details they ask for. Saved fields may be left empty to keep them; actions take effect through each site form's save button."
 			],
 			[
 				"follow-options",
-				"关注采集",
-				"首次采集范围决定回看多久。自动检查更新和间隔控制后续查询；订阅源拉取与头像、favicon 刷新信息按页面显示查看。"
+				"Follows scrape",
+				"The first-collection range decides how far back to look. Automatic update checks and the interval govern later queries; feed pulls and avatar and favicon refreshes are shown on their pages."
 			],
 			[
 				"indexers",
-				"资源搜索",
-				"为索引器填写名称、Torznab 地址和 API key，可以增删来源。资源搜索提供候选结果，下载由你另行确认。"
+				"Resource search",
+				"Fill in a name, Torznab address, and API key per indexer; sources can be added or removed. Resource search offers candidate results, and you confirm the download separately."
 			],
 			[
 				"entry-links",
-				"作品资料站点",
-				"配置资料站点和镜像入口，用于打开相关作品页面。地址和登录凭据分别管理。"
+				"Video profile sites",
+				"Configure the details sites and mirror entries used to open related title pages. Addresses and login credentials are managed separately."
 			]
 		], Qm)
 	},
@@ -19949,22 +19949,22 @@ var Gm = [
 		id: "downloads",
 		kind: "settings",
 		title: Wm.downloads,
-		summary: "云下载目录、账号与浏览器配对。",
+		summary: "Cloud download directories, accounts, and browser pairing.",
 		steps: $m("downloads", [
 			[
 				"download",
-				"云下载",
-				"CloudDrive2 地址与 API 令牌用于连接服务，可自动查找或检查连接。115 和 PikPak 的目标目录决定云端存放位置，本地媒体目录映射用于下载后入库；等待上限控制等待时长。"
+				"Cloud download",
+				"The CloudDrive2 address and API token connect the service and can auto-discover or test the connection. The 115 and PikPak target directories decide where files land in the cloud, and the local media directory mapping ingests them after download; the wait cap bounds how long downloads may wait."
 			],
 			[
 				"pikpak",
-				"PikPak 账号",
-				"按页面选择账号密码或浏览器登录，连接状态用于判断是否可用。登录由你主动操作。"
+				"PikPak account",
+				"Choose account-and-password or browser sign-in per the page; the connection status tells you whether it works. Signing in is always your call."
 			],
 			[
 				"browser",
-				"浏览器添加 JAV",
-				"安装用户脚本并配对 Peach。默认渠道决定提交到哪里；启用开关控制功能，专用令牌可更新或关闭，脚本检测帮助确认配对。"
+				"Add JAV via browser",
+				"Install the userscript and pair it with Peach. The default channel decides where submissions go; the enable switch controls the feature, the dedicated token can be updated or turned off, and the script check confirms the pairing."
 			]
 		], Qm)
 	},
@@ -19972,27 +19972,27 @@ var Gm = [
 		id: "network",
 		kind: "settings",
 		title: Wm.network,
-		summary: "访问端口、代理、密码和公网入口。",
+		summary: "Access port, proxy, password, and public entry.",
 		steps: $m("network", [
 			[
 				"port",
-				"访问地址与端口",
-				"查看本机、局域网及其他设备可用的访问地址。端口设置保留当前值即可；保存端口变更后，需要使用页面提示的新地址。"
+				"Access address and port",
+				"See the addresses available on this machine, the LAN, and other devices. Keep the current port setting as is; after saving a port change, use the new address the page shows."
 			],
 			[
 				"proxy",
-				"Peach 代理",
-				"来源联网可选择系统代理、直连或自定义代理地址。连接失败时先检查当前模式与地址。"
+				"Peach proxy",
+				"Source networking can use the system proxy, a direct connection, or a custom proxy address. When a connection fails, check the current mode and address first."
 			],
 			[
 				"access",
-				"访问密码",
-				"设置或修改进入 Peach 的密码；关闭后，能连接到 Peach 的设备可直接访问。"
+				"Access password",
+				"Set or change the password for reaching Peach; with it off, any device that can connect gets in directly."
 			],
 			[
 				"tunnel",
-				"Cloudflare 公网入口",
-				"临时链接用于临时连接，命名隧道使用主机名与隧道令牌。连接状态显示是否已可用，按需要启用。"
+				"Cloudflare public entry",
+				"A temporary link serves one-off connections; a named tunnel uses a hostname and tunnel token. The connection status shows whether it is ready; enable as needed."
 			]
 		], Qm)
 	},
@@ -20000,47 +20000,47 @@ var Gm = [
 		id: "app-maintenance",
 		kind: "settings",
 		title: Wm.maintenance,
-		summary: "更新、存储、数据选择与应用维护。",
+		summary: "Updates, storage, data choices, and app maintenance.",
 		steps: $m("maintenance", [
 			[
 				"updates",
-				"检查更新",
-				"检查当前可用版本。下载与重启安装分别执行，按页面状态操作。"
+				"Check for updates",
+				"Checks the currently available version. Downloading and the restart install run separately; follow the page state."
 			],
 			[
 				"automatic-updates",
-				"自动更新",
-				"选择自动检查、自动下载和检查频率。下载完成后按提示确认重启安装。"
+				"Auto-update",
+				"Choose automatic checks, automatic downloads, and the check interval. After a download, confirm the restart install when prompted."
 			],
 			[
 				"startup",
-				"开机自启",
-				"设置开机启动、仅启动托盘和桌面快捷方式。可用选项随平台变化。"
+				"Start at sign-in",
+				"Sets launch at login, tray-only startup, and desktop shortcuts. Available options vary by platform."
 			],
 			[
 				"transcode",
-				"视频播放",
-				"播放转码方式决定兼容播放使用的处理方式；抽帧解码在媒体库与入库中单独设置。修改后自动保存。"
+				"Video playback",
+				"The playback transcode mode decides how compatible playback is processed; frame-extraction decoding is configured separately under library and ingestion. Changes save automatically."
 			],
 			[
 				"storage",
-				"存储空间",
-				"查看占用，按需要清理缓存和旧备份。迁移数据目录会移动资料与缓存；媒体文件目录单独管理。"
+				"Storage",
+				"Review usage and clean the cache and old backups as needed. Moving the data directory relocates details and cache; media file directories are managed separately."
 			],
 			[
 				"reporting",
-				"数据上传",
-				"版本统计与错误诊断、馆藏与口味明细是独立选择。明细上传前可查看预览，按自己的意愿开启。"
+				"Data upload",
+				"Version statistics and error diagnostics, and library and taste details, are separate choices. Details can be previewed before upload; enable them on your own terms."
 			],
 			[
 				"facts",
-				"运行信息与新手教程",
-				"运行信息用于核对环境。新手教程可以随时重开，阅读进度随本机账本在所有设备间共享。"
+				"Runtime info and the guided tour",
+				"Runtime info checks the environment. The guided tour can be reopened anytime, and reading progress follows this machine's ledger across devices."
 			],
 			[
 				"uninstall",
-				"卸载 Peach",
-				"卸载移除程序；完全卸载还移除设置、资料库、记录、凭据和缓存。执行前核对页面列出的数据目录与确认内容。"
+				"Uninstall Peach",
+				"Uninstall removes the program; full uninstall also removes settings, the library, history, credentials, and the cache. Check the data directory and confirmation text the page lists before running it."
 			]
 		], Qm)
 	},
@@ -20048,140 +20048,140 @@ var Gm = [
 		id: "diagnostics",
 		kind: "settings",
 		title: Wm.diagnostics,
-		summary: "遇到问题时查看检查项与诊断报告。",
+		summary: "When something breaks, review the checks and the diagnostic report.",
 		steps: $m("diagnostics", [
 			[
 				"attention",
-				"需要关注的检查项",
-				"从需要关注的项目进入原因与恢复入口；没有异常时查看库健康。",
+				"Checks that need attention",
+				"Attention-needed items open the reason and recovery entries; with nothing wrong, review the library health instead.",
 				"[data-guide-target=\"attention\"], [data-guide-target=\"health\"]"
 			],
 			[
 				"system-checks",
-				"其他系统检查",
-				"展开其他检查，按系统、配置等分组查看当前状态。需要关注的检查项会单独列在页面上方。",
-				"section[aria-label=\"系统检查\"]"
+				"Other system checks",
+				"Expand the other checks, grouped by system, configuration, and more, to see the current state. Checks needing attention are listed separately at the top of the page.",
+				"section[aria-label=\"System checks\"]"
 			],
 			[
 				"sessions",
-				"来源会话",
-				"查看各来源的会话状态、失败原因和上次解析成功时间，用于判断连接和资料读取问题。"
+				"Source sessions",
+				"See each source's session state, failure reasons, and the last successful resolve time to diagnose connection and detail-fetch problems."
 			],
 			[
 				"report",
-				"重新检查与诊断报告",
-				"处理原因后可以重新检查。需要提供排查资料时，由你点击下载诊断报告。"
+				"Re-checks and the diagnostic report",
+				"After addressing the reason, the check can run again. When troubleshooting material is needed, you click to download the diagnostic report."
 			]
-		], "只读检查 · 重新检查与下载由你主动执行")
+		], "Read-only check · re-checking and downloading are yours to trigger")
 	}
 ], th = {
 	glow: [
-		["配色预设", "一次应用一组配色和参数，适合先挑选整体外观。"],
-		["强度", "控制光晕的明亮程度；太抢眼时降低。"],
-		["颗粒", "控制光晕纹理中的颗粒感；需要平滑背景时降低。"],
-		["漂移速度", "控制背景光晕移动的速度。"],
-		["柔化", "控制光晕边缘的柔和程度。"],
-		["大小", "控制光晕覆盖的面积。"],
-		["三个自定义颜色", "分别设置三个光晕的颜色，组合成自己的配色。"],
-		["恢复默认", "将光晕配色和参数恢复为默认设置。"]
+		["Color presets", "Applies one set of colors and parameters at a time — good for picking an overall look first."],
+		["Intensity", "Controls how bright the glow is; lower it when it competes for attention."],
+		["Grain", "Controls the grain in the glow texture; lower it for a smoother background."],
+		["Drift speed", "Controls how fast the background glow drifts."],
+		["Softness", "Controls how soft the glow's edges are."],
+		["Size", "Controls how much area the glow covers."],
+		["Three custom colors", "Sets the three glow colors separately to compose your own scheme."],
+		["Restore defaults", "Restores the glow colors and parameters to their defaults."]
 	],
 	media: [
-		["媒体库名称、图标和来源色", "帮助在侧栏与卡片上区分内容；名称不改变文件路径。"],
-		["文件夹与所属媒体库", "文件夹是实际存放媒体的位置；多个文件夹可以归到同一个媒体库。"],
-		["来源", "说明目录来自本机磁盘还是网盘挂载，用于选择合适的读取行为。"],
-		["目录变更方式", "修改已保存目录路径时，选择重定位原目录或添加另一目录。"]
+		["Library name, icon, and source color", "Helps tell content apart in the sidebar and on cards; the name never changes file paths."],
+		["Folders and their library", "Folders are where media actually lives; several folders can belong to one library."],
+		["Source", "States whether a directory is a local disk or a cloud mount, which picks the right read behavior."],
+		["Directory change method", "When replacing a saved directory path, choose to relocate the original directory or add another one."]
 	],
 	policy: [
-		["自动补全", "读取本地资料，联网补齐缺失资料、封面和人物图片；本地视频可生成九宫格预览。"],
-		["仅使用本地资料", "使用本地 NFO 和图片，按读取策略获取视频信息；本地视频可生成九宫格预览。"],
-		["自定义步骤", "分别选择探测时长与分辨率、补作品资料、取封面、补人物资料和生成视频预览。"]
+		["Auto-complete", "Reads local details and fills in what is missing — details, covers, and people images — from the network; local videos can generate contact-sheet previews."],
+		["Use local profiles only", "Uses local NFO and images and reads video information per the read policy; local videos can generate contact-sheet previews."],
+		["Custom steps", "Choose probing duration and resolution, detail backfill, cover fetching, performer profile backfill, and video preview generation separately."]
 	],
-	"read-policy": [["正常读取", "允许按处理规则读取视频信息与生成预览，适合本机磁盘或不计费挂载。"], ["代理保护", "限制自动读取视频，适合读取会消耗计费流量的挂载。"]],
+	"read-policy": [["Normal read", "Allows reading video information and generating previews per the processing rules; suits local disks or unmetered mounts."], ["Proxy protection", "Limits automatic video reads, suiting mounts where reading burns metered traffic."]],
 	preview: [
-		["生成视频预览", "控制九宫格和预览缓存的生成；读取行为同时受媒体库规则约束。"],
-		["时间轴预览", "在本机磁盘视频的播放时间轴上显示缩略图。"],
-		["缩略图采集间隔", "决定相邻时间轴缩略图之间的时间；更密集会生成更多缓存。"],
-		["抽帧解码方式", "选择生成预览时的解码方式；播放转码另行设置。"]
+		["Generate video previews", "Controls contact-sheet and preview cache generation; read behavior also follows the library rules."],
+		["Timeline preview", "Shows thumbnails along the playback timeline of local-disk videos."],
+		["Thumbnail sampling interval", "Sets the time between adjacent timeline thumbnails; denser spacing generates more cache."],
+		["Frame extraction decode method", "Picks the decoder used to generate previews; playback transcoding is set separately."]
 	],
 	"cloud-proxy": [
-		["数据代理", "控制读取文件内容时的网络连接。"],
-		["API 代理", "控制向 CloudDrive 接口发出请求时的网络连接。"],
-		["模式、地址和端口", "模式选择如何连接，自定义模式需要有效的代理地址与端口。"],
-		["用户名和密码", "仅在代理要求认证时填写。"]
+		["Data proxy", "Controls the network connection used to read file contents."],
+		["API proxy", "Controls the network connection used for CloudDrive API requests."],
+		["Mode, address, and port", "The mode picks how to connect; the custom mode needs a valid proxy address and port."],
+		["Username and password", "Fill in only when the proxy asks for authentication."]
 	],
 	discovery: [
-		["发现新文件后自动入库", "允许发现事件触发入库；关闭后按需要手动扫描。"],
-		["监视本机文件夹", "接收本机文件系统的变更，用于发现新内容。"],
-		["接收 CloudDrive2 通知", "通过 CloudDrive2 推送目录变化。"],
-		["Webhook", "供来源服务发送变更事件的接收入口。"],
-		["路径前缀映射", "将来源通知里的路径换算为 Peach 能访问的媒体目录路径。"]
+		["Auto-intake after finding new files", "Lets discovery events trigger ingestion; with it off, scan manually as needed."],
+		["Watch local folders", "Receives this machine's filesystem changes to discover new content."],
+		["Receive CloudDrive2 notifications", "Pushes directory changes through CloudDrive2."],
+		["Webhook", "The receiving endpoint source services push change events to."],
+		["Path prefix mapping", "Translates paths from source notifications into media directory paths Peach can reach."]
 	],
 	"follow-options": [
-		["首次采集范围", "决定新加入的关注来源回看多久；跟随馆藏保存。"],
-		["自动检查更新", "决定是否定期查询已启用来源的新内容；修改后自动保存。"],
-		["自动检查间隔", "决定定期查询之间的时间；修改后自动保存。"],
-		["订阅源拉取", "控制订阅内容的获取，实际状态与操作入口以当前页面为准。"],
-		["头像与 favicon 刷新", "页面显示现有刷新信息；头像用于识别创作者，favicon 用于识别站点。"]
+		["First scrape scope", "Decides how far back newly followed sources look; saved with the library."],
+		["Automatically check for updates", "Decides whether enabled sources are polled for new content on a schedule; changes save automatically."],
+		["Auto-check interval", "Sets the time between scheduled queries; changes save automatically."],
+		["Follow source fetching", "Controls how subscription content is fetched; the real state and actions live on the current page."],
+		["Avatar and favicon refresh", "The page shows the current refresh details; avatars identify creators and favicons identify sites."]
 	],
 	download: [
-		["CloudDrive2 地址与 API 令牌", "地址定位服务，令牌授权 Peach 调用服务接口。"],
-		["自动查找与检查", "查找可连接的服务或核对当前连接。"],
-		["115 目标目录", "决定提交到 115 的内容保存到哪个云端目录。"],
-		["PikPak 目标目录", "决定提交到 PikPak 的内容保存到哪个云端目录。"],
-		["媒体目录映射", "将云端目标对应到 Peach 能扫描的挂载路径，便于下载后入库。"],
-		["等待上限", "控制等待下载结果的最长时间。"]
+		["CloudDrive2 address and API token", "The address locates the service; the token authorizes Peach to call its API."],
+		["Auto-discover and check", "Finds connectable services or verifies the current connection."],
+		["115 target folder", "Decides which cloud directory 115 submissions land in."],
+		["PikPak target folder", "Decides which cloud directory PikPak submissions land in."],
+		["Media directory mapping", "Maps the cloud target onto a mount path Peach can scan, so downloads ingest smoothly."],
+		["Wait cap", "Caps how long to wait for a download result."]
 	],
 	browser: [
-		["脚本检测与配对", "确认用户脚本已安装，并与当前 Peach 服务连接。"],
-		["默认渠道", "决定从浏览器添加时默认使用的下载渠道。"],
-		["启用", "控制浏览器添加功能是否接受请求。"],
-		["专用令牌", "授权用户脚本连接；更新后需要重新配对，关闭后停止使用该功能。"]
+		["Script check and pairing", "Confirms the userscript is installed and connected to the current Peach service."],
+		["Default channel", "Decides the default download channel for browser additions."],
+		["Enabled", "Controls whether the browser-add feature accepts requests."],
+		["Dedicated token", "Authorizes the userscript to connect; a pairing redo is needed after updates, and turning it off stops the feature."]
 	],
 	"automatic-updates": [
-		["自动检查新版本", "定期询问是否有新版本。"],
-		["自动下载更新", "发现更新后先下载；安装仍按提示确认。"],
-		["检查频率", "决定查询新版本的间隔。"]
+		["Auto-check for new versions", "Asks on a schedule whether a new version exists."],
+		["Automatically download updates", "Downloads first when an update is found; installing still waits for your confirmation."],
+		["Check frequency", "Sets the interval between new-version queries."]
 	],
 	storage: [
-		["占用统计", "查看资料、缓存与备份占用的空间。"],
-		["清理缓存与旧备份", "移除确认范围内的生成文件或旧备份，执行前核对清单。"],
-		["迁移数据目录", "更换资料与缓存的存放位置，按流程迁移并重启。媒体文件目录单独配置。"]
+		["Usage statistics", "See the space details, cache, and backups take up."],
+		["Clean the cache and old backups", "Removes generated files or old backups inside the confirmed scope; read the list before running."],
+		["Migrate the data directory", "Change where details and the cache live and follow the flow to migrate and restart. Media file directories are configured separately."]
 	],
-	codes: [["识别规则", "按输入框中的格式填写，用来从文件名提取番号；保存前核对规则与目标文件名。"]],
+	codes: [["Recognition rules", "Fill it in using the format shown to extract codes from filenames; verify the rule and the resulting filename before saving."]],
 	indexers: [
-		["名称", "用于区分资源搜索来源。"],
-		["Torznab 地址", "索引器提供的查询接口地址。"],
-		["API key", "授权 Peach 使用该索引器；按索引器提供的信息填写。"]
+		["Name", "Tells resource-search sources apart."],
+		["Torznab address", "The query endpoint address the indexer provides."],
+		["API key", "Authorizes Peach to use that indexer; fill in what the indexer gives you."]
 	],
 	proxy: [
-		["系统代理", "采用运行 Peach 的电脑提供的代理配置。"],
-		["直连", "直接连接来源。"],
-		["自定义代理地址", "指定 Peach 使用的代理；已保存时留空保留当前地址。"]
+		["System proxy", "Uses the proxy configuration from the computer running Peach."],
+		["Direct", "Connect to sources directly."],
+		["Custom proxy address", "Sets the proxy Peach uses; leave empty to keep the saved address."]
 	],
 	access: [
-		["当前访问密码", "修改访问密码时用于验证当前密码。"],
-		["新访问密码与确认", "两次填写相同密码，保存后使用新密码登录。"],
-		["关闭访问密码", "保存后，能连接到 Peach 的设备可直接进入。"]
+		["Current access password", "Used to verify the current password when changing the access password."],
+		["New access password and confirmation", "Enter the same password twice; sign in with the new one after saving."],
+		["Disable access password", "Once saved, any device that can reach Peach gets in directly."]
 	],
 	tunnel: [
-		["临时链接", "适合临时使用的公网访问入口。"],
-		["命名隧道", "连接已配置的固定公网入口。"],
-		["公开主机名", "填写命名隧道对应的访问域名。"],
-		["隧道令牌", "授权本机连接命名隧道。"],
-		["连接状态", "用于判断公网入口是否已经可访问。"]
+		["Temporary link", "A public access entry meant for temporary use."],
+		["Named tunnel", "Connects through the configured fixed public entry."],
+		["Public hostname", "Fill in the access hostname for the named tunnel."],
+		["Tunnel token", "Authorizes this machine to connect to the named tunnel."],
+		["Connection status", "Tells whether the public entry is reachable yet."]
 	],
 	startup: [
-		["开机后启动 Peach", "系统登录后启动应用；可用性取决于当前平台。"],
-		["只启动托盘，不打开网页", "开机启动时保留后台运行，按需要再打开页面。"],
-		["在桌面创建快捷方式", "提供打开 Peach 的桌面入口。"]
+		["Start Peach after sign-in", "Starts the app after system login; availability depends on the platform."],
+		["Start the tray only, without opening the web app", "Launch at login keeps running in the background; open the page when you need it."],
+		["Create desktop shortcut", "Provides a desktop entry for opening Peach."]
 	],
 	reporting: [
-		["发送版本统计与错误诊断", "上传版本、系统信息、故障类型、代码位置与发生次数。"],
-		["上传馆藏与口味明细", "独立控制馆藏及口味信息的上传，启用前查看当前上传预览并确认。"],
-		["上传预览", "查看本次会包含的内容，再决定是否启用明细上传。"]
+		["Sends version statistics and error diagnostics", "Uploads version, system info, failure type, code location, and occurrence count."],
+		["Upload library and taste details", "Controls library and taste detail uploads independently; review the current upload preview and confirm before enabling."],
+		["Upload preview", "See exactly what an upload would include before deciding to enable detail uploads."]
 	]
 };
-for (let e of eh) for (let t of e.steps) t.details = th[t.id], (t.id === "preview" || t.id === "transcode") && (t.scope = "运行 Peach 的电脑 · 修改后自动保存"), (t.id === "follow-options" || t.id === "sources" || t.id === "reporting" || t.id === "storage") && (t.scope = "按页面中各项的保存或确认动作生效");
+for (let e of eh) for (let t of e.steps) t.details = th[t.id], (t.id === "preview" || t.id === "transcode") && (t.scope = "The computer running Peach · changes save automatically"), (t.id === "follow-options" || t.id === "sources" || t.id === "reporting" || t.id === "storage") && (t.scope = "Takes effect through each item's own save or confirm action on the page");
 [...Ym, ...eh];
 // src/react/settings/section.tsx
 function nh({ children: e }) {
@@ -20345,7 +20345,7 @@ function hh() {
 	});
 }
 function gh({ step: e }) {
-	let t = e === 0 ? "你的私人媒体空间。" : e === 1 ? "让文件成为馆藏。" : e === 2 ? "从书桌，到手边。" : e === 3 ? "全都准备好了。" : e === "restore" ? "从熟悉的地方继续。" : "馆藏，准备开启。", n = e === 0 ? "把喜欢的内容，整理成自己的收藏。" : e === 1 ? "按媒体库归类，文件保留在原来的位置。" : e === 2 ? "电脑与手机，连接同一套 Peach。" : e === 3 ? "确认后保存，扫描按你的选择开始。" : e === "restore" ? "沿用原来的配置与记录，接着使用。" : "进入 Peach，开始探索你的收藏。";
+	let t = e === 0 ? "Your private media space." : e === 1 ? "Turn files into a library." : e === 2 ? "From the desk to your hand." : e === 3 ? "Everything is ready." : e === "restore" ? "Continue from somewhere familiar." : "Your library is ready to open.", n = e === 0 ? "Organize what you love into your own collection." : e === 1 ? "Organize by library, with files staying where they are." : e === 2 ? "Computers and phones, connected to one Peach." : e === 3 ? "Confirm to save; scanning starts per your choices." : e === "restore" ? "Keeps the existing configuration and records so you can continue." : "Enter Peach and start exploring your collection.";
 	return /* @__PURE__ */ (0, R.jsxs)("aside", {
 		"data-setup-scene": "",
 		children: [
@@ -20387,7 +20387,7 @@ function gh({ step: e }) {
 					"data-setup-library-scene": "",
 					children: [/* @__PURE__ */ (0, R.jsx)(hh, {}), /* @__PURE__ */ (0, R.jsxs)("div", {
 						"data-setup-scene-badge": "",
-						children: [/* @__PURE__ */ (0, R.jsx)(rm, {}), /* @__PURE__ */ (0, R.jsx)("span", { children: "你的媒体库" })]
+						children: [/* @__PURE__ */ (0, R.jsx)(rm, {}), /* @__PURE__ */ (0, R.jsx)("span", { children: "Your media library" })]
 					})]
 				})
 			}, e),
@@ -20420,7 +20420,7 @@ function _h({ step: e, children: t }) {
 function vh({ done: e }) {
 	let t = (0, A.useRef)(null);
 	return (0, A.useEffect)(() => {
-		document.title = "Peach · 设置完成", t.current?.focus();
+		document.title = "Peach · Setup complete", t.current?.focus();
 	}, []), (0, A.useEffect)(() => {
 		let t = e.redirect;
 		if (!t) return;
@@ -20436,7 +20436,7 @@ function vh({ done: e }) {
 					"data-setup-top": "",
 					children: /* @__PURE__ */ (0, R.jsx)("span", {
 						className: "text-body-2-regular text-text-secondary",
-						children: "设置完成"
+						children: "Setup complete"
 					})
 				}),
 				/* @__PURE__ */ (0, R.jsx)("div", {
@@ -20448,16 +20448,16 @@ function vh({ done: e }) {
 							children: [/* @__PURE__ */ (0, R.jsx)("h1", {
 								id: "auth-card-title",
 								className: "text-title-1-semibold text-text-primary",
-								children: "可以开始使用了"
+								children: "You are all set"
 							}), /* @__PURE__ */ (0, R.jsx)("p", {
 								className: "text-body-regular text-text-secondary",
-								children: "你的 Peach 已准备就绪。"
+								children: "Your Peach is ready."
 							})]
 						}), /* @__PURE__ */ (0, R.jsxs)("div", { children: [/* @__PURE__ */ (0, R.jsx)("p", {
 							className: "text-body-regular text-text-primary",
-							children: e.restored ? "已连接已有数据目录。" : e.skip_media ? "可在「媒体库与入库」添加媒体目录并开始扫描。" : e.scan_requested ? "首次扫描已排队，在后台整理媒体库，期间可以照常使用 Peach。" : "稍后在配置页开始扫描媒体库。"
+							children: e.restored ? "Connected to the existing data directory." : e.skip_media ? "Add media directories under \"Media Library & Ingest\" to start scanning." : e.scan_requested ? "The first scan is queued and will organize the library in the background; Peach stays usable meanwhile." : "Start scanning the library later from the configuration page."
 						}), /* @__PURE__ */ (0, R.jsx)(lh, {
-							summary: "运行信息",
+							summary: "Runtime info",
 							children: /* @__PURE__ */ (0, R.jsx)(sh, { children: e.facts.map((e) => /* @__PURE__ */ (0, R.jsxs)(ch, {
 								term: e.term,
 								children: [e.value, e.download_url ? /* @__PURE__ */ (0, R.jsx)(oh, {
@@ -20475,7 +20475,7 @@ function vh({ done: e }) {
 					children: /* @__PURE__ */ (0, R.jsx)(Bt, {
 						ref: t,
 						href: e.url,
-						children: e.history_guide ? "导入浏览器历史记录" : "进入 Peach"
+						children: e.history_guide ? "Import browser history" : "Enter Peach"
 					})
 				})
 			]
@@ -21572,11 +21572,11 @@ function k_({ index: e, cost: t, error: n, onChange: r }) {
 			/* @__PURE__ */ (0, R.jsx)(cm, {
 				elementType: "span",
 				"aria-hidden": !0,
-				children: "读取策略"
+				children: "Read policy"
 			}),
 			/* @__PURE__ */ (0, R.jsxs)(Mh, {
-				"aria-label": `媒体读取策略 ${e + 1}`,
-				placeholder: "选择读取策略",
+				"aria-label": `Media read policy ${e + 1}`,
+				placeholder: "Choose the read policy",
 				isRequired: !0,
 				validationBehavior: "aria",
 				isInvalid: !!n,
@@ -21586,10 +21586,10 @@ function k_({ index: e, cost: t, error: n, onChange: r }) {
 				},
 				children: [/* @__PURE__ */ (0, R.jsx)(Nh, {
 					id: "free",
-					children: "正常读取"
+					children: "Normal reading"
 				}), /* @__PURE__ */ (0, R.jsx)(Nh, {
 					id: "metered",
-					children: "代理保护"
+					children: "Proxy protection"
 				})]
 			}),
 			n ? /* @__PURE__ */ (0, R.jsx)(ah, { children: n }) : null
@@ -21597,7 +21597,7 @@ function k_({ index: e, cost: t, error: n, onChange: r }) {
 	});
 }
 function A_() {
-	return /* @__PURE__ */ (0, R.jsx)(ih, { children: "读取策略选「代理保护」时，会限制自动读取视频。" });
+	return /* @__PURE__ */ (0, R.jsx)(ih, { children: "When the read strategy is set to \"Proxy protection\", automatic video reads are restricted." });
 }
 function j_({ initial: e, blank: t, pickFolder: n, describe: r, focusAfterPick: i = !1 }) {
 	let [a, o] = (0, A.useState)(e), [s, c] = (0, A.useState)([]), [l, u] = (0, A.useState)(null), [d, f] = (0, A.useState)(null), p = (0, A.useRef)(!1), m = (0, A.useRef)([]);
@@ -21658,7 +21658,7 @@ function M_({ label: e, path: t, onPath: n, error: r, inputRef: i, picking: a, o
 				/* @__PURE__ */ (0, R.jsx)(mm, {
 					className: "min-w-0 flex-1",
 					"aria-label": e,
-					placeholder: "媒体目录路径",
+					placeholder: "Media folder path",
 					value: t,
 					onChange: n,
 					ref: (e) => {
@@ -21675,7 +21675,7 @@ function M_({ label: e, path: t, onPath: n, error: r, inputRef: i, picking: a, o
 				}) : null,
 				/* @__PURE__ */ (0, R.jsx)(bh, {
 					icon: C_,
-					"aria-label": "选择文件夹",
+					"aria-label": "Select folder",
 					onClick: o,
 					...S_(a)
 				}),
@@ -21683,7 +21683,7 @@ function M_({ label: e, path: t, onPath: n, error: r, inputRef: i, picking: a, o
 					variant: "danger",
 					iconOnly: !0,
 					leadingIcon: tm,
-					"aria-label": "移除这个文件夹",
+					"aria-label": "Remove this folder",
 					onClick: s
 				}) : null
 			]
@@ -21695,11 +21695,11 @@ function M_({ label: e, path: t, onPath: n, error: r, inputRef: i, picking: a, o
 }
 function N_({ index: e, value: t, onChange: n, options: r = w_ }) {
 	return /* @__PURE__ */ (0, R.jsx)(D_, {
-		label: "来源",
+		label: "Source",
 		className: "w-full @lg:w-60",
 		children: /* @__PURE__ */ (0, R.jsx)(Mh, {
 			className: "w-full",
-			"aria-label": `媒体来源 ${e + 1}`,
+			"aria-label": `Media source ${e + 1}`,
 			selectedKey: t,
 			onSelectionChange: (e) => {
 				e !== null && n(String(e));
@@ -21714,52 +21714,52 @@ function N_({ index: e, value: t, onChange: n, options: r = w_ }) {
 }
 // src/react/settings/library-icon-picker.tsx
 var P_ = [
-	["", "自动识别"],
-	["hard-drive", "磁盘"],
-	["database", "资料库"],
-	["heart", "心动"],
-	["heart-hand", "亲密"],
-	["flame", "热情"],
-	["cherry", "樱桃"],
-	["lollipop", "甜心"],
-	["candy", "糖果"],
-	["banana", "香蕉"],
-	["droplets", "湿润"],
-	["venus", "女性"],
-	["mars", "男性"],
-	["venus-and-mars", "情侣"],
-	["gem", "精选"],
-	["crown", "女王"],
-	["ribbon", "丝带"],
-	["shirt", "制服"],
-	["graduation-cap", "学生"],
-	["stethoscope", "护士"],
-	["glasses", "眼镜"],
-	["footprints", "足迹"],
-	["hand", "手部"],
-	["flower", "花朵"],
-	["venetian-mask", "角色扮演"],
-	["rabbit", "兔女郎"],
-	["paw-print", "兽耳"],
-	["dumbbell", "健身"],
-	["bed-double", "卧室"],
-	["bath", "浴室"],
-	["key-round", "私密"],
-	["wine", "微醺"],
-	["cigarette", "烟"],
-	["moon", "夜色"],
-	["sparkles", "幻想"],
-	["camera", "写真"],
-	["video", "影片"],
-	["film", "电影"],
-	["image", "图集"],
-	["gamepad-2", "游戏"],
-	["star", "收藏"],
-	["tags", "主题"]
+	["", "Auto-detect"],
+	["hard-drive", "Disk"],
+	["database", "Profile library"],
+	["heart", "Crush"],
+	["heart-hand", "Intimate"],
+	["flame", "Passionate"],
+	["cherry", "Cherry"],
+	["lollipop", "Sweetheart"],
+	["candy", "Candy"],
+	["banana", "Banana"],
+	["droplets", "Wet"],
+	["venus", "Female"],
+	["mars", "Male"],
+	["venus-and-mars", "Couple"],
+	["gem", "Featured"],
+	["crown", "Queen"],
+	["ribbon", "Ribbon"],
+	["shirt", "Uniform"],
+	["graduation-cap", "Student"],
+	["stethoscope", "Nurse"],
+	["glasses", "Glasses"],
+	["footprints", "Footprints"],
+	["hand", "Hands"],
+	["flower", "Flowers"],
+	["venetian-mask", "Cosplay"],
+	["rabbit", "Bunny girl"],
+	["paw-print", "Animal ears"],
+	["dumbbell", "Gym"],
+	["bed-double", "Bedroom"],
+	["bath", "Bathroom"],
+	["key-round", "Private"],
+	["wine", "Tipsy"],
+	["cigarette", "Smoking"],
+	["moon", "Night"],
+	["sparkles", "Fantasy"],
+	["camera", "Photobook"],
+	["video", "Movie"],
+	["film", "Movies"],
+	["image", "Gallery"],
+	["gamepad-2", "Game"],
+	["star", "Favorites"],
+	["tags", "Theme"]
 ];
 function F_(e) {
 	let t = e === "local" ? "" : zm[e];
-	return t ? [t, "自动识别"] : ["hard-drive", "默认"];
+	return t ? [t, "Auto-detect"] : ["hard-drive", "Default"];
 }
 var I_ = "auto";
 function L_({ value: e, label: t, kind: n = "local", onChange: r }) {
@@ -21787,16 +21787,16 @@ function L_({ value: e, label: t, kind: n = "local", onChange: r }) {
 		offset: 4,
 		className: wh,
 		children: /* @__PURE__ */ (0, R.jsxs)(pp, {
-			"aria-label": `${t}可选图标`,
+			"aria-label": `${t} icon options`,
 			className: "flex w-72 flex-col gap-3 outline-none",
 			children: [
 				/* @__PURE__ */ (0, R.jsx)($o, {
 					slot: "title",
 					className: "px-1 text-body-medium text-text-primary",
-					children: "选择媒体库图标"
+					children: "Select library icon"
 				}),
 				/* @__PURE__ */ (0, R.jsx)(wp, {
-					"aria-label": "可选图标",
+					"aria-label": "Optional marks",
 					value: s || I_,
 					onChange: (e) => c(e === I_ ? "" : e),
 					className: "inline-grid grid-cols-7 gap-1",
@@ -21812,13 +21812,13 @@ function L_({ value: e, label: t, kind: n = "local", onChange: r }) {
 					children: [/* @__PURE__ */ (0, R.jsx)(zt, {
 						variant: "secondary",
 						onClick: () => o(!1),
-						children: "取消"
+						children: "Cancel"
 					}), /* @__PURE__ */ (0, R.jsx)(zt, {
 						disabled: s === e,
 						onClick: () => {
 							r(s), o(!1);
 						},
-						children: "应用"
+						children: "Apply"
 					})]
 				})
 			]
@@ -21846,7 +21846,7 @@ function R_({ prefix: e, renderValue: t, size: n, ...r }) {
 var z_ = [
 	[
 		"ash",
-		"灰雾",
+		"Mist gray",
 		{
 			spot1: {
 				color: "#8f98a4",
@@ -21865,7 +21865,7 @@ var z_ = [
 	],
 	[
 		"amber",
-		"钨丝暖阁",
+		"Filament warmth",
 		{
 			spot1: {
 				color: "#e08a2f",
@@ -21884,7 +21884,7 @@ var z_ = [
 	],
 	[
 		"plum",
-		"夜樱",
+		"Night cherry",
 		{
 			spot1: {
 				color: "#b455a0",
@@ -21903,7 +21903,7 @@ var z_ = [
 	],
 	[
 		"pine",
-		"深林",
+		"Deep forest",
 		{
 			spot1: {
 				color: "#3f9e57",
@@ -21922,7 +21922,7 @@ var z_ = [
 	],
 	[
 		"iris",
-		"琉璃霞",
+		"Glass glow",
 		{
 			spot1: {
 				color: "#1e50a2",
@@ -21941,7 +21941,7 @@ var z_ = [
 	],
 	[
 		"opal",
-		"蛋白石",
+		"Opal",
 		{
 			spot1: {
 				color: "#9be0e8",
@@ -21960,7 +21960,7 @@ var z_ = [
 	],
 	[
 		"lagoon",
-		"潟湖",
+		"Lagoon",
 		{
 			spot1: {
 				color: "#5ce3e6",
@@ -21979,7 +21979,7 @@ var z_ = [
 	],
 	[
 		"jade",
-		"翡翠",
+		"Jade",
 		{
 			spot1: {
 				color: "#8fe3b0",
@@ -21998,7 +21998,7 @@ var z_ = [
 	],
 	[
 		"flare",
-		"耀斑",
+		"Flare",
 		{
 			spot1: {
 				color: "#ffc24b",
@@ -22017,7 +22017,7 @@ var z_ = [
 	],
 	[
 		"orchid",
-		"兰紫",
+		"Orchid",
 		{
 			spot1: {
 				color: "#e794c9",
@@ -22036,7 +22036,7 @@ var z_ = [
 	],
 	[
 		"peach",
-		"桃晕",
+		"Peach glow",
 		{
 			spot1: {
 				color: "#ffc9a3",
@@ -22055,7 +22055,7 @@ var z_ = [
 	],
 	[
 		"tide",
-		"电蓝",
+		"Electric blue",
 		{
 			spot1: {
 				color: "#6fd8f2",
@@ -22074,7 +22074,7 @@ var z_ = [
 	],
 	[
 		"sunset",
-		"落日",
+		"Sunset",
 		{
 			spot1: {
 				color: "#ffae3f",
@@ -22093,7 +22093,7 @@ var z_ = [
 	],
 	[
 		"mint",
-		"薄荷冰",
+		"Mint ice",
 		{
 			spot1: {
 				color: "#a8f0dc",
@@ -22112,7 +22112,7 @@ var z_ = [
 	],
 	[
 		"bloom",
-		"夜昙",
+		"Night bloom",
 		{
 			spot1: {
 				color: "#4c3894",
@@ -22131,7 +22131,7 @@ var z_ = [
 	],
 	[
 		"rosegold",
-		"玫瑰金",
+		"Rose gold",
 		{
 			spot1: {
 				color: "#fbc9ac",
@@ -22150,7 +22150,7 @@ var z_ = [
 	],
 	[
 		"native",
-		"玻璃原色",
+		"Glass native color",
 		{
 			spot1: {
 				color: "#6686b8",
@@ -22170,18 +22170,18 @@ var z_ = [
 ];
 [...z_.map(([e, t]) => [e, t])];
 var B_ = (e) => structuredClone((z_.find(([t]) => t === e) || z_[0])[2]), V_ = [
-	["red", "红"],
-	["orange", "橙"],
-	["amber", "琥珀"],
-	["lime", "柠绿"],
-	["emerald", "翠绿"],
-	["teal", "青绿"],
-	["sky", "天蓝"],
-	["blue", "蓝"],
-	["indigo", "靛蓝"],
-	["violet", "紫罗兰"],
-	["fuchsia", "品红"],
-	["rose", "玫红"]
+	["red", "red"],
+	["orange", "orange"],
+	["amber", "Amber"],
+	["lime", "Lime"],
+	["emerald", "Emerald"],
+	["teal", "Teal green"],
+	["sky", "Sky blue"],
+	["blue", "blue"],
+	["indigo", "Indigo"],
+	["violet", "Violet"],
+	["fuchsia", "Magenta"],
+	["rose", "Rose red"]
 ];
 ({ ...B_("ash") });
 // src/react/components/library-tint.ts
@@ -22226,11 +22226,11 @@ function Y_(e) {
 }
 // src/react/settings/library-policy-settings.tsx
 var X_ = [
-	["probe", "读取视频信息"],
-	["metadata", "联网补资料"],
-	["cover", "联网补封面"],
-	["people", "联网补人物图片"],
-	["preview", "生成九宫格预览"]
+	["probe", "Read video info"],
+	["metadata", "Fetch profiles online"],
+	["cover", "Fetch covers online"],
+	["people", "Fetch person images online"],
+	["preview", "Generate 3x3 grid preview"]
 ], Z_ = [
 	"probe",
 	"metadata",
@@ -22240,27 +22240,27 @@ var X_ = [
 ], Q_ = [
 	[
 		"auto",
-		"自动补全",
-		"缺什么联网补什么"
+		"Auto-complete",
+		"Fetches online only what is missing"
 	],
 	[
 		"local",
-		"仅使用本地资料",
-		"不联网，只用本地 NFO 和图片"
+		"Use local profiles only",
+		"Never online; local NFO and images only"
 	],
 	[
 		"custom",
-		"自定义",
-		"逐项选择要做的步骤"
+		"Custom",
+		"Pick the steps to run one by one"
 	]
 ];
 function $_({ name: e, value: t, onChange: n }) {
 	return /* @__PURE__ */ (0, R.jsx)(R_, {
 		"data-guide-target": "library-policy",
 		className: "w-full",
-		"aria-label": `${e} 处理方式`,
+		"aria-label": `${e} handling`,
 		selectedKey: t,
-		prefix: "处理方式",
+		prefix: "Handling",
 		renderValue: /* @__PURE__ */ (0, R.jsx)("span", {
 			className: "truncate",
 			children: Q_.find(([e]) => e === t)?.[1]
@@ -22282,11 +22282,11 @@ function $_({ name: e, value: t, onChange: n }) {
 function ev({ name: e, value: t, onChange: n }) {
 	return /* @__PURE__ */ (0, R.jsx)(lh, {
 		defaultOpen: !0,
-		summary: `${e} 的处理步骤（${t.length}/${X_.length}）`,
+		summary: `${e} processing steps (${t.length}/${X_.length})`,
 		children: /* @__PURE__ */ (0, R.jsx)("div", {
 			className: "flex flex-wrap gap-x-6 gap-y-2",
 			role: "group",
-			"aria-label": `${e} 处理步骤`,
+			"aria-label": `${e} handling steps`,
 			children: X_.map(([e, r]) => /* @__PURE__ */ (0, R.jsx)($p, {
 				isSelected: t.includes(e),
 				onChange: (r) => n(r ? [...t, e] : t.filter((t) => t !== e)),
@@ -22296,7 +22296,7 @@ function ev({ name: e, value: t, onChange: n }) {
 	});
 }
 function tv({ id: e, name: t, value: n, onChange: r }) {
-	let i = (0, A.useRef)(null), [a, o] = (0, A.useState)(!1), s = V_.find(([e]) => e === n)?.[1] || "无颜色", c = (t) => {
+	let i = (0, A.useRef)(null), [a, o] = (0, A.useState)(!1), s = V_.find(([e]) => e === n)?.[1] || "No color", c = (t) => {
 		r(t), q_(e, t), o(!1);
 	};
 	return /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [/* @__PURE__ */ (0, R.jsxs)("button", {
@@ -22307,14 +22307,14 @@ function tv({ id: e, name: t, value: n, onChange: r }) {
 		"data-library-color-trigger": "",
 		"aria-haspopup": "dialog",
 		"aria-expanded": a,
-		"aria-label": `${t || "未命名媒体库"} 来源色：${s}`,
+		"aria-label": `Source color of ${t || "Unnamed library"}: ${s}`,
 		title: s,
 		onClick: () => o(!0),
 		children: [
 			/* @__PURE__ */ (0, R.jsx)("span", {
 				"aria-hidden": !0,
 				className: "text-text-tertiary",
-				children: "来源色"
+				children: "Source color"
 			}),
 			n ? /* @__PURE__ */ (0, R.jsx)("span", {
 				"data-glow-ball": "",
@@ -22338,11 +22338,11 @@ function tv({ id: e, name: t, value: n, onChange: r }) {
 			containerPadding: 12,
 			className: wh,
 			children: /* @__PURE__ */ (0, R.jsxs)(pp, {
-				"aria-label": `${t || "未命名媒体库"} 来源色`,
+				"aria-label": `Source color of ${t || "Unnamed library"}`,
 				className: "outline-none",
 				children: [/* @__PURE__ */ (0, R.jsx)("p", {
 					className: "px-1 pb-2 text-body-medium text-text-primary",
-					children: "选择来源色"
+					children: "Choose a source color"
 				}), /* @__PURE__ */ (0, R.jsxs)("div", {
 					"data-accent-grid": "",
 					"data-library-colors": "",
@@ -22351,8 +22351,8 @@ function tv({ id: e, name: t, value: n, onChange: r }) {
 						type: "button",
 						"data-glow-chip": "",
 						"aria-pressed": !n,
-						title: "无颜色",
-						"aria-label": "无颜色",
+						title: "No color",
+						"aria-label": "No color",
 						onClick: () => c(""),
 						children: /* @__PURE__ */ (0, R.jsx)("span", {
 							"data-glow-ball": "",
@@ -22395,7 +22395,7 @@ function nv({ label: e, password: t, confirmation: n, onPassword: r, onConfirmat
 	}), /* @__PURE__ */ (0, R.jsx)(mm, {
 		id: "access-confirm",
 		type: "password",
-		label: "确认访问密码",
+		label: "Confirm the access password",
 		autoComplete: "new-password",
 		maxLength: 256,
 		value: n,
@@ -22409,13 +22409,13 @@ function nv({ label: e, password: t, confirmation: n, onPassword: r, onConfirmat
 }
 // src/react/settings/peach-proxy-fields.tsx
 var rv = [
-	["environment", "跟随环境"],
-	["direct", "直连"],
-	["proxy", "自定义"]
+	["environment", "Follow the environment"],
+	["direct", "Direct"],
+	["proxy", "Custom"]
 ];
 function iv({ mode: e, onChange: t, labelledBy: n }) {
 	return /* @__PURE__ */ (0, R.jsx)(Mh, {
-		"aria-label": n ? void 0 : "连接方式",
+		"aria-label": n ? void 0 : "Connection method",
 		"aria-labelledby": n,
 		selectedKey: e,
 		onSelectionChange: (e) => {
@@ -22431,12 +22431,12 @@ function av({ id: e, value: t, onChange: n, saved: r = !1, error: i }) {
 	return /* @__PURE__ */ (0, R.jsx)(mm, {
 		id: e,
 		type: "password",
-		label: "代理地址",
+		label: "Proxy address",
 		autoComplete: "off",
 		spellCheck: "false",
 		value: t,
 		onChange: n,
-		placeholder: r ? "已保存，留空保留" : "http://127.0.0.1:7890",
+		placeholder: r ? "Saved; leave empty to keep" : "http://127.0.0.1:7890",
 		validationBehavior: "aria",
 		isInvalid: !!i,
 		hint: i
@@ -22500,10 +22500,10 @@ function uv({ tone: e = "neutral", ...t }) {
 // src/react/settings/remote-reporting-settings.tsx
 function dv({ value: e, onChange: t, busy: n = !1 }) {
 	return /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [/* @__PURE__ */ (0, R.jsx)(nh, { children: /* @__PURE__ */ (0, R.jsx)(Bm, {
-		label: "发送版本统计与错误诊断（推荐）",
-		description: "上传版本、系统信息、故障类型、代码位置与发生次数。",
+		label: "Send version statistics and error diagnostics (recommended)",
+		description: "Uploads version, system info, failure type, code location, and occurrence count.",
 		children: /* @__PURE__ */ (0, R.jsx)(Ch, {
-			"aria-label": "发送版本统计与错误诊断（推荐）",
+			"aria-label": "Send version statistics and error diagnostics (recommended)",
 			isSelected: e.usage && e.errors,
 			onChange: (n) => t({
 				...e,
@@ -22516,7 +22516,7 @@ function dv({ value: e, onChange: t, busy: n = !1 }) {
 		divided: !0,
 		children: /* @__PURE__ */ (0, R.jsx)("span", {
 			className: "self-start",
-			children: /* @__PURE__ */ (0, R.jsx)(uv, { children: "上传服务未配置" })
+			children: /* @__PURE__ */ (0, R.jsx)(uv, { children: "Upload service not configured" })
 		})
 	})] });
 }
@@ -22532,10 +22532,10 @@ function fv(e) {
 	} : {};
 }
 function pv(e) {
-	if (e.library_policy === "local") return "仅使用本地资料";
-	if (e.library_policy !== "custom") return "自动补全";
+	if (e.library_policy === "local") return "Use local profiles only";
+	if (e.library_policy !== "custom") return "Auto-complete";
 	let t = X_.filter(([t]) => e.library_stages?.split(",").includes(t)).map(([, e]) => e);
-	return t.length ? `自定义：${t.join("、")}` : "自定义：只读取本地 NFO 和图片";
+	return t.length ? `Custom: ${t.join(", ")}` : "Custom: read only local NFO and images";
 }
 // src/react/pages/setup/setup-form.tsx
 var mv = ["port", "mdns_name"];
@@ -22552,7 +22552,7 @@ function hv(e, t) {
 	};
 }
 function gv(e) {
-	return e.length ? `完成设置后扫描 ${e.length} 个文件夹` : "完成设置后扫描媒体目录";
+	return e.length ? `Scan ${e.length} folders after finishing setup` : "Scan media folders after finishing setup";
 }
 var _v = (e) => Array.isArray(e) ? e.filter(Boolean).join(" ") : e ?? "";
 function vv({ setup: e, onDone: t, onRestore: n }) {
@@ -22564,7 +22564,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 	}, [r]);
 	let u = e.questions.find((e) => e.input === "folders"), d = e.questions.find((e) => e.input === "folder"), f = e.questions.filter((e) => e.input !== "folders"), p = f.find((e) => e.key === "host"), m = f.filter((e) => e.input !== "folder" && e.key !== "host"), h = e.media_sources.map(({ value: e, label: t }) => [e, t]), g = (0, A.useRef)({
 		library_id: Ph(),
-		library: "我的媒体库",
+		library: "My library",
 		library_icon: "",
 		library_color: "",
 		library_policy: "auto"
@@ -22607,7 +22607,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 		let a = {
 			media_dir: re ? [] : v.rows.map((e) => ({
 				...e,
-				library: e.library?.trim() || "未命名媒体库"
+				library: e.library?.trim() || "Unnamed library"
 			})),
 			skip_media: re,
 			access_enabled: T,
@@ -22691,7 +22691,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 					children: [/* @__PURE__ */ (0, R.jsx)("div", {
 						"data-setup-progress": "",
 						role: "img",
-						"aria-label": `首次设置，第 ${r + 1} 步，共 4 步`,
+						"aria-label": `First-time setup, step ${r + 1} of 4`,
 						children: [
 							0,
 							1,
@@ -22703,7 +22703,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 						}, e))
 					}), /* @__PURE__ */ (0, R.jsx)("span", {
 						className: "text-body-2-regular text-text-secondary",
-						children: "首次设置"
+						children: "First-time setup"
 					})]
 				}),
 				/* @__PURE__ */ (0, R.jsx)("div", {
@@ -22721,11 +22721,11 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 									ref: s,
 									tabIndex: -1,
 									className: "text-title-1-semibold text-text-primary",
-									children: r === 0 ? "欢迎使用 Peach" : r === 1 ? "你的媒体，放在哪里？" : r === 2 ? "在哪里使用 Peach？" : "准备好开始了"
+									children: r === 0 ? "Welcome to Peach" : r === 1 ? "Where should your media live?" : r === 2 ? "Where will you use Peach?" : "Ready to begin"
 								}), /* @__PURE__ */ (0, R.jsx)("p", {
 									"data-copy-key": `setup.description.${r}`,
 									className: "text-body-regular text-text-secondary",
-									children: r === 0 ? "花一点时间，让 Peach 更适合你。" : r === 1 ? "连接已有文件夹，或先进入界面看看。" : r === 2 ? "选择访问范围，也可以为馆藏设置密码。" : "确认这些选择，剩下的交给 Peach。"
+									children: r === 0 ? "Take a moment to make Peach fit you better." : r === 1 ? "Connect existing folders, or step inside and look around first." : r === 2 ? "Choose the access range, and optionally set a password for the library." : "Confirm these choices and leave the rest to Peach."
 								})]
 							}, r),
 							/* @__PURE__ */ (0, R.jsx)("div", {
@@ -22737,30 +22737,30 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 											"data-setup-welcome-copy": "",
 											children: [/* @__PURE__ */ (0, R.jsx)("strong", {
 												className: "text-body-medium",
-												children: "连接你的媒体库"
+												children: "Connect your library"
 											}), /* @__PURE__ */ (0, R.jsx)("p", {
 												className: "text-body-2-regular text-text-secondary",
-												children: "本地文件夹与已挂载的网盘，都可以整理。"
+												children: "Local folders and mounted cloud drives can both be organized."
 											})]
 										})] }),
 										/* @__PURE__ */ (0, R.jsxs)("li", { children: [/* @__PURE__ */ (0, R.jsx)(sm, {}), /* @__PURE__ */ (0, R.jsxs)("div", {
 											"data-setup-welcome-copy": "",
 											children: [/* @__PURE__ */ (0, R.jsx)("strong", {
 												className: "text-body-medium",
-												children: "更快找到想看的"
+												children: "Find what you want to watch faster"
 											}), /* @__PURE__ */ (0, R.jsx)("p", {
 												className: "text-body-2-regular text-text-secondary",
-												children: "用搜索、标签和收藏浏览馆藏。"
+												children: "Browse the library with search, tags and favorites."
 											})]
 										})] }),
 										/* @__PURE__ */ (0, R.jsxs)("li", { children: [/* @__PURE__ */ (0, R.jsx)(am, {}), /* @__PURE__ */ (0, R.jsxs)("div", {
 											"data-setup-welcome-copy": "",
 											children: [/* @__PURE__ */ (0, R.jsx)("strong", {
 												className: "text-body-medium",
-												children: "按你的习惯播放"
+												children: "Play the way you like"
 											}), /* @__PURE__ */ (0, R.jsx)("p", {
 												className: "text-body-2-regular text-text-secondary",
-												children: "播放与外观偏好，可以随时在设置里调整。"
+												children: "Playback and appearance preferences adjust anytime in settings."
 											})]
 										})] })
 									]
@@ -22779,9 +22779,9 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 										/* @__PURE__ */ (0, R.jsx)($p, {
 											isSelected: re,
 											onChange: ie,
-											children: "稍后添加媒体库"
+											children: "Add library later"
 										}),
-										re ? /* @__PURE__ */ (0, R.jsx)(ih, { children: "完成设置后，可在「媒体库与入库」添加自己的媒体目录。" }) : /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [
+										re ? /* @__PURE__ */ (0, R.jsx)(ih, { children: "After setup, add your own media folders under \"Libraries and intake\"." }) : /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [
 											fe ? /* @__PURE__ */ (0, R.jsx)(ah, { children: fe }, Se) : null,
 											/* @__PURE__ */ (0, R.jsx)("div", {
 												role: "group",
@@ -22795,29 +22795,29 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 															"data-library-head": "",
 															children: [
 																/* @__PURE__ */ (0, R.jsx)(L_, {
-																	label: `${e.library || "未命名媒体库"} 图标`,
+																	label: `Icon of ${e.library || "Unnamed library"}`,
 																	value: e.library_icon || "",
 																	kind: e.location,
 																	onChange: (t) => Pe(e, { library_icon: t })
 																}),
 																/* @__PURE__ */ (0, R.jsx)(mm, {
 																	className: "w-full",
-																	"aria-label": `${e.library || "未命名媒体库"} 名称`,
-																	placeholder: "媒体库名称",
+																	"aria-label": `Name of ${e.library || "Unnamed library"}`,
+																	placeholder: "Library name",
 																	maxLength: 80,
 																	value: e.library || "",
 																	onChange: (t) => Pe(e, { library: t })
 																}),
 																/* @__PURE__ */ (0, R.jsx)(tv, {
 																	id: e.library_id || "",
-																	name: e.library || "未命名媒体库",
+																	name: e.library || "Unnamed library",
 																	value: e.library_color || "",
 																	onChange: (t) => Pe(e, { library_color: t })
 																}),
 																/* @__PURE__ */ (0, R.jsx)("div", {
 																	"data-setup-library-policy": "",
 																	children: /* @__PURE__ */ (0, R.jsx)($_, {
-																		name: e.library || "未命名媒体库",
+																		name: e.library || "Unnamed library",
 																		value: e.library_policy || "auto",
 																		onChange: (t) => Pe(e, {
 																			library_policy: t,
@@ -22828,14 +22828,14 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 															]
 														}),
 														e.library_policy === "custom" ? /* @__PURE__ */ (0, R.jsx)(ev, {
-															name: e.library || "未命名媒体库",
+															name: e.library || "Unnamed library",
 															value: e.library_stages?.split(",").filter(Boolean) ?? Z_,
 															onChange: (t) => Pe(e, { library_stages: t.join(",") })
 														}) : null,
 														/* @__PURE__ */ (0, R.jsxs)("div", {
 															"data-library-folders": "",
 															role: "group",
-															"aria-label": `${e.library || "未命名媒体库"} 的文件夹`,
+															"aria-label": `Folders of ${e.library || "Unnamed library"}`,
 															children: [v.rows.map((t, n) => t.library_id === e.library_id ? /* @__PURE__ */ (0, R.jsx)(M_, {
 																label: `${u.label} ${n + 1}`,
 																path: t.path,
@@ -22860,21 +22860,21 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 																	/* @__PURE__ */ (0, R.jsx)(k_, {
 																		index: n,
 																		cost: t.cost ?? "",
-																		error: ve && !t.cost ? "请选择媒体读取策略" : void 0,
+																		error: ve && !t.cost ? "Select a media reading strategy" : void 0,
 																		onChange: (e) => v.edit(n, { cost: e })
 																	}),
 																	Ne.length > 1 ? /* @__PURE__ */ (0, R.jsx)(D_, {
-																		label: "移到媒体库",
+																		label: "Move to library",
 																		className: "w-full @lg:w-60",
 																		children: /* @__PURE__ */ (0, R.jsx)(Mh, {
 																			className: "w-full",
-																			"aria-label": `目录所属媒体库 ${n + 1}`,
+																			"aria-label": `Media library owning directory ${n + 1}`,
 																			selectedKey: t.library_id,
 																			renderValue: /* @__PURE__ */ (0, R.jsxs)("span", {
 																				className: "flex min-w-0 items-center gap-2",
 																				children: [/* @__PURE__ */ (0, R.jsx)(dh, { mark: t.library_icon || F_(t.location)[0] }), /* @__PURE__ */ (0, R.jsx)("span", {
 																					className: "truncate",
-																					children: t.library || "未命名媒体库"
+																					children: t.library || "Unnamed library"
 																				})]
 																			}),
 																			onSelectionChange: (e) => {
@@ -22883,7 +22883,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 																			},
 																			children: [...new Map(v.rows.map((e) => [e.library_id, e])).values()].map((e) => /* @__PURE__ */ (0, R.jsx)(Nh, {
 																				id: e.library_id,
-																				children: e.library || "未命名媒体库"
+																				children: e.library || "Unnamed library"
 																			}, e.library_id))
 																		})
 																	}) : null
@@ -22893,7 +22893,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 																children: /* @__PURE__ */ (0, R.jsx)(zt, {
 																	variant: "secondary",
 																	"data-copy-interact": !0,
-																	"aria-label": `给 ${e.library || "未命名媒体库"} 添加文件夹`,
+																	"aria-label": `Add a folder to ${e.library || "Untitled library"}`,
 																	onClick: () => {
 																		v.add(), v.edit(v.rows.length, {
 																			...fv(e),
@@ -22901,7 +22901,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 																			cost: e.cost
 																		});
 																	},
-																	children: "添加文件夹"
+																	children: "Add folder"
 																})
 															})]
 														})
@@ -22916,14 +22916,14 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 												onClick: () => {
 													v.add(), v.edit(v.rows.length, {
 														library_id: Ph(),
-														library: `媒体库 ${Ne.length + 1}`,
+														library: `Library ${Ne.length + 1}`,
 														library_icon: "",
 														library_color: "",
 														library_policy: "auto",
 														library_stages: void 0
 													});
 												},
-												children: "添加媒体库"
+												children: "Add library"
 											}),
 											Me ? /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [
 												/* @__PURE__ */ (0, R.jsx)(A_, {}),
@@ -22966,7 +22966,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 												hint: we(Ae)
 											}), /* @__PURE__ */ (0, R.jsx)(bh, {
 												icon: C_,
-												"aria-label": "选择数据目录",
+												"aria-label": "Choose the data directory",
 												onClick: () => void ke(),
 												...S_(x)
 											})]
@@ -22990,11 +22990,11 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 													children: [/* @__PURE__ */ (0, R.jsx)(cm, {
 														id: "setup-password-title",
 														elementType: "span",
-														children: "访问密码"
+														children: "Access password"
 													}), /* @__PURE__ */ (0, R.jsx)("p", {
 														id: "setup-access-description",
 														className: "text-body-2-regular text-text-secondary",
-														children: "开启后，访问 Peach 需要先登录。"
+														children: "When on, accessing Peach requires signing in first."
 													})]
 												}), /* @__PURE__ */ (0, R.jsx)(Ch, {
 													"aria-labelledby": "setup-password-title",
@@ -23003,15 +23003,15 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 													onChange: E
 												})]
 											}),
-											/* @__PURE__ */ (0, R.jsx)(ih, { children: Fe ? "局域网访问推荐设置密码。未设置时，同一网络中能连接 Peach 的设备可直接进入。" : "只有这台电脑可以访问；设置密码后，打开 Peach 仍需登录。" }),
+											/* @__PURE__ */ (0, R.jsx)(ih, { children: Fe ? "A password is recommended for LAN access. Without one, devices on the same network that can reach Peach get in directly." : "Only this computer can access it; after a password is set, opening Peach still requires signing in." }),
 											T ? /* @__PURE__ */ (0, R.jsx)(nv, {
-												label: "访问密码",
+												label: "Access password",
 												password: D,
 												confirmation: O,
 												onPassword: ee,
 												onConfirmation: te,
 												passwordError: we(_v(ue.access_password)),
-												passwordHint: "请输入 8–256 个字符。",
+												passwordHint: "Enter 8-256 characters.",
 												confirmationInvalid: !!ue.access_password
 											}) : null
 										]
@@ -23021,15 +23021,15 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 										children: [
 											/* @__PURE__ */ (0, R.jsx)(Ut, {
 												id: "setup-proxy-title",
-												children: "Peach 代理"
+												children: "Peach proxy"
 											}),
-											/* @__PURE__ */ (0, R.jsx)(ih, { children: "用于资料采集、封面和工具下载，可在配置页修改。" }),
+											/* @__PURE__ */ (0, R.jsx)(ih, { children: "Used for profile scraping, covers, and tool downloads; editable on the configuration page." }),
 											/* @__PURE__ */ (0, R.jsxs)("div", {
 												className: "flex flex-col items-start gap-1.5",
 												children: [/* @__PURE__ */ (0, R.jsx)(cm, {
 													elementType: "span",
 													id: "setup-proxy-mode-label",
-													children: "连接方式"
+													children: "Connection method"
 												}), /* @__PURE__ */ (0, R.jsx)(iv, {
 													mode: oe,
 													onChange: se,
@@ -23045,18 +23045,18 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 											}) : ue.peach_proxy ? /* @__PURE__ */ (0, R.jsx)(ah, { children: _v(ue.peach_proxy) }, Se) : null,
 											e.docker && oe === "proxy" && ov(ce) ? /* @__PURE__ */ (0, R.jsx)(gm, {
 												tone: "warning",
-												title: "请填写容器可访问的代理地址",
-												children: "回环地址指向容器自身；宿主机代理需使用容器可访问的宿主机地址。"
+												title: "Enter a proxy address reachable from the container",
+												children: "Loopback addresses point at the container itself; a host proxy needs a host address the container can reach."
 											}) : null,
 											e.peach_proxy?.needs_selection ? /* @__PURE__ */ (0, R.jsx)(gm, {
 												tone: "warning",
-												title: "需要选择连接方式",
-												children: "已有来源的代理地址不同，请选择公共连接方式。"
+												title: "A connection method must be chosen.",
+												children: "Existing sources use different proxy addresses; choose the shared connection method."
 											}) : null
 										]
 									}),
 									/* @__PURE__ */ (0, R.jsxs)(Ht, { children: [/* @__PURE__ */ (0, R.jsx)(lh, {
-										summary: "高级设置",
+										summary: "Advanced settings",
 										defaultOpen: N > 0,
 										children: /* @__PURE__ */ (0, R.jsx)("div", {
 											className: "flex flex-col gap-4",
@@ -23064,7 +23064,7 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 										})
 									}, N), /* @__PURE__ */ (0, R.jsx)(ih, { children: /* @__PURE__ */ (0, R.jsxs)("span", {
 										className: "break-all",
-										children: ["访问地址：", Ie]
+										children: ["URL:", Ie]
 									}) })] })
 								]
 							}),
@@ -23076,60 +23076,60 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 										labelledBy: "setup-options-title",
 										children: [/* @__PURE__ */ (0, R.jsx)(Ut, {
 											id: "setup-options-title",
-											children: "首次扫描"
-										}), re ? /* @__PURE__ */ (0, R.jsx)(ih, { children: "添加媒体目录后，再选择处理方式并开始扫描。" }) : /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [/* @__PURE__ */ (0, R.jsxs)("div", {
+											children: "First scan"
+										}), re ? /* @__PURE__ */ (0, R.jsx)(ih, { children: "After adding media folders, choose the handling and start scanning." }) : /* @__PURE__ */ (0, R.jsxs)(R.Fragment, { children: [/* @__PURE__ */ (0, R.jsxs)("div", {
 											className: "flex flex-col gap-1.5",
 											children: [/* @__PURE__ */ (0, R.jsx)($p, {
 												isSelected: k,
 												onChange: ne,
 												children: gv(je)
-											}), /* @__PURE__ */ (0, R.jsx)(ih, { children: k ? "扫描会在后台开始，期间可以进入 Peach。" : "先保存处理方式，稍后在「媒体库与入库」开始扫描。" })]
-										}), v.rows.some((e) => e.cost === "metered") ? /* @__PURE__ */ (0, R.jsx)(ih, { children: "开启代理保护的目录不会自动读取视频信息或生成预览；播放时会读取视频。" }) : null] })]
+											}), /* @__PURE__ */ (0, R.jsx)(ih, { children: k ? "Scanning starts in the background; you can enter Peach while it runs." : "Save the handling first, then start scanning later under \"Libraries and intake\"." })]
+										}), v.rows.some((e) => e.cost === "metered") ? /* @__PURE__ */ (0, R.jsx)(ih, { children: "Folders under proxy protection do not auto-read video info or generate previews; the video is read during playback." }) : null] })]
 									}),
 									me ? /* @__PURE__ */ (0, R.jsx)(ah, { children: me }) : null,
 									j ? /* @__PURE__ */ (0, R.jsxs)(Ht, { children: [
-										/* @__PURE__ */ (0, R.jsx)(Ut, { children: "版本统计与错误诊断" }),
+										/* @__PURE__ */ (0, R.jsx)(Ut, { children: "Edition stats and error diagnostics" }),
 										/* @__PURE__ */ (0, R.jsx)(dv, {
 											value: j,
 											onChange: ae
 										}),
-										/* @__PURE__ */ (0, R.jsx)(ih, { children: "馆藏与口味明细上传默认关闭，可在「应用与维护」查看并选择。" })
+										/* @__PURE__ */ (0, R.jsx)(ih, { children: "Library and taste detail uploads are off by default; review and choose under \"App and maintenance\"." })
 									] }) : null,
 									/* @__PURE__ */ (0, R.jsxs)(Ht, {
 										labelledBy: "setup-summary-title",
 										children: [/* @__PURE__ */ (0, R.jsx)(Ut, {
 											id: "setup-summary-title",
-											children: "确认设置"
+											children: "Confirm settings"
 										}), /* @__PURE__ */ (0, R.jsxs)(sh, { children: [
 											/* @__PURE__ */ (0, R.jsx)(ch, {
-												term: "媒体目录",
-												children: re ? "稍后添加" : je.length ? `${je.length} 个文件夹 · ${Ne.length} 个媒体库` : "尚未填写"
+												term: "Media folders",
+												children: re ? "Add later" : je.length ? `${je.length} folders · ${Ne.length} libraries` : "Not filled in yet"
 											}),
 											/* @__PURE__ */ (0, R.jsx)(ch, {
-												term: "数据目录",
+												term: "Data directory",
 												children: /* @__PURE__ */ (0, R.jsx)("span", {
 													className: "break-all",
-													children: d ? y[d.key] || "尚未填写" : "未取得"
+													children: d ? y[d.key] || "Not filled in yet" : "Not fetched"
 												})
 											}),
 											/* @__PURE__ */ (0, R.jsxs)(ch, {
-												term: "访问范围",
+												term: "Access range",
 												children: [
-													Fe ? "同一局域网的设备" : "只有这台电脑",
+													Fe ? "Devices on the same LAN" : "This computer only",
 													" · ",
-													T ? "使用访问密码" : "未设置访问密码"
+													T ? "Use an access password" : "No access password set"
 												]
 											}),
 											/* @__PURE__ */ (0, R.jsx)(ch, {
-												term: "首次扫描",
-												children: !re && k ? "完成设置后开始" : "稍后手动开始"
+												term: "First scan",
+												children: !re && k ? "Start after setup is complete" : "Start manually later"
 											}),
 											j ? /* @__PURE__ */ (0, R.jsx)(ch, {
-												term: "诊断反馈",
-												children: j.usage || j.errors ? "已开启，可在上方调整" : "已关闭"
+												term: "Diagnostics feedback",
+												children: j.usage || j.errors ? "Enabled; adjust above" : "Closed"
 											}) : null,
 											re ? null : Ne.map((e) => /* @__PURE__ */ (0, R.jsx)(ch, {
-												term: e.library || "未命名媒体库",
+												term: e.library || "Unnamed library",
 												children: pv(e)
 											}, e.library_id))
 										] })]
@@ -23148,15 +23148,15 @@ function vv({ setup: e, onDone: t, onRestore: n }) {
 							ge || l(r - 1);
 						},
 						"aria-disabled": ge || void 0,
-						children: "返回"
+						children: "Back"
 					}) : /* @__PURE__ */ (0, R.jsx)(zt, {
 						variant: "ghost",
 						onClick: n,
-						children: "使用已有数据"
+						children: "Use existing data"
 					}), /* @__PURE__ */ (0, R.jsx)(zt, {
 						type: "submit",
 						...S_(ge),
-						children: r === 0 ? "开始设置" : r === 3 ? "完成设置" : "继续"
+						children: r === 0 ? "Start setup" : r === 3 ? "Finish setup" : "Continue"
 					})]
 				}, r)
 			]
@@ -23192,7 +23192,7 @@ function yv({ onDone: e, onBack: t }) {
 					"data-setup-top": "",
 					children: /* @__PURE__ */ (0, R.jsx)("span", {
 						className: "text-body-2-regular text-text-secondary",
-						children: "连接已有数据"
+						children: "Connect existing data"
 					})
 				}),
 				/* @__PURE__ */ (0, R.jsx)("div", {
@@ -23206,13 +23206,13 @@ function yv({ onDone: e, onBack: t }) {
 								ref: c,
 								tabIndex: -1,
 								className: "text-title-1-semibold text-text-primary",
-								children: "使用已有数据"
+								children: "Use existing data"
 							}), /* @__PURE__ */ (0, R.jsx)("p", {
 								className: "text-body-regular text-text-secondary",
-								children: "连接 Peach 数据目录，继续使用原来的配置与馆藏。"
+								children: "Connect the Peach data directory to keep using the existing configuration and library."
 							})]
 						}), /* @__PURE__ */ (0, R.jsx)("div", { children: /* @__PURE__ */ (0, R.jsx)(mm, {
-							label: "已有数据目录",
+							label: "Existing data directory",
 							value: n,
 							onChange: r,
 							isRequired: !0,
@@ -23223,7 +23223,7 @@ function yv({ onDone: e, onBack: t }) {
 							hint: i ? /* @__PURE__ */ (0, R.jsx)("span", {
 								role: "alert",
 								children: i
-							}) : "选择包含 config.toml 和 database 文件夹的数据目录。"
+							}) : "Select the data directory containing config.toml and the database folder."
 						}) })]
 					})
 				}),
@@ -23236,11 +23236,11 @@ function yv({ onDone: e, onBack: t }) {
 							o || t();
 						},
 						"aria-disabled": o || void 0,
-						children: "返回首次设置"
+						children: "Back to first-time setup"
 					}), /* @__PURE__ */ (0, R.jsx)(zt, {
 						type: "submit",
 						...S_(o),
-						children: o ? "正在连接数据目录…" : "使用此目录"
+						children: o ? "Connecting to data directory…" : "Use this folder"
 					})]
 				})
 			]
@@ -23284,7 +23284,7 @@ function bv() {
 				"data-setup-top": "",
 				children: /* @__PURE__ */ (0, R.jsx)("span", {
 					className: "text-body-2-regular text-text-secondary",
-					children: "首次设置"
+					children: "First-time setup"
 				})
 			}), /* @__PURE__ */ (0, R.jsx)("div", {
 				"data-setup-step-scroll": "",
@@ -23296,17 +23296,17 @@ function bv() {
 							children: [/* @__PURE__ */ (0, R.jsx)("h1", {
 								id: "auth-card-title",
 								className: "text-title-1-semibold text-text-primary",
-								children: "欢迎使用 Peach"
+								children: "Welcome to Peach"
 							}), /* @__PURE__ */ (0, R.jsx)("p", {
 								className: "text-body-regular text-text-secondary",
-								children: "花一点时间，让 Peach 更适合你。"
+								children: "Take a moment to make Peach fit you better."
 							})]
 						}),
 						e.kind === "loading" ? /* @__PURE__ */ (0, R.jsxs)("div", {
 							"data-setup-loading": "",
 							"data-skeleton": "",
 							role: "status",
-							"aria-label": "正在读取设置",
+							"aria-label": "Reading settings",
 							children: [
 								/* @__PURE__ */ (0, R.jsx)("span", {}),
 								/* @__PURE__ */ (0, R.jsx)("span", {}),
@@ -23315,7 +23315,7 @@ function bv() {
 						}) : null,
 						e.kind === "denied" ? /* @__PURE__ */ (0, R.jsx)(gm, {
 							tone: "error",
-							children: "请在运行 Peach 的这台电脑上打开设置。"
+							children: "Open settings on this computer running Peach."
 						}) : null,
 						e.kind === "failed" ? /* @__PURE__ */ (0, R.jsx)(gm, {
 							tone: "error",
@@ -23324,7 +23324,7 @@ function bv() {
 								onClick: () => {
 									t({ kind: "loading" }), r((e) => e + 1);
 								},
-								children: "立即重试"
+								children: "Retry now"
 							}),
 							children: e.message
 						}) : null
@@ -23344,4 +23344,4 @@ E();
 var Sv = document.getElementById("peach-page"), Cv = Sv ? xv[Sv.dataset.page ?? ""] : void 0;
 Sv && Cv && (0, j.createRoot)(Sv).render(/* @__PURE__ */ (0, R.jsx)(Cv, { data: { ...Sv.dataset } }));
 
-//# debugId=010066a7-52db-4709-88bb-eb96d4af01ce
+//# debugId=34af5fbd-a7e5-4a6f-a708-a01bdc6c0995
