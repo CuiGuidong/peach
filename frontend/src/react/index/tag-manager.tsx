@@ -79,7 +79,7 @@ export function TagManager({ search, category = 'all', view = 'cloud', onCategor
     {inventory.data ? <div className="mt-5"><DataTableFooter label="Manage tags" total={inventory.data.total} pagination={pagination}
       onChange={changePage} unit="tags" pageUnit="items" pageSizes={TAG_PAGE_SIZES} /></div> : null}
     {action.error ? <Note tone="error">{action.error}</Note> : null}
-    <SelectionDock label="Tag management actions" count={`${picked.size} tags selected`} visible={picked.size > 0}>
+    <SelectionDock label="Tag management actions" count={`${picked.size} ${picked.size === 1 ? 'tag' : 'tags'} selected`} visible={picked.size > 0}>
       <Button variant="secondary" size="small" disabled={selected.length !== 1} onClick={() => setEditing('rename')}>Rename</Button>
       <Button variant="secondary" size="small" disabled={selected.length < 2 || (online && new Set(selected.map(row => row.cat)).size > 1)} onClick={() => setEditing('merge')}>Merge</Button>
       <Button variant="secondary" size="small" {...busyProps(Boolean(action.busy))}

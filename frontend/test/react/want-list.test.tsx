@@ -70,12 +70,12 @@ it('Segmented by To find, Not yet released, Paused, and Added to library with co
     .toEqual([['searching', 'To find 2'], ['unreleased', 'Unreleased 1'], ['given_up', 'Give up for now 1'], ['acquired', 'In library 1']]);
   const note = (id: number) => host.querySelector(`[data-want-id="${id}"] [data-want-note]`)?.textContent;
   expect([note(2), note(5), note(4), note(3), note(1)]).toEqual([
-    undefined, undefined, 'Released 2026-12-01', undefined, 'Added 2026-09-30',
+    undefined, undefined, 'Releases 2026-12-01', undefined, 'Added to library 2026-09-30',
   ]);
-  expect(buttonNamed('Search again', host.querySelector('[data-want-id="3"]')!)).not.toBeNull();
-  expect(buttonNamed('Search again', host.querySelector('[data-want-id="2"]')!)).toBeNull();
-  expect(actionOrder(buttonNamed('Search again', host.querySelector('[data-want-id="3"]')!)!.parentElement))
-    .toEqual(['Source page', 'Remove', 'Search again', 'Find resources']);
+  expect(buttonNamed('Look up again', host.querySelector('[data-want-id="3"]')!)).not.toBeNull();
+  expect(buttonNamed('Look up again', host.querySelector('[data-want-id="2"]')!)).toBeNull();
+  expect(actionOrder(buttonNamed('Look up again', host.querySelector('[data-want-id="3"]')!)!.parentElement))
+    .toEqual(['Source page', 'Remove', 'Look up again', 'Find resources']);
 });
 
 it('The To find and Paused sections have a find resources action on every row, opening the cloud download popover in place with the code and title; Not released and In library do not', async () => {
@@ -122,7 +122,7 @@ it('The add key is a blue primary button: disabled-primary while the input is em
   const { host } = await open();
   const addKey = () => buttonNamed('Add', host)!;
   expect([addKey().classList.contains('bg-button-primary'), addKey().disabled]).toEqual([true, true]);
-  await type(host.querySelector<HTMLInputElement>('input[aria-label="code"]'), 'SSIS-950');
+  await type(host.querySelector<HTMLInputElement>('input[aria-label="Code"]'), 'SSIS-950');
   await settle();
   expect([addKey().classList.contains('bg-button-primary'), addKey().disabled]).toEqual([true, false]);
 });
@@ -130,7 +130,7 @@ it('The add key is a blue primary button: disabled-primary while the input is em
 it('Add by code: Enter sends, the receipt names the code, the input clears, and the list refetches', async () => {
   const fetcher = serve(listed([]), listed([want(99, { code: 'SSIS-950' })]));
   const { host, toast } = await open();
-  const input = host.querySelector<HTMLInputElement>('input[aria-label="code"]')!;
+  const input = host.querySelector<HTMLInputElement>('input[aria-label="Code"]')!;
   await type(input, ' ssis-950 ');
   await settle();
   input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
@@ -148,20 +148,20 @@ it('Remove and re-lookup send by this entry\'s id', async () => {
   const fetcher = serve(listed([want(3, { phase: 'given_up', search_count: 3 })]));
   const { host, toast } = await open();
   const row = () => host.querySelector('[data-want-id="3"]')!;
-  await click(buttonNamed('Search again', row()));
+  await click(buttonNamed('Look up again', row()));
   await settle();
   await click(buttonNamed('Remove', row()));
   await settle();
   expect(posts(fetcher)).toEqual([
     ['/api/wants', { action: 'reset', ids: [3] }], ['/api/wants', { action: 'remove', ids: [3] }],
   ]);
-  expect(toast.mock.calls.map(([message]) => message)).toEqual(['ABC-3 back to pending search', 'Removed: ABC-3']);
+  expect(toast.mock.calls.map(([message]) => message)).toEqual(['ABC-3 back to the wanted list', 'Removed: ABC-3']);
 });
 
 it('Read-only machine: inputs, add, and per-row keys all disable', async () => {
   serve(listed([want(2)]));
   const { host } = await open(true);
-  expect(host.querySelector<HTMLInputElement>('input[aria-label="code"]')!.disabled).toBe(true);
+  expect(host.querySelector<HTMLInputElement>('input[aria-label="Code"]')!.disabled).toBe(true);
   expect(buttonNamed('Add', host)!.disabled).toBe(true);
   expect(buttonNamed('Remove', host)!.disabled).toBe(true);
   expect(buttonNamed('Find resources', host)!.disabled).toBe(false);
@@ -177,7 +177,7 @@ it(`Sections longer than ${WANT_PAGE_SIZE} items paginate, each tracking its own
   expect(unreleased.querySelector('h3')?.textContent).toBe('Unreleased 42');
   expect(unreleased.querySelectorAll('li[data-want-id]')).toHaveLength(WANT_PAGE_SIZE);
   expect(unreleased.querySelector('[data-want-pager]')?.textContent).toContain('1–20 / 42 items');
-  expect(unreleased.querySelector('[data-error-line]')?.textContent).toBe('Profile unavailable: first row');
+  expect(unreleased.querySelector('[data-error-line]')?.textContent).toBe('Details unfetched: Line one');
   await click(unreleased.querySelector('button[aria-label="Page 3"]'));
   expect([...unreleased.querySelectorAll<HTMLElement>('li[data-want-id]')].map((row) => row.dataset.wantId)).toEqual(['41', '42']);
   const acquired = host.querySelector('[data-want-phase="acquired"]')!;

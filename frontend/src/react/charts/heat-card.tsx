@@ -43,8 +43,9 @@ function HeatTooltip(
   );
 }
 
-/** Three pieces of readout wording: the unit next to the page header's big number, the overlay row's name, and the quantifier screen readers speak after each cell's count. */
-export interface HeatWords { unit: string; series: string; cellUnit: string }
+/** Three pieces of readout wording: the unit next to the page header's big number, the overlay row's name, and the quantifier screen readers speak after each cell's count.
+ *  `cellUnitOne` is the singular form spoken when a cell holds exactly one; it defaults to `cellUnit`. */
+export interface HeatWords { unit: string; series: string; cellUnit: string; cellUnitOne?: string }
 
 /** A heatmap: one count per cell; hover a cell and the number switches to that cell. */
 export function HeatCard(
@@ -81,7 +82,8 @@ export function HeatCard(
             {cells.map((item, index) => {
               const { x, y } = at(index);
               return (
-                <rect key={item.key} tabIndex={0} role="img" aria-label={`${item.label}, ${item.count} ${words.cellUnit}`}
+                <rect key={item.key} tabIndex={0} role="img"
+                  aria-label={`${item.label}, ${item.count} ${item.count === 1 ? words.cellUnitOne ?? words.cellUnit : words.cellUnit}`}
                   x={x} y={y} width={SIZE} height={SIZE} rx={3} fillOpacity={item.share || 1}
                   opacity={shown >= 0 && shown !== index ? 0.4 : 1}
                   className={item.share

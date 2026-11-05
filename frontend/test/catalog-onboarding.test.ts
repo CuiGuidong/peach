@@ -28,7 +28,7 @@ describe('Library and details empty states', () => {
     expect(catalogEmptyHtml({ configurable: true }).match(/class="geist-button primary"/g)).toHaveLength(1);
   });
   it('JAV and filtered empty states offer viewing unfiltered content', () => {
-    expect(catalogEmptyHtml({ jav: true })).toContain('Release details not completed yet');
+    expect(catalogEmptyHtml({ jav: true })).toContain('without release details yet');
     expect(catalogEmptyHtml({ filtered: true })).toContain('Clear filters');
     const page = document.createElement('div');
     page.innerHTML = catalogEmptyHtml({ jav: true, filtered: true });
@@ -39,7 +39,7 @@ describe('Library and details empty states', () => {
     for (const kind of ['tags', 'performers', 'creators', 'studios', 'agencies', 'series']) {
       expect(catalogEmptyHtml({ kind })).toContain('data-geist-empty-state');
     }
-    expect(catalogEmptyHtml({ kind: 'tags', online: true })).toContain('Follow sources');
+    expect(catalogEmptyHtml({ kind: 'tags', online: true })).toContain('follow source');
     expect(catalogEmptyHtml({ kind: 'creators' })).toContain('No sellers yet');
   });
   it('Clearing conditions keeps the current index, view, and online range', () => {

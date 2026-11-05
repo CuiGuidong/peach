@@ -57,7 +57,7 @@ export function LibrarySharingSettings({ initial, receipt }: {
       ? <Stack divided><span className="self-start"><StatusLabel tone="warning">Result not fetched</StatusLabel></span><Help>No upload result received; not sending again this week.</Help></Stack> : null}
     {preview ? <Stack divided>
       <Help>Current preview includes {preview.data.library.length} coded videos, {preview.data.coverage.uncoded_items} entries of uncoded library summarized, about {(preview.bytes / 1024).toFixed(1)} KiB. Excludes personal data such as accounts, devices, file paths, and browser history.</Help>
-      <Disclosure summary="'Upload data preview'" defaultOpen>
+      <Disclosure summary="Upload data preview" defaultOpen>
         <CodeBlock code={previewText} language="json" label="Library and taste upload preview" maxCharacters={24000} />
       </Disclosure>
       {previewText.length > 24000 ? <Help>Showing the first 24,000 characters; download to view the full content.</Help> : null}

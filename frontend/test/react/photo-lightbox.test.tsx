@@ -164,7 +164,7 @@ describe('Open', () => {
     expect(options.pagination.el.getAttribute('aria-label')).toBe('Pick images');
     expect(options.pagination.renderBullet(1, 'swiper-pagination-bullet'))
       .toBe('<button type="button" class="swiper-pagination-bullet" aria-label="View image 2"></button>');
-    expect(options.navigation).toEqual({ prevEl: labelled(box, 'Previous image'), nextEl: labelled(box, 'Next image') });
+    expect(options.navigation).toEqual({ prevEl: labelled(box, 'Previous'), nextEl: labelled(box, 'Next') });
     expect(strip().options).toEqual({
       slidesPerView: 'auto', spaceBetween: 8, freeMode: true, watchSlidesProgress: true,
       centeredSlides: true, slideToClickedSlide: true,
@@ -212,7 +212,7 @@ describe('Paging', () => {
     expect(img.getAttribute('src')).toBe('/sample-thumb?code=SSIS-057&n=1');
     await act(async () => { img.dispatchEvent(new Event('error')) });
     expect(slide.querySelector('img')).toBeNull();
-    expect(slide.querySelector('[data-photo-missing]')?.textContent).toBe('Image cannot be fetched');
+    expect(slide.querySelector('[data-photo-missing]')?.textContent).toBe('Image unavailable');
   });
 
   it('When the lightbox measures a new size both carousels re-measure, and zoom recomputes from the previous target', async () => {
@@ -379,7 +379,7 @@ describe('Info panel', () => {
     expect(meta.textContent).toBe('DMM · 1600 × 1200');
     await main().go(1);
     expect(q(box, '[data-photo-detail] h2').textContent).toBe('Untitled image');
-    expect(meta.textContent).toBe('Online image · 3\u00a0KB');
+    expect(meta.textContent).toBe('Online images · 3\u00a0KB');
   });
 
   it('Local images without a locator get no locate key from the shell either', async () => {
@@ -414,7 +414,7 @@ describe('Off', () => {
   it('Close button: tears down both carousels, removes the page scroll lock, stops measuring, and Escape is no longer handled by it', async () => {
     const box = await open(0, WALL);
     const [s, m] = [strip(), main()];
-    await click(labelled(box, 'Off'));
+    await click(labelled(box, 'Close'));
     expect(box.isConnected).toBe(false);
     expect(m.destroy).toHaveBeenCalledWith(true, true);
     expect(s.destroy).toHaveBeenCalledWith(true, true);
@@ -450,6 +450,6 @@ describe('Off', () => {
 });
 
 it('Second line of the panel convention: local images without a source read "Unknown source", without a size read "Unknown size", and anything under a thousand bytes still reads 1 KB', () => {
-  expect(photoMeta({ src: '', thumb: '', asset: { id: 1 } }, undefined)).toBe('Source unknown · size unknown');
+  expect(photoMeta({ src: '', thumb: '', asset: { id: 1 } }, undefined)).toBe('Source unknown · Unknown size');
   expect(photoMeta({ src: '', thumb: '', asset: { id: 1, location: 'pikpak', size: 10 } }, undefined)).toBe('PikPak · 1\u00a0KB');
 });

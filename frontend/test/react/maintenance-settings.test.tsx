@@ -58,7 +58,7 @@ describe('Auto-update', () => {
   });
 
   it('Running from source locks auto-download; the check frequency row has no caption; failure reasons stay in the section and success is not reported', async () => {
-    vi.stubGlobal('fetch', fetchMock(400, { detail: 'Settings are saving' }));
+    vi.stubGlobal('fetch', fetchMock(400, { detail: '设置正在保存' }));
     const receipt = vi.fn();
     const host = await mount(<AutomaticUpdates initial={{ ...automatic, mode: 'check', download_available: false }} receipt={receipt} />);
     expect(switches(host)[1]!.disabled).toBe(true);
@@ -66,7 +66,7 @@ describe('Auto-update', () => {
     expect(interval?.nextElementSibling).toBeNull();
     await submit(host.querySelector('form'));
     await settle();
-    expect(host.querySelector('[role="alert"]')?.textContent).toContain('Settings are saving');
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('设置正在保存');
     expect(receipt).not.toHaveBeenCalled();
   });
 });
@@ -75,8 +75,8 @@ describe('Check for updates', () => {
   it('States the app update package size and when tools download separately', async () => {
     const host = await mount(<ReleaseUpdates initial={{ ...release, state: 'available', latest_version: '1.0.0',
       package_kind: 'update', asset_size: 12 * 1048576 }} />);
-    expect(host.textContent).toContain('App update package · 12.0 MB');
-    expect(host.textContent).toContain('Missing, damaged, or version-changed tools download their needed tool packages separately');
+    expect(host.textContent).toContain('Apply update · 12.0 MB');
+    expect(host.textContent).toContain('The app update package reuses installed tools; missing, damaged, or changed-version tools are downloaded separately as needed.');
     expect(host.textContent).not.toContain('First install');
     expect([...host.querySelectorAll('a')].some((a) => a.textContent === 'Full installer')).toBe(false);
   });
@@ -96,7 +96,7 @@ describe('Check for updates', () => {
     expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('100');
     expect(modal).toHaveBeenCalledTimes(1);
     expect(modal.mock.calls[0]?.[0]).toMatchObject({
-      title: 'The update is ready', body: 'Peach 0.10.0 will be installed after restart.', confirmLabel: 'Restart now', cancelLabel: 'Later',
+      title: 'The update is ready', body: 'Peach 0.10.0 will be installed after a restart.', confirmLabel: 'Restart now', cancelLabel: 'Later',
     });
     expect(fetcher).not.toHaveBeenCalled();
     await act(async () => { await modal.mock.calls[0]?.[0].onConfirm?.(); });
@@ -105,9 +105,9 @@ describe('Check for updates', () => {
 
   it('Explicit queries update, rapid clicks send once, failures can retry, and focus stays put', async () => {
     const host = await mount(<ReleaseUpdates initial={release} />);
-    const updates = section(host, 'Check for updates')!;
-    const check = buttonNamed('Check for updates', updates)!;
-    expect(updates.textContent).toContain('Current version 0.9.0');
+    const updates = section(host, 'Check updates')!;
+    const check = buttonNamed('Check updates', updates)!;
+    expect(updates.textContent).toContain('Current version0.9.0');
     const fetcher = fetchMock(200, { ...release, latest_version: '0.10.0', state: 'available', message: 'A new version is available for download.' });
     vi.stubGlobal('fetch', fetcher);
     check.focus();
@@ -115,10 +115,10 @@ describe('Check for updates', () => {
     await settle();
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(fetcher.mock.calls[0]?.[0]).toBe('/api/configuration/updates');
-    expect(updates.textContent).toContain('Latest version 0.10.0');
+    expect(updates.textContent).toContain('Latest version0.10.0');
     expect(updates.querySelector('[role="status"]')?.textContent).toContain('Update available');
     expect(buttonNamed('Download and install', updates)).not.toBeNull();
-    expect(actionOrder(check.parentElement)).toEqual(['Official site', 'GitHub', 'View release page', 'Check for updates', 'Download and install']);
+    expect(actionOrder(check.parentElement)).toEqual(['Official site', 'GitHub', 'View release page', 'Check updates', 'Download and install']);
     expect([...updates.querySelectorAll('a')].map((link) => [link.textContent, link.getAttribute('href')]))
       .toEqual([
         ['Official site', 'https://peach.video/#download'],
@@ -127,10 +127,10 @@ describe('Check for updates', () => {
       ]);
     expect(updates.textContent).not.toContain('Cannot update yet');
     expect(document.activeElement).toBe(check);
-    vi.stubGlobal('fetch', fetchMock(503, { detail: 'Connection failed' }));
+    vi.stubGlobal('fetch', fetchMock(503, { detail: '连接失败' }));
     await click(check);
     await settle();
-    expect(updates.querySelector('[role="alert"]')?.textContent).toBe('Connection failed');
+    expect(updates.querySelector('[role="alert"]')?.textContent).toBe('连接失败');
     expect(updates.textContent).not.toContain('0.10.0');
     expect(check.disabled).toBe(false);
   });
@@ -149,20 +149,20 @@ it('Uninstall keeps data by default; after checking full uninstall the confirmat
   vi.stubGlobal('fetch', fetcher);
   const host = await mount(<UninstallSettings uninstall={uninstall} receipt={vi.fn()} />);
   const area = host.querySelector('#uninstallPeach')!;
-  expect(area.textContent).toContain('Original media files are kept');
+  expect(area.textContent).toContain('original media files are kept');
   const full = area.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
   expect(full.checked).toBe(false);
   expect([...area.querySelectorAll('details p')].map((p) => p.textContent)).toEqual(['fixture', 'fixture/cache']);
   // Each path carries its own open button: glancing once beats tracing each path back through the tree to see which directories get deleted.
-  expect([...area.querySelectorAll('details button[aria-label="Show in Explorer"]')]).toHaveLength(2);
+  expect([...area.querySelectorAll('details button[aria-label="Show in File Explorer"]')]).toHaveLength(2);
   await click(buttonNamed('Uninstall Peach', area));
   expect(modal.mock.calls[0]?.[0]).toMatchObject({ title: 'Uninstall Peach', danger: true, confirmLabel: 'Uninstall Peach' });
-  expect(String(modal.mock.calls[0]?.[0].body)).toContain('Settings, the local database, watch history, and caches are kept');
+  expect(String(modal.mock.calls[0]?.[0].body)).toContain('Settings, local database, watch history and cache are kept');
   expect(fetcher).not.toHaveBeenCalled();
   await click(full);
   await click(buttonNamed('Uninstall Peach', area));
   const options = modal.mock.calls[1]![0];
-  expect(String(options.body)).toContain('Credentials and cache');
+  expect(String(options.body)).toContain('credentials, and caches');
   await act(async () => { await options.onConfirm?.(); });
   expect(sentBody(fetcher)).toEqual({ delete_data: true, confirmation: 'Uninstall Peach' });
   expect(area.querySelector('[role="status"]')?.textContent).toBe('Peach will exit and uninstall in a few seconds.');
@@ -182,11 +182,11 @@ describe('Setup guide', () => {
   it('On write failure the reason stays in place without a receipt', async () => {
     const receipt = vi.fn();
     const host = await mount(
-      <TutorialSettings receipt={receipt} reopenTutorial={vi.fn(async () => { throw new Error('Database write failed') })} />,
+      <TutorialSettings receipt={receipt} reopenTutorial={vi.fn(async () => { throw new Error('数据库写入失败') })} />,
     );
     await click(buttonNamed('Reopen the guide', host));
     await settle();
-    expect(host.querySelector('[role="alert"]')?.textContent).toBe('Database write failed');
+    expect(host.querySelector('[role="alert"]')?.textContent).toBe('数据库写入失败');
     expect(receipt).not.toHaveBeenCalled();
   });
 });

@@ -118,7 +118,7 @@ it('Expanding source evidence selects no candidate and submits no detail verdict
   entry.candidates![0]!.catalog_evidence = { runtime: { display_value: '120 min' } };
   const { host, fetcher } = await open({ data: review({ sections: { metadata_fields: [entry] } }) });
   const card = cards(host)[0]!;
-  const toggle = card.querySelector('button[aria-label="Expand javdb source evidence"]')!;
+  const toggle = card.querySelector('button[aria-label="Expand javdb\'s evidence"]')!;
   expect(toggle.getAttribute('aria-expanded')).toBe('false');
   await click(toggle);
   expect(toggle.getAttribute('aria-expanded')).toBe('true');
@@ -159,10 +159,10 @@ it('Source evidence compares same-named fields only, never treating cast or titl
       catalog_evidence: { title: { display_value: `Shared start, ${at ? 'new' : 'old'} content; shared end` } } })) };
   const { host } = await open({ data: review({ sections: { metadata_fields: [entry] } }) });
   const card = cards(host)[0]!;
-  const trigger = card.querySelector('button[aria-label="Expand javdb source evidence"]')!;
+  const trigger = card.querySelector('button[aria-label="Expand javdb\'s evidence"]')!;
   await click(trigger);
   const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!;
-  expect(panel.textContent).toContain('Shared opening, old content; shared ending');
+  expect(panel.textContent).toContain('Shared start, old content; shared end');
   expect([...panel.querySelectorAll('mark')].map(mark => mark.textContent)).toEqual(['old']);
   expect(card.querySelector('[aria-label="Current info"]')!.querySelectorAll('mark')).toHaveLength(0);
 });
@@ -217,7 +217,7 @@ it('One page paints twenty cards, and paging swaps which twenty', async () => {
 
 it('Filtering out a group returns to the first page', async () => {
   const { host } = await open();
-  await choose(host.querySelector('button[aria-label="Filter current category"]'), 'Single source · 3');
+  await choose(host.querySelector('button[aria-label="Filter the current category"]'), 'Single source · 3');
   expect(keys(host)).toEqual(['row-100', 'row-101', 'row-102']);
   expect(buttonIn(host, 'Next page')).toBeNull();
 });
@@ -226,11 +226,11 @@ it('Category goes into the URL; switching queues drops the current selection', a
   const { host, props } = await open();
   expect(host.querySelector('[data-selection-dock]')).toBeNull();
   await click(boxOf(host, 0));
-  expect(statusText(host)).toContain('Selected 1 item');
+  expect(statusText(host)).toContain('1 item selected');
   expect(host.querySelector('[data-selection-dock]')).not.toBeNull();
   await click(tabNamed(host, 'Creator tags'));
   expect(props.route).toHaveBeenCalledWith({ category: 'creator_tags', queue: '' });
-  expect(statusText(host)).not.toContain('Selected 1 item');
+  expect(statusText(host)).not.toContain('1 item selected');
   expect(host.querySelector('[data-selection-dock]')).toBeNull();
   // The default tier is not written to the address bar.
   await click(tabNamed(host, 'Metadata fields'));
@@ -241,12 +241,12 @@ it('Shift selects a range; the same batch persists across page changes', async (
   const { host } = await open();
   await click(boxOf(host, 1));
   await pickRange(boxOf(host, 4));
-  expect(statusText(host)).toContain('Selected 4 items');
+  expect(statusText(host)).toContain('4 items selected');
   await click(buttonIn(host, 'Next page'));
   // The items checked on the previous page are not on screen, but they are still held.
   expect(boxOf(host, 0)?.checked).toBe(false);
   await click(boxOf(host, 0));
-  expect(statusText(host)).toContain('Selected 5 items');
+  expect(statusText(host)).toContain('5 items selected');
 });
 
 it('Reviewed rows come out of the cache with counts synced, and one verdict never refetches the whole queue', async () => {
@@ -275,14 +275,15 @@ it('Batch verdicts remove the successful ones; the ones that failed stay behind 
   const { host, props } = await open({
     decisions: [{ ok: true }, { ok: false, error: 'Source expired' }, { ok: true }],
   });
-  await choose(host.querySelector('button[aria-label="Filter current category"]'), 'Single source · 3');
+  await choose(host.querySelector('button[aria-label="Filter the current category"]'), 'Single source · 3');
   await click(buttonIn(host, 'Select all in the current category'));
-  expect(statusText(host)).toContain('Selected 3 items');
-  expect(actionOrder(buttonIn(host, 'Approve selected')!.parentElement).filter((name) => name.endsWith('Selected') || name === 'Clear selection'))
+  expect(statusText(host)).toContain('3 items selected');
+  expect(actionOrder(buttonIn(host, 'Approve selected')!.parentElement)
+    .filter((name) => ['Ignore selected', 'Handle selected later', 'Approve selected', 'Clear selection'].includes(name)))
     .toEqual(['Ignore selected', 'Handle selected later', 'Approve selected', 'Clear selection']);
   await click(buttonIn(host, 'Approve selected'));
   await settle();
-  expect(props.toast).toHaveBeenCalledWith('2 approved, 1 unfinished');
+  expect(props.toast).toHaveBeenCalledWith('Approve 2 items, 1 unfinished');
   expect(queueOf().sections.metadata_fields).toHaveLength(QUEUE.length - 2);
   expect(keys(host)).toEqual(['row-101']);
   expect(cards(host)[0]?.textContent).toContain('Source expired');
@@ -399,7 +400,7 @@ it('Empty categories still toggle state in the filter overlay; read-only keeps f
   expect(buttonIn(filter!, 'Select this page')).toBeNull();
   await click(stateNamed(filter!, 'Ignored'));
   expect(props.route).toHaveBeenLastCalledWith({ category: '', queue: 'ignored' });
-  expect(host.textContent).toContain('No ignored items in this category');
+  expect(host.textContent).toContain('This category has no Ignored items');
   expect(filter?.querySelector('[aria-label="Review state"]')).toBeTruthy();
 });
 

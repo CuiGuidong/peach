@@ -17,7 +17,7 @@ async function render(version: string) {
 it('Scripts compatible but below the latest version get an update link and an updatable status', async () => {
   const host = await render('0.7.0');
   expect(host.textContent).toContain('Updatable');
-  expect(host.textContent).toContain('Userscript v0.8.0 can update.');
+  expect(host.textContent).toContain('User script v0.8.0 can be updated.');
   expect(host.textContent).not.toContain('Needs update');
   expect(linkNamed('Update the userscript', host)?.getAttribute('href')).toBe(release.install_url);
   expect(host.querySelector('[data-copy-key="userscript.available.message"]')).not.toBeNull();

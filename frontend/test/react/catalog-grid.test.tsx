@@ -47,7 +47,7 @@ describe('Catalog fetching', () => {
     queryClient.removeQueries({ queryKey: ['catalog-grid','catalog','q=wall-retain'] });
   });
   it('The query string carries only filters with values, and the portrait exclusion joins only when the shell says to exclude', () => {
-    expect(catalogParams({ sort: 'seed', q: '', tag: 'Slender' }, false)).toBe('sort=seed&tag=%E8%8B%97%E6%9D%A1');
+    expect(catalogParams({ sort: 'seed', q: '', tag: 'Slender' }, false)).toBe('sort=seed&tag=Slender');
     expect(new URLSearchParams(catalogParams({ sort: 'seed' }, true)).get('exclude_vertical')).toBe('1');
     expect(new URLSearchParams(catalogParams({ q: 'Portrait' }, false)).has('exclude_vertical')).toBe(false);
   });
@@ -403,7 +403,7 @@ describe('Video card', () => {
     const { host } = await render(item(12, { follow_thumb_url: 'https://example.test/t.jpg', follow_item_id: 5, tags: ['Local'], follow_tags: ['Source'] }));
     expect(host.querySelector('[data-media-art] img')?.getAttribute('src')).toBe('https://example.test/t.jpg');
     const tag = host.querySelector<HTMLButtonElement>('[data-media-tag]');
-    expect([tag?.textContent, tag?.disabled]).toEqual(['#source', true]);
+    expect([tag?.textContent, tag?.disabled]).toEqual(['#Source', true]);
   });
 
   it('Half-watched videos draw one progress bar and volume groups draw none; the ratio writes into the cover cell', async () => {
@@ -422,7 +422,7 @@ describe('Video card', () => {
       edition_group: { key: 'E', seed_id: 13, count: 2, editions: ['1080p', '4K repair'] },
     }));
     expect([...versions.host.querySelectorAll('[data-media-group]')].map((node) => node.textContent)).toEqual(['2 editions']);
-    expect(versions.host.querySelector('[data-media-open]')?.getAttribute('aria-label')).toMatch(/版本$/);
+    expect(versions.host.querySelector('[data-media-open]')?.getAttribute('aria-label')).toMatch(/editions$/);
 
     /* When filtering by aspect, an edition group keeps only the edition matching that aspect: render by its volume groups, without an edition count. */
     const oneVersion = await render(item(17, {

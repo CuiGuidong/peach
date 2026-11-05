@@ -87,7 +87,7 @@ it('More resources start collapsed with per-protocol marks', async () => {
   const { host } = await open(Array.from({ length: 8 }, (_, index) => ({ ...candidate, id: String(index) })));
   const more = host.querySelector('details')!;
   expect(more.open).toBe(false);
-  expect(host.querySelector('summary')?.textContent).toContain('5 items');
+  expect(host.querySelector('summary')?.textContent).toContain('More resources (5)');
   expect(host.querySelector('[data-resource-protocol="magnet"] svg')).not.toBeNull();
   await click(more.querySelector('summary'));
   expect(more.open).toBe(true);

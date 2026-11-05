@@ -110,24 +110,24 @@ it('The first screen paints sources and tasks from the prefetch cache; mounting 
   expect(section(host, 'HD cover')).not.toBeNull();
   const bridge = section(host, 'amane');
   expect(bridge).not.toBeNull();
-  expect(bridge?.textContent).toContain('Installed version 0.16.1');
-  expect(bridge?.textContent).toContain('FC2PPVDB、AVSOX');
-  expect(bridge?.textContent).toContain('When first needed, Peach automatically prepares the pinned 0.16.1 version');
-  expect(bridge?.textContent).toContain('When the installer already carries a usable environment it is used directly');
+  expect(bridge?.textContent).toContain('Installed version0.16.1');
+  expect(bridge?.textContent).toContain('FC2PPVDB, AVSOX');
+  expect(bridge?.textContent).toContain('The first time one is needed, Peach automatically prepares the pinned 0.16.1 version');
+  expect(bridge?.textContent).toContain('used directly when the installer already ships a working environment');
   expect(buttonNamed('Reinstall', bridge!)).not.toBeNull();
   // The connection method is a BoardUI Select, which paints a button; the native select is the one React Aria hides behind
   // The one the form reads its value from, not how this row looks.
   expect(host.querySelector('[aria-haspopup=listbox]')?.textContent?.trim()).toBe('Peach proxy');
   expect(host.querySelector<HTMLAnchorElement>('a[href="/settings/library#peachProxy"]')?.textContent)
-    .toContain('Configure the Peach proxy');
+    .toContain('Configure Peach proxy');
   expect(host.querySelector<HTMLAnchorElement>('a[href="https://www.javbus.com/"]')?.target).toBe('_blank');
 });
 
 it('Sources using the local browser only explain how to pass verification and never render a Cookie input', async () => {
   const { host } = await open(quiet({ source: 'fc2ppvdb', label: 'FC2PPV-DB', browser: true }));
   const card = section(host, 'FC2PPV-DB');
-  expect(card?.textContent).toContain('The human check completes automatically in the local browser');
-  expect(card?.textContent).toContain('This machine needs no cookies');
+  expect(card?.textContent).toContain('Human verification is completed automatically by the local browser');
+  expect(card?.textContent).toContain('No cookies are needed on this machine');
   expect(password(host), 'The browser carries its own Cookies; this cell should not appear').toBeNull();
   expect(card?.textContent).not.toContain('Provide cookies by either method');
   expect(host.querySelector('[aria-haspopup=listbox]'), 'The connection method stays the user\'s choice, with the browser switching exits by it').not.toBeNull();
@@ -150,8 +150,8 @@ it('Saving clears the secret input, the list swaps in the server\'s returned row
     },
   });
   expect(password(host)?.value, 'After the save returns, the page no longer keeps the copy just submitted').toBe('');
-  expect(host.textContent).toContain('Sign-in validity pending verification');
-  expect(buttonNamed('Revoke cookies', host)).not.toBeNull();
+  expect(host.textContent).toContain('Login validity pending verification');
+  expect(buttonNamed('Revoke Cookie', host)).not.toBeNull();
   expect(toast).toHaveBeenCalledWith('Source settings saved');
   expect(calls.filter((call) => call.path === '/api/scraping' && call.method === 'GET'),
     'Saving replaces one row in the list; it does not refetch the whole page for it').toHaveLength(1);
@@ -162,11 +162,11 @@ it('Undo takes the same write path, with the receipt saying undo', async () => {
     ...quiet({ cookie_saved: true }),
     'POST /api/scraping/settings': () => ({ body: { saved: source({ cookie_saved: false }) } }),
   });
-  await click(buttonNamed('Revoke cookies', host));
+  await click(buttonNamed('Revoke Cookie', host));
   await settle();
   expect(calls[FIRST_SCREEN.length]?.body).toMatchObject({ source: 'javbus', revoke: true });
   expect(toast).toHaveBeenCalledWith('Cookies revoked');
-  expect(buttonNamed('Revoke cookies', host), 'After undoing, this key has nothing left to undo').toBeNull();
+  expect(buttonNamed('Revoke Cookie', host), 'After undoing, this key has nothing left to undo').toBeNull();
 });
 
 it('On save failure the reason stays in the card, with the list and just-entered content untouched', async () => {
@@ -180,13 +180,13 @@ it('On save failure the reason stays in the card, with the list and just-entered
 
   expect(host.querySelector('[role=alert]')?.textContent).toContain('The Cookie is not in Netscape format');
   expect(password(host)?.value, 'Clearing input after failure makes people type it all again').toBe('session=fixture');
-  expect(buttonNamed('Revoke cookies', host)).toBeNull();
+  expect(buttonNamed('Revoke Cookie', host)).toBeNull();
   expect(toast).not.toHaveBeenCalled();
 });
 
 it('Connection results phrase one sentence from the source name and what this hop looked up', async () => {
   const results: Check[] = [
-    { label: 'Source page', ok: true, width: 800, height: 538 },
+    { label: 'source page', ok: true, width: 800, height: 538 },
     { label: 'HD image CDN', ok: false, status: 403, message: 'Login required' },
   ];
   const { host } = await open({
@@ -197,9 +197,9 @@ it('Connection results phrase one sentence from the source name and what this ho
   await settle();
 
   expect(host.querySelector('[role=status] [data-connection-tone="success"]')?.textContent).toBe('Accessible');
-  expect(host.querySelector('[role=status]')?.textContent).toContain('JavBus: connectable · 800 × 538');
+  expect(host.querySelector('[role=status]')?.textContent).toContain('JavBus: reachable · 800 × 538');
   expect(host.querySelector('[role=alert] [data-connection-tone="error"]')?.textContent).toBe('Connection failed');
-  expect(host.querySelector('[role=alert]')?.textContent).toContain('JavBus HD images: cannot connect. Login required');
+  expect(host.querySelector('[role=alert]')?.textContent).toContain('JavBus HD images: unreachable. Login required');
 });
 
 it('Pick one of the two Cookies: only the one you switch to is submitted, and the other does not even keep its input', async () => {
@@ -258,8 +258,8 @@ it('Cover scraping follows through to the terminal state: every two seconds whil
   await prefetchScraping(new AbortController().signal);
   const host = await mount(page(toast));
 
-  await type(host.querySelector<HTMLInputElement>('input[aria-label=library code]'), 'ABW-232');
-  await click(buttonNamed('Fetch cover', host));
+  await type(host.querySelector<HTMLInputElement>('input[aria-label="Library code"]'), 'ABW-232');
+  await click(buttonNamed('Scrape cover', host));
   await settle();
   expect(calls[FIRST_SCREEN.length]).toMatchObject({ path: '/api/scraping/cover', method: 'POST', body: { code: 'ABW-232' } });
   expect(host.textContent).toContain('Scraping covers');
@@ -309,11 +309,11 @@ it('amane bridge: checking upstream only fills the "Upstream latest version" row
   const bridge = section(host, 'amane')!;
   expect(bridge.textContent).toContain('Not checked yet');
 
-  await click(buttonNamed('Check the upstream version', bridge));
+  await click(buttonNamed('Check upstream version', bridge));
   await settle();
   expect(calls[FIRST_SCREEN.length]).toMatchObject({ path: '/api/scraping/amane-bridge/check', method: 'POST' });
   expect(bridge.textContent).toContain('v0.17.0');
-  expect(bridge.textContent, 'Checking upstream leaves the installed version alone').toContain('Installed version 0.16.1');
+  expect(bridge.textContent, 'Checking upstream leaves the installed version alone').toContain('Installed version0.16.1');
 
   await click(buttonNamed('Reinstall', bridge));
   await settle();

@@ -290,7 +290,7 @@ describe('Playlist and start playback', () => {
     serve({ draws: [[row(1, { location: 'gone' }), row(2)]] });
     await open();
     expect(current().item.id).toBe(2);
-    expect(meta()).toBe('· 1:00 · portrait · 1/1');
+    expect(meta()).toBe('· 1:00 · Portrait · 1/1');
   });
 
   it('The starting item plays first within its batch, and details fetch only its own copy', async () => {
@@ -298,7 +298,7 @@ describe('Playlist and start playback', () => {
     await open(3);
     expect(player.mounted.map((entry) => entry.item.id)).toEqual([3]);
     expect(routed()).toEqual([3]);
-    expect(meta()).toBe('· 1:00 · portrait · 3/6');
+    expect(meta()).toBe('· 1:00 · Portrait · 3/6');
     expect(gets(fetcher, '/api/item?id=')).toBe(1);
   });
 
@@ -315,7 +315,7 @@ describe('Playlist and start playback', () => {
     expect(current().item.id).toBe(42);
     expect(routed()).toEqual([42]);
     expect(q('[data-immerse-title]')!.textContent).toBe('Title clip-42.mp4');
-    expect(meta()).toBe('· 1:00 · portrait · 1/7');
+    expect(meta()).toBe('· 1:00 · Portrait · 1/7');
     // The copy fetched on insert is the copy read on removal; it is never fetched a second time.
     expect(gets(fetcher, '/api/item?id=42')).toBe(1);
   });
@@ -341,7 +341,7 @@ describe('Playlist and start playback', () => {
     await key('ArrowDown');
     await shown(2);
     expect(gets(fetcher, '/api/items?')).toBe(2);
-    expect(meta()).toBe('· 1:00 · portrait · 2/5');
+    expect(meta()).toBe('· 1:00 · Portrait · 2/5');
   });
 
   it('Arrow keys inside the input never switch items', async () => {
@@ -444,9 +444,9 @@ describe('Action button', () => {
     serve({ draws: [[row(1), row(2)]] });
     queryClient.setQueryData(catalogKey('q=', 0), { pages: [grid()], pageParams: [0] });
     await open();
-    expect(action('Log a climax').closest('[data-immerse-action]')!.textContent).toBe('Climax 2');
+    expect(action('Log a climax').closest('[data-immerse-action]')!.textContent).toBe('Climaxes 2');
     await click(action('Log a climax'));
-    await until(() => action('Log a climax').closest('[data-immerse-action]')!.textContent === 'Climax 3');
+    await until(() => action('Log a climax').closest('[data-immerse-action]')!.textContent === 'Climaxes 3');
     expect(card()).toMatchObject({ o_count: 3 });
     expect(host.toast).toHaveBeenCalledWith('Climax recorded', expect.anything());
   });
@@ -498,7 +498,7 @@ describe('Author and title', () => {
     await open();
     const author = q<HTMLAnchorElement>('[data-immerse-author]>a')!;
     expect(author.textContent).toBe('Alpha, Beta, Gamma and 4 people');
-    expect(q('[data-immerse-avatar] .ini')!.textContent).toBe('Alpha');
+    expect(q('[data-immerse-avatar] .ini')!.textContent).toBe('A');
     expect(q('[data-immerse-avatar] img')!.getAttribute('src')).toBe('/entity-image?kind=performer&id=91&thumb=1');
     await click(author);
     expect(host.closed).toHaveBeenCalledTimes(1);
@@ -729,7 +729,7 @@ describe('Resident components', () => {
     expect(root().hasAttribute('data-idle'), 'On return it is already painted with no wait for the next render').toBe(false);
     expect(q('[data-immerse-loader]')!.hidden).toBe(true);
     expect(document.querySelectorAll('[data-immerse-track] > [data-immerse-slide]')).toHaveLength(1);
-    expect(meta()).toBe('· 1:00 · portrait · 1/2');
+    expect(meta()).toBe('· 1:00 · Portrait · 1/2');
     expect(q('[data-immerse-title]')!.textContent).toBe('Title clip-1.mp4');
     expect(api.activeVideo()).toBe(current().video);
   });
@@ -776,6 +776,6 @@ describe('Resident components', () => {
     expect(reported, 'The deterministic throw is reported only once').toHaveBeenCalledTimes(1);
     /* The batch bar is painted last: its entrance animation runs on motion's frame loop, so it finishes right after painting and leaves no in-flight animation when the tree unmounts. */
     await act(async () => { dock.render({ count: 2, context: 'catalog', junkDismissed: false }) });
-    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('2 items selected');
+    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('Selected 2 items');
   });
 });

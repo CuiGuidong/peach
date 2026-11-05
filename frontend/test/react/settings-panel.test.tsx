@@ -224,7 +224,7 @@ describe('Seam between the settings panel and the shell', () => {
       .toEqual(['settings-group-1', 'settings-group-1', 'settings-group-2']);
     const headings = (index: number) => [...panel.querySelectorAll(`#settings-group-${index} [data-settings-subheading]`)]
       .map((node) => node.textContent);
-    expect([headings(1), headings(2)]).toEqual([['Video list', 'Play'], ['Video display', 'New releases']]);
+    expect([headings(1), headings(2)]).toEqual([['Video list', 'Playback'], ['Video display', 'New releases']]);
     /* The transcode method is service configuration on the machine running Peach and lives in the Peach config; this dialog has no row for it (ADR-0103). */
     expect(panel.querySelector('#playbackAccelerationSetting')).toBeNull();
     const entry = panel.querySelector<HTMLButtonElement>('[data-settings-service] button')!;
@@ -407,7 +407,7 @@ describe('Resident components', () => {
     expect(current.r.managedTaken(host)).toBe(false);
     expect(current.r.managedEntries().map((entry) => entry.path), 'Other faces still drawn').toEqual(['batch-dock']);
     await act(async () => { dock.render({ count: 2, context: 'catalog', junkDismissed: false }) });
-    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('2 items selected');
+    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('Selected 2 items');
 
     /* The shell still collapses via Escape and opens via the gear: no throw, no reopen, no further reports. */
     await act(async () => { expect(() => current.api.close()).not.toThrow() });

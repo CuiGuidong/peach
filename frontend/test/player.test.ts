@@ -347,7 +347,7 @@ describe('Player quality', () => {
       entries.push({ width: 3840, height: 2160, enabled: true });
       view.notify('addqualitylevel');
       const panel = view.bar.querySelector('.vjs-peach-settings-menu')!.lastElementChild!;
-      expect(panel.querySelector('strong')?.textContent).toBe('Clarity');
+      expect(panel.querySelector('strong')?.textContent).toBe('Quality');
       expect([...panel.querySelectorAll('[data-player-quality-option]')].map((node) => node.textContent))
         .toEqual(['Auto', '360p', '1080p', '2160p']);
       expect((document.activeElement as HTMLElement).dataset.playerQualityOption).toBe('1');

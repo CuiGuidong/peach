@@ -50,11 +50,11 @@ it('The system passphrase can convert directly to an optional password, and turn
   expect(host.querySelector('button[type="submit"]')?.textContent).toBe('Save configuration');
   await click(checkbox(host));
   expect(newPasswords(host)).toHaveLength(0);
-  expect(host.querySelector('[role="note"]')?.textContent).toContain('Access the library directly');
+  expect(host.querySelector('[role="note"]')?.textContent).toContain('access the library directly');
   expect(fetcher).not.toHaveBeenCalled();
   await submit(host);
   expect(sentBody(fetcher)).toMatchObject({ action: 'disable', confirm_disable: true });
-  expect(receipt).toHaveBeenCalledWith('Access password disabled');
+  expect(receipt).toHaveBeenCalledWith('Access password turned off');
   expect(host.querySelector('[role="note"]')?.textContent).toContain('No access password set');
 });
 

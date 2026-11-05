@@ -28,7 +28,7 @@ it('The external player issues a link only on request, and keeps the network add
   await settle();
   expect(fetcher.mock.calls.map(([url]) => url)).toEqual(['/api/local-players']);
   await choose(host.querySelector('[aria-label="External player"]'), 'Network play address / VR');
-  await click(host.querySelector('[aria-label="Open with external player"]'));
+  await click(host.querySelector('[aria-label="Open with an external player"]'));
   await settle();
   expect(fetcher.mock.calls).toHaveLength(2);
   expect(host.querySelectorAll('[data-local-playback-row]')).toHaveLength(1);
@@ -58,11 +58,11 @@ it('This machine can pick installed players, receipts on successful open, and fa
   const host = await mount(<ExternalPlayback id={7} onOpened={opened} />);
   await settle();
   expect(host.textContent).toContain('The system default player');
-  await click(host.querySelector('[aria-label="Open with external player"]'));
+  await click(host.querySelector('[aria-label="Open with an external player"]'));
   expect(fetcher).toHaveBeenLastCalledWith('/api/local-playback?id=7&player=default', expect.objectContaining({ method: 'POST' }));
   expect(opened).toHaveBeenCalledOnce();
   fetcher.mockImplementation(async () => new Response(JSON.stringify({ detail: 'The player could not open' }), { status: 503 }));
-  await click(host.querySelector('[aria-label="Open with external player"]'));
+  await click(host.querySelector('[aria-label="Open with an external player"]'));
   expect(host.textContent).toContain('The player could not open');
   expect(opened).toHaveBeenCalledOnce();
 });
@@ -80,7 +80,7 @@ it('M3U and the local player share the open entry; switching methods clears the 
   await settle();
   await choose(host.querySelector('[aria-label="External player"]'), 'M3U playlist');
   expect(localStorage.getItem('peach.playback-target.v1')).toBe('m3u');
-  await click(host.querySelector('[aria-label="Open with external player"]'));
+  await click(host.querySelector('[aria-label="Open with an external player"]'));
   expect(fetcher).toHaveBeenLastCalledWith('/api/external-playback?id=9', expect.objectContaining({ method: 'POST' }));
   expect(download).toHaveBeenCalledOnce();
   expect(downloadUrl).toContain('/external-playlist/9.m3u?ticket=short');
@@ -99,7 +99,7 @@ it('A failed local detection keeps the network method; after re-detecting, the l
   }));
   const host = await mount(<ExternalPlayback id={5} />);
   await settle();
-  expect(host.querySelector('[aria-label="Open with external player"]')?.hasAttribute('disabled')).toBe(false);
+  expect(host.querySelector('[aria-label="Open with an external player"]')?.hasAttribute('disabled')).toBe(false);
   expect(host.textContent).toContain('Detection is temporarily unavailable');
   await click([...host.querySelectorAll('button')].find(node => node.textContent === 'Re-detect player'));
   await settle();

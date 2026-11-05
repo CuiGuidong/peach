@@ -33,7 +33,7 @@ it('LAN and fallback addresses copy separately, and a failed copy can still sele
   const copyButtons = [...host.querySelectorAll<HTMLButtonElement>('button')].filter(button => button.textContent === 'Copy address');
   await click(copyButtons[1]); await settle();
   expect(copy).toHaveBeenCalledWith('http://peach.local:9123/');
-  expect(host.textContent).toContain('Copy failed, select the address and copy it.');
+  expect(host.textContent).toContain('Copy failed; select the address and copy it.');
 });
 
 it('Local mode hides the phone address and saves the access range', async () => {
@@ -72,7 +72,7 @@ it('Switching from this machine to LAN allows naming, and saving submits the ful
   await type(host.querySelector<HTMLInputElement>('#configMdnsName'), 'peach-phone');
   expect(host.textContent).toContain('http://');
   expect(host.textContent).toContain('.local');
-  expect(host.textContent).toContain('After saving and restarting the phone connection address shows');
+  expect(host.textContent).toContain('After saving and restarting, the phone connection address shows');
   await submit(host.querySelector('form')); await settle();
   expect(sentBody(fetcher)).toMatchObject({ host: '0.0.0.0', mdns_name: 'peach-phone', port: '9123' });
 });

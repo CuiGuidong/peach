@@ -327,7 +327,7 @@ function AmaneBridgeCard({ toast }: ScrapingProps) {
         {data.problem
           ? <Note tone="error">{data.problem}</Note>
           : <Help>
-              amane ({data.license}') provides resolution for these built-in sites. The first time one is needed, Peach automatically prepares the pinned '{data.version} Version; used directly when the installer already ships a working environment.
+              amane ({data.license}) provides resolution for these built-in sites. The first time one is needed, Peach automatically prepares the pinned {data.version} version; used directly when the installer already ships a working environment.
               Manual installs also use this version and do not auto-upgrade with upstream.
             </Help>}
         {running ? <LoadingDots label="Rebuilding the runtime environment" /> : null}

@@ -69,11 +69,11 @@ describe('Card density and the top bar\'s image size key', () => {
     expect([document.documentElement.style.getPropertyValue('--tile'), document.body.dataset.density,
       button.getAttribute('aria-pressed'), button.getAttribute('title'), button.getAttribute('aria-label'),
       button.querySelector('[data-icon-swap]')?.getAttribute('data-icon-state')])
-      .toEqual(['336px', 'big', 'false', 'Current: large images', 'Switch to small thumbnails', 'a']);
+      .toEqual(['336px', 'big', 'false', 'Current: Large images', 'Switch to small thumbnails', 'a']);
     toggleDensity();
     expect([currentDensity(), localStorage.getItem('density'), document.documentElement.style.getPropertyValue('--tile'),
       document.body.dataset.density, button.getAttribute('aria-pressed'), button.getAttribute('title')])
-      .toEqual(['dense', 'dense', '168px', 'dense', 'true', 'Current: dense']);
+      .toEqual(['dense', 'dense', '168px', 'dense', 'true', 'Current: Dense']);
   });
 
   it('While on the photo wall the same key reports photo size', () => {
@@ -81,7 +81,7 @@ describe('Card density and the top bar\'s image size key', () => {
     const button = document.querySelector('#density')!;
     expect([button.getAttribute('aria-pressed'), button.getAttribute('title'), button.getAttribute('aria-label'),
       button.querySelector('[data-icon-swap]')?.getAttribute('data-icon-state')])
-      .toEqual(['true', 'Current: small images', 'Switch to large thumbnails', 'b']);
+      .toEqual(['true', 'Current: Small images', 'Switch to large thumbnails', 'b']);
   });
 });
 

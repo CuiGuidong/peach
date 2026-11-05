@@ -74,12 +74,12 @@ it('Visible byline and screen reader name on download cards follow the language;
 });
 
 it.each([
-  [{ title: 'Production notes' }, 'ABC-123 · production notes'],
+  [{ title: 'Production notes' }, 'ABC-123 · Production notes'],
   [{ title: 'ABC-123 production notes' }, 'ABC-123 · production notes'],
   [{ title: 'ABC-123' }, 'ABC-123'],
   [{ title: null, display_title: '', display_code: 'ABC-123' }, 'ABC-123'],
-  [{ title: 'ABC-123', display_title: 'Title from video details' }, 'ABC-123 · title from video details'],
-  [{ code: null, display_code: 'XYZ-456', display_title: 'Behind the scenes' }, 'XYZ-456 · behind the scenes'],
+  [{ title: 'ABC-123', display_title: 'Title from video details' }, 'ABC-123 · Title from video details'],
+  [{ code: null, display_code: 'XYZ-456', display_title: 'Behind the scenes' }, 'XYZ-456 · Behind the scenes'],
   [{ code: null, title: 'Production notes', display_name: '' }, 'Production notes'],
 ] as [Partial<DownloadTask>, string][])('Cloud download cards identify videos by code and title: %j', async (patch, expected) => {
   serve(snapshot({ tasks: [task(patch)] }));
@@ -144,7 +144,7 @@ it('Failed tasks record the reason and can be resubmitted; those judged violatin
     { '/api/downloads': { ok: true, outcome: 'submitted', task: failed } });
   const host = await show();
   const [first, second] = [...host.querySelectorAll('[data-download-state=failed]')];
-  expect(first?.textContent).toContain('No usable resources: it is not in the remote task list');
+  expect(first?.textContent).toContain('No resources available: It is not in the remote task list');
   expect(second?.textContent).toContain('Judged a violation');
   expect([buttonNamed('Cancel', second!), buttonNamed('Submit again', second!)]).toEqual([null, null]);
   expect(buttonNamed('Copy magnet', second!)).not.toBeNull();
@@ -159,7 +159,7 @@ it('When reconciliation backs off and reschedules on a transient failure, the bo
   serve(snapshot({ tasks: [task({ failure_detail: 'Could not reach CloudDrive2 while querying progress: timeout' })] }));
   const host = await show();
   const card = host.querySelector<HTMLElement>('[data-download-state=remote_running]')!;
-  expect(card.textContent).toContain('Retrying automatically later · Could not reach CloudDrive2 while querying progress: timeout');
+  expect(card.textContent).toContain('Will retry automatically · Could not reach CloudDrive2 while querying progress: timeout');
   expect(card.className).not.toContain('border-border-error-default');
   expect(buttonNamed('Submit again', card)).toBeNull();
   expect(buttonNamed('Cancel', card)).not.toBeNull();
@@ -212,7 +212,7 @@ it('Load more appends older tasks; failure keeps the list and allows retry, and 
   let fail = true;
   vi.stubGlobal('fetch', vi.fn(async (input: string) => {
     const earlier = input.includes('before_id=2');
-    if (earlier && fail) return { ok: false, status: 500, json: async () => ({ message: 'Load failed' }) };
+    if (earlier && fail) return { ok: false, status: 500, json: async () => ({ message: 'The earlier tasks failed to load' }) };
     return { ok: true, status: 200, json: async () => snapshot({
       tasks: earlier ? [task({ id: 1 })] : [task({ id: 3 }), task({ id: 2 })],
       has_more: !earlier, next_before_id: earlier ? null : 2,
@@ -220,7 +220,7 @@ it('Load more appends older tasks; failure keeps the list and allows retry, and 
   }));
   const host = await show();
   await click(buttonNamed('Load more', host));
-  await vi.waitFor(() => expect(host.textContent).toContain('Load failed'));
+  await vi.waitFor(() => expect(host.textContent).toContain('The earlier tasks failed to load'));
   expect(host.querySelectorAll('[data-download-id]')).toHaveLength(2);
   fail = false;
   await click(buttonNamed('Load more', host));

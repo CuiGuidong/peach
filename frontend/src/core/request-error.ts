@@ -7,6 +7,13 @@ export function requestErrorMessage(cause:any,status=0):string{
   /* A "timeout" in the body only counts as a timeout when there is no status code: a 500's stack often carries some library's timeout parameter name. */
   if(cause?.name==='TimeoutError'||(!code&&/timed? ?out|timeout/i.test(text)))return 'Waiting for the service response timed out; check the connection and retry.';
   if(/[㐀-鿿]/.test(text)&&!/^请求失败[（(]/.test(text))return text;
+  /* A reason handed over by the caller with a status (the server's `message`/`detail`/`error`, riding on `ApiError`) is shown as-is;
+     only our own "Request failed (N)" fallback falls through to the unified copy. */
+  if((status||cause?.status)&&text&&!/^Request failed \(/.test(text)&&!/^请求失败[（(]/.test(text))return text;
+  /* A bare string is display copy handed over by the caller (noteHtml's error variant re-enters here with an
+     already-worded reason): show it as-is instead of burying it under the generic fallback. Error objects keep the
+     unified copy, so raw JS exception text never reaches the screen. */
+  if(typeof cause==='string'&&text&&!/^Request failed \(/.test(text)&&!/^请求失败[（(]/.test(text))return text;
   if(messages[code])return messages[code];
   return 'The operation did not finish; please retry. If it keeps failing, check the tray log.';
 }

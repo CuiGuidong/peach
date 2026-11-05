@@ -69,7 +69,7 @@ const MAGNET = 'magnet:?xt=urn:btih:' + 'b'.repeat(40);
 it('Opens with the code and title: the title row carries the code and film name, the search and code fields come prefilled, and the submit sends the channel, catalog and origin', async () => {
   const posts = serve(snapshot(), { ok: true, outcome: 'submitted', task: task() });
   const { close, receipt, page } = await open({ code: 'ABC-123', title: 'One video', origin: 'asset:12', searchReason: 'Chinese subs' });
-  expect(page.querySelector('[role=dialog]')?.textContent).toContain('ABC-123 · one video');
+  expect(page.querySelector('[role=dialog]')?.textContent).toContain('ABC-123 · One video');
   expect(page.textContent).toContain('Edition target: Chinese subs');
   expect(field(page, 'Find resources by code')?.value).toBe('ABC-123');
   expect(field(page, 'Code')).toBeNull();
@@ -91,7 +91,7 @@ it('When a submit fails the popover stays open with the reason in the form', asy
   await type(field(page, 'Magnet link'), MAGNET);
   await submit(section(page, 'Submit download'));
   await settle();
-  expect(page.textContent).toContain('Submit did not succeed: no usable resources: remote refused');
+  expect(page.textContent).toContain('Submit did not succeed: No resources available: The remote refused');
   expect([close.mock.calls.length, receipt.mock.calls.length]).toEqual([0, 0]);
 });
 
@@ -126,7 +126,7 @@ it('The download method handed in by the intake page starts selected; changing t
   expect(buttonNamed('Submit download', page)?.className).toContain('bg-button-primary');
   await choose(page.querySelector('[role=dialog] [aria-label="Download to"]'), '115');
   expect(field(page, 'Target folder')?.value).toBe('/115/cloud-download');
-  expect(page.textContent).toContain('Each submission spends one offline quota slot');
+  expect(page.textContent).toContain('Each submission spends one offline quota item, resubmissions included.');
 });
 
 it('Without a download channel resources can be searched, with submit-download disabled', async () => {

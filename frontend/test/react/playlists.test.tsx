@@ -167,11 +167,11 @@ describe('Cards', () => {
     const faces = [{ kind: 'performer', id: 7, name: 'Alpha', has_image: false }];
     const host = await open([row(1, { faces }), row(2, { name: 'Weekend slow watch' })], given);
     const avatar = card(host, 1).querySelector<HTMLButtonElement>('[data-mix-avatars] button')!;
-    expect(avatar.getAttribute('aria-label')).toBe('Open profile page: A');
-    expect(avatar.innerHTML).toBe('<span class="ini">Alpha</span>');
+    expect(avatar.getAttribute('aria-label')).toBe('Open profile: Alpha');
+    expect(avatar.innerHTML).toBe('<span class="ini">A</span>');
     await click(avatar);
     expect(given.openEntity).toHaveBeenCalledWith('performer', 'Alpha');
-    expect(card(host, 2).querySelector('[data-mix-initial]')?.textContent).toBe('week');
+    expect(card(host, 2).querySelector('[data-mix-initial]')?.textContent).toBe('W');
   });
 });
 

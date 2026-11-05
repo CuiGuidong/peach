@@ -180,23 +180,23 @@ describe('Bottom bar and sorting', () => {
   it('Which page the backfill reached: the page number starts at 0 while the human-readable one starts at 1', () => {
     expect(backfillState([source(1, 'a', { can_backfill: false })])).toBe('');
     expect(backfillState([source(1, 'a', { can_backfill: true, backfill_page: 0 })])).toBe('Every source fetched only page 1');
-    expect(backfillState([source(1, 'a', { can_backfill: true, backfill_page: 2 })])).toBe('Every source fetched through page 3');
+    expect(backfillState([source(1, 'a', { can_backfill: true, backfill_page: 2 })])).toBe('Every source was fetched through page 3');
     expect(backfillState([
       source(1, 'a', { can_backfill: true, backfill_page: 0 }), source(2, 'b', { can_backfill: true, backfill_page: 2 }),
-    ])).toBe('Fetched pages 1-3');
+    ])).toBe('Fetched pages 1–3');
   });
 
   it('Clicking another column starts from the default direction, clicking the active column flips it; the accessible name says what pressing will do', () => {
     expect(nextSort('hot', 'new', 'desc')).toEqual({ sort: 'hot', dir: 'desc' });
     expect(nextSort('new', 'new', 'desc')).toEqual({ sort: 'new', dir: 'asc' });
-    expect(sortAriaLabel('new', 'Updated', 'new', 'desc')).toBe('Sort by update time, oldest first');
-    expect(sortAriaLabel('dur', 'Duration', 'new', 'desc')).toBe('Sort by duration longest first');
+    expect(sortAriaLabel('new', 'Updated', 'new', 'desc')).toBe('Sort by Updated Oldest first');
+    expect(sortAriaLabel('dur', 'Duration', 'new', 'desc')).toBe('Sort by Duration Longest first');
   });
 
   it('The combination bar removes conditions per dimension, and the same string counts separately in two dimensions', () => {
     const current = view({ author: 'loop', tags: ['loop', 'solo'] });
     const rows = followConditions(current, { authors: new Map([['loop', 'Loop themself']]), providers: new Map(), works: new Map() });
-    expect(rows.map((row) => `${row.kind}:${row.label}`)).toEqual(['Creator: Loop themself', 'Tag:loop', 'Tag:solo']);
+    expect(rows.map((row) => `${row.kind}:${row.label}`)).toEqual(['Creators:Loop themself', 'Tags:loop', 'Tags:solo']);
     expect(dropCondition(current, rows[1]!)).toEqual({ ...current, tags: ['solo'] });
     expect(dropCondition(current, rows[0]!)).toEqual({ ...current, author: '' });
   });
@@ -411,7 +411,7 @@ describe('Page', () => {
   it('With no follow sources it points to Add follows', async () => {
     serve(feed([], { sources: [], facets: {} }));
     const host = await open(props());
-    expect(host.textContent).toContain('Not following any sources yet');
+    expect(host.textContent).toContain('No sources followed yet');
     expect(host.querySelector('a[href="/subscriptions?tab=add"]')).not.toBeNull();
   });
 
@@ -486,11 +486,11 @@ describe('Page', () => {
     await settle();
     expect(given.actions.checkReport).toHaveBeenCalledWith({ status: 'done', results: [{ ok: true, added: 2 }] });
     expect(host.textContent).toContain('Check results');
-    expect(host.textContent).toContain('Checked 1 source: 2 new entries');
+    expect(host.textContent).toContain('Checked 1 source: 2 new items');
     expect(fetcher.mock.calls.filter(([url]) => String(url).startsWith('/api/follow?')).length).toBeGreaterThan(reads);
   });
 
-  it('Fetching an earlier page sends older, and the button keeps reading "Fetching" until the run finishes', async () => {
+  it('Fetching an earlier page sends older, and the button keeps reading "Scraping" until the run finishes', async () => {
     const fetcher = serve(feed([group(item(1))], { sources: [source(1, 'kou', { can_backfill: true, backfill_page: 1 })] }),
       { body: { job_id: 'job-3', status: 'running' } });
     const given = props();
@@ -500,12 +500,12 @@ describe('Page', () => {
     const start = fetcher.mock.calls.find(([url, init]) => url === '/api/follow/check' && init?.method === 'POST');
     expect(JSON.parse(String(start?.[1]?.body))).toEqual({ older: true, background: true });
     const options = (given.helpers.jobProgress as ReturnType<typeof vi.fn>).mock.calls.at(-1)![0];
-    expect(host.querySelector('[data-follow-older]')?.textContent).toContain('Fetching');
+    expect(host.querySelector('[data-follow-older]')?.textContent).toContain('Scraping');
     expect(host.querySelector('[data-follow-older]')?.getAttribute('aria-busy')).toBe('true');
     expect(host.querySelector('[data-follow-recheck]')?.getAttribute('aria-busy')).toBe('true');
     await act(async () => options.busy(true));
-    expect(host.querySelector('[data-follow-older]')?.textContent).toContain('Fetching');
-    expect(host.querySelector('[data-follow-backfill]')?.textContent).toBe('Every source fetched through page 2');
+    expect(host.querySelector('[data-follow-older]')?.textContent).toContain('Scraping');
+    expect(host.querySelector('[data-follow-backfill]')?.textContent).toBe('Every source was fetched through page 2');
     // While busy, both keys only get aria-busy and none of BoardUI's disabled tier; clicking either again starts no new run.
     for (const selector of ['[data-follow-older]', '[data-follow-recheck]']) {
       const button = host.querySelector(selector)!;

@@ -8,10 +8,10 @@ const initial: LibrarySharingState = { enabled: false, available: true, schema: 
 
 describe('Explicit consent for library and taste sharing', () => {
   it.each([
-    [{ status: 'waiting-data', attempted: false }, 'Waiting for analyzable library or preference data.'],
+    [{ status: 'waiting-data', attempted: false }, 'Waiting for library or preference data to analyze.'],
     [{ status: 'failed', attempted: false }, 'Library and taste uploads did not finish and will re-prepare automatically.'],
     [{ status: 'failed', attempted: true }, 'Library and taste uploads failed; nothing more sends this week.'],
-    [{ status: 'unknown', attempted: true }, 'No upload result received; nothing more sends this week.'],
+    [{ status: 'unknown', attempted: true }, 'No upload result received; not sending again this week.'],
   ])('Feedback renders by actual send state %j', async (last_attempt, message) => {
     const host = await mount(<LibrarySharingSettings initial={{ ...initial, enabled: true, last_attempt }} receipt={vi.fn()} />);
     expect(host.textContent).toContain(message);
@@ -32,14 +32,14 @@ describe('Explicit consent for library and taste sharing', () => {
     expect(switches(host)[0]?.checked).toBe(false);
     expect(host.textContent).not.toContain(initial.fields[0]);
     expect(host.querySelector('input[type="checkbox"]:not([role="switch"])')).toBeNull();
-    await click(buttonNamed('Preview upload contents', host));
+    await click(buttonNamed('Preview the upload contents', host));
     await settle();
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(host.textContent).toContain('KiB. Excludes personal data such as accounts, devices, file paths, and browser history.');
-    expect((buttonNamed('Consent and enable uploads', host) as HTMLButtonElement).disabled).toBe(true);
-    expect(actionOrder(buttonNamed('Consent and enable uploads', host)!.parentElement)).toEqual(['Cancel', 'Preview upload contents', 'Consent and enable uploads']);
+    expect((buttonNamed('Agree and enable upload', host) as HTMLButtonElement).disabled).toBe(true);
+    expect(actionOrder(buttonNamed('Agree and enable upload', host)!.parentElement)).toEqual(['Cancel', 'Preview the upload contents', 'Agree and enable upload']);
     await click(host.querySelector('input[type="checkbox"]:not([role="switch"])'));
-    await click(buttonNamed('Consent and enable uploads', host));
+    await click(buttonNamed('Agree and enable upload', host));
     await settle();
     const call = fetcher.mock.calls[1]! as unknown as [string, RequestInit];
     expect(JSON.parse(String(call[1].body))).toEqual({ enabled: true, schema: 4, consent: true, preview_token: 'preview-token' });
@@ -48,7 +48,7 @@ describe('Explicit consent for library and taste sharing', () => {
     expect(host.textContent).not.toContain(initial.fields[0]);
     expect(host.querySelector('pre')).toBeNull();
     expect(host.querySelector('input[type="checkbox"]:not([role="switch"])')).toBeNull();
-    expect(buttonNamed('Preview upload contents', host)).not.toBeNull();
+    expect(buttonNamed('Preview the upload contents', host)).not.toBeNull();
   });
 
   it('Turning off needs no re-preview or re-check', async () => {
@@ -63,15 +63,15 @@ describe('Explicit consent for library and taste sharing', () => {
   });
 
   it('On preview failure the closed state is kept; retry is possible and no save success is reported', async () => {
-    const fetcher = vi.fn(async () => ({ ok: false, status: 500, json: async () => ({ detail: 'Load failed' }) }));
+    const fetcher = vi.fn(async () => ({ ok: false, status: 500, json: async () => ({ detail: 'Reading the preview failed' }) }));
     vi.stubGlobal('fetch', fetcher);
     const receipt = vi.fn();
     const host = await mount(<LibrarySharingSettings initial={initial} receipt={receipt} />);
     await click(switches(host)[0]);
-    await click(buttonNamed('Preview upload contents', host));
+    await click(buttonNamed('Preview the upload contents', host));
     await settle();
     expect(switches(host)[0]?.checked).toBe(false);
-    expect(host.querySelector('[role="alert"]')?.textContent).toContain('Load failed');
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('Reading the preview failed');
     expect(fetcher).toHaveBeenCalledTimes(1);
     expect(receipt).not.toHaveBeenCalled();
   });

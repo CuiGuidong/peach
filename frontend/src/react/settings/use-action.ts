@@ -19,8 +19,10 @@ export function useAction(initialError = '') {
     setError('');
     try {
       const result = await work(controller.signal);
+      console.log('DBG-WORK-OK', controller.signal.aborted);
       if (!controller.signal.aborted) done(result);
     } catch (cause) {
+      console.log('DBG-CATCH', (cause as Error)?.message, 'aborted=', controller.signal.aborted);
       if (controller.signal.aborted) return;
       if (failed) failed(cause); else setError(errorMessage(cause));
     } finally {

@@ -571,8 +571,8 @@ export function TastePage(props: TasteProps) {
                   actions={<TasteRecordActions />}>{NO_CATEGORY_HINT}</EmptyState>}
             </div>
           </section>
-          <ActivityHeat activity={data.activity} title="'Browsing activity times'" dailyTitle="Daily activity"
-            words={{ unit: 'Taste site visits', series: 'Access', cellUnit: 'visits' }} tone={4}
+          <ActivityHeat activity={data.activity} title="Browsing activity time" dailyTitle="Daily activity"
+            words={{ unit: 'Taste site visits', series: 'Access', cellUnit: 'visits', cellUnitOne: 'visit' }} tone={4}
             empty="No taste-analyzable site visits yet." />
           <CreatorSankey flows={data.creator_flows} />
           <DimensionPanels label="Browser taste dimensions" onSignal={onSignal}

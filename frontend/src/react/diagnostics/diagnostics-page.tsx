@@ -58,7 +58,7 @@ function Check({ name, check, compact = false }: {
         <DiagnosticStatus status={check.status} />
       </div>
       <p data-check-reason className={cx('text-body-2-regular break-words', compact ? 'text-text-secondary' : 'text-text-primary')}>{check.reason}</p>
-      {check.action ? <p className="text-body-2-regular text-text-secondary">Suggestion:{check.action}</p> : null}
+      {check.action ? <p className="text-body-2-regular text-text-secondary">Suggestion: {check.action}</p> : null}
     </div>
     {target ? <div className="shrink-0 self-end sm:self-auto"><ButtonLink size="small" variant="secondary" href={target}>
       {target.startsWith('/settings/') ? `Open ${configurationSection(target)}` : TARGET_LABELS[target] ?? 'Open the related page'}</ButtonLink></div> : null}
@@ -94,7 +94,7 @@ export function DiagnosticsPage(props: DiagnosticsProps) {
       {Object.entries(data.library.groups).map(([key, group]) => <HealthList key={key} group={group} {...props} />)}
     </Stack></Section>
     {other.length ? <section aria-label="System checks">
-      <Disclosure summary={`Other checks · ${other.length} items`} contentClassName="gap-5">
+      <Disclosure summary={`Other checks · ${other.length} ${other.length === 1 ? 'item' : 'items'}`} contentClassName="gap-5">
         {SECTIONS.map(([title, keys]) => {
           const rows = other.filter(([key]) => keys.some(name => name === key));
           return rows.length ? <section key={title} aria-label={title} data-diagnostic-group="" className="flex min-w-0 flex-col gap-2">

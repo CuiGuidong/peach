@@ -104,7 +104,7 @@ it('The first screen fetches grouping and source reachability once, with no back
     </QueryClientProvider>);
   expect(fetcher.mock.calls.map((call) => call[0]).sort()).toEqual(['/api/duplicates?limit=120', '/api/sources']);
   expect(host.textContent).toContain('2 groups');
-  expect(host.textContent).toContain('4 files · 2.0 GB recoverable');
+  expect(host.textContent).toContain('4 files - 2.0 GB reclaimable');
 });
 
 it('Group headers state the criteria: "identical" only when sha1 is complete, otherwise it is a duration inference; cross-drive groups show drive letters', async () => {
@@ -134,10 +134,10 @@ it('Bulk keep-largest confirms first, with the dialog naming the counts and byte
   const fetcher = fetchMock(200, { ok: true });
   vi.stubGlobal('fetch', fetcher);
   const { host, toast } = await open();
-  await click(buttonNamed('Keep all, max size', host));
+  await click(buttonNamed('Keep all largest', host));
   await settle();
   expect(seen).toHaveLength(1);
-  expect(seen[0]!.body).toContain('Library records for 2 duplicate files will move to trash, keeping the largest one in each group.');
+  expect(seen[0]!.body).toContain('Will move the library records of 2 duplicate files to trash, keeping the largest one per group.');
   expect(seen[0]!.body).toContain('Files total 2.0 GB; records can be restored from trash.');
   const batch = fetcher.mock.calls.findIndex((call) => call[0] === '/api/batch');
   expect(sentBody(fetcher, batch)).toEqual({ ids: [2, 4], operation: 'dispose', disposal_reason: 'duplicate' });

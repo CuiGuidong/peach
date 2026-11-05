@@ -92,7 +92,7 @@ export type KeepRule = 'largest' | 'longest' | 'all' | (string & {});
 
 /** The "keep per group..." half sentence in the confirmation popover. */
 export const KEEP_LABELS: Record<string, string> = {
-  largest: 'The largest one', longest: 'The longest one',
+  largest: 'the largest one', longest: 'the longest one',
   '115': '115 (keep largest if none)', pikpak: 'PikPak (keep largest if none)', all: 'Zero files',
 };
 

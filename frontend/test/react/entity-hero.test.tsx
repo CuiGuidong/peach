@@ -87,9 +87,9 @@ describe('Pure functions for layout', () => {
       },
     } }));
     const facts = host.querySelector('[data-entity-facts]')!;
-    expect(facts.textContent).toContain('Company founded 2002-05');
-    expect(facts.textContent).toContain('Brand founded 2003');
-    expect(facts.textContent).toContain('Operating company Brand Inc.');
+    expect(facts.textContent).toContain('Company founded2002-05');
+    expect(facts.textContent).toContain('Brand launched2003');
+    expect(facts.textContent).toContain('Operating companyBrand Co., Ltd.');
     expect(facts.querySelector('[title]')).toBeNull();
   });
   it('Real accounts and performers share the profile, alias, and mark rows', async () => {
@@ -99,13 +99,13 @@ describe('Pure functions for layout', () => {
     }) }));
     expect(host.querySelector('[data-entity-facts]')?.textContent).toContain('T149');
     expect(host.querySelector('[data-alias-names]')?.textContent).toContain('百田くるみ');
-    expect(host.querySelector('[data-meta-item][title="Video"] use')?.getAttribute('href')).toBe('#i-film');
+    expect(host.querySelector('[data-meta-item][title="Videos"] use')?.getAttribute('href')).toBe('#i-film');
   });
   it('Label video count and aliases each carry an icon; profiles leave person fields empty', async () => {
     const host = await open(props({ kind: 'studio', name: 'MOODYZ', entity: performer({
       canonical_name: 'MOODYZ', display_aliases: ['ムーディーズ'], agency: undefined,
     }) }));
-    expect(host.querySelector('[data-meta-item][title="Video"] use')?.getAttribute('href')).toBe('#i-film');
+    expect(host.querySelector('[data-meta-item][title="Videos"] use')?.getAttribute('href')).toBe('#i-film');
     expect(host.querySelector('[data-company-names] use')?.getAttribute('href')).toBe('#i-id-card');
     expect(host.querySelector('[data-company-names]')?.textContent).toBe('ムーディーズ');
     expect(host.querySelector('[data-entity-facts]')).toBeNull();
@@ -168,7 +168,7 @@ describe('Pure functions for layout', () => {
       { type: 'icon', url: 'https://www.minnano-av.com/x', title: 'minnano-av', mark: { brand: 'minnano' } },
       { type: 'icon', url: 'https://www.nax.co.jp/talent/aoi', title: 'New Actor eXperience official profile', mark: { site: '/link-mark?id=3' } },
       { type: 'icon', url: 'https://x.com/aoi', title: 'X', mark: { brand: 'brand-x' } },
-      { type: 'gone', title: 'Legacy blog · Retired in 2024' },
+      { type: 'gone', title: 'Old blog · Retired in 2024' },
       { type: 'private', label: 'Private records' },
     ]);
   });
@@ -186,7 +186,7 @@ describe('Pure functions for layout', () => {
       { link_id: 4, clickable: false, label: 'Group chat screenshots' },
     ] }), 'performer');
     expect(links.map((link) => link.type)).toEqual(['icon', 'private']);
-    expect(links[1]).toEqual({ type: 'private', label: '3 private sources', sources: ['Private records', 'Forum post', 'Group chat screenshots'] });
+    expect(links[1]).toEqual({ type: 'private', label: '3 hidden sources', sources: ['Private records', 'Forum post', 'Group chat screenshots'] });
     expect(heroLinks(performer({ links: [{ link_id: 1, clickable: false, label: 'Private records' }] }), 'performer'))
       .toEqual([{ type: 'private', label: 'Private records' }]);
   });
@@ -200,8 +200,8 @@ describe('Pure functions for layout', () => {
   });
 
   it('Without a language projection, existing aliases and original values are kept; the unified name sorts first with duplicates and blanks removed', () => {
-    expect(nameChoices({ id: 1, canonical_name: '葵つかさ', asset_count: 0, aliases: ['Tsukasa Aoi', 'Tsukasa Aoi', 'Tsukasa Aoi', ''] }))
-      .toEqual(['葵つかさ', 'Tsukasa Aoi', 'Tsukasa Aoi'].map(value => ({ value, label: value })));
+    expect(nameChoices({ id: 1, canonical_name: '葵つかさ', asset_count: 0, aliases: ['葵司', 'Tsukasa Aoi', '葵司', ''] }))
+      .toEqual(['葵つかさ', '葵司', 'Tsukasa Aoi'].map(value => ({ value, label: value })));
   });
 });
 
@@ -228,7 +228,7 @@ describe('What paints', () => {
       id: 3, canonical_name: 'S1', asset_count: 9, display_aliases: names,
     } }));
     const inline = host.querySelectorAll('[data-company-names] [data-alias-names] > span');
-    expect([...inline].map((one) => one.textContent)).toEqual(['旧レーベル1', '旧レーベル2', '旧レーベル3']);
+    expect([...inline].map((one) => one.textContent)).toEqual(['Old label 1', 'Old label 2', 'Old label 3']);
     expect(host.querySelector('[data-hero-more="alias"]')?.textContent).toBe('+27');
     const pop = document.getElementById('entityAliasPop')!;
     expect(pop.querySelectorAll('[data-pop-name]')).toHaveLength(30);
@@ -240,7 +240,7 @@ describe('What paints', () => {
       { link_id: 3, clickable: false, label: 'Forum post' },
     ] }) }));
     const chip = host.querySelector('[data-link="private"]');
-    expect(chip?.textContent).toContain('2 private sources');
+    expect(chip?.textContent).toContain('2 hidden sources');
     expect(chip?.getAttribute('title')).toBe('Private records\nForum post');
   });
 
@@ -305,7 +305,7 @@ describe('Clicking hands over to the shell', () => {
   it('Co-stars and agencies use in-site jumps, and agency links never full-page refresh', async () => {
     const acts = actions();
     const host = await open(props({ actions: acts }));
-    await click(host.querySelector('[data-related-performer="Kawakita Saika"]'));
+    await click(host.querySelector('[data-related-performer="河北彩花"]'));
     expect(acts.openEntity).toHaveBeenLastCalledWith('performer', '河北彩花');
     const agency = host.querySelector<HTMLAnchorElement>('a[data-agency]');
     expect(agency?.getAttribute('href')).toBe('/agencies/New%20Actor%20eXperience');
@@ -364,7 +364,7 @@ describe('Sources among follows', () => {
       key: '', n: 0, providers: [], avatar: '', avatar_fallback: '', held: [held] }) }));
     expect(host.querySelector('[data-entity-follow]')).toBeNull();
     const note = host.querySelector('[data-entity-held]')!;
-    expect(note.textContent).toContain('Follows contain a same-name author Auxtasy');
+    expect(note.textContent).toContain('Follows contain a same-named author Auxtasy');
     expect(note.textContent).toContain('Kemono · Patreon · 37 updates');
     const button = note.querySelector('button')!;
     await click(button);

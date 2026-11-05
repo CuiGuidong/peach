@@ -71,10 +71,10 @@ it('Official builds produce reproducible Debug IDs, private maps can restore sou
     'sourcemaps', 'upload', '--validate', '--strict', '--wait', '--url-prefix', 'app:///', directory,
   ]);
   writeFileSync(resolve(shipped, 'peach-app.js'), 'mismatched bundle');
-  expect(() => prepareBrowserUpload(env, directory, shipped)).toThrow('Distribution artifacts inconsistent');
+  expect(() => prepareBrowserUpload(env, directory, shipped)).toThrow('peach-app.js disagrees with the distributed artifacts');
   writeFileSync(resolve(shipped, 'peach-app.js'), first);
   writeFileSync(mapPath, JSON.stringify({ ...map, debug_id: 'invalid' }));
-  expect(() => prepareBrowserUpload(env, directory, shipped)).toThrow('Matching source map');
+  expect(() => prepareBrowserUpload(env, directory, shipped)).toThrow('peach-app.js has no matching source map and Debug ID');
   // This test runs a full production build: after chunks split, each one's Debug ID must be checked; measured 45 seconds on a Linux runner.
 }, 120_000);
 

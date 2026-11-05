@@ -27,7 +27,7 @@ const paths = (root: ParentNode) => [...root.querySelectorAll<HTMLInputElement>(
 it('The media form keeps the restart notice; the access port is managed by the network section', async () => {
   const host = await open({ port_editable: false });
   expect(host.querySelector('#configPort')).toBeNull();
-  expect(host.textContent).toContain('Peach will restart after saving');
+  expect(host.textContent).toContain('Peach restarts after saving');
   expect(host.querySelector('form')).not.toBeNull();
 });
 
@@ -122,7 +122,7 @@ describe('Media catalog', () => {
       { location: 'local', root: 'E:\\JAV', path: 'E:\\JAV', root_id: 'root-two', library_id: 'library-one', library: 'JAV',
         cost: 'free', library_color: 'sky', library_policy: 'auto' },
     ] });
-    expect(host.querySelector('[data-library-color-trigger]')?.getAttribute('aria-label')).toBe('JAV source color: sky blue');
+    expect(host.querySelector('[data-library-color-trigger]')?.getAttribute('aria-label')).toBe('Source color of JAV: Sky blue');
     await click(host.querySelector('[data-library-color-trigger]'));
     await click(document.querySelector('[data-library-colors] [aria-label="Amber"]'));
     const policy = host.querySelector('[aria-label="JAV handling"]');
@@ -144,7 +144,7 @@ describe('Media catalog', () => {
       { location: 'local', root: 'D:\\JAV', path: 'D:\\JAV', root_id: 'root-one', library_id: 'library-one', library: 'JAV', cost: 'free' },
     ] });
     await type(paths(host)[0], 'F:\\JAV');
-    await choose(host.querySelector('[aria-label="Folder change method 1"]'), 'Relocate this folder and keep the file records');
+    await choose(host.querySelector('[aria-label="Folder change method 1"]'), 'Relocate this folder, keeping file records');
     await submit(host.querySelector('form'));
     expect(sentBody(fetcher).media_sources[0]).toMatchObject({
       root_id: 'root-one', root: 'D:\\JAV', path: 'F:\\JAV', change_mode: 'relocate',
@@ -220,7 +220,7 @@ describe('Media catalog', () => {
     ] });
     const policy = rows(host)[0]?.querySelector('[data-media-read-policy] [aria-haspopup="listbox"]');
     expect(policy?.textContent).toContain('Proxy protection');
-    await choose(policy, 'Normal read');
+    await choose(policy, 'Normal reading');
     await submit(host.querySelector('form'));
     expect(sentBody(fetcher).media_sources).toMatchObject([
       { location: 'onedrive', root: 'O:\\Movies', path: 'O:\\Movies', library: '', library_icon: '', cost: 'free' },
@@ -239,7 +239,7 @@ describe('Media catalog', () => {
     await submit(host.querySelector('form'));
     expect(fetcher).not.toHaveBeenCalled();
     expect(host.textContent).toContain('Select a media reading strategy');
-    await choose(policy, 'Normal read');
+    await choose(policy, 'Normal reading');
     await submit(host.querySelector('form'));
     expect(sentBody(fetcher).media_sources[0]).toMatchObject({ location: 'pikpak', cost: 'free' });
   });
@@ -267,7 +267,7 @@ describe('Select folder', () => {
     const fetcher = fetchMock(200, { path: 'E:\\Movies' });
     vi.stubGlobal('fetch', fetcher);
     const host = await open();
-    const pick = host.querySelector('[aria-label="Choose folder"]')!;
+    const pick = host.querySelector('[aria-label="Select folder"]')!;
     await click(pick);
     await settle();
     const [url, init] = fetcher.mock.calls[0] ?? [];
@@ -281,12 +281,12 @@ describe('Select folder', () => {
   it('Cancel changes nothing; if the dialog cannot open, the reason is written on this line', async () => {
     vi.stubGlobal('fetch', fetchMock(200, { path: null }));
     const host = await open();
-    await click(host.querySelector('[aria-label="Choose folder"]'));
+    await click(host.querySelector('[aria-label="Select folder"]'));
     await settle();
     expect(paths(host)[0]?.value).toBe('D:\\Media');
     expect(paths(host)[0]?.getAttribute('aria-invalid')).toBeNull();
     vi.stubGlobal('fetch', fetchMock(501, { error: 'No folder dialog is available on this system' }));
-    await click(host.querySelector('[aria-label="Choose folder"]'));
+    await click(host.querySelector('[aria-label="Select folder"]'));
     await settle();
     expect(rows(host)[0]?.textContent).toContain('No folder dialog is available');
     expect(paths(host)[0]?.getAttribute('aria-invalid')).toBe('true');
@@ -307,8 +307,8 @@ describe('Save', () => {
     expect(init?.method).toBe('POST');
     expect(sentBody(fetcher)).toEqual({ revision: 'rev-1', media_dirs: ['D:\\Media'], port: '9123', scan_now: false });
     expect(receipt).toHaveBeenCalledWith('Configuration saved');
-    expect(host.querySelector('[role="status"]')?.textContent).toContain('Restarting');
-    expect(host.querySelector('a[href="http://127.0.0.1:9124/"]')?.textContent).toBe('Enter the library');
+    expect(host.querySelector('[role="status"]')?.textContent).toContain('Peach is restarting');
+    expect(host.querySelector('a[href="http://127.0.0.1:9124/"]')?.textContent).toBe('the library');
     expect(host.querySelector('form'), 'After saving the form leaves the page').toBeNull();
   });
 
@@ -333,7 +333,7 @@ describe('Save', () => {
     const host = await open();
     await submit(host.querySelector('form'));
     await settle();
-    expect(host.querySelector('[role="alert"]')?.textContent).toContain('Configuration changed');
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('The config changed, refresh before saving');
     expect(host.querySelector('form')).not.toBeNull();
     expect(buttonNamed('Save configuration', host)?.getAttribute('aria-busy'), 'The busy state must clear after failure').toBeNull();
   });
@@ -341,7 +341,7 @@ describe('Save', () => {
 
 it('CloudDrive recommends three tiers by disk; the page keeps only how to fill it in, with the rationale linked to the repository docs', async () => {
   const host = await mount(<CloudDriveGuide />);
-  const tiers = host.querySelectorAll('[aria-label="Tier by drive holding the cache"] > li');
+  const tiers = host.querySelectorAll('[aria-label="Tiered by cache disk"] > li');
   expect(tiers).toHaveLength(3);
   expect([...tiers[0]!.querySelectorAll('dt')].map((dt) => dt.textContent))
     .toEqual(['Cache cap', 'Read length (default / min)', 'Process videos too']);

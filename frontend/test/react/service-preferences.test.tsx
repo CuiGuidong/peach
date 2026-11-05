@@ -128,7 +128,7 @@ it('The auto-check interval rejects out-of-range values and writes to the origin
   await type(input, '2');
   await act(async () => input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
   expect(posts).toEqual([]);
-  expect(host.querySelector('[role="alert"]')?.textContent).toContain('15–10080');
+  expect(host.querySelector('[role="alert"]')?.textContent).toContain('15 to 10080');
   await type(input, '240');
   await act(async () => input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
   await settle();
@@ -167,13 +167,13 @@ it('On first load "follows harvesting" shows the same five rows as the configura
   const hold = pending<unknown>();
   vi.stubGlobal('fetch', vi.fn(() => hold.answer));
   const host = await mount(<QueryClientProvider client={queryClient}><FollowPreferenceRows receipt={vi.fn()} /></QueryClientProvider>);
-  const labels = (root: ParentNode) => [...root.querySelectorAll('section[aria-label="Follow collection"] p.text-body-regular')].map((node) => node.textContent);
+  const labels = (root: ParentNode) => [...root.querySelectorAll('section[aria-label="Follows scrape"] p.text-body-regular')].map((node) => node.textContent);
   const page = document.createElement('div');
   page.innerHTML = configurationContentSkeleton('Sources and subscriptions');
   const waiting = labels(host);
   expect(waiting).toEqual(['Automatically check for updates', 'Follow source fetching', 'First scrape scope', 'Avatar refresh', 'Favicon refresh']);
   expect(labels(page), 'The full-page skeleton paints these same five rows').toEqual(waiting);
-  expect(host.querySelector('[data-skeleton][aria-label="Reading subscription fetch interval"]')).not.toBeNull();
+  expect(host.querySelector('[data-skeleton][aria-label="Reading the follow source fetch interval"]')).not.toBeNull();
   server();
   await hold.release({ ok: true, status: 200, json: async () => ({ available: true, enabled: true, interval_minutes: 360 }) });
   await settle();

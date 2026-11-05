@@ -78,7 +78,7 @@ const reread = () => act(async () => { await queryClient.refetchQueries({ queryK
 it('A prior run\'s terminal state read on the first screen sends no receipt and never becomes this run\'s result', async () => {
   const onFinish = vi.fn();
   const host = await open(<Flat read={() => STALE} onFinish={onFinish} />);
-  expect(host.textContent).toContain('job=complete:last run;outcome=;running=false');
+  expect(host.textContent).toContain('job=complete:Last run;outcome=;running=false');
   await reread();
   expect(onFinish).not.toHaveBeenCalled();
 });
@@ -93,7 +93,7 @@ it('The pass already running at first screen counts as the tracked one: it repor
   await reread();
   await reread();
   expect(onFinish.mock.calls).toEqual([[{ status: 'complete', result: 'Named elsewhere' }]]);
-  expect(host.textContent).toContain('outcome=complete: started elsewhere');
+  expect(host.textContent).toContain('outcome=complete:Named elsewhere');
 });
 
 it('Between pressing start and the refetch returning, the previous run\'s final state does not impersonate this one; a run finishing before the refetch is still handled', async () => {
@@ -111,7 +111,7 @@ it('Between pressing start and the refetch returning, the previous run\'s final 
   await slow.release({ status: 'complete', result: 'This run' });
   await settle();
   expect(onFinish.mock.calls).toEqual([[{ status: 'complete', result: 'This run' }]]);
-  expect(host.textContent).toContain('outcome=complete:this round;running=false');
+  expect(host.textContent).toContain('outcome=complete:This run;running=false');
 
   answer = { status: 'complete', result: 'This run' };
   await reread();

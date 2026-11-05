@@ -74,7 +74,7 @@ const newSeed = () => String(((Date.now() ^ (Math.random() * 1e9 | 0)) >>> 0) % 
 
 /** The photo screen's readout: local images and samples counted separately; when only samples exist, no '0 images' is written. */
 function photoReadout(page: PhotoPage, codeSets: number) {
-  return `Photos - ${[
+  return `Photos · ${[
     page.total || !codeSets ? `${(page.total || 0).toLocaleString()} images` : '',
     codeSets ? `stills ${(page.sample_total || 0).toLocaleString()} images · ${codeSets.toLocaleString()} videos` : '',
   ].filter(Boolean).join(' · ')}`;
@@ -367,7 +367,7 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
     /* Which tags are selected is listed chip by chip on the intersection bar above, so the count only reports a number: repeating the tag names here, a few long tags
        would push this row off the page. */
     const picked = tagList(filters.tag).length;
-    readout = `Videos · ${(items.data?.work_total ?? items.data?.total ?? 0).toLocaleString()}${picked ? ` · ${picked.toLocaleString()} tags selected` : ''}`;
+    readout = `Videos · ${(items.data?.work_total ?? items.data?.total ?? 0).toLocaleString()}${picked ? ` · ${picked.toLocaleString()} ${picked === 1 ? 'tag' : 'tags'} selected` : ''}`;
   } else if (wallPage && !wallPage.error) {
     readout = inSet ? `${wallPage.title} · ${(wallPage.total || 0).toLocaleString()} images`
       : photoReadout(wallPage, codeSetsOf(wallPage).length);

@@ -153,7 +153,7 @@ it('Without download settings the sections and health form stay, with retry to r
   expect(host.querySelector('.ui-board-group-active')?.textContent).toContain('Download settings not fetched');
   expect(host.querySelector('[data-folder-row]')).not.toBeNull();
   serve(full());
-  await click(buttonNamed('Reload', host.querySelector('.ui-board-group-active')!));
+  await click(buttonNamed('Read again', host.querySelector('.ui-board-group-active')!));
   await settle();
   expect(host.textContent).not.toContain('Download settings not fetched');
   expect(section(host, 'Cloud download')).not.toBeNull();

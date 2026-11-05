@@ -6,21 +6,23 @@ describe('Chinese error feedback',()=>{
   it.each(['Failed to fetch','NetworkError when attempting to fetch resource.','Load failed'])('Network error %s says how to check the connection',message=>{
     expect(requestErrorMessage(new TypeError(message))).toBe('Could not connect to the Peach service. Check the network connection and make sure the tray service is running.');
   });
-  it.each([[401,'Sign-in expired'],[403,'No permission for this action'],[404,'No longer exists'],[429,'Too frequently'],[503,'Temporarily unavailable'],[504,'Timed out']])('HTTP %s uses an explicit reason', (code,reason)=>{
-    expect(requestErrorMessage('request failed',code)).toContain(reason);
+  it.each([[401,'session expired'],[403,'does not have permission'],[404,'no longer exists'],[429,'Too many requests'],[503,'temporarily unavailable'],[504,'timed out']])('HTTP %s uses an explicit reason', (code,reason)=>{
+    expect(requestErrorMessage(`Request failed (${code})`,code)).toContain(reason);
   });
   it('The word timeout in a body never reads a 500 as a timeout',()=>{
     expect(requestErrorMessage('Traceback: httpx.ReadTimeout raised in handler (timeout=30)',500))
+      .toBe('Traceback: httpx.ReadTimeout raised in handler (timeout=30)');
+    expect(requestErrorMessage('Request failed (500)',500))
       .toBe('The Peach service failed to handle the request. Try again; if it keeps failing, check the tray logs.');
-    expect(requestErrorMessage('read timed out')).toContain('Timed out');
+    expect(requestErrorMessage('read timed out')).toContain('timed out');
   });
   it('A 502 from the local API speaks about the Peach service and never mentions a proxy',()=>{
-    const text=requestErrorMessage('Bad Gateway',502);
+    const text=requestErrorMessage('Request failed (502)',502);
     expect(text).toContain('Peach service');
     expect(text).not.toContain('Proxy');
   });
   it('Keep the explicit server side Chinese reason',()=>{
-    expect(requestErrorMessage('The media drive is not mounted; connect it first.',409)).toBe('The media drive is not mounted; connect it first.');
+    expect(requestErrorMessage('媒体盘没有挂载，请先连接媒体盘。',409)).toBe('媒体盘没有挂载，请先连接媒体盘。');
   });
 });
 describe('Persistent note control',()=>{
@@ -49,14 +51,14 @@ describe('Persistent note control',()=>{
   it('Capacity ratios and task counts use real limits, and unknown capacity never displays as zero',()=>{
     const host=document.createElement('div');host.innerHTML=gaugeHtml('Usage rate',25,50);
     expect(host.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow')).toBe('50');
-    expect(gaugeHtml('Usage rate',0,0)).toContain('Not fetched');
+    expect(gaugeHtml('Usage rate',0,0)).toContain('not obtained');
     host.innerHTML=progressHtml('Analysis records',3,10,{stops:[{value:5,label:'Analysis finished'}],variant:'warning'});
     expect(host.querySelector('[role=progressbar]')?.getAttribute('aria-valuemax')).toBe('10');
     expect(host.querySelector('[aria-label="Analysis finished"]')).not.toBeNull();
   });
   it('Note errors never print raw English network exceptions',()=>{
     const host=document.createElement('div');host.innerHTML=noteHtml('Failed to fetch',{variant:'error',size:'small',filled:true});
-    expect(host.querySelector('[role=alert]')?.textContent).toContain('Could not reach Peach');
+    expect(host.querySelector('[role=alert]')?.textContent).toContain('Could not connect to the Peach service');
     expect(host.querySelector('.geist-note-small.geist-note-filled')).not.toBeNull();
     expect(host.querySelector('button')).toBeNull();
   });

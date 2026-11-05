@@ -45,8 +45,8 @@ export function catalogEmptyHtml({ kind = 'catalog', filtered = false, jav = fal
     // The online bucket counts what lives on the sources, and naming follows the sources' own usage: a performer page's online tab shows creators from followed sources.
     const onlineLabels: Record<string, string> = { tags: 'Tags', performers: 'Creators' };
     const label = (online ? onlineLabels[kind] : '') || labels[kind] || 'Profile';
-    return emptyStateHtml(kind === 'tags' ? 'tags' : 'user-round', 'Not yet' + label,
-      online ? 'After adding a follow source and fetching content, this will show the source\'s' + label + '.' : 'After adding content and completing profiles, the corresponding information appears here.',
+    return emptyStateHtml(kind === 'tags' ? 'tags' : 'user-round', 'No ' + label.toLowerCase() + ' yet',
+      online ? 'After adding a follow source and fetching content, this will show the source\'s ' + label.toLowerCase() + '.' : 'After adding content and completing profiles, the corresponding information appears here.',
       { actions: online ? follow : add + follow });
   }
   return emptyStateHtml('play', 'No videos yet', 'Add media directories or follow sources to start building your library.', { actions: add + follow });

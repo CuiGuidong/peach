@@ -131,7 +131,7 @@ it('When a cover cannot be fetched the image is removed, the fallback text stays
 it('Cover, title, and footer all open the same video, with accessible names in plain text form', async () => {
   const { host, props } = await open(payload([goal({ id: 42 })]));
   const cover = host.querySelector<HTMLButtonElement>('li[data-goal-id] button')!;
-  expect(cover.getAttribute('aria-label')).toBe('Open name one.mp4');
+  expect(cover.getAttribute('aria-label')).toBe('Open Name one.mp4');
   await click(cover);
   await click(host.querySelector('h3 button'));
   await click([...host.querySelectorAll('button')].find((node) => node.textContent === 'View editions'));
@@ -145,7 +145,7 @@ it('Searching a resource opens the cloud download dialog in place with the code 
   await click(buttons[0]);
   await settle();
   const dialog = document.querySelector('[role=dialog]');
-  expect(dialog?.textContent).toContain('ABC-123 · name one.mp4');
+  expect(dialog?.textContent).toContain('ABC-123 · Name one.mp4');
 });
 
 it('With no targets at all it gives an empty state, never a blank white page', async () => {
@@ -158,7 +158,7 @@ it('When the first-screen fetch fails only one error shows and no empty list pai
   const { host } = await open(null);
   const alert = host.querySelector('[role=alert]');
   // Copy goes through the legacy layer's `requestErrorMessage`: when the server supplies a reason message, use it; the page does not say it a second time.
-  expect(alert?.textContent).toContain('Load failed');
+  expect(alert?.textContent).toContain('HD edition target fetch failed');
   expect(alert?.textContent).toContain('Database is currently browse-only');
   expect(host.querySelector('ul')).toBeNull();
 });

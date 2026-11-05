@@ -426,7 +426,7 @@ export function sortAriaLabel(key: string, label: string, current: string, dir: 
   const next = nextSort(key, current, dir);
   if (!next) return '';
   const words = FOLLOW_FEED_DIR_WORDS[next.sort];
-  return `Sort by ${label}${words ? words[next.dir === 'asc' ? 1 : 0] : ''}`;
+  return `Sort by ${label} ${words ? words[next.dir === 'asc' ? 1 : 0] : ''}`;
 }
 
 /* ── The pieces the shell hands in ── */

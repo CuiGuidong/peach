@@ -255,8 +255,8 @@ describe('First screen', () => {
   });
 
   it('The tag profile page aggregates assets at the intersection of this tag and added filters', () => {
-    const params = itemsParams('tag', 'Big breasts', { tag: 'Blowjob,Big tits', sort: 'new' }, { jav: true, seed: '42' });
-    expect(params.get('tag')).toBe('Big tits,Blowjob');
+    const params = itemsParams('tag', 'Big breasts', { tag: 'Blowjob,Big breasts', sort: 'new' }, { jav: true, seed: '42' });
+    expect(params.get('tag')).toBe('Big breasts,Blowjob');
     expect(params.get('tag_match')).toBe('all');
   });
 
@@ -292,7 +292,7 @@ describe('Switch filters and views', () => {
     expect(cards(page.props)).toEqual(['7']);
     // Which chips are selected is listed by the intersection bar; the readout reports only a count: repeating the tag names, a few long tags would push this row off the page.
     expect(readout(page.props)).toBe('Videos · 1 · 1 tag selected');
-    expect(page.props.hosts.filter.querySelector('[data-entity-tag="big tits"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(page.props.hosts.filter.querySelector('[data-entity-tag="Big breasts"]')?.getAttribute('aria-pressed')).toBe('true');
     await push({ filters: {} });
     await settle();
     expect(page.calls('/api/items')).toHaveLength(2);
@@ -337,7 +337,7 @@ describe('Switch filters and views', () => {
     const page = await open({ entity: entity({ kind: 'agency', canonical_name: 'NAX', related_performers: roster }) },
       { kind: 'agency', name: 'NAX' });
     expect(pressedView(page.props)).toBe('people');
-    expect(readout(page.props)).toBe('Artists · 2');
+    expect(readout(page.props)).toBe('Performers · 2');
     await push({ filters: { state: 'fresh' } });
     await settle();
     expect(pressedView(page.props)).toBe('videos');
@@ -350,7 +350,7 @@ describe('Switch filters and views', () => {
     }, { kind: 'studio', name: 'S1' });
     expect(readout(page.props)).toBe('Labels · 1');
     expect(page.props.hosts.filter.querySelector('[data-media-view="photos"]')).toBeNull();
-    expect(page.host.querySelector('[data-related-performer="Kawakita Saika"]')).not.toBeNull();
+    expect(page.host.querySelector('[data-related-performer="河北彩花"]')).not.toBeNull();
   });
 
   it('No view toggle with a single content kind', async () => {
@@ -402,7 +402,7 @@ describe('Photo wall', () => {
     expect(page.props.actions.route).toHaveBeenLastCalledWith({}, { media: 'photos', set: 0 });
     await push({ media: { media: 'photos', set: 0 } });
     await settle();
-    expect(readout(page.props)).toBe('Photos · 6');
+    expect(readout(page.props)).toBe('Photos · 6 images');
   });
 });
 
@@ -480,7 +480,7 @@ describe('Write operation', () => {
     const portrait = () => page.props.hosts.filter.ownerDocument.querySelector('[data-test-portrait]')?.getAttribute('src');
     expect(portrait()).toBe('/entity-image?v=old');
     expect(cards(page.props)).toEqual(['1', '2', '3']);
-    await click(document.querySelector(`button[aria-label="Change ${NAME}'s avatar"]`));
+    await click(document.querySelector(`button[aria-label="Change the avatar of ${NAME}"]`));
     await settle();
     await click(document.querySelector('[data-avatar-choice]'));
     await settle();
@@ -504,7 +504,7 @@ describe('Write operation', () => {
     // Changing the umbrella name rewrites the entity's whole flat projection: before writing, show what it becomes and where the old wording goes; button and receipt share one verb.
     expect(legacyUi.confirmModal).toHaveBeenCalledWith(expect.objectContaining({
       title: 'Change the canonical name', confirmLabel: 'Change the canonical name',
-      body: `"Shinoda Yuu" becomes the name shown for this profile, "${NAME}" stays as an alias. Credits on videos, search and tags will all be rewritten to match.`,
+      body: `"しのだゆう" becomes the display name for this profile and "${NAME}" stays as an alias. Bylines on videos, search, and tags will all be updated.`,
     }));
     expect(page.writes[0]).toEqual({ url: '/api/entity-name', body: { kind: 'performer', name: NAME, canonical: 'しのだゆう' } });
     expect(page.props.actions.openEntity).toHaveBeenLastCalledWith('performer', 'しのだゆう');

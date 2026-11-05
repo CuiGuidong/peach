@@ -51,7 +51,7 @@ it('Default completion and the dropdown\'s split actions submit only the current
     return { ok: true, json: async () => ({ status: 'idle' }) };
   }));
   const host = await mount(prompt());
-  expect(host.textContent).toContain('2 videos without previews');
+  expect(host.textContent).toContain('2 of these videos have no preview yet');
   await click(buttonNamed('Sync these videos', host));
   for (const label of ['Complete preview images only', 'Complete video details only']) {
     await click(host.querySelector('[aria-haspopup="dialog"]'));
@@ -89,13 +89,13 @@ it('No duplicate submissions while startup waits; on finish the library refreshe
   await click(primary);
   expect(posts).toHaveLength(1);
   await response.release({ status: 'running', job_id: 'complete-one' });
-  expect(host.textContent).toContain('Can complete separately after the current task ends');
+  expect(host.textContent).toContain('You can complete them individually after the current task finishes');
   expect(primary.getAttribute('aria-disabled')).toBe('true');
   await click(more);
   expect(more.getAttribute('aria-expanded')).toBe('false');
   await act(async () => queryClient.setQueryData(LIBRARY_PROCESSING_KEY,
     { status: 'complete', job_id: 'complete-one', covers: 1, previews: 2 }));
-  expect(host.textContent).toContain('Fetched 1 cover and generated 2 video previews');
+  expect(host.textContent).toContain('fetched 1 cover and generated 2 video previews');
   expect(queryClient.getQueryState(['catalog-grid', 'catalog', 'sample', 1])?.isInvalidated).toBe(true);
   expect(onComplete).toHaveBeenCalledTimes(1);
   const nextMore = host.querySelector<HTMLButtonElement>('[aria-haspopup="dialog"]')!;

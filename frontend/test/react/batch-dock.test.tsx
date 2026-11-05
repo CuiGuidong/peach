@@ -133,8 +133,8 @@ describe('Dock', () => {
     expect(root.querySelector('[data-selection-dock]')).toBeNull();
     await render({ count: 2, context: 'trash', junkDismissed: false });
     const shown = root.querySelector('[data-selection-dock]')!;
-    expect(shown.getAttribute('aria-label')).toBe('Selected item actions');
-    expect(shown.querySelector('[role="status"]')!.textContent).toBe('2 items selected');
+    expect(shown.getAttribute('aria-label')).toBe('Actions for selected items');
+    expect(shown.querySelector('[role="status"]')!.textContent).toBe('Selected 2 items');
     expect(labels(root)).toEqual(['Restore', 'Delete permanently', 'Cancel']);
     await render({ count: 3, context: 'junk', junkDismissed: true });
     expect(root.querySelector('[data-selection-dock] [role="status"]')!.textContent).toBe('Selected 3 items');

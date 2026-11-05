@@ -68,7 +68,7 @@ describe('Creators', () => {
       + 'referrerpolicy="no-referrer" data-drop="initial" data-fallbacks="/mirror.png" data-initial="K" '
       + 'data-drop-class="favatar none">');
     expect(authorAvatarHtml([source(1, { avatar_url: '/mirror.png' })], 'Hatsune')).not.toContain('data-fallbacks');
-    expect(authorAvatarHtml([], 'Hatsune')).toBe('<span class="favatar none" title="No avatar available">C</span>');
+    expect(authorAvatarHtml([], 'Hatsune')).toBe('<span class="favatar none" title="No avatar available">H</span>');
   });
 
   it('When a booru post has a recognized publisher, credit the publisher and the followed party falls back to "credit contains"; if the publisher was never followed, only the initial shows', () => {
@@ -97,9 +97,9 @@ describe('Text before and after the title', () => {
     expect(followTitleMarks(group(item(1, { version: 'v<2>' }), { has_wip: true }), shown)).toBe(
       '<small class="javedition" data-follow-edition="has-wip">Has WIP</small>'
       + '<small class="javedition" data-follow-edition="version">v&lt;2&gt;</small>'
-      + '<small class="javedition" data-follow-edition="voiced">Dubbed</small>');
+      + '<small class="javedition" data-follow-edition="voiced">Dubbed version</small>');
     expect(followTitleMarks(group(item(1)), item(3, { audio: 'silent' })))
-      .toContain('data-follow-edition="silent">Silent edition');
+      .toContain('data-follow-edition="silent">Silent version');
     expect(followTitleMarks(group(item(1)))).toBe('');
   });
 
@@ -108,15 +108,15 @@ describe('Text before and after the title', () => {
     const mirror = item(2);
     const forum = item(3, { provider: 'somewhere', provider_label: 'A forum' });
     const badges = followBadges(group(primary, { duplicates: [mirror, forum] }), primary);
-    expect(badges).toBe('<span data-follow-seealso="" title="See also Kemono and a forum"><span data-follow-seealso-label="">See also</span> '
+    expect(badges).toBe('<span data-follow-seealso="" title="See also Kemono, A forum"><span data-follow-seealso-label="">See also</span> '
       + '<img data-follow-site-icon="" src="/source-icon?provider=kemono" alt="Kemono" title="Kemono" loading="lazy" data-drop="self">'
-      + '<span>Some forum</span></span>');
+      + '<span>A forum</span></span>');
     expect(followBadges(group(primary, { duplicates: [mirror] }), mirror)).toContain('See also Patreon');
     expect(followBadges(group(primary))).toBe('');
   });
 
   it('When media is not obtained the reason is stated; without an F95 session it distinguishes "partial" from "all"', () => {
-    expect(followMediaIssue(item(1, { media_error: '404' }), context())).toBe('Media unavailable: 404');
+    expect(followMediaIssue(item(1, { media_error: '404' }), context())).toBe('Media not fetched: 404');
     const needs = item(2, { provider: 'f95zone', media_needs_credential: true });
     expect(followMediaIssue(needs, context())).toBe('Media not fetched: an F95 sign-in session is needed to resolve');
     expect(followMediaIssue({ ...needs, playable: true }, context())).toBe('Some media not fetched: F95 login session required for parsing');
@@ -143,9 +143,9 @@ describe('Text before and after the title', () => {
   it('Times more than a day ahead render as-is with an "ahead of now" marker; clock skew within a day is not marked', () => {
     const now = Date.parse('2026-10-08T12:00:00Z');
     const future = item(1, { published_at: '2031-01-01T12:00:00Z' });
-    expect(followWhen(future, now)).toMatch(/^2031-01-01 \d\d:\d\d · 晚于现在$/);
+    expect(followWhen(future, now)).toMatch(/^2031-01-01 \d\d:\d\d · ahead of now$/);
     expect(followCompactWhen(future, now)).toBe('2031-01-01 · ahead of now');
-    expect(followWhen(item(2, { published_at: '2026-10-08T20:00:00Z' }), now)).not.toContain('Ahead of now');
+    expect(followWhen(item(2, { published_at: '2026-10-08T20:00:00Z' }), now)).not.toContain('ahead of now');
   });
 
   it('Short form in lists: this year drops the year, past years keep it', () => {

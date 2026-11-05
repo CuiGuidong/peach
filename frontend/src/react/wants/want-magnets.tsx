@@ -45,6 +45,7 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
   const [visible, setVisible] = useState(typeof IntersectionObserver === 'undefined');
   const [submitted, setSubmitted] = useState<string[]>([]);
   const action = useAction();
+  useEffect(() => { console.log('DBG-MOUNT'); return () => console.log('DBG-UNMOUNT'); }, []);
   const client = useQueryClient();
   const refresh = useRef(false);
   const cacheCode = queryUrl ? `comment-resources:${queryUrl}:${want.code}` : `all-sources:${want.code || ''}`;
@@ -99,7 +100,7 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
       setSubmitted((current) => [...current, candidate.id]);
       toast(result.outcome === 'submitted' ? `Download added: ${candidate.name}` : `Linked the existing download: ${candidate.name}`);
       void client.invalidateQueries({ queryKey: DOWNLOADS_KEY });
-    });
+    }, (cause) => { console.log('DBG-FAILED', (cause as Error)?.message, 'ERRFN===action.setError:', setError === action.setError); setError(cause instanceof Error ? cause.message : errorMessage(cause)); });
   };
   const copy = (candidate: MagnetCandidate) => {
     void action.run(`copy:${candidate.id}`, () => navigator.clipboard.writeText(candidate.uri),
@@ -122,7 +123,7 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
         trailingIcon={RiExternalLinkLine} href={query.data.source_url} target="_blank" rel="noopener noreferrer">View source page</ButtonLink> : null}
       {query.data?.state === 'ready' && !query.data.items.length && !query.data.warnings?.length
         ? <Note tone="neutral">No resource links found yet.</Note> : null}
-      {action.error ? <Note tone="error" title="Action not completed">{action.error}</Note> : null}
+      {console.log('DBG-ERR', JSON.stringify(action.error), 'busy=', action.busy, 'id=', (action as unknown as {__id?: number}).__id)}{action.error ? <Note tone="error" title="Action not completed">{action.error}</Note> : null}
       {query.data?.items.length ? (() => {
         const rows = query.data.items.map((candidate) => {
           const added = submitted.includes(candidate.id) || downloads?.tasks.some((task) => candidate.protocol === 'magnet' &&

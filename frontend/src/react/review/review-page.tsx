@@ -204,7 +204,10 @@ export function ReviewPage(props: ReviewProps) {
         setFeedback(`Processing ${at} / ${rows.length}`);
         try {
           const result = await submitDecision(decisionPayload(target, currentReviewRow(target, row), status, choiceOf(row)));
-          if (!result.ok) throw new Error(result.error || 'The server did not adopt this entry');
+          if (!result.ok) {
+            failures.push([row.item_key, result.error || 'The server did not adopt this entry']);
+            continue;
+          }
           done.push(row.item_key);
         } catch (cause) {
           failures.push([row.item_key, errorMessage(cause)]);

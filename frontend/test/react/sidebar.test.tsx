@@ -367,11 +367,11 @@ describe('Filter group', async () => {
     expect(body.querySelectorAll('[data-sidebar-chip]')).toHaveLength(30);
     const more = body.lastElementChild as HTMLButtonElement;
     expect(more.getAttribute('data-sidebar-more')).toBe('tag');
-    expect(more.getAttribute('aria-label')).toBe('Expand all content tags');
+    expect(more.getAttribute('aria-label')).toBe('Expand all Content tags');
     await click(more);
     expect(body.querySelectorAll('[data-sidebar-chip]')).toHaveLength(33);
     expect(more.getAttribute('aria-expanded')).toBe('true');
-    expect(more.getAttribute('aria-label')).toBe('Collapse content tags');
+    expect(more.getAttribute('aria-label')).toBe('Collapse Content tags');
     /* Collapsing takes the whole group: the group title announces the collapse on the spot and the body stops being focusable; `details.open` is only removed once the height transition finishes. */
     await click(more);
     expect(group(scroll, 'Content tags')!.querySelector('[data-sidebar-toggle]')!.getAttribute('aria-expanded')).toBe('false');
@@ -515,7 +515,7 @@ describe('Resident components', () => {
     expect(r.managedTaken(scroll)).toBe(false);
     expect(r.managedEntries().map((entry) => entry.path), 'Other faces still drawn').toEqual(['batch-dock']);
     await act(async () => { dock.render({ count: 2, context: 'catalog', junkDismissed: false }) });
-    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('2 items selected');
+    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('Selected 2 items');
 
     /* The shell still pushes a copy and flips the pressed state on every page change: no throw, no reopen, no further reporting. */
     await act(async () => {

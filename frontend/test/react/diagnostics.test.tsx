@@ -60,9 +60,9 @@ async function open(report = data()) {
 }
 it('Diagnostics jump to the exact config section; system permission items show actions only', async () => {
   const { host } = await open();
-  expect(linkNamed('Open Libraries and intake', host)?.getAttribute('href')).toBe('/settings/library');
-  expect(linkNamed('Open network and access', host)?.getAttribute('href')).toBe('/settings/network');
-  expect(buttonNamed('Open Libraries and intake', host)).toBeNull();
+  expect(linkNamed('Open Library and imports', host)?.getAttribute('href')).toBe('/settings/library');
+  expect(linkNamed('Open Network & access', host)?.getAttribute('href')).toBe('/settings/network');
+  expect(buttonNamed('Open Library and imports', host)).toBeNull();
   const root = [...host.querySelectorAll('h3')].find(node => node.textContent === 'Data directory')!.parentElement!.parentElement!;
   expect(root.textContent).toContain('Adjust permissions');
   expect(root.querySelector('button, a')).toBeNull();
@@ -77,8 +77,8 @@ it('Expands the video table and copies identifiable info; zero results have thei
   expect(props.openItem).toHaveBeenCalledWith(1);
   await click(buttonNamed('Copy the current list', host));
   await settle();
-  expect(clipboard.mock.calls[0][0]).toContain('Video A\tABC-123\tA.mp4\tLocal\tR:\\Media\\A.mp4');
-  expect(clipboard.mock.calls[0][0]).toContain('Video Beta\t\tBeta.mp4\tLocal\tR:\\Media\\Beta.mp4');
+  expect(clipboard.mock.calls[0][0]).toContain('Video A\tABC-123\t甲.mp4\tLocal\tR:\\Media\\甲.mp4');
+  expect(clipboard.mock.calls[0][0]).toContain('Video B\t\t乙.mp4\tLocal\tR:\\Media\\乙.mp4');
   expect(host.textContent).toContain('Unrecognized');
   expect(props.receipt).toHaveBeenCalledWith('List copied');
   expect(host.querySelector('[data-empty-state]')?.textContent).toContain('The list is empty');
@@ -114,10 +114,10 @@ it('The restore action\'s name matches its actual target', async () => {
   report.checks.ffmpeg = { label: 'Media tools', status: 'warning', reason: 'FFmpeg missing', action: 'Install tools', target: '/settings/maintenance', details: {} };
   report.checks.tasks = { label: 'Background tasks', status: 'warning', reason: 'Some tasks failed', action: 'View the reason', target: '/tasks', details: {} };
   const { host } = await open(report);
-  expect(linkNamed('Open network and access', host)?.getAttribute('href')).toBe('/settings/network');
-  expect(linkNamed('Open app and maintenance', host)?.getAttribute('href')).toBe('/settings/maintenance');
+  expect(linkNamed('Open Network & access', host)?.getAttribute('href')).toBe('/settings/network');
+  expect(linkNamed('Open App and maintenance', host)?.getAttribute('href')).toBe('/settings/maintenance');
   expect(linkNamed('View task', host)?.getAttribute('href')).toBe('/tasks');
-  expect(linkNamed('Open sources and credentials', host)?.getAttribute('href')).toBe('/sources');
+  expect(linkNamed('Open source and credentials', host)?.getAttribute('href')).toBe('/sources');
 });
 
 it('Diagnostic reports attach the browser environment at startup, and artifacts use direct download links', async () => {

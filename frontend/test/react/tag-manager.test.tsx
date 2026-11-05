@@ -64,7 +64,7 @@ describe('Manage tags', () => {
     await click(buttonNamed('Next page', host)); await settle();
     expect(host.querySelector('[data-tag-chip][data-k="tag-0"]')).toBeNull();
     await click(host.querySelector('[data-tag-chip][data-k="tag-100"]'));
-    expect(host.querySelector('[aria-label="Tag management actions"]')?.textContent).toContain('Selected 2 tags');
+    expect(host.querySelector('[aria-label="Tag management actions"]')?.textContent).toContain('2 tags selected');
     await click(buttonNamed('Previous page', host)); await settle();
     expect(host.querySelector('[data-tag-chip][data-k="tag-0"]')?.getAttribute('aria-pressed')).toBe('true');
     await click(buttonNamed('Next page', host)); await settle();
@@ -96,7 +96,7 @@ describe('Manage tags', () => {
     expect(host.querySelectorAll('[data-tag-chip]')).toHaveLength(0);
     await click(buttonNamed('Hidden', host));
     expect(host.querySelectorAll('[data-tag-chip]')).toHaveLength(0);
-    await click(buttonNamed('Content blocked', host));
+    await click(buttonNamed('Blocked content', host));
     await click(host.querySelector('[data-tag-chip]'));
     await click(buttonNamed('Restore content', host)); await settle();
     expect(commands.at(-1)).toEqual({ operation: 'unblock', ids: ['outdoors'], scope: 'online', token: 'content-plan' });
@@ -156,7 +156,7 @@ describe('Manage tags', () => {
     await type(document.querySelector('input[aria-label="Tag name"]'), 'Travel');
     await submit(document.querySelector('form')); await settle();
     expect((document.querySelector('input[aria-label="Tag name"]') as HTMLInputElement).value).toBe('Travel');
-    expect(document.body.textContent).toContain('Target name already exists');
+    expect(document.body.textContent).toContain('The target name already exists; use merge tag instead');
     expect(fetcher.mock.calls.filter(([url, init]) => url === '/api/tag-management' && init?.body)).toHaveLength(0);
   });
 });

@@ -170,7 +170,7 @@ describe('Shared player for the play wall', () => {
     const signal = new AbortController().signal;
     for (const extra of [{ cost: 'metered' }, { location: 'online' }]) {
       response(extra);
-      await expect(stage.mountWallPlayer(item(1), frame, signal)).rejects.toThrow('Please open details');
+      await expect(stage.mountWallPlayer(item(1), frame, signal)).rejects.toThrow('Open details to confirm the metered source');
     }
     response(); offline = true;
     await expect(stage.mountWallPlayer(item(1), frame, signal)).rejects.toThrow('Source not mounted');
@@ -254,7 +254,7 @@ describe('The mini window\'s own keys', () => {
     settings.seekSeconds = 15;
     show(1).leave(true);
     const { player } = fake.mounts[0]!;
-    expect(dom.back.getAttribute('aria-label')).toBe('Rewind 15 sec');
+    expect(dom.back.getAttribute('aria-label')).toBe('Back 15 sec');
     expect(dom.ahead.title).toBe('Forward 15 sec');
     player.time = 90;
     stage.seekMiniplayer(1);

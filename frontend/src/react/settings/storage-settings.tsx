@@ -57,7 +57,7 @@ function Measuring({ job }: { job: StorageState['job'] }) {
             <Progress label="Usage progress" value={Math.min(files, expected * 0.99)} max={expected} />
             <Help>{reading}, last time {expected.toLocaleString()} items</Help>
           </>
-        : <LoadingDots label="'Measuring disk usage" />}
+        : <LoadingDots label="Measuring disk usage" />}
       {!expected ? <Help>{reading}</Help> : null}
     </div>
   );
@@ -167,7 +167,7 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
   const status = accepted
     || (storage.job.state === 'cleaning' ? `Cleaning${cleaningLabel || ''}…`
       : storage.job.state === 'measuring' ? 'Calculating disk usage…'
-        : chosen.length ? `${chosen.length} categories selected, ${fmtSize(chosen.reduce((sum, item) => sum + item.reclaimable, 0))} reclaimable`
+        : chosen.length ? `${chosen.length} ${chosen.length === 1 ? 'category' : 'categories'} selected, ${fmtSize(chosen.reduce((sum, item) => sum + item.reclaimable, 0))} releasable`
           : usage ? `Measured at ${new Date(usage.measured_at * 1000).toLocaleString()}` : '');
   const locked = running || Boolean(accepted);
   const toggle = (key: string) => (next: boolean) => setPicked((current) => {

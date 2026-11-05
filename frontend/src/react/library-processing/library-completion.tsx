@@ -54,7 +54,7 @@ function Completion({ assetIds, onComplete, className }: { assetIds: number[]; o
       || completed.current === started) return;
     completed.current = started;
     if (state.status === 'complete') {
-      setOutcome(`Backfill complete: fetched ${state.covers || 0} covers and generated ${state.previews || 0} video previews.`);
+      setOutcome(`Backfill complete: fetched ${state.covers || 0} ${(state.covers || 0) === 1 ? 'cover' : 'covers'} and generated ${state.previews || 0} video previews.`);
     }
     void queryClient.invalidateQueries({ queryKey: ['catalog-grid'] });
     onComplete?.();
@@ -64,7 +64,7 @@ function Completion({ assetIds, onComplete, className }: { assetIds: number[]; o
   const problem = start.error ? errorMessage(start.error) : job.error ? DISCONNECTED_TEXT
     : started && state?.job_id === started && state.status === 'failed' ? state.error || 'Completion unfinished' : '';
   const message = problem || (start.isPending ? 'Starting completion…'
-    : outcome || `${assetIds.length.toLocaleString()} of these videos have no preview yet. ${processingActive(state) ? 'You can complete them individually after the current task finishes.' : 'You can complete profiles and images.'}`);
+    : outcome || `${assetIds.length.toLocaleString()} of these videos ${assetIds.length === 1 ? 'has' : 'have'} no preview yet. ${processingActive(state) ? 'You can complete them individually after the current task finishes.' : 'You can complete profiles and images.'}`);
   return <section aria-label="Complete previews" aria-live="polite" data-library-completion="" className={cx('@container', className)}>
     <Note tone={problem ? 'warning' : 'neutral'} action={<div className="flex flex-wrap items-center gap-2"><ProcessingActions busy={busy} metadataOnly={state?.metadata_only} onRun={command => {
       if (busy) return;
