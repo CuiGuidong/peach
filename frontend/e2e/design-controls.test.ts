@@ -165,7 +165,7 @@ describe('Design decisions: controls, states, and the home top', () => {
   it('The persistent warning is a status color block, not sharing the gray small print with field descriptions', { timeout: 60_000 }, async () => {
     const opened = await openAccess(browser);
     try {
-      await opened.form.getByRole('checkbox', { name: '关闭访问密码', exact: true }).locator('xpath=ancestor::label[1]').click({ timeout: 5_000 });
+      await opened.form.getByRole('checkbox', { name: 'Disable access password', exact: true }).locator('xpath=ancestor::label[1]').click({ timeout: 5_000 });
       const note = opened.form.locator('[role="note"]');
       await note.waitFor({ timeout: 5_000 });
       const surface = await note.evaluate((element) => getComputedStyle(element).backgroundColor);
@@ -201,7 +201,7 @@ describe('Design decisions: controls, states, and the home top', () => {
     }
   });
 
-  it('任务结果成功绿、失败和取消红、中断黄，排队中性', { timeout: 60_000 }, async () => {
+  it('Task results: green for success, red for failure and cancellation, yellow for interruption, neutral for queued', { timeout: 60_000 }, async () => {
     const opened = await openActivity(browser, [
       settledRun(1, 'succeeded', 'Update check'), settledRun(2, 'failed', 'Scan and scrape'),
       settledRun(3, 'cancelled', 'Bulk actions'), settledRun(4, 'pending', 'Command-line batch processing'),
@@ -573,7 +573,7 @@ describe('Design decisions: controls, states, and the home top', () => {
     }
   });
 
-  it('数字首写静态、变值弹入；筛选读数原位淡入淡出并保留控件', { timeout: 60_000 }, async () => {
+  it('Numbers start static and pop in on change; filter readings cross-fade in place while keeping their controls', { timeout: 60_000 }, async () => {
     const opened = await openCatalogFixture(browser, (payload, url) => {
       payload.total = url.searchParams.has('q') ? 34 : 12;
     });
@@ -609,7 +609,7 @@ describe('Design decisions: controls, states, and the home top', () => {
       await page.route('**/api/items?**', async route => { await held; await route.fallback() });
       await page.evaluate(() => { Object.assign(window, { countFrame: document.querySelector('[data-catalog-frame]') }) });
       try {
-        await input.fill('读数变值');
+        await input.fill('Count changes');
         await input.press('Enter');
         await page.waitForFunction(() => document.querySelector('[data-catalog-readout] [data-async-text]')?.getAttribute('aria-busy') === 'true');
         const fading = await readout.evaluate(node => {
@@ -620,11 +620,11 @@ describe('Design decisions: controls, states, and the home top', () => {
             same: (window as unknown as { countFrame: Element }).countFrame === document.querySelector('[data-catalog-frame]') };
         });
         assert.equal(fading.hidden, 'true');
-        assert.ok(fading.transition.includes('opacity') && fading.duration > 0, '读数缺少淡入淡出');
-        assert.ok(before && Math.abs(fading.width - before.width) <= 1, '等待骨架没有保留读数宽度');
-        assert.equal(fading.same, true, '加载读数替换了筛选控件');
+        assert.ok(fading.transition.includes('opacity') && fading.duration > 0, 'The reading is missing its cross-fade');
+        assert.ok(before && Math.abs(fading.width - before.width) <= 1, 'The waiting skeleton did not keep the reading\'s width');
+        assert.equal(fading.same, true, 'The loading reading replaced the filter controls');
       } finally { release() }
-      await page.waitForFunction(() => document.querySelector('[data-catalog-readout]')?.textContent?.includes('34 个符合'));
+      await page.waitForFunction(() => document.querySelector('[data-catalog-readout]')?.textContent?.includes('34 matches'));
       assert.equal(await readout.getAttribute('aria-busy'), null);
       assert.equal(await readout.locator('[data-async-text-value]').getAttribute('aria-hidden'), null);
     } finally {

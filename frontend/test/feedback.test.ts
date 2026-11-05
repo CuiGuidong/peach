@@ -22,7 +22,7 @@ describe('Chinese error feedback',()=>{
     expect(text).not.toContain('Proxy');
   });
   it('Keep the explicit server side Chinese reason',()=>{
-    expect(requestErrorMessage('媒体盘没有挂载，请先连接媒体盘。',409)).toBe('媒体盘没有挂载，请先连接媒体盘。');
+    expect(requestErrorMessage('The media drive is not mounted; connect it first.',409)).toBe('The media drive is not mounted; connect it first.');
   });
 });
 describe('Persistent note control',()=>{

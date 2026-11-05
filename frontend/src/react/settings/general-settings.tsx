@@ -42,7 +42,7 @@ export function StartupSettings({ startup, receipt }: { startup: StartupState; r
   };
 
   return (
-    <Section guide="startup" title="开机自启" onSubmit={submit}>
+    <Section guide="startup" title="Start at sign-in" onSubmit={submit}>
       <Rows>
         <SettingsRow label="Start Peach after sign-in">
           <Switch aria-label="Start Peach after sign-in" isSelected={enabled} isDisabled={!startup.available} onChange={setEnabled} />

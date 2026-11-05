@@ -40,10 +40,10 @@ it('Successful table ratings sync the list and details caches; failures keep the
   await settle();
   expect(queryClient.getQueryData(['item', 1])).toMatchObject({ id: 1, rating: 80, name: 'Sample video' });
   expect(queryClient.getQueryData(['catalog-grid', 'table', 'fixture'])).toMatchObject({ items: [{ id: 1, rating: 80 }] });
-  rate.mockRejectedValueOnce(new Error('示例评分失败'));
+  rate.mockRejectedValueOnce(new Error('Sample rating failed'));
   await click(root.host.querySelector('button[aria-label="Rate 5 stars"]'));
   await settle();
-  expect(root.host.textContent).toContain('示例评分失败');
+  expect(root.host.textContent).toContain('Sample rating failed');
   const retry = [...root.host.querySelectorAll('button')].find(button => button.getAttribute('aria-label') === 'Retry rating')!;
   await act(async () => retry.click());
   await settle();

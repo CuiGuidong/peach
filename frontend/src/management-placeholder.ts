@@ -49,8 +49,8 @@ const reviewSkeletonHtml = (label = 'Reading the review queue'): string => `<div
 
 const PLACEHOLDERS: Record<string, () => string> = {
   '/data-cleanup': () => cleanupSkeletonHtml(),
-  '/data-cleanup/media-repair': () => `<div class="peach-react" data-skeleton="cleanup/media-repair" aria-busy="true" role="status" aria-label="正在读取媒体修复状态"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">${repairCardSkeletonHtml()}</div></div>`,
-  // /resource-sync 只是数据管理页上的一个锚点，占位也该是数据管理那张。
+  '/data-cleanup/media-repair': () => `<div class="peach-react" data-skeleton="cleanup/media-repair" aria-busy="true" role="status" aria-label="Loading the media repair status"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">${repairCardSkeletonHtml()}</div></div>`,
+  // /resource-sync is just an anchor on the data management page, so the placeholder should be the data management card too.
   '/resource-sync': () => cleanupSkeletonHtml(),
   '/review': () => reviewSkeletonHtml(),
   /* The collection sources are a stack of equal-width Fieldsets in the 812px narrow column: one hi-res cover plus six sources. The skeleton draws four,

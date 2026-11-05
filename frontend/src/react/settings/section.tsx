@@ -26,8 +26,8 @@ interface SectionProps {
   children: ReactNode;
 }
 
-/* 分区里的说明、报错与读数常带长 URL、堆栈和无空格路径：整个分区按 `overflow-wrap:anywhere`
-   就地折断（属性会继承，行内说明、Help 与读数都跟着走），不把卡片撑出横向滚动。 */
+/* Sections' descriptions, errors, and readings often carry long URLs, stacks, and spaceless paths: the whole section breaks in place with
+   `overflow-wrap:anywhere` (the property inherits, so inline descriptions, Help, and readings follow), without stretching cards into horizontal scroll. */
 export function Section({ title, guide, icon, id, aside, onSubmit, children }: SectionProps) {
   const label = icon ? <span className="inline-flex items-center gap-1.5">{icon}{title}</span> : title;
   const body = (

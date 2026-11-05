@@ -26,7 +26,7 @@ describe('Profile page favorite and alias layout', () => {
       });
       try {
         await page.goto(new URL('/studios/Prestige', page.url()).href);
-        const favorite = page.getByRole('button', { name: '收藏Prestige', exact: true });
+        const favorite = page.getByRole('button', { name: 'Favorite Prestige', exact: true });
         await favorite.waitFor();
         await settle(page);
         const geometry = await page.evaluate(() => {

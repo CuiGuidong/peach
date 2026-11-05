@@ -102,7 +102,7 @@ function GridBody(props: CatalogGridProps) {
     refetchOnMount: entity && retained ? 'always' : false,
   });
 
-  /* 一次取数落定就告诉壳一次，成功、为空、失败都算：壳里 `await` 这次重读的调用方据此放行。 */
+  /* Tell the shell once per settled fetch, success, empty, and failure alike: callers in the shell awaiting this re-read are released on it. */
   const settledRevision = useRef<number | null>(null);
   useEffect(() => {
     if (result.isPending || result.isPlaceholderData || settledRevision.current === props.revision) return;
@@ -328,7 +328,7 @@ function useShortsStrips(
     const addedFrom = Math.max(0, (pageStarts[arrived.page] ?? 0) - start);
     const boundaries = shortsBoundaries(tiles.length - start, addedFrom, columns);
     if (!boundaries.length) return;
-    /* 落点定了才折叠：剪不出落点的这一批下次照原偏移量重取，不能先记成已出现。 */
+    /* Collapse only once the anchor is decided: a batch that yields no anchor is refetched at the same offset next time and must not be recorded as seen yet. */
     const items = collapseGroups(arrived.items, own.groups, props.groupCollapse !== false);
     own.offset = arrived.more ? own.offset + SHORTS_BATCH : 0;
     if (!items.length) return;

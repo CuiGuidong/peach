@@ -48,10 +48,10 @@ export function cleanupSkeletonHtml(): string {
   const heading = (label: string) => `<h2 class="text-title-2-medium! m-0! text-text-primary">${label}</h2>`;
   const tools = (deletion: boolean) => CLEANUP_TOOLS.filter(tool => (tool.key === 'batch-delete') === deletion)
     .map(tool => entry(tool.title, tool.icon, tool.description)).join('');
-  return `<div class="peach-react" data-skeleton="cleanup" aria-busy="true" role="status" aria-label="正在读取数据管理状态"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">
-    <section class="flex flex-col gap-4">${heading('待处理事项')}<div class="${PLAIN_STAT_STRIP}">${[['人工复核', 'square-check-big'], ['重复文件', 'file-stack'], ['垃圾文件', 'file-archive'], ['高清版', 'sparkles'], ['回收站', 'trash']].map(([label, glyph]) => stat(label!, glyph!)).join('')}</div></section>
+  return `<div class="peach-react" data-skeleton="cleanup" aria-busy="true" role="status" aria-label="Loading the data management status"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">
+    <section class="flex flex-col gap-4">${heading('Pending review')}<div class="${PLAIN_STAT_STRIP}">${[['Manual review', 'square-check-big'], ['Duplicates', 'file-stack'], ['Junk files', 'file-archive'], ['HD version', 'sparkles'], ['Trash', 'trash']].map(([label, glyph]) => stat(label!, glyph!)).join('')}</div></section>
     <div id="libraryProcessing" class="scroll-mt-20">${scanCardSkeletonHtml()}</div>
-    <section class="flex flex-col gap-4">${heading('整理与维护')}<div class="${CLEANUP_ENTRY_GRID}">${tools(false)}</div></section>
-    <section class="flex flex-col gap-4">${heading('清理与删除')}<div class="${CLEANUP_ENTRY_GRID}">${tools(true)}</div></section>
+    <section class="flex flex-col gap-4">${heading('Organize and maintain')}<div class="${CLEANUP_ENTRY_GRID}">${tools(false)}</div></section>
+    <section class="flex flex-col gap-4">${heading('Clean up and delete')}<div class="${CLEANUP_ENTRY_GRID}">${tools(true)}</div></section>
     </div></div>`;
 }

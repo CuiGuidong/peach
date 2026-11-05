@@ -92,10 +92,10 @@ describe('Link-check identity and dead-link motion', () => {
       } finally { await opened.close(); }
     });
 
-    it(`默认头像与两类 HTTP 结果在明暗主题均可辨识（${viewport.name}）`, async () => {
+    it(`The default avatar and both HTTP outcomes are distinguishable in light and dark themes (${viewport.name})`, async () => {
       const opened = await visit(browser, '/data-cleanup/links', viewport, async page => {
-        const row = { id: 1, entity: '示例作者', entity_id: 31, entity_kind: 'performer',
-          face: { has_image: false }, link_kind: 'social', label: '示例站点', url: 'https://example.com', note: 'HTTP 404' };
+        const row = { id: 1, entity: 'Example author', entity_id: 31, entity_kind: 'performer',
+          face: { has_image: false }, link_kind: 'social', label: 'Example site', url: 'https://example.com', note: 'HTTP 404' };
         await page.route('**/api/links/check', route => route.fulfill({ json: { status: 'complete', check_id: 'contrast',
           gone: [row], unclear: [{ ...row, id: 2, note: 'HTTP 502' }], checked: 2, total: 2 } }));
         await page.route('**/link-mark?**', route => route.fulfill({ contentType: 'image/svg+xml',

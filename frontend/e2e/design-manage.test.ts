@@ -66,11 +66,11 @@ describe('Design decisions: data management, index page, and profile headers', (
   });
 
   const cleanupCards = [
-    { path: '/data-cleanup', label: '扫描与采集', skeleton: 'cleanup', names: ['同步新增文件', '更多同步方式'] },
-    { path: '/data-cleanup/media-repair', label: '媒体修复', skeleton: 'cleanup/media-repair', names: ['开始修复'] },
+    { path: '/data-cleanup', label: 'Scan and scrape', skeleton: 'cleanup', names: ['Sync new files', 'More sync options'] },
+    { path: '/data-cleanup/media-repair', label: 'Media repair', skeleton: 'cleanup/media-repair', names: ['Start repair'] },
   ];
   for (const viewport of [DESKTOP, MOBILE]) for (const item of cleanupCards) {
-    it(`${item.label}骨架与内容卡共用外框、内边距和操作区布局（${viewport.name}）`, { timeout: 60_000 }, async () => {
+    it(`The ${item.label} skeleton shares the content card's frame, padding, and action-area layout (${viewport.name})`, { timeout: 60_000 }, async () => {
       const opened = await visit(browser, item.path, viewport);
       try {
         const page = opened.page;
@@ -89,45 +89,45 @@ describe('Design decisions: data management, index page, and profile headers', (
         }));
         const waiting = await geometry();
         assert.equal(waiting.length, 1);
-        assert.equal(waiting[0]!.face[3], '1px', '骨架卡缺少外框');
+        assert.equal(waiting[0]!.face[3], '1px', 'The skeleton card lacks its outer frame');
         const expected = await disabledTokens(page);
         const faces = await waitingActionFaces(page, `[data-skeleton="${item.skeleton}"] [data-skeleton-action]`);
         assert.deepEqual(faces.map(face => face.name).filter(Boolean), item.names);
         for (const face of faces) assertDisabledFace(face, expected);
         const buttons = page.locator(`${card} footer button`).filter({ hasText: /同步新增文件|开始修复/ }).or(
-          page.locator(`${card} footer button[aria-label="更多同步方式"]`));
+          page.locator(`${card} footer button[aria-label="More sync methods"]`));
         const sizes = await buttons.evaluateAll(nodes => nodes.map(node => {
           const box = node.getBoundingClientRect();
           return [box.width, box.height];
         }));
         if (item.skeleton === 'cleanup') {
           const ring = await page.locator(`${card} [data-split-button]`).evaluate(node => getComputedStyle(node).boxShadow);
-          assert.ok(ring.includes(expected.ring), `骨架分体键外圈不是禁用描边：${ring}`);
+          assert.ok(ring.includes(expected.ring), `The skeleton part-key outer ring is not the disabled stroke: ${ring}`);
         }
         release();
         await page.locator(`${card} footer button:not([data-skeleton-action])`).first().waitFor({ timeout: 15_000 });
         await settle(page);
-        assert.deepEqual(await geometry(), waiting, '骨架与内容卡的容器布局不一致');
+        assert.deepEqual(await geometry(), waiting, 'The skeleton and content card container layouts disagree');
         assert.deepEqual(await buttons.evaluateAll(nodes => nodes.map(node => {
           const box = node.getBoundingClientRect();
           return [box.width, box.height];
-        })), sizes, '操作按钮接管时尺寸跳变');
+        })), sizes, 'The action button\'s size jumps when it takes over');
         assert.deepEqual(await buttons.evaluateAll(nodes => nodes.map(node => (node as HTMLButtonElement).disabled)), item.names.map(() => false));
         for (const face of await buttons.evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundImage))) {
-          assert.match(face, /gradient/, '数据到了操作按钮仍未恢复主操作样式');
+          assert.match(face, /gradient/, 'Once data arrives the action button still has not regained its primary style');
         }
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close() }
     });
   }
 
-  it('工具页标题采用 medium，链接读数使用既定字号与行高', { timeout: 60_000 }, async () => {
+  it('Tool page headings use medium; link readings use the established size and line height', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/data-cleanup/links', DESKTOP);
     try {
       const page = opened.page;
       for (const [path, id, name] of [
-        ['/data-cleanup/links', 'link-manager', '链接管理'],
-        ['/data-cleanup/resource-sync', 'resource-sync', '资源同步'],
+        ['/data-cleanup/links', 'link-manager', 'Link management'],
+        ['/data-cleanup/resource-sync', 'resource-sync', 'Resource sync'],
       ]) {
         await page.goto(new URL(path!, page.url()).href);
         await page.locator(`#${id}-title`).waitFor({ timeout: 15_000 });
@@ -136,8 +136,8 @@ describe('Design decisions: data management, index page, and profile headers', (
           const css = getComputedStyle(node);
           return [css.fontSize, css.fontWeight, css.lineHeight, css.marginBottom];
         });
-        assert.deepEqual(heading, ['20px', '500', '26px', '8px'], `${name}标题样式`);
-        assert.equal(await page.locator(`#${id} > h2, #${id} > h3`).count(), 0, '出现了框外标题');
+        assert.deepEqual(heading, ['20px', '500', '26px', '8px'], `${name} heading style`);
+        assert.equal(await page.locator(`#${id} > h2, #${id} > h3`).count(), 0, 'An out-of-frame title appeared');
         if (id === 'link-manager') {
           const styles = await page.locator('#link-manager .link-stat-grid').evaluate(node => {
             const label = getComputedStyle(node.querySelector('span')!);
@@ -1107,7 +1107,7 @@ describe('Design decisions: data management, index page, and profile headers', (
         assert.equal(debut.title, PROFILED.profile.debut_title, 'The debut cell\'s title does not give the full name');
         assert.deepEqual([debut.wrap, debut.cut, debut.lines], ['nowrap', 'ellipsis', 1], 'The debut title never truncates to one line');
         const page_ = await layout(opened.page);
-        assert.ok(page_.scrollWidth <= page_.viewportWidth, `页头把页面撑出了横向滚动: ${page_.offenders.join(', ')}`);
+        assert.ok(page_.scrollWidth <= page_.viewportWidth, `The page header pushes the page into horizontal scrolling: ${page_.offenders.join(', ')}`);
         assert.deepEqual(opened.problems, []);
       } finally {
         await opened.close();

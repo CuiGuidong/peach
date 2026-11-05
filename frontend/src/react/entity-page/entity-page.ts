@@ -131,7 +131,7 @@ export interface EntityPageProps extends SharedGridProps {
   kind: string;
   resolvedEntity?: EntityPageData;
   restoreNavigation?: boolean;
-  /** 路由通过实体 ID 取得的规范名。 */
+  /** The canonical name the route obtained via the entity ID. */
   name: string;
   filters: EntityFilters;
   media: EntityMedia;

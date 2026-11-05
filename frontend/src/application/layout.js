@@ -57,8 +57,8 @@ export function enterManagementSurface(){
 
 export function showHomeSurfaces(){
   $('#javLibraryHeader').hidden=!isCatalogPath(location.pathname)||!javActive();
-  // 两个类都要清：只清 entity-open 会让从索引页回首页时顶栏一直空着，
-  // 而且下面那一行 style.display='' 恢复不了被 class 隐藏的元素。
+  // Both classes must be cleared: removing only entity-open leaves the top bar empty for good when going from the index page back home,
+  // Also, the style.display='' line below cannot restore elements hidden by a class.
   document.body.classList.remove('entity-open','index-open');
   /* Both the index page and the profile page are rendered into #index by the route tree, and both paths pass through here before laying the skeleton: covering it outright would leave the previous page's
      React subtree unmounted, keeping a root managing nodes no longer on the page. This only reclaims the `#index` page; the admin

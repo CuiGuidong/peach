@@ -361,7 +361,7 @@ describe('Filter box', () => {
     expect(cells(host)).toHaveLength(2);
     expect(host.querySelector('[data-index-body] [aria-busy="true"]')).not.toBeNull();
     expect(host.querySelector('[data-index-body] [data-content-current]')?.hasAttribute('inert')).toBe(true);
-    await answer.release({ items: [person('甲')], has_more: false });
+    await answer.release({ items: [person('Alpha')], has_more: false });
     await settle();
     expect(cells(host)).toHaveLength(1);
     expect(host.querySelector('[data-index-body] [aria-busy="true"]')).toBeNull();

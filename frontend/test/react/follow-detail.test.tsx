@@ -141,7 +141,7 @@ describe('Fetching', () => {
   it('Failed manual tags can reopen the picker to retry the original input with the reason shown', async () => {
     const fallback = serve();
     vi.stubGlobal('fetch', vi.fn((url: string, init?: RequestInit) => url === '/api/follow/tag'
-      ? Promise.resolve({ ok: false, status: 400, json: async () => ({ error: '标签名不含逗号' }) }) : fallback(url, init)));
+      ? Promise.resolve({ ok: false, status: 400, json: async () => ({ error: 'Tag name contains no comma' }) }) : fallback(url, init)));
     const { host, actions: receipts } = await show(data(item(8)));
     await click(host.querySelector('[aria-label="Add tag"]'));
     const input = host.querySelector<HTMLInputElement>('#tagPickSearch')!;
@@ -149,7 +149,7 @@ describe('Fetching', () => {
     await click(host.querySelector('[data-pick="a,b"]')); await settle();
     await click(host.querySelector('[aria-label="Add tag"]'));
     expect(input.value).toBe('a,b');
-    expect(host.textContent).toContain('标签名不含逗号');
+    expect(host.textContent).toContain('Tag name contains no comma');
     expect(receipts.toast).not.toHaveBeenCalled();
   });
 

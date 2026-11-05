@@ -274,13 +274,13 @@ describe('Navigation', () => {
     expect(scroll.querySelector('[data-nav=""]')!.getAttribute('aria-pressed')).toBe('false');
   });
 
-  it('双击导航只请求回顶，不重建栏目内容', async () => {
+  it('Double-clicking navigation only requests a scroll to top and never rebuilds section content', async () => {
     const { scroll, host } = await setup();
     act(() => { scroll.querySelector('[data-nav=""]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) });
     expect(host.navToTop).toHaveBeenCalledOnce();
   });
 
-  it('键盘下移一项：先落本地 store，再写 /api/settings', async () => {
+  it('Arrow-down on the keyboard: land in the local store first, then write /api/settings', async () => {
     const fetcher = fetchMock(200, { sidebarOrder: ['unseen', '', 'follow'] });
     vi.stubGlobal('fetch', fetcher);
     const { scroll, store } = await setup();

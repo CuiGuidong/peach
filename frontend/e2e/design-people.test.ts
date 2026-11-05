@@ -83,7 +83,7 @@ describe('Design decisions: person and label profile pages', () => {
         // On narrow screens the dropdown overlaps the back button's column; like the top bar's edges it leaves 8 on each side, and does not indent under the search box.
         if (viewport.mobile) assert.deepEqual(shown.edges, [8, 8], 'On narrow screens the dropdown\'s side padding is not 8');
         const page_ = await layout(page);
-        assert.ok(page_.scrollWidth <= page_.viewportWidth, `下拉把页面撑出了横向滚动: ${page_.offenders.join(', ')}`);
+        assert.ok(page_.scrollWidth <= page_.viewportWidth, `The dropdown pushes the page into horizontal scrolling: ${page_.offenders.join(', ')}`);
 
         await menu.getByRole('tab', { name: /^女优/ }).click();
         await page.waitForFunction(() => document.querySelectorAll('#searchMenu [data-search-group][data-kind]').length === 1);
@@ -126,7 +126,7 @@ describe('Design decisions: person and label profile pages', () => {
       });
       assert.equal(grid.rows, 1, 'The five videos did not share one line');
       assert.ok(grid.slack <= 1, `${grid.slack}px sit empty to the cover cell's right`);
-      assert.ok(grid.widths.every((width) => width >= 96 && width <= 242), `Cover宽度越出 96～242: ${grid.widths.join(', ')}`);
+      assert.ok(grid.widths.every((width) => width >= 96 && width <= 242), `Cover width escapes 96-242: ${grid.widths.join(', ')}`);
       assert.deepEqual(opened.problems, []);
     } finally {
       await opened.close();
@@ -439,7 +439,7 @@ describe('Design decisions: person and label profile pages', () => {
         assert.deepEqual([frame.maxWidth, frame.maxHeight], ['none', 'none'], `${where}'s image is clamped by preflight's max-width`);
         assert.ok(frame.width > frame.ring, `${where} is not zoomed to the face box: image width ${frame.width}px, ring ${frame.ring}px`);
         assert.ok(Math.abs(frame.aspect - TASTE_FACE.imgW / TASTE_FACE.imgH) < .02, `The image at ${where} has aspect ${frame.aspect} and is squashed`);
-        assert.ok(frame.gaps.every((gap) => gap <= .5), `${where}的图没盖满圆框: ${frame.gaps.join(', ')}`);
+        assert.ok(frame.gaps.every((gap) => gap <= .5), `The image at ${where} does not fill the round frame: ${frame.gaps.join(', ')}`);
         if (where === 'Lead slot') assert.equal(frame.initial, 'none', 'When the large slot has an image, the initial letter does not yield');
       }
       assert.deepEqual(opened.problems, []);
@@ -466,12 +466,12 @@ describe('Design decisions: person and label profile pages', () => {
           };
         });
         // Padding a backing layer makes the disc one step darker than its surroundings, which reads as the link being disabled.
-        assert.ok(row.discs.every((fill) => fill === 'rgba(0, 0, 0, 0)'), `外链圆盘垫了底色: ${row.discs.join(', ')}`);
+        assert.ok(row.discs.every((fill) => fill === 'rgba(0, 0, 0, 0)'), `The external-link disc has a backing color: ${row.discs.join(', ')}`);
         assert.deepEqual(row.glyph, row.plate, 'Social glyphs do not fill the disc, exposing the backing at the field-colored corners');
         if (viewport.mobile) {
           // Plain `center` pushes the first half of the row before the scroll origin when it overflows, so those items cannot be scrolled to.
           assert.deepEqual([row.wrap, row.overflowX, row.justify], ['nowrap', 'auto', 'safe center'], 'Narrow-screen external links are not one sideways row');
-          assert.ok(row.edges.every((gap) => Math.abs(gap) < 0.5), `窄屏外链的滚动层没有顶到卡沿: ${row.edges.join(', ')}`);
+          assert.ok(row.edges.every((gap) => Math.abs(gap) < 0.5), `On the narrow screen the external link's scrolling layer does not reach the card edge: ${row.edges.join(', ')}`);
         } else {
           assert.equal(row.wrap, 'wrap', 'Desktop external links should wrap, never scroll sideways');
         }
@@ -653,7 +653,7 @@ describe('Design decisions: person and label profile pages', () => {
       assert.notEqual(face.radius, '50%', 'The label\'s mark box painted as a circle');
       // Logos follow the "never upscale an image smaller than the frame" group: contain does not crop the wordmark and shrinks larger ones to the frame, so it still fills.
       assert.equal(face.fit, 'contain', 'The label mark got cropped into a fill');
-      assert.ok(face.gaps.every((gap) => Math.abs(gap) < 0.5), `标识没盖满方框: ${face.gaps.join(', ')}`);
+      assert.ok(face.gaps.every((gap) => Math.abs(gap) < 0.5), `The mark does not fill the square frame: ${face.gaps.join(', ')}`);
       const site = await page.locator('[data-entity-links] a[data-link="url"]').evaluate((a) => ({
         text: a.querySelector('[data-link-label]')?.textContent ?? '',
         spacing: parseFloat(getComputedStyle(a).letterSpacing) / parseFloat(getComputedStyle(a).fontSize),

@@ -49,13 +49,13 @@ const FOLLOWUP_ROWS = 50;
 /** It only dispatches successor tasks: one round is just 'how many were scheduled'; what matters is the results of those items. */
 const DISPATCHERS = new Set(['upgrade-repairs']);
 
-/* 完成绿、失败与已取消红、进行中蓝、意外中断黄，排队为中性。 */
+/* 完成绿、失败与已取消红、Running蓝、意外中断黄，排队为中性。 */
 const BADGE_COLORS: Record<string, 'lime' | 'rose' | 'yellow' | 'blue' | 'neutral'> = {
   succeeded: 'lime', failed: 'rose', cancelled: 'rose', interrupted: 'yellow', running: 'blue', pending: 'neutral',
 };
 
 const CONTROL_LABELS: Record<TaskControlState, string> = {
-  running: '进行中', pausing: '正在暂停', paused: '已暂停', cancelling: '正在取消',
+  running: 'In progress', pausing: 'Pausing', paused: 'Paused', cancelling: 'Cancelling',
 };
 
 function StatusBadge({ run }: { run: TaskRunPayload }) {
@@ -99,7 +99,7 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
               <TaskControls run={row} />
             </div>
             <TaskResources run={row} />
-            {/* 排队中的那些还没有结果：空的「技术详情」展开只有一对花括号。 */}
+            {/* Queued ones have no results yet: an empty "Technical details" expands to just a pair of braces. */}
             {Object.keys(row.result_summary || {}).length
               ? <div className="w-full min-w-0">
                   <Disclosure summary="Technical details" contentClassName="pb-2.5">
@@ -181,7 +181,7 @@ function RunningRun({ run, followups }: { run: TaskRunPayload; followups?: TaskR
   const current = run.progress_current || 0;
   const control = run.control?.state;
   const stopping = control && control !== 'running';
-  const label = stopping ? CONTROL_LABELS[control] : run.progress_label || '正在进行';
+  const label = stopping ? CONTROL_LABELS[control] : run.progress_label || 'Running';
   const elapsed = elapsedText(run.elapsed_seconds);
   const meta = [TRIGGER_LABELS[run.trigger] || run.trigger, elapsed && `Ran for ${elapsed}`]
     .filter(Boolean).join(' · ');
@@ -229,13 +229,13 @@ function SettledRun(
     <RunCard run={run} meta={meta} footer={run.error} followups={followups} followupTotal={followupTotal}
       badge={followupCancelled && run.status === 'succeeded'
         ? <Chip color="rose"><span data-copy-key={`tasks.followups.cancelled.${followupCancelled === followupTotal ? 'all' : 'partial'}`}>
-            {followupCancelled === followupTotal ? '后续任务已取消' : '部分后续任务已取消'}
+            {followupCancelled === followupTotal ? 'Follow-up tasks cancelled' : 'Some follow-up tasks were cancelled'}
           </span></Chip>
-        : batches && followupFailed ? <Chip color="yellow">发现问题</Chip> : undefined}>
+        : batches && followupFailed ? <Chip color="yellow">Issues found</Chip> : undefined}>
       {followupCancelled ? <p className="text-caption-1-regular text-text-secondary">
-        后续任务已取消 {followupCancelled.toLocaleString()} 项
+        Follow-up tasks cancelled {followupCancelled.toLocaleString()} items
       </p> : null}
-      {/* 只有一句摘要时不加项目符号：单独一个圆点读起来像漏了下文。 */}
+      {/* No bullet when there is only one summary line: a lone dot reads like text missing below. */}
       {summary.length === 1
         ? <p className="text-caption-1-regular text-text-secondary wrap-anywhere">{summary[0]}</p>
         : summary.length ? <ul className="flex list-disc flex-col gap-1 pl-5 text-caption-1-regular text-text-secondary wrap-anywhere">
@@ -281,7 +281,7 @@ function WorkingRun(
     `Started ${momentText(oldest.started_at || oldest.finished_at)}`].filter(Boolean).join(' · ');
   return (
     <RunCard run={run} meta={meta} followups={followups} followupTotal={total} resourceActive
-      badge={run.control ? <StatusBadge run={run} /> : <Chip color="blue">进行中</Chip>}>
+      badge={run.control ? <StatusBadge run={run} /> : <Chip color="blue">Running</Chip>}>
       <div className="flex flex-col gap-1.5">
         <Progress label={`${run.task_label} progress`} value={settled} max={total} />
         <p className="text-caption-1-regular text-text-secondary">
@@ -358,7 +358,7 @@ export function ActivityPage() {
   const counts: FollowupCounts = { ...earlierCounts, ...data.followup_counts };
   const childrenOf = (runs: TaskRunPayload[]) => runs.flatMap((run) => byParent.get(run.id) || []);
   // A round that finished itself while its dispatched successors are still running counts as 'in progress': the whole job is not done yet, it goes under 'Recently finished'
-  // 就是一张卡上一个已完成、一个Running.页面上只列得到一部分后继，所以先看计数.
+  // 就是一张卡上一个Done、一个Running.页面上只列得到一部分后继，所以先看计数.
   const working = [...settled, ...topLevel(parents)].filter((run) => followupTally(counts, [run]).active > 0
     || byParent.get(run.id)?.some(isActive)).sort((a, b) => b.id - a.id);
   const running = topLevel(data.running || []);

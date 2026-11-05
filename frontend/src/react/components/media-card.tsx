@@ -56,14 +56,14 @@ const DISPOSAL_LABELS = { manual: 'Manual', junk: 'Junk', duplicate: 'Duplicates
 
 function missingDuration(item: MediaItem): { key: string; label: string } {
   // media_probe 将已探查但未取得时长记为 -1；NULL 才是尚未探查。
-  if (Number(item.duration) < 0) return { key: 'unavailable', label: '探查错误' };
-  if (item.duration != null) return { key: 'unknown', label: '时长未取得' };
-  if (item.location === 'online') return { key: 'online', label: '来源未提供时长' };
+  if (Number(item.duration) < 0) return { key: 'unavailable', label: 'Probe error' };
+  if (item.duration != null) return { key: 'unknown', label: 'Duration not obtained' };
+  if (item.location === 'online') return { key: 'online', label: 'The source gave no duration' };
   const path = String(item.path || item.name || '').toLowerCase();
-  if (item.is_strm || path.endsWith('.strm')) return { key: 'strm', label: 'STRM 不自动探查' };
-  if (path.endsWith('.iso')) return { key: 'iso', label: 'ISO 不自动探查' };
-  if (item.cost === 'metered') return { key: 'metered', label: '流量保护 · 未探查' };
-  return { key: 'pending', label: '尚未探查' };
+  if (item.is_strm || path.endsWith('.strm')) return { key: 'strm', label: 'STRM is never probed automatically' };
+  if (path.endsWith('.iso')) return { key: 'iso', label: 'ISO is never probed automatically' };
+  if (item.cost === 'metered') return { key: 'metered', label: 'Traffic protection · not probed' };
+  return { key: 'pending', label: 'Not probed yet' };
 }
 
 function DisposalReason({ item }: { item: MediaItem }) {
@@ -72,7 +72,7 @@ function DisposalReason({ item }: { item: MediaItem }) {
   return <span data-media-disposal-reason="" title={`Junk reason: ${label}`}>{label}</span>;
 }
 
-/** 视频与Resources共用Trash操作，失败原因留在卡片上供重试. */
+/** 视频与Resources共用Trash操作，失败原因留在卡片上供Retry. */
 function ResourceAction({ item, actions }: { item: MediaItem; actions: MediaCardActions }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');

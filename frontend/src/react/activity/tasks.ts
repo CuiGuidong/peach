@@ -131,7 +131,7 @@ export const fetchTasks = (signal?: AbortSignal) => apiGet<ActivityData>(TASKS_U
 export const controlTask = (id: number, action: TaskControlAction, signal?: AbortSignal) =>
   apiSend(`${TASKS_URL}/${id}/control`, { action }, 'POST', signal);
 
-/** 首屏：取完数才画。中止时 `fetchQuery` 把 `AbortError` 抛回给挂载方，它据此放弃这一次。 */
+/** First screen: paint only after the fetch completes. On abort, `fetchQuery` throws `AbortError` back to the mounting party, which gives up on this attempt. */
 export async function prefetchTasks(signal: AbortSignal): Promise<void> {
   await queryClient.fetchQuery({ queryKey: TASKS_KEY, queryFn: () => fetchTasks(signal) });
 }
@@ -335,17 +335,17 @@ export function readableErrorHeadline(text: string | null | undefined): string {
 }
 
 const OUTCOME_LABELS: Record<string, string> = {
-  partial: '处理已结束，部分项目需处理', complete: '处理完成', interrupted: '处理已中断',
-  cancelled: '已取消',
-  '没有新写法': '未发现新别名', '已装上': '已保存资料图片',
-  '已装着认得准的小图': '已保留身份核对通过的小尺寸图片',
-  '档案已不存在': '资料记录已不存在', '资料未过期': '现有资料仍在有效期内',
-  '图太小': '图片分辨率不足', '官网未取得': '未取得厂牌官网信息',
-  '两站都没有作品一览': '两个来源均未提供作品列表',
-  '哪一站都没对上她': '未找到与该人物相符的资料页',
-  '两站都没对上她': '两个来源均未找到与该人物相符的资料页',
-  '三站都没对上她': '三个来源均未找到与该人物相符的资料页',
-  '已有身份': '已有创作者分类', '已变': '资料已被其他操作修改，本次未保存',
+  partial: 'Processing ended, some items still need work', complete: 'Processing finished', interrupted: 'Processing interrupted',
+  cancelled: 'Canceled',
+  '没有新写法': 'No new aliases found', '已装上': 'Details image saved',
+  '已装着认得准的小图': 'Small images that passed identity checks were kept',
+  '档案已不存在': 'The detail record no longer exists', '资料未过期': 'Existing details are still within their validity',
+  '图太小': 'The image resolution is too low', '官网未取得': 'Label website info not available',
+  '两站都没有作品一览': 'Neither source provides a video list',
+  '哪一站都没对上她': 'No profile page matches this person',
+  '两站都没对上她': 'Neither source found a profile matching this person',
+  '三站都没对上她': 'None of the three sources found a profile matching this person',
+  '已有身份': 'Creator categories already exist', '已变': 'The details were changed by another operation; this save did not go through',
 };
 const SOURCE_NAMES: Record<string, string> = { avwikidb: 'AVWikiDB', javdb: 'JavDB', 'minnano-av': 'みんなのAV' };
 const OPERATION_LABELS: Record<string, string> = {

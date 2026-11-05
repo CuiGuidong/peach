@@ -354,7 +354,7 @@ it('Opening the review page only reads the queue and no longer triggers automati
   expect(fetcher.mock.calls.map(([url]) => String(url))).toEqual([REVIEW_URL]);
 });
 
-it('Handle later切换独立队列，刷新地址可还原且恢复保持原排序', async () => {
+it('Handle later switches to an independent queue; refreshing the address restores it with the original order intact', async () => {
   const { host, props } = await open();
   await click(buttonIn(cards(host)[1]!, 'Handle later'));
   await settle();

@@ -110,8 +110,8 @@ async function openIndex(actions: ShellActions, kind: IndexPageKind, search: str
     paintIndexSkeleton(host, params, layout);
     void pageNavigationReady(live, host, { pending: true });
   }
-  /* 页内换档、存版式、退出选择、头像与去处都在 `ShellActions` 里，跟着打开走的只有地址上那四项与此刻的版式、
-     选择键和配置权限。 */
+  /* In-page tier switching, saving layout, exiting selection, avatar, and destination all live in `ShellActions`; what travels with the open is only those four address items plus the current layout,
+     selection key, and configuration permission. */
   const painted = await openManagedRoute(path,
     { ...params, layout, selectMode, configurable: !!actions.configurable?.() }, {
       container: host, isCurrent: live, reuse,
@@ -212,7 +212,7 @@ async function openEntity(
   };
   const open = { ...shell.props(kind, name, search), ...restoredPageState<Pick<EntityPageProps, 'seed' | 'revision' | 'jav'>>('entity') };
   rememberPageState('entity', { seed: open.seed, revision: open.revision, jav: open.jav });
-  /* 这一页是不是 JAV 语境由页面按第一页作品推出来，写回壳的状态：壳的排序项、侧栏取数与卡片版式都读它。 */
+  /* Whether this page is in JAV context is inferred by the page from the first page of videos and written back into the shell's state: the shell's sort options, the sidebar fetch, and the card layouts all read it. */
   const props: EntityPageProps = {
     ...open, hosts, card: entityCard(actions), resolvedEntity, restoreNavigation: restoringPage(),
     actions: { ...open.actions, javContext: (on) => { writeShell({ entityJavLayout: !!on }) } },

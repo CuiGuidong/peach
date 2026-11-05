@@ -101,7 +101,7 @@ export async function refreshAll(automatic=false){
      settles, and keeps going while the grid has arrived but the tag bar is still waiting. The top three layers and the tag bar get no skeleton; they have
      content on screen right now, and tearing it into gray strips to refill is more jarring than swapping directly; only a shimmer layer is laid, skeletons reserved for the first from-nothing screen. */
   paintCatalogFilter({refreshing:true});
-  /* 目录元素在改写地址排下的那个微任务里发起取数；让过这一拍，网格先认领表面、铺好等待态，顶部三层再取。 */
+  /* The catalog element starts its fetch in the microtask queued behind the address rewrite; let that beat pass so the grid claims the surface and lays its waiting state first, then the top three tiers fetch. */
   try{refreshPageNavigation();const loading=replaceCatalogAddress();await null;await Promise.all([loading,buildBars()])}
   finally{paintCatalogFilter({refreshing:false})}
   if(!automatic)window.scrollTo({top:0,behavior:'smooth'});

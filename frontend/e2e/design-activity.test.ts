@@ -7,7 +7,7 @@ import { requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
 describe('Cloud download layout on the tasks page', () => {
   let browser: Browser;
   installDesignBrowser((next) => { browser = next; });
-  for (const viewport of VIEWPORTS) it(`${viewport.name} 资源分色并在高占用时加深，已取消使用红色标签`, async () => {
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: resources get their own colors and deepen under heavy use; the red badge is gone`, async () => {
     const reading = (high: boolean) => ({
       cpu: { state: 'ready', percent: high ? 75 : 5, high },
       gpu: { state: 'ready', percent: high ? 80 : 4, high },
@@ -15,10 +15,10 @@ describe('Cloud download layout on the tasks page', () => {
       sampled_at: '2026-10-31T08:00:00Z',
     });
     const row = (id: number, status: string) => ({
-      id, task_key: `resource-${id}`, task_label: `资源采样任务 ${id}`, trigger: 'manual', status,
+      id, task_key: `resource-${id}`, task_label: `Resource sampling task ${id}`, trigger: 'manual', status,
       host: 'desk', started_at: '2026-10-31T08:00:00Z',
       finished_at: status === 'running' ? null : '2026-10-31T08:01:00Z',
-      elapsed_seconds: 60, progress_current: 1, progress_total: 10, progress_label: '正在处理',
+      elapsed_seconds: 60, progress_current: 1, progress_total: 10, progress_label: 'Processing',
       result_summary: {}, error: '', parent_run_id: null as number | null, followup_key: '',
     });
     const opened = await visit(browser, '/tasks', viewport, async page => {
@@ -49,7 +49,7 @@ describe('Cloud download layout on the tasks page', () => {
       }
       assert.equal(new Set(backgrounds).size, 3);
       const red = await tokenColor(page, 'body', '--color-status-rose-background');
-      for (const [id, label] of [[3, '已取消'], [4, '后续任务已取消'], [5, '部分后续任务已取消']] as const) {
+      for (const [id, label] of [[3, 'Canceled'], [4, 'Follow-up tasks cancelled'], [5, 'Some follow-up tasks were cancelled']] as const) {
         const badge = page.locator(`#run-${id}`).getByText(label, { exact: true });
         const color = await badge.evaluate(node => {
           const chip = node.parentElement?.tagName === 'SPAN' ? node.parentElement : node;
@@ -69,7 +69,7 @@ describe('Cloud download layout on the tasks page', () => {
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
   });
-  for (const viewport of VIEWPORTS) it(`${viewport.name} 追更问题展示来源原因和管理入口`, async () => {
+  for (const viewport of VIEWPORTS) it(`${viewport.name} follow issues show the source reason and a manage entry`, async () => {
     const opened = await visit(browser, '/tasks', viewport, async page => {
       await page.route('**/api/tasks*', route => route.fulfill({ json: {
         available: true, running: [], skipped: [], finished: [{ id: 4038, task_key: 'follow-check',

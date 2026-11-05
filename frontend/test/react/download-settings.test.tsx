@@ -61,7 +61,7 @@ it('Empty check reports keep no divider section, showing the reason directly whe
   fetcher.mockImplementation(async () => ({ ok: true, status: 200, json: async () => report({ problems: ['Could not connect to CloudDrive2'] }) }));
   await click(buttonNamed('Check connection', host));
   await settle();
-  expect(form.querySelector('[role="alert"]')?.textContent).toBe('无法连接 CloudDrive2');
+  expect(form.querySelector('[role="alert"]')?.textContent).toBe('Could not connect to CloudDrive2');
   expect([...form.querySelectorAll('dl')].filter(node => !node.closest('[data-guide-help]'))).toEqual([]);
 });
 
@@ -73,8 +73,8 @@ it('Without PikPak added, the account and its specific fields hide while existin
   } });
   const host = await mount(<DownloadSettings initial={initial} receipt={vi.fn()} />);
   expect(section(host, 'PikPak')).toBeNull();
-  expect(field(host, '账号')).toBeNull();
-  expect(field(host, '115 目标目录')).not.toBeNull();
+  expect(field(host, 'Account')).toBeNull();
+  expect(field(host, '115 target folder')).not.toBeNull();
   expect(initial.pikpak.logged_in).toBe(true);
   await submit(section(host, 'Cloud download'));
   await settle();
@@ -84,9 +84,9 @@ it('Without PikPak added, the account and its specific fields hide while existin
 it('The Duck library does not show 115 and PikPak specific fields; the local library does not show cloud download settings', async () => {
   vi.stubGlobal('fetch', fetchMock(200, state({ media_sources: ['guangya'] })));
   const cloud = await mount(<DownloadSettings initial={state({ media_sources: ['guangya'] })} receipt={vi.fn()} />);
-  expect(field(cloud, 'CloudDrive2 地址')).not.toBeNull();
-  expect(field(cloud, '115 目标目录')).toBeNull();
-  expect(field(cloud, '账号')).toBeNull();
+  expect(field(cloud, 'CloudDrive2 address')).not.toBeNull();
+  expect(field(cloud, '115 target folder')).toBeNull();
+  expect(field(cloud, 'Account')).toBeNull();
   const local = await mount(<DownloadSettings initial={state({ media_sources: ['local'] })} receipt={vi.fn()} />);
   expect(field(local, 'CloudDrive2 address')).toBeNull();
   expect(local.textContent).not.toContain('PikPak');
@@ -387,20 +387,20 @@ const tick = (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync
 
 it('The account and password form shows directly; both login methods share the bottom bar', async () => {
   const host = await mount(<DownloadSettings initial={state()} receipt={vi.fn()} />);
-  expect(field(host, '账号')?.closest('details')).toBeNull();
-  expect(field(host, '账号')).not.toBeNull();
-  expect(buttonNamed('登录', host)?.parentElement).toBe(buttonNamed('用浏览器登录', host)?.parentElement);
-  expect(buttonNamed('用浏览器登录', host)?.type).toBe('button');
-  expect(actionOrder(buttonNamed('登录', host)?.parentElement)).toEqual(['用浏览器登录', '登录']);
+  expect(field(host, 'Account')?.closest('details')).toBeNull();
+  expect(field(host, 'Account')).not.toBeNull();
+  expect(buttonNamed('Log in', host)?.parentElement).toBe(buttonNamed('Sign in with the browser', host)?.parentElement);
+  expect(buttonNamed('Sign in with the browser', host)?.type).toBe('button');
+  expect(actionOrder(buttonNamed('Log in', host)?.parentElement)).toEqual(['Sign in with the browser', 'Log in']);
 });
 
 it('Without a browser on this machine only account sign-in remains, expanded by default', async () => {
   const host = await mount(<DownloadSettings receipt={vi.fn()}
     initial={state({ pikpak_browser: { available: false, state: 'idle', message: '' } })} />);
-  expect(buttonNamed('用浏览器登录', host)).toBeNull();
-  expect(field(host, '账号')?.closest('details')).toBeNull();
-  expect(field(host, '账号')).not.toBeNull();
-  expect(buttonNamed('登录', host)?.className).toContain('bg-button-primary');
+  expect(buttonNamed('Sign in with the browser', host)).toBeNull();
+  expect(field(host, 'Account')?.closest('details')).toBeNull();
+  expect(field(host, 'Account')).not.toBeNull();
+  expect(buttonNamed('Log in', host)?.className).toContain('bg-button-primary');
 });
 
 it('Browser sign-in opens the window then polls, showing the signed-in method and stopping once complete', async () => {

@@ -574,7 +574,7 @@ it('The group name uses the official source\'s spelling; a Collection suffix in 
 it('The initial takes the first Latin letter or digit in the creator name, falling back to the first character only when there is none', () => {
   expect(authorInitial('lazy')).toBe('L');
   expect(authorInitial('初音miku')).toBe('M');
-  expect(authorInitial('初音')).toBe('初');
+  expect(authorInitial('Hatsune')).toBe('first');
 });
 
 it('Avatars try the official one first, fall back to the mirror, and finally paint an initial', async () => {

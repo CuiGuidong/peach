@@ -112,7 +112,7 @@ function openCatalog(load: () => void | Promise<void>): void {
   void Promise.resolve(loading).then(() => pageNavigationReady(current, results()));
 }
 
-/** 判断这一轮做哪一件，做掉；`mark` 换成这一刻。 */
+/** Which one this judgment round performs, and it performs it; `mark` becomes this moment. */
 function settle(mark: Seen, actions: ShellActions): void {
   const was = { ...mark };
   const now = seen(was.opened);

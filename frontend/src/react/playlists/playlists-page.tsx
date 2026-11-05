@@ -202,7 +202,7 @@ export function PlaylistsPage({ openPlaylist, openEntity, canFlip, toast, revisi
         <CreateForm toast={toast} />
       </header>
       <div className="mx-auto w-full max-w-board">
-      {/* 读取失败时页头与New框照常在，提示与重试键落在列表的位置上. */}
+      {/* 读取失败时页头与New框照常在，提示与Retry键落在列表的位置上. */}
       {!data
         ? (playlists.isError
           ? <RetryNote message={errorMessage(playlists.error) || 'Reading the playlist failed'} onRetry={() => void playlists.refetch()} />

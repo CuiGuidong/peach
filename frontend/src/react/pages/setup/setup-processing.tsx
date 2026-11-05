@@ -12,5 +12,5 @@ export function processingSummary(row: SetupFolder): string {
   if (row.library_policy === 'local') return 'Use local profiles only';
   if (row.library_policy !== 'custom') return 'Auto-complete';
   const stages = STAGES.filter(([key]) => row.library_stages?.split(',').includes(key)).map(([, label]) => label);
-  return stages.length ? `自定义: ${stages.join(', ')}` : 'Custom: read only local NFO and images';
+  return stages.length ? `Custom: ${stages.join(', ')}` : 'Custom: read only local NFO and images';
 }

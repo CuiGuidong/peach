@@ -223,7 +223,7 @@ describe('Stage island', () => {
       }
       await page.setViewportSize({ width: DESKTOP.width, height: DESKTOP.height });
 
-      /* 桩里的片源放不出来，Video.js 停在错误态、控件条不接指针，悬停量不到；只量提示的内容。 */
+      /* The stubbed source cannot play, so Video.js sits in the error state and the control bar ignores pointers, which makes hover unmeasurable; only the prompt's content is measured. */
       const tip = page.locator('#stage [data-player-theater] > .vjs-peach-tooltip');
       assert.equal(await theater.getAttribute('title'), null, 'The native title and the drawn tooltip would stack');
       assert.deepEqual(await tip.evaluate((node) => [node.querySelector('.vjs-peach-tooltip-text')?.textContent,

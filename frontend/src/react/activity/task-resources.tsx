@@ -7,20 +7,20 @@ import { isActive, type TaskResourceState, type TaskRunPayload } from './tasks';
 const METRICS = {
   cpu: {
     name: 'CPU', color: 'blue',
-    description: 'CPU 使用率以执行端可用容量为 100%，容器按可见 CPU 配额计算。达到 50% 时加深显示。',
+    description: 'CPU usage treats the runner\'s available capacity as 100%; containers use their visible CPU quota. Emphasized from 50%.',
   },
   gpu: {
     name: 'GPU', color: 'purple',
-    description: 'GPU 使用率显示该任务最忙的 GPU 引擎。达到 50% 时加深显示。',
+    description: 'GPU usage shows that task\'s busiest GPU engine. Emphasized from 50%.',
   },
   network: {
-    name: '网络', color: 'cyan',
-    description: '网络速率显示该任务已观测的下载速度，达到 10 MiB/s 时加深显示。挂载盘或无法准确归属的传输显示未取得。',
+    name: 'Network', color: 'cyan',
+    description: 'Network rate shows the download speed observed for that task, emphasized from 10 MiB/s. Mounted drives or transfers that cannot be attributed show Not obtained.',
   },
 } as const;
 
 function unavailable(state: TaskResourceState) {
-  return state === 'sampling' ? '采样中' : '未取得';
+  return state === 'sampling' ? 'Sampling' : 'Not fetched';
 }
 
 export function TaskResources({ run, active = isActive(run) || Boolean(run.control) }: {
@@ -38,7 +38,7 @@ export function TaskResources({ run, active = isActive(run) || Boolean(run.contr
       const label = ready
         ? key === 'network' ? `${fmtSize(value)}/s` : `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`
         : unavailable(metric.state);
-      const explanation = [metric.reason, high ? '当前为高占用。' : '', appearance.description, resources.detail]
+      const explanation = [metric.reason, high ? 'Currently under heavy use.' : '', appearance.description, resources.detail]
         .filter(Boolean).join('\n');
       return <ResourceChip key={key} color={appearance.color} high={high}
         tabIndex={0} title={explanation}

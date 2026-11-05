@@ -84,7 +84,7 @@ describe('Design decisions: settings, taste, stats, and filter glass', () => {
             `The ranking bar is ${shown.ranked}px and the radar column ${shown.radar}px, so the two columns differ in height`);
         }
         // 26 is the thickness a 32px cell reserves by default; extra height from a taller chart widens the bar gaps, not the bars themselves.
-        assert.ok(shown.thickness.every((height) => height <= 26.5), `条粗 ${shown.thickness.join(', ')}px`);
+        assert.ok(shown.thickness.every((height) => height <= 26.5), `Bar thickness ${shown.thickness.join(', ')}px`);
         assert.deepEqual(opened.problems, []);
       } finally {
         await opened.close();
@@ -118,7 +118,7 @@ describe('Design decisions: settings, taste, stats, and filter glass', () => {
         assert.ok(frame.width > frame.ring, `${name}'s avatar is not zoomed to the face box: image width ${frame.width}px, ring ${frame.ring}px`);
         assert.ok(Math.abs(frame.aspect - TASTE_FACE.imgW / TASTE_FACE.imgH) < .02,
           `${name} avatar image aspect ratio is ${frame.aspect}, squashed`);
-        assert.ok(frame.gaps.every((gap) => gap <= .5), `${name}头像的图没盖满圆框: ${frame.gaps.join(', ')}`);
+        assert.ok(frame.gaps.every((gap) => gap <= .5), `${name}'s avatar image does not fill the round frame: ${frame.gaps.join(', ')}`);
       }
       assert.deepEqual(opened.problems, []);
     } finally {

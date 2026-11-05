@@ -9,7 +9,7 @@
  * Which management section is current, what the menu lists, and the trash readout are computed by the shell and pushed in:
  * the route table, `/healthz`'s `configurable` and the catalog counts all still live in the shell. */
 
-/** `[键, 名称, 字形]`，同壳的 `MANAGE_SECTIONS`。 */
+/** `[key, name, glyph]`, same as the shell's `MANAGE_SECTIONS`. */
 import { CLEANUP_CRUMB_PAGES } from './cleanup-tools';
 
 export type ManageEntry = readonly [key: string, label: string, glyph: string];
@@ -38,12 +38,12 @@ export interface ManageHeaderProps {
    子页标题取这里的名字，「数据管理」显示在面包屑的上一级。 */
 export const MANAGE_CRUMB_PAGES: Readonly<Record<string, string>> = {
   ...CLEANUP_CRUMB_PAGES,
-  '/junk-files': '垃圾文件',
-  '/duplicates': '重复文件',
-  '/review': '人工复核',
-  '/trash': '回收站',
-  '/quality-goals': '高清版',
-  '/sources': '来源和凭证',
+  '/junk-files': 'Junk files',
+  '/duplicates': 'Duplicates',
+  '/review': 'Manual review',
+  '/trash': 'Trash',
+  '/quality-goals': 'HD version',
+  '/sources': 'Sources and credentials',
 };
 
 /* Pages whose title steps down to 22px on narrow screens (≤760px): the data management hub, sources and credentials, and the configuration page, whose body is an 812px narrow column.

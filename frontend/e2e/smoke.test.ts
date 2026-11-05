@@ -114,17 +114,17 @@ const ROUTES: readonly Route[] = [
   },
   {
     path: '/data-cleanup',
-    // 挂载前的遗留骨架用 heading，最终 React 卡片用带名字的 section；等最终语义才能证明挂载完成。
-    body: (page) => [heading(page, '#main', '数据管理'),
-      page.locator('#stats section[aria-label="扫描与采集"]'),
+    // The legacy skeleton before mount uses a heading, the final React card a named section; only the final semantics prove that mounting finished.
+    body: (page) => [heading(page, '#main', 'Data management'),
+      page.locator('#stats section[aria-label="Scan and scrape"]'),
       page.locator('#cleanup-pending'), page.locator('#cleanup-maintenance'), page.locator('#cleanup-deletion')],
   },
-  { path: '/data-cleanup/organize', body: page => [pageTitle(page, '整理文件'), page.locator('#stats #organize')] },
-  { path: '/data-cleanup/media-repair', body: page => [pageTitle(page, '媒体修复'), page.locator('#stats section[aria-label="媒体修复"]')] },
-  { path: '/data-cleanup/resource-sync', body: page => [pageTitle(page, '资源同步'), page.locator('#stats #resource-sync')] },
-  { path: '/data-cleanup/orphan-records', body: page => [pageTitle(page, '文件已丢失的记录'), page.locator('#stats #orphan-records')] },
-  { path: '/data-cleanup/links', body: page => [pageTitle(page, '链接管理'), page.locator('#stats #link-manager')] },
-  { path: '/data-cleanup/batch-delete', body: page => [pageTitle(page, '批量删除'), page.locator('#stats #batch-delete')] },
+  { path: '/data-cleanup/organize', body: page => [pageTitle(page, 'Organize files'), page.locator('#stats #organize')] },
+  { path: '/data-cleanup/media-repair', body: page => [pageTitle(page, 'Media repair'), page.locator('#stats section[aria-label="Media repair"]')] },
+  { path: '/data-cleanup/resource-sync', body: page => [pageTitle(page, 'Resource sync'), page.locator('#stats #resource-sync')] },
+  { path: '/data-cleanup/orphan-records', body: page => [pageTitle(page, 'Records whose files have gone missing'), page.locator('#stats #orphan-records')] },
+  { path: '/data-cleanup/links', body: page => [pageTitle(page, 'Link management'), page.locator('#stats #link-manager')] },
+  { path: '/data-cleanup/batch-delete', body: page => [pageTitle(page, 'Batch delete'), page.locator('#stats #batch-delete')] },
   {
     // The demo library has no junk candidates; what arrives is the empty-state title of the junk queue page, and the shell's skeleton only lays card placeholders.
     path: '/junk-files',
@@ -136,9 +136,9 @@ const ROUTES: readonly Route[] = [
     body: (page) => [heading(page, '#main', 'Duplicates'), page.locator('#stats').getByText('Duplicate content', { exact: true })],
   },
   {
-    // 旧直达地址进入资源同步二级页。
+    // 旧直达地址进入Resource sync二级页。
     path: '/resource-sync',
-    body: (page) => [pageTitle(page, '资源同步'), page.locator('#stats section#resource-sync')],
+    body: (page) => [pageTitle(page, 'Resource sync'), page.locator('#stats section#resource-sync')],
   },
   {
     path: '/quality-goals',
@@ -297,7 +297,7 @@ describe('Route smoke', () => {
 
   /* 首页那一行新作只属于目录页：从首页进统计页要收起保留，取数还没回来就离开的那一轮
      也不许回头把它画到管理区上。演示库没有订阅，新作由拦截的接口给一条。 */
-  it('离开首页之后新作那一行收起，晚到的取数也不画回来', { timeout: 60_000 }, async () => {
+  it('After leaving home the new-releases row collapses, and late fetches never paint it back', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/stats', DESKTOP);
     try {
       let hold: Promise<void> | null = null;
@@ -323,16 +323,16 @@ describe('Route smoke', () => {
       await expectBody(opened.page, '/', [feedCards.first()]);
       await go('/stats');
       await expectBody(opened.page, '/stats', [statsInventoryTab(opened.page)]);
-      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, '进统计页之后新作那一行还露着');
-      assert.equal(await feedCards.filter({ visible: true }).count(), 0, '进统计页之后新作卡片仍可见');
+      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, 'After entering stats the new-releases row is still showing');
+      assert.equal(await feedCards.filter({ visible: true }).count(), 0, 'The new-releases card stays visible after entering the statistics page');
 
       const beforeReturn = served;
       await go('/');
       await expectBody(opened.page, '/', [feedCards.first()]);
-      assert.equal(served, beforeReturn, '返回首页沿用新作缓存');
+      assert.equal(served, beforeReturn, 'Returning home reuses the new-releases cache');
       await go('/junk-files');
       await opened.page.locator('#count [data-junk-filters]').waitFor();
-      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, '垃圾文件页不展示订阅新作');
+      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, 'The junk files page shows no subscribed new releases');
       assert.equal(await feedCards.filter({ visible: true }).count(), 0);
 
       for (const target of ['/stats', '/junk-files']) {
@@ -356,8 +356,8 @@ describe('Route smoke', () => {
         // After the response the page has only one synchronous repaint left; the catalog area's old loading state does not belong to the current page.
         await opened.page.waitForTimeout(500);
         assert.equal(await opened.page.locator('#feedNew').isHidden(), true);
-        assert.equal(await feedCards.filter({ visible: true }).count(), 0, `晚到的新作取数画到了 ${target} 上`);
-        await assertHolds(opened.page, opened.problems, `首页与 ${target} 往返`);
+        assert.equal(await feedCards.filter({ visible: true }).count(), 0, `A late new-release fetch painted onto ${target}`);
+        await assertHolds(opened.page, opened.problems, `Home to ${target} and back`);
       }
     } finally {
       await opened.close();

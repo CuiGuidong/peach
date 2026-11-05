@@ -200,7 +200,7 @@ describe('Scan and scrape controls', () => {
         const footer = await dialog.locator('.geist-modal-footer').evaluate(el => ({ display: getComputedStyle(el).display, padding: getComputedStyle(el).padding }));
         assert.equal(footer.display, 'flex');
         assert.notEqual(footer.padding, '0px');
-        const disclosure = dialog.getByRole('button', { name: /^(查看|收起)明细$/ });
+        const disclosure = dialog.getByRole('button', { name: /^(View|收起)明细$/ });
         assert.equal(await disclosure.getAttribute('aria-expanded'), 'false');
         assert.equal(await disclosure.locator('svg').count(), 1);
         await page.emulateMedia({ reducedMotion: 'no-preference' });

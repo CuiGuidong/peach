@@ -528,7 +528,7 @@ describe('Design decisions: follow details, video details, player, and sidebar',
     try {
       await stage.page.locator('#stage [data-detail-tag] [data-tag]').first().waitFor({ state: 'attached' });
       assert.deepEqual(await touchOf(stage.page, controls), controls.map(() => ['manipulation', 'none']),
-        `控件顺序: ${controls.join(', ')}`);
+        `Control order: ${controls.join(', ')}`);
       const [title] = await touchOf(stage.page, ['#stage [data-detail-title]']);
       assert.notEqual(title?.[1], 'none', 'The details title is content and must not lose text selection along with the controls');
       assert.deepEqual(withoutPlayer(stage.problems), []);

@@ -8,16 +8,16 @@ describe('Data management first screen', () => {
     return root;
   };
 
-  it('日常扫描立即呈现，其余操作只展示分组入口', () => {
+  it('The everyday scan appears immediately; other operations show only their group entries', () => {
     const root = skeleton();
     expect(root.querySelector('#libraryProcessing p')?.textContent).toBe(SCAN_CARD_TEXT);
     expect([...root.querySelectorAll('h2')].map(heading => heading.textContent))
-      .toEqual(['待处理事项', '整理与维护', '清理与删除']);
+      .toEqual(['Pending review', 'Organize and maintain', 'Clean up and delete']);
     expect(root.querySelector('#mediaRepair, #organize, #link-manager, #resource-sync, table')).toBeNull();
     expect(root.querySelector('#libraryProcessing footer > a')?.getAttribute('href')).toBe('/sources');
   });
 
-  it('扫描按钮保留最终尺寸与变体，在数据就绪前不能操作', () => {
+  it('The scan button keeps its final size and variant and cannot be used before the data is ready', () => {
     const root = skeleton();
     expect(root.querySelector('[inert]')).not.toBeNull();
     const split = root.querySelector('#libraryProcessing [data-split-button]')!;

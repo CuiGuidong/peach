@@ -13,10 +13,10 @@ export function GuideHelp({ chapter, section }: { chapter?: string; section?: st
   const group = GUIDE_CHAPTERS.find(row => row.id === chapter);
   if (!item && !group) return null;
   return <div data-guide-help="" className="text-body-2-regular text-text-secondary">
-    <Disclosure summary={section ? '设置说明' : '了解这些设置'}>
+    <Disclosure summary={section ? 'Settings guide' : 'Learn these settings'}>
       {item ? <><p>{item.body}</p><GuideFieldDetails details={item.details} /><p>{item.scope}</p></> : <>
         <p>{group!.summary}</p>
-        <div><Button variant="secondary" size="small" onClick={() => openGuide({ chapter })}>逐步了解这个分区</Button></div>
+        <div><Button variant="secondary" size="small" onClick={() => openGuide({ chapter })}>Walk this section step by step</Button></div>
       </>}
     </Disclosure>
   </div>;

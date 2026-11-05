@@ -395,7 +395,7 @@ describe('Video details island', () => {
         await card.waitFor();
         assert.equal(await page.locator('#stage[open]').count(), 0);
         for (const deadline = Date.now() + 10_000; listed <= before && Date.now() < deadline;) await page.waitForTimeout(50);
-        assert.ok(listed > before, '关掉之后列表页没有重读');
+        assert.ok(listed > before, 'After closing the list page never reread');
         await card.locator(`img[src*="id=${resume}&"]`).first().waitFor();
       };
       await card.waitFor({ timeout: 15_000 });

@@ -25,7 +25,7 @@ export { DataCleanupToolPage } from './data-cleanup-tool-page';
 interface Reading { figure: string; meta?: string; state?: 'loading' | 'error' }
 function reading<T>(query: { data: T | undefined; isError: boolean }, read: (data: T) => Reading): Reading {
   if (query.data !== undefined) return read(query.data);
-  return query.isError ? { figure: '读取失败', state: 'error' } : { figure: '正在读取…', state: 'loading' };
+  return query.isError ? { figure: 'Load failed', state: 'error' } : { figure: 'Reading…', state: 'loading' };
 }
 
 function EntryCard({ section, label, icon, value, open }: {
@@ -67,33 +67,33 @@ export function DataCleanupPage({ toast, open, navigate }: DataCleanupProps) {
 
   return <Page>
     <section aria-labelledby="cleanup-pending" className="flex flex-col gap-4">
-      <SectionHeading id="cleanup-pending">待处理事项</SectionHeading>
+      <SectionHeading id="cleanup-pending">Pending review</SectionHeading>
       <div className={PLAIN_STAT_STRIP}>
-        <EntryCard section="review" label="人工复核" icon={REVIEW} open={open} value={reading(review, reviewSummary)} />
-        <EntryCard section="duplicates" label="重复文件" icon={DUPLICATES} open={open}
+        <EntryCard section="review" label="Manual review" icon={REVIEW} open={open} value={reading(review, reviewSummary)} />
+        <EntryCard section="duplicates" label="Duplicates" icon={DUPLICATES} open={open}
           value={reading(duplicates, data => Number(data.total || 0) ? {
-            figure: `${Number(data.total).toLocaleString()} 组 · ${Number(data.files || 0).toLocaleString()} 个文件`,
-            meta: `可回收 ${fmtSize(data.reclaimable || 0)}`,
-          } : { figure: '没有重复内容' })} />
-        <EntryCard section="ads" label="垃圾文件" icon={JUNK} open={open}
-          value={reading(junk, data => ({ figure: `${Number(data.pending_total || 0).toLocaleString()} 个待判断`, meta: junkBreakdown(data) }))} />
-        <EntryCard section="quality" label="高清版" icon={QUALITY} open={open}
-          value={reading(quality, data => ({ figure: `${Number(data.total || 0).toLocaleString()} 个待升级` }))} />
-        <EntryCard section="trash" label="回收站" icon={TRASH} open={open}
-          value={reading(trash, data => ({ figure: `${Number(data.total || 0).toLocaleString()} 项在回收站`, meta: data.total ? `占用 ${fmtSize(data.bytes || 0)}` : '查看和还原已移入回收站的内容' }))} />
+            figure: `${Number(data.total).toLocaleString()} groups - ${Number(data.files || 0).toLocaleString()} files`,
+            meta: `Reclaimable ${fmtSize(data.reclaimable || 0)}`,
+          } : { figure: 'No duplicate content' })} />
+        <EntryCard section="ads" label="Junk files" icon={JUNK} open={open}
+          value={reading(junk, data => ({ figure: `${Number(data.pending_total || 0).toLocaleString()} awaiting review`, meta: junkBreakdown(data) }))} />
+        <EntryCard section="quality" label="HD version" icon={QUALITY} open={open}
+          value={reading(quality, data => ({ figure: `${Number(data.total || 0).toLocaleString()} pending upgrade` }))} />
+        <EntryCard section="trash" label="Trash" icon={TRASH} open={open}
+          value={reading(trash, data => ({ figure: `${Number(data.total || 0).toLocaleString()} items in trash`, meta: data.total ? `Using ${fmtSize(data.bytes || 0)}` : 'Review and restore content moved to the trash' }))} />
       </div>
     </section>
     <div id="libraryProcessing" className="scroll-mt-20">
       <LibraryProcessingCard toast={message => toast(message)} monitor onComplete={refreshReadings} />
     </div>
     <section aria-labelledby="cleanup-maintenance" className="flex flex-col gap-4">
-      <SectionHeading id="cleanup-maintenance">整理与维护</SectionHeading>
+      <SectionHeading id="cleanup-maintenance">Organize and maintain</SectionHeading>
       <div className={CLEANUP_ENTRY_GRID}>
         {CLEANUP_TOOLS.filter(tool => tool.key !== 'batch-delete').map(tool => <ToolEntry key={tool.key} tool={tool} navigate={navigate} />)}
       </div>
     </section>
     <section aria-labelledby="cleanup-deletion" className="flex flex-col gap-4">
-      <SectionHeading id="cleanup-deletion">清理与删除</SectionHeading>
+      <SectionHeading id="cleanup-deletion">Clean up and delete</SectionHeading>
       <div className={CLEANUP_ENTRY_GRID}>
         {CLEANUP_TOOLS.filter(tool => tool.key === 'batch-delete').map(tool => <ToolEntry key={tool.key} tool={tool} navigate={navigate} />)}
       </div>

@@ -94,7 +94,7 @@ describe('Home filter bar', () => {
   before(async () => { browser = await launch(); });
   after(async () => { await browser?.close(); });
 
-  it('JAV 读数尚未返回时保持两行骨架，内容就绪后再决定合行', { timeout: 60_000 }, async () => {
+  it('While the JAV reading has not returned, a two-line skeleton holds; the merge is decided once content is ready', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser, '/?jav=1');
     const { page } = opened;
     let release!: () => void;
@@ -112,13 +112,13 @@ describe('Home filter bar', () => {
       assert.equal(await frame.getAttribute('data-single-row'), null);
       assert.equal(await frame.evaluate(node => node.getBoundingClientRect().height), 96);
       release();
-      await page.locator(READOUT, { hasText: '个符合' }).waitFor();
+      await page.locator(READOUT, { hasText: 'matches' }).waitFor();
       await page.locator(`${FILTER} [data-catalog-frame][data-single-row]`).waitFor();
       assert.deepEqual(opened.problems, []);
     } finally { release(); await opened.close() }
   });
 
-  it('少量筛选项与右侧操作按容器宽度同行或分行', { timeout: 60_000 }, async () => {
+  it('With few filters, they and the right-side actions share a row or wrap by container width', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     const { page } = opened;
     try {
@@ -360,7 +360,7 @@ describe('Home filter bar', () => {
       await page.locator('#grid [data-media-card]').first().waitFor();
       assert.equal(await page.locator(`${FILTER} input[name="jav-layout"][value="big"]`).isChecked(), true);
       const box = await layout(page);
-      assert.ok(box.scrollWidth <= box.viewportWidth, 'JAV 页面横向溢出');
+      assert.ok(box.scrollWidth <= box.viewportWidth, 'The JAV page overflows horizontally');
       await settle(page);
       const beforeHome = counts.items.length;
       if (viewport.mobile) await page.locator('#filterBtn').click();
@@ -369,7 +369,7 @@ describe('Home filter bar', () => {
       await page.locator(`${FILTER} input[name="home-layout"]`).first().waitFor({ state: 'attached' });
       await page.locator(READOUT, { hasText: 'matches' }).waitFor();
       await settle(page);
-      assert.equal(counts.items.length, beforeHome, '返回首页沿用原来的目录缓存');
+      assert.equal(counts.items.length, beforeHome, 'Returning home reuses the original catalog cache');
       assert.deepEqual(await page.locator('#grid [data-media-card]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id'))), homeIds);
       assert.equal(await page.locator('#javLibraryHeader').isVisible(), false);
       assert.deepEqual(withoutPlayer(opened.problems), []);
@@ -379,7 +379,7 @@ describe('Home filter bar', () => {
   });
   }
 
-  it('未归属随首页位置保留，撤掉筛选后取全库，后退恢复未归属缓存', { timeout: 60_000 }, async () => {
+  it('Unfiled items keep the home position, dropping the filter falls back to the whole library, and going back restores the unfiled cache', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser, '/?owner=none');
     try {
       const { page, counts } = opened;
@@ -390,10 +390,10 @@ describe('Home filter bar', () => {
       await page.locator('[data-nav=""]:visible').first().click();
       await settle(page);
       assert.equal(new URL(page.url()).searchParams.get('owner'), 'none');
-      assert.equal(counts.items.length, before, '点击当前栏目保留筛选');
-      await chips(page).filter({ hasText: '未归属' }).getByRole('button').click();
+      assert.equal(counts.items.length, before, 'Clicking the current section keeps the filters');
+      await chips(page).filter({ hasText: 'Unassigned' }).getByRole('button').click();
       await page.waitForFunction(() => !new URLSearchParams(location.search).has('owner'));
-      await until(() => counts.items.length > before, '撤掉未归属之后没有重取列表');
+      await until(() => counts.items.length > before, 'Removing the unfiled filter never refetches the list');
       await settle(page);
       assert.equal(counts.items.at(-1)?.searchParams.has('owner'), false);
       assert.equal(await mainCards.count(), CATALOG.length);
@@ -401,8 +401,8 @@ describe('Home filter bar', () => {
       await page.goBack();
       await page.waitForFunction(() => new URLSearchParams(location.search).get('owner') === 'none');
       await settle(page);
-      assert.equal(counts.items.length, before, '后退恢复已取得的未归属结果');
-      assert.equal(await chips(page).filter({ hasText: '未归属' }).count(), 1);
+      assert.equal(counts.items.length, before, 'Going back restores the already-fetched unfiled results');
+      assert.equal(await chips(page).filter({ hasText: 'Unassigned' }).count(), 1);
       assert.deepEqual(await mainCards.evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id'))), filteredIds);
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
@@ -517,7 +517,7 @@ describe('Home filter bar', () => {
         assert.ok(glass.filter.includes('blur(') && glass.width < glass.viewport, JSON.stringify(glass));
       }
       const measured = await layout(page);
-      assert.deepEqual(measured.offenders, [], `筛选条把页面撑宽了: ${measured.offenders.join(', ')}`);
+      assert.deepEqual(measured.offenders, [], `The filter bar widens the page: ${measured.offenders.join(', ')}`);
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
       await opened.close();

@@ -232,7 +232,7 @@ export function IndexPage(props: IndexProps) {
         </h2>
         {isPeople(kind) ? (
           <span data-index-count="" className="text-caption-1-regular leading-5 whitespace-nowrap text-text-secondary tabular-nums max-board-narrow:order-1 max-board-narrow:basis-full">
-            {/* 没取到就没有读数：「0 项」读起来是「名册是空的」，和报错说的是两件事。 */}
+            {/* No fetch, no readout: '0 items' reads as 'the roster is empty', which says something different from an error. */}
             <AsyncText text={pending ? undefined : result.isError ? '' : readout} busy={pending}
               placeholder={<span aria-hidden className="skeleton-sheen inline-block h-3.5 w-24 rounded-md" />} />
           </span>
@@ -277,7 +277,7 @@ export function IndexPage(props: IndexProps) {
         {body()}
       </SkeletonContent></div>
       {kind === 'tags' && !pending && !result.isError ? <div className="mt-5">
-        <DataTableFooter label="标签" total={total ?? items.length} pagination={pagination} onChange={changePage} unit="个标签" pageUnit="个" pageSizes={TAG_PAGE_SIZES} />
+        <DataTableFooter label="Tags" total={total ?? items.length} pagination={pagination} onChange={changePage} unit="tags" pageUnit="items" pageSizes={TAG_PAGE_SIZES} />
       </div> : null}
       {more ? (
         <div className="mt-5 flex justify-center">

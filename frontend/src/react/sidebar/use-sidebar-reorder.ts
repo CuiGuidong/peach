@@ -71,8 +71,8 @@ export function useSidebarReorder(column: RefObject<HTMLDivElement | null>, orde
     flushSync(() => {
       setPicked(null);
       if (next) latest.current.commit(next);
-      announce(next ? `${active.node.ariaLabel}，已移动到第 ${slot! + 1} 项`
-        : accept && slot === mark.origin ? '顺序未变' : '已取消排序');
+      announce(next ? `${active.node.ariaLabel}, moved to position ${slot! + 1}`
+        : accept && slot === mark.origin ? 'The order did not change' : 'Reordering cancelled');
     });
     latest.current.settled();
   };
@@ -141,7 +141,7 @@ export function useSidebarReorder(column: RefObject<HTMLDivElement | null>, orde
     if (!next) return;
     capture();
     flushSync(() => commit(next));
-    announce(`${event.currentTarget.ariaLabel}，已移动到第 ${at + (down ? 2 : 0)} 项`);
+    announce(`${event.currentTarget.ariaLabel}, moved to position ${at + (down ? 2 : 0)}`);
     settled();
   };
 

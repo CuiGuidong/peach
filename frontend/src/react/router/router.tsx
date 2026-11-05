@@ -170,7 +170,7 @@ function RouteGroups({ children }: { children?: ReactNode }) {
       <Routes location={background ?? location}>
         {/* ── Management area ── */}
         {Object.entries(MANAGED_ROUTES).map(([path, route]) => <Route key={path} path={path} element={route.element} />)}
-        {/* 资源同步的旧直达地址转到数据管理下的二级页。 */}
+        {/* Resource sync的旧直达地址转到数据管理下的二级页。 */}
         {Object.entries(REDIRECT_ROUTES).map(([path, route]) => <Route key={path} path={path} element={route.element} />)}
 
 

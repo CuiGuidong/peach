@@ -2,7 +2,7 @@
  * with cards and the photo wall being the follows page's copies.
  *
  * 取数与筛选（状态、来源、标签、排序、视频／图片）归资料页（`entity-page-view.tsx`），筛选浮层与这一格
- * 读的是同一份；这里只画当前媒体那一档的组。查询键同关注页一族：详情里换状态、检查更新跑完时按
+ * 读的是同一份；这里只画当前媒体那一档的组。查询键同关注页一族：详情里换状态、Check updates跑完时按
  * `['follow-feed']` 前缀失效与改写缓存，这一屏跟着变。换筛选时保留宿主，内容与骨架原位交叉淡化。 */
 import type { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
 import { useMemo } from 'react';

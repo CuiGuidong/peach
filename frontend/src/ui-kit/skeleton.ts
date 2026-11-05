@@ -112,8 +112,8 @@ function armSkeletonReveal(root:any){
       target.classList.remove('skeleton-awaiting');
       continue;
     }
-    /* 已经武装过的跳过这一枚就好。写 `return` 会让同一批里排在它后面的占位
-       一个都拿不到延迟标记，补进来的那半屏骨架直接闪出来。 */
+    /* For ones already armed, just skip this one. Writing `return` would leave every placeholder after it in the same batch
+       without the delay marker, and the backfilled half screen of skeleton would flash straight in. */
     if(target.dataset.skeletonReveal)continue;
     target.dataset.skeletonReveal='pending';
     target.classList.add('skeleton-awaiting');

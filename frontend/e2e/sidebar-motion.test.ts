@@ -38,7 +38,7 @@ async function toggle(page: Page): Promise<Toggle> {
     const pending = new Set(['padding-left', 'width']);
     let mapsDuring = -1;
     let opticDuring = '';
-    const timer = setTimeout(() => reject(new Error(`过渡没有结束，还差 ${[...pending].join(', ')}`)), 5_000);
+    const timer = setTimeout(() => reject(new Error(`The transition did not finish; still waiting on ${[...pending].join(', ')}`)), 5_000);
     /* Frames are counted from the click to 300 ms: however long the main thread is held by one full-page reflow, that many frames go missing from this window. */
     let clicked = 0;
     let frames = 1;

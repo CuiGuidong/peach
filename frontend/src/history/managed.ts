@@ -29,7 +29,7 @@
 
 import { rememberPageState, restoredPageState } from './page-navigation';
 
-/** 画在某个容器里的那一页（或一面）。`host` 是页面 portal 进去的那个 `.peach-react` 宿主。 */
+/** The page (or panel) rendered inside some container. `host` is the `.peach-react` host the page portals into. */
 export interface ManagedEntry {
   /** The registration key: the page's path, or a component's name within the page. */
   path: string;
@@ -54,9 +54,11 @@ export interface ManagedOpenOptions {
   beforePlace?: () => void;
   /** 同类页面复用宿主与组件，只更新属性。 */
   reuse?: boolean;
-  /** 壳自己排好的框架：取齐首屏的那一刻由它把框架换进容器，返回页面画进去的宿主。不给就清空容器、
-   *  放进一个新的 `.peach-react`。资料页要这个：浮层吸顶要它的父盒就是 `#index`，新作那一行是遗留层
-   *  卡片、不进 `.peach-react`，所以框架的四块由壳排，页面只占其中一块，再经 portal 画进另外三块。 */
+  /** The frame the shell lays itself: at the moment the first screen is fetched it swaps the frame into the container and
+ *  returns the host the page renders into. When not given, it empties the container and puts in a new `.peach-react`. The
+ *  profile page needs this: the overlay's stickiness requires its parent box to be `#index`, and the new-releases row is a
+ *  legacy-layer card outside `.peach-react`, so the shell lays the frame's four blocks and the page takes one, portaling into
+ *  the other three. */
   place?: (container: Element) => HTMLElement;
   /** Resident components (the ones opened via `openResidentSurface`): the host belongs to the shell; on collapse or throw only the component unmounts and the host stays. */
   resident?: boolean;

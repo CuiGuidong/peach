@@ -84,13 +84,13 @@ export function DiagnosticsPage(props: DiagnosticsProps) {
   const other = Object.entries(data.checks).filter(([, check]) => !['warning', 'failed', 'unknown'].includes(check.status));
   return <div className="flex min-w-0 flex-col gap-6">
     <div data-guide-target="report" className="flex flex-wrap justify-end gap-2"><DownloadReport />
-      <Button variant="secondary" onClick={refresh} {...busyProps(action.busy === 'refresh')}>重新检查</Button></div>
+      <Button variant="secondary" onClick={refresh} {...busyProps(action.busy === 'refresh')}>Check again</Button></div>
     {refreshError ? <Note tone="error">{refreshError}</Note> : null}
-    {attention.length ? <Section guide="attention" title={`需要关注 · ${attention.length} 项`}>
+    {attention.length ? <Section guide="attention" title={`Needs attention · ${attention.length} items`}>
       {attention.map(([key, check]) => <Check key={key} name={key} check={check} />)}
     </Section> : null}
-    <Section guide="health" title="库健康"><Stack>
-      {data.library.issue_at ? <p className="text-body-2-regular text-text-secondary">处理记录 · {moment(data.library.issue_at)}</p> : null}
+    <Section guide="health" title="Library health"><Stack>
+      {data.library.issue_at ? <p className="text-body-2-regular text-text-secondary">Processing log · {moment(data.library.issue_at)}</p> : null}
       {Object.entries(data.library.groups).map(([key, group]) => <HealthList key={key} group={group} {...props} />)}
     </Stack></Section>
     {other.length ? <section aria-label="System checks">
@@ -107,8 +107,8 @@ export function DiagnosticsPage(props: DiagnosticsProps) {
       </Disclosure>
     </section> : null}
     <ScrapingExport />
-    <section data-guide-target="sessions" aria-label="来源会话" className="flex min-w-0 flex-col gap-3">
-      <SettingsSectionLabel>来源会话</SettingsSectionLabel>
+    <section data-guide-target="sessions" aria-label="Source sessions" className="flex min-w-0 flex-col gap-3">
+      <SettingsSectionLabel>Source sessions</SettingsSectionLabel>
       {data.sources.map(source => <article key={source.source} data-diagnostic-source={source.source}>
         <SettingsCard><Stack>
         <div className="flex flex-wrap items-center justify-between gap-2">

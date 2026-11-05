@@ -250,7 +250,7 @@ export interface ReleaseState {
   package_kind?: 'update' | 'full' | 'installer';
   asset_url?: string;
   asset_size?: number;
-  /** 能在页面里下载并重启安装；只有 Windows 独立包是 true。 */
+  /** 能在页面里下载并Restart to install；只有 Windows 独立包是 true。 */
   in_app_update?: boolean;
 }
 
@@ -475,7 +475,7 @@ export type DataCleanupSection = 'review' | 'quality' | 'duplicates' | 'ads' | '
 /** Capabilities the data management page still gets from the legacy layer: receipts and pagination. */
 export interface DataCleanupProps {
   navigate(path: string): void;
-  /** 操作回执（遗留层 `actionReceipt`）。`warning` 是做完了但有一部分要留意，走警告音效。 */
+  /** Action receipt (legacy `actionReceipt`). `warning` means finished but partly worth attention, and plays the warning sound effect. */
   toast(message: string, options?: { warning?: boolean }): void;
   /** Failure receipt (legacy layer `actionFailure`): `action` is the thing that failed. */
   failure(action: string, error: unknown): void;

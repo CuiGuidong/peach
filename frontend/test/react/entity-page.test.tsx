@@ -350,7 +350,7 @@ describe('Switch filters and views', () => {
     }, { kind: 'studio', name: 'S1' });
     expect(readout(page.props)).toBe('Labels · 1');
     expect(page.props.hosts.filter.querySelector('[data-media-view="photos"]')).toBeNull();
-    expect(page.host.querySelector('[data-related-performer="河北彩花"]')).not.toBeNull();
+    expect(page.host.querySelector('[data-related-performer="Kawakita Saika"]')).not.toBeNull();
   });
 
   it('No view toggle with a single content kind', async () => {

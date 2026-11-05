@@ -95,7 +95,7 @@ export function entityQuery(props: CatalogGridProps) {
   };
 }
 
-/** 同一集合的分页保存在 Query 中；刷新代次之间认领整份分页，不复制作品到界面状态。 */
+/** Pagination of the same collection lives in the Query; between refresh epochs the whole pagination is claimed, without copying videos into UI state. */
 export function latestCatalogPages(key: QueryKey): InfiniteData<GridPage, number> | undefined {
   const exact = JSON.stringify(key);
   const cached = queryClient.getQueryCache().findAll({ queryKey: key.slice(0, -1) })

@@ -38,7 +38,7 @@ import { usePageOpen } from './index-entity';
 const statsHost = () => document.getElementById('stats');
 const readPlaylistsRevision = () => playlistsRevision;
 
-/* ── 关注 ── */
+/* ── Follows ── */
 
 async function openFollow(actions: ShellActions, live: () => boolean) {
   const stats = statsHost();

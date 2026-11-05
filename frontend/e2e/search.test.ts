@@ -76,7 +76,7 @@ async function typeQuery(opened: Search, text = SUGGEST.q) {
   const { page } = opened;
   await page.locator('#q').click();
   await page.keyboard.type(text);
-  await withPageDiagnostics(page, () => `搜索建议（请求 ${opened.suggest.map(url => url.search).join(', ')}）`,
+  await withPageDiagnostics(page, () => `Search suggestions (requests ${opened.suggest.map(url => url.search).join(', ')})`,
     () => page.locator(`${OPTION}[data-search-value="七海の夏"]`).waitFor({ timeout: 5_000 }));
 }
 
