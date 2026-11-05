@@ -396,7 +396,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
           {/* Sources that cannot be pulled collapse into one line: one row per source reading "source name: first line of the error", so several failing sources cannot push the table off the first screen;
               the status badge on the table's row also reads "fetch failed". */}
           {failing.length ? (
-            <Note tone="error" title={`${failing.length.toLocaleString()} feeds failed to fetch`}
+            <Note tone="error" title={`${failing.length.toLocaleString()} ${failing.length === 1 ? 'feed' : 'feeds'} failed to fetch`}
               extra={<ul className="flex flex-col gap-0.5 text-body-2-regular">
                 {failing.map((source) => (
                   <li key={source.id} className="min-w-0 truncate" title={source.last_error || ''}>
