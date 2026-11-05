@@ -622,7 +622,7 @@ export function checkReceipt(job: Pick<CheckJob, 'results'>): string {
   if (!bits.length && failed < rows.length) bits.push('No updates');
   if (failed) bits.push(`${failed} failed`);
   if (!bits.length) bits.push('No updates');
-  return `Checked ${rows.length} sources: ${bits.join(' · ')}`;
+  return `Checked ${rows.length} ${rows.length === 1 ? 'source' : 'sources'}: ${bits.join(' · ')}`;
 }
 
 /** Full statistics for one check run. */
@@ -651,7 +651,7 @@ export function checkSummary(job: CheckJob): string {
   const exhausted = rows.filter((row) => row.exhausted).length;
   if (exhausted) bits.push(`${exhausted} with nothing more to fetch`);
   if (failed) bits.push(`${failed} failed`);
-  return `Checked ${rows.length} sources: ${bits.join(' · ')}`;
+  return `Checked ${rows.length} ${rows.length === 1 ? 'source' : 'sources'}: ${bits.join(' · ')}`;
 }
 
 /** The in-page persistent row holds only what needs handling: failures and missing evidence captures. With everything successful it does not exist. */

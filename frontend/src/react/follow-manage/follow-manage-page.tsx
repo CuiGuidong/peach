@@ -49,7 +49,7 @@ const isTab = (value: unknown): value is TabKey => TABS.some(([key]) => key === 
 function Reading({ term, figure, unit }: { term: string; figure: number; unit: string }) {
   return (
     <div className={cardClass({ padding: 'none', className: 'flex flex-col gap-3 px-6 py-5 max-sm:gap-2 max-sm:p-4' })}>
-      <span className="text-body-medium text-text-secondary">{term}</span>
+      <span className="text-body-medium text-text-secondary">{`${term} `}</span>
       {/* The font steps down one size from six digits and again from seven, so with six cards side by side the number and unit stay on one line; longer numbers drop the unit to the next line instead of pushing out of the card. */}
       <b data-follow-reading="" className={`flex min-w-0 flex-wrap items-baseline gap-x-1 tabular-nums text-text-primary ${
         figure >= 1000000 ? 'text-headline-medium' : figure >= 100000 ? 'text-title-3-medium' : 'text-title-1-medium'}`}>
@@ -197,7 +197,7 @@ export function FollowManagePage(props: FollowManageProps) {
         </TabPanel>
 
       </Tabs>
-      <div><ButtonLink variant="secondary" href="/settings/subscriptions">Source and subscription settings{pending ? `(${pending})` : ''}</ButtonLink></div>
+      <div><ButtonLink variant="secondary" href="/settings/subscriptions">Sources and subscription settings{pending ? ` (${pending})` : ''}</ButtonLink></div>
     </Page>
   );
 }

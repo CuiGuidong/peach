@@ -411,7 +411,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
         </div>
       ) : null}
 
-        <SelectionDock visible={chosen.length > 0} label="Feed bulk actions" count={`Selected ${chosen.length} follow sources`}>
+        <SelectionDock visible={chosen.length > 0} label="Feed bulk actions" count={`Selected ${chosen.length} ${chosen.length === 1 ? 'follow source' : 'follow sources'}`}>
           <Button variant="secondary" size="small" disabled={readOnly} {...busyProps(bulk.isPending)}
             onClick={() => bulk.mutate({ ids: chosen.map((row) => row.id), action: 'enabled' })}>Enabled</Button>
           <Button variant="secondary" size="small" disabled={readOnly} {...busyProps(bulk.isPending)}
@@ -462,7 +462,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
         </EmptyState>
       )}
       {sources.length ? (
-        <DataTableFooter label="JAV subscriptions" total={win.total} unit=" follow sources"
+        <DataTableFooter label="JAV subscriptions" total={win.total} unit="follow sources"
           pagination={{ pageIndex: win.page - 1, pageSize }}
           onChange={(next) => { setPageSize(next.pageSize); setPage(next.pageIndex + 1); }} />
       ) : null}

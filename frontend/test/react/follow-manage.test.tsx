@@ -183,7 +183,7 @@ async function open(plan: Plan = {}, over: Partial<Props> = {}) {
 
 const tick = (ms: number) => act(async () => { await vi.advanceTimersByTimeAsync(ms) });
 
-const cards = (root: ParentNode) => [...root.querySelectorAll('section[aria-label$="follows sources"]')];
+const cards = (root: ParentNode) => [...root.querySelectorAll('section[aria-label^="Follow sources for "]')];
 
 const checkboxNamed = (root: ParentNode, name: string) =>
   root.querySelector<HTMLInputElement>(`input[type="checkbox"][aria-label="${name}"]`);
@@ -230,8 +230,8 @@ it('Added time uses the most recent registration of the creator; name defaults t
 });
 
 it('Arrow keys read out what pressing would produce', () => {
-  expect(sortLabel('checked', 'desc')).toBe('Sort by check time, oldest first');
-  expect(sortLabel('name', 'asc')).toBe('Sort by creator name descending');
+  expect(sortLabel('checked', 'desc')).toBe('Sort by Check time Farthest first');
+  expect(sortLabel('name', 'asc')).toBe('Sort by Creator name Descending');
 });
 
 it('Out-of-range pages land on the last page instead of painting an empty one', () => {
@@ -243,12 +243,12 @@ it('Table view flattens creator groups to one source per row', () => {
   const groups = authorGroups(CAST, 'source', 'asc');
   const rows = tableRows(groups, 'source', 'asc');
   expect(rows).toHaveLength(CAST.length);
-  // The sort tiers by source name flatten and reorder the whole table, no longer grouped by creator (c < a < b).
+  // Sorting by source name flattens the groups into one row per source in label order, no longer grouped by creator.
   expect(rows.map((row) => row.source.label))
-    .toEqual(['Gamma · Kemono', 'Alpha · Kemono', 'Alpha · Pawchive', 'Beta · Kemono']);
-  expect(rows[0]!.author).toBe('Gamma');
+    .toEqual(['Alpha · Kemono', 'Alpha · Pawchive', 'Beta · Kemono', 'Gamma · Kemono']);
+  expect(rows[0]!.author).toBe('Alpha');
   // Every row carries its own creator, so the 'Creator' column in the table has a value on every row.
-  expect(rows.map((row) => row.author)).toEqual(['Gamma', 'Alpha', 'Alpha', 'Beta']);
+  expect(rows.map((row) => row.author)).toEqual(['Alpha', 'Alpha', 'Beta', 'Gamma']);
 });
 
 it('The completion message reads the numbers out loud', () => {
@@ -260,9 +260,9 @@ it('The completion message reads the numbers out loud', () => {
     ],
   } as CheckJob;
   const said = checkSummary(job);
-  expect(said).toContain('2 new entries');
-  expect(said).toContain('2 sources have no updates');
-  expect(said).toContain('1 has no more content');
+  expect(said).toContain('2 new items');
+  expect(said).toContain('2 sources had no updates');
+  expect(said).toContain('1 with nothing more to fetch');
   expect(said).toContain('1 failed');
 });
 
@@ -272,7 +272,7 @@ it('Check receipts keep added, updated, and failed, with detailed statistics car
       history_skipped: 862, probed: 241 },
     { ok: false },
   ] } as CheckJob;
-  expect(checkReceipt(job)).toBe('Checked 2 sources: 3 added · 2933 updated · 1 failed');
+  expect(checkReceipt(job)).toBe('Checked 2 sources: 3 new items · Updated 2933 entries · 1 failed');
   expect(checkSummary(job)).toContain('Skipped 281 without resources');
   expect(checkSummary(job)).toContain('Re-checked 241 entries');
   expect(checkReceipt({ results: [{ ok: true }] })).toBe('Checked 1 source: no updates');
@@ -284,13 +284,13 @@ it('Check receipts keep added, updated, and failed, with detailed statistics car
 it('Default view shows one card per creator', async () => {
   const { host } = await open();
   expect(cards(host).map((card) => card.getAttribute('aria-label')))
-    .toEqual(['A\'s followed sources', 'B\'s followed sources', 'C\'s followed sources']);
+    .toEqual(['Follow sources for Alpha', 'Follow sources for Beta', 'Follow sources for Gamma']);
 });
 
 it('Each source on the card has two icon keys, and the checked one marks itself', async () => {
   const { host } = await open();
   const card = cards(host)[0]!;
-  expect(buttonLabelled(card, 'Check all sources of A')).not.toBeNull();
+  expect(buttonLabelled(card, 'Check all sources of Alpha')).not.toBeNull();
   const rows = () => [...card.querySelectorAll('[data-source-divider] > *')];
   expect(rows()).toHaveLength(2);
   for (const row of rows()) {
@@ -298,7 +298,7 @@ it('Each source on the card has two icon keys, and the checked one marks itself'
     expect(icons.map((button) => button.getAttribute('aria-label'))).toHaveLength(2);
   }
 
-  await click(checkboxNamed(host, 'Select A · Kemono'));
+  await click(checkboxNamed(host, 'Select Alpha · Kemono'));
   expect(rows().filter((row) => row.hasAttribute('data-selected'))).toHaveLength(1);
 });
 
@@ -309,14 +309,14 @@ it('Checks span pages and views, and bulk sends the entire id set', async () => 
   const { host, fetcher } = await open({ data: follow({ sources: many }) }, { pageSize: 10 });
 
   await click(checkboxNamed(host, 'Select all sources on this page'));
-  expect(host.textContent).toContain('10 sources selected');
+  expect(host.textContent).toContain('Selected 10 sources');
   expect(host.querySelector('[data-selection-dock]')).not.toBeNull();
 
   // Flip to page two and check one: the ten from page one are still in the selection set.
   await click([...host.querySelectorAll('button')].find((b) => b.textContent === 'Next page'));
-  expect(host.textContent).toContain('10 sources selected');
+  expect(host.textContent).toContain('Selected 10 sources');
   await click(checkboxNamed(host, 'Select Source 11'));
-  expect(host.textContent).toContain('11 sources selected');
+  expect(host.textContent).toContain('Selected 11 sources');
 
   await click([...host.querySelectorAll('button')].find((b) => b.textContent === 'Paused'));
   await settle();
@@ -329,7 +329,7 @@ it('Checks span pages and views, and bulk sends the entire id set', async () => 
 
 it('Switching to table view keeps the same checks', async () => {
   const { host, props } = await open();
-  await click(checkboxNamed(host, 'Select A · Kemono'));
+  await click(checkboxNamed(host, 'Select Alpha · Kemono'));
   expect(host.textContent).toContain('Selected 1 source');
 
   await click(buttonLabelled(host, 'Table view'));
@@ -394,7 +394,7 @@ it('Follow table paging and sorting keep the source selection, and bulk actions 
 it('Table view rows end with an enable switch; toggling it writes only that row and leaves selection and toasts alone', async () => {
   const { host, fetcher } = await open({}, { layout: 'table' });
   await click(checkboxNamed(host, 'Select Alpha · Pawchive'));
-  const toggle = () => host.querySelector<HTMLInputElement>('[aria-label="Enable A · Pawchive"]');
+  const toggle = () => host.querySelector<HTMLInputElement>('[aria-label="Enable Alpha · Pawchive"]');
   expect(toggle()?.checked).toBe(true);
   await click(toggle());
   await settle();
@@ -406,7 +406,7 @@ it('Table view rows end with an enable switch; toggling it writes only that row 
 
 it('Card view rows end with an enable toggle; flipping it writes only this one entry', async () => {
   const { host, fetcher } = await open({}, { layout: 'default' });
-  const toggle = () => host.querySelector<HTMLInputElement>('[aria-label="Enable A · Pawchive"]');
+  const toggle = () => host.querySelector<HTMLInputElement>('[aria-label="Enable Alpha · Pawchive"]');
   expect(toggle()?.checked).toBe(true);
   await click(toggle());
   await settle();
@@ -681,8 +681,8 @@ it('The error line: tracebacks take the exception line, everything else takes th
 
 it('Follow source frequency: minutes under an hour, hours under two days, days beyond that', () => {
   expect(feedIntervalText(30)).toBe('Every 30 min');
-  expect(feedIntervalText(720)).toBe('Every 12 hours');
-  expect(feedIntervalText(2879)).toBe('Every 48 hours');
+  expect(feedIntervalText(720)).toBe('Every 12 hr');
+  expect(feedIntervalText(2879)).toBe('Every 48 hr');
   expect(feedIntervalText(2880)).toBe('Every 2 days');
   expect(feedIntervalText(525600)).toBe('Every 365 days');
 });
@@ -763,14 +763,14 @@ it('The follow list first screen carries the feed list, and toggling, removing, 
   expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent).toBe('Follows list');
   expect([...host.querySelectorAll('[role="columnheader"]:not([data-table-space])')].map((cell) => cell.textContent?.trim()))
     .toEqual(['', 'Name', 'Kind', 'Source', 'State', 'Frequency', 'Last fetch', 'Last additions', 'Actions']);
-  const first = checkboxNamed(host, 'Select Alpha\'s new releases')!.closest('[role="row"]')!;
+  const first = checkboxNamed(host, 'Select A\'s new releases')!.closest('[role="row"]')!;
   expect([...first.querySelectorAll('[role="rowheader"]:not([data-table-space]),[role="gridcell"]:not([data-table-space])')].map(shown))
-    .toEqual(['', 'A\'s new releases', 'JAV subscriptions', 'feeds.test', 'Unchecked', 'Every 12 hours', 'Never fetched', '0 items', '']);
+    .toEqual(['', 'A\'s new releases', 'JAV subscriptions', 'feeds.test', 'Unchecked', 'Every 12 hr', 'Never fetched', '0 items', '']);
   expect(first.querySelector('a')?.getAttribute('href')).toBe('https://feeds.test/a');
   // The round frame before the name is assembled by `card-art`'s fallback chain: the identity reference carries whether an image exists, and the image is stacked on only once present.
   expect(first.querySelector('[role="rowheader"] img')?.getAttribute('src'))
     .toBe('/entity-image?kind=performer&id=41&thumb=1');
-  const second = checkboxNamed(host, 'Select Beta\'s new releases')!.closest('[role="row"]')!;
+  const second = checkboxNamed(host, 'Select B\'s new releases')!.closest('[role="row"]')!;
   expect(second.querySelector('[role="rowheader"] img')).toBeNull();
   expect(second.querySelector('[role="rowheader"] [aria-hidden]')?.textContent).toBe('Beta');
   expect(host.textContent).toContain('1 feed failed to fetch');
@@ -778,11 +778,11 @@ it('The follow list first screen carries the feed list, and toggling, removing, 
   expect(host.textContent).toContain('2 follow sources · 3 unwatched');
   expect(host.textContent).not.toContain('Reading follow sources');
   expect(feedReads(fetcher)).toBe(1);
-  await click(host.querySelector('[aria-label="Enable Beta\'s new releases"]'));
+  await click(host.querySelector('[aria-label="Enable B\'s new releases"]'));
   await settle();
-  await click(buttonLabelled(host, 'Fetch Beta\'s new releases'));
+  await click(buttonLabelled(host, 'Fetch B\'s new releases'));
   await settle();
-  await click(buttonLabelled(host, 'Remove Alpha\'s new releases'));
+  await click(buttonLabelled(host, 'Remove A\'s new releases'));
   await settle();
   await click(buttonNamed('Fetch now', host));
   await settle();
@@ -807,26 +807,26 @@ it('The same person\'s two pages get one row each, with the old stage name page 
   // A person with a single row gets no page name: the site title bar string would be pure noise.
   expect(names).toEqual(['森日向子白石アイリ', '森日向子', '凉森玲梦']);
   const readings = [...host.querySelector('[aria-label="Follow overview"]')!.children].map((card) => card.textContent);
-  expect(readings.slice(-2)).toEqual(['JAV subscriptions 2 people', '81 unwatched new releases']);
+  expect(readings.slice(-2)).toEqual(['JAV subscriptions 2 people', 'Unwatched new releases 81 items']);
 });
 
 it('Clicking a blank spot on a feed table row selects it; with a selection the batch actions float up at the bottom, and pausing writes to the feed API one by one', async () => {
   const { host, fetcher } = await open({ feeds: FEEDS }, { tab: 'list' });
-  const row = () => checkboxNamed(host, 'Select Beta\'s new releases')!.closest('[role="row"]')!;
+  const row = () => checkboxNamed(host, 'Select B\'s new releases')!.closest('[role="row"]')!;
   const blank = () => [...row().querySelectorAll('[role="rowheader"],[role="gridcell"]')]
     .find((cell) => cell.textContent?.trim() === 'Every 30 min')!;
   expect(host.querySelector('[data-selection-dock]')).toBeNull();
 
   await click(blank());
   expect(row().hasAttribute('data-follow-selected')).toBe(true);
-  expect(host.textContent).toContain('1 feed selected');
+  expect(host.textContent).toContain('Selected 1 follow source');
   await click(blank());
   expect(row().hasAttribute('data-follow-selected')).toBe(false);
   expect(host.querySelector('[data-selection-dock]')).toBeNull();
 
-  await click(checkboxNamed(host, 'Select Alpha\'s new releases'));
-  await click(checkboxNamed(host, 'Select Beta\'s new releases'));
-  expect(host.textContent).toContain('2 feeds selected');
+  await click(checkboxNamed(host, 'Select A\'s new releases'));
+  await click(checkboxNamed(host, 'Select B\'s new releases'));
+  expect(host.textContent).toContain('Selected 2 follow sources');
   await click([...host.querySelectorAll('[data-selection-dock] button')].find((b) => b.textContent === 'Paused'));
   await settle();
   expect(sentBody(fetcher, FEED_SOURCE_URL)).toEqual([
@@ -838,14 +838,14 @@ it('Clicking a blank spot on a feed table row selects it; with a selection the b
 it('Batch remove shows a confirmation stating the count first; after confirming, items are removed one by one and a toast reports the count', async () => {
   const { asked, outcomes } = stubConfirm(true);
   const { host, fetcher, props } = await open({ feeds: FEEDS }, { tab: 'list' });
-  await click(checkboxNamed(host, 'Select Alpha\'s new releases'));
-  await click(checkboxNamed(host, 'Select Beta\'s new releases'));
+  await click(checkboxNamed(host, 'Select A\'s new releases'));
+  await click(checkboxNamed(host, 'Select B\'s new releases'));
   await click([...host.querySelectorAll('[data-selection-dock] button')].find((b) => b.textContent === 'Remove'));
-  expect(asked[0]).toMatchObject({ title: 'Remove 2 feeds', confirmLabel: 'Remove selected feeds', danger: true });
+  expect(asked[0]).toMatchObject({ title: 'Remove 2 follow sources', confirmLabel: 'Remove selected feeds', danger: true });
   expect(await outcomes[0]).toBeNull();
   await settle();
   expect(sentBody(fetcher, FEED_SOURCE_URL)).toEqual([{ action: 'remove', id: 4 }, { action: 'remove', id: 5 }]);
-  expect(props.toast).toHaveBeenCalledWith('Removed 2 feeds');
+  expect(props.toast).toHaveBeenCalledWith('Removed 2 follow sources');
 });
 
 it('Remove first raises a confirmation: title and primary button share one verb, the body names this source, and cancel sends nothing', async () => {
@@ -909,16 +909,16 @@ it('JAV subscription paging keeps cross-page selection', FULL_PAGE, async () => 
   const { host } = await open({ feeds: twoPagesOfFeeds() }, { tab: 'list' });
   const rows = () => host.querySelectorAll('[role="row"][data-key]');
   expect(rows()).toHaveLength(20);
-  expect(host.textContent).toContain('1-20 / 21 follow sources');
+  expect(host.textContent).toContain('1–20 / 21 follow sources');
   await click(checkboxNamed(host, 'Select source 1'));
   await click(buttonNamed('Next page', host));
   expect(rows()).toHaveLength(1);
   expect(host.textContent).toContain('21-21 / 21 follow sources');
-  expect(host.textContent).toContain('1 feed selected');
+  expect(host.textContent).toContain('Selected 1 follow source');
   await click(checkboxNamed(host, 'Select Source 21'));
   await click(buttonNamed('Previous page', host));
   expect(checkboxNamed(host, 'Select source 1')?.checked).toBe(true);
-  expect(host.textContent).toContain('2 feeds selected');
+  expect(host.textContent).toContain('Selected 2 follow sources');
 });
 
 it('JAV subscription frequency sorts the whole set by minutes and returns to the home page', FULL_PAGE, async () => {
@@ -933,8 +933,8 @@ it('JAV subscription frequency sorts the whole set by minutes and returns to the
   expect(rows).toHaveLength(20);
   expect(rows[0]!.textContent).toContain('Source 21');
   expect(rows[19]!.textContent).toContain('Source 2');
-  expect(host.textContent).toContain('1-20 / 21 follow sources');
-  expect(host.textContent).toContain('1 feed selected');
+  expect(host.textContent).toContain('1–20 / 21 follow sources');
+  expect(host.textContent).toContain('Selected 1 follow source');
 });
 
 it('JAV subscription paging capacity returns to the home count, with the status bar counting the whole set', FULL_PAGE, async () => {
@@ -942,7 +942,7 @@ it('JAV subscription paging capacity returns to the home count, with the status 
   await click(buttonNamed('Next page', host));
   await choose(host.querySelector('button[aria-label="Rows per page"]'), '10 items per page');
   expect(host.querySelectorAll('[role="row"][data-key]')).toHaveLength(10);
-  expect(host.textContent).toContain('1-10 / 21 follow sources');
+  expect(host.textContent).toContain('1–10 / 21 follow sources');
   expect(host.querySelector('footer')?.textContent).toContain('Unwatched 81 · Enabled 21 / 21');
 });
 
@@ -958,7 +958,7 @@ it('Removing the last source on the final page shows a valid page', FULL_PAGE, a
   await click(buttonLabelled(host, 'Remove Source 21'));
   await settle();
   expect(host.querySelectorAll('[role="row"][data-key]')).toHaveLength(20);
-  expect(host.textContent).toContain('1-20 / 20 follow sources');
+  expect(host.textContent).toContain('1–20 / 20 follow sources');
 });
 
 it('The subscriptions list card includes title, empty state, and status bar', async () => {
@@ -1006,7 +1006,7 @@ it('The follows list shows existing JAV subscriptions and reuses the feed switch
 it('The follows list\'s creators and JAV subscriptions keep only the current table\'s selection', async () => {
   const { host } = await open({ feeds: FEEDS });
   const creator = () => checkboxNamed(host, 'Select A · Kemono')!;
-  const feed = () => checkboxNamed(host, 'Select Alpha\'s new releases')!;
+  const feed = () => checkboxNamed(host, 'Select A\'s new releases')!;
   await click(creator());
   expect(creator().checked).toBe(true);
   await click(feed());
