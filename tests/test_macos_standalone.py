@@ -420,8 +420,8 @@ class SparkleUpdateTests(TestCase):
                 mock.patch.object(tray, "create_icon"), \
                 mock.patch.object(tray.sparkle_update, "start", return_value=sparkle):
             tray.run_macos_menu_bar(mock.Mock(specs=()), mock.Mock(waiting=False), silent=True)
-        submenu = dict(menu_type.call_args.args[2])["版本与更新"]
-        dict(row for row in submenu.items() if row[0])["检查更新"]()
+        submenu = dict(menu_type.call_args.args[2])["Version and updates"]
+        dict(row for row in submenu.items() if row[0])["Check for updates"]()
         sparkle.check.assert_called_once()
         versions.return_value.check.assert_not_called()
 

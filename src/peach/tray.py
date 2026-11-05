@@ -1700,7 +1700,7 @@ class MacUpdateEntry:
             self.notify("正在检查更新…", "Peach")
             result = self.versions.check()
             self.state["snapshot"] = result.snapshot
-            self.notify(result.message, "Peach 版本与更新")
+            self.notify(result.message, "Peach Version and updates")
         finally:
             self.lock.release()
 
@@ -1835,7 +1835,7 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
                 (menu_text(state['snapshot'].build_label), None),
                 (menu_text(state['snapshot'].channel_label), None),
                 (None, None),
-                ("检查更新", updates.check),
+                ("Check for updates", updates.check),
             ])),
             (None, None),
             ("Exit Peach", quit_now),

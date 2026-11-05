@@ -83,10 +83,10 @@ def runtime_fact_entries(config) -> list[dict[str, str]]:
     if missing:
         entry = next(row for row in entries if row["term"] == "FFmpeg")
         entry.update(value="未找到 " + "、".join(missing) + "；转码、媒体信息与缩略图需要 FFmpeg 工具包。",
-                     download_url="https://ffmpeg.org/download.html", download_label="下载 FFmpeg")
+                     download_url="https://ffmpeg.org/download.html", download_label="Download FFmpeg")
     untrunc = next(row for row in entries if row["term"] == "untrunc")
     if untrunc["value"] != "Available":
         untrunc.update(value=untrunc["value"] + f"解压到 {config.directory('tools') / 'untrunc'}。",
                        download_url="https://github.com/anthwlock/untrunc/releases",
-                       download_label="下载 untrunc")
+                       download_label="Download untrunc")
     return [row for row in entries if not (row["term"] in ("FFmpeg", "untrunc") and row["value"] == "Available")]
