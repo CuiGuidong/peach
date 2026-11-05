@@ -1544,7 +1544,9 @@ class ProcessLibraryTests(LedgerTestCase):
     def test_a_scrape_declares_dispatches_and_runs_its_avatar_followups(self):
         _media, config = self.sample()
         seed = seed_pack.load(self.seed())
-        with mock.patch('peach.library_processing._generate_previews', return_value=0):
+        # The fixture's stand-in video is a few bytes; the small-file scan filter would skip it, so drop the floor for this run.
+        with mock.patch('peach.library_processing._generate_previews', return_value=0), \
+                mock.patch('peach.scan.MIN_FILE_SIZE', 0):
             result = process_library(config, self.db, self.root / 'generated',
                                      self.root / 'covers',
                                      provider_factory=mock.Mock(return_value=self.provider()),
