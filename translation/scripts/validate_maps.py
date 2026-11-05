@@ -18,8 +18,8 @@ import os
 import re
 import sys
 
-OUT = r"C:\Users\Nutdevza\Downloads\dmm-translation-work\out"
-BASE = r"C:\Users\Nutdevza\Downloads\Compressed\dmm-downloader"
+OUT = os.path.expanduser(os.path.join("~", "Downloads", "dmm-translation-work", "out"))
+BASE = os.path.expanduser(os.path.join("~", "Downloads", "Compressed", "dmm-downloader"))
 CJK_STRICT = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
 
 def tpl_structure_ok(v):

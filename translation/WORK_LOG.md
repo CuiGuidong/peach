@@ -1,3 +1,7 @@
+---
+kind: changelog
+---
+
 # Translation & Localization Work Log
 
 Date: 2026-11-02
@@ -83,7 +87,7 @@ Scraped `javlibrary.com` for performer romaji names via BrowserOS neo:
 | `src/peach/*.py` (multiple) | Chinese → English string translations |
 | `frontend/src/**` | UI string translations |
 | `translation/memory.json` | 16k+ translation pairs |
-| `C:\Users\Nutdevza\AppData\Local\Peach\peach-data\database\ledger.db` | Romaji data, 274 assets |
+| `<data root>/database/ledger.db` | Romaji data, 274 assets |
 
 ## Architecture Notes
 

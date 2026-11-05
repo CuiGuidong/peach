@@ -1,3 +1,7 @@
+---
+kind: readme
+---
+
 # Peach UI Translation (Chinese → English)
 
 All UI copy in `frontend/` has been translated from Chinese to English. This directory

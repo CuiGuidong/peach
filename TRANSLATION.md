@@ -1,3 +1,7 @@
+---
+kind: reference
+---
+
 # Peach — English Translation Status
 
 Status as of 2026-11-04, branch `agent/glm/translation-reconcile`, HEAD after the

@@ -36,7 +36,6 @@ def main():
     units_path = os.path.join(TRANSLATION, "units.json")
     if not os.path.isfile(units_path):
         # fallback: the script writes to the old work path; relocate
-        old = os.path.join(os.environ.get("TEMP", "/tmp"), "units.json")
         print("NOTE: check units-ast.mjs output path; expected", units_path)
         return 1
     units = json.load(open(units_path, encoding="utf-8"))

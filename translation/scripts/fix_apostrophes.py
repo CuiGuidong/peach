@@ -5,7 +5,7 @@ import json
 import os
 import re
 
-OUT = r"C:\Users\Nutdevza\Downloads\dmm-translation-work\out"
+OUT = os.path.expanduser(os.path.join("~", "Downloads", "dmm-translation-work", "out"))
 APO = re.compile(r"(?<!\\)'")
 fixed_total = 0
 for name in os.listdir(os.path.join(OUT, "maps")):

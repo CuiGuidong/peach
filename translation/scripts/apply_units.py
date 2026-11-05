@@ -12,9 +12,9 @@ import os
 import re
 import sys
 
-BASE = r"C:\Users\Nutdevza\Downloads\Compressed\dmm-downloader"
+BASE = os.path.expanduser(os.path.join("~", "Downloads", "Compressed", "dmm-downloader"))
 FRONTEND = os.path.join(BASE, "peach", "frontend")
-OUT = r"C:\Users\Nutdevza\Downloads\dmm-translation-work\out"
+OUT = os.path.expanduser(os.path.join("~", "Downloads", "dmm-translation-work", "out"))
 HAN = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
 
 units = json.load(open(os.path.join(OUT, "units.json"), encoding="utf-8"))
@@ -54,7 +54,7 @@ for rel, pairs in sorted(file_to_pairs.items()):
     pattern = re.compile("|".join(re.escape(zh) for zh, _ in pairs))
     lookup = dict(pairs)
     count = 0
-    def sub(m):
+    def sub(m, lookup=lookup):
         global count
         count += 1
         return lookup[m.group(0)]
