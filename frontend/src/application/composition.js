@@ -1,7 +1,7 @@
 /* composition domain controller: this domain's state and actions, installed at startup by Application's lifecycle. */
 import { loadingState, renderInitialSurfaceLoading } from './loading.js';
 import { clearHomeFeed, installEntityShapeBootstrap, isFeedNewPath, loadEntityShapes, prepareHomeFeed } from './feed.js';
-import { buildManageBar, closeStats, enterManagementSurface, loadSyncedSettings, mountManageHeader, mountSidebar, openManage, openSettings, paintListTitle, scheduleStickySurfaces, showHomeSurfaces, showManagementBody, syncHeaderActions } from './layout.js';
+import { buildManageBar, closeStats, enterManagementSurface, loadSyncedSettings, mountManageHeader, mountSidebar, openManage, openSettings, paintCatalogPageTitle, paintListTitle, scheduleStickySurfaces, showHomeSurfaces, showManagementBody, syncHeaderActions } from './layout.js';
 import { disposeStage, mediaState, openItem, openJavMovie, openPlaylist, openQueue, openTok } from './media.js';
 import { currentBarsContext, entityState, openEntity, revealForIsland, routeEntityPage, showEntityMissing } from './entity.js';
 import { applyFilterStateInPlace, buildBars, catalogState, clearCatalogGrid, gridTaken, loadCatalog, onlineDefaultLoc, paintCatalogGrid, refreshFacetCounts, syncCatalogFilterScreen, toggleTag } from './catalog.js';
@@ -41,7 +41,9 @@ renderInitialSurfaceLoading();
 /* The home page title appears together with the first-screen skeleton: showing it only after the route opens the catalog would push the whole skeleton page down one jump. Other state pages' titles are still set by `paintListTitle`. */
 if(location.pathname==='/'){
   const query=new URLSearchParams(location.search);
-  if(!query.has('state')&&query.get('jav')!=='1')$('#catalogPageHeading').hidden=false;
+  if(!query.has('state')&&query.get('jav')!=='1'){
+    $('#catalogPageHeading').hidden=false;paintCatalogPageTitle($('#catalogPageHeading'),query.get('q'));
+  }
 }
 /* The new releases row lays its skeleton together with the first screen based on the conclusion remembered on this machine, the same for both card and list display modes. */
 if(isFeedNewPath(decodeURIComponent(location.pathname)))prepareHomeFeed($('#feedNew'));

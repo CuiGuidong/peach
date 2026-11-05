@@ -34,7 +34,7 @@ YuNet 与 SFace 沿用既有模型哈希校验，Python 读取模型字节后交
 
 ## 浏览器添加的本地人物资料
 
-`/api/jav-browser/people` 复用现有专用令牌与浏览器权限检查、规范实体关联和男优排除判据。人物名只读本地账本与发现资料快照；查询单个番号时还可带上详情页的出演者名字，按既有 `resolve_entity` 先规范名后唯一别名匹配，括号里的别名一并尝试，未匹配的只返回名字。头像通过既有 `PreviewService.entity_image` 查找已安装文件，按 `avatar_focus` 的人脸记录沿用 `frontend/src/card-art/face-frame.ts` 的放大与夹持判据取景；已有 Pillow 将其在内存缩为 64px JPEG，不落新头像、不抓外站。未初始化发现资料服务时直接读取快照，避免初始化恢复外站任务。缺头像省略图片字段，缺人物信息返回空数组，接口失败与正常缺失分别反馈。用户脚本显示灰底首字母，不显示作品封面，无新增依赖。
+`/api/jav-browser/people` 复用现有专用令牌与浏览器权限检查、规范实体关联和男优排除判据。人物名只读本地账本与发现资料快照；查询单个番号时还可带上详情页的出演者名字，只在账本与快照都没有人物时使用（素人作品入库后账本记真名、页面仍写店铺艺名，不能算成两人），按既有 `resolve_entity` 先规范名后唯一别名匹配，括号里的别名一并尝试，未匹配的只返回名字。头像通过既有 `PreviewService.entity_image` 查找已安装文件，按 `avatar_focus` 的人脸记录沿用 `frontend/src/card-art/face-frame.ts` 的放大与夹持判据取景；已有 Pillow 将其在内存缩为 64px JPEG，不落新头像、不抓外站。未初始化发现资料服务时直接读取快照，避免初始化恢复外站任务。缺头像省略图片字段，缺人物信息返回空数组，接口失败与正常缺失分别反馈。用户脚本显示灰底首字母，不显示作品封面，无新增依赖。
 
 ## README Star 图
 
@@ -218,7 +218,7 @@ npm 安装沿用 Node.js 24 LTS 附带的官方 [`npm ci`](https://docs.npmjs.co
 
 ## 浏览器错误的构建映射
 
-前端复用官方 [`@sentry/vite-plugin` 11.8.0](https://github.com/getsentry/sentry-javascript-bundler-plugins)（MIT，维护中，Node ≥23.2，与项目 Node 24 和 Vite 8 兼容）生成确定性 Debug ID 与 hidden source maps；[`@sentry/cli` 3.8.0](https://github.com/getsentry/sentry-cli)（FSL-1.1-MIT）仅用于构建期本地定位和显式上传。两者精确固定在前端开发依赖，纳入现有 Dependabot；不进入 Python 运行时或独立包依赖。
+前端复用官方 [`@sentry/vite-plugin` 11.8.0](https://github.com/getsentry/sentry-javascript-bundler-plugins)（MIT，维护中，Node ≥23.2，与项目 Node 24 和 Vite 8 兼容）生成确定性 Debug ID 与 hidden source maps；[`@sentry/cli` 3.8.0](https://github.com/getsentry/sentry-cli)（FSL-1.1-MIT）仅用于构建期本地定位和显式上传。两者精确固定在前端开发依赖，纳入现有 Dependabot；不进入 Python 运行时或独立包依赖。插件的 `@sentry/bundler-plugins` 声明 glob `^13`，经它引入的 minimatch 10 有拒绝服务告警（GHSA-g3hv-75wg-m249），修复只在 minimatch 11；插件只用 `glob()` 的 `absolute`、`nodir`、`ignore`、`root` 选项，`frontend/package.json` 的 `overrides` 将其 glob 固定为 14.0.3。插件自身声明 glob 14 后移除这条 override。
 
 `frontend/scripts/sentry-build.ts` 只保留 Peach 的公开／私有目录边界与产物匹配检查。官方插件禁用遥测、自动上传与 release 注入，普通构建不需要凭据；私有目录保存 JS/CSS/maps，公开目录只复制四个正式 JS/CSS。显式上传复用官方 CLI，先核对分发字节和 map 身份。没有实现自定义 source map 编解码器或上传协议，也没有为此引入浏览器 SDK、页面回放或性能采集。
 
@@ -439,6 +439,8 @@ Babepedia 主图库和 Vixen 网络公开 GraphQL 的字段核对 [Stash Communi
 
 公司资料复用 `entity.metadata_json`、HTTPX、官网公司概要表和定义列表与标识采集器。`company_profiles` 只有通用判据（概要标签、服务条款订立方原句），按字段保存出处、原文和批次，只填空；一页多张公司表时按法人名对实体名与别名选表，公司成立与品牌启动分列，集团与分工关系不由代码推导，只作候选。`harvest_company_profiles.py` 默认产复核 JSON，`--input --apply --backup --batch auto:company-profile@…` 按缓存页重放判据后落库，清单里的别名、链接与第三方页面不写。`revert_auto_landing.py` 可撤回同批公司字段及标识，无新增依赖。
 
+avbase 女优页补位（ADR-0136）参考 OpenAver `ae7fc235`（MIT）的来源选择，只借用「女优页地址加 `__NEXT_DATA__` 字段」这个做法，没有复制源码。取页复用 `MinnanoPages` 的缓存、冷却与请求上限，传输用 `SourceTransport`。实测 httpx 带 Chrome UA 就能取到页，所以没有照上游改走 curl_cffi。解析与 `sources/avbase.py` 的作品页共用同一个 `__NEXT_DATA__` 读法，名字锚定复用 `performer_alias_followup` 的 `search_keys`、`match_key`、`rejection`，资料写入复用 `performer_profiles.write_profile`。无新增依赖。
+
 Babepedia 资料采集复用 `babepedia_page` 的主名与别名交叉核对、`performer_profiles` 的整行来源保护和 `performer_alias_followup.land` 的占用检查。英文艺名只在明确允许的来源中登记，单个罗马字词只在它就是页面主名时登记，JAV 后继保留自己的名字策略。真人账号与出演者共用资料表、别名分组与头像候选；保留账号角色及旧地址，与已登记账号说法不一的链接只进回执。出演者主图经 `avatar_followup.match_gallery` 与单人作品封面比上脸才补空头像，账号与本人档案图库仅作候选，推荐人物排除，单图失败继续其余有限候选；候选表只认判词「命中」的档案地址。`harvest_western_profiles.py` 每轮至多 16 位，计划、备份、回执与批次撤回齐备；既有资料和头像保留。真实只读复核取得 Ria Kurumi 等 16 份匹配档案，无新增依赖。
 
 身份分类复用 `entity`、来源关系、`field_owners`、SQLite 迁移与版本触发器。职业与账号角色使用独立多值断言，跨角色身份使用可撤回关系；[Schema.org Person](https://schema.org/Person) 的 `hasOccupation`、`sameAs` 与 [Role](https://schema.org/Role) 提供语义参照，2026-10-06 已核对官方文档。实现不复制外部解析器或新增依赖。目录推断和搜索命中只存候选，公开来源事实与用户复核分别保留状态。
@@ -503,9 +505,9 @@ Peach 播放器皮肤直接装饰 Video.js 10 的 light DOM：右侧控制组用
 
 启动取证复用 Python 3.14 标准库的 `sys.excepthook`、`threading.excepthook`、`sys.unraisablehook`、`logging.Handler`、`faulthandler` 和 `zipfile`（PSF 许可，无额外安装体积）。`error_reporting` 在配置与第三方依赖之前加载，`support_bundle` 仅收集选定日志和系统字段；Peach 保留脱敏、备用目录、本机权限与报告内容策略。已有诊断报告用于页面和运行期导出。临时目录与独立子进程覆盖无控制台、导入失败、线程异常、备用目录、配置损坏和脱敏。
 
-可选远程诊断复用官方 [sentry-sdk 2.72.0](https://github.com/getsentry/sentry-python/tree/2.72.0)（MIT，维护中，支持 Python 3.14）；固定版源码通过 `opensrc path pypi:sentry-sdk` 核对。SDK 负责后台 HTTP、TLS、Sentry 信封和服务端限流；Peach 负责本机选择、技术字段投影、同类错误聚合与每机每日上限。版本统计与错误诊断共用默认勾选的开关，关闭时不构造 SDK；SDK 全局自动集成、追踪、回放、日志、会话与指标采集均关闭。`HttpTransport._send_envelope` 的窄覆盖在真正发送前复查本机选择版本并移除本机传输元数据；它是固定版本的内部接口，升级必须通过真实 SDK 信封回归。无真实外发的内存接收端检查最终字节、停用后队列失效与断网不影响本机取证。新增依赖仅 `sentry-sdk`，复用已声明的 urllib3 / certifi；体积以发行构建为准。未采用自写 Sentry 协议或 Workers 收集后台，避免另行维护传输、去重和查看界面。没有真实 ledger 写入。
+可选远程诊断复用官方 [sentry-sdk 2.72.0](https://github.com/getsentry/sentry-python/tree/2.72.0)（MIT，维护中，支持 Python 3.14）；固定版源码通过 `opensrc path pypi:sentry-sdk` 核对。SDK 负责后台 HTTP、TLS、Sentry 信封和服务端限流；Peach 负责本机选择、技术字段投影、同类错误聚合与每机每日上限。版本统计与错误诊断共用默认勾选的开关，关闭时不构造 SDK；SDK 全局自动集成、追踪、回放、日志、会话与指标采集均关闭；版本统计与计数日志、会话汇总由 Peach 用 SDK 的 `Envelope`、`Item` 与 `PayloadRef` 组装，经同一传输发送（ADR-0132）。`HttpTransport._send_envelope` 的窄覆盖在真正发送前复查本机选择版本并移除本机传输元数据；它是固定版本的内部接口，升级必须通过真实 SDK 信封回归。无真实外发的内存接收端检查最终字节、停用后队列失效与断网不影响本机取证。新增依赖仅 `sentry-sdk`，复用已声明的 urllib3 / certifi；体积以发行构建为准。未采用自写 Sentry 协议或 Workers 收集后台，避免另行维护传输、去重和查看界面。没有真实 ledger 写入。
 
-故障频率复用已固定的 `filelock`、`fsutil.atomic_write_text` 和 SDK 事件标签，保留 Peach 的同意版本、技术投影、跨进程计数与每日批次策略。`diagnostic_frequency` 保存有界技术样本及待提交增量，首次、每小时和正常退出通过同一 SDK 提交；关闭会清除聚合。Sentry 默认事件数统计批次，不会将自定义次数标签自动求和；汇总按事件的 `occurrence_day` 与 `occurrence_count` 计算。`reporting_transport` 复用官方 `HttpTransport` 的 `_handle_response`、`_handle_request_error` 与队列丢弃回调，取得 HTTP 状态且不重复实现请求、TLS 或重试；固定内部接口以真实 SDK 和模拟 HTTP 回归。`reporting_delivery` 只保存本机有限回执；SDK 入队、HTTP 接收与接收端留存分别解释。用途、环境与公开构建号复用 Sentry 原生字段，测试在同一传输边界拦截外发。未开启 SDK metrics 或新增收集服务：独立指标通道会增加同意边界、额度与交付口径。计数只覆盖已筛选技术故障，发送及保留限制见 [诊断核验](DIAGNOSTICS.md)。没有新增 Python 依赖或真实 ledger 写入。
+故障频率复用已固定的 `filelock`、`fsutil.atomic_write_text` 和 SDK 事件标签，保留 Peach 的同意版本、技术投影、跨进程计数与每日批次策略。`diagnostic_frequency` 保存有界技术样本及待提交增量；每个诊断键只上传一次错误事件，之后的次数每 6 小时、跨日或正常退出时合并成带整数 `occurrence_count` 的计数日志，接收端日志查询可直接求和；关闭会清除聚合。`reporting_transport` 复用官方 `HttpTransport` 的 `_handle_response`、`_handle_request_error` 与队列丢弃回调，取得 HTTP 状态且不重复实现请求、TLS 或重试；固定内部接口以真实 SDK 和模拟 HTTP 回归。`reporting_delivery` 只保存本机有限回执；SDK 入队、HTTP 接收与接收端留存分别解释。用途、环境与公开构建号复用 Sentry 原生字段，测试在同一传输边界拦截外发。未开启 SDK metrics 或新增收集服务；计数改走日志而不是指标，是因为日志条目能带上与错误事件相同的诊断键和白名单标签。计数只覆盖已筛选技术故障，发送及保留限制见 [诊断核验](DIAGNOSTICS.md)。没有新增 Python 依赖或真实 ledger 写入。
 
 Windows 连接清理复用 [CPython 3.14.7 的 Proactor 对象协议](https://github.com/python/cpython/blob/v3.14.7/Lib/asyncio/proactor_events.py)（PSF 许可，无新增依赖）。精确识别纯标准库清理回调中的 `WinError 10054`，只补完 socket 关闭、服务端解除登记和关闭状态，不重复通知协议，不全局修改标准库类或替换事件循环。它使用 `_sock`、`_server._detach` 与 `_called_connection_lost` 私有接口，升级 Python 时须核验。真实 socket 和 `asyncio.Server` 配合合成故障验证资源释放；收尾自身失败保留原始异常链并上报。33 次回环实验未复现原始竞争时序，不据此认定客户端来源。协议类别只写本机日志；来源、任务、媒体和浏览器的远程筛选复用现有领域状态，见 [诊断核验](DIAGNOSTICS.md#远程错误筛选核验)。
 
@@ -604,7 +606,7 @@ OneJAV、Free JAV Torrent 只给种子链接。这类条目经索引器同源的
 
 复核用 Checkbox、Button、Badge、Select 与 `/api/review/decision`，默认勾选、沿用馆藏页 Shift 连选；支持跨组通过／拒绝与无歧义的共同来源选择。按候选数量、来源组合或字段分组，每项只出现一次，切组保留选择；成功移出、失败保留，离开页面即停。整页在 `frontend/src/react/review/`，一条队列一个 `queryKey`，判定后改缓存不重取。React Aria Components 1.22.1 的 `Radio`／`Checkbox` 继续承载原生焦点与方向键；共用 `base.css` 将隐藏输入框的定位归于所属标签，来源切换只滚动卡片正文，分段单选、媒体库图标选择和复选框使用同一定位基线，不新增依赖。批准回执在同一事务中读取实际资产版本，缓存只推进仍持有该次写入前版本的候选；逐项与批量提交共用缓存中的并发凭据。身份候选用创作者页、作品详情与 revealSource 核对样本；来源图与缺图占位共用 220px 预览区，样本支持无缩略图作品，回收站不参与。
 
-本地 NFO 配对复用 `library_nfo`、`catalog_rules` 的番号与分卷识别、标准库 ElementTree 及现有资料补空流程。[Kodi NFO 文档](https://kodi.wiki/view/NFO_files/Movies)的同名文件与 `movie.nfo` 约定于 2026-10-17 核对；只参照公开格式，没有复制外部源码。Peach 保留同番号分卷共享、同名文件优先、多份匹配拒绝、内容番号冲突检查和输入安全限制。Kodi 整套媒体中心没有作为依赖引入；标准库随 Python 3.14 运行，无额外体积或许可证。NFO 读取后复用来源缓存与缺失缓存核查在线字段；`requires_review` 跟随候选保留覆盖复核要求，人工决定保存已展示的候选身份，见 ADR-0108。隔离媒体与账本回归覆盖共用 NFO、不同作品混放、错误 NFO 继续在线补全、补空与覆盖分流，以及连续批准的版本回执；真实反馈的 NFO 样本尚未取得，无新增依赖。
+本地 NFO 配对复用 `library_nfo`、`catalog_rules` 的番号与分卷识别、标准库 ElementTree 及现有资料补空流程。[Kodi NFO 文档](https://kodi.wiki/view/NFO_files/Movies)的同名文件与 `movie.nfo` 约定于 2026-10-17 核对；只参照公开格式，没有复制外部源码。Peach 保留同番号分卷共享、同名文件优先、多份匹配拒绝、内容番号冲突检查和输入安全限制。Kodi 整套媒体中心没有作为依赖引入；标准库随 Python 3.14 运行，无额外体积或许可证。NFO 读取后复用来源缓存与缺失缓存核查在线字段；`requires_review` 跟随候选标出核查差异，差异按 ADR-0139 的判据结算，判不了的交人，人工决定保存已展示的候选身份，见 ADR-0108。隔离媒体与账本回归覆盖共用 NFO、不同作品混放、错误 NFO 继续在线补全、补空与覆盖分流，以及连续批准的版本回执；真实反馈的 NFO 样本尚未取得，无新增依赖。
 
 ## 本机设置与卸载
 
@@ -661,9 +663,15 @@ MGS 专属发行先查自营商品目录，Prestige 番号复用 `metadata_route
 
 传统正封完整居中，比例留白复用同图派生档的模糊补底，新作与视频流卡片使用同一份取景规则。整幅大封使用卡片纯色底，竖版按主脸填满，横版完整放入容器；图片切换时清理残留背景属性。
 
-取景由 `poster-crop-v13` 管理。Blu-ray 来源标题、明确的版次标签与图片比例共同决定 0.85 正封比例，标题随正封框保留，重算人脸与正封框均读取同一版次；有效宽正封框在没有版次标题的卡片上也完整显示。VR 标记、IENEE、IENFE、SDHS 数字发行拼图，以及可信主脸跨过 DVD 正封先验边界的大封保留整幅画面，由 `cover_frame.layout=still` 传给卡片。两条满高接缝夹出居中正封且两侧纹理均低于正封四分之一时，只显示中间正封。大封在竖版大图按主脸居中填满，横版小图完整显示，均不使用模糊补边；JPEG 软边的书脊识别结合突出度、左忙右静的方向与正封侧基线。手工框保持用户取景。重试队列按最早尝试时间轮转，收起的合集沿用设置跳过；逐番号结果保存在 `feed-cover-attempts/`。资料已齐、只缺封面的新作另派 `feed-cover`（补新作封面）批次，只取图、不写账本，走独立后继通道；排在队里或正在跑的番号不再进下一批。复用现有 HTTP、Pillow、OpenCV 与文件锁，无新增依赖。
+取景由 `poster-crop-v13` 管理。Blu-ray 来源标题、明确的版次标签与图片比例共同决定 0.85 正封比例，标题随正封框保留，重算人脸与正封框均读取同一版次；有效宽正封框在没有版次标题的卡片上也完整显示。VR 标记、IENEE、IENFE、SDHS 数字发行拼图，以及可信主脸跨过 DVD 正封先验边界的大封保留整幅画面，由 `cover_frame.layout=still` 传给卡片。两条满高接缝夹出居中正封且两侧纹理均低于正封四分之一时，只显示中间正封。大封在竖版大图按主脸居中填满，横版小图完整显示，均不使用模糊补边；JPEG 软边的书脊识别结合突出度、左忙右静的方向与正封侧基线。手工框保持用户取景。重试队列按最早尝试时间轮转，收起的合集沿用设置跳过；逐番号结果保存在 `feed-cover-attempts/`。资料已齐、只缺封面的新作另派 `feed-cover`（新作封面采集）批次，只取图、不写账本，走独立后继通道；排在队里或正在跑的番号不再进下一批。复用现有 HTTP、Pillow、OpenCV 与文件锁，无新增依赖。
 
 馆藏与新作取图共用 `cover_artwork.metadata_snapshots` 和 `best_cover`，片商官网、发行方、R18 与 DMM 的官方候选均参与尺寸比较。馆藏采集将长边 1600px 作为高清重探界限，社区转存图可由官方封面替换；同类官方图按像素面积升级，FC2 保留商品图的来源保护。`scripts/audit_cover_artwork.py` 逐张核对尺寸、来源、版次与取景框，输出 CSV；`scripts/upgrade_audited_covers.py` 按已有官方快照逐番号重探，`--live` 经同一官方链在线补查，保存原件备份与结果检查点。两者只处理可重建图片和边车，不写 ledger。
+
+## 快捷键
+
+SFW 开关键可在偏好设置的「内容显示」里改。主键按 `KeyboardEvent.code` 记录与匹配，Mac 上 Option 改写的字符（Option+S 是「ß」）和键盘布局都不影响；绑定至少带一个修饰键，Ctrl 或 ⌘ 加 W、T、N、Q 这类浏览器自己处理的组合不收。显示按平台分两套：苹果设备用 ⌃⌥⇧⌘ 字形，其余平台写 `Ctrl+Alt+Shift+Win`。绑定存在本机 `localStorage`，不进同步设置，⌘ 换到 Windows 上是 Win 键。
+
+平时的按键胶囊直接用 BoardUI 注册表的 `kbd` 条目（逐字副本见 `frontend/src/react/boardui/ORIGIN.md`），颜色取主题已有的 `kbd` token。录制时换成一排拟物键帽（`frontend/src/react/components/keycap.tsx`）：BoardUI 的 Kbd 是一个组合一枚胶囊，只适合做提示；Vercel Geist Keyboard Input 一个键一枚但只有细描边，open-claude-ui 设计手册只写了「键帽、4px 圆角、阴影衬底」没有实现，所以按两者的共同点自己组合，颜色全取主题变量。录制、匹配与显示在 `frontend/src/keyboard-shortcut.ts`，不引快捷键库：tinykeys、hotkeys-js 能替掉的只有匹配那几行，录制和按平台显示仍要自写；react-hotkeys-hook 的录制钩子只给 React 用，而全局监听在遗留的 `application/search.js`。React Aria 的平台判断只在内部私有路径，不作为公开接口依赖，平台判断沿用 `browser-diagnostics.ts` 先读 User-Agent Client Hints 的写法。
 
 ## 复用决策门槛
 
@@ -844,7 +852,7 @@ A 盘垃圾隔离使用短名称 `peach-purge-<32 位 UUID>.peach-quarantine`，
 - 尾部索引布局采用 simon1561 的 [PR #157](https://github.com/peach-mitao/peach/pull/157)（`e67ead5a35a63fc36aa8153e5d62998a001779db`），补充扩展盒头、单个媒体盒和索引读取边界。非零编辑起点超过重建补偿范围时无法区分预卷与裁剪，保留转码；临时 B 帧视频已验证适用样本 50 帧逐帧一致、歧义样本拒修。扫描缓存第 1 版的失败结论按尾部布局重新诊断，第 2 版保留当前失败结论，不清空正常缓存或自动运行媒体修复。
 - 「只采集在线资料」对齐全的行（番号已落库、字段有着落或已在候选表、封面在位）不碰磁盘；文件在不在看目录列表、同目录只列一次，扫描用目录列表自带的大小与时间、不逐个 stat；候选 CSV 每 5 秒写盘一次，被打断也在收尾写全。
 - 一个控件在两页出现时，选中态也归它：首页、资料页与关注页的「全部／没看过／稍后看／已标记」共用 `use-view-glide.ts` 那块滑动玻璃与 `[data-view-glide]`，填充只由玻璃给，各排自己不铺底。
-- 本地详情与关注详情的「接着看」共用 `RelatedSection`、横滚接线与卡片 `next` 版式，数量读同一设置。空结果复用 `EmptyState`，读取失败复用 `RetryNote`，可原位重试；关闭推荐时不取数。关注推荐复用 `/api/follow` 分页及 TanStack Query 缓存，最多读取三页；优先同创作者和共同标签，排除当前合集、已看、忽略与不同媒体类型。创作者头像链接复用卡片的 hover，下载链接复用舞台操作键几何；未新增依赖，推荐读取不写 ledger。
+- 本地详情与关注详情的「接着看」共用 `RelatedSection`、横滚接线与卡片 `next` 版式，数量读同一设置。空结果复用 `EmptyState`，读取失败复用 `RetryNote`，可原位重试；关闭推荐时不取数。关注推荐复用 `/api/follow` 分页及 TanStack Query 缓存，最多读取三页；优先同创作者和共同标签，排除当前合集、已看、忽略与不同媒体类型。创作者头像链接复用卡片的 hover，下载链接复用舞台操作键几何；未新增依赖，推荐读取不写 ledger。两边卡片的推荐理由共用 `RecommendationReason`：写关系和最少见的几个共同标签，作品侧取 `/api/related` 的 `why_tags`（排除隐藏标签），关注侧比详情全部标签、不计 metadata 与 artist；一叠卡的悬停翻卡沿用关注列表的 `canFlip` 判据。
 - 本地与在线详情标签共用 `components/detail-tags.tsx` 与样式：同一标签外观、最近使用、搜索与新建、改名预览及单条删除入口。写入仍由各自的数据层负责；在线来源标签的单条隐藏保存在用户设置，来源原词保留。关注管理的标签页签复用 `TagManager`，支持集中屏蔽和恢复内容。未新增依赖。
 - 详情底部共用 `DetailContinuation`：分集队列在左、接着看在右，手机上下排列，两区独立横滚并共用底色。封面共用宽度与 16:9 比例；宽屏标题区通过 CSS subgrid 共用行高，摘要与操作键参与排版。`RelatedSection` 给卡片的 8px 悬停面留出滚动内距；分卷与版本的推荐按队列种子缓存。队列头像共用 `cardIdentity`、`avatarInner`，同时读取列表投影与详情 `entity_refs`，保留图片版本及人脸取景。
 - 艺人、卖家名册的 RSS 标记读取 `/api/index` 的 `following`：按实体 ID 汇总已启用的 JAV 新作订阅与关注来源，停用、移除及未确认绑定的同名来源不计入。标记复用 `PeopleGrid`、BoardUI `Chip` 与现有 RSS 字形，不增加取数请求或依赖。
@@ -872,6 +880,7 @@ A 盘垃圾隔离使用短名称 `peach-purge-<32 位 UUID>.peach-quarantine`，
 - Iwara 视频作者订阅复用 [yt-dlp 的 Iwara 提取器](https://github.com/yt-dlp/yt-dlp/blob/9b58cb33d0cd3e823c8d8732f6adce8faa1f37e3/yt_dlp/extractor/iwara.py)（Unlicense，固定 revision `9b58cb33d0cd3e823c8d8732f6adce8faa1f37e3`）的 profile→用户 ID→videos 分页模型与 `X-Version` 文件接口签名；[gallery-dl 的 Iwara 提取器](https://github.com/mikf/gallery-dl/blob/882c8d0bb5c5a3ed4e88726d2f42a1cb7db59bf2/gallery_dl/extractor/iwara.py)（GPL-2.0，固定 revision `882c8d0bb5c5a3ed4e88726d2f42a1cb7db59bf2`）用于交叉核对 `apiq.iwara.tv`、视频文件字段与格式清单，不复制其实现。两者在 2026-10-23 获取时均维护中，Python 客户端可跨平台运行；完整下载器包含 Peach 不使用的下载、账户缓存与大量站点能力，因此只复用公开协议模型和 Unlicense 签名算法，不新增依赖。HTTP 复用现有 `curl_cffi`：匿名只读 POC 中普通 HTTP 对 API 返回 403，Chrome 传输取得作者资料、视频列表两页、详情与三档格式，五次请求约 4.9 KB、4.7 秒，未读取凭据或下载媒体。Peach 保留 DTO、关注状态、历史游标、凭据隔离及媒体代理；可选 `access_token` 仅发送到固定 API，不同步。列表只保存稳定视频页地址，短效文件地址与清晰度仅在播放缓存中保留；外部播放器、权限不足、空历史页、限流与结构错误分别处理。用法见 [Iwara 视频作者订阅](SOURCING.md#iwara-视频作者订阅)。
 - Iwara 封面复用 `/follow-image` 的同源缓存，官方缩略图经正式 HTTPX 传输实测取得 200 `image/jpeg`；来源图标采用官网声明且实测为 PNG 的 `/logo.png`。官方头像专用解析路径未取得，作者头像沿用首字母回退；作者主页的用户名与署名复用既有官方别名学习。部分迁移视频没有可用时长或原画分辨率，字段保留未知，播放仍优先选择 `Source` 原画。标签模型另核对 [IwaraTool API 字段说明](https://github.com/Moeary/IwaraTool/blob/1e98c96c422a169699c0d16bcab49b8a7f5238d5/docs/API_zh.md)（MIT，固定 revision `1e98c96c422a169699c0d16bcab49b8a7f5238d5`，仅核对协议，不复制代码）；匿名 `/tags` 与八条视频的 28 个标签均为 `id/type/sensitive` 模型。仅 `type=general` 明确进入 Peach 的通用词表，其他类型与缺少类型的原词保留，原始类型另存 `source_tag_types`，不按词形推断。
 - 关注检查分两阶段：列表阶段落 partial 行，详情补全按 provider 额度只补新行和未补齐行。「补齐过」由连接器的 `ENRICHED_MARK` 声明、判据登记在 `follow_store._ENRICHED_PREDICATES`。
+- 定时关注检查只查到期的来源，按已有的 `last_checked_at` 与条目时间现算（`follow_check.due_for_check`），不加列、不起第二套调度；订阅源复用同一个 `FollowUpdateScheduler`，只多一个 `tick_minutes`（ADR-0134）。
 - 关注原始证据复用 Python 标准库 `hashlib.sha256` 与既有 `write_immutable`。快照文件名由检查时间和完整说明的摘要组成；说明含正文 SHA-256、脱敏请求地址及候选数量，因此相同正文的不同游标或筛选结果各有独立证据。相同快照可重复保存，已有文件内容冲突仍拒绝覆盖；历史证据按账本保存的相对路径读取，无迁移或新增依赖。临时账本回归遍历登记表中的全部追更来源，覆盖正文、地址及候选数量的独立变化，并经 FANBOX 连接器验证相同正文的历史补足和重复检查。
 - 单来源失败边界覆盖取回、整页存储和历史补足；证据内容冲突保留错误，已提交的条目继续保留，其他来源继续检查。Web 与 CLI 共用 `follow_check.run_check` 的失败结果，不把证据冲突记成成功。
 - 关注检查失败在本机 `follow-check` 事件中保留来源、来源编号、失败阶段、请求页及异常链；只记录登记来源键与技术状态，不复制作者名称或来源地址。单来源错误仍按既有任务结果返回。
@@ -958,7 +967,9 @@ A 盘垃圾隔离使用短名称 `peach-purge-<32 位 UUID>.peach-quarantine`，
 | 生成产物跨机同步 | Syncthing 2.1.x，Windows send-only → Mac receive-only | 目录划分、忽略规则、方向固定与「Mac 不发布正式产物」的边界 |
 | Windows 托盘 | pystray 0.19.5（LGPLv3）、Pillow、Win32 Per-Monitor V2 DPI | Peach 服务归属、后台更新检查、菜单动作、品牌图标 |
 | Windows 托盘恢复 | Windows 自带 `OpenProcess`、`GetProcessTimes`、[`WaitForSingleObject`](https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject)、`GetExitCodeProcess`；Python 3.12+ 标准库 `ctypes` / `subprocess`，无新增依赖或分发体积 | `tray_lifecycle` 保留明确退出意图、创建时间校验、3 次 / 5 分钟预算与重启交接。pystray 0.19.5 的 `_message_handlers` 接收 `WM_STOP` / `WM_ENDSESSION`，已核对安装包源码；Windows 临时进程实验证明强制退出能恢复，明确退出不会恢复。原生 API 随受支持的 Windows 维护；pystray 使用项目固定版本。不采用 Task Scheduler `RestartOnFailure`：它只管理任务启动的实例，桌面快捷方式与现有重启脚本不归其管理；不新增 psutil 运行时依赖，进程句柄已覆盖等待与退出码。已知边界是监视器随整棵进程树被终止时不能恢复。 |
-| macOS 菜单栏 | `pyobjc-framework-Cocoa==12.2.2`（MIT）提供 AppKit / PyObjCTools / objc | 附件应用策略、18 pt template 图、服务归属与菜单动作 |
+| macOS 菜单栏 | `pyobjc-framework-Cocoa==12.2.2`（MIT）提供 AppKit / Foundation / PyObjCTools / objc | 附件应用策略、18 pt template 图、服务归属与菜单动作 |
+| macOS 应用内更新 | [Sparkle 2.10.1](https://github.com/sparkle-project/Sparkle/releases/tag/2.10.1)（MIT）官方发布包，地址与 SHA-256 固定在 `scripts/sparkle-macos.json`；框架放 `Contents/Frameworks`，由 pyobjc `objc.loadBundle` 加载；appcast 由官方 `generate_appcast` 生成、`sign_update --verify` 核对 | 读取端的迁移拦截、安装前保存任务进度与停服务、设置页偏好映射到定时检查、appcast 的迁移号与发布门槛（`scripts/sparkle_appcast.py`）。非沙盒应用用不到 XPC 服务，取件时删除并按 ad-hoc 由内向外重签；不开 Hardened Runtime。不自写 DMG 下载、挂载与替换，也不在 Linux 上用 Python 重新实现 EdDSA 签名与 appcast 生成：官方工具只需一个仅标签运行的 macOS 作业。取舍与未验证项见 [ADR-0130](adr/0130-macos-sparkle-in-app-update.md) |
+| Windows 更新的发布签名 | `cryptography==50.0.2`（Apache-2.0 / BSD）的 Ed25519；原是 smbprotocol 的传递依赖，独立包已带，改为直接声明 | 签名对象选每个版本已有的 `SHA256SUMS.txt`，签名文件一行一个「公钥 签名」以便多钥轮换，下载前校验，发布作业缺私钥时拒绝发布（`release_signing.py`、`scripts/sign_release.py`）。不用 minisign、signify、SSHSIG 或 GPG：客户端要多带解析器或外部工具，只验一种文件不值得。不复用 Sparkle 私钥：那把公钥无法轮换。取舍见 [ADR-0137](adr/0137-release-sums-ed25519-signature.md) |
 | macOS 拖放安装镜像 | [dmgbuild 1.6.7](https://github.com/dmgbuild/dmgbuild)（MIT，Python ≥3.10，macOS）直接写 Finder 元数据；仅安装于 `build` extra。纯 Python wheel 约 35 KB，依赖 `ds-store`、`mac-alias`；固定传递版本见 `uv.lock` | 已读取固定版的文件复制、背景多分辨率合成与图标布局实现；背景渲染复用 resvg-py 0.5.0，无运行时新增依赖。Peach 提供 640×420 拖放布局、双分辨率背景和应用内许可证；[APFS 设置](https://dmgbuild.readthedocs.io/en/latest/settings.html#filesystem)保留签名资源的 Unicode 文件名。单元验证配置与图片尺寸，macOS 原生回归与发布验收实际挂载镜像，检查严格签名、资源字节及软链。磁盘镜像创建依赖 macOS 的 hdiutil；无需 Finder 自动化权限，挂载或文件系统失败会终止构建 |
 | 人脸取景 | `opencv-python-headless==5.0.0.93`（Apache-2.0）的 `cv2.FaceDetectorYN` + opencv_zoo 定版模型 `face_detection_yunet_2023mar.onnx`（MIT，opencv_zoo 提交 `48b10fa5`，sha256 `8f2383e4…52fa4`，232 KB，随安装包放 `tools/face-models/`，没带时放 `peach-data/tools/yunet/`，不进 Git）；MetaTube SDK `6a5e6128c725187aeaf921d48ed7d9cd9f30671b` 的主脸聚类只作算法参考 | 头像／封面离线脚本共用 `peach.face_detect`（主脸、归一化焦点与 sidecar）。`detect` 按长边 320/640/1280 各检一次、分数取中位数；`main_face` 先筛掉分数落后最好那张 0.1 以上的框，再取最大。不用 Haar 级联（OpenCV 5 wheel 里没有、检出率低）与 Pigo v1.4.6（有无脸误报）。[实测](SOURCING.md#人脸与水印实测) |
 | 人脸比对 | 同一 OpenCV 的 `cv2.FaceRecognizerSF` + opencv_zoo 定版模型 `face_recognition_sface_2021dec.onnx`（Apache-2.0，同一提交，sha256 `0ba9fbfa…34e79`，与 LFS 指针的 oid 一致，37 MB，随安装包放 `tools/face-models/`，没带时放 `peach-data/tools/sface/`，不进 Git） | `peach.face_match` 提特征、算余弦，阈值用 SFace 官方的 0.363；补头像后继拿图库候选与单人封面截到的脸比（ADR-0056），小脸先放大再检（ADR-0070）。检脸用 `peach.face_detect`，取模型先认随包那份（`bundled_model`，校验 SHA-256，进程内按文件大小与修改时间缓存结论），再走同一条 `fetch_model`；随包文件由 `scripts/fetch_face_models.py` 取齐并附两个目录的 LICENSE，Docker 镜像用 `ADD --checksum` 取同一组文件。不引 `face_recognition`／dlib（要编译、体积大）与 InsightFace（模型限非商用、需 onnxruntime）。[实测](SOURCING.md#人脸与水印实测) |

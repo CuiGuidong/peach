@@ -14,6 +14,7 @@ import type {
 } from '../bundle';
 import { PathLine } from '../components/path-line';
 import { groupRoot } from './configuration-panel';
+import { LedgerBackupSettings } from './ledger-backup-settings';
 import { LibrarySharingSettings } from './library-sharing-settings';
 import { RemoteReportingSettings } from './remote-reporting-settings';
 import { Disclosure, ErrorText, ExternalLink, Fact, FactList, Footer, Help, Rows, Section, Stack } from './section';
@@ -28,7 +29,8 @@ export function MaintenanceSettings(
   return (
     <div {...groupRoot(panel)}>
       {data.storage ? <StorageSettings initial={data.storage} receipt={receipt} /> : null}
-      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="Data uploads">
+      {data.storage ? <LedgerBackupSettings receipt={receipt} /> : null}
+      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="数据上传">
         {data.remote_reporting ? <RemoteReportingSettings initial={data.remote_reporting} receipt={receipt} /> : null}
         {data.library_sharing ? <div className="border-t border-separator-border">
           <LibrarySharingSettings initial={data.library_sharing} receipt={receipt} />
@@ -76,8 +78,8 @@ export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdat
           <Switch aria-label="Automatically check for new versions" isSelected={mode !== 'off'} isDisabled={!initial.available}
             onChange={(on) => setMode(on ? 'check' : 'off')} />
         </SettingsRow>
-        <SettingsRow label="Download updates automatically">
-          <Switch aria-label="Download updates automatically" isSelected={mode === 'download'}
+        <SettingsRow label="自动下载更新" description="发现新版本后先下载，重启安装前会询问。">
+          <Switch aria-label="自动下载更新" isSelected={mode === 'download'}
             isDisabled={!initial.available || !initial.download_available || mode === 'off'}
             onChange={(on) => setMode(on ? 'download' : 'check')} />
         </SettingsRow>

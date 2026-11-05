@@ -11,7 +11,6 @@ import { setCollapseOpen } from '@peach/legacy/ui';
 import { SettingsCard, SettingsSectionLabel } from '@/components/application/settings/settings-rows';
 import { LinkButton } from '@/components/base/buttons/link-button';
 import { cx } from '@/utils/cx';
-import { GuideHelp } from '../onboarding/guide-help';
 
 interface SectionProps {
   title: string;
@@ -39,7 +38,6 @@ export function Section({ title, guide, icon, id, aside, onSubmit, children }: S
             <div className="flex min-w-0 max-w-full">{aside}</div>
           </div>
         : <SettingsSectionLabel>{label}</SettingsSectionLabel>}
-      {guide ? <GuideHelp section={guide} /> : null}
       <SettingsCard>{children}</SettingsCard>
     </>
   );
@@ -53,12 +51,14 @@ export function Rows({ children }: { children: ReactNode }) {
   return <div className="ui-settings-rows flex flex-col empty:hidden">{children}</div>;
 }
 
-/** The card only handles left padding and background; non-`SettingsRow` content gets row spacing and top/right/bottom padding from this layer.
- *  Placed after `Rows` or `FactList` it is `divided`, adding a divider to the group of rows above. */
+/** 卡片只管左内边距和底色；不是 `SettingsRow` 的内容由这一层给行距和上下右内边距。
+ *  排在 `Rows` 或 `FactList` 后面时 `divided`，和上面那组行之间补一道分隔线。
+ *  嵌在里面的 `FactList` 退回这层的右内边距：行间线和别处的设置行一样右端顶到卡边，
+ *  读数仍由每行自己的右内边距对齐。 */
 export function Stack({ divided = false, children }: { divided?: boolean; children: ReactNode }) {
   return divided
-    ? <div className="flex flex-col gap-4 border-t border-separator-border py-4 pr-3 empty:hidden">{children}</div>
-    : <div className="flex flex-col gap-4 py-4 pr-3 empty:hidden">{children}</div>;
+    ? <div className="flex flex-col gap-4 border-t border-separator-border py-4 pr-3 empty:hidden [&>.ui-settings-facts]:-mr-3">{children}</div>
+    : <div className="flex flex-col gap-4 py-4 pr-3 empty:hidden [&>.ui-settings-facts]:-mr-3">{children}</div>;
 }
 
 /** A section's first fetch: paint this section's skeleton copy from `configuration-skeleton.ts`, the same structure as this block in the whole-page skeleton,

@@ -11,7 +11,7 @@ import re
 import threading
 import time
 import uuid
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 from . import (
@@ -33,7 +33,35 @@ FETCH_MAX_BYTES = 2 * 1024 * 1024
 #: 一轮里最多拉几个源。源多的时候分几轮拉完，而不是让一轮跑到限流上去。
 MAX_SOURCES_PER_RUN = 20
 
+#: 定时那几轮多久派一次存量后继：旧壳重试、补封面、缺头像的存量女优与想要作品重试
+#: （ADR-0134）。定时拉取每 `feeds.TICK_MINUTES` 一跳，存量跟着每跳派一次就成了原来的十几倍；
+#: 本轮新发现的番号不受它管，照旧当场派取资料。
+STOCK_INTERVAL = timedelta(hours=6)
+
 _NOT_MODIFIED = 304
+
+
+def _cooling_until(contract, url: str) -> datetime | None:
+    """这个地址所属的来源还在冷却就返回冷却结束的时刻（UTC），否则 None。"""
+    from .scraping_access import paused_until, source_for
+
+    source = source_for(url)
+    until = paused_until(contract.follow_secrets_root, source) if source else 0.0
+    return datetime.fromtimestamp(until, timezone.utc) if until else None
+
+
+def _same_source(url: str, other: str) -> bool:
+    """两个订阅地址是不是同一个来源的：冷却按来源记，顺延也只顺延同一来源的那几个。"""
+    from .scraping_access import source_for
+
+    return source_for(url) == source_for(other)
+
+
+def _paused_by_source(error: Exception) -> bool:
+    """来源冷却挡下的这一次；本趟预算耗尽（`SourceBudgetExhausted`）不算来源冷却。"""
+    from .scraping_access import SourceBudgetExhausted, SourcePaused
+
+    return isinstance(error, SourcePaused) and not isinstance(error, SourceBudgetExhausted)
 
 
 def _parse_source(kind: str, body: bytes, url: str):
@@ -80,14 +108,20 @@ def poll_source(contract, transport, source) -> dict:
     # `ok` 数失败、按 `added` 数新增，两个调度对象共用同一段结算。
     report = {"source": source_id, "name": source["name"] or source["url"],
               "ok": True, "seen": 0, "added": 0, "without_code": 0, "error": None}
+    if source["kind"] == feeds.KIND_DMM_ACTRESS:
+        return _poll_dmm(contract, transport, source, report)
     try:
         response = fetch(transport, source["url"], etag=source["etag"],
                          last_modified=source["last_modified"])
     except Exception as error:  # noqa: BLE001 - 原因写到源那一行上给人看
         report.update(ok=False, error=str(error))
+        # 整站冷却挡回来的，冷却一过就重拉，不跟着间隔再等一整轮。
+        retry_at = _cooling_until(contract, source["url"]) if _paused_by_source(error) else None
+        if retry_at is not None:
+            report["paused"] = True
         with contract.database.write_transaction() as connection:
             feeds.settle(connection, source_id, error=str(error),
-                         interval_minutes=interval)
+                         interval_minutes=interval, retry_at=retry_at)
         return report
     if response.status == _NOT_MODIFIED:
         with contract.database.write_transaction() as connection:
@@ -121,6 +155,50 @@ def poll_source(contract, transport, source) -> dict:
                   added=len(outcome["created"]),
                   codes=[code for _id, code in outcome["created"]])
     _backfill_solo_works(contract, transport, source, report)
+    return report
+
+
+def _poll_dmm(contract, transport, source, report: dict) -> dict:
+    """拉一条 DMM 片单源（ADR-0135）：按地址里的女优编号问 GraphQL，不 GET 那个地址。
+
+    请求走同一条 `SourceTransport` 与主机限流，包在 `holding` 里：验证页、封禁、地区限制与
+    限流让 DMM 整站进冷却，刮削链之后的请求在同一关停下。任何失败都按原因写进这一行。
+    """
+    from .sources.base import Session, SourceFailure
+    from .sources.dmm import DmmSource
+
+    source_id = int(source["id"])
+    interval = int(source["interval_minutes"])
+    site = DmmSource()
+    with contract.database.read_connection() as connection:
+        known = feeds.seen_keys(connection, source_id)
+    session = Session(transport)
+    try:
+        with site.holding(session):
+            works = site.actress_works(feeds.dmm_actress_id(source["url"]), session=session,
+                                       known=known, limit=feeds.MAX_ENTRIES)
+    except Exception as error:  # noqa: BLE001 - 原因写到源那一行上给人看
+        message = error.message if isinstance(error, SourceFailure) else str(error)
+        report.update(ok=False, error=message,
+                      reason=str(error.reason) if isinstance(error, SourceFailure) else None)
+        # 和演员页同一条：整站冷却挡回来的，冷却一过就重拉（ADR-0134）。
+        retry_at = _cooling_until(contract, source["url"]) if _paused_by_source(error) else None
+        if retry_at is not None:
+            report["paused"] = True
+        with contract.database.write_transaction() as connection:
+            feeds.settle(connection, source_id, error=message, interval_minutes=interval,
+                         retry_at=retry_at)
+        return report
+    parsed = feeds.parse_dmm_actress(works)
+    hidden = web_settings.hidden_compilations(contract.database)
+    with contract.database.write_transaction() as connection:
+        outcome = feeds.poll(connection, source, parsed, hidden)
+        feeds.settle(connection, source_id, error=None, interval_minutes=interval,
+                     seen=outcome["seen"], new=len(outcome["created"]), page_name=parsed.title)
+    report.update(seen=outcome["seen"], fresh=outcome["fresh"], total=works.total,
+                  pre_order=sum(work.pre_order for work in works.works),
+                  without_code=outcome["without_code"], compilations=outcome["compilations"],
+                  added=len(outcome["created"]), codes=[code for _id, code in outcome["created"]])
     return report
 
 
@@ -182,6 +260,10 @@ def _check_sources(contract, body, previous):
 
 def _execute_check(contract, body, job_id: str) -> dict:
     previous = contract.feed_job.snapshot() or {}
+    if 'source_ids' not in previous:
+        # 订阅中的人后来刮到了 DMM 编号的，这一轮前补上她的 DMM 片单源（ADR-0135）。
+        with contract.database.write_transaction() as connection:
+            feeds.sync_dmm_sources(connection)
     rows = _check_sources(contract, body, previous)
     transport = _transport(contract)
     results = list(previous.get('results') or [])
@@ -189,9 +271,22 @@ def _execute_check(contract, body, job_id: str) -> dict:
     codes = [code for row in results for code in row.get('codes') or []]
     if not contract.feed_job.checkpoint(job_id, source_ids=[int(row['id']) for row in rows]):
         raise InterruptedError('订阅检查已停止')
+    deferred, held = 0, set()
     try:
         for index, source in enumerate(rows):
-            if int(source['id']) in completed:
+            if int(source['id']) in completed | held:
+                continue
+            until = _cooling_until(contract, source["url"])
+            if until is not None:
+                # 只顺延同一来源的：JavDB 冷却挡不住 DMM 片单，反过来也一样（ADR-0135）。
+                pending = [row for row in rows[index:] if int(row['id']) not in completed | held
+                           and _same_source(row["url"], source["url"])]
+                results, count = _defer_round(contract, pending, until, results)
+                deferred += count
+                held.update(int(row['id']) for row in pending)
+                if not contract.feed_job.checkpoint(job_id, results=results, checked=len(results),
+                                                    total=len(rows), added=len(set(codes))):
+                    raise InterruptedError('订阅检查已停止')
                 continue
             if not contract.feed_job.update(job_id, checked=len(results), total=len(rows),
                                             current=source["name"] or source["url"]):
@@ -208,13 +303,29 @@ def _execute_check(contract, body, job_id: str) -> dict:
         if close:
             close()
     contract.cache_bust()
-    # 取资料：新发现的先排，没取到资料的旧壳留着保底名额，同一批一条后继。只缺封面的另成一批
-    # 补封面。定时那一轮只带到了重试时间的，手动点的那一轮全带；已在队里的番号都不再带。
-    retry_after = feed_followup.RETRY_AFTER if body.get("automatic") else timedelta(0)
+    planned, stock = _plan_followups(contract, codes, automatic=bool(body.get("automatic")))
+    return {"ok": True, "checked": len(results), "total": len(rows), "results": results,
+            "added": len(codes), "deferred": deferred, "stock": stock,
+            # 后继由结果声明，调度端统一派（ADR-0040）：这里只把清单交出去。
+            "followups": [dict(key=item.key, task_key=item.task_key, label=item.label)
+                          for item in planned]}
+
+
+def _plan_followups(contract, codes: list[str], *, automatic: bool) -> tuple[list, bool]:
+    """这一轮拉完要派的后继，以及这一轮有没有带上存量。
+
+    取资料：新发现的先排，没取到资料的旧壳留着保底名额，同一批一条后继。只缺封面的另成一批
+    补封面。定时那一轮只带到了重试时间的，手动点的那一轮全带；已在队里的番号都不再带。
+    存量部分（旧壳、封面、头像）定时那几轮隔 `STOCK_INTERVAL` 才派一次，新番号每轮都派。
+    """
+    stock = _stock_due(contract) if automatic else True
+    retry_after = feed_followup.RETRY_AFTER if automatic else timedelta(0)
     hidden = web_settings.hidden_compilations(contract.database)
     busy = feed_followup.in_flight(contract.task_runs)
     fresh = [code for code in dict.fromkeys(codes) if normalise_code_key(code) not in busy]
     with contract.database.read_connection() as connection:
+        if not stock:
+            return feed_followup.plan(fresh[:feed_followup.MAX_BATCH]), False
         batch = feed_followup.scrape_batch(
             connection, fresh, exclude=[*codes, *busy], retry_after=retry_after, hidden=hidden)
         covers = feed_followup.cover_backlog(
@@ -226,15 +337,53 @@ def _execute_check(contract, body, job_id: str) -> dict:
         planned += avatar_followup.stock(
             connection, contract.avatar_root, Attempts(attempts_root(contract.candidate_root)),
             limit=MAX_FOLLOWUPS - len(planned))
-    return {"ok": True, "checked": len(rows), "total": len(rows), "results": results,
-            "added": len(codes),
-            # 后继由结果声明，调度端统一派（ADR-0040）：这里只把清单交出去。
-            "followups": [dict(key=item.key, task_key=item.task_key, label=item.label)
-                          for item in planned]}
+    contract.feed_stock_planned_at = time.monotonic()
+    return planned, True
+
+
+def _defer_round(contract, pending, until: datetime, results: list) -> tuple[list, int]:
+    """来源在冷却：这一轮剩下的源都顺延到冷却结束，整轮只记一条失败（ADR-0134）。
+
+    冷却是整个来源的状态，不是哪个订阅的毛病；每个源各记一条「正在冷却」只会把真正的
+    原因淹掉。本轮撞上 403 的那一行已经写了原因，就在它后面补一句顺延了几个；本轮一开始
+    来源就在冷却（别的任务撞出来的），就用第一个源那一行说明，它的上次结论不改。
+    """
+    with contract.database.write_transaction() as connection:
+        for row in pending:
+            feeds.defer(connection, int(row["id"]), until)
+    results = list(results)
+    trigger = next((row for row in reversed(results) if row.get("paused")), None)
+    rest = len(pending)
+    if trigger is None:
+        from .scraping_access import SOURCES, source_for
+        first = pending[0]
+        label = SOURCES.get(source_for(first["url"]) or "", {}).get("label", "来源")
+        trigger = {"source": int(first["id"]), "name": first["name"] or first["url"],
+                   "ok": False, "seen": 0, "added": 0, "without_code": 0, "paused": True,
+                   "error": f"{label} 正在冷却，这一轮没有拉"}
+        results.append(trigger)
+        rest -= 1
+    if rest:
+        trigger["error"] = f"{trigger['error']}；其余 {rest} 个源顺延到冷却结束后再拉"
+    return results, len(pending)
+
+
+def _stock_due(contract) -> bool:
+    """定时这一轮该不该派存量后继：本进程里还没派过，或上次派过已经满 `STOCK_INTERVAL`。"""
+    last = getattr(contract, "feed_stock_planned_at", None)
+    return last is None or time.monotonic() - last >= STOCK_INTERVAL.total_seconds()
 
 
 def w_feed_check(contract, body) -> dict:
-    """拉一轮订阅。不带参数只拉到期的源，`all` 拉全部启用的源。"""
+    """拉一轮订阅。不带参数只拉到期的源，`all` 拉全部启用的源。
+
+    定时那一跳没有到期的源就什么也不起：每半小时一跳（`feeds.TICK_MINUTES`），任务中心
+    不该每半小时多一行空跑。
+    """
+    if body.get("automatic") and "sources" not in body and not body.get("all"):
+        with contract.database.read_connection() as connection:
+            if not feeds.due_sources(connection):
+                return {"ok": True, "idle": True, "checked": 0, "total": 0, "results": []}
     finished = threading.Event()
     request_id = uuid.uuid4().hex
 
@@ -243,8 +392,9 @@ def w_feed_check(contract, body) -> dict:
             result = _execute_check(contract, body, job_id)
             contract.feed_job.update(job_id, **result, status="complete",
                                      current=None, completed_at=time.time())
-            # 「想要」里取不到资料或封面的，跟着每一轮拉取再试（隔 `web_wants.RETRY_AFTER`）。
-            web_wants.start_scrape(contract, trigger="scheduled" if body.get("automatic") else "manual")
+            # 「想要」里取不到资料或封面的，跟着派存量的那几轮再试（隔 `web_wants.RETRY_AFTER`）。
+            if result["stock"]:
+                web_wants.start_scrape(contract, trigger="scheduled" if body.get("automatic") else "manual")
         finally:
             finished.set()
 
@@ -330,13 +480,14 @@ def w_feed_source(contract, body) -> dict:
 
 
 def _subscribe(connection, entity_id: int, canonical_name: str) -> list[int]:
-    """这位的每个 JavDB 演员页各订一条，返回源 id。地址按账本里她的编号现拼。"""
+    """这位的每个 JavDB 演员页与 DMM 片单各订一条，返回源 id。地址按账本里她的编号现拼。"""
     refs = [dict(ref) for ref in connection.execute(
         "SELECT provider,external_kind,external_id FROM entity_external_ref"
         " WHERE entity_id=?", (int(entity_id),))]
-    pages = entry_links.javdb_actor_pages(canonical_name, refs)
+    pages = [*entry_links.javdb_actor_pages(canonical_name, refs),
+             *feeds.dmm_actress_pages(connection, entity_id)]
     if not pages:
-        raise ValueError("这位在 JavDB 上没有演员页编号")
+        raise ValueError("这位在 JavDB 与 DMM 上都没有编号")
     return feeds.follow_entity(connection, entity_id, pages)
 
 
@@ -584,7 +735,7 @@ def q_feed_discoveries(contract, args) -> dict:
         wanted = wants.wanted_keys(connection, (normalise_code_key(row["code"]) for row in rows[:limit]))
         performers = _discovery_performers(connection, contract, rows[:limit])
     more = len(rows) > limit
-    # 最近一轮取新作资料或补新作封面里封面断在连接上的部数。只看最近这一轮：换了线路之后
+    # 最近一轮新作资料采集或新作封面采集里封面断在连接上的部数。只看最近这一轮：换了线路之后
     # 下一轮取到，提示就该跟着消失，而不是让一次旧故障一直挂在页面上。
     last = [run for task_key in (feed_followup.TASK_KEY, feed_followup.COVER_TASK_KEY)
             for run in contract.task_runs.query(status="succeeded", task_key=task_key, limit=1)]

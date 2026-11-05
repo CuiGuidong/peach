@@ -23,7 +23,7 @@ from __future__ import annotations
 import re
 from typing import Iterable, Mapping, Sequence
 
-from .catalog_rules import is_amateur_code, is_korean_mib_code, is_uncensored_code
+from .catalog_rules import is_amateur_code, is_korean_mib_code, is_uncensored_code, is_uncensored_label_code
 from .metadata_policy import SOURCE_SPECS
 
 
@@ -184,7 +184,7 @@ def classify(code: str | None, *hints: str | None) -> str:
     # `FC2-PPV-…`；没归一的短写法按 `_FC2_SHORT` 认。
     if value.upper().startswith("FC2") or _FC2_SHORT.match(value):
         return "fc2"
-    if is_uncensored_code(value):
+    if is_uncensored_code(value) or is_uncensored_label_code(value):
         return "uncensored"
     if is_amateur_code(value) or _MGS_AMATEUR.match(value.upper()):
         return "amateur"

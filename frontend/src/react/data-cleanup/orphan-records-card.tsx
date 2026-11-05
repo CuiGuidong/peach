@@ -12,6 +12,7 @@ import { Button } from '@/components/base/buttons/button';
 import { Select, SelectItem } from '../components/select';
 
 import { errorMessage } from '../../api';
+import { ORPHAN_RECORDS_TEXT } from '../../cleanup-tool-skeletons';
 import { DataTable, type DataColumn } from '../components/data-table';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
@@ -133,9 +134,9 @@ export function OrphanRecordsCard({ toast }: { toast(message: string): void }) {
               <FieldsetTitle id="orphan-records-title">Records with missing files</FieldsetTitle>
               <Note tone="error" title="Failed to read records whose files are lost">{errorMessage(query.error)}</Note>
             </Fieldset>
-          : <DataTable label="Videos whose files disappeared" items={items} columns={columns}
-              title="Records with missing files" titleId="orphan-records-title" unit="videos"
-              description="The source files of these videos have been deleted; likes, Watch later, playlists, and watch history are kept. After choosing a replacement file, these records transfer to it and the old video records are removed."
+          : <DataTable label="文件已消失的作品" items={items} columns={columns}
+              title="文件已丢失的记录" titleId="orphan-records-title" unit="条作品"
+              description={ORPHAN_RECORDS_TEXT}
               rowId={(item) => String(item.id)} rowLabel={(item) => item.name}
               selected={selected} onSelected={setSelected}
               actions={(chosen) => <Button variant="danger" size="small" disabled={!chosen.length}

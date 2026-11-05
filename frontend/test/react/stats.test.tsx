@@ -16,6 +16,7 @@ import {
   fmtCount, lengthRows, mediumRows, percentOf, percentText, playedFor, prefetchStats, radialArc,
   radialBarSize, radialCeiling, radialSlices, replayRows, STATS_URL, watchNote, type StatsData,
 } from '../../src/react/stats/stats';
+import { RadialCard } from '../../src/react/stats/radial-card';
 import { StatsPage } from '../../src/react/stats/stats-page';
 
 import { actionOrder, buttonNamed, click, mount, mountRoot } from './render';
@@ -139,7 +140,39 @@ it('A full circle is 1.1x the longest segment; the more rings, the thinner each 
   expect([2, 12, 40].map(radialBarSize)).toEqual([14, 8, 4]);
 });
 
-it('Clicking the legend pins that segment and the count follows; clicking again releases it', async () => {
+it('指到垫到最小弧长的那一段，浮层读原始数，不读画图用的弧长', async () => {
+  // 拿掉 `ResizeObserver` 让 Recharts 按初始尺寸画；声明减少动态效果，圈直接是终态。
+  vi.stubGlobal('ResizeObserver', undefined);
+  vi.stubGlobal('matchMedia', (query: string) => ({
+    matches: query.includes('reduce'), media: query, addEventListener() {}, removeEventListener() {},
+  }));
+  // 满圈 3023 × 1.1，最小弧长是它的 2%：66.506，比欧美剧情的 36 大，那一段画的是垫高的弧。
+  const rows = [
+    { name: '单人剧情', value: 3023 }, { name: '共演剧情', value: 128 },
+    { name: '欧美剧情', value: 36 }, { name: '写真', value: 198 },
+  ];
+  const host = await mount(<RadialCard title="媒体库" rows={rows} empty="" />);
+  // 每圈的底色扇区：路径头一段是 `M cx,cy-外径`，第二段弧是内径，取中间那条半径指上去。
+  const rings = [...host.querySelectorAll('path.recharts-radial-bar-background-sector')].map((path) => {
+    const [outer, inner] = [...(path.getAttribute('d') ?? '').matchAll(/A ([\d.]+),/g)].map(([, r]) => Number(r));
+    return { cx: Number(path.getAttribute('cx')), cy: Number(path.getAttribute('cy')), r: (outer! + inner!) / 2 };
+  });
+  expect(rings).toHaveLength(rows.length);
+  const tipFor = async (index: number) => {
+    const { cx, cy, r } = rings[index]!;
+    await act(async () => {
+      host.querySelector('.recharts-wrapper')!.dispatchEvent(new MouseEvent('mousemove',
+        { bubbles: true, clientX: cx, clientY: cy - r }));
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+    const tip = host.querySelector('.recharts-tooltip-wrapper')!;
+    return [...tip.querySelectorAll('span')].map((span) => span.textContent);
+  };
+  expect(await tipFor(2)).toEqual(['欧美剧情', '36']);
+  expect(await tipFor(0)).toEqual(['单人剧情', '3,023']);
+});
+
+it('点图例把那一段钉住，读数跟着换；再点一次放开', async () => {
   const { host } = await open();
   const card = radialCharts(host)[0]!.closest('section')!;
   const tile = [...card.querySelectorAll('button')].find((button) => button.textContent?.startsWith('115'))!;
@@ -194,7 +227,29 @@ it('The watched layer has two play-time heatmaps, and pointing at a cell swaps t
   expect(liked?.nextElementSibling?.textContent).toBe('1');
 });
 
-it('Without play-time records the watched layer draws no heatmap, leaving one note card', async () => {
+it('一张热力图只占一个 Tab 停靠点，方向键在格子之间挪', async () => {
+  const { host } = await open();
+  await click(tabNamed(host, '看过'));
+  const card = host.querySelector('[role=tabpanel] svg[role=img]')!.closest('section')!;
+  const stops = () => [...card.querySelectorAll<SVGRectElement>('rect[tabindex="0"]')];
+  expect(card.querySelectorAll('rect').length).toBe(168);
+  expect(stops().map((cell) => cell.dataset.cell)).toEqual(['0']);
+  const first = stops()[0]!;
+  await act(async () => { first.focus(); });
+  await act(async () => {
+    first.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+  });
+  expect(document.activeElement?.getAttribute('data-cell')).toBe('24');
+  expect(stops().map((cell) => cell.dataset.cell)).toEqual(['24']);
+  expect(card.querySelector('header small')?.textContent).toBe(
+    document.activeElement?.getAttribute('aria-label')?.split('，')[0]);
+  await act(async () => {
+    document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
+  });
+  expect(document.activeElement?.getAttribute('data-cell')).toBe('47');
+});
+
+it('没有播放时间记录时看过那一层不出热力图，留一张说明卡', async () => {
   const { host } = await open(payload({ play_activity: { timezone: 'UTC+08:00', days: [], hours: [] } }));
   await click(tabNamed(host, 'Watched'));
   expect(host.querySelector('[role=tabpanel] svg[role=img]')).toBeNull();
@@ -270,8 +325,8 @@ it('Category names truncate with an ellipsis when tight, and the axis width foll
 
 it('Every progress bar in the coverage layer shares the same numerator/denominator pair without recomputing', async () => {
   const { host } = await open();
-  await click(tabNamed(host, 'Content tags'));
-  const bars = [...host.querySelectorAll('[role=progressbar]')];
+  await click(tabNamed(host, '内容标签'));
+  const bars = [...host.querySelectorAll('[role=meter]')];
   expect(bars.map((bar) => bar.getAttribute('aria-label'))).toEqual([
     'With creators: 3 / 4', 'Has code: 2 / 4', 'Has label: 1 / 4', 'Frames extracted: 4 / 4', 'Duration probed: 4 / 4',
   ]);
@@ -284,9 +339,9 @@ it('Volumes without capacity draw no usage, stating only that it is unavailable'
   }));
   await click(tabNamed(host, 'Space usage'));
   const panel = host.querySelectorAll('[role=tabpanel]')[0]!;
-  expect(panel.textContent).toContain('Capacity not fetched');
-  expect(panel.textContent).toContain('Unmapped');
-  expect(panel.querySelector('[role=progressbar]')).toBeNull();
+  expect(panel.textContent).toContain('容量未取得');
+  expect(panel.textContent).toContain('未映射');
+  expect(panel.querySelector('[role=meter]')).toBeNull();
 });
 
 it('Byte-based volumes draw the used segment at true proportion on the hundred-cell canvas, and the screen-reader value stays in bytes', async () => {
@@ -296,8 +351,8 @@ it('Byte-based volumes draw the used segment at true proportion on the hundred-c
     storage_volumes: [{ kind: 'system', label: 'System drive', root: 'C:\\', online: true, free: total - used, used, total }],
     storage_summary: { volumes: 1, online: 1, measured: 1, free: total - used, used, total },
   }));
-  await click(tabNamed(host, 'Space usage'));
-  const bar = host.querySelectorAll('[role=tabpanel]')[0]!.querySelector('[role=progressbar]')!;
+  await click(tabNamed(host, '使用空间'));
+  const bar = host.querySelectorAll('[role=tabpanel]')[0]!.querySelector('[role=meter]')!;
   expect(bar.getAttribute('aria-valuemax')).toBe(String(total));
   expect(bar.getAttribute('aria-valuenow')).toBe(String(used));
   expect(bar.getAttribute('viewBox')).toBe('0 0 100 1');

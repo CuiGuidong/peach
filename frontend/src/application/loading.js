@@ -15,6 +15,7 @@ import { indexParams, paintIndexSkeleton } from './../index-skeleton';
 import { showEntityLoading } from './entity.js';
 import { routeMetaOf } from './../history/route-meta';
 import { javTab } from '../react/jav/jav-navigation';
+import { paintWallBootSkeleton } from '../react/video-wall/wall-boot';
 export const loadingState = { setGridCards: undefined, gridCards: undefined, managementPlaceholder: undefined, wantsDiscoveryBars: undefined, entityShapesReady: undefined, ENTITY_SHAPES_WAIT: undefined, syncPageTitle: undefined };
 
 export function renderCatalogLoading(label='Loading videos'){
@@ -72,7 +73,7 @@ export function renderInitialSurfaceLoading(){
      and waiting for it would lay the skeleton out once in the default layout, then jump to the split columns when data arrives. */
   document.body.dataset.surface=location.pathname;
   if(path==='/wall'){
-    document.body.setAttribute('data-wall-open','');hideDiscoveryBars();return;
+    document.body.setAttribute('data-wall-open','');hideDiscoveryBars();paintWallBootSkeleton();return;
   }
   if(/^\/assets\/\d+$/.test(path)){
     /* The details skeleton belongs to the stage island: once the route lands, `openItem` fetches the React package and paints. The list below is backfilled by the route tree's catalog element. */

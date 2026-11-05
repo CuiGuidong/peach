@@ -50,6 +50,8 @@ export interface TunnelState {
 export interface AccessSettingsProps {
   initial: AccessState;
   receipt(message: string): void;
+  /** 需要登录时紧跟在密码分区下面的设备列表；改密码后拿到新 `revision` 重新画。 */
+  devices?(state: AccessState): import('react').ReactNode;
 }
 
 export interface StartupState {
@@ -233,7 +235,7 @@ export interface DownloadsSnapshot {
 
 export interface DownloadSubmitResult {
   ok: boolean;
-  outcome: 'submitted' | 'adopted' | 'adopted_remote' | 'refused' | 'failed';
+  outcome: 'submitted' | 'adopted' | 'adopted_remote' | 'deferred' | 'refused' | 'failed';
   task: DownloadTask;
 }
 

@@ -57,6 +57,28 @@ class AccessTests(unittest.IsolatedAsyncioTestCase):
                     response = await client.post('/private', headers={'Origin': origin, 'Sec-Fetch-Site': 'cross-site'})
                     self.assertEqual(response.status_code, 403)
 
+    async def test_browser_asserted_same_origin_wins_over_a_rewritten_host_and_leaves_evidence(self):
+        """本机软件改写 Host、浏览器发 `Origin: null` 时以 Sec-Fetch-Site 为准；对不上的形态写本机取证。"""
+        access.save(self.path, '')
+        with patch.object(routes_auth, '_MISMATCH_SEEN', {}), patch('peach.error_reporting.local_event') as event:
+            for origin in ('http://127.0.0.1:8900', 'null'):
+                response = await self.client.post('/private', headers={
+                    'Origin': origin, 'Sec-Fetch-Site': 'same-origin', 'User-Agent': 'UnitBrowser/1'})
+                self.assertEqual(response.status_code, 200, origin)
+            for refused in ({'Origin': 'https://evil.example', 'Sec-Fetch-Site': 'same-site'},
+                            {'Sec-Fetch-Site': 'cross-site'}):
+                self.assertEqual((await self.client.post('/private', headers=refused)).status_code, 403)
+            self.assertEqual((await self.client.post('/private', headers={'Origin': 'http://localhost'})).status_code, 200)
+        rows = [call.kwargs for call in event.call_args_list]
+        self.assertEqual([(row['accepted'], row['origin_class']) for row in rows],
+                         [(True, 'url'), (True, 'null'), (False, 'url'), (False, 'absent')])
+        rewritten = rows[0]
+        self.assertEqual(rewritten['origin'], {'scheme': 'http', 'host_kind': 'loopback', 'port': 8900})
+        self.assertEqual(rewritten['server'], {'scheme': 'http', 'host_kind': 'hostname', 'port': None})
+        self.assertEqual((rewritten['scheme_match'], rewritten['host_match'], rewritten['port_match']), (True, False, False))
+        self.assertEqual((rewritten['fetch_site'], rewritten['user_agent']), ('same-origin', 'UnitBrowser/1'))
+        self.assertNotIn('evil.example', repr(rows), '只记主机类别，不记 Origin 原文')
+
     async def test_password_sessions_expire_on_server_and_survive_independent_app_reads(self):
         access.save(self.path, "correct-password")
         self.assertEqual((await self.client.get("/private")).status_code, 401)
@@ -181,3 +203,166 @@ class AccessTests(unittest.IsolatedAsyncioTestCase):
             path.unlink()
             onboarding.apply(config, None, windows=True)
             self.assertEqual(access.load(path)["mode"], "open")
+
+
+CHROME_WINDOWS = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0 Safari/537.36"
+SAFARI_IPHONE = ("Mozilla/5.0 (iPhone; CPU iPhone OS 19_0 like Mac OS X) AppleWebKit/605.1.15 "
+                 "(KHTML, like Gecko) Version/19.0 Mobile/15E148 Safari/604.1")
+
+
+class DeviceSessionTests(unittest.IsolatedAsyncioTestCase):
+    """每台登录过的浏览器在访问策略旁记一行，可以逐台撤销。"""
+
+    async def asyncSetUp(self):
+        await AccessTests.asyncSetUp(self)
+        self.policy = access.save(self.path, "correct-password")
+
+    def device(self, user_agent, peer=("127.0.0.1", 1234)):
+        client = httpx.AsyncClient(transport=httpx.ASGITransport(app=self.app, client=peer),
+                                   base_url="http://localhost", headers={"User-Agent": user_agent})
+        self.addAsyncCleanup(client.aclose)
+        return client
+
+    async def sign_in(self, client, days=30):
+        response = await client.post("/login", data={"token": "correct-password", "days": str(days)})
+        self.assertEqual(response.status_code, 303, response.text)
+        return client
+
+    async def listing(self, client):
+        response = await client.get("/api/configuration/access/sessions")
+        self.assertEqual(response.status_code, 200, response.text)
+        return response.json()
+
+    async def revoke(self, client, **body):
+        return await client.post("/api/configuration/access/sessions/revoke",
+                                 json={"revision": access.load(self.path)["revision"], **body})
+
+    def legacy_token(self, expires):
+        """升级前 `issue` 签出的形状：载荷只有代次与到期时间。"""
+        from itsdangerous import URLSafeSerializer
+        return URLSafeSerializer(self.policy["key"], salt="peach-browser-access").dumps(
+            {"revision": self.policy["revision"], "expires": expires})
+
+    async def test_each_login_is_its_own_row_and_the_file_keeps_only_digests(self):
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        with patch.object(access.time, "time", return_value=access.time.time()):
+            phone = await self.sign_in(self.device(SAFARI_IPHONE, ("198.51.100.20", 5000)))
+            twin = await self.sign_in(self.device(SAFARI_IPHONE, ("198.51.100.21", 5000)))
+        self.assertNotEqual(phone.cookies.get(access.COOKIE), twin.cookies.get(access.COOKIE),
+                            "同一秒、同一时长的两次登录也是两个令牌")
+        listing = await self.listing(desk)
+        rows = listing["sessions"]
+        self.assertEqual(len(rows), 3)
+        self.assertEqual((rows[0]["device"], rows[0]["current"], rows[0]["network"]), ("Chrome · Windows", True, "loopback"))
+        self.assertEqual({row["device"] for row in rows[1:]}, {"Safari · iPhone"})
+        self.assertEqual({row["network"] for row in rows[1:]}, {"198.51.100.0/24"})
+        self.assertTrue(listing["manageable"])
+        stored = access.sessions_path(self.path).read_text(encoding="utf-8")
+        for client in (desk, phone, twin):
+            value = client.cookies.get(access.COOKIE)
+            self.assertNotIn(value, stored)
+            self.assertIn(access.digest(value), stored)
+        self.assertNotIn("Mozilla", stored, "User-Agent 原文不落盘")
+
+    async def test_revoking_one_device_signs_out_only_that_device(self):
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        phone = await self.sign_in(self.device(SAFARI_IPHONE, ("198.51.100.20", 5000)))
+        rows = (await self.listing(desk))["sessions"]
+        own, other = rows[0]["id"], rows[1]["id"]
+        self.assertFalse((await self.listing(phone))["manageable"])
+        self.assertEqual((await self.revoke(desk, id=own)).status_code, 400, "本机不在这里撤")
+        self.assertEqual((await self.revoke(phone, id=own)).status_code, 403, "撤销只在运行 Peach 的电脑上做")
+        self.assertEqual((await self.revoke(desk, id=other, revision="stale")).status_code, 409)
+        response = await self.revoke(desk, id=other)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json()["removed"], 1)
+        self.assertEqual([row["id"] for row in response.json()["sessions"]], [own])
+        self.assertEqual((await phone.get("/private")).status_code, 401)
+        self.assertEqual((await desk.get("/private")).status_code, 200)
+        self.assertEqual((await self.revoke(desk, id=other)).status_code, 404)
+
+    async def test_revoke_others_keeps_this_browser(self):
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        phones = [await self.sign_in(self.device(SAFARI_IPHONE, (f"198.51.100.{n}", 5000))) for n in (20, 21)]
+        response = await self.revoke(desk, scope="others")
+        self.assertEqual(response.json()["removed"], 2)
+        self.assertEqual([row["current"] for row in response.json()["sessions"]], [True])
+        for phone in phones:
+            self.assertEqual((await phone.get("/private")).status_code, 401)
+        self.assertEqual((await desk.get("/private")).status_code, 200)
+
+    async def test_expired_sessions_are_refused_and_dropped_on_the_next_write(self):
+        short = await self.sign_in(self.device(SAFARI_IPHONE), days=1)
+        later = access.time.time() + 86401
+        with patch.object(access.time, "time", return_value=later):
+            self.assertEqual((await short.get("/private")).status_code, 401)
+            desk = await self.sign_in(self.device(CHROME_WINDOWS))
+            self.assertEqual([row["device"] for row in (await self.listing(desk))["sessions"]], ["Chrome · Windows"])
+        self.assertNotIn(access.digest(short.cookies.get(access.COOKIE)),
+                         access.sessions_path(self.path).read_text(encoding="utf-8"))
+
+    async def test_password_change_revokes_every_device_and_lists_only_the_new_session(self):
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        phone = await self.sign_in(self.device(SAFARI_IPHONE, ("198.51.100.20", 5000)))
+        response = await desk.post("/api/configuration/access", json={
+            "revision": self.policy["revision"], "action": "set", "current_password": "correct-password",
+            "password": "another-password", "confirmation": "another-password"})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual((await phone.get("/private")).status_code, 401)
+        self.assertEqual((await desk.get("/private")).status_code, 200)
+        rows = (await self.listing(desk))["sessions"]
+        self.assertEqual([(row["device"], row["current"]) for row in rows], [("Chrome · Windows", True)])
+
+    async def test_tokens_from_before_the_upgrade_are_adopted_once_and_stay_revoked(self):
+        legacy = self.device(SAFARI_IPHONE, ("198.51.100.20", 5000))
+        legacy.cookies.set(access.COOKIE, self.legacy_token(int(access.time.time()) + 86400 * 20))
+        self.assertEqual((await legacy.get("/private")).status_code, 200, "升级不把已登录的设备登出")
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        rows = (await self.listing(desk))["sessions"]
+        adopted = next(row for row in rows if not row["current"])
+        self.assertEqual((adopted["device"], adopted["legacy"]), ("Safari · iPhone", True))
+        self.assertEqual((await self.revoke(desk, id=adopted["id"])).status_code, 200)
+        for _ in range(2):
+            self.assertEqual((await legacy.get("/private")).status_code, 401, "撤销后不会被重新补登")
+        self.assertEqual(len((await self.listing(desk))["sessions"]), 1)
+        stranger = self.device(SAFARI_IPHONE)
+        stranger.cookies.set(access.COOKIE, access.issue(self.policy, 30)[0])
+        self.assertEqual((await stranger.get("/private")).status_code, 401, "新令牌不在记录里就不认，不补登")
+
+    async def test_recent_activity_is_written_at_most_once_a_minute(self):
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        first = (await self.listing(desk))["sessions"][0]["last_seen"]
+        start = access.time.time()
+        with patch.object(access.time, "time", return_value=start + 30), \
+                patch.object(access, "atomic_write_text", side_effect=AssertionError("一分钟内不写盘")):
+            self.assertEqual((await desk.get("/private")).status_code, 200)
+        with patch.object(access.time, "time", return_value=start + 61):
+            self.assertEqual((await desk.get("/private")).status_code, 200)
+            self.assertGreater((await self.listing(desk))["sessions"][0]["last_seen"], first)
+
+    async def test_unreadable_record_refuses_new_tokens_instead_of_trusting_them(self):
+        desk = await self.sign_in(self.device(CHROME_WINDOWS))
+        access.sessions_path(self.path).write_text("{broken", encoding="utf-8")
+        self.assertEqual((await desk.get("/private")).status_code, 401)
+        await self.sign_in(desk)
+        self.assertEqual((await desk.get("/private")).status_code, 200, "重新登录写回一份完整记录")
+
+    def test_device_names_and_networks_keep_only_short_forms(self):
+        cases = {
+            CHROME_WINDOWS: "Chrome · Windows",
+            SAFARI_IPHONE: "Safari · iPhone",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 Version/19.0 Safari/605.1.15": "Safari · macOS",
+            "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/150.0 Safari/537.36 Edg/150.0": "Edge · Windows",
+            "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/150.0 Mobile Safari/537.36": "Chrome · Android",
+            "Mozilla/5.0 (Linux; Android 16; SM-X910) AppleWebKit/537.36 Chrome/150.0 Safari/537.36": "Chrome · Android 平板",
+            "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0": "Firefox · Linux",
+            "python-httpx/0.28": "",
+        }
+        for agent, name in cases.items():
+            with self.subTest(agent=agent):
+                self.assertEqual(access.device_name(agent), name)
+        self.assertEqual(access.network_of("198.51.100.20"), "198.51.100.0/24")
+        self.assertEqual(access.network_of("::ffff:192.0.2.7"), "192.0.2.0/24")
+        self.assertEqual(access.network_of("2001:db8:1:2:3:4:5:6"), "2001:db8:1:2::/64")
+        self.assertEqual(access.network_of("::1"), "loopback")
+        self.assertEqual(access.network_of("unknown"), "")

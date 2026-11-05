@@ -31,6 +31,10 @@ id 或路径已被别的行占用时那一批拒绝撤回。登记时自动接�
 「想要」清单的入库对账记在 `want_item.acquired_source` 与 `acquired_batch`（批次号
 `auto:want-acquired@<登记时刻>`）。撤回把那几条改回待找，查找计数原样留着。
 
+核查差异按确定判据结算的两条（ADR-0139）按规则名撤：`adr-0139-official-replaces-verified`
+按 note 的 `previous` 把旧值与旧归属还原，之后被别人改过的资产不动；`adr-0139-verified-tags-union`
+删掉那一行补进的标签。两条都删掉决定，`--batch` 给 note 里记的批次号。先改判据再撤。
+
 西方发行方的无番号作品封面（`ASSET-ID-<id>.jpg`）在 `.scraping.json` 边车里记 `source` 与 `batch`
 （`auto:western-artwork@<时间>`）。撤回删掉封面与同组边车，作品回到没有封面的样子。
 
@@ -46,6 +50,7 @@ id 或路径已被别的行占用时那一批拒绝撤回。登记时自动接�
     revert_auto_landing.py --source auto:seed --batch auto:seed@2026-09-25
     revert_auto_landing.py --source adr-0079-fc2-descriptive-performer
     revert_auto_landing.py --source auto:metadata-tags
+    revert_auto_landing.py --source adr-0139-official-replaces-verified
     revert_auto_landing.py --source auto:vanished-reattach --batch auto:vanished-reattach@3
     revert_auto_landing.py --source auto:want-acquired
     revert_auto_landing.py --source auto:western-artwork --batch auto:western-artwork@20261008T000000Z
@@ -64,7 +69,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from peach import (company_profiles, fc2_sellers, follow_creators, jav_poster_crop,  # noqa: E402
                    record_rehome, sample_images, seed_pack, wants, western_artwork)
 from peach.config import COVER_DIR, GENERATED_DIR  # noqa: E402
-from peach.metadata_auto_apply import UNION_TAGS_SOURCE  # noqa: E402
+from peach.metadata_auto_apply import (  # noqa: E402
+    UNION_TAGS_SOURCE, planned_verified_revert, revert_verified)
 from peach.scripting import add_ledger_write_args, open_for_write, verify_after_write  # noqa: E402
 
 SIDECARS = (".ct", ".provenance.json")
@@ -277,6 +283,17 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def print_verified(planned: list[dict]) -> None:
+    """核查结算的撤回清单：覆盖写还原几条资产、几条已被改过不动，并集删几个标签。"""
+    for entry in planned:
+        if "tags" in entry:
+            names = "、".join(tag["tag"] for tag in entry["tags"])
+            print(f" - 核查并集 {entry['item_key']:<28} {names[:40]}")
+        else:
+            print(f" - 核查覆盖 {entry['item_key']:<28} 还原 {len(entry['restores'])} 条"
+                  f"，已被改过 {len(entry['changed'])} 条")
+
+
 def print_profiles(profiles: list[dict], companies: list[dict]) -> None:
     """显示逐行人物资料与逐字段公司资料的撤回清单。"""
     for profile in profiles:
@@ -329,7 +346,9 @@ def main(argv: list[str] | None = None) -> int:
         tags = planned_tags(connection, args.source, args.batch)
         rehomes = record_rehome.planned_revert(connection, args.source, args.batch)
         acquired = wants.planned_revert(connection, args.source, args.batch)
+        verified = planned_verified_revert(connection, args.source, args.batch)
         print_acquired(acquired)
+        print_verified(verified)
         for link in links:
             print(f" - 链接 {link['entity'][:20]:<20} {link['url'][:56]} {link['batch']}")
         for alias in aliases:
@@ -361,7 +380,8 @@ def main(argv: list[str] | None = None) -> int:
                "公司资料": len(companies), "卖家": len(sellers), "关注建档": len(creators), "编号": len(refs),
                "归属": len(memberships), "片商": len(makers), "标识文件": len(files), "封面": len(covers),
                "样张": sum(sample["count"] for sample in samples), "否决": len(rejections),
-               "标签": len(tags), "接回": len(rehomes), "想要入库": len(acquired), "中文名": len(names)})
+               "标签": len(tags), "接回": len(rehomes), "想要入库": len(acquired), "中文名": len(names),
+               "核查结算": len(verified)})
         if not args.apply:
             print("dry-run；确认无误后加 --apply --backup <路径>")
             return 0
@@ -406,6 +426,7 @@ def main(argv: list[str] | None = None) -> int:
             removed_seller_relations = fc2_sellers.revert(connection, sellers)
             # 链接与别名已在上面按批次删掉，剩下没有别的引用的实体才删得掉。
             creator_revert = follow_creators.revert(connection, creators)
+            verified_revert = revert_verified(connection, verified)
         integrity, orphans = verify_after_write(connection)
     finally:
         connection.close()
@@ -416,7 +437,9 @@ def main(argv: list[str] | None = None) -> int:
            "删除标签": len(tags), "删除扁平标签": removed_tag_rows, "重开决定": reopened,
            "撤回接回": restored, "想要回到待找": reopened_wants, "卖家关系": removed_seller_relations,
            "解绑关注来源": creator_revert["unbound"], "删除建档实体": creator_revert["removed"], "删除文件": removed,
-           "还原中文名": restored_names, "integrity_check": integrity, "foreign_key_check": orphans})
+           "还原中文名": restored_names, "还原核查覆盖": verified_revert["restored"],
+           "删除核查并集标签": verified_revert["removed_tags"], "删除核查决定": verified_revert["decisions"],
+           "integrity_check": integrity, "foreign_key_check": orphans})
     return 0
 
 

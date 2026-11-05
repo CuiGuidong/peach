@@ -23,6 +23,7 @@ from .web_catalog import (
     JAV_ASSET_PREDICATE,
     VISIBLE_CATALOG_ASSET,
     attach_avatar_availability,
+    group_inputs,
     seeded_order,
     tag_is_not_a_performer_name,
     tag_not_hidden,
@@ -154,14 +155,15 @@ def _performer_entries(contract: WebContract, c, d: dict, alias_rows) -> dict:
 
     入口下发的是拼好的地址，不是模板：拼它要的站点 id、规范名和别名都在服务端，
     前端再拼一遍就会有两份规则。缺 id 的站点不出现在这个列表里。开关只在她有
-    JavDB 演员页时出现，订阅地址同样由服务端拼，页面只管开和关。
+    JavDB 演员页或 DMM 女优编号时出现，订阅地址同样由服务端拼，页面只管开和关。
     """
     metadata = d.get("metadata") or {}
     localization = metadata.get("name_localization") if isinstance(metadata, dict) else None
     out = {"entry_links": entry_links.entry_links(
         contract.entry_links_root, d["canonical_name"], d["external_refs"], alias_rows,
         localization)}
-    if entry_links.javdb_actor_pages(d["canonical_name"], d["external_refs"]):
+    if (entry_links.javdb_actor_pages(d["canonical_name"], d["external_refs"])
+            or feeds.dmm_actress_ids(c, d["id"])):
         out["feed"] = {"following": feeds.entity_following(c, d["id"])}
     return out
 
@@ -437,6 +439,37 @@ def entity_page_shape(contract, connection, entity) -> dict:
             "parts": _entity_shape_parts(contract, connection, entity_id).get(entity_id, [])}
 
 
+#: 一次最多问这么多位：搜索推荐那一栏只摆三位。
+LATEST_WORK_IDS = 20
+
+
+def q_entity_latest(contract, args) -> dict:
+    """几位实体在馆藏里发行最晚的那一部：番号与发行日，搜索推荐的人物行写成「最新作」。
+
+    只看有发行日的可见作品；同一天的按入库先后取最近的那部。没有带发行日作品的那位不在
+    结果里，页面照常只画名字。
+    """
+    ids = []
+    for part in str(args.get("ids") or "").split(","):
+        if part.strip().isdigit() and int(part) not in ids:
+            ids.append(int(part))
+    ids = ids[:LATEST_WORK_IDS]
+    if not ids:
+        return {"items": {}}
+    marks = ",".join("?" * len(ids))
+    with contract.database.read_connection() as connection:
+        rows = connection.execute(
+            "SELECT entity_id,id,code,release_date FROM (SELECT ae.entity_id entity_id,a.id id,"
+            "COALESCE(a.code,'') code,a.release_date release_date,ROW_NUMBER() OVER ("
+            "PARTITION BY ae.entity_id ORDER BY a.release_date DESC,a.first_seen DESC,a.id DESC) rn"
+            " FROM asset_entity ae JOIN asset a ON a.id=ae.asset_id"
+            f" WHERE ae.entity_id IN ({marks}) AND a.release_date IS NOT NULL AND a.release_date<>''"
+            " AND " + VISIBLE_CATALOG_ASSET + ") WHERE rn=1", ids).fetchall()
+    return {"items": {str(row["entity_id"]): {"id": row["id"], "code": row["code"],
+                                              "release_date": str(row["release_date"])[:10]}
+                      for row in rows}}
+
+
 def q_entity_shapes(contract, args) -> dict:
     """资料页上可有可无的那几块，哪些实体有：新作那一行（`feed`）、卡底的同台艺人（`costars`）、
     页头右侧那张资料表（`facts`，ADR-0069），以及作品的 JAV 版式（`jav`）。
@@ -638,9 +671,8 @@ def q_photo_set(contract: WebContract, args):
 def _attach_index_following(connection, rows: list[dict]) -> None:
     """名册人物的订阅状态按已启用、绑定实体的来源汇总。"""
     following = {source[0] for source in connection.execute(
-        "SELECT entity_id FROM feed_source WHERE kind=? AND enabled=1 "
-        "UNION SELECT entity_id FROM follow_source WHERE enabled=1",
-        (feeds.KIND_JAVDB_ACTOR,))}
+        "SELECT entity_id FROM feed_source WHERE enabled=1 "
+        "UNION SELECT entity_id FROM follow_source WHERE enabled=1")}
     for row in rows:
         row['following'] = row['entity_id'] in following
 
@@ -665,7 +697,8 @@ INDEX_TABLES = ("asset", "asset_entity", "asset_tag", "asset_tag_preference", "e
 def q_index(contract: WebContract, kind, q="", limit=600, offset=0, category=""):
     """全部艺人 / 创作者 / 厂牌 / 事务所 / 标签的索引页数据。
 
-    账本那一段十来条 SQL，名册页合计三四百毫秒；没有搜索词时按 `INDEX_TABLES` 的版本缓存。
+    账本那一段十来条 SQL，名册页合计三四百毫秒；没有搜索词时按 `INDEX_TABLES` 的版本缓存，
+    作品数按 `video_work_key` 计，所以分组快照的输入也一起核对。
     搜索词的键空间不封闭，带搜索词照旧现算。读目录索引的头像与标识标志在缓存之外现做。
     """
     def read():
@@ -674,7 +707,8 @@ def q_index(contract: WebContract, kind, q="", limit=600, offset=0, category="")
         rows, has_more, category_counts = read()
     else:
         rows, has_more, category_counts = contract.cached_until_changed(
-            repr(("index", kind, limit, offset, category)), read, tables=INDEX_TABLES)
+            repr(("index", kind, limit, offset, category)), read, *group_inputs(contract),
+            tables=INDEX_TABLES)
     # 下面还要往每行补目录索引的标志，不能写进缓存里那一份。
     rows = [dict(row) for row in rows]
     result = _decorate_index(contract, kind, rows, has_more, category_counts)

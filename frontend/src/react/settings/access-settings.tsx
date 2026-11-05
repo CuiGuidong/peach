@@ -25,7 +25,7 @@ const HELP: Partial<Record<AccessState['mode'], string>> = {
   password: 'A password is set. New devices need to sign in; checking "Keep me signed in" keeps the session for 30 days.',
 };
 
-export function AccessSettings({ initial, receipt }: AccessSettingsProps) {
+export function AccessSettings({ initial, receipt, devices }: AccessSettingsProps) {
   const [state, setState] = useState(initial);
   const [current, setCurrent] = useState('');
   const [password, setPassword] = useState('');
@@ -63,8 +63,8 @@ export function AccessSettings({ initial, receipt }: AccessSettingsProps) {
 
   const help = HELP[state.mode];
   const editable = state.mode !== 'locked';
-  return (
-    <Section guide="access" title="Access password" onSubmit={submit}>
+  return (<>
+    <Section guide="access" title="访问密码" onSubmit={submit}>
       <div ref={body}>
         <Stack>
           {help ? <Help>{help}</Help> : null}
@@ -93,5 +93,6 @@ export function AccessSettings({ initial, receipt }: AccessSettingsProps) {
         ? <Footer><Button type="submit" {...busyProps(action.busy === 'save')}>Save configuration</Button></Footer>
         : null}
     </Section>
-  );
+    {devices && (state.mode === 'password' || state.mode === 'legacy') ? devices(state) : null}
+  </>);
 }

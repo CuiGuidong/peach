@@ -79,12 +79,12 @@ describe('Orphan record tables', () => {
       assert.ok((await table.locator('tbody tr').first().textContent())?.includes('Video 1 ·'));
       await pagination.scrollIntoViewIfNeeded();
       await page.screenshot({ path: `../build/table-evidence/orphan-selected-${viewport.name}.png` });
-      await section.getByRole('button', { name: 'Delete selected records (2)', exact: true }).click();
-      await page.getByRole('dialog').getByRole('button', { name: 'Cancel', exact: true }).click();
+      await section.getByRole('button', { name: '删除所选记录（2）', exact: true }).click();
+      await page.getByRole('alertdialog').getByRole('button', { name: '取消', exact: true }).click();
       await table.locator('thead label:has(input[type="checkbox"])').click();
-      await section.getByRole('button', { name: 'Delete selected records (23)', exact: true }).click();
-      const dialog = page.getByRole('dialog');
-      const list = dialog.getByRole('list', { name: 'Selected records', exact: true });
+      await section.getByRole('button', { name: '删除所选记录（23）', exact: true }).click();
+      const dialog = page.getByRole('alertdialog');
+      const list = dialog.getByRole('list', { name: '所选记录', exact: true });
       await list.waitFor();
       assert.equal(await list.locator(':scope > li').count(), items.length);
       assert.equal(await list.getAttribute('data-overlay-scrollbar'), 'true');

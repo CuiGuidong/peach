@@ -206,7 +206,6 @@ describe('Sidebar island', () => {
       assert.deepEqual(await chips(page, 'Content tags'), ENTITY_TAGS.map(([k, n]) => [k, String(n)]), 'The entity page does not list this entity\'s counts');
       assert.deepEqual(opened.problems, []);
     } finally {
-      await page.unrouteAll({ behavior: 'ignoreErrors' });
       await opened.close();
     }
   });

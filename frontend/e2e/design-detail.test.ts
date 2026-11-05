@@ -177,7 +177,7 @@ describe('Design decisions: follow details, video details, player, and sidebar',
     }
   });
 
-  it('Video details identity section: groups sit side by side and wrap by content width, the name line box fits descenders; series is a full-row-width icon link, not a tag pill', { timeout: 60_000 }, async () => {
+  it('作品详情身份区：各组按内容宽并排换行，名字在头像下居中、行框容得下下伸部；系列是整行宽的图标链接，不是标签胶囊', { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;
@@ -201,9 +201,9 @@ describe('Design decisions: follow details, video details, player, and sidebar',
         };
       });
       assert.deepEqual(shown.primary, ['flex', 'wrap']);
-      assert.equal(shown.narrower, true, 'Groups size to content width, so group works never fill a whole row');
-      assert.ok(shown.name.ratio >= 1.5, `The name line-height is ${shown.name.ratio} times the font size, so Latin descenders get clipped by the ellipsis layer's overflow`);
-      assert.deepEqual([shown.name.overflow, shown.name.align], ['ellipsis', 'left']);
+      assert.equal(shown.narrower, true, '组按内容宽，共演作品不会一组占满一行');
+      assert.ok(shown.name.ratio >= 1.5, `名字行高 ${shown.name.ratio} 倍字号，拉丁字母的下伸部会被省略号那层 overflow 裁掉`);
+      assert.deepEqual([shown.name.overflow, shown.name.align], ['ellipsis', 'center']);
       assert.equal(shown.cursor, 'pointer');
       assert.notEqual(shown.face, 'rgba(0, 0, 0, 0)', 'Avatar without image renders an initial disc');
       assert.deepEqual(shown.series, { display: 'flex', wrap: 'anywhere', border: '0px', full: true });
@@ -290,7 +290,30 @@ describe('Design decisions: follow details, video details, player, and sidebar',
     }
   });
 
-  it('Video details tags and feedback keys: tags share the card face, the filter half lifts its fill on hover, and every feedback pill changes color on hover', { timeout: 60_000 }, async () => {
+  it('作品详情标签多时先露 20 个，展开键报出剩下几个，展开后能收回', { timeout: 60_000 }, async () => {
+    const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
+    try {
+      const page = opened.page;
+      const base = await page.evaluate(() => fetch('/api/item?id=14').then((response) => response.json()));
+      const tags = Array.from({ length: 30 }, (_, index) => ({ k: `折叠标签${String(index).padStart(2, '0')}`, cat: 'scene' }));
+      await page.route((url) => url.pathname === '/api/item', (route) => route.fulfill({ json: { ...base, tags } }));
+      await page.goto(new URL('/assets/14', page.url()).href, { waitUntil: 'load' });
+      const more = page.locator('#stage [data-tags-more]');
+      await more.waitFor({ timeout: 15_000 });
+      const chips = page.locator('#stage [data-detail-tags] [data-detail-tag]');
+      assert.deepEqual([await chips.count(), (await more.innerText()).trim()], [20, '还有 10 个']);
+      await more.click();
+      assert.deepEqual([await chips.count(), (await more.innerText()).trim()], [30, '收起']);
+      await more.click();
+      assert.equal(await chips.count(), 20);
+      assert.equal(await page.locator('#stage [data-detail-tags] [data-tag-plus]').isVisible(), true, '收起时加号照样在');
+      assert.deepEqual(withoutPlayer(opened.problems), []);
+    } finally {
+      await opened.close();
+    }
+  });
+
+  it('作品详情标签与反馈键：标签和卡片同一张脸，筛选那半边悬停抬填充；反馈条每一枚悬停都换色', { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;
@@ -815,10 +838,7 @@ describe('Design decisions: follow details, video details, player, and sidebar',
     await opened.page.reload({ waitUntil: 'load' });
     await opened.page.locator('#drawer [data-sidebar-group="Duration"]').waitFor({ state: 'attached', timeout: 15_000 });
     await settle(opened.page);
-    return { ...opened, close: async () => {
-      await opened.page.unrouteAll({ behavior: 'ignoreErrors' });
-      await opened.close();
-    } };
+    return opened;
   }
 
   it('The current sidebar item has no fill of its own and is marked by the glass panel attached to the drawer; on hover the glass follows the pointer, and leaving the column returns it to the current item', { timeout: 60_000 }, async () => {

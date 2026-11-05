@@ -89,7 +89,7 @@ describe('Design decisions: data management, index page, and profile headers', (
         }));
         const waiting = await geometry();
         assert.equal(waiting.length, 1);
-        assert.equal(waiting[0]!.face[3], '1px', 'The skeleton card lacks its outer frame');
+        assert.equal(waiting[0]!.face[3], '0px', '骨架卡还带着外框，页面上的卡只靠填充底');
         const expected = await disabledTokens(page);
         const faces = await waitingActionFaces(page, `[data-skeleton="${item.skeleton}"] [data-skeleton-action]`);
         assert.deepEqual(faces.map(face => face.name).filter(Boolean), item.names);
@@ -121,7 +121,46 @@ describe('Design decisions: data management, index page, and profile headers', (
     });
   }
 
-  it('Tool page headings use medium; link readings use the established size and line height', { timeout: 60_000 }, async () => {
+  const cleanupTools = [
+    ['/data-cleanup/organize', 'organize'], ['/data-cleanup/resource-sync', 'resource-sync'],
+    ['/data-cleanup/orphan-records', 'orphan-records'], ['/data-cleanup/links', 'links'],
+    ['/data-cleanup/batch-delete', 'batch-delete'],
+  ] as const;
+  for (const viewport of [DESKTOP, MOBILE]) {
+    it(`维护工具二级页的骨架画在正文那一列里，首张卡与接管后同位同宽（${viewport.name}）`, { timeout: 90_000 }, async () => {
+      const opened = await visit(browser, cleanupTools[0][0], viewport);
+      try {
+        const page = opened.page;
+        const release = await holdApi(page);
+        const frame = (column: string) => page.locator(column).evaluate((node) => {
+          const box = (part: Element) => {
+            const { left, width } = part.getBoundingClientRect();
+            return [Math.round(left), Math.round(width)];
+          };
+          return { column: box(node), card: box(node.firstElementChild!) };
+        });
+        const waiting: Record<string, unknown> = {};
+        for (const [path, key] of cleanupTools) {
+          await page.goto(new URL(path, page.url()).href, { waitUntil: 'load' });
+          await page.locator(`[data-skeleton="cleanup/${key}"] [inert] > *`).first().waitFor({ timeout: 15_000 });
+          waiting[path] = await frame(`[data-skeleton="cleanup/${key}"] [inert]`);
+        }
+        release();
+        // 接管那一拍旧骨架挪进淡出层 `.skelfade`，不再挂在 `[data-skeleton]` 下，两层都要排除。
+        const content = '#stats .max-w-board:not([data-skeleton] *, .skelfade *)';
+        for (const [path] of cleanupTools) {
+          await page.goto(new URL(path, page.url()).href, { waitUntil: 'load' });
+          await page.locator(`${content} > *`).first().waitFor({ timeout: 15_000 });
+          await page.locator('#stats .skelfade').waitFor({ state: 'detached', timeout: 15_000 });
+          await settle(page);
+          assert.deepEqual(await frame(content), waiting[path], `${path} 骨架与内容的正文列或首张卡位置不一致`);
+        }
+        assert.deepEqual(opened.problems, []);
+      } finally { await opened.close() }
+    });
+  }
+
+  it('工具页标题采用 medium，链接读数使用既定字号与行高', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/data-cleanup/links', DESKTOP);
     try {
       const page = opened.page;

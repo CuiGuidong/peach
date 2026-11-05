@@ -25,9 +25,10 @@ export interface DownloadPrefill { code?: string; title?: string; origin?: strin
   cover?: string; performers?: string; release_date?: string; duration?: number | null; studio?: string }
 
 const RECEIPTS: Partial<Record<DownloadSubmitResult['outcome'], string>> = {
-  submitted: 'Offline download submitted; progress lives in the task center',
-  adopted: 'This magnet already has a task and was not submitted twice',
-  adopted_remote: 'An identical download task already exists on the drive; Peach has started tracking its progress',
+  submitted: '已提交离线下载，进度在任务中心',
+  adopted: '这个磁力已有任务，没有重复提交',
+  adopted_remote: '网盘中已有相同的下载任务，Peach 已开始跟踪进度',
+  deferred: '网盘暂时没有响应，Peach 会自动重新提交，进度在任务中心',
 };
 
 export function CloudDownloadDialog({ prefill, close, receipt, provider }: {

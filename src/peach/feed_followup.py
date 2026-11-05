@@ -7,7 +7,7 @@
 就是二十张一模一样的卡片；键里带着这一批的番号，重跑、去重都按这一批算。
 
 **补封面单独排队。** 资料已经齐、只缺本机封面的壳不进取资料那一批，而是另派一条
-`feed-cover`（补新作封面）：它只取图、不问资料来源、不写账本，走自己的通道。资料来源
+`feed-cover`（新作封面采集）：它只取图、不问资料来源、不写账本，走自己的通道。资料来源
 连不上时取资料每部要等一轮超时，补封面若跟在后面，旧壳会被源源不断的新番号挤到轮不上。
 排在队里或正在跑的番号（`in_flight`）不再进下一批，两种批次也互不重复。
 
@@ -39,9 +39,9 @@ from .followups import Followup, FollowupType, register
 from .metadata import extract_peach_fields
 
 TASK_KEY = "feed-scrape"
-TASK_LABEL = "Fetch new-release details"
+TASK_LABEL = "新作资料采集"
 COVER_TASK_KEY = "feed-cover"
-COVER_TASK_LABEL = "补新作封面"
+COVER_TASK_LABEL = "新作封面采集"
 LABELS = {TASK_KEY: TASK_LABEL, COVER_TASK_KEY: COVER_TASK_LABEL}
 
 #: 一条资料够用就停。四个标量都拿到就不再问下一家——Feed 是后台跑的，
@@ -256,10 +256,15 @@ def fetch_cover(contract, code: str,
     `cover_url` 是取资料那一步来源给的地址，它是官方图路径时一起参与择优。`DAZD-308`
     这类番号 r18 与本机快照里都没有，官方渠道一条候选也列不出来，来源给的却正是 DMM 那张
     封套；不收它，这部就只能在页面上拿远程图按固定比例切，书脊切不干净。
+    上次装图时证据里记的地址同样参与：图片被删后证据还在，想看条目没有 `cover_url`，
+    素人档的 `jp.jpg`、MGS 图这类路径只有靠它才列得回候选。
     取不到就抛；原因交给调用方记账，一部取不到不影响同批其余几部。
     """
     from .jav_cover_fetch import HostLimitedTransport, best_cover, official_image_candidates
     from .scraping_access import SourceTransport
+
+    prior = {candidate.url: candidate for url in (cover_url, _recorded_cover_url(contract.cover_root, code))
+             for candidate in official_image_candidates(url or "")}
 
     raw = SourceTransport(contract.follow_secrets_root, max_requests=40,
                           max_bytes=32 * 1024 * 1024, max_seconds=COVER_SECONDS)
@@ -272,7 +277,7 @@ def fetch_cover(contract, code: str,
             transport, code, 0,
             metadata_root=contract.follow_sources_root / "metadata" / "javinizer-go",
             known=_official_evidence(snapshots),
-            prior_candidates=tuple(official_image_candidates(cover_url or "")),
+            prior_candidates=tuple(prior.values()),
             deadline=time.monotonic() + COVER_SECONDS)
     finally:
         transport.close()
@@ -283,6 +288,15 @@ def fetch_cover(contract, code: str,
                 "raw_sha256": digest, "installed_sha256": digest,
                 "checked_at": time.time(), "resolver": "peach-jav-cover-v1"}
     return data, size, evidence
+
+
+def _recorded_cover_url(cover_root: Path, code: str) -> str:
+    try:
+        evidence = json.loads((Path(cover_root) / f"{normalise_code_key(code)}.scraping.json")
+                              .read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    return str(evidence.get("source_url") or "") if isinstance(evidence, dict) else ""
 
 
 def cover_attempt_path(cover_root: Path, code: str) -> Path:

@@ -18,6 +18,9 @@ it('Dangerous actions focus Cancel; cancel writes nothing, and closing returns f
   const pending = confirmModal({title:'Cleaned records',body:'Clean 2 items',confirmLabel:'Cleaned records',danger:true,onConfirm:write});
   const cancel = document.querySelector<HTMLButtonElement>('[data-modal-cancel]')!;
   expect(document.activeElement).toBe(cancel);
+  const dialog = document.querySelector('dialog')!;
+  expect(dialog.getAttribute('role')).toBe('alertdialog');
+  expect(document.getElementById(dialog.getAttribute('aria-describedby')!)?.textContent).toBe('清理 2 项');
   cancel.click();
   expect((await pending).confirmed).toBe(false);
   expect(write).not.toHaveBeenCalled(); expect(document.activeElement).toBe(trigger);

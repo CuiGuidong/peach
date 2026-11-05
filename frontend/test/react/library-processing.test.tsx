@@ -19,6 +19,12 @@ import type { LibraryProcessingProps } from '../../src/react/bundle';
 
 import { actionOrder, buttonNamed as textButtonNamed, click, mount, mountRoot, submit } from './render';
 
+// 取消要过真的确认框：桩里的 `confirmModal` 不画对话框。
+vi.mock('@peach/legacy/ui', async (original) => ({
+  ...await original<typeof import('@peach/legacy/ui')>(),
+  confirmModal: (await import('../../src/ui-kit/modal')).confirmModal,
+}));
+
 const buttonNamed = (name: string, root: ParentNode = document) =>
   [...root.querySelectorAll('button')].find(button => button.getAttribute('aria-label') === name)
   ?? textButtonNamed(name, root);
@@ -57,17 +63,22 @@ it('Completing pending videos submits only registered ranges and never triggers 
   expect(calls.filter(call=>call.method==='POST').map(call=>call.body)).toEqual([{stage:'collect',scope:'new'}]);
 });
 
-it('Stop requests bind to the original task, keeping progress while stopping and blocking resends',async()=>{
+it('取消先确认，请求绑定原任务，正在取消时保留进度并禁止重发',async()=>{
   let state:LibraryProcessingData={status:'running',job_id:'one',candidates:3};
   const {calls}=await open(state,(method)=>{
     if(method==='POST') state={...state,status:'stopping'};
     return state;
   });
+  const posts=()=>calls.filter(call=>call.method==='POST').map(call=>call.body);
   const host=await mount(card({toast:vi.fn()}));
-  await click(buttonNamed('Stop the task',host)!);
-  expect(calls.filter(call=>call.method==='POST').map(call=>call.body)).toEqual([{action:'cancel',job_id:'one'}]);
-  expect(host.textContent).toContain('Stopping');
-  expect(buttonNamed('Stopping',host)?.disabled).toBe(true);
+  await click(buttonNamed('取消任务',host)!);
+  await click(document.querySelector('[data-modal-cancel]'));
+  expect(posts()).toEqual([]);
+  await click(buttonNamed('取消任务',host)!);
+  await click(document.querySelector('[data-modal-confirm]'));
+  await vi.waitFor(()=>expect(posts()).toEqual([{action:'cancel',job_id:'one'}]));
+  await vi.waitFor(()=>expect(host.textContent).toContain('正在取消'));
+  expect(buttonNamed('正在取消',host)?.disabled).toBe(true);
 });
 
 type Reply = (method: string, body: unknown) => LibraryProcessingData;
@@ -316,13 +327,15 @@ it('On failure the issue list folds into the error note, and retry submits only 
      otherwise dozens of same-length detail lines merge into one mass with no visible ends. */
   expect(list.querySelector('li')!.className).toContain('border-b');
   expect(details.parentElement?.className).toContain('border-t');
-  // The full record is something to dig into after the fact: it drops back to gray text, with a button beside it to open it.
-  const log = details.querySelector('p')!;
-  expect(log.textContent).toBe(`Full log: ${LOG}`);
-  expect(log.closest('.text-text-secondary')).not.toBeNull();
-  expect(details.querySelector('button[aria-label="Show in File Explorer"]')).not.toBeNull();
-  // Newly discovered files and the original task's targeted retry keep separate entries.
-  expect(buttonNamed('Sync new files', host)?.textContent).toBe('Sync new files');
+  /* 完整记录是出事之后自己去翻的东西，退回灰字，清单收着也看得见；旁边是打开它和
+     导出它的两颗键，导出和这份记录排在一起。 */
+  const reveal = alert!.querySelector('button[aria-label="在资源管理器中显示"]')!;
+  expect(details.contains(reveal)).toBe(false);
+  const logRow = reveal.closest('.text-text-secondary')!;
+  expect(logRow.querySelector('p')?.textContent).toBe(`完整记录：${LOG}`);
+  expect(logRow.contains(buttonNamed('导出完整问题清单', host))).toBe(true);
+  // 发现新增文件和原任务的定向重试分别保留入口。
+  expect(buttonNamed('同步新增文件', host)?.textContent).toBe('同步新增文件');
 
   // The retry key belongs to the error notice and is secondary, like recovery actions in Notes elsewhere; it stays operable while the issue list is collapsed.
   const retry = buttonNamed('Retry unfinished items')!;
@@ -556,15 +569,33 @@ it('The first-screen paused state keeps progress and a resume entry on both card
   expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('2');
 });
 
-it('Even task failures without per-item issues can archive a note, keeping the historical job id', async () => {
-  const state: LibraryProcessingData = { status:'failed', job_id:'one', error:'The task could not recover automatically' };
-  const served = await open(state, () => ({...state,archived:true}));
-  const host = await mount(card({toast:vi.fn()}));
-  expect(buttonNamed('Export the full issue list',host)).toBeNull();
-  await click(buttonNamed('Archive note',host));
+it('没有逐项问题的任务失败也能归档提示，可撤销，重新进来不再留那句已归档', async () => {
+  const state: LibraryProcessingData = { status:'failed', job_id:'one', error:'任务未能自动恢复' };
+  let archived = false;
+  const served = await open(state, (method, body) => {
+    if (method === 'POST') archived = (body as {action:string}).action === 'archive';
+    return {...state,archived};
+  });
+  const toast = vi.fn();
+  const host = await mount(card({toast}));
+  expect(buttonNamed('导出完整问题清单',host)).toBeNull();
+  const archive = buttonNamed('归档提示',host)!;
+  expect(host.querySelector('[role="alert"]')!.contains(archive)).toBe(true);
+  await click(archive);
   expect(served.posts()).toEqual([{action:'archive',job_id:'one'}]);
-  expect(host.textContent).toContain('history is kept');
-  expect(host.textContent).not.toContain('The task could not recover automatically');
+  expect(host.textContent).toContain('完整记录仍保留');
+  expect(host.textContent).not.toContain('任务未能自动恢复');
+  expect(toast).not.toHaveBeenCalled();
+  await click(buttonNamed('撤销',host));
+  expect(served.posts()).toEqual([{action:'archive',job_id:'one'},{action:'unarchive',job_id:'one'}]);
+  expect(host.textContent).toContain('任务未能自动恢复');
+  expect(host.textContent).not.toContain('完整记录仍保留');
+
+  await open({...state,archived:true});
+  const again = await mount(card({toast}));
+  expect(again.textContent).not.toContain('任务未能自动恢复');
+  expect(again.textContent).not.toContain('完整记录仍保留');
+  expect(buttonNamed('撤销',again)).toBeNull();
 });
 
 it('A failed mode switch keeps the server\'s selected value and the in-place error, and can retry', async () => {

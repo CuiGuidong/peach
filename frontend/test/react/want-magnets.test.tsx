@@ -101,7 +101,12 @@ it('The to-find list queries several sources and never adopts quick-add\'s singl
   expect(host.textContent).toContain('sukebei');
 });
 
-it('The ED2K type uses text, and byte sizes are shown by library convention', async () => {
+it('来源没给大小时整行照常展示，提示里不出现缺值', async () => {
+  const { host } = await open([{ ...candidate, size: undefined as unknown as string }]);
+  expect(host.querySelector('[data-resource-facts]')?.textContent).toContain('大小未知');
+  expect([...host.querySelectorAll('[title]')].map(node => node.getAttribute('title')).join('|')).not.toContain('undefined');
+});
+it('ED2K 类型使用文字，字节容量按馆藏口径展示', async () => {
   const { host } = await open([{ ...candidate, protocol: 'ed2k', size: '27,311,519,717 B' }]);
   expect(host.textContent).toContain('ED2K');
   expect(host.textContent).toContain('25.4 GB');

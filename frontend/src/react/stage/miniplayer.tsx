@@ -39,6 +39,7 @@ export const Miniplayer = memo(function Miniplayer() {
   }, []);
 
   useEffect(() => wireDrag(root.current!, card.current!), []);
+  useEffect(() => publishBottomSpace(root.current!), []);
 
   return (
     <aside ref={root} data-miniplayer="" id="miniplayer" data-corner="br" aria-label="Mini player" hidden>
@@ -68,8 +69,31 @@ export const Miniplayer = memo(function Miniplayer() {
   );
 });
 
-/* Dragging only changes transform; on release, pick the corner by which quadrant the mini player's center landed in, then snap over with a .5s transform transition, and after the transition
-   swap data-corner to the new corner and clear the transform; upstream AnimatingSnap settles back to its anchor the same way. */
+/* 小窗停在下面两角、又和右下角的通知栈同在一侧时，把自己占的高度写成 `--miniplayer-space`，
+   通知栈（`../toaster.tsx`）落在它上沿之上，不盖住画面。手机上通知栈占满整行，下面两角都算。
+   `hidden` 与 `data-corner` 是命令式改的，所以盯属性变化，不靠重画。 */
+function publishBottomSpace(root: HTMLElement): () => void {
+  const measure = () => {
+    const corner = root.dataset.corner || '';
+    const below = !root.hidden && corner.startsWith('b') && (corner === 'br' || innerWidth <= 600);
+    if (below) document.documentElement.style.setProperty('--miniplayer-space', `${Math.ceil(root.offsetHeight + 16 + 12)}px`);
+    else document.documentElement.style.removeProperty('--miniplayer-space');
+  };
+  const attributes = new MutationObserver(measure);
+  attributes.observe(root, { attributes: true, attributeFilter: ['hidden', 'data-corner'] });
+  const size = new ResizeObserver(measure);
+  size.observe(root);
+  window.addEventListener('resize', measure);
+  measure();
+  return () => {
+    attributes.disconnect(); size.disconnect();
+    window.removeEventListener('resize', measure);
+    document.documentElement.style.removeProperty('--miniplayer-space');
+  };
+}
+
+/* 拖动只改 transform，松手按小窗中心落在哪个象限选角，再用 .5s 的 transform 过渡吸过去，过渡完把
+   data-corner 换成新角、清掉 transform——上游 AnimatingSnap 就是这么落回锚点的。 */
 function snap(root: HTMLElement, dx: number, dy: number): void {
   const rect = root.getBoundingClientRect();
   const corner = (rect.top + rect.height / 2 < innerHeight / 2 ? 't' : 'b') + (rect.left + rect.width / 2 < innerWidth / 2 ? 'l' : 'r');

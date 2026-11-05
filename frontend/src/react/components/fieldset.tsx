@@ -1,5 +1,6 @@
-/* The management area's "one thing to do on this page" card: filled base plus an outline, 16px radius, one contact shadow,
- * with the body and a button-bearing footer inside.
+/* 管理区那张「一件要在这一页上做的事」的卡：填充底、16px 圆角、一层接触阴影，不描边，
+ * 卡里分成正文和一条放按钮的页脚。页面上的卡一律靠填充底和页面分开，深色下再加一圈描边
+ * 就成了同一页里一半卡有框、一半没有。
  *
  * In the legacy stylesheet the data management page's blocks (`.cleanupfieldset`, `[data-cleanup-processing]`,
  * `.resourcesyncbox`) were already the same card face (`web/board.css` merges them into one rule), differing only in layout:
@@ -9,17 +10,17 @@
  * - `stack`: body on top, footer below, body `20px 20px 16px`, minimum 120px; the footer is a band slightly darker than the
  *   card (`--board-card-foot`), one line on top, `12px 20px`, minimum 56px. Scan and collect, organize and link management.
  *
- * It is not the same card as `../settings/section.tsx`'s `Section`: that one groups sections inside the settings overlay,
- * borderless with the title outside the card; this one has a border and the title is a Title 2 inside the card. */
+ * 它和 `../settings/section.tsx` 的 `Section` 不是同一张：那一张是设置弹层的分组，标题在卡外；
+ * 这一张的标题是卡内的 Title 2。 */
 import type { ReactNode } from 'react';
 
 import { cardClass } from './card';
 import { FIELDSET_BODY, FIELDSET_FOOT, fieldsetClass, type FieldsetLayout } from './fieldset-layout';
 
-/** The results panel below the card: the same filled base, one outline, 14px radius, no elevation.
- *  Link check and resource sync lay a background task's conclusions here, section stacked on section with a hairline between them. */
+/** 卡下面那块结果面板：同一副填充底、14px 圆角、不浮起。
+ *  链接检查与资源同步把一趟后台任务的结论摆在这里，一段一段往下叠，段间一条发丝线。 */
 export const RESULT_PANEL = cardClass({
-  padding: 'none', radius: 'surface', bordered: 'line', className: 'overflow-hidden',
+  padding: 'none', radius: 'surface', className: 'overflow-hidden',
 });
 
 /** A section in the result panel: 16px padding, with a top border on every section except the first. */

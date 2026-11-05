@@ -9,7 +9,7 @@ import { detailPlayer, resizeSoon } from './registry';
 import { PLAYER_PANEL_EVENT } from './stats';
 import type { PlayerItem, SourceQuality, VjsPlayer } from './types';
 import { SubtitleControls, subtitleIcon } from './subtitles';
-import { timelineFrame, type TimelineSheets } from './timeline';
+import { createSeekPreview } from './seek-preview';
 import { mountPlayerRotation } from './rotation';
 import { mountPlayerPipControl } from './pip';
 import { mountPlaybackRate, playerMemory } from './memory';
@@ -570,76 +570,30 @@ function mountPlayerChromeLayout(player: VjsPlayer): void {
   setExpanded(false); syncWidthMode();
 }
 
-/** Drag preview on the progress bar: the time and that second's frame.
+/** 进度条上的拖动预览：时间与那一秒的画面，取图与夹边见 `seek-preview.ts`。
  *
- *  Once a capture job has laid down the timeline contact sheet, it is followed: one frame every 10 or 30 seconds, and pointing at a second shows that second.
- *  If unavailable, fall back to the nine-grid's nine cells, the film divided into nine equal parts; on a two-hour video adjacent cells are ten-odd minutes apart and
- *  the pointed position and shown frame disagree, but that beats having no frame. Follow items have no local image and report time only. */
+ *  鼠标悬停就显示；触屏没有悬停，按住拖动时显示、松手收起。关注条目没有本地图，只报时间。 */
 export function mountPlayerSeekPreview(player: VjsPlayer, item: PlayerItem | null, options: { thumbnail?: boolean } = {}): void {
   const progress = player.el().querySelector<HTMLElement>('.vjs-control-bar .vjs-progress-control');
   if (!progress || progress.querySelector('[data-player-seek-preview]')) return;
-  const hasThumbnail = !!item && options.thumbnail !== false;
-  const preview = document.createElement('div');
-  preview.className = 'vjs-peach-seek-preview'; preview.dataset.playerSeekPreview = ''; preview.hidden = true;
-  preview.innerHTML = `${hasThumbnail ? '<i class="vjs-peach-seek-frame" hidden><img alt=""></i>' : ''}<span class="mono">0:00</span>`;
-  progress.append(preview);
-  const frame = preview.querySelector<HTMLElement>('.vjs-peach-seek-frame');
-  const image = preview.querySelector('img'), label = preview.querySelector('span')!;
-  let sheets: TimelineSheets | null = null, shown = '', indexedImage = false;
-  if (frame && item?.id) {
-    (api(`/api/timeline?id=${encodeURIComponent(item.id)}`) as Promise<TimelineSheets | null>)
-      .then((meta) => { if (meta && meta.frames > 0 && (meta.interval > 0 || meta.cues?.length)) sheets = meta }).catch(() => {});
-  }
-  const showSheetFrame = (seconds: number, sheet: TimelineSheets, box: HTMLElement, img: HTMLImageElement) => {
-    if (!item) return;
-    const columns = sheet.columns || 10, per = columns * (sheet.rows || 10);
-    const index = timelineFrame(seconds, sheet);
-    if (index === null) return false;
-    const page = Math.floor(index / per), slot = index % per;
-    // The last image usually has fewer than 10 rows, so its row count is back-computed from its own frames: laying out by full rows would drop cells onto blank space outside the image.
-    const rows = Math.ceil(Math.min(per, sheet.frames - page * per) / columns);
-    indexedImage = !!sheet.cues;
-    const source = `/timeline?id=${encodeURIComponent(item.id)}&s=${page}&source=${encodeURIComponent(sheet.source || 'peach')}`;
-    if (source !== shown) { shown = source; img.src = source }
-    box.hidden = false;
-    // The framing box follows the stream's aspect and the image fills its cell: with both ratios equal, `fill` neither crops nor stretches.
-    if (item.width && item.height) box.style.aspectRatio = `${item.width} / ${item.height}`;
-    img.style.objectFit = 'fill';
-    img.style.width = `${columns * 100}%`; img.style.height = `${rows * 100}%`;
-    img.style.left = `${-(slot % columns) * 100}%`; img.style.top = `${-Math.floor(slot / columns) * 100}%`;
-    return true;
-  };
-  let cell = -1;
+  const preview = createSeekPreview(progress, item, options);
   const move = (event: PointerEvent) => {
-    if (event.pointerType === 'touch') return;
     const duration = realDuration(player.duration()) || realDuration(item?.duration);
     if (!duration) return;
     const rect = progress.getBoundingClientRect();
-    const ratio = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-    const width = frame ? Math.min(240, Math.max(160, rect.width * .28)) : 76;
-    const x = Math.min(rect.width - width / 2, Math.max(width / 2, event.clientX - rect.left));
-    preview.style.left = `${x}px`; preview.hidden = false; label.textContent = fmtClock(duration * ratio);
-    if (!frame || !image || !item) return;
-    if (sheets && showSheetFrame(duration * ratio, sheets, frame, image)) return;
-    if (sheets?.fallback && showSheetFrame(duration * ratio, sheets.fallback, frame, image)) return;
-    const nextCell = Math.min(8, Math.floor(ratio * 9));
-    if (nextCell === cell && shown === `poster:${nextCell}`) return;
-    cell = nextCell; frame.hidden = false; image.removeAttribute('style');
-    indexedImage = false;
-    shown = `poster:${nextCell}`;
-    image.src = `/poster?id=${encodeURIComponent(item.id)}&c=${nextCell}`;
+    preview.prime();
+    preview.show((event.clientX - rect.left) / rect.width, duration);
   };
-  const hide = () => { preview.hidden = true };
-  if (image && frame) {
-    image.onerror = () => { frame.hidden = true; sheets = indexedImage ? sheets?.fallback || null : null; shown = ''; cell = -1 };
-    image.onload = () => {
-      if (indexedImage && image.naturalWidth && image.naturalHeight) {
-        frame.style.aspectRatio = `${image.naturalWidth} / ${image.naturalHeight}`;
-      }
-    };
-  }
-  progress.addEventListener('pointermove', move); progress.addEventListener('pointerleave', hide);
-  player.on('dispose', () => { progress.removeEventListener('pointermove', move); progress.removeEventListener('pointerleave', hide) });
+  const hide = () => preview.hide();
+  const lift = (event: PointerEvent) => { if (event.pointerType !== 'mouse') preview.hide() };
+  const listeners: [string, (event: PointerEvent) => void][] = [
+    ['pointerdown', move], ['pointermove', move], ['pointerleave', hide], ['pointerup', lift], ['pointercancel', hide],
+  ];
+  for (const [type, listener] of listeners) progress.addEventListener(type, listener as EventListener);
+  player.on('dispose', () => {
+    for (const [type, listener] of listeners) progress.removeEventListener(type, listener as EventListener);
+    preview.dispose();
+  });
 }
 
 /** The picture-in-picture window is drawn by the browser, and not one in-site control-bar key reaches into it. Media

@@ -144,6 +144,36 @@ class WebDataTests(unittest.TestCase):
         rm_web.w_batch(self.contract, {"ids": [1], "operation": "dispose", "disposal_reason": None})
         self.assertIsNone(self.row()["disposal_reason"])
 
+    def test_latest_work_is_the_newest_visible_release_of_each_entity(self):
+        """搜索推荐的「最新作」：发行日最晚的可见作品；进了回收站的、没有发行日的不算。"""
+        with closing(sqlite3.connect(self.db_path)) as con, con:
+            con.executemany(
+                "INSERT INTO asset(id,location,path,name,medium,size,code,release_date,disposal,first_seen) "
+                "VALUES(?,'local',?,?,'video',1,?,?,?,'2026-08-15')",
+                [(21, r"R:\\Media\\new.mp4", "new.mp4", "ABC-009", "2026-05-01", None),
+                 (22, r"R:\\Media\\gone.mp4", "gone.mp4", "ABC-010", "2026-07-01", "trash"),
+                 (23, r"R:\\Media\\bare.mp4", "bare.mp4", "ABC-011", None, None)])
+            con.execute("UPDATE asset SET release_date='2025-01-02' WHERE id=1")
+            con.executemany("INSERT INTO asset_entity(asset_id,entity_id,role,source,confidence) "
+                            "VALUES(?,11,'performer','test',1.0)", [(21,), (22,), (23,)])
+        latest = rm_web.dispatch_api_get(self.contract, "/api/entity/latest", {"ids": "11,12,13,x"})["items"]
+        self.assertEqual(latest["11"], {"id": 21, "code": "ABC-009", "release_date": "2026-05-01"})
+        # 厂牌 13 也挂在 1 号上；没问到的 10 号标签不在结果里。
+        self.assertEqual(latest["13"], {"id": 1, "code": "ABC-001", "release_date": "2025-01-02"})
+        self.assertEqual(sorted(latest), ["11", "12", "13"])
+        self.assertEqual(rm_web.dispatch_api_get(self.contract, "/api/entity/latest", {})["items"], {})
+
+    def test_search_recommendations_bundle_every_group_in_one_read(self):
+        """搜索推荐一个请求取齐五份：作品照 `/api/items` 的口径，关注那份不带推荐栏用不上的筛选项，
+        占位推荐词取自馆藏作品的番号与署名。"""
+        bundle = rm_web.dispatch_api_get(self.contract, "/api/search/recommendations", {})
+        self.assertEqual(set(bundle), {"items", "jav", "follow", "feeds", "authors", "latest", "words"})
+        self.assertEqual({row["id"] for row in bundle["items"]["items"]}, {1, 2})
+        if bundle["follow"] is not None:
+            self.assertNotIn("facets", bundle["follow"])
+        self.assertIn("ABC-001", bundle["words"])
+        self.assertTrue(all(len(word) > 1 for word in bundle["words"]))
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.db_path = str(fresh_ledger(self.tmp.name))
@@ -1516,11 +1546,11 @@ class WebDataTests(unittest.TestCase):
             "/api/media-processing",
             "/api/thumbnail-jobs", "/api/timeline", "/api/media-repair",
             "/api/scraping", "/api/scraping/cover", "/api/scraping/amane-bridge",
-            "/api/items", "/api/item", "/api/entity", "/api/entity/shapes", "/api/photos", "/api/photo-set",
+            "/api/items", "/api/item", "/api/entity", "/api/entity/shapes", "/api/entity/latest", "/api/photos", "/api/photo-set",
             "/api/index", "/api/parts", "/api/editions", "/api/duplicates", "/api/quality-goals",
             "/api/stats", "/api/tops", "/api/ads", "/api/related", "/api/facets",
             "/api/suggest",
-            "/api/search-history", "/api/review", "/api/playlists", "/api/playlist",
+            "/api/search-history", "/api/search/recommendations", "/api/review", "/api/playlists", "/api/playlist",
             "/api/post-setup-tutorial",
             "/api/tutorial-progress", "/api/performer/delete-candidates", "/api/performer/delete-plan",
             "/api/library-shortcuts", "/api/folders",
@@ -1535,14 +1565,14 @@ class WebDataTests(unittest.TestCase):
             "/api/feeds/schedule",
             "/api/downloads", "/api/resources/search",
             "/api/wants", "/api/wants/magnets",
-            "/api/jav/detail", "/api/jav/reviews", "/api/jav/resources", "/api/jav/discoveries",
+            "/api/jav/detail", "/api/jav/reviews", "/api/jav/resources", "/api/jav/discoveries", "/api/jav/releases",
         })
         self.assertEqual(set(rm_web.POST_HANDLERS), {
             "/api/tag-management", "/api/tag-management/preview", "/api/follow/tag",
             "/api/downloads", "/api/downloads/cancel", "/api/downloads/postprocess",
             "/api/library-processing", "/api/thumbnail-jobs", "/api/media-repair",
             "/api/media-processing",
-            "/api/scraping/settings", "/api/scraping/check", "/api/scraping/cover",
+            "/api/scraping/settings", "/api/scraping/check", "/api/scraping/cover", "/api/jav/cover",
             "/api/scraping/amane-bridge/check", "/api/scraping/amane-bridge/rebuild",
             "/api/activity", "/api/play", "/api/feedback", "/api/watch-later",
             "/api/playlist",
@@ -2135,6 +2165,27 @@ class WebDataTests(unittest.TestCase):
         self.assertEqual(self.row(1)["disposal"], "trash")
         with self.assertRaises(ValueError):
             rm_web.w_batch(self.contract, {"ids": list(range(201)), "operation": "seen"})
+
+    def test_related_reason_names_shared_tags_the_user_can_see(self):
+        con = sqlite3.connect(self.db_path)
+        con.execute("INSERT INTO entity(id,kind,canonical_name,normalized_name,created_at,updated_at) "
+                    "VALUES(14,'tag','痴女','痴女','2026-01-01','2026-01-01')")
+        con.executemany("INSERT INTO asset_tag(asset_id,tag,source) VALUES(?,?,?)",
+                        [(1, "痴女", "name"), (2, "足交", "name"), (2, "痴女", "name")])
+        con.executemany("INSERT INTO asset_entity(asset_id,entity_id,role,source,confidence) "
+                        "VALUES(?,?,'tag','test',1.0)", [(1, 14), (2, 10), (2, 14)])
+        con.commit()
+        con.close()
+
+        first = rm_web.q_related(self.contract, 1, 10)["items"][0]
+        self.assertEqual((first["why"], first["why_tags"]), ("同创作者", ["足交", "痴女"]))
+        # 用户在对面那部上隐藏的标签不拿来当理由；一个都不剩时退回「标签接近」。
+        rm_web.w_item_tag(self.contract, {"id": 2, "operation": "remove", "tag": "足交"})
+        first = rm_web.q_related(self.contract, 1, 10)["items"][0]
+        self.assertEqual(first["why_tags"], ["痴女"])
+        rm_web.w_item_tag(self.contract, {"id": 2, "operation": "remove", "tag": "痴女"})
+        first = rm_web.q_related(self.contract, 1, 10)["items"][0]
+        self.assertEqual((first["why"], "why_tags" in first), ("同创作者 · 标签接近", False))
 
     def test_top_lists_and_related_items_use_canonical_entities(self):
         tops = rm_web.q_tops(self.contract, 10)
@@ -2993,6 +3044,33 @@ class JavModeAndCoverTests(unittest.TestCase):
         # 相邻字母不能被当成版次标记吞掉。
         self.assertEqual(
             rm_web.jav_display_metadata("ABC-123CHAPTER.mp4", "ABC-123")["edition_badges"], [])
+
+    def test_download_source_names_supply_edition_evidence_the_filename_lost(self):
+        """网盘离线下载的文件名只剩番号，`ch`、「中文字幕」留在种子名或任务名上。"""
+        badges = catalog_rules.jav_edition_badges
+        self.assertEqual(badges("SONE-804 作品标题.mp4", "SONE-804", (),
+                                ("+++ [FHDC] SONE-804 作品标题", "SONE-804ch")), ["中字"])
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123 中文字幕",)), ["中字"])
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123-U",)), ["无码"])
+        # 磁力名与任务名各给一半证据时取并集，不看先后。
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123-U", "ABP-123 无码破解")),
+                         ["无码破解"])
+        # 没有下载任务就没有来源名，结果与只看文件名相同。
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ()), [])
+        # 种子名是另一部片的标记，不能借来：番号对不上就不算这部的版次。
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-999-C",)), [])
+
+    def test_filename_wins_when_it_and_the_download_source_disagree(self):
+        badges = catalog_rules.jav_edition_badges
+        # 无码与无码破解只认文件侧：文件名写 `-U`，种子名写「破解」，还是无码。
+        self.assertEqual(badges("ABP-123-U.mp4", "ABP-123", (), ("ABP-123 无码破解",)), ["无码"])
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", ["AI去码"], ("ABP-123-U",)),
+                         ["无码破解"])
+        # 无码片商的番号本身就是文件侧证据，种子名上的「破解」不覆盖它，但中字照样补。
+        self.assertEqual(badges("040221-001.mp4", "040221-001", (),
+                                ("040221-001 破解 中文字幕",)), ["中字", "无码"])
+        # 中字只有「有」一个方向：文件名有、种子名没有，不算矛盾。
+        self.assertEqual(badges("ABP-123-C.mp4", "ABP-123", (), ("ABP-123",)), ["中字"])
 
     def test_release_sort_orders_official_dates_descending_and_missing_last(self):
         rows = rm_web.q_items(
@@ -4263,6 +4341,74 @@ class CatalogVersionTests(unittest.TestCase):
         self.assertEqual([row['id'] for row in q_parts(self.contract, {'id': 2})['items']], [1, 2])
         with closing(sqlite3.connect(self.db)) as connection:
             self.assertEqual(connection.execute('SELECT code FROM asset ORDER BY id').fetchall(), [(None,), (None,)])
+
+
+class DownloadSourceEditionTests(unittest.TestCase):
+    """云下载入库的文件名只剩番号时，版次徽章与版次分组读种子名补证据，不写账本。"""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        root = Path(self.tmp.name).resolve()
+        self.db = fresh_ledger(root)
+        self.contract = rm_web.WebContract(self.db, cover_root=root / "covers")
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            connection.executemany(
+                "INSERT INTO asset(id,location,path,name,medium,code,studio,size,duration,width,height,"
+                "first_seen) VALUES(?,'115',?,?,'video',?,'Studio A',1000000,7200,1920,1080,'2026-01-01')",
+                [(1, r"B:\云下载\SONE-804ch\SONE-804 作品标题.mp4", "SONE-804 作品标题.mp4", "SONE-804"),
+                 (2, r"R:\media\SONE-804.mp4", "SONE-804.mp4", "SONE-804"),
+                 (3, r"B:\云下载\ABP-123\ABP-123-U.mp4", "ABP-123-U.mp4", "ABP-123")])
+
+    def bind(self, task_id, asset_id, display_name, remote_name):
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            connection.execute(
+                "INSERT INTO download_task(id,provider,source_uri,display_name,target,state,"
+                "remote_name,asset_id,updated_at) VALUES(?,'115','magnet:?xt=urn:btih:x',?,"
+                "'/云下载','ingested',?,?,'2026-11-04T00:00:00Z')",
+                (task_id, display_name, remote_name, asset_id))
+
+    def badges(self, asset_id):
+        return rm_web.q_item(self.contract, asset_id)["edition_badges"]
+
+    def test_list_detail_and_edition_group_read_the_torrent_name(self):
+        self.bind(1, 1, "+++ [FHDC] SONE-804 作品标题", "SONE-804ch")
+        listed = {row["id"]: row for row in q_items(self.contract, {"limit": "20"})["items"]}
+        self.assertEqual(listed[1]["edition_badges"], ["中字"])
+        self.assertEqual(listed[2]["edition_badges"], [])
+        self.assertEqual(self.badges(1), ["中字"])
+        versions = q_editions(self.contract, {"id": 2})
+        self.assertEqual({row["id"]: row["edition_label"] for row in versions["items"]},
+                         {1: "中字 · 1080p", 2: "有码 · 1080p"})
+        with closing(sqlite3.connect(self.db)) as connection:
+            # 只是投影：文件名、标签都没被改写。
+            self.assertEqual(connection.execute("SELECT name FROM asset WHERE id=1").fetchone()[0],
+                             "SONE-804 作品标题.mp4")
+            self.assertEqual(connection.execute("SELECT count(*) FROM asset_entity").fetchone()[0], 0)
+
+    def test_filename_marker_wins_over_a_conflicting_torrent_name(self):
+        self.bind(1, 3, "ABP-123 无码破解", "ABP-123 无码破解")
+        self.assertEqual(self.badges(3), ["无码"])
+
+    def test_assets_without_a_download_task_keep_filename_badges(self):
+        self.bind(1, None, "SONE-804-C", "SONE-804-C")
+        self.assertEqual(self.badges(1), [])
+        self.assertEqual(self.badges(2), [])
+        self.assertEqual(q_editions(self.contract, {"id": 2}), {"error": "edition group not found"})
+
+    def test_binding_a_download_refreshes_the_edition_group_but_polling_does_not_rebuild_it(self):
+        self.bind(1, None, "SONE-804-C", "SONE-804ch")
+        self.assertEqual(q_editions(self.contract, {"id": 2}), {"error": "edition group not found"})
+        with mock.patch.object(web_catalog, "_read_group_rows",
+                               wraps=web_catalog._read_group_rows) as read:
+            with closing(sqlite3.connect(self.db)) as connection, connection:
+                connection.execute("UPDATE download_task SET checks=checks+1 WHERE id=1")
+            web_catalog._catalog_group_rows(self.contract)
+            self.assertEqual(read.call_count, 0)
+            with closing(sqlite3.connect(self.db)) as connection, connection:
+                connection.execute("UPDATE download_task SET asset_id=1 WHERE id=1")
+            self.assertEqual(q_editions(self.contract, {"id": 2})["count"], 2)
+            self.assertEqual(read.call_count, 1)
 
 
 if __name__ == "__main__":

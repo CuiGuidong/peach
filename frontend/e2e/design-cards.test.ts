@@ -575,7 +575,7 @@ describe('Design decisions: video cards, manage pages, and review', () => {
       assert.ok((narrow[0]?.x || 0) >= 0 && (narrow[0]?.x || 0) + (narrow[0]?.width || 0) <= 390,
         'At 390px a video card leaves the viewport');
 
-      const nested = card.locator('[data-media-tag]:not(:disabled)').first();
+      const nested = card.locator('button[data-media-tag]').first();
       const tag = await nested.getAttribute('data-tag');
       assert.ok(tag, 'The demo card has no operable inner tags');
       await nested.focus();
@@ -1024,12 +1024,10 @@ describe('Design decisions: video cards, manage pages, and review', () => {
   it('In the dark theme dividers are no weaker than light on either card face', { timeout: 60_000 }, async () => {
     const opened = await openReview(browser);
     try {
-      /* What is measured is the token pair, not any one line: which surface `separator-border` is drawn on is each place's own
-         decision, with the review card's outer border and the line between it and the candidate block falling on `primary`,
-         and the footnote band's line on `secondary`. Naming them one by one would mean remembering to add a case for each new
-         spot, and a missed one is indistinguishable on screen from "this place never had a line".
-         At the end it verifies once more that the review card's own border really takes this token, so both tiers passing
-         while nothing landed in the field is not possible. */
+      /* 量的是 token 对而不是某一条线：`separator-border` 画在哪种面上由各处自己决定，
+         复核卡页头与候选块之间那条线落在 `primary`，脚注带那条落在 `secondary`。逐条去点名，
+         新加一处就得记得再补一条用例，而漏补和「这处本来就没线」在屏幕上看不出区别。
+         末尾再核一次复核卡里的分隔线确实取的就是这个 token，免得两档都合格却根本没落到现场。 */
       const read = () => opened.page.locator('section[data-review-key]').first()
         .evaluate((node) => {
           const context = document.createElement('canvas').getContext('2d')!;
@@ -1045,7 +1043,7 @@ describe('Design decisions: video cards, manage pages, and review', () => {
             line: token('--color-separator-border'),
             card: token('--color-background-primary-default'),
             filled: token('--color-background-secondary-default'),
-            edge: paint(style.borderTopColor),
+            edge: paint(getComputedStyle(node.querySelector('.border-separator-border')!).borderBottomColor),
           };
         });
       const before = await read();
@@ -1061,7 +1059,7 @@ describe('Design decisions: video cards, manage pages, and review', () => {
         assert.ok(dark >= light,
           `In dark mode the divider over ${label} differs by only ${dark.toFixed(1)} lightness, versus ${light.toFixed(1)} in light mode`);
       }
-      assert.deepEqual(after.edge, after.line, 'The review card\'s border does not use separator-border');
+      assert.deepEqual(after.edge, after.line, '复核卡里的分隔线没走 separator-border');
       assert.deepEqual(opened.problems, []);
     } finally {
       await opened.close();

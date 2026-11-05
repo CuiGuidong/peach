@@ -13,7 +13,7 @@ import json
 import re
 import threading
 import time
-from collections import OrderedDict
+from collections import Counter, OrderedDict
 from collections.abc import Callable
 from dataclasses import dataclass
 from urllib.parse import urlsplit
@@ -150,16 +150,28 @@ def torrent_info_hash(data: bytes) -> str:
     return hashlib.sha1(bencode2.bencode(info)).hexdigest()
 
 
+#: 条目被筛掉的原因。搜索结果为空时据此分开「索引器里没有」和「有，但都不合格」。
+REJECT_REASONS = {"code": "番号不符", "size": "体积不在区间", "seeders": "没有人做种", "hash": "取不到 infohash"}
+
+
 def candidate(item, indexer: dict, code: str, filters: Filters,
-              fetch: Callable[[str], str | None] | None = None) -> dict | None:
-    """`fetch` 把索引器给的种子下载地址换成 infohash；条目自带磁力或 infohash 时不调用。"""
+              fetch: Callable[[str], str | None] | None = None,
+              rejected: Counter | None = None) -> dict | None:
+    """`fetch` 把索引器给的种子下载地址换成 infohash；条目自带磁力或 infohash 时不调用。
+
+    筛掉的条目按 `REJECT_REASONS` 的键计入 `rejected`。
+    """
+    def reject(reason: str) -> None:
+        if rejected is not None:
+            rejected[reason] += 1
+
     title = str(item.title or "")[:500]
     if not same_release_code(scan_code(title), code):
-        return None
+        return reject("code")
     if item.size is None or not filters.min_size <= item.size <= filters.max_size:
-        return None
+        return reject("size")
     if item.seeders is None or item.seeders <= 0:
-        return None
+        return reject("seeders")
     info_hash = None
     for raw in (item.magnet_url, item.link, item.guid, item.infohash):
         if raw:
@@ -171,7 +183,7 @@ def candidate(item, indexer: dict, code: str, filters: Filters,
     if info_hash is None and fetch and item.link:
         info_hash = fetch(item.link)
     if info_hash is None:
-        return None
+        return reject("hash")
     # 候选只携带规范 hash，索引器返回的 tracker 与 URL 可能含私有 passkey。
     quality = qualities(title, item.tags, code)
     return {"id": info_hash, "info_hash": info_hash,
@@ -275,6 +287,7 @@ class Search:
     def _search(self, indexers: list[dict], code: str, filters: Filters) -> dict:
         found: dict[str, dict] = {}
         warnings = []
+        rejected: Counter = Counter()
         successful = 0
         deadline = time.monotonic() + 45
         query = code.split("-")[-1] if code.startswith("FC2-") else code
@@ -297,7 +310,7 @@ class Search:
                         budget[0] -= 1
                         return _torrent_hash(client, indexer, link, deadline)
                     for item in items[:MAX_ITEMS]:
-                        row = candidate(item, indexer, code, filters, fetch)
+                        row = candidate(item, indexer, code, filters, fetch, rejected)
                         if row is None:
                             continue
                         prior = found.get(row["info_hash"])
@@ -313,6 +326,11 @@ class Search:
         def rank(row):
             target = row[filters.goal] if filters.goal in ("chinese", "uncensored") else row["resolution"]
             return (-int(target), -row["resolution"], -row["seeders"], row["size"], row["info_hash"])
+        if not found and rejected:
+            # 一条都没留下时说清是哪种「没有」：索引器里有、只是没过筛选，换体积区间或换来源还有救。
+            counts = "、".join(f"{label} {rejected[key]} 条" for key, label in REJECT_REASONS.items() if rejected[key])
+            warnings.append(f"索引器返回了 {sum(rejected.values())} 条结果，都没通过筛选：{counts}")
         return {"ok": successful > 0, "state": "ready" if successful else "error",
                 "items": sorted(found.values(), key=rank), "warnings": warnings,
+                "rejected": dict(rejected),
                 "error": "" if successful else "所有索引器都未能完成搜索"}

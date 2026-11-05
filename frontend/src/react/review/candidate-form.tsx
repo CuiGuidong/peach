@@ -15,6 +15,7 @@ import { errorMessage } from '../../api';
 import type { ReviewCandidate, ReviewRow } from './review';
 import { pendingGenres, recordGenre, reloadReview } from './review';
 import { ComparisonText } from './comparison-text';
+import { composingKey } from '../components/ime';
 
 /** What the fields candidates hand back are called in the UI. Anything missing from the table shows under its original name. */
 const EVIDENCE_LABELS: Record<string, string> = {
@@ -168,7 +169,7 @@ function GenreRow(
         <InputBase size="small" list={tags.length ? GENRE_TAGS_ID : undefined}
           autoComplete="off" placeholder="Chinese tag"
           onKeyDown={(event) => {
-            if (event.key !== 'Enter' || event.nativeEvent.isComposing) return;
+            if (event.key !== 'Enter' || composingKey(event.nativeEvent)) return;
             event.preventDefault();
             accept();
           }} />

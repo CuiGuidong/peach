@@ -15,6 +15,7 @@ import { Input } from '@/components/base/input/input';
 import { Select, SelectItem } from '../components/select';
 
 import { errorMessage } from '../../api';
+import { ORGANIZE_PARAMETER_HINT, ORGANIZE_SCOPE_HINT, ORGANIZE_TEXT } from '../../cleanup-tool-skeletons';
 import { useBackgroundJob } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
@@ -212,7 +213,7 @@ export function OrganizeCard(
       }>
       <FieldsetTitle id="cleanup-organize-title" gap="medium">Organize</FieldsetTitle>
       <p className="text-body-regular text-text-secondary">
-        Clean special symbols and mojibake out of file names, optionally rename by template and file into folders. Preview first, run after confirming; an executed batch can be reverted as a whole.
+        {ORGANIZE_TEXT}
       </p>
       {organize.isError
         ? <div className="mt-3"><Note tone="error" title="Reading organize configuration failed">{errorMessage(organize.error)}</Note></div>
@@ -242,9 +243,9 @@ export function OrganizeCard(
               onClick={() => picker.mutate({ initial: path || locations.find((row) => row.location === location)?.roots[0] || '', location, path })} />
           </div>
         </div>
-        <p className="text-caption-1-regular text-text-secondary">When a path is given, subdirectories are included and folder templates start from that path. With all templates left empty only file names are cleaned.</p>
-        {picker.isError ? <Note tone="error" title="Choosing the folder failed">{errorMessage(picker.error)}; you can also type a path directly.</Note> : null}
-        <Input label="Filename template" placeholder="{code}[ {title}]" value={fields.file} ref={fileInput}
+        <p className="text-caption-1-regular text-text-secondary">{ORGANIZE_SCOPE_HINT}</p>
+        {picker.isError ? <Note tone="error" title="目录选择失败">{errorMessage(picker.error)}；也可直接输入路径。</Note> : null}
+        <Input label="文件名模板" placeholder="{code}[ {title}]" value={fields.file} ref={fileInput}
           spellCheck="false" isInvalid={invalid === 'file'}
           onFocus={() => { setTarget('file'); focused.current = true }}
           onChange={(value) => changeTemplates({ file: value })} />
@@ -285,7 +286,7 @@ export function OrganizeCard(
           </div>
         </div> : null}
         <p className="text-caption-1-regular leading-4.5 text-text-secondary">
-          Click a parameter to insert it at the cursor; selected text gets replaced. Content in square brackets is omitted entirely when the field is empty.
+          {ORGANIZE_PARAMETER_HINT}
         </p>
       </div>
       <div aria-live="polite" className="mt-3 flex flex-col gap-2 empty:hidden">{state}</div>

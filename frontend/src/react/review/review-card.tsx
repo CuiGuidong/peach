@@ -27,7 +27,7 @@ import {
 
 /* The card face sits at the same level as the management page; source choice is the only form in the card with a radio border. */
 const CARD = cardClass({
-  variant: 'filled', padding: 'none', bordered: 'soft', className: 'flex flex-col overflow-hidden',
+  variant: 'filled', padding: 'none', className: 'flex flex-col overflow-hidden',
 });
 
 /* The card header row's line height: the field name is a caption Chip (12/16 plus 4 above and below), which sets the 24px. Title,

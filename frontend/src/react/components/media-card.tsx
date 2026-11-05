@@ -22,8 +22,6 @@
  * Click routing: multi-select and modifier keys first, then open, entity links, unassigned, and tags; everything else falls to
  * the whole card, which is open. */
 import { memo, useCallback, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
-import { Dialog, Popover } from 'react-aria-components';
-import { MENU_POPOVER_SURFACE } from '@/components/base/dropdown/menu-styles';
 import { cardRatio as layoutRatio } from '@peach/appearance';
 import {
   cardArtwork, cardIdentity, entityAvatar, frameArtwork, performerLabel, relayoutCovers, releaseHover, wireHover,
@@ -35,6 +33,8 @@ import { useEntityNames } from '../use-entity-names';
 
 import type { MediaCardActions, MediaCardHelpers, MediaCardLayout, MediaItem } from '../catalog-grid/types';
 import { ArtSlot } from './art-slot';
+import { CardDate, CardTags, Icon, WhoLabel } from './card-meta';
+import { RecommendationReason } from './recommendation-reason';
 import { useLibraryTints } from './library-tint';
 import { suppressShiftTextSelection } from './row-click';
 
@@ -46,10 +46,6 @@ export type MediaCardVariant = 'grid' | 'short' | 'next' | 'resource';
 /** Fallback for the card title and screen-reader name when the title is empty; resource cards say "Untitled resource". */
 const UNNAMED = 'Untitled video';
 
-/** One glyph from the sprite, written like the legacy layer's `icon()`: size and stroke come from `./media-card.css` by position. */
-function Icon({ name }: { name: string }) {
-  return <svg viewBox="0 0 24 24" aria-hidden="true"><use href={`#i-${name}`} /></svg>;
-}
 
 const RESOURCE_LABELS: Record<string, string> = { image: 'Images', audio: 'Audio', archive: 'Archives', other: 'Other files' };
 const DISPOSAL_LABELS = { manual: 'Manual', junk: 'Junk', duplicate: 'Duplicates', missing: 'Missing file' };
@@ -148,14 +144,14 @@ export function identityParts(item: MediaItem): { avatar: ReactNode; who: ReactN
   const who = coStarred
     ? (
       <>
-        <button type="button" data-media-who="" data-entity-kind="performer" data-entity-name={performer} title={entityDisplayName('performer', performer)}><Icon name="user-round" /><span>{entityDisplayName('performer', performer)}</span></button>
-        <span data-media-who-more="">{`and ${total} people`}</span>
+        <button type="button" data-media-who="" data-entity-kind="performer" data-entity-name={performer} title={entityDisplayName('performer', performer)}><WhoLabel name={entityDisplayName('performer', performer)} /></button>
+        <span data-media-who-more="">{`等 ${total} 人`}</span>
       </>
     )
     : kind
-      ? <button type="button" data-media-who="" data-entity-kind={kind} data-entity-name={name} title={entityDisplayName(kind, name)}><Icon name="user-round" /><span>{entityDisplayName(kind, name)}</span></button>
-      /* Entries without a credited person are one class of the library, clickable like performer names and studio names. */
-      : <button type="button" data-media-who="" data-open-unowned=""><Icon name="user-round" /><span>{name}</span></button>;
+      ? <button type="button" data-media-who="" data-entity-kind={kind} data-entity-name={name} title={entityDisplayName(kind, name)}><WhoLabel name={entityDisplayName(kind, name)} /></button>
+      /* 没有署名人的那批是馆藏里的一类，点得开，和女优名、厂牌名一样。 */
+      : <button type="button" data-media-who="" data-open-unowned=""><WhoLabel name={name} /></button>;
   return { avatar, who };
 }
 
@@ -191,25 +187,7 @@ function LaterButton({ item, actions, on, onChange }: {
   );
 }
 
-/** The recommendation reason gets its own content row; the full text opens via keyboard or touch. */
-function RecommendationReason({ reason }: { reason: string }) {
-  const trigger = useRef<HTMLButtonElement>(null);
-  const [open, setOpen] = useState(false);
-  return <>
-    <button ref={trigger} type="button" data-media-next-reason="" title={reason}
-      aria-label={`Why it's recommended: ${reason}`} aria-haspopup="dialog" aria-expanded={open}
-      onClick={event => { event.stopPropagation(); setOpen(true) }}>{reason}</button>
-    <Popover triggerRef={trigger} isOpen={open} onOpenChange={setOpen} placement="top" offset={8}
-      containerPadding={12} className={MENU_POPOVER_SURFACE}>
-      <Dialog data-media-reason-dialog="" aria-label="Recommendation reason"
-        className="w-64 max-w-full p-2 text-body-regular whitespace-normal break-words text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring">
-        {reason}
-      </Dialog>
-    </Popover>
-  </>;
-}
-
-/** Rewind and fast-forward jump within the hover preview's video itself and never open details. */
+/** 快退、快进跳的是悬停预览那段视频本身，不打开详情。 */
 function seekPreview(card: HTMLElement | null, delta: number) {
   const video = card?.querySelector<HTMLVideoElement & { _hop?: ReturnType<typeof setInterval> | null }>('video.hv');
   if (!video || !Number.isFinite(video.duration)) return;
@@ -359,19 +337,13 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
             {who}
             {item.why && variant !== 'next' ? <span data-media-why="" title={item.why}>{item.why}</span> : null}
             <span data-media-facts="">
-              {item.is_jav && item.release_date ? <time data-media-release="" dateTime={item.release_date} title={item.release_date}><Icon name="calendar" />{item.release_date}</time> : null}
-              <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : 'Unknown size'}</span>
+              {item.is_jav && item.release_date ? <CardDate value={item.release_date} label={item.release_date} /> : null}
+              <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : '大小未知'}</span>
             </span>
           </div>
-          {variant === 'next' ? (item.why ? <RecommendationReason reason={item.why} /> : null) : tags.length || item.disposal === 'trash'
-            ? (
-              <div data-media-tags="">
-                {tags.map((tag) => (
-                  <button key={tag} type="button" data-media-tag="" disabled={!!item.follow_item_id}
-                    data-tag={item.follow_item_id ? undefined : tag}>{helpers.tagLabel(tag)}</button>
-                ))}
-              </div>
-            )
+          {variant === 'next' ? <RecommendationReason reasons={item.why ? item.why.split(' · ') : []}
+            tags={(item.why_tags || []).map(helpers.tagLabel)} /> : tags.length || item.disposal === 'trash'
+            ? <CardTags tags={tags} label={helpers.tagLabel} readOnly={!!item.follow_item_id} />
             : null}
           <DisposalReason item={item} />
         </div>

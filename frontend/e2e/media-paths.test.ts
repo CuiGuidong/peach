@@ -45,8 +45,17 @@ describe('Non-Windows media folder configuration', () => {
         await form.getByRole('button', { name: 'Add folders to Movies', exact: true }).click();
         await form.getByRole('textbox', { name: 'Media directory 2', exact: true }).fill('/media/other');
         assert.equal(await internal.count(), 0);
-        await form.getByRole('button', { name: 'Save configuration', exact: true }).click();
-        await page.getByText('Configuration saved', { exact: true }).waitFor();
+        // 保存会重启 Peach：扫描与采集在跑时先确认，取消就什么都不写。
+        await page.route('**/api/library-processing', route => route.fulfill({ json: { status: 'running', trigger: 'cli' } }));
+        await form.getByRole('button', { name: '保存配置', exact: true }).click();
+        const restart = page.getByRole('dialog', { name: '扫描与采集正在进行', exact: true });
+        await restart.getByText(/由命令行或托盘发起，在独立进程里运行，不受重启影响/).waitFor();
+        await restart.getByRole('button', { name: '取消', exact: true }).click();
+        await restart.waitFor({ state: 'hidden' });
+        assert.equal(writes.length, 0);
+        await form.getByRole('button', { name: '保存配置', exact: true }).click();
+        await restart.getByRole('button', { name: '仍然保存', exact: true }).click();
+        await page.getByText('配置已保存', { exact: true }).waitFor();
         assert.deepEqual(writes.at(-1)?.media_sources.map(({ path, root }) => ({ path, root })), [
           { path: '/media/movies', root: 'R:\\media' }, { path: '/media/other', root: '' },
         ]);

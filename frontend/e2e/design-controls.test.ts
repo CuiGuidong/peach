@@ -187,12 +187,16 @@ describe('Design decisions: controls, states, and the home top', () => {
     ]);
     try {
       const danger = await tokenColor(opened.page, '.peach-react', '--color-border-error-default');
-      const border = (status: string) => opened.page.locator(`li[data-status="${status}"]`)
-        .evaluate((element) => getComputedStyle(element).borderTopColor);
-      assert.equal(await border('failed'), danger, 'The failed card\'s border is not danger colored');
-      assert.notEqual(await border('succeeded'), danger, 'Cards that did not fail also use danger borders');
-      // Reading red text line by line across a dozen rows is slower than glancing at which card's frame is red: the reason line keeps body text color.
-      const reason = await opened.page.locator('li[data-status="failed"] p').last()
+      // 框线画成不占盒子的 outline：只比颜色会放过「有色无宽、根本没画出来」的线，宽度一起比。
+      const frame = (status: string) => opened.page.locator(`li[data-status="${status}"]`)
+        .evaluate((element) => {
+          const style = getComputedStyle(element);
+          return style.outlineStyle === 'none' ? '' : `${style.outlineWidth} ${style.outlineColor}`;
+        });
+      assert.equal(await frame('failed'), `1px ${danger}`, '失败卡的框线不是 danger 色');
+      assert.notEqual(await frame('succeeded'), `1px ${danger}`, '没失败的卡也用了 danger 框线');
+      // 一屏十几行里逐行读红字比看一眼哪张卡的框是红的慢：原因那行留正文色。
+      const reason = await opened.page.locator('li[data-status="failed"] [data-task-error]')
         .evaluate((element) => getComputedStyle(element).color);
       assert.notEqual(reason, danger, 'The end reason line is painted in the danger color');
       assert.deepEqual(opened.problems, []);
@@ -340,7 +344,7 @@ describe('Design decisions: controls, states, and the home top', () => {
     }
   });
 
-  it('The scan card progress bar uses the focus ring color, the track is the level-3 background, and the pressed button turns busy', { timeout: 60_000 }, async () => {
+  it('扫描卡的进度条走焦点环色，底槽是三级底，任务在跑时同步键标为不可用但仍可聚焦', { timeout: 60_000 }, async () => {
     const opened = await openProcessing(browser, '/data-cleanup', RUNNING_JOB);
     try {
       const card = opened.page.locator('section[aria-label="Scan and scrape"]');
@@ -354,9 +358,10 @@ describe('Design decisions: controls, states, and the home top', () => {
         await tokenColor(opened.page, '.peach-react', '--color-background-tertiary-default'));
       assert.equal(await fill(1),
         await tokenColor(opened.page, '.peach-react', '--color-border-focus-ring'));
-      // The busy state does not touch `disabled`: the control stays focusable, and the page blocks re-triggering itself.
-      const scan = card.getByRole('button', { name: 'Sync new files', exact: true });
-      assert.equal(await scan.getAttribute('aria-busy'), 'true');
+      // 已有任务在跑只标 `aria-disabled`、不改 `disabled`：控件仍可聚焦，点了由卡片说明为什么没开始。
+      const scan = card.getByRole('button', { name: '同步新增文件', exact: true });
+      assert.equal(await scan.getAttribute('aria-disabled'), 'true');
+      assert.equal(await scan.getAttribute('aria-busy'), null);
       assert.equal(await scan.evaluate((element) => (element as HTMLButtonElement).disabled), false,
         'Guarding with native disabled would keep the button from receiving focus at all');
       const split = card.locator('[data-split-button]');
@@ -440,7 +445,7 @@ describe('Design decisions: controls, states, and the home top', () => {
       await list.waitFor({ state: 'visible', timeout: 5_000 });
       const geometry = await alert.evaluate((element) => {
         const note = element.getBoundingClientRect();
-        const button = element.querySelector('button')!.getBoundingClientRect();
+        const button = element.querySelector('[data-note-action]')!.getBoundingClientRect();
         const items = element.querySelector('ul')!;
         return {
           padding: parseFloat(getComputedStyle(element).paddingRight),
@@ -451,7 +456,7 @@ describe('Design decisions: controls, states, and the home top', () => {
         };
       });
       assert.ok(geometry.noteRight - geometry.buttonRight - geometry.padding < 1,
-        'A retry button not hugging the right padding of the banner does not read as the primary action of that banner');
+        '重试与归档没有贴着提示的右内边，读起来就不是这条提示的动作');
       assert.ok(geometry.noteRight - geometry.listRight - geometry.padding < 1,
         'The issue list never fills the note\'s width');
       assert.equal(geometry.client, geometry.offset, 'The native scrollbar still occupies a column at the list\'s right');
@@ -468,7 +473,7 @@ describe('Design decisions: controls, states, and the home top', () => {
         };
         // `divide-y` draws the line on each row's bottom edge (except the last), so measure the first row's bottom.
         const first = element.querySelectorAll('li')[0]!;
-        const log = element.querySelector('details p')!;
+        const log = element.querySelector('[aria-label="在资源管理器中显示"]')!.closest('.text-text-secondary')!.querySelector('p')!;
         return {
           divider: parseFloat(getComputedStyle(first).borderBottomWidth),
           dividerInk: paint(getComputedStyle(first).borderBottomColor),
@@ -486,30 +491,20 @@ describe('Design decisions: controls, states, and the home top', () => {
     }
   });
 
-  it('The same issue log prints in one place, and "not asked again for 7 days" shares the failure note\'s spacing', { timeout: 60_000 }, async () => {
+  it('一趟的问题收在同一块提示里，「7 天内不再问」、完整记录与导出都跟着它', { timeout: 60_000 }, async () => {
     const notes = { fetching_cover: 84, querying_metadata: 18 };
     const button = '[aria-label="Show in File Explorer"]';
     const reveal = `#libraryProcessing ${button}`;
     const failed = await openProcessing(browser, '/data-cleanup', { ...FAILED_JOB, notes });
     try {
       const alert = failed.page.locator('#libraryProcessing [role="alert"]');
-      await expectBody(failed.page, '/data-cleanup failure note and do-not-ask note', [alert], failed.problems);
-      await alert.locator('summary').click();
-      await alert.locator('ul').waitFor({ state: 'visible', timeout: 5_000 });
-      assert.equal(await failed.page.locator(reveal).count(), 1, 'The full record printed once in each of the two notes');
-      assert.equal(await alert.locator(button).count(), 1, 'The full record should follow the issue list');
-      const spacing = await failed.page.evaluate(() => {
-        const box = (element: Element) => {
-          const style = getComputedStyle(element);
-          return { top: style.paddingTop, bottom: style.paddingBottom, left: style.paddingLeft };
-        };
-        const alert = document.querySelector('#libraryProcessing [role="alert"]')!;
-        const note = [...document.querySelectorAll('#libraryProcessing [role="note"]')]
-          .find((element) => element.textContent!.includes('Not asked again for 7 days'))!;
-        return { alert: box(alert), note: box(note) };
-      });
-      assert.equal(spacing.note.top, spacing.note.bottom, 'The do-not-ask note\'s top and bottom paddings differ');
-      assert.deepEqual(spacing.note, spacing.alert, 'The do-not-ask note and failure note paddings disagree');
+      await expectBody(failed.page, '/data-cleanup 失败提示与不再问提示', [alert], failed.problems);
+      assert.ok((await alert.textContent())!.includes('7 天内不再问'), '「7 天内不再问」没有并进失败提示');
+      assert.equal(await failed.page.locator('#libraryProcessing [role="note"]').count(), 0,
+        '失败提示旁边还另挂着一块同类提示');
+      assert.equal(await failed.page.locator(reveal).count(), 1, '完整记录印了不止一处');
+      assert.equal(await alert.locator(button).count(), 1, '完整记录该跟着问题提示');
+      assert.equal(await alert.getByRole('button', { name: '导出完整问题清单' }).count(), 1, '导出没有跟着完整记录');
       assert.deepEqual(failed.problems, []);
     } finally {
       await failed.close();
@@ -810,10 +805,50 @@ describe('Design decisions: controls, states, and the home top', () => {
     }
   });
 
-  /* The search box lives in the sticky top bar, always at the viewport's top edge; but `html`'s `scroll-padding-top` marks that strip
-     as "covered by the top bar", so the browser scrolls the cursor down on every keystroke and the page keeps scrolling back.
-     Clicks use mouse coordinates: a locator's click first scrolls the element into view, and that motion is not the page's own. */
-  it('After scrolling down, typing in the search box keeps the page in place', { timeout: 60_000 }, async () => {
+  it('搜索框空着且没聚焦时占位推荐词隔几秒换一句，聚焦、打字或组字就停', { timeout: 60_000 }, async () => {
+    const opened = await openCatalog(browser);
+    try {
+      await opened.page.emulateMedia({ reducedMotion: 'no-preference' });
+      const input = opened.page.locator('#q');
+      const ghost = opened.page.locator('.search > .placeholderroll');
+      // 推荐词池在页面空闲时取，取到就把第一句换上去；之后每隔几秒换一句。
+      await opened.page.waitForFunction(() => document.querySelector<HTMLInputElement>('#q')?.dataset.suggestion,
+        null, { timeout: 15_000 });
+      // 第一句换上去时也走一次换句动画，等它走完再记「换之前」的那一句。
+      await ghost.waitFor({ state: 'detached', timeout: 2_000 });
+      const before = await input.getAttribute('placeholder');
+      await ghost.waitFor({ timeout: 8_000 });
+      const after = await input.getAttribute('placeholder');
+      assert.notEqual(after, before, '换句时 placeholder 没有改成新的一句');
+      assert.equal(after, await input.getAttribute('data-suggestion'), '占位字与空回车要搜的词对不上');
+      assert.equal(await input.evaluate((element) => getComputedStyle(element, '::placeholder').opacity), '0',
+        '换句的那一层在场时框里自己的占位字没有收起');
+      await ghost.waitFor({ state: 'detached', timeout: 2_000 });
+      assert.equal(await input.evaluate((element) => element.classList.contains('placeholderrolling')), false,
+        '换完之后仍压着输入框的占位字');
+
+      await ghost.waitFor({ timeout: 8_000 });
+      await input.type('新');
+      assert.equal(await ghost.count(), 0, '开始打字后换句的那一层仍盖在输入框上');
+      // 聚焦时不换句：人正对着这一句，换掉了回车搜的就不是刚看见的词。
+      await input.fill('');
+      await opened.page.waitForTimeout(6_000);
+      assert.equal(await ghost.count(), 0, '聚焦在搜索框上时占位字仍在换句');
+      await input.blur();
+      await ghost.waitFor({ timeout: 8_000 });
+      await input.evaluate((element) => element.dispatchEvent(new CompositionEvent('compositionstart', {
+        bubbles: true, data: '候',
+      })));
+      assert.equal(await ghost.count(), 0, '输入法开始组字后换句的那一层仍盖着候选字');
+    } finally {
+      await opened.close();
+    }
+  });
+
+  /* 搜索框住在粘性顶栏里，永远在视口上沿；可 `html` 的 `scroll-padding-top` 把那一条
+     划成「被顶栏盖住」的区域，浏览器每敲一个字就把光标往下滚一次，页面一路往回退。
+     点击走鼠标坐标：定位器的 click 会先替元素滚进视口，那一下不是页面自己的行为。 */
+  it('往下翻过之后在搜索框里打字，页面停在原处', { timeout: 60_000 }, async () => {
     const opened = await openCatalog(browser);
     try {
       const { page } = opened;

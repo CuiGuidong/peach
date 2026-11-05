@@ -102,6 +102,8 @@ class DevCopyTests(unittest.TestCase):
                     runtime.poll(tray, root)
                     self._wait_for_state(runtime, root, 'error' if blocked else 'ready')
                 self.assertEqual(tray.manager.restart.call_count, 0 if blocked else 1)
+                if not blocked:
+                    tray.manager.restart.assert_called_once_with(reason='源码改字构建完成，重载服务')
                 self.assertFalse(tray._action_lock.locked())
 
     @staticmethod

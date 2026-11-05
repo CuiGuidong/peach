@@ -3,13 +3,15 @@
  * back: first a generic large-layout skeleton, then each page's own loading state. Taking one copy means the `data-skeleton`
  * keys match, and the later layer recognizes the same skeleton and skips re-laying it (`paintManagementPlaceholder`).
  *
- * Beyond the pages `boardPageSkeleton` draws, data management, review, diagnostics and collection sources each have one, and
- * other paths fall to the generic panel. */
+ * 版式照 `boardPageSkeleton` 画的那几页之外，数据管理首页与各个维护工具（`cleanup-tool-skeletons.ts`）、复核和
+ * 采集来源各有一张，其余路径落到通用面板。 */
 import { esc } from '@peach/legacy/core';
 import { fitSkeleton, skeletonHtml } from '@peach/legacy/ui';
 
 import { boardPageSkeleton } from './board-skeleton';
-import { cleanupSkeletonHtml, repairCardSkeletonHtml } from './management';
+import { cleanupToolSkeletonHtml } from './cleanup-tool-skeletons';
+import { CLEANUP_TOOLS } from './cleanup-tools';
+import { cleanupSkeletonHtml } from './management';
 
 export interface PageSkeletonOptions {
   cards?: boolean;
@@ -49,9 +51,10 @@ const reviewSkeletonHtml = (label = 'Reading the review queue'): string => `<div
 
 const PLACEHOLDERS: Record<string, () => string> = {
   '/data-cleanup': () => cleanupSkeletonHtml(),
-  '/data-cleanup/media-repair': () => `<div class="peach-react" data-skeleton="cleanup/media-repair" aria-busy="true" role="status" aria-label="Loading the media repair status"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">${repairCardSkeletonHtml()}</div></div>`,
-  // /resource-sync is just an anchor on the data management page, so the placeholder should be the data management card too.
-  '/resource-sync': () => cleanupSkeletonHtml(),
+  /* 每个维护工具都有自己那一页的骨架，新加的工具不会落到下面那张通用面板上。 */
+  ...Object.fromEntries(CLEANUP_TOOLS.map(tool => [tool.path, () => cleanupToolSkeletonHtml(tool.key)])),
+  // 旧地址 /resource-sync 打开后转到资源同步二级页，占位先画成那一页，转过去时同一个键不重画。
+  '/resource-sync': () => cleanupToolSkeletonHtml('resource-sync'),
   '/review': () => reviewSkeletonHtml(),
   /* The collection sources are a stack of equal-width Fieldsets in the 812px narrow column: one hi-res cover plus six sources. The skeleton draws four,
      the number the first screen fits; the explainer sentence is static copy, independent of data, and shows immediately. */

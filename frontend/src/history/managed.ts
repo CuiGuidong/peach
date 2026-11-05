@@ -68,7 +68,8 @@ export interface ManagedOpenOptions {
  *  and being a beat late means a blank frame. With false it updates in place and queues into the next render as usual. */
 type ManagedListener = (entries: readonly ManagedEntry[], sync: boolean) => void;
 
-interface Pending { revision: number; controller: AbortController }
+/* `page`：登记键是路径，这一趟是换页；页面内组件与常驻组件的取数不算。 */
+interface Pending { revision: number; controller: AbortController; page: boolean }
 
 /* Before the route tree is wired to fetching, opens wait here; if the wired copy fails to load, the waiting opens fail with it. */
 let connect: (ready: Promise<ManagedPrefetch>) => void = () => {};
@@ -84,6 +85,25 @@ const entries = new Map<Element, ManagedEntry>();
 const pending = new Map<Element, Pending>();
 let revision = 0;
 const listeners = new Set<ManagedListener>();
+const loadingListeners = new Set<(loading: boolean) => void>();
+let loading = false;
+
+/** 有一页还在取首屏：换页进度条（`navigation-progress.ts`）读它。 */
+export const managedLoading = (): boolean => loading;
+
+/** 订阅「有一页还在取首屏」的变化，只在真假翻转时通知。 */
+export function listenManagedLoading(listener: (loading: boolean) => void): () => void {
+  loadingListeners.add(listener);
+  return () => { loadingListeners.delete(listener) };
+}
+
+/* `pending` 每次增删之后调。 */
+function settleLoading(): void {
+  const next = [...pending.values()].some((inflight) => inflight.page);
+  if (next === loading) return;
+  loading = next;
+  for (const listener of [...loadingListeners]) listener(loading);
+}
 
 /** Hooks up fetching when the route tree loads. Only the first time counts. */
 export function connectManagedRoutes(ready: Promise<ManagedPrefetch>): void {
@@ -118,6 +138,7 @@ export async function openManagedRoute(path: string, props: object, options: Man
   const { container } = options;
   pending.get(container)?.controller.abort();
   pending.delete(container);
+  settleLoading();
   if (!options.isCurrent()) return false;
   const previous = entries.get(container);
   if (options.reuse && previous?.host.isConnected) {
@@ -127,8 +148,9 @@ export async function openManagedRoute(path: string, props: object, options: Man
     return true;
   }
   revision += 1;
-  const mine: Pending = { revision, controller: new AbortController() };
+  const mine: Pending = { revision, controller: new AbortController(), page: path.startsWith('/') && !options.resident };
   pending.set(container, mine);
+  settleLoading();
   const load = preload;
   preload = null;
   load?.();
@@ -144,6 +166,7 @@ export async function openManagedRoute(path: string, props: object, options: Man
   }
   if (pending.get(container) !== mine) return false;
   pending.delete(container);
+  settleLoading();
   if (!options.isCurrent()) return false;
   options.beforePlace?.();
   releaseManagedRoute(container);
@@ -204,6 +227,7 @@ export function releaseManagedRoute(container: Element, ...more: Element[]): voi
     if (inflight) {
       inflight.controller.abort();
       pending.delete(target);
+      settleLoading();
     }
     const shown = entries.get(target);
     if (shown) {

@@ -32,7 +32,7 @@ function GoalCard({ item, openItem, searchResources, javTitleHtml, javDisplayNam
   const open = () => openItem(item.id);
   return (
     <li data-goal-id={item.id}
-      className={cardClass({ padding: 'none', bordered: 'soft', className: 'flex flex-col gap-3 p-3' })}>
+      className={cardClass({ padding: 'none', className: 'flex flex-col gap-3 p-3' })}>
       <div className="flex min-w-0 gap-4">
         {/* The centered placeholder sentence uses `inline-grid`: in the old stylesheet `.grid` is the poster wall's rule with column widths and
             gaps, and coming after `peach-app.css` it would win. This button is a flex child, so an inline grid gets blockified; computed it is still `display:grid`. */}

@@ -188,15 +188,15 @@ class WebContract:
         #: 后继调度（ADR-0040）。导入 `avatar_followup` 就是它的登记动作：调度器本身
         #: 不认识任何一种后继，登记表在 `followups.REGISTRY` 里。
         from . import avatar_followup  # noqa: F401  登记补头像后继
-        from . import creator_identity_followup  # noqa: F401  登记查创作者身份后继
+        from . import creator_identity_followup  # noqa: F401  登记创作者身份查找后继
         from . import download_postprocess  # noqa: F401  登记云下载后处理
-        from . import feed_followup  # noqa: F401  登记取新作资料后继
+        from . import feed_followup  # noqa: F401  登记新作资料采集后继
         from . import follow_creators  # noqa: F401  登记关注作者建档后继
         from . import performer_alias_followup  # noqa: F401  登记补女优别名后继
         from . import performer_profile_followup  # noqa: F401  登记补女优资料后继
-        from . import sample_followup  # noqa: F401  登记补番号样张后继
+        from . import sample_followup  # noqa: F401  登记番号样张采集后继
         from . import seed_followup  # noqa: F401  登记导入实体种子后继
-        from . import studio_followup  # noqa: F401  登记补厂牌官网与标识后继
+        from . import studio_followup  # noqa: F401  登记厂牌官网与标识补全后继
         from .followups import FollowupRunner
         self.followups = FollowupRunner(self)
         self.follow_job = self._job("PeachFollowCheckJob", "follow-check")
@@ -223,6 +223,9 @@ class WebContract:
         #: 订阅源的定时拉取（ADR-0042）。与追更共用 `follow_scheduler` 那一个实现，
         #: 只是各占一个 job id 与一份状态文件；由 `api` 在装配时接上。
         self.feed_scheduler = None
+        #: 定时拉取上一次派存量后继的时刻（`time.monotonic()`）；None 是本进程还没派过
+        #: （`web_feeds.STOCK_INTERVAL`）。
+        self.feed_stock_planned_at = None
         #: 云下载（`downloads.DownloadService`），由 `api` 在装配时接上；没接上时
         #: `/api/downloads` 回「云下载没有启用」。
         self.downloads = None

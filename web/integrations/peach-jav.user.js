@@ -12,7 +12,7 @@
 // @updateURL    https://update.sleazyfork.org/scripts/600821/Peach%20%C2%B7%20JAV%20%E5%85%A5%E5%BA%93.meta.js
 // @downloadURL  https://update.sleazyfork.org/scripts/600821/Peach%20%C2%B7%20JAV%20%E5%85%A5%E5%BA%93.user.js
 // @license      AGPL-3.0-or-later
-// @version      0.6.10
+// @version      0.7.2
 // @description  Detect video codes on web pages, select titles, and send them to Peach for download and library import.
 // @description:zh-CN 识别网页中的番号，选择影片并交给 Peach 下载入库。
 // @description:zh-TW 識別網頁中的番號，選擇影片並交給 Peach 下載入庫。
@@ -291,7 +291,7 @@
   const STORAGE_POSITION = 'peach.jav.position';
   const STORAGE_APPEARANCE = 'peach.jav.appearance';
   const ROOT_ID = 'peach-jav-action';
-  const SCRIPT_VERSION = "0.6.10";
+  const SCRIPT_VERSION = "0.7.2";
   // 0.6.3 起默认名改为英文；发布页切换前仍返回原名。
   const PUBLISHED_NAMES = ['Peach Userscript', 'Peach · JAV 入库'];
   const PEACH_LOGO = "data:image/png;base64,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";
@@ -299,6 +299,11 @@
   const STORAGE_INSTALLED = 'peach.jav.installed-version';
   const STORAGE_UPDATES = 'peach.jav.updates';
   const STORAGE_CHECKED = 'peach.jav.update-attempted-at';
+  // 各窗口共享的任务进度：持锁窗口向 Peach 查询进行中任务，结果写入快照，其余窗口只读快照。
+  const STORAGE_TASKS = 'peach.jav.tasks';
+  const STORAGE_POLLER = 'peach.jav.poller';
+  const STORAGE_CHIMED = 'peach.jav.chimed';
+  const WINDOW_ID = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
   // 更新入口直接打开 Sleazy 的安装文件，与 @downloadURL 相同，脚本管理器随即弹出更新确认。
   const RELEASE_INSTALL = 'https://update.sleazyfork.org/scripts/600821/Peach%20%C2%B7%20JAV%20%E5%85%A5%E5%BA%93.user.js';
   const RELEASE_META = 'https://update.sleazyfork.org/scripts/600821/Peach%20%C2%B7%20JAV%20%E5%85%A5%E5%BA%93.meta.js';
@@ -338,7 +343,7 @@
     ingested: ['In library', 'lime'], owned: ['Owned', 'lime'], no_match: ['No resource', 'yellow'], failed: ['Failed', 'rose'],
   };
   // 提示音沿用 Peach `ui-kit/sounds.ts` 的配方，Web Audio 当场合成、不带音频文件：点加入用 toggle-on
-  // 的一声上扬表示开始，一部影片完成入库用 success 的大三度两音。默认开启，与 Peach 界面音效一致，可在设置中关闭。
+  // 的一声上扬表示开始，一部影片入库并整理完成后用 success 的大三度两音。默认开启，与 Peach 界面音效一致，可在设置中关闭。
   const SOUNDS = {
     start: [{from:550, to:650, duration:0.08, volume:0.15, start:0}],
     success: [{from:523, duration:0.12, volume:0.18, start:0}, {from:523 * 1.25, duration:0.12, volume:0.18, start:0.2}],
@@ -476,7 +481,7 @@
       --board-font:'Inter Variable','Inter','Segoe UI','Microsoft YaHei UI','Microsoft YaHei','PingFang SC','Hiragino Sans GB','Noto Sans CJK SC','Noto Sans SC','Source Han Sans SC',sans-serif;
       --board-body:400 14px/20px var(--board-font);--board-body-medium:500 14px/20px var(--board-font);--board-caption:400 12px/16px var(--board-font);--board-caption-semibold:600 12px/16px var(--board-font);--board-heading:500 20px/26px var(--board-font);
       --board-blue:linear-gradient(180deg,var(--color-accent-500),var(--color-accent-600));--board-blue-hover:linear-gradient(180deg,var(--color-accent-400),var(--color-accent-500));--board-blue-active:linear-gradient(180deg,var(--color-accent-600),var(--color-accent-700));
-      --modal-ease:cubic-bezier(0,0,.2,1);--board-motion:.3s cubic-bezier(.4,0,.2,1);--spring-press-ms:208;
+      --board-motion:.3s cubic-bezier(.4,0,.2,1);--board-dialog-motion:.3s cubic-bezier(.32,.72,0,1);--spring-press-ms:208;
       --spring-press:linear(0,0.1659,0.4268,0.6816,0.8795,1.0066,1.084,1.0861,1.069,1.0457,1.0241,1.0079,0.998,0.9933,0.9923,0.9934,0.9954,0.9973,0.9995,1.0003,1.0006,1.0007,1.0005,1.0004,1);
       --field-ring-hover:rgba(0,0,0,.21);
       --color-status-lime-background:oklch(93.8% .127 124.321);--color-status-lime-text:oklch(45.3% .124 130.933);
@@ -490,7 +495,17 @@
     :host([data-theme=dark]){${DARK_STYLE}}
     *,*::before,*::after{box-sizing:border-box} [hidden]{display:none!important}
     :host([data-panel-mode="minimized"]){width:48px}
-    :host([data-settings-open]){visibility:hidden}
+    /* 浮卡与子页同在右下角，切换时同时播 Peach 设置面板的进出场（web/board.css 的
+       board-dialog-in／out，BoardUI 设置弹层动效）：子页进场时浮卡退场，子页退场时浮卡进场。
+       先隐藏再让子页从 0 进场会露出两层都看不见的空档，读起来就是一闪。缩放原点按
+       BoardUI 下拉菜单随停靠位置取的规则，右下停靠取右下角。 */
+    :host{transform-origin:bottom right}
+    :host([data-settings-open]){visibility:hidden;pointer-events:none;transition:visibility 0s .3s;animation:board-dialog-out var(--board-dialog-motion) both}
+    :host([data-subpage-return]){animation:board-dialog-in var(--board-dialog-motion) backwards}
+    @keyframes board-dialog-in{from{opacity:0;transform:scale(.85);filter:blur(4px)}to{opacity:1;transform:scale(1);filter:blur(0)}}
+    @keyframes board-dialog-out{from{opacity:1;transform:scale(1);filter:blur(0)}to{opacity:0;transform:scale(.85);filter:blur(4px)}}
+    @keyframes settings-backdrop-in{from{opacity:0}to{opacity:1}}
+    @keyframes settings-backdrop-out{from{opacity:1}to{opacity:0}}
     h2,p{margin:0} h2{font:var(--board-heading)}
     .panel{background:var(--ground);border:1px solid var(--line);border-radius:var(--floating-radius);overflow:hidden}
     .task-progress{display:block;width:100%;height:6px;overflow:hidden;border-radius:9999px}
@@ -529,6 +544,28 @@
     .geist-button.launcher{width:48px;height:48px;padding:6px;border-radius:50%;background:var(--ground);transform-origin:bottom right}
     .launcher img{display:block;width:34px;height:34px;object-fit:contain;user-select:none;-webkit-user-drag:none;pointer-events:none}
     .geist-button.launcher{touch-action:none;cursor:grab}.geist-button.launcher:active{cursor:grabbing}
+    .geist-button.launcher[data-count]{position:relative;overflow:visible}
+    .geist-button.launcher[data-count]::after{content:attr(data-count);position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:9px;
+      display:grid;place-items:center;background:var(--color-status-blue-background);color:var(--color-status-blue-text);font:var(--board-caption-semibold);box-shadow:0 0 0 2px var(--ground);pointer-events:none}
+    .geist-button.launcher[data-count-tone=ended]::after{background:var(--color-status-lime-background);color:var(--color-status-lime-text)}
+    .shared-note{margin:8px 0 0}.shared-foot{display:flex;justify-content:flex-end;gap:16px;margin-top:8px}.shared-foot:not(:has(>:not([hidden]))){display:none}
+    .shared-tasks{min-width:0}.shared-heading,.shared-action{display:flex;align-items:center;gap:4px;width:fit-content;margin:0;padding:0;border:0;background:transparent;
+      font:var(--board-caption-semibold);color:var(--muted);cursor:pointer}.shared-heading:hover,.shared-action:hover{color:var(--ink)}.shared-action:disabled{opacity:.5;cursor:default}
+    .shared-heading:focus-visible,.shared-action:focus-visible{outline:2px solid var(--tungsten);outline-offset:2px;border-radius:4px}
+    .shared-fold{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s ease}
+    .shared-heading[aria-expanded=false] .shared-fold{transform:rotate(-90deg)}
+    /* 折叠沿用 Peach Collapse（frontend/src/ui-kit/collapse.css）：过渡时裁边，展开停稳后摘掉，行的悬停底色才不被切。 */
+    .shared-body{display:flow-root;overflow:hidden;transition:height .2s ease-in-out}.shared-body.fold-settled{overflow:visible}
+    .shared-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:4px;max-height:172px;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin}
+    .shared-list li{min-width:0}.shared-row{display:flex;align-items:center;gap:8px;width:calc(100% + 16px);min-width:0;min-height:32px;margin:0 -8px;padding:4px 8px;border:0;border-radius:6px;
+      background:transparent;color:inherit;font:inherit;text-align:left;cursor:pointer;transition:background-color .15s ease}.shared-row:hover{background:var(--surface)}
+    .shared-row:focus-visible{outline:2px solid var(--tungsten);outline-offset:-2px}
+    .shared-item{display:flex;align-items:center;gap:4px}.shared-item .shared-row{flex:1;width:auto;margin-right:0}
+    .shared-item .geist-button.icon{width:28px;height:28px;color:var(--muted)}.shared-item .geist-button.icon:hover{color:var(--ink)}
+    .shared-code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:var(--board-body-medium)}
+    .shared-chevron{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--muted)}
+    .task-page .bar strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .panel.draggable{cursor:grab}:host([data-dragging]) .panel{cursor:grabbing;user-select:none}
     .body{padding:0 20px 20px;display:grid;gap:16px;min-width:0}.footer{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-height:var(--fieldset-bar-h);padding:8px 16px;border-top:1px solid var(--line);background:var(--surface)}
     .geist-button{height:var(--control-h);padding:8px 12px;border:1px solid var(--color-border-button-default);border-radius:var(--control-radius);background:var(--color-background-primary-default);color:var(--ink);display:inline-flex;
       align-items:center;justify-content:center;gap:4px;font:var(--board-body-medium);white-space:nowrap;cursor:pointer;box-shadow:var(--elevation-xs);touch-action:manipulation;transition:background-color .15s ease,border-color .15s ease,color .15s ease}
@@ -638,15 +675,19 @@
     dialog{position:fixed;inset:auto var(--panel-right,max(16px,env(safe-area-inset-right))) var(--panel-bottom,max(16px,env(safe-area-inset-bottom))) auto;margin:0;
       width:min(400px,calc(100% - 32px));max-width:calc(100% - 32px);max-height:calc(100dvh - 32px);padding:0;
       background:var(--ground);color:var(--ink);border:1px solid var(--line);border-radius:var(--floating-radius);overflow:hidden;box-shadow:var(--elevation-dropdown);
-      opacity:1;transform:scale(1);transition:opacity 200ms var(--modal-ease),transform 200ms var(--modal-ease)}
-    dialog::backdrop{background:#000b;opacity:1;transition:opacity 200ms var(--modal-ease)}
-    dialog[data-closing],dialog[data-closing]::backdrop{opacity:0;transition-duration:120ms}
-    dialog[data-closing]{transform:scale(.98)}
-    @starting-style{dialog[open],dialog[open]::backdrop{opacity:0}dialog[open]{transform:scale(.98)}}
+      transform-origin:bottom right}
+    /* 子页进出场与 Peach 设置面板同一对关键帧，遮罩取设置面板的 settings-backdrop。
+       进场用 backwards：终点就是自然状态，不留一个 filter:blur(0)。
+       data-switch：从另一个子页直接换过来，遮罩一直在，不再从 0 淡入。 */
+    dialog::backdrop{background:#000b}
+    dialog[open]{animation:board-dialog-in var(--board-dialog-motion) backwards}
+    dialog[open]:not([data-switch])::backdrop{animation:settings-backdrop-in .35s cubic-bezier(.4,0,.2,1) both}
+    dialog[open][data-closing]{animation:board-dialog-out var(--board-dialog-motion) both}
+    dialog[open][data-closing]::backdrop{animation:settings-backdrop-out .35s cubic-bezier(.4,0,.2,1) both}
     form{display:flex;flex-direction:column;max-height:calc(100dvh - 34px);margin:0}dialog>form,dialog>div{position:relative}
     dialog .bar{border-bottom:1px solid var(--line);flex:none}dialog .body{padding-top:20px;overflow:auto;overscroll-behavior:contain;scrollbar-width:none}dialog .body::-webkit-scrollbar{display:none}dialog .footer{flex:none}
     @media(max-width:760px){.geist-input{font-size:var(--fs-lg)}}
-    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+    @media(prefers-reduced-motion:reduce){:host,*,*::before,*::after{animation:none!important;transition:none!important}}
   `;
 
   function element(tag, className = '', text = '') {
@@ -772,23 +813,36 @@
     root.style.setProperty('--panel-right', `${right}px`); root.style.setProperty('--panel-bottom', `${bottom}px`);
   }
 
-  function wireLauncher(root, launcher) {
+  // 收成图标时拖图标；展开或折叠时按住面板空白处拖，按钮、链接与表单控件照常点击。
+  const DRAG_EXEMPT = 'button,a,input,select,textarea,label,summary,[role=button],[contenteditable],.ov-y';
+
+  function wireDrag(root, launcher, panel) {
     let drag = null, suppressClickUntil = 0;
+    const begin = (handle, event) => {
+      const box = root.getBoundingClientRect();
+      drag = {handle, id:event.pointerId, x:event.clientX, y:event.clientY, width:box.width, height:box.height,
+        right:document.documentElement.clientWidth-box.right, bottom:innerHeight-box.bottom, moved:false};
+      handle.setPointerCapture(event.pointerId);
+    };
     launcher.addEventListener('pointerdown', event => {
       if (event.button !== 0 || root.dataset.panelMode !== 'minimized') return;
       event.preventDefault(); launcher.focus({preventScroll:true});
-      const box = root.getBoundingClientRect();
-      drag = {id:event.pointerId, x:event.clientX, y:event.clientY, right:document.documentElement.clientWidth-box.right, bottom:innerHeight-box.bottom, moved:false};
-      launcher.setPointerCapture(event.pointerId);
+      begin(launcher, event);
     });
-    launcher.addEventListener('pointermove', event => {
+    panel.classList.add('draggable');
+    panel.addEventListener('pointerdown', event => {
+      if (event.button !== 0 || root.dataset.panelMode === 'minimized' || event.target.closest?.(DRAG_EXEMPT)) return;
+      begin(panel, event);
+    });
+    const move = event => {
       if (!drag || event.pointerId !== drag.id) return;
       const x = event.clientX-drag.x, y = event.clientY-drag.y;
       if (!drag.moved && Math.hypot(x, y) < 4) return;
+      if (!drag.moved) { root.setAttribute('data-dragging', ''); document.getSelection()?.removeAllRanges(); }
       drag.moved = true;
-      root.style.right = `${Math.max(16, Math.min(document.documentElement.clientWidth-64, drag.right-x))}px`;
-      root.style.bottom = `${Math.max(16, Math.min(innerHeight-64, drag.bottom-y))}px`;
-    });
+      root.style.right = `${Math.max(16, Math.min(document.documentElement.clientWidth-drag.width-16, drag.right-x))}px`;
+      root.style.bottom = `${Math.max(16, Math.min(innerHeight-drag.height-16, drag.bottom-y))}px`;
+    };
     const finish = event => {
       if (!drag || event.pointerId !== drag.id) return;
       if (drag.moved && event.type === 'pointerup') {
@@ -798,14 +852,18 @@
           bottom:Math.max(0, Math.min(1, (innerHeight-box.bottom-16)/Math.max(1, innerHeight-80)))}));
         suppressClickUntil = performance.now()+250;
       }
-      if (launcher.hasPointerCapture(event.pointerId)) launcher.releasePointerCapture(event.pointerId);
+      if (drag.handle.hasPointerCapture(event.pointerId)) drag.handle.releasePointerCapture(event.pointerId);
+      root.removeAttribute('data-dragging');
       drag = null; placeSurface(root);
     };
-    launcher.addEventListener('pointerup', finish);
-    launcher.addEventListener('pointercancel', finish);
-    launcher.addEventListener('click', event => {
-      if (performance.now() < suppressClickUntil) { event.preventDefault(); event.stopImmediatePropagation(); }
-    }, true);
+    for (const handle of [launcher, panel]) {
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', finish);
+      handle.addEventListener('pointercancel', finish);
+      handle.addEventListener('click', event => {
+        if (performance.now() < suppressClickUntil) { event.preventDefault(); event.stopImmediatePropagation(); }
+      }, true);
+    }
   }
 
   function tableCheckbox(label) {
@@ -880,6 +938,7 @@
 
   // 只做粗提取；合法番号由 Peach 校验。separated 用于整页文本：与 Peach 的 is_jav_code 一致，
   // 只收原文带连字符的厂牌与素人番号，用户名、导航、域名里的「字母+数字」不补分隔符。
+  // 评论署名也会写成带连字符的形状（mgstage 的「qwert-02さんのレビュー」），后面紧跟敬称的不算番号。
   function candidates(value, maxLength = 800, separated = false) {
     const found = new Set();
     const bounded = String(value || '').slice(0, maxLength).toUpperCase();
@@ -895,7 +954,7 @@
       found.add(`${prefix}-S${digits}`);
       return ' ';
     });
-    const shape = separated ? /\b((?:\d{3})?[A-Z]{2,8})-(\d{2,5})([A-Z]{0,2})(?=$|[^A-Z0-9])/g
+    const shape = separated ? /\b((?:\d{3})?[A-Z]{2,8})-(\d{2,5})([A-Z]{0,2})(?=$|[^A-Z0-9])(?!\s*(?:さん|さま|様|氏|くん|君|ちゃん))/g
       : /\b((?:\d{1,5})?[A-Z]{2,12})[-_]?(\d{1,8})([A-Z]{0,2})(?=$|[^A-Z0-9])/g;
     for (const match of rest.matchAll(shape)) found.add(`${match[1]}-${match[2]}${match[3]}`);
     for (const match of rest.matchAll(/\b\d{6}[-_]\d{2,4}\b/g)) found.add(match[0]);
@@ -1273,8 +1332,8 @@
       launcher.classList.add('launcher');
       const logo = element('img'); logo.src = PEACH_LOGO; logo.alt = ''; logo.draggable=false;
       launcher.replaceChildren(logo);
-      wireLauncher(entry.root, launcher);
       const panel = element('section', 'panel');
+      wireDrag(entry.root, launcher, panel);
       const bar = element('header', 'bar');
       const later = control('Collapse', { icon: 'close' });
       later.addEventListener('click', () => {
@@ -1283,9 +1342,9 @@
         entryOpen = false; refreshUpdateEntry(); updateEntry?.launcher.focus();
       });
       bar.append(element('strong', '', 'Peach'), later);
-      const scan = control('Detect all codes on this page', { primary: true }); scan.addEventListener('click', openPageActions);
-      const settings = control('Peach settings'); settings.addEventListener('click', configure);
-      const body = element('div', 'body'); body.append(updateSection({ availableOnly: true }), scan, settings);
+      const scan = control('识别本页全部番号', { primary: true }); scan.addEventListener('click', openPageActions);
+      const settings = control('Peach 设置'); settings.addEventListener('click', configure);
+      const body = element('div', 'body'); body.append(updateSection({ availableOnly: true }), sharedSection(), scan, settings);
       launcher.addEventListener('click', () => { entryOpen = true; refreshUpdateEntry(); later.focus(); });
       panel.append(bar, body); entry.shadow.append(panel, launcher);
       updateEntry = { ...entry, launcher, panel };
@@ -1293,7 +1352,7 @@
     updateEntry.root.dataset.panelMode = expanded ? 'expanded' : 'minimized';
     placeSurface(updateEntry.root);
     updateEntry.launcher.hidden = expanded; updateEntry.panel.hidden = !expanded;
-    updateEntry.root.toggleAttribute('data-settings-open', Boolean(settingsView?.dialog.open || batchView?.dialog.open));
+    updateEntry.root.toggleAttribute('data-settings-open', subpageOpen());
   }
 
   function updateRequest(url, config = null) {
@@ -1511,22 +1570,29 @@
     }
   }
 
-  function applyRowStatus(item, body) {
+  // 行状态、悬停说明与短标签；本页番号列表与浮卡里的其他任务共用。
+  function rowState(body) {
     const download = body.download;
-    // 只在本次跟踪中由进行中变为已入库时响；提交即返回已入库（早已加过）不响。
-    if (body.state === 'ingested' && ['queued', 'searching', 'submitted', 'importing'].includes(item.row.dataset.state)) playSound('success');
+    if (body.state === 'idle') return ['pending'];
+    if (body.state === 'failed') return ['failed', failureText(body), {magnet:'磁力失效', cloud:'网盘问题'}[body.cause] || '失败'];
+    if (body.state === 'no_match') return ['no_match', failureText(body)];
+    if (body.state === 'submitted' && ['remote_done', 'landed'].includes(download?.state)) return ['importing', download.label || '入库中'];
+    if (body.state === 'submitted' && download?.state === 'submit_pending') return ['submitted', '等待自动重新提交', '待重新提交'];
+    if (body.state === 'submitted' && download?.state === 'remote_running' && typeof download.progress === 'number' && Number.isFinite(download.progress)) {
+      const percent = Math.round(Math.min(1, Math.max(0, download.progress)) * 100);
+      return ['submitted', `网盘下载中 ${percent}%`, `下载中 ${percent}%`];
+    }
+    if (tracking(body) && body.state === 'ingested') return ['organizing', download?.postprocess_label || '整理中'];
+    return [body.state, LABELS[body.state]];
+  }
+
+  function applyRowStatus(item, body) {
+    // 只在本次跟踪中由进行中走到整理完成时响；提交即返回已入库（早已加过）不响。共享进度由写快照的窗口统一响。
+    if (!sharedMode() && finished(body) && ['queued', 'searching', 'submitted', 'importing', 'organizing'].includes(item.row.dataset.state)) playSound('success');
     item.cause = body.state === 'failed' ? body.cause || '' : '';
     item.tracking = tracking(body);
     item.done = !['idle', 'failed', 'no_match'].includes(body.state);
-    if (body.state === 'idle') setRowState(item, 'pending');
-    else if (body.state === 'failed') setRowState(item, 'failed', failureText(body), {magnet:'Dead magnet', cloud:'Cloud drive problem'}[item.cause] || 'Failed');
-    else if (body.state === 'no_match') setRowState(item, 'no_match', failureText(body));
-    else if (body.state === 'submitted' && ['remote_done', 'landed'].includes(download?.state)) setRowState(item, 'importing', download.label || 'Importing');
-    else if (body.state === 'submitted' && download?.state === 'remote_running' && typeof download.progress === 'number' && Number.isFinite(download.progress)) {
-      const percent = Math.round(Math.min(1, Math.max(0, download.progress)) * 100);
-      setRowState(item, 'submitted', `Downloading from cloud ${percent}%`, `Downloading ${percent}%`);
-    } else if (item.tracking && body.state === 'ingested') setRowState(item, 'organizing', download?.postprocess_label || 'Organizing');
-    else setRowState(item, body.state, LABELS[body.state]);
+    setRowState(item, ...rowState(body));
   }
 
   // 提交后自动查询仍在进行的行；再次提交会让上一轮跟踪退出。
@@ -1538,6 +1604,8 @@
     for (let count = 0; Date.now() - started < POLL_LIMIT; count++) {
       if (!view.rows.some(item => item.tracking)) return;
       await pollWait(count);
+      // 共享进度可用时由快照更新各行，不再逐个查询，也没有一小时上限。
+      if (sharedMode()) return;
       for (const item of view.rows.filter(row => row.tracking)) {
         if (!view.root.isConnected || view.trackGeneration !== generation) return;
         try { applyRowStatus(item, await request(config, item.code, source, 'GET')); }
@@ -1556,8 +1624,10 @@
       try {
         const body=await requestPeople(config, codes, abort => { view.peopleAbort = abort; });
         if (!view.root.isConnected || view.rows !== rows) return;
-        for (const item of chunk) renderPeople(item.people, body.items[item.code]);
-      } catch(error) { if(view.root.isConnected && view.rows===rows){view.peopleNote.hidden=false;view.peopleNote.textContent=`${error.message}. Codes can still be selected and added.`;} return; }
+        // Peach 按账本写法作键，会补零（`ABC-12` → `ABC-012`）；按比较键回查，没有条目就是没有人物资料。
+        const keyed = new Map(Object.entries(body.items).map(([code, people]) => [comparisonKey(code), people]));
+        for (const item of chunk) renderPeople(item.people, body.items[item.code] ?? keyed.get(comparisonKey(item.code)) ?? []);
+      } catch(error) { if(view.root.isConnected && view.rows===rows){view.peopleNote.hidden=false;view.peopleNote.textContent=`${error.message}，仍可选择番号加入。`;} return; }
     }
     // 不在馆藏的作品只能靠详情页的出演者名字找到本地人物。
     const names=performerNames(), item=view.detailCode && rows.find(row=>comparisonKey(row.code)===comparisonKey(view.detailCode));
@@ -1568,10 +1638,47 @@
     } catch { /* 保留按番号取得的结果。 */ }
   }
 
+  // 子页正在退场时浮卡已经开始进场，不再算作打开。
+  function subpageOpen() {
+    return [settingsView, batchView].some(view => view?.dialog.open && !view.dialog.hasAttribute('data-closing'));
+  }
+
+  // 子页打开期间浮卡退场并停用；子页一开始退场浮卡就进场，可交互要等子页真正关闭。
+  function coverPanels() {
+    for (const root of [current?.root, updateEntry?.root]) {
+      root?.removeAttribute('data-subpage-return'); root?.setAttribute('data-settings-open', '');
+    }
+    if (current) current.root.inert = true;
+  }
+
+  function uncoverPanels() {
+    if (subpageOpen()) return;
+    for (const root of [current?.root, updateEntry?.root]) {
+      if (!root?.hasAttribute('data-settings-open')) continue;
+      root.removeAttribute('data-settings-open'); root.setAttribute('data-subpage-return', '');
+      root.addEventListener('animationend', () => root.removeAttribute('data-subpage-return'), {once:true});
+    }
+  }
+
+  // dialog 与遮罩退场，同时让浮卡进场；动画结束或超时后由调用方关闭。
+  async function fadeOut(dialog) {
+    dialog.setAttribute('data-closing', '');
+    uncoverPanels();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    dialog.getBoundingClientRect();
+    const animations = dialog.getAnimations();
+    if (!animations.length) return;
+    let timer;
+    await Promise.race([Promise.allSettled(animations.map(animation => animation.finished)),
+      new Promise(resolve => { timer = setTimeout(resolve, 340); })]);
+    clearTimeout(timer);
+  }
+
   function openPageActions() {
     if (!configuration()) { configure(); return; }
     if (batchView?.dialog.open) { batchView.dialog.focus(); return; }
-    if (settingsView?.dialog.open) settingsView.dialog.close();
+    const switching = Boolean(settingsView?.dialog.open);
+    if (switching) settingsView.dialog.close();
     if (!current) entryOpen = true;
     const previousFocus=current?.root.shadowRoot?.activeElement || updateEntry?.root.shadowRoot?.activeElement || document.activeElement;
     const {root, shadow} = surface('peach-jav-batch', 'Peach page codes');
@@ -1649,28 +1756,36 @@
       const magnets = view.rows.filter(item => item.cause === 'magnet').length;
       if (magnets && root.isConnected) note.textContent += `${magnets} magnets were dead; adding again tries another one.`;
       view.busy=false; view.paint();
-      void trackRows(view);
+      void sharedTick(true); void trackRows(view);
     };
     addSelected.addEventListener('click', () => { void submit(false); });
     addAll.addEventListener('click', () => { void submit(true); });
     // 识别通常很快，图标至少转满一圈，识别结束后转完当前这一圈再停。
     rescan.addEventListener('animationiteration', () => { if (!view.busy) delete rescan.dataset.spinning; });
-    rescan.addEventListener('click', () => { rescan.dataset.spinning = ''; view.peopleAbort?.();peopleNote.hidden=true;view.busy=true; view.paint(); note.textContent='Detecting codes on this page…'; void scanPage(view); });
-    close.addEventListener('click', () => dialog.close());
+    rescan.addEventListener('click', () => { rescan.dataset.spinning = ''; view.peopleAbort?.();peopleNote.hidden=true;view.busy=true; view.paint(); note.textContent='正在识别本页番号…'; void scanPage(view); });
+    // 返回与 Escape 都走淡出，和设置子页的退场一致。
+    const dismiss = async () => {
+      if (!dialog.open || dialog.hasAttribute('data-closing')) return;
+      await fadeOut(dialog);
+      if (dialog.open) dialog.close();
+    };
+    close.addEventListener('click', () => { void dismiss(); });
+    dialog.addEventListener('cancel', event => { event.preventDefault(); void dismiss(); });
     dialog.addEventListener('close', () => {
       view.peopleAbort?.();
       root.remove(); if (batchView===view) batchView=null;
-      if (current && !settingsView?.dialog.open) { current.root.removeAttribute('data-settings-open'); current.root.inert=false; }
+      if (current && !subpageOpen()) { current.root.removeAttribute('data-settings-open'); current.root.inert=false; }
       refreshUpdateEntry();
       if(previousFocus?.isConnected)previousFocus.focus();
     }, {once:true});
-    if (current) { current.root.setAttribute('data-settings-open',''); current.root.inert=true; }
-    updateEntry?.root.setAttribute('data-settings-open','');
+    coverPanels();
+    if (switching) dialog.setAttribute('data-switch', '');
     view.paint(); dialog.showModal(); placeSurface(root); void scanPage(view);
   }
 
   function configure() {
-    if (batchView?.dialog.open) batchView.dialog.close();
+    const switching = Boolean(batchView?.dialog.open);
+    if (switching) batchView.dialog.close();
     if (settingsView?.dialog.open) { settingsView.reopen(); return; }
     const previousFocus = current?.root.shadowRoot?.activeElement || updateEntry?.root.shadowRoot?.activeElement || document.activeElement;
     const saved = configuration();
@@ -1780,13 +1895,10 @@
       closeGeneration++;
       closing = false;
       dialog.removeAttribute('data-closing');
+      coverPanels();
       address.input.focus();
     } };
-    if (current) {
-      current.root.setAttribute('data-settings-open', '');
-      current.root.inert = true;
-    }
-    updateEntry?.root.setAttribute('data-settings-open', '');
+    coverPanels();
     const cleanup = () => {
       if (!root.isConnected) return;
       closeGeneration++;
@@ -1794,7 +1906,7 @@
       secret.input.value = '';
       if (settingsView?.root === root) settingsView = null;
       root.remove();
-      if (current && !batchView?.dialog.open) {
+      if (current && !subpageOpen()) {
         current.root.removeAttribute('data-settings-open');
         current.root.inert = false;
       }
@@ -1806,17 +1918,7 @@
       if (closing || !dialog.open) return;
       closing = true;
       const run = ++closeGeneration;
-      dialog.setAttribute('data-closing', '');
-      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        dialog.getBoundingClientRect();
-        const animations = dialog.getAnimations();
-        if (animations.length) {
-          let timer;
-          await Promise.race([Promise.allSettled(animations.map(animation => animation.finished)),
-            new Promise(resolve => { timer = setTimeout(resolve, 220); })]);
-          clearTimeout(timer);
-        }
-      }
+      await fadeOut(dialog);
       if (run !== closeGeneration || !closing) return;
       dialog.close();
       cleanup();
@@ -1887,6 +1989,7 @@
       if (current) present(current, 'minimized', true);
       else updateEntry?.launcher.focus();
     });
+    if (switching) dialog.setAttribute('data-switch', '');
     dialog.showModal();
     placeSurface(root);
   }
@@ -1992,6 +2095,7 @@
 
   function present(view, mode, focus = false) {
     if (!alive(view)) return;
+    closeTaskPage(view.panel);
     panelMode = mode;
     view.presentation?.cancel();
     const minimized = mode === 'minimized';
@@ -2019,12 +2123,13 @@
   function render(view) {
     if (!alive(view)) return;
     view.summary.textContent = panelMode === 'collapsed' ? view.note.textContent : '';
-    const terminalSuccess = ['ingested', 'owned'].includes(view.state) && !view.tracking;
+    const terminalSuccess = ['ingested', 'owned'].includes(view.state) && !view.tracking && !view.organizeFailed;
     view.button.disabled = view.busy || view.identity.conflict || terminalSuccess;
     view.button.setAttribute('aria-busy', String(view.busy));
     view.button.setAttribute('aria-disabled', String(view.busy || view.button.disabled));
     view.button.textContent = view.identity.conflict ? '番号存在冲突'
       : !configuration() ? '配置 Peach'
+      : view.organizeFailed && !view.busy ? '重试整理'
       : terminalSuccess ? '已有该影片'
       : view.busy ? '正在查询 Peach'
       : view.queryOnly || ACTIVE.has(view.state) ? '查询 Peach 状态'
@@ -2047,6 +2152,518 @@
   function tracking(body) {
     return ACTIVE.has(body.state) || (body.state === 'ingested'
       && ['pending', 'queued', 'running'].includes(body.download?.postprocess_state));
+  }
+
+  function organizeFailed(body) {
+    return body.state === 'ingested' && body.download?.postprocess_state === 'failed';
+  }
+
+  // 重试入库后失败的整理，与 Peach 任务中心的「重试整理」同一入口；旧版 Peach 没有这个接口。
+  function requestRetryOrganize(config, code) {
+    return new Promise((resolve, reject) => {
+      try {
+        GM_xmlhttpRequest({ method: 'POST', url: `${config.base}/api/jav-browser/postprocess`, anonymous: true, timeout: 60_000,
+          headers: { Authorization: `Bearer ${config.token}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+          data: JSON.stringify({ code }),
+          onload(response) {
+            let detail = '';
+            try { const value = JSON.parse(response.responseText).detail; if (typeof value === 'string' && value.length <= 200) detail = value; } catch { /* 非 JSON 错误按状态提示。 */ }
+            if ([404, 405].includes(response.status)) { reject(new Error('Peach 尚不支持在脚本里重试整理，请在 Peach 任务中心重试或更新 Peach。')); return; }
+            if (response.status === 401 || response.status === 403) { reject(new Error('令牌无效或无权限，请重新配置。')); return; }
+            if (response.status !== 200) { reject(new Error(detail || '重试整理未成功，请在 Peach 任务中心查看。')); return; }
+            try {
+              const body = JSON.parse(response.responseText);
+              if (body.ok !== true || !STATES.has(body.state) || typeof body.code !== 'string' || !samePeachCode(body.code, code)) throw new Error();
+              resolve(body);
+            } catch { reject(new Error('Peach 返回的状态无效，请查询状态。')); }
+          },
+          onerror: () => reject(new Error('无法连接 Peach，请稍后重试。')), ontimeout: () => reject(new Error('Peach 请求超时，请查询状态。')),
+          onabort: () => reject(new Error('Peach 请求已中止。')),
+        });
+      } catch { reject(new Error('无法连接 Peach，请稍后重试。')); }
+    });
+  }
+
+  async function retryOrganize(view) {
+    const config = configuration();
+    if (!config) { configure(); return; }
+    view.busy = true; render(view);
+    try {
+      const body = await requestRetryOrganize(config, view.identity.code);
+      if (!alive(view)) return;
+      applyState(view, body);
+      void sharedTick(true);
+    } catch (error) {
+      if (alive(view)) { view.note.textContent = error.message; view.note.hidden = false; view.note.dataset.variant = 'error'; }
+    } finally {
+      if (alive(view)) {
+        view.busy = false; render(view);
+        // 没有共享进度时由本页接着查询整理进度。
+        if (!sharedMode() && view.tracking) void query(view);
+      }
+    }
+  }
+
+  // 整个流程走完：已入库且整理不再进行，整理失败不算完成。
+  function finished(body) {
+    return body.state === 'ingested' && !tracking(body) && body.download?.postprocess_state !== 'failed';
+  }
+
+  // 跨窗口共享进度：持锁窗口查 Peach 的进行中任务列表，有任务时每 4 秒、没有时每 30 秒一次，结果写入快照；
+  // 其余窗口只读快照。锁 45 秒过期；后台页的定时器会被浏览器放慢，可见窗口发现锁在后台页手里就接管。
+  // Peach 没有列表接口时快照记为不可用，各窗口退回自己逐个查询。
+  const SHARED_BUSY_MS = 4000, SHARED_IDLE_MS = 30_000, LEASE_MS = 45_000;
+  const sharedLists = new Set();
+  let sharedSnapshot = readShared(), sharedTimer, sharedFetching = false, sharedFetchedAt = 0;
+
+  function readShared() {
+    try {
+      const value = JSON.parse(GM_getValue(STORAGE_TASKS, '{}'));
+      return value.version === 1 && typeof value.base === 'string' && Array.isArray(value.items) ? value : null;
+    } catch { return null; }
+  }
+
+  function sharedMode() {
+    return sharedSnapshot?.available === true && sharedSnapshot.base === configuration()?.base;
+  }
+
+  function requestActive(config) {
+    return new Promise((resolve, reject) => {
+      try {
+        GM_xmlhttpRequest({ method: 'GET', url: `${config.base}/api/jav-browser/active`, anonymous: true, timeout: 30_000,
+          headers: { Authorization: `Bearer ${config.token}`, Accept: 'application/json' },
+          onload(response) {
+            if ([404, 405].includes(response.status)) { resolve(null); return; }
+            try {
+              if (response.status !== 200 || response.responseText.length > 2 * 1024 * 1024) throw new Error();
+              resolve(activeItems(JSON.parse(response.responseText)));
+            } catch { reject(new Error('Peach 返回的任务列表无效')); }
+          },
+          onerror: () => reject(new Error('无法连接 Peach')), ontimeout: () => reject(new Error('Peach 请求超时')),
+          onabort: () => reject(new Error('Peach 请求已中止')),
+        });
+      } catch { reject(new Error('无法连接 Peach')); }
+    });
+  }
+
+  function activeItems(data) {
+    if (data?.ok !== true || !Array.isArray(data.items)) throw new Error();
+    return data.items.filter(body => body?.ok === true && STATES.has(body.state) && typeof body.code === 'string'
+      && candidates(body.code).size === 1).slice(0, 200);
+  }
+
+  // 确认已结束的任务，返回 Peach 的新任务列表；旧版 Peach 没有这个接口。
+  function requestDismiss(config, request) {
+    return new Promise((resolve, reject) => {
+      try {
+        GM_xmlhttpRequest({ method: 'POST', url: `${config.base}/api/jav-browser/dismiss`, anonymous: true, timeout: 30_000,
+          headers: { Authorization: `Bearer ${config.token}`, Accept: 'application/json', 'Content-Type': 'application/json' },
+          data: JSON.stringify(request),
+          onload(response) {
+            if ([404, 405].includes(response.status)) { reject(new Error('Peach 尚不支持确认已结束的任务，请更新 Peach。')); return; }
+            if (response.status === 401 || response.status === 403) { reject(new Error('令牌无效或无权限，请重新配置。')); return; }
+            try {
+              if (response.status !== 200 || response.responseText.length > 2 * 1024 * 1024) throw new Error();
+              resolve(activeItems(JSON.parse(response.responseText)));
+            } catch { reject(new Error('没有确认成功，请稍后重试。')); }
+          },
+          onerror: () => reject(new Error('无法连接 Peach，请稍后重试。')), ontimeout: () => reject(new Error('Peach 请求超时，请稍后重试。')),
+          onabort: () => reject(new Error('Peach 请求已中止。')),
+        });
+      } catch { reject(new Error('无法连接 Peach，请稍后重试。')); }
+    });
+  }
+
+  // 写快照的窗口在任务由进行中走到整理完成时响一次；响过的任务记入共享存储，别的窗口不再响。
+  function chimeTransitions(previous, items) {
+    const before = new Map(previous.map(body => [comparisonKey(body.code), body]));
+    let chimed = {};
+    try { chimed = JSON.parse(GM_getValue(STORAGE_CHIMED, '{}')) || {}; } catch { /* 记录损坏时从空开始。 */ }
+    const now = Date.now();
+    let play = false;
+    for (const body of items) {
+      const key = `${comparisonKey(body.code)}:${body.task_id ?? ''}`, old = before.get(comparisonKey(body.code));
+      if (finished(body) && old && tracking(old) && !chimed[key]) { chimed[key] = now; play = true; }
+    }
+    if (!play) return;
+    GM_setValue(STORAGE_CHIMED, JSON.stringify(Object.fromEntries(Object.entries(chimed).filter(([, at]) => now - at < 86_400_000))));
+    playSound('success');
+  }
+
+  // force：本窗口刚提交任务，立刻刷新一次快照并接过轮询。
+  async function sharedTick(force = false) {
+    clearTimeout(sharedTimer);
+    sharedTimer = setTimeout(() => void sharedTick(), SHARED_BUSY_MS);
+    const config = configuration();
+    if (!config || sharedFetching || updateDisposed || !pageInterfaceAllowed()) return;
+    let lease = null;
+    try { lease = JSON.parse(GM_getValue(STORAGE_POLLER, 'null')); } catch { /* 损坏的锁视为空闲。 */ }
+    const now = Date.now(), visible = document.visibilityState === 'visible', mine = lease?.owner === WINDOW_ID;
+    if (!force && !mine && lease && lease.until > now && (lease.visible || !visible)) return;
+    GM_setValue(STORAGE_POLLER, JSON.stringify({ owner: WINDOW_ID, until: now + LEASE_MS, visible }));
+    const interval = sharedSnapshot?.items.some(tracking) ? SHARED_BUSY_MS : SHARED_IDLE_MS;
+    if (!force && mine && now - sharedFetchedAt < interval - 500) return;
+    sharedFetching = true; sharedFetchedAt = now;
+    try {
+      const items = await requestActive(config);
+      if (configuration()?.base !== config.base) return;
+      const previous = readShared();
+      if (items) chimeTransitions(previous?.base === config.base ? previous.items : [], items);
+      const snapshot = { version: 1, base: config.base, at: Date.now(), available: items !== null, items: items || [] };
+      GM_setValue(STORAGE_TASKS, JSON.stringify(snapshot));
+      applyShared(snapshot);
+    } catch { /* 连接异常保留上一份快照，下一轮再查。 */ }
+    finally { sharedFetching = false; }
+  }
+
+  // 快照里有本页番号或本页番号列表里的番号时，按快照更新；提交或查询中的不打断。
+  function applyShared(snapshot) {
+    sharedSnapshot = snapshot;
+    if (sharedMode()) {
+      const items = new Map(snapshot.items.map(body => [comparisonKey(body.code), body]));
+      const view = current;
+      if (view && alive(view) && !view.busy && !view.identity.resolve && !view.identity.conflict) {
+        const body = items.get(comparisonKey(view.identity.code)), signature = body && JSON.stringify(body);
+        if (body && signature !== view.sharedSignature) { view.sharedSignature = signature; applyState(view, body); }
+      }
+      if (batchView?.root.isConnected) {
+        let changed = false;
+        for (const item of batchView.rows) {
+          const body = items.get(comparisonKey(item.code));
+          if (!body || !item.row.dataset.state || item.row.dataset.state === 'sending') continue;
+          const signature = JSON.stringify(body);
+          if (signature !== item.sharedSignature) { item.sharedSignature = signature; applyRowStatus(item, body); changed = true; }
+        }
+        if (changed && !batchView.busy) batchView.paint();
+      }
+    }
+    paintShared();
+  }
+
+  function sharedSection() {
+    const node = element('section', 'shared-tasks');
+    node.setAttribute('aria-label', '其他 Peach 任务');
+    sharedLists.add(node);
+    paintSharedList(node);
+    return node;
+  }
+
+  function paintShared() {
+    for (const node of sharedLists) {
+      if (!node.isConnected) { sharedLists.delete(node); continue; }
+      paintSharedList(node); paintTaskPage(node.closest('.panel'));
+    }
+    // 角标：有进行中的显示进行中数量；都结束了还有没确认的，换成已结束的数量。
+    const running = sharedMode() ? sharedSnapshot.items.filter(tracking).length : 0;
+    const ended = running ? 0 : otherTasks().filter(awaitingAck).length;
+    for (const launcher of [current?.launcher, updateEntry?.launcher]) {
+      if (!launcher) continue;
+      const count = running || ended;
+      if (count) launcher.dataset.count = count > 99 ? '99+' : String(count); else delete launcher.dataset.count;
+      if (ended) launcher.dataset.countTone = 'ended'; else delete launcher.dataset.countTone;
+      launcher.title = running ? `Peach 有 ${running} 项任务进行中` : ended ? `Peach 有 ${ended} 项任务已结束，待确认` : '';
+    }
+    for (const root of surfaces) if (root.isConnected) placeSurface(root);
+  }
+
+  function chevronIcon(className, d) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('class', className);
+    const path = document.createElementNS(svg.namespaceURI, 'path'); path.setAttribute('d', d); svg.append(path);
+    return svg;
+  }
+
+  // 其他任务的人物头像按番号与状态缓存：入库后账本可能认出人物，状态变化时重新取一次。
+  const sharedPeople = new Map();
+  let sharedPeopleLoading = false;
+  const peopleKey = body => `${comparisonKey(body.code)}:${body.state}`;
+
+  function loadSharedPeople(items) {
+    const config = configuration();
+    if (!config || sharedPeopleLoading) return;
+    const missing = items.filter(body => !sharedPeople.has(peopleKey(body))).slice(0, 50);
+    if (!missing.length) return;
+    sharedPeopleLoading = true;
+    requestPeople(config, [...new Set(missing.map(body => body.code))]).then(result => {
+      const keyed = new Map(Object.entries(result.items).map(([code, people]) => [comparisonKey(code), people]));
+      for (const body of missing) sharedPeople.set(peopleKey(body), result.items[body.code] ?? keyed.get(comparisonKey(body.code)) ?? []);
+    }).catch(() => {
+      for (const body of missing) sharedPeople.set(peopleKey(body), []);
+    }).finally(() => { sharedPeopleLoading = false; paintShared(); });
+  }
+
+  function sharedAvatars(body) {
+    const node = element('span', 'batch-people');
+    try { renderPeople(node, sharedPeople.get(peopleKey(body)) || []); } catch { node.replaceChildren(defaultPersonAvatar()); }
+    return node;
+  }
+
+  // 其他任务超过 3 项，或本页番号正在抓取时，列表自动折叠；手动展开或折叠一直有效，直到自动条件变化。
+  const SHARED_FOLD_LIMIT = 3;
+
+  // 其他番号：本页番号已有整体进度，不在这里列。确认过的已结束任务不再列出。
+  const ownKey = () => current && alive(current) && !current.identity.conflict ? comparisonKey(current.identity.code) : '';
+  function otherTasks() {
+    const own = ownKey();
+    return sharedMode() ? sharedSnapshot.items.filter(body => comparisonKey(body.code) !== own && body.dismissed !== true) : [];
+  }
+
+  // 结束后等用户确认的任务：Peach 给了确认键的才能确认；旧版 Peach 没有，照旧 10 分钟后自行离开列表。
+  const awaitingAck = body => !tracking(body) && typeof body.ended_key === 'string' && body.dismissed !== true;
+
+  // 进行中的在前，已结束的在后；每项一行，点开进入该番号的进度页，已结束的行尾可以标为已读。
+  // 标题与列表跨重绘保留，开合状态变了（点标题或自动条件变化）才播高度过渡。
+  function paintSharedList(node) {
+    const items = otherTasks();
+    node.hidden = !items.length;
+    const focused = node.getRootNode().activeElement?.closest?.('.shared-row');
+    // 列表空了只藏起整段，标题、提示与开合状态留着，确认失败时提示仍有处可写。
+    if (!items.length) return;
+    loadSharedPeople(items);
+    const auto = items.length > SHARED_FOLD_LIMIT || Boolean(ownKey() && (current.tracking || current.busy));
+    if (node.foldChoice && node.foldChoice.auto !== auto) node.foldChoice = null;
+    const open = node.foldChoice ? node.foldChoice.open : !auto;
+    const running = items.filter(tracking), ended = items.filter(body => !tracking(body));
+    if (!node.parts) {
+      const heading = element('button', 'shared-heading'), label = element('span');
+      heading.type = 'button';
+      heading.append(label, chevronIcon('shared-fold', 'm6 9 6 6 6-6'));
+      heading.addEventListener('click', () => {
+        node.foldChoice = { auto: node.parts.auto, open: !node.parts.open };
+        paintSharedList(node);
+      });
+      const retryAll = element('button', 'shared-action', '重试失败项');
+      retryAll.type = 'button';
+      retryAll.addEventListener('click', () => void retryFailed(node));
+      const clear = element('button', 'shared-action', '全部标为已读');
+      clear.type = 'button';
+      clear.addEventListener('click', () => void acknowledgeEnded(node, { all: true }));
+      const foot = element('div', 'shared-foot'); foot.append(retryAll, clear);
+      const note = element('p', 'geist-note shared-note');
+      note.dataset.variant = 'error'; note.setAttribute('role', 'alert'); note.hidden = true;
+      const body = element('div', 'shared-body fold-settled'), list = element('ul', 'shared-list');
+      body.hidden = !open;
+      body.append(list, foot);
+      node.replaceChildren(heading, note, body);
+      node.parts = { heading, label, retryAll, clear, note, body, list, open };
+    }
+    const { heading, label, retryAll, clear, body: fold, list } = node.parts;
+    label.textContent = ['其他任务', running.length ? `进行中 ${running.length} 项` : '', ended.length ? `已结束 ${ended.length} 项` : '']
+      .filter(Boolean).join(' · ');
+    clear.hidden = !ended.some(awaitingAck);
+    retryAll.hidden = !ended.some(retryableTask);
+    heading.setAttribute('aria-expanded', String(open));
+    if (open !== node.parts.open) setFoldOpen(fold, open, () => placeSurface(node.getRootNode().host));
+    Object.assign(node.parts, { auto, open });
+    const rows = [];
+    for (const body of [...running, ...ended].slice(0, 20)) {
+      const row = element('button', 'shared-row'), status = element('span', 'chip');
+      row.type = 'button'; row.dataset.code = body.code;
+      row.append(sharedAvatars(body), element('span', 'shared-code', body.code), status, chevronIcon('shared-chevron', 'm9 6 6 6-6 6'));
+      setRowState({ row, status }, ...rowState(body));
+      row.setAttribute('aria-label', `${body.code}，${status.textContent}，查看进度`);
+      row.addEventListener('click', () => openTaskPage(node.closest('.panel'), body.code));
+      const item = element('li', 'shared-item'); item.append(row);
+      if (awaitingAck(body)) {
+        const dismiss = control(`将 ${body.code} 标为已读`, { icon: 'close' });
+        dismiss.addEventListener('click', () => {
+          // 标为已读后焦点交给下一行，最后一行交给上一行，列表空了交给标题。
+          const next = (item.nextElementSibling || item.previousElementSibling)?.querySelector('.shared-row')?.dataset.code;
+          void acknowledgeEnded(node, { keys: [body.ended_key] });
+          ([...list.querySelectorAll('.shared-row')].find(row => row.dataset.code === next) || heading).focus();
+        });
+        item.append(dismiss);
+      }
+      rows.push(item);
+    }
+    list.replaceChildren(...rows);
+    if (focused) [...list.querySelectorAll('.shared-row')].find(row => row.dataset.code === focused.dataset.code)?.focus();
+  }
+
+  // 失败的其他任务可以重试：入库后整理失败的走「重试整理」，其余按原来源重新加入，磁力本身的问题换一个磁力。
+  const retryableTask = body => !tracking(body) && (['failed', 'no_match'].includes(body.state) || organizeFailed(body));
+  const switchesMagnet = body => body.state === 'failed' && body.cause === 'magnet';
+  const retryLabel = body => organizeFailed(body) ? '重试整理' : switchesMagnet(body) ? '换一个磁力' : '重试加入';
+  function retryTask(config, body) {
+    if (organizeFailed(body)) return requestRetryOrganize(config, body.code);
+    return request(config, body.code, typeof body.source_url === 'string' ? body.source_url : '', 'POST', false,
+      switchesMagnet(body) ? { switch: true } : {});
+  }
+
+  // 列表底部「重试失败项」：逐项重试列出的失败任务，一项出错不影响其余，最后取一次新列表。
+  async function retryFailed(node) {
+    const config = configuration(), parts = node.parts;
+    if (!config || !parts || parts.retryAll.disabled) return;
+    const failed = otherTasks().filter(retryableTask).slice(0, 20);
+    parts.retryAll.disabled = true; parts.note.hidden = true;
+    let errors = 0, reason = '';
+    for (const body of failed) {
+      try { await retryTask(config, body); } catch (error) { errors++; reason = error.message; }
+    }
+    parts.retryAll.disabled = false;
+    await sharedTick(true);
+    if (errors && parts.note.isConnected) {
+      parts.note.textContent = `${errors} 项没有重试成功：${reason}`; parts.note.hidden = false;
+      placeSurface(parts.note.getRootNode().host);
+    }
+  }
+
+  // 确认已结束的任务。先在本地标为已确认并写进共享快照，各窗口立刻收起；Peach 返回的列表再作为新快照。
+  async function acknowledgeEnded(node, request) {
+    const config = configuration();
+    if (!config || !sharedMode()) return;
+    if (node?.parts) node.parts.note.hidden = true;
+    const keys = new Set(request.keys || []);
+    const marked = sharedSnapshot.items.map(body => awaitingAck(body) && (request.all || keys.has(body.ended_key)) ? { ...body, dismissed: true } : body);
+    const local = { ...sharedSnapshot, at: Date.now(), items: marked };
+    GM_setValue(STORAGE_TASKS, JSON.stringify(local)); applyShared(local);
+    try {
+      const items = await requestDismiss(config, request.all ? { all: true } : { keys: [...keys] });
+      if (configuration()?.base !== config.base) return;
+      const snapshot = { version: 1, base: config.base, at: Date.now(), available: true, items };
+      GM_setValue(STORAGE_TASKS, JSON.stringify(snapshot)); applyShared(snapshot);
+    } catch (error) {
+      void sharedTick(true);
+      const note = node?.parts?.note;
+      if (note?.isConnected) { note.textContent = error.message; note.hidden = false; placeSurface(note.getRootNode().host); }
+    }
+  }
+
+  // 折叠正文的高度过渡，与 Peach frontend/src/ui-kit/collapse.ts 的 setCollapseRegionOpen 同一做法：
+  // 量出起止高度写进 inline height，跑完交回自然高度；过渡途中又被反向点按时，前一次的收尾不再做。
+  const foldRuns = new WeakMap();
+  function setFoldOpen(body, open, place) {
+    const run = (foldRuns.get(body) || 0) + 1;
+    foldRuns.set(body, run);
+    const finish = done => {
+      let finished = false;
+      const end = event => {
+        if ((event && event.propertyName !== 'height') || finished) return;
+        finished = true; body.removeEventListener('transitionend', end); clearTimeout(timer);
+        if (foldRuns.get(body) === run) { done(); place(); }
+      };
+      body.addEventListener('transitionend', end);
+      // 减少动效时没有 transitionend，260ms 兜底。
+      const timer = setTimeout(end, 260);
+    };
+    body.classList.remove('fold-settled');
+    if (open) {
+      const start = body.hidden ? 0 : body.getBoundingClientRect().height;
+      body.hidden = false; body.inert = false;
+      body.style.height = `${start}px`; body.getBoundingClientRect();
+      body.style.height = `${body.scrollHeight}px`;
+      finish(() => { body.style.height = ''; body.classList.add('fold-settled'); });
+    } else {
+      body.inert = true;
+      body.style.height = `${body.getBoundingClientRect().height}px`; body.getBoundingClientRect();
+      body.style.height = '0px';
+      finish(() => { body.hidden = true; body.inert = false; body.style.height = ''; });
+    }
+    place();
+  }
+
+  // 其他任务的进度页：在同一张浮卡里替换主页，显示该番号的五段整体进度与状态说明；返回回到主页。
+  function openTaskPage(panel, code) {
+    if (!panel) return;
+    closeTaskPage(panel);
+    const page = element('section', 'task-page');
+    page.setAttribute('aria-label', `${code} 的任务进度`);
+    const bar = element('header', 'bar subpage-bar');
+    const back = control('返回 Peach 主页', { icon: 'back' });
+    const title = element('div', 'bar-title'), people = element('span', 'batch-people');
+    people.append(defaultPersonAvatar());
+    title.append(people, element('strong', '', code));
+    bar.append(back, title);
+    const body = element('div', 'body');
+    const note = element('p', 'geist-note');
+    note.setAttribute('role', 'status'); note.setAttribute('aria-live', 'polite'); note.setAttribute('aria-label', `${code} 的任务状态`);
+    const parts = buildFlow();
+    // 失败的番号在进度页直接重试，按钮文字随失败原因变：重试整理、换一个磁力或重试加入。
+    const retry = control('重试加入');
+    retry.hidden = true;
+    retry.addEventListener('click', async () => {
+      const config = configuration(), body = panel.taskPage?.body;
+      if (!config || !body || retry.disabled) return;
+      retry.disabled = true;
+      try {
+        const result = await retryTask(config, body);
+        if (panel.taskPage?.page === page) { panel.taskPage.body = result; paintTaskPage(panel); }
+        void sharedTick(true);
+      } catch (error) {
+        if (panel.taskPage?.page === page) { note.textContent = error.message; note.dataset.variant = 'error'; }
+      } finally { retry.disabled = false; }
+    });
+    // 已结束、等确认的番号：标为已读并回到主页。
+    const ack = control('标为已读');
+    ack.hidden = true;
+    ack.addEventListener('click', () => {
+      const key = panel.taskPage?.body?.ended_key;
+      if (!key) return;
+      void acknowledgeEnded(panel.querySelector('.shared-tasks'), { keys: [key] });
+      closeTaskPage(panel, true);
+    });
+    body.append(note, parts.flow, retry, ack);
+    page.append(bar, body);
+    switchPanel(panel, () => {
+      for (const child of panel.children) if (!child.hidden) { child.hidden = true; child.dataset.taskHidden = ''; }
+      panel.append(page);
+      panel.taskPage = { page, code, note, people, retry, ack, body: null, ...parts };
+      paintTaskPage(panel);
+      return [page];
+    });
+    back.addEventListener('click', () => closeTaskPage(panel, true));
+    back.focus();
+  }
+
+  // focus：用户点了返回，回到主页并播返回动效；切换面板模式时直接收起。
+  function closeTaskPage(panel, focus = false) {
+    const open = panel?.taskPage;
+    if (!open) return;
+    const restore = () => {
+      open.page.remove(); panel.taskPage = null;
+      const shown = [...panel.querySelectorAll(':scope > [data-task-hidden]')];
+      for (const child of shown) { child.hidden = false; delete child.dataset.taskHidden; }
+      return shown;
+    };
+    if (focus) switchPanel(panel, restore);
+    else { panel.motion?.forEach(animation => animation.cancel()); restore(); }
+    // 回到这一行；这一行已确认收起时回到「其他任务」标题。
+    if (focus) ([...panel.querySelectorAll('.shared-row')].find(row => row.dataset.code === open.code)
+      || panel.querySelector('.shared-heading'))?.focus();
+    for (const root of surfaces) if (root.isConnected) placeSurface(root);
+  }
+
+  // 主页与进度页在同一张浮卡里切换：浮卡高度从旧值过渡到新值，进来的一层播 Peach 设置面板的
+  // board-dialog-in（缩放、模糊、淡入），时长与缓动同 --board-dialog-motion。浮卡按底边定位，高度变化向上长，不会跳位。
+  function switchPanel(panel, change) {
+    const from = panel.getBoundingClientRect().height;
+    panel.motion?.forEach(animation => animation.cancel());
+    const entering = change();
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches || !from) return;
+    const to = panel.getBoundingClientRect().height, timing = { duration: 300, easing: 'cubic-bezier(.32,.72,0,1)' };
+    panel.motion = [panel.animate([{ height: `${from}px` }, { height: `${to}px` }], timing),
+      ...entering.map(node => node.animate([{ opacity: 0, transform: 'scale(.85)', filter: 'blur(4px)' },
+        { opacity: 1, transform: 'scale(1)', filter: 'blur(0)' }], timing))];
+  }
+
+  // 番号确认过或由旧版 Peach 列出时，结束 10 分钟后离开快照，进度页保留最后一次看到的状态。
+  function paintTaskPage(panel) {
+    const open = panel?.taskPage;
+    if (!open) return;
+    const key = comparisonKey(open.code);
+    open.body = (sharedMode() && sharedSnapshot.items.find(body => comparisonKey(body.code) === key)) || open.body;
+    if (!open.body) return;
+    renderFlow(open, open.body);
+    if (sharedPeople.has(peopleKey(open.body))) {
+      const people = sharedAvatars(open.body);
+      open.people.replaceWith(people); open.people = people;
+    }
+    open.note.textContent = statusLabel(open.body);
+    open.note.dataset.variant = statusVariant(open.body);
+    open.retry.hidden = !retryableTask(open.body);
+    open.retry.textContent = retryLabel(open.body);
+    open.ack.hidden = !awaitingAck(open.body);
+    for (const root of surfaces) if (root.isConnected) placeSurface(root);
   }
 
   function renderFlow(view, body) {
@@ -2092,16 +2709,31 @@
       view.heading.textContent = body.code;
       view.loadPeople(body.code);
     }
-    if (body.state === 'ingested' && ACTIVE.has(view.state)) playSound('success');
+    // 整理期间 view.state 已是 ingested，前态按上一轮是否仍在跟踪判断。共享进度由写快照的窗口统一响。
+    if (!sharedMode() && finished(body) && view.tracking) playSound('success');
     view.state = body.state;
     view.cause = body.state === 'failed' ? body.cause || '' : '';
     view.tracking = tracking(body);
+    view.organizeFailed = organizeFailed(body);
     view.queryOnly = view.tracking;
     if (!view.queryOnly) attempts.delete(comparisonKey(view.identity.code));
-    const download = body.download;
-    const known = download && ['submitted', 'remote_running', 'remote_done', 'landed', 'ingested', 'failed', 'cancelled', 'stalled'].includes(download.state);
-    let label = body.stage === 'submitting' ? '正在提交网盘' : LABELS[body.state];
     renderFlow(view, body);
+    const label = statusLabel(body);
+    view.statusText = label;
+    view.note.textContent = label;
+    // 可以加入时按钮自己说明；不能加入时按钮会变成不可用并给出原因，这行只在其他状态显示。
+    view.note.hidden = body.state === 'idle' && body.stage !== 'submitting';
+    view.note.dataset.variant = statusVariant(body);
+    render(view);
+    // 本页番号开始或结束抓取时，其他任务列表随之自动折叠或展开。
+    paintShared();
+  }
+
+  // 状态说明：下载任务的具体阶段、整理状态与百分比，失败时给出原因；浮卡与其他任务的进度页共用。
+  function statusLabel(body) {
+    const download = body.download;
+    const known = download && ['submit_pending', 'submitted', 'remote_running', 'remote_done', 'landed', 'ingested', 'failed', 'cancelled', 'stalled'].includes(download.state);
+    let label = body.stage === 'submitting' ? '正在提交网盘' : LABELS[body.state];
     if (known && typeof download.label === 'string') {
       label = download.label.slice(0, 80);
       if (download.state === 'ingested' && download.postprocess_state !== 'not_requested'
@@ -2112,12 +2744,40 @@
       }
     }
     if (['failed', 'no_match'].includes(body.state) && body.stage !== 'submitting') label = failureText(body);
-    view.statusText = label;
-    view.note.textContent = label;
-    // 可以加入时按钮自己说明；不能加入时按钮会变成不可用并给出原因，这行只在其他状态显示。
-    view.note.hidden = body.state === 'idle' && body.stage !== 'submitting';
-    view.note.dataset.variant = body.state === 'failed' || download?.postprocess_state === 'failed' ? 'error' : 'secondary';
-    render(view);
+    return label;
+  }
+
+  // 五段整体进度；结构与尺寸复用 Peach 生产 Progress 的 SVG 快照。
+  function buildFlow() {
+    const progress = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    for (const [name, value] of Object.entries({ role: 'progressbar', 'aria-label': '整体任务进度',
+      'aria-valuemin': '0', 'aria-valuemax': '5', viewBox: '0 0 100 1', preserveAspectRatio: 'none', class: 'task-progress' })) progress.setAttribute(name, value);
+    const progressFill = document.createElementNS(progress.namespaceURI, 'rect');
+    const progressTrack = document.createElementNS(progress.namespaceURI, 'rect');
+    for (const [rect, width, style] of [[progressTrack, '100', 'track'], [progressFill, '0', 'fill']]) {
+      rect.setAttribute('width', width); rect.setAttribute('height', '1'); rect.setAttribute('class', style);
+    }
+    progress.append(progressTrack, progressFill);
+    for (const point of [20, 40, 60, 80]) {
+      const stop = document.createElementNS(progress.namespaceURI, 'rect');
+      stop.setAttribute('x', String(point - .4)); stop.setAttribute('width', '.4'); stop.setAttribute('height', '1'); stop.setAttribute('class', 'stop');
+      progress.append(stop);
+    }
+    const flow = element('div', 'flow');
+    flow.hidden = true;
+    const stepList = element('ol', 'flow-steps');
+    stepList.setAttribute('aria-label', '整体任务阶段');
+    const steps = ['排队', '搜索', '下载', '入库', '整理'].map((label, index) => {
+      const step = element('li', 'flow-step');
+      const mark = element('span', 'flow-mark'); mark.setAttribute('aria-hidden', 'true'); mark.append(stepMark(index), stageAnimation(index));
+      step.append(mark, element('span', 'flow-label', label)); stepList.append(step); return step;
+    });
+    flow.append(progress, stepList);
+    return { flow, progress, progressFill, steps };
+  }
+
+  function statusVariant(body) {
+    return body.state === 'failed' || body.download?.postprocess_state === 'failed' ? 'error' : 'secondary';
   }
 
   async function query(view, method = 'GET') {
@@ -2142,14 +2802,18 @@
         method === 'POST' && view.cause === 'magnet' ? {switch:true} : {});
       if (!alive(view)) return;
       applyState(view, body);
+      if (method === 'POST') void sharedTick(true);
+      let shared = false;
       for (let count = 0; tracking(body) && Date.now() < deadline; count++) {
         await pollWait(count);
         if (!alive(view)) return;
+        // 共享进度可用时由快照更新，不再逐个查询，也没有一小时上限。
+        if ((shared = sharedMode())) break;
         body = await request(config, view.identity.code, view.identity.source, 'GET');
         if (!alive(view)) return;
         applyState(view, body);
       }
-      if (tracking(body)) view.note.textContent = `${view.statusText}，可查询状态。`;
+      if (tracking(body) && !shared) view.note.textContent = `${view.statusText}，可查询状态。`;
     } catch (error) {
       if (alive(view)) {
         view.queryOnly = true;
@@ -2163,7 +2827,11 @@
         view.note.dataset.variant = 'error';
       }
     } finally {
-      if (alive(view)) { view.busy = false; render(view); }
+      if (alive(view)) {
+        view.busy = false; render(view);
+        // 查询期间到达的快照被跳过了，结束后立刻按当前快照补上，不等下一次变化。
+        if (sharedMode()) applyShared(sharedSnapshot);
+      }
     }
   }
 
@@ -2223,33 +2891,9 @@
     note.setAttribute('role', 'status');
     note.setAttribute('aria-label', 'Peach 任务状态');
     note.setAttribute('aria-live', 'polite');
-    // 结构与尺寸复用 Peach 生产 Progress 的 SVG 快照。
-    const progress = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    for (const [name, value] of Object.entries({ role: 'progressbar', 'aria-label': '整体任务进度',
-      'aria-valuemin': '0', 'aria-valuemax': '5', viewBox: '0 0 100 1', preserveAspectRatio: 'none', class: 'task-progress' })) progress.setAttribute(name, value);
-    const progressFill = document.createElementNS(progress.namespaceURI, 'rect');
-    const progressTrack = document.createElementNS(progress.namespaceURI, 'rect');
-    for (const [rect, width, style] of [[progressTrack, '100', 'track'], [progressFill, '0', 'fill']]) {
-      rect.setAttribute('width', width); rect.setAttribute('height', '1'); rect.setAttribute('class', style);
-    }
-    progress.append(progressTrack, progressFill);
-    for (const point of [20, 40, 60, 80]) {
-      const stop = document.createElementNS(progress.namespaceURI, 'rect');
-      stop.setAttribute('x', String(point - .4)); stop.setAttribute('width', '.4'); stop.setAttribute('height', '1'); stop.setAttribute('class', 'stop');
-      progress.append(stop);
-    }
-    const flow = element('div', 'flow');
-    flow.hidden = true;
-    const stepList = element('ol', 'flow-steps');
-    stepList.setAttribute('aria-label', '整体任务阶段');
-    const steps = ['排队', '搜索', '下载', '入库', '整理'].map((label, index) => {
-      const step = element('li', 'flow-step');
-      const mark = element('span', 'flow-mark'); mark.setAttribute('aria-hidden', 'true'); mark.append(stepMark(index), stageAnimation(index));
-      step.append(mark, element('span', 'flow-label', label)); stepList.append(step); return step;
-    });
-    flow.append(progress, stepList);
+    const { flow, progress, progressFill, steps } = buildFlow();
     const scan = control('识别本页全部番号'); scan.addEventListener('click', openPageActions);
-    body.append(note, flow, button, scan, updateSection({ availableOnly: true }));
+    body.append(note, flow, button, scan, sharedSection(), updateSection({ availableOnly: true }));
     panel.append(bar, body);
     const launcher = control('展开 Peach 面板');
     launcher.classList.add('launcher');
@@ -2262,13 +2906,14 @@
     logo.alt = '';
     logo.setAttribute('aria-hidden', 'true');
     launcher.replaceChildren(logo);
-    wireLauncher(root, launcher);
+    wireDrag(root, launcher, panel);
     launcher.hidden = true;
     shadow.append(panel, launcher);
     const view = { root, panel, body, launcher, collapse, summary, button, note, flow, steps, progress, progressFill, heading: label, loadPeople: loadTitlePeople, settings: settingsButton, identity: item, url: location.href, generation, state: 'idle', busy: false, tracking: false, queryOnly: attempts.has(comparisonKey(item.code)) };
     current = view;
     refreshUpdateEntry();
-    if (settingsView?.dialog.open || batchView?.dialog.open) {
+    paintShared();
+    if (subpageOpen()) {
       root.setAttribute('data-settings-open', '');
       root.inert = true;
     }
@@ -2282,6 +2927,7 @@
     button.addEventListener('click', () => {
       if (!alive(view) || view.busy || view.button.disabled) return;
       if (!configuration()) { configure(); return; }
+      if (view.organizeFailed) { void retryOrganize(view); return; }
       void query(view, view.queryOnly || ACTIVE.has(view.state) ? 'GET' : 'POST');
     });
     render(view);
@@ -2314,10 +2960,18 @@
       for (const root of surfaces) if (root.isConnected) applyAppearance(root);
     }));
     for(const key of [STORAGE_ENABLED,STORAGE_DISPLAY])updateListeners.push(GM_addValueChangeListener(key,(_key,before,after)=>{if(before!==after)applyDisplayPreference();}));
+    updateListeners.push(GM_addValueChangeListener(STORAGE_TASKS, (_key, _before, _after, remote) => { if (remote) applyShared(readShared()); }));
   }
+  void sharedTick();
   addEventListener('resize', () => { for (const root of surfaces) if (root.isConnected) placeSurface(root); });
   document.addEventListener('visibilitychange', updateVisibility);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') void sharedTick(); });
   addEventListener('focus', refreshInstalledVersion);
-  addEventListener('pagehide', event => { if (!event.persisted) disposeUpdates(); });
+  // 关闭时交出轮询锁，别的窗口下一轮就接手。
+  addEventListener('pagehide', event => {
+    if (event.persisted) return;
+    disposeUpdates(); clearTimeout(sharedTimer);
+    try { if (JSON.parse(GM_getValue(STORAGE_POLLER, 'null'))?.owner === WINDOW_ID) GM_setValue(STORAGE_POLLER, 'null'); } catch { /* 锁会自行过期。 */ }
+  });
   scheduleUpdateCheck();
 })();

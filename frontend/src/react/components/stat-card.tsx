@@ -40,7 +40,7 @@ export function plainStatClass({ interactive = false }: { interactive?: boolean 
     className: 'flex min-h-33 flex-col gap-2 p-4 text-left' });
 }
 
-/** A row of five clean-face stat cards: two per row at the narrow tier, one per row on mobile (the legacy skeleton `.ui-cleanupstats`'s 1119/559 tiers). */
+/** 一排五张净面读数卡：窄一档两张一排，手机上一张一排；数据管理首屏骨架用的也是这一串。 */
 export const PLAIN_STAT_STRIP = 'inline-grid w-full grid-cols-5 gap-4 max-plain-stat-pair:grid-cols-2'
   + ' max-plain-stat-single:grid-cols-1';
 

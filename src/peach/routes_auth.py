@@ -68,6 +68,22 @@ def _policy(request: Request) -> dict:
     return policy
 
 
+def sessions(request: Request) -> access.Sessions | None:
+    path = request.app.state.settings.access_path
+    return access.Sessions(access.sessions_path(path)) if path is not None else None
+
+
+def _client(request: Request) -> dict:
+    """设备记录要的三样：浏览器简称、来源网段、是否经公网隧道进来。"""
+    key = _attempt_key(request)
+    return {"device": access.device_name(request.headers.get("user-agent", "")[:512]),
+            "network": access.network_of(key.removeprefix("cf:")), "remote": key.startswith("cf:")}
+
+
+def valid_session(request: Request, policy: dict) -> bool:
+    return access.valid_session(policy, request.cookies.get(access.COOKIE, ""), sessions(request), **_client(request))
+
+
 def _first_query_values(request: Request) -> dict[str, str]:
     """兼容 urllib.parse.parse_qs：取首值并忽略空值。"""
     result: dict[str, str] = {}
@@ -89,7 +105,7 @@ def _authorized(request: Request, token: str, args: dict[str, str]) -> bool:
     if policy["mode"] == "legacy":
         if hmac.compare_digest(request.cookies.get("tok", "").encode(), token.encode()):
             return True
-    return access.valid_session(policy, request.cookies.get(access.COOKIE, ""))
+    return valid_session(request, policy)
 
 
 class PageLoginRequired(Exception):
@@ -148,8 +164,88 @@ def _named_origin(request: Request) -> tuple[str, str, int | None] | None:
     return _origin_key(tunnel.public_url(hostname)) if hostname else None
 
 
+_FETCH_SITES = frozenset({"same-origin", "same-site", "cross-site", "none"})
+_FETCH_MODES = frozenset({"cors", "navigate", "no-cors", "same-origin", "websocket"})
+_FETCH_DESTS = frozenset({"empty", "document", "iframe", "frame", "script", "worker"})
+_MISMATCH_SEEN: dict[str, float] = {}
+_MISMATCH_LOCK = threading.Lock()
+
+
+def _origin_shape(key: tuple[str, str, int | None] | None) -> dict[str, object]:
+    """只记协议、主机类别与端口：NAS 部署的 Origin 是公网域名，属于网络坐标。"""
+    if key is None:
+        return {}
+    from .diagnostic_context import host_kind
+    return {"scheme": key[0], "host_kind": host_kind(key[1]), "port": key[2]}
+
+
+def _record_origin_mismatch(request, guard: str, origin: str | None,
+                            supplied, local, *, site: str, accepted: bool) -> None:
+    """来源对不上时写本机取证：接受与拒绝都记，同一形态一分钟只记一条。"""
+    headers = request.headers
+    mode, dest = (headers.get("sec-fetch-mode") or "").lower(), (headers.get("sec-fetch-dest") or "").lower()
+    proto = (headers.get("x-forwarded-proto") or "").lower()
+    if not origin:
+        origin_class = "absent"
+    elif origin.strip().lower() == "null":
+        origin_class = "null"
+    else:
+        origin_class = "url" if supplied is not None else "malformed"
+    fields: dict[str, object] = {
+        "guard": guard, "accepted": accepted, "origin_class": origin_class,
+        "origin": _origin_shape(supplied), "server": _origin_shape(local),
+        "fetch_site": site if site in _FETCH_SITES else ("absent" if not site else "other"),
+        "fetch_mode": mode if mode in _FETCH_MODES else ("absent" if not mode else "other"),
+        "fetch_dest": dest if dest in _FETCH_DESTS else ("absent" if not dest else "other"),
+        "scope_scheme": (getattr(request, "scope", None) or {}).get("scheme"),
+        "forwarded": {"x_forwarded_proto": proto if proto in {"http", "https"} else bool(proto),
+                      "x_forwarded_for": bool(headers.get("x-forwarded-for")),
+                      "x_forwarded_host": bool(headers.get("x-forwarded-host")),
+                      "forwarded": bool(headers.get("forwarded")), "via": bool(headers.get("via"))},
+        "user_agent": (headers.get("user-agent") or "")[:512],
+    }
+    if supplied is not None and local is not None:
+        fields.update(scheme_match=supplied[0] == local[0], host_match=supplied[1] == local[1],
+                      port_match=supplied[2] == local[2])
+    signature = repr(sorted(fields.items()))
+    now = time.monotonic()
+    with _MISMATCH_LOCK:
+        if now - _MISMATCH_SEEN.get(signature, -120.0) < 60:
+            return
+        if len(_MISMATCH_SEEN) >= 64:
+            _MISMATCH_SEEN.clear()
+        _MISMATCH_SEEN[signature] = now
+    from .error_reporting import local_event
+    local_event("origin-mismatch", **fields)
+
+
+def origin_allowed(request, *, guard: str, tunnels: bool = True) -> bool:
+    """浏览器写请求的来源判定，`same_origin` 与首启提交共用。
+
+    浏览器自己标的 ``Sec-Fetch-Site: same-origin`` 直接放行：这个头页面脚本改不了，
+    本机代理或安全软件改写 Host、``X-Forwarded-Proto`` 翻转协议、浏览器发 ``Origin: null``
+    时它仍然准确。标成 ``cross-site`` 一律拒绝。其余情况比较 Origin：没带就放行（非浏览器
+    客户端），带了就要和本机地址或当前隧道地址一致。比较对不上时写一条取证，放行的也记。
+    """
+    headers = request.headers
+    origin = headers.get("origin")
+    site = (headers.get("sec-fetch-site") or "").lower()
+    if not origin and site != "cross-site":
+        return True
+    supplied = _origin_key(origin) if origin else None
+    local = _origin_key(str(request.base_url))
+    allowed = {local}
+    if tunnels:
+        allowed |= {_tunnel_origin(request), _named_origin(request)}
+    matched = supplied is not None and supplied in allowed
+    accepted = site == "same-origin" or (site != "cross-site" and matched)
+    if not matched or not accepted:
+        _record_origin_mismatch(request, guard, origin, supplied, local, site=site, accepted=accepted)
+    return accepted
+
+
 def same_origin(request: Request) -> None:
-    """浏览器写请求只接受 Peach 页面或当前隧道页面发来的 Origin。
+    """浏览器写请求只接受 Peach 页面或当前隧道页面发来的请求，判据见 `origin_allowed`。
 
     独立包的 origin 是回环 HTTP，cloudflared 转发时 Host 仍可能是本机地址，
     所以不能单纯把 ``Origin`` 和 ASGI 的 ``base_url`` 比较。临时链接的随机入口由当前
@@ -157,15 +253,8 @@ def same_origin(request: Request) -> None:
     外部 Origin 必须精确匹配这两者之一，不能由调用方通过 ``X-Forwarded-*`` 自己
     声明一个可信地址。
     """
-    origin = request.headers.get("origin")
-    if request.headers.get("sec-fetch-site") == "cross-site":
+    if not origin_allowed(request, guard="same-origin"):
         raise HTTPException(403, "请从 Peach 配置页提交")
-    if origin:
-        supplied = _origin_key(origin)
-        local = _origin_key(str(request.base_url))
-        allowed = {local, _tunnel_origin(request), _named_origin(request)}
-        if supplied is None or supplied not in allowed:
-            raise HTTPException(403, "请从 Peach 配置页提交")
 
 
 def require_auth(request: Request) -> dict[str, str]:
@@ -190,7 +279,7 @@ def require_authenticated_client(request: Request) -> None:
     policy = _policy(request)
     if policy['mode'] not in {'password', 'legacy'} or not policy.get('key'):
         raise HTTPException(401, 'unauthorized')
-    authenticated = access.valid_session(policy, request.cookies.get(access.COOKIE, ''))
+    authenticated = valid_session(request, policy)
     if policy['mode'] == 'legacy':
         authenticated = _authorized(request, policy['key'], _first_query_values(request))
     if not authenticated:
@@ -226,7 +315,7 @@ def set_auth_cookie(response: Response, request: Request, *, days: int = 30, log
     policy = _policy(request)
     response.headers["Cache-Control"] = "no-store"
     if token and policy["mode"] in {"password", "legacy"} and (login or _query_token_matches(request)):
-        value, max_age = access.issue(policy, days)
+        value, max_age = access.issue(policy, days, sessions(request), **_client(request))
         response.set_cookie(access.COOKIE, value, max_age=max_age, path="/", httponly=True,
                             samesite="lax", secure=request.url.scheme == "https")
         response.delete_cookie("tok", path="/")
@@ -290,5 +379,11 @@ async def login_submit(request: Request):
             return HTMLResponse(login_html(next_path, error=message), status_code=400)
         raise HTTPException(400, message) from None
     response = RedirectResponse(next_path, status_code=303)
-    set_auth_cookie(response, request, days=days, login=True)
+    try:
+        set_auth_cookie(response, request, days=days, login=True)
+    except OSError:
+        message = "登录设备未能记下，请检查数据目录能否写入后重试"
+        if _wants_page(request):
+            return HTMLResponse(login_html(next_path, error=message), status_code=503)
+        raise HTTPException(503, message) from None
     return response

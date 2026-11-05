@@ -18,6 +18,7 @@ import { cardClass } from '../components/card';
 import { Note } from '../components/note';
 import { ExternalLink, FieldLabel, Help } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
+import { composingKey } from '../components/ime';
 import { followFeedByName, lookupFeedActor, type FeedCandidate, type FeedLookup } from './follow-manage';
 
 const PLACEHOLDER = 'Enter a performer name to find her performer page on JavDB';
@@ -77,7 +78,7 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
     });
   };
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter' && !event.nativeEvent.isComposing) { event.preventDefault(); search() }
+    if (event.key === 'Enter' && !composingKey(event.nativeEvent)) { event.preventDefault(); search() }
   };
   const close = () => { setResult(null); setPicked(new Set()); action.setError('') };
   const add = () => {

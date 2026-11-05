@@ -63,7 +63,8 @@ def _catalog_plan(connection, sources: Path, *, catalog: bool = True) -> dict:
     text = metadata_text_repair.collect(connection, sources / 'library-metadata')
     if not catalog:
         return {'codes':[], 'fields':[], 'names':[], 'aliases':[], 'text':text, 'catalog':False}
-    from .catalog_rules import compile_code_patterns, release_code_from_filename, same_release_code
+    from .catalog_rules import (compile_code_patterns, normalise_code_key, release_code_from_filename,
+                                same_release_code)
     from .profiles import read_settings
     patterns = compile_code_patterns(read_settings(connection).get('codePatterns'))
     codes = []
@@ -71,7 +72,9 @@ def _catalog_plan(connection, sources: Path, *, catalog: bool = True) -> dict:
         if owner_of(row['field_owners'], 'code') != SCAN_FILENAME:
             continue
         expected = release_code_from_filename(row['name'] or '', patterns=patterns)
-        if expected and row['code'] and not same_release_code(expected, row['code']):
+        # 同一部片、规范写法变了的也改：HEYZO 定宽四位后，旧的 `HEYZO-707` 规范化就是 `HEYZO-0707`（#354）。
+        rewritten = row['code'] != expected == normalise_code_key(row['code'])
+        if expected and row['code'] and (rewritten or not same_release_code(expected, row['code'])):
             codes.append({'id': row['id'], 'current': row['code'], 'target': expected})
     fields = r18_legacy_repair.collect(connection, sources / 'library-metadata')
     names = r18_legacy_repair.collect_entities(connection, sources / 'library-metadata',
@@ -228,6 +231,68 @@ class UpgradeRepairs:
                                    (REVISION, str(time.time()), json.dumps(receipt, ensure_ascii=False)))
             atomic_write_text(self.receipt, json.dumps(receipt, ensure_ascii=False))
 
+    def _release_studio_misses(self) -> None:
+        """旧版断网时记下的「官网未取得」各放一次重试（`studio_followup.release_unbounded_misses`）。
+
+        只改候选缓存里的记号文件，不写账本行；做过的记进 `ledger_upgrade_repair`，只做一次。
+        """
+        from .studio_followup import release_unbounded_misses
+        key = 'studio-unbounded-misses-1'
+        try:
+            with self.contract.database.read_connection() as connection:
+                if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?', (key,)).fetchone():
+                    return
+            changed = release_unbounded_misses(attempts_root(self.contract.candidate_root))
+            with self.contract.database.write_transaction() as connection:
+                connection.execute('INSERT OR IGNORE INTO ledger_upgrade_repair(id,applied_at,result_json) '
+                                   'VALUES(?,?,?)', (key, str(time.time()), json.dumps({'released': changed})))
+            LOGGER.info('旧的「官网未取得」放行重试：%s 条', changed)
+        except Exception:
+            LOGGER.exception('放行旧的「官网未取得」重试失败')
+
+    def _settle_verification(self) -> None:
+        """核查差异的结算规则（ADR-0139）对存量候选跑一遍，规则版本变了才再跑。
+
+        只喂带核查标记的那些行：其余候选的判据没变，这一步不替它们重判。有要处理的行才
+        先备份；结果连同规则版本记进 `ledger_upgrade_repair`，账本恢复到之前的备份时会重跑。
+        几千行要跑一两分钟，所以不在 `prepare` 里挡着服务启动，由 `start` 交给后台调度跑；
+        自动落库按批提交，页面上的写入照常穿插进来。
+        """
+        try:
+            self._settle_verification_once()
+        except Exception as exc:
+            self.error = str(exc)
+            LOGGER.exception('核查差异存量结算失败')
+
+    def _settle_verification_once(self) -> None:
+        from .metadata_auto_apply import _parsed_candidates, auto_apply_metadata
+        from .review_csv import read_candidates
+        key = f'verification-settlement-{upgrade_rules.VERIFICATION_SETTLEMENT}'
+        contract = self.contract
+        with contract.database.read_connection() as connection:
+            if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?', (key,)).fetchone():
+                return
+        rows, _source, _skipped = read_candidates('metadata_fields', Path(contract.candidate_root))
+        rows = [row for row in rows
+                if any(candidate.get('requires_review') for candidate in _parsed_candidates(row))]
+        result = {'rows': len(rows)}
+        if rows:
+            backup = contract.db_path.with_name(f'ledger.pre-upgrade-{time.time_ns()}.db')
+            sqlite_backup(contract.db_path, backup)
+            summary = auto_apply_metadata(
+                contract.database, Path(contract.candidate_root), candidate_rows=rows,
+                snapshot_root=Path(contract.follow_sources_root) / 'library-metadata',
+                active=lambda: not self.stopping.is_set())
+            if self.stopping.is_set():
+                return
+            result.update({name: summary[name] for name in
+                           ('applied', 'kept', 'refreshed', 'auto_rejected', 'left_to_review')},
+                          backup=str(backup))
+        with contract.database.write_transaction() as connection:
+            connection.execute('INSERT OR IGNORE INTO ledger_upgrade_repair(id,applied_at,result_json) '
+                               'VALUES(?,?,?)', (key, str(time.time()), json.dumps(result, ensure_ascii=False)))
+        LOGGER.info('核查差异存量结算：%s', result)
+
     def _restore_receipt(self, authoritative):
         try:
             cached = _read(self.receipt)
@@ -379,6 +444,8 @@ class UpgradeRepairs:
         if self.available and not self.scheduler.running:
             self.tick()
             self.scheduler.add_job(self.tick, 'interval', seconds=60, max_instances=1, coalesce=True)
+            self.scheduler.add_job(self._settle_verification, max_instances=1)
+            self.scheduler.add_job(self._release_studio_misses, max_instances=1)
             self.scheduler.start()
 
     def stop(self) -> None:
@@ -420,7 +487,11 @@ def _media_run(contract, key: str, handle) -> dict:
         if not active():
             raise JobPaused('服务重启后继续') from None
         raise
-    if result.get('status') not in ('complete', 'succeeded') or result.get('issue_count'):
+    # 走完全程只剩这部片自己的问题（坏文件探不出时长、抽不出帧）算完成；有来源冷却暂缓的
+    # 还要等来源放开再补，留成失败交给后继重试。
+    finished = result.get('status') in ('complete', 'succeeded') or (
+        result.get('outcome') == 'partial' and not result.get('paused_count'))
+    if not finished:
         raise RuntimeError(result.get('error') or '影片升级补全未完成，请在任务中心查看后重试')
     return {'outcome': '影片升级补全完成', 'name': title, 'asset_id': asset_id}
 

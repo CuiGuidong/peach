@@ -80,10 +80,14 @@ function ProcessingPrompt({ command, speed, dialog, onSpeed, busy }: {
   </div>;
 }
 
-/** Scanning and enriching existing videos share the profile pipeline; video previews are decided by media library settings. */
-export function ProcessingActions({ busy, scan = false, metadataOnly = false, speedMode = 'standard', pendingCount = 0, onRun }: {
-  busy: boolean; scan?: boolean; metadataOnly?: boolean; speedMode?: ProcessingSpeed; pendingCount?: number;
+/** 扫描和已有作品补全共用资料流水线，视频预览由媒体库设置决定。
+ *
+ * `busy` 是这次启动还在路上，按钮标 `aria-busy`，点击由共享的忙碌拦截吞掉。`occupied` 是已有
+ * 任务在跑：按钮只标 `aria-disabled`，点击仍会到达，由 `onOccupied` 告诉人为什么没有开始。 */
+export function ProcessingActions({ busy, occupied = false, scan = false, metadataOnly = false, speedMode = 'standard', pendingCount = 0, onRun, onOccupied }: {
+  busy: boolean; occupied?: boolean; scan?: boolean; metadataOnly?: boolean; speedMode?: ProcessingSpeed; pendingCount?: number;
   onRun(command: LibraryProcessingCommand): void | Promise<unknown>;
+  onOccupied?(): void;
 }) {
   const trigger = useRef<HTMLButtonElement>(null);
   const prompt = useRef<ReturnType<typeof formModal> | null>(null);
@@ -105,8 +109,11 @@ export function ProcessingActions({ busy, scan = false, metadataOnly = false, sp
     { label: 'Complete video details only', description: 'Backfill video profiles, covers and people profiles', command: { stage: 'metadata' as const } },
     { label: 'Complete preview images only', description: 'Generates contact sheets for intaked local videos', command: { stage: 'previews' as const } },
   ];
+  const blocked = busy || occupied;
+  const blockedProps = busy ? busyProps(true) : occupied ? { 'aria-disabled': true } as const : {};
   const run = (command: LibraryProcessingCommand) => {
     if (busy) return;
+    if (occupied) { onOccupied?.(); return }
     setOpen(false);
     if (!scan) {
       void Promise.resolve(onRun(command)).catch(() => { /* Errors stay in place at the task entry */ });
@@ -146,16 +153,19 @@ export function ProcessingActions({ busy, scan = false, metadataOnly = false, sp
   };
   return <>
     {promptView ? createPortal(<ProcessingPrompt command={promptView.command} dialog={promptView.dialog}
-      speed={speedMode} busy={busy} onSpeed={value => { selectedSpeed.current = value }} />, promptView.host) : null}
-    {promptView ? createPortal(<LinkButton href="/settings/library" size="small" variant="primary" trailingIcon={RiArrowRightLine} disabled={busy}
+      speed={speedMode} busy={blocked} onSpeed={value => { selectedSpeed.current = value }} />, promptView.host) : null}
+    {promptView ? createPortal(<LinkButton href="/settings/library" size="small" variant="primary" trailingIcon={RiArrowRightLine} disabled={blocked}
       onClick={event => {
         if (promptView.dialog.confirmButton.getAttribute('aria-busy') === 'true') { event.preventDefault(); return }
         promptView.dialog.close();
       }}>Manage media library</LinkButton>, promptView.footer) : null}
     <span data-button-group data-split-button data-variant="primary">
-      <Button {...busyProps(busy)} onClick={() => run(primary.command)}>{primary.label}</Button>
-      <Button ref={trigger} iconOnly leadingIcon={RiArrowDownSLine} aria-label="More sync methods"
-        aria-haspopup="dialog" aria-expanded={open} {...busyProps(busy)} onClick={() => { if (!busy) setOpen(!open) }} />
+      <Button {...blockedProps} onClick={() => run(primary.command)}>{primary.label}</Button>
+      <Button ref={trigger} iconOnly leadingIcon={RiArrowDownSLine} aria-label="更多同步方式"
+        aria-haspopup="dialog" aria-expanded={open} {...blockedProps} onClick={() => {
+          if (busy) return;
+          if (occupied) onOccupied?.(); else setOpen(!open);
+        }} />
     </span>
     <Popover triggerRef={trigger} isOpen={open} onOpenChange={setOpen} placement="bottom end" offset={4}
       className={MENU_POPOVER_SURFACE}>

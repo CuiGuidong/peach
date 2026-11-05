@@ -35,7 +35,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
-from . import (__version__, browser_transport, feeds, tunnel, web_contract,
+from . import (__version__, browser_transport, feeds, ledger_backups, tunnel, web_contract,
                web_feeds, web_follow, web_settings)
 from . import routes_api, routes_auth, routes_configuration, routes_jav_browser, routes_media, routes_pages, routes_subtitles
 from .buildinfo import frozen_build
@@ -207,6 +207,11 @@ WARM_AGGREGATES = (("/api/taste", {"window": "all"}), ("/api/review", {}), ("/ap
 
 def _start_ledger_services(settings: PeachSettings, contract, services) -> bool:
     """只读核对当前账本后，恢复任务并启动依赖账本的后台服务。"""
+    try:
+        # 上次从备份恢复没走完：先把账本收拾到确定的状态，再判它能不能用（ADR-0138）。
+        ledger_backups.recover(settings.db_path)
+    except Exception:
+        LOGGER.exception('账本恢复标记未能处理')
     status = inspect_database(settings.db_path)
     repairs = getattr(contract, 'upgrade_repairs', None)
     if status['schema'] == 'pending' and repairs is not None and repairs.available:
@@ -377,7 +382,11 @@ def create_app(
     from .mount_reachability import source_roots
     mount_reachability = MountReachability(source_roots())
     from .network_reachability import NetworkReachability
-    network_reachability = NetworkReachability()
+    from .web_library_processing import retry_after_network_recovery
+    network_reachability = NetworkReachability(
+        on_recovered=lambda: retry_after_network_recovery(contract, sync))
+    # 处理任务在外部采集前按它判断网（`library_processing._network_gate`）。
+    contract.network_reachability = network_reachability
     resolver = FFmpegResolver(settings.ffmpeg_root)
     http_transport = HttpxTransport()
     follow_media_resolver = FollowMediaResolver(http_transport).with_credential_loader(
@@ -458,7 +467,8 @@ def create_app(
     contract.follow_scheduler = follow_scheduler
     # 订阅源拉取（ADR-0042）用同一个调度实现，只换 job id、状态文件与默认间隔。
     # 默认 6 小时：一位女优的 JavDB 演员页一天更新几条，比这更密只是把 JavDB 的配额
-    # 花在一张没变的页面上。
+    # 花在一张没变的页面上。6 小时是每个源的周期；调度每半小时看一次谁到期，各源按
+    # 自己的相位错开（ADR-0134）。
     feed_scheduler = FollowUpdateScheduler(
         settings.follow_state_root,
         lambda: web_feeds.w_feed_check(contract, {"automatic": True}),
@@ -467,6 +477,7 @@ def create_app(
         filename="feed-schedule.json",
         default=FollowScheduleConfig(enabled=True,
                                      interval_minutes=feeds.DEFAULT_INTERVAL_MINUTES),
+        tick_minutes=feeds.TICK_MINUTES,
         unavailable_message="订阅源拉取只在写入端可用",
     )
     contract.feed_scheduler = feed_scheduler
@@ -507,10 +518,8 @@ def create_app(
 
     @asynccontextmanager
     async def lifespan(_app: FastAPI):
-        from .error_reporting import asyncio_handler
-        loop = asyncio.get_running_loop()
-        previous_error_handler = loop.get_exception_handler()
-        loop.set_exception_handler(asyncio_handler)
+        # asyncio 异常处理器由 `cli._run_uvicorn` 装在 uvicorn 的事件循环上：它要拿着 uvicorn
+        # 的 Server，才能在监听被标准库关掉后重新监听。
         # 握手要等 cloudflared 连上边缘，断网时会等满 `wait_timeout`；放在后台，本机访问
         # 不等公网入口。连接进度由 `tunnel_manager.snapshot()` 报告。
         tunnel_startup = asyncio.create_task(asyncio.to_thread(_start_tunnel, settings, tunnel_manager))
@@ -532,10 +541,11 @@ def create_app(
         try:
             yield
         finally:
+            # 外部播放器的最后一段观看要赶在账本收尾前落下。
+            await asyncio.to_thread(_app.state.playback_trackers.stop)
             await activation.stop()
             _app.state.ledger_background_ready = False
             aggregate_stop.set()
-            loop.set_exception_handler(previous_error_handler)
             warmup.cancel()
             recovery_service.stop()
             follow_scheduler.stop()
@@ -613,6 +623,8 @@ def create_app(
     app.state.strm_resources = StrmResources()
     import secrets
     app.state.external_playback_key = secrets.token_bytes(32)
+    from .playback_tracking import PlaybackTrackers
+    app.state.playback_trackers = PlaybackTrackers()
     app.state.sync = sync
     app.state.tunnel = tunnel_manager
 

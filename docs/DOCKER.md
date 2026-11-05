@@ -169,3 +169,16 @@ Linux 容器不读取用户电脑上的浏览历史，也不包含交互式浏�
 GitHub Actions 的 `Docker` 工作流先构建并运行临时卷验收，通过后发布。仓库变量 `DOCKERHUB_USERNAME` 和机密 `DOCKERHUB_TOKEN` 用于 Docker Hub 发布；机密只保存在 GitHub，不进入项目文件。未配置发布身份时仍执行构建验收。ARM 镜像需通过同等运行验收后再加入发布。
 
 Docker Hub 页面以英文为主，概览正文取自 [docs/dockerhub/README.md](dockerhub/README.md)，链接回 GitHub 的源码、本文和中文 README。简介填写 `Local-first video metadata scraper and media manager. Self-hosted web UI for VPS and NAS.`。发布流水线只推送镜像，概览与简介需要在 Docker Hub 仓库设置中手动更新；镜像、端口、目录或 Compose 示例变化时同批修改该文件。
+
+## 安装后检查资料源与封面连接
+
+完成首次设置、保存代理或来源 Cookie 后，在容器管理器的终端执行：
+
+```bash
+python -m peach check-sources
+python -m peach check-sources --source dmm --source javdb --json
+```
+
+检查在 NAS 容器内发起，使用该实例已有的来源网络设置、Cookie 与冷却记录。最多四个来源并发，每个来源限制请求次数、读取量与时间预算；只读取来源页面和 DMM 图片 CDN 样本，不读取影片、不启动桌面浏览器。结果保留到现有采集设置的来源连接记录；限流或拒绝访问沿用现有冷却机制，不自动关闭来源或修改代理。
+
+报告逐项区分可连接、登录或人机验证、HTTP 错误、冷却与网络失败。页面能连接仅说明检查地址可达，不代表全部作品资料、封面或登录会话可用；片商官网需要番号时标记为未检查，不计为连接失败。其余目标未通过时退出码为 1。更换 NAS 出口或代理后可再次运行；`--source` 可重复指定，仅重查关心的来源。不要在短时间内反复检查正在冷却的来源。

@@ -16,7 +16,7 @@ export interface FollowDetailActionPorts {
 
 /** The stage's opening, epoch and teardown stay with the stage owner; the domain only decides filters and the return address. */
 export function createFollowDetailActions(ports: FollowDetailActionPorts,
-  receipts: Pick<FollowDetailActions, 'toast' | 'failure'>): Omit<FollowDetailActions, 'mountPlayer'> {
+  receipts: Pick<FollowDetailActions, 'toast' | 'failure' | 'canFlip'>): Omit<FollowDetailActions, 'mountPlayer'> {
   return {
     ...receipts,
     close: () => ports.close(),

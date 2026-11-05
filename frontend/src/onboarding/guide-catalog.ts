@@ -147,15 +147,16 @@ export const SETTING_CHAPTERS: GuideChapter[] = [
     ['access', 'Access password', 'Set or change the password for reaching Peach; with it off, any device that can connect gets in directly.'],
     ['tunnel', 'Cloudflare public entry', 'A temporary link serves one-off connections; a named tunnel uses a hostname and tunnel token. The connection status shows whether it is ready; enable as needed.'],
   ], saved) },
-  { id: 'app-maintenance', kind: 'settings', title: CONFIGURATION_SECTIONS.maintenance, summary: 'Updates, storage, data choices, and app maintenance.', steps: fields('maintenance', [
-    ['updates', 'Check for updates', 'Checks the currently available version. Downloading and the restart install run separately; follow the page state.'],
-    ['automatic-updates', 'Auto-update', 'Choose automatic checks, automatic downloads, and the check interval. After a download, confirm the restart install when prompted.'],
-    ['startup', 'Start at sign-in', 'Sets launch at login, tray-only startup, and desktop shortcuts. Available options vary by platform.'],
-    ['transcode', 'Video playback', 'The playback transcode mode decides how compatible playback is processed; frame-extraction decoding is configured separately under library and ingestion. Changes save automatically.'],
-    ['storage', 'Storage', 'Review usage and clean the cache and old backups as needed. Moving the data directory relocates details and cache; media file directories are managed separately.'],
-    ['reporting', 'Data upload', 'Version statistics and error diagnostics, and library and taste details, are separate choices. Details can be previewed before upload; enable them on your own terms.'],
-    ['facts', 'Runtime info and the guided tour', 'Runtime info checks the environment. The guided tour can be reopened anytime, and reading progress follows this machine\'s ledger across devices.'],
-    ['uninstall', 'Uninstall Peach', 'Uninstall removes the program; full uninstall also removes settings, the library, history, credentials, and the cache. Check the data directory and confirmation text the page lists before running it.'],
+  { id: 'app-maintenance', kind: 'settings', title: CONFIGURATION_SECTIONS.maintenance, summary: '更新、存储、数据选择与应用维护。', steps: fields('maintenance', [
+    ['updates', '检查更新', '检查当前可用版本。下载与重启安装分别执行，按页面状态操作。'],
+    ['automatic-updates', '自动更新', '选择自动检查、自动下载和检查频率。下载完成后按提示确认重启安装。'],
+    ['startup', '开机自启', '设置开机启动、仅启动托盘和桌面快捷方式。可用选项随平台变化。'],
+    ['transcode', '视频播放', '播放转码方式决定兼容播放使用的处理方式；抽帧解码在媒体库与入库中单独设置。修改后自动保存。'],
+    ['storage', '存储空间', '查看占用，按需要清理缓存和旧备份。迁移数据目录会移动资料与缓存；媒体文件目录单独管理。'],
+    ['ledger-backups', '账本备份', '立即备份当前账本，或从列表里的一份备份恢复。恢复会替换当前账本，替换前先另存一份；只有写入端能恢复。'],
+    ['reporting', '数据上传', '版本统计与错误诊断、馆藏与口味明细是独立选择。明细上传前可查看预览，按自己的意愿开启。'],
+    ['facts', '运行信息与新手教程', '运行信息用于核对环境。新手教程可以随时重开，阅读进度随本机账本在所有设备间共享。'],
+    ['uninstall', '卸载 Peach', '卸载移除程序；完全卸载还移除设置、资料库、记录、凭据和缓存。执行前核对页面列出的数据目录与确认内容。'],
   ], saved) },
   { id: 'diagnostics', kind: 'settings', title: CONFIGURATION_SECTIONS.diagnostics, summary: 'When something breaks, review the checks and the diagnostic report.', steps: fields('diagnostics', [
     ['attention', 'Checks that need attention', 'Attention-needed items open the reason and recovery entries; with nothing wrong, review the library health instead.', '[data-guide-target="attention"], [data-guide-target="health"]'],
@@ -274,13 +275,14 @@ const FIELD_DETAILS: Record<string, readonly [string, string][]> = {
 };
 for (const chapter of SETTING_CHAPTERS) for (const item of chapter.steps) {
   item.details = FIELD_DETAILS[item.id];
-  if (item.id === 'preview' || item.id === 'transcode') item.scope = 'The computer running Peach · changes save automatically';
-  if (item.id === 'follow-options' || item.id === 'sources' || item.id === 'reporting' || item.id === 'storage') item.scope = 'Takes effect through each item\'s own save or confirm action on the page';
+  if (item.id === 'preview' || item.id === 'transcode') item.scope = '运行 Peach 的电脑 · 修改后自动保存';
+  if (item.id === 'follow-options' || item.id === 'sources' || item.id === 'reporting' || item.id === 'storage'
+    || item.id === 'ledger-backups') item.scope = '按页面中各项的保存或确认动作生效';
 }
 export const GUIDE_CHAPTERS = [...INTERFACE_CHAPTERS, ...SETTING_CHAPTERS];
 
 export interface GuideTopic { id: string; kind: GuideChapter['kind']; title: string; summary: string; chapters: string[] }
-/** 目录按使用意图组织；小章节可单独阅读，页内说明继续对应实际设置分区。 */
+/** 目录按使用意图组织；小章节可单独阅读，设置步骤对应实际设置分区。 */
 export const GUIDE_TOPICS: GuideTopic[] = [
   { id: 'browse', kind: 'interface', title: 'Search and discover', summary: 'Search and play, people tags, JAV new-release follows', chapters: ['find-play', 'entities', 'jav'] },
   { id: 'collect', kind: 'interface', title: 'Favorites and follows', summary: 'Marked lists, creator updates, taste statistics', chapters: ['save', 'follow', 'insights'] },
@@ -291,18 +293,6 @@ export const GUIDE_TOPICS: GuideTopic[] = [
   { id: 'storage', kind: 'settings', title: 'Media and downloads', summary: 'Libraries, directories, reading, and download channels', chapters: ['library', 'downloads'] },
   { id: 'system', kind: 'settings', title: 'Connection and maintenance', summary: 'Network access, app maintenance, system diagnostics', chapters: ['network', 'app-maintenance', 'diagnostics'] },
 ];
-export const SECTION_GUIDES: Record<string, string> = {
-  'Source credentials': 'credentials', 'Follows scrape': 'follow-options', 'Check for updates': 'updates', 'Runtime info': 'facts',
-  'Library and catalog': 'media', 'Mount state': 'mounts', 'CloudDrive proxy': 'cloud-proxy', 'Auto-discover new files': 'discovery',
-  'Code detection rules': 'codes', 'Video previews': 'preview', 'Resource search': 'indexers', 'Video profile sites': 'entry-links',
-  'Cloud download': 'download', 'PikPak account': 'pikpak', 'Add JAV via browser': 'browser', 'Access address': 'port',
-  'Peach proxy': 'proxy', 'Access password': 'access', 'Cloudflare public entry': 'tunnel', 'Auto-update': 'automatic-updates',
-  'Start at sign-in': 'startup', 'Video playback': 'transcode', 'Storage': 'storage', 'Data upload': 'reporting', 'Uninstall Peach': 'uninstall',
-};
-export function sectionGuide(title: string): GuideStep | undefined {
-  const id = SECTION_GUIDES[title] || title;
-  return id ? SETTING_CHAPTERS.flatMap(chapter => chapter.steps).find(item => item.id === id) : undefined;
-}
 export function contextualChapter(path: string): GuideChapter {
   if (path === '/') return INTERFACE_CHAPTERS[0]!;
   return SETTING_CHAPTERS.find(chapter => chapter.steps[0]?.route === path)

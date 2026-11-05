@@ -349,6 +349,13 @@ class BackgroundJob:
         value = getattr(getattr(self.runs, 'database', None), 'db_path', None)
         return Path(value) if isinstance(value, (str, Path)) else None
 
+    def registration(self, job_id: str) -> tuple[tuple[Path, ...], tuple[int, ...]]:
+        """这一轮自己的任务登记文件与 `task_run` 行。要等别的任务都停下的那一轮查忙时，把自己除外。"""
+        activity = self._activity_files.get(job_id)
+        run_id = self._run_ids.get(job_id)
+        return ((activity,) if activity is not None else (),
+                (run_id,) if run_id is not None else ())
+
     def update(self, job_id: str, **fields: object) -> bool:
         """状态仍属于 `job_id` 时改字段；已经被顶掉就什么都不做并返回 False。"""
         with self.editing(job_id) as state:
@@ -554,11 +561,15 @@ class BackgroundJob:
         if self.runs is None:
             return
         total = state.get("total")
+        # 只处理一部作品的任务在初始状态里带 `asset_id` 与 `name`，开跑就写进任务行，任务卡据此链接到它。
+        asset_id, name = state.get("asset_id"), state.get("name")
+        subject = ({"asset_id": asset_id, "name": name}
+                   if type(asset_id) is int and asset_id > 0 and isinstance(name, str) and name else None)
         run = self.runs.start(
             self.task_key, trigger=trigger, mutex_key=self.mutex_key,
             conflict="raise" if trigger == "manual" else "skip",
             total=int(total) if isinstance(total, (int, float)) else None,
-            label=self._progress_label(state))
+            label=self._progress_label(state), summary=subject)
         if run is None:
             return
         self._run_ids[job_id] = run.id

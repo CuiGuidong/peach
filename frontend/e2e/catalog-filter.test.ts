@@ -79,11 +79,7 @@ async function openHome(browser: Browser, path = '/', viewport = DESKTOP): Promi
   await page.locator(READOUT, { hasText: 'matches' }).waitFor({ timeout: 15_000 });
   await page.locator(`${FILTER} [data-tier-performer]`).first().waitFor({ timeout: 15_000 });
   await settle(page);
-  // When the page closes, that `route.fetch` to `/api/facets` may still be in flight; a miss there does not count as failure.
-  return { ...opened, counts, close: async () => {
-    await page.unrouteAll({ behavior: 'ignoreErrors' });
-    await opened.close();
-  } };
+  return { ...opened, counts };
 }
 
 const tag = (page: Page, key: string) => page.locator(`${FILTER} [data-catalog-tag="${key}"]`);

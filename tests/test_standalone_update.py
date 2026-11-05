@@ -1,4 +1,5 @@
 """独立包更新使用临时目录验证路径、进度、重启确认及回滚。"""
+import base64
 import json
 import hashlib
 import os
@@ -11,9 +12,11 @@ import unittest
 from unittest.mock import Mock, patch
 import zipfile
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat
 import httpx
 
-from peach import settings_file, standalone_update as update
+from peach import release_signing, settings_file, standalone_update as update
 from peach import update_packages
 from scripts.package_windows_release import package as package_release
 from scripts.smoke_split_update import verify as verify_split
@@ -303,6 +306,8 @@ class StandaloneUpdateTests(unittest.TestCase):
         def response(request):
             name = request.url.path.rsplit("/", 1)[1]
             requests.append(name)
+            if not (output / name).is_file():
+                return httpx.Response(404)
             content = (output / name).read_bytes()
             return httpx.Response(200, content=b"corrupt" if name == corrupt else content)
         client_type = update.httpx.Client
@@ -538,6 +543,53 @@ class StandaloneUpdateTests(unittest.TestCase):
             self.assertTrue(update_packages.matches(Path(state["stage"]), bundle["files"]))
         self.assertEqual(state["downloaded"], state["total"])
         self.assertEqual((target / "Peach.exe").read_bytes(), b"old application")
+
+    def sign_output(self, output):
+        """像发布作业那样给发布目录写 `sha256sum` 摘要与签名；返回受信任公钥。"""
+        private = base64.b64encode(Ed25519PrivateKey.generate().private_bytes(
+            Encoding.Raw, PrivateFormat.Raw, NoEncryption())).decode("ascii")
+        sums = "".join(f"{update_packages.digest(path)}  ./{path.name}\n" for path in sorted(output.glob("*.zip")))
+        (output / release_signing.SUMS).write_bytes(sums.encode())
+        (output / release_signing.SIGNATURE).write_bytes(release_signing.sign(sums.encode(), private).encode())
+        return release_signing.public_key(private)
+
+    def test_signed_release_installs_after_the_sums_signature_verifies(self):
+        source, output, manifest, target, archive, release = self.release_fixture()
+        public = self.sign_output(output)
+        with patch.object(update.release_signing, "PUBLIC_KEYS", (public,)):
+            state, requests = self.prepare_fixture(target, output, release)
+        self.assertEqual(state["state"], "ready", state)
+        self.assertEqual(requests[:3], [release_signing.SUMS, release_signing.SIGNATURE, archive.name])
+
+    def test_a_package_swapped_together_with_its_listed_digest_is_refused(self):
+        source, output, manifest, target, archive, release = self.release_fixture()
+        public = self.sign_output(output)
+        # 渠道被篡改：发布记录里的摘要与大小跟着替换后的包一起改了，只有签过名的摘要还是原来的。
+        release.update(asset_size=len(b"corrupt"), asset_digest="sha256:" + hashlib.sha256(b"corrupt").hexdigest())
+        with patch.object(update.release_signing, "PUBLIC_KEYS", (public,)):
+            state, requests = self.prepare_fixture(target, output, release, corrupt=archive.name)
+        self.assertEqual(state["state"], "error", state)
+        self.assertIn("校验失败", state["message"])
+        self.assertEqual((target / "Peach.exe").read_bytes(), b"old application")
+
+    def test_missing_or_untrusted_signature_stops_before_any_download(self):
+        for case in ("missing", "untrusted"):
+            with self.subTest(case=case):
+                source, output, manifest, target, archive, release = self.release_fixture()
+                public = self.sign_output(output)
+                if case == "missing":
+                    (output / release_signing.SIGNATURE).unlink()
+                else:
+                    self.sign_output(output)  # 换一把客户端不认得的私钥重签
+                with patch.object(update.release_signing, "PUBLIC_KEYS", (public,)):
+                    state, requests = self.prepare_fixture(target, output, release)
+                self.assertEqual(state["state"], "error", state)
+                self.assertIn("发布签名校验未通过", state["message"])
+                self.assertNotIn(archive.name, requests)
+                self.assertEqual(list(target.parent.glob(f".{target.name}-update-*")), [])
+                self.assertEqual((target / "Peach.exe").read_bytes(), b"old application")
+                for folder in (self.root / "dist", output, target):
+                    shutil.rmtree(folder)
 
     def test_supported_older_clients_can_install_this_release(self):
         """旧版本标签里的更新代码原样读这一版的发布条目与更新包（ADR-0120）。"""

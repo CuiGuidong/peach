@@ -14,6 +14,7 @@ import { fmtSize } from '@peach/legacy/core';
 import { Button } from '@/components/base/buttons/button';
 
 import { errorMessage } from '../../api';
+import { RESOURCE_SYNC_TEXT } from '../../cleanup-tool-skeletons';
 import { useBackgroundJob } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
@@ -186,7 +187,7 @@ export function ResourceSyncCard(
       }>
         <FieldsetTitle id="resource-sync-title" gap="small">Resource sync</FieldsetTitle>
         <p className="max-w-190 text-body-2-regular leading-5 text-text-secondary">
-          Checks files on local disks and cloud drives against library records one by one, listing records whose files no longer exist, empty folders, and caches no longer referenced.
+          {RESOURCE_SYNC_TEXT}
         </p>
         <div aria-live="polite" className="mt-4 empty:hidden">{progress}</div>
       </Fieldset>

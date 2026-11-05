@@ -168,7 +168,7 @@ def poll(tray, root: Path) -> None:
             gate = task_gate(DATABASE_PATH, host=socket.gethostname(), alive=process_alive)
             if gate.refused:
                 raise ValueError(gate.refusal())
-            if not tray.manager.restart():
+            if not tray.manager.restart(reason="源码改字构建完成，重载服务"):
                 raise ValueError('服务尚未恢复，请查看托盘日志')
             readiness = tray._readiness()
             if readiness.problem:

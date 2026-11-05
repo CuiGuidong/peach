@@ -57,6 +57,10 @@ it('The extra outline on top of a filled card never swaps the base', () => {
   expect(fieldset).toContain('bg-background-secondary-default');
   expect(fieldset).toContain('border-border-button-default');
   expect(classes({ bordered: 'soft' })).toContain('border-separator-border');
+  // 失败卡的框线要有宽度才画得出来，且画成不占盒子的 outline，不把内容挤进 1px。
+  const failed = [...classes({ bordered: 'error' })];
+  expect(failed.filter((name) => name.startsWith('border'))).toEqual([]);
+  expect(failed).toEqual(expect.arrayContaining(['outline-1', '-outline-offset-1', 'outline-border-error-default']));
 });
 
 /* The ring draws on the `::after` overlay: an inset box-shadow paints beneath child elements, and the footer strip's background would cover the ring's lower half. */

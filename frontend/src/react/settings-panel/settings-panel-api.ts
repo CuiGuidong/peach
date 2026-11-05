@@ -9,6 +9,7 @@
 import type { HomeGlow } from '@peach/appearance';
 
 import type { SettingsStore } from '../../settings-store';
+import type { Shortcut } from '../../keyboard-shortcut';
 import type { SyncedSettings } from './settings-data';
 
 /** The items the panel reads and writes; the object has other fields the panel never touches. */
@@ -72,6 +73,9 @@ export interface SettingsPanelHost {
   /** SFW and increased contrast each have their own keys and are not in `appSettings`; after a change the shell calls `store.notify()`. */
   censored(): boolean;
   setCensored(on: boolean): void;
+  /** SFW 开关键，存本机不同步；传 null 恢复默认。改完壳调 `store.notify()`。 */
+  sfwShortcut(): Shortcut;
+  setSfwShortcut(shortcut: Shortcut | null): void;
   highContrast(): boolean;
   setHighContrast(on: boolean): void;
   receipt(message: string): void;

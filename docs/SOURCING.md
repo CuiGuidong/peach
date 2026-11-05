@@ -32,6 +32,15 @@
 
 连不上外网时，每个页面顶部出现一条横幅，指向「网络与访问 → Peach 代理」。判定来自服务端：有页面读取 `/api/network-status` 后，后台按 Peach 代理设置访问 `www.msftconnecttest.com` 与 `captive.apple.com` 两个系统联网检测地址，任一个返回预期正文就算联网；正常十分钟、断网时一分钟复查一次，保存代理设置后立即重探。
 
+资料处理在「采集外部资料与封面」开始前用同一判定当场探一次。判为断网时不再逐个尝试来源：要联网的作品记为可重试的「外部资料未取得：连不上外网」，补人物资料跳过，后继照常派发，任务以部分完成收尾。全新实例第一次处理时没有网络，结果如下：
+
+- 扫描文件、读取媒体属性与检查垃圾、检查配套文件、生成视频预览四步照常完成。
+- 有 NFO 的作品按 NFO 写入标题、演员、厂牌等资料，本地海报照常装上；文件名读得出番号的仍留在重试集合里，联网后再与外部来源核对。
+- 没有 NFO 的作品只有文件名、番号和九宫格预览。
+- 外网判定从断网变回联网时，Peach 自动对最近一趟发起一次「重试未完成项」，补齐外部资料与封面。同一次恢复只触发一次；那一趟还没结束时留到下一次判回联网（联网时十分钟一次）。只读端不自动发起，重试仍失败时在处理卡片上手动重试。
+
+命令行 `peach process` 不做断网判定，照旧逐个尝试来源。补厂牌官网与标识的后继在候选官网一个都连不上时，只把这家挡一天，之后存量补派会再派到它。
+
 跟随环境时，HTTP 客户端读取进程代理环境变量，浏览器使用系统代理；两者不保证采用相同出口。应用直连不能排除操作系统 TUN。设置对新建客户端生效，已经运行的任务或长连接沿用创建时的设置。浏览器直接加载的外站图片与用户打开的外链由浏览器自身网络设置决定。
 
 本机健康检查、浏览器控制接口、writer 镜像、用户自配 Torznab 索引器和 CloudDrive 挂载连接使用各自的网络边界。CloudDrive 的 API／数据代理仍在媒体库设置中管理；Git、glab、rclone、cloudflared 与构建工具的联网由各工具配置负责。可独立构建的 FFmpeg 对应源码归档不包含 Peach 应用，归档内下载脚本使用系统环境代理。
@@ -356,8 +365,9 @@ minnano-av 也在 Cloudflare 后面，但对 HTTP 客户端是间歇拦截：202
 `resync_performer_agency.py` 都经 `SourceTransport` 取 minnano-av，共用同一份冷却与固定状态。2026-10-01 实测：
 临时 profile 的 Chrome 取检索页，跟到资料页 `actress695633.html`，资料表解析正常。
 
-候选备援（未接入）：OpenAver 0.16.13 拔掉 minnano-av 后按 xcity → 维基 → graphis 逐字段合并女优资料；只作 minnano-av
-取不到时的补位，不替换它，因为它是目前唯一能从名字走到事务所名册的入口（调研见 ADR-0092）。
+资料的补位已接入 avbase 女优页（ADR-0136，见下文「女优别名与资料的自动登记」）。它只在 minnano-av 上没有她时写，
+不替换 minnano-av，因为后者是目前唯一能从名字走到事务所名册的入口。OpenAver 另有 xcity → 维基 → graphis 的逐字段合并，
+仍未接入（调研见 ADR-0092）。
 
 ### JavArchive
 
@@ -428,7 +438,7 @@ minnano-av 也在 Cloudflare 后面，但对 HTTP 客户端是间歇拦截：202
 ### 库内采集的节奏
 
 - javdb 的主机间隔由用户定：`library_processing.SOURCE_INTERVALS` 里 `javdb.com` 与 `jdbstatic.com` 都是 3 秒，
-  两个主机要一起改。这份间隔由 `SOURCE_LIMITER` 整个进程共用：资料处理、取想要的资料、取新作资料与订阅检查
+  两个主机要一起改。这份间隔由 `SOURCE_LIMITER` 整个进程共用：资料处理、想要作品资料采集、新作资料采集与订阅检查
   同时跑时，问同一主机仍按一条队排。
 - **FC2 的商品号在三家里只问 javdb**（`community_catalog.community_sources_for`）。本机来源证据里 AVBase 与 JavBus
   对 FC2 一份都没给过；javdb 能补约一半的演员与发行日，厂牌、标签、封面不给，所以它问得慢却砍不掉。
@@ -604,12 +614,17 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
   - `サイズ` 形如 `T156 / B86( Eカップ ) / W58 / H85 / S`，数字就是厘米；末尾那个 `S` 含义未取得，只留原文。
     资料没填的页没有生年月日、血液型、出身地那几行。
   - `ブログ` 那格显示 `http://`、`href` 是 `https://`，取 `href`。站内头像 `/p_actress_125_125/` 只有 125×125。
+  - avbase 女优页 `/talents/<名字>`（ADR-0136）：直连 httpx 带 Chrome UA 就回 200，名字站上没有回 404。
+    `__NEXT_DATA__` 的 `pageProps.talent.actors[]` 是站上归到她名下的名义，资料取 `meta.basic_info`；
+    `actors[].meta.fanza` 是另一份可能过时的 FANZA 资料，只留原文。没有出道年、活动期、博客与官网。一页
+    650～750 KB，缓存只存 `compact_talent_page` 裁出的 `talent` 与同名列表。冷却与作品采集共用 `avbase` 那一份。
+    它写的行不算 minnano-av 的「未过期」，minnano-av 取到就整行换掉。
   - avwikidb.com 直连 httpx 带 Chrome UA 就回整页（登记在 `scraping_access.SOURCES`，拒绝访问停 6 小时）。作品页
     `/work/<番号>/` 头里的 JSON-LD `Movie.actor` 每项给 `name`、罗马字 `alternateName` 与 `/actor/<编号>/`，编号
     从这里取。女优页 JSON-LD `Person.alternateName` 前两项是读音与罗马字，后面混着站上归并的其他名义（含男优
     名），不收。三围只在正文「身長・スリーサイズ」一格（`T148 B83(B) W55 H85`）。女优图是 DMM `actjpgs` 的
     125×125，不作头像；站内搜索是 `⌘K` 弹层，地址形态未取得。
-  - 出生日期与身高和 minnano-av 不一致时，只记进外部编号的 `metadata_json.conflicts`。
+  - 出生日期与身高和资料表那一行（minnano-av 或 avbase 写的）不一致时，只记进外部编号的 `metadata_json.conflicts`。
 
 ## 番号目录、创作者与水印
 
@@ -664,14 +679,16 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
   近似的别人（`SA-104 → AVSA-104`、`AR-301 → STAR-3016`）。不比对时大部分匹配番号根本不对，整个 MIB 目录
   （韩国内容）曾因此被写上日本厂牌、系列和标题，还靠这些假证据升级成 JAV。
 - 判据是 `catalog_rules.same_release_code()`。它只归一已核验的前缀别名、DMM 的 `h_` 标记、补零和重制尾字母
-  这些良性差异；来源没给 id 的不拦（缺证据不是反证）。复核队列按同一条判据剔候选（ADR-0035）：候选全被剔掉
+  这些良性差异；来源没给 id 的不拦（缺证据不是反证）。补零有例外：`SHORT_SERIAL_PREFIXES` 登记的字母段
+  短号与补零号是两部片（`MCDV-24` 无码、`MCDV-024` 有码），不足三位按原写保留（ADR-0133）；`SERIAL_WIDTHS` 登记的字母段按官方位数补零，`HEYZO` 定宽四位（`HEYZO-0707`，#354）。复核队列按同一条判据剔候选（ADR-0035）：候选全被剔掉
   的行整行不进队列，点了也写不进去的东西摆在那儿只是要人再认一遍。
 - javbus 是备选来源（`metadata_policy.FALLBACK_SOURCES`）：同一个字段上还有别家可用时，它的取值不当证据；只有
   它一家时才轮到它。这一步排在番号日期判据之后。剔完之后来源全是官方的字段，自动写入可以替换账本已有的值，
   规则名记 `adr-0035-official-replaces-*`；community 来源仍然只补空（ADR-0035）。
 - 韩国 MIB 的编号（`catalog_rules.KOREAN_MIB_PREFIXES`）资料与封面都不问 JAV 来源。`HA-101`、`MY-102` 撞上番号
   完全相同的日本作品，番号核验照样通过，只能按编号前缀整体不问。刮削、扫描与采集、页面取封面、封面批次和
-  按日志恢复五个入口都按 `is_korean_mib_code()` 拦。封面的跨作品判据同时比字母段和数字段：`YUJ-101 → yuj00011`、
+  按日志恢复五个入口都按 `is_korean_mib_code()` 拦。前缀表的来源分批写在代码注释里；`YUJ` 是 Attackers 的系列，
+  已移出（ADR-0133）。封面的跨作品判据同时比字母段和数字段：`YUJ-101 → yuj00011`、
   `435MFC-135 → h_1711mfcc00027` 字母对上、数字不对，都是别的片。
 - `catalog_rules.code_query_variants()` 只扩展搜索词，每次返回都以账本原始编号校验，缓存和网络结果同样受检。
 
@@ -706,7 +723,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
   文件名前缀，用 EUC-JP 页名直取两站（取页层是补别名后继的 `WikiSitePages`，页缓存、404 记忆与来源冷却与服务共用）。
   同名页是 3 位以上出演者的作品一览就记 `identity=release` 的 observed 并否掉 `unknown`；都不存在时 unknown 候选写明
   问过哪几页；没有页以外的取页失败是未取得，不进清单。清单交 `apply_entity_identity_research.py` 冻结预览、备份写入。
-  处理任务结束时「查创作者身份」后继按同一判据自动问新登记和存量的创作者，命中直接落批次来源的 observed（ADR-0098）。
+  处理任务结束时「创作者身份查找」后继按同一判据自动问新登记和存量的创作者，命中直接落批次来源的 observed（ADR-0098）。
   改实体类型仍是用户复核。裏DVD村（uradvd-mura.com）是带会员登录的 DVD／下载商店，没有按页名寻址的系列页，
   未接入，只作人工查证线索。
 
@@ -1344,7 +1361,9 @@ Feed 只回答一个问题：**最近出了哪些番号**。它不下载、不�
 判据不是「这个源有没有 RSS」，而是「条目里那串东西是不是真的番号」。一个源接进来之前，必须先看一眼它的番号长什么样，
 不能只看解析成功率（反例见下文 DUGA）。
 
-### 可用的两类
+### 可用的三类
+
+现在接进订阅的是后两类，都按人挂；sukebei 那类不绑定人物，已随 ADR-0047 清退，取证留作参照。
 
 - **原生 RSS：sukebei.nyaa.si**（`https://sukebei.nyaa.si/?page=rss&c=2_2&f=0`）。
   - RSS 2.0，一页 75 条。`guid` 是条目永久链接（`https://sukebei.nyaa.si/view/<id>`），`pubDate` 是 RFC 822 带时区的真实时间，
@@ -1364,11 +1383,23 @@ Feed 只回答一个问题：**最近出了哪些番号**。它不下载、不�
     页面只送演员 id，地址由服务端现拼；账本里没有这位就新建 `performer` 实体（ADR-0083）。
   - 限流照库内采集：主机间隔 3 秒、403 就整源停下，冷却判据在 `scraping_access`，见「javdb、AVBase 与 JavBus 的限流与封禁」。
     不要因为 Feed 是后台任务就另开一套。
+  - 定时拉取每 30 分钟看一次谁到期，每个源按 id 在 6 小时窗口里占一个相位（`feeds.next_fetch`）。撞上冷却时整轮只记一条失败，
+    其余源不再请求、顺延到冷却结束（ADR-0134）。
   - **加 `?sort_type=4` 拿到的页面一条作品都解不出**，同一轮里不带参数的请求仍是完整页。所以演员页伪 Feed 一律用不带查询串的地址。
   - 标题栏 `<span class="actor-section-name">` 是这一页挂的名字，常把几种写法用逗号连成一串（`涼森玲夢, 涼森れむ`）；
     另一个 `section-meta` 写着「N 部影片」。一位女优常有两页，
     旧艺名那页可能常年是空的（`/actors/MmbDR` 白石アイリ，2026-09-28 实测「0 部影片」「暂无内容」）。页面自报 0 部才算安静源；
     计数不为 0 却一条都解不出，仍按拉取失败报。
+- **按女优编号的片单：DMM GraphQL**（`legacySearchPPV` 带 `filter.actressIds`，ADR-0135）。
+  - 编号取账本里已刮到的 DMM 与 r18.dev 出演编号（`entity_external_ref` 的 `dmm`、`r18dev`），没有编号的人不建源、不发请求。
+    订阅中的人后来刮到编号的，下一轮拉取前补上。订阅地址 `https://video.dmm.co.jp/av/list/?actress=<编号>` 只是去重键与展示链接。
+  - 按发售日倒序，预购（`releaseStatus` 为 `PRE_ORDER`）排在最前，`deliveryStartAt` 是预定日期。2026-11-04 实测
+    森日向子 962 部、篠田ゆう 2066 部、楓カレン 257 部，第一页里预购分别 8、4、2 部；涼森れむ 只有 11 部（Prestige 专属）。
+  - 列表型没有 `makerContentId`，问它回 422。官方番号按 cid 用别名批量问 `ppvContent`，一页 100 部一次问完，
+    再过 `release_code_from_product`，与 JavDB 那一路写法一致（`MXDLP-0343` → `MXDLP-343`）。**不按 cid 推番号**：分卷与带数字的
+    字母段会推出一个看上去正常的别的番号（`MCSR-64002`、`DSVR-1234`）。分卷 `MCSR-640-02` 认不出番号，只记条目。
+  - 片单头部多是几十人的合集（森日向子 前 200 部里 175 部），出演名单在列表里就有，按合集判据收起的那类不建壳。
+  - 一页 100 部；一页里出现见过的就不再翻，首轮最多 200 部。走 `SourceTransport` 与主机限流，冷却与失败分类同刮削链的 DMM。
 
 ### 已核实不可用
 
@@ -1399,7 +1430,7 @@ FANZA／DMM、MGStage、一本道同族、Tokyo-Hot、AVBase、javtrailers、One
 ## 番号样张
 
 女优页照片档里按番号摆的官方样张（ADR-0068）。读写与取页在 `peach.sample_images`，补齐在 `peach.sample_followup`（任务中心
-「补番号样张」）。
+「番号样张采集」）。
 
 - 只认发行方自己那几站：
   - 有码是 DMM / FANZA 的 `jp-N`。GraphQL 给的 `awsimgsrc…/pics_dig/…/<cid>-N.jpg` 是 120×90 小图，同目录 `<cid>jp-N.jpg` 才是
