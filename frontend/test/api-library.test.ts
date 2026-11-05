@@ -14,8 +14,8 @@ describe('Library query scope', () => {
   for (const [name, get] of [['React', apiGet], ['App', api]] as const) {
     it(`${name}: catalog, search, and filters read the current library on every pass`, async () => {
       sessionStorage.setItem('peach.library', 'Local & A');
-      await get('/api/items?q=影片&offset=48#results');
-      expect(fetchMock.mock.calls.at(-1)?.[0]).toBe('/api/items?q=videos&offset=48&library=%E6%9C%AC%E5%9C%B0%20%26%20A#results');
+      await get('/api/items?q=videos&offset=48#results');
+      expect(fetchMock.mock.calls.at(-1)?.[0]).toBe('/api/items?q=videos&offset=48&library=Local%20%26%20A#results');
       sessionStorage.setItem('peach.library', 'cloud');
       await get('/api/facets?');
       expect(fetchMock.mock.calls.at(-1)?.[0]).toBe('/api/facets?library=cloud');

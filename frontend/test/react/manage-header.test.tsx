@@ -332,7 +332,7 @@ describe('Resident components', () => {
     expect(r.managedTaken(root)).toBe(false);
     expect(r.managedEntries().map((entry) => entry.path), 'Other faces still drawn').toEqual(['batch-dock']);
     await act(async () => { dock.render({ count: 2, context: 'catalog', junkDismissed: false }) });
-    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('2 items selected');
+    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('Selected 2 items');
 
     /* The shell still pushes one on every page change as before: no throw, no reopen, no further reporting. */
     for (const next of [props('stats', '/stats'), props('trash', '/trash')]) {

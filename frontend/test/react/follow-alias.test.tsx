@@ -191,12 +191,12 @@ it('The merge broke midway, reporting how many groups remain unmerged', async ()
   const { host, toast } = await open(fetcher);
 
   await click(buttonNamed('Merge all (2)', document));
-  await expect(asked[0]!.onConfirm()).rejects.toThrow('1 groups left unmerged');
+  await expect(asked[0]!.onConfirm()).rejects.toThrow('1 group left unmerged');
   await settle();
 
   expect(aliasWrites(fetcher)).toHaveLength(2);
   expect(toast).not.toHaveBeenCalled();
-  expect(host.textContent).toContain('1 groups left unmerged');
+  expect(host.textContent).toContain('1 group left unmerged');
 });
 
 it('Removing a saved alias asks first too', async () => {

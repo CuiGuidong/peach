@@ -8,7 +8,7 @@
  * - `['links','check']` is the state of the networked check run, asked every two seconds while `running`.
  * - `['links','prune']` is the state of the deletion run, likewise on the `running` switch.
  * Merged into one key, every two-second poll round would re-render the read-only stats block above. */
-import { apiGet, apiSend } from '../../api';
+import { ApiError, apiGet, apiSend } from '../../api';
 
 export const LINKS_URL = '/api/links';
 export const LINK_CHECK_URL = '/api/links/check';
@@ -76,7 +76,7 @@ export interface LinkPruneState {
 /** These write endpoints reject with 200 plus `ok:false` (stale manifest, no retryable rows), not an error code. */
 async function accepted<T>(request: Promise<T & { ok?: boolean; error?: string }>): Promise<T> {
   const result = await request;
-  if (result.ok === false) throw new Error(result.error || 'Action not completed, please retry');
+  if (result.ok === false) throw new ApiError(result.error || 'Action not completed, please retry', 200);
   return result;
 }
 

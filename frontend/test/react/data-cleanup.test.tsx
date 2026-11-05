@@ -160,17 +160,17 @@ describe('Stats card', () => {
 
   it('Review keeps its top three kinds and merges the rest into one; junk breakdowns list only categories with content', () => {
     expect(reviewSummary({ counts: { metadata_fields: 12, performer_avatars: 3, studio_logos: 2, creator_tags: 1 } }))
-      .toEqual({ figure: '18 items to review', meta: 'Metadata fields 12 · Performer avatars 3 · Studio logos 2 · Others 1' });
+      .toEqual({ figure: '18 items to review', meta: 'Metadata fields 12 · Performer avatars 3 · Label logo 2 · 1 more' });
     expect(junkBreakdown({ pending_total: 5, dismissed_total: 2, counts: { video: 4, image: 0, url: 1 } }))
-      .toBe('Videos 4 · URLs 1 · Ignored 2');
+      .toBe('Videos 4 · URL 1 · Dismissed 2');
   });
 
   it('The five cards read independently; clicking one switches to that page', async () => {
     const { host, open, server } = await openPage();
     expect(entry(host, 'review')?.textContent).toContain('18 items to review');
-    expect(entry(host, 'quality')?.textContent).toContain('7 awaiting upgrade');
-    expect(entry(host, 'duplicates')?.textContent).toContain('3 groups · 8 files');
-    expect(entry(host, 'duplicates')?.textContent).toContain('Recoverable 2.0 GB');
+    expect(entry(host, 'quality')?.textContent).toContain('7 pending upgrade');
+    expect(entry(host, 'duplicates')?.textContent).toContain('3 groups - 8 files');
+    expect(entry(host, 'duplicates')?.textContent).toContain('Reclaimable 2.0 GB');
     expect(entry(host, 'ads')?.textContent).toContain('5 awaiting review');
     expect(entry(host, 'trash')?.textContent).toContain('9 items in trash');
     expect(entry(host, 'trash')?.textContent).toContain('Using 3.0 GB');
@@ -186,7 +186,7 @@ describe('Stats card', () => {
   });
 
   it('Trash counts follow the library selected in the sidebar', async () => {
-    sessionStorage.setItem('peach.library', 'Cloud drive');
+    sessionStorage.setItem('peach.library', '网盘');
     const { server } = await openPage(withRoots, { '/api/items?state=trash&limit=1&library=%E7%BD%91%E7%9B%98': { total: 1, bytes: 0 } });
     expect(server.calls.map((call) => call.path)).toContain('/api/items?state=trash&limit=1&library=%E7%BD%91%E7%9B%98');
     expect(server.calls.map((call) => call.path)).not.toContain('/api/items?state=trash&limit=1');
@@ -246,11 +246,12 @@ describe('Resource sync', () => {
     await settle();
     expect(host.textContent).toContain('Local disk');
     expect(host.querySelector('[data-connection-tone="warning"]')?.textContent).toBe('Offline');
-    expect(host.textContent).toContain('Skipped this run');
+    expect(host.textContent).toContain('skipped this run');
     expect(host.textContent).toContain('30 items in the library');
-    expect(host.textContent).toContain('Empty folders: 3');
+    expect(host.textContent).toContain('Empty folders');
+    expect(host.textContent).toContain('3 items');
     expect(host.textContent).toContain('Pending permanent deletion');
-    expect(host.textContent).toContain('Keep the source root directory');
+    expect(host.textContent).toContain('Keep source roots');
     expect(server.posts('/api/resource-sync/apply')).toEqual([]);
     await click(buttonNamed('Clean up stale entries', host));
     await settle();
@@ -258,13 +259,13 @@ describe('Resource sync', () => {
     expect(seen[0]!.title).toBe('Clean up stale entries');
     expect(seen[0]!.danger).toBe(true);
     expect(seen[0]!.body).toBe(
-      'Will permanently delete 4 records whose files are no longer on disk (including those in trash), 3 empty folders, and clean 2 idle caches. Source root folders are kept. This step is irreversible.');
+      'Will permanently delete 4 records whose files are no longer on disk (including those in trash) and 3 empty folders, Also cleans 2 idle caches. Source root directories are kept. This step cannot be undone.');
     expect(server.posts('/api/resource-sync/apply')).toEqual([
       { confirm: true, clean_cache: true, scan_id: 'scan-7', background: true },
     ]);
     await settle();
     expect(toast).toHaveBeenCalledWith('Cleaned dead entries');
-    expect(host.textContent).toContain('Permanently deleted 4 stale records and 3 empty folders, cleared 2 caches, freed 5 MB.');
+    expect(host.textContent).toContain('Permanently deleted 4 stale records and 3 empty folders, Cleaned 2 caches, freeing 5 MB.');
   });
 
   it('Confirmed sources show while the remaining sources are still scanning, and these results survive a task failure', async () => {
@@ -274,7 +275,7 @@ describe('Resource sync', () => {
     const host = await wrap(<ResourceSyncCard toast={vi.fn()} />);
     await settle();
     expect(host.textContent).toContain('Local disk');
-    expect(host.textContent).toContain('Empty folders: 3');
+    expect(host.textContent).toContain('3 empty folders');
     expect(buttonNamed('Clean up stale entries', host)).toBeNull();
     expect(host.textContent).not.toContain('Cleanable caches');
     await act(async () => { queryClient.setQueryData(RESOURCE_SCAN_KEY, {
@@ -304,11 +305,11 @@ describe('Resource sync', () => {
     await click(buttonNamed('Clean up stale entries', host));
     await settle();
     expect(seen[0]!.body).toBe(
-      'This permanently deletes 3 records whose files are no longer on disk (trash included), 3 empty folders, and clears 2 idle caches. Source roots are kept.'
-      + 'These cannot be undone. 2 video records have lost their files; personal records are kept and can be moved or the records deleted under "Records with missing files".');
+      'Will permanently delete 3 records whose files are no longer on disk (including those in trash) and 3 empty folders, Also cleans 2 idle caches. Source root directories are kept. These cannot be undone.'
+      + ' Files are lost for 2 video records; personal records are kept, and can be transferred or deleted under "Records with lost files".');
     await settle();
     expect(host.textContent).toContain(
-      '1 video record was marked as file missing and can be handled in "Records with missing files". 1 record was attached to another edition in the library.');
+      '1 video record was marked as missing files and can be handled under "Records with missing files". Records for 1 item were reattached to another edition in the library.');
   });
 
   it('Items where files remain and the directory cannot be deleted during review stay in place: raise the warning tier, and the result bar says partially complete', async () => {
@@ -327,9 +328,9 @@ describe('Resource sync', () => {
     await click(buttonNamed('Clean up stale entries', host));
     await settle();
     await settle();
-    expect(toast).toHaveBeenCalledWith('7 completed, 2 unprocessed', { warning: true });
+    expect(toast).toHaveBeenCalledWith('Completed 7 items, 2 items not processed', { warning: true });
     expect(host.textContent).toContain('Partially finished');
-    expect(host.textContent).toContain('1 record was not deleted ("Back.mp4"), 1 folder was not deleted; recheck and try again.');
+    expect(host.textContent).toContain('1 record was not deleted ("Back Again.mp4"), 1 folder was not deleted; retry after rechecking.');
   });
 
   it('Cancelling the confirm does not send apply', async () => {
@@ -401,14 +402,14 @@ describe('Link management', () => {
     }, '/api/links/prune': { status: 'idle' } });
     const host = await wrap(<LinkManager />);
     await settle();
-    const gone = host.querySelector('[aria-label="Address no longer works"]')!;
+    const gone = host.querySelector('[aria-label="Address expired"]')!;
     expect(gone.textContent).toContain('Link name');
     expect(gone.textContent).toContain('Peach profile');
     expect(gone.querySelector('[data-link-identity]')?.getAttribute('href')).toBe('/performers/31');
     expect(gone.querySelector('[data-link-identity] img')?.getAttribute('src')).toContain('/entity-image?kind=performer&id=31');
     expect(gone.querySelector('[data-link-address] img')?.getAttribute('src')).toBe('/link-mark?id=1');
     expect(gone.querySelector('[data-link-name] img')).toBeNull();
-    const unclear = host.querySelector('[aria-label="Failed to visit this time"]')!;
+    const unclear = host.querySelector('[aria-label="This visit did not succeed"]')!;
     expect(unclear.querySelector('[data-link-name]')?.textContent).toBe('example.com');
     expect(unclear.querySelector('[data-link-identity]')?.textContent).toContain('Performer 2');
   });
@@ -419,7 +420,7 @@ describe('Link management', () => {
     await settle();
     const cells = [...host.querySelectorAll('.link-stat-grid > div')].map((cell) => cell.textContent);
     expect(cells).toEqual([
-      '719 links total spread across 210 performers, labels, and series', 'Official site/agency 224', 'Social account 373', 'Video detail sites: 100', 'Details source 22',
+      'Total links719Spread across 210 performers, studios, and series', 'Official site/agency224', 'Social accounts373', 'Video profile sites100', 'Details sources22',
     ]);
     expect([...host.querySelectorAll('#link-manager a')].map((link) => link.textContent))
       .toEqual(['x.com', 'instagram.com', 'linktr.ee']);
@@ -438,13 +439,13 @@ describe('Link management', () => {
     });
     const host = await wrap(<LinkManager />);
     await settle();
-    expect(host.querySelector('[aria-label="Address no longer works"]')?.textContent).toContain('Performer 1');
-    expect(host.querySelector('[aria-label="Failed to visit this time"]')?.textContent).toContain('Social accounts');
+    expect(host.querySelector('[aria-label="Address expired"]')?.textContent).toContain('Performer 1');
+    expect(host.querySelector('[aria-label="This visit did not succeed"]')?.textContent).toContain('Social accounts');
     await click(buttonNamed('Delete 1 dead link', host));
     await settle();
     expect(seen).toHaveLength(1);
     expect(seen[0]!.danger).toBe(true);
-    expect(seen[0]!.body).toBe('1 dead link will be deleted. It is checked once more before deletion and cannot be recovered afterwards.');
+    expect(seen[0]!.body).toBe('This deletes 1 dead link. It is checked once more before deletion, and deletion cannot be undone.');
     expect(server.posts('/api/links/prune')).toEqual([{ confirm: true, check_id: 'check-3', background: true }]);
   });
 
@@ -511,7 +512,7 @@ describe('Orphan records', () => {
 
   it('When no titles have vanished, the second-level page keeps an empty table and zero counts', async () => {
     const { host, server } = await openTool('orphan-records');
-    expect(host.querySelector('#orphan-records')?.textContent).toContain('0 titles');
+    expect(host.querySelector('#orphan-records')?.textContent).toContain('0 videos');
     expect(host.querySelectorAll('#orphan-records tbody tr[data-row-id]')).toHaveLength(0);
     expect(server.calls.map((call) => call.path)).toContain('/api/orphan-records');
   });
@@ -522,10 +523,10 @@ describe('Orphan records', () => {
     await settle();
     const rows = [...host.querySelectorAll('[aria-label="Videos whose files disappeared"] tbody tr')];
     expect(rows).toHaveLength(2);
-    expect(rows[0]!.textContent).toContain('Likes & reasons 1 · Watch history 3 · Rating 4 · Played 2 times');
+    expect(rows[0]!.textContent).toContain('Likes and reasons 1 · Watch history 3 · Rating 4 · Played 2 times');
     expect(rows[0]!.textContent).toContain('ABC-123.mkv · 60 min');
     expect(rows[0]!.querySelector('img')?.getAttribute('src')).toBe('/thumb?id=7&c=4');
-    expect(rows[1]!.textContent).toContain('Watch later 1 · played');
+    expect(rows[1]!.textContent).toContain('Watch later 1 · Played');
     expect(rows[1]!.querySelector('[role="combobox"]')).toBeNull();
     expect(buttonNamed('Move records', rows[1]!)).toBeFalsy();
     expect(buttonNamed('Delete records', rows[1]!)).toBeTruthy();
@@ -567,7 +568,7 @@ describe('Orphan records', () => {
   it('Deleting records requires a danger confirmation whose body states it is irreversible; the batch delete fires only after confirming', async () => {
     const { seen, posts } = await purgeSecond(true);
     expect(seen[0]!.danger).toBe(true);
-    expect(seen[0]!.body).toBe('Will delete the video record of "beach.mp4" and its personal records (Watch later 1 · Played). This cannot be undone.');
+    expect(seen[0]!.body).toBe('Will delete the video records of "seaside.mp4" and their personal records (Watch later 1 · Played). This cannot be undone.');
     expect(posts).toEqual([{ ids: [12], operation: 'delete' }]);
   });
 
@@ -584,7 +585,7 @@ describe('Orphan records', () => {
     await settle();
     await click(host.querySelector('input[aria-label="Select Video 0"]'));
     await click(buttonNamed('Next page', host));
-    await click(host.querySelector('input[aria-label="Select video 20"]'));
+    await click(host.querySelector('input[aria-label="Select Video 20"]'));
     confirmWith(false);
     await click(buttonNamed('Delete selected records (2)', host));
     expect(server.posts('/api/batch')).toEqual([]);
@@ -593,7 +594,7 @@ describe('Orphan records', () => {
     await settle();
     expect(seen[0]!.items).toEqual(['Video 0', 'Video 20']);
     expect(server.posts('/api/batch')).toEqual([{ ids: [30, 50], operation: 'delete' }]);
-    expect(toast).toHaveBeenCalledWith('Deleted 1 video record and its personal records; 1 file was restored and its record kept');
+    expect(toast).toHaveBeenCalledWith('Deleted 1 video record and its personal records; 1 file was restored, records not deleted');
   });
 });
 
@@ -616,9 +617,9 @@ describe('Organize', () => {
     serve({ '/api/organize': organizeIdle });
     queryClient.setQueryData(['organize'], organizeIdle);
     const host = await wrap(<OrganizeCard toast={vi.fn()} failure={vi.fn()} />);
-    const dir = host.querySelector<HTMLInputElement>('input[placeholder="Leave blank to rename in place"]')!;
+    const dir = host.querySelector<HTMLInputElement>('input[placeholder="Leave empty to rename in place"]')!;
     await type(dir, 'Label/video');
-    await act(async () => { dir.focus(); dir.setSelectionRange(3, 5) });
+    await act(async () => { dir.focus(); dir.setSelectionRange(6, 11) });
     await click(host.querySelector('button[aria-label="Code {code}"]'));
     expect(dir.value).toBe('Label/{code}');
     await click(host.querySelector('button[aria-label="Title {title}"]'));
@@ -637,7 +638,7 @@ describe('Organize', () => {
     await click(buttonNamed('Code + title', host));
     expect(buttonNamed('Run organizing', host)).toBeNull();
     expect(host.querySelector<HTMLInputElement>('input[placeholder="{code}[ {title}]"]')!.value).toBe('{code}[ {title}]');
-    expect(host.querySelector<HTMLInputElement>('input[placeholder="Leave blank to rename in place"]')!.value).toBe('{studio}');
+    expect(host.querySelector<HTMLInputElement>('input[placeholder="Leave empty to rename in place"]')!.value).toBe('{studio}');
     await click(host.querySelector('button[aria-label="Title {title}"]'));
     expect(host.querySelector<HTMLInputElement>('input[placeholder="{code}[ {title}]"]')!.value).toBe('{code}[ {title}]{title}');
     expect(server.posts('/api/organize/apply')).toEqual([]);
@@ -673,7 +674,7 @@ describe('Organize', () => {
       { location: 'local', path: '', file_template: '{code} {title}', dir_template: '' },
     ]);
     expect(server.posts('/api/settings')).toEqual([]);
-    expect(host.textContent).toContain('2 files will be renamed or moved, 5 already have the target name; skipping 1 missing code.');
+    expect(host.textContent).toContain('2 files will be renamed or moved, 5 already have the target name; skipped 缺番号 1.');
     expect(host.textContent).toContain('ABC-001.mp4');
   });
 
@@ -688,7 +689,7 @@ describe('Organize', () => {
     await click(buttonNamed('Run organizing', host));
     await settle();
     expect(seen.map((options) => options.title)).toEqual(['Organize files']);
-    expect(seen[0]!.body).toContain('File names and folders on "Local"');
+    expect(seen[0]!.body).toContain("Local's file names and directories");
     expect(server.posts('/api/organize/apply')).toEqual([
       { location: 'local', path: '', file_template: '{code}', dir_template: '', confirm: true },
     ]);
@@ -709,7 +710,7 @@ describe('Organize', () => {
     queryClient.setQueryData(['organize'], organizeIdle);
     const host = await wrap(<OrganizeCard toast={vi.fn()} failure={vi.fn()} />);
     const path = host.querySelector<HTMLInputElement>('input[name="organize-path"]');
-    await click(host.querySelector('[aria-label="Select organize path"]'));
+    await click(host.querySelector('[aria-label="Choose the organize path"]'));
     await settle();
     expect(server.posts('/api/pick-folder')).toEqual([{ initial: 'R:\\media' }]);
     expect(path?.value).toBe('R:\\media\\compilations');
@@ -733,7 +734,7 @@ describe('Organize', () => {
     const host = await wrap(<OrganizeCard toast={vi.fn()} failure={vi.fn()} />);
     const path = host.querySelector<HTMLInputElement>('input[name="organize-path"]');
     await type(path, 'R:\\media\\compilations');
-    await click(host.querySelector('[aria-label="Select organize path"]'));
+    await click(host.querySelector('[aria-label="Choose the organize path"]'));
     await settle();
     expect(path?.value).toBe('R:\\media\\compilations');
     await click(buttonNamed('Preview', host));

@@ -158,7 +158,7 @@ export function LinkManager() {
     if (removing || !gone.length) return;
     void confirmModal({
       title: 'Delete dead links',
-      body: `This deletes ${ids?.length ?? gone.length} dead links. They are checked once more before deletion, and deletion cannot be undone.`,
+      body: `This deletes ${ids?.length ?? gone.length} dead link${(ids?.length ?? gone.length) === 1 ? '' : 's'}. ${(ids?.length ?? gone.length) === 1 ? 'It is checked once more before deletion, and deletion cannot be undone.' : 'They are checked once more before deletion, and deletion cannot be undone.'}`,
       confirmLabel: 'Delete dead links',
       danger: true,
       onConfirm: () => prune.start.mutateAsync({ checkId, ids }),
@@ -198,7 +198,7 @@ export function LinkManager() {
           footer={done && gone.length ? <>
             <p className="mr-auto min-w-0 text-caption-1-regular text-text-secondary">{PRUNE_HINT}</p>
             <Button variant="danger" {...busyProps(removing)} onClick={() => removeGone()}>
-              {`Delete ${gone.length} dead links`}
+              {`Delete ${gone.length} dead link${gone.length === 1 ? '' : 's'}`}
             </Button>
           </> : null}>
           <Button variant="danger" size="small" disabled={!done || !selectedGone.length}

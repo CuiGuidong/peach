@@ -437,8 +437,10 @@ const QUEUE_LABEL: Record<QueueKind, string> = { mix: 'Mix', parts: 'Volumes', e
  *  and the title bar already says "Editions"; three places saying one thing, so only the count stays here. Other queues' titles carry real information (playlist name,
  *  Mix seed) and cannot be cut along with it. */
 export function queueCopy(queue: DetailQueue): { title: string; summary: string } {
-  const count = (queue.kind === 'editions' ? queue.versionCount ?? queue.items.length : queue.items.length).toLocaleString();
-  const countLabel = queue.kind === 'parts' ? `${count} volumes` : queue.kind === 'editions' ? `${count} editions` : `${count} videos`;
+  const total = queue.kind === 'editions' ? queue.versionCount ?? queue.items.length : queue.items.length;
+  const count = total.toLocaleString();
+  const unit = queue.kind === 'parts' ? 'volume' : queue.kind === 'editions' ? 'edition' : 'video';
+  const countLabel = `${count} ${unit}${total === 1 ? '' : 's'}`;
   return { title: QUEUE_LABEL[queue.kind], summary: queue.kind === 'editions' ? countLabel : `${queue.title} · ${countLabel}` };
 }
 
@@ -446,7 +448,7 @@ export function queueCopy(queue: DetailQueue): { title: string; summary: string 
  *  leaves the whole right column looking unmoved. The volume number says "which file", not which edition, in neutral gray. Numeric volumes write "Volume 2";
  *  letter volumes follow the code's volume-suffix style, capitalized as "Volume A". */
 export const partLabel = (label = '') => /^\d+$/.test(label) ? `Volume ${label}`
-  : /^[a-h]$/i.test(label) ? `${label.toUpperCase()} volumes` : label;
+  : /^[a-h]$/i.test(label) ? `Volume ${label.toUpperCase()}` : label;
 export const partLabelHtml = (item: DetailItem, queue: DetailQueue | null) =>
   ((queue?.kind === 'parts' || queue?.kind === 'editions') && item.part_label ? `<small class="javedition partlabel">${esc(partLabel(item.part_label))}</small>` : '');
 

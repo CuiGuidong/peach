@@ -203,7 +203,7 @@ describe('Which queue entry it stopped on', () => {
     expect(queueCopy(queue('parts', [1, 2, 3], { title: 'Volumes · PCH-021' }))).toEqual({ title: 'Volumes', summary: 'Volumes · PCH-021 · 3 volumes' });
     expect(queueCopy(queue('playlist', [1], { title: 'Weekend playlist' }))).toEqual({ title: 'Playlists', summary: 'Weekend playlist · 1 video' });
     const many = Array.from({ length: 1284 }, (_, i) => i + 1);
-    expect(queueCopy(queue('parts', many, { title: 'Volumes' })).summary).toBe('Volumes · 1,284');
+    expect(queueCopy(queue('parts', many, { title: 'Volumes' })).summary).toBe('Volumes · 1,284 volumes');
   });
 
   it('The new order after dragging: placed before or after the target', () => {
@@ -226,8 +226,8 @@ describe('Identity and tags', () => {
   });
 
   it('Tags drop duration tiers, and deduping by display name keeps the entry that is itself the canonical name', () => {
-    const tags = detailTags(item(1, { tags: [{ k: 'Long - over 30 min' }, { k: 'Old name' }, { k: 'Canonical name' }, { k: 'Drama' }] }),
-      { tagLabel: (tag) => (tag === 'Old name' ? 'Canonical name' : tag), isDurationTag: (tag) => tag.startsWith('Long videos') });
+    const tags = detailTags(item(1, { tags: [{ k: 'Long - under 30 min' }, { k: 'Old name' }, { k: 'Canonical name' }, { k: 'Drama' }] }),
+      { tagLabel: (tag) => (tag === 'Old name' ? 'Canonical name' : tag), isDurationTag: (tag) => tag === 'Long - under 30 min' });
     expect(tags.map((tag) => tag.k)).toEqual(['Canonical name', 'Drama']);
   });
 
@@ -237,7 +237,7 @@ describe('Identity and tags', () => {
       recent: [{ k: 'Drama', n: 3 }, { k: 'Old tag', n: 0 }], results: candidates, create: '',
     });
     expect(pickerSections('Drama', candidates, []).create).toBe('');
-    expect(pickerSections('drama', candidates, []).create).toBe('drama');
+    expect(pickerSections('Dra', candidates, []).create).toBe('Dra');
   });
 
   it('Rating: star n sends n×20, and clicking the current star again sends 0', () => {
@@ -393,10 +393,10 @@ describe('After the write', () => {
   it('Tag deletion writes to cache; undo adds it back', async () => {
     const fetcher = serve(() => ({ ok: true }));
     const { host, actions: done } = await show(item(1));
-    await click(host.querySelector('[data-remove-tag="plot"]'));
+    await click(host.querySelector('[data-remove-tag="Drama"]'));
     await settle();
     expect(host.querySelector('[data-tag="Drama"]')).toBeNull();
-    expect(done.toast.mock.calls[0]![0]).toBe('Deleted tag "Story"');
+    expect(done.toast.mock.calls[0]![0]).toBe('Deleted tag "Drama"');
     await done.toast.mock.calls[0]![1]!.undo!();
     await settle();
     expect(host.querySelector('[data-tag="Drama"]')).not.toBeNull();
@@ -451,7 +451,7 @@ describe('After the write', () => {
     await click(host.querySelector('#savePreference'));
     const save = host.querySelector('#savePreference')!;
     expect(save.getAttribute('aria-busy')).toBe('true');
-    expect(save.querySelector('[role="status"]')?.getAttribute('aria-label')).toBe('Submitting the favorite reason');
+    expect(save.querySelector('[role="status"]')?.getAttribute('aria-label')).toBe('Submitting favorite reason');
     await reply.release({ liked: true, like_reason: 'Good shots' });
     await settle();
     expect(save.getAttribute('aria-busy')).toBeNull();
@@ -528,7 +528,7 @@ describe('How the sidebar reads', () => {
         { id: 3, name: 'Alpha', has_image: true, image_version: '9', avatar_focus: { axis: 'x', pct: 30 } }, { id: 4, name: 'Beta' },
       ] },
     } as Partial<DetailItem>));
-    expect(host.querySelector('[data-id-group="performer"] [data-id-label]')?.textContent).toBe('Performers');
+    expect(host.querySelector('[data-id-group="performer"] [data-id-label]')?.textContent).toBe('Artists');
     const framed = host.querySelector<HTMLImageElement>('[data-entity-name="Alpha"] img');
     expect([framed?.getAttribute('src'), framed?.style.objectPosition]).toEqual(['/entity-image?kind=performer&id=3&thumb=1&v=9', '30% 50%']);
     expect(framed?.parentElement).toBe(host.querySelector('[data-entity-name="Alpha"] [data-id-face]'));
@@ -607,9 +607,9 @@ describe('How the sidebar reads', () => {
     await act(async () => { input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })) });
     await type(input, 'zhon');
     expect(names()).toEqual(['Big breasts', 'Creampie']);
-    await type(input, 'medium');
+    await type(input, 'Cre');
     await act(async () => { input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })) });
-    expect(names()).toEqual(['Creampie', 'medium']);
+    expect(names()).toEqual(['Creampie', 'Cre']);
     await key('ArrowDown');
     await key('Enter');
     await settle();

@@ -40,7 +40,7 @@ describe('Search image recommendations', () => {
   it('One kind of read failure never loses the other recommendations; authors without an entity enter their own follows filter', async () => {
     const groups = await searchRecommendations(async url => {
       if (url.startsWith('/api/jav/')) throw new Error('Offline');
-      if (url.startsWith('/api/follow/authors')) return { items: [{ k: 'Author', key: 'name:author' }] };
+      if (url.startsWith('/api/follow/authors')) return { items: [{ k: 'Author', key: 'name:作者' }] };
       return { items: [{ id: 11, name: 'Local video' }] };
     });
     expect(groups.find(group => group.kind === 'asset')!.items).toHaveLength(1);

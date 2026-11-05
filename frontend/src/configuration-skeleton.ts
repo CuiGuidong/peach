@@ -155,7 +155,7 @@ export function credentialsSkeleton(): string {
 export function indexersSkeleton(): string {
   const open = list(rememberedShape('indexers')?.open, 20, on);
   const rows = open.map(expanded => `<div class="min-w-0 border-t border-separator-border pt-2"><span class="flex w-full min-w-0 items-center gap-1 text-body-2-medium">${islandGlyph('chevron-right', `size-(--icon-inline) shrink-0 text-text-secondary${expanded ? ' rotate-90' : ''}`)}${text('6em')}${text('12em')}</span>`
-    + (expanded ? `<div class="flex flex-col gap-2 pt-3"><div class="flex min-w-0 flex-col gap-4">${inputField('Name')}${inputField('Torznab URL')}${inputField('API key')}<div class="flex flex-wrap items-center gap-x-6 gap-y-2">${check('Enabled')}${button('Remove', 'secondary', 'small')}</div></div></div>` : '')
+    + (expanded ? `<div class="flex flex-col gap-2 pt-3"><div class="flex min-w-0 flex-col gap-4">${inputField('Name')}${inputField('Torznab address')}${inputField('API key')}<div class="flex flex-wrap items-center gap-x-6 gap-y-2">${check('Enabled')}${button('Remove', 'secondary', 'small')}</div></div></div>` : '')
     + '</div>').join('');
   return section('Resource search', stack(`<div class="flex min-w-0 flex-col gap-4">${summary('Indexer connection help')}${rows}</div>`), button('Add indexer', 'secondary') + button('Save configuration'));
 }
@@ -178,7 +178,7 @@ export function javBrowserSkeleton(): string {
 /* ---------- CloudDrive proxies: account count follows the config ---------- */
 
 const proxyEditor = (label: string, proxy: boolean) => `<div class="flex min-w-0 flex-col gap-3">${fieldLabel(label)}${islandSelect(text('6em'))}`
-  + (proxy ? `<div class="flex flex-wrap gap-3"><div class="min-w-40 flex-1">${inputField(`${label} URL`)}</div><div class="w-full sm:w-28">${inputField(`${label} port`)}</div></div>${summary('Proxy authentication')}` : '') + '</div>';
+  + (proxy ? `<div class="flex flex-wrap gap-3"><div class="min-w-40 flex-1">${inputField(`${label} address`)}</div><div class="w-full sm:w-28">${inputField(`${label} port`)}</div></div>${summary('Proxy authentication')}` : '') + '</div>';
 
 export function cloudProxySkeleton(): string {
   const shape = rememberedShape('cloudProxy');

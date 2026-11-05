@@ -95,7 +95,7 @@ async function pop(path: string, state: unknown = null) {
 const filters = (r: Loaded) => r.shell.state ?? {};
 
 it('Startup: only attached before the shell starts routing; at startup it writes filters from the address and opens the full page once', async () => {
-  const r = await load('/unseen?tag=a,%E7%9F%AD%E7%89%87-2%E5%88%86%E5%86%85&owner=none&loc=local');
+  const r = await load('/unseen?tag=a,Short%20-%20under%202%20min&owner=none&loc=local');
   const { actions, log } = shellActions();
   await boot(r, actions);
   expect(log).toEqual(['open /unseen']);

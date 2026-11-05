@@ -29,9 +29,9 @@ import {
   type OrganizeCommand, type OrganizeData, type OrganizeJob, type OrganizePlan,
 } from './organize';
 
-const APPLY_BODY = (name: string, path: string) => `Organize ${name}${path ? ` in ${path} and its subdirectories` : '\'s file names and directories'}: clean up special symbols and garbled characters, and rename or move per the filled-in template. Rows whose target already exists are skipped whole.`
+const APPLY_BODY = (name: string, path: string) => `Organize ${name}${path ? ` in ${path} and its subdirectories` : '\'s file names and directories'}: clean up special symbols and garbled characters, and rename or move per the filled-in template. Rows whose target already exists are skipped whole. `
   + 'This batch can be reverted whole via "Roll back previous batch".';
-const ROLLBACK_BODY = 'This moves the files the last organize run touched back to their earlier names and locations, and the database paths follow.'
+const ROLLBACK_BODY = 'This moves the files the last organize run touched back to their earlier names and locations, and the database paths follow. '
   + 'After reverting, this batch no longer appears here.';
 /** Preview只列前 8 行: 这里是给人扫一眼方向对不对，完整计划在 CSV 里. */
 const PLAN_ROWS = 8;

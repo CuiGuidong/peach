@@ -108,7 +108,7 @@ export function OrphanRecordsCard({ toast }: { toast(message: string): void }) {
   const purge = useMutation({
     mutationFn: (ids: number[]) => purgeOrphan(ids),
     onSuccess: (data) => {
-      toast(`Deleted ${data.purged} video records and their personal records${data.blocked.length ? `; ${data.blocked.length} files were restored, records not deleted` : ''}`);
+      toast(`Deleted ${data.purged} video ${data.purged === 1 ? 'record' : 'records'} and ${data.purged === 1 ? 'its' : 'their'} personal records${data.blocked.length ? `; ${data.blocked.length} file${data.blocked.length === 1 ? ' was' : 's were'} restored, records not deleted` : ''}`);
       setSelected([]); void refresh();
     },
   });

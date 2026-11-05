@@ -18,7 +18,7 @@ import {
   Table, TableBody, TableCell, TableColumn, TableHeader, TableRow,
 } from '@/components/base/table/table';
 
-import { errorMessage } from '../../api';
+import { ApiError, errorMessage } from '../../api';
 import { cardClass } from '../components/card';
 import { DataTableFrame } from '../components/data-table-frame';
 import { useTablePreferences } from '../components/table-column-preferences';
@@ -107,7 +107,8 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
         } catch (cause) {
           /* If it breaks midway, say where it stopped: the already-closed groups drop back into the list, and clicking again sends only what remains. */
           if (done) void reloadFollowManage();
-          throw new Error(`${errorMessage(cause)} (${items.length - done} groups left unmerged)`);
+          const left = items.length - done;
+          throw new ApiError(`${errorMessage(cause)} (${left} group${left === 1 ? '' : 's'} left unmerged)`, 200);
         }
         done += 1;
       }

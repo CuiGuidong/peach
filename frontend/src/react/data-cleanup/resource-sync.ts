@@ -131,12 +131,12 @@ const irreversible = (scan: ResourceScanState) => (scan.vanish ? 'These cannot b
 /** The cleanup line in the results panel. */
 export const applyPlanText = (scan: ResourceScanState) =>
   `Will permanently delete ${count(purgeCount(scan))} records whose files are no longer on disk and ${count(scan.empty)} empty folders, `
-  + `Also cleans ${count(scan.cache?.files)} idle caches. ${irreversible(scan)}${vanishText(scan)}`;
+  + `Also cleans ${count(scan.cache?.files)} idle caches. ${irreversible(scan)}${vanishText(scan) ? ` ${vanishText(scan)}` : ''}`;
 
 /** The confirm dialog's body: it says more than the result panel, adding that items already in trash count and source roots are preserved. */
 export const applyConfirmText = (scan: ResourceScanState) =>
   `Will permanently delete ${count(purgeCount(scan))} records whose files are no longer on disk (including those in trash) and ${count(scan.empty)} empty folders, `
-  + `Also cleans ${count(scan.cache?.files)} idle caches. Source root directories are kept.${irreversible(scan)}${vanishText(scan)}`;
+  + `Also cleans ${count(scan.cache?.files)} idle caches. Source root directories are kept. ${irreversible(scan)}${vanishText(scan) ? ` ${vanishText(scan)}` : ''}`;
 
 /** The footnote on a source's stats card. */
 export const sourceMeta = (source: ResourceSource) => (source.online
@@ -155,9 +155,9 @@ export function applyLeftovers(out: ResourceApplyState) {
   const left = blocked.length + dirErrors + cacheBlocked.length;
   const names = blocked.slice(0, 3).map((item) => `"${item.name}"`).join(', ') + (blocked.length > 3 ? ' and others' : '');
   const rest = [
-    blocked.length ? `${count(blocked.length)} records were not deleted (${names})` : '',
-    dirErrors ? `${count(dirErrors)} folders were not deleted` : '',
-    cacheBlocked.length ? `${count(cacheBlocked.length)} caches were not cleared` : '',
+    blocked.length ? `${count(blocked.length)} record${blocked.length === 1 ? '' : 's'} ${blocked.length === 1 ? 'was' : 'were'} not deleted (${names})` : '',
+    dirErrors ? `${count(dirErrors)} folder${dirErrors === 1 ? '' : 's'} ${dirErrors === 1 ? 'was' : 'were'} not deleted` : '',
+    cacheBlocked.length ? `${count(cacheBlocked.length)} cache${cacheBlocked.length === 1 ? '' : 's'} ${cacheBlocked.length === 1 ? 'was' : 'were'} not cleared` : '',
   ].filter(Boolean).join(', ');
   return { done, left, rest };
 }
@@ -167,7 +167,7 @@ export const applyText = (out: ResourceApplyState, formatSize: (bytes: number) =
   const { rest } = applyLeftovers(out);
   const summary = `Permanently deleted ${count(out.purged)} stale records and ${count(out.dirs_removed)} empty folders, `
     + `Cleaned ${count(out.cache_removed)} caches, freeing ${formatSize(out.bytes_reclaimed || 0)}.`
-    + (out.vanished ? `${count(out.vanished)} video records were marked as missing files and can be handled under "Records with missing files".` : '')
-    + (out.reattached ? `Records for ${count(out.reattached)} items were reattached to another edition in the library.` : '');
-  return rest ? `${summary}${rest}; retry after rechecking.` : summary;
+    + (out.vanished ? ` ${count(out.vanished)} video record${out.vanished === 1 ? ' was' : 's were'} marked as missing files and can be handled under "Records with missing files".` : '')
+    + (out.reattached ? ` Records for ${count(out.reattached)} ${out.reattached === 1 ? 'item' : 'items'} were reattached to another edition in the library.` : '');
+  return rest ? `${summary} ${rest}; retry after rechecking.` : summary;
 };

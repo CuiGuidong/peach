@@ -140,7 +140,7 @@ export function pickerNote(name: string, data: AvatarChoices | undefined): strin
   const elsewhere = data.matched_names.filter((one) => one !== name);
   if (elsewhere.length) {
     const named = `"${elsewhere.slice(0, NOTE_NAMES).join('", "')}"`;
-    const more = elsewhere.length > NOTE_NAMES ? `Waiting for ${elsewhere.length.toLocaleString()} names` : '';
+    const more = elsewhere.length > NOTE_NAMES ? ` and ${elsewhere.length.toLocaleString()} names in total` : '';
     return `${name}: found in the image library by ${named}${more}.`;
   }
   return data.choices.length
@@ -156,11 +156,11 @@ const indexAge = (hours: number): string =>
  *  Never-fetched and stale are different things: a stale index is still being searched, it just does not cover newly added portraits. */
 export function indexNote(data: AvatarChoices | undefined): string {
   if (data?.index_refreshing) return 'Updating the gallery index; candidate images will appear automatically.';
-  if (data?.index_error && data.index_stale) return 'Gallery index unavailable:' + data.index_error;
+  if (data?.index_error && data.index_stale) return 'Gallery index unavailable: ' + data.index_error;
   if (!data || !data.index_stale || data.choices.some((one) => one.source === 'gfriends')) return '';
   return data.index_age_hours === null
     ? 'The gallery index has never been fetched, so selection is limited to previously used images.'
-    : `The gallery index was last built ${indexAge(data.index_age_hours)}ago, so newly collected portraits do not appear here yet.`;
+    : `The gallery index was last built ${indexAge(data.index_age_hours)} ago, so newly collected portraits do not appear here yet.`;
 }
 
 /** Videos with multiple performers: the cell shows a headcount, and box selection reminds her to find her own face first. */

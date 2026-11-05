@@ -355,6 +355,6 @@ describe('Resident components', () => {
     expect(reported, 'The deterministic throw is reported only once').toHaveBeenCalledTimes(1);
     /* The batch bar is painted last: its entrance animation runs on motion's frame loop, so it finishes right after painting and leaves no in-flight animation when the tree unmounts. */
     await act(async () => { dock.render({ count: 2, context: 'catalog', junkDismissed: false }) });
-    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('2 items selected');
+    expect(dockRoot.querySelector('[data-selection-dock] [role="status"]')?.textContent).toBe('Selected 2 items');
   });
 });

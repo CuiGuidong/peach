@@ -139,9 +139,9 @@ describe('Check for updates', () => {
     const dmg = 'https://github.com/peach-mitao/peach/releases/download/v1.0.0/Peach-1.0.0-macos-arm64.dmg';
     const host = await mount(<ReleaseUpdates initial={{ ...release, in_app_update: false, state: 'available',
       latest_version: '1.0.0', message: 'A new version is available for download.', package_kind: 'installer', asset_url: dmg, asset_size: 300 * 1048576 }} />);
-    const updates = section(host, 'Check for updates')!;
+    const updates = section(host, 'Check updates')!;
     expect(updates.textContent).toContain('macOS install image · 300.0 MB');
-    expect(updates.textContent).toContain('Drag Peach into Applications');
+    expect(updates.textContent).toContain('drag Peach into Applications');
     expect(buttonNamed('Download and install', updates)).toBeNull();
     const link = [...updates.querySelectorAll('a')].find((a) => a.textContent === 'Download the new version');
     expect(link?.getAttribute('href')).toBe(dmg);
@@ -166,10 +166,10 @@ it('Uninstall keeps data by default; after checking full uninstall the confirmat
   expect(full.checked).toBe(false);
   expect([...area.querySelectorAll('details p')].filter(p => !p.closest('[data-guide-help]')).map(p => p.textContent)).toEqual(['fixture', 'fixture/cache']);
   // Each path carries its own open button: glancing once beats tracing each path back through the tree to see which directories get deleted.
-  expect([...area.querySelectorAll('details button[aria-label="Show in Explorer"]')]).toHaveLength(2);
+  expect([...area.querySelectorAll('details button[aria-label="Show in File Explorer"]')]).toHaveLength(2);
   await click(buttonNamed('Uninstall Peach', area));
   expect(modal.mock.calls[0]?.[0]).toMatchObject({ title: 'Uninstall Peach', danger: true, confirmLabel: 'Uninstall Peach' });
-  expect(String(modal.mock.calls[0]?.[0].body)).toContain('Settings, the local database, watch history, and caches are kept');
+  expect(String(modal.mock.calls[0]?.[0].body)).toContain('Settings, local database, watch history and cache are kept');
   expect(fetcher).not.toHaveBeenCalled();
   await click(full);
   await click(buttonNamed('Uninstall Peach', area));

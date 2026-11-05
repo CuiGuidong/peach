@@ -105,7 +105,7 @@ it('Candidates fetch only on open, and images carry only refs the server listed'
 it('When the gallery name differs from the page name, state clearly which one was matched', async () => {
   server(listing([choice()]));
   await openPicker();
-  expect(dialog()?.textContent).toContain('Found in the gallery by searching "Aoi Tsukasa"');
+  expect(dialog()?.textContent).toContain('Tsukasa Aoi: found in the image library by "葵つかさ".');
 });
 
 it('When several names each bring back a batch of images, every cell states which name it was found by', async () => {
@@ -116,9 +116,9 @@ it('When several names each bring back a batch of images, every cell states whic
       choice({ ref: 'gfriends:3-Prestige/葵ツカサ.jpg', label: '3-Prestige', found_by: '葵ツカサ' })],
     { matched_names: ['葵つかさ', '葵ツカサ'] }));
   await openPicker();
-  expect(dialog()?.textContent).toContain('图库里按「葵つかさ」「葵ツカサ」找到的');
-  expect(cells()[0]?.getAttribute('title')).toContain('Found via "葵つかさ"');
-  expect(cells()[1]?.getAttribute('title')).toContain('Found via "葵ツカサ"');
+  expect(dialog()?.textContent).toContain('Tsukasa Aoi: found in the image library by "葵つかさ", "葵ツカサ".');
+  expect(cells()[0]?.getAttribute('title')).toContain('found via "葵つかさ"');
+  expect(cells()[1]?.getAttribute('title')).toContain('found via "葵ツカサ"');
 });
 
 it('Opening a gallery portrait starts with a box selection; the default box lands on the server-detected face, and finishing closes the popover and lets the host rerender', async () => {
@@ -214,7 +214,7 @@ it('Local images preview from conversion candidates, and confirming submits the 
   // The button only forwards clicks to this input; once a file is picked the browser dispatches change.
   await act(async () => { input.dispatchEvent(new Event('change', { bubbles: true })) });
   await settle();
-  expect(sent(calls, 1)[0]).toBe('/api/avatar-frame?kind=performer&id=7792&name=%E6%88%91%E7%9A%84%E5%9B%BE.jpg');
+  expect(sent(calls, 1)[0]).toBe('/api/avatar-frame?kind=performer&id=7792&name=My%20image.jpg');
   expect(sent(calls, 1)[1].body).toBe(file);
   expect(document.querySelector('[role="dialog"] img')?.getAttribute('src'))
     .toBe('/avatar-choice?kind=performer&id=7792&ref=sha256%3Aupload-image');
@@ -225,7 +225,7 @@ it('Local images preview from conversion candidates, and confirming submits the 
   await click(buttonNamed('Use this region'));
   await settle();
   expect(sent(calls, 2)[0])
-    .toBe('/api/avatar-pick?kind=performer&id=7792&name=%E6%88%91%E7%9A%84%E5%9B%BE.jpg&crop=90,20,210,140');
+    .toBe('/api/avatar-pick?kind=performer&id=7792&name=My%20image.jpg&crop=90,20,210,140');
   expect(sent(calls, 2)[1].body).toBe(file);
 });
 
@@ -276,7 +276,7 @@ it('Without a gallery index only the two manual paths remain', async () => {
   server(listing([], { matched_names: [], index_age_hours: null, index_stale: true }));
   await openPicker();
   expect(cells()).toHaveLength(0);
-  expect(dialog()?.textContent).toContain('The gallery index was never fetched');
+  expect(dialog()?.textContent).toContain('The gallery index has never been fetched, so selection is limited to previously used images.');
   expect(buttonNamed('Pick an image from this machine')).not.toBeNull();
   expect(document.querySelector('input[type=file]')).not.toBeNull();
 });
@@ -321,7 +321,7 @@ it('A stale index reads current candidates when the popover reopens', async () =
       : listing([choice()], { index_refreshing: false }),
   })));
   const { host } = await openPicker();
-  expect(dialog()?.textContent).toContain('Gallery index not fetched');
+  expect(dialog()?.textContent).toContain('Gallery index unavailable: Connection dropped');
   await click(dialog()?.querySelector('button[aria-label="Close"]'));
   await settle();
   await click(host.querySelector('button'));
@@ -333,7 +333,7 @@ it('A stale index reads current candidates when the popover reopens', async () =
 it('A stale gallery index states how long since the last update, not that it was never fetched', async () => {
   server(listing([], { matched_names: [], index_age_hours: 124, index_stale: true }));
   await openPicker();
-  expect(dialog()?.textContent).toContain('The gallery index is 5 days stale');
+  expect(dialog()?.textContent).toContain('The gallery index was last built 5 days ago, so newly collected portraits do not appear here yet.');
   expect(dialog()?.textContent).not.toContain('Never fetched');
 });
 
@@ -342,10 +342,10 @@ it('When found under many names the note names the first two and counts the rest
   server(listing([choice({ found_by: names[4] })], { matched_names: names }));
   await openPicker();
   const note = dialog()?.textContent || '';
-  expect(note).toContain('图库里按「葵つかさ」「葵ツカサ」and 5 items名字找到的');
+  expect(note).toContain('Tsukasa Aoi: found in the image library by "葵つかさ", "葵ツカサ" and 5 names in total.');
   expect(note).not.toContain('あおいつかさ');
   // The ones not named still land in their own cell's title as before.
-  expect(cells()[0]?.getAttribute('title')).toContain('按「葵司 (AV女優)」找到');
+  expect(cells()[0]?.getAttribute('title')).toContain('found via "葵司 (AV performer)"');
 });
 
 it('With no candidates at all the grid strip is omitted, and the two manual paths stay put', async () => {
@@ -418,9 +418,9 @@ it('Group-work cells show the cast count, and framing reminds you to find her ow
   await openPicker();
   const [cell] = cells();
   expect(cell?.textContent).toContain('15 people');
-  expect(cell?.getAttribute('title')).toContain('15-person cast');
+  expect(cell?.getAttribute('title')).toContain('15 co-stars');
   await click(cell);
-  expect(dialog()?.textContent).toContain('DVAJ-495: 15-person cast, find her own face first');
+  expect(dialog()?.textContent).toContain('DVAJ-495: 15 people co-starring; find her own face first, then drag the box to select a region.');
 });
 
 it('Account video-frame cells note in their caption that it is a representative work, not the person', async () => {
@@ -429,7 +429,7 @@ it('Account video-frame cells note in their caption that it is a representative 
     detail: 'Representative work, not the person · Goodnight Live', bases: ['asset:11:cover'],
   })]));
   await openPicker();
-  expect(cells()[0]?.getAttribute('title')).toContain('Representative work, not the performer');
+  expect(cells()[0]?.getAttribute('title')).toContain('Representative work, not the person');
 });
 
 /** The video frame tier: clicking opens frame selection instead of applying it directly. */
@@ -506,8 +506,8 @@ it('Covers fetched by code go straight into box selection; the default box is th
     return { ok: true, status: 200, json: async () => answer };
   }));
   await openPicker();
-  expect(buttonNamed('Fetch cover to frame')?.disabled).toBe(true);
-  const input = document.querySelector<HTMLInputElement>('input[aria-label="code"]');
+  expect(buttonNamed('Use cover to frame')?.disabled).toBe(true);
+  const input = document.querySelector<HTMLInputElement>('input[aria-label="Code"]');
   await type(input, ' abw-999 ');
   // Enter submits, the same thing as pressing that button.
   await act(async () => { input?.form?.requestSubmit() });
@@ -535,8 +535,8 @@ it('When a code cannot fetch a cover the reason stays in the popover', async () 
       : { ok: true, status: 200, json: async () => listing([]) }
   )));
   await openPicker();
-  await type(document.querySelector<HTMLInputElement>('input[aria-label="code"]'), 'ABW-999');
-  await click(buttonNamed('Fetch cover to frame'));
+  await type(document.querySelector<HTMLInputElement>('input[aria-label="Code"]'), 'ABW-999');
+  await click(buttonNamed('Use cover to frame'));
   await settle();
   expect(dialog()?.querySelector('[role="alert"]')?.textContent).toContain('Official channels have no cover for this code');
   expect(dialog()?.textContent).toContain('Change avatar');
@@ -580,7 +580,7 @@ it('Changing the base image swaps to another image, leaving none of the previous
   await click(cells()[0]);
   await settle();
   const bases = [...document.querySelectorAll<HTMLElement>('[data-crop-base]')];
-  expect(bases.map((one) => one.textContent?.trim())).toEqual(['Cover', 'Slot 5']);
+  expect(bases.map((one) => one.textContent?.trim())).toEqual(['Cover', 'Cell 5']);
   await reportSize(800, 540);
   await click(bases[1]);
   await settle();

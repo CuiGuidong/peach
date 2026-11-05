@@ -168,9 +168,12 @@ describe('Shared player for the play wall', () => {
     response();
     const frame = document.body.appendChild(document.createElement('div'));
     const signal = new AbortController().signal;
-    for (const extra of [{ cost: 'metered' }, { location: 'online' }]) {
+    for (const [extra, reason] of [
+      [{ cost: 'metered' }, 'Open details to confirm the metered source'],
+      [{ location: 'online' }, 'Open details to play online videos'],
+    ] as const) {
       response(extra);
-      await expect(stage.mountWallPlayer(item(1), frame, signal)).rejects.toThrow('Open details to confirm the metered source');
+      await expect(stage.mountWallPlayer(item(1), frame, signal)).rejects.toThrow(reason);
     }
     response(); offline = true;
     await expect(stage.mountWallPlayer(item(1), frame, signal)).rejects.toThrow('Source not mounted');
