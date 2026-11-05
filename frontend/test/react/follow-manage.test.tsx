@@ -275,7 +275,7 @@ it('Check receipts keep added, updated, and failed, with detailed statistics car
   expect(checkReceipt(job)).toBe('Checked 2 sources: 3 new items · Updated 2933 entries · 1 failed');
   expect(checkSummary(job)).toContain('Skipped 281 without resources');
   expect(checkSummary(job)).toContain('Re-checked 241 entries');
-  expect(checkReceipt({ results: [{ ok: true }] })).toBe('Checked 1 source: no updates');
+  expect(checkReceipt({ results: [{ ok: true }] })).toBe('Checked 1 source: No updates');
   expect(checkReceipt({ results: [{ ok: false }] })).toBe('Checked 1 source: 1 failed');
 });
 
@@ -501,7 +501,7 @@ it('While a check runs it polls every two seconds, stopping when it ends', async
   expect(polls()).toBeGreaterThan(started);
   // The progress bar is SVG; progress goes on the `aria-label`, not in a text node.
   expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-label'))
-    .toBe('Checking updates: 1/4 sources done');
+    .toBe('Check for updates: completed 1/4 sources');
 
   state = done;
   await tick(JOB_RUNNING_POLL_MS);
@@ -546,9 +546,9 @@ it('Check failures name the site and person per item, moving to the next require
   } as CheckJob;
   await act(async () => { await queryClient.refetchQueries({ queryKey: ['follow-manage', 'check'] }) });
   await settle();
-  expect(host.textContent).toContain('3 sources failed checks');
+  expect(host.textContent).toContain('3 source checks failed');
   expect([...host.querySelectorAll('[aria-live] li')].map((row) => row.textContent)).toEqual([
-    'Kemono B: cannot connect', 'pawchive Alpha · Pawchive: no reason given', 'F95zone threads/42: login required',
+    'Kemono Beta: Cannot connect', 'pawchive Alpha · Pawchive: No reason given', 'F95zone threads/42: Login required',
   ]);
   // Even the successful one may have left no raw response behind: the candidate still goes into the library, but this has to be said.
   expect(host.textContent).toContain('Entry saved, but the source\'s raw response was not stored this time: disk full');
@@ -634,7 +634,7 @@ it('Card title rows carry only the site mark, leaving the name to screen readers
 it('With unwatched items left, the card bottom shows a count and three action buttons; with none, the whole row never appears', async () => {
   const counts = { new: 3, seen: 1, saved: 0, ignored: 2 };
   const busy = await open({ data: follow({ counts }) });
-  expect(busy.host.textContent).toContain('4 sources · 3 unwatched');
+  expect(busy.host.textContent).toContain('4 sources - 3 unread');
   expect(busy.host.textContent).toContain('Unwatched 3 · Watched 1 · Saved 0 · Ignored 2');
   expect(buttonNamed('Mark everything watched', busy.host)).not.toBeNull();
   expect(buttonNamed('Ignore all', busy.host)).not.toBeNull();
@@ -656,7 +656,7 @@ it('Readouts, list headers, and card footer counts all use thousands separators;
   expect(big.className).toContain('text-headline-medium');
   expect(big.querySelector('small')?.className).toContain('whitespace-nowrap');
   expect(readings.find((node) => node.textContent?.startsWith('0'))?.className).toContain('text-title-1-medium');
-  expect(host.textContent).toContain('4 sources · 1,284,000 unseen');
+  expect(host.textContent).toContain('4 sources - 1,284,000 unread');
   expect(host.textContent).toContain('Unwatched 1,284,000 · Watched 22,000');
 });
 
@@ -772,7 +772,7 @@ it('The follow list first screen carries the feed list, and toggling, removing, 
     .toBe('/entity-image?kind=performer&id=41&thumb=1');
   const second = checkboxNamed(host, 'Select B\'s new releases')!.closest('[role="row"]')!;
   expect(second.querySelector('[role="rowheader"] img')).toBeNull();
-  expect(second.querySelector('[role="rowheader"] [aria-hidden]')?.textContent).toBe('Beta');
+  expect(second.querySelector('[role="rowheader"] [aria-hidden]')?.textContent).toBe('B');
   expect(host.textContent).toContain('1 feed failed to fetch');
   expect(host.textContent).toContain('B new releases: site 503');
   expect(host.textContent).toContain('2 follow sources · 3 unwatched');
@@ -851,7 +851,7 @@ it('Batch remove shows a confirmation stating the count first; after confirming,
 it('Remove first raises a confirmation: title and primary button share one verb, the body names this source, and cancel sends nothing', async () => {
   const { asked } = stubConfirm(false);
   const { host, fetcher, props } = await open({ feeds: FEEDS }, { tab: 'list' });
-  await click(buttonLabelled(host, 'Remove Alpha\'s new releases'));
+  await click(buttonLabelled(host, 'Remove A\'s new releases'));
   await settle();
   expect(asked).toHaveLength(1);
   const [modal] = asked;
@@ -866,7 +866,7 @@ it('Writes only after the removal is confirmed; the toast and primary button sha
   const { outcomes } = stubConfirm(true);
   const { host, fetcher, props } = await open({ feeds: FEEDS }, { tab: 'list' });
   const before = feedReads(fetcher);
-  await click(buttonLabelled(host, 'Remove Alpha\'s new releases'));
+  await click(buttonLabelled(host, 'Remove A\'s new releases'));
   expect(await outcomes[0]).toBeNull();
   await settle();
   expect(sentBody(fetcher, FEED_SOURCE_URL)).toEqual([{ action: 'remove', id: 4 }]);
@@ -879,7 +879,7 @@ it('When removal is blocked by the server, the reason goes to the popover: no to
   const { host, fetcher, props } = await open(
     { feeds: FEEDS, feedWrite: () => refuse('Feed is fetching') }, { tab: 'list' });
   const before = feedReads(fetcher);
-  await click(buttonLabelled(host, 'Remove Alpha\'s new releases'));
+  await click(buttonLabelled(host, 'Remove A\'s new releases'));
   expect(await outcomes[0]).toBe('Feed is fetching');
   await settle();
   expect(sentBody(fetcher, FEED_SOURCE_URL)).toEqual([{ action: 'remove', id: 4 }]);
@@ -891,7 +891,7 @@ it('In read-only subscription management, search, toggles, removal, and pull are
   const { host, unmount } = await open({ feeds: FEEDS }, { tab: 'list', readOnly: true });
   expect(host.querySelector('input[type="url"]')).toBeNull();
   expect(buttonNamed('Fetch now', host)?.disabled).toBe(true);
-  expect(buttonLabelled(host, 'Remove Alpha\'s new releases')?.disabled).toBe(true);
+  expect(buttonLabelled(host, 'Remove A\'s new releases')?.disabled).toBe(true);
   expect(host.querySelector<HTMLInputElement>('input[aria-label="Enable A new releases"]')?.disabled).toBe(true);
   await unmount();
   queryClient.clear();
@@ -910,14 +910,14 @@ it('JAV subscription paging keeps cross-page selection', FULL_PAGE, async () => 
   const rows = () => host.querySelectorAll('[role="row"][data-key]');
   expect(rows()).toHaveLength(20);
   expect(host.textContent).toContain('1–20 / 21 follow sources');
-  await click(checkboxNamed(host, 'Select source 1'));
+  await click(checkboxNamed(host, 'Select Source 1'));
   await click(buttonNamed('Next page', host));
   expect(rows()).toHaveLength(1);
   expect(host.textContent).toContain('21-21 / 21 follow sources');
   expect(host.textContent).toContain('Selected 1 follow source');
   await click(checkboxNamed(host, 'Select Source 21'));
   await click(buttonNamed('Previous page', host));
-  expect(checkboxNamed(host, 'Select source 1')?.checked).toBe(true);
+  expect(checkboxNamed(host, 'Select Source 1')?.checked).toBe(true);
   expect(host.textContent).toContain('Selected 2 follow sources');
 });
 
@@ -925,7 +925,7 @@ it('JAV subscription frequency sorts the whole set by minutes and returns to the
   const feeds = twoPagesOfFeeds();
   feeds.sources = feeds.sources.map((source, index) => ({ ...source, interval_minutes: (21 - index) * 15 }));
   const { host } = await open({ feeds }, { tab: 'list' });
-  await click(checkboxNamed(host, 'Select source 1'));
+  await click(checkboxNamed(host, 'Select Source 1'));
   await click(buttonNamed('Next page', host));
   await click(host.querySelector('th[data-key="interval"]'));
   const table = host.querySelector('[aria-label="JAV subscription source"]')!;
@@ -964,8 +964,8 @@ it('Removing the last source on the final page shows a valid page', FULL_PAGE, a
 it('The subscriptions list card includes title, empty state, and status bar', async () => {
   const { host, props } = await open({}, { tab: 'list' });
   const panel = host.querySelector('section[aria-label="JAV subscription list"]')!;
-  expect([...panel.querySelectorAll('h3')].map((h) => h.textContent)).toEqual(['JAV follow sources', 'No follow sources yet']);
-  expect(panel.textContent).toContain('Add by performer name under "Add follows", or click "Subscribe to new releases" on a person\'s page.');
+  expect([...panel.querySelectorAll('h3')].map((h) => h.textContent)).toEqual(['JAV feed', 'No follow sources yet']);
+  expect(panel.textContent).toContain('Add by performer name under Add follow, or click Subscribe to new releases on a person page.');
   expect(panel.querySelector('footer')?.textContent).toContain('Unwatched 0 · Enabled 0 / 0');
   expect(buttonNamed('Fetch now', host)).not.toBeNull();
   await click(buttonNamed('Add subscription', panel));
