@@ -50,12 +50,12 @@ describe('Entity and index domain control', () => {
     expect(parseMediaView('?media=photos&set=-1')).toEqual({ media: 'photos', set: 0 });
     expect(parseMediaView('?media=online&set=12')).toEqual({ media: 'online', set: 0 });
     expect(entityViewPath('creator', 'A/B', emptyEntityFilters(), { media: 'photos', set: 12 }))
-      .toBe('/creators/%E7%94%B2%2F%E4%B9%99?media=photos&set=12');
+      .toBe('/creators/A%2FB?media=photos&set=12');
   });
 
   it('Entering with an empty filter consumes the marker once; back and deep links read the URL; a creator page does not stack a creator filter on itself', () => {
     const entry = createEntityEntryState();
-    expect(entry.fresh('creator', 'Alpha')).toBe('/creators/%E7%94%B2');
+    expect(entry.fresh('creator', 'Alpha')).toBe('/creators/Alpha');
     expect(entry.read('creator', 'Alpha', '', preference).filters).toEqual(emptyEntityFilters());
     expect(entry.read('creator', 'Alpha', '?creator=Beta&tag=one&media=online', preference))
       .toMatchObject({ filters: { creator: '', tag: 'one' }, media: { media: 'online', set: 0 } });
@@ -72,7 +72,7 @@ describe('Entity and index domain control', () => {
     live(false);
     vi.mocked(ports.push).mockClear();
     expect(controller.route('creator', 'Alpha', filters)).toBe(false);
-    expect(ports.route).toHaveBeenCalledWith('/creators/%E7%94%B2');
+    expect(ports.route).toHaveBeenCalledWith('/creators/Alpha');
     expect(ports.push).not.toHaveBeenCalled();
     const props = controller.props('creator', 'Alpha', filters, { media: 'videos', set: 0 });
     expect(props).toMatchObject({ revision: 3, photoSize: 'small', seed: '7', jav: false, filters });
@@ -87,7 +87,7 @@ describe('Entity and index domain control', () => {
     expect(actions.reshuffleVideos()).toBe('31');
     expect(ports.push).toHaveBeenLastCalledWith(expect.objectContaining({ seed: '31' }));
     actions.openEntity('creator', 'Beta', true);
-    expect(ports.route).toHaveBeenLastCalledWith('/creators/%E4%B9%99?media=online#works', true);
+    expect(ports.route).toHaveBeenLastCalledWith('/creators/Beta?media=online#works', true);
     actions.avatarChanged();
     expect(ports.dropBars).toHaveBeenCalledOnce();
   });
@@ -125,7 +125,7 @@ describe('Entity and index domain control', () => {
 
   it('Index addresses write only applicable dimensions, and online author jumps collapse the index before writing the follow target', () => {
     expect(indexPath({ kind: 'studios', q: 'A / B', scope: 'online', view: 'cloud', category: 'all' }))
-      .toBe('/studios?q=%E7%94%B2+%2F+%E4%B9%99');
+      .toBe('/studios?q=A+%2F+B');
     expect(indexPath({ kind: 'tags', q: '', scope: 'online', view: 'alphabet', category: 'artist' }))
       .toBe('/tags?view=alphabet&scope=online&category=artist');
     const calls: string[] = [];
@@ -133,7 +133,7 @@ describe('Entity and index domain control', () => {
       work: 'old', tags: [], durMin: 0, durMax: 0, sort: 'new' as const, dir: 'desc' as const, seed: 7 }),
     adoptFollowView: vi.fn(), hideIndex: () => { calls.push('hide') }, openPage: (path: string) => { calls.push(path) } };
     createIndexController(ports).openFollowAuthor('Alpha');
-    expect(calls).toEqual(['hide', '/follow?author=%E7%94%B2']);
+    expect(calls).toEqual(['hide', '/follow?author=Alpha']);
     expect(ports.adoptFollowView).toHaveBeenCalledWith(expect.objectContaining({ work: '' }));
   });
 

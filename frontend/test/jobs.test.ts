@@ -41,7 +41,7 @@ describe('Background task state recovery', () => {
     mount(host); await vi.advanceTimersByTimeAsync(0);
     expect(host.textContent).toContain('1/3');
     expect(host.querySelector('[data-geist-fieldset]')).not.toBeNull();
-    expect(host.textContent).toContain('Attempt 3 of 5');
+    expect(host.textContent).toContain('Attempt 3/5, retrying in 2 sec');
     host.remove();
     const fresh = document.createElement('div'); document.body.append(fresh);
     mount(fresh); await vi.advanceTimersByTimeAsync(0);

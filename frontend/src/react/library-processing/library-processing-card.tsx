@@ -125,7 +125,7 @@ function Outcome(
                     {details.log
                       /* The log address and dividers use the secondary text color. */
                       ? <div className="mt-3 border-t border-current/20 pt-3 text-text-secondary">
-                          <PathLine path={details.log} prefix="Full log:" className="text-caption-1-regular"
+                          <PathLine path={details.log} prefix="Full log: " className="text-caption-1-regular"
                             onRevealed={toast} />
                         </div>
                       : null}
@@ -161,7 +161,7 @@ function Outcome(
             extra={state.issues_log && !logInList
               /* Neutral hint dividers follow the secondary text color. */
               ? <div className="mt-3 border-t border-current/20 pt-3 text-text-secondary">
-                  <PathLine path={state.issues_log} prefix="Full log:" className="text-caption-1-regular"
+                  <PathLine path={state.issues_log} prefix="Full log: " className="text-caption-1-regular"
                     onRevealed={toast} />
                 </div>
               : null}>

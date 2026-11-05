@@ -19,11 +19,11 @@ it('Titles with kana are marked Japanese, pure Latin ones English, and pure han 
   expect(textLang('ｶﾀｶﾅ')).toBe('ja');
   expect(textLang('First Date')).toBe('en');
   expect(textLang('三上悠亜')).toBeUndefined();
-  expect(textLang('Sample video 4K')).toBeUndefined();
+  expect(textLang('示例作品 4K')).toBeUndefined();
   expect(textLang('')).toBeUndefined();
   const host = document.createElement('div');
   host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: '新人デビュー' });
   expect(host.querySelector('.ui-javtitle')?.getAttribute('lang')).toBe('ja');
-  host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: 'Example video' });
+  host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: '示例作品' });
   expect(host.querySelector('.ui-javtitle')?.hasAttribute('lang')).toBe(false);
 });

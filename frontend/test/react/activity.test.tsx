@@ -57,10 +57,10 @@ const run = (overrides: Partial<TaskRunPayload> = {}): TaskRunPayload => ({
 const followup = (parent: number, overrides: Partial<TaskRunPayload> = {}): TaskRunPayload =>
   run({
     id: 90, task_key: 'entity-avatar', task_label: 'Complete profile images', status: 'succeeded',
-    progress_total: null, progress_current: null, progress_label: 'Fill in profile images: 涼森れむ',
+    progress_total: null, progress_current: null, progress_label: 'Complete profile images: 涼森れむ',
     finished_at: '2026-09-11T10:04:00Z', parent_run_id: parent, root_run_id: parent,
     followup_key: 'entity-avatar:performer:12', followup_depth: 1,
-    result_summary: { outcome: 'Installed' }, ...overrides,
+    result_summary: { outcome: '已装上' }, ...overrides,
   });
 
 const payload = (overrides: Partial<ActivityData> = {}): ActivityData => ({
@@ -188,7 +188,7 @@ it('Background issues come first, each stating what it is, since when, and a lin
   expect(sections(host)).toEqual(['Needs attention', 'Running']);
   const [tunnel, follow] = [...host.querySelectorAll('[role="alert"]')];
   expect(tunnel?.textContent).toContain('Connecting to the public entry failed');
-  expect(tunnel?.textContent).toContain('Found in');
+  expect(tunnel?.textContent).toContain('Noticed at ');
   expect(tunnel?.querySelector('a')?.getAttribute('href')).toBe('/settings/network#tunnel');
   expect(tunnel?.querySelector('a')?.textContent).toContain('Open public entry settings');
   expect(buttonNamed('Retry now', tunnel!)).toBeNull();
@@ -218,7 +218,7 @@ it('The running pass shows a progress bar with real counts and elapsed time', as
   expect(bar.getAttribute('aria-valuenow')).toBe('3');
   expect(bar.getAttribute('aria-valuemax')).toBe('12');
   expect(host.textContent).toContain('3 / 12 items');
-  expect(host.textContent).toContain('Ran 1 min 15 sec');
+  expect(host.textContent).toContain('Ran for 1 min 15 sec');
   expect(host.querySelector('strong')?.textContent).toBe('Update check');
 });
 
@@ -241,9 +241,9 @@ it('The active main task and follow-ups keep showing their own CPU, GPU, and mea
   expect(main.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network 2 MB/s');
   expect(nested.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 3%');
   expect(nested.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network 1 KB/s');
-  expect(main.querySelector('[data-task-resource="cpu"]')?.getAttribute('title')).toContain('Containers use their visible CPU quota');
-  expect(main.querySelector('[data-task-resource="gpu"]')?.getAttribute('title')).toContain('The busiest GPU engine');
-  expect(main.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toContain('The download speed observed for that task');
+  expect(main.querySelector('[data-task-resource="cpu"]')?.getAttribute('title')).toContain('containers use their visible CPU quota');
+  expect(main.querySelector('[data-task-resource="gpu"]')?.getAttribute('title')).toContain('busiest GPU engine');
+  expect(main.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toContain('the download speed observed for that task');
   expect([...main.querySelectorAll('[data-task-resource]')].every(node => node.getAttribute('tabindex') === '0')).toBe(true);
 });
 
@@ -254,12 +254,12 @@ it('Resource sampling-in-progress and not-obtained display separately, the reaso
     network: { state: 'unavailable', bytes_per_second: null, high: false, reason: 'Mounted-drive transfers cannot be attributed precisely' },
   }) })] }));
   const metrics = host.querySelector('[data-task-resources="1"]')!;
-  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('Sampling CPU');
-  expect(metrics.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU not obtained');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network not obtained');
+  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU Sampling');
+  expect(metrics.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU Not fetched');
+  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network Not fetched');
   expect(metrics.textContent).not.toContain('0%');
   expect(metrics.textContent).not.toContain('0 B/s');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toMatch(/^挂载盘传输无法准确归属/);
+  expect(metrics.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toContain('Mounted-drive transfers cannot be attributed precisely');
 });
 
 it('A true zero reading stays visible, and heavy use is emphasized by that metric\'s real high state', async () => {
@@ -285,7 +285,7 @@ it('While a parent task has ended but follow-ups are still active, show the back
     finished: [parent, historical], followup_counts: { '1': { pending: 100 } } }));
   expect(host.querySelector('[data-task-resources="1"]')).not.toBeNull();
   expect(host.querySelector('[data-task-resources="1"] [data-task-resource="cpu"]')?.getAttribute('title'))
-    .toContain('Every follow-up');
+    .toContain('every follow-up');
   expect(host.querySelector('[data-task-resources="2"]')).toBeNull();
 });
 
@@ -359,9 +359,9 @@ it('Task cancellation reuses the confirm dialog, focus starts on cancel, and nei
   await click(controlButton('Cancel', host));
   const dialog = document.querySelector<HTMLDialogElement>('dialog')!;
   expect(dialog.open).toBe(true);
-  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel task "Follow update check"');
+  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel task "Update check"');
   expect(dialog.textContent).toContain('Saved details and results are kept');
-  expect(dialog.textContent).toContain('Cannot continue after cancellation');
+  expect(dialog.textContent).toContain('Once this round is cancelled it cannot continue');
   expect(document.activeElement).toBe(dialog.querySelector('[data-modal-cancel]'));
   expect(posts).toEqual([]);
   await click(dialog.querySelector('[data-modal-cancel]'));
@@ -411,8 +411,8 @@ it('The ended parent\'s cancel confirmation explicitly covers every running and 
     followup_counts: { '1': { pending: 1200 } } }));
   await click(controlButton('Cancel follow-up tasks', host));
   const dialog = document.querySelector<HTMLDialogElement>('dialog')!;
-  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel every follow-up of "Follow update check"');
-  expect(dialog.textContent).toContain('Every follow-up task, including running and queued items');
+  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel every follow-up of "Update check"');
+  expect(dialog.textContent).toContain('every follow-up task dispatched this round, including running and queued items');
   expect(dialog.querySelector('[data-modal-confirm]')?.textContent).toBe('Cancel follow-up tasks');
   expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(0);
   await click(dialog.querySelector('[data-modal-cancel]'));
@@ -469,7 +469,7 @@ it('When a cancel request is not accepted, the reason survives the task finishin
   await act(async () => { await queryClient.invalidateQueries({ queryKey: ['tasks'] }) });
   expect(host.querySelector('[data-task-controls]')).toBeNull();
   await response.release({ ok: false, status: 409, json: async () => ({ message: 'This round has already ended' }) });
-  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback]')?.textContent).toContain('Cancellation not finished'));
+  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback]')?.textContent).toContain('Cancel not finished'));
   expect(host.querySelector('[data-task-control-feedback]')?.textContent).toContain('This round has already ended');
   expect(host.querySelector('#run-1')?.textContent).toContain('Completed');
   expect(host.querySelector('#run-1')?.textContent).not.toContain('Canceled');
@@ -481,7 +481,7 @@ it('After a parent\'s follow-ups are cancelled, the card shows the cancelled sta
   const { host } = await open(payload({ finished: [parent, child], followup_counts: { '1': { cancelled: 120 } } }));
   const card = host.querySelector('#run-1')!;
   expect(card.textContent).toContain('Follow-up tasks cancelled');
-  expect(card.textContent).toContain('120 follow-up tasks cancelled');
+  expect(card.textContent).toContain('Follow-up tasks cancelled 120 items');
   expect(card.querySelector('details')?.open).toBe(false);
   expect(card.querySelector('[data-task-controls]')).toBeNull();
   expect(card.getAttribute('data-status')).toBe('succeeded');
@@ -537,7 +537,7 @@ it('A failed task control keeps the original state and reason, retryable in plac
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
   await click(controlButton('Paused', host));
-  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback] [role="alert"]')?.textContent).toContain('The task has changed'));
+  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback] [role="alert"]')?.textContent).toContain('The task changed; refresh and retry'));
   expect(controlButton('Continue', host)).toBeNull();
   await click(controlButton('Paused', host));
   expect(attempts).toBe(2);
@@ -580,7 +580,7 @@ it('The whole batch of follow-ups stays controllable after the parent ends, incl
   });
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
-  expect(host.querySelector('#run-1')?.textContent).toContain('Lists 1 of them');
+  expect(host.querySelector('#run-1')?.textContent).toContain('Listing 1 item, in-progress first');
   await click(controlButton('Pause follow-up tasks', host));
   await vi.waitFor(() => expect(controlButton('Resume follow-up tasks', host)).not.toBeNull());
   expect(host.querySelector('#run-1')?.textContent).toContain('Paused');
@@ -627,10 +627,10 @@ it('A blocked round forms its own segment and never appears again inside recentl
     result_summary: { blocked_by: 3 }, error: 'Conflicts with round 3 (manually triggered); skipping this one',
   });
   const { host } = await open(payload({ skipped: [blocked], finished: [blocked] }));
-  expect(sections(host)).toEqual(['Running', 'Did not run this time']);
+  expect(sections(host)).toEqual(['Running', 'Not executed this time']);
   expect(host.querySelectorAll('li')).toHaveLength(1);
   // The reason goes in the note area at the bottom of the card; the badge conveys the status.
-  expect(host.querySelector('[data-status=cancelled]')?.textContent).toContain('With round 3');
+  expect(host.querySelector('[data-status=cancelled]')?.textContent).toContain('Conflicts with round 3');
   expect(host.querySelector('[data-status=cancelled] span')?.textContent).toBe('Canceled');
 });
 
@@ -642,7 +642,7 @@ it('A finished round shows its summary and a failed round its reason', async () 
           progress_total: null, error: 'RuntimeError: rejected upstream' }),
   ] }));
   expect(host.querySelector('[data-status=succeeded]')?.textContent).toContain('Checked 7');
-  expect(host.querySelector('[data-status=failed]')?.textContent).toContain('The upstream pushed back');
+  expect(host.querySelector('[data-status=failed]')?.textContent).toContain('rejected upstream');
   expect(host.querySelector('[data-status=succeeded] span')?.textContent).toBe('Completed');
   // The successful run card has no detail section: no empty bar is left when there is no reason to write. With only one summary line, no bullet is added.
   expect([...host.querySelectorAll('[data-status=succeeded] p')].map((node) => node.textContent))
@@ -691,11 +691,11 @@ it('Several batches that dispatched dozens of successors merge into one in-progr
   const cards = host.querySelectorAll('[data-task-key=upgrade-repairs]');
   expect(cards).toHaveLength(1);
   const card = cards[0]!;
-  expect(card.querySelector('span')?.textContent).toBe('In progress');
+  expect(card.querySelector('span')?.textContent).toBe('Running');
   expect(card.textContent).toContain('2 batches');
-  expect(card.textContent).toContain('Processed 62 / 128 items · 2 failed');
+  expect(card.textContent).toContain('Processed 62 / 128 items · 2 of them failed');
   expect(card.querySelector('summary')?.textContent).toBe('Task details · 128 items');
-  expect(card.textContent).toContain('Lists 2 of them, with in-progress ones first');
+  expect(card.textContent).toContain('Listing 2 items, in-progress first');
   const rows = [...card.querySelectorAll('[data-followup-key]')];
   expect(rows.map((row) => row.getAttribute('data-status'))).toEqual(['running', 'pending']);
   expect(rows[0]!.textContent).toContain('ABC-001 · scrape missing details');
@@ -711,7 +711,7 @@ it('Link checking shows dead and failed-access counts, with technical details in
   const card = host.querySelector('[data-task-key=link-check]')!;
   expect(card.querySelector('span')?.textContent).toBe('Issues found');
   expect([...card.querySelectorAll('ul > li')].map(node => node.textContent))
-    .toEqual(['Checked 1,218', 'Total 1,218', 'Dead links: 5', 'Link access failed 54']);
+    .toEqual(['Checked 1,218', 'Total 1,218', 'Link expired 5', 'Failed to access link 54']);
   await click(card.querySelector('summary')!);
   expect(card.querySelector('[data-code-block] code')?.textContent).toBe(JSON.stringify(summary, null, 2));
   await click(buttonNamed('Copy code', host)!);
@@ -731,10 +731,10 @@ it('Scheduled results with issues display separately, while ordinary successful 
 it('Processing tasks read success, failure, and cleanup results', () => {
   expect(summaryItems({ repaired: 3, failed: 2, missing_tool: 1, moved: 8, restored: 4,
     purged: 9, cache_blocked_count: 2, bytes_reclaimed: 1024 }))
-    .toEqual(['Fixed 3', 'Failed 2', 'Missing repair tools: 1', 'Organized files 8', 'Restored 4',
-      'Deleted records 9', 'Cache cleanup failures: 2', 'Freed 1 KB']);
+    .toEqual(['Fixed 3', 'Failed 2', 'Repair tool missing 1', 'Files organized 8', 'Restored 4',
+      'Record deleted 9', 'Cache cleanup failed 2', 'Space freed 1 KB']);
   expect(summaryItems({ result: 'HD cover saved' })).toEqual(['HD cover saved']);
-  expect(summaryItems({ incomplete: 1 })).toEqual(['Details or covers unfetched: 1']);
+  expect(summaryItems({ incomplete: 1 })).toEqual(['Details or cover unfetched 1']);
   for (const result_summary of [{ incomplete: 1 }, { source_failed: 2 }, { failed: 3 },
     { missing: 1 }, { cache_blocked_count: 1 }, { warning_count: 1 }]) {
     const task = run({ status: 'succeeded', trigger: 'scheduled', result_summary });
@@ -753,8 +753,8 @@ it('Successors nest under the round that dispatched them without taking another 
   expect(host.querySelector('[data-task-key=follow-check]')!.contains(row)).toBe(true);
   expect(row.textContent).toContain('Complete profile images');
   expect(row.textContent).toContain('Completed');
-  expect(row.textContent).toContain('涼森れむ · 已保存资料图片');
-  expect(host.textContent).toContain('Scheduled 1 backfill task');
+  expect(row.textContent).toContain('涼森れむ · Details image saved');
+  expect(host.textContent).toContain('1 backfill task scheduled');
 });
 
 it('Completed task details start collapsed, and expanding and collapsing never lose successor results', async () => {
@@ -767,7 +767,7 @@ it('Completed task details start collapsed, and expanding and collapsing never l
   await click(trigger);
   expect(trigger.getAttribute('aria-expanded')).toBe('true');
   expect(details.open).toBe(true);
-  expect(details.textContent).toContain('涼森れむ · 已Save资料图片');
+  expect(details.textContent).toContain('涼森れむ · Details image saved');
   await click(trigger);
   expect(trigger.getAttribute('aria-expanded')).toBe('false');
 });
@@ -811,10 +811,10 @@ it('Consecutive scheduled runs where nothing happened merge into one card per ki
   ] }));
   expect(shownIds(host)).toEqual([9, 8, 4, 3]);
   const first = host.querySelector('[data-run-id="9"]')!;
-  expect(first.textContent).toContain('Scheduled · last 3 runs · ');
+  expect(first.textContent).toContain('Scheduled · Last 3 rounds · ');
   expect([...first.querySelectorAll('ul > li')].map((node) => node.textContent)).toEqual(['Checked 83', 'Total 83']);
   expect(host.querySelector('[data-run-id="8"]')!.textContent).toContain('Last 2 rounds');
-  expect(host.querySelector('[data-run-id="4"]')!.textContent).toContain('3 added');
+  expect(host.querySelector('[data-run-id="4"]')!.textContent).toContain('New 3');
   expect(host.querySelector('[data-run-id="3"]')!.textContent).toContain('Last 2 rounds');
 });
 
@@ -990,9 +990,9 @@ it('Duration and summary conversions each hold on their own', () => {
   expect(elapsedText(0)).toBe('0 sec');
   expect(elapsedText(59)).toBe('59 sec');
   expect(elapsedText(75)).toBe('1 min 15 sec');
-  expect(elapsedText(3725)).toBe('1 hour 2 min');
-  // Past 48 hours, speak in days: '73 hours 1 minute' does not read as three days.
-  expect(elapsedText(47 * 3600 + 59 * 60)).toBe('47 hours 59 min');
+  expect(elapsedText(3725)).toBe('1 hr 2 min');
+  // Past 48 hours, speak in days: '73 hr 1 min' does not read as three days.
+  expect(elapsedText(47 * 3600 + 59 * 60)).toBe('47 hr 59 min');
   expect(elapsedText(73 * 3600 + 60)).toBe('3 days 1 hour');
   expect(elapsedText(null)).toBe('');
   expect(summaryText({ checked: 1234567 })).toBe('Checked 1,234,567');
@@ -1002,21 +1002,21 @@ it('Duration and summary conversions each hold on their own', () => {
   expect(progressText(null, null)).toBe('0 / 0');
   // Details and 'who blocked it' stay out of this line: the former is too long, and the latter is already in the error sentence.
   expect(summaryText({ checked: 7, operation: 'like', rows: [1], blocked_by: 3 }))
-    .toBe('Checked 7 · action: mark favorite');
+    .toBe('Checked 7 · Action: Mark favorite');
   // The update check settles with the entire status dictionary; bookkeeping fields must not leak onto the card.
   expect(summaryText({
     status: 'complete', run_id: 351, started_at: 1790138114.86, checked: 83, total: 83,
     request_id: '417dab8d', completed_at: 1790138495.48,
-  })).toBe('Checked 83 · total 83');
+  })).toBe('Checked 83 · Total 83');
 });
 
-it('Task main summaries use Chinese results with internal fields reserved for technical details', () => {
+it('Task main summaries use the localized results with internal fields reserved for technical details', () => {
   expect(summaryItems({ followups: 9, stage: 'finished', requested_stage: 'all',
     eta_seconds_min: 0, entity_watermark: 9936, performer_aliases: 7, auto_rejected: 0 }))
-    .toEqual(['Scheduled 9 backfill tasks', 'Performer aliases: 7']);
+    .toEqual(['9 backfill tasks scheduled', 'Performer aliases 7']);
   expect(followupDetail(followup(4, { task_key: 'performer-profile', task_label: 'Complete performer details',
-    progress_label: 'Completing performer details: Demo person', result_summary: { name: 'Demo person', outcome: 'avwikidb binding; javdb binding' } })))
-    .toBe('Demo person · AVWikiDB profile linked; JavDB profile linked');
+    progress_label: 'Completing performer details: Demo person', result_summary: { name: 'Demo person', outcome: 'avwikidb 绑定；javdb 绑定' } })))
+    .toBe('Demo person · Linked to the AVWikiDB profile page；Linked to the JavDB profile page');
 });
 
 it('An error shows one line in the list: tracebacks use the last line, everything else the first non-empty line', () => {
@@ -1030,13 +1030,13 @@ it('An error shows one line in the list: tracebacks use the last line, everythin
 it('The error summary shows one line by default; "View details" expands the full text and clicking again collapses it; no button when it is a single line', async () => {
   const stack = 'Traceback (most recent call last):\n  File "x.py", line 1\nValueError: broken';
   const host = await mount(<ErrorExcerpt text={stack} />);
-  expect(host.textContent).toBe('Broken; view details');
+  expect(host.textContent).toBe('brokenView details');
   await click(buttonNamed('View details', host));
   expect(host.textContent).toContain('File "x.py", line 1');
   expect(host.querySelector('[data-error-details] [role="region"]')?.getAttribute('aria-label')).toBe('Full error details');
   expect(buttonNamed('Collapse details', host)?.getAttribute('aria-expanded')).toBe('true');
   await click(buttonNamed('Collapse details', host));
-  expect(host.textContent).toBe('Broken; view details');
+  expect(host.textContent).toBe('brokenView details');
 
   const single = await mount(<ErrorExcerpt text="One line only" />);
   expect(single.textContent).toBe('One line only');

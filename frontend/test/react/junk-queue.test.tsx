@@ -186,7 +186,7 @@ describe('One card', () => {
     expect(cards(host).every((card) => card.querySelector('[data-junk-title]')!.hasAttribute('data-middle-truncate'))).toBe(true);
     expect(video!.querySelector('[data-media-check]')).not.toBeNull();
     expect(host.querySelector('[data-later]')).toBeNull();
-    expect(video!.querySelector('[data-junk-facts]')?.textContent).toBe('The video file name looks like promo 2 MB');
+    expect(video!.querySelector('[data-junk-facts]')?.textContent).toBe('VideosFilename looks like promo2 MB');
     expect(archive!.querySelector('[data-junk-title]')?.tagName).toBe('SPAN');
     expect(archive!.querySelector('[data-media-art]')).toBeNull();
     expect(archive!.querySelector('[data-media-glyph]')?.textContent).toBe('Archives');

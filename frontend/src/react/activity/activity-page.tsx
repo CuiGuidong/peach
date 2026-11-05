@@ -152,11 +152,11 @@ function RunCard(
         {children}
       </div>
       {shown ? <div className="border-t border-separator-border px-5 py-2.5">
-        <Disclosure summary={`Task details · ${total.toLocaleString()} items`}
+        <Disclosure summary={`Task details · ${total.toLocaleString()} ${total === 1 ? 'item' : 'items'}`}
           contentClassName="pb-2.5"
           defaultOpen={listed.some((row) => isActive(row))}>
           {shown < total
-            ? <p className="text-caption-1-regular text-text-secondary">Listing {shown.toLocaleString()} items, in-progress first</p>
+            ? <p className="text-caption-1-regular text-text-secondary">Listing {shown.toLocaleString()} {shown === 1 ? 'item' : 'items'}, in-progress first</p>
             : null}
           <FollowupList rows={listed} />
         </Disclosure>

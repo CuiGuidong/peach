@@ -70,7 +70,7 @@ it('Uncleanable checkboxes are disabled with the reason stated; checking clears 
   await settle();
   // When a backup is inside, the confirm dialog uses the danger style; the body spells out per category what cleanup does.
   expect(seen[1]!.danger).toBe(true);
-  expect(String(seen[1]!.body)).toContain('Database backup 512 MB (older ones cannot be restored after cleanup)');
+  expect(String(seen[1]!.body)).toContain('Database backup 512 MB (Older ones can never be restored after cleanup)');
   expect(sentBody(all)).toEqual({ categories: ['backups', 'playback'] });
 });
 

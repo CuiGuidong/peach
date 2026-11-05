@@ -41,7 +41,7 @@ it('The first screen fetches the task snapshot and libraries once, with no backf
   const host = await card();
   expect(fetcher.mock.calls.map((call) => call[0]).sort()).toEqual(['/api/libraries', '/api/media-repair']);
   expect(host.querySelector('section[aria-label="Media repair"] h3')?.textContent).toBe('Media repair');
-  expect(host.querySelector('[aria-haspopup="listbox"]')?.textContent).toBe('Library cloud drive');
+  expect(host.querySelector('[aria-haspopup="listbox"]')?.textContent).toBe('Media libraryCloud drive');
 });
 
 it('Every library in the dropdown carries its library icon, and the selected one shows its icon inside the box', async () => {
@@ -55,7 +55,7 @@ it('Every library in the dropdown carries its library icon, and the selected one
     .toEqual(['#i-fixture-115', '#i-heart', '#i-hard-drive']);
   await click(options[1]);
   expect(trigger.querySelector('use')?.getAttribute('href')).toBe('#i-heart');
-  expect(trigger.textContent).toBe('Library PikPak');
+  expect(trigger.textContent).toBe('Media libraryPikPak');
 });
 
 type Confirmation = Parameters<typeof legacyUi.confirmModal>[0];
@@ -80,9 +80,9 @@ it('Repair starts with a confirmation; after confirming, the selected libraries 
   await choose(host.querySelector('[aria-haspopup="listbox"]'), 'PikPak');
   await click(buttonNamed('Start repair', host));
   await settle();
-  expect(seen[0]?.title).toBe('Repair the "PikPak" library');
+  expect(seen[0]?.title).toBe('Repair library "PikPak"');
   expect(seen[0]?.confirmLabel).toBe('Repair library');
-  expect(seen[0]?.body).toContain('Every repair pulls the whole video down again');
+  expect(seen[0]?.body).toContain('every repair pulls the whole video down again');
   expect(fetcher.mock.calls[0]?.[0]).toBe('/api/media-repair');
   expect(sentBody(fetcher)).toEqual({ library: 'PikPak', restart: true });
   const bar = host.querySelector('[role="progressbar"]');
@@ -98,7 +98,7 @@ it('For libraries not on metered sources the confirm body never mentions traffic
   await click(buttonNamed('Start repair', host));
   await settle();
   expect(seen[0]?.title).toBe('Repair library "Cloud drive"');
-  expect(seen[0]?.body).toContain('Broken originals rename into hidden files in the same folder');
+  expect(seen[0]?.body).toContain('Broken originals are renamed to a hidden file in the same directory');
   expect(seen[0]?.body).not.toContain('Pull once');
 });
 
@@ -113,7 +113,7 @@ it('The repair phase names the current video, and stopping returns it to a start
   await click(buttonNamed('Stop', host));
   await settle();
   expect(sentBody(fetcher)).toEqual({ stop: true });
-  expect(host.querySelector('p[role="status"]')?.textContent).toBe('Repaired 2');
+  expect(host.querySelector('p[role="status"]')?.textContent).toBe('Repaired 2 videos');
   expect(buttonNamed('Start repair', host)).not.toBeNull();
 });
 
@@ -133,8 +133,8 @@ it('When a video missing an index stalls because untrunc is not installed, point
   const host = await open();
   await click(buttonNamed('Start repair', host));
   await settle();
-  expect(host.querySelector('p[role="status"]')?.textContent).toBe('Fixed 0 videos, 2 cannot be repaired');
-  expect(host.textContent).toContain('The 2 videos with missing indexes can only be repaired after installing untrunc; the download entry lives in "Runtime info" on the configuration page');
+  expect(host.querySelector('p[role="status"]')?.textContent).toBe('Repaired 0, 2 could not be repaired');
+  expect(host.textContent).toContain('2 videos missing the index need untrunc installed to be repaired; the download entry is under "Run info" on the configuration page.');
   await click(buttonNamed('Dismiss the note', host));
   expect(host.textContent).not.toContain('untrunc missing');
 });
@@ -154,5 +154,5 @@ it('This check completion sends exactly one receipt', async () => {
 
 it('Progress readout caps at the total: when the server reports more checked than the total it does not show 1,500 / 1,000', () => {
   expect(statusLine({ ...IDLE_REPAIR, status: 'running', stage: 'Repair', checked: 1500, total: 1000 }))
-    .toBe('Repaired 1,000 / 1,000');
+    .toBe('Repair 1,000 / 1,000');
 });

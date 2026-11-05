@@ -139,7 +139,7 @@ describe('Roster', () => {
     const given = props();
     const host = await open(given);
     const marker = host.querySelector('[data-index-feed]');
-    expect(marker?.getAttribute('aria-label')).toBe('Subscribed new releases');
+    expect(marker?.getAttribute('aria-label')).toBe('Subscribed to new releases');
     expect(host.querySelectorAll('[data-index-feed]')).toHaveLength(1);
     await click(marker);
     expect(given.openEntity).toHaveBeenCalledWith('performer', 'Alpha');
@@ -154,7 +154,7 @@ describe('Roster', () => {
     const host = await open(given);
     expect(host.querySelector('[data-index-title]')?.textContent).toBe('Performers');
     expect(cells(host)[0]?.textContent).toContain('Animation authors');
-    expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('All animation authors');
+    expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('AllAnimation authors');
     await click(buttonNamed('Animation authors', host));
     await settle();
     expect(given.route).toHaveBeenLastCalledWith(expect.objectContaining({ category: 'animation' }), { replace: false });
@@ -165,7 +165,7 @@ describe('Roster', () => {
   it('Artist categories show only ones with content, and seller addresses reject performer filters', async () => {
     seed(indexKey('performers', ''), [person('Performers', { identity_labels:['Performers','Western'] })], false, { japanese_av:1, western:1 });
     const host = await open(props());
-    expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('All performers: western');
+    expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('AllPerformersWestern');
     expect(indexRoute({ kind:'creators', q:'', scope:'local', view:'alphabet', category:'japanese_av' }).category).toBe('all');
   });
   it('While waiting for a new page after switching categories, the category button row keeps the previous counts and never collapses', async () => {
@@ -174,14 +174,14 @@ describe('Roster', () => {
     serve(() => answer.answer);
     const host = await open(props());
     const row = () => host.querySelector('[aria-label="Identity groups"]')?.textContent;
-    expect(row()).toBe('All performers: amateur, western');
+    expect(row()).toBe('AllPerformersAmateurWestern');
     await click(buttonNamed('Amateur', host));
     await settle();
-    expect(row()).toBe('All performers: amateur, western');
+    expect(row()).toBe('AllPerformersAmateurWestern');
     expect(buttonNamed('Amateur', host)?.getAttribute('aria-pressed')).toBe('true');
     await answer.release({ items: [person('Amateur')], categories: { japanese_av:1, amateur:2 }, has_more: false });
     await settle();
-    expect(row()).toBe('All performers: amateur');
+    expect(row()).toBe('AllPerformersAmateur');
   });
   it('After an old seller-animation author link is normalized into the artist category, the address is rewritten with replace', async () => {
     seed(indexKey('performers', '', 'animation'), [person('Animation authors')], false, { animation:1 });
@@ -226,7 +226,7 @@ describe('Roster', () => {
     expect(given.personAvatar).toHaveBeenCalledWith(expect.objectContaining({k:'Real account'}),'creator',true);
     await click(cells(host)[0]);
     expect(given.openEntity).toHaveBeenCalledWith('creator','Real account');
-    expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('All adult web creators');
+    expect(host.querySelector('[aria-label="Identity groups"]')?.textContent).toBe('AllAdult web creators');
   });
   it('The first screen reads cache with plus-signed counts; the large-image layout takes avatars at large cells', async () => {
     seed(indexKey('performers', ''), [person('Alpha'), person('Beta')], true);
@@ -250,7 +250,7 @@ describe('Roster', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500, json: async () => ({ error: 'Cannot be read' }) })));
     const host = await open(props());
     await settle();
-    expect(host.textContent).toContain('Could not be read');
+    expect(host.textContent).toContain('Could not read Performers');
     expect(host.querySelector('[data-index-count]')?.textContent ?? '').toBe('');
     expect(host.textContent).not.toContain('0 items');
   });
@@ -336,7 +336,7 @@ describe('Roster', () => {
     await click(host.querySelector('[data-follow-author="entity:9"]'));
     expect(given.openEntity).toHaveBeenLastCalledWith('creator', 'Jul3D');
     const pending = host.querySelector('[data-follow-author="name:initiala"]');
-    expect(pending?.textContent).toContain('8 updates · unconfirmed');
+    expect(pending?.textContent).toContain('8 updates · pending confirmation');
     await click(pending);
     expect(given.openEntity).toHaveBeenLastCalledWith('creator', 'InitialA');
     expect(given.openFollowAuthor).not.toHaveBeenCalled();
@@ -356,7 +356,7 @@ describe('Filter box', () => {
     expect(given.route).not.toHaveBeenCalled();
     await act(async () => { vi.advanceTimersByTime(300) });
     expect(given.route).toHaveBeenCalledWith(expect.objectContaining({ q: 'Alpha' }), { replace: true });
-    expect(urls(fetcher)[0]).toContain('q=%E7%94%B2');
+    expect(urls(fetcher)[0]).toContain('q=Alpha');
     // 这一问还在路上，上一份名单保留尺寸但不可操作，变化区显示忙态。
     expect(cells(host)).toHaveLength(2);
     expect(host.querySelector('[data-index-body] [aria-busy="true"]')).not.toBeNull();
@@ -395,14 +395,14 @@ describe('Filter box', () => {
 describe('Tags', () => {
   for (const scope of ['local', 'online'] as const) for (const view of ['alphabet', 'cloud'] as const) {
     it(`${scope} ${view} browsing uses current names and offers editing only in manage mode`, async () => {
-      const row = { ...tag('Glasses', 'appearance'), entity_id: 4472, id: 'glasses', aliases: ['Glasses'], hidden: false };
+      const row = { ...tag('Glasses', 'appearance'), entity_id: 4472, id: 'glasses', aliases: ['Glasses girl'], hidden: false };
       seed(indexKey('tags', '', 'all'), [row]);
       seed(onlineTagsKey('', 'all'), [row]);
       serve(() => ({ items: [row], total:1, categories:{ appearance:1 }, duplicate_groups: [], favorites: [], filters: [], has_more: false }));
       const host = await open(props({ kind: 'tags', scope, view }));
       await settle();
       expect(host.querySelector('[data-alpha-tag], [data-tag-chip]')?.textContent).toContain('Glasses');
-      expect(host.querySelector('[data-alpha-tag], [data-tag-chip]')?.textContent).not.toContain('Glasses');
+      expect(host.querySelector('[data-alpha-tag], [data-tag-chip]')?.textContent).not.toContain('Glasses girl');
       expect(host.querySelector('[aria-label="Favorite Glasses"]')).not.toBeNull();
       expect(host.querySelector('[aria-label="Edit tag Glasses"]')).toBeNull();
       expect(host.querySelector('[data-tag-mode] use')?.getAttribute('href')).toBe('#i-pencil');

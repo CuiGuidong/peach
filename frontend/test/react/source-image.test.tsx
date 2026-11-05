@@ -11,7 +11,7 @@ it('Source images request only after a click, failures can retry, and changing s
   expect(host.querySelector('[role=status]')?.textContent).toContain('Loading image');
   await act(async () => { host.querySelector('img')!.dispatchEvent(new Event('error')) });
   expect(host.querySelector('img')).toBeNull();
-  expect(host.textContent).toContain('Source images not fetched');
+  expect(host.textContent).toContain('Source image not fetched');
   await click(host.querySelector('button'));
   await act(async () => { host.querySelector('img')!.dispatchEvent(new Event('load')) });
   expect(host.querySelector('[role=status]')).toBeNull();

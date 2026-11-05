@@ -66,6 +66,6 @@ export const javDisplayName=(it:Item,value=it?.name)=>{
 export function javTitleHtml(it:Item,value=it?.name){
   const {code,title,badges=[]}=javTitleParts(it,value);
   if(!code)return esc(title);
-  const edition=badges.map(label=>`<small class="javedition ${label==='Chinese sub'?'subtitle':label==='uncensored'?'uncensored':label==='decensored'?'cracked':'quality'}">${esc(label)}</small>`).join('');
+  const edition=badges.map(label=>`<small class="javedition ${label==='Chinese subs'?'subtitle':label==='Uncensored'?'uncensored':label==='decensored'?'cracked':'quality'}">${esc(label)}</small>`).join('');
   return `<span class="ui-javidentity"><strong class="ui-javcode">${esc(code)}</strong>${edition}</span>${title?` <span class="ui-javtitle"${langAttr(title)}>${esc(title)}</span>`:''}`;
 }

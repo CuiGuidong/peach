@@ -39,7 +39,7 @@ it('Peach proxy: the address box appears only with custom selected, saving clear
   vi.stubGlobal('fetch', fetcher);
   const receipt = vi.fn();
   const host = await mount(<PeachProxy initial={{ mode: 'direct', proxy_saved: false, needs_selection: true }} receipt={receipt} />);
-  expect(host.querySelector('[role="note"]')?.textContent).toContain('Select a public connection method');
+  expect(host.querySelector('[role="note"]')?.textContent).toContain('A connection method must be chosen.');
   expect(host.querySelector('#peachProxyAddress')).toBeNull();
   await choose(host.querySelector('[aria-haspopup="listbox"]'), 'Custom');
   const address = host.querySelector<HTMLInputElement>('#peachProxyAddress');

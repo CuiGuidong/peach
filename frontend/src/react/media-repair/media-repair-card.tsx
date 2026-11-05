@@ -53,8 +53,8 @@ export function MediaRepairCard({ toast = () => {} }: { toast?(message: string):
     if (!selected) return;
     void confirmModal({
       title: `Repair library "${selected.name}"`,
-      body: 'Videos missing a timestamp table get a repaired header saved as a copy, leaving the original untouched; videos missing an index have it rebuilt to replace the original,'
-        + 'Broken originals are renamed to a hidden file in the same directory (.filename.peach-original) and kept.'
+      body: 'Videos missing a timestamp table get a repaired header saved as a copy, leaving the original untouched; videos missing an index have it rebuilt to replace the original. '
+        + 'Broken originals are renamed to a hidden file in the same directory (.filename.peach-original) and kept. '
         + (selected.metered ? 'This library sits on a metered source, and every repair pulls the whole video down again.' : ''),
       confirmLabel: 'Repair library',
       onConfirm: async () => { await repair.start.mutateAsync(selected.id) },
