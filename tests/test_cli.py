@@ -571,7 +571,7 @@ class ProcessCommandTests(unittest.TestCase):
 
     def test_the_followups_a_run_declares_are_queued_under_it(self):
         declared = [{"key": "performer-alias:9378", "task_key": "performer-alias",
-                     "label": "补女优别名：白川麻衣"}]
+                     "label": "Fill in performer aliases: 白川麻衣"}]
         code, output, rows = self._run({"status": "complete", "followups": declared})
         self.assertEqual(code, 0)
         parent, child = rows

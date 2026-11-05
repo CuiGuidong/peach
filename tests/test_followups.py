@@ -352,7 +352,7 @@ class BackgroundJobDispatchTests(LedgerTestCase):
 
     def declared(self):
         return [{"key": "entity-avatar:performer:1", "task_key": AVATAR_TASK_KEY,
-                 "label": "补全资料图片：甲"}]
+                 "label": "Fill in profile images: 甲"}]
 
     def test_a_successful_run_dispatches_what_it_declared(self):
         job = self.job()

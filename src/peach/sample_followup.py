@@ -21,7 +21,7 @@ from . import sample_images
 from .followups import FollowupType, register
 
 TASK_KEY = "code-samples"
-TASK_LABEL = "补番号样张"
+TASK_LABEL = "Fetch code samples"
 
 #: 一轮只派一条，key 固定：同一件事同时只会有一条在排队或在跑。
 FOLLOWUP_KEY = f"{TASK_KEY}:stock"
@@ -116,7 +116,7 @@ def run(contract, key: str, handle, *, transport=None, clock=time.monotonic) -> 
             if code in checkpoint.completed:
                 continue
             if handle is not None:
-                handle.progress(current=max(index, len(checkpoint.completed)), total=len(codes), label=f"{TASK_LABEL}：{code}")
+                handle.progress(current=max(index, len(checkpoint.completed)), total=len(codes), label=f"{TASK_LABEL}: {code}")
             site, urls = "", []
             snapshot = sample_images.snapshot_samples(snapshots.get(code, ()))
             if snapshot:

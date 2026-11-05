@@ -39,7 +39,7 @@ from .followups import Followup, FollowupType, register
 from .metadata import extract_peach_fields
 
 TASK_KEY = "feed-scrape"
-TASK_LABEL = "取新作资料"
+TASK_LABEL = "Fetch new-release details"
 COVER_TASK_KEY = "feed-cover"
 COVER_TASK_LABEL = "补新作封面"
 LABELS = {TASK_KEY: TASK_LABEL, COVER_TASK_KEY: COVER_TASK_LABEL}
@@ -397,7 +397,7 @@ def run(contract, key: str, handle) -> dict:
         if code in done:
             continue
         handle.progress(current=index, total=len(codes),
-                        label=f"{TASK_LABEL}：{code}", throttle=0)
+                        label=f"{TASK_LABEL}: {code}", throttle=0)
         with contract.database.read_connection() as connection:
             row = connection.execute(
                 "SELECT id,code,scraped_at,scrape_error FROM feed_discovery WHERE code=?",

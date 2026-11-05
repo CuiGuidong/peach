@@ -31,7 +31,7 @@ from .followups import Attempts, Followup, FollowupType, attempts_root, register
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "studio-mark"
-TASK_LABEL = "补厂牌官网与标识"
+TASK_LABEL = "Fetch label sites and marks"
 
 #: 这条后继写下的一切都带这个归属串，撤回按它认。
 SOURCE = "auto:studio-mark"
@@ -83,7 +83,7 @@ def plan(connection: sqlite3.Connection, logo_root, *, since_entity_id: int) -> 
              if not has_mark(logo_root, str(row[1] or ""))]
     found.sort(key=lambda item: (-item[0], item[1]))
     return [Followup(key=followup_key(entity_id), task_key=TASK_KEY,
-                     label=f"{TASK_LABEL}：{name}" if name else TASK_LABEL)
+                     label=f"{TASK_LABEL}: {name}" if name else TASK_LABEL)
             for _assets, entity_id, name in found]
 
 
@@ -120,7 +120,7 @@ def stock(connection: sqlite3.Connection, logo_root, attempts, *, limit: int,
         if attempts.settled(key, fingerprint(connection, entity_id)):
             continue
         found.append(Followup(key=key, task_key=TASK_KEY,
-                              label=f"{TASK_LABEL}：{name}" if name else TASK_LABEL))
+                              label=f"{TASK_LABEL}: {name}" if name else TASK_LABEL))
         if len(found) >= limit:
             break
     return found
@@ -161,7 +161,7 @@ def _run(contract, key: str, handle) -> dict:
             (entity_id, *studio_icons.ICON_LINK_KINDS)).fetchone()[0]
         aliases = studio_sites.load_aliases(connection, [entity_id]).get(entity_id, ())
     if handle is not None:
-        handle.progress(label=f"{TASK_LABEL}：{name}", throttle=0)
+        handle.progress(label=f"{TASK_LABEL}: {name}", throttle=0)
     summary: dict[str, object] = {"name": name}
     if not linked:
         site = _land_site(contract, entity_id, name, aliases, batch)

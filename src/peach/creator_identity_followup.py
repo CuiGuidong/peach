@@ -31,7 +31,7 @@ from .followups import Attempts, Followup, FollowupType, attempts_root, register
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "creator-identity"
-TASK_LABEL = "查创作者身份"
+TASK_LABEL = "Look up creator identity"
 
 #: 这条后继写下的断言来源都以它开头，后面接 `@<任务行 id>`；撤回按它认。
 SOURCE = "script:creator-identity-wiki"
@@ -57,7 +57,7 @@ def parse_key(key: str) -> int:
 
 
 def _label(name: str) -> str:
-    return f"{TASK_LABEL}：{name}" if name else TASK_LABEL
+    return f"{TASK_LABEL}: {name}" if name else TASK_LABEL
 
 
 def _open(connection: sqlite3.Connection, where: str, params: tuple) -> list[tuple[int, str]]:

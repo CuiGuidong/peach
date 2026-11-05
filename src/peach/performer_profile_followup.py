@@ -54,7 +54,7 @@ from .performer_profiles import fetched_at as profile_fetched_at, read_profile, 
 from .scripting import HostLimiter
 
 TASK_KEY = "performer-profile"
-TASK_LABEL = "补女优资料"
+TASK_LABEL = "Fill in performer profiles"
 SOURCE = "auto:performer-profile"
 MINNANO, AVWIKIDB, JAVDB = alias.MINNANO, "avwikidb", "javdb"
 #: javdb 的主机间隔，与 `harvest_directory_links.SOURCE_INTERVAL` 同一档（docs/SOURCING.md）。
@@ -131,7 +131,7 @@ def fingerprint(connection: sqlite3.Connection, entity_id: int) -> str:
 
 
 def _label(name: str) -> str:
-    return f"{TASK_LABEL}：{name}" if name else TASK_LABEL
+    return f"{TASK_LABEL}: {name}" if name else TASK_LABEL
 
 
 def plan(connection: sqlite3.Connection, *, since_entity_id: int) -> list[Followup]:
