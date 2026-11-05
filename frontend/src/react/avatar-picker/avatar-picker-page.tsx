@@ -258,7 +258,7 @@ function PickerBody({ kind, entityId, name, onPicked, close }: AvatarPickerProps
           <input ref={file} type="file" accept="image/jpeg,image/png,image/webp,image/avif,image/gif,image/bmp,image/tiff,image/x-icon,image/vnd.microsoft.icon,image/jp2,.jpg,.jpeg,.jpe,.jfif,.png,.webp,.avif,.gif,.bmp,.dib,.tif,.tiff,.ico,.jp2,.j2k,.jpf,.jpx" tabIndex={-1} aria-hidden
             className="hidden" onChange={pickFile} />
           <span className="text-caption-1-regular text-text-secondary">Supports common image formats, using the first frame for animations</span>
-          {/* 地址一行至少 224px: 窄屏下和「Pick an image from this machine」挤不进一行就整行换下去，输入框不被压成一条缝. */}
+          {/* The address row is at least 224px: on a narrow screen, if it and "Pick an image from this machine" do not fit on one line, the whole row wraps down, so the input is not squeezed into a sliver. */}
           <div className="flex min-w-0 flex-1 basis-56 items-center gap-2">
             <div className="min-w-0 flex-1">
               <Input type="url" aria-label="Image address" placeholder="https://…" value={url} onChange={setUrl} />

@@ -120,7 +120,7 @@ export function dissolveValue(input:any,host:any=input&&input.parentElement,
   return drop;
 }
 
-/** 照输入框此刻的位置、内边距和字体摆一层空的覆盖层，字落在框里同一处；框不可见时是 null。 */
+/* Lay an empty overlay following the input box's current position, padding, and font, so the text lands at the same spot in the box; it's null when the box is invisible. */
 function inputGhost(input:any,host:any,className:string):HTMLSpanElement|null{
   const box=input.getBoundingClientRect(),frame=host.getBoundingClientRect();
   if(!box.width)return null;
@@ -136,11 +136,11 @@ function inputGhost(input:any,host:any,className:string):HTMLSpanElement|null{
 }
 
 /**
- * 输入框的占位字换一句：旧字往上糊掉，新字从下方回到原位，同 `swapText`。
+ * Swap the input box's placeholder text: the old text blurs away upward, the new text returns from below to its position, like `swapText`.
  *
- * 占位字是输入框自己画的，做不了动画：这里照它的位置和颜色摆一层，让那一层去换，换的这段
- * 时间收起框里的占位字，换完摘掉这一层。`placeholder` 当场就改成新的，读屏和回车读到的都是它。
- * 框里有字、框不可见或要求减弱动效时直接改，不放动画。返回撤销函数：动画中途开始打字就收掉。
+ * The placeholder is drawn by the input itself, so it can't be animated: here a layer is placed over it matching its position and color, and that layer is swapped; during the swap
+ * the placeholder inside the box is hidden, and the layer is removed after. `placeholder` is changed to the new value immediately, so screen readers and the Enter key reads all get it.
+ * When the box has text, is invisible, or reduced motion is requested, change it directly with no animation. Returns an undo function: if typing starts mid-animation, cancel it.
  */
 export function rollPlaceholder(input:any,next:string,host:any=input&&input.parentElement):()=>void{
   if(!input)return ()=>{};
@@ -168,13 +168,13 @@ export function rollPlaceholder(input:any,next:string,host:any=input&&input.pare
     ghost.remove();
     if(!host.querySelector(':scope > .placeholderroll'))input.classList.remove('placeholderrolling');
   };
-  /* 退场与进场各一段 `--motion-swap`；`swapText` 自己的兜底是 400ms，这里留足两段再收。 */
+  /* Exit and entry each get a --motion-swap; swapText's own fallback is 400ms; here allow a full two segments before closing. */
   const timer=setTimeout(drop,900);
   return drop;
 }
 
-/* 计数徽标上一次是多少。徽标所在的那一排每次筛选都整块重画，节点本身留不住上一个值，
-   所以记在这里，键由调用方给的范围加徽标自己的键拼成。 */
+/* What the count badge was last time. The row holding the badge repaints wholesale on every filter change, and the node itself cannot keep the previous value,
+   so it is recorded here; the key is the caller's scope plus the badge's own key. */
 const badgeCounts=new Map<string,string>();
 /**
  * Only the count badges whose values really changed pop; the rest stay still.

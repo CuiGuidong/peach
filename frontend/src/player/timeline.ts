@@ -1,4 +1,4 @@
-/** Preview索引按开始时刻Find；未覆盖区间Back空值. */
+/** Preview indexing is done by Find at the start time; uncovered intervals Back an empty value. */
 export interface TimelineSheets {
   frames: number; interval: number; columns?: number; rows?: number;
   cues?: [number, number][];

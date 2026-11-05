@@ -1,17 +1,17 @@
-/* Settings面板: 顶栏齿轮Open的那一屏浮层，左栏分区、右边一组组Settings行.
+/* The Settings panel: the overlay screen that the gear in the top bar Opens, with sections in the left column and groups of Settings rows on the right.
  *
- * 常驻组件 `settings-panel`（`router/managed-routes.tsx` 的常驻表）: 第一次Open时壳的 `loadSettingsPanel` 建一枚
- * `[data-settings-host]`，常驻组件的 `place` 把它放进 body 末尾，路由树在同一个任务里把面板画成它的子节点.
- * 之后开合只换 `hidden`，分区、滚动位置之外的状态跨次Open保留.壳经 `configureSettingsPanel` 给的句柄开合: 
- * 句柄写本模块的 store 再 `flushSync` 通知，Back时面板已经画好，锁滚、取数与焦点紧跟在后面.界面偏好读写的是
- * 壳递进来的那一份 `appSettings`（`host.store`），改完一项用 `host.changed(effect)` 告诉壳跟着做什么；跟数据库走的
- * 那几项经 `/api/settings` 写（`settings-data.ts`）.
+ * Persistent component `settings-panel` (in the persistent table of `router/managed-routes.tsx`): on the first Open the shell's `loadSettingsPanel` creates a
+ * `[data-settings-host]`, and the persistent component's `place` puts it at the end of body; the route tree paints the panel as its child in the same task.
+ * Thereafter opening and closing only toggles `hidden`; state beyond the section and scroll position is kept across Opens. The shell opens and closes via the handle given by `configureSettingsPanel`:
+ * the handle writes this module's store and then notifies via `flushSync`; by Back time the panel is already painted, and scroll-lock, fetching, and focus follow right behind. The interface preferences read/write
+ * the `appSettings` the shell hands in (`host.store`); after changing one item, `host.changed(effect)` tells the shell what to do next; the ones that go with the database
+ * are written through `/api/settings` (`settings-data.ts`).
  *
- * 宿主不在 `.peach-react` 里: 行、开关、下拉、拉条与色块都是全站共用的遗留控件，外观由
- * `settings-panel.css` 与遗留样式表给.
+ * The host isn't inside `.peach-react`: the rows, toggles, dropdowns, sliders, and swatches are all site-wide shared legacy controls, and their appearance comes from
+ * `settings-panel.css` and the legacy stylesheets.
  *
- * 每次Open时共用控件重画、数值框回到Current value，并重取共享Settings.
- * 焦点先交给Off钮，Tab 在面板里转圈，关掉后还给Open前那一枚. */
+ * On each Open the shared controls redraw, the value boxes reset to the Current value, and the shared Settings is re-fetched.
+ * Focus first goes to the Off button, Tab loops within the panel, and after closing it's returned to the element from before Open. */
 import {
   useLayoutEffect, useRef, useState, useSyncExternalStore,
   type KeyboardEvent, type ReactNode,
@@ -50,7 +50,7 @@ const SORT_OPTIONS: readonly Choice[] = [
 ];
 const DIRECTION_OPTIONS: readonly Choice[] = [['desc', 'Descending'], ['asc', 'Ascending']];
 const JAV_IMAGE_OPTIONS: readonly Choice[] = [['cover', 'Official cover', ''], ['thumbnail', 'Preview image', '']];
-/* New releases那一行收不收合集由服务端按数据库里的Settings筛，这里的开关只是镜像: 真相在 `/api/settings`. */
+/* Whether the New releases row includes collections is filtered server-side by the Settings in the database; the toggle here is only a mirror: the source of truth is `/api/settings`. */
 const FEED_COMPILATIONS = [
   ['feedHideGroupSetting', 'feedHideGroupCompilations', 'Large compilations', 'Hide large compilations'],
   ['feedHideSoloSetting', 'feedHideSoloCompilations', 'Solo compilations', 'Hide solo compilations'],
@@ -84,7 +84,7 @@ function update(patch: Partial<View>): void {
   flushSync(notify);
 }
 
-/* Peach configuration入口按当前设备的配置权限放行. */
+/* The Peach configuration entry is allowed through based on the current device's configuration permissions. */
 async function checkMachine(current: SettingsPanelHost): Promise<void> {
   const epoch = view.epoch;
   const configurable = await current.configurable();
@@ -100,8 +100,8 @@ function open(section = ''): void {
     if (requested >= 0 && requested !== view.tab) update({ tab: requested });
     return;
   }
-  /* Settings这一屏盖住整页，任何还开着的锚定弹层都得先收掉: Settings有侧栏的Settings钮、配色弹层的
-     「详细Settings」和快捷键几处入口，收在这里就不会漏掉哪一处. */
+  /* The Settings screen covers the whole page, so any anchored overlay still open must be closed first: Settings has several entry points — the Settings button in the sidebar, the
+     "Detailed Settings" in the color-scheme overlay, and the shortcut keys — and closing them here makes sure none are missed. */
   closeAnchoredMenu();
   transition += 1;
   returnFocus ||= document.activeElement;
@@ -142,8 +142,8 @@ const api: SettingsPanelApi = {
   reveal: (selector) => queueMicrotask(() => document.querySelector(selector)?.scrollIntoView({ block: 'nearest' })),
 };
 
-/** 接上壳给的宿主，拿回Settings面板的命令式入口.只调一次；壳的 `loadSettingsPanel` 接着在路由树里Open这一面，
- *  画上（收着的）面板之后才交出句柄. */
+/** Connect to the host the shell provides and get back the imperative entry to the Settings panel. Called once; the shell's `loadSettingsPanel` then Opens this view in the route tree
+ * and hands over the handle only after the (collapsed) panel is drawn. */
 export function configureSettingsPanel(next: SettingsPanelHost): SettingsPanelApi {
   host = next;
   return api;
@@ -406,8 +406,8 @@ function decorateDirection(field: HTMLElement, ascending: boolean): void {
   if (label) label.textContent = ascending ? 'Ascending' : 'Descending';
 }
 
-/* 「浏览与Playback」分两段: Video list（网格、排序、卡片与悬停）在前，Playback在后.转码方式写的是运行 Peach
-   那台电脑的配置，在 Peach configuration「Apply与维护 → 视频Playback」，不在这里（ADR-0103）. */
+/* "Browse and Playback" splits into two parts: the Video list (grid, sorting, cards and hover) comes first, Playback after. The transcoding method is written in the configuration of the computer
+   running Peach, under Peach configuration "Apply and maintenance → Video playback", not here (ADR-0103). */
 function BrowseGroup({ host: current, tab, epoch }: GroupProps) {
   const settings = current.store.value;
   const save = () => current.store.save();

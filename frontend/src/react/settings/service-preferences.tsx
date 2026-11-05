@@ -25,7 +25,7 @@ import { busyProps } from './use-action';
 const THUMBNAIL_OPTIONS = [['off', 'Off'], ['precise', 'One per 10 seconds'], ['coarse', 'One per 30 seconds']] as const;
 
 export function VideoThumbnailRow({ epoch = 0 }: { epoch?: number }) {
-  return <Section guide="timeline" title="'Timeline thumbnails'"><VideoThumbnailControls epoch={epoch} /></Section>;
+  return <Section guide="timeline" title="Timeline thumbnails"><VideoThumbnailControls epoch={epoch} /></Section>;
 }
 
 export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?: number; disabled?: boolean }) {
@@ -71,9 +71,9 @@ export function FollowPreferenceRows({ receipt }: { receipt(message: string): vo
       <Rows>
         <FollowScheduleRow />
         <FeedScheduleRow />
-        <SettingsRow label="首次采集范围" description="新关注的来源第一次回看多久以前的内容。">
+        <SettingsRow label="First scrape scope" description="How far back a newly followed source looks on its first pass.">
           <div id="followInitialDaysSetting" className="shrink-0">
-            <Select aria-label="首次采集范围" selectedKey={String(initialDays)}
+            <Select aria-label="First scrape scope" selectedKey={String(initialDays)}
               isDisabled={settings.isFetching || initial.isPending}
               onSelectionChange={(key) => {
                 if (key === null) return;
@@ -87,8 +87,8 @@ export function FollowPreferenceRows({ receipt }: { receipt(message: string): vo
             </Select>
           </div>
         </SettingsRow>
-        <SettingsRow label="头像刷新" description="重新获取关注创作者的头像。"><span className="shrink-0">每 3 个月</span></SettingsRow>
-        <SettingsRow label="favicon 刷新" description="重新获取来源站点的图标。"><span className="shrink-0">每年</span></SettingsRow>
+        <SettingsRow label="Avatar refresh" description="Re-fetch the followed creators' avatars."><span className="shrink-0">Every 3 months</span></SettingsRow>
+        <SettingsRow label="Favicon refresh" description="Re-fetch the source site's icon."><span className="shrink-0">Yearly</span></SettingsRow>
       </Rows>
       {error ? <Stack divided><ErrorText>{errorMessage(error)}</ErrorText></Stack> : null}
     </Section>
@@ -122,18 +122,18 @@ function FollowScheduleRow() {
   const error = save.error || status.error;
   return (
     <>
-      <SettingsRow label="自动检查更新" description="近 7 天有更新的来源按这个间隔检查，久未更新的逐级放慢，最长一天一次">
-        {/* 间隔框只在开着时出现；这一行按有框的高度留位，读回状态时下面几行不跟着动。
-            控件这一侧不收缩：窄屏上让左边的说明换行，不让开关与间隔框压到说明上。 */}
+      <SettingsRow label="Automatically check for updates" description="Sources updated in the last 7 days are checked at this interval; those not updated for a long time slow down step by step, at most once a day">
+        {/* The interval box only appears when it's on; this row reserves the height with the box, so the lines below do not shift when the state is read back.
+            The controls side never shrinks: on a narrow screen the description on the left wraps, so the toggle and interval box do not push onto it. */}
         <div id="followScheduleSetting" className="flex min-h-9 shrink-0 flex-wrap items-center justify-end gap-2">
-          <Switch aria-label="自动检查更新" isSelected={data?.enabled === true} isDisabled={blocked}
+          <Switch aria-label="Automatically check for updates" isSelected={data?.enabled === true} isDisabled={blocked}
             onChange={(on) => {
               localStorage.setItem('peach.number.followScheduleSetting', String(remembered.current));
               save.mutate(on ? remembered.current : 0);
             }} />
           {data?.enabled ? <div className="flex items-center gap-2">
             <Input type="number" inputMode="numeric" name="follow-interval" autoComplete="off"
-              aria-label="自动检查间隔" className="w-21 sm:w-24"
+              aria-label="Auto-check interval" className="w-21 sm:w-24"
               value={draft} onChange={(value) => { setDraft(value); setInvalid(false) }} onBlur={commit}
               onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); commit() } }}
               isDisabled={blocked} isInvalid={invalid} />
@@ -175,8 +175,8 @@ function FeedScheduleRow() {
   );
 }
 
-/* 每轮开始时服务端Clear上一轮的原因，所以正在跑的那一轮不显示；下一轮成功同样Clear.
-   「Retry now」让调度自己提前跑一轮: 手动检查不经过调度，跑完了这条原因也不会消失. */
+/* At the start of each round the server Clears the previous round's reason, so the round currently running shows none; a successful next round Clears it the same way.
+   "Retry now" makes the scheduler run a round early: a manual check bypasses the scheduler and, once finished, does not clear this reason either. */
 function ScheduleFailure({ kind, status, title }: {
   kind: keyof typeof SCHEDULE_RUNS; status: FollowScheduleStatus | undefined; title: string;
 }) {

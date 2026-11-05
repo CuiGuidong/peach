@@ -26,7 +26,7 @@ describe('Board page skeleton', () => {
       expect(control.closest('[inert]')).not.toBeNull();
     }
   });
-  it('JAV 新作分区在列表模式下画新作自己的表格骨架，下排有卡片／列表开关、没有文件夹开关', () => {
+  it('In list mode, the JAV New Releases section draws its own table skeleton; the bottom row has a card/list toggle but no folder toggle', () => {
     const before = location.pathname + location.search;
     history.replaceState(null, '', '/jav?tab=releases');
     localStorage.setItem('peach.catalog-view.v1', 'list');
@@ -35,27 +35,27 @@ describe('Board page skeleton', () => {
     localStorage.removeItem('peach.catalog-view.v1');
     history.replaceState(null, '', before);
     expect([...root.querySelectorAll('[data-catalog-table] th')].map(node => node.textContent).filter(Boolean))
-      .toEqual(['作品', '艺人', '厂牌', '标签', '发行时间', '时长', '来源评分', '操作']);
+      .toEqual(['Videos', 'Artists', 'Labels', 'Tags', 'Release date', 'Duration', 'Source rating', 'Actions']);
     expect(root.querySelector('[data-skeleton="jav-discover"]')).toBeNull();
-    expect(root.querySelector('[aria-label="馆藏显示方式"] [aria-checked="true"]')?.getAttribute('aria-label')).toBe('列表');
+    expect(root.querySelector('[aria-label="Library display mode"] [aria-checked="true"]')?.getAttribute('aria-label')).toBe('Lists');
     expect(root.querySelector('[data-folder-mode-toggle]')).toBeNull();
   });
-  it('JAV 新作分区骨架按下新作，页头是名册页那种筛选框，下面是两排头像占位与新作自己的排序键', () => {
+  it('JAV new releases section skeleton: tapping new releases, the page header is the roster-page-style filter box, and below are two rows of avatar placeholders plus the sort key for the new releases', () => {
     const before = location.pathname + location.search;
     history.replaceState(null, '', '/jav?tab=releases&sort=duration&dir=asc');
     const root = document.createElement('div');
     root.innerHTML = boardPageSkeleton('/jav');
     history.replaceState(null, '', before);
-    expect([...root.querySelectorAll('span.whitespace-nowrap.rounded-md')].find(node => node.classList.contains('text-text-primary'))?.textContent).toBe('新作');
-    expect(root.querySelector('[data-index-search] input')?.getAttribute('aria-label')).toBe('筛选新作');
+    expect([...root.querySelectorAll('span.whitespace-nowrap.rounded-md')].find(node => node.classList.contains('text-text-primary'))?.textContent).toBe('New work');
+    expect(root.querySelector('[data-index-search] input')?.getAttribute('aria-label')).toBe('Filter new works');
     expect(root.querySelector('form')).toBeNull();
     expect(root.querySelectorAll('[data-catalog-tier] [data-catalog-placeholder]').length).toBeGreaterThan(0);
     expect(root.querySelector('[data-entity-tag="external"]')).toBeNull();
-    expect([...root.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['发行时间', '来源评分', '时长', '番号', '口味']);
+    expect([...root.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['Release date', 'Source rating', 'Duration', 'Code', 'Taste']);
     expect(root.querySelector('[data-entity-sort][aria-pressed="true"]')?.getAttribute('data-entity-sort')).toBe('duration');
-    expect(root.querySelector('[data-entity-batch]')?.getAttribute('aria-label')).toBe('换一批');
+    expect(root.querySelector('[data-entity-batch]')?.getAttribute('aria-label')).toBe('Show more');
   });
-  it('统计预留四张指标卡，未知页面交给自身骨架', () => {
+  it('Stats reserves four metric cards, and unknown pages fall back to their own skeleton', () => {
     const root = document.createElement('div');
     root.innerHTML = boardPageSkeleton('/stats');
     expect(root.querySelectorAll('[data-stats-metrics] > div')).toHaveLength(4);

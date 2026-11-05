@@ -415,10 +415,10 @@ describe('Video card', () => {
   });
 
   it('Saved follow-source entries use the source\'s thumbnail and tags, and the tags are not clickable', async () => {
-    const { host } = await render(item(12, { follow_thumb_url: 'https://example.test/t.jpg', follow_item_id: 5, tags: ['Local'], follow_tags: ['Source'] }));
+    const { host } = await render(item(12, { follow_thumb_url: 'https://example.test/t.jpg', follow_item_id: 5, tags: ['Local'], follow_tags: ['source'] }));
     expect(host.querySelector('[data-media-art] img')?.getAttribute('src')).toBe('https://example.test/t.jpg');
     const tag = host.querySelector('[data-media-tag]');
-    expect([tag?.textContent, tag?.tagName, tag?.hasAttribute('data-tag')]).toEqual(['#来源', 'SPAN', false]);
+    expect([tag?.textContent, tag?.tagName, tag?.hasAttribute('data-tag')]).toEqual(['#source', 'SPAN', false]);
   });
 
   it('Half-watched videos draw one progress bar and volume groups draw none; the ratio writes into the cover cell', async () => {

@@ -21,11 +21,11 @@
  * names (`search`, `batch-dock`); the two never overlap, and the route tree looks the same group of tables up by key
  * (`react/router/managed-routes.tsx`).
  *
- * 一次打开：壳铺好骨架后调 `openManagedRoute`，这里保留同一容器里的上一页并取首屏；取齐、壳也还停在
- * 这一页时，在同一个任务里换掉骨架、放进宿主，再让路由树同步画出整页。路由树还没接上时，打开先等它接上
- * 再取数（搜索下拉在壳的模块求值时就打开，早于 `loadRouter`）。每次打开都领一个新代次，页面按代次重挂、
- * 重取。打开之后壳的开关（选择模式、换筛选、换版式）经 `updateManagedRoute` 合进同一页的 props：代次不变，
- * 页面就地重渲染，不重挂也不重取。 */
+ * One open: after the shell spreads the skeleton, it calls `openManagedRoute`; the previous page in the same container is kept here and the first screen is fetched; when the fetch is complete and the shell is still on
+ * this page, swap out the skeleton within the same task, hand the page to the host, then let the route tree synchronously paint the whole page. If the route tree is not attached yet, open waits for it to attach before
+ * fetching (the search dropdown opens while the shell's modules evaluate, before `loadRouter`). Every open takes a fresh generation, and the page remounts and refetches per generation.
+ * After the open, the shell's switches (selection mode, filter change, layout change) merge into the same page's props via `updateManagedRoute`: the generation is unchanged,
+ * and the page re-renders in place, without remounting or refetching. */
 
 import { rememberPageState, restoredPageState } from './page-navigation';
 
@@ -50,9 +50,9 @@ export interface ManagedOpenOptions {
   container: Element;
   /** The shell's page-change rule: if the user walked away during the fetch, do not render. */
   isCurrent: () => boolean;
-  /** 首屏已取齐，和内容提交在同一任务里切换壳的可见面。 */
+  /** The first screen is fully loaded; switching the shell's visible face happens in the same task as the content commit. */
   beforePlace?: () => void;
-  /** 同类页面复用宿主与组件，只更新属性。 */
+  /** Same-kind pages reuse the host and component, updating only props. */
   reuse?: boolean;
   /** The frame the shell lays itself: at the moment the first screen is fetched it swaps the frame into the container and
  *  returns the host the page renders into. When not given, it empties the container and puts in a new `.peach-react`. The
@@ -68,7 +68,7 @@ export interface ManagedOpenOptions {
  *  and being a beat late means a blank frame. With false it updates in place and queues into the next render as usual. */
 type ManagedListener = (entries: readonly ManagedEntry[], sync: boolean) => void;
 
-/* `page`：登记键是路径，这一趟是换页；页面内组件与常驻组件的取数不算。 */
+/* `page`: the registration key is the path, and this run is a page change; data fetching by in-page and persistent components doesn't count. */
 interface Pending { revision: number; controller: AbortController; page: boolean }
 
 /* Before the route tree is wired to fetching, opens wait here; if the wired copy fails to load, the waiting opens fail with it. */
@@ -88,16 +88,16 @@ const listeners = new Set<ManagedListener>();
 const loadingListeners = new Set<(loading: boolean) => void>();
 let loading = false;
 
-/** 有一页还在取首屏：换页进度条（`navigation-progress.ts`）读它。 */
+/* A page is still fetching its first screen: the page-switch progress bar (navigation-progress.ts) reads it. */
 export const managedLoading = (): boolean => loading;
 
-/** 订阅「有一页还在取首屏」的变化，只在真假翻转时通知。 */
+/** Subscribe to changes in “a page is still fetching its first screen”, notifying only on a true/false flip. */
 export function listenManagedLoading(listener: (loading: boolean) => void): () => void {
   loadingListeners.add(listener);
   return () => { loadingListeners.delete(listener) };
 }
 
-/* `pending` 每次增删之后调。 */
+/* `pending` is called after every add or remove. */
 function settleLoading(): void {
   const next = [...pending.values()].some((inflight) => inflight.page);
   if (next === loading) return;

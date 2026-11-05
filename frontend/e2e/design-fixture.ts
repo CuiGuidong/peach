@@ -299,7 +299,7 @@ export async function openIndexPage(browser: Browser, path: string): Promise<Vis
   await opened.page.route('**/api/index?**', (route) => {
     const kind = new URL(route.request().url()).searchParams.get('kind');
     return route.fulfill(json(kind === 'tags'
-      ? { items: [{ k: 'Nympho', n: 4, cat: 'role' }, { k: '秘书OL', n: 2, cat: 'scene' }], has_more: false,
+      ? { items: [{ k: 'Nympho', n: 4, cat: 'role' }, { k: 'Secretary OL', n: 2, cat: 'scene' }], has_more: false,
         categories: { role: 1, scene: 1 } }
       : { items: [{ k: 'Alpha', n: 3, members: 2, entity_id: 90_101, has_image: true }, { k: 'Beta', n: 1, members: 1 }],
         has_more: false }));

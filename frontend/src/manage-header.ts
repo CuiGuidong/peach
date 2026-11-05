@@ -33,9 +33,9 @@ export interface ManageHeaderProps {
   trash: TrashCount | null;
 }
 
-/* 数据管理那几张卡通往的子页（vercel.com/geist/breadcrumbs：有上一级页面的子页才画面包屑）。
-   人工复核、回收站、高清版保留侧栏快捷入口；维护工具各有独立二级页。
-   子页标题取这里的名字，「数据管理」显示在面包屑的上一级。 */
+/* The sub-pages the data-management cards lead to (vercel.com/geist/breadcrumbs: a sub-page only shows a breadcrumb when it has a parent page).
+   Manual review, the Recycle bin, and the HD edition keep a sidebar shortcut; the maintenance tools each have their own second-level page.
+   Sub-page titles take the names here; "Data management" shows one level up in the breadcrumb. */
 export const MANAGE_CRUMB_PAGES: Readonly<Record<string, string>> = {
   ...CLEANUP_CRUMB_PAGES,
   '/junk-files': 'Junk files',

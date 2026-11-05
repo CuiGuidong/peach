@@ -4,7 +4,7 @@ import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-dow
 import { JAV_TABS, javPath } from './jav';
 import { BoardTabs } from '../components/board-tabs';
 
-/** 页头一行：标题、分区自己的筛选框（同名册页的 `IndexSearch`，靠右）、查找资源。馆藏用目录顶栏的搜索，不传。 */
+/** The header row: title, the section's own filter box (the same-name tab's `IndexSearch`, right-aligned), Find resources. The library uses the catalog top-bar search; not passed. */
 export function JavHeader({ tab, navigate, find, search }: {
   tab: string; navigate(path: string): void; find(): void; search?: ReactNode;
 }) {
@@ -12,7 +12,7 @@ export function JavHeader({ tab, navigate, find, search }: {
     <div className="flex min-w-0 flex-wrap items-center gap-3 max-board-narrow:gap-x-2">
       <h2 data-page-title="" className="text-display-4-medium text-text-primary max-board-narrow:text-title-1-medium">JAV</h2>
       {search}
-      <Button variant="primary" className={search ? 'flex-none' : 'ml-auto flex-none'} onClick={find}>查找资源</Button>
+      <Button variant="primary" className={search ? 'flex-none' : 'ml-auto flex-none'} onClick={find}>Find resources</Button>
     </div>
     <BoardTabs tabs={JAV_TABS.map(([value, label]) => ({ value, label }))} value={tab}
       label="JAV sections" className="" onChange={key => navigate(javPath(key))} />

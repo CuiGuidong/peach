@@ -30,7 +30,7 @@ export function ChapterIcon({ chapter, className = 'size-5' }: { chapter: string
   return <Icon aria-hidden className={cx(className, 'shrink-0')} />;
 }
 
-/** 三条学习路径共用同一标题、图标和行动区。 */
+/** The three learning paths share the same title, icon, and action area. */
 export function GuideBanner({ icon: Icon, title, description, children, completed = false }: {
   icon: Glyph; title: string; description: string; children: ReactNode; completed?: boolean;
 }) {

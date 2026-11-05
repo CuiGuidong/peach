@@ -39,7 +39,7 @@ import {
 // Shares the BoardUI gray PillTab styling with the config page; keeps the tabpanel and the review queue count.
 const TAB_CLASS = 'flex cursor-pointer items-center justify-between gap-2';
 
-/** 页码.Previous page／Next page在两端，页码居中，页数多时两侧折成「…」. */
+/* Pagination. Previous page / Next page at the two ends, page numbers centered; when there are many pages, both sides collapse into '…'. */
 function Pagination(
   { page, pages, onPage }: { page: number; pages: number; onPage(page: number): void },
 ) {

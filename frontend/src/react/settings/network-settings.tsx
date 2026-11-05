@@ -1,4 +1,4 @@
-/* 「网络与访问」分组：本机端口、Peach 代理、访问密码与已登录的设备、公网入口。 */
+/* 'Network and access' group: local port, Peach proxy, access password and logged-in devices, public entry point. */
 import { useState, type FormEvent } from 'react';
 
 import { SettingsRow } from '@/components/application/settings/settings-rows';
@@ -47,7 +47,7 @@ export function PeachProxy({ initial, receipt }: { initial: PeachProxyState; rec
   return (
     <Section id="peachProxy" guide="proxy" title="Peach proxy" onSubmit={submit}>
       <Rows>
-        <SettingsRow label="连接方式" description="Peach 访问外网和采集来源时使用。">
+        <SettingsRow label="Connection method" description="Used when Peach reaches the internet and collects sources.">
           <ProxyModeSelect mode={mode} onChange={setMode} />
         </SettingsRow>
       </Rows>

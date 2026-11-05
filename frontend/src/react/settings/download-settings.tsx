@@ -115,7 +115,7 @@ function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { p
   const missing = has115 && Boolean(suggested.target && !suggested.target.exists && target('115') === suggested.target.path);
 
   // Applies a check report onto the form: suggested values fill an empty address, 115 target folder, and PikPak root, without overwriting anything the user entered.
-  // `saved` 是服务端Save时已经存上的 115 目标目录，它不再填回、也不再说「Save configuration后生效」.
+  // `saved` is the 115 destination directory the server already saved on Save; it is no longer re-filled, nor announced with "takes effect after Save configuration".
   const show = (next: DownloadCheckReport, blank: Blanks, saved = '') => {
     const folder = blank.target ? next.suggested_target : null;
     const stored = Boolean(folder && saved && folder.path === saved);
@@ -139,10 +139,10 @@ function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { p
     const blank = { address: false, target: !state.config.targets['115'], root: !state.config.pikpak_root };
     void action.run('auto', (signal) => apiGet<DownloadCheckReport>(CHECK_URL, signal),
       (next) => show(next, blank), (cause) => setFailure(errorMessage(cause)));
-    // 只在挂载时查这一次，之后由「Save configuration」与「检查」接手.
+    // Check only this once at mount; afterwards, “Save configuration” and “Check” take over.
   }, []);
 
-  // Save的响应里带着按已Save configuration做的检查报告，直接渲染；115 目标目录留空时服务端已按推送发现填上.
+  // The Save response carries a check report made against the saved configuration, rendered as-is; when the 115 destination directory is left empty, the server has already filled it in from push discovery.
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (missing) {
@@ -182,7 +182,7 @@ function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { p
       (next) => show(next, blank), (cause) => setFailure(errorMessage(cause)));
   };
 
-  // 只In use户点了「Create this folder」时调 CloudDrive2 建目录，建好后服务端按这个目录再检查一遍.
+  // Only when the user clicks "Create this folder" does it call CloudDrive2 to create the directory; once created, the server re-checks against this directory.
   const create = (path: string) => {
     const body = { clouddrive_address: config.clouddrive_address, token, path, pikpak_root: config.pikpak_root,
       pikpak_account: pikpakAccount };
@@ -317,7 +317,7 @@ function PikPakAccount({ state, settle, receipt, username, setUsername }: CardPr
   const [remember, setRemember] = useState(false);
   const [captcha, setCaptcha] = useState('');
   const [failure, setFailure] = useState('');
-  // 只报这一页里拉起的那次Sign in怎么收场；服务端留着的上一次结果不当成新消息.
+  // Only report how the Sign in initiated on this page ended; the previous result kept by the server isn't treated as a new message.
   const [outcome, setOutcome] = useState('');
   const action = useAction();
   const account = state.pikpak;

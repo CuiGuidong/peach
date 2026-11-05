@@ -56,7 +56,7 @@ export interface AliasManagerProps {
   toast(message: string): void;
 }
 
-/** 一条Pending merge的身份: 一个别名只可能归进一个规范名，所以用别名本身当键. */
+/* The identity of a Pending merge entry: an alias can only map to one canonical name, so the alias itself is used as the key. */
 const suggestionKey = (item: AliasSuggestion) => item.alias;
 
 function authorSources(sources: FollowSource[], name: string, canonicalKey?: string) {
@@ -96,8 +96,8 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
   const [canonical, setCanonical] = useState('');
   const [alias, setAlias] = useState('');
 
-  /* Merge按顺序一条一条发: 一次失败要报出「还有几组没合」，而并发发出去的话，说不清
-     停在了哪里. */
+  /* Merge sends one by one in order: a single failure must report 'how many groups are left unmerged'; if sent concurrently, it's unclear
+     where it stopped. */
   const merge = useMutation({
     mutationFn: async (items: AliasSuggestion[]) => {
       let done = 0;

@@ -1,7 +1,7 @@
-/* 目录网格与垃圾队列由路由树画进 `#grid`（`CATALOG_ROUTES`）：页面挂载即取数，骨架与内容在变化区交叉淡化。
- * 壳认领表面只收 `#stats` 与 `#index`，`#grid` 上那一页留着；停在目录时壳经 `updateManagedRoute`
- * 推选择态、版式与筛选，页面不重挂、代次不变，换筛选只按新键重取一次；垃圾队列一次清空骨架，收起时计数行那一格
- * 同步撤掉；壳那一份助手与动作原样交给页面；这些路径不交给 React Router。
+/* The catalog grid and the junk queue are painted by the route tree into `#grid` (`CATALOG_ROUTES`): the page fetches data on mount, and the skeleton and content cross-fade in the change region.
+ * The surface the shell claims only receives `#stats` and `#index`; the page on `#grid` stays; when parked in the catalog the shell pushes the selection state, layout, and filters through `updateManagedRoute`
+ * — the page doesn't remount and the generation doesn't change; changing a filter only refetches once by the new key; the junk queue clears its skeleton at once, and when collapsed that cell in the count row
+ * is removed in sync; the shell's helpers and actions are handed to the page as-is; these routes are not handed to React Router.
  *
  * How a screen of cards is laid out and what the card face shows is governed by `catalog-grid.test.tsx` and
  * `junk-queue.test.tsx`; this file covers the route tree layer. */

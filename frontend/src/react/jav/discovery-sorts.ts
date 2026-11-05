@@ -8,13 +8,13 @@ export const DISCOVERY_SORTS = [
   ['code', 'Code', 'Sort by code'],
 ] as const;
 export type DiscoverySort = typeof DISCOVERY_SORTS[number][0];
-/** 新作分区的排序：发行时间打头（默认），其余同「发现」；`random` 是「换一批」，没有对应的排序键。 */
+/* The sort of the new-releases section: release time first (default), the rest same as 'Discover'; random is 'new batch', with no corresponding sort key. */
 export const RELEASE_SORTS = [
-  ['release_date', JAV_RELEASE_SORT[1], '按发行日期排序'],
-  ['source_score', '来源评分', '按来源评分排序'],
-  ['duration', '时长', '按时长排序'],
-  ['code', '番号', '按番号排序'],
-  ['taste', '口味', '按口味匹配排序'],
+  ['release_date', JAV_RELEASE_SORT[1], 'Sort by release date'],
+  ['source_score', 'Source rating', 'Sort by source rating'],
+  ['duration', 'Duration', 'Sort by duration'],
+  ['code', 'Code', 'Sort by code'],
+  ['taste', 'Taste', 'Sort by taste match'],
 ] as const;
 export type ReleaseSort = typeof RELEASE_SORTS[number][0] | 'random';
 export type DiscoveryDirection = 'asc' | 'desc';

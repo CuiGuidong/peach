@@ -89,7 +89,7 @@ describe('Design decisions: data management, index page, and profile headers', (
         }));
         const waiting = await geometry();
         assert.equal(waiting.length, 1);
-        assert.equal(waiting[0]!.face[3], '0px', '骨架卡还带着外框，页面上的卡只靠填充底');
+        assert.equal(waiting[0]!.face[3], '0px', 'The skeleton card still has an outer frame; the on-page card relies only on its fill background');
         const expected = await disabledTokens(page);
         const faces = await waitingActionFaces(page, `[data-skeleton="${item.skeleton}"] [data-skeleton-action]`);
         assert.deepEqual(faces.map(face => face.name).filter(Boolean), item.names);
@@ -127,7 +127,7 @@ describe('Design decisions: data management, index page, and profile headers', (
     ['/data-cleanup/batch-delete', 'batch-delete'],
   ] as const;
   for (const viewport of [DESKTOP, MOBILE]) {
-    it(`维护工具二级页的骨架画在正文那一列里，首张卡与接管后同位同宽（${viewport.name}）`, { timeout: 90_000 }, async () => {
+    it(`The maintenance tool second-level page skeleton is drawn in the main content column; the first card is in the same position and width after handover (${viewport.name})`, { timeout: 90_000 }, async () => {
       const opened = await visit(browser, cleanupTools[0][0], viewport);
       try {
         const page = opened.page;
@@ -146,21 +146,21 @@ describe('Design decisions: data management, index page, and profile headers', (
           waiting[path] = await frame(`[data-skeleton="cleanup/${key}"] [inert]`);
         }
         release();
-        // 接管那一拍旧骨架挪进淡出层 `.skelfade`，不再挂在 `[data-skeleton]` 下，两层都要排除。
+        // In the beat of handover, the old skeleton moves into the fade-out layer .skelfade, no longer hanging under data-skeleton; both layers must be excluded.
         const content = '#stats .max-w-board:not([data-skeleton] *, .skelfade *)';
         for (const [path] of cleanupTools) {
           await page.goto(new URL(path, page.url()).href, { waitUntil: 'load' });
           await page.locator(`${content} > *`).first().waitFor({ timeout: 15_000 });
           await page.locator('#stats .skelfade').waitFor({ state: 'detached', timeout: 15_000 });
           await settle(page);
-          assert.deepEqual(await frame(content), waiting[path], `${path} 骨架与内容的正文列或首张卡位置不一致`);
+          assert.deepEqual(await frame(content), waiting[path], `${path} skeleton and content disagree on the body column or first card position`);
         }
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close() }
     });
   }
 
-  it('工具页标题采用 medium，链接读数使用既定字号与行高', { timeout: 60_000 }, async () => {
+  it('Tool page headings use medium; link readings use the established size and line height', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/data-cleanup/links', DESKTOP);
     try {
       const page = opened.page;

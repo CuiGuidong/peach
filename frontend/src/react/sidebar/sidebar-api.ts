@@ -70,7 +70,7 @@ export interface SidebarHost {
   /** Whether this item is lit right now (the shell's `navOn`, reading the address and catalog filters). */
   navOn(key: string): boolean;
   navTo(key: string): void;
-  /** 双击导航时平滑回顶，保留该栏目内容和筛选。 */
+  /** Double-clicking a nav smoothly scrolls to top while keeping that section's content and filter. */
   navToTop(): void;
   /** A catalog filter key: `multi` groups toggle members in a comma list, the rest are single-select and a second click clears. */
   toggleChip(key: string, value: string, multi: boolean): void;

@@ -106,11 +106,11 @@ export function PerformerDeleteCard({ toast }: { toast(message: string): void })
   ] : [];
   return <section id="batch-delete" className="flex min-w-0 scroll-mt-20 flex-col gap-3" aria-label="Batch delete">
     {query.isPending || query.isError ? <Fieldset layout="stack" labelledBy="batch-delete-title">
-      <FieldsetTitle id="batch-delete-title">批量删除</FieldsetTitle>
-      {query.isError ? <Note tone="error" title="读取女优列表失败"
-        action={<Button variant="secondary" size="small" onClick={() => void query.refetch()}>重试</Button>}>
-        {errorMessage(query.error)}</Note> : <p role="status" className="text-body-regular text-text-secondary">正在读取女优列表…</p>}
-    </Fieldset> : <DataTable label="女优影片" title="批量删除" titleId="batch-delete-title" unit="位女优"
+      <FieldsetTitle id="batch-delete-title">Batch delete</FieldsetTitle>
+      {query.isError ? <Note tone="error" title="Failed to read the performer list"
+        action={<Button variant="secondary" size="small" onClick={() => void query.refetch()}>Retry</Button>}>
+        {errorMessage(query.error)}</Note> : <p role="status" className="text-body-regular text-text-secondary">Reading the performer list…</p>}
+    </Fieldset> : <DataTable label="Performer titles" title="Batch delete" titleId="batch-delete-title" unit=" performers"
       description={BATCH_DELETE_TEXT} items={items} columns={columns}
       rowId={person => String(person.entity_id)} rowLabel={person => entityDisplayName('performer', person.k, person.entity_id)}
       selected={selected} onSelected={setSelected}

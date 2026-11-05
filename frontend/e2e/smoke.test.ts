@@ -31,7 +31,7 @@ interface Route {
 
 const heading = (page: Page, scope: string, name: string): Locator =>
   page.locator(scope).getByRole('heading', { name, exact: true });
-/* 数据管理二级页的卡片标题与页头同名；只认页头那一层 h2，React 卡片何时挂载都只匹配一个。 */
+/* The data management second-level page's card title shares the page header's name; only the page header's h2 is recognized, so whenever the React card mounts, only one matches. */
 const pageTitle = (page: Page, name: string): Locator =>
   page.locator('#main').getByRole('heading', { name, exact: true, level: 2 });
 
@@ -136,7 +136,7 @@ const ROUTES: readonly Route[] = [
     body: (page) => [heading(page, '#main', 'Duplicates'), page.locator('#stats').getByText('Duplicate content', { exact: true })],
   },
   {
-    // 旧直达地址进入Resource sync二级页。
+    // Old direct links go to the Resource sync second-level page.
     path: '/resource-sync',
     body: (page) => [pageTitle(page, 'Resource sync'), page.locator('#stats section#resource-sync')],
   },
@@ -295,8 +295,8 @@ describe('Route smoke', () => {
     }
   });
 
-  /* 首页那一行新作只属于目录页：从首页进统计页要收起保留，取数还没回来就离开的那一轮
-     也不许回头把它画到管理区上。演示库没有订阅，新作由拦截的接口给一条。 */
+  /* The new-releases row on the home page belongs only to the catalog page: going from home to the stats page must collapse it and keep it, and a round that leaves before its data returns
+     must not later draw it onto the admin area. The demo library has no subscriptions; the intercepted endpoint supplies one new release. */
   it('After leaving home the new-releases row collapses, and late fetches never paint it back', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/stats', DESKTOP);
     try {

@@ -124,13 +124,13 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
     });
   };
   const refreshRef = useRef(refresh); refreshRef.current = refresh;
-  /* 教程窗口关着时，同步失败走全站通知栈：和回执、后台任务同一列上下排开，不各自钉在右下角
-     叠成一摞。窗口开着时由窗口里的那条提示负责。 */
+  /* With the tour window closed, sync failures go through the app-wide notification stack: stacked in the same column as receipts and background tasks, not each pinned to the bottom-right corner
+     in a pile. When the window is open, the notice inside it takes over. */
   useEffect(() => {
     if (!syncError || open) { toast.dismiss(SYNC_TOAST); return }
     toast.error(syncError, {
       id: SYNC_TOAST, toasterId: 'receipts', duration: Infinity,
-      action: { label: '重新读取', onClick: (event) => { event.preventDefault(); void refreshRef.current() } },
+      action: { label: 'Reload', onClick: (event) => { event.preventDefault(); void refreshRef.current() } },
     });
   }, [syncError, open]);
   useEffect(() => () => { toast.dismiss(SYNC_TOAST) }, []);
@@ -284,8 +284,8 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
   startRequest.current = (chapter, resume) => { void start(chapter, resume) };
   const context = contextualChapter(location.pathname);
   return createPortal(<>
-    <ModalFrame isOpen={open} onOpenChange={value => { if (!value) close() }} width="tutorial" label="新手教程" surfaceClassName="peach-react peach-guide-center">
-      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-separator-border px-6 py-4"><h2 id="guideTitle" className="text-title-2-medium text-text-primary">新手教程</h2><SettingsDialogClose label="关闭新手教程" onPress={close} /></header>
+    <ModalFrame isOpen={open} onOpenChange={value => { if (!value) close() }} width="tutorial" label="Guided tour" surfaceClassName="peach-react peach-guide-center">
+      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-separator-border px-6 py-4"><h2 id="guideTitle" className="text-title-2-medium text-text-primary">Guided tour</h2><SettingsDialogClose label="Close the guided tour" onPress={close} /></header>
       <div className="peach-guide-tools flex shrink-0 flex-col gap-4 px-6 pt-4 pb-3">
         <SegmentedRadioGroup aria-label="Tour path" name="guide-path" orientation="horizontal" className={SEGMENTED_TRACK}
           value={tab} onChange={value => { setTab(value as typeof tab); setQuery(''); setNotice('') }}>

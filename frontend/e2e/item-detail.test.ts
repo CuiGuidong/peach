@@ -362,7 +362,7 @@ describe('Video details island', () => {
     try {
       const page = opened.page;
       let listed = 0;
-      // 列表摘要反映成功写入的续播点，关闭后卡片与再次打开都应使用它。
+      // The list summary reflects the resume point successfully written; after closing, both the card and reopening should use it.
       await page.route((url) => url.pathname === '/api/playlists', (route) => {
         listed += 1;
         const progress = opened.stub.writes.findLast(write => write.url === '/api/playlist'

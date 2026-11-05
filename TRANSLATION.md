@@ -4,19 +4,28 @@ kind: reference
 
 # Peach — English Translation Status
 
-Status as of 2026-11-04, branch `agent/glm/translation-reconcile`, HEAD after the
-v0.53.0 port. Supersedes the 0.52.0-era status; the history of that pass lives in
+Status as of 2026-11-05, branch `agent/glm/translation-reconcile`, HEAD after the
+v0.54.0 port. Supersedes the 0.53.0-era status; the history of that pass lives in
 `translation/WORK_LOG.md`.
 
 ## Where things stand
 
-The UI is translated from Chinese to English on the **v0.53.0 base**: this branch
-merged upstream `v0.53.0` (taking upstream on conflicting hunks), then re-applied
-the translation memory (16,792 pairs after +749 for this release's new strings)
-with `translation/update.py`, and translated the resulting delta by hand. The
-frontend test suite is fully green: **205 files / 2,042 tests passed**; typecheck
+The UI is translated from Chinese to English on the **v0.54.0 base**: this branch
+merged upstream `v0.54.0` (taking upstream on conflicting hunks), then re-applied
+the translation memory (17,924 pairs) with `translation/update.py`, and translated
+the resulting delta by hand. The sweep's global replacements had corrupted comments
+and string quoting in places; those were repaired (unclosed block comments, bare
+comment lines, JSX comments, apostrophes inside single-quoted strings). The
+frontend test suite is fully green: **452 files / 2,106 tests passed**; typecheck
 (both configs), `check:copy`, and oxlint are clean; `web/dist` is rebuilt from the
 English sources.
+
+Frontend string literals are CJK-free. What remains is intentional: display maps
+whose Chinese keys mirror values stored in the ledger or emitted by the backend
+(`tasks.ts` outcome labels, edition tones, duration buckets), and Japanese studio
+names, which are content. Backend-emitted user-visible strings (API errors, tray
+status details, task names, CLI output) are still Chinese — that is the next
+port's scope.
 
 The ledger's historical task labels were migrated to English prefixes
 (`task_run.progress_label`, 553 rows; performer names inside them are content and

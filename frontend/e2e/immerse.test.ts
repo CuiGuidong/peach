@@ -225,7 +225,7 @@ describe('Immersive mode', () => {
     }
   });
 
-  /** 进度条上方那块预览：显没显、相对视口的左右余量、报的时间、取的哪一格。 */
+  /** That preview above the progress bar: whether it's shown, the left/right margins relative to the viewport, the reported time, and which cell was taken. */
   const seekPreview = (page: Page) => page.evaluate(() => {
     const preview = document.querySelector<HTMLElement>('[data-immerse-bar] [data-player-seek-preview]');
     if (!preview) return null;
@@ -235,14 +235,14 @@ describe('Immersive mode', () => {
       cell: image ? [image.style.left, image.style.top] : [] };
   });
 
-  it('进度条画面预览：桌面悬停按时刻取格、两端整块留在视口里，离开收起；拼图只取一次', async () => {
+  it('Progress bar frame preview: on desktop hover, take a cell by time, both ends stay whole within the viewport, and it collapses on leave; the mosaic is fetched only once', async () => {
     const opened = await visit(browser, '/', DESKTOP);
     const { page } = opened;
     try {
       const { wide } = await pickClips(page);
       await pinQueue(page, [wide]);
       await muteVideos(page);
-      // 演示短片 2 秒：0.1 秒一帧共 20 帧，一张拼图。
+      // The demo clip is 2 seconds: one frame every 0.1 second for 20 frames total, a single sprite.
       const requested = await stubTimelineSheets(page, { frames: 20, interval: .1 });
       await openImmerse(page, wide.id);
       await page.evaluate((selector) => document.querySelector<HTMLVideoElement>(selector)!.pause(), currentVideo);
@@ -254,17 +254,17 @@ describe('Immersive mode', () => {
       assert.equal(middle.src, `/timeline?id=${wide.id}&s=0&source=peach`);
       const duration = await page.evaluate((selector) => document.querySelector<HTMLVideoElement>(selector)!.duration, currentVideo);
       const frame = Math.min(19, Math.floor(duration * ratio / .1));
-      assert.deepEqual(middle.cell, [`${-(frame % 10) * 100}%`, `${-Math.floor(frame / 10) * 100}%`], `第 ${frame} 帧`);
-      assert.ok(middle.bottom > 9, `预览要压在悬停加粗到 9px 的进度条上方：${middle.bottom}`);
+      assert.deepEqual(middle.cell, [`${-(frame % 10) * 100}%`, `${-Math.floor(frame / 10) * 100}%`], `Frame ${frame}`);
+      assert.ok(middle.bottom > 9, `The preview must sit above the progress bar that thickens to 9px on hover: ${middle.bottom}`);
       assert.equal(await page.locator('[data-immerse-ui]').evaluate((node) => getComputedStyle(node).visibility), 'hidden',
-        '预览出来时作者与标题要让开');
+        'When the preview shows, the author and title should step aside');
       for (const x of [1, DESKTOP.width - 1]) {
         await page.mouse.move(x, y);
         const edge = (await seekPreview(page))!;
-        assert.ok(edge.left >= 11.5 && edge.right >= 11.5, `两端要各让出 12px：${JSON.stringify(edge)}`);
+        assert.ok(edge.left >= 11.5 && edge.right >= 11.5, `Both ends must leave 12px each: ${JSON.stringify(edge)}`);
       }
       await page.mouse.move(DESKTOP.width / 2, DESKTOP.height / 2);
-      assert.equal((await seekPreview(page))?.hidden, true, '离开进度条预览没收起');
+      assert.equal((await seekPreview(page))?.hidden, true, 'Leaving the progress bar did not dismiss the preview');
       assert.deepEqual([...requested.entries()], [[0, 1]]);
       assert.deepEqual(opened.problems, [], JSON.stringify(opened.problems));
     } finally {
@@ -272,7 +272,7 @@ describe('Immersive mode', () => {
     }
   });
 
-  it('手机 390 宽：没有时间轴图时横划拖动照样出预览、抬手收起，不去取拼图', async () => {
+  it('Phone at 390 width: without a timeline image, horizontal swipe-drag still shows the preview and lifts to collapse on release, without fetching the mosaic', async () => {
     const opened = await visit(browser, '/', MOBILE);
     const { page } = opened;
     try {
@@ -289,11 +289,11 @@ describe('Immersive mode', () => {
       await touch('touchStart', 100, 400);
       for (let step = 1; step <= 8; step += 1) await touch('touchMove', 100 + MOBILE.width / 2 * step / 8, 402);
       const dragging = (await seekPreview(page))!;
-      assert.equal(dragging.hidden, false, '横划拖动时预览没出来');
+      assert.equal(dragging.hidden, false, 'Horizontal drag did not show the preview');
       assert.match(dragging.time, /^0:0[0-2]$/);
       assert.ok(dragging.left >= 11.5 && dragging.right >= 11.5, JSON.stringify(dragging));
       await touch('touchEnd');
-      assert.equal((await seekPreview(page))?.hidden, true, '抬手预览没收起');
+      assert.equal((await seekPreview(page))?.hidden, true, 'Preview not dismissed on release');
       assert.deepEqual(sheets, []);
       assert.deepEqual(opened.problems, [], JSON.stringify(opened.problems));
     } finally {

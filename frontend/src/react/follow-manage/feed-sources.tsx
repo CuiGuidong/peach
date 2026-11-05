@@ -80,7 +80,7 @@ const COLUMN_LABELS: Record<string, string> = {
 /** Columns that take no header text: the checkbox cell announces "select who" itself, and the three row-end controls each carry their own names. */
 const SILENT_COLUMNS = new Set(['actions']);
 const preferenceColumns = Object.entries(COLUMN_LABELS).map(([id, label]) => ({ id, label,
-  /* 来源那一格要放下站标、`video.dmm.co.jp` 与外链图标，160 会把站名压到图标底下。 */
+  /* The source cell needs to fit the site mark, video.dmm.co.jp, and the external-link icon; 160 would push the site name under the icon. */
   width: id === 'select' ? 48 : id === 'name' ? 300 : id === 'actions' ? 208 : id === 'fetched' ? 200
     : id === 'origin' ? 184 : 160,
   min: id === 'select' ? 48 : id === 'actions' ? 200 : id === 'name' ? 300 : 112, max: id === 'select' ? 48 : id === 'name' ? 2000 : 800,
@@ -102,7 +102,7 @@ function originHost(url: string): string {
   }
 }
 
-/** Enabled状态与已取得的拉取结果共同决定当前标签. */
+/** The Enabled state together with the fetched results determine the current tab. */
 function StatusChip({ source }: { source: FeedSource }) {
   if (!source.enabled) return <Chip variant="caption" color="gray">Paused</Chip>;
   if (source.last_error) return <Chip variant="caption" color="rose">Fetch failed</Chip>;
@@ -287,7 +287,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
         id: 'origin',
         header: label('origin'),
         cell: (context) => (
-          <a href={context.getValue()} target="_blank" rel="noopener noreferrer" title="打开来源页面"
+          <a href={context.getValue()} target="_blank" rel="noopener noreferrer" title="Open the source page"
             className="max-w-full text-text-primary underline-offset-2 hover:underline">
             <SiteLabel site={context.row.original.kind.startsWith('javdb') ? 'javdb'
               : context.row.original.kind.startsWith('dmm') ? 'dmm' : originHost(context.getValue())}

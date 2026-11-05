@@ -57,7 +57,7 @@ it('The extra outline on top of a filled card never swaps the base', () => {
   expect(fieldset).toContain('bg-background-secondary-default');
   expect(fieldset).toContain('border-border-button-default');
   expect(classes({ bordered: 'soft' })).toContain('border-separator-border');
-  // 失败卡的框线要有宽度才画得出来，且画成不占盒子的 outline，不把内容挤进 1px。
+  // The failure card's border needs a width to be drawn, and it's drawn as an outline that doesn't occupy the box, so content isn't squeezed into 1px.
   const failed = [...classes({ bordered: 'error' })];
   expect(failed.filter((name) => name.startsWith('border'))).toEqual([]);
   expect(failed).toEqual(expect.arrayContaining(['outline-1', '-outline-offset-1', 'outline-border-error-default']));

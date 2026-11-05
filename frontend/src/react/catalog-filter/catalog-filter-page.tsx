@@ -65,7 +65,7 @@ function Glass(props: CatalogFilterProps) {
   const loading = !props.tiers;
   const tags = usePaged(tagRow, props.tags, props.tiers?.key ?? '', props.tagFirst);
   useLayoutEffect(() => {
-    // 首次加载按两行占位；已有内容刷新时沿用已测量的排布，不拿骨架宽度重新合行。
+    // First load uses a two-row placeholder; refreshing with existing content reuses the measured layout, not re-wrapping lines at the skeleton width.
     if (loading) { setSingleRow(false); return }
     if (props.tiersPending || props.count === null) return;
     const frame = scroll.current?.closest<HTMLElement>('[data-catalog-frame]');
@@ -233,7 +233,7 @@ function Head({ count, refreshing, layout, sorts, actions }: CatalogFilterProps)
 }
 
 
-/** 读数加载时只替换文字，筛选框和操作控件保持原位。 */
+/** While a reading loads, only the text is replaced; the filter box and action controls stay in place. */
 function Readout({ count }: { count: CatalogFilterProps['count'] }) {
   const text = count ? `${count.total.toLocaleString()} matches · showing ${count.shown.toLocaleString()}`
     : count === false ? '' : undefined;

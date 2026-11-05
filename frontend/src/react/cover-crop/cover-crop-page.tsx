@@ -1,12 +1,12 @@
-/* Crop the cover: 作品详情页标题旁那枚键点开的一屏.
+/* Crop the cover: the screen opened by the key next to the title on the work detail page.
  *
- * 裁的是**取景框**，不是图片.横版封套里正封那一块本来就不是一张新图，而是一组
- * 写在 `<番号>.poster.json` 里的坐标（`src/peach/jav_poster_crop.py`），页面按它取景.
- * 所以这一屏确认之后Cover原图一个字节都没动，「Restore defaults」就是把那组坐标按折痕判据
- * 重算一遍——不是把图还原，图从来没变过.
+ * What's cropped is the **framing box**, not the image. The front-cover block in a landscape jacket was never a new image to begin with, but a set of
+ * coordinates written in `<catalog-number>.poster.json` (`src/peach/jav_poster_crop.py`), and the page frames by it.
+ * So after confirming on this screen, not a single byte of the original Cover image has moved; "Restore defaults" just recomputes that set of coordinates by the fold-line criterion
+ * — it doesn't restore the image, the image was never changed.
  *
- * 默认框满高贴右缘、按正封宽高比取宽: 封套是「背面 | 书脊 | 正面」，人要改的多半
- * 只是折痕落在哪一列.比例可以解锁，因为版式不规整的封套确实存在.
+ * The default box is full-height against the right edge, with width taken from the front cover's aspect ratio: the jacket is "back | spine | front", and what a person changes is most likely
+ * just which column the fold line falls in. The ratio can be unlocked, because jackets with irregular layouts really do exist.
  */
 import { useState } from 'react';
 import { RiCloseLine } from '@remixicon/react';

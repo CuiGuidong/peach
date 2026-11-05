@@ -104,11 +104,12 @@ export function baseName(path: string): string {
 }
 
 const count = (value: number | undefined) => Number(value || 0).toLocaleString();
+const REASON_LABELS: Record<string, string> = { 缺番号: 'missing code' };
 
 /** The preview results line. Only rows that will change are listed: the tens of thousands of library rows that will not change are background, not results. */
 export function planSummary(plan: OrganizePlan): string {
   const skipped = Object.entries(plan.reasons || {}).sort((a, b) => b[1] - a[1])
-    .map(([reason, value]) => `${reason} ${count(value)}`).join(' · ');
+    .map(([reason, value]) => `${count(value)} ${REASON_LABELS[reason] || reason}`).join(' · ');
   if (!Number(plan.counts?.change || 0)) return `No files to change.${skipped ? ` Skipped: ${skipped}.` : ''}`;
   return `${count(plan.counts.change)} files will be renamed or moved, ${count(plan.counts.unchanged)} already have the target name`
     + `${skipped ? `; skipped ${skipped}` : ''}.`;

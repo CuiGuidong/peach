@@ -231,25 +231,25 @@ export function paintListTitle(){
   paintCatalogPageTitle(heading,state.q);
 }
 
-/* 首页标题跟着搜索词走：搜出来的这一屏是这个词的结果，不再是首页。清掉搜索词回到「首页」。 */
+/* The home page title follows the search term: this screen of search results is the term's results, no longer the home page. Clearing the search term returns to 'Home'. */
 export function paintCatalogPageTitle(heading,query){
   const title=heading?.querySelector('[data-page-title]');if(!title)return;
   const words=String(query||'').trim();
-  const next=words?`搜索结果：「${words}」`:'首页';
+  const next=words?`Search results: 「${words}」`:'Home';
   if(title.title===next||(!words&&title.textContent===next))return;
   if(!words){title.textContent=next;title.removeAttribute('title');return}
   const part=(text,full)=>{const span=document.createElement('span');span.textContent=text;if(full!==undefined)span.dataset.titleWords=full;return span};
-  title.replaceChildren(part('搜索结果：「'),part(words,words),part('」'));
+  title.replaceChildren(part('Search results: 「'),part(words,words),part('」'));
   title.title=next;
   fitTitleWords(title);
-  // 框宽变了由观察者重截；字体晚到时框不变、字变宽，等字体就绪再截一次。
+  // When the box width changes, the observer re-screenshots; if the font arrives late, the box doesn't change but the text widens, so wait for the font to be ready and screenshot again.
   titleWidth??=new ResizeObserver(entries=>entries.forEach(entry=>fitTitleWords(entry.target)));
   titleWidth.observe(title);
   void document.fonts?.ready.then(()=>fitTitleWords(title));
 }
 
-/* 长词只截搜索词那一段的末尾，省略号紧贴收尾的「」」。CSS 的末尾省略做不到：引号要在词外头，
-   词那一格截断后剩下的空白会留在省略号和引号之间。按标题此刻的宽度二分出放得下的最长前缀。 */
+/* A long word truncates only the tail of the search-term segment, with the ellipsis tight against the closing 「」」. CSS tail ellipsis cannot do this: the quote must sit outside the word,
+   and the leftover whitespace after the word cell is truncated lands between the ellipsis and the quote. Binary-search the longest prefix that fits within the title's current width. */
 let titleWidth=null;
 function fitTitleWords(title){
   const span=title.querySelector('[data-title-words]');if(!span||!title.clientWidth)return;
@@ -369,7 +369,7 @@ export function navOn(k){
 export function navTo(k){
   const remembered=rememberedSidebarPath(k);
   if(remembered===location.pathname+location.search+location.hash)return;
-  // 当前项留在原位接收双击，换栏目才收起抽屉并短暂禁止悬停弹回。
+  // The current item stays in place to take a double-click; only switching sections collapses the drawer and briefly disables hover pop-back.
   closeDrawerAfterNav();
   if(remembered){
     navigationState.navigatePath(remembered);

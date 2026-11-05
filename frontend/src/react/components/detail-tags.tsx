@@ -15,8 +15,8 @@ import { useAction, busyProps } from '../settings/use-action';
 import { queryClient } from '../query';
 
 const Glyph = ({ name }: { name: string }) => <span className="contents" dangerouslySetInnerHTML={{ __html: icon(name) }} />;
-/* 标签多时先露前面一截：在线来源一帖常挂上百个标签，全摊开会把侧栏推成一整屏胶囊。来源分类排在
-   前面（作品、角色、作者），收起时留下的正是它们。只多出几个时不折，省得为三两个标签多点一下。 */
+/* When there are many tags, show only the first stretch: a post from an online source often carries hundreds of tags, and laying them all out would push the sidebar into a full screen of pills. Source categories come
+   first (works, characters, creators), and they are exactly what remains when collapsed. If only a few more, do not fold — saves an extra click for two or three tags. */
 const TAGS_SHOWN = 20;
 const TAGS_SLACK = 4;
 interface DetailTagsProps {
@@ -41,7 +41,7 @@ export function DetailTags({ tags, candidates, scope = 'local', id, adding, labe
     return row;
   }, row => setEditing(row)) };
   const [open, setOpen] = useState(false);
-  /* 刚加上的标签按名字排进去，多半落在收起的那一截里，看着像没加上：收起时它们也露在外面。 */
+  /* Newly added tags are sorted in by name, mostly landing in the collapsed part, looking like they weren't added: when collapsed, they also show outside. */
   const [added, setAdded] = useState<readonly string[]>([]);
   const add = (tag: string) => { setAdded(keys => [...keys, foldName(tag)]); onAdd(tag) };
   const long = tags.length > TAGS_SHOWN + TAGS_SLACK;
@@ -58,7 +58,7 @@ export function DetailTags({ tags, candidates, scope = 'local', id, adding, labe
       </span>)}
       {long ? <Button variant="secondary" size="small" data-tags-more="" aria-expanded={open}
         trailingIcon={open ? RiArrowUpSLine : RiArrowDownSLine} onClick={() => setOpen(!open)}>
-        {open ? '收起' : `还有 ${tags.length - shown.length} 个`}</Button> : null}
+        {open ? 'Collapse' : `${tags.length - shown.length} more`}</Button> : null}
       <TagPicker tags={tags} candidates={options} label={label} onAdd={add} adding={adding} scope={scope}
         onOpen={() => setAsked(true)} loading={inventory.isFetching} />
     </div>
@@ -69,9 +69,9 @@ export function DetailTags({ tags, candidates, scope = 'local', id, adding, labe
   </>;
 }
 
-/* 标签选择器: Recently used + All（或搜索结果），上下键挑、回车加，输入的词没有完全命中就多一格
-   「New」.开合走全站菜单那一对口（`presentMenu`／`dismissMenu`），`hidden` 由它们管.
-   选字过程中框里是半截拼音，筛选按 `term` 走、组完字才跟上，不拿「zhon」去筛. */
+/* Tag selector: Recently used + All (or search results), up/down keys pick, Enter adds; if the typed term doesn't fully match, add a "New" cell.
+   Open and close go through the site-wide menu pair (`presentMenu`/`dismissMenu`); `hidden` is managed by them.
+   While picking characters, the box holds half-finished pinyin; filtering follows `term` and only catches up after the characters are composed — don't filter by "zhon". */
 function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, loading }: Pick<DetailTagsProps, 'tags' | 'candidates' | 'label' | 'onAdd' | 'adding' | 'scope'> & { onOpen():void; loading:boolean }) {
   const plus = useRef<HTMLButtonElement>(null);
   const picker = useRef<HTMLDivElement>(null);
@@ -122,7 +122,7 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
     if (!selected) onAdd(tag.k);
   };
   const keydown = (event: KeyboardEvent<HTMLInputElement>) => {
-    /* 选字那一下的回车是定字，不是「新建这个标签」——半截拼音会真的建成标签。 */
+    /* The Enter that commits an IME candidate confirms the character, not 'create this tag'; half-typed pinyin would actually become a tag. */
     if (composingKey(event.nativeEvent)) return;
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); plus.current?.focus(); return }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {

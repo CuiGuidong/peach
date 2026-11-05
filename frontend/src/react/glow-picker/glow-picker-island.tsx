@@ -44,13 +44,13 @@ function GlowPicker({ host: at }: { host: GlowPickerHost }) {
     <>
       <header data-glow-head="" data-glow-presets="" hidden={!glow.on}>
         <span>Glow</span>
-        {/* 这里Reset的是配色，不是整份Glow: 强度和颗粒一起清掉会让人以为按错了键.整份Restore defaults在Detailed settings那一屏. */}
+        {/* The Reset here is for the color scheme, not the whole Glow: clearing intensity and grain together makes it look like the wrong key was pressed. The full Restore defaults is on the Detailed settings screen. */}
         <button type="button" data-glow-preset-reset="" onClick={() => resetGlowColors(store)}>Reset</button>
       </header>
       <GlowPresetGrid store={store} label="Glow" hidden={!glow.on} />
       <p data-glow-head="" data-glow-sub=""><span>Accent color</span></p>
       <div data-accent-grid="" role="group" aria-label="Accent color">
-        {/* Accent color那一排同样不带颜色: 球拿的就是这一档真会写上去的 400 与 600 两级. */}
+        {/* The Accent color row is likewise colorless: the ball takes exactly the 400 and 600 levels this tier would actually write. */}
         {ACCENT_CHOICES.map(([key, label]) => (
           <button type="button" key={key} data-glow-chip="" data-accent={key} aria-pressed={key === accent}
             title={label} aria-label={label} onClick={() => chooseAccent(key, store)}>

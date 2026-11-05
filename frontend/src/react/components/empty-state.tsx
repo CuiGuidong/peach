@@ -1,11 +1,11 @@
 /* Empty state when there is no data or result: icon, title and description in one component (`peach-web-ui`).
  *
- * 注册表里没有空态条目。标题是真的标题元素，冒烟用例按它认页面主体：一片白和「画出来了、
- * 只是没有内容」在别的断言下长得一模一样。根上的 `data-empty-state` 是给冒烟与外观用例认的
- * 钩子，不参与样式。标准与紧凑两档共用图标、字体、背景和边框。
+ * There's no empty-state entry in the registry. The title is a real heading element, and the smoke case identifies the page body by it: a blank sheet and "rendered,
+ * just with no content" look identical under other assertions. The root's `data-empty-state` is a hook
+ * for the smoke and appearance cases to recognize; it doesn't participate in styling. The standard and compact tiers share the icon, font, background, and border.
  *
- * 空态常替卡片落进网格里（外层常是 `display: contents` 的包裹），所以自己铺满整行、
- * 跨满所有列，同旧版 `.ui-emptystate`；不然只占一列卡宽，旁边空出一大片。 */
+ * The empty state often replaces a card dropped into the grid (the outer wrapper is often `display: contents`), so it fills the whole row itself,
+ * spanning all columns, like the old `.ui-emptystate`; otherwise it'd only take one card column wide, leaving a big blank next to it. */
 import type { ComponentType, ReactNode } from 'react';
 import { Button } from '@/components/base/buttons/button';
 

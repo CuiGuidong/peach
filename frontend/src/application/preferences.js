@@ -122,12 +122,12 @@ export function setCensored(on){
   if(on)releaseHoverPreviews();
 }
 
-/** SFW 开关键：本机存的那份读不出来时回到默认 Shift+S。 */
+/** SFW toggle key: when the locally stored one can't be read, fall back to the default Shift+S. */
 export function sfwShortcut(){
   return parseShortcut(localStorage.getItem(SFW_SHORTCUT_KEY))||parseShortcut(DEFAULT_SFW_SHORTCUT);
 }
 
-/** 传空恢复默认。存本机、不进同步设置，见 `keyboard-shortcut.ts`。 */
+/** Pass empty to restore the default. Stored on This device only and never synced; see `keyboard-shortcut.ts`. */
 export function setSfwShortcut(shortcut){
   if(shortcut)localStorage.setItem(SFW_SHORTCUT_KEY,serializeShortcut(shortcut));
   else localStorage.removeItem(SFW_SHORTCUT_KEY);

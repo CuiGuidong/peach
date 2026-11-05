@@ -1,4 +1,4 @@
-/* 首页筛选栏的两份聚合（`src/catalog-bars.ts`）：键、回退、标签页内复用、口径变了重取、刷新强制重取、续页。 */
+/* The two aggregations behind the home-page filter bars (`src/catalog-bars.ts`): keys, fallback, reuse within a tab, re-fetch when the scope changes, forced re-fetch on refresh, and continuation pages. */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
 import {

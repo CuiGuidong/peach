@@ -42,7 +42,7 @@ import { TaskControlFeedback, TaskControls } from './task-controls';
 import { TaskIcon } from './task-icon';
 import { TaskResources } from './task-resources';
 import {
-  elapsedText, fetchEarlier, fetchTasks, foldByKind, foldRoutine, followupDetail, followupTally, groupFollowups, isActive,
+  elapsedText, fetchEarlier, fetchTasks, foldByKind, foldRoutine, followupDetail, followupDetailLong, followupTally, groupFollowups, isActive,
   hasResultProblems, isRoutine, latestOfKind, mergeFinished, momentText, pollInterval, problemDestination, progressText,
   readableErrorHeadline, statusLabel, summaryItems, taskIssues, taskSubject, TASKS_KEY, TRIGGER_LABELS, type FollowupCounts, type TaskControlState, type TaskRunPayload,
 } from './tasks';
@@ -51,10 +51,10 @@ import {
 const FOLLOWUP_ROWS = 50;
 /** It only dispatches successor tasks: one round is just 'how many were scheduled'; what matters is the results of those items. */
 const DISPATCHERS = new Set(['upgrade-repairs']);
-/** 开跑时写进摘要、指明这一轮处理哪部作品的两项（`taskSubject`）。 */
+/** The two items written into the summary at start, indicating which work this round processes (`taskSubject`). */
 const SUBJECT_KEYS = new Set(['asset_id', 'name']);
 
-/* 完成绿、失败与已取消红、Running蓝、意外中断黄，排队为中性。 */
+/* Done is green, failed and cancelled are red, Running is blue, unexpected interruption is yellow, queued is neutral. */
 const BADGE_COLORS: Record<string, 'lime' | 'rose' | 'yellow' | 'blue' | 'neutral'> = {
   succeeded: 'lime', failed: 'rose', cancelled: 'rose', interrupted: 'yellow', running: 'blue', pending: 'neutral',
 };
@@ -88,6 +88,7 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
     <ul className="-mr-5 flex min-w-0 flex-col">
       {rows.map((row) => {
         const detail = followupDetail(row);
+        const detailLong = followupDetailLong(row);
         return (
           <li key={row.id} data-status={row.status} data-followup-key={row.followup_key}
             className="flex min-w-0 flex-col gap-1 border-t border-separator-border py-2.5 pr-10 pl-5">
@@ -109,6 +110,9 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
             {Object.keys(row.result_summary || {}).length
               ? <div className="w-full min-w-0">
                   <Disclosure summary="Technical details" contentClassName="pb-2.5">
+                    {detailLong !== detail
+                      ? <p className="wrap-anywhere text-caption-1-regular text-text-secondary">{detailLong}</p>
+                      : null}
                     <CodeBlock code={JSON.stringify(row.result_summary, null, 2)} language="json"
                       label={`${row.task_label} technical details`} />
                   </Disclosure>
@@ -157,21 +161,21 @@ function RunCard(
         </div>
         <p className="text-caption-1-regular text-text-secondary">{meta}</p>
         <TaskResources run={run} active={resourceActive} />
-        {/* 文件名常有上百字：单行末尾省略，番号在开头，完整名称在悬停提示里。不用 data-middle-truncate：
-            它按 Canvas 量宽，不计中西文自动间距，中日文夹英文的名字会被裁掉末尾几个像素。 */}
+        {/* Filenames often run to hundreds of characters: single-line with a tail ellipsis, the code up front, the full name in the hover tooltip. No data-middle-truncate:
+            it measures width on Canvas without CJK/Latin auto-spacing, so names mixing CJK and English get their trailing pixels clipped. */}
         {subject ? <NameLink href={subject.href} data-task-subject={run.id} title={subject.label}
           className="min-w-0 max-w-full self-start truncate text-text-primary">
           {subject.label}
         </NameLink> : null}
-        {/* 结束原因是这一轮的结论，和摘要一样写在正文里；全文是明细，收进下面的「错误详情」。 */}
+        {/* The end reason is the conclusion of this round, written in the body like the summary; the full text is details, collapsed into 'Error details' below. */}
         {errorHead ? <p data-task-error="" className="text-caption-1-regular text-text-secondary wrap-anywhere">{errorHead}</p> : null}
         {children}
       </div>
-      {/* 问题详情、错误详情、任务明细、技术详情都是可展开的明细，同样排成卡片底部带分隔线的一行，按这个顺序。 */}
+      {/* Issue details, error details, task details, and technical details are all expandable details, likewise laid out as a row at the card's bottom with a divider, in this order. */}
       {issues ? <div className="border-t border-separator-border px-5 py-2.5">{issues}</div> : null}
       {errorHead && errorFull !== errorHead ? <div className="border-t border-separator-border px-5 py-2.5">
-        <Disclosure summary="错误详情" contentClassName="pb-2.5">
-          <ErrorDetails label={`${run.task_label}错误详情`}>{errorFull}</ErrorDetails>
+        <Disclosure summary="Error details" contentClassName="pb-2.5">
+          <ErrorDetails label={`${run.task_label} Error details`}>{errorFull}</ErrorDetails>
         </Disclosure>
       </div> : null}
       {shown ? <div className="border-t border-separator-border px-5 py-2.5">
@@ -184,10 +188,10 @@ function RunCard(
           <FollowupList rows={listed} />
         </Disclosure>
       </div> : null}
-      {/* 摘要里只有开跑时写下的作品时，它已经链接在卡片上，不再单列一块技术详情。 */}
+      {/* When the summary only has the work written at start, it's already linked on the card, so no separate technical-details block is added. */}
       {Object.keys(run.result_summary || {}).some((key) => !(subject && SUBJECT_KEYS.has(key)))
         ? <div className="border-t border-separator-border px-5 py-2.5">
-        <Disclosure summary="技术详情" contentClassName="pb-2.5">
+        <Disclosure summary="Technical details" contentClassName="pb-2.5">
           <CodeBlock code={JSON.stringify(run.result_summary, null, 2)} language="json"
             label={`${run.task_label} technical details`} />
         </Disclosure>
@@ -235,9 +239,9 @@ function SettledRun(
   const summary = batches
     ? [`Processed ${followupTotal!.toLocaleString()} items in total`, followupFailed ? `${followupFailed.toLocaleString()} of them failed` : '']
         .filter(Boolean)
-    // 作品链接已写出文件名，摘要不再列「名称」。
+    // The work link already carries the file name, so the summary no longer lists “name”.
     : summaryItems(taskSubject(run) ? { ...run.result_summary, name: '' } : run.result_summary)
-        // 结束原因由卡片单独写一行，摘要里同一句不再重复。
+        // The end reason gets its own line on the card; the summary does not repeat the same sentence.
         .filter((line) => line !== run.error && line !== readableErrorHeadline(run.error));
   const issues = taskIssues(run);
   const destination = problemDestination(run, latest);
@@ -250,9 +254,9 @@ function SettledRun(
        elapsed && `Took ${elapsed}`]).filter(Boolean).join(' · ');
   return (
     <RunCard run={run} meta={meta} error={run.error} followups={followups} followupTotal={followupTotal}
-      issues={issues.length ? <Disclosure summary={`问题详情 · ${issues.length} 项`} contentClassName="pb-2.5">
-        <ErrorDetails label="任务问题详情">
-        {/* 与数据管理的问题清单同一种分层：名字一层，来源与问题类别跟在名字后面用次级色，原因再低一档。 */}
+      issues={issues.length ? <Disclosure summary={`Issue details · ${issues.length} items`} contentClassName="pb-2.5">
+        <ErrorDetails label="Task issue details">
+        {/* The same hierarchy as the data management issue list: the name is one tier, source and issue category follow the name in a secondary color, and the reason is one tier lower. */}
         <ul className="flex min-w-0 flex-col whitespace-normal" data-task-issues="">
           {issues.map((issue, index) => <IssueRow key={`${issue.source}-${index}`} title={<>
               {issue.label}
@@ -280,7 +284,7 @@ function SettledRun(
             {summary.map((line, index) => <li key={index}>{line}</li>)}
           </ul> : null}
       {!issues.length && hasResultProblems(run) && ['follow-check', 'feed-check'].includes(run.task_key)
-        ? <p className="text-body-2-regular text-text-secondary">未取得本轮逐项详情，可到来源列表查看检查结果。</p> : null}
+        ? <p className="text-body-2-regular text-text-secondary">Per-item details for this round were not fetched; check results are available in the source list.</p> : null}
       {destination
         ? <LinkButton href={destination.href} size="small" trailingIcon={RiArrowRightLine}
             className="self-start">
@@ -387,7 +391,7 @@ export function ActivityPage() {
   const counts: FollowupCounts = { ...earlierCounts, ...data.followup_counts };
   const childrenOf = (runs: TaskRunPayload[]) => runs.flatMap((run) => byParent.get(run.id) || []);
   // A round that finished itself while its dispatched successors are still running counts as 'in progress': the whole job is not done yet, it goes under 'Recently finished'
-  // 就是一张卡上一个Done、一个Running.页面上只列得到一部分后继，所以先看计数.
+  // Just one Done and one Running per card. The page only lists a portion of the successors, so check the count first.
   const working = [...settled, ...topLevel(parents)].filter((run) => followupTally(counts, [run]).active > 0
     || byParent.get(run.id)?.some(isActive)).sort((a, b) => b.id - a.id);
   const running = topLevel(data.running || []);
@@ -405,7 +409,7 @@ export function ActivityPage() {
   };
   const folds = foldRoutine(finished, (run) => isRoutine(run)
     && (quietChildren(run) || DISPATCHERS.has(run.task_key)));
-  // 各父任务的控制范围独立：合成一张卡会让较早那批的后继没有对应操作入口。
+  // Each parent task's control scope is independent: merging into one card would leave the successors of the earlier batch without a corresponding action entry.
   const workingGroups = [
     ...foldByKind(working.filter((run) => !run.control)),
     ...working.filter((run) => run.control).map((run) => ({ run, runs: [run] })),

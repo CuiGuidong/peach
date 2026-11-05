@@ -87,7 +87,7 @@ it('Horizontal overscroll settles with rubber-banding, pushing against an edge b
   clock.mockRestore();
 });
 
-it('按住拖动横排时整页锁成抓取光标，松手或窗口失焦就撤掉，点在控件上不起拖', () => {
+it('When holding to drag a horizontal row, the whole page locks to a grabbing cursor; it is released on release or window blur; clicking on a control does not start a drag', () => {
   vi.stubGlobal('ResizeObserver',class {observe(){}disconnect(){}});
   const node=document.createElement('div');document.body.append(node);
   const control=document.createElement('button');node.append(control);

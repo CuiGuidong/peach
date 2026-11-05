@@ -51,7 +51,7 @@ const RESOURCE_LABELS: Record<string, string> = { image: 'Images', audio: 'Audio
 const DISPOSAL_LABELS = { manual: 'Manual', junk: 'Junk', duplicate: 'Duplicates', missing: 'Missing file' };
 
 function missingDuration(item: MediaItem): { key: string; label: string } {
-  // media_probe 将已探查但未取得时长记为 -1；NULL 才是尚未探查。
+  // media_probe records probed-but-duration-not-obtained as -1; NULL means not yet probed.
   if (Number(item.duration) < 0) return { key: 'unavailable', label: 'Probe error' };
   if (item.duration != null) return { key: 'unknown', label: 'Duration not obtained' };
   if (item.location === 'online') return { key: 'online', label: 'The source gave no duration' };
@@ -68,7 +68,7 @@ function DisposalReason({ item }: { item: MediaItem }) {
   return <span data-media-disposal-reason="" title={`Junk reason: ${label}`}>{label}</span>;
 }
 
-/** 视频与Resources共用Trash操作，失败原因留在卡片上供Retry. */
+/** Videos and Resources share the Trash operation; the failure reason stays on the card for Retry. */
 function ResourceAction({ item, actions }: { item: MediaItem; actions: MediaCardActions }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -109,7 +109,7 @@ export interface MediaCardProps {
   seekSeconds: number;
   helpers: MediaCardHelpers;
   actions: MediaCardActions;
-  /** 点这张卡Open什么.竖屏带点进沉浸模式，Trash里的Resources按类型分流，其余Open详情. */
+  /* What clicking this card Opens. Portrait with a dot enters immersive mode, Resources in the Trash route by type, the rest Open detail. */
   onOpen(item: MediaItem, anchor: HTMLElement): void;
   /** This card represents the whole volume or edition group (with "Merge volumes and editions" on). When off, one card per volume showing only that file's
    *  name, duration and size, without the group's volume count; when on, entries still route into the volume or edition queue by their grouping. On by default. */
@@ -145,12 +145,12 @@ export function identityParts(item: MediaItem): { avatar: ReactNode; who: ReactN
     ? (
       <>
         <button type="button" data-media-who="" data-entity-kind="performer" data-entity-name={performer} title={entityDisplayName('performer', performer)}><WhoLabel name={entityDisplayName('performer', performer)} /></button>
-        <span data-media-who-more="">{`等 ${total} 人`}</span>
+        <span data-media-who-more="">{`and ${total} people`}</span>
       </>
     )
     : kind
       ? <button type="button" data-media-who="" data-entity-kind={kind} data-entity-name={name} title={entityDisplayName(kind, name)}><WhoLabel name={entityDisplayName(kind, name)} /></button>
-      /* 没有署名人的那批是馆藏里的一类，点得开，和女优名、厂牌名一样。 */
+      /* Entries without a credited person are one class of the library, clickable like performer names and studio names. */
       : <button type="button" data-media-who="" data-open-unowned=""><WhoLabel name={name} /></button>;
   return { avatar, who };
 }
@@ -187,7 +187,7 @@ function LaterButton({ item, actions, on, onChange }: {
   );
 }
 
-/** 快退、快进跳的是悬停预览那段视频本身，不打开详情。 */
+/** Rewind and fast-forward jump within the hover preview's video itself and never open details. */
 function seekPreview(card: HTMLElement | null, delta: number) {
   const video = card?.querySelector<HTMLVideoElement & { _hop?: ReturnType<typeof setInterval> | null }>('video.hv');
   if (!video || !Number.isFinite(video.duration)) return;
@@ -222,9 +222,9 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
   const jav = layout.active && !!item.is_jav;
   const ratio = cardRatio(item, variant, layout);
   const size = jav ? layout.size : 'small';
-  /* 竖屏格（竖屏带与筛竖屏的网格）只展示竖屏比例的视频，卡面只用视频自己的帧图；番号作品也
-     不走官方Cover，「JAV 默认Cover」Settings在这里不起作用: 那张Cover是整部作品的宣传图，多是横图，
-     和这一卷竖屏视频不是同一个画面.没有帧图就是「No preview」. */
+  /* The portrait grid (the portrait strip and the grid filtered to portrait) shows only portrait-aspect videos; the card face uses only the video's own frame; catalog-number works also
+     don't use the official Cover — the "JAV default Cover" setting doesn't apply here: that Cover is the promotional image for the whole work, mostly landscape,
+     not the same frame as this volume of portrait video. No frame image means "No preview". */
   const frameOnly = ratio === PORTRAIT_RATIO && !!item.is_jav;
   const artwork = frameOnly ? frameArtwork(item, false) : cardArtwork(item, size, false, layout.javImage);
   const identity = frameOnly || size === 'small' ? artwork.html : cardArtwork(item, 'small', false, layout.javImage).html;
@@ -338,7 +338,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
             {item.why && variant !== 'next' ? <span data-media-why="" title={item.why}>{item.why}</span> : null}
             <span data-media-facts="">
               {item.is_jav && item.release_date ? <CardDate value={item.release_date} label={item.release_date} /> : null}
-              <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : '大小未知'}</span>
+              <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : 'Unknown size'}</span>
             </span>
           </div>
           {variant === 'next' ? <RecommendationReason reasons={item.why ? item.why.split(' · ') : []}
@@ -352,8 +352,8 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
   );
 }
 
-/** Trash里不是视频的那些: 图片、音频、压缩包和网址快捷方式.卡上只有一枚「还原」或
- *  「移入Trash」，点了就写 ledger，做完给一颗撤销键. */
+/** The non-video items in the Trash: images, audio, archives, and URL shortcuts. The card has only one "Restore" or
+ *  "Move to Trash" button; clicking it writes to the ledger and offers an undo button when done. */
 function ResourceCard({ item, selected, selectMode, helpers, actions, onOpen }: MediaCardProps) {
   const card = useRef<HTMLElement | null>(null);
   const image = item.medium === 'image' && item.location !== 'online';

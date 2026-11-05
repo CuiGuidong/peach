@@ -1,4 +1,4 @@
-/* 学习进度来自本机账本，导览会话独立于安装状态。 */
+/* Learning progress comes from the local ledger; the tour session is independent of install state. */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { emptyProgress, guideChapterComplete, guideResumePosition, listenGuide, openGuide, readGuideProgress, recordGuideStep, saveGuideProgress } from '../src/onboarding/guide-state';
 import { createGuideSession, findGuideTarget, resolveGuideTarget } from '../src/onboarding/guide-driver';

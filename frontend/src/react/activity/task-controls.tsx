@@ -1,4 +1,4 @@
-/* 任务动作由服务端逐轮给出；收到控制请求不代表后台已经停稳，状态仍以轮询为准。 */
+/* Task actions are provided by the server round by round; receiving a control request doesn't mean the background has stopped cleanly — state still follows polling. */
 import { useRef } from 'react';
 import { RiPauseLine, RiPlayLine, RiStopLine } from '@remixicon/react';
 import { useMutation, useMutationState, useQueryClient } from '@tanstack/react-query';
@@ -18,7 +18,7 @@ const FOLLOWUP_LABELS = { pause: 'Pause follow-up tasks', resume: 'Resume follow
 
 interface ControlCommand { id: number; label: string; action: TaskControlAction; followups: boolean }
 
-/** 请求结果属于Task center，任务转入终态、卸载原卡片后仍保留未接受的操作及原因。 */
+/* The request result belongs to Task center; after the task moves to a terminal state and the original card is unmounted, the unaccepted action and its reason are still kept. */
 export function TaskControlFeedback() {
   const mutations = useMutationState({
     filters: { mutationKey: CONTROL_KEY },

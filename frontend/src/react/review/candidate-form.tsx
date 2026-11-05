@@ -37,7 +37,7 @@ export function GenreTagList({ tags }: { tags: string[] }) {
   );
 }
 
-/** Source evidence独立展开，点击Note不会同时选中另一个来源. */
+/** Source evidence expands independently; clicking a Note doesn't select another source at the same time. */
 function CandidateEvidence({ candidate, row }: { candidate: ReviewCandidate; row: ReviewRow }) {
   const [open, setOpen] = useState(false);
   const panel = useId();
@@ -137,7 +137,7 @@ export function CandidateChoices(
   );
 }
 
-/** 一个还没Archived的 genre.给中文名就是Archived成那个标签，判「Not content」就是永久排除. */
+/** A genre not yet Archived. Giving it a Chinese name archives it under that label; marking it "Not content" permanently excludes it. */
 function GenreRow(
   { genre, tags, locked, toast }: {
     genre: string; tags: string[]; locked: boolean; toast(message: string): void;

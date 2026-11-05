@@ -122,7 +122,7 @@ export function IndexPage(props: IndexProps) {
   /* Selection belongs to the shell: closing clears the selection and the next open starts from zero, like the catalog page's multi-select. */
   useEffect(() => { if (!props.selectMode) setPicked(new Set()) }, [props.selectMode]);
 
-  /* 换筛选、词表或类型时保留控件，只在结果区显示等待态。 */
+  /* When changing filter, term list, or type, keep the controls and only show a waiting state in the results area. */
   const go = (patch: Partial<IndexRoute>, replace = false) => {
     if (patch.scope !== undefined) setManaging(false);
     const next = { ...route, ...patch };

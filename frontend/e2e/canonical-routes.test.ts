@@ -84,7 +84,7 @@ describe('Canonical routes and settings history', () => {
           id: Number(requiredEnv('PEACH_E2E_ITEM')), operation: 'add', tag: 'Big breasts',
         } });
         assert.equal(seeded.status(), 200, 'The temp demo library creates tag identities');
-        const response = await page.request.get(new URL('/api/index?kind=tags&q=巨乳&limit=1', page.url()).href);
+        const response = await page.request.get(new URL('/api/index?kind=tags&q=large-breasts&limit=1', page.url()).href);
         const data = await response.json() as { items: { entity_id: number; k: string }[] };
         const tag = data.items[0]!;
         assert.ok(tag?.entity_id > 0);

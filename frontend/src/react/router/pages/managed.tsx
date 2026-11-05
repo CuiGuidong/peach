@@ -196,7 +196,7 @@ function ManagedPage({ path, covered }: { path: ManagedPath; covered: boolean })
   return null;
 }
 
-/** Resource sync的旧直达地址转到二级页，不增加历史条目。 */
+/** Resource sync's old direct address redirects to the sub-page, without adding a history entry. */
 export function ResourceSyncRedirect() {
   const started = useRoutingStarted();
   const done = useRef(false);

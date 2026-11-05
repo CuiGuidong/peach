@@ -73,7 +73,7 @@ export interface SettingsPanelHost {
   /** SFW and increased contrast each have their own keys and are not in `appSettings`; after a change the shell calls `store.notify()`. */
   censored(): boolean;
   setCensored(on: boolean): void;
-  /** SFW 开关键，存本机不同步；传 null 恢复默认。改完壳调 `store.notify()`。 */
+  /** The SFW shortcut key, stored on This device and not synced; pass null to restore the default. After changing it the shell calls `store.notify()`. */
   sfwShortcut(): Shortcut;
   setSfwShortcut(shortcut: Shortcut | null): void;
   highContrast(): boolean;

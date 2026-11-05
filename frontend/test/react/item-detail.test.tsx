@@ -89,39 +89,39 @@ async function show(shown: DetailItem, patch: Partial<ItemDetailProps> = {}) {
 describe('Tag identity', () => {
   it('Details show the full costume and character names', async () => {
     serve();
-    const { host } = await show(item(1, { tags: [{ k: 'OL制服' }, { k: '秘书OL' }] }),
+    const { host } = await show(item(1, { tags: [{ k: 'OL uniform' }, { k: 'Secretary OL' }] }),
       { helpers: helpers({ tagLabel }) });
     expect([...host.querySelectorAll('[data-detail-tag] [data-tag]')].map((node) => node.textContent))
-      .toEqual(['OL制服', '秘书OL']);
+      .toEqual(['OL uniform', 'Secretary OL']);
   });
 
   it('Adding a synonym to an existing canonical tag keeps one tag and never un-tags the original', async () => {
-    const fetcher = serve((_url, body) => ({ ok: true, tag: body.operation === 'add' ? '秘书OL' : body.tag }));
-    const { host, actions: given } = await show(item(1, { tags: [{ k: '秘书OL' }] }));
+    const fetcher = serve((_url, body) => ({ ok: true, tag: body.operation === 'add' ? 'Secretary OL' : body.tag }));
+    const { host, actions: given } = await show(item(1, { tags: [{ k: 'Secretary OL' }] }));
     await click(host.querySelector('#tagPlus'));
     await type(host.querySelector('#tagPickSearch') as HTMLInputElement, 'OL');
     await click(host.querySelector('[data-pick="OL"]'));
     await settle();
     expect([...host.querySelectorAll('[data-detail-tag] [data-tag]')].map((node) => node.textContent))
-      .toEqual(['秘书OL']);
+      .toEqual(['Secretary OL']);
     expect(given.toast.mock.calls.at(-1)?.[1]?.undo).toBeUndefined();
     expect(posts(fetcher).map(([, body]) => [body.operation, body.tag])).toEqual([['add', 'OL']]);
   });
 
   it('Adding a synonym tag uses the server canonical name and undoes with the same identity', async () => {
-    const fetcher = serve((_url, body) => ({ ok: true, tag: body.operation === 'add' ? '秘书OL' : body.tag }));
+    const fetcher = serve((_url, body) => ({ ok: true, tag: body.operation === 'add' ? 'Secretary OL' : body.tag }));
     const { host, actions: given } = await show(item(1, { tags: [] }));
     await click(host.querySelector('#tagPlus'));
     await type(host.querySelector('#tagPickSearch') as HTMLInputElement, 'OL');
     await click(host.querySelector('[data-pick="OL"]'));
     await settle();
     expect([...host.querySelectorAll('[data-detail-tag] [data-tag]')].map((node) => node.textContent))
-      .toEqual(['秘书OL']);
+      .toEqual(['Secretary OL']);
     const undo = given.toast.mock.calls.at(-1)?.[1]?.undo;
     expect(undo).toBeTypeOf('function');
     await act(async () => { await undo?.() });
     expect(posts(fetcher).map(([, body]) => [body.operation, body.tag]))
-      .toEqual([['add', 'OL'], ['remove', '秘书OL']]);
+      .toEqual([['add', 'OL'], ['remove', 'Secretary OL']]);
   });
 });
 

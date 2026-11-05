@@ -186,9 +186,9 @@ describe('Stats card', () => {
   });
 
   it('Trash counts follow the library selected in the sidebar', async () => {
-    sessionStorage.setItem('peach.library', '网盘');
-    const { server } = await openPage(withRoots, { '/api/items?state=trash&limit=1&library=%E7%BD%91%E7%9B%98': { total: 1, bytes: 0 } });
-    expect(server.calls.map((call) => call.path)).toContain('/api/items?state=trash&limit=1&library=%E7%BD%91%E7%9B%98');
+    sessionStorage.setItem('peach.library', 'Cloud drive');
+    const { server } = await openPage(withRoots, { '/api/items?state=trash&limit=1&library=Cloud%20drive': { total: 1, bytes: 0 } });
+    expect(server.calls.map((call) => call.path)).toContain('/api/items?state=trash&limit=1&library=Cloud%20drive');
     expect(server.calls.map((call) => call.path)).not.toContain('/api/items?state=trash&limit=1');
   });
 });
@@ -674,7 +674,7 @@ describe('Organize', () => {
       { location: 'local', path: '', file_template: '{code} {title}', dir_template: '' },
     ]);
     expect(server.posts('/api/settings')).toEqual([]);
-    expect(host.textContent).toContain('2 files will be renamed or moved, 5 already have the target name; skipped 缺番号 1.');
+    expect(host.textContent).toContain('2 files will be renamed or moved, 5 already have the target name; skipped 1 missing code.');
     expect(host.textContent).toContain('ABC-001.mp4');
   });
 

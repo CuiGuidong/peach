@@ -37,8 +37,8 @@ describe('My favorites', () => {
     expect(writes[0]).toMatchObject({ action: 'favorite', entity_id: 3, name: '枫花恋', on: false });
   });
   it('Same-name online tags and local entities favorite independently, and the online link opens the follow filter', async () => {
-    const local: Favorite = { entity_id: 3, kind: 'tag', name: '户外' };
-    const online: Favorite = { kind: 'tag', scope: 'online', tag_id: 'outdoors', name: '户外', favorite: false };
+    const local: Favorite = { entity_id: 3, kind: 'tag', name: 'Outdoor' };
+    const online: Favorite = { kind: 'tag', scope: 'online', tag_id: 'outdoors', name: 'Outdoor', favorite: false };
     let data: Shortcuts = { favorites: [local], filters: [] };
     const writes: Record<string, unknown>[] = [];
     vi.stubGlobal('fetch', vi.fn(async (_url, init) => {
@@ -52,11 +52,11 @@ describe('My favorites', () => {
     const host = await mount(<QueryClientProvider client={queryClient}><FavoriteButton item={online} /></QueryClientProvider>);
     expect(isFavorite([local], online)).toBe(false);
     expect(isFavorite([online], local)).toBe(false);
-    expect(favoriteHref(online)).toBe('/follow?tag=%E6%88%B7%E5%A4%96');
-    await click(host.querySelector('[aria-label="Favorite 户外"]')); await settle();
+    expect(favoriteHref(online)).toBe('/follow?tag=Outdoor');
+    await click(host.querySelector('[aria-label="Favorite Outdoor"]')); await settle();
     expect(writes[0]).toMatchObject({ action: 'favorite', scope: 'online', tag_id: 'outdoors', on: true });
     expect(host.querySelector('[data-favorite]')?.getAttribute('aria-pressed')).toBe('true');
-    await click(host.querySelector('[aria-label="Unfavorite 户外"]')); await settle();
+    await click(host.querySelector('[aria-label="Unfavorite Outdoor"]')); await settle();
     expect(writes[1]).toMatchObject({ scope: 'online', tag_id: 'outdoors', on: false });
     expect(data.favorites).toEqual([local]);
   });

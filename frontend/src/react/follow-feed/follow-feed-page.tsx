@@ -232,7 +232,7 @@ export function FollowFeedPage(props: FollowFeedProps) {
   );
 }
 
-/** 页头: 标题与「管理Follows」恒在，Check updates那枚键要等来源读到才摆（`children`）. */
+/* Page header: the title and 'Manage Follows' are always present; the Check updates key waits until the source is read before it's placed (children). */
 function Head({ children }: { children?: ReactNode }) {
   return (
     <div data-follow-head="">
@@ -269,7 +269,7 @@ function useFollowJob(props: FollowFeedProps, ready: boolean) {
   const [running, setRunning] = useState(false);
   const [starting, setStarting] = useState<'' | 'check' | 'older'>('');
   const [report, setReport] = useState('');
-  /* 往回抓那枚键在它起的那一趟跑完之前一直写「Scraping」，同遗留层: Check updates那一趟只让它忙、不换字. */
+  /* The back-fetch button keeps showing "Scraping" until the run it started finishes, same as the legacy layer: the Check updates run only marks it busy, no label swap. */
   const [olderRun, setOlderRun] = useState(false);
   const busyRef = useRef(false);
   const node = useRef<HTMLDivElement | null>(null);

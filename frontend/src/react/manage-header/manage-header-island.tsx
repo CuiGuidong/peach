@@ -118,10 +118,10 @@ function Crumb({ host: at, label }: { host: ManageHeaderHost; label: string }) {
   );
 }
 
-/* ── TrashNote行 ──
-   读数到之前铺同形占位（左边一格读数、右端一颗键的尺寸），Note行从进页起就占着自己的高度.读数那一格
-   一直是同一个节点: 每次重画说的是同一件事的新读数，字由 `swapText` 原地换，有起点可走.
-   「Empty trash」只在Trash里有东西时出现. */
+/* ── TrashNote row ──
+   Before the readout arrives, lay a same-shape placeholder (one readout cell on the left, the size of one key at the right end); the Note row holds its own height from the moment the page opens. The readout cell
+   is always the same node: each repaint reports the new reading of the same thing; the text swaps in place via `swapText`, so there's a starting point to animate from.
+   "Empty trash" only appears when the Trash has something. */
 type Lede = Exclude<ManageHeaderView['lede'], { kind: 'none' }>;
 
 function TrashLede({ host: at, lede }: { host: ManageHeaderHost; lede: Lede }) {

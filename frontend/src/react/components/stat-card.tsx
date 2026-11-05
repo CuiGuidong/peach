@@ -40,7 +40,7 @@ export function plainStatClass({ interactive = false }: { interactive?: boolean 
     className: 'flex min-h-33 flex-col gap-2 p-4 text-left' });
 }
 
-/** 一排五张净面读数卡：窄一档两张一排，手机上一张一排；数据管理首屏骨架用的也是这一串。 */
+/* A row of five clean reading cards: one step narrower gives two per row, on phone one per row; the data management first-screen skeleton uses this same set. */
 export const PLAIN_STAT_STRIP = 'inline-grid w-full grid-cols-5 gap-4 max-plain-stat-pair:grid-cols-2'
   + ' max-plain-stat-single:grid-cols-1';
 

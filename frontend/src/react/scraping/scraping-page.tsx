@@ -90,7 +90,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
       source: source.source, network, cookie, cookies_text: cookieText, revoke,
     }),
     onSuccess: (result, revoke) => {
-      // 服务端回的就是这一条的新样子，换进列表即可，不为一次Save把整页重取一遍.
+      // What the server returns is this item's new state; swap it into the list — don't refetch the whole page for a single Save.
       queryClient.setQueryData<ScrapingData>(SCRAPING_KEY, (current) => current && {
         ...current,
         sources: current.sources.map(
@@ -182,7 +182,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
               </LinkButton>
             </span>
           : null}
-        {/* 由本机浏览器过验证的来源不收 Cookie: 浏览器自己带着会话.留着「Revoke Cookie」让人清掉旧的. */}
+        {/* Sources verified by the local browser don't take Cookies: the browser carries the session itself. 'Revoke Cookie' is kept so a person can clear old ones. */}
         {source.browser
           ? <p className="text-body-2-regular text-text-secondary">
               Human verification is completed automatically by the local browser; a window pops up when a click is needed. No cookies are needed on this machine.

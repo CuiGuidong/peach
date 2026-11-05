@@ -30,23 +30,23 @@ interface Store {
   history: string[];
   pool: string[];
   poolRequest: number;
-  /** 推荐栏一起带回的推荐词：还没聚焦、按筛选核过的 `pool` 还没取时，占位里轮换它。 */
+  /* Recommendation words returned together with the recommendations bar: before it's focused and the filter-verified pool hasn't been fetched yet, rotate these in the placeholder. */
   words: string[];
-  /** 下拉栏画的那一份推荐；还没取到的组带着 `pending` 占位。 */
+  /** The recommendations drawn by the dropdown; groups not yet fetched carry a `pending` placeholder. */
   recommendations: SuggestGroup[];
-  /** 下拉栏开着时在后台取好的下一份，下次打开再换上：开着的栏不当场换一批封面。 */
+  /** While the dropdown is open, the next batch is fetched in the background and swapped in next time it opens: an open column doesn't swap a fresh batch of covers on the spot. */
   nextRecommendations: SuggestGroup[] | null;
-  /** 画着的这一份还在填：在路上的那次取到一组就填进来。 */
+  /** The instance currently being drawn is still filling in: fill each group as the in-flight fetch arrives. */
   recommendationsFilling: boolean;
   recommendationLoading: boolean;
   recommendationRequest: number;
-  /** 排在空闲时的那次推荐预取；卸载时撤掉。 */
+  /** The recommended pre-fetch scheduled for idle time; remove it on unmount. */
   cancelIdle: () => void;
-  /** 每组「换一批」那枚图标的描线走到这一刻为止，按组记。 */
+  /** Each group's “Swap in new picks” icon strokes up to this point, recorded per group. */
   shuffled: Record<string, number>;
-  /** 正在换的那句占位字；开始打字就收掉。 */
+  /** The placeholder sentence being swapped in; discard it as soon as typing starts. */
   cancelRoll: () => void;
-  /** 画的那一刻输入框里的词与洗好的推荐。 */
+  /** The word in the input box and the shuffled recommendations at the moment of rendering. */
   query: string;
   picks: string[];
   suggestFor: string;
@@ -76,14 +76,14 @@ const modelOf = (s: Store): MenuModel => menuModel({
 });
 const hasContent = (m: MenuModel) => !!(m.tabs || m.recent || m.left.length || m.right.length || m.empty);
 
-/** 页面一直不空闲时，推荐最晚这么久之后开始取。 */
+/** If the page never goes idle, recommendations start fetching no later than this long after. */
 const PREFETCH_TIMEOUT = 4000;
-/** 输入框空着时，占位里的推荐词隔这么久换一句。 */
+/** While the input box is empty, the recommended placeholder word cycles every this long. */
 const PLACEHOLDER_ROTATE = 5000;
-/** 「换一批」那枚图标的描线一圈，同 `search.css` 里的 `--strand-cycle`。 */
+/* The single outline stroke of the 'new batch' icon, same as --strand-cycle in search.css. */
 const SHUFFLE_SPIN = 1200;
 
-/** 等页面闲下来再做；返回撤销函数。不支持 `requestIdleCallback` 的浏览器退回定时器。 */
+/* Do it after the page idles; returns an undo function. Browsers without requestIdleCallback fall back to a timer. */
 function whenIdle(task: () => void): () => void {
   if (window.requestIdleCallback) {
     const id = window.requestIdleCallback(task, { timeout: PREFETCH_TIMEOUT });
@@ -126,7 +126,7 @@ export function SearchPage(props: SearchProps) {
     input.addEventListener('click', onClick);
     const api: SearchApi = { close: op.close };
     latest.current.expose(api);
-    // 页面闲下来就先把推荐与推荐词取好：点开搜索框时直接画，没点开时占位字也照样轮换。
+    // Once the page goes idle, fetch the recommendations and recommendation phrases first: when the search box is opened, draw directly; when it's not, the placeholder text still rotates.
     op.warm();
     const rotation = window.setInterval(op.rotatePlaceholder, PLACEHOLDER_ROTATE);
     return () => {
@@ -163,15 +163,15 @@ export function SearchPage(props: SearchProps) {
     <a href={group.href} onMouseDown={keep} onClick={event => {
       if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
       event.preventDefault(); op.openPath(group.href!);
-    }}>{group.action || '查看全部'}</a>
+    }}>{group.action || 'View all'}</a>
   ) : null;
-  // 「换一批」只是一枚图标：每点一次，图标的两股线各描一圈（首页换批键那一副）。
+  // “New batch” is just an icon: each click, the icon's two strokes each draw once (the same set as the home-page new-batch key).
   const shuffling = (kind = '') => Date.now() < (s.shuffled[kind] ?? 0);
   const section = (group: MenuSection) => (
     <section key={group.kind ?? group.label} data-search-group="" data-kind={group.kind}>
       <h3>{group.label}{group.shuffle ? (
         <span data-search-head="">
-          <button type="button" data-search-shuffle="" aria-label={`${group.label}换一批`} title="换一批"
+          <button type="button" data-search-shuffle="" aria-label={SUGGEST_RIGHT_KINDS.has(group.kind ?? '') ? 'Swap in new work picks' : 'Swap in new person picks'} title="Show more"
             aria-busy={shuffling(group.kind) || undefined} onMouseDown={keep}
             onClick={() => op.reshuffle(group.kind!)}><Sprite name="shuffle" /></button>
           {link(group)}
@@ -193,12 +193,12 @@ export function SearchPage(props: SearchProps) {
       {model.tabs ? <Tabs tabs={model.tabs} kind={s.kind} onPick={op.pickKind} wire={props.helpers.wireScroller} /> : null}
       {model.recent ? section(model.recent) : null}
       {columns(model.left, model.right)}
-      {model.empty ? <p data-search-empty="" role="status">没有找到</p> : null}
+      {model.empty ? <p data-search-empty="" role="status">Nothing found</p> : null}
     </div>
   );
 }
 
-/** 备好的下一批先把封面和头像拉进浏览器缓存：换上去的那一刻图是现成的，不先空一下灰格。 */
+/* The prepared next batch first pulls covers and avatars into the browser cache: the moment it swaps in, the images are ready, so there's no empty gray cell first. */
 function preloadImages(groups: SuggestGroup[], helpers: SearchProps['helpers']): void {
   const html = groups.flatMap(group => group.items.flatMap(item => [
     item.card ? helpers.coverHtml(item.card) : '', item.avatarHtml || '', item.whoAvatarHtml || '',
@@ -211,10 +211,10 @@ function preloadImages(groups: SuggestGroup[], helpers: SearchProps['helpers']):
   }
 }
 
-/** 占位条里垫一个不换行空格：行高与真字同高，取到时那一行不长高。 */
+/** Pad the placeholder bar with a non-breaking space: the line height matches real text, so that line doesn't grow taller once fetched. */
 const GAP = ' ';
 
-/** 推荐取到之前那一组的占位格：和取到之后的行、封面格同一副外形，只是空的。 */
+/** The placeholder cells for a group before its recommendations arrive: the same shape as the post-fetch rows and cover cells, just empty. */
 function placeholders(group: MenuSection): ReactNode[] {
   const work = SUGGEST_RIGHT_KINDS.has(group.kind ?? '');
   return Array.from({ length: group.pending ?? 0 }, (_, index) => work ? (
@@ -252,22 +252,22 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     writeHistory([query, ...readHistory().filter((value) => fold(value) !== fold(query))]);
     void apiSend('/api/search-history', { query }).catch(() => null);
   };
-  /* 占位字是推荐词：框空着回车就搜它（`data-suggestion`）。新的一句由壳的动效换上去，旧的往上糊掉。
-     池还在取时框里留着上一句，不先清成「搜索馆藏」再跳回来。 */
+  /* The placeholder text is a recommended word: pressing Enter on the empty box searches it (`data-suggestion`). A new one is swapped in by the shell's animation, the old one sliding up and away.
+     While the pool is still fetching, the box keeps the previous line — it is not cleared to "Search library" first and then jumped back. */
   const suggest = (pick: string) => {
     const field = input();
     field.dataset.suggestion = pick;
     s.cancelRoll();
-    const next = pick || '搜索馆藏';
+    const next = pick || 'Search the library';
     const roll = props().helpers.rollPlaceholder;
     if (roll) s.cancelRoll = roll(field, next);
     else { field.placeholder = next; s.cancelRoll = () => {} }
   };
-  /** 隔几秒换一句：框空着、没聚焦、页面看得见、池里不止一个词时才换。聚焦时人正对着这一句，
-   *  换掉了回车搜的就不是刚看见的那个词。 */
+  /** Swap in a new suggestion every few seconds: only when the box is empty, unfocused, visible on the page, and the pool has more than one word. While focused, the reader is looking at the current one;
+   * swapping it would make Enter search a word other than the one just seen. */
   const rotatePlaceholder = () => {
     const field = input();
-    // 聚焦过就用按当前筛选核过命中的词池；还没聚焦时用推荐栏一起带回的那份词。
+    // If it's been focused, use the phrase pool checked against the current filters; if not yet focused, use the phrases the recommendations column brought back.
     const words = s.pool.length ? s.pool : s.words;
     if (document.hidden || focused() || field.value || words.length < 2) return;
     const choices = words.filter(name => name !== field.dataset.suggestion);
@@ -280,15 +280,15 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
       const names = await props().helpers.pool();
       if (request !== s.poolRequest) return;
       s.pool = names;
-      // 聚焦时重取的池里还有框里这一句就留着它；不在了（筛选变了）才换。
+      // If the pool re-fetched on focus still contains the phrase in the box, keep it; only swap when it's gone (filters changed).
       if (focused() && names.includes(input().dataset.suggestion || '')) return;
       suggest(names[Math.floor(Math.random() * names.length)] || '');
     } catch {
       // When recommendations are unavailable, typing a search still works.
     }
   };
-  /* 同一时刻只取一份。画着的那份还在等（`recommendationsFilling`）就当场画上；否则这次取的是
-     下一次打开要换上的那份，开着的栏不动。还没有占位词时顺手用这一份带回的词。 */
+  /* Only one fetch at a time. If the one being drawn is still pending (`recommendationsFilling`), draw it on the spot; otherwise this fetch is
+     for the copy the next open will swap in, leaving the open row untouched. When there is no placeholder word yet, take the one this fetch brings along. */
   const loadRecommendations = () => {
     const helpers = props().helpers;
     if (!helpers.recommendations || s.recommendationLoading) return;
@@ -310,7 +310,7 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     };
     void helpers.recommendations()
       .then(take, () => {
-        // 推荐读取失败仍可搜索：占位收掉，退回搜索记录与推荐词。
+        // Even if recommendation reads fail, search still works: drop the placeholder and fall back to search history and suggested terms.
         if (request !== s.recommendationRequest || !s.recommendationsFilling) return;
         s.recommendations = [];
         s.recommendationsFilling = false;
@@ -318,8 +318,8 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
       })
       .finally(() => { s.recommendationLoading = false });
   };
-  /** 打开下拉栏时用哪一份推荐：有后台取好的就换上；手上一份都没有就先画占位，等这次取的填进来。
-   *  下一份不在打开时取：那时人正要打字，推荐请求会和按字补全抢服务端。 */
+  /** Which recommendations to use when opening the dropdown: if the background has already fetched one, swap it in; if there is nothing on hand, draw a placeholder first and wait for this fetch to fill it.
+   * Do not fetch the next one on open: the user is about to type, and the recommendation request would compete with per-character completion for the server. */
   const openRecommendations = () => {
     const helpers = props().helpers;
     if (!helpers.recommendations) return;
@@ -333,15 +333,15 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
     s.recommendationsFilling = true;
     loadRecommendations();
   };
-  /** 空闲时备好下一份：下次打开直接换上。收起往往紧跟着打开详情，不跟它抢请求。 */
+  /** Prepare the next one while idle: swap it in directly on the next open. Collapsing is often followed by opening details, so don't compete with it for the request. */
   const prefetch = () => {
     s.cancelIdle();
     s.cancelIdle = whenIdle(() => { if (!s.nextRecommendations) loadRecommendations() });
   };
-  /** 挂上之后：空闲时取好推荐，占位推荐词随它一起带回。按当前筛选核过命中的词池要十几个请求，
-   *  留到聚焦时再取，不在每开一页时都打一遍。 */
+  /** After mounting: fetch the recommendations while idle, and bring back the placeholder suggestion word with them. Cross-checking a word pool against the current filters takes a dozen or so requests,
+   * so fetch it on focus, not on every page open. */
   const warm = prefetch;
-  /** 一组「换一批」：在这一组取到的池里翻下一页，当场换，不发请求；再下一页的图顺手先拉进缓存。 */
+  /* A set of 'new batch': flip to the next page within the pool fetched for this group, swap on the spot, no request sent; the images for the page after that are pulled into cache in passing. */
   const reshuffle = (kind: string) => {
     s.recommendations = s.recommendations.map(group => group.kind === kind ? nextPage(group) : group);
     s.shuffled = { ...s.shuffled, [kind]: Date.now() + SHUFFLE_SPIN };
@@ -506,7 +506,7 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
   const focus = () => {
     s.dismissed = false;
     openRecommendations();
-    // 推荐栏的版式不等搜索记录：先照占位画出来，记录回来再补在栏底。
+    // The recommendations column's layout doesn't wait for search records: draw from the placeholders first, then append the records at the bottom once they return.
     if (s.recommendations.length && !input().value.trim()) paint();
     void Promise.all([loadHistory(), loadPool()]).then(() => {
       if (!focused()) return;

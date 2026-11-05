@@ -187,9 +187,11 @@ export const mediumRows = (rows: MediumCount[]): BarRow[] =>
   rows.map((row) => ({ name: MEDIUM_LABEL[row.k] ?? row.k, value: row.n }))
     .sort((a, b) => b.value - a.value);
 
-/** Display names for the duration buckets. Boundaries match `media_probe.context_fields`: 300, 900, 2400 seconds. */
+/** Display names for the duration buckets. Boundaries match `media_probe.context_fields`: 300, 900, 2400 seconds.
+ *  The English keys are the server's names; the legacy keys keep working until every probe row is rewritten. */
 const LENGTH_LABEL: Record<string, string> = {
-  速食: '<5 min', 短: '5–15 min', 中: '15-40 min', 长: '40 min and up',
+  'Quick picks': '<5 min', short: '5–15 min', medium: '15–40 min', long: '40 min and up',
+  速食: '<5 min', 短: '5–15 min', 中: '15–40 min', 长: '40 min and up',
 };
 
 /** Duration and quality tiers, ordered by the server. Duration becomes minute ranges; quality stays as is. */

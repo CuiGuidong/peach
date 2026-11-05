@@ -35,8 +35,8 @@ it('Scrape records show background progress and support canceling', async () => 
   await settle();
   expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('2');
   expect(host.querySelector('[data-task-progress]')?.getAttribute('data-task-progress')).toBe('embedded');
-  expect((buttonNamed('导出刮削记录', host) as HTMLButtonElement).disabled).toBe(true);
-  await click(buttonNamed('取消导出', host));
+  expect((buttonNamed('Export scrape records', host) as HTMLButtonElement).disabled).toBe(true);
+  await click(buttonNamed('Cancel export', host));
   await settle();
   expect(host.textContent).toContain('Export canceled');
   expect(host.querySelector('[role="progressbar"]')).toBeNull();
@@ -48,8 +48,8 @@ const data = (): DiagnosticReport => ({ version: 'test', status: 'warning', chec
   data_root: { label: 'Data directory', status: 'failed', reason: 'No permission', action: 'Adjust permissions', target: null, details: {} },
 }, library: { issue_at: null, groups: {
   duration: { label: 'Missing duration', count: 2, status: 'ok', truncated: false, items: [
-    { id: 1, code: 'ABC-123', title: 'Video A', name: '甲.mp4', path: 'R:\\Media\\甲.mp4', location: 'local', duration: null, size: 1024 },
-    { id: 2, code: null, title: 'Video B', name: '乙.mp4', path: 'R:\\Media\\乙.mp4', location: 'local', duration: null, size: 2048 },
+    { id: 1, code: 'ABC-123', title: 'Video A', name: 'a.mp4', path: 'R:\\Media\\a.mp4', location: 'local', duration: null, size: 1024 },
+    { id: 2, code: null, title: 'Video B', name: 'b.mp4', path: 'R:\\Media\\b.mp4', location: 'local', duration: null, size: 2048 },
   ] },
   cover: { label: 'Missing cover', count: 0, status: 'ok', truncated: false, items: [] },
 } }, sources: [{ source: 'javdb', label: 'javdb', status: 'unknown', reason: 'Current parse status unavailable', last_success_at: null, cooldown_until: null }] });
@@ -78,8 +78,8 @@ it('Expands the video table and copies identifiable info; zero results have thei
   expect(props.openItem).toHaveBeenCalledWith(1);
   await click(buttonNamed('Copy the current list', host));
   await settle();
-  expect(clipboard.mock.calls[0][0]).toContain('Video A\tABC-123\t甲.mp4\tLocal\tR:\\Media\\甲.mp4');
-  expect(clipboard.mock.calls[0][0]).toContain('Video B\t\t乙.mp4\tLocal\tR:\\Media\\乙.mp4');
+  expect(clipboard.mock.calls[0][0]).toContain('Video A\tABC-123\ta.mp4\tLocal\tR:\\Media\\a.mp4');
+  expect(clipboard.mock.calls[0][0]).toContain('Video B\t\tb.mp4\tLocal\tR:\\Media\\b.mp4');
   expect(host.textContent).toContain('Unrecognized');
   expect(props.receipt).toHaveBeenCalledWith('List copied');
   expect(host.querySelector('[data-empty-state]')?.textContent).toContain('The list is empty');
@@ -121,18 +121,18 @@ it('The restore action\'s name matches its actual target', async () => {
   expect(linkNamed('Open source and credentials', host)?.getAttribute('href')).toBe('/sources');
 });
 
-it('页头的诊断报告进度自己带框，和重新检查同排', async () => {
+it('The diagnostic-report progress in the header carries its own frame, on the same row as Check again', async () => {
   vi.stubGlobal('fetch', vi.fn(async (url: string) => new Response(JSON.stringify(url.startsWith('/api/diagnostics/exports')
-    ? { status: 'running', kind: 'support', job_id: 'report', stage: '收集日志', done: 1, total: 4 }
+    ? { status: 'running', kind: 'support', job_id: 'report', stage: 'Collection log', done: 1, total: 4 }
     : data()))));
   const { host } = await open();
   await settle();
   const report = host.querySelector('[data-guide-target="report"]')!;
   expect(report.querySelector('[data-task-progress]')?.getAttribute('data-task-progress')).toBe('framed');
-  expect(buttonNamed('取消导出', report)?.parentElement).toBe(buttonNamed('重新检查', report)?.parentElement);
+  expect(buttonNamed('Cancel export', report)?.parentElement).toBe(buttonNamed('Check again', report)?.parentElement);
 });
 
-it('诊断报告启动时附浏览器环境，产物使用直接下载链接', async () => {
+it('Diagnostic reports attach the browser environment at startup, and artifacts use direct download links', async () => {
   const create = vi.spyOn(URL, 'createObjectURL');
   const fetch = vi.fn(async (_url: string, options?: RequestInit) => new Response(JSON.stringify(options?.method === 'POST'
     ? { status: 'complete', kind: 'support', job_id: 'report', bytes: 2048,

@@ -72,9 +72,9 @@ describe('Media frame for mixed-layout videos',()=>{
    }finally{await context.close()}
   });
  }
- // 回收站资源卡、文件夹面包屑等的文件名走共用的中间省略。页面开着 text-autospace，汉字、假名与
- // 拉丁字母、数字相邻处多出间距，量宽时要算上，否则判成「放得下」的结果实际溢出、末尾被裁掉。
- it('中日文夹英文数字的文件名中间省略后首尾完整、不越出盒子',async()=>{
+ // File names for the trash resource card, folder breadcrumb, etc. use the shared middle ellipsis. The page has text-autospace on; kanji, kana and
+ // Latin letters and digits add extra spacing at their junctions; measure that into the width, or the result judged as 'fits' actually overflows and the end gets clipped.
+ it('A file name mixing Chinese/Japanese with letters and digits, when elided in the middle, keeps its ends intact and does not overflow the box',async()=>{
   const context=await browser.newContext({viewport:{width:1280,height:800},reducedMotion:'reduce'});
   try{
    const page=await context.newPage();
@@ -88,7 +88,7 @@ describe('Media frame for mixed-layout videos',()=>{
     const width=(text:string)=>{span.textContent=text;return span.getBoundingClientRect().width};
     const value=width('あa')-width('あ')-width('a');span.remove();return value;
    });
-   assert.ok(gap>0.5,`浏览器没有加 autospace 间距（${gap}px），用例测不到这类溢出`);
+   assert.ok(gap>0.5,`The browser didn't add autospace spacing (${gap}px), so the test case can't catch this kind of overflow`);
    await page.evaluate(name=>{
     const host=document.querySelector('[data-autospace-host]')!;
     for(const width of [168,240,333]){
@@ -112,8 +112,8 @@ describe('Media frame for mixed-layout videos',()=>{
    }
   }finally{await context.close()}
  });
- // 稍后看由卡上的状态图标表示，卡面底色留给媒体库来源色，不随稍后看变化。
- for(const theme of ['light','dark'])it(`${theme} 稍后看状态图标与按钮及撤销同步`,async()=>{
+ // Watch-later is conveyed by the card's status icon; the card's base color belongs to the media library source color and does not change with watch-later.
+ for(const theme of ['light','dark'])it(`${theme} watch-later state icon, button, and undo stay in sync`,async()=>{
   const context=await browser.newContext({viewport:{width:1280,height:800},colorScheme:theme,reducedMotion:'reduce'});
   try{
    const page=await context.newPage();let later=false;

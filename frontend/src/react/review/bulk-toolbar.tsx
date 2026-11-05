@@ -35,7 +35,7 @@ export interface BulkToolbarProps {
   /** The selected rows, used to compute the common source. */
   selectedRows: ReviewRow[];
   metadata: boolean;
-  /** 所选项目里还能不能按下「Approve selected」. */
+  /** Whether “Approve selected” can still be pressed among the selected items. */
   approvable: boolean;
   busy: boolean;
   feedback: string;
@@ -111,7 +111,7 @@ export function BulkToolbar(props: BulkToolbarProps) {
           onSelectionChange={(key) => { if (key !== null) onGroupBy(String(key) as ReviewGrouping) }}>
           {groupOptions.map(([key, name]) => <SelectItem key={key} id={key}>{name}</SelectItem>)}
         </Select>
-        {/* 只有一组时没什么可筛的: 一个「All分类」的下拉读起来像坏了. */}
+        {/* With only one group there's nothing to filter by: an “All categories” dropdown would read as broken. */}
         {groups.length > 1 ? (
           <Select aria-label={groupBy === 'field' ? 'Filter field categories' : 'Filter the current category'} size="sm" prefix="Categories"
             selectedKey={filter || '*'}

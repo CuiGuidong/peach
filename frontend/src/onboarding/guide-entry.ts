@@ -8,7 +8,7 @@ const sidebarHint = 'With the sidebar collapsed, tap the navigation button in th
 const sidebar = (...path: string[]): GuideEntry => ({ path: ['Sidebar', ...path], hint: sidebarHint });
 const preferences = (title: string): GuideEntry => ({ path: ['Settings at the bottom of the sidebar', title], hint: sidebarHint });
 
-/** 描述真实点击路径；页面与设置名称复用应用定义，不把网址当作操作说明。 */
+/** Describe the real click path; page and settings names reuse the app's definitions, and URLs aren't treated as operating instructions. */
 export function guideEntry(step: GuideStep): GuideEntry | undefined {
   if (step.surface) {
     if (step.id === 'external') return { path: ['Title cards', 'Video details', 'External player'] };

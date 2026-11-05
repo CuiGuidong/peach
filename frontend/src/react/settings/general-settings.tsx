@@ -47,8 +47,8 @@ export function StartupSettings({ startup, receipt }: { startup: StartupState; r
         <SettingsRow label="Start Peach after sign-in">
           <Switch aria-label="Start Peach after sign-in" isSelected={enabled} isDisabled={!startup.available} onChange={setEnabled} />
         </SettingsRow>
-        <SettingsRow label="只启动托盘，不打开网页" description="开机后在后台运行，需要时从托盘打开页面。">
-          <Switch aria-label="只启动托盘，不打开网页" isSelected={silent} isDisabled={!startup.available || !enabled} onChange={setSilent} />
+        <SettingsRow label="Start the tray only, without opening the web app" description="Runs in the background at startup; open the page from the tray when needed.">
+          <Switch aria-label="Start the tray only, without opening the web app" isSelected={silent} isDisabled={!startup.available || !enabled} onChange={setSilent} />
         </SettingsRow>
         <SettingsRow label="Create desktop shortcut" description={startup.desktop_message || undefined}>
           <Switch aria-label="Create desktop shortcut" isSelected={desktop} isDisabled={!desktopReady} onChange={setDesktop} />

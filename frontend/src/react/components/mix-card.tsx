@@ -37,7 +37,7 @@ export interface MixCardProps {
   caption: ReactNode;
   /** The count on the badge. */
   count: number;
-  /** 静止Cover的地址.没有就写「No preview」. */
+  /** The still Cover's address. If there is none, write “No preview”. */
   poster: string | null;
   /** The addresses of the images cycled through on hover, in order; at most the first `MIX_FLIP_FACES`. */
   flipImages(): Promise<readonly string[]>;

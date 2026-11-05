@@ -1,5 +1,5 @@
-/* 「应用与维护」的后半段：存储空间、数据上传、运行信息、Guided tour与卸载。少改的隐私开关和只读信息在后，
- * 卸载是不可逆动作，留在整组最后。 */
+/* The second half of "App & Maintenance": storage space, data upload, run info, Guided tour, and uninstall. Seldom-touched privacy toggles and read-only info come later,
+ * and uninstall is an irreversible action, kept at the very end of the group. */
 import { useState, type FormEvent } from 'react';
 import { confirmModal } from '@peach/legacy/ui';
 
@@ -30,7 +30,7 @@ export function MaintenanceSettings(
     <div {...groupRoot(panel)}>
       {data.storage ? <StorageSettings initial={data.storage} receipt={receipt} /> : null}
       {data.storage ? <LedgerBackupSettings receipt={receipt} /> : null}
-      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="数据上传">
+      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="Data uploads">
         {data.remote_reporting ? <RemoteReportingSettings initial={data.remote_reporting} receipt={receipt} /> : null}
         {data.library_sharing ? <div className="border-t border-separator-border">
           <LibrarySharingSettings initial={data.library_sharing} receipt={receipt} />
@@ -43,7 +43,7 @@ export function MaintenanceSettings(
   );
 }
 
-/** 恢复账本共享的教程入口，保留首次设置与章节进度。 */
+/** Restore the ledger's shared tutorial entry, keeping first-run setup and chapter progress. */
 export function TutorialSettings({ reopenTutorial }: ConfigurationProps) {
   return (
     <section aria-label="Guided tour" className="w-full"><SettingsCard>
@@ -78,8 +78,8 @@ export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdat
           <Switch aria-label="Automatically check for new versions" isSelected={mode !== 'off'} isDisabled={!initial.available}
             onChange={(on) => setMode(on ? 'check' : 'off')} />
         </SettingsRow>
-        <SettingsRow label="自动下载更新" description="发现新版本后先下载，重启安装前会询问。">
-          <Switch aria-label="自动下载更新" isSelected={mode === 'download'}
+        <SettingsRow label="Download updates automatically" description="After finding a new version, it downloads first and asks before installing on the next restart.">
+          <Switch aria-label="Download updates automatically" isSelected={mode === 'download'}
             isDisabled={!initial.available || !initial.download_available || mode === 'off'}
             onChange={(on) => setMode(on ? 'download' : 'check')} />
         </SettingsRow>
@@ -123,7 +123,7 @@ export function UninstallSettings(
     danger: true,
     body: removeData
       ? 'This quits Peach and removes the program, autostart, desktop icons, settings, the local database, watch history, credentials, and caches. Original media files are kept.'
-      : 'Will quit Peach and remove the program, launch at startup and desktop icons. Settings, local database, watch history and cache are kept.',
+      : 'Will quit Peach and remove the program, launch at startup and desktop icons. Settings, the local database, watch history, and caches are kept.',
     confirmLabel: 'Uninstall Peach',
     onConfirm: async () => {
       const result = await apiSend<{ message: string }>('/api/configuration/uninstall', { delete_data: removeData, confirmation: 'Uninstall Peach' });
@@ -145,7 +145,7 @@ export function UninstallSettings(
       <Stack divided>
         <Disclosure summary="Data directory">
           {paths.map((path) => (
-            <PathLine key={path} path={path} className="text-body-2-regular text-text-secondary" onRevealed={receipt} />
+            <PathLine key={path} path={path} revealLabel="Show in Explorer" className="text-body-2-regular text-text-secondary" onRevealed={receipt} />
           ))}
         </Disclosure>
       </Stack>

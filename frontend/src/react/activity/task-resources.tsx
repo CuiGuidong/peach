@@ -1,4 +1,4 @@
-/* 每轮任务的实测读数。高占用仅改变 Chip 强调程度，不调整任务资源使用。 */
+/* Measured readings per task round. High usage only changes the Chip's emphasis level, not the task's resource usage. */
 import { fmtSize } from '@peach/legacy/core';
 import { ResourceChip } from './resource-chip';
 
@@ -14,19 +14,19 @@ const METRICS = {
     description: 'GPU usage shows that task\'s busiest GPU engine. Emphasized from 50%.',
   },
   network: {
-    name: '网络', color: 'cyan',
-    description: '网络速率显示该任务已观测的下载速度，达到 10 MiB/s 时加深显示。从网盘挂载读取时显示网盘读取，SMB 或无法准确归属的传输显示未取得。',
+    name: 'Network', color: 'cyan',
+    description: 'The network rate shows the download speed observed for that task; at 10 MiB/s it deepens. Reads from a cloud-drive mount show cloud-drive reads; SMB or transfers that cannot be attributed precisely show not obtained.',
   },
 } as const;
 
 function unavailable(metric: TaskResourceMetric) {
-  if (metric.state === 'sampling') return '采样中';
-  return metric.via === 'cloud' ? '网盘读取' : '未取得';
+  if (metric.state === 'sampling') return 'Sampling';
+  return metric.via === 'cloud' ? 'cloud drive read' : 'Not fetched';
 }
 
-/* 读数为 0 说的是这一轮没占用这项资源，直接写「未使用」，不让人去读一个 0。 */
+/* A reading of 0 means this round didn't use that resource; write “Unused” directly rather than making people read a 0. */
 function reading(key: 'cpu' | 'gpu' | 'network', value: number) {
-  if (value === 0) return '未使用';
+  if (value === 0) return 'not used';
   return key === 'network' ? `${fmtSize(value)}/s` : `${value.toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
 }
 
@@ -43,7 +43,7 @@ export function TaskResources({ run, active = isActive(run) || Boolean(run.contr
       const ready = metric.state === 'ready' && value !== null;
       const high = ready && metric.high;
       const label = ready ? reading(key, value) : unavailable(metric);
-      const explanation = [metric.reason, high ? '当前为高占用。' : '', appearance.description, resources.detail]
+      const explanation = [metric.reason, high ? 'Currently under heavy use.' : '', appearance.description, resources.detail]
         .filter(Boolean).join('\n');
       return <ResourceChip key={key} color={appearance.color} high={high}
         tabIndex={0} title={explanation}

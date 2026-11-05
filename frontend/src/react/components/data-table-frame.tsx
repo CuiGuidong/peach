@@ -16,11 +16,11 @@ export interface DataTableFrameProps extends PropsWithChildren {
   onRowClick?(key: string): void;
 }
 
-/* 拖宽期间在根元素上做标记，整页锁成左右箭头光标且不选字；不用 `html:has(…)` 判断，那样每次
- * DOM 变动都要重新匹配整棵树，首页启动会慢几百毫秒。 */
+/* During a drag-resize, mark the root element so the whole page locks to the left-right arrow cursor and text is not selected; no `html:has(…)` check, since that would re-match the whole tree on every
+ * DOM change and slow home-page startup by hundreds of milliseconds. */
 const markResizing = () => { document.documentElement.dataset.columnResizing = '' };
 
-/** BoardUI Table 的 Data Table 外框：主表面、完整边线、圆角与选中行反馈。 */
+/** The Data Table frame of BoardUI Table: main surface, full border, rounded corners, and selected-row feedback. */
 export function DataTableFrame({ children, follow = false, onRowClick, preferences }: DataTableFrameProps) {
   const host = useRef<HTMLDivElement>(null);
   useEffect(() => {

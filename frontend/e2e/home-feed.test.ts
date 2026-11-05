@@ -1,4 +1,4 @@
-/* 首页那一行新作（`feed-new` 岛）：卡上两颗键、收完整块藏起、换筛选保留、合集开关改了重取。
+/* The homepage's row of new releases (the `feed-new` island): two keys on the card, collapse to hide the whole block, filters persist when switched, and toggling the collection switch refetches.
  *
  * Where the skeleton appears and on which pages is in `home-loading.test.ts` and `smoke.test.ts`; cover framing in
  * `feed-cover.test.ts`; the profile page's row shares this component, with fetching and "just subscribed, wait for the round

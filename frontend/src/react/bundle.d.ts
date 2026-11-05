@@ -50,7 +50,7 @@ export interface TunnelState {
 export interface AccessSettingsProps {
   initial: AccessState;
   receipt(message: string): void;
-  /** 需要登录时紧跟在密码分区下面的设备列表；改密码后拿到新 `revision` 重新画。 */
+  /* The device list right below the password section when login is required; after changing the password, a new revision is fetched and redrawn. */
   devices?(state: AccessState): import('react').ReactNode;
 }
 
@@ -248,11 +248,11 @@ export interface ReleaseState {
   message: string;
   release_url: string;
   checked_at?: number;
-  /** `installer` 是 macOS 的 DMG：没有应用内安装，下载后手动替换。 */
+  /* The installer is macOS's DMG: there's no in-app installation; after downloading, replace it manually. */
   package_kind?: 'update' | 'full' | 'installer';
   asset_url?: string;
   asset_size?: number;
-  /** 能在页面里下载并Restart to install；只有 Windows 独立包是 true。 */
+  /* Can be downloaded and Restart to install within the page; only the Windows standalone package is true. */
   in_app_update?: boolean;
 }
 

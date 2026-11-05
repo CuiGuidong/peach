@@ -156,7 +156,7 @@ describe('Settings panel', () => {
     }
   });
 
-  it('改过的 SFW 快捷键按物理键位生效，原来的 Shift+S 不再切换', { timeout: 60_000 }, async () => {
+  it('The changed SFW shortcut works by physical key; the original Shift+S no longer toggles', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     try {
       const page = opened.page;
@@ -170,13 +170,13 @@ describe('Settings panel', () => {
       await page.keyboard.press('Alt+KeyH');
       assert.equal(await censored(), true);
       await openPanel(page);
-      await page.locator(PANEL).getByRole('tab', { name: '内容显示', exact: true }).click();
+      await page.locator(PANEL).getByRole('tab', { name: 'Content display', exact: true }).click();
       assert.equal(await page.locator(`${PANEL} [data-shortcut-keys]`).innerText(), 'Alt+H');
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
   });
 
-  it('Shift+S 在页面上切换 SFW 并记住，在输入框里不切换', { timeout: 60_000 }, async () => {
+  it('Shift+S toggles SFW on the page and remembers it; it does not toggle inside the input box', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     try {
       const page = opened.page;
@@ -189,12 +189,12 @@ describe('Settings panel', () => {
       assert.equal(await censored(), false);
       await page.locator('#q').focus();
       await page.keyboard.press('Shift+S');
-      assert.equal(await censored(), false, '在搜索框里打大写 S 不该切换 SFW');
+      assert.equal(await censored(), false, 'Typing a capital S in the search box should not toggle SFW');
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
   });
 
-  it('界面音效关掉后点按不再出声，打开后又出声', { timeout: 60_000 }, async () => {
+  it('With UI sounds off, taps go silent; turning them on brings the sound back', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/', DESKTOP);
     const { page } = opened;
     try {

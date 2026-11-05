@@ -177,7 +177,7 @@ describe('Design decisions: follow details, video details, player, and sidebar',
     }
   });
 
-  it('作品详情身份区：各组按内容宽并排换行，名字在头像下居中、行框容得下下伸部；系列是整行宽的图标链接，不是标签胶囊', { timeout: 60_000 }, async () => {
+  it('Work detail identity area: each group wraps side by side by content width, the name is centered under the avatar with the row box fitting the descenders; the series is a full-row-width icon link, not a label pill', { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;
@@ -201,8 +201,8 @@ describe('Design decisions: follow details, video details, player, and sidebar',
         };
       });
       assert.deepEqual(shown.primary, ['flex', 'wrap']);
-      assert.equal(shown.narrower, true, '组按内容宽，共演作品不会一组占满一行');
-      assert.ok(shown.name.ratio >= 1.5, `名字行高 ${shown.name.ratio} 倍字号，拉丁字母的下伸部会被省略号那层 overflow 裁掉`);
+      assert.equal(shown.narrower, true, 'Groups size to content width, so group works never fill a whole row');
+      assert.ok(shown.name.ratio >= 1.5, `The name line-height is ${shown.name.ratio} times the font size, so Latin descenders get clipped by the ellipsis layer's overflow`);
       assert.deepEqual([shown.name.overflow, shown.name.align], ['ellipsis', 'center']);
       assert.equal(shown.cursor, 'pointer');
       assert.notEqual(shown.face, 'rgba(0, 0, 0, 0)', 'Avatar without image renders an initial disc');
@@ -290,30 +290,30 @@ describe('Design decisions: follow details, video details, player, and sidebar',
     }
   });
 
-  it('作品详情标签多时先露 20 个，展开键报出剩下几个，展开后能收回', { timeout: 60_000 }, async () => {
+  it('When a work detail has many tags, show 20 first; the expand button reports how many remain, and it collapses again', { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;
       const base = await page.evaluate(() => fetch('/api/item?id=14').then((response) => response.json()));
-      const tags = Array.from({ length: 30 }, (_, index) => ({ k: `折叠标签${String(index).padStart(2, '0')}`, cat: 'scene' }));
+      const tags = Array.from({ length: 30 }, (_, index) => ({ k: `Collapsed label ${String(index).padStart(2, '0')}`, cat: 'scene' }));
       await page.route((url) => url.pathname === '/api/item', (route) => route.fulfill({ json: { ...base, tags } }));
       await page.goto(new URL('/assets/14', page.url()).href, { waitUntil: 'load' });
       const more = page.locator('#stage [data-tags-more]');
       await more.waitFor({ timeout: 15_000 });
       const chips = page.locator('#stage [data-detail-tags] [data-detail-tag]');
-      assert.deepEqual([await chips.count(), (await more.innerText()).trim()], [20, '还有 10 个']);
+      assert.deepEqual([await chips.count(), (await more.innerText()).trim()], [20, '10 more']);
       await more.click();
-      assert.deepEqual([await chips.count(), (await more.innerText()).trim()], [30, '收起']);
+      assert.deepEqual([await chips.count(), (await more.innerText()).trim()], [30, 'Collapse']);
       await more.click();
       assert.equal(await chips.count(), 20);
-      assert.equal(await page.locator('#stage [data-detail-tags] [data-tag-plus]').isVisible(), true, '收起时加号照样在');
+      assert.equal(await page.locator('#stage [data-detail-tags] [data-tag-plus]').isVisible(), true, 'Plus stays put when collapsed');
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
       await opened.close();
     }
   });
 
-  it('作品详情标签与反馈键：标签和卡片同一张脸，筛选那半边悬停抬填充；反馈条每一枚悬停都换色', { timeout: 60_000 }, async () => {
+  it('Video details tags and feedback keys: tags share the card face, the filter half lifts its fill on hover, and every feedback pill changes color on hover', { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;

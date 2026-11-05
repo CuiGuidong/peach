@@ -45,20 +45,20 @@ import { busyProps, useAction } from './use-action';
 import { confirmModal } from '@peach/legacy/ui';
 import { fetchLibraryProcessing, processingActive, restartEffectText } from '../library-processing/library-processing';
 
-/** 保存会重启 Peach。扫描与采集在跑时先确认；读不到任务状态就照常保存，不让旁路读数挡住保存。 */
+/* Saving restarts Peach. When a scan and collection are running, confirm first; if the task status can't be read, save as usual — don't let a side reading block saving. */
 async function confirmRestartDuringProcessing(scanAfterSave: boolean): Promise<boolean> {
   let state;
   try { state = await fetchLibraryProcessing() } catch { return true }
   if (!processingActive(state)) return true;
   const { confirmed } = await confirmModal({
-    title: '扫描与采集正在进行', body: restartEffectText(state, scanAfterSave), confirmLabel: '仍然保存',
+    title: 'Scanning and collecting in progress', body: restartEffectText(state, scanAfterSave), confirmLabel: 'Still kept',
   });
   return confirmed;
 }
 
 const sourceName = (location: string) => MEDIA_SOURCES.find(([kind]) => kind === location)?.[1] ?? location;
 const sourceOptions = [...MEDIA_SOURCES, ['smb', 'SMB share'] as const];
-/** 媒体库在下拉里的图标: 选过就用选的，否则按来源自动识别，和标题行的图标键一致. */
+/* The media library's icon in the dropdown: use the selected one if chosen, otherwise auto-identify by source, consistent with the title row's icon key. */
 const libraryMark = (row: { library_icon: string; location: string; transport?: string }) => row.library_icon || libraryAutoChoice(row.transport === 'smb' ? 'smb' : row.location)[0];
 const pickFolder = async (initial: string) =>
   (await apiSend<{ path: string | null }>(PICK_FOLDER_URL, { initial })).path;
@@ -69,7 +69,7 @@ interface MediaRow {
   path: string; location: string; root: string; root_id?: string; library_id: string; library: string; library_icon: string;
   library_color: string; library_policy: Preset; library_stages: string; cost: SourceCost | ''; change_mode?: string;
 }
-/** 媒体库这一级的Fields: 同一媒体库的各行一起改、一起跟随. */
+/** Fields at the media-library level: rows in the same media library change and follow together. */
 const libraryFields = (row: MediaRow) => ({
   library_id: row.library_id, library: row.library, library_icon: row.library_icon,
   library_color: row.library_color, library_policy: row.library_policy, library_stages: row.library_stages,
@@ -105,10 +105,10 @@ const fieldErrorsOf = (cause: unknown): FieldErrors | null => {
   return (cause.body as { errors?: FieldErrors } | null)?.errors ?? null;
 };
 
-/* 能Edit时挂载状态标在每个Folders行上；只读时没有那张表，单列一块. */
+/* When editable, the mount state is marked on each Folders row; in read-only there's no that table, so it's listed as a single block. */
 export function MediaSettings({ data, receipt, panel }: ConfigurationGroupProps) {
   const cloud = !!data.media_sources?.some(row => isCloudSource(row.location));
-  // 首屏骨架照这一屏的结构排: 每个媒体库几个Folders、有没有 CloudDrive 代理，自动发现开了哪几项、几条前缀.
+  // The first-screen skeleton follows this screen's structure: how many Folders each media library has, whether there's a CloudDrive proxy, which auto-discovery items are on and how many prefixes.
   useEffect(() => {
     if (data.editable) {
       const counts = new Map<string, number>();
@@ -145,15 +145,15 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
   const revision = useRef(data.revision);
   const confirming = useRef(false);
   const action = useAction();
-  // 订阅Source color样式表: 改色时卡片当场试色，Save后服务端的颜色接替.
+  // Subscribe to the Source color stylesheet: when changing colors, the card previews them live, and the server's colors take over after Save.
   useLibraryTints();
   const editLibrary = (index: number, patch: Partial<MediaRow>) => {
     rows.forEach((row, i) => { if (row.library_id === rows[index]!.library_id) edit(i, patch); });
   };
-  // 每个媒体库取它的第一行作代表: 新加的空Folders排在后面，不改动这一库的图标与来源.
+  // For each media library, take its first row as the representative: newly added empty Folders go to the back, without changing this library's icon and source.
   const libraries = [...rows.reduce((found, row) => found.has(row.library_id) ? found : found.set(row.library_id, row),
     new Map<string, MediaRow>()).values()];
-  // 「New media library」把这个Folders拆成新的一组，焦点交给新组的名称框，接着就能起名.
+  /* 'New media library' splits this Folders into a new group, moves focus to the new group's name box, and you can then name it. */
   const [named, setNamed] = useState<string | null>(null);
   useEffect(() => {
     if (!named) return;
@@ -228,7 +228,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
     );
   }
 
-  // 挂载状态是已Save的那份配置的读数，只标在路径没改过的行上.
+  // Mount status is the reading of the saved configuration; only mark it on rows whose path hasn't been changed.
   const mountOf = (row: MediaRow) => data.media_sources?.find(source => source.root_id === row.root_id && source.path === row.path);
   const cloud = rows.some((row) => isCloudSource(row.location));
   const missing = cloud ? (data.mount_dependencies ?? []).filter((dependency) => !dependency.available) : [];
@@ -257,7 +257,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
                     value={library.library} onChange={(value) => editLibrary(first, { library: value })} />
                   <LibraryColorPicker id={library.library_id} name={library.library} value={library.library_color}
                     onChange={(library_color) => editLibrary(first, { library_color })} />
-                  {/* 第一次切到自定义时先勾上AllSteps，用户再去掉不要的. */}
+                  {/* On first switch to Custom, check AllSteps first; the user then removes what they don't want. */}
                   <PresetSelect name={name} value={preset}
                     onChange={(value) => editLibrary(first, {
                       library_policy: value,
@@ -304,7 +304,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
                           {libraries.map(other => <SelectItem key={other.library_id} id={other.library_id} textValue={other.library || 'Unnamed library'}>
                             <span className="flex min-w-0 items-center gap-2"><SourceMark mark={libraryMark(other)} /><span className="truncate">{other.library || 'Unnamed library'}</span></span>
                           </SelectItem>)}
-                          {/* 库里只有这一个Folders时，拆出去等于原库改名，不给这一项. */}
+                          {/* When the library has only this one Folders entry, splitting it out is the same as renaming the original library, so don't offer this option. */}
                           {members.length > 1 ? <SelectItem id="new" textValue="New library">
                             <span className="flex min-w-0 items-center gap-2"><SourceMark mark="plus" /><span>New media library</span></span>
                           </SelectItem> : null}
@@ -356,7 +356,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
             );
           })}
         </div>
-        {/* 「Add media library」New一组，名称、图标、Source color与处理方式都单独设. */}
+        {/* 'Add media library' creates a New group; the name, icon, Source color, and handling method are each set separately. */}
         <Button variant="secondary" className="self-start" onClick={add}>Add media library</Button>
         <Help>{LIBRARY_FOLDER_HELP}</Help>
         {cloud ? <><MediaReadPolicyHelp /><CloudDriveGuide /></> : null}

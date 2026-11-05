@@ -1,15 +1,15 @@
-/* Task center顶部「Needs attention」: 后台服务此刻存在的问题，每项一行.
+/* Task center top "Needs attention": problems the background services have right now, one row per item.
  *
- * 这些是持续状态（调度连续失败、公网入口断开、网络不通），不是跑过的一轮，所以不进任务表；
- * 数据来自 `/api/background-issues`，服务端每次现读各服务的快照，问题消失这一行就不在了.
- * 一行只写是什么、从什么时候开始，加一个写明去处的链接（文案由服务端给）；原因只在链接
- * 指向的那个Settings位置讲，这里不复述.原地重跑就可能修好的（网络、调度、amane 桥）多给一个
- * 「Retry now」；要改Settings、填凭据的只有链接.链接在左、Retry在右: 原地修好的那个动作是这一行
- * 的主动作，和分区底部操作条一样排在最右；没有Retry的行，链接也落在同一个位置.
+ * These are ongoing states (repeated scheduling failures, the public entry disconnected, the network down), not a run that's already passed, so they don't go into the task table;
+ * the data comes from `/api/background-issues`, and the server reads each service's snapshot fresh each time; once the problem clears the row is gone.
+ * A row only states what it is and when it started, plus a link that names where to go (the copy is given by the server); the cause is explained only at the
+ * Settings spot the link points to, not restated here. Things an in-place rerun might fix (network, scheduling, the amane bridge) get an extra
+ * "Retry now"; ones that need a Settings change or a credential filled in get only the link. Link on the left, Retry on the right: the action that fixes it in place is this row's
+ * primary action, placed at the far right like the section's bottom action bar; on rows without a Retry, the link lands in that same position.
  *
- * 时间分两种: 服务自己记下的起点写「自 … 起」；服务不记失败时刻的，写这一次运行里第一次
- * 读到它的时刻「发现于 …」，两者不混用.没有问题时整段不画，取数失败也不画: 服务连不上时
- * 页面顶上已经有一条读取失败. */
+ * There are two kinds of time: the start the service itself recorded reads "since …"; for services that don't record the failure time, it reads the moment it was first
+ * seen in this run "found at …", and the two aren't mixed. When there are no problems the whole block isn't drawn, and neither is it on a fetch failure: when a service is unreachable,
+ * there's already a read-failure banner at the top of the page. */
 import { useId } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { RiArrowRightLine } from '@remixicon/react';

@@ -190,7 +190,7 @@ describe('Design decisions: person and label profile pages', () => {
     }
   });
 
-  it('空搜索的头像与封面分栏，搜索记录排在左栏最下面，分隔线覆盖两栏', { timeout: 60_000 }, async () => {
+  it('An empty search splits avatar and cover columns; search history sits at the bottom of the left column, and the divider spans both columns', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/', WIDE);
     try {
       const page = opened.page;
@@ -201,15 +201,15 @@ describe('Design decisions: person and label profile pages', () => {
       await settle(page);
       await page.locator('#q').click();
       await page.locator('#searchMenu [data-search-recommendations] [data-search-results][data-split]').waitFor({ state: 'visible', timeout: 5_000 });
-      // 推荐是预取好的、打开就在；搜索记录随后才到，排进左栏末尾。
+      // Recommendations are pre-fetched and present on open; search history arrives later and slots in at the bottom of the left column.
       await page.waitForFunction(() => [...document.querySelectorAll('#searchMenu [data-search-col]:first-child > [data-search-group] > h3')]
-        .some((title) => title.textContent === '搜索记录'), undefined, { timeout: 5_000 });
+        .some((title) => title.textContent === 'Search history'), undefined, { timeout: 5_000 });
       const split = await page.evaluate(() => {
         const results = document.querySelector('#searchMenu [data-search-results]')!;
         const [left, right] = [...results.querySelectorAll(':scope > [data-search-col]')].map((col) => col.getBoundingClientRect());
         const box = results.getBoundingClientRect();
         const line = getComputedStyle(results, '::before');
-        // 搜索记录比推荐晚到，排在左栏末尾，到了也不把上面的往下推。
+        // Search history arrives after recommendations and sits at the bottom of the left column; when it arrives it does not push what is above it down.
         const groups = [...results.querySelectorAll(':scope > [data-search-col]:first-child > [data-search-group]')];
         const history = groups.at(-1)!;
         return {
@@ -220,9 +220,9 @@ describe('Design decisions: person and label profile pages', () => {
           offset: parseFloat(line.left) + parseFloat(line.width) / 2 - ((left.right + right.left) / 2 - box.left),
         };
       });
-      assert.ok(split.rightWidth > split.leftWidth, '封面栏应比头像栏宽');
-      assert.equal(split.historyLabel, '搜索记录', '左栏最后一组应是搜索记录');
-      assert.equal(split.historyAfter, true, '搜索记录应排在左栏推荐之后');
+      assert.ok(split.rightWidth > split.leftWidth, 'Cover column wider than avatar column');
+      assert.equal(split.historyLabel, 'Search history', 'The last group in the left column should be search history');
+      assert.equal(split.historyAfter, true, 'Search history should come after the picks of the left column');
       assert.equal(split.historyCount, 10);
       assert.ok(Math.abs(split.line - split.box) <= 1, `Divider height ${split.line}px, two-column height ${split.box}px`);
       assert.ok(Math.abs(split.offset) <= 1, `The divider is off the gap between the two columns by ${split.offset}px`);
@@ -329,7 +329,7 @@ describe('Design decisions: person and label profile pages', () => {
     }
   });
 
-  it('详情出演区每一组的标题与头像共用一条左边缘，名字在头像正下方居中', { timeout: 60_000 }, async () => {
+  it('In the detail cast area, the title and avatar of each group share one left edge, with the name centered right below the avatar', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/', DESKTOP);
     try {
       const page = opened.page;
@@ -367,9 +367,9 @@ describe('Design decisions: person and label profile pages', () => {
           }];
         })));
       for (const [kind, edge] of Object.entries(edges)) {
-        assert.ok(Math.abs(edge.face - edge.label) < 0.5, `${kind} 组头像左缘 ${edge.face} 不在标题左缘 ${edge.label}`);
+        assert.ok(Math.abs(edge.face - edge.label) < 0.5, `${kind} group avatar left edge ${edge.face} is not on the title left edge ${edge.label}`);
         assert.ok(Math.abs(edge.nameCenter - edge.faceCenter) < 0.5,
-          `${kind} 组名字中线 ${edge.nameCenter} 不在头像中线 ${edge.faceCenter}`);
+          `${kind} group's name center line ${edge.nameCenter} not on the avatar center line ${edge.faceCenter}`);
       }
       assert.deepEqual(opened.problems, []);
     } finally {

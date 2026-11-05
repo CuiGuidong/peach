@@ -33,7 +33,7 @@ export interface LibraryProcessingData {
   outcome?: 'complete' | 'partial' | 'interrupted' | 'cancelled';
   archived?: boolean;
   new_asset_count?: number;
-  /** 进行中这一轮在任务中心记的发起方式：`manual` | `scheduled` | `startup` | `cli`。 */
+  /** The initiation method the task center records for this in-progress round: `manual` | `scheduled` | `startup` | `cli`. */
   trigger?: string;
   speed_mode?: ProcessingSpeed;
   eta_seconds_min?: number | null;
@@ -167,10 +167,10 @@ export const ALL_CONTENT_URL = '/?loc=&thumb=0';
 /** Times round to the minute; both ends of the range always use the same unit. */
 export function remainingTime(state: LibraryProcessingData): string {
   if (!processingActive(state)) return '';
-  if (state.status === 'stopping') return '正在取消，等待当前步骤退出；已取得的结果会保留';
-  if (state.status === 'paused') return '已暂停，继续后更新预估';
-  if (state.status === 'pausing') return '正在暂停，当前步骤结束后暂停';
-  if (state.stalled) return '等待当前文件响应，剩余时间待更新';
+  if (state.status === 'stopping') return 'Cancelling, waiting for the current step to exit; results already obtained are kept';
+  if (state.status === 'paused') return 'Paused; estimates update after resuming';
+  if (state.status === 'pausing') return 'Pausing; it pauses once the current step ends';
+  if (state.stalled) return 'Waiting on the current file\'s response; time remaining pending update';
   const low = state.eta_seconds_min, high = state.eta_seconds_max;
   if (low == null || high == null || !Number.isFinite(low) || !Number.isFinite(high) || low < 0 || high < low)
     return 'Estimating remaining time…';
@@ -204,25 +204,25 @@ export const IDLE_POLL_MS = 10_000;
 /** The sentence left on the page when a read fails. The previous data stays, and the next poll picks up on its own. */
 export const DISCONNECTED_TEXT = 'Connection dropped; re-reading processing progress';
 
-/** 任务的发起方式写进句子里用的说法；`TRIGGER_LABELS` 是任务中心列表的短标签，放进句子读不通。 */
+/* The way a task is triggered, phrased for use in a sentence; TRIGGER_LABELS are short labels for the task center list, which don't read well in a sentence. */
 const TRIGGER_PHRASES: Record<string, string> = {
-  manual: '在网页发起', scheduled: '定时发起', startup: '服务启动时自动发起', cli: '由命令行或托盘发起',
+  manual: 'Start from the web page', scheduled: 'Start on a schedule', startup: 'Start automatically on service startup', cli: 'Started from the command line or tray',
 };
 
-/** 保存媒体库设置会重启 Peach：在跑的这一轮会怎样，按它跑在哪个进程、是否已暂停分开说。
- * 命令行与托盘起的是独立的 `peach process` 进程，重载只停服务；服务内的任务由启动恢复接着跑，
- * 用户暂停的那一轮恢复时跳过。勾了「保存后扫描」的那一趟要等全库处理锁，排在后面。 */
+/** Saving library settings restarts Peach: what happens to the running round depends on which process it runs in and whether it's paused — explained separately.
+ * The command-line and tray launches are independent `peach process` instances; reload only stops the service; the service's tasks resume from boot and keep running,
+ * while the round the user paused is skipped on resume. The run with "Scan after save" checked must wait for the full-library processing lock, so it goes last. */
 export function restartEffectText(state: LibraryProcessingData, scanAfterSave: boolean): string {
-  const effect = state.trigger === 'cli' ? '这个任务由命令行或托盘发起，在独立进程里运行，不受重启影响。'
-    : state.status === 'paused' ? '已暂停的任务会保持暂停，重启后点继续即可接着处理。'
-    : '正在进行的任务会随重启中断，重启后从中断处继续。';
-  return `保存后 Peach 会重新启动。${effect}${scanAfterSave ? '勾选的「保存后扫描并补全资料」会排在当前任务之后。' : ''}`;
+  const effect = state.trigger === 'cli' ? 'Started from the command line or tray, running in a separate process, unaffected by restart.'
+    : state.status === 'paused' ? 'A paused task stays paused; after a restart, click continue to resume.'
+    : 'Running tasks are interrupted by a restart and resume from the interruption afterward.';
+  return `After saving, Peach will restart. ${effect}${scanAfterSave ? 'The checked "Scan after save and fill in metadata" will queue after the current task.' : ''}`;
 }
 
-/** 已有任务在跑时点同步的回执，写明这一轮是怎么发起的。 */
+/** The receipt when sync is clicked while a task is running, stating how this round was started. */
 export function busyText(state: LibraryProcessingData): string {
   const origin = TRIGGER_PHRASES[state.trigger || ''];
-  return `当前的扫描与采集任务${origin ? `（${origin}）` : ''}还没结束，等它完成或取消后再开始新的同步`;
+  return `The current scan and collection task${origin ? `(${origin})` : ''} hasn't finished yet; wait for it to complete or be cancelled before starting a new sync`;
 }
 
 export function pollInterval(

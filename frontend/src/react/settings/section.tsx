@@ -14,7 +14,7 @@ import { cx } from '@/utils/cx';
 
 interface SectionProps {
   title: string;
-  /** 导览跟随组件身份，不依赖可编辑的标题文案。 */
+  /** The tour follows the component identity, not editable title text. */
   guide?: string;
   icon?: ReactNode;
   id?: string;
@@ -51,10 +51,10 @@ export function Rows({ children }: { children: ReactNode }) {
   return <div className="ui-settings-rows flex flex-col empty:hidden">{children}</div>;
 }
 
-/** 卡片只管左内边距和底色；不是 `SettingsRow` 的内容由这一层给行距和上下右内边距。
- *  排在 `Rows` 或 `FactList` 后面时 `divided`，和上面那组行之间补一道分隔线。
- *  嵌在里面的 `FactList` 退回这层的右内边距：行间线和别处的设置行一样右端顶到卡边，
- *  读数仍由每行自己的右内边距对齐。 */
+/** The card only manages left padding and background color; content that isn't a `SettingsRow` gets its line spacing and top/bottom/right padding from this layer.
+ *  `divided` when placed after `Rows` or `FactList`, adding a divider between it and the group of rows above.
+ *  A `FactList` nested inside falls back to this layer's right padding: the row lines reach the card edge on the right, just like the settings rows elsewhere,
+ *  while the readout is still aligned by each row's own right padding. */
 export function Stack({ divided = false, children }: { divided?: boolean; children: ReactNode }) {
   return divided
     ? <div className="flex flex-col gap-4 border-t border-separator-border py-4 pr-3 empty:hidden [&>.ui-settings-facts]:-mr-3">{children}</div>

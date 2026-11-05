@@ -107,7 +107,7 @@ export function EntityHead(
   );
 }
 
-/** 西方身份回配的证据: 候选身份、Source details链接、来源图片、Local video samples. */
+/* Evidence for Western-identity rematching: candidate identities, the Source details link, source images, Local video samples. */
 export function IdentityEvidence(
   { row, openItem, openEntity, onReveal, revealing, note }: {
     row: ReviewRow;

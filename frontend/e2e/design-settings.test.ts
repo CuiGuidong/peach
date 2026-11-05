@@ -748,7 +748,7 @@ describe('Design decisions: settings, taste, stats, and filter glass', () => {
       const page = opened.page;
       await page.route('**/api/index?**', (route) => route.fulfill({
         status: 200, contentType: 'application/json',
-        body: JSON.stringify({ items: [{ k: 'Nympho', n: 4, cat: 'role' }, { k: '秘书OL', n: 2, cat: 'scene' },
+        body: JSON.stringify({ items: [{ k: 'Nympho', n: 4, cat: 'role' }, { k: 'Secretary OL', n: 2, cat: 'scene' },
           { k: 'BDSM', n: 3, cat: 'role' }], has_more: false, categories: { role: 2, scene: 1 } }),
       }));
       const release = await holdApi(page);

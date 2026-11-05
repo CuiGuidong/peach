@@ -299,11 +299,11 @@ describe('Seam between the settings panel and the shell', () => {
     await close(current);
   });
 
-  it('SFW 快捷键按物理键位录制：只按修饰键还在等，缺修饰键说原因，按键不落到页面上，Esc 取消', async () => {
+  it('SFW shortcut is recorded by physical key position: pressing only a modifier key still waits, a missing modifier key explains why, the keypress does not land on the page, and Esc cancels', async () => {
     const current = await setup();
-    const panel = await open(current, '内容显示');
-    const row = [...panel.querySelectorAll<HTMLElement>('[data-setting-row]')].find((node) => node.textContent?.includes('SFW 快捷键'))!;
-    // 平时是一枚胶囊；录制时换成一排键帽，每枚带着自己的状态。
+    const panel = await open(current, 'Content display');
+    const row = [...panel.querySelectorAll<HTMLElement>('[data-setting-row]')].find((node) => node.textContent?.includes('SFW shortcut'))!;
+    // Normally it is a single capsule; while recording it becomes a row of keycaps, each carrying its own state.
     const pill = () => row.querySelector('[data-shortcut-keys]')?.textContent;
     const caps = () => [...row.querySelectorAll<HTMLElement>('[data-keycap]')]
       .map((cap) => `${cap.textContent}:${cap.dataset.state}`);
@@ -314,36 +314,36 @@ describe('Seam between the settings panel and the shell', () => {
     const press = async (init: KeyboardEventInit, type = 'keydown') => {
       await act(async () => { document.body.dispatchEvent(new KeyboardEvent(type, { bubbles: true, cancelable: true, ...init })) });
     };
-    const change = [...row.querySelectorAll('button')].find((button) => button.textContent === '更改')!;
+    const change = [...row.querySelectorAll('button')].find((button) => button.textContent === 'Change')!;
     await click(change);
-    expect(caps()).toEqual(['修饰键:slot', '键:slot']);
-    // 按住修饰键时键帽实时下沉，松开就撤掉；主键还没按时留一个空位。
+    expect(caps()).toEqual(['Modifier key:slot', 'key:slot']);
+    // While a modifier is held, the keycap sinks in real time; release reverts it; leave a placeholder if the main key hasn't been pressed yet.
     await press({ code: 'ControlLeft', key: 'Control', ctrlKey: true });
     await press({ code: 'ShiftLeft', key: 'Shift', ctrlKey: true, shiftKey: true });
-    expect(caps()).toEqual(['Ctrl:down', 'Shift:down', '键:slot']);
-    expect(row.querySelector('small')?.textContent).toBe('按下新的组合键，Esc 取消');
+    expect(caps()).toEqual(['Ctrl:down', 'Shift:down', 'key:slot']);
+    expect(row.querySelector('small')?.textContent).toBe('Press a new key combo, Esc to cancel');
     await press({ code: 'ControlLeft', key: 'Control', shiftKey: true }, 'keyup');
-    expect(caps()).toEqual(['Shift:down', '键:slot']);
+    expect(caps()).toEqual(['Shift:down', 'key:slot']);
     await press({ code: 'ShiftLeft', key: 'Shift' }, 'keyup');
-    expect(caps()).toEqual(['修饰键:slot', '键:slot']);
+    expect(caps()).toEqual(['Modifier key:slot', 'key:slot']);
     await press({ code: 'KeyS', key: 's' });
     expect(caps()).toEqual(['S:invalid']);
-    expect(row.querySelector('small')?.textContent).toContain('至少要带一个修饰键');
-    // Mac 上 Option+S 打出来的是「ß」，记的仍是 KeyS；录好的那一组亮一下成功色。
+    expect(row.querySelector('small')?.textContent).toContain('Include at least one modifier key');
+    // On Mac, Option+S types out 'ß', but what's recorded is still KeyS; the recorded set flashes a success color briefly.
     await press({ code: 'KeyS', key: 'ß', altKey: true });
     expect(current.setSfwShortcut.mock.calls).toEqual([[{ code: 'KeyS', ctrl: false, alt: true, shift: false, meta: false }]]);
     expect(caps()).toEqual(['Alt:done', 'S:done']);
-    expect(row.querySelector('small')?.textContent).toBe('已改为 Alt+S');
+    expect(row.querySelector('small')?.textContent).toBe('Changed to Alt+S');
     expect(reachedPage).not.toHaveBeenCalled();
-    await click([...row.querySelectorAll('button')].find((button) => button.textContent === '更改')!);
+    await click([...row.querySelectorAll('button')].find((button) => button.textContent === 'Change')!);
     await press({ code: 'Escape', key: 'Escape' });
     expect(current.setSfwShortcut).toHaveBeenCalledTimes(1);
-    expect([...row.querySelectorAll('button')].map((button) => button.textContent)).toEqual(['更改']);
+    expect([...row.querySelectorAll('button')].map((button) => button.textContent)).toEqual(['Change']);
     document.removeEventListener('keydown', reachedPage);
     await close(current);
   });
 
-  it('拖动光晕拉条：每一步只叫壳排一帧重画，不落盘；松手那一下才落盘', async () => {
+  it('Dragging the glow slider: each step only asks the shell to schedule one repaint frame and nothing persists; persistence happens only on release', async () => {
     const current = await setup();
     const panel = await open(current);
     const root = panel.querySelector<HTMLElement>('[data-glow-dial="strength"]')!;

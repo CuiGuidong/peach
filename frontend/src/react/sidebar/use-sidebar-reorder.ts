@@ -20,7 +20,7 @@ interface Gesture {
   cursor: string;
 }
 
-/** 导航只在松手时保存顺序；指针移动只更新浮起项和插入位置。 */
+/** Navigation saves the order only on release; pointer movement only updates the lifted item and insertion position. */
 export function useSidebarReorder(column: RefObject<HTMLDivElement | null>, order: readonly string[],
   commit: (next: string[]) => void, settled: () => void) {
   const [picked, setPicked] = useState<Picked | null>(null);

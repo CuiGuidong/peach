@@ -34,7 +34,7 @@ const APPLY_BODY = (name: string, path: string) => `Organize ${name}${path ? ` i
   + 'This batch can be reverted whole via "Roll back previous batch".';
 const ROLLBACK_BODY = 'This moves the files the last organize run touched back to their earlier names and locations, and the database paths follow. '
   + 'After reverting, this batch no longer appears here.';
-/** Preview只列前 8 行: 这里是给人扫一眼方向对不对，完整计划在 CSV 里. */
+/* The Preview only lists the first 8 rows: this is for a person to glance at whether the direction is right; the full plan is in the CSV. */
 const PLAN_ROWS = 8;
 
 function PlanRows({ plan }: { plan: OrganizePlan }) {
@@ -175,7 +175,7 @@ export function OrganizeCard(
     onConfirm: () => job.start.mutateAsync({ kind: 'rollback' }),
   });
 
-  /* 这张卡上的结论只有一句: 跑着的那一趟、这次跟完的那一趟、刚出的Preview，按新旧取最新. */
+  /* The conclusion on this card is one line: the running trip, the trip just followed through this time, and the Preview just produced — take the newest by recency. */
   let state = null;
   const applicable = !!changes && !running && !job.outcome;
   const current = job.job;
@@ -244,8 +244,8 @@ export function OrganizeCard(
           </div>
         </div>
         <p className="text-caption-1-regular text-text-secondary">{ORGANIZE_SCOPE_HINT}</p>
-        {picker.isError ? <Note tone="error" title="目录选择失败">{errorMessage(picker.error)}；也可直接输入路径。</Note> : null}
-        <Input label="文件名模板" placeholder="{code}[ {title}]" value={fields.file} ref={fileInput}
+        {picker.isError ? <Note tone="error" title="Choosing the folder failed">{errorMessage(picker.error)}; you can also type a path directly.</Note> : null}
+        <Input label="Filename template" placeholder="{code}[ {title}]" value={fields.file} ref={fileInput}
           spellCheck="false" isInvalid={invalid === 'file'}
           onFocus={() => { setTarget('file'); focused.current = true }}
           onChange={(value) => changeTemplates({ file: value })} />

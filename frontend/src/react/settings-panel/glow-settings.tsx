@@ -1,13 +1,13 @@
-/* 侧栏Glow的Detailed settings，照 feralui.dev/gradients 的工作台面板来: 参数行是「84px 标签 + 自绘拉条 +
- * 右侧等宽读数」，颜色行点开在自己下方弹一张色板.
- * 取证见 docs/reference-snapshots/feralui-studio-boardui-accent-measured.md.
+/* The sidebar Glow's Detailed settings, following the feralui.dev/gradients workbench panel: a parameter row is "84px label + hand-drawn slider +
+ * monospaced readout on the right", and a color row, when opened, pops a palette below itself.
+ * Forensics in docs/reference-snapshots/feralui-studio-boardui-accent-measured.md.
  *
- * 预设色块在这一屏和侧栏底部那张配色卡上是同一组色块、同一份写入（`GlowPresetGrid`），两处读的都是
- * 壳那一份 store，点哪一边另一边当场对齐.当前档名、预设色块和五条参数同属「配色」这一组.
+ * The preset swatches are the same group of swatches on this screen and on the palette card at the bottom of the sidebar, and the same write (`GlowPresetGrid`); both sides read
+ * the shell's store, and clicking one side aligns the other on the spot. The current preset name, the preset swatches, and the five parameters all belong to the "Palette" group.
  *
- * 「玻璃原色」那一档没有三枚Glow: 那一层整个算作 0，面上漂的是每块玻璃自带的两团反光.强度、
- * 颗粒、柔化、大小和三枚颜色于是全都管不着任何东西，这一档把它们收起来，换一句Note颜色由明暗
- * 主题给.漂移速度不收——自带那两团也在漂.「Restore defaults」同样不收，任何一档下都要能一步回到出厂那一套. */
+ * The "Glass original" preset has none of the three Glows: that layer counts as 0 entirely, and what floats on the surface is the two reflections each piece of glass carries by default. Intensity,
+ * grain, softness, size, and the three colors therefore control nothing at all; this preset hides them and swaps in a Note that the color comes from the light/dark
+ * theme. Drift speed isn't hidden either — the two built-in reflections also drift. "Restore defaults" is likewise not hidden; under any preset you must be able to return to the factory set in one step. */
 import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react';
 
 import { closeAnchoredMenu, wireAnchoredMenu } from '@peach/legacy/ui';

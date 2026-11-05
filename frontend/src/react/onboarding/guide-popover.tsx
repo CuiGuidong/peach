@@ -52,7 +52,7 @@ function GuidePopover({ step, position, total, missing, next, previous, close, i
   </div>;
 }
 
-/** Driver 负责定位，高亮说明的内容与控件由应用组件绘制。 */
+/** The Driver handles positioning; the highlighted explanation's content and controls are drawn by application components. */
 export function mountGuidePopover(wrapper: HTMLElement, arrow: HTMLElement, props: Props) {
   const mount = document.createElement('div');
   wrapper.replaceChildren(mount, arrow);

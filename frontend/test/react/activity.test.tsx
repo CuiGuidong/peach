@@ -56,11 +56,11 @@ const run = (overrides: Partial<TaskRunPayload> = {}): TaskRunPayload => ({
 /** One successor (ADR-0040): a finished run, hung under the `parent` round. */
 const followup = (parent: number, overrides: Partial<TaskRunPayload> = {}): TaskRunPayload =>
   run({
-    id: 90, task_key: 'entity-avatar', task_label: '资料图片补全', status: 'succeeded',
-    progress_total: null, progress_current: null, progress_label: '资料图片补全：涼森れむ',
+    id: 90, task_key: 'entity-avatar', task_label: 'Fill in detail images', status: 'succeeded',
+    progress_total: null, progress_current: null, progress_label: 'Fill in detail images: 涼森れむ',
     finished_at: '2026-09-11T10:04:00Z', parent_run_id: parent, root_run_id: parent,
     followup_key: 'entity-avatar:performer:12', followup_depth: 1,
-    result_summary: { outcome: '已装上' }, ...overrides,
+    result_summary: { outcome: 'Installed' }, ...overrides,
   });
 
 const payload = (overrides: Partial<ActivityData> = {}): ActivityData => ({
@@ -141,9 +141,9 @@ it('Scan and scrape retries unfinished items on the card only for the latest fai
     scan({ id: 5, finished_at: '2026-09-11T10:05:00Z' }),
     scan({ id: 4, status: 'succeeded', error: '', finished_at: '2026-09-11T09:05:00Z' }),
     scan({ id: 3, finished_at: '2026-09-11T08:05:00Z' }),
-    // amane 桥的处理入口在页顶「需要处理」那一行，卡上不放。
-    run({ id: 2, task_key: 'amane-bridge', task_label: 'amane 桥重建', status: 'failed',
-          progress_total: null, finished_at: '2026-09-11T07:05:00Z', error: '重建未完成' }),
+    // The amane bridge's action entry is the 'Needs attention' line at the top of the page, not on the card.
+    run({ id: 2, task_key: 'amane-bridge', task_label: 'amane bridge rebuild', status: 'failed',
+          progress_total: null, finished_at: '2026-09-11T07:05:00Z', error: 'Rebuild unfinished' }),
   ] }));
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
@@ -237,8 +237,8 @@ it('The active main task and follow-ups keep showing their own CPU, GPU, and mea
   const main = host.querySelector('[data-task-resources="1"]')!;
   const nested = host.querySelector('[data-task-resources="90"]')!;
   expect(main.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 12.5%');
-  expect(main.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU 未使用');
-  expect(main.querySelector('[data-task-resource="network"]')?.textContent).toBe('网络 2 MB/s');
+  expect(main.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU not used');
+  expect(main.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network 2 MB/s');
   expect(nested.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 3%');
   expect(nested.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network 1 KB/s');
   expect(main.querySelector('[data-task-resource="cpu"]')?.getAttribute('title')).toContain('containers use their visible CPU quota');
@@ -262,26 +262,26 @@ it('Resource sampling-in-progress and not-obtained display separately, the reaso
   expect(metrics.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toContain('Mounted-drive transfers cannot be attributed precisely');
 });
 
-it('从网盘挂载读取时网络写网盘读取，仍不报告零值', async () => {
+it('When reading from a cloud-drive mount, the network shows “cloud drive read” and still reports no zero value', async () => {
   const { host } = await open(payload({ running: [run({ resources: resources({
     network: { state: 'unavailable', bytes_per_second: null, high: false, via: 'cloud',
-      reason: '网盘挂载的缓存与预读无法按任务取得实际网速' },
+      reason: 'The cache and prefetch of a mounted cloud drive cannot measure actual speed per task' },
   }) })] }));
   const network = host.querySelector('[data-task-resources="1"] [data-task-resource="network"]')!;
-  expect(network.textContent).toBe('网络 网盘读取');
+  expect(network.textContent).toBe('Network cloud drive read');
   expect(network.hasAttribute('data-resource-idle')).toBe(false);
-  expect(network.getAttribute('title')).toMatch(/^网盘挂载的缓存与预读/);
+  expect(network.getAttribute('title')).toMatch(/^The cache and prefetch/);
 });
 
-it('真实零读数写成未使用，高占用由该指标的真实high状态强调', async () => {
+it('A true zero reading is shown as not used; high usage is emphasized by the real high state of that metric', async () => {
   const { host } = await open(payload({ running: [run({ resources: resources({
     cpu: { state: 'ready', percent: 0, high: false },
     gpu: { state: 'ready', percent: 70.1, high: true },
     network: { state: 'ready', bytes_per_second: 0, high: false },
   }) })] }));
   const metrics = host.querySelector('[data-task-resources="1"]')!;
-  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 未使用');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('网络 未使用');
+  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU not used');
+  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network not used');
   expect(metrics.querySelector('[data-task-resource="cpu"]')?.hasAttribute('data-resource-idle')).toBe(true);
   const gpu = metrics.querySelector('[data-task-resource="gpu"]')!;
   expect(gpu.textContent).toBe('GPU 70.1%');
@@ -667,8 +667,8 @@ it('Completed batches of dispatches merge into one card; the summary states how 
     id, task_key: 'upgrade-repairs', task_label: 'Auto repair', trigger: 'scheduled', status: 'succeeded',
     progress_total: null, finished_at: `2026-10-28T08:${minute}:00Z`, result_summary: { outcome: 'Scheduled 64 for processing' } });
   const child = (id: number, parent: number, status: string) => followup(parent, {
-    id, task_key: 'upgrade-library', task_label: '资料自动修复', status,
-    result_summary: { outcome: '影片升级补全完成', name: `ABC-${id}` }, followup_key: `upgrade-library:x:${id}` });
+    id, task_key: 'upgrade-library', task_label: 'Auto-repair details', status,
+    result_summary: { outcome: 'Video upgrade completion finished', name: `ABC-${id}` }, followup_key: `upgrade-library:x:${id}` });
   const { host } = await open(payload({
     finished: [batch(3, 43), batch(2, 42), batch(1, 41), child(31, 3, 'succeeded'), child(21, 2, 'failed'), child(11, 1, 'succeeded')],
     followup_counts: { 1: { succeeded: 64 }, 2: { succeeded: 62, failed: 2 }, 3: { succeeded: 63, failed: 1 } },
@@ -689,8 +689,8 @@ it('Several batches that dispatched dozens of successors merge into one in-progr
     id, task_key: 'upgrade-repairs', task_label: 'Auto repair', trigger: 'scheduled', status: 'succeeded',
     progress_total: null, started_at: finished_at, finished_at, result_summary: { outcome: 'Scheduled 64 for processing' } });
   const child = (id: number, parentId: number, status: string) => followup(parentId, {
-    id, task_key: 'upgrade-library', task_label: '资料自动修复', status, finished_at: null,
-    progress_label: status === 'running' ? 'ABC-001 · 采集缺失资料' : 'ABC-00' + id, result_summary: {},
+    id, task_key: 'upgrade-library', task_label: 'Auto-repair details', status, finished_at: null,
+    progress_label: status === 'running' ? 'ABC-001 · scrape missing details' : 'ABC-00' + id, result_summary: {},
     followup_key: `upgrade-library:x:${id}` });
   const { host } = await open(payload({
     running: [child(12, 2, 'pending'), child(11, 1, 'running')],
@@ -763,10 +763,10 @@ it('Successors nest under the round that dispatched them without taking another 
   expect(host.querySelectorAll('[data-task-key]')).toHaveLength(1);
   const row = host.querySelector('[data-followup-key]')!;
   expect(host.querySelector('[data-task-key=follow-check]')!.contains(row)).toBe(true);
-  expect(row.textContent).toContain('资料图片补全');
-  expect(row.textContent).toContain('已完成');
-  expect(row.textContent).toContain('涼森れむ · 已保存资料图片');
-  expect(host.textContent).toContain('已安排 1 项补充任务');
+  expect(row.textContent).toContain('Fill in detail images');
+  expect(row.textContent).toContain('Completed');
+  expect(row.textContent).toContain('涼森れむ · Detail image saved');
+  expect(host.textContent).toContain('Scheduled 1 backfill task');
 });
 
 it('Completed task details start collapsed, and expanding and collapsing never lose successor results', async () => {
@@ -800,15 +800,15 @@ it('While a successor is still running, the round that dispatched it keeps its w
                        progress_total: null, finished_at: '2026-09-11T10:03:00Z',
                        result_summary: { followups: 1 } });
   const scraping = followup(parent.id, {
-    task_key: 'feed-scrape', task_label: '新作资料采集', status: 'running', finished_at: null,
-    progress_label: '新作资料采集：MIZD-441', progress_current: 13, progress_total: 22,
+    task_key: 'feed-scrape', task_label: 'New work detail collection', status: 'running', finished_at: null,
+    progress_label: 'New work detail collection: MIZD-441', progress_current: 13, progress_total: 22,
     followup_key: 'feed-scrape:MIZD-441', result_summary: {} });
   const { host } = await open(payload({ running: [scraping], finished: [parent] }));
   expect(sections(host)).toEqual(['Running']);
   const row = host.querySelector('[data-followup-key]')!;
-  expect(row.textContent).toContain('新作资料采集');
-  expect(row.textContent).toContain('进行中');
-  expect(row.textContent).toContain('MIZD-441 · 13 / 22 项');
+  expect(row.textContent).toContain('New work detail collection');
+  expect(row.textContent).toContain('In progress');
+  expect(row.textContent).toContain('MIZD-441 · 13 / 22 items');
 });
 
 it('Consecutive scheduled runs where nothing happened merge into one card per kind; the eventful run is truncated and shown separately', async () => {
@@ -1025,10 +1025,10 @@ it('Duration and summary conversions each hold on their own', () => {
 it('Task main summaries use the localized results with internal fields reserved for technical details', () => {
   expect(summaryItems({ followups: 9, stage: 'finished', requested_stage: 'all',
     eta_seconds_min: 0, entity_watermark: 9936, performer_aliases: 7, auto_rejected: 0 }))
-    .toEqual(['已安排 9 项补充任务', '女优别名 7']);
-  expect(followupDetail(followup(4, { task_key: 'performer-profile', task_label: '女优资料补全',
-    progress_label: '补女优资料：演示人物', result_summary: { name: '演示人物', outcome: 'avwikidb 绑定；javdb 绑定' } })))
-    .toBe('演示人物 · 已关联 AVWikiDB 资料页；已关联 JavDB 资料页');
+    .toEqual(['Scheduled 9 backfill tasks', 'Performer aliases: 7']);
+  expect(followupDetail(followup(4, { task_key: 'performer-profile', task_label: 'Performer detail fill-in',
+    progress_label: 'Completing performer details: Demo person', result_summary: { name: 'Demo person', outcome: 'avwikidb binding; javdb binding' } })))
+    .toBe('Demo person · AVWikiDB profile linked; JavDB profile linked');
 });
 
 it('An error shows one line in the list: tracebacks use the last line, everything else the first non-empty line', () => {
@@ -1069,12 +1069,12 @@ it('A follow-up run without the face model is marked as having issues, not compl
                        finished_at: '2026-09-11T10:03:00Z', result_summary: { followups: 1 } });
   const { host } = await open(payload({ finished: [parent, settled] }));
   expect([...host.querySelectorAll('[data-followup-key] > div:first-child > div:first-child > span')].map((node) => node.textContent))
-    .toEqual(['资料图片补全', '发现问题', `涼森れむ · ${down.outcome}`]);
+    .toEqual(['Fill in detail images', 'Issues found', `涼森れむ · ${down.outcome}`]);
 });
 
 it('A round that cannot get the face model only records the failure and reason; retry lives under "Needs attention" at the top of the page', async () => {
   const { host } = await open(payload({ finished: [run({
-    id: 9, task_key: 'face-models', task_label: '人脸模型下载', trigger: 'scheduled', status: 'failed',
+    id: 9, task_key: 'face-models', task_label: 'Face model download', trigger: 'scheduled', status: 'failed',
     progress_total: null, progress_current: null, finished_at: '2026-09-11T10:05:00Z',
     error: 'Face model fetch failed: getaddrinfo failed' })] }));
   const card = host.querySelector('[data-task-key=face-models]')!;

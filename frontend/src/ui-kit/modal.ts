@@ -100,7 +100,7 @@ export function confirmModal({title,body,items=[],confirmLabel,cancelLabel='Canc
   const titleId=`geist-modal-title-${++modalSeq}`;
   dialog.setAttribute('aria-labelledby',titleId);
   dialog.setAttribute('aria-describedby',`${titleId}-body`);
-  // 不可撤销的确认读作 alertdialog：读屏进来先念标题和那句后果，而不是当成普通对话框（同 BoardUI Modal）。
+  // An irreversible confirmation is read as an alertdialog: the screen reader announces the title and that consequence line on entry, instead of treating it as a plain dialog (same as BoardUI Modal).
   if(danger)dialog.setAttribute('role','alertdialog');
   dialog.innerHTML=`<header class="ui-geist-modal-header"><h3 id="${titleId}"></h3></header>
     <div class="ui-geist-modal-scroll"><div class="ui-geist-modal-body">

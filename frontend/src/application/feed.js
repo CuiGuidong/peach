@@ -97,11 +97,11 @@ export function feedNetworkNote(unreachable,items){
     {variant:'warning',className:'feednetwork',actionLabel:'Configure connection method',actionHref:'/sources'});
 }
 
-/* `allHref` 给了就在行尾多一张「查看全部新作」卡，跳到 JAV 页的新作分区；首页那一行给，资料页那一行不给。 */
+/* When allHref is given, add a 'View all new releases' card at the row's end, jumping to the JAV page's new-releases section; the home page row gives it, the resources page row doesn't. */
 export function feedRowHtml(data,allHref=''){
   const items=data&&!data.error?(data.items||[]):[];
   const all=allHref&&items.length
-    ?`<a class="feednewall" href="${esc(allHref)}" style="--card-ratio:${COVER_FRONT_RATIO}">${icon('chevron-right')}<span>查看全部新作</span></a>`:'';
+    ?`<a class="feednewall" href="${esc(allHref)}" style="--card-ratio:${COVER_FRONT_RATIO}">${icon('chevron-right')}<span>View all new releases</span></a>`:'';
   return feedNetworkNote(data?.cover_network,items)
     +`<div class="feednewrow srow">${items.map(feedNewCardHtml).join('')}${all}</div>`;
 }

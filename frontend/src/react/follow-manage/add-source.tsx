@@ -55,7 +55,7 @@ export interface AddSourceProps {
 /** Credentials are configured in the 'Sources and subscriptions' settings; the credential link on candidate rows points there. */
 const CREDENTIALS_PATH = '/settings/subscriptions';
 
-/** 候选的身份是它的地址: 同一次Find里同一个地址只会出现一次. */
+/** A candidate's identity is its address: within a single Find, the same address appears only once. */
 const candidateKey = (row: number, candidate: ResolveCandidate) => `${row}:${candidate.url}`;
 
 interface SuggestOption { value: string; matched: string; n: number; group: string }
@@ -120,8 +120,8 @@ function SuggestMenu(
   );
 }
 
-/** 来源筛选: 列出All可Follows的站，默认全选.Cancel勾选的站，其Lookup results行不显示、也不进
- *  「Add选中」. */
+/** Source filter: lists all sites that can be Followed, all checked by default. For unchecked sites, their Lookup results rows are not shown and are not included in
+ *  "Add selected". */
 function SourceFilter(
   { credentials, hidden, onHidden }:
   {
@@ -149,7 +149,7 @@ function SourceFilter(
     ]} />;
 }
 
-/** 一条Lookup results.候选逐条列，已经Follows的列出来但不许再勾——否则人以为没查到. */
+/* A Lookup result. Candidates are listed one by one; ones already Followed are listed but not allowed to be checked again — otherwise the person thinks nothing was found. */
 function PickRow(
   { row, at, hidden, unpicked, onPick }:
   {

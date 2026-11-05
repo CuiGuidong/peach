@@ -122,7 +122,7 @@ export interface FollowDetailActions {
   /** Action receipt; when `undo` is given it carries an undo button. Failures go through `failure`. */
   toast(message: string, options?: { undo?: () => Promise<void> }): void;
   failure(action: string, error: unknown): void;
-  /** 接着看里的一叠能不能悬停翻卡：和关注列表同一个判据（多选、遮挡、减少动效、滚动中都回 false）。 */
+  /* Whether a stack in the continue-watching list can flip on hover: the same criterion as the following list (multi-select, occlusion, reduced motion, and scrolling all return false). */
   canFlip(): boolean;
 }
 

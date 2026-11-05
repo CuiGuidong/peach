@@ -80,10 +80,10 @@ function ProcessingPrompt({ command, speed, dialog, onSpeed, busy }: {
   </div>;
 }
 
-/** 扫描和已有作品补全共用资料流水线，视频预览由媒体库设置决定。
+/** Scanning and completion of existing works share the metadata pipeline; the video preview is decided by library settings.
  *
- * `busy` 是这次启动还在路上，按钮标 `aria-busy`，点击由共享的忙碌拦截吞掉。`occupied` 是已有
- * 任务在跑：按钮只标 `aria-disabled`，点击仍会到达，由 `onOccupied` 告诉人为什么没有开始。 */
+ * `busy` means this launch is still in flight: the button is marked `aria-busy` and the click is swallowed by the shared busy interceptor. `occupied` means an existing
+ * task is running: the button is only marked `aria-disabled`, the click still arrives, and `onOccupied` tells the user why it didn't start. */
 export function ProcessingActions({ busy, occupied = false, scan = false, metadataOnly = false, speedMode = 'standard', pendingCount = 0, onRun, onOccupied }: {
   busy: boolean; occupied?: boolean; scan?: boolean; metadataOnly?: boolean; speedMode?: ProcessingSpeed; pendingCount?: number;
   onRun(command: LibraryProcessingCommand): void | Promise<unknown>;
@@ -161,7 +161,7 @@ export function ProcessingActions({ busy, occupied = false, scan = false, metada
       }}>Manage media library</LinkButton>, promptView.footer) : null}
     <span data-button-group data-split-button data-variant="primary">
       <Button {...blockedProps} onClick={() => run(primary.command)}>{primary.label}</Button>
-      <Button ref={trigger} iconOnly leadingIcon={RiArrowDownSLine} aria-label="更多同步方式"
+      <Button ref={trigger} iconOnly leadingIcon={RiArrowDownSLine} aria-label="More sync methods"
         aria-haspopup="dialog" aria-expanded={open} {...blockedProps} onClick={() => {
           if (busy) return;
           if (occupied) onOccupied?.(); else setOpen(!open);

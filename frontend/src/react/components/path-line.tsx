@@ -4,8 +4,8 @@
  * reading one is to go look; copying it out and pasting back into the explorer is wasted copying. Only this string is sent to
  * the server, which re-judges openability against its own Peach data directory (`/api/reveal`'s `path` branch).
  *
- * 窗口弹在**服务端那台机器**上：本机浏览时它自己就是回执，从别的设备浏览时这边屏幕
- * 什么都不会发生，所以成功仍要报一句。失败留在路径旁边，等人重试。 */
+ * The window opens on the machine that runs the server: browsing from This device is its own receipt, while from another
+ * device nothing shows up on this screen, so a success still reports a line. A failure stays beside the path for a Retry. */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { IconButton } from '@/components/base/buttons/icon-button';
@@ -28,18 +28,20 @@ function FolderOpenIcon({ className }: { className?: string }) {
 const UNREACHED = 'Couldn\'t open File Explorer. Try again.';
 
 export function PathLine(
-  { path, prefix, className, action, onRevealed }:
+  { path, prefix, className, action, onRevealed, revealLabel = 'Show in File Explorer' }:
   {
     path: string;
     /** The label before the path ('Full log:'). It sits on the path's line and never breaks away from it when wrapping. */
     prefix?: string;
     /** The font size and color of this line are decided at the place that uses it: the path is secondary information, and the muted color is not the same everywhere. */
     className?: string;
-    /** 同样针对这份文件的动作（导出），排在打开位置那颗键旁边。 */
+    /** The other action on this file (Export), placed next to the “open location” key. */
     action?: ReactNode;
-    /** 定位成功后的回执。窗口不在这台机器上时，这句话是唯一的动静。 */
+    /** The receipt after a successful locate. When the window is not on this machine, this sentence is the only sign of it. */
     onRevealed?(message: string): void;
-  },
+    /** The reveal key's accessible name; pages that open the record's own location shorten it. */
+    revealLabel?: string;
+  }
 ) {
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
@@ -67,7 +69,7 @@ export function PathLine(
           {prefix}{path}
         </p>
         <div className="flex shrink-0 items-center gap-2">
-          <IconButton icon={FolderOpenIcon} size="small" aria-label="在资源管理器中显示"
+          <IconButton icon={FolderOpenIcon} size="small" aria-label={revealLabel}
             onClick={() => void reveal()} {...busyProps(busy)} />
           {action}
         </div>

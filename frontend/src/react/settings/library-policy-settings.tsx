@@ -84,7 +84,7 @@ export function StageChooser({ name, value, onChange }: { name: string; value: r
   );
 }
 
-/** 一颗显示当前Source color的球；点开是「无颜色」加十二档Accent color. */
+/* A ball showing the current Source color; tapping it opens 'No color' plus twelve Accent color levels. */
 export function LibraryColorPicker({ id, name, value: color, onChange }: {
   id: string; name: string; value: string; onChange(color: string): void;
 }) {

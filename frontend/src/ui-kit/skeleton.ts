@@ -106,7 +106,7 @@ function armSkeletonReveal(root:any){
     ...root.querySelectorAll(SKELETON_REVEAL_SELECTOR)];
   const targets=all.filter(node=>!all.some(parent=>parent!==node&&parent.contains(node)));
   for(const target of targets){
-    /* 主动导航立即反馈；冷启动仍沿用短请求不闪骨架的门槛。 */
+    /* Active navigation gives instant feedback; cold start still uses the short-request no-skeleton-flash threshold. */
     if(target.closest('[data-page-navigation-pending]')){
       target.dataset.skeletonReveal='shown';
       target.classList.remove('skeleton-awaiting');

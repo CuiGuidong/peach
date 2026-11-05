@@ -357,7 +357,7 @@ describe('Filter box', () => {
     await act(async () => { vi.advanceTimersByTime(300) });
     expect(given.route).toHaveBeenCalledWith(expect.objectContaining({ q: 'Alpha' }), { replace: true });
     expect(urls(fetcher)[0]).toContain('q=Alpha');
-    // 这一问还在路上，上一份名单保留尺寸但不可操作，变化区显示忙态。
+    // This query is still in flight; the previous list keeps its size but becomes non-interactive, and the change region shows a busy state.
     expect(cells(host)).toHaveLength(2);
     expect(host.querySelector('[data-index-body] [aria-busy="true"]')).not.toBeNull();
     expect(host.querySelector('[data-index-body] [data-content-current]')?.hasAttribute('inert')).toBe(true);
@@ -415,7 +415,7 @@ describe('Tags', () => {
   }
 
   it('The overlay lists only types with data, and clicking one writes the address back', async () => {
-    seed(indexKey('tags', '', 'all'), [tag('Nympho'), tag('秘书OL', 'scene')], false, { role: 1, scene: 1 });
+    seed(indexKey('tags', '', 'all'), [tag('Nympho'), tag('Secretary OL', 'scene')], false, { role: 1, scene: 1 });
     serve(() => ({ items: [tag('Nympho')], has_more: false, categories: { role: 1 } }));
     const given = props({ kind: 'tags' });
     const host = await open(given);
@@ -434,18 +434,18 @@ describe('Tags', () => {
   });
 
   it('In selection mode, clicking, broad match, and "Show results" only affect this screen; when the shell closes the selection key the selection clears with it', async () => {
-    seed(indexKey('tags', '', 'all'), [tag('Nympho'), tag('秘书OL')]);
+    seed(indexKey('tags', '', 'all'), [tag('Nympho'), tag('Secretary OL')]);
     const given = props({ kind: 'tags' }, { selectMode: true });
     const host = await open(given);
     expect(host.querySelector('[aria-label="Selected tags actions"]')).toBeNull();
     await click(alphaTag(host, 'Nympho'));
-    await click(alphaTag(host, '秘书OL'));
+    await click(alphaTag(host, 'Secretary OL'));
     expect(alphaTag(host, 'Nympho')?.getAttribute('aria-pressed')).toBe('true');
     expect(host.textContent).toContain('Selected 2 tags');
     // Broad matching is on by default; turning it off means "must contain all terms".
     await click(host.querySelector('[aria-label="Selected tag actions"] input[type="checkbox"]'));
     await click(buttonNamed('Show results', host));
-    expect(given.showTags).toHaveBeenCalledWith(['Nympho', '秘书OL'], 'all');
+    expect(given.showTags).toHaveBeenCalledWith(['Nympho', 'Secretary OL'], 'all');
     expect(given.route).not.toHaveBeenCalled();
 
     await click(alphaTag(host, 'Nympho'));

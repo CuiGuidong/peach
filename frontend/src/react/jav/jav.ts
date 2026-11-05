@@ -9,7 +9,7 @@ import { RELEASE_SORTS, type DiscoveryDirection, type DiscoverySort, type Releas
 
 export { JAV_TABS, javTab, javPath, javLibraryPath } from './jav-navigation';
 
-/** 分区里的筛选写进地址栏：替换当前记录，不多压一条历史。 */
+/** Filters in a section are written into the address bar: they replace the current record rather than pushing an extra history entry. */
 export function writeJavQuery(patch: Record<string, string>): void {
   const params = new URLSearchParams(location.search);
   for (const [key, value] of Object.entries(patch)) { if (value) params.set(key, value); else params.delete(key) }
@@ -46,14 +46,14 @@ export function fetchDiscoveries(scope: DiscoveryScope, signal: AbortSignal, opt
   return apiGet<DiscoveryResult>(`/api/jav/discoveries?${params}`, signal);
 }
 
-/** 新作分区的筛选与排序：都写在地址栏里，刷新与返回原样恢复。`seed` 只在换一批时有值。 */
+/* The new-releases section's filter and sort: both written in the address bar, so refresh and back restore them as-is. seed only has a value when cycling to a new batch. */
 export interface ReleaseFilters {
   page: number; performer: string; studio: string; tag: string; q: string;
   sort: ReleaseSort; dir: DiscoveryDirection; seed: string;
 }
 export interface ReleaseFacetPerformer extends FaceRef { name: string; count: number; source_actor_id?: string; source_avatar?: boolean }
 export interface ReleaseFacetStudio { name: string; count: number; has_logo: boolean; logo_version?: string }
-/** `/api/jav/releases`：一页新作，加只取自订阅新作的筛选项。 */
+/** `/api/jav/releases`: a page of new releases, plus filter options drawn only from subscription new releases. */
 export interface ReleaseResult {
   items: Discovery[]; total: number; candidate_total: number; page: number; size: number;
   facets: { performers: ReleaseFacetPerformer[]; studios: ReleaseFacetStudio[]; tags: { name: string; count: number }[] };

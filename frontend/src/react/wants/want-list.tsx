@@ -1,4 +1,4 @@
-/* JAV 想要: 按状态分组的作品卡，复用Resource links查询与Find resources弹层. */
+/* JAV wanted: work cards grouped by status, reusing the Resource links query and the Find resources popover. */
 import { useState } from 'react';
 import { Radio } from 'react-aria-components';
 import type { KeyboardEvent, ReactNode } from 'react';

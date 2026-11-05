@@ -23,11 +23,11 @@ describe('Page scroll positioning', () => {
             await route.fallback();
           });
           const { previousHeight, animates, floor } = await page.evaluate(async () => {
-            // 长度只放在离开的列表内，导航清空列表时会一起移除。
+            // The length lives only inside the leaving list; when navigation clears the list, it is removed too.
             const tail = document.createElement('div');
             tail.style.height = '3000px';
             document.getElementById('grid')!.append(tail);
-            // 关闭系统动画的 Windows（如托管 runner）上，Chrome 把程序触发的平滑滚动直接跳到终点；先探测有无中间帧。
+            // On Windows with system animations off (e.g., managed runners), Chrome jumps programmatically-triggered smooth scrolling straight to the end; first probe whether there are intermediate frames.
             window.scrollTo({ top: 0, behavior: 'instant' });
             window.scrollTo({ top: 1000, behavior: 'smooth' });
             let animates = false;

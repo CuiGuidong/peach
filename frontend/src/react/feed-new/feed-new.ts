@@ -20,7 +20,7 @@ export interface FeedNew {
   fetching?: boolean;
 }
 
-/** 壳拼的整段 HTML：连不上图片主机时的 Note 与一排卡（`feedNewCardHtml`）。 */
+/** The whole HTML assembled by the shell: the Note for when the image host is unreachable and a row of cards (`feedNewCardHtml`). */
 export type FeedRowHtml = (data: FeedDiscoveries | null, allHref?: string) => string;
 
 /** The profile page row keys by entity id; the home page row does not distinguish people. */
@@ -56,7 +56,7 @@ export async function fetchFeedNew(entityId: number | null, rowHtml: FeedRowHtml
   const data = await (api(`/api/feeds/discoveries?${query}`).catch(() => null) as Promise<FeedDiscoveries | null>);
   const ok = data && !(data as { error?: string }).error ? data : null;
   const items = ok?.items || [];
-  // 首页那一行在行尾带「查看全部新作」，资料页那一行只列这个人的，不带。
+  // The home-page row ends with “View all new releases”; the profile page row lists only this person's and doesn't have that.
   const html = rowHtml(ok, entityId ? '' : '/jav?tab=releases');
   if (preload && items.length) await preloadImages(html, FEED_SKELETON_CARDS, FEED_COVER_WAIT);
   return { items, html, fetching: items.some(item => item.cover_fetching && !item.has_cover) };

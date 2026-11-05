@@ -9,7 +9,7 @@ import {
   waitingActionFaces, assertDisabledFace, installDesignBrowser, PIXEL,
 } from './design-fixture.ts';
 
-/** 每个视口从未阅读的进度开始；账本跨设备持久化由 API 回归验证。 */
+/** Each viewport starts from the unread progress; cross-device ledger persistence is verified by API regression. */
 async function freshTutorial(page: Page) {
   const state = { version: 1, campaign: 'browser-tutorial', invited: false, completed: false,
     chapters: {} as Record<string, { next: number; read: string[]; skipped: string[] }> };
@@ -326,7 +326,7 @@ describe('Design decisions: video cards, manage pages, and review', () => {
         `The readout and clear button are not on the same row as the description: ${JSON.stringify(landed.row)}`);
       assert.deepEqual(waiting.lede, landed.lede, `The count bar jumped in position or height when it landed: ${JSON.stringify({ waiting, landed })}`);
       assert.deepEqual(waiting.card, landed.card, `The first trash card jumped in position or height when it landed: ${JSON.stringify({ waiting, landed })}`);
-      /* 同一历史条目保留读数和卡片，不重取也不重新铺占位。 */
+      /* The same history entry keeps its reading and card; it re-fetches nothing and re-lays no placeholder. */
       await page.evaluate(() => {
         const flags = window as unknown as { trashLedeFlashed?: boolean };
         flags.trashLedeFlashed = false;
@@ -832,7 +832,7 @@ describe('Design decisions: video cards, manage pages, and review', () => {
 
     it(`Dividers separate unindexed terms ${viewport.width}`, { timeout: 60_000 }, async () => {
       const row = { ...REVIEW_ROW, candidates: [{ ...REVIEW_ROW.candidates[0]!,
-        unmapped_genres: ['アクメ・オーガズム', '美少女電影'] }] };
+        unmapped_genres: ['アクメ・オーガズム', 'Beautiful girl film'] }] };
       const opened = await openReview(browser, [row], viewport);
       try {
         const group = opened.page.getByRole('group', { name: 'Uncollected genre', exact: true });
@@ -1024,10 +1024,10 @@ describe('Design decisions: video cards, manage pages, and review', () => {
   it('In the dark theme dividers are no weaker than light on either card face', { timeout: 60_000 }, async () => {
     const opened = await openReview(browser);
     try {
-      /* 量的是 token 对而不是某一条线：`separator-border` 画在哪种面上由各处自己决定，
-         复核卡页头与候选块之间那条线落在 `primary`，脚注带那条落在 `secondary`。逐条去点名，
-         新加一处就得记得再补一条用例，而漏补和「这处本来就没线」在屏幕上看不出区别。
-         末尾再核一次复核卡里的分隔线确实取的就是这个 token，免得两档都合格却根本没落到现场。 */
+      /* What's measured is a token pair, not a particular line: where `separator-border` draws on which surface is decided by each spot itself;
+         the line between the review card's header and the candidate block lands on `primary`, and the footnote strip's line lands on `secondary`. Calling out each one by name
+         means adding a new spot requires remembering to add a test case too, and a missing one looks identical on screen to "this spot never had a line".
+         Finally, re-check that the divider inside the review card really resolves to this token, so both tiers passing doesn't hide the fact that it never reached the real place. */
       const read = () => opened.page.locator('section[data-review-key]').first()
         .evaluate((node) => {
           const context = document.createElement('canvas').getContext('2d')!;
@@ -1059,7 +1059,7 @@ describe('Design decisions: video cards, manage pages, and review', () => {
         assert.ok(dark >= light,
           `In dark mode the divider over ${label} differs by only ${dark.toFixed(1)} lightness, versus ${light.toFixed(1)} in light mode`);
       }
-      assert.deepEqual(after.edge, after.line, '复核卡里的分隔线没走 separator-border');
+      assert.deepEqual(after.edge, after.line, 'The review card divider does not use separator-border');
       assert.deepEqual(opened.problems, []);
     } finally {
       await opened.close();

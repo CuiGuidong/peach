@@ -111,7 +111,7 @@ const preferenceColumns = Object.entries(COLUMN_LABELS).map(([id, label]) => ({ 
 /** The row's two actions come from the caller, but the column definitions must not be rebuilt on every render; a box holding the current values sits between the two. */
 interface RowHandlers {
   check(ids: number[]): void;
-  /** 行尾的Enabled开关: 只写这一条，不动勾选、不弹批量那句 toast，和订阅源表的开关一样. */
+  /* The Enabled toggle at the row's end: only writes this one, doesn't touch the checkbox, doesn't pop the batch toast, same as the subscription source table's toggle. */
   toggle(source: FollowSource, enabled: boolean): void;
   remove(source: FollowSource): void;
   busy: boolean;

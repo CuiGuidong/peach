@@ -72,7 +72,7 @@ async function open(browser: Browser, options: {
           }) }), 0);
           return { abort: () => request.onabort?.() };
         }
-        // 共享进度的任务列表按不提供该接口的 Peach 应答，脚本退回逐页查询，不占用影片查询与提交的编号。
+        // The shared-progress task list follows the Peach response that doesn't provide that interface; the script falls back to page-by-page queries, not consuming the video query and submit numbers.
         if (new URL(request.url).pathname === '/api/jav-browser/active') {
           const timer = setTimeout(() => request.onload({ status: 404, responseText: '{}' }), 0);
           return { abort: () => { clearTimeout(timer); request.onabort?.(); } };

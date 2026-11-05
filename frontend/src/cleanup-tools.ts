@@ -1,4 +1,4 @@
-/** 数据管理的维护工具；首页入口、二级页和面包屑共用名称与地址。 */
+/** The maintenance tools under Data Management; the home-page entry, sub-page, and breadcrumb share the name and address. */
 export const CLEANUP_TOOLS = [
   { key: 'organize', path: '/data-cleanup/organize', title: 'Organize files', icon: 'folder-cog',
     description: 'Cleans filenames, renaming and filing by template; preview first, and a whole batch can be reverted after running.' },
@@ -20,7 +20,7 @@ export type CleanupToolPath = CleanupTool['path'];
 
 export const CLEANUP_CRUMB_PAGES = Object.fromEntries(CLEANUP_TOOLS.map(tool => [tool.path, tool.title]));
 
-/** 已分享的锚点仍能进入对应工具；扫描与采集继续留在首页。 */
+/** Shared anchors can still reach their corresponding tools; scanning and collection remain on the home page. */
 export const CLEANUP_HASH_REDIRECTS: Readonly<Record<string, CleanupToolPath>> = {
   '#organize': '/data-cleanup/organize',
   '#mediaRepair': '/data-cleanup/media-repair',

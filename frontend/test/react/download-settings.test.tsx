@@ -61,7 +61,7 @@ it('Empty check reports keep no divider section, showing the reason directly whe
   fetcher.mockImplementation(async () => ({ ok: true, status: 200, json: async () => report({ problems: ['Could not connect to CloudDrive2'] }) }));
   await click(buttonNamed('Check connection', host));
   await settle();
-  expect(form.querySelector('[role="alert"]')?.textContent).toBe('无法连接 CloudDrive2');
+  expect(form.querySelector('[role="alert"]')?.textContent).toBe('Could not connect to CloudDrive2');
   expect(form.querySelectorAll('dl')).toHaveLength(0);
 });
 

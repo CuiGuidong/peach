@@ -1,4 +1,4 @@
-/* 来源视频Preview复用 Peach 控件；Playback状态只属于当前Preview. */
+/* The source video Preview reuses Peach's controls; Playback status belongs only to the current Preview. */
 import { mountPlayerQualityControl, mountPlayerSeekPreview, mountPlayerSpinner } from './controls';
 import { disposePlayer } from './dispose';
 import type { PlayerSource, VjsPlayer } from './types';

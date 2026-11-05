@@ -165,11 +165,11 @@ it('Uninstall keeps data by default; after checking full uninstall the confirmat
   const full = area.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
   expect(full.checked).toBe(false);
   expect([...area.querySelectorAll('details p')].map(p => p.textContent)).toEqual(['fixture', 'fixture/cache']);
-  // 每条路径自己带一颗打开键：要删的是哪几个目录，看一眼比照着路径再翻一遍快。
-  expect([...area.querySelectorAll('details button[aria-label="在资源管理器中显示"]')]).toHaveLength(2);
-  await click(buttonNamed('卸载 Peach', area));
-  expect(modal.mock.calls[0]?.[0]).toMatchObject({ title: '卸载 Peach', danger: true, confirmLabel: '卸载 Peach' });
-  expect(String(modal.mock.calls[0]?.[0].body)).toContain('设置、本地数据库、观看记录与缓存保留');
+  // Each path carries its own open button: glancing once beats tracing each path back through the tree to see which directories get deleted.
+  expect([...area.querySelectorAll('details button[aria-label="Show in Explorer"]')]).toHaveLength(2);
+  await click(buttonNamed('Uninstall Peach', area));
+  expect(modal.mock.calls[0]?.[0]).toMatchObject({ title: 'Uninstall Peach', danger: true, confirmLabel: 'Uninstall Peach' });
+  expect(String(modal.mock.calls[0]?.[0].body)).toContain('Settings, the local database, watch history, and caches are kept');
   expect(fetcher).not.toHaveBeenCalled();
   await click(full);
   await click(buttonNamed('Uninstall Peach', area));

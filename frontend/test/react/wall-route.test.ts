@@ -52,8 +52,8 @@ describe('Standalone entry for the play wall', () => {
   });
   it('Tag details entering the video wall reuse the tag intersection', () => {
     registerEntityLink('tag', 'Big breasts', 72);
-    const target = new URL(wallAddress('/tags/72?tag=口交'), location.origin);
-    expect(target.searchParams.get('tag')).toBe('Big breasts,口交');
+    const target = new URL(wallAddress('/tags/72?tag=cunnilingus'), location.origin);
+    expect(target.searchParams.get('tag')).toBe('Big breasts,cunnilingus');
     expect(target.searchParams.get('tag_match')).toBe('all');
   });
 });

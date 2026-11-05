@@ -1,2 +1,2 @@
-/** 首页New releases卡的Cover片段: 本地Cover、经 `/cover-image` 取的官方Cover，或「Scraping」「No cover」占位. */
+/** The cover fragment of the home-page New releases card: a local cover, the official cover fetched via `/cover-image`, or a "Scraping" / "No cover" placeholder. */
 export declare function feedNewCoverHtml(item: Record<string, unknown>): string;

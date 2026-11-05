@@ -62,7 +62,7 @@ export interface FollowCardProps {
   actions: Pick<FollowFeedActions, 'openDetail' | 'openAuthor' | 'canFlip'> & Partial<Pick<FollowFeedActions, 'toggleSelection'>>;
   onStatus?(id: number, to: string): void;
   onSave?(id: number): void;
-  /** 接着看那一排的推荐理由（`variant="next"`）：顶替标签行，和作品详情的接着看同一个写法。 */
+  /* The recommendation reason for the continue-watching row (variant="next"): replaces the tag row, the same as the continue-watching in the work detail. */
   reason?: { reasons: readonly string[]; tags: readonly string[] };
 }
 
@@ -237,8 +237,8 @@ function FollowCardView(props: FollowCardProps) {
         <div data-media-text="">
           <button type="button" data-media-title=""
             dangerouslySetInnerHTML={{ __html: followTitleMarks(group, item) + esc(title) }} />
-          {/* 署名、日期与标签行用作品卡的同一份零件（`../components/card-meta.tsx`）；名字外面是作者页链接，
-              标签只读（卡上不筛选），另外记下来源类型。 */}
+          {/* The credit, date, and tag rows use the same parts as the work card (`../components/card-meta.tsx`); the name is wrapped in a link to the author page,
+              the tags are read-only (no filtering on the card), and the source type is recorded alongside. */}
           <div data-media-byline="" data-follow-byline="">
             {identity.entityName ? (
               <FollowAuthorLink name={identity.entityName} actions={actions} data-media-who="" data-follow-author="" title={identity.author}>
@@ -248,7 +248,7 @@ function FollowCardView(props: FollowCardProps) {
             <span data-media-facts="">
               <CardDate value={item.published_at || ''} label={followCompactWhen(item)} title={followWhen(item)} />
             </span>
-            {identity.credited ? <span data-follow-credit="" title={`署名含 ${identity.credited}`}>{`署名含 ${identity.credited}`}</span> : null}
+            {identity.credited ? <span data-follow-credit="" title={`Byline includes ${identity.credited}`}>{`Byline includes ${identity.credited}`}</span> : null}
           </div>
           {props.variant === 'next'
             ? props.reason ? <RecommendationReason reasons={props.reason.reasons} tags={props.reason.tags.map(tag => tagLabel(tag))} /> : null

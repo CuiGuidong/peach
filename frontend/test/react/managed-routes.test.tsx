@@ -382,7 +382,7 @@ it('Stats page: clicking a tag hands back to the shell catalog', async () => {
   const props = element<StatsProps>('/stats', r, {}, actions, vi.fn());
   props.onTag('Nympho');
   expect(vi.mocked(actions.openTag).mock.calls).toEqual([['Nympho']]);
-  expect(props.tagLabel('JK制服')).toBe('JK制服');
+  expect(props.tagLabel('JK uniform')).toBe('JK uniform');
 });
 
 it('Taste page: the summary\'s next-step routes through go', async () => {
@@ -601,7 +601,7 @@ it('Index page: in-page URL writing, layout persistence, avatars, and destinatio
     actions.routeIndex, actions.savePeopleLayout, actions.exitSelectMode, actions.personAvatar, actions.authorAvatar,
     actions.openEntity, actions.showIndexTags, actions.openFollowAuthor, actions.openFollowTag]);
   expect([props.kind, props.layout, props.selectMode, props.configurable]).toEqual(['performers', 'big', false, false]);
-  expect((props.tagLabel as (tag: string) => string)('JK制服')).toBe('JK制服');
+  expect((props.tagLabel as (tag: string) => string)('JK uniform')).toBe('JK uniform');
 });
 
 it('Index page paths bypass React Router navigate: same-page search changes and cross-page entries both hand the address to the shell', async () => {

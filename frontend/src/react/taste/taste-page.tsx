@@ -87,7 +87,7 @@ const GUIDE_REMOTE = 'Records on other devices: after exporting the file, choose
 const GUIDE_REFRESH = 'Read or import again whenever a refresh is needed; data sources can be removed at the bottom of the page.';
 const REMOVE_BODY = 'Deletes the imported records of this source; original files are kept. If the browser source is still enabled, the next read imports them again.';
 
-/** Skip指南是这台浏览器的持久偏好，和分析结果无关，所以不进 Query. */
+/** The Skip guide is a persistent preference of this browser, unrelated to analysis results, so it doesn't go into the Query. */
 export const TASTE_GUIDE_KEY = 'peach-taste-guide-dismissed';
 
 type Glyph = typeof RiEyeLine;
@@ -229,7 +229,7 @@ function DimensionPanels(
   );
 }
 
-/** Taste summary: 一句结论、几条要点，加上点进去就能做的事. */
+/** Taste summary: a one-line conclusion, a few key points, plus what can be done once you click in. */
 function AnalysisCard({ data, onSignal, navigate }:
 { data: TasteData } & Pick<TasteProps, 'onSignal' | 'navigate'>) {
   const analysis = data.analysis;
@@ -284,7 +284,7 @@ function AnalysisCard({ data, onSignal, navigate }:
   );
 }
 
-/** 浏览记录怎么来.已经采集到记录、或Skip之后都不再出现，`?onboarding=1` 进来时直接展开. */
+/* How browsing records arrive. Once a record has been collected, or after Skip, it no longer appears; when coming in with ?onboarding=1, it expands directly. */
 function HistoryGuide({ onboarding, done }: { onboarding: boolean; done: boolean }) {
   const [skipped, setSkipped] = useState(() => {
     try { return localStorage.getItem(TASTE_GUIDE_KEY) === '1' } catch { return false }
@@ -435,8 +435,8 @@ export function TastePage(props: TasteProps) {
       toast(state.warnings?.length ? 'Some browsing history unavailable' : 'Taste analysis updated');
     },
   });
-  /* 重算失败后服务端暂不再算，页面也停了轮询.「Retry now」让服务端Skip等待再算一次，回来的
-     那一份换进它所属范围的缓存: 算完就是新结果，还在算就带着 `stale` 接着轮询. */
+  /* After a recompute fails, the server holds off and the page stops polling. "Retry now" makes the server Skip the wait and compute once more; the one that comes back
+     swaps into the cache of its scope: if done, it is a fresh result; if still computing, keep polling with `stale`. */
   const retry = useMutation({
     mutationFn: (window: string) => fetchTaste(window, undefined, true),
     onSuccess: (result, window) => { queryClient.setQueryData(tasteKey(window), result) },
@@ -633,7 +633,7 @@ function CoverageMetric({ term, value, rest }: { term: string; value: number; re
           <span className="ml-1.5 text-caption-1-regular text-text-secondary">{`${rest.toLocaleString()} items to backfill`}</span>
         </b>
       </p>
-      <Progress meter label={`${term}：${value.toLocaleString()} / ${total.toLocaleString()}`}
+      <Progress meter label={`${term}: ${value.toLocaleString()} / ${total.toLocaleString()}`}
         value={value} max={total} />
     </div>
   );

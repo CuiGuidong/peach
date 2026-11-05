@@ -6,7 +6,7 @@ import { QueryClient } from '@tanstack/query-core';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      /* 同一浏览器标签页保留已访问内容；主动刷新和写操作失效仍会取新数据。 */
+      /* The same browser tab keeps visited content; a manual refresh and write-operation invalidations still fetch new data. */
       gcTime: Infinity,
       /* Requests all hit the local `/api/...`. The browser's online flag speaks of the external network, and losing it flips false,
          so Query suspends local requests as paused too; the page then sits on stale data saying nothing. */
@@ -18,8 +18,8 @@ export const queryClient = new QueryClient({
          and adding a focus trigger would give the same data two rhythms. Collection and update checks against external sources are always explicitly triggered,
          and must certainly not fire just because the tab was switched back to. Pages wanting instant refresh opt in themselves via `useQuery`. */
       refetchOnWindowFocus: false,
-      /* 初次进入先预取，栏目往返复用缓存。挂载只重取被写操作失效的查询，不重复正常读取；
-         失败保持错误回执，由页面自己的Retry入口处理。 */
+      /* Prefetch on first entry; navigating back and forth between sections reuses the cache. Mounting re-fetches only queries invalidated by write operations, not normal reads;
+         on failure, keep the error receipt and let the page's own Retry entry point handle it. */
       refetchOnMount: query => query.state.isInvalidated,
       retryOnMount: false,
     },
