@@ -67,7 +67,7 @@ async function open(over: Partial<SetupQuestions> = {}, routes: Record<string, R
 }
 
 const rows = (root: ParentNode) => [...root.querySelectorAll('[data-folder-row]')];
-const paths = (root: ParentNode) => [...root.querySelectorAll<HTMLInputElement>('input[aria-label^="Media folder "]')];
+const paths = (root: ParentNode) => [...root.querySelectorAll<HTMLInputElement>('input[aria-label^="Media catalog "]')];
 const field = (root: ParentNode, key: string) => root.querySelector<HTMLInputElement>(`#f-${key}`);
 const radio = (root: ParentNode, label: string) =>
   [...root.querySelectorAll('label')].find((node) => node.textContent?.trim() === label);
@@ -192,7 +192,7 @@ it('A new library carries its own name and handling', async () => {
   const { host, sent } = await open({}, { [SETUP_URL]: { status: 200, body: done() } });
   await chooseProcessing(host, 'Use local profiles only');
   await click(buttonNamed('Add library', host));
-  await type(host.querySelector<HTMLInputElement>('input[aria-label="Library 2 name"]'), 'Movies');
+  await type(host.querySelector<HTMLInputElement>('input[aria-label="Name of Library 2"]'), 'Movies');
   await type(paths(host)[1], 'E:\\Films');
   await submitForm(host);
   const libraries = sent(SETUP_URL).media_dir;
@@ -308,11 +308,11 @@ describe('Peach proxy', () => {
     await choose(proxyMode(host), 'Custom');
     const address = host.querySelector<HTMLInputElement>('#setupProxyAddress');
     await type(address, 'http://127.0.0.1:7890');
-    expect(host.textContent?.includes('Loopback address points to the container itself')).toBe(docker);
+    expect(host.textContent?.includes('Loopback addresses point at the container itself')).toBe(docker);
     await type(address, 'http://host.docker.internal:7890');
-    expect(host.textContent).not.toContain('Loopback address points to the container itself');
+    expect(host.textContent).not.toContain('Loopback addresses point at the container itself');
     await choose(proxyMode(host), 'Follow the environment');
-    expect(host.textContent).not.toContain('Loopback address points to the container itself');
+    expect(host.textContent).not.toContain('Loopback addresses point at the container itself');
   });
 });
 
@@ -322,13 +322,13 @@ describe('Media library', () => {
       status: 200, body: done({ skip_media: true, scan_requested: false }),
     } });
     await type(paths(host)[0], 'E:\\Films');
-    await click(radio(host, 'Add the library later'));
+    await click(radio(host, 'Add library later'));
     expect(paths(host)).toHaveLength(0);
     expect(host.textContent).not.toContain('Scan after setup is complete');
     expect(host.querySelector('[aria-labelledby="setup-summary-title"]')?.textContent).toContain('Add later');
-    await click(radio(host, 'Add the library later'));
+    await click(radio(host, 'Add library later'));
     expect(paths(host)[0]?.value).toBe('E:\\Films');
-    await click(radio(host, 'Add the library later'));
+    await click(radio(host, 'Add library later'));
     await submitForm(host);
     expect(sent(SETUP_URL)).toMatchObject({ media_dir: [], skip_media: true, scan_now: false });
     expect(host.textContent).toContain('Add media directories under "Media Library & Ingest" to start scanning.');
@@ -337,10 +337,10 @@ describe('Media library', () => {
   it('Library icon and source color save with every folder of that library', async () => {
     const { host, sent } = await open({}, { [SETUP_URL]: { status: 200, body: done() } });
     await type(paths(host)[0], 'D:\\Videos');
-    await click(host.querySelector('[aria-label="My library icon"]'));
+    await click(host.querySelector('[aria-label="Icon of My library"]'));
     await click(document.querySelector('[aria-label="Movies"]'));
-    await click(buttonNamed('App', document));
-    await click(host.querySelector('[aria-label="My library source color: no color"]'));
+    await click(buttonNamed('Apply', document));
+    await click(host.querySelector('[aria-label="Source color of My library: No color"]'));
     await click(document.querySelector('[data-library-colors] [aria-label="Emerald"]'));
     await click(buttonNamed('Add folder', host));
     await type(paths(host)[1], 'E:\\More');
@@ -358,7 +358,7 @@ describe('Media library', () => {
     expect(policy?.textContent).toContain('Choose the read policy');
     await submitForm(host);
     expect(host.textContent).toContain('Select a media reading strategy');
-    await choose(policy, 'Normal read');
+    await choose(policy, 'Normal reading');
     await submitForm(host);
     expect(sent(SETUP_URL).media_dir).toMatchObject([
       { path: 'D:\\Videos', location: 'onedrive', root: '', cost: 'free' },
@@ -382,7 +382,7 @@ describe('Media library', () => {
 
   it('Choose folder opens this computer\'s dialog, and the picked path fills back into the row', async () => {
     const { host, sent } = await open({}, { [PICK_FOLDER_URL]: { status: 200, body: { path: 'F:\\Picked' } } });
-    await click(rows(host)[0]!.querySelector('button[aria-label="Choose folder"]'));
+    await click(rows(host)[0]!.querySelector('button[aria-label="Select folder"]'));
     await settle();
     expect(sent(PICK_FOLDER_URL)).toEqual({ initial: '' });
     expect(paths(host)[0]!.value).toBe('F:\\Picked');
@@ -461,8 +461,8 @@ describe('Completed state', () => {
   it('On success the same page switches to a done state: scan instructions, entry links, and run info collapse by default', async () => {
     const { host } = await open({}, { [SETUP_URL]: { status: 200, body: done() } });
     await submitForm(host);
-    expect(host.querySelector('h1')?.textContent).toBe('You are ready to go');
-    expect(host.textContent).toContain('Your library is ready to open.');
+    expect(host.querySelector('h1')?.textContent).toBe('You are all set');
+    expect(host.textContent).toContain('Your Peach is ready.');
     expect(host.textContent).toContain('The first scan is queued and will organize the library in the background; Peach stays usable meanwhile.');
     const entry = [...host.querySelectorAll('a')].find((link) => link.textContent === 'Enter Peach');
     expect(entry?.getAttribute('href')).toBe('http://127.0.0.1:8900/?onboarding=1');
@@ -510,7 +510,7 @@ it('When opened on another device the challenge endpoint returns 403, saying onl
   const host = await mount(<SetupPage />);
   await settle();
   expect(host.querySelector('form')).toBeNull();
-  expect(host.querySelector('[role="alert"]')?.textContent).toBe('Please open Settings on the computer running Peach.');
+  expect(host.querySelector('[role="alert"]')?.textContent).toBe('Open settings on this computer running Peach.');
 });
 
 it('A failed read gives the reason and a retry', async () => {

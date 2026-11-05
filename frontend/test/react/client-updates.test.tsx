@@ -111,7 +111,7 @@ it('Identical updates hide for a while, re-prompting when the release version or
   fetcher.mockResolvedValue(response({ ...available('0.11.0'), update_job: { state: 'ready', progress: 100, version: '0.11.0' } }));
   await tick();
   expect(slot.querySelector('[data-client-update="ready"]')).not.toBeNull();
-  expect(slot.textContent).toContain('Install can be restarted');
+  expect(slot.textContent).toContain('The update is ready, restart to install.');
 });
 
 it('The refresh note stays dismissed for a while, re-prompting on a new run mark', async () => {
@@ -130,7 +130,7 @@ it('Background failures stay quiet, keeping the update note already obtained', a
   const { slot, fetcher } = await render(available());
   fetcher.mockRejectedValue(new Error('Connection failed'));
   await tick();
-  expect(slot.textContent).toContain('Update available');
+  expect(slot.textContent).toContain('An update is available.');
   expect(slot.querySelector('[role="alert"]')).toBeNull();
   expect(slot.textContent).not.toContain('Already the latest');
 });
@@ -202,5 +202,5 @@ it('The remind-later choice during update preparation carries through download, 
   }
   fetcher.mockResolvedValue(response({ ...preparing, update_job: { ...preparing.update_job, state: 'ready' } }));
   await tick();
-  expect(slot.textContent).toContain('Install can be restarted');
+  expect(slot.textContent).toContain('The update is ready, restart to install.');
 });

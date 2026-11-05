@@ -26,7 +26,7 @@ describe('Video wall empty state', () => {
   it('Explain the missing cover when a matching video exists', () => {
     const host = content({ libraryEmpty: false, matches: 13, hasMore: false });
     expect(host.textContent).toContain('These videos have no covers yet');
-    expect(host.textContent).toContain('Add covers for videos');
+    expect(host.textContent).toContain('Complete covers');
     expect(host.textContent).not.toContain('Nothing matches the filter conditions');
   });
 });

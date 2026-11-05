@@ -200,8 +200,8 @@ describe('Pure functions for layout', () => {
   });
 
   it('Without a language projection, existing aliases and original values are kept; the unified name sorts first with duplicates and blanks removed', () => {
-    expect(nameChoices({ id: 1, canonical_name: '葵つかさ', asset_count: 0, aliases: ['Tsukasa Aoi', 'Tsukasa Aoi', 'Tsukasa Aoi', ''] }))
-      .toEqual(['葵つかさ', 'Tsukasa Aoi', 'Tsukasa Aoi'].map(value => ({ value, label: value })));
+    expect(nameChoices({ id: 1, canonical_name: '葵つかさ', asset_count: 0, aliases: ['葵司', 'Tsukasa Aoi', '葵司', ''] }))
+      .toEqual(['葵つかさ', '葵司', 'Tsukasa Aoi'].map(value => ({ value, label: value })));
   });
 });
 
@@ -305,7 +305,7 @@ describe('Clicking hands over to the shell', () => {
   it('Co-stars and agencies use in-site jumps, and agency links never full-page refresh', async () => {
     const acts = actions();
     const host = await open(props({ actions: acts }));
-    await click(host.querySelector('[data-related-performer="Kawakita Saika"]'));
+    await click(host.querySelector('[data-related-performer="河北彩花"]'));
     expect(acts.openEntity).toHaveBeenLastCalledWith('performer', '河北彩花');
     const agency = host.querySelector<HTMLAnchorElement>('a[data-agency]');
     expect(agency?.getAttribute('href')).toBe('/agencies/New%20Actor%20eXperience');

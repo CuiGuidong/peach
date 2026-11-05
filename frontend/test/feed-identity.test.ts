@@ -19,7 +19,7 @@ it('New-release person avatars carry version and framing and enter the canonical
 it('New releases without an entity image keep the initial letter and never request a nonexistent avatar', () => {
   const host = render({ performers: 'A, B', performer_refs: [{ id: 1, name: 'Alpha', has_image: false }] });
   expect(host.querySelector('img')).toBeNull();
-  expect(host.querySelector('.ini')?.textContent).toBe('Alpha');
+  expect(host.querySelector('.ini')?.textContent).toBe('A');
 });
 
 it('The co-star new-release source avatar slot keeps the canonical person link and video identity', () => {

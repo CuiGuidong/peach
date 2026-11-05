@@ -47,7 +47,7 @@ it('Discovery covers prefer the local cache; remote covers go through the Peach 
   expect(image.dataset.javCover).toBe('/cover-image?code=ABC-001');
   expect(local.innerHTML).not.toContain('dmm.co.jp');
   expect(advanceImageFallback(image)).toBe('drop');
-  expect(local.querySelector('span.media-nopic')?.textContent).toBe('Cover not fetched');
+  expect(local.querySelector('span.media-nopic')?.textContent).toBe('No cover available');
   expect(discoveryArtwork({ ...item, has_cover: false, code: '' }, 'small', 'cover')).toBe('');
 });
 it('JAV sections restore from deep links, and unknown sections land on the library', () => {

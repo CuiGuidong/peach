@@ -38,7 +38,7 @@ describe('Board page skeleton', () => {
     ['/duplicates', '[data-duplicate-group] .duplicate-row', 4],
     ['/quality-goals', '.peach-react .card-grid-cover > li', 6],
     ['/subscriptions', '.peach-react .ui-follow-skeleton-surface .follow-skeleton-author', 3],
-    ['/settings/library', '.peach-react .ui-configpage section[aria-label="Libraries and folders"]', 1],
+    ['/settings/library', '.peach-react .ui-configpage section[aria-label="Library and catalog"]', 1],
     ['/playlists', '.ui-playlistcards > .playlistcard', 6],
   ] as const)('%s reuses the final content container', (path, selector, count) => {
     const root = document.createElement('div');
@@ -84,7 +84,7 @@ describe('Board page skeleton', () => {
     expect(group.map((button) => button.querySelector('use')?.getAttribute('href'))).toEqual(['#i-layout-grid', '#i-table']);
     expect(group.map((button) => button.getAttribute('aria-pressed'))).toEqual(['true', 'false']);
     expect(group.every((button) => button.classList.contains('bg-button-ghost-background'))).toBe(true);
-    expect(toolbar.querySelector('button[aria-haspopup="listbox"]')?.textContent).toBe('Sort by check time');
+    expect(toolbar.querySelector('button[aria-haspopup="listbox"]')?.textContent).toBe('SortCheck time');
     expect([...toolbar.querySelectorAll('button')].at(-1)?.textContent).toBe('Collapse all');
     const tableGroup = follow({ followLayout: 'table' }).querySelectorAll('[data-button-group] > button');
     expect([...tableGroup].map((button) => button.getAttribute('aria-pressed'))).toEqual(['false', 'true']);
@@ -96,7 +96,7 @@ describe('Board page skeleton', () => {
       .nextElementSibling!.querySelector('use')?.getAttribute('href');
     expect(arrow(toolbar({}))).toBe('#i-arrow-down');
     const byName = toolbar({ followSort: 'name' });
-    expect(byName.querySelector('button[aria-haspopup]')?.textContent).toBe('Sort creator names');
+    expect(byName.querySelector('button[aria-haspopup]')?.textContent).toBe('SortCreator name');
     expect(arrow(byName)).toBe('#i-arrow-up');
     expect(arrow(toolbar({ followSort: 'name', followDir: 'desc' }))).toBe('#i-arrow-down');
   });
@@ -122,7 +122,7 @@ describe('Board page skeleton', () => {
       .toEqual(['Browsing data', 'Taste dimensions', 'Browsing leads', 'Private export']);
     expect(root.querySelector('[data-taste-portrait]')?.textContent).toContain('Browser profile');
     expect([...root.querySelectorAll('h3')].map((h3) => h3.textContent))
-      .toEqual(['Browsing activity time', 'Daily activity', 'Creator clue sources']);
+      .toEqual(['Browsing activity time', 'Daily activity', 'Creator signal sources']);
   });
   it('The follow table view is the Board UI table frame, and the sorted column carries a direction', () => {
     const root = follow({ followLayout: 'table' });

@@ -40,7 +40,7 @@ const LOG = 'C:\\peach-data\\state\\library-processing-one.issues.jsonl';
 it('The pending-completion count stays visible while running, and the sync menu waits for the current task to end',async()=>{
   const {posts}=await open({status:'running',job_id:'one',new_asset_count:12});
   const host=await mount(card({toast:vi.fn()}));
-  expect(host.textContent).toContain('12 videos pending completion');
+  expect(host.textContent).toContain('12 videos to complete');
   const menu=host.querySelector<HTMLButtonElement>('[data-split-button] [aria-haspopup="dialog"]')!;
   expect(menu.getAttribute('aria-disabled')).toBe('true');
   await click(menu);
@@ -113,8 +113,8 @@ it('After hiding a task\'s note the card offers a restore entry that submits no 
   const { posts } = await open({ status: 'paused', job_id: 'restore-from-card', checked: 2, total: 10 });
   setProcessingNoticeVisible('restore-from-card', false);
   const host = await mount(card({ toast: vi.fn() }));
-  await click(buttonNamed('Show the progress overlay', host));
-  expect(buttonNamed('Show the progress overlay', host)).toBeNull();
+  await click(buttonNamed('Show progress window', host));
+  expect(buttonNamed('Show progress window', host)).toBeNull();
   expect(posts()).toEqual([]);
 });
 
@@ -169,7 +169,7 @@ it('A source-reported none reports one number, counts as no problem, and offers 
     issues_log: LOG,
   });
   const host = await mount(card({ toast: vi.fn() }));
-  expect(host.textContent).toContain('External sources: 30 videos without details, 162 without covers; not asked again for 7 days.');
+  expect(host.textContent).toContain('External sources: No details 30 videos, No cover 162 videos; not asked again for 7 days.');
   expect(host.textContent).toContain(LOG);
   /* The full-record row recedes into gray text, and the line above it takes the same color; the neutral separator is a different gray. */
   const record = [...host.querySelectorAll('p')].find((line) => line.textContent?.includes(LOG))!;
@@ -194,7 +194,7 @@ it('Finished partial results offer browsing and targeted retry, and interruption
     expect(surface.querySelector('[role="alert"]')).toBeNull();
   }
   expect(banner.querySelector('[data-processing-tone]')?.getAttribute('data-processing-tone')).toBe('warning');
-  await click(buttonNamed('Retry unfinished items now', host));
+  await click(buttonNamed('Retry unfinished items', host));
   expect(served.posts()).toEqual([{ job_id: 'partial', retry: [7] }]);
   await act(async () => { queryClient.setQueryData(LIBRARY_PROCESSING_KEY,
     { ...state, outcome: 'interrupted', error: 'Processing interrupted' }); });
@@ -240,7 +240,7 @@ it('Startup submits once, reads progress back with GET, and on completion gives 
   const receipt = host.querySelector('[role="status"]');
   expect(receipt?.textContent).toContain('Processing finished');
   expect(receipt?.textContent).toContain(
-    'Scanned 9 files, identified 4 codes, fetched profiles for 2 videos, auto-saved 0.');
+    'Scanned 9 files, identified 4 codes, fetched 2 sets of video details, auto-saved 0.');
   // This run fetched no performer profiles, so that sentence does not appear in the receipt.
   expect(receipt?.textContent).not.toContain('Complete performer details');
 });
@@ -261,7 +261,7 @@ it('Performer detail completion counts enter the receipt, naming conflicts and f
 
   expect(served.posts()).toEqual([{incremental:true}]);
   expect(host.querySelector('[role="status"]')?.textContent).toContain(
-    'Performer details completed: 5 aliases, 3 avatars, 1 same-name person profile needs confirmation, and 2 avatars could not be fetched.');
+    'Fill in performer profiles: 5 aliases, 3 avatars, 1 profile shares a name and needs confirmation they are the same person, 2 avatars could not be fetched.');
 });
 
 it('A prior run\'s terminal state read on the first screen never poses as this run\'s receipt', async () => {
@@ -282,7 +282,7 @@ it('The running state states the current project, action, and wait duration; slo
   });
   const host = await mount(card({ toast: vi.fn() }));
 
-  expect(host.textContent).toContain('Current: ABW-001.mp4 · Querying external profiles · waited 5 min 0 sec');
+  expect(host.textContent).toContain('Current: ABW-001.mp4 · Query external details · waited 5 min 0 sec');
   expect(host.textContent).toContain('Processing slowly');
   // When there is a denominator, draw the progress bar and drop the separate waiting dots: one fact, two renderings.
   expect(host.querySelectorAll('[role="progressbar"]')).toHaveLength(1);
@@ -304,7 +304,7 @@ it('On failure the issue list folds into the error note, and retry submits only 
   expect(alert?.textContent).toContain('2 items need attention');
   const details = alert!.querySelector('details')!;
   expect(details.open).toBe(false);
-  expect(details.querySelector('summary')?.textContent).toBe('Issue list: 23 in total, expand to view the first item');
+  expect(details.querySelector('summary')?.textContent).toBe('Issue list: 23 items; expand to view the first 1');
   expect(details.querySelector('li a')?.getAttribute('href')).toBe('/assets/7');
   expect(details.querySelector('li')?.textContent).toContain('sample.mp4');
   expect(details.querySelector('li code')?.textContent).toBe('R:\\Media\\sample.mp4');
@@ -318,14 +318,14 @@ it('On failure the issue list folds into the error note, and retry submits only 
   expect(details.parentElement?.className).toContain('border-t');
   // The full record is something to dig into after the fact: it drops back to gray text, with a button beside it to open it.
   const log = details.querySelector('p')!;
-  expect(log.textContent).toBe(`Full record: ${LOG}`);
+  expect(log.textContent).toBe(`Full log: ${LOG}`);
   expect(log.closest('.text-text-secondary')).not.toBeNull();
-  expect(details.querySelector('button[aria-label="Show in Explorer"]')).not.toBeNull();
+  expect(details.querySelector('button[aria-label="Show in File Explorer"]')).not.toBeNull();
   // Newly discovered files and the original task's targeted retry keep separate entries.
   expect(buttonNamed('Sync new files', host)?.textContent).toBe('Sync new files');
 
   // The retry key belongs to the error notice and is secondary, like recovery actions in Notes elsewhere; it stays operable while the issue list is collapsed.
-  const retry = buttonNamed('Retry unfinished items now')!;
+  const retry = buttonNamed('Retry unfinished items')!;
   expect(retry.textContent).toBe('Retry now');
   expect(retry.className).not.toContain('bg-button-primary');
   expect(alert!.contains(retry)).toBe(true);
@@ -422,7 +422,7 @@ it('A just-finished task banner reports on first read and only once per job id',
   }
   expect(toast).toHaveBeenCalledTimes(1);
   expect(toast).toHaveBeenNthCalledWith(
-    1, 'Scan and profile fetch complete: identified 3 codes, fetched profiles for 2 videos, auto-saved 0');
+    1, 'Scan and profile collection finished: identified 3 codes, fetched 2 sets of video details, auto-saved 0');
 });
 
 it('Both containers read the same task run: one query per cycle, and removing one leaves the other working as usual', async () => {
@@ -450,26 +450,26 @@ it('Both containers\' wait counters advance each second without extra polling, a
   const served = await open(state);
   const banner = await mountRoot(notice({ toast: vi.fn(), mode: 'notice' }));
   const panel = await mountRoot(card({ toast: vi.fn(), monitor: true }));
-  expect(banner.host.textContent).toContain('Waited 33 sec');
-  expect(panel.host.textContent).toContain('Waited 33 sec');
+  expect(banner.host.textContent).toContain('waited 33 sec');
+  expect(panel.host.textContent).toContain('waited 33 sec');
   await tick(1000);
-  expect(banner.host.textContent).toContain('Waited 34 sec');
-  expect(panel.host.textContent).toContain('Waited 34 sec');
+  expect(banner.host.textContent).toContain('waited 34 sec');
+  expect(panel.host.textContent).toContain('waited 34 sec');
   expect(served.calls).toHaveLength(0);
   await tick(1000);
-  expect(banner.host.textContent).toContain('Waited 35 sec');
-  expect(panel.host.textContent).toContain('Waited 35 sec');
+  expect(banner.host.textContent).toContain('waited 35 sec');
+  expect(panel.host.textContent).toContain('waited 35 sec');
   expect(served.calls).toHaveLength(1);
   await act(async () => {
     queryClient.setQueryData(LIBRARY_PROCESSING_KEY, { ...state, current_asset_id: 2, waited_seconds: 0 });
   });
-  expect(banner.host.textContent).not.toContain('Waited 35 sec');
+  expect(banner.host.textContent).not.toContain('waited 35 sec');
   await tick(1000);
-  expect(banner.host.textContent).toContain('Waited 1 sec');
-  expect(panel.host.textContent).toContain('Waited 1 sec');
+  expect(banner.host.textContent).toContain('waited 1 sec');
+  expect(panel.host.textContent).toContain('waited 1 sec');
   await act(async () => { queryClient.setQueryData(LIBRARY_PROCESSING_KEY, { ...state, status: 'paused' }) });
-  expect(banner.host.textContent).not.toContain('Waited');
-  expect(panel.host.textContent).not.toContain('Waited');
+  expect(banner.host.textContent).not.toContain('waited');
+  expect(panel.host.textContent).not.toContain('waited');
   await banner.unmount();
   await panel.unmount();
   const requests = served.calls.length;
@@ -491,9 +491,9 @@ it('Polling stops once the card unmounts', async () => {
 
 it('Source-reported none counts use thousands separators, and wait times roll up by minutes, hours, and days', () => {
   expect(notesLine({ querying_metadata: 1234567, fetching_cover: 0 }))
-    .toBe('The external source is missing 1,234,567 videos; will not ask again for 7 days.');
+    .toBe('External sources: No details 1,234,567 videos; not asked again for 7 days.');
   expect(currentLine({ status: 'running', current_action: 'fetching_cover', waited_seconds: 259200 } as LibraryProcessingData))
-    .toBe('Collect missing covers · waited 3 days 0 hours');
+    .toBe('Scrape missing covers · waited 3 days 0 hours');
 });
 
 it('Routine sync shows a traffic estimate first, starts only in confirm mode, and canceling never starts it', async () => {
@@ -501,7 +501,7 @@ it('Routine sync shows a traffic estimate first, starts only in confirm mode, an
   const host = await mount(card({ toast: vi.fn() }));
   await click(buttonNamed('Sync new files', host));
   expect(served.posts()).toEqual([]);
-  expect(document.querySelector('dialog')?.textContent).toContain('May slow down the computer');
+  expect(document.querySelector('dialog')?.textContent).toContain('which may slow the computer down');
   await click(buttonNamed('Cancel', document.querySelector('dialog')!));
   expect(served.posts()).toEqual([]);
   await click(buttonNamed('Sync new files', host));
@@ -526,7 +526,7 @@ it('Pause and resume share one job id; pausing is not completion, and polling co
     return state;
   });
   const host = await mount(notice({ toast, onComplete, mode: 'notice' }));
-  expect(host.textContent).toContain('About 20-40 minutes remaining (rough estimate)');
+  expect(host.textContent).toContain('About 20–40 min remaining (rough)');
   // The link to the task's details sits left; in-place controls like pause sit right.
   const bar = actionOrder(host.querySelector('a[href="/data-cleanup#libraryProcessing"]')!.parentElement);
   expect(bar[0]).toBe('Task details');
@@ -563,7 +563,7 @@ it('Even task failures without per-item issues can archive a note, keeping the h
   expect(buttonNamed('Export the full issue list',host)).toBeNull();
   await click(buttonNamed('Archive note',host));
   expect(served.posts()).toEqual([{action:'archive',job_id:'one'}]);
-  expect(host.textContent).toContain('History is still kept');
+  expect(host.textContent).toContain('history is kept');
   expect(host.textContent).not.toContain('The task could not recover automatically');
 });
 
@@ -587,9 +587,9 @@ it('A failed mode switch keeps the server\'s selected value and the in-place err
 
 it('Estimates show a range from rough and measured rates, waiting for estimation when no valid range exists', () => {
   const state: LibraryProcessingData = { status: 'running', eta_seconds_min: 1200, eta_seconds_max: 2400, eta_kind: 'historical' };
-  expect(remainingTime(state)).toBe('About 20-40 minutes remaining (rough estimate)');
+  expect(remainingTime(state)).toBe('About 20–40 min remaining (rough)');
   expect(remainingTime({ ...state, eta_seconds_min: 600, eta_seconds_max: 900, eta_kind: 'measured', eta_scope: 'Detail scraping' }))
-    .toBe('About 10–15 min remaining · Profile scraping');
+    .toBe('About 10–15 min remaining · Detail scraping');
   expect(remainingTime({ ...state, eta_seconds_max: NaN })).toBe('Estimating remaining time…');
   expect(remainingTime({ ...state, eta_seconds_min: 2500 })).toBe('Estimating remaining time…');
   expect(remainingTime({ ...state, eta_seconds_min: 0, eta_seconds_max: 10 })).toBe('Less than a minute remaining');
@@ -611,7 +611,7 @@ it('When processing is slow, each task panel shows waiting progress instead of r
 
 it('With an unknown scan total it shows files discovered, and known stages show the completed count', () => {
   expect(processingLine({ status: 'running', stage: 'Scan files', scanned: 12345 }))
-    .toBe('Scanning files · 12,345 files found');
+    .toBe('Scan files · 12,345 files discovered');
   expect(processingLine({ status: 'paused', checked: 38, total: 100 })).toBe('Paused · 38 / 100 items');
 });
 

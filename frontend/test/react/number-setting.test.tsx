@@ -101,7 +101,7 @@ it('Preferences read back accept only in range integers', () => {
 
 it('Minute-based intervals of a day or more convert to days beside the unit; under a day or non-minute values say nothing', () => {
   expect(dayReading(10080, 'min')).toBe('7 days');
-  expect(dayReading(2160, 'min')).toBe('About 1.5 days');
+  expect(dayReading(2160, 'min')).toBe('~1.5 days');
   expect(dayReading(1439, 'min')).toBe('');
   expect(dayReading(10080, 'sec')).toBe('');
 });

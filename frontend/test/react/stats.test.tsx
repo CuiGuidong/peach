@@ -162,8 +162,8 @@ it('The stock layer renders one distribution chart each for duration, quality, a
 });
 
 it('Distribution buckets: duration becomes minute ranges, file types sort most-first, and the play-count long tail is merged into buckets', () => {
-  expect(lengthRows([{ k: 'Quick picks', n: 1 }, { k: 'long', n: 2 }, { k: 'Extra long', n: 3 }]))
-    .toEqual([{ name: '<5 min', value: 1 }, { name: '40 min and up', value: 2 }, { name: 'Extra long', value: 3 }]);
+  expect(lengthRows([{ k: '速食', n: 1 }, { k: '长', n: 2 }, { k: '超长', n: 3 }]))
+    .toEqual([{ name: '<5 min', value: 1 }, { name: '40 min and up', value: 2 }, { name: '超长', value: 3 }]);
   expect(mediumRows([{ k: 'video', n: 4, bytes: 0 }, { k: 'account', n: 9, bytes: 0 }, { k: 'x', n: 1, bytes: 0 }]))
     .toEqual([{ name: 'Account', value: 9 }, { name: 'Videos', value: 4 }, { name: 'x', value: 1 }]);
   expect(replayRows([{ k: 1, n: 52 }, { k: 2, n: 13 }, { k: 4, n: 6 }, { k: 7, n: 1 }, { k: 9, n: 1 }, { k: 12, n: 2 }]))

@@ -67,7 +67,7 @@ export function FollowPreferenceRows({ receipt }: { receipt(message: string): vo
   const initialDays = settings.data?.followInitialDays ?? store.value.followInitialDays;
   const error = initial.error || settings.error;
   return (
-    <Section guide="follow-options" title="Follows harvesting">
+    <Section guide="follow-options" title="Follows scrape">
       <Rows>
         <FollowScheduleRow />
         <FeedScheduleRow />

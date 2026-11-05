@@ -51,17 +51,19 @@ const profileText = (state: LibraryProcessingData) => {
   const failed = state.performer_profile_failed || 0;
   if (!aliases && !avatars && !conflicts && !failed) return '';
   const parts = [`Fill in performer profiles: ${aliases} aliases, ${avatars} avatars`];
-  if (conflicts) parts.push(`${conflicts} profiles share a name and need confirmation they are the same person`);
+  if (conflicts) parts.push(`${conflicts} ${conflicts === 1 ? 'profile shares a name and needs' : 'profiles share a name and need'} confirmation they are the same person`);
   if (failed) parts.push(`${failed} avatars could not be fetched`);
   return `${parts.join(', ')}.`;
 };
 
-const receiptText = (state: LibraryProcessingData) =>
-  state.requested_stage === 'previews' ? `Generated ${state.previews || 0} video previews.`
-  : `Scanned ${state.scanned || 0} files, identified ${state.identified || 0} codes, `
-  + `Fetched ${state.candidates || 0} sets of video details, auto-saved ${state.auto_applied || 0}.`
-  + (state.previews ? `Generated previews for ${state.previews} videos.` : '')
-  + profileText(state);
+const receiptText = (state: LibraryProcessingData) => {
+  if (state.requested_stage === 'previews') return `Generated ${state.previews || 0} video previews.`;
+  const profile = profileText(state);
+  return `Scanned ${state.scanned || 0} files, identified ${state.identified || 0} codes, `
+    + `fetched ${state.candidates || 0} sets of video details, auto-saved ${state.auto_applied || 0}.`
+    + (state.previews ? ` Generated previews for ${state.previews} videos.` : '')
+    + (profile ? ` ${profile}` : '');
+};
 
 /** The block outside the card: what happened in this run. Per-item details load on expand; the full list is in the log file the status names. */
 function Outcome(
@@ -89,7 +91,7 @@ function Outcome(
       {slow
         ? <SlowItemNote state={state} slow={slow} />
         : state.status === 'running' && state.stalled
-        ? <Note tone="warning" title="'Processing slowly'">{STALLED_TEXT}</Note>
+        ? <Note tone="warning" title="Processing slowly">{STALLED_TEXT}</Note>
         : null}
       {failed
         ? <Note tone={partial ? 'warning' : 'error'} className="gap-0 p-3"

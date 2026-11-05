@@ -9,10 +9,10 @@ describe('Source copy parsing', () => {
   });
   it('Reads comments, strings, templates, and JSX text', () => {
     for (const source of [
-      '// The old implementation used to live here\nconst x = 1;',
-      'const x = "the old implementation used to live here";',
-      'const x = `this used to be the old implementation ${value}`;',
-      'const x = <p>The old implementation used to live here</p>;',
+      '// 以前这里是旧实现\nconst x = 1;',
+      'const x = "以前这里是旧实现";',
+      'const x = `以前这里是旧实现 ${value}`;',
+      'const x = <p>以前这里是旧实现</p>;',
     ]) {
       expect(scanSource('sample.tsx', source).some(item => item.severity === 'error')).toBe(true);
     }
@@ -23,7 +23,7 @@ describe('Source copy parsing', () => {
     expect(scanSource('sample.ts', 'const = ;').some(item => item.severity === 'error')).toBe(true);
   });
   it('Condition action notes only prompt verification', () => {
-    const found = scanSource('sample.ts', '// If a proxy was configured before, double-check the address.');
+    const found = scanSource('sample.ts', '// 如果以前配置过代理，请核对地址。');
     expect(found.length).toBeGreaterThan(0);
     expect(found.every(item => item.severity === 'warning')).toBe(true);
   });
