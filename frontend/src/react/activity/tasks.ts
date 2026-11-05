@@ -308,7 +308,7 @@ export function elapsedText(seconds: number | null | undefined): string {
   if (minutes < 60) return `${minutes} min ${whole % 60} sec`;
   const hours = Math.floor(minutes / 60);
   if (hours < 48) return `${hours} hr ${minutes % 60} min`;
-  return `${Math.floor(hours / 24).toLocaleString()} days ${hours % 24} hours`;
+  return `${Math.floor(hours / 24).toLocaleString()} days ${hours % 24} ${hours % 24 === 1 ? 'hour' : 'hours'}`;
 }
 
 /** Progress readout 'done / total': the server occasionally reports a done count above the total, so cap it at the total. */
@@ -355,7 +355,7 @@ const OPERATION_LABELS: Record<string, string> = {
 };
 const outcomeText = (text: string): string => OUTCOME_LABELS[text] || text
   .replace(/(avwikidb|javdb|minnano-av) (绑定|写入)/gi, (_, site: string, action: string) =>
-    action === 'Binding' ? `Linked to the ${SOURCE_NAMES[site.toLowerCase()]} profile page`
+    action === '绑定' ? `Linked to the ${SOURCE_NAMES[site.toLowerCase()]} profile page`
       : `Saved the profile from ${SOURCE_NAMES[site.toLowerCase()]}`);
 
 /** Timestamps are spoken as a local "month-day hour:minute". The database stores UTC; the UI always reads them in the machine's time zone. */
@@ -378,7 +378,7 @@ const SUMMARY_HIDDEN = new Set([
 export function summaryItems(summary: Record<string, unknown>): string[] {
   const items = fieldItems(summary);
   // "Problems found" must be able to say what the problem is. When the cause is already written into the conclusion ("face model unavailable: ...", "portrait gate not effective ..."), do not say it a second time.
-  if (summary?.face_match_unavailable === true && !items.some((line) => /不可用|未生效/.test(line))) {
+  if (summary?.face_match_unavailable === true && !items.some((line) => /unavailable|not effective/i.test(line))) {
     items.push('The face model is unavailable, so no face verification ran');
   }
   return items;
@@ -391,7 +391,10 @@ function fieldItems(summary: Record<string, unknown>): string[] {
       && (typeof value === 'number' || typeof value === 'string')
       && String(value) !== '' && (value !== 0 || key === 'checked' || key === 'total'))
     .map(([key, value]) => {
-      if (key === 'followups') return `${Number(value).toLocaleString()} backfill tasks scheduled`;
+      if (key === 'followups') {
+        const count = Number(value).toLocaleString();
+        return `${count} backfill ${Number(value) === 1 ? 'task' : 'tasks'} scheduled`;
+      }
       if (key === 'error') return readableErrorHeadline(String(value));
       if (key === 'outcome' || key === 'result') return outcomeText(String(value));
       if (key === 'cache_bytes' || key === 'bytes_reclaimed') return `${SUMMARY_LABELS[key]} ${fmtSize(Number(value))}`;

@@ -295,7 +295,7 @@ export const SECTION_GUIDES: Record<string, string> = {
   'Source credentials': 'credentials', 'Follows scrape': 'follow-options', 'Check for updates': 'updates', 'Runtime info': 'facts',
   'Library and catalog': 'media', 'Mount state': 'mounts', 'CloudDrive proxy': 'cloud-proxy', 'Auto-discover new files': 'discovery',
   'Code detection rules': 'codes', 'Video previews': 'preview', 'Resource search': 'indexers', 'Video profile sites': 'entry-links',
-  'Cloud download': 'download', 'PikPak account': 'pikpak', 'Add JAV via browser': 'browser', '访问地址': 'port',
+  'Cloud download': 'download', 'PikPak account': 'pikpak', 'Add JAV via browser': 'browser', 'Access address': 'port',
   'Peach proxy': 'proxy', 'Access password': 'access', 'Cloudflare public entry': 'tunnel', 'Auto-update': 'automatic-updates',
   'Start at sign-in': 'startup', 'Video playback': 'transcode', 'Storage': 'storage', 'Data upload': 'reporting', 'Uninstall Peach': 'uninstall',
 };

@@ -27,7 +27,7 @@ it('When the proxy cannot fetch a cover it swaps to the "Cover unavailable" plac
   const host = render({ code: 'ABC-001', has_cover: false, cover_url: 'https://pics.dmm.co.jp/digital/video/abc00001/abc00001pl.jpg' });
   expect(advanceImageFallback(host.querySelector('img'))).toBe('drop');
   expect(host.querySelector('img')).toBeNull();
-  expect(host.querySelector('span.nopic')?.textContent).toBe('Cover not fetched');
+  expect(host.querySelector('span.nopic')?.textContent).toBe('No cover available');
 });
 
 it('With no proxyable address or code it shows no cover directly and sends no request', () => {
