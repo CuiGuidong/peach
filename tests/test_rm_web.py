@@ -3049,12 +3049,12 @@ class JavModeAndCoverTests(unittest.TestCase):
         """网盘离线下载的文件名只剩番号，`ch`、「中文字幕」留在种子名或任务名上。"""
         badges = catalog_rules.jav_edition_badges
         self.assertEqual(badges("SONE-804 作品标题.mp4", "SONE-804", (),
-                                ("+++ [FHDC] SONE-804 作品标题", "SONE-804ch")), ["中字"])
-        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123 中文字幕",)), ["中字"])
-        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123-U",)), ["无码"])
+                                ("+++ [FHDC] SONE-804 作品标题", "SONE-804ch")), ["Chinese subs"])
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123 中文字幕",)), ["Chinese subs"])
+        self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123-U",)), ["Uncensored"])
         # 磁力名与任务名各给一半证据时取并集，不看先后。
         self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ("ABP-123-U", "ABP-123 无码破解")),
-                         ["无码破解"])
+                         ["decensored"])
         # 没有下载任务就没有来源名，结果与只看文件名相同。
         self.assertEqual(badges("ABP-123.mp4", "ABP-123", (), ()), [])
         # 种子名是另一部片的标记，不能借来：番号对不上就不算这部的版次。
@@ -3063,14 +3063,14 @@ class JavModeAndCoverTests(unittest.TestCase):
     def test_filename_wins_when_it_and_the_download_source_disagree(self):
         badges = catalog_rules.jav_edition_badges
         # 无码与无码破解只认文件侧：文件名写 `-U`，种子名写「破解」，还是无码。
-        self.assertEqual(badges("ABP-123-U.mp4", "ABP-123", (), ("ABP-123 无码破解",)), ["无码"])
+        self.assertEqual(badges("ABP-123-U.mp4", "ABP-123", (), ("ABP-123 无码破解",)), ["Uncensored"])
         self.assertEqual(badges("ABP-123.mp4", "ABP-123", ["AI去码"], ("ABP-123-U",)),
-                         ["无码破解"])
+                         ["decensored"])
         # 无码片商的番号本身就是文件侧证据，种子名上的「破解」不覆盖它，但中字照样补。
         self.assertEqual(badges("040221-001.mp4", "040221-001", (),
-                                ("040221-001 破解 中文字幕",)), ["中字", "无码"])
+                                ("040221-001 破解 中文字幕",)), ["Chinese subs", "Uncensored"])
         # 中字只有「有」一个方向：文件名有、种子名没有，不算矛盾。
-        self.assertEqual(badges("ABP-123-C.mp4", "ABP-123", (), ("ABP-123",)), ["中字"])
+        self.assertEqual(badges("ABP-123-C.mp4", "ABP-123", (), ("ABP-123",)), ["Chinese subs"])
 
     def test_release_sort_orders_official_dates_descending_and_missing_last(self):
         rows = rm_web.q_items(
@@ -4374,12 +4374,12 @@ class DownloadSourceEditionTests(unittest.TestCase):
     def test_list_detail_and_edition_group_read_the_torrent_name(self):
         self.bind(1, 1, "+++ [FHDC] SONE-804 作品标题", "SONE-804ch")
         listed = {row["id"]: row for row in q_items(self.contract, {"limit": "20"})["items"]}
-        self.assertEqual(listed[1]["edition_badges"], ["中字"])
+        self.assertEqual(listed[1]["edition_badges"], ["Chinese subs"])
         self.assertEqual(listed[2]["edition_badges"], [])
-        self.assertEqual(self.badges(1), ["中字"])
+        self.assertEqual(self.badges(1), ["Chinese subs"])
         versions = q_editions(self.contract, {"id": 2})
         self.assertEqual({row["id"]: row["edition_label"] for row in versions["items"]},
-                         {1: "中字 · 1080p", 2: "有码 · 1080p"})
+                         {1: "Chinese subs · 1080p", 2: "Censored · 1080p"})
         with closing(sqlite3.connect(self.db)) as connection:
             # 只是投影：文件名、标签都没被改写。
             self.assertEqual(connection.execute("SELECT name FROM asset WHERE id=1").fetchone()[0],
@@ -4388,7 +4388,7 @@ class DownloadSourceEditionTests(unittest.TestCase):
 
     def test_filename_marker_wins_over_a_conflicting_torrent_name(self):
         self.bind(1, 3, "ABP-123 无码破解", "ABP-123 无码破解")
-        self.assertEqual(self.badges(3), ["无码"])
+        self.assertEqual(self.badges(3), ["Uncensored"])
 
     def test_assets_without_a_download_task_keep_filename_badges(self):
         self.bind(1, None, "SONE-804-C", "SONE-804-C")

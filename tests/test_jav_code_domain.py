@@ -423,14 +423,14 @@ class TokyoHotShapeTests(unittest.TestCase):
     def test_uncensored_only_labels_get_the_uncensored_badge(self):
         for name, code in (('SMBD-120.mp4', 'SMBD-120'), ('SKYHD-050-C.mp4', 'SKYHD-050')):
             with self.subTest(code=code):
-                self.assertIn('无码', jav_display_metadata(name, code)['edition_badges'])
+                self.assertIn('Uncensored', jav_display_metadata(name, code)['edition_badges'])
         self.assertEqual(jav_display_metadata('MCDV-024.mp4', 'MCDV-024')['edition_badges'], [])
 
     def test_ltx_after_the_code_marks_a_cracked_edition(self):
         self.assertEqual(jav_display_metadata('ABP-123-LTX.mp4', 'ABP-123'), {
-            'display_code': 'ABP-123', 'display_title': '', 'edition_badges': ['无码破解']})
+            'display_code': 'ABP-123', 'display_title': '', 'edition_badges': ['decensored']})
         self.assertEqual(jav_display_metadata('ABP-123-C-LTX.mp4', 'ABP-123')['edition_badges'],
-                         ['中字', '无码破解'])
+                         ['Chinese subs', 'decensored'])
         # 字母段本身是 LTX 的番号不是破解标记。
         self.assertEqual(jav_display_metadata('LTX-123.mp4', 'LTX-123')['edition_badges'], [])
 

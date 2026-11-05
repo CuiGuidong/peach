@@ -1172,11 +1172,11 @@ def jav_edition_badges(name: str | None, code: str | None,
         cracked = any(item[2] for item in evidence)
     badges = []
     if subtitled:
-        badges.append("中字")
+        badges.append("Chinese subs")
     if cracked:
-        badges.append("无码破解")
+        badges.append("decensored")
     elif uncensored:
-        badges.append("无码")
+        badges.append("Uncensored")
     return badges
 
 

@@ -716,7 +716,7 @@ def _edition_label(row: dict, tags: tuple[str, ...] = (), source_names: tuple[st
     会和卡片上已经显示的徽章各说各话——同一个文件，角标写着无码、分组却当它是正片。
     """
     badges = jav_edition_badges(row.get('name'), row.get('code'), tags, source_names)
-    return str(badges[0]) if badges else "有码"
+    return str(badges[0]) if badges else "Censored"
 
 
 def _edition_rows(contract: WebContract, codes) -> list[dict]:

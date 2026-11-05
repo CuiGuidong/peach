@@ -429,7 +429,7 @@ export function pickerSections(query: string, candidates: readonly TagCount[], r
 
 /** Edition badge colors follow the set on card titles. One addition, `Censored`: on cards, the main feature correctly carries no badge (no badge means the main feature),
  *  but with two entries side by side in the queue, writing nothing leaves people guessing which is which. */
-export const EDITION_TONE: Record<string, string> = { 'Chinese subs': 'subtitle', 'Uncensored': 'uncensored', '無碼破解': 'cracked', '有码': 'censored' };
+export const EDITION_TONE: Record<string, string> = { 'Chinese subs': 'subtitle', 'Uncensored': 'uncensored', 'decensored': 'cracked', '無碼破解': 'cracked', '有码': 'censored' };
 
 const QUEUE_LABEL: Record<QueueKind, string> = { mix: 'Mix', parts: 'Volumes', editions: 'Editions', playlist: 'Playlists' };
 
