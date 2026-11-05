@@ -7,7 +7,7 @@ import { nextSortState } from './../sort-preferences';
 import { $, STATE_ROUTES, api, esc, firstGrapheme, isCatalogPath, leadingGraphemes } from '../core';
 import { barsContext, detailReturnBarsContext, notifyShell, pageOpens, runtimeConfigurable, selectMode, selected, state, writeShell } from './../shell/index';
 import { receiptsState } from './receipts.js';
-import { dropBars, fetchBars, fetchTopsPage } from './../catalog-bars';
+import { fetchBars, fetchTopsPage } from './../catalog-bars';
 import { confirmModal, dissolveValue, fitSkeleton, wireHorizontalScroller } from '../ui-kit';
 import { navigationState, paintSidebar, syncNavigation } from './navigation.js';
 import { disposeStage, mediaState, openEditions, openItem, openMix, openParts, openTok } from './media.js';
@@ -34,6 +34,7 @@ import { pageSkeletonHtml } from './../management-placeholder';
 import { catalogEmptyHtml } from './../catalog-onboarding';
 import { junkRoute } from './../junk-queue';
 import { wallAddress } from '../react/video-wall/wall-route';
+import { restoringPage } from '../history/page-navigation';
 export const catalogState = { homeHasFeed: undefined, barsRequestSeq: undefined, barsPendingSeq: undefined, barsRendered: undefined, catalogFilterProps: undefined, catalogFilterMounting: undefined, catalogTagRows: undefined, catalogTopsPages: undefined, initialParams: undefined, resolveSort: undefined, initialCatalogUrl: undefined, initialParam: undefined, HOME_QUERY_KEYS: undefined, searchValueSnapshot: undefined, cancelSearchDissolve: undefined, rememberSearchValue: undefined, clearSearchField: undefined, mixRelatedCache: undefined, reduceMotion: undefined, tagList: undefined, tagPressed: undefined, withTagToggled: undefined, gridHelpers: undefined, gridActions: undefined, topsQueryParams: undefined, facetCountsSeq: undefined, VIEW_PILLS: undefined, catalogViews: undefined, TAGS_FIRST: undefined, catalogOnScreen: undefined, COMBO_LABELS: undefined, hideCatalogCombo: undefined, junkQueueHelpers: undefined, junkQueueActions: undefined };
 
 export function dropOfflineFromDefaultLoc(){
@@ -47,15 +48,13 @@ export function homePath(filters=state) { return pathForCatalog(filters) }
 
 export function resetHomeState() {
     writeShell(homeCatalogState(resetCatalogFilters(state,preferencesState.appSettings,receiptsState.rollSeed)));
-    dropBars();
   }
 
-export function goHome(filters=null,scroll=false){
+export function goHome(filters=null){
   resetHomeState();
   if(filters){Object.assign(state,filters);notifyShell()}
-  navigationState.route(filters?homePath():'/');catalogState.clearSearchField();disposeStage(false);showHomeSurfaces();
+  navigationState.route(filters?homePath():'/');catalogState.clearSearchField();disposeStage(false);
   syncNavigation();buildBars();
-  if(scroll)window.scrollTo({top:0,behavior:'smooth'});
 }
 
 export function openResourceCard(item,anchor=null){
@@ -143,16 +142,6 @@ export async function getBarsData(context){
   return fetchBars(facetParams.toString(),catalogState.topsQueryParams(context).toString());
 }
 
-export function scrollFilteredViewToTop(){
-  if(scrollY<=0)return;
-  const root=document.documentElement;
-  root.classList.add('refiltering');
-  const done=()=>{root.classList.remove('refiltering');removeEventListener('scrollend',done)};
-  applicationEffects.listen.bind(applicationEffects, window)('scrollend',done);
-  applicationEffects.delay(done,1200);
-  scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
-}
-
 export function applyFilterStateInPlace(filters){
   // The profile page item's pressed state is computed by the page from the filters on the address; the new filters were already pushed through `routeEntityPage`.
   if(currentBarsContext().type!=='entity')paintCatalogFilter({tags:catalogTags(filters)});
@@ -171,7 +160,6 @@ export async function refreshFacetCounts(context){
 }
 
 export function commitContextFilter(mutate){
-  scrollFilteredViewToTop();
   const context=currentBarsContext();
   if(context.type==='entity'){
     // Tags are video filters and tapping one returns to the video view: staying in photos or the roster would neither apply it nor keep the tag bar consistent.
@@ -285,9 +273,9 @@ export function tierStudio(x){
 }
 
 export function renderBarsLoading(filterState,requestSeq){
-  if(catalogState.catalogFilterProps?.tiers)return;
-  catalogState.barsRendered='';
   catalogState.barsPendingSeq=requestSeq;
+  if(catalogState.catalogFilterProps?.tiers){paintCatalogFilter({tiersPending:true,state:filterState.state||''});return}
+  catalogState.barsRendered='';
   paintCatalogFilter({tiers:null,tiersPending:true,state:filterState.state||''});
 }
 
@@ -323,6 +311,8 @@ export async function buildBars(){
   const rendered=signature+'\n'+JSON.stringify([facetData,tops]);
   /* The top rows stay as they are; when the sidebar switched pages midway (details opened and closed) it has already collapsed back to navigation only, and the same grouping is pushed back in. */
   if(rendered===catalogState.barsRendered){
+    catalogState.barsPendingSeq=0;
+    paintCatalogFilter({tiersPending:false});
     if(layoutState.sidebarCatalog)paintSidebar({content:layoutState.sidebarCatalog,filters:{...filterState}});
     return;
   }
@@ -414,6 +404,7 @@ export async function loadCatalog(){
   if(catalogState.controller.page==='/junk-files')clearCatalogGrid();
   renderCatalogLoading();
   showHomeSurfaces();
+  const painting=paintCatalogGrid(surface);
   if(isFeedNewPath(location.pathname)&&state.browse!=='folders'){
     await loadingState.entityShapesReady;
     if(!navigationState.surfaceCurrent(surface))return;
@@ -421,7 +412,7 @@ export async function loadCatalog(){
   }else clearHomeFeed();
   renderCombo();
   $('#count').classList.remove('manage-static','junkcount');
-  return paintCatalogGrid(surface);
+  return painting;
 }
 
 export function settleCatalog(revision) { catalogState.controller.settle(revision) }
@@ -487,6 +478,7 @@ export function catalogGridProps(){
   return {
     mode:'catalog',helpers:catalogState.gridHelpers,actions:catalogState.gridActions,layout:catalogGridLayout(),
     wall:path==='/wall',
+    restoreNavigation:restoringPage(),
     selectMode,selected:new Set(selected),seekSeconds:preferencesState.appSettings.seekSeconds,revision:catalogState.controller.revision,
     wireDrag,settled:settleCatalog,
     skeletonHtml:()=>catalogSkeletonHtml(),
@@ -591,11 +583,10 @@ catalogState.gridActions = {
   openShorts:()=>openTok(),
   openMix:(seedId,anchor)=>openMix(seedId,seedId,true,anchor),
   openEntity:(kind,name)=>openEntity(kind,name),
-  openUnowned:()=>goHome({owner:'none'},true),
-  /* A card's tag means "only this tag", and tapping again cancels it when already filtering. It takes effect on whichever screen it was tapped on. */
+  openUnowned:()=>goHome({owner:'none'}),
+  /* 卡片上的标签是「只看这个标签」，已经在筛它就取消。在哪一屏点就在哪一屏生效。 */
   toggleTag:tag=>{
     commitContextFilter(filters=>{filters.tag=catalogState.tagPressed(filters.tag,tag)?'':tag});
-    window.scrollTo({top:0,behavior:'smooth'});
   },
   toggleSelection:(id,range)=>toggleSelection(id,range),
   watchLater:(it,onChange)=>toggleWatchLater(it,onChange),

@@ -10,12 +10,11 @@ export interface EntityLoadingPorts {
 /** 异步名单只在本次页面Open仍存活时改骨架，页面Cancel权来自路由元素. */
 export function createEntityLoading(ports: EntityLoadingPorts) {
   return async (kind: string, name: string, current: () => boolean): Promise<void> => {
-    if (!ports.shapesReady(kind, name)) {
-      await ports.waitShapes();
-      if (!current()) return;
-    }
     ports.paintSkeleton(kind, name);
     ports.resetView();
+    if (!ports.shapesReady(kind, name)) {
+      void ports.waitShapes().then(() => { if (current()) ports.syncParts(kind, name) });
+    }
     void ports.loadShapes().then(() => { if (current()) ports.syncParts(kind, name) });
   };
 }

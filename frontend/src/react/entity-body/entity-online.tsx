@@ -1,11 +1,9 @@
 /* The creator profile page's online view (ADR-0096): updates bound to this person in follows, not yet added to the library,
  * with cards and the photo wall being the follows page's copies.
  *
- * Fetching and filtering (status, sources, tags, sort, videos/images) belong to the profile page (`entity-page-view.tsx`),
- * whose filter overlay and this cell read the same copy; this module only renders the current media tier's groups. Query keys
- * are one family with the follows page: when status changes in details or check-updates finishes, invalidating and rewriting
- * cache by the `['follow-feed']` prefix updates this screen. On filter changes the profile page swaps this cell's key per the
- * query key, and the skeleton lays from scratch. */
+ * 取数与筛选（状态、来源、标签、排序、视频／图片）归资料页（`entity-page-view.tsx`），筛选浮层与这一格
+ * 读的是同一份；这里只画当前媒体那一档的组。查询键同关注页一族：详情里换状态、检查更新跑完时按
+ * `['follow-feed']` 前缀失效与改写缓存，这一屏跟着变。换筛选时保留宿主，内容与骨架原位交叉淡化。 */
 import type { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { requestErrorMessage } from '@peach/legacy/core';
@@ -16,7 +14,8 @@ import { FollowCheckButton } from '../follow-feed/follow-check-button';
 import { entityCheckSources } from '../follow-feed/follow-check';
 
 import { LoadMore } from '../catalog-grid/catalog-grid-page';
-import { RetryNote, useSkeletonReveal } from '../components/grid-reveal';
+import { RetryNote } from '../components/grid-reveal';
+import { SkeletonContent } from '../components/skeleton-content';
 import { FollowCard } from '../follow-feed/follow-card';
 import {
   itemForMedia, type FollowContext, type FollowFeedActions, type FollowFeedHelpers, type FollowGroup, type FollowMedia,
@@ -46,18 +45,18 @@ export function EntityOnline(props: EntityOnlineProps) {
   const { result, data, media, helpers } = props;
   /* When filters change, the previous data is kept around (`keepPreviousData`), but that copy must not be rendered as the new one. */
   const pending = result.isPending || result.isPlaceholderData;
-  const reveal = useSkeletonReveal(pending, () => helpers.listSkeletonHtml(media));
   if (!data && result.isError) {
     return <RetryNote message={requestErrorMessage(result.error)} onRetry={() => { void result.refetch() }} />;
   }
   return (
-    <div data-follow-list-body="" data-entity-online="" data-grid-reveal={reveal.fading ? '' : undefined}>
-      {reveal.layer}
+    <div data-follow-list-body="" data-entity-online="">
+      <SkeletonContent pending={pending} skeletonHtml={() => helpers.listSkeletonHtml(media)}>
       {pending || !data ? null : <Cards {...props} data={data} />}
       {!pending && data?.has_more ? (
         <LoadMore key={result.data?.pages.length} entity enabled={() => props.canLoadMore?.() !== false}
           load={async () => { await result.fetchNextPage({ throwOnError: true }) }} />
       ) : null}
+      </SkeletonContent>
     </div>
   );
 }

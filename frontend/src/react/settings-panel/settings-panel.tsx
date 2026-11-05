@@ -35,6 +35,7 @@ import { fetchSettings, refreshPanelData, SETTINGS_KEY, useSaveSettings } from '
 import { Note } from '../components/note';
 import { SidebarOrder } from './sidebar-order';
 import { SettingsDialogClose } from '../components/settings-dialog-close';
+import { GuideHelp } from '../onboarding/guide-help';
 
 /* The left column's sections, in the same order as the groups on the right. Glyphs are taken by each entry's own name: the whole column comes from Remix, since only one vendor's strokes
    match in weight. */
@@ -251,6 +252,7 @@ function Group({ index, tab, children, cards = false }: { index: number; tab: nu
     <section data-setting-group="" data-setting-layout={cards ? 'cards' : undefined}
       id={groupId(index)} role="tabpanel" aria-labelledby={tabId(index)} hidden={index !== tab}>
       <h3>{SECTIONS[index][0]}</h3>
+      <GuideHelp chapter={['appearance', 'playback', 'jav-settings', 'search-settings', 'content'][index]} />
       {children}
     </section>
   );

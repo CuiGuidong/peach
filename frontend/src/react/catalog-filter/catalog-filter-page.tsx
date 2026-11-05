@@ -13,7 +13,8 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { createPortal } from 'react-dom';
 import { entityDisplayName } from '../../core/entity-names';
 import { useEntityNames } from '../use-entity-names';
-import { fitSkeleton, popBadges, popCount } from '@peach/legacy/ui';
+import { popBadges } from '@peach/legacy/ui';
+import { AsyncText } from '../components/async-text';
 
 import { FilterGlassRows, FilterPill } from '../components/filter-glass';
 import { useViewGlide } from '../components/use-view-glide';
@@ -26,10 +27,6 @@ import {
   EMPTY_SLOTS, ROW_AHEAD, ROW_BATCH, ROW_FIRST, rememberedTiers, rememberTiers, type CatalogFilterProps,
   type CatalogTag, type TierKind, type TierPerformer, type TierStudio,
 } from './catalog-filter';
-
-/* The readout written last time. The readout cell is replaced with shimmer and rebuilt on every fetch, and this distinguishes "the number changed" from "it just appeared":
-   only the former grows in per-position stagger. It must survive across queries and remounts, so it lives at module level. */
-let lastReadout = '';
 
 export function CatalogFilterPage(props: CatalogFilterProps) {
   const loading = !props.tiers;
@@ -68,6 +65,9 @@ function Glass(props: CatalogFilterProps) {
   const loading = !props.tiers;
   const tags = usePaged(tagRow, props.tags, props.tiers?.key ?? '', props.tagFirst);
   useLayoutEffect(() => {
+    // 首次加载按两行占位；已有内容刷新时沿用已测量的排布，不拿骨架宽度重新合行。
+    if (loading) { setSingleRow(false); return }
+    if (props.tiersPending || props.count === null) return;
     const frame = scroll.current?.closest<HTMLElement>('[data-catalog-frame]');
     if (!frame) return;
     const width = (element: HTMLElement | null) => {
@@ -82,8 +82,8 @@ function Glass(props: CatalogFilterProps) {
     observer.observe(frame);
     measure();
     return () => observer.disconnect();
-  }, [tags, props.count, props.layout, props.sorts]);
-  /* Only the count badges whose value changed pop (legacy layer `popBadges`, judged by the previous value, not by whether the node is new). */
+  }, [loading, props.tiersPending, tags, props.count, props.layout, props.sorts]);
+  /* 计数徽标变了值的那几枚弹一下（遗留层 `popBadges`，按上一次的值判断，不按节点新不新）。 */
   useLayoutEffect(() => { popBadges(tagRow.current, 'tagbar') }, [tags]);
 
   return (
@@ -106,7 +106,7 @@ function Glass(props: CatalogFilterProps) {
           </div>
           <div ref={tagRow} data-catalog-tags="">
             {props.empty || loading ? <Placeholders kind="tag" /> : null}
-            {tags.map((tag) => <TagPill key={tag.k} tag={tag} onPress={actions.toggleTag} />)}
+            {tags.map((tag) => <TagPill key={tag.k} tag={tag} pending={props.tiersPending} onPress={actions.toggleTag} />)}
           </div>
         </div>
       }
@@ -115,10 +115,11 @@ function Glass(props: CatalogFilterProps) {
   );
 }
 
-function TagPill({ tag, onPress }: { tag: CatalogTag; onPress(tag: string): void }) {
+function TagPill({ tag, pending, onPress }: { tag: CatalogTag; pending: boolean; onPress(tag: string): void }) {
   return (
     <FilterPill data-catalog-tag={tag.k} data-entity-press="" pressed={tag.selected} onPress={() => onPress(tag.k)}>
-      {tag.label}{tag.n == null ? null : <span data-count-badge={tag.k}>{tag.n.toLocaleString()}</span>}
+      <AsyncText text={tag.label} busy={pending} />
+      {tag.n == null ? null : <span data-count-badge={tag.k}>{tag.n.toLocaleString()}</span>}
     </FilterPill>
   );
 }
@@ -157,7 +158,7 @@ function Tiers(props: CatalogFilterProps) {
             <button key={person.name} type="button" data-tier-performer="" data-entity-kind="performer"
               data-entity-name={person.name} onClick={() => actions.openEntity('performer', person.name)}>
               <span data-tier-ring="" dangerouslySetInnerHTML={{ __html: person.ringHtml }} />
-              <span data-tier-name="">{entityDisplayName('performer', person.name)}</span>
+              <span data-tier-name=""><AsyncText text={entityDisplayName('performer', person.name)} busy={props.tiersPending} /></span>
             </button>
           ))}
         </div>
@@ -167,7 +168,7 @@ function Tiers(props: CatalogFilterProps) {
           {empty ? <Placeholders kind="studio" /> : (shownStudios as TierStudio[]).map((studio) => (
             <button key={studio.name} type="button" data-tier-studio="" data-entity-kind="studio"
               data-entity-name={studio.name} onClick={() => actions.openEntity('studio', studio.name)}>
-              <StudioMark studio={studio} />{studio.name}
+              <StudioMark studio={studio} /><AsyncText text={studio.name} busy={props.tiersPending} />
             </button>
           ))}
         </div>
@@ -232,29 +233,14 @@ function Head({ count, refreshing, layout, sorts, actions }: CatalogFilterProps)
 }
 
 
-/** Reading: `1,234 matches · showing 24`. While this fetch runs, swap in a fixed-width shimmer; frames arriving within 180ms are never shown. */
+/** 读数加载时只替换文字，筛选框和操作控件保持原位。 */
 function Readout({ count }: { count: CatalogFilterProps['count'] }) {
-  const readout = useRef<HTMLSpanElement>(null);
-  const skeleton = useRef<HTMLSpanElement>(null);
-  const text = count ? `${count.total.toLocaleString()} matches · showing ${count.shown.toLocaleString()}` : '';
-  useLayoutEffect(() => {
-    if (count === false) return;
-    if (!count) { fitSkeleton(skeleton.current); return }
-    const el = readout.current;
-    if (!el) return;
-    if (lastReadout && el.dataset.popCount === undefined) el.dataset.popCount = lastReadout;
-    lastReadout = text;
-    popCount(el, text);
-  }, [count, text]);
-  if (count === false) return <span key="failed" data-catalog-readout="" />;
-  return count
-    ? <span key="readout" ref={readout} data-catalog-readout="" data-count-readout="" role="status" />
-    : (
-      <span key="skeleton" data-catalog-readout="">
-        <span ref={skeleton} data-skeleton="count" aria-hidden
-          className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" />
-      </span>
-    );
+  const text = count ? `${count.total.toLocaleString()} 个符合 · 显示 ${count.shown.toLocaleString()}`
+    : count === false ? '' : undefined;
+  return <span data-catalog-readout="" data-count-readout="" role="status">
+    <AsyncText text={text} busy={count === null} placeholder={<span data-skeleton="count" aria-hidden
+      className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" />} />
+  </span>;
 }
 
 /** The intersection bar's host: another `.peach-react` layer built inside `#combo` because style scoping needs it. Removed on unmount, with the row itself handed back to the shell. */

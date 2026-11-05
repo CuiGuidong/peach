@@ -11,7 +11,7 @@ describe('Link-check identity and dead-link motion', () => {
   for (const viewport of VIEWPORTS) {
     it(`Both outcomes keep the profile entry, and the broken-link dash flickers only while the check runs (${viewport.name})`, async () => {
       let phase = 'complete';
-      const opened = await visit(browser, '/data-cleanup?section=links', viewport, async page => {
+      const opened = await visit(browser, '/data-cleanup/links', viewport, async page => {
         await page.emulateMedia({ reducedMotion: 'no-preference' });
         const row = { id: 1, entity: 'Example author', entity_id: 31, entity_kind: 'performer',
           face: { id: 31, name: 'Example author', has_image: true }, link_kind: 'official', label: 'Example agency',
@@ -92,10 +92,10 @@ describe('Link-check identity and dead-link motion', () => {
       } finally { await opened.close(); }
     });
 
-    it(`The default avatar and both HTTP outcomes are distinguishable in light and dark themes (${viewport.name})`, async () => {
-      const opened = await visit(browser, '/data-cleanup?section=links', viewport, async page => {
-        const row = { id: 1, entity: 'Example author', entity_id: 31, entity_kind: 'performer',
-          face: { has_image: false }, link_kind: 'social', label: 'Example site', url: 'https://example.com', note: 'HTTP 404' };
+    it(`默认头像与两类 HTTP 结果在明暗主题均可辨识（${viewport.name}）`, async () => {
+      const opened = await visit(browser, '/data-cleanup/links', viewport, async page => {
+        const row = { id: 1, entity: '示例作者', entity_id: 31, entity_kind: 'performer',
+          face: { has_image: false }, link_kind: 'social', label: '示例站点', url: 'https://example.com', note: 'HTTP 404' };
         await page.route('**/api/links/check', route => route.fulfill({ json: { status: 'complete', check_id: 'contrast',
           gone: [row], unclear: [{ ...row, id: 2, note: 'HTTP 502' }], checked: 2, total: 2 } }));
         await page.route('**/link-mark?**', route => route.fulfill({ contentType: 'image/svg+xml',

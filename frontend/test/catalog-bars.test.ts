@@ -1,8 +1,8 @@
-/* The two aggregations behind the home filter bars (`src/catalog-bars.ts`): keys, fallback, 30-second reuse, refetch when the terms change, forced refetch on refresh, and paging. */
+/* 首页筛选栏的两份聚合（`src/catalog-bars.ts`）：键、回退、标签页内复用、口径变了重取、刷新强制重取、续页。 */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
 import {
-  BARS_STALE_MS, dropBars, facetsKey, fetchBars, fetchTopsPage, loadTops, topsKey, topsPageKey,
+  dropBars, facetsKey, fetchBars, fetchTopsPage, loadTops, topsKey, topsPageKey,
 } from '../src/catalog-bars';
 import { queryClient } from '../src/query';
 
@@ -51,13 +51,13 @@ it('Without state-page params, or when narrowing still leaves people, it never f
   expect(full.urls()).toEqual(['/api/tops?n=60&state=flagged']);
 });
 
-it('The same convention reuses within 30 seconds and refetches past that', async () => {
+it('同一份口径跨长时间往返复用，主动刷新后重取', async () => {
   const net = serve(answer(FULL));
   await fetchBars('', 'n=60&seed=s');
-  vi.setSystemTime(BARS_STALE_MS - 1);
+  vi.setSystemTime(24 * 60 * 60 * 1000);
   await fetchBars('', 'n=60&seed=s');
   expect(net.urls()).toEqual(['/api/facets', '/api/tops?n=60&seed=s']);
-  vi.setSystemTime(BARS_STALE_MS + 1);
+  dropBars();
   await fetchBars('', 'n=60&seed=s');
   expect(net.fetcher).toHaveBeenCalledTimes(4);
 });
@@ -79,7 +79,7 @@ it('Concurrent asks for the same asset send one request', async () => {
   expect(net.fetcher).toHaveBeenCalledTimes(2);
 });
 
-it('A real refetch also happens within 30 seconds after dropBars', async () => {
+it('dropBars 之后立即重取', async () => {
   const net = serve(answer(FULL));
   await fetchBars('', 'n=60&seed=s');
   dropBars();
@@ -111,7 +111,7 @@ it('Both rows paging to the same page send one request, keyed separately from pa
   expect(topsPageKey('p')).not.toEqual(topsKey('p', ''));
 });
 
-it('Next pages reuse within 30 sec, refetch after dropBars, and empty status pages still fall back to the whole-library criteria', async () => {
+it('续页复用，dropBars 之后重取，状态页空页照样退回全库口径', async () => {
   const net = serve((url) => (url.includes('state=') ? EMPTY : FULL));
   await fetchTopsPage('n=60&page=2&state=flagged');
   await fetchTopsPage('n=60&page=2&state=flagged');

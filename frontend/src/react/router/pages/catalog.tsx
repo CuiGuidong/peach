@@ -3,31 +3,21 @@
  * (`state` in `@peach/shell`), and hands the rest to the shell: search box, sidebar and top bar, the three top tiers, and
  * fetching (`ShellActions.catalog`).
  *
- * Elements are keyed per page: home, the three filter states and trash render the same grid and share one element; junk files
- * are a separate page. Video and queue addresses without a background (deep links, refresh) also mount this element. Changing
- * filters, back/forward, and reopen requests from the shell do not remount; in the microtask after each change the element
- * decides what to do, in this order:
- * - Details stacked on top: if the entry recorded a background (the page group matches on background) do nothing, the page
- *   underneath keeps rendering; without a background, backfill the catalog grid once (`ShellActions.catalog.fill`) so no
- *   forever-loading skeleton stays under the details.
- * - The shell asks for a full reopen at the current address (`pageOpens` +1: startup, closing a deep-linked details backfills
- *   its origin, entering trash from the manage bar): open the whole page.
- * - A new page-open epoch was taken (back/forward, unclaimed jumps): open the whole page; when back/forward returns to home
- *   from elsewhere, invalidate the top-three-tier cache and reroll the sample seed. Moving around inside the catalog reuses
- *   the same seed. If the address carries a `seed`, use it.
- * - The shell claimed the address write (filter change, sort change, new batch, back to home): filters are already written into
- *   `state` by the shell, so only refetch; when closing details returns to the address it was stacked on and filters did not
- *   change, do not refetch. If this page was never opened (back/forward landed on details stacked over something else, mounted
- *   already covered), open the whole page.
- * While `pageOpens` is still 0 the shell has not started routing and the element only mounts. At mount time, whether that
- * history change was claimed decides between the latter two cases; if the router root installed after the shell started
- * routing, mount time counts as the first case.
+ * 元素按页面挂 key：首页、三个筛选态与回收站画的是同一张网格，共用一个元素；垃圾文件是另一页。没有背景的作品与
+ * 队列地址（深链、刷新）也挂这个元素。换筛选、后退前进与壳要求重开都不重挂，元素在每一轮变化之后的微任务里按下面的
+ * 次序判断做哪一件：
+ * - 详情压在上面：条目记了背景（页面组按背景匹配）就什么都不做，下面那一页一直画着；没有背景时补画一次目录网格
+ *   （`ShellActions.catalog.fill`），详情下面不留一张永远在读的骨架。
+ * - 壳要求按当前地址从头重开（`pageOpens` 加一：启动、深链详情关掉补画来处、从管理条进回收站）：整页打开。
+ * - 领了新的页面打开序号（后退前进、不认领的跳转）：整页打开；历史返回沿用条目保存的筛选与种子，
+ *   没有记录时按地址重建。地址上写了 `seed` 就用它。
+ * - 壳认领写了地址（换筛选、换排序、换一批、回首页）：筛选已经由壳写进 `state`，只重取；关掉详情回到压着的那一份
+ *   地址、筛选也没变时不重取。这一页要是还没开过（后退落到压在别处之上的详情，挂上时就被盖着），整页打开。
+ * `pageOpens` 还是 0 时壳没开始路由，元素只挂着。挂上那一刻按那一次历史变化认没认领分别算作后两种；路由根晚于
+ * 壳开始路由才装上时，挂上那一刻算第一种。
  *
- * `?state=ads` landing on home does not open; the address is rewritten to the junk-files address (no entry added) and the junk
- * files page's element opens it. On unmount, if the destination is not the catalog, details, immersive or the profile page,
- * `#grid` and the home new-releases row are torn down: those pages keep them when leaving the catalog. Deciding, rewriting and
- * teardown all queue into microtasks: the router root commits synchronously in the same call as the history change, and the
- * shell subscribes to history before the router root, so its title and sidebar round runs first. */
+ * `?state=ads` 落在首页上时不打开，改写成垃圾文件的地址（不加条目），由垃圾文件那一页的元素接着打开。
+ * 目标页立即展示变化区域的等待态，稳定控件不重挂。判断与改写排进微任务，避开路由根的提交阶段。 */
 import { useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router';
@@ -39,9 +29,9 @@ import { pageOpens, state, subscribeShell, writeShell, type CatalogFilters } fro
 
 import { junkPath, junkRoute } from '../../../junk-queue';
 import { sortFromAddress } from '../../../sort-preferences';
+import { pageNavigationReady, rememberPageState, restoredPageState, restoringPage } from '../../../history/page-navigation';
 import { ShellActionsContext, useOpenEpoch } from '../router';
 import type { CatalogShell, ShellActions } from '../shell-actions';
-import { entityTarget } from './index-entity';
 import { JavLibraryHeader } from '../../jav/jav-header';
 import { CatalogFolders } from '../../catalog-folders/catalog-folders-page';
 
@@ -88,6 +78,8 @@ function seen(opened: boolean): Seen {
 /** Catalog filters rebuilt from the URL, written the same way as the shell's startup copy; the trash pins the status only and clears the other filters. Origin and thumbnails are not refetched from the URL. */
 function filtersAt(pathname: string, search: string, entering: boolean, shell: CatalogShell): CatalogFilters {
   const previous: CatalogFilters = { ...state };
+  const restored = restoredPageState<CatalogFilters>('catalog');
+  if (restored) return { ...restored };
   if (pathname === '/trash') return { ...previous, creator: '', studio: '', tag: '', orient: '', state: 'trash', q: '' };
   const params = new URLSearchParams(search);
   const { defaultSort, defaultSortDirection } = appSettingsStore().value;
@@ -109,7 +101,18 @@ function filtersAt(pathname: string, search: string, entering: boolean, shell: C
   };
 }
 
-/** Which one this judgment round performs, and it performs it; `mark` becomes this moment. */
+/** 点击后先展示目标骨架并按页面定位；历史恢复等已加载分页落地后再定位。 */
+function openCatalog(load: () => void | Promise<void>): void {
+  const seq = peachHistory.navigation.seq;
+  rememberPageState('catalog', { ...state });
+  const loading = load();
+  const current = () => peachHistory.navigation.seq === seq;
+  const results = () => document.querySelector('#grid');
+  void pageNavigationReady(current, results(), { pending: true });
+  void Promise.resolve(loading).then(() => pageNavigationReady(current, results()));
+}
+
+/** 判断这一轮做哪一件，做掉；`mark` 换成这一刻。 */
 function settle(mark: Seen, actions: ShellActions): void {
   const was = { ...mark };
   const now = seen(was.opened);
@@ -124,7 +127,7 @@ function settle(mark: Seen, actions: ShellActions): void {
   if (now.opens === was.opens) {
     if (now.epoch === was.epoch && was.opened) {
       if (now.seq === was.seq || (was.covered && now.address === was.address && now.filters === was.filters)) return;
-      shell.load();
+      openCatalog(() => shell.load());
       return;
     }
     if (now.epoch !== was.epoch) entering = peachHistory.navigation.action === 'POP' && last.from !== '/';
@@ -138,16 +141,10 @@ function settle(mark: Seen, actions: ShellActions): void {
   }
   const retitle = junkRedirect;
   junkRedirect = false;
-  entering &&= pathname === '/';
+  entering &&= pathname === '/' && !restoringPage();
   mark.opened = true;
   writeShell({ state: filtersAt(pathname, search, entering, shell) });
-  shell.open(pathname, { entering, retitle });
-}
-
-/* While the destination still renders catalog content, do not tear it down: paging between catalog pages keeps being painted by the shell; details and immersive stack on top; when the profile page spreads out it only hides them. */
-function keepsCatalog(pathname: string): boolean {
-  return isCatalogPath(pathname) || pathname === '/trash' || isOverlayPath(pathname) || pathname === '/immerse'
-    || !!entityTarget(pathname);
+  openCatalog(() => shell.open(pathname, { entering, retitle }));
 }
 
 function CatalogOpen() {
@@ -170,9 +167,6 @@ function CatalogOpen() {
     mark.current = now;
     return () => {
       own.mounted = false;
-      queueMicrotask(() => {
-        if (actions?.catalog && !keepsCatalog(peachHistory.navigation.location.pathname)) actions.catalog.release();
-      });
     };
     // Registers once per mount; later changes are queued into a microtask by the cell below.
   }, []);
@@ -191,7 +185,7 @@ function CatalogOpen() {
 /** The element shared by the catalog's six paths: home, three filtered states, and trash share one key; junk files gets another; when the page group matches by background it takes the background's page.
  *  When the address-override parameter is not numeric (`/assets/abc`), nothing mounts: that is not a details entry, and nothing is painted beneath either. */
 export function CatalogMatch() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   useLayoutEffect(() => {
     if (pathname !== '/wall') return;
     document.body.setAttribute('data-wall-open', '');
@@ -204,19 +198,17 @@ export function CatalogMatch() {
       chrome.forEach((node, index) => { node.inert = inert[index] || false });
     };
   }, [pathname]);
-  const actions = useContext(ShellActionsContext);
-  const host = document.getElementById('javLibraryHeader');
-  const jav = isCatalogPath(pathname) && new URLSearchParams(search).get('jav') === '1';
-  useLayoutEffect(() => {
-    if (!host) return;
-    host.hidden = !jav;
-    return () => { host.hidden = true };
-  }, [host, jav]);
   if (isOverlayPath(pathname) && !overlayTarget(pathname)) return null;
   return <>
     <CatalogOpen key={pathname === '/junk-files' ? '/junk-files' : '/'} />
     {isCatalogPath(pathname) ? <CatalogFolders /> : null}
-    {jav && host && actions ? createPortal(<JavLibraryHeader navigate={actions.navigate}
-      receipt={message => actions.receipt(message)} />, host) : null}
   </>;
+}
+
+/** JAV 页头常驻；壳在目标内容提交时切换显隐，路由取数期间不拆掉旧页头。 */
+export function CatalogChrome() {
+  const actions = useContext(ShellActionsContext);
+  const host = document.getElementById('javLibraryHeader');
+  return host && actions ? createPortal(<JavLibraryHeader navigate={actions.navigate}
+    receipt={message => actions.receipt(message)} />, host) : null;
 }

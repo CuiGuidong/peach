@@ -22,6 +22,7 @@
 import { overlayMatch } from './overlay';
 import { entityLinkName } from '../core/entity-links';
 import { entityDisplayName } from '../core/entity-names';
+import { CLEANUP_CRUMB_PAGES, type CleanupToolPath } from '../cleanup-tools';
 import { PREFERENCE_SECTIONS, CONFIGURATION_SECTIONS } from './settings-route';
 
 export interface RouteMeta {
@@ -32,29 +33,30 @@ export interface RouteMeta {
   readonly reload?: 'reopen';
 }
 
-export const ROUTE_META: Readonly<Record<string, RouteMeta>> = {
-  '/settings': { title: 'Settings', refresh: 'skip' },
+const ROUTE_ENTRIES = {
+  '/settings': { title: '设置', refresh: 'skip' },
   ...Object.fromEntries(Object.entries(PREFERENCE_SECTIONS).map(([key, title]) => [`/settings/${key}`, { title, refresh: 'skip' }])),
   ...Object.fromEntries(Object.entries(CONFIGURATION_SECTIONS).map(([key, title]) => [`/settings/${key}`, { title, section: 'configuration', refresh: 'reopen' }])),
   '/jav': { nav: 'jav', title: 'JAV', refresh: 'reopen' },
-  '/stats': { section: 'stats', title: 'Stats' },
-  '/taste': { section: 'taste', title: 'Taste', refresh: 'reopen' },
-  '/review': { section: 'review', title: 'Manual review', refresh: 'reopen' },
-  '/data-cleanup': { section: 'cleanup', title: 'Data management' },
-  '/duplicates': { section: 'cleanup', title: 'Duplicates', refresh: 'reopen' },
-  '/quality-goals': { section: 'quality', title: 'HD version', refresh: 'reopen' },
-  '/sources': { section: 'cleanup', title: 'Sources and credentials', refresh: 'reopen' },
-  '/subscriptions': { section: 'follow', title: 'Manage follows', refresh: 'skip' },
-  '/settings/library': { section: 'configuration', title: 'Peach configuration', refresh: 'reopen' },
-  '/tasks': { section: 'activity', title: 'Task center', refresh: 'reopen' },
-  // A legacy direct address, rewritten to the data management page's anchor; it has no admin identity of its own.
-  '/resource-sync': { title: 'Data management' },
-  '/performers': { nav: 'performers', title: 'Performers', reload: 'reopen' },
-  '/creators': { title: 'Sellers', reload: 'reopen' },
-  '/studios': { nav: 'studios', title: 'Labels', reload: 'reopen' },
-  '/agencies': { title: 'Agency', reload: 'reopen' },
-  '/series': { nav: 'studios', title: 'Series', reload: 'reopen' },
-  '/tags': { nav: 'tags', title: 'Tags', reload: 'reopen' },
+  '/stats': { section: 'stats', title: '统计' },
+  '/taste': { section: 'taste', title: '口味', refresh: 'reopen' },
+  '/review': { section: 'review', title: '人工复核', refresh: 'reopen' },
+  '/data-cleanup': { section: 'cleanup', title: '数据管理' },
+  ...Object.fromEntries(Object.entries(CLEANUP_CRUMB_PAGES).map(([path, title]) => [path, { section: 'cleanup', title, refresh: 'reopen' }])),
+  '/duplicates': { section: 'cleanup', title: '重复文件', refresh: 'reopen' },
+  '/quality-goals': { section: 'quality', title: '高清版', refresh: 'reopen' },
+  '/sources': { section: 'cleanup', title: '来源和凭证', refresh: 'reopen' },
+  '/subscriptions': { section: 'follow', title: '关注管理', refresh: 'skip' },
+  '/settings/library': { section: 'configuration', title: 'Peach 配置', refresh: 'reopen' },
+  '/tasks': { section: 'activity', title: '任务中心', refresh: 'reopen' },
+  // 旧直达地址，改写到数据管理页的锚点，没有自己的管理身份。
+  '/resource-sync': { title: '数据管理' },
+  '/performers': { nav: 'performers', title: '艺人', reload: 'reopen' },
+  '/creators': { title: '卖家', reload: 'reopen' },
+  '/studios': { nav: 'studios', title: '厂牌', reload: 'reopen' },
+  '/agencies': { title: '事务所', reload: 'reopen' },
+  '/series': { nav: 'studios', title: '系列', reload: 'reopen' },
+  '/tags': { nav: 'tags', title: '标签', reload: 'reopen' },
   '/performers/*': { reload: 'reopen' },
   '/studios/*': { reload: 'reopen' },
   '/creators/*': { reload: 'reopen' },
@@ -71,14 +73,19 @@ export const ROUTE_META: Readonly<Record<string, RouteMeta>> = {
   '/flagged': { nav: 'flagged', title: 'Marked' },
   '/junk-files': { nav: 'ads', title: 'Junk files' },
   '/trash': { section: 'trash' },
-  // Coverage: details, the four queues and follows details. The volume and edition queues have no tabs of their own.
-  '/assets/:id': { title: 'Media records' },
-  '/works/:code': { nav: 'jav', title: 'JAV videos' },
-  '/posts/:id': { title: 'Follows' },
-  // Immersive mode joins the page group; it does not count as an overlay.
-  '/immerse': { nav: 'immerse', title: 'Immersive mode' },
-  '/wall': { nav: 'wall', title: 'Playback wall' },
-};
+  // 覆盖：详情、四种队列与关注详情。分卷与版本队列没有自己的标签。
+  '/assets/:id': { title: '媒体记录' },
+  '/works/:code': { nav: 'jav', title: 'JAV 作品' },
+  '/posts/:id': { title: '关注' },
+  // 沉浸模式进页面组，不算覆盖。
+  '/immerse': { nav: 'immerse', title: '沉浸模式' },
+  '/wall': { nav: 'wall', title: '播放墙' },
+} satisfies Readonly<Record<string, RouteMeta>>;
+
+export type RegisteredRoutePath = keyof typeof ROUTE_ENTRIES
+  | `/settings/${keyof typeof PREFERENCE_SECTIONS | keyof typeof CONFIGURATION_SECTIONS}`
+  | CleanupToolPath;
+export const ROUTE_META: Readonly<Record<string, RouteMeta>> = ROUTE_ENTRIES;
 
 /** Metadata registered for this path; `null` when nothing is registered. */
 export function routeMetaOf(path: string): RouteMeta | null {

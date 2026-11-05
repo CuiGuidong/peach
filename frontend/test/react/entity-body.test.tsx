@@ -118,17 +118,21 @@ describe('Video grid', () => {
     const given = props();
     const host = await open(given);
     expect(cards(host)).toEqual(['1', '2', '3']);
-    expect(host.querySelector('[data-test-skeleton]')).toBeNull();
+    expect(host.querySelector('[data-content-transition]')?.getAttribute('aria-busy')).toBe('false');
+    expect(host.querySelector('[data-content-skeleton]')?.getAttribute('aria-hidden')).toBe('true');
     expect(given.fetchPage).not.toHaveBeenCalled();
   });
 
-  it('When the shell says it is fetching (items null) swap to the skeleton, then swap to the new cards once the new list comes in', async () => {
+  it('等待期间旧内容隐藏并禁用，新列表到达后解除忙态并换成新卡片', async () => {
     const host = await open(props());
     await act(async () => push({ items: null, revision: 2 }));
-    expect(cards(host)).toEqual([]);
+    expect(cards(host)).toEqual(['1', '2', '3']);
+    expect(host.querySelector('[data-content-current]')?.getAttribute('aria-hidden')).toBe('true');
+    expect(host.querySelector('[data-content-current]')?.hasAttribute('inert')).toBe(true);
     expect(host.querySelector('[data-entity-grid] [data-test-skeleton]')).not.toBeNull();
     await act(async () => push({ items: page([7, 8]), revision: 2 }));
     expect(cards(host)).toEqual(['7', '8']);
+    expect(host.querySelector('[data-content-current]')?.hasAttribute('inert')).toBe(false);
   });
 
   it('Selection state and layout are forwarded to the cards as is', async () => {

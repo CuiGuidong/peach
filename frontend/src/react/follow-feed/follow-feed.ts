@@ -183,9 +183,8 @@ export interface FollowCredentials { providers?: { provider: string; present?: b
 
 /* ── Fetch keys ── */
 
-/** How long the list stays in the cache after leaving the follows page. Returning draws from it as-is, so loaded pages and scroll position reconnect;
- *  the default 5 minutes is too short, gone after opening a video elsewhere. */
-export const FOLLOW_FEED_GC_MS = 30 * 60_000;
+/** 同一标签页保留已加载的关注内容，主动刷新仍按新代次取数。 */
+export const FOLLOW_FEED_GC_MS = Infinity;
 
 /** The list's key. Media switching is pure frontend grouping and stays out of the key: switching views does not refetch. `revision` is the epoch of the shell's requested re-read. */
 export function followFeedQuery(view: FollowView, revision: number) {

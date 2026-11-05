@@ -36,10 +36,12 @@ import { Disclosure } from '../settings/section';
 import { BackgroundIssues } from './background-issues';
 import { DownloadsPanel } from './downloads-panel';
 import { ErrorDetails, ErrorExcerpt } from './error-excerpt';
+import { TaskControlFeedback, TaskControls } from './task-controls';
+import { TaskResources } from './task-resources';
 import {
   elapsedText, fetchEarlier, fetchTasks, foldByKind, foldRoutine, followupDetail, followupTally, groupFollowups, isActive,
   hasResultProblems, isRoutine, latestOfKind, mergeFinished, momentText, pollInterval, problemDestination, progressText,
-  statusLabel, summaryItems, taskIssues, TASKS_KEY, TRIGGER_LABELS, type FollowupCounts, type TaskRunPayload,
+  statusLabel, summaryItems, taskIssues, TASKS_KEY, TRIGGER_LABELS, type FollowupCounts, type TaskControlState, type TaskRunPayload,
 } from './tasks';
 
 /** How many successors one card may list. Batches merged into one card can reach thousands, and painting them all fills the screen with the same sentence. */
@@ -47,12 +49,22 @@ const FOLLOWUP_ROWS = 50;
 /** It only dispatches successor tasks: one round is just 'how many were scheduled'; what matters is the results of those items. */
 const DISPATCHERS = new Set(['upgrade-repairs']);
 
-/* 完成绿、失败红、Running蓝、意外中断黄，主动Cancel和排队为中性. */
+/* 完成绿、失败与已取消红、进行中蓝、意外中断黄，排队为中性。 */
 const BADGE_COLORS: Record<string, 'lime' | 'rose' | 'yellow' | 'blue' | 'neutral'> = {
-  succeeded: 'lime', failed: 'rose', cancelled: 'neutral', interrupted: 'yellow', running: 'blue', pending: 'neutral',
+  succeeded: 'lime', failed: 'rose', cancelled: 'rose', interrupted: 'yellow', running: 'blue', pending: 'neutral',
+};
+
+const CONTROL_LABELS: Record<TaskControlState, string> = {
+  running: '进行中', pausing: '正在暂停', paused: '已暂停', cancelling: '正在取消',
 };
 
 function StatusBadge({ run }: { run: TaskRunPayload }) {
+  const control = run.control?.state;
+  if (control && (control !== 'running' || !isActive(run))) {
+    return <Chip color={control === 'running' ? 'blue' : 'neutral'}>
+      <span data-copy-key={`tasks.control.state.${control}`}>{CONTROL_LABELS[control]}</span>
+    </Chip>;
+  }
   const partial = run.status === 'failed' && run.task_key === 'library-processing'
     && run.result_summary?.outcome === 'partial';
   const problems = partial || run.status === 'succeeded' && hasResultProblems(run);
@@ -73,15 +85,21 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
         const detail = followupDetail(row);
         return (
           <li key={row.id} data-status={row.status} data-followup-key={row.followup_key}
-            className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 border-t border-separator-border px-5 py-2.5">
-            <span className="min-w-0 break-words text-caption-1-regular text-text-primary">
-              {row.task_label}
-            </span>
-            <StatusBadge run={row} />
-            {detail
-              ? <span className="min-w-0 break-words text-caption-1-regular text-text-secondary">{detail}</span>
-              : null}
-            {/* Queued ones have no results yet: an empty "Technical details" expands to just a pair of braces. */}
+            className="flex min-w-0 flex-col gap-1 border-t border-separator-border px-5 py-2.5">
+            <div className="flex min-w-0 items-start justify-between gap-3">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                <span className="min-w-0 break-words text-caption-1-regular text-text-primary">
+                  {row.task_label}
+                </span>
+                <StatusBadge run={row} />
+                {detail
+                  ? <span className="min-w-0 break-words text-caption-1-regular text-text-secondary">{detail}</span>
+                  : null}
+              </div>
+              <TaskControls run={row} />
+            </div>
+            <TaskResources run={row} />
+            {/* 排队中的那些还没有结果：空的「技术详情」展开只有一对花括号。 */}
             {Object.keys(row.result_summary || {}).length
               ? <div className="w-full min-w-0">
                   <Disclosure summary="Technical details" contentClassName="pb-2.5">
@@ -100,9 +118,9 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
 /** One card per task run. On failure the whole card's border switches to the danger color instead of coloring the end-reason line:
  *  reading red text line by line across a dozen rows is much slower than glancing at which card has a red border. */
 function RunCard(
-  { run, meta, children, footer, followups, followupTotal = 0, badge }:
+  { run, meta, children, footer, followups, followupTotal = 0, badge, resourceActive }:
   { run: TaskRunPayload; meta: string; children?: ReactNode; footer?: string;
-    followups?: TaskRunPayload[]; followupTotal?: number; badge?: ReactNode },
+    followups?: TaskRunPayload[]; followupTotal?: number; badge?: ReactNode; resourceActive?: boolean },
 ) {
   /* When one round dispatches thousands of follow-ups, only the most recent few dozen are sent down, and merged batches may each carry dozens more: the title states the full count,
      the list shows running and queued first, then the most recently finished, capped at `FOLLOWUP_ROWS` entries, and says how many of the total are listed. */
@@ -122,11 +140,15 @@ function RunCard(
       })}>
       {/* The card title is one step below the section title ('In progress'), and title, time and summary share one line spacing. */}
       <div className="flex flex-col gap-2 px-5 py-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <strong className="min-w-0 break-words text-title-3-medium text-text-primary">{run.task_label}</strong>
-          {badge ?? <StatusBadge run={run} />}
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <strong className="min-w-0 break-words text-title-3-medium text-text-primary">{run.task_label}</strong>
+            {badge ?? <StatusBadge run={run} />}
+          </div>
+          <TaskControls run={run} />
         </div>
         <p className="text-caption-1-regular text-text-secondary">{meta}</p>
+        <TaskResources run={run} active={resourceActive} />
         {children}
       </div>
       {shown ? <div className="border-t border-separator-border px-5 py-2.5">
@@ -157,7 +179,9 @@ function RunCard(
 function RunningRun({ run, followups }: { run: TaskRunPayload; followups?: TaskRunPayload[] }) {
   const total = run.progress_total || 0;
   const current = run.progress_current || 0;
-  const label = run.progress_label || 'Running';
+  const control = run.control?.state;
+  const stopping = control && control !== 'running';
+  const label = stopping ? CONTROL_LABELS[control] : run.progress_label || '正在进行';
   const elapsed = elapsedText(run.elapsed_seconds);
   const meta = [TRIGGER_LABELS[run.trigger] || run.trigger, elapsed && `Ran for ${elapsed}`]
     .filter(Boolean).join(' · ');
@@ -168,7 +192,8 @@ function RunningRun({ run, followups }: { run: TaskRunPayload; followups?: TaskR
             <Progress label={label} value={Math.min(current, total)} max={total} />
             <p className="text-caption-1-regular text-text-secondary wrap-anywhere">{label} · {progressText(current, total)} items</p>
           </div>
-        : <LoadingDots label={label} />}
+        : stopping ? <p data-copy-key={`tasks.control.state.${control}`}
+            className="text-caption-1-regular text-text-secondary">{label}</p> : <LoadingDots label={label} />}
     </RunCard>
   );
 }
@@ -180,9 +205,9 @@ function RunningRun({ run, followups }: { run: TaskRunPayload; followups?: TaskR
  *  attention" block.
  *  `latest` says whether it is that job kind's newest round: some jobs only have an action entry point on the newest round. */
 function SettledRun(
-  { run, followups, runs, latest, followupTotal, followupFailed = 0 }:
+  { run, followups, runs, latest, followupTotal, followupFailed = 0, followupCancelled = 0 }:
   { run: TaskRunPayload; followups?: TaskRunPayload[]; runs?: TaskRunPayload[]; latest: boolean;
-    followupTotal?: number; followupFailed?: number },
+    followupTotal?: number; followupFailed?: number; followupCancelled?: number },
 ) {
   /* When several dispatched batches merge into one card, the latest batch's "64 items scheduled" cannot tell the whole story: say instead how many items were processed in total and how many failed,
      with the badge reading "issues found" when there are failures, and the failed entries sorted to the front of the task details. */
@@ -202,8 +227,15 @@ function SettledRun(
        elapsed && `Took ${elapsed}`]).filter(Boolean).join(' · ');
   return (
     <RunCard run={run} meta={meta} footer={run.error} followups={followups} followupTotal={followupTotal}
-      badge={batches && followupFailed ? <Chip color="yellow">Issues found</Chip> : undefined}>
-      {/* No bullet when there is only one summary line: a lone dot reads like text missing below. */}
+      badge={followupCancelled && run.status === 'succeeded'
+        ? <Chip color="rose"><span data-copy-key={`tasks.followups.cancelled.${followupCancelled === followupTotal ? 'all' : 'partial'}`}>
+            {followupCancelled === followupTotal ? '后续任务已取消' : '部分后续任务已取消'}
+          </span></Chip>
+        : batches && followupFailed ? <Chip color="yellow">发现问题</Chip> : undefined}>
+      {followupCancelled ? <p className="text-caption-1-regular text-text-secondary">
+        后续任务已取消 {followupCancelled.toLocaleString()} 项
+      </p> : null}
+      {/* 只有一句摘要时不加项目符号：单独一个圆点读起来像漏了下文。 */}
       {summary.length === 1
         ? <p className="text-caption-1-regular text-text-secondary wrap-anywhere">{summary[0]}</p>
         : summary.length ? <ul className="flex list-disc flex-col gap-1 pl-5 text-caption-1-regular text-text-secondary wrap-anywhere">
@@ -248,8 +280,8 @@ function WorkingRun(
     runs.length > 1 ? `${runs.length} batches` : '',
     `Started ${momentText(oldest.started_at || oldest.finished_at)}`].filter(Boolean).join(' · ');
   return (
-    <RunCard run={run} meta={meta} followups={followups} followupTotal={total}
-      badge={<Chip color="blue">Running</Chip>}>
+    <RunCard run={run} meta={meta} followups={followups} followupTotal={total} resourceActive
+      badge={run.control ? <StatusBadge run={run} /> : <Chip color="blue">进行中</Chip>}>
       <div className="flex flex-col gap-1.5">
         <Progress label={`${run.task_label} progress`} value={settled} max={total} />
         <p className="text-caption-1-regular text-text-secondary">
@@ -344,11 +376,17 @@ export function ActivityPage() {
   };
   const folds = foldRoutine(finished, (run) => isRoutine(run)
     && (quietChildren(run) || DISPATCHERS.has(run.task_key)));
+  // 各父任务的控制范围独立：合成一张卡会让较早那批的后继没有对应操作入口。
+  const workingGroups = [
+    ...foldByKind(working.filter((run) => !run.control)),
+    ...working.filter((run) => run.control).map((run) => ({ run, runs: [run] })),
+  ].sort((left, right) => right.run.id - left.run.id);
   const newest = latestOfKind(allRuns);
   const quiet = !running.length && !working.length && !skipped.length && !finished.length;
   return (
     <Page>
       {problem ? <Note tone="error">{problem}</Note> : null}
+      <TaskControlFeedback />
       {data.available === false
         ? <Note tone="warning">{data.message || 'The database has not set up the task records table yet'}</Note>
         : null}
@@ -364,7 +402,7 @@ export function ActivityPage() {
                 ? <RunList live>
                     {running.map((run) => (
                       <RunningRun key={run.id} run={run} followups={byParent.get(run.id)} />))}
-                    {foldByKind(working).map(({ run, runs }) => (
+                    {workingGroups.map(({ run, runs }) => (
                       <WorkingRun key={run.id} runs={runs} followups={childrenOf(runs)} counts={counts} />))}
                   </RunList>
                 : <Note tone="neutral">No tasks running.</Note>}
@@ -383,7 +421,8 @@ export function ActivityPage() {
                     ? <RunList>{folds.map(({ run, runs }) => {
                         const tally = followupTally(counts, runs);
                         return <SettledRun key={run.id} run={run} runs={runs} latest={newest.has(run.id)}
-                          followups={childrenOf(runs)} followupTotal={tally.total} followupFailed={tally.failed} />;
+                          followups={childrenOf(runs)} followupTotal={tally.total} followupFailed={tally.failed}
+                          followupCancelled={tally.cancelled} />;
                       })}</RunList>
                     : null}
                   {more.error ? <Note tone="error">{errorMessage(more.error)}</Note> : null}

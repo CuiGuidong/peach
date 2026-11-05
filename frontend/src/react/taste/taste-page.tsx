@@ -332,7 +332,7 @@ function HistoryActions(
   const pick = (act: () => void) => { setOpen(false); act() };
   return (
     <>
-      <span data-button-group data-split-button data-variant="primary">
+      <span data-guide-target="history-import" data-button-group data-split-button data-variant="primary">
         <Button leadingIcon={RiCompassLine} title={REFRESH_TITLE} onClick={onRefresh} {...busyProps(busy)}>
           Read browser history
         </Button>

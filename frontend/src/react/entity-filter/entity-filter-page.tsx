@@ -16,6 +16,7 @@ import { icon } from '@peach/legacy/core';
 
 import { FilterGlassRows, FilterIconButton, FilterPill } from '../components/filter-glass';
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
+import { AsyncText } from '../components/async-text';
 import { FolderBrowseToggle } from '../catalog-folders/catalog-folders-page';
 import { SEGMENTED_GLASS_TRACK, SEGMENT_GLASS } from '../components/segmented';
 import { spriteGlyph } from '../components/sprite-glyph';
@@ -238,13 +239,12 @@ function Head(props: EntityFilterProps) {
   );
 }
 
-/** The counts: `Videos · N`, `Performers · N`, `Photos · N`. While this fetch runs it turns into a shimmer bar, the same width as the skeleton's. */
+/** 读数等待时保留旧文字，筛选框及其它控件保持原位。 */
 function Readout({ text, busy }: { text: string; busy: boolean }) {
   return (
     <h3 data-entity-readout="">
-      {busy
-        ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-24 rounded-md align-middle skeleton-sheen" />
-        : text}
+      <AsyncText text={busy ? undefined : text} busy={busy} placeholder={<span data-skeleton="count" aria-hidden
+        className="relative inline-block h-3.5 w-24 rounded-md align-middle skeleton-sheen" />} />
     </h3>
   );
 }

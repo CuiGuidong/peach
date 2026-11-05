@@ -81,7 +81,7 @@ export function PushDiscoveryForm({ initial, receipt }: {
     ? `Watching ${live.local_roots.join(', ')}` : live.local_message || 'Not running';
 
   return (
-    <Section id="pushDiscovery" title="Discover new files automatically" onSubmit={submit}>
+    <Section id="pushDiscovery" guide="discovery" title="自动发现新文件" onSubmit={submit}>
       <Stack>
         <div className="flex flex-wrap items-center gap-2"><span className="text-body-regular text-text-secondary">Watch this machine</span>
           <StatusLabel tone={!live.enabled || !live.watch_local ? 'neutral' : live.local_running ? 'progress' : 'warning'}>{!live.enabled || !live.watch_local ? 'Not enabled' : live.local_running ? 'Running' : 'Not running'}</StatusLabel></div>

@@ -11,9 +11,12 @@ import { setCollapseOpen } from '@peach/legacy/ui';
 import { SettingsCard, SettingsSectionLabel } from '@/components/application/settings/settings-rows';
 import { LinkButton } from '@/components/base/buttons/link-button';
 import { cx } from '@/utils/cx';
+import { GuideHelp } from '../onboarding/guide-help';
 
 interface SectionProps {
   title: string;
+  /** 导览跟随组件身份，不依赖可编辑的标题文案。 */
+  guide?: string;
   icon?: ReactNode;
   id?: string;
   /** Secondary content that follows the title (an external link to the source site). The title takes the remaining width; this sits on the right. */
@@ -23,9 +26,9 @@ interface SectionProps {
   children: ReactNode;
 }
 
-/* Sections' descriptions, errors, and readings often carry long URLs, stacks, and spaceless paths: the whole section breaks in place with
-   `overflow-wrap:anywhere` (the property inherits, so inline descriptions, Help, and readings follow), without stretching cards into horizontal scroll. */
-export function Section({ title, icon, id, aside, onSubmit, children }: SectionProps) {
+/* 分区里的说明、报错与读数常带长 URL、堆栈和无空格路径：整个分区按 `overflow-wrap:anywhere`
+   就地折断（属性会继承，行内说明、Help 与读数都跟着走），不把卡片撑出横向滚动。 */
+export function Section({ title, guide, icon, id, aside, onSubmit, children }: SectionProps) {
   const label = icon ? <span className="inline-flex items-center gap-1.5">{icon}{title}</span> : title;
   const body = (
     <>
@@ -36,12 +39,13 @@ export function Section({ title, icon, id, aside, onSubmit, children }: SectionP
             <div className="flex min-w-0 max-w-full">{aside}</div>
           </div>
         : <SettingsSectionLabel>{label}</SettingsSectionLabel>}
+      {guide ? <GuideHelp section={guide} /> : null}
       <SettingsCard>{children}</SettingsCard>
     </>
   );
   return onSubmit
-    ? <form id={id} aria-label={title} noValidate onSubmit={onSubmit} className="flex w-full flex-col gap-2 wrap-anywhere">{body}</form>
-    : <section id={id} aria-label={title} className="flex w-full flex-col gap-2 wrap-anywhere">{body}</section>;
+    ? <form id={id} data-guide-target={guide} aria-label={title} noValidate onSubmit={onSubmit} className="flex w-full flex-col gap-2 wrap-anywhere">{body}</form>
+    : <section id={id} data-guide-target={guide} aria-label={title} className="flex w-full flex-col gap-2 wrap-anywhere">{body}</section>;
 }
 
 /** Settings row groups: rows draw their own dividers inside, and shared styles fill the boundaries between neighboring groups. */

@@ -246,8 +246,12 @@ export interface ReleaseState {
   message: string;
   release_url: string;
   checked_at?: number;
-  package_kind?: 'update' | 'full';
+  /** `installer` 是 macOS 的 DMG：没有应用内安装，下载后手动替换。 */
+  package_kind?: 'update' | 'full' | 'installer';
+  asset_url?: string;
   asset_size?: number;
+  /** 能在页面里下载并重启安装；只有 Windows 独立包是 true。 */
+  in_app_update?: boolean;
 }
 
 export interface UpdateJob {
@@ -470,7 +474,8 @@ export type DataCleanupSection = 'review' | 'quality' | 'duplicates' | 'ads' | '
 
 /** Capabilities the data management page still gets from the legacy layer: receipts and pagination. */
 export interface DataCleanupProps {
-  /** Action receipt (legacy `actionReceipt`). `warning` means finished but partly worth attention, and plays the warning sound effect. */
+  navigate(path: string): void;
+  /** 操作回执（遗留层 `actionReceipt`）。`warning` 是做完了但有一部分要留意，走警告音效。 */
   toast(message: string, options?: { warning?: boolean }): void;
   /** Failure receipt (legacy layer `actionFailure`): `action` is the thing that failed. */
   failure(action: string, error: unknown): void;

@@ -140,7 +140,7 @@ it('Opens on attach: it reports the page change first, the skeleton shares the c
   expect(stats.textContent).toContain('Update check');
 });
 
-it('An unclaimed address write is one open: claimed address writes do not reopen, and writing the same path unclaimed again refetches and remounts', async () => {
+it('认领的写地址不重开，返回已访问地址重挂时使用缓存', async () => {
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
   const api = serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } });
@@ -153,8 +153,8 @@ it('An unclaimed address write is one open: claimed address writes do not reopen
   expect([api.calls('/api/tasks'), painted(stats)]).toEqual([1, page]);
   const length = window.history.length;
   await act(async () => { r.peachHistory.push('/tasks') });
-  await until(() => painted(stats) !== null && painted(stats) !== page, 'Drawn after remount');
-  expect(api.calls('/api/tasks')).toBe(2);
+  await until(() => painted(stats) !== null && painted(stats) !== page, '重挂之后再画上');
+  expect(api.calls('/api/tasks')).toBe(1);
   expect(r.managedEntry(stats)?.revision).not.toBe(revision);
   expect(window.history.length - length).toBe(1);
 });
@@ -193,11 +193,11 @@ it('On back landing on a detail overlaying this page, when it was mounted (other
   await settle();
   expect([painted(stats), api.calls('/api/tasks')], 'Mounted under details without opening').toEqual([null, 1]);
   await act(async () => { r.shellNavigate('/tasks') });
-  await until(() => painted(stats) !== null, 'Drawn after closing details');
-  expect(api.calls('/api/tasks')).toBe(2);
+  await until(() => painted(stats) !== null, '关掉详情后画上');
+  expect(api.calls('/api/tasks')).toBe(1);
 });
 
-it('If it is still visible over `#stats` when navigating away, collapse it; the collapse is queued after the commit and does not warn about synchronous commit; if the shell hid it, leave it as is', async () => {
+it('走开时保留管理区宿主供目标页面切换，提交阶段没有同步提交告警', async () => {
   const errors = vi.spyOn(console, 'error');
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
@@ -206,7 +206,8 @@ it('If it is still visible over `#stats` when navigating away, collapse it; the 
   await until(() => painted(stats) !== null, 'Painted');
   await act(async () => { r.shellNavigate('/') });
   await settle();
-  expect([stats.querySelector('.peach-react'), r.managedEntry(stats)]).toEqual([null, null]);
+  expect(stats.querySelector('.peach-react')).not.toBeNull();
+  expect(r.managedEntry(stats)?.path).toBe('/tasks');
   expect(errors).not.toHaveBeenCalled();
 
   await act(async () => { r.peachHistory.push('/tasks') });
@@ -250,16 +251,16 @@ it('Opening the taste page clears catalog filters and the search box, and the on
   expect(r.shell.cameFromSetup).toBe(false);
 });
 
-it('The legacy deep link `/resource-sync` rewrites to the data management page anchor with no history entry, opened by the element on the data management page', async () => {
+it('旧直达地址 `/resource-sync` 改写成资源同步工具页，不加历史条目', async () => {
   const r = await load('/resource-sync');
   surface(r, '/resource-sync');
   serve({});
   const length = window.history.length;
   const { actions } = await boot(r);
-  await until(() => location.pathname === '/data-cleanup', 'Rewritten to data management');
-  await until(() => vi.mocked(actions.surfaceChanged).mock.calls.length > 0, 'Data management page opens');
-  expect([location.hash, window.history.length - length]).toEqual(['#resource-sync', 0]);
-  expect(vi.mocked(actions.surfaceChanged).mock.calls).toEqual([['management', '/data-cleanup']]);
+  await until(() => location.pathname === '/data-cleanup/resource-sync', '改写到资源同步');
+  await until(() => vi.mocked(actions.surfaceChanged).mock.calls.length > 0, '数据管理页打开');
+  expect([location.hash, window.history.length - length]).toEqual(['', 0]);
+  expect(vi.mocked(actions.surfaceChanged).mock.calls).toEqual([['management', '/data-cleanup/resource-sync']]);
 });
 
 it('The configuration page enters with `#libraryProcessing`: once painted it rewrites to the data management block with no history entry', async () => {

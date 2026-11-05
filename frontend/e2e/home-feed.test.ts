@@ -1,5 +1,4 @@
-/* The home new-releases row (`feed-new` island): the two keys on the card, collapsing the block when done, and refetching on
- * filter and compilation switch changes.
+/* 首页那一行新作（`feed-new` 岛）：卡上两颗键、收完整块藏起、换筛选保留、合集开关改了重取。
  *
  * Where the skeleton appears and on which pages is in `home-loading.test.ts` and `smoke.test.ts`; cover framing in
  * `feed-cover.test.ts`; the profile page's row shares this component, with fetching and "just subscribed, wait for the round
@@ -81,7 +80,7 @@ describe('Home\'s new releases row', () => {
     }
   });
 
-  it('Changing a filter on the catalog page refetches once without relaying out; changing the compilation switch in settings also refetches once', { timeout: 60_000 }, async () => {
+  it('在目录页里换筛选保留新作与宿主；设置里改了合集开关重取一次', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     const { page, feed, server } = opened;
     try {
@@ -92,10 +91,11 @@ describe('Home\'s new releases row', () => {
         history.pushState({}, '', '/?state=fresh');
         window.dispatchEvent(new PopStateEvent('popstate'));
       });
-      await until(page, () => feed.reads.length === booted + 1,
-        `Changing the filter should refetch once, got ${feed.reads.length - booted}`);
-      await page.locator('#feedNew [data-feed-id="3"]').waitFor({ timeout: 5_000 });
-      assert.equal(await page.locator('#feedNew .feednewskeleton').count(), 0, 'No skeleton should be laid again while already on the catalog page');
+      await settle(page);
+      assert.equal(feed.reads.length, booted, '目录筛选不改变新作范围');
+      assert.deepEqual(await page.locator('#feedNew [data-feed-id]').evaluateAll(nodes =>
+        nodes.map(node => node.getAttribute('data-feed-id'))), ['1', '2']);
+      assert.equal(await page.locator('#feedNew .feednewskeleton').count(), 0, '同在目录页里不该再铺骨架');
       assert.equal(await host!.evaluate((node) => node.isConnected && node.id === 'feedNew'), true);
 
       feed.items = [4];
@@ -104,9 +104,9 @@ describe('Home\'s new releases row', () => {
       const was = await toggle.isChecked();
       await toggle.click();
       await until(page, () => server.posts.some((post) => post.path === '/api/settings'
-        && post.body.feedHideGroupCompilations === !was), 'The compilation switch never wrote back to the server');
-      await until(page, () => feed.reads.length === booted + 2,
-        `Changing the compilation switch should refetch once, but it ran ${feed.reads.length - booted - 1} times`);
+        && post.body.feedHideGroupCompilations === !was), '合集开关没有写回服务端');
+      await until(page, () => feed.reads.length === booted + 1,
+        `改了合集开关应重取一次，实际 ${feed.reads.length - booted} 次`);
       await page.locator('#feedNew [data-feed-id="4"]').waitFor({ state: 'attached', timeout: 5_000 });
       assert.equal(await page.locator('#feedNew [data-feed-id]').count(), 1);
       assert.deepEqual(opened.problems, []);

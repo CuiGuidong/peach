@@ -11,7 +11,7 @@ describe('Organize directory scope', () => {
 
   it('The path sits right of the source on desktop, wraps on phones, and long paths never widen the page', { timeout: 60_000 }, async () => {
     for (const viewport of [DESKTOP, MOBILE]) {
-      const opened = await visit(browser, '/data-cleanup', viewport);
+      const opened = await visit(browser, '/data-cleanup/organize', viewport);
       try {
         const page = opened.page;
         await page.route('**/api/organize', (route) => route.fulfill({ json: {

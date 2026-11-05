@@ -263,7 +263,7 @@ describe('Design decision: config controls', () => {
       } finally { await opened.close(); }
     });
 
-    it(`The media state is centered, secondary actions and save are hierarchical, and the install guide is one line (${viewport.name})`, { timeout: 60_000 }, async () => {
+    it(`媒体状态居中，辅助动作与保存有层级，新手教程入口可见（${viewport.name}）`, { timeout: 60_000 }, async () => {
       const opened = await visit(browser, '/settings/library', viewport);
       try {
         const page = opened.page;
@@ -284,15 +284,15 @@ describe('Design decision: config controls', () => {
           return Math.abs(input.top + input.height / 2 - status.top - status.height / 2);
         }));
         assert.equal(centers.length, 3);
-        for (const delta of centers) assert.ok(delta <= 1, `The status is ${delta}px off the input centerline`);
-        const media = page.getByRole('form', { name: 'Library and catalog', exact: true });
-        assert.notEqual(await media.getByRole('button', { name: 'Add library', exact: true }).evaluate((node) => getComputedStyle(node).backgroundImage),
-          await media.getByRole('button', { name: 'Save configuration', exact: true }).evaluate((node) => getComputedStyle(node).backgroundImage));
-        await page.getByRole('tab', { name: 'App and maintenance', exact: true }).click();
-        const tutorial = page.getByRole('region', { name: 'Setup guide', exact: true });
+        for (const delta of centers) assert.ok(delta <= 1, `状态偏离输入框中线 ${delta}px`);
+        const media = page.getByRole('form', { name: '媒体库与目录', exact: true });
+        assert.notEqual(await media.getByRole('button', { name: '添加媒体库', exact: true }).evaluate((node) => getComputedStyle(node).backgroundImage),
+          await media.getByRole('button', { name: '保存配置', exact: true }).evaluate((node) => getComputedStyle(node).backgroundImage));
+        await page.getByRole('tab', { name: '应用与维护', exact: true }).click();
+        const tutorial = page.getByRole('region', { name: '新手教程', exact: true });
         await tutorial.waitFor();
         const aligned = await tutorial.evaluate((node) => {
-          const label = [...node.querySelectorAll('p')].find((item) => item.textContent === 'Setup guide')!.getBoundingClientRect();
+          const label = [...node.querySelectorAll('p')].find((item) => item.textContent === '新手教程')!.parentElement!.getBoundingClientRect();
           const button = node.querySelector('button')!.getBoundingClientRect();
           return { delta: Math.abs(label.top + label.height / 2 - button.top - button.height / 2), gap: button.left - label.right };
         });

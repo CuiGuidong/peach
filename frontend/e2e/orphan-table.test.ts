@@ -9,10 +9,15 @@ describe('Orphan record tables', () => {
   let browser: Browser;
   before(async () => { browser = await launch(); await mkdir('../build/table-evidence', { recursive: true }); });
   after(async () => { await browser.close(); });
-  for (const viewport of VIEWPORTS) it(`${viewport.name}: in-panel title, shared pagination, and bulk actions after selection`, async () => {
-    const opened = await visit(browser, '/data-cleanup', viewport);
+  for (const viewport of VIEWPORTS) it(`${viewport.name}：面板内标题、共用分页与选中后的批量操作`, async () => {
+    const opened = await visit(browser, '/data-cleanup/links', viewport);
     const { page } = opened;
     try {
+      const surface = (node: Element) => {
+        const style = getComputedStyle(node);
+        return { shadow: style.boxShadow, border: style.border, radius: style.borderRadius };
+      };
+      const fieldsetFace = await page.locator('#link-manager section').evaluate(surface);
       const items = Array.from({ length: 23 }, (_, index) => ({
         id: index + 1, name: `Video ${23 - index} - a very long video name for testing truncation and the action area`,
         code: '', location: 'pikpak', duration: 600, size: 10, vanished_at: 100,
@@ -26,7 +31,7 @@ describe('Orphan record tables', () => {
         writes.push(route.request().postDataJSON());
         await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ ok: true, purged: 2, blocked: [] }) });
       });
-      await page.reload({ waitUntil: 'load' });
+      await page.goto(new URL('/data-cleanup/orphan-records', page.url()).href, { waitUntil: 'load' });
       const section = page.locator('#orphan-records');
       const table = page.getByRole('grid', { name: 'Videos with missing files', exact: true });
       await table.waitFor();
@@ -37,17 +42,8 @@ describe('Orphan record tables', () => {
         [node.getAttribute('data-key'), node.getBoundingClientRect().width])));
       assert.ok(widths.item! > widths.target! * 2, JSON.stringify(widths));
       assert.ok(widths.target! <= 144, JSON.stringify(widths));
-      const faces = await page.evaluate(() => {
-        const read = (node: Element) => {
-          const style = getComputedStyle(node);
-          return { shadow: style.boxShadow, border: style.border, radius: style.borderRadius };
-        };
-        return {
-          table: read(document.querySelector('#orphan-records [data-data-table-panel]')!),
-          fieldset: read(document.querySelector('#link-manager section')!),
-        };
-      });
-      assert.deepEqual(faces.table, faces.fieldset, 'Data surface panels and manage cards share one border and shadow treatment');
+      const tableFace = await page.locator('#orphan-records [data-data-table-panel]').evaluate(surface);
+      assert.deepEqual(tableFace, fieldsetFace, '数据表面板与管理卡片使用统一边线和阴影');
       const scroller = table.locator('..');
       assert.equal(await scroller.getAttribute('data-overlay-scrollbar'), 'true');
       if (viewport.mobile) {

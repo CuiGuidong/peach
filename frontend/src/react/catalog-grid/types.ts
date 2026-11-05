@@ -122,6 +122,8 @@ export interface CatalogGridProps {
   mode: 'catalog' | 'entity' | 'items';
   /** Standalone fullscreen playback wall. */
   wall?: boolean;
+  /** 历史返回时复用同一集合已经加载的分页。 */
+  restoreNavigation?: boolean;
   helpers: MediaCardHelpers;
   actions: MediaCardActions;
   layout: MediaCardLayout;

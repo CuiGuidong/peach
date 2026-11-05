@@ -112,10 +112,10 @@ export interface ShellActions {
 /** What the follows page element hands back to the shell on open. The filters copy is read from the address into the shell's own variables (used to write the address when returning to the follows page; the sidebar, tag
  *  drawer, and follows details read it too), and the selection sets, photo wall preference, and the helpers and actions the page borrows also live in the shell; the entry skeleton and cold start lay the same one. */
 export interface FollowFeedShell {
-  /** Read the filters from the address. If the follows page is still painted in `#stats` (only hidden when the profile page covers it), expand it, pushing over
- *  the filters, sampling seed, and a new refresh generation; the photo wall follows and returns to the top, returning true; if not painted, return false and the element opens the whole page. */
-  refresh(): boolean;
-  /** The page-entry skeleton. */
+  /** 按地址读一遍筛选。关注页还画在 `#stats` 里（资料页压过来时只藏起来）就铺开它，把筛选、取样种子与一个新的
+   *  刷新代次推过去，照片墙跟上、回到顶上，回 true；没画着回 false，由元素整页打开。 */
+  refresh(restored?: Pick<FollowFeedProps, 'view' | 'seed' | 'revision'>): boolean;
+  /** 进页骨架。 */
   skeleton(): string;
   /** Props handed to the page on a full-page open: filters, the sampling seed and refresh epoch, the selection set, the photo wall preference, and the shell's own copy of helpers and actions. */
   props(): FollowFeedProps;
@@ -128,14 +128,14 @@ export interface FollowFeedShell {
 export interface CatalogShell {
   /** Sources used when the address carries no `loc`: the defaults minus whichever are off disk right now (the snapshot the shell records at startup and on re-detection). */
   defaultLoc(): string;
-  /** Open this page against the freshly written `state`: returning home from elsewhere (`entering`) first invalidates the top three layers' cache; trash clears the search box and expands the home
-   *  side; other pages align the search box to `state.q`; then sync sidebar and top bar, repaint the top three layers, and fetch the catalog. `retitle`: the address was just rewritten by an element,
-   *  so title and tutorial state are re-read along. */
-  open(path: string, options?: { entering?: boolean; retitle?: boolean }): void;
-  /** Filters and address are already written by the shell: refetch the catalog from them. */
-  load(): void;
-  /** Video details and queue URLs with no background (deep link, refresh) draw the catalog grid beneath: when the grid is unoccupied, and it is the startup entry or the catalog skeleton is still up,
-   *  fetch once by the current URL (not the home-page scope, no filters written). */
+  /** 按刚写好的 `state` 打开这一页：从别处回到首页（`entering`）先作废顶部三层的缓存；回收站清空搜索框并铺开首页
+   *  那一侧，其余页把搜索框对齐 `state.q`；再同步侧栏与顶栏、重画顶部三层、取目录。`retitle`：地址刚由元素改写，
+   *  标题与教程状态跟着重读。 */
+  open(path: string, options?: { entering?: boolean; retitle?: boolean }): void | Promise<void>;
+  /** 筛选与地址已经由壳写好：按它们重取目录。 */
+  load(): void | Promise<void>;
+  /** 没有背景的作品详情与队列地址（深链、刷新）下面补画目录网格：网格没被占着、又是启动那一条或还铺着目录骨架时，
+   *  按当前地址取一次（不是首页口径，不写筛选）。 */
   fill(): void;
   /** Leaving the catalog: collapse the `#grid` page and the home new releases row. */
   release(): void;
@@ -159,9 +159,10 @@ export interface EntityPageShell {
 /** A page's kind within the page group; the shell decides which side to lay by it (`surfaceChanged`). */
 export type SurfaceKind = 'management' | 'index' | 'entity' | 'catalog' | 'follow' | 'playlists';
 
-/** The values handed to the managed-area pages on each open, computed per page by the page element from the URL, preferences and shell state (`pages/managed.tsx`).
- *  The managed-area pages render into `#stats`. */
-export interface ManagedOpenProps extends Record<ConfigurationPath, { section?: string }> {
+/** 管理区那几页每次打开时交给页面的值，由页面元素从地址、偏好与壳的状态算（`pages/managed.tsx`），按页面分。
+ *  管理区那几页画进 `#stats`。 */
+export interface ManagedOpenProps extends Record<ConfigurationPath, { section?: string }>,
+  Record<import('../../cleanup-tools').CleanupToolPath, Record<string, never>> {
   '/jav': { tab: string; readOnly: boolean };
   '/stats': Record<string, never>;
   '/taste': { onboarding: boolean };

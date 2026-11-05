@@ -50,7 +50,7 @@ export interface SwiperInstance {
 }
 export type SwiperConstructor = new (el: HTMLElement, options: Record<string, unknown>) => SwiperInstance;
 
-const SWIPER = '/vendor/swiper/14.3.0/';
+const SWIPER = '/vendor/swiper/14.4.0/';
 let loader: Promise<SwiperConstructor> | null = null;
 
 /** Styles and script wait together: if the styles arrive a beat late, every slide paints at once as plain block elements. */

@@ -207,12 +207,16 @@ it('Follow element: when back lands on the follows page and the list has been co
   const r = await load('/follow');
   const stats = statsSurface();
   const calls = serve();
-  const scrolled = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+  let scrollTop = 0;
+  vi.spyOn(window, 'scrollY', 'get').mockImplementation(() => scrollTop);
+  const scrolled = vi.spyOn(window, 'scrollTo').mockImplementation((options: number | ScrollToOptions | undefined) => {
+    if (typeof options === 'object') scrollTop = options.top ?? scrollTop;
+  });
   const { actions } = shellActions(r);
   await boot(r, actions);
-  await until(() => page(stats) !== null, 'The full page painted');
-  r.shell.writeShell({ followScrollY: 640 });
-  // Navigating to another page: when that page claims the surface, it dismisses the follows page.
+  await until(() => page(stats) !== null, '整页画上');
+  scrollTop = 640;
+  // 去别的页面：那一页认领表面时收掉关注页。
   await act(async () => { r.shellNavigate('/immerse') });
   await settle();
   expect(r.managedEntry(stats)?.path, 'Page not collapsed on element unmount').toBe('/follow');
@@ -223,7 +227,8 @@ it('Follow element: when back lands on the follows page and the list has been co
   expect(opens(actions), 'The full page opens once').toBe(2);
   expect(calls('/api/follow'), 'Generation unchanged, list not refetched').toBe(1);
   expect(r.managedEntry(stats)?.props).toMatchObject({ revision: 0 });
-  expect(scrolled).toHaveBeenLastCalledWith({ top: 640, behavior: 'instant' });
+  await until(() => scrollTop === 640, '恢复历史阅读位置');
+  expect(scrolled).toHaveBeenLastCalledWith({ left: 0, top: 640, behavior: 'smooth' });
 });
 
 it('Follow element: entering details and closing back to the list are both shell-claimed address writes; the list neither remounts nor refetches', async () => {
@@ -289,6 +294,7 @@ it('Playlist element: opens full page by address; staying on this page and askin
   expect(r.managedEntry(stats)?.props).toEqual({ revision: 1 });
   expect(opens(actions)).toBe(1);
   await openRouted(r, '/playlists');
-  await until(() => calls('/api/playlists') === 3 && page(stats) !== null && page(stats) !== painted, 'The full page reopened');
-  expect(opens(actions), 'Clicking the sidebar again reopens the full page').toBe(2);
+  await until(() => page(stats) !== null && page(stats) !== painted, '整页重开');
+  expect(calls('/api/playlists'), '重回同一份列表复用缓存').toBe(2);
+  expect(opens(actions), '再点一次侧栏整页重开').toBe(2);
 });

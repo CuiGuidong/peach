@@ -205,12 +205,12 @@ it('Back only attaches when landing on details overlaid on the home page (other 
   await settle();
   await act(async () => { r.peachHistory.push('/stats') });
   await settle();
-  expect(log.slice(1)).toEqual(['release']);
+  expect(log.slice(1), '页面交给目标表面切换，目录宿主保留').toEqual([]);
   await pop('/assets/7', { usr: overlay, key: 'x', idx: 1 });
-  expect(log.slice(2), 'Does not open while pressed').toEqual([]);
+  expect(log.slice(1), '压着的时候不开').toEqual([]);
   await act(async () => { r.shellNavigate('/') });
   await settle();
-  expect(log.slice(2)).toEqual(['open /']);
+  expect(log.slice(1)).toEqual(['open /']);
 });
 
 it('On the index page, `?state=ads` is rewritten in place to the junk files address, opened full page by the junk files page which also fills in the title', async () => {
@@ -250,7 +250,7 @@ it('Back/forward re-reads unattributed from the address while origin carries ove
   expect(filters(r).owner).toBe('none');
 });
 
-it('Leaving the catalog for manage areas collapses the grid; profiles, details, and immersive never collapse it', async () => {
+it('离开目录保留网格宿主，由目标页面切换可见表面', async () => {
   const r = await load('/');
   const { actions } = shellActions();
   await boot(r, actions);
@@ -265,7 +265,7 @@ it('Leaving the catalog for manage areas collapses the grid; profiles, details, 
   await settle();
   await act(async () => { r.shellNavigate('/stats') });
   await settle();
-  expect(actions.catalog?.release).toHaveBeenCalledTimes(1);
+  expect(actions.catalog?.release).not.toHaveBeenCalled();
 });
 
 it('The sidebar keys and labels for the three filter states and junk files are exactly the `STATE_ROUTES` and `STATE_LABELS` entries', async () => {

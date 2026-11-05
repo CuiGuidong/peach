@@ -12,6 +12,8 @@ it('The three object kinds and queue-compatible addresses keep filters and playb
     expect(overlayTarget('/assets/22', `?${key}=21&t=42`)).toEqual({ kind: 'queue', queue: key, key: 21, item: 22 });
   }
   expect(canonicalPath('/api/item?id=12')).toBe('/api/item?id=12');
+  expect(canonicalPath('/data-cleanup?edit#resource-sync')).toBe('/data-cleanup/resource-sync?edit');
+  expect(canonicalPath('/data-cleanup#libraryProcessing')).toBe('/data-cleanup#libraryProcessing');
   for (const [source, target] of [['activity', 'tasks'], ['scraping', 'sources'],
     ['follow-manage', 'subscriptions'], ['configuration', 'settings/library'], ['diagnostics', 'settings/diagnostics']]) {
     expect(canonicalPath(`/${source}?tab=x`)).toBe(`/${target}?tab=x`);

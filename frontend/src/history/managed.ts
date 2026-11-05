@@ -21,15 +21,15 @@
  * names (`search`, `batch-dock`); the two never overlap, and the route tree looks the same group of tables up by key
  * (`react/router/managed-routes.tsx`).
  *
- * One open: after the shell lays the skeleton it calls `openManagedRoute`; this first tears down the previous page in the same
- * container, then fetches the first screen; once fetched and the shell is still on this page, the skeleton is swapped for the
- * host in the same task and the route tree renders the full page in sync. When the route tree is not connected yet, opening
- * waits for it before fetching (the search dropdown opens during the shell's module evaluation, before `loadRouter`). Every open
- * takes a new generation; pages remount and refetch by generation. After opening, the shell's toggles (selection mode, filter
- * change, layout change) merge into the same page's props via `updateManagedRoute`: generation unchanged, the page re-renders
- * in place without remounting or refetching. */
+ * 一次打开：壳铺好骨架后调 `openManagedRoute`，这里保留同一容器里的上一页并取首屏；取齐、壳也还停在
+ * 这一页时，在同一个任务里换掉骨架、放进宿主，再让路由树同步画出整页。路由树还没接上时，打开先等它接上
+ * 再取数（搜索下拉在壳的模块求值时就打开，早于 `loadRouter`）。每次打开都领一个新代次，页面按代次重挂、
+ * 重取。打开之后壳的开关（选择模式、换筛选、换版式）经 `updateManagedRoute` 合进同一页的 props：代次不变，
+ * 页面就地重渲染，不重挂也不重取。 */
 
-/** The page (or panel) rendered inside some container. `host` is the `.peach-react` host the page portals into. */
+import { rememberPageState, restoredPageState } from './page-navigation';
+
+/** 画在某个容器里的那一页（或一面）。`host` 是页面 portal 进去的那个 `.peach-react` 宿主。 */
 export interface ManagedEntry {
   /** The registration key: the page's path, or a component's name within the page. */
   path: string;
@@ -50,11 +50,13 @@ export interface ManagedOpenOptions {
   container: Element;
   /** The shell's page-change rule: if the user walked away during the fetch, do not render. */
   isCurrent: () => boolean;
-  /** The frame the shell lays itself: at the moment the first screen is fetched it swaps the frame into the container and
- *  returns the host the page renders into. When not given, it empties the container and puts in a new `.peach-react`. The
- *  profile page needs this: the overlay's stickiness requires its parent box to be `#index`, and the new-releases row is a
- *  legacy-layer card outside `.peach-react`, so the shell lays the frame's four blocks and the page takes one, portaling into
- *  the other three. */
+  /** 首屏已取齐，和内容提交在同一任务里切换壳的可见面。 */
+  beforePlace?: () => void;
+  /** 同类页面复用宿主与组件，只更新属性。 */
+  reuse?: boolean;
+  /** 壳自己排好的框架：取齐首屏的那一刻由它把框架换进容器，返回页面画进去的宿主。不给就清空容器、
+   *  放进一个新的 `.peach-react`。资料页要这个：浮层吸顶要它的父盒就是 `#index`，新作那一行是遗留层
+   *  卡片、不进 `.peach-react`，所以框架的四块由壳排，页面只占其中一块，再经 portal 画进另外三块。 */
   place?: (container: Element) => HTMLElement;
   /** Resident components (the ones opened via `openResidentSurface`): the host belongs to the shell; on collapse or throw only the component unmounts and the host stays. */
   resident?: boolean;
@@ -112,8 +114,16 @@ function notify(sync: boolean): void {
 /** Open a page and wait for its first screen to land. Returns true once painted; false if it was collapsed, reopened, or the shell switched pages meanwhile. */
 export async function openManagedRoute(path: string, props: object, options: ManagedOpenOptions): Promise<boolean> {
   const { container } = options;
-  releaseManagedRoute(container);
+  pending.get(container)?.controller.abort();
+  pending.delete(container);
   if (!options.isCurrent()) return false;
+  const previous = entries.get(container);
+  if (options.reuse && previous?.host.isConnected) {
+    entries.set(container, { ...previous, path, props });
+    notify(true);
+    if (path.startsWith('/')) rememberPageState(`managed:${path}`, true);
+    return true;
+  }
   revision += 1;
   const mine: Pending = { revision, controller: new AbortController() };
   pending.set(container, mine);
@@ -123,7 +133,9 @@ export async function openManagedRoute(path: string, props: object, options: Man
   const prefetch = await prefetcher;
   if (pending.get(container) !== mine) return false;
   try {
-    await prefetch(path, props, mine.controller.signal);
+    if (!path.startsWith('/') || !restoredPageState<boolean>(`managed:${path}`)) {
+      await prefetch(path, props, mine.controller.signal);
+    }
   } catch {
     // Aborting means the user has walked away. Other failures render as usual: the reason and retry cadence stay in the page's hands.
     if (mine.controller.signal.aborted) return false;
@@ -131,9 +143,12 @@ export async function openManagedRoute(path: string, props: object, options: Man
   if (pending.get(container) !== mine) return false;
   pending.delete(container);
   if (!options.isCurrent()) return false;
+  options.beforePlace?.();
+  releaseManagedRoute(container);
   const host = options.place ? options.place(container) : defaultHost(container);
   entries.set(container, { path, props, revision: mine.revision, container, host, resident: !!options.resident });
   notify(true);
+  if (path.startsWith('/')) rememberPageState(`managed:${path}`, true);
   return true;
 }
 
@@ -161,8 +176,7 @@ export function openResidentSurface(
 function defaultHost(container: Element): HTMLElement {
   const host = container.ownerDocument.createElement('div');
   host.className = 'peach-react';
-  container.textContent = '';
-  container.append(host);
+  container.replaceChildren(host);
   return host;
 }
 

@@ -15,7 +15,6 @@ import { apiGet } from '../../api';
 import { javImageKind } from '../../jav-artwork';
 import type { CatalogGridProps, MediaItem, MediaPage } from './types';
 import { queryClient } from '../query';
-import { catalogView } from './catalog-view';
 
 /** How many images go in one portrait strip. */
 export const SHORTS_BATCH = 18;
@@ -96,21 +95,12 @@ export function entityQuery(props: CatalogGridProps) {
   };
 }
 
-/** First-screen fetching (the catalog grid route's `prefetch`). Only the catalog waits: the profile page's video area first page comes in with the profile page,
- *  and lands in the cache by itself when the grid mounts (`initialData`). */
-export async function prefetchCatalogGrid(props: CatalogGridProps, signal: AbortSignal): Promise<void> {
-  if (props.mode !== 'catalog' || props.wall || catalogView() === 'list') return;
-  const query = catalogQuery(props);
-  await queryClient.fetchInfiniteQuery({
-    ...query, queryFn: ({ pageParam }) => query.queryFn({ pageParam: pageParam as number, signal }),
-  });
-}
-
-/** Pagination of the same collection lives in the Query; between refresh epochs the whole pagination is claimed, without copying videos into UI state. */
+/** 同一集合的分页保存在 Query 中；刷新代次之间认领整份分页，不复制作品到界面状态。 */
 export function latestCatalogPages(key: QueryKey): InfiniteData<GridPage, number> | undefined {
   const exact = JSON.stringify(key);
   const cached = queryClient.getQueryCache().findAll({ queryKey: key.slice(0, -1) })
-    .filter(query => JSON.stringify(query.queryKey) !== exact && Array.isArray((query.state.data as InfiniteData<GridPage> | undefined)?.pages))
+    .filter(query => JSON.stringify(query.queryKey) !== exact && !query.state.isInvalidated
+      && Array.isArray((query.state.data as InfiniteData<GridPage> | undefined)?.pages))
     .sort((a, b) => b.state.dataUpdatedAt - a.state.dataUpdatedAt)[0];
   return cached?.state.data as InfiniteData<GridPage, number> | undefined;
 }
@@ -227,6 +217,12 @@ export function replaceCatalogItem(id: number, patch: Partial<MediaItem>): void 
 
 /** Same as above, but swapping every card `match` recognizes: several segments and several editions of one code share the same cover. */
 export function patchCatalogItems(match: (item: MediaItem) => boolean, patch: Partial<MediaItem>): void {
+  queryClient.setQueriesData<{ cuts: ShortsCut[] }>({ queryKey: ['catalog-short-layout'] }, data => {
+    if (!data || !data.cuts.some(cut => cut.items.some(match))) return data;
+    return { ...data, cuts: data.cuts.map(cut => ({ ...cut,
+      items: cut.items.map(item => match(item) ? { ...item, ...patch } : item),
+    })) };
+  });
   queryClient.setQueriesData<MediaPage>({ queryKey: ['catalog-grid', 'table'] }, data => {
     if (!data?.items.some(match)) return data;
     return { ...data, items: data.items.map(item => match(item) ? { ...item, ...patch } : item) };

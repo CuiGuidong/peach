@@ -68,7 +68,7 @@ async function openHome(browser: Browser, path = '/', viewport = DESKTOP): Promi
   await page.route((url) => url.pathname === '/api/items', (route) => {
     const url = new URL(route.request().url());
     if (!url.searchParams.has('orient') && url.searchParams.get('limit') !== '1') counts.items.push(url);
-    const ids = url.searchParams.get('tag') ? CATALOG.slice(0, 3) : CATALOG;
+    const ids = url.searchParams.get('tag') || url.searchParams.get('owner') === 'none' ? CATALOG.slice(0, 3) : CATALOG;
     return route.fulfill({ json: {
       items: ids.map((id) => ({ id, name: `sample_${id}.mp4`, title: `Demo video ${id}`, is_jav: false, medium: 'video',
         location: 'local', has_thumb: true, duration: 3600, studio: 'Peach Studio', performers: [], tags: [] })),
@@ -94,7 +94,31 @@ describe('Home filter bar', () => {
   before(async () => { browser = await launch(); });
   after(async () => { await browser?.close(); });
 
-  it('With few filters, they and the right-side actions share a row or wrap by container width', { timeout: 60_000 }, async () => {
+  it('JAV 读数尚未返回时保持两行骨架，内容就绪后再决定合行', { timeout: 60_000 }, async () => {
+    const opened = await openHome(browser, '/?jav=1');
+    const { page } = opened;
+    let release!: () => void;
+    const waiting = new Promise<void>(resolve => { release = resolve });
+    try {
+      await page.route((url) => url.pathname === '/api/facets', async route => {
+        const response = await route.fetch();
+        await route.fulfill({ json: { ...await response.json(), tags: TAGS.slice(0, 1) } });
+      });
+      await page.route((url) => url.pathname === '/api/items', async route => { await waiting; await route.fallback() });
+      await page.setViewportSize({ width: 1920, height: 900 });
+      await page.reload();
+      const frame = page.locator(`${FILTER} [data-catalog-frame]`);
+      await frame.locator('[data-catalog-tag]').first().waitFor();
+      assert.equal(await frame.getAttribute('data-single-row'), null);
+      assert.equal(await frame.evaluate(node => node.getBoundingClientRect().height), 96);
+      release();
+      await page.locator(READOUT, { hasText: '个符合' }).waitFor();
+      await page.locator(`${FILTER} [data-catalog-frame][data-single-row]`).waitFor();
+      assert.deepEqual(opened.problems, []);
+    } finally { release(); await opened.close() }
+  });
+
+  it('少量筛选项与右侧操作按容器宽度同行或分行', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     const { page } = opened;
     try {
@@ -293,6 +317,7 @@ describe('Home filter bar', () => {
     try {
       const { page, counts } = opened;
       const before = counts.items.length;
+      const homeIds = await page.locator('#grid [data-media-card]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id')));
       if (viewport.mobile) await page.locator('#filterBtn').click();
       await page.locator('button[data-nav="jav"]:visible').first().click();
       await page.waitForFunction(() => location.pathname === '/' && new URLSearchParams(location.search).get('jav') === '1');
@@ -335,14 +360,17 @@ describe('Home filter bar', () => {
       await page.locator('#grid [data-media-card]').first().waitFor();
       assert.equal(await page.locator(`${FILTER} input[name="jav-layout"][value="big"]`).isChecked(), true);
       const box = await layout(page);
-      assert.ok(box.scrollWidth <= box.viewportWidth, 'The JAV page overflows horizontally');
+      assert.ok(box.scrollWidth <= box.viewportWidth, 'JAV 页面横向溢出');
+      await settle(page);
+      const beforeHome = counts.items.length;
       if (viewport.mobile) await page.locator('#filterBtn').click();
       await page.locator('button[data-nav=""]:visible').first().click();
       await page.waitForFunction(() => location.pathname === '/' && !new URLSearchParams(location.search).has('jav'));
       await page.locator(`${FILTER} input[name="home-layout"]`).first().waitFor({ state: 'attached' });
       await page.locator(READOUT, { hasText: 'matches' }).waitFor();
       await settle(page);
-      assert.notEqual(counts.items.at(-1)?.searchParams.get('jav'), '1');
+      assert.equal(counts.items.length, beforeHome, '返回首页沿用原来的目录缓存');
+      assert.deepEqual(await page.locator('#grid [data-media-card]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id'))), homeIds);
       assert.equal(await page.locator('#javLibraryHeader').isVisible(), false);
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
@@ -351,23 +379,31 @@ describe('Home filter bar', () => {
   });
   }
 
-  it('Unattributed follows the address: the sidebar home fetches for the whole library, and going back to an address carrying it fetches by it', { timeout: 60_000 }, async () => {
+  it('未归属随首页位置保留，撤掉筛选后取全库，后退恢复未归属缓存', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser, '/?owner=none');
     try {
       const { page, counts } = opened;
       assert.equal(counts.items.at(-1)?.searchParams.get('owner'), 'none', 'The address\'s unattributed never entered the list request');
       let before = counts.items.length;
+      const mainCards = page.locator('#grid [data-media-grid] > [data-media-card]');
+      const filteredIds = await mainCards.evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id')));
       await page.locator('[data-nav=""]:visible').first().click();
-      await page.waitForFunction(() => location.pathname === '/' && !location.search);
-      await until(() => counts.items.length > before, 'The list is not refetched after returning home');
       await settle(page);
-      assert.equal(counts.items.at(-1)?.searchParams.has('owner'), false, 'After returning home the unassigned entries are still there');
+      assert.equal(new URL(page.url()).searchParams.get('owner'), 'none');
+      assert.equal(counts.items.length, before, '点击当前栏目保留筛选');
+      await chips(page).filter({ hasText: '未归属' }).getByRole('button').click();
+      await page.waitForFunction(() => !new URLSearchParams(location.search).has('owner'));
+      await until(() => counts.items.length > before, '撤掉未归属之后没有重取列表');
+      await settle(page);
+      assert.equal(counts.items.at(-1)?.searchParams.has('owner'), false);
+      assert.equal(await mainCards.count(), CATALOG.length);
       before = counts.items.length;
       await page.goBack();
       await page.waitForFunction(() => new URLSearchParams(location.search).get('owner') === 'none');
-      await until(() => counts.items.length > before, 'Going back never refetched the list');
       await settle(page);
-      assert.equal(counts.items.at(-1)?.searchParams.get('owner'), 'none', 'Coming back never fetched unattributed per the address');
+      assert.equal(counts.items.length, before, '后退恢复已取得的未归属结果');
+      assert.equal(await chips(page).filter({ hasText: '未归属' }).count(), 1);
+      assert.deepEqual(await mainCards.evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id'))), filteredIds);
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
       await opened.close();

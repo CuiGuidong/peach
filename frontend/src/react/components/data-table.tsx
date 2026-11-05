@@ -46,13 +46,14 @@ interface DataTableProps<T> {
   titleId?: string;
   description?: ReactNode;
   footerActions?: ReactNode;
+  toolbarActions?: ReactNode;
   panel?: boolean;
   unit?: string;
 }
 
 /** The data table shares sorting, cross-page selection and pagination; business actions receive only selected rows still in the list. */
 export function DataTable<T extends RowData>({ label, items, columns, rowId, rowLabel, selected, onSelected, actions,
-  title = label, titleId, description, footerActions, panel = true, unit = 'records' }: DataTableProps<T>) {
+  title = label, titleId, description, footerActions, toolbarActions, panel = true, unit = '条记录' }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const preferenceColumns = useMemo(() => [
     { id: 'select', label: 'Select', width: 48, min: 48, max: 48, required: true },
@@ -110,6 +111,7 @@ export function DataTable<T extends RowData>({ label, items, columns, rowId, row
         </span>
         </div>
         <div data-toolbar-actions="">
+        {toolbarActions}
         <TableColumnControls preferences={preferences} label={label} />
         <DataTableSort label={label} options={columns.filter((column) => column.value).map((column) => ({ id: column.id, label: column.label }))}
           sorting={sorting} onChange={(next) => { setSorting(next); setPagination((now) => ({ ...now, pageIndex: 0 })); }} />

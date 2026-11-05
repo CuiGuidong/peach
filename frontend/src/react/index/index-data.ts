@@ -211,16 +211,15 @@ export function indexQuery(source: IndexSource, pageSize: number = PAGE_SIZE.tag
   }
 }
 
-/** First screen: fetch page one before the legacy shell mounts. Every entry starts from page one: if the cache holds several pages from last time,
- *  `fetchInfiniteQuery` refetches each of those pages one by one before returning, so first paint waits several round trips instead of one. */
+/** 首屏在页面提交前预取，已访问的集合沿用同一标签页里的分页。 */
 export async function prefetchIndex(props: IndexRoute, signal: AbortSignal) {
   const query = indexQuery(indexSource(indexRoute(props)));
-  queryClient.removeQueries({ queryKey: query.queryKey, exact: true });
   await queryClient.fetchInfiniteQuery({
     queryKey: query.queryKey,
     queryFn: ({ pageParam }) => query.queryFn({ pageParam: pageParam as number, signal }),
     initialPageParam: 0,
     getNextPageParam: query.getNextPageParam,
+    staleTime: Infinity,
   });
 }
 

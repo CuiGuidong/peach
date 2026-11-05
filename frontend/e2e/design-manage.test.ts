@@ -5,7 +5,7 @@ import type { Browser, Page } from 'playwright-core';
 import { layout, settle, visit } from './harness.ts';
 import {
   DESKTOP, MOBILE, tokenColor, openDuplicates, openIndexPage, openPlaylistsPage, openFollowManage, holdApi,
-  controlFaces, openPerformer, PROFILED, openProfiledPerformer, popmenuShadow, heroGeometry, disabledTokens,
+  openPerformer, PROFILED, openProfiledPerformer, popmenuShadow, heroGeometry, disabledTokens,
   waitingActionFaces, assertDisabledFace, followTab, followSource, installDesignBrowser,
 } from './design-fixture.ts';
 
@@ -65,125 +65,90 @@ describe('Design decisions: data management, index page, and profile headers', (
     }
   });
 
-  for (const viewport of [DESKTOP, MOBILE]) {
-    it(`The data management skeleton and content card share the outer frame, padding and action area layout (${viewport.name})`, { timeout: 60_000 }, async () => {
-      const opened = await visit(browser, '/data-cleanup', viewport);
+  const cleanupCards = [
+    { path: '/data-cleanup', label: '扫描与采集', skeleton: 'cleanup', names: ['同步新增文件', '更多同步方式'] },
+    { path: '/data-cleanup/media-repair', label: '媒体修复', skeleton: 'cleanup/media-repair', names: ['开始修复'] },
+  ];
+  for (const viewport of [DESKTOP, MOBILE]) for (const item of cleanupCards) {
+    it(`${item.label}骨架与内容卡共用外框、内边距和操作区布局（${viewport.name}）`, { timeout: 60_000 }, async () => {
+      const opened = await visit(browser, item.path, viewport);
       try {
         const page = opened.page;
         await page.route('**/api/library-processing', route => route.fulfill({ json: { status: 'idle' } }));
         const release = await holdApi(page);
         await page.reload({ waitUntil: 'load' });
-        await page.locator('[data-skeleton="cleanup"] #mediaRepair footer').waitFor({ timeout: 15_000 });
-        const geometry = () => page.locator('section[aria-label="Scan and scrape"], section[aria-label="Media repair"]')
-          .evaluateAll(cards => cards.map(card => {
-            const style = (part: Element) => {
-              const css = getComputedStyle(part);
-              return [css.display, css.padding, css.gap, css.borderTopWidth, css.borderRadius, css.backgroundColor];
-            };
-            const box = card.getBoundingClientRect();
-            return { width: Math.round(box.width), face: style(card), body: style(card.firstElementChild!),
-              footer: style(card.querySelector('footer')!) };
-          }));
+        const card = `section[aria-label="${item.label}"]`;
+        await page.locator(`[data-skeleton="${item.skeleton}"] ${card} footer`).waitFor({ timeout: 15_000 });
+        const geometry = () => page.locator(card).evaluateAll(cards => cards.map(card => {
+          const style = (part: Element) => {
+            const css = getComputedStyle(part);
+            return [css.display, css.padding, css.gap, css.borderTopWidth, css.borderRadius, css.backgroundColor];
+          };
+          return { width: Math.round(card.getBoundingClientRect().width), face: style(card),
+            body: style(card.firstElementChild!), footer: style(card.querySelector('footer')!) };
+        }));
         const waiting = await geometry();
-        assert.equal(waiting.length, 2);
-        for (const card of waiting) assert.equal(card.face[3], '1px', 'The skeleton card lacks its outer frame');
+        assert.equal(waiting.length, 1);
+        assert.equal(waiting[0]!.face[3], '1px', '骨架卡缺少外框');
+        const expected = await disabledTokens(page);
+        const faces = await waitingActionFaces(page, `[data-skeleton="${item.skeleton}"] [data-skeleton-action]`);
+        assert.deepEqual(faces.map(face => face.name).filter(Boolean), item.names);
+        for (const face of faces) assertDisabledFace(face, expected);
+        const buttons = page.locator(`${card} footer button`).filter({ hasText: /同步新增文件|开始修复/ }).or(
+          page.locator(`${card} footer button[aria-label="更多同步方式"]`));
+        const sizes = await buttons.evaluateAll(nodes => nodes.map(node => {
+          const box = node.getBoundingClientRect();
+          return [box.width, box.height];
+        }));
+        if (item.skeleton === 'cleanup') {
+          const ring = await page.locator(`${card} [data-split-button]`).evaluate(node => getComputedStyle(node).boxShadow);
+          assert.ok(ring.includes(expected.ring), `骨架分体键外圈不是禁用描边：${ring}`);
+        }
         release();
-        await page.locator('section[aria-label="Media repair"] footer > button:not([data-skeleton-action])')
-          .waitFor({ timeout: 15_000 });
+        await page.locator(`${card} footer button:not([data-skeleton-action])`).first().waitFor({ timeout: 15_000 });
         await settle(page);
-        assert.deepEqual(await geometry(), waiting, 'The skeleton and content card container layouts disagree');
-      } finally {
-        await opened.close();
-      }
+        assert.deepEqual(await geometry(), waiting, '骨架与内容卡的容器布局不一致');
+        assert.deepEqual(await buttons.evaluateAll(nodes => nodes.map(node => {
+          const box = node.getBoundingClientRect();
+          return [box.width, box.height];
+        })), sizes, '操作按钮接管时尺寸跳变');
+        assert.deepEqual(await buttons.evaluateAll(nodes => nodes.map(node => (node as HTMLButtonElement).disabled)), item.names.map(() => false));
+        for (const face of await buttons.evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundImage))) {
+          assert.match(face, /gradient/, '数据到了操作按钮仍未恢复主操作样式');
+        }
+        assert.deepEqual(opened.problems, []);
+      } finally { await opened.close() }
     });
   }
 
-  it('In the data management skeleton, action keys wait disabled and return to primary styling only when data arrives', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, '/data-cleanup', DESKTOP);
+  it('工具页标题采用 medium，链接读数使用既定字号与行高', { timeout: 60_000 }, async () => {
+    const opened = await visit(browser, '/data-cleanup/links', DESKTOP);
     try {
       const page = opened.page;
-      // No task is running. The running tier would press the scan button into its busy state; that state is data, not skeleton.
-      await page.route('**/api/library-processing', (route) => route.fulfill({
-        status: 200, contentType: 'application/json', body: JSON.stringify({ status: 'idle' }),
-      }));
-      const release = await holdApi(page);
-      await page.reload({ waitUntil: 'load' });
-      await page.locator('[data-skeleton="cleanup"] #libraryProcessing [data-split-button]').waitFor({ timeout: 15_000 });
-      const expected = await disabledTokens(page);
-      const waiting = await waitingActionFaces(page, '[data-skeleton="cleanup"] [data-skeleton-action]');
-      assert.deepEqual(waiting.filter((face) => !face.name.includes('skeleton')).map((face) => face.name).filter(Boolean),
-        ['Sync new files', 'More sync options', 'Start repair', 'Preview', 'Check dead links']);
-      for (const face of waiting) assertDisabledFace(face, expected);
-      const ring = await page.locator('[data-skeleton="cleanup"] [data-split-button]')
-        .evaluate((element) => getComputedStyle(element).boxShadow);
-      assert.ok(ring.includes(expected.ring), `In the skeleton the split key's outer ring is not the disabled-tier stroke: ${ring}`);
-      const sizes = await controlFaces(page, {
-        同步新增文件: '#libraryProcessing [data-split-button] > button:first-child',
-        更多方式: '#libraryProcessing [data-split-button] > button:last-child',
-        'Start repair': '#mediaRepair footer > button',
-      });
-      release();
-      await page.locator('[data-skeleton="cleanup"]').waitFor({ state: 'detached', timeout: 15_000 });
-      // The production page lays the same skeleton card first and waits for the React island to take over; takeover is complete only once the key no longer has `data-skeleton-action`.
-      await page.locator('section[aria-label="Scan and collect"] [data-split-button] > button:first-child:not([data-skeleton-action])')
-        .waitFor({ timeout: 15_000 });
-      await page.locator('section[aria-label="Media repair"] footer > button:not([data-skeleton-action])')
-        .waitFor({ timeout: 15_000 });
-      await settle(page);
-      const final = await controlFaces(page, {
-        同步新增文件: 'section[aria-label="Scan and scrape"] [data-split-button] > button:first-child',
-        更多方式: 'section[aria-label="Scan and scrape"] [data-split-button] > button:last-child',
-        'Start repair': 'section[aria-label="Media repair"] footer > button',
-      });
-      for (const name of Object.keys(sizes)) {
-        assert.equal(sizes[name]!.size, final[name]!.size, `${name}'s size jumped at takeover`);
-        assert.match(final[name]!.face, /gradient/, `${name} did not return to primary action styling after takeover`);
+      for (const [path, id, name] of [
+        ['/data-cleanup/links', 'link-manager', '链接管理'],
+        ['/data-cleanup/resource-sync', 'resource-sync', '资源同步'],
+      ]) {
+        await page.goto(new URL(path!, page.url()).href);
+        await page.locator(`#${id}-title`).waitFor({ timeout: 15_000 });
+        await settle(page);
+        const heading = await page.locator(`#${id}-title`).evaluate(node => {
+          const css = getComputedStyle(node);
+          return [css.fontSize, css.fontWeight, css.lineHeight, css.marginBottom];
+        });
+        assert.deepEqual(heading, ['20px', '500', '26px', '8px'], `${name}标题样式`);
+        assert.equal(await page.locator(`#${id} > h2, #${id} > h3`).count(), 0, '出现了框外标题');
+        if (id === 'link-manager') {
+          const styles = await page.locator('#link-manager .link-stat-grid').evaluate(node => {
+            const label = getComputedStyle(node.querySelector('span')!);
+            const figure = getComputedStyle(node.querySelector('b')!);
+            return [label.fontSize, label.lineHeight, figure.fontSize, figure.fontWeight, figure.lineHeight];
+          });
+          assert.deepEqual(styles, ['12px', '20px', '20px', '700', '20px']);
+        }
       }
-      const enabled = await page.locator('section[aria-label="Scan and scrape"] [data-split-button] > button')
-        .evaluateAll((buttons) => buttons.map((button) => (button as HTMLButtonElement).disabled));
-      assert.deepEqual(enabled, [false, false], 'The scan button stays disabled even with data');
-    } finally {
-      await opened.close();
-    }
-  });
-
-  it('Headings inside the data management panel use medium, and link counts use the established size and line height', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, '/data-cleanup', DESKTOP);
-    try {
-      const page = opened.page;
-      await page.locator('#link-manager .link-stat-grid b').first().waitFor({ timeout: 15_000 });
-      await page.locator('#resource-sync-title').waitFor({ timeout: 15_000 });
-      await settle(page);
-      const faces = await page.evaluate(() => {
-        const style = (selector: string) => {
-          const computed = getComputedStyle(document.querySelector(selector)!);
-          return {
-            size: computed.fontSize, weight: computed.fontWeight, line: computed.lineHeight,
-            top: computed.marginTop, bottom: computed.marginBottom,
-          };
-        };
-        return {
-          links: style('#link-manager-title'),
-          sync: style('#resource-sync-title'),
-          label: style('#link-manager .link-stat-grid span'),
-          figure: style('#link-manager .link-stat-grid b'),
-          outsideTitles: document.querySelectorAll('#link-manager > h2, #link-manager > h3, #resource-sync > h2, #resource-sync > h3').length,
-        };
-      });
-      assert.equal(faces.outsideTitles, 0, 'A single panel section shows a heading outside the box');
-      for (const [name, heading] of [['Link management', faces.links], ['Resource sync', faces.sync]] as const) {
-        assert.equal(heading.size, '20px', `${name} title font size is not Title 2`);
-        assert.equal(heading.weight, '500', `${name} title is not medium weight`);
-        assert.equal(heading.line, '26px', `${name} title line height is not Title 2`);
-        assert.equal(heading.bottom, '8px', `${name}'s title and panel body spacing disagree`);
-      }
-      assert.deepEqual([faces.label.size, faces.label.line], ['12px', '20px'], 'The link count\'s label is not 12/20');
-      assert.deepEqual([faces.figure.size, faces.figure.weight, faces.figure.line], ['20px', '700', '20px'],
-        'The link count\'s number is not 20px bold with a 20px line height');
       assert.deepEqual(opened.problems, []);
-    } finally {
-      await opened.close();
-    }
+    } finally { await opened.close() }
   });
 
   it('Clickable cards on hover lay a card surface blended with 5% primary text color, not transparent', { timeout: 60_000 }, async () => {
@@ -753,7 +718,9 @@ describe('Design decisions: data management, index page, and profile headers', (
           ok: true, entities: [{ id: 90_001, kind: 'performer', names: [name], parts: ['costars'] }] } })) },
       { path: '/data-cleanup', ready: '[data-skeleton="cleanup"] [data-skeleton-action]',
         targets: ['[data-skeleton] .inline-grid > div', '[data-skeleton] a[href="/sources"]',
-          '[data-skeleton] [data-skeleton-action]', '[data-skeleton] #organize [data-skeleton-action]'] },
+          '[data-skeleton] [data-skeleton-action]'] },
+      { path: '/data-cleanup/media-repair', ready: '[data-skeleton="cleanup/media-repair"] [data-skeleton-action]',
+        targets: ['[data-skeleton] [data-skeleton-action]'] },
       { path: '/review', ready: '[data-skeleton="review"] .reviewtabs button',
         targets: ['[data-skeleton] .reviewtabs button', '[data-skeleton] .skeletoncard'] },
       { path: '/follow', ready: '.followauthors .avskeleton',

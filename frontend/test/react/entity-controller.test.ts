@@ -105,20 +105,22 @@ describe('Entity and index domain control', () => {
     expect(ports.showMissing).toHaveBeenCalledWith('creator');
   });
 
-  it('Async list waits and rereads both honor the page\'s cancel authority', async () => {
+  it('立即显示目标骨架，异步名单和重读回执尊重页面取消权', async () => {
     let resolveWait = () => {}, resolveLoad = () => {}, current = true;
     const wait = new Promise<void>(resolve => { resolveWait = resolve });
     const load = new Promise<void>(resolve => { resolveLoad = resolve });
     const ports = { shapesReady: () => false, waitShapes: () => wait, paintSkeleton: vi.fn(), resetView: vi.fn(),
       loadShapes: () => load, syncParts: vi.fn() };
     const loading = createEntityLoading(ports);
-    const first = loading('creator', 'Alpha', () => current);
+    const first = loading('creator', '甲', () => current);
+    expect(ports.paintSkeleton).toHaveBeenCalledWith('creator', '甲');
     current = false; resolveWait(); await first;
-    expect(ports.paintSkeleton).not.toHaveBeenCalled();
-    current = true; await loading('creator', 'Beta', () => current);
-    expect(ports.paintSkeleton).toHaveBeenCalledWith('creator', 'Beta');
-    current = false; resolveLoad(); await Promise.resolve();
     expect(ports.syncParts).not.toHaveBeenCalled();
+    current = true; await loading('creator', '乙', () => current);
+    expect(ports.paintSkeleton).toHaveBeenCalledWith('creator', '乙');
+    expect(ports.syncParts).toHaveBeenCalledExactlyOnceWith('creator', '乙');
+    current = false; resolveLoad(); await Promise.resolve();
+    expect(ports.syncParts).toHaveBeenCalledTimes(1);
   });
 
   it('Index addresses write only applicable dimensions, and online author jumps collapse the index before writing the follow target', () => {

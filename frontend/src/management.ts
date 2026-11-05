@@ -1,5 +1,8 @@
 import { islandButton, islandGlyph, islandSelect } from './island-skeleton';
-import { FIELDSET_FACE, FIELDSET_BODY, FIELDSET_FOOT, fieldsetClass, type FieldsetLayout } from './react/components/fieldset-layout';
+import { FIELDSET_BODY, FIELDSET_FOOT, fieldsetClass, type FieldsetLayout } from './react/components/fieldset-layout';
+import { CLEANUP_TOOLS } from './cleanup-tools';
+import { CLEANUP_ENTRY, CLEANUP_ENTRY_GRID } from './react/data-cleanup/cleanup-entry';
+import { PLAIN_STAT_STRIP, plainStatClass } from './react/components/stat-card';
 
 /* Body copy for the "Scan and collect" and "Media repair" cards. The card body is rendered by React, and the skeleton and the legacy layer's fetch placeholder
    draw the same passage: with two copies, the skeleton's sentence would run shorter than the real card and the whole card would jump at takeover. */
@@ -38,21 +41,17 @@ export function repairCardSkeletonHtml(): string {
       </section>`);
 }
 
-/** The first screen reuses the final containers of the stat cards, the three task cards, link management, and resource sync; static headings, body text, and keys render immediately. */
+/** 首页骨架与最终页面共用工具顺序；完整表单、结果和清单在二级页加载。 */
 export function cleanupSkeletonHtml(): string {
-  const stats = [['Manual review', 'square-check-big'], ['HD version', 'sparkles'], ['Duplicates', 'file-stack'], ['Junk files', 'file-archive'], ['Trash', 'trash']];
-  const face = FIELDSET_FACE;
-  const body = FIELDSET_BODY.stack;
-  const title = (label: string, gap = 'mb-2') => `<h3 class="text-title-2-medium text-text-primary ${gap}">${label}</h3>`;
-  const footer = (label: string) => `<footer class="${FIELDSET_FOOT.stack}">${islandButton({ label, attrs: waitingAction })}</footer>`;
-  const input = (label: string) => `<div class="flex flex-col gap-1.5"><span class="text-body-medium text-text-primary">${label}</span><span class="skeleton ui-configuration-skeleton-input"></span></div>`;
-  return `<div class="peach-react" data-skeleton="cleanup" aria-busy="true" role="status" aria-label="Loading data management status"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">
-    <div class="inline-grid w-full grid-cols-5 gap-4 max-plain-stat-pair:grid-cols-2 max-plain-stat-single:grid-cols-1">${stats.map(([label, glyph]) => `<div class="min-w-0 bg-background-secondary-default rounded-2xl flex min-h-33 flex-col gap-2 p-4 text-left"><span class="flex min-w-0 items-center gap-2 text-body-medium text-text-secondary"><i class="flex size-8 shrink-0 items-center justify-center rounded-md bg-background-primary-default text-text-primary">${islandGlyph(glyph!, 'size-4')}</i>${label}</span><strong class="text-title-1-medium">${bar}</strong><span class="text-caption-1-regular">${bar}</span></div>`).join('')}</div>
-    <div class="flex flex-col gap-4 max-cleanup-tight:gap-3">
-      <div id="libraryProcessing">${scanCardSkeletonHtml()}</div><div id="mediaRepair">${repairCardSkeletonHtml()}</div>
-      <section id="organize" class="${face} flex flex-col" data-cleanup-organize><div class="${body}">${title('Organize', 'mb-3')}<p class="text-body-regular text-text-secondary">Cleans special characters and mojibake out of file names, renames by template, and sorts files into directories. Preview first, run after confirming; a batch that has run can be reverted as a whole.</p>
-        <div class="mt-3 flex flex-col gap-3"><div class="flex min-w-0 flex-wrap items-start gap-2">${islandSelect(bar)}<span class="skeleton ui-configuration-skeleton-input min-w-0 basis-64 flex-1"></span></div><p class="text-caption-1-regular text-text-secondary">When a path is set, its subdirectories are included and directory templates start from that path. With both templates left empty, only file names are cleaned.</p>${input('File name template')}${input('Directory template')}<div class="flex flex-wrap gap-2">${Array.from({ length: 3 }, () => islandButton({ variant: 'secondary', label: bar, attrs: waitingAction })).join('')}</div></div></div>${footer('Preview')}</section>
-    </div>
-    <section id="link-manager" class="flex scroll-mt-20 flex-col gap-4"><div class="${face} flex flex-col"><div class="${body}">${title('Link management')}<div class="link-stat-grid mt-4 gap-x-8 gap-y-3">${['Total links', 'Official site / agency', 'Social accounts', 'Video info sites'].map(label => `<div class="flex min-w-0 flex-col gap-0.5"><span class="text-caption-1-regular text-text-secondary">${label}</span><b class="text-title-2-semibold">${bar}</b></div>`).join('')}</div><div class="mt-4 flex flex-col gap-0.5"><span class="text-caption-1-regular text-text-secondary">Main sites</span>${bar}</div></div>${footer('Check dead links')}</div></section>
+  const entry = (label: string, glyph: string, summary: string, detail = '') => `<div class="${CLEANUP_ENTRY.face}"><span class="${CLEANUP_ENTRY.icon}">${islandGlyph(glyph, 'size-5')}</span><span class="${CLEANUP_ENTRY.body}"><span class="${CLEANUP_ENTRY.title}">${label}</span><span class="${CLEANUP_ENTRY.summary}">${summary}</span>${detail ? `<span class="${CLEANUP_ENTRY.detail}">${detail}</span>` : ''}</span>${islandGlyph('chevron-right', CLEANUP_ENTRY.arrow)}</div>`;
+  const stat = (label: string, glyph: string) => `<div class="${plainStatClass()}"><span class="flex min-w-0 items-center gap-2 text-body-medium text-text-secondary"><i class="flex size-8 shrink-0 items-center justify-center rounded-md bg-background-primary-default text-text-primary">${islandGlyph(glyph, 'size-4')}</i><span>${label}</span></span><strong class="block text-title-1-medium tabular-nums text-text-primary">${bar}</strong><span class="block min-h-4 text-caption-1-regular text-text-tertiary">${bar}</span></div>`;
+  const heading = (label: string) => `<h2 class="text-title-2-medium! m-0! text-text-primary">${label}</h2>`;
+  const tools = (deletion: boolean) => CLEANUP_TOOLS.filter(tool => (tool.key === 'batch-delete') === deletion)
+    .map(tool => entry(tool.title, tool.icon, tool.description)).join('');
+  return `<div class="peach-react" data-skeleton="cleanup" aria-busy="true" role="status" aria-label="正在读取数据管理状态"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">
+    <section class="flex flex-col gap-4">${heading('待处理事项')}<div class="${PLAIN_STAT_STRIP}">${[['人工复核', 'square-check-big'], ['重复文件', 'file-stack'], ['垃圾文件', 'file-archive'], ['高清版', 'sparkles'], ['回收站', 'trash']].map(([label, glyph]) => stat(label!, glyph!)).join('')}</div></section>
+    <div id="libraryProcessing" class="scroll-mt-20">${scanCardSkeletonHtml()}</div>
+    <section class="flex flex-col gap-4">${heading('整理与维护')}<div class="${CLEANUP_ENTRY_GRID}">${tools(false)}</div></section>
+    <section class="flex flex-col gap-4">${heading('清理与删除')}<div class="${CLEANUP_ENTRY_GRID}">${tools(true)}</div></section>
     </div></div>`;
 }

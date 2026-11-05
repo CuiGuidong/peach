@@ -357,12 +357,14 @@ describe('Filter box', () => {
     await act(async () => { vi.advanceTimersByTime(300) });
     expect(given.route).toHaveBeenCalledWith(expect.objectContaining({ q: 'Alpha' }), { replace: true });
     expect(urls(fetcher)[0]).toContain('q=%E7%94%B2');
-    // The query is still in flight: the previous list stays as is, no skeleton covers it, and no "Load more" appears.
+    // 这一问还在路上，上一份名单保留尺寸但不可操作，变化区显示忙态。
     expect(cells(host)).toHaveLength(2);
-    expect(host.querySelector('[data-index-body] [aria-busy="true"]')).toBeNull();
-    await answer.release({ items: [person('Alpha')], has_more: false });
+    expect(host.querySelector('[data-index-body] [aria-busy="true"]')).not.toBeNull();
+    expect(host.querySelector('[data-index-body] [data-content-current]')?.hasAttribute('inert')).toBe(true);
+    await answer.release({ items: [person('甲')], has_more: false });
     await settle();
     expect(cells(host)).toHaveLength(1);
+    expect(host.querySelector('[data-index-body] [aria-busy="true"]')).toBeNull();
     expect(search(host)).toBe(input);
   });
 

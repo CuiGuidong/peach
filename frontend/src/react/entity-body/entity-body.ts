@@ -78,7 +78,7 @@ export interface EntityBodyActions extends MediaCardActions {
 /** The pieces passed straight through from the card grid: layout, selection state, cache and skeleton are all the same instances the shell holds. */
 type SharedGridProps = Pick<CatalogGridProps,
   'layout' | 'selectMode' | 'selected' | 'seekSeconds' | 'wireDrag' | 'skeletonHtml'
-  | 'groupCollapse' | 'canLoadMore' | 'listScope'>;
+  | 'groupCollapse' | 'canLoadMore' | 'listScope' | 'restoreNavigation'>;
 
 export interface EntityBodyProps extends SharedGridProps {
   kind: string;

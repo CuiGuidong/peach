@@ -722,6 +722,67 @@ class LogRetentionAtStartupTests(unittest.TestCase):
             icon.run.assert_called_once_with()
 
 
+class LaunchdRelaunchExitCodeTests(unittest.TestCase):
+    """macOS LaunchAgent 写 `KeepAlive = {SuccessfulExit: false}`，非 0 退出就会被拉起。
+
+    配置、迁移这类失败重来结果相同；按非 0 退出，launchd 每隔 ThrottleInterval 就再试一次、
+    再失败一次。所以 launchd 名下的菜单栏项判定失败时按 0 退出，留给 launchd 的只剩崩溃。
+    """
+
+    def test_failures_exit_zero_only_for_the_launchd_owned_menu_bar(self):
+        for platform, owned, expected in (("darwin", True, 0), ("darwin", False, 1), ("win32", True, 1)):
+            with self.subTest(platform=platform, owned=owned), \
+                    mock.patch.object(tray_module.sys, "platform", platform), \
+                    mock.patch.object(tray_module, "launchd_owns_this_process", return_value=owned), \
+                    mock.patch.object(tray_module.settings_file, "load_config",
+                                      side_effect=RuntimeError("config.toml 无效")), \
+                    mock.patch.object(tray_module, "show_message"):
+                self.assertEqual(tray_main(["--silent"]), expected)
+
+    def test_a_failed_migration_does_not_become_a_relaunch_loop(self):
+        preparation = Mock()
+        preparation.migrations.apply.return_value = Mock(failed=True, message="迁移失败")
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch.object(tray_module.sys, "platform", "darwin"), \
+                mock.patch.object(tray_module, "launchd_owns_this_process", return_value=True), \
+                mock.patch.object(tray_module.settings_file, "load_config",
+                                  return_value=settings_file.PeachConfig(Path(directory), Path(directory) / "config.toml")), \
+                mock.patch.object(tray_module.error_reporting, "install"), \
+                mock.patch.object(tray_module, "needs_setup", return_value=False), \
+                mock.patch.object(tray_module, "SingleInstance") as instance, \
+                mock.patch.object(tray_module, "handoff_tray", return_value=False), \
+                mock.patch.object(tray_module, "enable_hidpi"), \
+                mock.patch.object(tray_module.log_retention, "sweep", return_value=()), \
+                mock.patch.object(tray_module, "log_to_file"), \
+                mock.patch.object(tray_module.desktop_startup, "refresh_launch_agent",
+                                  side_effect=ValueError("启动项属于另一份 Peach 安装")), \
+                mock.patch.object(tray_module, "configured_service_specs", return_value=()), \
+                mock.patch.object(tray_module, "ServiceManager") as manager, \
+                mock.patch.object(tray_module, "tray_preparation", return_value=preparation), \
+                mock.patch.object(tray_module, "run_macos_menu_bar") as menu, \
+                mock.patch.object(tray_module, "show_message"), \
+                self.assertLogs(level="WARNING") as logs:
+            instance.return_value.is_running.return_value = False
+            self.assertEqual(tray_main(["--silent"]), 0)
+        menu.assert_not_called()
+        manager.return_value.stop_owned.assert_called_once_with()
+        instance.return_value.close.assert_called_once_with()
+        self.assertTrue(any("异常退出恢复未能更新" in line for line in logs.output),
+                        "旧启动项刷新失败只记日志，不拦启动")
+
+    def test_a_second_instance_exits_zero_without_asking_launchd(self):
+        with tempfile.TemporaryDirectory() as directory, \
+                mock.patch.object(tray_module.sys, "platform", "darwin"), \
+                mock.patch.object(tray_module, "launchd_owns_this_process") as owned, \
+                mock.patch.object(tray_module.settings_file, "load_config",
+                                  return_value=settings_file.PeachConfig(Path(directory), Path(directory) / "config.toml")), \
+                mock.patch.object(tray_module.error_reporting, "install"), \
+                mock.patch.object(tray_module, "SingleInstance") as instance:
+            instance.return_value.is_running.return_value = True
+            self.assertEqual(tray_main(["--silent"]), 0)
+        owned.assert_not_called()
+
+
 class SourceSyncTests(unittest.TestCase):
     """「同步开发进度」这条路径：拉到的代码要真的跑起来，托盘不能自己骗自己。"""
 
@@ -1120,6 +1181,59 @@ class MacMenuBarTests(unittest.TestCase):
             self.assertTrue(str(specs["https"].verify).endswith("peach-local-ca.crt"))
 
 
+class MacMenuBarActionTests(unittest.TestCase):
+    """菜单栏用替身 AppKit 层构造，处理函数在任何系统上都能直接调用。"""
+
+    def test_menu_bar_offers_update_check_and_diagnostics_like_the_windows_tray(self):
+        """Windows 托盘有的「检查更新」「导出诊断报告」，菜单栏项同样要有，且真的接上实现。"""
+        import types
+        built = {}
+
+        class Submenu:
+            def __init__(self, items):
+                self.items = items
+
+        class MenuBarApp:
+            def __init__(self, _icon, _title, items):
+                built["items"] = items
+                self.notices = built.setdefault("notices", [])
+
+            def notify(self, message, title):
+                self.notices.append((title, message))
+
+            def run(self):
+                pass
+
+            def stop(self):
+                pass
+
+        def run_handler(label, *, submenu=None):
+            items = built["items"]
+            if submenu:
+                items = next(handler for title, handler in items if title == submenu).items()
+            handler = next(handler for title, handler in items if title == label)
+            handler()
+            for thread in threading.enumerate():
+                if thread.name in {"PeachUpdate", "PeachDiagnostics"}:
+                    thread.join(5)
+
+        versions = Mock()
+        versions.inspect.return_value = Mock(package_version="0.9.0", build_label="独立测试包", channel_label="测试版")
+        versions.check.return_value = UpdateResult("available", "当前版本：0.9.0。最新测试版：1.0.0。有新版本可下载。",
+                                                   versions.inspect.return_value)
+        fake = types.ModuleType("peach.menubar")
+        fake.MenuBarApp, fake.Submenu = MenuBarApp, Submenu
+        with patch.dict(sys.modules, {"peach.menubar": fake}),                 patch.object(tray_module, "VersionManager", return_value=versions),                 patch.object(tray_module, "standalone", return_value=True):
+            tray_module.run_macos_menu_bar(Mock(), Mock(waiting=False))
+        with tempfile.TemporaryDirectory() as directory,                 patch("peach.support_bundle.save_bundle", return_value=Path(directory) / "peach-support.zip"),                 patch.object(tray_module.subprocess, "run") as opened:
+            run_handler("导出诊断报告")
+            run_handler("检查更新", submenu="版本与更新")
+        self.assertEqual(opened.call_args.args[0][:2], ["open", "-R"])
+        versions.check.assert_called_once()
+        self.assertIn(("Peach 诊断报告", "诊断报告已保存：peach-support.zip"), built["notices"])
+        self.assertIn(("Peach 版本与更新", versions.check.return_value.message), built["notices"])
+
+
 class TemplateHookTests(unittest.TestCase):
     def test_apply_template_is_a_no_op_without_a_backing_nsimage(self):
         """拿不到底层 NSImage 就安静跳过：菜单栏项本身仍然可用。"""
@@ -1198,6 +1312,13 @@ class MacIdentityTests(unittest.TestCase):
                          appid.MACOS_LAUNCH_AGENT_LABEL)
         self.assertEqual(load_script("install_macos_agent").LABEL,
                          appid.MACOS_LAUNCH_AGENT_LABEL)
+
+    def test_source_agent_and_settings_page_share_one_relaunch_policy(self):
+        """同一个标签有两个写 plist 的入口，两边的恢复设置不能各写各的。"""
+        plist = load_script("install_macos_agent").build_plist(Path("/opt/peach/.venv/bin/peach-tray"))
+        self.assertIs(plist["RunAtLoad"], True)
+        self.assertEqual(plist["KeepAlive"], tray_module.desktop_startup.MACOS_KEEP_ALIVE)
+        self.assertEqual(plist["ThrottleInterval"], tray_module.desktop_startup.MACOS_THROTTLE_INTERVAL)
 
     def test_the_identifier_is_the_repository_owner_not_a_private_domain(self):
         """下载者装上的东西不该带着维护者的私有域名（ADR-0023 第 4 阶段）。"""

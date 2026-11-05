@@ -211,7 +211,19 @@ describe('Stage island', () => {
       assert.equal(await page.locator('#stage[data-theater]').count(), 0, 'The T key never switched back');
       assert.equal(await theater.getAttribute('aria-pressed'), 'false');
 
-      /* The stubbed source cannot play, so Video.js sits in the error state and the control bar ignores pointers, which makes hover unmeasurable; only the prompt's content is measured. */
+      for (const size of [{ width: 1074, height: 884 }, { width: 390, height: 844 }, { width: 1320, height: 1088 }]) {
+        await page.setViewportSize(size);
+        await page.waitForFunction(() => {
+          const media = document.querySelector('#stage [data-stage-media]')?.getBoundingClientRect();
+          const controls = document.querySelector('#stage .vjs-control-bar')?.getBoundingClientRect();
+          const timeline = document.querySelector('#stage .vjs-progress-control')?.getBoundingClientRect();
+          return media && controls && timeline && controls.bottom <= media.bottom + 1
+            && timeline.top >= media.top - 1 && timeline.right <= media.right + 1;
+        });
+      }
+      await page.setViewportSize({ width: DESKTOP.width, height: DESKTOP.height });
+
+      /* 桩里的片源放不出来，Video.js 停在错误态、控件条不接指针，悬停量不到；只量提示的内容。 */
       const tip = page.locator('#stage [data-player-theater] > .vjs-peach-tooltip');
       assert.equal(await theater.getAttribute('title'), null, 'The native title and the drawn tooltip would stack');
       assert.deepEqual(await tip.evaluate((node) => [node.querySelector('.vjs-peach-tooltip-text')?.textContent,

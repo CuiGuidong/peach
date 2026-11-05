@@ -12,6 +12,7 @@
  * Each card fails and computes on its own: the review endpoint failing must not turn the trash card into "read failed" too,
  * so these are five `useQuery` calls, not one `Promise.all`. */
 import type { QueryKey } from '@tanstack/react-query';
+import type { CleanupToolKey } from '../../cleanup-tools';
 
 import { apiGet } from '../../api';
 import { DUPLICATES_KEY, fetchDuplicates } from '../duplicates/duplicates';
@@ -27,6 +28,7 @@ import {
 import { prefetchOrganize } from './organize';
 import { fetchOrphanRecords, ORPHAN_RECORDS_KEY } from './orphan-records';
 import { prefetchResourceSync } from './resource-sync';
+import { fetchDeletePerformers, PERFORMER_DELETE_KEY } from './performer-delete';
 
 export const REVIEW_COUNTS_URL = '/api/review?counts=1';
 export const REVIEW_COUNTS_KEY = ['review', 'counts'] as const;
@@ -91,44 +93,38 @@ export function junkBreakdown(summary: JunkSummary | undefined): string {
   return parts.join(' · ');
 }
 
-/** The fetches the first screen does not wait for: each `useQuery` fetches on mount. */
+/** 状态摘要独立读取；某一份失败时只影响对应入口的读数。 */
 const LAZY_QUERIES: [QueryKey, (context: { signal: AbortSignal }) => Promise<unknown>][] = [
   [REVIEW_COUNTS_KEY, ({ signal }) => fetchReviewCounts(signal)],
   [QUALITY_GOALS_KEY, ({ signal }) => fetchQualityGoals(signal)],
   [TRASH_KEY, ({ signal }) => fetchTrashSummary(signal)],
-  [LINKS_KEY, ({ signal }) => fetchLinkStats(signal)],
-  [LINK_CHECK_KEY, ({ signal }) => fetchLinkCheck(signal)],
-  [LINK_PRUNE_KEY, ({ signal }) => fetchLinkPrune(signal)],
-  [ORPHAN_RECORDS_KEY, ({ signal }) => fetchOrphanRecords(signal)],
+  [JUNK_KEY, ({ signal }) => fetchJunkSummary(signal)],
+  [DUPLICATES_KEY, ({ signal }) => fetchDuplicates(signal)],
 ];
 
-/** First screen: the top row of readouts, which sources this run will scan, plus the two background-job cards, the organize
- *  card and resource sync.
- *
- *  What it waits for is only what the first screen needs to render: the legacy shell has already laid a skeleton, and the page
- *  spinning again would be two wait states in one visit. The review and quality-upgrade numbers and the link stats each read
- *  their own source, and when slow they must not hold the page, so they are not waited on.
- *
- *  When those unwaited pieces already have a copy in cache (another visit to this page) they must refetch: the shared
- *  `queryClient` does not refetch cached keys on mount, and without a push here the readouts would freeze at the last visit's
- *  look. On the first visit they have no cache and are fetched by their own `useQuery` on mount.
- *
- *  Anchor positioning waits for readouts, link management and orphan records to be ready, so scrolling uses post-landing
- *  coordinates. */
+/** 首页等待日常扫描状态；维护工具的表单、任务和清单进入二级页后再读取。 */
 export async function prefetchDataCleanup(signal: AbortSignal): Promise<void> {
-  const anchored = !!location.hash;
-  const lazy = LAZY_QUERIES.map(([queryKey, queryFn]) => {
-    if (anchored) return queryClient.fetchQuery({ queryKey, queryFn: () => queryFn({ signal }) }).catch(() => undefined);
-    if (queryClient.getQueryState(queryKey)) void queryClient.prefetchQuery({ queryKey, queryFn });
-    return undefined;
-  });
-  await Promise.all([
-    ...lazy,
-    queryClient.fetchQuery({ queryKey: JUNK_KEY, queryFn: () => fetchJunkSummary(signal) }),
-    queryClient.fetchQuery({ queryKey: DUPLICATES_KEY, queryFn: () => fetchDuplicates(signal) }),
-    prefetchMediaSources(signal).then(() => prefetchResourceSync(signal)),
-    prefetchLibraryProcessing(signal),
-    prefetchMediaRepair(signal),
-    prefetchOrganize(signal),
-  ]);
+  for (const [queryKey, queryFn] of LAZY_QUERIES) {
+    void queryClient.prefetchQuery({ queryKey, queryFn: () => queryFn({ signal }) });
+  }
+  await prefetchLibraryProcessing(signal);
+}
+
+/** 进入维护工具时才读取它的状态、配置与结果。 */
+export async function prefetchDataCleanupTool(tool: CleanupToolKey, signal: AbortSignal): Promise<void> {
+  switch (tool) {
+    case 'organize': await prefetchOrganize(signal); break;
+    case 'media-repair': await prefetchMediaRepair(signal); break;
+    case 'resource-sync': await prefetchMediaSources(signal); await prefetchResourceSync(signal); break;
+    case 'orphan-records':
+      await queryClient.prefetchQuery({ queryKey: ORPHAN_RECORDS_KEY, queryFn: () => fetchOrphanRecords(signal) }); break;
+    case 'batch-delete':
+      await queryClient.prefetchQuery({ queryKey: PERFORMER_DELETE_KEY, queryFn: () => fetchDeletePerformers(signal) }); break;
+    case 'links':
+      await Promise.all([
+        queryClient.prefetchQuery({ queryKey: LINKS_KEY, queryFn: () => fetchLinkStats(signal) }),
+        queryClient.prefetchQuery({ queryKey: LINK_CHECK_KEY, queryFn: () => fetchLinkCheck(signal) }),
+        queryClient.prefetchQuery({ queryKey: LINK_PRUNE_KEY, queryFn: () => fetchLinkPrune(signal) }),
+      ]); break;
+  }
 }

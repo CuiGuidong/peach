@@ -130,7 +130,8 @@ export interface EntityPageHosts { filter: Element; feed: HTMLElement; body: Ele
 export interface EntityPageProps extends SharedGridProps {
   kind: string;
   resolvedEntity?: EntityPageData;
-  /** The canonical name the route obtained via the entity ID. */
+  restoreNavigation?: boolean;
+  /** 路由通过实体 ID 取得的规范名。 */
   name: string;
   filters: EntityFilters;
   media: EntityMedia;
@@ -265,18 +266,18 @@ export const photosOptions = (kind: string, name: string, set: number, seed: str
 export const codeSetsOf = (page: PhotoPage | null | undefined): EntityCodeSet[] =>
   page && !page.error ? (page.sets || []).filter((set) => set.kind === 'code') : [];
 
-/** Every entry to this page is a fresh run: first clear this person's cache, then fetch profile (with new releases), the videos' first page, and photos
- *  in parallel, including that album set when a deep link lands on one. When all four arrive, the route tree (`openManagedRoute`) swaps the skeleton in one go. */
+/** 首次进入先清掉这一位名下的缓存；历史返回复用原查询。再把资料（连同新作）、作品第一页与照片
+ *  并行取齐，深链落在一个图集上时连那一组一起取。四样齐了路由树（`openManagedRoute`）一次换掉骨架。 */
 export async function prefetchEntityPage(props: EntityPageProps): Promise<void> {
   const { kind, name } = props;
-  for (const head of ['entity', 'entity-items', 'entity-photos'] as const) {
+  if (!props.restoreNavigation) for (const head of ['entity', 'entity-items', 'entity-photos'] as const) {
     queryClient.removeQueries({ queryKey: [head, kind, name] });
   }
   if (props.resolvedEntity?.id) queryClient.setQueryData(entityKey(kind, name), props.resolvedEntity);
   await Promise.all([
     queryClient.fetchQuery(entityOptions(kind, name)).then((entity) => {
       if (!entity || entity.error || !entity.id) return null;
-      queryClient.removeQueries({ queryKey: feedNewKey(Number(entity.id)) });
+      if (!props.restoreNavigation) queryClient.removeQueries({ queryKey: feedNewKey(Number(entity.id)) });
       return queryClient.fetchQuery(feedNewOptions(Number(entity.id), props.helpers.feedRowHtml, true));
     }),
     queryClient.fetchQuery(itemsOptions(props)),

@@ -57,7 +57,7 @@ function IndexerForm({ initial, receipt }: { initial: State; receipt(message: st
     });
   };
   return (
-    <Section title="Resource search" onSubmit={save}>
+    <Section guide="indexers" title="资源搜索" onSubmit={save}>
       <Stack>
         <div className="flex min-w-0 flex-col gap-4">
         <Disclosure summary="Indexer connection help"><Help>Fill in the Torznab address and API key from Prowlarr or Jackett.{' '}

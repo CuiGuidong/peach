@@ -70,6 +70,7 @@ export function openPlaylist(playlistId,itemId=null,push=true){return openQueue(
 
 export function hasReturnSurface(){
   return !!$('#grid').querySelector('[data-id],[data-mix-seed]')
+    ||!!document.querySelector('[data-video-wall]')
     ||!$('#index').hidden||!$('#stats').hidden;
 }
 
@@ -131,8 +132,8 @@ export async function closeItemDetail(){
   if(restoreSurface&&navigationState.managedPagePath(new URL(returnPath,location.href).pathname)){navigationState.navigatePath(returnPath);return}
   navigationState.route(returnPath);
   if(restoreSurface)writeShell({pageOpens:pageOpens+1});
-  // Returning to the playlist page restarts from the top and takes the freshest copy (a detail page may have just added or removed one).
-  else{buildBars();if(location.pathname==='/playlists')writeShell({pageOpens:pageOpens+1})}
+  // 播放列表保留页面，只刷新续播位置和详情里修改的列表内容。
+  else{buildBars();if(location.pathname==='/playlists')rereadPlaylists()}
 }
 
 /** Out-of-library videos open in the same detail stage; origin and close behavior follow the overlay entry. */
@@ -158,7 +159,7 @@ export async function openJavMovie(code,push=true){
         shellNavigate('/works/'+encodeURIComponent(canonical)+location.search+location.hash,
           {replace:true,state:peachHistory.navigation.location.state});
       },
-      openTag:tag=>{commitContextFilter(filters=>{filters.tag=tag});window.scrollTo({top:0,behavior:'smooth'})},
+      openTag:tag=>commitContextFilter(filters=>{filters.tag=tag}),
       receipt:message=>receiptsState.toast({text:message})}});
   scheduleStickySurfaces();
 }
@@ -243,9 +244,9 @@ mediaState.itemDetailActions = {
     followState.followAuthors=new Set();followState.followProviders=new Set();followState.followTags=new Set();followState.followWorks=new Set();followState.followMediaView='videos';
     followState.followDurMin=followState.followDurMax=0;followState.followFilter='saved';openRoutedPage(followViewPath())},
   openEntity:(kind,name)=>openEntity(kind,name),
-  openUnowned:()=>goHome({owner:'none'},true),
-  openRegion:region=>goHome({region:region||'none'},true),
-  openTag:tag=>{commitContextFilter(filters=>{filters.tag=tag});window.scrollTo({top:0,behavior:'smooth'})},
+  openUnowned:()=>goHome({owner:'none'}),
+  openRegion:region=>goHome({region:region||'none'}),
+  openTag:tag=>commitContextFilter(filters=>{filters.tag=tag}),
   addToPlaylist:item=>openAddToPlaylist(item),
   saveMix:options=>saveMixAsPlaylist(options),
   editPlaylist:()=>openRoutedPage('/playlists'),
@@ -273,7 +274,7 @@ mediaState.immerseHost = {
   closed:()=>goHome(),
   openItem:id=>void openItem(id),
   openEntity:(kind,name)=>openEntity(kind,name),
-  openUnowned:()=>goHome({owner:'none'},true),
+  openUnowned:()=>goHome({owner:'none'}),
   toast:(message,{undo}={})=>receiptsState.actionReceipt(message,{undo}),
   warn:message=>receiptsState.toast({text:message},{sound:'warning'}),
   failure:(action,error)=>receiptsState.actionFailure(action,error),

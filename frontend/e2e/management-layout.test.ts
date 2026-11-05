@@ -37,7 +37,8 @@ describe('Admin page container and skeleton', () => {
       const opened = await visit(browser, '/data-cleanup', viewport);
       try {
         await settle(opened.page);
-        for (const name of ['Scan and scrape', 'Link management']) {
+        for (const name of ['扫描与采集', '链接管理']) {
+          if (name === '链接管理') await opened.page.goto(new URL('/data-cleanup/links', opened.page.url()).href);
           const card = opened.page.locator('section').filter({ has: opened.page.getByRole('heading', { name, exact: true }) }).last();
           const geometry = await card.evaluate(node => {
             const children = Array.from(node.children);

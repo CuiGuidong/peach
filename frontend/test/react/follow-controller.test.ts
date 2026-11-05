@@ -46,13 +46,13 @@ describe('Follow domain URL and session control', () => {
     expect(readFollowView(followViewPath(target).split('?')[1]!, 0, () => 1)).toEqual(target);
   });
 
-  it('Switching media keeps scroll; only changing server-side filters scrolls to top; props action identity is fixed and the selection snapshot is independent', () => {
+  it('筛选提交不提前定位，props 动作身份固定且选择快照独立', () => {
     const { controller, ports, selected } = setup();
     const first = controller.props();
     controller.route(view({ media: 'images' }));
     expect(ports.scrollTop).not.toHaveBeenCalled();
     controller.route(view({ media: 'images', tags: ['x'] }));
-    expect(ports.scrollTop).toHaveBeenCalledOnce();
+    expect(ports.scrollTop).not.toHaveBeenCalled();
     expect(controller.props().actions).toBe(first.actions);
     expect(controller.props().helpers).toBe(first.helpers);
     selected.add(14);
@@ -71,7 +71,7 @@ describe('Follow domain URL and session control', () => {
     expect(ports.push).not.toHaveBeenCalled();
   });
 
-  it('Returning to the follows page keeps session and scroll; only re-entering clears scroll and advances the generation per the host', () => {
+  it('普通进入保留会话与滚动，主动重新进入才换种子并推进代次', () => {
     const { controller, ports, location, live } = setup();
     controller.route(view({ author: 'one' }));
     location('/performers');
@@ -80,14 +80,15 @@ describe('Follow domain URL and session control', () => {
     expect(ports.session()).toEqual({ discoverySeed: 11, revision: 2, scrollY: 600 });
     location('/follow');
     controller.enter();
-    expect(ports.session()).toEqual({ discoverySeed: 41, revision: 2, scrollY: 0 });
+    expect(ports.session()).toEqual({ discoverySeed: 11, revision: 2, scrollY: 600 });
     live(false);
     controller.enter(true);
     expect(ports.session().revision).toBe(3);
+    expect(ports.session().discoverySeed).toBe(41);
     expect(ports.openPage).toHaveBeenLastCalledWith('/follow');
   });
 
-  it('refresh always reads filters from the URL, and only the current follow host receives the refetch and scroll', () => {
+  it('refresh 按 URL 恢复筛选，当前宿主复用原有代次', () => {
     const { controller, ports, location, live } = setup();
     location('/follow', '?tag=one&media=images');
     live(false);
@@ -96,9 +97,9 @@ describe('Follow domain URL and session control', () => {
     expect(ports.session().revision).toBe(2);
     live(true);
     expect(controller.refresh()).toBe(true);
-    expect(ports.session().revision).toBe(3);
+    expect(ports.session().revision).toBe(2);
     expect(ports.revealFeed).toHaveBeenCalledOnce();
-    expect(ports.scrollTop).toHaveBeenCalledOnce();
+    expect(ports.scrollTop).not.toHaveBeenCalled();
   });
 
   it('Indexing the author resets genre, online tags keep genre, and the profile page online card never takes over page-level actions', () => {

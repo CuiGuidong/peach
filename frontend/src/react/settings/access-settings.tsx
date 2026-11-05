@@ -64,7 +64,7 @@ export function AccessSettings({ initial, receipt }: AccessSettingsProps) {
   const help = HELP[state.mode];
   const editable = state.mode !== 'locked';
   return (
-    <Section title="Access password" onSubmit={submit}>
+    <Section guide="access" title="访问密码" onSubmit={submit}>
       <div ref={body}>
         <Stack>
           {help ? <Help>{help}</Help> : null}

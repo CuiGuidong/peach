@@ -43,8 +43,8 @@ describe('Switch theme', () => {
     } finally { await opened.close(); }
   });
 
-  it('Controls with color transitions get no animation during the theme switch; the light/dark slider still moves and transitions resume next frame', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, '/data-cleanup', desktop);
+  it('切换瞬间带颜色过渡的控件没有动画，明暗键滑块照常位移，下一帧过渡恢复', { timeout: 60_000 }, async () => {
+    const opened = await visit(browser, '/data-cleanup/media-repair', desktop);
     try {
       const { page } = opened;
       await page.emulateMedia({ reducedMotion: 'no-preference' });

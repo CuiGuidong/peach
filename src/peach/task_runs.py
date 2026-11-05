@@ -83,38 +83,41 @@ MAX_FOLLOWUP_DEPTH = 2
 
 #: 任务登记表：key → 给人看的名字。不在表里的 key 由界面原样显示，不猜。
 TASK_LABELS = {
-    "follow-check": "Follow update check",
-    "follow-resolve": "Follow source lookup",
-    "library-processing": "Scan and scrape",
-    "taste-refresh": "Taste analysis",
-    "link-check": "Link check",
-    "link-prune": "Dead link cleanup",
-    "resource-scan": "Resource sync check",
-    "resource-apply": "Resource sync cleanup",
-    "scraping-cover": "Cover collection",
-    "media-repair": "Media repair",
-    "upgrade-repairs": "Auto repair",
-    "upgrade-library": "Auto repair details",
-    "organize": "Organize by template",
-    "batch": "Batch operations",
-    "scrape-codes": "Code details scraping",
-    "jav-covers": "Bulk cover fetch",
-    "entity-avatar": "Fill in profile images",
-    "performer-profile": "Fill in performer profiles",
-    "performer-alias": "Fill in performer aliases",
-    "studio-mark": "Fetch label sites and marks",
-    "creator-identity": "Look up creator identity",
-    "code-samples": "Fetch code samples",
-    "feed-check": "Feed fetch",
-    "feed-scrape": "Fetch new-release details",
-    "feed-cover": "Fetch new-release covers",
-    "want-scrape": "Fetch wanted details",
-    "timeline-thumbnails": "Video thumbnail collection",
-    "download-postprocess": "Cloud download post-processing",
-    "seed-import": "Import seed details",
-    "follow-creator": "File followed creators",
-    "amane-bridge": "Rebuild the amane bridge",
-    "face-models": "Download face models",
+    "follow-check": "追更检查",
+    "follow-resolve": "关注来源查找",
+    "library-processing": "扫描与采集",
+    "taste-refresh": "口味分析",
+    "link-check": "链接检查",
+    "link-prune": "失效链接清理",
+    "resource-scan": "资源同步检查",
+    "resource-apply": "资源同步清理",
+    "scraping-cover": "封面采集",
+    "media-repair": "媒体修复",
+    "mp4-header-repair": "播放文件头修复",
+    'jav-discovery-metadata': '发现页资料读取',
+    'diagnostic-export': '诊断导出',
+    "upgrade-repairs": "自动修复",
+    "upgrade-library": "自动修复资料",
+    "organize": "按模板整理",
+    "batch": "批量操作",
+    "scrape-codes": "番号资料刮削",
+    "jav-covers": "封面批量抓取",
+    "entity-avatar": "补全资料图片",
+    "performer-profile": "补全女优资料",
+    "performer-alias": "补全女优别名",
+    "studio-mark": "补厂牌官网与标识",
+    "creator-identity": "查创作者身份",
+    "code-samples": "补番号样张",
+    "feed-check": "订阅源拉取",
+    "feed-scrape": "取新作资料",
+    "feed-cover": "补新作封面",
+    "want-scrape": "取想要的资料",
+    "timeline-thumbnails": "视频缩略图采集",
+    "download-postprocess": "云下载后处理",
+    "seed-import": "导入初始资料",
+    "follow-creator": "关注作者建档",
+    "amane-bridge": "重建 amane 桥",
+    "face-models": "下载人脸模型",
 }
 
 
@@ -546,13 +549,24 @@ class TaskRunStore:
             return None
         ahead = tuple(dict.fromkeys(str(key) for key in first or ())) or ("",)
         marks = ",".join("?" * len(keys))
+        from .task_control import requested
         moment = stamp()
         with self.database.write_transaction(notify=False) as connection:
-            row = connection.execute(
-                f"SELECT id FROM task_run WHERE followup_key IS NOT NULL "
+            rows = connection.execute(
+                f"SELECT id,parent_run_id,root_run_id FROM task_run WHERE followup_key IS NOT NULL "
                 f"AND status='pending' AND task_key IN ({marks}) "
-                f"ORDER BY task_key IN ({','.join('?' * len(ahead))}) DESC, id LIMIT 1",
-                (*keys, *ahead)).fetchone()
+                f"ORDER BY task_key IN ({','.join('?' * len(ahead))}) DESC, id",
+                (*keys, *ahead)).fetchall()
+            row = None
+            for candidate in rows:
+                action = requested(self.database.db_path, candidate['id'],
+                                   (candidate['parent_run_id'], candidate['root_run_id']))
+                if action == 'cancel':
+                    connection.execute("UPDATE task_run SET status='cancelled',finished_at=?,heartbeat_at=? "
+                                       "WHERE id=? AND status='pending'", (moment, moment, candidate['id']))
+                elif action != 'pause':
+                    row = candidate
+                    break
             if row is None:
                 return None
             run_id = int(row["id"])
@@ -813,9 +827,14 @@ class TaskRunStore:
                          conflict=conflict, total=total, label=label)
         handle = TaskRunHandle(self, run.id if run else None)
         try:
-            yield handle
+            from .task_control import bind, checkpoint
+            with bind(self, handle.run_id):
+                yield handle
+                checkpoint()
         except BaseException as error:
-            handle.finish("failed", error=f"{type(error).__name__}: {error}")
+            from .task_control import Cancelled
+            handle.finish('cancelled' if isinstance(error, Cancelled) else 'failed',
+                          error='' if isinstance(error, Cancelled) else f"{type(error).__name__}: {error}")
             raise
         else:
             handle.finish("succeeded")
@@ -885,6 +904,8 @@ class TaskRunHandle:
 
     def checkpoint(self, **fields) -> None:
         """领域结果提交后保存完成集合；后继重新领取时沿用。"""
+        from .task_control import checkpoint
+        checkpoint()
         if self.run_id is None or not self.store.enabled:
             return
         with self.store.database.write_transaction(notify=False) as connection:
@@ -899,10 +920,14 @@ class TaskRunHandle:
     def progress(self, current: int | None = None, total: int | None = None,
                  label: str | None = None, *,
                  throttle: float = PROGRESS_INTERVAL) -> None:
+        from .task_control import checkpoint
+        checkpoint()
         self.store.progress(self.run_id, current=current, total=total,
                             label=label, throttle=throttle)
 
     def heartbeat(self) -> None:
+        from .task_control import checkpoint
+        checkpoint()
         self.store.heartbeat(self.run_id)
 
     def finish(self, status: str, *, summary: dict | None = None,

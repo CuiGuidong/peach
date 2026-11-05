@@ -54,6 +54,18 @@ function Icon({ name }: { name: string }) {
 const RESOURCE_LABELS: Record<string, string> = { image: 'Images', audio: 'Audio', archive: 'Archives', other: 'Other files' };
 const DISPOSAL_LABELS = { manual: 'Manual', junk: 'Junk', duplicate: 'Duplicates', missing: 'Missing file' };
 
+function missingDuration(item: MediaItem): { key: string; label: string } {
+  // media_probe 将已探查但未取得时长记为 -1；NULL 才是尚未探查。
+  if (Number(item.duration) < 0) return { key: 'unavailable', label: '探查错误' };
+  if (item.duration != null) return { key: 'unknown', label: '时长未取得' };
+  if (item.location === 'online') return { key: 'online', label: '来源未提供时长' };
+  const path = String(item.path || item.name || '').toLowerCase();
+  if (item.is_strm || path.endsWith('.strm')) return { key: 'strm', label: 'STRM 不自动探查' };
+  if (path.endsWith('.iso')) return { key: 'iso', label: 'ISO 不自动探查' };
+  if (item.cost === 'metered') return { key: 'metered', label: '流量保护 · 未探查' };
+  return { key: 'pending', label: '尚未探查' };
+}
+
 function DisposalReason({ item }: { item: MediaItem }) {
   if (item.disposal !== 'trash') return null;
   const label = (item.disposal_reason && DISPOSAL_LABELS[item.disposal_reason]) || 'Reason not recorded';
@@ -243,6 +255,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
   const titleHtml = helpers.titleHtml(item, rawName).trim() || esc(UNNAMED);
   const shownSize = parts?.total_size ?? item.size;
   const shownDuration = parts?.total_duration ?? item.duration;
+  const durationReason = Number(shownDuration) > 0 ? null : missingDuration(item);
   const watched = !parts && Number(item.play_seconds) > 0 && Number(item.duration) > 0
     ? Math.min(Number(item.play_seconds) / Number(item.duration), 1) : 0;
   const { avatar, who } = identityParts(item);
@@ -284,7 +297,9 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
       {editions
         ? <span data-media-group="" title={editions.editions.join(' · ')}>{`${Number(editions.count).toLocaleString()} editions`}</span>
         : null}
-      <span data-media-duration="">{fmtDur(shownDuration)}</span>
+      <span data-media-duration="" data-copy-key={durationReason ? `media.duration.${durationReason.key}` : undefined}>
+        {durationReason ? durationReason.label : fmtDur(shownDuration)}
+      </span>
       {!selectMode && item.disposal === 'trash' ? <ResourceAction item={item} actions={actions} /> : null}
       {watched > 0
         ? (
@@ -324,6 +339,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
 
   return (
     <article ref={attach} data-media-card="" data-id={item.id} data-variant={variant}
+      data-guide-video={item.location !== 'online' && !String(item.name || '').toLowerCase().endsWith('.iso') ? '' : undefined}
       data-watch-later={later ? '' : undefined} data-library={library}
       data-jav-item={item.is_jav ? '' : undefined}
       data-part-seed={parts ? parts.seed_id : undefined} data-stacked={stacked ? '' : undefined}

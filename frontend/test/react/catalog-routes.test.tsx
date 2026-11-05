@@ -1,10 +1,7 @@
-/* The catalog grid and junk queue are rendered by the route tree into `#grid` (`CATALOG_ROUTES`): the cold-start skeleton is
- * lifted into a fading layer via `revealSkeleton`, in the same batch of changes as the full page; the shell claiming a surface
- * tears down only `#stats` and `#index`, and the page on `#grid` stays; while on the catalog the shell pushes selection state,
- * layout and filters via `updateManagedRoute`, the page does not remount and the generation does not change, and a filter
- * change only refetches once by the new key; the junk queue clears its skeleton in one go, and the count row's slot is
- * withdrawn in sync on collapse; the shell's helpers and actions are handed to the page unchanged; these paths are never
- * handed to React Router.
+/* 目录网格与垃圾队列由路由树画进 `#grid`（`CATALOG_ROUTES`）：页面挂载即取数，骨架与内容在变化区交叉淡化。
+ * 壳认领表面只收 `#stats` 与 `#index`，`#grid` 上那一页留着；停在目录时壳经 `updateManagedRoute`
+ * 推选择态、版式与筛选，页面不重挂、代次不变，换筛选只按新键重取一次；垃圾队列一次清空骨架，收起时计数行那一格
+ * 同步撤掉；壳那一份助手与动作原样交给页面；这些路径不交给 React Router。
  *
  * How a screen of cards is laid out and what the card face shows is governed by `catalog-grid.test.tsx` and
  * `junk-queue.test.tsx`; this file covers the route tree layer. */
@@ -172,33 +169,33 @@ const cards = (grid: Element) => grid.querySelectorAll('.peach-react [data-media
 /** The block the page renders (the host's first element): after a remount it is a different one. */
 const painted = (grid: Element) => grid.querySelector(':scope > .peach-react > *');
 
-it('Cold-start deep link to home: the skeleton fade-out hands off to the full page within one batch of changes, with no empty frames in between', async () => {
+it('冷启动深链首页由页面立即显示骨架，首屏取齐后交叉呈现内容', async () => {
   const r = await load('/');
-  const { grid, skeleton } = gridSurface();
+  const { grid } = gridSurface();
   await mount(r);
   const fetch = catalogFetch({ deferred: true });
-  const open = catalogOpen();
+  const open = catalogOpen({ skeletonHtml: () => GRID_SKELETON });
   const opened = r.openManagedRoute('/', open, { container: grid, isCurrent: () => true, place: revealRoutedPage });
-  await until(() => fetch.calls('/api/items').length > 0, 'First-screen fetch sent out');
-  expect(grid.firstElementChild, 'Skeleton kept as-is until data lines up').toBe(skeleton);
-  const batches: Array<{ bare: boolean; fading: boolean; painted: boolean; revealing: boolean }> = [];
+  await until(() => fetch.calls('/api/items').length > 0, '首屏取数发出去');
+  expect(grid.querySelector('[data-content-transition]')?.getAttribute('aria-busy')).toBe('true');
+  expect(grid.querySelector('[data-content-skeleton] [data-skeleton]')).not.toBeNull();
+  const batches: Array<{ pending: boolean; painted: boolean }> = [];
   const observer = new MutationObserver(() => {
     batches.push({
-      bare: Boolean(grid.querySelector(':scope > .grid > [data-skeleton]')),
-      fading: Boolean(grid.querySelector(':scope > .skelfade [data-skeleton]')),
+      pending: Boolean(grid.querySelector('[data-content-transition][aria-busy="true"] [data-skeleton]')),
       painted: cards(grid).length === 3,
-      revealing: grid.classList.contains('skelreveal') && grid.classList.contains('revealing'),
     });
   });
-  observer.observe(grid, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  observer.observe(grid, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-busy'] });
   unmounts.push(() => observer.disconnect());
   fetch.resolve();
   await act(async () => { expect(await opened).toBe(true) });
-  expect(batches[0], 'Within the batch removing the skeleton, the skeleton is already a fade layer and the full page is painted').toEqual(
-    { bare: false, fading: true, painted: true, revealing: true });
-  expect(batches.every((batch) => batch.bare || batch.fading || batch.painted), 'No batch is empty').toBe(true);
-  expect(grid.querySelector('.skelfade')?.firstElementChild, 'Inside the fade layer sits the original skeleton').toBe(skeleton);
-  expect(fetch.calls('/api/items'), 'The first screen fetches once').toHaveLength(1);
+  await until(() => cards(grid).length === 3, '首屏内容就绪');
+  expect(batches.length).toBeGreaterThan(0);
+  expect(batches.every((batch) => batch.pending || batch.painted), '每一批变化都有占位或内容').toBe(true);
+  expect(grid.querySelector('[data-content-transition]')?.getAttribute('aria-busy')).toBe('false');
+  expect(grid.querySelector('[data-content-skeleton]')?.getAttribute('aria-hidden')).toBe('true');
+  expect(fetch.calls('/api/items'), '首屏只取一次').toHaveLength(1);
   expect(open.settled).toHaveBeenCalledWith(0);
   expect(r.managedEntry(grid)).toMatchObject({ path: '/', props: { filters: { sort: 'seed' } } });
   // jsdom does not fire transitionend, so the fade layer is cleaned up by `revealSkeleton`'s fallback timer.
@@ -279,7 +276,8 @@ it('Junk queue: swap the grid on `#grid`, clear the skeleton in one pass, and th
   await mount(r);
   const fetch = catalogFetch();
   await act(async () => { await r.openManagedRoute('/', catalogOpen(), { container: grid, isCurrent: () => true }) });
-  expect(grid.querySelector('[data-media-sections]'), 'Draws the catalog grid first').not.toBeNull();
+  await until(() => cards(grid).length === 3, '目录首屏画上');
+  expect(grid.querySelector('[data-media-sections]'), '先画着目录网格').not.toBeNull();
   const open = junkOpen();
   await act(async () => { expect(await r.openManagedRoute('/junk-files', open, { container: grid, isCurrent: () => true })).toBe(true) });
   expect(r.managedEntries().map((entry) => entry.path), 'One container keeps a single page').toEqual(['/junk-files']);

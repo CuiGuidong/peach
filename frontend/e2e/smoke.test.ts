@@ -31,6 +31,9 @@ interface Route {
 
 const heading = (page: Page, scope: string, name: string): Locator =>
   page.locator(scope).getByRole('heading', { name, exact: true });
+/* 数据管理二级页的卡片标题与页头同名；只认页头那一层 h2，React 卡片何时挂载都只匹配一个。 */
+const pageTitle = (page: Page, name: string): Locator =>
+  page.locator('#main').getByRole('heading', { name, exact: true, level: 2 });
 
 const DESKTOP = VIEWPORTS.find((viewport) => !viewport.mobile)!;
 
@@ -111,11 +114,17 @@ const ROUTES: readonly Route[] = [
   },
   {
     path: '/data-cleanup',
-    // The legacy skeleton before mount uses a heading, the final React card a named section; only the final semantics prove that mounting finished.
-    body: (page) => [heading(page, '#main', 'Data management'),
-      page.locator('#stats section[aria-label="Scan and scrape"]'),
-      page.locator('#stats section[aria-label="Media repair"]')],
+    // 挂载前的遗留骨架用 heading，最终 React 卡片用带名字的 section；等最终语义才能证明挂载完成。
+    body: (page) => [heading(page, '#main', '数据管理'),
+      page.locator('#stats section[aria-label="扫描与采集"]'),
+      page.locator('#cleanup-pending'), page.locator('#cleanup-maintenance'), page.locator('#cleanup-deletion')],
   },
+  { path: '/data-cleanup/organize', body: page => [pageTitle(page, '整理文件'), page.locator('#stats #organize')] },
+  { path: '/data-cleanup/media-repair', body: page => [pageTitle(page, '媒体修复'), page.locator('#stats section[aria-label="媒体修复"]')] },
+  { path: '/data-cleanup/resource-sync', body: page => [pageTitle(page, '资源同步'), page.locator('#stats #resource-sync')] },
+  { path: '/data-cleanup/orphan-records', body: page => [pageTitle(page, '文件已丢失的记录'), page.locator('#stats #orphan-records')] },
+  { path: '/data-cleanup/links', body: page => [pageTitle(page, '链接管理'), page.locator('#stats #link-manager')] },
+  { path: '/data-cleanup/batch-delete', body: page => [pageTitle(page, '批量删除'), page.locator('#stats #batch-delete')] },
   {
     // The demo library has no junk candidates; what arrives is the empty-state title of the junk queue page, and the shell's skeleton only lays card placeholders.
     path: '/junk-files',
@@ -127,9 +136,9 @@ const ROUTES: readonly Route[] = [
     body: (page) => [heading(page, '#main', 'Duplicates'), page.locator('#stats').getByText('Duplicate content', { exact: true })],
   },
   {
-    // Legacy direct URLs land on the data management page's anchor; that section in the skeleton has no `id`, and the only one with an `id` is the real card that appears once the demo library has a root configured.
+    // 旧直达地址进入资源同步二级页。
     path: '/resource-sync',
-    body: (page) => [heading(page, '#main', 'Data management'), page.locator('#stats section#resource-sync')],
+    body: (page) => [pageTitle(page, '资源同步'), page.locator('#stats section#resource-sync')],
   },
   {
     path: '/quality-goals',
@@ -286,9 +295,9 @@ describe('Route smoke', () => {
     }
   });
 
-  /* The home page's new releases row belongs to the catalog page only: entering statistics from home must collapse and clear it, and a round that left before its fetch returned
-     must not come back and paint it onto the managed area. The demo library has no subscriptions, so new releases come as one entry from the intercepted endpoint. */
-  it('After leaving home the new-releases row collapses, and late fetches never paint it back', { timeout: 60_000 }, async () => {
+  /* 首页那一行新作只属于目录页：从首页进统计页要收起保留，取数还没回来就离开的那一轮
+     也不许回头把它画到管理区上。演示库没有订阅，新作由拦截的接口给一条。 */
+  it('离开首页之后新作那一行收起，晚到的取数也不画回来', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/stats', DESKTOP);
     try {
       let hold: Promise<void> | null = null;
@@ -314,17 +323,24 @@ describe('Route smoke', () => {
       await expectBody(opened.page, '/', [feedCards.first()]);
       await go('/stats');
       await expectBody(opened.page, '/stats', [statsInventoryTab(opened.page)]);
-      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, 'After entering stats the new-releases row is still showing');
-      assert.equal(await feedCards.count(), 0, 'Entering stats never cleared the new-releases row');
+      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, '进统计页之后新作那一行还露着');
+      assert.equal(await feedCards.filter({ visible: true }).count(), 0, '进统计页之后新作卡片仍可见');
 
+      const beforeReturn = served;
       await go('/');
       await expectBody(opened.page, '/', [feedCards.first()]);
+      assert.equal(served, beforeReturn, '返回首页沿用新作缓存');
       await go('/junk-files');
       await opened.page.locator('#count [data-junk-filters]').waitFor();
-      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, 'The junk files page shows no subscribed new releases');
-      assert.equal(await feedCards.count(), 0);
+      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, '垃圾文件页不展示订阅新作');
+      assert.equal(await feedCards.filter({ visible: true }).count(), 0);
 
       for (const target of ['/stats', '/junk-files']) {
+        hold = null;
+        const reloadPath = new URL(opened.page.url()).pathname;
+        await opened.page.reload({ waitUntil: 'load' });
+        await expectBody(opened.page, reloadPath, [reloadPath === '/stats'
+          ? statsInventoryTab(opened.page) : opened.page.locator('#count [data-junk-filters]')]);
         let release!: () => void;
         hold = new Promise((resolve) => { release = resolve; });
         const asked = opened.page.waitForRequest(/\/api\/feeds\/discoveries\?/);
@@ -339,8 +355,9 @@ describe('Route smoke', () => {
         assert.ok(served > before, 'The held new-releases fetch was never released');
         // After the response the page has only one synchronous repaint left; the catalog area's old loading state does not belong to the current page.
         await opened.page.waitForTimeout(500);
-        assert.equal(await feedCards.count(), 0, `A late new-release fetch painted onto ${target}`);
-        await assertHolds(opened.page, opened.problems, `Home to ${target} and back`);
+        assert.equal(await opened.page.locator('#feedNew').isHidden(), true);
+        assert.equal(await feedCards.filter({ visible: true }).count(), 0, `晚到的新作取数画到了 ${target} 上`);
+        await assertHolds(opened.page, opened.problems, `首页与 ${target} 往返`);
       }
     } finally {
       await opened.close();

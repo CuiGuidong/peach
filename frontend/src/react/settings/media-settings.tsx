@@ -195,7 +195,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
 
   if (saved) {
     return (
-      <Section title="Libraries and folders">
+      <Section guide="media" title="媒体库与目录">
         <Stack>
           <Note tone="success" title="Configuration saved">
             Peach is restarting. You will be redirected shortly, or open <LinkButton href={saved.url} size="small">the library</LinkButton>.
@@ -210,7 +210,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
   const cloud = rows.some((row) => isCloudSource(row.location));
   const missing = cloud ? (data.mount_dependencies ?? []).filter((dependency) => !dependency.available) : [];
   return (
-    <Section title="Libraries and folders" onSubmit={submit}>
+    <Section guide="media" title="媒体库与目录" onSubmit={submit}>
       <Stack>
         {/* Grouped by library: name, icon, source color, and handling belong to the library and are written once per group;
             the folders of this library are listed below, and folders only carry path, source, and read policy. */}
@@ -365,7 +365,7 @@ function MountStatus({ data }: { data: ConfigurationData }) {
   const refresh = () => void action.run('refresh', (signal) => fetchConfiguration(signal),
     (result) => queryClient.setQueryData(CONFIGURATION_KEY, result));
   return (
-    <Section title="Mount state">
+    <Section guide="mounts" title="挂载状态">
       <FactList>
         {sources.map((row, index) => (
           <Fact key={index} term={<><SourceMark mark={sourceMark(row.location)} />{sourceName(row.location)}</>}>

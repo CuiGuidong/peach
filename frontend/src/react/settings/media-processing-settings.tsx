@@ -26,7 +26,7 @@ export function MediaProcessingSettings({ receipt }: { receipt(message: string):
   const error = action.error || (policy.error ? errorMessage(policy.error) : '');
   const blocked = !policy.data || policy.isFetching || !!action.busy;
   return (
-    <Section title="Video previews">
+    <Section guide="preview" title="视频预览">
       <Rows>
         <SettingsRow label="Generate video previews" description="Generates contact-sheet and timeline previews for local videos; when off, duration and resolution are still probed per the library rules.">
           <Switch aria-label="Generate video previews" isSelected={!!policy.data && !policy.data.metadata_only} isDisabled={blocked}
@@ -69,7 +69,7 @@ export function PlaybackTranscodeSettings({ receipt }: { receipt(message: string
   const action = useAction();
   const error = action.error || (policy.error ? errorMessage(policy.error) : '');
   return (
-    <Section title="Video playback">
+    <Section guide="transcode" title="视频播放">
       <Rows>
         <SettingsRow label="Transcode method" description="Used for video transcoding during playback.">
           <div id="playbackAccelerationSetting">

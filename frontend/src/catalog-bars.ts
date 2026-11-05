@@ -13,15 +13,14 @@
  * - `['tops', param string, generation]`: continuation pages (param string with `page`). The response is decided only by the
  *   param string, and both rows asking for the same page send one request.
  *
- * The same basis is reused directly within 30 seconds, and simultaneous requests for the same one send a single request.
- * Writes, Shuffle and returning home have the shell call `dropBars()`: the generation increments so the next call really does
- * send; the trip in flight is still delivered to whoever is waiting on it. */
+ * 同一标签页内复用同一份口径，同时要同一份只发一次请求。写操作与主动换一批由壳调 `dropBars()`：
+ * 代次加一，下一次一定真的发请求；路上那一趟照样交给正在等它的调用方。 */
 import { api } from '@peach/legacy/core';
 
 import { queryClient } from './query';
 
-/** How long the two aggregates are reused: returning via navigation does not refetch; entering the page again after half a minute fetches from the fresh database. */
-export const BARS_STALE_MS = 30_000;
+/** 同一标签页内保留聚合，写操作与主动刷新通过代次失效。 */
+export const BARS_STALE_MS = Infinity;
 
 let revision = 0;
 

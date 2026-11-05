@@ -1,5 +1,5 @@
-/* Second half of "App and maintenance": storage space, data upload, run info, install guide, and uninstall. Rarely-touched privacy switches and read-only info come after,
- * uninstall is irreversible and stays at the very end of the group. */
+/* 「应用与维护」的后半段：存储空间、数据上传、运行信息、新手教程与卸载。少改的隐私开关和只读信息在后，
+ * 卸载是不可逆动作，留在整组最后。 */
 import { useState, type FormEvent } from 'react';
 import { confirmModal } from '@peach/legacy/ui';
 
@@ -28,7 +28,7 @@ export function MaintenanceSettings(
   return (
     <div {...groupRoot(panel)}>
       {data.storage ? <StorageSettings initial={data.storage} receipt={receipt} /> : null}
-      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" title="Data uploads">
+      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="数据上传">
         {data.remote_reporting ? <RemoteReportingSettings initial={data.remote_reporting} receipt={receipt} /> : null}
         {data.library_sharing ? <div className="border-t border-separator-border">
           <LibrarySharingSettings initial={data.library_sharing} receipt={receipt} />
@@ -41,17 +41,13 @@ export function MaintenanceSettings(
   );
 }
 
-/** Reopens the setup guide. The guide card itself still renders in the legacy layer; this just presses it back into view. */
-export function TutorialSettings({ receipt, reopenTutorial }: ConfigurationProps) {
-  const action = useAction();
-  const reopen = () => void action.run('reopen', () => reopenTutorial(),
-    () => receipt('Reopened the install guide'));
+/** 恢复账本共享的教程入口，保留首次设置与章节进度。 */
+export function TutorialSettings({ reopenTutorial }: ConfigurationProps) {
   return (
-    <section aria-label="Setup guide" className="w-full"><SettingsCard>
-      <Rows><SettingsRow label="Setup guide">
-        <Button variant="secondary" onClick={reopen} {...busyProps(action.busy === 'reopen')}>Reopen the guide</Button>
+    <section aria-label="新手教程" className="w-full"><SettingsCard>
+      <Rows><SettingsRow label="新手教程" description="在所有设备上恢复右上角教程入口，保留已读进度">
+        <Button variant="secondary" onClick={() => void reopenTutorial()}>重新打开</Button>
       </SettingsRow></Rows>
-      {action.error ? <Stack><ErrorText>{action.error}</ErrorText></Stack> : null}
     </SettingsCard></section>
   );
 }
@@ -74,7 +70,7 @@ export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdat
       ? 'After downloading, confirm the restart install here.'
       : undefined;
   return (
-    <Section id="automaticUpdates" title="Auto-update" onSubmit={submit}>
+    <Section id="automaticUpdates" guide="automatic-updates" title="自动更新" onSubmit={submit}>
       <Rows>
         <SettingsRow label="Automatically check for new versions">
           <Switch aria-label="Automatically check for new versions" isSelected={mode !== 'off'} isDisabled={!initial.available}
@@ -102,7 +98,7 @@ export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdat
 
 function Facts({ facts }: { facts: ConfigurationFact[] }) {
   return (
-    <Section title="Runtime info">
+    <Section guide="facts" title="运行信息">
       <FactList>
         {facts.map((fact) => (
           <Fact key={fact.term} term={fact.term}>
@@ -137,8 +133,8 @@ export function UninstallSettings(
   const status = accepted || uninstall.message;
   const paths = [...new Set([uninstall.data_root, ...uninstall.directories])];
   return (
-    <Section id="uninstallPeach" title="Uninstall Peach">
-      {uninstall.available ? <Stack><Help>Uninstalling removes the Peach program itself; original media files are kept.</Help></Stack> : null}
+    <Section id="uninstallPeach" guide="uninstall" title="卸载 Peach">
+      {uninstall.available ? <Stack><Help>卸载移除 Peach 程序本身，原始媒体文件保留。</Help></Stack> : null}
       <Rows>
         <SettingsRow label="Full uninstall" description="Also delete settings, the local database, watch history, credentials, and caches">
           <Switch aria-label="Full uninstall" isSelected={removeData} isDisabled={!uninstall.full_available || Boolean(accepted)} onChange={setRemoveData} />

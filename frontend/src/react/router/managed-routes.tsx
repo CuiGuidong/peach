@@ -26,9 +26,9 @@ import { prefetchTasks } from '../activity/tasks';
 import { BatchDockSurface } from '../batch-dock/batch-dock-island';
 import type { DataCleanupSection, LibraryProcessingProps } from '../bundle';
 import { CatalogFilterPage } from '../catalog-filter/catalog-filter-page';
-import { prefetchCatalogGrid } from '../catalog-grid/catalog-grid';
 import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
-import { prefetchDataCleanup } from '../data-cleanup/data-cleanup';
+import { prefetchDataCleanup, prefetchDataCleanupTool } from '../data-cleanup/data-cleanup';
+import { CLEANUP_TOOLS, type CleanupToolPath } from '../../cleanup-tools';
 import { prefetchEntityPage, type EntityPageProps } from '../entity-page/entity-page';
 import { EntityPage } from '../entity-page/entity-page-view';
 import { prefetchDuplicates } from '../duplicates/duplicates';
@@ -136,7 +136,23 @@ const configurationRoute = (path: ConfigurationPath): ManagedRoute<ManagedOpenPr
   },
 });
 
+const cleanupRoutes = CLEANUP_TOOLS.reduce((routes, tool) => {
+  routes[tool.path] = {
+    element: <ManagedMatch path={tool.path} />,
+    prefetch: (_open: Record<string, never>, signal: AbortSignal) =>
+      withPage(dataCleanupPage, prefetchDataCleanupTool(tool.key, signal)),
+    page: (_open: Record<string, never>, actions: ShellActions) => {
+      const { DataCleanupToolPage } = dataCleanupPage.get();
+      return <DataCleanupToolPage tool={tool.key} failure={actions.failure}
+        toast={(message, { warning = false } = {}) => (
+          warning ? actions.toast({ text: message }, { sound: 'warning' }) : actions.receipt(message))} />;
+    },
+  };
+  return routes;
+}, {} as Pick<ManagedRouteTable, CleanupToolPath>);
+
 export const MANAGED_ROUTES: ManagedRouteTable = {
+  ...cleanupRoutes,
   '/jav': {
     element: <ManagedMatch path="/jav" />,
     prefetch: (open, signal) => withPage(javPage, prefetchJav(open.tab, signal)),
@@ -175,13 +191,13 @@ export const MANAGED_ROUTES: ManagedRouteTable = {
         revealSource={actions.revealSource} toast={(message) => actions.receipt(message)} />;
     },
   },
-  /* The first screen waits for its own few pieces in the top readout row, the two background job cards and the organize card; review, HD edition and links each read on their own. */
+  /* 首页只展开日常扫描；维护工具各自预取自己的二级页数据。 */
   '/data-cleanup': {
     element: <ManagedMatch path="/data-cleanup" />,
     prefetch: (_open, signal) => withPage(dataCleanupPage, prefetchDataCleanup(signal)),
     page: (_open, actions, go) => {
       const { DataCleanupPage } = dataCleanupPage.get();
-      return <DataCleanupPage failure={actions.failure} open={(section) => openCleanupSection(section, actions, go)}
+      return <DataCleanupPage navigate={go} failure={actions.failure} open={(section) => openCleanupSection(section, actions, go)}
         toast={(message, { warning = false } = {}) => (
           warning ? actions.toast({ text: message }, { sound: 'warning' }) : actions.receipt(message))} />;
     },
@@ -312,21 +328,18 @@ export const ENTITY_ROUTES: EntityRouteTable = {
   '/agencies/*': entityRoute, '/tags/*': entityRoute,
 };
 
-/* The two pages rendered into `#grid`. Catalog grid: home, three of the four filter states (junk files excluded) and trash,
-   all rendering this one grid, with filters from the shell's `state`; junk queue: the junk files screen, reading category and
-   view only from the address. The table keys per page: the shell opens the grid with `/` and the queue with `/junk-files`,
-   and the path recorded in the slot says which page is rendered, not what the address is. Keying by address would break in
-   three places: the grid going to `/` after opening at `/trash` is an in-place push and the slot's path would not follow;
-   `?state=ads` landing on `/` renders the junk queue; and a cold start landing on a details address backfills the grid under
-   `/assets/:id`.
-   The grid fetches its first page before rendering; the queue does not wait before opening and lays its own skeleton as soon
-   as it renders (top of `junk-queue-page.tsx`). Later filter or category changes, layout changes, selection mode and refresh
-   generation are all pushed in by the shell via `updateManagedRoute`; the page refetches per the new key, lays its own
-   skeleton, and does not remount. */
+/* 画进 `#grid` 的两页。目录网格：首页、四个筛选态里除垃圾文件外的三个，和回收站，画的都是这一张网格，
+   筛选是壳那一份 `state`；垃圾队列：垃圾文件那一屏，分类与视图只从地址读。表按页面分键：壳用 `/` 打开
+   网格、用 `/junk-files` 打开队列，槽里记的路径说的是画着哪一页、不是地址。按地址分键会在三处出错：网格在
+   `/trash` 打开之后去 `/` 是就地推，槽里的路径不跟着变；`?state=ads` 落在 `/` 上，画的是垃圾队列；冷启动
+   落在详情地址上时，网格在 `/assets/:id` 底下补画。
+   网格与队列都不在打开前等，画上即取数并显示各自的骨架。之后换
+   筛选或分类、换版式、选择模式与刷新代次都由壳经 `updateManagedRoute` 推进来，页面按新键重取、自己铺
+   骨架，不重挂。 */
 export const CATALOG_ROUTES: CatalogRouteTable = {
   '/': {
     element: <CatalogMatch />,
-    prefetch: (open, signal) => prefetchCatalogGrid(open, signal),
+    prefetch: async () => {},
     page: (open) => <CatalogGridPage {...open} />,
   },
   '/junk-files': {

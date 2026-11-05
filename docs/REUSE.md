@@ -1,5 +1,25 @@
 # 复用清单
 
+## 跨平台任务资源计量
+
+继续使用 psutil 7.2.2 读取进程 CPU 时间和身份。该版本的 macOS 线程列表使用序号，不能与 Python 原生线程 ID 对应；因此使用系统 `libproc` 的 `PROC_PIDTHREADID64INFO` 取得指定线程的纳秒时间，接口与单位见 [XNU 实现](https://github.com/apple-oss-distributions/xnu/blob/main/osfmk/kern/bsd_kern.c)。Linux 的可用 CPU 容量复用亲和性、控制组成员和挂载信息，按可见 cgroup v1/v2 配额归一化。
+
+Linux GPU 读取 [DRM fdinfo 标准](https://docs.kernel.org/gpu/drm-usage-stats.html)的客户端、设备和引擎忙碌时间；重复描述符去重，计数回退保持高水位，进程重用重新采样。容器沿用当前设备与 PID 命名空间，不要求宿主 PID 权限。macOS 和未提供该计数的 Linux 驱动明确显示未取得，不使用整机 GPU 占用替代任务。实现只调用系统接口，无新增依赖；测试覆盖平台接口、配额、权限、重复客户端和原生线程时间增长。
+
+## 数据管理层级
+
+数据管理首页按待处理事项看板、扫描与采集、整理与维护、清理与删除排列。日常扫描直接操作，其余工具在独立二级页展开表单和清单；首页只读摘要。工具名称、顺序和地址由 `frontend/src/cleanup-tools.ts` 供首页、路由、面包屑与加载态共用。已分享的工具锚点转到对应二级页，保留查询参数。
+
+数字驱动的人工复核、重复文件、垃圾文件、高清版和回收站在顶部组成看板，复用 `PlainStat` 的大数字样式。整理、维护和批量删除共用 `CleanupEntryCard` 的功能入口样式；首屏加载态复用同一套卡面。入口不执行删除，危险样式留给二级页的执行按钮和确认窗口。
+
+## 按女优删除影片
+
+数据管理页的「批量删除」复用 `DataTable` 的排序、分页和跨页勾选、女优名册的姓名与头像装配、`confirmModal()`、`purge_assets()` 和缓存清理入口，不新增依赖。`/api/performer/delete-plan` 按所选实体 ID 的并集列出全部视频，包括回收站记录；多人共同出演的文件去重。执行前在写锁内核对清单摘要，关联、路径或记录版本变化时拒绝旧清单。永久删除沿用媒体先隔离、账本失败恢复、文件失败保留记录的顺序，保留女优档案、照片与其他人物的独立影片；多人出演的同一文件会从所有关联人物的作品中消失。
+
+## 教程中心与界面导览
+
+复用 [Driver.js](https://driverjs.com/) `1.10.2`（MIT）的遮罩、箭头和边缘避让，正文与操作复用 Peach 的 React、BoardUI 和弹层组件。步骤绑定组件锚点，布局变化调用 `refresh()`；设置路由复用当前路由定义。教程状态复用账本 `profile.settings_json` 和现有读写事务，通过 `/api/tutorial-progress` 按动作更新，所有设备共用。入口、提示版本与维护边界见 [教程中心](ONBOARDING.md)。
+
 ## 首页筛选聚合与缓存
 
 采用 bbingz 的 [PR #205](https://github.com/peach-mitao/peach/pull/205)，固定来源提交 `bbf5aac8e9562211c324c2019bff35888266df84`，许可证沿用本项目 AGPL-3.0-or-later。作品筛选集合先在独立子查询中求出，创作者、标签和演员按既有关系聚合，保留去重计数与标签可见性。没有选中标签时移除无效 `tag_match`，复用既有修订缓存、同键锁与跨连接写入失效机制，不在线改写 SQLite 统计或增加索引迁移。
@@ -173,6 +193,8 @@ npm 安装沿用 Node.js 24 LTS 附带的官方 [`npm ci`](https://docs.npmjs.co
 采集磁盘预估复用 `ProcessingTraffic`、`TrafficPlan` 的待执行与完成范围，以及 `typical_size` 的本地缓存采样。`processing_storage` 仅用 Python 标准库 `shutil.disk_usage` 和文件系统设备编号合并同盘、分别核对跨盘容量；输出读数由现有 `TrafficProgress` 同时用于启动弹窗、运行任务卡和任务通知。网盘挂载缓存保持未观测状态，不把流量数直接算成最终磁盘产物。无新增依赖。
 
 ## 状态与同步弹窗
+
+导航位置由 `history/page-navigation.ts` 统一保存与恢复，同一标签页保留各栏目的筛选、分页和内容缓存；普通栏目往返平滑恢复位置，双击导航请求回顶。左侧导航排序复用 `moveSidebarKey` 与现有设置保存入口，指针移动只更新插入提示和避让，松手时保存一次；键盘使用 Alt + 方向键。动效参数与证据边界见[导航拖动参考](reference-snapshots/kubai-sidebar-reorder.md)，未新增依赖。
 
 全站滚动区通过 `observeScrollRegions` 按实际 `overflow` 接入现有 `attachOverlayScrollbar`，动态新增子树、样式启用和响应式布局复用同一入口；样式读取与轨道写入分批，行内样式变化只复核当前元素。普通内容区使用同级轨道，定位浮层与原生顶层内的轨道保持在自身层级并补偿滚动位置。组件卸载释放监听、观察器及轨道。横向手势导航保留 `wireHorizontalScroller` 的拖动和渐隐。路由冒烟统一检查所有实际溢出的滚动区，搜索回归覆盖滑块拖动、滚轮、关闭重开和轨道数量。没有新增依赖。
 
@@ -431,7 +453,7 @@ FC2 卖家名册复用 `sources/fc2.py` 的 `label`、`seller_url` 来源契约�
 
 JAV 发现卡复用馆藏的 `data-media-card` 网格与悬停面、`coverImage` 封面取景、`cardRatio` 大小图比例和 `feedIdentity` 身份头像；筛选复用 `FilterGlassRows`、`FilterPill`、`Segments` 与 `SortKeys`。出演者引用由 `web_catalog.entity_ref` 提供图片版本与取景；标题保留两行，操作区贴底。发现查询复用口味汇总与 `related.rank_related` 的 IDF/MMR，输出相关度和实际选择分，支持口味、发行日期、来源评分、时长、番号排序。来源资料复用 `PublicAPI`、`BackgroundJob(runs=None)`、`fsutil.atomic_write_text` 与标准库 `ContextVar`；固定至多 100 部，真实 HTTP 预算 202 次、16 MiB、900 秒，3 秒串行间隔。资料边车有效期 6 小时、最多 2,048 条、失败冷却 15 分钟，完成或停止后由显式刷新续跑。`WantMagnets` 以 `queryUrl` 共用作品详情和想要清单的资源布局，按资源区容器宽度排列操作，缓存按来源分开，容量复用 `fmtSize`。JAV 与名册的静态搜索框复用 `islandSearchInput`。资料扩展见 [JAV 发现](JAV_DISCOVERY.md)，无新增依赖。
 
-JAV 作品详情与馆藏视频共用 `IdentityCell` 的头像、标识和首字回退，标题折叠复用 `useFoldedTitle`。厂牌大小写唯一匹配与 `sources.javdb.maker_writing` 的日英组合解析只用于来源身份投影，标识按规范名读取。评论、资源复用 `Disclosure` 和 `setCollapseOpen`；来源与评论评分共用按小数裁切填充的星星。桌面右栏以 `contain:size` 排除正文的固有高度贡献，媒体区决定框体高度，正文在右栏内滚动。写操作取 `/healthz` 的账本只读状态，与运行配置权限分别处理。图片切换由 `MediaCarousel` 同时服务关注、库外 JAV 与馆藏详情，提供环形翻页、横向缩略图和位置圆点。缩略图与圆点复用浏览器原生 `overflow-x:auto`、`wireHorizontalScroller`，选中项在切图、循环和容器缩窄时保持可见。缩略图使用 `IntersectionObserver` 按可见范围挂载，馆藏经 `/sample-thumb`，来源图片共享查询缓存，关注优先取附件小图；Swiper 14.3.0 留给灯箱。馆藏样张复用 `sample_images.detail_refs` 和 `/sample-image`，`/api/item` 只读本地序号、最多 30 项；查看图片暂停正片，返回保留位置。推荐分标签复用 BoardUI `Chip` 与共享 Tooltip。视频预览的 `mountPreviewPlayer` 复用已固定的 Video.js 10.2.0（Apache-2.0）、官方 HLS 媒体组件、`mountPlayerQualityControl`、`mountPlayerSeekPreview` 和 `mountPlayerSpinner`，安装共用控制条、设置、时间、音量与窄宽度折叠。来源给定的 HLS 直接由播放器请求；片源代理、馆藏 ID 和观看上报沿用各自入口。播放器生命周期由当前详情管理，异步加载完成前离开会取消挂载，切换与关闭会停止并销毁实例。
+JAV 作品详情与馆藏视频共用 `IdentityCell` 的头像、标识和首字回退，标题折叠复用 `useFoldedTitle`。厂牌大小写唯一匹配与 `sources.javdb.maker_writing` 的日英组合解析只用于来源身份投影，标识按规范名读取。评论、资源复用 `Disclosure` 和 `setCollapseOpen`；来源与评论评分共用按小数裁切填充的星星。桌面右栏以 `contain:size` 排除正文的固有高度贡献，媒体区决定框体高度，正文在右栏内滚动。写操作取 `/healthz` 的账本只读状态，与运行配置权限分别处理。图片切换由 `MediaCarousel` 同时服务关注、库外 JAV 与馆藏详情，提供环形翻页、横向缩略图和位置圆点。缩略图与圆点复用浏览器原生 `overflow-x:auto`、`wireHorizontalScroller`，选中项在切图、循环和容器缩窄时保持可见。缩略图使用 `IntersectionObserver` 按可见范围挂载，馆藏经 `/sample-thumb`，来源图片共享查询缓存，关注优先取附件小图；Swiper 14.4.0 留给灯箱。馆藏样张复用 `sample_images.detail_refs` 和 `/sample-image`，`/api/item` 只读本地序号、最多 30 项；查看图片暂停正片，返回保留位置。推荐分标签复用 BoardUI `Chip` 与共享 Tooltip。视频预览的 `mountPreviewPlayer` 复用已固定的 Video.js 10.2.0（Apache-2.0）、官方 HLS 媒体组件、`mountPlayerQualityControl`、`mountPlayerSeekPreview` 和 `mountPlayerSpinner`，安装共用控制条、设置、时间、音量与窄宽度折叠。来源给定的 HLS 直接由播放器请求；片源代理、馆藏 ID 和观看上报沿用各自入口。播放器生命周期由当前详情管理，异步加载完成前离开会取消挂载，切换与关闭会停止并销毁实例。
 
 卡片多选由 `MediaCard`、`FollowCard` 的 `selectMode` 统一控制：保留选择入口，单项保存、已看、忽略、稍后看、预览跳转和回收站操作不挂载；退出多选恢复单项操作。首页、实体页、关注与回收站沿用同一组组件。
 
@@ -924,7 +946,7 @@ A 盘垃圾隔离使用短名称 `peach-purge-<32 位 UUID>.peach-quarantine`，
 | 外挂字幕 sidecar | 浏览器原生 `TextTrack` 与 [WebVTT 规范](https://www.w3.org/TR/webvtt1/)；配对复用 `catalog_rules` 的 `VERSION_TAIL_TOKENS` 与 `release_code_from_filename`。行为证据：sakuramediabe `import_service.py`／`movie_numbers.py` 的 `subtitle_matches_movie_number`（同目录、纯番号、不回退同名），NeoAVDC `organizeMedia.ts`／`parseNumber.ts` 的 `isSubtitleFile`（`.srt .ass .sub .vtt .ssa`，按视频主名前缀）；Peach 的判据是两者的并集加顺序 | `subtitles.py` 只做同目录配对（exact／suffix／code／orphan）、`asset_subtitle` 幂等登记、srt/ass/ssa → WebVTT。不用 `pysubs2`（为几十行加运行时依赖）和 FFmpeg（每次起子进程、报不出「编码认不出来」），编码要认 GBK／Big5／Shift_JIS，不用几乎吞下任何字节的 `gb18030`。内封字幕轨不在此列，`media_probe.py` 只取 `v:0`，流信息不落库 |
 | 播放偏好与字幕记忆 | 原生 `TextTrack.id`；现有 `filelock==4.2.0` 与 `fsutil.atomic_write_text`，沿用本机状态文件的并发锁与原子替换 | `playerMemory` 与 `SubtitleSession` 供详情、小窗与沉浸播放复用；服务端 `state/player-subtitles/` 按资产、关注条目及帖子内视频分别保留 WebVTT，`subtitles.json` 同存旋转、倍速、字幕外观、轨道身份与最后选择，`null` 表示关闭。偏好以字段补丁在同一文件锁内合并，客户端同身份写入串行，用户操作不受迟到的读取覆盖。旁挂字幕按目录内文件名生成稳定身份，登记与载入顺序不参与身份；已保存的登记 ID 通过轨道别名恢复。同目录发现复用现有配对、转码与读取上限，只读授权目录并与已登记路径去重。内容保存先于成功回执，重复导入按轨道键覆盖；重新播放直接读保存内容。保留转换器与 SubtitleCat 接口，不新增解析器、浏览器数据库依赖或 ledger 迁移 |
 | 分卷文件命名 | [Plex 官方命名](https://support.plex.tv/articles/naming-and-organizing-your-movie-media-files/)的 `cd/disc/disk/dvd/part/pt + 数字` 与 [Kodi 官方 File Stacking](https://kodi.wiki/view/File_stacking)只作行为证据；运行时复用当前树的 `part_marker`，不新增扫描器依赖 | 兼容裸数字、紧接番号的 A–H 与 cd 序号、fhd 序号及圈号标题，共有版次尾缀先剥离再取卷标。FC2 的明确数字合集允许缺集和零起始；本篇与唯一 SP、gift、特典可合卡，完整版与数字分卷混合、重复标签不自动合并。每个 asset 与播放会话保留，不拼接或改写媒体 |
-| 照片灯箱轮播 | Swiper 14.3.0（MIT，本地固定版本，按需加载 CSS／JS）的 Thumbs / Keyboard / Zoom 模块，由 React 灯箱（`frontend/src/react/photo-lightbox/`）只经核心 API 驱动，不用 Swiper 的 React 封装 | 样式与脚本都就绪才构造轮播，保留 scoped 单 slide 结构样式防首载重叠；Swiper 管轮播、键盘、缩放与缩略图，Peach 管图集来源与顺序、缩略图居中、相对原图百分比、适应窗口／原大小、缩略图缓存与计费口径；图片墙是 CSS 网格，不经 Swiper |
+| 照片灯箱轮播 | Swiper 14.4.0（MIT，本地固定版本，按需加载 CSS／JS）的 Thumbs / Keyboard / Zoom 模块，由 React 灯箱（`frontend/src/react/photo-lightbox/`）只经核心 API 驱动，不用 Swiper 的 React 封装 | 样式与脚本都就绪才构造轮播，保留 scoped 单 slide 结构样式防首载重叠；Swiper 管轮播、键盘、缩放与缩略图，Peach 管图集来源与顺序、缩略图居中、相对原图百分比、适应窗口／原大小、缩略图缓存与计费口径；图片墙是 CSS 网格，不经 Swiper |
 | 浏览器历史 | `react-router` 8.4.0（MIT）的 `createBrowserHistory`（`v5Compat`），由主包里的共享源码提供（`frontend/src/history/`）；不用 `history` 5.3.0（2022 年后不再发版、另带 `@babel/runtime`，条目格式与 React Router 内置的那份并存） | 壳写地址的入口 `shellNavigate`：路径按当前地址解析，清理地址时透传当前条目的状态；一建好就接上唯一的监听位再分发，每次变化领一个导航序号 `seq`，认领写地址保持页面打开序号、无人认领时领新 `openEpoch`；页面元素按页面打开序号挂 key，覆盖元素按 `seq` 挂 key。`useRouteOpen` 在 `pageOpens` 就绪后排进微任务，普通点卡交一次性请求，`initialOverlayOpened` 只允冷启动首次打开；队列由 `QueueRequests` 读 `queueOpens` 接手意图，取齐实际条目后才写地址。背景由条目记下，启动不读，后退前进按条目恢复 |
 | 客户端导航 | `react-router` 8.4.0 的 `<Router>`（Declarative 模式）与 `<Routes>`，`navigator` 是上面那一份历史（`frontend/src/react/router/`）；不用 `unstable_HistoryRouter`：它把更新包进 `startTransition`，接连两次变化并成一次渲染 | 每条路径都有元素，按匹配打开；每次没人认领的历史变化领一个页面打开序号，元素按代次重挂重取或就地推（`managed-routes.tsx`、`router/pages/`） |
 | 导航排序 | 浏览器原生 HTML Drag and Drop，侧栏 `sidebar/sidebar-island.tsx` 与设置面板 `settings-panel/sidebar-order.tsx` 各接一份 | 桌面鼠标直接拖动、落点提示、上下移动按钮作为键盘与触屏回退、`localStorage` 持久化；不为单列排序引入额外运行时依赖 |
@@ -1070,6 +1092,10 @@ Python 源文件纳入 `src/peach/library_sharing.py` 与 `src/peach/library_pro
 链接检查结果的身份引用复用 `web_catalog.entity_ref`，页面头像沿用 `entityFaceImg` 的取景和回退，地址前的 favicon 复用 `SiteMark` 与 `/link-mark`；两张结果表共用列定义，Peach 资料名称使用 `entityPath` 生成内部链接。明确的 HTTP 状态码使用 BoardUI Chip，解释与长错误使用可展开的普通正文；永久删除入口位于失效清单自己的页脚，说明与分隔线使用中性色。关注列表无来源时使用 `EmptyState` 的 page 外壳，背景、边框与添加入口同属空状态。断链按钮使用现有 Lucide unlink 字形，仅四条短线循环改变透明度，周期沿用 Loading Dots 的 1.2 秒，reduced motion 沿用全局规则。
 
 ## 馆藏处理控制与耗时预估
+
+任务中心的本机控制复用 `task_run` 的运行身份、`job_recovery` 的请求和检查点、`filelock` 与原子 JSON。`task_control` 保存逐轮控制意图；`BackgroundJob`、后继和命令行执行段共用安全停点。父任务的意图沿父子关联传递，排队任务领取前核对暂停与取消。媒体子进程使用固定版本 psutil 7.2.2（BSD-3-Clause）的暂停、继续、进程身份检查和所属子进程枚举，Windows 沿用已有 kill-on-close Job Object，macOS/Linux 使用专属会话的进程组；平台语义见 [psutil API](https://psutil.readthedocs.io/stable/) 和 [Python 子进程说明](https://docs.python.org/3.14/library/subprocess.html)。psutil 从开发依赖调整为运行依赖，没有新增调度器。网络和文件提交在安全停点响应，任务只有在在途工作退出后才结算取消。
+
+逐轮资源读数复用 psutil 的 native thread ID、线程 CPU 时间和已登记子进程身份，按本机总 CPU 容量归一化；父子汇总按计数器身份去重。Windows GPU 使用标准库 ctypes 调用 [PDH GPU 引擎计数器](https://learn.microsoft.com/en-us/windows/win32/perfctrs/performance-counters-portal)，按物理引擎汇总所属子进程并显示最忙引擎；不把共享服务的 GPU 占用分配给单一任务。网络复用现有 HTTPX 下载字节计量，以相邻采样差分取得下载速度，挂载和无法归属的传输明确未取得。资源归属沿任务控制上下文登记，以原子 JSON 支持命令行任务；读取校验服务 PID 与创建时间，历史任务不保留过期实时数值。界面复用 BoardUI `Chip` 的蓝、紫、青与红色状态 token，取消确认复用现有 `confirmModal`。未新增依赖。
 
 长时任务续跑复用 `job_recovery` 的本机原子记录、`BackgroundJob.checkpoint` 与 `TaskRunHandle.checkpoint`。主任务保留原 `job_id`、`run_id`、开始时间、处理范围和领域检查点；后继重排保留原进度。扫描复用现有 `os.scandir`、SQLite 批次提交、`filelock` 和 `fsutil.atomic_write_text`，保存遍历栈、文件名游标及字幕配对资料。本地资料按影片保存小份证据边车，候选成功落盘后才提交元数据完成集合；整理逐项原子保存同一批次的日志。`scrape_codes.py` 复用流式 CSV 与原始来源快照，续跑只保留已确认完成的番号，未完成番号可以重放。
 
