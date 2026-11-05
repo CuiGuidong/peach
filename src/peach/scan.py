@@ -73,6 +73,12 @@ NON_ADULT_PATTERNS = (
     "WEBRip", "WEB-DL", "HARDSUBBED", "x264", "AAC5.1",
     "The.Kingmaker", "VIVANT", "Masterchef", "Official.Secrets",
     "The Office", "Why Making Fun",
+    # Thai legal / academic / insurance lectures
+    "กฎหมาย", "วชิชา", "ประกัน", "ศ.(",
+    # Zoom / webinar / screen recordings
+    "Video Conferencing", "Webinars", "Screen Sharing",
+    # TV shows / streaming rips
+    "MagicStar", "U-NEXT",
 )
 
 
