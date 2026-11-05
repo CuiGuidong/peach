@@ -343,9 +343,9 @@ class ServiceManager:
             parts = []
             for spec in self.specs:
                 ok, detail = self._last_health[spec.name]
-                state = (f"正常（{detail}）" if detail else "正常") if ok else f"异常（{detail}）" if detail else "异常"
+                state = (f"OK ({detail})" if detail else "OK") if ok else f"Unhealthy ({detail})" if detail else "Unhealthy"
                 if not ok and spec.name in self.starting_services():
-                    state = "启动中"
+                    state = "Starting up"
                 parts.append(f"{spec.name.upper()} {state}")
         return " · ".join(parts)
 
@@ -355,10 +355,10 @@ class ServiceManager:
             healthy = sum(self._last_health[spec.name][0] for spec in self.specs)
             warnings = set(value for spec in self.specs
                            for value in self._mount_warnings.get(spec.name, ()))
-            state = ("运行中" if healthy == len(self.specs) else "部分服务异常") if healthy else "服务未运行"
+            state = ("Running" if healthy == len(self.specs) else "Some services unhealthy") if healthy else "Services not running"
             if self.waiting_for_startup():
-                state = "启动中"
-        return f"{state} · {len(warnings)} 项提醒" if warnings else state
+                state = "Starting up"
+        return f"{state} · {len(warnings)} warnings" if warnings else state
 
     def status_details(self) -> tuple[str, ...]:
         """服务与挂载分行呈现，避免一行堆入所有来源。"""
@@ -366,9 +366,9 @@ class ServiceManager:
             services = []
             for spec in self.specs:
                 ok, detail = self._last_health[spec.name]
-                state = "正常" if ok else f"异常（{detail}）" if detail else "异常"
+                state = "OK" if ok else f"Unhealthy ({detail})" if detail else "Unhealthy"
                 if not ok and spec.name in self.starting_services():
-                    state = "启动中"
+                    state = "Starting up"
                 services.append(menu_text(f"{spec.name.upper()} {state}"))
             warnings = dict.fromkeys(value for spec in self.specs
                                      for value in self._mount_warnings.get(spec.name, ()))
@@ -1316,7 +1316,7 @@ class PeachTray:
                 except OSError as error:
                     show_message("Peach 诊断报告", f"诊断报告已保存：\n{path}\n\n窗口或打开操作未完成：{error}", error=True)
             except Exception as error:
-                show_message("Peach 诊断报告", error_reporting.failure_details("report-export", error), error=True)
+                show_message("Peach diagnostic report", error_reporting.failure_details("report-export", error), error=True)
             finally:
                 self._diagnostics_lock.release()
 
@@ -1327,14 +1327,14 @@ class PeachTray:
         if not self._action_lock.acquire(blocking=False):
             return
         tray_icon = icon or self.icon
-        tray_icon.notify("正在检查更新…", "Peach")
+        tray_icon.notify("Checking for updates…", "Peach")
 
         def work() -> None:
             try:
                 result = self.versions.check()
                 self.version = result.snapshot
                 tray_icon.update_menu()
-                tray_icon.notify(result.message, "Peach 版本与更新")
+                tray_icon.notify(result.message, "Peach Version and updates")
             finally:
                 self._action_lock.release()
 
@@ -1362,7 +1362,7 @@ class PeachTray:
         if not self._action_lock.acquire(blocking=False):
             return
         tray_icon = icon or self.icon
-        tray_icon.notify("正在检查更新通道…", "Peach 开发进度")
+        tray_icon.notify("Checking the update channel…", "Peach development progress")
 
         def work() -> None:
             try:
@@ -1603,9 +1603,9 @@ def export_macos_diagnostics(notify: Callable[[str, str], None]) -> None:
         try:
             path = save_bundle()
             subprocess.run(["open", "-R", str(path)], check=False)
-            notify(f"诊断报告已保存：{path.name}", "Peach 诊断报告")
+            notify(f"Diagnostic report saved: {path.name}", "Peach diagnostic report")
         except Exception as error:
-            notify(error_reporting.failure_details("report-export", error), "Peach 诊断报告")
+            notify(error_reporting.failure_details("report-export", error), "Peach diagnostic report")
         finally:
             _MACOS_DIAGNOSTICS_LOCK.release()
 
@@ -1657,7 +1657,7 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
 
         def work() -> None:
             try:
-                notify("正在检查更新通道…", "Peach 开发进度")
+                notify("Checking the update channel…", "Peach development progress")
                 result = versions.update()
                 state["snapshot"] = result.snapshot
                 if result.state != "updated":
@@ -1718,10 +1718,10 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
 
         def work() -> None:
             try:
-                notify("正在检查更新…", "Peach")
+                notify("Checking for updates…", "Peach")
                 result = versions.check()
                 state["snapshot"] = result.snapshot
-                notify(result.message, "Peach 版本与更新")
+                notify(result.message, "Peach Version and updates")
             finally:
                 action_lock.release()
 
@@ -1734,25 +1734,25 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
             (gate.open_label, gate.open),
             (lambda: f"Status: {gate.status_line()}", Submenu(lambda: [
                 *((line, None) for line in manager.status_details()),
-                (menu_text(f"地址：{gate.open_url()}"), gate.open),
-                ("查看完整配置", open_configuration),
+                (menu_text(f"Address: {gate.open_url()}"), gate.open),
+                ("View full configuration", open_configuration),
             ])),
             (None, None),
-            *((("同步开发进度", sync_source),) if not standalone() else ()),
+            *((("Sync development progress", sync_source),) if not standalone() else ()),
             *ledger_menu_items(
                 lambda label, action: (label, action), sync_ledger, take_ownership),
-            ("重启服务", restart),
-            ("查看日志", lambda: subprocess.run(["open", str(LOG_DIR)], check=False)),
-            ("导出诊断报告", lambda: export_macos_diagnostics(notify)),
-            ("版本与更新", Submenu(lambda: [
+            ("Restart service", restart),
+            ("View logs", lambda: subprocess.run(["open", str(LOG_DIR)], check=False)),
+            ("Export diagnostics report", lambda: export_macos_diagnostics(notify)),
+            ("Version and updates", Submenu(lambda: [
                 (f"Peach {state['snapshot'].package_version}", None),
                 (menu_text(state['snapshot'].build_label), None),
                 (menu_text(state['snapshot'].channel_label), None),
                 (None, None),
-                ("检查更新", check_updates),
+                ("Check for updates", check_updates),
             ])),
             (None, None),
-            ("退出 Peach", quit_now),
+            ("Exit Peach", quit_now),
         ],
     )
     app["app"] = menu
@@ -1908,7 +1908,7 @@ def _main(argv: list[str] | None = None) -> int:
             return 0
     except OSError as exc:
         details = error_reporting.failure_details("tray-handoff", exc)
-        show_message("Peach 启动失败", f"无法独立启动托盘：{details}", error=True)
+        show_message("Peach failed to start", f"The tray could not start on its own: {details}", error=True)
         return 1
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     logging.getLogger().setLevel(logging.INFO)
@@ -1971,7 +1971,7 @@ def _main(argv: list[str] | None = None) -> int:
     except Exception as exc:
         LOGGER.exception("托盘运行失败")
         if not os.environ.get("PEACH_TRAY_RECOVERIES"):
-            show_message("Peach 启动失败", error_reporting.failure_details("tray-runtime", exc), error=True)
+            show_message("Peach failed to start", error_reporting.failure_details("tray-runtime", exc), error=True)
         return failure_exit_code()
     finally:
         if lifecycle is not None:
