@@ -105,7 +105,7 @@ class ValidatorTests(_Case):
         with mock.patch.object(Path, "is_dir", return_value=True), \
                 mock.patch.object(Path, "resolve", return_value=Path(shared)), \
                 mock.patch("peach.onboarding.os.path.abspath", side_effect=windows_abspath):
-            with self.assertRaisesRegex(ValueError, "不是盘符路径"):
+            with self.assertRaisesRegex(ValueError, "drive-letter path"):
                 onboarding.media_dir_validator(windows=True)(shared)
 
     def test_posix_media_directory_uses_its_filesystem_target(self):
@@ -117,7 +117,7 @@ class ValidatorTests(_Case):
         missing = self.root / "nope"
         with self.assertRaises(ValueError) as caught:
             validate(str(missing))
-        self.assertIn("不存在", str(caught.exception))
+        self.assertIn("does not exist", str(caught.exception))
         self.assertFalse(missing.exists())
         with self.assertRaises(ValueError):
             validate("")
@@ -219,7 +219,7 @@ class ConfigureTests(_Case):
         other.mkdir()
         self.assertEqual(onboarding.check_media_dirs((self.media, other)), {})
         self.assertEqual(list(onboarding.check_media_dirs((self.media, self.media))), [1])
-        self.assertIn("重复", onboarding.check_media_dirs((self.media, self.media))[1])
+        self.assertIn("Same as", onboarding.check_media_dirs((self.media, self.media))[1])
         problems = onboarding.check_media_dirs((self.media, nested))
         self.assertEqual(list(problems), [1])
         self.assertIn(str(self.media), problems[1])
@@ -239,12 +239,12 @@ class ConfigureTests(_Case):
         _paths, problems = onboarding.read_media_dirs(
             [str(self.media), "", str(self.root / "nope")], validate=validate)
         self.assertEqual(problems[:2], ["", ""])
-        self.assertIn("目录不存在", problems[2])
+        self.assertIn("does not exist", problems[2])
         (self.media / "inner").mkdir()
         _paths, problems = onboarding.read_media_dirs(
             [str(self.media), str(self.media / "inner")], validate=validate)
         self.assertEqual(problems[0], "")
-        self.assertIn("已经在", problems[1])
+        self.assertIn("Already inside", problems[1])
 
     def test_only_the_asked_settings_change_and_replication_stays_off(self):
         prepared = onboarding.configure(
@@ -296,7 +296,7 @@ class InterviewTests(_Case):
         answers = onboarding.interview(self.config, ask, windows=NATIVE_WINDOWS, home=self.home,
                                        report=reports.append)
         self.assertEqual(answers.media_dirs, (self.media,))
-        self.assertTrue(any("已经在" in line for line in reports), reports)
+        self.assertTrue(any("Already inside" in line for line in reports), reports)
 
     def test_console_ask_shows_the_default_and_treats_eof_as_abort(self):
         with mock.patch("builtins.input", return_value="x") as prompt:
@@ -480,7 +480,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         """提交一份填错的答卷，返回按题目 key 收集的 errors。"""
         response = self._send("POST", self.SUBMIT, json=body, **kwargs)
         self.assertEqual(response.status_code, 400, response.text)
-        self.assertEqual(response.json()["error"], "有几项需要修改")
+        self.assertEqual(response.json()["error"], "A few fields need your attention")
         self.assertFalse((self.data_root / "config.toml").exists(), "校验失败不写设置")
         return response.json()["errors"]
 
@@ -574,7 +574,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         response = self._get("/")
         self.assertEqual(response.status_code, 200)
         body = response.text
-        self.assertIn("<title>Peach · 首次运行</title>", body)
+        self.assertIn("<title>Peach · First-time setup</title>", body)
         self.assertIn('<link rel="icon" href="/favicon.ico" type="image/x-icon">', body)
         self.assertLess(body.index('localStorage.getItem("peach.settings.v1")'), body.index("/dist/peach-pages.css"))
         for symbol in ("folder-search", "hard-drive", "database"):
@@ -599,8 +599,8 @@ class SetupJsonContractTests(_SetupHttpCase):
     def test_invalid_values_are_reported_without_creating_anything(self):
         missing = self.root / "nope"
         errors = self._errors(self._body(media_dir=self._rows(missing), port="0"))
-        self.assertIn("目录不存在", errors["media_dir"][0])
-        self.assertIn("端口要是 1 到 65535 之间的整数", errors["port"])
+        self.assertIn("does not exist", errors["media_dir"][0])
+        self.assertIn("The port must be a whole number between 1 and 65535", errors["port"])
         self.assertFalse(missing.exists(), "校验不替人建目录")
         self.assertFalse(self.data_root.exists(), "校验失败不落任何文件")
 
@@ -713,13 +713,14 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertEqual([item["key"] for item in questions], [question.key for question in asked])
         self.assertEqual([item["default"] for item in questions],
                          ["" if question.key == "media_dir" else question.default for question in asked])
-        self.assertEqual([item["label"] for item in questions], ["数据目录", "媒体目录", "谁可以访问", "端口", "局域网访问地址"])
+        self.assertEqual([item["label"] for item in questions],
+                         ["Data directory", "Media folders", "Who can access", "Port", "LAN address"])
         by_key = {item["key"]: item for item in questions}
         self.assertEqual([key for key, item in by_key.items() if not item["required"]], ["host"])
         self.assertEqual([key for key, item in by_key.items() if not item["advanced"]], ["data_root", "media_dir", "host"])
         self.assertEqual(by_key["data_root"]["input"], "folder")
-        self.assertEqual(by_key["host"]["options"], [{"value": "2", "label": "同一局域网的设备"},
-                                                     {"value": "1", "label": "只有这台电脑"}])
+        self.assertEqual(by_key["host"]["options"], [{"value": "2", "label": "Devices on the same LAN"},
+                                                     {"value": "1", "label": "This computer only"}])
         self.assertEqual((by_key["port"]["input"], by_key["port"]["prefix"]), ("number", "localhost:"))
         self.assertEqual((by_key["mdns_name"]["prefix"], by_key["mdns_name"]["suffix"]), ("https://", ".local"))
         self.assertEqual(by_key["mdns_name"]["visible_when"], {"host": "2"})
@@ -735,10 +736,26 @@ class SetupJsonContractTests(_SetupHttpCase):
         else:
             self.assertIsNone(data["media_root"])
             self.assertEqual(by_key["media_dir"]["help"][-1],
-                             "填写这台设备实际读取媒体的文件夹；Docker 部署填写容器内目录，例如 /media。")
+                             "Enter the folder this machine actually reads media from; for a Docker "
+                             "deployment, enter the in-container directory, for example /media.")
         self.assertEqual(data["cloud"]["link"]["url"], "https://www.clouddrive2.com/help.html")
         # 默认对局域网开放，所以访问密码开关第一次出现就开着；扫描默认勾上，导入历史默认不勾。
         self.assertEqual((data["access_enabled"], data["scan_now"], data["history_guide"]), (True, True, False))
+
+    def test_the_questions_payload_carries_no_cjk(self):
+        """首启页文案整体英文：后端给出的任何字符串都不夹带汉字。"""
+        def walk(value):
+            if isinstance(value, str):
+                yield value
+            elif isinstance(value, dict):
+                for item in value.values():
+                    yield from walk(item)
+            elif isinstance(value, list):
+                for item in value:
+                    yield from walk(item)
+        data = self._send("GET", self.QUESTIONS).json()
+        for text in walk(data):
+            self.assertNotRegex(text, r"[\u4e00-\u9fff]", text)
 
     def test_setup_preserves_explicit_proxy_protection_for_a_mounted_source(self):
         rows = self._rows(self.media, location="onedrive")
@@ -810,8 +827,8 @@ class SetupJsonContractTests(_SetupHttpCase):
         with mock.patch("peach.media_configuration.mount_dependencies", return_value=rows):
             data = self._send("GET", self.QUESTIONS).json()
         self.assertEqual(data["cloud"]["dependencies"], [{
-            "name": "WinFsp", "message": "未检测到 WinFsp。",
-            "download_url": "https://winfsp.dev/rel/", "download_label": "下载 WinFsp"}])
+            "name": "WinFsp", "message": "WinFsp was not detected.",
+            "download_url": "https://winfsp.dev/rel/", "download_label": "Download WinFsp"}])
 
     def test_the_standalone_package_gets_its_own_address_form_in_the_questions(self):
         with mock.patch.object(distribution, "standalone", return_value=True):
@@ -833,7 +850,7 @@ class SetupJsonContractTests(_SetupHttpCase):
                 self.assertEqual(response.json(), {"error": message}, "/api/ 下一律回 JSON")
         with self.subTest("独立包的非回环主机名"), mock.patch.object(distribution, "standalone", return_value=True):
             response = self._send("GET", self.QUESTIONS, base_url="http://peach.local:8900")
-            self.assertEqual((response.status_code, response.json()), (403, {"error": "请使用本机地址打开设置"}))
+            self.assertEqual((response.status_code, response.json()), (403, {"error": "Open setup from an address on this machine"}))
         with self.subTest("读题不看 Origin"):
             response = self._send("GET", self.QUESTIONS, headers={"Origin": "http://elsewhere.example"})
             self.assertEqual(response.status_code, 200)
@@ -842,7 +859,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         cases = (
             ("已配置", {"configured": True}, 404, "not found"),
             ("非回环调用方", {"client": ("198.51.100.7", 51000)}, 403, "setup is loopback-only"),
-            ("别的页面发来", {"headers": {"Origin": "http://elsewhere.example"}}, 403, "请从 Peach 设置页提交"),
+            ("别的页面发来", {"headers": {"Origin": "http://elsewhere.example"}}, 403, "Submit from Peach's setup page"),
         )
         for name, kwargs, status, message in cases:
             with self.subTest(name):
@@ -850,11 +867,11 @@ class SetupJsonContractTests(_SetupHttpCase):
                 self.assertEqual((response.status_code, response.json()), (status, {"error": message}))
         with self.subTest("独立包的非回环主机名"), mock.patch.object(distribution, "standalone", return_value=True):
             response = self._send("POST", self.SUBMIT, json=self._body(), base_url="http://peach.local:8900")
-            self.assertEqual((response.status_code, response.json()), (403, {"error": "请使用本机地址打开设置"}))
+            self.assertEqual((response.status_code, response.json()), (403, {"error": "Open setup from an address on this machine"}))
         self.assertFalse(self.data_root.exists(), "被守卫挡下的提交不落任何文件")
         with self.subTest("不是 JSON 对象"):
             response = self._send("POST", self.SUBMIT, json=["not", "an", "object"])
-            self.assertEqual((response.status_code, response.json()), (400, {"error": "请求正文要是 JSON 对象"}))
+            self.assertEqual((response.status_code, response.json()), (400, {"error": "The request body must be a JSON object"}))
 
     def test_the_submission_trusts_the_browser_asserted_origin_over_the_origin_header(self):
         """本机代理改写 Host、浏览器发 `Origin: null` 时，以浏览器自己标的 Sec-Fetch-Site 为准。"""
@@ -865,7 +882,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         for name, headers in refused:
             with self.subTest(name):
                 response = self._send("POST", self.SUBMIT, json=self._body(), headers=headers)
-                self.assertEqual((response.status_code, response.json()), (403, {"error": "请从 Peach 设置页提交"}))
+                self.assertEqual((response.status_code, response.json()), (403, {"error": "Submit from Peach's setup page"}))
         self.assertFalse(self.data_root.exists())
         response = self._send("POST", self.SUBMIT, json=self._body(),
                               headers={"Origin": "null", "Sec-Fetch-Site": "same-origin"})
@@ -956,7 +973,7 @@ class SetupJsonContractTests(_SetupHttpCase):
             holder.listen()
             port = holder.getsockname()[1]
             data = self._errors(self._body(port=str(port)), base_url="http://127.0.0.1:8900")
-        self.assertEqual(data, {"port": "这个端口已被占用，请换一个端口"})
+        self.assertEqual(data, {"port": "That port is already in use; pick another one"})
 
     def test_a_failed_apply_is_reported_on_the_data_root(self):
         with mock.patch.object(onboarding, "apply", side_effect=OSError("数据目录写不进去")):
@@ -1048,7 +1065,7 @@ class DockerFirstSetupTests(_SetupHttpCase):
                 self.assertIn('data-page="setup"', page.text)
         foreign = self._send("POST", self.SUBMIT, json=self._body(), client=self.LAN,
                              headers={"Origin": "http://elsewhere.example"})
-        self.assertEqual((foreign.status_code, foreign.json()), (403, {"error": "请从 Peach 设置页提交"}))
+        self.assertEqual((foreign.status_code, foreign.json()), (403, {"error": "Submit from Peach's setup page"}))
         self.assertFalse(self.data_root.exists(), "被拒的提交不落任何文件")
 
     def test_a_lan_submission_initializes_the_fixed_data_root_and_writes_the_access_policy(self):
@@ -1157,16 +1174,16 @@ class StandaloneConfigurationTests(_Case):
             windows = mount_dependencies(system='win32')
             self.assertEqual([row['name'] for row in windows], ['CloudDrive', 'WinFsp'])
             self.assertTrue(all(not row['available'] for row in windows))
-            self.assertIn('下载 WinFsp', names(windows=True))
-            self.assertNotIn('下载 macFUSE', names(windows=True))
+            self.assertIn('Download WinFsp', names(windows=True))
+            self.assertNotIn('Download macFUSE', names(windows=True))
         with mock.patch("peach.media_configuration._windows_installed_names", return_value=['clouddrive', 'winfsp 2026']):
             self.assertTrue(all(row['available'] for row in mount_dependencies(system='win32')))
             self.assertEqual(names(windows=True), [])
         with mock.patch("peach.media_configuration.Path.is_dir", return_value=False), mock.patch(
                 "peach.media_configuration.shutil.which", return_value=None):
             self.assertEqual([row['name'] for row in mount_dependencies(system='darwin')], ['CloudDrive', 'macFUSE'])
-            self.assertIn('下载 macFUSE', names(windows=False))
-            self.assertNotIn('下载 WinFsp', names(windows=False))
+            self.assertIn('Download macFUSE', names(windows=False))
+            self.assertNotIn('Download WinFsp', names(windows=False))
 
     def setUp(self):
         super().setUp()
