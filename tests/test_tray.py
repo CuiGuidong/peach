@@ -855,7 +855,7 @@ class SourceSyncTests(unittest.TestCase):
         tray.sync_source(icon)
         self.assertTrue(completed.wait(2))
         manager.restart.assert_called_once()
-        self.assertEqual(manager.restart.call_args.kwargs["reason"], "同步开发进度后重启")
+        self.assertEqual(manager.restart.call_args.kwargs["reason"], "restart after syncing development progress")
         manager.stop_owned.assert_not_called()
 
     def test_windows_source_sync_stops_services_only_after_replacer_is_ready(self):
@@ -928,7 +928,7 @@ class FakeVersions:
         return self.snapshot
 
     def update(self):
-        return UpdateResult(self.state, "当前已比更新通道领先 3 个提交。",
+        return UpdateResult(self.state, "Already 3 commits ahead of the update channel.",
                             self.snapshot, ahead=3)
 
     def head_commit(self):
@@ -1024,7 +1024,7 @@ class LocalRebuildTests(unittest.TestCase):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
-        self.assertIn("托盘构建与检出一致", self.messages(icon))
+        self.assertIn("The tray build matches the checkout", self.messages(icon))
 
     def test_a_source_checkout_has_nothing_to_rebuild(self):
         versions = FakeVersions(self.snapshot(behind=5))
@@ -1036,7 +1036,7 @@ class LocalRebuildTests(unittest.TestCase):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
-        self.assertIn("当前不是打包托盘", self.messages(icon))
+        self.assertIn("This is not the packaged tray", self.messages(icon))
 
     def test_a_standalone_test_package_is_replaced_by_hand_not_rebuilt(self):
         versions = FakeVersions(self.snapshot(behind=5))
@@ -1048,7 +1048,7 @@ class LocalRebuildTests(unittest.TestCase):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
-        self.assertIn("独立测试包", self.messages(icon))
+        self.assertIn("standalone test package", self.messages(icon))
 
     def test_a_fast_forward_from_the_channel_still_uses_the_paths_it_pulled(self):
         """`updated` 那条路不变：远端真有新提交时，重建范围就是这次快进带来的改动。"""
@@ -1231,12 +1231,12 @@ class MacMenuBarActionTests(unittest.TestCase):
         with patch.dict(sys.modules, {"peach.menubar": fake}),                 patch.object(tray_module, "VersionManager", return_value=versions),                 patch.object(tray_module, "standalone", return_value=True):
             tray_module.run_macos_menu_bar(Mock(), Mock(waiting=False))
         with tempfile.TemporaryDirectory() as directory,                 patch("peach.support_bundle.save_bundle", return_value=Path(directory) / "peach-support.zip"),                 patch.object(tray_module.subprocess, "run") as opened:
-            run_handler("导出诊断报告")
-            run_handler("检查更新", submenu="版本与更新")
+            run_handler("Export diagnostics report")
+            run_handler("Check for updates", submenu="Version and updates")
         self.assertEqual(opened.call_args.args[0][:2], ["open", "-R"])
         versions.check.assert_called_once()
-        self.assertIn(("Peach 诊断报告", "诊断报告已保存：peach-support.zip"), built["notices"])
-        self.assertIn(("Peach 版本与更新", versions.check.return_value.message), built["notices"])
+        self.assertIn(("Peach diagnostics report", "Diagnostics report saved: peach-support.zip"), built["notices"])
+        self.assertIn(("Peach Version and updates", versions.check.return_value.message), built["notices"])
 
 
 class TemplateHookTests(unittest.TestCase):
@@ -1931,7 +1931,7 @@ class TrayPreparationTests(unittest.TestCase):
         icon = self.press_restart(tray)
         self.assertEqual(self.spawned, [True])
         manager.restart.assert_not_called()
-        self.assertIn("整体重启托盘", icon.notify.call_args_list[0].args[0])
+        self.assertIn("The full tray restart", icon.notify.call_args_list[0].args[0])
 
     def test_a_refused_whole_tray_restart_falls_back_to_the_services(self):
         log = self.root / "logs" / "tray-restart.out.log"

@@ -31,20 +31,21 @@ def download_sources(url: str) -> tuple[str, ...]:
 #: 容器换新版在宿主机上做：拉镜像、重建容器，`/data` 卷保留。每步一句说明加一条命令，
 #: 命令按仓库的 compose.yaml 写（镜像标签取 `.env` 的 `PEACH_VERSION`，缺省是 `edge`）。
 DOCKER_STEPS = (
-    ("在 compose.yaml 所在目录拉取新镜像；.env 里把 PEACH_VERSION 固定成版本号的，先改成新版本",
+    ("Pull the new image in the directory holding compose.yaml; if .env pins PEACH_VERSION "
+     "to a version number, bump it first",
      "docker compose pull"),
-    ("重建容器，/data 数据卷保留", "docker compose up -d"),
+    ("Recreate the container; the /data volume is kept", "docker compose up -d"),
 )
 
 
 def snapshot() -> dict:
     docker = distribution.docker()
-    installation = "Docker 镜像" if docker else "独立测试包" if distribution.standalone() else "源码运行"
+    installation = "Docker image" if docker else "standalone test package" if distribution.standalone() else "running from source"
     return {"current_version": __version__, "latest_version": None,
-            "channel": "测试版", "installation": installation,
+            "channel": "beta", "installation": installation,
             "in_app_update": distribution.in_app_update(),
             "steps": [{"text": text, "command": command} for text, command in DOCKER_STEPS] if docker else [],
-            "state": "unchecked", "message": "尚未检查", "release_url": RELEASES_URL}
+            "state": "unchecked", "message": "Not checked yet", "release_url": RELEASES_URL}
 
 
 def _version(value: object) -> tuple[int, ...] | None:
@@ -134,7 +135,7 @@ def tool_package(tool: str, *, transport=None) -> dict:
                 found.append((version, {"url": f"{directory}/{name}", "size": asset["size"],
                                         "digest": asset["digest"], "version": tag.removeprefix("v")}))
         if not found:
-            raise ValueError("未能从发布页取得工具包信息，请检查网络与 Peach 代理后重试")
+            raise ValueError("Could not get the tool-package info from the release pages; check the network and Peach's proxy, then retry")
         return max(found, key=lambda item: item[0])[1]
     finally:
         if transport is None:
@@ -163,16 +164,18 @@ def check(*, transport=None, system: str | None = None, machine: str | None = No
         if current is None:
             raise ValueError("current version required")
         state = "available" if version > current else "ahead" if version < current else "current"
-        message = {"available": "有新版本可下载。", "ahead": "当前版本高于已发布测试版。", "current": "已是最新测试版。"}[state]
+        message = {"available": "A new version is available to download.",
+                   "ahead": "The current version is newer than the published beta.",
+                   "current": "Already on the latest beta."}[state]
         if distribution.docker():
             # 版本号跟着 Windows 包判；镜像在 Release 之后才推送，空窗里拉到的还是旧镜像，
             # 所以以 Docker Hub 上版本号标签与 edge 指向同一镜像为准（ADR-0140）。
             latest = tag.removeprefix("v")
             if state == "available" and not docker_update.published(client, latest):
-                state, message = "pending", f"Peach {latest} 的镜像尚未发布，请稍后再检查。"
+                state, message = "pending", f"The image for Peach {latest} has not been published yet; check again later."
             extra = {"one_click": docker_update.status()} if state == "available" else {}
             return dict(result, latest_version=latest, state=state, release_url=release_url, **extra,
-                        message="有新镜像可拉取。" if state == "available" else message)
+                        message="A new image is ready to pull." if state == "available" else message)
         return dict(result, latest_version=tag.removeprefix("v"), state=state, message=message,
                     asset_url=f"{directory}/{asset['name']}",
                     asset_size=asset.get("size", 0), asset_digest=asset.get("digest"),

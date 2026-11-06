@@ -80,8 +80,8 @@ def ledger_menu_items(make_item, sync_ledger, take_ownership) -> list:
     if not REPLICATION_ENABLED or standalone():
         return []
     return [
-        make_item("同步数据库", sync_ledger),
-        make_item("由本机接管数据库写入", take_ownership),
+        make_item("Sync the database", sync_ledger),
+        make_item("Take over database writes on this machine", take_ownership),
     ]
 
 #: 改到这些路径就得重启托盘进程本身。托盘启动那一刻就把它们装进了内存，重启子服务
@@ -421,7 +421,7 @@ class ServiceManager:
                 self._log_dir = Path(log_dir)
             if extra_env is not None:
                 self._extra_env = dict(extra_env)
-            self._last_health = {spec.name: (False, "未检测") for spec in self.specs}
+            self._last_health = {spec.name: (False, "not checked") for spec in self.specs}
             self._mount_warnings.clear()
             self._failures.clear()
 
@@ -1047,7 +1047,7 @@ class SetupGate:
         )
         self.manager.start_missing(reason="首次设置完成，切换到正式服务")
         reload_path.unlink(missing_ok=True)
-        self.notify(f"配置已载入，正在启动服务：{normal_url(config)}", "Peach")
+        self.notify(f"Configuration loaded, starting the service: {normal_url(config)}", "Peach")
         self.start_first_scan(config)
         return True
 
@@ -1079,9 +1079,9 @@ class SetupGate:
                     env=environment,
                 )
         except (OSError, subprocess.SubprocessError) as exc:
-            self.notify(f"首次扫描没能启动：{exc}", "Peach")
+            self.notify(f"The first scan could not start: {exc}", "Peach")
             return None
-        self.notify(f"首次扫描已在后台开始，进度写在 {log_dir / 'tray-scan.out.log'}", "Peach")
+        self.notify(f"The first scan started in the background; progress goes to {log_dir / 'tray-scan.out.log'}", "Peach")
         return process
 
 
@@ -1171,7 +1171,7 @@ class PeachTray:
             "Peach",
             # macOS 菜单栏要单色 template image，Windows 托盘要彩色品牌图。
             create_icon(template=sys.platform == "darwin"),
-            "Peach · 蜜桃",
+            "Peach",
             pystray.Menu(
                 pystray.MenuItem(lambda _item: self.gate.open_label(), self.open, default=True),
                 pystray.MenuItem("Configure Peach", lambda *_: webbrowser.open(self.gate.open_url() + "configuration")),
@@ -1268,23 +1268,23 @@ class PeachTray:
         返回 True 表示交给了重启脚本（它会停掉本托盘，或者迟迟没有结果）；False 表示
         脚本没起来或拒绝了这次重启，调用方照常只重启子服务。
         """
-        tray_icon.notify(f"{reason.message}，正在整体重启托盘以同步依赖…", "Peach")
+        tray_icon.notify(f"{reason.message}, restarting the whole tray to sync dependencies…", "Peach")
         try:
             process = self.preparation.spawn_restart()
         except OSError as exc:
             LOGGER.error("整托盘重启没能启动：%s", exc)
-            tray_icon.notify(f"整体重启托盘没能启动（{exc}），只重启子服务。", "Peach")
+            tray_icon.notify(f"The full tray restart could not start ({exc}); restarting the child services only.", "Peach")
             return False
         try:
             process.wait(timeout=TRAY_RESTART_WAIT)
         except subprocess.TimeoutExpired:
-            tray_icon.notify("整体重启托盘还没有结果，详情见 tray-restart.out.log。", "Peach")
+            tray_icon.notify("The full tray restart has not reported back yet; details are in tray-restart.out.log.", "Peach")
             return True
         # 走到这里说明脚本已经退出、本托盘却还活着：重启被拒，或在停托盘之前就失败了。
         message = (last_reported_message(self.preparation.restart_log)
                    or f"退出码 {process.returncode}")
         LOGGER.error("整托盘重启没有完成：%s", message)
-        tray_icon.notify(f"整体重启托盘没有完成：{message}。只重启子服务。", "Peach")
+        tray_icon.notify(f"The full tray restart did not finish: {message}. Restarting the child services only.", "Peach")
         return False
 
     def _restart_services(
@@ -1326,12 +1326,12 @@ class PeachTray:
                     return
                 tray_icon.update_menu()
                 if self._pending_startup is not None:
-                    tray_icon.notify("服务仍在启动，请查看托盘状态。", "Peach")
+                    tray_icon.notify("The service is still starting; check the tray status.", "Peach")
                 elif not ready:
-                    tray_icon.notify("；".join(["服务未能在 20 秒内恢复，请查看日志", *problems])
-                                     + "。", "Peach")
+                    tray_icon.notify("; ".join(["The service did not recover within 20 seconds; check the logs", *problems])
+                                     + ".", "Peach")
                 elif problems:
-                    tray_icon.notify("服务已重启，但" + "；".join(problems), "Peach")
+                    tray_icon.notify("The service restarted, but " + "; ".join(problems), "Peach")
             finally:
                 self._action_lock.release()
 
@@ -1347,14 +1347,14 @@ class PeachTray:
         if not self._action_lock.acquire(blocking=False):
             return
         tray_icon = icon or self.icon
-        action = "接管写入" if take_ownership else "同步"
-        tray_icon.notify(f"正在安全停止服务并{action}…", "Peach 数据库")
+        action = "take over writes" if take_ownership else "sync the ledger"
+        tray_icon.notify(f"Safely stopping the services to {action}…", "Peach database")
 
         def work() -> None:
             try:
                 ok, message = self.manager.sync_ledger(take_ownership=take_ownership)
                 tray_icon.update_menu()
-                tray_icon.notify(message, "Peach 数据库" if ok else "Peach 数据库同步失败")
+                tray_icon.notify(message, "Peach database" if ok else "Peach database sync failed")
             finally:
                 self._action_lock.release()
 
@@ -1412,14 +1412,14 @@ class PeachTray:
         构建进去的那一份。拦住它只会让托盘一直停在旧代码上，而没人在看。
         """
         if not getattr(sys, "frozen", False):
-            return None, "当前不是打包托盘，源码已是最新。"
+            return None, "This is not the packaged tray; the source checkout is already the latest."
         if standalone():
-            return None, "独立测试包不自建托盘；请下载新版并完整解压替换程序目录。"
+            return None, "The standalone test package does not rebuild its own tray; download the new version and replace the program folder."
         if not snapshot.build_stale:
-            return None, f"托盘构建与检出一致（{snapshot.build_label}）。"
+            return None, f"The tray build matches the checkout ({snapshot.build_label})."
         paths = self.versions.stale_build_paths(snapshot.build_commit)
         if not windows_tray_rebuild_required(paths):
-            return None, "检出比托盘构建新，但改动不进打包产物，托盘无需重建。"
+            return None, "The checkout is newer than the tray build, but the changes do not ship in the package; no rebuild needed."
         self.windows_updates.mark_pending(snapshot.commit, paths)
         return self.windows_updates.pending(), ""
 
@@ -1444,14 +1444,14 @@ class PeachTray:
                     if pending is None or pending.commit != result.snapshot.commit:
                         pending, why = self._local_rebuild(result.snapshot)
                         if pending is None:
-                            tray_icon.notify(f"{result.message}\n{why}", "Peach 开发进度")
+                            tray_icon.notify(f"{result.message}\n{why}", "Peach development progress")
                             return
                 else:
-                    tray_icon.notify(result.message, "Peach 开发进度")
+                    tray_icon.notify(result.message, "Peach development progress")
                     return
                 if pending is None or pending.commit != result.snapshot.commit:
                     tray_icon.notify(
-                        "待应用记录与当前代码不一致，需要人工检查。", "Peach 开发进度",
+                        "The pending record does not match the current code; check it by hand.", "Peach development progress",
                     )
                     return
 
@@ -1459,10 +1459,10 @@ class PeachTray:
                     pending.commit, pending.changed_paths,
                 )
                 if prepared.state == "failed":
-                    tray_icon.notify(prepared.message, "Peach 开发进度失败")
+                    tray_icon.notify(prepared.message, "Peach development progress failed")
                     return
                 if prepared.state == "replace":
-                    tray_icon.notify(prepared.message, "Peach 开发进度")
+                    tray_icon.notify(prepared.message, "Peach development progress")
                     if self.lifecycle is not None:
                         self.lifecycle.stop("source-update", os.getpid())
                     self.manager.stop_owned()
@@ -1471,17 +1471,17 @@ class PeachTray:
                     return
 
                 ready, problems = self._restart_services(tray_icon, source_commit=pending.commit,
-                                                         reason="同步开发进度后重启")
+                                                         reason="restart after syncing development progress")
                 if ready is None:
                     return
                 if self._pending_startup is not None:
-                    suffix = "服务仍在启动，请查看托盘状态。"
+                    suffix = "The service is still starting; check the tray status."
                 else:
-                    suffix = "服务已重启。" if ready else "服务未能恢复，请查看日志。"
+                    suffix = "The service restarted." if ready else "The service did not recover; check the logs."
                 if problems:
-                    suffix += "但" + "；".join(problems) + "。"
+                    suffix += " But " + "; ".join(problems) + "."
                 tray_icon.update_menu()
-                tray_icon.notify(f"{prepared.message}{suffix}", "Peach 开发进度")
+                tray_icon.notify(f"{prepared.message}{suffix}", "Peach development progress")
             finally:
                 self._action_lock.release()
 
@@ -1544,7 +1544,7 @@ class PeachTray:
                             not down, steps, open_browser=open_browser, source_commit=source_commit,
                         )
                         if problems and self._pending_startup is None:
-                            self.icon.notify("；".join(problems), "Peach")
+                            self.icon.notify("; ".join(problems), "Peach")
                 finally:
                     self._action_lock.release()
             if down:
@@ -1600,7 +1600,7 @@ class PeachTray:
             open_browser=(not self.silent if self.gate.waiting else self.show_browser),
         )
         if problems:
-            self._startup_warning = "；".join(
+            self._startup_warning = "; ".join(
                 part for part in (self._startup_warning, *problems) if part)
         threading.Thread(target=self._monitor, name="PeachHealth", daemon=True).start()
         logging.getLogger(__name__).info("托盘启动完成：%s", self.manager.status())
@@ -1669,9 +1669,9 @@ def export_macos_diagnostics(notify: Callable[[str, str], None]) -> None:
         try:
             path = save_bundle()
             subprocess.run(["open", "-R", str(path)], check=False)
-            notify(f"诊断报告已保存：{path.name}", "Peach 诊断报告")
+            notify(f"Diagnostics report saved: {path.name}", "Peach diagnostics report")
         except Exception as error:
-            notify(error_reporting.failure_details("report-export", error), "Peach 诊断报告")
+            notify(error_reporting.failure_details("report-export", error), "Peach diagnostics report")
         finally:
             _MACOS_DIAGNOSTICS_LOCK.release()
 
@@ -1697,10 +1697,10 @@ class MacUpdateEntry:
 
     def _check_versions(self) -> None:
         try:
-            self.notify("正在检查更新…", "Peach")
+            self.notify("Checking for updates…", "Peach")
             result = self.versions.check()
             self.state["snapshot"] = result.snapshot
-            self.notify(result.message, "Peach 版本与更新")
+            self.notify(result.message, "Peach Version and updates")
         finally:
             self.lock.release()
 
@@ -1759,28 +1759,28 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
                 result = versions.update()
                 state["snapshot"] = result.snapshot
                 if result.state != "updated":
-                    notify(result.message, "Peach 开发进度")
+                    notify(result.message, "Peach development progress")
                     return
                 if tray_restart_required(result.changed_paths):
                     if launchd_owns_this_process():
-                        notify(f"{result.message}正在重启菜单栏项…", "Peach 开发进度")
+                        notify(f"{result.message}Restarting the menu bar item…", "Peach development progress")
                         manager.stop_owned()
                         restarted = restart_tray_process()
                         if restarted.returncode != 0:
                             # kickstart 失败时旧进程仍在；把刚停掉的服务恢复，不能留下
                             # 一个有菜单图标却没有 HTTP/HTTPS 的半死状态。
                             manager.start_missing(reason="菜单栏项重启失败，恢复服务")
-                            notify("代码已同步，但菜单栏项重启失败；服务已恢复。",
-                                   "Peach 开发进度")
+                            notify("The code synced, but the menu bar item failed to restart; the services are back up.",
+                                   "Peach development progress")
                         return
                     notify(
-                        f"{result.message}服务已重启；菜单栏项本身要手动退出重开才会生效。",
-                        "Peach 开发进度",
+                        f"{result.message}The services restarted; quit and reopen the menu bar item for it to take effect.",
+                        "Peach development progress",
                     )
-                    manager.restart(reason="同步开发进度后重启")
+                    manager.restart(reason="restart after syncing development progress")
                     return
-                manager.restart(reason="同步开发进度后重启")
-                notify(f"{result.message}服务已重启。", "Peach 开发进度")
+                manager.restart(reason="restart after syncing development progress")
+                notify(f"{result.message}The services restarted.", "Peach development progress")
             finally:
                 action_lock.release()
 
@@ -1792,10 +1792,10 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
 
         def work() -> None:
             try:
-                action = "接管写入" if take_ownership else "同步"
-                notify(f"正在判定数据库状态并{action}…", "Peach 数据库")
+                action = "take over writes" if take_ownership else "sync the ledger"
+                notify(f"Checking the database state, then {action}…", "Peach database")
                 ok, message = manager.sync_ledger(take_ownership=take_ownership)
-                notify(message, "Peach 数据库" if ok else "Peach 数据库同步失败")
+                notify(message, "Peach database" if ok else "Peach database sync failed")
             finally:
                 action_lock.release()
 
@@ -1815,7 +1815,7 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
 
     menu = MenuBarApp(
         create_icon(template=True),
-        "Peach · 蜜桃",
+        "Peach",
         [
             (gate.open_label, gate.open),
             (lambda: f"Status: {gate.status_line()}", Submenu(lambda: [
@@ -1827,15 +1827,15 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
             *((("Sync development progress", sync_source),) if not standalone() else ()),
             *ledger_menu_items(
                 lambda label, action: (label, action), sync_ledger, take_ownership),
-            ("重启服务", restart),
-            ("查看日志", lambda: subprocess.run(["open", str(LOG_DIR)], check=False)),
-            ("导出诊断报告", lambda: export_macos_diagnostics(notify)),
-            ("版本与更新", Submenu(lambda: [
+            ("Restart service", restart),
+            ("View logs", lambda: subprocess.run(["open", str(LOG_DIR)], check=False)),
+            ("Export diagnostics report", lambda: export_macos_diagnostics(notify)),
+            ("Version and updates", Submenu(lambda: [
                 (f"Peach {state['snapshot'].package_version}", None),
                 (menu_text(state['snapshot'].build_label), None),
                 (menu_text(state['snapshot'].channel_label), None),
                 (None, None),
-                ("检查更新", updates.check),
+                ("Check for updates", updates.check),
             ])),
             (None, None),
             ("Exit Peach", quit_now),
