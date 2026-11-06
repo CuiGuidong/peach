@@ -430,7 +430,11 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           cd release
-          tail -n +4 ../macos-candidates/scripts/MACOS_DOWNLOADS.md >> RELEASE_NOTES.md
+          {
+            tail -n +4 ../macos-candidates/scripts/MACOS_DOWNLOADS.md
+            printf '\n'
+            tail -n +4 ../scripts/DOCKER_DOWNLOADS.md | sed "s/{version}/${GITHUB_REF_NAME#v}/g"
+          } >> RELEASE_NOTES.md
           files=(./*.zip ./*-setup.exe ./*.dmg SHA256SUMS.txt)
           if [ -f SHA256SUMS.txt.sig ]; then files+=(SHA256SUMS.txt.sig); fi
           gh release create "$GITHUB_REF_NAME" "${files[@]}" --verify-tag --prerelease --title "$GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md
@@ -523,9 +527,12 @@ jobs:
           context: .
           load: true
           tags: longmeidao/peach:candidate
+          # ghcr 包页显示 description；带上这一版的发行说明链接，镜像页能直接点到更新内容。
           labels: |
             org.opencontainers.image.version=${{ steps.version.outputs.version }}
             org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.description=Local-first video metadata scraper and media manager for VPS and NAS. Release notes: https://github.com/peach-mitao/peach/releases/tag/v${{ steps.version.outputs.version }}
+            org.opencontainers.image.url=https://github.com/peach-mitao/peach/releases/tag/v${{ steps.version.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: 验收临时容器
@@ -550,6 +557,9 @@ jobs:
     needs: [release, validate]
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -566,11 +576,19 @@ jobs:
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      # Docker Hub 是应用内更新与 Watchtower 认的来源，先推；ghcr 推同一镜像，挂到仓库侧栏的 Packages（ADR-0147）。
       - name: 推送版本号与 edge
         run: |
-          for tag in "${GITHUB_REF_NAME#v}" edge; do
-            docker tag longmeidao/peach:candidate "longmeidao/peach:$tag"
-            docker push "longmeidao/peach:$tag"
+          for image in longmeidao/peach ghcr.io/peach-mitao/peach; do
+            for tag in "${GITHUB_REF_NAME#v}" edge; do
+              docker tag longmeidao/peach:candidate "$image:$tag"
+              docker push "$image:$tag"
+            done
           done
 
   project-board:

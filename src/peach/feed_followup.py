@@ -308,6 +308,20 @@ def cover_attempt_path(cover_root: Path, code: str) -> Path:
     return Path(cover_root).parent / 'feed-cover-attempts' / (normalise_code_key(code) + '.json')
 
 
+def awaiting_official_cover(contract, code: str, release_date: str | None) -> bool:
+    """还没发售、本机没有封面、上次取图官方只回「准备中」占位图：DMM 提前一个多月上架的新作常这样。
+    新作列表先不放它，`/cover-image` 也不代理那张占位图；`cover_backlog` 照旧按 `RETRY_AFTER`
+    重取，官方出图、本机有了封面就回到列表里。已发售的旧作不算：官方那几个地址里常有一张
+    偏窄的真封面，取图记录照样写成占位图。"""
+    from .jav_cover_fetch import PLACEHOLDER_MARK
+    if not release_date or str(release_date)[:10] <= datetime.now().date().isoformat():
+        return False
+    if contract.has_cover(code):
+        return False
+    attempt = cover_attempt(contract.cover_root, code)
+    return bool(attempt and not attempt.get("ok") and PLACEHOLDER_MARK in str(attempt.get("reason") or ""))
+
+
 def cover_states(contract, rows) -> dict[str, tuple[str, str]]:
     """本机还没有封面的新作，封面那一格说什么：番号键 → (状态, 原因)。
 

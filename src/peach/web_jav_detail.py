@@ -37,11 +37,15 @@ def discovery_cover_url(item, source) -> str:
 
 
 def stored_cover_url(contract, code) -> str:
-    """`/cover-image` 按番号取的上游地址；只读账本与已缓存的来源资料，不联网。"""
+    """`/cover-image` 按番号取的上游地址；只读账本与已缓存的来源资料，不联网。
+    官方只回占位图的那几部没有地址：代理缓存里存着的那张占位图也就不再给出去。"""
+    from .feed_followup import awaiting_official_cover
     from .web_jav_discovery import _cached_movie
     with contract.database.read_connection() as connection:
-        row = connection.execute("SELECT cover_url FROM feed_discovery WHERE code=? COLLATE NOCASE LIMIT 1",
+        row = connection.execute("SELECT cover_url,release_date FROM feed_discovery WHERE code=? COLLATE NOCASE LIMIT 1",
                                  (code,)).fetchone()
+    if row and awaiting_official_cover(contract, code, row["release_date"]):
+        return ''
     return discovery_cover_url(dict(row) if row else {}, _cached_movie(code, contract))
 
 

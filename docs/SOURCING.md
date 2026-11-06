@@ -444,8 +444,12 @@ minnano-av 也在 Cloudflare 后面，但对 HTTP 客户端是间歇拦截：202
 ### 库内采集的节奏
 
 - javdb 的刮削走匿名接口（ADR-0144），不带 Cookie，不占 javdb.com 的出口配额。接口间隔 0.5 秒由用户
-  2026-11-05 定，实测依据见 ADR-0144；间隔、失败冷却与每问 4 次请求的预算在 `javdb_public.PUBLIC_API`，
+  2026-11-05 定，实测依据见 ADR-0144；间隔、失败冷却与每问 6 次请求的预算在 `javdb_public.PUBLIC_API`，
   与新作页、发现、待找磁链共用一条队；快照写进 `<生成目录>/jav-public`。
+- 接口有三个主机（`javdb_public.API_HOSTS`，ADR-0148），按序用 `jdforrepam.com`、`apidd.czssdgz.com`、
+  `apidd.spthgb.com`。一个主机连不上、回非 200 或回的不是 JSON，就只冷却这一个（403/429 冷却 15 分钟，其余
+  60 秒），同一请求交给下一家；三家都在冷却才整源停。签名常量从网页前端读不到时改用 App 那一套签名与请求参数，
+  一小时后再回头读网页前端。
 - 详情页那一路（视频预览）的主机间隔由用户定：`library_processing.SOURCE_INTERVALS` 里 `javdb.com` 与
   `jdbstatic.com` 都是 3 秒，两个主机要一起改。这份间隔由 `SOURCE_LIMITER` 整个进程共用，问同一主机仍按一条队排。
 - **FC2 的商品号在三家里只问 javdb**（`community_catalog.community_sources_for`）。本机来源证据里 AVBase 与 JavBus

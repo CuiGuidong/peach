@@ -725,6 +725,18 @@ class TaskRunStore:
             rows = connection.execute(sql, params).fetchall()
         return [_row(row) for row in rows]
 
+    def live_ids(self) -> set[int]:
+        """自己或某个后代还在排或在跑的任务：在排在跑的那些，连同它们沿父链往上的每一层。
+
+        任务中心一页两百来条，绝大多数早已结束、后代也都结束了；先一条查询圈出这一份，
+        不在里面的就不必逐条再问控制状态与资源占用。
+        """
+        with self.database.read_connection() as connection:
+            return {int(row[0]) for row in connection.execute(
+                "WITH RECURSIVE live(id) AS (SELECT id FROM task_run WHERE status IN ('pending','running') "
+                "UNION SELECT t.parent_run_id FROM task_run t JOIN live l ON t.id=l.id "
+                "WHERE t.parent_run_id IS NOT NULL) SELECT id FROM live")}
+
     def blocking(self, mutex_key: str) -> TaskRun | None:
         """当前占着这把锁的那一轮。冲突时用它回答「是谁挡的」。"""
         marks = ",".join(f"'{name}'" for name in ACTIVE_STATUSES)

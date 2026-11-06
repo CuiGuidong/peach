@@ -1,6 +1,6 @@
 # Docker 部署
 
-Peach 的 Docker 镜像用于单人 VPS 与 NAS，通过浏览器管理，镜像仓库为 [longmeidao/peach](https://hub.docker.com/r/longmeidao/peach)。每次发布推送版本号标签，并把 `edge` 更新为同一镜像；版本号标签对应发布提交。当前镜像目标为 `linux/amd64`；ARM NAS 尚未验收。2026-10-15 在 WSL 的独立 Docker Engine 中，用正式锁定依赖通过空数据卷初始化、非 root、鉴权、配置保存、合成视频扫描、HTTP Range、配置重载与重启持久化验收。
+Peach 的 Docker 镜像用于单人 VPS 与 NAS，通过浏览器管理，镜像仓库为 [longmeidao/peach](https://hub.docker.com/r/longmeidao/peach)，同一镜像也发布到 [ghcr.io/peach-mitao/peach](https://github.com/peach-mitao/peach/pkgs/container/peach)，拉取受 Docker Hub 频率限制时可以改用后者；配置页的检查更新与 Watchtower 一键更新仍以 Docker Hub 为准。每次发布推送版本号标签，并把 `edge` 更新为同一镜像；版本号标签对应发布提交。当前镜像目标为 `linux/amd64`；ARM NAS 尚未验收。2026-10-15 在 WSL 的独立 Docker Engine 中，用正式锁定依赖通过空数据卷初始化、非 root、鉴权、配置保存、合成视频扫描、HTTP Range、配置重载与重启持久化验收。
 
 Docker 不使用桌面托盘。在网页配置中添加媒体目录时，只需填写容器内实际目录，例如 `/media`；Peach 自动保存所需的路径配置。Windows 安装包、macOS 源码运行和 Docker 的入口分别见 [README](../README.md#下载与使用)。
 
@@ -43,13 +43,19 @@ PEACH_MEDIA_ROOT=/srv/videos
 
 `192.0.2.10` 是文档示例地址，不能直接用于部署。NAS 管理界面支持 Compose 环境变量时，也可在那里填写这三个值。应用配置并重新创建容器后，打开 `http://<NAS 局域网 IP>:<PEACH_PORT>`。不要在另一台电脑上用 `127.0.0.1` 访问 NAS。
 
-登录口令由 Peach 随机生成，没有通用初始密码。在 NAS 的容器管理界面打开 Peach 容器终端，运行 `peach token` 查看；通过宿主机 Compose 终端时运行 `docker compose exec peach peach token`。登录后设置访问密码。
+全新数据卷首次打开时，Peach 进入和 Windows、macOS 相同的首次设置：确认媒体目录（默认 `/media`），设访问密码或关掉开关选择免登录，选代理与是否立即扫描。数据目录固定为 `/data`，端口与访问地址由 Compose 决定，不在页面上出题。完成后服务自动切换到正常模式，页面稍后回到首页；设了密码时用它登录。
+
+首次设置只接受宿主机或同一局域网设备打开的页面；经反向代理或公网打开时，页面会提示改从这些地址打开。局域网里第一个打开的人就能完成设置，介意时用下面的 `PEACH_ACCESS_PASSWORD` 预设密码。
 
 ### 初始化与管理
 
-使用 Compose 启动后，Peach 会为全新数据卷创建配置、数据库和随机登录口令。已有配置保持原值；如果已有数据库但缺少配置文件，服务拒绝启动，需要恢复配置文件。初始化日志只显示口令文件位置。
+全新数据卷在首次设置完成前没有配置和数据库，服务以未配置状态运行；提交首次设置后，Peach 创建配置、数据库和随机访问口令。已有配置保持原值；如果已有数据库但缺少配置文件，服务拒绝启动，需要恢复配置文件。
 
-在容器终端运行 `peach token` 取得登录口令，在浏览器登录后设置访问密码。配置页要求登录，并且连接必须来自容器本机或私有网络；携带代理转发头的管理请求会被拒绝。通过配置页保存后，服务自动读取配置；勾选扫描时会启动资料处理。
+已经配置过、但从没设过访问密码的部署，未登录的浏览器打开时会看到访问设置：设访问密码或选择免登录，来源要求与首次设置相同。
+
+也可以在 `.env` 里写 `PEACH_ACCESS_PASSWORD=<8–256 个字符的密码>`，并取消 `compose.yaml` 中对应行的注释。还没有访问设置时，容器启动就用它设访问密码，首次设置页里访问那一项显示为已设置，日志不显示密码；已有访问设置时忽略它，改密码请到配置页。
+
+访问口令仍会自动生成，供用户脚本和 API 使用，容器终端运行 `peach token`、宿主机运行 `docker compose exec peach peach token` 查看。配置页要求登录，并且连接必须来自容器本机或私有网络；携带代理转发头的管理请求会被拒绝。通过配置页保存后，服务自动读取配置；勾选扫描时会启动资料处理。
 
 容器内 HTTP 端口固定为 8900，访问端口在 Compose 设置。默认只发布到宿主机 `127.0.0.1`，远程访问使用私有 VPN 或 SSH 隧道。需要局域网访问时，通过 `PEACH_BIND` 绑定宿主机的局域网地址，并设置访问密码。公网托管边界见 [安全说明](../SECURITY.md)。Docker 镜像不提供多人账号或租户隔离。
 

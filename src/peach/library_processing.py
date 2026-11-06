@@ -2426,6 +2426,41 @@ class _PreviewCaptureError(ValueError):
         super().__init__(message)
 
 
+def _earlier_timestamps(timestamp, duration):
+    """某格抽帧失败后依次改取的更早时间点，只留比上一次更早、仍在片长内的点。
+
+    转存 mp4、只有几帧的短 hevc、尾部损坏的手机视频，容器声明的时长比实际能解码的长，
+    靠后的格子落进坏区，硬解软解都取不到帧；前段的帧是好的（#392 实测）。"""
+    candidates = []
+    for value in (timestamp * 0.5, timestamp * 0.25, max(0.5, duration * 0.05)):
+        if 0 < value < duration and value < (candidates[-1] if candidates else timestamp):
+            candidates.append(value)
+    return candidates
+
+
+def _capture_preview_cell(capture, timestamp, duration, *, deadline, progress):
+    """抽九宫格的一格，返回（是否取到, 首抽诊断）；回退尝试记进诊断的 earlier_attempts。
+
+    超时多是挂载慢，换点位只会耗尽预算；FFmpeg 报错或没出帧才往前找好帧。"""
+    diagnostic = {}
+    if capture(timestamp, diagnostic):
+        return True, diagnostic
+    if diagnostic.get('reason') not in ('ffmpeg_error', 'no_frame'):
+        return False, diagnostic
+    earlier = diagnostic['earlier_attempts'] = []
+    for fallback in _earlier_timestamps(timestamp, duration):
+        if deadline <= time.monotonic():
+            break
+        progress()
+        detail = {}
+        captured = capture(fallback, detail)
+        earlier.append(dict(timestamp_seconds=fallback, reason=detail.get('reason'),
+                            returncode=detail.get('returncode')))
+        if captured:
+            return True, diagnostic
+    return False, diagnostic
+
+
 def _generate_preview(config, row, database, resolver, *, progress):
     """复用九宫格抽帧原语，产物可用后在共享写锁内登记。"""
     from . import frame_capture, media_probe
@@ -2477,10 +2512,12 @@ def _generate_preview(config, row, database, resolver, *, progress):
                     return False
                 progress()
                 timestamp = duration * (0.03 + 0.94 * (index + 0.5) / 9)
-                diagnostic = {}
-                if not frame_capture.capture_with_retry(
-                        str(choice.path), str(video), timestamp, frames / f's{index:02d}.jpg',
-                        diagnostics=diagnostic, timeout=remaining(45), decode_options=decode_options):
+                captured, diagnostic = _capture_preview_cell(
+                    lambda at, detail, destination=frames / f's{index:02d}.jpg': frame_capture.capture_with_retry(
+                        str(choice.path), str(video), at, destination,
+                        diagnostics=detail, timeout=remaining(45), decode_options=decode_options),
+                    timestamp, duration, deadline=deadline, progress=progress)
+                if not captured:
                     for attempt in diagnostic.get('attempts', []):
                         attempt['stderr'] = attempt.get('stderr', '').replace(str(video), '<media>')[-4096:]
                     diagnostic['stderr'] = diagnostic.get('stderr', '').replace(str(video), '<media>')[-4096:]

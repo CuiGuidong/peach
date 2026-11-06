@@ -725,7 +725,8 @@ SFW 开关键可在偏好设置的「内容显示」里改。主键按 `Keyboard
 - javdb 属有码与素人链的社区档，候选保留 community 来源性质，不自动写真相字段。
 - [JavDB Web UI 实证](reference-snapshots/javdb-web-ui-poc.md)：库外作品详情复用舞台、人物身份、想要、`WantMagnets` 与云下载组件；`javdb_public.PublicAPI` 复用 `HttpxTransport`（httpx 0.28.1，BSD-3-Clause）、`HostLimiter`、Pillow 12.3.0 与标准库 MD5/XOR，独立映射公开协议。匿名详情、两页评论、6 条样本资源、封面与预览图像素已取得；全站完整性和不限流未证明。请求串行、0.5 秒间隔、6 小时有界缓存，评论最多 8 页，失败保留资料并冷却；发现复用持久资料边车和固定集合补齐，传输层预算由 `ContextVar` 隔离。未新增依赖或写入 ledger。
 - JavDB 刮削（ADR-0144）复用同一个 `PUBLIC_API`、`SiteRecord` 契约、`maker_writing`、`genre_taxonomy` 与社区封面印证，只新增接口资料投影和类别 id 对照。对照表由 `generate_javdb_genres.py` 把已有详情页快照与接口资料按位置对齐生成，沿用 `generate_genre_simplified.py` 的源码区块写法；未新增依赖或写入 ledger。
-- 公开签名材料按请求头调用与签名计算式定位，不依赖压缩器生成的变量名，不执行来源脚本；常量长度、唯一赋值与组合结构均核对，格式不匹配时保留来源故障。FC2 搜索使用来源接受的商品号，返回资料仍按原始规范番号及作品 ID 严格核验；其他番号沿用原查询写法。
+- JavDB 接口主机与签名备援（ADR-0148）沿用 `PUBLIC_API` 的传输、`HostLimiter`、请求预算与冷却字段，只把冷却范围细到主机。镜像主机名与 App 签名格式是 javmoe（GPL-3.0）移植 MDCx 的协议事实，经 2026-11-05 本机实测核对，不复制其代码；未新增依赖或写入 ledger。
+- 公开签名材料按请求头调用与签名计算式定位，不依赖压缩器生成的变量名，不执行来源脚本；常量长度、唯一赋值与组合结构均核对，格式不匹配或网页前端不可达时改用 App 签名材料（ADR-0148）。FC2 搜索使用来源接受的商品号，返回资料仍按原始规范番号及作品 ID 严格核验；其他番号沿用原查询写法。
 - 馆藏和库外样图共用 `SourcePicture` 与浏览器图片缓存。组件按作品保持身份，缓存命中在布局阶段揭示，网络图片经原生 `HTMLImageElement.decode()` 就绪后显示；等待时保留已显示的图片，晚到结果按当前地址核对。失败和重试仍按图片地址隔离，无新增依赖。
 - 后台诊断导出复用 `BackgroundJob`、本机访问与同源检查、`BufferedFileResponse`，使用 Python 标准库 `zipfile`、`TemporaryFile` 和 `JSONEncoder.iterencode` 分块生成。取消使用线程事件，任务身份核对、同一管理器互斥和未完成文件回收由导出模块负责；不登记 ledger 任务，不新增依赖。普通诊断按压缩字节数决定是否合并刮削详情。
 - 慢项跳过复用 `ProcessingControl` 的持久控制文件、`checkpoint` 和 `ActiveDeadline`，按任务及当前资产消费跳过指令；资料来源的逐项发布和失败项重试继续共用现行采集路径。前端共用 `Note`、`useAction` 与现有任务查询，常驻任务浮窗禁止滑动关闭，显式隐藏和恢复入口独立于任务状态。

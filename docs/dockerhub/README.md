@@ -23,7 +23,7 @@ Movie demo data; see [asset credits and licenses](https://peach.video/en/credits
 
 | Item | Value |
 | --- | --- |
-| Image | `longmeidao/peach` |
+| Image | `longmeidao/peach`; the same image is also published as `ghcr.io/peach-mitao/peach` |
 | Version tags | One per release, built from the release commit |
 | `edge` | Moves to the latest complete release |
 | Platform | `linux/amd64`; ARM NAS is not yet verified |

@@ -383,6 +383,147 @@ class UpgradeRepairTests(unittest.TestCase):
         self.assertIn(1, receipt['media_ids'])
         self.assertNotIn(2, receipt['media_ids'])
 
+    def code_evidence_fixture(self, assets):
+        """#296 的现场：`MCDV-24` 曾按 `MCDV-024` 取过 r18.dev，标题那一行用户批准过。"""
+        from peach import artifact_rules
+        from peach.library_processing import FIELDS
+        from peach.review_csv import write_rows
+        with self.database.write_transaction() as connection:
+            for key, name, code in assets:
+                connection.execute('INSERT INTO asset(id,location,path,name,medium,code,field_owners,duration) '
+                                   "VALUES(?,'local',?,?,'video',?,?,60)",
+                                   (key, name, name, code, json.dumps({'code': 'scan:filename'})))
+            connection.execute('UPDATE asset SET catalog_title=?,field_owners=? WHERE id=1',
+                               ('クリスタル映像の題名', json.dumps({'code': 'scan:filename',
+                                                                   'catalog_title': 'review:r18dev'})))
+            connection.execute("INSERT INTO review_decision(category,item_key,status,note,updated_at) "
+                               "VALUES('metadata_fields','asset:1:title','approved',?,'2026-11-04T00:00:00Z')",
+                               (json.dumps({'candidate_key': 'r18-title', 'source': 'r18dev'}),))
+
+        def candidate(key, source, provider_id, value, content_id=''):
+            return {'candidate_key': key, 'source': source, 'provider_id': provider_id, 'content_id': content_id,
+                    'value': value, 'display_value': value, 'source_url': ''}
+
+        def row(asset_id, field, code, *candidates):
+            return {'item_key': f'asset:{asset_id}:{field}', 'code': code, 'query': code, 'asset_id': asset_id,
+                    'asset_path': f'{asset_id}.mp4', 'field': field, 'field_label': field, 'current_value': '',
+                    'candidates_json': json.dumps(list(candidates), ensure_ascii=False),
+                    'source_count': len(candidates), 'source_profile': 'library', 'policy_version': 'library-v1',
+                    'status': 'candidate'}
+
+        old = ('MCDV-024', '49mcdv024')
+        rows = [row(1, 'title', 'MCDV-024', candidate('r18-title', 'r18dev', *old[:1], 'クリスタル映像の題名', old[1])),
+                row(1, 'studio', 'MCDV-024', candidate('r18-studio', 'r18dev', old[0], 'クリスタル映像', old[1]),
+                    candidate('javdb-studio', 'javdb', 'MCDV-24', 'メルシーボークー'),
+                    candidate('nfo-studio', 'local_nfo', '', 'メルシーボークー')),
+                row(1, 'release_date', 'MCDV-024', candidate('r18-date', 'r18dev', old[0], '2004-12-10', old[1])),
+                # 同一部片只是写法变了：番号补修把 `HEYZO-707` 改成了 `HEYZO-0707`，候选照样成立。
+                row(2, 'title', 'HEYZO-707', candidate('heyzo-title', 'javdb', 'HEYZO-707', 'HEYZO の題名')),
+                row(3, 'title', 'ABP-001', candidate('abp-title', 'r18dev', 'ABP-001', 'ABP の題名', 'abp00001'))]
+        if any(key == 4 for key, _, _ in assets):
+            rows.append(row(4, 'title', 'MCDV-024', candidate('mcdv024-title', 'r18dev', *old[:1], '2004 年那部', old[1])))
+        output = self.contract.candidate_root / upgrade_repairs.CANDIDATE_FILE
+        output.parent.mkdir(parents=True, exist_ok=True)
+        write_rows(output, FIELDS, rows, fill_missing=True)
+        directory = self.root / 'sources/library-metadata'
+        directory.mkdir(parents=True, exist_ok=True)
+        snapshots = {}
+        for name in ('MCDV-024-r18dev', 'MCDV-24-javdb', 'HEYZO-707-javdb', 'ABP-001-r18dev'):
+            path = directory / f'{name}.json'
+            path.write_text(json.dumps({'id': name.rsplit('-', 1)[0]}), encoding='utf-8')
+            artifact_rules.remember(path, str(upgrade_rules.PROVIDER_EVIDENCE))
+            snapshots[name] = path
+        return output, snapshots
+
+    def candidate_rows(self, output):
+        from peach.review_csv import read_rows
+        return {row['item_key']: row for row in read_rows(output)}
+
+    def test_reverted_short_code_withdraws_old_code_evidence_and_requeues_once(self):
+        # 报告者的现场：番号早已改回 `MCDV-24`、那一轮也派过补全，旧番号的候选和快照还在。
+        from peach import artifact_rules
+        from peach.settings_file import load_config
+        output, snapshots = self.code_evidence_fixture(
+            ((1, 'mcdv-24.mp4', 'MCDV-24'), (2, 'HEYZO-0707.mp4', 'HEYZO-0707'), (3, 'ABP-001.mp4', 'ABP-001')))
+        with self.database.write_transaction() as connection:
+            connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
+                               (upgrade_repairs.REVISION, '1', json.dumps({
+                                   'revision': upgrade_repairs.REVISION, 'media_ids': [1], 'deferred': [],
+                                   'queued': {'upgrade-library:processing-v2:1': 99}, 'dispatch_complete': True})))
+        before = self.candidate_rows(output)
+        snapshot_bytes = {name: path.read_bytes() for name, path in snapshots.items()}
+        self.service.prepare()
+        after = self.candidate_rows(output)
+        # 批准过的标题行候选原样留着，只改按现番号核身份：按现番号重采回来的标题才进得了这一行的比对。
+        self.assertEqual(after['asset:1:title'], {**before['asset:1:title'], 'code': 'MCDV-24', 'query': 'MCDV-24'})
+        # 未批准的行只摘认旧番号的候选，留下的改按现番号核身份。
+        studio = after['asset:1:studio']
+        self.assertEqual([choice['candidate_key'] for choice in json.loads(studio['candidates_json'])],
+                         ['javdb-studio', 'nfo-studio'])
+        self.assertEqual((studio['code'], studio['query'], studio['source_count']), ('MCDV-24', 'MCDV-24', '2'))
+        self.assertNotIn('asset:1:release_date', after)
+        self.assertEqual(after['asset:2:title'], before['asset:2:title'])
+        self.assertEqual(after['asset:3:title'], before['asset:3:title'])
+        with self.database.read_connection() as connection:
+            title, owners = connection.execute('SELECT catalog_title,field_owners FROM asset WHERE id=1').fetchone()
+        self.assertEqual((title, json.loads(owners)['catalog_title']), ('クリスタル映像の題名', 'review:r18dev'))
+        evidence = str(upgrade_rules.PROVIDER_EVIDENCE)
+        self.assertFalse(artifact_rules.current(snapshots['MCDV-024-r18dev'], evidence))
+        for name in ('MCDV-24-javdb', 'HEYZO-707-javdb', 'ABP-001-r18dev'):
+            self.assertTrue(artifact_rules.current(snapshots[name], evidence), name)
+        self.assertEqual({name: path.read_bytes() for name, path in snapshots.items()}, snapshot_bytes)
+        receipt = upgrade_repairs._read(self.service.receipt)
+        self.assertEqual(receipt['code_media_ids'], [1])
+        self.assertEqual(receipt['media_ids'], [1])
+        self.assertFalse(receipt['dispatch_complete'])
+        self.assertEqual(receipt['code_evidence']['approved_kept'], ['asset:1:title'])
+        self.assertEqual(sorted(row['item_key'] for row in receipt['code_evidence']['withdrawn']),
+                         ['asset:1:release_date', 'asset:1:studio'])
+        # 上一轮按 `processing-v2:1` 派过，这次换规则段才会真的重采。
+        self.service.config = load_config(environ={'PEACH_DATA_ROOT': str(self.root)})
+        with patch('peach.library_processing._people_allowed', return_value=False), patch(
+                'peach.seed_followup.plan', return_value=[]), patch('peach.media_sources.cost_for', return_value='free'):
+            planned = self.service._plan(receipt)
+        self.assertEqual([row.key for row in planned], ['upgrade-library:processing-v2:code-evidence-1:1'])
+        # 一份回执只撤一次，再启动不重做、不重排。
+        stored = output.read_bytes()
+        self.service.prepare()
+        self.assertEqual(output.read_bytes(), stored)
+        self.assertEqual(upgrade_repairs._read(self.service.receipt), receipt)
+
+    def test_old_code_snapshot_stays_while_another_video_is_that_release(self):
+        from peach import artifact_rules
+        output, snapshots = self.code_evidence_fixture(
+            ((1, 'mcdv-24.mp4', 'MCDV-24'), (2, 'HEYZO-0707.mp4', 'HEYZO-0707'), (3, 'ABP-001.mp4', 'ABP-001'),
+             (4, 'MCDV-024.mp4', 'MCDV-024')))
+        before = self.candidate_rows(output)
+        self.service.prepare()
+        after = self.candidate_rows(output)
+        self.assertNotIn('asset:1:release_date', after)
+        self.assertEqual(after['asset:4:title'], before['asset:4:title'])
+        self.assertTrue(artifact_rules.current(snapshots['MCDV-024-r18dev'], str(upgrade_rules.PROVIDER_EVIDENCE)))
+        self.assertNotIn(4, upgrade_repairs._read(self.service.receipt)['code_media_ids'])
+
+    def test_catalog_upgrade_reverting_a_short_code_withdraws_its_old_candidates(self):
+        from peach import artifact_rules
+        output, snapshots = self.code_evidence_fixture(
+            ((1, 'mcdv-24.mp4', 'MCDV-024'), (2, 'HEYZO-0707.mp4', 'HEYZO-0707'), (3, 'ABP-001.mp4', 'ABP-001')))
+        with self.database.write_transaction() as connection:
+            old = upgrade_repairs.CATALOG_REVISION.replace(upgrade_rules.CATALOG, 'catalog-v2')
+            connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
+                               (old, '1', json.dumps({'revision': old})))
+        self.service.prepare()
+        with self.database.read_connection() as connection:
+            self.assertEqual(connection.execute('SELECT code FROM asset WHERE id=1').fetchone()[0], 'MCDV-24')
+        after = self.candidate_rows(output)
+        self.assertNotIn('asset:1:release_date', after)
+        self.assertEqual(after['asset:1:studio']['code'], 'MCDV-24')
+        self.assertFalse(artifact_rules.current(snapshots['MCDV-024-r18dev'], str(upgrade_rules.PROVIDER_EVIDENCE)))
+        receipt = upgrade_repairs._read(self.service.receipt)
+        self.assertEqual(receipt['code_media_ids'], [1])
+        self.assertNotIn(2, receipt['media_ids'])
+        self.assertNotIn(3, receipt['media_ids'])
+
     def test_failure_rolls_back_repairs_and_marker_together(self):
         self.asset(1)
         original = upgrade_repairs._catalog_apply

@@ -175,8 +175,10 @@ class WebDataTests(unittest.TestCase):
         self.assertTrue(all(len(word) > 1 for word in bundle["words"]))
 
     def test_search_recommendations_reuse_one_pool_across_page_opens(self):
-        """每开一页都预取推荐：池子复用，不在每次预取时重算；换的只是池里的顺序。"""
+        """每开一页都预取推荐：池子复用，不在每次预取时重算；换的只是池里的顺序。
+        后台任务每几秒提交一次，提交通知也不清掉这一池。"""
         first = rm_web.dispatch_api_get(self.contract, "/api/search/recommendations", {})
+        self.contract.cache_bust()
         with mock.patch.object(web_search, "q_items", side_effect=AssertionError("推荐池被重算了")):
             again = rm_web.dispatch_api_get(self.contract, "/api/search/recommendations", {})
         self.assertEqual({row["id"] for row in again["items"]["items"]},

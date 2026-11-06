@@ -482,6 +482,23 @@ class FeedWebTest(FeedWebFixture):
                          for item in dispatch_api_get(self.contract, path, {})["items"]}
                 self.assertEqual({code: items[code] for code in expected}, expected, path)
 
+    def test_unreleased_works_wait_off_the_list_while_the_official_cover_is_a_placeholder(self):
+        """未发售、官方只回「准备中」占位图的先不列，后台照旧重取；已发售的旧作与没取过图的照常列出。"""
+        from peach.jav_cover_fetch import NotFound, OFFICIAL_PLACEHOLDER_ONLY
+        future = (datetime.now() + timedelta(days=30)).date().isoformat()
+        rows = {"VRKM-971": future, "HIGM-183": "2024-03-09", "VRKM-972": future}
+        with self.contract.database.write_transaction() as connection:
+            for code, released in rows.items():
+                connection.execute("INSERT INTO feed_discovery(code,source_id,title,link,release_date,discovered_at)"
+                                   " VALUES(?,NULL,'',NULL,?,?)", (code, released, feeds.stamp()))
+        for code in ("VRKM-971", "HIGM-183"):
+            feed_followup.record_cover_attempt(self.contract, code, ok=False, error=NotFound(OFFICIAL_PLACEHOLDER_ONLY))
+        with patch("peach.jav_discovery_metadata.DiscoveryMetadata.ensure", return_value=None):
+            for path in ("/api/feeds/discoveries", "/api/jav/releases"):
+                codes = {item["code"] for item in dispatch_api_get(self.contract, path, {})["items"]}
+                self.assertEqual(codes & set(rows), {"HIGM-183", "VRKM-972"}, path)
+        self.assertIn("VRKM-971", self._cover_backlog())
+
     def test_a_failing_source_reports_on_its_own_row_and_stays_scheduled(self):
         self._add()
         self.transport.responses[self.url] = HttpResponse(503, {}, b"", self.url)

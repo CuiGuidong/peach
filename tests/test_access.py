@@ -541,3 +541,98 @@ class CertificateTrustTests(ConfigurationPageCase):
         self.app.state.settings = replace(self.app.state.settings, tls_enabled=True)
         self.ca.unlink()
         self.assertEqual((await desk.get("/api/configuration/certificate")).status_code, 404)
+
+
+class DockerFirstAccessTests(ConfigurationPageCase):
+    """Docker 还没有访问策略时，登录页换成访问设置；只收本机与私有网络、不带转发头的来源（ADR-0149）。"""
+
+    DOCKER = {"PEACH_DISTRIBUTION": "docker", "PEACH_HEADLESS_MANAGED": "1"}
+
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
+        environment = patch.dict("os.environ", self.DOCKER)
+        environment.start()
+        self.addCleanup(environment.stop)
+
+    @staticmethod
+    def mode(page):
+        import re
+        mount = re.search(r'<div id="peach-page" data-page="login"[^>]*>', page.text).group(0)
+        found = re.search(r' data-mode="([a-z]+)"', mount)
+        return found.group(1) if found else "password"
+
+    async def submit(self, client, **body):
+        return await client.post("/api/configuration/access/first", json=body)
+
+    async def test_docker_without_a_policy_opens_access_setup_for_local_and_private_peers(self):
+        for peer in ("127.0.0.1", "198.51.100.1", "192.0.2.20", "fd00::5"):
+            with self.subTest(peer=peer):
+                page = await self.device(peer=(peer, 1)).get("/login", params={"next": "/stats"})
+                self.assertEqual(page.status_code, 200)
+                self.assertEqual(self.mode(page), "setup")
+                self.assertIn("<title>Peach · 访问设置</title>", page.text)
+
+    async def test_public_peers_and_forwarded_requests_get_the_explanation_and_cannot_submit(self):
+        body = {"mode": "password", "password": "correct-password", "confirmation": "correct-password"}
+        cases = ((("8.8.8.8", 1), {}), (("192.0.2.20", 1), {"X-Forwarded-For": "8.8.8.8"}),
+                 (("127.0.0.1", 1), {"Forwarded": "for=8.8.8.8"}), (("198.51.100.1", 1), {"CF-Connecting-IP": "8.8.8.8"}))
+        for peer, headers in cases:
+            with self.subTest(peer=peer, headers=headers):
+                client = self.device(peer=peer)
+                client.headers.update(headers)
+                page = await client.get("/login")
+                self.assertEqual(self.mode(page), "denied")
+                refused = await self.submit(client, **body)
+                self.assertEqual(refused.status_code, 403)
+                self.assertEqual(refused.json()["detail"], routes_auth.FIRST_ACCESS_DENIED)
+        foreign = await self.device().post("/api/configuration/access/first", json=body,
+                                           headers={"Origin": "https://evil.example"})
+        self.assertEqual(foreign.status_code, 403)
+        self.assertFalse(self.path.exists())
+
+    async def test_setting_a_password_writes_the_policy_and_lets_this_browser_in(self):
+        desk = self.device(peer=("192.0.2.20", 1))
+        self.assertEqual((await self.submit(desk, mode="password", password="short", confirmation="short")).json()["detail"]["errors"],
+                         {"password": "访问密码需为 8–256 个字符"})
+        mismatch = await self.submit(desk, mode="password", password="correct-password", confirmation="other-password")
+        self.assertEqual(set(mismatch.json()["detail"]["errors"]), {"confirmation"})
+        self.assertEqual((await self.submit(desk, password="correct-password")).status_code, 400)
+        self.assertFalse(self.path.exists())
+        accepted = await self.submit(desk, mode="password", password="correct-password",
+                                     confirmation="correct-password", next="/stats")
+        self.assertEqual(accepted.status_code, 200, accepted.text)
+        self.assertEqual(accepted.json(), {"url": "/stats"})
+        self.assertNotIn("correct-password", self.path.read_text(encoding="utf-8"))
+        policy = access.load(self.path)
+        self.assertEqual(policy["mode"], "password")
+        self.assertTrue(access.verify(policy, "correct-password"))
+        self.assertEqual((await desk.get("/private")).status_code, 200)
+        stranger = self.device(peer=("192.0.2.30", 1))
+        self.assertEqual((await stranger.get("/private")).status_code, 401)
+        self.assertEqual(self.mode(await stranger.get("/login")), "password")
+        again = await self.submit(stranger, mode="open")
+        self.assertEqual(again.status_code, 409)
+        self.assertEqual(access.load(self.path)["revision"], policy["revision"])
+
+    async def test_choosing_no_password_writes_an_open_policy(self):
+        desk = self.device(peer=("198.51.100.1", 1))
+        accepted = await self.submit(desk, mode="open", next="//evil.example/")
+        self.assertEqual(accepted.json(), {"url": "/"})
+        self.assertEqual(access.load(self.path)["mode"], "open")
+        self.assertEqual((await self.device(peer=("192.0.2.30", 1)).get("/private")).status_code, 200)
+
+    async def test_the_token_still_works_and_other_deployments_keep_the_token_login(self):
+        remote = self.device(peer=("8.8.8.8", 1))
+        self.assertEqual((await remote.get("/private", headers={"X-Token": self.old})).status_code, 200)
+        self.assertEqual((await remote.get("/private", params={"t": self.old})).status_code, 200)
+        await self.sign_in(remote, self.old)
+        self.assertEqual((await remote.get("/private")).status_code, 200)
+        with patch.dict("os.environ", {"PEACH_DISTRIBUTION": "source"}):
+            page = await self.device().get("/login")
+            self.assertEqual(self.mode(page), "legacy")
+            self.assertIn("<title>登录 Peach</title>", page.text)
+            wrong = await self.device().post("/login", data={"token": "wrong", "next": "/"})
+            self.assertEqual((wrong.status_code, self.mode(wrong)), (401, "legacy"))
+            body = {"mode": "open"}
+            self.assertEqual((await self.submit(self.device(), **body)).status_code, 404)
+        self.assertFalse(self.path.exists())

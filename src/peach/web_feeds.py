@@ -216,9 +216,8 @@ def _backfill_solo_works(contract, transport, source, report: dict) -> None:
     entity_id = source["entity_id"]
     if source["kind"] != feeds.KIND_JAVDB_ACTOR or not entity_id:
         return
-    hidden = web_settings.hidden_compilations(contract.database)
     with contract.database.read_connection() as connection:
-        feeds.register_functions(connection, hidden)
+        register_listed(contract, connection)
         listed = connection.execute(
             "SELECT count(*) FROM feed_discovery d WHERE d.ignored_at IS NULL"
             f" AND {' AND '.join(LISTED)} AND EXISTS (SELECT 1 FROM feed_discovery_entity de"
@@ -435,9 +434,8 @@ def w_feed_schedule_run(contract, _body) -> dict:
 
 def q_feeds(contract, args) -> dict:
     """设置页「订阅源」小节的首屏。"""
-    hidden = web_settings.hidden_compilations(contract.database)
     with contract.database.read_connection() as connection:
-        feeds.register_functions(connection, hidden)
+        register_listed(contract, connection)
         rows = feeds.sources(connection)
         # 表里名字前面那个圆框：有图走 `/entity-image`，判据与取景都取自身份引用那一份。
         for row in rows:
@@ -686,8 +684,9 @@ def _follow_by_name(contract, body) -> dict:
 DISCOVERY_LIMIT = 24
 
 #: 哪些壳算「新作」。已经入库的不算——那条新作的使命已经完成了；设置里收起的那几类
-#: 合集不算（`feeds.compilation_kind`）。两条都是读的时候现算。
-#: 用到它的连接要先按设置 `feeds.register_functions`。
+#: 合集不算（`feeds.compilation_kind`）；还没发售、官方只回占位图的不算
+#: （`feed_followup.awaiting_official_cover`）。三条都是读的时候现算。
+#: 用到它的连接要先 `register_listed`。
 #: 已入库那一条写成不相关子查询：库里的番号键只算一遍、建成临时索引，每条壳再去查它。
 #: 相关子查询的写法要给每条壳把整张 `asset` 的番号重算一遍（60 条壳 × 2881 部是 486ms），
 #: 资料页的形状名单和新作列表都等在它上面。判空与 `=` 一致：键算不出来的壳照常列出。
@@ -697,7 +696,15 @@ LISTED = (
     " (SELECT key FROM (SELECT normalise_code_key(a.code) AS key FROM asset a"
     " WHERE a.code IS NOT NULL AND COALESCE(a.disposal,'')<>'vanished') WHERE key IS NOT NULL))",
     "NOT is_feed_hidden(d.title,d.performers,d.studio)",
+    "NOT is_cover_pending(d.code,d.release_date)",
 )
+
+
+def register_listed(contract, connection) -> None:
+    """挂上 `LISTED` 用到的两个函数：合集收起按设置，「官方还没出图」按本机封面与取图记录。"""
+    feeds.register_functions(connection, web_settings.hidden_compilations(contract.database))
+    connection.create_function("is_cover_pending", 2, lambda code, release_date:
+        feed_followup.awaiting_official_cover(contract, code, release_date))
 
 
 def _discovery_performers(connection, contract, rows) -> dict[int, list[dict]]:
@@ -765,9 +772,8 @@ def q_feed_discoveries(contract, args) -> dict:
                      " WHERE de.discovery_id=d.id AND de.entity_id=?)")
         with contract.database.read_connection() as connection:
             params.append(entities.resolve_entity_id(connection, int(entity_id)) or int(entity_id))
-    hidden = web_settings.hidden_compilations(contract.database)
     with contract.database.read_connection() as connection:
-        feeds.register_functions(connection, hidden)
+        register_listed(contract, connection)
         rows = [dict(row) for row in connection.execute(
             "SELECT d.*, s.name AS source_name, s.kind AS source_kind"
             " FROM feed_discovery d LEFT JOIN feed_source s ON s.id=d.source_id"
@@ -812,8 +818,8 @@ def q_feed_discoveries(contract, args) -> dict:
 
 
 def home_has_feed(contract, connection) -> bool:
-    """首页新作行是否有内容，与新作列表共用未入库、未忽略和合集筛选条件。"""
-    feeds.register_functions(connection, web_settings.hidden_compilations(contract.database))
+    """首页新作行是否有内容，与新作列表共用 `LISTED` 与未忽略。"""
+    register_listed(contract, connection)
     return bool(connection.execute(
         "SELECT EXISTS(SELECT 1 FROM feed_discovery d"
         f" WHERE d.ignored_at IS NULL AND {' AND '.join(LISTED)})").fetchone()[0])
@@ -821,7 +827,7 @@ def home_has_feed(contract, connection) -> bool:
 
 def feed_row_entity_ids(contract, connection) -> set[int]:
     """资料页上会出现新作那一行的实体：判据和按人取新作的那一份同一套（`LISTED`、未忽略）。"""
-    feeds.register_functions(connection, web_settings.hidden_compilations(contract.database))
+    register_listed(contract, connection)
     return {int(row[0]) for row in connection.execute(
         "SELECT DISTINCT de.entity_id FROM feed_discovery_entity de"
         " JOIN feed_discovery d ON d.id=de.discovery_id"

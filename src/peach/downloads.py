@@ -37,7 +37,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
-from .repository import LedgerDatabase
+from .repository import LedgerDatabase, in_background
 
 LOGGER = logging.getLogger(__name__)
 
@@ -911,7 +911,7 @@ class DownloadService:
         if not self.available or self._thread is not None:
             return
         self._stop.clear()
-        self._thread = threading.Thread(target=self._loop, name="PeachDownloads", daemon=True)
+        self._thread = threading.Thread(target=in_background(self._loop), name="PeachDownloads", daemon=True)
         self._thread.start()
         if self.after_ingest is not None:
             try:

@@ -43,6 +43,7 @@ from pathlib import Path, PureWindowsPath
 from typing import Callable
 
 from .fsutil import atomic_write_text
+from .repository import in_background
 
 LOGGER = logging.getLogger(__name__)
 
@@ -402,7 +403,7 @@ class DiscoveryQueue:
             return
         self._stopping = False
         self._thread = threading.Thread(
-            target=self._loop, name="PeachPushDiscovery", daemon=True)
+            target=in_background(self._loop), name="PeachPushDiscovery", daemon=True)
         self._thread.start()
 
     def stop(self) -> None:

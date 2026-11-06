@@ -1,4 +1,5 @@
 """匿名协议、身份核对、图片包装与只读详情投影。"""
+import hashlib
 import io
 import json
 import tempfile
@@ -14,6 +15,7 @@ from PIL import Image
 from peach.http import HttpResponse
 from peach.javdb_public import PublicAPI, PublicSourceUnavailable, decode_image, preview_video_url, public_signature_parts
 from peach.javdb_public import PublicBudgetExceeded, PublicNotFound, PublicRequestBudget, PublicSourcePaused, actor_gender
+from peach.javdb_public import API_HOSTS, APP_HEADERS, APP_QUERY, APP_SIGNATURE, WEB
 from peach.web_jav_detail import (JAV_ACTOR_IMAGE_MAX_AGE, JAV_IMAGE_MAX_AGE, jav_image, q_jav_detail,
                                   q_jav_reviews, q_jav_resources)
 from peach.web_state import WebContract
@@ -333,7 +335,73 @@ class PublicProtocolTests(unittest.TestCase):
             self.assertGreater(api.paused_until, api.clock())
             with self.assertRaises(PublicSourceUnavailable):
                 api.movie('EXM-001')
-            self.assertEqual(transport.call_count, 1)
+            self.assertEqual(transport.call_count, len(API_HOSTS))
+
+    def test_blocked_api_host_cools_alone_and_the_next_host_answers(self):
+        api = self.api()
+        answer = api.transport
+        def transport(request, *rest):
+            if request.url.startswith(API_HOSTS[0]):
+                self.requests.append(request)
+                return HttpResponse(429, {}, b'')
+            return answer(request, *rest)
+        api.transport = transport
+        self.assertEqual(api.movie('EXM-001')['id'], 'Exact')
+        self.assertEqual(api.paused_until, 0.0)
+        self.assertGreater(api.host_paused[API_HOSTS[0]], api.clock() + 800)
+        before = len(self.requests)
+        api.reviews('EXM-001', 1)
+        later = [request.url for request in self.requests[before:]]
+        self.assertTrue(later)
+        self.assertFalse(any(url.startswith(API_HOSTS[0]) for url in later))
+        self.assertTrue(all(url.startswith(API_HOSTS[1]) for url in later))
+
+    def test_html_answer_from_a_host_moves_to_the_next_host(self):
+        api = self.api()
+        answer = api.transport
+        def transport(request, *rest):
+            if request.url.startswith(API_HOSTS[0]):
+                self.requests.append(request)
+                return HttpResponse(200, {}, b'<html>blocked</html>')
+            return answer(request, *rest)
+        api.transport = transport
+        self.assertEqual(api.movie('EXM-001')['id'], 'Exact')
+        self.assertGreater(api.host_paused[API_HOSTS[0]], api.clock())
+        self.assertEqual(api.paused_until, 0.0)
+
+    def test_web_signature_failure_signs_with_the_app_shape(self):
+        api = self.api()
+        answer = api.transport
+        def transport(request, *rest):
+            if request.url.startswith(WEB):
+                self.requests.append(request)
+                return HttpResponse(503, {}, b'')
+            return answer(request, *rest)
+        api.transport = transport
+        self.assertEqual(api.movie('EXM-001')['id'], 'Exact')
+        self.assertEqual(api.paused_until, 0.0)
+        signed = [request for request in self.requests if '/api/' in request.url]
+        self.assertTrue(signed)
+        for request in signed:
+            stamp, middle, digest = request.headers['jdsignature'].split('.')
+            self.assertEqual(middle, APP_SIGNATURE[0])
+            self.assertEqual(digest, hashlib.md5((stamp + APP_SIGNATURE[1]).encode()).hexdigest())
+            self.assertEqual(request.headers['User-Agent'], APP_HEADERS['User-Agent'])
+            query = parse_qs(urlsplit(request.url).query)
+            self.assertEqual({key: values[0] for key, values in query.items() if key in APP_QUERY}, APP_QUERY)
+        web_requests = sum(request.url.startswith(WEB) for request in self.requests)
+        api.cache.clear()
+        api.movie('EXM-001', refresh=True)
+        self.assertEqual(sum(request.url.startswith(WEB) for request in self.requests), web_requests)
+
+    def test_unrecognized_web_script_also_falls_back_to_the_app_signature(self):
+        api = self.api()
+        answer = api.transport
+        api.transport = lambda request, *rest: (HttpResponse(200, {}, b'const changed=1;') if '/assets/' in request.url
+                                                else answer(request, *rest))
+        self.assertEqual(api.movie('EXM-001')['id'], 'Exact')
+        self.assertTrue(api.signature_app)
+        self.assertEqual(api.paused_until, 0.0)
 
     def test_reviews_request_page_and_enforce_budget(self):
         api = self.api()

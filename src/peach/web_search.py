@@ -59,8 +59,8 @@ def q_search_recommendations(contract, args) -> dict:
     自己的取数抢服务进程。推荐只是随手一翻的入口，晚几分钟换池无妨。
     """
     library = str(args.get("library") or "")
-    pool = contract.cached(f"search-recommendations:{library}", lambda: _bundle(contract, library),
-                           ttl=RECOMMENDATION_TTL)
+    pool = contract.cached_for(f"search-recommendations:{library}", lambda: _bundle(contract, library),
+                               ttl=RECOMMENDATION_TTL)
     return _shuffled(pool)
 
 

@@ -32,7 +32,8 @@ from . import (access, auth, certs, data_storage, distribution, entry_links, err
                web_downloads)
 from .config import REPLICATION_ENABLED
 from .jobs import JobAlreadyRunning
-from .routes_auth import require_auth, require_authenticated_client, same_origin, sessions as access_sessions
+from .routes_auth import (FIRST_ACCESS_DENIED, login_mode, origin_allowed, require_auth, require_authenticated_client, safe_next, same_origin,
+                          set_auth_cookie, sessions as access_sessions)
 from .web_entry import runtime_fact_entries
 from .web_local_access import local_client, managed_configuration
 from . import (release_updates, standalone_update, peach_proxy, desktop_startup, desktop_uninstall, docker_update,
@@ -1068,8 +1069,58 @@ def save_access(request: Request, body: dict[str, Any] = Body(default_factory=di
     response.delete_cookie("tok", path="/")
     response.delete_cookie(access.COOKIE, path="/")
     if policy["mode"] == "password":
-        from .routes_auth import set_auth_cookie
         set_auth_cookie(response, request, login=True)
+    return response
+
+
+@router.post("/api/configuration/access/first")
+def first_access(request: Request, body: dict[str, Any] = Body(default_factory=dict)):
+    """Docker 访问设置：已经配置过、还没有访问策略的部署设访问密码或明确选择免登录（ADR-0149）。
+
+    这时没有登录可言，边界只剩来源：`login_mode` 判 `setup` 才收，即本机或私有网络、
+    不带代理转发头；提交再按 `origin_allowed` 看是不是 Peach 自己的页面发的，首次设置时隧道
+    地址不算本机。文件锁里再看一次策略，局域网里两台设备同时提交，后到的收 409。
+    设了密码就给这个浏览器签发会话，提交的人直接进入。
+    """
+    path = request.app.state.settings.access_path
+    if not distribution.docker() or path is None:
+        raise HTTPException(404, "not found")
+    mode = login_mode(request)
+    if mode == "password":
+        raise HTTPException(409, "访问设置已完成，请刷新页面")
+    if mode != "setup":
+        raise HTTPException(403, FIRST_ACCESS_DENIED)
+    if not origin_allowed(request, guard="first-access", tunnels=False):
+        raise HTTPException(403, "请从 Peach 访问设置页提交")
+    if any(not isinstance(body.get(key, ""), str) for key in ("password", "confirmation", "next")):
+        raise HTTPException(400, "密码需要是文字")
+    choice, password = body.get("mode"), body.get("password", "")
+    if choice not in {"password", "open"}:
+        raise HTTPException(400, "请选择设置访问密码或免登录")
+    if choice == "password":
+        if not password:
+            raise HTTPException(400, {"message": "请输入访问密码", "errors": {"password": "请输入访问密码"}})
+        try:
+            access.validate_password(password, body.get("confirmation", ""))
+        except ValueError as exc:
+            field = "confirmation" if password != body.get("confirmation", "") else "password"
+            raise HTTPException(400, {"message": str(exc), "errors": {field: str(exc)}}) from exc
+    try:
+        with FileLock(str(path.with_suffix(".lock")), timeout=0):
+            if access.load(path)["mode"] != "legacy":
+                raise HTTPException(409, "访问设置已完成，请刷新页面")
+            policy = access.save(path, password if choice == "password" else "")
+    except Timeout:
+        raise HTTPException(409, "访问设置正在保存，请稍后重试") from None
+    if policy["mode"] != "password":
+        _close_tunnel_without_password(request)
+    response = JSONResponse({"url": safe_next(body.get("next", "/"))}, headers={"Cache-Control": "no-store"})
+    response.delete_cookie("tok", path="/")
+    if policy["mode"] == "password":
+        try:
+            set_auth_cookie(response, request, login=True)
+        except OSError:
+            pass  # 密码已经写下；设备记录写不进去时这个浏览器转到登录页，用刚设的密码登录即可。
     return response
 
 
@@ -1160,7 +1211,6 @@ def rotate_api_token(request: Request, _args=Depends(require_auth)):
     response = JSONResponse(payload, headers={"Cache-Control": "no-store"})
     response.delete_cookie("tok", path="/")
     if policy["mode"] == "legacy":
-        from .routes_auth import set_auth_cookie
         try:
             if store is not None:
                 store.reset("legacy")

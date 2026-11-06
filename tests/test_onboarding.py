@@ -1002,6 +1002,102 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertEqual(data["url"], "http://127.0.0.1:8900/?onboarding=1")
 
 
+@unittest.skipUnless(HAS_HTTP_DEPS, "需要 fastapi 与 httpx")
+class DockerFirstSetupTests(_SetupHttpCase):
+    """全新 Docker 走同一张首次设置页：来源按本机或私有网络判，数据目录固定为卷（ADR-0149）。"""
+
+    QUESTIONS = "/api/setup/questions"
+    SUBMIT = "/api/setup"
+    LAN = ("192.0.2.20", 51000)
+
+    def setUp(self):
+        super().setUp()
+        environment = mock.patch.dict(os.environ, {"PEACH_DISTRIBUTION": "docker", "PEACH_HEADLESS_MANAGED": "1"})
+        environment.start()
+        self.addCleanup(environment.stop)
+
+    def _body(self, **overrides):
+        root = "" if NATIVE_WINDOWS else "R:\\media"
+        body = {"media_dir": [{"path": str(self.media), "location": "local", "root": root, "cost": "free"}],
+                "scan_now": True, "access_enabled": True,
+                "access_password": "correct-password", "access_confirm": "correct-password"}
+        body.update(overrides)
+        return body
+
+    def test_lan_peers_get_the_questions_without_data_root_address_or_port(self):
+        data = self._send("GET", self.QUESTIONS, client=self.LAN).json()
+        self.assertTrue(data["docker"])
+        self.assertEqual([item["key"] for item in data["questions"]], ["media_dir"])
+        self.assertEqual(data["questions"][0]["default"], "/media")
+        self.assertEqual(data["data_root"], str(self.data_root))
+        self.assertTrue(data["access_enabled"], "Docker 对局域网开放，访问密码默认开")
+        self.assertFalse(data["access_preset"])
+
+    def test_public_and_forwarded_sources_are_refused_everywhere_but_the_page_shell(self):
+        from peach.routes_auth import FIRST_ACCESS_DENIED
+        refused = {"error": FIRST_ACCESS_DENIED, "docker": True}
+        for client, headers in ((("8.8.8.8", 1), {}), (self.LAN, {"X-Forwarded-For": "8.8.8.8"}),
+                                (("127.0.0.1", 1), {"Forwarded": "for=8.8.8.8"})):
+            with self.subTest(client=client, headers=headers):
+                for method, path, body in (("GET", self.QUESTIONS, None), ("POST", self.SUBMIT, self._body()),
+                                           ("GET", "/api/configuration", None)):
+                    response = self._send(method, path, json=body, headers=headers, client=client)
+                    self.assertEqual((response.status_code, response.json()), (403, refused), path)
+                page = self._send("GET", "/", headers=headers, client=client)
+                self.assertEqual(page.status_code, 200)
+                self.assertIn('data-page="setup"', page.text)
+        foreign = self._send("POST", self.SUBMIT, json=self._body(), client=self.LAN,
+                             headers={"Origin": "http://elsewhere.example"})
+        self.assertEqual((foreign.status_code, foreign.json()), (403, {"error": "请从 Peach 设置页提交"}))
+        self.assertFalse(self.data_root.exists(), "被拒的提交不落任何文件")
+
+    def test_a_lan_submission_initializes_the_fixed_data_root_and_writes_the_access_policy(self):
+        from peach import access, auth
+        body = self._body(data_root=str(self.root / "elsewhere"), host="1", port="9999", mdns_name="other")
+        response = self._send("POST", self.SUBMIT, json=body, client=self.LAN)
+        self.assertEqual(response.status_code, 200, response.text)
+        done = response.json()
+        self.assertEqual((done["url"], done["redirect"]), ("/?onboarding=1", "/?onboarding=1"))
+        self.assertTrue(done["scan_requested"])
+        self.assertFalse((self.root / "elsewhere").exists(), "数据目录不出题，提交里带了也不认")
+        saved = self._loaded()
+        self.assertTrue(saved.present)
+        self.assertEqual(saved.data_root, self.data_root)
+        self.assertEqual((saved.server.port, saved.server.mdns_name), (8900, "peach"))
+        self.assertTrue((self.data_root / "database" / "ledger.db").is_file())
+        self.assertTrue(auth.token_path(saved.directory("secrets")).is_file())
+        policy = access.load(saved.directory("secrets") / "access.json")
+        self.assertEqual(policy["mode"], "password")
+        self.assertTrue(access.verify(policy, "correct-password"))
+        self.assertEqual(onboarding.take_first_scan_request(saved), "configured")
+
+    def test_no_password_writes_an_open_policy(self):
+        from peach import access
+        response = self._send("POST", self.SUBMIT, json=self._body(access_enabled=False), client=self.LAN)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(access.load(self.data_root / "secrets" / "access.json")["mode"], "open")
+
+    def test_a_password_preset_by_the_environment_is_kept_and_marked(self):
+        from peach import access
+        path = self.config.directory("secrets") / "access.json"
+        access.save(path, "container-secret")
+        self.assertTrue(self._send("GET", self.QUESTIONS, client=self.LAN).json()["access_preset"])
+        response = self._send("POST", self.SUBMIT, json=self._body(access_enabled=False), client=self.LAN)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertTrue(access.verify(access.load(path), "container-secret"))
+
+    def test_the_setup_service_reports_ready_so_the_container_healthcheck_passes(self):
+        ready = self._send("GET", "/healthz?ready=1")
+        self.assertEqual(ready.status_code, 200)
+        self.assertEqual((ready.json()["ready"], ready.json()["setup"]), (True, True))
+        with mock.patch.dict(os.environ, {"PEACH_DISTRIBUTION": "source"}):
+            self.assertEqual(self._send("GET", "/healthz?ready=1").status_code, 503, "桌面引导服务照旧不算就绪")
+
+    def test_restoring_another_data_root_is_not_offered(self):
+        response = self._send("POST", "/api/setup/restore", json={"data_root": str(self.root)}, client=self.LAN)
+        self.assertEqual(response.status_code, 404)
+
+
 class StandaloneConfigurationTests(_Case):
     def test_automatic_update_settings_roundtrip_and_access_boundaries(self):
         from peach.automatic_updates import AutomaticUpdates

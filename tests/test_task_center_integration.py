@@ -363,6 +363,27 @@ class TasksEndpointTests(unittest.TestCase):
         self.store.finish(run.id, 'succeeded')
         self.assertFalse(web_tasks.q_result_updates(self.contract, {})['busy'])
 
+    def test_finished_runs_are_listed_without_a_query_per_row(self):
+        """最近完成那一页两百来条大多早已结束：控制状态与资源占用只问还有活动的那几条，连接数不随页长增长。"""
+        from unittest import mock
+        for _ in range(30):
+            self.store.finish(self.store.start('library-processing', trigger='manual').id, 'succeeded')
+        parent = self.store.start('parent', trigger='manual')
+        self.store.enqueue_followups(parent.id, [('leaf:1', 'leaf', '还在排的后继')])
+        self.store.finish(parent.id, 'succeeded')
+        original = self.store.database.read_connection
+        opened = []
+
+        def counted():
+            opened.append(1)
+            return original()
+
+        with mock.patch.object(self.store.database, 'read_connection', side_effect=counted):
+            payload = web_tasks.q_tasks(self.contract, {'limit': '100'})
+        controlled = [row['id'] for row in (*payload['finished'], *payload['working_parents']) if 'control' in row]
+        self.assertEqual(controlled, [parent.id])
+        self.assertLess(len(opened), 20, f'连接数：{len(opened)}')
+
     def test_ingest_notices_ride_along_with_the_task_list(self):
         from unittest import mock
 

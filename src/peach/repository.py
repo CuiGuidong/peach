@@ -10,6 +10,24 @@ from .catalog_rules import is_jav_code, normalise_code_key, sql_is_local_extra
 from .entities import normalize_entity_name
 from .regions import infer_region
 
+#: 当前线程是不是后台写入者，见 `in_background`。
+_WRITER = threading.local()
+
+
+def in_background(target):
+    """把线程入口包成后台写入者：它提交的写入只让页面缓存「过期」，读者可以先拿旧值（ADR-0146）。
+
+    没包的线程照旧按前台算：测试、请求处理与显式失效写完就要读到新值。
+    """
+    def run(*args, **kwargs):
+        _WRITER.background = True
+        return target(*args, **kwargs)
+    return run
+
+
+def writing_in_background() -> bool:
+    return getattr(_WRITER, "background", False)
+
 
 class LedgerDatabase:
     """Shared SQLite connection and transaction boundary for one Peach app."""

@@ -126,6 +126,8 @@ Docker 镜像的一键更新（[ADR-0140](adr/0140-docker-one-click-update-via-w
 
 `POST /api/configuration/smb/test` 接受共享地址及连接字段，验证只读目录访问，返回 `readable` 和最多 500 个可进入子目录名。接口要求本机管理权限与同源请求；地址无效返回 400，无读取权限返回 403，共享不可达返回 502，不回显密码。配置读取只返回账号、加密要求与密码是否已保存。
 
+`POST /api/configuration/access/first` 是已配置、还没有访问策略的 Docker 部署的访问设置提交（[ADR-0149](adr/0149-docker-first-access-setup.md)），不要求登录。正文 `{mode, password, confirmation, next}`，`mode` 为 `password` 或 `open`；成功写入访问策略，返回站内地址 `url`，设了密码时同时设下会话 cookie。只在 Docker 且还没有访问策略时可用：非 Docker 返回 404，已有策略返回 409，来源不是本机或私有网络、带代理转发头或不同源时返回 403，密码错误按 `errors.password`、`errors.confirmation` 返回 400。
+
 `POST /api/configuration/access/token/rotate` 更换访问口令，运行中的服务立即改用新口令。接口要求本机管理权限与同源请求；口令由 `--token`、`PEACH_TOKEN` 指定或这次启动没有口令时返回 409，访问设置读不出时也返回 409。响应只在这一次带回新口令 `token`（`Cache-Control: no-store`），另有访问方式 `mode` 和被登出的其他设备数 `signed_out`。配置读取的 `api_token` 只给出 `rotatable`、`reason`、`paired`，不回显口令。
 
 `GET /api/configuration/certificate` 限本机管理权限，返回本机 CA 的 SHA-256 `fingerprint`、到期日 `not_after`、下载路径和二维码：`phone_url` 是带 10 分钟签名的下载地址，`qr` 是模块矩阵。没有 HTTPS 服务或没有 CA 时返回 404，配置读取的 `certificate` 为 null。`GET /api/configuration/certificate/peach-local-ca.crt` 只下发 CA 的公开证书（`application/x-x509-ca-cert`），任何私钥都不经过它；带有效签名 `k` 时不需要登录，签名无效或过期返回 403；不带签名时要求应用鉴权。

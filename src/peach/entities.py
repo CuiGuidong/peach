@@ -844,9 +844,13 @@ def resolve_entity(connection: Connection, kind: str, name: str):
 
 
 def _resolve_entity(connection: Connection, kind: str, name: str):
+    # 仍按原文逐字比对；多带的归一列条件只为走 `(kind, normalized_name)` 与 `normalized_alias`
+    # 的索引。原文两列没有索引，每次解析都要扫整张表。归一列由写入方用 `normalize_entity_name`
+    # 算，实体表的唯一约束与入库去重本来就靠它。
+    key = normalize_entity_name(name or "")
     canonical = connection.execute(
-        "SELECT e.* FROM entity e WHERE e.kind=? AND e.canonical_name=? LIMIT 1",
-        (kind, name),
+        "SELECT e.* FROM entity e WHERE e.kind=? AND e.normalized_name=? AND e.canonical_name=? LIMIT 1",
+        (kind, key, name),
     ).fetchone()
     if canonical:
         return canonical
@@ -855,7 +859,7 @@ def _resolve_entity(connection: Connection, kind: str, name: str):
         return connection.execute('SELECT * FROM entity WHERE id=?', (next(iter(ids)),)).fetchone() if len(ids) == 1 else None
     aliases = connection.execute(
         "SELECT DISTINCT e.* FROM entity e JOIN entity_alias a ON a.entity_id=e.id "
-        "WHERE e.kind=? AND a.alias=? ORDER BY e.id LIMIT 2",
-        (kind, name),
+        "WHERE e.kind=? AND a.normalized_alias=? AND a.alias=? ORDER BY e.id LIMIT 2",
+        (kind, key, name),
     ).fetchall()
     return aliases[0] if len(aliases) == 1 else None

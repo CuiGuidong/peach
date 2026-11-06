@@ -35,7 +35,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
-from . import (__version__, browser_transport, feeds, ledger_backups, tunnel, web_contract,
+from . import (__version__, browser_transport, distribution, feeds, ledger_backups, tunnel, web_contract,
                web_feeds, web_follow, web_settings)
 from . import routes_api, routes_auth, routes_configuration, routes_jav_browser, routes_media, routes_pages, routes_subtitles
 from .buildinfo import frozen_build
@@ -73,12 +73,13 @@ from .previews import (
 from .follow_secrets import credential_store_for
 from .push_discovery import PushDiscoveryService
 from .web_downloads import build_download_service
+from .web_local_access import local_client
 from .sample_images import SampleCache
 from .sample_images import cache_root as sample_cache_root
 from .providers import OpenCodeGoClient, default_registry
 from .repository import LedgerDatabase, LedgerRepository
 from .review_mirror import ReviewMirror
-from .routes_auth import AssetLoginRequired, PageLoginRequired
+from .routes_auth import FIRST_ACCESS_DENIED, AssetLoginRequired, PageLoginRequired
 # 两档缓存时长的实现在 `routes_media`，这里再导出：它们是对外的缓存契约，
 # tests/test_follow_web.py 按 `api.MEDIA_CACHE_SECONDS` 断言两者的关系。
 from .routes_media import AVATAR_CACHE_SECONDS, MEDIA_CACHE_SECONDS  # noqa: F401
@@ -142,6 +143,30 @@ class ResponseHeadersMiddleware:
         await self.app(scope, receive, send_headers)
 
 
+class FirstSetupSourceMiddleware:
+    """Docker 首次设置完成前，服务没有口令也没有访问策略，谁连得上谁就能调接口（ADR-0149）。
+
+    这段时间 `/api/` 与写请求只收 `local_client` 认的来源：本机或私有网络、不带代理转发头。
+    页面壳与静态资源照常给，来源不满足的浏览器也能看到首次设置页上那句说明。配置完成后
+    服务换成正常模式，由口令与访问策略把关，这一层不再起作用。
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http" and distribution.docker():
+            request = Request(scope)
+            settings = request.app.state.settings
+            if (not settings.configured
+                    and (scope["path"].startswith("/api/") or scope["method"] not in {"GET", "HEAD"})
+                    and not local_client(request)):
+                response = JSONResponse({"error": FIRST_ACCESS_DENIED, "docker": True}, status_code=403)
+                await response(scope, receive, send)
+                return
+        await self.app(scope, receive, send)
+
+
 #: Starlette 自己抛的那几种 HTTPException 带的是英文 detail，给人看之前换成中文。
 _DEFAULT_DETAILS = {
     "Not Found": "这个地址下没有页面。",
@@ -200,8 +225,11 @@ def _restore_task_center(contract) -> None:
 
 #: 开机在后台先算一遍的聚合：口味、复核、垃圾复核、关注的全部条目与筛选项各要几秒到
 #: 十几秒，都按账本版本号缓存（`WebContract.cached_until_changed`），算好一次就一直用到
-#: 账本或文件真的变了。
-WARM_AGGREGATES = (("/api/taste", {"window": "all"}), ("/api/review", {}), ("/api/ads", {}),
+#: 账本或文件真的变了。排在前面的是每页都碰到的几份：形状名单、作品分组快照（目录、
+#: 索引、筛选项都建在它上面）、统计与搜索推荐池，重启后第一个打开页面的人不再等它们一起冷算。
+WARM_AGGREGATES = (("/api/entity/shapes", {}), ("/api/items", {"limit": "60"}), ("/api/stats", {}),
+                   ("/api/search/recommendations", {}),
+                   ("/api/taste", {"window": "all"}), ("/api/review", {}), ("/api/ads", {}),
                    ("/api/follow", {}))
 
 
@@ -687,6 +715,7 @@ def create_app(
         name="vendor",
     )
 
+    app.add_middleware(FirstSetupSourceMiddleware)
     app.add_middleware(ResponseHeadersMiddleware)
 
     # JSON 契约、页面脚本与样式是仅有的几类大文本响应，压下去省的字节最多：

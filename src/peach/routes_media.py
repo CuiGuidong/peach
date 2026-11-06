@@ -1236,8 +1236,9 @@ def cover_image(request: Request, code: str, args: dict[str, str] = Depends(requ
     """库外作品的官方封面：按番号在服务端查地址，经 Peach 的出网设置取图并落盘缓存。
 
     取不到一律回 404 且不缓存：卡片按 `data-drop` 换成占位，网络恢复后下一次加载重取。
+    DMM 缺图时 302 到同一主机族上的「NOW PRINTING」占位图，跟到那一跳也算取不到。
     """
-    from .jav_cover_fetch import COVER_PROXY_HOSTS, candidate_for
+    from .jav_cover_fetch import COVER_PROXY_HOSTS, PLACEHOLDER, candidate_for
     from .web_jav_detail import detail_code, stored_cover_url
     state = request.app.state
     try:
@@ -1250,8 +1251,13 @@ def cover_image(request: Request, code: str, args: dict[str, str] = Depends(requ
         if hit is not None:
             return hit
         target = ResolvedFollowMedia(url, candidate_for(url).referer, allowed_hosts=COVER_PROXY_HOSTS)
-        return cache.stream(key, request, lambda: open_upstream(
-            state.http_transport.client, request.method, target, incoming=request.headers))
+        def fetch():
+            upstream = open_upstream(state.http_transport.client, request.method, target, incoming=request.headers)
+            if PLACEHOLDER.search(str(upstream.url)):
+                upstream.close()
+                raise FollowProxyError("上游给的是「准备中」占位图")
+            return upstream
+        return cache.stream(key, request, fetch)
     except (ValueError, FollowProxyError, OSError, httpx.HTTPError):
         return Response(status_code=404, headers={"cache-control": "no-store"})
 

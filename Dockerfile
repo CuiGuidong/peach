@@ -26,6 +26,7 @@ RUN target="$(.venv/bin/python -c 'import pathlib, peach; print(pathlib.Path(pea
 FROM python:3.15.1-slim-trixie
 LABEL org.opencontainers.image.title="Peach" \
       org.opencontainers.image.source="https://github.com/peach-mitao/peach" \
+      org.opencontainers.image.documentation="https://github.com/peach-mitao/peach/blob/master/docs/DOCKER.md" \
       org.opencontainers.image.licenses="AGPL-3.0-or-later"
 # amane 独立环境在构建阶段准备，空数据卷可直接调用。
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg openssl ca-certificates mesa-va-drivers vainfo \

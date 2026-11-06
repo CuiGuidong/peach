@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from . import entities, feed_followup, feeds, web_catalog, web_feeds, web_settings, wants
+from . import entities, feed_followup, web_catalog, web_feeds, wants
 from .related import rank_related
 from .taste_preferences import preference_profile, preference_score
 from .genre_decisions import load_genre_decisions
@@ -30,7 +30,7 @@ def _cached_movie(code, contract):
 
 
 def _external(connection, contract):
-    feeds.register_functions(connection, web_settings.hidden_compilations(contract.database))
+    web_feeds.register_listed(contract, connection)
     rows = [dict(row) for row in connection.execute(
         "SELECT d.* FROM feed_discovery d WHERE d.ignored_at IS NULL AND "
         + " AND ".join(web_feeds.LISTED) + " ORDER BY d.id")]

@@ -29,6 +29,10 @@ export interface MountDependency { name: string; message: string; download_url: 
 export interface SetupQuestions {
   peach_proxy?: import('../../bundle').PeachProxyState;
   docker?: boolean;
+  /** Docker 固定的数据目录（`/data`），不出题，只在确认页列出；其余部署为 `null`。 */
+  data_root?: string | null;
+  /** 容器启动时已按 `PEACH_ACCESS_PASSWORD` 写下访问密码，访问那一项不再出题。 */
+  access_preset?: boolean;
   remote_reporting?: import('../../settings/remote-reporting-settings').RemoteReportingState;
   windows: boolean;
   standalone: boolean;
@@ -82,7 +86,7 @@ export interface SetupSubmission {
 }
 
 export class SetupRequestError extends Error {
-  constructor(readonly status: number, message: string, readonly errors?: SetupErrors) {
+  constructor(readonly status: number, message: string, readonly errors?: SetupErrors, readonly docker = false) {
     super(message);
   }
 }
@@ -98,8 +102,8 @@ async function request<T>(url: string, init: RequestInit, fallback: string): Pro
     if (init.signal?.aborted) throw cause;
     throw new SetupRequestError(0, 'Cannot reach Peach; confirm it is still running, then retry');
   }
-  const body = await response.json().catch(() => null) as { error?: string; errors?: SetupErrors } | null;
-  if (!response.ok) throw new SetupRequestError(response.status, body?.error || fallback, body?.errors);
+  const body = await response.json().catch(() => null) as { error?: string; errors?: SetupErrors; docker?: boolean } | null;
+  if (!response.ok) throw new SetupRequestError(response.status, body?.error || fallback, body?.errors, body?.docker === true);
   return body as T;
 }
 

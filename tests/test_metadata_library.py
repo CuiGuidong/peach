@@ -3691,6 +3691,85 @@ class LibraryPreviewCompletionTests(unittest.TestCase):
         self.assertEqual(retried['issue_count'], 0)
         self.assertEqual(retried['retryable_asset_ids'], [])
 
+    def test_cells_in_an_undecodable_tail_take_earlier_frames(self):
+        # 容器写 30 秒，实际只有前 9 秒解得出：靠后的格子先失败，再往前找到好帧。
+        calls = []
+
+        def capture(_ffmpeg, _video, timestamp, _destination, *, diagnostics, timeout, decode_options):
+            calls.append(timestamp)
+            if timestamp < 9:
+                diagnostics.update(reason='success', returncode=0)
+                return True
+            diagnostics.update(reason='ffmpeg_error', returncode=234, attempts=[],
+                               stderr='Could not open encoder before EOF')
+            return False
+
+        with patch('peach.library_processing.FFmpegResolver', return_value=self.resolver), \
+                patch('peach.frame_capture.capture_with_retry', side_effect=capture), \
+                patch('peach.frame_capture.tile_frames', side_effect=self.make_tile):
+            result = self.run_processing(stage='previews', asset_ids=[1])
+        self.assertEqual(result['status'], 'complete')
+        self.assertEqual(result['previews'], 1)
+        planned = [30 * (0.03 + 0.94 * (index + 0.5) / 9) for index in range(9)]
+        healthy = [value for value in planned if value < 9]
+        taken = [value for value in calls if value < 9]
+        self.assertEqual(len(taken), 9)
+        self.assertEqual(taken[:len(healthy)], healthy)
+        self.assertGreater(len(calls), 9)
+        with self.database.read_connection() as connection:
+            snapshot = connection.execute('SELECT snapshot_path FROM asset WHERE id=1').fetchone()[0]
+        self.assertTrue(Path(snapshot).is_file())
+
+    def test_healthy_video_extracts_each_cell_once(self):
+        with patch('peach.library_processing.FFmpegResolver', return_value=self.resolver), \
+                patch('peach.frame_capture.capture_with_retry', return_value=True) as capture, \
+                patch('peach.frame_capture.tile_frames', side_effect=self.make_tile):
+            result = self.run_processing(stage='previews', asset_ids=[1])
+        self.assertEqual(result['status'], 'complete')
+        self.assertEqual(capture.call_count, 9)
+
+    def test_undecodable_video_still_fails_after_earlier_attempts(self):
+        calls = []
+
+        def fail(_ffmpeg, _video, timestamp, _destination, *, diagnostics, timeout, decode_options):
+            calls.append(timestamp)
+            diagnostics.update(reason='no_frame', returncode=0, attempts=[], stderr='')
+            return False
+
+        with patch('peach.library_processing.FFmpegResolver', return_value=self.resolver), \
+                patch('peach.frame_capture.capture_with_retry', side_effect=fail):
+            result = self.run_processing(stage='previews', asset_ids=[1])
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(result['retryable_asset_ids'], [1])
+        detail = json.loads(Path(result['issues_log']).read_text(encoding='utf-8').splitlines()[0])['diagnostics']
+        self.assertEqual((detail['frame_index'], detail['reason']), (0, 'no_frame'))
+        earlier = [attempt['timestamp_seconds'] for attempt in detail['earlier_attempts']]
+        self.assertTrue(earlier)
+        self.assertEqual(calls[1:], earlier)
+        self.assertEqual(earlier, sorted(earlier, reverse=True))
+        self.assertLess(earlier[0], calls[0])
+        with self.database.read_connection() as connection:
+            self.assertIsNone(connection.execute('SELECT snapshot_path FROM asset WHERE id=1').fetchone()[0])
+
+    def test_timed_out_cell_does_not_retry_earlier_points(self):
+        def slow(_ffmpeg, _video, timestamp, _destination, *, diagnostics, timeout, decode_options):
+            diagnostics.update(reason='timeout', returncode=None, attempts=[], stderr='')
+            return False
+
+        with patch('peach.library_processing.FFmpegResolver', return_value=self.resolver), \
+                patch('peach.frame_capture.capture_with_retry', side_effect=slow) as capture:
+            result = self.run_processing(stage='previews', asset_ids=[1])
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(capture.call_count, 1)
+
+    def test_earlier_points_stay_inside_the_clip_and_move_backwards(self):
+        from peach.library_processing import _earlier_timestamps
+        self.assertEqual(_earlier_timestamps(27.5, 30), [13.75, 6.875, 1.5])
+        # 0.1 秒的短片：0.5 秒那个保底点已经越过片尾，不再尝试。
+        self.assertEqual(_earlier_timestamps(0.08, 0.1), [0.04, 0.02])
+        # 首格本来就靠前：保底点不比上一次更早就跳过。
+        self.assertEqual(_earlier_timestamps(2.4, 30), [1.2, 0.6])
+
     def test_selected_assets_fit_the_connection_parameter_limit(self):
         from peach.library_processing import _asset_selection
         connect = sqlite3.connect

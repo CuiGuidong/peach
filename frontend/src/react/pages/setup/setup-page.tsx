@@ -1,11 +1,13 @@
 /* The first-run page: fetch the questions, draw the form, and switch to the done state on the same page after success.
  *
- * The questions endpoint is open only to the computer running Peach; from other devices it returns 403, the page draws no form, and only says where to open it. */
+ * 题目接口只对运行 Peach 的这台电脑开放（Docker 是部署机器与局域网）；别的设备打开时它回 403，
+ * 页面不画表单，只说去哪里打开。Docker 的 403 正文带 `docker`，那句话换成容器的说法。 */
 import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/base/buttons/button';
 
 import { Note } from '../../components/note';
+import { FIRST_ACCESS_DENIED } from '../first-access';
 import { describeFailure, fetchQuestions, SetupRequestError, type SetupDone, type SetupQuestions } from './setup-api';
 import { SetupDoneView } from './setup-done';
 import { SetupForm } from './setup-form';
@@ -14,7 +16,7 @@ import { SetupShell } from './setup-scene';
 
 type View =
   | { kind: 'loading' }
-  | { kind: 'denied' }
+  | { kind: 'denied'; docker: boolean }
   | { kind: 'failed'; message: string }
   | { kind: 'form'; setup: SetupQuestions }
   | { kind: 'done'; done: SetupDone };
@@ -31,7 +33,7 @@ export function SetupPage() {
       (cause: unknown) => {
         if (controller.signal.aborted) return;
         setView(cause instanceof SetupRequestError && cause.status === 403
-          ? { kind: 'denied' }
+          ? { kind: 'denied', docker: cause.docker }
           : { kind: 'failed', message: describeFailure(cause) });
       });
     return () => controller.abort();
@@ -42,8 +44,9 @@ export function SetupPage() {
     setView({ kind: 'loading' });
     setAttempt((count) => count + 1);
   };
+  // Docker 的数据目录就是 `/data` 卷，接回已有数据是换卷，不在页面上做。
   if (view.kind === 'form' && !restoring) return <SetupForm setup={view.setup}
-    onRestore={() => setRestoring(true)} onDone={(done) => setView({ kind: 'done', done })} />;
+    onRestore={view.setup.docker ? undefined : () => setRestoring(true)} onDone={(done) => setView({ kind: 'done', done })} />;
   if (view.kind === 'form') return <SetupRestore onBack={() => setRestoring(false)}
     onDone={(done) => setView({ kind: 'done', done })} />;
   return (
@@ -55,8 +58,9 @@ export function SetupPage() {
         <h1 id="auth-card-title" className="text-title-1-semibold text-text-primary">Welcome to Peach</h1>
         <p className="text-body-regular text-text-secondary">Take a moment to make Peach fit you better.</p>
       </header>
-      {view.kind === 'loading' ? <div data-setup-loading="" data-skeleton="" role="status" aria-label="Reading settings"><span /><span /><span /></div> : null}
-      {view.kind === 'denied' ? <Note tone="error">Open settings on this computer running Peach.</Note> : null}
+      {view.kind === 'loading' ? <div data-setup-loading="" data-skeleton="" role="status" aria-label="正在读取设置"><span /><span /><span /></div> : null}
+      {view.kind === 'denied'
+        ? <Note tone="error">{view.docker ? FIRST_ACCESS_DENIED : '请在运行 Peach 的这台电脑上打开设置。'}</Note> : null}
       {view.kind === 'failed'
         ? <Note tone="error" action={<Button variant="secondary" onClick={retry}>Retry now</Button>}>{view.message}</Note>
         : null}

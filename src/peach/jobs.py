@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .media_sources import SOURCE_COSTS, cost_for, cost_sql
+from .repository import in_background
 
 DEFAULT_METERED_LOCATIONS = frozenset(location for location, cost in SOURCE_COSTS.items()
                                     if cost == 'metered') | {'online'}
@@ -501,7 +502,7 @@ class BackgroundJob:
                          "started_at": time.time(), "error": "", **(initial or {})}
                 state.update(self._resuming_fields(job_id, initial))
                 self.state = state
-                thread = threading.Thread(target=self._run, args=(fn, job_id),
+                thread = threading.Thread(target=in_background(self._run), args=(fn, job_id),
                                           daemon=True, name=self.name)
                 self.thread = thread
             snapshot = copy.deepcopy(state)

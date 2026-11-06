@@ -25,6 +25,24 @@ Removed / Fixed / Security。
 
 ## [未发布]
 
+## [0.56.0] - 2026-11-05
+
+### 新增
+
+- **更新**：Docker 镜像同时发布到 `ghcr.io/peach-mitao/peach`，Docker Hub 拉取受限时可以改用。
+- **配置**：全新 Docker 首次打开走与桌面相同的首次设置，可设密码或免登录，不再要口令。
+
+### 修复
+
+- **馆藏**：转存、极短或尾部损坏的视频，九宫格靠后几格解不出时改取更早的画面，不再一直挂在「需要处理」（#392）。
+- **采集**：JavDB 匿名接口的一个主机连不上时自动换下一个，三个都不通才暂停刮削（#315）。
+- **复核**：番号改回短号的影片（如 `MCDV-24`）复核页不再摆出按旧番号取到的资料，升级时撤下并按现番号重采，已批准的字段不动（#296）。
+- **馆藏**：入库、采集和 JAV 新作、发现页认女优与厂牌更快。
+- **界面**：后台任务写入资料时和重启后，目录、索引与统计页打开不再等重算。
+- **界面**：任务中心打开从约 1.7 秒缩短到约 0.1 秒。
+- **界面**：后台任务运行时，打开页面不再每次都重新计算搜索推荐。
+- **关注**：新作列表不再显示「NOW PRINTING」占位图，还没出封面的未发售新作等官方出图后再列出。
+
 ## [0.55.1] - 2026-11-05
 
 ### 修复
@@ -920,7 +938,8 @@ Removed / Fixed / Security。
 - **桌面**：独立包使用 UTF-8 启动日志。
 - **配置**：首次设置后的跳转目标取新鲜读到的 mDNS 名。
 
-[未发布]: https://github.com/peach-mitao/peach/compare/v0.55.1...HEAD
+[未发布]: https://github.com/peach-mitao/peach/compare/v0.56.0...HEAD
+[0.56.0]: https://github.com/peach-mitao/peach/compare/v0.55.1...v0.56.0
 [0.55.1]: https://github.com/peach-mitao/peach/compare/v0.55.0...v0.55.1
 [0.55.0]: https://github.com/peach-mitao/peach/compare/v0.54.0...v0.55.0
 [0.54.0]: https://github.com/peach-mitao/peach/compare/v0.53.0...v0.54.0

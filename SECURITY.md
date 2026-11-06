@@ -23,7 +23,7 @@ Linux 无桌面部署的配置管理接受经过鉴权的回环与私有网络�
 - 同一来源每分钟最多尝试登录 10 次，超出后要等一分钟。
 - 密码以 scrypt 哈希保存在本机 `<Peach 数据目录>/secrets/access.json`，不进数据库，也不参与任何同步。
 
-没有 `access.json` 的已有部署，登录页使用下面的访问口令。
+Docker 部署的首次设置与访问设置只接受宿主机或局域网来源，也可以用 `PEACH_ACCESS_PASSWORD` 在启动时预设，见 [ADR-0149](docs/adr/0149-docker-first-access-setup.md)。其他没有 `access.json` 的已有部署，登录页使用下面的访问口令。
 
 ## 访问口令
 

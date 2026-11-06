@@ -96,6 +96,86 @@ def stale_filename_codes(connection) -> list[dict]:
     return rows
 
 
+#: 撤过旧番号证据的影片按现番号重采时，补全任务键上的规则段。上一轮改回番号时已按
+#: `processing-v2` 派过同一部片，键相同就会被当成派过而跳掉。
+CODE_EVIDENCE_RULE = 'code-evidence-1'
+CANDIDATE_FILE = 'library-metadata-field-candidates.csv'
+
+
+def _split_by_code(row: dict, old: str, current: str) -> tuple[list[dict], dict | None]:
+    """一行候选按旧、现番号拆开：撤下的候选，与改按现番号核身份的那一行（摘空了是 None）。"""
+    from .metadata_auto_apply import _candidate_identifies_code
+    try:
+        choices = [choice for choice in json.loads(row.get('candidates_json') or '[]') if isinstance(choice, dict)]
+    except ValueError:
+        return [], row
+    stale = [choice for choice in choices
+             if _candidate_identifies_code(old, choice) and not _candidate_identifies_code(current, choice)]
+    remaining = [choice for choice in choices if choice not in stale]
+    if not remaining:
+        return stale, None
+    # 留下的候选按现番号核身份；`refresh_current_values` 也按这一栏找影片。
+    return stale, {**row, 'code': current, 'query': current, 'source_count': len(remaining),
+                   'candidates_json': json.dumps(remaining, ensure_ascii=False)}
+
+
+def _orphan_snapshots(sources: Path, withdrawn: list[dict], codes) -> list[str]:
+    """撤下的候选出自哪几份旧番号快照；库里还有影片是那部片的不算。"""
+    from .catalog_rules import same_release_code
+    snapshots = []
+    pairs = {(row['code'], str(choice.get('source') or '')) for row in withdrawn for choice in row['candidates']}
+    for old, source in sorted(pairs):
+        path = sources / f'{old}-{source}.json'
+        if (source and path.is_file() and not path.is_symlink()
+                and not any(same_release_code(old, code) for code in codes)):
+            snapshots.append(str(path))
+    return snapshots
+
+
+def stale_code_evidence(connection, candidates: Path, sources: Path) -> dict:
+    """番号改过之后，旧番号下取到的资料候选和来源快照（#296）。
+
+    `MCDV-24` 曾被补零成 `MCDV-024`，按它从 r18.dev 取回的是 2004 年的另一部片；番号改回之后，
+    候选表那一行的 `code` 还写着旧番号，复核页按它核身份，那组资料就一直摆着。
+
+    判据是候选级的：这一行记的番号与影片现番号不是同一部片（`same_release_code`），且这条
+    候选认得旧番号、不认现番号。同一部片只是写法变了（`HEYZO-707` 改成 `HEYZO-0707`）的整行
+    放过；两个番号都不认的候选身份不明，也放过。用户批准过的行候选与账本值都不动，那是人的
+    结论，只把这一行的番号改成现番号：复核页按它核身份，按现番号重采回来的资料与批准值不同时，
+    这一行会以差异重新摆出。旧番号的快照只在库里已没有任何影片还是那部片时失效：真有 2004 年
+    那部 `MCDV-024` 的，快照是对的。
+    """
+    from .catalog_rules import same_release_code
+    from .review_csv import read_rows
+    rows = read_rows(candidates, missing_ok=True)
+    codes = {row[0]: row[1] for row in connection.execute(
+        "SELECT id,code FROM asset WHERE medium='video' AND disposal IS NULL AND code IS NOT NULL AND code<>''")}
+    approved = {row[0] for row in connection.execute(
+        "SELECT item_key FROM review_decision WHERE category='metadata_fields' AND status='approved'")}
+    kept, withdrawn, held, changed = [], [], [], False
+    for row in rows:
+        old = str(row.get('code') or '').strip()
+        asset_id = int(row['asset_id']) if str(row.get('asset_id') or '').isdigit() else 0
+        current = codes.get(asset_id)
+        if not old or not current or same_release_code(old, current):
+            kept.append(row)
+            continue
+        changed = True
+        if row['item_key'] in approved:
+            held.append(row['item_key'])
+            kept.append({**row, 'code': current, 'query': current})
+            continue
+        stale, rest = _split_by_code(row, old, current)
+        if stale:
+            withdrawn.append({'item_key': row['item_key'], 'asset_id': asset_id, 'code': old, 'target': current,
+                              'candidates': stale})
+        if rest is not None:
+            kept.append(rest)
+    return {'rows': kept if changed else None, 'withdrawn': withdrawn,
+            'snapshots': _orphan_snapshots(sources, withdrawn, codes.values()),
+            'approved_kept': held, 'asset_ids': sorted({row['asset_id'] for row in withdrawn})}
+
+
 def _catalog_plan(connection, sources: Path, *, catalog: bool = True) -> dict:
     text = metadata_text_repair.collect(connection, sources / 'library-metadata')
     if not catalog:
@@ -234,6 +314,7 @@ class UpgradeRepairs:
                     (CATALOG_REVISION, CATALOG_REVISION + ':text-*')).fetchone()
             if applied is not None:
                 self._restore_receipt(json.loads(applied[0]))
+                self._withdraw_stale_code_evidence()
                 return
             self._restore_receipt(None)
             sources = Path(contract.follow_sources_root)
@@ -267,12 +348,48 @@ class UpgradeRepairs:
                                                    + plan['text']['asset_ids'])),
                            'queued': dict(previous.get('queued', {})),
                            'deferred': list(previous.get('deferred', [])),
+                           'code_media_ids': list(previous.get('code_media_ids', [])),
                            'dispatch_complete': bool(previous.get('dispatch_complete')) and not plan['text']['asset_ids'],
                            'text_only': prior is not None,
                            'prior_revision': prior[1] if prior else None}
                 connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
                                    (REVISION, str(time.time()), json.dumps(receipt, ensure_ascii=False)))
             atomic_write_text(self.receipt, json.dumps(receipt, ensure_ascii=False))
+            self._withdraw_stale_code_evidence()
+
+    def _withdraw_stale_code_evidence(self) -> None:
+        """撤掉旧番号下取到的候选与快照（`stale_code_evidence`），被撤的影片按现番号重采。
+
+        每份回执做一次，在 `prepare` 里、处理任务恢复之前做：那时没有采集任务拿着候选表。
+        撤下的候选原样记进回执的 `code_evidence`，快照只加失效标记、正文不动，都能按它整批还原。
+        """
+        from .library_processing import FIELDS
+        from .review_csv import write_rows
+        output = Path(self.contract.candidate_root) / CANDIDATE_FILE
+        sources = Path(self.contract.follow_sources_root) / 'library-metadata'
+        with self.contract.database.write_transaction() as connection:
+            stored = connection.execute('SELECT result_json FROM ledger_upgrade_repair WHERE id=?',
+                                        (REVISION,)).fetchone()
+            receipt = json.loads(stored[0]) if stored else None
+            if receipt is None or 'code_evidence' in receipt:
+                return
+            plan = stale_code_evidence(connection, output, sources)
+            if plan['rows'] is not None:
+                write_rows(output, FIELDS, plan['rows'], atomic=True)
+            for path in plan['snapshots']:
+                artifact_rules.remember(Path(path), f'invalid:{CODE_EVIDENCE_RULE}')
+            receipt['code_evidence'] = {'withdrawn': plan['withdrawn'], 'snapshots': plan['snapshots'],
+                                        'approved_kept': plan['approved_kept']}
+            if plan['asset_ids']:
+                receipt['code_media_ids'] = sorted(set(receipt.get('code_media_ids', [])) | set(plan['asset_ids']))
+                receipt['media_ids'] = sorted(set(receipt.get('media_ids', [])) | set(plan['asset_ids']))
+                receipt['dispatch_complete'] = False
+            connection.execute('UPDATE ledger_upgrade_repair SET result_json=? WHERE id=?',
+                               (json.dumps(receipt, ensure_ascii=False), REVISION))
+        atomic_write_text(self.receipt, json.dumps(receipt, ensure_ascii=False))
+        if plan['withdrawn']:
+            LOGGER.info('旧番号下的资料候选：撤下 %s 行，快照失效 %s 份',
+                        len(plan['withdrawn']), len(plan['snapshots']))
 
     def _clear_stale_codes(self) -> None:
         """清掉旧版从文件名误认的番号（`stale_filename_codes`），只做一次。"""
@@ -420,6 +537,8 @@ class UpgradeRepairs:
             rule = upgrade_rules.PROCESSING
             if row['id'] in receipt.get('text_media_ids', []):
                 rule += f':text-{upgrade_rules.PROVIDER_TEXT}'
+            if row['id'] in receipt.get('code_media_ids', []):
+                rule += f':{CODE_EVIDENCE_RULE}'
             key = f'{MEDIA_TASK}:{rule}:{row["id"]}'
             if key in seen:
                 continue

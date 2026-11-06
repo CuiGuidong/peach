@@ -142,9 +142,13 @@ def _payload_reader(contract):
         with contract.cache_lock:
             if not hasattr(contract, 'task_resource_monitor'):
                 contract.task_resource_monitor = Monitor(contract.task_runs)
+    # 控制状态与资源占用只对自己或后代还在排在跑的那几条有内容；其余的不逐条再问。
+    live = contract.task_runs.live_ids()
 
     def payload(row):
         result = row.payload()
+        if row.id not in live:
+            return _with_checkpoint(row, result)
         from .task_control import projection
         control = projection(contract.task_runs, row)
         if control is not None:
@@ -152,6 +156,9 @@ def _payload_reader(contract):
         resources = contract.task_resource_monitor.for_run(row)
         if resources is not None:
             result['resources'] = resources
+        return _with_checkpoint(row, result)
+
+    def _with_checkpoint(row, result):
         if row.task_key not in RESULT_FIELDS or row.status not in ('succeeded', 'failed'):
             return result
         if all(field in row.result_summary for field in RESULT_FIELDS[row.task_key]):
