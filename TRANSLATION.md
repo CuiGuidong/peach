@@ -4,9 +4,9 @@ kind: reference
 
 # Peach — English Translation Status
 
-Status as of 2026-11-05, branch `agent/glm/translation-reconcile`, HEAD after the
-v0.54.0 port. Supersedes the 0.53.0-era status; the history of that pass lives in
-`translation/WORK_LOG.md`.
+Status as of 2026-11-06, branch `agent/glm/translation-reconcile`, after the
+v0.55.1 re-port and the v0.56.0 merge. Supersedes the 0.53.0-era status; the
+history of that pass lives in `translation/WORK_LOG.md`.
 
 ## Where things stand
 
@@ -20,12 +20,18 @@ frontend test suite is fully green: **452 files / 2,106 tests passed**; typechec
 (both configs), `check:copy`, and oxlint are clean; `web/dist` is rebuilt from the
 English sources.
 
+Since then the branch re-ported onto the v0.55.1 base, merged upstream v0.56.0,
+and translated the Docker first-access setup flow that v0.56.0 introduced.
+
 Frontend string literals are CJK-free. What remains is intentional: display maps
 whose Chinese keys mirror values stored in the ledger or emitted by the backend
 (`tasks.ts` outcome labels, edition tones, duration buckets), and Japanese studio
-names, which are content. Backend-emitted user-visible strings (API errors, tray
-status details, task names, CLI output) are still Chinese — that is the next
-port's scope.
+names, which are content. The backend copy behind the first-run setup flow
+(question labels and help, host options, cloud-mount help, guard, validation,
+restore, access-password, proxy, and telemetry errors) is now English, and a
+payload scan keeps `GET /api/setup/questions` CJK-free. Other backend-emitted
+user-visible strings (settings-page errors, runtime facts, tray status details,
+task names, CLI prompts) are still Chinese — that is the next port's scope.
 
 The ledger's historical task labels were migrated to English prefixes
 (`task_run.progress_label`, 553 rows; performer names inside them are content and
@@ -57,7 +63,7 @@ stay). Backup: `database/ledger.pre-task-labels-20261103-225533.db`.
   Chinese and surface only outside the main UI flows.
 - The upstream repo moved ~6,000 commits past this release line within days; the
   next upstream pull repeats the port recipe above.
-- The running Windows install is the official 0.53.0 exe with a Chinese UI; this
+- The running Windows install is the official 0.55.1 exe with a Chinese UI; this
   branch needs `integrate` plus a release build before it can replace that.
 
 ## Update survival
