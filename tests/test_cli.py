@@ -350,7 +350,7 @@ class InteractiveInitTests(unittest.TestCase):
             ["", str(missing), str(self.media), "", "", "", "", "n"], windows=NATIVE_WINDOWS)
         self.assertEqual(code, 0)
         self.assertEqual(prompts.count("媒体目录（必须已经存在，可以在外置硬盘上）"), 2)
-        self.assertIn("目录不存在", output)
+        self.assertIn("does not exist", output)
         self.assertFalse(missing.exists(), "问答不替人建媒体目录")
 
     def test_three_bad_answers_abort_before_anything_is_written(self):
