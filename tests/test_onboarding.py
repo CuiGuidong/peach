@@ -755,6 +755,9 @@ class SetupJsonContractTests(_SetupHttpCase):
                     yield from walk(item)
         data = self._send("GET", self.QUESTIONS).json()
         for text in walk(data):
+            # 光鸭云盘 是品牌名，按内容规则保留；除它之外的汉字一律不许再出现。
+            for brand in ("光鸭云盘",):
+                text = text.replace(brand, "")
             self.assertNotRegex(text, r"[\u4e00-\u9fff]", text)
 
     def test_setup_preserves_explicit_proxy_protection_for_a_mounted_source(self):
