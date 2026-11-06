@@ -22,6 +22,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # repo root
 FRONTEND = os.path.join(ROOT, "frontend")
 TRANSLATION = os.path.join(ROOT, "translation")
 SCRIPTS = os.path.join(TRANSLATION, "scripts")
+sys.path.insert(0, SCRIPTS)
+from normalize_value import normalize_value
 MEMORY = os.path.join(TRANSLATION, "memory.json")
 DELTA = os.path.join(TRANSLATION, "delta.json")
 HAN = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf]")
@@ -47,7 +49,7 @@ def main():
     for u in units:
         text = u["u"]
         if text in memory:
-            known[text] = memory[text]
+            known[text] = normalize_value(text, memory[text])
         else:
             delta.append(u)
     print(f"known: {len(known)}, new/changed: {len(delta)}")

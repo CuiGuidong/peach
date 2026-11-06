@@ -5,6 +5,8 @@ import json
 import os
 import sys
 
+import normalize_value
+
 TRANSLATION = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MEMORY = os.path.join(TRANSLATION, "memory.json")
 DELTA = sys.argv[1] if len(sys.argv) > 1 else os.path.join(TRANSLATION, "delta-translated.json")
@@ -16,7 +18,7 @@ if isinstance(delta, list):
 added = 0
 for k, v in delta.items():
     if k not in memory:
-        memory[k] = v
+        memory[k] = normalize_value(k, v)
         added += 1
 json.dump(memory, open(MEMORY, "w", encoding="utf-8"), ensure_ascii=False)
 print(f"merged {added} new entries; memory now {len(memory)}")
