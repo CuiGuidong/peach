@@ -24,7 +24,7 @@ export interface OnlineAuthor {
   /** The archive site's avatar, used when the profile page one fails. */
   avatar_fallback: string;
   providers: string[];
-  /** The latest item's publish time; if the source gives none, use the indexing time. */
+  /** 最近一条的发布时间，来源没给就是入库时间。 */
   latest?: string;
 }
 

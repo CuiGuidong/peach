@@ -205,9 +205,9 @@ it('Back only attaches when landing on details overlaid on the home page (other 
   await settle();
   await act(async () => { r.peachHistory.push('/stats') });
   await settle();
-  expect(log.slice(1), 'The page hands over to the target surface to switch while the catalog host is kept alive').toEqual([]);
+  expect(log.slice(1), '页面交给目标表面切换，目录宿主保留').toEqual([]);
   await pop('/assets/7', { usr: overlay, key: 'x', idx: 1 });
-  expect(log.slice(1), 'Does not open while pressed').toEqual([]);
+  expect(log.slice(1), '压着的时候不开').toEqual([]);
   await act(async () => { r.shellNavigate('/') });
   await settle();
   expect(log.slice(1)).toEqual(['open /']);
@@ -250,7 +250,7 @@ it('Back/forward re-reads unattributed from the address while origin carries ove
   expect(filters(r).owner).toBe('none');
 });
 
-it('Leaving the catalog keeps the grid host alive, and the target page switches the visible surface', async () => {
+it('离开目录保留网格宿主，由目标页面切换可见表面', async () => {
   const r = await load('/');
   const { actions } = shellActions();
   await boot(r, actions);

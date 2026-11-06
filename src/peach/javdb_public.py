@@ -17,7 +17,7 @@ from urllib.parse import urlencode, urlsplit
 
 from PIL import Image
 
-from .catalog_rules import normalise_code_key
+from .catalog_rules import normalise_code_key, release_identity, same_release_code
 from .http import HttpRequest, HttpxTransport, response_text
 from .scripting import HostLimiter
 from .jav_cache import DAY, PublicSnapshots, cache_lifetime
@@ -27,6 +27,10 @@ WEB = "https://catembylegacy.fastcdn.dpdns.org"
 API = "https://jdforrepam.com/api"
 PAGE_SIZE = 10
 MAX_REVIEW_PAGES = 8
+#: 资料请求的主机间隔，由用户 2026-11-05 定为 0.5 秒。同日实测：2 秒逐档降到 0.25 秒各 40 次，
+#: 再按 0.5 秒连发 600 次（5 分钟），全部 HTTP 200 且业务成功；更长时间的累计配额未测。
+#: 撞上 403/429 时仍整源冷却 15 分钟（`_get`）。
+API_INTERVAL = 0.5
 _JS_IDENTIFIER = r'[A-Za-z_$][A-Za-z0-9_$]*'
 _CACHE_ROOT = ContextVar('jav_public_cache_root', default=None)
 _CACHE_READS = ContextVar('jav_public_cache_reads', default=None)
@@ -118,12 +122,27 @@ def preview_video_url(movie: dict) -> str:
     return value if allowed else ""
 
 
+def magnet_size(value: object) -> str:
+    """磁链区的体积是 MiB 整数，写成带单位的文字；其他形态原样保留。"""
+    if type(value) in (int, float) and value > 0:
+        return f"{value / 1024:.2f}GB" if value >= 1024 else f"{value:g}MB"
+    return str(value or "")
+
+
 class PublicSourceUnavailable(ValueError):
     """公开来源当前未取得。"""
 
 
 class PublicIdentityAmbiguous(PublicSourceUnavailable):
     """同番号有多个来源身份，不能按番号绑定资料或媒体。"""
+
+
+class PublicNotFound(PublicSourceUnavailable):
+    """来源搜索结果里没有这个番号。"""
+
+
+class PublicSourcePaused(PublicSourceUnavailable):
+    """来源冷却期内不发请求。"""
 
 
 class PublicBudgetExceeded(PublicSourceUnavailable):
@@ -169,7 +188,7 @@ class PublicAPI:
                  cache_root=None, wallclock=time.time):
         self.transport = transport
         self.clock = clock
-        self.limiter = HostLimiter({}, default_interval=3.0, clock=clock, sleeper=sleeper)
+        self.limiter = HostLimiter({}, default_interval=API_INTERVAL, clock=clock, sleeper=sleeper)
         self.lock = threading.RLock()
         self.cache: OrderedDict[str, tuple[float, object]] = OrderedDict()
         self.cache_root, self.wallclock = cache_root, wallclock
@@ -199,7 +218,7 @@ class PublicAPI:
     def _get(self, url: str, *, signed=False, limit=2 * 1024 * 1024, image=False):
         paused = self.image_paused_until if image else self.paused_until
         if self.clock() < paused:
-            raise PublicSourceUnavailable("图片来源暂时不可用，请稍后重试" if image else "作品资料来源暂时不可用，请稍后重试")
+            raise PublicSourcePaused("图片来源暂时不可用，请稍后重试" if image else "作品资料来源暂时不可用，请稍后重试")
         if not image:
             self.limiter.wait(url)
         budget = self.request_context.get()
@@ -377,16 +396,20 @@ class PublicAPI:
         return snapshot
 
     def movie(self, code: str, *, refresh=False, source_id=None) -> dict:
+        """番号对应的来源作品。来源去掉 MGS 的数字前缀（`259LUXU-891` 记作 `LUXU-891`），
+        搜索词与身份核对都按 `release_identity` 认同一部作品。"""
         canonical = normalise_code_key(code)
 
         def identify():
             product = re.fullmatch(r'FC2-PPV-(\d+)', canonical)
-            query = product[1] if product else canonical
+            query = product[1] if product else release_identity(canonical) or canonical
             rows = self._rows("/v2/search", "movies", {"q": query, "type": "movie", "page": 1})
             matches = [row for row in rows if isinstance(row, dict)
-                       and normalise_code_key(row.get("number")) == canonical]
-            if not matches or any(not isinstance(row.get('id'), str)
-                                  or not re.fullmatch(r'[A-Za-z0-9]+', row['id']) for row in matches):
+                       and same_release_code(canonical, row.get("number"))]
+            if not matches:
+                raise PublicNotFound("未取得这个番号的作品资料")
+            if any(not isinstance(row.get('id'), str)
+                   or not re.fullmatch(r'[A-Za-z0-9]+', row['id']) for row in matches):
                 raise PublicSourceUnavailable("未取得这个番号的作品资料")
             return list(dict.fromkeys(row['id'] for row in matches))
 
@@ -402,7 +425,7 @@ class PublicAPI:
 
         def fetch():
             movie = self._json("/v4/movies/" + movie_id).get("movie")
-            if (not isinstance(movie, dict) or normalise_code_key(movie.get("number")) != canonical
+            if (not isinstance(movie, dict) or not same_release_code(canonical, movie.get("number"))
                     or movie.get("id") != movie_id):
                 raise PublicSourceUnavailable("来源作品身份不匹配")
             return {**movie, 'javdb_rule': RULE}
@@ -414,7 +437,7 @@ class PublicAPI:
         canonical = normalise_code_key(code)
         identity = source.get("id")
         if (not current_evidence(source) or not isinstance(identity, str)
-                or normalise_code_key(source.get("number")) != canonical
+                or not same_release_code(canonical, source.get("number"))
                 or not re.fullmatch(r"[A-Za-z0-9]+", identity)):
             return
         key = 'movie-id:' + canonical
@@ -461,7 +484,7 @@ class PublicAPI:
             return self.movie(code)
         if (not isinstance(movie, dict) or not isinstance(movie.get('id'), str)
                 or not re.fullmatch(r'[A-Za-z0-9]+', movie['id'])
-                or normalise_code_key(movie.get('number')) != normalise_code_key(code)):
+                or not same_release_code(code, movie.get('number'))):
             raise PublicSourceUnavailable('来源作品身份不匹配')
         return movie
 
@@ -492,6 +515,53 @@ class PublicAPI:
         return self._cached("magnets:" + movie['id'], lambda:
                             self._rows(f"/v1/movies/{movie['id']}/magnets", "magnets"),
                             released=movie.get('release_date'), refresh=refresh)
+
+    def resources(self, code: str, *, refresh=False, review_pages=MAX_REVIEW_PAGES) -> dict:
+        """磁链区与评论正文的资源链接；一侧未取得只记警告，作品身份未取得直接抛出。"""
+        from .downloads import parse_magnet
+        from .sources.javdb import merge_resources, parse_comment_text
+
+        movie = self.movie(code, refresh=True) if refresh else self.movie(code)
+        source_url = "https://javdb.com/v/" + movie["id"]
+        warnings = []
+        items = {}
+        magnet_failed = comments_failed = False
+        try:
+            rows = self.magnets(code, refresh=refresh, movie=movie)
+        except PublicSourceUnavailable as error:
+            rows = []
+            magnet_failed = True
+            warnings.append("磁链区资源未取得：" + str(error))
+        for row in rows:
+            try:
+                magnet = parse_magnet(str(row.get("hash") or ""))
+            except ValueError:
+                continue
+            if magnet.info_hash in items:
+                continue
+            attributes = [label for key, label in (("cnsub", "中字"), ("hd", "高清")) if row.get(key)]
+            items[magnet.info_hash] = {"id": "magnet:" + magnet.info_hash, "protocol": "magnet",
+                "info_hash": magnet.info_hash, "uri": magnet.uri, "name": row.get("name") or code,
+                "size": magnet_size(row.get("size")), "files": str(row.get("files_count") or ""),
+                "date": str(row.get("created_at") or ""), "attributes": attributes,
+                "source": "JavDB", "source_url": source_url, "origins": ["JavDB"]}
+        comments = []
+        try:
+            for page in range(1, review_pages + 1):
+                reviews = self.reviews(code, page, refresh=refresh, movie=movie)
+                for review in reviews:
+                    origin = source_url + "#review-item-" + str(review.get("id") or "")
+                    comments.extend(parse_comment_text(str(review.get("content") or ""), origin,
+                                                       str(review.get("created_at") or "")))
+                if len(reviews) < PAGE_SIZE:
+                    break
+            else:
+                warnings.append(f"已查询前 {review_pages} 页评论资源。")
+        except PublicSourceUnavailable as error:
+            comments_failed = True
+            warnings.append("评论资源未取得：" + str(error))
+        return {"items": merge_resources([*items.values(), *comments]), "warnings": warnings,
+                "source_url": source_url, "magnet_failed": magnet_failed, "comments_failed": comments_failed}
 
     def official_preview(self, code, fetch, *, released=None, refresh=False, provider='prestige', source_id=None):
         """预告按来源独立保存；DMM、JavDB 和未提供的预告每天可再检查。"""

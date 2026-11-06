@@ -862,7 +862,7 @@
     },
     {
       "id": "readme-javm",
-      "cadence": "quarterly",
+      "cadence": "manual",
       "name": "javm 说明",
       "url": "https://raw.githubusercontent.com/ddmoyu/javm/main/README.md",
       "snapshot": "docs/reference-snapshots/upstream/readme-javm.md",
@@ -873,7 +873,7 @@
         "ref": "refs/heads/main",
         "revision": "66e949f0a1d2edf9a2c6fab24a2c9e5dadf976ee"
       },
-      "role": "javm（MIT）只作行为证据：库健康计数（待办第 26 条）、字段级跨源融合与广告片识别。它写死的遥测地址与流媒体截流不照搬（第 63 条）。",
+      "role": "javm（MIT）只作行为证据：库健康计数（待办第 26 条）、字段级跨源融合与广告片识别。它写死的遥测地址与流媒体截流不照搬（第 63 条）。上游仓库 2026-11-05 起返回 404（删除或转为私有），保留最后一份快照，只在点名时检查。",
       "consumers": []
     },
     {
@@ -898,12 +898,12 @@
       "name": "Javinizer-Go 说明",
       "url": "https://raw.githubusercontent.com/javinizer/javinizer-go/main/README.md",
       "snapshot": "docs/reference-snapshots/upstream/readme-javinizer-go.md",
-      "checked_on": "2026-11-04",
-      "sha256": "eb264b0ada8fd6d7474b97c68303a437995b71286564d1426447906e851cdeeb",
+      "checked_on": "2026-11-05",
+      "sha256": "f4ad36ad37e7506eefae74ce4fdccd7a9e4d9d53f0320afd5123f6fb00643efd",
       "git": {
         "repository": "https://github.com/javinizer/javinizer-go.git",
         "ref": "refs/heads/main",
-        "revision": "b65dc04caa0c2f652e9591fa68b1a37909ff0ba7"
+        "revision": "ef2fccb83f4b40b8e65bbb970ddf6bc78c76b138"
       },
       "role": "Javinizer-Go（MIT）最新版：DMM cid 前缀表、女优身份冲突四动作、无码官方站、头像裁剪记源图指纹、续传与停滞看门狗、r18.dev dump 本地镜像，对应待办第 44、50、54、56、57、61 条。历史快照与封面层引用的旧 revision 见 docs/REUSE.md，运行时调用路径已关（ADR-0044）。",
       "consumers": [
@@ -1026,16 +1026,16 @@
       "id": "readme-atlas",
       "cadence": "quarterly",
       "name": "Atlas 说明",
-      "url": "https://raw.githubusercontent.com/Zoroaaa/Atlas/v3/README.md",
+      "url": "https://raw.githubusercontent.com/Zoroaaa/Atlas/main/README.md",
       "snapshot": "docs/reference-snapshots/upstream/readme-atlas.md",
-      "checked_on": "2026-10-13",
-      "sha256": "2f002a235c8bd28848318bb3b55c79fe2812a504af6afc3709833ca65a7d7144",
+      "checked_on": "2026-11-05",
+      "sha256": "898f4a5bcee9eef0a3de8d5fe05d7507eaea363b5d13159a779258bdd33c3b3b",
       "git": {
         "repository": "https://github.com/Zoroaaa/Atlas.git",
-        "ref": "refs/heads/v3",
-        "revision": "b1a3b518d87edc8052502401e747f7ec276cab22"
+        "ref": "refs/heads/main",
+        "revision": "bce9533a7b546aa633c7a29f38174fe8b9f3c855"
       },
-      "role": "Atlas 的 `services/jav-utils.ts` `parseMagnets` 只解析 JavBus 一家，作待办第 43 条磁力取法的第二份证据；其余「磁力搜索」只是跳转链接。",
+      "role": "Atlas 的 `backend/src/services/jav-utils.ts` `parseMagnets` 只解析 JavBus 一家，作待办第 43 条磁力取法的第二份证据；其余「磁力搜索」只是跳转链接。",
       "consumers": []
     },
     {

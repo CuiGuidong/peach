@@ -1,7 +1,7 @@
 /* The entity profile page's body (`entity-body` island): one of the three views, roster, video grid and photo wall.
  *
- * All data is fetched and passed in by the shell; here it only picks out the current view to draw. The works grid keeps its host across refresh generations: a new works request
- * sets `items` to `null`, and the content and skeleton cross-fade in place; when the data arrives, the content is shown and the skeleton removed at the same time. */
+ * 数据全由壳取好推进来，这里只挑出当前视图画。作品网格跨刷新代次保留宿主：新的作品请求
+ * 将 `items` 置为 `null`，内容与骨架原位交叉淡化，数据到达时同时呈现内容并撤下骨架。 */
 import { Fragment, useCallback, useMemo, useState } from 'react';
 
 import { CatalogGridPage, LoadMore } from '../catalog-grid/catalog-grid-page';

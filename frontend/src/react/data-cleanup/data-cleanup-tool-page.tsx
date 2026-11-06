@@ -16,12 +16,12 @@ import { ResourceSyncCard } from './resource-sync-card';
 
 function ResourceSyncPage({ toast }: Pick<DataCleanupProps, 'toast'>) {
   const sources = useQuery({ queryKey: MEDIA_SOURCES_KEY, queryFn: ({ signal }) => fetchMediaSources(signal) });
-  if (sources.isError) return <Note tone="error" title="Failed to read media sources">{errorMessage(sources.error)}</Note>;
-  if (sources.isPending) return <p role="status">Reading media sources…</p>;
+  if (sources.isError) return <Note tone="error" title="读取媒体来源失败">{errorMessage(sources.error)}</Note>;
+  if (sources.isPending) return <p role="status">正在读取媒体来源…</p>;
   return hasResourceRoots(sources.data) ? <ResourceSyncCard toast={toast} />
-    : <Fieldset layout="stack" label="Resource sync"><FieldsetTitle>Resource sync</FieldsetTitle>
-        <p className="text-body-regular text-text-secondary">No media directory is configured to check yet.</p>
-        <a href="/settings/library" className="text-body-medium text-accent-600 underline">Configure libraries</a>
+    : <Fieldset layout="stack" label="资源同步"><FieldsetTitle>资源同步</FieldsetTitle>
+        <p className="text-body-regular text-text-secondary">尚未配置可核对的媒体目录。</p>
+        <a href="/settings/library" className="text-body-medium text-accent-600 underline">配置媒体库</a>
       </Fieldset>;
 }
 

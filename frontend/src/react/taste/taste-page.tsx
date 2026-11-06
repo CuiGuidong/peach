@@ -633,7 +633,7 @@ function CoverageMetric({ term, value, rest }: { term: string; value: number; re
           <span className="ml-1.5 text-caption-1-regular text-text-secondary">{`${rest.toLocaleString()} items to backfill`}</span>
         </b>
       </p>
-      <Progress meter label={`${term}: ${value.toLocaleString()} / ${total.toLocaleString()}`}
+      <Progress meter label={`${term}：${value.toLocaleString()} / ${total.toLocaleString()}`}
         value={value} max={total} />
     </div>
   );

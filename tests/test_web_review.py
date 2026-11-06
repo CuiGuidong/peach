@@ -1011,6 +1011,55 @@ class ReviewQueueTests(unittest.TestCase):
             con.close()
         self.assertEqual(note["rule"], "adr-0038-chain-mgstage")
 
+    def _landed_cast(self, asset_id, item_key):
+        con = sqlite3.connect(self.db_path)
+        try:
+            landed = [row[0] for row in con.execute(
+                "SELECT e.canonical_name FROM entity e JOIN asset_entity ae ON ae.entity_id=e.id "
+                "WHERE ae.asset_id=? AND ae.role='performer'", (asset_id,))]
+            row = con.execute("SELECT note FROM review_decision WHERE item_key=?", (item_key,)).fetchone()
+        finally:
+            con.close()
+        return landed, json.loads(row[0]) if row else None
+
+    def test_the_name_wiki_names_the_amateur_cast_over_the_store_nickname(self):
+        """素人片 MGStage 写片中称呼、认人 Wiki 写艺名：落艺名，称呼记进被压下的取值（ADR-0145）。"""
+        self._asset(130, "300NTK-619", "300NTK-619.mp4")
+        self.write_metadata_rows([
+            {"item_key": "NTK", "field": "performers", "current": "", "code": "300NTK-619",
+             "candidates": [{"source": "mgstage", "value": [{"name": "まいな"}], "display": "まいな"},
+                            {"source": "sougouwiki", "value": [{"name": "優梨まいな"}], "display": "優梨まいな"}]},
+        ])
+        self.assertEqual(self._auto()["applied"], 1)
+        landed, note = self._landed_cast(130, "NTK")
+        self.assertEqual(landed, ["優梨まいな"])
+        self.assertEqual(note["rule"], "adr-0038-chain-sougouwiki")
+        self.assertEqual(note["overruled"], [{"source": "mgstage", "value": "まいな"}])
+
+    def test_the_name_wiki_names_the_cast_over_an_honorific_from_r18dev(self):
+        """r18.dev 写 `早見さん` 这种带称谓的片中称呼时，同样落 Wiki 给的艺名（ADR-0145）。"""
+        self._asset(131, "230ORETD-615", "230ORETD-615.mp4")
+        self.write_metadata_rows([
+            {"item_key": "ORETD", "field": "performers", "current": "", "code": "230ORETD-615",
+             "candidates": [{"source": "r18dev", "value": [{"name": "早見さん"}], "display": "早見さん"},
+                            {"source": "av_neme", "value": [{"name": "早美れむ"}], "display": "早美れむ"}]},
+        ])
+        self._auto()
+        landed, note = self._landed_cast(131, "ORETD")
+        self.assertEqual(landed, ["早美れむ"])
+        self.assertEqual(note["source"], "av_neme")
+        self.assertEqual(note["descriptive_dropped"], [{"source": "r18dev", "value": "早見さん"}])
+
+    def test_a_store_nickname_without_a_wiki_name_still_goes_to_review(self):
+        """没有别家给艺名时，片中称呼照旧交人工，不替人认（ADR-0145 只在有艺名时剔掉称呼）。"""
+        self._asset(132, "230ORETD-615", "230ORETD-615.mp4")
+        self.write_metadata_rows([
+            {"item_key": "ORETD", "field": "performers", "current": "", "code": "230ORETD-615",
+             "candidates": [{"source": "r18dev", "value": [{"name": "早見さん"}], "display": "早見さん"}]},
+        ])
+        self.assertEqual(self._auto()["applied"], 0)
+        self.assertEqual(self.queue_keys("metadata_fields"), ["ORETD"])
+
     def test_a_fallback_source_does_not_challenge_a_value_the_ledger_has(self):
         """兜底来源改不动账本已有的值，也不必让人看一眼（ADR-0038）。
         """

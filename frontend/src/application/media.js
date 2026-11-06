@@ -132,7 +132,7 @@ export async function closeItemDetail(){
   if(restoreSurface&&navigationState.managedPagePath(new URL(returnPath,location.href).pathname)){navigationState.navigatePath(returnPath);return}
   navigationState.route(returnPath);
   if(restoreSurface)writeShell({pageOpens:pageOpens+1});
-  // The playlist keeps the page, refreshing only the resume position and the list content changed in the detail.
+  // 播放列表保留页面，只刷新续播位置和详情里修改的列表内容。
   else{buildBars();if(location.pathname==='/playlists')rereadPlaylists()}
 }
 

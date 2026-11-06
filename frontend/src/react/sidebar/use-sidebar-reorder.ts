@@ -20,7 +20,7 @@ interface Gesture {
   cursor: string;
 }
 
-/** Navigation saves the order only on release; pointer movement only updates the lifted item and insertion position. */
+/** 导航只在松手时保存顺序；指针移动只更新浮起项和插入位置。 */
 export function useSidebarReorder(column: RefObject<HTMLDivElement | null>, order: readonly string[],
   commit: (next: string[]) => void, settled: () => void) {
   const [picked, setPicked] = useState<Picked | null>(null);
@@ -71,8 +71,8 @@ export function useSidebarReorder(column: RefObject<HTMLDivElement | null>, orde
     flushSync(() => {
       setPicked(null);
       if (next) latest.current.commit(next);
-      announce(next ? `${active.node.ariaLabel}, moved to position ${slot! + 1}`
-        : accept && slot === mark.origin ? 'The order did not change' : 'Reordering cancelled');
+      announce(next ? `${active.node.ariaLabel}，已移动到第 ${slot! + 1} 项`
+        : accept && slot === mark.origin ? '顺序未变' : '已取消排序');
     });
     latest.current.settled();
   };
@@ -141,7 +141,7 @@ export function useSidebarReorder(column: RefObject<HTMLDivElement | null>, orde
     if (!next) return;
     capture();
     flushSync(() => commit(next));
-    announce(`${event.currentTarget.ariaLabel}, moved to position ${at + (down ? 2 : 0)}`);
+    announce(`${event.currentTarget.ariaLabel}，已移动到第 ${at + (down ? 2 : 0)} 项`);
     settled();
   };
 

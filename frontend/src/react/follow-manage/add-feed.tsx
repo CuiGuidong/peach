@@ -1,10 +1,12 @@
 /* Adding a JAV subscription: enter a performer's name, find her performer card on JavDB, and after checking register it
  * under her and subscribe (ADR-0083).
  *
- * The search only lists candidates and writes nothing: the same name can match more than one person on the site, and
- * deciding "this one" for the user would be wrong. The cards whose names match exactly and have only one person are checked
- * in advance; the rest are the user's clicks. The address is still assembled by the server from the checked ids, and the page
- * never sends an address. Subscribing works even when she does not exist in the database: the server creates her. */
+ * 查找只是列出候选、不写任何东西：同名的人站上可能不止一位，替用户决定「就是这个」是错的。
+ * 名字对得上、又只有一个人的那几张先勾上，其余的要用户自己点。地址仍由服务端按勾选的 id 拼，
+ * 页面从头到尾不送地址。这位在数据库里不存在也可以订：服务端会新建她。
+ *
+ * 数据库里认得出、又已有 JavDB 演员页或 DMM 编号的人不必靠搜索：JavDB 冷却搜不成或搜不到时，
+ * 照样给出「订阅库里的她」，和人物页的开关是同一个动作。 */
 import { useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { RiSearchLine } from '@remixicon/react';
@@ -19,7 +21,7 @@ import { Note } from '../components/note';
 import { ExternalLink, FieldLabel, Help } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import { composingKey } from '../components/ime';
-import { followFeedByName, lookupFeedActor, type FeedCandidate, type FeedLookup } from './follow-manage';
+import { followFeedByName, followFeedEntity, lookupFeedActor, type FeedCandidate, type FeedLookup } from './follow-manage';
 
 const PLACEHOLDER = 'Enter a performer name to find her performer page on JavDB';
 const TITLE = 'Add JAV subscription';
@@ -93,7 +95,20 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
     });
   };
 
+  const followKnown = () => {
+    const known = result?.known;
+    if (!known) return;
+    void action.run('known', (signal) => followFeedEntity(known.id, signal), () => {
+      toast(`已订阅「${known.name}」的新作`);
+      setName('');
+      close();
+      onAdded();
+    });
+  };
+
   const where = result ? destination(result, picked) : null;
+  /* 没有可勾的卡（搜不成或搜不到）时，库里能直接订的她就是这一次的去处。 */
+  const direct = result && !result.candidates.length && result.known?.subscribable ? result.known : null;
 
   return (
     /* Same shape as the 'Add follows' block: one filled card with the title inside it. */
@@ -112,7 +127,8 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
 
       {result ? (
         <div className="flex flex-col gap-3">
-          <FieldLabel>Performer card on JavDB</FieldLabel>
+          {result.unavailable ? <Note tone="warning" title="JavDB 这一次没有搜成">{result.unavailable}</Note> : null}
+          <FieldLabel>JavDB 上的演员卡</FieldLabel>
           {result.candidates.length ? result.candidates.map((card) => (
             <CandidateRow key={card.id} card={card} picked={picked.has(card.id)}
               onPick={(on) => setPicked((now) => {
@@ -120,15 +136,24 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
                 if (on) next.add(card.id); else next.delete(card.id);
                 return next;
               })} />
-          )) : <Help>That name returned nothing on JavDB.</Help>}
+          )) : <Help>{result.unavailable ? '这一次没有拿到演员卡。' : 'JavDB 上没有搜到这个名字。'}</Help>}
           {result.candidates.length ? (
             <Help role="status">{picked.size ? where!.text : 'Check her performer card; if both the censored and uncensored records are her, check both.'}</Help>
+          ) : null}
+          {direct ? (
+            <Help role="status">{direct.following
+              ? `数据库里的「${direct.name}」已经在订阅新作。`
+              : `数据库里的「${direct.name}」已有 JavDB 或 DMM 编号，可以直接订阅。`}</Help>
           ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" size="small" onClick={close}>Off</Button>
             {result.candidates.length ? (
               <Button variant="primary" size="small" disabled={readOnly || !picked.size || where!.blocked}
                 {...busyProps(action.busy === 'follow')} onClick={add}>{`Add subscriptions (${picked.size})`}</Button>
+            ) : null}
+            {direct && !direct.following ? (
+              <Button variant="primary" size="small" disabled={readOnly}
+                {...busyProps(action.busy === 'known')} onClick={followKnown}>{`订阅「${direct.name}」`}</Button>
             ) : null}
           </div>
         </div>

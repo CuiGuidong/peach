@@ -72,8 +72,8 @@ for (const viewport of [...VIEWPORTS, { name: 'narrow', width: 320, height: 844,
 }
 
 for (const viewport of VIEWPORTS) {
-  it(`${viewport.name}'s failure receipt has its own red border and sits above the bottom-right mini window without covering it`, { timeout: 60_000 }, async () => {
-    // The mini window is hung in the stage: it only exists once a detail has been entered.
+  it(`${viewport.name} 的失败回执自己是红框，停在右下角小窗之上不压住它`, { timeout: 60_000 }, async () => {
+    // 小窗挂在舞台里：进一次详情，那块节点才在。
     const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport);
     try {
       const mini = opened.page.locator('#miniplayer');
@@ -83,7 +83,7 @@ for (const viewport of VIEWPORTS) {
         const entry = '/dist/peach-app.js';
         const ui = await import(entry);
         ui.showToast(document.getElementById('toasts'), { success: '<svg/>', error: '<svg/>' },
-          'stack-preview', { html: 'Check failed: the source cannot be reached right now; please retry later.', alert: true, timeout: Infinity, action: null });
+          'stack-preview', { html: '检查失败：来源暂时无法连接，请稍后重试。', alert: true, timeout: Infinity, action: null });
       });
       const toast = opened.page.locator('[data-sonner-toast][data-type=error]');
       await toast.waitFor();

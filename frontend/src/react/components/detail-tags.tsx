@@ -15,8 +15,8 @@ import { useAction, busyProps } from '../settings/use-action';
 import { queryClient } from '../query';
 
 const Glyph = ({ name }: { name: string }) => <span className="contents" dangerouslySetInnerHTML={{ __html: icon(name) }} />;
-/* When there are many tags, show only the first stretch: a post from an online source often carries hundreds of tags, and laying them all out would push the sidebar into a full screen of pills. Source categories come
-   first (works, characters, creators), and they are exactly what remains when collapsed. If only a few more, do not fold — saves an extra click for two or three tags. */
+/* 标签多时先露前面一截：在线来源一帖常挂上百个标签，全摊开会把侧栏推成一整屏胶囊。来源分类排在
+   前面（作品、角色、作者），收起时留下的正是它们。只多出几个时不折，省得为三两个标签多点一下。 */
 const TAGS_SHOWN = 20;
 const TAGS_SLACK = 4;
 interface DetailTagsProps {
@@ -41,7 +41,7 @@ export function DetailTags({ tags, candidates, scope = 'local', id, adding, labe
     return row;
   }, row => setEditing(row)) };
   const [open, setOpen] = useState(false);
-  /* Newly added tags are sorted in by name, mostly landing in the collapsed part, looking like they weren't added: when collapsed, they also show outside. */
+  /* 刚加上的标签按名字排进去，多半落在收起的那一截里，看着像没加上：收起时它们也露在外面。 */
   const [added, setAdded] = useState<readonly string[]>([]);
   const add = (tag: string) => { setAdded(keys => [...keys, foldName(tag)]); onAdd(tag) };
   const long = tags.length > TAGS_SHOWN + TAGS_SLACK;
@@ -58,7 +58,7 @@ export function DetailTags({ tags, candidates, scope = 'local', id, adding, labe
       </span>)}
       {long ? <Button variant="secondary" size="small" data-tags-more="" aria-expanded={open}
         trailingIcon={open ? RiArrowUpSLine : RiArrowDownSLine} onClick={() => setOpen(!open)}>
-        {open ? 'Collapse' : `${tags.length - shown.length} more`}</Button> : null}
+        {open ? '收起' : `还有 ${tags.length - shown.length} 个`}</Button> : null}
       <TagPicker tags={tags} candidates={options} label={label} onAdd={add} adding={adding} scope={scope}
         onOpen={() => setAsked(true)} loading={inventory.isFetching} />
     </div>
@@ -122,7 +122,7 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
     if (!selected) onAdd(tag.k);
   };
   const keydown = (event: KeyboardEvent<HTMLInputElement>) => {
-    /* The Enter that commits an IME candidate confirms the character, not 'create this tag'; half-typed pinyin would actually become a tag. */
+    /* 选字那一下的回车是定字，不是「新建这个标签」——半截拼音会真的建成标签。 */
     if (composingKey(event.nativeEvent)) return;
     if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); plus.current?.focus(); return }
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {

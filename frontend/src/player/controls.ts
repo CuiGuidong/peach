@@ -570,9 +570,9 @@ function mountPlayerChromeLayout(player: VjsPlayer): void {
   setExpanded(false); syncWidthMode();
 }
 
-/** The drag preview on the progress bar: the time and the frame at that second; image fetch and clamping are in `seek-preview.ts`.
+/** 进度条上的拖动预览：时间与那一秒的画面，取图与夹边见 `seek-preview.ts`。
  *
- * Shown on mouse hover; touchscreens have no hover, so it shows while pressing and dragging and collapses on release. Followed items have no local image, so only the time is reported. */
+ *  鼠标悬停就显示；触屏没有悬停，按住拖动时显示、松手收起。关注条目没有本地图，只报时间。 */
 export function mountPlayerSeekPreview(player: VjsPlayer, item: PlayerItem | null, options: { thumbnail?: boolean } = {}): void {
   const progress = player.el().querySelector<HTMLElement>('.vjs-control-bar .vjs-progress-control');
   if (!progress || progress.querySelector('[data-player-seek-preview]')) return;

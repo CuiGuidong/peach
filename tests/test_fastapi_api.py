@@ -4182,6 +4182,10 @@ PUBLIC_ROUTES = {
     # STRM 的 HLS 子资源供浏览器和外部播放器共用：处理函数验证浏览器会话，
     # 或绑定资产与 Origin 的限时 HMAC；两条分支都检查媒体根目录及资源归属。
     ("GET,HEAD", "/strm-resource/{id}/{key}"),
+    # 本机 CA 的公开证书（ADR-0142）。手机扫码时还没登录、也还没信任这张证书，二维码带进程
+    # 密钥签发、十分钟有效的签名，只换得到这张公开证书；处理函数里不带签名的请求照常
+    # `require_auth`。私钥不经过这条路由。
+    ("GET", "/api/configuration/certificate/peach-local-ca.crt"),
 }
 
 
@@ -4229,6 +4233,8 @@ class RouteAuthContractTests(unittest.TestCase):
             ("POST", "/api/jav-browser"): routes_jav_browser.browser_client,
             ("POST", "/api/jav-browser/errors"): routes_jav_browser.browser_client,
             ("POST", "/api/jav-browser/postprocess"): routes_jav_browser.browser_client,
+            ("GET", "/api/jav-browser/performer"): routes_jav_browser.browser_client,
+            ("POST", "/api/jav-browser/performer"): routes_jav_browser.browser_client,
             ("POST", "/api/jav-browser/dismiss"): routes_jav_browser.browser_client,
         }
         cls.routes = {(",".join(sorted(route.methods)), route.path):

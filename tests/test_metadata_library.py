@@ -50,6 +50,7 @@ def stub_provider():
     provider.query.side_effect = dmm_has_nothing
     provider.community.side_effect = NotFound('社区来源都没有这个番号')
     provider.amane.side_effect = NotFound('amane 桥问的几站都没有这个番号')
+    provider.wiki.side_effect = NotFound('Wiki 搜索范围内未取得精确作品表格行')
     return provider
 
 
@@ -1304,6 +1305,74 @@ class LibraryNfoTests(unittest.TestCase):
                         provider_factory=Mock(return_value=provider))
         return provider, read_rows(self.root / 'generated/library-metadata-field-candidates.csv')
 
+    def _collect_amateur(self, code, wiki_answers, performer=None):
+        """一部素人片走采集：MGStage 给齐标量、演员只给素人名义，认人 Wiki 按 `wiki_answers` 答。
+
+        `performer` 给了就先把这个演员挂到账本上，这一行就不缺演员。返回 (provider, 候选行)。"""
+        media = self.root / 'media'
+        media.mkdir()
+        (media / f'{code}.mp4').write_bytes(b'video')
+        db = fresh_ledger(self.root)
+        config = PeachConfig(self.root, self.root / 'config.toml', present=True, locations={'local': (str(media),)})
+        if performer:
+            # 先扫一遍入库，再把标量与演员写进账本：这一行只剩列表字段可补。第一遍桩出来的「没有」
+            # 记忆一并清掉，第二遍问不问 Wiki 只看这一行缺不缺演员。
+            from peach.library_processing import misses_path
+            scan = stub_provider()
+            scan.query.return_value = {'id': code}
+            process_library(config, db, self.root / 'generated', self.root / 'covers',
+                            provider_factory=Mock(return_value=scan))
+            with closing(sqlite3.connect(db)) as connection, connection:
+                connection.execute("UPDATE asset SET catalog_title=?, studio=?, release_date=? WHERE code=?",
+                                   ('素人の標題', 'ラグジュTV', '2024-01-01', code))
+                connection.execute("INSERT INTO entity(kind, canonical_name, normalized_name, created_at, updated_at) "
+                                   "VALUES('performer', ?, ?, '2026-11-05', '2026-11-05')", (performer, performer))
+                connection.execute("INSERT INTO asset_entity(asset_id, entity_id, role, source, confidence) "
+                                   "SELECT a.id, e.id, 'performer', 'manual', 1.0 FROM asset a, entity e "
+                                   "WHERE a.code=? AND e.canonical_name=?", (code, performer))
+            misses_path(config).unlink(missing_ok=True)
+            (self.root / 'generated/library-metadata-field-candidates.csv').unlink(missing_ok=True)
+        provider = stub_provider()
+        provider.amane.side_effect = None
+        provider.amane.return_value = [('mgstage', {
+            'id': code, 'content_id': code, 'source': 'mgstage', 'title': '素人の標題', 'maker': 'ラグジュTV',
+            'release_date': '2024-01-01', 'actresses': [{'japanese_name': 'まいな'}]})]
+
+        def wiki(source, query, **_):
+            if source not in wiki_answers:
+                raise NotFound('Wiki 搜索范围内未取得精确作品表格行')
+            return [(source, {'id': query, 'source': source, 'actresses': [{'japanese_name': wiki_answers[source]}]})]
+
+        provider.wiki.side_effect = wiki
+        process_library(config, db, self.root / 'generated', self.root / 'covers',
+                        provider_factory=Mock(return_value=provider))
+        return provider, read_rows(self.root / 'generated/library-metadata-field-candidates.csv', missing_ok=True)
+
+    @windows_ledger_roots
+    def test_a_missing_amateur_cast_asks_the_name_wikis_after_mgstage_and_stops_at_the_first_answer(self):
+        """MGStage 只给素人名义，缺演员的素人片接着问认人 Wiki；素人系総合 Wiki 没有就问 av_neme，
+        有一个给出艺名就停，不再落到综合索引（ADR-0145）。"""
+        provider, rows = self._collect_amateur('259LUXU-1378', {'av_neme': '優梨まいな'})
+        self.assertEqual([call.args[0] for call in provider.wiki.call_args_list], ['sougouwiki', 'av_neme'])
+        provider.community.assert_not_called()
+        performers = next(row for row in rows if row['field'] == 'performers')
+        self.assertEqual({candidate['source'] for candidate in json.loads(performers['candidates_json'])},
+                         {'mgstage', 'av_neme'})
+
+    @windows_ledger_roots
+    def test_an_amateur_code_neither_wiki_knows_settles_on_mgstage_without_the_community_sites(self):
+        provider, rows = self._collect_amateur('259LUXU-1378', {})
+        self.assertEqual([call.args[0] for call in provider.wiki.call_args_list], ['sougouwiki', 'av_neme'])
+        provider.community.assert_not_called()
+        performers = next(row for row in rows if row['field'] == 'performers')
+        self.assertEqual({candidate['source'] for candidate in json.loads(performers['candidates_json'])},
+                         {'mgstage'})
+
+    @windows_ledger_roots
+    def test_an_amateur_row_that_already_has_its_cast_does_not_ask_the_wikis(self):
+        provider, _ = self._collect_amateur('259LUXU-1378', {'sougouwiki': '優梨まいな'}, performer='優梨まいな')
+        provider.wiki.assert_not_called()
+
     @windows_ledger_roots
     def test_javdb_tags_are_collected_with_their_community_identity_after_maker_scalars(self):
         provider, rows = self._collect_with_maker('SSIS-057', 'makers', {
@@ -1877,7 +1946,7 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual(sorted((c['source'], c['provider'], c['source_kind'], c['official'], c['provider_id'])
                                 for c in title),
                          [('avbase', 'avbase-search', 'community', False, 'ORETD-615'),
-                          ('javdb', 'javdb-page', 'community', False, 'ORETD-615')])
+                          ('javdb', 'javdb-api', 'community', False, 'ORETD-615')])
         self.assertEqual(rows['title']['source_profile'], 'library')
         self.assertEqual(len(json.loads(rows['release_date']['candidates_json'])), 2)
 
@@ -2136,7 +2205,8 @@ class LibraryNfoTests(unittest.TestCase):
                          ['封面未取得：来源返回 HTTP 503'], '来源说没有只报一个数，不占问题清单')
         self.assertEqual(first['notes'], {'querying_metadata': 1})
         recorded = json.loads(misses_path(config).read_text(encoding='utf-8'))
-        self.assertEqual(list(recorded['misses']), ['mgstage', 'avbase', 'javbus', 'javdb', 'r18dev'],
+        self.assertEqual(list(recorded['misses']),
+                         ['mgstage', 'sougouwiki', 'av_neme', 'avbase', 'javbus', 'javdb', 'r18dev'],
                          '按站记，不按档记')
         self.assertEqual(provider.amane.call_args.kwargs['route'], ('mgstage',))
         self.assertEqual(list(recorded['misses']['r18dev']), ['STP-26232'])

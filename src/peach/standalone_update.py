@@ -112,14 +112,15 @@ def extract(archive: Path, destination: Path, progress, *, tool_files: set[str] 
 
 
 def download(url: str, archive: Path, size: int, digest: str, progress) -> None:
-    sources = release_updates.download_sources(url)
-    for index, source in enumerate(sources):
+    failures = []
+    for source in release_updates.download_sources(url):
         try:
             _download_once(source, archive, size, digest, progress)
             return
-        except (httpx.HTTPError, ValueError):
-            if index == len(sources) - 1:
-                raise
+        except (httpx.HTTPError, ValueError) as exc:
+            failures.append(exc)
+    # 镜像常落后几个版本：备用源的 404 不能盖住主源的校验失败，没有校验失败时报主源的原因。
+    raise next((exc for exc in failures if isinstance(exc, ValueError)), failures[0])
 
 
 def _download_once(url: str, archive: Path, size: int, digest: str, progress) -> None:

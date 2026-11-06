@@ -183,7 +183,7 @@ export interface FollowCredentials { providers?: { provider: string; present?: b
 
 /* ── Fetch keys ── */
 
-/** The same tab keeps the loaded follow content; a manual refresh still fetches a new generation. */
+/** 同一标签页保留已加载的关注内容，主动刷新仍按新代次取数。 */
 export const FOLLOW_FEED_GC_MS = Infinity;
 
 /** The list's key. Media switching is pure frontend grouping and stays out of the key: switching views does not refetch. `revision` is the epoch of the shell's requested re-read. */

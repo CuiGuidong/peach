@@ -22,17 +22,17 @@ function available(node: HTMLElement): boolean {
   return ![...node.querySelectorAll<HTMLElement>('[data-skeleton]')].some(child => child.getBoundingClientRect().height > 0);
 }
 
-/** The same entry becomes a button on narrow screens; each time, select the actually visible candidate from the current DOM. */
+/** 同一入口在窄屏会换成按钮；每次从当前 DOM 选择真实可见的候选。 */
 export function resolveGuideTarget(selector?: string): HTMLElement | undefined {
   if (!selector) return undefined;
   const candidates = selector.split(',').flatMap(part => [...document.querySelectorAll<HTMLElement>(part.trim())]);
   const found = candidates.find(available);
   if (!found) return undefined;
-  // Some IDs in the preferences belong to the toggle itself; box-select the whole row including the label so the explanation and control stay together.
+  // 偏好里的 ID 有些属于开关本身；框选包含标签的整行，解释和控件保持在一起。
   return found.closest<HTMLElement>('[data-setting-row], [data-setting-sort-controls]') || found;
 }
 
-/** A route has a target only after it loads; closing early or changing steps cancels the wait. */
+/** 路由加载后才有目标；中途关闭或换步骤会取消等待。 */
 export async function findGuideTarget(selector: string | undefined, signal: AbortSignal, timeout = 4000): Promise<Element | undefined> {
   if (!selector) return undefined;
   const start = Date.now();
@@ -80,7 +80,7 @@ export function createGuideSession(options: {
     finally { navigating = false }
   };
   const keyboard = (event: KeyboardEvent) => {
-    // Enter / Escape in edit mode are handled by the in-place text editor.
+    // 编辑模式的 Enter / Escape 由原位文案编辑器处理。
     if (event.target instanceof Element && event.target.closest('[data-copy-inline], [data-copy-input]')) return;
     if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); options.close(); return }
     const panel = document.querySelector<HTMLElement>('.peach-guide-popover');
@@ -139,7 +139,7 @@ export function createGuideSession(options: {
         popoverClass: 'peach-react peach-guide-popover', showButtons: [],
         onPopoverRender(popover) {
           unmount?.();
-          // The native detail dialog sits in the top layer, so the explanation and overlay must be in the same layer.
+          // 原生详情 dialog 位于 top layer，说明和遮罩必须在同一层中。
           const dialog = document.querySelector<HTMLDialogElement>('#stage[open]');
           if (step.surface && dialog) {
             dialog.append(popover.wrapper);
@@ -154,16 +154,16 @@ export function createGuideSession(options: {
         onPrevClick: () => options.previous(), onCloseClick: () => options.close(),
       });
       const highlight = () => active?.highlight({ ...(element ? { element } : {}), popover: {
-        // Content is rendered by Peach's React components; positioning, edge avoidance, and arrows reuse Driver.
+        // 内容由 Peach 的 React 组件输出；定位、边缘避让与箭头复用 Driver。
         side: 'bottom', align: 'center', showButtons: [],
       } });
       highlight();
       let previous = '';
-      // Only track geometry while this step is alive. Ancestor transform animations, internal scrolling, async content, and breakpoint switches
-      // All of these change position; Driver's built-in window scroll/resize can't cover these cases.
+      // 只在本步骤存续时跟踪几何。祖先 transform 动画、内部滚动、异步内容和断点切换
+      // 都会改变位置；Driver 自带的 window scroll/resize 无法覆盖这些情况。
       const track = () => {
         if (disposed || current.signal.aborted) return;
-        // Driver creates the overlay after onPopoverRender; the next frame also moves it into the native popover.
+        // Driver 在 onPopoverRender 之后创建遮罩；下一帧把它也移入原生弹层。
         const dialog = step.surface ? document.querySelector('#stage[open]') : null;
         const overlay = document.querySelector('.driver-overlay');
         if (dialog && overlay && overlay.parentElement !== dialog) dialog.append(overlay);

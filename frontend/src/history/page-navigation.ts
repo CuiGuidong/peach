@@ -27,13 +27,13 @@ function holdScrollAnchor(): void {
   const root = document.documentElement;
   anchorStyle ??= root.style.overflowAnchor;
   heightStyle ??= root.style.minHeight;
-  // When collapsing the old page, a short skeleton must not first clamp the current position to the top.
+  // 收起旧页面时，短骨架不能先把当前位置夹到顶部。
   root.style.minHeight = `${root.scrollHeight}px`;
   contentReady = false;
   scrolling = false;
   root.style.overflowAnchor = 'none';
   root.setAttribute('data-page-navigation-pending', '');
-  // Cancel the previous page's unfinished smooth scroll; the next page only accepts its own positioning.
+  // 取消上一页尚未结束的平滑滚动，下一页只接受自己的定位。
   window.scrollTo({ left: window.scrollX, top: window.scrollY, behavior: 'instant' });
 }
 
@@ -69,7 +69,7 @@ function trackElementScroll(target: Element | null): void {
 const page = (path: string) => !isOverlayPath(path) && !isPreferencePath(path) && path !== '/immerse' && path !== '/wall';
 const identity = (location: typeof active.location) => {
   const query = new URLSearchParams(location.search);
-  return `${location.pathname}:${query.get('jav') === '1'}:${query.get('orient') === 'Portrait'}`;
+  return `${location.pathname}:${query.get('jav') === '1'}:${query.get('orient') === '竖屏'}`;
 };
 const address = (location: typeof active.location) => {
   const query = new URLSearchParams(location.search);
@@ -82,13 +82,13 @@ function columnKeys(location: typeof active.location): string[] {
   if (!page(location.pathname)) return [];
   if (location.pathname === '/') {
     const query = new URLSearchParams(location.search);
-    return [query.get('jav') === '1' ? 'jav' : query.get('orient') === 'Portrait' ? 'shorts' : ''];
+    return [query.get('jav') === '1' ? 'jav' : query.get('orient') === '竖屏' ? 'shorts' : ''];
   }
   const meta = routeMetaOf(location.pathname);
   return [...(meta?.nav ? [meta.nav] : []), ...(meta?.section ? ['manage', meta.section] : [])];
 }
-/* The home-page tabs (Home, JAV, and vertical all live on `/`) record their address without the search term: the screen a search lands on is a query, not
-   this tab's view. Recording with the term means clicking "Home" while searching stays put, and leaving then coming back still lands on the search results. */
+/* 首页那几栏（首页、JAV、竖屏都在 `/` 上）记地址时不带搜索词：搜出来的那一屏是一次查询，不是
+   这一栏的视图。带着词记，搜索时点「首页」就是原地不动，离开再回来也还落在搜索结果上。 */
 function columnAddress(location: typeof active.location): string {
   const path = location.pathname + location.search + location.hash;
   if (location.pathname !== '/') return path;
@@ -102,13 +102,13 @@ function rememberColumns(): void {
   for (const key of columnKeys(location)) columns.set(key, columnAddress(location));
 }
 
-/* Re-entering a section in the same tab reuses the last address; if already in that section, keep the current view, and search results return to the screen without the term. */
+/** 同一标签页再次进入栏目，沿用最后一次的地址；已在该栏目时保持当前视图，搜索结果回到不带词的那一屏。 */
 export function rememberedSidebarPath(key: string): string | undefined {
   installPageNavigation();
   return columnKeys(active.location).includes(key) ? columnAddress(active.location) : columns.get(key);
 }
 
-/** A manual refresh and the enabled auto-rotation fetch new content via the original refresh entry, without claiming the old view. */
+/** 主动刷新和已启用的自动换批按原刷新入口取新内容，不认领旧视图。 */
 export function refreshPageNavigation(): void { installPageNavigation(); refreshing = true }
 
 function installPageNavigation(): void {
@@ -155,7 +155,7 @@ function installPageNavigation(): void {
   });
 }
 
-/** Only keep the reading state of the current history entry; don't write to the address, user config, or ledger. */
+/** 只保留当前历史条目的阅读状态，不写入地址、用户配置或账本。 */
 export function rememberPageState<T>(name: string, value: T): void {
   installPageNavigation();
   if (!page(active.location.pathname)) return;
@@ -167,7 +167,7 @@ export function rememberPageState<T>(name: string, value: T): void {
   rememberColumns();
 }
 
-/** Section back-and-forth, back/forward navigation, and their canonical-address redirects read the state saved on leaving. */
+/** 栏目往返、后退前进及其规范地址重定向，读取离开时保存的状态。 */
 export function restoredPageState<T>(name: string): T | undefined {
   installPageNavigation();
   return restoring?.state.get(name) as T | undefined;
@@ -175,7 +175,7 @@ export function restoredPageState<T>(name: string): T | undefined {
 
 export const restoringPage = (): boolean => { installPageNavigation(); return !!restoring };
 
-/** Double-click navigation returns to the top; if the target page is still open, its ready callback consumes this request. */
+/** 双击导航回顶；目标页还在打开时，由它的就绪回调消费这一次请求。 */
 export function requestPageTop(): void {
   installPageNavigation();
   requestedTop = peachHistory.navigation.seq;
@@ -184,7 +184,7 @@ export function requestPageTop(): void {
   scrollPage({ top: 0, behavior: routeScrollBehavior() });
 }
 
-/** Navigation can start once the new page's skeleton is in place; history positions wait for content height to recover, and anchors wait for the target to appear. */
+/** 新页面骨架就位即可开始导航；历史位置等待内容高度恢复，锚点等待目标出现。 */
 export async function pageNavigationReady(isCurrent: () => boolean, results?: Element | null,
   { pending = false }: { pending?: boolean } = {}): Promise<void> {
   installPageNavigation();
@@ -222,7 +222,7 @@ export async function pageNavigationReady(isCurrent: () => boolean, results?: El
     await scrollToAnchor(navigation.location.hash, current);
     if (!current()) return;
     let target: Element | null = null;
-    try { target = document.getElementById(decodeURIComponent(navigation.location.hash.slice(1))) } catch { /* An invalid anchor does not position */ }
+    try { target = document.getElementById(decodeURIComponent(navigation.location.hash.slice(1))) } catch { /* 无效锚点不定位 */ }
     trackElementScroll(target);
   } else if (navigation.action === 'REPLACE' && identity(from) === identity(navigation.location)) {
     window.scrollTo({ ...departure, behavior: 'instant' });

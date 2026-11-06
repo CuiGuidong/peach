@@ -727,6 +727,9 @@ class BrowserTests(unittest.TestCase):
             "https://www.mgstage.com/product/product_detail/300MIUM-1239/": "300MIUM-1239",
             "https://www.mgstage.com/product/product_detail/259LUXU-1475/": "259LUXU-1475",
             "https://www.mgstage.com/product/product_detail/104DANDY-851C/": "104DANDY-851C",
+            # 素人作品页与 FC2 内容市场商品页：地址里只有商品号或数字编号。
+            "https://video.dmm.co.jp/amateur/content/?id=mfc288": "MFC-288",
+            "https://adult.contents.fc2.com/article/4900901/": "FC2-PPV-4900901",
         }
         for source, expected in cases.items():
             with self.subTest(source=source):

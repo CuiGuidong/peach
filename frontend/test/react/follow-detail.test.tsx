@@ -138,10 +138,25 @@ describe('Fetching', () => {
     expect(host.querySelector('[data-follow-tag="source"]')).not.toBeNull();
   });
 
-  it('When tags collapse, a just-added one still shows even inside the collapsed section', async () => {
+  it('标签收起时，刚加上的那一枚排在收起的那截里也照样露出来', async () => {
     const many = Array.from({ length: 30 }, (_, index) => `t${String(index).padStart(2, '0')}`);
     const original = item(8, { tags: many, detail_tags: many, custom_tags: [] });
     const updated = item(8, { tags: [...many, 'zz'], detail_tags: [...many, 'zz'], custom_tags: ['zz'] });
+    const fallback = serve();
+    vi.stubGlobal('fetch', vi.fn((url: string, init?: RequestInit) => url === '/api/follow/tag'
+      ? Promise.resolve({ ok: true, json: async () => ({ item: updated, group: group(updated) }) })
+      : fallback(url, init)));
+    const { host } = await show(data(original));
+    expect(host.querySelectorAll('[data-detail-tag]')).toHaveLength(20);
+    await click(host.querySelector('[aria-label="添加标签"]'));
+    await type(host.querySelector<HTMLInputElement>('#tagPickSearch')!, 'zz');
+    await click(host.querySelector('[data-pick="zz"]'));
+    await settle();
+    expect(host.querySelector('[data-follow-tag="zz"]')).not.toBeNull();
+    expect(host.querySelector('[data-tags-more]')?.textContent).toBe('还有 10 个');
+  });
+
+  it('手动标签失败可重新打开选择器重试原输入并显示原因', async () => {
     const fallback = serve();
     vi.stubGlobal('fetch', vi.fn((url: string, init?: RequestInit) => url === '/api/follow/tag'
       ? Promise.resolve({ ok: true, json: async () => ({ item: updated, group: group(updated) }) })
@@ -431,7 +446,7 @@ describe('Copy and sorting', () => {
     expect(fetcher.mock.calls.some(([url]) => String(url).startsWith('/api/follow?limit='))).toBe(false);
   });
 
-  it('On hover, a keep-watching stack asks the shell whether it can flip cards, using the same test as the follow list', async () => {
+  it('接着看里的一叠悬停时问壳能不能翻卡，判据和关注列表同一个', async () => {
     serve();
     const next = item(52);
     const stack = { media: 2, copies: 2, kind: 'video', faces: [
@@ -445,8 +460,14 @@ describe('Copy and sorting', () => {
     const { host, actions } = await show(data(item(51)), { relatedLimit: 20 });
     const card = host.querySelector('[data-follow-related] [data-follow-item][data-collection]')!;
     await act(async () => { card.dispatchEvent(new MouseEvent('mouseover', { bubbles: true })) });
-    // It waits until steady for a moment before starting to flip (the start delay in use-stack-flip.ts); a pointer sweeping past doesn't flip.
+    // 停稳一小会儿才起翻（`use-stack-flip.ts` 的起步延时），一掠而过的指针不翻。
     await vi.waitFor(() => expect(actions.canFlip).toHaveBeenCalled(), { timeout: 2_000 });
+  });
+
+  it('合集行首：发布串不拿发布时间当版本标签，正文带上作者', () => {
+    const reply = item(30, { author: 'kou', summary: '第二段更新', variant_kind: '', published_at: '2026-09-18T00:00:00Z' });
+    expect(collectionCopy(group(item(29), { is_release: true }), reply)).toEqual({ label: '视频', title: 'kou：第二段更新' });
+    expect(collectionCopy(group(item(29)), item(31, { variant_kind: 'wip' }))).toEqual({ label: 'WIP', title: '更新 31' });
   });
 
   it('Compilation row heads: release strings never treat a release time as an edition tag, and bodies carry the author', () => {

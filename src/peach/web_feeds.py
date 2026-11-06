@@ -314,8 +314,8 @@ def _execute_check(contract, body, job_id: str) -> dict:
 def _plan_followups(contract, codes: list[str], *, automatic: bool) -> tuple[list, bool]:
     """这一轮拉完要派的后继，以及这一轮有没有带上存量。
 
-    取资料：新发现的先排，没取到资料的旧壳留着保底名额，同一批一条后继。只缺封面的另成一批
-    补封面。定时那一轮只带到了重试时间的，手动点的那一轮全带；已在队里的番号都不再带。
+    取资料：新发现的先排，没取到资料的旧壳留着保底名额，同一批一条后继。不在这一批里的缺封面
+    壳另成一批补封面，还没轮到取资料的也在内。定时那一轮只带到了重试时间的，手动点的那一轮全带；已在队里的番号都不再带。
     存量部分（旧壳、封面、头像）定时那几轮隔 `STOCK_INTERVAL` 才派一次，新番号每轮都派。
     """
     stock = _stock_due(contract) if automatic else True
@@ -479,7 +479,7 @@ def w_feed_source(contract, body) -> dict:
     raise ValueError(f"unknown feed source action: {action}")
 
 
-def _subscribe(connection, entity_id: int, canonical_name: str) -> list[int]:
+def subscribe_performer(connection, entity_id: int, canonical_name: str) -> list[int]:
     """这位的每个 JavDB 演员页与 DMM 片单各订一条，返回源 id。地址按账本里她的编号现拼。"""
     refs = [dict(ref) for ref in connection.execute(
         "SELECT provider,external_kind,external_id FROM entity_external_ref"
@@ -491,7 +491,7 @@ def _subscribe(connection, entity_id: int, canonical_name: str) -> list[int]:
     return feeds.follow_entity(connection, entity_id, pages)
 
 
-def _fetch_now(contract, ids: list[int]) -> None:
+def fetch_new_sources(contract, ids: list[int]) -> None:
     """新订的当场在后台拉：订的人要的是马上看到她有哪些新作，不是等下一轮到期扫描。
 
     已有一轮在跑时就交给那一轮之后的到期扫描——新源 `next_fetch_at` 为空，下一轮一定带上它。
@@ -520,8 +520,8 @@ def _follow_entity(contract, body) -> dict:
             feeds.unfollow_entity(connection, entity_id)
             ids: list[int] = []
         else:
-            ids = _subscribe(connection, entity_id, row["canonical_name"])
-    _fetch_now(contract, ids)
+            ids = subscribe_performer(connection, entity_id, row["canonical_name"])
+    fetch_new_sources(contract, ids)
     return {"ok": True, "entity_id": entity_id, "following": enabled, "sources": ids}
 
 
@@ -547,6 +547,32 @@ def q_feed_lookup(contract, args) -> dict:
     if not name:
         raise ValueError("要先给一个女优名")
     url = javdb.SEARCH.format(quote(name))
+    with contract.database.read_connection() as connection:
+        # 账本里按这个名字认得出谁：登记时没人持有所勾的卡就挂到她名下（`_follow_by_name`），
+        # 页面提前把这句话说出来，免得点了才知道挂给了谁。
+        found = entities.resolve_entity(connection, "performer", name)
+        known = _known_performer(connection, found) if found else None
+    try:
+        html = _search_javdb(contract, url)
+    except ValueError as error:
+        # 她已有 JavDB 或 DMM 编号时不必靠这一趟搜索，按库里的她直接订；原因照样告诉页面。
+        if known and known["subscribable"]:
+            return {"ok": True, "q": name, "url": url, "candidates": [], "suggested": [],
+                    "known": known, "unavailable": str(error)}
+        raise
+    cards = javdb.search_cards(html)
+    wanted = alias.match_key(name)
+    with contract.database.read_connection() as connection:
+        candidates = [_describe_card(connection, card) for card in cards]
+    mine = [card for card in cards
+            if any(alias.match_key(written) == wanted for written in card["names"])]
+    suggested = [card["id"] for card in mine] if javdb.one_person(mine) else []
+    return {"ok": True, "q": name, "url": url, "candidates": candidates, "suggested": suggested,
+            "known": known}
+
+
+def _search_javdb(contract, url: str) -> str:
+    """取一页 JavDB 演员搜索结果；冷却、限流、断网、登入页都按原因报 ValueError。"""
     try:
         response = _transport(contract)(HttpRequest("GET", url, {"Accept": "text/html"}),
                                         LOOKUP_TIMEOUT, FETCH_MAX_BYTES)
@@ -557,18 +583,35 @@ def q_feed_lookup(contract, args) -> dict:
     html = response.body.decode("utf-8", "replace")
     if javdb.LOGIN.search(html):
         raise ValueError("JavDB 回的是登入页，这一趟搜不了；稍后再试")
-    cards = javdb.search_cards(html)
-    wanted = alias.match_key(name)
-    with contract.database.read_connection() as connection:
-        candidates = [_describe_card(connection, card) for card in cards]
-        # 账本里按这个名字认得出谁：登记时没人持有所勾的卡就挂到她名下（`_follow_by_name`），
-        # 页面提前把这句话说出来，免得点了才知道挂给了谁。
-        known = entities.resolve_entity(connection, "performer", name)
-    mine = [card for card in cards
-            if any(alias.match_key(written) == wanted for written in card["names"])]
-    suggested = [card["id"] for card in mine] if javdb.one_person(mine) else []
-    return {"ok": True, "q": name, "url": url, "candidates": candidates, "suggested": suggested,
-            "known": {"id": int(known["id"]), "name": str(known["canonical_name"])} if known else None}
+    return html
+
+
+def subscribable(connection, row) -> bool:
+    """这位不经搜索就能订：已有 JavDB 演员页或 DMM 女优编号。"""
+    entity_id = int(row["id"])
+    refs = [dict(ref) for ref in connection.execute(
+        "SELECT provider,external_kind,external_id FROM entity_external_ref WHERE entity_id=?",
+        (entity_id,))]
+    return bool(entry_links.javdb_actor_pages(str(row["canonical_name"]), refs)
+                or feeds.dmm_actress_ids(connection, entity_id))
+
+
+def _known_performer(connection, row) -> dict:
+    """库里认出的这位：能不能直接订、订没订着。"""
+    entity_id = int(row["id"])
+    return {"id": entity_id, "name": str(row["canonical_name"]),
+            "subscribable": subscribable(connection, row),
+            "following": feeds.entity_following(connection, entity_id)}
+
+
+def create_followed_performer(connection, name: str) -> int:
+    """为订阅新建一位零作品的女优，来源记 `FOLLOW_SOURCE`。"""
+    stamp = feeds.stamp()
+    return int(connection.execute(
+        "INSERT INTO entity(kind,canonical_name,normalized_name,metadata_json,"
+        "created_at,updated_at) VALUES('performer',?,?,?,?,?)",
+        (name, entities.normalize_entity_name(name),
+         json.dumps({"source": FOLLOW_SOURCE}, ensure_ascii=False), stamp, stamp)).lastrowid)
 
 
 def _describe_card(connection, card: dict) -> dict:
@@ -628,19 +671,13 @@ def _follow_by_name(contract, body) -> dict:
             if found is not None:
                 entity_id, canonical = int(found["id"]), str(found["canonical_name"])
             else:
-                stamp = feeds.stamp()
-                entity_id = int(connection.execute(
-                    "INSERT INTO entity(kind,canonical_name,normalized_name,metadata_json,"
-                    "created_at,updated_at) VALUES('performer',?,?,?,?,?)",
-                    (name, entities.normalize_entity_name(name),
-                     json.dumps({"source": FOLLOW_SOURCE}, ensure_ascii=False), stamp, stamp),
-                ).lastrowid)
+                entity_id = create_followed_performer(connection, name)
                 canonical, created = name, True
         for actor_id in ids:
             performer_profile_followup.bind(connection, entity_id, "javdb", actor_id,
                                             {"source": FOLLOW_SOURCE})
-        sources = _subscribe(connection, entity_id, canonical)
-    _fetch_now(contract, sources)
+        sources = subscribe_performer(connection, entity_id, canonical)
+    fetch_new_sources(contract, sources)
     return {"ok": True, "entity_id": entity_id, "entity_name": canonical, "created": created,
             "sources": sources}
 
@@ -699,6 +736,13 @@ def _discovery_performers(connection, contract, rows) -> dict[int, list[dict]]:
     return performers
 
 
+def cover_state_fields(states: dict, code: str) -> dict:
+    """新作卡封面格的两个字段：`cover_state`（`fetching`／`queued`／`missing`，有封面时为 None）与原因。
+    首页这一行和 JAV 页「新作」「发现」两个分区共用同一份口径。"""
+    state, reason = states.get(normalise_code_key(code), (None, ""))
+    return {"cover_state": state, "cover_reason": reason}
+
+
 def q_feed_discoveries(contract, args) -> dict:
     """未入库的新作。`entity` 限定到某个人，`state` 切换忽略视图。
 
@@ -741,7 +785,8 @@ def q_feed_discoveries(contract, args) -> dict:
             for run in contract.task_runs.query(status="succeeded", task_key=task_key, limit=1)]
     latest = max(last, key=lambda run: run.finished_at or "", default=None)
     cover_network = int(latest.result_summary.get("cover_network") or 0) if latest else 0
-    fetching = feed_followup.in_flight(contract.task_runs)
+    # 还没有封面的那几部，封面格说清在等什么、为什么没有（`cover_states`）。
+    states = feed_followup.cover_states(contract, rows[:limit])
     return {"ok": True, "more": more, "cover_network": cover_network, "items": [{
         "id": int(row["id"]),
         "code": row["code"],
@@ -750,7 +795,7 @@ def q_feed_discoveries(contract, args) -> dict:
         "cover_url": row["cover_url"],
         # 本机封面与它的两份边车，形状和资产卡的同名字段一致，页面按同一套取景。
         "has_cover": contract.has_cover(row["code"]),
-        "cover_fetching": normalise_code_key(row["code"]) in fetching,
+        **cover_state_fields(states, row["code"]),
         "cover_frame": contract.cover_frame(row["code"]),
         "cover_version": contract.cover_version(row["code"]),
         "poster_box": contract.poster_box(row["code"]),

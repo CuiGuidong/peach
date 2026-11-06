@@ -5,13 +5,13 @@ import { launch, VIEWPORTS } from './harness.ts';
 import { openItemPage } from './item-fixture.ts';
 import { openFollowFeed } from './follow-fixture.ts';
 
-describe('Page scroll positioning', () => {
+describe('页面滚动定位', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
   for (const viewport of VIEWPORTS) {
     for (const reduced of [false, true]) {
-      it(`${viewport.name}: on the first visit to the follows page the short skeleton does not clamp the scroll-to-top, reduced motion=${reduced}`, { timeout: 60_000 }, async () => {
+      it(`${viewport.name}：首次进入关注页时短骨架不截断回顶，减少动态效果=${reduced}`, { timeout: 60_000 }, async () => {
         const opened = await openFollowFeed(browser, '/', viewport, { ready: '#catalogFilter [data-filter-frame]' });
         const { page } = opened;
         let release!: () => void;
@@ -23,11 +23,11 @@ describe('Page scroll positioning', () => {
             await route.fallback();
           });
           const { previousHeight, animates, floor } = await page.evaluate(async () => {
-            // The length lives only inside the leaving list; when navigation clears the list, it is removed too.
+            // 长度只放在离开的列表内，导航清空列表时会一起移除。
             const tail = document.createElement('div');
             tail.style.height = '3000px';
             document.getElementById('grid')!.append(tail);
-            // On Windows with system animations off (e.g., managed runners), Chrome jumps programmatically-triggered smooth scrolling straight to the end; first probe whether there are intermediate frames.
+            // 关闭系统动画的 Windows（如托管 runner）上，Chrome 把程序触发的平滑滚动直接跳到终点；先探测有无中间帧。
             window.scrollTo({ top: 0, behavior: 'instant' });
             window.scrollTo({ top: 1000, behavior: 'smooth' });
             let animates = false;
@@ -46,7 +46,7 @@ describe('Page scroll positioning', () => {
             requestAnimationFrame(record);
             return { previousHeight: document.documentElement.style.minHeight, animates, floor: 500 + innerHeight - 1 };
           });
-          if (viewport.mobile) await page.locator('header button[aria-label="Expand the sidebar"]').click();
+          if (viewport.mobile) await page.locator('header button[aria-label="展开侧栏"]').click();
           await page.locator('#drawer [data-nav="follow"]').click();
           await page.waitForURL('**/follow');
           await page.waitForFunction(() => scrollY === 0);
@@ -58,9 +58,9 @@ describe('Page scroll positioning', () => {
           });
           const trace = frames.map(({ y, height }) => `${y}/${height}`).join(',');
           assert.ok(frames.every(({ height }) => height >= floor),
-            `Before the scroll-to-top finishes, the page height must not drop below the reading position left behind, or the short skeleton clamps it to the top; per-frame position/height: ${trace}`);
+            `回顶完成前页面高度不能低于离开时的阅读位置，否则短骨架会把位置夹到顶部；逐帧位置/高度：${trace}`);
           if (!reduced && animates) assert.ok(frames.some(({ y }) => y > 2 && y < 490),
-            `The first toggle must pass through the middle position; per-frame position/height: ${trace}`);
+            `首次切换应经过中间位置；逐帧位置/高度：${trace}`);
           release();
           await page.locator('[data-follow-list] > [data-follow-item]').first().waitFor();
           await page.waitForFunction(height => document.documentElement.style.minHeight === height
@@ -69,7 +69,7 @@ describe('Page scroll positioning', () => {
           assert.deepEqual(opened.problems, []);
         } finally { release(); await opened.close() }
       });
-      it(`${viewport.name}: positions once content is ready, reduced motion=${reduced}`, { timeout: 60_000 }, async () => {
+      it(`${viewport.name}：内容就绪后定位，减少动态效果=${reduced}`, { timeout: 60_000 }, async () => {
         const opened = await openItemPage(browser, '/', viewport, { ready: '#grid [data-media-card]' });
         const { page } = opened;
         let release!: () => void;
@@ -94,22 +94,22 @@ describe('Page scroll positioning', () => {
               return scroll.call(this, options);
             };
             const link = document.createElement('a');
-            link.href = '/data-cleanup#libraryProcessing'; link.textContent = 'Open scan and capture';
+            link.href = '/data-cleanup#libraryProcessing'; link.textContent = '打开扫描与采集';
             document.querySelector('#main')!.prepend(link);
           });
           const navigations: string[] = [];
           page.on('request', request => { if (request.isNavigationRequest()) navigations.push(request.url()) });
-          await page.getByRole('link', { name: 'Open scan and capture', exact: true }).click();
+          await page.getByRole('link', { name: '打开扫描与采集', exact: true }).click();
           await page.waitForURL('**/data-cleanup#libraryProcessing');
-          assert.deepEqual(navigations, [], 'Cross-page anchors reuse in-site navigation');
+          assert.deepEqual(navigations, [], '跨页锚点复用站内导航');
           await page.waitForTimeout(150);
-          assert.ok(await page.locator('#libraryProcessing [data-skeleton-action]').count() > 0, 'Keeps the scan skeleton until the dependent content is ready');
+          assert.ok(await page.locator('#libraryProcessing [data-skeleton-action]').count() > 0, '依赖内容就绪前保留扫描骨架');
           assert.equal(await page.evaluate(() => (window as unknown as {
             anchorScrolls: { id: string }[];
-          }).anchorScrolls.some(call => call.id === 'libraryProcessing')), false, 'Never positions against the skeleton before content is ready');
+          }).anchorScrolls.some(call => call.id === 'libraryProcessing')), false, '内容就绪前不按骨架位置定位');
           release();
           await page.locator('#libraryProcessing [data-skeleton-action]').first().waitFor({ state: 'detached' });
-          await page.locator('#libraryProcessing section[aria-label="Scan and collect"]').waitFor();
+          await page.locator('#libraryProcessing section[aria-label="扫描与采集"]').waitFor();
           await page.waitForFunction(expected => {
             const calls = (window as unknown as { anchorScrolls: { id: string; behavior: string }[] }).anchorScrolls;
             return calls.some(call => call.id === 'libraryProcessing' && call.behavior === expected);
@@ -128,10 +128,10 @@ describe('Page scroll positioning', () => {
           await page.evaluate(() => {
             Object.assign(window, { cleanupNode: document.getElementById('libraryProcessing') });
             const link = document.createElement('a');
-            link.href = '#cleanup-maintenance'; link.textContent = 'Locating maintenance tools';
+            link.href = '#cleanup-maintenance'; link.textContent = '定位维护工具';
             document.getElementById('libraryProcessing')!.prepend(link);
           });
-          await page.getByRole('link', { name: 'Locating maintenance tools', exact: true }).click();
+          await page.getByRole('link', { name: '定位维护工具', exact: true }).click();
           await page.waitForFunction(expected => {
             const state = window as unknown as { anchorScrolls: { id: string; behavior: string }[]; cleanupNode: Element };
             return state.anchorScrolls.some(call => call.id === 'cleanup-maintenance' && call.behavior === expected)
@@ -139,10 +139,10 @@ describe('Page scroll positioning', () => {
           }, reduced ? 'instant' : 'smooth');
           await page.evaluate(() => {
             const link = document.createElement('a');
-            link.href = '/data-cleanup?scope=local#resource-sync'; link.textContent = 'Opens the old resource-sync address';
+            link.href = '/data-cleanup?scope=local#resource-sync'; link.textContent = '打开旧资源同步地址';
             document.getElementById('libraryProcessing')!.prepend(link);
           });
-          await page.getByRole('link', { name: 'Opens the old resource-sync address', exact: true }).click();
+          await page.getByRole('link', { name: '打开旧资源同步地址', exact: true }).click();
           await page.waitForURL('**/data-cleanup/resource-sync?scope=local');
           await page.locator('#resource-sync').waitFor();
           assert.equal(await page.evaluate(() => Array.isArray((window as unknown as { anchorScrolls: unknown }).anchorScrolls)), true);
@@ -150,11 +150,11 @@ describe('Page scroll positioning', () => {
           await page.goto(new URL('/data-cleanup?scope=local#resource-sync', page.url()).href, { waitUntil: 'load' });
           await page.waitForURL('**/data-cleanup/resource-sync?scope=local');
           await page.locator('#resource-sync').waitFor();
-          assert.equal(navigations.length, 1, 'A cold start from an old anchor loads the document exactly once');
+          assert.equal(navigations.length, 1, '旧锚点冷启动只加载一次文档');
           assert.deepEqual(opened.problems, []);
         } finally { release(); await opened.close() }
       });
-      it(`${viewport.name}: section positions travel smoothly both ways, double-clicking navigation returns to the top, reduced motion=${reduced}`, { timeout: 60_000 }, async () => {
+      it(`${viewport.name}：栏目位置平滑往返，双击导航回顶，减少动态效果=${reduced}`, { timeout: 60_000 }, async () => {
         const opened = await openItemPage(browser, '/', viewport, { ready: '#grid [data-media-card]' });
         const { page } = opened;
         try {
@@ -171,7 +171,7 @@ describe('Page scroll positioning', () => {
           });
           const move = async (name: string, path: string, top: number, double = false) => {
             await page.evaluate(() => { (window as unknown as { pageScrolls: ScrollToOptions[] }).pageScrolls.length = 0 });
-            if (viewport.mobile) await page.locator('header button[aria-label="Expand the sidebar"]').click();
+            if (viewport.mobile) await page.locator('header button[aria-label="展开侧栏"]').click();
             const nav = page.locator('#drawer [data-nav]').getByText(name, { exact: true });
             if (double) await nav.dblclick(); else await nav.click();
             await page.waitForURL(url => url.pathname + url.search === path);
@@ -183,12 +183,12 @@ describe('Page scroll positioning', () => {
           await page.evaluate(() => window.scrollTo({ top: 700, behavior: 'instant' }));
           await move('JAV', '/?jav=1', 0);
           await page.evaluate(() => window.scrollTo({ top: 1000, behavior: 'instant' }));
-          await move('Home', '/', 700);
-          await move('Home', '/', 0, true);
+          await move('首页', '/', 700);
+          await move('首页', '/', 0, true);
           await page.evaluate(() => window.scrollTo({ top: 700, behavior: 'instant' }));
           await move('JAV', '/?jav=1', 1000);
-          await move('Home', '/', 700);
-          await move('Artists', '/performers', 0);
+          await move('首页', '/', 700);
+          await move('艺人', '/performers', 0);
           assert.deepEqual(opened.problems, []);
         } finally { await opened.close() }
       });

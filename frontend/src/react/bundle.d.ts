@@ -50,8 +50,10 @@ export interface TunnelState {
 export interface AccessSettingsProps {
   initial: AccessState;
   receipt(message: string): void;
-  /* The device list right below the password section when login is required; after changing the password, a new revision is fetched and redrawn. */
+  /** 需要登录时紧跟在密码分区下面的设备列表；改密码后拿到新 `revision` 重新画。 */
   devices?(state: AccessState): import('react').ReactNode;
+  /** 不论访问方式都跟在后面的分区（访问口令）；确认文案随当前访问方式变。 */
+  after?(state: AccessState): import('react').ReactNode;
 }
 
 export interface StartupState {
@@ -248,12 +250,16 @@ export interface ReleaseState {
   message: string;
   release_url: string;
   checked_at?: number;
-  /* The installer is macOS's DMG: there's no in-app installation; after downloading, replace it manually. */
+  /** `installer` 是 macOS 的 DMG：没有应用内安装，下载后手动替换。 */
   package_kind?: 'update' | 'full' | 'installer';
   asset_url?: string;
   asset_size?: number;
-  /* Can be downloaded and Restart to install within the page; only the Windows standalone package is true. */
+  /** 能在页面里下载并重启安装；只有 Windows 独立包是 true。 */
   in_app_update?: boolean;
+  /** 容器换新版要在宿主机上做的几步；其他安装方式是空表。 */
+  steps?: { text: string; command: string }[];
+  /** Docker 镜像检查到新镜像时才有：能否经 Watchtower 一键更新（ADR-0140），不能时 `reason` 说明为什么。 */
+  one_click?: { available: boolean; reason: string };
 }
 
 export interface UpdateJob {
@@ -273,6 +279,8 @@ export interface ConfigurationFact {
   value: string;
   download_url?: string;
   download_label?: string;
+  /** 能由 Peach 装进数据目录的缺失工具（`ffmpeg`、`untrunc`），有它就不给下载外链。 */
+  install_tool?: string;
 }
 
 export interface ConfigurationData {
@@ -291,6 +299,9 @@ export interface ConfigurationData {
   update_job?: UpdateJob;
   automatic_updates?: AutomaticUpdateState;
   access?: AccessState;
+  api_token?: import('./settings/api-token-settings').ApiTokenState;
+  /** 没有 HTTPS 服务或没有本机 CA 时为 null，那一块整个不渲染。 */
+  certificate?: import('./settings/certificate-trust').CertificateState | null;
   tunnel?: TunnelState;
   editable: boolean;
   /** The reason shown to the user when editing is unavailable; empty when editable. */
@@ -477,7 +488,7 @@ export type DataCleanupSection = 'review' | 'quality' | 'duplicates' | 'ads' | '
 /** Capabilities the data management page still gets from the legacy layer: receipts and pagination. */
 export interface DataCleanupProps {
   navigate(path: string): void;
-  /** Action receipt (legacy `actionReceipt`). `warning` means finished but partly worth attention, and plays the warning sound effect. */
+  /** 操作回执（遗留层 `actionReceipt`）。`warning` 是做完了但有一部分要留意，走警告音效。 */
   toast(message: string, options?: { warning?: boolean }): void;
   /** Failure receipt (legacy layer `actionFailure`): `action` is the thing that failed. */
   failure(action: string, error: unknown): void;

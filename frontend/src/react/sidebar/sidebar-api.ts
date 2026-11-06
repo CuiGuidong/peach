@@ -70,9 +70,9 @@ export interface SidebarHost {
   /** Whether this item is lit right now (the shell's `navOn`, reading the address and catalog filters). */
   navOn(key: string): boolean;
   navTo(key: string): void;
-  /** Double-clicking a nav smoothly scrolls to top while keeping that section's content and filter. */
+  /** 双击导航时平滑回顶，保留该栏目内容和筛选。 */
   navToTop(): void;
-  /** A catalog filter key: `multi` groups toggle members in a comma list, the rest are single-select and a second click clears. */
+  /** 一枚目录筛选键：`multi` 的组按逗号列表增减，其余组单选、再点一次取消。 */
   toggleChip(key: string, value: string, multi: boolean): void;
   /** The released ends of the duration range (minutes): 0 and 180 mean that end is unbounded. */
   setDuration(min: number, max: number): void;

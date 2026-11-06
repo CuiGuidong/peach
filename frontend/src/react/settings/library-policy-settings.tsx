@@ -54,7 +54,7 @@ export function PolicyLegend() {
 /** The handling-mode dropdown in the title row: the popover top states what is being chosen, each tier carries one line, and collapsed only the tier name shows. */
 export function PresetSelect({ name, value, onChange }: { name: string; value: Preset; onChange(value: Preset): void }) {
   return (
-    <Select data-guide-target="library-policy" className="w-full" aria-label={`${name} handling`} selectedKey={value} prefix="Handling"
+    <Select data-guide-target="library-policy" className="w-full" aria-label={`${name} 处理方式`} selectedKey={value} prefix="处理方式"
       renderValue={<span className="truncate">{PRESETS.find(([key]) => key === value)?.[1]}</span>}
       onSelectionChange={key => onChange(String(key) as Preset)}>
       {PRESETS.map(([key, label, hint]) => (

@@ -62,6 +62,7 @@ PURPOSE_LABELS = {
     MANUAL_PURPOSE: "手动备份", RESTORE_PURPOSE: "恢复前另存",
     "migrate": "迁移前", "schema": "迁移前", "upgrade": "自动修复前",
     "organize": "整理前", "download": "下载后整理前", "tag-management": "标签管理前",
+    "auto-landing-revert": "撤回自动写入前",
 }
 
 ORGANIZE_DIRNAME = "organize-backups"

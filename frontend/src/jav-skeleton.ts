@@ -32,20 +32,40 @@ export function javContentSkeleton(tab: string, layout = javLayout()): string {
   </div>`).join('')}</div>`;
 }
 
-const SEARCH_LABELS: Record<string, string> = { releases: 'Filter new works', discover: 'Filter recommendations', wants: 'Filter wants' };
+const SEARCH_LABELS: Record<string, string> = { releases: '筛选新作', discover: '筛选推荐', wants: '筛选想要' };
 
-/** Draws the static state of `JavPage`: the header row is the title, the right-aligned filter box (the same-name tab's `IndexSearch` skeleton) and Find resources,
- * the section pressed per the one in the address bar, and below each section draws its own filter bar and card placeholders. */
+/** 照 `JavPage` 的静止态画：页头一行是标题、靠右的筛选框（同名册页的 `IndexSearch` 骨架）与查找资源，
+ *  分区按地址栏里的那一个按下，下面按分区画各自的筛选条与卡片占位。 */
 export function javPageSkeleton(tab: string): string {
   const q = new URLSearchParams(location.search).get('q') || '';
-  const body = tab === 'wants' ? `<div class="rounded-2lg bg-background-secondary-default px-6 py-5"><h3 class="mb-4 text-title-2-medium text-text-primary">Add by code</h3>${text('100%')}</div>${javContentSkeleton(tab)}`
+  const body = tab === 'wants' ? `<div class="rounded-2lg bg-background-secondary-default px-6 py-5"><h3 class="mb-4 text-title-2-medium text-text-primary">按番号添加</h3>${text('100%')}</div>${javContentSkeleton(tab)}`
     : tab === 'releases' ? `<section class="flex min-w-0 flex-col gap-4">${releasesFilterSkeleton()}${catalogView() === 'list'
       ? `<div data-catalog-table>${listTableSkeletonHtml(releaseTableSnapshot())}</div>` : javContentSkeleton(tab)}</section>`
     : `<section class="flex min-w-0 flex-col gap-4">${javFilterSkeleton()}${javContentSkeleton(tab)}</section>`;
   return `<div class="peach-react"><div class="flex w-full flex-col gap-6">
-    <div class="flex w-full flex-col gap-4"><div class="flex min-w-0 flex-wrap items-center gap-3 max-board-narrow:gap-x-2"><h2 data-page-title class="text-display-4-medium text-text-primary max-board-narrow:text-title-1-medium">JAV</h2><div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput('', q, SEARCH_LABELS[tab] || 'Filters')}</div>${islandButton({ variant: 'primary', label: 'Find resources', attrs: 'disabled data-skeleton-action' })}</div>
+    <div class="flex w-full flex-col gap-4"><div class="flex min-w-0 flex-wrap items-center gap-3 max-board-narrow:gap-x-2"><h2 data-page-title class="text-display-4-medium text-text-primary max-board-narrow:text-title-1-medium">JAV</h2><div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput('', q, SEARCH_LABELS[tab] || '筛选')}</div>${islandButton({ variant: 'primary', label: '查找资源', attrs: 'disabled data-skeleton-action' })}</div>
     <div class="relative flex flex-none gap-1 overflow-x-auto max-board-narrow:gap-0">${JAV_TABS.map(([key, label]) => `<span class="relative flex flex-none items-center whitespace-nowrap rounded-md px-3 py-2 text-body-regular max-board-narrow:px-2.25 max-board-narrow:text-body-2-regular ${key === tab ? 'bg-background-tertiary-default text-text-primary' : 'text-text-secondary'}">${label}</span>`).join('')}</div></div>
     ${body}</div></div>`;
+}
+
+/** 新作分区等数据时的两排头像与筛选条：头像、厂牌、标签用馆藏同一份占位，下排是换一批、卡片版式、卡片／列表与
+ *  排序键（照地址栏里的排序按下），同 `jav-releases.tsx` 取到数据后的样子。 */
+export function releasesFilterSkeleton(): string {
+  const params = new URLSearchParams(location.search);
+  const sort = params.get('sort') || 'release_date';
+  const dir: 'asc' | 'desc' = params.get('dir') === 'asc' ? 'asc' : 'desc';
+  const sorts = RELEASE_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel, pressed: key === sort,
+    dir: key === sort ? dir : '' as const }));
+  return `<div data-catalog-tiers="" aria-busy="true"><div data-catalog-tier="performers" data-skeleton="tiers">${tierPlaceholdersHtml('performer')}</div><div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div></div>
+  <div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
+    <div data-filter-row="top" class="flex h-12 min-w-0 items-center overscroll-x-contain px-3 py-2 gap-1.5 overflow-visible">
+      <div data-catalog-scroll><div data-catalog-tags>${javTagSkeleton()}</div></div>
+    </div>
+    <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
+      <span data-catalog-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"></span></span>
+      ${filterControlsSkeletonHtml(sorts, { name: 'jav-layout', label: 'JAV 卡片版式', value: javLayout(), options: JAV_LAYOUTS }, { folders: false })}
+    </div>
+  </div>`;
 }
 
 /** The two rows of avatars and the filter bar while the new-releases section waits for data: avatars, labels, and tags use the same placeholders as the library; the lower row is refresh, card layout, card/list, and

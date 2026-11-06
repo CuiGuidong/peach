@@ -131,8 +131,8 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
   useLayoutEffect(saveView);
   const visible = visibleWallTiles(loading ? 12 : finite ? items.length : items.length || hasMore ? 12 : 0,
     finite && !loading, camera.view.camera, camera.view.size);
-  /* Re-entering the wall re-reads the work list per the home page, and it can be shorter than the assigned slots: slots without a work draw a skeleton first and appear once continuation pages fill in;
-     empty slots must not render a tile (on a narrow screen one screen holds many cells, and doing this unmounts the whole wall into a black screen). */
+  /* 重进墙面时作品列表会按首页重读、比已分配的位置短：没有作品的位置先画骨架，续页补齐后再显示，
+     不能拿空位去渲染磁贴（窄屏一屏格子多，这样整面墙直接卸掉成黑屏）。 */
   const tiles = loading ? visible.map(tile => ({ ...tile, index:-1 })) : finite ? visible
     : exploration.assign(visible, items.length, hasMore).map(tile => tile.index < items.length || (!!selected && tile.key === selectedKey) ? tile : { ...tile, index:-1 });
   const activeTile = selected && (finite ? wallTileAt(items.length, true, selectedKey) : exploration.tile(selectedKey, items.length));
@@ -335,11 +335,11 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
       if (queueOpen) setQueueOpen(false); else if (selected) close(); else if (searchOpen) closeSearch(); else exitWall();
     }}>
     <div data-wall-bar="">
-      <button type="button" data-wall-back="" aria-label="Exit video wall" title="Back" onClick={exitWall}>
+      <button type="button" data-wall-back="" aria-label="退出播放墙" title="返回" onClick={exitWall}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-chevron-left" /></svg>
       </button>
       {!finite && (hasMore || items.length > 0) ? <div data-wall-refresh=""><Shuffle busy={busy} onPress={() => void fresh()} /></div> : null}
-      <button type="button" data-wall-round="" data-wall-image="" aria-label="Show video thumbnails" title={image === 'thumbnail' ? 'Switch back to cover' : 'Show video thumbnails'}
+      <button type="button" data-wall-round="" data-wall-image="" aria-label="显示视频缩略图" title={image === 'thumbnail' ? '改回封面' : '显示视频缩略图'}
         aria-pressed={image === 'thumbnail'} onClick={() => setImage(image === 'thumbnail' ? 'cover' : 'thumbnail')}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gallery-thumbnails" /></svg>
       </button>
@@ -347,26 +347,26 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
         event.preventDefault();
         const params = new URLSearchParams(location.search);
         const text = String(new FormData(event.currentTarget).get('q') || '').trim();
-        // If the keyword is unchanged (including an empty box and a second magnifier click), only collapse; do not re-enter the wall.
+        // 关键词没变（包括空着再点一次放大镜）只收起，不重进墙面。
         if (text === (params.get('q') || '')) { closeSearch(); return }
         if (text) params.set('q', text); else params.delete('q');
         saveView(); peachHistory.push(`/wall?${params}`); setSearchOpen(false);
       }}>
         <button ref={searchButton} type={searchOpen ? 'submit' : 'button'} data-wall-round=""
-          aria-label={searchOpen ? 'Search' : 'Open search'} title="Search" aria-expanded={searchOpen}
+          aria-label={searchOpen ? '搜索' : '打开搜索'} title="搜索" aria-expanded={searchOpen}
           onClick={event => { if (!searchOpen) { event.preventDefault(); setSearchOpen(true) } }}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search" /></svg>
         </button>
-        {searchOpen ? <input type="search" name="q" aria-label="Search video wall" placeholder="Search videos" autoFocus
+        {searchOpen ? <input type="search" name="q" aria-label="搜索播放墙" placeholder="搜索作品" autoFocus
           defaultValue={new URLSearchParams(location.search).get('q') || ''}
           onBlur={event => { if (!event.currentTarget.value.trim() && !event.currentTarget.form?.contains(event.relatedTarget as Node | null)) setSearchOpen(false) }} /> : null}
       </form>
       {finite ? <aside data-wall-filter-notice="" className="ui-project-banner" role="status">
-        <div><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg><p>Showing only filtered results</p></div>
-        <Button size="small" variant="ghost" onClick={() => peachHistory.push(unfilteredWallAddress())}>Clear filters</Button>
+        <div><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg><p>当前仅显示筛选结果</p></div>
+        <Button size="small" variant="ghost" onClick={() => peachHistory.push(unfilteredWallAddress())}>清除筛选</Button>
       </aside> : null}
     </div>
-    <div ref={camera.viewport} data-wall-viewport="" tabIndex={0} role="region" aria-label="Playback wall, drag or arrow keys to browse"
+    <div ref={camera.viewport} data-wall-viewport="" tabIndex={0} role="region" aria-label="播放墙，拖动或方向键浏览"
       aria-busy={loading || freshFrom !== null || (busy && pendingTiles) || undefined} data-skeleton={loading ? 'wall' : undefined}
       {...(loading || freshFrom !== null ? {} : camera.handlers)} onClick={event => {
         if (selected && event.target instanceof Element && !event.target.closest('[data-wall-tile]')) {
@@ -441,8 +441,8 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
       try { await more() } finally { setActionBusy(control, false) }
     }} dangerouslySetInnerHTML={{ __html:emptyHtml }} /> : null}
     {hasMore && finite && items.length > 0 ? <div data-wall-footer=""><Button size="small" variant="secondary" {...busyProps(busy)} onClick={() => void more()}>
-      {busy ? <span dangerouslySetInnerHTML={{ __html:spinnerHtml() }} /> : null}Load more</Button></div> : null}
-    {moreError ? <div data-wall-error=""><Note tone="error">{moreError}</Note><Button size="small" variant="ghost" {...busyProps(busy)} onClick={() => void more()}>Retry now</Button></div> : null}
+      {busy ? <span dangerouslySetInnerHTML={{ __html:spinnerHtml() }} /> : null}载入更多</Button></div> : null}
+    {moreError ? <div data-wall-error=""><Note tone="error">{moreError}</Note><Button size="small" variant="ghost" {...busyProps(busy)} onClick={() => void more()}>立即重试</Button></div> : null}
   </div>;
   return createPortal(wall, portal);
 }

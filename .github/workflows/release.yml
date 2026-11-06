@@ -428,13 +428,12 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          VERSION: ${{ github.ref_name }}
         run: |
           cd release
           tail -n +4 ../macos-candidates/scripts/MACOS_DOWNLOADS.md >> RELEASE_NOTES.md
           files=(./*.zip ./*-setup.exe ./*.dmg SHA256SUMS.txt)
           if [ -f SHA256SUMS.txt.sig ]; then files+=(SHA256SUMS.txt.sig); fi
-          gh release create "$GITHUB_REF_NAME" "${files[@]}" --verify-tag --prerelease --title "Peach ${VERSION#v} · Windows / macOS 测试版" --notes-file RELEASE_NOTES.md
+          gh release create "$GITHUB_REF_NAME" "${files[@]}" --verify-tag --prerelease --title "$GITHUB_REF_NAME" --notes-file RELEASE_NOTES.md
 
   # Sparkle 更新源（ADR-0130）：Release 公开之后才写 appcast，下载地址指向同一 Release 的 DMG。
   # 私钥只在这一个仅标签运行的作业里经标准输入交给官方工具；仓库变量未开启时整个作业跳过。
@@ -483,7 +482,8 @@ jobs:
             feed="$folder/macos-$arch.xml"
             mkdir -p "$folder"
             gh release download "$GITHUB_REF_NAME" --pattern "Peach-$version-macos-$arch.dmg" --dir "$folder"
-            status="$(curl -sS -o "$feed" -w '%{http_code}' "$PEACH_R2_PUBLIC_BASE/sparkle/macos-$arch.xml")"
+            # 带上本次运行号绕过公开入口的缓存：取到最新一份，首发时的 404 也不会缓存在裸地址上。
+            status="$(curl -sS -o "$feed" -w '%{http_code}' "$PEACH_R2_PUBLIC_BASE/sparkle/macos-$arch.xml?run=$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT")"
             case "$status" in
               200) ;;
               404) rm -f "$feed" ;;

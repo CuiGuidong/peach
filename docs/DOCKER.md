@@ -158,7 +158,27 @@ docker compose cp peach:/tmp/peach-support.zip ./peach-support.zip
 
 ## 更新与范围
 
-更新镜像并重建容器时保留 `/data`。数据库有待执行迁移时，先备份并按 [运行与配置](OPERATIONS.md) 的迁移流程处理；Docker 启动入口不会自动迁移已有数据库。健康检查使用 `/healthz?ready=1`。
+配置页「检查更新」在容器里显示安装方式「Docker 镜像」。容器里的「有新版本」以 Docker Hub 为准：版本号标签已推送、`edge` 指向同一镜像才算；发布页已有新版而镜像还没推送时显示「镜像尚未发布」。检查只读镜像清单的摘要，不下载镜像。
+
+没有启用下文的一键更新时，有新版本会列出宿主机上的两步：`docker compose pull` 拉取新镜像，`docker compose up -d` 重建容器。`.env` 把 `PEACH_VERSION` 固定成版本号的，先改成新版本再拉取。
+
+更新镜像并重建容器时保留 `/data`。新容器启动时，已有数据库有待执行的迁移就先在 `/data/database/` 备份成 `ledger.pre-migrate-<时间>.db`，再执行迁移，完成后才启动服务；手动更新和一键更新都这样处理。迁移最多等 180 秒，失败或超时时容器退出，`restart: unless-stopped` 会反复重启，每次重启都会再备份一份，先用 `docker compose logs peach` 查原因，必要时 `docker compose stop peach` 停下。健康检查使用 `/healthz?ready=1`。
+
+### 一键更新（可选 Watchtower）
+
+容器换不掉自己。`compose.yaml` 的 `watchtower` profile 提供一个可选的 [Watchtower](https://github.com/nicholas-fedor/watchtower) 容器（`nickfedor/watchtower`，原 `containrrr/watchtower` 已停止维护）：配置页点「一键更新」后，Peach 请它拉取新镜像并按原配置重建 Peach 容器，`/data` 卷保留。它只管带 `com.centurylinklabs.watchtower.enable=true` 标签的 Peach 容器，只在收到请求时更新，不定时轮询，也不对宿主机发布端口。
+
+Watchtower 挂着宿主机的 Docker socket，能创建、停止任何容器，等于宿主机 root 权限。只在信任这台宿主机上的 compose 配置时启用。Peach 容器本身不挂 socket，只持有 Watchtower 更新接口的令牌。
+
+启用只需一步，不用在配置页填写任何内容：在 `compose.yaml` 所在目录运行 `docker compose --profile watchtower up -d`。之后的 `docker compose` 命令都带上 `--profile watchtower`，或在 `.env` 写 `COMPOSE_PROFILES=watchtower`。`.env` 不要把 `PEACH_VERSION` 固定成版本号：Watchtower 只会换同一标签的新镜像，标签是版本号时配置页会改为列出两步命令。
+
+令牌由 Peach 首次启动时生成，放在 `peach-update` 卷里，之后不再更换。Watchtower 等 Peach 健康后才启动，只读挂这个卷，读不到 `/data`。`/data` 改成宿主机目录时不用改 Watchtower 的配置。不启用 profile 的部署只多一个装着令牌文件的小卷。点「一键更新」提示令牌不一致时，运行 `docker compose restart watchtower` 让它重新读取。
+
+检查更新发现新镜像后，「一键更新」替代两步命令。点击并确认后，Peach 会断开一会儿；新版本启动后页面提示刷新。15 分钟内没有看到新版本时，用 `docker compose logs watchtower` 和 `docker compose logs peach` 查看原因。已经在宿主机上 `docker compose pull` 过新镜像、还没 `up -d` 时，旧容器的镜像可能已失去标签，Watchtower 日志显示 `Failed to retrieve image info` 并跳过；这时直接运行 `docker compose up -d`。
+
+Watchtower 不在新容器起不来时自动回退。换上新镜像后它删除被替下的旧镜像，免得每次更新在 NAS 上多留一份；指向同一镜像的其他本地标签也一起删除。Docker Hub 保留每个版本号标签，回滚时重新拉取。回滚到旧版本前，先停下 Peach，用升级时生成的 `ledger.pre-migrate-<时间>.db` 替换 `ledger.db`，再把 `.env` 的 `PEACH_VERSION` 设为旧版本号并 `docker compose up -d`；旧版本不会写入它不认识的数据库结构。方案取舍见 [ADR-0140](adr/0140-docker-one-click-update-via-watchtower.md)。
+
+2026-11-04 在 Windows 的 Docker Desktop（Engine 29.9.2，containerd 镜像库）上，运行中容器的镜像只有 `edge` 一个本机标签，把本地 registry 的 `edge` 换成版本号更高、多一个空表迁移的测试镜像，经配置页触发后通过验收：Watchtower 自己拉取新镜像，按 75 秒停止超时停下旧容器，11 秒内起了新容器；`/data` 里的标记文件保留，启动前生成 `ledger.pre-migrate-*.db` 并执行了新迁移，`/healthz?ready=1` 通过，旧镜像已清理。全新启动时 Watchtower 在 Peach 首次健康的同一秒启动，令牌文件属主为 `peach`、权限 600；两个容器同时重启后令牌仍然一致；改掉卷里的令牌后点「一键更新」得到要求重启 Watchtower 的提示，`docker compose restart watchtower` 后恢复。不带 profile 时 `docker compose up -d` 照常启动。Docker Hub 的真实拉取、ARM NAS 与 Docker Desktop 以外的 Linux 宿主机未取得。
 
 Linux 容器不读取用户电脑上的浏览历史，也不包含交互式浏览器；需要本机浏览器完成验证的来源在此环境不可用。CloudDrive2 的真实账号登录、网盘流量与 NAS 实机挂载需在目标机器验证。
 
@@ -172,7 +192,9 @@ Docker Hub 页面以英文为主，概览正文取自 [docs/dockerhub/README.md]
 
 ## 安装后检查资料源与封面连接
 
-完成首次设置、保存代理或来源 Cookie 后，在容器管理器的终端执行：
+完成首次设置、保存代理或来源 Cookie 后，打开「数据管理 → 来源和凭证」，在「连接检查」里点「全部检查」。检查在后台进行，页面显示已检查的来源数；离开页面不中断，回来仍能看到上一次的结果，任务中心也会留下这一轮记录。
+
+只想重查几个来源，或需要机器可读的结果时，在容器管理器的终端执行同一检查：
 
 ```bash
 python -m peach check-sources
@@ -181,4 +203,4 @@ python -m peach check-sources --source dmm --source javdb --json
 
 检查在 NAS 容器内发起，使用该实例已有的来源网络设置、Cookie 与冷却记录。最多四个来源并发，每个来源限制请求次数、读取量与时间预算；只读取来源页面和 DMM 图片 CDN 样本，不读取影片、不启动桌面浏览器。结果保留到现有采集设置的来源连接记录；限流或拒绝访问沿用现有冷却机制，不自动关闭来源或修改代理。
 
-报告逐项区分可连接、登录或人机验证、HTTP 错误、冷却与网络失败。页面能连接仅说明检查地址可达，不代表全部作品资料、封面或登录会话可用；片商官网需要番号时标记为未检查，不计为连接失败。其余目标未通过时退出码为 1。更换 NAS 出口或代理后可再次运行；`--source` 可重复指定，仅重查关心的来源。不要在短时间内反复检查正在冷却的来源。
+网页与命令行的报告使用同一口径，逐项区分可连接、登录或人机验证、HTTP 错误、冷却与网络失败。正在冷却的来源直接报冷却，不再发请求。页面能连接仅说明检查地址可达，不代表全部作品资料、封面或登录会话可用；片商官网需要番号时标记为未检查，不计为连接失败。命令行在其余目标未通过时退出码为 1。更换 NAS 出口或代理后可再次检查；`--source` 可重复指定，仅重查关心的来源。

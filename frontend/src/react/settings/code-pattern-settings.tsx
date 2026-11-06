@@ -40,7 +40,7 @@ export function CodePatternSettings({ receipt }: { receipt(message: string): voi
   };
 
   return (
-    <Section guide="codes" title="Code recognition rules" onSubmit={submit}>
+    <Section guide="codes" title="番号识别规则" onSubmit={submit}>
       <Stack>
         <Help>When the built-in rules cannot recognize a code, it is taken from the file name by the rules here. One regular expression per line; write the code in (?&lt;code&gt;...), and without a named group the first parenthesized group is used. Rules take effect on the next processing run, for videos that do not have a code yet.</Help>
         <Textarea id="codePatternSetting" aria-label="Code recognition rules" rows={3} autoResize maxRows={12}

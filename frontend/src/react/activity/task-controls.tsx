@@ -1,4 +1,4 @@
-/* Task actions are provided by the server round by round; receiving a control request doesn't mean the background has stopped cleanly — state still follows polling. */
+/* 任务动作由服务端逐轮给出；收到控制请求不代表后台已经停稳，状态仍以轮询为准。 */
 import { useRef } from 'react';
 import { RiPauseLine, RiPlayLine, RiStopLine } from '@remixicon/react';
 import { useMutation, useMutationState, useQueryClient } from '@tanstack/react-query';
@@ -13,12 +13,12 @@ import { controlTask, isActive, TASKS_KEY, type TaskControlAction, type TaskRunP
 
 const CONTROL_KEY = ['task-control'] as const;
 const ICONS = { pause: RiPauseLine, resume: RiPlayLine, cancel: RiStopLine };
-const LABELS = { pause: 'Paused', resume: 'Continue', cancel: 'Cancel' };
-const FOLLOWUP_LABELS = { pause: 'Pause follow-up tasks', resume: 'Resume follow-up tasks', cancel: 'Cancel follow-up tasks' };
+const LABELS = { pause: '暂停', resume: '继续', cancel: '取消' };
+const FOLLOWUP_LABELS = { pause: '暂停后续任务', resume: '继续后续任务', cancel: '取消后续任务' };
 
 interface ControlCommand { id: number; label: string; action: TaskControlAction; followups: boolean }
 
-/* The request result belongs to Task center; after the task moves to a terminal state and the original card is unmounted, the unaccepted action and its reason are still kept. */
+/** 请求结果属于任务中心，任务转入终态、卸载原卡片后仍保留未接受的操作及原因。 */
 export function TaskControlFeedback() {
   const mutations = useMutationState({
     filters: { mutationKey: CONTROL_KEY },
@@ -40,17 +40,30 @@ export function TaskControlFeedback() {
   if (!failed.length) return null;
   return <div data-task-control-feedback="" className="flex min-w-0 flex-col gap-2">
     {failed.map(({ command, error }) => <Note key={command.id} tone="error"
-      title={`${command.label}: ${(command.followups ? FOLLOWUP_LABELS : LABELS)[command.action]} not finished`}>
+      title={`${command.label}：${(command.followups ? FOLLOWUP_LABELS : LABELS)[command.action]}未完成`}>
       {errorMessage(error)}
     </Note>)}
   </div>;
 }
 
-export function TaskControls({ run }: { run: TaskRunPayload }) {
+/** `runs` 是并在同一张卡里的几批，按钮对每一批各发一次；不给就只管 `run` 这一轮。 */
+export function TaskControls({ run, runs = [run] }: { run: TaskRunPayload; runs?: TaskRunPayload[] }) {
   const client = useQueryClient();
   const pending = useRef({ change: false, cancel: false, confirmation: false });
   const refresh = () => { void client.invalidateQueries({ queryKey: TASKS_KEY }) };
-  const send = (command: ControlCommand) => controlTask(command.id, command.action);
+  // 一批被拒不拦后面几批：并卡期间较早那批可能刚好跑完，其余几批照样要停；有被拒的照常报出来。
+  const send = async (command: ControlCommand) => {
+    let failure: unknown = null;
+    for (const row of runs) {
+      try {
+        await controlTask(row.id, command.action);
+      } catch (error) {
+        failure ??= error;
+      }
+    }
+    if (failure !== null) throw failure;
+  };
+  const batches = runs.length > 1 ? `这 ${runs.length} 批` : '这轮';
   const change = useMutation({
     mutationKey: [...CONTROL_KEY, run.id, 'change'],
     mutationFn: send,
@@ -72,13 +85,13 @@ export function TaskControls({ run }: { run: TaskRunPayload }) {
       if (pending.current.cancel || pending.current.confirmation || cancellation.isSuccess) return;
       pending.current.confirmation = true;
       void confirmModal({
-        title: followups ? `Cancel every follow-up of "${run.task_label}"` : `Cancel task "${run.task_label}"`,
+        title: followups ? `取消「${run.task_label}」的全部后续任务` : `取消任务「${run.task_label}」`,
         body: followups
-          ? 'This stops every follow-up task dispatched this round, including running and queued items. Saved details and results are kept.'
-            + 'Once this batch of follow-ups is cancelled it cannot continue; start it again when needed.'
-          : 'This stops the rest of this round\'s processing and its follow-up tasks. Saved details and results are kept.'
-            + 'Once this round is cancelled it cannot continue; start it again when needed.',
-        confirmLabel: followups ? 'Cancel follow-up tasks' : 'Cancel task',
+          ? `将停止${batches}已派出的全部后续任务，包括正在处理和排队的项目。已保存的资料和结果会保留。`
+            + '这些后续任务取消后不能继续，需要时重新发起。'
+          : '将停止这轮剩余的处理及其后续任务。已保存的资料和结果会保留。'
+            + '这轮任务取消后不能继续，需要时重新发起。',
+        confirmLabel: followups ? '取消后续任务' : '取消任务',
         danger: true,
         onConfirm: async () => {
           pending.current.cancel = true;
@@ -94,7 +107,7 @@ export function TaskControls({ run }: { run: TaskRunPayload }) {
 
   return (
     <div className="ml-auto shrink-0" data-task-controls={run.id}>
-      <div role="group" aria-label={`${run.task_label} ${followups ? 'follow-up' : 'task'} controls`}
+      <div role="group" aria-label={`${run.task_label}${followups ? '后续任务' : '任务'}控制`}
         className="flex items-center justify-end gap-2">
         {actions.map((action) => {
           const label = (followups ? FOLLOWUP_LABELS : LABELS)[action];

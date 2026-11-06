@@ -362,7 +362,7 @@ describe('Video details island', () => {
     try {
       const page = opened.page;
       let listed = 0;
-      // The list summary reflects the resume point successfully written; after closing, both the card and reopening should use it.
+      // 列表摘要反映成功写入的续播点，关闭后卡片与再次打开都应使用它。
       await page.route((url) => url.pathname === '/api/playlists', (route) => {
         listed += 1;
         const progress = opened.stub.writes.findLast(write => write.url === '/api/playlist'
@@ -395,7 +395,7 @@ describe('Video details island', () => {
         await card.waitFor();
         assert.equal(await page.locator('#stage[open]').count(), 0);
         for (const deadline = Date.now() + 10_000; listed <= before && Date.now() < deadline;) await page.waitForTimeout(50);
-        assert.ok(listed > before, 'After closing the list page never reread');
+        assert.ok(listed > before, '关掉之后列表页没有重读');
         await card.locator(`img[src*="id=${resume}&"]`).first().waitFor();
       };
       await card.waitFor({ timeout: 15_000 });

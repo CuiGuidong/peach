@@ -179,11 +179,11 @@ describe('Entity page filter overlay', () => {
         shimmer: !!document.querySelector('[data-entity-readout] [data-async-text][aria-busy="true"] > [data-async-text-skeleton]'),
         retained: document.querySelector('[data-entity-readout] [data-async-text-value]')?.getAttribute('aria-hidden'),
       }));
-      assert.deepEqual(pressed, { state: 'true', busy: 'true', shimmer: true, retained: 'true' }, 'The pressed state and the waiting-for-reading state land immediately');
+      assert.deepEqual(pressed, { state: 'true', busy: 'true', shimmer: true, retained: 'true' }, '按下态和读数等待态当场到位');
       await page.waitForFunction(() => getComputedStyle(document.querySelector('[data-entity-readout] [data-async-text-skeleton]')!).opacity === '1');
-      assertCovers(await glideOver(page, '[data-view-glide=""]', '[data-entity-state="fresh"]'), 'Watch state after switching');
+      assertCovers(await glideOver(page, '[data-view-glide=""]', '[data-entity-state="fresh"]'), '换过去的观看状态');
       stubs.release();
-      await page.locator('[data-entity-readout]', { hasText: 'Videos · 24' }).waitFor({ timeout: 15_000 });
+      await page.locator('[data-entity-readout]', { hasText: '视频 · 24' }).waitFor({ timeout: 15_000 });
       await page.waitForFunction(() => !document.querySelector('[data-entity-readout] [data-async-text][aria-busy="true"]')
         && getComputedStyle(document.querySelector('[data-entity-readout] [data-async-text-skeleton]')!).opacity === '0');
       assert.match(page.url(), /[?&]state=fresh/);

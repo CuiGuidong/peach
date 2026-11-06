@@ -349,6 +349,33 @@ class TasksEndpointTests(unittest.TestCase):
         (self.contract.candidate_root / 'sample.csv').write_text('item_key\nasset:1:title\n', encoding='utf-8')
         self.assertNotEqual(web_tasks.q_tasks(self.contract, {})['result_versions']['review'], committed['review'])
 
+    def test_the_page_wide_poll_carries_versions_and_notices_without_the_task_list(self):
+        """每个页面常驻的那份轮询只带结果版本、入库通知和忙不忙，和任务中心那份版本一致。"""
+        from pathlib import Path
+        self.contract.candidate_root = Path(self.tmp.name) / 'candidates'
+        self.contract.candidate_root.mkdir()
+        idle = web_tasks.q_result_updates(self.contract, {})
+        self.assertEqual(set(idle), {'ok', 'result_versions', 'ingest_notices', 'busy'})
+        self.assertFalse(idle['busy'])
+        self.assertEqual(idle['result_versions'], web_tasks.q_tasks(self.contract, {})['result_versions'])
+        run = self.store.start('library-processing', trigger='manual')
+        self.assertTrue(web_tasks.q_result_updates(self.contract, {})['busy'])
+        self.store.finish(run.id, 'succeeded')
+        self.assertFalse(web_tasks.q_result_updates(self.contract, {})['busy'])
+
+    def test_ingest_notices_ride_along_with_the_task_list(self):
+        from unittest import mock
+
+        from peach.ingest_notices import IngestNotices
+        notices = IngestNotices()
+        notices.add('download', 7, 'SSIS-057')
+        notices.add('discovered', 0, '无效编号不记')
+        with mock.patch.object(web_tasks, 'NOTICES', notices):
+            payload = web_tasks.q_tasks(self.contract, {})['ingest_notices']
+        self.assertEqual(payload['epoch'], notices.epoch)
+        self.assertEqual([(item['id'], item['kind'], item['asset_id'], item['label']) for item in payload['items']],
+                         [(1, 'download', 7, 'SSIS-057')])
+
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)

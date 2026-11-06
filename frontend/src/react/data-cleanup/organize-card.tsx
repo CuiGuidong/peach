@@ -244,8 +244,8 @@ export function OrganizeCard(
           </div>
         </div>
         <p className="text-caption-1-regular text-text-secondary">{ORGANIZE_SCOPE_HINT}</p>
-        {picker.isError ? <Note tone="error" title="Choosing the folder failed">{errorMessage(picker.error)}; you can also type a path directly.</Note> : null}
-        <Input label="Filename template" placeholder="{code}[ {title}]" value={fields.file} ref={fileInput}
+        {picker.isError ? <Note tone="error" title="目录选择失败">{errorMessage(picker.error)}；也可直接输入路径。</Note> : null}
+        <Input label="文件名模板" placeholder="{code}[ {title}]" value={fields.file} ref={fileInput}
           spellCheck="false" isInvalid={invalid === 'file'}
           onFocus={() => { setTarget('file'); focused.current = true }}
           onChange={(value) => changeTemplates({ file: value })} />

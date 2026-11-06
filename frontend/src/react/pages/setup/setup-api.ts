@@ -42,7 +42,7 @@ export interface SetupQuestions {
   history_guide: boolean;
 }
 
-export interface SetupFact { term: string; value: string; download_url?: string; download_label?: string }
+export interface SetupFact { term: string; value: string; download_url?: string; download_label?: string; install_tool?: string }
 
 export interface SetupDone {
   restored?: boolean;

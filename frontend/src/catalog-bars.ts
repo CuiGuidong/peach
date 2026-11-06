@@ -13,14 +13,13 @@
  * - `['tops', param string, generation]`: continuation pages (param string with `page`). The response is decided only by the
  *   param string, and both rows asking for the same page send one request.
  *
- * Within one tab the same basis is reused, and the same entry sends only one request. Write operations and
- * explicit batch changes go through the shell calling `dropBars()`: the generation increments, and the next
- * fetch will really send a request; the one already in flight is still handed to the caller waiting for it. */
+ * 同一标签页内复用同一份口径，同时要同一份只发一次请求。写操作与主动换一批由壳调 `dropBars()`：
+ * 代次加一，下一次一定真的发请求；路上那一趟照样交给正在等它的调用方。 */
 import { api } from '@peach/legacy/core';
 
 import { queryClient } from './query';
 
-/** Keep the aggregate within the same tab; writes and manual refreshes invalidate it by generation. */
+/** 同一标签页内保留聚合，写操作与主动刷新通过代次失效。 */
 export const BARS_STALE_MS = Infinity;
 
 let revision = 0;

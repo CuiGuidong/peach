@@ -100,7 +100,7 @@ let ticker = 0;
 /** Which cell a progress bar drag acts on; absent before the first item comes on screen and after closing. */
 let scrubTarget: { video: HTMLVideoElement; duration: () => number } | null = null;
 let scrubbing = false;
-/** The frame preview above the progress bar, swapping with the current cell: same image-fetching and clamping as the detail player. */
+/** 进度条上方的画面预览，跟着当前格换：与详情播放器同一份取图与夹边。 */
 let seekPreview: SeekPreview | null = null;
 
 function immerseHost(): ImmerseHost {
@@ -254,7 +254,7 @@ function wireProgress(video: HTMLVideoElement, item: ImmerseItem): void {
   });
   scrubTarget = { video, duration };
   seekPreview?.dispose();
-  // The progress bar spans the viewport; the preview leaves 12px on each end, at the same level as the close key's distance from the edge.
+  // 进度条横贯视口，预览两端各让出 12px，与关闭键离边的距离同级。
   seekPreview = dom ? createSeekPreview(dom.bar, item, { inset: 12 }) : null;
 }
 
@@ -520,7 +520,7 @@ function scrubStart(event: PointerEvent<HTMLDivElement>): void {
   event.preventDefault();
 }
 
-/* The preview doesn't wait for a press: it shows on mouse hover; touch only produces pointermove while held and dragging. */
+/* 预览不等按下：鼠标悬停就显示，触控只在按住拖动时才有 pointermove。 */
 function scrubMove(event: PointerEvent): void {
   if (scrubbing) paintProgress(barRatio(event));
   showSeekPreview(barRatio(event));
@@ -539,6 +539,10 @@ function scrubCancel(): void {
   scrubbing = false;
   setBarScrubbing(false);
   seekPreview?.hide();
+}
+
+function scrubLeave(): void {
+  if (!scrubbing) seekPreview?.hide();
 }
 
 function scrubLeave(): void {

@@ -117,6 +117,13 @@ def main(argv: list[str] | None = None) -> int:
     for signum in (signal.SIGTERM, signal.SIGINT):
         signal.signal(signum, lambda *_: stopping.set())
     initialize()
+    if os.environ.get('PEACH_DISTRIBUTION') == 'docker':
+        # 起服务前写好：watchtower profile 等 Peach 就绪才启动，启动时读这份令牌（ADR-0140）。
+        from .docker_update import ensure_token
+        try:
+            ensure_token()
+        except OSError as error:
+            print(f"一键更新令牌未能生成：{error}", file=sys.stderr, flush=True)
     print(f"Peach 服务监听：{args.host}:{args.port}。容器外部访问地址以宿主机端口映射为准。", flush=True)
     print("首次登录：在运行 Peach 的环境中执行 peach token 查看口令，登录后设置访问密码。", flush=True)
     if os.environ.get('PEACH_DISTRIBUTION') == 'docker':

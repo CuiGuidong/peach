@@ -46,7 +46,7 @@ describe('Follow domain URL and session control', () => {
     expect(readFollowView(followViewPath(target).split('?')[1]!, 0, () => 1)).toEqual(target);
   });
 
-  it('Filter submits do not navigate early, the props action identity stays fixed, and the selection snapshot is independent', () => {
+  it('筛选提交不提前定位，props 动作身份固定且选择快照独立', () => {
     const { controller, ports, selected } = setup();
     const first = controller.props();
     controller.route(view({ media: 'images' }));
@@ -71,7 +71,7 @@ describe('Follow domain URL and session control', () => {
     expect(ports.push).not.toHaveBeenCalled();
   });
 
-  it('A normal entry keeps the session and scrolling; only an explicit re-entry swaps the seed and advances the generation', () => {
+  it('普通进入保留会话与滚动，主动重新进入才换种子并推进代次', () => {
     const { controller, ports, location, live } = setup();
     controller.route(view({ author: 'one' }));
     location('/performers');
@@ -88,7 +88,7 @@ describe('Follow domain URL and session control', () => {
     expect(ports.openPage).toHaveBeenLastCalledWith('/follow');
   });
 
-  it('refresh restores filters from the URL and the current host reuses the original generation', () => {
+  it('refresh 按 URL 恢复筛选，当前宿主复用原有代次', () => {
     const { controller, ports, location, live } = setup();
     location('/follow', '?tag=one&media=images');
     live(false);

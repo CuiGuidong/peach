@@ -12,6 +12,7 @@ from .downloads import (INGESTED, POSTPROCESS_COMPLETE, POSTPROCESS_FAILED,
                         DownloadStore, iso)
 from .field_owners import SCAN_FILENAME, write_owned_fields
 from .followups import FollowupType, register
+from .ingest_notices import NOTICES
 from .jobs import JobDeferred
 from .library_processing import COLLECT_STAGE, _ffprobe_path, process_library
 from .media_probe import probe_unmeasured
@@ -205,6 +206,7 @@ def run(contract, key: str, handle) -> dict:
         detail += "；部分资料等来源恢复后重新采集：" + "；".join(filter(None, pending))[:300]
     store.postprocess(task_id, POSTPROCESS_COMPLETE, detail=detail, finished=iso(time.time()))
     contract.cache_bust()
+    NOTICES.add("download", int(main), task.code or task.display_name)
     return {"task_id": task_id, "asset_id": main, "ads_isolated": isolated, 'probed': probed,
             "metadata_candidates": int(metadata.get("candidates") or 0),
             "moved": int(organized.get("moved") or 0),

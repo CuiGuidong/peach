@@ -1,7 +1,7 @@
-import { apiGet } from '../../api';
+import { apiGet, apiSend } from '../../api';
 import { queryClient } from '../query';
 import { fetchWants, WANTS_KEY } from '../wants/wants';
-import type { FaceRef, CoverItem } from '@peach/card-art';
+import type { CoverState, FaceRef, CoverItem } from '@peach/card-art';
 import { coverImage, javArtwork, remoteCoverUrl } from '@peach/card-art';
 import { esc } from '@peach/legacy/core';
 import { peachHistory, shellNavigate } from '@peach/history';
@@ -9,7 +9,7 @@ import { RELEASE_SORTS, type DiscoveryDirection, type DiscoverySort, type Releas
 
 export { JAV_TABS, javTab, javPath, javLibraryPath } from './jav-navigation';
 
-/** Filters in a section are written into the address bar: they replace the current record rather than pushing an extra history entry. */
+/** 分区里的筛选写进地址栏：替换当前记录，不多压一条历史。 */
 export function writeJavQuery(patch: Record<string, string>): void {
   const params = new URLSearchParams(location.search);
   for (const [key, value] of Object.entries(patch)) { if (value) params.set(key, value); else params.delete(key) }
@@ -24,8 +24,62 @@ export interface Discovery extends CoverItem {
   taste_score?: number | null; ranking_score?: number | null; rank?: number;
   source_score?: number | null; duration?: number | null;
   metadata_state?: 'pending' | 'ready' | 'partial' | 'unavailable' | 'stale'; metadata_message?: string;
+  cover_state?: CoverState | null; cover_reason?: string;
 }
 export type DiscoveryScope = 'external' | 'library';
+
+/** `/api/jav/cover` 的回话：取到了就带上版本与取景的两份边车，没取到是原因。 */
+export interface CoverNow {
+  has_cover: boolean; cover_version: string; message: string;
+  cover_frame?: CoverItem['cover_frame']; poster_box?: CoverItem['poster_box'];
+}
+
+/* 正在当场取的番号：卡上点的、整批插队里轮到的都记在这里，卡片按它画不定进度圆环，两种入口一个样子。 */
+const coversInFlight = new Set<string>();
+const coverListeners = new Set<() => void>();
+let coverRevision = 0;
+const coversChanged = () => { coverRevision += 1; coverListeners.forEach(listener => listener()) };
+export const coverFetching = {
+  subscribe(listener: () => void) { coverListeners.add(listener); return () => { coverListeners.delete(listener) } },
+  revision: () => coverRevision,
+  has: (code: string) => coversInFlight.has(code),
+};
+
+/** 不进后台的队，当场取这一部的官方封面（详情页「立即重试」同一个接口）。 */
+export function fetchCoverNow(code: string, signal?: AbortSignal): Promise<CoverNow> {
+  coversInFlight.add(code); coversChanged();
+  return apiSend<CoverNow>('/api/jav/cover', { code }, 'POST', signal)
+    .finally(() => { coversInFlight.delete(code); coversChanged() });
+}
+
+/** 一批番号逐部当场取，`parallel` 部并行。`fetchOne` 回这一部取没取到；`alive()` 为假就停在当前这部，
+ *  没轮到的照旧排在后台的队里。JAV 页「新作」与首页、女优页的新作那一行共用。 */
+export async function prioritiseCovers(codes: string[], fetchOne: (code: string) => Promise<boolean>,
+  progress: (done: number) => void, alive: () => boolean, parallel = 2): Promise<number> {
+  const queue = [...codes];
+  let done = 0, got = 0;
+  const worker = async () => {
+    for (let code = queue.shift(); code && alive(); code = queue.shift()) {
+      const ok = await fetchOne(code).catch(() => false);
+      if (!alive()) return;
+      done += 1; got += ok ? 1 : 0;
+      progress(done);
+    }
+  };
+  await Promise.all(Array.from({ length: parallel }, worker));
+  return got;
+}
+
+/** 当场取到的封面补进「新作」「发现」两个分区已取回的数据：卡片换上本机那张，不必整页重问
+ *  （`/api/jav/releases` 每问一次都把全部候选重算一遍）。 */
+export function coverArrived(code: string, result: CoverNow): void {
+  const patch = (data: unknown) => {
+    const items = (data as { items?: Discovery[] } | undefined)?.items;
+    return items ? { ...(data as object), items: items.map(item => item.code === code ? { ...item, has_cover: true,
+      cover_version: result.cover_version, cover_frame: result.cover_frame, poster_box: result.poster_box, cover_state: null } : item) } : data;
+  };
+  for (const key of ['jav-releases', 'jav-discoveries']) queryClient.setQueriesData({ queryKey: [key] }, patch);
+}
 export interface DiscoveryMetadataJob {
   job_id: string; status: 'running' | 'complete' | 'stopped' | 'failed'; completed: number; total: number;
   failed: number; requests: number; bytes: number; stop_reason?: string; message?: string;
@@ -46,14 +100,14 @@ export function fetchDiscoveries(scope: DiscoveryScope, signal: AbortSignal, opt
   return apiGet<DiscoveryResult>(`/api/jav/discoveries?${params}`, signal);
 }
 
-/* The new-releases section's filter and sort: both written in the address bar, so refresh and back restore them as-is. seed only has a value when cycling to a new batch. */
+/** 新作分区的筛选与排序：都写在地址栏里，刷新与返回原样恢复。`seed` 只在换一批时有值。 */
 export interface ReleaseFilters {
   page: number; performer: string; studio: string; tag: string; q: string;
   sort: ReleaseSort; dir: DiscoveryDirection; seed: string;
 }
 export interface ReleaseFacetPerformer extends FaceRef { name: string; count: number; source_actor_id?: string; source_avatar?: boolean }
 export interface ReleaseFacetStudio { name: string; count: number; has_logo: boolean; logo_version?: string }
-/** `/api/jav/releases`: a page of new releases, plus filter options drawn only from subscription new releases. */
+/** `/api/jav/releases`：一页新作，加只取自订阅新作的筛选项。 */
 export interface ReleaseResult {
   items: Discovery[]; total: number; candidate_total: number; page: number; size: number;
   facets: { performers: ReleaseFacetPerformer[]; studios: ReleaseFacetStudio[]; tags: { name: string; count: number }[] };

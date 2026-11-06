@@ -1,5 +1,5 @@
-/* The second half of "App & Maintenance": storage space, data upload, run info, Guided tour, and uninstall. Seldom-touched privacy toggles and read-only info come later,
- * and uninstall is an irreversible action, kept at the very end of the group. */
+/* 「应用与维护」的后半段：存储空间、数据上传、运行信息、新手教程与卸载。少改的隐私开关和只读信息在后，
+ * 卸载是不可逆动作，留在整组最后。 */
 import { useState, type FormEvent } from 'react';
 import { confirmModal } from '@peach/legacy/ui';
 
@@ -30,25 +30,25 @@ export function MaintenanceSettings(
     <div {...groupRoot(panel)}>
       {data.storage ? <StorageSettings initial={data.storage} receipt={receipt} /> : null}
       {data.storage ? <LedgerBackupSettings receipt={receipt} /> : null}
-      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="Data uploads">
+      {data.remote_reporting || data.library_sharing ? <Section id="librarySharing" guide="reporting" title="数据上传">
         {data.remote_reporting ? <RemoteReportingSettings initial={data.remote_reporting} receipt={receipt} /> : null}
         {data.library_sharing ? <div className="border-t border-separator-border">
           <LibrarySharingSettings initial={data.library_sharing} receipt={receipt} />
         </div> : null}
       </Section> : null}
-      <Facts facts={data.facts} />
+      <Facts facts={data.facts} receipt={receipt} />
       <TutorialSettings receipt={receipt} reopenTutorial={reopenTutorial} />
       {data.uninstall ? <UninstallSettings uninstall={data.uninstall} receipt={receipt} /> : null}
     </div>
   );
 }
 
-/** Restore the ledger's shared tutorial entry, keeping first-run setup and chapter progress. */
+/** 恢复账本共享的教程入口，保留首次设置与章节进度。 */
 export function TutorialSettings({ reopenTutorial }: ConfigurationProps) {
   return (
-    <section aria-label="Guided tour" className="w-full"><SettingsCard>
-      <Rows><SettingsRow label="Guided tour" description="Brings the tour entry back to the top bar on every device and keeps your reading progress">
-        <Button variant="secondary" onClick={() => void reopenTutorial()}>Reopen</Button>
+    <section aria-label="新手教程" className="w-full"><SettingsCard>
+      <Rows><SettingsRow label="新手教程" description="在所有设备上恢复右上角教程入口，保留已读进度">
+        <Button variant="secondary" onClick={() => void reopenTutorial()}>重新打开</Button>
       </SettingsRow></Rows>
     </SettingsCard></section>
   );
@@ -72,14 +72,14 @@ export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdat
       ? 'After downloading, confirm the restart install here.'
       : undefined;
   return (
-    <Section id="automaticUpdates" guide="automatic-updates" title="Auto-update" onSubmit={submit}>
+    <Section id="automaticUpdates" guide="automatic-updates" title="自动更新" onSubmit={submit}>
       <Rows>
         <SettingsRow label="Automatically check for new versions">
           <Switch aria-label="Automatically check for new versions" isSelected={mode !== 'off'} isDisabled={!initial.available}
             onChange={(on) => setMode(on ? 'check' : 'off')} />
         </SettingsRow>
-        <SettingsRow label="Download updates automatically" description="After finding a new version, it downloads first and asks before installing on the next restart.">
-          <Switch aria-label="Download updates automatically" isSelected={mode === 'download'}
+        <SettingsRow label="自动下载更新" description="发现新版本后先下载，重启安装前会询问。">
+          <Switch aria-label="自动下载更新" isSelected={mode === 'download'}
             isDisabled={!initial.available || !initial.download_available || mode === 'off'}
             onChange={(on) => setMode(on ? 'download' : 'check')} />
         </SettingsRow>
@@ -98,17 +98,35 @@ export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdat
   );
 }
 
-function Facts({ facts }: { facts: ConfigurationFact[] }) {
+/* 缺的媒体工具在能装的平台上带「安装」：下载、校验、解压都在那一次请求里做完，回来的运行信息整块
+ * 替换，刚装好的那一行直接写着版本。其余平台没有发布的工具包，仍是官方下载外链。 */
+function Facts({ facts: loaded, receipt }: { facts: ConfigurationFact[]; receipt(message: string): void }) {
+  const [installed, setInstalled] = useState<ConfigurationFact[] | null>(null);
+  const facts = installed ?? loaded;
+  const action = useAction();
+  const install = (tool: string) => void action.run(tool, (signal) => apiSend<{ message: string; facts: ConfigurationFact[] }>(
+    '/api/configuration/media-tools', { tool }, 'POST', signal), (result) => {
+    setInstalled(result.facts);
+    receipt(result.message);
+  });
   return (
-    <Section guide="facts" title="Runtime info">
+    <Section guide="facts" title="运行信息">
       <FactList>
-        {facts.map((fact) => (
-          <Fact key={fact.term} term={fact.term}>
-            {fact.value}
-            {fact.download_url ? <ExternalLink href={fact.download_url}>{fact.download_label}</ExternalLink> : null}
+        {facts.map(({ term, value, install_tool: tool, download_url: url, download_label: label }) => (
+          <Fact key={term} term={term}>
+            {/* 「安装」钉在说明右边：说明在自己那一栏里折行，按钮不被挤到下一行。 */}
+            {tool ? <span className="flex min-w-0 items-center gap-3">
+              <span className="min-w-0">{value}</span>
+              <Button size="small" className="shrink-0" onClick={() => install(tool)}
+                {...busyProps(action.busy === tool)}>安装</Button>
+            </span> : <>
+              {value}
+              {url ? <ExternalLink href={url}>{label}</ExternalLink> : null}
+            </>}
           </Fact>
         ))}
       </FactList>
+      {action.error ? <ErrorText>{action.error}</ErrorText> : null}
     </Section>
   );
 }
@@ -135,8 +153,8 @@ export function UninstallSettings(
   const status = accepted || uninstall.message;
   const paths = [...new Set([uninstall.data_root, ...uninstall.directories])];
   return (
-    <Section id="uninstallPeach" guide="uninstall" title="Uninstall Peach">
-      {uninstall.available ? <Stack><Help>Uninstalling removes the Peach program itself; original media files are kept.</Help></Stack> : null}
+    <Section id="uninstallPeach" guide="uninstall" title="卸载 Peach">
+      {uninstall.available ? <Stack><Help>卸载移除 Peach 程序本身，原始媒体文件保留。</Help></Stack> : null}
       <Rows>
         <SettingsRow label="Full uninstall" description="Also delete settings, the local database, watch history, credentials, and caches">
           <Switch aria-label="Full uninstall" isSelected={removeData} isDisabled={!uninstall.full_available || Boolean(accepted)} onChange={setRemoveData} />

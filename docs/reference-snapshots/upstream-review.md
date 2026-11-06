@@ -68,6 +68,20 @@ Motion 14.0.0 的大版本删除内部兼容 API。Peach 只通过 `motion` 公�
 
 轮播箭头几何用例在图片就绪后等待渲染阶段，再读位置；`ResizeObserver` 的异步测量不能由图片 `complete` 代替。位置、尺寸、黑边中心和桌面／手机断言保持完整。
 
+## 依赖与参考来源判断（2026-11-05）
+
+0.55.0 发版前审阅覆盖 weekly、monthly、quarterly。依赖按约束内最新稳定版更新：Python 侧 filelock 4.2.8（含 GitLab CI 三处 `--with`），锁内 soupsieve 4.0.1、typing-inspection 0.4.5 跟随；amane 桥锁内 pydantic-ai-slim、pydantic-graph 2.66.0，openai 3.45.0，SQLAlchemy 2.1.8，离线自检载入全部 20 个站点类；前端 Video.js 10.3.0（等待自动播放显示为正在起播、可配置倍速档位、嵌入适配器补缓冲条，Peach 不用嵌入适配器），Lucide 1.68.0（所用图形字节不变），Motion 14.9.1。amane 继续固定 v0.22.1，理由同上文 v0.25.0。
+
+Dependabot #400（Docker 镜像内 uv 0.13.7）与 #401（watchdog 7.0.0）按接管入口各一提交。watchdog 7 的不兼容项不影响推送发现：本地通道不用模式匹配，只收 `created`、`modified`、`moved`、`closed`，新增的 `attrib` 事件被忽略。Windows 本地目录实测：7.0.0 送达事件比 6.0.0 晚约 1 秒，观察器停止前尚未送达的事件会丢；推送发现只缩短发现时间，定期全量扫描兜底，停止只发生在退出与改设置时，这个延迟可以接受。
+
+| 来源 | 实测变化 | Peach 判断 |
+| --- | --- | --- |
+| Javinizer-Go README | `actress` 子命令新增 list、search 与 credit add | 同类产品信息，接受原文 |
+| Atlas README | 原 `v3` 分支已删，改跟默认分支 `main`；版本号由 v4.x 重排为 v1.x，能力描述不变；`jav-utils.ts` 移到 `backend/src/services/` | 更新登记的分支与文件路径后接受原文 |
+| JAVM README | 仓库 `ddmoyu/javm` 整个返回 404（删除或转为私有） | 保留 2026-11-04 的最后快照，档位改为 `manual`，只在点名时检查 |
+
+OpenAver 从 `118f19330c49414a6b9dfa94581e3f731e4f8e5f` 前移到 `67c410ca4465d4d107f940d9f0a9ece8395f0ad8`，32 个提交；相关推荐的变化只在 `core/ai_services/` 的向量索引与设置页，Peach 没有向量路，本批不改代码。PixivUtil2 停在上次复核的 `46bb910cd60c213c9199d939859670a044450239`。FANBOX、OpenAver 两份人工笔记照旧不执行 `accept`。
+
 ## 参考来源判断（2026-11-04）
 
 0.54.0 发版前审阅覆盖 weekly、monthly、quarterly，17 个来源报告漂移，另有 amane 运行依赖前移（见上文 v0.25.0）。15 份原文按完整 SHA-256 与 Git revision 接受；FANBOX、OpenAver 两份人工笔记不执行 `accept`。仅 revision 前移、内容相同的来源不重新登记。

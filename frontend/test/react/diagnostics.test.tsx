@@ -35,8 +35,8 @@ it('Scrape records show background progress and support canceling', async () => 
   await settle();
   expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('2');
   expect(host.querySelector('[data-task-progress]')?.getAttribute('data-task-progress')).toBe('embedded');
-  expect((buttonNamed('Export scrape records', host) as HTMLButtonElement).disabled).toBe(true);
-  await click(buttonNamed('Cancel export', host));
+  expect((buttonNamed('导出刮削记录', host) as HTMLButtonElement).disabled).toBe(true);
+  await click(buttonNamed('取消导出', host));
   await settle();
   expect(host.textContent).toContain('Export canceled');
   expect(host.querySelector('[role="progressbar"]')).toBeNull();
@@ -121,18 +121,18 @@ it('The restore action\'s name matches its actual target', async () => {
   expect(linkNamed('Open source and credentials', host)?.getAttribute('href')).toBe('/sources');
 });
 
-it('The diagnostic-report progress in the header carries its own frame, on the same row as Check again', async () => {
+it('页头的诊断报告进度自己带框，和重新检查同排', async () => {
   vi.stubGlobal('fetch', vi.fn(async (url: string) => new Response(JSON.stringify(url.startsWith('/api/diagnostics/exports')
-    ? { status: 'running', kind: 'support', job_id: 'report', stage: 'Collection log', done: 1, total: 4 }
+    ? { status: 'running', kind: 'support', job_id: 'report', stage: '收集日志', done: 1, total: 4 }
     : data()))));
   const { host } = await open();
   await settle();
   const report = host.querySelector('[data-guide-target="report"]')!;
   expect(report.querySelector('[data-task-progress]')?.getAttribute('data-task-progress')).toBe('framed');
-  expect(buttonNamed('Cancel export', report)?.parentElement).toBe(buttonNamed('Check again', report)?.parentElement);
+  expect(buttonNamed('取消导出', report)?.parentElement).toBe(buttonNamed('重新检查', report)?.parentElement);
 });
 
-it('Diagnostic reports attach the browser environment at startup, and artifacts use direct download links', async () => {
+it('诊断报告启动时附浏览器环境，产物使用直接下载链接', async () => {
   const create = vi.spyOn(URL, 'createObjectURL');
   const fetch = vi.fn(async (_url: string, options?: RequestInit) => new Response(JSON.stringify(options?.method === 'POST'
     ? { status: 'complete', kind: 'support', job_id: 'report', bytes: 2048,

@@ -3,8 +3,30 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime, timezone
 from sqlite3 import Connection
+
+#: 只读请求里记住的名字解析结果，见 `memoized_resolution`。
+_RESOLVED: ContextVar[dict | None] = ContextVar("peach_resolved_entities", default=None)
+
+
+@contextmanager
+def memoized_resolution():
+    """一次只读请求里同一个名字只解析一次。
+
+    新作与发现把订阅里的每部片逐个解析演员与厂牌，同一批名字要解析上千次，每次两条扫表查询。
+    请求内不写账本，解析结果不会变；块外与写路径照旧每次现查。
+    """
+    if _RESOLVED.get() is not None:
+        yield
+        return
+    token = _RESOLVED.set({})
+    try:
+        yield
+    finally:
+        _RESOLVED.reset(token)
 
 
 def normalize_entity_name(name: str) -> str:
@@ -812,6 +834,16 @@ def resolve_entity(connection: Connection, kind: str, name: str):
     别名撞名返回 None 而不是随便挑一个：指错实体会把作品挂到另一个人名下，
     那是要人工复核才能发现的错误。
     """
+    memo = _RESOLVED.get()
+    if memo is None:
+        return _resolve_entity(connection, kind, name)
+    key = (id(connection), kind, name)
+    if key not in memo:
+        memo[key] = _resolve_entity(connection, kind, name)
+    return memo[key]
+
+
+def _resolve_entity(connection: Connection, kind: str, name: str):
     canonical = connection.execute(
         "SELECT e.* FROM entity e WHERE e.kind=? AND e.canonical_name=? LIMIT 1",
         (kind, name),

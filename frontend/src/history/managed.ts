@@ -21,15 +21,15 @@
  * names (`search`, `batch-dock`); the two never overlap, and the route tree looks the same group of tables up by key
  * (`react/router/managed-routes.tsx`).
  *
- * One open: after the shell spreads the skeleton, it calls `openManagedRoute`; the previous page in the same container is kept here and the first screen is fetched; when the fetch is complete and the shell is still on
- * this page, swap out the skeleton within the same task, hand the page to the host, then let the route tree synchronously paint the whole page. If the route tree is not attached yet, open waits for it to attach before
- * fetching (the search dropdown opens while the shell's modules evaluate, before `loadRouter`). Every open takes a fresh generation, and the page remounts and refetches per generation.
- * After the open, the shell's switches (selection mode, filter change, layout change) merge into the same page's props via `updateManagedRoute`: the generation is unchanged,
- * and the page re-renders in place, without remounting or refetching. */
+ * 一次打开：壳铺好骨架后调 `openManagedRoute`，这里保留同一容器里的上一页并取首屏；取齐、壳也还停在
+ * 这一页时，在同一个任务里换掉骨架、放进宿主，再让路由树同步画出整页。路由树还没接上时，打开先等它接上
+ * 再取数（搜索下拉在壳的模块求值时就打开，早于 `loadRouter`）。每次打开都领一个新代次，页面按代次重挂、
+ * 重取。打开之后壳的开关（选择模式、换筛选、换版式）经 `updateManagedRoute` 合进同一页的 props：代次不变，
+ * 页面就地重渲染，不重挂也不重取。 */
 
 import { rememberPageState, restoredPageState } from './page-navigation';
 
-/** The page (or panel) rendered inside some container. `host` is the `.peach-react` host the page portals into. */
+/** 画在某个容器里的那一页（或一面）。`host` 是页面 portal 进去的那个 `.peach-react` 宿主。 */
 export interface ManagedEntry {
   /** The registration key: the page's path, or a component's name within the page. */
   path: string;
@@ -50,15 +50,13 @@ export interface ManagedOpenOptions {
   container: Element;
   /** The shell's page-change rule: if the user walked away during the fetch, do not render. */
   isCurrent: () => boolean;
-  /** The first screen is fully loaded; switching the shell's visible face happens in the same task as the content commit. */
+  /** 首屏已取齐，和内容提交在同一任务里切换壳的可见面。 */
   beforePlace?: () => void;
-  /** Same-kind pages reuse the host and component, updating only props. */
+  /** 同类页面复用宿主与组件，只更新属性。 */
   reuse?: boolean;
-  /** The frame the shell lays itself: at the moment the first screen is fetched it swaps the frame into the container and
- *  returns the host the page renders into. When not given, it empties the container and puts in a new `.peach-react`. The
- *  profile page needs this: the overlay's stickiness requires its parent box to be `#index`, and the new-releases row is a
- *  legacy-layer card outside `.peach-react`, so the shell lays the frame's four blocks and the page takes one, portaling into
- *  the other three. */
+  /** 壳自己排好的框架：取齐首屏的那一刻由它把框架换进容器，返回页面画进去的宿主。不给就清空容器、
+   *  放进一个新的 `.peach-react`。资料页要这个：浮层吸顶要它的父盒就是 `#index`，新作那一行是遗留层
+   *  卡片、不进 `.peach-react`，所以框架的四块由壳排，页面只占其中一块，再经 portal 画进另外三块。 */
   place?: (container: Element) => HTMLElement;
   /** Resident components (the ones opened via `openResidentSurface`): the host belongs to the shell; on collapse or throw only the component unmounts and the host stays. */
   resident?: boolean;
@@ -68,7 +66,7 @@ export interface ManagedOpenOptions {
  *  and being a beat late means a blank frame. With false it updates in place and queues into the next render as usual. */
 type ManagedListener = (entries: readonly ManagedEntry[], sync: boolean) => void;
 
-/* `page`: the registration key is the path, and this run is a page change; data fetching by in-page and persistent components doesn't count. */
+/* `page`：登记键是路径，这一趟是换页；页面内组件与常驻组件的取数不算。 */
 interface Pending { revision: number; controller: AbortController; page: boolean }
 
 /* Before the route tree is wired to fetching, opens wait here; if the wired copy fails to load, the waiting opens fail with it. */
@@ -87,6 +85,23 @@ let revision = 0;
 const listeners = new Set<ManagedListener>();
 const loadingListeners = new Set<(loading: boolean) => void>();
 let loading = false;
+
+/** 有一页还在取首屏：换页进度条（`navigation-progress.ts`）读它。 */
+export const managedLoading = (): boolean => loading;
+
+/** 订阅「有一页还在取首屏」的变化，只在真假翻转时通知。 */
+export function listenManagedLoading(listener: (loading: boolean) => void): () => void {
+  loadingListeners.add(listener);
+  return () => { loadingListeners.delete(listener) };
+}
+
+/* `pending` 每次增删之后调。 */
+function settleLoading(): void {
+  const next = [...pending.values()].some((inflight) => inflight.page);
+  if (next === loading) return;
+  loading = next;
+  for (const listener of [...loadingListeners]) listener(loading);
+}
 
 /* A page is still fetching its first screen: the page-switch progress bar (navigation-progress.ts) reads it. */
 export const managedLoading = (): boolean => loading;

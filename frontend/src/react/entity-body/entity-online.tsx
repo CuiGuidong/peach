@@ -1,9 +1,9 @@
 /* The creator profile page's online view (ADR-0096): updates bound to this person in follows, not yet added to the library,
  * with cards and the photo wall being the follows page's copies.
  *
- * Fetching and filtering (status, source, tags, sort, video/image) belong to the profile page (`entity-page-view.tsx`); the filter overlay and this cell
- * read the same one; here it only draws the group for the current media tier. The query key is the same family as the follows page: when status changes in the detail or Check updates finishes,
- * invalidate and rewrite the cache by the `['follow-feed']` prefix, and this screen follows along. When switching filters, keep the host; the content and skeleton cross-fade in place. */
+ * 取数与筛选（状态、来源、标签、排序、视频／图片）归资料页（`entity-page-view.tsx`），筛选浮层与这一格
+ * 读的是同一份；这里只画当前媒体那一档的组。查询键同关注页一族：详情里换状态、检查更新跑完时按
+ * `['follow-feed']` 前缀失效与改写缓存，这一屏跟着变。换筛选时保留宿主，内容与骨架原位交叉淡化。 */
 import type { UseInfiniteQueryResult, InfiniteData } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { requestErrorMessage } from '@peach/legacy/core';

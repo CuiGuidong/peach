@@ -420,8 +420,8 @@ class SparkleUpdateTests(TestCase):
                 mock.patch.object(tray, "create_icon"), \
                 mock.patch.object(tray.sparkle_update, "start", return_value=sparkle):
             tray.run_macos_menu_bar(mock.Mock(specs=()), mock.Mock(waiting=False), silent=True)
-        submenu = dict(menu_type.call_args.args[2])["Version and updates"]
-        dict(row for row in submenu.items() if row[0])["Check for updates"]()
+        submenu = dict(menu_type.call_args.args[2])["版本与更新"]
+        dict(row for row in submenu.items() if row[0])["检查更新"]()
         sparkle.check.assert_called_once()
         versions.return_value.check.assert_not_called()
 
@@ -453,6 +453,23 @@ class SparkleUpdateTests(TestCase):
         dmg.write_bytes(b"different size")
         with self.assertRaisesRegex(ValueError, "大小"):
             tool.verify(feed, version="0.53.0", dmg=dmg, url_prefix="https://example.test/v0.53.0/", head=50)
+
+    def test_publish_checks_the_uploaded_feed_past_the_public_cache(self):
+        """公开入口缓存一分钟：核对要取回刚上传的那份，不能读到裸地址上缓存的旧文件或首发前的 404。"""
+        tool = load_script("sparkle_appcast")
+        feeds = []
+        for arch in ("arm64", "x86_64"):
+            feed = self.root / f"macos-{arch}.xml"
+            feed.write_text(f"<rss>{arch}</rss>", encoding="utf-8")
+            feeds.append(feed)
+        release_r2 = SimpleNamespace(verify_download=mock.Mock(), rclone_environment=lambda: {
+            "PEACH_RCLONE": "rclone", "PEACH_R2_BUCKET": "bucket", "PEACH_R2_PUBLIC_BASE": "https://downloads.example.test/"})
+        with mock.patch.dict(sys.modules, {"release_r2": release_r2}), mock.patch.object(tool.subprocess, "run"):
+            published = tool.publish(feeds)
+        self.assertEqual([item["name"] for item in published], ["macos-arm64.xml", "macos-x86_64.xml"])
+        urls = [call.args[0] for call in release_r2.verify_download.call_args_list]
+        self.assertEqual(urls, [f"https://downloads.example.test/sparkle/{item['name']}?sha256={item['sha256']}"
+                                for item in published])
 
     @skipUnless(sys.platform == "darwin", "pyobjc 是 macOS 专属")
     def test_delegate_declares_bool_returns_and_lets_sparkle_choose_when_nothing_blocks(self):

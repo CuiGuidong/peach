@@ -32,7 +32,7 @@ export interface SuggestItem {
   agency?: string | null;
   href?: string;
   avatarHtml?: string;
-  /** The work category: the credited person's avatar, drawn before the credit. */
+  /** 作品那一类：署名人的头像，画在署名前面。 */
   whoAvatarHtml?: string;
   subtitle?: string;
   followMedia?: 'videos' | 'images';
@@ -47,15 +47,15 @@ export interface SuggestGroup {
   items: SuggestItem[];
   href?: string;
   action?: string;
-  /** This group in the recommended bar has not loaded yet: hold its place using the final layout. */
+  /** 推荐栏里这一组还没取到：照最终版式先占位。 */
   pending?: boolean;
-  /* The full pool a group of the recommendations bar fetches; items is a page from offset, size entries per page. 'New batch' pages within the pool. */
+  /** 推荐栏一组取到的整池；`items` 是从 `offset` 起的一页，一页 `size` 条。「换一批」在池里翻页。 */
   pool?: SuggestItem[];
   offset?: number;
   size?: number;
 }
 
-/* A recommendations column: the groups, plus the recommendation words rotating in the placeholder before focus (on focus, pool is fetched separately by the current filter). */
+/** 一栏推荐：各组，以及还没聚焦时占位里轮换的推荐词（聚焦时另按当前筛选取 `pool`）。 */
 export interface Recommendations {
   groups: SuggestGroup[];
   words: string[];
@@ -86,13 +86,13 @@ export interface SearchActions {
 export interface SearchHelpers {
   /** The suggestion pool for empty input: the same filters as the current catalog, keeping only terms that actually return results (`catalogSuggestions`). */
   pool(): Promise<string[]>;
-  /* The recommendations bar for empty input, fetched in one go (/api/search/recommendations). */
+  /** 空输入时的推荐栏，一次取齐（`/api/search/recommendations`）。 */
   recommendations?(): Promise<Recommendations>;
-  /** The placeholder before any recommended-bar group loads; the layout matches the loaded state. */
+  /** 推荐栏一组都还没取到时的占位，版式与取齐之后相同。 */
   pendingRecommendations?(): SuggestGroup[];
-  /* Swap the input box's placeholder text to another phrase, with animation (rollPlaceholder); returns an undo function. When omitted, changes directly. */
+  /** 输入框的占位字换一句，带动效（`rollPlaceholder`）；返回撤销函数。缺省时直接改。 */
   rollPlaceholder?(input: HTMLInputElement, next: string): () => void;
-  /** The small cover cell (the card's `.pic`) together with the image inside it (`coverImage` and the JAV default cover framing); with neither it is "No preview". */
+  /** 小封面那一格（卡片的 `.pic`）连同里面那张图（`coverImage` 与 JAV 默认封面那套取景）；两样都没有是「无预览」。 */
   coverHtml(card: SuggestCard | null | undefined): string;
   present(menu: HTMLElement): void;
   dismiss(menu: HTMLElement): void;
@@ -131,7 +131,7 @@ export const SUGGEST_ONE_KIND = 20;
 export const SUGGEST_PROFILE_KINDS = new Set(['performer', 'creator', 'studio', 'agency', 'series']);
 /** The dropdown splits into two columns by width: identity and terms on the left, video cover cells on the right. */
 export const SUGGEST_RIGHT_KINDS = new Set(['asset', 'jav', 'post', 'photo', 'release']);
-/** The recommendations column pages one group to the next; at the end it wraps from the pool's start, so each page is always full. */
+/** 推荐栏一组翻到下一页；翻到头接着从池首取，一页总是摆满。 */
 export function nextPage(group: SuggestGroup): SuggestGroup {
   const pool = group.pool ?? [];
   const size = Math.min(group.size ?? group.items.length, pool.length);
@@ -140,9 +140,9 @@ export function nextPage(group: SuggestGroup): SuggestGroup {
   return { ...group, offset, items: Array.from({ length: size }, (_, index) => pool[(offset + index) % pool.length]!) };
 }
 
-/** How many rows the recommended bar's person groups take up before they load. */
+/** 推荐栏人物那几组取到之前占几行。 */
 export const PENDING_PEOPLE = 3;
-/** A few suggestions for empty input. */
+/** 空输入时推荐几条。 */
 export const PICKS = 5;
 
 /** Name comparison always folds full/half width and case, same as the legacy layer's `foldName`. */
@@ -161,9 +161,9 @@ export interface MenuSection {
   more?: SearchOption;
   href?: string;
   action?: string;
-  /** A group in the recommended bar that has not loaded yet: draw a few placeholder cells. */
+  /** 推荐栏里还没取到的一组：画几格占位。 */
   pending?: number;
-  /** The title carries “Swap in new picks”. */
+  /** 标题上带「换一批」。 */
   shuffle?: boolean;
 }
 
@@ -207,17 +207,17 @@ export function menuModel({ query, history, picks, suggestFor, groups, tabs, kin
   const matching = history.filter((value) => !query || fold(value).includes(fold(query)));
   if (!query) {
     if (recommendations.length) {
-      // The group not yet fetched is a placeholder at its final count: three rows of people, one row of five work cells; fill in place once fetched so the column doesn't jump.
-      // “Swap in new picks” appears only when the pool is more than one page: if there is nothing else to show, hide the icon.
+      // 还没取到的那组按最终条数占位：人三行、作品一排五格，取到时原地填上，栏不跳。
+      // 池里比一页多才有「换一批」：翻不出别的就不摆这枚图标。
       const section = ({ pending, pool, offset: _offset, size: _size, ...group }: SuggestGroup): MenuSection => ({ ...group,
         options: group.items.map(item => add({ type: 'suggest', value: item.value, kind: group.kind, item })),
         pending: pending ? (SUGGEST_RIGHT_KINDS.has(group.kind) ? SUGGEST_EACH : PENDING_PEOPLE) : undefined,
         shuffle: (pool?.length ?? 0) > group.items.length || undefined,
       });
-      // Search records go at the very bottom of the left column: they arrive later than recommendations, and arriving at the end doesn't push the content above down. Keyboard up/down follow what's drawn
-      // The order runs down the left column then the right, so the numbering follows that order.
+      // 搜索记录排在左栏最下面：它比推荐晚到，排在末尾到了也不把上面的往下推。键盘上下按画出来的
+      // 次序走，左栏走完再到右栏，所以编号也按这个次序给。
       const left = recommendations.filter(group => !SUGGEST_RIGHT_KINDS.has(group.kind)).map(section);
-      if (matching.length) left.push({ label: 'Search history', options: matching.map(value => add({ type: 'history', value })) });
+      if (matching.length) left.push({ label: '搜索记录', options: matching.map(value => add({ type: 'history', value })) });
       const right = recommendations.filter(group => SUGGEST_RIGHT_KINDS.has(group.kind)).map(section);
       return { tabs: null, recent: null, left, right, empty: false, options };
     }

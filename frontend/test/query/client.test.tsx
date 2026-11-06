@@ -33,7 +33,7 @@ it('The copy the shell writes is read directly inside the island under the same 
   queryClient.removeQueries({ queryKey: ['probe'] });
 });
 
-it('The default option never retries, remounting only refetches stale queries, and going offline still sends', () => {
+it('默认选项不重试，挂载只重取已失效查询，离线也照发', () => {
   const queries = queryClient.getDefaultOptions().queries!;
   expect(queries).toMatchObject({
     networkMode: 'always', retry: 0, refetchOnWindowFocus: false, retryOnMount: false, gcTime: Infinity,
@@ -41,7 +41,7 @@ it('The default option never retries, remounting only refetches stale queries, a
   const query = queryClient.getQueryCache().build(queryClient, { queryKey: ['mount-policy'] as readonly unknown[] });
   const refetch = queries.refetchOnMount;
   expect(typeof refetch).toBe('function');
-  if (typeof refetch !== 'function') throw new Error('The mount policy never judged by query state');
+  if (typeof refetch !== 'function') throw new Error('挂载策略没有按查询状态判断');
   expect(refetch(query)).toBe(false);
   query.invalidate();
   expect(refetch(query)).toBe(true);

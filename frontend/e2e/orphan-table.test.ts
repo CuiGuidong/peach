@@ -9,7 +9,7 @@ describe('Orphan record tables', () => {
   let browser: Browser;
   before(async () => { browser = await launch(); await mkdir('../build/table-evidence', { recursive: true }); });
   after(async () => { await browser.close(); });
-  for (const viewport of VIEWPORTS) it(`${viewport.name}: in-panel title, shared pagination, and bulk actions after selection`, async () => {
+  for (const viewport of VIEWPORTS) it(`${viewport.name}：面板内标题、共用分页与选中后的批量操作`, async () => {
     const opened = await visit(browser, '/data-cleanup/links', viewport);
     const { page } = opened;
     try {
@@ -43,7 +43,7 @@ describe('Orphan record tables', () => {
       assert.ok(widths.item! > widths.target! * 2, JSON.stringify(widths));
       assert.ok(widths.target! <= 144, JSON.stringify(widths));
       const tableFace = await page.locator('#orphan-records [data-data-table-panel]').evaluate(surface);
-      assert.deepEqual(tableFace, fieldsetFace, 'Data surface panels and manage cards share one border and shadow treatment');
+      assert.deepEqual(tableFace, fieldsetFace, '数据表面板与管理卡片使用统一边线和阴影');
       const scroller = table.locator('..');
       assert.equal(await scroller.getAttribute('data-overlay-scrollbar'), 'true');
       if (viewport.mobile) {
@@ -79,12 +79,12 @@ describe('Orphan record tables', () => {
       assert.ok((await table.locator('tbody tr').first().textContent())?.includes('Video 1 ·'));
       await pagination.scrollIntoViewIfNeeded();
       await page.screenshot({ path: `../build/table-evidence/orphan-selected-${viewport.name}.png` });
-      await section.getByRole('button', { name: 'Delete selected records (2)', exact: true }).click();
-      await page.getByRole('alertdialog').getByRole('button', { name: 'Cancel', exact: true }).click();
+      await section.getByRole('button', { name: '删除所选记录（2）', exact: true }).click();
+      await page.getByRole('alertdialog').getByRole('button', { name: '取消', exact: true }).click();
       await table.locator('thead label:has(input[type="checkbox"])').click();
-      await section.getByRole('button', { name: 'Delete selected records (23)', exact: true }).click();
+      await section.getByRole('button', { name: '删除所选记录（23）', exact: true }).click();
       const dialog = page.getByRole('alertdialog');
-      const list = dialog.getByRole('list', { name: 'Selected records', exact: true });
+      const list = dialog.getByRole('list', { name: '所选记录', exact: true });
       await list.waitFor();
       assert.equal(await list.locator(':scope > li').count(), items.length);
       assert.equal(await list.getAttribute('data-overlay-scrollbar'), 'true');

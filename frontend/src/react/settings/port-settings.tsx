@@ -48,12 +48,12 @@ export function PortSettings({ data, receipt }: ConfigurationGroupProps) {
       else action.setError(errorMessage(cause));
     });
   };
-  if (saved) return <Section guide="port" title="Access address"><Stack>
-    <Note tone="success" title="Configuration saved">Peach is restarting.
-      <LinkButton href={saved.url} size="small">Back to network and access</LinkButton>
+  if (saved) return <Section guide="port" title="访问地址"><Stack>
+    <Note tone="success" title="配置已保存">Peach 正在重新启动。
+      <LinkButton href={saved.url} size="small">返回网络与访问</LinkButton>
     </Note>
   </Stack></Section>;
-  return <Section guide="port" title="Access address" onSubmit={editable ? submit : undefined}><Stack>
+  return <Section guide="port" title="访问地址" onSubmit={editable ? submit : undefined}><Stack>
     {network ? <>
       <Address label="Local address" value={network.local_url} receipt={receipt} />
       {network.lan_url || network.ip_url ? <>

@@ -11,13 +11,13 @@ import { actionOrder, buttonNamed, click, mount, settle, type } from './render';
 notifyManager.setScheduler(notify => notify());
 afterEach(() => queryClient.clear());
 
-/* The page header filter box is the roster page's IndexSearch: it waits 300 ms of idle before emitting text. */
+/** 页头筛选框是名册页那个 `IndexSearch`：停手 300 毫秒才交出文字。 */
 async function search(host: ParentNode, text: string) {
   await type(host.querySelector('[data-index-search] input'), text);
   await act(() => new Promise(resolve => { setTimeout(resolve, 320) }));
 }
 
-it('Existing results present immediately, with stale recommendations refreshing in the background', async () => {
+it('发现已有结果即时呈现，陈旧推荐在后台更新', async () => {
   const cached = { items: [{ id: 1, code: 'ABC-001' }], candidate_total: 1, limited: false };
   queryClient.setQueryData(discoveryKey('external'), cached, { updatedAt: Date.now() - 60_000 });
   let finish!: (response: Response) => void;
@@ -46,11 +46,11 @@ it('An existing want list returns immediately, with stale data refreshing in the
   expect(fetcher).toHaveBeenCalledOnce();
 });
 
-it('JAV section navigation has four entry points: Library, New Releases, Discover, and Wanting; Library uses directory search', async () => {
+it('JAV 分区导航有馆藏、新作、发现、想要四个入口，馆藏使用目录搜索', async () => {
   const navigate = vi.fn(), find = vi.fn();
   const host = await mount(<JavHeader tab="library" navigate={navigate} find={find} />);
   const tabs = [...host.querySelectorAll('[role="tab"]')];
-  expect(tabs.map(tab => tab.textContent?.trim())).toEqual(['Library', 'New work', 'Discover', 'Want']);
+  expect(tabs.map(tab => tab.textContent?.trim())).toEqual(['馆藏', '新作', '发现', '想要']);
   expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
   expect(host.querySelector('input')).toBeNull();
   await click(tabs[1]);
@@ -104,14 +104,14 @@ it('Discovery reads by scope, clearing text and tags restores the list, and card
   expect(buttonNamed('In library', host)?.disabled).toBe(true);
 });
 
-it('In the New Releases section, actresses, labels, and tags list only the subscription-new filter options the API provides; clicking filters within this section and returns to page 1', async () => {
+it('新作分区的女优、厂牌、标签只列接口给的订阅新作筛选项，点了在本分区里筛并回到第 1 页', async () => {
   const before = location.pathname + location.search;
   history.replaceState(null, '', '/jav?tab=releases&page=2');
-  const facets = { performers: [{ name: 'Performer A', count: 2, id: 7, has_image: false }],
-    studios: [{ name: 'Studio A', count: 1, has_logo: false }], tags: [{ name: 'Intercourse', count: 1 }] };
+  const facets = { performers: [{ name: '女优甲', count: 2, id: 7, has_image: false }],
+    studios: [{ name: '厂牌甲', count: 1, has_logo: false }], tags: [{ name: '中出内射', count: 1 }] };
   const fetcher = vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => ({
-    items: [{ id: 1, code: 'ABC-001', title: 'Example video', performers: 'Performer A', studio: 'Studio A', has_cover: false,
-      release_date: '2026-11-10', wanted: false, tags: ['Intercourse'] }],
+    items: [{ id: 1, code: 'ABC-001', title: '示例作品', performers: '女优甲', studio: '厂牌甲', has_cover: false,
+      release_date: '2026-11-10', wanted: false, tags: ['中出内射'] }],
     total: 30, candidate_total: 30, page: Number(new URL(url, location.origin).searchParams.get('page')), size: 24, facets }) }));
   vi.stubGlobal('fetch', fetcher);
   const navigate = vi.fn();
@@ -119,29 +119,29 @@ it('In the New Releases section, actresses, labels, and tags list only the subsc
   await settle();
   const asked = () => new URL(String(fetcher.mock.calls.at(-1)?.[0]), location.origin).searchParams;
   expect(asked().get('page')).toBe('2');
-  expect([...host.querySelectorAll('[data-tier-performer]')].map(node => node.textContent)).toEqual(['Performer A']);
-  expect([...host.querySelectorAll('[data-tier-studio]')].map(node => node.textContent)).toEqual(['Studio A 1']);
-  expect([...host.querySelectorAll('[data-catalog-tag]')].map(node => node.textContent)).toEqual(['Intercourse 1']);
-  expect(host.querySelector('nav[aria-label="New Releases pagination"] [aria-current="page"]')?.textContent).toBe('2');
+  expect([...host.querySelectorAll('[data-tier-performer]')].map(node => node.textContent)).toEqual(['女女优甲']);
+  expect([...host.querySelectorAll('[data-tier-studio]')].map(node => node.textContent)).toEqual(['厂牌厂牌甲1']);
+  expect([...host.querySelectorAll('[data-catalog-tag]')].map(node => node.textContent)).toEqual(['中出内射1']);
+  expect(host.querySelector('nav[aria-label="新作分页"] [aria-current="page"]')?.textContent).toBe('2');
   await click(host.querySelector('[data-tier-performer]'));
   await settle();
-  expect([asked().get('performer'), asked().get('page')]).toEqual(['Performer A', '1']);
-  expect(new URLSearchParams(location.search).get('performer')).toBe('Performer A');
+  expect([asked().get('performer'), asked().get('page')]).toEqual(['女优甲', '1']);
+  expect(new URLSearchParams(location.search).get('performer')).toBe('女优甲');
   expect(host.querySelector('[data-tier-performer]')?.getAttribute('aria-pressed')).toBe('true');
   await click(host.querySelector('[data-jav-card] h3'));
   expect(navigate).toHaveBeenLastCalledWith('/works/ABC-001');
   history.replaceState(null, '', before);
 });
 
-it('Switching the New Releases section to list view: Works, Artists, and Labels each occupy a column; clicking the header sorts by duration', async () => {
+it('新作分区切到列表：作品、艺人、厂牌各占一列，表头点时长按时长排序', async () => {
   const before = location.pathname + location.search;
   history.replaceState(null, '', '/jav?tab=releases');
   localStorage.setItem('peach.catalog-view.v1', 'list');
   const fetcher = vi.fn(async (_url: string) => ({ ok: true, status: 200, json: async () => ({
-    items: [{ id: 1, code: 'ABC-001', title: 'Example video', performers: 'Performer A', studio: 'Studio A', has_cover: false, release_date: '2026-11-10',
-      wanted: false, tags: ['Intercourse'], duration: 7200, source_score: 4.5, performer_refs: [{ id: 7, name: 'Performer A', has_image: false }] }],
+    items: [{ id: 1, code: 'ABC-001', title: '示例作品', performers: '女优甲', studio: '厂牌甲', has_cover: false, release_date: '2026-11-10',
+      wanted: false, tags: ['中出内射'], duration: 7200, source_score: 4.5, performer_refs: [{ id: 7, name: '女优甲', has_image: false }] }],
     total: 1, candidate_total: 1, page: 1, size: 24,
-    facets: { performers: [], studios: [{ name: 'Studio A', count: 1, has_logo: false }], tags: [] } }) }));
+    facets: { performers: [], studios: [{ name: '厂牌甲', count: 1, has_logo: false }], tags: [] } }) }));
   vi.stubGlobal('fetch', fetcher);
   try {
     const navigate = vi.fn();
@@ -151,8 +151,8 @@ it('Switching the New Releases section to list view: Works, Artists, and Labels 
     const row = host.querySelector('[data-release-row]')!;
     expect(row.querySelector('[data-list-identity] [data-media-avatar]')).toBeNull();
     expect(row.querySelector('[data-list-people] [data-media-avatar]')).not.toBeNull();
-    expect(row.querySelector('[data-list-people]')?.textContent).toContain('Performer A');
-    expect(row.querySelector('[data-list-library]')?.textContent).toBe('Studio A');
+    expect(row.querySelector('[data-list-people]')?.textContent).toContain('女优甲');
+    expect(row.querySelector('[data-list-library]')?.textContent).toBe('厂厂牌甲');
     await click(host.querySelector('[role="columnheader"][data-key="dur"]'));
     await settle();
     const asked = new URL(String(fetcher.mock.calls.at(-1)?.[0]), location.origin).searchParams;
@@ -166,7 +166,7 @@ it('Switching the New Releases section to list view: Works, Artists, and Labels 
   }
 });
 
-it('The New Releases section defaults to descending by release time; clicking a sort key flips its direction, and New batch reshuffles with a new seed without pressing a sort key', async () => {
+it('新作分区默认按发行时间倒序，排序键再点翻方向，换一批按新种子重排且不按下排序键', async () => {
   const before = location.pathname + location.search;
   history.replaceState(null, '', '/jav?tab=releases');
   const fetcher = vi.fn(async (_url: string) => ({ ok: true, status: 200, json: async () => ({ items: [], total: 0, candidate_total: 0, page: 1, size: 24,
@@ -175,7 +175,7 @@ it('The New Releases section defaults to descending by release time; clicking a 
   const host = await mount(<QueryClientProvider client={queryClient}><JavPage tab="releases" readOnly navigate={vi.fn()} receipt={vi.fn()} /></QueryClientProvider>);
   await settle();
   const asked = () => new URL(String(fetcher.mock.calls.at(-1)?.[0]), location.origin).searchParams;
-  expect([...host.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['Release date', 'Source rating', 'Duration', 'Code', 'Taste']);
+  expect([...host.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['发行时间', '来源评分', '时长', '番号', '口味']);
   expect([asked().get('sort'), asked().get('direction')]).toEqual(['release_date', 'desc']);
   await click(host.querySelector('[data-entity-sort="source_score"]'));
   await settle();
@@ -191,7 +191,7 @@ it('The New Releases section defaults to descending by release time; clicking a 
   history.replaceState(null, '', before);
 });
 
-it('Without recommendations the empty state\'s view-taste sits left and the main entry right', async () => {
+it('没有推荐时空态的查看口味在左，主入口在右', async () => {
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ items: [] }) })));
   const host = await mount(<QueryClientProvider client={queryClient}><JavPage tab="discover" readOnly navigate={vi.fn()} receipt={vi.fn()} /></QueryClientProvider>);
   await settle();
@@ -200,7 +200,7 @@ it('Without recommendations the empty state\'s view-taste sits left and the main
   expect(main?.className).toContain('bg-button-primary');
 });
 
-it('The discover page keeps work-detail loading progress in its own box', async () => {
+it('发现页读取作品资料的进度单独成框', async () => {
   history.replaceState(null, '', '/jav?tab=discover');
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ items: [], candidate_total: 0, limited: false,
     metadata_job: { job_id: 'm', status: 'running', completed: 37, total: 100, failed: 0, requests: 0, bytes: 0 } }) })));

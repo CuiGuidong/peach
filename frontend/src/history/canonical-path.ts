@@ -1,6 +1,6 @@
 import { CLEANUP_HASH_REDIRECTS } from '../cleanup-tools';
 
-/** Normalize product URLs; API and media endpoints use their own contract. */
+/** 产品地址规范化，API 与媒体端点使用自己的契约。 */
 export function canonicalPath(path: string): string {
   const url = new URL(path, 'https://peach.invalid');
   const details: [RegExp, string][] = [[/^\/item\/(\d+)$/, '/assets/'],

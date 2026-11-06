@@ -140,7 +140,7 @@ it('Opens on attach: it reports the page change first, the skeleton shares the c
   expect(stats.textContent).toContain('Update check');
 });
 
-it('A claimed write address never reopens, and remounting a previously visited address uses the cache', async () => {
+it('认领的写地址不重开，返回已访问地址重挂时使用缓存', async () => {
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
   const api = serve({ '/api/tasks': tasks(), '/api/downloads': { available: true, providers: [], tasks: [] } });
@@ -153,7 +153,7 @@ it('A claimed write address never reopens, and remounting a previously visited a
   expect([api.calls('/api/tasks'), painted(stats)]).toEqual([1, page]);
   const length = window.history.length;
   await act(async () => { r.peachHistory.push('/tasks') });
-  await until(() => painted(stats) !== null && painted(stats) !== page, 'Drawn after remount');
+  await until(() => painted(stats) !== null && painted(stats) !== page, '重挂之后再画上');
   expect(api.calls('/api/tasks')).toBe(1);
   expect(r.managedEntry(stats)?.revision).not.toBe(revision);
   expect(window.history.length - length).toBe(1);
@@ -193,11 +193,11 @@ it('On back landing on a detail overlaying this page, when it was mounted (other
   await settle();
   expect([painted(stats), api.calls('/api/tasks')], 'Mounted under details without opening').toEqual([null, 1]);
   await act(async () => { r.shellNavigate('/tasks') });
-  await until(() => painted(stats) !== null, 'Drawn after closing details');
+  await until(() => painted(stats) !== null, '关掉详情后画上');
   expect(api.calls('/api/tasks')).toBe(1);
 });
 
-it('Walking away keeps the manage-area host alive for the target page to switch into; the submit stage raises no synchronous submit alert', async () => {
+it('走开时保留管理区宿主供目标页面切换，提交阶段没有同步提交告警', async () => {
   const errors = vi.spyOn(console, 'error');
   const r = await load('/tasks');
   const { stats } = surface(r, '/tasks');
@@ -251,14 +251,14 @@ it('Opening the taste page clears catalog filters and the search box, and the on
   expect(r.shell.cameFromSetup).toBe(false);
 });
 
-it('The old `/resource-sync` deep link rewrites to the resource sync tool page without a history entry', async () => {
+it('旧直达地址 `/resource-sync` 改写成资源同步工具页，不加历史条目', async () => {
   const r = await load('/resource-sync');
   surface(r, '/resource-sync');
   serve({});
   const length = window.history.length;
   const { actions } = await boot(r);
-  await until(() => location.pathname === '/data-cleanup/resource-sync', 'Rewrites to resource sync');
-  await until(() => vi.mocked(actions.surfaceChanged).mock.calls.length > 0, 'Data management page opens');
+  await until(() => location.pathname === '/data-cleanup/resource-sync', '改写到资源同步');
+  await until(() => vi.mocked(actions.surfaceChanged).mock.calls.length > 0, '数据管理页打开');
   expect([location.hash, window.history.length - length]).toEqual(['', 0]);
   expect(vi.mocked(actions.surfaceChanged).mock.calls).toEqual([['management', '/data-cleanup/resource-sync']]);
 });

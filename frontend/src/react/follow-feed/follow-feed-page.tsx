@@ -195,8 +195,8 @@ export function FollowFeedPage(props: FollowFeedProps) {
           onClear={() => route({ author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0 })} />
         {facets.broken.length ? <BrokenNote count={facets.broken.length} /> : null}
         <List retryKey={result.dataUpdatedAt} pending={listPending} facets={facets} data={data} context={context}
-          props={props} checkAction={<Button size="small" variant="secondary" aria-label="Check updates for each source" aria-busy={job.busy || undefined}
-            aria-disabled={job.busy || undefined} onClick={() => { if (!job.busy) void job.start(false) }}>Check updates</Button>} />
+          props={props} checkAction={<Button size="small" variant="secondary" aria-label="检查每个来源的更新" aria-busy={job.busy || undefined}
+            aria-disabled={job.busy || undefined} onClick={() => { if (!job.busy) void job.start(false) }}>检查更新</Button>} />
         {data.has_more || canBackfill ? (
           <div data-follow-pagination="">
             {data.has_more ? (
@@ -476,7 +476,7 @@ function Glass({ facets, view, total, busy, props, route }: {
       </>}
       bottom={<>
         <h3 data-entity-readout="" data-follow-readout="">
-          <AsyncText text={`${total.toLocaleString()} updates · showing ${facets.visible.length.toLocaleString()}`} busy={busy} />
+          <AsyncText text={`${total.toLocaleString()} 项更新 · 显示 ${facets.visible.length.toLocaleString()}`} busy={busy} />
         </h3>
         <LibraryShortcuts currentHref={() => location.pathname + location.search} kind="creator" />
         <span data-entity-sorts="">

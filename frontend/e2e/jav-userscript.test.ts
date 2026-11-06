@@ -72,7 +72,7 @@ async function open(browser: Browser, options: {
           }) }), 0);
           return { abort: () => request.onabort?.() };
         }
-        // The shared-progress task list follows the Peach response that doesn't provide that interface; the script falls back to page-by-page queries, not consuming the video query and submit numbers.
+        // 共享进度的任务列表按不提供该接口的 Peach 应答，脚本退回逐页查询，不占用影片查询与提交的编号。
         if (new URL(request.url).pathname === '/api/jav-browser/active') {
           const timer = setTimeout(() => request.onload({ status: 404, responseText: '{}' }), 0);
           return { abort: () => { clearTimeout(timer); request.onabort?.(); } };
@@ -173,16 +173,17 @@ async function selectCode(page: Page) {
 }
 
 const AUTOMATIC: Record<string, { path: string; title: string; html: string; source?: string; code?: string }> = {
-  dmm: { path: '/av/content/?id=ssis00519&private=secret#player', source: '/av/content/?id=ssis00519', code: 'SSIS-519', title: 'Video details', html: '<h1>Video details</h1>' },
-  mgs: { path: '/product/product_detail/300MIUM-1239/', code: '300MIUM-1239', title: 'Video details', html: '<h1>Video details</h1>' },
-  missav: { path: '/en/ssis-057', title: 'SSIS-057', html: '<h1>SSIS-057 video</h1>' },
-  jable: { path: '/videos/ssis-057/', title: 'Jable', html: '<div class="video-info"><h4>SSIS-057 video</h4></div>' },
-  'jav-guru': { path: '/12345/ssis-057-detail/', title: 'JAV.guru', html: '<h1 class="entry-title">[SSIS-057] video</h1>' },
-  njav: { path: '/en/v/ssis-057', title: 'NJAV / 123AV', html: '<h1>SSIS-057 video</h1><dl><dt>Code</dt><dd>SSIS-057</dd></dl>' },
-  javtiful: { path: '/video/12345/ssis-057', title: 'JAVtiful', html: '<h1>SSIS-057 video</h1>' },
-  '7mmtv': { path: '/ja/censored_content/12345/SSIS-057.html', title: '7mmtv', html: '<h1>SSIS-057 video</h1>' },
-  javdb: { path: '/v/ABP123', title: 'JavDB', html: '<h2 class="title">Video details</h2><div class="panel-block"><strong>Code:</strong><span class="value">SSIS-057</span></div>' },
-  javbus: { path: '/SSIS-057', title: 'JavBus', html: '<h3>Video details</h3><div class="info"><p><span class="header">ID:</span> SSIS-057</p></div>' },
+  dmm: { path: '/av/content/?id=ssis00519&private=secret#player', source: '/av/content/?id=ssis00519', code: 'SSIS-519', title: '作品详情', html: '<h1>作品详情</h1>' },
+  mgs: { path: '/product/product_detail/300MIUM-1239/', code: '300MIUM-1239', title: '作品详情', html: '<h1>作品详情</h1>' },
+  'fc2-market': { path: '/article/4900901/', code: 'FC2-PPV-4900901', title: '作品详情', html: '<h1>作品详情</h1>' },
+  missav: { path: '/en/ssis-057', title: 'SSIS-057', html: '<h1>SSIS-057 作品</h1>' },
+  jable: { path: '/videos/ssis-057/', title: 'Jable', html: '<div class="video-info"><h4>SSIS-057 作品</h4></div>' },
+  'jav-guru': { path: '/12345/ssis-057-detail/', title: 'JAV.guru', html: '<h1 class="entry-title">[SSIS-057] 作品</h1>' },
+  njav: { path: '/en/v/ssis-057', title: 'NJAV / 123AV', html: '<h1>SSIS-057 作品</h1><dl><dt>Code</dt><dd>SSIS-057</dd></dl>' },
+  javtiful: { path: '/video/12345/ssis-057', title: 'JAVtiful', html: '<h1>SSIS-057 作品</h1>' },
+  '7mmtv': { path: '/ja/censored_content/12345/SSIS-057.html', title: '7mmtv', html: '<h1>SSIS-057 作品</h1>' },
+  javdb: { path: '/v/ABP123', title: 'JavDB', html: '<h2 class="title">作品详情</h2><div class="panel-block"><strong>番號:</strong><span class="value">SSIS-057</span></div>' },
+  javbus: { path: '/SSIS-057', title: 'JavBus', html: '<h3>作品详情</h3><div class="info"><p><span class="header">識別碼:</span> SSIS-057</p></div>' },
   javlibrary: { path: '/cn/?v=opaque_123&private=secret#player', source: '/cn/?v=opaque_123', title: 'JavLibrary',
     html: '<div id="video_id"><span class="text">SSIS-057</span></div><div id="video_title">Video details</div>' },
   jav321: { path: '/video/opaque123', title: 'Jav321', html: '<h3>Video details</h3><div class="panel-body"><b>Code:</b> SSIS-057<br><b>Recommended:</b> ABW-123</div>' },

@@ -171,30 +171,30 @@ describe('Top bar search', () => {
       const opened = await openSearch(browser, { viewport, history: ['Recent searches'] });
       try {
         const { page } = opened;
-        // The recommendations column fetches everything in one request: the works one uses the demo library's real results, and the rest are swapped for fixtures that cover every group.
+        // 推荐栏一个请求取齐：作品那份用演示库的真结果，其余几份换成能覆盖每一组的夹具。
         await page.route(/\/api\/search\/recommendations/, async route => {
           const bundle = await (await route.fetch()).json();
           await route.fulfill({ json: { ...bundle,
-            jav: { items: [{ id: 11, asset_id: 11, code: 'ABW-101', title: 'JAV videos', is_jav: true, has_cover: true,
+            jav: { items: [{ id: 11, asset_id: 11, code: 'ABW-101', title: 'JAV 作品', is_jav: true, has_cover: true,
               performer_refs: [{ id: 90001, name: '七海ひな', has_image: true }] }] },
             follow: {
-              sources: [{ id: 1, author_key: 'name:author', label: 'Author', ref: 'Author', provider: 'pixiv', official_avatar_url: '/poster?id=11' }],
-              groups: [{ primary: { id: 901, source_id: 1, title: 'Followed videos', thumb_url: '/poster?id=11', media_kind: 'video', status: 'saved' },
-                variants: [{ id: 902, source_id: 1, title: 'Image videos', thumb_url: '/poster?id=12', media_kind: 'image', status: 'seen',
+              sources: [{ id: 1, author_key: 'name:作者', label: '作者', ref: '作者', provider: 'pixiv', official_avatar_url: '/poster?id=11' }],
+              groups: [{ primary: { id: 901, source_id: 1, title: '关注作品', thumb_url: '/poster?id=11', media_kind: 'video', status: 'saved' },
+                variants: [{ id: 902, source_id: 1, title: '图片作品', thumb_url: '/poster?id=12', media_kind: 'image', status: 'seen',
                   media_items: [{ index: 2, media_kind: 'image', thumb_url: '/poster?id=13' }] }], duplicates: [] }],
             },
-            // The author avatar reads the roster row's own address (official first, archive as fallback).
-            authors: { items: [{ k: 'Author', key: 'name:author', entity_id: 90002, avatar: '/poster?id=11', avatar_fallback: '' }] },
-            feeds: { items: [{ id: 91, code: 'ABW-102', title: 'Subscribe to new releases', has_cover: true }] },
+            // 作者头像读名册那一行自己的地址（官方优先、归档兜底）。
+            authors: { items: [{ k: '作者', key: 'name:作者', entity_id: 90002, avatar: '/poster?id=11', avatar_fallback: '' }] },
+            feeds: { items: [{ id: 91, code: 'ABW-102', title: '订阅新作', has_cover: true }] },
           } });
         });
-        // Recommendations are prefetched when the page is idle, before the fixtures are mounted; after mounting, reopen the page once so the prefetch uses the fixtures.
+        // 推荐在页面空闲时就预取好了，那时夹具还没挂上；挂好之后重开一次页面，预取走夹具。
         await page.reload({ waitUntil: 'load' });
         await page.locator(`${MENU} > .peach-react`).waitFor({ state: 'attached', timeout: 15_000 });
         if (viewport.mobile) await page.locator('#searchBtn').click();
         await page.locator('#q').click();
         await page.locator(`${MENU} [data-search-recommendations]`).waitFor();
-        // Before the recommendations arrive, the column first holds placeholders laid out in the final layout; only count once all placeholders are swapped for real rows.
+        // 推荐没到之前栏里先是按最终版式摆的占位，等占位都换成真行再数。
         await page.waitForFunction(() => !document.querySelector('#searchMenu [data-search-placeholder]'), undefined, { timeout: 10_000 });
         assert.equal(await page.locator(`${MENU} [data-kind="author"] [data-search-face] img`).count(), 1);
         for (const kind of ['asset', 'jav', 'post', 'photo', 'release']) {
@@ -310,7 +310,7 @@ describe('Top bar search', () => {
     }
   });
 
-  it('The search results page title shows the search term; clicking the sidebar “Home” returns to the home page without a term', { timeout: 60_000 }, async () => {
+  it('搜索结果页的标题写搜索词；点侧栏「首页」回到不带词的首页', { timeout: 60_000 }, async () => {
     const opened = await openSearch(browser);
     try {
       const { page } = opened;
@@ -318,19 +318,19 @@ describe('Top bar search', () => {
       await typeQuery(opened);
       await page.keyboard.press('Enter');
       await page.waitForFunction(() => new URLSearchParams(location.search).has('q'), undefined, { timeout: 5_000 });
-      const searched = `Search results: 「${query(page)!}」`;
+      const searched = `搜索结果：「${query(page)!}」`;
       await page.waitForFunction(text => document.querySelector('#catalogPageHeading [data-page-title]')?.textContent === text,
         searched, { timeout: 5_000 });
-      await page.locator('[data-nav][aria-label="Home"]').first().click();
+      await page.locator('[data-nav][aria-label="首页"]').first().click();
       await page.waitForFunction(() => !new URLSearchParams(location.search).has('q'), undefined, { timeout: 5_000 });
-      assert.equal(await title.textContent(), 'Home');
-      assert.equal(await page.locator('#q').inputValue(), '', 'Back on the home page, the search box still holds the term');
+      assert.equal(await title.textContent(), '首页');
+      assert.equal(await page.locator('#q').inputValue(), '', '回到首页后搜索框里还留着词');
     } finally {
       await opened.close();
     }
   });
 
-  it('Enter picks a performer: it opens her profile without a detour through search', { timeout: 60_000 }, async () => {
+  it('回车选中一位女优：打开她的资料页，不绕一趟搜索', { timeout: 60_000 }, async () => {
     const opened = await openSearch(browser);
     try {
       const { page, posts } = opened;

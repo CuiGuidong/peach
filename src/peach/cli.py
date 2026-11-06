@@ -118,12 +118,15 @@ def _serve(args: argparse.Namespace) -> int:
     if not distribution.standalone() and not _is_loopback(args.host) and (publish_mdns or TUNNEL_ENABLED):
         from .mdns import lan_ipv4
         tunnel_lan_address = args.mdns_address or lan_ipv4()
+    token = "" if args.setup else _serve_token(args)
+    secrets_dir = settings_file.active().directory("secrets")
     settings = PeachSettings(
         db_path=args.db,
         host=args.host,
         port=args.port,
-        token="" if args.setup else _serve_token(args),
-        access_path=settings_file.active().directory("secrets") / "access.json",
+        token=token,
+        token_file=auth.token_file(args.token, secrets_dir) if token else None,
+        access_path=secrets_dir / "access.json",
         configured=CONFIGURED and not args.setup,
         docs_enabled=args.docs,
         mdns_enabled=publish_mdns,
@@ -771,8 +774,7 @@ def _check_sources(args: argparse.Namespace) -> int:
         print("检查来源页面与图片 CDN；连通不代表作品资料或登录会话已验证。")
         for source in result["sources"]:
             for target in source["results"]:
-                state = "可连接" if target["ok"] else target.get("reason", "未取得")
-                print(f"{source['label']} / {target['label']} [{state}] {target.get('message', '')}")
+                print(f"{source['label']} / {target['label']} [{target['outcome_label']}] {target.get('message', '')}")
     return 0 if result["ok"] else 1
 
 

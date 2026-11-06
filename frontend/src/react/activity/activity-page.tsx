@@ -51,16 +51,16 @@ import {
 const FOLLOWUP_ROWS = 50;
 /** It only dispatches successor tasks: one round is just 'how many were scheduled'; what matters is the results of those items. */
 const DISPATCHERS = new Set(['upgrade-repairs']);
-/** The two items written into the summary at start, indicating which work this round processes (`taskSubject`). */
+/** 开跑时写进摘要、指明这一轮处理哪部作品的两项（`taskSubject`）。 */
 const SUBJECT_KEYS = new Set(['asset_id', 'name']);
 
-/* Done is green, failed and cancelled are red, Running is blue, unexpected interruption is yellow, queued is neutral. */
+/* 完成绿、失败与已取消红、进行中蓝、意外中断黄，排队为中性。 */
 const BADGE_COLORS: Record<string, 'lime' | 'rose' | 'yellow' | 'blue' | 'neutral'> = {
   succeeded: 'lime', failed: 'rose', cancelled: 'rose', interrupted: 'yellow', running: 'blue', pending: 'neutral',
 };
 
 const CONTROL_LABELS: Record<TaskControlState, string> = {
-  running: 'In progress', pausing: 'Pausing', paused: 'Paused', cancelling: 'Cancelling',
+  running: '进行中', pausing: '正在暂停', paused: '已暂停', cancelling: '正在取消',
 };
 
 function StatusBadge({ run }: { run: TaskRunPayload }) {
@@ -106,7 +106,7 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
               <TaskControls run={row} />
             </div>
             <TaskResources run={row} />
-            {/* Queued ones have no results yet: an empty "Technical details" expands to just a pair of braces. */}
+            {/* 排队中的那些还没有结果：空的「技术详情」展开只有一对花括号。 */}
             {Object.keys(row.result_summary || {}).length
               ? <div className="w-full min-w-0">
                   <Disclosure summary="Technical details" contentClassName="pb-2.5">
@@ -128,9 +128,10 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
 /** One card per task run. On failure the whole card's border switches to the danger color instead of coloring the end-reason line:
  *  reading red text line by line across a dozen rows is much slower than glancing at which card has a red border. */
 function RunCard(
-  { run, meta, children, error, issues, followups, followupTotal = 0, badge, resourceActive }:
+  { run, meta, children, error, issues, followups, followupTotal = 0, badge, resourceActive, controlled }:
   { run: TaskRunPayload; meta: string; children?: ReactNode; error?: string; issues?: ReactNode;
-    followups?: TaskRunPayload[]; followupTotal?: number; badge?: ReactNode; resourceActive?: boolean },
+    followups?: TaskRunPayload[]; followupTotal?: number; badge?: ReactNode; resourceActive?: boolean;
+    controlled?: TaskRunPayload[] },
 ) {
   /* When one round dispatches thousands of follow-ups, only the most recent few dozen are sent down, and merged batches may each carry dozens more: the title states the full count,
      the list shows running and queued first, then the most recently finished, capped at `FOLLOWUP_ROWS` entries, and says how many of the total are listed. */
@@ -157,25 +158,25 @@ function RunCard(
             <strong className="min-w-0 break-words text-title-3-medium text-text-primary">{run.task_label}</strong>
             {badge ?? <StatusBadge run={run} />}
           </div>
-          <TaskControls run={run} />
+          <TaskControls run={run} runs={controlled} />
         </div>
         <p className="text-caption-1-regular text-text-secondary">{meta}</p>
         <TaskResources run={run} active={resourceActive} />
-        {/* Filenames often run to hundreds of characters: single-line with a tail ellipsis, the code up front, the full name in the hover tooltip. No data-middle-truncate:
-            it measures width on Canvas without CJK/Latin auto-spacing, so names mixing CJK and English get their trailing pixels clipped. */}
+        {/* 文件名常有上百字：单行末尾省略，番号在开头，完整名称在悬停提示里。不用 data-middle-truncate：
+            它按 Canvas 量宽，不计中西文自动间距，中日文夹英文的名字会被裁掉末尾几个像素。 */}
         {subject ? <NameLink href={subject.href} data-task-subject={run.id} title={subject.label}
           className="min-w-0 max-w-full self-start truncate text-text-primary">
           {subject.label}
         </NameLink> : null}
-        {/* The end reason is the conclusion of this round, written in the body like the summary; the full text is details, collapsed into 'Error details' below. */}
+        {/* 结束原因是这一轮的结论，和摘要一样写在正文里；全文是明细，收进下面的「错误详情」。 */}
         {errorHead ? <p data-task-error="" className="text-caption-1-regular text-text-secondary wrap-anywhere">{errorHead}</p> : null}
         {children}
       </div>
-      {/* Issue details, error details, task details, and technical details are all expandable details, likewise laid out as a row at the card's bottom with a divider, in this order. */}
+      {/* 问题详情、错误详情、任务明细、技术详情都是可展开的明细，同样排成卡片底部带分隔线的一行，按这个顺序。 */}
       {issues ? <div className="border-t border-separator-border px-5 py-2.5">{issues}</div> : null}
       {errorHead && errorFull !== errorHead ? <div className="border-t border-separator-border px-5 py-2.5">
-        <Disclosure summary="Error details" contentClassName="pb-2.5">
-          <ErrorDetails label={`${run.task_label} Error details`}>{errorFull}</ErrorDetails>
+        <Disclosure summary="错误详情" contentClassName="pb-2.5">
+          <ErrorDetails label={`${run.task_label}错误详情`}>{errorFull}</ErrorDetails>
         </Disclosure>
       </div> : null}
       {shown ? <div className="border-t border-separator-border px-5 py-2.5">
@@ -188,10 +189,10 @@ function RunCard(
           <FollowupList rows={listed} />
         </Disclosure>
       </div> : null}
-      {/* When the summary only has the work written at start, it's already linked on the card, so no separate technical-details block is added. */}
+      {/* 摘要里只有开跑时写下的作品时，它已经链接在卡片上，不再单列一块技术详情。 */}
       {Object.keys(run.result_summary || {}).some((key) => !(subject && SUBJECT_KEYS.has(key)))
         ? <div className="border-t border-separator-border px-5 py-2.5">
-        <Disclosure summary="Technical details" contentClassName="pb-2.5">
+        <Disclosure summary="技术详情" contentClassName="pb-2.5">
           <CodeBlock code={JSON.stringify(run.result_summary, null, 2)} language="json"
             label={`${run.task_label} technical details`} />
         </Disclosure>
@@ -205,7 +206,7 @@ function RunningRun({ run, followups }: { run: TaskRunPayload; followups?: TaskR
   const current = run.progress_current || 0;
   const control = run.control?.state;
   const stopping = control && control !== 'running';
-  const label = stopping ? CONTROL_LABELS[control] : run.progress_label || 'Running';
+  const label = stopping ? CONTROL_LABELS[control] : run.progress_label || '正在进行';
   const elapsed = elapsedText(run.elapsed_seconds);
   const meta = [TRIGGER_LABELS[run.trigger] || run.trigger, elapsed && `Ran for ${elapsed}`]
     .filter(Boolean).join(' · ');
@@ -239,9 +240,9 @@ function SettledRun(
   const summary = batches
     ? [`Processed ${followupTotal!.toLocaleString()} items in total`, followupFailed ? `${followupFailed.toLocaleString()} of them failed` : '']
         .filter(Boolean)
-    // The work link already carries the file name, so the summary no longer lists “name”.
+    // 作品链接已写出文件名，摘要不再列「名称」。
     : summaryItems(taskSubject(run) ? { ...run.result_summary, name: '' } : run.result_summary)
-        // The end reason gets its own line on the card; the summary does not repeat the same sentence.
+        // 结束原因由卡片单独写一行，摘要里同一句不再重复。
         .filter((line) => line !== run.error && line !== readableErrorHeadline(run.error));
   const issues = taskIssues(run);
   const destination = problemDestination(run, latest);
@@ -254,9 +255,9 @@ function SettledRun(
        elapsed && `Took ${elapsed}`]).filter(Boolean).join(' · ');
   return (
     <RunCard run={run} meta={meta} error={run.error} followups={followups} followupTotal={followupTotal}
-      issues={issues.length ? <Disclosure summary={`Issue details · ${issues.length} items`} contentClassName="pb-2.5">
-        <ErrorDetails label="Task issue details">
-        {/* The same hierarchy as the data management issue list: the name is one tier, source and issue category follow the name in a secondary color, and the reason is one tier lower. */}
+      issues={issues.length ? <Disclosure summary={`问题详情 · ${issues.length} 项`} contentClassName="pb-2.5">
+        <ErrorDetails label="任务问题详情">
+        {/* 与数据管理的问题清单同一种分层：名字一层，来源与问题类别跟在名字后面用次级色，原因再低一档。 */}
         <ul className="flex min-w-0 flex-col whitespace-normal" data-task-issues="">
           {issues.map((issue, index) => <IssueRow key={`${issue.source}-${index}`} title={<>
               {issue.label}
@@ -271,20 +272,20 @@ function SettledRun(
       </Disclosure> : undefined}
       badge={followupCancelled && run.status === 'succeeded'
         ? <Chip color="rose"><span data-copy-key={`tasks.followups.cancelled.${followupCancelled === followupTotal ? 'all' : 'partial'}`}>
-            {followupCancelled === followupTotal ? 'Follow-up tasks cancelled' : 'Some follow-up tasks were cancelled'}
+            {followupCancelled === followupTotal ? '后续任务已取消' : '部分后续任务已取消'}
           </span></Chip>
-        : batches && followupFailed ? <Chip color="yellow">Issues found</Chip> : undefined}>
+        : batches && followupFailed ? <Chip color="yellow">发现问题</Chip> : undefined}>
       {followupCancelled ? <p className="text-caption-1-regular text-text-secondary">
-        Follow-up tasks cancelled {followupCancelled.toLocaleString()} items
+        后续任务已取消 {followupCancelled.toLocaleString()} 项
       </p> : null}
-      {/* No bullet when there is only one summary line: a lone dot reads like text missing below. */}
+      {/* 只有一句摘要时不加项目符号：单独一个圆点读起来像漏了下文。 */}
       {summary.length === 1
         ? <p className="text-caption-1-regular text-text-secondary wrap-anywhere">{summary[0]}</p>
         : summary.length ? <ul className="flex list-disc flex-col gap-1 pl-5 text-caption-1-regular text-text-secondary wrap-anywhere">
             {summary.map((line, index) => <li key={index}>{line}</li>)}
           </ul> : null}
       {!issues.length && hasResultProblems(run) && ['follow-check', 'feed-check'].includes(run.task_key)
-        ? <p className="text-body-2-regular text-text-secondary">Per-item details for this round were not fetched; check results are available in the source list.</p> : null}
+        ? <p className="text-body-2-regular text-text-secondary">未取得本轮逐项详情，可到来源列表查看检查结果。</p> : null}
       {destination
         ? <LinkButton href={destination.href} size="small" trailingIcon={RiArrowRightLine}
             className="self-start">
@@ -313,8 +314,8 @@ function WorkingRun(
     runs.length > 1 ? `${runs.length} batches` : '',
     `Started ${momentText(oldest.started_at || oldest.finished_at)}`].filter(Boolean).join(' · ');
   return (
-    <RunCard run={run} meta={meta} followups={followups} followupTotal={total} resourceActive
-      badge={run.control ? <StatusBadge run={run} /> : <Chip color="blue">Running</Chip>}>
+    <RunCard run={run} meta={meta} followups={followups} followupTotal={total} resourceActive controlled={runs}
+      badge={run.control ? <StatusBadge run={run} /> : <Chip color="blue">进行中</Chip>}>
       <div className="flex flex-col gap-1.5">
         <Progress label={`${run.task_label} progress`} value={settled} max={total} />
         <p className="text-caption-1-regular text-text-secondary">
@@ -409,11 +410,10 @@ export function ActivityPage() {
   };
   const folds = foldRoutine(finished, (run) => isRoutine(run)
     && (quietChildren(run) || DISPATCHERS.has(run.task_key)));
-  // Each parent task's control scope is independent: merging into one card would leave the successors of the earlier batch without a corresponding action entry.
-  const workingGroups = [
-    ...foldByKind(working.filter((run) => !run.control)),
-    ...working.filter((run) => run.control).map((run) => ({ run, runs: [run] })),
-  ].sort((left, right) => right.run.id - left.run.id);
+  // 控制状态相同的几批合成一张，卡上的暂停、继续、取消对其中每一批都发一次；
+  // 状态不同的（一批已暂停、一批在跑）分开摆，按钮才说得清作用在哪批上。
+  const workingGroups = foldByKind(working, (run) => run.control?.state || '')
+    .sort((left, right) => right.run.id - left.run.id);
   const newest = latestOfKind(allRuns);
   const quiet = !running.length && !working.length && !skipped.length && !finished.length;
   return (

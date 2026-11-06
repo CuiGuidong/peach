@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 from peach import download_postprocess as post
 from peach import ledger_backups
 from peach.downloads import DownloadStore, DownloadTask, INGESTED, POSTPROCESS_PENDING
+from peach.ingest_notices import IngestNotices
 from peach.jobs import JobDeferred
 from peach.repository import LedgerDatabase
 from support.ledger import fresh_ledger
@@ -141,16 +142,20 @@ class DownloadPostprocessTests(unittest.TestCase):
         def organize(*args):
             events.append('organize')
             return original(*args)
+        notices = IngestNotices()
         with patch.object(post, '_isolate_ads', side_effect=lambda *_: events.append('check') or 0), \
                 patch.object(post, '_probe_folder', side_effect=lambda *_, **options: events.append('probe') or 1), \
                 patch.object(post, '_collect', side_effect=lambda *_: events.append('collect') or {'followups': rows}), \
                 patch.object(post, '_organize', side_effect=organize), \
-                patch.object(post, 'declared_rows', return_value=rows):
+                patch.object(post, 'declared_rows', return_value=rows), patch.object(post, 'NOTICES', notices):
             result = self.run_task()
+            self.assertEqual(self.run_task(), {'task_id': self.task.id, 'already_complete': True})
         self.assertEqual(events, ['check', 'probe', 'check', 'collect', 'check', 'organize', 'followup'])
         self.assertEqual(result['probed'], 1)
-        self.assertEqual(self.run_task(), {'task_id': self.task.id, 'already_complete': True})
         self.contract.task_runs.enqueue_followups.assert_called_once()
+        # 整理完成记一条入库通知，页面据此弹 toast；已完成的再跑一次不重复记。
+        [notice] = notices.snapshot()['items']
+        self.assertEqual((notice['kind'], notice['asset_id']), ('download', result['asset_id']))
 
     def test_collection_that_steps_aside_stays_queued_instead_of_failed(self):
         self.handle.run_id = 123
@@ -189,9 +194,12 @@ class DownloadPostprocessTests(unittest.TestCase):
     def test_metadata_or_organization_failure_never_dispatches_followups(self):
         self.handle.run_id = 123
         self.contract.task_runs = Mock()
+        notices = IngestNotices()
         for failed_stage in ('_collect', '_organize'):
-            with self.subTest(stage=failed_stage), patch.object(post, failed_stage, side_effect=RuntimeError('模拟阶段失败')):
+            with self.subTest(stage=failed_stage), patch.object(post, failed_stage, side_effect=RuntimeError('模拟阶段失败')), \
+                    patch.object(post, 'NOTICES', notices):
                 with self.assertRaisesRegex(RuntimeError, '模拟阶段失败'):
                     self.run_task()
                 self.assertEqual(self.store.get(self.task.id).postprocess_state, 'failed')
                 self.contract.task_runs.enqueue_followups.assert_not_called()
+        self.assertEqual(notices.snapshot()['items'], [])

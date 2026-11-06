@@ -159,10 +159,13 @@ def _performer_entries(contract: WebContract, c, d: dict, alias_rows) -> dict:
     """
     metadata = d.get("metadata") or {}
     localization = metadata.get("name_localization") if isinstance(metadata, dict) else None
+    # 选艺名与排入口要看引用资料（记下的现名、作品页署名），资料不随页面下发。
+    refs = [dict(r) for r in c.execute(
+        "SELECT provider,external_kind,external_id,metadata_json FROM entity_external_ref "
+        "WHERE entity_id=? ORDER BY provider,external_kind,external_id", (d["id"],))]
     out = {"entry_links": entry_links.entry_links(
-        contract.entry_links_root, d["canonical_name"], d["external_refs"], alias_rows,
-        localization)}
-    if (entry_links.javdb_actor_pages(d["canonical_name"], d["external_refs"])
+        contract.entry_links_root, d["canonical_name"], refs, alias_rows, localization)}
+    if (entry_links.javdb_actor_pages(d["canonical_name"], refs)
             or feeds.dmm_actress_ids(c, d["id"])):
         out["feed"] = {"following": feeds.entity_following(c, d["id"])}
     return out
@@ -403,10 +406,11 @@ def agency_mark_link(links: list[dict]) -> int | None:
                  and not is_archive(link.get("url") or "")), None)
 
 
-def _entity_shape_parts(contract, connection, entity_id: int | None = None) -> dict[int, list[str]]:
-    """实体页形状的判据；深链只查询地址上的实体。"""
+def _entity_shape_parts(contract, connection, entity_id: int | None = None, *,
+                        feed: bool = True) -> dict[int, list[str]]:
+    """实体页形状的判据；深链只查询地址上的实体。`feed=False` 不算新作那一行，见 `entity_shape_rest`。"""
     scope = (entity_id,) if entity_id is not None else ()
-    parts = {key: ["feed"] for key in web_feeds.feed_row_entity_ids(contract, connection)
+    parts = {key: ["feed"] for key in (web_feeds.feed_row_entity_ids(contract, connection) if feed else ())
              if entity_id is None or key == entity_id}
     for row in connection.execute(
             "SELECT DISTINCT scope.entity_id FROM asset_entity scope"
@@ -479,22 +483,46 @@ def q_entity_shapes(contract, args) -> dict:
     跳。同台艺人的判据与 `q_entity` 那一份同一套；事务所那份名单走名册，不在卡底。
     名单放在服务端，几台设备看到的是同一份。页面按地址里的名字比对，所以别名一起给。
     """
+    return entity_shapes(entity_shape_rest(contract), entity_shape_feed(contract))
+
+
+#: 只有新作那一行读的表。后台采集每几秒写一次，名单其余部分不读它们，缓存不跟着它们失效。
+FEED_SHAPE_TABLES = ("feed_source", "feed_item", "feed_discovery", "feed_discovery_entity")
+
+
+def entity_shape_feed(contract) -> dict:
+    """新作那一行：首页有没有、哪些实体有。判据还读资产与设置，随整本账本失效；只有两条查询。"""
     with contract.database.read_connection() as connection:
-        home = {"feed": web_feeds.home_has_feed(contract, connection)}
-        parts = _entity_shape_parts(contract, connection)
+        return {"home": web_feeds.home_has_feed(contract, connection),
+                "ids": web_feeds.feed_row_entity_ids(contract, connection)}
+
+
+def entity_shape_rest(contract) -> dict:
+    """新作那一行以外的形状，连同全部实体的名字与别名：只有新作那一行的实体也要按名字比对。"""
+    with contract.database.read_connection() as connection:
+        parts = _entity_shape_parts(contract, connection, feed=False)
         entities = {int(row["id"]): {"id": int(row["id"]), "kind": row["kind"],
-                                     "names": [row["canonical_name"]], "parts": parts[int(row["id"])]}
-                    for row in connection.execute("SELECT id, kind, canonical_name FROM entity ORDER BY id")
-                    if int(row["id"]) in parts}
+                                     "names": [row["canonical_name"]], "parts": parts.get(int(row["id"]), [])}
+                    for row in connection.execute("SELECT id, kind, canonical_name FROM entity ORDER BY id")}
         for alias in connection.execute("SELECT entity_id, alias FROM entity_alias ORDER BY entity_id, alias"):
             names = entities.get(int(alias["entity_id"]), {}).get("names")
             if names is not None and alias["alias"] not in names:
                 names.append(alias["alias"])
         from .performer_name_display import variants
-        from .kanji import JP_KANJI_TO_SIMPLIFIED
         name_variants = variants(connection)
-    return {"ok": True, "home": home, "entities": list(entities.values()), "name_variants": name_variants,
-            "name_glyphs": JP_KANJI_TO_SIMPLIFIED}
+    return {"entities": entities, "name_variants": name_variants}
+
+
+def entity_shapes(rest: dict, feed: dict) -> dict:
+    """两份合成名单；只列至少有一块的实体，新作那一行排在最前。"""
+    from .kanji import JP_KANJI_TO_SIMPLIFIED
+    listed = []
+    for entity_id, entity in rest["entities"].items():
+        parts = (["feed"] if entity_id in feed["ids"] else []) + entity["parts"]
+        if parts:
+            listed.append({**entity, "parts": parts})
+    return {"ok": True, "home": {"feed": feed["home"]}, "entities": listed,
+            "name_variants": rest["name_variants"], "name_glyphs": JP_KANJI_TO_SIMPLIFIED}
 
 # ────────────────────────────── 照片 ──────────────────────────────
 # 图集就是目录：账本没有图集实体，一个目录下的图片本来就是一份图集，

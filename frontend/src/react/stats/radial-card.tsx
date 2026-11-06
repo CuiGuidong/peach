@@ -51,8 +51,8 @@ export function RadialCard(
   const shown = slices[focus];
   const toggle = (index: number) => setPinned((at) => (at === index ? -1 : index));
   const ceiling = radialCeiling(slices.map((row) => row.value));
-  /* The raw number goes in the `count` column, not `value`: when Recharts computes a sector it spreads this row out and writes `value` again, filling
-     the drawing column (`arc`), so the overlay would read an inflated arc length. */
+  /* 原始数放 `count` 列，不叫 `value`：Recharts 算扇区时把这一行展开后又写一遍 `value`，填的是
+     画图那一列（`arc`），浮层读到的就成了垫高的弧长。 */
   const data = slices.map((row, index) => (
     { slice: sliceKey(index), count: row.value, arc: radialArc(row.value, ceiling) }));
 

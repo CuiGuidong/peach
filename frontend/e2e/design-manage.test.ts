@@ -66,11 +66,11 @@ describe('Design decisions: data management, index page, and profile headers', (
   });
 
   const cleanupCards = [
-    { path: '/data-cleanup', label: 'Scan and scrape', skeleton: 'cleanup', names: ['Sync new files', 'More sync options'] },
-    { path: '/data-cleanup/media-repair', label: 'Media repair', skeleton: 'cleanup/media-repair', names: ['Start repair'] },
+    { path: '/data-cleanup', label: '扫描与采集', skeleton: 'cleanup', names: ['同步新增文件', '更多同步方式'] },
+    { path: '/data-cleanup/media-repair', label: '媒体修复', skeleton: 'cleanup/media-repair', names: ['开始修复'] },
   ];
   for (const viewport of [DESKTOP, MOBILE]) for (const item of cleanupCards) {
-    it(`The ${item.label} skeleton shares the content card's frame, padding, and action-area layout (${viewport.name})`, { timeout: 60_000 }, async () => {
+    it(`${item.label}骨架与内容卡共用外框、内边距和操作区布局（${viewport.name}）`, { timeout: 60_000 }, async () => {
       const opened = await visit(browser, item.path, viewport);
       try {
         const page = opened.page;
@@ -89,32 +89,32 @@ describe('Design decisions: data management, index page, and profile headers', (
         }));
         const waiting = await geometry();
         assert.equal(waiting.length, 1);
-        assert.equal(waiting[0]!.face[3], '0px', 'The skeleton card still has an outer frame; the on-page card relies only on its fill background');
+        assert.equal(waiting[0]!.face[3], '0px', '骨架卡还带着外框，页面上的卡只靠填充底');
         const expected = await disabledTokens(page);
         const faces = await waitingActionFaces(page, `[data-skeleton="${item.skeleton}"] [data-skeleton-action]`);
         assert.deepEqual(faces.map(face => face.name).filter(Boolean), item.names);
         for (const face of faces) assertDisabledFace(face, expected);
         const buttons = page.locator(`${card} footer button`).filter({ hasText: /同步新增文件|开始修复/ }).or(
-          page.locator(`${card} footer button[aria-label="More sync methods"]`));
+          page.locator(`${card} footer button[aria-label="更多同步方式"]`));
         const sizes = await buttons.evaluateAll(nodes => nodes.map(node => {
           const box = node.getBoundingClientRect();
           return [box.width, box.height];
         }));
         if (item.skeleton === 'cleanup') {
           const ring = await page.locator(`${card} [data-split-button]`).evaluate(node => getComputedStyle(node).boxShadow);
-          assert.ok(ring.includes(expected.ring), `The skeleton part-key outer ring is not the disabled stroke: ${ring}`);
+          assert.ok(ring.includes(expected.ring), `骨架分体键外圈不是禁用描边：${ring}`);
         }
         release();
         await page.locator(`${card} footer button:not([data-skeleton-action])`).first().waitFor({ timeout: 15_000 });
         await settle(page);
-        assert.deepEqual(await geometry(), waiting, 'The skeleton and content card container layouts disagree');
+        assert.deepEqual(await geometry(), waiting, '骨架与内容卡的容器布局不一致');
         assert.deepEqual(await buttons.evaluateAll(nodes => nodes.map(node => {
           const box = node.getBoundingClientRect();
           return [box.width, box.height];
-        })), sizes, 'The action button\'s size jumps when it takes over');
+        })), sizes, '操作按钮接管时尺寸跳变');
         assert.deepEqual(await buttons.evaluateAll(nodes => nodes.map(node => (node as HTMLButtonElement).disabled)), item.names.map(() => false));
         for (const face of await buttons.evaluateAll(nodes => nodes.map(node => getComputedStyle(node).backgroundImage))) {
-          assert.match(face, /gradient/, 'Once data arrives the action button still has not regained its primary style');
+          assert.match(face, /gradient/, '数据到了操作按钮仍未恢复主操作样式');
         }
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close() }
@@ -127,7 +127,7 @@ describe('Design decisions: data management, index page, and profile headers', (
     ['/data-cleanup/batch-delete', 'batch-delete'],
   ] as const;
   for (const viewport of [DESKTOP, MOBILE]) {
-    it(`The maintenance tool second-level page skeleton is drawn in the main content column; the first card is in the same position and width after handover (${viewport.name})`, { timeout: 90_000 }, async () => {
+    it(`维护工具二级页的骨架画在正文那一列里，首张卡与接管后同位同宽（${viewport.name}）`, { timeout: 90_000 }, async () => {
       const opened = await visit(browser, cleanupTools[0][0], viewport);
       try {
         const page = opened.page;
@@ -146,27 +146,27 @@ describe('Design decisions: data management, index page, and profile headers', (
           waiting[path] = await frame(`[data-skeleton="cleanup/${key}"] [inert]`);
         }
         release();
-        // In the beat of handover, the old skeleton moves into the fade-out layer .skelfade, no longer hanging under data-skeleton; both layers must be excluded.
+        // 接管那一拍旧骨架挪进淡出层 `.skelfade`，不再挂在 `[data-skeleton]` 下，两层都要排除。
         const content = '#stats .max-w-board:not([data-skeleton] *, .skelfade *)';
         for (const [path] of cleanupTools) {
           await page.goto(new URL(path, page.url()).href, { waitUntil: 'load' });
           await page.locator(`${content} > *`).first().waitFor({ timeout: 15_000 });
           await page.locator('#stats .skelfade').waitFor({ state: 'detached', timeout: 15_000 });
           await settle(page);
-          assert.deepEqual(await frame(content), waiting[path], `${path} skeleton and content disagree on the body column or first card position`);
+          assert.deepEqual(await frame(content), waiting[path], `${path} 骨架与内容的正文列或首张卡位置不一致`);
         }
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close() }
     });
   }
 
-  it('Tool page headings use medium; link readings use the established size and line height', { timeout: 60_000 }, async () => {
+  it('工具页标题采用 medium，链接读数使用既定字号与行高', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/data-cleanup/links', DESKTOP);
     try {
       const page = opened.page;
       for (const [path, id, name] of [
-        ['/data-cleanup/links', 'link-manager', 'Link management'],
-        ['/data-cleanup/resource-sync', 'resource-sync', 'Resource sync'],
+        ['/data-cleanup/links', 'link-manager', '链接管理'],
+        ['/data-cleanup/resource-sync', 'resource-sync', '资源同步'],
       ]) {
         await page.goto(new URL(path!, page.url()).href);
         await page.locator(`#${id}-title`).waitFor({ timeout: 15_000 });
@@ -175,8 +175,8 @@ describe('Design decisions: data management, index page, and profile headers', (
           const css = getComputedStyle(node);
           return [css.fontSize, css.fontWeight, css.lineHeight, css.marginBottom];
         });
-        assert.deepEqual(heading, ['20px', '500', '26px', '8px'], `${name} heading style`);
-        assert.equal(await page.locator(`#${id} > h2, #${id} > h3`).count(), 0, 'An out-of-frame title appeared');
+        assert.deepEqual(heading, ['20px', '500', '26px', '8px'], `${name}标题样式`);
+        assert.equal(await page.locator(`#${id} > h2, #${id} > h3`).count(), 0, '出现了框外标题');
         if (id === 'link-manager') {
           const styles = await page.locator('#link-manager .link-stat-grid').evaluate(node => {
             const label = getComputedStyle(node.querySelector('span')!);

@@ -134,8 +134,8 @@ export function OrphanRecordsCard({ toast }: { toast(message: string): void }) {
               <FieldsetTitle id="orphan-records-title">Records with missing files</FieldsetTitle>
               <Note tone="error" title="Failed to read records whose files are lost">{errorMessage(query.error)}</Note>
             </Fieldset>
-          : <DataTable label="Videos whose files disappeared" items={items} columns={columns}
-              title="Records with missing files" titleId="orphan-records-title" unit="videos"
+          : <DataTable label="文件已消失的作品" items={items} columns={columns}
+              title="文件已丢失的记录" titleId="orphan-records-title" unit="条作品"
               description={ORPHAN_RECORDS_TEXT}
               rowId={(item) => String(item.id)} rowLabel={(item) => item.name}
               selected={selected} onSelected={setSelected}

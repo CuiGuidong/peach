@@ -6,21 +6,25 @@
  * go by `['feed-new']`. Card HTML is still assembled by the shell (`feedRowHtml`): cover framing, the edition mark and the
  * connection-method Note are the legacy layer's copies, and the image-failure fallback chain mutates nodes directly. */
 import { appSettingsStore } from '@peach/appearance';
+import type { CoverState } from '@peach/card-art';
 import { api } from '@peach/legacy/core';
 
 import { queryClient } from '../query';
 
-/** The reply from `/api/feeds/discoveries`: the items plus how many videos had their cover fetch dropped on the connection in the latest round. */
-export interface FeedDiscoveries { items?: { id: number; has_cover?: boolean; cover_fetching?: boolean }[]; cover_network?: number }
+/** `/api/feeds/discoveries` 的回话：条目与最近一轮取封面断在连接上的部数。 */
+export interface FeedDiscoveries { items?: FeedNewItem[]; cover_network?: number }
 
-/** What the new releases row fetches back: entries (used only to check existence) and the full HTML the shell assembles. */
+/** 一行里的一部：判有没有、哪几部的封面还在排队（这一行的一键插队只管这几部）。 */
+export interface FeedNewItem { id: number; code?: string; has_cover?: boolean; cover_url?: string | null; cover_state?: CoverState | null }
+
+/** 新作那一行取回来的样子：条目与壳拼好的整段 HTML。 */
 export interface FeedNew {
-  items: { id: number }[];
+  items: FeedNewItem[];
   html: string;
   fetching?: boolean;
 }
 
-/** The whole HTML assembled by the shell: the Note for when the image host is unreachable and a row of cards (`feedNewCardHtml`). */
+/** 壳拼的整段 HTML：连不上图片主机时的 Note 与一排卡（`feedNewCardHtml`）。 */
 export type FeedRowHtml = (data: FeedDiscoveries | null, allHref?: string) => string;
 
 /** The profile page row keys by entity id; the home page row does not distinguish people. */
@@ -56,10 +60,10 @@ export async function fetchFeedNew(entityId: number | null, rowHtml: FeedRowHtml
   const data = await (api(`/api/feeds/discoveries?${query}`).catch(() => null) as Promise<FeedDiscoveries | null>);
   const ok = data && !(data as { error?: string }).error ? data : null;
   const items = ok?.items || [];
-  // The home-page row ends with “View all new releases”; the profile page row lists only this person's and doesn't have that.
+  // 首页那一行在行尾带「查看全部新作」，资料页那一行只列这个人的，不带。
   const html = rowHtml(ok, entityId ? '' : '/jav?tab=releases');
   if (preload && items.length) await preloadImages(html, FEED_SKELETON_CARDS, FEED_COVER_WAIT);
-  return { items, html, fetching: items.some(item => item.cover_fetching && !item.has_cover) };
+  return { items, html, fetching: items.some(item => item.cover_state === 'fetching') };
 }
 
 export const feedNewOptions = (entityId: number | null, rowHtml: FeedRowHtml, preload = false) => ({

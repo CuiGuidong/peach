@@ -55,7 +55,7 @@ describe('Play wall browsing and details', () => {
         return { left:box.left, right:box.right, top:box.top, backRight:back.right, backBottom:back.bottom, width:innerWidth,
           overlap:action.left < text.right && action.right > text.left && action.top < text.bottom && action.bottom > text.top };
       });
-      // The prompt bar lines up after the round key in the top-left when on the same row; on narrow screens it wraps to the next line when it doesn't fit; neither covers the back key.
+      // 提示条和左上角圆键同排时排在后面，窄屏放不下时换到下一行，都不压住返回键。
       const clear = geometry.left >= geometry.backRight + 8 || geometry.top >= geometry.backBottom + 8;
       assert(clear && geometry.right <= geometry.width, JSON.stringify(geometry));
       assert.equal(geometry.overlap, false);
@@ -217,7 +217,7 @@ describe('Play wall browsing and details', () => {
         new MutationObserver(records => records.forEach(record => record.addedNodes.forEach(node => {
           if (node instanceof Element) boot.home += Number(node.matches('.catalog-skeleton')) + node.querySelectorAll('.catalog-skeleton').length;
         }))).observe(document, { childList:true,subtree:true });
-        // Check frame by frame whether home-page residue shows up: the home page title, and the shimmer of the image-waiting state that set visibility:visible on itself.
+        // 逐帧查首页残留是否露面：首页标题，以及自己写了 `visibility:visible` 的图片等待态微光。
         const frame = () => {
           const heading = document.querySelector<HTMLElement>('#catalogPageHeading');
           if (heading && !heading.hidden && getComputedStyle(heading).visibility === 'visible') boot.shown++;
@@ -238,7 +238,7 @@ describe('Play wall browsing and details', () => {
       assert.equal(await page.locator('header.top').isVisible(), false);
       releaseItems(); await page.locator('[data-wall-empty]').waitFor();
       assert.deepEqual(await page.evaluate(() => (window as unknown as { wallBoot:{ home:number; shown:number } }).wallBoot), { home:0, shown:0 });
-      await page.getByRole('button', { name:'Exit the video wall' }).click();
+      await page.getByRole('button', { name:'退出播放墙' }).click();
       await page.locator('header.top').waitFor({ state:'visible' });
       assert.equal(await page.locator('html').getAttribute('data-wall-entry'), null);
     } finally { releaseModule(); releaseItems(); await context.close() }
@@ -261,7 +261,7 @@ describe('Play wall browsing and details', () => {
       assert.equal(await img.evaluate(node => getComputedStyle(node.closest('[data-media-pic]')!).clipPath), 'inset(0px)');
       const wide = await page.locator('[data-wall-id="1"] img').evaluate(node => ({ whole:node.classList.contains('whole'), fit:getComputedStyle(node).objectFit }));
       assert.deepEqual(wide, { whole:true, fit:'cover' });
-      await page.getByRole('button', { name:'Show video thumbnails', exact:true }).click();
+      await page.getByRole('button', { name:'显示视频缩略图', exact:true }).click();
       assert.equal(await page.locator('[data-wall-id="11"]').count(), 0);
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
@@ -375,7 +375,7 @@ describe('Play wall browsing and details', () => {
         await page.mouse.move(box.x + box.width / 2 + 85, box.y + box.height / 2 + 70, { steps: 8 });
         await page.mouse.up();
         assert.notDeepEqual(await camera(page), initial);
-        assert.equal(await page.locator('[data-wall-focus]').count(), 0, 'Dragging never expands the video');
+        assert.equal(await page.locator('[data-wall-focus]').count(), 0, '拖动不展开作品');
         const anchor = { x: box.x + box.width * .6, y: box.y + box.height * .4 };
         const under = () => region.evaluate((node, point) => {
           const view = (node as HTMLElement).dataset, scale = Number(view.cameraScale);
@@ -383,15 +383,15 @@ describe('Play wall browsing and details', () => {
         }, { x: anchor.x - box.x, y: anchor.y - box.y });
         const before = await under();
         await page.mouse.move(anchor.x, anchor.y); await page.mouse.wheel(0, -300);
-        // It is settled only once the easing finishes and the world layer drops `will-change`.
+        // 缓动走完、世界层摘掉 `will-change` 才算停稳。
         await page.waitForFunction(() => Number(document.querySelector<HTMLElement>('[data-wall-viewport]')!.dataset.cameraScale) > 1
           && !document.querySelector<HTMLElement>('[data-wall-world]')!.style.willChange);
         const zoomed = await under();
-        assert.ok(zoomed.scale > before.scale, 'Zoom in with wheel up');
-        assert.ok(Math.abs(zoomed.x - before.x) < 1 && Math.abs(zoomed.y - before.y) < 1, 'The position under the pointer stays put across zoom');
+        assert.ok(zoomed.scale > before.scale, '向上滚轮放大');
+        assert.ok(Math.abs(zoomed.x - before.x) < 1 && Math.abs(zoomed.y - before.y) < 1, '指针下的位置缩放前后不动');
         await region.focus(); await page.keyboard.press('ArrowRight'); await page.keyboard.press('0');
         assert.equal(await region.evaluate(node => (node as HTMLElement).dataset.cameraScale), '1');
-        const toggle = page.getByRole('button', { name: 'Show video thumbnails', exact: true });
+        const toggle = page.getByRole('button', { name: '显示视频缩略图', exact: true });
         await toggle.click(); assert.equal(await toggle.getAttribute('aria-pressed'), 'true');
         await toggle.click(); assert.equal(await toggle.getAttribute('aria-pressed'), 'false');
         await pick(page);
@@ -442,13 +442,13 @@ describe('Play wall browsing and details', () => {
       const ids = await page.locator('[data-wall-id]').evaluateAll(nodes => nodes.map(node => (node as HTMLElement).dataset.wallId));
       assert.equal(new Set(ids).size, ids.length);
       const wallUrl = page.url();
-      await page.getByRole('button', { name:'Open search', exact:true }).click();
-      await page.getByRole('button', { name:'Search', exact:true }).click();
-      assert.equal(page.url(), wallUrl, 'If the keyword is unchanged, clicking the magnifier only collapses; it does not re-enter the wall');
+      await page.getByRole('button', { name:'打开搜索', exact:true }).click();
+      await page.getByRole('button', { name:'搜索', exact:true }).click();
+      assert.equal(page.url(), wallUrl, '关键词没变时再点放大镜只收起，不重进墙面');
       assert.equal(await page.locator('[data-wall-search][data-open]').count(), 0);
       assert.ok(await page.locator('[data-wall-tile]').count() > 0);
-      await page.getByRole('button', { name:'Open search', exact:true }).click();
-      assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Search video wall', 'Ready to type right after expanding');
+      await page.getByRole('button', { name:'打开搜索', exact:true }).click();
+      assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), '搜索播放墙', '展开后直接可输入');
       const searched = page.waitForRequest(request => {
         const url = new URL(request.url());
         return url.pathname === '/api/items' && url.searchParams.get('q') === 'The new keyword';
@@ -479,7 +479,7 @@ describe('Play wall browsing and details', () => {
           location: 'local', is_jav: false, has_cover: true, cover_key: 'NON-JAV', has_thumb: true }], total: params.has('orient') ? 0 : 1 } });
       });
       await page.reload(); await page.locator('[data-media-card]').first().waitFor(); await enter(page);
-      const toggle = page.getByRole('button', { name: 'Show video thumbnails', exact: true });
+      const toggle = page.getByRole('button', { name: '显示视频缩略图', exact: true });
       const source = () => page.locator('[data-wall-tile] img').first().getAttribute('src');
       assert.match((await source())!, /\/cover\?/);
       await toggle.click();
@@ -586,11 +586,11 @@ describe('Play wall browsing and details', () => {
       await page.locator('[data-wall-empty]').waitFor();
       await addWallCovers(page);
       assert.equal(await page.locator('[data-wall-tile]').count(), 0);
-      assert.equal(await page.getByRole('button', { name:'Exit the video wall' }).isVisible(), true);
-      assert.equal(await page.getByRole('button', { name:'Clear filters', exact:true }).isVisible(), true);
-      await page.getByRole('button', { name:'Open search', exact:true }).click();
-      await page.getByRole('searchbox', { name:'Search video wall' }).fill('');
-      await page.getByRole('searchbox', { name:'Search video wall' }).press('Enter');
+      assert.equal(await page.getByRole('button', { name:'退出播放墙' }).isVisible(), true);
+      assert.equal(await page.getByRole('button', { name:'清除筛选', exact:true }).isVisible(), true);
+      await page.getByRole('button', { name:'打开搜索', exact:true }).click();
+      await page.getByRole('searchbox', { name:'搜索播放墙' }).fill('');
+      await page.getByRole('searchbox', { name:'搜索播放墙' }).press('Enter');
       await page.locator('[data-wall-tile]').first().waitFor();
       assert.deepEqual(opened.problems, []);
     } finally { await page.unrouteAll({ behavior:'wait' }); await opened.close() }

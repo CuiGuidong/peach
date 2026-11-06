@@ -551,8 +551,11 @@ export interface FeedLookup {
   candidates: FeedCandidate[];
   /** The cards whose name matches and resolves to exactly one person are pre-checked for the user; empty when several people share the name. */
   suggested: string[];
-  /** The person recognizable in the database by this name; null when unrecognized, and registration creates one then. */
-  known: { id: number; name: string } | null;
+  /** 数据库里按这个名字认得出的那位；认不出是 null，登记时会新建。`subscribable` 是她已有
+   *  JavDB 演员页或 DMM 编号、不经搜索就能订，`following` 是已经在订。 */
+  known: { id: number; name: string; subscribable: boolean; following: boolean } | null;
+  /** JavDB 这一趟没搜成的原因；只在库里的她能直接订时随结果一起回来，否则整次查找报错。 */
+  unavailable?: string;
 }
 
 export const lookupFeedActor = (name: string, signal?: AbortSignal) =>
@@ -570,7 +573,12 @@ export interface FeedFollowed {
 export const followFeedByName = (name: string, ids: string[], signal?: AbortSignal) =>
   apiSend<FeedFollowed>(FEED_SOURCE_URL, { action: 'follow-name', name, ids }, 'POST', signal);
 
-/** First screen: creator sources, JAV subscriptions, and credential status arrive before rendering.
+/** 按库里认出的这位直接订，和人物页「订阅新作」开关同一个动作。 */
+export const followFeedEntity = (entityId: number, signal?: AbortSignal) =>
+  apiSend<{ entity_id: number; following: boolean; sources: number[] }>(
+    FEED_SOURCE_URL, { action: 'follow', entity_id: entityId, enabled: true }, 'POST', signal);
+
+/** 首屏：创作者来源、JAV 订阅与凭据状态取回来才画。
  *
  * The two background runs are not in the first screen: their snapshots hold the previous run's receipt year-round, and waiting for them would add a round trip
  * to the first screen, while their own keys are read as soon as mounted. On abort `fetchQuery` throws `AbortError` back to the mounter. */

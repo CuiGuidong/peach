@@ -584,7 +584,7 @@ catalogState.gridActions = {
   openMix:(seedId,anchor)=>openMix(seedId,seedId,true,anchor),
   openEntity:(kind,name)=>openEntity(kind,name),
   openUnowned:()=>goHome({owner:'none'}),
-  /* A card's tag means "only this tag", and tapping again cancels it when already filtering. It takes effect on whichever screen it was tapped on. */
+  /* 卡片上的标签是「只看这个标签」，已经在筛它就取消。在哪一屏点就在哪一屏生效。 */
   toggleTag:tag=>{
     commitContextFilter(filters=>{filters.tag=catalogState.tagPressed(filters.tag,tag)?'':tag});
   },

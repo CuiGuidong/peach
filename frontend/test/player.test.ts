@@ -39,7 +39,7 @@ const host = (seekSeconds = 10): PlayerHost => ({
 
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
-it('The player tour suppresses sources and autoplay; after it ends the saved playback preferences apply', async () => {
+it('播放器导览抑制片源与自动播放，结束后沿用已保存的播放偏好', async () => {
   const settings = { ...host().settings(), detailAutoplay: true };
   const saveSettings = vi.fn();
   configurePlayer({ ...host(), settings: () => settings, saveSettings });
@@ -69,8 +69,8 @@ it('The player tour suppresses sources and autoplay; after it ends the saved pla
   } finally { releaseNormal(); configurePlayer(host()) }
 });
 
-describe('Source rules', () => {
-  it('Saved online videos go through the follows entry proxy and never ask stream-plan', async () => {
+describe('片源判据', () => {
+  it('保存过的在线作品走关注条目的代理，不问 stream-plan', async () => {
     const calls = stubFetch(() => null);
     const source = await playableStreamSource({ id: 7, location: 'online', follow_item_id: 42 }, 's1');
     expect(source).toEqual({ src: '/follow-stream?id=42', type: 'video/mp4' });

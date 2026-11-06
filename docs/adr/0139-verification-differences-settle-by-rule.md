@@ -3,6 +3,7 @@
 - 状态：已采纳
 - 日期：2026-11-04
 - 关系：修订 [ADR-0108](0108-nfo-verification-and-reviewed-overwrites.md)「覆盖已有值必须复核」；ADR-0025 否决的归一化比对与来源优先级取舍只在本 ADR 划定的范围内放开；沿用 [ADR-0033](0033-online-sources-only-fill-empty-fields.md) 的社区来源只补空、[ADR-0038](0038-field-priority-chain-settles-dissent.md) 的字段优先级链与 [ADR-0052](0052-entity-results-land-when-evidence-is-sufficient.md) 的可撤回自动落库
+- 补充：[ADR-0141](0141-review-page-reverts-settlement-writes.md) 让复核页逐条列出这两条规则的写入、勾选后预览并撤回，覆盖改为一次结算一个批次号
 
 ## 背景
 

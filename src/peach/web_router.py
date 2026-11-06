@@ -38,12 +38,15 @@ from .web_catalog import (
     w_item_tag,
 )
 from .web_entity import (
+    FEED_SHAPE_TABLES,
     SUGGEST_GROUP_LIMIT,
     SUGGEST_KIND_LIMIT,
+    entity_shape_feed,
+    entity_shape_rest,
+    entity_shapes,
     q_entity,
     q_entity_latest,
     q_entity_photos,
-    q_entity_shapes,
     q_index,
     q_photo_set,
     q_suggest,
@@ -103,16 +106,17 @@ from .web_playlists import q_playlist, q_playlists, w_playlist
 from .web_custom_metadata import q_custom_metadata, w_custom_metadata
 from .web_resource_sync import w_purge_missing, w_resource_sync_apply, w_resource_sync_scan
 from .web_review import q_review, w_review_decision, w_review_genre
+from .web_auto_landings import q_auto_landings, w_auto_landing_revert
 from .web_settings import q_settings, w_settings
 from .web_library_shortcuts import q_library_shortcuts, w_library_shortcuts
 from .web_tutorial import q_tutorial_progress, w_tutorial_progress
 from .web_folders import q_folders, w_folder_preview, w_folder_rule
 from .web_scraping import (
     q_scraping, q_scraping_amane_bridge, w_scraping_amane_check, w_scraping_amane_rebuild,
-    w_scraping_check, w_scraping_cover, w_scraping_settings,
+    w_scraping_check, w_scraping_check_all, w_scraping_cover, w_scraping_settings,
 )
 from .web_state import WebContract, path_version
-from .web_tasks import q_tasks
+from .web_tasks import q_result_updates, q_tasks
 from .web_timeline_thumbnails import (
     q_media_processing, q_thumbnail_jobs, q_timeline, w_media_processing, w_thumbnail_jobs,
 )
@@ -289,9 +293,13 @@ def _get_review(contract, args):
 
 
 def _get_entity_shapes(contract, args):
-    # 每一页开头都要这一份（骨架照它留位），全部来自账本，账本不变就一直用同一份。
-    return contract.cached_until_changed("entity-shapes",
-                                         lambda: q_entity_shapes(contract, args))
+    # 每一页开头都要这一份（骨架照它留位），全部来自账本，账本不变就一直用同一份。后台采集每几秒
+    # 写一次订阅表，只让新作那一小份跟着重算；其余部分按订阅表以外的表失效。
+    rest = contract.cached_until_changed(
+        "entity-shapes", lambda: entity_shape_rest(contract),
+        tables=contract.ledger_tables_except(FEED_SHAPE_TABLES))
+    feed = contract.cached_until_changed("entity-shapes-feed", lambda: entity_shape_feed(contract))
+    return entity_shapes(rest, feed)
 
 
 #: 安装教程每一项只读这几个字段。载荷形状由 `test_post_setup_tutorial_only_carries_progress_counts`
@@ -351,6 +359,7 @@ GET_HANDLERS = {
     "/api/media-processing": q_media_processing,
     "/api/folders": q_folders,
     "/api/tasks": q_tasks,
+    "/api/result-updates": q_result_updates,
     "/api/downloads": q_downloads,
     "/api/resources/search": q_resource_search,
     "/api/jav/detail": q_jav_detail,
@@ -365,6 +374,7 @@ GET_HANDLERS = {
     "/api/scraping": q_scraping,
     "/api/scraping/cover": lambda contract, args: contract.scraping_cover_job.snapshot() or {"status": "idle"},
     "/api/scraping/amane-bridge": q_scraping_amane_bridge,
+    "/api/scraping/check-all": lambda contract, args: contract.source_check_job.snapshot() or {"status": "idle"},
     "/api/settings": q_settings,
     "/api/library-shortcuts": q_library_shortcuts,
     "/api/tutorial-progress": q_tutorial_progress,
@@ -418,6 +428,7 @@ GET_HANDLERS = {
     "/api/search/recommendations": q_search_recommendations,
     "/api/taste": _get_taste,
     "/api/review": _get_review,
+    "/api/review/auto-landings": q_auto_landings,
     "/api/post-setup-tutorial": _get_post_setup_tutorial,
 }
 
@@ -436,6 +447,7 @@ POST_HANDLERS = {
     "/api/scraping/cover": w_scraping_cover,
     "/api/jav/cover": w_jav_cover,
     "/api/scraping/check": w_scraping_check,
+    "/api/scraping/check-all": w_scraping_check_all,
     "/api/scraping/amane-bridge/check": w_scraping_amane_check,
     "/api/scraping/amane-bridge/rebuild": w_scraping_amane_rebuild,
     "/api/feeds/check": w_feed_check,
@@ -484,6 +496,7 @@ POST_HANDLERS = {
     "/api/media-repair": w_media_repair,
     "/api/review/decision": w_review_decision,
     "/api/review/genre": w_review_genre,
+    "/api/review/auto-landings/revert": w_auto_landing_revert,
     "/api/settings": w_settings,
     "/api/library-shortcuts": w_library_shortcuts,
     "/api/tutorial-progress": w_tutorial_progress,

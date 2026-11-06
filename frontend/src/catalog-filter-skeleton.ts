@@ -21,7 +21,7 @@ const esc = (value: string): string => value.replace(/[&<>"]/g, (ch) =>
 
 const slots = (html: string): string => html.repeat(EMPTY_SLOTS);
 
-/** The placeholder cells for the actress or label row; the two rows in the JAV New Releases section also use this while waiting for data. */
+/** 女优或厂牌那一排的占位格；JAV 新作分区的两排等数据时也用这一份。 */
 export const tierPlaceholdersHtml = (kind: 'performer' | 'studio'): string =>
   slots(`<span data-catalog-placeholder="${kind}" aria-hidden="true"><span></span><span>&nbsp;</span></span>`);
 

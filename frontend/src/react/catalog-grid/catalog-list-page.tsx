@@ -74,7 +74,7 @@ export function CatalogListPage(props: CatalogGridProps) {
       if (options.sort) query.set('sort', options.sort);
       if (options.dir) query.set('dir', options.dir);
       const page = await apiGet<MediaPage>(`/api/items?${query}`, signal);
-      /* Same criterion as the card grid (`fetchCatalogPage`): when the first page is empty and this is not the trash, ask whether the whole library has anything; the empty state then splits into "No works yet" and "No matches". */
+      /* 与卡片网格同一判据（`fetchCatalogPage`）：第一页为空、又不是回收站，再问整个馆藏有没有东西，空态据此分「还没有作品」与「没有符合的」。 */
       if (offset || page.items?.length || props.filters?.state === 'trash') return page;
       return { ...page, libraryEmpty: (await apiGet<MediaPage>('/api/items?limit=1&thumb=0', signal)).total === 0 };
     },
@@ -103,7 +103,7 @@ export function CatalogListPage(props: CatalogGridProps) {
   const rowSelection: RowSelectionState = props.selectMode ? Object.fromEntries([...props.selected].map(id => [String(id), true])) : {};
   const columns = useMemo(() => {
     const helper = createColumnHelper<typeof features, MediaItem>();
-    /* The column order follows catalogColumns, the same as the skeleton and the 'display columns' order. */
+    /* 列的先后照 `catalogColumns`，与骨架、「显示列」里的顺序同一份。 */
     return helper.columns([
       helper.display({ id: 'select', header: ({ table }) => <TableSelectionHeader table={table} label="Select all videos on this page" disabled={result.isPlaceholderData} />,
       cell: ({ row }) => <Checkbox slot={null} aria-label={`Choose ${props.helpers.displayName(row.original, row.original.name || '')}`}
@@ -111,10 +111,10 @@ export function CatalogListPage(props: CatalogGridProps) {
         isSelected={row.getIsSelected()} onChange={on => row.toggleSelected(on)} /> }),
       helper.accessor(item => item.name || '', { id: 'name', header: 'Videos', enableSorting: true,
         cell: ({ row }) => <ListIdentity item={row.original} props={props} disabled={result.isPlaceholderData} /> }),
-      helper.display({ id: 'library', header: 'Media library', cell: ({ row }) => <ListLibrary item={row.original} /> }),
-      helper.display({ id: 'people', header: 'Artists', cell: ({ row }) => <ListPeople item={row.original} props={props} /> }),
-      /* Tags match the cards: a follows entry's tags are not clickable, everything else filters by that tag on click. */
-      helper.display({ id: 'tags', header: 'Tags', cell: ({ row }) => {
+      helper.display({ id: 'library', header: '媒体库', cell: ({ row }) => <ListLibrary item={row.original} /> }),
+      helper.display({ id: 'people', header: '艺人', cell: ({ row }) => <ListPeople item={row.original} props={props} /> }),
+      /* 标签与卡片同一套：关注条目的标签不可点，其余点一下按这个标签筛选。 */
+      helper.display({ id: 'tags', header: '标签', cell: ({ row }) => {
         const item = row.original;
         const tags = item.follow_tags || item.tags || [];
         return tags.length
@@ -169,8 +169,8 @@ export function CatalogListPage(props: CatalogGridProps) {
       }
     },
   });
-  /* When there are no works at all, the same empty state as the card grid (the shell's `emptyHtml`: one each for trash, whole library empty, and no filter results),
-     no empty table or column settings; the details page gives no empty state — it says "No videos yet" itself, outside the works area. */
+  /* 一部都没有时与卡片网格同一份空态（壳给的 `emptyHtml`：回收站、馆藏全空、筛选无结果各一种），
+     不画空表格与列设置；资料页不给空态，它自己在作品区外说「还没有视频」。 */
   if (result.data && !result.isPlaceholderData && !result.isError && total === 0) {
     const html = props.emptyHtml?.({ trash: props.mode !== 'entity' && props.filters?.state === 'trash',
       libraryEmpty: !!(result.data as { libraryEmpty?: boolean }).libraryEmpty }) || '';
@@ -239,7 +239,7 @@ function ListIdentity({ item, props, disabled }: { item: MediaItem; props: Catal
   useEntityNames();
   const watched = !parts && Number(item.play_seconds) > 0 && Number(item.duration) > 0
     ? Math.min(Number(item.play_seconds) / Number(item.duration), 1) : 0;
-  const flaggedBy = [Number(item.liked) > 0 ? 'Like' : '', Number(item.o_count) > 0 ? 'Has climax records' : ''].filter(Boolean);
+  const flaggedBy = [Number(item.liked) > 0 ? '喜欢' : '', Number(item.o_count) > 0 ? '有高潮记录' : ''].filter(Boolean);
   const glyph = (name: string) => <svg viewBox="0 0 24 24" aria-hidden="true"><use href={`#i-${name}`} /></svg>;
   const open = (event: MouseEvent<HTMLElement>) => {
     if (props.selectMode) {
@@ -251,39 +251,39 @@ function ListIdentity({ item, props, disabled }: { item: MediaItem; props: Catal
   return <div data-list-identity="">
     <button type="button" data-list-open="" disabled={disabled} tabIndex={-1} aria-hidden="true" onClick={open}>
       <span data-list-picture="">{artwork.html
-        ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} /> : <span>No preview</span>}
-        {parts && !editions ? <span data-media-group="">{`${Number(parts.count).toLocaleString()} volumes`}</span> : null}
-        {editions ? <span data-media-group="" title={editions.editions.join(' · ')}>{`${Number(editions.count).toLocaleString()} editions`}</span> : null}
+        ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} /> : <span>无预览</span>}
+        {parts && !editions ? <span data-media-group="">{`${Number(parts.count).toLocaleString()} 卷`}</span> : null}
+        {editions ? <span data-media-group="" title={editions.editions.join(' · ')}>{`${Number(editions.count).toLocaleString()} 个版本`}</span> : null}
         {watched > 0
-          ? <span data-media-progress="" role="progressbar" aria-label="Watch progress" aria-valuemin={0} aria-valuemax={100}
+          ? <span data-media-progress="" role="progressbar" aria-label="观看进度" aria-valuemin={0} aria-valuemax={100}
             aria-valuenow={Math.round(watched * 100)}>
             <i style={{ '--media-fill': `${(watched * 100).toFixed(1)}%` } as CSSProperties} />
           </span>
           : null}
         {item.watch_later || flaggedBy.length
           ? <span data-media-status="">
-            {item.watch_later ? <span data-status="later" title="Watch later" aria-label="Watch later">{glyph('bookmark')}</span> : null}
-            {flaggedBy.length ? <span data-status="flagged" title={`Flagged by: ${flaggedBy.join(', ')}`}
-              aria-label={`Flagged by: ${flaggedBy.join(', ')}`}>{glyph('heart')}</span> : null}
+            {item.watch_later ? <span data-status="later" title="稍后看" aria-label="稍后看">{glyph('bookmark')}</span> : null}
+            {flaggedBy.length ? <span data-status="flagged" title={`已标记：${flaggedBy.join('、')}`}
+              aria-label={`已标记：${flaggedBy.join('、')}`}>{glyph('heart')}</span> : null}
           </span>
           : null}</span>
     </button>
     <span data-list-text="">
-      <button type="button" data-list-name="" disabled={disabled} title={name} aria-label={`Open ${name}`} onClick={open}
+      <button type="button" data-list-name="" disabled={disabled} title={name} aria-label={`打开 ${name}`} onClick={open}
         dangerouslySetInnerHTML={{ __html: titleHtml }} />
     </span>
   </div>;
 }
 
-/** The media-library column: identifier plus name, the same set as the sidebar media-library switcher. Ones with no library affiliation show “—”. */
+/** 媒体库那一列：标识加名字，与侧栏媒体库切换同一套。没有归属媒体库的写「—」。 */
 function ListLibrary({ item }: { item: MediaItem }) {
   const tints = useLibraryTints({ names: true });
   const tint = item.library_id ? tints.get(item.library_id) : undefined;
-  return tint?.name ? <span data-list-library="" title={`Library: ${tint.name}`}><SourceMark mark={tint.icon} /><span>{tint.name}</span></span> : '—';
+  return tint?.name ? <span data-list-library="" title={`媒体库：${tint.name}`}><SourceMark mark={tint.icon} /><span>{tint.name}</span></span> : '—';
 }
 
-/** The artist column: the avatar and credit use the same set as the card (`identityParts`). Clicking the avatar or name opens the person or label page; the uncredited ones
- * open "Unattributed"; no navigation in selection mode. */
+/** 艺人那一列：头像与署名和卡片同一套（`identityParts`）。点头像或人名打开人物、厂牌页，没有署名的那批
+ *  打开「未归属」；选择模式下不跳。 */
 function ListPeople({ item, props }: { item: MediaItem; props: CatalogGridProps }) {
   useEntityNames();
   const { avatar, who } = identityParts(item);

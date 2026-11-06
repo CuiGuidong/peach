@@ -18,7 +18,7 @@ from urllib.parse import parse_qs, urlsplit
 
 from PIL import Image, ImageDraw
 
-from peach.entities import merge_entity, resolve_entity_id
+from peach.entities import memoized_resolution, merge_entity, resolve_entity, resolve_entity_id
 from peach.web_review import _use_canonical_entity_names
 
 from support.ledger import fresh_ledger
@@ -62,6 +62,20 @@ class EntityRedirectTests(unittest.TestCase):
     def redirects(self) -> list[tuple]:
         return self.con.execute(
             "SELECT old_id,target_id FROM entity_redirect ORDER BY old_id").fetchall()
+
+    def test_a_read_request_resolves_each_name_once(self):
+        """只读请求里同一个名字只查一次库；块外照旧每次现查，写路径看得到刚写的实体。"""
+        queries = []
+        self.con.set_trace_callback(queries.append)
+        with memoized_resolution():
+            first = [resolve_entity(self.con, "performer", "橋本ありな")[0] for _ in range(3)]
+        within = len(queries)
+        resolve_entity(self.con, "performer", "橋本ありな")
+        resolve_entity(self.con, "performer", "橋本ありな")
+        self.con.set_trace_callback(None)
+        self.assertEqual(first, [10, 10, 10])
+        self.assertEqual(within, 1)
+        self.assertEqual(len(queries) - within, 2)
 
     def test_the_merged_id_resolves_to_the_target(self):
         merge(self.con, 11, 10, "新ありな")

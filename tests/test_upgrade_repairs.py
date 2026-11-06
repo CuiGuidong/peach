@@ -280,6 +280,39 @@ class UpgradeRepairTests(unittest.TestCase):
                                "VALUES(?,'local',?,?,'video',?,?,?)",
                                (key, f'{key}.mp4', 'SSIS-123.mp4', code, json.dumps({'code': owner}), duration))
 
+    def test_codes_misread_from_old_filenames_are_cleared_once_with_a_receipt(self):
+        rows = [
+            # 手机录像的时间戳与被截断的「名字_日期」：现行规则都不认，账本里还记着旧值。
+            (1, r'R:\media\某人\VID_20220818_125735_816.mp4', '125735-816', None, None),
+            (2, r'A:\pen\KUZU_250103-U_iris3.mp4', 'KUZU-25010', None, None),
+            # 现行规则认不出文件名，但番号完整写在文件名里：保留。
+            (3, r'B:\x\(アリスJAPAN)(DVAJ-185)标题.mp4', 'DVAJ-185', None, None),
+            # 番号不在文件名里，可这一行有刮削资料：是按另一份身份改过的，保留。
+            (4, r'B:\一本道\092415-001\1pon-092415-001-fhd2_(new).mp4', '092415_159', '另一部的标题', None),
+            # 用户自己填的番号不碰。
+            (5, r'A:\pen\KUZU_142-U_iris3.mp4', 'KUZU-142', None, 'user:manual'),
+        ]
+        with self.database.write_transaction() as connection:
+            for key, path, code, title, owner in rows:
+                connection.execute(
+                    'INSERT INTO asset(id,location,path,name,medium,code,catalog_title,field_owners) '
+                    "VALUES(?,'local',?,?,'video',?,?,?)",
+                    (key, path, path.rsplit('\\', 1)[1], code, title, json.dumps({'code': owner}) if owner else None))
+        self.service._clear_stale_codes()
+        with self.database.read_connection() as connection:
+            codes = dict(connection.execute('SELECT id,code FROM asset ORDER BY id').fetchall())
+            receipt = connection.execute(f"SELECT result_json FROM ledger_upgrade_repair "
+                                         f"WHERE id='{upgrade_repairs.STALE_CODES_KEY}'").fetchone()
+        self.assertEqual(codes, {1: None, 2: None, 3: 'DVAJ-185', 4: '092415_159', 5: 'KUZU-142'})
+        self.assertEqual(json.loads(receipt[0]), {'cleared': [{'id': 1, 'code': '125735-816'},
+                                                              {'id': 2, 'code': 'KUZU-25010'}]})
+        # 只做一次：之后再记上的旧值不再清。
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE asset SET code='125735-816' WHERE id=1")
+        self.service._clear_stale_codes()
+        with self.database.read_connection() as connection:
+            self.assertEqual(connection.execute('SELECT code FROM asset WHERE id=1').fetchone()[0], '125735-816')
+
     def test_old_studio_misses_are_released_only_once(self):
         from peach.followups import Attempts, attempts_root
         root = attempts_root(self.contract.candidate_root)
@@ -583,6 +616,50 @@ class UpgradeRepairTests(unittest.TestCase):
             self.assertEqual(receipt['deferred'], [])
             receipt['queued'] = {row.key: index for index, row in enumerate(batch)}
             self.assertEqual(len(self.service._plan(receipt)), 6)
+
+    def test_next_media_batch_waits_until_the_queued_batch_runs_down(self):
+        from peach.followups import Followup
+        from peach.settings_file import load_config
+        self.service.config = load_config(environ={'PEACH_DATA_ROOT': str(self.root)})
+        for key in range(1, 71):
+            self.asset(key, duration=10)
+        self.service.prepare()
+        receipt = upgrade_repairs._read(self.service.receipt)
+        receipt.update(media_ids=list(range(1, 71)), dispatch_complete=False)
+        self.service._save_receipt(receipt)
+        seed = Followup('seed-import:new:digest', 'seed-import', '资料')
+        def parents():
+            with self.database.read_connection() as connection:
+                return connection.execute('SELECT count(*) FROM task_run WHERE task_key=?',
+                                          (upgrade_repairs.TASK_KEY,)).fetchone()[0]
+        with patch('peach.library_processing._people_allowed', return_value=False), patch(
+                'peach.media_sources.cost_for', return_value='free'):
+            with patch('peach.seed_followup.plan', return_value=[]):
+                self.service.tick()
+                self.assertEqual(self.service._media_backlog(), 64)
+                self.service.tick()
+            self.assertEqual(parents(), 1)
+            with patch('peach.seed_followup.plan', return_value=[seed]):
+                self.service.tick()
+        receipt = upgrade_repairs._read(self.service.receipt)
+        self.assertIn(seed.key, receipt['queued'])
+        self.assertEqual(self.service._media_backlog(), 64)
+        self.assertFalse(receipt['dispatch_complete'])
+
+    def test_cloud_previews_without_a_rule_are_left_to_their_own_tool(self):
+        snapshots = self.contract.snapshot_root / 'cloud' / '115'
+        snapshots.mkdir(parents=True)
+        for key, location in ((1, '115'), (2, 'local')):
+            self.asset(key, duration=20)
+            sheet = snapshots / f'{key}.jpg'
+            sheet.write_bytes(b'unsigned sheet')
+            with self.database.write_transaction() as connection:
+                connection.execute('UPDATE asset SET location=?,snapshot_path=? WHERE id=?',
+                                   (location, str(sheet), key))
+        with patch('peach.library_processing._people_allowed', return_value=False), patch(
+                'peach.seed_followup.plan', return_value=[]), patch('peach.media_sources.cost_for', return_value='free'):
+            batch = self.service._plan({'queued': {}})
+        self.assertEqual([item.key for item in batch], ['upgrade-library:processing-v2:2'])
 
     def test_media_handler_finishes_when_only_media_issues_remain(self):
         from peach.settings_file import load_config

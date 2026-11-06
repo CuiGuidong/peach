@@ -746,7 +746,6 @@ class LaunchdRelaunchExitCodeTests(unittest.TestCase):
     def test_a_failed_migration_does_not_become_a_relaunch_loop(self):
         preparation = Mock()
         preparation.migrations.apply.return_value = Mock(failed=True, message="迁移失败")
-        import filelock  # noqa: F401 — warm the import before `sys.platform` is patched; on Windows its darwin branch probes a libc that does not exist.
         with tempfile.TemporaryDirectory() as directory, \
                 mock.patch.object(tray_module.sys, "platform", "darwin"), \
                 mock.patch.object(tray_module, "launchd_owns_this_process", return_value=True), \
@@ -1232,12 +1231,12 @@ class MacMenuBarActionTests(unittest.TestCase):
         with patch.dict(sys.modules, {"peach.menubar": fake}),                 patch.object(tray_module, "VersionManager", return_value=versions),                 patch.object(tray_module, "standalone", return_value=True):
             tray_module.run_macos_menu_bar(Mock(), Mock(waiting=False))
         with tempfile.TemporaryDirectory() as directory,                 patch("peach.support_bundle.save_bundle", return_value=Path(directory) / "peach-support.zip"),                 patch.object(tray_module.subprocess, "run") as opened:
-            run_handler("Export diagnostics report")
-            run_handler("Check for updates", submenu="Version and updates")
+            run_handler("导出诊断报告")
+            run_handler("检查更新", submenu="版本与更新")
         self.assertEqual(opened.call_args.args[0][:2], ["open", "-R"])
         versions.check.assert_called_once()
-        self.assertIn(("Peach diagnostic report", "Diagnostic report saved: peach-support.zip"), built["notices"])
-        self.assertIn(("Peach Version and updates", versions.check.return_value.message), built["notices"])
+        self.assertIn(("Peach 诊断报告", "诊断报告已保存：peach-support.zip"), built["notices"])
+        self.assertIn(("Peach 版本与更新", versions.check.return_value.message), built["notices"])
 
 
 class TemplateHookTests(unittest.TestCase):

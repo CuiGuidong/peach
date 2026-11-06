@@ -122,7 +122,7 @@ export function IndexPage(props: IndexProps) {
   /* Selection belongs to the shell: closing clears the selection and the next open starts from zero, like the catalog page's multi-select. */
   useEffect(() => { if (!props.selectMode) setPicked(new Set()) }, [props.selectMode]);
 
-  /* When changing filter, term list, or type, keep the controls and only show a waiting state in the results area. */
+  /* 换筛选、词表或类型时保留控件，只在结果区显示等待态。 */
   const go = (patch: Partial<IndexRoute>, replace = false) => {
     if (patch.scope !== undefined) setManaging(false);
     const next = { ...route, ...patch };
@@ -232,7 +232,7 @@ export function IndexPage(props: IndexProps) {
         </h2>
         {isPeople(kind) ? (
           <span data-index-count="" className="text-caption-1-regular leading-5 whitespace-nowrap text-text-secondary tabular-nums max-board-narrow:order-1 max-board-narrow:basis-full">
-            {/* No fetch, no readout: '0 items' reads as 'the roster is empty', which says something different from an error. */}
+            {/* 没取到就没有读数：「0 项」读起来是「名册是空的」，和报错说的是两件事。 */}
             <AsyncText text={pending ? undefined : result.isError ? '' : readout} busy={pending}
               placeholder={<span aria-hidden className="skeleton-sheen inline-block h-3.5 w-24 rounded-md" />} />
           </span>
@@ -277,7 +277,7 @@ export function IndexPage(props: IndexProps) {
         {body()}
       </SkeletonContent></div>
       {kind === 'tags' && !pending && !result.isError ? <div className="mt-5">
-        <DataTableFooter label="Tags" total={total ?? items.length} pagination={pagination} onChange={changePage} unit="tags" pageUnit="items" pageSizes={TAG_PAGE_SIZES} />
+        <DataTableFooter label="标签" total={total ?? items.length} pagination={pagination} onChange={changePage} unit="个标签" pageUnit="个" pageSizes={TAG_PAGE_SIZES} />
       </div> : null}
       {more ? (
         <div className="mt-5 flex justify-center">

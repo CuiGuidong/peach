@@ -41,14 +41,14 @@ describe('Library table column widths and placeholder images', () => {
       assert.ok(geometry.titleWidth < 320 && geometry.clamp === '2' && geometry.fullHeight > geometry.titleHeight
         && geometry.titleHeight <= geometry.lineHeight * 2 + 1, JSON.stringify(geometry));
       assert.equal(await row.locator('[data-list-name]').getAttribute('title'), name);
-      const defaultLabels = ['Videos', 'Artists', 'Media library', 'Tags', 'Duration', 'Rating', 'Watch count', 'Date added'];
+      const defaultLabels = ['作品', '艺人', '媒体库', '标签', '时长', '评分', '观看次数', '入库时间'];
       const visibleLabels = () => page.locator('[data-catalog-table] th:not([data-table-space]) > span').allTextContents();
       assert.deepEqual(await visibleLabels(), defaultLabels);
       await page.getByRole('button', { name: 'Visible columns', exact: true }).click();
       await page.getByRole('button', { name: 'Show all columns', exact: true }).click();
       await page.keyboard.press('Escape');
-      assert.deepEqual(await visibleLabels(), ['Videos', 'Artists', 'Media library', 'Tags', 'Duration', 'Rating', 'Watch count', 'Date added', 'Release date', 'Watch time', 'Climax count', 'Resolution', 'Size', 'Code']);
-      for (const label of ['Resolution', 'Rating', 'Climax count', 'Watch count', 'Duration', 'Size', 'Date added', 'Watch time', 'Release date', 'Code']) {
+      assert.deepEqual(await visibleLabels(), ['作品', '艺人', '媒体库', '标签', '时长', '评分', '观看次数', '入库时间', '发行时间', '观看时间', '高潮计数', '分辨率', '体积', '番号']);
+      for (const label of ['分辨率', '评分', '高潮计数', '观看次数', '时长', '体积', '入库时间', '观看时间', '发行时间', '番号']) {
         await page.getByRole('columnheader', { name: label, exact: false }).waitFor();
       }
       assert.ok((await row.textContent())?.includes('1920 × 1080'));

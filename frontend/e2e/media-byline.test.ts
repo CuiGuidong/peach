@@ -33,10 +33,10 @@ describe('Video card byline row', () => {
       }
     } finally { await opened.close() }
   });
-  it('Dense narrow-card credits stay on one line: what does not fit steps aside, without pressing tags or crossing the row box', { timeout: 60_000 }, async () => {
+  it('密集窄卡的署名保持一行：放不下的让出去，不压标签、不越出行框', { timeout: 60_000 }, async () => {
     const opened = await openCatalogFixture(browser, payload => {
       Object.assign(payload.items[0], { is_jav: true, code: 'MIAA-155', performers: ['篠田优', '水野葵', '森田优'], performer_total: 12,
-        release_date: '2019-09-13', size: 6549825126, tags: ['Big breasts', 'Creampie'] });
+        release_date: '2019-09-13', size: 6549825126, tags: ['巨乳', '中出'] });
     });
     try {
       await opened.page.evaluate(() => { document.body.dataset.density = 'dense' });
@@ -52,10 +52,10 @@ describe('Video card byline row', () => {
             date: card.querySelector('[data-media-release]')!.getClientRects().length > 0,
             tag: card.querySelector('[data-media-tag]')!.getBoundingClientRect().top, bottom: line.bottom };
         });
-        assert.ok(rows.text < 360, `This card should be a narrow card: ${JSON.stringify(rows)}`);
-        assert.equal(rows.outside, 0, `Byline content wrapped or overflowed: ${JSON.stringify(rows)}`);
-        assert.equal(rows.date, date, `${tile}-wide card date ${date ? 'should keep' : 'should yield'}: ${JSON.stringify(rows)}`);
-        assert.ok(rows.tag >= rows.bottom, `Tags are overlapping the credit: ${JSON.stringify(rows)}`);
+        assert.ok(rows.text < 360, `这张卡应当是窄卡：${JSON.stringify(rows)}`);
+        assert.equal(rows.outside, 0, `署名行的内容折行或越界：${JSON.stringify(rows)}`);
+        assert.equal(rows.date, date, `${tile} 宽的卡日期${date ? '应保留' : '应让出'}：${JSON.stringify(rows)}`);
+        assert.ok(rows.tag >= rows.bottom, `标签压在署名上：${JSON.stringify(rows)}`);
       }
     } finally { await opened.close() }
   });

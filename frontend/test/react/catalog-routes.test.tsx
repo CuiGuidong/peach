@@ -1,7 +1,7 @@
-/* The catalog grid and the junk queue are painted by the route tree into `#grid` (`CATALOG_ROUTES`): the page fetches data on mount, and the skeleton and content cross-fade in the change region.
- * The surface the shell claims only receives `#stats` and `#index`; the page on `#grid` stays; when parked in the catalog the shell pushes the selection state, layout, and filters through `updateManagedRoute`
- * — the page doesn't remount and the generation doesn't change; changing a filter only refetches once by the new key; the junk queue clears its skeleton at once, and when collapsed that cell in the count row
- * is removed in sync; the shell's helpers and actions are handed to the page as-is; these routes are not handed to React Router.
+/* 目录网格与垃圾队列由路由树画进 `#grid`（`CATALOG_ROUTES`）：页面挂载即取数，骨架与内容在变化区交叉淡化。
+ * 壳认领表面只收 `#stats` 与 `#index`，`#grid` 上那一页留着；停在目录时壳经 `updateManagedRoute`
+ * 推选择态、版式与筛选，页面不重挂、代次不变，换筛选只按新键重取一次；垃圾队列一次清空骨架，收起时计数行那一格
+ * 同步撤掉；壳那一份助手与动作原样交给页面；这些路径不交给 React Router。
  *
  * How a screen of cards is laid out and what the card face shows is governed by `catalog-grid.test.tsx` and
  * `junk-queue.test.tsx`; this file covers the route tree layer. */
@@ -169,20 +169,21 @@ const cards = (grid: Element) => grid.querySelectorAll('.peach-react [data-media
 /** The block the page renders (the host's first element): after a remount it is a different one. */
 const painted = (grid: Element) => grid.querySelector(':scope > .peach-react > *');
 
-it('A cold start from a deep link shows the home page\'s skeleton immediately and cross-fades content once the first screen is fetched', async () => {
+it('冷启动深链首页取齐首屏再挂，壳的骨架一直留到数据到，挂上就是内容', async () => {
   const r = await load('/');
   const { grid } = gridSurface();
   await mount(r);
   const fetch = catalogFetch({ deferred: true });
   const open = catalogOpen({ skeletonHtml: () => GRID_SKELETON });
   const opened = r.openManagedRoute('/', open, { container: grid, isCurrent: () => true, place: revealRoutedPage });
-  await until(() => fetch.calls('/api/items').length > 0, 'First-screen fetch sent out');
-  expect(grid.querySelector('[data-content-transition]')?.getAttribute('aria-busy')).toBe('true');
-  expect(grid.querySelector('[data-content-skeleton] [data-skeleton]')).not.toBeNull();
-  const batches: Array<{ pending: boolean; painted: boolean }> = [];
+  await until(() => fetch.calls('/api/items').length > 0, '首屏取数发出去');
+  expect(skeleton.isConnected, '取数在途时壳的骨架原样留着').toBe(true);
+  expect(r.managedEntry(grid), '页面还没挂').toBeFalsy();
+  const batches: Array<{ pageSkeleton: boolean; shell: boolean; painted: boolean }> = [];
   const observer = new MutationObserver(() => {
     batches.push({
-      pending: Boolean(grid.querySelector('[data-content-transition][aria-busy="true"] [data-skeleton]')),
+      pageSkeleton: Boolean(grid.querySelector('[data-content-transition][aria-busy="true"] [data-skeleton]')),
+      shell: skeleton.isConnected,
       painted: cards(grid).length === 3,
     });
   });
@@ -190,12 +191,14 @@ it('A cold start from a deep link shows the home page\'s skeleton immediately an
   unmounts.push(() => observer.disconnect());
   fetch.resolve();
   await act(async () => { expect(await opened).toBe(true) });
-  await until(() => cards(grid).length === 3, 'First-screen content ready');
+  await until(() => cards(grid).length === 3, '首屏内容就绪');
   expect(batches.length).toBeGreaterThan(0);
-  expect(batches.every((batch) => batch.pending || batch.painted), 'Every batch of changes has a placeholder or real content').toBe(true);
+  expect(batches.some((batch) => batch.pageSkeleton), '页面挂上时不再铺第二份骨架').toBe(false);
+  expect(batches.every((batch) => batch.shell || batch.painted), '每一批变化都有占位或内容').toBe(true);
+  expect(grid.querySelector('.skelfade')?.contains(skeleton), '壳的骨架抬成淡出层与内容交叉').toBe(true);
   expect(grid.querySelector('[data-content-transition]')?.getAttribute('aria-busy')).toBe('false');
   expect(grid.querySelector('[data-content-skeleton]')?.getAttribute('aria-hidden')).toBe('true');
-  expect(fetch.calls('/api/items'), 'The first screen fetches once').toHaveLength(1);
+  expect(fetch.calls('/api/items'), '首屏只取一次').toHaveLength(1);
   expect(open.settled).toHaveBeenCalledWith(0);
   expect(r.managedEntry(grid)).toMatchObject({ path: '/', props: { filters: { sort: 'seed' } } });
   // jsdom does not fire transitionend, so the fade layer is cleaned up by `revealSkeleton`'s fallback timer.
@@ -276,8 +279,8 @@ it('Junk queue: swap the grid on `#grid`, clear the skeleton in one pass, and th
   await mount(r);
   const fetch = catalogFetch();
   await act(async () => { await r.openManagedRoute('/', catalogOpen(), { container: grid, isCurrent: () => true }) });
-  await until(() => cards(grid).length === 3, 'Painted on the catalog\'s first screen');
-  expect(grid.querySelector('[data-media-sections]'), 'Draws the catalog grid first').not.toBeNull();
+  await until(() => cards(grid).length === 3, '目录首屏画上');
+  expect(grid.querySelector('[data-media-sections]'), '先画着目录网格').not.toBeNull();
   const open = junkOpen();
   await act(async () => { expect(await r.openManagedRoute('/junk-files', open, { container: grid, isCurrent: () => true })).toBe(true) });
   expect(r.managedEntries().map((entry) => entry.path), 'One container keeps a single page').toEqual(['/junk-files']);

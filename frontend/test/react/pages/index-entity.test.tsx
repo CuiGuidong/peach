@@ -197,7 +197,7 @@ it('Index element: when back lands on details covering the index (having visited
   expect(opens(actions), 'Closing and returning opens the full page').toBe(2);
 });
 
-it('The target skeleton shows before details are submitted; the same person lets the shell take over refreshing, and only a different person or an explicit reopen rebuilds the props', async () => {
+it('资料尚未提交时先显示目标骨架，同一位可由壳接手刷新，换一位或要求重开才重新构造属性', async () => {
   const refreshed = { ok: true };
   const r = await load('/performers/1');
   indexSurface();
@@ -207,23 +207,23 @@ it('The target skeleton shows before details are submitted; the same person lets
   log.length = 0;
   await act(async () => { r.peachHistory.push('/performers/1?tag=x') });
   await settle();
-  expect(log, 'Once the target skeleton is in place the shell takes over refreshing').toEqual(['surface entity /performers/1', 'loading performer 1', 'refresh performer A ?tag=x']);
+  expect(log, '目标骨架就位后由壳接手刷新').toEqual(['surface entity /performers/1', 'loading performer 1', 'refresh performer A ?tag=x']);
   log.length = 0;
   refreshed.ok = false;
   await act(async () => { r.peachHistory.push('/performers/1?tag=y') });
   await settle();
-  expect(log, 'When the shell cannot take over, full-page props are built').toEqual(['surface entity /performers/1', 'loading performer 1',
+  expect(log, '壳无法接手时构造整页属性').toEqual(['surface entity /performers/1', 'loading performer 1',
     'refresh performer A ?tag=y', 'props performer A ?tag=y']);
   log.length = 0;
   refreshed.ok = true;
   await act(async () => { r.shellNavigate('/performers/2', { replace: true }) });
   await settle();
-  expect(log, 'Switching people shows a skeleton by address first, then the canonical name once details arrive').toEqual(['surface entity /performers/2', 'loading performer 2',
+  expect(log, '换一位先按地址显示骨架，资料取回后使用规范名字').toEqual(['surface entity /performers/2', 'loading performer 2',
     'props performer B ']);
   log.length = 0;
   await act(async () => { reopen(r) });
   await settle();
-  expect(log, 'No in-place push when the shell requests a reopen').toEqual(['surface entity /performers/2', 'loading performer 2',
+  expect(log, '壳要求重开时不就地推').toEqual(['surface entity /performers/2', 'loading performer 2',
     'props performer B ']);
   expect(r.shell.entityJavLayout, 'Every full-page open starts from the non-JAV context').toBe(false);
 });

@@ -90,8 +90,8 @@ export function duplicatesSkeleton(): string {
   </div></div>`;
 }
 
-/** First screen of the high-quality version: the summary panel and six cards awaiting upgrade, with class names matching the `QualityGoalsPage` landing version (the card face is
- *  `cardClass({ padding: 'none' })`), so at the takeover moment the spacing, card height, and base color do not jump. */
+/** 高清版首屏：摘要面与六张待升级的卡，类名同 `QualityGoalsPage` 落地那一版（卡面是
+ *  `cardClass({ padding: 'none' })`），接管那一拍间距、卡高与底色都不跳。 */
 export function qualityGoalsSkeleton(): string {
   const card = `<li class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-3 p-3">
     <div class="flex min-w-0 gap-4"><span class="${placeholder} inline-grid w-card-cover shrink-0 aspect-card-cover rounded-2lg"></span>

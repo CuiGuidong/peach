@@ -207,6 +207,7 @@ class WebContract:
         self.link_prune_job = self._job("PeachLinkPruneJob", "link-prune")
         self.scraping_cover_job = self._job("PeachScrapingCoverJob", "scraping-cover")
         self.amane_bridge_job = self._job("PeachAmaneBridgeJob", "amane-bridge")
+        self.source_check_job = self._job("PeachSourceCheckJob", "source-check")
         self.face_models_job = self._job("PeachFaceModelsJob", "face-models")
         self.library_processing_job = self._job(
             "PeachLibraryProcessingJob", "library-processing")
@@ -324,6 +325,16 @@ class WebContract:
             return None
         return int(row[0])
 
+    def ledger_tables_except(self, excluded) -> tuple[str, ...]:
+        """登记了版本的账本表，去掉 `excluded`：聚合读的表太多、列不全时，按「除这几张以外」声明依赖。
+        读不到版本表时为空，`cached_until_changed` 随之退回整本账本的版本。"""
+        try:
+            with self.read_connection() as connection:
+                tables = [row[0] for row in connection.execute("SELECT tbl FROM ledger_revision ORDER BY tbl")]
+        except sqlite3.Error:
+            return ()
+        return tuple(table for table in tables if table not in excluded)
+
     def cached_until_changed(self, key: str, fn, *inputs, tables=()):
         """只读账本聚合的缓存：账本版本号与 `inputs` 都没变就一直命中，不按时间过期。
 
@@ -371,6 +382,7 @@ class WebContract:
         self.organize_job.stop()
         self.media_repair_job.stop()
         self.amane_bridge_job.stop()
+        self.source_check_job.stop()
         self.face_models_job.stop()
         if hasattr(self, 'task_resource_monitor'):
             self.task_resource_monitor.close()

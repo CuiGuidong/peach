@@ -4,7 +4,7 @@ from __future__ import annotations
 import hashlib
 import re
 
-from . import entities, feeds, web_catalog, web_feeds, web_settings, wants
+from . import entities, feed_followup, feeds, web_catalog, web_feeds, web_settings, wants
 from .related import rank_related
 from .taste_preferences import preference_profile, preference_score
 from .genre_decisions import load_genre_decisions
@@ -154,7 +154,7 @@ def q_jav_discoveries(contract, args):
     """口味采用 IDF/MMR；资料补齐只处理一次请求确定的有限集合。"""
     scope = "library" if args.get("scope") == "library" else "external"
     limit = max(1, min(int(args.get("limit") or 60), 100))
-    with contract.read_connection() as connection:
+    with contract.read_connection() as connection, entities.memoized_resolution():
         strengths, names, evidence = preference_profile(connection, contract.taste_history_store)
         profile = {"id": 0, "entities": {kind: set(values) for kind, values in strengths.items()}}
         candidates = _library(connection) if scope == "library" else _external(connection, contract)
@@ -197,6 +197,7 @@ def q_jav_discoveries(contract, args):
             web_catalog.attach_artwork_fields(contract, row)
             row["has_thumb"] = contract.has_snapshot(row.pop("snapshot_path", None))
     else:
+        states = feed_followup.cover_states(contract, picked)
         for row in picked:
             row["performer_refs"] = refs[row["id"]]
             row["performers"] = "、".join(ref["name"] for ref in row["performer_refs"])
@@ -204,6 +205,7 @@ def q_jav_discoveries(contract, args):
             row["cover_frame"] = contract.cover_frame(row["code"])
             row["cover_version"] = contract.cover_version(row["code"])
             row["poster_box"] = contract.poster_box(row["code"])
+            row.update(web_feeds.cover_state_fields(states, row["code"]))
     response = {"scope": scope, "items": picked, "candidate_total": len(candidates), "sort": sort,
                 "ranking_method": "mmr" if sort == "taste" else "field-sort",
                 "direction": "asc" if args.get("direction") == "asc" else "desc",
@@ -265,17 +267,19 @@ def q_jav_releases(contract, args):
     descending = args.get("direction") != "asc"
     matches = _release_matcher({facet: str(args.get(facet) or "").strip() for facet in RELEASE_FACETS},
                                str(args.get("q") or "").strip().casefold())
-    with contract.read_connection() as connection:
+    with contract.read_connection() as connection, entities.memoized_resolution():
         rows = _release_order(_release_rows(contract, connection, taste=sort == "taste"), sort, descending,
                               str(args.get("seed") or ""))
         facets = {facet: _release_facet(contract, rows, facet, matches) for facet in RELEASE_FACETS}
         shown = [row for row in rows if matches(row)]
         picked = shown[(page - 1) * size:page * size]
         wanted = wants.wanted_keys(connection, (web_catalog.normalise_code_key(row["code"]) for row in picked))
+    states = feed_followup.cover_states(contract, picked)
     for row in picked:
         row["wanted"] = web_catalog.normalise_code_key(row["code"]) in wanted
         row.update(has_cover=contract.has_cover(row["code"]), cover_frame=contract.cover_frame(row["code"]),
-                   cover_version=contract.cover_version(row["code"]), poster_box=contract.poster_box(row["code"]))
+                   cover_version=contract.cover_version(row["code"]), poster_box=contract.poster_box(row["code"]),
+                   **web_feeds.cover_state_fields(states, row["code"]))
     return {"items": picked, "total": len(shown), "candidate_total": len(rows), "page": page, "size": size,
             "sort": sort, "direction": "desc" if descending else "asc",
             "facets": {"performers": facets["performer"], "studios": facets["studio"], "tags": facets["tag"]},

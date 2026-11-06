@@ -89,10 +89,11 @@ class TrafficPlan:
 
     def _network(self, source):
         from . import peach_proxy
-        from .scraping_access import values_for
+        from .scraping_access import SOURCES, values_for
         if source not in self.proxy:
             root = self.config.directory('secrets')
-            if values_for(root, source).get('network') == 'direct':
+            # 不在采集设置里的站（素人链上的认人 Wiki）没有单独的连接方式，同 `SourceTransport` 照 Peach 代理出网。
+            if source in SOURCES and values_for(root, source).get('network') == 'direct':
                 self.proxy[source] = False
             else:
                 try:

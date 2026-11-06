@@ -60,7 +60,7 @@ const useRoutingStarted = (): boolean => useSyncExternalStore(subscribeShell, re
 const followLayout = (): string => (appSettingsStore().value.followLayout === 'table' ? 'table' : 'default');
 const search = (): URLSearchParams => new URLSearchParams(window.location.search);
 
-/** Read-only mode: an abort returns null, handled like defaults other than browse-only. */
+/** 只读态：中止了回 null，照只能浏览以外的缺省处理。 */
 function readRuntime(run: Run): Promise<Runtime | null> {
   return (api('/healthz', { signal: run.controller.signal }) as Promise<Runtime>)
     .catch((error: unknown) => { if (isAbort(error)) return null; throw error });
@@ -196,7 +196,7 @@ function ManagedPage({ path, covered }: { path: ManagedPath; covered: boolean })
   return null;
 }
 
-/** Resource sync's old direct address redirects to the sub-page, without adding a history entry. */
+/** 资源同步的旧直达地址转到二级页，不增加历史条目。 */
 export function ResourceSyncRedirect() {
   const started = useRoutingStarted();
   const done = useRef(false);

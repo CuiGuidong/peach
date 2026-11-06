@@ -41,17 +41,17 @@ export function repairCardSkeletonHtml(): string {
       </section>`);
 }
 
-/** The home-page skeleton and the final page share the tool order; the full form, results, and list load on the sub-page. */
+/** 首页骨架与最终页面共用工具顺序；完整表单、结果和清单在二级页加载。 */
 export function cleanupSkeletonHtml(): string {
   const entry = (label: string, glyph: string, summary: string, detail = '') => `<div class="${CLEANUP_ENTRY.face}"><span class="${CLEANUP_ENTRY.icon}">${islandGlyph(glyph, 'size-5')}</span><span class="${CLEANUP_ENTRY.body}"><span class="${CLEANUP_ENTRY.title}">${label}</span><span class="${CLEANUP_ENTRY.summary}">${summary}</span>${detail ? `<span class="${CLEANUP_ENTRY.detail}">${detail}</span>` : ''}</span>${islandGlyph('chevron-right', CLEANUP_ENTRY.arrow)}</div>`;
   const stat = (label: string, glyph: string) => `<div class="${plainStatClass()}"><span class="flex min-w-0 items-center gap-2 text-body-medium text-text-secondary"><i class="flex size-8 shrink-0 items-center justify-center rounded-md bg-background-primary-default text-text-primary">${islandGlyph(glyph, 'size-4')}</i><span>${label}</span></span><strong class="block text-title-1-medium tabular-nums text-text-primary">${bar}</strong><span class="block min-h-4 text-caption-1-regular text-text-tertiary">${bar}</span></div>`;
   const heading = (label: string) => `<h2 class="text-title-2-medium! m-0! text-text-primary">${label}</h2>`;
   const tools = (deletion: boolean) => CLEANUP_TOOLS.filter(tool => (tool.key === 'batch-delete') === deletion)
     .map(tool => entry(tool.title, tool.icon, tool.description)).join('');
-  return `<div class="peach-react" data-skeleton="cleanup" aria-busy="true" role="status" aria-label="Loading the data management status"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">
-    <section class="flex flex-col gap-4">${heading('Pending review')}<div class="${PLAIN_STAT_STRIP}">${[['Manual review', 'square-check-big'], ['Duplicates', 'file-stack'], ['Junk files', 'file-archive'], ['HD version', 'sparkles'], ['Trash', 'trash']].map(([label, glyph]) => stat(label!, glyph!)).join('')}</div></section>
+  return `<div class="peach-react" data-skeleton="cleanup" aria-busy="true" role="status" aria-label="正在读取数据管理状态"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">
+    <section class="flex flex-col gap-4">${heading('待处理事项')}<div class="${PLAIN_STAT_STRIP}">${[['人工复核', 'square-check-big'], ['重复文件', 'file-stack'], ['垃圾文件', 'file-archive'], ['高清版', 'sparkles'], ['回收站', 'trash']].map(([label, glyph]) => stat(label!, glyph!)).join('')}</div></section>
     <div id="libraryProcessing" class="scroll-mt-20">${scanCardSkeletonHtml()}</div>
-    <section class="flex flex-col gap-4">${heading('Organize and maintain')}<div class="${CLEANUP_ENTRY_GRID}">${tools(false)}</div></section>
-    <section class="flex flex-col gap-4">${heading('Clean up and delete')}<div class="${CLEANUP_ENTRY_GRID}">${tools(true)}</div></section>
+    <section class="flex flex-col gap-4">${heading('整理与维护')}<div class="${CLEANUP_ENTRY_GRID}">${tools(false)}</div></section>
+    <section class="flex flex-col gap-4">${heading('清理与删除')}<div class="${CLEANUP_ENTRY_GRID}">${tools(true)}</div></section>
     </div></div>`;
 }

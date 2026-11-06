@@ -12,6 +12,9 @@
 /** `[key, name, glyph]`, same as the shell's `MANAGE_SECTIONS`. */
 import { CLEANUP_CRUMB_PAGES } from './cleanup-tools';
 
+/** `[键, 名称, 字形]`，同壳的 `MANAGE_SECTIONS`。 */
+import { CLEANUP_CRUMB_PAGES } from './cleanup-tools';
+
 export type ManageEntry = readonly [key: string, label: string, glyph: string];
 
 /** The trash explainer row's count: reported once per page the catalog grid appends. */
@@ -33,17 +36,17 @@ export interface ManageHeaderProps {
   trash: TrashCount | null;
 }
 
-/* The sub-pages the data-management cards lead to (vercel.com/geist/breadcrumbs: a sub-page only shows a breadcrumb when it has a parent page).
-   Manual review, the Recycle bin, and the HD edition keep a sidebar shortcut; the maintenance tools each have their own second-level page.
-   Sub-page titles take the names here; "Data management" shows one level up in the breadcrumb. */
+/* 数据管理那几张卡通往的子页（vercel.com/geist/breadcrumbs：有上一级页面的子页才画面包屑）。
+   人工复核、回收站、高清版保留侧栏快捷入口；维护工具各有独立二级页。
+   子页标题取这里的名字，「数据管理」显示在面包屑的上一级。 */
 export const MANAGE_CRUMB_PAGES: Readonly<Record<string, string>> = {
   ...CLEANUP_CRUMB_PAGES,
-  '/junk-files': 'Junk files',
-  '/duplicates': 'Duplicates',
-  '/review': 'Manual review',
-  '/trash': 'Trash',
-  '/quality-goals': 'HD version',
-  '/sources': 'Sources and credentials',
+  '/junk-files': '垃圾文件',
+  '/duplicates': '重复文件',
+  '/review': '人工复核',
+  '/trash': '回收站',
+  '/quality-goals': '高清版',
+  '/sources': '来源和凭证',
 };
 
 /* Pages whose title steps down to 22px on narrow screens (≤760px): the data management hub, sources and credentials, and the configuration page, whose body is an 812px narrow column.

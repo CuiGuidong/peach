@@ -93,7 +93,7 @@ export function junkBreakdown(summary: JunkSummary | undefined): string {
   return parts.join(' · ');
 }
 
-/** Status summaries read independently; one failing affects only that entry's reading. */
+/** 状态摘要独立读取；某一份失败时只影响对应入口的读数。 */
 const LAZY_QUERIES: [QueryKey, (context: { signal: AbortSignal }) => Promise<unknown>][] = [
   [REVIEW_COUNTS_KEY, ({ signal }) => fetchReviewCounts(signal)],
   [QUALITY_GOALS_KEY, ({ signal }) => fetchQualityGoals(signal)],
@@ -102,7 +102,7 @@ const LAZY_QUERIES: [QueryKey, (context: { signal: AbortSignal }) => Promise<unk
   [DUPLICATES_KEY, ({ signal }) => fetchDuplicates(signal)],
 ];
 
-/** The home page waits for the daily scan status; the maintenance tools' forms, tasks, and lists are read after entering the sub-page. */
+/** 首页等待日常扫描状态；维护工具的表单、任务和清单进入二级页后再读取。 */
 export async function prefetchDataCleanup(signal: AbortSignal): Promise<void> {
   for (const [queryKey, queryFn] of LAZY_QUERIES) {
     void queryClient.prefetchQuery({ queryKey, queryFn: () => queryFn({ signal }) });
@@ -110,7 +110,7 @@ export async function prefetchDataCleanup(signal: AbortSignal): Promise<void> {
   await prefetchLibraryProcessing(signal);
 }
 
-/** Only read its state, config, and results when entering a maintenance tool. */
+/** 进入维护工具时才读取它的状态、配置与结果。 */
 export async function prefetchDataCleanupTool(tool: CleanupToolKey, signal: AbortSignal): Promise<void> {
   switch (tool) {
     case 'organize': await prefetchOrganize(signal); break;

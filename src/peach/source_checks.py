@@ -49,14 +49,9 @@ def check_source(secrets_root, source, *, preflight=False):
         return {"ok": True, "results": [{"label": "来源页面", "ok": False, "kind": "unavailable",
                 "reason": "needs_code", "message": "片商官网按番号选择，请输入馆藏番号检查高清封面。"}],
                 "session_verified": False}
-    # DMM 的 GraphQL API 无年龄门（POST-only），主站 www.dmm.co.jp 有年龄验证；
-    # 连接检查应打实际数据端点而非营销站。
-    dmm_api = "https://api.video.dmm.co.jp/graphql"
+    targets = [("来源页面", SOURCES[source]["login"])]
     if source == "dmm":
-        targets = [("来源页面", dmm_api),
-                   ("高清图片 CDN", "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/gyan00017/gyan00017pl.jpg")]
-    else:
-        targets = [("来源页面", SOURCES[source]["login"])]
+        targets.append(("高清图片 CDN", "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/gyan00017/gyan00017pl.jpg"))
     results = []
     transport = (SourceTransport(secrets_root, max_requests=12, max_bytes=12 * 65536,
                                  max_seconds=15, allow_browser=False)
@@ -73,11 +68,9 @@ def check_source(secrets_root, source, *, preflight=False):
                 reason = auth_wall_reason(
                     status_code=response.status, body=response.body,
                     final_url=response.url if response.url and response.url != url else "")
-                # DMM GraphQL 是 POST-only：GET 回 405 证明主机可达（区别于超时/连接拒绝）。
-                _ok_statuses = {200, 206, 405} if url == dmm_api else {200, 206}
                 result.update(status=response.status, bytes=len(response.body),
-                              ok=response.status in _ok_statuses and not reason,
-                              kind="ok" if response.status in _ok_statuses and not reason
+                              ok=response.status in {200, 206} and not reason,
+                              kind="ok" if response.status in {200, 206} and not reason
                               else "auth" if reason else "unavailable")
                 from .browser_transport import CHALLENGE_MARKS
                 challenge = any(mark.lower() in response.body.decode("utf-8", errors="replace").lower()

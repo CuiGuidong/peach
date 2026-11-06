@@ -1,6 +1,7 @@
 """可选密码、会话期限与本机管理边界。"""
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -366,3 +367,177 @@ class DeviceSessionTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(access.network_of("2001:db8:1:2:3:4:5:6"), "2001:db8:1:2::/64")
         self.assertEqual(access.network_of("::1"), "loopback")
         self.assertEqual(access.network_of("unknown"), "")
+
+
+class ConfigurationPageCase(unittest.IsolatedAsyncioTestCase):
+    """用真的 `PeachSettings`：换口令时服务端用 `dataclasses.replace` 换掉运行设置。"""
+
+    async def asyncSetUp(self):
+        from peach import auth
+        from peach.config import PeachSettings
+
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.secrets = Path(self.tmp.name).resolve()
+        self.path = self.secrets / "access.json"
+        self.old = auth.write_token(self.secrets)
+        self.app = FastAPI()
+        self.app.state.settings = replace(
+            PeachSettings(), token=self.old, token_file=auth.token_path(self.secrets), access_path=self.path,
+            configured=True, mdns_name="peach", review_writer_origin="", secrets_root=self.secrets)
+        self.app.state.review_mirror = SimpleNamespace(token=self.old)
+        self.app.include_router(routes_auth.router)
+        self.app.include_router(routes_configuration.router)
+
+        @self.app.get("/private")
+        def private(_=Depends(routes_auth.require_auth)):
+            return {"ok": True}
+        routes_auth._ATTEMPTS.clear()
+
+    def device(self, user_agent=CHROME_WINDOWS, peer=("127.0.0.1", 1234)):
+        client = httpx.AsyncClient(transport=httpx.ASGITransport(app=self.app, client=peer),
+                                   base_url="http://localhost", headers={"User-Agent": user_agent})
+        self.addAsyncCleanup(client.aclose)
+        return client
+
+    async def sign_in(self, client, secret="correct-password"):
+        response = await client.post("/login", data={"token": secret, "days": "30"})
+        self.assertEqual(response.status_code, 303, response.text)
+        return client
+
+
+class TokenRotationTests(ConfigurationPageCase):
+    """配置页换访问口令：运行中的服务当场改用新口令，只登出确实靠口令登录的浏览器。"""
+
+    async def rotate(self, client, **headers):
+        return await client.post("/api/configuration/access/token/rotate", json={}, headers=headers)
+
+    async def test_password_mode_keeps_every_browser_and_swaps_the_token_in_place(self):
+        from peach import auth
+        access.save(self.path, "correct-password")
+        desk = await self.sign_in(self.device())
+        phone = await self.sign_in(self.device(SAFARI_IPHONE, ("198.51.100.20", 5000)))
+        before = access.sessions_path(self.path).read_text(encoding="utf-8")
+        script = self.device()
+        self.assertEqual((await script.get("/private", headers={"X-Token": self.old})).status_code, 200)
+
+        response = await self.rotate(desk)
+        self.assertEqual(response.status_code, 200, response.text)
+        body = response.json()
+        new = body["token"]
+        self.assertNotEqual(new, self.old)
+        self.assertEqual((body["mode"], body["signed_out"]), ("password", 0))
+        self.assertEqual(response.headers["cache-control"], "no-store")
+        self.assertEqual(auth.read_token(self.secrets), new, "口令文件换成新值，下次启动读到同一份")
+        self.assertEqual(self.app.state.review_mirror.token, new, "复核镜像发的也是新口令")
+        self.assertEqual((await script.get("/private", headers={"X-Token": self.old})).status_code, 401, "不用重启旧口令就失效")
+        self.assertEqual((await script.get("/private", headers={"X-Token": new})).status_code, 200)
+        for browser in (desk, phone):
+            self.assertEqual((await browser.get("/private")).status_code, 200, "用访问密码登录的浏览器不受影响")
+        self.assertEqual(access.sessions_path(self.path).read_text(encoding="utf-8"), before, "设备记录原样保留")
+
+    async def test_legacy_mode_signs_out_other_browsers_and_keeps_this_one(self):
+        desk = await self.sign_in(self.device(), self.old)
+        phone = await self.sign_in(self.device(SAFARI_IPHONE, ("198.51.100.20", 5000)), self.old)
+        response = await self.rotate(desk)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual((response.json()["mode"], response.json()["signed_out"]), ("legacy", 1))
+        self.assertEqual((await phone.get("/private")).status_code, 401, "口令就是登录凭据：其他浏览器退出")
+        self.assertEqual((await desk.get("/private")).status_code, 200, "本机当场补签，不被自己登出")
+        rows = (await desk.get("/api/configuration/access/sessions")).json()["sessions"]
+        self.assertEqual([row["current"] for row in rows], [True], "失效设备的记录一并清掉")
+        await self.sign_in(phone, response.json()["token"])
+
+    async def test_rotation_is_refused_off_this_machine_cross_origin_and_for_overridden_tokens(self):
+        access.save(self.path, "")
+        self.assertEqual((await self.rotate(self.device(peer=("192.0.2.2", 1)))).status_code, 403)
+        self.assertEqual((await self.rotate(self.device(), Origin="https://evil.example")).status_code, 403)
+        settings = self.app.state.settings
+        for changed, reason in (({"token_file": None}, "PEACH_TOKEN"), ({"token": "", "token_file": None}, "没有使用访问口令")):
+            with self.subTest(reason=reason):
+                self.app.state.settings = replace(settings, **changed)
+                response = await self.rotate(self.device())
+                self.assertEqual(response.status_code, 409)
+                self.assertIn(reason, response.text)
+        self.app.state.settings = settings
+        state = routes_configuration.api_token_payload(SimpleNamespace(app=self.app))
+        self.assertEqual(state, {"rotatable": True, "reason": "", "paired": routes_configuration.REPLICATION_ENABLED})
+
+
+def _ca_pem(with_key: bool = False) -> bytes:
+    """测试用的自签 CA，用 cryptography 现场生成，不依赖 openssl。"""
+    from datetime import datetime, timedelta, timezone
+    from cryptography import x509
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.x509.oid import NameOID
+
+    key = ec.generate_private_key(ec.SECP256R1())
+    name = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, "Peach Local CA")])
+    now = datetime.now(timezone.utc)
+    cert = (x509.CertificateBuilder().subject_name(name).issuer_name(name).public_key(key.public_key())
+            .serial_number(1).not_valid_before(now).not_valid_after(now + timedelta(days=3650))
+            .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
+            .sign(key, hashes.SHA256()))
+    pem = cert.public_bytes(serialization.Encoding.PEM)
+    if with_key:
+        pem += key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8,
+                                 serialization.NoEncryption())
+    return pem
+
+
+class CertificateTrustTests(ConfigurationPageCase):
+    """其他设备装本机 CA：只下发公开证书，手机凭限时签名下载，不用先登录。"""
+
+    async def asyncSetUp(self):
+        await super().asyncSetUp()
+        self.app.state.settings = replace(self.app.state.settings, tls_enabled=True, mdns_port=443)
+        access.save(self.path, "correct-password")
+        self.ca = self.secrets / "tls" / "peach-local-ca.crt"
+        self.ca.parent.mkdir()
+        self.ca.write_bytes(_ca_pem(with_key=True))
+
+    async def test_fingerprint_matches_and_the_download_never_carries_a_private_key(self):
+        from cryptography import x509
+        from cryptography.hazmat.primitives import hashes
+        desk = await self.sign_in(self.device())
+        response = await desk.get("/api/configuration/certificate")
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        expected = x509.load_pem_x509_certificate(self.ca.read_bytes()).fingerprint(hashes.SHA256()).hex().upper()
+        self.assertEqual(payload["fingerprint"].replace(":", ""), expected)
+        self.assertRegex(payload["fingerprint"], r"^([0-9A-F]{2}:){31}[0-9A-F]{2}$")
+        self.assertTrue(payload["phone_url"].startswith("https://peach.local/api/configuration/certificate/peach-local-ca.crt?k="),
+                        "从回环打开配置页时，手机地址换成 mDNS 名字")
+        self.assertTrue(payload["qr"] and set("".join(payload["qr"])) <= {"0", "1"})
+        self.assertEqual(len(payload["qr"]), len(payload["qr"][0]), "二维码是方阵")
+        download = await desk.get(payload["download"])
+        self.assertEqual(download.status_code, 200)
+        self.assertEqual(download.headers["content-type"], "application/x-x509-ca-cert")
+        self.assertIn('filename="peach-local-ca.crt"', download.headers["content-disposition"])
+        self.assertIn(b"BEGIN CERTIFICATE", download.content)
+        self.assertNotIn(b"PRIVATE KEY", download.content, "文件里拼了私钥也不外发")
+
+    async def test_phone_downloads_with_the_signed_link_and_nothing_else_without_login(self):
+        desk = await self.sign_in(self.device())
+        path = (await desk.get("/api/configuration/certificate")).json()["phone_url"].removeprefix("https://peach.local")
+        phone = self.device(SAFARI_IPHONE, ("198.51.100.20", 5000))
+        self.assertEqual((await phone.get(path)).status_code, 200, "扫码下载不用先登录")
+        self.assertEqual((await phone.get("/api/configuration/certificate/peach-local-ca.crt")).status_code, 401)
+        self.assertEqual((await phone.get(path + "x")).status_code, 403)
+        self.assertEqual((await phone.get("/api/configuration/certificate")).status_code, 401)
+        await self.sign_in(phone)
+        self.assertEqual((await phone.get("/api/configuration/certificate")).status_code, 403,
+                         "指纹与二维码只在运行 Peach 的电脑上给")
+        with patch.object(routes_configuration, "_LINK_AGE", -1):
+            stranger = self.device(SAFARI_IPHONE, ("198.51.100.21", 5000))
+            self.assertEqual((await stranger.get(path)).status_code, 403, "过期的二维码不认")
+
+    async def test_no_https_service_or_no_ca_means_no_section(self):
+        desk = await self.sign_in(self.device())
+        self.app.state.settings = replace(self.app.state.settings, tls_enabled=False)
+        self.assertIsNone(routes_configuration.certificate_payload(SimpleNamespace(app=self.app)))
+        self.assertEqual((await desk.get("/api/configuration/certificate/peach-local-ca.crt")).status_code, 404)
+        self.app.state.settings = replace(self.app.state.settings, tls_enabled=True)
+        self.ca.unlink()
+        self.assertEqual((await desk.get("/api/configuration/certificate")).status_code, 404)

@@ -14,6 +14,7 @@ import random
 import re
 import time
 from collections.abc import Callable
+from functools import lru_cache
 
 from . import entities, media_libraries, sample_images, settings_file
 
@@ -146,7 +147,9 @@ def attach_jav_display_fields(row: dict, tags=(), entity_kinds=(), source_names=
         row.update(jav_display_metadata(row.get("name"), code, tags, source_names))
 
 
+@lru_cache(maxsize=65536)
 def _filename_fc2_code(name) -> str:
+    # 分组快照每次重算都要对全部文件名解析一遍；只看文件名，按它记住。
     code = release_code_from_filename(name) or ''
     return code if code.startswith('FC2-PPV-') else ''
 
@@ -706,7 +709,7 @@ def attach_saved_follow_cards(contract: WebContract, rows):
 
 #: 版次的展示次序：正片在前，处理过的在后。这不是偏好排序，只是要一个稳定的
 #: 锚点——卡片标题取第一个，次序一变卡片就换名字。
-EDITION_ORDER = ("Censored", "Chinese subs", "Uncensored", "decensored")
+EDITION_ORDER = ("有码", "中字", "无码", "无码流出", "无码破解")
 
 
 def _edition_label(row: dict, tags: tuple[str, ...] = (), source_names: tuple[str, ...] = ()) -> str:
@@ -715,8 +718,14 @@ def _edition_label(row: dict, tags: tuple[str, ...] = (), source_names: tuple[st
     判据只有 `jav_edition_badges` 一份。自己按文件名再写一套「像不像无码」的判断，
     会和卡片上已经显示的徽章各说各话——同一个文件，角标写着无码、分组却当它是正片。
     """
-    badges = jav_edition_badges(row.get('name'), row.get('code'), tags, source_names)
-    return str(badges[0]) if badges else "Censored"
+    return _edition_badge(row.get('name'), row.get('code'), tuple(tags), tuple(source_names))
+
+
+@lru_cache(maxsize=16384)
+def _edition_badge(name, code, tags: tuple[str, ...], source_names: tuple[str, ...]) -> str:
+    # 分组快照每次重算都要判一遍；判据只看这四样，按它们记住。
+    badges = jav_edition_badges(name, code, tags, source_names)
+    return str(badges[0]) if badges else "有码"
 
 
 def _edition_rows(contract: WebContract, codes) -> list[dict]:

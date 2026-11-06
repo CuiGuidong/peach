@@ -12,10 +12,10 @@ const SCALE = 100;
 /** The width of one tick, measured in `SCALE`. */
 const STOP_WIDTH = 0.4;
 
-/** `tinted`: when placed on the gray background of a callout bar, the track overlays the text color with a light layer, slightly darker than the background (slightly lighter in dark mode), not blending into the background.
+/** `tinted`：放在提示条那种灰底上时，轨道用文字色叠一层浅色，比底色略深（暗色下略亮），不和底色融成一片。
  *
- * `meter`: it draws a quantity within a known range (space usage, coverage, proportion), not a task progressing toward completion. Screen readers read
- * `progressbar` as "in progress", so this kind of reading switches to `meter`; the drawing is unchanged (same as BoardUI Meter). */
+ * `meter`：画的是已知范围里的一个量（空间使用率、覆盖率、占比），不是在往完成走的任务。读屏把
+ * `progressbar` 念成「进行中」，所以这类读数改用 `meter`；画法不变（同 BoardUI Meter）。 */
 export function Progress({ label, value, max = 100, stops = [], tinted = false, meter = false }: {
   label: string; value: number; max?: number; stops?: number[]; tinted?: boolean; meter?: boolean;
 }) {

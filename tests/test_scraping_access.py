@@ -828,6 +828,49 @@ class SourcePreflightTests(unittest.TestCase):
                                             max_seconds=15, allow_browser=False)
             factory.return_value.close.assert_called_once()
 
+    def test_each_source_reaches_caller_thread_with_report_outcome(self):
+        from peach.source_preflight import check_sources
+        reasons = {'dmm': 'cloudflare_challenge', 'javdb': 'cooldown', 'javbus': 'server_error'}
+        def check(root, source, **options):
+            return {'results': [{'label': '来源页面', 'ok': False, 'reason': reasons[source]}]}
+        seen = []
+        with patch('peach.source_preflight.check_source', side_effect=check):
+            result = check_sources(Path('/unused'), list(reasons), on_result=lambda row: seen.append(
+                (row['source'], threading.current_thread())))
+        self.assertEqual({source for source, _ in seen}, set(reasons))
+        self.assertTrue(all(thread is threading.current_thread() for _, thread in seen))
+        self.assertEqual([row['results'][0]['outcome_label'] for row in result['sources']],
+                         ['登录或人机验证', '冷却', 'HTTP 错误'])
+
+    def test_cooling_source_reports_cooldown_without_request(self):
+        from peach.scraping_access import _pause, cooldown_path
+        from peach.source_preflight import check_sources
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            _pause(cooldown_path(root, 'javdb'), time.time() + 600)
+            with patch.object(SourceTransport, '_transport_for', side_effect=AssertionError('冷却中不应发请求')):
+                row = check_sources(root, ['javdb'])['sources'][0]['results'][0]
+        self.assertEqual((row['outcome'], row['outcome_label']), ('cooldown', '冷却'))
+
+    def test_check_all_job_counts_progress_and_keeps_result(self):
+        from peach.jobs import BackgroundJob
+        from peach.source_preflight import default_sources
+        from peach.web_scraping import w_scraping_check_all
+        job =BackgroundJob('test-source-check', task_key='source-check')
+        contract = SimpleNamespace(follow_secrets_root=Path('/unused'), source_check_job=job)
+        def check(root, source, **options):
+            return {'results': [{'label': '来源页面', 'ok': source == 'dmm',
+                                 'reason': 'ok' if source == 'dmm' else 'timeout'}]}
+        with patch('peach.source_preflight.check_source', side_effect=check):
+            started = w_scraping_check_all(contract, {})
+            job.thread.join(10)
+        state = job.snapshot()
+        self.assertEqual((started['status'], started['checked']), ('running', 0))
+        self.assertEqual(state['status'], 'complete')
+        self.assertEqual(state['checked'], state['total'])
+        self.assertEqual([row['source'] for row in state['results']], default_sources())
+        self.assertEqual(state['failed'], state['total'] - 1)
+
     def test_http_only_transport_does_not_launch_or_fix_browser_route(self):
         from peach.scraping_access import SourcePaused, fix_to_browser, fixed_to_browser
         with tempfile.TemporaryDirectory() as temporary:

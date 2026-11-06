@@ -37,8 +37,8 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
       data-modal-motion="" data-modal-kind={width} data-motion-instant={isFocusVisible || undefined}
       className="fixed inset-0 z-dialog flex items-center justify-center bg-scrim p-4">
       <Modal data-modal-surface="" data-modal-width={width} className={cx('flex max-h-full w-full flex-col overflow-hidden rounded-2-5xl border border-separator-border bg-background-full shadow-dropdown', WIDTH[width], surfaceClassName)}>
-        {/* When the caller's own body scroll area fits, this layer does not scroll; in short viewports even the header plus buttons cannot fit, so the whole block scrolls,
-            keeping the close button always reachable. */}
+        {/* 调用方自己的正文滚动区收得下时这一层不滚；矮视口里连页头加按钮都放不下，就整块滚，
+            关闭键总够得着。 */}
         <Dialog aria-label={label} className="flex min-h-0 flex-col overflow-y-auto overscroll-contain outline-none">{children}</Dialog>
       </Modal>
     </ModalOverlay>

@@ -1669,9 +1669,9 @@ def export_macos_diagnostics(notify: Callable[[str, str], None]) -> None:
         try:
             path = save_bundle()
             subprocess.run(["open", "-R", str(path)], check=False)
-            notify(f"Diagnostic report saved: {path.name}", "Peach diagnostic report")
+            notify(f"诊断报告已保存：{path.name}", "Peach 诊断报告")
         except Exception as error:
-            notify(error_reporting.failure_details("report-export", error), "Peach diagnostic report")
+            notify(error_reporting.failure_details("report-export", error), "Peach 诊断报告")
         finally:
             _MACOS_DIAGNOSTICS_LOCK.release()
 
@@ -1700,7 +1700,7 @@ class MacUpdateEntry:
             self.notify("正在检查更新…", "Peach")
             result = self.versions.check()
             self.state["snapshot"] = result.snapshot
-            self.notify(result.message, "Peach Version and updates")
+            self.notify(result.message, "Peach 版本与更新")
         finally:
             self.lock.release()
 
@@ -1827,15 +1827,15 @@ def run_macos_menu_bar(manager: "ServiceManager", gate: "SetupGate | None" = Non
             *((("Sync development progress", sync_source),) if not standalone() else ()),
             *ledger_menu_items(
                 lambda label, action: (label, action), sync_ledger, take_ownership),
-            ("Restart service", restart),
-            ("View logs", lambda: subprocess.run(["open", str(LOG_DIR)], check=False)),
-            ("Export diagnostics report", lambda: export_macos_diagnostics(notify)),
-            ("Version and updates", Submenu(lambda: [
+            ("重启服务", restart),
+            ("查看日志", lambda: subprocess.run(["open", str(LOG_DIR)], check=False)),
+            ("导出诊断报告", lambda: export_macos_diagnostics(notify)),
+            ("版本与更新", Submenu(lambda: [
                 (f"Peach {state['snapshot'].package_version}", None),
                 (menu_text(state['snapshot'].build_label), None),
                 (menu_text(state['snapshot'].channel_label), None),
                 (None, None),
-                ("Check for updates", updates.check),
+                ("检查更新", updates.check),
             ])),
             (None, None),
             ("Exit Peach", quit_now),
@@ -2060,7 +2060,7 @@ def _main(argv: list[str] | None = None) -> int:
     except Exception as exc:
         LOGGER.exception("托盘运行失败")
         if not os.environ.get("PEACH_TRAY_RECOVERIES"):
-            show_message("Peach failed to start", error_reporting.failure_details("tray-runtime", exc), error=True)
+            show_message("Peach 启动失败", error_reporting.failure_details("tray-runtime", exc), error=True)
         return failure_exit_code()
     finally:
         if lifecycle is not None:

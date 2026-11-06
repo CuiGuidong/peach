@@ -1,7 +1,7 @@
 /* Task center's data contract and folding: one `/api/tasks` request serves all three sections of the page.
  *
- * Fetching in three separate calls could produce a self-contradictory screen where "the running section is fresh, the completed section is stale", so there's only one
- * queryKey. The first screen is written into the Query cache by `prefetchTasks`; what the component reads on mount is that. */
+ * 分三次取会出现「在跑那段是新的、完成那段是旧的」这种自相矛盾的一屏，所以只有一个
+ * queryKey。首屏由 `prefetchTasks` 写进 Query 缓存，组件挂上去读的就是它。 */
 import { apiGet, apiSend } from '../../api';
 import { fmtSize } from '@peach/legacy/core';
 import { requestErrorMessage } from '../../core/request-error';
@@ -14,7 +14,7 @@ export const TASKS_KEY = ['tasks'] as const;
 export type TaskControlAction = 'pause' | 'resume' | 'cancel';
 export type TaskControlState = 'running' | 'pausing' | 'paused' | 'cancelling';
 export type TaskResourceState = 'ready' | 'sampling' | 'unavailable';
-/* via only appears on not-yet-fetched network readings: cloud is read from a network-drive mount, and network speed can't be metered per task. */
+/** `via` 只出现在未取得的网络读数上：`cloud` 是从网盘挂载读的，网速无法按任务计量。 */
 export interface TaskResourceMetric { state: TaskResourceState; high: boolean; reason?: string; via?: 'cloud' }
 export interface TaskPercentMetric extends TaskResourceMetric { percent: number | null }
 export interface TaskResourcesPayload {
@@ -46,9 +46,9 @@ export interface TaskRunPayload {
   /** The full name of what this successor will do. Empty string when it is not a successor; the UI uses that to decide whether it hangs under the parent card. */
   followup_key: string;
   followup_depth: number;
-  /** The server provides the current control state and available actions; the UI doesn't infer from the task type. */
+  /** 服务端给出当前控制状态与可用动作，界面不按任务种类推断。 */
   control?: { state: TaskControlState; actions: TaskControlAction[] };
-  /** Only project attributable measured readings; a missing field means that snapshot provided no resource sampling. */
+  /** 只投影可归属的实测读数；缺失字段代表该快照未提供资源采样。 */
   resources?: TaskResourcesPayload;
 }
 
@@ -65,7 +65,11 @@ export interface ActivityData {
   working_parents?: TaskRunPayload[];
   /** Parent task id → how many of its directly dispatched successors are in each state. The dispatched successors are only a part; progress and "still running or not" read from this. */
   followup_counts?: FollowupCounts;
+  /** 逐部到来的入库通知：云下载整理完成、推送发现登记的新影片。`epoch` 换了表示服务重启过。 */
+  ingest_notices?: { epoch: string; items: IngestNotice[] };
 }
+
+export interface IngestNotice { id: number; kind: 'download' | 'discovered'; asset_id: number; label: string; at: number }
 
 export type FollowupCounts = Record<string, Record<string, number>>;
 
@@ -90,14 +94,15 @@ export function followupTally(counts: FollowupCounts | undefined, runs: TaskRunP
   return { total, active, failed, cancelled, settled: total - active };
 }
 
-/** Several rounds dispatched in a row of the same task merge into one thing: auto-repair dispatches a batch every minute, and a screen of a dozen "Completed" cards tells one story.
- *  Each group sorts by its latest round first; `runs[0]` is the latest round. */
-export function foldByKind(rows: TaskRunPayload[]): RunFold[] {
+/** 同一种任务连着派出的几轮合成一件事：自动修复每分钟派一批，一屏十几张「已完成」卡说的是同一件事。
+ *  每组按最新那一轮排在前面，`runs[0]` 是最新那一轮。`split` 再按它的值分组，同一种任务值不同的分开。 */
+export function foldByKind(rows: TaskRunPayload[], split: (run: TaskRunPayload) => string = () => ''): RunFold[] {
   const folds = new Map<string, RunFold>();
   for (const run of rows) {
-    const fold = folds.get(run.task_key);
+    const key = `${run.task_key}\u0000${split(run)}`;
+    const fold = folds.get(key);
     if (fold) fold.runs.push(run);
-    else folds.set(run.task_key, { run, runs: [run] });
+    else folds.set(key, { run, runs: [run] });
   }
   return [...folds.values()];
 }
@@ -129,10 +134,16 @@ export const pollInterval = (data: ActivityData | undefined): number =>
 
 export const fetchTasks = (signal?: AbortSignal) => apiGet<ActivityData>(TASKS_URL, signal);
 
+/** 每个页面常驻轮询的那一小份：结果版本、入库通知与有没有任务在排或在跑。完整任务列表只给任务中心。 */
+export const RESULT_UPDATES_KEY = ['result-updates'] as const;
+export type ResultUpdatesData = Pick<ActivityData, 'result_versions' | 'ingest_notices'> & { busy?: boolean };
+export const fetchResultUpdates = (signal?: AbortSignal) =>
+  apiGet<ResultUpdatesData>('/api/result-updates', signal);
+
 export const controlTask = (id: number, action: TaskControlAction, signal?: AbortSignal) =>
   apiSend(`${TASKS_URL}/${id}/control`, { action }, 'POST', signal);
 
-/** First screen: paint only after the fetch completes. On abort, `fetchQuery` throws `AbortError` back to the mounting party, which gives up on this attempt. */
+/** 首屏：取完数才画。中止时 `fetchQuery` 把 `AbortError` 抛回给挂载方，它据此放弃这一次。 */
 export async function prefetchTasks(signal: AbortSignal): Promise<void> {
   await queryClient.fetchQuery({ queryKey: TASKS_KEY, queryFn: () => fetchTasks(signal) });
 }
@@ -229,7 +240,7 @@ export function problemDestination(run: TaskRunPayload, latest = true): { href: 
   return target ? { href: target[0], label: target[1] } : null;
 }
 
-/* When this round processes only one work, the summary carries its asset_id and filename, and the task card links to the work's detail based on this. */
+/** 这一轮只处理一部作品时，摘要里带它的 `asset_id` 与文件名，任务卡据此链接到作品详情。 */
 export function taskSubject(run: TaskRunPayload): { href: string; label: string } | null {
   const id = run.result_summary?.asset_id;
   const name = run.result_summary?.name;
@@ -237,7 +248,7 @@ export function taskSubject(run: TaskRunPayload): { href: string; label: string 
     ? { href: `/assets/${id}`, label: name } : null;
 }
 
-/** The id of each task type's latest round in `LATEST_ONLY`. Successors do not count: they hang under a parent task, not a round of this type. */
+/** `LATEST_ONLY` 里每种任务最新那一轮的 id。后继不算：它们挂在父任务下，不是这种任务的一轮。 */
 export function latestOfKind(rows: TaskRunPayload[]): Set<number> {
   const newest = new Map<string, number>();
   for (const row of rows) {
@@ -294,8 +305,8 @@ export const isRoutine = (run: TaskRunPayload) => run.trigger === 'scheduled'
 
 export const isActive = (run: TaskRunPayload) => run.status === 'pending' || run.status === 'running';
 
-/** The line under the follow-up: which item it is working on (the label with the prefix that duplicates the task name stripped off), which item it is on, or what the result was.
- * The title is already the task name, so writing "New release metadata collection:" here again would read as the same sentence said twice. */
+/** 后继那一行的说明：它在做哪一件（标签去掉与任务名重复的前缀）、做到第几项或结果如何。
+ *  标题已经是任务名，这里再写一遍「新作资料采集：」读起来就是同一句话说了两次。 */
 export function followupDetail(row: TaskRunPayload): string {
   const prefix = `${row.task_label}: `;
   const label = row.progress_label || '';
@@ -348,17 +359,17 @@ export function readableErrorHeadline(text: string | null | undefined): string {
 }
 
 const OUTCOME_LABELS: Record<string, string> = {
-  partial: 'Processing ended, some items still need work', complete: 'Processing finished', interrupted: 'Processing interrupted',
-  cancelled: 'Canceled',
-  '没有新写法': 'No new aliases found', 'Installed': 'Detail image saved',
-  '已装着认得准的小图': 'Small images that passed identity checks were kept',
-  '档案已不存在': 'The detail record no longer exists', '资料未过期': 'Existing details are still within their validity',
-  '图太小': 'The image resolution is too low', '官网未取得': 'Label website info not available',
-  '两站都没有作品一览': 'Neither source provides a video list',
-  '哪一站都没对上她': 'No profile page matches this person',
-  '两站都没对上她': 'Neither source found a profile matching this person',
-  '三站都没对上她': 'None of the three sources found a profile matching this person',
-  '已有身份': 'Creator categories already exist', '已变': 'The details were changed by another operation; this save did not go through',
+  partial: '处理已结束，部分项目需处理', complete: '处理完成', interrupted: '处理已中断',
+  cancelled: '已取消',
+  '没有新写法': '未发现新别名', '已装上': '已保存资料图片',
+  '已装着认得准的小图': '已保留身份核对通过的小尺寸图片',
+  '档案已不存在': '资料记录已不存在', '资料未过期': '现有资料仍在有效期内',
+  '图太小': '图片分辨率不足', '官网未取得': '未取得厂牌官网信息',
+  '两站都没有作品一览': '两个来源均未提供作品列表',
+  '哪一站都没对上她': '未找到与该人物相符的资料页',
+  '两站都没对上她': '两个来源均未找到与该人物相符的资料页',
+  '三站都没对上她': '三个来源均未找到与该人物相符的资料页',
+  '已有身份': '已有创作者分类', '已变': '资料已被其他操作修改，本次未保存',
 };
 const SOURCE_NAMES: Record<string, string> = { avwikidb: 'AVWikiDB', javdb: 'JavDB', 'minnano-av': 'みんなのAV' };
 const OPERATION_LABELS: Record<string, string> = {

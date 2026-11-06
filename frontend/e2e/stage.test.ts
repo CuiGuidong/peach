@@ -223,7 +223,7 @@ describe('Stage island', () => {
       }
       await page.setViewportSize({ width: DESKTOP.width, height: DESKTOP.height });
 
-      /* The stubbed source cannot play, so Video.js sits in the error state and the control bar ignores pointers, which makes hover unmeasurable; only the prompt's content is measured. */
+      /* 桩里的片源放不出来，Video.js 停在错误态、控件条不接指针，悬停量不到；只量提示的内容。 */
       const tip = page.locator('#stage [data-player-theater] > .vjs-peach-tooltip');
       assert.equal(await theater.getAttribute('title'), null, 'The native title and the drawn tooltip would stack');
       assert.deepEqual(await tip.evaluate((node) => [node.querySelector('.vjs-peach-tooltip-text')?.textContent,
@@ -234,16 +234,16 @@ describe('Stage island', () => {
     }
   });
 
-  it('Progress bar frame preview: take a cell by time, edges stay whole within the progress bar, and each page mosaic is fetched only once; the mini window and touch drag share the same block', { timeout: 60_000 }, async () => {
+  it('进度条画面预览：按时刻取格、靠边整块留在进度条里、每页拼图只取一次；小窗与触屏拖动同一块', { timeout: 60_000 }, async () => {
     let requested = new Map<number, number>();
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;
-      // The stub entry is 3600 seconds, one frame every 10 seconds, 360 frames total, 4 tile images. After mounting, entering detail, the player fetches the index on mount.
+      // 桩条目 3600 秒，10 秒一帧共 360 帧、4 张拼图。挂上之后再进详情，播放器挂载时取索引。
       requested = await stubTimelineSheets(page, { frames: 360, interval: 10 });
       await page.reload({ waitUntil: 'load' });
       await page.locator(PLAYER).waitFor({ state: 'attached' });
-      /* The stub source can't play, so the control bar doesn't take the pointer: pointer events go straight to the progress bar, measuring wiring and geometry. */
+      /* 桩片源放不出来，控件条不接指针：指针事件直接派到进度条上，量的是接线与几何。 */
       const point = (scope: string, type: string, at: number, pointerType = 'mouse') => page.evaluate(
         ([selector, kind, ratio, pointer]) => {
           const bar = document.querySelector<HTMLElement>(selector)!, box = bar.getBoundingClientRect();
@@ -264,17 +264,17 @@ describe('Stage island', () => {
       const middle = await measure(progress);
       assert.equal(middle.hidden, false);
       assert.equal(middle.time, '30:00');
-      assert.equal(middle.src, `/timeline?id=${ITEM.plain}&s=1&source=peach`, '30 minutes is frame 180, which falls in sprite sheet 2');
-      assert.equal(middle.offset, '-800%', 'Frame 180 is cell 80 of sheet 2, row 9');
-      assert.ok(Math.abs(middle.scale - 10) < .3, `The mosaic must be zoomed to 10× the viewfinder to reveal just one cell: ${middle.scale}`);
-      assert.equal(middle.transition, '0s', 'With reduced motion, the preview has no translation animation');
+      assert.equal(middle.src, `/timeline?id=${ITEM.plain}&s=1&source=peach`, '30 分钟是第 180 帧，落在第 2 张拼图');
+      assert.equal(middle.offset, '-800%', '第 180 帧是第 2 张的第 80 格，第 9 行');
+      assert.ok(Math.abs(middle.scale - 10) < .3, `拼图要放大到取景框的 10 倍才能只露一格：${middle.scale}`);
+      assert.equal(middle.transition, '0s', '减少动态效果时预览不做位移动画');
       for (const at of [0, .01, .99, 1]) {
         await point(progress, 'pointermove', at);
         const edge = await measure(progress);
-        assert.ok(edge.left >= -0.5 && edge.right >= -0.5, `Clipped at the edge: ${JSON.stringify({ at, ...edge })}`);
+        assert.ok(edge.left >= -0.5 && edge.right >= -0.5, `靠边被裁：${JSON.stringify({ at, ...edge })}`);
       }
       for (let at = 0; at <= 1; at += .05) await point(progress, 'pointermove', at);
-      assert.deepEqual([...requested.entries()].sort(), [[0, 1], [1, 1], [2, 1], [3, 1]], 'After a sprite is warmed once, it should not re-fetch on every pointer move');
+      assert.deepEqual([...requested.entries()].sort(), [[0, 1], [1, 1], [2, 1], [3, 1]], '拼图预热一次后不该随指针重取');
       await point(progress, 'pointerleave', 1);
       assert.equal((await measure(progress)).hidden, true);
 
@@ -291,21 +291,21 @@ describe('Stage island', () => {
           clock: clock ? getComputedStyle(clock).visibility : 'hidden' };
       });
       assert.deepEqual(inMini, { hidden: false, display: 'flex', inside: true, width: inMini.width, clock: 'hidden' }, JSON.stringify(inMini));
-      assert.ok(inMini.width <= 170, `The mini window's preview did not get the narrow variant: ${inMini.width}`);
+      assert.ok(inMini.width <= 170, `小窗里的预览没收到窄档：${inMini.width}`);
 
       await point(mini, 'pointerdown', .75, 'touch');
       assert.equal((await measure(mini)).time, '45:00');
       await point(mini, 'pointermove', .8, 'touch');
       assert.equal((await measure(mini)).time, '48:00');
       await point(mini, 'pointerup', .8, 'touch');
-      assert.equal((await measure(mini)).hidden, true, 'Touch-screen: preview not dismissed on release');
+      assert.equal((await measure(mini)).hidden, true, '触屏抬手预览没收起');
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
       await opened.close();
     }
   });
 
-  it('Context menu item by item: Escape closes only the menu; "Mini player" enters the mini player, where the menu becomes "Expand"', { timeout: 60_000 }, async () => {
+  it('右键菜单逐项：Escape 只关菜单；「迷你播放器」进小窗，小窗里的菜单换成「展开」', { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
     try {
       const page = opened.page;

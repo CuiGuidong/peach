@@ -4,8 +4,8 @@ import { catalogTableSnapshot, type TableSnapshot } from './react/catalog-grid/c
 import { esc } from './core';
 import { COMPLETION_ROW_SKELETON_HTML, completionRowRemembered } from './react/library-processing/completion-row';
 
-/** The content of one cell in the list skeleton, shared by the shell and the list island: the name cell is a thumbnail plus a two-line title, the artist cell a round avatar plus a bar, the media library and label cells a
- * small badge plus a bar, and every other column a short bar. */
+/** 列表骨架一格的内容，壳与列表岛共用：名称格是缩略图和两行标题，艺人格是圆头像加一条，媒体库、厂牌格是
+ *  小标识加一条，其余列一条短条。 */
 export function catalogListSkeletonCellHtml(column: string): string {
   if (column === 'name') return '<span data-list-skeleton-name><i class="skeleton-sheen"></i><span><i class="skeleton-sheen"></i><i class="skeleton-sheen"></i></span></span>';
   if (column === 'people' || column === 'library' || column === 'studio') return `<span data-list-skeleton-mark="${column}"><b class="skeleton-sheen"></b><i class="skeleton-sheen"></i></span>`;
@@ -19,7 +19,7 @@ function catalogListSkeletonHtml(label: string): string {
     + listTableSkeletonHtml(catalogTableSnapshot(), completionRowRemembered() ? COMPLETION_ROW_SKELETON_HTML : '') + '</div>';
 }
 
-/* A toolbar row plus a table skeleton sorted by column preference; shared by the library list and the JAV new-releases list, with between inserted between the toolbar and the table. */
+/** 工具栏一行加按列偏好排好的表格骨架；馆藏列表与 JAV 新作列表共用，`between` 插在工具栏与表格之间。 */
 export function listTableSkeletonHtml(columns: TableSnapshot, between = ''): string {
   const flexible = columns.some(column => column.width === null);
   const minimum = columns.reduce((sum, column) => sum + (column.width ?? column.min), 0);

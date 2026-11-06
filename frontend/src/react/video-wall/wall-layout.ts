@@ -84,7 +84,7 @@ export function clampWall(camera: WallCamera, viewport: WallSize, extent: WallSi
   return { ...camera, x: clamp(camera.x, extent.width, viewport.width), y: clamp(camera.y, extent.height, viewport.height) };
 }
 
-/** The extra tile range beyond each viewport edge (screen pixels); the lens uses it to decide when to republish. */
+/** 视口每边多铺的磁贴范围（屏幕像素），镜头按它决定何时重新发布。 */
 export const WALL_CULL_PAD = 180;
 
 export function visibleWallTiles(count: number, finite: boolean, camera: WallCamera, viewport: WallSize): WallTile[] {

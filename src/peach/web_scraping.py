@@ -158,6 +158,28 @@ def w_scraping_check(contract, body):
     return check_source(contract.follow_secrets_root, str(body.get("source", "")))
 
 
+def w_scraping_check_all(contract, _body):
+    """全部来源跑一趟 `peach check-sources` 的同一检查。冷却中的来源在传输层直接判冷却，
+    不发请求；不登记续跑：服务重启后不该自己再打一轮来源。"""
+    from .source_preflight import check_sources, default_sources
+    job = contract.source_check_job
+    sources = default_sources()
+
+    def work(job_id):
+        def done(row):
+            with job.editing(job_id) as state:
+                if state is not None:
+                    state["results"].append(row)
+                    state["checked"] += 1
+                    state["current"] = {"label": row["label"]}
+        result = check_sources(contract.follow_secrets_root, sources, on_result=done)
+        targets = [target for row in result["sources"] for target in row["results"]]
+        job.update(job_id, status="complete", ok=result["ok"], results=result["sources"],
+                   failed=sum(target["outcome"] not in ("ok", "skipped") for target in targets),
+                   elapsed_s=result["elapsed_s"], completed_at=time.time())
+    return job.start(work, initial={"checked": 0, "total": len(sources), "results": []}, restart=True)
+
+
 def q_scraping_amane_bridge(contract, args):
     """amane 桥那张卡：钉的 sha、锁里的版本、venv 建没建、开了哪几站，外加重建任务的快照。"""
     from . import metadata_amane

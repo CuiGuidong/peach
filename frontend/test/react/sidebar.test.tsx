@@ -274,10 +274,25 @@ describe('Navigation', () => {
     expect(scroll.querySelector('[data-nav=""]')!.getAttribute('aria-pressed')).toBe('false');
   });
 
-  it('Double-clicking navigation only requests a scroll to top and never rebuilds section content', async () => {
+  it('双击导航只请求回顶，不重建栏目内容', async () => {
     const { scroll, host } = await setup();
     act(() => { scroll.querySelector('[data-nav=""]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })) });
     expect(host.navToTop).toHaveBeenCalledOnce();
+  });
+
+  it('键盘下移一项：先落本地 store，再写 /api/settings', async () => {
+    const fetcher = fetchMock(200, { sidebarOrder: ['unseen', '', 'follow'] });
+    vi.stubGlobal('fetch', fetcher);
+    const { scroll, store } = await setup();
+    act(() => { scroll.querySelector('[data-nav=""]')!.dispatchEvent(new KeyboardEvent('keydown',
+      { key: 'ArrowDown', altKey: true, bubbles: true, cancelable: true })) });
+    await settle();
+    expect(store.value.sidebarOrder).toEqual(['unseen', '', 'follow']);
+    expect(JSON.parse(localStorage.getItem('peach.settings.v1')!).sidebarOrder).toEqual(['unseen', '', 'follow']);
+    expect(navKeys(scroll)).toEqual(['unseen', '', 'follow']);
+    expect(scroll.querySelector('[data-dragging],[data-drop]')).toBeNull();
+    expect(fetcher.mock.calls[0]?.[0]).toBe('/api/settings');
+    expect(sentBody(fetcher)).toEqual({ sidebarOrder: ['unseen', '', 'follow'] });
   });
 
   it('Arrow-down on the keyboard: land in the local store first, then write /api/settings', async () => {

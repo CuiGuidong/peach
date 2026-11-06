@@ -52,7 +52,7 @@ LANGUAGE_TOKENS.update({token: ("ja", "日语") for token in ("ja", "jp", "jpn",
 LANGUAGE_TOKENS.update({token: ("ko", "韩语") for token in ("ko", "kor", "korean", "韩文", "韩语")})
 
 #: 剥去之后仍应与正片同名的 token：语言之外，还有 `catalog_rules` 已经认定的版次标记
-#: （`-C` 中文字幕版、`-UC` 无码流出、画质词）。版次表只此一份，不在这里重抄。
+#: （`-C` 中文字幕版、`-UC` 无码、画质词）。版次表只此一份，不在这里重抄。
 _STRIPPABLE = (frozenset(LANGUAGE_TOKENS) | frozenset(VERSION_TAIL_TOKENS)
                | {"forced", "sdh", "default"})
 _SEPARATORS = ".-_ "

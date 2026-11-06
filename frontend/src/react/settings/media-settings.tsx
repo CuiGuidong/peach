@@ -45,13 +45,13 @@ import { busyProps, useAction } from './use-action';
 import { confirmModal } from '@peach/legacy/ui';
 import { fetchLibraryProcessing, processingActive, restartEffectText } from '../library-processing/library-processing';
 
-/* Saving restarts Peach. When a scan and collection are running, confirm first; if the task status can't be read, save as usual — don't let a side reading block saving. */
+/** 保存会重启 Peach。扫描与采集在跑时先确认；读不到任务状态就照常保存，不让旁路读数挡住保存。 */
 async function confirmRestartDuringProcessing(scanAfterSave: boolean): Promise<boolean> {
   let state;
   try { state = await fetchLibraryProcessing() } catch { return true }
   if (!processingActive(state)) return true;
   const { confirmed } = await confirmModal({
-    title: 'Scanning and collecting in progress', body: restartEffectText(state, scanAfterSave), confirmLabel: 'Still kept',
+    title: '扫描与采集正在进行', body: restartEffectText(state, scanAfterSave), confirmLabel: '仍然保存',
   });
   return confirmed;
 }
@@ -218,7 +218,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
 
   if (saved) {
     return (
-      <Section guide="media" title="Libraries and folders">
+      <Section guide="media" title="媒体库与目录">
         <Stack>
           <Note tone="success" title="Configuration saved">
             Peach is restarting. You will be redirected shortly, or open <LinkButton href={saved.url} size="small">the library</LinkButton>.
@@ -233,7 +233,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
   const cloud = rows.some((row) => isCloudSource(row.location));
   const missing = cloud ? (data.mount_dependencies ?? []).filter((dependency) => !dependency.available) : [];
   return (
-    <Section guide="media" title="Libraries and folders" onSubmit={submit}>
+    <Section guide="media" title="媒体库与目录" onSubmit={submit}>
       <Stack>
         {/* Grouped by library: name, icon, source color, and handling belong to the library and are written once per group;
             the folders of this library are listed below, and folders only carry path, source, and read policy. */}
@@ -388,7 +388,7 @@ function MountStatus({ data }: { data: ConfigurationData }) {
   const refresh = () => void action.run('refresh', (signal) => fetchConfiguration(signal),
     (result) => queryClient.setQueryData(CONFIGURATION_KEY, result));
   return (
-    <Section guide="mounts" title="Mount state">
+    <Section guide="mounts" title="挂载状态">
       <FactList>
         {sources.map((row, index) => (
           <Fact key={index} term={<><SourceMark mark={sourceMark(row.location)} />{sourceName(row.location)}</>}>

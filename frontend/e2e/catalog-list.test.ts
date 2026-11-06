@@ -54,7 +54,7 @@ describe('Library cards and lists', () => {
         assert.ok(geometry.titleLeft > geometry.pictureRight, JSON.stringify(geometry));
         assert.equal(geometry.radius, '0px');
         assert.ok(!geometry.identityAvatar && geometry.peopleAvatar && geometry.peopleCell > geometry.nameCell,
-          `After splitting avatar and signature into the works column, a separate artist column: ${JSON.stringify(geometry)}`);
+          `头像与署名拆成作品列之后单独的艺人列：${JSON.stringify(geometry)}`);
         const screenshots = join('..', 'build', 'agent-verification', 'folders');
         mkdirSync(screenshots, { recursive: true });
         await page.screenshot({ path: join(screenshots, `${viewport.name}-list.png`), fullPage: false });

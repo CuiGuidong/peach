@@ -27,6 +27,8 @@ import { BatchDockSurface } from '../batch-dock/batch-dock-island';
 import type { DataCleanupSection, LibraryProcessingProps } from '../bundle';
 import { CatalogFilterPage } from '../catalog-filter/catalog-filter-page';
 import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
+import { prefetchCatalogGrid } from '../catalog-grid/catalog-grid';
+import { catalogView } from '../catalog-grid/catalog-view';
 import { prefetchDataCleanup, prefetchDataCleanupTool } from '../data-cleanup/data-cleanup';
 import { CLEANUP_TOOLS, type CleanupToolPath } from '../../cleanup-tools';
 import { prefetchEntityPage, type EntityPageProps } from '../entity-page/entity-page';
@@ -191,7 +193,7 @@ export const MANAGED_ROUTES: ManagedRouteTable = {
         revealSource={actions.revealSource} toast={(message) => actions.receipt(message)} />;
     },
   },
-  /* The home page only expands the daily scan; maintenance tools each pre-fetch their own second-level page data. */
+  /* 首页只展开日常扫描；维护工具各自预取自己的二级页数据。 */
   '/data-cleanup': {
     element: <ManagedMatch path="/data-cleanup" />,
     prefetch: (_open, signal) => withPage(dataCleanupPage, prefetchDataCleanup(signal)),
@@ -328,18 +330,19 @@ export const ENTITY_ROUTES: EntityRouteTable = {
   '/agencies/*': entityRoute, '/tags/*': entityRoute,
 };
 
-/* The two pages painted into `#grid`. The catalog grid: the home page, the three of the four filter states that aren't junk files, and the trash — all of them paint this same grid,
-   with the filter being the shell's `state`; the junk queue: the junk-files screen, where category and view are read only from the address. The table is keyed per page: the shell opens the
-   grid with `/` and the queue with `/junk-files`; the path stored in the slot says which page is painted, not the address. Keying by address would error in three places: the grid,
-   opened at `/trash` then navigating to `/`, is an in-place push, and the path in the slot doesn't follow; `?state=ads` landing on `/` paints the junk queue; on cold start
-   landing on a detail address, the grid paints itself beneath `/assets/:id`.
-   Neither the grid nor the queue waits before opening — once painted it fetches data and shows its own skeleton. Thereafter, changing
-   the filter or category, the layout, the selection mode, and the refresh generation are all pushed in by the shell through `updateManagedRoute`; the page refetches by the new key and lays its own
-   skeleton, without remounting. */
+/* 画进 `#grid` 的两页。目录网格：首页、四个筛选态里除垃圾文件外的三个，和回收站，画的都是这一张网格，
+   筛选是壳那一份 `state`；垃圾队列：垃圾文件那一屏，分类与视图只从地址读。表按页面分键：壳用 `/` 打开
+   网格、用 `/junk-files` 打开队列，槽里记的路径说的是画着哪一页、不是地址。按地址分键会在三处出错：网格在
+   `/trash` 打开之后去 `/` 是就地推，槽里的路径不跟着变；`?state=ads` 落在 `/` 上，画的是垃圾队列；冷启动
+   落在详情地址上时，网格在 `/assets/:id` 底下补画。
+   目录网格在打开前取第一页，壳铺的骨架一直留到数据到，挂上就是卡片：先挂再取的话，岛挂得晚于骨架显示
+   门槛时，壳那份骨架会再淡出换成岛自己的一份。队列不在打开前等，画上即取数并显示自己的骨架。之后换
+   筛选或分类、换版式、选择模式与刷新代次都由壳经 `updateManagedRoute` 推进来，页面按新键重取、自己铺
+   骨架，不重挂。 */
 export const CATALOG_ROUTES: CatalogRouteTable = {
   '/': {
     element: <CatalogMatch />,
-    prefetch: async () => {},
+    prefetch: (open, signal) => prefetchCatalogGrid(open, catalogView(), signal),
     page: (open) => <CatalogGridPage {...open} />,
   },
   '/junk-files': {

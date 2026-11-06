@@ -54,8 +54,8 @@ export function CloudProxySettings({ receipt }: { receipt(message: string): void
     rememberShape('cloudProxy', { configured: state.configured !== false, unlinked: state.unlinked?.length ?? 0,
       accounts: state.accounts.map(account => [proxied(account.data), proxied(account.api)]) });
   }, [state]);
-  if (loading) return <SectionSkeleton label="Reading the drive proxy" html={cloudProxySkeleton} />;
-  return <Section guide="cloud-proxy" title="CloudDrive proxy">
+  if (loading) return <SectionSkeleton label="正在读取网盘代理" html={cloudProxySkeleton} />;
+  return <Section guide="cloud-proxy" title="CloudDrive 代理">
     <Stack>
       <Help>{CLOUD_PROXY_HELP}</Help>
       <div className="flex min-w-0 flex-col gap-4">

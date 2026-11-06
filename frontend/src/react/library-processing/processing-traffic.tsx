@@ -21,8 +21,8 @@ const range = (low: number, high: number) => {
 const forecast = (expected: number | undefined, low: number, high: number) => expected === undefined
   ? range(low, high) : `${expected > 0 ? '~' : ''}${size(expected)}`;
 
-/** The confirm dialog, task card, and management page share the per-directory breakdown. In `compact`, only the file count and the integrity notice remain;
- * traffic, usage, and the per-directory details collapse with the task card. */
+/** 确认弹窗、任务卡和管理页共用逐目录分账。`compact` 时只留文件计数与完整性提示，
+ *  流量、占用与逐目录明细随任务卡一起收起。 */
 export function TrafficProgress({ traffic, initial = false, compact = false, detailsOpen, onDetailsChange }: {
   traffic?: ProcessingTraffic; initial?: boolean; compact?: boolean; detailsOpen?: boolean; onDetailsChange?(open: boolean): void;
 }) {
@@ -34,16 +34,16 @@ export function TrafficProgress({ traffic, initial = false, compact = false, det
   const count = (value: number) => value.toLocaleString('zh-CN');
   const counted = !!traffic.workload || !!(traffic.inventory && !traffic.inventory.complete)
     || !!(traffic.unknown_files && traffic.inventory?.complete !== false) || !!traffic.inventory?.errors;
-  /* The spacing between the count and the estimate goes into the inner layer of the collapse area: writing it as an outer gap makes it jump again at the moment the collapse transition finishes. */
+  /* 计数与预估之间的间距放进折叠区里层：写成外层的 gap，收起过渡走完那一刻会再跳一下。 */
   return <div data-processing-traffic="" className="flex min-w-0 flex-col text-caption-1-regular text-text-secondary tabular-nums wrap-anywhere">
     <div className="flex min-w-0 flex-col gap-2 empty:hidden">
     {traffic.workload ? <p className="flex flex-wrap gap-x-3 gap-y-1">
       <span>{traffic.unknown_files ? 'Videos found' : 'Videos in scope'} {count(traffic.workload.video_files)} items</span>
       <span>JAV files {count(traffic.workload.jav_files)} · {count(traffic.workload.jav_titles)} different codes</span>
     </p> : null}
-    {traffic.inventory && !traffic.inventory.complete ? <p role="status">Discovering new files; counts and estimates may still change…</p> : null}
-    {traffic.unknown_files && traffic.inventory?.complete !== false ? <p role="status">Some files are unconfirmed, so current counts and estimates are incomplete</p> : null}
-    {traffic.inventory?.errors ? <p role="status">Some folders could not be read, so counts and estimates are incomplete</p> : null}
+    {traffic.inventory && !traffic.inventory.complete ? <p role="status">正在发现新增文件，数量和预估仍会变化…</p> : null}
+    {traffic.unknown_files && traffic.inventory?.complete !== false ? <p role="status">尚有文件未确认，当前数量和预估不完整</p> : null}
+    {traffic.inventory?.errors ? <p role="status">部分目录无法读取，数量和预估不完整</p> : null}
     </div>
     <CollapseRegion open={!compact} data-processing-estimate=""><div className={cx('flex min-w-0 flex-col gap-2', counted && 'pt-2')}>
     <div className="inline-grid grid-cols-2 gap-6 py-2">

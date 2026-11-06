@@ -1034,15 +1034,21 @@ class StandaloneConfigurationTests(_Case):
                 self.assertEqual(client.get(f"/api/configuration/{path}",headers={"X-Token":"test-token"}).status_code,403)
 
     def test_missing_media_tools_have_download_links_in_the_runtime_facts(self):
+        """缺工具时：没有发布工具包的平台给官方外链，Windows x64 给「安装」入口（`media_tools.supported`）。"""
         from peach.web_entry import runtime_fact_entries
-        for missing_ffmpeg, missing_probe in ((True, True), (False, True), (False, False)):
-            with self.subTest(ffmpeg=missing_ffmpeg, probe=missing_probe), mock.patch(
-                    "peach.ffmpeg.FFmpegResolver.ffmpeg", return_value=None if missing_ffmpeg else object()), mock.patch(
-                    "peach.ffmpeg.FFmpegResolver.ffprobe", return_value=None if missing_probe else object()):
-                # 两样都在时 FFmpeg 不占一行，取不到就按没有下载入口算。
-                fact = next((row for row in runtime_fact_entries(self.config) if row['term'] == 'FFmpeg'), {})
-                self.assertEqual(fact.get('download_url') == 'https://ffmpeg.org/download.html',
-                                 missing_ffmpeg or missing_probe)
+        found = mock.Mock(source="path")
+        for installable in (False, True):
+            for missing_ffmpeg, missing_probe in ((True, True), (False, True), (False, False)):
+                with self.subTest(installable=installable, ffmpeg=missing_ffmpeg, probe=missing_probe), mock.patch(
+                        "peach.ffmpeg.FFmpegResolver.ffmpeg", return_value=None if missing_ffmpeg else found), mock.patch(
+                        "peach.ffmpeg.FFmpegResolver.ffprobe", return_value=None if missing_probe else found), mock.patch(
+                        "peach.media_tools.supported", return_value=installable):
+                    # 两样都在、又不是数据目录里装的那份时，FFmpeg 不占一行，取不到就按没有入口算。
+                    fact = next((row for row in runtime_fact_entries(self.config) if row['term'] == 'FFmpeg'), {})
+                    missing = missing_ffmpeg or missing_probe
+                    self.assertEqual(fact.get('download_url') == 'https://ffmpeg.org/download.html',
+                                     missing and not installable)
+                    self.assertEqual(fact.get('install_tool') == 'ffmpeg', missing and installable)
 
     def test_mount_downloads_follow_os_and_detected_installation(self):
         from peach.media_configuration import mount_dependencies

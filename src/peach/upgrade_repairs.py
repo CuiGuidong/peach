@@ -59,6 +59,43 @@ def _manual_name(connection, entity_id: int) -> bool:
                            (entity_id,)).fetchone())
 
 
+#: 旧版从文件名误认的番号只清一次；清掉的行与原值记进同一条回执，可以按它整批撤回。
+STALE_CODES_KEY = 'stale-filename-codes-1'
+
+
+def stale_filename_codes(connection) -> list[dict]:
+    """旧版从文件名误认、现行规则已经不认的番号。
+
+    实例是手机录像的时间戳（`VID_20220818_125735_816` 记成 `125735-816`）和被截断的「名字_日期」
+    （个人投稿者的 `KUZU_250103` 记成 `KUZU-25010`）。这类行有了番号就被当成 JAV，日期式番号还会拿到
+    「无码」徽章。只看无主或由文件名扫描写入的番号，且文件名与所在文件夹按现行规则都认不出番号；
+    再满足下面一条才清：番号本身已不合现行形状；或番号没有完整出现在文件名与文件夹里，这一行也没有
+    任何目录资料（标题、片商、发行日）。带资料的那类是刮削按另一份身份改过的（`1pon-092415-001-fhd2`
+    实为 `092415_159`），不碰。
+    """
+    import re
+    from pathlib import PureWindowsPath
+    from .catalog_rules import compile_code_patterns, is_jav_code, normalise_code_key, release_code_from_filename
+    from .profiles import read_settings
+    patterns = compile_code_patterns(read_settings(connection).get('codePatterns'))
+    rows = []
+    for row in connection.execute(
+            "SELECT id,name,path,code,field_owners,catalog_title,studio,release_date FROM asset "
+            "WHERE medium='video' AND code IS NOT NULL AND code<>''"):
+        owner = owner_of(row['field_owners'], 'code')
+        if owner not in ('', SCAN_FILENAME):
+            continue
+        texts = (str(row['name'] or ''), PureWindowsPath(str(row['path'] or '')).parent.name)
+        if any(release_code_from_filename(text, patterns=patterns) for text in texts):
+            continue
+        body = re.escape(normalise_code_key(row['code'])).replace(r'\-', '[-_ ]?')
+        whole = any(re.search(rf'(?<![A-Za-z0-9]){body}(?![A-Za-z0-9])', text, re.I) for text in texts)
+        described = row['catalog_title'] or row['studio'] or row['release_date']
+        if not is_jav_code(row['code']) or (not whole and not described):
+            rows.append({'id': row['id'], 'code': row['code']})
+    return rows
+
+
 def _catalog_plan(connection, sources: Path, *, catalog: bool = True) -> dict:
     text = metadata_text_repair.collect(connection, sources / 'library-metadata')
     if not catalog:
@@ -117,9 +154,15 @@ def _catalog_apply(connection, plan: dict) -> dict:
 
 
 def _stale_previews(contract, row):
-    """本地配套海报和九宫格分别按所属规则校验。"""
+    """本地配套海报和九宫格分别按所属规则校验。
+
+    只看本机影片：影片补全只给本机影片重抽九宫格、重读配套海报。网盘影片的九宫格是
+    `scripts/sheets.py` 抽的，没有规则签名，算它过期就每次换版都把整个网盘库派一遍，派完照旧过期。
+    """
     from .media_processing_policy import metadata_only
     from .platform import translate_ledger_path
+    if row['location'] != 'local':
+        return False
     poster = Path(getattr(contract, 'poster_root', Path(contract.candidate_root) / 'posters')) / f'{row["id"]}_4.jpg'
     if poster.is_file() and not (artifact_rules.current(poster, source_required=True) or artifact_rules.current(
             poster, upgrade_rules.LOCAL_POSTERS, source_required=True)):
@@ -231,6 +274,18 @@ class UpgradeRepairs:
                                    (REVISION, str(time.time()), json.dumps(receipt, ensure_ascii=False)))
             atomic_write_text(self.receipt, json.dumps(receipt, ensure_ascii=False))
 
+    def _clear_stale_codes(self) -> None:
+        """清掉旧版从文件名误认的番号（`stale_filename_codes`），只做一次。"""
+        with self.contract.database.write_transaction() as connection:
+            if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?', (STALE_CODES_KEY,)).fetchone():
+                return
+            rows = stale_filename_codes(connection)
+            if rows:
+                write_owned_fields(connection, [row['id'] for row in rows], {'code': None}, SCAN_FILENAME)
+            connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
+                               (STALE_CODES_KEY, str(time.time()), json.dumps({'cleared': rows})))
+        LOGGER.info('旧版误认的番号：清掉 %s 条', len(rows))
+
     def _release_studio_misses(self) -> None:
         """旧版断网时记下的「官网未取得」各放一次重试（`studio_followup.release_unbounded_misses`）。
 
@@ -311,7 +366,14 @@ class UpgradeRepairs:
                                (encoded, REVISION, encoded))
         atomic_write_text(self.receipt, encoded)
 
-    def _plan(self, receipt: dict):
+    def _media_backlog(self) -> int:
+        """已经派出、还没轮到的影片补全条数。"""
+        with self.contract.database.read_connection() as connection:
+            return connection.execute("SELECT count(*) FROM task_run WHERE task_key=? AND status='pending'",
+                                      (MEDIA_TASK,)).fetchone()[0]
+
+    def _plan(self, receipt: dict, *, media: bool = True):
+        """`media` 为假时只排资料与人物后继，影片补全等前面那批跑下去再派。"""
         from . import (avatar_followup, creator_identity_followup, performer_alias_followup,
                        performer_profile_followup, seed_followup, studio_followup)
         from .library_processing import _people_allowed
@@ -343,6 +405,8 @@ class UpgradeRepairs:
                     args.append(self.contract.avatar_root)
                 args.append(attempts)
                 planned.extend(planner.stock(*args, limit=min(16, remaining), skip=seen))
+            if not media:
+                return planned[:MAX_FOLLOWUPS]
             rows = connection.execute("SELECT id,code,name,path,location,snapshot_path FROM asset WHERE medium='video' "
                                       "AND disposal IS NULL ORDER BY id").fetchall()
         from .followups import Followup
@@ -382,7 +446,12 @@ class UpgradeRepairs:
                     if not receipt.get('deferred') and not any(row.key not in receipt.get('queued', {}) for row in seed):
                         return
                     receipt['dispatch_complete'] = False
-                planned = self._plan(receipt)
+                # 影片补全只有一条通道、一次一部；不等前面那批跑下去就每分钟再派一批，
+                # 整个库会在一两个小时里全堆进队列，任务中心满屏都是「已处理 0 / 64」。
+                media = self._media_backlog() < MAX_FOLLOWUPS
+                planned = self._plan(receipt, media=media)
+                if not planned and not media:
+                    return
                 if not planned:
                     receipt['dispatch_complete'] = True
                 else:
@@ -446,6 +515,7 @@ class UpgradeRepairs:
             self.scheduler.add_job(self.tick, 'interval', seconds=60, max_instances=1, coalesce=True)
             self.scheduler.add_job(self._settle_verification, max_instances=1)
             self.scheduler.add_job(self._release_studio_misses, max_instances=1)
+            self.scheduler.add_job(self._clear_stale_codes, max_instances=1)
             self.scheduler.start()
 
     def stop(self) -> None:

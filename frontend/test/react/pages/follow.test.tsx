@@ -214,9 +214,9 @@ it('Follow element: when back lands on the follows page and the list has been co
   });
   const { actions } = shellActions(r);
   await boot(r, actions);
-  await until(() => page(stats) !== null, 'The full page painted');
+  await until(() => page(stats) !== null, '整页画上');
   scrollTop = 640;
-  // Navigating to another page: when that page claims the surface, it dismisses the follows page.
+  // 去别的页面：那一页认领表面时收掉关注页。
   await act(async () => { r.shellNavigate('/immerse') });
   await settle();
   expect(r.managedEntry(stats)?.path, 'Page not collapsed on element unmount').toBe('/follow');
@@ -227,7 +227,7 @@ it('Follow element: when back lands on the follows page and the list has been co
   expect(opens(actions), 'The full page opens once').toBe(2);
   expect(calls('/api/follow'), 'Generation unchanged, list not refetched').toBe(1);
   expect(r.managedEntry(stats)?.props).toMatchObject({ revision: 0 });
-  await until(() => scrollTop === 640, 'Restores the historical reading position');
+  await until(() => scrollTop === 640, '恢复历史阅读位置');
   expect(scrolled).toHaveBeenLastCalledWith({ left: 0, top: 640, behavior: 'smooth' });
 });
 
@@ -294,7 +294,7 @@ it('Playlist element: opens full page by address; staying on this page and askin
   expect(r.managedEntry(stats)?.props).toEqual({ revision: 1 });
   expect(opens(actions)).toBe(1);
   await openRouted(r, '/playlists');
-  await until(() => page(stats) !== null && page(stats) !== painted, 'The full page reopened');
-  expect(calls('/api/playlists'), 'Returning to the same list reuses the cache').toBe(2);
-  expect(opens(actions), 'Clicking the sidebar again reopens the full page').toBe(2);
+  await until(() => page(stats) !== null && page(stats) !== painted, '整页重开');
+  expect(calls('/api/playlists'), '重回同一份列表复用缓存').toBe(2);
+  expect(opens(actions), '再点一次侧栏整页重开').toBe(2);
 });

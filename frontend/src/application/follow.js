@@ -5,7 +5,7 @@ import { createFollowDetailActions } from '../react/follow-detail/follow-detail-
 import { checkReceipt } from '../react/follow-manage/follow-manage';
 import { followScrollY } from '../shell';
 import { pageNavigationReady, rememberPageState } from '../history/page-navigation';
-/* follow domain controller: this domain's state and actions; startup installs them together through Application's lifecycle. */
+/* follow 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
 import { receiptsState } from './receipts.js';
 import { managedEntry, releaseManagedRoute, updateManagedRoute } from './../history/managed';
 import { $, entityPath } from '../core';
