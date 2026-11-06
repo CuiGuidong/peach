@@ -104,8 +104,8 @@ TRAY_SOURCES = (
 
 #: `/healthz?ready=1` 各项检查给人看的名字（`peach.health.readiness`）。
 READINESS_LABELS = {
-    "configured": "未初始化", "web": "页面文件缺失", "database": "数据库打不开",
-    "schema": "数据库结构与迁移不一致",
+    "configured": "not initialized", "web": "page files missing", "database": "database won't open",
+    "schema": "database schema does not match the migrations",
 }
 
 #: 托盘拉起的整托盘重启脚本最多等多久。脚本停旧托盘、同步依赖、起新托盘各有期限，
@@ -568,7 +568,7 @@ class ServiceManager:
                 checks = payload.get("checks") or {}
                 failed = [READINESS_LABELS.get(key, key) for key, ok in checks.items() if not ok]
                 detail = "、".join(failed) or f"状态码 {response.status_code}"
-                problems.append(f"{spec.name.upper()} 未就绪：{detail}")
+                problems.append(f"{spec.name.upper()} not ready: {detail}")
         return problems
 
     @staticmethod

@@ -492,7 +492,7 @@ class ReplicationSwitchTests(unittest.TestCase):
 
     def test_menu_items_are_assembled_when_replication_is_on(self):
         labels = [label for label, _ in self.items(True)]
-        self.assertEqual(labels, ["同步数据库", "由本机接管数据库写入"])
+        self.assertEqual(labels, ["Sync the database", "Take over database writes on this machine"])
 
     def test_sync_ledger_refuses_instead_of_probing_a_share(self):
         """菜单项没了，但托盘还有别的入口；这条路径会去探一个不存在的共享。"""
@@ -1012,7 +1012,7 @@ class LocalRebuildTests(unittest.TestCase):
             tray.sync_source(icon)
             self.drain(tray)
         self.assertEqual(updates.prepared, [])
-        self.assertIn("托盘无需重建", self.messages(icon))
+        self.assertIn("no rebuild needed", self.messages(icon))
 
     def test_a_tray_built_from_the_current_head_reports_that_it_matches(self):
         versions = FakeVersions(self.snapshot(behind=0))
@@ -1814,11 +1814,11 @@ class TrayPreparationTests(unittest.TestCase):
 
     def test_startup_reports_a_failed_migration_and_an_unready_schema(self):
         failed = runtime_prepare.Step("migrations", "failed", "migrate status 失败：database is locked")
-        manager = self.manager(problems=["HTTPS 未就绪：数据库结构与迁移不一致"])
+        manager = self.manager(problems=["HTTPS not ready: database schema does not match the migrations"])
         tray = self.tray(manager, self.preparation(migration=failed))
         self.run_tray(tray)
         self.assertIn("database is locked", tray._startup_warning)
-        self.assertIn("数据库结构与迁移不一致", tray._startup_warning)
+        self.assertIn("database schema does not match the migrations", tray._startup_warning)
         self.assertFalse(runtime_prepare.read_record(self.root / "state", pid=os.getpid())["ok"])
 
     def test_late_readiness_completes_the_record_and_opens_the_browser_once(self):
@@ -1877,7 +1877,7 @@ class TrayPreparationTests(unittest.TestCase):
         manager.waiting_for_startup.return_value = True
         tray = self.tray(manager, self.preparation())
         icon = self.press_restart(tray)
-        self.assertIn("仍在启动", icon.notify.call_args.args[0])
+        self.assertIn("still starting", icon.notify.call_args.args[0])
         self.assertNotIn("未能", icon.notify.call_args.args[0])
         self.assertFalse(runtime_prepare.read_record(self.root / "state", pid=os.getpid())["ok"])
 
@@ -1895,13 +1895,13 @@ class TrayPreparationTests(unittest.TestCase):
                 tray.sync_source(icon)
                 LocalRebuildTests.drain(self, tray)
                 message = icon.notify.call_args.args[0]
-                self.assertIn("仍在启动", message)
+                self.assertIn("still starting", message)
                 self.assertNotIn("未能恢复", message)
                 self.assertIsNotNone(tray.windows_updates.pending())
                 manager.waiting_for_startup.return_value = False
                 manager.healthy.return_value = outcome != "exited"
                 if outcome == "schema":
-                    manager.readiness_problems.return_value = ["HTTPS 未就绪：数据库结构与迁移不一致"]
+                    manager.readiness_problems.return_value = ["HTTPS not ready: database schema does not match the migrations"]
                 if outcome == "newer":
                     tray.windows_updates.mark_pending("next-commit", ())
                 ServiceRevivalTests.one_health_round(self, tray)
@@ -1931,7 +1931,7 @@ class TrayPreparationTests(unittest.TestCase):
         icon = self.press_restart(tray)
         self.assertEqual(self.spawned, [True])
         manager.restart.assert_not_called()
-        self.assertIn("The full tray restart", icon.notify.call_args_list[0].args[0])
+        self.assertIn("restarting the whole tray", icon.notify.call_args_list[0].args[0])
 
     def test_a_refused_whole_tray_restart_falls_back_to_the_services(self):
         log = self.root / "logs" / "tray-restart.out.log"
@@ -1986,7 +1986,7 @@ class TrayPreparationTests(unittest.TestCase):
         specs = (ServiceSpec("http", "http://127.0.0.1/healthz", ("peach",), True),
                  ServiceSpec("https", "https://192.0.2.10/healthz", ("peach",), "ca.crt"))
         manager = ServiceManager(specs, health_get=get, log_dir=self.root)
-        self.assertEqual(manager.readiness_problems(), ["HTTPS 未就绪：数据库结构与迁移不一致"])
+        self.assertEqual(manager.readiness_problems(), ["HTTPS not ready: database schema does not match the migrations"])
         self.assertEqual(asked, [("http://127.0.0.1/healthz?ready=1", True),
                                  ("https://192.0.2.10/healthz?ready=1", "ca.crt")])
 
