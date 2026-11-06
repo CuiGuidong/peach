@@ -29,9 +29,9 @@ export interface MountDependency { name: string; message: string; download_url: 
 export interface SetupQuestions {
   peach_proxy?: import('../../bundle').PeachProxyState;
   docker?: boolean;
-  /** Docker 固定的数据目录（`/data`），不出题，只在确认页列出；其余部署为 `null`。 */
+  /** The fixed Docker data directory (`/data`); no question is asked, it is only listed on the confirm page; null for other deployments. */
   data_root?: string | null;
-  /** 容器启动时已按 `PEACH_ACCESS_PASSWORD` 写下访问密码，访问那一项不再出题。 */
+  /** The container wrote the access password from `PEACH_ACCESS_PASSWORD` at boot, so the access question is not asked. */
   access_preset?: boolean;
   remote_reporting?: import('../../settings/remote-reporting-settings').RemoteReportingState;
   windows: boolean;

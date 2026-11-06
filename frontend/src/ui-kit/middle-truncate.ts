@@ -1,9 +1,4 @@
-/* Peach's native adapter over Geist MiddleTruncate.
- *
- * Only verified behavior is reused: keep head and tail by container width, use a single ellipsis, recompute on width change,
- * and still provide the full original for copy and accessible name. Callers only add data-middle-truncate to a file name,
- * path, URL or ID; titles and descriptions keep tail ellipsis. Shipped with `peach-app.js`, with Application's startup and
- * the document-wide single observer; attributes written by native hosts and the React subtree are all its business. */
+/* Geist MiddleTruncate 的 Peach 原生适配层。
 
    只复用已验证的行为：按容器宽度保留首尾、使用单个省略号、宽度变化后重算、复制与无障碍名称
    仍提供完整原文。调用方只需给文件名、路径、URL 或 ID 加 data-middle-truncate；标题和说明继续
@@ -180,131 +175,10 @@ const clientWidth=(element:HTMLElement)=>{
   return Math.max(element.clientWidth,inner+1/64);
 };
 
-const spacingClass=(char:string)=>IDEOGRAPH.test(char)?1:ALPHANUMERIC.test(char)&&!FULLWIDTH.test(char)?2:0;
-const autospaceGaps=(value:string)=>{
-  let gaps=0,previous=0;
-  for(const char of value){
-    const current=spacingClass(char);
-    if(previous&&current&&previous!==current)gaps++;
-    previous=current;
-  }
-  return gaps;
-};
-
-let canvas:HTMLCanvasElement|null=null;
-const canvasWidth=(element:Element,mixed:boolean)=>{
-  const style=getComputedStyle(element);
-  const context=(canvas||(canvas=document.createElement('canvas'))).getContext('2d');
-  if(!context)return ()=>Number.POSITIVE_INFINITY;
-  /* Chromium returns the computed font shorthand as an empty string when font-variant-numeric's tabular figures are on;
-     assigning it directly would make Canvas silently fall back to 10px sans-serif, underestimating CJK filename widths. */
-  context.font=style.font||`${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
-  const letterSpacing=parseFloat(style.letterSpacing),wordSpacing=parseFloat(style.wordSpacing);
-  const autospace=style.getPropertyValue('text-autospace');
-  const gap=mixed&&autospace&&autospace!=='no-autospace'?(parseFloat(style.fontSize)||0)/8:0;
-  return (value:string)=>{
-    let width=context.measureText(value).width;
-    if(Number.isFinite(letterSpacing))width+=Math.max(0,graphemes(value).length-1)*letterSpacing;
-    if(Number.isFinite(wordSpacing))width+=(value.match(/\s/g)||[]).length*wordSpacing;
-    if(gap)width+=autospaceGaps(value)*gap;
-    return width;
-  };
-};
-
-/* The probe sits under <html>, outside <body>, so measuring doesn't trip the body's MutationObserver; contain: strict
-   means changing text only reflows itself. It can't inherit styles from the React container, so the layout-relevant computed values are copied over item by item; the same style
-   measured repeatedly isn't reset. */
-const PROBE_STYLE=['font-family','font-size','font-weight','font-style','font-stretch',
-  'font-variant-ligatures','font-variant-caps','font-variant-numeric','font-variant-east-asian',
-  'font-variant-alternates','font-variant-position','font-feature-settings','font-variation-settings',
-  'font-kerning','font-optical-sizing','font-size-adjust','font-synthesis','letter-spacing','word-spacing',
-  'text-transform','text-rendering','text-autospace','text-spacing-trim','white-space-collapse'];
-let probe:{box:HTMLElement,groups:Map<string,HTMLElement>}|null=null;
-
-const probeGroup=(element:Element)=>{
-  if(!probe){
-    const box=document.createElement('div');
-    box.setAttribute('aria-hidden','true');box.dataset.middleTruncateProbe='';
-    box.style.cssText='position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;contain:strict';
-    probe={box,groups:new Map()};
-  }
-  if(!probe.box.isConnected)document.documentElement.append(probe.box);
-  const style=getComputedStyle(element);
-  const values=PROBE_STYLE.map(name=>style.getPropertyValue(name));
-  const lang=element.closest('[lang]')?.getAttribute('lang')||'';
-  const key=values.join('\n')+'\n'+lang;
-  let group=probe.groups.get(key);
-  if(!group){
-    group=document.createElement('div');
-    values.forEach((value,index)=>group!.style.setProperty(PROBE_STYLE[index]!,value));
-    group.lang=lang;probe.box.append(group);probe.groups.set(key,group);
-  }
-  return group;
-};
-
-interface Fit { element:HTMLElement; state:TruncateState; available:number; parts:string[]; kept:number }
-interface Probing { fit:Fit; group:HTMLElement; fits:number; fails:number; tries:number[] }
-
-/* Only one probe pass per frame: the candidates for all pending elements go into the probe at once, read the width once, then narrow the interval by the result.
-   fits is the largest confirmed-kept count (0 leaves only the ellipsis, always fits); fails is the smallest confirmed-unfit value.
-   The first round tries the Canvas seed and its next; usually settled in one round; unsettled ones retry the interval's ends and middle, converging within a few rounds. */
-const MAX_PROBE_ROUNDS=8;
-const probeAll=(pending:Probing[])=>{
-  for(let round=0;pending.length&&round<MAX_PROBE_ROUNDS;round++){
-    const spans=pending.map(job=>job.tries.map(count=>{
-      const span=document.createElement('span');
-      span.style.cssText='display:block;width:max-content;text-wrap-mode:nowrap';
-      span.textContent=keptText(job.fit.parts,count);job.group.append(span);
-      return span;
-    }));
-    pending.forEach((job,index)=>job.tries.forEach((count,offset)=>{
-      if(spans[index]![offset]!.getBoundingClientRect().width<=job.fit.available)job.fits=Math.max(job.fits,count);
-      else job.fails=Math.min(job.fails,count);
-    }));
-    spans.flat().forEach(span=>span.remove());
-    pending=pending.filter(job=>{
-      job.fit.kept=job.fits;
-      const open=job.fails-job.fits-1;
-      if(open<=0)return false;
-      const step=(job.fails-job.fits)/3;
-      job.tries=[...new Set([job.fails-1,job.fits+1,Math.round(job.fits+step),Math.round(job.fits+2*step)])]
-        .filter(count=>count>job.fits&&count<job.fails);
-      return true;
-    });
-  }
-};
-
-/* First decide all elements' results by Canvas; those containing Chinese/Japanese are then batch-confirmed by the probe. */
-const fitAll=(fits:Fit[])=>{
-  const pending:Probing[]=[];
-  for(const fit of fits){
-    const full=fit.state.full,mixed=WIDE.test(full);
-    const estimate=canvasWidth(fit.element,mixed);
-    fit.kept=longestKept(fit.parts,candidate=>estimate(candidate)<=fit.available);
-    if(!mixed)continue;
-    const tries=[fit.kept,fit.kept+1].filter(count=>count>0&&count<=fit.parts.length);
-    pending.push({fit,group:probeGroup(fit.element),fits:0,fails:fit.parts.length+1,tries});
-  }
-  probeAll(pending);
-};
-
-/* clientWidth rounds to an integer. When the box shrinks to its content (a name with max-width in the breadcrumbs), flooring makes it slightly narrower than the existing text,
-   and the probe measures accurately — every round judges "doesn't fit" and trims one more character. Switch to the fractional width from the computed style, serializing to only
-   six significant digits, adding a LayoutUnit; ceiling still uses clientWidth, so results that originally fit are unchanged. */
-const clientWidth=(element:HTMLElement)=>{
-  const style=getComputedStyle(element),width=parseFloat(style.width);
-  if(!Number.isFinite(width))return element.clientWidth;
-  const inner=style.boxSizing==='border-box'
-    ? width-(parseFloat(style.borderLeftWidth)||0)-(parseFloat(style.borderRightWidth)||0)
-    : width+(parseFloat(style.paddingLeft)||0)+(parseFloat(style.paddingRight)||0);
-  return Math.max(element.clientWidth,inner+1/64);
-};
-
-/* Available width defaults to the element's own box. Elements with data-middle-truncate-within shrink to fit content (with
-   something else right behind, like the "max" tag after a file name), so their own box is the current text's width; using it
-   as the ceiling, the sub-pixel rounding loss in clientWidth would declare "does not fit" every round, truncating shorter
-   each time. Such elements measure by the parent instead: the parent's content width minus all siblings and column gaps is
-   what the text can take. */
+/* 可用宽度默认取元素自己的盒子。带 data-middle-truncate-within 的元素按内容收缩（后面紧跟着
+   别的东西，比如文件名后面的「最大」标记），自己的盒子就是当前文字的宽度——拿它当上限，
+   clientWidth 取整少掉的那不到一像素每一轮都让全文「放不下」，越截越短。这类元素改按父级
+   量：父级的内容宽减去所有兄弟和列间距，剩下的才是文字能占的。 */
 const availableWidth=(element:HTMLElement)=>{
   if(element.dataset.middleTruncateWithin===undefined)return clientWidth(element);
   const box=element.parentElement;if(!box)return element.clientWidth;

@@ -12,13 +12,13 @@ const text = (width: string) => `<span data-jav-skeleton-text class="skeleton bl
 const cover = (classes: string) => `<span data-jav-skeleton-cover class="skeleton ${classes}"></span>`;
 export const JAV_RECOMMENDATION_GRID = 'w-full min-w-0';
 
-/** Tags in a query reuse the filter bar's height and horizontal layout. */
+/** 查询中的标签沿用筛选条的高度与横向布局。 */
 export function javTagSkeleton(): string {
   return ['w-20', 'w-16', 'w-24', 'w-20', 'w-16', 'w-24'].map(width =>
     `<span data-skeleton="tag" aria-hidden="true" class="skeleton-sheen relative block h-8 flex-none rounded-(--tag-radius) ${width}"></span>`).join('');
 }
 
-/** The placeholder reuses the recommendation card's and the want row's width, cover ratio, and column count. */
+/** 占位复用推荐卡与想要行的宽度、封面比例和列数。 */
 export function javContentSkeleton(tab: string, layout = javLayout()): string {
   if (tab === 'wants') return `<div class="flex w-full flex-col gap-8" data-skeleton="jav-wants">${text('5em')}${Array.from({ length: 3 }, () => `<div class="flex min-w-0 gap-4 rounded-2lg bg-background-secondary-default p-6">${cover('block w-card-cover shrink-0 aspect-card-cover rounded-2lg max-sm:w-24')}<div class="flex min-w-0 flex-1 flex-col gap-3">${text('80%')}${text('60%')}${text('40%')}</div></div>`).join('')}</div>`;
   const ratio = cardRatio({ ...gridLayout({ active: true, home: false, portrait: false }), size: layout });
@@ -68,38 +68,18 @@ export function releasesFilterSkeleton(): string {
   </div>`;
 }
 
-/** The two rows of avatars and the filter bar while the new-releases section waits for data: avatars, labels, and tags use the same placeholders as the library; the lower row is refresh, card layout, card/list, and
- * the sort key (pressed per the sort in the address bar), matching what `jav-releases.tsx` looks like once data has arrived. */
-export function releasesFilterSkeleton(): string {
-  const params = new URLSearchParams(location.search);
-  const sort = params.get('sort') || 'release_date';
-  const dir: 'asc' | 'desc' = params.get('dir') === 'asc' ? 'asc' : 'desc';
-  const sorts = RELEASE_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel, pressed: key === sort,
-    dir: key === sort ? dir : '' as const }));
-  return `<div data-catalog-tiers="" aria-busy="true"><div data-catalog-tier="performers" data-skeleton="tiers">${tierPlaceholdersHtml('performer')}</div><div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div></div>
-  <div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
-    <div data-filter-row="top" class="flex h-12 min-w-0 items-center overscroll-x-contain px-3 py-2 gap-1.5 overflow-visible">
-      <div data-catalog-scroll><div data-catalog-tags>${javTagSkeleton()}</div></div>
-    </div>
-    <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
-      <span data-catalog-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"></span></span>
-      ${filterControlsSkeletonHtml(sorts, { name: 'jav-layout', label: 'JAV card layout', value: javLayout(), options: JAV_LAYOUTS }, { folders: false })}
-    </div>
-  </div>`;
-}
-
-/** First-screen filter controls use the home page's two-row container; tags and numbers depend on the query. */
+/** 首屏筛选控件使用首页的两排容器；标签和读数依赖查询。 */
 function javFilterSkeleton(): string {
   const scope = (key: string, label: string) => `<button type="button" data-entity-tag="${key}" data-entity-press="" aria-pressed="${key === 'external'}" class="flex h-8 flex-none items-center gap-1.75 rounded-lg border border-dashed border-(--glass-low) bg-transparent px-2.5 text-body-2-regular leading-5 whitespace-nowrap text-inherit">${label}</button>`;
   const size = (value: string, glyph: string) => `<span data-glass-segment="" ${javLayout() === value ? 'data-selected="true"' : ''} class="flex size-8 flex-none items-center justify-center rounded-lg text-(--glass-text)/62">${islandGlyph(glyph, 'size-4')}</span>`;
   return `<div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
     <div data-filter-row="top" class="flex h-12 min-w-0 items-center overscroll-x-contain px-3 py-2 gap-1.5 overflow-visible">
-      <div data-catalog-scroll><div data-catalog-views>${scope('external', 'Off-library finds')}${scope('library', 'Library picks')}<span data-entity-sep aria-hidden="true"></span></div><div data-catalog-tags>${javTagSkeleton()}</div></div>
+      <div data-catalog-scroll><div data-catalog-views>${scope('external', '库外发现')}${scope('library', '馆藏探索')}<span data-entity-sep aria-hidden="true"></span></div><div data-catalog-tags>${javTagSkeleton()}</div></div>
     </div>
     <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
       <span data-catalog-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"></span></span>
       ${islandShortcutsEntry()}
-      <span data-entity-sorts><button type="button" data-entity-batch data-filter-action data-skeleton-action data-jav-metadata-update title="Update metadata" aria-label="Update metadata" disabled>${islandGlyph('refresh-cw', 'size-4')}</button><span data-entity-layout class="inline-flex w-max max-w-full flex-none items-center gap-0.5 rounded-lg">${size('big', 'maximize')}${size('small', 'layout-grid')}</span>
+      <span data-entity-sorts><button type="button" data-entity-batch data-filter-action data-skeleton-action data-jav-metadata-update title="更新资料" aria-label="更新资料" disabled>${islandGlyph('refresh-cw', 'size-4')}</button><span data-entity-layout class="inline-flex w-max max-w-full flex-none items-center gap-0.5 rounded-lg">${size('big', 'maximize')}${size('small', 'layout-grid')}</span>
         ${DISCOVERY_SORTS.map(([key, label]) => `<button type="button" data-entity-sort="${key}" data-entity-press aria-pressed="${key === 'taste'}">${label}${key === 'taste' ? islandGlyph('arrow-down', 'size-3.5') : ''}</button>`).join('')}
       </span>
     </div>

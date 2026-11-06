@@ -1,9 +1,11 @@
-/* 登录页：一张 Auth Card，一个密码框、「保持登录」与「登录」。
+/* Login page: one Auth Card, a single password box, "Keep me signed in" and "Sign in".
  *
- * 画哪一种由服务端判定后经 `data-mode` 交进来，页面不自己猜：没有这个键是有访问策略的部署，框里填
- * 访问密码；`legacy` 是还没有访问策略的非 Docker 部署，框里填自动生成的访问口令，下面一句说用
- * `peach token` 查看；`setup` 是 Docker 还没有访问策略、来源是本机或局域网，换成访问设置；`denied`
- * 是同样情况但来源不满足，先说去哪里打开，再给访问口令登录（ADR-0149）。
+ * Which variant is drawn is decided server-side and handed in via `data-mode`; the page does not guess: with no such
+ * key it is a deployment with an access policy and the box takes the access password; `legacy` is a non-Docker
+ * deployment without an access policy yet, the box takes the auto-generated access token, and the line below says how
+ * to view it with `peach token`; `setup` is Docker without an access policy from the local machine or LAN, swap to the
+ * access setup; `denied` is the same but the source does not satisfy it, first say where to open it, then give the
+ * access token to sign in with (ADR-0149).
  *
  * The form submits natively: `POST /login` receives `token` and `next`, carries `days=30` when "Stay signed in" is checked,
  * and the session cookie is set by its 303; the page sends no requests through script. On wrong password (401), too many
@@ -23,12 +25,12 @@ import type { PageData } from '../page-data';
 import { FIRST_ACCESS_DENIED } from '../first-access';
 import { AccessSetup } from './access-setup';
 
-/** 口令不对时框下那句话。限流与参数错误的原因由服务端给。 */
-export const WRONG_PASSWORD = '访问密码不正确';
-export const WRONG_TOKEN = '访问口令不正确';
+/** The line under the field when the passphrase is wrong. Rate-limit and bad-parameter reasons come from the server. */
+export const WRONG_PASSWORD = 'Access password is incorrect';
+export const WRONG_TOKEN = 'Access token is incorrect';
 
 const tokenHint = (docker: boolean) => (
-  <>在{docker ? '宿主机' : '运行 Peach 的环境中'}执行 <code className="wrap-anywhere">{docker ? 'docker compose exec peach peach token' : 'peach token'}</code> 查看。</>
+  <>Run <code className="wrap-anywhere">{docker ? 'docker compose exec peach peach token' : 'peach token'}</code> {docker ? 'on the host machine' : 'in the environment running Peach'} to view it.</>
 );
 
 export function LoginPage({ data }: { data: PageData }) {
@@ -43,7 +45,7 @@ function LoginForm({ data }: { data: PageData }) {
     <AuthCard title="Peach">
       {data.mode === 'denied' ? <Note tone="warning">{FIRST_ACCESS_DENIED}</Note> : null}
       <form method="post" action="/login" aria-labelledby="auth-card-title" className="flex flex-col gap-6">
-        <Input id="login-token" label={token ? '访问口令' : '访问密码'} name="token" type="password" maxLength={256}
+        <Input id="login-token" label={token ? 'Access token' : 'Access password'} name="token" type="password" maxLength={256}
           autoComplete="current-password" autoFocus={data.mode !== 'denied'} isRequired
           isInvalid={reason ? true : undefined} onChange={() => setReason('')}
           hint={reason ? <span role="alert">{reason}</span> : token ? tokenHint(data.mode === 'denied') : undefined} />
