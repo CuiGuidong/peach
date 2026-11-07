@@ -423,14 +423,14 @@ class TokyoHotShapeTests(unittest.TestCase):
     def test_uncensored_only_labels_get_the_uncensored_badge(self):
         for name, code in (('SMBD-120.mp4', 'SMBD-120'), ('SKYHD-050-C.mp4', 'SKYHD-050')):
             with self.subTest(code=code):
-                self.assertIn('无码', jav_display_metadata(name, code)['edition_badges'])
+                self.assertIn('Uncensored', jav_display_metadata(name, code)['edition_badges'])
         self.assertEqual(jav_display_metadata('MCDV-024.mp4', 'MCDV-024')['edition_badges'], [])
 
     def test_ltx_after_the_code_marks_a_cracked_edition(self):
         self.assertEqual(jav_display_metadata('ABP-123-LTX.mp4', 'ABP-123'), {
-            'display_code': 'ABP-123', 'display_title': '', 'edition_badges': ['无码破解']})
+            'display_code': 'ABP-123', 'display_title': '', 'edition_badges': ['decensored']})
         self.assertEqual(jav_display_metadata('ABP-123-C-LTX.mp4', 'ABP-123')['edition_badges'],
-                         ['中字', '无码破解'])
+                         ['Chinese subs', 'decensored'])
         # 字母段本身是 LTX 的番号不是破解标记。
         self.assertEqual(jav_display_metadata('LTX-123.mp4', 'LTX-123')['edition_badges'], [])
 
@@ -932,14 +932,14 @@ class RevertMisreadCodeTests(unittest.TestCase):
               "Anna (2).mp4", "我自己起的名字", '{"catalog_title":"user:manual"}')])
         connection.execute(
             "INSERT INTO entity(id,kind,canonical_name,normalized_name,created_at,updated_at) "
-            "VALUES(9,'tag','口交','口交',?,?)", (self.NOW, self.NOW))
+            "VALUES(9,'tag','Oral','Oral',?,?)", (self.NOW, self.NOW))
         for asset_id in (1, 2):
             connection.execute(
                 "INSERT INTO asset_entity(asset_id,entity_id,role,source,metadata_json) "
                 "VALUES(?,9,'tag','javinizer:javbus:tag',?)",
                 (asset_id, '{"review_item":"WX-017:tags","provider_id":"WXSD-017"}'))
             connection.execute("INSERT INTO asset_tag(asset_id,tag,source) "
-                               "VALUES(?,'口交','javinizer:javbus:tag')", (asset_id,))
+                               "VALUES(?,'Oral','javinizer:javbus:tag')", (asset_id,))
         for key in ("WX-017:tags", "WX-017:title"):
             connection.execute(
                 "INSERT INTO review_decision(category,item_key,status,note,updated_at) "
@@ -1029,7 +1029,7 @@ class RevertMisreadCodeTests(unittest.TestCase):
         connection = sqlite3.connect(self.db)
         connection.execute(
             "INSERT INTO asset(id,location,path,name,medium,code,catalog_title,series,field_owners) "
-            "VALUES(5,'115',?,'348NTR-007.mp4','video','348NTR-007','另一部片的片名','素人',"
+            "VALUES(5,'115',?,'348NTR-007.mp4','video','348NTR-007','另一部片的片名','Amateur',"
             "'{\"series\":\"auto:avbase\"}')", (r"B:\番号\ナンパTV\348NTR-007.mp4",))
         connection.executemany(
             "INSERT INTO entity(id,kind,canonical_name,normalized_name,created_at,updated_at) "
@@ -1046,7 +1046,7 @@ class RevertMisreadCodeTests(unittest.TestCase):
              (11, "performer", "javinizer:mgstage:performer",
               '{"review_item":"348NTR-007:performers","provider_id":"348NTR-007"}')])
         connection.execute("INSERT INTO asset_tag(asset_id,tag,source) "
-                           "VALUES(5,'口交','javinizer:r18dev:tag')")
+                           "VALUES(5,'Oral','javinizer:r18dev:tag')")
         connection.executemany(
             "INSERT INTO review_decision(category,item_key,status,note,updated_at) "
             "VALUES('metadata_fields',?,'approved',?,?)",
@@ -1061,7 +1061,7 @@ class RevertMisreadCodeTests(unittest.TestCase):
         self.assertEqual(self._run("--source-mismatch", "348NTR-007:r18dev", "--apply",
                                    "--backup", str(self.root / "b.db")), 0)
         self.assertEqual(self._read("SELECT code,catalog_title,series FROM asset WHERE id=5"),
-                         [("348NTR-007", None, "素人")])
+                         [("348NTR-007", None, "Amateur")])
         self.assertEqual(self._read("SELECT source FROM asset_entity WHERE asset_id=5"),
                          [("javinizer:mgstage:performer",)])
         self.assertEqual(self._read("SELECT count(*) FROM asset_tag WHERE asset_id=5"), [(0,)])
@@ -1104,7 +1104,7 @@ class RevertMisreadCodeTests(unittest.TestCase):
         self.assertEqual(
             self._read("SELECT catalog_title,json_extract(field_owners,'$.catalog_title'),"
                        "series,json_extract(field_owners,'$.series') FROM asset WHERE id=5"),
-            [(None, "script:revert_misread_code", "素人", "user:manual")])
+            [(None, "script:revert_misread_code", "Amateur", "user:manual")])
 
     def test_a_source_that_still_identifies_the_code_is_refused(self):
         self._add_wrong_source(r18dev_id="348NTR-007", r18dev_content="h_1348ntr00007")
@@ -1144,7 +1144,7 @@ class ScrapedIdentityAuditTests(unittest.TestCase):
                  (3, r"B:\a\3.mp4", "3.mp4", "SMBD-116")])
             connection.execute(
                 "INSERT INTO entity(id,kind,canonical_name,normalized_name,created_at,updated_at) "
-                "VALUES(9,'tag','口交','口交','t','t')")
+                "VALUES(9,'tag','Oral','Oral','t','t')")
             meta = '{"review_item":"WX-017:tags","provider_id":"WXSD-017"}'
             connection.executemany(
                 "INSERT INTO asset_entity(asset_id,entity_id,role,source,metadata_json) "

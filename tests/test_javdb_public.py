@@ -845,17 +845,17 @@ class DetailProjectionTests(unittest.TestCase):
         with patch('peach.web_jav_detail.PUBLIC_API.movie', return_value=movie):
             result = q_jav_detail(self.contract, {'code': 'EXM-001'})
         self.assertEqual(result['tag_refs'], [
-            {'name': '痴女', 'category': 'role', 'source_name': '荡妇'},
-            {'name': '恋腿', 'category': 'story', 'source_name': '戀腿癖'},
-            {'name': '中出内射', 'category': 'position', 'source_name': '中出'},
-            {'name': '足交', 'category': 'position', 'source_name': '足交'},
+            {'name': 'Nympho', 'category': 'role', 'source_name': '荡妇'},
+            {'name': 'Leg fetish', 'category': 'story', 'source_name': '戀腿癖'},
+            {'name': 'Creampie', 'category': 'position', 'source_name': '中出'},
+            {'name': 'Footjob', 'category': 'position', 'source_name': '足交'},
             {'name': '未知类别', 'category': 'general', 'source_name': '未知类别'}])
         self.assertEqual(result['tags'], [tag['name'] for tag in movie['tags']])
         with patch('peach.web_jav_detail.PUBLIC_API.movie', return_value=movie), \
                 patch('peach.web_jav_detail.load_genre_decisions', return_value={'荡妇': None, '未知类别': '护士'}):
             result = q_jav_detail(self.contract, {'code': 'EXM-001'})
-        self.assertNotIn('痴女', [ref['name'] for ref in result['tag_refs']])
-        self.assertEqual(result['tag_refs'][-1], {'name': '护士', 'category': 'role', 'source_name': '未知类别'})
+        self.assertNotIn('Nympho', [ref['name'] for ref in result['tag_refs']])
+        self.assertEqual(result['tag_refs'][-1], {'name': '护士', 'category': 'general', 'source_name': '未知类别'})
 
     def test_simplified_source_tags_use_local_names_and_exclude_cast_format(self):
         names = ['单体作品', '淫乱真实', '白天出轨', '戏剧', '深喉', '巨大阴茎']
@@ -864,8 +864,8 @@ class DetailProjectionTests(unittest.TestCase):
             result = q_jav_detail(self.contract, {'code': 'SNOS-399'})
         self.assertEqual(result['tags'], names)
         self.assertEqual([(ref['name'], ref['source_name']) for ref in result['tag_refs']],
-                         [('淫乱真实', '淫乱真实'), ('出轨', '白天出轨'), ('剧情', '戏剧'),
-                          ('深喉', '深喉'), ('巨根', '巨大阴茎')])
+                         [('淫乱真实', '淫乱真实'), ('Cheating / Affair', '白天出轨'), ('Drama / Story', '戏剧'),
+                          ('Deep throat', '深喉'), ('Large Cock', '巨大阴茎')])
 
     def test_resource_source_failure_is_explicit(self):
         with patch('peach.web_jav_detail.PUBLIC_API.movie', side_effect=PublicSourceUnavailable('资料未取得')):
