@@ -149,8 +149,8 @@ def display(connection, entity_id: int, canonical: str, aliases: list[dict], gro
             "choices": choices, "groups": groups}
 
 
-def _romaji_names(profile: dict) -> list[str]:
-    """资料页给过的所有罗马字写法：主名在前，别名补齐，去重不区分大小写。"""
+def _romaji_names(connection, entity_id: int, canonical: str, profile: dict) -> list[str]:
+    """资料页给过的所有罗马字写法：主名在前，登记的拉丁别名补齐，去重不区分大小写。"""
     raw = json.loads(profile.get("raw_json") or "{}")
     page = page_names({"raw": raw})
     found: list[str] = []
@@ -160,6 +160,13 @@ def _romaji_names(profile: dict) -> list[str]:
     for entry in page.get("aliases", []):
         candidate = str(entry.get("romaji") or "").strip()
         if candidate and all(candidate.casefold() != seen.casefold() for seen in found):
+            found.append(candidate)
+    # 登记别名里的拉丁写法也是艺名（`Yuri Oshikawa`、`Rei Kamiki`）：一并进括号。
+    for row in connection.execute(
+            "SELECT alias FROM entity_alias WHERE entity_id=? ORDER BY alias", (entity_id,)):
+        candidate = str(row[0]).strip()
+        if _LATIN.search(candidate) and " " in candidate and canonical != candidate \
+                and all(candidate.casefold() != seen.casefold() for seen in found):
             found.append(candidate)
     return found
 
@@ -178,7 +185,7 @@ def variants(connection) -> list[dict]:
         profile = profiles.get(person["id"], {})
         raw = json.loads(profile.get("raw_json") or "{}")
         names = writing(person["canonical_name"], page_names({"raw": raw}), profile.get("source_url", ""))
-        romaji = _romaji_names(profile)
+        romaji = _romaji_names(connection, person["id"], person["canonical_name"], profile)
         result.append({"id": person["id"], "kind": person["kind"],
                        "canonical_name": person["canonical_name"], "en": ", ".join(romaji) or None, **names})
     return result
