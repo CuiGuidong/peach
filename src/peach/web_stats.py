@@ -404,6 +404,8 @@ PRESENT_A = "COALESCE(a.disposal,'')<>'vanished' AND NOT peach_is_local_extra(a.
 #: 视频的时长与画质分档，顺序同 `media_probe.context_fields` 的判据：由短到长、由高到低。
 LENGTH_BANDS = ("速食", "短", "中", "长")
 QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "低画质")
+#: 分档键是探测写进账本的枚举值，展示名单独给英文。
+BAND_LABELS = {"低画质": "Low quality"}
 
 
 def _bands(c, column: str, order: tuple[str, ...]) -> list[dict[str, object]]:
@@ -412,7 +414,8 @@ def _bands(c, column: str, order: tuple[str, ...]) -> list[dict[str, object]]:
         f"SELECT {column},count(*) FROM asset WHERE medium='video' AND {column} IS NOT NULL "
         f"AND {PRESENT} GROUP BY {column}")}
     extra = sorted(key for key in counts if key not in order)
-    return [{"k": key, "n": counts.get(key, 0)} for key in (*order, *extra)]
+    return [{"k": BAND_LABELS.get(key, key), "n": counts.get(key, 0)}
+            for key in (*order, *extra)]
 
 
 #: 在线追更的一条播放不算进来的条件：它关联的馆藏视频自己已经有这一项。和 `online_played`
