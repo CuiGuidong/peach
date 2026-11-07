@@ -274,7 +274,7 @@ describe('Timing on the input field', () => {
     // A group whose pool is a single page does not show this icon.
     expect(s.menu.querySelector('[data-kind="performer"] [data-search-shuffle]')).toBeNull();
     const shuffle = s.menu.querySelector<HTMLButtonElement>('[data-kind="asset"] [data-search-shuffle]')!;
-    expect(shuffle.getAttribute('aria-label')).toBe('Swap in new work picks');
+    expect(shuffle.getAttribute('aria-label')).toBe('Video recommendations Swap in new picks');
     await act(async () => shuffle.click());
     expect(shown()).toEqual(['Work 6', 'Work 7', 'Work 1', 'Work 2', 'Work 3']);
     expect(shuffle.getAttribute('aria-busy')).toBe('true');

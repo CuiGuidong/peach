@@ -356,7 +356,7 @@ describe('Filter box', () => {
     expect(given.route).not.toHaveBeenCalled();
     await act(async () => { vi.advanceTimersByTime(300) });
     expect(given.route).toHaveBeenCalledWith(expect.objectContaining({ q: 'Alpha' }), { replace: true });
-    expect(urls(fetcher)[0]).toContain('q=%E7%94%B2');
+    expect(urls(fetcher)[0]).toContain('q=Alpha');
     // This query is still in flight; the previous list keeps its size but becomes non-interactive, and the change region shows a busy state.
     expect(cells(host)).toHaveLength(2);
     expect(host.querySelector('[data-index-body] [aria-busy="true"]')).not.toBeNull();

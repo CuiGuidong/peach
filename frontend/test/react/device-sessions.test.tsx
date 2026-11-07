@@ -54,12 +54,12 @@ it('List devices: this one first and labeled “This device”; the rest show la
   const host = await render();
   expect(rows(host)).toEqual(['Chrome · Windows', 'Safari · iPhone', 'Unrecognized browser']);
   const card = section(host, 'Signed-in devices')!;
-  expect(card.textContent).toContain('This machine');
+  expect(card.textContent).toContain('This device');
   expect(card.textContent).toContain('Last active Just now · The computer running Peach');
   expect(card.textContent).toContain('Last active 5 minutes ago · 198.51.100.0/24');
-  expect(card.textContent).toContain('Last active 3 days ago · Public endpoint · 203.0.113.0/24');
-  expect(card.querySelector('button[aria-label="Revoke the Chrome · Windows login"]')).toBeNull();
-  expect(card.querySelector('button[aria-label="Revoke the Safari · iPhone login"]')).not.toBeNull();
+  expect(card.textContent).toContain('Last active 3 days ago · Public entry · 203.0.113.0/24');
+  expect(card.querySelector('button[aria-label="Sign out Chrome · Windows"]')).toBeNull();
+  expect(card.querySelector('button[aria-label="Sign out Safari · iPhone"]')).not.toBeNull();
   expect(buttonNamed('Sign out other devices', card)).not.toBeNull();
 });
 
@@ -96,10 +96,10 @@ it('To revoke one, confirm first; after confirming, send a request by this row\'
   const fetcher = serve(listing([desk, phone, laptop]), { ...listing([desk, laptop]), removed: 1 });
   const seen = confirmWith(true);
   const host = await render(receipt);
-  await click(host.querySelector('button[aria-label="Revoke the Safari · iPhone login"]'));
+  await click(host.querySelector('button[aria-label="Sign out Safari · iPhone"]'));
   await settle();
   expect(seen[0]).toMatchObject({ title: 'Sign out this device', confirmLabel: 'Sign out' });
-  expect(seen[0]!.body).toContain('Safari · iPhone (last active 5 minutes ago · 198.51.100.0/24)');
+  expect(seen[0]!.body).toContain('Safari · iPhone (Last active 5 minutes ago · 198.51.100.0/24)');
   const [url, options] = fetcher.mock.calls.at(-1)!;
   expect(url).toBe('/api/configuration/access/sessions/revoke');
   expect(JSON.parse(String(options?.body))).toEqual({ revision: 'one', id: 'bbbbbbbbbbbbbbbb' });

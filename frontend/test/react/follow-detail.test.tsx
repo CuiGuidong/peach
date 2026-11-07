@@ -101,8 +101,8 @@ describe('Fetching', () => {
     expect(selected.getAttribute('aria-pressed')).toBe('true');
     expect(selected.getAttribute('data-tag-cat')).toBe('r34-general');
     expect(selected.querySelector('use')?.getAttribute('href')).toBe('#i-check');
-    expect(host.querySelector('[data-pick="role"]')?.getAttribute('data-tag-cat')).toBe('r34-character');
-    expect(host.querySelector('[data-pick="unknown"]')?.getAttribute('data-tag-cat')).toBe('r34-unknown');
+    expect(host.querySelector('[data-pick="Roles"]')?.getAttribute('data-tag-cat')).toBe('r34-character');
+    expect(host.querySelector('[data-pick="Unknown"]')?.getAttribute('data-tag-cat')).toBe('r34-unknown');
   });
 
   it('Manual tag submission keeps input and busy state, updates details on success, and can then be removed', async () => {
@@ -122,19 +122,19 @@ describe('Fetching', () => {
     await click(host.querySelector('[aria-label="Add tag"]'));
     const input = host.querySelector<HTMLInputElement>('#tagPickSearch')!;
     await type(input, 'Featured');
-    await click(host.querySelector('[data-pick="featured"]'));
-    expect(host.querySelector('[data-pick="featured"]')).toBeNull();
+    await click(host.querySelector('[data-pick="Featured"]'));
+    expect(host.querySelector('[data-pick="Featured"]')).toBeNull();
     expect(fetcher.mock.calls.filter(([url]) => url === '/api/follow/tag')).toHaveLength(1);
     expect(input.value).toBe('Featured');
     expect(host.querySelector('[aria-label="Add tag"]')?.getAttribute('aria-busy')).toBe('true');
     expect(receipts.toast).not.toHaveBeenCalled();
     await waiting.release({ ok: true, json: async () => ({ item: updated, group: group(updated, { variants: [sibling] }) }) });
     await settle();
-    expect(host.querySelector('[data-follow-tag="featured"]')).not.toBeNull();
+    expect(host.querySelector('[data-follow-tag="Featured"]')).not.toBeNull();
     expect(queryClient.getQueryData<FollowDetailData>(followItemKey(sibling.id))?.group?.primary.tags).toContain('Featured');
     expect(receipts.toast).toHaveBeenCalledWith('Added tag "Featured"', expect.objectContaining({ undo: expect.any(Function) }));
     await click(host.querySelector('[aria-label="Delete tag Featured"]')); await settle();
-    expect(host.querySelector('[data-follow-tag="featured"]')).toBeNull();
+    expect(host.querySelector('[data-follow-tag="Featured"]')).toBeNull();
     expect(host.querySelector('[data-follow-tag="source"]')).not.toBeNull();
   });
 
@@ -177,7 +177,7 @@ describe('Fetching', () => {
     const host = await mount(<QueryClientProvider client={queryClient}><FollowDetailPage {...props} /></QueryClientProvider>);
     await settle();
     expect(fetcher.mock.calls.map(([url]) => url)).toContain('/api/follow?item=8');
-    expect(host.querySelector('[data-follow-detail-name]')?.textContent).toBe('8 updated');
+    expect(host.querySelector('[data-follow-detail-name]')?.textContent).toBe('Update 8');
 
     queryClient.clear();
     serve({ page: { groups: [], sources: [], author_aliases: [] } });
@@ -237,7 +237,7 @@ describe('Sidebar', () => {
     expect(download.hasAttribute('download')).toBe(true);
     expect(download.getAttribute('href')).toBe('/follow-stream?id=2&download=1');
     expect(host.querySelector('[data-follow-detail-identity] [data-id-name]')?.textContent).toBe('Author');
-    expect(host.querySelector('[data-follow-detail-credit]')?.textContent).toBe('Publisher Poster');
+    expect(host.querySelector('[data-follow-detail-credit]')?.textContent).toBe('Uploader Poster');
   });
 
   it('With an empty title the title area and the media queue share the same "Untitled content" wording', async () => {
@@ -270,7 +270,7 @@ describe('Sidebar', () => {
 
   it('The reason media was not fetched paints in the sidebar', async () => {
     const { host } = await show(data(item(3, { playable: false, media_kind: 'external', media_error: 'Attachments require sign-in' })));
-    expect(host.querySelector('[data-follow-media-issue]:not([hidden])')?.textContent).toBe('Media not fetched: the attachment needs sign-in');
+    expect(host.querySelector('[data-follow-media-issue]:not([hidden])')?.textContent).toBe('Media not fetched: Attachments require sign-in');
   });
 });
 
@@ -451,7 +451,7 @@ describe('Copy and sorting', () => {
 
   it('Compilation row heads: release strings never treat a release time as an edition tag, and bodies carry the author', () => {
     const reply = item(30, { author: 'kou', summary: 'Second update section', variant_kind: '', published_at: '2026-09-18T00:00:00Z' });
-    expect(collectionCopy(group(item(29), { is_release: true }), reply)).toEqual({ label: 'Videos', title: 'kou: second update batch' });
+    expect(collectionCopy(group(item(29), { is_release: true }), reply)).toEqual({ label: 'Videos', title: 'kou: Second update section' });
     expect(collectionCopy(group(item(29)), item(31, { variant_kind: 'wip' }))).toEqual({ label: 'WIP', title: 'Update 31' });
   });
 

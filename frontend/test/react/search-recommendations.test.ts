@@ -39,9 +39,9 @@ describe('Search image recommendations', () => {
     expect(entry('author').href).toBe('/creators/20');
     expect(entry('author').avatarHtml).toContain('/author-avatar');
     expect(entry('author').avatarHtml).toContain('/author-mirror');
-    expect(entry('author').subtitle).toBe('Last updated 2025-03-04');
+    expect(entry('author').subtitle).toBe('Latest updated at 2025-03-04');
     expect(entry('performer').entity_id).toBe(15);
-    expect(entry('performer').subtitle).toBe('Latest work ABW-099 · 2025-02-01');
+    expect(entry('performer').subtitle).toBe('Latest release ABW-099 · 2025-02-01');
     // Each group carries its whole pool; “Swap in new picks” pages through the pool.
     expect(groups.find(group => group.kind === 'jav')).toMatchObject({ offset: 0, size: 5 });
     expect(groups.map(group => group.kind)).toEqual(pendingRecommendations().map(group => group.kind));
@@ -55,7 +55,7 @@ describe('Search image recommendations', () => {
     expect(groups.find(group => group.kind === 'asset')!.items).toHaveLength(1);
     expect(groups.find(group => group.kind === 'jav')!.items).toEqual([]);
     expect(groups.find(group => group.kind === 'post')!.items).toEqual([]);
-    expect(groups.find(group => group.kind === 'author')!.items[0]!.href).toBe('/follow?author=name%3A%E4%BD%9C%E8%80%85');
+    expect(groups.find(group => group.kind === 'author')!.items[0]!.href).toBe('/follow?author=name%3Aauthor');
     expect(groups.find(group => group.kind === 'author')!.items[0]!.subtitle).toBe('Updated at unavailable');
     expect(groups.find(group => group.kind === 'performer')!.action).toBe('Subscribe to new releases');
     expect(groups.some(group => group.pending)).toBe(false);

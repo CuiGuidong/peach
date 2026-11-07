@@ -47,7 +47,7 @@ it('With no cover, the gallery shows an empty state with retry now, then swaps t
   const { fetcher, host } = await mountMissingCover({ ok: true, has_cover: true, cover_version: 'v7', message: '' });
   try {
     const empty = host.querySelector('[data-jav-picture-wait] [data-empty-state]');
-    expect(empty?.querySelector('h3')?.textContent).toBe('Cover not fetched');
+    expect(empty?.querySelector('h3')?.textContent).toBe('Cover unavailable');
     await click(buttonNamed('Retry now', empty!));
     await settle();
     expect(fetcher.mock.calls[0]?.[0]).toBe('/api/jav/cover');

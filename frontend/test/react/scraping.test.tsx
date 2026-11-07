@@ -324,7 +324,7 @@ it('All checks按已检查来源数推进，跑完按口径成组列出问题、
   });
   await prefetchScraping(new AbortController().signal);
   const host = await mount(page(toast));
-  const card = () => section(host, '连接检查')!;
+  const card = () => section(host, 'Connectivity check')!;
 
   await click(buttonNamed('All checks', card()));
   await settle();
@@ -339,10 +339,10 @@ it('All checks按已检查来源数推进，跑完按口径成组列出问题、
     expect.stringContaining('JavDB'), expect.stringContaining('片商官网'),
   ]);
   expect(problems[0]).toContain('来源返回人机验证页');
-  expect(card().textContent).toContain('可连接的 1 项');
-  expect(card().textContent).toContain('用时 4.2 秒');
+  expect(card().textContent).toContain('1 reachable');
+  expect(card().textContent).toContain('Took 4.2 s');
   expect(toast).toHaveBeenCalledTimes(1);
-  expect(toast).toHaveBeenCalledWith('检查完成，1 项未通过');
+  expect(toast).toHaveBeenCalledWith('Check finished, 1 failed');
   expect(calls.filter((call) => call.path === '/api/scraping' && call.method === 'GET'),
     '冷却会变，跑完重读来源列表').toHaveLength(2);
 });
@@ -355,7 +355,7 @@ it('离开页面再回来，All checks的上一次结果仍在，但不发回执
       results: [{ source: 'javdb', label: 'JavDB', results: [reported('cooldown', '冷却', '来源正在冷却')] }],
     } }),
   });
-  const card = section(host, '连接检查')!;
+  const card = section(host, 'Connectivity check')!;
   expect(card.textContent).toContain('冷却');
   expect(card.textContent).toContain('来源正在冷却');
   expect(card.textContent).toContain('Last check');

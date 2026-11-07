@@ -159,9 +159,9 @@ describe('Check for updates', () => {
     const dmg = 'https://github.com/peach-mitao/peach/releases/download/v1.0.0/Peach-1.0.0-macos-arm64.dmg';
     const host = await mount(<ReleaseUpdates initial={{ ...release, in_app_update: false, state: 'available',
       latest_version: '1.0.0', message: 'A new version is available for download.', package_kind: 'installer', asset_url: dmg, asset_size: 300 * 1048576 }} />);
-    const updates = section(host, 'Check for updates')!;
+    const updates = section(host, 'Check updates')!;
     expect(updates.textContent).toContain('macOS install image · 300.0 MB');
-    expect(updates.textContent).toContain('Drag Peach into Applications');
+    expect(updates.textContent).toContain('drag Peach into Applications');
     expect(buttonNamed('Download and install', updates)).toBeNull();
     const link = [...updates.querySelectorAll('a')].find((a) => a.textContent === 'Download the new version');
     expect(link?.getAttribute('href')).toBe(dmg);
@@ -171,7 +171,7 @@ describe('Check for updates', () => {
     const steps = [{ text: '拉取新镜像', command: 'docker compose pull' }, { text: '重建容器', command: 'docker compose up -d' }];
     const docker = { ...release, installation: 'Docker 镜像', in_app_update: false, steps };
     const host = await mount(<ReleaseUpdates initial={{ ...docker, state: 'available', latest_version: '1.0.0', message: '有新镜像可拉取。' }} />);
-    const updates = section(host, 'Check for updates')!;
+    const updates = section(host, 'Check updates')!;
     expect(updates.textContent).toContain('Docker 镜像');
     const list = updates.querySelector('ol[aria-label="Update on the host"]');
     expect([...list!.querySelectorAll('code')].map((code) => code.textContent)).toEqual(['docker compose pull', 'docker compose up -d']);

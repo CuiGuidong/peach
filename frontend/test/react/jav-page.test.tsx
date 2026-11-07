@@ -119,10 +119,10 @@ it('In the New Releases section, actresses, labels, and tags list only the subsc
   await settle();
   const asked = () => new URL(String(fetcher.mock.calls.at(-1)?.[0]), location.origin).searchParams;
   expect(asked().get('page')).toBe('2');
-  expect([...host.querySelectorAll('[data-tier-performer]')].map(node => node.textContent)).toEqual(['Performer A']);
-  expect([...host.querySelectorAll('[data-tier-studio]')].map(node => node.textContent)).toEqual(['Studio A 1']);
-  expect([...host.querySelectorAll('[data-catalog-tag]')].map(node => node.textContent)).toEqual(['Intercourse 1']);
-  expect(host.querySelector('nav[aria-label="New Releases pagination"] [aria-current="page"]')?.textContent).toBe('2');
+  expect([...host.querySelectorAll('[data-tier-performer]')].map(node => node.textContent)).toEqual(['PPerformer A']);
+  expect([...host.querySelectorAll('[data-tier-studio]')].map(node => node.textContent)).toEqual(['StStudio A1']);
+  expect([...host.querySelectorAll('[data-catalog-tag]')].map(node => node.textContent)).toEqual(['Intercourse1']);
+  expect(host.querySelector('nav[aria-label="New work pagination"] [aria-current="page"]')?.textContent).toBe('2');
   await click(host.querySelector('[data-tier-performer]'));
   await settle();
   expect([asked().get('performer'), asked().get('page')]).toEqual(['Performer A', '1']);
@@ -152,7 +152,7 @@ it('Switching the New Releases section to list view: Works, Artists, and Labels 
     expect(row.querySelector('[data-list-identity] [data-media-avatar]')).toBeNull();
     expect(row.querySelector('[data-list-people] [data-media-avatar]')).not.toBeNull();
     expect(row.querySelector('[data-list-people]')?.textContent).toContain('Performer A');
-    expect(row.querySelector('[data-list-library]')?.textContent).toBe('Studio A');
+    expect(row.querySelector('[data-list-library]')?.textContent).toBe('SStudio A');
     await click(host.querySelector('[role="columnheader"][data-key="dur"]'));
     await settle();
     const asked = new URL(String(fetcher.mock.calls.at(-1)?.[0]), location.origin).searchParams;

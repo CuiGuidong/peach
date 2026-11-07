@@ -37,7 +37,7 @@ describe('Board page skeleton', () => {
     expect([...root.querySelectorAll('[data-catalog-table] th')].map(node => node.textContent).filter(Boolean))
       .toEqual(['Videos', 'Artists', 'Labels', 'Tags', 'Release date', 'Duration', 'Source rating', 'Actions']);
     expect(root.querySelector('[data-skeleton="jav-discover"]')).toBeNull();
-    expect(root.querySelector('[aria-label="Library display mode"] [aria-checked="true"]')?.getAttribute('aria-label')).toBe('Lists');
+    expect(root.querySelector('[aria-label="Library display mode"] [aria-checked="true"]')?.getAttribute('aria-label')).toBe('List');
     expect(root.querySelector('[data-folder-mode-toggle]')).toBeNull();
   });
   it('JAV new releases section skeleton: tapping new releases, the page header is the roster-page-style filter box, and below are two rows of avatar placeholders plus the new releases\' own sort key', () => {
@@ -53,7 +53,7 @@ describe('Board page skeleton', () => {
     expect(root.querySelector('[data-entity-tag="external"]')).toBeNull();
     expect([...root.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['Release date', 'Source rating', 'Duration', 'Code', 'Taste']);
     expect(root.querySelector('[data-entity-sort][aria-pressed="true"]')?.getAttribute('data-entity-sort')).toBe('duration');
-    expect(root.querySelector('[data-entity-batch]')?.getAttribute('aria-label')).toBe('Show more');
+    expect(root.querySelector('[data-entity-batch]')?.getAttribute('aria-label')).toBe('Shuffle');
   });
   it('Stats reserves four metric cards, and unknown pages fall back to their own skeleton', () => {
     const root = document.createElement('div');

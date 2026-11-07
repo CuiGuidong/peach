@@ -180,7 +180,7 @@ it('A source-reported none reports one number, counts as no problem, and offers 
     issues_log: LOG,
   });
   const host = await mount(card({ toast: vi.fn() }));
-  expect(host.textContent).toContain('External sources: No details 30 videos, No cover 162 videos; not asked again for 7 days.');
+  expect(host.textContent).toContain('External sources No details 30 videos, No cover 162 videos will not be asked again for 7 days.');
   expect(host.textContent).toContain(LOG);
   /* The full-record row recedes into gray text, and the line above it takes the same color; the neutral separator is a different gray. */
   const record = [...host.querySelectorAll('p')].find((line) => line.textContent?.includes(LOG))!;
@@ -205,7 +205,7 @@ it('Finished partial results offer browsing and targeted retry, and interruption
     expect(surface.querySelector('[role="alert"]')).toBeNull();
   }
   expect(banner.querySelector('[data-processing-tone]')?.getAttribute('data-processing-tone')).toBe('warning');
-  await click(buttonNamed('Retry unfinished items', host));
+  await click(buttonNamed('Retry now', host));
   expect(served.posts()).toEqual([{ job_id: 'partial', retry: [7] }]);
   await act(async () => { queryClient.setQueryData(LIBRARY_PROCESSING_KEY,
     { ...state, outcome: 'interrupted', error: 'Processing interrupted' }); });
@@ -329,16 +329,16 @@ it('On failure the issue list folds into the error note, and retry submits only 
   expect(details.parentElement?.className).toContain('border-t');
   /* The full record is what you dig through yourself after something goes wrong, so it recedes to gray text and stays visible even with the list collapsed; beside it are the two buttons to open it and
      to export it, the export lined up next to the record. */
-  const reveal = alert!.querySelector('button[aria-label="Show in Explorer"]')!;
+  const reveal = alert!.querySelector('button[aria-label="Show in File Explorer"]')!;
   expect(details.contains(reveal)).toBe(false);
   const logRow = reveal.closest('.text-text-secondary')!;
-  expect(logRow.querySelector('p')?.textContent).toBe(`Full record: ${LOG}`);
+  expect(logRow.querySelector('p')?.textContent).toBe(`Full log: ${LOG}`);
   expect(logRow.contains(buttonNamed('Export the full issue list', host))).toBe(true);
   // Newly discovered files and the original task's targeted retry keep separate entries.
   expect(buttonNamed('Sync new files', host)?.textContent).toBe('Sync new files');
 
   // The retry key belongs to the error notice and is secondary, like recovery actions in Notes elsewhere; it stays operable while the issue list is collapsed.
-  const retry = buttonNamed('Retry unfinished items')!;
+  const retry = buttonNamed('Retry now')!;
   expect(retry.textContent).toBe('Retry now');
   expect(retry.className).not.toContain('bg-button-primary');
   expect(alert!.contains(retry)).toBe(true);
@@ -504,7 +504,7 @@ it('Polling stops once the card unmounts', async () => {
 
 it('Source-reported none counts use thousands separators, and wait times roll up by minutes, hours, and days', () => {
   expect(notesLine({ querying_metadata: 1234567, fetching_cover: 0 }))
-    .toBe('External sources: No details 1,234,567 videos; not asked again for 7 days.');
+    .toBe('External sources No details 1,234,567 videos will not be asked again for 7 days.');
   expect(currentLine({ status: 'running', current_action: 'fetching_cover', waited_seconds: 259200 } as LibraryProcessingData))
     .toBe('Scrape missing covers · waited 3 days 0 hours');
 });
@@ -579,22 +579,22 @@ it('A failed task with no per-item issues can still archive its prompt; it\'s re
   const toast = vi.fn();
   const host = await mount(card({toast}));
   expect(buttonNamed('Export the full issue list',host)).toBeNull();
-  const archive = buttonNamed('Archive note',host)!;
+  const archive = buttonNamed('Archive',host)!;
   expect(host.querySelector('[role="alert"]')!.contains(archive)).toBe(true);
   await click(archive);
   expect(served.posts()).toEqual([{action:'archive',job_id:'one'}]);
-  expect(host.textContent).toContain('Full record still kept');
+  expect(host.textContent).toContain('the full record is still kept');
   expect(host.textContent).not.toContain('The task could not recover automatically');
   expect(toast).not.toHaveBeenCalled();
   await click(buttonNamed('Undo',host));
   expect(served.posts()).toEqual([{action:'archive',job_id:'one'},{action:'unarchive',job_id:'one'}]);
   expect(host.textContent).toContain('The task could not recover automatically');
-  expect(host.textContent).not.toContain('Full record still kept');
+  expect(host.textContent).not.toContain('the full record is still kept');
 
   await open({...state,archived:true});
   const again = await mount(card({toast}));
   expect(again.textContent).not.toContain('The task could not recover automatically');
-  expect(again.textContent).not.toContain('Full record still kept');
+  expect(again.textContent).not.toContain('the full record is still kept');
   expect(buttonNamed('Undo',again)).toBeNull();
 });
 

@@ -389,18 +389,18 @@ it('The account and password form shows directly; both login methods share the b
   const host = await mount(<DownloadSettings initial={state()} receipt={vi.fn()} />);
   expect(field(host, 'Account')?.closest('details')).toBeNull();
   expect(field(host, 'Account')).not.toBeNull();
-  expect(buttonNamed('Log in', host)?.parentElement).toBe(buttonNamed('Sign in with the browser', host)?.parentElement);
-  expect(buttonNamed('Sign in with the browser', host)?.type).toBe('button');
-  expect(actionOrder(buttonNamed('Log in', host)?.parentElement)).toEqual(['Sign in with the browser', 'Log in']);
+  expect(buttonNamed('Sign in', host)?.parentElement).toBe(buttonNamed('Sign in with browser', host)?.parentElement);
+  expect(buttonNamed('Sign in with browser', host)?.type).toBe('button');
+  expect(actionOrder(buttonNamed('Sign in', host)?.parentElement)).toEqual(['Sign in with browser', 'Sign in']);
 });
 
 it('Without a browser on this machine only account sign-in remains, expanded by default', async () => {
   const host = await mount(<DownloadSettings receipt={vi.fn()}
     initial={state({ pikpak_browser: { available: false, state: 'idle', message: '' } })} />);
-  expect(buttonNamed('Sign in with the browser', host)).toBeNull();
+  expect(buttonNamed('Sign in with browser', host)).toBeNull();
   expect(field(host, 'Account')?.closest('details')).toBeNull();
   expect(field(host, 'Account')).not.toBeNull();
-  expect(buttonNamed('Log in', host)?.className).toContain('bg-button-primary');
+  expect(buttonNamed('Sign in', host)?.className).toContain('bg-button-primary');
 });
 
 it('Browser sign-in opens the window then polls, showing the signed-in method and stopping once complete', async () => {

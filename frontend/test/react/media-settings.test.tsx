@@ -311,7 +311,7 @@ describe('Save', () => {
       await submit(host.querySelector('form'));
       await settle();
       const dialog = document.querySelector('dialog');
-      expect(dialog?.textContent).toContain('Started from the command line or tray, running in a separate process, unaffected by restart');
+      expect(dialog?.textContent).toContain('started from the command line or tray, runs in a separate process, and is unaffected by restart');
       await click(dialog!.querySelector('[data-modal-cancel]'));
       await settle();
       expect(fetcher).not.toHaveBeenCalled();

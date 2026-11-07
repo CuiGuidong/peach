@@ -97,7 +97,7 @@ it('While a slow read runs, next-item results queue up to refresh without cancel
   expect(host.textContent).toBe('Final title');
 });
 
-it('入库通知：首轮只记基线；新到的逐部弹 toast 并可打开，一轮超过 3 部合成一条，服务重启后不补弹', async () => {
+it('Ingest notices: the first round only records the baseline; new arrivals toast one by one and can be opened; over 3 in a round collapse into one; no replay after a service restart', async () => {
   const toaster = await import('../../src/react/toaster');
   const history = await import('@peach/history');
   const shown = vi.spyOn(toaster, 'showToast').mockImplementation(() => {});
@@ -109,12 +109,12 @@ it('入库通知：首轮只记基线；新到的逐部弹 toast 并可打开，
   expect(shown).not.toHaveBeenCalled();
   seen = announceIngests(seen, { epoch: 'a', items: [notice(1), notice(2), notice(3), notice(4, 'discovered', '<b>x</b>')] });
   expect(shown.mock.calls.map(([, request]) => request.html)).toEqual(
-    ['「SSIS-3」已入库并整理完成', '新文件已入库：「&#60;b&#62;x&#60;/b&#62;」']);
+    ['"SSIS-3" landed in the library and finished processing', 'New file landed in the library: "&#60;b&#62;x&#60;/b&#62;"']);
   shown.mock.calls[0]![1].action!.run(document.createElement('button'));
   expect(go).toHaveBeenCalledWith('/assets/103');
   shown.mockClear();
   seen = announceIngests(seen, { epoch: 'a', items: [5, 6, 7, 8].map(id => notice(id)) });
-  expect(shown.mock.calls.map(([, request]) => [request.html, request.action])).toEqual([['4 部作品已入库', null]]);
+  expect(shown.mock.calls.map(([, request]) => [request.html, request.action])).toEqual([['4 works landed in the library', null]]);
   shown.mockClear();
   announceIngests(seen, { epoch: 'b', items: [notice(1)] });
   expect(shown).not.toHaveBeenCalled();

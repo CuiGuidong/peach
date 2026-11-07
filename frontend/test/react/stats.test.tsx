@@ -242,7 +242,7 @@ it('One heatmap takes a single Tab stop; arrow keys move between cells', async (
   expect(document.activeElement?.getAttribute('data-cell')).toBe('24');
   expect(stops().map((cell) => cell.dataset.cell)).toEqual(['24']);
   expect(card.querySelector('header small')?.textContent).toBe(
-    document.activeElement?.getAttribute('aria-label')?.split('，')[0]);
+    document.activeElement?.getAttribute('aria-label')?.split(', ')[0]);
   await act(async () => {
     document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'End', bubbles: true }));
   });
@@ -253,7 +253,7 @@ it('Without play-time records the watched layer draws no heatmap, leaving one no
   const { host } = await open(payload({ play_activity: { timezone: 'UTC+08:00', days: [], hours: [] } }));
   await click(tabNamed(host, 'Watched'));
   expect(host.querySelector('[role=tabpanel] svg[role=img]')).toBeNull();
-  expect(host.querySelector('[role=tabpanel] section[aria-label="Playback time"] p')?.textContent)
+  expect(host.querySelector('[role=tabpanel] section[aria-label="Play time"] p')?.textContent)
     .toBe('Once playback starts, this shows which weekday hours your plays land in.');
 });
 

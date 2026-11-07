@@ -62,42 +62,42 @@ describe('Login page', () => {
   });
 });
 
-describe('登录页的模式', () => {
+describe('Login page modes', () => {
   const label = (root: ParentNode) => root.querySelector('label[for="login-token"], label')?.textContent ?? '';
 
-  it('有访问策略时填访问密码，不提口令', async () => {
+  it('With an access policy the password box shows and no token is mentioned', async () => {
     const host = await mount(<LoginPage data={{ next: '/' }} />);
     expect(label(host)).toContain('Access password');
     expect(host.textContent).not.toContain('peach token');
   });
 
-  it('非 Docker 还没有访问策略时填访问口令，说明用 peach token View', async () => {
+  it('Non-Docker without an access policy fills the access token, with peach token View as the hint', async () => {
     const host = await mount(<LoginPage data={{ next: '/', mode: 'legacy', invalid: 'true' }} />);
-    expect(label(host)).toContain('访问口令');
+    expect(label(host)).toContain('Access token');
     expect(alerts(host).map((node) => node.textContent)).toEqual([WRONG_TOKEN]);
     await type(tokenInput(host), 'again');
     expect(host.querySelector('code')?.textContent).toBe('peach token');
     expect(host.textContent).not.toContain('docker compose');
   });
 
-  it('Docker 来源不满足时先说去哪里打开，再给口令登录并写 docker compose 的查法', async () => {
+  it('Docker with an unmet source says where to open it first, then offers token login and how to check docker compose', async () => {
     const host = await mount(<LoginPage data={{ next: '/', mode: 'denied' }} />);
     expect(host.querySelector('[role="note"]')?.textContent).toBe(FIRST_ACCESS_DENIED);
-    expect(label(host)).toContain('访问口令');
+    expect(label(host)).toContain('Access token');
     expect(host.querySelector('code')?.textContent).toBe('docker compose exec peach peach token');
     expect(host.querySelector('form')?.getAttribute('action')).toBe('/login');
   });
 
-  it('Docker 首次访问画访问设置，不画口令框', async () => {
+  it('Docker first visit paints access setup, without a token box', async () => {
     const host = await mount(<LoginPage data={{ next: '/', mode: 'setup' }} />);
     expect(tokenInput(host)).toBeNull();
-    expect(host.querySelector('h1')?.textContent).toBe('访问设置');
+    expect(host.querySelector('h1')?.textContent).toBe('Access setup');
     expect(host.querySelector('#access-password')).not.toBeNull();
   });
 });
 
-describe('Docker 首次访问设置', () => {
-  it('设访问密码：提交密码与 next，成功后去服务端给的地址', async () => {
+describe('Docker first-visit access setup', () => {
+  it('Setting an access password submits the password and next, then goes to the server-provided address', async () => {
     const fetcher = fetchMock(200, { url: '/stats' });
     vi.stubGlobal('fetch', fetcher);
     const navigate = vi.fn();
@@ -111,21 +111,21 @@ describe('Docker 首次访问设置', () => {
     expect(navigate).toHaveBeenCalledWith('/stats');
   });
 
-  it('关掉开关就是选免登录，按钮写明，提交里不带密码', async () => {
+  it('Turning the switch off picks login-free entry, the button says so, and the submit carries no password', async () => {
     const fetcher = fetchMock(200, { url: '/' });
     vi.stubGlobal('fetch', fetcher);
     const navigate = vi.fn();
     const host = await mount(<AccessSetup data={{}} navigate={navigate} />);
-    expect(buttonNamed('设置密码并进入', host)).not.toBeNull();
+    expect(buttonNamed('Set password and continue', host)).not.toBeNull();
     await click(switches(host)[0]);
     expect(host.querySelector('#access-password')).toBeNull();
-    await click(buttonNamed('免登录进入', host));
+    await click(buttonNamed('Continue without login', host));
     await settle();
     expect(sentBody(fetcher)).toEqual({ mode: 'open', next: '/' });
     expect(navigate).toHaveBeenCalledWith('/');
   });
 
-  it('字段错误写回框下，整页原因写在按钮上方，都不跳转', async () => {
+  it('Field errors paint under the boxes, the page-level reason above the button, and neither navigates', async () => {
     const navigate = vi.fn();
     vi.stubGlobal('fetch', fetchMock(400, { error: 'The two passwords do not match', errors: { confirmation: 'The two passwords do not match' } }));
     const host = await mount(<AccessSetup data={{}} navigate={navigate} />);

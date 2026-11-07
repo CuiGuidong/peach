@@ -512,7 +512,7 @@ describe('Orphan records', () => {
 
   it('When no titles have vanished, the second-level page keeps an empty table and zero counts', async () => {
     const { host, server } = await openTool('orphan-records');
-    expect(host.querySelector('#orphan-records')?.textContent).toContain('0 titles');
+    expect(host.querySelector('#orphan-records')?.textContent).toContain('0 videos');
     expect(host.querySelectorAll('#orphan-records tbody tr[data-row-id]')).toHaveLength(0);
     expect(server.calls.map((call) => call.path)).toContain('/api/orphan-records');
   });

@@ -515,24 +515,24 @@ describe('Docker', () => {
     ...over,
   });
 
-  it('不出数据目录、访问范围与高级设置，媒体目录预填 /media，也不提供接回已有数据', async () => {
+  it('Docker leaves out the data directory, access scope, and advanced settings; the media directory prefills /media, and reconnecting existing data is not offered', async () => {
     const { host, sent } = await open(docker(), { [SETUP_URL]: { status: 200, body: done({ url: '/?onboarding=1' }) } });
     expect(buttonNamed('Use existing data', host)).toBeNull();
-    expect(host.querySelector('[aria-label^="首次设置"]')?.getAttribute('aria-label')).toBe('首次设置，第 1 step，共 4 step');
+    expect(host.querySelector('[aria-label^="First-time setup"]')?.getAttribute('aria-label')).toBe('First-time setup, step 1 of 4');
     await click(buttonNamed('Start setup', host)); await settle();
     expect(paths(host)[0]?.value).toBe('/media');
     expect(host.querySelector('#f-data_root')).toBeNull();
     await click(buttonNamed('Continue', host)); await settle();
-    expect(host.querySelector('h1')?.textContent).toBe('访问与网络');
+    expect(host.querySelector('h1')?.textContent).toBe('Access and network');
     expect(radio(host, 'This computer only')).toBeUndefined();
     expect(advanced(host)).toBeUndefined();
-    expect(host.textContent).not.toContain('访问地址：');
+    expect(host.textContent).not.toContain('Access address:');
     expect(host.querySelector('#access-password')).not.toBeNull();
     await type(host.querySelector<HTMLInputElement>('#access-password'), 'correct-password');
     await type(host.querySelector<HTMLInputElement>('#access-confirm'), 'correct-password');
     await click(buttonNamed('Continue', host)); await settle();
     expect(host.textContent).toContain('/data');
-    expect(host.textContent).toContain('按 Compose 端口映射 · 使用访问密码');
+    expect(host.textContent).toContain('Mapped by the Compose ports · Use an access password');
     await click(buttonNamed('Finish setup', host)); await settle();
     const body = sent(SETUP_URL);
     expect(body.media_dir[0]).toMatchObject({ path: '/media' });
@@ -540,20 +540,20 @@ describe('Docker', () => {
     expect(['data_root', 'host', 'port', 'mdns_name'].filter((key) => key in body)).toEqual([]);
   });
 
-  it('已按 PEACH_ACCESS_PASSWORD 设好访问密码时只标明已设置，提交不带密码', async () => {
+  it('When the access password is preset via PEACH_ACCESS_PASSWORD it only says so, and the submit carries no password', async () => {
     const { host, sent } = await open(docker({ access_preset: true }), { [SETUP_URL]: { status: 200, body: done() } });
     await click(buttonNamed('Start setup', host)); await settle();
     await click(buttonNamed('Continue', host)); await settle();
     expect(switches(host)).toHaveLength(0);
     expect(host.querySelector('#access-password')).toBeNull();
-    expect(host.textContent).toContain('已按 PEACH_ACCESS_PASSWORD 设置访问密码');
+    expect(host.textContent).toContain('Set from PEACH_ACCESS_PASSWORD; change it under "Network and access" on the configuration page.');
     await submitForm(host);
     const body = sent(SETUP_URL);
     expect(body.access_enabled).toBe(false);
     expect('access_password' in body).toBe(false);
   });
 
-  it('来源不是部署机器或局域网时说清楚去哪里打开，或用 PEACH_ACCESS_PASSWORD', async () => {
+  it('When the source is neither the deployment machine nor the LAN it says where to open it, or to use PEACH_ACCESS_PASSWORD', async () => {
     server({ [SETUP_QUESTIONS_URL]: { status: 403, body: { error: FIRST_ACCESS_DENIED, docker: true } } });
     const host = await mount(<SetupPage />);
     await settle();
@@ -567,7 +567,7 @@ it('When opened on another device the challenge endpoint returns 403, saying onl
   const host = await mount(<SetupPage />);
   await settle();
   expect(host.querySelector('form')).toBeNull();
-  expect(host.querySelector('[role="alert"]')?.textContent).toBe('Open settings on this computer running Peach.');
+  expect(host.querySelector('[role="alert"]')?.textContent).toBe('Please open Settings on the computer running Peach.');
 });
 
 it('A failed read gives the reason and a retry', async () => {

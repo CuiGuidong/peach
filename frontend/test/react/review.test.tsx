@@ -484,15 +484,15 @@ const WRITES: AutoLandingWrite[] = [
     asset_id: 8, code: 'ROYD-083', name: 'Another video', preview_url: '' },
 ];
 
-it('元数据字段下逐条列出自动写入：作品、写了什么、原来是什么，只读端也能浏览', async () => {
+it('Under metadata fields the auto-writes list per row: the work, what was written, what was there before; readable on a read-only end too', async () => {
   const { host } = await open({ autoLandings: WRITES }, { readOnly: true });
   const section = host.querySelector('[aria-labelledby="auto-landings-title"]')!;
   const text = section.textContent ?? '';
-  for (const expected of ['自动写入的资料', 'DASS-468', '某部作品的标题', '发行日期：2024-09-10', '原为 「2024-09-06」',
-    'ROYD-083', '标签：痴女、姐弟', '原有标签保留']) expect(text).toContain(expected);
+  for (const expected of ['Auto-written metadata', 'DASS-468', '某部作品的标题', 'Release date: 2024-09-10', 'was "2024-09-06"',
+    'ROYD-083', 'Tags: Nympho, 姐弟', 'Original tags kept']) expect(text).toContain(expected);
 });
 
-it('没有自动写入时不出现那一块', async () => {
+it('The section stays out when there are no auto-writes', async () => {
   const { host } = await open();
   expect(host.querySelector('[aria-labelledby="auto-landings-title"]')).toBeNull();
 });

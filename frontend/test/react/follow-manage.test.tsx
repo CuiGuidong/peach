@@ -574,7 +574,7 @@ it('The group name uses the official source\'s spelling; a Collection suffix in 
 it('The initial takes the first Latin letter or digit in the creator name, falling back to the first character only when there is none', () => {
   expect(authorInitial('lazy')).toBe('L');
   expect(authorInitial('初音miku')).toBe('M');
-  expect(authorInitial('Hatsune')).toBe('first');
+  expect(authorInitial('Hatsune')).toBe('H');
 });
 
 it('Avatars try the official one first, fall back to the mirror, and finally paint an initial', async () => {
@@ -1098,7 +1098,7 @@ it('Enter also searches; checked cards already in the database state whose name 
   expect(sentBody(fetcher, FEED_SOURCE_URL)).toEqual([]);
 });
 
-it('JavDB 搜不成时，库里已有编号的她可以直接订，原因照样说明', async () => {
+it('When JavDB finds nothing, she can still be followed directly if the library already has her code, with the reason explained', async () => {
   const lookup = vi.fn(() => ({ ...LOOKUP, suggested: [], candidates: [], unavailable: 'JavDB 没有搜成：来源正在冷却',
     known: { id: 5, name: '瀬戸環奈', subscribable: true, following: false } }));
   const feedWrite = vi.fn(() => ok({ ok: true, entity_id: 5, following: true, sources: [7] }));
@@ -1107,12 +1107,12 @@ it('JavDB 搜不成时，库里已有编号的她可以直接订，原因照样�
   await click(buttonNamed('Find', actorPanel(host)));
   await settle();
   expect(host.textContent).toContain('JavDB 没有搜成：来源正在冷却');
-  expect(host.textContent).toContain('数据库里的「瀬戸環奈」已有 JavDB 或 DMM 编号，可以直接订阅。');
+  expect(host.textContent).toContain('The database entry "瀬戸環奈" already has a JavDB or DMM code and can be followed directly.');
   expect(host.textContent).not.toContain('That name returned nothing on JavDB.');
-  await click(buttonNamed('订阅「瀬戸環奈」', host));
+  await click(buttonNamed('Follow "瀬戸環奈"', host));
   await settle();
   expect(feedWrite).toHaveBeenCalledWith({ action: 'follow', entity_id: 5, enabled: true });
-  expect(props.toast).toHaveBeenCalledWith('已订阅「瀬戸環奈」的新作');
+  expect(props.toast).toHaveBeenCalledWith('Followed new releases for "瀬戸環奈"');
 });
 
 it('When a lookup is rejected by the server the reason sits in the card, and no candidates states so plainly', async () => {

@@ -23,12 +23,12 @@ it('Confirmed edition tags and 4K sit in the title, and no quality mark is added
   }
 });
 
-it('无码三档各用自己的颜色：无码、流出、破解', () => {
+it('The three uncensored tiers each use their own tone class: decensored, leaked, Uncensored', () => {
   const host = document.createElement('div');
-  host.innerHTML = ['Uncensored', '无码流出', 'Uncensored'].map((label) =>
+  host.innerHTML = ['decensored', 'leaked', 'Uncensored'].map((label) =>
     javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: 'Example video', edition_badges: [label] })).join('');
   expect([...host.querySelectorAll('.javedition')].map((node) => node.className))
-    .toEqual(['javedition uncensored', 'javedition leaked', 'javedition cracked']);
+    .toEqual(['javedition cracked', 'javedition leaked', 'javedition uncensored']);
 });
 
 it('Titles with kana are marked Japanese, pure Latin ones English, and pure han titles that could be either follow the page language', () => {
@@ -36,11 +36,11 @@ it('Titles with kana are marked Japanese, pure Latin ones English, and pure han 
   expect(textLang('ｶﾀｶﾅ')).toBe('ja');
   expect(textLang('First Date')).toBe('en');
   expect(textLang('三上悠亜')).toBeUndefined();
-  expect(textLang('Sample video 4K')).toBeUndefined();
+  expect(textLang('Sample video 4K')).toBe('en');
   expect(textLang('')).toBeUndefined();
   const host = document.createElement('div');
   host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: '新人デビュー' });
   expect(host.querySelector('.ui-javtitle')?.getAttribute('lang')).toBe('ja');
   host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: 'Example video' });
-  expect(host.querySelector('.ui-javtitle')?.hasAttribute('lang')).toBe(false);
+  expect(host.querySelector('.ui-javtitle')?.getAttribute('lang')).toBe('en');
 });

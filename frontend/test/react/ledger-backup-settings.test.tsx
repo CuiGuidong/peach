@@ -53,7 +53,7 @@ it('List restorable backups, labeling manual vs. auto and the purpose of auto ba
   await settle();
 
   expect(rows(host)).toEqual(['Manual · 120 MB', 'Auto · Before migration · 118 MB']);
-  expect(host.textContent).toContain('2 restorable backups total');
+  expect(host.textContent).toContain('A total of 2 restorable backups');
   expect([...host.querySelectorAll('button')].filter((button) => button.textContent === 'Restore')
     .every((button) => !button.disabled)).toBe(true);
 });
@@ -123,7 +123,8 @@ it('The read-only end can view the list and back up, but not restore, with the r
   const host = await mount(<LedgerBackupSettings receipt={vi.fn()} />);
   await settle();
 
-  expect(host.textContent).toContain('This computer is not the ledger write client; restore is only possible on the write client: this computer is a read-only client');
+  expect(host.textContent).toContain('This computer is not the ledger write client; restore is only possible on the write client:')
+  expect(host.textContent).toContain('This computer is a read-only client');
   expect([...host.querySelectorAll('button')].filter((button) => button.textContent === 'Restore')
     .every((button) => button.disabled)).toBe(true);
   expect(buttonNamed('Back up now', host)!.disabled).toBe(false);

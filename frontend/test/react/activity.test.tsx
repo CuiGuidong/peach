@@ -242,13 +242,13 @@ it('The active main task and follow-ups keep showing their own CPU, GPU, and mea
   const main = host.querySelector('[data-task-resources="1"]')!;
   const nested = host.querySelector('[data-task-resources="90"]')!;
   expect(main.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 12.5%');
-  expect(main.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU not used');
+  expect(main.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU Not used');
   expect(main.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network 2 MB/s');
   expect(nested.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 3%');
   expect(nested.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network 1 KB/s');
-  expect(main.querySelector('[data-task-resource="cpu"]')?.getAttribute('title')).toContain('Containers use their visible CPU quota');
-  expect(main.querySelector('[data-task-resource="gpu"]')?.getAttribute('title')).toContain('The busiest GPU engine');
-  expect(main.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toContain('The download speed observed for that task');
+  expect(main.querySelector('[data-task-resource="cpu"]')?.getAttribute('title')).toContain('containers use their visible CPU quota');
+  expect(main.querySelector('[data-task-resource="gpu"]')?.getAttribute('title')).toContain("that task's busiest GPU engine");
+  expect(main.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toContain('the download speed observed for this task');
   expect([...main.querySelectorAll('[data-task-resource]')].every(node => node.getAttribute('tabindex') === '0')).toBe(true);
 });
 
@@ -259,12 +259,12 @@ it('Resource sampling-in-progress and not-obtained display separately, the reaso
     network: { state: 'unavailable', bytes_per_second: null, high: false, reason: 'Mounted-drive transfers cannot be attributed precisely' },
   }) })] }));
   const metrics = host.querySelector('[data-task-resources="1"]')!;
-  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('Sampling CPU');
-  expect(metrics.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU not obtained');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network not obtained');
+  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU Sampling');
+  expect(metrics.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU Not fetched');
+  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network Not fetched');
   expect(metrics.textContent).not.toContain('0%');
   expect(metrics.textContent).not.toContain('0 B/s');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toMatch(/^挂载盘传输无法准确归属/);
+  expect(metrics.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toMatch(/^Mounted-drive transfers cannot be attributed/);
 });
 
 it('When reading from a cloud-drive mount, the network shows “cloud drive read” and still reports no zero value', async () => {
@@ -273,9 +273,9 @@ it('When reading from a cloud-drive mount, the network shows “cloud drive read
       reason: 'A mounted cloud drive\'s cache and prefetch cannot measure actual speed per task' },
   }) })] }));
   const network = host.querySelector('[data-task-resources="1"] [data-task-resource="network"]')!;
-  expect(network.textContent).toBe('Network cloud drive read');
+  expect(network.textContent).toBe('Network Cloud drive read');
   expect(network.hasAttribute('data-resource-idle')).toBe(false);
-  expect(network.getAttribute('title')).toMatch(/^网盘挂载的缓存与预读/);
+  expect(network.getAttribute('title')).toMatch(/^A mounted cloud drive's cache and prefetch/);
 });
 
 it('A true zero reading is shown as not used; high usage is emphasized by that metric\'s real high state', async () => {
@@ -285,8 +285,8 @@ it('A true zero reading is shown as not used; high usage is emphasized by that m
     network: { state: 'ready', bytes_per_second: 0, high: false },
   }) })] }));
   const metrics = host.querySelector('[data-task-resources="1"]')!;
-  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU not used');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network not used');
+  expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU Not used');
+  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('Network Not used');
   expect(metrics.querySelector('[data-task-resource="cpu"]')?.hasAttribute('data-resource-idle')).toBe(true);
   const gpu = metrics.querySelector('[data-task-resource="gpu"]')!;
   expect(gpu.textContent).toBe('GPU 70.1%');
@@ -302,7 +302,7 @@ it('While a parent task has ended but follow-ups are still active, show the back
     finished: [parent, historical], followup_counts: { '1': { pending: 100 } } }));
   expect(host.querySelector('[data-task-resources="1"]')).not.toBeNull();
   expect(host.querySelector('[data-task-resources="1"] [data-task-resource="cpu"]')?.getAttribute('title'))
-    .toContain('Every follow-up');
+    .toContain('Counts every follow-up');
   expect(host.querySelector('[data-task-resources="2"]')).toBeNull();
 });
 
@@ -376,9 +376,9 @@ it('Task cancellation reuses the confirm dialog, focus starts on cancel, and nei
   await click(controlButton('Cancel', host));
   const dialog = document.querySelector<HTMLDialogElement>('dialog')!;
   expect(dialog.open).toBe(true);
-  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel task "Follow update check"');
+  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel task "Update check"');
   expect(dialog.textContent).toContain('Saved details and results are kept');
-  expect(dialog.textContent).toContain('Cannot continue after cancellation');
+  expect(dialog.textContent).toContain('Once this round is cancelled it cannot continue');
   expect(document.activeElement).toBe(dialog.querySelector('[data-modal-cancel]'));
   expect(posts).toEqual([]);
   await click(dialog.querySelector('[data-modal-cancel]'));
@@ -428,8 +428,8 @@ it('The ended parent\'s cancel confirmation explicitly covers every running and 
     followup_counts: { '1': { pending: 1200 } } }));
   await click(controlButton('Cancel follow-up tasks', host));
   const dialog = document.querySelector<HTMLDialogElement>('dialog')!;
-  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel every follow-up of "Follow update check"');
-  expect(dialog.textContent).toContain('Every follow-up task, including running and queued items');
+  expect(dialog.querySelector('h3')?.textContent).toBe('Cancel every follow-up of "Update check"');
+  expect(dialog.textContent).toContain('every follow-up task already dispatched, including running and queued items');
   expect(dialog.querySelector('[data-modal-confirm]')?.textContent).toBe('Cancel follow-up tasks');
   expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(0);
   await click(dialog.querySelector('[data-modal-cancel]'));
@@ -486,7 +486,7 @@ it('When a cancel request is not accepted, the reason survives the task finishin
   await act(async () => { await queryClient.invalidateQueries({ queryKey: ['tasks'] }) });
   expect(host.querySelector('[data-task-controls]')).toBeNull();
   await response.release({ ok: false, status: 409, json: async () => ({ message: 'This round has already ended' }) });
-  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback]')?.textContent).toContain('Cancellation not finished'));
+  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback]')?.textContent).toContain('Cancel not finished'));
   expect(host.querySelector('[data-task-control-feedback]')?.textContent).toContain('This round has already ended');
   expect(host.querySelector('#run-1')?.textContent).toContain('Completed');
   expect(host.querySelector('#run-1')?.textContent).not.toContain('Canceled');
@@ -498,7 +498,7 @@ it('After a parent\'s follow-ups are cancelled, the card shows the cancelled sta
   const { host } = await open(payload({ finished: [parent, child], followup_counts: { '1': { cancelled: 120 } } }));
   const card = host.querySelector('#run-1')!;
   expect(card.textContent).toContain('Follow-up tasks cancelled');
-  expect(card.textContent).toContain('120 follow-up tasks cancelled');
+  expect(card.textContent).toContain('Follow-up tasks cancelled 120 items');
   expect(card.querySelector('details')?.open).toBe(false);
   expect(card.querySelector('[data-task-controls]')).toBeNull();
   expect(card.getAttribute('data-status')).toBe('succeeded');
@@ -554,7 +554,7 @@ it('A failed task control keeps the original state and reason, retryable in plac
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
   await click(controlButton('Paused', host));
-  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback] [role="alert"]')?.textContent).toContain('The task has changed'));
+  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback] [role="alert"]')?.textContent).toContain('The task changed; refresh and retry'));
   expect(controlButton('Continue', host)).toBeNull();
   await click(controlButton('Paused', host));
   expect(attempts).toBe(2);
@@ -597,7 +597,7 @@ it('The whole batch of follow-ups stays controllable after the parent ends, incl
   });
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
-  expect(host.querySelector('#run-1')?.textContent).toContain('Lists 1 of them');
+  expect(host.querySelector('#run-1')?.textContent).toContain('Listing 1 item, in-progress first');
   await click(controlButton('Pause follow-up tasks', host));
   await vi.waitFor(() => expect(controlButton('Resume follow-up tasks', host)).not.toBeNull());
   expect(host.querySelector('#run-1')?.textContent).toContain('Paused');
@@ -788,7 +788,7 @@ it('Successors nest under the round that dispatched them without taking another 
   expect(host.querySelector('[data-task-key=follow-check]')!.contains(row)).toBe(true);
   expect(row.textContent).toContain('Fill in detail images');
   expect(row.textContent).toContain('Completed');
-  expect(row.textContent).toContain('涼森れむ · Detail image saved');
+  expect(row.textContent).toContain('涼森れむ · Installed');
   expect(host.textContent).toContain('Scheduled 1 backfill task');
 });
 
@@ -802,7 +802,7 @@ it('Completed task details start collapsed, and expanding and collapsing never l
   await click(trigger);
   expect(trigger.getAttribute('aria-expanded')).toBe('true');
   expect(details.open).toBe(true);
-  expect(details.textContent).toContain('涼森れむ · Details image saved');
+  expect(details.textContent).toContain('涼森れむ · Installed');
   await click(trigger);
   expect(trigger.getAttribute('aria-expanded')).toBe('false');
 });
