@@ -20,6 +20,6 @@ export function filterControlsSkeletonHtml(sorts: readonly EntitySortKey[], layo
   const params = new URLSearchParams(location.search);
   const sizes = layout && view === 'cards' ? segments(layout.label, layout.value, layout.options) : '';
   const folder = folders ? `<button type="button" data-folder-mode-toggle="" aria-label="Folder mode" aria-pressed="${params.get('browse') === 'folders' || !!params.get('folder')}" ${FILTER_WAITING}>${icon('ri-folder-3-line')}</button>` : '';
-  return `<span data-entity-sorts=""><button type="button" data-entity-batch="" data-filter-action="" aria-label="Shuffle" ${FILTER_WAITING}>${icon('shuffle')}</button>${sizes}${segments('Library display', view, [['cards','Cards','ri-layout-grid-line'],['list','List','ri-list-unordered']])}${folder}${sorts.map(sort =>
+  return `<span data-entity-sorts=""><button type="button" data-entity-batch="" data-filter-action="" aria-label="Shuffle" ${FILTER_WAITING}>${icon('shuffle')}</button>${sizes}${segments('Library display mode', view, [['cards','Cards','ri-layout-grid-line'],['list','List','ri-list-unordered']])}${folder}${sorts.map(sort =>
     `<button type="button" data-entity-sort="${esc(sort.key)}" aria-pressed="${sort.pressed}" ${FILTER_WAITING}>${esc(sort.label)}${sort.dir ? icon(sort.dir === 'asc' ? 'arrow-up' : 'arrow-down') : ''}</button>`).join('')}</span>`;
 }

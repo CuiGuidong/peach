@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "741aaf72-c81e-4d93-9d66-cca5b15c70e0", e._sentryDebugIdIdentifier = "sentry-dbid-741aaf72-c81e-4d93-9d66-cca5b15c70e0");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "340408ea-0a10-44ee-917e-1c8d84d07b4a", e._sentryDebugIdIdentifier = "sentry-dbid-340408ea-0a10-44ee-917e-1c8d84d07b4a");
 	} catch {}
 })();
 import { $b4f18e3395fe64d7$export$3d96ec278d3efce4 as e, $b4f18e3395fe64d7$export$3e41faf802a29e71 as t, $b4f18e3395fe64d7$export$b2539bed5023c21c as n, $ea3928288112382f$export$439d29a4e110a164 as r, $fe21c36db05242bb$export$a98f0dcb43a68a25 as i, $fe21c36db05242bb$export$d7b12c4107be0d61 as a, Button as o, ButtonLink as s, Checkbox as c, CheckboxGlyph as l, Chip as u, CollapseChevron as d, CollapseRegion as f, DEFAULT_CATEGORY as p, ENTITY_REVIEW_KINDS as m, Ea as h, EmptyState as ee, ExternalLink as g, FIELDSET_FOOT as _, FilterGlassRows as v, Gg as y, InputBase as te, LinkButton as ne, Note as b, REVIEW_CATEGORIES as x, REVIEW_DECISION_LABELS as re, REVIEW_KEY as S, REVIEW_LABELS as C, REVIEW_QUEUES as w, REVIEW_QUEUE_LABELS as T, Select as E, SelectItem as D, SelectionActions as O, SelectionDock as k, TextField as A, Wt as j, __toESM as M, apiGet as N, apiSend as P, avatarInner as F, busyProps as I, canApprove as ie, cardClass as L, commonReviewSources as ae, composingKey as R, confirmModal as oe, currentReviewRow as se, cx as z, decisionPayload as ce, decisionReceipt as le, defaultChoice as ue, errorMessage as B, fetchReview as de, filterReviewRows as fe, groupReviewRows as pe, isReviewCategory as me, l7 as he, localTime as ge, m7 as _e, mirrorText as ve, paginationRange as ye, pendingGenres as be, queryClient as V, recordGenre as xe, reloadReview as Se, require_jsx_runtime as Ce, require_react as H, reviewGroupingOptions as we, reviewQueueData as Te, reviewQueueOf as Ee, reviewWindow as De, rowEvidence as U, rowFieldName as W, rowSubject as Oe, rowTags as ke, rowTitle as G, selectReviewRange as Ae, settleReviewRows as je, spinnerHtml as Me, submitDecision as Ne, useMutation as Pe, useOverlayScrollbar as K, useQuery as Fe, useViewGlide as Ie } from "./peach-app.js";
@@ -13,7 +13,7 @@ import { PillAriaTabList as Be } from "./peach-app.pill-aria-tab-list-BMY1ZEv1.j
 var q = /* @__PURE__ */ M(H(), 1), Ve = "/api/review/auto-landings", He = "/api/review/auto-landings/revert", Ue = ["review", "auto-landings"], We = (e) => N(Ve, e), J = (e) => N(`${Ve}?items=${encodeURIComponent(e.join("\n"))}`), Ge = (e, t) => P(He, {
 	items: e,
 	token: t
-}), Ke = (e) => e.at === null ? "" : ge((/* @__PURE__ */ new Date(e.at * 1e3)).toISOString()), Y = (e) => e.code || e.name || (e.asset_id ? `#${e.asset_id}` : "Unknown work"), qe = (e) => e ? `「${e}」` : "empty", Je = (e) => e.tags.length ? e.tags.join("、") : e.value, X = (e) => e.tags.length ? "原有标签保留" : `原为 ${e.previous.length ? e.previous.map(qe).join("、") : "empty"}`;
+}), Ke = (e) => e.at === null ? "" : ge((/* @__PURE__ */ new Date(e.at * 1e3)).toISOString()), Y = (e) => e.code || e.name || (e.asset_id ? `#${e.asset_id}` : "Unknown work"), qe = (e) => e ? `"${e}"` : "empty", Je = (e) => e.tags.length ? e.tags.join(", ") : e.value, X = (e) => e.tags.length ? "Original tags kept" : `was ${e.previous.length ? e.previous.map(qe).join(", ") : "empty"}`;
 function Z(e) {
 	return [
 		...e.restores.map((e) => `${Y(e)} ${e.field}: ${qe(e.current)} restored to ${qe(e.previous)}`),
@@ -77,7 +77,7 @@ function $e({ item: e }) {
 			className: "truncate text-body-regular text-text-primary",
 			children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-text-secondary",
-				children: `${e.field}：`
+				children: `${e.field}: `
 			}), Je(e)]
 		}), /* @__PURE__ */ (0, Q.jsx)("small", {
 			title: X(e),
@@ -1862,4 +1862,4 @@ function Zt(r) {
 }
 export { Zt as ReviewPage };
 
-//# debugId=741aaf72-c81e-4d93-9d66-cca5b15c70e0
+//# debugId=340408ea-0a10-44ee-917e-1c8d84d07b4a

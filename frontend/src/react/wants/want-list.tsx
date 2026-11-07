@@ -207,7 +207,7 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
       </div>
 
       {wants.error ? <Note tone="error" title="Reading the want list failed">{errorMessage(wants.error)}</Note> : null}
-      {wants.isPending ? <div role="status" aria-label="'Loading wants'" dangerouslySetInnerHTML={{ __html: javContentSkeleton('wants') }} /> : null}
+      {wants.isPending ? <div role="status" aria-label="Loading wants" dangerouslySetInnerHTML={{ __html: javContentSkeleton('wants') }} /> : null}
       {data?.scraping ? <Help role="status">Fetching details and covers for the codes just added.</Help> : null}
       {downloads.error ? <Note tone="error" title="Download configuration not fetched">{errorMessage(downloads.error)}</Note> : null}
       {downloads.data && !configured.length ? <Note tone="neutral">No download channel configured yet.<a href={'/settings/library?section=' + encodeURIComponent('Download channels')}>Download channel settings</a></Note> : null}

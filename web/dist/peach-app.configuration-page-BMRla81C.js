@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b69a95b0-a5ca-4baa-9034-3ecd3f547031", e._sentryDebugIdIdentifier = "sentry-dbid-b69a95b0-a5ca-4baa-9034-3ecd3f547031");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "672257e3-b92a-4f78-8fba-d9a43757d49b", e._sentryDebugIdIdentifier = "sentry-dbid-672257e3-b92a-4f78-8fba-d9a43757d49b");
 	} catch {}
 })();
 import { AnimatedItems as e, Cell as t, ChartBackground as n, ChartContainer as r, ChartLegend as i, ChartLegendContent as a, ChartTip as o, ChartTooltip as s, ChartTooltipContent as c, Curve as l, DATA_ITEM_GRAPHICAL_ITEM_ID_ATTRIBUTE_NAME as u, DATA_ITEM_INDEX_ATTRIBUTE_NAME as d, DefaultZIndexes as f, EvilBarChart as p, LabelList as m, LabelListFromLabelProp as h, Layer as g, LoadingIndicator as _, PolarChart as v, PolarLabelContextProvider as y, PolarLabelListContextProvider as b, RegisterGraphicalItemId as x, Sector as S, SetPolarGraphicalItem as C, SetPolarLegendPayload as w, SetTooltipEntrySettings as T, Shape as ee, TIP_SWATCH as te, Text as ne, ZIndexLayer as re, adaptEventsOfChild as ie, arrayTooltipSearcher as ae, createSelector as oe, defaultPolarChartProps as se, findAllByType as ce, get as le, getClassNameFromUnknown as ue, getColorsCount as de, getMaxRadius as fe, getPercentValue as pe, getTooltipNameProp as me, getValueByDataKey as he, interpolate as ge, isNumber as _e, matchAppend as ve, mathSign as ye, polarToCartesian as be, resolveDefaultProps as xe, selectActiveTooltipDataKey as Se, selectActiveTooltipGraphicalItemId as Ce, selectActiveTooltipIndex as we, selectChartDataAndAlwaysIgnoreIndexes as Te, selectChartOffsetInternal as Ee, selectUnfilteredPolarItems as De, svgPropertiesNoEvents as Oe, svgPropertiesNoEventsFromUnknown as ke, tone as Ae, useAnimationCallbacks as je, useAppSelector as Me, useMouseClickItemDispatch as Ne, useMouseEnterItemDispatch as Pe, useMouseLeaveItemDispatch as Fe, usePolarChartLayout as Ie } from "./peach-app.chart-tip-CRxYp6KT.js";
@@ -187,7 +187,7 @@ function yr({ initial: e, receipt: t }) {
 					children: [/* @__PURE__ */ (0, Q.jsx)(dt, { children: "Browser-added download channels" }), /* @__PURE__ */ (0, Q.jsx)(R, {
 						"aria-label": "Browser-added download channels",
 						selectedKey: i || null,
-						placeholder: "'No channels available yet'",
+						placeholder: "No channels available yet",
 						onSelectionChange: (e) => {
 							e !== null && a(String(e));
 						},
@@ -2555,7 +2555,7 @@ function Ba({ initial: e, initialJob: t }) {
 						className: "flex flex-col gap-2",
 						children: [
 							/* @__PURE__ */ (0, Q.jsx)(jt, {
-								label: "'Update preparation progress'",
+								label: "Update preparation progress",
 								value: i.progress,
 								stops: La
 							}),
@@ -4105,18 +4105,18 @@ function jo({ receipt: e }) {
 	}), r = qn(), i = n.data?.followInitialDays ?? t.value.followInitialDays, a = r.error || n.error;
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "follow-options",
-		title: "Follows harvesting",
+		title: "Follows scrape",
 		children: [/* @__PURE__ */ (0, Q.jsxs)(I, { children: [
 			/* @__PURE__ */ (0, Q.jsx)(Mo, {}),
 			/* @__PURE__ */ (0, Q.jsx)(No, {}),
 			/* @__PURE__ */ (0, Q.jsx)(B, {
-				label: "'Initial scrape range'",
+				label: "First scrape scope",
 				description: "How far back a newly followed source looks on its first pass.",
 				children: /* @__PURE__ */ (0, Q.jsx)("div", {
 					id: "followInitialDaysSetting",
 					className: "shrink-0",
 					children: /* @__PURE__ */ (0, Q.jsx)(R, {
-						"aria-label": "'Initial scrape range'",
+						"aria-label": "First scrape scope",
 						selectedKey: String(i),
 						isDisabled: n.isFetching || r.isPending,
 						onSelectionChange: (n) => {
@@ -4169,13 +4169,13 @@ function Mo() {
 	}, u = t.error || e.error;
 	return /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
 		/* @__PURE__ */ (0, Q.jsx)(B, {
-			label: "'Auto-check for updates'",
+			label: "Automatically check for updates",
 			description: "Sources updated in the last 7 days are checked at this interval; those not updated for a long time slow down step by step, at most once a day",
 			children: /* @__PURE__ */ (0, Q.jsxs)("div", {
 				id: "followScheduleSetting",
 				className: "flex min-h-9 shrink-0 flex-wrap items-center justify-end gap-2",
 				children: [/* @__PURE__ */ (0, Q.jsx)(U, {
-					"aria-label": "'Auto-check for updates'",
+					"aria-label": "Automatically check for updates",
 					isSelected: n?.enabled === !0,
 					isDisabled: c,
 					onChange: (e) => {
@@ -4188,7 +4188,7 @@ function Mo() {
 						inputMode: "numeric",
 						name: "follow-interval",
 						autoComplete: "off",
-						"aria-label": "'Auto-check interval'",
+						"aria-label": "Auto-check interval",
 						className: "w-21 sm:w-24",
 						value: i,
 						onChange: (e) => {
@@ -4588,7 +4588,7 @@ function Go({ initial: e, receipt: t, devices: n, after: r }) {
 					i.mode === "password" ? /* @__PURE__ */ (0, Q.jsx)(P, {
 						id: "access-current",
 						type: "password",
-						label: "'Current access password'",
+						label: "Current access password",
 						autoComplete: "current-password",
 						maxLength: 256,
 						value: o,
@@ -4628,7 +4628,7 @@ function Go({ initial: e, receipt: t, devices: n, after: r }) {
 // src/react/settings/api-token-settings.tsx
 var Ko = "/api/configuration/access/token/rotate";
 function qo(e, t) {
-	let n = "Scripts and API calls using the old token stop working immediately.", r = e === "legacy" ? `其他浏览器现在用这串口令登录，会全部退出，需要输入新口令重新登录；This device保持登录。${n}` : e === "open" ? `Browsers without sign-in are unaffected.${n}` : `Browsers signed in with the access password are unaffected.${n}`;
+	let n = "Scripts and API calls using the old token stop working immediately.", r = e === "legacy" ? `Every other browser signed in with this token signs out and must sign in again with the new token; This device stays signed in.${n}` : e === "open" ? `Browsers without sign-in are unaffected.${n}` : `Browsers signed in with the access password are unaffected.${n}`;
 	return t ? `${r}another computer needs the same token file for the two to keep exchanging review results.` : r;
 }
 function Jo({ initial: e, mode: t, receipt: n }) {
@@ -4662,14 +4662,14 @@ function Jo({ initial: e, mode: t, receipt: n }) {
 					/* @__PURE__ */ (0, Q.jsx)(F, {
 						tone: "info",
 						title: "The new token is shown only once",
-						children: "已经生效，不用重启。离开本页后不再显示，之后在终端运行 peach token View。"
+						children: "It takes effect immediately, no restart needed. It stops showing once you leave this page; afterwards run peach token View in a terminal."
 					})
 				]
 			}) : null,
 			a?.relogin ? /* @__PURE__ */ (0, Q.jsx)(F, {
 				tone: "warning",
-				title: "This device需要重新登录",
-				children: "Refresh the page后用新口令登录。"
+				title: "This device must sign in again",
+				children: "Refresh the page and sign in with the new token."
 			}) : null,
 			r.rotatable ? null : /* @__PURE__ */ (0, Q.jsx)(N, { children: r.reason })
 		] }), r.rotatable ? /* @__PURE__ */ (0, Q.jsx)(M, {
@@ -4706,7 +4706,7 @@ function Yo({ rows: e, label: t }) {
 	});
 }
 var Xo = [
-	["iPhone／iPad", "用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」Install它，再到「设置 → 通用 → 关于This device → 证书信任设置」打开这张证书的完全信任。"],
+	["iPhone/iPad", "Scan the code with the Camera app and allow Safari to download the profile; install it under Settings → General → VPN & Device Management, then switch this certificate to Full Trust under Settings → General → About This Device → Certificate Trust Settings."],
 	["Android", "After scanning the code to download, open Settings - Security - Encryption & credentials - Install a certificate - CA certificate and pick the downloaded file. Menu names vary by maker."],
 	["This computer", "Click Download certificate. On Windows double-click the file and install it into Trusted Root Certification Authorities; on macOS set it to Always Trust in Keychain Access."]
 ];
@@ -4726,11 +4726,11 @@ function Zo({ initial: e }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		title: "Other devices trusting the HTTPS certificate",
 		children: [
-			/* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(N, { children: "手机、平板和其他电脑第一次打开 HTTPS 地址时会提示证书不受信任。在那台设备上Install并信任This device CA 证书后不再提示。证书只含公开部分，不含私钥。" }), /* @__PURE__ */ (0, Q.jsxs)("div", {
+			/* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(N, { children: "Phones, tablets, and other computers see an untrusted-certificate warning the first time they open the HTTPS address. After that device installs and trusts this computer's CA certificate, the warning stops. The certificate contains only the public part, not the private key." }), /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex min-w-0 flex-wrap items-start gap-4",
 				children: [/* @__PURE__ */ (0, Q.jsx)(Yo, {
 					rows: t.qr,
-					label: "手机扫码下载This device CA 证书"
+					label: "Scan with a phone to download this computer's CA certificate"
 				}), /* @__PURE__ */ (0, Q.jsxs)("div", {
 					className: "flex min-w-0 flex-1 basis-64 flex-col gap-2",
 					children: [/* @__PURE__ */ (0, Q.jsxs)(ut, { children: [/* @__PURE__ */ (0, Q.jsx)(j, {
@@ -4785,7 +4785,7 @@ var Qo = "/api/configuration/access/sessions", $o = (e) => e.device || "Unrecogn
 		platform: ts,
 		terminal: Yt
 	},
-	"Android 平板": {
+	"Android tablet": {
 		platform: ts,
 		terminal: at
 	},
@@ -4857,7 +4857,9 @@ function ss({ row: e, children: t }) {
 }
 function cs(e, t = Date.now() / 1e3) {
 	let n = Math.max(0, t - e);
-	return n < 60 ? "Just now" : n < 3600 ? `${Math.floor(n / 60)} minutes ago` : n < 86400 ? `${Math.floor(n / 3600)} hours ago` : n < 2592e3 ? `${Math.floor(n / 86400)} days ago` : (/* @__PURE__ */ new Date(e * 1e3)).toLocaleDateString("zh-CN");
+	if (n < 60) return "Just now";
+	let r = (e, t) => `${e} ${t}${e === 1 ? "" : "s"} ago`;
+	return n < 3600 ? r(Math.floor(n / 60), "minute") : n < 86400 ? r(Math.floor(n / 3600), "hour") : n < 2592e3 ? r(Math.floor(n / 86400), "day") : (/* @__PURE__ */ new Date(e * 1e3)).toLocaleDateString("zh-CN");
 }
 function ls(e) {
 	return e.network === "loopback" ? "The computer running Peach" : e.network ? e.remote ? `Public entry · ${e.network}` : e.network : "";
@@ -6059,4 +6061,4 @@ function qs({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 }
 export { Ws as ConfigurationPage };
 
-//# debugId=b69a95b0-a5ca-4baa-9034-3ecd3f547031
+//# debugId=672257e3-b92a-4f78-8fba-d9a43757d49b

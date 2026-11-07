@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "bafc0633-79d0-4880-a018-d652fb4f38ea", e._sentryDebugIdIdentifier = "sentry-dbid-bafc0633-79d0-4880-a018-d652fb4f38ea");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "9e28bdf0-aec5-4d97-8686-d3826b883ba2", e._sentryDebugIdIdentifier = "sentry-dbid-9e28bdf0-aec5-4d97-8686-d3826b883ba2");
 	} catch {}
 })();
 import { $76d00c5a4edb230a$export$76ccd210b9029917 as e, $76d00c5a4edb230a$export$816b5d811295e6bc as t, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as n, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as r, $76d00c5a4edb230a$export$f850895b287ef28e as i, $fe21c36db05242bb$export$d7b12c4107be0d61 as a, ArtSlot as o, Button as s, ButtonLink as c, Bx as l, COVER_STATE_TITLE as u, CatalogViewToggle as d, ChevronSortDown as f, Chip as p, CloudDownloadDialog as m, CoverQueue as h, DISCOVERY_SORTS as g, DOWNLOADS_KEY as _, DOWNLOADS_URL as v, DataTableFrame as y, E3 as b, EmptyFocusButton as x, EmptyState as S, FilterGlassRows as C, FilterIconButton as w, FilterPill as T, GlassPill as E, Help as D, IndexSearch as O, Input as k, JAV_LAYOUTS as ee, JAV_RECOMMENDATION_GRID as te, JavHeader as A, LibraryShortcuts as j, M6 as M, Note as N, PHASES as P, Pagination as ne, RELEASE_COLUMN_VISIBILITY_KEY as F, RELEASE_COLUMN_WIDTHS_KEY as I, RELEASE_SORTS as L, RELEASE_SORT_COLUMNS as R, SEGMENT as z, SEGMENTED_TRACK as B, SegmentedRadioGroup as V, Segments as re, Shuffle as ie, SortKeys as ae, SourceAvatar as H, Table as oe, TableColumnControls as U, TableColumnResizer as W, TaskProgress as se, WANTS_KEY as ce, WantMagnets as le, Wt as ue, __toESM as de, addWant as fe, apiGet as pe, appSettingsStore as me, avatarInner as he, busyProps as G, cachedMagnetStates as ge, cardClass as _e, cardRatio as ve, catalogListSkeletonCellHtml as ye, composingKey as be, coverArrived as xe, coverFetching as Se, coverFetchingHtml as Ce, coverStateAction as we, coverUrl as Te, discoveryArtwork as Ee, discoveryKey as De, discoveryScore as Oe, entityDisplayName as K, entityFaceImg as ke, entityPath as Ae, errorMessage as q, esc as je, facePos as Me, fetchCoverNow as Ne, fetchDiscoveries as Pe, fetchReleases as Fe, fetchWants as Ie, firstGrapheme as Le, fmtDur as Re, gridLayout as ze, invalidateWants as J, javContentSkeleton as Be, javLayout as Ve, javTagSkeleton as He, keepPreviousData as Ue, leadingGraphemes as We, logoUrl as Ge, pageWindow as Ke, qE as qe, recommendationScore as Je, relayoutCovers as Ye, releaseColumns as Xe, releaseFilters as Ze, releaseKey as Qe, removeWants as $e, require_jsx_runtime as et, require_react as tt, resetWants as nt, searchNote as rt, spriteGlyph as it, storeJavLayout as at, textLang as ot, tierPlaceholdersHtml as st, useAction as Y, useCatalogView as ct, useEntityNames as lt, useQuery as ut, useTablePreferences as dt, wantName as X, wireHorizontalScroller as ft, writeJavQuery as Z } from "./peach-app.js";
@@ -272,7 +272,7 @@ function bt({ readOnly: e, toast: t, query: n = "", clearQuery: r }) {
 			}) : null,
 			u.isPending ? /* @__PURE__ */ (0, $.jsx)("div", {
 				role: "status",
-				"aria-label": "'Loading wants'",
+				"aria-label": "Loading wants",
 				dangerouslySetInnerHTML: { __html: Be("wants") }
 			}) : null,
 			g?.scraping ? /* @__PURE__ */ (0, $.jsx)(D, {
@@ -1406,4 +1406,4 @@ function zt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 }
 export { Rt as JavPage };
 
-//# debugId=bafc0633-79d0-4880-a018-d652fb4f38ea
+//# debugId=9e28bdf0-aec5-4d97-8686-d3826b883ba2

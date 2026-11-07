@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3a49932c-b935-42ed-9dfb-dcefd3a4374e", e._sentryDebugIdIdentifier = "sentry-dbid-3a49932c-b935-42ed-9dfb-dcefd3a4374e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "86b25d93-0da9-429a-94a0-402dad1d3f4d", e._sentryDebugIdIdentifier = "sentry-dbid-86b25d93-0da9-429a-94a0-402dad1d3f4d");
 	} catch {}
 })();
 import { CHART_CARD as e, CategoryTick as t, ChartEmpty as n, ChartHead as r, ChartTip as i, Dot as a, EvilBarChart as o, Layer as s, TIP_SURFACE as c, TIP_SWATCH as l, Text as u, TipRow as d, ZIndexLayer as f, adaptEventsOfChild as p, addAngleAxis as m, categoryAxisWidth as h, combineAxisTicks as g, combineCategoricalDomain as _, combineConfiguredScale as v, combineGraphicalItemTicks as y, createSelector as b, defaultPolarAngleAxisProps as x, degreeToRadian as S, getAxisTypeBasedOnLayout as C, getClassNameFromUnknown as w, noop as T, pickAxisType as E, polarToCartesian as D, rechartsScaleFactory as ee, removeAngleAxis as te, resolveDefaultProps as ne, roundTemplateLiteral as re, selectAngleAxis as O, selectAngleAxisRangeWithReversed as ie, selectChartLayout as k, selectDuplicateDomain as A, selectPolarAppliedValues as ae, selectPolarAxisCheckedDomain as oe, selectPolarNiceTicks as se, selectPolarViewBox as ce, selectRadiusAxis as le, selectRadiusAxisRangeWithReversed as ue, selectRealScaleType as de, selectRenderableAxisSettings as fe, svgPropertiesAndEvents as j, svgPropertiesNoEvents as M, svgPropertiesNoEventsFromUnknown as pe, tone as me, useAppDispatch as he, useAppSelector as N, useIsPanorama as ge, usePolarChartLayout as _e } from "./peach-app.chart-tip-CRxYp6KT.js";
@@ -515,7 +515,7 @@ function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: 
 								"data-cell": t,
 								tabIndex: t === g ? 0 : -1,
 								role: "img",
-								"aria-label": `${e.label}，${e.count} ${n.cellUnit}`,
+								"aria-label": `${e.label}, ${e.count} ${e.count === 1 ? n.cellUnitOne ?? n.cellUnit : n.cellUnit}`,
 								x: r,
 								y: i,
 								width: Z,
@@ -642,4 +642,4 @@ function lt({ children: e, className: t = "", previewCount: n = 10 }) {
 }
 export { ct as ActivityHeat, Y as BAR_DOMAIN, Qe as BarCard, lt as ExpandableRanking, Xe as PolarAngleAxis, z as Polygon, X as barLabel, H as selectPolarAxisScale, W as selectPolarAxisTicks, je as selectPolarGraphicalItemAxisTicks };
 
-//# debugId=3a49932c-b935-42ed-9dfb-dcefd3a4374e
+//# debugId=86b25d93-0da9-429a-94a0-402dad1d3f4d

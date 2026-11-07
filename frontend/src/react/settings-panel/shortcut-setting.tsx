@@ -62,7 +62,7 @@ export function ShortcutSetting({ current, onChange }: { current: Shortcut; onCh
   const keys: KeycapItem[] | null = saved ? caps(saved, saved.code, 'done')
     : !recording ? null
       : pressed.code ? caps(pressed.modifiers, pressed.code, problem ? 'invalid' : 'down')
-        : held ? [...caps(pressed.modifiers, null, 'down'), slot('键')] : [slot('Modifier key'), slot('键')];
+        : held ? [...caps(pressed.modifiers, null, 'down'), slot('key')] : [slot('Modifier key'), slot('key')];
   const custom = serializeShortcut(current) !== DEFAULT_SFW_SHORTCUT;
   const hint = saved ? `Changed to ${formatShortcut(saved, apple)}`
     : recording ? (problem || 'Press a new key combo, Esc to cancel') : 'Toggle anytime outside the input box.';

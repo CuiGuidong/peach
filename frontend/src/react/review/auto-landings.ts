@@ -77,16 +77,16 @@ export const writeTime = (item: AutoLandingWrite) =>
 
 export const workLabel = (row: AssetRef) =>
   row.code || row.name || (row.asset_id ? `#${row.asset_id}` : 'Unknown work');
-const shown = (value: string) => (value ? `「${value}」` : 'empty');
+const shown = (value: string) => (value ? `"${value}"` : 'empty');
 
 /** 这一条写下了什么：覆盖是新值，并集是补上的标签。 */
 export const writtenText = (item: AutoLandingWrite) =>
-  item.tags.length ? item.tags.join('、') : item.value;
+  item.tags.length ? item.tags.join(', ') : item.value;
 
 /** 写入前的样子：覆盖写原值，并集写「只增不删」。 */
 export const previousText = (item: AutoLandingWrite) => item.tags.length
-  ? '原有标签保留'
-  : `原为 ${item.previous.length ? item.previous.map(shown).join('、') : 'empty'}`;
+  ? 'Original tags kept'
+  : `was ${item.previous.length ? item.previous.map(shown).join(', ') : 'empty'}`;
 
 /** 确认弹层里逐条列出的改动：改回的值、删掉的标签，最后是不动的那几条。 */
 export function previewLines(preview: AutoLandingPreview): string[] {

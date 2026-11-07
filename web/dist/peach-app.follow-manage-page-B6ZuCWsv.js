@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "2b0c2b00-adb5-4fc3-884f-574793a36186", e._sentryDebugIdIdentifier = "sentry-dbid-2b0c2b00-adb5-4fc3-884f-574793a36186");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "4dc53c07-59f1-488f-8098-466c87a3c799", e._sentryDebugIdIdentifier = "sentry-dbid-4dc53c07-59f1-488f-8098-466c87a3c799");
 	} catch {}
 })();
 import { createPaginatedRowModel as e } from "./peach-app.createPaginatedRowModel-ClHnhG_T.js";
@@ -65,7 +65,7 @@ function Et({ credentials: e, hidden: t, onHidden: n }) {
 		label: "Source filter",
 		triggerLabel: a,
 		leadingIcon: p,
-		empty: "'No sources available yet'",
+		empty: "No sources available yet",
 		items: r.map((e) => ({
 			id: e.provider_label,
 			selected: !t.has(e.provider_label),
@@ -1916,4 +1916,4 @@ function cn(e) {
 }
 export { cn as FollowManagePage };
 
-//# debugId=2b0c2b00-adb5-4fc3-884f-574793a36186
+//# debugId=4dc53c07-59f1-488f-8098-466c87a3c799

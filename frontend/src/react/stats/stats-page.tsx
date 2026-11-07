@@ -95,7 +95,7 @@ function Coverage({ term, value, total }: { term: string; value: Count; total: n
             : null}
         </b>
       </p>
-      <Progress meter label={`${term}：${fmtCount(value)} / ${total.toLocaleString()}`}
+      <Progress meter label={`${term}: ${fmtCount(value)} / ${total.toLocaleString()}`}
         value={known(value) ? within(value, max) : 0} max={max} />
     </div>
   );

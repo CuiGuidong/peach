@@ -43,7 +43,7 @@ const SYSTEMS: Record<string, { platform?: Platform; terminal: Glyph }> = {
   iPhone: { platform: apple, terminal: RiSmartphoneLine },
   iPad: { platform: apple, terminal: RiTabletLine },
   Android: { platform: android, terminal: RiSmartphoneLine },
-  'Android 平板': { platform: android, terminal: RiTabletLine },
+  'Android tablet': { platform: android, terminal: RiTabletLine },
   ChromeOS: { platform: { browser: 'chrome' }, terminal: RiComputerLine },
   Windows: { platform: { glyph: RiWindowsFill, brand: 'windows' }, terminal: RiComputerLine },
   macOS: { platform: apple, terminal: RiComputerLine },
@@ -99,9 +99,10 @@ function DeviceRow({ row, children }: { row: DeviceSession; children?: ReactNode
 export function lastSeen(seconds: number, now = Date.now() / 1000): string {
   const elapsed = Math.max(0, now - seconds);
   if (elapsed < 60) return 'Just now';
-  if (elapsed < 3600) return `${Math.floor(elapsed / 60)} minutes ago`;
-  if (elapsed < 86400) return `${Math.floor(elapsed / 3600)} hours ago`;
-  if (elapsed < 86400 * 30) return `${Math.floor(elapsed / 86400)} days ago`;
+  const plural = (count: number, unit: string) => `${count} ${unit}${count === 1 ? '' : 's'} ago`;
+  if (elapsed < 3600) return plural(Math.floor(elapsed / 60), 'minute');
+  if (elapsed < 86400) return plural(Math.floor(elapsed / 3600), 'hour');
+  if (elapsed < 86400 * 30) return plural(Math.floor(elapsed / 86400), 'day');
   return new Date(seconds * 1000).toLocaleDateString('zh-CN');
 }
 

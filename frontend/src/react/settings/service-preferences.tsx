@@ -25,7 +25,7 @@ import { busyProps } from './use-action';
 const THUMBNAIL_OPTIONS = [['off', 'Off'], ['precise', 'One per 10 seconds'], ['coarse', 'One per 30 seconds']] as const;
 
 export function VideoThumbnailRow({ epoch = 0 }: { epoch?: number }) {
-  return <Section guide="timeline" title="'Timeline thumbnails'"><VideoThumbnailControls epoch={epoch} /></Section>;
+  return <Section guide="timeline" title="Timeline thumbnails"><VideoThumbnailControls epoch={epoch} /></Section>;
 }
 
 export function VideoThumbnailControls({ epoch = 0, disabled = false }: { epoch?: number; disabled?: boolean }) {
@@ -67,13 +67,13 @@ export function FollowPreferenceRows({ receipt }: { receipt(message: string): vo
   const initialDays = settings.data?.followInitialDays ?? store.value.followInitialDays;
   const error = initial.error || settings.error;
   return (
-    <Section guide="follow-options" title="Follows harvesting">
+    <Section guide="follow-options" title="Follows scrape">
       <Rows>
         <FollowScheduleRow />
         <FeedScheduleRow />
-        <SettingsRow label="'Initial scrape range'" description="How far back a newly followed source looks on its first pass.">
+        <SettingsRow label="First scrape scope" description="How far back a newly followed source looks on its first pass.">
           <div id="followInitialDaysSetting" className="shrink-0">
-            <Select aria-label="'Initial scrape range'" selectedKey={String(initialDays)}
+            <Select aria-label="First scrape scope" selectedKey={String(initialDays)}
               isDisabled={settings.isFetching || initial.isPending}
               onSelectionChange={(key) => {
                 if (key === null) return;
@@ -122,18 +122,18 @@ function FollowScheduleRow() {
   const error = save.error || status.error;
   return (
     <>
-      <SettingsRow label="'Auto-check for updates'" description="Sources updated in the last 7 days are checked at this interval; those not updated for a long time slow down step by step, at most once a day">
+      <SettingsRow label="Automatically check for updates" description="Sources updated in the last 7 days are checked at this interval; those not updated for a long time slow down step by step, at most once a day">
         {/* The interval box only appears when it's on; this row reserves the height with the box, so the lines below do not shift when the state is read back.
             The controls side never shrinks: on a narrow screen the description on the left wraps, so the toggle and interval box do not push onto it. */}
         <div id="followScheduleSetting" className="flex min-h-9 shrink-0 flex-wrap items-center justify-end gap-2">
-          <Switch aria-label="'Auto-check for updates'" isSelected={data?.enabled === true} isDisabled={blocked}
+          <Switch aria-label="Automatically check for updates" isSelected={data?.enabled === true} isDisabled={blocked}
             onChange={(on) => {
               localStorage.setItem('peach.number.followScheduleSetting', String(remembered.current));
               save.mutate(on ? remembered.current : 0);
             }} />
           {data?.enabled ? <div className="flex items-center gap-2">
             <Input type="number" inputMode="numeric" name="follow-interval" autoComplete="off"
-              aria-label="'Auto-check interval'" className="w-21 sm:w-24"
+              aria-label="Auto-check interval" className="w-21 sm:w-24"
               value={draft} onChange={(value) => { setDraft(value); setInvalid(false) }} onBlur={commit}
               onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); commit() } }}
               isDisabled={blocked} isInvalid={invalid} />

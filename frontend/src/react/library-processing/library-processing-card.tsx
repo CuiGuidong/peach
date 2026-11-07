@@ -152,7 +152,7 @@ function Outcome(
                 </div> : null}
               {/* The log address and divider use the secondary text color; export reads the same record and is placed next to “open location”. */}
               {log ? <div className="-mx-3 mt-3 border-t border-current/20 px-3 pt-3 text-text-secondary">
-                  <PathLine path={log} prefix="Full log:" className="text-caption-1-regular"
+                  <PathLine path={log} prefix="Full log: " className="text-caption-1-regular"
                     action={exportButton} onRevealed={toast} />
                 </div>
               : exportButton ? <div className="-mx-3 mt-3 flex justify-end border-t border-current/20 px-3 pt-3">{exportButton}</div>

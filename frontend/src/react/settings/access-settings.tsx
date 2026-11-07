@@ -75,7 +75,7 @@ export function AccessSettings({ initial, receipt, devices, after }: AccessSetti
             ? <Checkbox isSelected={disable} onChange={setDisable}>Turn off the access password</Checkbox>
             : null}
           {state.mode === 'password'
-            ? <Input id="access-current" type="password" label="'Current access password'" autoComplete="current-password" maxLength={256}
+            ? <Input id="access-current" type="password" label="Current access password" autoComplete="current-password" maxLength={256}
                 value={current} onChange={setCurrent} isRequired validationBehavior="aria"
                 isInvalid={Boolean(fields.current_password)} hint={fields.current_password} />
             : null}

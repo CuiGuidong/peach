@@ -55,7 +55,7 @@ function BrowserForm({ initial, receipt }: { initial: State; receipt(message: st
       <div className="flex min-w-0 flex-col gap-4">
       <UserscriptStatus enabled={state.enabled} release={state.userscript} />
       <div className="flex flex-col gap-1"><FieldLabel>Browser-added download channels</FieldLabel>
-      <Select aria-label="Browser-added download channels" selectedKey={provider || null} placeholder="'No channels available yet'"
+      <Select aria-label="Browser-added download channels" selectedKey={provider || null} placeholder="No channels available yet"
         onSelectionChange={key => { if (key !== null) setProvider(String(key)); }}
         isDisabled={!state.providers.length || Boolean(action.busy)}>
         {state.providers.map(item => <SelectItem key={item.key} id={item.key} textValue={item.label}>

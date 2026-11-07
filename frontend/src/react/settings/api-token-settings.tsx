@@ -41,7 +41,7 @@ const URL = '/api/configuration/access/token/rotate';
 export function rotationEffect(mode: AccessState['mode'], paired: boolean): string {
   const scripts = 'Scripts and API calls using the old token stop working immediately.';
   const sentence = mode === 'legacy'
-    ? `其他浏览器现在用这串口令登录，会全部退出，需要输入新口令重新登录；This device保持登录。${scripts}`
+    ? `Every other browser signed in with this token signs out and must sign in again with the new token; This device stays signed in.${scripts}`
     : mode === 'open'
       ? `Browsers without sign-in are unaffected.${scripts}`
       : `Browsers signed in with the access password are unaffected.${scripts}`;
@@ -84,11 +84,11 @@ export function ApiTokenSettings({ initial, mode, receipt }: {
             </div>
             {copy.error ? <Help role="status">Copy failed; select the token and copy it manually.</Help> : null}
             <Note tone="info" title="The new token is shown only once">
-              已经生效，不用重启。离开本页后不再显示，之后在终端运行 peach token View。
+              It takes effect immediately, no restart needed. It stops showing once you leave this page; afterwards run peach token View in a terminal.
             </Note>
           </div>
         ) : null}
-        {rotated?.relogin ? <Note tone="warning" title="This device需要重新登录">Refresh the page后用新口令登录。</Note> : null}
+        {rotated?.relogin ? <Note tone="warning" title="This device must sign in again">Refresh the page and sign in with the new token.</Note> : null}
         {state.rotatable ? null : <Help>{state.reason}</Help>}
       </Stack>
       {state.rotatable

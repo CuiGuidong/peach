@@ -326,7 +326,7 @@ export function announceCompletion(
     toast(`Video previews generated: ${state.previews || 0}`);
     return;
   }
-  toast(`Scan and profile collection finished: identified ${state.identified || 0} codes,`
-    + `Fetched ${state.candidates || 0} sets of video details, auto-saved ${state.auto_applied || 0}`
+  toast(`Scan and profile collection finished: identified ${state.identified || 0} codes, `
+    + `fetched ${state.candidates || 0} sets of video details, auto-saved ${state.auto_applied || 0}`
     + (state.previews ? `, generating ${state.previews} video previews` : ''));
 }

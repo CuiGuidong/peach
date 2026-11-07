@@ -41,7 +41,7 @@ export function QrCode({ rows, label }: { rows: string[]; label: string }) {
 }
 
 const STEPS: readonly [string, string][] = [
-  ['iPhone／iPad', '用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」Install它，再到「设置 → 通用 → 关于This device → 证书信任设置」打开这张证书的完全信任。'],
+  ['iPhone/iPad', 'Scan the code with the Camera app and allow Safari to download the profile; install it under Settings → General → VPN & Device Management, then switch this certificate to Full Trust under Settings → General → About This Device → Certificate Trust Settings.'],
   ['Android', 'After scanning the code to download, open Settings - Security - Encryption & credentials - Install a certificate - CA certificate and pick the downloaded file. Menu names vary by maker.'],
   ['This computer', 'Click Download certificate. On Windows double-click the file and install it into Trusted Root Certification Authorities; on macOS set it to Always Trust in Keychain Access.'],
 ];
@@ -60,9 +60,9 @@ export function CertificateTrust({ initial }: { initial: CertificateState }) {
   return (
     <Section title="Other devices trusting the HTTPS certificate">
       <Stack>
-        <Help>手机、平板和其他电脑第一次打开 HTTPS 地址时会提示证书不受信任。在那台设备上Install并信任This device CA 证书后不再提示。证书只含公开部分，不含私钥。</Help>
+        <Help>Phones, tablets, and other computers see an untrusted-certificate warning the first time they open the HTTPS address. After that device installs and trusts this computer&apos;s CA certificate, the warning stops. The certificate contains only the public part, not the private key.</Help>
         <div className="flex min-w-0 flex-wrap items-start gap-4">
-          <QrCode rows={ca.qr} label="手机扫码下载This device CA 证书" />
+          <QrCode rows={ca.qr} label="Scan with a phone to download this computer's CA certificate" />
           <div className="flex min-w-0 flex-1 basis-64 flex-col gap-2">
             <FactList>
               <Fact term="SHA-256 fingerprint">

@@ -28,7 +28,7 @@ function FolderOpenIcon({ className }: { className?: string }) {
 const UNREACHED = 'Couldn\'t open File Explorer. Try again.';
 
 export function PathLine(
-  { path, prefix, className, action, onRevealed }:
+  { path, prefix, className, action, onRevealed, revealLabel }:
   {
     path: string;
     /** The label before the path ('Full log:'). It sits on the path's line and never breaks away from it when wrapping. */
@@ -69,7 +69,7 @@ export function PathLine(
           {prefix}{path}
         </p>
         <div className="flex shrink-0 items-center gap-2">
-          <IconButton icon={FolderOpenIcon} size="small" aria-label="Show in File Explorer"
+          <IconButton icon={FolderOpenIcon} size="small" aria-label={revealLabel ?? 'Show in File Explorer'}
             onClick={() => void reveal()} {...busyProps(busy)} />
           {action}
         </div>

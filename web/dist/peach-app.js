@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "9467b641-4c48-4709-a86c-673238594c24", e._sentryDebugIdIdentifier = "sentry-dbid-9467b641-4c48-4709-a86c-673238594c24");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d3de1b28-6a88-4a7c-8d26-858df15dcf9a", e._sentryDebugIdIdentifier = "sentry-dbid-d3de1b28-6a88-4a7c-8d26-858df15dcf9a");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, n) => {
@@ -34716,11 +34716,11 @@ function _de(e, t, n) {
 	};
 }
 var vde = {
-	中字: "subtitle",
-	无码: "uncensored",
-	无码流出: "leaked",
-	无码破解: "cracked",
-	有码: "censored"
+	"Chinese subs": "subtitle",
+	decensored: "cracked",
+	leaked: "leaked",
+	Uncensored: "uncensored",
+	Censored: "censored"
 }, yde = {
 	mix: "Mix",
 	parts: "Volumes",
@@ -45694,7 +45694,7 @@ function _ve(e, t, n) {
 			if (e.job_id && localStorage.getItem(oH) === e.job_id) return;
 			e.job_id && localStorage.setItem(oH, e.job_id);
 		} catch {}
-		e.requested_stage === "previews" ? t(`Video previews generated: ${e.previews || 0}`) : t(`Scan and profile collection finished: identified ${e.identified || 0} codes,Fetched ${e.candidates || 0} sets of video details, auto-saved ${e.auto_applied || 0}` + (e.previews ? `, generating ${e.previews} video previews` : ""));
+		e.requested_stage === "previews" ? t(`Video previews generated: ${e.previews || 0}`) : t(`Scan and profile collection finished: identified ${e.identified || 0} codes, fetched ${e.candidates || 0} sets of video details, auto-saved ${e.auto_applied || 0}` + (e.previews ? `, generating ${e.previews} video previews` : ""));
 	}
 }
 // src/react/boardui/components/base/buttons/link-button.tsx
@@ -69509,20 +69509,20 @@ function FAe({ className: e }) {
 	});
 }
 var IAe = "Couldn't open File Explorer. Try again.";
-function w$({ path: e, prefix: t, className: n, action: r, onRevealed: i }) {
-	let [a, o] = (0, F.useState)(!1), [s, c] = (0, F.useState)(""), l = (0, F.useRef)(!0);
+function w$({ path: e, prefix: t, className: n, action: r, onRevealed: i, revealLabel: a }) {
+	let [o, s] = (0, F.useState)(!1), [c, l] = (0, F.useState)(""), u = (0, F.useRef)(!0);
 	(0, F.useEffect)(() => () => {
-		l.current = !1;
+		u.current = !1;
 	}, []);
-	let u = async () => {
-		if (!a) {
-			o(!0), c("");
+	let d = async () => {
+		if (!o) {
+			s(!0), l("");
 			try {
 				await V("/api/reveal", { path: e }), i?.("Revealed in File Explorer");
 			} catch (e) {
-				l.current && c(e instanceof sr ? e.message : IAe);
+				u.current && l(e instanceof sr ? e.message : IAe);
 			} finally {
-				l.current && o(!1);
+				u.current && s(!1);
 			}
 		}
 	};
@@ -69538,14 +69538,14 @@ function w$({ path: e, prefix: t, className: n, action: r, onRevealed: i }) {
 				children: [/* @__PURE__ */ (0, I.jsx)(nL, {
 					icon: FAe,
 					size: "small",
-					"aria-label": "Show in File Explorer",
-					onClick: () => void u(),
-					...uV(a)
+					"aria-label": a ?? "Show in File Explorer",
+					onClick: () => void d(),
+					...uV(o)
 				}), r]
 			})]
-		}), s ? /* @__PURE__ */ (0, I.jsx)("p", {
+		}), c ? /* @__PURE__ */ (0, I.jsx)("p", {
 			className: "text-caption-1-regular text-text-error-primary",
-			children: s
+			children: c
 		}) : null]
 	});
 }
@@ -69687,7 +69687,7 @@ function HAe({ state: e, problem: t, settled: n, onRetry: r, toast: i }) {
 					className: "-mx-3 mt-3 border-t border-current/20 px-3 pt-3 text-text-secondary",
 					children: /* @__PURE__ */ (0, I.jsx)(w$, {
 						path: _,
-						prefix: "Full log:",
+						prefix: "Full log: ",
 						className: "text-caption-1-regular",
 						action: x,
 						onRevealed: i
@@ -71136,7 +71136,7 @@ function Fje({ current: e, onChange: t }) {
 	})), p = (e) => ({
 		label: e,
 		state: "slot"
-	}), m = o.modifiers.ctrl || o.modifiers.alt || o.modifiers.shift || o.modifiers.meta, h = c ? f(c, c.code, "done") : n ? o.code ? f(o.modifiers, o.code, i ? "invalid" : "down") : m ? [...f(o.modifiers, null, "down"), p("键")] : [p("Modifier key"), p("键")] : null, g = f1(e) !== Dje, _ = c ? `Changed to ${_1(c, d)}` : n ? i || "Press a new key combo, Esc to cancel" : "Toggle anytime outside the input box.";
+	}), m = o.modifiers.ctrl || o.modifiers.alt || o.modifiers.shift || o.modifiers.meta, h = c ? f(c, c.code, "done") : n ? o.code ? f(o.modifiers, o.code, i ? "invalid" : "down") : m ? [...f(o.modifiers, null, "down"), p("key")] : [p("Modifier key"), p("key")] : null, g = f1(e) !== Dje, _ = c ? `Changed to ${_1(c, d)}` : n ? i || "Press a new key combo, Esc to cancel" : "Toggle anytime outside the input box.";
 	return /* @__PURE__ */ (0, I.jsxs)("div", {
 		"data-setting-row": "",
 		children: [/* @__PURE__ */ (0, I.jsxs)("span", { children: [/* @__PURE__ */ (0, I.jsx)("b", { children: "SFW shortcut" }), /* @__PURE__ */ (0, I.jsx)("small", {
@@ -72958,14 +72958,14 @@ function D0() {
 	].filter(([, e]) => e.length).map(([e, t]) => `<div class="flex flex-col gap-2"><h4 class="text-body-medium text-text-secondary">${e}</h4><div class="min-w-0 border border-separator-border bg-background-primary-default rounded-surface flex flex-col overflow-hidden">${t.map(jMe).join("")}</div></div>`).join("")}</div>`), "", { aside: t ? s0("5em") : "" });
 }
 function O0() {
-	let e = a0(n0("indexers")?.open, 20, r0).map((e) => `<div class="min-w-0 border-t border-separator-border pt-2"><span class="flex w-full min-w-0 items-center gap-1 text-body-2-medium">${Es("chevron-right", `size-(--icon-inline) shrink-0 text-text-secondary${e ? " rotate-90" : ""}`)}${s0("6em")}${s0("12em")}</span>` + (e ? `<div class="flex flex-col gap-2 pt-3"><div class="flex min-w-0 flex-col gap-4">${x0("Name")}${x0("Torznab URL")}${x0("API key")}<div class="flex flex-wrap items-center gap-x-6 gap-y-2">${C0("Enabled")}${f0("Remove", "secondary", "small")}</div></div></div>` : "") + "</div>").join("");
+	let e = a0(n0("indexers")?.open, 20, r0).map((e) => `<div class="min-w-0 border-t border-separator-border pt-2"><span class="flex w-full min-w-0 items-center gap-1 text-body-2-medium">${Es("chevron-right", `size-(--icon-inline) shrink-0 text-text-secondary${e ? " rotate-90" : ""}`)}${s0("6em")}${s0("12em")}</span>` + (e ? `<div class="flex flex-col gap-2 pt-3"><div class="flex min-w-0 flex-col gap-4">${x0("Name")}${x0("Torznab address")}${x0("API key")}<div class="flex flex-wrap items-center gap-x-6 gap-y-2">${C0("Enabled")}${f0("Remove", "secondary", "small")}</div></div></div>` : "") + "</div>").join("");
 	return h0("Resource search", m0(`<div class="flex min-w-0 flex-col gap-4">${T0("Indexer connection help")}${e}</div>`), f0("Add indexer", "secondary") + f0("Save configuration"));
 }
 function k0() {
 	let e = n0("javBrowser"), t = r0(e?.enabled);
 	return h0("Add JAV via browser", m0(`<div class="flex min-w-0 flex-col gap-4">${`<div class="min-w-0 bg-background-primary-default rounded-2xl shadow-card p-5 border border-border-button-default flex flex-col gap-3"><div class="flex flex-wrap items-center justify-between gap-3"><span class="text-body-medium text-text-primary">Peach userscript</span>${s0("4em")}</div><div class="flex flex-wrap items-center justify-between gap-3"><span class="text-body-regular text-text-secondary">Added via browser</span>${u0()}</div><p class="text-caption-1-regular text-text-secondary">${s0("70%")}</p><div class="flex flex-wrap items-center gap-2">${f0("Check again", "secondary")}</div></div>`}${S0("Download channel added via browser")}${r0(e?.ready) ? "" : y0("Add a cloud drive that supports cloud download to the library, then configure the account and target directory.")}${x0("Peach address")}</div>`), (t ? f0("Turn off browser adding", "secondary") : "") + f0(t ? "Update channels and tokens" : "Enable and generate a token"));
 }
-var A0 = (e, t) => `<div class="flex min-w-0 flex-col gap-3">${b0(e)}${js(s0("6em"))}` + (t ? `<div class="flex flex-wrap gap-3"><div class="min-w-40 flex-1">${x0(`${e} URL`)}</div><div class="w-full sm:w-28">${x0(`${e} port`)}</div></div>${T0("Proxy authentication")}` : "") + "</div>";
+var A0 = (e, t) => `<div class="flex min-w-0 flex-col gap-3">${b0(e)}${js(s0("6em"))}` + (t ? `<div class="flex flex-wrap gap-3"><div class="min-w-40 flex-1">${x0(`${e} address`)}</div><div class="w-full sm:w-28">${x0(`${e} port`)}</div></div>${T0("Proxy authentication")}` : "") + "</div>";
 function j0() {
 	let e = n0("cloudProxy"), t = a0(e?.accounts, 12, (e) => Array.isArray(e) ? [r0(e[0]), r0(e[1])] : [!1, !1]), n = i0(e?.unlinked, 12), r = t.length || n ? Array.from({ length: n }, () => `<div class="flex min-w-0 flex-col gap-1">${b0(w0(s0("6em")))}${y0(s0("9em"))}</div>`).join("") + t.map(([e, t]) => `<div class="flex min-w-0 flex-col gap-4 border-t border-separator-border pt-4">${b0(w0(s0("8em")))}${y0(s0("50%"))}${A0("Data proxy", e)}${A0("API proxy", t)}<div class="flex justify-end">${f0("Save configuration")}</div></div>`).join("") : y0(s0("60%"));
 	return h0("CloudDrive proxy", m0(`${y0(e0)}<div class="flex min-w-0 flex-col gap-4">${r}</div>`), f0("Reload", "secondary"));
@@ -73077,7 +73077,7 @@ function KMe(e = "Library and imports") {
 var I0 = (e) => e.startsWith("ri-") ? `<svg class="size-4 shrink-0" viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true"><use href="#${e}"/></svg>` : Es(e, "size-4 shrink-0"), L0 = "inert aria-disabled=\"true\" tabindex=\"-1\" data-skeleton-control", R0 = (e, t, n) => `<span data-entity-layout="" class="${tU}" role="radiogroup" aria-label="${z(e)}">${n.map(([e, n, r]) => `<span class="${nU}" role="radio" aria-label="${z(n)}" aria-checked="${e === t}" data-glass-segment=""${e === t ? " data-selected=\"\"" : ""} ${L0}>${I0(r)}</span>`).join("")}</span>`;
 function z0(e, t, { folders: n = !0 } = {}) {
 	let r = aG(), i = new URLSearchParams(location.search), a = t && r === "cards" ? R0(t.label, t.value, t.options) : "", o = n ? `<button type="button" data-folder-mode-toggle="" aria-label="Folder mode" aria-pressed="${i.get("browse") === "folders" || !!i.get("folder")}" ${L0}>${I0("ri-folder-3-line")}</button>` : "";
-	return `<span data-entity-sorts=""><button type="button" data-entity-batch="" data-filter-action="" aria-label="Shuffle" ${L0}>${I0("shuffle")}</button>${a}${R0("Library display", r, [[
+	return `<span data-entity-sorts=""><button type="button" data-entity-batch="" data-filter-action="" aria-label="Shuffle" ${L0}>${I0("shuffle")}</button>${a}${R0("Library display mode", r, [[
 		"cards",
 		"Cards",
 		"ri-layout-grid-line"
@@ -79564,13 +79564,13 @@ async function j6(e, t) {
 	if (r.status === "rejected") throw r.reason;
 	if (n.status === "rejected") throw n.reason;
 }
-var M6 = A6(() => import("./peach-app.jav-page-Cs0DbupJ.js")), N6 = A6(() => import("./peach-app.stats-page-DliG_pIb.js")), P6 = A6(() => import("./peach-app.taste-page-BH4wjQR2.js")), F6 = A6(() => import("./peach-app.review-page-BmTejSa1.js")), I6 = A6(() => import("./peach-app.data-cleanup-page-CxnUmOg6.js")), L6 = A6(() => import("./peach-app.duplicates-page-VlPqVIvR.js")), R6 = A6(() => import("./peach-app.quality-goals-page-BgcpRleE.js")), z6 = A6(() => import("./peach-app.scraping-page-BOXGEWya.js")), B6 = A6(async () => {
-	let [{ ConfigurationPage: e }, { DiagnosticsPage: t }] = await Promise.all([import("./peach-app.configuration-page-Pc3V2pzZ.js"), import("./peach-app.diagnostics-page-DlFG_rKU.js")]);
+var M6 = A6(() => import("./peach-app.jav-page-Co9steXD.js")), N6 = A6(() => import("./peach-app.stats-page-C-ceiqZA.js")), P6 = A6(() => import("./peach-app.taste-page-BELMiPHD.js")), F6 = A6(() => import("./peach-app.review-page-CFpBSBsy.js")), I6 = A6(() => import("./peach-app.data-cleanup-page-CxnUmOg6.js")), L6 = A6(() => import("./peach-app.duplicates-page-VlPqVIvR.js")), R6 = A6(() => import("./peach-app.quality-goals-page-BgcpRleE.js")), z6 = A6(() => import("./peach-app.scraping-page-BOXGEWya.js")), B6 = A6(async () => {
+	let [{ ConfigurationPage: e }, { DiagnosticsPage: t }] = await Promise.all([import("./peach-app.configuration-page-BMRla81C.js"), import("./peach-app.diagnostics-page-DlFG_rKU.js")]);
 	return {
 		ConfigurationPage: e,
 		DiagnosticsPage: t
 	};
-}), V6 = A6(() => import("./peach-app.activity-page-4gqZ2N93.js")), H6 = A6(() => import("./peach-app.follow-manage-page-CSYjXC_V.js")), U6 = A6(() => import("./peach-app.playlists-page-CtHXTF5-.js"));
+}), V6 = A6(() => import("./peach-app.activity-page-4gqZ2N93.js")), H6 = A6(() => import("./peach-app.follow-manage-page-B6ZuCWsv.js")), U6 = A6(() => import("./peach-app.playlists-page-CtHXTF5-.js"));
 function SLe(e, t, n) {
 	if (e === "duplicates") {
 		n("/duplicates");
@@ -84847,4 +84847,4 @@ if (!$9) throw Error("The main UI host is missing");
 _Ve($9);
 export { IL as $2ec61d1d4f780267$export$a8a3e93435678ff9, WL as $3a442827418ebe87$export$eb2fcfdbd7ba97d4, sz as $542a13ca2fa5b484$export$5b6b19405a83ff9d, TD as $72abaeab4d80592f$export$78efe591171d7d45, $z as $76d00c5a4edb230a$export$76ccd210b9029917, Xz as $76d00c5a4edb230a$export$816b5d811295e6bc, nB as $76d00c5a4edb230a$export$b59bdbef9ce70de2, iB as $76d00c5a4edb230a$export$f6f0c3fe4ec306ea, Yz as $76d00c5a4edb230a$export$f850895b287ef28e, rge as $b4f18e3395fe64d7$export$3d96ec278d3efce4, nge as $b4f18e3395fe64d7$export$3e41faf802a29e71, $he as $b4f18e3395fe64d7$export$b2539bed5023c21c, cB as $b4f18e3395fe64d7$export$e51a686c67fdaa2d, oge as $bd263d78e9bf3c56$export$f5c9f3c2c4054eec, fE as $ea3928288112382f$export$439d29a4e110a164, bz as $f2ff30fde7b014be$export$3ddf2d174ce01153, Dz as $fe21c36db05242bb$export$a98f0dcb43a68a25, Oz as $fe21c36db05242bb$export$d7b12c4107be0d61, Wge as $l, Lj as ACCENTS, rje as AMANE_BRIDGE_CHECK_URL, L$ as AMANE_BRIDGE_KEY, ije as AMANE_BRIDGE_REBUILD_URL, sr as ApiError, HU as ArtSlot, O2 as BATCH_DELETE_TEXT, J as Button, mL as ButtonLink, BB as Bx, I$ as CHECK_ALL_KEY, u$ as CLEANUP_ENTRY, l$ as CLEANUP_ENTRY_GRID, ip as CLEANUP_HASH_REDIRECTS, np as CLEANUP_TOOLS, vn as CLOUD_LOCATIONS, e0 as CLOUD_PROXY_HELP, Kr as COLUMN_SORT, t1 as CONFIGURATION_KEY, UY as CONFIGURATION_URL, aje as COOKIE_TEXT_LIMIT, F$ as COVER_JOB_KEY, jl as COVER_STATE_TITLE, Xi as CREDENTIAL_STATE, A$ as CUSTOM_SOURCES_KEY, k$ as CUSTOM_SOURCES_URL, sG as CatalogViewToggle, PV as Checkbox, NV as CheckboxGlyph, wV as ChevronSortDown, VU as Chip, ZU as CloudDownloadDialog, OH as CollapseChevron, DH as CollapseRegion, r$ as CollectionSummary, Nve as CommandSteps, fQ as CoverQueue, PTe as DEFAULT_CATEGORY, dr as DEFAULT_SORT, kQ as DIAGNOSTICS_KEY, NEe as DIRECTORY_TEMPLATE_ERROR, iW as DISCOVERY_SORTS, WU as DOWNLOADS_KEY, UU as DOWNLOADS_URL, lY as DUPLICATES_KEY, UJ as DataTableFooter, zJ as DataTableFrame, HJ as DataTableSort, PH as Disclosure, Bye as DownloadsPanel, Mge as E3, FTe as ENTITY_REVIEW_KINDS, Q1 as ENTRY_LINKS_HELP, $1 as ENTRY_LINKS_HINT, MB as Ea, __e as EmptyFocusButton, oV as EmptyState, MH as ErrorText, s_e as Eu, Pve as ExternalLink, Vr as FEEDS_KEY, ZY as FEED_SCHEDULE_KEY, s$ as FIELDSET_FOOT, PIe as FLOW_LABEL_X, c6 as FLOW_VIEWBOX, zr as FOLLOW_CHECK_KEY, Rr as FOLLOW_CREDENTIALS_KEY, G8 as FOLLOW_INITIAL_RANGE_OPTIONS, Lr as FOLLOW_MANAGE_KEY, jZ as FOLLOW_MANAGE_NAV, Br as FOLLOW_RESOLVE_KEY, XY as FOLLOW_SCHEDULE_KEY, Lve as Fact, Ive as FactList, NH as FieldLabel, b$ as Fieldset, y$ as FieldsetTitle, eme as FilterGlass, sL as FilterGlassRows, oL as FilterIconButton, cL as FilterPill, Mve as Footer, LB as Gg, lL as GlassPill, WB as HN, jH as Help, ZB as HintText, EIe as IDLE_POLL_MS, CTe as IDLE_REPAIR, nL as IconButton, jQ as IndexSearch, nV as Input, tV as InputBase, S$ as IssueRow, tM as JAV_LAYOUTS, q0 as JAV_RECOMMENDATION_GRID, SX as JUNK_KEY, vW as JavHeader, _Te as KEEP_LABELS, Sge as L1, Ur as LAYOUTS, Z1 as LIBRARY_FOLDER_HELP, qV as LIBRARY_PROCESSING_KEY, FY as LINKS_KEY, IY as LINK_CHECK_KEY, aEe as LINK_KINDS, LY as LINK_PRUNE_KEY, nr as LOC, XB as Label, T$ as LibraryProcessingCard, CV as LibraryShortcuts, lH as LinkButton, Kge as Lo, SH as LoadingDots, Pge as M6, uEe as MEDIA_PROCESSING_KEY, $Y as MEDIA_PROCESSING_URL, mY as MEDIA_REPAIR_KEY, pY as MEDIA_REPAIR_URL, yr as MEDIA_SOURCES_KEY, vs as MEDIA_SOURCE_ICONS, gn as MEDIA_SOURCE_OPTIONS, OV as MENU_ITEM, kV as MENU_ITEM_INTERACTIVE, DV as MENU_POPOVER_SURFACE, Jge as Ma, pH as MenuDialog, _K as MixCard, rV as ModalFrame, Cx as MotionConfigContext, JB as NR, x$ as NameLink, aV as Note, p_e as OA, nX as ORGANIZE_KEY, T2 as ORGANIZE_PARAMETER_HINT, w2 as ORGANIZE_SCOPE_HINT, C2 as ORGANIZE_TEXT, aX as ORPHAN_RECORDS_KEY, D2 as ORPHAN_RECORDS_TEXT, FB as OV, bB as P7, yX as PERFORMER_DELETE_KEY, Yye as PHASES, WY as PICK_FOLDER_URL, f$ as PLAIN_STAT_STRIP, D$ as PLAYLISTS_KEY, xMe as POLICY_COLUMNS, CMe as POLICY_COVER_NOTE, SMe as POLICY_MATRIX, X1 as POLICY_SUMMARY, VJ as Pagination, w$ as PathLine, KB as Pf, kI as PillTabList, TAe as PlainStat, wH as Progress, yY as QUALITY_GOALS_KEY, GB as RB, W0 as RELEASE_COLUMN_VISIBILITY_KEY, U0 as RELEASE_COLUMN_WIDTHS_KEY, aW as RELEASE_SORTS, ZMe as RELEASE_SORT_COLUMNS, m$ as REPAIR_CARD_TEXT, hY as REPAIR_LIBRARIES_KEY, uX as RESOURCE_APPLY_KEY, lX as RESOURCE_SCAN_KEY, E2 as RESOURCE_SYNC_TEXT, jAe as RESULT_PANEL, MAe as RESULT_SECTION, NTe as REVIEW_CATEGORIES, xX as REVIEW_COUNTS_KEY, ITe as REVIEW_DECISION_LABELS, SY as REVIEW_KEY, CY as REVIEW_LABELS, TY as REVIEW_QUEUES, EY as REVIEW_QUEUE_LABELS, RG as RetryNote, d_e as Rf, YB as Rk, kve as Rows, M$ as SCRAPING_CHECK_ALL_URL, tje as SCRAPING_CHECK_URL, N$ as SCRAPING_COVER_URL, P$ as SCRAPING_KEY, eje as SCRAPING_SETTINGS_URL, eU as SEGMENT, $H as SEGMENTED_TRACK, YY as SETTINGS_KEY, GY as SETTINGS_URL, fr as SORT_DEFAULT_DIR, ur as SORT_OPTIONS, yn as SOURCE_LABELS, N3 as STATS_KEY, CAe as STAT_STRIP, wAe as STAT_STRIP_SIX, Ove as Section, NAe as SectionHeading, jve as SectionSkeleton, QH as SegmentedRadioGroup, Qve as SegmentedTabList, jG as Segments, BJ as Select, RU as Select$1, a1 as SelectField, zU as SelectItem, XJ as SelectionActions, hj as SelectionDock, ZJ as SelectionPopover, kH as SettingsCard, Dve as SettingsRow, AH as SettingsSectionLabel, MG as Shuffle, Vve as SiteLabel, lG as SortDirectionIcon, NG as SortKeys, dQ as SourceAvatar, RH as SourceLabel, FH as SourceMark, Ave as Stack, EAe as StatCard, C$ as StatusLabel, c_e as Su, d4 as Switch, RI as TASKS_KEY, hIe as TASTE_REFRESH_KEY, gIe as TASTE_WINDOWS, QY as THUMBNAIL_JOBS_KEY, wX as TRASH_KEY, Npe as TRIGGER_LABELS, OJ as Table, QJ as TableColumnControls, $J as TableColumnResizer, tY as TableSelectionHeader, QQ as TagManager, Fve as TaskCenterLink, TH as TaskProgress, $B as TextField, QB as TextFieldContext, NB as Un, f_e as Uz, $U as WANTS_KEY, E4 as WantMagnets, Zg as WithPromise, wB as Wt, jB as Xc, qB as Xf, EB as Xl, TB as Xt, SB as _8, o as __commonJSMin, s as __exportAll, l as __toESM, UB as _p, u_e as aB, Ei as addAlias, Ti as addSource, tW as addWant, fS as animate, B as apiGet, V as apiSend, Yj as appSettingsStore, $Ee as applyConfirmText, vX as applyLeftovers, QEe as applyPlanText, tDe as applyText, $j as applyTheme, by as asNumber, VEe as attachOrphan, ci as authorAvatar, ui as authorGroups, si as authorInitial, oi as authorName, gq as autoResetPageIndex, vo as avatarInner, z3 as bandRows, PEe as baseName, STe as batchOperate, Jue as beginPlayerGuidePreview, bj as boundedPreference, yTe as bulkCloudPreferences, uV as busyProps, l_e as cB, WPe as cachedMagnetStates, Gg as calcGeneratorVelocity, UTe as canApprove, bg as cancelFrame, KEe as candidateText, vU as cardClass, mM as cardRatio, IJ as catalogListSkeletonCellHtml, AB as cc, Ki as checkEvidenceGap, Gi as checkFailures, Fi as checkFeeds, lEe as checkLine, Ui as checkReceipt, Wi as checkSummary, sje as checkText, qi as checkedText, iK as clickedBlank, i7 as closeDrawerAfterNav, uTe as cloudLocations, j0 as cloudProxySkeleton, GC as clsx, Zge as cn, dv as collectMotionValues, Iq as columnVisibilityFeature, CJ as column_getCanSort, yJ as column_getSortFn, VTe as commonReviewSources, XU as composingKey, Lf as configurationSection, bIe as configureTasteBrowser, dl as confirmModal, jpe as controlTask, QK as copyInstancePropertiesWithoutMemos, obe as coverArrived, ibe as coverFetching, Nl as coverFetchingHtml, Ml as coverStateAction, uo as coverUrl, Dq as createColumnHelper, JAe as createPlaylist, Zi as credentialDone, D0 as credentialsSkeleton, QTe as currentReviewRow, q as cx, Fge as d6, zB as dZ, YTe as decisionPayload, XTe as decisionReceipt, JTe as defaultChoice, rDe as deletePerformerVideos, XAe as deletePlaylist, F0 as devicesSkeleton, x as diagnosticHeaders, Y1 as diagnosticsSkeleton, sbe as discoveryArtwork, dW as discoveryKey, tbe as discoveryScore, _9 as disposeStage, hTe as distinctName, Vi as dropSources, o_e as du, bTe as duplicateVictims, qI as elapsedText, nn as entityDisplayName, _o as entityFaceImg, Pn as entityPath, ti as errorHeadline, lr as errorMessage, z as esc, hq as expandRowModel, pB as f1, xo as facePos, ei as feedIntervalText, V$ as fetchAmaneBridge, B$ as fetchCheckAllJob, vi as fetchCheckJob, n1 as fetchConfiguration, z$ as fetchCoverJob, uW as fetchCoverNow, _i as fetchCredentials, j$ as fetchCustomSources, bX as fetchDeletePerformers, nDe as fetchDeletePlan, AQ as fetchDiagnostics, fW as fetchDiscoveries, dY as fetchDuplicates, Epe as fetchEarlier, pEe as fetchFeedSchedule, Mi as fetchFeeds, gi as fetchFollow, fEe as fetchFollowSchedule, EX as fetchJunkSummary, tH as fetchLibraryProcessing, BY as fetchLinkCheck, VY as fetchLinkPrune, zY as fetchLinkStats, dEe as fetchMediaProcessing, gY as fetchMediaRepair, br as fetchMediaSources, rX as fetchOrganize, EEe as fetchOrganizeExample, oX as fetchOrphanRecords, ji as fetchPending, O$ as fetchPlaylists, bY as fetchQualityGoals, hW as fetchReleases, _Y as fetchRepairLibraries, yi as fetchResolveJob, fX as fetchResourceApply, dX as fetchResourceScan, MY as fetchReview, TX as fetchReviewCounts, eX as fetchSettings, R$ as fetchSources, P3 as fetchStats, bi as fetchSuggestions, VI as fetchTasks, a6 as fetchTaste, xIe as fetchTasteJob, mEe as fetchThumbnailJobs, DX as fetchTrashSummary, eW as fetchWants, zTe as filterReviewRows, er as firstGrapheme, PK as flexRender, IIe as flowGraph, LIe as flowLabel, FFe as fmtCount, Jn as fmtDur, Xn as fmtSize, Tpe as foldByKind, Upe as foldRoutine, Li as followFeedByName, Ri as followFeedEntity, Hr as followSuggestKey, KI as followupDetail, Gpe as followupDetailLong, wpe as followupTally, yg as frame, vB as g4, zq as getDefaultPaginationState, pM as gridLayout, li as groupByAuthor, Hpe as groupFollowups, kY as groupReviewRows, XEe as hasChanges, pX as hasResourceRoots, UI as hasResultProblems, DIe as historySpan, mB as i2, TIe as importTasteExport, O0 as indexersSkeleton, Vg as interpolate, rW as invalidateWants, GI as isActive, $r as isBroken, qr as isLayout, Sv as isMotionValue, wY as isReviewCategory, Wpe as isRoutine, k0 as javBrowserSkeleton, Y0 as javContentSkeleton, oM as javLayout, J0 as javTagSkeleton, cDe as junkBreakdown, fTe as keepGroup, ZAe as keepPlaylist, ke as keepPreviousData, pi as keepSelected, F3 as known, xge as l1, Oge as l7, Vpe as latestOfKind, $n as leadingGraphemes, qFe as lengthRows, Cr as localTime, mo as logoUrl, Ii as lookupFeedActor, yB as m7, RB as mM, Dn as mapLimit, Ai as markItem, B3 as max, GFe as mediumRows, Dpe as mergeFinished, V3 as min, rEe as mirrorText, ETe as missingToolText, fY as mixedCloudPreferences, ZI as momentText, pS as motion, pv as motionValue, rn as nameFallback, Ue as notifyManager, Ige as oe, LEe as organizeOutcome, d2 as overlayHost, Jr as pageSizeOf, fi as pageWindow, hr as paginationRange, Bi as patchSource, Bp as peachHistory, Bp as peachHistory$1, qTe as pendingGenres, LFe as percentText, kEe as pickOrganizeFolder, d$ as plainStatClass, IEe as planSummary, I3 as playedFor, zFe as playedItemUrl, Ope as pollInterval, Zs as popCount, qAe as posterUrl, Pxe as previewLibraryColor, OEe as previewOrganize, kTe as previewUrl, zpe as problemDestination, XV as processingActive, JI as progressText, LH as providerIcon, cEe as pruneText, hX as purgeCount, HEe as purgeOrphan, VB as pv, a_e as qE, H as queryClient, hB as r2, NIe as radarRows, HFe as radialArc, UFe as radialBarSize, VFe as radialCeiling, BFe as radialSlices, kN as randomId, jIe as rankDetail, MIe as rankShares, R3 as reachedShare, YI as readableErrorHeadline, nbe as recommendationScore, $Te as recordGenre, WEe as recordsText, QAe as recreatePlaylist, GAe as refreshPlaylists, Ol as relayoutCovers, G0 as releaseColumns, pW as releaseFilters, mW as releaseKey, Hi as reloadFollowManage, nEe as reloadReview, EMe as rememberShape, jEe as rememberTemplates, Di as removeAlias, Pi as removeFeed, wi as removeSource, wIe as removeTasteSource, nW as removeWants, Oi as renameAliasGroup, YAe as renamePlaylist, Se as replaceEqualDeep, YFe as replayRows, re as require_jsx_runtime, A as require_react, N as require_react_dom, JK as require_with_selector, Qye as resetWants, mr as resolveFollowSort, Jg as resolveStartTime, lve as restartEffectText, KAe as resumeAssetId, RTe as reviewGroupingOptions, OY as reviewQueueData, DY as reviewQueueOf, sDe as reviewSummary, BTe as reviewWindow, GTe as rowEvidence, jY as rowFieldName, Kq as rowPaginationFeature, pJ as rowSelectionFeature, EJ as rowSortingFeature, AY as rowSubject, KTe as rowTags, WTe as rowTitle, Tge as s5, ki as saveCredential, ZEe as scanLine, yEe as schedulePollInterval, ebe as searchNote, HTe as selectReviewRange, mi as selectionState, Ni as setFeedEnabled, Ci as setSourceEnabled, Vf as settingsPath, tEe as settleReviewRows, mTe as sharedNamePrefix, Vp as shellNavigate, N8 as showToast, Bn as siteMarkUrl, oq as skipFirstRun, DI as sortCx, Xr as sortLabel, bn as sourceDefaultCost, Yi as sourceIconUrl, eDe as sourceMeta, Hs as spinnerHtml, zg as spring, cV as spriteGlyph, xi as startCheck, oEe as startLinkCheck, sEe as startLinkPrune, AEe as startOrganize, Si as startResolve, JEe as startResourceApply, qEe as startResourceScan, CIe as startTasteRefresh, SAe as statCardClass, Fpe as statusLabel, TTe as statusLine, Qr as statusText, hM as storeJavLayout, ZTe as submitDecision, QI as summaryItems, Oq as tableFeatures, sq as tableMemo, di as tableRows, Rpe as taskIssues, Bpe as taskSubject, o6 as tasteDate, kIe as tasteDimensions, OIe as tasteHours, i6 as tasteKey, vIe as tasteRefetchInterval, yIe as tasteTime, NI as textLang, H0 as tierPlaceholdersHtml, hh as time, Hge as tl, hi as toggleGroup, s6 as topScores, $ge as um, qge as uo, uH as useAction, EZ as useBackgroundJob, oG as useCatalogView, AU as useClientUpdates, Dm as useConstant, $I as useEntityNames, aL as useHorizontalScroller, Om as useIsomorphicLayoutEffect, rK as useLibraryTints, It as useMutation, FV as useOverlayScrollbar, Ft as useQuery, ae as useQueryClient, tS as useReducedMotion, vEe as useRunSchedule, gEe as useSaveFollowSchedule, tX as useSaveSettings, bEe as useSaveThumbnailMode, DJ as useTable, KJ as useTablePreferences, fL as useViewGlide, xTe as victimBytes, Uge as vl, $ye as wantName, RFe as watchNote, L3 as watchedShare, Lge as we, Mc as wireHorizontalScroller, MEe as withOrganizeJob, rbe as writeJavQuery, Nge as z3 };
 
-//# debugId=9467b641-4c48-4709-a86c-673238594c24
+//# debugId=d3de1b28-6a88-4a7c-8d26-858df15dcf9a
