@@ -81,7 +81,7 @@ class JavDBResourceTests(unittest.TestCase):
         self.assertEqual(record.tags, ("高跟鞋", "絲襪、過膝襪", "尚未收錄的分類", "單體作品"))
         self.assertEqual(record.payload()["genres"], ["高跟鞋", "絲襪、過膝襪", "尚未收錄的分類", "單體作品"])
         fields = extract_peach_fields(record.payload())
-        self.assertEqual(fields["tags"]["value"], ["高跟", "丝袜"])
+        self.assertEqual(fields["tags"]["value"], ["High Heels", "Stockings"])
         self.assertEqual(fields["tags"]["unmapped_genres"], ["尚未收錄的分類"])
         with self.assertRaises(SourceFailure):
             JavDBSource().parse(page, "ABW-221")

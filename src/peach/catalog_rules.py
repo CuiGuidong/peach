@@ -83,7 +83,7 @@ def sql_is_local_extra(name: str | None, path: str | None, library_roots: tuple[
 LENGTH_TAGS = {"短片-2分内", "中片-10分内", "长片-30分内", "超长片-30分上"}
 TECH_TAGS = {
     "1080P", "720P", "4K", "2K", "2160P", "480P", "Low quality", "High frame rate",
-    "Landscape", "Portrait", "Live action", "Collection", "Identity unverified", "R-18", "Censored", "无码",
+    "Landscape", "Portrait", "Live action", "Collection", "Identity unverified", "R-18", "Censored", "Uncensored",
     "Thin mosaic",
 }
 
@@ -109,7 +109,7 @@ ROLE_TAGS = {
     "Elegant mature", "Soft mature", "Ageless beauty", "Pervert", "Transgender",
     # 「伪娘」是男方扮女装，「跨性别」是身体本身；「正太」说男方年幼的设定，和「萝莉」对称。
     "Femboy", "Shota", "Foreigner", "Race queen", "Hostess", "Female detective",
-    "Sex worker", "Futa", "Mother role", "Little sister role", "Widow role", "Female doctor",
+    "Sex worker", "Futa", "Mother role", "Little sister role", "Widow", "Female doctor",
     "Model", "Fighter", "Convention girl", "Lecturer", "Waitress", "Train attendant",
     "Daughter role", "Princess role", "Otaku couple", "Older woman role", "Older man role",
     "Cheerleader", "Adopted daughter role", "Female warrior", "Female ninja", "Skirted policewoman", "Nun",
@@ -196,28 +196,28 @@ RETIRED_TAGS = {
     "POV第一视角": "POV",
     "女上位": "Riding",
     "内射": "Creampie",
-    "马眼尿道": "马眼",
+    "马眼尿道": "Urethral",
     "NTR绿帽": "NTR",
     "有剧情": "Drama / Story",
     "剧情演绎": "Drama / Story",
     "偷窥": "Voyeur",
-    "内衣情趣": "情趣内衣",
+    "内衣情趣": "Erotic lingerie",
     "高跟鞋": "High Heels",
-    "臀部": "美臀",
-    "足控": "恋足",
-    "足底足指": "恋足",
+    "臀部": "Nice butt",
+    "足控": "Foot fetish",
+    "足底足指": "Foot fetish",
     "足部射精": "Footjob",
-    "老师": "家庭教师",
+    "老师": "Private tutor",
     "混合集": "Collection",
     "淫语ASMR": "Dirty talk",
-    "处女": "处女设定",
+    "处女": "Virgin theme",
     # 胸的大小只留「巨乳」一档：来源之间 F 杯与 H 杯的边界各说各的，同一部片被一家写
     # `Big Tits`、另一家写 `Huge Tits`，两个标签在 70 部片上同时出现。「美巨乳」这类
     # 组合词读着拗口，账本里只挂了两部，一并归到大小那一档。
     "爆乳": "Big Breasts",
     "美巨乳": "Big Breasts",
     "美爆乳": "Big Breasts",
-    "美贫乳": "贫乳",
+    "美贫乳": "Small breasts",
     # The deployment owner runs the library in English: the canonical content-tag
     # vocabulary is the English names already sitting in `asset_tag` (Creampie,
     # Big Breasts, Housewife...), and every Chinese canonical below retires to
@@ -251,6 +251,55 @@ RETIRED_TAGS = {
 #: they are matching vocabulary (CJK name segmentation, genre projection
 #: targets), not display copy.
 TAG_ENGLISH = {
+
+    "无码": "Uncensored",
+    "中出": "Creampie",
+    "中字": "Chinese subs",
+    "无码破解": "decensored",
+    "无码流出": "leaked",
+    "SM模特": "SM model",
+    "SOD女员工": "SOD staff",
+    "上门服务女郎": "Escort",
+    "偶像": "Idol",
+    "写真偶像": "Gravure idol",
+    "加拿大血统": "Canadian heritage",
+    "台湾血统": "Taiwanese heritage",
+    "嘴角痣": "Mole by the mouth",
+    "四分之一混血": "Quarter heritage",
+    "处女出道": "Virgin debut",
+    "女公关": "Hostess",
+    "导演": "Director",
+    "性感酒吧女郎": "Sexy pub hostess",
+    "意大利血统": "Italian heritage",
+    "捕蟹渔民": "Crab fisherman",
+    "擦边影像": "Clothed erotica",
+    "整形": "Plastic surgery",
+    "无NG": "No NG",
+    "歌手": "Singer",
+    "泡泡浴女郎": "Soap girl",
+    "泰国血统": "Thai heritage",
+    "现役护士": "Active nurse",
+    "电影演员": "Film actress",
+    "粉红电影演员": "Pink film actress",
+    "美国血统": "American heritage",
+    "美少女→丰满熟女": "Beauty→Voluptuous milf",
+    "美甲": "Manicure",
+    "脱衣舞娘": "Stripper",
+    "艺人": "TV personality",
+    "艺术体操": "Rhythmic gymnastics",
+    "芭蕾": "Ballet",
+    "萝莉→熟女": "Lolita→Mature",
+    "萝莉→辣妹": "Lolita→Gyaru",
+    "萝莉→黑辣妹": "Lolita→Black gyaru",
+    "裸体模特": "Nude model",
+    "西班牙血统": "Spanish heritage",
+    "贫乳→巨乳": "Petite→Busty",
+    "贫乳→隆胸": "Petite→Breast implants",
+    "运动员": "Athlete",
+    "金券商": "Ticket reseller",
+    "长发→短发": "Long hair→Short hair",
+    "韩国血统": "Korean heritage",
+    "风俗从业": "Sex industry work",
     "3D动画": "3D animation", "3P多人": "Group", "AI修复": "AI restoration", "AI去码": "AI decensoring",
     "JK制服": "JK uniform", "M字开腿": "M-legs", "NTR绿帽": "NTR", "OL制服": "Office uniform",
     "POV第一视角": "POV", "下垂乳": "Sagging breasts", "丝袜": "Stockings", "中出内射": "Creampie",
@@ -270,7 +319,7 @@ TAG_ENGLISH = {
     "口爆": "Cum in mouth", "口球": "Ball gag", "口罩遮脸": "Masked face", "可爱": "Cute",
     "合集": "Collection", "同事上司": "Coworker / Boss", "名器": "Meiki", "后入": "Doggy style",
     "吞精": "Swallowing", "呻吟": "Moaning", "和服浴衣": "Kimono / Yukata", "啦啦队员": "Cheerleader",
-    "处女": "Virgin", "处女设定": "Virgin theme", "处男": "Male virgin", "复古风格": "Retro",
+    "处女": "Virgin theme", "处女设定": "Virgin theme", "处男": "Male virgin", "复古风格": "Retro",
     "外国人": "Foreigner", "外挂字幕": "External subtitles", "多人": "Group", "多女出镜": "Multiple girls",
     "多毛": "Hairy", "大乳头": "Large nipples", "大乳晕": "Large areola", "大腿": "Thighs",
     "大阴唇": "Large labia", "女上位": "Riding", "女乘务员": "Train attendant", "女仆": "Maid",
@@ -279,7 +328,7 @@ TAG_ENGLISH = {
     "妄想剧情": "Fantasy storyline", "妹妹角色": "Little sister role", "姐弟": "Sister and brother", "娃娃音": "Doll voice",
     "娇小": "Petite", "婚纱": "Wedding dress", "孕妇": "Pregnant", "学生": "Student",
     "宅女宅男": "Otaku couple", "定制": "Custom", "宫颈": "Cervix", "家庭教师": "Private tutor",
-    "寡妇角色": "Widow role", "导尿": "Catheterization", "射精": "Ejaculation", "射精特写": "Cumshot close-up",
+    "寡妇角色": "Widow", "导尿": "Catheterization", "射精": "Ejaculation", "射精特写": "Cumshot close-up",
     "尖乳": "Pointy breasts", "局部特写": "Close-up", "屁眼": "Butthole", "展会女郎": "Convention girl",
     "巨乳": "Big Breasts", "巨根": "Large Cock", "巨臀": "Big ass", "师生": "Teacher and student",
     "强制剧情": "Forced storyline", "御姐": "Mature Woman", "微熟女": "Soft mature", "微胖": "Slightly chubby",
@@ -1305,11 +1354,18 @@ def jav_edition_badges(name: str | None, code: str | None,
         candidates = explicit or ([] if kind else fallback)
         if candidates:
             kind = min(candidates, key=UNCENSORED_EDITIONS.index)
-    return (["中字"] if subtitled else []) + ([kind] if kind else [])
+    badges = (["中字"] if subtitled else []) + ([kind] if kind else [])
+    return [EDITION_BADGE_ENGLISH.get(badge, badge) for badge in badges]
 
+
+#: 微章展示用英文；判据内部仍用中文原词匹配，只在交付边界映射。
+EDITION_BADGE_ENGLISH = {"中字": "Chinese subs", "无码破解": "decensored",
+                         "无码流出": "leaked", "无码": "Uncensored"}
+#: 无码档的英文名集合：搜索排序按这几个值判「无码」。
 
 #: 无码类版次，按「谁说得更具体」排：破解 > 流出 > 无码（同 mdcz `bc4e8828`）。
 UNCENSORED_EDITIONS = ("无码破解", "无码流出", "无码")
+UNCENSORED_EDITIONS_ENGLISH = tuple(EDITION_BADGE_ENGLISH[name] for name in UNCENSORED_EDITIONS)
 #: 有码片商的番号：字母段加 2–5 位序号，含 MGS 素人系的三位数字前缀。这类片商不出无码版，
 #: 文件名上的 `-U`／`uncensored` 说的只能是事后的去码版本。
 _CENSORED_RELEASE = re.compile(r"^(?:\d{3})?[A-Z]{2,8}-\d{2,5}$")
@@ -1352,17 +1408,17 @@ def _edition_evidence(name: str | None, code: str | None,
         # 只看番号之后那段：`LTX` 自己也能是番号的字母段。
         or bool(re.search(r"(?:^|[-_.\s\[])(?:ltx|umr)(?:$|[-_.\s\]])", suffix, re.I))
         or bool(cracked_cu.search(suffix))
-        or "ai去码" in tag_set or "无码破解" in tag_set
+        or "ai去码" in tag_set or "无码破解" in tag_set or "decensored" in tag_set or "ai decensoring" in tag_set
     )
     suffix = cracked_cu.sub("", suffix)
     leaked = (
         bool(re.search(r"(?:^|[-_.\s\[])(?:流出|无码流出|無碼流出|leak|leaked)(?:$|[-_.\s\]])",
                        suffix, re.I))
-        or "无码流出" in tag_set
+        or "无码流出" in tag_set or "leaked" in tag_set
     )
     # `un` 和 `u`／`uc` 是同一个意思。此前它没进这张表，`ABF-158-UN.mp4` 既拿不到徽章，
     # `UN` 又被当标题显示；现在标题判空了，不认它就等于把这条信息整个丢掉。
-    marked = "无码" in tag_set or bool(re.search(
+    marked = "无码" in tag_set or "uncensored" in tag_set or bool(re.search(
         r"(?:^|[-_.\s\[])(?:uc|un|u|uncen(?:sored)?|uncensored|无码|無碼)(?:$|[-_.\s\]])",
         suffix, re.I))
     subtitled = (

@@ -1698,13 +1698,13 @@ class JavDiscoveryTest(FeedWebFixture):
         for code, score in zip(codes, (None, "4.23")):
             metadata.remember(code, {"number": code, "tags": [{"name": "中出"}], "score": score, "duration": 180})
         with patch.object(web_jav_discovery, "preference_profile", return_value=self._preference_fixture(
-                {"browser_tags": [{"name": "中出内射", "score": 4}]})), \
+                {"browser_tags": [{"name": "Creampie", "score": 4}]})), \
                 patch("peach.javdb_public.PUBLIC_API.movie") as movie:
             result = web_jav_discovery.q_jav_discoveries(self.contract, {"sort": "source_score"})
             metadata.job.thread.join(5)
         movie.assert_not_called()
         self.assertEqual([row["source_score"] for row in result["items"]], [4.23, None])
-        self.assertTrue(all(row["tags"] == ["中出内射"] for row in result["items"]))
+        self.assertTrue(all(row["tags"] == ["Creampie"] for row in result["items"]))
         self.assertTrue(all(row["duration"] == 10800 for row in result["items"]))
         self.assertEqual(result["ranking_method"], "field-sort")
         self.assertEqual([row["rank"] for row in result["items"]], [1, 2])
@@ -1736,14 +1736,14 @@ class JavDiscoveryTest(FeedWebFixture):
         self.assertEqual(([row["code"] for row in every["items"]], every["total"]), (["SSIS-950", "HMN-071"], 2))
         self.assertEqual([(ref["name"], ref["count"]) for ref in every["facets"]["performers"]], [("女优乙", 1), ("女优甲", 1)])
         self.assertEqual([ref["name"] for ref in every["facets"]["studios"]], ["厂牌乙", "厂牌甲"])
-        self.assertEqual(every["facets"]["tags"], [{"name": "中出内射", "count": 1}])
+        self.assertEqual(every["facets"]["tags"], [{"name": "Creampie", "count": 1}])
         one = releases(performer="女优乙")
         self.assertEqual([row["code"] for row in one["items"]], ["HMN-071"])
         self.assertEqual(len(one["facets"]["performers"]), 2, "本维度不计，另一位女优照样能点")
         self.assertEqual(one["facets"]["tags"], [])
         second = releases(page=2, size=1)
         self.assertEqual(([row["code"] for row in second["items"]], second["total"], second["page"]), (["HMN-071"], 2, 2))
-        self.assertEqual([row["code"] for row in releases(q="中出")["items"]], ["SSIS-950"])
+        self.assertEqual([row["code"] for row in releases(q="Creampie")["items"]], ["SSIS-950"])
 
         def order(**args):
             return [row["code"] for row in releases(**args)["items"]]

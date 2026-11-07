@@ -37,7 +37,7 @@ class SimplifiedSourceGenreTests(unittest.TestCase):
     def test_simplified_sources_keep_user_overrides_and_unknown_words(self):
         self.assertEqual(map_genres(['Nurse', '業餘', '业余', '无码破解', '4小时以上作品', '未知类别']),
                          (['Nurse', 'Amateur'], ['未知类别']))
-        self.assertEqual(resolve_genre('Nurse', {'Nurse': '职业角色'}), '职业角色')
+        self.assertEqual(resolve_genre('Nurse', {'nurse': '职业角色'}), '职业角色')
 
 
 def _catalog_vocabulary() -> set[str]:
@@ -48,6 +48,8 @@ def _catalog_vocabulary() -> set[str]:
     vocabulary: set[str] = set()
     for name in names:
         vocabulary |= set(getattr(catalog_rules, name))
+    # 规范名已是英文：改名落下的英文名与词表词一样都是账本里真有的标签。
+    vocabulary |= set(catalog_rules.TAG_ENGLISH.values())
     return vocabulary
 
 
@@ -106,7 +108,7 @@ class GenreTaxonomyTests(unittest.TestCase):
             ("打屁股", "Spanking", "Training"),
             ("灌腸", "Enema", "Scat"),
             ("假陽具", "Dildo", "Sex Toys"),
-            ("Anal", "Anal Sex", "Anal"),
+            ("肛交", "Anal Sex", "Anal"),
             ("薄馬賽克", "ギリモザ", "Thin mosaic"),
             ("數位馬賽克", "Digital Mosaic", "Censored"),
         )
@@ -146,7 +148,7 @@ class GenreTaxonomyTests(unittest.TestCase):
 
     def test_javdb_source_version_labels_do_not_assert_local_file_attributes(self):
         self.assertEqual(map_genres(["無碼流出", "無碼破解", "HDTV", "共演", "店長推薦"]), ([], []))
-        self.assertEqual(map_genres(["無修正", "Anal", "女醫生"]), (["无码", "Anal", "Female doctor"], []))
+        self.assertEqual(map_genres(["無修正", "肛交", "女醫生"]), (["Uncensored", "Anal", "Female doctor"], []))
 
     def test_confirmed_tags_have_filter_groups(self):
         for group, names in (
@@ -160,7 +162,7 @@ class GenreTaxonomyTests(unittest.TestCase):
 
     def test_javdb_aliases_preserve_scene_behavior_and_anal_boundaries(self):
         tags, unknown = map_genres(["戶外", "Exhibitionism", "洗澡", "溫泉",
-                                    "手淫", "手指插入", "Anal", "Anal", "肛門・肛交"])
+                                    "手淫", "手指插入", "Anal", "肛交", "肛門・肛交"])
         self.assertEqual(tags, ["Outdoor", "Outdoor exhibitionism", "Bathroom", "Hot spring", "Masturbation", "Handjob", "Butthole", "Anal"])
         self.assertEqual(unknown, [])
 
@@ -170,7 +172,7 @@ class GenreTaxonomyTests(unittest.TestCase):
         映射表凭翻译造一个新标签不会报错，只会让这个标签在筛选面板、同义词
         取代和统计里全部缺席——写进 ledger 后才发现，就已经是一次真实写入。
         """
-        vocabulary = _catalog_vocabulary()
+        vocabulary = _catalog_vocabulary() | set(catalog_rules.TAG_ENGLISH.values())
         unknown = sorted({tag for tag in CONTENT_GENRES.values() if tag not in vocabulary})
         self.assertEqual(unknown, [], "这些标签不在 catalog_rules 词表里，先决定收录还是改投影")
 
@@ -184,8 +186,8 @@ class GenreTaxonomyTests(unittest.TestCase):
         self.assertEqual(CONTENT_GENRES["パイパン"], "Shaved")
         self.assertEqual(CONTENT_GENRES["女子校生"], "Student")
         self.assertEqual(CONTENT_GENRES["寝取り・寝取られ"], "NTR")
-        self.assertEqual(CONTENT_GENRES["Big Breasts"], "Big Breasts")
-        self.assertEqual(CONTENT_GENRES["Beautiful Breasts"], "Beautiful Breasts")
+        self.assertEqual(CONTENT_GENRES["巨乳"], "Big Breasts")
+        self.assertEqual(CONTENT_GENRES["美乳"], "Beautiful Breasts")
         for measurement in ("Dカップ", "Gカップ", "Jカップ"):
             self.assertNotIn(measurement, CONTENT_GENRES,
                              f"{measurement} 是身体尺寸，词表里没有对应分类")
@@ -464,7 +466,7 @@ class VocabularyHygieneTests(unittest.TestCase):
             (("Cuckold", "Netorare", "寝取り", "寝取られ"), "NTR"),
             (("Cheating Wife", "Cheating", "不倫", "浮気"), "Cheating / Affair"),
             (("Voyeur", "盗撮", "盗撮・のぞき"), "Voyeur"),
-            (("Uncensored", "無修正"), "无码"),
+            (("Uncensored", "無修正"), "Uncensored"),
             (("Virtual Reality", "VR", "VR専用"), "VR"),
         ):
             for spelling in spellings:
@@ -581,7 +583,7 @@ class Fc2SellerTagTests(unittest.TestCase):
             (("隠し撮り",), "Voyeur"),
             (("他人棒",), "NTR"),
             (("奥様",), "Housewife"),
-            (("無", "モ無し"), "无码"),
+            (("無", "モ無し"), "Uncensored"),
         ):
             for spelling in spellings:
                 with self.subTest(spelling=spelling):
@@ -590,7 +592,7 @@ class Fc2SellerTagTests(unittest.TestCase):
     def test_a_gravure_idol_is_an_idol_on_a_work_and_a_trade_on_a_profile(self):
         """同一个 `グラドル`：作品上说出镜的是谁，资料页上说她做过的行业。"""
         self.assertEqual(map_genres(["グラドル"])[0], ["Idol"])
-        self.assertEqual(resolve_profile_tag("グラドル"), ("写真偶像",))
+        self.assertEqual(resolve_profile_tag("グラドル"), ("Gravure idol",))
 
     def test_release_wording_and_praise_are_excluded_not_registered(self):
         """谁拍的、公开过没有、有多好，都不说拍了什么。"""
@@ -687,16 +689,16 @@ class ProfileTagTests(unittest.TestCase):
     """资料页的标签先查资料专用表，再落回作品的表。"""
 
     def test_each_trade_keeps_its_own_name(self):
-        self.assertEqual(resolve_profile_tag("現役デリヘル嬢"), ("上门服务女郎",))
-        self.assertEqual(resolve_profile_tag("ソープ嬢"), ("泡泡浴女郎",))
-        self.assertEqual(resolve_profile_tag("セクシーパブ嬢"), ("性感酒吧女郎",))
-        self.assertEqual(resolve_profile_tag("風俗嬢"), ("风俗从业",))
+        self.assertEqual(resolve_profile_tag("現役デリヘル嬢"), ("Escort",))
+        self.assertEqual(resolve_profile_tag("ソープ嬢"), ("Soap girl",))
+        self.assertEqual(resolve_profile_tag("セクシーパブ嬢"), ("Sexy pub hostess",))
+        self.assertEqual(resolve_profile_tag("風俗嬢"), ("Sex industry work",))
         # 作品上的 `看護師` 是角色扮演，资料上是她的本职。
-        self.assertEqual(resolve_profile_tag("現役看護師"), ("现役护士",))
+        self.assertEqual(resolve_profile_tag("現役看護師"), ("Active nurse",))
 
     def test_a_style_change_keeps_both_ends_of_the_arrow(self):
-        self.assertEqual(resolve_profile_tag("ロリ→ギャル"), ("萝莉→辣妹",))
-        self.assertEqual(resolve_profile_tag("微乳→巨乳"), ("贫乳→巨乳",))
+        self.assertEqual(resolve_profile_tag("ロリ→ギャル"), ("Lolita→Gyaru",))
+        self.assertEqual(resolve_profile_tag("微乳→巨乳"), ("Petite→Busty",))
 
     def test_a_cell_holding_several_tags_is_split(self):
         self.assertEqual(resolve_profile_tag("ショートカット、美乳、レズ"), ("Short hair", "Beautiful Breasts", "Yuri / GL"))

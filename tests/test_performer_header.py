@@ -233,7 +233,7 @@ class HeaderTests(Case):
         raw = ["美人", "美少女", "清楚", "巨尻", "美尻", "ロリ→ギャル", "美乳美尻",
                "カリビアン", "まだ知らない分類", "  "]
         self.assertEqual(performer_header.site_tags(raw),
-                         ["Gorgeous", "Innocent", "Big ass", "Nice butt", "萝莉→辣妹", "美乳", "美臀", "まだ知らない分類"])
+                         ["Gorgeous", "Innocent", "Big ass", "Nice butt", "Lolita→Gyaru", "Beautiful Breasts", "まだ知らない分類"])
         with self.connection:
             record_genre_decision(self.connection, "剛毛", "浓密阴毛", STAMP)
             record_genre_decision(self.connection, "美尻", None, STAMP)

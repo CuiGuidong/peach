@@ -225,7 +225,7 @@ class KmibHarvestTests(unittest.TestCase):
         finally:
             con.close()
         self.assertEqual(asset, ("Do you wanna be my slave", "2024-11-20", "MIB"))
-        self.assertEqual(tags, ["Oral", "Kissing"])
+        self.assertEqual(tags, ["Kissing", "Oral"])
         self.assertEqual(ref, ("Ain",))
 
 

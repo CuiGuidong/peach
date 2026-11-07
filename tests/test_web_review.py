@@ -648,7 +648,7 @@ class ReviewQueueTests(unittest.TestCase):
             self.assertEqual(
                 sorted(row[0] for row in con.execute(
                     "SELECT tag FROM asset_tag WHERE asset_id=95")),
-                ["Shaved", "Masturbation"], "`Featured Actress` 是演员编成，按非内容排除")
+                ["Masturbation", "Shaved"], "`Featured Actress` 是演员编成，按非内容排除")
         finally:
             con.close()
         self.assertEqual(self.queue_keys("metadata_fields"), [])
@@ -2950,7 +2950,7 @@ class ReviewQueueTests(unittest.TestCase):
             "candidate_key": "ABC-001:tags:r18dev:specific", "source": "r18dev",
             "source_url": "https://r18.dev/example", "confidence": 0.9,
             "provider_id": "ABC-001",
-            "value": ["乳系", "Virgin", "Facial"], "display_value": "乳系、处女、颜射",
+            "value": ["乳系", "处女", "Facial"], "display_value": "乳系、处女、颜射",
             "warnings": [],
         }
         self.write_metadata_candidates([{
@@ -2968,11 +2968,11 @@ class ReviewQueueTests(unittest.TestCase):
         con = sqlite3.connect(self.db_path)
         self.assertEqual(con.execute(
             "SELECT tag FROM asset_tag WHERE asset_id=1 ORDER BY tag"
-        ).fetchall(), [("Virgin theme",), ("Facial",)])
+        ).fetchall(), [("Facial",), ("Virgin theme",)])
         self.assertEqual(con.execute(
             "SELECT e.canonical_name FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
             "WHERE ae.asset_id=1 AND ae.role='tag' ORDER BY e.canonical_name"
-        ).fetchall(), [("Virgin theme",), ("Facial",)])
+        ).fetchall(), [("Facial",), ("Virgin theme",)])
         con.close()
 
     def test_metadata_title_approval_writes_catalog_title(self):
