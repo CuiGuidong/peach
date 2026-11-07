@@ -280,13 +280,11 @@ def q_entity(contract: WebContract, args):
         # 人物资料与按名义分组的别名。
         if kind in {"performer", "creator"}:
             d.update(performer_header.header(c, d["id"], d["canonical_name"]))
-            if 'japanese_av' in d['identity_categories']:
-                from .performer_name_display import display
-                d["name_display"] = display(c, d["id"], d["canonical_name"], alias_rows, d["name_groups"])
-                romaji = c.execute("SELECT romaji FROM performer_profile WHERE entity_id=? AND romaji IS NOT NULL AND romaji != ''", (d["id"],)).fetchone()
-                if romaji and romaji[0] and romaji[0] != d["canonical_name"]:
-                    d["name_display"] = romaji[0] + " (" + d["canonical_name"] + ")"
-                    d["canonical_name"] = romaji[0]
+            # name_display 是结构化菜单，每个 performer/creator 都要给：资料缺失时
+            # display() 自己回落到规范名。旧写法把它换成「英文名 (原名)」字符串，
+            # 页面包读 name_display.choices 直接崩，页签就空了。
+            from .performer_name_display import display
+            d["name_display"] = display(c, d["id"], d["canonical_name"], alias_rows, d["name_groups"])
         elif kind in {'studio', 'agency'}:
             d['company_profile'] = company_profiles.public_profile(metadata)
         # 创作者在关注里的那一面（ADR-0096）：绑在名下的来源和同名等确认的那几组。
