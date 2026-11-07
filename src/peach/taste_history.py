@@ -90,15 +90,15 @@ CATEGORY_TERMS: dict[str, set[str]] = {
     "反差/泄密/探花": {"leak", "leaked", "private", "反差", "探花", "泄密", "流出"},
 }
 TASTE_CATEGORY_TAGS: dict[str, tuple[str, ...]] = {
-    "3D/动画": ("3D动画", "游戏同人", "动漫同人"),
-    "口交": ("口交", "打扫口交", "深喉"),
-    "制服/角色扮演": ("制服", "角色扮演", "JK制服", "女仆"),
-    "足系": ("足交", "恋足", "裸足"),
-    "游戏同人": ("游戏同人", "动漫同人", "日系同人"),
-    "乳系": ("巨乳", "美乳"),
-    "马眼/尿道/龟头": ("马眼", "龟头责"),
-    "ASMR/音声": ("ASMR", "淫语"),
-    "反差/泄密/探花": ("反差", "泄密流出", "探花"),
+    "3D/动画": ("3D animation", "Game doujin", "Anime doujin"),
+    "口交": ("Oral", "Cleanup blowjob", "Deep throat"),
+    "制服/角色扮演": ("Uniform", "Role Play", "JK uniform", "Maid"),
+    "足系": ("Footjob", "Foot fetish", "Barefoot"),
+    "游戏同人": ("Game doujin", "Anime doujin", "Japanese doujin"),
+    "乳系": ("Big Breasts", "Beautiful Breasts"),
+    "马眼/尿道/龟头": ("Urethral", "Glans teasing"),
+    "ASMR/音声": ("ASMR", "Dirty talk"),
+    "反差/泄密/探花": ("Gap moe", "Leaked", "Paid hookup"),
 }
 NON_TASTE_SUMMARY_TAGS = TECH_TAGS | LENGTH_TAGS | {
     "中文字幕", "内嵌字幕", "外挂字幕", "AI修复", "AI去码", "60fps",

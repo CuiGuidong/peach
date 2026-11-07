@@ -58,7 +58,7 @@ function serve(handlers: Record<string, (body: never) => Reply | Promise<Reply>>
   return { calls, fetcher };
 }
 
-/** 依次回这几份任务快照，最后一份之后一直回它。抓封面与全部检查两种任务共用。 */
+/** 依次回这几份任务快照，最后一份之后一直回它。抓封面与All checks两种任务共用。 */
 function coverStates<T extends CoverJob | CheckAllJob>(...states: T[]) {
   let at = 0;
   return () => {
@@ -98,13 +98,13 @@ const quiet = (overrides: Partial<Source> = {}) => ({
   'GET /api/scraping/amane-bridge': () => ({ body: BRIDGE }),
   'GET /api/custom-metadata': () => ({ body: { items: [] } }),
 });
-/** 首屏来源与任务数据的请求顺序，和 `prefetchScraping` 一致。 */
+/** The first-screen request order for source and job data, matching `prefetchScraping`. */
 const FIRST_SCREEN = ['/api/scraping', '/api/scraping/cover', '/api/scraping/check-all',
   '/api/scraping/amane-bridge', '/api/custom-metadata'];
 
-/** 全部检查里的一项结果：口径与中文名同 `source_preflight.OUTCOMES`。 */
+/** All checks里的一项结果：口径与中文名同 `source_preflight.OUTCOMES`。 */
 const reported = (outcome: ReportedCheck['outcome'], outcome_label: string, message = ''): ReportedCheck => ({
-  label: '来源页面', ok: outcome === 'ok', outcome, outcome_label, ...(message ? { message } : {}),
+  label: 'Source page', ok: outcome === 'ok', outcome, outcome_label, ...(message ? { message } : {}),
 });
 
 const password = (root: ParentNode) => root.querySelector<HTMLInputElement>('input[type=password]');
@@ -302,14 +302,14 @@ it('After unmount nothing hits the backend: polling goes with this root', async 
   expect(calls.length, 'Polling continued after unmount').toBe(asked);
 });
 
-it('全部检查按已检查来源数推进，跑完按口径成组列出问题、回执一次并重读来源', async () => {
+it('All checks按已检查来源数推进，跑完按口径成组列出问题、回执一次并重读来源', async () => {
   vi.useFakeTimers();
   const toast = vi.fn();
   const done: CheckAllJob = {
     status: 'complete', checked: 3, total: 3, failed: 1, elapsed_s: 4.2, completed_at: 1_793_790_000,
     results: [
-      { source: 'javbus', label: 'JavBus', results: [reported('ok', '可连接')] },
-      { source: 'makers', label: '片商官网', results: [reported('skipped', '未检查', '片商官网按番号选择')] },
+      { source: 'javbus', label: 'JavBus', results: [reported('ok', 'Connectable')] },
+      { source: 'makers', label: '片商官网', results: [reported('skipped', 'Unchecked', '片商官网按番号选择')] },
       { source: 'javdb', label: 'JavDB', results: [reported('auth', '登录或人机验证', '来源返回人机验证页')] },
     ],
   };
@@ -318,7 +318,7 @@ it('全部检查按已检查来源数推进，跑完按口径成组列出问题�
     'GET /api/scraping/check-all': coverStates(
       { status: 'idle' },
       { status: 'running', checked: 1, total: 3,
-        results: [{ source: 'javbus', label: 'JavBus', results: [reported('ok', '可连接')] }] },
+        results: [{ source: 'javbus', label: 'JavBus', results: [reported('ok', 'Connectable')] }] },
       done),
     'POST /api/scraping/check-all': () => ({ body: { status: 'running', checked: 0, total: 3, results: [] } }),
   });
@@ -326,10 +326,10 @@ it('全部检查按已检查来源数推进，跑完按口径成组列出问题�
   const host = await mount(page(toast));
   const card = () => section(host, '连接检查')!;
 
-  await click(buttonNamed('全部检查', card()));
+  await click(buttonNamed('All checks', card()));
   await settle();
   expect(calls[FIRST_SCREEN.length]).toMatchObject({ path: '/api/scraping/check-all', method: 'POST' });
-  expect(card().textContent).toContain('已检查 1 / 3 个来源');
+  expect(card().textContent).toContain('Checked 1 / 3 sources');
   expect(card().querySelector('[role=progressbar]')?.getAttribute('aria-valuenow')).toBe('1');
 
   await tick(2000);
@@ -347,7 +347,7 @@ it('全部检查按已检查来源数推进，跑完按口径成组列出问题�
     '冷却会变，跑完重读来源列表').toHaveLength(2);
 });
 
-it('离开页面再回来，全部检查的上一次结果仍在，但不发回执', async () => {
+it('离开页面再回来，All checks的上一次结果仍在，但不发回执', async () => {
   const { host, toast } = await open({
     ...quiet(),
     'GET /api/scraping/check-all': () => ({ body: {
@@ -358,11 +358,11 @@ it('离开页面再回来，全部检查的上一次结果仍在，但不发回�
   const card = section(host, '连接检查')!;
   expect(card.textContent).toContain('冷却');
   expect(card.textContent).toContain('来源正在冷却');
-  expect(card.textContent).toContain('上次检查');
+  expect(card.textContent).toContain('Last check');
   expect(toast).not.toHaveBeenCalled();
 });
 
-it('amane 桥：检查上游只填「上游最新版本」那一行，重建跟到终态并发一次回执', async () => {
+it('amane bridge: checking upstream only fills the "Upstream latest version" row; rebuild runs to the final state and sends one receipt', async () => {
   vi.useFakeTimers();
   const toast = vi.fn();
   const bridgeStates = coverStates({ status: 'idle' }, { status: 'running' },

@@ -170,31 +170,31 @@ it('Cancelling confirmation sends nothing', async () => {
   expect(fetcher.mock.calls.some((call) => call[0] === '/api/batch')).toBe(false);
 });
 
-it('「都保留」不进回收站也不弹确认，整组一条；回执撤销发回同一组', async () => {
+it('「Keep-both」不进回收站也不弹确认，整组一条；回执Undo发回同一组', async () => {
   const confirm = vi.spyOn(legacyUi, 'confirmModal');
   const fetcher = fetchMock(200, { ok: true });
   vi.stubGlobal('fetch', fetcher);
   const { host, toast } = await open();
-  await click(buttonNamed('都保留', card(host, 'ABC-002')));
+  await click(buttonNamed('Keep-both', card(host, 'ABC-002')));
   await settle();
   expect(confirm).not.toHaveBeenCalled();
   const batches = () => fetcher.mock.calls.flatMap((call, index) => (call[0] === '/api/batch' ? [sentBody(fetcher, index)] : []));
   expect(batches()).toEqual([{ ids: [3, 4], operation: 'keep-duplicates' }]);
-  expect(toast).toHaveBeenCalledWith('ABC-002 这组都保留，不再列出', expect.objectContaining({ undo: expect.any(Function) }));
+  expect(toast).toHaveBeenCalledWith('ABC-002 这组Keep-both，不再列出', expect.objectContaining({ undo: expect.any(Function) }));
   const { undo } = toast.mock.calls[0]![1] as { undo(): Promise<void> };
   await undo();
   expect(batches().at(-1)).toEqual({ ids: [3, 4], operation: 'reconsider-duplicates' });
 });
 
-it('标过都保留的组数写在页尾，空态时也写', async () => {
+it('标过Keep-both的组数写在页尾，空态时也写', async () => {
   vi.stubGlobal('fetch', fetchMock(200, {}));
   const { host } = await open({ total: 0, files: 0, reclaimable: 0, groups: [], kept: 3 });
-  expect(host.textContent).toContain('另有 3 组标记了都保留，不再列出；组里文件有增减时会重新列出。');
+  expect(host.textContent).toContain('另有 3 组标记了Keep-both，不再列出；组里文件有增减时会重新列出。');
   const plain = await open();
-  expect(plain.host.textContent).not.toContain('标记了都保留');
+  expect(plain.host.textContent).not.toContain('标记了Keep-both');
 });
 
-it('点封面或文件名打开那一项', async () => {
+it('Click the cover or file name to open that item', async () => {
   vi.stubGlobal('fetch', fetchMock(200, {}));
   const { host, openItem } = await open();
   await click(host.querySelector('button[aria-label="Preview ABC-3.mp4"]'));

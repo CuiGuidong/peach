@@ -30,8 +30,8 @@ it('When the proxy cannot fetch a cover it swaps to the "Cover unavailable" plac
   expect(host.querySelector('span.nopic')?.textContent).toBe('No cover available');
 });
 
-it('还没有封面时写出状态与原因，排队的给「优先处理」，取过没取到的给「立即重试」', () => {
-  for (const [state, title, action] of [['queued', '排队中', '优先处理'], ['missing', '无封面', '立即重试']] as const) {
+it('还没有封面时写出状态与原因，排队的给「优先处理」，取过没取到的给「Retry now」', () => {
+  for (const [state, title, action] of [['queued', 'Queued', '优先处理'], ['missing', 'No cover', 'Retry now']] as const) {
     const host = render({ code: 'ABC-001', has_cover: false, cover_url: '', cover_state: state, cover_reason: '等下一轮订阅检查分批取图' });
     const cell = host.querySelector(`[data-feed-cover-state="${state}"]`)!;
     expect(cell.querySelector('.nopic')?.textContent).toBe(title);
@@ -43,7 +43,7 @@ it('还没有封面时写出状态与原因，排队的给「优先处理」，�
   expect(fetching.querySelector('[data-feed-cover-state="fetching"] button')).toBeNull();
 });
 
-it('没有可代理的地址或番号时直接显示无封面，不发请求', () => {
+it('With no proxyable address or code it shows no cover directly and sends no request', () => {
   for (const item of [{ code: 'ABC-001', cover_url: '' }, { code: '', cover_url: 'https://pics.dmm.co.jp/a.jpg' }]) {
     const host = render({ ...item, has_cover: false });
     expect(host.querySelector('img')).toBeNull();

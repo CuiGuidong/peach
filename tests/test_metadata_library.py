@@ -126,7 +126,7 @@ class LibraryNfoTests(unittest.TestCase):
                             'actresses': [{'japanese_name': '胡桃さくら'}]}
                 provider = stub_provider()
                 provider.query.side_effect = lambda code, source='r18dev', document=document, **kwargs: (
-                    {**document, 'genres': ['高跟鞋'], 'javdb_rule': 2} if source == 'javdb' else document)
+                    {**document, 'genres': ['High Heels'], 'javdb_rule': 2} if source == 'javdb' else document)
                 provider.cover.return_value = False
                 process_library(config, db, root / 'generated', root / 'covers', asset_ids=[1],
                                 stage='metadata', recheck_existing=recheck, provider_factory=lambda provider=provider: provider)
@@ -291,12 +291,12 @@ class LibraryNfoTests(unittest.TestCase):
 
         def query(code, source='r18dev', **kwargs):
             if source == 'javdb':
-                self.assertIn('巨乳', tags())
-                return {'id': code, 'genres': ['高跟鞋', '絲襪'], 'javdb_rule': 2, 'source_id': 'Ssis057'}
+                self.assertIn('Big Breasts', tags())
+                return {'id': code, 'genres': ['High Heels', '絲襪'], 'javdb_rule': 2, 'source_id': 'Ssis057'}
             if source == 'dmm':
                 raise NotFound('没有')
             return {'id': code, 'title': '本地标题', 'maker': 'Prestige', 'release_date': '2023-05-26',
-                    'actresses': [{'japanese_name': '涼森れむ'}], 'genres': ['巨乳']}
+                    'actresses': [{'japanese_name': '涼森れむ'}], 'genres': ['Big Breasts']}
 
         provider.query.side_effect = query
         with patch('peach.library_processing._enrich_finished_performers',
@@ -304,7 +304,7 @@ class LibraryNfoTests(unittest.TestCase):
             process_library(config, db, self.root / 'generated', self.root / 'covers',
                             provider_factory=lambda: provider, database=database,
                             route_overrides='censored=r18dev,javdb')
-        self.assertEqual(tags(), {'巨乳', '高跟', '丝袜'})
+        self.assertEqual(tags(), {'Big Breasts', 'High Heels', 'Stockings'})
         group = next(row for row in read_rows(self.root / 'generated/library-metadata-field-candidates.csv')
                      if row['field'] == 'tags')
         choice = next(item for item in json.loads(group['candidates_json']) if item['source'] == 'javdb')
@@ -641,7 +641,7 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual(payload['id'], 'ABW-358')
         self.assertEqual(payload['source_generator'], 'JavBoss')
         tags = _fields(payload)['tags']['value']
-        self.assertEqual(tags, ['自定义标签', '有码', '主观视角', '苗条'])
+        self.assertEqual(tags, ['自定义标签', 'Censored', 'POV', 'Slim'])
         self.assertEqual(payload['runtime'], '210')
         self.assertEqual(raw, path.read_bytes())
 
@@ -1051,7 +1051,7 @@ class LibraryNfoTests(unittest.TestCase):
             tags = {row[0] for row in connection.execute(
                 "SELECT tag FROM asset_tag WHERE tag NOT LIKE '演员:%'")}
         self.assertEqual(aliases, {'すずもりれむ', 'Remu Suzumori'})
-        self.assertEqual(tags, {'主观视角', '苗条'})
+        self.assertEqual(tags, {'POV', 'Slim'})
         self.assertTrue((self.root / 'generated' / 'avatars'
                          / f'performer-{entity_id}.img').is_file())
         transport.assert_called_once()
@@ -1248,7 +1248,7 @@ class LibraryNfoTests(unittest.TestCase):
                                ('ふわとろ巨乳の年下義母 胡桃さくら', 'Das', 'ふわとろ巨乳の年下義母',
                                 '2024-09-06', asset_id))
             connection.execute("INSERT INTO asset_tag(asset_id, tag, confidence, source) VALUES(?,?,?,?)",
-                               (asset_id, '巨乳', 1.0, 'user'))
+                               (asset_id, 'Big Breasts', 1.0, 'user'))
             connection.execute("INSERT INTO entity(kind, canonical_name, normalized_name, created_at, updated_at) "
                                "VALUES(?,?,?,?,?)",
                                ('performer', '胡桃樱花', 'hutaoyinghua', '2026-09-15', '2026-09-15'))
@@ -1377,13 +1377,13 @@ class LibraryNfoTests(unittest.TestCase):
     def test_javdb_tags_are_collected_with_their_community_identity_after_maker_scalars(self):
         provider, rows = self._collect_with_maker('SSIS-057', 'makers', {
             'title': '標題', 'maker': 'エスワン ナンバーワンスタイル', 'release_date': '2021-05-07',
-            'genres': ['巨乳'], 'actresses': [{'japanese_name': '葵つかさ'}]},
-            javdb={'id': 'SSIS-057', 'genres': ['高跟鞋', '絲襪', '待收錄分類']})
+            'genres': ['Big Breasts'], 'actresses': [{'japanese_name': '葵つかさ'}]},
+            javdb={'id': 'SSIS-057', 'genres': ['High Heels', '絲襪', '待收錄分類']})
         self.assertEqual([call.args[1] for call in provider.query.call_args_list], ['javdb'])
         provider.community.assert_not_called()
         tags = next(row for row in rows if row['field'] == 'tags')
         candidate = next(c for c in json.loads(tags['candidates_json']) if c['source'] == 'javdb')
-        self.assertEqual(candidate['value'], ['高跟', '丝袜'])
+        self.assertEqual(candidate['value'], ['High Heels', 'Stockings'])
         self.assertEqual(candidate['unmapped_genres'], ['待收錄分類'])
         self.assertEqual((candidate['source_kind'], candidate['official']), ('community', False))
 
@@ -1392,7 +1392,7 @@ class LibraryNfoTests(unittest.TestCase):
         """片商官网给齐标量后，只额外请求 JavDB 内容类别。"""
         provider, rows = self._collect_with_maker('SSIS-057', 'makers', {
             'title': '標題', 'maker': 'エスワン ナンバーワンスタイル', 'release_date': '2021-05-07',
-            'genres': ['巨乳'], 'actresses': [{'japanese_name': '葵つかさ'}]})
+            'genres': ['Big Breasts'], 'actresses': [{'japanese_name': '葵つかさ'}]})
         self.assertEqual(provider.amane.call_args.kwargs['route'], ('makers',))
         self.assertEqual([call.args[1] for call in provider.query.call_args_list], ['javdb'])
         provider.community.assert_not_called()
@@ -1405,7 +1405,7 @@ class LibraryNfoTests(unittest.TestCase):
         provider, rows = self._collect_with_maker('FSDSS-437', 'faleno', {
             'title': '標題', 'maker': 'FALENO', 'release_date': '2022-07-07',
             'actresses': [{'japanese_name': '女優'}]},
-            r18dev={'id': 'FSDSS-437', 'genres': ['巨乳']})
+            r18dev={'id': 'FSDSS-437', 'genres': ['Big Breasts']})
         self.assertEqual(provider.amane.call_args.kwargs['route'], ('faleno',))
         self.assertEqual([call.args[1] for call in provider.query.call_args_list], ['r18dev', 'javdb'])
         provider.community.assert_not_called()
@@ -1500,7 +1500,7 @@ class LibraryNfoTests(unittest.TestCase):
             payload = provider.query('MIAD-573')
         self.assertEqual(payload['genres'], ['企画', 'その他フェチ', 'スレンダー'])
         tags, unmapped = map_genres(payload['genres'])
-        self.assertEqual(tags, ['苗条'])
+        self.assertEqual(tags, ['Slim'])
         self.assertEqual(unmapped, [], '`企画` 是发行企划、`その他フェチ` 是兜底格，都按非内容排除')
 
     def test_without_the_japanese_page_r18_gives_no_english_title_or_romaji_cast(self):
@@ -2305,7 +2305,7 @@ class LibraryNfoTests(unittest.TestCase):
         documents = {
             'r18dev': {'id': 'DASS-468', 'title': '甘やかされて', 'maker': 'Das',
                       'release_date': '2024-09-10', 'actresses': [{'japanese_name': '胡桃さくら'}]},
-            'javdb': {'id': 'DASS-468', 'genres': ['高跟鞋', 'Anal Play'], 'javdb_rule': 2,
+            'javdb': {'id': 'DASS-468', 'genres': ['High Heels', 'Anal Play'], 'javdb_rule': 2,
                       'source_url': 'https://javdb.com/v/example'},
         }
         for source, payload in documents.items():
@@ -2324,7 +2324,7 @@ class LibraryNfoTests(unittest.TestCase):
                 for row in read_rows(self.root / 'generated/library-metadata-field-candidates.csv')}
         self.assertEqual([entry['source'] for entry in rows['title']], ['r18dev'])
         self.assertEqual([(entry['source'], entry['value']) for entry in rows['tags']],
-                         [('javdb', ['高跟', '屁眼'])])
+                         [('javdb', ['High Heels', 'Butthole'])])
         self.assertEqual(Path(rows['tags'][0]['raw_snapshot']), directory / 'DASS-468-javdb.json')
 
     def test_javdb_snapshot_requires_current_identity_evidence_without_removing_raw_json(self):
@@ -2374,10 +2374,10 @@ class LibraryNfoTests(unittest.TestCase):
         config = PeachConfig(self.root, self.root / 'config.toml', present=True)
         path = config.directory('sources') / 'library-metadata' / 'DASS-468-javdb.json'
         path.parent.mkdir(parents=True)
-        path.write_text(json.dumps({'id': 'DASS-468', 'genres': ['口交']}), encoding='utf-8')
+        path.write_text(json.dumps({'id': 'DASS-468', 'genres': ['Oral']}), encoding='utf-8')
         os.utime(path, (time.time() - 8 * 24 * 3600,) * 2)
         provider = Mock()
-        provider.query.return_value = {'id': 'DASS-468', 'genres': ['高跟鞋']}
+        provider.query.return_value = {'id': 'DASS-468', 'genres': ['High Heels']}
         session = _RemoteSession(config, Mock(return_value=provider),
                                  _MissCache(misses_path(config)), retrying=False)
         options = dict(update=Mock(), issue=Mock(), deadline=time.monotonic() + 60)
@@ -2385,7 +2385,7 @@ class LibraryNfoTests(unittest.TestCase):
             entries = session._preferred_tags({}, 'DASS-468', ['tags'], ('r18dev', 'javdb'),
                                               [], set(), **options)
             self.assertEqual([(source, payload['genres']) for source, payload, _ in entries],
-                             [('javdb', ['高跟鞋'])])
+                             [('javdb', ['High Heels'])])
             provider.query.assert_called_once()
             self.assertEqual(provider.query.call_args.args, ('DASS-468', 'javdb'))
             # 同一趟已取到的来源、已有待批候选的来源均不重问；新鲜快照直接复用。
@@ -2411,7 +2411,7 @@ class LibraryNfoTests(unittest.TestCase):
                                  _MissCache(misses_path(config)), retrying=False)
         issue = Mock()
         options = dict(update=Mock(), issue=issue, deadline=time.monotonic() + 60)
-        official = [('makers', {'id': 'MIAB-086', 'genres': ['痴女', '护士']}, None)]
+        official = [('makers', {'id': 'MIAB-086', 'genres': ['Nympho', 'Nurse']}, None)]
         try:
             self.assertEqual(session._preferred_tags({}, 'MIAB-086', ['tags'], ('makers', 'javdb'),
                                                      official, set(), **options), [])

@@ -345,7 +345,7 @@ it('On a read-only database neither verdicts nor bulk actions are clickable', as
   // 只读：队列与自动写入批次各读一次，一个写请求都不发。
   expect(fetcher.mock.calls.map(([url]) => String(url)).sort()).toEqual([REVIEW_URL, AUTO_LANDINGS_URL]);
   expect(fetcher.mock.calls.every(([, init]) => !init?.method || init.method === 'GET')).toBe(true);
-  expect(noteText(host).join()).toContain('正在显示写入端的实时复核队列');
+  expect(noteText(host).join()).toContain('Showing the writer\'s live review queue');
   expect(host.querySelector('a[href="https://writer.example/review"]')).toBeTruthy();
   // Checkboxes and bulk operations are absent entirely: with nothing writable, the toolbar is just a row of dead buttons.
   expect(boxOf(host, 0)).toBeFalsy();
@@ -475,13 +475,13 @@ it('Cards with no adoptable candidates can still be ignored or handled later, wi
 
 const WRITES: AutoLandingWrite[] = [
   { item_key: 'DASS-468:release_date', rule: 'adr-0139-official-replaces-verified', label: '官方来源一致，覆盖原值',
-    batch: 'adr-0139-official-replaces-verified@20261104T141053', at: 1793772653, field: '发行日期',
+    batch: 'adr-0139-official-replaces-verified@20261104T141053', at: 1793772653, field: 'Release date',
     value: '2024-09-10', previous: ['2024-09-06'], tags: [], assets: 1,
     asset_id: 7, code: 'DASS-468', name: '某部作品的标题', preview_url: '' },
   { item_key: 'ROYD-083:tags', rule: 'adr-0139-verified-tags-union', label: '补上来源多给的标签',
-    batch: 'auto:metadata-tags@20261104T141053', at: 1793772653, field: '标签',
-    value: '痴女、姐弟', previous: [], tags: ['痴女', '姐弟'], assets: 1,
-    asset_id: 8, code: 'ROYD-083', name: '另一部作品', preview_url: '' },
+    batch: 'auto:metadata-tags@20261104T141053', at: 1793772653, field: 'Tags',
+    value: '痴女、姐弟', previous: [], tags: ['Nympho', '姐弟'], assets: 1,
+    asset_id: 8, code: 'ROYD-083', name: 'Another video', preview_url: '' },
 ];
 
 it('元数据字段下逐条列出自动写入：作品、写了什么、原来是什么，只读端也能浏览', async () => {

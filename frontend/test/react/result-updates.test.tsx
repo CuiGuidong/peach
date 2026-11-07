@@ -19,11 +19,11 @@ it('Background prefetches for unshown pages keep reading without blocking the cu
   expect(await prefetched).toBe('Prefetched content');
 });
 
-it('运行中的任务发布确认结果时更新列表，状态与凭据查询保持原值', async () => {
+it('The list updates when a running task publishes confirmation results; status and credential queries keep their original values', async () => {
   const data = { busy: true,
     result_versions: { follow: '1' } };
   queryClient.setQueryData(RESULT_UPDATES_KEY, data);
-  queryClient.setQueryData(['follow-feed'], '首项');
+  queryClient.setQueryData(['follow-feed'], 'First entry');
   queryClient.setQueryData(['follow-manage', 'check'], 'running');
   queryClient.setQueryData(['follow-manage', 'credentials'], 'Credentials');
   queryClient.setQueryData(['catalog-grid'], 'Library');
@@ -38,7 +38,7 @@ it('运行中的任务发布确认结果时更新列表，状态与凭据查询�
   await settle();
   expect(read).not.toHaveBeenCalled();
   await act(async () => {
-    current = '首项、次项';
+    current = 'First item, second item';
     queryClient.setQueryData(RESULT_UPDATES_KEY, { ...data, result_versions: { follow: '2' } });
   });
   await settle();

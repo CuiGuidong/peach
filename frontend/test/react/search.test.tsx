@@ -76,16 +76,16 @@ describe('What goes in the dropdown', () => {
     expect(model.options.map(option => option.value)).toEqual(['七海ひな', 'Drama', 'ABW-101']);
   });
 
-  it('空输入有推荐时搜索记录排在左栏最下面，键盘先走完左栏再到右栏', () => {
+  it('With empty input and recommendations present, search history sits at the bottom of the left column; the keyboard walks the left column before the right', () => {
     const recommendations = [
-      { kind: 'performer', label: '艺人与新作', items: [{ value: '七海ひな' }] },
-      { kind: 'asset', label: '作品推荐', items: [{ value: 'ABW-101', id: 7 }] },
+      { kind: 'performer', label: 'Performers and new releases', items: [{ value: '七海ひな' }] },
+      { kind: 'asset', label: 'Video recommendations', items: [{ value: 'ABW-101', id: 7 }] },
     ];
-    const model = menuModel({ ...base, query: '', history: ['剧情'], recommendations });
+    const model = menuModel({ ...base, query: '', history: ['Drama'], recommendations });
     expect(model.recent).toBeNull();
-    expect(model.left.map(section => section.label)).toEqual(['艺人与新作', '搜索记录']);
-    expect(model.right.map(section => section.label)).toEqual(['作品推荐']);
-    expect(model.options.map(option => option.value)).toEqual(['七海ひな', '剧情', 'ABW-101']);
+    expect(model.left.map(section => section.label)).toEqual(['Performers and new releases', 'Search history']);
+    expect(model.right.map(section => section.label)).toEqual(['Video recommendations']);
+    expect(model.options.map(option => option.value)).toEqual(['七海ひな', 'Drama', 'ABW-101']);
   });
 });
 
@@ -99,8 +99,8 @@ interface Stage {
   typeInto(value: string): Promise<void>;
 }
 
-/** 壳那一侧：一个静态输入框、一块带 `data-search-menu` 的面，岛挂在面里。 */
-async function stage({ pool = ['剧情'], loadPool = async () => pool,
+/** The shell side: a static input and a panel carrying `data-search-menu`, with the island mounted inside the panel. */
+async function stage({ pool = ['Drama'], loadPool = async () => pool,
   recommendations = undefined as (() => Promise<SuggestGroup[] | Recommendations>) | undefined,
   pendingRecommendations = undefined as (() => SuggestGroup[]) | undefined,
   suggest = async (q: string): Promise<SuggestResponse> => ({ q, groups: [] }) } = {}): Promise<Stage> {
@@ -136,7 +136,7 @@ async function stage({ pool = ['剧情'], loadPool = async () => pool,
     }),
   };
   const helpers: SearchProps['helpers'] = {
-    // 多数用例只关心分组，直接给数组；要测占位推荐词的用例给整份。
+    // Most cases only care about the groups, so just pass an array; cases testing the placeholder recommendation pass the whole thing.
     recommendations: recommendations && (async () => {
       const answer = await recommendations();
       return Array.isArray(answer) ? { groups: answer, words: [] } : answer;
@@ -170,7 +170,7 @@ describe('Timing on the input field', () => {
     expect(s.actions.search).not.toHaveBeenCalled();
   });
 
-  it('推荐没回来先照最终版式占位；开着时取到的下一批留到下次打开再换', async () => {
+  it('If recommendations have not returned, hold the place with the final layout; a batch fetched while open is swapped in on the next open', async () => {
     const answers = [pending<SuggestGroup[]>(), pending<SuggestGroup[]>()];
     const idle: (() => void)[] = [];
     vi.stubGlobal('requestIdleCallback', (task: () => void) => idle.push(task));
@@ -178,9 +178,9 @@ describe('Timing on the input field', () => {
     onTestFinished(() => { vi.unstubAllGlobals() });
     const flushIdle = () => act(async () => { idle.splice(0).forEach(task => task()) });
     let asked = 0;
-    const batch = (value: string): SuggestGroup[] => [{ kind: 'asset', label: '作品推荐', items: [{ value, id: 11 }] }];
+    const batch = (value: string): SuggestGroup[] => [{ kind: 'asset', label: 'Video recommendations', items: [{ value, id: 11 }] }];
     const s = await stage({ recommendations: () => answers[asked++]!.answer,
-      pendingRecommendations: () => [{ kind: 'asset', label: '作品推荐', items: [], pending: true }] });
+      pendingRecommendations: () => [{ kind: 'asset', label: 'Video recommendations', items: [], pending: true }] });
     const shown = () => [...s.menu.querySelectorAll('[data-search-option="work"]:not([data-search-placeholder])')]
       .map(row => row.textContent);
     await act(async () => s.input.focus());
@@ -188,38 +188,38 @@ describe('Timing on the input field', () => {
     expect(s.menu.hidden).toBe(false);
     expect(s.menu.querySelector('[data-search-recommendations]')).not.toBeNull();
     expect(s.menu.querySelectorAll('[data-search-placeholder]')).toHaveLength(5);
-    await answers[0]!.release(batch('作品一'));
+    await answers[0]!.release(batch('Work One'));
     await settle();
     expect(s.menu.querySelector('[data-search-placeholder]')).toBeNull();
-    expect(shown()).toEqual(['作品一']);
+    expect(shown()).toEqual(['Work One']);
 
     expect(asked).toBe(1);
 
-    // 收起后等页面空闲才去备下一批，不跟紧接着的打开详情抢请求；再打开时那批还在路上，栏里照旧，
-    // 到了也不当场换。
+    // After collapsing, wait for the page to idle before preparing the next batch, so it doesn't compete with the immediately-following detail-open for requests; when reopened, that batch is still in transit, the column stays as is,
+    // Even when it arrives, do not swap it in on the spot.
     await act(async () => s.api?.close());
     expect(asked).toBe(1);
     await flushIdle();
     expect(asked).toBe(2);
     await act(async () => { s.input.blur(); s.input.focus() });
     await settle();
-    await answers[1]!.release(batch('作品二'));
+    await answers[1]!.release(batch('Work Two'));
     await settle();
-    expect(shown()).toEqual(['作品一']);
+    expect(shown()).toEqual(['Work One']);
     await act(async () => { s.api?.close(); s.input.blur(); s.input.focus() });
     await settle();
-    expect(shown()).toEqual(['作品二']);
+    expect(shown()).toEqual(['Work Two']);
     expect(asked).toBe(2);
   });
 
-  it('还没聚焦时占位推荐词用推荐栏一起带回的词轮换；按筛选核命中的词池留到聚焦再取', async () => {
+  it('Before focus, placeholder recommendations rotate through the phrases the recommendations column brought back; the pool checked against filters for hits is fetched only once focused', async () => {
     vi.useFakeTimers();
     const idle: (() => void)[] = [];
     vi.stubGlobal('requestIdleCallback', (task: () => void) => idle.push(task));
     vi.stubGlobal('cancelIdleCallback', (id: number) => { idle[id - 1] = () => {} });
     onTestFinished(() => { vi.unstubAllGlobals() });
-    const words = ['甲作品', '乙作品', '丙作品'];
-    const loadPool = vi.fn(async () => ['剧情']);
+    const words = ['Work A', 'Work B', 'Work C'];
+    const loadPool = vi.fn(async () => ['Drama']);
     const s = await stage({ loadPool, recommendations: async () => ({ groups: [], words }) });
     await act(async () => { idle.splice(0).forEach(task => task()) });
     await settle();
@@ -232,18 +232,18 @@ describe('Timing on the input field', () => {
     expect(loadPool).not.toHaveBeenCalled();
   });
 
-  it('框空着、没聚焦时占位推荐词隔几秒换一句；聚焦或框里有字时不换', async () => {
+  it('When the box is empty and unfocused, the placeholder recommendation cycles every few seconds; it stops when focused or when the box has text', async () => {
     vi.useFakeTimers();
-    const s = await stage({ pool: ['剧情', '单体作品', '高画质'] });
+    const s = await stage({ pool: ['Drama', 'Single videos', 'High quality'] });
     await act(async () => s.input.focus());
     await settle();
     const first = s.input.placeholder;
-    expect(['剧情', '单体作品', '高画质']).toContain(first);
+    expect(['Drama', 'Single videos', 'High quality']).toContain(first);
     expect(s.input.dataset.suggestion).toBe(first);
     await act(async () => { vi.advanceTimersByTime(15000) });
     expect(s.input.placeholder).toBe(first);
 
-    // 再聚焦时重取的池里还有这一句，就不换。
+    // On re-focus, if this sentence is still in the re-fetched pool, do not swap.
     await act(async () => { s.input.blur(); s.input.focus() });
     await settle();
     expect(s.input.placeholder).toBe(first);
@@ -253,38 +253,38 @@ describe('Timing on the input field', () => {
     expect(s.input.placeholder).not.toBe(first);
     expect(s.input.dataset.suggestion).toBe(s.input.placeholder);
 
-    s.input.value = '七';
+    s.input.value = 'seven';
     const typed = s.input.placeholder;
     await act(async () => { vi.advanceTimersByTime(15000) });
     expect(s.input.placeholder).toBe(typed);
   });
 
-  it('每组「换一批」在自己取到的池里翻页：当场换、不发请求，翻到头接着从池首取', async () => {
+  it('Each group\'s “New batch” pages within its own fetched pool: swap on the spot, no request; at the end, keep taking from the pool\'s start', async () => {
     let asked = 0;
-    const pool = Array.from({ length: 7 }, (_, index) => ({ value: `作品${index + 1}`, id: index + 1 }));
+    const pool = Array.from({ length: 7 }, (_, index) => ({ value: `Work ${index + 1}`, id: index + 1 }));
     const people = [{ value: '七海ひな' }];
     const s = await stage({ recommendations: async () => { asked++; return [
-      { kind: 'performer', label: '艺人与新作', items: people, pool: people, offset: 0, size: 3 },
-      { kind: 'asset', label: '作品推荐', items: pool.slice(0, 5), pool, offset: 0, size: 5 },
+      { kind: 'performer', label: 'Performers and new releases', items: people, pool: people, offset: 0, size: 3 },
+      { kind: 'asset', label: 'Video recommendations', items: pool.slice(0, 5), pool, offset: 0, size: 5 },
     ] } });
     const shown = () => [...s.menu.querySelectorAll('[data-kind="asset"] [data-search-option="work"]')].map(row => row.textContent);
     await act(async () => s.input.focus());
     await settle();
-    expect(shown()).toEqual(['作品1', '作品2', '作品3', '作品4', '作品5']);
-    // 池里只有一页的那组不摆这枚图标。
+    expect(shown()).toEqual(['Work 1', 'Work 2', 'Work 3', 'Work 4', 'Work 5']);
+    // A group whose pool is a single page does not show this icon.
     expect(s.menu.querySelector('[data-kind="performer"] [data-search-shuffle]')).toBeNull();
     const shuffle = s.menu.querySelector<HTMLButtonElement>('[data-kind="asset"] [data-search-shuffle]')!;
-    expect(shuffle.getAttribute('aria-label')).toBe('作品推荐换一批');
+    expect(shuffle.getAttribute('aria-label')).toBe('Swap in new work picks');
     await act(async () => shuffle.click());
-    expect(shown()).toEqual(['作品6', '作品7', '作品1', '作品2', '作品3']);
+    expect(shown()).toEqual(['Work 6', 'Work 7', 'Work 1', 'Work 2', 'Work 3']);
     expect(shuffle.getAttribute('aria-busy')).toBe('true');
     await act(async () => shuffle.click());
-    expect(shown()).toEqual(['作品4', '作品5', '作品6', '作品7', '作品1']);
+    expect(shown()).toEqual(['Work 4', 'Work 5', 'Work 6', 'Work 7', 'Work 1']);
     expect(asked).toBe(1);
     expect(s.menu.hidden).toBe(false);
   });
 
-  it('关闭菜单后到达的图片推荐不会再打开菜单', async () => {
+  it('Image suggestions arriving after the menu closed never reopen it', async () => {
     const answer = pending<SuggestGroup[]>();
     const s = await stage({ recommendations: () => answer.answer });
     await act(async () => s.input.focus());

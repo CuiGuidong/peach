@@ -24,7 +24,7 @@ export {configurationSkeletonHtml, revealSkeleton, SKELETON_REVEAL_DELAY, skelet
 export {cancelGlide, gateSweep, releaseSweep} from '../../src/ui-kit';
 // 封面格「抓取中」的不定进度圆环用正式模板。
 export {gaugeHtml} from '../../src/ui-kit';
-/* 测试环境没有布局，骨架补齐量不出东西，这里什么都不做。 */
+/* The test environment has no layout and skeleton fill-in measures nothing, so this does nothing. */
 export const fitSkeleton = (_root: Element | null): void => {};
 export const loadingDotsHtml = (label: string): string => `<span>${label}</span>`;
 export {LOAD_MORE_STATUS} from '../../src/ui-kit';

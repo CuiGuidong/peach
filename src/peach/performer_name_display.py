@@ -149,13 +149,28 @@ def display(connection, entity_id: int, canonical: str, aliases: list[dict], gro
             "choices": choices, "groups": groups}
 
 
+def _romaji_names(profile: dict) -> list[str]:
+    """资料页给过的所有罗马字写法：主名在前，别名补齐，去重不区分大小写。"""
+    raw = json.loads(profile.get("raw_json") or "{}")
+    page = page_names({"raw": raw})
+    found: list[str] = []
+    main = str(profile.get("romaji") or "").strip()
+    if main:
+        found.append(main)
+    for entry in page.get("aliases", []):
+        candidate = str(entry.get("romaji") or "").strip()
+        if candidate and all(candidate.casefold() != seen.casefold() for seen in found):
+            found.append(candidate)
+    return found
+
+
 def variants(connection) -> list[dict]:
     """资料形状接口同时交付只读显示写法；缺失对应关系明确保留为空。"""
     people = list(connection.execute(
         "SELECT id,kind,canonical_name FROM entity WHERE kind IN ('performer','creator')"))
     categories = entity_classification.summaries(connection, [row["id"] for row in people])
     profiles = {row["entity_id"]: dict(row) for row in connection.execute(
-        "SELECT entity_id,raw_json,source_url FROM performer_profile")}
+        "SELECT entity_id,raw_json,source_url,romaji FROM performer_profile")}
     result = []
     for person in people:
         if "japanese_av" not in categories[person["id"]]["identity_categories"]:
@@ -163,6 +178,7 @@ def variants(connection) -> list[dict]:
         profile = profiles.get(person["id"], {})
         raw = json.loads(profile.get("raw_json") or "{}")
         names = writing(person["canonical_name"], page_names({"raw": raw}), profile.get("source_url", ""))
+        romaji = _romaji_names(profile)
         result.append({"id": person["id"], "kind": person["kind"],
-                       "canonical_name": person["canonical_name"], **names})
+                       "canonical_name": person["canonical_name"], "en": ", ".join(romaji) or None, **names})
     return result

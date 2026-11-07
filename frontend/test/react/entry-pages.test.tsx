@@ -67,11 +67,11 @@ describe('登录页的模式', () => {
 
   it('有访问策略时填访问密码，不提口令', async () => {
     const host = await mount(<LoginPage data={{ next: '/' }} />);
-    expect(label(host)).toContain('访问密码');
+    expect(label(host)).toContain('Access password');
     expect(host.textContent).not.toContain('peach token');
   });
 
-  it('非 Docker 还没有访问策略时填访问口令，说明用 peach token 查看', async () => {
+  it('非 Docker 还没有访问策略时填访问口令，说明用 peach token View', async () => {
     const host = await mount(<LoginPage data={{ next: '/', mode: 'legacy', invalid: 'true' }} />);
     expect(label(host)).toContain('访问口令');
     expect(alerts(host).map((node) => node.textContent)).toEqual([WRONG_TOKEN]);
@@ -127,12 +127,12 @@ describe('Docker 首次访问设置', () => {
 
   it('字段错误写回框下，整页原因写在按钮上方，都不跳转', async () => {
     const navigate = vi.fn();
-    vi.stubGlobal('fetch', fetchMock(400, { error: '两次输入的密码不一致', errors: { confirmation: '两次输入的密码不一致' } }));
+    vi.stubGlobal('fetch', fetchMock(400, { error: 'The two passwords do not match', errors: { confirmation: 'The two passwords do not match' } }));
     const host = await mount(<AccessSetup data={{}} navigate={navigate} />);
     await submit(host.querySelector('form'));
     await settle();
     expect(host.querySelector('#access-confirm')?.getAttribute('aria-invalid')).toBe('true');
-    expect(alerts(host).map((node) => node.textContent)).toEqual(['两次输入的密码不一致']);
+    expect(alerts(host).map((node) => node.textContent)).toEqual(['The two passwords do not match']);
     vi.stubGlobal('fetch', fetchMock(403, { error: FIRST_ACCESS_DENIED }));
     await submit(host.querySelector('form'));
     await settle();
@@ -141,7 +141,7 @@ describe('Docker 首次访问设置', () => {
   });
 });
 
-describe('错误页', () => {
+describe('Error page', () => {
   const cases = [
     { status: '403', title: 'Cannot open here', lede: 'Open the configuration on the computer running Peach' },
     { status: '404', title: '404', lede: null },

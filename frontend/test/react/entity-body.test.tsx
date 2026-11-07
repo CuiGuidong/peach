@@ -123,7 +123,7 @@ describe('Video grid', () => {
     expect(given.fetchPage).not.toHaveBeenCalled();
   });
 
-  it('等待期间旧内容隐藏并禁用，新列表到达后解除忙态并换成新卡片', async () => {
+  it('While waiting, the old content hides and disables; when the new list lands the busy state lifts and the new cards take over', async () => {
     const host = await open(props());
     await act(async () => push({ items: null, revision: 2 }));
     expect(cards(host)).toEqual(['1', '2', '3']);

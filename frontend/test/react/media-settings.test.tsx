@@ -15,7 +15,7 @@ vi.mock('@peach/legacy/ui', async (original) => ({
   MEDIA_SOURCE_ICONS: (await import('../../src/ui-kit/media-source-icons')).MEDIA_SOURCE_ICONS,
   confirmModal: (await import('../../src/ui-kit/modal')).confirmModal,
 }));
-/* 保存前先读一次扫描与采集的状态。单独接住它，各用例的 `fetch` 桩只数配置请求。 */
+/* Before saving, read the scan and collection status once. Catch it separately, so each test case's fetch stub only counts config requests. */
 const processing = vi.hoisted(() => ({ read: vi.fn(async (): Promise<{ status: string; trigger?: string }> => ({ status: 'idle' })) }));
 vi.mock('../../src/react/library-processing/library-processing', async (original) => ({
   ...await original<Record<string, unknown>>(),
@@ -301,8 +301,8 @@ describe('Select folder', () => {
   });
 });
 
-describe('保存', () => {
-  it('扫描与采集在跑时先确认重启的影响，取消就不保存；读不到任务状态时照常保存', async () => {
+describe('Save', () => {
+  it('If scanning and collection are running, confirm the impact of the restart first; cancel doesn\'t save; if the task state can\'t be read, save as usual', async () => {
     const fetcher = fetchMock(200, { saved: true, url: '/', revision: 'rev-2' });
     vi.stubGlobal('fetch', fetcher);
     try {
@@ -311,11 +311,11 @@ describe('保存', () => {
       await submit(host.querySelector('form'));
       await settle();
       const dialog = document.querySelector('dialog');
-      expect(dialog?.textContent).toContain('由命令行或托盘发起，在独立进程里运行，不受重启影响');
+      expect(dialog?.textContent).toContain('Started from the command line or tray, running in a separate process, unaffected by restart');
       await click(dialog!.querySelector('[data-modal-cancel]'));
       await settle();
       expect(fetcher).not.toHaveBeenCalled();
-      processing.read.mockRejectedValue(new Error('连接中断'));
+      processing.read.mockRejectedValue(new Error('Connection dropped'));
       await submit(host.querySelector('form'));
       await settle();
       expect(fetcher.mock.calls[0]?.[0]).toBe(CONFIGURATION_URL);
@@ -324,7 +324,7 @@ describe('保存', () => {
     }
   });
 
-  it('提交带上指纹、全部文件夹、端口与是否扫描，成功后回执并留下新地址', async () => {
+  it('Submitting carries the fingerprint, all folders, port, and whether to scan; success shows a receipt and keeps the new address', async () => {
     const fetcher = fetchMock(200, { saved: true, url: 'http://127.0.0.1:9124/', revision: 'rev-2' });
     vi.stubGlobal('fetch', fetcher);
     const receipt = vi.fn();

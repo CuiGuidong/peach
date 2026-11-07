@@ -5,13 +5,13 @@ import { textLang } from '../src/core/text-lang';
 
 it('新作订阅还没入库，卡片只给番号与片名，不出版次与画质徽章', () => {
   const host = document.createElement('div');
-  host.innerHTML = feedNewCardHtml({ id: 1, code: 'ABC-123', title: '示例新作', width: 3840, height: 2160,
-    edition_badges: ['中字', '无码破解'] });
+  host.innerHTML = feedNewCardHtml({ id: 1, code: 'ABC-123', title: 'Example new release', width: 3840, height: 2160,
+    edition_badges: ['Chinese subs', 'Uncensored'] });
   expect(host.querySelector('.ui-javcode')?.textContent).toBe('ABC-123');
   expect(host.querySelectorAll('.javedition')).toHaveLength(0);
 });
 
-it('已确认的版本标签与 4K 位于标题，分辨率未取得时不添加画质标记', () => {
+it('Confirmed edition tags and 4K sit in the title, and no quality mark is added when resolution is unavailable', () => {
   const host = document.createElement('div');
   const item = { is_jav: true, code: 'EXM-001', catalog_title: 'Example video', edition_badges: ['Chinese subs', 'Uncensored'] };
   host.innerHTML = javTitleHtml({ ...item, width: 3840, height: 2160 });
@@ -25,22 +25,22 @@ it('已确认的版本标签与 4K 位于标题，分辨率未取得时不添加
 
 it('无码三档各用自己的颜色：无码、流出、破解', () => {
   const host = document.createElement('div');
-  host.innerHTML = ['无码', '无码流出', '无码破解'].map((label) =>
-    javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: '示例作品', edition_badges: [label] })).join('');
+  host.innerHTML = ['Uncensored', '无码流出', 'Uncensored'].map((label) =>
+    javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: 'Example video', edition_badges: [label] })).join('');
   expect([...host.querySelectorAll('.javedition')].map((node) => node.className))
     .toEqual(['javedition uncensored', 'javedition leaked', 'javedition cracked']);
 });
 
-it('含假名的标题标日文、纯拉丁字母标英文，纯汉字分不出中日时沿用页面语言', () => {
+it('Titles with kana are marked Japanese, pure Latin ones English, and pure han titles that could be either follow the page language', () => {
   expect(textLang('新人 AV デビュー')).toBe('ja');
   expect(textLang('ｶﾀｶﾅ')).toBe('ja');
   expect(textLang('First Date')).toBe('en');
   expect(textLang('三上悠亜')).toBeUndefined();
-  expect(textLang('示例作品 4K')).toBeUndefined();
+  expect(textLang('Sample video 4K')).toBeUndefined();
   expect(textLang('')).toBeUndefined();
   const host = document.createElement('div');
   host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: '新人デビュー' });
   expect(host.querySelector('.ui-javtitle')?.getAttribute('lang')).toBe('ja');
-  host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: '示例作品' });
+  host.innerHTML = javTitleHtml({ is_jav: true, code: 'EXM-001', catalog_title: 'Example video' });
   expect(host.querySelector('.ui-javtitle')?.hasAttribute('lang')).toBe(false);
 });

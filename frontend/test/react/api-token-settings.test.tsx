@@ -48,13 +48,13 @@ it('取消确认就不发请求，确认后显示新口令一次', async () => {
   const receipt = vi.fn();
   const seen = confirmWith(false);
   const host = await render(<ApiTokenSettings initial={rotatable} mode="legacy" receipt={receipt} />);
-  await click(buttonNamed('更换口令', host)!);
+  await click(buttonNamed('Rotate token', host)!);
   expect(seen[0]!.body).toBe(rotationEffect('legacy', false));
   expect(fetcher).not.toHaveBeenCalled();
 
   vi.restoreAllMocks();
   confirmWith(true);
-  await click(buttonNamed('更换口令', host)!);
+  await click(buttonNamed('Rotate token', host)!);
   await settle();
   expect(fetcher).toHaveBeenCalledWith('/api/configuration/access/token/rotate', expect.objectContaining({ method: 'POST' }));
   const card = section(host, '访问口令')!;
@@ -66,7 +66,7 @@ it('取消确认就不发请求，确认后显示新口令一次', async () => {
 it('口令被启动参数覆盖时只写原因，不给更换键', async () => {
   const host = await render(<ApiTokenSettings initial={{ rotatable: false, reason: '口令由启动参数指定。', paired: false }}
     mode="password" receipt={vi.fn()} />);
-  expect(buttonNamed('更换口令', host)).toBeNull();
+  expect(buttonNamed('Rotate token', host)).toBeNull();
   expect(section(host, '访问口令')!.textContent).toContain('口令由启动参数指定。');
 });
 

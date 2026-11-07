@@ -30,7 +30,7 @@ it('The official MP4 trailer enters the existing player and is destroyed on clos
   expect(dispose).toHaveBeenCalledOnce();
 });
 
-const missingCover: JavDetail = { code: 'EXM-002', title: '示例作品', state: 'ready', summary: '', director: '', publisher: '',
+const missingCover: JavDetail = { code: 'EXM-002', title: 'Example video', state: 'ready', summary: '', director: '', publisher: '',
   performers: '', performer_refs: [], studio_refs: [], series_refs: [], tags: [], has_cover: false,
   source_image: false, preview_count: 0, comments_count: 0, source_url: '', wanted: false, want_id: null };
 
@@ -43,12 +43,12 @@ async function mountMissingCover(reply: unknown) {
   return { fetcher, host: mounted.host };
 }
 
-it('没有封面时画廊给空态与立即重试，取到后换成本机封面', async () => {
+it('With no cover, the gallery shows an empty state with retry now, then swaps to the local cover once fetched', async () => {
   const { fetcher, host } = await mountMissingCover({ ok: true, has_cover: true, cover_version: 'v7', message: '' });
   try {
     const empty = host.querySelector('[data-jav-picture-wait] [data-empty-state]');
-    expect(empty?.querySelector('h3')?.textContent).toBe('封面未取得');
-    await click(buttonNamed('立即重试', empty!));
+    expect(empty?.querySelector('h3')?.textContent).toBe('Cover not fetched');
+    await click(buttonNamed('Retry now', empty!));
     await settle();
     expect(fetcher.mock.calls[0]?.[0]).toBe('/api/jav/cover');
     expect(sentBody(fetcher)).toEqual({ code: 'EXM-002' });
@@ -57,11 +57,11 @@ it('没有封面时画廊给空态与立即重试，取到后换成本机封面'
   } finally { vi.unstubAllGlobals() }
 });
 
-it('重试没取到时空态写出服务端给的原因', async () => {
-  const { host } = await mountMissingCover({ ok: true, has_cover: false, cover_version: '', message: '来源连接失败' });
+it('On a failed retry, the empty state shows the server\'s reason', async () => {
+  const { host } = await mountMissingCover({ ok: true, has_cover: false, cover_version: '', message: 'Source connection failed' });
   try {
-    await click(buttonNamed('立即重试', host));
+    await click(buttonNamed('Retry now', host));
     await settle();
-    expect(host.querySelector('[data-empty-state] p')?.textContent).toBe('来源连接失败');
+    expect(host.querySelector('[data-empty-state] p')?.textContent).toBe('Source connection failed');
   } finally { vi.unstubAllGlobals() }
 });

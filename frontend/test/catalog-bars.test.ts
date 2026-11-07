@@ -1,4 +1,4 @@
-/* 首页筛选栏的两份聚合（`src/catalog-bars.ts`）：键、回退、标签页内复用、口径变了重取、刷新强制重取、续页。 */
+/* The two aggregations behind the home-page filter bars (`src/catalog-bars.ts`): keys, fallback, reuse within a tab, re-fetch when the scope changes, forced re-fetch on refresh, and continuation pages. */
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
 import {
@@ -51,7 +51,7 @@ it('Without state-page params, or when narrowing still leaves people, it never f
   expect(full.urls()).toEqual(['/api/tops?n=60&state=flagged']);
 });
 
-it('同一份口径跨长时间往返复用，主动刷新后重取', async () => {
+it('One consistent scope is reused across long round trips and refetched only on an explicit refresh', async () => {
   const net = serve(answer(FULL));
   await fetchBars('', 'n=60&seed=s');
   vi.setSystemTime(24 * 60 * 60 * 1000);
@@ -79,7 +79,7 @@ it('Concurrent asks for the same asset send one request', async () => {
   expect(net.fetcher).toHaveBeenCalledTimes(2);
 });
 
-it('dropBars 之后立即重取', async () => {
+it('Refetches right after dropBars', async () => {
   const net = serve(answer(FULL));
   await fetchBars('', 'n=60&seed=s');
   dropBars();
@@ -111,7 +111,7 @@ it('Both rows paging to the same page send one request, keyed separately from pa
   expect(topsPageKey('p')).not.toEqual(topsKey('p', ''));
 });
 
-it('续页复用，dropBars 之后重取，状态页空页照样退回全库口径', async () => {
+it('Follow-up pages reuse the host, refetch after dropBars, and an empty status page still falls back to the whole-library scope', async () => {
   const net = serve((url) => (url.includes('state=') ? EMPTY : FULL));
   await fetchTopsPage('n=60&page=2&state=flagged');
   await fetchTopsPage('n=60&page=2&state=flagged');

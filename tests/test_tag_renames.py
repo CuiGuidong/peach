@@ -92,40 +92,40 @@ class RenameTests(unittest.TestCase):
         self.assertEqual(sorted(set(RETIRED_TAGS) & set(RETIRED_TAGS.values())), [])
 
     def test_a_retired_name_becomes_the_canonical_one(self):
-        self._tag(1, "POV第一视角")
+        self._tag(1, "POV")
         rows = tag_renames.collect(self.connection)
         counts = tag_renames.apply_rows(self.connection, rows)
-        self.assertEqual(self._tags_of(1), ["主观视角"])
+        self.assertEqual(self._tags_of(1), ["POV"])
         self.assertEqual(counts["tags"], 1)
         self.assertEqual(counts["dropped"], 0)
 
     def test_an_asset_that_already_has_both_names_keeps_one_row(self):
         """`UNIQUE(asset_id, tag)` 挡住这次改写，旧的那条就只能删。"""
-        self._tag(2, "POV第一视角")
-        self._tag(2, "主观视角", source="name")
+        self._tag(2, "POV")
+        self._tag(2, "POV", source="name")
         counts = tag_renames.apply_rows(self.connection, tag_renames.collect(self.connection))
-        self.assertEqual(self._tags_of(2), ["主观视角"])
+        self.assertEqual(self._tags_of(2), ["POV"])
         self.assertEqual(counts["dropped"], 1)
 
     def test_what_the_source_itself_said_is_left_alone(self):
         """`pixiv_tag` 记的是作者打了什么词，改它等于事后修改来源的原话。"""
-        self._tag(3, "足控", source="pixiv_tag")
+        self._tag(3, "Foot fetish", source="pixiv_tag")
         rows = {row["old"]: row for row in tag_renames.collect(self.connection)}
-        self.assertEqual(rows["足控"]["raw_kept"], 1)
-        self.assertEqual(rows["足控"]["assets"], 0)
+        self.assertEqual(rows["Foot fetish"]["raw_kept"], 1)
+        self.assertEqual(rows["Foot fetish"]["assets"], 0)
         tag_renames.apply_rows(self.connection, list(rows.values()))
-        self.assertEqual(self._tags_of(3), ["足控"])
+        self.assertEqual(self._tags_of(3), ["Foot fetish"])
 
     def test_the_tag_entity_follows_the_name(self):
-        self._entity(10, "足底足指")
+        self._entity(10, "Foot fetish")
         tag_renames.apply_rows(self.connection, tag_renames.collect(self.connection))
         self.assertEqual(
             self.connection.execute("SELECT canonical_name FROM entity WHERE id=10").fetchone()[0],
-            "恋足")
+            "Foot fetish")
 
     def test_two_entities_for_one_tag_merge_and_the_old_name_stays_searchable(self):
-        self._entity(11, "足控")
-        self._entity(12, "恋足")
+        self._entity(11, "Foot fetish")
+        self._entity(12, "Foot fetish")
         self.connection.execute(
             "INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(1,11,'tag','stash')")
         counts = tag_renames.apply_rows(self.connection, tag_renames.collect(self.connection))
@@ -134,24 +134,24 @@ class RenameTests(unittest.TestCase):
         self.assertEqual(
             self.connection.execute(
                 "SELECT entity_id FROM asset_entity WHERE asset_id=1").fetchone()[0], 12)
-        self.assertIn("足控", [row[0] for row in self.connection.execute(
+        self.assertIn("Foot fetish", [row[0] for row in self.connection.execute(
             "SELECT alias FROM entity_alias WHERE entity_id=12")])
 
     def test_the_second_name_landing_on_one_tag_is_reported_as_a_merge(self):
         """`足控` 与 `足底足指` 都归 `恋足`：先改的造出实体，后改的只能合并。"""
-        self._entity(13, "足控")
-        self._entity(14, "足底足指")
+        self._entity(13, "Foot fetish")
+        self._entity(14, "Foot fetish")
         rows = tag_renames.collect(self.connection)
-        verdicts = [row["entity"] for row in rows if row["new"] == "恋足"]
+        verdicts = [row["entity"] for row in rows if row["new"] == "Foot fetish"]
         self.assertEqual(verdicts, ["改名", "合并"])
         tag_renames.apply_rows(self.connection, rows)
         self.assertEqual(
             [row[0] for row in self.connection.execute(
-                "SELECT canonical_name FROM entity WHERE kind='tag'")], ["恋足"])
+                "SELECT canonical_name FROM entity WHERE kind='tag'")], ["Foot fetish"])
 
     def test_a_dropped_bucket_leaves_the_ledger_with_its_entity(self):
         self._tag(6, "乳系", source="vision_creator")
-        self._tag(6, "美乳", source="vision_creator")
+        self._tag(6, "Beautiful Breasts", source="vision_creator")
         self._entity(20, "乳系")
         self.connection.execute(
             "INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(6,20,'tag','vision_creator')")
@@ -161,7 +161,7 @@ class RenameTests(unittest.TestCase):
         self.assertEqual((rows["乳系"]["new"], rows["乳系"]["assets"], rows["乳系"]["entity"]),
                          ("", 1, "删除"))
         counts = tag_renames.apply_rows(self.connection, list(rows.values()))
-        self.assertEqual(self._tags_of(6), ["美乳"])
+        self.assertEqual(self._tags_of(6), ["Beautiful Breasts"])
         self.assertEqual((counts["dropped"], counts["entities"]), (1, 1))
         for table in ("entity", "asset_entity", "entity_alias"):
             column = "id" if table == "entity" else "entity_id"
@@ -181,28 +181,28 @@ class RenameTests(unittest.TestCase):
         self.assertIsNotNone(self.connection.execute("SELECT 1 FROM entity WHERE id=21").fetchone())
 
     def test_a_preview_run_writes_the_csv_and_leaves_the_ledger_alone(self):
-        self._tag(4, "足控")
+        self._tag(4, "Foot fetish")
         self.connection.commit()
         csv = Path(self.tmp.name) / "rename.csv"
         args = _script.build_parser().parse_args(
             ["--db", str(self.db), "--review-csv", str(csv)])
         self.assertEqual(_script.run(args), 0)
-        self.assertIn("足控", csv.read_text(encoding="utf-8"))
-        self.assertEqual(self._tags_of(4), ["足控"])
+        self.assertIn("Foot fetish", csv.read_text(encoding="utf-8"))
+        self.assertEqual(self._tags_of(4), ["Foot fetish"])
 
     def test_applying_backs_up_first_and_then_writes(self):
-        self._tag(5, "足控")
+        self._tag(5, "Foot fetish")
         self.connection.commit()
         backup = Path(self.tmp.name) / "before.db"
         args = _script.build_parser().parse_args(
             ["--db", str(self.db), "--apply", "--backup", str(backup),
              "--review-csv", str(Path(self.tmp.name) / "rename.csv")])
         self.assertEqual(_script.run(args), 0)
-        self.assertEqual(self._tags_of(5), ["恋足"])
+        self.assertEqual(self._tags_of(5), ["Foot fetish"])
         with closing(sqlite3.connect(backup)) as saved:
             self.assertEqual(
                 saved.execute("SELECT tag FROM asset_tag WHERE asset_id=5").fetchone()[0],
-                "足控", "备份必须是写入之前的状态")
+                "Foot fetish", "备份必须是写入之前的状态")
 
     def test_writing_the_ledger_without_a_backup_is_refused(self):
         args = _script.build_parser().parse_args(["--db", str(self.db), "--apply"])

@@ -235,11 +235,11 @@ describe('Continuation', () => {
       await until(() => shorts(host).length > 0, 'Portrait strip inserted into the grid');
       if (collapse) {
         expect(groupBadges(shorts(host))).toEqual([
-          ['4', '2 卷', '25:00', true], ['43', '', '尚未探查', false], ['9', '', '5:00', false],
+          ['4', '2 volumes', '25:00', true], ['43', '', 'Not probed yet', false], ['9', '', '5:00', false],
         ]);
       } else {
-        expect(groupBadges(shorts(host)), '合并关着各竖屏卷各自成卡').toEqual([
-          ['4', '', '10:00', false], ['43', '', '尚未探查', false], ['5', '', '15:00', false], ['9', '', '5:00', false],
+        expect(groupBadges(shorts(host)), 'With merging off each portrait volume is its own card').toEqual([
+          ['4', '', '10:00', false], ['43', '', 'Not probed yet', false], ['5', '', '15:00', false], ['9', '', '5:00', false],
         ]);
       }
     }
@@ -345,22 +345,22 @@ describe('Video card', () => {
   };
 
   it.each([
-    [{ duration: null }, '尚未探查'],
-    [{ duration: -1 }, '探查错误'],
-    [{ duration: 0 }, '时长未取得'],
-    [{ duration: null, cost: 'metered' }, '流量保护 · 未探查'],
-    [{ duration: -1, cost: 'metered' }, '探查错误'],
-    [{ duration: null, is_strm: true }, 'STRM 不自动探查'],
-    [{ duration: null, name: '作品.ISO' }, 'ISO 不自动探查'],
-    [{ duration: null, location: 'online' }, '来源未提供时长'],
+    [{ duration: null }, 'Not probed yet'],
+    [{ duration: -1 }, 'Probe error'],
+    [{ duration: 0 }, 'Duration not obtained'],
+    [{ duration: null, cost: 'metered' }, 'Traffic protection · not probed'],
+    [{ duration: -1, cost: 'metered' }, 'Probe error'],
+    [{ duration: null, is_strm: true }, 'STRM is never probed automatically'],
+    [{ duration: null, name: 'Title.ISO' }, 'ISO is never probed automatically'],
+    [{ duration: null, location: 'online' }, 'The source gave no duration'],
     [{ duration: 60 }, '1:00'],
-  ] as [Partial<MediaItem>, string][])('时长角标按已有记录区分缺失原因 %j', async (fields, expected) => {
+  ] as [Partial<MediaItem>, string][])('The duration badge tells missing-state reasons apart from existing records %j', async (fields, expected) => {
     const { host } = await render(item(7, fields));
     expect(host.querySelector('[data-media-duration]')?.textContent).toBe(expected);
   });
 
-  it('点标题打开，点署名进资料页，点「未归属」进那一批，点标签在这一屏筛它', async () => {
-    const credited = await render(item(7, { creator: '某某', tags: ['苗条'] }));
+  it('Click the title to open, the byline for the profile, "Unattributed" for that batch, and a tag filters this screen by it', async () => {
+    const credited = await render(item(7, { creator: 'So-and-so', tags: ['Slender'] }));
     await click(credited.host.querySelector('[data-media-title]'));
     expect(credited.onOpen).toHaveBeenCalledWith(expect.objectContaining({ id: 7 }), credited.card);
     await click(credited.host.querySelector('[data-media-who]'));
@@ -418,7 +418,7 @@ describe('Video card', () => {
     const { host } = await render(item(12, { follow_thumb_url: 'https://example.test/t.jpg', follow_item_id: 5, tags: ['Local'], follow_tags: ['source'] }));
     expect(host.querySelector('[data-media-art] img')?.getAttribute('src')).toBe('https://example.test/t.jpg');
     const tag = host.querySelector('[data-media-tag]');
-    expect([tag?.textContent, tag?.tagName, tag?.hasAttribute('data-tag')]).toEqual(['#来源', 'SPAN', false]);
+    expect([tag?.textContent, tag?.tagName, tag?.hasAttribute('data-tag')]).toEqual(['#source', 'SPAN', false]);
   });
 
   it('Half-watched videos draw one progress bar and volume groups draw none; the ratio writes into the cover cell', async () => {

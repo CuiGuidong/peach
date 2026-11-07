@@ -11,12 +11,12 @@ import { actionOrder, buttonNamed, choose, click, fetchMock, mount, section, sen
 
 const automatic = { mode: 'off', interval_hours: 24, available: true, download_available: true };
 const release: ReleaseState = {
-  current_version: '0.9.0', latest_version: null, channel: '测试版', installation: '独立测试包', in_app_update: true,
-  state: 'unchecked', message: '尚未检查', release_url: 'https://github.com/peach-mitao/peach/releases',
+  current_version: '0.9.0', latest_version: null, channel: 'Beta', installation: 'Standalone test package', in_app_update: true,
+  state: 'unchecked', message: 'Not checked yet', release_url: 'https://github.com/peach-mitao/peach/releases',
 };
 const uninstall = { available: true, full_available: true, message: '', data_root: 'fixture', directories: ['fixture', 'fixture/cache'] };
 
-it('分区依次是运行信息、新手教程、卸载；缺依赖的运行信息带下载链接', async () => {
+it('Sections run runtime info, guided tour, uninstall; runtime info missing a dependency carries a download link', async () => {
   const data: ConfigurationData = {
     editable: true, notice: '', revision: 'r', media_dirs: [], library_count: 0, port: 9123,
     automatic_updates: automatic, updates: release, uninstall,
@@ -27,36 +27,36 @@ it('分区依次是运行信息、新手教程、卸载；缺依赖的运行信�
   };
   const host = await mount(<MaintenanceSettings data={data} receipt={vi.fn()} reopenTutorial={vi.fn()} />);
   expect([...host.firstElementChild!.children].map((node) => node.getAttribute('aria-label')))
-    .toEqual(['运行信息', '新手教程', '卸载 Peach']);
-  const facts = section(host, '运行信息')!;
-  expect([...facts.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual(['版本', 'FFmpeg']);
+    .toEqual(['Runtime info', 'Guided tour', 'Uninstall Peach']);
+  const facts = section(host, 'Runtime info')!;
+  expect([...facts.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual(['Editions', 'FFmpeg']);
   const link = facts.querySelector('a[href="https://ffmpeg.org/download.html"]');
   expect(link?.getAttribute('target')).toBe('_blank');
   expect(link?.textContent).toBe('Download FFmpeg');
 });
 
-it('能装的缺失工具给「安装」，装完用服务端回的运行信息换掉那一行并回执', async () => {
+it('能装的缺失工具给「Install」，装完用服务端回的运行信息换掉那一行并回执', async () => {
   const data: ConfigurationData = {
     editable: true, notice: '', revision: 'r', media_dirs: [], library_count: 0, port: 9123,
-    facts: [{ term: 'untrunc', value: '未安装；缺索引的 MP4 需要它才修得了。', install_tool: 'untrunc' }],
+    facts: [{ term: 'untrunc', value: '未Install；缺索引的 MP4 需要它才修得了。', install_tool: 'untrunc' }],
   };
-  const fetcher = fetchMock(200, { message: '已安装 untrunc（9d86ec9）', facts: [{ term: 'untrunc', value: '已安装，版本 9d86ec9' }] });
+  const fetcher = fetchMock(200, { message: '已Install untrunc（9d86ec9）', facts: [{ term: 'untrunc', value: '已Install，版本 9d86ec9' }] });
   vi.stubGlobal('fetch', fetcher);
   const receipt = vi.fn();
   const host = await mount(<MaintenanceSettings data={data} receipt={receipt} reopenTutorial={vi.fn()} />);
-  const facts = section(host, '运行信息')!;
+  const facts = section(host, 'Runtime info')!;
   expect(facts.querySelector('a[target="_blank"]')).toBeNull();
-  await click(buttonNamed('安装', facts));
+  await click(buttonNamed('Install', facts));
   await settle();
   expect(fetcher.mock.calls[0]?.[0]).toBe('/api/configuration/media-tools');
   expect(sentBody(fetcher)).toEqual({ tool: 'untrunc' });
-  expect(facts.querySelector('dd')?.textContent).toBe('已安装，版本 9d86ec9');
-  expect(buttonNamed('安装', facts)).toBeNull();
-  expect(receipt).toHaveBeenCalledWith('已安装 untrunc（9d86ec9）');
+  expect(facts.querySelector('dd')?.textContent).toBe('已Install，版本 9d86ec9');
+  expect(buttonNamed('Install', facts)).toBeNull();
+  expect(receipt).toHaveBeenCalledWith('已Install untrunc（9d86ec9）');
 });
 
-describe('自动更新', () => {
-  it('两颗开关互相约束，服务端成功后才回执，关闭也能保存', async () => {
+describe('Auto-update', () => {
+  it('The two switches constrain each other, receipts wait for server success, and turning off also saves', async () => {
     const fetcher = fetchMock(200, automatic);
     vi.stubGlobal('fetch', fetcher);
     const receipt = vi.fn();
@@ -155,37 +155,37 @@ describe('Check for updates', () => {
     expect(check.disabled).toBe(false);
   });
 
-  it('macOS 独立包没有应用内安装，给本机架构的安装镜像下载键', async () => {
+  it('The macOS standalone package has no in-app install; the download button serves the install image for this machine\'s architecture', async () => {
     const dmg = 'https://github.com/peach-mitao/peach/releases/download/v1.0.0/Peach-1.0.0-macos-arm64.dmg';
     const host = await mount(<ReleaseUpdates initial={{ ...release, in_app_update: false, state: 'available',
-      latest_version: '1.0.0', message: '有新版本可下载。', package_kind: 'installer', asset_url: dmg, asset_size: 300 * 1048576 }} />);
-    const updates = section(host, '检查更新')!;
-    expect(updates.textContent).toContain('macOS 安装镜像 · 300.0 MB');
-    expect(updates.textContent).toContain('把 Peach 拖入「应用程序」');
-    expect(buttonNamed('下载并安装', updates)).toBeNull();
-    const link = [...updates.querySelectorAll('a')].find((a) => a.textContent === '下载新版本');
+      latest_version: '1.0.0', message: 'A new version is available for download.', package_kind: 'installer', asset_url: dmg, asset_size: 300 * 1048576 }} />);
+    const updates = section(host, 'Check for updates')!;
+    expect(updates.textContent).toContain('macOS install image · 300.0 MB');
+    expect(updates.textContent).toContain('Drag Peach into Applications');
+    expect(buttonNamed('Download and install', updates)).toBeNull();
+    const link = [...updates.querySelectorAll('a')].find((a) => a.textContent === 'Download the new version');
     expect(link?.getAttribute('href')).toBe(dmg);
   });
 
-  it('Docker 镜像有新版时列出宿主机上的两步命令，不给下载或安装键', async () => {
+  it('Docker 镜像有新版时列出宿主机上的两步命令，不给下载或Install键', async () => {
     const steps = [{ text: '拉取新镜像', command: 'docker compose pull' }, { text: '重建容器', command: 'docker compose up -d' }];
     const docker = { ...release, installation: 'Docker 镜像', in_app_update: false, steps };
     const host = await mount(<ReleaseUpdates initial={{ ...docker, state: 'available', latest_version: '1.0.0', message: '有新镜像可拉取。' }} />);
-    const updates = section(host, '检查更新')!;
+    const updates = section(host, 'Check for updates')!;
     expect(updates.textContent).toContain('Docker 镜像');
-    const list = updates.querySelector('ol[aria-label="在宿主机上更新"]');
+    const list = updates.querySelector('ol[aria-label="Update on the host"]');
     expect([...list!.querySelectorAll('code')].map((code) => code.textContent)).toEqual(['docker compose pull', 'docker compose up -d']);
-    expect(buttonNamed('下载并安装', updates)).toBeNull();
-    expect([...updates.querySelectorAll('a')].some((a) => a.textContent === '下载新版本')).toBe(false);
-    const current = await mount(<ReleaseUpdates initial={{ ...docker, state: 'current', latest_version: '0.9.0', message: '已是最新测试版。' }} />);
-    expect(current.querySelector('ol[aria-label="在宿主机上更新"]')).toBeNull();
+    expect(buttonNamed('Download and install', updates)).toBeNull();
+    expect([...updates.querySelectorAll('a')].some((a) => a.textContent === 'Download the new version')).toBe(false);
+    const current = await mount(<ReleaseUpdates initial={{ ...docker, state: 'current', latest_version: '0.9.0', message: 'Already the latest beta.' }} />);
+    expect(current.querySelector('ol[aria-label="Update on the host"]')).toBeNull();
   });
 
-  it('已是最新就不再提示可用更新，也不给安装键', async () => {
-    const current = await mount(<ReleaseUpdates initial={{ ...release, latest_version: '0.9.0', state: 'current', message: '已是最新测试版。' }} />);
-    expect(current.textContent).not.toContain('有可用更新');
-    expect(current.textContent).toContain('已是最新测试版。');
-    expect(buttonNamed('下载并安装', current)).toBeNull();
+  it('Already up to date shows no available-update note and no install key', async () => {
+    const current = await mount(<ReleaseUpdates initial={{ ...release, latest_version: '0.9.0', state: 'current', message: 'Already the latest beta.' }} />);
+    expect(current.textContent).not.toContain('Update available');
+    expect(current.textContent).toContain('Already the latest beta.');
+    expect(buttonNamed('Download and install', current)).toBeNull();
   });
 });
 
@@ -199,11 +199,11 @@ it('Uninstall keeps data by default; after checking full uninstall the confirmat
   const full = area.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
   expect(full.checked).toBe(false);
   expect([...area.querySelectorAll('details p')].map(p => p.textContent)).toEqual(['fixture', 'fixture/cache']);
-  // 每条路径自己带一颗打开键：要删的是哪几个目录，看一眼比照着路径再翻一遍快。
-  expect([...area.querySelectorAll('details button[aria-label="在资源管理器中显示"]')]).toHaveLength(2);
-  await click(buttonNamed('卸载 Peach', area));
-  expect(modal.mock.calls[0]?.[0]).toMatchObject({ title: '卸载 Peach', danger: true, confirmLabel: '卸载 Peach' });
-  expect(String(modal.mock.calls[0]?.[0].body)).toContain('设置、本地数据库、观看记录与缓存保留');
+  // Each path carries its own open button: glancing once beats tracing each path back through the tree to see which directories get deleted.
+  expect([...area.querySelectorAll('details button[aria-label="Show in Explorer"]')]).toHaveLength(2);
+  await click(buttonNamed('Uninstall Peach', area));
+  expect(modal.mock.calls[0]?.[0]).toMatchObject({ title: 'Uninstall Peach', danger: true, confirmLabel: 'Uninstall Peach' });
+  expect(String(modal.mock.calls[0]?.[0].body)).toContain('Settings, the local database, watch history, and caches are kept');
   expect(fetcher).not.toHaveBeenCalled();
   await click(full);
   await click(buttonNamed('Uninstall Peach', area));
@@ -215,24 +215,24 @@ it('Uninstall keeps data by default; after checking full uninstall the confirmat
   expect(buttonNamed('Uninstall Peach', area)?.disabled).toBe(true);
 });
 
-describe('新手教程', () => {
-  it('打开教程仅调用入口，不发送写入请求或操作回执', async () => {
+describe('Guided tour', () => {
+  it('Opening the tour only calls the entry; it sends no write requests or operation receipts', async () => {
     const reopenTutorial = vi.fn(async () => {});
     const receipt = vi.fn();
     const fetcher = vi.fn(); vi.stubGlobal('fetch', fetcher);
     const host = await mount(<TutorialSettings receipt={receipt} reopenTutorial={reopenTutorial} />);
-    await click(buttonNamed('重新打开', host));
+    await click(buttonNamed('Reopen', host));
     expect(reopenTutorial).toHaveBeenCalledTimes(1);
     expect(fetcher).not.toHaveBeenCalled();
     expect(receipt).not.toHaveBeenCalled();
   });
 
-  it('反复打开可重新进入同一教程入口', async () => {
+  it('Reopening repeatedly re-enters the same tour entry', async () => {
     const receipt = vi.fn();
     const reopenTutorial = vi.fn(async () => {});
     const host = await mount(<TutorialSettings receipt={receipt} reopenTutorial={reopenTutorial} />);
-    await click(buttonNamed('重新打开', host));
-    await click(buttonNamed('重新打开', host));
+    await click(buttonNamed('Reopen', host));
+    await click(buttonNamed('Reopen', host));
     expect(reopenTutorial).toHaveBeenCalledTimes(2);
     expect(receipt).not.toHaveBeenCalled();
   });

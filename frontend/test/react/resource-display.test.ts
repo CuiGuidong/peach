@@ -13,7 +13,7 @@ it('When the source gives no size field, show it as unknown', () => {
   expect(resourceSize(null)).toBe('Unknown size');
 });
 
-it('来源没给大小字段时以未知呈现', () => {
-  expect(resourceSize(undefined)).toBe('大小未知');
-  expect(resourceSize(null)).toBe('大小未知');
+it('When the source gives no size field, show it as unknown', () => {
+  expect(resourceSize(undefined)).toBe('Unknown size');
+  expect(resourceSize(null)).toBe('Unknown size');
 });
