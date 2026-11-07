@@ -405,7 +405,8 @@ PRESENT_A = "COALESCE(a.disposal,'')<>'vanished' AND NOT peach_is_local_extra(a.
 LENGTH_BANDS = ("速食", "短", "中", "长")
 QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "低画质")
 #: 分档键是探测写进账本的枚举值，展示名单独给英文。
-BAND_LABELS = {"低画质": "Low quality"}
+BAND_LABELS = {"低画质": "Low quality", "速食": "Quickie",
+                   "短": "Short", "中": "Medium", "长": "Long"}
 
 
 def _bands(c, column: str, order: tuple[str, ...]) -> list[dict[str, object]]:

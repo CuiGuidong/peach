@@ -7,11 +7,13 @@ from urllib.parse import urlsplit
 from .entry_links import EXTERNAL_KIND, JAV_DIRECTORIES
 
 VALUES = {
-    'identity': {'person':'个人', 'account':'发布账号', 'organization':'机构',
-                 'platform':'平台', 'collection':'合集目录', 'release':'作品标识', 'unknown':'身份待核验'},
-    'occupation': {'adult_performer':'成人出演者', 'amateur_performer':'非职业出演者', 'model':'模特', 'actor':'演员',
-                   'artist':'艺术创作者', 'animator':'动画作者', 'content_creator':'内容创作者'},
-    'market': {'japanese_av':'日本 AV', 'western_adult':'西方成人发行'},
+    'identity': {'person':'Person', 'account':'Publishing account', 'organization':'Organization',
+                 'platform':'Platform', 'collection':'Collection directory', 'release':'Release identifier',
+                 'unknown':'Identity unverified'},
+    'occupation': {'adult_performer':'Adult performer', 'amateur_performer':'Amateur performer',
+                   'model':'Model', 'actor':'Actor', 'artist':'Artist', 'animator':'Animator',
+                   'content_creator':'Content creator'},
+    'market': {'japanese_av':'Japanese AV', 'western_adult':'Western adult'},
     'account_role': {'seller':'Seller', 'publisher':'Publisher', 'studio':'Label'},
 }
 CATEGORIES = {'japanese_av': 'JAV', 'amateur': 'Amateur', 'western': 'Western',

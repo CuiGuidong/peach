@@ -410,7 +410,7 @@ class EntityClassificationTests(unittest.TestCase):
         self.claim(source,'occupation','model');self.connection.commit()
         with self.connection:
             merge_entity(self.connection,target_id=target,source_id=source,source_name='Old Name',alias_source='user:review')
-        self.assertEqual(classification.classifications(self.connection,[target])[target][0]['label'],'模特')
+        self.assertEqual(classification.classifications(self.connection,[target])[target][0]['label'],'Model')
         self.assertEqual(self.connection.execute('PRAGMA foreign_key_check').fetchall(),[])
 
     def part(self, number, code='FC2-PPV-3312576', disposal=None):
