@@ -1,8 +1,8 @@
-/* 让其他设备信任本机 HTTPS 证书：下载本机 CA、核对 SHA-256 指纹、手机扫码下载。
+/* 让其他设备信任This device HTTPS 证书：下载This device CA、核对 SHA-256 指纹、手机扫码下载。
  *
  * 下发的只有 CA 的公开证书，服务端重新编码后给出，私钥不经过这里。二维码里的链接带一个
  * 十分钟有效的签名，手机不用先登录（ADR-0142）；页面开着时在过期前重取一次。
- * 指纹与到期日用配置页共用的 `FactList`，各平台的安装步骤是 BoardUI `SettingsRow`，下载键是 `ButtonLink`。 */
+ * 指纹与到期日用配置页共用的 `FactList`，各平台的Install步骤是 BoardUI `SettingsRow`，下载键是 `ButtonLink`。 */
 import { useQuery } from '@tanstack/react-query';
 import { RiDownloadLine } from '@remixicon/react';
 
@@ -41,9 +41,9 @@ export function QrCode({ rows, label }: { rows: string[]; label: string }) {
 }
 
 const STEPS: readonly [string, string][] = [
-  ['iPhone／iPad', '用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」安装它，再到「设置 → 通用 → 关于本机 → 证书信任设置」打开这张证书的完全信任。'],
-  ['Android', '扫码下载后，到「设置 → 安全 → 加密与凭据 → 安装证书 → CA 证书」选择下载的文件。菜单名称因厂商而异。'],
-  ['电脑', '点「下载证书」。Windows 双击文件，安装到「受信任的根证书颁发机构」；macOS 在「钥匙串访问」里把它设为「始终信任」。'],
+  ['iPhone／iPad', '用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」Install它，再到「设置 → 通用 → 关于This device → 证书信任设置」打开这张证书的完全信任。'],
+  ['Android', 'After scanning the code to download, open Settings - Security - Encryption & credentials - Install a certificate - CA certificate and pick the downloaded file. Menu names vary by maker.'],
+  ['This computer', 'Click Download certificate. On Windows double-click the file and install it into Trusted Root Certification Authorities; on macOS set it to Always Trust in Keychain Access.'],
 ];
 
 export function CertificateTrust({ initial }: { initial: CertificateState }) {
@@ -58,21 +58,21 @@ export function CertificateTrust({ initial }: { initial: CertificateState }) {
   const groups = ca.fingerprint.split(':');
   const quarters = [0, 8, 16, 24].map(start => groups.slice(start, start + 8).join(':'));
   return (
-    <Section title="其他设备信任 HTTPS 证书">
+    <Section title="Other devices trusting the HTTPS certificate">
       <Stack>
-        <Help>手机、平板和其他电脑第一次打开 HTTPS 地址时会提示证书不受信任。在那台设备上安装并信任本机 CA 证书后不再提示。证书只含公开部分，不含私钥。</Help>
+        <Help>手机、平板和其他电脑第一次打开 HTTPS 地址时会提示证书不受信任。在那台设备上Install并信任This device CA 证书后不再提示。证书只含公开部分，不含私钥。</Help>
         <div className="flex min-w-0 flex-wrap items-start gap-4">
-          <QrCode rows={ca.qr} label="手机扫码下载本机 CA 证书" />
+          <QrCode rows={ca.qr} label="手机扫码下载This device CA 证书" />
           <div className="flex min-w-0 flex-1 basis-64 flex-col gap-2">
             <FactList>
-              <Fact term="SHA-256 指纹">
+              <Fact term="SHA-256 fingerprint">
                 <span className="flex max-w-sm flex-wrap justify-end gap-x-2 font-mono text-caption-1-regular">
                   {quarters.map((quarter, index) => <span key={index} className="whitespace-nowrap">{quarter}</span>)}
                 </span>
               </Fact>
-              <Fact term="有效期至">{ca.not_after}</Fact>
+              <Fact term="Valid until">{ca.not_after}</Fact>
             </FactList>
-            <Help>二维码 10 分钟内有效，页面开着时会自动更新。Android 打不开 .local 地址时，在这台电脑上改用局域网 IP 打开本页再扫码。</Help>
+            <Help>The QR code is valid for 10 minutes and refreshes while the page stays open. If an Android device cannot open the .local address, open this page on this computer via the LAN IP instead and scan that.</Help>
           </div>
         </div>
       </Stack>
@@ -80,10 +80,10 @@ export function CertificateTrust({ initial }: { initial: CertificateState }) {
         {STEPS.map(([label, text]) => <SettingsRow key={label} label={label} description={text} />)}
       </Rows>
       <Stack divided>
-        <Help>装好后在设备的证书详情里核对 SHA-256 指纹，与上面一致才算装对。</Help>
+        <Help>After installing, compare the SHA-256 fingerprint in the certificate details on the device; it must match the one above.</Help>
       </Stack>
       <Footer>
-        <ButtonLink href={ca.download} download="peach-local-ca.crt" leadingIcon={RiDownloadLine}>下载证书</ButtonLink>
+        <ButtonLink href={ca.download} download="peach-local-ca.crt" leadingIcon={RiDownloadLine}>Download certificate</ButtonLink>
       </Footer>
     </Section>
   );

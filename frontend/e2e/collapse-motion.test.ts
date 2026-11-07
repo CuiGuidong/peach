@@ -95,7 +95,7 @@ describe('The collapsible body and arrow share an animation', () => {
         await settle(opened.page, 'body', { except: taskButtons });
         await motion(opened.page, opened.page.locator('#toasts [data-processing-dock] button[aria-controls]'));
         await opened.page.locator('#tutorialBtn').click();
-        await opened.page.locator('label').filter({ has: opened.page.getByRole('radio', { name: '界面导览', exact: true }) }).click();
+        await opened.page.locator('label').filter({ has: opened.page.getByRole('radio', { name: 'Interface tour', exact: true }) }).click();
         await motion(opened.page, opened.page.locator('[data-guide-topic="browse"] > details > summary'));
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close() }

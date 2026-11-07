@@ -53,7 +53,7 @@ interface DataTableProps<T> {
 
 /** The data table shares sorting, cross-page selection and pagination; business actions receive only selected rows still in the list. */
 export function DataTable<T extends RowData>({ label, items, columns, rowId, rowLabel, selected, onSelected, actions,
-  title = label, titleId, description, footerActions, toolbarActions, panel = true, unit = '条记录' }: DataTableProps<T>) {
+  title = label, titleId, description, footerActions, toolbarActions, panel = true, unit = 'records' }: DataTableProps<T>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const preferenceColumns = useMemo(() => [
     { id: 'select', label: 'Select', width: 48, min: 48, max: 48, required: true },

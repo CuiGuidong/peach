@@ -1,9 +1,9 @@
 /* The library card grid: catalog and trash (rendered by the route tree into `#grid`), the profile page's video section, and
  * the details page's Continue watching.
  *
- * 取数、排法与续页都在这里；打开、选择、稍后看与回收站操作是壳递进来的动作。换筛选或壳要求
- * 重读时查询换键；筛选与排序控件常驻，等待新结果时只在网格铺共用骨架。
- * 内容与骨架交叉淡化；数据到达即可呈现，缓存命中时直接落内容。
+ * Fetching, layout, and pagination all live here; opening, selecting, watch-later, and trash operations are actions the shell hands in. When a filter changes or the shell asks
+ * to re-read, the query switches key; the filter and sort controls are persistent, and while waiting for new results only the grid gets the shared skeleton.
+ * Content and skeleton cross-fade; once the data arrives it's renderable, and on a cache hit the content drops straight in.
  *
  * Each page the grid takes reports total count and displayed card count once via `onCount`, and the readout renders in the
  * home filter bar's (`catalog-filter` island) bottom row. Infinite scroll is the `LoadMore` below: when the sentinel enters
@@ -102,7 +102,7 @@ function GridBody(props: CatalogGridProps) {
     refetchOnMount: entity && retained ? 'always' : false,
   });
 
-  /* 一次取数落定就告诉壳一次，成功、为空、失败都算：壳里 `await` 这次重读的调用方据此放行。 */
+  /* Tell the shell once per settled fetch, success, empty, and failure alike: callers in the shell awaiting this re-read are released on it. */
   const settledRevision = useRef<number | null>(null);
   useEffect(() => {
     if (result.isPending || result.isPlaceholderData || settledRevision.current === props.revision) return;
@@ -328,7 +328,7 @@ function useShortsStrips(
     const addedFrom = Math.max(0, (pageStarts[arrived.page] ?? 0) - start);
     const boundaries = shortsBoundaries(tiles.length - start, addedFrom, columns);
     if (!boundaries.length) return;
-    /* 落点定了才折叠：剪不出落点的这一批下次照原偏移量重取，不能先记成已出现。 */
+    /* Collapse only once the anchor is decided: a batch that yields no anchor is refetched at the same offset next time and must not be recorded as seen yet. */
     const items = collapseGroups(arrived.items, own.groups, props.groupCollapse !== false);
     own.offset = arrived.more ? own.offset + SHORTS_BATCH : 0;
     if (!items.length) return;

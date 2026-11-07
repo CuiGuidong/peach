@@ -47,19 +47,19 @@ export type MediaCardVariant = 'grid' | 'short' | 'next' | 'resource';
 const UNNAMED = 'Untitled video';
 
 
-const RESOURCE_LABELS: Record<string, string> = { image: '图片', audio: '音频', archive: '压缩包', other: '其它文件' };
-const DISPOSAL_LABELS = { manual: '手动', junk: '垃圾', duplicate: '重复', missing: '文件缺失' };
+const RESOURCE_LABELS: Record<string, string> = { image: 'Images', audio: 'Audio', archive: 'Archives', other: 'Other files' };
+const DISPOSAL_LABELS = { manual: 'Manual', junk: 'Junk', duplicate: 'Duplicates', missing: 'Missing file' };
 
 function missingDuration(item: MediaItem): { key: string; label: string } {
-  // media_probe 将已探查但未取得时长记为 -1；NULL 才是尚未探查。
-  if (Number(item.duration) < 0) return { key: 'unavailable', label: '探查错误' };
-  if (item.duration != null) return { key: 'unknown', label: '时长未取得' };
-  if (item.location === 'online') return { key: 'online', label: '来源未提供时长' };
+  // media_probe records probed-but-duration-not-obtained as -1; NULL means not yet probed.
+  if (Number(item.duration) < 0) return { key: 'unavailable', label: 'Probe error' };
+  if (item.duration != null) return { key: 'unknown', label: 'Duration not obtained' };
+  if (item.location === 'online') return { key: 'online', label: 'The source gave no duration' };
   const path = String(item.path || item.name || '').toLowerCase();
-  if (item.is_strm || path.endsWith('.strm')) return { key: 'strm', label: 'STRM 不自动探查' };
-  if (path.endsWith('.iso')) return { key: 'iso', label: 'ISO 不自动探查' };
-  if (item.cost === 'metered') return { key: 'metered', label: '流量保护 · 未探查' };
-  return { key: 'pending', label: '尚未探查' };
+  if (item.is_strm || path.endsWith('.strm')) return { key: 'strm', label: 'STRM is never probed automatically' };
+  if (path.endsWith('.iso')) return { key: 'iso', label: 'ISO is never probed automatically' };
+  if (item.cost === 'metered') return { key: 'metered', label: 'Traffic protection · not probed' };
+  return { key: 'pending', label: 'Not probed yet' };
 }
 
 function DisposalReason({ item }: { item: MediaItem }) {
@@ -145,12 +145,12 @@ export function identityParts(item: MediaItem): { avatar: ReactNode; who: ReactN
     ? (
       <>
         <button type="button" data-media-who="" data-entity-kind="performer" data-entity-name={performer} title={entityDisplayName('performer', performer)}><WhoLabel name={entityDisplayName('performer', performer)} /></button>
-        <span data-media-who-more="">{`等 ${total} 人`}</span>
+        <span data-media-who-more="">{`and ${total} people`}</span>
       </>
     )
     : kind
       ? <button type="button" data-media-who="" data-entity-kind={kind} data-entity-name={name} title={entityDisplayName(kind, name)}><WhoLabel name={entityDisplayName(kind, name)} /></button>
-      /* 没有署名人的那批是馆藏里的一类，点得开，和女优名、厂牌名一样。 */
+      /* Entries without a credited person are one class of the library, clickable like performer names and studio names. */
       : <button type="button" data-media-who="" data-open-unowned=""><WhoLabel name={name} /></button>;
   return { avatar, who };
 }
@@ -187,7 +187,7 @@ function LaterButton({ item, actions, on, onChange }: {
   );
 }
 
-/** 快退、快进跳的是悬停预览那段视频本身，不打开详情。 */
+/** Rewind and fast-forward jump within the hover preview's video itself and never open details. */
 function seekPreview(card: HTMLElement | null, delta: number) {
   const video = card?.querySelector<HTMLVideoElement & { _hop?: ReturnType<typeof setInterval> | null }>('video.hv');
   if (!video || !Number.isFinite(video.duration)) return;
@@ -338,7 +338,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
             {item.why && variant !== 'next' ? <span data-media-why="" title={item.why}>{item.why}</span> : null}
             <span data-media-facts="">
               {item.is_jav && item.release_date ? <CardDate value={item.release_date} label={item.release_date} /> : null}
-              <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : '大小未知'}</span>
+              <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : 'Unknown size'}</span>
             </span>
           </div>
           {variant === 'next' ? <RecommendationReason reasons={item.why ? item.why.split(' · ') : []}

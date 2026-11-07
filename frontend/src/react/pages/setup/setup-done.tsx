@@ -47,7 +47,7 @@ export function SetupDoneView({ done }: { done: SetupDone }) {
             <Fact key={fact.term} term={fact.term}>
               {fact.value}
               {fact.install_tool
-                ? <span className="text-text-secondary">可在配置页「应用与维护」里安装。</span>
+                ? <span className="text-text-secondary">You can install it on the configuration page under App and maintenance.</span>
                 : fact.download_url
                 ? <ExternalLink href={fact.download_url}>{fact.download_label ?? fact.download_url}</ExternalLink>
                 : null}

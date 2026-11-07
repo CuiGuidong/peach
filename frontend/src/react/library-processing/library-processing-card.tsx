@@ -3,9 +3,9 @@
  * The card describes what that button is doing right now (progress or waiting dots); results and failures describe the run's
  * outcome and hang outside the card, written the same way as the link management and resource sync blocks.
  *
- * 写操作是 `useMutation`：服务端回的就是这一趟的新快照，用 `setQueryData` 换进缓存，
- * 再让这个键立刻重读一次接上轮询的节律。首屏读到的旧终态不冒充新结果——任务关掉页面
- * 照样在跑，状态里常年躺着上一趟的回执，判据在 `use-library-processing.ts`。 */
+ * Write operations are `useMutation`: what the server returns is the new snapshot for this run; swap it into the cache via `setQueryData`,
+ * then immediately re-read this key once to pick up the polling rhythm. A stale terminal state read on the first screen doesn't pose as a new result — the task keeps running even after the page is closed,
+ * so a previous run's receipt tends to sit in the state for a long time; the trigger lives in `use-library-processing.ts`. */
 import { useEffect, useState } from 'react';
 import { RiArrowRightLine } from '@remixicon/react';
 import { useMutation } from '@tanstack/react-query';
@@ -76,15 +76,15 @@ function Outcome(
   const details = issueDetails(state);
   const exporter = useAction();
   const archive = useAction();
-  /* 「已归档」那句只给刚点了归档的人看，带着撤销；刷新后服务端只剩 `archived`，整块都不再出现。 */
+  /* The 'Archived' line is shown only to someone who just tapped archive, with an undo; after refresh the server only has archived, so the whole block no longer appears. */
   const [archivedHere, setArchivedHere] = useState('');
   const active = processingActive(state);
   const retryable = state.status === 'failed' && !!state.retryable_asset_ids?.length;
   const notes = notesLine(state.notes || {});
   const failed = !!problem || (!state.archived && state.status === 'failed');
   const partial = !problem && !state.archived && processingHasPartialResult(state);
-  /* 这一趟的问题收在同一块里：结论、「7 天内不再问」、清单、日志。分成几块同色的提示，
-     读的人分不清哪句跟着哪个按钮。 */
+  /* This run's question is kept in one block: the conclusion, "Don't ask again for 7 days", the list, and the log. Splitting it into several same-colored hints makes
+     it unclear to the reader which line goes with which button. */
   const issues = failed || (!state.archived && !active && (!!notes || !!state.issue_count));
   const archivable = !active && !!state.job_id && !state.archived;
   const log = state.issues_log || '';
@@ -101,12 +101,12 @@ function Outcome(
   const exportButton = state.issue_count && !active
     ? <Button variant="secondary" size="small" {...busyProps(!!exporter.busy)} onClick={() => void exporter.run('export',
         signal => exportProcessingIssues(state, signal), contents => {
-          downloadIssueList(state.job_id!, contents); toast('已导出问题清单');
-        })}>导出完整问题清单</Button>
+          downloadIssueList(state.job_id!, contents); toast('Issue list exported');
+        })}>Export the full issue list</Button>
     : null;
   const body = failed
-    ? [problem || state.error || '处理未完成，请重试', partial ? PARTIAL_RESULT_TEXT : '', notes].filter(Boolean).join('\n')
-    : notes || `这一趟有 ${(state.issue_count || 0).toLocaleString()} 项问题。`;
+    ? [problem || state.error || 'Processing not completed, please retry', partial ? PARTIAL_RESULT_TEXT : '', notes].filter(Boolean).join('\n')
+    : notes || `This trip has ${(state.issue_count || 0).toLocaleString()} issues.`;
   return (
     /* Collapse the whole block when empty: the `aria-live` container would otherwise leave an empty track and add a phantom gap under the card. */
     <div aria-live="polite" className="flex flex-col gap-4 empty:hidden">
@@ -116,28 +116,28 @@ function Outcome(
         ? <Note tone="warning" title="Processing slowly">{STALLED_TEXT}</Note>
         : null}
       {settled?.status === 'complete'
-        ? <Note tone="success" title="处理完成">{receiptText(settled)}</Note>
+        ? <Note tone="success" title="Processing finished">{receiptText(settled)}</Note>
         : null}
-      {/* 取消不止是眼前点的那一下：命令行、任务中心取消的、重开页面才读到的，都留这一句。 */}
-      {(settled ?? state).status === 'cancelled' && !state.archived ? <Note tone="neutral" title="已取消上次任务">
-        已取得的资料和预览已保留，这一轮不会自动继续，需要时重新同步。
+      {/* Cancellation isn't just the click right in front of you: those from the command line, the task center, and ones only read after reopening the page all leave this one line. */}
+      {(settled ?? state).status === 'cancelled' && !state.archived ? <Note tone="neutral" title="Previous task cancelled">
+        The retrieved resources and previews are preserved; this round will not continue automatically; re-sync when needed.
       </Note> : null}
       {issues
         ? <Note tone={!failed ? 'neutral' : partial ? 'warning' : 'error'} className="gap-0 p-3"
-            title={!failed ? undefined : partial ? '处理已结束，部分项目需处理' : '处理未完成'}
+            title={!failed ? undefined : partial ? 'Processing ended, some items still need work' : 'Processing unfinished'}
             action={<div className="flex flex-wrap items-center gap-2">
-              {partial ? <LinkButton href={ALL_CONTENT_URL} size="small" trailingIcon={RiArrowRightLine}>查看全部内容</LinkButton> : null}
-              {retryable ? <Button variant="secondary" size="small" aria-label="立即重试未完成项" onClick={onRetry}>立即重试</Button> : null}
-              {archivable ? <Button variant="secondary" size="small" aria-label="归档提示" {...busyProps(!!archive.busy)}
-                onClick={() => setArchived(true)}>归档</Button> : null}
+              {partial ? <LinkButton href={ALL_CONTENT_URL} size="small" trailingIcon={RiArrowRightLine}>View all content</LinkButton> : null}
+              {retryable ? <Button variant="secondary" size="small" aria-label="Retry unfinished items now" onClick={onRetry}>Retry now</Button> : null}
+              {archivable ? <Button variant="secondary" size="small" aria-label="Archive notice" {...busyProps(!!archive.busy)}
+                onClick={() => setArchived(true)}>Archive</Button> : null}
             </div>}
             extra={<>
-              {/* 三层东西叠在同一块提示里：一句结论、一份清单、一条日志地址。各自之间
-                  横一条自己颜色的发丝线，读的人才看得出哪一段结束了——只靠间距的话，
-                  几十条同样长短的明细会连成一片。 */}
+              {/* Three layers stacked in the same notice block: a concluding line, a list, and a log address. Between each of them
+                  runs a hairline in its own color, so the reader can tell where a section ends — on spacing alone,
+                  dozens of detail lines of similar length would blur into one. */}
               {details ? <div className="-mx-3 mt-3 border-t border-current/20 px-3 pt-3">
                   <Disclosure summary={details.label} contentClassName="gap-0">
-                    {/* 轨道是滚动容器的兄弟，得有一层只裹着清单的定位祖先给它落脚。 */}
+                    {/* The track is a sibling of the scroll container, so it needs a positioned ancestor wrapping only the manifest to anchor to. */}
                     <div className="relative -mr-3">
                       <ul ref={list} className="max-h-96 overflow-y-auto">
                         {details.items.map((item) => (
@@ -150,9 +150,9 @@ function Outcome(
                     </div>
                   </Disclosure>
                 </div> : null}
-              {/* 日志地址与分隔线使用次级文字色；导出读的是同一份记录，排在打开位置旁边。 */}
+              {/* The log address and divider use the secondary text color; export reads the same record and is placed next to “open location”. */}
               {log ? <div className="-mx-3 mt-3 border-t border-current/20 px-3 pt-3 text-text-secondary">
-                  <PathLine path={log} prefix="完整记录：" className="text-caption-1-regular"
+                  <PathLine path={log} prefix="Full log:" className="text-caption-1-regular"
                     action={exportButton} onRevealed={toast} />
                 </div>
               : exportButton ? <div className="-mx-3 mt-3 flex justify-end border-t border-current/20 px-3 pt-3">{exportButton}</div>
@@ -163,8 +163,8 @@ function Outcome(
         : null}
       {state.archived && archivedHere === state.job_id && !problem
         ? <Note tone="neutral" action={<Button variant="secondary" size="small" {...busyProps(!!archive.busy)}
-              onClick={() => setArchived(false)}>撤销</Button>}>
-            已归档上一趟的问题提示，完整记录仍保留。
+              onClick={() => setArchived(false)}>Undo</Button>}>
+            Archived the previous run's issue prompt; the full record is still kept.
           </Note>
         : null}
       {exporter.error || archive.error ? <Note tone="warning">{exporter.error || archive.error}</Note> : null}
@@ -215,7 +215,7 @@ export function LibraryProcessingCard(props: LibraryProcessingProps) {
           {state.candidates
             ? <LinkButton href="/review" size="small" trailingIcon={RiArrowRightLine}>Review details</LinkButton>
             : null}
-          {/* 日常同步保留独立入口，原任务的定向重试只处理该任务的失败项。 */}
+          {/* Daily sync keeps its own entry; the original task's targeted retry handles only that task's failed items. */}
           <ProcessingActions scan busy={start.isPending} occupied={processingActive(state)} metadataOnly={state?.metadata_only}
             speedMode={state.speed_mode} pendingCount={state.new_asset_count} onRun={run} onOccupied={() => toast(busyText(state))} />
         </>

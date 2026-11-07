@@ -99,7 +99,7 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
     const known = result?.known;
     if (!known) return;
     void action.run('known', (signal) => followFeedEntity(known.id, signal), () => {
-      toast(`已订阅「${known.name}」的新作`);
+      toast(`Followed new releases for "${known.name}"`);
       setName('');
       close();
       onAdded();
@@ -127,8 +127,8 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
 
       {result ? (
         <div className="flex flex-col gap-3">
-          {result.unavailable ? <Note tone="warning" title="JavDB 这一次没有搜成">{result.unavailable}</Note> : null}
-          <FieldLabel>JavDB 上的演员卡</FieldLabel>
+          {result.unavailable ? <Note tone="warning" title="JavDB did not return a result this time">{result.unavailable}</Note> : null}
+          <FieldLabel>Performer card on JavDB</FieldLabel>
           {result.candidates.length ? result.candidates.map((card) => (
             <CandidateRow key={card.id} card={card} picked={picked.has(card.id)}
               onPick={(on) => setPicked((now) => {
@@ -136,14 +136,14 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
                 if (on) next.add(card.id); else next.delete(card.id);
                 return next;
               })} />
-          )) : <Help>{result.unavailable ? '这一次没有拿到演员卡。' : 'JavDB 上没有搜到这个名字。'}</Help>}
+          )) : <Help>{result.unavailable ? 'No performer card came back this time.' : 'That name returned nothing on JavDB.'}</Help>}
           {result.candidates.length ? (
             <Help role="status">{picked.size ? where!.text : 'Check her performer card; if both the censored and uncensored records are her, check both.'}</Help>
           ) : null}
           {direct ? (
             <Help role="status">{direct.following
-              ? `数据库里的「${direct.name}」已经在订阅新作。`
-              : `数据库里的「${direct.name}」已有 JavDB 或 DMM 编号，可以直接订阅。`}</Help>
+              ? `The database entry "${direct.name}" is already followed for new releases.`
+              : `The database entry "${direct.name}" already has a JavDB or DMM code and can be followed directly.`}</Help>
           ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <Button variant="secondary" size="small" onClick={close}>Off</Button>
@@ -153,7 +153,7 @@ export function AddFeed({ readOnly, toast, onAdded }: AddFeedProps) {
             ) : null}
             {direct && !direct.following ? (
               <Button variant="primary" size="small" disabled={readOnly}
-                {...busyProps(action.busy === 'known')} onClick={followKnown}>{`订阅「${direct.name}」`}</Button>
+                {...busyProps(action.busy === 'known')} onClick={followKnown}>{`Follow "${direct.name}"`}</Button>
             ) : null}
           </div>
         </div>

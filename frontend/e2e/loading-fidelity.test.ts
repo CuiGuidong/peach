@@ -15,7 +15,7 @@ describe('Structure of the page loading state', () => {
         let completed = false;
         await page.route('**/api/entity/shapes', route => route.fulfill({ json: { ok: true, entities: [], home: { feed: true } } }));
         await page.route(/\/api\/feeds\/discoveries\?/, route => route.fulfill({ json: { ok: true, items: [
-          { id: 1, code: 'EXM-001', title: '示例新作', has_cover: completed, cover_state: completed ? null : 'fetching' },
+          { id: 1, code: 'EXM-001', title: 'Example new release', has_cover: completed, cover_state: completed ? null : 'fetching' },
         ] } }));
         await page.route(/\/cover\?code=EXM-001/, route => route.fulfill({ contentType: 'image/svg+xml', body:
           '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="480"><rect width="320" height="480" fill="#ddd"/></svg>' }));
@@ -80,7 +80,7 @@ describe('Structure of the page loading state', () => {
     });
   }
 
-  /* 形状名单在后台任务频繁写账本时要算好几秒：只有目录页在本机没记过新作结论时才等它，
+  /* 形状名单在后台任务频繁写账本时要算好几秒：只有目录页在This device没记过新作结论时才等它，
      其余页面和记过结论的目录页都不该被它挡住开页。 */
   it('形状名单迟迟不回时各页照常开页取数', { timeout: 90_000 }, async () => {
     const pages: [string, string, string | null][] = [

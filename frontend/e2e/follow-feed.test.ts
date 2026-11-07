@@ -49,7 +49,7 @@ describe('Follows page island', () => {
         await page.route((url) => url.pathname === '/api/follow' && !url.searchParams.has('item'), route =>
           route.fulfill({ json: { ...payload, groups: payload.groups.map((group: typeof FIRST[number]) =>
             group.primary.id === 1000 && revision > 1 ? { ...group, primary: { ...group.primary,
-              title: '任务运行中已确认的标题' } } : group) } }));
+              title: 'The title confirmed while the task runs' } } : group) } }));
         const baseline = page.waitForResponse(url => new URL(url.url()).pathname === '/api/result-updates');
         await page.reload({ waitUntil: 'load' });
         await baseline;

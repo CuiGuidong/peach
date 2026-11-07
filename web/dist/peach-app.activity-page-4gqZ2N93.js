@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "8e9e1cb5-03c5-4ce3-b108-ebddd7e0ce3d", e._sentryDebugIdIdentifier = "sentry-dbid-8e9e1cb5-03c5-4ce3-b108-ebddd7e0ce3d");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "c60527a5-7bbc-45f2-90e7-34284940eb91", e._sentryDebugIdIdentifier = "sentry-dbid-c60527a5-7bbc-45f2-90e7-34284940eb91");
 	} catch {}
 })();
 import { Button as e, Bx as t, Chip as n, Disclosure as r, DownloadsPanel as i, EmptyState as a, Gg as o, HN as s, IssueRow as c, LinkButton as l, Lo as u, LoadingDots as d, Ma as f, NameLink as p, Note as m, OV as h, Pf as g, Progress as _, RB as v, Rk as y, Su as b, TASKS_KEY as ee, TRIGGER_LABELS as x, Xl as S, __toESM as C, apiGet as w, apiSend as T, busyProps as E, cardClass as te, confirmModal as D, controlTask as O, cx as k, elapsedText as A, errorMessage as j, f1 as ne, fetchEarlier as re, fetchTasks as ie, fmtSize as M, foldByKind as ae, foldRoutine as oe, followupDetail as N, followupDetailLong as P, followupTally as F, groupFollowups as se, hasResultProblems as I, i2 as L, isActive as R, isRoutine as ce, latestOfKind as le, mergeFinished as z, momentText as B, notifyManager as V, oe as H, pollInterval as ue, problemDestination as de, progressText as U, readableErrorHeadline as W, replaceEqualDeep as fe, require_jsx_runtime as pe, require_react as me, statusLabel as he, summaryItems as ge, taskIssues as _e, taskSubject as ve, um as ye, uo as be, useMutation as G, useQuery as xe, useQueryClient as K, vl as Se } from "./peach-app.js";
@@ -80,13 +80,13 @@ var Y = ["task-control"], Me = {
 	resume: o,
 	cancel: s
 }, Ne = {
-	pause: "暂停",
-	resume: "继续",
-	cancel: "取消"
+	pause: "Paused",
+	resume: "Continue",
+	cancel: "Cancel"
 }, Pe = {
-	pause: "暂停后续任务",
-	resume: "继续后续任务",
-	cancel: "取消后续任务"
+	pause: "Pause follow-up tasks",
+	resume: "Resume follow-up tasks",
+	cancel: "Cancel follow-up tasks"
 };
 function Fe() {
 	let e = Oe({
@@ -113,7 +113,7 @@ function Fe() {
 		className: "flex min-w-0 flex-col gap-2",
 		children: n.map(({ command: e, error: t }) => /* @__PURE__ */ (0, J.jsx)(m, {
 			tone: "error",
-			title: `${e.label}：${(e.followups ? Pe : Ne)[e.action]}未完成`,
+			title: `${e.label}: ${(e.followups ? Pe : Ne)[e.action]} not finished`,
 			children: j(t)
 		}, e.id))
 	}) : null;
@@ -133,7 +133,7 @@ function Ie({ run: t, runs: n = [t] }) {
 			t ??= e;
 		}
 		if (t !== null) throw t;
-	}, s = n.length > 1 ? `这 ${n.length} 批` : "这轮", c = G({
+	}, s = n.length > 1 ? `These ${n.length} batches` : "This round", c = G({
 		mutationKey: [
 			...Y,
 			t.id,
@@ -165,9 +165,9 @@ function Ie({ run: t, runs: n = [t] }) {
 		if (e === "cancel") {
 			if (i.current.cancel || i.current.confirmation || l.isSuccess) return;
 			i.current.confirmation = !0, D({
-				title: d ? `取消「${t.task_label}」的全部后续任务` : `取消任务「${t.task_label}」`,
-				body: d ? `将停止${s}已派出的全部后续任务，包括正在处理和排队的项目。已保存的资料和结果会保留。这些后续任务取消后不能继续，需要时重新发起。` : "将停止这轮剩余的处理及其后续任务。已保存的资料和结果会保留。这轮任务取消后不能继续，需要时重新发起。",
-				confirmLabel: d ? "取消后续任务" : "取消任务",
+				title: d ? `Cancel every follow-up of "${t.task_label}"` : `Cancel task "${t.task_label}"`,
+				body: d ? `Will stop${s}every follow-up task already dispatched, including running and queued items. Saved data and results are kept.These follow-up tasks cannot resume once cancelled; start them again if needed.` : "This stops the rest of this round's processing and its follow-up tasks. Saved details and results are kept.Once this round is cancelled it cannot continue; start it again when needed.",
+				confirmLabel: d ? "Cancel follow-up tasks" : "Cancel task",
 				danger: !0,
 				onConfirm: async () => (i.current.cancel = !0, await l.mutateAsync(n))
 			}).finally(() => {
@@ -183,7 +183,7 @@ function Ie({ run: t, runs: n = [t] }) {
 		"data-task-controls": t.id,
 		children: /* @__PURE__ */ (0, J.jsx)("div", {
 			role: "group",
-			"aria-label": `${t.task_label}${d ? "后续任务" : "任务"}控制`,
+			"aria-label": `${t.task_label} ${d ? "follow-up" : "task"} controls`,
 			className: "flex items-center justify-end gap-2",
 			children: u.map((t) => {
 				let n = (d ? Pe : Ne)[t], r = t === "cancel" ? l.isPending : c.isPending && c.variables?.action === t, i = t === "cancel" ? f : c.isPending || f;
@@ -286,24 +286,24 @@ var Ve = {
 	cpu: {
 		name: "CPU",
 		color: "blue",
-		description: "CPU 使用率以执行端可用容量为 100%，容器按可见 CPU 配额计算。达到 50% 时加深显示。"
+		description: "CPU usage treats the runner's available capacity as 100%; containers use their visible CPU quota. Emphasized from 50%."
 	},
 	gpu: {
 		name: "GPU",
 		color: "purple",
-		description: "GPU 使用率显示该任务最忙的 GPU 引擎。达到 50% 时加深显示。"
+		description: "GPU usage shows that task's busiest GPU engine. Emphasized from 50%."
 	},
 	network: {
-		name: "网络",
+		name: "Network",
 		color: "cyan",
-		description: "网络速率显示该任务已观测的下载速度，达到 10 MiB/s 时加深显示。从网盘挂载读取时显示网盘读取，SMB 或无法准确归属的传输显示未取得。"
+		description: "The network rate shows the download speed observed for this task; at 10 MiB/s it deepens. Reads from a cloud-drive mount show cloud-drive reads; SMB or transfers that cannot be attributed precisely show not obtained."
 	}
 };
 function He(e) {
-	return e.state === "sampling" ? "采样中" : e.via === "cloud" ? "网盘读取" : "未取得";
+	return e.state === "sampling" ? "Sampling" : e.via === "cloud" ? "Cloud drive read" : "Not fetched";
 }
 function Ue(e, t) {
-	return t === 0 ? "未使用" : e === "network" ? `${M(t)}/s` : `${t.toLocaleString(void 0, { maximumFractionDigits: 1 })}%`;
+	return t === 0 ? "Not used" : e === "network" ? `${M(t)}/s` : `${t.toLocaleString(void 0, { maximumFractionDigits: 1 })}%`;
 }
 function We({ run: e, active: t = R(e) || !!e.control }) {
 	if (!t || !e.resources) return null;
@@ -318,7 +318,7 @@ function We({ run: e, active: t = R(e) || !!e.control }) {
 		].map((e) => {
 			let t = n[e], r = Ve[e], i = e === "network" ? n.network.bytes_per_second : n[e].percent, a = t.state === "ready" && i !== null, o = a && t.high, s = a ? Ue(e, i) : He(t), c = [
 				t.reason,
-				o ? "当前为高占用。" : "",
+				o ? "Currently under heavy use." : "",
 				r.description,
 				n.detail
 			].filter(Boolean).join("\n");
@@ -352,10 +352,10 @@ var Ge = 50, Ke = /* @__PURE__ */ new Set(["upgrade-repairs"]), qe = /* @__PURE_
 	running: "blue",
 	pending: "neutral"
 }, Ye = {
-	running: "进行中",
-	pausing: "正在暂停",
-	paused: "已暂停",
-	cancelling: "正在取消"
+	running: "In progress",
+	pausing: "Pausing",
+	paused: "Paused",
+	cancelling: "Cancelling"
 };
 function X({ run: e }) {
 	let t = e.control?.state;
@@ -490,10 +490,10 @@ function Z({ run: e, meta: t, children: n, error: i, issues: a, followups: o, fo
 			v && _ !== v ? /* @__PURE__ */ (0, J.jsx)("div", {
 				className: "border-t border-separator-border px-5 py-2.5",
 				children: /* @__PURE__ */ (0, J.jsx)(r, {
-					summary: "错误详情",
+					summary: "Error details",
 					contentClassName: "pb-2.5",
 					children: /* @__PURE__ */ (0, J.jsx)(Te, {
-						label: `${e.task_label}错误详情`,
+						label: `${e.task_label} Error details`,
 						children: _
 					})
 				})
@@ -519,7 +519,7 @@ function Z({ run: e, meta: t, children: n, error: i, issues: a, followups: o, fo
 			Object.keys(e.result_summary || {}).some((e) => !(g && qe.has(e))) ? /* @__PURE__ */ (0, J.jsx)("div", {
 				className: "border-t border-separator-border px-5 py-2.5",
 				children: /* @__PURE__ */ (0, J.jsx)(r, {
-					summary: "技术详情",
+					summary: "Technical details",
 					contentClassName: "pb-2.5",
 					children: /* @__PURE__ */ (0, J.jsx)(Ce, {
 						code: JSON.stringify(e.result_summary, null, 2),
@@ -532,7 +532,7 @@ function Z({ run: e, meta: t, children: n, error: i, issues: a, followups: o, fo
 	});
 }
 function Ze({ run: e, followups: t }) {
-	let n = e.progress_total || 0, r = e.progress_current || 0, i = e.control?.state, a = i && i !== "running", o = a ? Ye[i] : e.progress_label || "正在进行", s = A(e.elapsed_seconds), c = [x[e.trigger] || e.trigger, s && `Ran for ${s}`].filter(Boolean).join(" · ");
+	let n = e.progress_total || 0, r = e.progress_current || 0, i = e.control?.state, a = i && i !== "running", o = a ? Ye[i] : e.progress_label || "Running", s = A(e.elapsed_seconds), c = [x[e.trigger] || e.trigger, s && `Ran for ${s}`].filter(Boolean).join(" · ");
 	return /* @__PURE__ */ (0, J.jsx)(Z, {
 		run: e,
 		meta: c,
@@ -579,10 +579,10 @@ function Qe({ run: e, followups: t, runs: i, latest: a, followupTotal: o, follow
 		followups: t,
 		followupTotal: o,
 		issues: p.length ? /* @__PURE__ */ (0, J.jsx)(r, {
-			summary: `问题详情 · ${p.length} 项`,
+			summary: `Issue details · ${p.length} items`,
 			contentClassName: "pb-2.5",
 			children: /* @__PURE__ */ (0, J.jsx)(Te, {
-				label: "任务问题详情",
+				label: "Task issue details",
 				children: /* @__PURE__ */ (0, J.jsx)("ul", {
 					className: "flex min-w-0 flex-col whitespace-normal",
 					"data-task-issues": "",
@@ -603,19 +603,19 @@ function Qe({ run: e, followups: t, runs: i, latest: a, followupTotal: o, follow
 			color: "rose",
 			children: /* @__PURE__ */ (0, J.jsx)("span", {
 				"data-copy-key": `tasks.followups.cancelled.${u === o ? "all" : "partial"}`,
-				children: u === o ? "后续任务已取消" : "部分后续任务已取消"
+				children: u === o ? "Follow-up tasks cancelled" : "Some follow-up tasks were cancelled"
 			})
 		}) : d && s ? /* @__PURE__ */ (0, J.jsx)(n, {
 			color: "yellow",
-			children: "发现问题"
+			children: "Issues found"
 		}) : void 0,
 		children: [
 			u ? /* @__PURE__ */ (0, J.jsxs)("p", {
 				className: "text-caption-1-regular text-text-secondary",
 				children: [
-					"后续任务已取消 ",
+					"Follow-up tasks cancelled ",
 					u.toLocaleString(),
-					" 项"
+					" items"
 				]
 			}) : null,
 			f.length === 1 ? /* @__PURE__ */ (0, J.jsx)("p", {
@@ -627,7 +627,7 @@ function Qe({ run: e, followups: t, runs: i, latest: a, followupTotal: o, follow
 			}) : null,
 			!p.length && I(e) && ["follow-check", "feed-check"].includes(e.task_key) ? /* @__PURE__ */ (0, J.jsx)("p", {
 				className: "text-body-2-regular text-text-secondary",
-				children: "未取得本轮逐项详情，可到来源列表查看检查结果。"
+				children: "Per-item details for this round were not fetched; check results are available in the source list."
 			}) : null,
 			m ? /* @__PURE__ */ (0, J.jsx)(l, {
 				href: m.href,
@@ -654,7 +654,7 @@ function $e({ runs: e, followups: t, counts: r }) {
 		controlled: e,
 		badge: i.control ? /* @__PURE__ */ (0, J.jsx)(X, { run: i }) : /* @__PURE__ */ (0, J.jsx)(n, {
 			color: "blue",
-			children: "进行中"
+			children: "Running"
 		}),
 		children: /* @__PURE__ */ (0, J.jsxs)("div", {
 			className: "flex flex-col gap-1.5",
@@ -804,4 +804,4 @@ function et() {
 }
 export { et as ActivityPage };
 
-//# debugId=8e9e1cb5-03c5-4ce3-b108-ebddd7e0ce3d
+//# debugId=c60527a5-7bbc-45f2-90e7-34284940eb91

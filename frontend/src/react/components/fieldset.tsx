@@ -1,6 +1,7 @@
-/* 管理区那张「一件要在这一页上做的事」的卡：填充底、16px 圆角、一层接触阴影，不描边，
- * 卡里分成正文和一条放按钮的页脚。页面上的卡一律靠填充底和页面分开，深色下再加一圈描边
- * 就成了同一页里一半卡有框、一半没有。
+/* The management-area card for the one thing to do on this page: filled background, 16px corner radius,
+ * one contact shadow, no border; the card splits into a body and a footer row that holds the buttons.
+ * Cards on this page always stand apart from the page through the filled background; adding a border in
+ * dark mode would leave half the cards on the same page with a frame and half without.
  *
  * In the legacy stylesheet the data management page's blocks (`.cleanupfieldset`, `[data-cleanup-processing]`,
  * `.resourcesyncbox`) were already the same card face (`web/board.css` merges them into one rule), differing only in layout:
@@ -10,15 +11,15 @@
  * - `stack`: body on top, footer below, body `20px 20px 16px`, minimum 120px; the footer is a band slightly darker than the
  *   card (`--board-card-foot`), one line on top, `12px 20px`, minimum 56px. Scan and collect, organize and link management.
  *
- * 它和 `../settings/section.tsx` 的 `Section` 不是同一张：那一张是设置弹层的分组，标题在卡外；
- * 这一张的标题是卡内的 Title 2。 */
+ * It is not the same card as `Section` in `../settings/section.tsx`: that one groups the settings sheet,
+ * its title outside the card; this one's title is a Title 2 inside the card. */
 import type { ReactNode } from 'react';
 
 import { cardClass } from './card';
 import { FIELDSET_BODY, FIELDSET_FOOT, fieldsetClass, type FieldsetLayout } from './fieldset-layout';
 
-/** 卡下面那块结果面板：同一副填充底、14px 圆角、不浮起。
- *  链接检查与资源同步把一趟后台任务的结论摆在这里，一段一段往下叠，段间一条发丝线。 */
+/** The result panel under the card: the same filled background, 14px corners, no elevation.
+ * Link check and resource sync place the conclusion of a background run here, stacked section by section, with a hairline between sections. */
 export const RESULT_PANEL = cardClass({
   padding: 'none', radius: 'surface', className: 'overflow-hidden',
 });

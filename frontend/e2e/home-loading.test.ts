@@ -75,7 +75,7 @@ describe('Home page load structure',()=>{
      });
      assert.equal(colors.actual,colors.expected,'Skeleton radius and base color match the placeholder layer');
     }
-    assert.equal(await page.evaluate(()=>(window as any).__catalogSkeletons),1,'目录骨架只展示一轮');
+    assert.equal(await page.evaluate(()=>(window as any).__catalogSkeletons),1,'The catalog skeleton shows for exactly one round');
     assert.deepEqual(await page.evaluate(()=>(window as any).__catalogRatios),[hasFeed?3/4:16/9]);
     release();
     if(hasFeed)await page.locator('#feedNew [data-feed-id]').first().waitFor({state:'visible'});

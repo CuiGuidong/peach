@@ -193,7 +193,7 @@ export const MANAGED_ROUTES: ManagedRouteTable = {
         revealSource={actions.revealSource} toast={(message) => actions.receipt(message)} />;
     },
   },
-  /* 首页只展开日常扫描；维护工具各自预取自己的二级页数据。 */
+  /* The home page only expands the daily scan; maintenance tools each pre-fetch their own second-level page data. */
   '/data-cleanup': {
     element: <ManagedMatch path="/data-cleanup" />,
     prefetch: (_open, signal) => withPage(dataCleanupPage, prefetchDataCleanup(signal)),

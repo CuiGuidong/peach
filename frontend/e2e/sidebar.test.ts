@@ -100,9 +100,9 @@ describe('Sidebar island', () => {
       await page.mouse.move(from.x + 44, from.y + from.height / 2 - 6, { steps: 4 });
       await page.mouse.move(to.x + 40, to.y + 6, { steps: 8 });
       await page.mouse.move(to.x + 42, to.y + 7, { steps: 2 });
-      assert.equal(await page.locator('#drawer [data-nav="tags"]').getAttribute('data-dragging'), '', '被拖的那一项没有标出来');
+      assert.equal(await page.locator('#drawer [data-nav="tags"]').getAttribute('data-dragging'), '', 'The dragged item was never marked');
       const line = await page.locator('#drawer [data-sidebar-drop-line]').boundingBox();
-      assert.ok(line && line.width > 0, '插入线没有显示');
+      assert.ok(line && line.width > 0, 'The insertion line never showed');
       assert.equal(await page.locator('#drawer [data-nav="follow"]').evaluate(node => node.style.getPropertyValue('--sidebar-nudge')), '10px');
       assert.equal(await page.locator('#drawer [data-nav="jav"]').evaluate(node => node.style.getPropertyValue('--sidebar-delay')), '24ms');
       await page.mouse.up();
@@ -110,8 +110,8 @@ describe('Sidebar island', () => {
       await page.waitForFunction((want) => JSON.stringify([...document.querySelectorAll('#drawer [data-sidebar-nav] [data-nav]')]
         .map((node) => node.getAttribute('data-nav'))) === want, JSON.stringify(moved), { timeout: 5_000 });
       const posts = server.posts.filter((post) => post.path === '/api/settings' && 'sidebarOrder' in post.body);
-      assert.deepEqual(posts.at(-1)?.body.sidebarOrder, moved, '新顺序没有写进设置');
-      assert.equal(await page.locator('#drawer [data-dragging], #drawer [data-sidebar-drop-line]').count(), 0, '松手后拖动标记没有清掉');
+      assert.deepEqual(posts.at(-1)?.body.sidebarOrder, moved, 'New order not written to settings');
+      assert.equal(await page.locator('#drawer [data-dragging], #drawer [data-sidebar-drop-line]').count(), 0, 'After release the drag mark never cleared');
 
       await page.reload({ waitUntil: 'load' });
       await page.locator('#drawer [data-sidebar-nav] [data-nav]').first().waitFor({ timeout: 15_000 });
@@ -123,7 +123,7 @@ describe('Sidebar island', () => {
     }
   });
 
-  it('Esc 和拖出导航区域取消排序，不保存也不触发导航', { timeout: 60_000 }, async () => {
+  it('Esc and dragging out of the navigation area cancel reordering — nothing is saved and no navigation fires', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     const { page, server } = opened;
     try {
@@ -145,7 +145,7 @@ describe('Sidebar island', () => {
     } finally { await opened.close() }
   });
 
-  it('关注页往返复用已加载内容，不重新取列表或铺首屏骨架', { timeout: 60_000 }, async () => {
+  it('The follows page reuses loaded content on both ways in and never refetches the list or lays the first-screen skeleton', { timeout: 60_000 }, async () => {
     const opened = await openFollowFeed(browser, '/follow', DESKTOP);
     const { page } = opened;
     let requests = 0;
@@ -177,7 +177,7 @@ describe('Sidebar island', () => {
     } finally { await opened.close() }
   });
 
-  it('首页与实体页各按自己的口径列内容标签与计数；点一枚 chip 就按下并进地址', { timeout: 60_000 }, async () => {
+  it('Home and entity pages list content tags and counts by their own criteria; clicking a chip presses it and writes the URL', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/', DESKTOP);
     const { page } = opened;
     try {

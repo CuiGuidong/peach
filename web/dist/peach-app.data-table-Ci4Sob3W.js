@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "539b6512-2d07-487d-aace-9e4caa16cbcd", e._sentryDebugIdIdentifier = "sentry-dbid-539b6512-2d07-487d-aace-9e4caa16cbcd");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "0f364a6f-fe05-4194-a472-a7f9ca5eaed7", e._sentryDebugIdIdentifier = "sentry-dbid-0f364a6f-fe05-4194-a472-a7f9ca5eaed7");
 	} catch {}
 })();
 import { createPaginatedRowModel as e } from "./peach-app.createPaginatedRowModel-ClHnhG_T.js";
@@ -16,7 +16,7 @@ var M = /* @__PURE__ */ y(T(), 1), N = w(), P = k({
 	sortedRowModel: t(),
 	paginatedRowModel: e()
 });
-function F({ label: e, items: t, columns: y, rowId: x, rowLabel: w, selected: T, onSelected: E, actions: D, title: O = e, titleId: k, description: F, footerActions: I, toolbarActions: L, panel: R = !0, unit: z = "条记录" }) {
+function F({ label: e, items: t, columns: y, rowId: x, rowLabel: w, selected: T, onSelected: E, actions: D, title: O = e, titleId: k, description: F, footerActions: I, toolbarActions: L, panel: R = !0, unit: z = "records" }) {
 	let [B, V] = (0, M.useState)([]), H = (0, M.useMemo)(() => [{
 		id: "select",
 		label: "Select",
@@ -213,4 +213,4 @@ function F({ label: e, items: t, columns: y, rowId: x, rowLabel: w, selected: T,
 }
 export { F as DataTable };
 
-//# debugId=539b6512-2d07-487d-aace-9e4caa16cbcd
+//# debugId=0f364a6f-fe05-4194-a472-a7f9ca5eaed7

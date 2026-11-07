@@ -3,21 +3,34 @@
  * (`state` in `@peach/shell`), and hands the rest to the shell: search box, sidebar and top bar, the three top tiers, and
  * fetching (`ShellActions.catalog`).
  *
- * 元素按页面挂 key：首页、三个筛选态与回收站画的是同一张网格，共用一个元素；垃圾文件是另一页。没有背景的作品与
- * 队列地址（深链、刷新）也挂这个元素。换筛选、后退前进与壳要求重开都不重挂，元素在每一轮变化之后的微任务里按下面的
- * 次序判断做哪一件：
- * - 详情压在上面：条目记了背景（页面组按背景匹配）就什么都不做，下面那一页一直画着；没有背景时补画一次目录网格
- *   （`ShellActions.catalog.fill`），详情下面不留一张永远在读的骨架。
- * - 壳要求按当前地址从头重开（`pageOpens` 加一：启动、深链详情关掉补画来处、从管理条进回收站）：整页打开。
- * - 领了新的页面打开序号（后退前进、不认领的跳转）：整页打开；历史返回沿用条目保存的筛选与种子，
- *   没有记录时按地址重建。地址上写了 `seed` 就用它。
- * - 壳认领写了地址（换筛选、换排序、换一批、回首页）：筛选已经由壳写进 `state`，只重取；关掉详情回到压着的那一份
- *   地址、筛选也没变时不重取。这一页要是还没开过（后退落到压在别处之上的详情，挂上时就被盖着），整页打开。
- * `pageOpens` 还是 0 时壳没开始路由，元素只挂着。挂上那一刻按那一次历史变化认没认领分别算作后两种；路由根晚于
- * 壳开始路由才装上时，挂上那一刻算第一种。
+ * The element is keyed by page: home, the three filter states and the trash draw the same grid and share
+ * one element; junk files are a separate page. Works with no backdrop and queue addresses (deep links,
+ * refresh) also mount on this element. Changing filters, back/forward and a shell-requested reopen do not
+ * re-mount; after each round of changes the element decides, in a microtask, which of the following to do,
+ * in order:
+ * - Details is stacked on top: if the entry recorded a backdrop (the page group matches on the backdrop) it
+ *   does nothing and the page below keeps drawing; with no backdrop it fills in the catalog grid once
+ *   (`ShellActions.catalog.fill`), leaving no skeleton forever loading beneath the details.
+ * - The shell asks for a full reopen from the current address (`pageOpens` increments: startup, a deep-linked
+ *   details closed and the page it came from filled back in, entering the trash from the admin bar): open the
+ *   whole page.
+ * - It receives a new page-open sequence number (back/forward, navigation the shell did not claim): open the
+ *   whole page; on history navigation it reuses the filters and seed the entry saved, and rebuilds from the
+ *   address when nothing is recorded. If the address carries `seed`, that is used.
+ * - The shell claimed the written address (filter change, sort change, next batch, back to home): the shell
+ *   already wrote the filters into `state`, so only refetch; when closing the details returns to the address
+ *   it was covering and the filters did not change, do not refetch. If this page has never been opened (a
+ *   back landing on details stacked over something else, so it was covered at mount time), open the whole
+ *   page.
+ * When `pageOpens` is still 0 the shell has not started routing and the element just sits mounted. At the
+ * moment of mounting, depending on whether that history change was claimed, it counts as one of the latter
+ * two; if the route root is mounted only after the shell has started routing, the moment of mounting counts
+ * as the first kind.
  *
- * `?state=ads` 落在首页上时不打开，改写成垃圾文件的地址（不加条目），由垃圾文件那一页的元素接着打开。
- * 目标页立即展示变化区域的等待态，稳定控件不重挂。判断与改写排进微任务，避开路由根的提交阶段。 */
+ * When `?state=ads` lands on home it does not open there; it is rewritten to the junk-files address (no entry
+ * added) and the junk files page's element opens it from there. The target page immediately shows a waiting
+ * state for the changing area; stable controls are not re-mounted. The decisions and rewrites run in a
+ * microtask, avoiding the route root's commit phase. */
 import { useContext, useEffect, useLayoutEffect, useRef, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router';
@@ -102,7 +115,7 @@ function filtersAt(pathname: string, search: string, entering: boolean, shell: C
   };
 }
 
-/** 点击后先展示目标骨架并按页面定位；历史恢复等已加载分页落地后再定位。 */
+/** After clicking, first show the target skeleton and position by page; for history restoration, position after the loaded pagination lands. */
 function openCatalog(load: () => void | Promise<void>): void {
   const seq = peachHistory.navigation.seq;
   rememberPageState('catalog', { ...state });
@@ -113,7 +126,7 @@ function openCatalog(load: () => void | Promise<void>): void {
   void Promise.resolve(loading).then(() => pageNavigationReady(current, results()));
 }
 
-/** 判断这一轮做哪一件，做掉；`mark` 换成这一刻。 */
+/** Which one this judgment round performs, and it performs it; `mark` becomes this moment. */
 function settle(mark: Seen, actions: ShellActions): void {
   const was = { ...mark };
   const now = seen(was.opened);
@@ -207,7 +220,7 @@ export function CatalogMatch() {
   </>;
 }
 
-/** JAV 页头常驻；壳在目标内容提交时切换显隐，路由取数期间不拆掉旧页头。 */
+/** The JAV header is persistent; the shell toggles its visibility when the target content commits, and the old header isn't torn down during routing fetches. */
 export function CatalogChrome() {
   const actions = useContext(ShellActionsContext);
   const host = document.getElementById('javLibraryHeader');

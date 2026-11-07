@@ -239,7 +239,7 @@ function Head(props: EntityFilterProps) {
   );
 }
 
-/** 读数等待时保留旧文字，筛选框及其它控件保持原位。 */
+/** While a reading waits, the old text is kept; the filter box and other controls stay in place. */
 function Readout({ text, busy }: { text: string; busy: boolean }) {
   return (
     <h3 data-entity-readout="">

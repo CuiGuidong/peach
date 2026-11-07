@@ -4,8 +4,8 @@
  * reading one is to go look; copying it out and pasting back into the explorer is wasted copying. Only this string is sent to
  * the server, which re-judges openability against its own Peach data directory (`/api/reveal`'s `path` branch).
  *
- * 窗口弹在**服务端那台机器**上：本机浏览时它自己就是回执，从别的设备浏览时这边屏幕
- * 什么都不会发生，所以成功仍要报一句。失败留在路径旁边，等人重试。 */
+ * The window pops up on **the server's machine**: when browsing from that machine it is its own receipt, and when browsing from another device nothing
+ * happens on this screen, so success still has to report a line. Failure stays next to the path, waiting for someone to retry. */
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 import { IconButton } from '@/components/base/buttons/icon-button';
@@ -35,9 +35,9 @@ export function PathLine(
     prefix?: string;
     /** The font size and color of this line are decided at the place that uses it: the path is secondary information, and the muted color is not the same everywhere. */
     className?: string;
-    /** 同样针对这份文件的动作（导出），排在打开位置那颗键旁边。 */
+    /** The other action on this file (Export), placed next to the “open location” key. */
     action?: ReactNode;
-    /** 定位成功后的回执。窗口不在这台机器上时，这句话是唯一的动静。 */
+    /** The receipt after a successful locate. When the window is not on this machine, this sentence is the only sign of it. */
     onRevealed?(message: string): void;
     /** The reveal key's accessible name; pages that open the record's own location shorten it. */
     revealLabel?: string;
@@ -69,7 +69,7 @@ export function PathLine(
           {prefix}{path}
         </p>
         <div className="flex shrink-0 items-center gap-2">
-          <IconButton icon={FolderOpenIcon} size="small" aria-label="在资源管理器中显示"
+          <IconButton icon={FolderOpenIcon} size="small" aria-label="Show in File Explorer"
             onClick={() => void reveal()} {...busyProps(busy)} />
           {action}
         </div>

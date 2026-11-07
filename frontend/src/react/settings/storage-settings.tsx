@@ -176,7 +176,7 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
     return copy;
   });
   return (
-    <Section id="storageSettings" guide="storage" title="存储空间">
+    <Section id="storageSettings" guide="storage" title="Storage">
       <FactList>
         <Fact term="Data directory">
           <PathLine path={storage.data_root} className="text-body-regular text-text-primary" onRevealed={receipt} />
@@ -200,7 +200,7 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
         {!storage.relocation.available ? <Help>{storage.relocation.message}</Help> : null}
         {/* Deployments the settings page cannot migrate (containers): the steps to run on the host, each with one line of explanation and a copy-paste command. */}
         {!storage.relocation.available && storage.relocation.steps?.length
-          ? <CommandSteps label="在宿主机上迁移" steps={storage.relocation.steps} />
+          ? <CommandSteps label="Migrate on the host machine" steps={storage.relocation.steps} />
           : null}
         {storage.job.error ? <ErrorText>{storage.job.message}</ErrorText> : null}
         {action.error ? <ErrorText>{action.error}</ErrorText> : null}

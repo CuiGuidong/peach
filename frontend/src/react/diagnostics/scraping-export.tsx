@@ -19,8 +19,8 @@ interface ExportState {
   download_url?: string; error?: string;
 }
 
-/** 导出按钮与它的进度、回执。刮削记录在卡片底栏里，进度复用卡片；诊断报告摆在页头，进度自己带框，
- *  `children` 是页头同一排的其他按钮。 */
+/** The export button with its progress and receipt. The scrape record sits in the card footer, reusing the card for progress; the diagnostic report sits in the page header, its progress carrying its own box,
+ * `children` is the other buttons in the same header row. */
 export function DiagnosticExportAction({ kind, codes = '', children }: {
   kind: 'support' | 'scraping'; codes?: string; children?: ReactNode;
 }) {
@@ -48,12 +48,12 @@ export function DiagnosticExportAction({ kind, codes = '', children }: {
       {mine && active ? <Button type="button" variant="secondary" disabled={state.status === 'cancelling'}
         {...busyProps(action.busy === 'cancel')} onClick={cancel}>Cancel export</Button> : null}
       {mine && state.status === 'complete' && state.download_url ? <ButtonLink variant="secondary"
-        href={state.download_url}>下载已生成的文件</ButtonLink> : null}
+        href={state.download_url}>Download the generated file</ButtonLink> : null}
       {children}
     </div>
     {mine && active ? <TaskProgress embedded={kind === 'scraping'} value={state.done || 0} total={state.total}
-      label={state.total ? `${state.stage} · ${state.done || 0} / ${state.total} 项`
-        : `${state.stage || '准备导出'}${state.rows ? ` · ${state.rows} 条候选` : ''}${state.files ? ` · ${state.files} 个文件` : ''}`} /> : null}
+      label={state.total ? `${state.stage} · ${state.done || 0} / ${state.total} items`
+        : `${state.stage || 'Preparing export'}${state.rows ? ` · ${state.rows} candidates` : ''}${state.files ? ` · ${state.files} files` : ''}`} /> : null}
     {mine && state.status === 'complete' ? <p role="status" className="text-body-2-regular text-text-secondary">
       Export complete · {((state.bytes || 0) / 1024 / 1024).toFixed(2)} MiB</p> : null}
     {mine && state.status === 'cancelled' ? <Note tone="neutral">Export canceled</Note> : null}

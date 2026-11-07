@@ -427,8 +427,8 @@ export function pickerSections(query: string, candidates: readonly TagCount[], r
 
 /* ── Queue ── */
 
-/** 版次徽章的配色跟卡片标题上的那套走。多一个 `有码`：卡片上正片不加角标是对的（没角标就是
- *  正片），但队列里两条并排时「什么都不写」等于让人自己猜哪条是哪条。 */
+/** Edition badge colors follow the set on card titles. One addition, `Censored`: on cards, the main feature correctly carries no badge (no badge means the main feature),
+ *  but with two entries side by side in the queue, writing nothing leaves people guessing which is which. */
 export const EDITION_TONE: Record<string, string> = { 中字: 'subtitle', 无码: 'uncensored', 无码流出: 'leaked', 无码破解: 'cracked', 有码: 'censored' };
 
 const QUEUE_LABEL: Record<QueueKind, string> = { mix: 'Mix', parts: 'Volumes', editions: 'Editions', playlist: 'Playlists' };

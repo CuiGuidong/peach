@@ -1,13 +1,13 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "69a46918-6cb7-46f5-ad69-1081b6644c29", e._sentryDebugIdIdentifier = "sentry-dbid-69a46918-6cb7-46f5-ad69-1081b6644c29");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "33e106ee-e1f1-49ba-bef4-4e639e9dd39a", e._sentryDebugIdIdentifier = "sentry-dbid-33e106ee-e1f1-49ba-bef4-4e639e9dd39a");
 	} catch {}
 })();
 import { BATCH_DELETE_TEXT as e, Button as t, CLEANUP_ENTRY as n, CLEANUP_ENTRY_GRID as r, CLEANUP_HASH_REDIRECTS as i, CLEANUP_TOOLS as a, Chip as o, DIRECTORY_TEMPLATE_ERROR as s, DUPLICATES_KEY as c, Fieldset as l, FieldsetTitle as u, IDLE_REPAIR as d, IconButton as f, IndexSearch as p, Input as m, JUNK_KEY as h, LINKS_KEY as g, LINK_CHECK_KEY as _, LINK_KINDS as v, LINK_PRUNE_KEY as ee, LOC as y, LibraryProcessingCard as b, MEDIA_REPAIR_KEY as x, MEDIA_REPAIR_URL as S, MEDIA_SOURCES_KEY as C, MEDIA_SOURCE_ICONS as w, Note as T, ORGANIZE_KEY as te, ORGANIZE_PARAMETER_HINT as ne, ORGANIZE_SCOPE_HINT as re, ORGANIZE_TEXT as E, ORPHAN_RECORDS_KEY as D, ORPHAN_RECORDS_TEXT as O, PERFORMER_DELETE_KEY as k, PLAIN_STAT_STRIP as ie, PlainStat as A, Progress as j, QUALITY_GOALS_KEY as ae, REPAIR_CARD_TEXT as M, REPAIR_LIBRARIES_KEY as oe, RESOURCE_APPLY_KEY as se, RESOURCE_SCAN_KEY as N, RESOURCE_SYNC_TEXT as P, RESULT_PANEL as F, RESULT_SECTION as I, REVIEW_COUNTS_KEY as ce, SOURCE_LABELS as L, SectionHeading as le, Select as ue, SelectItem as de, SourceMark as fe, StatusLabel as pe, TRASH_KEY as R, TaskProgress as z, Wt as me, __toESM as he, apiSend as ge, applyConfirmText as _e, applyLeftovers as B, applyPlanText as ve, applyText as V, attachOrphan as ye, baseName as be, busyProps as H, candidateText as xe, checkLine as Se, confirmModal as U, cx as Ce, deletePerformerVideos as we, entityDisplayName as Te, entityFaceImg as Ee, entityPath as De, errorMessage as W, esc as Oe, fetchDeletePerformers as ke, fetchDeletePlan as Ae, fetchDuplicates as je, fetchJunkSummary as Me, fetchLinkCheck as Ne, fetchLinkPrune as Pe, fetchLinkStats as Fe, fetchMediaRepair as Ie, fetchMediaSources as Le, fetchOrganize as Re, fetchOrganizeExample as ze, fetchOrphanRecords as Be, fetchQualityGoals as Ve, fetchRepairLibraries as He, fetchResourceApply as Ue, fetchResourceScan as We, fetchReviewCounts as Ge, fetchTrashSummary as Ke, firstGrapheme as qe, fmtSize as G, hasChanges as Je, hasResourceRoots as Ye, junkBreakdown as Xe, missingToolText as Ze, nameFallback as Qe, organizeOutcome as $e, pickOrganizeFolder as et, plainStatClass as K, planSummary as tt, previewOrganize as nt, pruneText as rt, purgeCount as it, purgeOrphan as at, queryClient as q, recordsText as ot, rememberTemplates as st, require_jsx_runtime as ct, require_react as lt, reviewSummary as ut, scanLine as dt, shellNavigate as ft, sourceMeta as pt, spriteGlyph as J, startLinkCheck as mt, startLinkPrune as ht, startOrganize as gt, startResourceApply as _t, startResourceScan as vt, statusLine as yt, useAction as bt, useBackgroundJob as Y, useEntityNames as xt, useMutation as St, useQuery as X, withOrganizeJob as Ct } from "./peach-app.js";
 import { Page as wt } from "./peach-app.page-QAncjzM1.js";
 import { ErrorExcerpt as Tt } from "./peach-app.error-excerpt-CigKESNN.js";
-import { DataTable as Et } from "./peach-app.data-table-DChrkEud.js";
+import { DataTable as Et } from "./peach-app.data-table-Ci4Sob3W.js";
 import { SiteMark as Dt } from "./peach-app.site-mark-D_VlIyJz.js";
 import { LEGACY_AVATAR_IMG as Ot } from "./peach-app.legacy-avatar-NSITxLRS.js";
 import { FolderSearchIcon as kt } from "./peach-app.folder-rows-c6xBdYCX.js";
@@ -826,11 +826,11 @@ function Xt({ toast: e, failure: n }) {
 					}),
 					P.isError ? /* @__PURE__ */ (0, Q.jsxs)(T, {
 						tone: "error",
-						title: "目录选择失败",
-						children: [W(P.error), "；也可直接输入路径。"]
+						title: "Choosing the folder failed",
+						children: [W(P.error), "; you can also type a path directly."]
 					}) : null,
 					/* @__PURE__ */ (0, Q.jsx)(m, {
-						label: "文件名模板",
+						label: "Filename template",
 						placeholder: "{code}[ {title}]",
 						value: _.file,
 						ref: O,
@@ -1091,12 +1091,12 @@ function tn({ toast: e }) {
 				children: W(i.error)
 			})]
 		}) : /* @__PURE__ */ (0, Q.jsx)(Et, {
-			label: "文件已消失的作品",
+			label: "Videos whose files disappeared",
 			items: a,
 			columns: c,
-			title: "文件已丢失的记录",
+			title: "Records with missing files",
 			titleId: "orphan-records-title",
-			unit: "条作品",
+			unit: "videos",
 			description: O,
 			rowId: (e) => String(e.id),
 			rowLabel: (e) => e.name,
@@ -1147,7 +1147,7 @@ function rn({ toast: n }) {
 	let v = (0, Z.useMemo)(() => [
 		{
 			id: "name",
-			label: "女优",
+			label: "Performers",
 			width: 280,
 			min: 160,
 			value: (e) => e.k,
@@ -1155,23 +1155,23 @@ function rn({ toast: n }) {
 		},
 		{
 			id: "works",
-			label: "影片",
+			label: "Movie",
 			width: 104,
 			min: 80,
 			value: (e) => e.n,
-			render: (e) => `${e.n.toLocaleString()} 部`
+			render: (e) => `${e.n.toLocaleString()} titles`
 		},
 		{
 			id: "files",
-			label: "文件",
+			label: "Files",
 			width: 104,
 			min: 80,
 			value: (e) => e.file_count,
-			render: (e) => `${e.file_count.toLocaleString()} 个`
+			render: (e) => `${e.file_count.toLocaleString()} titles`
 		},
 		{
 			id: "bytes",
-			label: "登记大小",
+			label: "Registered size",
 			width: 136,
 			min: 104,
 			value: (e) => e.bytes,
@@ -1189,13 +1189,13 @@ function rn({ toast: n }) {
 		try {
 			let i = await Ae(e.map((e) => e.entity_id), r.signal);
 			if (r.signal.throwIfAborted(), !i.total) {
-				n("所选女优没有可删除的影片");
+				n("The selected performers have no deletable titles");
 				return;
 			}
 			let a = i.performers.map((e) => Te("performer", e.name, e.id)), o = [...new Set(i.items.map((e) => e.code || e.name || `#${e.id}`))], s = await U({
-				title: "删除所选女优的全部影片",
-				body: `将永久删除 ${a.slice(0, 5).join("、")}${a.length > 5 ? `等 ${a.length} 位女优` : ""} 关联的 ${i.total} 个影片文件（登记大小 ${G(i.bytes)}）。范围包含全部来源和回收站，不受当前搜索、排序或分页影响。文件、影片资料和观看记录将永久删除，无法恢复；女优档案和照片保留。` + (i.shared ? `其中 ${i.shared} 个文件还关联了未勾选的女优，删除后也会从她们的作品中消失。` : "") + `涉及：${o.slice(0, 5).join("、")}${o.length > 5 ? `等 ${o.length} 部作品` : ""}。`,
-				confirmLabel: "永久删除影片",
+				title: "Delete every title of the selected performers",
+				body: `Permanently deletes ${i.total} video files tied to ${a.slice(0, 5).join(", ")}${a.length > 5 ? ` and ${a.length} more performers` : ""} (registered size ${G(i.bytes)}).The scope covers every source and the trash regardless of the current search, sort, or page. Files, details, and watch history are permanently deleted and cannot be recovered; performer profiles and photos are kept.` + (i.shared ? `${i.shared} of these files also belong to unchecked performers and will vanish from their titles once deleted.` : "") + `Involves: ${o.slice(0, 5).join(", ")}${o.length > 5 ? ` and ${o.length} more titles` : ""}.`,
+				confirmLabel: "Permanently delete titles",
 				danger: !0,
 				onConfirm: () => we(i)
 			});
@@ -1207,7 +1207,7 @@ function rn({ toast: n }) {
 			}), q.invalidateQueries({
 				queryKey: R,
 				exact: !0
-			})]), n(`已永久删除 ${c.purged} 个影片文件${c.blocked.length ? `，${c.blocked.length} 个未删除` : ""}`);
+			})]), n(`Permanently deleted ${c.purged} video files${c.blocked.length ? `; ${c.blocked.length} were not deleted` : ""}`);
 		} catch (e) {
 			r.signal.aborted || g(W(e));
 		} finally {
@@ -1224,34 +1224,34 @@ function rn({ toast: n }) {
 	return /* @__PURE__ */ (0, Q.jsxs)("section", {
 		id: "batch-delete",
 		className: "flex min-w-0 scroll-mt-20 flex-col gap-3",
-		"aria-label": "批量删除",
+		"aria-label": "Batch delete",
 		children: [
 			r.isPending || r.isError ? /* @__PURE__ */ (0, Q.jsxs)(l, {
 				layout: "stack",
 				labelledBy: "batch-delete-title",
 				children: [/* @__PURE__ */ (0, Q.jsx)(u, {
 					id: "batch-delete-title",
-					children: "批量删除"
+					children: "Batch delete"
 				}), r.isError ? /* @__PURE__ */ (0, Q.jsx)(T, {
 					tone: "error",
-					title: "读取女优列表失败",
+					title: "Failed to read the performer list",
 					action: /* @__PURE__ */ (0, Q.jsx)(t, {
 						variant: "secondary",
 						size: "small",
 						onClick: () => void r.refetch(),
-						children: "重试"
+						children: "Retry"
 					}),
 					children: W(r.error)
 				}) : /* @__PURE__ */ (0, Q.jsx)("p", {
 					role: "status",
 					className: "text-body-regular text-text-secondary",
-					children: "正在读取女优列表…"
+					children: "Reading the performer list…"
 				})]
 			}) : /* @__PURE__ */ (0, Q.jsx)(Et, {
-				label: "女优影片",
-				title: "批量删除",
+				label: "Performer titles",
+				title: "Batch delete",
 				titleId: "batch-delete-title",
-				unit: "位女优",
+				unit: " performers",
 				description: e,
 				items: y,
 				columns: v,
@@ -1260,7 +1260,7 @@ function rn({ toast: n }) {
 				selected: i,
 				onSelected: a,
 				toolbarActions: /* @__PURE__ */ (0, Q.jsx)(p, {
-					label: "搜索女优姓名或别名",
+					label: "Search a performer's name or alias",
 					value: o,
 					onQuery: (e) => {
 						s(e), a([]);
@@ -1271,17 +1271,17 @@ function rn({ toast: n }) {
 					size: "small",
 					...H(c),
 					onClick: () => void b(e, n),
-					children: "删除所选女优影片"
+					children: "Delete the selected performers' titles"
 				})
 			}),
 			h ? /* @__PURE__ */ (0, Q.jsx)(T, {
 				tone: "error",
-				title: "未能读取删除清单",
+				title: "Could not read the deletion list",
 				children: h
 			}) : null,
 			f ? /* @__PURE__ */ (0, Q.jsx)(T, {
 				tone: x.length ? "warning" : "info",
-				title: `已永久删除 ${f.purged} 个影片文件`,
+				title: `Permanently deleted ${f.purged} video files`,
 				extra: x.length ? /* @__PURE__ */ (0, Q.jsx)("div", {
 					className: "flex flex-col gap-2 text-body-2-regular wrap-anywhere",
 					children: x.slice(0, 5).map((e, t) => /* @__PURE__ */ (0, Q.jsxs)("p", { children: [
@@ -1291,7 +1291,7 @@ function rn({ toast: n }) {
 						"）"
 					] }, t))
 				}) : null,
-				children: x.length ? `${f.blocked.length} 个文件未能删除，馆藏记录仍保留；${f.cleanup_pending.length} 个隔离文件和 ${f.cache_blocked.length} 个缓存文件待清理。` : "所选影片及关联记录已删除，女优档案和照片保留。"
+				children: x.length ? `${f.blocked.length} files could not be deleted and their library records remain; ${f.cleanup_pending.length} quarantined files and ${f.cache_blocked.length} cache files await cleanup.` : "The selected titles and their linked records are deleted; performer profiles and photos are kept."
 			}) : null
 		]
 	});
@@ -1510,24 +1510,24 @@ function fn({ toast: e }) {
 	});
 	return t.isError ? /* @__PURE__ */ (0, Q.jsx)(T, {
 		tone: "error",
-		title: "读取媒体来源失败",
+		title: "Failed to read media sources",
 		children: W(t.error)
 	}) : t.isPending ? /* @__PURE__ */ (0, Q.jsx)("p", {
 		role: "status",
-		children: "正在读取媒体来源…"
+		children: "Reading media sources…"
 	}) : Ye(t.data) ? /* @__PURE__ */ (0, Q.jsx)(dn, { toast: e }) : /* @__PURE__ */ (0, Q.jsxs)(l, {
 		layout: "stack",
-		label: "资源同步",
+		label: "Resource sync",
 		children: [
-			/* @__PURE__ */ (0, Q.jsx)(u, { children: "资源同步" }),
+			/* @__PURE__ */ (0, Q.jsx)(u, { children: "Resource sync" }),
 			/* @__PURE__ */ (0, Q.jsx)("p", {
 				className: "text-body-regular text-text-secondary",
-				children: "尚未配置可核对的媒体目录。"
+				children: "No media directory is configured to check yet."
 			}),
 			/* @__PURE__ */ (0, Q.jsx)("a", {
 				href: "/settings/library",
 				className: "text-body-medium text-accent-600 underline",
-				children: "配置媒体库"
+				children: "Configure libraries"
 			})
 		]
 	});
@@ -1560,10 +1560,10 @@ function pn({ tool: e, toast: t, failure: n }) {
 // src/react/data-cleanup/data-cleanup-page.tsx
 function mn(e, t) {
 	return e.data === void 0 ? e.isError ? {
-		figure: "读取失败",
+		figure: "Load failed",
 		state: "error"
 	} : {
-		figure: "正在读取…",
+		figure: "Reading…",
 		state: "loading"
 	} : t(e.data);
 }
@@ -1630,52 +1630,52 @@ function Cn({ toast: e, open: t, navigate: n }) {
 			className: "flex flex-col gap-4",
 			children: [/* @__PURE__ */ (0, Q.jsx)(le, {
 				id: "cleanup-pending",
-				children: "待处理事项"
+				children: "Pending review"
 			}), /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: ie,
 				children: [
 					/* @__PURE__ */ (0, Q.jsx)(hn, {
 						section: "review",
-						label: "人工复核",
+						label: "Manual review",
 						icon: _n,
 						open: t,
 						value: mn(o, ut)
 					}),
 					/* @__PURE__ */ (0, Q.jsx)(hn, {
 						section: "duplicates",
-						label: "重复文件",
+						label: "Duplicates",
 						icon: yn,
 						open: t,
 						value: mn(l, (e) => Number(e.total || 0) ? {
-							figure: `${Number(e.total).toLocaleString()} 组 · ${Number(e.files || 0).toLocaleString()} 个文件`,
-							meta: `可回收 ${G(e.reclaimable || 0)}`
-						} : { figure: "没有重复内容" })
+							figure: `${Number(e.total).toLocaleString()} groups - ${Number(e.files || 0).toLocaleString()} files`,
+							meta: `Reclaimable ${G(e.reclaimable || 0)}`
+						} : { figure: "No duplicate content" })
 					}),
 					/* @__PURE__ */ (0, Q.jsx)(hn, {
 						section: "ads",
-						label: "垃圾文件",
+						label: "Junk files",
 						icon: bn,
 						open: t,
 						value: mn(u, (e) => ({
-							figure: `${Number(e.pending_total || 0).toLocaleString()} 个待判断`,
+							figure: `${Number(e.pending_total || 0).toLocaleString()} awaiting review`,
 							meta: Xe(e)
 						}))
 					}),
 					/* @__PURE__ */ (0, Q.jsx)(hn, {
 						section: "quality",
-						label: "高清版",
+						label: "HD version",
 						icon: vn,
 						open: t,
-						value: mn(s, (e) => ({ figure: `${Number(e.total || 0).toLocaleString()} 个待升级` }))
+						value: mn(s, (e) => ({ figure: `${Number(e.total || 0).toLocaleString()} pending upgrade` }))
 					}),
 					/* @__PURE__ */ (0, Q.jsx)(hn, {
 						section: "trash",
-						label: "回收站",
+						label: "Trash",
 						icon: xn,
 						open: t,
 						value: mn(d, (e) => ({
-							figure: `${Number(e.total || 0).toLocaleString()} 项在回收站`,
-							meta: e.total ? `占用 ${G(e.bytes || 0)}` : "查看和还原已移入回收站的内容"
+							figure: `${Number(e.total || 0).toLocaleString()} items in trash`,
+							meta: e.total ? `Using ${G(e.bytes || 0)}` : "Review and restore content moved to the trash"
 						}))
 					})
 				]
@@ -1695,7 +1695,7 @@ function Cn({ toast: e, open: t, navigate: n }) {
 			className: "flex flex-col gap-4",
 			children: [/* @__PURE__ */ (0, Q.jsx)(le, {
 				id: "cleanup-maintenance",
-				children: "整理与维护"
+				children: "Organize and maintain"
 			}), /* @__PURE__ */ (0, Q.jsx)("div", {
 				className: r,
 				children: a.filter((e) => e.key !== "batch-delete").map((e) => /* @__PURE__ */ (0, Q.jsx)(gn, {
@@ -1709,7 +1709,7 @@ function Cn({ toast: e, open: t, navigate: n }) {
 			className: "flex flex-col gap-4",
 			children: [/* @__PURE__ */ (0, Q.jsx)(le, {
 				id: "cleanup-deletion",
-				children: "清理与删除"
+				children: "Clean up and delete"
 			}), /* @__PURE__ */ (0, Q.jsx)("div", {
 				className: r,
 				children: a.filter((e) => e.key === "batch-delete").map((e) => /* @__PURE__ */ (0, Q.jsx)(gn, {
@@ -1722,4 +1722,4 @@ function Cn({ toast: e, open: t, navigate: n }) {
 }
 export { Cn as DataCleanupPage, pn as DataCleanupToolPage };
 
-//# debugId=69a46918-6cb7-46f5-ad69-1081b6644c29
+//# debugId=33e106ee-e1f1-49ba-bef4-4e639e9dd39a

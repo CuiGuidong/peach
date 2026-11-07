@@ -1,4 +1,4 @@
-/* Docker 一键更新（ADR-0140）：点击后等新容器起来。
+/* Docker Update in one click（ADR-0140）：点击后等新容器起来。
  *
  * 容器换不掉自己，Peach 只请同一 compose 里的 Watchtower 在后台拉镜像、重建容器；令牌与地址都由
  * compose 自动配好，页面没有设置项。请求发出后 Peach 会断开一会儿；每 3 秒问一次运行版本，
@@ -14,7 +14,7 @@ const GIVE_UP = 15 * 60 * 1000;
 
 export type DockerJob = { state: 'idle' | 'updating' | 'done' | 'timeout'; version?: string };
 
-/** 点击「一键更新」之后的进度：发请求、等运行版本变化。 */
+/** 点击「Update in one click」之后的进度：发请求、等运行版本变化。 */
 export function useDockerUpdate(currentVersion: string) {
   const [job, setJob] = useState<DockerJob>({ state: 'idle' });
   const action = useAction();
@@ -51,14 +51,14 @@ export function useDockerUpdate(currentVersion: string) {
 
 export function DockerUpdateProgress({ job }: { job: DockerJob }) {
   if (job.state === 'updating') {
-    return <Help role="status">Watchtower 正在拉取新镜像并重建容器。期间 Peach 会断开一会儿，新版本启动后这里会提示刷新。</Help>;
+    return <Help role="status">Watchtower is pulling the new image and recreating the container. Peach disconnects briefly; this page prompts you to refresh once the new version is up.</Help>;
   }
-  if (job.state === 'done') return <Help role="status">已更新到 Peach {job.version}，刷新页面即可使用。</Help>;
+  if (job.state === 'done') return <Help role="status">Updated to Peach {job.version}，Refresh the page即可使用。</Help>;
   if (job.state === 'timeout') {
     return <Stack>
-      <ErrorText>15 分钟内没有看到新版本启动。在 compose.yaml 所在目录查看 Watchtower 与 Peach 的日志：</ErrorText>
-      <CommandSteps label="查看更新日志" steps={[{ text: 'Watchtower 的拉取与重建记录', command: 'docker compose logs watchtower' },
-        { text: 'Peach 的启动与数据库迁移记录', command: 'docker compose logs peach' }]} />
+      <ErrorText>15 分钟内没有看到新版本启动。在 compose.yaml 所在目录View Watchtower 与 Peach 的日志：</ErrorText>
+      <CommandSteps label="View更新日志" steps={[{ text: 'Watchtower pull and rebuild history', command: 'docker compose logs watchtower' },
+        { text: 'Peach startup and database migration history', command: 'docker compose logs peach' }]} />
     </Stack>;
   }
   return null;

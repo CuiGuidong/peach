@@ -81,7 +81,7 @@ export function PushDiscoveryForm({ initial, receipt }: {
     ? `Watching ${live.local_roots.join(', ')}` : live.local_message || 'Not running';
 
   return (
-    <Section id="pushDiscovery" guide="discovery" title="自动发现新文件" onSubmit={submit}>
+    <Section id="pushDiscovery" guide="discovery" title="Discover new files automatically" onSubmit={submit}>
       <Stack>
         <div className="flex flex-wrap items-center gap-2"><span className="text-body-regular text-text-secondary">Watch this machine</span>
           <StatusLabel tone={!live.enabled || !live.watch_local ? 'neutral' : live.local_running ? 'progress' : 'warning'}>{!live.enabled || !live.watch_local ? 'Not enabled' : live.local_running ? 'Running' : 'Not running'}</StatusLabel></div>
@@ -96,8 +96,8 @@ export function PushDiscoveryForm({ initial, receipt }: {
             isDisabled={!state.available || !state.enabled}
             onChange={(watchLocal) => setState({ ...state, watch_local: watchLocal })} />
         </SettingsRow>
-        <SettingsRow label="接收 CloudDrive2 通知" description="网盘目录有变化时由 CloudDrive2 推送过来。">
-          <Switch aria-label="接收 CloudDrive2 通知" isSelected={state.cloud}
+        <SettingsRow label="Receive CloudDrive2 notifications" description="When a cloud-drive directory changes, CloudDrive2 pushes the change over.">
+          <Switch aria-label="Receive CloudDrive2 notifications" isSelected={state.cloud}
             isDisabled={!state.available || !state.enabled}
             onChange={(cloud) => setState({ ...state, cloud })} />
         </SettingsRow>

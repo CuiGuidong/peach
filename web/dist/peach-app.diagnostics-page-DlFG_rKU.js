@@ -1,12 +1,12 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ca5e0615-af83-4541-b210-617cf28e7984", e._sentryDebugIdIdentifier = "sentry-dbid-ca5e0615-af83-4541-b210-617cf28e7984");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "0d3ff0dc-f7e8-418f-93e0-25566a3b9df7", e._sentryDebugIdIdentifier = "sentry-dbid-0d3ff0dc-f7e8-418f-93e0-25566a3b9df7");
 	} catch {}
 })();
 import { ApiError as e, Button as t, ButtonLink as n, Chip as r, DIAGNOSTICS_KEY as i, Disclosure as a, EmptyState as o, Fact as s, FactList as c, Fieldset as l, FieldsetTitle as u, Input as d, LOC as f, LinkButton as p, Note as m, Section as h, SettingsCard as g, SettingsSectionLabel as _, Stack as v, TaskProgress as y, __toESM as b, apiGet as ee, apiSend as x, busyProps as S, configurationSection as C, cx as w, diagnosticHeaders as T, diagnosticsSkeleton as E, errorMessage as D, fetchDiagnostics as O, fmtDur as k, fmtSize as A, queryClient as j, require_jsx_runtime as M, require_react as N, settingsPath as P, tl as F, useAction as I, useQuery as L } from "./peach-app.js";
 import { ErrorExcerpt as R } from "./peach-app.error-excerpt-CigKESNN.js";
-import { DataTable as z } from "./peach-app.data-table-DChrkEud.js";
+import { DataTable as z } from "./peach-app.data-table-Ci4Sob3W.js";
 import { SiteMark as B } from "./peach-app.site-mark-D_VlIyJz.js";
 // src/react/diagnostics/health-list.tsx
 var V = /* @__PURE__ */ b(N(), 1), H = M(), U = (e) => e.title || e.name || e.code || `Video #${e.id}`, W = (e) => [[
@@ -200,7 +200,7 @@ function J({ kind: r, codes: i = "", children: a }) {
 					l && c.status === "complete" && c.download_url ? /* @__PURE__ */ (0, H.jsx)(n, {
 						variant: "secondary",
 						href: c.download_url,
-						children: "下载已生成的文件"
+						children: "Download the generated file"
 					}) : null,
 					a
 				]
@@ -209,7 +209,7 @@ function J({ kind: r, codes: i = "", children: a }) {
 				embedded: r === "scraping",
 				value: c.done || 0,
 				total: c.total,
-				label: c.total ? `${c.stage} · ${c.done || 0} / ${c.total} 项` : `${c.stage || "准备导出"}${c.rows ? ` · ${c.rows} 条候选` : ""}${c.files ? ` · ${c.files} 个文件` : ""}`
+				label: c.total ? `${c.stage} · ${c.done || 0} / ${c.total} items` : `${c.stage || "Preparing export"}${c.rows ? ` · ${c.rows} candidates` : ""}${c.files ? ` · ${c.files} files` : ""}`
 			}) : null,
 			l && c.status === "complete" ? /* @__PURE__ */ (0, H.jsxs)("p", {
 				role: "status",
@@ -401,7 +401,7 @@ function ie(e) {
 						variant: "secondary",
 						onClick: d,
 						...S(o.busy === "refresh"),
-						children: "重新检查"
+						children: "Check again"
 					})
 				})
 			}),
@@ -411,7 +411,7 @@ function ie(e) {
 			}) : null,
 			p.length ? /* @__PURE__ */ (0, H.jsx)(h, {
 				guide: "attention",
-				title: `需要关注 · ${p.length} 项`,
+				title: `Needs attention · ${p.length} items`,
 				children: p.map(([e, t]) => /* @__PURE__ */ (0, H.jsx)($, {
 					name: e,
 					check: t
@@ -419,10 +419,10 @@ function ie(e) {
 			}) : null,
 			/* @__PURE__ */ (0, H.jsx)(h, {
 				guide: "health",
-				title: "库健康",
+				title: "Library health",
 				children: /* @__PURE__ */ (0, H.jsxs)(v, { children: [f.library.issue_at ? /* @__PURE__ */ (0, H.jsxs)("p", {
 					className: "text-body-2-regular text-text-secondary",
-					children: ["处理记录 · ", Z(f.library.issue_at)]
+					children: ["Processing log · ", Z(f.library.issue_at)]
 				}) : null, Object.entries(f.library.groups).map(([t, n]) => /* @__PURE__ */ (0, H.jsx)(G, {
 					group: n,
 					...e
@@ -457,10 +457,10 @@ function ie(e) {
 			/* @__PURE__ */ (0, H.jsx)(Y, {}),
 			/* @__PURE__ */ (0, H.jsxs)("section", {
 				"data-guide-target": "sessions",
-				"aria-label": "来源会话",
+				"aria-label": "Source sessions",
 				className: "flex min-w-0 flex-col gap-3",
 				children: [
-					/* @__PURE__ */ (0, H.jsx)(_, { children: "来源会话" }),
+					/* @__PURE__ */ (0, H.jsx)(_, { children: "Source sessions" }),
 					f.sources.map((e) => /* @__PURE__ */ (0, H.jsx)("article", {
 						"data-diagnostic-source": e.source,
 						children: /* @__PURE__ */ (0, H.jsx)(g, { children: /* @__PURE__ */ (0, H.jsxs)(v, { children: [
@@ -504,4 +504,4 @@ function ie(e) {
 }
 export { ie as DiagnosticsPage };
 
-//# debugId=ca5e0615-af83-4541-b210-617cf28e7984
+//# debugId=0d3ff0dc-f7e8-418f-93e0-25566a3b9df7

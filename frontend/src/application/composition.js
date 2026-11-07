@@ -170,11 +170,13 @@ compositionState.shellActions = {
       else{$('#q').value=state.q;catalogState.rememberSearchValue()}
       syncNavigation();buildBars();return preferencesState.handOff(loadCatalog());
     },
-    /* 壳认领写了地址、筛选已在 `state` 里：只重取。 */
+    /* The shell claimed it and wrote the address, filters are already in `state`: just refetch. */
     load:()=>preferencesState.handOff(loadCatalog()),
-    /* 没有背景的作品与队列地址（深链、刷新）：详情下面那份列表一次请求都没发过，补发一次，不留一张写着在读、
-       其实没有请求在跑的骨架。走 `paintCatalogGrid` 直接挂网格：`loadCatalog` 开头就 `disposeStage()`，会把这一屏
-       详情一起收掉。网格已经画上（哪怕还在取第一页）就不再补发；不是启动那一条时只接着那张骨架。 */
+    /* Video and queue addresses without a background (deep links, refresh): the list under details has sent no request at all, so
+       backfill one, rather than leaving a skeleton that says loading with no request running. It mounts the grid directly via
+       `paintCatalogGrid`: `loadCatalog` starts with `disposeStage()`, which would tear down this screen's details too. Once the
+       grid is mounted (even still fetching its first page) it does not backfill again; when this is not the startup entry it
+       only takes over the existing skeleton. */
     fill:()=>{
       if(gridTaken())return;
       if(!bootEntry()&&!$('#grid').querySelector('.catalog-skeleton'))return;
@@ -201,7 +203,7 @@ loadRouter(compositionState.shellActions).catch(error=>console.error('Client-sid
 mountManageHeader();
 mountBatchDock();
 buildManageBar();
-/* 形状名单只在一处挡开页：目录页还不知道有没有新作那一行（本机没记过结论），目录骨架的比例要等它定。
+/* 形状名单只在一处挡开页：目录页还不知道有没有新作那一行（This device没记过结论），目录骨架的比例要等它定。
    其余页面不等：名单在后台任务频繁写账本时要算好几秒，资料页自己按 `waitEntityShapes` 封顶等待。 */
 const shapesGate=isFeedNewPath(decodeURIComponent(location.pathname))&&catalogState.homeHasFeed==null
   ?loadingState.entityShapesReady:null;

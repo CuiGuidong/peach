@@ -22,7 +22,7 @@ export const SCRAPING_KEY = ['scraping'] as const;
 export const COVER_JOB_KEY = ['scraping', 'cover'] as const;
 /** 全部来源连接检查那一趟后台任务的状态。 */
 export const CHECK_ALL_KEY = ['scraping', 'check-all'] as const;
-/** amane 桥的事实与重建任务的状态（`q_scraping_amane_bridge`）。 */
+/** Facts about the amane bridge and the rebuild task's state (`q_scraping_amane_bridge`). */
 export const AMANE_BRIDGE_KEY = ['scraping', 'amane-bridge'] as const;
 
 /** A scraping source. Fields follow `q_scraping` (`src/peach/web_scraping.py`). */
@@ -55,23 +55,23 @@ export interface Check {
   checked_at?: number;
 }
 
-/** 全部检查的报告口径，同 `peach check-sources`（`src/peach/source_preflight.py` 的 `OUTCOMES`）。 */
+/** All checks的报告口径，同 `peach check-sources`（`src/peach/source_preflight.py` 的 `OUTCOMES`）。 */
 export type CheckOutcome = 'ok' | 'auth' | 'http' | 'cooldown' | 'network' | 'skipped';
 
-/** 全部检查里的一项：比单项检查多了归类与它的中文名。 */
+/** All checks里的一项：比单项检查多了归类与它的中文名。 */
 export interface ReportedCheck extends Check {
   outcome: CheckOutcome;
   outcome_label: string;
 }
 
-/** 全部检查里的一个来源。 */
+/** All checks里的一个来源。 */
 export interface SourceReport {
   source: string;
   label: string;
   results: ReportedCheck[];
 }
 
-/** 全部检查的后台任务快照（`source_check_job`）。跑的时候 `results` 按完成先后追加，
+/** All checks的后台任务快照（`source_check_job`）。跑的时候 `results` 按完成先后追加，
  *  完成后换成按来源顺序排好的整份。`failed` 不计「未检查」。 */
 export interface CheckAllJob {
   status: string;
@@ -84,7 +84,7 @@ export interface CheckAllJob {
   error?: string;
 }
 
-/** 抓封面的后台任务快照（`scraping_cover_job`）。`status` 是 `idle|running|complete|failed`。 */
+/** Snapshot of the cover-fetching background job (`scraping_cover_job`). `status` is `idle|running|complete|failed`. */
 export interface CoverJob {
   status: string;
   job_id?: string;

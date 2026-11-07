@@ -69,9 +69,9 @@ export const Miniplayer = memo(function Miniplayer() {
   );
 });
 
-/* 小窗停在下面两角、又和右下角的通知栈同在一侧时，把自己占的高度写成 `--miniplayer-space`，
-   通知栈（`../toaster.tsx`）落在它上沿之上，不盖住画面。手机上通知栈占满整行，下面两角都算。
-   `hidden` 与 `data-corner` 是命令式改的，所以盯属性变化，不靠重画。 */
+/* When the mini player sits in one of the bottom corners and is on the same side as the bottom-right notification stack, it writes its occupied height into `--miniplayer-space`,
+   so the notification stack (`../toaster.tsx`) lands above its top edge, not covering the picture. On phones the notification stack fills the whole row, so both bottom corners count.
+   `hidden` and `data-corner` are changed imperatively, so watch the attribute changes rather than relying on repaints. */
 function publishBottomSpace(root: HTMLElement): () => void {
   const measure = () => {
     const corner = root.dataset.corner || '';
@@ -92,8 +92,8 @@ function publishBottomSpace(root: HTMLElement): () => void {
   };
 }
 
-/* 拖动只改 transform，松手按小窗中心落在哪个象限选角，再用 .5s 的 transform 过渡吸过去，过渡完把
-   data-corner 换成新角、清掉 transform——上游 AnimatingSnap 就是这么落回锚点的。 */
+/* Dragging only changes transform; on release, pick the corner by which quadrant the mini player's center landed in, then snap over with a .5s transform transition, and after the transition
+   swap data-corner to the new corner and clear the transform; upstream AnimatingSnap settles back to its anchor the same way. */
 function snap(root: HTMLElement, dx: number, dy: number): void {
   const rect = root.getBoundingClientRect();
   const corner = (rect.top + rect.height / 2 < innerHeight / 2 ? 't' : 'b') + (rect.left + rect.width / 2 < innerWidth / 2 ? 'l' : 'r');

@@ -89,7 +89,7 @@ searchState.searchHelpers = {
   recommendations:()=>searchRecommendations(api),
   pendingRecommendations,
   rollPlaceholder:(input,next)=>rollPlaceholder(input,next),
-  /* `.pic` 是卡片封面那一格（比例、底色、圆角与模糊垫底都认它），和里面那张图一起由壳给。 */
+  /* `.pic` is the card cover cell (aspect, background, radius, and blur backing all key off it), provided by the shell together with the image inside. */
   coverHtml:card=>`<span class="pic">${card?.thumb_url
     ?`<img src="${esc(card.thumb_url)}" width="640" height="360" alt="" loading="lazy" referrerpolicy="no-referrer" data-drop="self">`
     :card?.sourceWork?feedNewCoverHtml(card):searchCoverImage(card)}</span>`,
@@ -155,10 +155,10 @@ applicationEffects.listen(document, 'keydown', e=>{
     if(selectMode||selected.size||followSelected.size){setSelectMode(false,true);return}
     return;
   }
-  // 输入态不抢键：搜索框、标签弹窗和任何可编辑区域里的按键归它们自己处理。
+  // Typing contexts do not steal keys: presses inside the search box, the tag dialog, and any editable area belong to those.
   if(isTypingTarget(e.target))return;
-  // SFW 开关键（默认 Shift+S，可在设置里改）：有人走近时不必先打开设置（同 javm 的老板键
-  // `2304ab2`）。绑定必带修饰键，所以要在下一行放过修饰键组合之前比对。
+  // SFW toggle key (default Shift+S, changeable in settings): when someone approaches, no need to open settings first (like javm's boss key
+  // `2304ab2`). A binding must include a modifier key, so compare before the next line lets a modifier combination through.
   if(!e.defaultPrevented&&matchesShortcut(e,sfwShortcut())){e.preventDefault();setCensored(!censorOn());return}
   if(e.ctrlKey||e.metaKey||e.altKey)return;
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){

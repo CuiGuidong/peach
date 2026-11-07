@@ -1,12 +1,12 @@
 /* Heatmap: the stats page's playback time and the taste page's browsing time share it.
  *
- * Recharts 没有热力图，EvilCharts 的 Recharts 分支也没有，所以格子仍是自绘的 SVG：一格一个
- * `rect`，浓度是 `fill-opacity`，几何全写成属性。外观对齐同页的 EvilCharts 图：颜色只取
- * `chart-*`，指到一格时其余格子淡下去，浮层与柱状、径向图共用 `./chart-tip.tsx` 那一块面；
- * 页头读数也跟着换，键盘聚焦一格时读的是它。取舍见 ADR-0076。
+ * Recharts has no heatmap, and neither does EvilCharts' Recharts branch, so the cells are still hand-drawn SVG: one
+ * `rect` per cell, intensity as `fill-opacity`, all geometry written as attributes. Appearance matches the EvilCharts charts on the same page: colors only come from
+ * `chart-*`; when hovering a cell the others fade down; the tooltip is the same piece shared with the bar and radial charts via `./chart-tip.tsx`;
+ * the header readout follows along, and when a cell is keyboard-focused that's what gets read. See ADR-0076 for the trade-off.
  *
- * 一张图只占一个 Tab 停靠点（漫游焦点，同 EvilCharts 日历热力图 `4c2dd7c9`）：星期 × 小时有
- * 168 格，一格一个停靠点要按上百次 Tab 才走得出这张卡。进卡之后用方向键与 Home/End 挪。 */
+ * One chart occupies a single Tab stop (roving focus, like EvilCharts' calendar heatmap `4c2dd7c9`): day-of-week × hour has
+ * 168 cells, and one stop per cell would take hundreds of Tab presses to get through this card. Once inside, use the arrow keys and Home/End to move. */
 import { useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 
@@ -61,7 +61,7 @@ export function HeatCard(
   const [shown, setShown] = useState(-1);
   const [stop, setStop] = useState(0);
   const grid = useRef<SVGSVGElement>(null);
-  // 数据换了、格子变少时停靠点落回第一格，不让整张图一个停靠点都没有。
+  // When data changes and there are fewer cells, the stop falls back to the first cell so the image doesn't end up with no stops at all.
   const focusable = stop < cells.length ? stop : 0;
   const left = axis ? 30 : 0;
   const top = axis ? 18 : 0;

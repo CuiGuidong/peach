@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "1480d1f9-aeaa-416a-921c-aae0b24e9f75", e._sentryDebugIdIdentifier = "sentry-dbid-1480d1f9-aeaa-416a-921c-aae0b24e9f75");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "bafc0633-79d0-4880-a018-d652fb4f38ea", e._sentryDebugIdIdentifier = "sentry-dbid-bafc0633-79d0-4880-a018-d652fb4f38ea");
 	} catch {}
 })();
 import { $76d00c5a4edb230a$export$76ccd210b9029917 as e, $76d00c5a4edb230a$export$816b5d811295e6bc as t, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as n, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as r, $76d00c5a4edb230a$export$f850895b287ef28e as i, $fe21c36db05242bb$export$d7b12c4107be0d61 as a, ArtSlot as o, Button as s, ButtonLink as c, Bx as l, COVER_STATE_TITLE as u, CatalogViewToggle as d, ChevronSortDown as f, Chip as p, CloudDownloadDialog as m, CoverQueue as h, DISCOVERY_SORTS as g, DOWNLOADS_KEY as _, DOWNLOADS_URL as v, DataTableFrame as y, E3 as b, EmptyFocusButton as x, EmptyState as S, FilterGlassRows as C, FilterIconButton as w, FilterPill as T, GlassPill as E, Help as D, IndexSearch as O, Input as k, JAV_LAYOUTS as ee, JAV_RECOMMENDATION_GRID as te, JavHeader as A, LibraryShortcuts as j, M6 as M, Note as N, PHASES as P, Pagination as ne, RELEASE_COLUMN_VISIBILITY_KEY as F, RELEASE_COLUMN_WIDTHS_KEY as I, RELEASE_SORTS as L, RELEASE_SORT_COLUMNS as R, SEGMENT as z, SEGMENTED_TRACK as B, SegmentedRadioGroup as V, Segments as re, Shuffle as ie, SortKeys as ae, SourceAvatar as H, Table as oe, TableColumnControls as U, TableColumnResizer as W, TaskProgress as se, WANTS_KEY as ce, WantMagnets as le, Wt as ue, __toESM as de, addWant as fe, apiGet as pe, appSettingsStore as me, avatarInner as he, busyProps as G, cachedMagnetStates as ge, cardClass as _e, cardRatio as ve, catalogListSkeletonCellHtml as ye, composingKey as be, coverArrived as xe, coverFetching as Se, coverFetchingHtml as Ce, coverStateAction as we, coverUrl as Te, discoveryArtwork as Ee, discoveryKey as De, discoveryScore as Oe, entityDisplayName as K, entityFaceImg as ke, entityPath as Ae, errorMessage as q, esc as je, facePos as Me, fetchCoverNow as Ne, fetchDiscoveries as Pe, fetchReleases as Fe, fetchWants as Ie, firstGrapheme as Le, fmtDur as Re, gridLayout as ze, invalidateWants as J, javContentSkeleton as Be, javLayout as Ve, javTagSkeleton as He, keepPreviousData as Ue, leadingGraphemes as We, logoUrl as Ge, pageWindow as Ke, qE as qe, recommendationScore as Je, relayoutCovers as Ye, releaseColumns as Xe, releaseFilters as Ze, releaseKey as Qe, removeWants as $e, require_jsx_runtime as et, require_react as tt, resetWants as nt, searchNote as rt, spriteGlyph as it, storeJavLayout as at, textLang as ot, tierPlaceholdersHtml as st, useAction as Y, useCatalogView as ct, useEntityNames as lt, useQuery as ut, useTablePreferences as dt, wantName as X, wireHorizontalScroller as ft, writeJavQuery as Z } from "./peach-app.js";
@@ -384,12 +384,12 @@ function wt({ item: e, readOnly: t }) {
 	let a = e.cover_state;
 	if (!a) return /* @__PURE__ */ (0, $.jsx)("span", {
 		"data-media-nopic": "",
-		children: "无封面"
+		children: "No cover"
 	});
 	if (a === "fetching" || Se.has(e.code)) return /* @__PURE__ */ (0, $.jsx)("span", { dangerouslySetInnerHTML: { __html: Ce() } });
 	let o = () => {
 		n.run("cover", (t) => Ne(e.code, t), (t) => {
-			t.has_cover ? xe(e.code, t) : i(t.message || "没有找到可用的官方封面");
+			t.has_cover ? xe(e.code, t) : i(t.message || "Nothing found可用的官方封面");
 		});
 	}, c = r || n.error ? "missing" : a, l = n.error || r || e.cover_reason;
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
@@ -426,7 +426,7 @@ function Tt({ item: e, layout: t, javImage: n, readOnly: r, navigate: i, tag: a,
 		children: [
 			h ? /* @__PURE__ */ (0, $.jsx)("a", {
 				href: g,
-				"aria-label": `查看 ${e.code} 详情`,
+				"aria-label": `View ${e.code} details`,
 				onClick: (e) => {
 					e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0 || (e.preventDefault(), i(g));
 				},
@@ -458,14 +458,14 @@ function Tt({ item: e, layout: t, javImage: n, readOnly: r, navigate: i, tag: a,
 						/* @__PURE__ */ (0, $.jsxs)("h3", {
 							"data-jav-title": "",
 							"data-media-title": "",
-							title: `${e.code} · ${e.title || "标题未取得"}`,
+							title: `${e.code} · ${e.title || "Title unavailable"}`,
 							children: [
 								/* @__PURE__ */ (0, $.jsx)("b", { children: e.code }),
 								" ",
 								e.title ? /* @__PURE__ */ (0, $.jsx)("span", {
 									lang: ot(e.title),
 									children: e.title
-								}) : "标题未取得"
+								}) : "Title not fetched"
 							]
 						}),
 						/* @__PURE__ */ (0, $.jsxs)("div", {
@@ -492,9 +492,9 @@ function Tt({ item: e, layout: t, javImage: n, readOnly: r, navigate: i, tag: a,
 								(e.performer_refs?.length || 0) > 1 ? /* @__PURE__ */ (0, $.jsxs)("span", {
 									"data-media-who-more": "",
 									children: [
-										"等 ",
+										"and ",
 										e.performer_refs.length,
-										" 人"
+										" people"
 									]
 								}) : null,
 								e.release_date ? /* @__PURE__ */ (0, $.jsxs)("time", {
@@ -533,19 +533,19 @@ function Tt({ item: e, layout: t, javImage: n, readOnly: r, navigate: i, tag: a,
 						href: e.link,
 						target: "_blank",
 						rel: "noopener noreferrer",
-						children: "作品来源"
+						children: "Video sources"
 					}) : null,
 					/* @__PURE__ */ (0, $.jsx)(s, {
 						variant: "ghost",
 						disabled: r || e.wanted || !!e.asset_id,
 						...G(u),
 						onClick: d,
-						children: e.asset_id ? "已入库" : e.wanted ? "已加入想要" : "想要"
+						children: e.asset_id ? "In library" : e.wanted ? "Added to wants" : "Want"
 					}),
 					/* @__PURE__ */ (0, $.jsx)(s, {
 						variant: "secondary",
 						onClick: f,
-						children: "查找资源"
+						children: "Find resources"
 					})
 				]
 			})
@@ -600,7 +600,7 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 								relayout: (e) => Ye(e, "small")
 							}) : /* @__PURE__ */ (0, $.jsx)("span", {
 								title: t.cover_reason || void 0,
-								children: t.cover_state ? u[t.cover_state] : "无封面"
+								children: t.cover_state ? u[t.cover_state] : "No cover"
 							})
 						})
 					}), /* @__PURE__ */ (0, $.jsx)("span", {
@@ -608,8 +608,8 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 						children: /* @__PURE__ */ (0, $.jsxs)("button", {
 							type: "button",
 							"data-list-name": "",
-							title: `${t.code} · ${t.title || "标题未取得"}`,
-							"aria-label": `查看 ${t.code} 详情`,
+							title: `${t.code} · ${t.title || "Title unavailable"}`,
+							"aria-label": `View ${t.code} details`,
 							onClick: E(t),
 							children: [
 								/* @__PURE__ */ (0, $.jsx)("b", { children: t.code }),
@@ -617,7 +617,7 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 								t.title ? /* @__PURE__ */ (0, $.jsx)("span", {
 									lang: ot(t.title),
 									children: t.title
-								}) : "标题未取得"
+								}) : "Title not fetched"
 							]
 						})
 					})]
@@ -638,9 +638,9 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 					(t.performer_refs?.length || 0) > 1 ? /* @__PURE__ */ (0, $.jsxs)("span", {
 						"data-media-who-more": "",
 						children: [
-							"等 ",
+							"and ",
 							t.performer_refs.length,
-							" 人"
+							" people"
 						]
 					}) : null
 				]
@@ -674,12 +674,12 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 					disabled: m || t.wanted || !!t.asset_id,
 					...G(v(t)),
 					onClick: () => b(t),
-					children: t.wanted ? "已想要" : "想要"
+					children: t.wanted ? "Wanted" : "Want"
 				}), /* @__PURE__ */ (0, $.jsx)(s, {
 					size: "small",
 					variant: "secondary",
 					onClick: () => x(t),
-					children: "查找资源"
+					children: "Find resources"
 				})]
 			});
 		}
@@ -691,19 +691,19 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 		children: [/* @__PURE__ */ (0, $.jsx)("div", {
 			className: "flex flex-wrap justify-end gap-2",
 			role: "toolbar",
-			"aria-label": "新作列表工具栏",
+			"aria-label": "New work list toolbar",
 			children: /* @__PURE__ */ (0, $.jsx)("div", {
 				"data-toolbar-actions": "",
 				children: /* @__PURE__ */ (0, $.jsx)(U, {
 					preferences: S,
-					label: "新作列表"
+					label: "New work list"
 				})
 			})
 		}), /* @__PURE__ */ (0, $.jsx)(y, {
 			follow: !0,
 			preferences: S,
 			children: /* @__PURE__ */ (0, $.jsxs)(oe, {
-				"aria-label": "新作列表",
+				"aria-label": "New work list",
 				size: "sm",
 				sortDescriptor: w ? {
 					column: w,
@@ -731,12 +731,12 @@ function Ot({ items: a, waiting: c, filters: l, studios: d, javImage: p, readOnl
 					})] })
 				}, e.id)), /* @__PURE__ */ (0, $.jsx)(t, {
 					id: "remaining-space",
-					"aria-label": "行空白区域",
+					"aria-label": "Row empty space",
 					"data-table-space": "",
 					width: S.spaceWidth,
 					minWidth: 0
 				})] }), /* @__PURE__ */ (0, $.jsx)(e, {
-					renderEmptyState: () => "没有符合条件的新作",
+					renderEmptyState: () => "No new works match the filter",
 					children: c ? Array.from({ length: 6 }, (e, t) => /* @__PURE__ */ (0, $.jsxs)(n, {
 						id: `skeleton-${t}`,
 						"data-list-skeleton-row": "",
@@ -766,7 +766,7 @@ function jt({ value: e }) {
 	let t = Je(e);
 	return /* @__PURE__ */ (0, $.jsx)("span", {
 		"data-jav-taste-score": "",
-		title: `口味 ${t.score}`,
+		title: `Taste ${t.score}`,
 		children: /* @__PURE__ */ (0, $.jsx)(p, {
 			color: t.color,
 			children: t.label
@@ -881,12 +881,12 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 	}, [j, k]);
 	let P = Y(), F = (e) => {
 		P.run(String(e.id), (t) => fe({ code: e.code }, t), () => {
-			t("已加入想要"), J(), k.refetch();
+			t("Added to wants"), J(), k.refetch();
 		});
 	}, I = k.data, R = k.isPending, z = !!(o.performer || o.studio || o.tag || o.q), B = Math.max(1, Math.ceil((I?.total || 0) / 24));
 	return /* @__PURE__ */ (0, $.jsxs)("section", {
 		ref: p,
-		"aria-label": "订阅新作",
+		"aria-label": "Subscribe to new releases",
 		"aria-busy": R || k.isFetching,
 		className: "flex min-w-0 scroll-mt-24 flex-col gap-4",
 		children: [
@@ -901,12 +901,12 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 				children: [I.facets.performers.length ? /* @__PURE__ */ (0, $.jsx)("div", {
 					"data-catalog-tier": "performers",
 					role: "group",
-					"aria-label": "按女优筛选",
+					"aria-label": "Filter by performer",
 					children: I.facets.performers.map((e) => /* @__PURE__ */ (0, $.jsxs)("button", {
 						type: "button",
 						"data-tier-performer": "",
 						"aria-pressed": o.performer === e.name,
-						title: `${K("performer", e.name, e.id)} · ${e.count} 部`,
+						title: `${K("performer", e.name, e.id)} · ${e.count} titles`,
 						onClick: () => f("performer", e.name),
 						children: [/* @__PURE__ */ (0, $.jsx)("span", {
 							"data-tier-ring": "",
@@ -919,12 +919,12 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 				}) : null, I.facets.studios.length ? /* @__PURE__ */ (0, $.jsx)("div", {
 					"data-catalog-tier": "studios",
 					role: "group",
-					"aria-label": "按厂牌筛选",
+					"aria-label": "Filter by studio",
 					children: I.facets.studios.map((e) => /* @__PURE__ */ (0, $.jsxs)("button", {
 						type: "button",
 						"data-tier-studio": "",
 						"aria-pressed": o.studio === e.name,
-						title: `${e.name} · ${e.count} 部`,
+						title: `${e.name} · ${e.count} works`,
 						onClick: () => f("studio", e.name),
 						children: [
 							/* @__PURE__ */ (0, $.jsx)(Mt, { studio: e }),
@@ -938,8 +938,8 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 				}) : null]
 			}) : null,
 			/* @__PURE__ */ (0, $.jsx)(C, {
-				label: "新作筛选",
-				topLabel: "新作标签",
+				label: "New work filter",
+				topLabel: "New work tag",
 				attrs: {
 					"data-filter-frame": "",
 					"data-jav-filter": "",
@@ -972,11 +972,11 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 							"data-skeleton": "count",
 							"aria-hidden": !0,
 							className: "relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"
-						}) : z ? `${I?.total || 0} / ${I?.candidate_total || 0} 部` : `${I?.total || 0} 部`
+						}) : z ? `${I?.total || 0} / ${I?.candidate_total || 0} works` : `${I?.total || 0} works`
 					}),
 					z ? /* @__PURE__ */ (0, $.jsx)(E, {
 						onPress: g,
-						children: "清除筛选"
+						children: "Clear filters"
 					}) : null,
 					/* @__PURE__ */ (0, $.jsxs)("span", {
 						"data-entity-sorts": "",
@@ -986,7 +986,7 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 								busy: o.sort === "random" && k.isFetching
 							}),
 							w === "cards" ? /* @__PURE__ */ (0, $.jsx)(re, {
-								label: "JAV 卡片版式",
+								label: "JAV card layout",
 								value: x,
 								options: ee,
 								onChange: at
@@ -1008,44 +1008,44 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 			}),
 			R && w === "cards" ? /* @__PURE__ */ (0, $.jsx)("div", {
 				role: "status",
-				"aria-label": "正在读取新作",
+				"aria-label": "Loading new works",
 				dangerouslySetInnerHTML: { __html: Be("discover", x) }
 			}) : null,
 			k.error ? /* @__PURE__ */ (0, $.jsx)(N, {
 				tone: "error",
-				title: "新作未取得",
+				title: "New work unavailable",
 				children: q(k.error)
 			}) : null,
 			j && A ? /* @__PURE__ */ (0, $.jsx)("div", {
 				"data-jav-metadata": "",
 				className: "min-w-0",
 				children: /* @__PURE__ */ (0, $.jsx)(se, {
-					label: `正在读取作品资料 · ${A.completed} / ${A.total} 部`,
+					label: `Reading video details · ${A.completed} / ${A.total}`,
 					value: A.completed,
 					total: A.total
 				})
 			}) : null,
 			e ? null : /* @__PURE__ */ (0, $.jsx)(h, {
-				scope: "本页",
+				scope: "This page",
 				fetchOne: Nt,
 				codes: (I?.items || []).filter((e) => e.cover_state === "queued" && !e.cover_url).map((e) => e.code),
 				settled: (e, n) => {
-					t(e === n ? `已取到 ${n} 部封面` : `已取到 ${e} / ${n} 部封面，没取到的在卡上写了原因`), k.refetch();
+					t(e === n ? `Fetched ${n} covers` : `Fetched ${e} / ${n} covers; the misses have their reasons on the card`), k.refetch();
 				}
 			}),
 			!R && !k.error && !I?.items.length ? /* @__PURE__ */ (0, $.jsx)(S, {
 				icon: l,
-				title: z ? "没有符合条件的新作" : "暂无未入库的新作",
+				title: z ? "No new works match the filter" : "No new works not yet indexed",
 				actions: z ? /* @__PURE__ */ (0, $.jsx)(s, {
 					size: "small",
 					onClick: g,
-					children: "清除筛选"
+					children: "Clear filters"
 				}) : /* @__PURE__ */ (0, $.jsx)(c, {
 					size: "small",
 					href: "/subscriptions?tab=add",
-					children: "添加订阅"
+					children: "Add subscription"
 				}),
-				children: z ? "清除筛选后查看全部新作。" : "订阅女优或厂牌后，还没入库的新作会出现在这里。"
+				children: z ? "Clear the filter to view all new works." : "After following a performer or studio, new works not yet indexed appear here."
 			}) : null,
 			P.error ? /* @__PURE__ */ (0, $.jsx)(N, {
 				tone: "error",
@@ -1088,7 +1088,7 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 					page: o.page,
 					pages: B,
 					onPage: m,
-					label: "新作分页"
+					label: "New work pagination"
 				})
 			})
 		]
@@ -1096,9 +1096,9 @@ function Pt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 }
 // src/react/jav/jav-page.tsx
 var Ft = it("x"), It = it("refresh-cw"), Lt = {
-	releases: "筛选新作",
-	discover: "筛选推荐",
-	wants: "筛选想要"
+	releases: "Filter new works",
+	discover: "Filter recommendations",
+	wants: "Filter wants"
 };
 function Rt({ tab: e, readOnly: t, navigate: n, receipt: r }) {
 	let [i, a] = (0, Q.useState)(null), [o, s] = (0, Q.useState)(() => new URLSearchParams(location.search).get("q") || ""), c = (e) => {
@@ -1112,7 +1112,7 @@ function Rt({ tab: e, readOnly: t, navigate: n, receipt: r }) {
 				navigate: n,
 				find: () => a({}),
 				search: /* @__PURE__ */ (0, $.jsx)(O, {
-					label: Lt[e] || "筛选",
+					label: Lt[e] || "Filters",
 					value: o,
 					onQuery: c
 				})
@@ -1298,19 +1298,19 @@ function zt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 			}),
 			W ? /* @__PURE__ */ (0, $.jsx)("div", {
 				role: "status",
-				"aria-label": "正在读取推荐",
+				"aria-label": "Loading recommendations",
 				dangerouslySetInnerHTML: { __html: Be("discover", M) }
 			}) : null,
 			R.error ? /* @__PURE__ */ (0, $.jsx)(N, {
 				tone: "error",
-				title: "推荐未取得",
+				title: "Recommendations not fetched",
 				children: q(R.error)
 			}) : null,
 			l === "external" && z?.status === "running" ? /* @__PURE__ */ (0, $.jsx)("div", {
 				"data-jav-metadata": "",
 				className: "min-w-0",
 				children: /* @__PURE__ */ (0, $.jsx)(se, {
-					label: `正在读取作品资料 · ${z.completed} / ${z.total} 部`,
+					label: `Reading video details · ${z.completed} / ${z.total}`,
 					value: z.completed,
 					total: z.total
 				})
@@ -1367,9 +1367,9 @@ function zt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 				children: U.map((r) => {
 					let a = Je(r.taste_score ?? r.score), o = [
 						a.label,
-						`口味 ${Oe(r.taste_score ?? r.score)}`,
-						R.data?.ranking_method === "mmr" && r.ranking_score != null ? `排序 ${Oe(r.ranking_score)}` : "",
-						r.source_score == null ? "" : `来源评分 ${r.source_score.toFixed(1)} / 5`,
+						`Taste ${Oe(r.taste_score ?? r.score)}`,
+						R.data?.ranking_method === "mmr" && r.ranking_score != null ? `Ranking ${Oe(r.ranking_score)}` : "",
+						r.source_score == null ? "" : `Source rating ${r.source_score.toFixed(1)} / 5`,
 						...r.reasons || []
 					].filter(Boolean).join(" · ");
 					return /* @__PURE__ */ (0, $.jsx)(Tt, {
@@ -1383,7 +1383,7 @@ function zt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 						wanting: B.busy === String(r.id),
 						onWant: () => {
 							B.run(String(r.id), (e) => fe({ code: r.code }, e), () => {
-								t("已加入想要"), J(), R.refetch();
+								t("Added to wants"), J(), R.refetch();
 							});
 						},
 						onResource: () => n(St(r)),
@@ -1391,7 +1391,7 @@ function zt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 							"data-jav-taste-score": "",
 							type: "button",
 							title: o,
-							"aria-label": `推荐分 ${a.score}，${a.label}`,
+							"aria-label": `Recommendation score ${a.score}, ${a.label}`,
 							className: "rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring",
 							children: /* @__PURE__ */ (0, $.jsx)(p, {
 								color: a.color,
@@ -1406,4 +1406,4 @@ function zt({ readOnly: e, receipt: t, resource: n, query: r, navigate: i, clear
 }
 export { Rt as JavPage };
 
-//# debugId=1480d1f9-aeaa-416a-921c-aae0b24e9f75
+//# debugId=bafc0633-79d0-4880-a018-d652fb4f38ea

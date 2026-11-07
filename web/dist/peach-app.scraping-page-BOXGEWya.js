@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a6bc0e4b-f9ef-4523-8cd6-27a405a963fb", e._sentryDebugIdIdentifier = "sentry-dbid-a6bc0e4b-f9ef-4523-8cd6-27a405a963fb");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "2785298e-9f0f-41f6-9c81-2091ddf72a0f", e._sentryDebugIdIdentifier = "sentry-dbid-2785298e-9f0f-41f6-9c81-2091ddf72a0f");
 	} catch {}
 })();
 import { $fe21c36db05242bb$export$d7b12c4107be0d61 as e, AMANE_BRIDGE_CHECK_URL as t, AMANE_BRIDGE_KEY as n, AMANE_BRIDGE_REBUILD_URL as r, Button as i, CHECK_ALL_KEY as a, COVER_JOB_KEY as o, CUSTOM_SOURCES_KEY as s, CUSTOM_SOURCES_URL as c, Checkbox as l, Disclosure as u, ErrorText as d, ExternalLink as f, Fact as p, FactList as m, FieldLabel as h, Footer as g, Help as _, Input as v, IssueRow as y, LinkButton as ee, LoadingDots as b, Note as x, Progress as S, Rows as te, SCRAPING_CHECK_ALL_URL as C, SCRAPING_CHECK_URL as ne, SCRAPING_COVER_URL as w, SCRAPING_KEY as T, SCRAPING_SETTINGS_URL as re, SEGMENT as ie, SEGMENTED_TRACK as ae, Section as E, SegmentedRadioGroup as oe, Select$1 as se, SelectField as D, SelectItem as ce, SettingsRow as le, Stack as O, StatusLabel as k, __toESM as A, apiSend as j, busyProps as M, checkText as ue, composingKey as N, confirmModal as de, errorMessage as P, esc as F, fetchAmaneBridge as I, fetchCheckAllJob as L, fetchCoverJob as R, fetchCustomSources as z, fetchSources as fe, i2 as pe, momentText as me, queryClient as B, require_jsx_runtime as he, require_react as ge, spinnerHtml as _e, useAction as V, useBackgroundJob as H, useMutation as U, useQuery as W } from "./peach-app.js";
@@ -461,7 +461,7 @@ var De = {
 	"skipped"
 ];
 function Oe(e, t) {
-	return t.label === "来源页面" ? e.label : `${e.label} 高清图片`;
+	return t.label === "Source page" ? e.label : `${e.label} images`;
 }
 function ke({ toast: e }) {
 	let { job: t, running: n, start: r } = H({
@@ -472,7 +472,7 @@ function ke({ toast: e }) {
 			B.invalidateQueries({
 				queryKey: T,
 				exact: !0
-			}), t.status === "complete" && e(t.failed ? `检查完成，${t.failed} 项未通过` : "检查完成，全部可连接");
+			}), t.status === "complete" && e(t.failed ? `Check finished, ${t.failed} failed` : "Check finished, all reachable");
 		}
 	}), o = (e) => {
 		e.preventDefault(), !(n || r.isPending) && r.mutate();
@@ -483,27 +483,27 @@ function ke({ toast: e }) {
 	}))), c = (e, t) => /* @__PURE__ */ (0, J.jsxs)("span", {
 		className: "inline-flex min-w-0 items-center gap-1.5",
 		children: [/* @__PURE__ */ (0, J.jsx)(K, { source: e }), t]
-	}), l = s.filter(({ check: e }) => e.outcome === "ok"), d = s.filter(({ check: e }) => e.outcome !== "ok").sort((e, t) => $.indexOf(e.check.outcome) - $.indexOf(t.check.outcome)), f = r.error ? P(r.error) : t?.status === "failed" ? t.error || "检查未完成" : "", h = t?.status === "complete" && t.completed_at ? [me((/* @__PURE__ */ new Date(t.completed_at * 1e3)).toISOString()), t.elapsed_s === void 0 ? "" : `用时 ${t.elapsed_s.toFixed(1)} 秒`].filter(Boolean).join(" · ") : "";
+	}), l = s.filter(({ check: e }) => e.outcome === "ok"), d = s.filter(({ check: e }) => e.outcome !== "ok").sort((e, t) => $.indexOf(e.check.outcome) - $.indexOf(t.check.outcome)), f = r.error ? P(r.error) : t?.status === "failed" ? t.error || "Check unfinished" : "", h = t?.status === "complete" && t.completed_at ? [me((/* @__PURE__ */ new Date(t.completed_at * 1e3)).toISOString()), t.elapsed_s === void 0 ? "" : `Took ${t.elapsed_s.toFixed(1)} s`].filter(Boolean).join(" · ") : "";
 	return /* @__PURE__ */ (0, J.jsxs)(E, {
 		id: "check-all",
-		title: "连接检查",
+		title: "Connectivity check",
 		onSubmit: o,
 		children: [/* @__PURE__ */ (0, J.jsxs)(O, { children: [
-			/* @__PURE__ */ (0, J.jsx)(_, { children: "检查各来源页面与 DMM 高清图片服务器，最多四个来源同时进行；正在冷却的来源不再请求。可连接只说明检查地址可达，不代表登录有效。" }),
+			/* @__PURE__ */ (0, J.jsx)(_, { children: "Checks each source page and the DMM image servers, up to four sources at a time; cooling sources are not requested. Reachable only means the address answers, not that the login works." }),
 			n ? /* @__PURE__ */ (0, J.jsxs)("div", {
 				className: "flex flex-col gap-2",
 				children: [/* @__PURE__ */ (0, J.jsx)(S, {
-					label: "连接检查进度",
+					label: "Connectivity check progress",
 					value: t?.checked ?? 0,
 					max: t?.total ?? 0
 				}), /* @__PURE__ */ (0, J.jsxs)(_, {
 					role: "status",
 					children: [
-						"已检查 ",
+						"Checked ",
 						t?.checked ?? 0,
 						" / ",
 						t?.total ?? 0,
-						" 个来源"
+						" sources"
 					]
 				})]
 			}) : null,
@@ -542,18 +542,18 @@ function ke({ toast: e }) {
 				}, t))
 			}) : null,
 			l.length ? /* @__PURE__ */ (0, J.jsx)(u, {
-				summary: `可连接的 ${l.length} 项`,
+				summary: `${l.length} reachable`,
 				children: /* @__PURE__ */ (0, J.jsx)(m, { children: l.map(({ source: e, name: t, check: n }) => /* @__PURE__ */ (0, J.jsx)(p, {
 					term: c(e, t),
-					children: [n.width ? `${n.width} × ${n.height}` : "", n.elapsed_s === void 0 ? "" : `${n.elapsed_s.toFixed(2)} 秒`].filter(Boolean).join(" · ")
+					children: [n.width ? `${n.width} × ${n.height}` : "", n.elapsed_s === void 0 ? "" : `${n.elapsed_s.toFixed(2)} s`].filter(Boolean).join(" · ")
 				}, t)) })
 			}) : null
 		] }), /* @__PURE__ */ (0, J.jsx)(g, {
-			status: h ? `上次检查 ${h}` : void 0,
+			status: h ? `Last check ${h}` : void 0,
 			children: /* @__PURE__ */ (0, J.jsx)(i, {
 				type: "submit",
 				...M(n || r.isPending),
-				children: "全部检查"
+				children: "All checks"
 			})
 		})]
 	});
@@ -711,7 +711,7 @@ function Me({ toast: e }) {
 	return n ? /* @__PURE__ */ (0, J.jsxs)(G, { children: [
 		/* @__PURE__ */ (0, J.jsx)("p", {
 			className: "text-body-2-regular text-text-secondary",
-			children: "高清图片可能要经代理才能下载，先检查连接。"
+			children: "HD images may need the proxy to download; check the connection first."
 		}),
 		/* @__PURE__ */ (0, J.jsx)(ke, { toast: e }),
 		/* @__PURE__ */ (0, J.jsx)(Ae, { toast: e }),
@@ -729,4 +729,4 @@ function Me({ toast: e }) {
 }
 export { Me as ScrapingPage, Z as linkHost, X as networkOptions };
 
-//# debugId=a6bc0e4b-f9ef-4523-8cd6-27a405a963fb
+//# debugId=2785298e-9f0f-41f6-9c81-2091ddf72a0f

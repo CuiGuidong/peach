@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "fb1a4bb1-b3d7-41dc-a380-df649a8066d3", e._sentryDebugIdIdentifier = "sentry-dbid-fb1a4bb1-b3d7-41dc-a380-df649a8066d3");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "c3f622dc-5600-4499-a4c0-ef6ffea48057", e._sentryDebugIdIdentifier = "sentry-dbid-c3f622dc-5600-4499-a4c0-ef6ffea48057");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -20023,7 +20023,7 @@ function hh({ done: e }) {
 								term: e.term,
 								children: [e.value, e.install_tool ? /* @__PURE__ */ (0, z.jsx)("span", {
 									className: "text-text-secondary",
-									children: "可在配置页「应用与维护」里安装。"
+									children: "You can install it on the configuration page under App and maintenance."
 								}) : e.download_url ? /* @__PURE__ */ (0, z.jsx)(Bm, {
 									href: e.download_url,
 									children: e.download_label ?? e.download_url
@@ -20483,8 +20483,8 @@ var Ng = class extends yg {
 		let { element: t, name: n, keyframes: r, pseudoElement: i, allowFlatten: a = !1, finalKeyframe: o, onComplete: s } = e;
 		this.isPseudoElement = !!i, this.allowFlatten = a, this.options = e;
 		let c = Mg(e);
-		this.animation = Ag(t, n, r, c, i), c.autoplay === !1 && this.animation.pause(), this.animation.onfinish = () => {
-			if (this.finishedTime = this.time, !i) {
+		this.animation = Ag(t, n, r, c, i), c.autoplay === !1 && this.animation.pause(), this.animation.onfinish = this.onFinish = () => {
+			if (this.animation.onfinish = null, this.finishedTime = this.time, !i) {
 				let e = gg(r, this.options, o, this.speed);
 				this.updateMotionValue?.(e), Sg(t, n, e), this.animation.cancel();
 			}
@@ -20492,21 +20492,22 @@ var Ng = class extends yg {
 		}, vg(this, e, c);
 	}
 	play() {
-		this.isStopped || (this.manualStartTime = null, this.animation.play(), this.state === "finished" && this.updateFinished());
+		this.isStopped || (this.manualStartTime = null, this.animation.onfinish = this.onFinish, this.animation.play(), this.state === "finished" && this.updateFinished());
 	}
 	pause() {
 		this.animation.pause();
 	}
 	complete() {
-		this.animation.finish?.();
+		this.isStopped || (this.animation.onfinish = this.onFinish), this.animation.finish?.();
 	}
 	cancel() {
+		this.animation.onfinish = null;
 		try {
 			this.animation.cancel();
 		} catch {}
 	}
 	stop() {
-		this.isStopped || (this.isStopped = !0, this.state !== "idle" && this.finishedTime === null && (this.updateMotionValue ? this.updateMotionValue() : this.commitStyles(), this.isPseudoElement || (this.animation.onfinish = null, this.cancel())));
+		this.isStopped || (this.isStopped = !0, this.state !== "idle" && this.finishedTime === null && (this.updateMotionValue ? this.updateMotionValue() : this.commitStyles(), this.isPseudoElement || this.cancel()));
 	}
 	commitStyles() {
 		let e = this.options?.element;
@@ -20543,7 +20544,7 @@ var Ng = class extends yg {
 		this.manualStartTime = this.animation.startTime = e;
 	}
 	attachTimeline({ timeline: e, onAttach: t, observe: n }) {
-		return this.allowFlatten && this.animation.effect?.updateTiming({ easing: "linear" }), this.animation.onfinish = null, e && Tg() ? (this.animation.timeline = e, t?.(this.animation), Mh) : n(this);
+		return this.allowFlatten && this.animation.effect?.updateTiming({ easing: "linear" }), this.animation.onfinish = this.onFinish = null, e && Tg() ? (this.animation.timeline = e, t?.(this.animation), Mh) : n(this);
 	}
 }, Pg = class {
 	constructor(e) {
@@ -21726,9 +21727,9 @@ function K_({ name: e, value: t, onChange: n }) {
 	return /* @__PURE__ */ (0, z.jsx)(j_, {
 		"data-guide-target": "library-policy",
 		className: "w-full",
-		"aria-label": `${e} 处理方式`,
+		"aria-label": `${e} handling`,
 		selectedKey: t,
-		prefix: "处理方式",
+		prefix: "Handling",
 		renderValue: /* @__PURE__ */ (0, z.jsx)("span", {
 			className: "truncate",
 			children: G_.find(([e]) => e === t)?.[1]
@@ -22791,4 +22792,4 @@ E();
 var mv = document.getElementById("peach-page"), hv = mv ? pv[mv.dataset.page ?? ""] : void 0;
 mv && hv && (0, M.createRoot)(mv).render(/* @__PURE__ */ (0, z.jsx)(hv, { data: { ...mv.dataset } }));
 
-//# debugId=fb1a4bb1-b3d7-41dc-a380-df649a8066d3
+//# debugId=c3f622dc-5600-4499-a4c0-ef6ffea48057

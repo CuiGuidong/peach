@@ -7,7 +7,7 @@ import { requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
 describe('Cloud download layout on the tasks page', () => {
   let browser: Browser;
   installDesignBrowser((next) => { browser = next; });
-  for (const viewport of VIEWPORTS) it(`${viewport.name} 资源分色并在高占用时加深，已取消使用红色标签`, async () => {
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: resources get their own colors and deepen under heavy use; the red badge is gone`, async () => {
     const reading = (high: boolean) => ({
       cpu: { state: 'ready', percent: high ? 75 : 5, high },
       gpu: { state: 'ready', percent: high ? 80 : 4, high },
@@ -15,10 +15,10 @@ describe('Cloud download layout on the tasks page', () => {
       sampled_at: '2026-10-31T08:00:00Z',
     });
     const row = (id: number, status: string) => ({
-      id, task_key: `resource-${id}`, task_label: `资源采样任务 ${id}`, trigger: 'manual', status,
+      id, task_key: `resource-${id}`, task_label: `Resource sampling task ${id}`, trigger: 'manual', status,
       host: 'desk', started_at: '2026-10-31T08:00:00Z',
       finished_at: status === 'running' ? null : '2026-10-31T08:01:00Z',
-      elapsed_seconds: 60, progress_current: 1, progress_total: 10, progress_label: '正在处理',
+      elapsed_seconds: 60, progress_current: 1, progress_total: 10, progress_label: 'Processing',
       result_summary: {}, error: '', parent_run_id: null as number | null, followup_key: '',
     });
     const opened = await visit(browser, '/tasks', viewport, async page => {
@@ -49,7 +49,7 @@ describe('Cloud download layout on the tasks page', () => {
       }
       assert.equal(new Set(backgrounds).size, 3);
       const red = await tokenColor(page, 'body', '--color-status-rose-background');
-      for (const [id, label] of [[3, '已取消'], [4, '后续任务已取消'], [5, '部分后续任务已取消']] as const) {
+      for (const [id, label] of [[3, 'Canceled'], [4, 'Follow-up tasks cancelled'], [5, 'Some follow-up tasks were cancelled']] as const) {
         const badge = page.locator(`#run-${id}`).getByText(label, { exact: true });
         const color = await badge.evaluate(node => {
           const chip = node.parentElement?.tagName === 'SPAN' ? node.parentElement : node;
@@ -69,27 +69,27 @@ describe('Cloud download layout on the tasks page', () => {
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
   });
-  for (const viewport of VIEWPORTS) it(`${viewport.name} 零读数标为未使用，单部作品的任务链接到作品详情`, async () => {
+  for (const viewport of VIEWPORTS) it(`${viewport.name}: zero readings are marked as unused, and a single-work task links to the work details`, async () => {
     const name = '[Studio]Very_Long_Unbroken_File_Name_That_Should_Wrap_Inside_The_Card_2026-11-03_1080p.mp4';
     const opened = await visit(browser, '/tasks', viewport, async page => {
       await page.route('**/api/downloads?*', route => route.fulfill({ json: { available: false, tasks: [], providers: [] } }));
       await page.route('**/api/tasks*', route => route.fulfill({ json: {
         available: true, skipped: [], finished: [{
-          id: 8, task_key: 'amane-bridge', task_label: 'amane 桥重建', trigger: 'manual', status: 'failed',
+          id: 8, task_key: 'amane-bridge', task_label: 'amane bridge rebuild', trigger: 'manual', status: 'failed',
           host: 'desk', started_at: '2026-11-03T07:00:00Z', finished_at: '2026-11-03T07:00:01Z', elapsed_seconds: 1,
           progress_current: 0, progress_total: null, progress_label: '', result_summary: { ok: false },
-          error: 'uv sync 失败（exit 1）：× Failed to fetch amane\n…\n  fatal: missing object', parent_run_id: null, followup_key: '',
+          error: 'uv sync failed (exit 1): × Failed to fetch amane\n…\n  fatal: missing object', parent_run_id: null, followup_key: '',
         }], running: [{
-          id: 7, task_key: 'mp4-header-repair', task_label: '播放文件头修复', trigger: 'manual', status: 'running',
+          id: 7, task_key: 'mp4-header-repair', task_label: 'Repair playback file header', trigger: 'manual', status: 'running',
           host: 'desk', started_at: '2026-11-03T08:00:00Z', finished_at: null, elapsed_seconds: 140,
-          progress_current: 0, progress_total: null, progress_label: '读取帧时间戳',
+          progress_current: 0, progress_total: null, progress_label: 'Read frame timestamps',
           result_summary: { asset_id: 6297, name }, error: '', parent_run_id: null, followup_key: '',
           control: { state: 'running', actions: ['pause', 'cancel'] },
           resources: {
             cpu: { state: 'ready', percent: 61.6, high: true },
             gpu: { state: 'ready', percent: 0, high: false },
             network: { state: 'unavailable', bytes_per_second: null, high: false, via: 'cloud',
-              reason: '网盘挂载的缓存与预读无法按任务取得实际网速' },
+              reason: 'A mounted cloud drive\'s cache and prefetch cannot measure actual speed per task' },
             sampled_at: '2026-11-03T08:02:20Z',
           },
         }],
@@ -113,7 +113,7 @@ describe('Cloud download layout on the tasks page', () => {
         return { fits: document.documentElement.scrollWidth <= innerWidth, inside: link.right <= box.right };
       });
       assert.deepEqual(geometry, { fits: true, inside: true });
-      // 失败卡：框线是 danger 色且有宽度，画成不占盒子的 outline；结束原因在正文，全文收在底部那一行可展开的明细里。
+      // Failure card: the border is the danger color with a width, drawn as an outline that doesn't occupy the box; the end reason is in the body, and the full text is collapsed into the expandable details row at the bottom.
       const failed = page.locator('#run-8');
       const frame = await failed.evaluate((node) => {
         const style = getComputedStyle(node);
@@ -127,7 +127,7 @@ describe('Cloud download layout on the tasks page', () => {
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
   });
-  for (const viewport of VIEWPORTS) it(`${viewport.name} 追更问题展示来源原因和管理入口`, async () => {
+  for (const viewport of VIEWPORTS) it(`${viewport.name} follow issues show the source reason and a manage entry`, async () => {
     const opened = await visit(browser, '/tasks', viewport, async page => {
       await page.route('**/api/tasks*', route => route.fulfill({ json: {
         available: true, running: [], skipped: [], finished: [{ id: 4038, task_key: 'follow-check',
@@ -145,7 +145,7 @@ describe('Cloud download layout on the tasks page', () => {
       const disclosure = card.locator('summary').filter({ hasText: 'Issue details · 51 items' });
       assert.equal(await disclosure.getAttribute('aria-expanded'), 'false');
       assert.equal(await card.locator('[data-task-issues]').isVisible(), false);
-      // 问题详情与技术详情同为卡片底部的一行：同一层级、同一左边，问题详情在前。
+      // Issue details and technical details are both a line at the bottom of the card: same hierarchy, same left edge, issue details first.
       const rows = await card.locator('details').evaluateAll((nodes) => nodes.map((node) => ({
         footer: node.parentElement!.parentElement === node.closest('li'), left: Math.round(node.getBoundingClientRect().left),
         issues: Boolean(node.querySelector('[data-task-issues]')) })));
@@ -165,7 +165,7 @@ describe('Cloud download layout on the tasks page', () => {
       assert.equal(await errors.evaluate((node) => getComputedStyle(node.parentElement!).backgroundColor), background);
       assert.match(await card.locator('[data-task-issues]').innerText(), /示例作者.*示例站点.*检查失败/s);
       assert.match(await card.locator('[data-task-issues]').innerText(), /HTTP 403：站点拒绝访问/);
-      // 分层：名字是中等字重，来源与类别次级色，原因比名字小一档且用次级色。
+      // Hierarchy: the name is medium weight, source and category use the secondary color, and the reason is one size smaller than the name and uses the secondary color.
       const layers = await card.locator('[data-task-issues] > li').first().evaluate((item) => {
         const name = item.firstElementChild!, meta = name.querySelector('span')!, reason = item.querySelector('[data-error-excerpt]')!;
         const style = (node: Element) => getComputedStyle(node);
@@ -176,7 +176,7 @@ describe('Cloud download layout on the tasks page', () => {
       assert.equal(layers.smaller, true);
       assert.notEqual(layers.metaColor, layers.nameColor);
       assert.equal(layers.reasonColor, layers.metaColor);
-      const link = card.getByRole('link', { name: '查看关注来源', exact: true });
+      const link = card.getByRole('link', { name: 'View followed sources', exact: true });
       assert.equal(await link.getAttribute('href'), '/subscriptions');
       await link.click();
       await opened.page.waitForURL('**/subscriptions');

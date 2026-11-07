@@ -15,15 +15,15 @@ export const javImageUrl = (code: string, image: string, attempt = 0): string =>
 
 interface CoverRetry { has_cover: boolean; cover_version: string; message: string }
 
-/** 图片没取到时占住画廊那一格：空态说明，加一颗「立即重试」。 */
+/** If an image can't be fetched, hold its spot in the gallery cell: an empty-state note plus a “Retry now” button. */
 function PictureMissing({ title, detail, busy, onRetry }: { title: string; detail?: string; busy?: boolean; onRetry(): void }) {
   return <div data-jav-picture-wait="">
     <EmptyState size="compact" icon={RiImageLine} title={title}
-      actions={<Button size="small" {...busyProps(!!busy)} onClick={onRetry}>立即重试</Button>}>{detail || null}</EmptyState>
+      actions={<Button size="small" {...busyProps(!!busy)} onClick={onRetry}>Retry now</Button>}>{detail || null}</EmptyState>
   </div>;
 }
 
-/** 本机没有封面、来源也没给能代理的地址：服务端按番号重取官方封面，取到后详情换成本机那张。 */
+/** No local cover and the source didn't give a proxy-able address: the server re-fetches the official cover by the code, and after it arrives, the detail swaps to the local one. */
 function CoverMissing({ code }: { code: string }) {
   const action = useAction();
   const [reason, setReason] = useState('');
@@ -32,10 +32,10 @@ function CoverMissing({ code }: { code: string }) {
     queryClient.setQueriesData<JavDetail>({ queryKey: ['jav-detail'] }, current => current?.code === code
       ? { ...current, has_cover: true, cover_version: result.cover_version } : current);
   }) };
-  return <PictureMissing title="封面未取得" detail={action.error || reason} busy={!!action.busy} onRetry={retry} />;
+  return <PictureMissing title="Cover unavailable" detail={action.error || reason} busy={!!action.busy} onRetry={retry} />;
 }
 
-/** 来源图片：本地有封面用本地那张，否则经 `/jav-image` 取。 */
+/** The source image: use the local cover when one exists, otherwise fetch through `/jav-image`. */
 export function SourcePicture({ item, image, thumbnail = false }: {
   item: Pick<JavDetail, 'code' | 'has_cover' | 'source_image' | 'cover_url' | 'cover_version'>;
   image: string; thumbnail?: boolean;
@@ -55,11 +55,11 @@ export function SourcePicture({ item, image, thumbnail = false }: {
   if (!remote) {
     if (src) return <img ref={picture} data-jav-picture={thumbnail ? undefined : ''} src={src} alt={alt} referrerPolicy="no-referrer"
       onLoad={() => setLoaded({ src, alt })} />;
-    return thumbnail ? <span>封面未取得</span> : <CoverMissing code={item.code} />;
+    return thumbnail ? <span>Cover unavailable</span> : <CoverMissing code={item.code} />;
   }
   if (failed === src) {
-    if (thumbnail) return <span>预览未取得</span>;
-    return <PictureMissing title="图片未取得" onRetry={() => setAttempt((value) => value + 1)} />;
+    if (thumbnail) return <span>Preview unavailable</span>;
+    return <PictureMissing title="Image unavailable" onRetry={() => setAttempt((value) => value + 1)} />;
   }
   const ready = loaded?.src === src;
   const reveal = async (node: HTMLImageElement) => {

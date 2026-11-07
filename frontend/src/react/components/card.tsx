@@ -11,10 +11,10 @@
  *   `body[data-surface="/review"] .reviewitem` is this family. The card floats on the page background, finished with a hairline
  *   border instead of a background change.
  *
- * 旧样式表里还有一批「填充再加一条描边」（活动页 `.cleanupfieldset`、高清版 `.qualityitem`）。
- * 直接摆在页面上的卡已统一成不描边：深色主题下那条线比填充亮得多，同一页里一半卡有框、
- * 一半没有。描边只留给底色和所在表面分不开的卡（白卡压在灰卡里、嵌在卡里的代码块），
- * 是填充之上的一档可选项（`bordered`），不是填充的对立面。
+ * The old stylesheet also had a batch of cards that combined fill with a single stroke (the activity page's `.cleanupfieldset`, the high-resolution version's `.qualityitem`).
+ * Cards placed directly on the page have been unified to no stroke: under the dark theme that line is much brighter than the fill, so half the cards on one page
+ * had a frame and half didn't. A stroke is left only for cards whose fill can't be told apart from the surface they sit on (white cards on top of gray cards, code blocks embedded in a card),
+ * an optional tier on top of fill (`bordered`), not the opposite of fill.
  *
  * During migration each page assembled its own `rounded-2xl border border-separator-border`, the same card grew twenty kinds of
  * outlined hollow shells across ten files, and whole pages lost a layer of background. Card faces live here precisely so that
@@ -42,10 +42,10 @@ export type CardOptions = {
   interactive?: boolean;
   /** Cards carry an exclusive selected state: when selected, the face switches to the overlay tier, the touch shadow drops away, and a 2px ring in focus ring color is pressed onto the top layer. */
   selectable?: boolean;
-  /** 填充之上另加的那条描边，只给底色和所在表面分不开的卡：灰卡里的白卡用 `--line`，
-   *  嵌在卡里的代码块与错误摘录用 `--line-soft`。`outlined` 自带描边，不必再给。
-   *  `error` 是失败的那一轮：整张卡的框线换成 danger 色，不给卡里的字上色。它画成内收的
-   *  outline，不占盒子：同一列里失败卡与正常卡的内容起点要对齐，真 border 会把内容挤进 1px。 */
+  /** The extra stroke added on top of the fill, only for cards whose background and surface can't be told apart: white cards inside gray cards use `--line`,
+   *  code blocks and error excerpts embedded in cards use `--line-soft`. `outlined` carries its own stroke, so no need to add one.
+   *  `error` is the failed round: the whole card's border switches to the danger color; the text inside the card isn't colored. It's drawn as an
+   *  inset outline, not taking box space: within the same column, a failed card and a normal card must have aligned content starts; a real border would push content in by 1px. */
   bordered?: 'line' | 'soft' | 'error';
   className?: string;
 };

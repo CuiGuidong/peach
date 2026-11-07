@@ -185,7 +185,7 @@ describe('JAV recommendations and loading structure', () => {
       } else {
         assert.ok(skeletonCard && Math.abs(skeletonCard.height - heights[0]!) <= 2, JSON.stringify({ skeletonCard, heights }));
       }
-      assert.deepEqual(await page.locator('[data-index-search]').boundingBox(), searchBox, '页头筛选框骨架与接管后同一位置');
+      assert.deepEqual(await page.locator('[data-index-search]').boundingBox(), searchBox, 'Header filter skeleton sits in the same place as after takeover');
       assert.equal(await cards.nth(1).locator('h3').evaluate(node => getComputedStyle(node).webkitLineClamp), '2');
       const lookup = page.getByRole('button', { name: 'Find resources', exact: true }).first();
       assert.notEqual(await lookup.evaluate(node => getComputedStyle(node).backgroundColor),

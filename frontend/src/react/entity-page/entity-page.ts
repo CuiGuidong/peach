@@ -131,7 +131,7 @@ export interface EntityPageProps extends SharedGridProps {
   kind: string;
   resolvedEntity?: EntityPageData;
   restoreNavigation?: boolean;
-  /** 路由通过实体 ID 取得的规范名。 */
+  /** The canonical name the route obtained via the entity ID. */
   name: string;
   filters: EntityFilters;
   media: EntityMedia;
@@ -266,8 +266,8 @@ export const photosOptions = (kind: string, name: string, set: number, seed: str
 export const codeSetsOf = (page: PhotoPage | null | undefined): EntityCodeSet[] =>
   page && !page.error ? (page.sets || []).filter((set) => set.kind === 'code') : [];
 
-/** 首次进入先清掉这一位名下的缓存；历史返回复用原查询。再把资料（连同新作）、作品第一页与照片
- *  并行取齐，深链落在一个图集上时连那一组一起取。四样齐了路由树（`openManagedRoute`）一次换掉骨架。 */
+/** On first entry, first clear this entry's cache; back navigation reuses the original query. Then fetch in parallel the details (along with new releases), the first page of works, and the photos;
+ * when the deep link lands on a gallery, fetch that set too. Once all four are in, the route tree (`openManagedRoute`) swaps the skeleton out in one go. */
 export async function prefetchEntityPage(props: EntityPageProps): Promise<void> {
   const { kind, name } = props;
   if (!props.restoreNavigation) for (const head of ['entity', 'entity-items', 'entity-photos'] as const) {

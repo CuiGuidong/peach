@@ -1,8 +1,8 @@
 /* Duplicate files page: files with the same code, similar duration, and matching volume markers group together; each group keeps one.
  *
  * 顶上一块汇总、一条批量保留的玻璃条，下面每组一张卡：组头说明判据与可回收多少，行里是
- * 每一份文件。留谁由人点；其余的走 `/api/batch` 的 `dispose` 进回收站，回执上带撤销。
- * 几份都要留的点「都保留」，这组不再列出，组员有增减时自己回来。 */
+ * 每一份文件。留谁由人点；其余的走 `/api/batch` 的 `dispose` 进回收站，回执上带Undo。
+ * 几份都要留的点「Keep-both」，这组不再列出，组员有增减时自己回来。 */
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { confirmModal, MEDIA_SOURCE_ICONS } from '@peach/legacy/ui';
@@ -117,24 +117,24 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
     },
     onSettled: () => setPending(''),
   });
-  // 「都保留」不进回收站，只是让这组不再列出；回执上撤销就把它放回来。
+  // 「Keep-both」不进回收站，只是让这组不再列出；回执上Undo就把它放回来。
   const keep = useMutation({
     mutationFn: (group: DuplicateGroup) => keepGroup(group.files.map((file) => file.id), true),
     onSuccess: (_result, group) => {
       refresh();
-      toast(`${group.code} 这组都保留，不再列出`, {
+      toast(`${group.code} marked keep-both as a group; no longer listed`, {
         undo: async () => {
           try {
             await keepGroup(group.files.map((file) => file.id), false);
           } catch (cause) {
-            failure('撤销都保留', cause);
+            failure('UndoKeep-both', cause);
           } finally {
             refresh();
           }
         },
       });
     },
-    onError: (cause) => failure('标记都保留', cause),
+    onError: (cause) => failure('Mark keep-both', cause),
     onSettled: () => setPending(''),
   });
 
@@ -219,7 +219,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
                       </Button>
                     ))}
                     <Button variant="secondary" size="small" {...busy(key('keep'))}
-                      onClick={() => keepAll(group, key('keep'))}>都保留</Button>
+                      onClick={() => keepAll(group, key('keep'))}>Keep-both</Button>
                     <Button variant="danger" size="small" {...busy(key('all'))}
                       onClick={() => run({ groups: one, keep: 'all', key: key('all') })}>Recycle whole groups</Button>
                   </span>
@@ -238,7 +238,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
         : null}
       {data.kept
         ? <p className="mt-2 text-center text-caption-1-regular text-text-secondary">
-            {`另有 ${data.kept.toLocaleString()} 组标记了都保留，不再列出；组里文件有增减时会重新列出。`}
+            {`${data.kept.toLocaleString()} more groups are marked keep-both and stay unlisted; they reappear when the files in a group change.`}
           </p>
         : null}
     </div>

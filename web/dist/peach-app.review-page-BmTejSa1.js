@@ -1,40 +1,40 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "efb15580-c1ef-40f2-9fa9-aecaf3241b39", e._sentryDebugIdIdentifier = "sentry-dbid-efb15580-c1ef-40f2-9fa9-aecaf3241b39");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "741aaf72-c81e-4d93-9d66-cca5b15c70e0", e._sentryDebugIdIdentifier = "sentry-dbid-741aaf72-c81e-4d93-9d66-cca5b15c70e0");
 	} catch {}
 })();
 import { $b4f18e3395fe64d7$export$3d96ec278d3efce4 as e, $b4f18e3395fe64d7$export$3e41faf802a29e71 as t, $b4f18e3395fe64d7$export$b2539bed5023c21c as n, $ea3928288112382f$export$439d29a4e110a164 as r, $fe21c36db05242bb$export$a98f0dcb43a68a25 as i, $fe21c36db05242bb$export$d7b12c4107be0d61 as a, Button as o, ButtonLink as s, Checkbox as c, CheckboxGlyph as l, Chip as u, CollapseChevron as d, CollapseRegion as f, DEFAULT_CATEGORY as p, ENTITY_REVIEW_KINDS as m, Ea as h, EmptyState as ee, ExternalLink as g, FIELDSET_FOOT as _, FilterGlassRows as v, Gg as y, InputBase as te, LinkButton as ne, Note as b, REVIEW_CATEGORIES as x, REVIEW_DECISION_LABELS as re, REVIEW_KEY as S, REVIEW_LABELS as C, REVIEW_QUEUES as w, REVIEW_QUEUE_LABELS as T, Select as E, SelectItem as D, SelectionActions as O, SelectionDock as k, TextField as A, Wt as j, __toESM as M, apiGet as N, apiSend as P, avatarInner as F, busyProps as I, canApprove as ie, cardClass as L, commonReviewSources as ae, composingKey as R, confirmModal as oe, currentReviewRow as se, cx as z, decisionPayload as ce, decisionReceipt as le, defaultChoice as ue, errorMessage as B, fetchReview as de, filterReviewRows as fe, groupReviewRows as pe, isReviewCategory as me, l7 as he, localTime as ge, m7 as _e, mirrorText as ve, paginationRange as ye, pendingGenres as be, queryClient as V, recordGenre as xe, reloadReview as Se, require_jsx_runtime as Ce, require_react as H, reviewGroupingOptions as we, reviewQueueData as Te, reviewQueueOf as Ee, reviewWindow as De, rowEvidence as U, rowFieldName as W, rowSubject as Oe, rowTags as ke, rowTitle as G, selectReviewRange as Ae, settleReviewRows as je, spinnerHtml as Me, submitDecision as Ne, useMutation as Pe, useOverlayScrollbar as K, useQuery as Fe, useViewGlide as Ie } from "./peach-app.js";
 import { Page as Le } from "./peach-app.page-QAncjzM1.js";
-import { DataTable as Re } from "./peach-app.data-table-DChrkEud.js";
+import { DataTable as Re } from "./peach-app.data-table-Ci4Sob3W.js";
 import { LEGACY_AVATAR_IMG as ze } from "./peach-app.legacy-avatar-NSITxLRS.js";
 import { PillAriaTabList as Be } from "./peach-app.pill-aria-tab-list-BMY1ZEv1.js";
 // src/react/review/auto-landings.ts
 var q = /* @__PURE__ */ M(H(), 1), Ve = "/api/review/auto-landings", He = "/api/review/auto-landings/revert", Ue = ["review", "auto-landings"], We = (e) => N(Ve, e), J = (e) => N(`${Ve}?items=${encodeURIComponent(e.join("\n"))}`), Ge = (e, t) => P(He, {
 	items: e,
 	token: t
-}), Ke = (e) => e.at === null ? "" : ge((/* @__PURE__ */ new Date(e.at * 1e3)).toISOString()), Y = (e) => e.code || e.name || (e.asset_id ? `#${e.asset_id}` : "未知作品"), qe = (e) => e ? `「${e}」` : "空", Je = (e) => e.tags.length ? e.tags.join("、") : e.value, X = (e) => e.tags.length ? "原有标签保留" : `原为 ${e.previous.length ? e.previous.map(qe).join("、") : "空"}`;
+}), Ke = (e) => e.at === null ? "" : ge((/* @__PURE__ */ new Date(e.at * 1e3)).toISOString()), Y = (e) => e.code || e.name || (e.asset_id ? `#${e.asset_id}` : "Unknown work"), qe = (e) => e ? `「${e}」` : "empty", Je = (e) => e.tags.length ? e.tags.join("、") : e.value, X = (e) => e.tags.length ? "原有标签保留" : `原为 ${e.previous.length ? e.previous.map(qe).join("、") : "empty"}`;
 function Z(e) {
 	return [
-		...e.restores.map((e) => `${Y(e)} ${e.field}：${qe(e.current)} 改回 ${qe(e.previous)}`),
-		...e.tags.map((e) => `${Y(e)} 删除标签「${e.tag}」`),
-		...e.changed.map((e) => e.gone ? `${Y(e)} ${e.field}：作品已不在账本中，跳过` : `${Y(e)} ${e.field}：之后已被修改，保留现值`)
+		...e.restores.map((e) => `${Y(e)} ${e.field}: ${qe(e.current)} restored to ${qe(e.previous)}`),
+		...e.tags.map((e) => `${Y(e)} removed tag "${e.tag}"`),
+		...e.changed.map((e) => e.gone ? `${Y(e)} ${e.field}: the work is no longer in the ledger, skipping` : `${Y(e)} ${e.field}: edited since, keeping the current value`)
 	];
 }
 function Ye(e) {
-	let t = [e.restores.length ? `改回 ${e.restores.length} 条资料` : "", e.tags.length ? `删除 ${e.tags.length} 个自动补上的标签` : ""].filter(Boolean);
+	let t = [e.restores.length ? `Restored ${e.restores.length} entries` : "", e.tags.length ? `Removed ${e.tags.length} auto-added tags` : ""].filter(Boolean);
 	return [
-		`将撤回 ${e.decisions} 条自动写入：${t.join("，") || "没有要改的资料"}。`,
-		e.changed.length ? `${e.changed.length} 条资料写入后被修改过或作品已删除，不改动。` : "",
-		"撤回前会自动备份账本。下一轮资料处理仍按同一判据判断，可能再次写入。"
+		`Will withdraw ${e.decisions} auto-writes: ${t.join(", ") || "nothing to change"}.`,
+		e.changed.length ? `${e.changed.length} entries were edited after the write or the work is gone; leaving them as they are.` : "",
+		"The ledger is backed up automatically before a withdrawal. The next metadata pass applies the same rules and may write again."
 	].filter(Boolean).join("");
 }
 function Xe(e) {
-	let t = [e.restored ? `改回 ${e.restored} 条资料` : "", e.removed_tags ? `删除 ${e.removed_tags} 个标签` : ""].filter(Boolean);
-	return `已撤回 ${e.decisions} 条自动写入${t.length ? `：${t.join("，")}` : ""}`;
+	let t = [e.restored ? `Restored ${e.restored} entries` : "", e.removed_tags ? `Removed ${e.removed_tags} tags` : ""].filter(Boolean);
+	return `Withdrew ${e.decisions} auto-writes${t.length ? `: ${t.join(", ")}` : ""}`;
 }
 // src/react/review/auto-landings-card.tsx
-var Q = Ce(), Ze = "资料处理按确定判据自动写入的标题、发行日期与标签，一行一条。撤回会把覆盖的值改回写入前、删掉补上的标签；写入后又被修改过的作品保留现值。";
+var Q = Ce(), Ze = "Titles, release dates, and tags that metadata processing wrote in by fixed rules, one per row. Withdrawing restores the overwritten value to what was there before and removes added tags; works edited after the write keep their current values.";
 function Qe({ item: e, openItem: t }) {
 	let n = e.asset_id && !e.gone ? () => t(e.asset_id) : void 0;
 	return /* @__PURE__ */ (0, Q.jsxs)("span", {
@@ -51,20 +51,20 @@ function Qe({ item: e, openItem: t }) {
 				className: "size-full object-cover"
 			}) : /* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-caption-1-regular text-text-secondary",
-				children: "无封面"
-			}), /* @__PURE__ */ (0, Q.jsx)(r, { children: `打开作品 ${Y(e)}` })]
+				children: "No cover"
+			}), /* @__PURE__ */ (0, Q.jsx)(r, { children: `Open ${Y(e)}` })]
 		}), /* @__PURE__ */ (0, Q.jsxs)("span", {
 			className: "flex min-w-0 flex-1 flex-col gap-0.5",
 			children: [/* @__PURE__ */ (0, Q.jsxs)("span", {
 				className: "truncate text-body-medium text-text-primary",
 				children: [Y(e), e.assets > 1 ? /* @__PURE__ */ (0, Q.jsx)("small", {
 					className: "ml-1 text-caption-1-regular text-text-secondary",
-					children: `${e.assets} 个文件`
+					children: `${e.assets} files`
 				}) : null]
 			}), /* @__PURE__ */ (0, Q.jsx)("small", {
 				title: e.name,
 				className: "truncate text-caption-1-regular text-text-secondary",
-				children: e.gone ? "作品已不在账本中" : e.name
+				children: e.gone ? "The work is no longer in the ledger" : e.name
 			})]
 		})]
 	});
@@ -93,10 +93,10 @@ function et({ locked: e, openItem: t, toast: n }) {
 	}), l = c.data?.items ?? [], u = Pe({
 		mutationFn: async (e) => {
 			let t = await J(e), { confirmed: n, result: r } = await oe({
-				title: "撤回自动写入",
+				title: "Withdraw auto-writes",
 				body: Ye(t),
 				items: Z(t),
-				confirmLabel: "撤回",
+				confirmLabel: "Withdraw",
 				onConfirm: () => Ge(t.items, t.token)
 			});
 			return n ? r : null;
@@ -114,12 +114,12 @@ function et({ locked: e, openItem: t, toast: n }) {
 			title: Xe(a),
 			children: [/* @__PURE__ */ (0, Q.jsx)("p", {
 				className: "text-body-2-regular",
-				children: `撤回前的账本已备份为 ${a.backup}。`
+				children: `The ledger was backed up to ${a.backup} before the withdrawal.`
 			}), a.changed.length ? /* @__PURE__ */ (0, Q.jsxs)("p", {
 				className: "flex flex-wrap items-center gap-x-2 gap-y-1 text-body-2-regular",
-				children: [`${a.changed.length} 条资料写入后被修改过或作品已删除，未改动：`, a.changed.map((e) => e.gone ? /* @__PURE__ */ (0, Q.jsx)("span", {
+				children: [`${a.changed.length} entries were edited after the write or the work is gone, untouched:`, a.changed.map((e) => e.gone ? /* @__PURE__ */ (0, Q.jsx)("span", {
 					className: "text-text-secondary",
-					children: `#${e.asset_id}（已删除）`
+					children: `#${e.asset_id} (deleted)`
 				}, `${e.asset_id}:${e.field}`) : /* @__PURE__ */ (0, Q.jsx)(ne, {
 					size: "small",
 					onClick: () => t(e.asset_id),
@@ -128,15 +128,15 @@ function et({ locked: e, openItem: t, toast: n }) {
 			}) : null]
 		}) : null, c.isError ? /* @__PURE__ */ (0, Q.jsx)(b, {
 			tone: "error",
-			title: "读取自动写入的资料失败",
+			title: "Failed to read the auto-written metadata",
 			children: B(c.error)
 		}) : l.length ? /* @__PURE__ */ (0, Q.jsx)(Re, {
-			label: "自动写入的资料",
+			label: "Auto-written metadata",
 			items: l,
 			columns: [
 				{
 					id: "work",
-					label: "作品",
+					label: "Videos",
 					width: 300,
 					min: 240,
 					value: (e) => Y(e),
@@ -147,7 +147,7 @@ function et({ locked: e, openItem: t, toast: n }) {
 				},
 				{
 					id: "written",
-					label: "写入",
+					label: "Write",
 					width: 320,
 					min: 220,
 					value: (e) => `${e.field}${Je(e)}`,
@@ -155,7 +155,7 @@ function et({ locked: e, openItem: t, toast: n }) {
 				},
 				{
 					id: "rule",
-					label: "规则与时间",
+					label: "Rules and timing",
 					width: 176,
 					min: 144,
 					value: (e) => e.at ?? 0,
@@ -167,14 +167,14 @@ function et({ locked: e, openItem: t, toast: n }) {
 							children: e.label
 						}), /* @__PURE__ */ (0, Q.jsx)("small", {
 							className: "tabular-nums text-caption-1-regular",
-							children: Ke(e) || "时间未知"
+							children: Ke(e) || "Time unknown"
 						})]
 					})
 				}
 			],
-			title: "自动写入的资料",
+			title: "Auto-written metadata",
 			titleId: "auto-landings-title",
-			unit: "条",
+			unit: "items",
 			description: Ze,
 			rowId: (e) => e.item_key,
 			rowLabel: (e) => `${Y(e)} ${e.field}`,
@@ -186,7 +186,7 @@ function et({ locked: e, openItem: t, toast: n }) {
 				disabled: e || !t.length,
 				...I(u.isPending),
 				onClick: () => u.mutate(t.map((e) => e.item_key)),
-				children: `撤回所选（${t.length}）`
+				children: `Withdraw selected (${t.length})`
 			})
 		}) : null]
 	});
@@ -1862,4 +1862,4 @@ function Zt(r) {
 }
 export { Zt as ReviewPage };
 
-//# debugId=efb15580-c1ef-40f2-9fa9-aecaf3241b39
+//# debugId=741aaf72-c81e-4d93-9d66-cca5b15c70e0

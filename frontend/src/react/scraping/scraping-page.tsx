@@ -250,7 +250,7 @@ const OUTCOME_ORDER: CheckOutcome[] = ['ok', 'auth', 'cooldown', 'http', 'networ
 
 /** 一项检查的名字：只查一跳的来源就是它本身。 */
 function targetName(report: SourceReport, check: ReportedCheck): string {
-  return check.label === '来源页面' ? report.label : `${report.label} 高清图片`;
+  return check.label === 'Source page' ? report.label : `${report.label} images`;
 }
 
 /** 全部来源一次检查完，与 `peach check-sources` 同一检查、同一报告口径。这一趟在后台跑，
@@ -263,7 +263,7 @@ function CheckAllCard({ toast }: ScrapingProps) {
     onFinish: (state) => {
       // 限流与拒绝访问会记下冷却，各来源卡上的「冷却中」跟着重读。
       void queryClient.invalidateQueries({ queryKey: SCRAPING_KEY, exact: true });
-      if (state.status === 'complete') toast(state.failed ? `检查完成，${state.failed} 项未通过` : '检查完成，全部可连接');
+      if (state.status === 'complete') toast(state.failed ? `Check finished, ${state.failed} failed` : 'Check finished, all reachable');
     },
   });
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -282,21 +282,21 @@ function CheckAllCard({ toast }: ScrapingProps) {
   const problems = checks.filter(({ check }) => check.outcome !== 'ok').sort(
     (a, b) => OUTCOME_ORDER.indexOf(a.check.outcome) - OUTCOME_ORDER.indexOf(b.check.outcome));
   const problem = start.error ? errorMessage(start.error)
-    : job?.status === 'failed' ? (job.error || '检查未完成') : '';
+    : job?.status === 'failed' ? (job.error || 'Check unfinished') : '';
   const finished = job?.status === 'complete' && job.completed_at
     ? [momentText(new Date(job.completed_at * 1000).toISOString()),
-       job.elapsed_s !== undefined ? `用时 ${job.elapsed_s.toFixed(1)} 秒` : ''].filter(Boolean).join(' · ')
+       job.elapsed_s !== undefined ? `Took ${job.elapsed_s.toFixed(1)} s` : ''].filter(Boolean).join(' · ')
     : '';
 
   return (
-    <Section id="check-all" title="连接检查" onSubmit={submit}>
+    <Section id="check-all" title="Connectivity check" onSubmit={submit}>
       <Stack>
         {/* 说明写在一行里：拆行的 JSX 文本渲染时多出空格，改字工具就对不上源码。 */}
-        <Help>检查各来源页面与 DMM 高清图片服务器，最多四个来源同时进行；正在冷却的来源不再请求。可连接只说明检查地址可达，不代表登录有效。</Help>
+        <Help>Checks each source page and the DMM image servers, up to four sources at a time; cooling sources are not requested. Reachable only means the address answers, not that the login works.</Help>
         {running
           ? <div className="flex flex-col gap-2">
-              <Progress label="连接检查进度" value={job?.checked ?? 0} max={job?.total ?? 0} />
-              <Help role="status">已检查 {job?.checked ?? 0} / {job?.total ?? 0} 个来源</Help>
+              <Progress label="Connectivity check progress" value={job?.checked ?? 0} max={job?.total ?? 0} />
+              <Help role="status">Checked {job?.checked ?? 0} / {job?.total ?? 0} sources</Help>
             </div>
           : null}
         {problem ? <Note tone="error">{problem}</Note> : null}
@@ -325,26 +325,26 @@ function CheckAllCard({ toast }: ScrapingProps) {
             </ul>
           : null}
         {passed.length
-          ? <Disclosure summary={`可连接的 ${passed.length} 项`}>
+          ? <Disclosure summary={`${passed.length} reachable`}>
               <FactList>
                 {passed.map(({ source, name, check }) => (
                   <Fact key={name} term={titled(source, name)}>
                     {[check.width ? `${check.width} × ${check.height}` : '',
-                      check.elapsed_s !== undefined ? `${check.elapsed_s.toFixed(2)} 秒` : ''].filter(Boolean).join(' · ')}
+                      check.elapsed_s !== undefined ? `${check.elapsed_s.toFixed(2)} s` : ''].filter(Boolean).join(' · ')}
                   </Fact>
                 ))}
               </FactList>
             </Disclosure>
           : null}
       </Stack>
-      <Footer status={finished ? `上次检查 ${finished}` : undefined}>
-        <Button type="submit" {...busyProps(running || start.isPending)}>全部检查</Button>
+      <Footer status={finished ? `Last check ${finished}` : undefined}>
+        <Button type="submit" {...busyProps(running || start.isPending)}>All checks</Button>
       </Footer>
     </Section>
   );
 }
 
-/** 按番号补一张高清封面。这一趟在后台跑，页面上留状态。 */
+/** Fetch one HD cover by code. This run happens in the background with its state left on the page. */
 function CoverCard({ toast }: ScrapingProps) {
   const [code, setCode] = useState('');
   const { running, outcome, start } = useBackgroundJob<CoverJob>({
@@ -468,7 +468,7 @@ export function ScrapingPage({ toast }: ScrapingProps) {
   }
   return (
     <Page>
-      <p className="text-body-2-regular text-text-secondary">高清图片可能要经代理才能下载，先检查连接。</p>
+      <p className="text-body-2-regular text-text-secondary">HD images may need the proxy to download; check the connection first.</p>
       <CheckAllCard toast={toast} />
       <CoverCard toast={toast} />
       <CustomSources receipt={toast} />

@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "9a28c9a4-de0a-4ca2-af2a-5a70a0f45b3e", e._sentryDebugIdIdentifier = "sentry-dbid-9a28c9a4-de0a-4ca2-af2a-5a70a0f45b3e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b69a95b0-a5ca-4baa-9034-3ecd3f547031", e._sentryDebugIdIdentifier = "sentry-dbid-b69a95b0-a5ca-4baa-9034-3ecd3f547031");
 	} catch {}
 })();
 import { AnimatedItems as e, Cell as t, ChartBackground as n, ChartContainer as r, ChartLegend as i, ChartLegendContent as a, ChartTip as o, ChartTooltip as s, ChartTooltipContent as c, Curve as l, DATA_ITEM_GRAPHICAL_ITEM_ID_ATTRIBUTE_NAME as u, DATA_ITEM_INDEX_ATTRIBUTE_NAME as d, DefaultZIndexes as f, EvilBarChart as p, LabelList as m, LabelListFromLabelProp as h, Layer as g, LoadingIndicator as _, PolarChart as v, PolarLabelContextProvider as y, PolarLabelListContextProvider as b, RegisterGraphicalItemId as x, Sector as S, SetPolarGraphicalItem as C, SetPolarLegendPayload as w, SetTooltipEntrySettings as T, Shape as ee, TIP_SWATCH as te, Text as ne, ZIndexLayer as re, adaptEventsOfChild as ie, arrayTooltipSearcher as ae, createSelector as oe, defaultPolarChartProps as se, findAllByType as ce, get as le, getClassNameFromUnknown as ue, getColorsCount as de, getMaxRadius as fe, getPercentValue as pe, getTooltipNameProp as me, getValueByDataKey as he, interpolate as ge, isNumber as _e, matchAppend as ve, mathSign as ye, polarToCartesian as be, resolveDefaultProps as xe, selectActiveTooltipDataKey as Se, selectActiveTooltipGraphicalItemId as Ce, selectActiveTooltipIndex as we, selectChartDataAndAlwaysIgnoreIndexes as Te, selectChartOffsetInternal as Ee, selectUnfilteredPolarItems as De, svgPropertiesNoEvents as Oe, svgPropertiesNoEventsFromUnknown as ke, tone as Ae, useAnimationCallbacks as je, useAppSelector as Me, useMouseClickItemDispatch as Ne, useMouseEnterItemDispatch as Pe, useMouseLeaveItemDispatch as Fe, usePolarChartLayout as Ie } from "./peach-app.chart-tip-CRxYp6KT.js";
@@ -174,7 +174,7 @@ function yr({ initial: e, receipt: t }) {
 	}, u = n.providers.some((e) => e.key === i && e.configured && e.target);
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "browser",
-		title: "浏览器添加 JAV",
+		title: "Add JAV via browser",
 		children: [/* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsxs)("div", {
 			className: "flex min-w-0 flex-col gap-4",
 			children: [
@@ -329,7 +329,7 @@ function Ar({ state: e, settle: t, receipt: n, pikpakAccount: r }) {
 		b.run("auto", (e) => W(xr, e), (e) => te(e, t), (e) => _(q(e)));
 	}, []), /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "download",
-		title: "云下载",
+		title: "Cloud download",
 		onSubmit: (e) => {
 			if (e.preventDefault(), ee) {
 				y(!0);
@@ -353,7 +353,7 @@ function Ar({ state: e, settle: t, receipt: n, pikpakAccount: r }) {
 		children: [
 			e.problems?.length ? /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)(F, {
 				tone: "error",
-				title: "云下载配置需要检查",
+				title: "Cloud download configuration needs checking",
 				children: e.problems.join("\n")
 			}) }) : null,
 			/* @__PURE__ */ (0, Q.jsxs)(V, { children: [
@@ -654,7 +654,7 @@ function Nr({ state: e, settle: t, receipt: n, username: r, setUsername: i }) {
 	}), T = _.state === "timeout" || _.state === "failed";
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "pikpak",
-		title: "PikPak 账号",
+		title: "PikPak account",
 		icon: /* @__PURE__ */ (0, Q.jsx)(Dr, {}),
 		onSubmit: x,
 		aside: /* @__PURE__ */ (0, Q.jsx)(H, {
@@ -708,7 +708,7 @@ function Nr({ state: e, settle: t, receipt: n, username: r, setUsername: i }) {
 // src/react/settings/ledger-backup-settings.tsx
 var Pr = "/api/configuration/ledger-backups", Fr = 1500, Ir = (e) => (/* @__PURE__ */ new Date(e.modified_at * 1e3)).toLocaleString();
 function Lr(e) {
-	return [e.source === "manual" ? "手动" : `自动 · ${e.purpose}`, J(e.bytes)].join(" · ");
+	return [e.source === "manual" ? "Manual" : `Auto · ${e.purpose}`, J(e.bytes)].join(" · ");
 }
 function Rr({ job: e, label: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -748,43 +748,43 @@ function zr({ receipt: e }) {
 	}, [t]), (0, Z.useEffect)(() => {
 		if (t) for (let n of ["backup", "restore"]) {
 			let r = t[n];
-			r.status === "running" ? l.current[n] = !0 : l.current[n] && (l.current[n] = !1, r.status === "complete" && e(n === "backup" ? `已备份账本：${r.name}` : `已从备份恢复账本，恢复前的账本另存为 ${r.saved}。刷新页面查看恢复后的资料`));
+			r.status === "running" ? l.current[n] = !0 : l.current[n] && (l.current[n] = !1, r.status === "complete" && e(n === "backup" ? `Ledger backed up: ${r.name}` : `The ledger has been restored from backup; the pre-restore ledger is saved separately as ${r.saved}. Refresh the page to view the restored profile`));
 		}
 	}, [t]), !t) return /* @__PURE__ */ (0, Q.jsx)(L, {
 		id: "ledgerBackups",
 		guide: "ledger-backups",
-		title: "账本备份",
-		children: /* @__PURE__ */ (0, Q.jsx)(V, { children: r ? /* @__PURE__ */ (0, Q.jsx)(k, { children: r }) : /* @__PURE__ */ (0, Q.jsx)(vt, { label: "正在读取备份列表" }) })
+		title: "Ledger backup",
+		children: /* @__PURE__ */ (0, Q.jsx)(V, { children: r ? /* @__PURE__ */ (0, Q.jsx)(k, { children: r }) : /* @__PURE__ */ (0, Q.jsx)(vt, { label: "Loading backup list" }) })
 	});
 	let u = () => void a.run("backup", (e) => G(`${Pr}/backup`, {}, "POST", e), n), d = (e) => void rn({
-		title: "从备份恢复账本",
+		title: "Restore ledger from backup",
 		danger: !0,
-		body: `将用 ${Ir(e)} 的备份（${Lr(e)}）替换当前账本，此后的资料、观看记录与复核结论回到备份时的状态。替换前先把当前账本另存为一份备份；恢复期间不能启动新任务。`,
-		confirmLabel: "替换当前账本",
+		body: `The backup from ${Ir(e)} (${Lr(e)}) will replace the current ledger; metadata, watch history, and review conclusions from that point on revert to their state at backup time.Before replacing, save the current ledger as a backup; no new task can start during a restore.`,
+		confirmLabel: "Replace current ledger",
 		onConfirm: async () => {
 			l.current.restore = !0, n(await G(`${Pr}/restore`, {
 				id: e.id,
 				confirm: !0
 			}));
 		}
-	}), f = [t.backup, t.restore].find((e) => e.status === "failed"), p = t.last_restore, m = o ? "正在备份…" : s ? "正在恢复…" : t.backups.length ? `共 ${t.backups.length} 份可恢复的备份` : "还没有备份";
+	}), f = [t.backup, t.restore].find((e) => e.status === "failed"), p = t.last_restore, m = o ? "Backing up…" : s ? "Restoring…" : t.backups.length ? `A total of ${t.backups.length} restorable backups` : "No backup yet";
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "ledgerBackups",
 		guide: "ledger-backups",
-		title: "账本备份",
+		title: "Ledger backup",
 		children: [
 			/* @__PURE__ */ (0, Q.jsxs)(V, { children: [
-				/* @__PURE__ */ (0, Q.jsx)(N, { children: "账本保存全部资料、观看记录与复核结论。手动备份与写入前的自动备份放在一起，保留最近 5 份和 24 小时内的备份。" }),
-				t.writer ? null : /* @__PURE__ */ (0, Q.jsxs)(N, { children: ["这台电脑不是账本写入端，只能在写入端恢复：", t.writer_reason] }),
+				/* @__PURE__ */ (0, Q.jsx)(N, { children: "The ledger stores all resources, watch records, and review conclusions. Manual backups and pre-write automatic backups are kept together, retaining the most recent 5 and backups within 24 hours." }),
+				t.writer ? null : /* @__PURE__ */ (0, Q.jsxs)(N, { children: ["This computer is not the ledger write client; restore is only possible on the write client:", t.writer_reason] }),
 				o ? /* @__PURE__ */ (0, Q.jsx)(Rr, {
 					job: t.backup,
-					label: "备份进度"
+					label: "Backup progress"
 				}) : null,
 				s ? /* @__PURE__ */ (0, Q.jsx)(Rr, {
 					job: t.restore,
-					label: "恢复进度"
+					label: "Restore progress"
 				}) : null,
-				f ? /* @__PURE__ */ (0, Q.jsx)(k, { children: f.error || "任务没有完成" }) : null,
+				f ? /* @__PURE__ */ (0, Q.jsx)(k, { children: f.error || "Task not finished" }) : null,
 				p ? p.outcome === "kept" || p.outcome === "completed" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: p.message }) : /* @__PURE__ */ (0, Q.jsx)(k, { children: p.message }) : null,
 				a.error ? /* @__PURE__ */ (0, Q.jsx)(k, { children: a.error }) : null
 			] }),
@@ -798,7 +798,7 @@ function zr({ receipt: e }) {
 						variant: "secondary",
 						disabled: !t.writer || c,
 						onClick: () => d(e),
-						children: "恢复"
+						children: "Restore"
 					})
 				}, e.id)) })
 			}) : null,
@@ -808,7 +808,7 @@ function zr({ receipt: e }) {
 					disabled: c,
 					onClick: u,
 					...K(a.busy === "backup" || o),
-					children: "立即备份"
+					children: "Back up now"
 				})
 			})
 		]
@@ -2087,7 +2087,7 @@ function Ta({ initial: e, receipt: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "storageSettings",
 		guide: "storage",
-		title: "存储空间",
+		title: "Storage",
 		children: [
 			/* @__PURE__ */ (0, Q.jsxs)(ut, { children: [/* @__PURE__ */ (0, Q.jsx)(j, {
 				term: "Data directory",
@@ -2126,7 +2126,7 @@ function Ta({ initial: e, receipt: t }) {
 					}) : n.job.state === "measuring" ? null : /* @__PURE__ */ (0, Q.jsx)(N, { children: "After analysis, shows usage per data type and lets you clear the cache and old backups." }),
 					n.relocation.available ? null : /* @__PURE__ */ (0, Q.jsx)(N, { children: n.relocation.message }),
 					!n.relocation.available && n.relocation.steps?.length ? /* @__PURE__ */ (0, Q.jsx)(tt, {
-						label: "在宿主机上迁移",
+						label: "Migrate on the host machine",
 						steps: n.relocation.steps
 					}) : null,
 					n.job.error ? /* @__PURE__ */ (0, Q.jsx)(k, { children: n.job.message }) : null,
@@ -2188,7 +2188,7 @@ function Da({ data: e, receipt: t, reopenTutorial: n, panel: r }) {
 			e.remote_reporting || e.library_sharing ? /* @__PURE__ */ (0, Q.jsxs)(L, {
 				id: "librarySharing",
 				guide: "reporting",
-				title: "数据上传",
+				title: "Data uploads",
 				children: [e.remote_reporting ? /* @__PURE__ */ (0, Q.jsx)(Hr, {
 					initial: e.remote_reporting,
 					receipt: t
@@ -2217,15 +2217,15 @@ function Da({ data: e, receipt: t, reopenTutorial: n, panel: r }) {
 }
 function Oa({ reopenTutorial: e }) {
 	return /* @__PURE__ */ (0, Q.jsx)("section", {
-		"aria-label": "新手教程",
+		"aria-label": "Guided tour",
 		className: "w-full",
 		children: /* @__PURE__ */ (0, Q.jsx)(zt, { children: /* @__PURE__ */ (0, Q.jsx)(I, { children: /* @__PURE__ */ (0, Q.jsx)(B, {
-			label: "新手教程",
-			description: "在所有设备上恢复右上角教程入口，保留已读进度",
+			label: "Guided tour",
+			description: "Brings the tour entry back to the top bar on every device and keeps your reading progress",
 			children: /* @__PURE__ */ (0, Q.jsx)(E, {
 				variant: "secondary",
 				onClick: () => void e(),
-				children: "重新打开"
+				children: "Reopen"
 			})
 		}) }) })
 	});
@@ -2240,7 +2240,7 @@ function ka({ initial: e, receipt: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "automaticUpdates",
 		guide: "automatic-updates",
-		title: "自动更新",
+		title: "Auto-update",
 		onSubmit: s,
 		children: [
 			/* @__PURE__ */ (0, Q.jsxs)(I, { children: [
@@ -2254,10 +2254,10 @@ function ka({ initial: e, receipt: t }) {
 					})
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(B, {
-					label: "自动下载更新",
-					description: "发现新版本后先下载，重启安装前会询问。",
+					label: "Download updates automatically",
+					description: "After finding a new version, it downloads first and asks before installing on the next restart.",
 					children: /* @__PURE__ */ (0, Q.jsx)(U, {
-						"aria-label": "自动下载更新",
+						"aria-label": "Download updates automatically",
 						isSelected: n === "download",
 						isDisabled: !e.available || !e.download_available || n === "off",
 						onChange: (e) => r(e ? "download" : "check")
@@ -2299,7 +2299,7 @@ function Aa({ facts: e, receipt: t }) {
 	});
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "facts",
-		title: "运行信息",
+		title: "Runtime info",
 		children: [/* @__PURE__ */ (0, Q.jsx)(ut, { children: i.map(({ term: e, value: t, install_tool: n, download_url: r, download_label: i }) => /* @__PURE__ */ (0, Q.jsx)(j, {
 			term: e,
 			children: n ? /* @__PURE__ */ (0, Q.jsxs)("span", {
@@ -2312,7 +2312,7 @@ function Aa({ facts: e, receipt: t }) {
 					className: "shrink-0",
 					onClick: () => o(n),
 					...K(a.busy === n),
-					children: "安装"
+					children: "Install"
 				})]
 			}) : /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [t, r ? /* @__PURE__ */ (0, Q.jsx)(A, {
 				href: r,
@@ -2338,9 +2338,9 @@ function ja({ uninstall: e, receipt: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "uninstallPeach",
 		guide: "uninstall",
-		title: "卸载 Peach",
+		title: "Uninstall Peach",
 		children: [
-			e.available ? /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "卸载移除 Peach 程序本身，原始媒体文件保留。" }) }) : null,
+			e.available ? /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "Uninstalling removes the Peach program itself; original media files are kept." }) }) : null,
 			/* @__PURE__ */ (0, Q.jsx)(I, { children: /* @__PURE__ */ (0, Q.jsx)(B, {
 				label: "Full uninstall",
 				description: "Also delete settings, the local database, watch history, credentials, and caches",
@@ -2412,21 +2412,21 @@ function Pa(e) {
 function Fa({ job: e }) {
 	return e.state === "updating" ? /* @__PURE__ */ (0, Q.jsx)(N, {
 		role: "status",
-		children: "Watchtower 正在拉取新镜像并重建容器。期间 Peach 会断开一会儿，新版本启动后这里会提示刷新。"
+		children: "Watchtower is pulling the new image and recreating the container. Peach disconnects briefly; this page prompts you to refresh once the new version is up."
 	}) : e.state === "done" ? /* @__PURE__ */ (0, Q.jsxs)(N, {
 		role: "status",
 		children: [
-			"已更新到 Peach ",
+			"Updated to Peach ",
 			e.version,
-			"，刷新页面即可使用。"
+			"，Refresh the page即可使用。"
 		]
-	}) : e.state === "timeout" ? /* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(k, { children: "15 分钟内没有看到新版本启动。在 compose.yaml 所在目录查看 Watchtower 与 Peach 的日志：" }), /* @__PURE__ */ (0, Q.jsx)(tt, {
-		label: "查看更新日志",
+	}) : e.state === "timeout" ? /* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(k, { children: "15 分钟内没有看到新版本启动。在 compose.yaml 所在目录View Watchtower 与 Peach 的日志：" }), /* @__PURE__ */ (0, Q.jsx)(tt, {
+		label: "View更新日志",
 		steps: [{
-			text: "Watchtower 的拉取与重建记录",
+			text: "Watchtower pull and rebuild history",
 			command: "docker compose logs watchtower"
 		}, {
-			text: "Peach 的启动与数据库迁移记录",
+			text: "Peach startup and database migration history",
 			command: "docker compose logs peach"
 		}]
 	})] }) : null;
@@ -2449,10 +2449,10 @@ function Ba({ initial: e, initialJob: t }) {
 		state: "idle",
 		progress: 0
 	}), [o, s] = (0, Z.useState)(""), c = Y(), l = (0, Z.useRef)(!1), u = (0, Z.useRef)(!0), d = Ia.has(i.state), f = Pa(e.current_version), p = n.state === "available" && !!n.one_click?.available, m = f.job.state === "updating", h = () => void rn({
-		title: "一键更新",
-		body: `Watchtower 会拉取 Peach ${n.latest_version || ""} 的镜像并重建容器，/data 数据卷保留。重建期间 Peach 暂时断开，进行中的任务在启动后续跑；有待执行的数据库迁移时，启动前先备份再迁移。`,
-		confirmLabel: "开始更新",
-		cancelLabel: "取消",
+		title: "Update in one click",
+		body: `Watchtower will pull the Peach ${n.latest_version || ""} image and recreate the container; the /data volume is kept.重建期间 Peach 暂时断开，Running的任务在启动后续跑；有待执行的数据库迁移时，启动前先备份再迁移。`,
+		confirmLabel: "Start the update",
+		cancelLabel: "Cancel",
 		onConfirm: f.run
 	});
 	(0, Z.useEffect)(() => (u.current = !0, () => {
@@ -2503,51 +2503,51 @@ function Ba({ initial: e, initialJob: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "releaseUpdates",
 		guide: "updates",
-		title: "检查更新",
+		title: "Check updates",
 		aside: /* @__PURE__ */ (0, Q.jsx)(H, {
 			tone: b || n.state === "error" || i.state === "error" || f.job.state === "timeout" ? "error" : d || m ? "progress" : f.job.state === "done" ? "success" : n.state === "available" ? "warning" : n.state === "unchecked" ? "neutral" : "success",
-			children: b || n.state === "error" || i.state === "error" ? "检查未完成" : f.job.state === "timeout" ? "更新未完成" : d ? "准备更新中" : m ? "正在更新" : f.job.state === "done" ? "已更新" : i.state === "ready" ? "可安装" : n.state === "available" ? "有可用更新" : n.state === "unchecked" ? "尚未检查" : "检查完成"
+			children: b || n.state === "error" || i.state === "error" ? "Check unfinished" : f.job.state === "timeout" ? "Update unfinished" : d ? "Preparing update" : m ? "Updating" : f.job.state === "done" ? "Updated" : i.state === "ready" ? "Installable" : n.state === "available" ? "Update available" : n.state === "unchecked" ? "Not checked yet" : "Check finished"
 		}),
 		children: [
 			/* @__PURE__ */ (0, Q.jsxs)(ut, { children: [
 				/* @__PURE__ */ (0, Q.jsx)(j, {
-					term: "当前版本",
+					term: "Current version",
 					children: f.job.state === "done" ? f.job.version : n.current_version
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(j, {
-					term: "安装方式",
+					term: "Install method",
 					children: n.installation
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(j, {
-					term: "更新通道",
+					term: "Update channel",
 					children: n.channel
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(j, {
-					term: "最新版本",
-					children: n.latest_version || "未取得"
+					term: "Latest version",
+					children: n.latest_version || "Not fetched"
 				}),
 				n.package_kind ? /* @__PURE__ */ (0, Q.jsxs)(j, {
-					term: "下载内容",
-					children: [n.package_kind === "update" ? "应用更新包" : n.package_kind === "installer" ? "macOS 安装镜像" : "应用与工具", n.asset_size ? ` · ${(n.asset_size / 1048576).toFixed(1)} MB` : ""]
+					term: "Download contents",
+					children: [n.package_kind === "update" ? "Apply update" : n.package_kind === "installer" ? "macOS install image" : "Apps and tools", n.asset_size ? ` · ${(n.asset_size / 1048576).toFixed(1)} MB` : ""]
 				}) : null
 			] }),
-			n.package_kind === "update" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: "应用更新包复用已安装工具；工具缺失、损坏或版本变化时会另行下载所需工具包。" }) : n.package_kind === "full" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: "本次更新包含媒体工具。" }) : n.package_kind === "installer" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: "下载后打开镜像，把 Peach 拖入「应用程序」替换旧版本，数据目录与设置保留；提示已损坏时按发布页说明移除隔离标记。" }) : null,
+			n.package_kind === "update" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: "The app update package reuses installed tools; missing, damaged, or changed-version tools are downloaded separately as needed." }) : n.package_kind === "full" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: "This update includes media tools." }) : n.package_kind === "installer" ? /* @__PURE__ */ (0, Q.jsx)(N, { children: "After downloading, open the image and drag Peach into Applications to replace the old version; the data directory and settings are kept. If macOS says it is damaged, follow the release page to clear the quarantine flag." }) : null,
 			n.state === "unchecked" && !n.checked_at && !b && i.state === "idle" ? null : /* @__PURE__ */ (0, Q.jsxs)(V, {
 				divided: !0,
 				children: [
-					n.checked_at ? /* @__PURE__ */ (0, Q.jsxs)(N, { children: ["检查于 ", (/* @__PURE__ */ new Date(n.checked_at * 1e3)).toLocaleString()] }) : null,
+					n.checked_at ? /* @__PURE__ */ (0, Q.jsxs)(N, { children: ["Checked at ", (/* @__PURE__ */ new Date(n.checked_at * 1e3)).toLocaleString()] }) : null,
 					f.job.state === "done" ? null : n.state === "available" && !b ? /* @__PURE__ */ (0, Q.jsx)(F, {
 						tone: "info",
-						title: "有可用更新",
+						title: "Update available",
 						children: n.message
 					}) : b || n.state === "error" ? /* @__PURE__ */ (0, Q.jsx)(k, { children: b || n.message }) : n.state === "unchecked" ? null : /* @__PURE__ */ (0, Q.jsx)(N, {
 						role: "status",
 						children: n.message
 					}),
 					n.state === "available" && !b && !p && f.job.state === "idle" && n.steps?.length ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(tt, {
-						label: "在宿主机上更新",
+						label: "Update on the host",
 						steps: n.steps
-					}), /* @__PURE__ */ (0, Q.jsx)(N, { children: n.one_click?.reason || "用 compose 的 watchtower profile 启动 Watchtower 后，可以在这里一键更新，启用前先读 Docker 部署说明。" })] }) : null,
+					}), /* @__PURE__ */ (0, Q.jsx)(N, { children: n.one_click?.reason || "Once Watchtower runs with the compose watchtower profile, you can update from here in one click; read the Docker deployment notes before enabling it." })] }) : null,
 					/* @__PURE__ */ (0, Q.jsx)(Fa, { job: f.job }),
 					i.state === "error" ? /* @__PURE__ */ (0, Q.jsx)(k, { children: i.message }) : null,
 					i.state !== "idle" && i.state !== "error" ? /* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -2585,36 +2585,36 @@ function Ba({ initial: e, initialJob: t }) {
 				}),
 				children: [
 					/* @__PURE__ */ (0, Q.jsx)(E, {
-						variant: i.state === "ready" || p || n.state === "available" && n.installation === "独立测试包" ? "secondary" : "primary",
+						variant: i.state === "ready" || p || n.state === "available" && n.installation === "Standalone test package" ? "secondary" : "primary",
 						disabled: d || m,
 						onClick: y,
 						...K(c.busy === "check"),
-						children: "检查更新"
+						children: "Check updates"
 					}),
 					f.job.state === "done" ? /* @__PURE__ */ (0, Q.jsx)(E, {
 						variant: "primary",
 						onClick: () => window.location.reload(),
-						children: "刷新页面"
+						children: "Refresh the page"
 					}) : p ? /* @__PURE__ */ (0, Q.jsx)(E, {
 						variant: "primary",
 						onClick: h,
 						...K(m || f.busy),
-						children: "一键更新"
+						children: "Update in one click"
 					}) : null,
 					n.state === "available" && n.in_app_update && i.state !== "ready" ? /* @__PURE__ */ (0, Q.jsx)(E, {
 						variant: "primary",
 						onClick: v,
 						...K(d || c.busy === "download"),
-						children: "下载并安装"
-					}) : n.state === "available" && n.installation === "独立测试包" && n.asset_url ? /* @__PURE__ */ (0, Q.jsx)(Je, {
+						children: "Download and install"
+					}) : n.state === "available" && n.installation === "Standalone test package" && n.asset_url ? /* @__PURE__ */ (0, Q.jsx)(Je, {
 						variant: "primary",
 						href: n.asset_url,
-						children: "下载新版本"
+						children: "Download the new version"
 					}) : null,
 					i.state === "ready" ? /* @__PURE__ */ (0, Q.jsx)(E, {
 						variant: "primary",
 						onClick: _,
-						children: "重启安装"
+						children: "Restart to install"
 					}) : null
 				]
 			})
@@ -2705,7 +2705,7 @@ function Wa({ startup: e, receipt: t }) {
 	let [n, r] = (0, Z.useState)(e.enabled), [i, a] = (0, Z.useState)(e.silent), [o, s] = (0, Z.useState)(e.desktop), c = Y(), l = e.available && !e.desktop_message;
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "startup",
-		title: "开机自启",
+		title: "Start at sign-in",
 		onSubmit: (r) => {
 			r.preventDefault(), e.available && c.run("save", (e) => G("/api/configuration/startup", {
 				enabled: n,
@@ -2725,10 +2725,10 @@ function Wa({ startup: e, receipt: t }) {
 					})
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(B, {
-					label: "只启动托盘，不打开网页",
-					description: "开机后在后台运行，需要时从托盘打开页面。",
+					label: "Start the tray only, without opening the web app",
+					description: "Runs in the background at startup; open the page from the tray when needed.",
 					children: /* @__PURE__ */ (0, Q.jsx)(U, {
-						"aria-label": "只启动托盘，不打开网页",
+						"aria-label": "Start the tray only, without opening the web app",
 						isSelected: i,
 						isDisabled: !e.available || !n,
 						onChange: a
@@ -2864,11 +2864,11 @@ function Za({ receipt: e }) {
 			accounts: t.accounts.map((t) => [e(t.data), e(t.api)])
 		});
 	}, [t]), r ? /* @__PURE__ */ (0, Q.jsx)(It, {
-		label: "正在读取网盘代理",
+		label: "Reading the drive proxy",
 		html: en
 	}) : /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "cloud-proxy",
-		title: "CloudDrive 代理",
+		title: "CloudDrive proxy",
 		children: [/* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(N, { children: Xe }), /* @__PURE__ */ (0, Q.jsxs)("div", {
 			className: "flex min-w-0 flex-col gap-4",
 			children: [
@@ -3246,9 +3246,9 @@ function co({ name: e, value: t, onChange: n }) {
 	return /* @__PURE__ */ (0, Q.jsx)(Rt, {
 		"data-guide-target": "library-policy",
 		className: "w-full",
-		"aria-label": `${e} 处理方式`,
+		"aria-label": `${e} handling`,
 		selectedKey: t,
-		prefix: "处理方式",
+		prefix: "Handling",
 		renderValue: /* @__PURE__ */ (0, Q.jsx)("span", {
 			className: "truncate",
 			children: oo.find(([e]) => e === t)?.[1]
@@ -3388,7 +3388,7 @@ function mo({ initial: e, receipt: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "pushDiscovery",
 		guide: "discovery",
-		title: "自动发现新文件",
+		title: "Discover new files automatically",
 		onSubmit: m,
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -3429,10 +3429,10 @@ function mo({ initial: e, receipt: t }) {
 					})
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(B, {
-					label: "接收 CloudDrive2 通知",
-					description: "网盘目录有变化时由 CloudDrive2 推送过来。",
+					label: "Receive CloudDrive2 notifications",
+					description: "When a cloud-drive directory changes, CloudDrive2 pushes the change over.",
 					children: /* @__PURE__ */ (0, Q.jsx)(U, {
-						"aria-label": "接收 CloudDrive2 通知",
+						"aria-label": "Receive CloudDrive2 notifications",
 						isSelected: n.cloud,
 						isDisabled: !n.available || !n.enabled,
 						onChange: (e) => r({
@@ -3555,9 +3555,9 @@ async function ho(e) {
 	}
 	if (!En(t)) return !0;
 	let { confirmed: n } = await rn({
-		title: "扫描与采集正在进行",
+		title: "Scanning and collecting in progress",
 		body: Nn(t, e),
-		confirmLabel: "仍然保存"
+		confirmLabel: "Still kept"
 	});
 	return n;
 }
@@ -3707,7 +3707,7 @@ function Eo({ data: e, receipt: t }) {
 	};
 	if (y) return /* @__PURE__ */ (0, Q.jsx)(L, {
 		guide: "media",
-		title: "媒体库与目录",
+		title: "Libraries and folders",
 		children: /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsxs)(F, {
 			tone: "success",
 			title: "Configuration saved",
@@ -3725,7 +3725,7 @@ function Eo({ data: e, receipt: t }) {
 	let ae = (t) => e.media_sources?.find((e) => e.root_id === t.root_id && e.path === t.path), oe = n.some((e) => ar(e.location)), se = oe ? (e.mount_dependencies ?? []).filter((e) => !e.available) : [];
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "media",
-		title: "媒体库与目录",
+		title: "Libraries and folders",
 		onSubmit: re,
 		children: [/* @__PURE__ */ (0, Q.jsxs)(V, { children: [
 			/* @__PURE__ */ (0, Q.jsx)(so, {}),
@@ -4027,7 +4027,7 @@ function Oo({ data: e }) {
 	let t = e.media_sources, n = Y();
 	return t ? /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "mounts",
-		title: "挂载状态",
+		title: "Mount state",
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)(ut, { children: t.map((e, t) => /* @__PURE__ */ (0, Q.jsxs)(j, {
 				term: /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(Ht, { mark: or(e.location) }), go(e.location)] }),
@@ -4105,18 +4105,18 @@ function jo({ receipt: e }) {
 	}), r = qn(), i = n.data?.followInitialDays ?? t.value.followInitialDays, a = r.error || n.error;
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "follow-options",
-		title: "关注采集",
+		title: "Follows harvesting",
 		children: [/* @__PURE__ */ (0, Q.jsxs)(I, { children: [
 			/* @__PURE__ */ (0, Q.jsx)(Mo, {}),
 			/* @__PURE__ */ (0, Q.jsx)(No, {}),
 			/* @__PURE__ */ (0, Q.jsx)(B, {
-				label: "首次采集范围",
-				description: "新关注的来源第一次回看多久以前的内容。",
+				label: "'Initial scrape range'",
+				description: "How far back a newly followed source looks on its first pass.",
 				children: /* @__PURE__ */ (0, Q.jsx)("div", {
 					id: "followInitialDaysSetting",
 					className: "shrink-0",
 					children: /* @__PURE__ */ (0, Q.jsx)(R, {
-						"aria-label": "首次采集范围",
+						"aria-label": "'Initial scrape range'",
 						selectedKey: String(i),
 						isDisabled: n.isFetching || r.isPending,
 						onSelectionChange: (n) => {
@@ -4132,19 +4132,19 @@ function jo({ receipt: e }) {
 				})
 			}),
 			/* @__PURE__ */ (0, Q.jsx)(B, {
-				label: "头像刷新",
-				description: "重新获取关注创作者的头像。",
+				label: "Avatar refresh",
+				description: "Re-fetch the followed creators' avatars.",
 				children: /* @__PURE__ */ (0, Q.jsx)("span", {
 					className: "shrink-0",
-					children: "每 3 个月"
+					children: "Every 3 months"
 				})
 			}),
 			/* @__PURE__ */ (0, Q.jsx)(B, {
-				label: "favicon 刷新",
-				description: "重新获取来源站点的图标。",
+				label: "Favicon refresh",
+				description: "Re-fetch the source site's icon.",
 				children: /* @__PURE__ */ (0, Q.jsx)("span", {
 					className: "shrink-0",
-					children: "每年"
+					children: "Yearly"
 				})
 			})
 		] }), a ? /* @__PURE__ */ (0, Q.jsx)(V, {
@@ -4169,13 +4169,13 @@ function Mo() {
 	}, u = t.error || e.error;
 	return /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
 		/* @__PURE__ */ (0, Q.jsx)(B, {
-			label: "自动检查更新",
-			description: "近 7 天有更新的来源按这个间隔检查，久未更新的逐级放慢，最长一天一次",
+			label: "'Auto-check for updates'",
+			description: "Sources updated in the last 7 days are checked at this interval; those not updated for a long time slow down step by step, at most once a day",
 			children: /* @__PURE__ */ (0, Q.jsxs)("div", {
 				id: "followScheduleSetting",
 				className: "flex min-h-9 shrink-0 flex-wrap items-center justify-end gap-2",
 				children: [/* @__PURE__ */ (0, Q.jsx)(U, {
-					"aria-label": "自动检查更新",
+					"aria-label": "'Auto-check for updates'",
 					isSelected: n?.enabled === !0,
 					isDisabled: c,
 					onChange: (e) => {
@@ -4188,7 +4188,7 @@ function Mo() {
 						inputMode: "numeric",
 						name: "follow-interval",
 						autoComplete: "off",
-						"aria-label": "自动检查间隔",
+						"aria-label": "'Auto-check interval'",
 						className: "w-21 sm:w-24",
 						value: i,
 						onChange: (e) => {
@@ -4286,7 +4286,7 @@ function Fo({ receipt: e }) {
 	}), n = Y(), r = n.error || (t.error ? q(t.error) : ""), i = !t.data || t.isFetching || !!n.busy;
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "preview",
-		title: "视频预览",
+		title: "Video previews",
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)(I, { children: /* @__PURE__ */ (0, Q.jsx)(B, {
 				label: "Generate video previews",
@@ -4346,7 +4346,7 @@ function Io({ receipt: e }) {
 	}), n = Y(), r = n.error || (t.error ? q(t.error) : "");
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "transcode",
-		title: "视频播放",
+		title: "Video playback",
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)(I, { children: /* @__PURE__ */ (0, Q.jsx)(B, {
 				label: "Transcode method",
@@ -4483,7 +4483,7 @@ function Ho({ receipt: e }) {
 	}), [n, r] = (0, Z.useState)(null), i = Y(), a = n ?? (t.data?.codePatterns ?? []).join("\n"), o = i.error || (t.error ? q(t.error) : "");
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "codes",
-		title: "番号识别规则",
+		title: "Code recognition rules",
 		onSubmit: (t) => {
 			t.preventDefault();
 			let n = a.split("\n").map((e) => e.trim()).filter(Boolean);
@@ -4569,7 +4569,7 @@ function Go({ initial: e, receipt: t, devices: n, after: r }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
 		/* @__PURE__ */ (0, Q.jsxs)(L, {
 			guide: "access",
-			title: "访问密码",
+			title: "Access password",
 			onSubmit: v,
 			children: [/* @__PURE__ */ (0, Q.jsx)("div", {
 				ref: g,
@@ -4628,15 +4628,15 @@ function Go({ initial: e, receipt: t, devices: n, after: r }) {
 // src/react/settings/api-token-settings.tsx
 var Ko = "/api/configuration/access/token/rotate";
 function qo(e, t) {
-	let n = "用旧口令的脚本和 API 调用会立即失效。", r = e === "legacy" ? `其他浏览器现在用这串口令登录，会全部退出，需要输入新口令重新登录；本机保持登录。${n}` : e === "open" ? `浏览器不需要登录，不受影响。${n}` : `用访问密码登录的浏览器不受影响。${n}`;
-	return t ? `${r}另一台电脑要换成同一份口令文件，两台之间才能继续互取复核结果。` : r;
+	let n = "Scripts and API calls using the old token stop working immediately.", r = e === "legacy" ? `其他浏览器现在用这串口令登录，会全部退出，需要输入新口令重新登录；This device保持登录。${n}` : e === "open" ? `Browsers without sign-in are unaffected.${n}` : `Browsers signed in with the access password are unaffected.${n}`;
+	return t ? `${r}another computer needs the same token file for the two to keep exchanging review results.` : r;
 }
 function Jo({ initial: e, mode: t, receipt: n }) {
 	let [r, i] = (0, Z.useState)(e), [a, o] = (0, Z.useState)(null), s = Y(), c = Un();
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
-		title: "访问口令",
+		title: "Access token",
 		children: [/* @__PURE__ */ (0, Q.jsxs)(V, { children: [
-			/* @__PURE__ */ (0, Q.jsx)(N, { children: "脚本和 API 调用在 X-Token 请求头里携带访问口令。口令只存在这台电脑上，页面不显示。" }),
+			/* @__PURE__ */ (0, Q.jsx)(N, { children: "Scripts and API calls carry the access token in the X-Token header. The token stays on this machine and is never shown on the page." }),
 			a ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex min-w-0 flex-col gap-2",
 				children: [
@@ -4644,48 +4644,48 @@ function Jo({ initial: e, mode: t, receipt: n }) {
 						className: "flex min-w-0 flex-wrap items-end gap-2",
 						children: [/* @__PURE__ */ (0, Q.jsx)(P, {
 							className: "min-w-0 flex-1",
-							label: "新访问口令",
+							label: "New access token",
 							value: a.token,
 							isReadOnly: !0,
 							autoComplete: "off"
 						}), /* @__PURE__ */ (0, Q.jsx)(E, {
 							variant: "secondary",
-							"aria-label": "复制新访问口令",
-							onClick: () => void s.run("copy", () => navigator.clipboard.writeText(a.token), () => n("已复制口令")),
-							children: "复制口令"
+							"aria-label": "Copy the new access token",
+							onClick: () => void s.run("copy", () => navigator.clipboard.writeText(a.token), () => n("Token copied")),
+							children: "Copy token"
 						})]
 					}),
 					s.error ? /* @__PURE__ */ (0, Q.jsx)(N, {
 						role: "status",
-						children: "复制失败，请选中口令复制。"
+						children: "Copy failed; select the token and copy it manually."
 					}) : null,
 					/* @__PURE__ */ (0, Q.jsx)(F, {
 						tone: "info",
-						title: "新口令只显示这一次",
-						children: "已经生效，不用重启。离开本页后不再显示，之后在终端运行 peach token 查看。"
+						title: "The new token is shown only once",
+						children: "已经生效，不用重启。离开本页后不再显示，之后在终端运行 peach token View。"
 					})
 				]
 			}) : null,
 			a?.relogin ? /* @__PURE__ */ (0, Q.jsx)(F, {
 				tone: "warning",
-				title: "本机需要重新登录",
-				children: "刷新页面后用新口令登录。"
+				title: "This device需要重新登录",
+				children: "Refresh the page后用新口令登录。"
 			}) : null,
 			r.rotatable ? null : /* @__PURE__ */ (0, Q.jsx)(N, { children: r.reason })
 		] }), r.rotatable ? /* @__PURE__ */ (0, Q.jsx)(M, {
-			status: "更换后立即生效。",
+			status: "Takes effect immediately.",
 			children: /* @__PURE__ */ (0, Q.jsx)(E, {
 				variant: "secondary",
 				onClick: () => void rn({
-					title: "更换访问口令",
+					title: "Rotate the access token",
 					body: qo(t, r.paired),
-					confirmLabel: "更换口令",
+					confirmLabel: "Rotate token",
 					onConfirm: async () => {
 						let e = await G(Ko, {});
-						i(e), o(e), e.mode === "legacy" && c.invalidateQueries({ queryKey: ["access-sessions"] }), n(e.signed_out ? `已更换访问口令，${e.signed_out} 台设备需要重新登录` : "已更换访问口令");
+						i(e), o(e), e.mode === "legacy" && c.invalidateQueries({ queryKey: ["access-sessions"] }), n(e.signed_out ? `Access token rotated; ${e.signed_out} devices must sign in again` : "Access token rotated");
 					}
 				}),
-				children: "更换口令"
+				children: "Rotate token"
 			})
 		}) : null]
 	});
@@ -4706,9 +4706,9 @@ function Yo({ rows: e, label: t }) {
 	});
 }
 var Xo = [
-	["iPhone／iPad", "用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」安装它，再到「设置 → 通用 → 关于本机 → 证书信任设置」打开这张证书的完全信任。"],
-	["Android", "扫码下载后，到「设置 → 安全 → 加密与凭据 → 安装证书 → CA 证书」选择下载的文件。菜单名称因厂商而异。"],
-	["电脑", "点「下载证书」。Windows 双击文件，安装到「受信任的根证书颁发机构」；macOS 在「钥匙串访问」里把它设为「始终信任」。"]
+	["iPhone／iPad", "用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」Install它，再到「设置 → 通用 → 关于This device → 证书信任设置」打开这张证书的完全信任。"],
+	["Android", "After scanning the code to download, open Settings - Security - Encryption & credentials - Install a certificate - CA certificate and pick the downloaded file. Menu names vary by maker."],
+	["This computer", "Click Download certificate. On Windows double-click the file and install it into Trusted Root Certification Authorities; on macOS set it to Always Trust in Keychain Access."]
 ];
 function Zo({ initial: e }) {
 	let t = X({
@@ -4724,17 +4724,17 @@ function Zo({ initial: e }) {
 		24
 	].map((e) => n.slice(e, e + 8).join(":"));
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
-		title: "其他设备信任 HTTPS 证书",
+		title: "Other devices trusting the HTTPS certificate",
 		children: [
-			/* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(N, { children: "手机、平板和其他电脑第一次打开 HTTPS 地址时会提示证书不受信任。在那台设备上安装并信任本机 CA 证书后不再提示。证书只含公开部分，不含私钥。" }), /* @__PURE__ */ (0, Q.jsxs)("div", {
+			/* @__PURE__ */ (0, Q.jsxs)(V, { children: [/* @__PURE__ */ (0, Q.jsx)(N, { children: "手机、平板和其他电脑第一次打开 HTTPS 地址时会提示证书不受信任。在那台设备上Install并信任This device CA 证书后不再提示。证书只含公开部分，不含私钥。" }), /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex min-w-0 flex-wrap items-start gap-4",
 				children: [/* @__PURE__ */ (0, Q.jsx)(Yo, {
 					rows: t.qr,
-					label: "手机扫码下载本机 CA 证书"
+					label: "手机扫码下载This device CA 证书"
 				}), /* @__PURE__ */ (0, Q.jsxs)("div", {
 					className: "flex min-w-0 flex-1 basis-64 flex-col gap-2",
 					children: [/* @__PURE__ */ (0, Q.jsxs)(ut, { children: [/* @__PURE__ */ (0, Q.jsx)(j, {
-						term: "SHA-256 指纹",
+						term: "SHA-256 fingerprint",
 						children: /* @__PURE__ */ (0, Q.jsx)("span", {
 							className: "flex max-w-sm flex-wrap justify-end gap-x-2 font-mono text-caption-1-regular",
 							children: r.map((e, t) => /* @__PURE__ */ (0, Q.jsx)("span", {
@@ -4743,9 +4743,9 @@ function Zo({ initial: e }) {
 							}, t))
 						})
 					}), /* @__PURE__ */ (0, Q.jsx)(j, {
-						term: "有效期至",
+						term: "Valid until",
 						children: t.not_after
-					})] }), /* @__PURE__ */ (0, Q.jsx)(N, { children: "二维码 10 分钟内有效，页面开着时会自动更新。Android 打不开 .local 地址时，在这台电脑上改用局域网 IP 打开本页再扫码。" })]
+					})] }), /* @__PURE__ */ (0, Q.jsx)(N, { children: "The QR code is valid for 10 minutes and refreshes while the page stays open. If an Android device cannot open the .local address, open this page on this computer via the LAN IP instead and scan that." })]
 				})]
 			})] }),
 			/* @__PURE__ */ (0, Q.jsx)(I, { children: Xo.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(B, {
@@ -4754,19 +4754,19 @@ function Zo({ initial: e }) {
 			}, e)) }),
 			/* @__PURE__ */ (0, Q.jsx)(V, {
 				divided: !0,
-				children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "装好后在设备的证书详情里核对 SHA-256 指纹，与上面一致才算装对。" })
+				children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "After installing, compare the SHA-256 fingerprint in the certificate details on the device; it must match the one above." })
 			}),
 			/* @__PURE__ */ (0, Q.jsx)(M, { children: /* @__PURE__ */ (0, Q.jsx)(Je, {
 				href: t.download,
 				download: "peach-local-ca.crt",
 				leadingIcon: Yn,
-				children: "下载证书"
+				children: "Download certificate"
 			}) })
 		]
 	});
 }
 // src/react/settings/device-sessions.tsx
-var Qo = "/api/configuration/access/sessions", $o = (e) => e.device || "未识别的浏览器", es = {
+var Qo = "/api/configuration/access/sessions", $o = (e) => e.device || "Unrecognized browser", es = {
 	glyph: pt,
 	brand: "apple"
 }, ts = {
@@ -4857,12 +4857,12 @@ function ss({ row: e, children: t }) {
 }
 function cs(e, t = Date.now() / 1e3) {
 	let n = Math.max(0, t - e);
-	return n < 60 ? "刚刚" : n < 3600 ? `${Math.floor(n / 60)} 分钟前` : n < 86400 ? `${Math.floor(n / 3600)} 小时前` : n < 2592e3 ? `${Math.floor(n / 86400)} 天前` : (/* @__PURE__ */ new Date(e * 1e3)).toLocaleDateString("zh-CN");
+	return n < 60 ? "Just now" : n < 3600 ? `${Math.floor(n / 60)} minutes ago` : n < 86400 ? `${Math.floor(n / 3600)} hours ago` : n < 2592e3 ? `${Math.floor(n / 86400)} days ago` : (/* @__PURE__ */ new Date(e * 1e3)).toLocaleDateString("zh-CN");
 }
 function ls(e) {
-	return e.network === "loopback" ? "运行 Peach 的电脑" : e.network ? e.remote ? `公网入口 · ${e.network}` : e.network : "";
+	return e.network === "loopback" ? "The computer running Peach" : e.network ? e.remote ? `Public entry · ${e.network}` : e.network : "";
 }
-var us = (e) => [`最近活动 ${cs(e.last_seen)}`, ls(e)].filter(Boolean).join(" · ");
+var us = (e) => [`Last active ${cs(e.last_seen)}`, ls(e)].filter(Boolean).join(" · ");
 function ds({ revision: e, receipt: t }) {
 	let n = X({
 		queryKey: ["access-sessions", e],
@@ -4870,10 +4870,10 @@ function ds({ revision: e, receipt: t }) {
 		queryFn: ({ signal: e }) => W(Qo, e)
 	});
 	return n.error ? /* @__PURE__ */ (0, Q.jsx)(L, {
-		title: "已登录的设备",
+		title: "Signed-in devices",
 		children: /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)(k, { children: q(n.error) }) })
 	}) : n.isFetching || !n.data ? /* @__PURE__ */ (0, Q.jsx)(It, {
-		label: "正在读取已登录的设备",
+		label: "Reading signed-in devices",
 		html: ln
 	}) : /* @__PURE__ */ (0, Q.jsx)(fs, {
 		initial: n.data,
@@ -4891,54 +4891,54 @@ function fs({ initial: e, receipt: t }) {
 		});
 	}, [n, i.length]);
 	let a = (e) => void rn({
-		title: "撤销这台设备的登录",
-		body: `${$o(e)}（${us(e)}）下次打开 Peach 需要重新输入访问密码。`,
-		confirmLabel: "撤销登录",
+		title: "Sign out this device",
+		body: `${$o(e)} (${us(e)}) will need to re-enter the access password next time Peach is opened.`,
+		confirmLabel: "Sign out",
 		onConfirm: async () => {
 			r(await G(`${Qo}/revoke`, {
 				revision: n.revision,
 				id: e.id
-			})), t("已撤销登录");
+			})), t("Signed out");
 		}
 	});
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
-		title: "已登录的设备",
+		title: "Signed-in devices",
 		children: [
 			n.sessions.length ? /* @__PURE__ */ (0, Q.jsx)(I, { children: n.sessions.map((e) => /* @__PURE__ */ (0, Q.jsx)(ss, {
 				row: e,
 				children: e.current ? /* @__PURE__ */ (0, Q.jsx)(et, {
 					color: "blue",
 					variant: "caption",
-					children: "本机"
+					children: "This device"
 				}) : n.manageable ? /* @__PURE__ */ (0, Q.jsx)(E, {
 					size: "small",
 					variant: "secondary",
-					"aria-label": `撤销 ${$o(e)} 的登录`,
+					"aria-label": `Sign out ${$o(e)}`,
 					onClick: () => a(e),
-					children: "撤销"
+					children: "Undo"
 				}) : null
-			}, e.id)) }) : /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "还没有浏览器用访问密码登录过。" }) }),
+			}, e.id)) }) : /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "No browser has signed in with the access password yet." }) }),
 			!n.manageable && i.length ? /* @__PURE__ */ (0, Q.jsx)(V, {
 				divided: !0,
-				children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "在运行 Peach 的电脑上打开这一页才能撤销。" })
+				children: /* @__PURE__ */ (0, Q.jsx)(N, { children: "You must open this page on the computer running Peach to sign out." })
 			}) : null,
 			n.manageable && i.length ? /* @__PURE__ */ (0, Q.jsx)(M, {
-				status: "修改访问密码会让全部设备退出。",
+				status: "Changing the access password signs out every device.",
 				children: /* @__PURE__ */ (0, Q.jsx)(E, {
 					variant: "secondary",
 					onClick: () => void rn({
-						title: "撤销其他设备的登录",
-						body: `除本机以外的 ${i.length} 台设备下次打开 Peach 需要重新输入访问密码。`,
-						confirmLabel: "撤销登录",
+						title: "Sign out the other devices",
+						body: `The ${i.length} devices other than this one will need to re-enter the access password next time Peach is opened.`,
+						confirmLabel: "Sign out",
 						onConfirm: async () => {
 							let e = await G(`${Qo}/revoke`, {
 								revision: n.revision,
 								scope: "others"
 							});
-							r(e), t(`已撤销 ${e.removed} 台设备的登录`);
+							r(e), t(`Signed out ${e.removed} devices`);
 						}
 					}),
-					children: "撤销其他设备"
+					children: "Sign out other devices"
 				})
 			}) : null
 		]
@@ -5004,19 +5004,19 @@ function gs({ data: e, receipt: t }) {
 		return () => clearTimeout(e);
 	}, [f]), f ? /* @__PURE__ */ (0, Q.jsx)(L, {
 		guide: "port",
-		title: "访问地址",
+		title: "Access address",
 		children: /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsxs)(F, {
 			tone: "success",
-			title: "配置已保存",
-			children: ["Peach 正在重新启动。", /* @__PURE__ */ (0, Q.jsx)(_t, {
+			title: "Configuration saved",
+			children: ["Peach is restarting.", /* @__PURE__ */ (0, Q.jsx)(_t, {
 				href: f.url,
 				size: "small",
-				children: "返回网络与访问"
+				children: "Back to network and access"
 			})]
 		}) })
 	}) : /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "port",
-		title: "访问地址",
+		title: "Access address",
 		onSubmit: r ? (r) => {
 			r.preventDefault(), d({}), m.run("save", (t) => G(Qe, {
 				revision: e.revision,
@@ -5198,13 +5198,13 @@ function ws({ revision: e, initial: t, receipt: n }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "tunnel",
 		guide: "tunnel",
-		title: "Cloudflare 公网入口",
+		title: "Cloudflare public entry",
 		onSubmit: (e) => {
 			e.preventDefault(), v("save", g, () => n("Configuration saved"));
 		},
 		aside: /* @__PURE__ */ (0, Q.jsx)(H, {
 			tone: r.error ? "error" : g ? "progress" : "neutral",
-			children: r.error ? "连接失败" : r.state === "running" ? "运行中" : r.state === "starting" ? "连接中" : "已停止"
+			children: r.error ? "Connection failed" : r.state === "running" ? "Running" : r.state === "starting" ? "Connecting" : "Stopped"
 		}),
 		children: [/* @__PURE__ */ (0, Q.jsxs)(V, { children: [
 			r.named_available ? /* @__PURE__ */ (0, Q.jsx)(Lt, {
@@ -5319,7 +5319,7 @@ function Es({ initial: e, receipt: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		id: "peachProxy",
 		guide: "proxy",
-		title: "Peach 代理",
+		title: "Peach proxy",
 		onSubmit: (e) => {
 			e.preventDefault(), c.run("save", (e) => G("/api/configuration/peach-proxy", {
 				mode: i,
@@ -5330,8 +5330,8 @@ function Es({ initial: e, receipt: t }) {
 		},
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)(I, { children: /* @__PURE__ */ (0, Q.jsx)(B, {
-				label: "连接方式",
-				description: "Peach 访问外网和采集来源时使用。",
+				label: "Connection method",
+				description: "Used when Peach reaches the internet and collects sources.",
 				children: /* @__PURE__ */ (0, Q.jsx)(ys, {
 					mode: i,
 					onChange: a
@@ -5545,7 +5545,7 @@ function Ns({ data: e, readOnly: t, toast: n, embedded: r = !1 }) {
 	}, e.title)) });
 	return r ? /* @__PURE__ */ (0, Q.jsx)(L, {
 		guide: "credentials",
-		title: "来源凭据",
+		title: "Source credentials",
 		aside: o || void 0,
 		children: /* @__PURE__ */ (0, Q.jsx)(V, { children: /* @__PURE__ */ (0, Q.jsx)("div", {
 			className: "flex flex-col gap-4",
@@ -5573,7 +5573,7 @@ function Ps({ initial: e, receipt: t }) {
 	} : n));
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "entry-links",
-		title: "作品资料站点",
+		title: "Video detail sites",
 		onSubmit: (e) => {
 			e.preventDefault();
 			let a = { sites: Object.fromEntries(n.map((e) => [e.key, { host: e.host }])) };
@@ -5656,7 +5656,7 @@ function zs({ initial: e, receipt: t }) {
 	} : n));
 	return /* @__PURE__ */ (0, Q.jsxs)(L, {
 		guide: "indexers",
-		title: "资源搜索",
+		title: "Resource search",
 		onSubmit: (e) => {
 			e.preventDefault(), i.run("save", (e) => G(Fs, { indexers: n }, "POST", e), (e) => {
 				r(e.indexers), t("Indexer saved");
@@ -5779,7 +5779,7 @@ function Bs({ data: e, receipt: t, panel: n, issues: r }) {
 				children: /* @__PURE__ */ (0, Q.jsx)(Je, {
 					href: "/sources",
 					variant: "secondary",
-					children: "采集来源与登录状态"
+					children: "Scrape sources and login status"
 				})
 			}),
 			i.data ? /* @__PURE__ */ (0, Q.jsx)(Ns, {
@@ -6059,4 +6059,4 @@ function qs({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 }
 export { Ws as ConfigurationPage };
 
-//# debugId=9a28c9a4-de0a-4ca2-af2a-5a70a0f45b3e
+//# debugId=b69a95b0-a5ca-4baa-9034-3ecd3f547031

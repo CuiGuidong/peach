@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b192af89-df49-4842-af55-a8b2a8686b05", e._sentryDebugIdIdentifier = "sentry-dbid-b192af89-df49-4842-af55-a8b2a8686b05");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "2b0c2b00-adb5-4fc3-884f-574793a36186", e._sentryDebugIdIdentifier = "sentry-dbid-2b0c2b00-adb5-4fc3-884f-574793a36186");
 	} catch {}
 })();
 import { createPaginatedRowModel as e } from "./peach-app.createPaginatedRowModel-ClHnhG_T.js";
@@ -435,7 +435,7 @@ function Nt({ readOnly: e, toast: t, onAdded: n }) {
 	}, p = () => {
 		let e = a?.known;
 		e && l.run("known", (t) => Me(e.id, t), () => {
-			t(`已订阅「${e.name}」的新作`), i(""), f(), n();
+			t(`Followed new releases for "${e.name}"`), i(""), f(), n();
 		});
 	}, m = a ? jt(a, s) : null, g = a && !a.candidates.length && a.known?.subscribable ? a.known : null;
 	return /* @__PURE__ */ (0, Q.jsxs)("section", {
@@ -481,10 +481,10 @@ function Nt({ readOnly: e, toast: t, onAdded: n }) {
 				children: [
 					a.unavailable ? /* @__PURE__ */ (0, Q.jsx)(R, {
 						tone: "warning",
-						title: "JavDB 这一次没有搜成",
+						title: "JavDB did not return a result this time",
 						children: a.unavailable
 					}) : null,
-					/* @__PURE__ */ (0, Q.jsx)(k, { children: "JavDB 上的演员卡" }),
+					/* @__PURE__ */ (0, Q.jsx)(k, { children: "Performer card on JavDB" }),
 					a.candidates.length ? a.candidates.map((e) => /* @__PURE__ */ (0, Q.jsx)(Mt, {
 						card: e,
 						picked: s.has(e.id),
@@ -492,14 +492,14 @@ function Nt({ readOnly: e, toast: t, onAdded: n }) {
 							let r = new Set(n);
 							return t ? r.add(e.id) : r.delete(e.id), r;
 						})
-					}, e.id)) : /* @__PURE__ */ (0, Q.jsx)(A, { children: a.unavailable ? "这一次没有拿到演员卡。" : "JavDB 上没有搜到这个名字。" }),
+					}, e.id)) : /* @__PURE__ */ (0, Q.jsx)(A, { children: a.unavailable ? "No performer card came back this time." : "That name returned nothing on JavDB." }),
 					a.candidates.length ? /* @__PURE__ */ (0, Q.jsx)(A, {
 						role: "status",
 						children: s.size ? m.text : "Check her performer card; if both the censored and uncensored records are her, check both."
 					}) : null,
 					g ? /* @__PURE__ */ (0, Q.jsx)(A, {
 						role: "status",
-						children: g.following ? `数据库里的「${g.name}」已经在订阅新作。` : `数据库里的「${g.name}」已有 JavDB 或 DMM 编号，可以直接订阅。`
+						children: g.following ? `The database entry "${g.name}" is already followed for new releases.` : `The database entry "${g.name}" already has a JavDB or DMM code and can be followed directly.`
 					}) : null,
 					/* @__PURE__ */ (0, Q.jsxs)("div", {
 						className: "flex flex-wrap items-center gap-2",
@@ -524,7 +524,7 @@ function Nt({ readOnly: e, toast: t, onAdded: n }) {
 								disabled: e,
 								...K(l.busy === "known"),
 								onClick: p,
-								children: `订阅「${g.name}」`
+								children: `Follow "${g.name}"`
 							}) : null
 						]
 					})
@@ -1396,7 +1396,7 @@ function an({ readOnly: e, toast: t, onAdd: n, selection: r }) {
 					href: e.getValue(),
 					target: "_blank",
 					rel: "noopener noreferrer",
-					title: "打开来源页面",
+					title: "Open the source page",
 					className: "max-w-full text-text-primary underline-offset-2 hover:underline",
 					children: [/* @__PURE__ */ (0, Q.jsx)(ae, {
 						site: e.row.original.kind.startsWith("javdb") ? "javdb" : e.row.original.kind.startsWith("dmm") ? "dmm" : Qt(e.getValue()),
@@ -1916,4 +1916,4 @@ function cn(e) {
 }
 export { cn as FollowManagePage };
 
-//# debugId=b192af89-df49-4842-af55-a8b2a8686b05
+//# debugId=2b0c2b00-adb5-4fc3-884f-574793a36186

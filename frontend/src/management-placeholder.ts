@@ -3,8 +3,8 @@
  * back: first a generic large-layout skeleton, then each page's own loading state. Taking one copy means the `data-skeleton`
  * keys match, and the later layer recognizes the same skeleton and skips re-laying it (`paintManagementPlaceholder`).
  *
- * 版式照 `boardPageSkeleton` 画的那几页之外，数据管理首页与各个维护工具（`cleanup-tool-skeletons.ts`）、复核和
- * 采集来源各有一张，其余路径落到通用面板。 */
+ * Besides the pages whose layout is drawn per `boardPageSkeleton`, the data management home page and each maintenance tool (`cleanup-tool-skeletons.ts`), the review, and
+ * the collection source each have one; the remaining routes fall back to the generic panel. */
 import { esc } from '@peach/legacy/core';
 import { fitSkeleton, skeletonHtml } from '@peach/legacy/ui';
 
@@ -51,15 +51,15 @@ const reviewSkeletonHtml = (label = 'Reading the review queue'): string => `<div
 
 const PLACEHOLDERS: Record<string, () => string> = {
   '/data-cleanup': () => cleanupSkeletonHtml(),
-  /* 每个维护工具都有自己那一页的骨架，新加的工具不会落到下面那张通用面板上。 */
+  /* Every maintenance tool has its own page skeleton; newly added tools don't fall back to the generic panel below. */
   ...Object.fromEntries(CLEANUP_TOOLS.map(tool => [tool.path, () => cleanupToolSkeletonHtml(tool.key)])),
-  // 旧地址 /resource-sync 打开后转到资源同步二级页，占位先画成那一页，转过去时同一个键不重画。
+  // The old address /resource-sync, once opened, routes to the resource-sync second-level page; the placeholder is first drawn as that page, and when transitioning, the same key isn't redrawn.
   '/resource-sync': () => cleanupToolSkeletonHtml('resource-sync'),
   '/review': () => reviewSkeletonHtml(),
   /* 采集来源是 812px 窄列里一叠同宽的 Fieldset：连接检查、高清封面，再接各个来源。骨架画四块，
      那是首屏装得下的张数；说明那一句是静态文案，与数据无关，立刻显示。 */
-  '/sources': () => `<div class="scraping-page"><p>高清图片可能要经代理才能下载，先检查连接。</p>
-    ${pageSkeletonHtml('正在读取采集来源', { cards: true, count: 4, fill: false, className: 'cleanup-skeleton' })}</div>`,
+  '/sources': () => `<div class="scraping-page"><p>HD images may need a proxy to download; check the connection first.</p>
+    ${pageSkeletonHtml('Loading scraping sources', { cards: true, count: 4, fill: false, className: 'cleanup-skeleton' })}</div>`,
 };
 
 /** The follows-management skeleton draws in the view this browser chose last time, with the sort box and direction key matching the URL's tier: if the wait draws

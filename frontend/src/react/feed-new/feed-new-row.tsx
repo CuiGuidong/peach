@@ -13,8 +13,8 @@ import { fetchCoverNow, type CoverNow } from '../jav/jav';
 
 import type { FeedNew } from './feed-new';
 
-/** 封面格的「优先处理」「立即重试」：不进后台那条队，当场取这一部的封面，等的时候是不定进度圆环。
- *  取完只换这一格，不重画整行；没取到就落成「无封面」，原因换成这一次的。回这一部取没取到。 */
+/** 封面格的「优先处理」「Retry now」：不进后台那条队，当场取这一部的封面，等的时候是不定进度圆环。
+ *  取完只换这一格，不重画整行；没取到就落成「No cover」，原因换成这一次的。回这一部取没取到。 */
 async function prioritise(code: string, slot: Element, card: Element): Promise<boolean> {
   const waiting = document.createElement('span');
   waiting.innerHTML = coverStateHtml({ code, cover_state: 'fetching' });
@@ -25,7 +25,7 @@ async function prioritise(code: string, slot: Element, card: Element): Promise<b
   placeholder.outerHTML = result.has_cover
     ? coverImage({ code, has_cover: true, cover_version: result.cover_version, cover_frame: result.cover_frame,
       poster_box: result.poster_box, title: card.querySelector('.t')?.textContent || '' }, 'big')
-    : coverStateHtml({ code, cover_state: 'missing', cover_reason: result.message || '没有找到可用的官方封面' });
+    : coverStateHtml({ code, cover_state: 'missing', cover_reason: result.message || 'Nothing found可用的官方封面' });
   return result.has_cover;
 }
 
@@ -97,7 +97,7 @@ export function FeedNewRow({ feedNew, host, wire, act, settled }: {
   };
   // 这一行显示着、封面还在排队的那几部一键插队：首页与女优页各是一行，各管自己的。宿主在 Tailwind 作用域外，
   // 提示条与进度条套一层 `peach-react` 进去（与骨架同一个写法）。
-  return html ? <><div className="peach-react" data-feed-cover-queue><CoverQueue scope="这一行" codes={queued} fetchOne={cover} /></div>
+  return html ? <><div className="peach-react" data-feed-cover-queue><CoverQueue scope="this row" codes={queued} fetchOne={cover} /></div>
     <div ref={box} className="contents" onClick={(event) => { void click(event) }}
     dangerouslySetInnerHTML={{ __html: html }} />{sourceFaces.map((face, index) => createPortal(
       <SourceAvatar code={face.dataset.code!} person={{ name: face.dataset.name!, source_actor_id: face.dataset.actor! }} />,

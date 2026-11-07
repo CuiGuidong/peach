@@ -1,4 +1,4 @@
-/* 首页那一行新作（`feed-new` 岛）：卡上两颗键、收完整块藏起、换筛选保留、合集开关改了重取。
+/* The homepage's row of new releases (the `feed-new` island): two keys on the card, collapse to hide the whole block, filters persist when switched, and toggling the collection switch refetches.
  *
  * Where the skeleton appears and on which pages is in `home-loading.test.ts` and `smoke.test.ts`; cover framing in
  * `feed-cover.test.ts`; the profile page's row shares this component, with fetching and "just subscribed, wait for the round
@@ -80,7 +80,7 @@ describe('Home\'s new releases row', () => {
     }
   });
 
-  it('在目录页里换筛选保留新作与宿主；设置里改了合集开关重取一次', { timeout: 60_000 }, async () => {
+  it('Changing filters on the catalog page keeps the new releases and the host; toggling the collection switch in settings refetches exactly once', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     const { page, feed, server } = opened;
     try {
@@ -92,10 +92,10 @@ describe('Home\'s new releases row', () => {
         window.dispatchEvent(new PopStateEvent('popstate'));
       });
       await settle(page);
-      assert.equal(feed.reads.length, booted, '目录筛选不改变新作范围');
+      assert.equal(feed.reads.length, booted, 'Catalog filters never change the new-releases scope');
       assert.deepEqual(await page.locator('#feedNew [data-feed-id]').evaluateAll(nodes =>
         nodes.map(node => node.getAttribute('data-feed-id'))), ['1', '2']);
-      assert.equal(await page.locator('#feedNew .feednewskeleton').count(), 0, '同在目录页里不该再铺骨架');
+      assert.equal(await page.locator('#feedNew .feednewskeleton').count(), 0, 'No skeleton should be laid again while already on the catalog page');
       assert.equal(await host!.evaluate((node) => node.isConnected && node.id === 'feedNew'), true);
 
       feed.items = [4];
@@ -104,9 +104,9 @@ describe('Home\'s new releases row', () => {
       const was = await toggle.isChecked();
       await toggle.click();
       await until(page, () => server.posts.some((post) => post.path === '/api/settings'
-        && post.body.feedHideGroupCompilations === !was), '合集开关没有写回服务端');
+        && post.body.feedHideGroupCompilations === !was), 'The compilation switch never wrote back to the server');
       await until(page, () => feed.reads.length === booted + 1,
-        `改了合集开关应重取一次，实际 ${feed.reads.length - booted} 次`);
+        `Toggling the collection switch should trigger exactly one refetch, got ${feed.reads.length - booted}`);
       await page.locator('#feedNew [data-feed-id="4"]').waitFor({ state: 'attached', timeout: 5_000 });
       assert.equal(await page.locator('#feedNew [data-feed-id]').count(), 1);
       assert.deepEqual(opened.problems, []);
@@ -141,7 +141,7 @@ describe('Home\'s new releases row', () => {
       await first.locator('[data-feed-action="prioritise"]').click();
       await first.locator('[data-feed-cover-state="missing"]').waitFor({ timeout: 5_000 });
       assert.equal(await first.locator('.feedcoverreason').textContent(), '官方封面地址都没有取到图片');
-      assert.equal(await first.locator('[data-feed-action="prioritise"]').textContent(), '立即重试');
+      assert.equal(await first.locator('[data-feed-action="prioritise"]').textContent(), 'Retry now');
       assert.deepEqual(covers, [{ code: 'EXM-001' }]);
       assert.equal(new URL(page.url()).pathname, '/', '按键不该跟着跳进详情');
       assert.deepEqual(opened.problems, []);

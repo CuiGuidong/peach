@@ -211,7 +211,7 @@ export function indexQuery(source: IndexSource, pageSize: number = PAGE_SIZE.tag
   }
 }
 
-/** 首屏在页面提交前预取，已访问的集合沿用同一标签页里的分页。 */
+/** The first screen is prefetched before the page commits; visited collections reuse the pagination within the same tab. */
 export async function prefetchIndex(props: IndexRoute, signal: AbortSignal) {
   const query = indexQuery(indexSource(indexRoute(props)));
   await queryClient.fetchInfiniteQuery({

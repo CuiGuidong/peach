@@ -31,7 +31,7 @@ interface Route {
 
 const heading = (page: Page, scope: string, name: string): Locator =>
   page.locator(scope).getByRole('heading', { name, exact: true });
-/* 数据管理二级页的卡片标题与页头同名；只认页头那一层 h2，React 卡片何时挂载都只匹配一个。 */
+/* The data management second-level page's card title shares the page header's name; only the page header's h2 is recognized, so whenever the React card mounts, only one matches. */
 const pageTitle = (page: Page, name: string): Locator =>
   page.locator('#main').getByRole('heading', { name, exact: true, level: 2 });
 
@@ -114,17 +114,17 @@ const ROUTES: readonly Route[] = [
   },
   {
     path: '/data-cleanup',
-    // 挂载前的遗留骨架用 heading，最终 React 卡片用带名字的 section；等最终语义才能证明挂载完成。
-    body: (page) => [heading(page, '#main', '数据管理'),
-      page.locator('#stats section[aria-label="扫描与采集"]'),
+    // The legacy skeleton before mount uses a heading, the final React card a named section; only the final semantics prove that mounting finished.
+    body: (page) => [heading(page, '#main', 'Data management'),
+      page.locator('#stats section[aria-label="Scan and scrape"]'),
       page.locator('#cleanup-pending'), page.locator('#cleanup-maintenance'), page.locator('#cleanup-deletion')],
   },
-  { path: '/data-cleanup/organize', body: page => [pageTitle(page, '整理文件'), page.locator('#stats #organize')] },
-  { path: '/data-cleanup/media-repair', body: page => [pageTitle(page, '媒体修复'), page.locator('#stats section[aria-label="媒体修复"]')] },
-  { path: '/data-cleanup/resource-sync', body: page => [pageTitle(page, '资源同步'), page.locator('#stats #resource-sync')] },
-  { path: '/data-cleanup/orphan-records', body: page => [pageTitle(page, '文件已丢失的记录'), page.locator('#stats #orphan-records')] },
-  { path: '/data-cleanup/links', body: page => [pageTitle(page, '链接管理'), page.locator('#stats #link-manager')] },
-  { path: '/data-cleanup/batch-delete', body: page => [pageTitle(page, '批量删除'), page.locator('#stats #batch-delete')] },
+  { path: '/data-cleanup/organize', body: page => [pageTitle(page, 'Organize files'), page.locator('#stats #organize')] },
+  { path: '/data-cleanup/media-repair', body: page => [pageTitle(page, 'Media repair'), page.locator('#stats section[aria-label="Media repair"]')] },
+  { path: '/data-cleanup/resource-sync', body: page => [pageTitle(page, 'Resource sync'), page.locator('#stats #resource-sync')] },
+  { path: '/data-cleanup/orphan-records', body: page => [pageTitle(page, 'Records whose files have gone missing'), page.locator('#stats #orphan-records')] },
+  { path: '/data-cleanup/links', body: page => [pageTitle(page, 'Link management'), page.locator('#stats #link-manager')] },
+  { path: '/data-cleanup/batch-delete', body: page => [pageTitle(page, 'Batch delete'), page.locator('#stats #batch-delete')] },
   {
     // The demo library has no junk candidates; what arrives is the empty-state title of the junk queue page, and the shell's skeleton only lays card placeholders.
     path: '/junk-files',
@@ -136,9 +136,9 @@ const ROUTES: readonly Route[] = [
     body: (page) => [heading(page, '#main', 'Duplicates'), page.locator('#stats').getByText('Duplicate content', { exact: true })],
   },
   {
-    // 旧直达地址进入资源同步二级页。
+    // Old direct links go to the Resource sync second-level page.
     path: '/resource-sync',
-    body: (page) => [pageTitle(page, '资源同步'), page.locator('#stats section#resource-sync')],
+    body: (page) => [pageTitle(page, 'Resource sync'), page.locator('#stats section#resource-sync')],
   },
   {
     path: '/quality-goals',
@@ -233,7 +233,7 @@ describe('Route smoke', () => {
   /* 任务页读完整任务列表，常驻的结果更新只读轻量版本：离页卸掉任务页后不再读任务列表，
      结果更新继续低频读取。固定空态让轮询保持十秒间隔；回到任务页前撤掉拦截，再读取服务端真实任务。
      换页走 pushState + popstate：侧栏按钮、抽屉和浏览器后退最后走的都是这一条路。 */
-  it('离开任务页卸载旧根，全局结果轮询持续，返回读取真实任务', { timeout: 120_000 }, async () => {
+  it('Leaving the task page unmounts the old root while global result polling continues, and returning reads the real task', { timeout: 120_000 }, async () => {
     const polls: number[] = [];
     const updates: number[] = [];
     const opened = await visit(browser, '/tasks', DESKTOP, async (page) => {
@@ -271,7 +271,7 @@ describe('Route smoke', () => {
       await settle(opened.page);
       const leftAt = polls.length;
       const updatesAt = updates.length;
-      // 统计页自己也是 React 档：管理区正文里应当只剩它那一棵根。
+      // The stats page is itself a React page too: the admin body should be left with only that one root.
       assert.equal(await opened.page.locator('#stats .peach-react').count(), 1,
         'The manage area body no longer holds only the stats page\'s React root');
       assert.equal(await taskRoot.evaluate(root => root.isConnected), false,
@@ -284,7 +284,7 @@ describe('Route smoke', () => {
       assert.equal(polls.length, leftAt, `离开任务页后仍在读取完整任务列表：${polls.length - leftAt} 次`);
       const continued = updates.slice(updatesAt);
       assert.ok(continued.length >= 1 && continued.length <= 2,
-        `离开任务页后全局结果轮询应持续单路低频读取，十二秒内看到 ${continued.length} 次请求`);
+        `After leaving the task page the global result polling keeps a single low-frequency read, with ${continued.length} requests seen within twelve seconds`);
       for (let index = Math.max(1, updatesAt); index < updates.length; index += 1) {
         assert.ok(updates[index] - updates[index - 1] >= 8_000,
           `全局结果轮询间隔过短：${Math.round(updates[index] - updates[index - 1])}ms`);
@@ -304,9 +304,9 @@ describe('Route smoke', () => {
     }
   });
 
-  /* 首页那一行新作只属于目录页：从首页进统计页要收起保留，取数还没回来就离开的那一轮
-     也不许回头把它画到管理区上。演示库没有订阅，新作由拦截的接口给一条。 */
-  it('离开首页之后新作那一行收起，晚到的取数也不画回来', { timeout: 60_000 }, async () => {
+  /* The new-releases row on the home page belongs only to the catalog page: going from home to the stats page must collapse it and keep it, and a round that leaves before its data returns
+     must not later draw it onto the admin area. The demo library has no subscriptions; the intercepted endpoint supplies one new release. */
+  it('After leaving home the new-releases row collapses, and late fetches never paint it back', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/stats', DESKTOP);
     try {
       let hold: Promise<void> | null = null;
@@ -332,16 +332,16 @@ describe('Route smoke', () => {
       await expectBody(opened.page, '/', [feedCards.first()]);
       await go('/stats');
       await expectBody(opened.page, '/stats', [statsInventoryTab(opened.page)]);
-      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, '进统计页之后新作那一行还露着');
-      assert.equal(await feedCards.filter({ visible: true }).count(), 0, '进统计页之后新作卡片仍可见');
+      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, 'After entering stats the new-releases row is still showing');
+      assert.equal(await feedCards.filter({ visible: true }).count(), 0, 'The new-releases card stays visible after entering the statistics page');
 
       const beforeReturn = served;
       await go('/');
       await expectBody(opened.page, '/', [feedCards.first()]);
-      assert.equal(served, beforeReturn, '返回首页沿用新作缓存');
+      assert.equal(served, beforeReturn, 'Returning home reuses the new-releases cache');
       await go('/junk-files');
       await opened.page.locator('#count [data-junk-filters]').waitFor();
-      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, '垃圾文件页不展示订阅新作');
+      assert.equal(await opened.page.locator('#feedNew').isHidden(), true, 'The junk files page shows no subscribed new releases');
       assert.equal(await feedCards.filter({ visible: true }).count(), 0);
 
       for (const target of ['/stats', '/junk-files']) {
@@ -365,8 +365,8 @@ describe('Route smoke', () => {
         // After the response the page has only one synchronous repaint left; the catalog area's old loading state does not belong to the current page.
         await opened.page.waitForTimeout(500);
         assert.equal(await opened.page.locator('#feedNew').isHidden(), true);
-        assert.equal(await feedCards.filter({ visible: true }).count(), 0, `晚到的新作取数画到了 ${target} 上`);
-        await assertHolds(opened.page, opened.problems, `首页与 ${target} 往返`);
+        assert.equal(await feedCards.filter({ visible: true }).count(), 0, `A late new-release fetch painted onto ${target}`);
+        await assertHolds(opened.page, opened.problems, `Home to ${target} and back`);
       }
     } finally {
       await opened.close();

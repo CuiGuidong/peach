@@ -8,13 +8,13 @@
  * moment (the page group matches on background) nothing happens, and when details close, the page opens only if it is not
  * already rendered.
  *
- * 关注页不按代次挂 key，回来时交壳按地址恢复筛选、取样种子与刷新代次（`refresh`）：
- * - 关注页还画在 `#stats` 里就铺开它，就地推属性，不因进入页面增加刷新代次。
- * - 没画着时，缓存已有内容就直接提交，不铺加载骨架；首次取数才铺骨架。已加载分页沿用同一标签页里的缓存，
- *   共用导航入口平滑恢复保存的位置，首次进入回到顶上。
- * 主动重新进入才由壳换种子和刷新代次。关掉关注详情回列表由壳认领写地址、只推筛选，元素不动。深链直接进关注详情时页面组没有背景，不挂这个
- * 元素，列表等关掉详情才打开。后退前进落到压在列表上的关注详情、列表却没画着（中间去过别的页）时，交壳让出
- * `#stats`（`ShellActions.follow.ground`），不画列表。
+ * The follows page doesn't key by generation; when it comes back, the shell restores the filter, sampling seed, and refresh generation (`refresh`) by address:
+ * - If the follows page is still rendered in `#stats`, restore it in place and push props, without bumping the refresh generation just for entering the page.
+ * - If it's not rendered, commit cached content as-is without spreading the loading skeleton; only the first fetch spreads the skeleton. Loaded pagination reuses the cache within the same tab,
+ *   and the shared navigation entry smoothly restores the saved position; the first entry returns to the top.
+ * Only a deliberate re-entry causes the shell to swap the seed and refresh generation. Closing follows details to return to the list is claimed by the shell, which writes the address and pushes only the filter, with the element staying put. When a deep link goes directly into follows details, the page group has no background, so this
+ * element isn't mounted, and the list only opens after details is closed. When back/forward lands on follows details stacked on the list but the list isn't rendered (another page was visited in between), hand off to the shell to yield
+ * `#stats` (`ShellActions.follow.ground`), and don't draw the list.
  *
  * The playlists page reopens fully on every open and fetches the newest copy. While on the page, when the shell asks for a
  * reread (the top bar's "Shuffle"), write a new refresh generation (`playlistsRevision`) that the element pushes to the
@@ -38,7 +38,7 @@ import { usePageOpen } from './index-entity';
 const statsHost = () => document.getElementById('stats');
 const readPlaylistsRevision = () => playlistsRevision;
 
-/* ── 关注 ── */
+/* ── Follows ── */
 
 async function openFollow(actions: ShellActions, live: () => boolean) {
   const stats = statsHost();

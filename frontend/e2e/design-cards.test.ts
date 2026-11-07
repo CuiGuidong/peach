@@ -9,7 +9,7 @@ import {
   waitingActionFaces, assertDisabledFace, installDesignBrowser, PIXEL,
 } from './design-fixture.ts';
 
-/** 每个视口从未阅读的进度开始；账本跨设备持久化由 API 回归验证。 */
+/** Each viewport starts from the unread progress; cross-device ledger persistence is verified by API regression. */
 async function freshTutorial(page: Page) {
   const state = { version: 1, campaign: 'browser-tutorial', invited: false, completed: false,
     chapters: {} as Record<string, { next: number; read: string[]; skipped: string[] }> };
@@ -34,7 +34,7 @@ async function freshTutorial(page: Page) {
   });
 }
 
-describe('设计决定：作品卡、管理页与复核', () => {
+describe('Design decisions: video cards, manage pages, and review', () => {
   let browser: Browser;
   installDesignBrowser((next) => { browser = next; });
 
@@ -297,7 +297,7 @@ describe('设计决定：作品卡、管理页与复核', () => {
         '#grid .catalog-skeleton .skeletoncard, #grid [data-media-card][data-variant="resource"]',
       )].find(node => !node.closest('[data-content-skeleton][aria-hidden="true"], [data-content-current][aria-hidden="true"]')
         && getComputedStyle(node).visibility === 'visible') ?? null;
-      /* 读数与「清空回收站」各自的竖直中线：两者说的是同一批文件，同在说明行一行里。 */
+      /* The vertical centerlines of the readout and "empty trash": both speak of the same files and sit in the same description row. */
       const middle = (element: Element | null | undefined) => {
         if (!element) return null;
         const rect = element.getBoundingClientRect();
@@ -323,10 +323,10 @@ describe('设计决定：作品卡、管理页与复核', () => {
       assert.deepEqual(landed.cells, [], 'Placeholder remains after the readout lands');
       const [textMiddle, buttonMiddle] = landed.row;
       assert.ok(textMiddle != null && buttonMiddle != null && Math.abs(textMiddle - buttonMiddle) <= 1,
-        `读数和清空键没并在说明行同一行：${JSON.stringify(landed.row)}`);
-      assert.deepEqual(waiting.lede, landed.lede, `计数栏落地时位置或高度跳了：${JSON.stringify({ waiting, landed })}`);
-      assert.deepEqual(waiting.card, landed.card, `回收站首张卡落地时位置或高度跳了：${JSON.stringify({ waiting, landed })}`);
-      /* 同一历史条目保留读数和卡片，不重取也不重新铺占位。 */
+        `The readout and clear button are not on the same row as the description: ${JSON.stringify(landed.row)}`);
+      assert.deepEqual(waiting.lede, landed.lede, `The count bar jumped in position or height when it landed: ${JSON.stringify({ waiting, landed })}`);
+      assert.deepEqual(waiting.card, landed.card, `The first trash card jumped in position or height when it landed: ${JSON.stringify({ waiting, landed })}`);
+      /* The same history entry keeps its reading and card; it re-fetches nothing and re-lays no placeholder. */
       await page.evaluate(() => {
         const flags = window as unknown as { trashLedeFlashed?: boolean };
         flags.trashLedeFlashed = false;
@@ -343,8 +343,8 @@ describe('设计决定：作品卡、管理页与复核', () => {
       await page.locator('#grid [data-media-card][data-variant="resource"]').first().waitFor({ timeout: 15_000 });
       await settle(page);
       const holding = await measure();
-      assert.deepEqual(rereads, [], '同一历史条目重复取数');
-      assert.deepEqual([holding.cells, holding.text], [[], landed.text], `同页重画时说明行回到了占位：${JSON.stringify(holding)}`);
+      assert.deepEqual(rereads, [], 'The same history entry fetches twice');
+      assert.deepEqual([holding.cells, holding.text], [[], landed.text], `On same-page rerender the caption row reverted to the placeholder: ${JSON.stringify(holding)}`);
       assert.equal(await page.evaluate(() => (window as unknown as { trashLedeFlashed?: boolean }).trashLedeFlashed), false,
         'During a same-page repaint the note line flashed back to its placeholder');
       const surfaces = await page.evaluate(() => {
@@ -589,8 +589,8 @@ describe('设计决定：作品卡、管理页与复核', () => {
     }
   });
 
-  for (const [label, viewport] of [['390px', MOBILE], ['宽屏', DESKTOP]] as const) {
-    it(`${label} 下教程中心可阅读、关闭与重开，不提交业务写入`, { timeout: 60_000 }, async () => {
+  for (const [label, viewport] of [['390px', MOBILE], ['Widescreen', DESKTOP]] as const) {
+    it(`Under ${label} the tutorial center can be read, dismissed, and reopened without submitting any business writes`, { timeout: 60_000 }, async () => {
       const opened = await visit(browser, '/', viewport, freshTutorial);
       try {
         const page = opened.page;
@@ -606,35 +606,35 @@ describe('设计决定：作品卡、管理页与复核', () => {
           }
         });
         const opener = page.locator('#tutorialBtn');
-        await page.locator('.peach-guide-popover').getByRole('heading', { name: '从这里打开新手教程' }).waitFor();
+        await page.locator('.peach-guide-popover').getByRole('heading', { name: 'Opens the guided tour from here' }).waitFor();
         assert.ok(await opener.evaluate(node => node.classList.contains('driver-active-element')));
         await opener.click();
-        const dialog = page.getByRole('dialog', { name: '新手教程', exact: true });
+        const dialog = page.getByRole('dialog', { name: 'Guided tour', exact: true });
         await dialog.waitFor();
-        for (const name of ['开始使用', '界面导览', '设置导览']) {
+        for (const name of ['Get started', 'Interface tour', 'Settings tour']) {
           await dialog.locator('label').filter({ has: page.getByRole('radio', { name, exact: true }) }).click();
-          assert.equal(await dialog.locator('[data-guide-banner]').count(), 1, `${name} 缺少共用引导区`);
-          assert.equal(await dialog.locator('[data-guide-banner] .peach-guide-topic-icon svg').count(), 1, `${name} 缺少图标`);
+          assert.equal(await dialog.locator('[data-guide-banner]').count(), 1, `${name} is missing the shared leading area`);
+          assert.equal(await dialog.locator('[data-guide-banner] .peach-guide-topic-icon svg').count(), 1, `${name} is missing an icon`);
         }
         const box = await dialog.boundingBox();
         assert.ok(box && box.x >= 0 && box.y >= 0 && box.x + box.width <= viewport.width && box.y + box.height <= viewport.height,
-          '教程中心越出视口');
-        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: '设置导览', exact: true }) }).click();
-        const segments = await dialog.getByRole('radiogroup', { name: '教程路径' }).evaluate(node => {
+          'The tutorial center escapes the viewport');
+        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: 'Settings tour', exact: true }) }).click();
+        const segments = await dialog.getByRole('radiogroup', { name: 'Tour path' }).evaluate(node => {
           const surface = node.querySelector('[data-moving-surface]')!;
           const first = node.querySelector('label')!;
           return { position: getComputedStyle(surface).position, inset: first.getBoundingClientRect().left - node.getBoundingClientRect().left };
         });
-        assert.equal(segments.position, 'absolute', '选中底板不应占据分段器的排列空间');
-        assert.ok(segments.inset <= 8, `首个选项前出现 ${segments.inset}px 空白`);
+        assert.equal(segments.position, 'absolute', 'The selected backing plate takes no layout space inside the segmented control');
+        assert.ok(segments.inset <= 8, `${segments.inset}px of blank space appears before the first option`);
         const scroller = dialog.locator('.peach-guide-body');
-        assert.equal(await scroller.evaluate(node => getComputedStyle(node).scrollbarWidth), 'none', '正文应使用共享覆盖式滚动条');
+        assert.equal(await scroller.evaluate(node => getComputedStyle(node).scrollbarWidth), 'none', 'The body should use the shared overlay scrollbar');
         const headerTop = (await dialog.locator('header').boundingBox())!.y;
         await scroller.evaluate(node => { node.scrollTop = node.scrollHeight });
-        assert.equal((await dialog.locator('header').boundingBox())!.y, headerTop, '标题栏随正文滚走了');
-        await dialog.getByRole('searchbox', { name: '搜索教程' }).fill('不存在的功能xyz');
-        await dialog.getByRole('heading', { name: '没有匹配的教程', exact: true }).waitFor();
-        await dialog.getByRole('button', { name: '关闭新手教程', exact: true }).click();
+        assert.equal((await dialog.locator('header').boundingBox())!.y, headerTop, 'The header scrolled away with the body');
+        await dialog.getByRole('searchbox', { name: 'Search the tours' }).fill('The nonexistent feature xyz');
+        await dialog.getByRole('heading', { name: 'No matching tour', exact: true }).waitFor();
+        await dialog.getByRole('button', { name: 'Close the guided tour', exact: true }).click();
         await dialog.waitFor({ state: 'hidden' });
         await page.waitForFunction(() => document.activeElement === document.getElementById('tutorialBtn'));
         await opener.click();
@@ -644,44 +644,44 @@ describe('设计决定：作品卡、管理页与复核', () => {
         await page.mouse.down();
         await page.mouse.move(2, 2);
         await page.mouse.up();
-        assert.ok(await dialog.isVisible(), '从正文拖到遮罩不应关闭教程');
+        assert.ok(await dialog.isVisible(), 'Dragging from the body onto the overlay must not close the tour');
         await page.mouse.click(2, 2);
         await dialog.waitFor({ state: 'hidden' });
         await page.waitForFunction(() => document.activeElement === document.getElementById('tutorialBtn'));
         await opener.click();
         await dialog.waitFor();
-        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: '界面导览', exact: true }) }).click();
+        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: 'Interface tour', exact: true }) }).click();
         assert.equal(await dialog.locator('[data-guide-topic]').count(), 4);
         await dialog.locator('[data-guide-topic="browse"] > details > summary').click();
         await dialog.getByRole('button', { name: /找到并播放/ }).click();
         await page.locator('.peach-guide-popover').waitFor();
-        assert.equal(await dialog.isVisible(), false, '章节点击后仍停留在中间介绍页');
+        assert.equal(await dialog.isVisible(), false, 'Clicking a chapter still lands on the middle intro page');
         const playbackGuide = page.locator('.peach-guide-popover');
-        for (let step = 0; step < 4; step += 1) await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();
+        for (let step = 0; step < 4; step += 1) await playbackGuide.getByRole('button', { name: 'Next step', exact: true }).click();
         await page.locator('#stage .vjs-control-bar.driver-active-element').waitFor();
         assert.deepEqual(await page.locator('#stage video.vjs-tech').evaluate(video => ({ paused: (video as HTMLVideoElement).paused, src: (video as HTMLVideoElement).currentSrc })), { paused: true, src: '' });
-        await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();
+        await playbackGuide.getByRole('button', { name: 'Next step', exact: true }).click();
         await page.locator('#stage [data-player-subtitles].driver-active-element').waitFor();
         await playbackGuide.locator('#driver-popover-description').click();
-        assert.equal(await page.locator('#stage .vjs-peach-settings-toggle').getAttribute('aria-expanded'), 'true', '点击说明关闭了正在讲解的菜单');
+        assert.equal(await page.locator('#stage .vjs-peach-settings-toggle').getAttribute('aria-expanded'), 'true', 'Clicking the explanation closed the menu being explained');
         await page.waitForFunction(() => {
           const panel = document.querySelector('.peach-guide-popover')?.getBoundingClientRect();
           return document.querySelector('.driver-overlay')?.parentElement?.id === 'stage'
             && panel && panel.left >= 0 && panel.right <= innerWidth && panel.top >= 0 && panel.bottom <= innerHeight;
         });
-        await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();
+        await playbackGuide.getByRole('button', { name: 'Next step', exact: true }).click();
         await page.locator('#stage [data-local-playback-row].driver-active-element').waitFor();
-        await playbackGuide.getByRole('button', { name: '完成本章', exact: true }).click();
+        await playbackGuide.getByRole('button', { name: 'Finish this chapter', exact: true }).click();
         await page.locator('#stage[open]').waitFor({ state: 'hidden' });
-        assert.deepEqual(streams, [], '导览请求了视频正片');
+        assert.deepEqual(streams, [], 'The tour requested the actual video');
         await dialog.waitFor();
-        await dialog.getByRole('button', { name: '开始快速导览', exact: true }).click();
+        await dialog.getByRole('button', { name: 'Start the quick tour', exact: true }).click();
         const guide = page.locator('.peach-guide-popover');
         await guide.waitFor();
         await settle(page, '.peach-guide-popover');
         const guideBox = (await guide.boundingBox())!;
-        assert.ok(guideBox.x >= 8 && guideBox.x + guideBox.width <= viewport.width - 8, '导览说明卡贴住了视口边缘');
-        assert.ok(await guide.evaluate(node => node.contains(document.activeElement)), '导览焦点未停留在说明卡内');
+        assert.ok(guideBox.x >= 8 && guideBox.x + guideBox.width <= viewport.width - 8, 'The tour card is glued to the viewport edge');
+        assert.ok(await guide.evaluate(node => node.contains(document.activeElement)), 'Tour focus did not stay inside the explanation card');
         const resized = viewport.width === 390 ? { width: 1280, height: 800 } : { width: 390, height: 844 };
         await page.setViewportSize(resized);
         await page.waitForFunction(() => {
@@ -694,49 +694,49 @@ describe('设计决定：作品卡、管理页与复核', () => {
         await page.mouse.click(2, viewport.height - 2);
         await guide.waitFor({ state: 'hidden' });
         await dialog.waitFor();
-        await dialog.getByRole('button', { name: '继续快速导览', exact: true }).click();
+        await dialog.getByRole('button', { name: 'Continue the quick tour', exact: true }).click();
         await guide.waitFor();
         await page.keyboard.press('Escape');
         await guide.waitFor({ state: 'hidden' });
         await dialog.waitFor();
-        await dialog.getByRole('button', { name: '继续快速导览', exact: true }).click();
-        await guide.getByRole('button', { name: '跳过本章', exact: true }).click();
+        await dialog.getByRole('button', { name: 'Continue the quick tour', exact: true }).click();
+        await guide.getByRole('button', { name: 'Skip this chapter', exact: true }).click();
         await dialog.waitFor();
-        assert.equal(await guide.isVisible(), false, '跳过本章后仍停在步骤中');
-        assert.equal(await dialog.locator('[data-guide-banner][data-guide-completed]').count(), 0, '跳过误记为完成');
-        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: '设置导览', exact: true }) }).click();
-        await dialog.getByRole('button', { name: '了解常用设置', exact: true }).click();
+        assert.equal(await guide.isVisible(), false, 'After skipping a chapter the tour still sits inside a step');
+        assert.equal(await dialog.locator('[data-guide-banner][data-guide-completed]').count(), 0, 'A skip was misrecorded as complete');
+        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: 'Settings tour', exact: true }) }).click();
+        await dialog.getByRole('button', { name: 'Learn the common settings', exact: true }).click();
         await guide.waitFor();
-        for (let step = 0; step < 4; step += 1) await guide.getByRole('button', { name: '下一步', exact: true }).click();
-        await guide.getByRole('button', { name: '完成本章', exact: true }).click();
+        for (let step = 0; step < 4; step += 1) await guide.getByRole('button', { name: 'Next step', exact: true }).click();
+        await guide.getByRole('button', { name: 'Finish this chapter', exact: true }).click();
         await dialog.waitFor();
         await page.locator('#settingsPanel').waitFor({ state: 'hidden' });
-        assert.equal(new URL(page.url()).pathname, '/', '设置导览完成后未返回开始前的页面');
-        assert.ok(await dialog.getByRole('radio', { name: '设置导览', exact: true }).isChecked());
-        await dialog.getByRole('searchbox', { name: '搜索教程' }).fill('媒体库');
+        assert.equal(new URL(page.url()).pathname, '/', 'After the settings tour ends it does not return to the page you started on');
+        assert.ok(await dialog.getByRole('radio', { name: 'Settings tour', exact: true }).isChecked());
+        await dialog.getByRole('searchbox', { name: 'Search the tours' }).fill('Media library');
         await dialog.getByRole('button', { name: /媒体库与入库 媒体库/ }).click();
         await guide.waitFor();
-        for (let step = 0; step < 8; step += 1) await guide.getByRole('button', { name: '下一步', exact: true }).click();
-        await guide.getByRole('button', { name: '完成本章', exact: true }).click();
+        for (let step = 0; step < 8; step += 1) await guide.getByRole('button', { name: 'Next step', exact: true }).click();
+        await guide.getByRole('button', { name: 'Finish this chapter', exact: true }).click();
         await dialog.waitFor();
-        assert.equal(new URL(page.url()).pathname, '/', '页面导览完成后未返回开始前的页面');
-        assert.ok(await dialog.getByRole('searchbox', { name: '搜索教程' }).isVisible());
-        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: '界面导览', exact: true }) }).click();
-        await dialog.getByRole('button', { name: '继续快速导览', exact: true }).click();
-        for (let step = 0; step < 3; step += 1) await guide.getByRole('button', { name: '下一步', exact: true }).click();
-        await guide.getByRole('button', { name: '完成本章', exact: true }).click();
+        assert.equal(new URL(page.url()).pathname, '/', 'After the page tour ends it does not return to the page you started on');
+        assert.ok(await dialog.getByRole('searchbox', { name: 'Search the tours' }).isVisible());
+        await dialog.locator('label').filter({ has: page.getByRole('radio', { name: 'Interface tour', exact: true }) }).click();
+        await dialog.getByRole('button', { name: 'Continue the quick tour', exact: true }).click();
+        for (let step = 0; step < 3; step += 1) await guide.getByRole('button', { name: 'Next step', exact: true }).click();
+        await guide.getByRole('button', { name: 'Finish this chapter', exact: true }).click();
         await dialog.waitFor();
         await opener.waitFor({ state: 'hidden' });
-        assert.ok(await dialog.getByRole('button', { name: '再看一遍', exact: true }).isVisible());
+        assert.ok(await dialog.getByRole('button', { name: 'Watch again', exact: true }).isVisible());
         assert.equal(await dialog.locator('[data-guide-banner][data-guide-completed]').count(), 1);
         await page.reload();
         await page.locator('#grid').waitFor();
-        assert.equal(await opener.isVisible(), false, '完成快速导览后刷新又显示了教程按钮');
+        assert.equal(await opener.isVisible(), false, 'After finishing the quick tour, a refresh shows the tour button again');
         await page.goto(new URL('/settings/maintenance', page.url()).href);
-        await page.getByRole('region', { name: '新手教程', exact: true }).getByRole('button', { name: '重新打开', exact: true }).click();
+        await page.getByRole('region', { name: 'Guided tour', exact: true }).getByRole('button', { name: 'Reopen', exact: true }).click();
         await dialog.waitFor();
-        assert.equal(await opener.evaluate(node => (node as HTMLElement).hidden), false, '设置重新打开后没有恢复右上角入口');
-        assert.deepEqual(writes, [], '只读教程触发了业务写入');
+        assert.equal(await opener.evaluate(node => (node as HTMLElement).hidden), false, 'Reopening settings did not restore the top-bar entry');
+        assert.deepEqual(writes, [], 'A read-only tour triggered a business write');
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close() }
     });
@@ -1024,10 +1024,10 @@ describe('设计决定：作品卡、管理页与复核', () => {
   it('In the dark theme dividers are no weaker than light on either card face', { timeout: 60_000 }, async () => {
     const opened = await openReview(browser);
     try {
-      /* 量的是 token 对而不是某一条线：`separator-border` 画在哪种面上由各处自己决定，
-         复核卡页头与候选块之间那条线落在 `primary`，脚注带那条落在 `secondary`。逐条去点名，
-         新加一处就得记得再补一条用例，而漏补和「这处本来就没线」在屏幕上看不出区别。
-         末尾再核一次复核卡里的分隔线确实取的就是这个 token，免得两档都合格却根本没落到现场。 */
+      /* What's measured is a token pair, not a particular line: where `separator-border` draws on which surface is decided by each spot itself;
+         the line between the review card's header and the candidate block lands on `primary`, and the footnote strip's line lands on `secondary`. Calling out each one by name
+         means adding a new spot requires remembering to add a test case too, and a missing one looks identical on screen to "this spot never had a line".
+         Finally, re-check that the divider inside the review card really resolves to this token, so both tiers passing doesn't hide the fact that it never reached the real place. */
       const read = () => opened.page.locator('section[data-review-key]').first()
         .evaluate((node) => {
           const context = document.createElement('canvas').getContext('2d')!;
@@ -1059,7 +1059,7 @@ describe('设计决定：作品卡、管理页与复核', () => {
         assert.ok(dark >= light,
           `In dark mode the divider over ${label} differs by only ${dark.toFixed(1)} lightness, versus ${light.toFixed(1)} in light mode`);
       }
-      assert.deepEqual(after.edge, after.line, '复核卡里的分隔线没走 separator-border');
+      assert.deepEqual(after.edge, after.line, 'The review card\'s divider is not using separator-border');
       assert.deepEqual(opened.problems, []);
     } finally {
       await opened.close();

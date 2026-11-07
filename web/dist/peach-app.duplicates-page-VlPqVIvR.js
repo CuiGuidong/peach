@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ef243709-cc8b-4085-8c06-fdd6a1d28f3a", e._sentryDebugIdIdentifier = "sentry-dbid-ef243709-cc8b-4085-8c06-fdd6a1d28f3a");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "acf824e5-d381-4a8c-9dc1-0313bd1b8cc2", e._sentryDebugIdIdentifier = "sentry-dbid-acf824e5-d381-4a8c-9dc1-0313bd1b8cc2");
 	} catch {}
 })();
 import { Button as e, CollectionSummary as t, DUPLICATES_KEY as n, EmptyState as r, FilterGlass as i, GlassPill as a, KEEP_LABELS as o, LOC as s, MEDIA_SOURCES_KEY as c, MEDIA_SOURCE_ICONS as l, Note as u, SourceLabel as d, SourceMark as f, TRASH_KEY as p, __toESM as m, batchOperate as h, bulkCloudPreferences as g, busyProps as _, cardClass as v, cloudLocations as y, confirmModal as b, distinctName as x, duplicateVictims as S, errorMessage as C, fetchDuplicates as w, fetchMediaSources as T, fmtDur as E, fmtSize as D, keepGroup as O, mixedCloudPreferences as k, queryClient as A, require_jsx_runtime as j, require_react as M, sharedNamePrefix as N, spriteGlyph as P, useMutation as F, useQuery as I, victimBytes as L } from "./peach-app.js";
@@ -117,17 +117,17 @@ function Y({ openItem: l, toast: f, failure: p }) {
 	}), j = F({
 		mutationFn: (e) => O(e.files.map((e) => e.id), !0),
 		onSuccess: (e, t) => {
-			K(), f(`${t.code} 这组都保留，不再列出`, { undo: async () => {
+			K(), f(`${t.code} marked keep-both as a group; no longer listed`, { undo: async () => {
 				try {
 					await O(t.files.map((e) => e.id), !1);
 				} catch (e) {
-					p("撤销都保留", e);
+					p("UndoKeep-both", e);
 				} finally {
 					K();
 				}
 			} });
 		},
-		onError: (e) => p("标记都保留", e),
+		onError: (e) => p("Mark keep-both", e),
 		onSettled: () => E("")
 	}), M = m.data;
 	if (!M) return /* @__PURE__ */ (0, z.jsx)("div", {
@@ -266,7 +266,7 @@ function Y({ openItem: l, toast: f, failure: p }) {
 										size: "small",
 										...G(a("keep")),
 										onClick: () => Y(t, a("keep")),
-										children: "都保留"
+										children: "Keep-both"
 									}),
 									/* @__PURE__ */ (0, z.jsx)(e, {
 										variant: "danger",
@@ -299,11 +299,11 @@ function Y({ openItem: l, toast: f, failure: p }) {
 			}) : null,
 			M.kept ? /* @__PURE__ */ (0, z.jsx)("p", {
 				className: "mt-2 text-center text-caption-1-regular text-text-secondary",
-				children: `另有 ${M.kept.toLocaleString()} 组标记了都保留，不再列出；组里文件有增减时会重新列出。`
+				children: `${M.kept.toLocaleString()} more groups are marked keep-both and stay unlisted; they reappear when the files in a group change.`
 			}) : null
 		]
 	});
 }
 export { Y as DuplicatesPage };
 
-//# debugId=ef243709-cc8b-4085-8c06-fdd6a1d28f3a
+//# debugId=acf824e5-d381-4a8c-9dc1-0313bd1b8cc2

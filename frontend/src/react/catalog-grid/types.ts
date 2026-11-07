@@ -47,7 +47,7 @@ export interface MediaItem {
   creator_entity?: MediaEntityRef | null;
   studio?: string;
   why?: string;
-  /** 接着看：与当前作品共有的标签，稀有的在前（`/api/related`）。 */
+  /** Keep watching: tags shared with the current work, rarer ones first (`/api/related`). */
   why_tags?: string[];
   feedback?: string;
   disposal?: string;
@@ -124,7 +124,7 @@ export interface CatalogGridProps {
   mode: 'catalog' | 'entity' | 'items';
   /** Standalone fullscreen playback wall. */
   wall?: boolean;
-  /** 历史返回时复用同一集合已经加载的分页。 */
+  /** On a history back, reuse the pagination the same collection already loaded. */
   restoreNavigation?: boolean;
   helpers: MediaCardHelpers;
   actions: MediaCardActions;

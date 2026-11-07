@@ -199,14 +199,14 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
       problems.push(`failed ${request.url().slice(origin.length)} ${reason}`);
     }
   });
-  /* 桩回调里的 `route.fetch`、`route.continue` 可能在关上下文时还没返回，之后会以
-   * 「Request context disposed」失败；没人等它，就成了整个文件的 unhandledRejection。
-   * `ignoreErrors` 先撤掉全部桩，让还在路上的那几趟失败时静默返回。 */
+  /* `route.fetch` and `route.continue` in stub callbacks may not have returned by the time the context is closed; afterwards they fail with
+   * "Request context disposed"; nobody is awaiting them, so it becomes a whole-file unhandledRejection.
+   * `ignoreErrors` first removes all the stubs, so the few in-flight ones silently return when they fail. */
   const close = async () => {
     if (!page.isClosed()) await page.unrouteAll({ behavior: 'ignoreErrors' });
     await context.close();
   };
-  // 只打开到 load：等哪块主体、何时 settle 由用例决定，见 `settle` 的说明。
+  // Opens only up to load: which body to wait for and when to settle is up to the test case, see the `settle` docs.
   try {
     await prepare?.(page);
     await page.goto(origin + path, { waitUntil: 'load' });
@@ -217,8 +217,8 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   return { page, problems, close };
 }
 
-/** 时间轴预览的桩：`/api/timeline` 回固定间隔的自有接触印相，`/timeline` 回合成的 10×10 拼图，
- *  每格写「页-格」序号，截图里看得出取的是哪一格。返回每页被请求的次数。 */
+/** Stubs for the timeline preview: `/api/timeline` returns self-captured contact sheets at a fixed interval, and `/timeline` returns a composited 10×10 grid,
+ * each cell labeled with its "page-cell" index, so a screenshot shows which cell was fetched. Returns the number of requests per page. */
 export async function stubTimelineSheets(page: Page, { frames, interval }: { frames: number; interval: number }) {
   const requested = new Map<number, number>();
   await page.route((url) => url.pathname === '/api/timeline', (route) => route.fulfill({
