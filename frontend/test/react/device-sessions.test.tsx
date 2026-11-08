@@ -154,5 +154,5 @@ it('Last active is shown in minutes, hours, or days; over a month shows a date',
   expect(lastSeen(now - 61, now)).toBe('1 minute ago');
   expect(lastSeen(now - 7200, now)).toBe('2 hours ago');
   expect(lastSeen(now - 86400 * 29, now)).toBe('29 days ago');
-  expect(lastSeen(now - 86400 * 40, now)).toMatch(/\d{4}\/\d{1,2}\/\d{1,2}/);
+  expect(lastSeen(now - 86400 * 40, now)).toMatch(/\d{4}-\d{2}-\d{2}/);
 });

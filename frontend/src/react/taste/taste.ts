@@ -212,8 +212,14 @@ export async function importTasteExport(file: File): Promise<{ dashboard: TasteD
 /** Polls every ten seconds while the read is idle; this run may have started from another page or the previous session. */
 export const IDLE_POLL_MS = 10_000;
 
+/** A local calendar day as `YYYY-MM-DD`; the database stores UTC, the page reads the viewer's clock. */
+const localDay = (moment: Date): string => {
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${moment.getFullYear()}-${pad(moment.getMonth() + 1)}-${pad(moment.getDate())}`;
+};
+
 export const tasteDate = (value: string | null | undefined): string =>
-  (value ? new Date(value).toLocaleDateString('zh-CN') : '—');
+  (value ? localDay(new Date(value)) : '—');
 
 /** The footnote on the viewing history stat card: the data sources, plus the date range the records cover; when neither end has a date, no range is shown. */
 export function historySpan(summary: TasteSummary): string {
@@ -221,7 +227,7 @@ export function historySpan(summary: TasteSummary): string {
   if (!summary.range_start && !summary.range_end) return sources;
   const sameYear = summary.range_start?.slice(0, 4) === summary.range_end?.slice(0, 4);
   const date = (value: string | null | undefined) => value && sameYear
-    ? new Date(value).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }) : tasteDate(value);
+    ? localDay(new Date(value)).slice(5).replace('-', '/') : tasteDate(value);
   return `${sources} · ${date(summary.range_start)}–${date(summary.range_end)}`;
 }
 

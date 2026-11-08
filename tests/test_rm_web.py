@@ -576,7 +576,7 @@ class WebDataTests(unittest.TestCase):
     def test_stats_band_videos_by_length_and_quality_in_probe_order(self):
         stats = rm_web.q_stats(self.contract)
         self.assertEqual(stats["by_length"], [
-            {"k": "Quickie", "n": 2}, {"k": "Short", "n": 0}, {"k": "Medium", "n": 0}, {"k": "Long", "n": 0}])
+            {"k": "Quick picks", "n": 2}, {"k": "short", "n": 0}, {"k": "medium", "n": 0}, {"k": "long", "n": 0}])
         self.assertEqual(stats["by_quality"], [
             {"k": "4K", "n": 0}, {"k": "2K", "n": 1}, {"k": "1080P", "n": 1},
             {"k": "720P", "n": 0}, {"k": "Low quality", "n": 0}])

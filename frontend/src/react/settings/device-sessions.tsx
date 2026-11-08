@@ -103,7 +103,9 @@ export function lastSeen(seconds: number, now = Date.now() / 1000): string {
   if (elapsed < 3600) return plural(Math.floor(elapsed / 60), 'minute');
   if (elapsed < 86400) return plural(Math.floor(elapsed / 3600), 'hour');
   if (elapsed < 86400 * 30) return plural(Math.floor(elapsed / 86400), 'day');
-  return new Date(seconds * 1000).toLocaleDateString('zh-CN');
+  const moment = new Date(seconds * 1000);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${moment.getFullYear()}-${pad(moment.getMonth() + 1)}-${pad(moment.getDate())}`;
 }
 
 function origin(row: DeviceSession): string {
