@@ -39,11 +39,12 @@ PUBLISH = re.compile(r"\bgh\s+(?:(?:pr|issue)\s+(?:create|edit|comment)\b|releas
 BODY_FILE = re.compile(r"""(?:--body-file|--notes-file|-F)[=\s]+(?:body=@)?(?P<path>"[^"]+"|'[^']+'|[^\s"';|&]+)""")
 #: 反引号里的命令、标识照写，不算内部用语。
 CODE_SPAN = re.compile(r"```.*?```|`[^`\n]*`", re.S)
-#: 外部读者看不懂的内部用语，按类给出；改法见 `INSIDER_HINT`。
+#: 外部读者看不懂的内部用语，按类给出；改法见 `INSIDER_HINT`。钩子查的是整条命令（heredoc
+#: 正文也在里面），所以不收脚本名：同一条命令里接着跑的 `agent_worktree.py integrate` 不是要发的文字。
 INSIDER = {
     "反馈条目编号": re.compile(r"(?<![A-Za-z0-9_/#.\-])(?:N\d{2,3}|R[0-2]\s*[–-]\s*R[0-2])(?![A-Za-z0-9])"),
     "批次与轮次": re.compile(r"批次\s*[0-9]|第\s*[一二三四五六七八九十0-9]+\s*[批轮]|合批|首轮"),
-    "本机交付流程": re.compile(r"工作树|集成分支|主检出|派单|协调会话|已签发|按域|agent_worktree"
+    "本机交付流程": re.compile(r"工作树|集成分支|主检出|派单|协调会话|已签发|按域"
                          r"|\b(?:ready|integrate|preflight)\s*[:：(（]"),
     "自造用语": re.compile(r"门槛|本机提交者|账本副本|真相字段|升级后存量"),
 }
