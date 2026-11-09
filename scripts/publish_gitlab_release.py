@@ -93,8 +93,7 @@ def r2_release_notes(body: str, version: str, base: str, project_url: str) -> st
     text = body.split('\n## 下载选择\n', 1)[0].rstrip() + '\n'
     text = text.replace('https://github.com/peach-mitao/peach/blob/master/',
                         f'{project_url.rstrip("/")}/-/blob/v{version}/')
-    return text + download_notes(version, lite_installer=True, download_base=f'{base.rstrip("/")}/v{version}',
-                                 macos=True)
+    return text + download_notes(version, lite_installer=True, download_base=f'{base.rstrip("/")}/v{version}')
 
 
 def publish(root: Path = Path('release')) -> None:
