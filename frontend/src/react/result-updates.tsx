@@ -8,6 +8,7 @@ import {
 } from './activity/tasks';
 import { queryClient } from './query';
 import { showToast } from './toaster';
+import { t } from '../i18n';
 
 const CATALOG = ['catalog-grid', 'catalog-folders', 'item', 'item-related', 'item-queue',
   'entity', 'entity-items', 'entity-photos', 'entity-route', 'index', 'stats',
@@ -56,8 +57,8 @@ const escape = (value: string) => value.replace(/[&<>"']/g, (char) => `&#${char.
 const NOTICE_BURST = 3;
 
 const noticeText = (item: IngestNotice) => {
-  const name = escape(item.label || '一部作品');
-  return item.kind === 'download' ? `「${name}」已入库并整理完成` : `新文件已入库：「${name}」`;
+  const name = escape(item.label || t('shell:ingestToast.fallbackName'));
+  return item.kind === 'download' ? t('shell:ingestToast.downloadDone', { name }) : t('shell:ingestToast.newFile', { name });
 };
 
 /** 新到的入库通知弹成 toast，点「打开」进这部作品。首轮与服务重启后（`epoch` 变了）只记基线，不补弹。 */
@@ -68,11 +69,11 @@ export function announceIngests(seen: { epoch: string; last: number } | null,
   if (!seen || seen.epoch !== notices.epoch) return { epoch: notices.epoch, last };
   const fresh = notices.items.filter((item) => item.id > seen.last);
   if (fresh.length > NOTICE_BURST) {
-    showToast(`ingest-${notices.epoch}-${last}`, { html: `${fresh.length} 部作品已入库`, alert: false, timeout: 8000, action: null });
+    showToast(`ingest-${notices.epoch}-${last}`, { html: t('shell:ingestToast.burst', { count: fresh.length }), alert: false, timeout: 8000, action: null });
   } else {
     for (const item of fresh) {
       showToast(`ingest-${notices.epoch}-${item.id}`, { html: noticeText(item), alert: false, timeout: 8000,
-        action: { label: '打开', run: () => openItem(item.asset_id) } });
+        action: { label: t('shell:shared.open'), run: () => openItem(item.asset_id) } });
     }
   }
   return { epoch: notices.epoch, last: Math.max(seen.last, last) };

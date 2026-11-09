@@ -219,7 +219,7 @@ it('已结束的部分结果提供浏览与定向重试，中断保持错误提�
   const banner = await mount(notice({ toast: vi.fn(), mode: 'notice' }));
   for (const surface of [host, banner]) {
     expect(surface.textContent).toContain('处理已结束，部分项目需处理');
-    expect(surface.textContent).toContain('已入库的视频可在全部内容中浏览');
+    expect(surface.textContent).toContain('已入库的视频已可浏览');
     expect(surface.querySelector('a[href="/?loc=&thumb=0"]')?.textContent).toBe('查看全部内容');
     expect(surface.querySelector('[role="alert"]')).toBeNull();
   }
@@ -564,7 +564,7 @@ it('暂停与继续使用同一个任务号，暂停不是完成，暂停时仍�
   expect(bar[0]).toBe('任务详情');
   expect(bar.indexOf('暂停')).toBeGreaterThan(0);
   await click(buttonNamed('暂停', host));
-  expect(host.textContent).toContain('正在暂停，当前步骤结束后暂停');
+  expect(host.textContent).toContain('当前步骤结束后暂停');
   state = { ...state, status: 'paused' };
   await tick(2000);
   expect(buttonNamed('继续', host)).not.toBeNull();

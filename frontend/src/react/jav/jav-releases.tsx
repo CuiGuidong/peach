@@ -36,6 +36,7 @@ import { ReleaseTable } from './jav-release-table';
 import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
 import { useCatalogView } from '../catalog-grid/catalog-view';
 import { useVisibleJavWorks } from './jav-selection';
+import { t } from '../../i18n';
 
 type Facet = 'performer' | 'studio' | 'tag';
 /** 等数据时两排头像的占位，与路由骨架（`releasesFilterSkeleton`）同一份。 */
@@ -49,7 +50,7 @@ const performerRing = (person: ReleaseFacetPerformer) =>
 /** 按口味排时卡上那枚推荐档，与「发现」同一套分档。 */
 function TasteChip({ value }: { value?: number | null }) {
   const recommendation = recommendationScore(value);
-  return <span data-jav-taste-score="" title={`口味 ${recommendation.score}`}><Chip color={recommendation.color}>{recommendation.label}</Chip></span>;
+  return <span data-jav-taste-score="" title={t('catalog:javScore.taste', { score: recommendation.score })}><Chip color={recommendation.color}>{recommendation.label}</Chip></span>;
 }
 
 function StudioMark({ studio }: { studio: ReleaseFacetStudio }) {
@@ -162,7 +163,7 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
   }, [unread, scope]); // eslint-disable-line react-hooks/exhaustive-deps
   const action = useAction();
   const want = (item: Discovery) => { void action.run(String(item.id), signal => addWant({ code: item.code }, signal), () => {
-    receipt('已加入想要'); void invalidateWants(); void releases.refetch();
+    receipt(t('catalog:javWant.added')); void invalidateWants(); void releases.refetch();
   }) };
   const data = releases.data;
   useVisibleJavWorks(data?.items || []);
@@ -174,25 +175,25 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
     setFilters(current => ({ ...current, page: pages }));
     writeJavQuery({ page: pages > 1 ? String(pages) : '' });
   }, [data, releases.isPlaceholderData, filters.page, pages]);
-  return <section ref={section} aria-label="订阅新作" aria-busy={waiting || releases.isFetching} className="flex min-w-0 scroll-mt-24 flex-col gap-4">
+  return <section ref={section} aria-label={t('catalog:entityHero.subscribeNewReleases')} aria-busy={waiting || releases.isFetching} className="flex min-w-0 scroll-mt-24 flex-col gap-4">
     {waiting ? <div data-catalog-tiers="" aria-busy="true" dangerouslySetInnerHTML={{ __html: TIER_PLACEHOLDERS }} /> : null}
     {data && (data.facets.performers.length || data.facets.studios.length) ? <div data-catalog-tiers="" data-release-tiers="">
-      {data.facets.performers.length ? <div data-catalog-tier="performers" role="group" aria-label="按女优筛选">
+      {data.facets.performers.length ? <div data-catalog-tier="performers" role="group" aria-label={t('catalog:javReleases.filterByActress')}>
         {data.facets.performers.map(person => <button key={person.name} type="button" data-tier-performer=""
-          aria-pressed={filters.performer === person.name} title={`${entityDisplayName('performer', person.name, person.id)} · ${person.count} 部`}
+          aria-pressed={filters.performer === person.name} title={t('catalog:javReleases.facetCount', { name: entityDisplayName('performer', person.name, person.id), count: person.count })}
           onClick={() => choose('performer', person.name)}>
           <span data-tier-ring="" dangerouslySetInnerHTML={{ __html: performerRing(person) }} />
           <span data-tier-name="">{entityDisplayName('performer', person.name, person.id)}</span>
         </button>)}
       </div> : null}
-      {data.facets.studios.length ? <div data-catalog-tier="studios" role="group" aria-label="按厂牌筛选">
+      {data.facets.studios.length ? <div data-catalog-tier="studios" role="group" aria-label={t('catalog:javReleases.filterByLabel')}>
         {data.facets.studios.map(studio => <button key={studio.name} type="button" data-tier-studio=""
-          aria-pressed={filters.studio === studio.name} title={`${studio.name} · ${studio.count} 部`} onClick={() => choose('studio', studio.name)}>
+          aria-pressed={filters.studio === studio.name} title={t('catalog:javReleases.facetCount', { name: studio.name, count: studio.count })} onClick={() => choose('studio', studio.name)}>
           <StudioMark studio={studio} />{studio.name}<span data-count-badge="">{studio.count}</span>
         </button>)}
       </div> : null}
     </div> : null}
-    <FilterGlassRows label="新作筛选" topLabel="新作标签" attrs={{ 'data-filter-frame': '', 'data-jav-filter': '', 'data-catalog-frame': '' }}
+    <FilterGlassRows label={t('catalog:javReleases.filtersLabel')} topLabel={t('catalog:javReleases.tagsLabel')} attrs={{ 'data-filter-frame': '', 'data-jav-filter': '', 'data-catalog-frame': '' }}
       busy={waiting} topClassName="gap-1.5 overflow-visible" bottomClassName="min-h-12" top={<div data-catalog-scroll="">
         <div data-catalog-tags="" dangerouslySetInnerHTML={waiting ? { __html: javTagSkeleton() } : undefined}>
           {waiting ? null : data?.facets.tags.map(row => <FilterPill key={row.name} data-catalog-tag={row.name} data-entity-press=""
@@ -201,30 +202,30 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
           </FilterPill>)}
         </div></div>} bottom={<>
         <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" />
-          : filtered ? `${data?.total || 0} / ${data?.candidate_total || 0} 部` : `${data?.total || 0} 部`}</span>
-        {filtered ? <GlassPill onPress={clear}>清除筛选</GlassPill> : null}
+          : filtered ? t('catalog:javReleases.matchedCount', { matched: data?.total || 0, count: data?.candidate_total || 0 }) : t('catalog:countLabel.works', { count: data?.total || 0 })}</span>
+        {filtered ? <GlassPill onPress={clear}>{t('catalog:shared.clearFilters')}</GlassPill> : null}
         <span data-entity-sorts="">
           <Shuffle onPress={reshuffle} busy={filters.sort === 'random' && releases.isFetching} />
-          {view === 'cards' ? <Segments label="JAV 卡片版式" value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} /> : null}
+          {view === 'cards' ? <Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} /> : null}
           <CatalogViewToggle />
           <SortKeys sorts={RELEASE_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel, pressed: key === filters.sort, dir: filters.dir }))}
             onSort={key => sortBy(key as ReleaseSort)} />
         </span>
       </>} />
-    {waiting && view === 'cards' ? <div role="status" aria-label="正在读取新作" dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
-    {releases.error ? <Note tone="error" title="新作未取得">{errorMessage(releases.error)}</Note> : null}
+    {waiting && view === 'cards' ? <div role="status" aria-label={t('catalog:javReleases.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
+    {releases.error ? <Note tone="error" title={t('catalog:javReleases.failed')}>{errorMessage(releases.error)}</Note> : null}
     {reading && metadata ? <div data-jav-metadata="" className="min-w-0"><TaskProgress
-      label={`正在读取作品资料 · ${metadata.completed} / ${metadata.total} 部`} value={metadata.completed} total={metadata.total} /></div> : null}
-    {readOnly ? null : <CoverQueue scope="本页" fetchOne={fetchReleaseCover}
+      label={t('catalog:javMetadata.loadingProgress', { completed: metadata.completed, count: metadata.total })} value={metadata.completed} total={metadata.total} /></div> : null}
+    {readOnly ? null : <CoverQueue scope={t('catalog:javReleases.coverQueueScope')} fetchOne={fetchReleaseCover}
       codes={(data?.items || []).filter(item => item.cover_state === 'queued' && !item.cover_url).map(item => item.code)}
       settled={(got, total) => {
-        receipt(got === total ? `已取到 ${total} 部封面` : `已取到 ${got} / ${total} 部封面，没取到的在卡上写了原因`);
+        receipt(got === total ? t('catalog:javReleases.coversFetched', { count: total }) : t('catalog:javReleases.coversPartial', { got, count: total }));
         void releases.refetch();
       }} />}
-    {!waiting && !releases.error && !data?.items.length ? <EmptyState icon={RiRssLine} title={filtered ? '没有符合条件的新作' : '暂无未入库的新作'}
-      actions={filtered ? <Button size="small" onClick={clear}>清除筛选</Button>
-        : <ButtonLink size="small" href="/subscriptions?tab=add">添加订阅</ButtonLink>}>
-      {filtered ? '清除筛选后查看全部新作。' : '订阅女优或厂牌后，还没入库的新作会出现在这里。'}
+    {!waiting && !releases.error && !data?.items.length ? <EmptyState icon={RiRssLine} title={filtered ? t('catalog:javReleases.noMatches') : t('catalog:javReleases.emptyTitle')}
+      actions={filtered ? <Button size="small" onClick={clear}>{t('catalog:shared.clearFilters')}</Button>
+        : <ButtonLink size="small" href="/subscriptions?tab=add">{t('catalog:javReleases.addSubscription')}</ButtonLink>}>
+      {filtered ? t('catalog:javReleases.clearFiltersHint') : t('catalog:javReleases.emptyHint')}
     </EmptyState> : null}
     {action.error ? <Note tone="error">{action.error}</Note> : null}
     {view === 'list' ? waiting || data?.items.length ? <ReleaseTable items={data?.items || []} waiting={waiting} filters={filters}
@@ -237,8 +238,8 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
         wanting={action.busy === String(item.id)} onWant={() => want(item)}
         onResource={() => resource(resourcePrefill(item))} badge={filters.sort === 'taste' ? <TasteChip value={item.taste_score} /> : undefined} />)}
     </div>}
-    {data ? <DataTableFooter label="新作" total={data.total}
+    {data ? <DataTableFooter label={t('catalog:javTabs.newReleases')} total={data.total}
       pagination={{ pageIndex: filters.page - 1, pageSize: filters.size }} onChange={changePage}
-      unit="部作品" pageUnit="部" pageSizes={RELEASE_PAGE_SIZES} /> : null}
+      unit={t('catalog:catalogList.footerUnit')} pageUnit={t('catalog:catalogList.footerPageUnit')} pageSizes={RELEASE_PAGE_SIZES} /> : null}
   </section>;
 }

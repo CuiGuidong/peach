@@ -6,20 +6,30 @@
 import i18next from 'i18next';
 
 import { SETTINGS_KEY } from '../settings-key';
+import enCatalog from '../locales/en/catalog.json';
 import enCleanup from '../locales/en/cleanup.json';
+import enFollow from '../locales/en/follow.json';
+import enManage from '../locales/en/manage.json';
 import enNavigation from '../locales/en/navigation.json';
+import enOnboarding from '../locales/en/onboarding.json';
 import enSettings from '../locales/en/settings.json';
+import enShell from '../locales/en/shell.json';
+import zhCatalog from '../locales/zh-CN/catalog.json';
 import zhCleanup from '../locales/zh-CN/cleanup.json';
+import zhFollow from '../locales/zh-CN/follow.json';
+import zhManage from '../locales/zh-CN/manage.json';
 import zhNavigation from '../locales/zh-CN/navigation.json';
+import zhOnboarding from '../locales/zh-CN/onboarding.json';
 import zhSettings from '../locales/zh-CN/settings.json';
+import zhShell from '../locales/zh-CN/shell.json';
 
 export const INTERFACE_LANGUAGES = ['zh-CN', 'en'] as const;
 export type InterfaceLanguage = typeof INTERFACE_LANGUAGES[number];
 export const SOURCE_LANGUAGE: InterfaceLanguage = 'zh-CN';
 
 export const resources = {
-  'zh-CN': { navigation: zhNavigation, settings: zhSettings, cleanup: zhCleanup },
-  en: { navigation: enNavigation, settings: enSettings, cleanup: enCleanup },
+  'zh-CN': { navigation: zhNavigation, shell: zhShell, settings: zhSettings, cleanup: zhCleanup, manage: zhManage, follow: zhFollow, catalog: zhCatalog, onboarding: zhOnboarding },
+  en: { navigation: enNavigation, shell: enShell, settings: enSettings, cleanup: enCleanup, manage: enManage, follow: enFollow, catalog: enCatalog, onboarding: enOnboarding },
 } as const;
 
 /** 设置里能选的值：`auto` 按浏览器与系统语言自动选，其余是固定的界面语言。 */
@@ -84,3 +94,18 @@ if (typeof document !== 'undefined') document.documentElement.lang = interfaceLa
 
 /** 取当前界面语言的译文，键写成 `命名空间:路径`。 */
 export const t = translator.t.bind(translator);
+
+/** 外壳页面 `web/index.html` 里写死的源文：元素用 `data-i18n`（文字）和 `data-i18n-title`、`data-i18n-aria-label`、
+ *  `data-i18n-placeholder`（属性）标出键，这里按界面语言换上。源语言不用换。 */
+export function localizeDocument(root: ParentNode): void {
+  root.querySelectorAll<HTMLElement>('[data-i18n]').forEach((node) => { node.textContent = t(node.dataset.i18n!); });
+  for (const [attribute, data] of [['title', 'i18nTitle'], ['aria-label', 'i18nAriaLabel'], ['placeholder', 'i18nPlaceholder']] as const) {
+    root.querySelectorAll<HTMLElement>(`[data-i18n-${attribute}]`).forEach((node) => node.setAttribute(attribute, t(node.dataset[data]!)));
+  }
+}
+if (typeof document !== 'undefined' && interfaceLanguage !== SOURCE_LANGUAGE) localizeDocument(document);
+
+/** 把几项连成一句里的列表：中文用顿号，英文用逗号。 */
+export const joinList = (items: readonly string[]): string => items.join(t('shell:format.listSeparator'));
+/** 句中引用一个名字：中文用直角引号，英文用弯引号。 */
+export const quoted = (text: string): string => t('shell:format.quoted', { text });

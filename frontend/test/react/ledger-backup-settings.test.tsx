@@ -69,7 +69,7 @@ it('恢复先确认，确认框写明替换当前账本并先另存；取消不�
   expect(seen[0]!.danger).toBe(true);
   expect(seen[0]!.confirmLabel).toBe('替换当前账本');
   expect(String(seen[0]!.body)).toContain('自动 · 迁移前 · 118 MB');
-  expect(String(seen[0]!.body)).toContain('替换前先把当前账本另存为一份备份');
+  expect(String(seen[0]!.body)).toContain('替换前会先备份当前账本');
   expect(sent).toEqual([]);
 });
 

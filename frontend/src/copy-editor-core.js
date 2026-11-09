@@ -1,4 +1,5 @@
 /* Peach 原位改字核心。以 classic script 同步注册，保存由各端适配器提供。 */
+import { t } from './i18n';
 (() => {
   const SKIP = '[data-copy-editor],script,style,textarea,input,select,svg,[contenteditable]';
   const INTERACT = '[role="tab"],[role="switch"],[role="radio"],[role="radiogroup"],[role="slider"],[role="checkbox"],[role="combobox"],[data-platform-option],[aria-expanded],[aria-pressed],[aria-haspopup],summary,input,select,label,[data-copy-interact]';
@@ -35,15 +36,15 @@
     let result;
     try { result = JSON.parse(raw); }
     catch {
-      const error = new Error(`未取得保存结果（HTTP ${response.status}），请刷新页面核对；服务未返回 JSON`);
+      const error = new Error(t('shell:copyEditor.saveUnconfirmedNoJson', { status: response.status }));
       error.unconfirmed = response.ok;
       throw error;
     }
     if (!response.ok || result?.ok === false) {
-      throw new Error(result?.error || (typeof result?.detail === 'string' ? result.detail : `请求失败（HTTP ${response.status}）`));
+      throw new Error(result?.error || (typeof result?.detail === 'string' ? result.detail : t('shell:copyEditor.requestFailed', { status: response.status })));
     }
     if (result === null || typeof result !== 'object') {
-      const error = new Error(`未取得保存结果（HTTP ${response.status}），请刷新页面核对`);
+      const error = new Error(t('shell:copyEditor.saveUnconfirmed', { status: response.status }));
       error.unconfirmed = true;
       throw error;
     }
@@ -122,7 +123,7 @@
       event.preventDefault(); const rect = bar.getBoundingClientRect(), step = event.shiftKey ? 40 : 10;
       move(rect.left + direction[0] * step, rect.top + direction[1] * step);
     };
-    handle.title = '拖动工具栏空白处移动，方向键微调，双击空白处或 Esc 复位';
+    handle.title = t('shell:copyEditor.dragHint');
     handle.dataset.copyDrag = '';
     const events = { pointerdown: down, pointermove: motion, pointerup: stop, pointercancel: stop, keydown: key,
       dblclick: event => { if (!event.target.closest('button,a,input,select,textarea,[contenteditable]')) reset(); } };
@@ -157,17 +158,19 @@
     for (const type of ['pointerdown', 'click']) host.addEventListener(type, event => event.stopPropagation());
     const bar = document.createElement('div'); bar.dataset.copyEditor = ''; bar.dataset.copyBar = '';
     bar.popover = 'manual'; bar.tabIndex = 0;
-    bar.dataset.selectionDock = ''; bar.dataset.glassPane = ''; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', '文案编辑');
+    bar.dataset.selectionDock = ''; bar.dataset.glassPane = ''; bar.setAttribute('role', 'group'); bar.setAttribute('aria-label', t('shell:copyEditor.toolbar'));
     const hint = document.createElement('span'); hint.id = 'peach-copy-hint'; hint.hidden = true;
-    hint.textContent = '点击文字修改，回车或点别处保存，Esc 取消；暂停编辑后可操作页面。';
+    hint.textContent = t('shell:copyEditor.hint');
     bar.setAttribute('aria-describedby', hint.id);
-    const state = document.createElement('span'); state.dataset.copyState = ''; state.textContent = '改字模式'; bar.append(state);
+    const state = document.createElement('span'); state.dataset.copyState = ''; state.textContent = t('shell:copyEditor.modeLabel'); bar.append(state);
     const status = document.createElement('span'); status.dataset.copyFeedback = ''; status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    /* 左侧状态词按 `tone` 取：err 保存失败、editing 编辑中、saved 已保存、canceled 已取消、working 处理中；
+       其余按开关显示改字模式或已暂停。不按提示原文判断，换了界面语言照样认得出。 */
+    const STATE_WORDS = { err: 'shell:copyEditor.saveFailed', editing: 'shell:copyEditor.editing', saved: 'shell:copyEditor.saved',
+      canceled: 'shell:copyEditor.canceled', working: 'shell:copyEditor.working' };
     const say = (text, tone = '') => {
       status.textContent = text; state.title = text || '';
-      state.textContent = tone === 'err' ? '保存失败' : text?.includes('Enter 保存') ? '正在编辑'
-        : text?.startsWith('已保存') ? '已保存' : text === '已取消' ? '已取消'
-        : text?.includes('…') ? '处理中' : active ? '改字模式' : '编辑已暂停';
+      state.textContent = t(STATE_WORDS[tone] || (active ? 'shell:copyEditor.modeLabel' : 'shell:copyEditor.paused'));
     };
     const button = (text, action) => {
       const node = document.createElement('button'); node.type = 'button'; node.textContent = text;
@@ -175,12 +178,12 @@
     };
     let active = true, busy = false, recovery = null, choice = null;
     const toolbarDrag = attachToolbarDrag(bar);
-    const toggle = button('暂停编辑', () => {
+    const toggle = button(t('shell:copyEditor.pause'), () => {
       if (busy) return;
-      active = !active; options.onToggle?.(active); toggle.textContent = active ? '暂停编辑' : '继续编辑'; say('');
+      active = !active; options.onToggle?.(active); toggle.textContent = active ? t('shell:copyEditor.pause') : t('shell:copyEditor.resume'); say('');
     });
-    button('导出修改', () => options.onExport?.());
-    button('退出编辑', () => { if (!busy) options.onExit?.(); });
+    button(t('shell:copyEditor.export'), () => options.onExport?.());
+    button(t('shell:copyEditor.exit'), () => { if (!busy) options.onExit?.(); });
     bar.append(status); host.append(hint, bar);
     const localStyles = new Map();
     const shadowObservers = new Map();
@@ -231,10 +234,10 @@
           recovery.remove(); recovery = null; action();
         });
       },
-      choose(items, rect, { label = '选项', message = '' } = {}) {
+      choose(items, rect, { label = t('shell:copyEditor.optionFallback'), message = '' } = {}) {
         choice?.cancel();
         const select = document.createElement('select'); select.dataset.copyEditor = ''; select.dataset.copyChoice = '';
-        select.setAttribute('aria-label', label); select.add(new Option(`请选择${label}`, ''));
+        select.setAttribute('aria-label', label); select.add(new Option(t('shell:copyEditor.choosePrompt', { label }), ''));
         items.forEach((item, index) => select.add(new Option(item.label, String(index))));
         Object.assign(select.style, { left: Math.max(16, Math.min(rect.left, innerWidth - 300)) + 'px',
           top: Math.max(16, Math.min(rect.bottom + 8, innerHeight - 60)) + 'px' });
@@ -316,7 +319,7 @@
       setBusy(true);
       try {
         const prepared = await options.prepare?.(ed);
-        if (prepared === null || destroyed || !node.isConnected || (ed.element ? ed.element.textContent : node.data) !== before) { say('已取消'); return; }
+        if (prepared === null || destroyed || !node.isConnected || (ed.element ? ed.element.textContent : node.data) !== before) { say(t('shell:copyEditor.canceled'), 'canceled'); return; }
         ed = { ...ed, ...prepared };
         const input = !!node.parentElement.closest('button,a,[role="button"]');
         const box = document.createElement(input ? 'input' : 'span');
@@ -343,10 +346,10 @@
             ed.element.append(box);
           } else node.replaceWith(...[ed.lead, box, ed.trail].filter(Boolean));
         }
-        box.setAttribute('aria-label', '修改文字'); editing = ed; positionInput(); box.focus();
+        box.setAttribute('aria-label', t('shell:copyEditor.editText')); editing = ed; positionInput(); box.focus();
         if (input) box.select();
         else { const range = document.createRange(); range.selectNodeContents(box); getSelection()?.removeAllRanges(); getSelection()?.addRange(range); }
-        hideHighlight(); say(ed.candidate?.template ? '保留 {占位符}，只改文字 · Enter 保存 · Esc 取消' : 'Enter 保存 · Esc 取消');
+        hideHighlight(); say(ed.candidate?.template ? t('shell:copyEditor.templateHint') : t('shell:copyEditor.keyHint'), 'editing');
         box.addEventListener('keydown', event => {
           event.stopPropagation(); if (event.isComposing) return;
           if (event.key === 'Enter' && !(ed.multiline && event.shiftKey)) { event.preventDefault(); commit(); }
@@ -374,9 +377,9 @@
       const text = (ed.multiline ? value : value.replace(/\s*\n\s*/g, ' ')).trim();
       const connected = ed.node.isConnected || ed.box.isConnected;
       putBack(ed);
-      if (cancel || !connected) { say('已取消'); return; }
+      if (cancel || !connected) { say(t('shell:copyEditor.canceled'), 'canceled'); return; }
       if (text === ed.core) return;
-      setBusy(true); say('保存中…');
+      setBusy(true); say(t('shell:copyEditor.saving'), 'working');
       let persisted = false;
       try {
         const result = await options.save(ed, text) ?? {};
@@ -387,11 +390,11 @@
           ed.nodes.forEach((node, i) => { node.data = parts[i]; });
           cleanInline(ed.element);
         } else if (result.remove) ed.node.remove(); else ed.node.data = ed.lead + rendered + ed.trail;
-        say(result.message || (rendered ? '已保存修改' : '已删除文字'), 'ok');
+        say(result.message || (rendered ? t('shell:copyEditor.changeSaved') : t('shell:copyEditor.textDeleted')), rendered ? 'saved' : 'ok');
         await options.onSaved?.(ed, { ...result, text: rendered });
       } catch (error) {
         if (!persisted && !ed.element) ed.node.data = ed.before;
-        say((persisted ? '已保存，界面更新未完成：' : error.unconfirmed ? '未确认保存：' : '没保存：') + error.message, 'err');
+        say(t(persisted ? 'shell:copyEditor.savedNotRefreshed' : error.unconfirmed ? 'shell:copyEditor.notConfirmed' : 'shell:copyEditor.notSaved', { message: error.message }), 'err');
       } finally { setBusy(false); }
     }
     document.addEventListener('mousemove', move, { passive: true });

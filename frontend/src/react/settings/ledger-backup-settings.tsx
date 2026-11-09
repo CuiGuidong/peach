@@ -15,6 +15,7 @@ import { LoadingDots } from '../components/loading-dots';
 import { Progress } from '../components/progress';
 import { ErrorText, Footer, Help, Rows, Section, Stack, TaskCenterLink } from './section';
 import { busyProps, useAction } from './use-action';
+import { t } from '../../i18n';
 
 export const LEDGER_BACKUPS_URL = '/api/configuration/ledger-backups';
 const POLL_MS = 1500;
@@ -50,7 +51,7 @@ export interface LedgerBackupState {
 const when = (backup: LedgerBackup) => new Date(backup.modified_at * 1000).toLocaleString();
 
 function describe(backup: LedgerBackup) {
-  return [backup.source === 'manual' ? '手动' : `自动 · ${backup.purpose}`, fmtSize(backup.bytes)].join(' · ');
+  return [backup.source === 'manual' ? t('settings:databaseBackups.manual') : t('settings:databaseBackups.automatic', { purpose: backup.purpose }), fmtSize(backup.bytes)].join(' · ');
 }
 
 /** 进行中的那一个任务：知道页数就画进度条，否则只说在做哪一步。 */
@@ -103,15 +104,15 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
       reported.current[key] = false;
       if (job.status !== 'complete') continue;
       receipt(key === 'backup'
-        ? `已备份账本：${job.name}`
-        : `已从备份恢复账本，恢复前的账本另存为 ${job.saved}。刷新页面查看恢复后的资料`);
+        ? t('settings:databaseBackups.backedUp', { name: job.name })
+        : t('settings:databaseBackups.restored', { name: job.saved }));
     }
   }, [state]);
 
   if (!state) {
     return (
-      <Section id="ledgerBackups" guide="ledger-backups" title="账本备份">
-        <Stack>{loadError ? <ErrorText>{loadError}</ErrorText> : <LoadingDots label="正在读取备份列表" />}</Stack>
+      <Section id="ledgerBackups" guide="ledger-backups" title={t('settings:databaseBackups.title')}>
+        <Stack>{loadError ? <ErrorText>{loadError}</ErrorText> : <LoadingDots label={t('settings:databaseBackups.loading')} />}</Stack>
       </Section>
     );
   }
@@ -120,11 +121,10 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
     apiSend<LedgerBackupState>(`${LEDGER_BACKUPS_URL}/backup`, {}, 'POST', signal), setState);
 
   const restore = (item: LedgerBackup) => void confirmModal({
-    title: '从备份恢复账本',
+    title: t('settings:databaseBackups.restoreTitle'),
     danger: true,
-    body: `将用 ${when(item)} 的备份（${describe(item)}）替换当前账本，此后的资料、观看记录与复核结论回到备份时的状态。`
-      + '替换前先把当前账本另存为一份备份；恢复期间不能启动新任务。',
-    confirmLabel: '替换当前账本',
+    body: t('settings:databaseBackups.restoreBody', { time: when(item), details: describe(item) }),
+    confirmLabel: t('settings:databaseBackups.replaceCurrent'),
     onConfirm: async () => {
       reported.current.restore = true;
       setState(await apiSend<LedgerBackupState>(`${LEDGER_BACKUPS_URL}/restore`, { id: item.id, confirm: true }));
@@ -133,16 +133,16 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
 
   const failed = [state.backup, state.restore].find((job) => job.status === 'failed');
   const last = state.last_restore;
-  const status = backingUp ? '正在备份…' : restoring ? '正在恢复…'
-    : state.backups.length ? `共 ${state.backups.length} 份可恢复的备份` : '还没有备份';
+  const status = backingUp ? t('settings:databaseBackups.backingUp') : restoring ? t('settings:databaseBackups.restoring')
+    : state.backups.length ? t('settings:databaseBackups.count', { count: state.backups.length }) : t('settings:databaseBackups.empty');
   return (
-    <Section id="ledgerBackups" guide="ledger-backups" title="账本备份">
+    <Section id="ledgerBackups" guide="ledger-backups" title={t('settings:databaseBackups.title')}>
       <Stack>
-        <Help>账本保存全部资料、观看记录与复核结论。手动备份与写入前的自动备份放在一起，保留最近 5 份和 24 小时内的备份。</Help>
-        {!state.writer ? <Help>这台电脑不是账本写入端，只能在写入端恢复：{state.writer_reason}</Help> : null}
-        {backingUp ? <Running job={state.backup} label="备份进度" /> : null}
-        {restoring ? <Running job={state.restore} label="恢复进度" /> : null}
-        {failed ? <ErrorText>{failed.error || '任务没有完成'}</ErrorText> : null}
+        <Help>{t('settings:databaseBackups.help')}</Help>
+        {!state.writer ? <Help>{t('settings:databaseBackups.notPrimary')}{state.writer_reason}</Help> : null}
+        {backingUp ? <Running job={state.backup} label={t('settings:databaseBackups.backupProgress')} /> : null}
+        {restoring ? <Running job={state.restore} label={t('settings:databaseBackups.restoreProgress')} /> : null}
+        {failed ? <ErrorText>{failed.error || t('settings:databaseBackups.jobIncomplete')}</ErrorText> : null}
         {last ? (last.outcome === 'kept' || last.outcome === 'completed'
           ? <Help>{last.message}</Help> : <ErrorText>{last.message}</ErrorText>) : null}
         {action.error ? <ErrorText>{action.error}</ErrorText> : null}
@@ -153,7 +153,7 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
               {state.backups.map((item) => (
                 <SettingsRow key={item.id} label={when(item)} description={describe(item)}>
                   <Button variant="secondary" disabled={!state.writer || running}
-                    onClick={() => restore(item)}>恢复</Button>
+                    onClick={() => restore(item)}>{t('settings:databaseBackups.restore')}</Button>
                 </SettingsRow>
               ))}
             </Rows>
@@ -161,7 +161,7 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
         : null}
       <Footer status={<p>{status}</p>}>
         <Button disabled={running} onClick={backup}
-          {...busyProps(action.busy === 'backup' || backingUp)}>立即备份</Button>
+          {...busyProps(action.busy === 'backup' || backingUp)}>{t('settings:databaseBackups.backUpNow')}</Button>
       </Footer>
     </Section>
   );

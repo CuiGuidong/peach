@@ -248,7 +248,7 @@ it('浏览器画像的雷达、排行与浏览活跃热力图都按这一份数�
   const { host } = await open();
   const portrait = host.querySelector('section[aria-label="浏览器画像"]')!;
   expect(portrait.querySelector('div[role=img]')?.getAttribute('aria-label'))
-    .toBe('主要口味维度：维度甲，维度乙，维度丙');
+    .toBe('主要口味维度：维度甲、维度乙、维度丙');
   expect(portrait.querySelector('section[aria-label="口味维度排名"]')).not.toBeNull();
   const heats = [...host.querySelectorAll('svg[role=img]')].map((heat) => heat.getAttribute('aria-label'));
   expect(heats).toEqual(expect.arrayContaining(['浏览活跃时间', '每日活跃']));

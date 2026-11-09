@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 import { createTranslator, resolveInterfaceLanguage, resources, storedInterfaceLanguage, INTERFACE_LANGUAGES, SOURCE_LANGUAGE } from '../src/i18n';
 // @ts-expect-error 检查脚本是纯 ESM，没有类型声明
-import { BASELINE, countLiterals, scan } from '../scripts/i18n-literals.mjs';
+import { countLiterals, scan } from '../scripts/i18n-literals.mjs';
 
 const frontend = resolve(__dirname, '..');
 const locales = join(frontend, 'src/locales');
@@ -54,7 +54,9 @@ describe('界面文案的语言资源', () => {
       const zh = read(SOURCE_LANGUAGE, ns), en = read('en', ns);
       for (const [key, text] of Object.entries(en)) {
         const source = zh[key] ?? zh[`${base(key)}_other`] ?? zh[base(key)] ?? '';
-        expect(placeholders(text), `${ns}:${key}`).toEqual(placeholders(source));
+        /* 单数可以省掉必然是 1 的数字（Every hour），但不能多出源文没有的占位。 */
+        if (key.endsWith('_one')) expect(placeholders(text).filter((name) => !placeholders(source).includes(name)), `${ns}:${key}`).toEqual([]);
+        else expect(placeholders(text), `${ns}:${key}`).toEqual(placeholders(source));
       }
     }
   });
@@ -145,14 +147,28 @@ describe('界面语言', () => {
   });
 });
 
-describe('写死的中文文案只减不增', () => {
-  it('逐个文件不超过基线，基线外的文件没有中文文案', () => {
-    const baseline: Record<string, number> = JSON.parse(readFileSync(BASELINE, 'utf8'));
-    const raised = Object.entries(scan() as Record<string, number>)
-      .filter(([file, count]) => count > (baseline[file] ?? 0))
-      .map(([file, count]) => `${file}: ${count}（基线 ${baseline[file] ?? 0}）`);
-    expect(raised, '新文案写进 src/locales/<语言>/*.json，用 t() 取；抽走后跑 node scripts/i18n-literals.mjs --write 收紧基线').toEqual([]);
+describe('前端不写死中文', () => {
+  it('src 下没有未豁免的中文文案', () => {
+    expect(scan(), '新文案写进 src/locales/<语言>/*.json，用 t() 取；不是界面文案的中文在同一行或上一行写 // i18n-exempt: 理由').toEqual({});
   }, 60_000);
+
+  it('外壳页面里的中文文字和属性都标了翻译键，键在资源里', () => {
+    const doc = new DOMParser().parseFromString(readFileSync(join(frontend, '../web/index.html'), 'utf8'), 'text/html');
+    const zh = Object.fromEntries(namespaces(SOURCE_LANGUAGE).flatMap((ns) => Object.keys(read(SOURCE_LANGUAGE, ns)).map((key) => [`${ns}:${key}`, true])));
+    const missing: string[] = [];
+    for (const node of doc.body.querySelectorAll<HTMLElement>('*')) {
+      if (node.closest('script, style, svg')) continue;
+      const own = [...node.childNodes].filter((child) => child.nodeType === 3).map((child) => child.textContent).join('');
+      const marks: [string, string | undefined, string | null][] = [['文字', node.dataset.i18n, /[㐀-鿿]/.test(own) ? own.trim() : null],
+        ...(['title', 'aria-label', 'placeholder'] as const).map((name): [string, string | undefined, string | null] =>
+          [name, node.getAttribute(`data-i18n-${name}`) ?? undefined, /[㐀-鿿]/.test(node.getAttribute(name) ?? '') ? node.getAttribute(name) : null])];
+      for (const [what, key, text] of marks) {
+        if (text && !key) missing.push(`#${node.id || node.tagName} ${what}「${text}」没有键`);
+        if (key && !zh[key]) missing.push(`#${node.id || node.tagName} ${what} 的键 ${key} 不在资源里`);
+      }
+    }
+    expect(missing).toEqual([]);
+  });
 
   it('计数认字符串、模板和 JSX 文字，不认注释、对象键、导入路径和 console', () => {
     const source = [
@@ -165,5 +181,16 @@ describe('写死的中文文案只减不增', () => {
       "const d = 'plain';",
     ].join('\n');
     expect(countLiterals('sample.tsx', source)).toBe(3);
+  });
+
+  it('同一行或上一行写明理由的 i18n-exempt 不计数，没写理由的照算', () => {
+    const source = [
+      "const a = tag === '竖屏'; // i18n-exempt: 标签值",
+      '// i18n-exempt: 服务端原文',
+      "const b = message.startsWith('整理跳过');",
+      "const c = '没理由'; // i18n-exempt:",
+      "const d = '不豁免';",
+    ].join('\n');
+    expect(countLiterals('sample.ts', source)).toBe(2);
   });
 });

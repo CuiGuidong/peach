@@ -6,6 +6,7 @@
 import { apiGet } from '../../api';
 import { queryClient } from '../query';
 import { CUSTOM_SOURCES_KEY, fetchCustomSources } from './custom-source-data';
+import { t } from '../../i18n';
 
 export const SCRAPING_URL = '/api/scraping';
 export const SCRAPING_SETTINGS_URL = '/api/scraping/settings';
@@ -137,9 +138,10 @@ export async function prefetchScraping(signal: AbortSignal): Promise<void> {
  *
  * 结果里的 `label` 是这一跳查的是什么；只有一跳时它就是来源页面本身，句子里不必再说一遍。 */
 export function checkText(check: Check, sourceLabel: string): string {
-  return `${sourceLabel}${check.label === '来源页面' ? '' : ' 高清图片'}`
-    + `：${check.ok ? '可连接' : '不能连接'}`
+  // i18n-exempt: 服务端给的检查项名，按原值判断
+  const target = check.label === '来源页面' ? sourceLabel : t('manage:connectionCheck.hdImages', { source: sourceLabel });
+  return t(check.ok ? 'manage:connectionCheck.reachableTarget' : 'manage:connectionCheck.unreachableTarget', { target })
     + (check.width ? ` · ${check.width} × ${check.height}` : '')
-    + (check.elapsed_s !== undefined ? ` · ${check.elapsed_s.toFixed(2)} 秒` : '')
-    + (check.message ? `。${check.message}` : '');
+    + (check.elapsed_s !== undefined ? t('manage:connectionCheck.secondsSuffix', { seconds: check.elapsed_s.toFixed(2) }) : '')
+    + (check.message ? t('manage:connectionCheck.messageSuffix', { message: check.message }) : '');
 }

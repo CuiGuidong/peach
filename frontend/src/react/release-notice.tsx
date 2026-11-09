@@ -17,6 +17,7 @@ import { Note } from './components/note';
 import { SettingsDialogClose } from './components/settings-dialog-close';
 import { StatusLabel } from './components/status-label';
 import { Disclosure, ExternalLink } from './settings/section';
+import { joinList, t } from '../i18n';
 
 interface NoticeItem { id?: string; icon?: string; title: string; body: string; route?: string;
   progress?: { done?: number; total?: number; count?: number } }
@@ -40,10 +41,10 @@ function progressLabel(progress: NoticeItem['progress']) {
   if (!progress) return null;
   if (progress.total) {
     return progress.done! >= progress.total
-      ? <StatusLabel tone="success">已完成</StatusLabel>
+      ? <StatusLabel tone="success">{t('shell:shared.completed')}</StatusLabel>
       : <StatusLabel tone="progress">{(progress.done || 0).toLocaleString()} / {progress.total.toLocaleString()}</StatusLabel>;
   }
-  return progress.count ? <StatusLabel tone="success">{progress.count.toLocaleString()} 个</StatusLabel> : null;
+  return progress.count ? <StatusLabel tone="success">{t('shell:releaseNotice.itemCount', { count: progress.count })}</StatusLabel> : null;
 }
 
 function Rows({ items, trailing }: { items: NoticeItem[]; trailing(item: NoticeItem): ReactNode }) {
@@ -91,38 +92,38 @@ export function ReleaseNotice({ navigate }: { navigate(path: string): void }) {
     setError('');
     apiSend('/api/release-notice', { version: data.current })
       .then(() => { setOpen(false); setData({ ...data, kind: 'seen', show: false }) })
-      .catch((reason: Error) => setError(reason.message || '未能记录，请稍后再试'));
+      .catch((reason: Error) => setError(reason.message || t('shell:releaseNotice.saveFailed')));
   };
   const go = (route: string) => { setOpen(false); navigate(route) };
   const view = (item: NoticeItem) => item.route
-    ? <Button variant="ghost" size="small" aria-label={`查看${item.title}`} onClick={() => go(item.route!)}>查看</Button>
+    ? <Button variant="ghost" size="small" aria-label={t('shell:releaseNotice.viewItem', { title: item.title })} onClick={() => go(item.route!)}>{t('shell:shared.view')}</Button>
     : null;
 
   return createPortal(
-    <ModalFrame isOpen={open} onOpenChange={value => { if (!value) setOpen(false) }} width="form" label="版本更新说明"
+    <ModalFrame isOpen={open} onOpenChange={value => { if (!value) setOpen(false) }} width="form" label={t('shell:releaseNotice.dialogLabel')}
       surfaceClassName="peach-react">
       <header className="flex shrink-0 items-start justify-between gap-4 border-b border-separator-border px-6 py-4">
         <div className="flex min-w-0 flex-col gap-0.5">
           <h2 className="text-title-2-medium text-text-primary">Peach {data.current}</h2>
           <p className="text-body-2-regular text-text-secondary">{notice.headline}</p>
         </div>
-        <SettingsDialogClose label="关闭更新说明" onPress={() => setOpen(false)} />
+        <SettingsDialogClose label={t('shell:releaseNotice.close')} onPress={() => setOpen(false)} />
       </header>
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain px-6 py-4">
         {notice.attention.map(item => (
           <Note key={item.title} tone="warning" title={item.title}
-            action={item.route ? <Button size="small" variant="secondary" onClick={() => go(item.route!)}>去设置</Button> : undefined}>
+            action={item.route ? <Button size="small" variant="secondary" onClick={() => go(item.route!)}>{t('shell:releaseNotice.goToSettings')}</Button> : undefined}>
             {item.body}
           </Note>
         ))}
         {notice.features.length ? <Rows items={notice.features} trailing={view} /> : null}
         {notice.automatic.length ? (
-          <Disclosure summary="更新后自动进行" defaultOpen>
+          <Disclosure summary={t('shell:releaseNotice.automatic')} defaultOpen>
             <div className="pt-3"><Rows items={notice.automatic} trailing={item => progressLabel(item.progress)} /></div>
           </Disclosure>
         ) : null}
         {data.missed.length ? (
-          <Disclosure summary={data.estimated ? '最近几版' : `还错过了 ${data.missed.map(row => row.version).join('、')}`}>
+          <Disclosure summary={data.estimated ? t('shell:releaseNotice.recentVersions') : t('shell:releaseNotice.missed', { versions: joinList(data.missed.map(row => row.version)) })}>
             <div className="flex flex-col gap-4 pt-3">
               {data.missed.map(row => (
                 <section key={row.version} className="flex flex-col gap-2">
@@ -135,10 +136,10 @@ export function ReleaseNotice({ navigate }: { navigate(path: string): void }) {
         ) : null}
       </div>
       <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-separator-border px-6 py-3">
-        <ExternalLink href={data.release_url}>完整更新日志</ExternalLink>
+        <ExternalLink href={data.release_url}>{t('shell:releaseNotice.changelog')}</ExternalLink>
         <div className="flex items-center gap-3">
           {error ? <p role="alert" className="text-body-2-regular text-text-error-primary">{error}</p> : null}
-          <Button onClick={done}>知道了</Button>
+          <Button onClick={done}>{t('shell:releaseNotice.dismiss')}</Button>
         </div>
       </footer>
     </ModalFrame>,
