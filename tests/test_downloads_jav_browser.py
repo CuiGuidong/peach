@@ -111,6 +111,25 @@ class BrowserTests(unittest.TestCase):
         self.assertEqual(restored.get(task.id).postprocess_state, dl.POSTPROCESS_QUEUED)
         self.remote.submit.assert_not_called()
 
+    def test_a_queued_title_can_move_to_the_front_of_the_search_queue(self):
+        for code in ("ABC-123", "ABP-616", "MIDV-339"):
+            self.assertEqual(self.add(code).json()["queue_position"], {"ABC-123": 1, "ABP-616": 2, "MIDV-339": 3}[code])
+        response = self.client.post("/api/jav-browser/prioritize", headers=self.script_headers, json={"code": "MIDV-339"})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual((response.json()["state"], response.json()["queue_position"]), ("queued", 1))
+        self.assertEqual(self.client.get("/api/jav-browser", params={"code": "ABC-123"},
+                                         headers=self.script_headers).json()["queue_position"], 2)
+        # 顺序写进持久队列，重启后照样先搜它。
+        restored = JavBrowser(self.service.contract, search=self.service.search)
+        self.assertEqual(list(restored.rows), ["MIDV-339", "ABC-123", "ABP-616"])
+        self.service.process_one()
+        self.assertEqual(self.service.search.call_args.args[1]["code"], "MIDV-339")
+        # 不在排队中的番号不能提前。
+        for code in ("MIDV-339", "SSIS-001"):
+            response = self.client.post("/api/jav-browser/prioritize", headers=self.script_headers, json={"code": code})
+            self.assertEqual(response.status_code, 400, response.text)
+        self.assertEqual(self.client.post("/api/jav-browser/prioritize", json={"code": "ABC-123"}).status_code, 401)
+
     def test_queued_request_searches_then_uses_the_cloud_download_contract(self):
         self.assertEqual(self.status().json()["state"], "idle")
         response = self.add()

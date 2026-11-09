@@ -423,9 +423,31 @@ class JavBrowser:
                     "updated_at": task.updated_at}
                 row.update(_postprocess_retry_status(task))
             state = row.get("state", "idle")
-            return {"ok": True, "code": code, **row, **detail, "state": state,
+            return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
                     "message": row.get("message") or MESSAGES[state]}
+
+    def _queue_detail(self, code: str, state: str) -> dict:
+        """排队中的番号排在搜索队列第几位；搜索逐个进行，用户脚本据此决定要不要给「提前处理」。"""
+        if state != "queued":
+            return {}
+        with self._lock:
+            waiting = [key for key, other in self.rows.items() if other["state"] == "queued"]
+        return {"queue_position": waiting.index(code) + 1 if code in waiting else 1}
+
+    def prioritize(self, value: object) -> dict:
+        """把排队中的番号挪到搜索队列最前面；搜索、下载与整理阶段的任务不受影响。"""
+        code = code_key(value)
+        with self._lock:
+            row = self.rows.get(code)
+            if row is None or row["state"] != "queued":
+                raise ValueError("这个番号不在排队中")
+            ordered = [(code, row), *((key, other) for key, other in self.rows.items() if key != code)]
+            self.rows.clear()
+            self.rows.update(ordered)
+            self._save()
+            self._wake.set()
+        return self.status(code)
 
     def retry_postprocess(self, value: object) -> dict:
         """重试这个番号入库后失败的整理，与任务中心的「重试整理」同一入口。"""
