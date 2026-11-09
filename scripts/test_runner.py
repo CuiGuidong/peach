@@ -1264,6 +1264,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--focus", action="append", default=[], help="定向调试指定 Python/浏览器用例，不签发记录")
     parser.add_argument("--rerun-failures", action="store_true",
                         help="定向运行失败后把失败文件单独重跑一次，通过的记为偶发（CI 浏览器分片用）")
+    parser.add_argument("--full-lock-held", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--lock-timeout", type=float, default=1800,
                         help="全量锁等待秒数；0 表示锁忙时立即返回")
     parser.add_argument("--base", default="master", help="CI 选测的已验证 Git 基线")
@@ -1315,14 +1316,27 @@ def main(argv: list[str] | None = None) -> int:
         success, count, _ = run_local_suite(scopes, args.jobs, f"{' '.join(requested)}:{' '.join(scopes)}")
         return 0 if success and count > 0 else 1
     try:
-        guard = test_evidence.held(test_evidence.evidence_dir(ROOT) / "full-suite.lock",
-                                  wait_seconds=args.lock_timeout,
-                                  scope=" ".join(scopes), root=str(ROOT)) \
-            if "full" in scopes else nullcontext()
-        with guard:
+        with full_suite_guard(parser, args, scopes):
             return verified_run(args, requested, scopes, files)
     except test_evidence.Timeout as error:
         return busy(error)
+
+
+def full_suite_guard(parser, args, scopes):
+    """全量验证取得仓库的全量锁。集成入口持锁补验时，由它直接派出的运行器沿用那把锁，
+    否则子进程会等父进程放锁、父进程等子进程结束，互等到超时。"""
+    lock = test_evidence.evidence_dir(ROOT) / "full-suite.lock"
+    if args.full_lock_held:
+        try:
+            holder = json.loads(test_evidence.holder_path(lock).read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            holder = {}
+        if holder.get("pid") != os.getppid():
+            parser.error("--full-lock-held 只供持有全量锁的集成入口直接调用")
+        return nullcontext()
+    if "full" not in scopes:
+        return nullcontext()
+    return test_evidence.held(lock, wait_seconds=args.lock_timeout, scope=" ".join(scopes), root=str(ROOT))
 
 
 def run_focus(parser, args) -> int:

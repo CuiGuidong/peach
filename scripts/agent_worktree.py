@@ -266,11 +266,85 @@ def integrate(repo: Path, worker_branch: str, target_branch: str = "master", *,
                                     branch=worker_branch, root=str(repo)):
                 if documents and not _documents_only(repo, worker_branch, target_branch):
                     raise WorkspaceError("等待集成期间分支影响面改变；本次未修改分支，请重试")
-                return _integrate_locked(repo, worker_branch, target_branch)
+                refreshed = _refresh_worker(repo, worker_branch, target_branch, documents=documents)
+                return {**_integrate_locked(repo, worker_branch, target_branch), "refreshed": refreshed}
     except test_evidence.Timeout as error:
         raise WorkspaceError(
             f"另一任务正在集成或全量验证（{test_evidence.describe_holder(Path(error.lock_file))}）；"
             "本次未修改分支，请等待后重试") from error
+
+
+def _refresh_worker(main: Path, worker_branch: str, target_branch: str, *,
+                    documents: bool) -> dict[str, str] | None:
+    """排队期间目标分支前进时，持锁把工作者分支 rebase 到目标上、补验并推送。
+
+    拿到全量锁之后才做：此刻别的集成和全量验证都插不进来，补验通过就一定合得进去，不会再像
+    在锁外 rebase 那样被后到先合的任务挤掉、反复重来。冲突时撤回 rebase，交工作者处理。
+    文档集成不持全量锁，补验若升级成全量会和持锁的集成互等，所以保持原来的拒收。
+    """
+    if documents or not _git(main, "merge-base", "--is-ancestor", target_branch, worker_branch,
+                             check=False).returncode:
+        return None
+    workers = [Path(item["path"]) for item in _worktree_entries(main) if item.get("branch") == worker_branch]
+    if len(workers) != 1 or _git(workers[0], "status", "--porcelain").stdout.strip():
+        raise WorkspaceError("工作者必须有唯一、干净且已注册的工作树")
+    worker = workers[0]
+    before = _git(worker, "rev-parse", "HEAD").stdout.strip()
+    old_base = _git(worker, "merge-base", target_branch, "HEAD").stdout.strip()
+    moved = set(_lines(_git(worker, "diff", "--name-only", old_base, target_branch)))
+    overlap = sorted(moved & set(_lines(_git(worker, "diff", "--name-only", old_base, "HEAD"))))
+    if overlap:
+        # 两边改了同一个文件要人看过再合，不能让 rebase 把重叠悄悄抹平。
+        raise WorkspaceError("same-file review required: " + ", ".join(overlap))
+    if _git(worker, "rebase", target_branch, check=False).returncode:
+        _git(worker, "rebase", "--abort", check=False)
+        raise WorkspaceError("目标分支已前进，自动 rebase 有冲突，已撤回；请在工作树解决冲突后重新验证")
+    print(f"目标分支已前进：工作者分支已 rebase 到 {target_branch}，持锁补验。", file=sys.stderr, flush=True)
+    _verify_worker(main, worker, frontend="frontend/package-lock.json" in moved)
+    after = _git(worker, "rev-parse", "HEAD").stdout.strip()
+    pushed = _git(worker, "push", f"--force-with-lease={worker_branch}:{before}", "origin",
+                  f"{worker_branch}:{worker_branch}", check=False)
+    if pushed.returncode:
+        raise WorkspaceError("rebase 后的工作者分支推送失败：" + (pushed.stderr or pushed.stdout).strip())
+    _await_pull_request_head(worker, worker_branch, after)
+    return {"from": before, "to": after}
+
+
+def _venv_python(root: Path) -> Path:
+    return root / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+
+
+def _verify_worker(main: Path, worker: Path, *, frontend: bool) -> None:
+    """照统一测试入口的步骤补验：同步依赖，再以 auto 签发记录。
+
+    直接派出工作树的解释器而不经 test.ps1/test.sh：运行器要核对全量锁的持有者正是父进程；
+    环境沿用本进程，测试记录的环境指纹才与随后的核验一致。输出写进工作树日志，不混进回执。
+    """
+    environment = {**os.environ, "PYTHONPATH": str(worker / "src")}
+    starter = _venv_python(worker) if _venv_python(worker).is_file() else _venv_python(main)
+    steps = [[str(starter), "-X", "utf8", "scripts/test_environment.py", str(worker), str(main)]]
+    if frontend:
+        steps.append([shutil.which("npm") or "npm", "--prefix", "frontend", "ci"])
+    steps.append([str(_venv_python(worker)), "scripts/test_runner.py", "--scope", "auto",
+                  "--jobs", "auto", "--full-lock-held"])
+    log = worker / "build" / "integrate-verify.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with log.open("w", encoding="utf-8") as stream:
+        for command in steps:
+            if subprocess.run(command, cwd=worker, env=environment, stdout=stream, stderr=subprocess.STDOUT,
+                              check=False).returncode:
+                raise WorkspaceError(f"rebase 后补验未通过，分支已 rebase 但未推送；日志：{log}")
+
+
+def _await_pull_request_head(worker: Path, branch: str, head: str, *, attempts: int = 12) -> None:
+    """推送后 GitHub 要过几秒才把 PR 头换成新提交；等它跟上再进合入核验。"""
+    for _ in range(attempts):
+        result = subprocess.run(["gh", "pr", "view", branch, "--json", "headRefOid", "--jq", ".headRefOid"],
+                                cwd=worker, capture_output=True, text=True, encoding="utf-8", timeout=60)
+        if result.returncode == 0 and result.stdout.strip() == head:
+            return
+        time.sleep(5)
+    raise WorkspaceError("推送后 PR 头没有跟上 rebase 后的提交；请稍后重试 integrate")
 
 
 def _documents_only(repo: Path, worker_branch: str, target_branch: str) -> bool:

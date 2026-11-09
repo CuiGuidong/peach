@@ -146,10 +146,19 @@ class AgentWorktreeTests(_WorktreeCase):
         self.assertFalse((self.repo / name).exists())
 
     def test_waiting_code_integration_does_not_block_documents(self):
+        """文档先合进去，排队的代码集成拿到锁后 rebase 到新的 master 上再合，不必回工作树重来。"""
         code = create(self.repo, "Codex", "queued-code", self.root / "worktrees")
         worker = Path(code["path"])
         (worker / "worker.txt").write_text("code\n", encoding="utf-8")
         commit(worker, "worker change")
+        origin = self.root / "origin.git"
+        subprocess.run(["git", "init", "--bare", "-q", str(origin)], check=True)
+        _git(self.repo, "remote", "add", "origin", str(origin))
+        _git(worker, "push", "-q", "origin", str(code["branch"]))
+        for name in ("_verify_worker", "_await_pull_request_head"):
+            patcher = mock.patch.object(agent_worktree, name)
+            patcher.start()
+            self.addCleanup(patcher.stop)
         docs = create(self.repo, "Codex", "parallel-docs", self.root / "worktrees")
         (Path(docs["path"]) / "README.md").write_text("# Example\n", encoding="utf-8")
         _git(Path(docs["path"]), "add", "README.md")
@@ -173,8 +182,11 @@ class AgentWorktreeTests(_WorktreeCase):
                 report = integrate(self.repo, str(docs["branch"]), lock_timeout=0)
                 self.assertEqual(report["files"], ["README.md"])
                 self.assertFalse(future.done())
-            self.assertEqual(future.result(timeout=60)["files"], ["worker.txt"])
+            queued = future.result(timeout=60)
+            self.assertEqual(queued["files"], ["worker.txt"])
+            self.assertIsNotNone(queued["refreshed"], "排队期间 master 前进，拿到锁后自动 rebase")
         self.assertEqual((self.repo / "worker.txt").read_text(encoding="utf-8"), "code\n")
+        self.assertEqual((self.repo / "README.md").read_text(encoding="utf-8"), "# Example\n")
 
     def test_code_integration_waits_for_full_suite_without_changing_master(self):
         result = create(self.repo, "Codex", "code", self.root / "worktrees")
@@ -219,6 +231,91 @@ class AgentWorktreeTests(_WorktreeCase):
         commit(self.repo, "main overlap")
         with self.assertRaisesRegex(WorkspaceError, "same-file"):
             integrate(self.repo, str(result["branch"]))
+        self.assertEqual(_git(worker, "log", "-1", "--format=%s").stdout.strip(), "worker overlap",
+                         "有重叠时不自动 rebase")
+
+
+class QueuedRebaseTests(_WorktreeCase):
+    """排队等锁期间目标分支前进：拿到锁后把工作者分支 rebase 上去、补验、推送，再合入。"""
+
+    def setUp(self):
+        super().setUp()
+        self.verifier = mock.patch.object(agent_worktree, "_verify_worker")
+        self.verify = self.verifier.start()
+        self.addCleanup(self.verifier.stop)
+        head = mock.patch.object(agent_worktree, "_await_pull_request_head")
+        self.head = head.start()
+        self.addCleanup(head.stop)
+        self.origin = self.root / "origin.git"
+        subprocess.run(["git", "init", "--bare", "-q", str(self.origin)], check=True)
+        _git(self.repo, "remote", "add", "origin", str(self.origin))
+
+    def worker(self, name: str, path: str, text: str) -> tuple[Path, str]:
+        result = create(self.repo, "Claude", name, self.root / "worktrees")
+        worker = Path(result["path"])
+        (worker / path).parent.mkdir(parents=True, exist_ok=True)
+        (worker / path).write_text(text, encoding="utf-8")
+        _git(worker, "add", path)
+        _git(worker, "commit", "-m", f"fix(tooling): {name}")
+        _git(worker, "push", "-q", "origin", str(result["branch"]))
+        return worker, str(result["branch"])
+
+    def test_a_target_that_moved_while_queued_is_rebased_verified_and_pushed(self):
+        worker, branch = self.worker("queued", "worker.txt", "worker\n")
+        before = _git(worker, "rev-parse", "HEAD").stdout.strip()
+        (self.repo / "tracked.txt").write_text("main moved\n", encoding="utf-8")
+        commit(self.repo, "main moved")
+        report = integrate(self.repo, branch)
+        after = _git(worker, "rev-parse", "HEAD").stdout.strip()
+        self.assertEqual(report["refreshed"], {"from": before, "to": after})
+        self.assertNotEqual(before, after)
+        self.verify.assert_called_once_with(self.repo, worker, frontend=False)
+        self.head.assert_called_once_with(worker, branch, after)
+        self.assertEqual(_git(self.origin, "rev-parse", branch).stdout.strip(), after, "PR 分支推到 rebase 后的提交")
+        self.assertEqual((self.repo / "worker.txt").read_text(encoding="utf-8"), "worker\n")
+        self.assertEqual((self.repo / "tracked.txt").read_text(encoding="utf-8"), "main moved\n")
+
+    def test_a_failed_reverification_merges_nothing(self):
+        worker, branch = self.worker("red-after-rebase", "worker.txt", "worker\n")
+        (self.repo / "tracked.txt").write_text("main moved\n", encoding="utf-8")
+        commit(self.repo, "main moved")
+        master = _git(self.repo, "rev-parse", "HEAD").stdout.strip()
+        self.verify.side_effect = WorkspaceError("rebase 后补验未通过")
+        with self.assertRaisesRegex(WorkspaceError, "补验未通过"):
+            integrate(self.repo, branch)
+        self.assertEqual(_git(self.repo, "rev-parse", "HEAD").stdout.strip(), master)
+        self.assertEqual(_git(worker, "status", "--porcelain").stdout, "")
+        self.head.assert_not_called()
+
+    def test_an_up_to_date_branch_and_a_documents_branch_are_not_rebased(self):
+        worker, branch = self.worker("current", "worker.txt", "worker\n")
+        self.assertIsNone(integrate(self.repo, branch)["refreshed"])
+        _, docs = self.worker("docs", "README.md", "# Example\n")
+        (self.repo / "tracked.txt").write_text("main moved\n", encoding="utf-8")
+        commit(self.repo, "main moved")
+        self.assertIsNone(integrate(self.repo, docs)["refreshed"], "文档集成不持全量锁，不在锁内补验")
+        self.verify.assert_not_called()
+
+    def test_reverification_follows_the_test_entry_and_keeps_the_full_lock(self):
+        self.verifier.stop()
+        worker = self.root / "worker"
+        calls = []
+        with mock.patch.object(agent_worktree.subprocess, "run",
+                               side_effect=lambda command, **kwargs: calls.append((command, kwargs))
+                               or subprocess.CompletedProcess(command, 0)):
+            agent_worktree._verify_worker(self.repo, worker, frontend=True)
+        commands = [command for command, _ in calls]
+        self.assertIn("scripts/test_environment.py", commands[0])
+        self.assertEqual(commands[1][-3:], ["--prefix", "frontend", "ci"])
+        self.assertEqual(commands[2][1:], ["scripts/test_runner.py", "--scope", "auto", "--jobs", "auto",
+                                           "--full-lock-held"])
+        self.assertTrue(all(kwargs["cwd"] == worker for _, kwargs in calls))
+        self.assertEqual(calls[2][1]["env"]["PYTHONPATH"], str(worker / "src"))
+        with mock.patch.object(agent_worktree.subprocess, "run",
+                               return_value=subprocess.CompletedProcess([], 1)), \
+                self.assertRaisesRegex(WorkspaceError, "integrate-verify.log"):
+            agent_worktree._verify_worker(self.repo, worker, frontend=False)
+        self.verifier.start()
 
 
 class PullRequestIntegrationTests(_WorktreeCase):
