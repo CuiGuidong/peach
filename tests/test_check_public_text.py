@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 from scripts import check_public_text
-from scripts.check_public_text import Library, problems, publish_text
+from scripts.check_public_text import Library, insider_terms, problems, publish_text
 
 
 def ledger(path: Path) -> Path:
@@ -64,6 +64,26 @@ class LibraryTests(unittest.TestCase):
         self.assertEqual(problems(listed, None), [])
 
 
+class InsiderTermsTests(unittest.TestCase):
+    """PR、issue 与评论写给外部读者：派单的编号、批次与本机交付流程的说法他们看不懂。"""
+
+    def test_feedback_codes_batches_and_delivery_steps_are_named_by_kind(self):
+        found = insider_terms("修复反馈 N01，本轮 R0–R2；全库排查第 3 批，合批后第一轮 auto 在集成工作树里跑，"
+                              "ready：ok；门槛已改。")
+        self.assertEqual([line.split("：", 1)[0] for line in found],
+                         ["反馈条目编号", "批次与轮次", "本机交付流程", "自造用语"])
+        self.assertIn("N01", found[0])
+        self.assertIn("合批", found[1])
+
+    def test_code_spans_ordinary_words_and_a_stated_reason_pass(self):
+        for text in ("Windows 11：`& .\\scripts\\test.ps1`（按改动自动选范围）通过。",
+                     "命令是 `agent_worktree.py ready`，H264 与 N1 芯片不受影响。",
+                     "分批派发补全任务；这批文件已核对。",
+                     "第一轮反馈\npeach-public-text: 讨论的就是批次命名本身"):
+            with self.subTest(text=text):
+                self.assertEqual(insider_terms(text), [])
+
+
 class PublishCommandTests(unittest.TestCase):
     def setUp(self):
         directory = tempfile.TemporaryDirectory()
@@ -100,6 +120,16 @@ class PublishCommandTests(unittest.TestCase):
             load.reset_mock()
             self.assertEqual(check_public_text.hook({"tool_input": {"command": "git status"}}), 0)
             load.assert_not_called()
+
+    def test_the_hook_blocks_insider_terms_even_without_a_ledger(self):
+        (self.cwd / "notes.md").write_text("合批验证，见批次 0570。", encoding="utf-8")
+        for command in ("gh pr edit 3 --body '修复 N01'", "gh release edit v1.0.0 --notes-file notes.md"):
+            with self.subTest(command=command), mock.patch.object(check_public_text, "load_library", return_value=None):
+                error = io.StringIO()
+                with redirect_stderr(error):
+                    self.assertEqual(check_public_text.hook({"cwd": str(self.cwd), "tool_input": {"command": command}}), 2)
+                self.assertIn("内部用语", error.getvalue())
+                self.assertIn("peach-public-text", error.getvalue())
 
     def test_the_hook_reads_a_missing_cwd_as_this_checkout(self):
         payload = {"cwd": "/no/such/place", "tool_input": {"command": "gh pr create --body x"}}
