@@ -1061,6 +1061,16 @@ class CommitSubjectTests(unittest.TestCase):
         git(self.repo, "merge", "--no-ff", "-m", "Merge branch 'master' into worker", "master")
         self.assertEqual(commit_subject.check(self.repo, "master"), [])
 
+    def test_an_adopted_community_commit_keeps_its_own_subject(self):
+        """`merge -s ours` 记入的社区提交原样保留，主题门槛只管本机提交者写的。"""
+        git(self.repo, "checkout", "-b", "community", "master")
+        git(self.repo, "-c", "user.email=someone@users.noreply.github.com", "commit", "--allow-empty",
+            "-m", "Translate frontend UI to English")
+        git(self.repo, "checkout", "worker")
+        git(self.repo, "merge", "-s", "ours", "--no-ff", "-m", "chore(i18n): 记入社区译法", "community")
+        self.assertEqual(commit_subject.check(self.repo, "master"), [])
+        self.assertTrue(self.titled("Translate it myself"))
+
     def test_a_subject_already_on_the_remote_master_is_not_the_worker_s_to_fix(self):
         problems = self.titled("Remove section from README", "docs(readme): 并回网页上的改动")
         self.assertEqual(len(problems), 1)
