@@ -120,12 +120,16 @@ class Commit:
 
 
 def read_commits(root: Path, spec: str) -> list[Commit]:
-    raw = version_bump.git(root, "log", "--no-merges", "--format=%s%x1f%b%x00", spec)
+    raw = version_bump.git(root, "log", "--no-merges", "--format=%H%x1f%s%x1f%b%x00", spec)
+    skipped = version_bump.recorded_only(root, spec)
     commits = []
     for record in raw.split("\0"):
         if not record.strip():
             continue
-        subject, _, body = record.strip("\n").partition("\x1f")
+        commit, _, rest = record.strip("\n").partition("\x1f")
+        if commit in skipped:
+            continue
+        subject, _, body = rest.partition("\x1f")
         commits.append(Commit(subject.strip(), body))
     return commits
 

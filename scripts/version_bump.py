@@ -98,9 +98,26 @@ def release_range(root: Path) -> str:
     return f"{tag}..HEAD" if tag else "HEAD"
 
 
+def recorded_only(root: Path, spec: str) -> set[str]:
+    """`git merge -s ours` 记入的那一侧：合并前后树不变，对方的提交只进历史、不进代码。
+
+    记入社区 PR 是为了署名（贡献约定），那些提交的改动没有一行留在主线上，算进版本级别
+    或变更日志就是在报告没发生的变化。只算对方那一侧独有的提交：对方分支合过的主线提交
+    从第一父提交也到得了，照常计入。
+    """
+    excluded: set[str] = set()
+    for line in lines(git(root, "log", "--merges", "--format=%T %P", spec)):
+        tree, first, *others = line.split()
+        if others and git(root, "rev-parse", f"{first}^{{tree}}") == tree:
+            excluded.update(git(root, "rev-list", *others, f"^{first}").split())
+    return excluded
+
+
 def subjects_in(root: Path, spec: str) -> list[str]:
-    """区间里的提交主题，合并提交不算——它们的主题只说明分支名。"""
-    return lines(git(root, "log", "--no-merges", "--format=%s", spec))
+    """区间里的提交主题，合并提交和只记入历史的提交不算——前者的主题只说明分支名。"""
+    skipped = recorded_only(root, spec)
+    rows = (line.split(" ", 1) for line in lines(git(root, "log", "--no-merges", "--format=%H %s", spec)))
+    return [row[1] if len(row) > 1 else "" for row in rows if row[0] not in skipped]
 
 
 def changed_in(root: Path, spec: str) -> list[str]:
