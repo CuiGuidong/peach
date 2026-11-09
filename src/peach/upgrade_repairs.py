@@ -293,6 +293,9 @@ DANGLING_KEY = f'dangling-candidates-{upgrade_rules.DANGLING_CANDIDATES}'
 #: JavDB 演员页补记有碼／無碼（#271）的回执键；规则版本见 `upgrade_rules`。
 JAVDB_RECORDS_KEY = f'javdb-actor-records-{upgrade_rules.JAVDB_ACTOR_RECORDS}'
 
+#: 来源 genre 挂上的分辨率标签解除的回执键；规则版本见 `upgrade_rules`。
+RESOLUTION_TAGS_KEY = f'source-resolution-tags-{upgrade_rules.SOURCE_RESOLUTION_TAGS}'
+
 
 def javdb_card_pages(contract):
     """本机缓存过的 javdb 搜索页：回填脚本的整页缓存，和补女优资料后继的取页缓存。"""
@@ -404,6 +407,88 @@ def revert_javdb_records(connection, planned: list[dict]) -> int:
             changed += connection.execute('UPDATE feed_source SET enabled=1 WHERE id=? AND enabled=0',
                                           (item['source_id'],)).rowcount or 0
     return changed
+
+
+#: 刮削落库写下的标签归属：单一来源整套写的 `javinizer:<来源>:tag`，并集补的 `auto:metadata-tags@<时间>`。
+#: `stash` 导入与人手加的不在其内。
+_SCRAPED_TAG_SOURCES = "(source GLOB 'javinizer:*:tag' OR source GLOB 'auto:metadata-tags@*')"
+
+
+def settle_source_resolution_tags(connection) -> dict:
+    """解除刮削按来源 genre 挂上的分辨率标签（`metadata_auto_apply.SOURCE_RESOLUTION_TAGS`）。
+
+    JavDB、DMM、r18dev 的 `4K` 分类说的是官方出过 4K 版，手里这份文件多是 1080p；文件自己的
+    画质由探测写进 `ctx_quality`，卡片与播放器读实际尺寸。只删刮削归属的行，`stash` 导入的
+    和人手加的不动；扁平 `asset_tag` 与 `asset_entity` 两份一起删，原样记进回执供撤回插回。
+    标签实体本身留着：别的来源还挂着它。
+    """
+    from .metadata_auto_apply import SOURCE_RESOLUTION_TAGS
+    names = sorted(SOURCE_RESOLUTION_TAGS)
+    marks = ','.join('?' * len(names))
+    tags = [dict(zip(('asset_id', 'tag', 'confidence', 'source'), row)) for row in connection.execute(
+        f'SELECT asset_id,tag,confidence,source FROM asset_tag WHERE tag IN ({marks}) AND {_SCRAPED_TAG_SOURCES} '
+        'ORDER BY asset_id,tag,source', names)]
+    links = [dict(zip(('asset_id', 'entity_id', 'role', 'source', 'confidence', 'metadata_json',
+                       'first_seen_at', 'last_seen_at'), row)) for row in connection.execute(
+        'SELECT ae.asset_id,ae.entity_id,ae.role,ae.source,ae.confidence,ae.metadata_json,ae.first_seen_at,'
+        "ae.last_seen_at FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id WHERE ae.role='tag' "
+        f"AND e.kind='tag' AND e.canonical_name IN ({marks}) AND {_SCRAPED_TAG_SOURCES.replace('source', 'ae.source')} "
+        'ORDER BY ae.asset_id,ae.entity_id,ae.source', names)]
+    connection.executemany('DELETE FROM asset_tag WHERE asset_id=? AND tag=? AND source=?',
+                           [(row['asset_id'], row['tag'], row['source']) for row in tags])
+    connection.executemany("DELETE FROM asset_entity WHERE asset_id=? AND entity_id=? AND role='tag' AND source=?",
+                           [(row['asset_id'], row['entity_id'], row['source']) for row in links])
+    return {'rule': upgrade_rules.SOURCE_RESOLUTION_TAGS, 'tags': tags, 'links': links}
+
+
+#: `revert_auto_landing.py --source` 认这条补修的归属串；批次是回执行的 id（`RESOLUTION_TAGS_KEY`）。
+RESOLUTION_TAGS_SOURCE = 'upgrade:source-resolution-tags'
+
+
+def planned_resolution_tags_revert(connection, source: str, batch: str = '') -> list[dict]:
+    """这条补修删掉、现在账本里还没有的标签行（ADR-0052 整批撤回），只读。"""
+    if source != RESOLUTION_TAGS_SOURCE:
+        return []
+    planned = []
+    for receipt_id, encoded in connection.execute(
+            "SELECT id,result_json FROM ledger_upgrade_repair WHERE id GLOB 'source-resolution-tags-*' "
+            'ORDER BY CAST(applied_at AS REAL)').fetchall():
+        if batch and receipt_id != batch:
+            continue
+        detail = json.loads(encoded)
+        for row in detail.get('tags', []):
+            if not connection.execute('SELECT 1 FROM asset_tag WHERE asset_id=? AND tag=?',
+                                      (row['asset_id'], row['tag'])).fetchone():
+                planned.append({'kind': 'tag', 'row': row, 'batch': receipt_id})
+        for row in detail.get('links', []):
+            if not connection.execute('SELECT 1 FROM asset_entity WHERE asset_id=? AND entity_id=? AND role=?',
+                                      (row['asset_id'], row['entity_id'], row['role'])).fetchone():
+                planned.append({'kind': 'link', 'row': row, 'batch': receipt_id})
+    return planned
+
+
+def revert_resolution_tags(connection, planned: list[dict]) -> int:
+    """按 `planned_resolution_tags_revert` 把删掉的标签行原样插回，返回插回几行。
+
+    资产或标签实体已经不在的跳过。不开不提交事务，由调用方包住；回执行留着，补修不会再做一遍。
+    """
+    restored = 0
+    for item in planned:
+        row = item['row']
+        if item['kind'] == 'tag':
+            restored += connection.execute(
+                'INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) '
+                'SELECT ?,?,?,? WHERE EXISTS(SELECT 1 FROM asset WHERE id=?)',
+                (row['asset_id'], row['tag'], row['confidence'], row['source'], row['asset_id'])).rowcount or 0
+        else:
+            restored += connection.execute(
+                'INSERT OR IGNORE INTO asset_entity(asset_id,entity_id,role,source,confidence,metadata_json,'
+                'first_seen_at,last_seen_at) SELECT ?,?,?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM asset WHERE id=?) '
+                'AND EXISTS(SELECT 1 FROM entity WHERE id=?)',
+                (row['asset_id'], row['entity_id'], row['role'], row['source'], row['confidence'],
+                 row['metadata_json'], row['first_seen_at'], row['last_seen_at'], row['asset_id'],
+                 row['entity_id'])).rowcount or 0
+    return restored
 
 
 def restore_dangling_candidates(database, candidate_root) -> dict:
@@ -777,6 +862,7 @@ class UpgradeRepairs:
                 self._withdraw_stale_code_evidence()
                 self._settle_dangling_candidates()
                 self._settle_javdb_records()
+                self._settle_resolution_tags()
                 self._isolate_system_files()
                 return
             self._restore_receipt(None)
@@ -826,6 +912,7 @@ class UpgradeRepairs:
             self._withdraw_stale_code_evidence()
             self._settle_dangling_candidates()
             self._settle_javdb_records()
+            self._settle_resolution_tags()
             self._isolate_system_files()
 
     def _prepare_display_dimensions(self) -> None:
@@ -1037,6 +1124,29 @@ class UpgradeRepairs:
             return
         LOGGER.info('JavDB 演员页：补记 %s 个记录类型，%s 枚入口不再给出，停用 %s 条订阅',
                     len(result['recorded']), len(result['hidden']), len(result['disabled_feeds']))
+
+    def _settle_resolution_tags(self) -> None:
+        """解除刮削按来源 genre 挂上的分辨率标签（`settle_source_resolution_tags`），只做一次。
+
+        出错只记日志，下次启动再试；删掉的行原样记进回执，`revert_auto_landing.py --source
+        upgrade:source-resolution-tags` 按它插回。
+        """
+        try:
+            with self.contract.database.read_connection() as connection:
+                if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?',
+                                      (RESOLUTION_TAGS_KEY,)).fetchone():
+                    return
+            with self.contract.database.write_transaction() as connection:
+                if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?',
+                                      (RESOLUTION_TAGS_KEY,)).fetchone():
+                    return
+                result = settle_source_resolution_tags(connection)
+                connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
+                                   (RESOLUTION_TAGS_KEY, str(time.time()), json.dumps(result, ensure_ascii=False)))
+        except Exception:
+            LOGGER.exception('来源分辨率标签补修失败')
+            return
+        LOGGER.info('来源分辨率标签：解除 %s 行', len(result['tags']))
 
     def _clear_stale_codes(self) -> None:
         """清掉旧版从文件名误认的番号（`stale_filename_codes`），只做一次。"""

@@ -1049,10 +1049,11 @@ class UpgradeRepairTests(unittest.TestCase):
             row=connection.execute('SELECT catalog_title,field_owners FROM asset WHERE id=1').fetchone()
             self.assertEqual(row[0], '元の題名')
             self.assertEqual(json.loads(row[1])['catalog_title'], 'auto:dmm')
-            # 悬空候选与 JavDB 记录类型两条补修各记一行，这里只数更新已有资料的回执。
-            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?)',
+            # 悬空候选、JavDB 记录类型与来源分辨率标签三条补修各记一行，这里只数更新已有资料的回执。
+            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?,?)',
                                                 (upgrade_repairs.DANGLING_KEY,
-                                                 upgrade_repairs.JAVDB_RECORDS_KEY)).fetchone()[0], 2)
+                                                 upgrade_repairs.JAVDB_RECORDS_KEY,
+                                                 upgrade_repairs.RESOLUTION_TAGS_KEY)).fetchone()[0], 2)
             self.assertEqual(connection.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
         self.assertEqual(len(list(self.root.glob('ledger.pre-upgrade-*.db'))), 2)
         self.assertEqual(upgrade_repairs._read(self.service.receipt)['text_media_ids'], [1])
@@ -1464,10 +1465,11 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.database.read_connection() as connection:
             rows = connection.execute('SELECT id,code,duration FROM asset ORDER BY id').fetchall()
             self.assertEqual([tuple(row) for row in rows], [(1, 'SSIS-123', None), (2, 'BAD-001', None)])
-            # 悬空候选与 JavDB 记录类型两条补修各记一行，这里只数更新已有资料的回执。
-            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?)',
+            # 悬空候选、JavDB 记录类型与来源分辨率标签三条补修各记一行，这里只数更新已有资料的回执。
+            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?,?)',
                                                 (upgrade_repairs.DANGLING_KEY,
-                                                 upgrade_repairs.JAVDB_RECORDS_KEY)).fetchone()[0], 1)
+                                                 upgrade_repairs.JAVDB_RECORDS_KEY,
+                                                 upgrade_repairs.RESOLUTION_TAGS_KEY)).fetchone()[0], 1)
         self.assertEqual(len(list(self.root.glob('ledger.pre-upgrade-*.db'))), 1)
         receipt = upgrade_repairs._read(self.service.receipt)
         self.assertEqual(receipt['local']['before'], receipt['local']['after'])
@@ -1770,6 +1772,46 @@ class UpgradeRepairTests(unittest.TestCase):
             self.assertEqual(auto_landing_revert.plan(
                 connection, upgrade_repairs.JAVDB_RECORDS_SOURCE, logo_root=self.root / 'logos',
                 cover_root=self.root / 'covers')['javdb_records'], [])
+
+    def test_scraped_4k_tags_are_released_once_and_revert_by_source(self):
+        """资料站的 `4K` 是官方发行版本：刮削挂上的解除，`stash` 导入与人手加的留着；按回执整批插回。"""
+        from peach import auto_landing_revert, repair_center
+        with self.database.write_transaction() as connection:
+            for key in (1, 2, 3, 4):
+                connection.execute("INSERT INTO asset(id,location,path,name,medium) VALUES(?,'local',?,?,'video')",
+                                   (key, rf'R:\media\{key}.mp4', f'{key}.mp4'))
+            for key, name in ((10, '4K'), (11, '痴女')):
+                connection.execute("INSERT INTO entity(id,kind,canonical_name,normalized_name,created_at,updated_at)"
+                                   " VALUES(?,'tag',?,?,'t','t')", (key, name, name))
+            rows = ((1, 10, '4K', 'javinizer:javdb:tag'), (2, 10, '4K', 'auto:metadata-tags@20261104T141053'),
+                    (3, 10, '4K', 'stash'), (4, 10, '4K', 'user:manual'), (1, 11, '痴女', 'javinizer:javdb:tag'))
+            for asset_id, entity_id, tag, source in rows:
+                connection.execute('INSERT INTO asset_tag(asset_id,tag,confidence,source) VALUES(?,?,0.9,?)',
+                                   (asset_id, tag, source))
+                connection.execute("INSERT INTO asset_entity(asset_id,entity_id,role,source,confidence,first_seen_at,"
+                                   "last_seen_at) VALUES(?,?,'tag',?,0.9,'t','t')", (asset_id, entity_id, source))
+
+        def tagged():
+            with self.database.read_connection() as connection:
+                return (sorted(tuple(row) for row in connection.execute('SELECT asset_id,tag,source FROM asset_tag')),
+                        sorted(tuple(row) for row in connection.execute(
+                            "SELECT asset_id,entity_id,source FROM asset_entity WHERE role='tag'")))
+
+        before = tagged()
+        self.service.prepare()
+        self.assertEqual(tagged(), ([(1, '痴女', 'javinizer:javdb:tag'), (3, '4K', 'stash'), (4, '4K', 'user:manual')],
+                                    [(1, 11, 'javinizer:javdb:tag'), (3, 10, 'stash'), (4, 10, 'user:manual')]))
+        with self.database.read_connection() as connection:
+            center = repair_center.snapshot(connection, {}, cloud_pending=0)
+        self.assertEqual(next(item['changed'] for item in center['items'] if item['id'] == 'resolution-tags'), 2)
+        # 按来源整批撤回（ADR-0052）：两份行原样插回；补修不再重做。
+        with self.database.write_transaction() as connection:
+            planned = auto_landing_revert.plan(connection, upgrade_repairs.RESOLUTION_TAGS_SOURCE,
+                                               logo_root=self.root / 'logos', cover_root=self.root / 'covers')
+            self.assertEqual(auto_landing_revert.apply(connection, planned)['插回来源分辨率标签'], 4)
+        self.assertEqual(tagged(), before)
+        self.service.prepare()
+        self.assertEqual(tagged(), before)
 
     def test_old_code_snapshot_stays_while_another_video_is_that_release(self):
         from peach import artifact_rules
