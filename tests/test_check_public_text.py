@@ -121,6 +121,12 @@ class PublishCommandTests(unittest.TestCase):
             self.assertEqual(check_public_text.hook({"tool_input": {"command": "git status"}}), 0)
             load.assert_not_called()
 
+    def test_a_delivery_script_chained_after_the_publish_command_is_not_its_text(self):
+        command = ("gh pr create --title t --body-file body.md && "
+                   "python scripts/agent_worktree.py integrate --branch agent/claude/x")
+        with mock.patch.object(check_public_text, "load_library", return_value=None):
+            self.assertEqual(check_public_text.hook({"cwd": str(self.cwd), "tool_input": {"command": command}}), 0)
+
     def test_the_hook_blocks_insider_terms_even_without_a_ledger(self):
         (self.cwd / "notes.md").write_text("合批验证，见批次 0570。", encoding="utf-8")
         for command in ("gh pr edit 3 --body '修复 N01'", "gh release edit v1.0.0 --notes-file notes.md"):
