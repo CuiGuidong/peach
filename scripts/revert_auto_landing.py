@@ -18,6 +18,7 @@
     revert_auto_landing.py --source auto:western-artwork --batch auto:western-artwork@20261008T000000Z
     revert_auto_landing.py --source upgrade:garbled-performers
     revert_auto_landing.py --source upgrade:javdb-actor-records
+    revert_auto_landing.py --source upgrade:source-resolution-tags
 
 默认只列计划；`--apply` 必须同时给 `--backup`，删文件在账本行之后、同一次运行里完成。
 """
@@ -118,6 +119,9 @@ def print_plan(planned: dict) -> None:
         what = (f"订阅源 {item['source_id']}" if item["kind"] == "feed"
                 else ("无码" if item["uncensored"] else "有码"))
         print(f" - JavDB {item['entity_id']:<8} {item['external_id']:<10} {what} {item['batch']}")
+    for item in planned.get("resolution_tags", []):
+        row = item["row"]
+        print(f" - 分辨率标签 {row['asset_id']:<8} {item['kind']:<4} {row['source']} {item['batch']}")
     print(auto_landing_revert.counts(planned))
 
 

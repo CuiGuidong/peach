@@ -228,7 +228,7 @@ export async function mountDetailPlayer(
   });
   player.ready(() => {
     enforceDuration();
-    const updateQualities = mountPlayerQualityControl(player, video, item.height, options.qualities ?? null);
+    const updateQualities = mountPlayerQualityControl(player, video, item, options.qualities ?? null);
     options.mediaPromise?.then((next) => {
       if (!live()) return;
       updateQualities?.(next?.qualities?.length ? next.qualities : null);
