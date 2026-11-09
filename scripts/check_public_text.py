@@ -1,9 +1,15 @@
-"""要公开的文字发出去之前，对照本机账本找成串列出的馆藏细节。
+"""要公开的文字发出去之前，查两样：成串列出的馆藏细节，和外部读者看不懂的内部用语。
 
 PR、issue、评论与提交说明都公开在 GitHub 上，编辑后旧版仍留在编辑历史里。问题本身需要的
 一两个番号、前缀或标签照常写；把账本里的作品番号、人物名、标题片段成串列出来就拦下。
 判据只读本机账本（SQLite `mode=ro`），仓库里不带任何馆藏数据；没有账本的机器（CI、
-其他贡献者）一律放行。确有必要多列时，在正文里写一行 `peach-public-text: <理由>` 放行。
+其他贡献者）一律放行。
+
+PR、issue 与评论的读者是社区贡献者和用户：反馈汇总的条目编号、派单的批次号与轮次、
+本机交付流程的说法（工作树、`ready` 输出等）他们看不懂，见 `insider_terms`。这一项不看账本，
+也不查提交说明——改工作树脚本的提交本来就要写工作树。
+
+确有必要时，在正文里写一行 `peach-public-text: <理由>` 放行。
 
 用法：
     python scripts/check_public_text.py FILE...      # 检查文件，`-` 读 stdin
@@ -28,8 +34,21 @@ GRAM = 7
 LIMITS = {"番号": 3, "人物": 2, "标题片段": 2}
 WAIVER = re.compile(r"peach-public-text:\s*\S")
 #: 会把文字发到 GitHub 的 gh 子命令。
-PUBLISH = re.compile(r"\bgh\s+(?:(?:pr|issue)\s+(?:create|edit|comment)\b|api\b[^\n]*\bcomments\b)")
-BODY_FILE = re.compile(r"""(?:--body-file|-F)[=\s]+(?:body=@)?(?P<path>"[^"]+"|'[^']+'|[^\s"';|&]+)""")
+PUBLISH = re.compile(r"\bgh\s+(?:(?:pr|issue)\s+(?:create|edit|comment)\b|release\s+(?:create|edit)\b"
+                     r"|api\b[^\n]*\bcomments\b)")
+BODY_FILE = re.compile(r"""(?:--body-file|--notes-file|-F)[=\s]+(?:body=@)?(?P<path>"[^"]+"|'[^']+'|[^\s"';|&]+)""")
+#: 反引号里的命令、标识照写，不算内部用语。
+CODE_SPAN = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+#: 外部读者看不懂的内部用语，按类给出；改法见 `INSIDER_HINT`。
+INSIDER = {
+    "反馈条目编号": re.compile(r"(?<![A-Za-z0-9_/#.\-])(?:N\d{2,3}|R[0-2]\s*[–-]\s*R[0-2])(?![A-Za-z0-9])"),
+    "批次与轮次": re.compile(r"批次\s*[0-9]|第\s*[一二三四五六七八九十0-9]+\s*[批轮]|合批|首轮"),
+    "本机交付流程": re.compile(r"工作树|集成分支|主检出|派单|协调会话|已签发|按域|agent_worktree"
+                         r"|\b(?:ready|integrate|preflight)\s*[:：(（]"),
+    "自造用语": re.compile(r"门槛|本机提交者|账本副本|真相字段|升级后存量"),
+}
+INSIDER_HINT = ("编号与批次号删掉、直接写问题本身；测试结果只写测试命令、范围和结果；"
+                "门槛写「检查」，账本副本写「账本备份」，升级后存量写「对已有数据的影响」")
 
 
 def code_key(prefix: str, digits: str) -> str:
@@ -89,6 +108,19 @@ def problems(text: str, library: Library | None) -> list[str]:
             for kind, values in found.items() if len(values) >= LIMITS[kind]]
 
 
+def insider_terms(text: str) -> list[str]:
+    """PR、issue 与评论里外部读者看不懂的内部用语，每类一句；写了放行理由时为空。"""
+    if WAIVER.search(text):
+        return []
+    plain = CODE_SPAN.sub(" ", text)
+    found = []
+    for kind, pattern in INSIDER.items():
+        terms = sorted({match.group(0).strip() for match in pattern.finditer(plain)})
+        if terms:
+            found.append(f"{kind}：" + "、".join(terms[:6]) + ("……" if len(terms) > 6 else ""))
+    return found
+
+
 def ledger_for(project: Path) -> Path | None:
     """这个检出所用 Peach 数据目录里的账本；找不到数据目录或账本时返回 None。"""
     sys.path.insert(0, str(ROOT / "src"))
@@ -124,7 +156,7 @@ def publish_text(command: str, cwd: Path) -> str | None:
 
 
 def hook(payload: dict) -> int:
-    """PreToolUse：gh 要发的文字成串列了馆藏就退出码 2，stderr 交给模型改。"""
+    """PreToolUse：gh 要发的文字成串列了馆藏或用了内部用语就退出码 2，stderr 交给模型改。"""
     command = str((payload.get("tool_input") or {}).get("command") or "")
     if "gh" not in command:
         return 0
@@ -134,13 +166,17 @@ def hook(payload: dict) -> int:
     text = publish_text(command, cwd)
     if text is None:
         return 0
-    found = problems(text, load_library(cwd))
-    if not found:
-        return 0
-    print("这次要发到 GitHub 的文字成串列出了本机账本里的馆藏细节（" + "；".join(found) + "）。"
-          "按 peach-issue-delivery：规则效果写类型和定性结论，只留问题本身需要的一两个例子；"
-          "确有必要多列时，正文加一行 `peach-public-text: <理由>`。", file=sys.stderr)
-    return 2
+    found, insider = problems(text, load_library(cwd)), insider_terms(text)
+    if found:
+        print("这次要发到 GitHub 的文字成串列出了本机账本里的馆藏细节（" + "；".join(found) + "）。"
+              "按 peach-issue-delivery：规则效果写类型和定性结论，只留问题本身需要的一两个例子。", file=sys.stderr)
+    if insider:
+        print("这次要发到 GitHub 的文字用了外部读者看不懂的内部用语（" + "；".join(insider) + "）。"
+              + INSIDER_HINT + "。", file=sys.stderr)
+    if found or insider:
+        print("确有必要保留时，正文加一行 `peach-public-text: <理由>`。", file=sys.stderr)
+        return 2
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -156,12 +192,11 @@ def main(argv: list[str] | None = None) -> int:
         return hook(payload if isinstance(payload, dict) else {})
     library = load_library(ROOT)
     if library is None:
-        print("没有找到本机账本，跳过检查")
-        return 0
+        print("没有找到本机账本，只查内部用语")
     failed = False
     for name in args.files or ["-"]:
         text = sys.stdin.read() if name == "-" else Path(name).read_text(encoding="utf-8")
-        for problem in problems(text, library):
+        for problem in problems(text, library) + insider_terms(text):
             failed = True
             print(f"{name}: {problem}")
     return 1 if failed else 0

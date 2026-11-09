@@ -228,15 +228,20 @@ def require_pull_request(worker: Path, branch: str, target_branch: str, head: st
 
 
 def require_public_text(repo: Path, texts: dict[str, str]) -> None:
-    """PR 正文与提交说明都公开在 GitHub 上：成串列出本机馆藏细节的拒收。
+    """PR 正文与提交说明都公开在 GitHub 上：成串列出本机馆藏细节的拒收；PR 正文还不收内部用语。
 
-    判据在 `scripts/check_public_text.py`，只读本机账本；没有账本的机器放行。
+    判据在 `scripts/check_public_text.py`：馆藏细节只读本机账本，没有账本的机器放行；内部用语
+    只查 PR 正文，提交说明写给开发者，改工作树脚本的提交本来就要写工作树。
     """
     library = check_public_text.load_library(repo)
     found = [f"{name}（{'；'.join(problems)}）" for name, text in texts.items()
              for problems in [check_public_text.problems(text, library)] if problems]
     if found:
         raise WorkspaceError("公开文字成串列出了馆藏细节，改写 PR 正文或提交说明后再合入：" + "，".join(found))
+    insider = check_public_text.insider_terms(texts.get("PR 正文", ""))
+    if insider:
+        raise WorkspaceError("PR 正文用了外部读者看不懂的内部用语（" + "；".join(insider) + "），"
+                             + check_public_text.INSIDER_HINT + "；改写后再合入")
 
 
 def merge_message(branch: str, pull_request: dict[str, object]) -> str:

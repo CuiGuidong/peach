@@ -276,7 +276,7 @@ class PullRequestIntegrationTests(_WorktreeCase):
         body = ("排查记录里顺带提到 #3，不算关联。\n\nRefs #45\r\n"
                 "  Refs peach-mitao/peach-roadmap#7\n"
                 "Fixes https://github.com/example/peach/issues/8\n"
-                "Refs N01（Telegram 反馈）\n")
+                "Refs Telegram 用户反馈（非 GitHub issue）\n")
         with self.github(json.dumps({**self.pr, "body": body})):
             result = integrate(self.repo, self.branch)
         refs = ["Refs #45", "Refs peach-mitao/peach-roadmap#7",
@@ -297,6 +297,13 @@ class PullRequestIntegrationTests(_WorktreeCase):
             self.pr["headRefOid"] = _git(self.worker, "rev-parse", "HEAD").stdout.strip()
             with self.github(json.dumps({**self.pr, "body": "只修 ZZQ-101 的前缀。"})):
                 self.assertRaisesRegex(WorkspaceError, "提交 [0-9a-f]+（人物 2 个", integrate, self.repo, self.branch)
+
+    def test_insider_terms_in_the_pr_body_are_refused_but_commit_messages_may_name_the_tooling(self):
+        with mock.patch.object(check_public_text, "load_library", return_value=None):
+            self.assertRaisesRegex(WorkspaceError, "内部用语.*合批", agent_worktree.require_public_text,
+                                   self.repo, {"PR 正文": "合批验证：两处反馈修复。"})
+            agent_worktree.require_public_text(self.repo, {"PR 正文": "两处反馈修复一起合入。",
+                                                           "提交 abc1234": "fix(worktree): 工作树残留检查跳过空目录"})
 
     def test_a_single_example_or_a_machine_without_a_ledger_still_integrates(self):
         library = check_public_text.Library(codes={"ZZQ-101", "ZZQ-102", "ZZQ-103"})
