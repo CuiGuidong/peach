@@ -95,6 +95,13 @@ def retry_postprocess(body: dict = Body(...), service=Depends(browser_client)):
         raise HTTPException(400, str(error)) from None
 
 
+def prioritize(body: dict = Body(...), service=Depends(browser_client)):
+    try:
+        return JSONResponse(service.prioritize(body.get("code")), headers={"Cache-Control": "no-store"})
+    except ValueError as error:
+        raise HTTPException(400, str(error)) from None
+
+
 def dismiss(body: dict = Body(...), service=Depends(browser_client)):
     try:
         return JSONResponse(service.dismiss(body), headers={"Cache-Control": "no-store"})
@@ -145,6 +152,7 @@ def create_router(local_only) -> APIRouter:
     router.add_api_route("/api/jav-browser/people", people, methods=["GET"])
     router.add_api_route("/api/jav-browser", add, methods=["POST"])
     router.add_api_route("/api/jav-browser/postprocess", retry_postprocess, methods=["POST"])
+    router.add_api_route("/api/jav-browser/prioritize", prioritize, methods=["POST"])
     router.add_api_route("/api/jav-browser/performer", performer, methods=["GET"])
     router.add_api_route("/api/jav-browser/performer", follow_performer, methods=["POST"])
     router.add_api_route("/api/jav-browser/dismiss", dismiss, methods=["POST"])
