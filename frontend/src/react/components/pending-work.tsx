@@ -1,5 +1,6 @@
 /* 资料还在补：资料页与作品详情共用的那一枚状态标签。列出在跑与排队的那几项，补完由页面重取后自己消失。 */
 import { StatusLabel } from './status-label';
+import { joinList, t } from '../../i18n';
 
 /** 接口里 `pending_work` 的一项：还在排队或正在跑的资料补全。 */
 export interface PendingWorkItem { task_key: string; label: string; status: 'pending' | 'running' | string }
@@ -14,10 +15,10 @@ export const pendingRefetch = ({ state }: { state: { data?: { pending_work?: Pen
 export function PendingWork({ work }: { work: readonly PendingWorkItem[] | undefined }) {
   if (!work?.length) return null;
   const running = work.some((item) => item.status === 'running');
-  const labels = [...new Set(work.map((item) => item.label))].join('、');
+  const tasks = joinList([...new Set(work.map((item) => item.label))]);
   return (
     <div data-pending-work="" role="status" className="flex min-w-0 max-w-full overflow-hidden">
-      <StatusLabel tone="progress">{`${running ? '正在补全' : '等待补全'}：${labels}`}</StatusLabel>
+      <StatusLabel tone="progress">{t(running ? 'shell:pendingWork.running' : 'shell:pendingWork.waiting', { tasks })}</StatusLabel>
     </div>
   );
 }

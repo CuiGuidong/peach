@@ -49,19 +49,22 @@ export async function prefetchMediaRepair(signal: AbortSignal): Promise<void> {
 }
 
 const count = (value: number) => Number(value).toLocaleString();
+/* 服务端 `stage` 是中文阶段名，显示时换成译文；认不出的原样显示。 */
+const SCAN_STAGE = '扫描', REPAIR_STAGE = '修复'; // i18n-exempt: 服务端返回的阶段值
+const STAGE_LABELS: Record<string, string> = { [SCAN_STAGE]: t('cleanup:mediaRepair.scanStage'), [REPAIR_STAGE]: t('cleanup:mediaRepair.repairStage') };
 
 /** 一句话说清此刻在干什么：扫描报进度，修复报进度加当前这部片。 */
 export function statusLine(state: MediaRepairState): string {
   if (state.status === 'running') {
     // 服务端偶尔报出超过总数的已查数，按总数封顶。
     const where = state.total ? `${count(Math.min(state.checked || 0, state.total))} / ${count(state.total)}` : t('cleanup:mediaRepair.preparing');
-    return state.stage === '修复' && state.message
+    return state.stage === REPAIR_STAGE && state.message
       ? t('cleanup:mediaRepair.repairingProgress', { progress: where, name: state.message })
-      : `${state.stage || t('cleanup:mediaRepair.scanStage')} ${where}`;
+      : t('cleanup:mediaRepair.stageProgress', { stage: STAGE_LABELS[state.stage || SCAN_STAGE] ?? state.stage, progress: where });
   }
   if (state.status === 'complete' && (state.repaired || state.failed)) {
     return state.failed
-      ? t('cleanup:mediaRepair.repairedWithFailures', { count: Number(state.repaired || 0), failed: count(state.failed) })
+      ? t('cleanup:mediaRepair.repairedWithFailures', { count: Number(state.repaired || 0), failed: Number(state.failed) })
       : t('cleanup:mediaRepair.repairedDone', { count: Number(state.repaired || 0) });
   }
   return '';

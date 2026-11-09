@@ -1,37 +1,37 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "43acac22-76f1-4059-8437-3b3169b4d657", e._sentryDebugIdIdentifier = "sentry-dbid-43acac22-76f1-4059-8437-3b3169b4d657");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7c6f0eb2-b725-438c-a017-8df5f0cc21cb", e._sentryDebugIdIdentifier = "sentry-dbid-7c6f0eb2-b725-438c-a017-8df5f0cc21cb");
 	} catch {}
 })();
 import { CHART_CARD as e, CategoryTick as t, ChartEmpty as n, ChartHead as r, ChartTip as i, Dot as a, EvilBarChart as o, Layer as s, TIP_SURFACE as c, TIP_SWATCH as l, Text as u, TipRow as d, ZIndexLayer as f, adaptEventsOfChild as p, addAngleAxis as m, categoryAxisWidth as h, combineAxisTicks as g, combineCategoricalDomain as _, combineConfiguredScale as v, combineGraphicalItemTicks as y, createSelector as b, defaultPolarAngleAxisProps as x, degreeToRadian as S, getAxisTypeBasedOnLayout as C, getClassNameFromUnknown as w, noop as T, pickAxisType as E, polarToCartesian as D, rechartsScaleFactory as ee, removeAngleAxis as te, resolveDefaultProps as ne, roundTemplateLiteral as re, selectAngleAxis as O, selectAngleAxisRangeWithReversed as ie, selectChartLayout as k, selectDuplicateDomain as A, selectPolarAppliedValues as ae, selectPolarAxisCheckedDomain as oe, selectPolarNiceTicks as se, selectPolarViewBox as ce, selectRadiusAxis as le, selectRadiusAxisRangeWithReversed as ue, selectRealScaleType as de, selectRenderableAxisSettings as fe, svgPropertiesAndEvents as j, svgPropertiesNoEvents as M, svgPropertiesNoEventsFromUnknown as pe, tone as me, useAppDispatch as he, useAppSelector as N, useIsPanorama as ge, usePolarChartLayout as _e } from "./peach-app.chart-tip-CRxYp6KT.js";
-import { __toESM as ve, clsx as P, f1 as ye, require_jsx_runtime as be, require_react as xe } from "./peach-app.js";
+import { __toESM as ve, clsx as P, f1 as ye, interfaceLanguage as be, require_jsx_runtime as xe, require_react as Se, t as F } from "./peach-app.js";
 // node_modules/recharts/es6/shape/Polygon.js
-var F = /* @__PURE__ */ ve(xe()), Se = [
+var I = /* @__PURE__ */ ve(Se()), Ce = [
 	"points",
 	"className",
 	"baseLinePoints",
 	"connectNulls"
-], Ce;
-function I() {
-	return I = Object.assign ? Object.assign.bind() : function(e) {
+], we;
+function L() {
+	return L = Object.assign ? Object.assign.bind() : function(e) {
 		for (var t = 1; t < arguments.length; t++) {
 			var n = arguments[t];
 			for (var r in n) ({}).hasOwnProperty.call(n, r) && (e[r] = n[r]);
 		}
 		return e;
-	}, I.apply(null, arguments);
+	}, L.apply(null, arguments);
 }
-function we(e, t) {
+function Te(e, t) {
 	if (e == null) return {};
-	var n, r, i = Te(e, t);
+	var n, r, i = Ee(e, t);
 	if (Object.getOwnPropertySymbols) {
 		var a = Object.getOwnPropertySymbols(e);
 		for (r = 0; r < a.length; r++) n = a[r], t.indexOf(n) === -1 && {}.propertyIsEnumerable.call(e, n) && (i[n] = e[n]);
 	}
 	return i;
 }
-function Te(e, t) {
+function Ee(e, t) {
 	if (e == null) return {};
 	var n = {};
 	for (var r in e) if ({}.hasOwnProperty.call(e, r)) {
@@ -40,23 +40,23 @@ function Te(e, t) {
 	}
 	return n;
 }
-function Ee(e, t) {
+function De(e, t) {
 	return t ||= e.slice(0), Object.freeze(Object.defineProperties(e, { raw: { value: Object.freeze(t) } }));
 }
-var L = (e) => e != null && e.x === +e.x && e.y === +e.y, De = function() {
+var R = (e) => e != null && e.x === +e.x && e.y === +e.y, Oe = function() {
 	var e = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : [], t = [[]];
 	e.forEach((e) => {
 		var n = t[t.length - 1];
-		L(e) ? n && n.push(e) : n && n.length > 0 && t.push([]);
+		R(e) ? n && n.push(e) : n && n.length > 0 && t.push([]);
 	});
 	var n = e[0], r = t[t.length - 1];
-	L(n) && r && r.push(n);
+	R(n) && r && r.push(n);
 	var i = t[t.length - 1];
 	return i && i.length <= 0 && (t = t.slice(0, -1)), t;
-}, R = (e, t) => {
-	var n = De(e);
+}, z = (e, t) => {
+	var n = Oe(e);
 	t && (n = [n.reduce((e, t) => [...e, ...t], [])]);
-	var r = n.map((e) => e.reduce((e, t, n) => re(Ce ||= Ee([
+	var r = n.map((e) => e.reduce((e, t, n) => re(we ||= De([
 		"",
 		"",
 		"",
@@ -64,66 +64,66 @@ var L = (e) => e != null && e.x === +e.x && e.y === +e.y, De = function() {
 		""
 	]), e, n === 0 ? "M" : "L", t.x, t.y), "")).join("");
 	return n.length === 1 ? `${r}Z` : r;
-}, Oe = (e, t, n) => {
-	var r = R(e, n);
-	return `${r.slice(-1) === "Z" ? r.slice(0, -1) : r}L${R(Array.from(t).reverse(), n).slice(1)}`;
-}, z = (e) => {
-	var t = e.points, n = e.className, r = e.baseLinePoints, i = e.connectNulls, a = we(e, Se);
+}, ke = (e, t, n) => {
+	var r = z(e, n);
+	return `${r.slice(-1) === "Z" ? r.slice(0, -1) : r}L${z(Array.from(t).reverse(), n).slice(1)}`;
+}, B = (e) => {
+	var t = e.points, n = e.className, r = e.baseLinePoints, i = e.connectNulls, a = Te(e, Ce);
 	if (!t || !t.length) return null;
 	var o = P("recharts-polygon", n);
 	if (r && r.length) {
-		var s = a.stroke && a.stroke !== "none", c = Oe(t, r, i);
-		return /*#__PURE__*/ F.createElement("g", { className: o }, /*#__PURE__*/ F.createElement("path", I({}, j(a), {
+		var s = a.stroke && a.stroke !== "none", c = ke(t, r, i);
+		return /*#__PURE__*/ I.createElement("g", { className: o }, /*#__PURE__*/ I.createElement("path", L({}, j(a), {
 			fill: c.slice(-1) === "Z" ? a.fill : "none",
 			stroke: "none",
 			d: c
-		})), s ? /*#__PURE__*/ F.createElement("path", I({}, j(a), {
+		})), s ? /*#__PURE__*/ I.createElement("path", L({}, j(a), {
 			fill: "none",
-			d: R(t, i)
-		})) : null, s ? /*#__PURE__*/ F.createElement("path", I({}, j(a), {
+			d: z(t, i)
+		})) : null, s ? /*#__PURE__*/ I.createElement("path", L({}, j(a), {
 			fill: "none",
-			d: R(r, i)
+			d: z(r, i)
 		})) : null);
 	}
-	var l = R(t, i);
-	return /*#__PURE__*/ F.createElement("path", I({}, j(a), {
+	var l = z(t, i);
+	return /*#__PURE__*/ I.createElement("path", L({}, j(a), {
 		fill: l.slice(-1) === "Z" ? a.fill : "none",
 		className: o,
 		d: l
 	}));
-}, B = (e, t, n) => {
+}, V = (e, t, n) => {
 	switch (t) {
 		case "angleAxis": return O(e, n);
 		case "radiusAxis": return le(e, n);
 		default: throw Error(`Unexpected axis type: ${t}`);
 	}
-}, V = (e, t, n) => {
+}, H = (e, t, n) => {
 	switch (t) {
 		case "angleAxis": return ie(e, n);
 		case "radiusAxis": return ue(e, n);
 		default: throw Error(`Unexpected axis type: ${t}`);
 	}
-}, ke = b([
-	B,
+}, Ae = b([
+	V,
 	de,
 	oe,
-	V
-], v), H = b([ke], ee), U = b([
+	H
+], v), U = b([Ae], ee), W = b([
 	k,
 	ae,
 	fe,
 	E
-], _), W = b([
+], _), G = b([
 	k,
-	B,
-	de,
-	H,
-	se,
 	V,
-	A,
+	de,
 	U,
+	se,
+	H,
+	A,
+	W,
 	E
-], g), Ae = b([W], (e) => {
+], g), je = b([G], (e) => {
 	if (e) {
 		var t = /* @__PURE__ */ new Map();
 		return e.forEach((e) => {
@@ -131,25 +131,25 @@ var L = (e) => e != null && e.x === +e.x && e.y === +e.y, De = function() {
 			t.has(n) || t.set(n, e);
 		}), Array.from(t.values());
 	}
-}), je = b([
+}), Me = b([
 	k,
-	B,
-	H,
 	V,
-	A,
 	U,
+	H,
+	A,
+	W,
 	E
-], y), Me = ["children", "type"], Ne = ["ref"];
-function G() {
-	return G = Object.assign ? Object.assign.bind() : function(e) {
+], y), Ne = ["children", "type"], Pe = ["ref"];
+function K() {
+	return K = Object.assign ? Object.assign.bind() : function(e) {
 		for (var t = 1; t < arguments.length; t++) {
 			var n = arguments[t];
 			for (var r in n) ({}).hasOwnProperty.call(n, r) && (e[r] = n[r]);
 		}
 		return e;
-	}, G.apply(null, arguments);
+	}, K.apply(null, arguments);
 }
-function K(e, t) {
+function Fe(e, t) {
 	var n = Object.keys(e);
 	if (Object.getOwnPropertySymbols) {
 		var r = Object.getOwnPropertySymbols(e);
@@ -162,27 +162,27 @@ function K(e, t) {
 function q(e) {
 	for (var t = 1; t < arguments.length; t++) {
 		var n = arguments[t] == null ? {} : arguments[t];
-		t % 2 ? K(Object(n), !0).forEach(function(t) {
-			Pe(e, t, n[t]);
-		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : K(Object(n)).forEach(function(t) {
+		t % 2 ? Fe(Object(n), !0).forEach(function(t) {
+			Ie(e, t, n[t]);
+		}) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(n)) : Fe(Object(n)).forEach(function(t) {
 			Object.defineProperty(e, t, Object.getOwnPropertyDescriptor(n, t));
 		});
 	}
 	return e;
 }
-function Pe(e, t, n) {
-	return (t = Fe(t)) in e ? Object.defineProperty(e, t, {
+function Ie(e, t, n) {
+	return (t = Le(t)) in e ? Object.defineProperty(e, t, {
 		value: n,
 		enumerable: !0,
 		configurable: !0,
 		writable: !0
 	}) : e[t] = n, e;
 }
-function Fe(e) {
-	var t = Ie(e, "string");
+function Le(e) {
+	var t = Re(e, "string");
 	return typeof t == "symbol" ? t : t + "";
 }
-function Ie(e, t) {
+function Re(e, t) {
 	if (typeof e != "object" || !e) return e;
 	var n = e[Symbol.toPrimitive];
 	if (n !== void 0) {
@@ -192,16 +192,16 @@ function Ie(e, t) {
 	}
 	return (t === "string" ? String : Number)(e);
 }
-function Le(e, t) {
+function ze(e, t) {
 	if (e == null) return {};
-	var n, r, i = Re(e, t);
+	var n, r, i = Be(e, t);
 	if (Object.getOwnPropertySymbols) {
 		var a = Object.getOwnPropertySymbols(e);
 		for (r = 0; r < a.length; r++) n = a[r], t.indexOf(n) === -1 && {}.propertyIsEnumerable.call(e, n) && (i[n] = e[n]);
 	}
 	return i;
 }
-function Re(e, t) {
+function Be(e, t) {
 	if (e == null) return {};
 	var n = {};
 	for (var r in e) if ({}.hasOwnProperty.call(e, r)) {
@@ -210,18 +210,18 @@ function Re(e, t) {
 	}
 	return n;
 }
-var ze = 1e-5, Be = Math.cos(S(45)), Ve = "angleAxis";
-function He(e) {
-	var t = he(), n = _e(), r = (0, F.useMemo)(() => {
+var Ve = 1e-5, He = Math.cos(S(45)), Ue = "angleAxis";
+function We(e) {
+	var t = he(), n = _e(), r = (0, I.useMemo)(() => {
 		e.children;
-		var t = e.type, r = Le(e, Me), i = C(n, "angleAxis", t);
+		var t = e.type, r = ze(e, Ne), i = C(n, "angleAxis", t);
 		if (i != null) return q(q({}, r), {}, { type: i });
 	}, [e, n]), i = r === N((e) => O(e, r?.id));
-	return (0, F.useEffect)(() => r == null ? T : (t(m(r)), () => {
+	return (0, I.useEffect)(() => r == null ? T : (t(m(r)), () => {
 		t(te(r));
 	}), [t, r]), i ? e.children : null;
 }
-var Ue = (e, t) => {
+var Ge = (e, t) => {
 	var n = t.cx, r = t.cy, i = t.radius, a = t.orientation, o = t.tickSize || 8, s = D(n, r, i, e.coordinate), c = D(n, r, i + (a === "inner" ? -1 : 1) * o, e.coordinate);
 	return {
 		x1: s.x,
@@ -229,31 +229,31 @@ var Ue = (e, t) => {
 		x2: c.x,
 		y2: c.y
 	};
-}, We = (e, t) => {
+}, Ke = (e, t) => {
 	var n = Math.cos(S(-e.coordinate));
-	return n > ze ? t === "outer" ? "start" : "end" : n < -ze ? t === "outer" ? "end" : "start" : "middle";
-}, Ge = (e) => {
+	return n > Ve ? t === "outer" ? "start" : "end" : n < -Ve ? t === "outer" ? "end" : "start" : "middle";
+}, qe = (e) => {
 	var t = Math.cos(S(-e.coordinate)), n = Math.sin(S(-e.coordinate));
-	return Math.abs(t) <= Be ? n > 0 ? "start" : "end" : "middle";
-}, Ke = (e) => {
+	return Math.abs(t) <= He ? n > 0 ? "start" : "end" : "middle";
+}, Je = (e) => {
 	var t = e.cx, n = e.cy, r = e.radius, i = e.axisLineType, o = e.axisLine, s = e.ticks;
 	if (!o) return null;
 	var c = q(q({}, M(e)), {}, { fill: "none" }, M(o));
-	if (i === "circle") return /*#__PURE__*/ F.createElement(a, G({ className: "recharts-polar-angle-axis-line" }, c, {
+	if (i === "circle") return /*#__PURE__*/ I.createElement(a, K({ className: "recharts-polar-angle-axis-line" }, c, {
 		cx: t,
 		cy: n,
 		r
 	}));
 	var l = s.map((e) => D(t, n, r, e.coordinate));
-	return /*#__PURE__*/ F.createElement(z, G({ className: "recharts-polar-angle-axis-line" }, c, { points: l }));
-}, qe = (e) => {
+	return /*#__PURE__*/ I.createElement(B, K({ className: "recharts-polar-angle-axis-line" }, c, { points: l }));
+}, Ye = (e) => {
 	var t = e.tick, n = e.tickProps, r = e.value;
-	return t ? /*#__PURE__*/ F.isValidElement(t) ? /*#__PURE__*/ F.cloneElement(t, n) : typeof t == "function" ? t(n) : /*#__PURE__*/ F.createElement(u, G({}, n, { className: "recharts-polar-angle-axis-tick-value" }), r) : null;
-}, Je = (e) => {
+	return t ? /*#__PURE__*/ I.isValidElement(t) ? /*#__PURE__*/ I.cloneElement(t, n) : typeof t == "function" ? t(n) : /*#__PURE__*/ I.createElement(u, K({}, n, { className: "recharts-polar-angle-axis-tick-value" }), r) : null;
+}, Xe = (e) => {
 	var t = e.tick, n = e.tickLine, r = e.tickFormatter, i = e.stroke, a = e.ticks, o = M(e);
 	o.ref;
-	var c = Le(o, Ne), l = pe(t), u = q(q({}, c), {}, { fill: "none" }, M(n)), d = a.map((a, o) => {
-		var d = Ue(a, e), f = We(a, e.orientation), m = Ge(a), h = q(q(q({}, c), {}, {
+	var c = ze(o, Pe), l = pe(t), u = q(q({}, c), {}, { fill: "none" }, M(n)), d = a.map((a, o) => {
+		var d = Ge(a, e), f = Ke(a, e.orientation), m = qe(a), h = q(q(q({}, c), {}, {
 			textAnchor: f,
 			verticalAnchor: m,
 			stroke: "none",
@@ -264,28 +264,28 @@ var Ue = (e, t) => {
 			x: d.x2,
 			y: d.y2
 		});
-		return /*#__PURE__*/ F.createElement(s, G({
+		return /*#__PURE__*/ I.createElement(s, K({
 			className: P("recharts-polar-angle-axis-tick", w(t)),
 			key: `tick-${a.coordinate}`
-		}, p(e, a, o)), n && /*#__PURE__*/ F.createElement("line", G({ className: "recharts-polar-angle-axis-tick-line" }, u, d)), /*#__PURE__*/ F.createElement(qe, {
+		}, p(e, a, o)), n && /*#__PURE__*/ I.createElement("line", K({ className: "recharts-polar-angle-axis-tick-line" }, u, d)), /*#__PURE__*/ I.createElement(Ye, {
 			tick: t,
 			tickProps: h,
 			value: r ? r(a.value, o) : a.value
 		}));
 	});
-	return /*#__PURE__*/ F.createElement(s, { className: "recharts-polar-angle-axis-ticks" }, d);
-}, Ye = (e) => {
-	var t = e.angleAxisId, n = N(ce), r = N((e) => H(e, "angleAxis", t)), i = ge(), a = N((e) => Ae(e, "angleAxis", t, i));
+	return /*#__PURE__*/ I.createElement(s, { className: "recharts-polar-angle-axis-ticks" }, d);
+}, Ze = (e) => {
+	var t = e.angleAxisId, n = N(ce), r = N((e) => U(e, "angleAxis", t)), i = ge(), a = N((e) => je(e, "angleAxis", t, i));
 	if (n == null || !a || !a.length || r == null) return null;
 	var o = q(q(q({}, e), {}, { scale: r }, n), {}, {
 		radius: n.outerRadius,
 		ticks: a
 	});
-	return /*#__PURE__*/ F.createElement(f, { zIndex: o.zIndex }, /*#__PURE__*/ F.createElement(s, { className: P("recharts-polar-angle-axis", Ve, o.className) }, /*#__PURE__*/ F.createElement(Ke, o), /*#__PURE__*/ F.createElement(Je, o)));
+	return /*#__PURE__*/ I.createElement(f, { zIndex: o.zIndex }, /*#__PURE__*/ I.createElement(s, { className: P("recharts-polar-angle-axis", Ue, o.className) }, /*#__PURE__*/ I.createElement(Je, o), /*#__PURE__*/ I.createElement(Xe, o)));
 };
-function Xe(e) {
+function Qe(e) {
 	var t = ne(e, x);
-	return /*#__PURE__*/ F.createElement(He, {
+	return /*#__PURE__*/ I.createElement(We, {
 		id: t.angleAxisId,
 		scale: t.scale,
 		type: t.type,
@@ -302,24 +302,23 @@ function Xe(e) {
 		ticks: t.ticks,
 		tick: t.tick,
 		domain: t.domain
-	}, /*#__PURE__*/ F.createElement(Ye, t));
+	}, /*#__PURE__*/ I.createElement(Ze, t));
 }
-Xe.displayName = "PolarAngleAxis";
+Qe.displayName = "PolarAngleAxis";
 // src/react/charts/bar-card.tsx
-var J = be(), Y = [0, (e) => e * 1.2];
-function Ze(e) {
-	let t = Math.abs(e), n = (t, n) => {
-		let r = e / t;
-		return `${r.toLocaleString(void 0, { maximumFractionDigits: +(Math.abs(r) < 100) })}${n}`;
-	};
-	return t >= 1e8 ? n(1e8, "亿") : t >= 1e5 ? n(1e4, "万") : e.toLocaleString();
+var J = xe(), Y = [0, (e) => e * 1.2], $e = new Intl.NumberFormat(be, {
+	notation: "compact",
+	maximumSignificantDigits: 3
+});
+function et(e) {
+	return Math.abs(e) >= 1e5 ? $e.format(e) : e.toLocaleString();
 }
 var X = (e) => ({
 	position: e,
 	className: "fill-text-secondary",
-	formatter: (e) => Ze(Number(e))
+	formatter: (e) => et(Number(e))
 });
-function Qe({ title: a, unit: s, series: c, rows: l, color: u, empty: d, layout: f = "vertical" }) {
+function tt({ title: a, unit: s, series: c, rows: l, color: u, empty: d, layout: f = "vertical" }) {
 	let p = l.filter((e) => Number.isFinite(e.value) && e.value >= 0).map((e) => ({
 		name: e.name,
 		value: e.value
@@ -335,7 +334,7 @@ function Qe({ title: a, unit: s, series: c, rows: l, color: u, empty: d, layout:
 		children: [/* @__PURE__ */ (0, J.jsx)(r, {
 			title: a,
 			figure: m.toLocaleString(),
-			note: s
+			note: s(m)
 		}), /* @__PURE__ */ (0, J.jsxs)(o, {
 			data: p,
 			config: { value: {
@@ -384,16 +383,16 @@ function Qe({ title: a, unit: s, series: c, rows: l, color: u, empty: d, layout:
 	});
 }
 // src/react/charts/heat.ts
-var $e = [
-	"周一",
-	"周二",
-	"周三",
-	"周四",
-	"周五",
-	"周六",
-	"周日"
-], et = (e, t) => e ? Math.max(.12, e / t) : 0;
-function tt(e) {
+var nt = [
+	F("manage:heatChart.monday"),
+	F("manage:heatChart.tuesday"),
+	F("manage:heatChart.wednesday"),
+	F("manage:heatChart.thursday"),
+	F("manage:heatChart.friday"),
+	F("manage:heatChart.saturday"),
+	F("manage:heatChart.sunday")
+], rt = (e, t) => e ? Math.max(.12, e / t) : 0;
+function it(e) {
 	let t = Array.from({ length: 7 }, () => Array(24).fill(0));
 	for (let n of e?.hours || []) {
 		let { weekday: e, hour: r, count: i } = n;
@@ -403,14 +402,14 @@ function tt(e) {
 	return {
 		cells: t.flatMap((e, t) => e.map((e, n) => ({
 			key: `${t}-${n}`,
-			label: `${$e[t]} ${n}:00`,
+			label: `${nt[t]} ${n}:00`,
 			count: e,
-			share: et(e, r)
+			share: rt(e, r)
 		}))),
 		total: n.reduce((e, t) => e + t, 0)
 	};
 }
-function nt(e) {
+function at(e) {
 	let t = (e?.days || []).filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.date) && Number.isFinite(e.count) && e.count >= 0).slice().sort((e, t) => e.date.localeCompare(t.date)), n = {
 		cells: [],
 		total: 0,
@@ -428,7 +427,7 @@ function nt(e) {
 			key: r,
 			label: r,
 			count: s,
-			share: et(s, o)
+			share: rt(s, o)
 		};
 	});
 	return {
@@ -439,7 +438,7 @@ function nt(e) {
 	};
 }
 // src/react/charts/heat-card.tsx
-var Z = 14, Q = 17, rt = {
+var Z = 14, Q = 17, ot = {
 	4: {
 		fill: "fill-chart-4",
 		dot: "bg-chart-4"
@@ -448,31 +447,31 @@ var Z = 14, Q = 17, rt = {
 		fill: "fill-chart-5",
 		dot: "bg-chart-5"
 	}
-}, it = {
+}, st = {
 	start: "translate-x-0",
 	center: "-translate-x-1/2",
 	end: "-translate-x-full"
 };
-function at({ cell: e, series: t, tone: n, left: r, top: i, anchor: a }) {
+function ct({ cell: e, series: t, tone: n, left: r, top: i, anchor: a }) {
 	return /* @__PURE__ */ (0, J.jsxs)("div", {
 		"aria-hidden": !0,
 		style: {
 			left: `${r}%`,
 			top: `${i}%`
 		},
-		className: `pointer-events-none absolute z-10 -mt-2 -translate-y-full ${c} ${it[a]}`,
+		className: `pointer-events-none absolute z-10 -mt-2 -translate-y-full ${c} ${st[a]}`,
 		children: [/* @__PURE__ */ (0, J.jsx)("div", {
 			className: "font-medium text-foreground",
 			children: e.label
 		}), /* @__PURE__ */ (0, J.jsx)(d, {
 			name: t,
 			value: e.count,
-			swatch: /* @__PURE__ */ (0, J.jsx)("i", { className: `${l} ${rt[n].dot}` })
+			swatch: /* @__PURE__ */ (0, J.jsx)("i", { className: `${l} ${ot[n].dot}` })
 		})]
 	});
 }
 function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: c, footer: l, tone: u }) {
-	let [d, f] = (0, F.useState)(-1), [p, m] = (0, F.useState)(0), h = (0, F.useRef)(null), g = p < i.length ? p : 0, _ = c ? 30 : 0, v = c ? 18 : 0, y = _ + o * Q, b = v + s * Q, x = (e) => ({
+	let [d, f] = (0, I.useState)(-1), [p, m] = (0, I.useState)(0), h = (0, I.useRef)(null), g = p < i.length ? p : 0, _ = c ? 30 : 0, v = c ? 18 : 0, y = _ + o * Q, b = v + s * Q, x = (e) => ({
 		x: _ + e % o * Q,
 		y: v + Math.floor(e / o) * Q
 	}), S = i[d], C = S ? x(d) : null, w = C ? (C.x + Z / 2) / y : 0, T = w < .1 ? "start" : w > .9 ? "end" : "center", E = C ? {
@@ -496,7 +495,7 @@ function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: 
 			/* @__PURE__ */ (0, J.jsx)(r, {
 				title: t,
 				figure: (S ? S.count : a).toLocaleString(),
-				note: S ? S.label : n.unit
+				note: S ? S.label : n.unit(a)
 			}),
 			/* @__PURE__ */ (0, J.jsxs)("div", {
 				className: "relative",
@@ -515,7 +514,7 @@ function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: 
 								"data-cell": t,
 								tabIndex: t === g ? 0 : -1,
 								role: "img",
-								"aria-label": `${e.label}，${e.count} ${n.cellUnit}`,
+								"aria-label": `${e.label}${F("shell:format.clauseSeparator")}${n.cell(e.count)}`,
 								x: r,
 								y: i,
 								width: Z,
@@ -523,7 +522,7 @@ function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: 
 								rx: 3,
 								fillOpacity: e.share || 1,
 								opacity: d >= 0 && d !== t ? .4 : 1,
-								className: e.share ? `outline-none transition-opacity duration-200 focus-visible:stroke-border-focus-ring ${rt[u].fill}` : "fill-chart-track outline-none transition-opacity duration-200 focus-visible:stroke-border-focus-ring",
+								className: e.share ? `outline-none transition-opacity duration-200 focus-visible:stroke-border-focus-ring ${ot[u].fill}` : "fill-chart-track outline-none transition-opacity duration-200 focus-visible:stroke-border-focus-ring",
 								onPointerEnter: () => f(t),
 								onFocus: () => {
 									f(t), m(t);
@@ -533,7 +532,7 @@ function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: 
 							}, e.key);
 						})]
 					})
-				}), S && C ? /* @__PURE__ */ (0, J.jsx)(at, {
+				}), S && C ? /* @__PURE__ */ (0, J.jsx)(ct, {
 					cell: S,
 					series: n.series,
 					tone: u,
@@ -549,7 +548,7 @@ function $({ title: t, words: n, cells: i, total: a, columns: o, rows: s, axis: 
 		]
 	});
 }
-var ot = /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [$e.map((e, t) => /* @__PURE__ */ (0, J.jsx)("text", {
+var lt = /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [nt.map((e, t) => /* @__PURE__ */ (0, J.jsx)("text", {
 	x: 0,
 	y: 18 + t * Q + 7,
 	dominantBaseline: "middle",
@@ -562,8 +561,8 @@ var ot = /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [$e.map((e, t) => /
 	className: "fill-text-secondary text-caption-1-regular",
 	children: t
 }, t))] });
-function st({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o }) {
-	let s = tt(e), c = nt(e);
+function ut({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o }) {
+	let s = it(e), c = at(e);
 	return c.cells.length ? /* @__PURE__ */ (0, J.jsxs)("div", {
 		className: "inline-grid w-full items-start gap-5 lg:grid-cols-2",
 		children: [/* @__PURE__ */ (0, J.jsx)($, {
@@ -574,8 +573,8 @@ function st({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o 
 			total: s.total,
 			columns: 24,
 			rows: 7,
-			axis: ot,
-			footer: /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [/* @__PURE__ */ (0, J.jsx)("span", { children: "星期 × 小时" }), /* @__PURE__ */ (0, J.jsx)("span", { children: e?.timezone || "UTC+08:00" })] })
+			axis: lt,
+			footer: /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [/* @__PURE__ */ (0, J.jsx)("span", { children: F("manage:charts.dayByHour") }), /* @__PURE__ */ (0, J.jsx)("span", { children: e?.timezone || "UTC+08:00" })] })
 		}), /* @__PURE__ */ (0, J.jsx)($, {
 			title: r,
 			words: i,
@@ -592,9 +591,9 @@ function st({ activity: e, title: t, dailyTitle: r, words: i, tone: a, empty: o 
 	});
 }
 // src/react/components/expandable-ranking.tsx
-function ct({ children: e, className: t = "", previewCount: n = 10 }) {
-	let r = (0, F.useId)(), i = (0, F.useRef)(null), [a, o] = (0, F.useState)(!1), [s, c] = (0, F.useState)(!1), l = F.Children.toArray(e), u = l.length > n;
-	(0, F.useLayoutEffect)(() => {
+function dt({ children: e, className: t = "", previewCount: n = 10 }) {
+	let r = (0, I.useId)(), i = (0, I.useRef)(null), [a, o] = (0, I.useState)(!1), [s, c] = (0, I.useState)(!1), l = I.Children.toArray(e), u = l.length > n;
+	(0, I.useLayoutEffect)(() => {
 		let e = i.current;
 		if (!e || !u) return;
 		let t = () => {
@@ -609,7 +608,7 @@ function ct({ children: e, className: t = "", previewCount: n = 10 }) {
 		n,
 		l.length
 	]);
-	let d = l.map((e, t) => !(0, F.isValidElement)(e) || t < n ? e : (0, F.cloneElement)(e, { inert: !a || void 0 }));
+	let d = l.map((e, t) => !(0, I.isValidElement)(e) || t < n ? e : (0, I.cloneElement)(e, { inert: !a || void 0 }));
 	return /* @__PURE__ */ (0, J.jsxs)("div", {
 		"data-expandable-ranking": !0,
 		"data-expandable": u || void 0,
@@ -629,7 +628,7 @@ function ct({ children: e, className: t = "", previewCount: n = 10 }) {
 			"data-ranking-toggle": !0,
 			"aria-controls": r,
 			"aria-expanded": a,
-			"aria-label": a ? "收起排名" : "展开更多排名",
+			"aria-label": F(a ? "shell:expandableRanking.collapse" : "shell:expandableRanking.expand"),
 			onClick: () => {
 				c(!0), o((e) => !e);
 			},
@@ -637,6 +636,6 @@ function ct({ children: e, className: t = "", previewCount: n = 10 }) {
 		}) : null]
 	});
 }
-export { st as ActivityHeat, Y as BAR_DOMAIN, Qe as BarCard, ct as ExpandableRanking, Xe as PolarAngleAxis, z as Polygon, X as barLabel, H as selectPolarAxisScale, W as selectPolarAxisTicks, je as selectPolarGraphicalItemAxisTicks };
+export { ut as ActivityHeat, Y as BAR_DOMAIN, tt as BarCard, dt as ExpandableRanking, Qe as PolarAngleAxis, B as Polygon, X as barLabel, U as selectPolarAxisScale, G as selectPolarAxisTicks, Me as selectPolarGraphicalItemAxisTicks };
 
-//# debugId=43acac22-76f1-4059-8437-3b3169b4d657
+//# debugId=7c6f0eb2-b725-438c-a017-8df5f0cc21cb

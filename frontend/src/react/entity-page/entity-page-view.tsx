@@ -37,6 +37,7 @@ import {
 } from './entity-page';
 import { useEntityOnline } from './use-entity-online';
 import { PENDING_REFETCH_MS } from '../components/pending-work';
+import { t } from '../../i18n';
 
 export function EntityPage(props: EntityPageProps) {
   const { kind, name } = props;
@@ -74,10 +75,12 @@ const newSeed = () => String(((Date.now() ^ (Math.random() * 1e9 | 0)) >>> 0) % 
 
 /** 照片一屏的读数：本地图片与样张各数各的；只有样张时不写「0 张」。 */
 function photoReadout(page: PhotoPage, codeSets: number) {
-  return `照片 · ${[
-    page.total || !codeSets ? `${(page.total || 0).toLocaleString()} 张` : '',
-    codeSets ? `样张 ${(page.sample_total || 0).toLocaleString()} 张 · ${codeSets.toLocaleString()} 部作品` : '',
-  ].filter(Boolean).join(' · ')}`;
+  return [
+    t('catalog:entityFilter.photos'),
+    page.total || !codeSets ? t('catalog:entityPhotos.imageCount', { count: page.total || 0 }) : '',
+    codeSets ? t('catalog:entityPage.sampleCount', { count: page.sample_total || 0 }) : '',
+    codeSets ? t('catalog:entityPage.sampleWorks', { count: codeSets }) : '',
+  ].filter(Boolean).join(' · ');
 }
 
 function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
@@ -245,14 +248,14 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
       const current = entity.canonical_name;
       if (chosen === current) return;
       void confirmModal({
-        title: '更改统一名称',
-        body: `「${chosen}」将成为这份档案显示的名称，「${current}」留作别名。作品上的署名、搜索和标签都会跟着改写。`,
-        confirmLabel: '更改统一名称',
+        title: t('catalog:entityPage.changePrimaryName'),
+        body: t('catalog:entityPage.changePrimaryNameBody', { chosen, current }),
+        confirmLabel: t('catalog:entityPage.changePrimaryName'),
         onConfirm: () => rename.mutateAsync({ from: current, to: chosen }),
       }).then(({ confirmed, result }) => {
         const done = result as { changed?: boolean; canonical_name?: string; previous_name?: string } | undefined;
         if (!confirmed || !done?.changed) return;
-        helpers.receipt(`已把统一名称更改为 ${done.canonical_name}`, { undo: async () => {
+        helpers.receipt(t('catalog:entityPage.primaryNameChanged', { name: done.canonical_name }), { undo: async () => {
           await rename.mutateAsync({ from: done.canonical_name || '', to: done.previous_name || '' });
           actions.openEntity(kind, done.previous_name || '');
         } });
@@ -264,7 +267,7 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
       try {
         await follow.mutateAsync(on);
       } catch (error) {
-        helpers.failure(on ? '订阅新作' : '取消订阅新作', error);
+        helpers.failure(on ? t('catalog:entityHero.subscribeNewReleases') : t('catalog:entityPage.unsubscribeNewReleases'), error);
         throw error;
       }
     },
@@ -300,10 +303,10 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
       try {
         await bindFollow.mutateAsync(key);
       } catch (error) {
-        helpers.failure('关联关注中的创作者', error);
+        helpers.failure(t('catalog:entityPage.linkFollowedCreator'), error);
         throw error;
       }
-      helpers.receipt(`已把关注里的 ${author} 记到 ${entity.canonical_name} 名下`);
+      helpers.receipt(t('catalog:entityPage.followedCreatorLinked', { author, name: entity.canonical_name }));
       await refreshEntity();
     },
   }), [actions, alias, bindFollow, entity, entityId, filters, follow, followKey, helpers, kind, name, refreshEntity, rename]);
@@ -361,8 +364,8 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
   /* 艺人名册、视频、照片与在线是这一页的互斥视图，共用一组圆键；只有一类东西时不出这一组。 */
   const viewKinds = [roster.length, !onlineOnly, photoCount, followKey].filter(Boolean).length;
   const views: EntityViewKeys | null = viewKinds > 1 ? {
-    label: roster.length ? '页面视图' : '媒体类型',
-    people: roster.length ? { label: kind === 'studio' ? '厂牌' : '艺人', count: roster.length,
+    label: roster.length ? t('catalog:entityPage.pageView') : t('catalog:entityPage.mediaType'),
+    people: roster.length ? { label: kind === 'studio' ? t('catalog:shared.labels') : t('catalog:shared.performers'), count: roster.length,
       icon: kind === 'studio' ? 'clapperboard' : 'user-round' } : null,
     videos: onlineOnly ? null : { count: entity.asset_count || 0 },
     photos: photoCount ? { count: photoCount } : null,
@@ -387,19 +390,22 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
     { ...filters, state: '', tag: '', creator: '', studio: '', owner: '' }, EMPTY_MEDIA);
   let readout = '';
   let busy = false;
-  if (view === 'people') readout = `${kind === 'studio' ? '厂牌' : '艺人'} · ${roster.length.toLocaleString()}`;
+  if (view === 'people') readout = `${kind === 'studio' ? t('catalog:shared.labels') : t('catalog:shared.performers')} · ${roster.length.toLocaleString()}`;
   else if (view === 'online') {
     busy = online.busy;
-    readout = `在线 · ${(online.total ?? entity.follow?.n ?? 0).toLocaleString()} 项更新`;
+    readout = t('catalog:entityPage.onlineUpdates', { count: online.total ?? entity.follow?.n ?? 0 });
   }
   else if (view === 'videos') {
     busy = items.isPending;
     /* 选了哪几枚标签由上面那条交集条一枚一枚列着，读数只报个数：标签名再列一遍，几枚长标签
        就能把这一行撑出页面。 */
     const picked = tagList(filters.tag).length;
-    readout = items.data ? `视频 · ${(items.data.work_total ?? items.data.total ?? 0).toLocaleString()}${picked ? ` · 已选 ${picked.toLocaleString()} 个标签` : ''}` : '';
+    readout = items.data ? [
+      `${t('catalog:shared.videos')} · ${(items.data.work_total ?? items.data.total ?? 0).toLocaleString()}`,
+      picked ? t('catalog:tagFilters.selectedCount', { count: picked }) : '',
+    ].filter(Boolean).join(' · ') : '';
   } else if (wallPage && !wallPage.error) {
-    readout = inSet ? `${wallPage.title} · ${(wallPage.total || 0).toLocaleString()} 张`
+    readout = inSet ? t('catalog:entityPage.setImageCount', { title: wallPage.title, count: wallPage.total || 0 })
       : photoReadout(wallPage, codeSetsOf(wallPage).length);
   } else busy = wall.isPending;
 
@@ -438,7 +444,7 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
           : view === 'photos' && (wall.isError || wallPage?.error)
           ? <RetryNote message={wallPage?.error || errorMessage(wall.error)} onRetry={() => { void wall.refetch() }} />
           : view === 'photos' && !photos
-          ? <div data-photo-wall="" data-size={props.photoSize} data-layout={props.photoLayout} role="status" aria-busy="true" aria-label="正在读取照片">
+          ? <div data-photo-wall="" data-size={props.photoSize} data-layout={props.photoLayout} role="status" aria-busy="true" aria-label={t('catalog:entityPage.loadingPhotos')}>
               {Array.from({ length: 8 }, (_, index) => <button key={index} data-photo-cell="" disabled aria-hidden className="skeleton-sheen" />)}
             </div>
           : worksEmpty ? <WorksEmpty filtered={filtered} onShowAll={showAll}
@@ -462,15 +468,15 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
 /** 作品区一部也没有。筛完一部不剩时给一条回到全部视频的路：观看状态与交集条上的筛选一起撤掉。 */
 function WorksEmpty({ filtered, onShowAll, onOnline }: { filtered: boolean; onShowAll(): void; onOnline?: () => void }) {
   return filtered ? (
-    <EmptyState icon={spriteGlyph('search')} title="没有符合条件的视频"
-      actions={<Button size="small" onClick={onShowAll}>清除筛选</Button>}>
-      清除筛选后查看名下全部视频。
+    <EmptyState icon={spriteGlyph('search')} title={t('catalog:entityPage.noMatchingVideos')}
+      actions={<Button size="small" onClick={onShowAll}>{t('catalog:shared.clearFilters')}</Button>}>
+      {t('catalog:entityPage.noMatchingVideosHint')}
     </EmptyState>
   ) : (
-    <EmptyState icon={spriteGlyph('film')} title="还没有视频"
-      actions={onOnline ? <Button size="small" onClick={onOnline}>查看在线作品</Button>
-        : <ButtonLink size="small" href="/">浏览馆藏</ButtonLink>}>
-      署上这个名字的视频入库后会显示在这里。
+    <EmptyState icon={spriteGlyph('film')} title={t('catalog:entityPage.noVideos')}
+      actions={onOnline ? <Button size="small" onClick={onOnline}>{t('catalog:entityPage.viewOnline')}</Button>
+        : <ButtonLink size="small" href="/">{t('catalog:entityPage.browseCollection')}</ButtonLink>}>
+      {t('catalog:entityPage.noVideosHint')}
     </EmptyState>
   );
 }

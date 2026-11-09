@@ -231,7 +231,7 @@ export interface ShortsCut {
 /** 竖屏带的查询串：跟着主列表的筛选与排序走，换一批时它也一起换。 */
 export function shortsParams(filters: Readonly<Record<string, string>>, offset: number): string {
   const params = new URLSearchParams(Object.entries(filters).filter(([, value]) => value));
-  params.set('orient', '竖屏');
+  params.set('orient', '竖屏'); // i18n-exempt: 竖屏是地址参数与状态值
   params.set('limit', String(SHORTS_BATCH));
   params.set('offset', String(offset));
   return params.toString();

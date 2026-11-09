@@ -6,6 +6,7 @@ import { coverImage, javArtwork, remoteCoverUrl } from '@peach/card-art';
 import { esc } from '@peach/legacy/core';
 import { peachHistory, shellNavigate } from '@peach/history';
 import { RELEASE_SORTS, type DiscoveryDirection, type DiscoverySort, type ReleaseSort } from './discovery-sorts';
+import { t } from '../../i18n';
 
 export { JAV_TABS, javTab, javPath, javLibraryPath } from './jav-navigation';
 
@@ -164,7 +165,7 @@ export function discoveryArtwork(item: Discovery, layout: 'big' | 'small', javIm
   const remote = esc(remoteCoverUrl(item));
   return coverImage(item, layout).replace(/ src="[^"]*"/,
     ` src="${remote}" data-jav-image="${item.id}" data-jav-cover="${remote}" data-jav-thumb="" data-jav-image-layout="${layout}"${layout === 'big' ? ' data-panel-prior="1"' : ''}`)
-    .replace('data-drop="self"', 'data-drop="initial" data-initial="封面未取得" data-drop-class="media-nopic"');
+    .replace('data-drop="self"', `data-drop="initial" data-initial="${esc(t('shell:artworkGap.coverNotFound'))}" data-drop-class="media-nopic"`);
 }
 
 export async function prefetchJav(tab: string, signal: AbortSignal) {
