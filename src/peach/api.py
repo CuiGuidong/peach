@@ -504,7 +504,9 @@ def create_app(
     contract.downloads = downloads
     from .jav_browser import JavBrowser
     from .web_resource_search import q_resource_search
-    jav_browser = JavBrowser(contract, search=q_resource_search)
+    from .jav_editions import EditionProbe
+    jav_browser = JavBrowser(contract, search=q_resource_search,
+                             edition_probe=EditionProbe(contract.follow_secrets_root))
     contract.follow_scheduler = follow_scheduler
     # 订阅源拉取（ADR-0042）用同一个调度实现，只换 job id、状态文件与默认间隔。
     # 默认 6 小时：一位女优的 JavDB 演员页一天更新几条，比这更密只是把 JavDB 的配额

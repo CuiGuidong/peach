@@ -20,7 +20,10 @@ from fastapi.testclient import TestClient
 from peach import downloads as dl
 from peach.api import create_app
 from peach.config import PROJECT_ROOT, PeachSettings
-from peach.jav_browser import CREDENTIAL, JavBrowser, code_key, identify_source, source_page, source_sites
+from peach.jav_browser import (
+    CREDENTIAL, JavBrowser, _download_candidate, code_key, identify_source, source_page, source_sites,
+)
+from peach.jav_editions import EditionProbe
 from support.ledger import fresh_ledger
 from support.conditions import missing_prerequisite
 from support.browser import chrome_executable
@@ -49,6 +52,8 @@ class BrowserTests(unittest.TestCase):
         self.downloads.config = dl.DownloadConfig("http://127.0.0.1:19798", {"115": "/115/Movies"})
         self.downloads.credentials.save(dl.CLOUDDRIVE_CREDENTIAL, {"token": "cloud-secret"})
         self.service.search = Mock(return_value={"items": [{"name": "ABC-123 1080p", "uri": MAGNET}]})
+        # 通常版页面的特典版探测会问 DMM；用例里一律答没有，需要时单独替换。
+        self.service.edition_probe = Mock(return_value=False)
         self.client = TestClient(self.app, client=("127.0.0.1", 12345))
         self.headers = {"X-Token": "admin-secret"}
         response = self.configure("enable")
@@ -301,6 +306,70 @@ class BrowserTests(unittest.TestCase):
         self.service.process_one()
         self.assertEqual(self.status().json()["state"], "no_match")
         self.remote.submit.assert_not_called()
+
+    def test_chosen_edition_puts_matching_magnets_first(self):
+        def magnet(digit, shown=""):
+            return f"magnet:?xt=urn:btih:{digit * 40}" + (f"&dn={shown}" if shown else "")
+        # 特典版有的种子名就是 SDJS-304V，有的只在磁力显示名或文件名里写着【特典版】。
+        regular = {"name": "SDJS-304 1080p H265", "uri": magnet("1")}
+        hidden_bonus = {"name": "SDJS-304", "uri": magnet("2", "%5BFHD%5D%20SDJS-304%20%E3%80%90%E7%89%B9%E5%85%B8%E7%89%88%E3%80%91")}
+        named_bonus = {"name": "[3xplanet][SDJS-304V]Matsunaga Akari", "uri": magnet("3")}
+        items = [hidden_bonus, regular, named_bonus]
+        self.assertIs(_download_candidate(items, "SDJS-304", edition="bonus"), hidden_bonus)
+        self.assertIs(_download_candidate(items, "SDJS-304", edition="regular"), regular)
+        self.assertIs(_download_candidate([named_bonus, regular], "SDJS-304", edition="bonus"), named_bonus)
+        # 没有选中版本的种子时退回第一个相符的；不指定版本时照旧，不收 SDJS-304V 写法。
+        self.assertIs(_download_candidate([named_bonus], "SDJS-304", edition="regular"), named_bonus)
+        self.assertIs(_download_candidate([named_bonus, regular], "SDJS-304"), regular)
+        self.assertIsNone(_download_candidate([named_bonus], "SDJS-304"))
+        # 只收这一部的特典版写法，序号不同的不混进来。
+        self.assertIsNone(_download_candidate([{"name": "SDJS-3045V", "uri": magnet("4")}], "SDJS-304", edition="bonus"))
+
+    def test_add_remembers_the_chosen_edition_for_magnet_switches(self):
+        bonus_page = "https://video.dmm.co.jp/av/content/?id=1sdjs00304v"
+        self.assertEqual(self.add("SDJS-304", source_url=bonus_page).status_code, 200)
+        self.assertEqual(self.service.rows["SDJS-304"]["edition"], "bonus")
+        self.service.rows.clear()
+        self.assertEqual(self.add("SDJS-304", source_url=bonus_page, edition="regular").status_code, 200)
+        self.assertEqual(self.service.rows["SDJS-304"]["edition"], "regular")
+        self.service.rows["SDJS-304"]["state"] = "failed"
+        self.assertEqual(self.add("SDJS-304", source_url=bonus_page, switch=True).status_code, 200)
+        self.assertEqual(self.service.rows["SDJS-304"]["edition"], "regular")
+        self.assertNotIn("edition", self.service.rows.get("ABC-123", {}))
+        self.assertEqual(self.add(edition="deluxe").status_code, 400)
+
+    def test_identification_reports_the_page_edition_when_a_bonus_edition_exists(self):
+        def identify(source):
+            response = self.client.get("/api/jav-browser/identify", params={"source_url": source}, headers=self.script_headers)
+            self.assertEqual(response.status_code, 200, response.text)
+            return response.json()
+        self.service.edition_probe = Mock(side_effect=lambda cid: cid == "1sdjs00304")
+        self.assertEqual(identify("https://video.dmm.co.jp/av/content/?id=1sdjs00304v")["edition"], "bonus")
+        self.assertEqual(identify("https://clip.fanza.jp/moment?id=img-sdjs00304v-001")["edition"], "bonus")
+        self.assertEqual(identify("https://video.dmm.co.jp/av/content/?id=1sdjs00304")["edition"], "regular")
+        self.assertNotIn("edition", identify("https://video.dmm.co.jp/av/content/?id=ssis00519"))
+        self.assertNotIn("edition", identify("https://www.mgstage.com/product/product_detail/300MIUM-1239/"))
+        # 特典版页面看商品号就够，只有通常版 DMM 页面才问。
+        self.assertEqual([call.args[0] for call in self.service.edition_probe.call_args_list], ["1sdjs00304", "ssis00519"])
+
+    def test_edition_probe_asks_each_product_once_and_pauses_after_a_failure(self):
+        clock = [0.0]
+        probe = EditionProbe(self.root, clock=lambda: clock[0])
+        asked = []
+        def ask(cid):
+            asked.append(cid)
+            if cid == "broken00001v":
+                raise OSError("DMM 未取得")
+            return cid == "1sdjs00304v"
+        probe._ask = ask
+        self.assertTrue(probe("1sdjs00304"))
+        self.assertTrue(probe("1SDJS00304"))
+        self.assertFalse(probe("1dandy00851c"))
+        self.assertFalse(probe("broken00001"))
+        self.assertFalse(probe("ssis00519"))
+        clock[0] += 601
+        self.assertFalse(probe("ssis00519"))
+        self.assertEqual(asked, ["1sdjs00304v", "broken00001v", "ssis00519v"])
 
     def test_no_match_requires_an_explicit_retry(self):
         self.service.search.return_value = {"items": []}
