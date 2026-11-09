@@ -438,6 +438,14 @@ class TestPlanningTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ci_plan.validate_results(passed, [])
 
+    def test_result_gate_names_the_failed_upstream_when_no_plan_was_produced(self):
+        results = {'workflow-lint': {'result': 'failure'}, 'plan': {'result': 'skipped'}}
+        with patch.object(sys, 'argv', ['ci_plan.py', '--verify-results']), \
+                patch.dict(ci_plan.os.environ, {'RESULTS': json.dumps(results), 'REQUIRED_JOBS': ''}), \
+                self.assertRaises(SystemExit) as stopped:
+            ci_plan.main()
+        self.assertIn("'workflow-lint': 'failure'", str(stopped.exception.code))
+
     def test_frontend_gate_requires_only_the_selected_frontend_jobs(self):
         required = ci_plan.plan('push', ['frontend/package-lock.json'])['required_jobs']
         passed = {name: {'result': 'success'} for name in ('plan', 'web-bundle', 'web-vendor')}
