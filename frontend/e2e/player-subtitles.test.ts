@@ -256,6 +256,12 @@ describe('播放器字幕', () => {
           await page.locator('[data-subtitle-result]').click();
         }
         await page.locator('[data-subtitle-online]').click();
+        // 加载完留在文件页：这一行标「已加载」，状态行报结果，不自己跳回字幕列表。
+        const files = page.locator('.vjs-peach-panel:not(.vjs-peach-panel-leaving)');
+        await files.locator('[data-subtitle-online][data-subtitle-loaded]').waitFor();
+        await files.locator('[data-subtitle-status]', { hasText: '已加载 ABP-758.chs.srt' }).waitFor();
+        await files.locator('[data-subtitle-back]').click();
+        await page.locator('.vjs-peach-panel:not(.vjs-peach-panel-leaving) [data-subtitle-back]').click();
         await page.getByRole('menuitemradio', { name: 'ABP-758.chs.srt', exact: true }).waitFor();
       }
       await caption(page, '在线字幕');

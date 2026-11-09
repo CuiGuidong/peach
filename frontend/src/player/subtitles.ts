@@ -20,6 +20,11 @@ interface SubtitleFile { index: number; name: string; playable: boolean; languag
 const SEARCH_LANGUAGE = interfaceLanguage === 'zh-CN' ? 'zh' : 'en';
 const languageNames = new Intl.DisplayNames([interfaceLanguage], { type: 'language' });
 const languageName = (tag: string): string => { try { return languageNames.of(tag) ?? tag } catch { return tag } };
+/** 在线字幕记在播放记忆里的键；中文沿用改版前的写法，已加载过的不会重复下载。 */
+const onlineKey = (id: string, file: SubtitleFile): string =>
+  SEARCH_LANGUAGE === 'zh' ? `subtitlecat:${id}:${file.index}` : `subtitlecat:${id}:${SEARCH_LANGUAGE}:${file.index}`;
+const fileNote = (file: SubtitleFile, loaded: boolean): string =>
+  [languageName(file.language), loaded ? t('catalog:subtitles.loadedMark') : ''].filter(Boolean).join(' · ');
 
 /** YouTube f572e43c 的 b$f：矩形实底与镂空 CC，使用原始 36 单位视框。 */
 export const subtitleIcon = () => '<svg viewBox="0 0 36 36" aria-hidden="true"><path d="M11,11 C9.89,11 9,11.9 9,13 L9,23 C9,24.1 9.89,25 11,25 L25,25 C26.1,25 27,24.1 27,23 L27,13 C27,11.9 26.1,11 25,11 L11,11 Z M17,17 L15.5,17 L15.5,16.5 L13.5,16.5 L13.5,19.5 L15.5,19.5 L15.5,19 L17,19 L17,20 C17,20.55 16.55,21 16,21 L13,21 C12.45,21 12,20.55 12,20 L12,16 C12,15.45 12.45,15 13,15 L16,15 C16.55,15 17,15.45 17,16 L17,17 L17,17 Z M24,17 L22.5,17 L22.5,16.5 L20.5,16.5 L20.5,19.5 L22.5,19.5 L22.5,19 L24,19 L24,20 C24,20.55 23.55,21 23,21 L20,21 C19.45,21 19,20.55 19,20 L19,16 C19,15.45 19.45,15 20,15 L23,15 C23.55,15 24,15.45 24,16 L24,17 L24,17 Z"/></svg>';
@@ -207,33 +212,48 @@ export class SubtitleControls {
 
   private async showFiles(result: SearchResult) {
     this.page = 'files';
-    const panel = this.panel(this.header(t('catalog:subtitles.chooseFile')) + '<div class="vjs-peach-panel-menu" data-subtitle-files></div><p class="vjs-peach-subtitle-status" data-subtitle-status role="status"></p>', () => { void this.searchPanel() });
+    /* 与搜索面板同一个容器：状态行在列表上方，左边距和列表文字对齐。 */
+    const panel = this.panel(this.header(t('catalog:subtitles.chooseFile')) + '<div class="vjs-peach-subtitle-search"><p class="vjs-peach-subtitle-status" data-subtitle-status role="status"></p><div data-subtitle-files></div></div>', () => { void this.searchPanel() });
     const signal = this.busy(), generation = this.generation; this.status(t('catalog:subtitles.readingFiles'), false, true);
     try {
       const payload = await api(`/api/subtitles/subtitlecat/${result.id}?language=${SEARCH_LANGUAGE}`, { signal }) as { files: SubtitleFile[] };
       if (signal.aborted || generation !== this.generation) return;
       const files = payload.files.filter(file => file.playable);
-      panel.querySelector('[data-subtitle-files]')!.innerHTML = files.map(file => `<button type="button" class="vjs-peach-subtitle-result" data-subtitle-online="${file.index}"><span>${esc(file.name)}</span><small>${esc(languageName(file.language))}</small></button>`).join('');
+      await this.session.ready;
+      panel.querySelector('[data-subtitle-files]')!.innerHTML = files.map(file => {
+        const loaded = this.session.has(onlineKey(result.id, file));
+        return `<button type="button" class="vjs-peach-subtitle-result" data-subtitle-online="${file.index}"${loaded ? ' data-subtitle-loaded=""' : ''}><span>${esc(file.name)}</span><small>${esc(fileNote(file, loaded))}</small></button>`;
+      }).join('');
       this.status(files.length ? t('catalog:subtitles.chooseToLoad') : t('catalog:subtitles.noTextSubtitles'));
       panel.querySelectorAll<HTMLButtonElement>('[data-subtitle-online]').forEach(button => {
-        button.onclick = () => { const file = files.find(row => row.index === Number(button.dataset.subtitleOnline))!; void this.loadOnline(result.id, file) };
+        button.onclick = () => { const file = files.find(row => row.index === Number(button.dataset.subtitleOnline))!; void this.loadOnline(result.id, file, button) };
       });
     } catch (error) { if (!signal.aborted && generation === this.generation) this.status(error instanceof Error ? error.message : t('catalog:subtitles.fileNotFound'), true) }
   }
 
-  private async loadOnline(id: string, file: SubtitleFile) {
-    const signal = this.busy(); this.status(t('catalog:subtitles.loading'), false, true);
+  /* 点一个文件：这一行转忙、其余行暂停，状态行先报抓取、再报载入；完成后留在这一页，这一行标「已加载」，不跳走。 */
+  private async loadOnline(id: string, file: SubtitleFile, button: HTMLButtonElement) {
+    const signal = this.busy();
+    const list = button.closest<HTMLElement>('[data-subtitle-files]');
+    setActionBusy(button); if (list) list.inert = true;
     try {
       await this.session.ready;
       if (signal.aborted) return;
-      const key = SEARCH_LANGUAGE === 'zh' ? `subtitlecat:${id}:${file.index}` : `subtitlecat:${id}:${SEARCH_LANGUAGE}:${file.index}`;
+      const key = onlineKey(id, file);
       if (this.session.has(key)) this.session.selectImported(key);
       else {
+        this.status(t('catalog:subtitles.fetching'), false, true);
         const text = await this.text(await fetch(`/api/subtitles/subtitlecat/${id}/${file.index}?language=${SEARCH_LANGUAGE}`, { signal }));
+        if (signal.aborted) return;
+        this.status(t('catalog:subtitles.applying'), false, true);
         await this.session.import(text, file.name, key, signal);
       }
-      if (!signal.aborted) { this.show(0); this.status(t('catalog:subtitles.loaded', { fileName: file.name })) }
+      if (signal.aborted) return;
+      button.toggleAttribute('data-subtitle-loaded', true);
+      button.querySelector('small')!.textContent = fileNote(file, true);
+      this.status(t('catalog:subtitles.loaded', { fileName: file.name }));
     } catch (error) { if (!signal.aborted) this.status(error instanceof Error ? error.message : t('catalog:subtitles.loadFailed'), true) }
+    finally { setActionBusy(button, false); if (list) list.inert = false }
   }
 
 }

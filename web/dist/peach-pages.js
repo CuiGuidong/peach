@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d20b0542-9bd8-4dda-9d2b-463930a645ea", e._sentryDebugIdIdentifier = "sentry-dbid-d20b0542-9bd8-4dda-9d2b-463930a645ea");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d924f7cb-01a5-4a25-8a96-25ef662aa7f1", e._sentryDebugIdIdentifier = "sentry-dbid-d924f7cb-01a5-4a25-8a96-25ef662aa7f1");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -2376,8 +2376,10 @@ var He = {
 		yellow: "Yellow"
 	},
 	subtitles: {
+		applying: "Adding subtitles to the player",
 		chooseFile: "Choose subtitle file",
 		chooseToLoad: "Choose subtitles to load",
+		fetching: "Fetching subtitles from SubtitleCat",
 		fileNotFound: "Subtitle file not found",
 		fileRequirements: "Choose an SRT, ASS, SSA, or VTT file up to 4 MiB.",
 		foundOnline_one: "Found {{count, number}} English subtitle",
@@ -2385,6 +2387,7 @@ var He = {
 		loadFailed: "Couldn't load subtitles",
 		loadFile: "Load subtitle file",
 		loaded: "Loaded {{fileName}}",
+		loadedMark: "Loaded",
 		loading: "Loading subtitles",
 		more: "More subtitles",
 		noTextSubtitles: "This result has no text subtitles to load.",
@@ -8567,14 +8570,17 @@ var He = {
 		yellow: "黄色"
 	},
 	subtitles: {
+		applying: "正在载入字幕",
 		chooseFile: "选择字幕文件",
 		chooseToLoad: "选择要加载的字幕",
+		fetching: "正在从 SubtitleCat 抓取字幕",
 		fileNotFound: "字幕文件未取得",
 		fileRequirements: "请选择 4 MiB 以内的 SRT、ASS、SSA 或 VTT 文件",
 		foundOnline: "找到 {{count, number}} 条中文字幕",
 		loadFailed: "字幕加载失败",
 		loadFile: "加载字幕文件",
 		loaded: "已加载 {{fileName}}",
+		loadedMark: "已加载",
 		loading: "正在加载字幕",
 		more: "更多字幕",
 		noTextSubtitles: "这条结果没有可加载的文本字幕",
@@ -36301,4 +36307,4 @@ wt();
 var nb = document.getElementById("peach-page"), rb = nb ? tb[nb.dataset.page ?? ""] : void 0;
 nb && rb && (0, Nt.createRoot)(nb).render(/* @__PURE__ */ (0, V.jsx)(eb, { children: /* @__PURE__ */ (0, V.jsx)(rb, { data: { ...nb.dataset } }) }));
 
-//# debugId=d20b0542-9bd8-4dda-9d2b-463930a645ea
+//# debugId=d924f7cb-01a5-4a25-8a96-25ef662aa7f1

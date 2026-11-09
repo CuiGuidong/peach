@@ -874,14 +874,17 @@
     "yellow": "黄色"
   },
   "subtitles": {
+    "applying": "正在载入字幕",
     "chooseFile": "选择字幕文件",
     "chooseToLoad": "选择要加载的字幕",
+    "fetching": "正在从 SubtitleCat 抓取字幕",
     "fileNotFound": "字幕文件未取得",
     "fileRequirements": "请选择 4 MiB 以内的 SRT、ASS、SSA 或 VTT 文件",
     "foundOnline": "找到 {{count, number}} 条中文字幕",
     "loadFailed": "字幕加载失败",
     "loadFile": "加载字幕文件",
     "loaded": "已加载 {{fileName}}",
+    "loadedMark": "已加载",
     "loading": "正在加载字幕",
     "more": "更多字幕",
     "noTextSubtitles": "这条结果没有可加载的文本字幕",

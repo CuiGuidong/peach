@@ -927,8 +927,10 @@
     "yellow": "Yellow"
   },
   "subtitles": {
+    "applying": "Adding subtitles to the player",
     "chooseFile": "Choose subtitle file",
     "chooseToLoad": "Choose subtitles to load",
+    "fetching": "Fetching subtitles from SubtitleCat",
     "fileNotFound": "Subtitle file not found",
     "fileRequirements": "Choose an SRT, ASS, SSA, or VTT file up to 4 MiB.",
     "foundOnline_one": "Found {{count, number}} English subtitle",
@@ -936,6 +938,7 @@
     "loadFailed": "Couldn't load subtitles",
     "loadFile": "Load subtitle file",
     "loaded": "Loaded {{fileName}}",
+    "loadedMark": "Loaded",
     "loading": "Loading subtitles",
     "more": "More subtitles",
     "noTextSubtitles": "This result has no text subtitles to load.",
