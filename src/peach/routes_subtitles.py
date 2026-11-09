@@ -88,24 +88,24 @@ def remembered_subtitle_track(request: Request, filename: str, video: str):
 
 
 @router.get("/api/subtitles/search")
-def search_subtitles(q: str = "", offset: int = 0):
+def search_subtitles(q: str = "", offset: int = 0, language: str = "zh"):
     try:
-        return subtitle_search.search(q, offset)
+        return subtitle_search.search(q, offset, language)
     except subtitle_search.SubtitleSearchError as error:
         return _error(error)
 
 
 @router.get("/api/subtitles/subtitlecat/{subtitle_id}")
-def subtitle_files(subtitle_id: str):
+def subtitle_files(subtitle_id: str, language: str = "zh"):
     try:
-        return subtitle_search.files(subtitle_id)
+        return subtitle_search.files(subtitle_id, language)
     except subtitle_search.SubtitleSearchError as error:
         return _error(error)
 
 
 @router.get("/api/subtitles/subtitlecat/{subtitle_id}/{index}")
-def online_subtitle(subtitle_id: str, index: int):
+def online_subtitle(subtitle_id: str, index: int, language: str = "zh"):
     try:
-        return _track(subtitle_search.load(subtitle_id, index))
+        return _track(subtitle_search.load(subtitle_id, index, language))
     except (subtitle_search.SubtitleSearchError, subtitles.SubtitleUndecodable) as error:
         return _error(error)

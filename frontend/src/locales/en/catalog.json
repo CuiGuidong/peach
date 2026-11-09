@@ -23,6 +23,7 @@
     "formatsHint": "Common image formats supported. Animated images use the first frame.",
     "foundByDetail": " · Found by \"{{name}}\"",
     "foundByNames": "{{name}}: found in the gallery as {{names}}.",
+    "foundByNamesMore": "{{name}}: found in the gallery as {{names}} ({{total, number}} names in all).",
     "gridCell": "Tile {{number}}",
     "imageNotFound": "Image not found. Click to retry.",
     "imageUrl": "Image URL",
@@ -42,8 +43,7 @@
     "useArea": "Use this area",
     "useUrl": "Use this URL",
     "useWhole": "Use whole image",
-    "videoCover": "Video cover",
-    "foundByNamesMore": "{{name}}: found in the gallery as {{names}} ({{total, number}} names in all)."
+    "videoCover": "Video cover"
   },
   "cardIdentity": {
     "standInAvatar": "Still from a video, not this person"
@@ -833,6 +833,7 @@
     "labels": "Labels",
     "library": "Library",
     "loadMore": "Load more",
+    "localLabel": "Local",
     "merge": "Merge",
     "moveToTrash": "Move to trash",
     "noCover": "No cover",
@@ -865,8 +866,7 @@
     "videos": "Videos",
     "viewAll": "View all",
     "viewOnSite": "View on site",
-    "watchLater": "Watch later",
-    "localLabel": "Local"
+    "watchLater": "Watch later"
   },
   "shortsStrip": {
     "count_one": "{{count, number}} video",
@@ -931,25 +931,24 @@
     "chooseToLoad": "Choose subtitles to load",
     "fileNotFound": "Subtitle file not found",
     "fileRequirements": "Choose an SRT, ASS, SSA, or VTT file up to 4 MiB.",
-    "foundChinese_one": "Found {{count, number}} Chinese subtitle",
-    "foundChinese_other": "Found {{count, number}} Chinese subtitles",
+    "foundOnline_one": "Found {{count, number}} English subtitle",
+    "foundOnline_other": "Found {{count, number}} English subtitles",
     "loadFailed": "Couldn't load subtitles",
     "loadFile": "Load subtitle file",
     "loaded": "Loaded {{fileName}}",
     "loading": "Loading subtitles",
     "more": "More subtitles",
-    "noChinese": "No Chinese subtitles found for this video.",
-    "noChineseInBatch": "No Chinese subtitles in these results. Try More subtitles.",
     "noTextSubtitles": "This result has no text subtitles to load.",
+    "noneInBatch": "No English subtitles in these results. Try More subtitles.",
+    "noneOnline": "No English subtitles found for this video.",
     "nothingToSearch": "This video has no code or title to search for.",
     "off": "Off",
     "options": "Subtitle options",
-    "providedBy": "Chinese subtitles from SubtitleCat, may be machine-translated",
+    "providedBy": "English subtitles from SubtitleCat, may be machine-translated",
     "readingFiles": "Reading subtitle files",
     "resetStyle": "Reset",
-    "searchChinese": "Search Chinese subtitles",
     "searchFailed": "Subtitle search failed",
-    "searchOnline": "Search subtitles online",
+    "searchOnline": "Search English subtitles",
     "searching": "Searching subtitles",
     "turnOff": "Turn off subtitles",
     "turnOn": "Turn on subtitles"
