@@ -5409,11 +5409,19 @@ class R2ReleaseTests(unittest.TestCase):
 
 class ReleaseDownloadNotesTests(unittest.TestCase):
     def test_default_download_notes_use_the_github_version_directory(self):
-        from scripts.package_windows_release import download_notes
-        links = re.findall(r'https://[^\s)]+', download_notes('1.0.0', lite_installer=True))
-        self.assertEqual(len(links), 8)
+        from scripts.package_windows_release import DOCS, download_notes
+        links = [url for url in re.findall(r'https://[^\s)]+', download_notes('1.0.0', lite_installer=True))
+                 if not url.startswith(DOCS)]
+        self.assertEqual(len(links), 9)
         self.assertTrue(all(url.startswith('https://github.com/peach-mitao/peach/releases/download/v1.0.0/')
                             for url in links))
+
+    def test_one_download_table_covers_windows_macos_and_docker(self):
+        from scripts.package_windows_release import download_notes
+        table = download_notes('1.0.0', lite_installer=True).split('\n\n')[1]
+        rows = [line.split(' | ')[0].lstrip('| ') for line in table.splitlines()[2:]]
+        self.assertEqual(rows, ['Windows x64'] * 3 + ['macOS Apple Silicon', 'macOS Intel', 'Docker / NAS'])
+        self.assertIn('`longmeidao/peach:1.0.0`', table)
 
     def test_r2_release_notes_link_both_native_platforms_and_tagged_docs(self):
         from scripts.package_windows_release import download_notes
@@ -5427,8 +5435,9 @@ class ReleaseDownloadNotesTests(unittest.TestCase):
         self.assertIn('### 新增\n\n- **更新**：支持公开下载。', result)
         self.assertEqual(result.count('## 下载选择'), 1)
         self.assertEqual(links[0], 'https://gitgud.io/peach-mitao/peach/-/blob/v1.0.0/docs/OPERATIONS.md')
-        self.assertEqual(len(links[1:]), 10)
-        self.assertTrue(all(url.startswith('https://downloads.peach.video/v1.0.0/') for url in links[1:]))
+        downloads = [url for url in links[1:] if '/docs/' not in url]
+        self.assertEqual(len(downloads), 9)
+        self.assertTrue(all(url.startswith('https://downloads.peach.video/v1.0.0/') for url in downloads))
         self.assertIn('https://downloads.peach.video/v1.0.0/Peach-1.0.0-macos-arm64.dmg', links)
         self.assertIn('https://downloads.peach.video/v1.0.0/Peach-1.0.0-macos-x86_64.dmg', links)
 
