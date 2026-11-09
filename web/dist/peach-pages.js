@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "c6a0900a-f2ca-4b9d-beb8-e4bab7acb50a", e._sentryDebugIdIdentifier = "sentry-dbid-c6a0900a-f2ca-4b9d-beb8-e4bab7acb50a");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "05b6ed59-1a14-4065-84b0-102c716839b2", e._sentryDebugIdIdentifier = "sentry-dbid-05b6ed59-1a14-4065-84b0-102c716839b2");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -6885,6 +6885,7 @@ var He = {
 		notFound: "There's no page at this address.",
 		serverError: "Peach couldn't process this. Export a diagnostic report."
 	},
+	javBrowser: { notQueued: "This code isn't in the queue." },
 	release: { installation: {
 		docker: "Docker image",
 		source: "Running from source",
@@ -12839,6 +12840,7 @@ var He = {
 		notFound: "这个地址下没有页面。",
 		serverError: "服务处理失败，请导出诊断报告"
 	},
+	javBrowser: { notQueued: "这个番号不在排队中" },
 	release: { installation: {
 		docker: "Docker 镜像",
 		source: "源码运行",
@@ -36427,4 +36429,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=c6a0900a-f2ca-4b9d-beb8-e4bab7acb50a
+//# debugId=05b6ed59-1a14-4065-84b0-102c716839b2

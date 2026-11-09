@@ -4,6 +4,9 @@
     "notFound": "There's no page at this address.",
     "serverError": "Peach couldn't process this. Export a diagnostic report."
   },
+  "javBrowser": {
+    "notQueued": "This code isn't in the queue."
+  },
   "release": {
     "installation": {
       "docker": "Docker image",

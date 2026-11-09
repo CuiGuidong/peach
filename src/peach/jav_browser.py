@@ -30,6 +30,7 @@ from .feeds import scan_code
 from .fsutil import atomic_write_text
 from .sources.dmm import code_from_cid
 from .jav_editions import bonus_cid
+from .user_messages import UserFacingError
 
 LOGGER = logging.getLogger(__name__)
 CREDENTIAL = "jav-browser"
@@ -441,7 +442,7 @@ class JavBrowser:
         with self._lock:
             row = self.rows.get(code)
             if row is None or row["state"] != "queued":
-                raise ValueError("这个番号不在排队中")
+                raise UserFacingError("这个番号不在排队中", code="javBrowser.notQueued")
             ordered = [(code, row), *((key, other) for key, other in self.rows.items() if key != code)]
             self.rows.clear()
             self.rows.update(ordered)

@@ -4,6 +4,9 @@
     "notFound": "这个地址下没有页面。",
     "serverError": "服务处理失败，请导出诊断报告"
   },
+  "javBrowser": {
+    "notQueued": "这个番号不在排队中"
+  },
   "release": {
     "installation": {
       "docker": "Docker 镜像",
