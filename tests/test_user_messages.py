@@ -113,9 +113,10 @@ class ResponseExitTests(unittest.IsolatedAsyncioTestCase):
 
         def crash():
             raise RuntimeError("boom")
-        app.add_api_route("/api/sample-refusal", refuse)
-        app.add_api_route("/sample-refusal", refuse)
-        app.add_api_route("/api/sample-crash", crash)
+        # 插到路由表最前面：应用末尾有兜底路由，追加在后面的路由永远匹配不到。
+        for path, endpoint in (("/api/sample-refusal", refuse), ("/sample-refusal", refuse), ("/api/sample-crash", crash)):
+            app.add_api_route(path, endpoint)
+            app.router.routes.insert(0, app.router.routes.pop())
         self.client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app, raise_app_exceptions=False),
                                         base_url="http://testserver")
         self.addAsyncCleanup(self.client.aclose)
@@ -130,9 +131,9 @@ class ResponseExitTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('data-detail="来源正在冷却"', page.text)
 
     async def test_starlette_and_unexpected_errors_carry_codes(self):
-        missing = await self.client.get("/api/no-such-route")
+        missing = await self.client.get("/dist/no-such.js")
         self.assertEqual(missing.json()["message_code"], "http.notFound")
-        wrong = await self.client.delete("/api/sample-refusal")
+        wrong = await self.client.delete("/healthz")
         self.assertEqual(wrong.json()["message_code"], "http.methodNotAllowed")
         with patch("peach.api._server_error_headers", return_value={"X-Peach-Error-ID": "test"}):
             crashed = await self.client.get("/api/sample-crash")
