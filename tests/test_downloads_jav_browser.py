@@ -781,6 +781,7 @@ class BrowserTests(unittest.TestCase):
             "https://video.dmm.co.jp/av/content/?id=118abw00220": "ABW-220",
             "https://video.dmm.co.jp/av/content/?id=1dandy00851c": "DANDY-851C",
             "https://video.dmm.co.jp/av/content/?id=48midv00012ai": "MIDV-012AI",
+            "https://video.dmm.co.jp/av/content/?id=1sdjs00304v": "SDJS-304",
             "https://www.dmm.co.jp/digital/videoa/-/detail/=/cid=ssis00057/": "SSIS-057",
             "https://www.dmm.co.jp/mono/dvd/-/detail/=/cid=h_086iqqq00026/": "IQQQ-026",
             "https://www.mgstage.com/product/product_detail/300MIUM-1239/": "300MIUM-1239",
