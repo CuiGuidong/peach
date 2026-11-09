@@ -789,16 +789,16 @@
     "loadingMore": "Loading"
   },
   "storageLabel": {
-    "local": "Local",
     "metered": "{{label}} · Metered",
-    "online": "Online"
+    "online": "Online",
+    "localLabel": "Local"
   },
   "storageOffline": {
     "drive115": "Can't read the 115 media directory. Check directory permissions and that the cloud drive mount tool is running.",
     "hint": "Media directory isn't reachable. Check the directory, read permissions, and cloud drive mount.",
-    "local": "Can't read the media directory. Check that it exists and is readable.",
     "other": "Can't read this storage's media directory. Check directory permissions and mount status.",
-    "pikpak": "Can't read the PikPak media directory. Check directory permissions and that the cloud drive mount tool is running."
+    "pikpak": "Can't read the PikPak media directory. Check directory permissions and that the cloud drive mount tool is running.",
+    "localLabel": "Can't read the media directory. Check that it exists and is readable."
   },
   "tableColumns": {
     "columns": "Columns",

@@ -157,7 +157,7 @@ function FolderTree({ scope, selected, current, go, reportedError }: {
   const render = (node: MediaFolder) => {
     const loaded = childMap.get(node.id);
     return <TreeViewItem key={node.id} id={node.id} label={node.name} icon={RiFolder3Line} expandedIcon={RiFolderOpenLine}
-      iconClassName="size-(--icon-inline)" trailingContent={node.parent ? undefined : node.location === 'local' ? t('catalog:shared.local') : node.location}>
+      iconClassName="size-(--icon-inline)" trailingContent={node.parent ? undefined : node.location === 'local' ? t('catalog:shared.localLabel') : node.location}>
       {node.has_children ? loaded ? loaded.map(render)
         : <TreeViewItem id={`${node.id}:loading`} label={t('catalog:catalogFolders.loading')} isDisabled /> : null}
     </TreeViewItem>;

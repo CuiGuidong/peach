@@ -105,7 +105,7 @@
     "unchanged": "顺序未变"
   },
   "tagTabs": {
-    "local": "本地",
-    "online": "在线"
+    "online": "在线",
+    "localLabel": "本地"
   }
 }

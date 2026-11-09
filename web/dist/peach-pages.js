@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b9c386c4-1dc3-49be-af94-d612324cfe9c", e._sentryDebugIdIdentifier = "sentry-dbid-b9c386c4-1dc3-49be-af94-d612324cfe9c");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f621b4b1-e011-4ef0-a7dd-421667378be6", e._sentryDebugIdIdentifier = "sentry-dbid-f621b4b1-e011-4ef0-a7dd-421667378be6");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -2282,7 +2282,6 @@ var He = {
 		labels: "Labels",
 		library: "Library",
 		loadMore: "Load more",
-		local: "Local",
 		merge: "Merge",
 		moveToTrash: "Move to trash",
 		noCover: "No cover",
@@ -2315,7 +2314,8 @@ var He = {
 		videos: "Videos",
 		viewAll: "View all",
 		viewOnSite: "View on site",
-		watchLater: "Watch later"
+		watchLater: "Watch later",
+		localLabel: "Local"
 	},
 	shortsStrip: {
 		count_one: "{{count, number}} video",
@@ -5019,8 +5019,8 @@ var He = {
 		unchanged: "Order unchanged"
 	},
 	tagTabs: {
-		local: "Local",
-		online: "Online"
+		online: "Online",
+		localLabel: "Local"
 	}
 }, qe = {
 	catalogEmpty: {
@@ -7644,16 +7644,16 @@ var He = {
 		loadingMore: "Loading"
 	},
 	storageLabel: {
-		local: "Local",
 		metered: "{{label}} · Metered",
-		online: "Online"
+		online: "Online",
+		localLabel: "Local"
 	},
 	storageOffline: {
 		drive115: "Can't read the 115 media directory. Check directory permissions and that the cloud drive mount tool is running.",
 		hint: "Media directory isn't reachable. Check the directory, read permissions, and cloud drive mount.",
-		local: "Can't read the media directory. Check that it exists and is readable.",
 		other: "Can't read this storage's media directory. Check directory permissions and mount status.",
-		pikpak: "Can't read the PikPak media directory. Check directory permissions and that the cloud drive mount tool is running."
+		pikpak: "Can't read the PikPak media directory. Check directory permissions and that the cloud drive mount tool is running.",
+		localLabel: "Can't read the media directory. Check that it exists and is readable."
 	},
 	tableColumns: {
 		columns: "Columns",
@@ -8507,7 +8507,6 @@ var He = {
 		labels: "厂牌",
 		library: "媒体库",
 		loadMore: "载入更多",
-		local: "本地",
 		merge: "合并",
 		moveToTrash: "移入回收站",
 		noCover: "无封面",
@@ -8540,7 +8539,8 @@ var He = {
 		videos: "视频",
 		viewAll: "查看全部",
 		viewOnSite: "作品来源",
-		watchLater: "稍后看"
+		watchLater: "稍后看",
+		localLabel: "本地"
 	},
 	shortsStrip: {
 		count: "{{count, number}} 个",
@@ -10973,8 +10973,8 @@ var He = {
 		unchanged: "顺序未变"
 	},
 	tagTabs: {
-		local: "本地",
-		online: "在线"
+		online: "在线",
+		localLabel: "本地"
 	}
 }, tt = {
 	catalogEmpty: {
@@ -13514,16 +13514,16 @@ var He = {
 		loadingMore: "载入中"
 	},
 	storageLabel: {
-		local: "本地",
 		metered: "{{label}} · 计费",
-		online: "在线"
+		online: "在线",
+		localLabel: "本地"
 	},
 	storageOffline: {
 		drive115: "无法读取 115 媒体目录，请检查目录权限及网盘挂载工具是否正常运行。",
 		hint: "媒体目录无法访问，请检查目录、读取权限和网盘挂载状态",
-		local: "无法读取媒体目录，请检查目录是否存在及读取权限。",
 		other: "无法读取这个来源的媒体目录，请检查目录权限及挂载状态。",
-		pikpak: "无法读取 PikPak 媒体目录，请检查目录权限及网盘挂载工具是否正常运行。"
+		pikpak: "无法读取 PikPak 媒体目录，请检查目录权限及网盘挂载工具是否正常运行。",
+		localLabel: "无法读取媒体目录，请检查目录是否存在及读取权限。"
 	},
 	tableColumns: {
 		columns: "显示列",
@@ -34329,7 +34329,7 @@ Object.fromEntries(Object.entries({
 	later: "/watch-later",
 	flagged: "/flagged",
 	ads: "/junk-files"
-}).map(([e, t]) => [t, e])), F("shell:catalogView.unwatched"), F("shell:catalogView.watchLater"), F("shell:catalogView.flagged"), F("shell:catalogView.junkFiles"), typeof Intl < "u" && typeof Intl.Segmenter == "function" && new Intl.Segmenter(void 0, { granularity: "grapheme" }), { ...pg }, F("shell:storageLabel.local"), F("shell:storageLabel.online");
+}).map(([e, t]) => [t, e])), F("shell:catalogView.unwatched"), F("shell:catalogView.watchLater"), F("shell:catalogView.flagged"), F("shell:catalogView.junkFiles"), typeof Intl < "u" && typeof Intl.Segmenter == "function" && new Intl.Segmenter(void 0, { granularity: "grapheme" }), { ...pg }, F("shell:storageLabel.localLabel"), F("shell:storageLabel.online");
 // src/ui-kit/scroll.ts
 var Rv = /* @__PURE__ */ new Map(), zv, Bv = 240, Vv = 50, Hv = 70, Uv = .55, Wv = .35, Gv = 480;
 function Kv(e, t) {
@@ -36363,4 +36363,4 @@ wt();
 var nb = document.getElementById("peach-page"), rb = nb ? tb[nb.dataset.page ?? ""] : void 0;
 nb && rb && (0, Nt.createRoot)(nb).render(/* @__PURE__ */ (0, V.jsx)(eb, { children: /* @__PURE__ */ (0, V.jsx)(rb, { data: { ...nb.dataset } }) }));
 
-//# debugId=b9c386c4-1dc3-49be-af94-d612324cfe9c
+//# debugId=f621b4b1-e011-4ef0-a7dd-421667378be6

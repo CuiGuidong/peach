@@ -40,7 +40,7 @@ const PEOPLE_LAYOUTS =[['big', t('catalog:peopleIndex.layoutLargePortrait'), 'ma
 const COMPANY_LAYOUTS = [['big', t('catalog:peopleIndex.layoutLargeLogo'), 'maximize'], ['compact', t('catalog:peopleIndex.layoutCompactLogo'), 'layout-grid']] as const;
 const SERIES_LAYOUTS = [['big', t('catalog:peopleIndex.layoutLargeSeries'), 'maximize'], ['compact', t('catalog:peopleIndex.layoutCompactSeries'), 'layout-grid']] as const;
 const MAKER_INDEX_KINDS = [['studios', t('catalog:shared.studios'), 'clapperboard'], ['series', t('catalog:shared.series'), 'file-stack'], ['agencies', t('catalog:shared.agencies'), 'briefcase']] as const;
-const INDEX_SCOPES = [['local', t('catalog:shared.local'), 'hard-drive'], ['online', t('catalog:shared.online'), 'rss']] as const;
+const INDEX_SCOPES = [['local', t('catalog:shared.localLabel'), 'hard-drive'], ['online', t('catalog:shared.online'), 'rss']] as const;
 const PEOPLE_INDEX_TABS = [['performers', t('catalog:shared.performers'), 'user-round'], ['creators', t('catalog:shared.sellers'), 'user-round'], ['online', t('catalog:shared.online'), 'rss']] as const;
 const TAG_VIEWS = [['cloud', t('catalog:peopleIndex.tagCloud'), 'tags'], ['alphabet', t('catalog:peopleIndex.alphabetical'), 'text-aa']] as const;
 

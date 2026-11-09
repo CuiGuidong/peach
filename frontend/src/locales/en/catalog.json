@@ -833,7 +833,6 @@
     "labels": "Labels",
     "library": "Library",
     "loadMore": "Load more",
-    "local": "Local",
     "merge": "Merge",
     "moveToTrash": "Move to trash",
     "noCover": "No cover",
@@ -866,7 +865,8 @@
     "videos": "Videos",
     "viewAll": "View all",
     "viewOnSite": "View on site",
-    "watchLater": "Watch later"
+    "watchLater": "Watch later",
+    "localLabel": "Local"
   },
   "shortsStrip": {
     "count_one": "{{count, number}} video",

@@ -106,7 +106,7 @@
     "unchanged": "Order unchanged"
   },
   "tagTabs": {
-    "local": "Local",
-    "online": "Online"
+    "online": "Online",
+    "localLabel": "Local"
   }
 }

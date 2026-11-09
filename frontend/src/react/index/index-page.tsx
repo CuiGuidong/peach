@@ -52,7 +52,7 @@ const MAKER_TABS: BoardTab<'studios' | 'agencies' | 'series'>[] = [
 ];
 /* 本地与在线是两套词表：计数口径、类别划分和点开去哪儿都不同，所以也是页面级的 Tabs。 */
 const SCOPE_TABS: BoardTab<IndexScope>[] = [
-  { value: 'local', label: t('catalog:shared.local'), symbol: 'hard-drive' },
+  { value: 'local', label: t('catalog:shared.localLabel'), symbol: 'hard-drive' },
   { value: 'online', label: t('catalog:shared.online'), symbol: 'rss' },
 ];
 const PEOPLE_TABS: BoardTab<'performers' | 'creators' | 'online'>[] = [

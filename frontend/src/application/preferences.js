@@ -155,7 +155,7 @@ preferencesState.sourceOnline = {};
 preferencesState.sourceProblems = {};
 preferencesState.sourceOffline = key=>preferencesState.sourceOnline[key]===false;
 preferencesState.OFFLINE_HINT = t('shell:storageOffline.hint');
-preferencesState.OFFLINE_REASON = {local:t('shell:storageOffline.local'),
+preferencesState.OFFLINE_REASON = {local:t('shell:storageOffline.localLabel'),
   '115':t('shell:storageOffline.drive115'),
   pikpak:t('shell:storageOffline.pikpak')};
 preferencesState.offlineReason = key=>preferencesState.sourceProblems[key]||preferencesState.OFFLINE_REASON[key]||t('shell:storageOffline.other');

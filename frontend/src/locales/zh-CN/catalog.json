@@ -783,7 +783,6 @@
     "labels": "厂牌",
     "library": "媒体库",
     "loadMore": "载入更多",
-    "local": "本地",
     "merge": "合并",
     "moveToTrash": "移入回收站",
     "noCover": "无封面",
@@ -816,7 +815,8 @@
     "videos": "视频",
     "viewAll": "查看全部",
     "viewOnSite": "作品来源",
-    "watchLater": "稍后看"
+    "watchLater": "稍后看",
+    "localLabel": "本地"
   },
   "shortsStrip": {
     "count": "{{count, number}} 个",

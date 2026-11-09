@@ -736,16 +736,16 @@
     "loadingMore": "载入中"
   },
   "storageLabel": {
-    "local": "本地",
     "metered": "{{label}} · 计费",
-    "online": "在线"
+    "online": "在线",
+    "localLabel": "本地"
   },
   "storageOffline": {
     "drive115": "无法读取 115 媒体目录，请检查目录权限及网盘挂载工具是否正常运行。",
     "hint": "媒体目录无法访问，请检查目录、读取权限和网盘挂载状态",
-    "local": "无法读取媒体目录，请检查目录是否存在及读取权限。",
     "other": "无法读取这个来源的媒体目录，请检查目录权限及挂载状态。",
-    "pikpak": "无法读取 PikPak 媒体目录，请检查目录权限及网盘挂载工具是否正常运行。"
+    "pikpak": "无法读取 PikPak 媒体目录，请检查目录权限及网盘挂载工具是否正常运行。",
+    "localLabel": "无法读取媒体目录，请检查目录是否存在及读取权限。"
   },
   "tableColumns": {
     "columns": "显示列",
