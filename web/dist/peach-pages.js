@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f621b4b1-e011-4ef0-a7dd-421667378be6", e._sentryDebugIdIdentifier = "sentry-dbid-f621b4b1-e011-4ef0-a7dd-421667378be6");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "c39aded2-94cd-4aa1-8d3f-c5d7f17b7abd", e._sentryDebugIdIdentifier = "sentry-dbid-c39aded2-94cd-4aa1-8d3f-c5d7f17b7abd");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7035,36 +7035,6 @@ var He = {
 		notChecked: "Not checked",
 		offline: "Offline"
 	},
-	copyEditor: {
-		canceled: "Canceled",
-		changeSaved: "Change saved",
-		choosePrompt: "Choose {{label}}",
-		dragHint: "Drag empty space to move, use arrow keys to nudge, double-click or press Esc to reset",
-		editText: "Edit text",
-		editing: "Editing",
-		exit: "Exit editing",
-		export: "Export changes",
-		hint: "Click text to edit. Press Enter or click elsewhere to save, or Esc to cancel. Pause editing to use the page.",
-		keyHint: "Enter to save · Esc to cancel",
-		modeLabel: "Text editing",
-		notConfirmed: "Save not confirmed: {{message}}",
-		notSaved: "Not saved: {{message}}",
-		optionFallback: "Option",
-		pause: "Pause editing",
-		paused: "Editing paused",
-		requestFailed: "Request failed (HTTP {{status}})",
-		resume: "Resume editing",
-		saveFailed: "Save failed",
-		saveUnconfirmed: "Couldn't confirm the save (HTTP {{status}}). Refresh the page to check.",
-		saveUnconfirmedNoJson: "Couldn't confirm the save (HTTP {{status}}). Refresh the page to check; the server didn't return JSON.",
-		saved: "Saved",
-		savedNotRefreshed: "Saved, but the page didn't finish updating: {{message}}",
-		saving: "Saving…",
-		templateHint: "Keep {placeholders} and change only the text · Enter to save · Esc to cancel",
-		textDeleted: "Text deleted",
-		toolbar: "Copy editor",
-		working: "Working"
-	},
 	coverQueue: {
 		prioritizeAll: "Prioritize all",
 		progress_one: "Fetching covers · {{done}} / {{count, number}}. If you leave this page, the rest stay queued in the background.",
@@ -12937,36 +12907,6 @@ var He = {
 	connectionStatus: {
 		notChecked: "未检测",
 		offline: "离线"
-	},
-	copyEditor: {
-		canceled: "已取消",
-		changeSaved: "已保存修改",
-		choosePrompt: "请选择{{label}}",
-		dragHint: "拖动空白处移动，方向键微调，双击或 Esc 复位",
-		editText: "修改文字",
-		editing: "正在编辑",
-		exit: "退出编辑",
-		export: "导出修改",
-		hint: "点击文字修改，回车或点别处保存，Esc 取消；暂停编辑后可操作页面。",
-		keyHint: "Enter 保存 · Esc 取消",
-		modeLabel: "改字模式",
-		notConfirmed: "未确认保存：{{message}}",
-		notSaved: "没保存：{{message}}",
-		optionFallback: "选项",
-		pause: "暂停编辑",
-		paused: "编辑已暂停",
-		requestFailed: "请求失败（HTTP {{status}}）",
-		resume: "继续编辑",
-		saveFailed: "保存失败",
-		saveUnconfirmed: "未取得保存结果（HTTP {{status}}），请刷新页面核对",
-		saveUnconfirmedNoJson: "未取得保存结果（HTTP {{status}}），请刷新页面核对；服务未返回 JSON",
-		saved: "已保存",
-		savedNotRefreshed: "已保存，界面更新未完成：{{message}}",
-		saving: "保存中…",
-		templateHint: "保留 {占位符}，只改文字 · Enter 保存 · Esc 取消",
-		textDeleted: "已删除文字",
-		toolbar: "文案编辑",
-		working: "处理中"
 	},
 	coverQueue: {
 		prioritizeAll: "全部优先处理",
@@ -36363,4 +36303,4 @@ wt();
 var nb = document.getElementById("peach-page"), rb = nb ? tb[nb.dataset.page ?? ""] : void 0;
 nb && rb && (0, Nt.createRoot)(nb).render(/* @__PURE__ */ (0, V.jsx)(eb, { children: /* @__PURE__ */ (0, V.jsx)(rb, { data: { ...nb.dataset } }) }));
 
-//# debugId=f621b4b1-e011-4ef0-a7dd-421667378be6
+//# debugId=c39aded2-94cd-4aa1-8d3f-c5d7f17b7abd

@@ -11,11 +11,15 @@ const frontend = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const HAN = /[㐀-鿿]/;
 
 const EXEMPT = /\bi18n-exempt[:：]\s*\S/;
+const EXEMPT_FILE = /\bi18n-exempt-file[:：]\s*\S/;
 
 /** 一个源文件里带汉字的文案节点数。
- *  不是界面文案的中文（要和服务端或内容里的中文值比对的词）在同一行或上一行写 `// i18n-exempt: 理由`，不计数。 */
+ *  不是界面文案的中文（要和服务端或内容里的中文值比对的词）在同一行或上一行写 `// i18n-exempt: 理由`，不计数。
+ *  不能导入翻译入口的独立脚本（以 classic script 原样加载）在文件头的注释里写 `i18n-exempt-file: 理由`，整份不计。 */
 export function countLiterals(path, source) {
   const parsed = parseSync(path, source);
+  const head = parsed.comments[0];
+  if (head && head.start === source.search(/\S/) && EXEMPT_FILE.test(head.value)) return 0;
   const breaks = [...source.matchAll(/\n/g)].map((match) => match.index);
   const lineOf = (offset) => { let low = 0, high = breaks.length; while (low < high) { const mid = (low + high) >> 1; if (breaks[mid] < offset) low = mid + 1; else high = mid; } return low + 1; };
   const exempt = new Set(parsed.comments.filter((comment) => EXEMPT.test(comment.value))

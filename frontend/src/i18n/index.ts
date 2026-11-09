@@ -6,22 +6,22 @@
 import i18next from 'i18next';
 
 import { SETTINGS_KEY } from '../settings-key';
-import enCatalog from '../locales/en/catalog.json';
-import enCleanup from '../locales/en/cleanup.json';
-import enFollow from '../locales/en/follow.json';
-import enManage from '../locales/en/manage.json';
-import enNavigation from '../locales/en/navigation.json';
-import enOnboarding from '../locales/en/onboarding.json';
-import enSettings from '../locales/en/settings.json';
-import enShell from '../locales/en/shell.json';
-import zhCatalog from '../locales/zh-CN/catalog.json';
-import zhCleanup from '../locales/zh-CN/cleanup.json';
-import zhFollow from '../locales/zh-CN/follow.json';
-import zhManage from '../locales/zh-CN/manage.json';
-import zhNavigation from '../locales/zh-CN/navigation.json';
-import zhOnboarding from '../locales/zh-CN/onboarding.json';
-import zhSettings from '../locales/zh-CN/settings.json';
-import zhShell from '../locales/zh-CN/shell.json';
+import enCatalog from '../locales/en/catalog.json' with { type: 'json' };
+import enCleanup from '../locales/en/cleanup.json' with { type: 'json' };
+import enFollow from '../locales/en/follow.json' with { type: 'json' };
+import enManage from '../locales/en/manage.json' with { type: 'json' };
+import enNavigation from '../locales/en/navigation.json' with { type: 'json' };
+import enOnboarding from '../locales/en/onboarding.json' with { type: 'json' };
+import enSettings from '../locales/en/settings.json' with { type: 'json' };
+import enShell from '../locales/en/shell.json' with { type: 'json' };
+import zhCatalog from '../locales/zh-CN/catalog.json' with { type: 'json' };
+import zhCleanup from '../locales/zh-CN/cleanup.json' with { type: 'json' };
+import zhFollow from '../locales/zh-CN/follow.json' with { type: 'json' };
+import zhManage from '../locales/zh-CN/manage.json' with { type: 'json' };
+import zhNavigation from '../locales/zh-CN/navigation.json' with { type: 'json' };
+import zhOnboarding from '../locales/zh-CN/onboarding.json' with { type: 'json' };
+import zhSettings from '../locales/zh-CN/settings.json' with { type: 'json' };
+import zhShell from '../locales/zh-CN/shell.json' with { type: 'json' };
 
 export const INTERFACE_LANGUAGES = ['zh-CN', 'en'] as const;
 export type InterfaceLanguage = typeof INTERFACE_LANGUAGES[number];

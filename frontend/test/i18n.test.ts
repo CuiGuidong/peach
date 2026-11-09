@@ -193,4 +193,10 @@ describe('前端不写死中文', () => {
     ].join('\n');
     expect(countLiterals('sample.ts', source)).toBe(2);
   });
+
+  it('整文件豁免只认文件头注释里写明理由的 i18n-exempt-file', () => {
+    expect(countLiterals('a.js', "/* 核心。\n * i18n-exempt-file: classic script */\nconst a = '中文';")).toBe(0);
+    expect(countLiterals('b.js', "const x = 1;\n/* i18n-exempt-file: 不在文件头 */\nconst a = '中文';")).toBe(1);
+    expect(countLiterals('c.js', "/* i18n-exempt-file: */\nconst a = '中文';")).toBe(1);
+  });
 });
