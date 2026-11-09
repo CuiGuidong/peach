@@ -123,10 +123,14 @@ def identify_source(value: object, hint: str = "") -> str:
         if match:
             product = (match.group(1) if match.lastindex else "") or next(
                 (dict(parse_qsl(url.query)).get(key, "") for key in site.get("query_keys", ())), "")
+    if site and site["id"] == "fanza-clip":
+        # FANZA 剪辑页的 id 是 img-<DMM 商品号>-<片段序号>，片段序号不属于番号。
+        clip = re.fullmatch(r"img-((?:h_\d+)?[a-z0-9]+)-\d{1,4}", product, re.IGNORECASE)
+        product = clip.group(1) if clip else ""
     if not product:
         raise ValueError("未识别到作品番号，请选中页面的完整番号后加入 Peach")
     # DMM 的商品号按编目规则拆出番号；FC2 内容市场的商品页地址里只有数字编号，番号是 FC2-PPV-<编号>。
-    code = code_key(code_from_cid(product) if site["id"] == "dmm"
+    code = code_key(code_from_cid(product) if site["id"] in {"dmm", "fanza-clip"}
                     else f"FC2-PPV-{product}" if site["id"] == "fc2-market" else product)
     if hint and not same_release_code(code, code_key(hint)):
         raise ValueError("页面番号与商品号不一致，请核对作品详情")

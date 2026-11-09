@@ -789,6 +789,8 @@ class BrowserTests(unittest.TestCase):
             # 素人作品页与 FC2 内容市场商品页：地址里只有商品号或数字编号。
             "https://video.dmm.co.jp/amateur/content/?id=mfc288": "MFC-288",
             "https://adult.contents.fc2.com/article/4900901/": "FC2-PPV-4900901",
+            # FANZA 剪辑页：id 是 img-<DMM 商品号>-<片段序号>。
+            "https://clip.fanza.jp/moment?id=img-saba00978-011": "SABA-978",
         }
         for source, expected in cases.items():
             with self.subTest(source=source):
@@ -801,7 +803,8 @@ class BrowserTests(unittest.TestCase):
         self.remote.submit.assert_not_called()
         self.assertEqual(self.service.rows, {})
         for source in ("https://video.dmm.co.jp/av/content/?id=opaque_cid", "https://video.dmm.co.jp/av/content/?id=ssis00519&id=abw00123",
-                       "https://unrelated.invalid/av/content/?id=ssis00519", "https://www.mgstage.com/search/?q=300MIUM-1239"):
+                       "https://unrelated.invalid/av/content/?id=ssis00519", "https://www.mgstage.com/search/?q=300MIUM-1239",
+                       "https://clip.fanza.jp/moment?id=saba00978", "https://clip.fanza.jp/moment?id=img-saba00978"):
             with self.subTest(source=source):
                 result = self.client.get("/api/jav-browser/identify", params={"source_url": source}, headers=self.script_headers)
                 self.assertEqual(result.status_code, 400, result.text)
