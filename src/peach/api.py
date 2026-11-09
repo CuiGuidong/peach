@@ -79,7 +79,7 @@ from .sample_images import cache_root as sample_cache_root
 from .providers import OpenCodeGoClient, default_registry
 from .repository import LedgerDatabase, LedgerRepository
 from .review_mirror import ReviewMirror
-from .routes_auth import FIRST_ACCESS_DENIED, AssetLoginRequired, PageLoginRequired
+from .routes_auth import FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE, AssetLoginRequired, PageLoginRequired
 # 两档缓存时长的实现在 `routes_media`，这里再导出：它们是对外的缓存契约，
 # tests/test_follow_web.py 按 `api.MEDIA_CACHE_SECONDS` 断言两者的关系。
 from .routes_media import AVATAR_CACHE_SECONDS, MEDIA_CACHE_SECONDS  # noqa: F401
@@ -87,6 +87,7 @@ from .segments import HlsSegmentService
 from .streaming import StreamSessionRegistry
 from .sync import LedgerSync
 from .transcodes import TranscodeService
+from .user_messages import UserFacingError, error_fields, message_fields
 
 
 LOGGER = logging.getLogger(__name__)
@@ -161,17 +162,24 @@ class FirstSetupSourceMiddleware:
             if (not settings.configured
                     and (scope["path"].startswith("/api/") or scope["method"] not in {"GET", "HEAD"})
                     and not local_client(request)):
-                response = JSONResponse({"error": FIRST_ACCESS_DENIED, "docker": True}, status_code=403)
+                response = JSONResponse({**message_fields(FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE, key="error"),
+                                         "docker": True}, status_code=403)
                 await response(scope, receive, send)
                 return
         await self.app(scope, receive, send)
 
 
-#: Starlette 自己抛的那几种 HTTPException 带的是英文 detail，给人看之前换成中文。
+#: Starlette 自己抛的那几种 HTTPException 带的是英文 detail，给人看之前换成中文原文与 code。
 _DEFAULT_DETAILS = {
-    "Not Found": "这个地址下没有页面。",
-    "Method Not Allowed": "这个地址不接受这种请求。",
+    "Not Found": message_fields("这个地址下没有页面。", "http.notFound", key="error"),
+    "Method Not Allowed": message_fields("这个地址不接受这种请求。", "http.methodNotAllowed", key="error"),
 }
+
+
+def _navigation(request: Request) -> bool:
+    """浏览器地址栏直接打开页面路径：报错给一页话，`/api/` 与脚本取数（Accept 里没有 text/html）回 JSON。"""
+    return (request.method in {"GET", "HEAD"} and not request.url.path.startswith("/api/")
+            and "text/html" in request.headers.get("accept", ""))
 
 
 def _offline_response(exc: MediaOffline) -> JSONResponse:
@@ -714,23 +722,26 @@ def create_app(
         headers = _server_error_headers(request, exc, exc.status_code)
         detail = exc.detail
         if isinstance(detail, dict):
-            # 表单校验那种带字段明细的 4xx：`message` 是总话，其余键原样带给页面。
+            # 表单校验那种带字段明细的 4xx：`message` 是总话，其余键（含 `message_code`）原样带给页面。
             body = {"error": str(detail.get("message", "")), **{k: v for k, v in detail.items() if k != "message"}}
         else:
-            body = {"error": _DEFAULT_DETAILS.get(str(detail), str(detail))}
-        # 浏览器地址栏直接打开一个页面路径撞上 403／404／409 时，给人看的是一页话，
-        # 不是一行 JSON；`/api/` 与脚本取数（Accept 里没有 text/html）照旧回 JSON。
-        navigation = (request.method in {"GET", "HEAD"} and not request.url.path.startswith("/api/")
-                      and "text/html" in request.headers.get("accept", ""))
-        if navigation:
+            body = dict(_DEFAULT_DETAILS.get(str(detail)) or {"error": str(detail)})
+        # 浏览器地址栏直接打开一个页面路径撞上 403／404／409 时，给人看的是一页话，不是一行 JSON。
+        if _navigation(request):
             return HTMLResponse(routes_pages.error_page(exc.status_code, body["error"]),
                                 status_code=exc.status_code, headers=headers)
         return JSONResponse(body, status_code=exc.status_code, headers=headers)
 
+    @app.exception_handler(UserFacingError)
+    def _user_facing_error_handler(request: Request, exc: UserFacingError):
+        if _navigation(request):
+            return HTMLResponse(routes_pages.error_page(exc.status_code, exc.message), status_code=exc.status_code)
+        return JSONResponse(error_fields(exc), status_code=exc.status_code)
+
     @app.exception_handler(Exception)
     def _server_exception_handler(request: Request, exc: Exception):
         headers = _server_error_headers(request, exc)
-        return JSONResponse({'error': '服务处理失败，请导出诊断报告',
+        return JSONResponse({**message_fields('服务处理失败，请导出诊断报告', 'http.serverError', key='error'),
                              'error_id': headers['X-Peach-Error-ID']}, status_code=500, headers=headers)
 
     # 第三方前端依赖固定版本并随 Peach 自托管；局域网断网时仍可播放。

@@ -1062,8 +1062,8 @@ class DockerFirstSetupTests(_SetupHttpCase):
         self.assertFalse(data["access_preset"])
 
     def test_public_and_forwarded_sources_are_refused_everywhere_but_the_page_shell(self):
-        from peach.routes_auth import FIRST_ACCESS_DENIED
-        refused = {"error": FIRST_ACCESS_DENIED, "docker": True}
+        from peach.routes_auth import FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE
+        refused = {"error": FIRST_ACCESS_DENIED, "message_code": FIRST_ACCESS_DENIED_CODE, "message_params": {}, "docker": True}
         for client, headers in ((("8.8.8.8", 1), {}), (self.LAN, {"X-Forwarded-For": "8.8.8.8"}),
                                 (("127.0.0.1", 1), {"Forwarded": "for=8.8.8.8"})):
             with self.subTest(client=client, headers=headers):

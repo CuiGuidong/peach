@@ -13,6 +13,7 @@ import enManage from '../locales/en/manage.json' with { type: 'json' };
 import enNavigation from '../locales/en/navigation.json' with { type: 'json' };
 import enOnboarding from '../locales/en/onboarding.json' with { type: 'json' };
 import enSettings from '../locales/en/settings.json' with { type: 'json' };
+import enServer from '../locales/en/server.json' with { type: 'json' };
 import enShell from '../locales/en/shell.json' with { type: 'json' };
 import zhCatalog from '../locales/zh-CN/catalog.json' with { type: 'json' };
 import zhCleanup from '../locales/zh-CN/cleanup.json' with { type: 'json' };
@@ -21,6 +22,7 @@ import zhManage from '../locales/zh-CN/manage.json' with { type: 'json' };
 import zhNavigation from '../locales/zh-CN/navigation.json' with { type: 'json' };
 import zhOnboarding from '../locales/zh-CN/onboarding.json' with { type: 'json' };
 import zhSettings from '../locales/zh-CN/settings.json' with { type: 'json' };
+import zhServer from '../locales/zh-CN/server.json' with { type: 'json' };
 import zhShell from '../locales/zh-CN/shell.json' with { type: 'json' };
 
 export const INTERFACE_LANGUAGES = ['zh-CN', 'en'] as const;
@@ -28,8 +30,8 @@ export type InterfaceLanguage = typeof INTERFACE_LANGUAGES[number];
 export const SOURCE_LANGUAGE: InterfaceLanguage = 'zh-CN';
 
 export const resources = {
-  'zh-CN': { navigation: zhNavigation, shell: zhShell, settings: zhSettings, cleanup: zhCleanup, manage: zhManage, follow: zhFollow, catalog: zhCatalog, onboarding: zhOnboarding },
-  en: { navigation: enNavigation, shell: enShell, settings: enSettings, cleanup: enCleanup, manage: enManage, follow: enFollow, catalog: enCatalog, onboarding: enOnboarding },
+  'zh-CN': { navigation: zhNavigation, shell: zhShell, settings: zhSettings, cleanup: zhCleanup, manage: zhManage, follow: zhFollow, catalog: zhCatalog, onboarding: zhOnboarding, server: zhServer },
+  en: { navigation: enNavigation, shell: enShell, settings: enSettings, cleanup: enCleanup, manage: enManage, follow: enFollow, catalog: enCatalog, onboarding: enOnboarding, server: enServer },
 } as const;
 
 /** 设置里能选的值：`auto` 按浏览器与系统语言自动选，其余是固定的界面语言。 */
@@ -94,6 +96,8 @@ if (typeof document !== 'undefined') document.documentElement.lang = interfaceLa
 
 /** 取当前界面语言的译文，键写成 `命名空间:路径`。 */
 export const t = translator.t.bind(translator);
+/** 这条键有没有译文（含回落到 zh-CN）。缺键时 `t()` 返回键名，判断有没有译文只能用它。 */
+export const hasTranslation = (key: string): boolean => translator.exists(key);
 
 /** 外壳页面 `web/index.html` 里写死的源文：元素用 `data-i18n`（文字）和 `data-i18n-title`、`data-i18n-aria-label`、
  *  `data-i18n-placeholder`（属性）标出键，这里按界面语言换上。源语言不用换。 */

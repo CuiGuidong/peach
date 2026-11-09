@@ -295,7 +295,7 @@ JS/TS 文案复用 [Oxc parser](https://oxc.rs/docs/guide/usage/parser)，开发
 
 ## 界面翻译
 
-界面文案的翻译复用 [i18next](https://www.i18next.com/)，运行依赖固定 `i18next@27.0.1`，MIT 许可，来源为 [i18next 官方仓库](https://github.com/i18next/i18next)，没有传递依赖。它提供插值、按 `Intl.PluralRules` 选复数形式、缺键回落源语言，资源格式 i18next JSON v4 也是 Weblate、POEditor 直接支持的格式，换平台不用转换。只用核心库：界面语言在页面载入时定下，换语言整页重载，用不到 `react-i18next` 的响应式能力。写死中文的计数和术语扫描复用上一节的 Oxc parser；术语表用 Weblate 能读出禁用标记的 TBX，前端测试用 happy-dom 自带的 `DOMParser` 解析，后端不新增解析依赖。决策见 [ADR-0156](adr/0156-interface-translation.md)。
+界面文案的翻译复用 [i18next](https://www.i18next.com/)，运行依赖固定 `i18next@27.0.1`，MIT 许可，来源为 [i18next 官方仓库](https://github.com/i18next/i18next)，没有传递依赖。它提供插值、按 `Intl.PluralRules` 选复数形式、缺键回落源语言，资源格式 i18next JSON v4 也是 Weblate、POEditor 直接支持的格式，换平台不用转换。只用核心库：界面语言在页面载入时定下，换语言整页重载，用不到 `react-i18next` 的响应式能力。写死中文的计数和术语扫描复用上一节的 Oxc parser；术语表用 Weblate 能读出禁用标记的 TBX，前端测试用 happy-dom 自带的 `DOMParser` 解析，后端不新增解析依赖。后端发给界面的文字带 `message_code`，由前端同一份 i18next 实例在 `server` 命名空间里翻译；后端中文的计数复用标准库 `ast`。决策见 [ADR-0156](adr/0156-interface-translation.md)。
 
 ## macOS 独立构建
 

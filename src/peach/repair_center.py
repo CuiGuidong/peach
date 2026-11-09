@@ -16,7 +16,8 @@ from pathlib import Path
 from . import follow_evidence, system_file_repair
 from .media_sources import CLOUD_LOCATIONS
 
-#: 列给用户看的修复：标题、一句做了什么、是否自动执行。顺序就是页面顺序。
+#: 列给用户看的修复：id、标题、一句做了什么、是否自动执行。顺序就是页面顺序。
+#: 前端按 id 取译文（`server:repairCenter.items.<id>`），中文是没有译文时的显示。
 ITEMS = (
     ('catalog', '资料与番号整理', '按新规则修正番号、标题等自动写入的资料，你手动改过的不动', 'auto'),
     ('display-local', '本地视频显示尺寸', '重新读取本机与局域网视频的文件头，修正横竖屏判断', 'auto'),
@@ -29,6 +30,7 @@ ITEMS = (
     ('follow-evidence', '关注抓取的旧快照', '每个关注来源只留最近 3 份原始快照和条目引用的那几份，其余删除，删除后不能恢复', 'confirm'),
 )
 #: 历史里的规则：账本行 id 的前缀、名字、计哪个字段（`None` 为资料整理的改动合计）。
+#: 前缀去掉末尾的连字符就是规则 id，前端按它取译文（`server:repairCenter.history.<id>`）。
 RULES = (
     ('catalog-', '资料与番号整理', None), ('verification-settlement-', '核查差异结算', ('applied',)),
     ('studio-unbounded-misses-', '厂牌查询缓存', ('released',)), ('stale-filename-codes-', '清除误认的番号', ('cleared',)),
@@ -98,7 +100,7 @@ def _history(rows, backup_directories) -> list[dict]:
         if not changed:
             continue
         backups = list({row['name']: row for row in _backups(result, backup_directories)}.values())
-        history.append({'id': row_id, 'title': rule[1], 'at': applied_at, 'changed': changed, 'backups': backups})
+        history.append({'id': row_id, 'rule': rule[0].rstrip('-'), 'title': rule[1], 'at': applied_at, 'changed': changed, 'backups': backups})
     return history
 
 

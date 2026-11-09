@@ -11,7 +11,7 @@ import { actionOrder, buttonNamed, choose, click, fetchMock, mount, section, sen
 
 const automatic = { mode: 'off', interval_hours: 24, available: true, download_available: true };
 const release: ReleaseState = {
-  current_version: '0.9.0', latest_version: null, channel: '测试版', installation: '独立测试包', in_app_update: true,
+  current_version: '0.9.0', latest_version: null, channel: '测试版', installation: '独立测试包', installation_code: 'standalone', in_app_update: true,
   state: 'unchecked', message: '尚未检查', release_url: 'https://github.com/peach-mitao/peach/releases',
 };
 const uninstall = { available: true, full_available: true, message: '', data_root: 'fixture', directories: ['fixture', 'fixture/cache'] };
@@ -169,7 +169,7 @@ describe('检查更新', () => {
 
   it('Docker 镜像有新版时列出宿主机上的两步命令，不给下载或安装键', async () => {
     const steps = [{ text: '拉取新镜像', command: 'docker compose pull' }, { text: '重建容器', command: 'docker compose up -d' }];
-    const docker = { ...release, installation: 'Docker 镜像', in_app_update: false, steps };
+    const docker = { ...release, installation: 'Docker 镜像', installation_code: 'docker' as const, in_app_update: false, steps };
     const host = await mount(<ReleaseUpdates initial={{ ...docker, state: 'available', latest_version: '1.0.0', message: '有新镜像可拉取。' }} />);
     const updates = section(host, '检查更新')!;
     expect(updates.textContent).toContain('Docker 镜像');

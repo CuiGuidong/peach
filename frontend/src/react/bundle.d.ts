@@ -263,7 +263,9 @@ export interface ReleaseState {
   current_version: string;
   latest_version: string | null;
   channel: string;
+  /** 安装方式的中文名，没有译文时显示；判断和取译文用 `installation_code`。 */
   installation: string;
+  installation_code: 'docker' | 'standalone' | 'source';
   state: string;
   message: string;
   release_url: string;

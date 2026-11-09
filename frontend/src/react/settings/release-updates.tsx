@@ -8,6 +8,7 @@ import { confirmModal } from '@peach/legacy/ui';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend, errorMessage } from '../../api';
+import { serverLabel } from '../../core/server-text';
 import type { ReleaseState, UpdateJob } from '../bundle';
 import { Note } from '../components/note';
 import { Progress } from '../components/progress';
@@ -35,7 +36,7 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
   const container = useDockerUpdate(initial.current_version);
   const oneClick = data.state === 'available' && !!data.one_click?.available;
   const rebuilding = container.job.state === 'updating';
-  const testBuild = data.installation === '独立测试包'; // i18n-exempt: 服务端返回的安装方式值
+  const testBuild = data.installation_code === 'standalone';
   const confirmDockerUpdate = () => void confirmModal({
     title: t('settings:releaseUpdates.oneClickUpdate'), body: t('settings:releaseUpdates.dockerUpdateBody', { version: data.latest_version || '' }),
     confirmLabel: t('settings:releaseUpdates.startUpdate'), cancelLabel: t('settings:shared.cancel'), onConfirm: container.run,
@@ -105,7 +106,7 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
       {error || data.state === 'error' || job.state === 'error' ? t('settings:releaseUpdates.checkIncomplete') : container.job.state === 'timeout' ? t('settings:releaseUpdates.updateIncomplete') : running ? t('settings:releaseUpdates.preparing') : rebuilding ? t('settings:releaseUpdates.updating') : container.job.state === 'done' ? t('settings:releaseUpdates.updated') : job.state === 'ready' ? t('settings:releaseUpdates.readyToInstall') : data.state === 'available' ? t('settings:releaseUpdates.updateAvailable') : data.state === 'unchecked' ? t('settings:releaseUpdates.notChecked') : t('settings:releaseUpdates.checkDone')}</StatusLabel>}>
       <FactList>
         <Fact term={t('settings:releaseUpdates.currentVersion')}>{container.job.state === 'done' ? container.job.version : data.current_version}</Fact>
-        <Fact term={t('settings:releaseUpdates.installation')}>{data.installation}</Fact>
+        <Fact term={t('settings:releaseUpdates.installation')}>{serverLabel(`release.installation.${data.installation_code}`, data.installation)}</Fact>
         <Fact term={t('settings:releaseUpdates.channel')}>{data.channel}</Fact>
         <Fact term={t('settings:releaseUpdates.latestVersion')}>{data.latest_version || t('settings:shared.notFound')}</Fact>
         {data.package_kind ? <Fact term={t('settings:releaseUpdates.package')}>

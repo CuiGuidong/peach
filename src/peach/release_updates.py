@@ -17,6 +17,8 @@ API_URL = "https://api.github.com/repos/peach-mitao/peach/releases?per_page=100"
 DOWNLOADS_BASE = "https://downloads.peach.video"
 DOWNLOADS_API = DOWNLOADS_BASE + "/releases.json"
 LISTING_RULE = 'source-aware-v1'
+#: 安装方式：响应带 `installation_code`，前端按它取译文和判断；中文名是没有译文时的显示。
+INSTALLATIONS = {"docker": "Docker 镜像", "standalone": "独立测试包", "source": "源码运行"}
 
 
 def download_sources(url: str) -> tuple[str, ...]:
@@ -40,9 +42,9 @@ DOCKER_STEPS = (
 
 def snapshot() -> dict:
     docker = distribution.docker()
-    installation = "Docker 镜像" if docker else "独立测试包" if distribution.standalone() else "源码运行"
+    installation = "docker" if docker else "standalone" if distribution.standalone() else "source"
     return {"current_version": __version__, "latest_version": None,
-            "channel": "测试版", "installation": installation,
+            "channel": "测试版", "installation": INSTALLATIONS[installation], "installation_code": installation,
             "in_app_update": distribution.in_app_update(),
             "steps": [{"text": text, "command": command} for text, command in DOCKER_STEPS] if docker else [],
             "state": "unchecked", "message": "尚未检查", "release_url": RELEASES_URL}
