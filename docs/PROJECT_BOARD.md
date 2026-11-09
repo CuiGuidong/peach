@@ -42,6 +42,6 @@ PR 合入表示代码已集成。开放的需求进入待验证；完成验收�
 
 ## 凭据与验证
 
-组织 Project 不接受仓库默认的 `GITHUB_TOKEN`。`PROJECT_BOARD_TOKEN` 必须具备两个仓库的读取与 Project 写权限，仅在应用仓库通过 GitHub Actions Secret 注入；不得写入代码、日志或事件正文。规划仓库不保存这份凭据。GitHub App 可按[官方方法](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions)替代长期令牌。
+组织 Project 不接受仓库默认的 `GITHUB_TOKEN`。同步按[官方方法](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/automating-projects-using-actions)使用组织下的 GitHub App「Peach Board」：工作流以仓库变量 `PROJECT_BOARD_APP_CLIENT_ID` 与 Secret `PROJECT_BOARD_APP_KEY`（App 私钥）换取安装令牌，令牌只覆盖应用与规划两个仓库，作业结束即吊销，看板操作记在 `peach-board[bot]` 名下。App 只有 Contents、Issues、Pull requests 与 Metadata 的读取权限和组织 Projects 的写权限，安装在这两个仓库。私钥不得写入代码、日志或事件正文；规划仓库不保存这份凭据。
 
 本地运行 `scripts/project_board.py` 默认只预览差异，显式传入 `--apply` 才写入。回归覆盖开关、合入、待验收、发布祖先关系和跨仓库引用；线上验收使用手动触发和实际看板读回。
