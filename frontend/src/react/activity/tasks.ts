@@ -333,7 +333,8 @@ export function readableErrorHeadline(text: string | null | undefined): string {
   const head = errorHeadline(text);
   const technical = head.match(/^(?:[\w.]*Error|Exception):\s*(.*)$/);
   if (!technical) return head;
-  return requestErrorMessage(technical[1]);
+  // Peach 自己抛的原因是中文原话，照原样显示；第三方库的英文消息是技术细节，带着异常类型交给通用句。
+  return /[㐀-鿿]/.test(technical[1]!) ? technical[1]! : requestErrorMessage(head);
 }
 
 const OUTCOME_LABELS: Record<string, string> = {

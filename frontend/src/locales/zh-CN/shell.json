@@ -453,7 +453,6 @@
     "gatewayTimeout": "等待服务响应超时，请稍后重试。",
     "notFound": "请求的内容已不存在，请刷新列表。",
     "rateLimited": "请求过于频繁，请稍后重试。",
-    "requestFailedStatus": "请求失败（{{status}}）",
     "serverError": "Peach 服务处理失败，请重试；持续失败时查看托盘日志。",
     "sessionExpired": "登录已失效，请刷新页面重新登录。",
     "timeout": "请求超时，请稍后重试。",

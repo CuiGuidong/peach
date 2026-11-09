@@ -32,7 +32,7 @@ from . import change_impact, test_evidence, test_history, test_resume, test_run_
 from .test_inputs import repository_paths_read_by as repository_paths_read_by
 
 COMMON_PATTERNS = ("test_context_budget.py", "test_test_collection.py", "test_complexity_ratchet.py",
-                   "test_source_assertion_ratchet.py", "test_python_lint.py")
+                   "test_source_assertion_ratchet.py", "test_python_lint.py", "test_user_messages.py")
 SCOPES: dict[str, tuple[str, ...]] = {
     "checks": ("test_copy_final_state.py", "test_dependency_policy.py", "test_repo_hygiene.py", "test_test_planning.py", "test_reference_updates.py", "test_readme_contracts.py",
                "test_complexity_ratchet.py", "test_source_assertion_ratchet.py", "test_python_lint.py"),

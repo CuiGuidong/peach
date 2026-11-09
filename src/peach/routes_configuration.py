@@ -33,9 +33,10 @@ from . import (access, auth, certs, data_storage, distribution, entry_links, err
                web_downloads)
 from .config import REPLICATION_ENABLED
 from .jobs import JobAlreadyRunning
-from .routes_auth import (FIRST_ACCESS_DENIED, login_mode, origin_allowed, require_auth, require_authenticated_client, safe_next, same_origin,
+from .routes_auth import (FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE, login_mode, origin_allowed, require_auth, require_authenticated_client, safe_next, same_origin,
                           set_auth_cookie, sessions as access_sessions)
 from .web_entry import runtime_fact_entries
+from .user_messages import message_fields
 from .web_local_access import local_client, managed_configuration
 from . import (release_updates, standalone_update, peach_proxy, desktop_startup, desktop_uninstall, docker_update,
                media_tools)
@@ -1234,7 +1235,7 @@ def first_access(request: Request, body: dict[str, Any] = Body(default_factory=d
     if mode == "password":
         raise HTTPException(409, "访问设置已完成，请刷新页面")
     if mode != "setup":
-        raise HTTPException(403, FIRST_ACCESS_DENIED)
+        raise HTTPException(403, message_fields(FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE))
     if not origin_allowed(request, guard="first-access", tunnels=False):
         raise HTTPException(403, "请从 Peach 访问设置页提交")
     if any(not isinstance(body.get(key, ""), str) for key in ("password", "confirmation", "next")):

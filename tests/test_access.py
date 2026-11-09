@@ -584,7 +584,8 @@ class DockerFirstAccessTests(ConfigurationPageCase):
                 self.assertEqual(self.mode(page), "denied")
                 refused = await self.submit(client, **body)
                 self.assertEqual(refused.status_code, 403)
-                self.assertEqual(refused.json()["detail"], routes_auth.FIRST_ACCESS_DENIED)
+                self.assertEqual(refused.json()["detail"]["message"], routes_auth.FIRST_ACCESS_DENIED)
+                self.assertEqual(refused.json()["detail"]["message_code"], routes_auth.FIRST_ACCESS_DENIED_CODE)
         foreign = await self.device().post("/api/configuration/access/first", json=body,
                                            headers={"Origin": "https://evil.example"})
         self.assertEqual(foreign.status_code, 403)
