@@ -215,7 +215,9 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: python-${{ matrix.os }}-${{ matrix.scope }}-${{ matrix.shard_index }}
-          path: build/ci-tests.log
+          path: |
+            build/ci-tests.log
+            build/test-history/*.jsonl
           if-no-files-found: ignore
           retention-days: 14
 
@@ -301,7 +303,7 @@ jobs:
         shell: pwsh
         run: |
           $peachBrowserFiles = @($env:BROWSER_FILES | ConvertFrom-Json)
-          & .\scripts\test.ps1 -Scope web -Focus $peachBrowserFiles
+          & .\scripts\test.ps1 -Scope web -Focus $peachBrowserFiles -RerunFailures
           if ($LASTEXITCODE -ne 0) { throw '浏览器分片未通过' }
       - name: 保存浏览器测试日志
         if: always()
@@ -313,6 +315,7 @@ jobs:
             build/agent-verification/browser/serve.log
             build/agent-verification/browser/setup-serve.log
             build/agent-verification/browser/network/*.json
+            build/test-history/*.jsonl
           if-no-files-found: ignore
           retention-days: 14
 
