@@ -1325,8 +1325,8 @@ def main(argv: list[str] | None = None) -> int:
 def full_suite_guard(parser, args, scopes):
     """全量验证取得仓库的全量锁。集成入口持锁补验时，由它直接派出的运行器沿用那把锁，
     否则子进程会等父进程放锁、父进程等子进程结束，互等到超时。"""
-    lock = test_evidence.evidence_dir(ROOT) / "full-suite.lock"
     if args.full_lock_held:
+        lock = test_evidence.evidence_dir(ROOT) / "full-suite.lock"
         try:
             holder = json.loads(test_evidence.holder_path(lock).read_text(encoding="utf-8"))
         except (OSError, ValueError):
@@ -1336,7 +1336,8 @@ def full_suite_guard(parser, args, scopes):
         return nullcontext()
     if "full" not in scopes:
         return nullcontext()
-    return test_evidence.held(lock, wait_seconds=args.lock_timeout, scope=" ".join(scopes), root=str(ROOT))
+    return test_evidence.held(test_evidence.evidence_dir(ROOT) / "full-suite.lock", wait_seconds=args.lock_timeout,
+                              scope=" ".join(scopes), root=str(ROOT))
 
 
 def run_focus(parser, args) -> int:
