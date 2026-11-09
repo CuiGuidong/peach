@@ -5,7 +5,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from .config import PROJECT_ROOT
-from .jav_browser import identify_source
+from .jav_browser import identify_source, page_edition
 from .routes_auth import require_auth
 
 
@@ -46,7 +46,11 @@ def active(service=Depends(browser_client)):
 
 def identify(source_url: str, code: str = "", service=Depends(browser_client)):
     try:
-        return JSONResponse(service.status(identify_source(source_url, code)), headers={"Cache-Control": "no-store"})
+        status = service.status(identify_source(source_url, code))
+        # 作品同时有特典版与通常版时带回来源页是哪一版，用户脚本据此给出两个添加按钮。
+        edition = page_edition(source_url, service.edition_probe)
+        return JSONResponse({**status, **({"edition": edition} if edition else {})},
+                            headers={"Cache-Control": "no-store"})
     except ValueError as error:
         raise HTTPException(400, str(error)) from None
 
