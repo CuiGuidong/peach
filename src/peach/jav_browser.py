@@ -423,13 +423,17 @@ class JavBrowser:
                     "updated_at": task.updated_at}
                 row.update(_postprocess_retry_status(task))
             state = row.get("state", "idle")
-            if state == "queued":
-                # 排在第几个搜索：搜索逐个进行，用户脚本据此决定要不要给「提前处理」。
-                waiting = [key for key, other in self.rows.items() if other["state"] == "queued"]
-                detail["queue_position"] = waiting.index(code) + 1 if code in waiting else 1
-            return {"ok": True, "code": code, **row, **detail, "state": state,
+            return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
                     "message": row.get("message") or MESSAGES[state]}
+
+    def _queue_detail(self, code: str, state: str) -> dict:
+        """排队中的番号排在搜索队列第几位；搜索逐个进行，用户脚本据此决定要不要给「提前处理」。"""
+        if state != "queued":
+            return {}
+        with self._lock:
+            waiting = [key for key, other in self.rows.items() if other["state"] == "queued"]
+        return {"queue_position": waiting.index(code) + 1 if code in waiting else 1}
 
     def prioritize(self, value: object) -> dict:
         """把排队中的番号挪到搜索队列最前面；搜索、下载与整理阶段的任务不受影响。"""
