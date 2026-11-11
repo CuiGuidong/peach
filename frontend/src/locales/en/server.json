@@ -8,7 +8,7 @@
       "network": "Network temporarily unavailable",
       "no_source": "No download source, or progress stopped updating",
       "not_accepted": "The cloud drive didn't accept the task",
-      "not_landed": "Downloaded file not found in the target folder",
+      "not_landed": "Downloaded file not found in the target directory",
       "quota": "Download quota used up",
       "rejected": "The cloud drive refused this download",
       "removed": "Cloud drive task was deleted"
@@ -73,7 +73,7 @@
       "test": "Test build"
     },
     "dockerStep": {
-      "pull": "Pull the new image in the folder with compose.yaml. If .env pins PEACH_VERSION to a version, change it to the new one first",
+      "pull": "Pull the new image in the directory with compose.yaml. If .env pins PEACH_VERSION to a version, change it to the new one first",
       "recreate": "Recreate the container. The /data volume is kept"
     },
     "installation": {
@@ -294,7 +294,7 @@
         "note": "Only archived logs and crash reports are removed; logs in use are kept"
       },
       "other": {
-        "description": "Files in the data folder that don't fit the categories above",
+        "description": "Files in the data directory that don't fit the categories above",
         "label": "Other",
         "note": "Peach can't tell what they're for. Check them and handle them yourself"
       },
