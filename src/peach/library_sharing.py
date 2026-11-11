@@ -113,13 +113,15 @@ def target():
 def snapshot(config):
     from .research_participation import snapshot as participation_snapshot
     attempt = remote_reporting._read(config.directory("state") / "library-sharing-attempt.json")
-    if attempt.get("status") == "attempted":
-        attempt = {**attempt, "status": "unknown", "attempted": True}
+    last_attempt = attempt_evidence(config)
+    if (attempt.get('status') == 'attempted' and attempt.get('schema') == SCHEMA
+            and attempt.get('period') == _period()):
+        last_attempt = {'period': attempt['period'], 'status': 'unknown', 'attempted': True}
     return {"enabled": bool(consent(config)), 'consent_state': consent_state(config), "available": bool(target()),
             "schema": SCHEMA, "fields": FIELDS, "notice": NOTICE,
             'participation': participation_snapshot(config),
             'last_sent_at': attempt.get('last_sent_at'),
-            "last_attempt": attempt_evidence(config)}
+            "last_attempt": last_attempt}
 
 
 def attempt_evidence(config):

@@ -10,6 +10,7 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 from unittest.mock import patch
 
 from peach import capacity_history, research_archive as archive
@@ -55,7 +56,7 @@ class ResearchArchiveTests(unittest.TestCase):
             with self.subTest(schema=schema):
                 value = payload(schema, period=f'2026-W{40 + schema}')
                 self.ingest(value)
-        with sqlite3.connect(self.destination / archive.DATABASE) as connection:
+        with closing(sqlite3.connect(self.destination / archive.DATABASE)) as connection:
             rows = connection.execute('SELECT schema,peach,attachment FROM snapshot ORDER BY schema').fetchall()
         self.assertEqual([row[:2] for row in rows], [(4, '0.9.0'), (5, '0.9.0'), (6, '0.9.0')])
         self.assertEqual(json.loads(gzip.decompress(rows[-1][2])), payload(6, period='2026-W46'))
@@ -176,7 +177,7 @@ class ResearchArchiveTests(unittest.TestCase):
 
     def test_failed_write_keeps_previous_snapshot_and_reports_storage_failure(self):
         self.ingest()
-        with sqlite3.connect(self.destination / archive.DATABASE) as connection:
+        with closing(sqlite3.connect(self.destination / archive.DATABASE)) as connection, connection:
             connection.execute("""CREATE TRIGGER reject_update BEFORE UPDATE ON snapshot
                 BEGIN SELECT RAISE(ABORT,'private details'); END""")
         with self.assertRaises(sqlite3.IntegrityError):
