@@ -1,6 +1,6 @@
 """跨进程聚合已筛选的技术诊断；不读取日志或账本。
 
-同一诊断键在本机只上传一次错误事件，之后的发生次数按间隔合并成计数日志（ADR-0132）。
+同一诊断键在本机只上传一次错误事件，全部发生次数按间隔合并成计数日志。
 """
 from __future__ import annotations
 
@@ -52,6 +52,11 @@ def _load(path, revision, now):
     if not isinstance(records, dict):
         records = {}
     state["records"] = {key: row for key, row in records.items() if _valid(key, row, cutoff, day)}
+    if state.get('count_schema') != 2:
+        for row in state['records'].values():
+            if row['sent'] and row['first'] == row['day']:
+                row['submitted'] = max(0, row['submitted'] - 1)
+        state['count_schema'] = 2
     if type(state.get("events")) is not int or state["events"] < 0:
         state["events"] = 0
     return state
@@ -59,12 +64,13 @@ def _load(path, revision, now):
 
 def _tags(row, key, count):
     return {**row["event"].get("tags", {}), "diagnostic_key": key,
+            'count_schema': '2',
             "occurrence_day": row["day"], "occurrence_count": str(count)}
 
 
 def _emit_event(state, row, key, emit, *, event_id=None):
-    """诊断键的首次错误事件只携带一次发生，其余次数交给计数日志。"""
-    if row["sent"] or row["total"] - row["submitted"] <= 0 or state["events"] >= EVENT_LIMIT:
+    """首次错误事件提供定位样本，发生次数统一由计数日志汇总。"""
+    if row["sent"] or row["total"] <= 0 or state["events"] >= EVENT_LIMIT:
         return
     event = {**row["event"], "tags": _tags(row, key, 1)}
     if event_id:
@@ -74,14 +80,14 @@ def _emit_event(state, row, key, emit, *, event_id=None):
     except Exception:
         accepted = False
     if accepted:
-        row.update(sent=True, submitted=row["submitted"] + 1)
+        row['sent'] = True
         state["events"] += 1
 
 
 def _emit_counts(rows, now, log, *, force=False):
-    """已上传首次事件的诊断键，把未提交次数合并成一批计数日志。"""
+    """把所有诊断键的未提交次数合并成一批计数日志。"""
     due = [(key, row) for key, row in rows
-           if row["sent"] and row["total"] > row["submitted"]
+           if row["total"] > row["submitted"]
            and (force or row["day"] != now.date().isoformat()
                 or now.timestamp() - row["last_logged"] >= INTERVAL)]
     if not due:
@@ -99,7 +105,7 @@ def _emit_counts(rows, now, log, *, force=False):
 def _roll(row, key, now, log):
     """跨 UTC 日先提交前一天的次数，计数日志的统计日期是实际发生日；提交失败的旧次数不再保留。"""
     day = now.date().isoformat()
-    if row["day"] == day or not row["sent"]:
+    if row["day"] == day:
         return
     _emit_counts([(key, row)], now, log, force=True)
     row.update(day=day, total=0, submitted=0, last_logged=now.timestamp())
@@ -113,7 +119,9 @@ def record(config, revision, event, emit, log):
         now = _now()
         state = _load(path, revision, now)
         sample = {key: value for key, value in event.items() if key != "event_id"}
-        key = hashlib.sha256(json.dumps(sample, sort_keys=True).encode()).hexdigest()
+        fingerprint = {**sample, 'tags': {key: value for key, value in sample.get('tags', {}).items()
+                                        if key != 'diagnostic_instance'}}
+        key = hashlib.sha256(json.dumps(fingerprint, sort_keys=True).encode()).hexdigest()
         day = now.date().isoformat()
         records = state["records"]
         if key not in records:

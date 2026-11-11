@@ -42,6 +42,68 @@ class RemoteReportingTests(unittest.TestCase):
         reporting.close()
         reporting.save({"usage": False, "errors": False})
 
+    def test_enabled_legacy_choice_generates_a_stable_random_instance_and_disable_removes_it(self):
+        path = self.config.directory('state') / 'remote-reporting.json'
+        path.write_text(json.dumps({'usage': True, 'errors': True, 'revision': 'old-choice'}))
+        with mock.patch.object(reporting, '_schedule_frequency'), mock.patch.object(reporting, '_new_client', return_value=mock.Mock()):
+            self.assertNotIn('diagnostic_instance', reporting.consent(self.config))
+            reporting.usage(self.config)
+            first = reporting.consent(self.config)
+            self.assertRegex(first['diagnostic_instance'], r'^[a-f0-9]{32}$')
+            self.assertEqual(first['revision'], 'old-choice')
+            self.assertEqual(reporting.consent(self.config), first)
+            reporting.save({'usage': True, 'errors': True}, self.config)
+            self.assertEqual(reporting.consent(self.config)['diagnostic_instance'], first['diagnostic_instance'])
+            reporting.save({'usage': False, 'errors': False}, self.config)
+            self.assertNotIn('diagnostic_instance', reporting.consent(self.config))
+            self.assertNotIn('diagnostic_instance', json.loads(path.read_text()))
+            reporting.save({'usage': True, 'errors': True}, self.config)
+            self.assertNotEqual(reporting.consent(self.config)['diagnostic_instance'], first['diagnostic_instance'])
+        self.assertNotIn('research_instance', path.read_text())
+
+    def test_frequency_migration_counts_the_old_first_event_once_in_logs(self):
+        from peach import diagnostic_frequency as frequency
+        reporting.save({'usage': True, 'errors': True})
+        now = datetime(2026, 10, 18, 12, tzinfo=timezone.utc)
+        path = frequency._path(self.config)
+        key = 'a' * 64
+        path.write_text(json.dumps({'revision': reporting.consent()['revision'], 'day': '2026-10-18', 'events': 1,
+            'records': {key: {'event': {'tags': {'stage': 'cli'}}, 'first': '2026-10-18', 'day': '2026-10-18',
+                             'sent': True, 'total': 4, 'submitted': 3, 'last_logged': now.timestamp()}}}))
+        counts = []
+        with mock.patch.object(frequency, '_now', return_value=now):
+            for _ in range(2):
+                frequency.flush(self.config, reporting.consent()['revision'], lambda _event: True,
+                    lambda batch: counts.extend(batch) or True, force=True)
+        self.assertEqual([row['tags']['occurrence_count'] for row in counts], ['2'])
+        self.assertEqual(json.loads(path.read_text())['count_schema'], 2)
+
+    def test_diagnostic_keys_match_across_random_instances(self):
+        from peach import diagnostic_frequency as frequency
+        keys = []
+        for identity in ('a' * 32, 'b' * 32):
+            config = PeachConfig(self.root / identity, self.root / identity / 'config.toml')
+            frequency.record(config, 'choice', {'release': 'test', 'tags': {
+                'stage': 'cli', 'diagnostic_instance': identity}},
+                lambda event: keys.append(event['tags']['diagnostic_key']) or True, lambda _counts: True)
+        self.assertEqual(len(keys), 2)
+        self.assertEqual(keys[0], keys[1])
+
+    def test_browser_client_categories_are_coarse_and_server_environment_is_separate(self):
+        reporting.save({'usage': True, 'errors': True})
+        client = mock.Mock()
+        with mock.patch.object(reporting, '_new_client', return_value=client):
+            reporting.capture('browser', error_name='TypeError', stack='peach-app.js:12:34', browser={
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; private-device) Chrome/140.1.2.3 Safari/537.36 Edg/140.1.2.3',
+                'graphics': {'renderer': 'private-gpu'}})
+        event = client.capture_event.call_args.args[0]
+        self.assertEqual({key: value for key, value in event['tags'].items() if key.startswith('client_')},
+                         {'client_browser': 'Edge', 'client_browser_major': '140', 'client_os': 'Windows'})
+        wire = json.dumps(event)
+        for private in ('private-device', 'private-gpu', '140.1.2.3', 'user_agent'):
+            self.assertNotIn(private, wire)
+        self.assertIn('diagnostic_instance', event['tags'])
+
     def test_invalid_and_disabled_choices_never_construct_client(self):
         with mock.patch.object(reporting, "_new_client") as client:
             reporting.usage()
@@ -214,7 +276,8 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.flush_counts()
             reporting.flush_counts(force=True)
             [count] = self._counts(client)
-            self.assertEqual(count['occurrence_count'], 4)
+            self.assertEqual(count['occurrence_count'], 5)
+            self.assertEqual(count['count_schema'], '2')
             self.assertEqual(count['diagnostic_key'], first['tags']['diagnostic_key'])
             self.assertEqual(count['occurrence_day'], '2026-10-18')
             self.assertEqual(count['exception_type'], 'ValueError')
@@ -235,7 +298,7 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.close()
             reporting.flush_counts(force=True)
             [count] = self._counts(client)
-            self.assertEqual(count['occurrence_count'], 2)
+            self.assertEqual(count['occurrence_count'], 3)
             self.assertEqual(count['diagnostic_key'], first['tags']['diagnostic_key'])
             self.assertEqual(client.capture_event.call_count, 1)
 
@@ -270,7 +333,7 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.send('errors', {'message': '0'})
             reporting.flush_counts(force=True)
             self.assertEqual(client.capture_event.call_count, frequency.EVENT_LIMIT)
-            self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [1])
+            self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [2, 1, 1, 1, 1, 1, 1])
             clock.return_value = now + timedelta(days=1)
             reporting.flush_counts(force=True)
             self.assertEqual(client.capture_event.call_count, 7)
@@ -291,7 +354,7 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.flush_counts(force=True)
         self.assertEqual(client.capture_event.call_count, 1)
         self.assertEqual([(count['occurrence_day'], count['occurrence_count']) for count in self._counts(client)],
-                         [('2026-10-18', 2), ('2026-10-19', 1)])
+                         [('2026-10-18', 3), ('2026-10-19', 1)])
 
     def test_frequency_resends_one_event_after_the_key_goes_quiet(self):
         from peach import diagnostic_frequency as frequency
@@ -319,7 +382,7 @@ class RemoteReportingTests(unittest.TestCase):
             self.assertEqual(client.capture_event.call_args.args[0]['tags']['occurrence_count'], '1')
             reporting.flush_counts(force=True)
             self.assertEqual(client.capture_event.call_count, 2)
-            self.assertEqual(self._counts(client), [])
+            self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [1])
 
     def test_frequency_shared_file_serializes_independent_processes(self):
         from peach import diagnostic_frequency as frequency
@@ -359,7 +422,7 @@ class RemoteReportingTests(unittest.TestCase):
         frequency.flush(self.config, reporting.consent()['revision'], lambda e: events.append(e) or True,
                         lambda batch: counts.extend(batch) or True, force=True)
         self.assertEqual(events, [])
-        self.assertEqual([count['tags']['occurrence_count'] for count in counts], ['1'])
+        self.assertEqual([count['tags']['occurrence_count'] for count in counts], ['2'])
 
     def test_frequency_shutdown_submits_pending_counts_and_stops_timer(self):
         reporting.save({"usage": True, "errors": True})
@@ -369,7 +432,7 @@ class RemoteReportingTests(unittest.TestCase):
                 reporting.capture('unhandled-main', ValueError('private'))
             reporting._shutdown()
         self.assertEqual(client.capture_event.call_count, 1)
-        self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [2])
+        self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [3])
         self.assertIsNone(reporting._frequency_timer)
         self.assertFalse(reporting._frequency_configs)
 
@@ -393,7 +456,7 @@ class RemoteReportingTests(unittest.TestCase):
             clock.return_value = now + timedelta(seconds=frequency.INTERVAL)
             callback()
             self.assertEqual(client.capture_event.call_count, 1)
-            self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [3])
+            self.assertEqual([count['occurrence_count'] for count in self._counts(client)], [4])
 
     def test_daily_activity_is_reported_after_midnight_without_restarting(self):
         client = mock.Mock()
