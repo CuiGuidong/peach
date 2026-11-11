@@ -66,5 +66,8 @@
   },
   "setup": {
     "firstAccessDenied": "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container."
+  },
+  "subtitles": {
+    "unsupportedLanguage": "Subtitle language must be zh or en."
   }
 }
