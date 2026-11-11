@@ -1,17 +1,201 @@
 {
+  "download": {
+    "failure": {
+      "config": "Settings or sign-in problem",
+      "duplicate": "Download task already exists",
+      "invalid_link": "Invalid link",
+      "mismatch": "Download doesn't match the target video",
+      "network": "Network temporarily unavailable",
+      "no_source": "No download source, or progress stopped updating",
+      "not_accepted": "The cloud drive didn't accept the task",
+      "not_landed": "Downloaded file not found in the target folder",
+      "quota": "Download quota used up",
+      "rejected": "The cloud drive refused this download",
+      "removed": "Cloud drive task was deleted"
+    },
+    "postprocess": {
+      "complete": "Organized",
+      "failed": "Organize failed",
+      "not_requested": "Not organized",
+      "pending": "Waiting to organize",
+      "queued": "Organize queued",
+      "running": "Organizing"
+    },
+    "state": {
+      "cancelled": "Canceled",
+      "candidate": "Choose a source",
+      "failed": "Failed",
+      "ingested": "Imported",
+      "landed": "File available",
+      "remote_done": "Cloud download done",
+      "remote_running": "Downloading to cloud drive",
+      "selected": "Selected",
+      "stalled": "Stalled",
+      "submit_pending": "Waiting to resubmit",
+      "submitted": "Submitted"
+    }
+  },
   "http": {
     "methodNotAllowed": "This address doesn't accept this kind of request.",
     "notFound": "There's no page at this address.",
     "serverError": "Peach couldn't process this. Export a diagnostic report."
   },
+  "identity": {
+    "category": {
+      "amateur": "Amateur",
+      "animation": "Animator",
+      "blogger": "Influencer",
+      "japanese_av": "Actress",
+      "seller": "Seller",
+      "western": "Western"
+    }
+  },
   "javBrowser": {
     "notQueued": "This code isn't in the queue."
   },
+  "ledgerBackup": {
+    "purpose": {
+      "auto-landing-revert": "Before undoing automatic changes",
+      "download": "Before organizing downloads",
+      "manual": "Manual backup",
+      "migrate": "Before migration",
+      "organize": "Before organizing",
+      "other": "Automatic backup before changes",
+      "restore": "Saved before restore",
+      "sar": "Before re-measuring dimensions",
+      "schema": "Before migration",
+      "tag-management": "Before tag changes",
+      "upgrade": "Before auto-repair"
+    }
+  },
   "release": {
+    "channel": {
+      "test": "Test build"
+    },
+    "dockerStep": {
+      "pull": "Pull the new image in the folder with compose.yaml. If .env pins PEACH_VERSION to a version, change it to the new one first",
+      "recreate": "Recreate the container. The /data volume is kept"
+    },
     "installation": {
       "docker": "Docker image",
       "source": "Running from source",
       "standalone": "Standalone test build"
+    },
+    "message": {
+      "ahead": "This version is newer than the latest published test build.",
+      "available": "A new version is available.",
+      "current": "You have the latest test build.",
+      "empty": "No downloadable test build found yet.",
+      "error": "Couldn't get version info. Try again.",
+      "imageAvailable": "A new image is ready to pull.",
+      "imagePending": "The Peach {{version}} image isn't published yet. Check again later.",
+      "staleListing": "Couldn't get version info from GitHub, so the mirror listing may be out of date. Try again.",
+      "unchecked": "Not checked"
+    }
+  },
+  "releaseNotes": {
+    "v0-54-0": {
+      "headline": "JAV new releases and faster SMB scans",
+      "items": {
+        "macos-in-app-update": {
+          "body": "Replace the app right from Check for updates",
+          "title": "In-app updates on macOS"
+        },
+        "new-releases": {
+          "body": "Lists subscribed new releases that aren't in your collection yet",
+          "title": "JAV new releases"
+        },
+        "smb-faster-scan": {
+          "body": "A whole scan shares one connection",
+          "title": "Faster SMB scans"
+        }
+      }
+    },
+    "v0-55-0": {
+      "headline": "Re-scrape metadata and database backups",
+      "items": {
+        "docker-one-click": {
+          "body": "Available with Watchtower turned on",
+          "title": "One-click Docker updates"
+        },
+        "ledger-backup": {
+          "body": "Back up or restore anytime",
+          "title": "Database backups"
+        },
+        "rescrape-fields": {
+          "body": "Pick fields one by one on the video page",
+          "title": "Re-scrape metadata"
+        }
+      }
+    },
+    "v0-55-1": {
+      "headline": "Stats and video lists open faster the first time"
+    },
+    "v0-56-0": {
+      "headline": "JavDB host rotation and faster pages",
+      "items": {
+        "docker-first-setup": {
+          "body": "Set a password or skip sign-in",
+          "title": "Docker first-run setup"
+        },
+        "faster-pages": {
+          "body": "Tasks and Stats open faster",
+          "title": "Faster pages"
+        },
+        "ghcr-image": {
+          "body": "Use it when Docker Hub is limited",
+          "title": "ghcr.io image"
+        },
+        "javdb-host-rotation": {
+          "body": "Switches to the next host when one can't be reached",
+          "title": "JavDB host rotation"
+        }
+      }
+    },
+    "v0-57-0": {
+      "headline": "More stable, faster, with storage limits",
+      "items": {
+        "cloud-display-repair": {
+          "body": "Cloud drive videos weren't re-measured automatically, to keep the cloud drive cache small",
+          "title": "Re-measure cloud drive videos manually"
+        },
+        "display-dimensions": {
+          "body": "Fixes portrait and landscape detection in the background",
+          "title": "Re-measure video dimensions"
+        },
+        "garbled-performers": {
+          "body": "Performers are fetched again",
+          "title": "Clean up garbled people"
+        },
+        "javdb-entries": {
+          "body": "People pages no longer link to empty pages for old names",
+          "title": "Hide mismatched JavDB links"
+        },
+        "library-sync": {
+          "body": "Scan & fetch can target a single library",
+          "title": "Sync by library"
+        },
+        "new-releases-multiselect": {
+          "body": "Add several to Want or search torrents at once",
+          "title": "Select multiple new releases"
+        },
+        "reorder": {
+          "body": "Drag to reorder the sidebar and menus",
+          "title": "Drag to reorder"
+        },
+        "repair-center": {
+          "body": "See upgrade repair progress and confirm cleaning up old follow snapshots",
+          "title": "Repairs"
+        },
+        "storage-budget": {
+          "body": "Set limits for data and caches",
+          "title": "Storage limits"
+        },
+        "system-files": {
+          "body": "NAS thumbnails and macOS ._ files no longer count as videos",
+          "title": "Move out system extras"
+        }
+      }
     }
   },
   "repairCenter": {
@@ -82,7 +266,112 @@
   "setup": {
     "firstAccessDenied": "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container."
   },
+  "storage": {
+    "category": {
+      "accounts": {
+        "description": "Access tokens and browser data used to sign in to metadata sites",
+        "label": "Sign-ins",
+        "note": "You'll need to sign in to each site and device again"
+      },
+      "backups": {
+        "description": "Database copies saved before upgrades, migrations, and organizing",
+        "label": "Database backups",
+        "note": "The latest copy in each place is kept; older ones can't be restored"
+      },
+      "database": {
+        "description": "Videos, people, tags, and watch history",
+        "label": "Database",
+        "note": "All of Peach is here. Deleting it empties the collection"
+      },
+      "downloads": {
+        "description": "Covers, avatars, label logos, and page caches from metadata sites",
+        "label": "Covers & web data",
+        "note": "They'll be downloaded again. Sources that were taken down can't be fetched again"
+      },
+      "logs": {
+        "description": "Runtime logs and crash reports",
+        "label": "Logs",
+        "note": "Only archived logs and crash reports are removed; logs in use are kept"
+      },
+      "other": {
+        "description": "Files in the data folder that don't fit the categories above",
+        "label": "Other",
+        "note": "Peach can't tell what they're for. Check them and handle them yourself"
+      },
+      "playback": {
+        "description": "Transcoded copies of videos the browser can't play directly",
+        "label": "Playback cache",
+        "note": "Videos are transcoded again when played"
+      },
+      "previews": {
+        "description": "Contact sheets, posters, and scrubber previews made from video frames",
+        "label": "Previews",
+        "note": "Rebuilding reads each whole video again and downloads cloud drive videos again, so they aren't cleaned here"
+      },
+      "records": {
+        "description": "Resume points, auto-repair receipts, review lists, and archives",
+        "label": "Task & review records",
+        "note": "Task progress and unfinished review decisions are lost"
+      },
+      "sources": {
+        "description": "Metadata and raw records imported from other apps",
+        "label": "Imported data",
+        "note": "Peach can't rebuild these. You'll need to import them again"
+      },
+      "thumbnails": {
+        "description": "Small copies of covers and avatars shown in lists and grids",
+        "label": "Thumbnails",
+        "note": "Recreated from local covers as you browse"
+      },
+      "tools": {
+        "description": "FFmpeg, face recognition, and other programs for playback, frames, and recognition",
+        "label": "Media tools",
+        "note": "Playback, previews, and recognition won't work until they're reinstalled"
+      }
+    }
+  },
   "subtitles": {
     "unsupportedLanguage": "Subtitle language must be zh or en."
+  },
+  "task": {
+    "amane-bridge": "amane bridge rebuild",
+    "batch": "Batch action",
+    "code-samples": "Sample image fetch",
+    "creator-identity": "Creator identity lookup",
+    "diagnostic-export": "Diagnostic export",
+    "download-postprocess": "Cloud download post-processing",
+    "entity-avatar": "Profile image fill-in",
+    "face-models": "Face model download",
+    "feed-check": "Feed fetch",
+    "feed-cover": "New release cover fetch",
+    "feed-scrape": "New release metadata fetch",
+    "follow-check": "Follow check",
+    "follow-creator": "Followed creator setup",
+    "follow-evidence-reclaim": "Old follow snapshot cleanup",
+    "follow-resolve": "Follow source lookup",
+    "jav-covers": "Bulk cover fetch",
+    "jav-discovery-metadata": "Discovery metadata read",
+    "ledger-backup": "Database backup",
+    "ledger-restore": "Database restore from backup",
+    "library-processing": "Scan & fetch",
+    "link-check": "Link check",
+    "link-prune": "Dead link cleanup",
+    "media-repair": "Media repair",
+    "mp4-header-repair": "Playback header repair",
+    "organize": "Organize by template",
+    "performer-alias": "Actress alias fill-in",
+    "performer-profile": "Actress profile fill-in",
+    "resource-apply": "Resource sync cleanup",
+    "resource-scan": "Resource sync check",
+    "scrape-codes": "Code metadata scrape",
+    "scraping-cover": "Cover fetch",
+    "seed-import": "Starter metadata import",
+    "source-check": "Source connection check",
+    "studio-mark": "Label site and logo fill-in",
+    "taste-refresh": "Taste analysis",
+    "timeline-thumbnails": "Video thumbnail fetch",
+    "upgrade-library": "Metadata auto-repair",
+    "upgrade-repairs": "Auto-repair",
+    "want-scrape": "Want metadata fetch"
   }
 }

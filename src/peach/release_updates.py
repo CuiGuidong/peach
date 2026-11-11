@@ -11,6 +11,7 @@ import httpx
 from . import __version__, distribution, docker_update
 from .http import HttpRequest, HttpxTransport
 from .update_packages import TOOL_PATHS
+from .user_messages import message_fields
 
 RELEASES_URL = "https://github.com/peach-mitao/peach/releases"
 API_URL = "https://api.github.com/repos/peach-mitao/peach/releases?per_page=100"
@@ -19,6 +20,24 @@ DOWNLOADS_API = DOWNLOADS_BASE + "/releases.json"
 LISTING_RULE = 'source-aware-v1'
 #: 安装方式：响应带 `installation_code`，前端按它取译文和判断；中文名是没有译文时的显示。
 INSTALLATIONS = {"docker": "Docker 镜像", "standalone": "独立测试包", "source": "源码运行"}
+#: 更新通道，同上，响应带 `channel_code`。
+CHANNELS = {"test": "测试版"}
+#: 检查结果的一句话，`message_code` 是 `release.message.<键>`。
+MESSAGES = {
+    "unchecked": "尚未检查",
+    "empty": "暂未找到可下载的测试版。",
+    "error": "未能取得版本信息，请重试。",
+    "staleListing": "GitHub 版本信息未取得，镜像清单可能过期，请重试。",
+    "available": "有新版本可下载。",
+    "ahead": "当前版本高于已发布测试版。",
+    "current": "已是最新测试版。",
+    "imagePending": "Peach {version} 的镜像尚未发布，请稍后再检查。",
+    "imageAvailable": "有新镜像可拉取。",
+}
+
+
+def _message(key: str, **params) -> dict:
+    return message_fields(MESSAGES[key].format(**params), f"release.message.{key}", params)
 
 
 def download_sources(url: str) -> tuple[str, ...]:
@@ -31,12 +50,13 @@ def download_sources(url: str) -> tuple[str, ...]:
     return (url,)
 
 
-#: 容器换新版在宿主机上做：拉镜像、重建容器，`/data` 卷保留。每步一句说明加一条命令，
+#: 容器换新版在宿主机上做：拉镜像、重建容器，`/data` 卷保留。每步一个 id、一句说明加一条命令，
 #: 命令按仓库的 compose.yaml 写（镜像标签取 `.env` 的 `PEACH_VERSION`，缺省是 `edge`）。
+#: 前端按 id 取说明的译文（`server:release.dockerStep.<id>`）。
 DOCKER_STEPS = (
-    ("在 compose.yaml 所在目录拉取新镜像；.env 里把 PEACH_VERSION 固定成版本号的，先改成新版本",
+    ("pull", "在 compose.yaml 所在目录拉取新镜像；.env 里把 PEACH_VERSION 固定成版本号的，先改成新版本",
      "docker compose pull"),
-    ("重建容器，/data 数据卷保留", "docker compose up -d"),
+    ("recreate", "重建容器，/data 数据卷保留", "docker compose up -d"),
 )
 
 
@@ -44,10 +64,12 @@ def snapshot() -> dict:
     docker = distribution.docker()
     installation = "docker" if docker else "standalone" if distribution.standalone() else "source"
     return {"current_version": __version__, "latest_version": None,
-            "channel": "测试版", "installation": INSTALLATIONS[installation], "installation_code": installation,
+            "channel": CHANNELS["test"], "channel_code": "test",
+            "installation": INSTALLATIONS[installation], "installation_code": installation,
             "in_app_update": distribution.in_app_update(),
-            "steps": [{"text": text, "command": command} for text, command in DOCKER_STEPS] if docker else [],
-            "state": "unchecked", "message": "尚未检查", "release_url": RELEASES_URL}
+            "steps": [{"id": step, "text": text, "command": command} for step, text, command in DOCKER_STEPS]
+            if docker else [],
+            "state": "unchecked", **_message("unchecked"), "release_url": RELEASES_URL}
 
 
 def _version(value: object) -> tuple[int, ...] | None:
@@ -163,27 +185,25 @@ def check(*, transport=None, system: str | None = None, machine: str | None = No
             except (ValueError, TypeError):
                 continue
         if not releases:
-            return dict(result, state="empty" if obtained else "error",
-                        message="暂未找到可下载的测试版。" if obtained else "未能取得版本信息，请重试。")
+            return dict(result, state="empty" if obtained else "error", **_message("empty" if obtained else "error"))
         version, tag, asset, full, directory, release_url = max(releases, key=lambda item: item[0])
         current = _version(result["current_version"])
         if current is None:
             raise ValueError("current version required")
         if version <= current and not github_releases:
-            return dict(result, state="error",
-                        message="GitHub 版本信息未取得，镜像清单可能过期，请重试。")
+            return dict(result, state="error", **_message("staleListing"))
         state = "available" if version > current else "ahead" if version < current else "current"
-        message = {"available": "有新版本可下载。", "ahead": "当前版本高于已发布测试版。", "current": "已是最新测试版。"}[state]
+        message = _message(state)
         if distribution.docker():
             # 版本号跟着 Windows 包判；镜像在 Release 之后才推送，空窗里拉到的还是旧镜像，
             # 所以以 Docker Hub 上版本号标签与 edge 指向同一镜像为准（ADR-0140）。
             latest = tag.removeprefix("v")
             if state == "available" and not docker_update.published(client, latest):
-                state, message = "pending", f"Peach {latest} 的镜像尚未发布，请稍后再检查。"
+                state, message = "pending", _message("imagePending", version=latest)
             extra = {"one_click": docker_update.status()} if state == "available" else {}
             return dict(result, latest_version=latest, state=state, release_url=release_url, **extra,
-                        message="有新镜像可拉取。" if state == "available" else message)
-        return dict(result, latest_version=tag.removeprefix("v"), state=state, message=message,
+                        **(_message("imageAvailable") if state == "available" else message))
+        return dict(result, latest_version=tag.removeprefix("v"), state=state, **message,
                     asset_url=f"{directory}/{asset['name']}",
                     asset_size=asset.get("size", 0), asset_digest=asset.get("digest"),
                     package_kind="installer" if system == "darwin" else "update" if asset is not full else "full",
@@ -192,7 +212,7 @@ def check(*, transport=None, system: str | None = None, machine: str | None = No
                     full_digest=full.get("digest"),
                     release_url=release_url)
     except (OSError, ValueError, TypeError, TimeoutError, httpx.HTTPError):
-        return dict(result, state="error", message="未能取得版本信息，请重试。")
+        return dict(result, state="error", **_message("error"))
     finally:
         if transport is None:
             client.close()

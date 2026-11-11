@@ -131,7 +131,7 @@ export function PerformerDeleteCard({ toast }: { toast(message: string): void })
     {error ? <Note tone="error" title={t('cleanup:performerDelete.planFailed')}>{error}</Note> : null}
     {result ? <Note tone={failures.length ? 'warning' : 'info'} title={t('cleanup:performerDelete.purged', { count: result.purged })}
       extra={failures.length ? <div className="flex flex-col gap-2 text-body-2-regular wrap-anywhere">
-        {failures.slice(0, 5).map((item, index) => <p key={index}>{item.path}（{item.reason}）</p>)}
+        {failures.slice(0, 5).map((item, index) => <p key={index}>{t('shell:format.withNote', { text: item.path, note: item.reason })}</p>)}
       </div> : null}>
       {failures.length
         ? t('cleanup:performerDelete.partialFailure', { count: result.blocked.length, quarantined: result.cleanup_pending.length, cacheFiles: result.cache_blocked.length })

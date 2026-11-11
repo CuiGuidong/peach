@@ -145,6 +145,24 @@ describe('界面语言', () => {
     visit(join(frontend, 'src'));
     expect(offenders).toEqual([]);
   });
+
+  it('日期和时间按界面语言排版，不跟浏览器语言', () => {
+    // 不传区域就按浏览器语言出格式：界面固定成英文、浏览器是中文时，英文句子里会夹一段中文格式的日期。
+    const unlocalized = /toLocale(Date|Time)String\(\s*(\)|undefined)|new Date\([^)]*\)\.toLocaleString\(\s*(\)|undefined)|toLocaleString\(\s*undefined/;
+    const offenders: string[] = [];
+    const visit = (dir: string) => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const path = join(dir, entry.name);
+        if (entry.isDirectory()) { if (entry.name !== 'locales') visit(path); continue; }
+        if (!/\.(ts|tsx|js)$/.test(entry.name)) continue;
+        readFileSync(path, 'utf8').split('\n').forEach((line, index) => {
+          if (unlocalized.test(line)) offenders.push(`${path}:${index + 1}`);
+        });
+      }
+    };
+    visit(join(frontend, 'src'));
+    expect(offenders, '传 i18n 的 interfaceLanguage').toEqual([]);
+  });
 });
 
 describe('前端不写死中文', () => {
@@ -181,6 +199,16 @@ describe('前端不写死中文', () => {
       "const d = 'plain';",
     ].join('\n');
     expect(countLiterals('sample.tsx', source)).toBe(3);
+  });
+
+  it('只有中文全角标点的字符串也算写死：英文界面会露出「：」「；」', () => {
+    const source = [
+      "const a = [label, detail].join('：');",
+      "const b = reasons.join('；');",
+      "const c = `${name} · ${size}`;",
+      "const d = 'iPhone/iPad…';",
+    ].join('\n');
+    expect(countLiterals('sample.ts', source)).toBe(2);
   });
 
   it('同一行或上一行写明理由的 i18n-exempt 不计数，没写理由的照算', () => {

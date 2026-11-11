@@ -262,12 +262,16 @@ export interface DownloadSubmitResult {
 export interface ReleaseState {
   current_version: string;
   latest_version: string | null;
+  /** 通道与安装方式的中文名，没有译文时显示；判断和取译文用对应的 `*_code`。 */
   channel: string;
-  /** 安装方式的中文名，没有译文时显示；判断和取译文用 `installation_code`。 */
+  channel_code?: string;
   installation: string;
   installation_code: 'docker' | 'standalone' | 'source';
   state: string;
+  /** 检查结果的一句话；有 `message_code` 时按它取译文（`serverText`）。 */
   message: string;
+  message_code?: string;
+  message_params?: Record<string, unknown>;
   release_url: string;
   checked_at?: number;
   /** `installer` 是 macOS 的 DMG：没有应用内安装，下载后手动替换。 */
@@ -276,8 +280,8 @@ export interface ReleaseState {
   asset_size?: number;
   /** 能在页面里下载并重启安装；只有 Windows 独立包是 true。 */
   in_app_update?: boolean;
-  /** 容器换新版要在宿主机上做的几步；其他安装方式是空表。 */
-  steps?: { text: string; command: string }[];
+  /** 容器换新版要在宿主机上做的几步；其他安装方式是空表。`id` 用来取说明的译文。 */
+  steps?: { id?: string; text: string; command: string }[];
   /** Docker 镜像检查到新镜像时才有：能否经 Watchtower 一键更新（ADR-0140），不能时 `reason` 说明为什么。 */
   one_click?: { available: boolean; reason: string };
 }

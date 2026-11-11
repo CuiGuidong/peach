@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "84f9edef-b665-47fb-b919-e0cfb106c53b", e._sentryDebugIdIdentifier = "sentry-dbid-84f9edef-b665-47fb-b919-e0cfb106c53b");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "db270c8c-0adf-4a4e-8ab2-f2f9eec005f2", e._sentryDebugIdIdentifier = "sentry-dbid-db270c8c-0adf-4a4e-8ab2-f2f9eec005f2");
 	} catch {}
 })();
 import { $ea3928288112382f$export$439d29a4e110a164 as e, $fe21c36db05242bb$export$a98f0dcb43a68a25 as t, $fe21c36db05242bb$export$d7b12c4107be0d61 as n, Button as r, ButtonLink as i, Checkbox as a, CheckboxGlyph as o, Chip as s, CollapseChevron as c, CollapseRegion as l, DEFAULT_CATEGORY as u, DataTableFooter as d, ENTITY_REVIEW_KINDS as f, Ea as p, EmptyState as m, ExternalLink as h, FIELDSET_FOOT as ee, FilterGlassRows as g, Gg as _, InputBase as v, LinkButton as te, Note as y, REVIEW_CATEGORIES as b, REVIEW_DECISION_LABELS as ne, REVIEW_KEY as re, REVIEW_LABELS as x, REVIEW_QUEUES as ie, REVIEW_QUEUE_LABELS as S, Select as C, SelectItem as w, SelectionActions as T, SelectionDock as ae, SortableBoardTabs as E, TextField as D, Wt as O, __toESM as k, apiGet as A, apiSend as j, avatarInner as M, busyProps as N, canApprove as oe, cardClass as P, commonReviewSources as se, composingKey as F, confirmModal as ce, currentReviewRow as le, cx as I, decisionPayload as ue, decisionReceipt as de, defaultChoice as fe, errorMessage as L, fetchReview as pe, filterReviewRows as me, groupReviewRows as he, isReviewCategory as ge, joinList as _e, l7 as ve, localTime as ye, m7 as be, mirrorText as xe, pendingGenres as Se, queryClient as Ce, quoted as we, recordGenre as R, reloadReview as Te, require_jsx_runtime as Ee, require_react as De, reviewGroupingOptions as Oe, reviewQueueData as ke, reviewQueueOf as Ae, reviewWindow as je, rowEvidence as z, rowFieldName as B, rowSubject as Me, rowTags as Ne, rowTitle as Pe, selectReviewRange as Fe, settleReviewRows as Ie, spinnerHtml as V, submitDecision as Le, t as H, useMutation as Re, useNavigationOrder as ze, useOverlayScrollbar as Be, useQuery as Ve, useViewGlide as U } from "./peach-app.js";
@@ -96,7 +96,7 @@ function et({ item: e }) {
 			className: "truncate text-body-regular text-text-primary",
 			children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-text-secondary",
-				children: `${e.field}：`
+				children: H("shell:format.labelPrefix", { label: e.field })
 			}), Ye(e)]
 		}), /* @__PURE__ */ (0, Q.jsx)("small", {
 			title: Xe(e),
@@ -1859,4 +1859,4 @@ function Zt(e) {
 }
 export { Zt as ReviewPage };
 
-//# debugId=84f9edef-b665-47fb-b919-e0cfb106c53b
+//# debugId=db270c8c-0adf-4a4e-8ab2-f2f9eec005f2

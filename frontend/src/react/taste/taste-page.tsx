@@ -538,7 +538,7 @@ export function TastePage(props: TasteProps) {
             </Note>
           ) : data.stale ? <TaskProgress label={t('manage:taste.updatingStale', { time: tasteTime(data.computed_at) })} /> : null}
           {problem ? <Note tone="error">{problem}</Note> : null}
-          {outcome?.warnings?.length ? <Note tone="warning">{outcome.warnings.join('；')}</Note> : null}
+          {outcome?.warnings?.length ? <Note tone="warning">{outcome.warnings.join(t('shell:format.semicolonSeparator'))}</Note> : null}
         </div>
         <TabPanel id="browser" className="flex flex-col gap-5">
           <div className={STAT_STRIP}>

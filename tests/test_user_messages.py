@@ -11,7 +11,8 @@ from unittest.mock import patch
 
 from support.ledger import fresh_ledger
 
-from peach import release_updates, repair_center
+from peach import (data_storage, downloads, entity_classification, ledger_backups, release_notices, release_updates,
+                   repair_center, task_runs)
 from peach.user_messages import UserFacingError, error_fields, message_fields
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -56,6 +57,29 @@ class TranslationCoverageTests(unittest.TestCase):
         self.assertEqual({key: (row["title"], row["summary"]) for key, row in zh["repairCenter"]["items"].items()},
                          {key: (title, summary) for key, title, summary, _ in repair_center.ITEMS})
         self.assertEqual(zh["repairCenter"]["history"], {prefix.rstrip("-"): title for prefix, title, _ in repair_center.RULES})
+        self.assertEqual(zh["task"], task_runs.TASK_LABELS)
+        self.assertEqual(zh["download"], {
+            "state": downloads.STATE_LABELS, "postprocess": downloads.POSTPROCESS_LABELS,
+            "failure": {key: kind.label for key, kind in downloads.FAILURE_KINDS.items()}})
+        self.assertEqual(zh["storage"]["category"], {item.key: {"label": item.label, "description": item.description,
+                                                                "note": item.note} for item in data_storage.CATEGORIES})
+        self.assertEqual(zh["ledgerBackup"]["purpose"], ledger_backups.PURPOSE_LABELS)
+        self.assertEqual(zh["identity"]["category"], entity_classification.CATEGORIES)
+        self.assertEqual(zh["release"]["channel"], release_updates.CHANNELS)
+        self.assertEqual(zh["release"]["message"], {key: text.replace("{", "{{").replace("}", "}}")
+                                                    for key, text in release_updates.MESSAGES.items()})
+        self.assertEqual(zh["release"]["dockerStep"], {step: text for step, text, _ in release_updates.DOCKER_STEPS})
+
+    def test_every_release_notice_is_in_the_source_resource_by_version_and_item_id(self):
+        # 定版前加一版公告，要同时在 zh-CN 与英文的 server.json 里按 `v<版本，点换成连字符>` 补上这一版。
+        zh = server_resource("zh-CN")["releaseNotes"]
+        for version, notice in release_notices.NOTICES.items():
+            with self.subTest(version):
+                entry = zh.get("v" + version.replace(".", "-"), {})
+                self.assertEqual(entry.get("headline"), notice["headline"])
+                rows = [item for group in ("features", "automatic", "attention") for item in notice.get(group, [])]
+                self.assertEqual({item["id"]: {"title": item["title"], "body": item["body"]} for item in rows},
+                                 entry.get("items", {}))
 
 
 class BackendCopyRatchetTests(unittest.TestCase):
