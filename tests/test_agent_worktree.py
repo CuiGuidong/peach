@@ -13,7 +13,7 @@ from pathlib import Path
 from threading import Event
 from unittest import mock
 
-from scripts import agent_worktree, check_public_text, release_tag
+from scripts import agent_worktree, check_public_text, release_tag, test_evidence
 from scripts.agent_worktree import (
     WorkspaceError, _git, _lines, create, integrate, processes_under, prune, ready,
 )
@@ -316,6 +316,55 @@ class QueuedRebaseTests(_WorktreeCase):
                 self.assertRaisesRegex(WorkspaceError, "integrate-verify.log"):
             agent_worktree._verify_worker(self.repo, worker, frontend=False)
         self.verifier.start()
+
+
+#: 子进程里的运行器核对借来的全量锁：argv 依次是仓库根与证据目录，退出码 0 表示放行。
+LENT_LOCK_PROBE = """
+import argparse, sys
+from pathlib import Path
+from types import SimpleNamespace
+sys.path.insert(0, sys.argv[1])
+from scripts import test_runner
+test_runner.test_evidence.evidence_dir = lambda root: Path(sys.argv[2])
+with test_runner.full_suite_guard(argparse.ArgumentParser(), SimpleNamespace(full_lock_held=True), ("auto",)):
+    pass
+"""
+#: 照 Windows venv 的 python.exe 启动器：中间隔一层进程，才到真正的解释器。
+LAUNCHER = "import subprocess, sys; sys.exit(subprocess.run(sys.argv[1:]).returncode)"
+
+
+class LentFullLockTests(unittest.TestCase):
+    """集成入口持锁补验时，它派出的运行器沿用全量锁；别的进程冒用这个开关一律拒绝。"""
+
+    def setUp(self):
+        self.folder = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, self.folder, ignore_errors=True)
+
+    def probe(self, *, launcher: bool = False) -> subprocess.CompletedProcess:
+        command = [sys.executable, "-c", LENT_LOCK_PROBE, str(Path(__file__).resolve().parents[1]),
+                   str(self.folder)]
+        if launcher:
+            command = [sys.executable, "-c", LAUNCHER, *command]
+        return subprocess.run(command, capture_output=True, text=True, encoding="utf-8", timeout=120)
+
+    def test_the_holding_integration_lends_its_lock_through_a_launcher(self):
+        with test_evidence.held(self.folder / "full-suite.lock", scope="integrate"):
+            for launcher in (False, True):
+                with self.subTest(launcher=launcher):
+                    result = self.probe(launcher=launcher)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_a_holder_outside_the_ancestry_or_no_holder_is_refused(self):
+        sibling = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+        self.addCleanup(sibling.wait)
+        self.addCleanup(sibling.kill)
+        holder = test_evidence.holder_path(self.folder / "full-suite.lock")
+        holder.write_text(json.dumps({"pid": sibling.pid}), encoding="utf-8")
+        result = self.probe(launcher=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("只供持有全量锁的集成入口", result.stderr)
+        holder.unlink()
+        self.assertNotEqual(self.probe().returncode, 0)
 
 
 class PullRequestIntegrationTests(_WorktreeCase):

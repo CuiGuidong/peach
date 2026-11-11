@@ -317,7 +317,7 @@ def _venv_python(root: Path) -> Path:
 def _verify_worker(main: Path, worker: Path, *, frontend: bool) -> None:
     """照统一测试入口的步骤补验：同步依赖，再以 auto 签发记录。
 
-    直接派出工作树的解释器而不经 test.ps1/test.sh：运行器要核对全量锁的持有者正是父进程；
+    直接派出工作树的解释器而不经 test.ps1/test.sh：运行器要核对全量锁的持有者是自己的祖先进程；
     环境沿用本进程，测试记录的环境指纹才与随后的核验一致。输出写进工作树日志，不混进回执。
     """
     environment = {**os.environ, "PYTHONPATH": str(worker / "src")}

@@ -1323,7 +1323,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def full_suite_guard(parser, args, scopes):
-    """全量验证取得仓库的全量锁。集成入口持锁补验时，由它直接派出的运行器沿用那把锁，
+    """全量验证取得仓库的全量锁。集成入口持锁补验时，由它派出的运行器沿用那把锁，
     否则子进程会等父进程放锁、父进程等子进程结束，互等到超时。"""
     if args.full_lock_held:
         lock = test_evidence.evidence_dir(ROOT) / "full-suite.lock"
@@ -1331,13 +1331,29 @@ def full_suite_guard(parser, args, scopes):
             holder = json.loads(test_evidence.holder_path(lock).read_text(encoding="utf-8"))
         except (OSError, ValueError):
             holder = {}
-        if holder.get("pid") != os.getppid():
+        if not _is_ancestor(holder.get("pid")):
             parser.error("--full-lock-held 只供持有全量锁的集成入口直接调用")
         return nullcontext()
     if "full" not in scopes:
         return nullcontext()
     return test_evidence.held(test_evidence.evidence_dir(ROOT) / "full-suite.lock", wait_seconds=args.lock_timeout,
                               scope=" ".join(scopes), root=str(ROOT))
+
+
+def _is_ancestor(pid: object) -> bool:
+    """持锁的集成进程是否在本进程的祖先链上。
+
+    Windows 的 venv `python.exe` 是启动器，会再派出真正的解释器：直接父进程是那层启动器，
+    持锁的集成进程还在它上面。"""
+    if not isinstance(pid, int):
+        return False
+    if pid == os.getppid():
+        return True
+    import psutil
+    try:
+        return any(parent.pid == pid for parent in psutil.Process().parents())
+    except psutil.Error:
+        return False
 
 
 def run_focus(parser, args) -> int:
