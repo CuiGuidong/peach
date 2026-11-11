@@ -45,6 +45,11 @@ LOCAL_EXCEPTION_TYPES = frozenset({
 })
 # 磁盘与文件系统层的 SQLite 错误，以及下一轮会重试的锁争用。
 LOCAL_SQLITE_ERRORS = ("SQLITE_IOERR", "SQLITE_FULL", "SQLITE_BUSY", "SQLITE_LOCKED")
+#: 媒体所在的盘或网络卷不可用：读写错误、磁盘满，外接盘与网络卷掉线（macOS 报 ENXIO）、连接断开。
+#: 不收 ENETUNREACH：`smb_transport` 把认不出的异常也归成它，收进来会盖住代码缺陷。
+MEDIA_VOLUME_ERRNOS = frozenset(getattr(errno, name) for name in (
+    "EIO", "ENOSPC", "ENXIO", "ENODEV", "ENOTCONN", "ESTALE", "ENETDOWN",
+    "EHOSTDOWN", "EHOSTUNREACH") if hasattr(errno, name))
 
 
 def _config(config=None):
@@ -462,7 +467,7 @@ def _expected_failure(stage, error, fields):
         if (isinstance(error, (subprocess.TimeoutExpired, TimeoutError))
                 or isinstance(detail, dict) and detail.get("reason") == "timeout"):
             return True
-        if isinstance(error, OSError) and error.errno in (errno.ENOSPC, errno.EIO):
+        if isinstance(error, OSError) and error.errno in MEDIA_VOLUME_ERRNOS:
             return True
         if isinstance(error, (FileNotFoundError, PermissionError, IsADirectoryError, NotADirectoryError)):
             filename = getattr(error, "filename", None)

@@ -628,6 +628,8 @@ class RemoteReportingTests(unittest.TestCase):
         local = [('background-job', Timeout('private.lock'), {}), ('background-job', timeout, {}),
                  ('media-probe', TimeoutError(errno.ETIMEDOUT, 'private'), {'tool': 'ffprobe'}),
                  ('library-preview', OSError(errno.EIO, 'private'), {}),
+                 ('library-preview', OSError(errno.ENXIO, 'private', 'movie.mp4'), {}),
+                 ('library-preview', OSError(errno.ENOTCONN, 'private'), {}),
                  ('http-request', HTTPException(502, 'private'), {'status_code': 502})]
         for name in ('SQLITE_IOERR_SHMSIZE', 'SQLITE_FULL', 'SQLITE_BUSY', 'SQLITE_LOCKED'):
             error = sqlite3.OperationalError('private')
