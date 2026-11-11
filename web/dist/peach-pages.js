@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "dc2212fe-1ba3-42d4-898a-585600f56023", e._sentryDebugIdIdentifier = "sentry-dbid-dc2212fe-1ba3-42d4-898a-585600f56023");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "615b2fdb-5bcf-4f99-aaab-0501844efd30", e._sentryDebugIdIdentifier = "sentry-dbid-615b2fdb-5bcf-4f99-aaab-0501844efd30");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -5728,6 +5728,7 @@ var He = {
 		download: "Download certificate",
 		fingerprint: "SHA-256 fingerprint",
 		help: "Other devices warn that the certificate isn't trusted the first time they open the HTTPS address. Install and trust Peach's CA certificate on that device to stop the warning. The certificate doesn't include the private key.",
+		iosDevices: "iPhone/iPad",
 		iosSteps: "Scan with the Camera app and allow the profile download in Safari. Install it in Settings → General → VPN & Device Management, then turn on full trust for this certificate in Settings → General → About → Certificate Trust Settings.",
 		qrHelp: "The QR code refreshes every 10 minutes while this page is open. If Android can't open the .local address, open this page using the LAN IP and scan again.",
 		qrLabel: "Scan with your phone to download Peach's CA certificate",
@@ -6342,6 +6343,7 @@ var He = {
 		changeTypeLabel: "Directory change type {{index}}",
 		changeTypePlaceholder: "Choose how to change this directory",
 		dependencyMissing: "Not detected:",
+		dependencyMissingName: "{{name}} not found.",
 		directoriesLabel: "Directories in {{name}}",
 		directoryLabel: "Media directory {{index}}",
 		goToCollection: "Go to collection",
@@ -6886,17 +6888,195 @@ var He = {
 	},
 	videoProcessing: { autoHardwareFirst: "Auto (hardware first)" }
 }, Ye = {
+	download: {
+		failure: {
+			config: "Settings or sign-in problem",
+			duplicate: "Download task already exists",
+			invalid_link: "Invalid link",
+			mismatch: "Download doesn't match the target video",
+			network: "Network temporarily unavailable",
+			no_source: "No download source, or progress stopped updating",
+			not_accepted: "The cloud drive didn't accept the task",
+			not_landed: "Downloaded file not found in the target directory",
+			quota: "Download quota used up",
+			rejected: "The cloud drive refused this download",
+			removed: "Cloud drive task was deleted"
+		},
+		postprocess: {
+			complete: "Organized",
+			failed: "Organize failed",
+			not_requested: "Not organized",
+			pending: "Waiting to organize",
+			queued: "Organize queued",
+			running: "Organizing"
+		},
+		state: {
+			cancelled: "Canceled",
+			candidate: "Choose a source",
+			failed: "Failed",
+			ingested: "Imported",
+			landed: "File available",
+			remote_done: "Cloud download done",
+			remote_running: "Downloading to cloud drive",
+			selected: "Selected",
+			stalled: "Stalled",
+			submit_pending: "Waiting to resubmit",
+			submitted: "Submitted"
+		}
+	},
 	http: {
 		methodNotAllowed: "This address doesn't accept this kind of request.",
 		notFound: "There's no page at this address.",
 		serverError: "Peach couldn't process this. Export a diagnostic report."
 	},
-	javBrowser: { notQueued: "This code isn't in the queue." },
-	release: { installation: {
-		docker: "Docker image",
-		source: "Running from source",
-		standalone: "Standalone test build"
+	identity: { category: {
+		amateur: "Amateur",
+		animation: "Animator",
+		blogger: "Influencer",
+		japanese_av: "Actress",
+		seller: "Seller",
+		western: "Western"
 	} },
+	javBrowser: { notQueued: "This code isn't in the queue." },
+	ledgerBackup: { purpose: {
+		"auto-landing-revert": "Before undoing automatic changes",
+		download: "Before organizing downloads",
+		manual: "Manual backup",
+		migrate: "Before migration",
+		organize: "Before organizing",
+		other: "Automatic backup before changes",
+		restore: "Saved before restore",
+		sar: "Before re-measuring dimensions",
+		schema: "Before migration",
+		"tag-management": "Before tag changes",
+		upgrade: "Before auto-repair"
+	} },
+	release: {
+		channel: { test: "Test build" },
+		dockerStep: {
+			pull: "Pull the new image in the directory with compose.yaml. If .env pins PEACH_VERSION to a version, change it to the new one first",
+			recreate: "Recreate the container. The /data volume is kept"
+		},
+		installation: {
+			docker: "Docker image",
+			source: "Running from source",
+			standalone: "Standalone test build"
+		},
+		message: {
+			ahead: "This version is newer than the latest published test build.",
+			available: "A new version is available.",
+			current: "You have the latest test build.",
+			empty: "No downloadable test build found yet.",
+			error: "Couldn't get version info. Try again.",
+			imageAvailable: "A new image is ready to pull.",
+			imagePending: "The Peach {{version}} image isn't published yet. Check again later.",
+			staleListing: "Couldn't get version info from GitHub, so the mirror listing may be out of date. Try again.",
+			unchecked: "Not checked"
+		}
+	},
+	releaseNotes: {
+		"v0-54-0": {
+			headline: "JAV new releases and faster SMB scans",
+			items: {
+				"macos-in-app-update": {
+					body: "Replace the app right from Check for updates",
+					title: "In-app updates on macOS"
+				},
+				"new-releases": {
+					body: "Lists subscribed new releases that aren't in your collection yet",
+					title: "JAV new releases"
+				},
+				"smb-faster-scan": {
+					body: "A whole scan shares one connection",
+					title: "Faster SMB scans"
+				}
+			}
+		},
+		"v0-55-0": {
+			headline: "Re-scrape metadata and database backups",
+			items: {
+				"docker-one-click": {
+					body: "Available with Watchtower turned on",
+					title: "One-click Docker updates"
+				},
+				"ledger-backup": {
+					body: "Back up or restore anytime",
+					title: "Database backups"
+				},
+				"rescrape-fields": {
+					body: "Pick fields one by one on the video page",
+					title: "Re-scrape metadata"
+				}
+			}
+		},
+		"v0-55-1": { headline: "Stats and video lists open faster the first time" },
+		"v0-56-0": {
+			headline: "JavDB host rotation and faster pages",
+			items: {
+				"docker-first-setup": {
+					body: "Set a password or skip sign-in",
+					title: "Docker first-run setup"
+				},
+				"faster-pages": {
+					body: "Tasks and Stats open faster",
+					title: "Faster pages"
+				},
+				"ghcr-image": {
+					body: "Use it when Docker Hub is limited",
+					title: "ghcr.io image"
+				},
+				"javdb-host-rotation": {
+					body: "Switches to the next host when one can't be reached",
+					title: "JavDB host rotation"
+				}
+			}
+		},
+		"v0-57-0": {
+			headline: "More stable, faster, with storage limits",
+			items: {
+				"cloud-display-repair": {
+					body: "Cloud drive videos weren't re-measured automatically, to keep the cloud drive cache small",
+					title: "Re-measure cloud drive videos manually"
+				},
+				"display-dimensions": {
+					body: "Fixes portrait and landscape detection in the background",
+					title: "Re-measure video dimensions"
+				},
+				"garbled-performers": {
+					body: "Performers are fetched again",
+					title: "Clean up garbled people"
+				},
+				"javdb-entries": {
+					body: "People pages no longer link to empty pages for old names",
+					title: "Hide mismatched JavDB links"
+				},
+				"library-sync": {
+					body: "Scan & fetch can target a single library",
+					title: "Sync by library"
+				},
+				"new-releases-multiselect": {
+					body: "Add several to Want or search torrents at once",
+					title: "Select multiple new releases"
+				},
+				reorder: {
+					body: "Drag to reorder the sidebar and menus",
+					title: "Drag to reorder"
+				},
+				"repair-center": {
+					body: "See upgrade repair progress and confirm cleaning up old follow snapshots",
+					title: "Repairs"
+				},
+				"storage-budget": {
+					body: "Set limits for data and caches",
+					title: "Storage limits"
+				},
+				"system-files": {
+					body: "NAS thumbnails and macOS ._ files no longer count as videos",
+					title: "Move out system extras"
+				}
+			}
+		}
+	},
 	repairCenter: {
 		history: {
 			catalog: "Metadata and code cleanup",
@@ -6963,7 +7143,110 @@ var He = {
 		storageFailed: "The research archive file operation failed"
 	},
 	setup: { firstAccessDenied: "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container." },
-	subtitles: { unsupportedLanguage: "Subtitle language must be zh or en." }
+	storage: { category: {
+		accounts: {
+			description: "Access tokens and browser data used to sign in to metadata sites",
+			label: "Sign-ins",
+			note: "You'll need to sign in to each site and device again"
+		},
+		backups: {
+			description: "Database copies saved before upgrades, migrations, and organizing",
+			label: "Database backups",
+			note: "The latest copy in each place is kept; older ones can't be restored"
+		},
+		database: {
+			description: "Videos, people, tags, and watch history",
+			label: "Database",
+			note: "All of Peach is here. Deleting it empties the collection"
+		},
+		downloads: {
+			description: "Covers, avatars, label logos, and page caches from metadata sites",
+			label: "Covers & web data",
+			note: "They'll be downloaded again. Sources that were taken down can't be fetched again"
+		},
+		logs: {
+			description: "Runtime logs and crash reports",
+			label: "Logs",
+			note: "Only archived logs and crash reports are removed; logs in use are kept"
+		},
+		other: {
+			description: "Files in the data directory that don't fit the categories above",
+			label: "Other",
+			note: "Peach can't tell what they're for. Check them and handle them yourself"
+		},
+		playback: {
+			description: "Transcoded copies of videos the browser can't play directly",
+			label: "Playback cache",
+			note: "Videos are transcoded again when played"
+		},
+		previews: {
+			description: "Contact sheets, posters, and scrubber previews made from video frames",
+			label: "Previews",
+			note: "Rebuilding reads each whole video again and downloads cloud drive videos again, so they aren't cleaned here"
+		},
+		records: {
+			description: "Resume points, auto-repair receipts, review lists, and archives",
+			label: "Task & review records",
+			note: "Task progress and unfinished review decisions are lost"
+		},
+		sources: {
+			description: "Metadata and raw records imported from other apps",
+			label: "Imported data",
+			note: "Peach can't rebuild these. You'll need to import them again"
+		},
+		thumbnails: {
+			description: "Small copies of covers and avatars shown in lists and grids",
+			label: "Thumbnails",
+			note: "Recreated from local covers as you browse"
+		},
+		tools: {
+			description: "FFmpeg, face recognition, and other programs for playback, frames, and recognition",
+			label: "Media tools",
+			note: "Playback, previews, and recognition won't work until they're reinstalled"
+		}
+	} },
+	subtitles: { unsupportedLanguage: "Subtitle language must be zh or en." },
+	task: {
+		"amane-bridge": "amane bridge rebuild",
+		batch: "Batch action",
+		"code-samples": "Sample image fetch",
+		"creator-identity": "Creator identity lookup",
+		"diagnostic-export": "Diagnostic export",
+		"download-postprocess": "Cloud download post-processing",
+		"entity-avatar": "Profile image fill-in",
+		"face-models": "Face model download",
+		"feed-check": "Feed fetch",
+		"feed-cover": "New release cover fetch",
+		"feed-scrape": "New release metadata fetch",
+		"follow-check": "Follow check",
+		"follow-creator": "Followed creator setup",
+		"follow-evidence-reclaim": "Old follow snapshot cleanup",
+		"follow-resolve": "Follow source lookup",
+		"jav-covers": "Bulk cover fetch",
+		"jav-discovery-metadata": "Discovery metadata read",
+		"ledger-backup": "Database backup",
+		"ledger-restore": "Database restore from backup",
+		"library-processing": "Scan & fetch",
+		"link-check": "Link check",
+		"link-prune": "Dead link cleanup",
+		"media-repair": "Media repair",
+		"mp4-header-repair": "Playback header repair",
+		organize: "Organize by template",
+		"performer-alias": "Actress alias fill-in",
+		"performer-profile": "Actress profile fill-in",
+		"resource-apply": "Resource sync cleanup",
+		"resource-scan": "Resource sync check",
+		"scrape-codes": "Code metadata scrape",
+		"scraping-cover": "Cover fetch",
+		"seed-import": "Starter metadata import",
+		"source-check": "Source connection check",
+		"studio-mark": "Label site and logo fill-in",
+		"taste-refresh": "Taste analysis",
+		"timeline-thumbnails": "Video thumbnail fetch",
+		"upgrade-library": "Metadata auto-repair",
+		"upgrade-repairs": "Auto-repair",
+		"want-scrape": "Want metadata fetch"
+	}
 }, Xe = {
 	accessSetup: {
 		enterWithoutPassword: "Continue without sign-in",
@@ -7240,9 +7523,14 @@ var He = {
 	},
 	format: {
 		clauseSeparator: ", ",
+		labelPrefix: "{{label}}: ",
+		labelValue: "{{label}}: {{value}}",
 		listSeparator: ", ",
+		period: ".",
 		quoted: "“{{text}}”",
-		sentenceGap: " "
+		semicolonSeparator: "; ",
+		sentenceGap: " ",
+		withNote: "{{text}} ({{note}})"
 	},
 	gauge: {
 		almostFull: "Almost full",
@@ -11728,6 +12016,7 @@ var He = {
 		download: "下载证书",
 		fingerprint: "SHA-256 指纹",
 		help: "其他设备首次打开 HTTPS 地址会提示证书不受信任，在那台设备上安装并信任 Peach 的 CA 证书即可。证书不含私钥。",
+		iosDevices: "iPhone／iPad",
 		iosSteps: "用相机扫码，在 Safari 中允许下载描述文件；到「设置 → 通用 → VPN 与设备管理」安装它，再到「设置 → 通用 → 关于本机 → 证书信任设置」打开这张证书的完全信任。",
 		qrHelp: "二维码在页面开着时每 10 分钟更新。Android 打不开 .local 地址时，改用局域网 IP 打开本页再扫码。",
 		qrLabel: "手机扫码下载本机 CA 证书",
@@ -12331,6 +12620,7 @@ var He = {
 		changeTypeLabel: "目录变更方式 {{index}}",
 		changeTypePlaceholder: "选择目录变更方式",
 		dependencyMissing: "未检测到",
+		dependencyMissingName: "未检测到 {{name}}。",
 		directoriesLabel: "{{name}} 的文件夹",
 		directoryLabel: "媒体目录 {{index}}",
 		goToCollection: "进入馆藏",
@@ -12863,17 +13153,195 @@ var He = {
 	},
 	videoProcessing: { autoHardwareFirst: "自动（硬件优先）" }
 }, it = {
+	download: {
+		failure: {
+			config: "配置或登录有误",
+			duplicate: "下载任务已存在",
+			invalid_link: "链接无效",
+			mismatch: "下载内容与目标作品不符",
+			network: "网络暂时不可用",
+			no_source: "没有可用下载源或进度长时间未更新",
+			not_accepted: "网盘没有收下任务",
+			not_landed: "目标目录中未找到下载文件",
+			quota: "下载额度已用完",
+			rejected: "网盘拒绝下载该资源",
+			removed: "网盘任务被删除"
+		},
+		postprocess: {
+			complete: "整理完成",
+			failed: "整理失败",
+			not_requested: "整理未开始",
+			pending: "等待整理",
+			queued: "整理已排队",
+			running: "整理中"
+		},
+		state: {
+			cancelled: "已取消",
+			candidate: "待选择的资源",
+			failed: "失败",
+			ingested: "已入库",
+			landed: "文件已可访问",
+			remote_done: "网盘下载完成",
+			remote_running: "网盘下载中",
+			selected: "已选定",
+			stalled: "长时间未完成",
+			submit_pending: "等待自动重新提交",
+			submitted: "已提交"
+		}
+	},
 	http: {
 		methodNotAllowed: "这个地址不接受这种请求。",
 		notFound: "这个地址下没有页面。",
 		serverError: "服务处理失败，请导出诊断报告"
 	},
-	javBrowser: { notQueued: "这个番号不在排队中" },
-	release: { installation: {
-		docker: "Docker 镜像",
-		source: "源码运行",
-		standalone: "独立测试包"
+	identity: { category: {
+		amateur: "素人",
+		animation: "动画作者",
+		blogger: "网黄博主",
+		japanese_av: "女优",
+		seller: "卖家",
+		western: "西方"
 	} },
+	javBrowser: { notQueued: "这个番号不在排队中" },
+	ledgerBackup: { purpose: {
+		"auto-landing-revert": "撤回自动写入前",
+		download: "下载后整理前",
+		manual: "手动备份",
+		migrate: "迁移前",
+		organize: "整理前",
+		other: "写入前自动备份",
+		restore: "恢复前另存",
+		sar: "显示尺寸补测前",
+		schema: "迁移前",
+		"tag-management": "标签管理前",
+		upgrade: "自动修复前"
+	} },
+	release: {
+		channel: { test: "测试版" },
+		dockerStep: {
+			pull: "在 compose.yaml 所在目录拉取新镜像；.env 里把 PEACH_VERSION 固定成版本号的，先改成新版本",
+			recreate: "重建容器，/data 数据卷保留"
+		},
+		installation: {
+			docker: "Docker 镜像",
+			source: "源码运行",
+			standalone: "独立测试包"
+		},
+		message: {
+			ahead: "当前版本高于已发布测试版。",
+			available: "有新版本可下载。",
+			current: "已是最新测试版。",
+			empty: "暂未找到可下载的测试版。",
+			error: "未能取得版本信息，请重试。",
+			imageAvailable: "有新镜像可拉取。",
+			imagePending: "Peach {{version}} 的镜像尚未发布，请稍后再检查。",
+			staleListing: "GitHub 版本信息未取得，镜像清单可能过期，请重试。",
+			unchecked: "尚未检查"
+		}
+	},
+	releaseNotes: {
+		"v0-54-0": {
+			headline: "JAV 新作分区与 SMB 扫描提速",
+			items: {
+				"macos-in-app-update": {
+					body: "在检查更新里直接替换",
+					title: "macOS 应用内更新"
+				},
+				"new-releases": {
+					body: "列出订阅到、还没入库的新作",
+					title: "JAV 新作"
+				},
+				"smb-faster-scan": {
+					body: "整趟共用一条连接",
+					title: "SMB 扫描提速"
+				}
+			}
+		},
+		"v0-55-0": {
+			headline: "重新抓取资料与账本备份",
+			items: {
+				"docker-one-click": {
+					body: "启用 Watchtower 后可用",
+					title: "Docker 一键更新"
+				},
+				"ledger-backup": {
+					body: "随时备份或恢复",
+					title: "账本备份"
+				},
+				"rescrape-fields": {
+					body: "在影片详情逐字段选用",
+					title: "重新抓取资料"
+				}
+			}
+		},
+		"v0-55-1": { headline: "统计与作品列表首次打开更快" },
+		"v0-56-0": {
+			headline: "JavDB 主机轮换与页面提速",
+			items: {
+				"docker-first-setup": {
+					body: "可设密码或免登录",
+					title: "Docker 首次设置"
+				},
+				"faster-pages": {
+					body: "任务中心和统计页打开更快",
+					title: "页面提速"
+				},
+				"ghcr-image": {
+					body: "Docker Hub 受限时可改用",
+					title: "ghcr.io 镜像"
+				},
+				"javdb-host-rotation": {
+					body: "一个主机不通自动换下一个",
+					title: "JavDB 主机轮换"
+				}
+			}
+		},
+		"v0-57-0": {
+			headline: "更稳、更快，新增容量保护",
+			items: {
+				"cloud-display-repair": {
+					body: "为免撑大网盘缓存，网盘里的视频没有自动补测",
+					title: "网盘视频可以手动补测尺寸"
+				},
+				"display-dimensions": {
+					body: "后台修正横竖屏判断",
+					title: "补测视频尺寸"
+				},
+				"garbled-performers": {
+					body: "重新补采演员",
+					title: "清理乱码人物"
+				},
+				"javdb-entries": {
+					body: "人物页不再给出同名旧艺名的空页",
+					title: "收起错配的 JavDB 入口"
+				},
+				"library-sync": {
+					body: "扫描和采集可以只选一个库",
+					title: "按媒体库同步"
+				},
+				"new-releases-multiselect": {
+					body: "批量加入想要或查找资源",
+					title: "新作多选"
+				},
+				reorder: {
+					body: "侧栏和各类菜单都能拖动排序",
+					title: "拖动排序"
+				},
+				"repair-center": {
+					body: "查看升级修复的进度，确认清理关注旧快照",
+					title: "修复与迁移"
+				},
+				"storage-budget": {
+					body: "给数据和缓存设上限",
+					title: "容量保护"
+				},
+				"system-files": {
+					body: "NAS 缩略图、macOS 的 ._ 文件不再算作视频",
+					title: "移出系统附属文件"
+				}
+			}
+		}
+	},
 	repairCenter: {
 		history: {
 			catalog: "资料与番号整理",
@@ -12940,7 +13408,110 @@ var He = {
 		storageFailed: "研究归档文件操作失败"
 	},
 	setup: { firstAccessDenied: "请从部署 Peach 的机器或同一局域网打开 Peach 完成设置，或在启动容器时设置 PEACH_ACCESS_PASSWORD。" },
-	subtitles: { unsupportedLanguage: "字幕语言只支持 zh 或 en" }
+	storage: { category: {
+		accounts: {
+			description: "访问令牌与资料站登录用的浏览器资料",
+			label: "登录状态",
+			note: "删除后需要重新登录各个网站与设备"
+		},
+		backups: {
+			description: "升级、迁移与整理前自动留下的数据库副本",
+			label: "数据库备份",
+			note: "每处保留最近一份，更早的无法再恢复"
+		},
+		database: {
+			description: "影片、人物、标签与观看记录",
+			label: "数据库",
+			note: "Peach 的全部资料都在这里，删除就是清空媒体库"
+		},
+		downloads: {
+			description: "从资料站下载的封面、头像、厂牌标志与网页缓存",
+			label: "封面与网络资料",
+			note: "删除后要重新联网下载，已下架的来源再也取不回来"
+		},
+		logs: {
+			description: "运行日志与崩溃记录",
+			label: "日志",
+			note: "只清理已归档的日志与崩溃记录，正在写入的保留"
+		},
+		other: {
+			description: "数据目录里不属于以上各类的文件",
+			label: "其他",
+			note: "Peach 无法判断它们的用途，请自行确认后手动处理"
+		},
+		playback: {
+			description: "浏览器不能直接播放的影片转码后的副本",
+			label: "播放缓存",
+			note: "再次播放时重新转码"
+		},
+		previews: {
+			description: "从视频抽帧生成的九宫格、海报与进度条预览",
+			label: "预览图",
+			note: "重建要重新读取整部影片，网盘里的影片会重新下载，所以不在这里清理"
+		},
+		records: {
+			description: "断点续跑、自动修复回执、待复核清单与归档",
+			label: "任务与复核记录",
+			note: "删除会丢失任务进度和尚未处理的复核结论"
+		},
+		sources: {
+			description: "从其他软件导入的资料与原始记录",
+			label: "导入资料",
+			note: "Peach 无法重新生成，删除后只能重新导入"
+		},
+		thumbnails: {
+			description: "封面与头像的小尺寸副本，列表和网格里显示的就是它",
+			label: "缩略图",
+			note: "浏览时从本机已有的封面重新缩小"
+		},
+		tools: {
+			description: "FFmpeg、人脸识别等播放、抽帧与识别用到的程序",
+			label: "媒体工具",
+			note: "删除后播放、预览与识别不可用，需要重新安装"
+		}
+	} },
+	subtitles: { unsupportedLanguage: "字幕语言只支持 zh 或 en" },
+	task: {
+		"amane-bridge": "amane 桥重建",
+		batch: "批量操作",
+		"code-samples": "番号样张采集",
+		"creator-identity": "创作者身份查找",
+		"diagnostic-export": "诊断导出",
+		"download-postprocess": "云下载后处理",
+		"entity-avatar": "资料图片补全",
+		"face-models": "人脸模型下载",
+		"feed-check": "订阅源拉取",
+		"feed-cover": "新作封面采集",
+		"feed-scrape": "新作资料采集",
+		"follow-check": "追更检查",
+		"follow-creator": "关注作者建档",
+		"follow-evidence-reclaim": "关注旧快照清理",
+		"follow-resolve": "关注来源查找",
+		"jav-covers": "封面批量抓取",
+		"jav-discovery-metadata": "发现页资料读取",
+		"ledger-backup": "账本备份",
+		"ledger-restore": "从备份恢复账本",
+		"library-processing": "扫描与采集",
+		"link-check": "链接检查",
+		"link-prune": "失效链接清理",
+		"media-repair": "媒体修复",
+		"mp4-header-repair": "播放文件头修复",
+		organize: "按模板整理",
+		"performer-alias": "女优别名补全",
+		"performer-profile": "女优资料补全",
+		"resource-apply": "资源同步清理",
+		"resource-scan": "资源同步检查",
+		"scrape-codes": "番号资料刮削",
+		"scraping-cover": "封面采集",
+		"seed-import": "初始资料导入",
+		"source-check": "资料源连接检查",
+		"studio-mark": "厂牌官网与标识补全",
+		"taste-refresh": "口味分析",
+		"timeline-thumbnails": "视频缩略图采集",
+		"upgrade-library": "资料自动修复",
+		"upgrade-repairs": "自动修复",
+		"want-scrape": "想要作品资料采集"
+	}
 }, at = {
 	accessSetup: {
 		enterWithoutPassword: "免登录进入",
@@ -13190,9 +13761,14 @@ var He = {
 	},
 	format: {
 		clauseSeparator: "，",
+		labelPrefix: "{{label}}：",
+		labelValue: "{{label}}：{{value}}",
 		listSeparator: "、",
+		period: "。",
 		quoted: "「{{text}}」",
-		sentenceGap: ""
+		semicolonSeparator: "；",
+		sentenceGap: "",
+		withNote: "{{text}}（{{note}}）"
 	},
 	gauge: {
 		almostFull: "空间即将用满",
@@ -36473,4 +37049,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=dc2212fe-1ba3-42d4-898a-585600f56023
+//# debugId=615b2fdb-5bcf-4f99-aaab-0501844efd30
