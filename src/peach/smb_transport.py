@@ -111,17 +111,18 @@ def _timestamp(value: datetime) -> tuple[float, int]:
     return ns / 1_000_000_000, ns
 
 
-def _error(exc: Exception) -> OSError:
+def _error(exc: Exception, filename: str | None = None) -> OSError:
+    """转成标准 `OSError`；打开文件时带上共享内路径，诊断据此区分输入缺失与代码缺陷。"""
     if isinstance(exc, SMBAuthenticationError):
         return PermissionError(errno.EACCES, "SMB 身份验证失败")
     if isinstance(exc, SMBResponseException):
         if exc.status in (NtStatus.STATUS_ACCESS_DENIED, NtStatus.STATUS_LOGON_FAILURE,
                           NtStatus.STATUS_STOPPED_ON_SYMLINK):
-            return PermissionError(errno.EACCES, "SMB 访问被拒绝")
+            return PermissionError(errno.EACCES, "SMB 访问被拒绝", filename)
         mapped = SMBOSError(exc.status, "SMB 共享")
-        return OSError(mapped.errno or errno.EIO, mapped.strerror or "SMB 请求失败")
+        return OSError(mapped.errno or errno.EIO, mapped.strerror or "SMB 请求失败", filename)
     if isinstance(exc, SMBOSError):
-        return OSError(exc.errno or errno.EIO, exc.strerror or 'SMB 请求失败')
+        return OSError(exc.errno or errno.EIO, exc.strerror or 'SMB 请求失败', filename)
     if isinstance(exc, OSError):
         return exc
     return OSError(errno.ENETUNREACH, "SMB 连接不可用")
@@ -265,7 +266,7 @@ class SmbTransport:
         except Exception as exc:
             if fd.connected:
                 self._close_fd(fd)
-            error = _error(exc)
+            error = _error(exc, "\\".join(parts))
             if error.errno not in PATH_ERRNOS:
                 self.close()
             raise error from None

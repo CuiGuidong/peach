@@ -436,6 +436,23 @@ class ProcessingControlTests(unittest.TestCase):
         self.seed(1)
         self.assertEqual(pending(self.db),[])
 
+    def test_a_damaged_new_asset_range_is_set_aside_and_the_next_scan_starts_over(self):
+        """断电或同步盘留下的半份文件不能让之后每次轮询都报错；改名留证，扫描重新登记。"""
+        from peach.library_new_assets import pending, remember
+        from peach.update_tasks import state_for
+        self.seed(3)
+        path=state_for(self.db).parent/'library-new-assets.json'
+        path.parent.mkdir(parents=True,exist_ok=True)
+        for damaged in ('[1, 2', '{"ids": [1]}', '[0, "2"]'):
+            with self.subTest(damaged=damaged):
+                path.write_text(damaged,encoding='utf-8')
+                with self.assertLogs('peach.library_new_assets','WARNING'):
+                    self.assertEqual(pending(self.db),[])
+                self.assertFalse(path.exists())
+                self.assertEqual(path.with_name(path.name+'.invalid').read_text(encoding='utf-8'),damaged)
+        remember(self.db,[2])
+        self.assertEqual(pending(self.db),[2])
+
     def test_archiving_keeps_full_legacy_issues_and_export_rejects_changes(self):
         import json
         from peach.library_processing import state_path,_save
