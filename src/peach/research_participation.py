@@ -14,6 +14,8 @@ MESSAGE = 'Peach research participation'
 PURPOSE = 'population-research-participation'
 MAX_STATE_BYTES = 16 * 1024
 STATUSES = {'queued', 'accepted', 'failed', 'unknown', 'blocked'}
+SNAPSHOT_REASONS = {'collection', 'compression', 'network', 'http_status', 'rate_limit', 'queue_full',
+                    'consent', 'disabled', 'unknown'}
 
 
 def instance(value):
@@ -34,13 +36,17 @@ def _stamp(moment):
 
 def valid_payload(value, *, current=True):
     from .library_sharing import SCHEMA
-    if (not isinstance(value, dict) or set(value) != {'schema', 'peach', 'period', 'day', 'last_seen',
-            'research_instance', 'state', 'kind'} or type(value['schema']) is not int
+    required = {'schema', 'peach', 'period', 'day', 'last_seen', 'research_instance', 'state', 'kind'}
+    if (not isinstance(value, dict) or not required <= set(value) <= required | {'snapshot'}
+            or type(value['schema']) is not int
             or (value['schema'] != SCHEMA if current else not 1 <= value['schema'] <= SCHEMA)
             or not isinstance(value['peach'], str) or not re.fullmatch(r'[0-9A-Za-z.+-]{1,64}', value['peach'])
             or (current and value['peach'] != __version__) or not instance(value['research_instance'])
             or not isinstance(value['kind'], str) or value['kind'] not in {'enabled', 'heartbeat', 'disabled'}
             or value['state'] != ('disabled' if value['kind'] == 'disabled' else 'enabled')):
+        return False
+    if 'snapshot' in value and (value['schema'] < 6 or value['state'] != 'enabled'
+                                or not valid_snapshot(value['snapshot']) or value['snapshot']['period'] != value['period']):
         return False
     try:
         moment = datetime.fromisoformat(value['last_seen'].replace('Z', '+00:00'))
@@ -48,6 +54,22 @@ def valid_payload(value, *, current=True):
                 and value['day'] == moment.date().isoformat() and value['period'] == moment.strftime('%G-W%V'))
     except (ValueError, TypeError, AttributeError):
         return False
+
+
+def valid_snapshot(value):
+    """研究日联系只接受有界的技术回执字段。"""
+    from .library_sharing import MAX_BYTES, MAX_RAW_BYTES
+    required = {'snapshot_id', 'period', 'status', 'attempted'}
+    if (not isinstance(value, dict) or not required <= set(value) <= required | {'raw_bytes', 'compressed_bytes', 'reason'}
+            or not instance(value['snapshot_id']) or not isinstance(value['period'], str)
+            or not re.fullmatch(r'\d{4}-W\d{2}', value['period']) or type(value['attempted']) is not bool
+            or not isinstance(value['status'], str) or value['status'] not in STATUSES | {'waiting-data'}
+            or (value['status'] == 'accepted' and not value['attempted'])):
+        return False
+    for key, maximum in (('raw_bytes', MAX_RAW_BYTES), ('compressed_bytes', MAX_BYTES)):
+        if key in value and (type(value[key]) is not int or not 0 <= value[key] <= maximum):
+            return False
+    return 'reason' not in value or isinstance(value['reason'], str) and value['reason'] in SNAPSHOT_REASONS
 
 
 def _load(config):
@@ -122,8 +144,11 @@ def _permitted(config, record, *, check_day=True):
 
 def _log(record):
     metadata = remote_reporting.event_metadata('research')
+    payload = {key: value for key, value in record['payload'].items() if key != 'snapshot'}
+    payload.update({f'snapshot_{key.removeprefix("snapshot_")}': value
+                    for key, value in record['payload'].get('snapshot', {}).items()})
     value = remote_reporting._log_item(MESSAGE, {'release': metadata['release'], 'environment': metadata['environment']},
-        {'purpose': PURPOSE, 'message_id': record['event_id'], **record['payload']})
+        {'purpose': PURPOSE, 'message_id': record['event_id'], **payload})
     value['trace_id'] = record['event_id']
     value['timestamp'] = datetime.fromisoformat(record['payload']['last_seen'].replace('Z', '+00:00')).timestamp()
     return value
@@ -134,7 +159,7 @@ class Service:
         self.config, self.target, self.stopping = config, target, stopping
 
     def _prepare(self):
-        from .library_sharing import SCHEMA, _state_lock
+        from .library_sharing import SCHEMA, _state_lock, attempt_evidence
         with _state_lock(self.config):
             choice = _choice(self.config)
             if choice is None or self.stopping.is_set():
@@ -165,6 +190,12 @@ class Service:
                     'state': 'disabled' if disabled else 'enabled', 'kind': kind}
                 record = {'event_id': event_id, 'revision': choice['revision'], 'payload': payload,
                           'status': 'queued', 'attempted': False}
+            if not disabled:
+                evidence = attempt_evidence(self.config)
+                if evidence:
+                    record['payload']['snapshot'] = evidence
+                else:
+                    record['payload'].pop('snapshot', None)
             record['dispatch_id'] = uuid.uuid4().hex
             atomic_write_text(_path(self.config), json.dumps(record))
             return record

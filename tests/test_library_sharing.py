@@ -176,6 +176,34 @@ class ResearchParticipationTests(unittest.TestCase):
             'items': [self.participation._log(record)]})))
         return result
 
+    def test_daily_contact_contains_bounded_snapshot_evidence_and_closing_omits_it(self):
+        sharing.save_choice(self.config, True)
+        revision = sharing.consent(self.config)['revision']
+        sharing._state_path(self.config).write_text(json.dumps({'schema': sharing.SCHEMA, 'period': sharing._period(),
+            'revision': revision, 'attempt_id': 'b' * 32, 'status': 'accepted', 'attempted': True,
+            'raw_bytes': 12000, 'compressed_bytes': 3000, 'private': 'must-not-send'}))
+        record = self.service.participation._prepare()
+        self.assertTrue(self.participation.valid_payload(record['payload']))
+        evidence = record['payload']['snapshot']
+        self.assertEqual(evidence['snapshot_id'], 'b' * 32)
+        self.assertNotIn('revision', evidence)
+        self.assertNotIn('private', evidence)
+        attributes = self.participation._log(record)['attributes']
+        self.assertEqual(attributes['snapshot_raw_bytes']['value'], 12000)
+        self.assertEqual(attributes['snapshot_id']['value'], 'b' * 32)
+        self.assertNotIn('snapshot', attributes)
+        sharing.save_choice(self.config, False)
+        closing = self.service.participation._prepare()
+        self.assertNotIn('snapshot', closing['payload'])
+        self.assertTrue(self.participation.valid_payload(closing['payload']))
+
+    def test_snapshot_evidence_rejects_unknown_fields_and_oversized_values(self):
+        value = {'snapshot_id': 'a' * 32, 'period': '2026-W45', 'status': 'failed', 'attempted': False}
+        self.assertTrue(self.participation.valid_snapshot(value))
+        for extra in ({'path': 'private'}, {'raw_bytes': True}, {'compressed_bytes': sharing.MAX_BYTES + 1},
+                      {'status': 'accepted'}, {'reason': 'private error'}):
+            self.assertFalse(self.participation.valid_snapshot({**value, **extra}))
+
     def test_old_scope_and_explicit_disable_without_new_scope_do_not_send_or_initialize_clients(self):
         path = sharing._path(self.config)
         path.parent.mkdir(parents=True)
@@ -396,7 +424,8 @@ class LibrarySharingTests(unittest.TestCase):
             for code, path in (('EXM-001', 'R:/private-person/movie-a.mp4'), ('EXM-001', 'R:/private-person/movie-b.mp4')):
                 connection.execute("INSERT INTO asset(location,path,name,code,medium,rating,play_count,watch_ratio,duration) "
                                    "VALUES('local',?,'private-title',?,'video',80,2,.5,600)", (path, code))
-            connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'手动标签','web-user')")
+            connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'口交','web-user')")
+            connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'私人的备注','web-user')")
             connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(2,'720P','metadata')")
             connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'已隐藏标签','web-user')")
             connection.execute("INSERT INTO asset_tag_preference(profile_id,asset_id,normalized_tag,hidden,updated_at) "
@@ -411,7 +440,7 @@ class LibrarySharingTests(unittest.TestCase):
         self.assertEqual(len(payload['library']), 1)
         work = payload['library'][0]
         self.assertEqual(work['code'], 'EXM-001')
-        self.assertEqual(work['manual_tags'], ['手动标签'])
+        self.assertEqual(work['manual_tags'], ['口交'])
         self.assertEqual(work['rating'], 80)
         self.assertTrue(work['liked'])
         self.assertEqual(work['play_count'], 4)
@@ -421,7 +450,7 @@ class LibrarySharingTests(unittest.TestCase):
         self.assertEqual(payload['preferences']['tag'][0]['works']['ratings'], {'80.0': 1})
         self.assertTrue(sharing.valid_payload(payload))
         for private in ('private-person', 'private-title', 'movie-a', 'movie-b', 'asset_id', 'visited_at', 'last_played',
-                        'profile_id', 'fingerprint', 'R:/', '720P', '已隐藏标签', 'duration_seconds', 'entities'):
+                        'profile_id', 'fingerprint', 'R:/', '720P', '已隐藏标签', '私人的备注', 'duration_seconds', 'entities'):
             self.assertNotIn(private, data.decode())
 
     def test_entity_distributions_include_uncoded_signals_and_explicit_favorites(self):
@@ -649,6 +678,9 @@ class LibrarySharingTests(unittest.TestCase):
         self.assertEqual(event['tags']['runtime'], sharing.remote_reporting.event_metadata('research')['tags']['runtime'])
         self.assertEqual(event['tags']['purpose'], 'population-research')
         self.assertEqual(event['tags']['research_instance'], sharing.consent(self.config)['research_instance'])
+        self.assertEqual(event['tags']['snapshot_id'], self.attempt_state()['attempt_id'])
+        self.assertEqual(int(event['tags']['compressed_bytes']), len(envelope.items[1].payload.get_bytes()))
+        self.assertEqual(int(event['tags']['raw_bytes']), len(gzip.decompress(envelope.items[1].payload.get_bytes())))
         attachment = json.loads(gzip.decompress(envelope.items[1].payload.get_bytes()))
         self.assertEqual(attachment['schema'], sharing.SCHEMA)
         self.assertEqual(envelope.items[1].headers['filename'], sharing.FILENAME)
@@ -726,7 +758,7 @@ class LibrarySharingTests(unittest.TestCase):
     def test_uncoded_preference_group_can_be_sent(self):
         with self.database.write_transaction() as connection:
             connection.execute("INSERT INTO asset(location,path,name) VALUES('local','uncoded','title')")
-            connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'手动标签','web-user')")
+            connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'口交','web-user')")
         self.enable()
         with mock.patch('peach.remote_reporting._new_client') as client:
             self.service.attempt()
@@ -872,9 +904,12 @@ class LibrarySharingTests(unittest.TestCase):
         for status in ('failed', 'unknown', 'waiting-data', 'accepted'):
             with self.subTest(status=status):
                 state = {'schema': sharing.SCHEMA, 'period': sharing._period(),
-                         'status': status, 'attempted': True}
+                         'revision': sharing.consent(self.config)['revision'], 'attempt_id': 'a' * 32,
+                         'status': status, 'attempted': True, 'raw_bytes': 400, 'compressed_bytes': 200}
                 sharing._state_path(self.config).write_text(json.dumps(state))
-                self.assertEqual(sharing.snapshot(self.config)['last_attempt'], state)
+                self.assertEqual(sharing.snapshot(self.config)['last_attempt'], {
+                    'snapshot_id': 'a' * 32, 'period': state['period'], 'status': status, 'attempted': True,
+                    'raw_bytes': 400, 'compressed_bytes': 200})
                 with mock.patch.object(sharing, '_period', return_value='2099-W01'):
                     self.assertEqual(sharing.snapshot(self.config)['last_attempt'], {})
                 self.assertEqual(self.attempt_state(), state)

@@ -64,6 +64,21 @@
       }
     }
   },
+  "researchArchive": {
+    "timeRequiresTimezone": "来源接收时间必须包含时区",
+    "duplicateFields": "研究附件包含重复 JSON 字段",
+    "compressedTooLarge": "压缩附件超过 18 MiB 上限",
+    "rawTooLarge": "附件 JSON 超过 100 MiB 上限",
+    "invalidProjection": "研究附件字段或投影无效",
+    "invalidCapacity": "研究附件容量投影无效",
+    "invalidAttachment": "研究附件无法解压或解析",
+    "unsupportedDatabaseVersion": "研究归档数据库版本不受支持",
+    "nonArchiveDatabase": "目标数据库包含其他用途的表",
+    "invalidInstance": "研究实例标识必须是 32 位小写十六进制",
+    "invalidRetention": "留存天数必须是正整数",
+    "retentionOutOfRange": "留存天数超出日期范围",
+    "storageFailed": "研究归档文件操作失败"
+  },
   "setup": {
     "firstAccessDenied": "请从部署 Peach 的机器或同一局域网打开 Peach 完成设置，或在启动容器时设置 PEACH_ACCESS_PASSWORD。"
   },

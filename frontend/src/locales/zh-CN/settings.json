@@ -657,6 +657,7 @@
     "summary": "每个媒体库都先读本地 NFO 和同目录图片；处理方式只决定要不要联网补全。"
   },
   "librarySharing": {
+    "acceptedHelp": "接收端已接受请求，附件留存需由接收端归档核验。",
     "agreeAndEnable": "同意并开启上传",
     "blocked": "已拦截",
     "consent": "我已查看上传预览，同意上传馆藏与口味明细",
@@ -683,6 +684,9 @@
     "saved": "已保存馆藏与口味上传选项",
     "sendFailed": "发送失败",
     "sent": "已发送",
+    "snapshot": "本周快照",
+    "snapshotId": "快照编号",
+    "snapshotSizes": "原始 {{raw}} KiB，gzip 压缩后 {{compressed}} KiB。",
     "statusUnavailable": "馆藏上传状态未取得",
     "truncated": "显示前 24,000 个字符，下载可查看完整内容。",
     "unavailable": "上传服务未配置",
