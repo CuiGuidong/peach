@@ -835,6 +835,25 @@ class RemoteReportingTests(unittest.TestCase):
                 self.assertTrue(reporting.consent()["usage"])
                 self.assertTrue(reporting.consent()["errors"])
 
+    def test_read_helpers_leave_reporting_to_the_parent_process(self):
+        """独立包每读一次媒体起一个子进程；它们各自发统计、退出时提交计数，会把计数拆成一次一条。"""
+        reporting.save({"usage": True, "errors": True})
+        entry = runpy.run_path(str(Path(__file__).resolve().parents[1] / "scripts/build_app_entry.py"))
+
+        def helper(_argv):
+            reporting.capture("unhandled-main", RuntimeError("helper fault"))
+            reporting.flush_counts(force=True)
+            return 0
+
+        for command, sends in (("media-read", False), ("local-image", False), ("scan", True)):
+            with self.subTest(command=command), mock.patch.object(reporting, "_disabled", False), \
+                    mock.patch.dict(entry["main"].__globals__, {"cli_main": helper, "_prepare_console": lambda: None}), \
+                    mock.patch("peach.error_reporting.install", side_effect=reporting.usage), \
+                    mock.patch.object(reporting, "_new_client") as client:
+                self.assertEqual(entry["main"](["Peach.exe", command]), 0)
+                self.assertEqual(client.called, sends)
+            reporting.close()
+
     def test_installer_helper_persists_explicit_choices_in_fresh_process(self):
         root = Path(__file__).resolve().parents[1]
         env = {**os.environ, 'PYTHONPATH': str(root / 'src'), 'PEACH_SENTRY_DSN': ''}
