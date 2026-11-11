@@ -210,8 +210,11 @@ class RemoteReportingTests(unittest.TestCase):
         self.assertEqual(client.capture_event.call_count, 5)
         self.assertEqual(client.transport.capture_envelope.call_count, 1)
         payload = json.loads((self.config.directory("state") / "remote-reporting-frequency.json").read_text())
-        self.assertEqual(len(payload["records"]), 20)
-        self.assertTrue(all(row['total'] == 2 for row in payload['records'].values()))
+        rows = list(payload["records"].values())
+        # 超出登记上限的新诊断键改为只计数，次数照样累计。
+        self.assertEqual(sum(not row.get('count_only') for row in rows), 20)
+        self.assertEqual(sum(row.get('count_only', False) for row in rows), 5)
+        self.assertTrue(all(row['total'] == 2 for row in rows))
 
     def test_usage_is_one_log_and_session_without_error_events(self):
         from peach import reporting_identity as identity
@@ -286,6 +289,37 @@ class RemoteReportingTests(unittest.TestCase):
         payload = (self.config.directory('state') / 'remote-reporting-frequency.json').read_text()
         self.assertNotIn('private title', payload)
         self.assertNotIn('installation', payload)
+
+    def test_environment_conditions_are_counted_without_events_or_new_key_slots(self):
+        import errno
+        from peach import diagnostic_frequency as frequency
+        namespace = {}
+        exec(compile('def read(code):\n    raise OSError(code, "private", "movie.mp4")\n', 'peach/fixture.py', 'exec'), namespace)
+        reporting.save({"usage": True, "errors": True})
+        client = mock.Mock()
+        with mock.patch.object(reporting, '_new_client', return_value=client):
+            for _ in range(30):
+                try:
+                    namespace['read'](errno.ENXIO)
+                except OSError as error:
+                    reporting.capture('library-preview', error)
+            # 掉盘期间每次发生只在进程内累计，不逐次写聚合文件。
+            self.assertFalse(frequency._path(self.config).exists())
+            reporting.flush_counts()
+            for index in range(frequency.NEW_KEY_LIMIT):
+                reporting.send('errors', {'message': str(index)})
+            reporting.flush_counts(force=True)
+        events = [call.args[0] for call in client.capture_event.call_args_list]
+        self.assertEqual(len(events), frequency.EVENT_LIMIT)
+        self.assertFalse(any('condition' in event['tags'] for event in events))
+        [count] = [count for count in self._counts(client) if 'condition' in count]
+        self.assertEqual((count['condition'], count['occurrence_count']), ('media_volume', 30))
+        self.assertEqual((count['code_location'], count['code_line']), ('fixture.py:read', 2))
+        payload = json.loads(frequency._path(self.config).read_text())
+        rows = list(payload['records'].values())
+        self.assertEqual(sum(not row.get('count_only') for row in rows), frequency.NEW_KEY_LIMIT)
+        self.assertNotIn('private', json.dumps(payload))
+        self.assertNotIn('movie.mp4', json.dumps(payload))
 
     def test_frequency_survives_client_restart_and_http_ids_do_not_split_groups(self):
         reporting.save({"usage": True, "errors": True})
@@ -618,27 +652,41 @@ class RemoteReportingTests(unittest.TestCase):
                 reporting.capture('logging', error, level='ERROR', logger='peach.fixture')
                 send.assert_called_once()
 
-    def test_lock_contention_disk_and_upstream_conditions_stay_local(self):
+    def _condition_of(self, send):
+        """断言这次捕获只计数，返回环境条件类别；计数样本不带错误码、路径或原文。"""
+        send.assert_called_once()
+        self.assertEqual(send.call_args.kwargs, {'count_only': True})
+        event = send.call_args.args[1]
+        self.assertNotIn('private', json.dumps(event))
+        self.assertNotIn('movie.mp4', json.dumps(event))
+        self.assertEqual(set(event['tags']), {'os', 'python', 'architecture', 'stage', 'condition'})
+        return event['tags']['condition']
+
+    def test_lock_contention_and_upstream_stay_local_while_disk_and_database_conditions_are_counted(self):
         import errno
         import sqlite3
         import httpx
         from fastapi import HTTPException
         from filelock import Timeout
         timeout = httpx.ConnectTimeout('private', request=httpx.Request('GET', 'https://example.test/'))
-        local = [('background-job', Timeout('private.lock'), {}), ('background-job', timeout, {}),
-                 ('media-probe', TimeoutError(errno.ETIMEDOUT, 'private'), {'tool': 'ffprobe'}),
-                 ('library-preview', OSError(errno.EIO, 'private'), {}),
-                 ('library-preview', OSError(errno.ENXIO, 'private', 'movie.mp4'), {}),
-                 ('library-preview', OSError(errno.ENOTCONN, 'private'), {}),
-                 ('http-request', HTTPException(502, 'private'), {'status_code': 502})]
-        for name in ('SQLITE_IOERR_SHMSIZE', 'SQLITE_FULL', 'SQLITE_BUSY', 'SQLITE_LOCKED'):
-            error = sqlite3.OperationalError('private')
-            error.sqlite_errorname = name
-            local.append(('background-job', error, {}))
-        for stage, error, fields in local:
+        for stage, error, fields in (('background-job', Timeout('private.lock'), {}), ('background-job', timeout, {}),
+                                     ('http-request', HTTPException(502, 'private'), {'status_code': 502})):
             with self.subTest(error=type(error).__name__, stage=stage), mock.patch.object(reporting, 'send') as send:
                 reporting.capture(stage, error, level='ERROR', **fields)
                 send.assert_not_called()
+        counted = [('media-probe', TimeoutError(errno.ETIMEDOUT, 'private'), {'tool': 'ffprobe'}, 'timeout'),
+                   ('library-preview', OSError(errno.EIO, 'private'), {}, 'io_error'),
+                   ('library-preview', OSError(errno.ENXIO, 'private', 'movie.mp4'), {}, 'media_volume'),
+                   ('library-preview', OSError(errno.ENOTCONN, 'private'), {}, 'media_volume')]
+        for name, condition in (('SQLITE_IOERR_SHMSIZE', 'sqlite_io'), ('SQLITE_FULL', 'disk_full'),
+                                ('SQLITE_BUSY', 'sqlite_busy'), ('SQLITE_LOCKED', 'sqlite_busy')):
+            error = sqlite3.OperationalError('private')
+            error.sqlite_errorname = name
+            counted.append(('background-job', error, {}, condition))
+        for stage, error, fields, condition in counted:
+            with self.subTest(condition=condition, stage=stage), mock.patch.object(reporting, 'send') as send:
+                reporting.capture(stage, error, level='ERROR', **fields)
+                self.assertEqual(self._condition_of(send), condition)
         reported = sqlite3.OperationalError('private')
         reported.sqlite_errorname = 'SQLITE_ERROR'
         for stage, error, fields in (('background-job', reported, {}),
@@ -646,23 +694,27 @@ class RemoteReportingTests(unittest.TestCase):
             with self.subTest(error=type(error).__name__), mock.patch.object(reporting, 'send') as send:
                 reporting.capture(stage, error, level='ERROR', **fields)
                 send.assert_called_once()
+                self.assertEqual(send.call_args.kwargs, {})
 
-    def test_expected_media_input_conditions_are_local_and_decoder_faults_are_reported(self):
-        for marker in ('Invalid data found', 'Permission denied', 'No space left', 'No such file or directory',
-                       'Invalid argument', 'Input/output error'):
+    def test_media_input_conditions_are_counted_and_decoder_faults_are_reported(self):
+        import errno
+        for marker, condition in (('Invalid data found', 'invalid_media'), ('Permission denied', 'permission_denied'),
+                                  ('No space left', 'disk_full'), ('No such file or directory', 'missing_media'),
+                                  ('Invalid argument', 'invalid_media'), ('Input/output error', 'io_error')):
             with self.subTest(marker=marker), mock.patch.object(reporting, 'send') as send:
                 reporting.capture('frame-capture', returncode=1, stderr=marker)
-                send.assert_not_called()
+                self.assertEqual(self._condition_of(send), condition)
+        for error, condition in ((OSError(errno.ENOSPC, 'private'), 'disk_full'),
+                                 (subprocess.TimeoutExpired('ffprobe', 20), 'timeout'),
+                                 (FileNotFoundError(2, 'private', 'movie.mp4'), 'missing_media'),
+                                 (PermissionError(13, 'private', 'movie.mp4'), 'permission_denied')):
+            with self.subTest(error=type(error).__name__), mock.patch.object(reporting, 'send') as send:
+                reporting.capture('media-probe', error, tool='ffprobe')
+                self.assertEqual(self._condition_of(send), condition)
         with mock.patch.object(reporting, 'send') as send:
-            import errno
-            reporting.capture('media-probe', OSError(errno.ENOSPC, 'disk full'), tool='ffprobe')
-            send.assert_not_called()
-            reporting.capture('media-probe', subprocess.TimeoutExpired('ffprobe', 20), tool='ffprobe')
-            send.assert_not_called()
-            reporting.capture('media-probe', FileNotFoundError(2, 'missing input', 'movie.mp4'), tool='ffprobe')
-            send.assert_not_called()
             reporting.capture('media-probe', FileNotFoundError(2, 'missing tool', 'ffprobe'), tool='ffprobe')
             send.assert_called_once()
+            self.assertEqual(send.call_args.kwargs, {})
             send.reset_mock()
             reporting.capture('frame-capture', returncode=69,
                               stderr="Your platform doesn't support hardware accelerated AV1 decoding")
