@@ -19,9 +19,10 @@ from .reporting_identity import event_metadata, machine_facts
 from .diagnostic_exceptions import media_details
 
 FIELDS = {
-    "usage": "Peach 版本、分发方式（Windows／macOS 应用、Docker、wheel 或源码）、操作系统类型与版本、CPU 架构与核数、内存档位、Python 版本、运行环境与公开构建编号；每天最多一条活跃日志和一条会话汇总，不含安装标识。连续运行时也按 UTC 日统计，代表运行中的实例，不代表人数或当天有人操作。",
-    "errors": "诊断补充：故障环节、异常链、Peach 与白名单框架的代码文件名/函数名/行号、结构化错误码、媒体工具故障类别、浏览器白名单异常类型与正式脚本构建映射、HTTP 方法/路由模板/关联错误编号、同类故障次数与统计日期；同一版本的同类故障只上传一次完整诊断，每天最多 5 条，之后的次数每 6 小时或退出时合并为计数日志。",
+    "usage": "Peach 版本、分发方式（Windows／macOS 应用、Docker、wheel 或源码）、操作系统类型与版本、CPU 架构与核数、内存档位、Python 版本、运行环境与公开构建编号；每天最多一条活跃日志和一条日联系会话汇总。开启后自动生成随机技术实例标识，用于统计受影响实例和升级路径，与研究标识独立；关闭后移除本机标识，再开启生成新值。连续运行时按 UTC 日统计，代表运行中的实例，不代表人数、真实会话或当天有人操作。",
+    "errors": "诊断补充：故障环节、异常链、Peach 与白名单框架的代码文件名/函数名/行号、结构化错误码、媒体工具故障类别、浏览器白名单异常类型与正式脚本构建映射、客户端浏览器品牌及主要版本与系统大类、HTTP 方法/路由模板/关联错误编号、同类故障次数与统计日期；同一版本的同类故障只上传一次完整诊断，每天最多 5 条，全部发生次数每 6 小时或退出时合并为计数日志。",
 }
+CONSENT_SCHEMA = 2
 NOTICE = "发送至 Sentry。不上报错误原文、完整日志、诊断 ZIP、媒体名称、路径、网址、观看记录或凭据。接收服务会接触连接 IP；关闭后停止新发送，已发送的信息无法撤回。"
 _lock = threading.RLock()
 _client = None
@@ -66,12 +67,29 @@ def _read(path, *, missing=None):
 def _consent(path):
     value = _read(path, missing={"usage": True, "errors": True, "revision": "default"})
     enabled = all(value.get(key) is True for key in FIELDS)
-    return {"usage": enabled, "errors": enabled,
-            "revision": str(value.get("revision", ""))}
+    result = {"usage": enabled, "errors": enabled,
+              "revision": str(value.get("revision", ""))}
+    identity = value.get('diagnostic_instance')
+    if (enabled and value.get('schema') == CONSENT_SCHEMA and isinstance(identity, str)
+            and re.fullmatch(r'[a-f0-9]{32}', identity)):
+        result['diagnostic_instance'] = identity
+    return result
 
 
 def consent(config=None):
-    return _consent(_config(config).directory("state") / "remote-reporting.json")
+    from filelock import FileLock
+    from .fsutil import atomic_write_text
+    path = _config(config).directory('state') / 'remote-reporting.json'
+    current = _consent(path)
+    if not current['usage'] or current.get('diagnostic_instance'):
+        return current
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with FileLock(str(path) + '.lock', timeout=5):
+        current = _consent(path)
+        if current['usage'] and not current.get('diagnostic_instance'):
+            current['diagnostic_instance'] = uuid.uuid4().hex
+            atomic_write_text(path, json.dumps({**current, 'schema': CONSENT_SCHEMA}))
+        return current
 
 
 def dsn(environment="PEACH_SENTRY_DSN", key="dsn"):
@@ -96,7 +114,8 @@ def dsn(environment="PEACH_SENTRY_DSN", key="dsn"):
 def snapshot(config=None):
     from . import reporting_delivery
     config = _config(config)
-    return {**{key: value for key, value in consent(config).items() if key != "revision"},
+    current = consent(config)
+    return {**{key: current[key] for key in FIELDS},
             "available": bool(dsn()), "fields": FIELDS, "notice": NOTICE,
             "delivery": reporting_delivery.snapshot(config)}
 
@@ -117,6 +136,10 @@ def save(body, config=None):
     payload = parse_choices(body)
     from .fsutil import atomic_write_text
     config = _config(config)
+    previous = consent(config)
+    payload['schema'] = CONSENT_SCHEMA
+    if payload['usage']:
+        payload['diagnostic_instance'] = previous.get('diagnostic_instance') or uuid.uuid4().hex
     payload["revision"] = uuid.uuid4().hex
     atomic_write_text(config.directory("state") / "remote-reporting.json", json.dumps(payload))
     from . import diagnostic_frequency
@@ -267,6 +290,8 @@ def _submit_telemetry(kind, items, config, current, target):
 
 def _submit(kind, event, config, current, target):
     with _lock:
+        if current.get('diagnostic_instance'):
+            event = {**event, 'tags': {**event.get('tags', {}), 'diagnostic_instance': current['diagnostic_instance']}}
         client = _connect(target)
         from .reporting_delivery import record
         permit = _permit(kind, config, current)
@@ -309,6 +334,7 @@ def _count_logs(config, current, target):
         for event in counts:
             values = event.get("exception", {}).get("values", [])
             extra = {"occurrence_count": int(event["tags"]["occurrence_count"]),
+                     **({'diagnostic_instance': current['diagnostic_instance']} if current.get('diagnostic_instance') else {}),
                      **({"exception_type": values[-1].get("type", "")} if values else {})}
             items.append(_log_item("Peach diagnostic count", event, extra))
         return _submit_telemetry("errors", items, config, current, target)
@@ -341,6 +367,10 @@ def send(kind, event, config=None):
             return
         metadata = event_metadata(kind)
         event = {**event, **metadata, "tags": {**event.get("tags", {}), **metadata["tags"]}}
+        if current.get('diagnostic_instance'):
+            event['tags']['diagnostic_instance'] = current['diagnostic_instance']
+        if kind == 'usage':
+            event['tags']['activity_kind'] = 'instance-day'
         if kind == "errors":
             from . import diagnostic_frequency
             diagnostic_frequency.record(config, current["revision"], event,
@@ -513,9 +543,11 @@ def capture(stage, error=None, **fields):
         return
     values, codes, reason, debug_meta = projection
     http, error_id = _http_details(stage, fields)
+    from .diagnostic_browser import environment
+    browser_tags = environment(fields) if stage == 'browser' else {}
     event = {"level": "error", "tags": {"os": platform.system(),
         "python": platform.python_version(), "architecture": platform.machine(), "stage": stage,
-        **http, **{key: str(value) for key, value in codes.items()}, **({"media_failure": reason} if reason else {})},
+        **http, **browser_tags, **{key: str(value) for key, value in codes.items()}, **({"media_failure": reason} if reason else {})},
         "exception": {"values": values}}
     if stage == "browser":
         event["platform"] = "javascript"

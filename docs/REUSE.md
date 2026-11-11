@@ -553,6 +553,8 @@ Windows 连接清理复用 [CPython 3.14.7 的 Proactor 对象协议](https://gi
 
 代码展示统一复用 `frontend/src/react/components/code-block.tsx`：BoardUI 已固定版本的 Button、语义颜色、排版与圆角，加现有覆盖式滚动条；包含语言标识、完整原文复制、可聚焦滚动区、剪贴板失败反馈与可选的屏幕截断。用于馆藏上传 JSON、CloudDrive2 TOML 和自定义来源 JSON。2026-10-19 核对 [BoardUI 官方目录](https://www.boardui.com/components) 与 `boardui list`，公开注册表没有独立 Code Block，故以现有原语组合 Peach 包装件；无需引入只为只读文本服务的语法解析依赖，也不复制 Pro 模板。组件测试覆盖原文复制与 HTML 文本安全，布局通过桌面和窄屏浏览器验证。无新增依赖，vendored 上游源文件保持原样。
 
+研究附件归档复用标准库 SQLite 事务、gzip、SHA-256 与现有 `library_research.valid_projection`、容量字段校验和 `fsutil.atomic_write_text`，通过 `scripts/research_archive.py` 导入、汇总、清理及按实例删除。当前上传标签复用 `genre_taxonomy.CONTENT_GENRES` 的规范名称。诊断随机实例与研究实例分别保存在各自选择文件，日联系和快照回执沿用已有传输闸门。方案见 [ADR-0157](adr/0157-diagnostic-instances-and-research-receipts.md)。
+
 实体收藏复用 `profiles.read_settings` 与 `library_favorites.favorite_entities`，集中处理规范身份、重定向、标签选择、数量上限与去重，供页面和群体研究共用。命名筛选及 HTTP 展示由网页层负责；数据层不依赖网页模块。
 
 `src/peach/diagnostics.py` 统一生成 CLI 与本机 API 报告；复用 `settings_file`、`health` 的只读迁移校验、`FFmpegResolver`、访问策略和挂载快照。数据库用 SQLite `mode=ro`；写入与端口检查用标准库短暂探针，不新增运行依赖。

@@ -14,17 +14,17 @@ from urllib.parse import urlsplit
 from . import __version__, remote_reporting
 from .fsutil import atomic_write_text
 
-SCHEMA = 5
+SCHEMA = 6
 MAX_BYTES = 18 * 1024 * 1024
 MAX_RAW_BYTES = 100 * 1024 * 1024
 FILENAME = "peach-library-taste.json.gz"
 FIELDS = [
-    "去重后的作品编号，以及评分、喜欢、不喜欢、已看、稍后看、播放次数、观看比例与手动添加的标签",
+    "去重后的作品编号，以及评分、喜欢、不喜欢、已看、稍后看、播放次数、观看比例与手动添加的受控内容标签；自定义备注标签不上传",
     "出演者、创作者、厂牌、系列、手动标签、年代与时长分组的收藏、喜欢、不喜欢、观看数量和评分分布（有编号作品与无编号条目分开），以及主动收藏的实体名称",
     "馆藏文件数量、有编号作品数量与无编号条目数量",
     "近 7 天与 30 天已观测的容量天数、播放活跃天数及其记录覆盖天数；数据与缓存的当前占用、峰值、已观测正增长量、缓存清理量（自动与手动合计，不含备份和日志）。未取得的值为空，不补足 30 天记录",
     "同意后随机生成的研究实例标识，用于关联本实例的馆藏、容量和参与状态；重新开启时更换，不使用机器指纹或诊断标识",
-    "启用及每日最多一次的联系状态、版本和最近联系时间；关闭时仍允许后台尝试一次仅含实例标识与关闭状态的最小记录，之后停止发送。离线、卸载和发送失败不视为关闭，实例数不等于人数",
+    "启用及每日最多一次的联系状态、版本和最近联系时间，以及快照编号、字段版本、原始与压缩字节数和准备／投递状态；关闭时后台只尝试一次最小关闭状态，不附快照信息。离线、卸载和发送失败不视为关闭，实例数不等于人数",
     "Peach 版本、字段版本与 UTC 自然周",
 ]
 NOTICE = "上传移除直接身份信息的馆藏、偏好和容量聚合，并使用随机研究实例标识关联参与状态。启用后每日最多联系一次；关闭时后台仅尝试一次最小关闭状态，之后停发。播放活跃天数不代表全部日常使用；容量和参与状态不含新增路径、作品或账号信息。"
@@ -119,7 +119,23 @@ def snapshot(config):
             "schema": SCHEMA, "fields": FIELDS, "notice": NOTICE,
             'participation': participation_snapshot(config),
             'last_sent_at': attempt.get('last_sent_at'),
-            "last_attempt": attempt if attempt.get("schema") == SCHEMA and attempt.get("period") == _period() else {}}
+            "last_attempt": attempt_evidence(config)}
+
+
+def attempt_evidence(config):
+    """仅导出当前授权的快照回执字段，授权凭据留在本机。"""
+    current = consent(config)
+    value = remote_reporting._read(_state_path(config))
+    if (not current or value.get('revision') != current['revision'] or value.get('schema') != SCHEMA
+            or value.get('period') != _period()):
+        return {}
+    result = {key: value[key] for key in ('period', 'status', 'attempted', 'raw_bytes', 'compressed_bytes', 'reason')
+              if key in value}
+    result['snapshot_id'] = value.get('attempt_id')
+    if result.get('status') == 'queued' and result.get('attempted'):
+        result['status'] = 'unknown'
+    from .research_participation import valid_snapshot
+    return result if valid_snapshot(result) else {}
 
 
 def collect(contract):
@@ -149,11 +165,11 @@ def valid_payload(payload):
     from .library_research import valid_projection
     from .capacity_history import valid_projection as valid_capacity
     if (not isinstance(payload, dict) or set(payload) != {"schema", "peach", "period", "library", "preferences", "coverage", "capacity"}
-            or payload["schema"] != SCHEMA or payload["peach"] != __version__
+            or type(payload["schema"]) is not int or payload["schema"] != SCHEMA or payload["peach"] != __version__
             or payload["period"] != datetime.now(timezone.utc).strftime("%G-W%V")
             or not isinstance(payload["library"], list) or not isinstance(payload["preferences"], dict)):
         return False
-    return valid_projection(payload) and valid_capacity(payload['capacity'])
+    return valid_projection(payload, controlled_tags=True) and valid_capacity(payload['capacity'])
 
 
 class Service:
@@ -218,6 +234,9 @@ class Service:
         event.update(**metadata, message="Peach library and taste research", level="info")
         event["tags"].update(schema=str(SCHEMA), period=payload["period"])
         event['tags']['research_instance'] = current['research_instance']
+        if attempt_id:
+            event['tags']['snapshot_id'] = attempt_id
+        event['tags'].update(raw_bytes=str(len(raw)), compressed_bytes=str(len(data)))
         for key in tuple(envelope.headers):
             if key not in {"event_id", "sent_at"}:
                 del envelope.headers[key]
@@ -276,9 +295,11 @@ class Service:
         stage = "collection"
         try:
             payload, data = collect(self.contract)
+            value['raw_bytes'] = len(data)
             if useful_payload(payload):
                 stage = "compression"
                 data = compressed(data)
+                value['compressed_bytes'] = len(data)
                 value["status"] = "queued"
             else:
                 value["status"] = "waiting-data"
@@ -317,16 +338,16 @@ class Service:
         self._stop.clear()
         def run():
             while not self._stop.is_set():
-                try:
-                    self.participation.attempt()
-                except Exception:
-                    # 参与状态失败与研究快照分别保留回执，不转交错误诊断通道。
-                    pass
                 self.sample_capacity()
                 try:
                     self.attempt()
                 except Exception:
                     # 分享失败不把数据或错误原文转交诊断通道。
+                    pass
+                try:
+                    self.participation.attempt()
+                except Exception:
+                    # 每日联系携带本轮快照状态，失败与快照分别保留回执。
                     pass
                 self._wake.wait(3600)
                 self._wake.clear()

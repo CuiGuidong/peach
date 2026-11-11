@@ -79,7 +79,7 @@ def parse_attachment(wire):
         if len(raw) > MAX_RAW_BYTES:
             raise ArchiveError('附件 JSON 超过 100 MiB 上限')
         payload = json.loads(raw, object_pairs_hook=_unique_object)
-        if not _valid_header(payload) or not valid_projection(payload):
+        if not _valid_header(payload) or not valid_projection(payload, controlled_tags=payload['schema'] >= 6):
             raise ArchiveError('研究附件字段或投影无效')
         if 'capacity' in payload and not valid_capacity(payload['capacity']):
             raise ArchiveError('研究附件容量投影无效')

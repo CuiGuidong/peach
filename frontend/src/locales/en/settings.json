@@ -668,6 +668,7 @@
     "summary": "Every library reads local NFO files and images in the same directory first. The processing mode only decides whether to fill in missing data online."
   },
   "librarySharing": {
+    "acceptedHelp": "The endpoint accepted the request. Attachment retention requires verification in the receiver archive.",
     "agreeAndEnable": "Agree and turn on upload",
     "blocked": "Blocked",
     "consent": "I've reviewed the upload preview and agree to upload collection and taste details",
@@ -695,6 +696,9 @@
     "saved": "Collection and taste upload settings saved",
     "sendFailed": "Send failed",
     "sent": "Sent",
+    "snapshot": "This week's snapshot",
+    "snapshotId": "Snapshot ID",
+    "snapshotSizes": "Original {{raw}} KiB, gzip-compressed {{compressed}} KiB.",
     "statusUnavailable": "Couldn't get the collection upload status.",
     "truncated": "Showing the first 24,000 characters. Download to see the full content.",
     "unavailable": "Upload service not configured",

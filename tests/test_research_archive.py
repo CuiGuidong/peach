@@ -60,6 +60,14 @@ class ResearchArchiveTests(unittest.TestCase):
         self.assertEqual([row[:2] for row in rows], [(4, '0.9.0'), (5, '0.9.0'), (6, '0.9.0')])
         self.assertEqual(json.loads(gzip.decompress(rows[-1][2])), payload(6, period='2026-W46'))
 
+    def test_current_schema_checks_controlled_tags_and_legacy_tags_remain_readable(self):
+        value = payload(5)
+        value['library'][0]['manual_tags'] = ['旧版自定义标签']
+        self.assertEqual(archive.parse_attachment(self.attachment(value).read_bytes())[0], value)
+        value['schema'] = 6
+        with self.assertRaises(archive.ArchiveError):
+            archive.parse_attachment(self.attachment(value).read_bytes())
+
     def test_unknown_fields_invalid_values_and_duplicate_json_fields_fail(self):
         variants = []
         for field, value in [('schema', 7), ('period', '2026-W54'), ('peach', 'private/path'), ('secret', 'private')]:
