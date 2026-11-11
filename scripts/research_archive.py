@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from peach import research_archive
+from peach.user_messages import message_fields
 
 
 def main(argv=None):
@@ -31,10 +32,12 @@ def main(argv=None):
     try:
         result = _run(args)
     except research_archive.ArchiveError as error:
-        print(json.dumps({'status': 'failed', 'reason': str(error)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps({'status': 'failed', **message_fields(error.message, error.code, error.params, key='reason')},
+                         ensure_ascii=False), file=sys.stderr)
         return 1
     except (OSError, sqlite3.Error):
-        print(json.dumps({'status': 'failed', 'reason': '研究归档文件操作失败'}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps({'status': 'failed', **message_fields('研究归档文件操作失败',
+            'researchArchive.storageFailed', key='reason')}, ensure_ascii=False), file=sys.stderr)
         return 1
     print(json.dumps(result, ensure_ascii=False))
     return 0

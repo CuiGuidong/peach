@@ -64,6 +64,21 @@
       }
     }
   },
+  "researchArchive": {
+    "timeRequiresTimezone": "The source receipt time must include a time zone",
+    "duplicateFields": "The research attachment contains duplicate JSON fields",
+    "compressedTooLarge": "The compressed attachment exceeds the 18 MiB limit",
+    "rawTooLarge": "The attachment JSON exceeds the 100 MiB limit",
+    "invalidProjection": "The research attachment fields or projection are invalid",
+    "invalidCapacity": "The research attachment storage projection is invalid",
+    "invalidAttachment": "The research attachment could not be decompressed or parsed",
+    "unsupportedDatabaseVersion": "The research archive database version is unsupported",
+    "nonArchiveDatabase": "The target database contains tables for another purpose",
+    "invalidInstance": "The research instance identifier must contain 32 lowercase hexadecimal characters",
+    "invalidRetention": "The retention period must be a positive number of days",
+    "retentionOutOfRange": "The retention period is outside the supported date range",
+    "storageFailed": "The research archive file operation failed"
+  },
   "setup": {
     "firstAccessDenied": "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container."
   },

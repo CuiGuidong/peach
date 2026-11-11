@@ -77,6 +77,10 @@ def _consent(path):
 
 
 def consent(config=None):
+    return _consent(_config(config).directory('state') / 'remote-reporting.json')
+
+
+def _instance_consent(config):
     from filelock import FileLock
     from .fsutil import atomic_write_text
     path = _config(config).directory('state') / 'remote-reporting.json'
@@ -345,8 +349,11 @@ def flush_counts(config=None, *, force=False):
     try:
         from . import diagnostic_frequency
         config = _config(config)
-        current, target = consent(config), dsn()
-        if _disabled or not current["errors"] or not target:
+        target = dsn()
+        if _disabled or not target:
+            return
+        current = _instance_consent(config)
+        if not current['errors']:
             return
         diagnostic_frequency.flush(config, current["revision"],
             lambda event: _submit("errors", event, config, current, target),
@@ -361,9 +368,11 @@ def send(kind, event, config=None):
         return
     try:
         config = _config(config)
-        current = consent(config)
         target = dsn()
-        if kind not in FIELDS or not current[kind] or not target:
+        if kind not in FIELDS or not target:
+            return
+        current = _instance_consent(config)
+        if not current[kind]:
             return
         metadata = event_metadata(kind)
         event = {**event, **metadata, "tags": {**event.get("tags", {}), **metadata["tags"]}}

@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "5e34b0f8-c373-449c-948d-e383eb42d1c2", e._sentryDebugIdIdentifier = "sentry-dbid-5e34b0f8-c373-449c-948d-e383eb42d1c2");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "dc2212fe-1ba3-42d4-898a-585600f56023", e._sentryDebugIdIdentifier = "sentry-dbid-dc2212fe-1ba3-42d4-898a-585600f56023");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -6292,6 +6292,7 @@ var He = {
 		summary: "Every library reads local NFO files and images in the same directory first. The processing mode only decides whether to fill in missing data online."
 	},
 	librarySharing: {
+		acceptedHelp: "The endpoint accepted the request. Attachment retention requires verification in the receiver archive.",
 		agreeAndEnable: "Agree and turn on upload",
 		blocked: "Blocked",
 		consent: "I've reviewed the upload preview and agree to upload collection and taste details",
@@ -6319,6 +6320,9 @@ var He = {
 		saved: "Collection and taste upload settings saved",
 		sendFailed: "Send failed",
 		sent: "Sent",
+		snapshot: "This week's snapshot",
+		snapshotId: "Snapshot ID",
+		snapshotSizes: "Original {{raw}} KiB, gzip-compressed {{compressed}} KiB.",
 		statusUnavailable: "Couldn't get the collection upload status.",
 		truncated: "Showing the first 24,000 characters. Download to see the full content.",
 		unavailable: "Upload service not configured",
@@ -6942,6 +6946,21 @@ var He = {
 				title: "System extras"
 			}
 		}
+	},
+	researchArchive: {
+		timeRequiresTimezone: "The source receipt time must include a time zone",
+		duplicateFields: "The research attachment contains duplicate JSON fields",
+		compressedTooLarge: "The compressed attachment exceeds the 18 MiB limit",
+		rawTooLarge: "The attachment JSON exceeds the 100 MiB limit",
+		invalidProjection: "The research attachment fields or projection are invalid",
+		invalidCapacity: "The research attachment storage projection is invalid",
+		invalidAttachment: "The research attachment could not be decompressed or parsed",
+		unsupportedDatabaseVersion: "The research archive database version is unsupported",
+		nonArchiveDatabase: "The target database contains tables for another purpose",
+		invalidInstance: "The research instance identifier must contain 32 lowercase hexadecimal characters",
+		invalidRetention: "The retention period must be a positive number of days",
+		retentionOutOfRange: "The retention period is outside the supported date range",
+		storageFailed: "The research archive file operation failed"
 	},
 	setup: { firstAccessDenied: "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container." },
 	subtitles: { unsupportedLanguage: "Subtitle language must be zh or en." }
@@ -12263,6 +12282,7 @@ var He = {
 		summary: "每个媒体库都先读本地 NFO 和同目录图片；处理方式只决定要不要联网补全。"
 	},
 	librarySharing: {
+		acceptedHelp: "接收端已接受请求，附件留存需由接收端归档核验。",
 		agreeAndEnable: "同意并开启上传",
 		blocked: "已拦截",
 		consent: "我已查看上传预览，同意上传馆藏与口味明细",
@@ -12289,6 +12309,9 @@ var He = {
 		saved: "已保存馆藏与口味上传选项",
 		sendFailed: "发送失败",
 		sent: "已发送",
+		snapshot: "本周快照",
+		snapshotId: "快照编号",
+		snapshotSizes: "原始 {{raw}} KiB，gzip 压缩后 {{compressed}} KiB。",
 		statusUnavailable: "馆藏上传状态未取得",
 		truncated: "显示前 24,000 个字符，下载可查看完整内容。",
 		unavailable: "上传服务未配置",
@@ -12900,6 +12923,21 @@ var He = {
 				title: "系统附属文件"
 			}
 		}
+	},
+	researchArchive: {
+		timeRequiresTimezone: "来源接收时间必须包含时区",
+		duplicateFields: "研究附件包含重复 JSON 字段",
+		compressedTooLarge: "压缩附件超过 18 MiB 上限",
+		rawTooLarge: "附件 JSON 超过 100 MiB 上限",
+		invalidProjection: "研究附件字段或投影无效",
+		invalidCapacity: "研究附件容量投影无效",
+		invalidAttachment: "研究附件无法解压或解析",
+		unsupportedDatabaseVersion: "研究归档数据库版本不受支持",
+		nonArchiveDatabase: "目标数据库包含其他用途的表",
+		invalidInstance: "研究实例标识必须是 32 位小写十六进制",
+		invalidRetention: "留存天数必须是正整数",
+		retentionOutOfRange: "留存天数超出日期范围",
+		storageFailed: "研究归档文件操作失败"
 	},
 	setup: { firstAccessDenied: "请从部署 Peach 的机器或同一局域网打开 Peach 完成设置，或在启动容器时设置 PEACH_ACCESS_PASSWORD。" },
 	subtitles: { unsupportedLanguage: "字幕语言只支持 zh 或 en" }
@@ -36435,4 +36473,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=5e34b0f8-c373-449c-948d-e383eb42d1c2
+//# debugId=dc2212fe-1ba3-42d4-898a-585600f56023

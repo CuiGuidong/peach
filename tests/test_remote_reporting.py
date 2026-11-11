@@ -45,7 +45,9 @@ class RemoteReportingTests(unittest.TestCase):
     def test_enabled_legacy_choice_generates_a_stable_random_instance_and_disable_removes_it(self):
         path = self.config.directory('state') / 'remote-reporting.json'
         path.write_text(json.dumps({'usage': True, 'errors': True, 'revision': 'old-choice'}))
-        with mock.patch.object(reporting, '_schedule_frequency'):
+        with mock.patch.object(reporting, '_schedule_frequency'), mock.patch.object(reporting, '_new_client', return_value=mock.Mock()):
+            self.assertNotIn('diagnostic_instance', reporting.consent(self.config))
+            reporting.usage(self.config)
             first = reporting.consent(self.config)
             self.assertRegex(first['diagnostic_instance'], r'^[a-f0-9]{32}$')
             self.assertEqual(first['revision'], 'old-choice')
