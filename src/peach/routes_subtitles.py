@@ -9,12 +9,13 @@ from starlette.concurrency import run_in_threadpool
 
 from . import subtitle_memory, subtitle_search, subtitles
 from .routes_auth import require_auth
+from .user_messages import error_fields
 
 router = APIRouter(dependencies=[Depends(require_auth)])
 
 
 def _error(error: Exception):
-    return JSONResponse({"error": str(error)}, status_code=400)
+    return JSONResponse(error_fields(error), status_code=400)
 
 
 def _track(text: str):

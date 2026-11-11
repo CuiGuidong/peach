@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from . import subtitles
 from .catalog_rules import code_query_variants, release_code_from_text, same_release_code
 from .feeds import scan_code
+from .user_messages import UserFacingError
 from .user_agent import USER_AGENT
 
 MAX_BYTES = 4 * 1024 * 1024
@@ -23,6 +24,10 @@ TARGETS = {"zh": (("zh-CN", "zh-Hans"), ("zh-TW", "zh-Hant")), "en": (("en", "en
 
 class SubtitleSearchError(ValueError):
     pass
+
+
+class SubtitleLanguageError(UserFacingError, SubtitleSearchError):
+    """请求的字幕语言不在支持范围内；带 code，界面按语言显示。"""
 
 
 def _url(value: str, suffix: str) -> str:
@@ -79,7 +84,7 @@ def _detail(subtitle_id: str) -> str:
 
 def _targets(language: str) -> tuple[tuple[str, str], ...]:
     if language not in TARGETS:
-        raise SubtitleSearchError("字幕语言只支持 zh 或 en")
+        raise SubtitleLanguageError("字幕语言只支持 zh 或 en", code="subtitles.unsupportedLanguage")
     return TARGETS[language]
 
 

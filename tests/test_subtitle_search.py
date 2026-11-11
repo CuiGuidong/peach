@@ -57,8 +57,9 @@ class SubtitleSearchTests(unittest.TestCase):
         with self.client(download):
             source.load(source._id('/subs/42/ABP-758.html'), 0, 'en')
         self.assertEqual(requested[-1], '/subs/42/ABP-758-en.srt')
-        with self.assertRaisesRegex(source.SubtitleSearchError, '只支持'):
+        with self.assertRaisesRegex(source.SubtitleSearchError, '只支持') as raised:
             source.search('ABP-758', language='ja')
+        self.assertEqual(raised.exception.code, 'subtitles.unsupportedLanguage')
 
     def test_release_search_filters_other_identities_before_pagination(self):
         titles = ['ABP-7580', 'XABP-758', 'ABP-757', 'ABP-00758', 'abp758 中文',

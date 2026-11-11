@@ -66,5 +66,8 @@
   },
   "setup": {
     "firstAccessDenied": "请从部署 Peach 的机器或同一局域网打开 Peach 完成设置，或在启动容器时设置 PEACH_ACCESS_PASSWORD。"
+  },
+  "subtitles": {
+    "unsupportedLanguage": "字幕语言只支持 zh 或 en"
   }
 }

@@ -6,6 +6,7 @@ import type { VjsPlayer } from './types';
 import { SubtitleSession } from './subtitle-memory';
 import { playerMemory } from './memory';
 import { interfaceLanguage, t } from '../i18n';
+import { serverText } from '../core/server-text';
 
 interface Panels {
   render(html: string, direction: number): HTMLElement;
@@ -149,7 +150,7 @@ export class SubtitleControls {
   private async text(response: Response) {
     if (!response.ok) {
       const payload = await response.json().catch(() => null);
-      throw new Error(payload?.error || t('catalog:subtitles.loadFailed'));
+      throw new Error(serverText(payload) || t('catalog:subtitles.loadFailed'));
     }
     return response.text();
   }
