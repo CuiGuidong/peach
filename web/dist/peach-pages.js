@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "05b6ed59-1a14-4065-84b0-102c716839b2", e._sentryDebugIdIdentifier = "sentry-dbid-05b6ed59-1a14-4065-84b0-102c716839b2");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "5e34b0f8-c373-449c-948d-e383eb42d1c2", e._sentryDebugIdIdentifier = "sentry-dbid-5e34b0f8-c373-449c-948d-e383eb42d1c2");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -1478,6 +1478,7 @@ var He = {
 		formatsHint: "Common image formats supported. Animated images use the first frame.",
 		foundByDetail: " · Found by \"{{name}}\"",
 		foundByNames: "{{name}}: found in the gallery as {{names}}.",
+		foundByNamesMore: "{{name}}: found in the gallery as {{names}} ({{total, number}} names in all).",
 		gridCell: "Tile {{number}}",
 		imageNotFound: "Image not found. Click to retry.",
 		imageUrl: "Image URL",
@@ -1497,8 +1498,7 @@ var He = {
 		useArea: "Use this area",
 		useUrl: "Use this URL",
 		useWhole: "Use whole image",
-		videoCover: "Video cover",
-		foundByNamesMore: "{{name}}: found in the gallery as {{names}} ({{total, number}} names in all)."
+		videoCover: "Video cover"
 	},
 	cardIdentity: { standInAvatar: "Still from a video, not this person" },
 	catalogFilter: {
@@ -2282,6 +2282,7 @@ var He = {
 		labels: "Labels",
 		library: "Library",
 		loadMore: "Load more",
+		localLabel: "Local",
 		merge: "Merge",
 		moveToTrash: "Move to trash",
 		noCover: "No cover",
@@ -2314,8 +2315,7 @@ var He = {
 		videos: "Videos",
 		viewAll: "View all",
 		viewOnSite: "View on site",
-		watchLater: "Watch later",
-		localLabel: "Local"
+		watchLater: "Watch later"
 	},
 	shortsStrip: {
 		count_one: "{{count, number}} video",
@@ -2376,29 +2376,31 @@ var He = {
 		yellow: "Yellow"
 	},
 	subtitles: {
+		applying: "Adding subtitles to the player",
 		chooseFile: "Choose subtitle file",
 		chooseToLoad: "Choose subtitles to load",
+		fetching: "Fetching subtitles from SubtitleCat",
 		fileNotFound: "Subtitle file not found",
 		fileRequirements: "Choose an SRT, ASS, SSA, or VTT file up to 4 MiB.",
-		foundChinese_one: "Found {{count, number}} Chinese subtitle",
-		foundChinese_other: "Found {{count, number}} Chinese subtitles",
+		foundOnline_one: "Found {{count, number}} English subtitle",
+		foundOnline_other: "Found {{count, number}} English subtitles",
 		loadFailed: "Couldn't load subtitles",
 		loadFile: "Load subtitle file",
 		loaded: "Loaded {{fileName}}",
+		loadedMark: "Loaded",
 		loading: "Loading subtitles",
 		more: "More subtitles",
-		noChinese: "No Chinese subtitles found for this video.",
-		noChineseInBatch: "No Chinese subtitles in these results. Try More subtitles.",
 		noTextSubtitles: "This result has no text subtitles to load.",
+		noneInBatch: "No English subtitles in these results. Try More subtitles.",
+		noneOnline: "No English subtitles found for this video.",
 		nothingToSearch: "This video has no code or title to search for.",
 		off: "Off",
 		options: "Subtitle options",
-		providedBy: "Chinese subtitles from SubtitleCat, may be machine-translated",
+		providedBy: "English subtitles from SubtitleCat, may be machine-translated",
 		readingFiles: "Reading subtitle files",
 		resetStyle: "Reset",
-		searchChinese: "Search Chinese subtitles",
 		searchFailed: "Subtitle search failed",
-		searchOnline: "Search subtitles online",
+		searchOnline: "Search English subtitles",
 		searching: "Searching subtitles",
 		turnOff: "Turn off subtitles",
 		turnOn: "Turn on subtitles"
@@ -6941,7 +6943,8 @@ var He = {
 			}
 		}
 	},
-	setup: { firstAccessDenied: "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container." }
+	setup: { firstAccessDenied: "Open Peach on the computer running Peach or on the same LAN to finish setup, or set PEACH_ACCESS_PASSWORD when starting the container." },
+	subtitles: { unsupportedLanguage: "Subtitle language must be zh or en." }
 }, Xe = {
 	accessSetup: {
 		enterWithoutPassword: "Continue without sign-in",
@@ -8539,6 +8542,7 @@ var He = {
 		labels: "厂牌",
 		library: "媒体库",
 		loadMore: "载入更多",
+		localLabel: "本地",
 		merge: "合并",
 		moveToTrash: "移入回收站",
 		noCover: "无封面",
@@ -8571,8 +8575,7 @@ var He = {
 		videos: "视频",
 		viewAll: "查看全部",
 		viewOnSite: "作品来源",
-		watchLater: "稍后看",
-		localLabel: "本地"
+		watchLater: "稍后看"
 	},
 	shortsStrip: {
 		count: "{{count, number}} 个",
@@ -8630,28 +8633,30 @@ var He = {
 		yellow: "黄色"
 	},
 	subtitles: {
+		applying: "正在载入字幕",
 		chooseFile: "选择字幕文件",
 		chooseToLoad: "选择要加载的字幕",
+		fetching: "正在从 SubtitleCat 抓取字幕",
 		fileNotFound: "字幕文件未取得",
 		fileRequirements: "请选择 4 MiB 以内的 SRT、ASS、SSA 或 VTT 文件",
-		foundChinese: "找到 {{count, number}} 条中文字幕",
+		foundOnline: "找到 {{count, number}} 条中文字幕",
 		loadFailed: "字幕加载失败",
 		loadFile: "加载字幕文件",
 		loaded: "已加载 {{fileName}}",
+		loadedMark: "已加载",
 		loading: "正在加载字幕",
 		more: "更多字幕",
-		noChinese: "没有找到当前作品的中文字幕",
-		noChineseInBatch: "这批结果没有中文，可查看更多字幕",
 		noTextSubtitles: "这条结果没有可加载的文本字幕",
+		noneInBatch: "这批结果没有中文，可查看更多字幕",
+		noneOnline: "没有找到当前作品的中文字幕",
 		nothingToSearch: "当前作品没有可用于搜索的番号或片名",
 		off: "关闭",
 		options: "字幕选项",
 		providedBy: "中文字幕由 SubtitleCat 提供，可能包含机翻",
 		readingFiles: "正在读取字幕文件",
 		resetStyle: "重置",
-		searchChinese: "搜索中文字幕",
 		searchFailed: "字幕搜索失败",
-		searchOnline: "在线搜索字幕",
+		searchOnline: "搜索中文字幕",
 		searching: "正在搜索字幕",
 		turnOff: "关闭字幕",
 		turnOn: "开启字幕"
@@ -12896,7 +12901,8 @@ var He = {
 			}
 		}
 	},
-	setup: { firstAccessDenied: "请从部署 Peach 的机器或同一局域网打开 Peach 完成设置，或在启动容器时设置 PEACH_ACCESS_PASSWORD。" }
+	setup: { firstAccessDenied: "请从部署 Peach 的机器或同一局域网打开 Peach 完成设置，或在启动容器时设置 PEACH_ACCESS_PASSWORD。" },
+	subtitles: { unsupportedLanguage: "字幕语言只支持 zh 或 en" }
 }, at = {
 	accessSetup: {
 		enterWithoutPassword: "免登录进入",
@@ -36429,4 +36435,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=05b6ed59-1a14-4065-84b0-102c716839b2
+//# debugId=5e34b0f8-c373-449c-948d-e383eb42d1c2
