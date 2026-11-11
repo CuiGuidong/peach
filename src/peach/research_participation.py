@@ -115,9 +115,9 @@ def snapshot(config):
 
 
 def _choice(config):
-    from .library_sharing import SCHEMA, _path as consent_path
+    from .library_sharing import valid_consent_version, _path as consent_path
     value = remote_reporting._read(consent_path(config))
-    if value.get('schema') != SCHEMA or not instance(value.get('revision')):
+    if not valid_consent_version(value) or not instance(value.get('revision')):
         return None
     if value.get('enabled') is True and instance(value.get('research_instance')):
         return value
@@ -180,8 +180,8 @@ class Service:
                     return None
                 record = previous
                 record.update(status='queued')
-                record['payload'].update(peach=__version__, last_seen=_stamp(moment), day=moment.date().isoformat(),
-                                         period=moment.strftime('%G-W%V'))
+                record['payload'].update(schema=SCHEMA, peach=__version__, last_seen=_stamp(moment),
+                                         day=moment.date().isoformat(), period=moment.strftime('%G-W%V'))
                 record.pop('reason', None)
                 record.pop('status_code', None)
             else:

@@ -279,6 +279,48 @@ class ResearchParticipationTests(unittest.TestCase):
         self.assertNotEqual(first['dispatch_id'], second['dispatch_id'])
         self.assertEqual(second['status'], 'accepted')
 
+    def test_existing_consent_preserves_identity_and_can_send_contact_and_closing(self):
+        for schema in (5, 6):
+            with self.subTest(schema=schema):
+                sharing.save_choice(self.config, True)
+                path = sharing._path(self.config)
+                choice = json.loads(path.read_text())
+                choice.pop('consent_schema', None)
+                choice['schema'] = schema
+                path.write_text(json.dumps(choice))
+                original = path.read_bytes()
+                with mock.patch('peach.remote_reporting._new_client', side_effect=self.client):
+                    self.service.participation.attempt()
+                    self.assertEqual(self.sent[-1]['items'][0]['attributes']['research_instance']['value'],
+                                     choice['research_instance'])
+                    self.assertEqual(path.read_bytes(), original)
+                    sharing.save_choice(self.config, False)
+                    self.service.participation.attempt()
+                attributes = self.sent[-1]['items'][0]['attributes']
+                self.assertEqual(attributes['kind']['value'], 'disabled')
+                self.assertEqual(attributes['research_instance']['value'], choice['research_instance'])
+
+    def test_pending_old_contact_uses_current_format_and_preserves_daily_budget(self):
+        sharing.save_choice(self.config, True)
+        record = self.service.participation._prepare()
+        record['payload']['schema'] = 5
+        path = self.participation._path(self.config)
+        path.write_text(json.dumps(record))
+        with mock.patch('peach.remote_reporting._new_client', side_effect=self.client):
+            self.service.participation.attempt()
+        self.assertEqual(len(self.sent), 1)
+        current = self.participation._load(self.config)
+        self.assertEqual(current['payload']['schema'], sharing.SCHEMA)
+        self.assertEqual(current['event_id'], record['event_id'])
+        self.assertEqual(current['revision'], record['revision'])
+        current['payload']['schema'] = 5
+        path.write_text(json.dumps(current))
+        original = path.read_bytes()
+        with mock.patch('peach.remote_reporting._new_client') as client:
+            self.service.participation.attempt()
+        client.assert_not_called()
+        self.assertEqual(path.read_bytes(), original)
+
     def test_closed_old_or_stopped_generation_cannot_send_and_stale_callback_cannot_change_new_receipt(self):
         sharing.save_choice(self.config, True)
         first = self.service.participation._prepare()
@@ -406,9 +448,11 @@ class LibrarySharingTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.service.save({'enabled': True, 'schema': sharing.SCHEMA, 'preview_token': preview['token']})
         self.assertTrue(self.enable()['enabled'])
-        self.assertFalse(self.service.save({'enabled': False})['enabled'])
         with mock.patch.object(sharing, 'SCHEMA', sharing.SCHEMA + 1):
+            self.assertTrue(sharing.snapshot(self.config)['enabled'])
+        with mock.patch.object(sharing, 'CONSENT_SCHEMA', sharing.CONSENT_SCHEMA + 1):
             self.assertFalse(sharing.snapshot(self.config)['enabled'])
+        self.assertFalse(self.service.save({'enabled': False})['enabled'])
 
     def test_preview_expires_and_cannot_be_reused(self):
         preview = self.service.preview()
@@ -504,16 +548,39 @@ class LibrarySharingTests(unittest.TestCase):
         self.enable()
         path = self.config.directory('state') / 'library-sharing.json'
         state = json.loads(path.read_text())
+        state.pop('consent_schema', None)
         path.write_text(json.dumps({**state, 'schema': 3}))
         with mock.patch.object(sharing, 'collect') as collect:
             self.service.attempt()
             collect.assert_not_called()
         self.assertFalse(sharing.snapshot(self.config)['enabled'])
 
+    def test_existing_consent_keeps_identity_and_authorizes_current_attachment_with_weekly_budget(self):
+        self.add_work()
+        self.enable()
+        path = sharing._path(self.config)
+        choice = json.loads(path.read_text())
+        choice.pop('consent_schema', None)
+        for schema in (5, 6):
+            with self.subTest(schema=schema):
+                path.write_text(json.dumps({**choice, 'schema': schema}))
+                original = path.read_bytes()
+                self.assertEqual(sharing.consent(self.config)['research_instance'], choice['research_instance'])
+                self.assertEqual(sharing.consent(self.config)['revision'], choice['revision'])
+                self.assertEqual(sharing.snapshot(self.config)['consent_state'], 'enabled')
+                self.assertTrue(self.service._gate(choice['revision'], self.envelope()))
+                sharing._state_path(self.config).write_text(json.dumps({
+                    'schema': 5, 'period': sharing._period(), 'attempted': True, 'status': 'accepted'}))
+                with mock.patch.object(sharing, 'collect') as collect:
+                    self.service.attempt()
+                collect.assert_not_called()
+                self.assertEqual(path.read_bytes(), original)
+
     def test_schema_four_consent_requires_review_and_is_distinct_from_manual_disable(self):
         self.enable()
         path = self.config.directory('state') / 'library-sharing.json'
         state = json.loads(path.read_text())
+        state.pop('consent_schema', None)
         path.write_text(json.dumps({**state, 'schema': 4}))
         with mock.patch.object(sharing, 'collect') as collect, mock.patch('peach.remote_reporting._new_client') as client:
             self.service.attempt()
@@ -580,6 +647,7 @@ class LibrarySharingTests(unittest.TestCase):
         from peach import storage_budget
         sharing.save_choice(self.config, True)
         current = json.loads(sharing._path(self.config).read_text())
+        current.pop('consent_schema', None)
         sharing._path(self.config).write_text(json.dumps({**current, 'schema': 4}))
         with mock.patch.object(storage_budget, 'data_usage') as data:
             self.service.sample_capacity()

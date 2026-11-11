@@ -15,6 +15,7 @@ from . import __version__, remote_reporting
 from .fsutil import atomic_write_text
 
 SCHEMA = 6
+CONSENT_SCHEMA = 5
 MAX_BYTES = 18 * 1024 * 1024
 MAX_RAW_BYTES = 100 * 1024 * 1024
 FILENAME = "peach-library-taste.json.gz"
@@ -61,10 +62,19 @@ def useful_payload(payload):
                 or window['observed_days'] or window['activity_observed_days'] or window['cleaned_bytes'] is not None)
 
 
+def valid_consent_version(value):
+    """同意范围版本独立于上传格式，兼容同一范围的历史记录。"""
+    version = value.get('consent_schema')
+    legacy = value.get('schema')
+    if 'consent_schema' not in value and type(legacy) is int and legacy in (5, 6):
+        version = 5
+    return type(version) is int and version == CONSENT_SCHEMA
+
+
 def consent(config):
     from .research_participation import instance
     value = remote_reporting._read(_path(config))
-    return value if (value.get("enabled") is True and value.get("schema") == SCHEMA
+    return value if (value.get("enabled") is True and valid_consent_version(value)
                      and instance(value.get('research_instance')) and instance(value.get('revision'))) else {}
 
 
@@ -81,14 +91,14 @@ def save_choice(config, enabled):
     """保存设置页或安装器的主动选择，不读取馆藏或初始化上传。"""
     if type(enabled) is not bool:
         raise ValueError("馆藏与口味上传选项必须是布尔值")
-    value = {"enabled": enabled, "schema": SCHEMA, "revision": uuid.uuid4().hex,
+    value = {"enabled": enabled, "schema": SCHEMA, "consent_schema": CONSENT_SCHEMA, "revision": uuid.uuid4().hex,
              "selected_at": datetime.now(timezone.utc).isoformat()}
     with _state_lock(config):
         previous = remote_reporting._read(_path(config))
         granted = consent(config)
         if enabled:
             value['research_instance'] = uuid.uuid4().hex
-        elif previous.get('enabled') is False and previous.get('schema') == SCHEMA:
+        elif previous.get('enabled') is False and valid_consent_version(previous):
             value = previous
         elif granted:
             value['closing'] = {'research_instance': granted['research_instance'],
