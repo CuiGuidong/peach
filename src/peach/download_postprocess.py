@@ -18,7 +18,7 @@ from .library_processing import COLLECT_STAGE, _ffprobe_path, process_library
 from .media_probe import probe_unmeasured
 from .task_runs import declared_rows, item_progress, run_progress
 from .task_stages import stage_label, stage_progress
-from .task_retry import RetryableTaskError
+from .task_retry import RELAYED, RetryableTaskError
 from .user_messages import UserRuntimeError, UserValueError
 
 TASK_KEY = "download-postprocess"
@@ -127,11 +127,13 @@ def _collect(contract, main: int, handle) -> dict:
         # 不为一项暂缺的资料把整条下载卡在云下载目录里。
         issues, paused = int(state.get("issue_count") or 0), int(state.get("paused_count") or 0)
         if not issues or paused < issues:
-            message = str(state.get("error") or "资料采集失败")
+            message = str(state.get("error") or "")
             delay = _collection_retry_delay(state, main)
             if delay is not None:
-                raise RetryableTaskError(message, after=delay)
-            if state.get("error"):
+                if message:
+                    raise RetryableTaskError(RELAYED, {"message": message}, after=delay)
+                raise RetryableTaskError("errors.downloadPostprocess.collectFailed", after=delay)
+            if message:
                 raise RuntimeError(message)
             raise UserRuntimeError("errors.downloadPostprocess.collectFailed")
         state = {**state, "paused_pending": [str(row.get("message") or "") for row in state.get("issue_preview") or ()]}
@@ -180,7 +182,7 @@ def _organize(contract, task, main: int) -> dict:
     if blocked:
         reasons = '；'.join(str(row['reason']) for row in blocked)
         if all(row['reason'] == organize.SKIP_OFFLINE for row in blocked):
-            raise RetryableTaskError('文件整理未完成：' + reasons)
+            raise RetryableTaskError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
         raise UserRuntimeError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
     if not movable:
         return {"moved": 0, "skipped": next(iter(plan["reasons"]), "无需整理")}
@@ -201,7 +203,7 @@ def _organize(contract, task, main: int) -> dict:
     if result.get('failed'):
         reasons = '；'.join(str(row['reason']) for row in result.get('failures', ()))
         if all(row.get('retryable') for row in result.get('failures', ())):
-            raise RetryableTaskError(f'文件整理未完成：{reasons}',
+            raise RetryableTaskError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons},
                                      after=max(row.get('retry_after') or 0 for row in result['failures']))
         raise UserRuntimeError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
     return {**result, 'backup': str(backup), 'existing_foreign_keys': len(baseline)}

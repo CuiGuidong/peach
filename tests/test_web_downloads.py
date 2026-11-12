@@ -19,6 +19,7 @@ from peach import downloads_clouddrive, web_downloads
 from peach.api import create_app
 from peach.config import PeachSettings
 from peach.push_discovery import CloudPrefix, PushDiscoveryConfig
+from peach.user_messages import UserValueError
 from support.ledger import fresh_ledger
 
 HASH = "c9e15763f722f23e98a29decdfae341b98d53056"
@@ -61,7 +62,7 @@ class FakeBrowserLogin:
 
     def start(self):
         if not self.is_available:
-            raise ValueError("这台电脑上没有找到 Chrome 或 Edge，用不了浏览器登录")
+            raise UserValueError("errors.downloadsPikpakBrowser.browserMissing")
         self.started += 1
         self.state = {"state": "waiting", "message": "浏览器窗口已打开，在里面登录 PikPak"}
         return self.status()

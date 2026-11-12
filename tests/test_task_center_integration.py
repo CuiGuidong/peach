@@ -163,13 +163,13 @@ class BackgroundJobTaskRunTests(unittest.TestCase):
         job = self.job()
 
         def work(_job_id):
-            raise RuntimeError("上游挡回来了")
+            raise RuntimeError("upstream refused the request")
 
         job.start(work)
         job.thread.join(5)
         run = self.store.query()[0]
         self.assertEqual(run.status, "failed")
-        self.assertIn("上游挡回来了", run.error)
+        self.assertIn("upstream refused the request", run.error)
 
     def test_manual_restart_over_a_foreign_run_is_a_conflict(self):
         """表里那一轮不是这个进程开的，本类自己的锁看不见它，只有互斥键看得见。"""

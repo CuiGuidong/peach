@@ -541,7 +541,7 @@ def _free_space_check(config, policy, interval_secs=2):
         next_check = now + interval_secs
         reasons = _exceeded(policy, dict(_UNKNOWN), _disks(config, policy))
         if reasons:
-            raise DiskSpaceDenied('扫描期间磁盘余量触线，已暂停当前写入，请清理或重试：' + '；'.join(reasons))
+            raise DiskSpaceDenied('errors.storageBudget.scanPaused', {'reasons': '；'.join(reasons)})
     return check_free
 
 
@@ -812,7 +812,7 @@ class CapacityGuard:
                 # 前台不写状态文件：设置页的「已暂停」只说后台任务，由后台检查点写。
                 blocking = _exceeded(policy, dict(_UNKNOWN), disks)
                 if blocking:
-                    raise DiskSpaceDenied('；'.join(blocking) + '；磁盘空间不足，已停止写入缓存，请清理后重试')
+                    raise DiskSpaceDenied('errors.storageBudget.cacheWritesStopped', {'reasons': '；'.join(blocking)})
                 self._denied = None
                 return status
             status['layout'] = layout(self.config, policy)
@@ -821,7 +821,7 @@ class CapacityGuard:
                 raise UserOSError('errors.storageBudget.usageUnavailable',
                                   {'errors': '；'.join(usage['errors'].values())})
             if reasons:
-                raise DiskSpaceDenied('；'.join(reasons) + '；已停止领取新项，请调整容量或清理后重试')
+                raise DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '；'.join(reasons)})
             self._denied = None
             return status
         except DiskSpaceDenied as error:
@@ -832,5 +832,5 @@ class CapacityGuard:
                 logging.getLogger(__name__).warning('Capacity check unavailable, playback continues (%s)', type(error).__name__)
                 self._denied = None
                 return {'paused': False, 'reasons': [], 'error': str(error), 'checked_at': time.time()}
-            self._denied = DiskSpaceDenied(f'容量保护检查未取得，已暂停：{error}')
+            self._denied = DiskSpaceDenied('errors.storageBudget.checkUnavailable', {'error': str(error)})
             raise self._denied from error

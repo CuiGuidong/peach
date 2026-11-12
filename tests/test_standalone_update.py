@@ -18,6 +18,7 @@ import httpx
 
 from peach import release_signing, settings_file, standalone_update as update
 from peach import update_packages
+from peach.user_messages import UserValueError
 from scripts.package_windows_release import package as package_release
 from scripts.smoke_split_update import verify as verify_split
 from support.ledger import fresh_ledger
@@ -112,7 +113,7 @@ class MediaToolInstallTests(unittest.TestCase):
         self.downloads.append(url)
         shutil.copy2(self.package, archive)
         if archive.stat().st_size != size or update_packages.digest(archive) != digest:
-            raise ValueError('更新包校验失败，请重新下载')
+            raise UserValueError('errors.standaloneUpdate.checksumFailed')
 
     def entries(self):
         """`tools` 下除安装锁以外的条目。filelock 释放时只在 Windows 上删锁文件，macOS、Linux 上会留着。"""
@@ -627,7 +628,7 @@ class StandaloneUpdateTests(unittest.TestCase):
         release.update(full_url=release["asset_url"].rsplit("/", 1)[0] + "/" + full.name,
                        full_size=full.stat().st_size, full_digest="sha256:" + update_packages.digest(full))
         (target / "cloudflared.exe").unlink()
-        with patch.object(update.update_packages, "read_manifest", side_effect=ValueError("更新包工具清单无效")):
+        with patch.object(update.update_packages, "read_manifest", side_effect=UserValueError("errors.updatePackages.manifestInvalid")):
             state, requests = self.prepare_fixture(target, output, release)
         self.assertEqual(state["state"], "ready", state)
         self.assertEqual(requests, [archive.name, full.name], "清单读不了时不再下单个工具包")

@@ -31,6 +31,7 @@ from smbprotocol.open import (
 )
 from smbprotocol.tree import TreeConnect
 
+from .os_errors import CodedOSError, CodedPermissionError, CodedTimeoutError
 from .user_messages import UserValueError
 
 
@@ -116,18 +117,18 @@ def _timestamp(value: datetime) -> tuple[float, int]:
 def _error(exc: Exception, filename: str | None = None) -> OSError:
     """转成标准 `OSError`；打开文件时带上共享内路径，诊断据此区分输入缺失与代码缺陷。"""
     if isinstance(exc, SMBAuthenticationError):
-        return PermissionError(errno.EACCES, "SMB 身份验证失败")
+        return CodedPermissionError(errno.EACCES, "errors.smbTransport.authenticationFailed")
     if isinstance(exc, SMBResponseException):
         if exc.status in (NtStatus.STATUS_ACCESS_DENIED, NtStatus.STATUS_LOGON_FAILURE,
                           NtStatus.STATUS_STOPPED_ON_SYMLINK):
-            return PermissionError(errno.EACCES, "SMB 访问被拒绝", filename)
+            return CodedPermissionError(errno.EACCES, "errors.smbTransport.accessDenied", filename=filename)
         mapped = SMBOSError(exc.status, "SMB 共享")
         return OSError(mapped.errno or errno.EIO, mapped.strerror or "SMB 请求失败", filename)
     if isinstance(exc, SMBOSError):
         return OSError(exc.errno or errno.EIO, exc.strerror or 'SMB 请求失败', filename)
     if isinstance(exc, OSError):
         return exc
-    return OSError(errno.ENETUNREACH, "SMB 连接不可用")
+    return CodedOSError(errno.ENETUNREACH, "errors.smbTransport.connectionUnavailable")
 
 
 class _DeadlineConnection(Connection):
@@ -148,7 +149,7 @@ class _DeadlineConnection(Connection):
             while True:
                 remaining = deadline - time.monotonic()
                 if remaining <= 0 or not request.response_event.wait(remaining):
-                    raise TimeoutError(errno.ETIMEDOUT, "SMB 请求超时")
+                    raise CodedTimeoutError(errno.ETIMEDOUT, "errors.smbTransport.requestTimedOut")
                 with request.response_event_lock:
                     self._check_worker_running()
                     status = request.response["status"].get_value()
@@ -208,19 +209,19 @@ class SmbTransport:
     def _connect(self):
         with self._lock:
             if self._closed:
-                raise OSError(errno.EBADF, "SMB 传输已关闭")
+                raise CodedOSError(errno.EBADF, "errors.smbTransport.transportClosed")
             if self._conn is not None:
                 if not self._conn.transport.connected:
-                    raise OSError(errno.ENETDOWN, "SMB 连接已断开")
+                    raise CodedOSError(errno.ENETDOWN, "errors.smbTransport.disconnected")
                 return self._tree
             config = self.connection
             self._conn = conn = _DeadlineConnection(config)
             try:
                 if self._closed:
-                    raise OSError(errno.ENETDOWN, 'SMB 连接已关闭')
+                    raise CodedOSError(errno.ENETDOWN, "errors.smbTransport.connectionClosed")
                 conn.connect(timeout=config.timeout)
                 if self._closed:
-                    raise OSError(errno.ENETDOWN, 'SMB 连接已关闭')
+                    raise CodedOSError(errno.ENETDOWN, "errors.smbTransport.connectionClosed")
                 self._cache[f"{config.host.lower()}:{config.port}"] = conn
                 session = smbclient.register_session(
                     config.host, username=config.username or None, password=config.password or None,
@@ -230,9 +231,9 @@ class SmbTransport:
                 self._tree = TreeConnect(session, f"\\\\{config.host}\\{config.share}")
                 self._tree.connect()
                 if self._closed:
-                    raise OSError(errno.ENETDOWN, 'SMB 连接已关闭')
+                    raise CodedOSError(errno.ENETDOWN, "errors.smbTransport.connectionClosed")
                 if self._tree.is_dfs_share:
-                    raise PermissionError(errno.EACCES, "SMB DFS 共享不允许重解析")
+                    raise CodedPermissionError(errno.EACCES, "errors.smbTransport.dfsNotAllowed")
                 return self._tree
             except Exception as exc:
                 self.close()
@@ -263,7 +264,7 @@ class SmbTransport:
                 ShareAccess.FILE_SHARE_READ, disposition, options,
             )
             if fd.file_attributes & FileAttributes.FILE_ATTRIBUTE_REPARSE_POINT:
-                raise PermissionError(errno.EACCES, "SMB 重解析点不可访问")
+                raise CodedPermissionError(errno.EACCES, "errors.smbTransport.reparsePoint")
             return fd
         except Exception as exc:
             if fd.connected:
@@ -362,7 +363,7 @@ class SmbTransport:
     def _mutate(self, parts, operation, *, directory=False, disposition=CreateDisposition.FILE_OPEN):
         parts = _parts(parts)
         if not parts:
-            raise PermissionError(errno.EACCES, '不能修改共享根目录')
+            raise CodedPermissionError(errno.EACCES, "errors.smbTransport.rootNotModifiable")
         parents = self._check_parents(parts)
         fd = None
         try:
@@ -379,7 +380,7 @@ class SmbTransport:
     def rename(self, source, target):
         target = _parts(target)
         if not target:
-            raise PermissionError(errno.EACCES, '不能替换共享根目录')
+            raise CodedPermissionError(errno.EACCES, "errors.smbTransport.rootNotReplaceable")
         parents = self._check_parents(target)
         try:
             info = FileRenameInformation()
@@ -403,7 +404,7 @@ class SmbTransport:
             raise ValueError('invalid SMB write mode')
         parts = _parts(relative)
         if not parts:
-            raise PermissionError(errno.EACCES, '不能写入共享根目录')
+            raise CodedPermissionError(errno.EACCES, "errors.smbTransport.rootNotWritable")
         parents = self._check_parents(parts)
         fd = None
         try:
@@ -444,7 +445,7 @@ class _SmbReader:
         if self.closed:
             raise ValueError("SMB file is closed")
         if self._transport._closed or not self._fd.connection.transport.connected:
-            raise OSError(errno.ENETDOWN, "SMB 连接已断开")
+            raise CodedOSError(errno.ENETDOWN, "errors.smbTransport.disconnected")
 
     def tell(self):
         self._check()
@@ -477,7 +478,7 @@ class _SmbReader:
                 while remaining:
                     length, credits = _chunk_size(self._fd.connection, remaining, "read")
                     if length <= 0:
-                        raise OSError(errno.EIO, "SMB 读取没有可用额度")
+                        raise CodedOSError(errno.EIO, "errors.smbTransport.readNoCredits")
                     message, receive = self._fd.read(self._offset, length, send=False)
                     request = self._fd.connection.send(
                         message, sid=self._fd.tree_connect.session.session_id,
@@ -485,7 +486,7 @@ class _SmbReader:
                     )
                     chunk = receive(request)
                     if not chunk or len(chunk) > length:
-                        raise OSError(errno.EIO, "SMB 文件在声明的结尾之前结束")
+                        raise CodedOSError(errno.EIO, "errors.smbTransport.unexpectedEnd")
                     self._offset += len(chunk)
                     remaining -= len(chunk)
                     result.extend(chunk)
@@ -518,13 +519,13 @@ class _SmbWriter(_SmbReader):
                 while written < len(payload):
                     length, credits = _chunk_size(self._fd.connection, len(payload) - written, 'write')
                     if length <= 0:
-                        raise OSError(errno.EIO, 'SMB 写入没有可用额度')
+                        raise CodedOSError(errno.EIO, "errors.smbTransport.writeNoCredits")
                     message, receive = self._fd.write(bytes(payload[written:written + length]), self._offset, send=False)
                     request = self._fd.connection.send(message, sid=self._fd.tree_connect.session.session_id,
                                                        tid=self._fd.tree_connect.tree_connect_id, credit_request=credits)
                     count = receive(request)
                     if not isinstance(count, int) or not 0 < count <= length:
-                        raise OSError(errno.EIO, 'SMB 写入未完成')
+                        raise CodedOSError(errno.EIO, "errors.smbTransport.writeIncomplete")
                     written += count
                     self._offset += count
                     self._fd.end_of_file = max(self._fd.end_of_file, self._offset)

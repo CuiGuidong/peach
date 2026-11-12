@@ -23,7 +23,8 @@ from . import browser_transport, peach_proxy
 from .http import HttpRequest, HttpxTransport
 from .scripting import USER_AGENT, host_under, hostname_of
 from .fsutil import atomic_write_text
-from .user_messages import UserFacingError, UserValueError
+from .metadata import RelayableError
+from .user_messages import UserValueError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -104,7 +105,7 @@ _LOCK = threading.RLock()
 FIRST_BLOCKED_PAUSE = 900
 
 
-class SourcePaused(RuntimeError):
+class SourcePaused(RelayableError, RuntimeError):
     """来源冷却期内停止请求，保留已有图像。"""
 
 
@@ -112,15 +113,15 @@ class SourceBudgetExhausted(SourcePaused):
     """本趟采集预算耗尽，不能作为单个来源的冷却跳过。"""
 
 
-#: 整趟预算三项到顶时的说明，键是 `SourceTransport` 的三个上限。
+#: 整趟预算三项到顶时那一句的 code，键是 `SourceTransport` 的三个上限。
 BUDGET_SPENT = {
-    'requests': "本趟采集次数已用完，再跑一次接着采；已有图片保留",
-    'seconds': "本趟采集时间已用完，再跑一次接着采；已有图片保留",
-    'bytes': "本趟下载量已用完，再跑一次接着采；已有图片保留",
+    'requests': "errors.scrapingAccess.requestBudgetSpent",
+    'seconds': "errors.scrapingAccess.timeBudgetSpent",
+    'bytes': "errors.scrapingAccess.downloadBudgetSpent",
 }
 
 
-class SourceRefused(UserFacingError, SourcePaused):
+class SourceRefused(SourcePaused):
     """站方回的是拒绝这个出口的说明页（`sources.base.refusal_page`），来源已经记下冷却。
 
     `reason` 是 `FailureReason` 的取值（`geo_restricted`／`ip_banned`），来源检查按它报细档。
@@ -464,7 +465,7 @@ class SourceTransport:
         raise UserValueError("errors.scrapingAccess.tooManyRedirects")
 
     def exhausted(self) -> str:
-        """本趟预算到顶时返回那一句说明，没到顶返回空串。
+        """本趟预算到顶时返回那一句说明的 code（`BUDGET_SPENT` 的值），没到顶返回空串。
 
         到顶之后这个传输再也发不出请求，调用方据此整趟停下，不必逐项去撞同一句话。"""
         if self.max_requests and self.requests >= self.max_requests:
@@ -499,7 +500,7 @@ class SourceTransport:
         via = self._via(source)
         until, blocks = _state_for(self.root, key, via)
         if until > time.time():
-            raise SourcePaused("来源正在冷却，请稍后重试；已有图片保留")
+            raise SourcePaused("errors.scrapingAccess.coolingDown")
         if source not in self.transports:
             self.transports[source] = self._transport_for(source)
         self.requests += 1
@@ -511,8 +512,7 @@ class SourceTransport:
             blocks += 1
             _pause(cooldown, time.time() + min(FIRST_BLOCKED_PAUSE * 2 ** (blocks - 1),
                                                SOURCES[source]["blocked_pause"]), blocks, via)
-            raise SourcePaused("来源的人机验证没有在限时内通过，暂停向它请求一段时间；"
-                               "浏览器窗口再弹出时点一下验证即可；已有图片保留")
+            raise SourcePaused("errors.scrapingAccess.challengeTimedOut")
         if via == VIA_HTTP and source and SOURCES[source].get("browser_fallback") and _refused(response):
             verified = self._verify_in_browser(source, request, timeout, max_bytes)
             if verified is not None:
@@ -530,7 +530,7 @@ class SourceTransport:
                 except (ValueError, TypeError, OverflowError):
                     until = time.time() + 900
             _pause(cooldown, until, blocks, via)
-            raise SourcePaused("来源限流，已记录冷却时间；已有图片保留")
+            raise SourcePaused("errors.scrapingAccess.rateLimited")
         self._refuse(source, request.url, response, cooldown, blocks, via)
         blocked_pause = SOURCES.get(source or "", {}).get("blocked_pause")
         if response.status == 403 and blocked_pause:
@@ -538,9 +538,8 @@ class SourceTransport:
             _pause(cooldown, time.time()
                    + min(FIRST_BLOCKED_PAUSE * 2 ** (blocks - 1), blocked_pause), blocks, via)
             if SOURCES[source].get("cookie"):
-                raise SourcePaused("来源拒绝访问，暂停向它请求一段时间；"
-                                   "请在采集设置里更新它的 Cookie；已有图片保留")
-            raise SourcePaused("来源拒绝访问，暂停向它请求一段时间；已有图片保留")
+                raise SourcePaused("errors.scrapingAccess.refusedUpdateCookie")
+            raise SourcePaused("errors.scrapingAccess.refused")
         if blocks and response.status < 400:
             # 这一趟通了，封已经解除：清掉记录，下次撞上从最短的一档重新起算。
             cooldown.unlink(missing_ok=True)

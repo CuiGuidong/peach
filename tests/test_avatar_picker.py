@@ -236,7 +236,7 @@ class IndexRefreshTests(unittest.TestCase):
         failures = [
             lambda: HttpResponse(503, {}, b"", gfriends.INDEX_URL),
             lambda: HttpResponse(200, {}, b"<html>", gfriends.INDEX_URL),
-            lambda: (_ for _ in ()).throw(OSError("连接被重置")),
+            lambda: (_ for _ in ()).throw(OSError("Connection reset by peer")),
         ]
         for reply in failures:
             with self.subTest(reply=reply):

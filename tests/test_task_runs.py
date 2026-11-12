@@ -416,10 +416,10 @@ class TaskRunStoreTests(unittest.TestCase):
         self.assertEqual(finished.progress_current, 2)
         with self.assertRaises(RuntimeError):
             with self.store.track("demo", trigger="cli") as failing:
-                raise RuntimeError("来源离线")
+                raise RuntimeError("source offline")
         broken = self.store.get(failing.run_id)
         self.assertEqual(broken.status, "failed")
-        self.assertIn("来源离线", broken.error)
+        self.assertIn("source offline", broken.error)
 
     def test_track_hands_back_an_inert_handle_when_the_mutex_is_taken(self):
         self.store.start("demo", trigger="manual", mutex_key="demo")

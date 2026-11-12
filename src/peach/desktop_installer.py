@@ -134,7 +134,7 @@ def prepare(program: Path, owner: int, error_file: Path) -> int:
         previous = job_recovery.legacy_library_request(db)
         update_tasks.wait_quiescent(db)
         if not stop(program):
-            raise update_tasks.UpdateBusy('Peach 尚未退出，安装未完成。请稍后重试。')
+            raise update_tasks.UpdateBusy('errors.desktopInstaller.peachStillRunning')
         job_recovery.import_legacy_library(db, previous)
         return 0
     except Exception as exc:

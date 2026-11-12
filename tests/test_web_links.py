@@ -66,7 +66,7 @@ class VerdictTests(unittest.TestCase):
         def remember(**fields):
             saved.update(fields)
             if fields['checked'] == 2:
-                raise InterruptedError('停止于检查点')
+                raise InterruptedError('stopped at checkpoint')
             return True
         with mock.patch.object(web_links, '_probe', side_effect=[(404, ''), (503, '')]):
             with self.assertRaises(InterruptedError):

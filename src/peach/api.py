@@ -87,7 +87,7 @@ from .segments import HlsSegmentService
 from .streaming import StreamSessionRegistry
 from .sync import LedgerSync
 from .transcodes import TranscodeService
-from .user_messages import UserFacingError, error_fields, message_fields
+from .user_messages import UserFacingError, error_fields, message_fields, response_status
 
 
 LOGGER = logging.getLogger(__name__)
@@ -306,6 +306,18 @@ def _server_error_headers(request: Request, error: Exception, status_code=500):
     event('http-request', error, error_id=error_id, method=request.method,
           route=getattr(request.scope.get('route'), 'path', '<unmatched>').lstrip('/'), status_code=status_code)
     return {'X-Peach-Error-ID': error_id, 'Cache-Control': 'no-store'}
+
+
+def _user_facing_response(request: Request, exc: UserFacingError):
+    """带 code 的报错漏到接口层：给原句与 code；5xx 照服务错误处理，生成错误编号并记进错误日志。"""
+    status = response_status(exc)
+    headers = _server_error_headers(request, exc, status)
+    if _navigation(request):
+        return HTMLResponse(routes_pages.error_page(status, exc.message), status_code=status, headers=headers)
+    body = error_fields(exc)
+    if 'X-Peach-Error-ID' in headers:
+        body['error_id'] = headers['X-Peach-Error-ID']
+    return JSONResponse(body, status_code=status, headers=headers)
 
 
 def _configure_upgrade_repairs(settings, contract, sync):
@@ -734,9 +746,7 @@ def create_app(
 
     @app.exception_handler(UserFacingError)
     def _user_facing_error_handler(request: Request, exc: UserFacingError):
-        if _navigation(request):
-            return HTMLResponse(routes_pages.error_page(exc.status_code, exc.message), status_code=exc.status_code)
-        return JSONResponse(error_fields(exc), status_code=exc.status_code)
+        return _user_facing_response(request, exc)
 
     @app.exception_handler(Exception)
     def _server_exception_handler(request: Request, exc: Exception):

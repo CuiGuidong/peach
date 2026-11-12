@@ -11,7 +11,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-from .settings_file import PROJECT_ROOT
+from .project_root import PROJECT_ROOT
 
 SOURCE_LANGUAGE = "zh-CN"
 LOCALES = PROJECT_ROOT / "resources" / "locales"

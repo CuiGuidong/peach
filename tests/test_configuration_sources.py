@@ -423,15 +423,16 @@ class MediaConfigurationTests(unittest.TestCase):
 
     def test_setup_local_source_reports_native_directory_error_first(self):
         from peach.routes_pages import _setup_media_source_errors
+        from peach.user_messages import UserValueError
 
         def missing_directory(_path):
-            raise ValueError("目录不存在：/missing")
+            raise UserValueError("errors.onboarding.mediaDirMissing", {"path": "/missing"})
 
         errors = _setup_media_source_errors(
             ["/missing"], ["local"],
             ["Windows 中的对应路径必须包含盘符，例如 B:\\"], missing_directory,
         )
-        self.assertEqual(errors, ["目录不存在：/missing"])
+        self.assertEqual(errors, ["目录不存在，或者不是目录：/missing。先建好再填。"])
 
     def test_completion_facts_and_entry_leave_out_mounts_and_internals(self):
         from peach.routes_pages import _setup_destination

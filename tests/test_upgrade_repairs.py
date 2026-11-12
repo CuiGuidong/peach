@@ -312,7 +312,7 @@ class UpgradeRepairTests(unittest.TestCase):
             self.run_display_probe((-1, 0, 0, None, 0, 0, None, None, None, 1))
         with self.assertRaises(DiskSpaceDenied):
             self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1),
-                                   checkpoint=Mock(side_effect=[None, DiskSpaceDenied('空间不足')]))
+                                   checkpoint=Mock(side_effect=[None, DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})]))
         self.assertEqual(self.display_completed(), {})
         self.assertTrue(artifact_rules.current(sheet))
         with self.database.read_connection() as connection:
@@ -434,7 +434,7 @@ class UpgradeRepairTests(unittest.TestCase):
         parent = self.store.start('sar-batch', trigger='manual')
         child = self.store.enqueue_followups(parent.id, [
             (self.display_key(), upgrade_repairs.MEDIA_TASK, '补测')])['queued'][0]
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None, DiskSpaceDenied('空间不足')]), \
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None, DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})]), \
                 patch('peach.library_processing._ffprobe_path', return_value='ffprobe'), \
                 patch('peach.media_probe.measure', return_value=(60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1)), \
                 patch('peach.library_processing.process_library') as process, \
@@ -527,7 +527,7 @@ class UpgradeRepairTests(unittest.TestCase):
         self.remove_sar_preparation()
         self.contract.upgrade_repairs = self.service
         independent = Mock()
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('备份投影超限')), \
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '备份投影超限'})), \
                 patch.object(upgrade_repairs, 'sqlite_backup') as backup, \
                 patch.object(api, '_restore_task_center'), patch('peach.web_job_recovery.restore'), \
                 self.assertNoLogs('peach', level='ERROR'):
@@ -540,7 +540,7 @@ class UpgradeRepairTests(unittest.TestCase):
         with patch('peach.storage_budget.CapacityGuard.check') as check:
             self.service.prepare()
         check.assert_not_called()
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('备份投影超限')), \
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '备份投影超限'})), \
                 self.assertRaises(DiskSpaceDenied):
             self.service.retry()
 
@@ -556,7 +556,7 @@ class UpgradeRepairTests(unittest.TestCase):
             self.assertEqual(pages, 256)
             Path(destination).write_bytes(b'partial backup')
             progress(0, 17, 18)
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None, DiskSpaceDenied('剩余备份超限')]) as check, \
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None, DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '剩余备份超限'})]) as check, \
                 patch.object(upgrade_repairs, 'sqlite_backup', side_effect=copying):
             self.service.prepare()
         self.assertEqual([call.kwargs['required_bytes'] for call in check.call_args_list],
@@ -703,7 +703,7 @@ class UpgradeRepairTests(unittest.TestCase):
         self.contract.upgrade_repairs = self.service
         self.tick_quietly()
         run_id = upgrade_repairs._read(self.service.receipt)['queued'][self.display_key()]
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('空间不足')), \
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})), \
                 patch('peach.library_processing._ffprobe_path', return_value='ffprobe'), \
                 patch('peach.media_probe.measure') as probe:
             FollowupRunner(self.contract).drain()
@@ -746,7 +746,7 @@ class UpgradeRepairTests(unittest.TestCase):
         from peach import task_control
         from peach.jobs import DiskSpaceDenied
         ids = self.disk_batch()
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('空间不足')), \
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})), \
                 patch('peach.library_processing.process_library') as process, \
                 self.assertRaises(DiskSpaceDenied):
             upgrade_repairs._media_run(self.contract, 'upgrade-library:processing-v2:1', Mock())
@@ -774,8 +774,8 @@ class UpgradeRepairTests(unittest.TestCase):
         from peach import task_control
         from peach.jobs import DiskSpaceDenied
         ids = self.disk_batch()
-        self.service.pause_media(DiskSpaceDenied('空间不足'))
-        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('空间不足')), self.assertRaises(DiskSpaceDenied):
+        self.service.pause_media(DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'}))
+        with patch('peach.storage_budget.CapacityGuard.check', side_effect=DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})), self.assertRaises(DiskSpaceDenied):
             self.service.retry()
         self.assertEqual(task_control.requested(self.db, ids[0]), 'pause')
         with patch('peach.storage_budget.CapacityGuard.check'), patch.object(self.service, 'tick'):
@@ -790,9 +790,9 @@ class UpgradeRepairTests(unittest.TestCase):
         ids = self.disk_batch()
         for inside in (True, False):
             with self.subTest(inside=inside):
-                with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None] if inside else [None, DiskSpaceDenied('空间不足')]), \
+                with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None] if inside else [None, DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})]), \
                         patch('peach.library_processing.process_library',
-                              side_effect=DiskSpaceDenied('空间不足') if inside else None,
+                              side_effect=DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'}) if inside else None,
                               return_value={'status': 'complete'}), self.assertRaises(DiskSpaceDenied):
                     upgrade_repairs._media_run(self.contract, 'upgrade-library:processing-v2:1', Mock())
                 self.assertEqual(task_control.requested(self.db, ids[0]), 'pause')
@@ -803,7 +803,7 @@ class UpgradeRepairTests(unittest.TestCase):
         from peach import task_control
         from peach.jobs import DiskSpaceDenied
         ids = self.disk_batch()
-        self.service.pause_media(DiskSpaceDenied('空间不足'))
+        self.service.pause_media(DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'}))
         parent_id = self.store.get(ids[0]).parent_run_id
         task_control.request(self.store, parent_id, 'pause')
         manual = task_control.intent(self.db, ids[0], (parent_id,))

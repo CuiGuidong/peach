@@ -1003,7 +1003,9 @@
       "duplicateUrl": "This subscription URL is already in the list"
     },
     "mp4recover": {
-      "stagedSizeMismatch": "The copy written to the original directory has the wrong size"
+      "stagedSizeMismatch": "The copy written to the original directory has the wrong size",
+      "noDecodableReference": "No reference produced a decodable cut",
+      "backupExists": "A backup already exists in the same directory: {{name}}"
     },
     "javdbPublic": {
       "budgetExceeded": "The metadata request budget for this run is used up",
@@ -1013,7 +1015,11 @@
       "identityAmbiguous": "Several videos share this code. Check the source identity: {{identities}}",
       "reviewPageOutOfRange": "Comment page must be between 1 and 8",
       "performerAvatarMissing": "Performer avatar does not exist",
-      "previewImageMissing": "Preview image does not exist"
+      "previewImageMissing": "Preview image does not exist",
+      "unavailable": "Metadata not found. Try again later",
+      "unrecognizedFormat": "The metadata source's format wasn't recognized",
+      "identityMismatch": "The source's video identity doesn't match",
+      "imageUnavailable": "Image not found"
     },
     "storageBudget": {
       "unsupportedField": "Capacity settings contain an unsupported field",
@@ -1030,7 +1036,11 @@
       "dataLayoutChanged": "Data directories changed during the count. Count again.",
       "capacityLayoutChanged": "Capacity directories changed during the count. Count again.",
       "externalDirectoryMoved": "External cache directory is not accessible. If you moved it, update the path in capacity settings.",
-      "usageUnavailable": "Capacity usage unavailable: {{errors}}"
+      "usageUnavailable": "Capacity usage unavailable: {{errors}}",
+      "scanPaused": "Free disk space hit the limit during the scan, so current writes are paused. Free up space or try again: {{reasons}}",
+      "cacheWritesStopped": "{{reasons}}. Not enough disk space, so cache writes have stopped. Free up space and try again",
+      "intakeStopped": "{{reasons}}. Stopped picking up new items. Adjust the capacity settings or free up space and try again",
+      "checkUnavailable": "The capacity protection check returned no result, so work is paused: {{error}}"
     },
     "mediaConfiguration": {
       "smbAddressRequired": "Enter smb://server/share/directory",
@@ -1061,10 +1071,16 @@
       "rootNotWritable": "Cannot write to a declared media root directory",
       "rootNotRenamable": "Cannot modify a declared media root directory",
       "rootNotDeletable": "Cannot delete a declared media root directory",
-      "rootNotReplaceable": "Cannot create or replace a declared media root directory"
+      "rootNotReplaceable": "Cannot create or replace a declared media root directory",
+      "renameAcrossRoots": "SMB rename only works within the same media root directory"
     },
     "jobs": {
-      "meteredSourceDenied": "Proxy data usage protection is on for {{location}} directories. Confirm the budget, then add --allow-metered."
+      "meteredSourceDenied": "Proxy data usage protection is on for {{location}} directories. Confirm the budget, then add --allow-metered.",
+      "runInProgress": "{{task}} already has a run in progress",
+      "freeSpaceUnreadable": "Can't read the free disk space on {{path}}",
+      "freeSpaceLow": "{{path}} has only {{free}} GiB free (threshold {{minimum}} GiB)",
+      "freeSpaceLowWhileRunning": "{{path}} dropped to {{free}} GiB free while running (threshold {{minimum}} GiB), so the task was stopped. Check third-party cache directories; this task's output directory may not be what is using the space",
+      "alreadyRunning": "Another instance is already running (PID {{pid}})"
     },
     "organizeTemplates": {
       "unclosedPlaceholder": "A placeholder `{` has no matching `}`",
@@ -1106,7 +1122,8 @@
       "actionInvalid": "Choose pause, resume, cancel, or change speed",
       "otherHost": "Do this on the primary computer that is running this task",
       "runFinished": "This task run has already finished",
-      "cancelling": "The task is being canceled and can no longer be paused or resumed"
+      "cancelling": "The task is being canceled and can no longer be paused or resumed",
+      "shuttingDown": "The service is shutting down. Saved progress will resume later"
     },
     "tasteHistory": {
       "snapshotTimeout": "Could not take a browser history snapshot. Quit the browser and read it again.",
@@ -1151,7 +1168,12 @@
       "tokenMissing": "Could not get the existing CloudDrive token",
       "webdavSourceMissing": "Could not find the existing PikPak WebDAV source",
       "accountRootMissing": "CloudDrive did not return the WebDAV account root directory",
-      "prefixOutsideAccountRoot": "The CloudDrive path prefix is not under the returned account root directory"
+      "prefixOutsideAccountRoot": "The CloudDrive path prefix is not under the returned account root directory",
+      "webdavUnavailable": "WebDAV is temporarily unavailable: {{status}}",
+      "cloudListingUnavailable": "Couldn't get the full official directory listing: {{status}}",
+      "webdavSourceNotFound": "WebDAV source not found",
+      "webdavTargetExists": "The WebDAV target already exists",
+      "cloudParentMissing": "The official parent directory doesn't list the required directory"
     },
     "downloads": {
       "infohashInvalid": "The infohash in the magnet link is not 40 hex characters or 32 base32 characters",
@@ -1171,7 +1193,19 @@
       "taskNotFound": "This download task does not exist",
       "taskFinished": "This task has already finished and cannot be canceled",
       "cancelFailed": "The remote did not cancel the task: {{detail}}",
-      "nothingToRetry": "This task has no failed post-processing to retry"
+      "nothingToRetry": "This task has no failed post-processing to retry",
+      "remoteRejectedNoReason": "The remote side rejected this task without giving a reason",
+      "remoteBlocked": "115 blocked this resource (prohibited content, 50038), so it will not be retried: {{text}}",
+      "remoteQuota": "Not enough cloud download quota: {{text}}",
+      "remoteDuplicate": "The same task already exists on the remote side: {{text}}",
+      "remoteInvalidLink": "The remote side does not accept this link: {{text}}",
+      "remoteRejected": "The remote side rejected this task: {{text}}",
+      "retriesExhausted": "{{detail}} (still not submitted after {{checks}} automatic retries)",
+      "noSeeders": "Still not finished on the remote side after {{hours}} hours, most likely because nobody is seeding. Cancel it or try another magnet link",
+      "notAccepted": "The cloud drive did not accept this task: it never appeared in the cloud download list after submission, and there are no files in the target directory",
+      "remoteRemoved": "This task disappeared from the cloud drive: it is not in the cloud download list, and there are no files in the target directory",
+      "targetNotMapped": "The target directory does not map to a library directory. Check the library mounts and the cloud path mapping",
+      "notLanded": "Finished on the remote side, but {{path}} never appeared in the mounted directory"
     },
     "followStore": {
       "aliasNamesRequired": "Both the canonical creator name and the platform alias are required",
@@ -1181,7 +1215,10 @@
       "nameTaken": "This name already belongs to another creator; check whether they should be merged first",
       "aliasRequired": "The alias is required",
       "aliasMissing": "This creator alias does not exist",
-      "canonicalNotRemovable": "The canonical name cannot be removed as an alias"
+      "canonicalNotRemovable": "The canonical name cannot be removed as an alias",
+      "itemMissing": "Follow item doesn't exist: {{id}}",
+      "itemNotFound": "Follow item {{id}} doesn't exist",
+      "noWorkUrl": "This candidate has no video page URL, so it can't be saved as an online video"
     },
     "followCreators": {
       "holdGone": "This group of followed creators is no longer waiting for confirmation; refresh and check again"
@@ -1255,7 +1292,8 @@
       "downloadInfoInvalid": "The update package tool download information is invalid"
     },
     "feedFollowup": {
-      "noMetadata": "No source in the chain {{chain}} has metadata for this code"
+      "noMetadata": "No source in the chain {{chain}} has metadata for this code",
+      "chainTimedOut": "The source chain {{chain}} didn't respond within {{seconds}} seconds"
     },
     "westernArtwork": {
       "babepediaUrlMismatch": "Babepedia not found: the profile URL does not match",
@@ -1315,7 +1353,23 @@
       "invalidPort": "Invalid SMB port",
       "invalidTimeout": "SMB request timeout must be a finite positive number",
       "pathNotRelative": "SMB path must be relative to the share root",
-      "invalidPathComponent": "SMB path contains an invalid component"
+      "invalidPathComponent": "SMB path contains an invalid component",
+      "authenticationFailed": "SMB authentication failed",
+      "accessDenied": "SMB access denied",
+      "connectionUnavailable": "SMB connection unavailable",
+      "requestTimedOut": "SMB request timed out",
+      "transportClosed": "SMB transport is closed",
+      "disconnected": "SMB connection was lost",
+      "connectionClosed": "SMB connection is closed",
+      "dfsNotAllowed": "SMB DFS shares can't be redirected",
+      "reparsePoint": "SMB reparse points can't be accessed",
+      "rootNotModifiable": "Can't modify the share root directory",
+      "rootNotReplaceable": "Can't replace the share root directory",
+      "rootNotWritable": "Can't write to the share root directory",
+      "readNoCredits": "SMB read has no credits available",
+      "unexpectedEnd": "SMB file ended before its declared end",
+      "writeNoCredits": "SMB write has no credits available",
+      "writeIncomplete": "SMB write didn't complete"
     },
     "resourceSearch": {
       "invalidEndpoint": "Indexer address is not valid",
@@ -1348,7 +1402,15 @@
       "redirectNotHttps": "Fetch redirects must use HTTPS",
       "tooManyRedirects": "Too many fetch redirects",
       "geoRestricted": "{{label}} isn't available in the region of your current exit. In your proxy, route it through an exit in a region it accepts; requests to it are paused for {{minutes}} minutes",
-      "ipBanned": "{{label}} has banned your current exit IP. Requests to it are paused for a while; you can also route it through a different exit in your proxy"
+      "ipBanned": "{{label}} has banned your current exit IP. Requests to it are paused for a while; you can also route it through a different exit in your proxy",
+      "requestBudgetSpent": "This run's fetch request limit is used up. Run it again to continue; existing images are kept",
+      "timeBudgetSpent": "This run's fetch time limit is used up. Run it again to continue; existing images are kept",
+      "downloadBudgetSpent": "This run's download limit is used up. Run it again to continue; existing images are kept",
+      "coolingDown": "The source is cooling down. Try again later; existing images are kept",
+      "challengeTimedOut": "The source's human verification wasn't passed in time, so requests to it are paused for a while. When the browser window pops up again, click the verification; existing images are kept",
+      "rateLimited": "The source is rate limiting requests; the cooldown has been recorded. Existing images are kept",
+      "refusedUpdateCookie": "The source refused access, so requests to it are paused for a while. Update its cookie in fetch settings; existing images are kept",
+      "refused": "The source refused access, so requests to it are paused for a while. Existing images are kept"
     },
     "downloadPostprocess": {
       "noLandingPath": "The download task has no landing path",
@@ -1385,7 +1447,15 @@
       "newIdentityHasData": "The new identity has extra metadata"
     },
     "updateTasks": {
-      "gateBusy": "The task gate is busy. It will retry automatically."
+      "gateBusy": "The task gate is busy. It will retry automatically.",
+      "stateUnreadable": "Can't read the task protection state. Check the data directory and try again.",
+      "stateInvalid": "The task protection state is invalid. Check the data directory and try again.",
+      "preparingInstall": "An update is being prepared for installation, so new tasks can't start right now. Wait for the installation to finish.",
+      "installInProgress": "An update is already being installed. Wait for it to finish.",
+      "reservedBusy": "{{message}}",
+      "pausedForInstall": "Task paused. It resumes automatically after the installation finishes.",
+      "batchStateUnknown": "Couldn't confirm the state of a batch process, so the installation was canceled.",
+      "reservationExpired": "The update installation reservation has expired. Prepare the update again."
     },
     "avatarProvider": {
       "unsupportedFormat": "{{format}} images aren't supported yet. Use a JPEG, PNG, WebP or AVIF image",
@@ -1397,7 +1467,8 @@
     "processingControl": {
       "invalidMode": "Choose low, standard or high intensity mode",
       "jobChanged": "The task has changed. Refresh the page and try again",
-      "stopped": "The processing task stopped"
+      "stopped": "The processing task stopped",
+      "userStopped": "Stopped by the user"
     },
     "avatarWatermark": {
       "modelMissing": "The text detection model isn't at {{path}}, and downloading isn't allowed",
@@ -1448,7 +1519,35 @@
       "invalidRememberDays": "Choose a valid stay-signed-in duration"
     },
     "downloadsPikpak": {
-      "missingCredentials": "Enter your PikPak account and password"
+      "missingCredentials": "Enter your PikPak account and password",
+      "captchaRequired": "PikPak requires verification first: complete it on the verification page, then come back to Settings and sign in again",
+      "shapeNotJson": "PikPak returned an unexpected response (HTTP {{status}} is not JSON); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeNotObject": "PikPak returned an unexpected response (the response is not an object); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeHttpStatus": "PikPak returned an unexpected response (HTTP {{status}}); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeNoCaptchaToken": "PikPak returned an unexpected response (no captcha_token); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeNoLoginToken": "PikPak returned an unexpected response (no token in the sign-in response); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeAuthAfterRefresh": "PikPak returned an unexpected response (still not authenticated after refreshing the token); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeFileList": "PikPak returned an unexpected response (file list); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeNoTask": "PikPak returned an unexpected response (no task in the submit response); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeTaskList": "PikPak returned an unexpected response (task list); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeTaskPhase": "PikPak returned an unexpected response (task phase {{phase}}); its API may have changed. You can copy the magnet link and add it manually for now",
+      "shapeTaskPhaseEmpty": "PikPak returned an unexpected response (empty task phase); its API may have changed. You can copy the magnet link and add it manually for now",
+      "unreachable": "Cannot reach PikPak: {{error}}",
+      "serverUnavailable": "PikPak is temporarily unavailable (HTTP {{status}})",
+      "unknownWebClient": "PikPak's web client ID is {{client}}, and Peach has no signing constants for it, so it cannot submit cloud download tasks. You can copy the magnet link and add it manually for now",
+      "webSignatureRejected": "PikPak rejected the web client's request signature: {{description}} ({{code}}). The web signing constants may have changed. You can copy the magnet link and add it manually for now",
+      "notSignedIn": "Not signed in to PikPak yet",
+      "signInExpired": "PikPak sign-in has expired. Sign in again in Settings: {{description}} ({{code}})",
+      "webRefreshRejected": "PikPak refused to refresh the web sign-in token: {{description}} ({{code}}). In Settings, click Sign in with browser to sign in again",
+      "folderMissing": "There is no {{path}} directory in PikPak",
+      "targetNeedsFolder": "The target directory must be a specific directory in PikPak",
+      "signInInvalid": "PikPak sign-in is no longer valid. Sign in again in Settings: {{description}} ({{code}})",
+      "captchaDemanded": "PikPak requires verification. Sign in again in Settings: {{description}} ({{code}})",
+      "quotaExceeded": "Not enough PikPak cloud download quota or storage space: {{description}} ({{code}})",
+      "linkRejected": "PikPak does not accept this link: {{description}} ({{code}})",
+      "taskRejected": "PikPak rejected this task: {{description}} ({{code}})",
+      "noRemoteId": "This task has no PikPak task ID yet, so it cannot be canceled",
+      "signInFailed": "PikPak sign-in failed: {{description}} ({{code}})"
     },
     "upgradeRepairs": {
       "invalidReceipt": "The post-update processing record is invalid",
@@ -1458,7 +1557,10 @@
       "receiptNeedsPrepare": "The post-update processing record needs to be prepared again. Try again",
       "primaryOnly": "Post-update processing is only available when this device is the primary computer",
       "displayRepairNotReady": "Display size re-measurement isn't ready yet. Try again later",
-      "mediaRepairIncomplete": "The video upgrade fill-in didn't finish. Check Tasks, then try again"
+      "mediaRepairIncomplete": "The video upgrade fill-in didn't finish. Check Tasks, then try again",
+      "resumeAfterRestart": "Continues after the service restarts",
+      "displayBackupNoSpace": "Not enough space for the backup before re-measuring display sizes, so this batch of media is paused",
+      "mediaPaused": "{{message}}"
     },
     "tunnel": {
       "standalonePortInvalid": "The standalone package's Tunnel HTTP port is invalid: {{port}}",
@@ -1567,7 +1669,8 @@
       "updateRunning": "An update is still in progress. Finish it before migrating."
     },
     "desktopInstaller": {
-      "cachedToolInvalid": "Local tool package failed verification: {{name}}. Download it again or move this file away, then try again."
+      "cachedToolInvalid": "Local tool package failed verification: {{name}}. Download it again or move this file away, then try again.",
+      "peachStillRunning": "Peach hasn't exited yet, so the installation didn't finish. Try again later."
     },
     "devCopyRuntime": {
       "applying": "Copy changes are being applied. Edit again later.",
@@ -1614,7 +1717,8 @@
       "nothingToRetry": "This code has no failed organizing to retry",
       "queueFull": "The adding queue is full. Wait for current tasks to finish.",
       "queueUnreadable": "The browser adding queue can't be read",
-      "unsupportedPage": "Add from a supported JAV video detail page"
+      "unsupportedPage": "Add from a supported JAV video detail page",
+      "searchUnavailable": "Torrent search is unavailable right now. Check the sources in Peach and try again"
     },
     "librarySharing": {
       "choiceNotBoolean": "The collection and taste upload option must be a boolean",
@@ -1738,7 +1842,21 @@
       "selectionWithRetry": "Selected items and failed-item retries can't be used together.",
       "previewsNeedWriter": "Generating preview images requires a write connection to the shared collection.",
       "nfoCodeConflict": "The file name and NFO code conflict. Review it.",
-      "notInLibrary": "The selected videos don't belong to the current library."
+      "notInLibrary": "The selected videos don't belong to the current library.",
+      "deadlineRetryLater": "External metadata wasn't found within the time limit. You can try again later",
+      "deadline": "External metadata wasn't found within the time limit",
+      "noAmaneSites": "This code's source chain has no sites queried through the amane bridge",
+      "amaneBridgeFailed": "amane bridge: {{error}}",
+      "amaneSitesSaidNo": "None of the sites queried through the amane bridge have this code",
+      "communitySaidNo": "None of the community sources have this code",
+      "fc2ArchivesSaidNo": "Neither FC2 nor the archive sites have this item",
+      "noCover": "Neither official nor community sources have a cover for this video",
+      "ffmpegMissing": "FFmpeg wasn't found, so previews can't be generated. Check the tool status in Diagnostics",
+      "mediaInaccessible": "The media file can't be accessed",
+      "ffprobeMissing": "ffprobe wasn't found, so the video duration can't be read",
+      "durationUnavailable": "The video duration wasn't found. Check the media file and try again",
+      "sourceProblem": "{{source}}: {{problem}}",
+      "coverNotImproved": "The source cover ({{width}}x{{height}}) is no better than the local cover"
     },
     "followStream": {
       "coolingDown": "{{provider}} is cooling down after rate limiting. Try again in {{seconds}} seconds.",
@@ -1857,7 +1975,9 @@
     "diagnosticExports": {
       "chooseKind": "Choose a diagnostics report or scraping records.",
       "alreadyRunning": "A diagnostics export is already running. Wait for it to finish or cancel it.",
-      "jobChanged": "The export task has changed. Refresh and try again."
+      "jobChanged": "The export task has changed. Refresh and try again.",
+      "jobNotFound": "Export task not found",
+      "fileNotReady": "The export file isn't ready. Generate it again"
     },
     "migrations": {
       "unsupportedMigrations": "The database contains migrations this version of Peach doesn't support. Use a matching version or the backup from before the upgrade.",
@@ -1891,7 +2011,8 @@
       "noCacheDirectory": "CloudDrive didn't return a cache directory. Enter it manually."
     },
     "downloadsPikpakBrowser": {
-      "browserMissing": "Chrome or Edge wasn't found on this device, so browser sign-in isn't available. Expand the section below to sign in with an account and password."
+      "browserMissing": "Chrome or Edge wasn't found on this device, so browser sign-in isn't available. Expand the section below to sign in with an account and password.",
+      "proxyWithCredentials": "Browser sign-in does not support proxy addresses with credentials. Choose the system proxy or a proxy on this device that needs no authentication"
     },
     "taskResources": {
       "ownersUnavailable": "Couldn't get the resource ownership record for this task run.",
@@ -1908,6 +2029,430 @@
     },
     "seedFollowup": {
       "digestMismatch": "The seed contents don't match the queued task's digest. Dispatch it again."
+    },
+    "follow": {
+      "internal": "{{detail}}",
+      "historyEnd": "No more history"
+    },
+    "followSecrets": {
+      "missingFields": "{{provider}} credentials are missing fields: {{fields}}",
+      "invalidProvider": "Invalid provider name",
+      "unreadable": "Couldn't parse the {{provider}} credentials file",
+      "notObject": "The {{provider}} credentials file must be a JSON object"
+    },
+    "followGofile": {
+      "notPremium": "The Gofile file list API requires a Premium account. The token is valid, but the current plan doesn't support this endpoint",
+      "tokenRejected": "Gofile rejected the API token",
+      "httpStatus": "Gofile returned HTTP {{status}}",
+      "listUnavailable": "Gofile file list not found",
+      "requestFailed": "Gofile request failed",
+      "responseTooLarge": "Gofile response exceeds the size limit"
+    },
+    "followAvatar": {
+      "unsupportedProfile": "This social profile isn't supported",
+      "litlinkHttpStatus": "lit.link profile page returned HTTP {{status}}",
+      "litlinkNoAvatar": "The lit.link profile page has no avatar of this person",
+      "xHttpStatus": "X profile page returned HTTP {{status}}",
+      "xNoAvatar": "The X profile page has no avatar of this person",
+      "patreonHttpStatus": "Patreon profile returned HTTP {{status}}",
+      "patreonCreatorMissing": "This creator isn't in the Patreon profile data",
+      "patreonNoTrustedAvatar": "The Patreon profile has no trusted avatar URL",
+      "unsupportedOfficialSource": "This official avatar source isn't supported",
+      "fanboxProfileHttpStatus": "FANBOX official profile returned HTTP {{status}}",
+      "fanboxProfileMalformed": "The FANBOX official profile has an unexpected format",
+      "fanboxProfileNoTrustedAvatar": "The FANBOX official profile has no trusted avatar URL",
+      "fanboxPageHttpStatus": "FANBOX official page returned HTTP {{status}}",
+      "fanboxPageNoProfile": "The FANBOX official page has no usable creator profile",
+      "fanboxPageNoCreatorId": "The FANBOX official page has no usable creator id"
+    },
+    "followDiscovery": {
+      "creatorListMalformed": "The {{provider}} creator list has an unexpected format",
+      "termRequired": "Enter a name or id to look up first",
+      "termTooLong": "A name or id can be at most {{limit}} characters",
+      "termForbiddenCharacters": "A name or id can't contain / \\ ? # & < > quotes or control characters"
+    },
+    "followSources": {
+      "requestFailedAfterRetries": "{{provider}} request failed (tried {{attempts}} times): {{detail}}",
+      "requestFailed": "{{provider}} request failed: {{detail}}",
+      "responseTooLarge": "{{provider}} response exceeds the size limit",
+      "accessDenied": "{{provider}} denied access (HTTP {{status}}): valid credentials are required, or the site added bot verification",
+      "httpStatus": "{{provider}} returned HTTP {{status}}",
+      "rateLimited": "{{provider}} returned HTTP 429: too many requests, try again later",
+      "rateLimitBody": "{{provider}} rate limit reached: at most {{count}} requests every {{seconds}} seconds. Try again later",
+      "notJson": "{{provider}} didn't return valid JSON",
+      "notJsonWithSnippet": "{{provider}} didn't return valid JSON: {{snippet}}",
+      "urlNotSupported": "{{provider}} can't be added from a link yet",
+      "iwaraUrlShape": "For Iwara, paste the author's profile page, e.g. https://www.iwara.tv/profile/username",
+      "iwaraAccessDenied": "Iwara denied access (HTTP {{status}}): the sign-in credentials may have expired, or the site requires browser verification. Check the feeds settings",
+      "iwaraNotFound": "Iwara author or video not found: it may have been deleted, or it needs an account with access",
+      "iwaraResponseMalformed": "The Iwara API response has an unexpected format",
+      "iwaraContentUnavailable": "Iwara content not found: make sure the account has access and update the sign-in credentials",
+      "iwaraRequestRejected": "The Iwara API rejected the request. Check the content status on the source page",
+      "iwaraRefInvalid": "An Iwara ref must be an author username",
+      "iwaraNegativePage": "The Iwara page number can't be less than 0",
+      "iwaraProfileMalformed": "The Iwara author profile has an unexpected format",
+      "iwaraUserIdUnavailable": "Iwara author ID not found",
+      "iwaraVideoListMalformed": "The Iwara video list has an unexpected format",
+      "iwaraVideoEntryNoId": "An Iwara video entry has no valid ID",
+      "iwaraVideoIdInvalid": "Invalid Iwara video ID",
+      "iwaraFileUrlUnavailable": "Iwara full video URL not found. Open the source page to check access",
+      "iwaraUntrustedFileUrl": "Iwara returned an untrusted file API URL",
+      "iwaraFileNoExpiry": "The Iwara file API has no valid expiry",
+      "iwaraFormatListMalformed": "The Iwara playback format list has an unexpected format",
+      "iwaraNoFormats": "Iwara full video formats not found",
+      "kemonoUrlShape": "A {{host}} link must point to a creator, like https://{{host}}/fanbox/user/30917150",
+      "kemonoUnknownProvider": "Unknown kemono-family source: {{provider}}",
+      "kemonoRefInvalid": "A {{provider}} ref must look like `service/user_id`, got: {{ref}}",
+      "postListMalformed": "The {{provider}} post list has an unexpected format",
+      "rule34videoUrlShape": "A rule34video link must point to an author page, like https://rule34video.com/models/lazyprocrastinator/",
+      "rule34videoRefInvalid": "A rule34video ref must be an author slug, got: {{ref}}",
+      "rule34videoNoWorks": "No videos found on the rule34video creator page: the page structure may have changed, or the slug doesn't exist",
+      "rule34xxxUrlShape": "A rule34.xxx link must include tags, like https://rule34.xxx/index.php?page=post&s=list&tags=lazyprocrastinator",
+      "rule34xxxCredentialsRequired": "rule34xxx needs user_id and api_key. Put them in peach-data/secrets/follow/rule34xxx.json",
+      "rule34xxxCredentialsRejected": "rule34xxx rejected the user_id/api_key",
+      "rule34xxxRefInvalid": "A rule34xxx ref must be a single tag, got: {{ref}}",
+      "rule34xxxAutocompleteMalformed": "The rule34xxx tag autocomplete has an unexpected format",
+      "pahealUrlShape": "A rule34.paheal link must include a search tag, like https://rule34.paheal.net/post/view/7428820#search=InitialA",
+      "pahealRefInvalid": "A rule34.paheal ref must be a single tag, got: {{ref}}",
+      "pahealNoWorks": "No videos found on the rule34.paheal tag page",
+      "xenforoNoToken": "The {{provider}} search form has no _xfToken: the cookie may have expired",
+      "f95UrlShape": "An f95zone link must point to a thread, like https://f95zone.to/threads/xxx.50685/",
+      "f95RefInvalid": "An f95zone ref must be a thread id, got: {{ref}}",
+      "f95NoReplies": "No replies found on the f95zone thread page: sign-in may be required, or the page structure changed",
+      "f95UnknownCategory": "Unknown f95zone category: {{category}}",
+      "f95SearchNeedsCookie": "f95zone site search needs a sign-in cookie. Put it in peach-data/secrets/follow/f95zone.json",
+      "f95ProfileNeedsCookie": "Reading the author profile links in the first f95zone post needs a sign-in cookie. Put it in peach-data/secrets/follow/f95zone.json",
+      "fanboxUrlShape": "A FANBOX link must point to a creator page, like https://creator.fanbox.cc/",
+      "fanboxRefInvalid": "A fanbox ref must be a creator id, got: {{ref}}",
+      "fanboxPostListMalformed": "The post list fanbox returned has an unexpected format",
+      "fanboxPageListNotModified": "The fanbox history page list unexpectedly returned 304",
+      "fanboxPageListMalformed": "The fanbox history page list has an unexpected format",
+      "fanboxRequestFailed": "fanbox request failed",
+      "fanboxPostError": "fanbox post details returned an error: {{error}}",
+      "fanboxPostMalformed": "fanbox post details have an unexpected format",
+      "fanboxPostNotPublic": "This fanbox post isn't public and free",
+      "subscribestarUrlShape": "A SubscribeStar link must point to a creator page, like https://subscribestar.adult/creator",
+      "subscribestarRefInvalid": "A subscribestar ref must look like subscribestar.adult/creator",
+      "subscribestarNoBackfill": "The SubscribeStar official source can't load older pages yet",
+      "pageNotUtf8": "The page {{provider}} returned isn't UTF-8",
+      "patreonUrlShape": "A Patreon link must point to a creator page, like https://patreon.com/cw/creator",
+      "patreonRefInvalid": "A patreon ref must be a creator vanity name, got: {{ref}}",
+      "patreonNoBackfill": "The Patreon official source can't load older pages yet",
+      "simpcityUrlShape": "A simpcity link must point to a thread, like https://simpcity.cr/threads/xxx.21229/",
+      "simpcityNeedsCookie": "simpcity needs a sign-in cookie: the site doesn't let guests read threads. After signing in, put the whole Cookie request header for simpcity.cr from your browser into the cookie field of the credentials file.",
+      "simpcityAccessDenied": "simpcity denied access (HTTP 403): the site doesn't let guests read threads, and the cookie may have expired or be incomplete. Sign in again and update the credentials file",
+      "simpcityRefInvalid": "A simpcity ref must be a thread id, got: {{ref}}",
+      "simpcityNoPosts": "No posts found on the simpcity thread page: the page structure may have changed",
+      "simpcityCookieNotRecognized": "simpcity didn't recognize this cookie (the page is still in guest mode). Sign in again and copy the whole Cookie request header",
+      "urlRequired": "Paste a source link first",
+      "urlInvalid": "This isn't a valid link",
+      "urlSchemeUnsupported": "Only http(s) links are accepted",
+      "urlHasCredentials": "Links can't contain a username or password",
+      "hostUnknown": "{{host}} isn't recognized. Supported: {{hosts}}.",
+      "unknownProvider": "Unknown follow source: {{provider}}"
+    },
+    "mp4repair": {
+      "sttsLengthMismatch": "The stts length does not match its declared entry count",
+      "probeIdle": "ffprobe produced no decoded output for {{seconds}} seconds",
+      "probeIncomplete": "ffprobe did not finish: {{error}}",
+      "probeExitCode": "ffprobe exited with code {{code}}",
+      "duplicateDts": "Duplicate DTS values, so frames cannot be told apart",
+      "frameWithoutTimestamp": "A frame has no timestamp",
+      "timestampNotInStts": "The decoder reported a timestamp that is not in stts",
+      "frameOutputTwice": "The same frame was output twice",
+      "frameCountMismatch": "Decoded {{decoded}} frames, but the sample table has {{samples}}",
+      "trackDurationUnknown": "Cannot work out the track duration",
+      "zeroTimescale": "The media timescale is 0",
+      "offsetNeedsCo64": "Offsets exceed 32 bits; this video needs co64 to be repaired",
+      "missingMoovOrMdat": "The top level is missing moov or mdat",
+      "needsSingleMoovAndMdat": "The top level must have exactly one moov and one mdat",
+      "moovTooLargeOrMdatEmpty": "moov is too large or mdat is empty",
+      "leadingIndexTooLarge": "The index before the media is too large",
+      "boxesAfterMdat": "There are boxes after mdat; this layout is not supported yet",
+      "trailingIndexTooLarge": "The index after the media is too large",
+      "videoSampleTableMissing": "Cannot find the video track's sample table",
+      "cttsPresent": "This video already has ctts",
+      "videoSttsMissing": "The video track has no stts",
+      "nothingToRepair": "Display order already matches decode order; nothing to repair",
+      "editStartAmbiguous": "The edit start in the trailing index cannot tell pre-roll from trimming",
+      "rebuiltHeaderLengthMismatch": "The rebuilt header length does not match",
+      "legacyTimetableVersion": "The old sidecar's timetable version is invalid",
+      "legacyTimetableLength": "The old sidecar's timetable length does not match",
+      "legacySampleCount": "The old sidecar's sample count does not match",
+      "legacyShiftIncomplete": "The old sidecar's overall shift is incomplete",
+      "legacyNoMoov": "The old sidecar has no moov",
+      "legacyNoTimetable": "The old sidecar is missing its repair timetable",
+      "legacyEditListInvalid": "The old sidecar's edit list is invalid",
+      "legacyHeaderLength": "The old sidecar's rebuilt header length does not match",
+      "headerNotRepaired": "Could not repair the playback header"
+    },
+    "avatarOnline": {
+      "notThisCreator": "This image candidate does not belong to this creator",
+      "imageNotFound": "This image was not found. Try again later",
+      "imageOverLimit": "The image exceeds the size limit"
+    },
+    "avatarPicker": {
+      "coverChanged": "This cover was just replaced. Go back to the candidates and crop again",
+      "codeUnrecognized": "This code is not recognized",
+      "codeCoverUnrecognized": "The cover for this code is not a recognizable image",
+      "addressUnusable": "No usable image found at this address: {{reason}}",
+      "notCached": "This image is no longer in the cache on this device",
+      "fetchFailed": "Cannot get this image: {{error}}",
+      "fetchNoResponse": "Cannot get this image: no response",
+      "fetchHttpStatus": "Cannot get this image: HTTP {{status}}",
+      "imageOver16Mib": "The image is over 16 MiB. Shrink it and choose it again",
+      "convertedOver16Mib": "The image is over 16 MiB after conversion. Shrink it and choose it again",
+      "imageTooLarge": "The image is too large",
+      "imageIncomplete": "The image could not be read completely. Choose the image again",
+      "artworkUnavailable": "Video frames are not available this time",
+      "choiceUnrecognized": "This image candidate is not recognized",
+      "assetNotOwned": "This video is not credited to this person",
+      "assetCoverNotLocal": "This video's cover is not on this device yet",
+      "assetCellNotLocal": "Tile {{cell}} of this video is not on this device yet",
+      "assetCoverUnreadable": "Cannot read this video's cover",
+      "assetCellUnreadable": "Cannot read tile {{cell}} of this video",
+      "onlineUnavailable": "Online avatar candidates not found",
+      "codeCoverNotFetched": "The cover for this code has not been downloaded yet",
+      "addressNotFetched": "The image at this address has not been downloaded yet",
+      "notInIndex": "This image candidate is not in the current index",
+      "offlineNotDownloaded": "This image has not been downloaded, and network access is not allowed this time",
+      "invalidCropBox": "The selected crop area is invalid",
+      "cropFailed": "Cannot crop this area"
+    },
+    "browserTransport": {
+      "notStarted": "The browser did not start: {{error}}",
+      "debugPortNotConnected": "Could not connect to the browser's debugging port: {{error}}",
+      "exitedAtStart": "The browser exited right after starting ({{code}})",
+      "debugPortMissing": "The browser did not report a debugging port"
+    },
+    "downloadsClouddrive": {
+      "addressEmpty": "The CloudDrive2 address is empty",
+      "noLocalAnswer": "No CloudDrive2 address is set, and nothing answered at {{tried}} on this device. Make sure CloudDrive2 is running, or enter its actual address",
+      "unreachable": "Cannot reach CloudDrive2 ({{action}}): {{details}}",
+      "tokenRejected": "CloudDrive2 rejected this API token ({{action}}): {{details}}",
+      "pathNotFound": "{{action}}: this path does not exist in CloudDrive2",
+      "callFailed": "{{action}} failed: {{details}}",
+      "tokenMissing": "No CloudDrive2 API token is set yet",
+      "folderMissing": "There is no {{path}} directory in CloudDrive2",
+      "folderNotCreated": "CloudDrive2 did not create {{path}}: {{reason}}",
+      "folderNotCreatedNoReason": "CloudDrive2 did not create {{path}} and gave no reason",
+      "cancelRefused": "CloudDrive2 did not cancel this task: {{reason}}",
+      "addressMissing": "No CloudDrive2 address is set yet. Use Check in Settings to detect the port on this device, then save",
+      "offlineUnsupported": "The cloud drive that holds {{target}} does not support cloud downloads",
+      "quotaUsedUp": "Cloud download quota used up ({{used}}/{{total}})",
+      "cancelUnsupported": "This cloud drive does not support canceling cloud downloads from Peach. Handle it in the cloud drive"
+    },
+    "routesMedia": {
+      "imageTimedOut": "This image was not found: the request timed out",
+      "coverAddressUnusable": "The cover address is not usable",
+      "avatarSourcesFailed": "{{reasons}}",
+      "onlineImageNotFound": "Online image not found",
+      "missingEntityId": "Missing entity ID",
+      "mibNotJav": "Korean MIB codes do not use JAV cover sources",
+      "codeCoverNotFound": "Official sources have no cover for this code",
+      "codeCoverUnavailable": "Cannot get the cover for this code: {{error}}",
+      "codeCoverTimedOut": "Could not get the cover for this code within {{seconds}} seconds. Try again later",
+      "sourcePaused": "{{reason}}",
+      "sourceConnectionFailed": "Could not connect to the source. Check the source connection settings"
+    },
+    "webDownloads": {
+      "credentialsUnreadable": "Cannot read the credentials file on this device. Enter them again in Settings: {{error}}",
+      "unknownChannel": "Unknown cloud download channel: {{key}}"
+    },
+    "metadata": {
+      "relayed": "{{detail}}",
+      "authRequired": "{{source}} requires sign-in or refused access: {{reason}}"
+    },
+    "javCoverFetch": {
+      "officialNoImage": "None of the official cover URLs returned an image",
+      "officialTooSmall": "The official covers are only thumbnails or placeholders",
+      "placeholder": "The source returned a \"coming soon\" placeholder image",
+      "officialPlaceholderOnly": "The official cover URLs only return a \"coming soon\" placeholder: unreleased videos don't have official images yet, and older ones have most likely been taken down",
+      "mibNotJav": "JAV cover sources don't apply to Korean MIB codes",
+      "noCandidates": "No source has a candidate",
+      "hostsUnreachable": "Can't connect to any official image host",
+      "deadline": "The time limit for this step is used up",
+      "dmmFailed": "DMM: {{error}}",
+      "coolingDown": "The cover source is cooling down. Try again later; existing images are kept",
+      "catalogUnfinished": "The official catalog lookup didn't finish, so no cover candidates were found yet",
+      "allAnimated": "All official candidates are animated images",
+      "downloadsFailed": "Every usable candidate failed to download in full",
+      "sizeChanged": "Size changed: log says {{expectedWidth}}x{{expectedHeight}}, now {{width}}x{{height}}"
+    },
+    "communityCatalog": {
+      "animatedOrSmall": "The covers from community sources are all animated or too small",
+      "animatedOrSmallPartlyMissed": "The covers from community sources are all animated or too small; {{count}} more covers weren't downloaded",
+      "downloadFailed": "Couldn't download the covers from community sources",
+      "mismatch": "The covers from {{origins}} aren't the same image, so they can't confirm each other",
+      "mismatchPartlyMissed": "The covers from {{origins}} aren't the same image, so they can't confirm each other; {{count}} more covers weren't downloaded",
+      "noUnwatermarked": "No cover without a JavDB watermark was found",
+      "noUnwatermarkedPartlyMissed": "No cover without a JavDB watermark was found; {{count}} more covers weren't downloaded",
+      "noCovers": "Community sources have no cover for this video"
+    },
+    "javOfficialPreview": {
+      "dmmUnavailable": "DMM preview not found. Try again later",
+      "javdbUnavailable": "JavDB preview not found. Try again later",
+      "officialUnavailable": "Official preview not found. Try again later"
+    },
+    "avbase": {
+      "unrecognized": "The AVBase page structure wasn't recognized; it may be showing a verification check",
+      "notFound": "AVBase doesn't have this code"
+    },
+    "dmm": {
+      "unrecognizedCode": "Couldn't recognize a code that can be looked up on DMM",
+      "notFound": "DMM doesn't have this code",
+      "notWorkJson": "DMM didn't return video JSON",
+      "notListJson": "DMM didn't return a video list JSON",
+      "refused": "DMM refused this query",
+      "refusedWithMessage": "DMM refused this query: {{message}}"
+    },
+    "base": {
+      "codeMismatch": "The code returned by the source doesn't match",
+      "itemNotListed": "{{label}} doesn't list this item",
+      "cloudflareUpdateCookie": "{{label}} requires Cloudflare verification. Update the cookie in fetch settings"
+    },
+    "r18dev": {
+      "notWorkJson": "r18.dev didn't return video JSON"
+    },
+    "fc2": {
+      "unrecognizedCode": "Couldn't recognize an FC2 item number in this code"
+    },
+    "fc2ppvdb": {
+      "ageGate": "{{label}} redirected to the age check page, and the browser didn't get past it"
+    },
+    "javten": {
+      "translatedPage": "{{label}} returned a translated page; only the original Japanese page is accepted"
+    },
+    "javbus": {
+      "notFound": "JavBus doesn't have this code",
+      "ageGate": "JavBus didn't return a video page; it's most likely the age check page. Paste the cookie from your browser for JavBus in fetch settings"
+    },
+    "javdb": {
+      "notFound": "javdb doesn't have this code",
+      "loginRequired": "javdb requires sign-in",
+      "identityAmbiguous": "javdb has several videos with this code. Check the source identity: {{identities}}",
+      "detailCodeMismatch": "The code on the javdb detail page doesn't match the search result",
+      "budgetExceeded": "javdb metadata wasn't found within this run's limit"
+    },
+    "onepondo": {
+      "unrecognizedCode": "This code isn't in {{label}} format",
+      "notFound": "{{label}} doesn't have this video",
+      "notWorkJson": "{{label}} didn't return video JSON",
+      "movieIdMismatch": "The video ID returned by {{label}} doesn't match this code"
+    },
+    "seesaa": {
+      "notInSearch": "No exact video table row was found in the wiki search results",
+      "notInEntries": "No video entry with this exact code was found in the wiki search results",
+      "conflictingRows": "The wiki has conflicting rows for this exact code; review the original page",
+      "budgetStopped": "Wiki requests for this batch stopped or reached the limit",
+      "networkFailed": "The wiki network request failed",
+      "httpFailed": "The wiki HTTP request failed",
+      "pageTooLarge": "The wiki page exceeds the read limit",
+      "redirectUnverified": "The wiki redirect page couldn't be verified",
+      "botCheckFailed": "The wiki bot check wasn't passed"
+    },
+    "metadataAmane": {
+      "refused": "{{message}} ({{reason}})",
+      "refusedWithStatus": "{{message}} ({{reason}}, HTTP {{status}})",
+      "notFound": "{{label}} doesn't have this code ({{reason}})",
+      "unavailable": "Metadata not found on {{label}} ({{reason}})",
+      "unavailableWithStatus": "Metadata not found on {{label}} ({{reason}}, HTTP {{status}})",
+      "unavailableDetail": "Metadata not found on {{label}} ({{reason}}): {{detail}}",
+      "unavailableWithStatusDetail": "Metadata not found on {{label}} ({{reason}}, HTTP {{status}}): {{detail}}",
+      "runtimeUnavailable": "The amane runtime isn't available",
+      "packagedRuntimeProblem": "The fetch tool in the installer is missing or the wrong version. Reinstall Peach",
+      "bridgeMissing": "The amane bridge isn't installed. Rebuild it on the Sources page, or place it at {{python}}",
+      "bridgeScriptMissing": "The amane bridge script is missing: {{path}}",
+      "stdioDecode": "amane bridge encoding error (bridge_stdio_decode, {{code}}, {{sites}}, runtime={{runtime}}, expected=utf-8, bytes={{bytes}}, offset={{start}}:{{end}}, sha256={{sha256}})",
+      "bridgeTimeout": "The amane bridge query timed out",
+      "bridgeStartFailed": "Couldn't start the amane bridge: {{error}}",
+      "bridgeNotJson": "The amane bridge returned non-JSON output: {{detail}}",
+      "bridgeFailed": "The amane bridge query failed (exit {{exitCode}})",
+      "productMismatch": "The item returned by {{label}} isn't {{code}}: content_id={{contentId}}",
+      "preparing": "The amane runtime is being prepared. Try again later",
+      "installDirUnwritable": "Can't read or write the amane install directory: {{error}}",
+      "bundleFileMissing": "The installer is missing an amane bridge file: {{path}}. Reinstall Peach to use it",
+      "manifestUnreadable": "Can't read the amane bridge manifest: {{error}}",
+      "uvMissing": "uv wasn't found. Install uv, then rebuild the amane bridge",
+      "rebuildTimeout": "Rebuilding the amane bridge didn't finish within {{timeout}} seconds",
+      "uvStartFailed": "Couldn't start uv: {{error}}",
+      "uvSyncFailed": "uv sync failed (exit {{exitCode}}): {{detail}}",
+      "installIncomplete": "The amane install is incomplete: the runtime has no usable package metadata",
+      "selfCheckFailed": "The amane runtime failed its self-check. Reinstall it on the Sources page",
+      "selfCheckUnfinished": "The amane runtime self-check didn't finish. Try again on the Sources page"
+    },
+    "performerAliasFollowup": {
+      "coolingDown": "The source is cooling down",
+      "requestsUsedUp": "This item's request limit is used up",
+      "networkFailed": "Network request failed: {{type}}",
+      "rateLimited": "The source is rate limiting requests (429)",
+      "refused": "The source refused access or requires a bot check",
+      "pageMissing": "The site doesn't have this page"
+    },
+    "settingsFile": {
+      "locatorUnreadable": "Can't read the data directory location {{locator}}: {{error}}",
+      "locatorInvalid": "The data directory location is invalid or loops back: {{locator}}",
+      "locatorTooDeep": "The data directory location redirects more than eight times",
+      "unreadable": "Can't read the settings file {{path}}: {{error}}",
+      "notUtf8": "Can't read the settings file {{path}}: not UTF-8 encoded ({{error}})",
+      "tomlSyntax": "Can't read the settings file {{path}}: TOML syntax error: {{error}}",
+      "notTable": "Can't read the settings file {{path}}: `{{key}}` must be a table ([{{key}}])",
+      "notString": "Can't read the settings file {{path}}: `{{key}}` must be a string",
+      "notInteger": "Can't read the settings file {{path}}: `{{key}}` must be an integer",
+      "notBoolean": "Can't read the settings file {{path}}: `{{key}}` must be true or false",
+      "notStringOrArray": "Can't read the settings file {{path}}: `{{key}}` must be a string or an array of strings",
+      "emptyArrayItem": "Can't read the settings file {{path}}: the `{{key}}` array can't contain empty strings",
+      "duplicatePaths": "Can't read the settings file {{path}}: the `{{key}}` array has duplicate paths",
+      "unknownDirectories": "Can't read the settings file {{path}}: unknown keys in `directories`: {{keys}}",
+      "driveLetterKeys": "Can't read the settings file {{path}}: `[media]` no longer accepts drive letter keys: {{keys}}. Rewrite them as `[media.mounts] <location-id> = <path on this device>`, where the ID is a storage key configured in `[media.locations]` and the path is that storage's media directory on this device, for example `local = '/mnt/media'`",
+      "locationsWithoutPrefix": "Can't read the settings file {{path}}: these storage entries in `[media.locations]` have no directory prefix: {{keys}}",
+      "undeclaredMounts": "Can't read the settings file {{path}}: `[media.mounts]` has storage not declared in `[media.locations]`: {{keys}}",
+      "mountCountMismatch": "Can't read the settings file {{path}}: `[media.mounts] {{key}}` lists {{mounts}} media directories, but `[media.locations] {{key}}` lists {{prefixes}} database path prefixes. They pair up in order, so either use the same count or leave the entry empty",
+      "costInvalid": "Can't read the settings file {{path}}: `[media.costs]` only accepts free or metered",
+      "identityInvalid": "Can't read the settings file {{path}}: invalid library identity settings: {{error}}",
+      "identityInvalidOnSave": "Invalid library identity settings: {{error}}",
+      "fileExists": "The settings file already exists. Add --force to overwrite it: {{path}}"
+    },
+    "scan": {
+      "pathConflict": "Several file records share the same normalized path (records {{ids}}): {{path}}. All records were kept; please review them. Other files continue processing",
+      "unknownSource": "✗ Undeclared storage {{location}}; known in [media.locations]: {{known}}",
+      "unknownSourceNoneDeclared": "✗ Undeclared storage {{location}}; known in [media.locations]: (none in the settings file)",
+      "rootBelongsElsewhere": "✗ The scan directory doesn't match the storage: the database path prefixes of {{location}} are {{prefixes}}, but the directory to scan is {{root}} (it belongs to {{actual}})",
+      "rootOutsideMedia": "✗ The scan directory doesn't match the storage: the database path prefixes of {{location}} are {{prefixes}}, but the directory to scan is {{root}} (not under any configured media directory)",
+      "noMounts": "✗ Storage {{location}} has no directory on this device, so the path {{path}} can't be converted. Configure the media directory in [media.mounts] first",
+      "outsideMounts": "✗ {{path}} isn't under the mount points {{mounts}} of storage {{location}}",
+      "smbNotSaved": "The SMB directory hasn't been saved to the library settings yet",
+      "prefixWithoutMount": "✗ Database path prefix {{index}} of storage {{location}} has no matching directory on this device. Configure the media directories in [media.mounts] in the same order first",
+      "checkpointMismatch": "The scan directory doesn't match the saved checkpoint. Check the mount settings"
+    },
+    "faceDetect": {
+      "faceModelMissing": "Face model is missing: {{path}}",
+      "faceModelFetchFailed": "Couldn't download the face model: {{error}}",
+      "faceModelChecksum": "Face model checksum mismatch: expected {{expected}}, got {{actual}}",
+      "matchModelMissing": "Face matching model is missing: {{path}}",
+      "matchModelFetchFailed": "Couldn't download the face matching model: {{error}}",
+      "matchModelChecksum": "Face matching model checksum mismatch: expected {{expected}}, got {{actual}}",
+      "detectorUnsupported": "This OpenCV build has no FaceDetectorYN; version 4.5.4 or later is required"
+    },
+    "faceMatch": {
+      "recognizerUnsupported": "This OpenCV build has no FaceRecognizerSF; version 4.5.4 or later is required"
+    },
+    "taskRetry": {
+      "relayed": "{{message}}"
+    },
+    "catalogRules": {
+      "codePatternsNotList": "Code recognition rules must be a list of regular expressions",
+      "codePatternsTooMany": "At most {{limit}} code recognition rules are allowed",
+      "codePatternTooLong": "Rule {{index}} is longer than {{limit}} characters",
+      "codePatternInvalid": "Rule {{index}} isn't a valid regular expression: {{error}}"
+    },
+    "reviewCsv": {
+      "readFailed": "Couldn't read the review CSV {{path}} at line {{line}}: {{error}}"
+    },
+    "mediaIo": {
+      "deadlinePassed": "The media read passed its deadline",
+      "readTimedOut": "Reading the media directory or sidecar files timed out and was skipped. You can retry",
+      "readerFailed": "The media reader process didn't finish"
     }
   }
 }

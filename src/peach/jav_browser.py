@@ -24,7 +24,7 @@ from .downloads import (
     never_seen, submit_offline_download, parse_magnet,
     parse_iso, DownloadError,
 )
-from .task_retry import RETRY_DELAYS, RetryableTaskError, retry_delay
+from .task_retry import RELAYED, RETRY_DELAYS, RetryableTaskError, retry_delay
 from .follow_secrets import CredentialError
 from .feeds import scan_code
 from .fsutil import atomic_write_text
@@ -600,7 +600,8 @@ class JavBrowser:
             with self._lock:
                 self._submitting.discard(code)
                 if row["state"] == "searching":
-                    retry_error = RetryableTaskError(error.detail) if isinstance(error, DownloadError) and error.retryable else error
+                    retry_error = (RetryableTaskError(RELAYED, {'message': str(error.detail)})
+                                   if isinstance(error, DownloadError) and error.retryable else error)
                     self._schedule_retry(row, retry_error)
                     self._save()
         return True
@@ -612,7 +613,7 @@ class JavBrowser:
                    else NO_OTHER_MAGNET if row.get('skip') else MESSAGES['no_match'])
         after = result.get('retry_after')
         if failed and type(after) in (int, float) and math.isfinite(after) and after >= 0:
-            self._schedule_retry(row, RetryableTaskError(message, after=after))
+            self._schedule_retry(row, RetryableTaskError('errors.javBrowser.searchUnavailable', after=after))
         else:
             row.update(state='failed' if failed else 'no_match', message=message)
 

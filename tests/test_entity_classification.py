@@ -33,9 +33,9 @@ class _Pages:
     def get(self, url):
         self.asked.append(url)
         if url in self.failing:
-            raise Unavailable('Wiki 网络请求未取得')
+            raise Unavailable('errors.performerAliasFollowup.networkFailed', {'type': 'ConnectError'})
         if url not in self.listed:
-            raise Missing('站上没有这一页')
+            raise Missing('errors.performerAliasFollowup.pageMissing')
         return Page(url, self.listed[url])
 
 

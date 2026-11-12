@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import follow_evidence, follow_providers
-from .follow import FollowSourceError, write_immutable
+from .follow import FollowSourceError, internal_error, write_immutable
 from .follow_image_dims import positive_dims
 from .follow_sources import (
     Rule34VideoConnector, SourceFetch, canonical_source_ref,
@@ -32,7 +32,7 @@ from .user_messages import UserValueError
 def _now_text(moment: datetime | None = None) -> str:
     moment = moment or datetime.now(timezone.utc)
     if moment.tzinfo is None:
-        raise FollowSourceError("follow timestamps must be timezone-aware")
+        raise internal_error("follow timestamps must be timezone-aware")
     return moment.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
 
 
@@ -341,7 +341,7 @@ class FollowStore:
                  semantics: str = "work", entity_id: int | None = None,
                  metadata: dict | None = None, moment: datetime | None = None) -> int:
         if semantics not in ("work", "release"):
-            raise FollowSourceError("semantics must be work or release")
+            raise internal_error("semantics must be work or release")
         ref = canonical_source_ref(provider, ref)
         stamp = _now_text(moment)
         payload = json.dumps(metadata or {}, ensure_ascii=False)
@@ -864,9 +864,9 @@ class FollowStore:
 
     def set_status(self, item_id: int, status: str) -> None:
         if status not in ("new", "seen", "saved", "ignored"):
-            raise FollowSourceError(f"unknown follow status: {status}")
+            raise internal_error(f"unknown follow status: {status}")
         if status == "saved":
-            raise FollowSourceError("`saved` can only be set by save_asset()")
+            raise internal_error("`saved` can only be set by save_asset()")
         self._connect().execute(
             "UPDATE follow_item SET status=? WHERE id=?", (status, item_id))
 
@@ -881,7 +881,7 @@ class FollowStore:
             "SELECT hidden_media_json FROM follow_item WHERE id=?", (int(item_id),)
         ).fetchone()
         if row is None:
-            raise FollowSourceError(f"追更条目不存在：{item_id}")
+            raise FollowSourceError("errors.followStore.itemMissing", {"id": item_id})
         try:
             current = [key for key in json.loads(row[0] or "[]")
                        if isinstance(key, str) and key]
@@ -907,7 +907,7 @@ class FollowStore:
         """
         dims = positive_dims(width, height)
         if dims is None:
-            raise FollowSourceError(f"image dimensions must be positive integers: {width}x{height}")
+            raise internal_error(f"image dimensions must be positive integers: {width}x{height}")
         if media_index is None:
             prefix = "$"
             guard = ""
@@ -1151,17 +1151,17 @@ class FollowStore:
         不改写任何既有 asset 的真相字段，也不下载媒体。
         """
         if not confirm:
-            raise FollowSourceError("writing the ledger requires explicit confirm=True")
+            raise internal_error("writing the ledger requires explicit confirm=True")
         connection = self._connect()
         row = connection.execute(
             self._SELECT + " WHERE i.id=?", (item_id,)).fetchone()
         if row is None:
-            raise FollowSourceError(f"追更条目 {item_id} 不存在")
+            raise FollowSourceError("errors.followStore.itemNotFound", {"id": item_id})
         item = self._row(row)
         if item.asset_id:
             return item.asset_id
         if not item.url:
-            raise FollowSourceError("候选没有作品页 URL，无法作为在线作品保存")
+            raise FollowSourceError("errors.followStore.noWorkUrl")
         stamp = _now_text(moment)
         existing = connection.execute(
             "SELECT id FROM asset WHERE location='online' AND path=?", (item.url,)
@@ -1227,7 +1227,7 @@ class FollowStore:
         `ON DELETE CASCADE` 会留下认不出主人的孤儿行。
         """
         if not confirm:
-            raise FollowSourceError("deleting ledger rows requires explicit confirm=True")
+            raise internal_error("deleting ledger rows requires explicit confirm=True")
         connection = self._connect()
         removed = 0
         for row in rows:

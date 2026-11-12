@@ -21,7 +21,7 @@ def _values(credentials: CredentialStore, provider: str) -> dict:
     try:
         credential = credentials.load(provider)
     except CredentialError as error:
-        raise DownloadError("config", f"本机凭据文件读不出来，请在设置页重新填写：{error}") from None
+        raise DownloadError("config", "errors.webDownloads.credentialsUnreadable", {"error": str(error)}) from None
     return dict(credential.values) if credential else {}
 
 
@@ -46,7 +46,7 @@ def build_download_service(*, database: LedgerDatabase, state_root: Path,
         if key == "pikpak":
             return PikPakProvider(lambda: _values(credentials, PIKPAK_CREDENTIAL),
                                   persist=lambda values: credentials.save(PIKPAK_CREDENTIAL, values))
-        raise DownloadError("config", f"不认识的云下载渠道：{key}")
+        raise DownloadError("config", "errors.webDownloads.unknownChannel", {"key": key})
 
     service = DownloadService(database=database, state_root=state_root, credentials=credentials,
                               providers=providers, landing=Landing(push_discovery),
@@ -261,7 +261,7 @@ def create_clouddrive_folder(service: DownloadService, body: dict) -> dict:
     try:
         return create_folder(address, token, path, hints=_hints(service, body))
     except DownloadError as error:
-        raise ValueError(error.detail) from None
+        raise UserValueError(error.code, error.params) from None
 
 
 def pikpak_login(service: DownloadService, body: dict, declared_roots, *, transport=None) -> dict:
@@ -278,7 +278,7 @@ def pikpak_login(service: DownloadService, body: dict, declared_roots, *, transp
         return {"ok": False, "captcha_url": error.url, "message": error.detail,
                 "settings": settings_payload(service, declared_roots)}
     except DownloadError as error:
-        raise ValueError(error.detail) from None
+        raise UserValueError(error.code, error.params) from None
     service.wake()
     return {"ok": True, "settings": settings_payload(service, declared_roots)}
 

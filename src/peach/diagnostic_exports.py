@@ -7,6 +7,7 @@ import threading
 from .jobs import BackgroundJob
 from .scraping_diagnostics import ExportCancelled, selected_codes
 from .task_stages import stage as stage_fields
+from .os_errors import UserFileNotFoundError
 from .user_messages import UserValueError
 
 
@@ -43,7 +44,7 @@ class DiagnosticExports:
                 final = self.root / f'{identity}.zip'
                 def progress(**values):
                     if cancelled.is_set():
-                        raise ExportCancelled('export canceled')
+                        raise ExportCancelled()
                     self.job.update(identity, **values)
                 try:
                     if kind == 'scraping':
@@ -60,7 +61,7 @@ class DiagnosticExports:
                                   progress=progress, cancelled=cancelled.is_set)
                     with self.job.editing(identity) as state:
                         if state is None or cancelled.is_set():
-                            raise ExportCancelled('export canceled')
+                            raise ExportCancelled()
                         pending.replace(final)
                         state.update(status='complete', **stage_fields('diagnostics.done'), bytes=final.stat().st_size,
                                      download_url=f'/api/diagnostics/exports/{identity}/download')
@@ -85,11 +86,11 @@ class DiagnosticExports:
 
     def download(self, identity):
         if not re.fullmatch(r'[a-f0-9]{32}', identity):
-            raise FileNotFoundError('导出任务未取得')
+            raise UserFileNotFoundError('errors.diagnosticExports.jobNotFound')
         state = self.snapshot()
         path = self.root / f'{identity}.zip'
         if state.get('job_id') != identity or state.get('status') != 'complete' or not path.is_file():
-            raise FileNotFoundError('导出文件尚未就绪，请重新生成')
+            raise UserFileNotFoundError('errors.diagnosticExports.fileNotReady')
         return path, 'peach-scraping.zip' if state['kind'] == 'scraping' else 'peach-support.zip'
 
 

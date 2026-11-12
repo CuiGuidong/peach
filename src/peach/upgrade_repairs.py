@@ -1002,7 +1002,7 @@ class UpgradeRepairs:
         except (OSError, sqlite3.Error) as error:
             if (getattr(error, 'errno', None) == errno.ENOSPC or getattr(error, 'winerror', None) in (39, 112)
                     or getattr(error, 'sqlite_errorcode', None) == sqlite3.SQLITE_FULL):
-                raise DiskSpaceDenied('显示尺寸补测备份空间不足，已暂停本批媒体') from error
+                raise DiskSpaceDenied('errors.upgradeRepairs.displayBackupNoSpace') from error
             raise
 
     def _isolate_system_files(self) -> None:
@@ -1777,7 +1777,7 @@ def _media_run(contract, key: str, handle) -> dict:
         if service is not None:
             paused = _read(service.receipt).get('media_paused')
             if paused:
-                raise DiskSpaceDenied(paused['message'])
+                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': paused['message']})
         if found is not None and mount_unreachable(found['path']):
             return _defer(contract, key, handle, [asset_id],
                           RepairDeferred('deferMountMedia', MOUNT_RETRY_SECONDS))
@@ -1796,7 +1796,7 @@ def _media_run(contract, key: str, handle) -> dict:
         _pause_for_capacity(service, handle, error)
     except InterruptedError:
         if not active():
-            raise JobPaused('服务重启后继续') from None
+            raise JobPaused('errors.upgradeRepairs.resumeAfterRestart') from None
         raise
     # 走完全程只剩这部片自己的问题（坏文件探不出时长、抽不出帧）算完成；卡在来源冷却上的
     # 延后到来源放开再派，不算失败；其余未完成的按失败结算，由退避重派。
@@ -1839,7 +1839,7 @@ def _batch_run(contract, key: str, handle) -> dict:
         if service is not None:
             paused = _read(service.receipt).get('media_paused')
             if paused:
-                raise DiskSpaceDenied(paused['message'])
+                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': paused['message']})
         if targets:
             guard = CapacityGuard(config)
             guard.check(force=True)
@@ -1854,7 +1854,7 @@ def _batch_run(contract, key: str, handle) -> dict:
         _pause_for_capacity(service, handle, error)
     except InterruptedError:
         if not active():
-            raise JobPaused('服务重启后继续') from None
+            raise JobPaused('errors.upgradeRepairs.resumeAfterRestart') from None
         raise
     if result.get('status') not in ('complete', 'succeeded') and result.get('outcome') != 'partial':
         if result.get('error'):
@@ -1913,14 +1913,14 @@ def _display_run(contract, key: str, handle) -> dict:
     def available():
         checkpoint('probe')
         if service is not None and service.stopping.is_set():
-            raise JobPaused('服务重启后继续')
+            raise JobPaused('errors.upgradeRepairs.resumeAfterRestart')
         guard.check(force=True)
 
     try:
         if service is not None:
             paused = _read(service.receipt).get('media_paused')
             if paused:
-                raise DiskSpaceDenied(paused['message'])
+                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': paused['message']})
         handle.progress(**stage_label('upgrade.displayDimensionsAll'))
         result = display_dimensions_repair.reprobe(contract, config, asset_id, checkpoint=available,
                                                    expected_generation=key.rsplit(':', 2)[1],
@@ -1931,7 +1931,7 @@ def _display_run(contract, key: str, handle) -> dict:
         _pause_for_capacity(service, handle, error)
     except InterruptedError:
         if service is not None and service.stopping.is_set():
-            raise JobPaused('服务重启后继续') from None
+            raise JobPaused('errors.upgradeRepairs.resumeAfterRestart') from None
         raise
     return {**({'outcome': 'skipped'} if result.get('skipped') else said('dimensionsMeasured')),
             'asset_id': asset_id, 'dimensions_changed': result['changed']}
@@ -1958,7 +1958,7 @@ def _pause_for_capacity(service, handle, error):
     if service is None:
         raise error
     service.pause_media(error, run_id=_run_id(handle))
-    raise CapacityPaused(str(error)) from error
+    raise CapacityPaused(error.code, error.params) from error
 
 
 TYPE = register(FollowupType(MEDIA_TASK, '更新影片资料', True, _media_run))

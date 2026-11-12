@@ -1,6 +1,7 @@
 """扫描、本地资料和缺失元数据采集共用一次有状态的处理任务。"""
 from __future__ import annotations
 
+import copy
 import hashlib
 import json
 import re
@@ -33,7 +34,8 @@ from .library_nfo import sidecars, SidecarIndex
 from .media_io import directory_files, read_nfo, local_art, root_online, directory_entries, file_stat
 from .genre_decisions import load_genre_decisions
 from .metadata import (candidate_text_is_valid, source_text_is_valid,
-                       extract_catalog_evidence, extract_peach_fields, validate_provider_code)
+                       extract_catalog_evidence, extract_peach_fields, relay_args, relayed,
+                       validate_provider_code)
 from . import metadata_routes
 from . import media_identity
 from .library_processing_scope import scoped_config, scoped_assets
@@ -138,14 +140,13 @@ def is_missing(error):
 
 def _again(error):
     """缓存着的失败再抛一次时交一个同类同措辞的新实例；`SourceFailure` 连细档与状态码一起带上。"""
-    if isinstance(error, SourceFailure):
-        return SourceFailure(error.reason, error.message, status_code=error.status_code, detail=error.detail)
     from .user_messages import UserFacingError
     if isinstance(error, UserFacingError):
         # 带 code 的异常第一个参数是 code，不能拿原句重建：复制一份，code、参数与状态码原样带上。
-        again = type(error).__new__(type(error))
-        again.__dict__.update(error.__dict__)
-        again.args = error.args
+        again = copy.copy(error)
+        if isinstance(error, SourceFailure):
+            # 新实例还没记过冷却（`SiteSource.holding`）。
+            again.held = False
         return again
     again = type(error)(str(error))
     if hasattr(error, 'sites'):
@@ -166,11 +167,13 @@ def _excused(provider):
 
 def _unreached(problems):
     """几处没问成的原因 `[(原因, 是否冷却)]` 合成一个异常：全是冷却就是本趟没轮到（`SourcePaused`），
-    有一处是别的原因就是 `Unavailable`。"""
+    有一处是别的原因就是 `Unavailable`。
+
+    每处原因已是问题清单那一句（`describe_failure`），这里只用「；」连起来转述，不再有自己的 code。"""
     from .jav_cover_fetch import Unavailable
     from .scraping_access import SourcePaused
     kind = SourcePaused if all(paused for _, paused in problems) else Unavailable
-    return kind('；'.join(text for text, _ in problems))
+    return kind(*relayed('；'.join(text for text, _ in problems)))
 
 
 def _fc2_official_images(payload):
@@ -242,9 +245,9 @@ def artwork_title(snapshots):
     return title
 
 
-def _said_no(message, sites):
+def _said_no(code, sites):
     """合档的「没有」：带上说了没有的是哪几站（`sites`），失败记忆按站记（`_MissCache`）。"""
-    error = NotFound(message)
+    error = NotFound(code)
     error.sites = tuple(sites)
     return error
 
@@ -364,7 +367,7 @@ class _BudgetedPages:
         from .jav_cover_fetch import DeadlineExceeded
         # 用减法判：`processing_control.ActiveDeadline` 在减法里扣掉暂停的那段。
         if self.deadline is not None and self.deadline - time.monotonic() <= 0:
-            raise DeadlineExceeded('外部资料在预算时间内未取得，可稍后重试')
+            raise DeadlineExceeded('errors.libraryProcessing.deadlineRetryLater')
         return self.pages.get(url)
 
 
@@ -426,9 +429,9 @@ class LibraryMetadataProvider:
             sites = [site for site in route if site in metadata_amane.SITES]
             open_sites = [site for site in sites if not paused_until(self.secrets_root, site)]
             if not sites:
-                cache[key] = NotFound('这个番号的链上没有经 amane 桥问的站')
+                cache[key] = NotFound('errors.libraryProcessing.noAmaneSites')
             elif not open_sites:
-                cache[key] = SourcePaused('来源正在冷却，请稍后重试；已有图片保留')
+                cache[key] = SourcePaused('errors.scrapingAccess.coolingDown')
             else:
                 cache[key] = self._amane_query(code, open_sites, deadline)
         if isinstance(cache[key], Exception):
@@ -447,7 +450,7 @@ class LibraryMetadataProvider:
         if deadline is not None:
             timeout = deadline - time.monotonic()
             if timeout <= 1.0:
-                raise DeadlineExceeded('外部资料在预算时间内未取得')
+                raise DeadlineExceeded('errors.libraryProcessing.deadline')
         try:
             tools = self.tools_root if self.tools_root is not None else TOOLS_DIR
             try:
@@ -471,7 +474,8 @@ class LibraryMetadataProvider:
                                   else peach_proxy.client_options(self.secrets_root), direct_sites=direct_sites)
         except Exception as error:  # noqa: BLE001 - 桥没装、venv 坏了、超时：整档未取得，原因给人看
             _raise_task_failure(error)
-            return Unavailable(f'amane 桥：{str(error).strip() or describe_failure(error)}')
+            return Unavailable('errors.libraryProcessing.amaneBridgeFailed',
+                               {'error': str(error).strip() or describe_failure(error)})
         raw_sites = report.get('sites')
         raw_sites = raw_sites if isinstance(raw_sites, dict) else {}
         reports = {site: raw_sites[site] if isinstance(raw_sites.get(site), dict) else {
@@ -494,15 +498,17 @@ class LibraryMetadataProvider:
                 pause_source(self.secrets_root, site, refused=action == 'blocked')
                 held += 1
             if error.kind != 'not_found':
-                problems.append(str(error))
+                problems.append(error)
         if found:
             return found
         if not problems:
-            return _said_no('amane 桥问的几站都没有这个番号', sites)
+            return _said_no('errors.libraryProcessing.amaneSitesSaidNo', sites)
+        # 一站出错就照搬它的 code；几站都出错时把各站那一句用「；」连起来转述。
+        said = relay_args(problems[0]) if len(problems) == 1 else relayed('；'.join(map(str, problems)))
         # 出错的站全都进了冷却，这一档就是「本趟没轮到」；只要有一站是别的原因就是「未取得」。
         if held and held == len(problems):
-            return SourcePaused('；'.join(problems))
-        return Unavailable('；'.join(problems))
+            return SourcePaused(*said)
+        return Unavailable(*said)
 
     def community(self, code, *, deadline=None, route=None, known=(), absent=(), received=lambda found: None):
         """官方渠道落空时问综合索引那一档，返回 `[(来源, 资料)]`。
@@ -560,7 +566,7 @@ class LibraryMetadataProvider:
             found.append((source, payload))
             received([(source, payload)])
         if found or not problems:
-            return found or _said_no('社区来源都没有这个番号', said_no)
+            return found or _said_no('errors.libraryProcessing.communitySaidNo', said_no)
         return _unreached(problems)
 
     def fc2(self, code, *, deadline=None, route=None, covers=False, required=(), known=(), received=lambda found: None):
@@ -632,7 +638,7 @@ class LibraryMetadataProvider:
         # 一处报错、另一处说没有时报错误：那个番号在报错那处有没有，还没问出来。
         if state['problems']:
             raise _again(state['problems'][0])
-        raise _said_no('FC2 与几个存档站上都没有这个商品', sorted(state['asked']))
+        raise _said_no('errors.libraryProcessing.fc2ArchivesSaidNo', sorted(state['asked']))
 
     def one_pondo(self, code, *, deadline=None):
         """一本道自己那份作品 JSON（`sources/onepondo.py`），返回 `[('1pondo', 资料)]`。
@@ -691,9 +697,10 @@ class LibraryMetadataProvider:
             _raise_task_failure(error)
             # 「没有」交回 `cover()` 时是传输层那一档的 `NotFound`：它按这一档跳到社区来源。
             if is_missing(error):
-                raise NotFound(str(error)) from error
-            text = f'{SOURCE_LABELS[source]}：{describe_failure(error)}'
-            raise (SourcePaused if source_paused(error) else Unavailable)(text) from error
+                raise NotFound(*relay_args(error)) from error
+            raise (SourcePaused if source_paused(error) else Unavailable)(
+                'errors.libraryProcessing.sourceProblem',
+                {'source': SOURCE_LABELS[source], 'problem': describe_failure(error)}) from error
         addresses = []
         for _, payload in found:
             for url in payload.get('cover_urls') or [payload.get('cover_url')]:
@@ -740,8 +747,8 @@ class LibraryMetadataProvider:
         except MetadataProviderError as error:
             # 原因里不带站名：`_metadata` 记问题时会给单家来源补上。
             if error.kind == 'incomplete_search':
-                raise NotFound(str(error)) from error
-            raise Unavailable(str(error)) from error
+                raise NotFound(*relay_args(error)) from error
+            raise Unavailable(*relay_args(error)) from error
         return [(source, record.payload())]
 
     def query(self, code, source='r18dev', *, deadline=None):
@@ -799,7 +806,7 @@ class LibraryMetadataProvider:
             except (Unavailable, SourcePaused) as error:
                 problems.append((describe_failure(error), source_paused(error)))
         if chosen is None:
-            raise _unreached(problems) if problems else NotFound('官方与社区来源都没有这部片的封面')
+            raise _unreached(problems) if problems else NotFound('errors.libraryProcessing.noCover')
         candidate, size, data = chosen
         # 官方图可替换社区转存图；同类来源按像素面积升级。
         from .community_catalog import origin_of
@@ -817,7 +824,7 @@ class LibraryMetadataProvider:
             if problems:
                 # 有来源这一趟没问成（冷却、配额、超时），它那里可能有原图：不能记成一周不问。
                 raise _unreached(problems)
-            raise CoverKept(f'source cover {size[0]}x{size[1]} does not improve the local cover')
+            raise CoverKept('errors.libraryProcessing.coverNotImproved', {'width': size[0], 'height': size[1]})
         from .cover_artwork import install_cover
         title = artwork_title(snapshots)
         install_cover(target, code, data, size, evidence=dict(source=candidate.source, title=title,
@@ -2366,8 +2373,15 @@ def budget_summary(state):
     if not skipped:
         return ''
     from .scraping_access import BUDGET_SPENT
-    head = (state.get('budget_reason') or BUDGET_SPENT['seconds']).split('，')[0]
+    # `budget_reason` 是 `BUDGET_SPENT` 的 code；认不出的（升级前按原句记下的）按时间到顶说。
+    reason = state.get('budget_reason')
+    kind = next((key for key, code in BUDGET_SPENT.items() if code == reason), 'seconds')
+    head = _BUDGET_HEADS[kind]
     return f'{head}，还有 {skipped} 部没问外部来源，再跑一次接着采。'
+
+
+#: 预算三项到顶时汇总句的开头，键与 `scraping_access.BUDGET_SPENT` 一致。
+_BUDGET_HEADS = {'requests': '本趟采集次数已用完', 'seconds': '本趟采集时间已用完', 'bytes': '本趟下载量已用完'}
 
 
 def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, covered, *,
@@ -2603,20 +2617,20 @@ def _generate_preview(config, row, database, resolver, *, progress):
             return False
     choice = resolver.ffmpeg()
     if choice is None:
-        raise PreviewUnavailable('未找到 FFmpeg，无法生成预览图，请在诊断页检查工具状态')
+        raise PreviewUnavailable('errors.libraryProcessing.ffmpegMissing')
     video = translate_ledger_path(row['path'])
     import stat
     if not stat.S_ISREG(file_stat(video, timeout=remaining(20)).st_mode):
-        raise PreviewUnavailable('媒体文件不可访问')
+        raise PreviewUnavailable('errors.libraryProcessing.mediaInaccessible')
     duration = row.get('duration') or 0
     if duration <= 0:
         probe = resolver.ffprobe()
         if probe is None:
-            raise PreviewUnavailable('未找到 ffprobe，无法读取视频时长')
+            raise PreviewUnavailable('errors.libraryProcessing.ffprobeMissing')
         measured = media_probe.measure(str(probe.path), row['id'], str(video), timeout=remaining(20))
         duration = measured[0]
         if duration <= 0:
-            raise PreviewUnavailable('视频时长未取得，请检查媒体文件后重试')
+            raise PreviewUnavailable('errors.libraryProcessing.durationUnavailable')
         progress()
         with database.write_transaction() as connection:
             connection.execute(media_probe.UPDATE, measured)

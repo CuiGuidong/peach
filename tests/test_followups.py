@@ -358,7 +358,7 @@ class RunnerTests(LedgerTestCase):
 
     def test_a_failed_followup_does_not_change_its_parent(self):
         def explode(_contract, _key, _handle):
-            raise RuntimeError("取不到这张图")
+            raise RuntimeError("image fetch failed")
 
         parent = self.parent()
         with registered(echo_type(AVATAR_TASK_KEY, run=explode)):
@@ -367,10 +367,10 @@ class RunnerTests(LedgerTestCase):
             self.store.finish(parent.id, "succeeded", summary={"followups": 1})
             with self.assertLogs("peach.followups", level="WARNING") as captured:
                 FollowupRunner(self.contract()).drain()
-            self.assertIn("取不到这张图", "\n".join(captured.output))
+            self.assertIn("image fetch failed", "\n".join(captured.output))
         child = self.store.get(queued[0])
         self.assertEqual(child.status, "failed")
-        self.assertIn("取不到这张图", child.error)
+        self.assertIn("image fetch failed", child.error)
         self.assertEqual(self.store.get(parent.id).status, "succeeded")
         self.assertEqual(self.store.get(parent.id).error, "")
 
@@ -441,7 +441,7 @@ class BackgroundJobDispatchTests(LedgerTestCase):
 
         def work(job_id):
             job.update(job_id, followups=self.declared())
-            raise RuntimeError("采集中断")
+            raise RuntimeError("collection interrupted")
 
         job.start(work)
         job.thread.join(5)
@@ -1282,7 +1282,7 @@ class OffsiteCoverFaceTests(FaceStubCase):
                 from peach.performer_alias_followup import Blocked
 
                 if test.blocked:
-                    raise Blocked("avwikidb 在冷却")
+                    raise Blocked("errors.performerAliasFollowup.coolingDown")
                 test.pages.append(url)
                 singles = sum(len(work["actor"]) == 1 and
                               work["actor"][0]["fanzaAvActressId"] == test.ACTOR
@@ -1616,8 +1616,8 @@ class ProcessLibraryTests(LedgerTestCase):
 
     def provider(self):
         provider = mock.Mock()
-        provider.amane.side_effect = NotFound('片商官网没有这个番号')
-        provider.community.side_effect = NotFound('社区来源都没有这个番号')
+        provider.amane.side_effect = NotFound('errors.libraryProcessing.amaneSitesSaidNo')
+        provider.community.side_effect = NotFound('errors.libraryProcessing.communitySaidNo')
         provider.cover.return_value = False
         provider.query.return_value = {
             'id': 'ABW-358',
@@ -1659,7 +1659,8 @@ class ProcessLibraryTests(LedgerTestCase):
         # 三、真的被跑掉，收在终态。补别名、补女优资料的各站都换成取不到页的替身，不联网。
         class Offline:
             def get(self, _url):
-                raise performer_alias_followup.Unavailable('测试里不联网')
+                raise performer_alias_followup.Unavailable('errors.performerAliasFollowup.networkFailed',
+                                                          {'type': 'ConnectError'})
 
             def close(self):
                 pass
@@ -1705,7 +1706,7 @@ class TaskPayloadTests(LedgerTestCase):
             calls.append('run')
             if len(calls) == 1:
                 tokens.append(update_tasks.reserve(self.db))
-                raise JobPaused('安装期间暂停')
+                raise JobPaused('errors.updateTasks.pausedForInstall')
             return {'outcome':'完成'}
         kind = echo_type('upgrade-test', run=work)
         parent = self.parent()

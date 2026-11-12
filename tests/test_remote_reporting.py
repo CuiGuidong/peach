@@ -581,22 +581,23 @@ class RemoteReportingTests(unittest.TestCase):
         from peach.browser_transport import BrowserUnavailable, ChallengeUnsolved
         from peach.jav_cover_fetch import CoverConnectError, DeadlineExceeded
         from peach.jobs import JobPaused, MeteredSourceDenied, DiskSpaceDenied, TaskRunConflict
-        from peach.metadata import MetadataProviderError
+        from peach.metadata import MetadataProviderError, relayed
         from peach.previews import PreviewUnavailable
         from peach.scraping_access import SourcePaused
         from peach.segments import SegmentCancelled
         from peach.sources.base import SourceFailure, FailureReason
         from peach.transcodes import TranscodeCancelled
         from starlette.requests import ClientDisconnect
-        errors = [asyncio.CancelledError(), CancelledError(), InterruptedError(), JobPaused(),
-                  MeteredSourceDenied('errors.jobs.meteredSourceDenied', {'location': 'x'}), DiskSpaceDenied(), TaskRunConflict('processing', 1),
-                  SourcePaused(), DeadlineExceeded(), CoverConnectError(), PreviewUnavailable(),
+        errors = [asyncio.CancelledError(), CancelledError(), InterruptedError(), JobPaused('errors.updateTasks.pausedForInstall'),
+                  MeteredSourceDenied('errors.jobs.meteredSourceDenied', {'location': 'x'}), DiskSpaceDenied('errors.upgradeRepairs.displayBackupNoSpace'), TaskRunConflict('processing', 1),
+                  SourcePaused('errors.scrapingAccess.coolingDown'), DeadlineExceeded('errors.javCoverFetch.deadline'),
+                  CoverConnectError('errors.javCoverFetch.hostsUnreachable'), PreviewUnavailable(*relayed('snapshot unavailable')),
                   SegmentCancelled(), TranscodeCancelled(), BrowserUnavailable(), ChallengeUnsolved(),
                   ClientDisconnect(),
-                  MetadataProviderError('auth', kind='auth'),
-                  MetadataProviderError('absent', kind='not_found'),
-                  MetadataProviderError('retry', kind='unavailable', retryable=True)]
-        errors += [SourceFailure(reason, 'source state') for reason in FailureReason
+                  MetadataProviderError('errors.javdb.loginRequired', kind='auth'),
+                  MetadataProviderError('errors.javdb.notFound', kind='not_found'),
+                  MetadataProviderError('errors.metadataAmane.bridgeTimeout', kind='unavailable', retryable=True)]
+        errors += [SourceFailure(reason, *relayed('HTTP 503')) for reason in FailureReason
                    if reason != FailureReason.PARSE_ERROR]
         with mock.patch.object(reporting, 'send') as send:
             for error in errors:
@@ -606,11 +607,12 @@ class RemoteReportingTests(unittest.TestCase):
             send.assert_not_called()
 
     def test_source_parser_and_unknown_provider_failures_are_actionable(self):
-        from peach.metadata import MetadataProviderError
+        from peach.metadata import MetadataProviderError, relayed
         from peach.sources.base import SourceFailure, FailureReason
-        errors = [SourceFailure(FailureReason.PARSE_ERROR, 'parser failure'),
-                  MetadataProviderError('parser failure', kind='unavailable', detail='parse_error'),
-                  MetadataProviderError('unknown failure')]
+        errors = [SourceFailure(FailureReason.PARSE_ERROR, 'errors.dmm.notWorkJson'),
+                  MetadataProviderError('errors.dmm.notWorkJson', kind='unavailable', detail='parse_error'),
+                  # amane 桥报告里的原文按默认分类转述（`metadata_amane._bridge_report`）。
+                  MetadataProviderError(*relayed('unknown failure'))]
         for error in errors:
             with self.subTest(error=type(error).__name__), mock.patch.object(reporting, 'send') as send:
                 reporting.capture('background-job', error)

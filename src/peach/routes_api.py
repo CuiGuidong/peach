@@ -39,7 +39,7 @@ from .routes_auth import require_auth
 from .task_runs import task_label
 from .task_control import Cancelled as TaskCancelled
 from .taste_history import analyze_history, import_history_exports, write_manifest
-from .user_messages import UserFacingError, UserValueError, error_fields, message_fields
+from .user_messages import UserFacingError, UserValueError, error_fields, message_fields, response_status
 
 router = APIRouter()
 
@@ -390,8 +390,11 @@ def api_get(request: Request, route: str, args: dict[str, str] = Depends(require
     except KeyError:
         return JSONResponse({"error": "not found"}, status_code=404)
     except UserFacingError as exc:
-        # 带 code 的拒收（含 `UserValueError`）给原句与 code，不加异常类名前缀。
-        return JSONResponse(error_fields(exc), status_code=exc.status_code)
+        # 带 code 的拒收（含 `UserValueError`）给原句与 code，不加异常类名前缀；5xx 照旧记进日志。
+        status = response_status(exc)
+        if status >= 500:
+            LOGGER.exception("unhandled GET contract error for /api/%s", route)
+        return JSONResponse(error_fields(exc), status_code=status)
     except (TypeError, ValueError) as exc:
         return JSONResponse({"error": f"{type(exc).__name__}: {exc}"}, status_code=400)
     except Exception:
@@ -453,7 +456,7 @@ def api_post(
         # 带 code 的拒收（含 `UserValueError`）给原句与 code，不加异常类名前缀。
         from .error_reporting import event
         coded = isinstance(exc, UserFacingError)
-        status = exc.status_code if coded else 400
+        status = response_status(exc) if coded else 400
         event('http-request', exc, method='POST', route=route_path.lstrip('/'), status_code=status)
         return JSONResponse(error_fields(exc) if coded else {"error": f"{type(exc).__name__}: {exc}"},
                             status_code=status)

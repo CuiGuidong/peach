@@ -17,7 +17,7 @@ import json
 import time
 from typing import Protocol
 
-from .catalog_rules import compile_code_patterns
+from .catalog_rules import CodePatternError, compile_code_patterns
 from .feeds import DEFAULT_HIDDEN_COMPILATIONS, EXCERPT, GROUP_COMPILATION, SOLO_COMPILATION
 from .media_sources import SCANNABLE_LOCATIONS
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, FAVICON_REFRESH_SECONDS
@@ -204,10 +204,13 @@ def organize_templates(contract: SettingsContract) -> dict:
 def normalise_code_patterns(raw) -> list[str]:
     """收敛番号识别规则：一组正则，去掉空行。
 
-    存之前就编译一遍：写错的规则在保存那一刻报给用户（`ValueError`，API 翻成 400），
+    存之前就编译一遍：写错的规则在保存那一刻报给用户（带 code 的 `UserValueError`，API 翻成 400），
     不等到下一次处理时才在后台悄悄失效。
     """
-    compile_code_patterns(raw)
+    try:
+        compile_code_patterns(raw)
+    except CodePatternError as error:
+        raise UserValueError(error.code, error.params) from None
     return [str(rule).strip() for rule in raw or () if str(rule or "").strip()]
 
 

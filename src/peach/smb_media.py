@@ -16,6 +16,7 @@ from pathlib import PureWindowsPath
 from types import SimpleNamespace
 from urllib.parse import quote, unquote, urlsplit
 
+from .os_errors import CodedOSError
 from .user_messages import UserPermissionError, UserValueError
 
 
@@ -267,7 +268,7 @@ class SmbResource:
 
     def rename(self, target):
         if not isinstance(target, SmbResource) or target.root_id != self.root_id or target.uri != self.uri:
-            raise OSError(errno.EXDEV, 'SMB 改名仅支持同一媒体根目录')
+            raise CodedOSError(errno.EXDEV, 'errors.smbMedia.renameAcrossRoots')
         if not self.relative or not target.relative:
             raise UserPermissionError('errors.smbMedia.rootNotRenamable')
         with self._transport() as transport:

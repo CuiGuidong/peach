@@ -63,7 +63,7 @@ from .streaming import (
 )
 from .remote_media_cache import MEDIA_SECURITY_HEADERS
 from .transcodes import TranscodeCancelled, TranscodeNeedsSession, TranscodeUnavailable
-from .user_messages import UserValueError, error_detail, error_fields, message_fields
+from .user_messages import UserFacingError, UserValueError, error_detail, error_fields, message_fields
 
 router = APIRouter()
 
@@ -1646,10 +1646,10 @@ def _picker_online(request: Request, connection, entity_id: int):
             deadline = time.monotonic() + avatar_picker.FETCH_TIMEOUT
             for chunk in upstream.iter_bytes():
                 if time.monotonic() > deadline:
-                    raise avatar_picker.PickerError("这张图未取得：请求超时")
+                    raise avatar_picker.PickerError("errors.routesMedia.imageTimedOut")
                 length += len(chunk)
                 if length > avatar_picker.MAX_IMAGE_BYTES:
-                    raise avatar_picker.PickerError("图太大了")
+                    raise avatar_picker.PickerError("errors.avatarPicker.imageTooLarge")
                 chunks.append(chunk)
             return b"".join(chunks)
         finally:
@@ -1661,7 +1661,7 @@ def _picker_online(request: Request, connection, entity_id: int):
         if url.startswith("/follow-stream"):
             return media(item, None)
         if not avatar_picker.allowed_source(url):
-            raise avatar_picker.PickerError("封面地址不可用")
+            raise avatar_picker.PickerError("errors.routesMedia.coverAddressUnusable")
         return avatar_picker.fetch_image(state.http_transport, url)
 
     def avatar(params, ref):
@@ -1679,7 +1679,12 @@ def _picker_online(request: Request, connection, entity_id: int):
         if isinstance(response, FileResponse):
             return Path(response.path).read_bytes()
         if isinstance(response, JSONResponse):
-            raise avatar_picker.PickerError(json.loads(response.body)["error"])
+            # 头像端点的失败体：兜底句带 `message_code`；几处来源原因拼成的一句没有 code，整句作参数。
+            failure = json.loads(response.body)
+            if failure.get("message_code"):
+                raise avatar_picker.PickerError(failure["message_code"], failure.get("message_params"))
+            raise avatar_picker.PickerError("errors.routesMedia.avatarSourcesFailed",
+                                            {"reasons": failure["error"]})
         return None
 
     def resolve(ref):
@@ -1694,7 +1699,7 @@ def _picker_online(request: Request, connection, entity_id: int):
                 project=_picker_online_projection,
                 image=remembered(image), avatar=lambda params: avatar(params, ref), media=remembered(media))
         except (OSError, httpx.HTTPError, FollowMediaUnavailable, FollowProxyError, FollowCoverUnavailable) as error:
-            raise avatar_picker.PickerError("在线图片未取得") from error
+            raise avatar_picker.PickerError("errors.routesMedia.onlineImageNotFound") from error
         cache.store(f"peach:online/{entity_id}/{ref}", body, avatar_picker.accept_image(body))
         origin.update(avatar_origin)
         return body, origin
@@ -1861,7 +1866,7 @@ async def avatar_pick(request: Request, args: dict[str, str] = Depends(require_a
     def confirm():
         entity_id = _picker_entity(state, payload)
         if entity_id <= 0:
-            raise avatar_picker.PickerError('缺少实体 id')
+            raise avatar_picker.PickerError("errors.routesMedia.missingEntityId")
         selected = body
         if ref:
             with state.read_connection() as connection:
@@ -1877,7 +1882,7 @@ async def avatar_pick(request: Request, args: dict[str, str] = Depends(require_a
             origin = {"source": "avatar picker", "provider": "upload",
                       "external_id": str(payload.get("name") or "")}
         else:
-            raise avatar_picker.PickerError('没有可用的图片')
+            raise avatar_picker.PickerError("api.media.noImage")
         if box not in (None, ""):
             selected, cropped = avatar_picker.crop(selected, box)
             origin = {**origin, **cropped}
@@ -1903,12 +1908,12 @@ def _official_cover(contract, key: str) -> bytes:
     """官方渠道里这个番号最大的那张封面，和重探封面走同一个 `best_cover`。"""
     from .catalog_rules import is_korean_mib_code
     from .jav_cover_fetch import (
-        MIB_NOT_JAV, DeadlineExceeded, HostLimitedTransport, NotFound, Unavailable, best_cover,
+        DeadlineExceeded, HostLimitedTransport, NotFound, Unavailable, best_cover,
     )
     from .scraping_access import SourcePaused, SourceTransport
 
     if is_korean_mib_code(key):
-        raise avatar_picker.PickerError(MIB_NOT_JAV)
+        raise avatar_picker.PickerError("errors.routesMedia.mibNotJav")
     raw = SourceTransport(contract.follow_secrets_root, max_requests=40,
                           max_bytes=32 * 1024 * 1024, max_seconds=CODE_COVER_SECONDS)
     transport = HostLimitedTransport(raw, 1.0)
@@ -1918,16 +1923,19 @@ def _official_cover(contract, key: str) -> bytes:
             metadata_root=contract.follow_sources_root / "metadata" / "javinizer-go",
             deadline=time.monotonic() + CODE_COVER_SECONDS)
     except NotFound as error:
-        raise avatar_picker.PickerError("官方渠道没有这个番号的封面") from error
+        raise avatar_picker.PickerError("errors.routesMedia.codeCoverNotFound") from error
     except Unavailable as error:
-        raise avatar_picker.PickerError(f"取不到这个番号的封面：{error}") from error
+        raise avatar_picker.PickerError("errors.routesMedia.codeCoverUnavailable", {"error": str(error)}) from error
     except DeadlineExceeded as error:
-        raise avatar_picker.PickerError(
-            f"{CODE_COVER_SECONDS} 秒内没取到这个番号的封面，稍后再试") from error
+        raise avatar_picker.PickerError("errors.routesMedia.codeCoverTimedOut",
+                                        {"seconds": CODE_COVER_SECONDS}) from error
     except SourcePaused as error:
-        raise avatar_picker.PickerError(str(error)) from error
+        # 冷却原因已带 code 的照搬；还是一句原文时整句作参数。
+        if isinstance(error, UserFacingError):
+            raise avatar_picker.PickerError(error.code, error.params) from error
+        raise avatar_picker.PickerError("errors.routesMedia.sourcePaused", {"reason": str(error)}) from error
     except httpx.TransportError as error:
-        raise avatar_picker.PickerError("来源连接失败，请检查来源连接设置") from error
+        raise avatar_picker.PickerError("errors.routesMedia.sourceConnectionFailed") from error
     finally:
         transport.close()
     return data

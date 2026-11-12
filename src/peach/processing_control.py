@@ -277,7 +277,7 @@ class ProcessingControl:
         self.refresh()
         if self.cancelled:
             from .jobs import JobCancelled
-            raise JobCancelled('用户停止任务')
+            raise JobCancelled('errors.processingControl.userStopped')
         if self.current_asset_id is not None and self.skip_asset_id == self.current_asset_id:
             raise ItemSkipped('current item skipped')
 

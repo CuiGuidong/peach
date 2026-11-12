@@ -23,7 +23,8 @@ from .scripting import HostLimiter
 from .user_agent import JAVDB_APP_USER_AGENT
 from .jav_cache import DAY, PublicSnapshots, cache_lifetime
 from .javdb_identity import RULE, cache_key as identity_cache_key, current_evidence
-from .user_messages import UserFacingError, UserValueError
+from .metadata import RelayableError
+from .user_messages import UserValueError
 
 WEB = "https://catembylegacy.fastcdn.dpdns.org"
 #: 接口主机按序使用（ADR-0148）。2026-11-05 实测三家对同一作品给出同一份详情，网页签名与 App 签名都收；
@@ -44,7 +45,7 @@ MAX_REVIEW_PAGES = 8
 API_INTERVAL = 0.5
 #: 接口要求登录后，搜索与作品资料这么久内不再问接口，直接读网页；过后再试一次接口。
 LOGIN_SECONDS = 6 * 3600
-_UNAVAILABLE = "作品资料未取得，请稍后重试"
+_UNAVAILABLE = "errors.javdbPublic.unavailable"
 _JS_IDENTIFIER = r'[A-Za-z_$][A-Za-z0-9_$]*'
 _CACHE_ROOT = ContextVar('jav_public_cache_root', default=None)
 _CACHE_READS = ContextVar('jav_public_cache_reads', default=None)
@@ -101,15 +102,23 @@ def cache_checked_at(prefix, *, exact=False):
     return min(matches) if matches else None
 
 
+def cache_failure(key):
+    """本次请求里这一键沿用旧快照时记下的那个失败（异常对象），没有就是 `None`。"""
+    return next((read['failure'] for read in reversed(_CACHE_READS.get() or [])
+                 if (read['key'] == key or read['key'].startswith(key + ':')) and read['failure']), None)
+
+
 def cache_error(key):
-    return next((read['error'] for read in reversed(_CACHE_READS.get() or [])
-                 if (read['key'] == key or read['key'].startswith(key + ':')) and read['error']), '')
+    """同 `cache_failure`，给要一句原文的地方（资料边车记下的失败）：没有就是空串。"""
+    failure = cache_failure(key)
+    return str(failure) if failure else ''
 
 
-def _record_read(key, snapshot, error=''):
+def _record_read(key, snapshot, failure=None):
     reads = _CACHE_READS.get()
     if reads is not None and snapshot is not None:
-        reads.append({'key': key, 'saved': snapshot.saved, 'error': error})
+        reads.append({'key': key, 'saved': snapshot.saved, 'error': str(failure) if failure else '',
+                      'failure': failure})
 
 
 def public_image_url(value: object) -> bool:
@@ -143,19 +152,19 @@ def magnet_size(value: object) -> str:
     return str(value or "")
 
 
-class PublicSourceUnavailable(ValueError):
-    """公开来源当前未取得。"""
+class PublicSourceUnavailable(RelayableError, ValueError):
+    """公开来源当前未取得。给人看的那句带 code；沿用旧快照时记下的失败照搬它的 code 与参数（`cache_failure`）。"""
 
 
-class PublicIdentityAmbiguous(UserFacingError, PublicSourceUnavailable):
+class PublicIdentityAmbiguous(PublicSourceUnavailable):
     """同番号有多个来源身份，不能按番号绑定资料或媒体。"""
 
 
-class PublicNotFound(UserFacingError, PublicSourceUnavailable):
+class PublicNotFound(PublicSourceUnavailable):
     """来源搜索结果里没有这个番号。"""
 
 
-class PublicSourcePaused(UserFacingError, PublicSourceUnavailable):
+class PublicSourcePaused(PublicSourceUnavailable):
     """来源冷却期内不发请求。"""
 
 
@@ -167,7 +176,7 @@ class PublicLoginRequired(PublicSourceUnavailable):
     """接口要求登录（`JWTVerificationError`）。2026-11-10 起搜索与作品资料匿名都回它，评论与磁链仍答。"""
 
 
-class PublicBudgetExceeded(UserFacingError, PublicSourceUnavailable):
+class PublicBudgetExceeded(PublicSourceUnavailable):
     """本轮匿名资料请求预算已用完。"""
 
 
@@ -315,7 +324,7 @@ class PublicAPI:
             budget.bytes += len(response.body)
         if response.status != 200:
             self._pause(900 if response.status in (403, 429) else 60, image=image, host=host)
-            raise failed("作品资料来源暂时不可用，请稍后重试")
+            raise failed("errors.javdbPublic.sourcePaused")
         return response
 
     def _signature(self) -> tuple[str, str]:
@@ -367,7 +376,7 @@ class PublicAPI:
                 self._pause(60, host=host)
         else:
             if attempted:
-                raise PublicSourceUnavailable("作品资料来源暂时不可用，请稍后重试")
+                raise PublicSourceUnavailable("errors.javdbPublic.sourcePaused")
             raise PublicSourcePaused("errors.javdbPublic.sourcePaused")
         if isinstance(payload, dict) and payload.get("action") == "JWTVerificationError":
             # 只停搜索与作品资料：评论与磁链端点匿名仍答，不能跟着整源冷却。
@@ -379,7 +388,7 @@ class PublicAPI:
         data = payload.get("data")
         if not isinstance(data, dict):
             self.paused_until = self.clock() + 60
-            raise PublicSourceUnavailable("作品资料来源格式未识别")
+            raise PublicSourceUnavailable("errors.javdbPublic.unrecognizedFormat")
         return data
 
     def _store(self):
@@ -397,7 +406,7 @@ class PublicAPI:
         snapshot = self.snapshots.get(cache_key)
         failed = self.failures.get(cache_key)
         cooling = failed is not None and failed[0] > self.clock()
-        error = str(failed[1]) if cooling else ''
+        error = failed[1] if cooling else None
         if (not refresh and hit and hit[0] > self.clock()
                 and (image or (snapshot is not None and snapshot.fresh(self.wallclock())))):
             self.cache.move_to_end(cache_key)
@@ -426,7 +435,7 @@ class PublicAPI:
         if not owner:
             result = future.result()
             failed = self.failures.get(cache_key)
-            _record_read(key, self.snapshots.get(cache_key), str(failed[1]) if failed else '')
+            _record_read(key, self.snapshots.get(cache_key), failed[1] if failed else None)
             return result
         stored_key = identity_cache_key(key)
         previous = snapshot if snapshot is not None else None if image else store.load(stored_key)
@@ -457,7 +466,7 @@ class PublicAPI:
                     self.failures[cache_key] = (self.clock() + 900, error)
             if previous is not None:
                 future.set_result(previous.value)
-                _record_read(key, previous, str(error))
+                _record_read(key, previous, error)
                 return previous.value
             future.set_exception(error)
             raise
@@ -510,7 +519,7 @@ class PublicAPI:
                 raise PublicNotFound("errors.javdbPublic.notFound")
             if any(not isinstance(row.get('id'), str)
                    or not re.fullmatch(r'[A-Za-z0-9]+', row['id']) for row in matches):
-                raise PublicSourceUnavailable("未取得这个番号的作品资料")
+                raise PublicSourceUnavailable("errors.javdbPublic.notFound")
             return list(dict.fromkeys(row['id'] for row in matches))
 
         if source_id is None:
@@ -531,7 +540,7 @@ class PublicAPI:
         elif isinstance(source_id, str) and re.fullmatch(r'[A-Za-z0-9]+', source_id):
             movie_id = source_id
         else:
-            raise PublicSourceUnavailable("来源作品身份不匹配")
+            raise PublicSourceUnavailable("errors.javdbPublic.identityMismatch")
 
         return self._movie(canonical, movie_id, refresh=refresh)
 
@@ -565,7 +574,7 @@ class PublicAPI:
                                        f"/v/{movie_id}?locale=zh", lambda text: page_movie(text, movie_id))
             if (not isinstance(movie, dict) or not same_release_code(canonical, movie.get("number"))
                     or movie.get("id") != movie_id):
-                raise PublicSourceUnavailable("来源作品身份不匹配")
+                raise PublicSourceUnavailable("errors.javdbPublic.identityMismatch")
             return {**movie, 'javdb_rule': RULE}
 
         return self._cached(f"movie:{canonical}:{movie_id}", fetch, refresh=refresh)
@@ -593,7 +602,7 @@ class PublicAPI:
         rows = self._json(path, query).get(key)
         if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
             self.paused_until = self.clock() + 60
-            raise PublicSourceUnavailable("作品资料来源格式未识别")
+            raise PublicSourceUnavailable("errors.javdbPublic.unrecognizedFormat")
         return [row for row in rows if isinstance(row, dict)]
 
     def peek_movie(self, code: str) -> dict | None:
@@ -623,7 +632,7 @@ class PublicAPI:
         if (not isinstance(movie, dict) or not isinstance(movie.get('id'), str)
                 or not re.fullmatch(r'[A-Za-z0-9]+', movie['id'])
                 or not same_release_code(code, movie.get('number'))):
-            raise PublicSourceUnavailable('来源作品身份不匹配')
+            raise PublicSourceUnavailable('errors.javdbPublic.identityMismatch')
         return movie
 
     def reviews(self, code: str, page: int, *, refresh=False, movie=None) -> list[dict]:
@@ -711,7 +720,7 @@ class PublicAPI:
             if source_id is None:
                 key += f':search-{RULE}'
             elif not isinstance(source_id, str) or not re.fullmatch(r'[A-Za-z0-9]+', source_id):
-                raise PublicSourceUnavailable('来源作品身份不匹配')
+                raise PublicSourceUnavailable('errors.javdbPublic.identityMismatch')
             else:
                 key += ':' + source_id
         return self._cached(key, read, refresh=refresh)
@@ -740,7 +749,7 @@ class PublicAPI:
     def image_from_url(self, url, *, original=False) -> str:
         """静态头像与作品图片共用校验、并发下载、解码和请求缓存。"""
         if not public_image_url(url):
-            raise PublicSourceUnavailable("图片未取得")
+            raise PublicSourceUnavailable("errors.javdbPublic.imageUnavailable")
 
         def fetch():
             import base64
@@ -774,7 +783,7 @@ def decode_image(body: bytes, *, original=False) -> bytes:
                 return output.getvalue()
         except (OSError, ValueError, Image.DecompressionBombError):
             continue
-    raise PublicSourceUnavailable("图片未取得")
+    raise PublicSourceUnavailable("errors.javdbPublic.imageUnavailable")
 
 
 PUBLIC_API = PublicAPI(cache_root=lambda: _CACHE_ROOT.get())

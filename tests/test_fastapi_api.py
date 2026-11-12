@@ -3128,7 +3128,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                                                 headers={'If-None-Match': first.headers['etag']})
             self.assertEqual((revalidated.status_code, revalidated.content), (304, b''))
         self.assertEqual(source.call_args.args[1], {'code': 'EXM-001', 'image': '3'})
-        for failure in (PublicSourceUnavailable('offline'), ValueError('预览图不存在')):
+        from peach.user_messages import UserValueError
+        for failure in (PublicSourceUnavailable('errors.javdbPublic.imageUnavailable'),
+                        UserValueError('errors.javdbPublic.previewImageMissing')):
             with self.subTest(failure=failure), patch('peach.web_jav_detail.jav_image', side_effect=failure):
                 missing = await self.client.get('/jav-image?code=EXM-001&image=3&t=secret')
                 self.assertEqual((missing.status_code, missing.headers['cache-control']), (404, 'no-store'))
@@ -3955,7 +3957,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         def factory(_secrets_root):
             def download(url):
                 asked.append(url)
-                raise OSError("来源连接未取得")
+                raise OSError("connection refused")
             return download
 
         headers = {"X-Token": "secret"}

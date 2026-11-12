@@ -29,7 +29,7 @@ class MeteredSourceDenied(UserFacingError, JobPolicyError):
     exit_code = 2
 
 
-class DiskSpaceDenied(JobPolicyError):
+class DiskSpaceDenied(UserFacingError, JobPolicyError):
     exit_code = 3
 
 
@@ -40,7 +40,7 @@ def _with_stage_code(fields: dict) -> dict:
     return fields
 
 
-class JobPaused(JobPolicyError):
+class JobPaused(UserFacingError, JobPolicyError):
     """安装期间在任务检查点暂停，原参数保留用于恢复。"""
     exit_code = 3
 
@@ -52,11 +52,11 @@ class JobDeferred(RuntimeError):
         return True
 
 
-class JobCancelled(InterruptedError):
+class JobCancelled(UserFacingError, InterruptedError):
     """用户停止任务；已保存结果保留，不再自动恢复。"""
 
 
-class JobAlreadyRunning(JobPolicyError):
+class JobAlreadyRunning(UserFacingError, JobPolicyError):
     exit_code = 0
 
 
@@ -72,7 +72,7 @@ class TaskRunConflict(JobAlreadyRunning):
     """
 
     def __init__(self, task_key: str, blocking_run_id: int | None):
-        super().__init__(f"{task_key} 已有一轮在进行")
+        super().__init__("errors.jobs.runInProgress", {"task": task_key})
         self.task_key = task_key
         self.blocking_run_id = blocking_run_id
 
@@ -134,11 +134,10 @@ def require_free_space(path: Path | str, minimum_gb: float) -> float:
     try:
         free_gb = shutil.disk_usage(path).free / 1024**3
     except OSError as exc:
-        raise DiskSpaceDenied(f"无法读取 {path} 的磁盘余量") from exc
+        raise DiskSpaceDenied("errors.jobs.freeSpaceUnreadable", {"path": str(path)}) from exc
     if free_gb < minimum_gb:
-        raise DiskSpaceDenied(
-            f"{path} 仅剩 {free_gb:.1f} GiB（阈值 {minimum_gb:.1f} GiB）"
-        )
+        raise DiskSpaceDenied("errors.jobs.freeSpaceLow",
+                              {"path": str(path), "free": f"{free_gb:.1f}", "minimum": f"{minimum_gb:.1f}"})
     return free_gb
 
 
@@ -174,12 +173,11 @@ class DiskGuard:
         try:
             free_gb = self.free_gb()
         except OSError as exc:
-            raise DiskSpaceDenied(f"无法读取 {self.path} 的磁盘余量") from exc
+            raise DiskSpaceDenied("errors.jobs.freeSpaceUnreadable", {"path": str(self.path)}) from exc
         if free_gb < self.minimum_gb:
-            raise DiskSpaceDenied(
-                f"运行中 {self.path} 仅剩 {free_gb:.1f} GiB（阈值 {self.minimum_gb:.1f} GiB）；"
-                "已停止任务。检查第三方缓存目录，本任务的产物目录未必是消耗方"
-            )
+            raise DiskSpaceDenied("errors.jobs.freeSpaceLowWhileRunning",
+                                  {"path": str(self.path), "free": f"{free_gb:.1f}",
+                                   "minimum": f"{self.minimum_gb:.1f}"})
         return free_gb
 
 
@@ -287,7 +285,7 @@ class PidFileLock:
             except (OSError, ValueError):
                 old_pid = 0
             if old_pid and self._running(old_pid):
-                raise JobAlreadyRunning(f"已有实例在跑（PID {old_pid}）")
+                raise JobAlreadyRunning("errors.jobs.alreadyRunning", {"pid": old_pid})
             try:
                 self.path.unlink()
             except FileNotFoundError:

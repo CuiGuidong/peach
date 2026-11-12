@@ -608,7 +608,7 @@ class ProcessCommandTests(unittest.TestCase):
     def test_user_cancel_returns_a_cancelled_receipt_without_dispatching_followups(self):
         from peach.jobs import JobCancelled
         from contextlib import closing
-        with mock.patch('peach.library_processing.process_library',side_effect=JobCancelled('用户停止任务')), \
+        with mock.patch('peach.library_processing.process_library',side_effect=JobCancelled('errors.processingControl.userStopped')), \
                 redirect_stdout(io.StringIO()) as output:
             code=cli.main(['process','--db',str(self.db)])
         with closing(sqlite3.connect(self.db)) as connection:
@@ -666,8 +666,8 @@ class BrokenSettingsTests(unittest.TestCase):
     """设置文件读不出来时，命令必须响亮地失败，而不是拿默认值跑出个假状态。"""
 
     def test_commands_refuse_to_run_and_name_the_file(self):
-        broken = settings_file.SettingsFileError(
-            "设置文件读不出来：/tmp/peach-data/config.toml：TOML 语法错误")
+        broken = settings_file.SettingsFileError("errors.settingsFile.tomlSyntax", {
+            "path": "/tmp/peach-data/config.toml", "error": "Expected '=' (at line 1, column 5)"})
         with mock.patch.object(cli, "SETTINGS_ERROR", broken):
             with self.assertRaises(SystemExit) as caught:
                 cli.main(["status", "--db", "/tmp/nope.db"])

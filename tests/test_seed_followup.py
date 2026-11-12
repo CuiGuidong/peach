@@ -139,8 +139,8 @@ class RunTests(Case):
     def test_failed_name_backup_leaves_the_ledger_unchanged(self):
         key = self.chinese_pack()
         person = self.add("performer", "天使もえ")
-        with mock.patch("peach.migrations.sqlite_backup", side_effect=OSError("备份目录不可写")):
-            with self.assertRaisesRegex(OSError, "备份目录不可写"):
+        with mock.patch("peach.migrations.sqlite_backup", side_effect=OSError("Permission denied")):
+            with self.assertRaisesRegex(OSError, "Permission denied"):
                 seed_followup.run(self.contract, key, None)
         with self.database.read_connection() as connection:
             self.assertEqual(connection.execute("SELECT canonical_name FROM entity WHERE id=?", (person,)).fetchone()[0], "天使もえ")

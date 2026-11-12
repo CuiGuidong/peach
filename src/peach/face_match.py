@@ -46,7 +46,7 @@ def ensure_model(path: Path | None = None, *, allow_download: bool = True) -> Pa
         return bundled
     target = Path(path) if path is not None else MODEL_PATH
     return face_detect.fetch_model(target, MODEL_URL, MODEL_SHA256,
-                                   allow_download=allow_download, label=MODEL_LABEL)
+                                   allow_download=allow_download, label=MODEL_LABEL, kind="match")
 
 
 def cosine(one, other) -> float:
@@ -71,8 +71,7 @@ class FaceEmbedder:
         self.model_path = ensure_model(model, allow_download=allow_download)
         create = getattr(getattr(cv2, "FaceRecognizerSF", None), "create", None)
         if create is None:                       # pragma: no cover - 依赖版本兜底
-            raise face_detect.FaceModelUnavailable(
-                "当前 OpenCV 没有 FaceRecognizerSF；需要 4.5.4 以上")
+            raise face_detect.FaceModelUnavailable("errors.faceMatch.recognizerUnsupported")
         # 模型路径交给 Python 读取，OpenCV 只接收校验后的 ONNX 字节。
         model_bytes = numpy.frombuffer(self.model_path.read_bytes(), dtype=numpy.uint8)
         self._recognizer = create("ONNX", model_bytes, numpy.empty(0, dtype=numpy.uint8))

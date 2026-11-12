@@ -37,11 +37,11 @@ def _kept_cover_size(target, incoming, incoming_size, installed, previous):
 def w_scraping_cover(contract, body):
     """仅处理用户指定且馆藏命中的番号；完整解码后才允许升级封面。"""
     from .catalog_rules import is_korean_mib_code
-    from .jav_cover_fetch import MIB_NOT_JAV
+    from .jav_cover_fetch import MIB_NOT_JAV_CODE
     from .metadata import validate_provider_code
     code = validate_provider_code(str(body.get("code", "")))
     if is_korean_mib_code(code):
-        raise ValueError(MIB_NOT_JAV)
+        raise UserValueError(MIB_NOT_JAV_CODE)
     with contract.database.read_connection() as connection:
         if not connection.execute("SELECT 1 FROM asset WHERE code=? LIMIT 1", (code,)).fetchone():
             raise UserValueError("api.scraping.codeNotInCollection")
@@ -50,8 +50,10 @@ def w_scraping_cover(contract, body):
 
 def _unavailable_reason(exc, network_failed: bool, statuses: set[int]) -> tuple[str, str]:
     """一次封面比较没取到图时，页面上那一格的原因键与说法：先看线路，再看来源回了什么。"""
-    from .jav_cover_fetch import (CoverConnectError, HOSTS_UNREACHABLE, NO_USABLE_OFFICIAL,
-                                 OFFICIAL_PLACEHOLDER_ONLY)
+    from .jav_cover_fetch import (CoverConnectError, HOSTS_UNREACHABLE, NO_CANDIDATES_CODE, NO_USABLE_OFFICIAL_CODES,
+                                 OFFICIAL_PLACEHOLDER_ONLY, OFFICIAL_PLACEHOLDER_ONLY_CODE)
+    # 按异常的 code 认是哪一句（`jav_cover_fetch` 抛出时带的 code），不比对原文。
+    code = getattr(exc, "code", None)
     if isinstance(exc, CoverConnectError):
         return "network", f"{HOSTS_UNREACHABLE}，未能完成封面比较；{MOBILE_BROADBAND_HINT}"
     if network_failed:
@@ -61,13 +63,13 @@ def _unavailable_reason(exc, network_failed: bool, statuses: set[int]) -> tuple[
         return "access_denied", f"来源拒绝访问（HTTP {codes}），请检查登录或来源验证状态。"
     if any(s >= 500 for s in statuses):
         return "source_error", "来源服务异常（HTTP 5xx），请稍后重试。"
-    if str(exc) == "所有渠道都没有候选":
+    if code == NO_CANDIDATES_CODE:
         return "no_candidate", "来源没有返回这个番号的封面候选，无法判断是否有高清版。"
     return {
-        OFFICIAL_PLACEHOLDER_ONLY: ("placeholder_only", f"{OFFICIAL_PLACEHOLDER_ONLY}。"),
-        **dict.fromkeys(NO_USABLE_OFFICIAL, (
+        OFFICIAL_PLACEHOLDER_ONLY_CODE: ("placeholder_only", f"{OFFICIAL_PLACEHOLDER_ONLY}。"),
+        **dict.fromkeys(NO_USABLE_OFFICIAL_CODES, (
             "unusable_candidate", "候选封面未通过检查：图片未取得、无法解码或宽度不足 700px。")),
-    }.get(str(exc), ("download_failed", "候选封面完整下载或图片校验失败，未取得可保存的图片。"))
+    }.get(code, ("download_failed", "候选封面完整下载或图片校验失败，未取得可保存的图片。"))
 
 
 def _fetch_cover(contract, code):

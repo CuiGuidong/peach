@@ -159,7 +159,7 @@ def recover(source: Path, references: list[Path], *, untrunc: Path, ffmpeg: Path
         if best.coverage >= GOOD_ENOUGH:
             break
     if best is None:
-        raise RepairUnavailable("没有一个参照切得出能解码的片子")
+        raise RepairUnavailable("errors.mp4recover.noDecodableReference")
     return best
 
 
@@ -171,7 +171,7 @@ def replace_original(source: Path, repaired: Path) -> Path:
     """
     kept = source.with_name(f".{source.name}{ORIGINAL_SUFFIX}")
     if kept.exists():
-        raise RepairUnavailable(f"同目录已有一份留档：{kept.name}")
+        raise RepairUnavailable("errors.mp4recover.backupExists", {"name": kept.name})
     staged = source.with_name(f".{source.name}.peach-repair.tmp")
     try:
         shutil.copyfile(repaired, staged)

@@ -179,7 +179,7 @@ class BackgroundIssueTests(unittest.TestCase):
 
     def test_one_broken_service_does_not_hide_the_others(self):
         def broken():
-            raise RuntimeError("状态文件读坏了")
+            raise RuntimeError("state file is unreadable")
         self.state.automatic_updates = SimpleNamespace(snapshot=broken)
         self.state.network_reachability = SimpleNamespace(summary=lambda: {"state": "offline"})
         with self.assertLogs("peach.background_issues", level="ERROR"):

@@ -13,20 +13,21 @@ import httpx
 from peach.task_retry import RETRY_DELAYS, retry_delay, transient_delay
 from peach.sources.base import FailureReason, SourceFailure
 from peach import migrations
+from peach.metadata import relayed
 
 
 class RetryPolicyTests(unittest.TestCase):
     def test_network_and_temporary_file_errors_back_off_then_stop(self):
-        for error in [TimeoutError(), ConnectionResetError(), OSError(errno.EBUSY, '文件暂时被占用'),
-                      SourceFailure(FailureReason.NETWORK, '请求未取得')]:
+        for error in [TimeoutError(), ConnectionResetError(), OSError(errno.EBUSY, 'Device or resource busy'),
+                      SourceFailure(FailureReason.NETWORK, *relayed('connection reset'))]:
             with self.subTest(error=type(error).__name__):
                 self.assertEqual([retry_delay(error, index) for index in range(4)], [*RETRY_DELAYS, None])
 
     def test_credentials_integrity_disk_and_program_errors_do_not_retry(self):
-        for error in [PermissionError(), FileNotFoundError(), OSError(errno.ENOSPC, '磁盘已满'),
+        for error in [PermissionError(), FileNotFoundError(), OSError(errno.ENOSPC, 'No space left on device'),
                       sqlite3.IntegrityError(), ValueError(), RuntimeError(),
-                      SourceFailure(FailureReason.AUTH_REQUIRED, '需要登录'),
-                      SourceFailure(FailureReason.PARSE_ERROR, '页面已改版')]:
+                      SourceFailure(FailureReason.AUTH_REQUIRED, 'errors.javdb.loginRequired'),
+                      SourceFailure(FailureReason.PARSE_ERROR, 'errors.avbase.unrecognized')]:
             with self.subTest(error=type(error).__name__):
                 self.assertIsNone(transient_delay(error))
 

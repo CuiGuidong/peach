@@ -13,8 +13,9 @@ from .genre_decisions import load_genre_decisions
 from .genre_taxonomy import resolve_genre
 from .javdb_public import (MAX_REVIEW_PAGES, PAGE_SIZE, PUBLIC_API, PublicSourceUnavailable,
                           PublicIdentityAmbiguous, actor_gender, preview_video_url, public_image_url,
-                          public_cache_scope, cache_checked_at, cache_error)
+                          public_cache_scope, cache_checked_at, cache_error, cache_failure)
 from .jav_discovery_metadata import discovery_metadata
+from .metadata import relay_args
 from .sources.javdb import maker_writing, page_reader
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, cache_for
 from .preview_cache import PreviewCache
@@ -335,9 +336,9 @@ def _preview_fields(contract, code, source, *, refresh=False):
                                                  refresh=refresh, provider=provider,
                                                  **({'source_id': source.get('id')} if provider == 'javdb' else {}))
             url = result['url']
-            failure = cache_error(f'preview:{provider}:' + code)
+            failure = cache_failure(f'preview:{provider}:' + code)
             if failure and not url:
-                raise PublicSourceUnavailable(failure)
+                raise PublicSourceUnavailable(*relay_args(failure))
         except PublicSourceUnavailable as error:
             errors.append(str(error))
         if url:

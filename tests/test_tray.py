@@ -44,6 +44,8 @@ from unittest import mock
 from peach.sync import SyncPlan
 from peach.versioning import UpdateResult, VersionSnapshot
 from peach.windows_update import PendingWindowsUpdate, WindowsUpdatePreparation
+from peach.settings_file import SettingsFileError
+from peach.user_messages import UserValueError
 
 
 class Response:
@@ -739,7 +741,8 @@ class LaunchdRelaunchExitCodeTests(unittest.TestCase):
                     mock.patch.object(tray_module.sys, "platform", platform), \
                     mock.patch.object(tray_module, "launchd_owns_this_process", return_value=owned), \
                     mock.patch.object(tray_module.settings_file, "load_config",
-                                      side_effect=RuntimeError("config.toml 无效")), \
+                                      side_effect=SettingsFileError("errors.settingsFile.tomlSyntax",
+                                                                  {"path": "config.toml", "error": "x"})), \
                     mock.patch.object(tray_module, "show_message"):
                 self.assertEqual(tray_main(["--silent"]), expected)
 
@@ -759,7 +762,7 @@ class LaunchdRelaunchExitCodeTests(unittest.TestCase):
                 mock.patch.object(tray_module.log_retention, "sweep", return_value=()), \
                 mock.patch.object(tray_module, "log_to_file"), \
                 mock.patch.object(tray_module.desktop_startup, "refresh_launch_agent",
-                                  side_effect=ValueError("启动项属于另一份 Peach 安装")), \
+                                  side_effect=UserValueError("errors.desktopStartup.startupEntryForeign")), \
                 mock.patch.object(tray_module, "configured_service_specs", return_value=()), \
                 mock.patch.object(tray_module, "ServiceManager") as manager, \
                 mock.patch.object(tray_module, "tray_preparation", return_value=preparation), \

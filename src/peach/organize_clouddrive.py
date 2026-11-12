@@ -28,6 +28,7 @@ from . import downloads_clouddrive_pb2 as pb
 from .peach_proxy import http_client
 from .scripting import open_readonly
 from .push_discovery import CloudPrefix, PushDiscoverySettings, map_cloud_path, normalise_prefix
+from .os_errors import UserFileExistsError, UserFileNotFoundError
 from .user_messages import UserFacingError, UserOSError, UserValueError
 
 MAX_RESPONSE = 2 * 1024 * 1024
@@ -178,8 +179,8 @@ class PikPakDav:
                 if response.status_code in TRANSIENT_STATUS:
                     error = httpx.HTTPStatusError('WebDAV temporarily unavailable',
                         request=httpx.Request(method, self.url(path)), response=response)
-                    raise RetryableIOError('WebDAV 暂时不可用：' + str(response.status_code),
-                                           after=transient_delay(error) or 0)
+                    raise RetryableIOError('errors.organizeClouddrive.webdavUnavailable',
+                                           {'status': response.status_code}, after=transient_delay(error) or 0)
                 chunks, size = [], 0
                 for chunk in response.iter_bytes():
                     size += len(chunk)
@@ -190,7 +191,7 @@ class PikPakDav:
         except httpx.HTTPError as error:
             delay = transient_delay(error)
             if delay is not None:
-                raise RetryableIOError('WebDAV 网络应答未取得', after=delay) from None
+                raise RetryableIOError('errors.organizeClouddrive.webdavNoResponse', after=delay) from None
             raise UserOSError('errors.organizeClouddrive.webdavNoResponse') from None
 
     def list(self, path):
@@ -248,11 +249,11 @@ class PikPakDav:
         entries = self.list(old_parent)
         found = [r for r in entries if PureWindowsPath(r['path']) == PureWindowsPath(source)]
         if len(found) != 1:
-            raise FileNotFoundError('WebDAV 来源未取得')
+            raise UserFileNotFoundError('errors.organizeClouddrive.webdavSourceNotFound')
         before = self.tree(source) if found[0]['directory'] else found
         self.ensure_parent(target)
         if any(PureWindowsPath(r['path']) == PureWindowsPath(target) for r in self.list(new_parent)):
-            raise FileExistsError('WebDAV 目标已存在')
+            raise UserFileExistsError('errors.organizeClouddrive.webdavTargetExists')
         try:
             response_status = self.submit_move(source, target)
         except OSError:
@@ -307,7 +308,7 @@ def _cloud_listing(cloud, path, mapping):
     for depth in range(len(relative) + 1):
         parent = PureWindowsPath(mapping.root, *relative[:depth])
         if previous is not None and not any(PureWindowsPath(row['path']) == parent and row['directory'] for row in previous):
-            raise FileNotFoundError('官方父目录未列出所需目录')
+            raise UserFileNotFoundError('errors.organizeClouddrive.cloudParentMissing')
         request = ListRequest(path=mapping.cloud_path(str(parent)), forceRefresh=True)
         call = cloud.channel.unary_stream(SERVICE + 'GetSubFiles',
             request_serializer=ListRequest.SerializeToString, response_deserializer=ListReply.FromString)
@@ -325,9 +326,10 @@ def _cloud_listing(cloud, path, mapping):
                 if len(rows) > MAX_FILES:
                     raise UserValueError('errors.organizeClouddrive.cloudListingTooLarge')
         except grpc.RpcError as error:
-            kind = RetryableIOError if error.code() in {
-                grpc.StatusCode.UNAVAILABLE, grpc.StatusCode.DEADLINE_EXCEEDED, grpc.StatusCode.ABORTED} else OSError
-            raise kind('官方完整目录未取得：' + error.code().name) from None
+            params = {'status': error.code().name}
+            if error.code() in {grpc.StatusCode.UNAVAILABLE, grpc.StatusCode.DEADLINE_EXCEEDED, grpc.StatusCode.ABORTED}:
+                raise RetryableIOError('errors.organizeClouddrive.cloudListingUnavailable', params) from None
+            raise UserOSError('errors.organizeClouddrive.cloudListingUnavailable', params) from None
         finally:
             stream.cancel()
         previous = rows

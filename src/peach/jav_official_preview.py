@@ -82,9 +82,9 @@ def dmm_preview(code, secrets_root, *, transport=None):
     except SourceFailure as error:
         if error.reason == FailureReason.NOT_FOUND:
             return ''
-        raise PublicSourceUnavailable('DMM 视频预览未取得，请稍后重试') from error
+        raise PublicSourceUnavailable('errors.javOfficialPreview.dmmUnavailable') from error
     except (OSError, ValueError, TypeError, AttributeError, RuntimeError, httpx.HTTPError) as error:
-        raise PublicSourceUnavailable('DMM 视频预览未取得，请稍后重试') from error
+        raise PublicSourceUnavailable('errors.javOfficialPreview.dmmUnavailable') from error
     finally:
         if owned:
             transport.close()
@@ -119,7 +119,7 @@ def javdb_preview(code, movie_id, secrets_root, *, transport=None):
                 return url
         return ''
     except (OSError, ValueError, TypeError, AttributeError, RuntimeError, httpx.HTTPError, SourceFailure) as error:
-        raise PublicSourceUnavailable('JavDB 视频预览未取得，请稍后重试') from error
+        raise PublicSourceUnavailable('errors.javOfficialPreview.javdbUnavailable') from error
     finally:
         if owned:
             transport.close()
@@ -161,7 +161,7 @@ def prestige_preview(code, secrets_root, *, transport=None):
             raise ValueError('public trailer URL not recognized')
         return PRESTIGE_MEDIA.format(path=path)
     except (OSError, ValueError, TypeError, AttributeError, RuntimeError, httpx.HTTPError) as error:
-        raise PublicSourceUnavailable('官方视频预览未取得，请稍后重试') from error
+        raise PublicSourceUnavailable('errors.javOfficialPreview.officialUnavailable') from error
     finally:
         if owned:
             transport.close()

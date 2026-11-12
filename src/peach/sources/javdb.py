@@ -27,6 +27,7 @@ from ..javdb import LOGIN, clean
 from ..javdb_genres import page_genres
 from ..javdb_identity import RULE
 from ..javdb_public import actor_gender, public_image_url
+from ..metadata import relay_args
 from .base import FailureReason, Page, Session, SiteConfig, SiteRecord, SiteSource, SourceFailure
 
 #: 主机间隔由用户定（2026-09-22 定为 3 秒，每分钟 20 页）。参照面：每分钟 40～50 页会招来 3～7 天
@@ -62,7 +63,7 @@ _STATIC = re.compile(r"https://c\d+\.jdbstatic\.com/((?:covers|samples)/[a-z0-9]
 #: 评分是星级图标后面那个数，短评数在评论页签的括号里；按页面结构认，不按文字认。
 _SCORE = re.compile(r'class="score-stars".*?</span>&nbsp;([0-9]+(?:\.[0-9]+)?)', re.S)
 _REVIEWS = re.compile(r'class="review-tab"[^>]*>\s*<span>[^<(]*\(([0-9]+)\)')
-_MISSING = "javdb 没有这个番号"
+_MISSING = "errors.javdb.notFound"
 
 
 def actresses(value: str) -> list[dict]:
@@ -183,7 +184,7 @@ class JavDBSource(SiteSource):
     def _page(self, url: str, *, session: Session) -> Page:
         page = session.get(url, config=self.config)
         if LOGIN.search(page.text):
-            raise SourceFailure(FailureReason.AUTH_REQUIRED, "javdb 要求登录")
+            raise SourceFailure(FailureReason.AUTH_REQUIRED, "errors.javdb.loginRequired")
         return page
 
     def fetch(self, code: str, *, session: Session) -> Page:
@@ -193,8 +194,8 @@ class JavDBSource(SiteSource):
         if not paths:
             raise SourceFailure(FailureReason.NOT_FOUND, _MISSING)
         if len(paths) > 1:
-            raise SourceFailure(FailureReason.PARSE_ERROR, "javdb 同番号对应多个作品，请核对来源身份：" + '、'.join(paths),
-                                detail='identity_ambiguous')
+            raise SourceFailure(FailureReason.PARSE_ERROR, "errors.javdb.identityAmbiguous",
+                                {"identities": '、'.join(paths)}, detail='identity_ambiguous')
         path = paths[0]
         detail = self._page(self.config.base_url + path + "?locale=zh", session=session)
         # `source_url` 记不带界面语言参数的详情页地址。
@@ -204,7 +205,7 @@ class JavDBSource(SiteSource):
         fields = _detail(page.text)
         shown = fields["code"]
         if not same_release_code(code, shown):
-            raise SourceFailure(FailureReason.PARSE_ERROR, "javdb 详情页的番号与搜索结果不一致")
+            raise SourceFailure(FailureReason.PARSE_ERROR, "errors.javdb.detailCodeMismatch")
         display_title, origin_title = fields["display_title"], fields["origin_title"]
         return SiteRecord(
             source=self.config.name, provenance=self.config.provider, code=shown, source_url=page.url,
@@ -276,11 +277,15 @@ class JavDBPublicSource(JavDBSource):
                 with PUBLIC_API.request_budget(budget):
                     movie = PUBLIC_API.movie(code)
             except PublicIdentityAmbiguous as error:
-                raise SourceFailure(FailureReason.PARSE_ERROR, f"javdb {error}", detail="identity_ambiguous") from None
+                if "identities" not in error.params:
+                    raise SourceFailure(FailureReason.PARSE_ERROR, *relay_args(error),
+                                        detail="identity_ambiguous") from None
+                raise SourceFailure(FailureReason.PARSE_ERROR, "errors.javdb.identityAmbiguous",
+                                    {"identities": error.params["identities"]}, detail="identity_ambiguous") from None
             except PublicNotFound:
                 raise SourceFailure(FailureReason.NOT_FOUND, _MISSING) from None
             except PublicBudgetExceeded:
-                raise SourceFailure(FailureReason.TIMEOUT, "javdb 作品资料在本次预算内未取得") from None
+                raise SourceFailure(FailureReason.TIMEOUT, "errors.javdb.budgetExceeded") from None
             except PublicSourceUnavailable:
                 raise _PublicDown() from None
             return public_record(movie)

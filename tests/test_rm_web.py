@@ -1284,12 +1284,12 @@ class WebDataTests(unittest.TestCase):
         self.assertNotIn("error", first)
         with contract.write_transaction() as connection:
             connection.execute("UPDATE asset SET play_count=3 WHERE id=1")
-        failing = mock.Mock(side_effect=RuntimeError("账本读取失败"))
+        failing = mock.Mock(side_effect=RuntimeError("database is locked"))
         with mock.patch.object(web_stats, "q_taste", failing):
             failed = get()
             self.assertEqual((failed["stale"], failed["error"], failed["computed_at"]),
-                             (True, "账本读取失败", first["computed_at"]))
-            self.assertEqual(get()["error"], "账本读取失败")
+                             (True, "database is locked", first["computed_at"]))
+            self.assertEqual(get()["error"], "database is locked")
             self.assertEqual(failing.call_count, 1, "退避期内同一份输入不再重算")
             later = web_stats.time.monotonic() + web_stats.TASTE_RETRY_AFTER + 1
             with mock.patch.object(web_stats.time, "monotonic", return_value=later):
@@ -1302,10 +1302,10 @@ class WebDataTests(unittest.TestCase):
 
         web_stats._TASTE_SNAPSHOTS.clear()
         web_stats._taste_snapshot_path(contract, "all").unlink()
-        failing = mock.Mock(side_effect=RuntimeError("账本读取失败"))
+        failing = mock.Mock(side_effect=RuntimeError("database is locked"))
         with mock.patch.object(web_stats, "q_taste", failing):
             for _ in range(2):
-                with self.assertRaisesRegex(RuntimeError, "账本读取失败"):
+                with self.assertRaisesRegex(RuntimeError, "database is locked"):
                     get()
         self.assertEqual(failing.call_count, 1)
 

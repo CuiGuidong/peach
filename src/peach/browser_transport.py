@@ -33,6 +33,7 @@ from typing import Callable, Mapping
 from urllib.parse import urlsplit, urlunsplit
 
 from .http import HttpRequest, HttpResponse
+from .user_messages import UserFacingError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -90,6 +91,14 @@ _LINUX_NAMES = ("google-chrome", "google-chrome-stable", "chromium", "chromium-b
 
 class BrowserUnavailable(RuntimeError):
     """浏览器起不来或半路断了。调用方按连接失败重试，下一次会重新拉起。"""
+
+
+class BrowserLaunchFailed(UserFacingError, BrowserUnavailable):
+    """浏览器没能拉起来：原因写成 `errors.browserTransport.*` 的 code，登录窗口的状态会带给人看。
+
+    仍是 `BrowserUnavailable`，按它捕获的地方照旧接得住。请求半路断开、页面超时这类只进日志的
+    仍抛 `BrowserUnavailable` 或 `PageTimeout`，原文是英文。
+    """
 
 
 class ChallengeUnsolved(RuntimeError):
@@ -270,7 +279,7 @@ class _Browser:
             self.process = self._popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                        stderr=subprocess.DEVNULL)
         except OSError as error:
-            raise BrowserUnavailable(f"浏览器没有启动：{error}") from None
+            raise BrowserLaunchFailed("errors.browserTransport.notStarted", {"error": str(error)}) from None
         port = self._wait_port(port_file)
         try:
             page = next(target for target in self._targets(port) if target.get("type") == "page")
@@ -282,19 +291,21 @@ class _Browser:
             self.window_id = self.socket.call("Browser.getWindowForTarget", targetId=page.get("id", "")).get("windowId")
         except (OSError, StopIteration, KeyError, ValueError, RuntimeError) as error:
             self.close()
-            raise BrowserUnavailable(f"浏览器的调试口没有接上：{error}") from None
+            raise BrowserLaunchFailed("errors.browserTransport.debugPortNotConnected",
+                                      {"error": str(error)}) from None
 
     def _wait_port(self, port_file: Path) -> int:
         for _ in range(300):
             if self.process is not None and self.process.poll() is not None:
-                raise BrowserUnavailable(f"浏览器启动后立即退出（{self.process.returncode}）")
+                raise BrowserLaunchFailed("errors.browserTransport.exitedAtStart",
+                                          {"code": self.process.returncode})
             if port_file.is_file():
                 lines = port_file.read_text(encoding="utf-8", errors="replace").splitlines()
                 if len(lines) >= 2 and lines[0].strip().isdigit():
                     return int(lines[0])
             self._sleep(0.1)
         self.close()
-        raise BrowserUnavailable("浏览器没有写出调试口")
+        raise BrowserLaunchFailed("errors.browserTransport.debugPortMissing")
 
     def alive(self) -> bool:
         return self.socket is not None and self.process is not None and self.process.poll() is None

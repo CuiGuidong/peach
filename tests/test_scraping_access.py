@@ -642,7 +642,7 @@ class ScrapingAccessTests(unittest.TestCase):
 
     def test_cover_failure_explains_observed_cause_without_exposing_urls(self):
         from peach.web_scraping import _fetch_cover
-        from peach.jav_cover_fetch import Unavailable
+        from peach.jav_cover_fetch import NotFound
         contract = SimpleNamespace(cover_root=self.root, candidate_root=self.root,
                                    follow_secrets_root=self.root / "secrets", follow_sources_root=self.root)
         cases = [(403, "access_denied"), (503, "source_error"), (404, "no_candidate"), (None, "network")]
@@ -652,7 +652,7 @@ class ScrapingAccessTests(unittest.TestCase):
                     transport(HttpRequest("GET", "https://example.test/private?token=secret", {}), 1, 100)
                 except httpx.TransportError:
                     pass
-                raise Unavailable("所有渠道都没有候选")
+                raise NotFound("errors.javCoverFetch.noCandidates")
             with self.subTest(reason=reason), patch("peach.jav_cover_fetch.best_cover", side_effect=fetch), \
                     patch("peach.web_scraping.SourceTransport") as factory:
                 if status is None:
@@ -669,10 +669,10 @@ class ScrapingAccessTests(unittest.TestCase):
         """中国移动宽带直连 DMM 图片主机大多在握手后被断开：封面比较和连接检查都要把人
         指到 DMM / FANZA 的连接方式上，而不是说官方没有图、或让人去官网登录。"""
         from peach.web_scraping import MOBILE_BROADBAND_HINT, _fetch_cover
-        from peach.jav_cover_fetch import HOSTS_UNREACHABLE, CoverConnectError
+        from peach.jav_cover_fetch import HOSTS_UNREACHABLE_CODE, CoverConnectError
         contract = SimpleNamespace(cover_root=self.root, candidate_root=self.root,
                                    follow_secrets_root=self.root / "secrets", follow_sources_root=self.root)
-        with patch("peach.jav_cover_fetch.best_cover", side_effect=CoverConnectError(HOSTS_UNREACHABLE)), \
+        with patch("peach.jav_cover_fetch.best_cover", side_effect=CoverConnectError(HOSTS_UNREACHABLE_CODE)), \
                 patch("peach.web_scraping.SourceTransport"):
             result = _fetch_cover(contract, "ABW-232")
         self.assertEqual(result["reason"], "network")

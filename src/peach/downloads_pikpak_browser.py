@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Callable
 
-from .browser_transport import BrowserUnavailable, _Browser, find_browser
+from .browser_transport import BrowserLaunchFailed, BrowserUnavailable, _Browser, find_browser
 from .downloads_pikpak import SESSION_LOCK, new_device_id
 from .user_messages import UserValueError
 
@@ -114,7 +114,7 @@ def _attended_browser(executable: str, profile: Path) -> _Browser:
     flags = proxy_flags(direct=not options.get('trust_env') and not options.get('proxy'),
                         proxy=options.get('proxy', ''))
     if flags is None:
-        raise BrowserUnavailable('浏览器登录不支持带凭据的代理地址，请选择系统代理或无需认证的本机代理')
+        raise BrowserLaunchFailed("errors.downloadsPikpakBrowser.proxyWithCredentials")
     return _Browser(executable, profile, flags, attended=True)
 
 

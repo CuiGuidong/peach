@@ -17,7 +17,7 @@ from pathlib import Path
 
 from . import error_reporting
 from .task_stages import stage as stage_fields
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserValueError
 
 SUMMARY_LIMIT = 50
 CODE_LIMIT = 20
@@ -41,8 +41,11 @@ class EvidenceTooLarge(ValueError):
     """来源文件超过详细导出的单文件上限。"""
 
 
-class ExportCancelled(RuntimeError):
-    """用户取消本次诊断导出。"""
+class ExportCancelled(UserFacingError, RuntimeError):
+    """用户取消本次诊断导出。code 固定为导出阶段的 `stage.diagnostics.cancelled`。"""
+
+    def __init__(self) -> None:
+        super().__init__("stage.diagnostics.cancelled")
 
 
 def selected_codes(value: str) -> list[str]:
@@ -128,7 +131,7 @@ class _Export:
 
     def check(self):
         if self.cancelled():
-            raise ExportCancelled('导出已取消')
+            raise ExportCancelled()
 
     def add(self, name: str, payload):
         self.check()

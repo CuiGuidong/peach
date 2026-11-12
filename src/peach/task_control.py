@@ -298,7 +298,7 @@ class Control:
                 if self.stopping.is_set():
                     from .jobs import JobPaused
                     if self.recoverable:
-                        raise JobPaused('服务正在关闭，已保存的进度留待恢复')
+                        raise JobPaused('errors.taskControl.shuttingDown')
                     raise Cancelled()
                 command = intent(self.db, self.run_id, self.ancestors)
                 action = command.get('action', 'resume')

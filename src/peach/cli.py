@@ -510,7 +510,7 @@ def _scan(args: argparse.Namespace) -> int:
         if args.root is None:
             if args.location not in config.locations:
                 known = _t("listSeparator").join(sorted(config.locations)) or _t("scan.noneDeclared")
-                raise scan.ScanTargetError(_t("scan.unknownSource", location=repr(args.location), known=known))
+                raise SystemExit(_t("scan.unknownSource", location=repr(args.location), known=known))
             roots = tuple(config.locations[args.location])
         else:
             roots = (scan.ledger_root_for(
@@ -519,7 +519,9 @@ def _scan(args: argparse.Namespace) -> int:
             scan.scan_location(args.db, args.location, root, declared_roots=config.locations,
                                mounts=mounts, report=lambda line: print(line, flush=True))
     except scan.ScanTargetError as exc:
-        raise SystemExit(str(exc)) from None
+        from . import interface_text
+        raise SystemExit(interface_text.text(f"server:{exc.code}", exc.params,
+                                             interface_text.system_language())) from None
     return 0
 
 

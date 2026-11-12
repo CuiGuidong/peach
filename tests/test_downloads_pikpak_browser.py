@@ -156,7 +156,7 @@ class BrowserLoginTests(unittest.TestCase):
         self.assertIs(script, pb._FORGET_ON_FIRST_DOCUMENT)
 
     def test_closing_the_window_cancels_the_login(self):
-        browser = FakeBrowser([None, ConnectionError("浏览器关闭了调试连接")])
+        browser = FakeBrowser([None, ConnectionError("browser closed the debugging connection")])
         login, _made = self.make(browser)
         login.start()
         self.assertEqual(self.finish(login)["state"], pb.CANCELLED)

@@ -22,6 +22,7 @@ from peach.repository import LedgerDatabase
 from peach.scraping_access import SourcePaused
 from support.ledger import fresh_ledger
 from support.outcomes import told
+from peach.metadata import relayed
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -221,10 +222,10 @@ class FollowupTests(LedgerCase):
         self.work(3, "300MIUM-1000")
 
         def dmm_fetch(_transport, code, *, deadline=None):
-            raise NotFound("HTTP 404")
+            raise NotFound(*relayed("HTTP 404"))
 
         def mgs_fetch(_transport, code, *, deadline=None):
-            raise SourcePaused("mgstage", 0.0, "冷却中")
+            raise SourcePaused("errors.scrapingAccess.coolingDown")
 
         summary = self.run_followup({"dmm": dmm_fetch, "mgstage": mgs_fetch})
         self.assertEqual((summary["landed"], summary["absent"]), (0, 2))
@@ -267,7 +268,7 @@ class FollowupTests(LedgerCase):
         self.work(1, "300MIUM-1000")
 
         def mgs_fetch(_transport, code, *, deadline=None):
-            raise SourcePaused("mgstage", 0.0, "冷却中")
+            raise SourcePaused("errors.scrapingAccess.coolingDown")
 
         summary = self.run_followup({"mgstage": mgs_fetch})
         self.assertEqual((summary["landed"], summary["remaining"], summary["continue"]), (0, 1, False))
@@ -279,7 +280,7 @@ class FollowupTests(LedgerCase):
         self.snapshot("SSIS-057", "r18dev", {"title": "x"})
 
         def dmm_fetch(_transport, code, *, deadline=None):
-            raise SourcePaused("dmm", 0.0, "冷却中")
+            raise SourcePaused("errors.scrapingAccess.coolingDown")
 
         first = self.run_followup({"dmm": dmm_fetch}, run_id=7)
         self.assertEqual((first["remaining"], first["continue"]), (1, True))

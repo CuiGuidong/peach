@@ -31,14 +31,14 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path, PureWindowsPath
-from typing import Callable, Protocol
+from typing import Any, Callable, Mapping, Protocol
 from urllib.parse import parse_qs, unquote, urlsplit
 
 from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
 from . import interface_text
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserValueError
 from .repository import LedgerDatabase, in_background
 from .task_retry import RETRY_DELAYS, retry_delay
 
@@ -107,18 +107,20 @@ def never_seen(task: "DownloadTask") -> bool:
     return task.progress is None and not task.remote_id
 
 
-class DownloadError(RuntimeError):
-    """一次远端操作失败。`detail` 是给用户看的中文原因，不含凭据。
+class DownloadError(UserFacingError, RuntimeError):
+    """一次远端操作失败。`failure` 是故障类别；原因写成 code 与参数，不含凭据。
 
+    `detail` 是按 zh-CN 渲染的那一句，任务行的失败原因与设置页的检查报告照旧读它。
     `block` 只给 115 的违规拦截（`50038`）：这类失败不重试，同一 infohash 以后直接拒收。
     """
 
-    def __init__(self, failure: str, detail: str, *, block: bool = False):
+    def __init__(self, failure: str, code: str, params: Mapping[str, Any] | None = None, *,
+                 block: bool = False):
         if failure not in FAILURE_KINDS:
             raise ValueError(f"unknown failure kind: {failure}")
-        super().__init__(detail)
+        super().__init__(code, params)
         self.failure = failure
-        self.detail = detail
+        self.detail = self.message
         self.block = block
 
     @property
@@ -133,18 +135,19 @@ BLOCKED_PATTERN = re.compile(r"50038|违规|敏感")
 
 def classify_remote_message(message: str) -> DownloadError:
     """远端只给一句话时按字面归类。认不出的归「资源被拒」，原文照抄给用户。"""
-    text = str(message or "").strip() or "远端没有给出原因"
+    text = str(message or "").strip()
+    if not text:
+        return DownloadError("rejected", "errors.downloads.remoteRejectedNoReason")
     lowered = text.casefold()
     if BLOCKED_PATTERN.search(text):
-        return DownloadError("rejected", f"115 拦截了这个资源（违规内容，50038），不会重试：{text}",
-                             block=True)
+        return DownloadError("rejected", "errors.downloads.remoteBlocked", {"text": text}, block=True)
     if any(word in lowered for word in ("配额", "quota", "次数", "上限", "limit")):
-        return DownloadError("quota", f"离线配额不够：{text}")
+        return DownloadError("quota", "errors.downloads.remoteQuota", {"text": text})
     if any(word in lowered for word in ("已存在", "exist", "重复", "duplicate")):
-        return DownloadError("duplicate", f"远端已有同一个任务：{text}")
+        return DownloadError("duplicate", "errors.downloads.remoteDuplicate", {"text": text})
     if any(word in lowered for word in ("链接", "无效", "invalid", "url", "格式")):
-        return DownloadError("invalid_link", f"远端不认这个链接：{text}")
-    return DownloadError("rejected", f"远端拒绝了这个任务：{text}")
+        return DownloadError("invalid_link", "errors.downloads.remoteInvalidLink", {"text": text})
+    return DownloadError("rejected", "errors.downloads.remoteRejected", {"text": text})
 
 
 # ---------------------------------------------------------------- 磁力
@@ -838,7 +841,8 @@ class DownloadService:
                     self._reschedule(task, now, error.detail)
                     return
                 if error.retryable:
-                    error = DownloadError(error.failure, f"{error.detail}（自动重试 {task.checks} 次后仍未提交）")
+                    error = DownloadError(error.failure, "errors.downloads.retriesExhausted",
+                                          {"detail": error.detail, "checks": task.checks})
                 self._fail(task, error, now)
                 self.store.record_submission(task=task, outcome="failed", now=now,
                                              failure=error.failure, detail=error.detail)
@@ -1024,8 +1028,8 @@ class DownloadService:
             return
         if task.state in {SUBMITTED, REMOTE_RUNNING} and self._overdue(task, now):
             self._fail(task, DownloadError(
-                "no_source", f"等了 {self.config.wait_hours} 小时远端还没完成，多半是没有人做种。"
-                "可以取消，或换一个磁力"), now, state=STALLED)
+                "no_source", "errors.downloads.noSeeders", {"hours": self.config.wait_hours}),
+                now, state=STALLED)
 
     def _recheck_stalled(self, task: DownloadTask, now: float) -> None:
         """停滞任务的低频复查：远端完成就回到落地流程，否则排下一次，超出期限就不再查。
@@ -1084,8 +1088,8 @@ class DownloadService:
                     self._reschedule(task, now)
                     return
                 if unseen:
-                    raise DownloadError("not_accepted", "网盘没有收下这个任务：提交后离线列表里始终没有它，目标目录里也没有文件")
-                raise DownloadError("removed", "网盘里的这个任务不见了：离线列表里找不到它，目标目录里也没有文件")
+                    raise DownloadError("not_accepted", "errors.downloads.notAccepted")
+                raise DownloadError("removed", "errors.downloads.remoteRemoved")
         self._remote_done(task, status, now)
 
     def _remote_done(self, task: DownloadTask, status, now: float) -> None:
@@ -1103,9 +1107,7 @@ class DownloadService:
     def _settle_landing(self, task: DownloadTask, now: float) -> None:
         mapped = self.landing.ledger_path(task, self.config)
         if mapped is None:
-            raise DownloadError(
-                "not_landed",
-                "目标目录对应不到媒体目录，请检查媒体库挂载和云端路径前缀关联")
+            raise DownloadError("not_landed", "errors.downloads.targetNotMapped")
         location, ledger_path = mapped
         task.ledger_path = ledger_path
         asset_id = self.store.asset_under(location, ledger_path, task.code)
@@ -1132,8 +1134,7 @@ class DownloadService:
             return
         done = parse_iso(task.remote_done_at) or now
         if now - done > LANDING_TIMEOUT:
-            raise DownloadError(
-                "not_landed", f"远端已完成，但挂载目录里一直没有出现 {ledger_path}")
+            raise DownloadError("not_landed", "errors.downloads.notLanded", {"path": ledger_path})
         task.updated_at = iso(now)
         task.next_check_at = iso(now + LANDING_GRACE)
         self.store.save(task)

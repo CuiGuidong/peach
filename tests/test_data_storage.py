@@ -14,6 +14,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from peach import data_storage, distribution, settings_file
+from peach.user_messages import UserValueError
 
 
 def write(path: Path, size: int = 10) -> Path:
@@ -228,12 +229,12 @@ class DataStorageTests(unittest.TestCase):
         def rename_once(source, destination):
             calls.append(destination)
             if len(calls) > 1:
-                raise OSError("拒绝访问")
+                raise OSError("Access is denied")
             os.rename(source, destination)
 
-        with patch.object(data_storage, "rewrite_ledger_paths", side_effect=RuntimeError("数据库被占用")), \
+        with patch.object(data_storage, "rewrite_ledger_paths", side_effect=RuntimeError("database is locked")), \
                 patch.object(data_storage, "_rename", side_effect=rename_once), \
-                self.assertRaisesRegex(data_storage.MovedWithoutRewrite, "数据库被占用"):
+                self.assertRaisesRegex(data_storage.MovedWithoutRewrite, "database is locked"):
             data_storage.relocate(self.config(), target, bootstrap=self.base / "default")
         self.assertTrue((target / "database" / "ledger.db").is_file())
         self.assertEqual((self.base / "default" / "state" / settings_file.DATA_ROOT_LOCATION).read_text(encoding="utf-8"),
@@ -416,7 +417,7 @@ class DataStorageTests(unittest.TestCase):
         request = self.request_file(self.base / "new" / "peach-data")
         tray = self.tray()
 
-        _transfer, release = self.poll_with(tray, Mock(side_effect=OSError("找不到 Peach.exe")))
+        _transfer, release = self.poll_with(tray, Mock(side_effect=OSError("Peach.exe not found")))
 
         release.assert_called_once()
         self.assertEqual(release.call_args.args[1], "token-1")
@@ -424,7 +425,7 @@ class DataStorageTests(unittest.TestCase):
         tray.exit.assert_not_called()
         result = data_storage.read_result(self.config())
         self.assertEqual(result["state"], "error")
-        self.assertIn("找不到 Peach.exe", result["message"])
+        self.assertIn("Peach.exe not found", result["message"])
 
     def test_storage_routes_validate_categories_and_report_target_errors_by_field(self):
         from fastapi import FastAPI
@@ -449,7 +450,7 @@ class DataStorageTests(unittest.TestCase):
                 detected = client.get('/api/configuration/storage/external-cache')
                 self.assertEqual(detected.json(), {'path': str(self.base / 'cache')})
                 read.assert_called_once_with(config)
-            with patch('peach.storage_external_cache.read', side_effect=ValueError('需要查看系统设置权限')):
+            with patch('peach.storage_external_cache.read', side_effect=UserValueError('errors.storageExternalCache.tokenNeedsPermission')):
                 self.assertEqual(client.get('/api/configuration/storage/external-cache').status_code, 400)
             self.assertEqual(client.post('/api/configuration/storage/policy', json={'cache_max_gib': True}).status_code, 400)
             self.assertEqual(client.post('/api/configuration/storage/policy', json={'data_max_gib': 32},

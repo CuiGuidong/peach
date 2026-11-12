@@ -30,6 +30,24 @@ class UserFacingError(Exception):
         if status_code is not None:
             self.status_code = status_code
 
+    def __reduce__(self):
+        # pickle 与 copy 按状态复制：默认写法拿 `args`（渲染好的原句）重新构造，会把原句当成 code 去查。
+        state = self.__dict__.copy()
+        if isinstance(self, OSError):
+            # errno 一组字段存在异常对象的 C 结构里，不在 `__dict__`。
+            state["__oserror__"] = (self.errno, self.strerror, self.filename)
+        return _restore, (type(self), state, self.args)
+
+
+def _restore(cls, state, args):
+    error = cls.__new__(cls)
+    oserror = state.pop("__oserror__", None)
+    error.__dict__.update(state)
+    error.args = args
+    if oserror is not None:
+        error.errno, error.strerror, error.filename = oserror
+    return error
+
 
 class UserValueError(UserFacingError, ValueError):
     """输入或状态不对、要告诉用户的错误。仍是 `ValueError`：按 `except ValueError` 捕获的调用方照旧接得住，
@@ -67,6 +85,15 @@ def error_fields(error: BaseException) -> dict[str, Any]:
     if isinstance(error, UserFacingError):
         return message_fields(error.code, error.params, key="error")
     return {"error": str(error)}
+
+
+def response_status(error: UserFacingError) -> int:
+    """带 code 的报错漏到接口层时回的 HTTP 状态。
+
+    有的异常类的 `status_code` 记的是上游网站的状态（资料来源抓取，常为 0），那种类用 `response_status`
+    声明自己在接口层的状态；超出 400–599 的一律按 500 处理。"""
+    status = getattr(error, "response_status", None) or getattr(error, "status_code", 400)
+    return status if isinstance(status, int) and 400 <= status < 600 else 500
 
 
 def failure_fields(error: BaseException) -> dict[str, Any]:

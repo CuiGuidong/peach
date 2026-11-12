@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 from .catalog_rules import normalise_code_key, release_code_from_text, same_release_code
 from .downloads import parse_magnet
 from .jav_cover_fetch import HostLimitedTransport
+from .metadata import relay_args
 from .javdb_public import (_CACHE_ROOT, PUBLIC_API, PublicIdentityAmbiguous, PublicRequestBudget,
                            PublicSourceUnavailable, public_cache_scope)
 from .resource_search import qualities
@@ -233,7 +234,7 @@ class Fetcher:
                 result = PUBLIC_API.resources(code, refresh=True, review_pages=4)
         except PublicSourceUnavailable as error:
             reason = FailureReason.PARSE_ERROR if isinstance(error, PublicIdentityAmbiguous) else FailureReason.NETWORK
-            raise SourceFailure(reason, str(error)) from error
+            raise SourceFailure(reason, *relay_args(error)) from error
         stale = [f"已沿用上次结果：{read['error']}" for read in reads if read['error']]
         result["warnings"] = list(dict.fromkeys([*result["warnings"], *stale]))
         self.resource_result = result

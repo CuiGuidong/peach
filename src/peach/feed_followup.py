@@ -236,8 +236,8 @@ def collect(provider, code: str) -> tuple[dict, str | None]:
             code, deadline=deadline_after(budget),
             route=metadata_routes.community_route(code))
     except DeadlineExceeded as error:
-        raise DeadlineExceeded(
-            f"来源链 {'、'.join(chain)} 在 {budget:g} 秒内没有答复") from error
+        raise DeadlineExceeded("errors.feedFollowup.chainTimedOut",
+                               {"chain": '、'.join(chain), "seconds": f"{budget:g}"}) from error
     fields: dict[str, object] = {}
     cover: str | None = None
     for _source, payload in found:
