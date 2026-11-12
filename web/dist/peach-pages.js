@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "e379d3b4-d254-42cc-8887-b41e6171bb32", e._sentryDebugIdIdentifier = "sentry-dbid-e379d3b4-d254-42cc-8887-b41e6171bb32");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "75a7b110-8e4a-490a-92f5-aedf646425fd", e._sentryDebugIdIdentifier = "sentry-dbid-75a7b110-8e4a-490a-92f5-aedf646425fd");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7432,11 +7432,11 @@ var He = {
 		scheduled: "{{count}} items scheduled",
 		videoUpgraded: "Video metadata upgrade complete",
 		videosUpgraded: "Upgraded metadata for {{count}} videos",
-		videosDeferred: "{{count}} postponed: folder unreadable or source cooling down",
+		videosDeferred: "{{count}} postponed: directory unreadable or source cooling down",
 		dimensionsMeasured: "Display dimensions re-measured",
 		deferredBy: "Postponed: {{reason}}",
-		deferMountMedia: "The video's folder is unreadable, will retry when the mount is back",
-		deferMountDimensions: "The video's folder is unreadable, will re-measure when the mount is back",
+		deferMountMedia: "The video's directory is unreadable, will retry when the mount is back",
+		deferMountDimensions: "The video's directory is unreadable, will re-measure when the mount is back",
 		deferBilling: "Traffic on the metered source isn't confirmed yet, will re-measure later",
 		deferCooling: "The metadata source is cooling down, will retry when it's available",
 		faceModelFetched: "Face model downloaded",
@@ -37448,4 +37448,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=e379d3b4-d254-42cc-8887-b41e6171bb32
+//# debugId=75a7b110-8e4a-490a-92f5-aedf646425fd
