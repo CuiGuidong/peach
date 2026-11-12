@@ -33,6 +33,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
+from . import task_stages
 from .jobs import TaskRunConflict, process_alive, process_matches
 from .repository import LedgerDatabase
 
@@ -145,10 +146,14 @@ def trigger_label(trigger: str) -> str:
 #: 落库的进度说明与结束原因（ADR-0156 第三条）。中文原文存进 `progress_label` / `error`，
 #: code 与参数存进旁边的列，`server.json` 的 `taskRun` 与这两张表一致（测试核对）。
 #: `{task}` 与 `{trigger}` 不进参数：库里只有 `task_key` 和触发方式的 id，读的一方按界面语言换成名字。
+#: `{stage}` 的参数是阶段 code（`task_stages`），同样由读的一方换成阶段名。
 PROGRESS_MESSAGES = {
     "item": "{task}：{name}",
     "items": "{task}：{first} 等 {count} 部",
     "downloadLanded": "下载已入库：{name}",
+    "batch": "{first} 等 {count} 部",
+    "subjectStage": "{subject} · {stage}",
+    "videosStage": "{count} 部影片 · {stage}",
     "waitingForUpdate": "等待安装完成后继续",
     "waitingForService": "等待服务启动后继续",
     "pausedWaiting": "已暂停，等待继续",
@@ -165,6 +170,8 @@ def _fill(template: str, task_key: str, params: dict) -> str:
     names = {"task": task_label(task_key)}
     if "trigger" in params:
         names["trigger"] = trigger_label(str(params["trigger"]))
+    if "stage" in params:
+        names["stage"] = task_stages.text(str(params["stage"]))
     return template.format(**{**params, **names})
 
 

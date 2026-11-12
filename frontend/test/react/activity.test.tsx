@@ -11,7 +11,7 @@ import { BACKGROUND_ISSUES_URL, type BackgroundIssue } from '../../src/react/act
 import { DOWNLOADS_URL } from '../../src/react/activity/downloads-panel';
 import { ErrorExcerpt } from '../../src/react/activity/error-excerpt';
 import {
-  elapsedText, errorHeadline, followupDetail, hasResultProblems, isRoutine, prefetchTasks, progressText, summaryItems, summaryText, TASKS_URL,
+  elapsedText, errorHeadline, followupDetail, hasResultProblems, isRoutine, prefetchTasks, progressLabel, progressText, summaryItems, summaryText, TASKS_URL,
 } from '../../src/react/activity/tasks';
 import type { ActivityData, TaskResourcesPayload, TaskRunPayload } from '../../src/react/activity/tasks';
 import type { DownloadsSnapshot } from '../../src/react/bundle';
@@ -1070,6 +1070,17 @@ it('后继那一行按 code 只写条目；一批几部写成首部加总数，�
     .toBe('资料图片补全：涼森れむ');
   expect(followupDetail(followup(4, { ...pending, progress_label: '资料图片补全', progress_code: undefined,
     progress_params: undefined }))).toBe('');
+});
+
+it('进度说明里的阶段和批量操作按 code 取当前语言，库里的原文只在没有译文时用', () => {
+  const running = (overrides: Partial<TaskRunPayload>) => followup(4, { status: 'running', finished_at: null, ...overrides });
+  expect(progressLabel(running({ task_key: 'upgrade-library', task_label: '资料自动修复', progress_label: '旧写法',
+    progress_code: 'taskRun.progress.subjectStage', progress_params: { subject: 'ABC-001', stage: 'library.fetchMetadata' } })))
+    .toBe('ABC-001 · 采集缺失资料');
+  expect(progressLabel(running({ task_key: 'library-processing', progress_label: '旧写法',
+    progress_code: 'stage.library.scanFiles', progress_params: {} }))).toBe('扫描文件');
+  expect(progressLabel(running({ task_key: 'batch', progress_label: '旧写法',
+    progress_code: 'batchOperation.performer-delete', progress_params: {} }))).toBe('按女优永久删除影片');
 });
 
 it('报错在列表里只露一行：traceback 取最后一行，别的取第一行非空', () => {

@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "1ce5a8ad-fa83-43c5-a0fe-d767d2d948fc", e._sentryDebugIdIdentifier = "sentry-dbid-1ce5a8ad-fa83-43c5-a0fe-d767d2d948fc");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d3713b70-2dcf-4b4d-b0ed-82470968bfd4", e._sentryDebugIdIdentifier = "sentry-dbid-d3713b70-2dcf-4b4d-b0ed-82470968bfd4");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -2745,7 +2745,6 @@ var He = {
 		nothingToRepair: "Checked the library; no videos need repair",
 		preparing: "Preparing",
 		progress: "Repair progress",
-		repairStage: "Repairing",
 		repairedDone_one: "Repaired {{count, number}} video",
 		repairedDone_other: "Repaired {{count, number}} videos",
 		repairedWithFailures_one: "Repaired {{count, number}} video; {{failed, number}} couldn't be repaired",
@@ -7255,7 +7254,10 @@ var He = {
 			downloadLanded: "Download imported: {{name}}",
 			waitingForUpdate: "Continues after the update is installed",
 			waitingForService: "Continues after the service starts",
-			pausedWaiting: "Paused, waiting to continue"
+			pausedWaiting: "Paused, waiting to continue",
+			batch: "{{first}} and others ({{count}} total)",
+			subjectStage: "{{subject}} · {{stage}}",
+			videosStage: "{{count}} videos · {{stage}}"
 		},
 		error: {
 			skippedBy: "Skipped: run {{run}} ({{trigger}}) was still in progress",
@@ -7263,6 +7265,93 @@ var He = {
 			interrupted: "The service restarted before this run finished",
 			unknownFollowup: "No follow-up task is registered for {{task}}"
 		}
+	},
+	stage: {
+		library: {
+			scanFiles: "Scanning files",
+			checkCompanions: "Checking companion files",
+			probeMedia: "Reading duration and resolution",
+			checkNetwork: "Checking internet connection",
+			checkJunk: "Checking junk files",
+			recheckJunk: "Rechecking junk files",
+			prepareImages: "Preparing to read companion images",
+			readImages: "Reading companion images",
+			preparePreviews: "Preparing previews",
+			makePreviews: "Generating previews",
+			prepareMetadata: "Preparing to fetch metadata",
+			prepareSources: "Preparing fetch tools",
+			fetchMetadata: "Fetching missing metadata",
+			saveCandidates: "Saving metadata for review",
+			fetchCovers: "Fetching missing covers",
+			collectResults: "Wrapping up fetch results",
+			finished: "Finished"
+		},
+		backup: {
+			prepareBackup: "Preparing backup",
+			copyLedger: "Copying database",
+			checkIntegrity: "Checking backup integrity",
+			backupDone: "Backup complete",
+			prepareRestore: "Preparing restore",
+			copyBackup: "Copying backup",
+			migrateBackup: "Updating backup to the current structure",
+			saveCurrent: "Saving current database",
+			writeLedger: "Writing database",
+			restoreDone: "Restore complete"
+		},
+		diagnostics: {
+			prepare: "Preparing export",
+			readSystem: "Reading system diagnostics",
+			collectLogs: "Collecting diagnostic logs",
+			collectEvidence: "Collecting scrape evidence",
+			readCandidates: "Reading field candidates",
+			collectSnapshots: "Collecting source snapshots",
+			scrapingDone: "Scrape record created",
+			cancelling: "Canceling export",
+			done: "Export complete",
+			cancelled: "Export canceled"
+		},
+		mediaRepair: {
+			scan: "Scanning",
+			repair: "Repairing",
+			done: "Done",
+			readTimestamps: "Reading frame timestamps"
+		},
+		organize: {
+			checkingPlan: "Checking the plan",
+			running: "Organizing",
+			rollingBack: "Rolling back the last batch"
+		},
+		thumbnails: { fetch: "Fetching thumbnails" },
+		download: {
+			isolateExtras: "Setting aside promotional extras",
+			probeMedia: "Reading downloaded media details",
+			fetchMetadata: "Fetching video metadata",
+			organizeFiles: "Organizing files by template"
+		},
+		upgrade: {
+			updateMetadata: "Updating video metadata",
+			displayDimensions: "Re-measuring display dimensions",
+			displayDimensionsAll: "Re-measuring video display dimensions"
+		},
+		job: {
+			waitingForUpdate: "Continues after the update is installed",
+			cancelled: "Canceled",
+			stopped: "Stopped"
+		}
+	},
+	batchOperation: {
+		like: "Bulk like",
+		seen: "Bulk mark watched",
+		later: "Bulk add to Watch later",
+		dispose: "Bulk move to trash",
+		restore: "Bulk restore",
+		delete: "Bulk delete permanently",
+		"dismiss-junk": "Bulk mark as not junk",
+		"reconsider-junk": "Bulk recheck junk",
+		"keep-duplicates": "Keep all in duplicate groups",
+		"reconsider-duplicates": "List duplicate groups again",
+		region: "Bulk set region",
+		"performer-delete": "Delete actresses' videos permanently"
 	}
 }, Xe = {
 	accessSetup: {
@@ -9290,7 +9379,6 @@ var He = {
 		nothingToRepair: "已检查媒体库，没有需要修复的视频",
 		preparing: "准备中",
 		progress: "修复进度",
-		repairStage: "修复",
 		repaired: "已修复 {{count, number}} 部视频",
 		repairedDone: "修好 {{count, number}} 部",
 		repairedWithFailures: "修好 {{count, number}} 部，{{failed, number}} 部修不了",
@@ -13537,7 +13625,10 @@ var He = {
 			downloadLanded: "下载已入库：{{name}}",
 			waitingForUpdate: "等待安装完成后继续",
 			waitingForService: "等待服务启动后继续",
-			pausedWaiting: "已暂停，等待继续"
+			pausedWaiting: "已暂停，等待继续",
+			batch: "{{first}} 等 {{count}} 部",
+			subjectStage: "{{subject}} · {{stage}}",
+			videosStage: "{{count}} 部影片 · {{stage}}"
 		},
 		error: {
 			skippedBy: "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
@@ -13545,6 +13636,93 @@ var He = {
 			interrupted: "服务重启，这一轮没有跑完",
 			unknownFollowup: "没有登记 {{task}} 这种后继"
 		}
+	},
+	stage: {
+		library: {
+			scanFiles: "扫描文件",
+			checkCompanions: "检查配套文件",
+			probeMedia: "读取时长与分辨率",
+			checkNetwork: "检查外网连接",
+			checkJunk: "检查垃圾文件",
+			recheckJunk: "复查垃圾文件",
+			prepareImages: "准备读取配套图片",
+			readImages: "读取配套图片",
+			preparePreviews: "准备生成预览",
+			makePreviews: "生成预览图",
+			prepareMetadata: "准备采集外部资料",
+			prepareSources: "准备采集工具",
+			fetchMetadata: "采集缺失资料",
+			saveCandidates: "保存待确认资料",
+			fetchCovers: "采集缺失封面",
+			collectResults: "整理采集结果",
+			finished: "处理结束"
+		},
+		backup: {
+			prepareBackup: "准备备份",
+			copyLedger: "复制账本",
+			checkIntegrity: "检查备份完整性",
+			backupDone: "备份完成",
+			prepareRestore: "准备恢复",
+			copyBackup: "复制备份",
+			migrateBackup: "把备份迁到当前结构",
+			saveCurrent: "另存当前账本",
+			writeLedger: "写入账本",
+			restoreDone: "恢复完成"
+		},
+		diagnostics: {
+			prepare: "准备导出",
+			readSystem: "读取系统诊断",
+			collectLogs: "整理诊断日志",
+			collectEvidence: "整理刮削证据",
+			readCandidates: "读取字段候选",
+			collectSnapshots: "整理来源快照",
+			scrapingDone: "刮削记录已生成",
+			cancelling: "正在取消导出",
+			done: "导出已完成",
+			cancelled: "导出已取消"
+		},
+		mediaRepair: {
+			scan: "扫描",
+			repair: "修复",
+			done: "完成",
+			readTimestamps: "读取帧时间戳"
+		},
+		organize: {
+			checkingPlan: "正在核对计划",
+			running: "正在整理",
+			rollingBack: "正在回滚上一批"
+		},
+		thumbnails: { fetch: "采集缩略图" },
+		download: {
+			isolateExtras: "隔离推广附件",
+			probeMedia: "读取下载媒体属性",
+			fetchMetadata: "采集作品资料",
+			organizeFiles: "按模板整理文件"
+		},
+		upgrade: {
+			updateMetadata: "更新影片资料",
+			displayDimensions: "补测显示尺寸",
+			displayDimensionsAll: "补测视频显示尺寸"
+		},
+		job: {
+			waitingForUpdate: "等待安装完成后继续",
+			cancelled: "已取消",
+			stopped: "已停止"
+		}
+	},
+	batchOperation: {
+		like: "批量标记喜欢",
+		seen: "批量标记看过",
+		later: "批量加入稍后看",
+		dispose: "批量移入回收站",
+		restore: "批量还原",
+		delete: "批量永久删除",
+		"dismiss-junk": "批量确认不是垃圾",
+		"reconsider-junk": "批量重新判定垃圾",
+		"keep-duplicates": "重复组标记都保留",
+		"reconsider-duplicates": "重复组重新列出",
+		region: "批量判定产地",
+		"performer-delete": "按女优永久删除影片"
 	}
 }, at = {
 	accessSetup: {
@@ -37083,4 +37261,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=1ce5a8ad-fa83-43c5-a0fe-d767d2d948fc
+//# debugId=d3713b70-2dcf-4b4d-b0ed-82470968bfd4

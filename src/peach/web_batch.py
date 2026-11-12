@@ -32,6 +32,7 @@ from .personal_records import ASSET_REFERENCE_TABLES, VANISHED
 from .platform import is_unmapped, root_online, translate_ledger_path, within_root
 from .regions import normalize_region
 from .task_runs import TaskRunHandle
+from .task_stages import batch_progress
 from .web_activity import DEFAULT_PROFILE_ID
 from .web_catalog import attach_card_performers
 from .media_sources import cost_for
@@ -67,15 +68,6 @@ JUNK_SCORE_TABLES = ("asset", "review_decision", "download_task")
 
 # Linux 容器可从 mountinfo 识别媒体实际所在的 FUSE 文件系统。
 MOUNTINFO_PATH = Path("/proc/self/mountinfo")
-
-#: 批量操作在活动页上的名字。表里存 `operation`，人看的是这一列。
-BATCH_LABELS = {
-    "like": "批量标记喜欢", "seen": "批量标记看过", "later": "批量加入稍后看",
-    "dispose": "批量移入回收站", "restore": "批量还原", "delete": "批量永久删除",
-    "dismiss-junk": "批量确认不是垃圾", "reconsider-junk": "批量重新判定垃圾",
-    "keep-duplicates": "重复组标记都保留", "reconsider-duplicates": "重复组重新列出",
-    "region": "批量判定产地",
-}
 
 #: 重复组「都保留」记在 `review_decision` 的这一类下，键是组员 id 升序连写。组里文件一增一减，
 #: 键就对不上，这组自动回到列表（做法参考 SakuraMedia `608abc0bfb`）。
@@ -681,7 +673,7 @@ def w_batch(contract: WebContract, body):
     # 删了多少、有没有半路失败」只有这条记录答得出。不声明互斥——两批不同的资产
     # 各改各的，互斥只会把正常的连续操作挡住。
     run = contract.task_runs.start("batch", trigger="manual", total=len(ids),
-                                   label=BATCH_LABELS.get(operation, operation))
+                                   **batch_progress(operation))
     handle = TaskRunHandle(contract.task_runs, run.id if run else None)
     from .task_control import bind, Cancelled
     try:

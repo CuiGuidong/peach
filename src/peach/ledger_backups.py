@@ -38,6 +38,7 @@ from pathlib import Path
 
 from .fsutil import atomic_write_text
 from .migrations import plan as migration_plan, sqlite_backup, upgrade as migration_upgrade
+from .task_stages import stage as stage_fields
 
 log = logging.getLogger(__name__)
 
@@ -279,10 +280,10 @@ def _unlink_all(path: Path) -> None:
 
 
 def _pages(progress, stage: str):
-    """把 `Connection.backup` 的进度回调翻成 `progress(stage=, done=, total=)`。"""
+    """把 `Connection.backup` 的进度回调翻成 `progress(stage=, stage_code=, done=, total=)`；`stage` 是阶段 code。"""
     if progress is None:
         return None
-    return lambda _status, remaining, total: progress(stage=stage, done=total - remaining, total=total)
+    return lambda _status, remaining, total: progress(**stage_fields(stage), done=total - remaining, total=total)
 
 
 def _copy(live: Path, destination: Path, progress, stage: str) -> None:
@@ -306,9 +307,9 @@ def create(live: Path, *, purpose: str = MANUAL_PURPOSE, progress=None, now: dat
     target = _free_name(live.parent, purpose, now)
     part = target.with_name(target.name + PART_SUFFIX)
     try:
-        _copy(live, part, progress, "复制账本")
+        _copy(live, part, progress, "backup.copyLedger")
         if progress is not None:
-            progress(stage="检查备份完整性")
+            progress(**stage_fields('backup.checkIntegrity'))
         check = integrity(part)
         if check != "ok":
             raise BackupRejected(f"备份没有通过完整性检查：{check}")
@@ -477,20 +478,20 @@ def restore(live: Path, backup: Path, *, migrations_dir: Path, progress=None,
     不过，用另存的那份退回去。
     """
     report = progress or (lambda **_: None)
-    report(stage="检查备份完整性")
+    report(**stage_fields('backup.checkIntegrity'))
     check = integrity(backup)
     if check != "ok":
         raise BackupRejected(f"这份备份没有通过完整性检查：{check}")
     staging = _staging(live)
     _unlink_all(staging)
     try:
-        sqlite_backup(backup, staging, pages=COPY_PAGES, progress=_pages(progress, "复制备份"))
+        sqlite_backup(backup, staging, pages=COPY_PAGES, progress=_pages(progress, "backup.copyBackup"))
         try:
             _, pending = migration_plan(staging, migrations_dir)
         except RuntimeError as exc:
             raise BackupRejected(f"这份备份的结构与当前程序不符：{exc}") from exc
         if pending:
-            report(stage="把备份迁到当前结构")
+            report(**stage_fields('backup.migrateBackup'))
             migration_upgrade(staging, migrations_dir)
         check = integrity(staging, foreign_keys=True)
         if check != "ok":
@@ -498,12 +499,12 @@ def restore(live: Path, backup: Path, *, migrations_dir: Path, progress=None,
         healthy = live.is_file() and integrity(live) == "ok"
         if healthy and _page_size(live) != _page_size(staging):
             raise BackupRejected("这份备份的页面大小与当前账本不同，不能在服务运行时恢复")
-        report(stage="另存当前账本")
+        report(**stage_fields('backup.saveCurrent'))
         saved = None
         if live.is_file():
             saved = _free_name(live.parent, RESTORE_PURPOSE, now)
             if healthy:
-                _copy(live, saved, progress, "另存当前账本")
+                _copy(live, saved, progress, "backup.saveCurrent")
                 if integrity(saved) != "ok":
                     _unlink_all(saved)
                     raise BackupRejected("当前账本另存后没有通过完整性检查，没有恢复")
@@ -517,7 +518,7 @@ def restore(live: Path, backup: Path, *, migrations_dir: Path, progress=None,
         atomic_write_text(marker, json.dumps({
             "state": "copying", "backup": str(backup), "saved": str(saved) if saved else "",
             "started_at": time.time()}, ensure_ascii=False))
-        report(stage="写入账本")
+        report(**stage_fields('backup.writeLedger'))
         try:
             if healthy:
                 _copy_into(staging, live)
@@ -641,10 +642,10 @@ class LedgerBackups:
 
             def work(identity):
                 path = create(self.live, progress=lambda **values: job.update(identity, **values))
-                job.update(identity, status="complete", stage="备份完成", name=path.name,
+                job.update(identity, status="complete", **stage_fields('backup.backupDone'), name=path.name,
                            bytes=path.stat().st_size)
 
-            job.start(work, restart=True, initial={"stage": "准备备份", "done": 0, "total": 0})
+            job.start(work, restart=True, initial={**stage_fields('backup.prepareBackup'), "done": 0, "total": 0})
         return self.snapshot()
 
     def start_restore(self, ident: object) -> dict:
@@ -684,11 +685,11 @@ class LedgerBackups:
                         self.after_restore()
                     except Exception:
                         log.warning("恢复后清理缓存失败", exc_info=True)
-                job.update(identity, status="complete", stage="恢复完成", backup=backup.name,
+                job.update(identity, status="complete", **stage_fields('backup.restoreDone'), backup=backup.name,
                            saved=outcome.saved.name if outcome.saved else "",
                            migrated=len(outcome.migrated))
 
-            job.start(work, restart=True, initial={"stage": "准备恢复", "backup": backup.name,
+            job.start(work, restart=True, initial={**stage_fields('backup.prepareRestore'), "backup": backup.name,
                                                    "done": 0, "total": 0})
         return self.snapshot()
 

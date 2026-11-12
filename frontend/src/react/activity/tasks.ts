@@ -5,7 +5,7 @@
 import { apiGet, apiSend } from '../../api';
 import { fmtSize } from '@peach/legacy/core';
 import { requestErrorMessage } from '../../core/request-error';
-import { serverLabel } from '../../core/server-text';
+import { serverLabel, stageText } from '../../core/server-text';
 import { queryClient } from '../query';
 import type { ProcessingSpeed } from '../library-processing/library-processing';
 import { interfaceLanguage, t } from '../../i18n';
@@ -300,14 +300,17 @@ export const taskName = (run: Pick<TaskRunPayload, 'task_key' | 'task_label'>): 
 const ITEM_PROGRESS = 'taskRun.progress.item';
 const ITEMS_PROGRESS = 'taskRun.progress.items';
 
-/** 落库的一句说明（ADR-0156 第三条）：带 code 的按界面语言显示，任务名和触发方式换成当前语言的名字；
+/** 落库的一句说明（ADR-0156 第三条）：带 code 的按界面语言显示，任务名、触发方式和阶段换成当前语言的名字；
  *  旧行没有 code，照原文显示。 */
 function runText(run: TaskRunPayload, code: string | null | undefined, params: Record<string, unknown> | undefined,
   original: string): string {
   if (!code) return original;
   if (code === ITEM_PROGRESS && !params?.name) return taskName(run);
-  const trigger = String(params?.trigger || '');
-  return serverLabel(code, original, { ...params, task: taskName(run), ...(trigger ? { trigger: TRIGGER_LABELS[trigger] || trigger } : {}) });
+  const trigger = String(params?.trigger || ''), stage = String(params?.stage || '');
+  return serverLabel(code, original, {
+    ...params, task: taskName(run), ...(trigger ? { trigger: TRIGGER_LABELS[trigger] || trigger } : {}),
+    ...(stage ? { stage: stageText({ stage, stage_code: stage }) } : {}),
+  });
 }
 
 /** 这一轮此刻在做什么。 */

@@ -18,7 +18,8 @@ from .followups import FollowupType, Attempts, attempts_root, register
 from .fsutil import atomic_path, atomic_write_text
 from .jobs import DiskSpaceDenied, JobPaused
 from .migrations import sqlite_backup
-from .task_runs import MAX_FOLLOWUPS
+from .task_runs import MAX_FOLLOWUPS, PROGRESS_MESSAGES, run_progress
+from .task_stages import stage_code, stage_label
 from .update_tasks import UpdateBusy
 
 LOGGER = logging.getLogger(__name__)
@@ -194,8 +195,8 @@ def _batched(planned) -> list:
                 rows.append(chunk[0][1])
                 continue
             ids = ','.join(str(asset_id) for asset_id, _ in chunk)
-            rows.append(Followup(f'{_BATCH_PREFIX}{rule}:{ids}', MEDIA_TASK,
-                                 f'{chunk[0][1].label} 等 {len(chunk)} 部'))
+            rows.append(Followup.coded(f'{_BATCH_PREFIX}{rule}:{ids}', MEDIA_TASK,
+                                       run_progress('batch', first=chunk[0][1].label, count=len(chunk))))
     return rows
 
 
@@ -241,6 +242,14 @@ def _read(path: Path) -> dict:
     if not isinstance(value, dict):
         raise ValueError('更新后的处理记录格式无效')
     return value
+
+
+def _media_progress(state: dict, key: str, **params) -> dict:
+    """「标题 · 阶段」「N 部影片 · 阶段」。阶段认得出 code 时整句带 code，认不出照原文。"""
+    code = stage_code(state) if state.get('stage') else 'upgrade.updateMetadata'
+    if code:
+        return run_progress(key, stage=code, **params)
+    return {'label': PROGRESS_MESSAGES[key].format(stage=state['stage'], **params), 'code': None, 'params': {}}
 
 
 def _title(row) -> str:
@@ -1395,7 +1404,8 @@ class UpgradeRepairs:
                 if cost_for(row['location'], row['path'], config) != 'free':
                     deferred.append(row['id'])
                     continue
-                planned.append(Followup(display_key, MEDIA_TASK, f'{_title(row)} · 补测显示尺寸'))
+                planned.append(Followup.coded(display_key, MEDIA_TASK, run_progress(
+                    'subjectStage', subject=_title(row), stage='upgrade.displayDimensions')))
                 media_count += 1
                 if len(planned) >= MAX_FOLLOWUPS:
                     break
@@ -1741,7 +1751,7 @@ def _media_run(contract, key: str, handle) -> dict:
                              state_file=state_file, resume_state=previous or None,
                              active=active,
                              report=lambda state: handle.progress(
-                                 label=f"{title} · {state.get('stage') or '更新影片资料'}"))
+                                 **_media_progress(state, 'subjectStage', subject=title)))
         guard.check(force=True)
     except DiskSpaceDenied as error:
         _pause_for_capacity(service, handle, error)
@@ -1797,7 +1807,7 @@ def _batch_run(contract, key: str, handle) -> dict:
                                      recheck_existing=True, job_id=job_id, state_file=state_file,
                                      resume_state=previous or None, active=active,
                                      report=lambda state: handle.progress(
-                                         label=f"{len(targets)} 部影片 · {state.get('stage') or '更新影片资料'}"))
+                                         **_media_progress(state, 'videosStage', count=len(targets))))
             guard.check(force=True)
     except DiskSpaceDenied as error:
         _pause_for_capacity(service, handle, error)
@@ -1868,7 +1878,7 @@ def _display_run(contract, key: str, handle) -> dict:
             paused = _read(service.receipt).get('media_paused')
             if paused:
                 raise DiskSpaceDenied(paused['message'])
-        handle.progress(label='补测视频显示尺寸')
+        handle.progress(**stage_label('upgrade.displayDimensionsAll'))
         result = display_dimensions_repair.reprobe(contract, config, asset_id, checkpoint=available,
                                                    expected_generation=key.rsplit(':', 2)[1],
                                                    run_id=_run_id(handle))
