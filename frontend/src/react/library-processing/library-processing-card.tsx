@@ -41,21 +41,12 @@ import { TrafficProgress } from './processing-traffic';
 import { ProcessingControls } from './processing-controls';
 import { downloadIssueList, exportProcessingIssues } from './issue-export';
 import { busyProps, useAction } from '../settings/use-action';
-import { SourceMark } from '../settings/section';
-import { useLibraryTints, type LibraryTint } from '../components/library-tint';
+import { useLibraryTints } from '../components/library-tint';
+import { LibraryLabel } from '../components/library-label';
 import { useOrderedLibraries } from '../components/library-order';
 import { t } from '../../i18n';
 
 const ALL_LIBRARIES = { id: '', name: t('manage:scanFetch.allLibraries'), icon: 'database' };
-
-function LibraryLabel({ library }: { library: Pick<LibraryTint, 'id' | 'name' | 'icon'> }) {
-  return <span className="flex min-w-0 items-center gap-2">
-    <span data-library={library.id} className="inline-flex shrink-0 text-(--library-color)">
-      <SourceMark mark={library.icon} />
-    </span>
-    <span className="truncate">{library.name}</span>
-  </span>;
-}
 
 /* 中文正文写成常量：JSX 里换行的文字会在接缝处多出一个空格，中文句子里看得见。
    卡片正文与首屏骨架共用 `SCAN_CARD_TEXT`（`management.ts`）。 */
