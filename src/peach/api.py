@@ -79,7 +79,7 @@ from .sample_images import cache_root as sample_cache_root
 from .providers import OpenCodeGoClient, default_registry
 from .repository import LedgerDatabase, LedgerRepository
 from .review_mirror import ReviewMirror
-from .routes_auth import FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE, AssetLoginRequired, PageLoginRequired
+from .routes_auth import FIRST_ACCESS_DENIED_CODE, AssetLoginRequired, PageLoginRequired
 # 两档缓存时长的实现在 `routes_media`，这里再导出：它们是对外的缓存契约，
 # tests/test_follow_web.py 按 `api.MEDIA_CACHE_SECONDS` 断言两者的关系。
 from .routes_media import AVATAR_CACHE_SECONDS, MEDIA_CACHE_SECONDS  # noqa: F401
@@ -162,17 +162,17 @@ class FirstSetupSourceMiddleware:
             if (not settings.configured
                     and (scope["path"].startswith("/api/") or scope["method"] not in {"GET", "HEAD"})
                     and not local_client(request)):
-                response = JSONResponse({**message_fields(FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE, key="error"),
+                response = JSONResponse({**message_fields(FIRST_ACCESS_DENIED_CODE, key="error"),
                                          "docker": True}, status_code=403)
                 await response(scope, receive, send)
                 return
         await self.app(scope, receive, send)
 
 
-#: Starlette 自己抛的那几种 HTTPException 带的是英文 detail，给人看之前换成中文原文与 code。
+#: Starlette 自己抛的那几种 HTTPException 带的是英文 detail，给人看之前换成 code 和渲染好的一句。
 _DEFAULT_DETAILS = {
-    "Not Found": message_fields("这个地址下没有页面。", "http.notFound", key="error"),
-    "Method Not Allowed": message_fields("这个地址不接受这种请求。", "http.methodNotAllowed", key="error"),
+    "Not Found": message_fields("http.notFound", key="error"),
+    "Method Not Allowed": message_fields("http.methodNotAllowed", key="error"),
 }
 
 
@@ -741,7 +741,7 @@ def create_app(
     @app.exception_handler(Exception)
     def _server_exception_handler(request: Request, exc: Exception):
         headers = _server_error_headers(request, exc)
-        return JSONResponse({**message_fields('服务处理失败，请导出诊断报告', 'http.serverError', key='error'),
+        return JSONResponse({**message_fields('http.serverError', key='error'),
                              'error_id': headers['X-Peach-Error-ID']}, status_code=500, headers=headers)
 
     # 第三方前端依赖固定版本并随 Peach 自托管；局域网断网时仍可播放。

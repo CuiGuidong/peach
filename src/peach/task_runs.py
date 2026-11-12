@@ -33,13 +33,13 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
-from . import task_stages
+from . import interface_text, task_stages
 from .jobs import TaskRunConflict, process_alive, process_matches
 from .repository import LedgerDatabase
 
 __all__ = [
     "ACTIVE_STATUSES", "DEFAULT_KEEP", "LEASE_SECONDS", "MAX_FOLLOWUPS",
-    "MAX_FOLLOWUP_DEPTH", "PROGRESS_INTERVAL", "TASK_LABELS", "TERMINAL_STATUSES",
+    "MAX_FOLLOWUP_DEPTH", "PROGRESS_INTERVAL", "TASK_KEYS", "TERMINAL_STATUSES",
     "TRIGGERS", "TaskRun", "TaskRunConflict", "TaskRunHandle", "TaskRunStore",
     "cli_run", "inert_handle", "item_progress", "run_error", "run_progress", "stamp",
     "task_label",
@@ -85,99 +85,49 @@ MAX_FOLLOWUPS = 64
 #: 再往下就不是扇出而是递归了，而递归的规模在代码评审里看不出来。
 MAX_FOLLOWUP_DEPTH = 2
 
-#: 任务登记表：key → 给人看的名字。不在表里的 key 由界面原样显示，不猜。
-TASK_LABELS = {
-    "follow-check": "追更检查",
-    "follow-resolve": "关注来源查找",
-    "library-processing": "扫描与采集",
-    "taste-refresh": "口味分析",
-    "link-check": "链接检查",
-    "link-prune": "失效链接清理",
-    "resource-scan": "资源同步检查",
-    "resource-apply": "资源同步清理",
-    "scraping-cover": "封面采集",
-    "media-repair": "媒体修复",
-    "mp4-header-repair": "播放文件头修复",
-    'jav-discovery-metadata': '发现页资料读取',
-    'diagnostic-export': '诊断导出',
-    "ledger-backup": "账本备份",
-    "ledger-restore": "从备份恢复账本",
-    "upgrade-repairs": "自动修复",
-    "upgrade-library": "资料自动修复",
-    "follow-evidence-reclaim": "关注旧快照清理",
-    "organize": "按模板整理",
-    "batch": "批量操作",
-    "scrape-codes": "番号资料刮削",
-    "jav-covers": "封面批量抓取",
-    "entity-avatar": "资料图片补全",
-    "performer-profile": "女优资料补全",
-    "performer-alias": "女优别名补全",
-    "studio-mark": "厂牌官网与标识补全",
-    "creator-identity": "创作者身份查找",
-    "code-samples": "番号样张采集",
-    "feed-check": "订阅源拉取",
-    "feed-scrape": "新作资料采集",
-    "feed-cover": "新作封面采集",
-    "want-scrape": "想要作品资料采集",
-    "timeline-thumbnails": "视频缩略图采集",
-    "download-postprocess": "云下载后处理",
-    "seed-import": "初始资料导入",
-    "follow-creator": "关注作者建档",
-    "amane-bridge": "amane 桥重建",
-    "source-check": "资料源连接检查",
-    "face-models": "人脸模型下载",
-}
-
-
-#: 触发方式的中文名。跳过原因是给人看的一句话，里面不留英文枚举值。
-TRIGGER_LABELS = {
-    "manual": "手动", "scheduled": "定时", "startup": "启动", "cli": "命令行",
-}
+#: 任务登记表。名字在 `resources/locales/<语言>/server.json` 的 `task.<key>`（ADR-0159）；
+#: 不在表里的 key 由界面原样显示，不猜。
+TASK_KEYS = (
+    "follow-check", "follow-resolve", "library-processing", "taste-refresh", "link-check", "link-prune",
+    "resource-scan", "resource-apply", "scraping-cover", "media-repair", "mp4-header-repair",
+    "jav-discovery-metadata", "diagnostic-export", "ledger-backup", "ledger-restore", "upgrade-repairs",
+    "upgrade-library", "follow-evidence-reclaim", "organize", "batch", "scrape-codes", "jav-covers",
+    "entity-avatar", "performer-profile", "performer-alias", "studio-mark", "creator-identity", "code-samples",
+    "feed-check", "feed-scrape", "feed-cover", "want-scrape", "timeline-thumbnails", "download-postprocess",
+    "seed-import", "follow-creator", "amane-bridge", "source-check", "face-models",
+)
 
 
 def task_label(task_key: str) -> str:
-    return TASK_LABELS.get(task_key, task_key)
+    return interface_text.text(f"server:task.{task_key}") if task_key in TASK_KEYS else task_key
 
 
 def trigger_label(trigger: str) -> str:
-    return TRIGGER_LABELS.get(trigger, trigger)
+    """触发方式的名字。跳过原因是给人看的一句话，里面不留英文枚举值。"""
+    return interface_text.label(f"manage:taskTrigger.{trigger}", trigger)
 
 
-#: 落库的进度说明与结束原因（ADR-0156 第三条）。中文原文存进 `progress_label` / `error`，
-#: code 与参数存进旁边的列，`server.json` 的 `taskRun` 与这两张表一致（测试核对）。
-#: `{task}` 与 `{trigger}` 不进参数：库里只有 `task_key` 和触发方式的 id，读的一方按界面语言换成名字。
-#: `{stage}` 的参数是阶段 code（`task_stages`），同样由读的一方换成阶段名。
-PROGRESS_MESSAGES = {
-    "item": "{task}：{name}",
-    "items": "{task}：{first} 等 {count} 部",
-    "downloadLanded": "下载已入库：{name}",
-    "batch": "{first} 等 {count} 部",
-    "subjectStage": "{subject} · {stage}",
-    "videosStage": "{count} 部影片 · {stage}",
-    "waitingForUpdate": "等待安装完成后继续",
-    "waitingForService": "等待服务启动后继续",
-    "pausedWaiting": "已暂停，等待继续",
-}
-ERROR_MESSAGES = {
-    "skippedBy": "与第 {run} 轮（{trigger}触发）冲突，本次跳过",
-    "skipped": "已有一轮在进行，本次跳过",
-    "interrupted": "服务重启，这一轮没有跑完",
-    "unknownFollowup": "没有登记 {task} 这种后继",
-}
+#: 落库的进度说明与结束原因（ADR-0156 第三条）的键：文字在 `server.json` 的 `taskRun.progress.*`、
+#: `taskRun.error.*`。`progress_label` / `error` 存按 zh-CN 渲染的一句，code 与参数存进旁边的列。
+#: `{{task}}`、`{{trigger}}`、`{{stage}}` 不进参数：库里只有 `task_key`、触发方式的 id 与阶段 code，
+#: 读的一方按界面语言换成名字。
+PROGRESS_KEYS = ("item", "items", "downloadLanded", "batch", "subjectStage", "videosStage",
+                 "waitingForUpdate", "waitingForService", "pausedWaiting")
+ERROR_KEYS = ("skippedBy", "skipped", "interrupted", "unknownFollowup")
 
 
-def _fill(template: str, task_key: str, params: dict) -> str:
+def _fill(key: str, task_key: str, params: dict) -> str:
     names = {"task": task_label(task_key)}
     if "trigger" in params:
         names["trigger"] = trigger_label(str(params["trigger"]))
     if "stage" in params:
         names["stage"] = task_stages.text(str(params["stage"]))
-    return template.format(**{**params, **names})
+    return interface_text.text(f"server:{key}", {**params, **names})
 
 
 def run_progress(key: str, task_key: str = "", **params) -> dict:
     """一句进度说明：`label` 是中文原文，`code` 与 `params` 供界面翻译。直接展开给 `progress`、`start`、`suspend`。"""
-    return {"label": _fill(PROGRESS_MESSAGES[key], task_key, params),
+    return {"label": _fill(f"taskRun.progress.{key}", task_key, params),
             "code": f"taskRun.progress.{key}", "params": params}
 
 
@@ -189,7 +139,7 @@ def item_progress(task_key: str, name: str = "") -> dict:
 
 def run_error(key: str, task_key: str = "", **params) -> dict:
     """一句结束原因：展开给 `finish`，`error` 是中文原文，`error_code` 与 `error_params` 供界面翻译。"""
-    return {"error": _fill(ERROR_MESSAGES[key], task_key, params),
+    return {"error": _fill(f"taskRun.error.{key}", task_key, params),
             "error_code": f"taskRun.error.{key}", "error_params": params}
 
 

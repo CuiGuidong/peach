@@ -44,7 +44,7 @@ from .config import PROJECT_ROOT
 from .diagnostic_browser import BUNDLE_CHUNK_NAME
 from .entities import resolve_entity, resolve_entity_id
 from .media_libraries import LIBRARY_ICONS
-from .routes_auth import (FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE, origin_allowed, query_auth_redirect, require_asset_auth,
+from .routes_auth import (FIRST_ACCESS_DENIED_CODE, origin_allowed, query_auth_redirect, require_asset_auth,
                           require_page_auth, set_auth_cookie)
 from .user_messages import message_fields
 from .web_local_access import local_client
@@ -435,7 +435,7 @@ def _setup_guard(request: Request, *, submit: bool) -> None:
         raise HTTPException(status_code=404, detail="not found")
     if distribution.docker():
         if not local_client(request):
-            raise HTTPException(status_code=403, detail={**message_fields(FIRST_ACCESS_DENIED, FIRST_ACCESS_DENIED_CODE),
+            raise HTTPException(status_code=403, detail={**message_fields(FIRST_ACCESS_DENIED_CODE),
                                                          "docker": True})
         if submit and not origin_allowed(request, guard="setup", tunnels=False):
             raise HTTPException(status_code=403, detail="请从 Peach 设置页提交")

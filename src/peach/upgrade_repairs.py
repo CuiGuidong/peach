@@ -18,7 +18,8 @@ from .followups import FollowupType, Attempts, attempts_root, register
 from .fsutil import atomic_path, atomic_write_text
 from .jobs import DiskSpaceDenied, JobPaused
 from .migrations import sqlite_backup
-from .task_runs import MAX_FOLLOWUPS, PROGRESS_MESSAGES, run_progress
+from . import interface_text
+from .task_runs import MAX_FOLLOWUPS, run_progress
 from .task_stages import stage_code, stage_label
 from .update_tasks import UpdateBusy
 
@@ -249,7 +250,8 @@ def _media_progress(state: dict, key: str, **params) -> dict:
     code = stage_code(state) if state.get('stage') else 'upgrade.updateMetadata'
     if code:
         return run_progress(key, stage=code, **params)
-    return {'label': PROGRESS_MESSAGES[key].format(stage=state['stage'], **params), 'code': None, 'params': {}}
+    label = interface_text.text(f'server:taskRun.progress.{key}', {**params, 'stage': state['stage']})
+    return {'label': label, 'code': None, 'params': {}}
 
 
 def _title(row) -> str:

@@ -37,6 +37,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
+from . import interface_text
 from .repository import LedgerDatabase, in_background
 from .task_retry import RETRY_DELAYS, retry_delay
 
@@ -63,17 +64,19 @@ POSTPROCESS_QUEUED = "queued"
 POSTPROCESS_RUNNING = "running"
 POSTPROCESS_COMPLETE = "complete"
 POSTPROCESS_FAILED = "failed"
-POSTPROCESS_LABELS = {
-    POSTPROCESS_NOT_REQUESTED: "整理未开始", POSTPROCESS_PENDING: "等待整理",
-    POSTPROCESS_QUEUED: "整理已排队", POSTPROCESS_RUNNING: "整理中",
-    POSTPROCESS_COMPLETE: "整理完成", POSTPROCESS_FAILED: "整理失败",
-}
+POSTPROCESS_STATES = (POSTPROCESS_NOT_REQUESTED, POSTPROCESS_PENDING, POSTPROCESS_QUEUED, POSTPROCESS_RUNNING,
+                      POSTPROCESS_COMPLETE, POSTPROCESS_FAILED)
+STATES = (CANDIDATE, SELECTED, SUBMITTED, REMOTE_RUNNING, REMOTE_DONE, LANDED, INGESTED, FAILED, CANCELLED, STALLED,
+          SUBMIT_PENDING)
 
-STATE_LABELS = {
-    CANDIDATE: "待选择的资源", SELECTED: "已选定", SUBMITTED: "已提交", REMOTE_RUNNING: "网盘下载中",
-    REMOTE_DONE: "网盘下载完成", LANDED: "文件已可访问", INGESTED: "已入库",
-    FAILED: "失败", CANCELLED: "已取消", STALLED: "长时间未完成", SUBMIT_PENDING: "等待自动重新提交",
-}
+
+def state_label(state: str) -> str:
+    """下载状态的名字，在 `server:download.state.<state>`（ADR-0159）；认不得的状态照原样。"""
+    return interface_text.label(f"server:download.state.{state}", state)
+
+
+def postprocess_label(state: str) -> str:
+    return interface_text.label(f"server:download.postprocess.{state}", state)
 #: 轮询要看的状态。远端完成与已落地还在等账本里出现那个文件；等待重新提交的还要再交一次。
 TRACKED_STATES = frozenset({SUBMIT_PENDING, SUBMITTED, REMOTE_RUNNING, REMOTE_DONE, LANDED})
 #: 可以再提交一次的状态。已入库的不必，在跑的接管就行。
@@ -83,22 +86,18 @@ RESUBMITTABLE_STATES = frozenset({FAILED, CANCELLED, STALLED})
 @dataclass(frozen=True)
 class FailureKind:
     key: str
-    label: str
     retryable: bool = False
+
+    @property
+    def label(self) -> str:
+        """失败类别的名字，在 `server:download.failure.<key>`。"""
+        return interface_text.text(f"server:download.failure.{self.key}")
 
 
 FAILURE_KINDS: dict[str, FailureKind] = {kind.key: kind for kind in (
-    FailureKind("config", "配置或登录有误"),
-    FailureKind("quota", "下载额度已用完"),
-    FailureKind("rejected", "网盘拒绝下载该资源"),
-    FailureKind("invalid_link", "链接无效"),
-    FailureKind("no_source", "没有可用下载源或进度长时间未更新"),
-    FailureKind("not_accepted", "网盘没有收下任务"),
-    FailureKind("removed", "网盘任务被删除"),
-    FailureKind("duplicate", "下载任务已存在"),
-    FailureKind("not_landed", "目标目录中未找到下载文件"),
-    FailureKind("mismatch", "下载内容与目标作品不符"),
-    FailureKind("network", "网络暂时不可用", retryable=True),
+    FailureKind("config"), FailureKind("quota"), FailureKind("rejected"), FailureKind("invalid_link"),
+    FailureKind("no_source"), FailureKind("not_accepted"), FailureKind("removed"), FailureKind("duplicate"),
+    FailureKind("not_landed"), FailureKind("mismatch"), FailureKind("network", retryable=True),
 )}
 
 
@@ -349,7 +348,7 @@ class DownloadTask:
     def postprocess_label(self) -> str:
         if self.postprocess_state == POSTPROCESS_PENDING and self.next_check_at:
             return f"等待自动重试（{self.postprocess_retries}/{len(RETRY_DELAYS)}）"
-        return POSTPROCESS_LABELS.get(self.postprocess_state, self.postprocess_state)
+        return postprocess_label(self.postprocess_state)
 
     @property
     def location(self) -> str:
@@ -384,7 +383,7 @@ class DownloadTask:
             "source_uri": self.source_uri, "display_name": self.display_name,
             "target": self.target, "code": self.code, "title": self.title, "origin": self.origin,
             "display_code": display_code, "display_title": display_title,
-            "state": self.state, "state_label": STATE_LABELS.get(self.state, self.state),
+            "state": self.state, "state_label": state_label(self.state),
             "failure": self.failure, "failure_label": kind.label if kind else None,
             "failure_detail": self.failure_detail,
             "progress": self.progress, "remote_name": self.remote_name,

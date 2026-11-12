@@ -26,7 +26,7 @@ LOGGER = logging.getLogger(__name__)
 KEEP = 3
 #: 存量清退在 `ledger_upgrade_repair` 里的行 id 前缀；可以做多次，后缀是执行时刻。
 RECEIPT_PREFIX = 'follow-evidence-reclaim-'
-#: 删除这一轮在任务中心（`task_runs.TASK_LABELS`）的键。
+#: 删除这一轮在任务中心（`task_runs.TASK_KEYS`）的键。
 TASK_KEY = 'follow-evidence-reclaim'
 
 

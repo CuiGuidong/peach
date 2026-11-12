@@ -37,14 +37,14 @@ def timestamp(value):
             raise ValueError
         return moment.astimezone(timezone.utc).isoformat(timespec='microseconds')
     except (ValueError, TypeError, AttributeError):
-        raise ArchiveError('来源接收时间必须包含时区', code='researchArchive.timeRequiresTimezone') from None
+        raise ArchiveError('researchArchive.timeRequiresTimezone') from None
 
 
 def _unique_object(pairs):
     value = {}
     for key, item in pairs:
         if key in value:
-            raise ArchiveError('研究附件包含重复 JSON 字段', code='researchArchive.duplicateFields')
+            raise ArchiveError('researchArchive.duplicateFields')
         value[key] = item
     return value
 
@@ -73,21 +73,21 @@ def _valid_header(payload):
 def parse_attachment(wire):
     """限量解压并按历史字段白名单校验，返回附件 JSON 与原文摘要。"""
     if len(wire) > MAX_BYTES:
-        raise ArchiveError('压缩附件超过 18 MiB 上限', code='researchArchive.compressedTooLarge')
+        raise ArchiveError('researchArchive.compressedTooLarge')
     try:
         with gzip.GzipFile(fileobj=io.BytesIO(wire)) as compressed:
             raw = compressed.read(MAX_RAW_BYTES + 1)
         if len(raw) > MAX_RAW_BYTES:
-            raise ArchiveError('附件 JSON 超过 100 MiB 上限', code='researchArchive.rawTooLarge')
+            raise ArchiveError('researchArchive.rawTooLarge')
         payload = json.loads(raw, object_pairs_hook=_unique_object)
         if not _valid_header(payload) or not valid_projection(payload, controlled_tags=payload['schema'] >= 6):
-            raise ArchiveError('研究附件字段或投影无效', code='researchArchive.invalidProjection')
+            raise ArchiveError('researchArchive.invalidProjection')
         if 'capacity' in payload and not valid_capacity(payload['capacity']):
-            raise ArchiveError('研究附件容量投影无效', code='researchArchive.invalidCapacity')
+            raise ArchiveError('researchArchive.invalidCapacity')
     except ArchiveError:
         raise
     except (ValueError, TypeError, KeyError, OSError, EOFError, zlib.error, RecursionError):
-        raise ArchiveError('研究附件无法解压或解析', code='researchArchive.invalidAttachment') from None
+        raise ArchiveError('researchArchive.invalidAttachment') from None
     return payload, hashlib.sha256(raw).hexdigest()
 
 
@@ -102,10 +102,10 @@ def _connect(root):
         connection.execute('BEGIN IMMEDIATE')
         version = connection.execute('PRAGMA user_version').fetchone()[0]
         if version not in {0, 1}:
-            raise ArchiveError('研究归档数据库版本不受支持', code='researchArchive.unsupportedDatabaseVersion')
+            raise ArchiveError('researchArchive.unsupportedDatabaseVersion')
         if version == 0:
             if connection.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchone():
-                raise ArchiveError('目标数据库包含其他用途的表', code='researchArchive.nonArchiveDatabase')
+                raise ArchiveError('researchArchive.nonArchiveDatabase')
             connection.execute('''CREATE TABLE snapshot (
                 identity TEXT NOT NULL, period TEXT NOT NULL, scope TEXT NOT NULL,
                 received_at TEXT NOT NULL, digest TEXT NOT NULL, peach TEXT NOT NULL,
@@ -123,7 +123,7 @@ def import_attachment(root, source, *, received_at, research_instance=None):
     """同实例同周保留最新原始 gzip，旧无实例附件按内容独立计样本。"""
     received_at = timestamp(received_at)
     if research_instance is not None and not instance(research_instance):
-        raise ArchiveError('研究实例标识必须是 32 位小写十六进制', code='researchArchive.invalidInstance')
+        raise ArchiveError('researchArchive.invalidInstance')
     with Path(source).open('rb') as stream:
         wire = stream.read(MAX_BYTES + 1)
     payload, digest = parse_attachment(wire)
@@ -178,19 +178,19 @@ def _remove(root, clause, parameters, *, apply):
 def delete_instance(root, research_instance, *, apply=False):
     """按研究实例预演或删除全部周快照。"""
     if not instance(research_instance):
-        raise ArchiveError('研究实例标识必须是 32 位小写十六进制', code='researchArchive.invalidInstance')
+        raise ArchiveError('researchArchive.invalidInstance')
     return _remove(root, 'identity=? AND scope=?', (research_instance, 'instance'), apply=apply)
 
 
 def prune(root, *, retention_days=DEFAULT_RETENTION_DAYS, apply=False, now=None):
     """按来源接收时间预演或清除超过留存周期的快照。"""
     if type(retention_days) is not int or retention_days < 1:
-        raise ArchiveError('留存天数必须是正整数', code='researchArchive.invalidRetention')
+        raise ArchiveError('researchArchive.invalidRetention')
     moment = datetime.now(timezone.utc) if now is None else now
     try:
         cutoff = timestamp((moment - timedelta(days=retention_days)).isoformat())
     except OverflowError:
-        raise ArchiveError('留存天数超出日期范围', code='researchArchive.retentionOutOfRange') from None
+        raise ArchiveError('researchArchive.retentionOutOfRange') from None
     return {**_remove(root, 'received_at<?', (cutoff,), apply=apply), 'retention_days': retention_days}
 
 
