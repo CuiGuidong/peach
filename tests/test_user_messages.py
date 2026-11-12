@@ -27,6 +27,11 @@ def server_resource(language: str) -> dict:
     return json.loads((LOCALES / language / "server.json").read_text(encoding="utf-8"))
 
 
+def braces(text: str) -> str:
+    """Python 的 `{name}` 写成 i18next 的 `{{name}}`。"""
+    return text.replace("{", "{{").replace("}", "}}")
+
+
 class EnvelopeTests(unittest.TestCase):
     def test_coded_text_carries_code_and_params_beside_the_original(self):
         self.assertEqual(message_fields("已整理 3 部", "organize.done", {"count": 3}),
@@ -66,9 +71,11 @@ class TranslationCoverageTests(unittest.TestCase):
         self.assertEqual(zh["ledgerBackup"]["purpose"], ledger_backups.PURPOSE_LABELS)
         self.assertEqual(zh["identity"]["category"], entity_classification.CATEGORIES)
         self.assertEqual(zh["release"]["channel"], release_updates.CHANNELS)
-        self.assertEqual(zh["release"]["message"], {key: text.replace("{", "{{").replace("}", "}}")
-                                                    for key, text in release_updates.MESSAGES.items()})
+        self.assertEqual(zh["release"]["message"], {key: braces(text) for key, text in release_updates.MESSAGES.items()})
         self.assertEqual(zh["release"]["dockerStep"], {step: text for step, text, _ in release_updates.DOCKER_STEPS})
+        self.assertEqual(zh["taskRun"], {
+            "progress": {key: braces(text) for key, text in task_runs.PROGRESS_MESSAGES.items()},
+            "error": {key: braces(text) for key, text in task_runs.ERROR_MESSAGES.items()}})
 
     def test_every_release_notice_is_in_the_source_resource_by_version_and_item_id(self):
         # 定版前加一版公告，要同时在 zh-CN 与英文的 server.json 里按 `v<版本，点换成连字符>` 补上这一版。

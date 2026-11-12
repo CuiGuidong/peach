@@ -373,5 +373,21 @@
     "upgrade-library": "资料自动修复",
     "upgrade-repairs": "自动修复",
     "want-scrape": "想要作品资料采集"
+  },
+  "taskRun": {
+    "progress": {
+      "item": "{{task}}：{{name}}",
+      "items": "{{task}}：{{first}} 等 {{count}} 部",
+      "downloadLanded": "下载已入库：{{name}}",
+      "waitingForUpdate": "等待安装完成后继续",
+      "waitingForService": "等待服务启动后继续",
+      "pausedWaiting": "已暂停，等待继续"
+    },
+    "error": {
+      "skippedBy": "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
+      "skipped": "已有一轮在进行，本次跳过",
+      "interrupted": "服务重启，这一轮没有跑完",
+      "unknownFollowup": "没有登记 {{task}} 这种后继"
+    }
   }
 }

@@ -1,68 +1,68 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a2cf4b82-2e73-4aba-91b8-d19b7f208365", e._sentryDebugIdIdentifier = "sentry-dbid-a2cf4b82-2e73-4aba-91b8-d19b7f208365");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a563e90d-d131-4724-b9bf-45f4e930b2a6", e._sentryDebugIdIdentifier = "sentry-dbid-a563e90d-d131-4724-b9bf-45f4e930b2a6");
 	} catch {}
 })();
-import { Button as e, Bx as t, Chip as n, DataTableFooter as r, Disclosure as i, DownloadsPanel as a, EmptyState as o, Gg as s, HN as c, IssueRow as l, LinkButton as u, Lo as d, LoadingDots as f, Ma as p, NameLink as m, Note as h, OV as g, Pf as _, ProcessingMode as v, Progress as y, RB as b, Rk as x, Su as S, TASKS_KEY as C, TRIGGER_LABELS as w, Xl as T, __toESM as E, apiGet as D, apiSend as O, busyProps as k, cardClass as A, confirmModal as ee, controlTask as te, cx as ne, elapsedText as re, errorMessage as j, fetchTasks as ie, fmtSize as ae, foldByKind as oe, foldRoutine as se, followupDetail as ce, followupTally as M, groupFollowups as le, hasResultProblems as N, i2 as P, interfaceLanguage as ue, isActive as F, isRoutine as de, latestOfKind as fe, momentText as I, notifyManager as pe, oe as me, pollInterval as he, problemDestination as ge, progressText as L, readableErrorHeadline as R, replaceEqualDeep as _e, require_jsx_runtime as ve, require_react as ye, setTaskSpeed as be, statusLabel as xe, summaryItems as Se, t as z, taskIssues as Ce, taskName as B, taskSubject as V, um as we, uo as Te, useMutation as H, useQuery as U, useQueryClient as W, vl as Ee } from "./peach-app.js";
-import { CodeBlock as G } from "./peach-app.code-block-CXu10nIP.js";
-import { Page as K } from "./peach-app.page-QAncjzM1.js";
-import { ErrorDetails as De, ErrorExcerpt as Oe } from "./peach-app.error-excerpt-Ugft6I5o.js";
+import { Button as e, Bx as t, Chip as n, DataTableFooter as r, Disclosure as i, DownloadsPanel as a, EmptyState as o, Gg as s, HN as c, IssueRow as l, LinkButton as u, Lo as d, LoadingDots as f, Ma as p, NameLink as m, Note as h, OV as g, Pf as _, ProcessingMode as v, Progress as y, RB as b, Rk as x, Su as S, TASKS_KEY as C, TRIGGER_LABELS as w, Xl as T, __toESM as E, apiGet as D, apiSend as O, busyProps as k, cardClass as A, confirmModal as ee, controlTask as te, cx as ne, elapsedText as re, errorMessage as j, fetchTasks as ie, fmtSize as ae, foldByKind as oe, foldRoutine as se, followupDetail as ce, followupTally as M, groupFollowups as le, hasResultProblems as N, i2 as ue, interfaceLanguage as de, isActive as P, isRoutine as fe, latestOfKind as pe, momentText as F, notifyManager as me, oe as he, pollInterval as ge, problemDestination as _e, progressLabel as ve, progressText as I, readableErrorHeadline as L, replaceEqualDeep as ye, require_jsx_runtime as be, require_react as xe, runError as R, setTaskSpeed as Se, statusLabel as Ce, summaryItems as we, t as z, taskIssues as Te, taskName as B, taskSubject as V, um as Ee, uo as De, useMutation as H, useQuery as U, useQueryClient as W, vl as Oe } from "./peach-app.js";
+import { CodeBlock as ke } from "./peach-app.code-block-CXu10nIP.js";
+import { Page as Ae } from "./peach-app.page-QAncjzM1.js";
+import { ErrorDetails as je, ErrorExcerpt as Me } from "./peach-app.error-excerpt-Ugft6I5o.js";
 // node_modules/@tanstack/react-query/build/modern/useMutationState.js
-var q = /* @__PURE__ */ E(ye(), 1);
-function ke() {
+var G = /* @__PURE__ */ E(xe(), 1);
+function Ne() {
 	let e;
 	return (t, n) => {
 		let r = [], i;
 		return () => {
 			let a = t.findAll(n.filters), o = a.flatMap((e) => [e, e.state]);
-			return (!i || o.length !== r.length || o.some((e, t) => !Object.is(e, r[t]))) && (r = o, i = _e(e, a.map((e) => n.select ? n.select(e) : e.state)), e = i), i;
+			return (!i || o.length !== r.length || o.some((e, t) => !Object.is(e, r[t]))) && (r = o, i = ye(e, a.map((e) => n.select ? n.select(e) : e.state)), e = i), i;
 		};
 	};
 }
-function Ae(e = {}, t) {
-	let n = W(t).getMutationCache(), [r] = q.useState(() => ke()), i = r(n, e);
-	return q.useSyncExternalStore(q.useCallback((e) => n.subscribe(pe.batchCalls(e)), [n]), i, i);
+function Pe(e = {}, t) {
+	let n = W(t).getMutationCache(), [r] = G.useState(() => Ne()), i = r(n, e);
+	return G.useSyncExternalStore(G.useCallback((e) => n.subscribe(me.batchCalls(e)), [n]), i, i);
 }
 // src/react/activity/background-issues.tsx
-var J = ve(), je = ["background-issues"];
-function Me() {
-	let e = (0, q.useId)(), t = U({
-		queryKey: je,
+var K = be(), Fe = ["background-issues"];
+function Ie() {
+	let e = (0, G.useId)(), t = U({
+		queryKey: Fe,
 		queryFn: ({ signal: e }) => D("/api/background-issues", e),
 		refetchInterval: 3e4
 	}).data?.issues || [];
-	return t.length ? /* @__PURE__ */ (0, J.jsxs)("section", {
+	return t.length ? /* @__PURE__ */ (0, K.jsxs)("section", {
 		"aria-labelledby": e,
 		className: "flex min-w-0 flex-col gap-3",
-		children: [/* @__PURE__ */ (0, J.jsx)("h3", {
+		children: [/* @__PURE__ */ (0, K.jsx)("h3", {
 			id: e,
 			className: "text-title-2-medium text-text-primary",
 			children: z("manage:backgroundIssues.title")
-		}), /* @__PURE__ */ (0, J.jsx)("ul", {
+		}), /* @__PURE__ */ (0, K.jsx)("ul", {
 			className: "flex min-w-0 flex-col gap-3",
-			children: t.map((e) => /* @__PURE__ */ (0, J.jsx)("li", { children: /* @__PURE__ */ (0, J.jsx)(Ne, { issue: e }) }, e.key))
+			children: t.map((e) => /* @__PURE__ */ (0, K.jsx)("li", { children: /* @__PURE__ */ (0, K.jsx)(Le, { issue: e }) }, e.key))
 		})]
 	}) : null;
 }
-function Ne({ issue: t }) {
+function Le({ issue: t }) {
 	let n = W(), r = H({
 		mutationFn: () => O(t.retry, {}),
 		onSuccess: () => {
-			n.invalidateQueries({ queryKey: je });
+			n.invalidateQueries({ queryKey: Fe });
 		}
-	}), i = t.since ? z("manage:backgroundIssues.since", { time: I(t.since) }) : z("manage:backgroundIssues.detectedAt", { time: I(t.noticed_at) });
-	return /* @__PURE__ */ (0, J.jsx)(h, {
+	}), i = t.since ? z("manage:backgroundIssues.since", { time: F(t.since) }) : z("manage:backgroundIssues.detectedAt", { time: F(t.noticed_at) });
+	return /* @__PURE__ */ (0, K.jsx)(h, {
 		tone: "error",
 		title: t.title,
-		action: /* @__PURE__ */ (0, J.jsxs)("div", {
+		action: /* @__PURE__ */ (0, K.jsxs)("div", {
 			className: "flex flex-wrap items-center gap-2",
-			children: [/* @__PURE__ */ (0, J.jsx)(u, {
+			children: [/* @__PURE__ */ (0, K.jsx)(u, {
 				href: t.href,
 				size: "small",
-				trailingIcon: P,
+				trailingIcon: ue,
 				children: t.link_label
-			}), t.retry ? /* @__PURE__ */ (0, J.jsx)(e, {
+			}), t.retry ? /* @__PURE__ */ (0, K.jsx)(e, {
 				variant: "secondary",
 				size: "small",
 				disabled: !t.retry_available,
@@ -78,22 +78,22 @@ function Ne({ issue: t }) {
 	});
 }
 // src/react/activity/task-controls.tsx
-var Y = ["task-control"], Pe = {
+var q = ["task-control"], Re = {
 	pause: g,
 	resume: s,
 	cancel: c
-}, Fe = {
+}, ze = {
 	pause: z("manage:shared.pause"),
 	resume: z("manage:shared.resume"),
 	cancel: z("manage:taskControls.cancelTask")
-}, Ie = {
+}, Be = {
 	pause: z("manage:taskControls.pauseFollowups"),
 	resume: z("manage:taskControls.resumeFollowups"),
 	cancel: z("manage:taskControls.cancelFollowups")
 };
-function Le() {
-	let e = Ae({
-		filters: { mutationKey: Y },
+function Ve() {
+	let e = Pe({
+		filters: { mutationKey: q },
 		select: (e) => ({
 			id: e.mutationId,
 			command: e.state.variables,
@@ -111,21 +111,21 @@ function Le() {
 		});
 	}
 	let n = [...t.values()].filter((e) => e.status === "error");
-	return n.length ? /* @__PURE__ */ (0, J.jsx)("div", {
+	return n.length ? /* @__PURE__ */ (0, K.jsx)("div", {
 		"data-task-control-feedback": "",
 		className: "flex min-w-0 flex-col gap-2",
-		children: n.map(({ command: e, error: t }) => /* @__PURE__ */ (0, J.jsx)(h, {
+		children: n.map(({ command: e, error: t }) => /* @__PURE__ */ (0, K.jsx)(h, {
 			tone: "error",
 			title: z("manage:taskControls.actionFailed", {
 				task: e.label,
-				action: (e.followups ? Ie : Fe)[e.action]
+				action: (e.followups ? Be : ze)[e.action]
 			}),
 			children: j(t)
 		}, e.id))
 	}) : null;
 }
-function Re({ run: t, runs: n = [t] }) {
-	let r = W(), i = (0, q.useRef)({
+function He({ run: t, runs: n = [t] }) {
+	let r = W(), i = (0, G.useRef)({
 		change: !1,
 		cancel: !1,
 		confirmation: !1
@@ -141,7 +141,7 @@ function Re({ run: t, runs: n = [t] }) {
 		if (t !== null) throw t;
 	}, s = H({
 		mutationKey: [
-			...Y,
+			...q,
 			t.id,
 			"change"
 		],
@@ -151,7 +151,7 @@ function Re({ run: t, runs: n = [t] }) {
 		}
 	}), c = H({
 		mutationKey: [
-			...Y,
+			...q,
 			t.id,
 			"cancel"
 		],
@@ -161,11 +161,11 @@ function Re({ run: t, runs: n = [t] }) {
 		}
 	}), l = H({
 		mutationFn: async (e) => {
-			let t = (await Promise.allSettled(n.map((t) => be(t.id, e)))).find((e) => e.status === "rejected");
+			let t = (await Promise.allSettled(n.map((t) => Se(t.id, e)))).find((e) => e.status === "rejected");
 			if (t?.status === "rejected") throw t.reason;
 		},
 		onSettled: a
-	}), u = (t.control?.actions || []).filter((e) => e !== "set_speed"), d = !!(t.control?.actions.includes("set_speed") && t.control.speed_mode), f = !F(t), p = c.isPending || c.isSuccess;
+	}), u = (t.control?.actions || []).filter((e) => e !== "set_speed"), d = !!(t.control?.actions.includes("set_speed") && t.control.speed_mode), f = !P(t), p = c.isPending || c.isSuccess;
 	if (!u.length && !d) return null;
 	let m = (e) => {
 		let r = {
@@ -190,26 +190,26 @@ function Re({ run: t, runs: n = [t] }) {
 			i.current.change = !0, s.mutate(r);
 		}
 	};
-	return /* @__PURE__ */ (0, J.jsxs)("div", {
+	return /* @__PURE__ */ (0, K.jsxs)("div", {
 		className: "ml-auto min-w-0",
 		"data-task-controls": t.id,
-		children: [/* @__PURE__ */ (0, J.jsxs)("div", {
+		children: [/* @__PURE__ */ (0, K.jsxs)("div", {
 			role: "group",
 			"aria-label": z(f ? "manage:taskControls.followupsGroupLabel" : "manage:taskControls.groupLabel", { task: B(t) }),
 			className: "flex flex-wrap items-center justify-end gap-2",
-			children: [d ? /* @__PURE__ */ (0, J.jsx)(v, {
+			children: [d ? /* @__PURE__ */ (0, K.jsx)(v, {
 				value: t.control.speed_mode,
 				busy: l.isPending || p,
 				animate: t.control?.state === "running",
 				onChange: (e) => l.mutate(e)
 			}) : null, u.map((t) => {
-				let n = (f ? Ie : Fe)[t], r = t === "cancel" ? c.isPending : s.isPending && s.variables?.action === t, i = t === "cancel" ? p : s.isPending || p;
-				return /* @__PURE__ */ (0, J.jsx)(e, {
+				let n = (f ? Be : ze)[t], r = t === "cancel" ? c.isPending : s.isPending && s.variables?.action === t, i = t === "cancel" ? p : s.isPending || p;
+				return /* @__PURE__ */ (0, K.jsx)(e, {
 					type: "button",
 					variant: "secondary",
 					size: "small",
 					iconOnly: !0,
-					leadingIcon: Pe[t],
+					leadingIcon: Re[t],
 					"aria-label": n,
 					title: n,
 					...k(r),
@@ -218,14 +218,14 @@ function Re({ run: t, runs: n = [t] }) {
 					"data-tooltip-copy-key": `tasks.control.action.${f ? "followups." : ""}${t}`
 				}, t);
 			})]
-		}), l.error ? /* @__PURE__ */ (0, J.jsx)(h, {
+		}), l.error ? /* @__PURE__ */ (0, K.jsx)(h, {
 			tone: "error",
 			children: j(l.error)
 		}) : null]
 	});
 }
 // src/react/activity/task-icon.tsx
-var ze = new Map([
+var Ue = new Map([
 	[t, [
 		"follow-check",
 		"follow-resolve",
@@ -243,7 +243,7 @@ var ze = new Map([
 		"resource-apply",
 		"seed-import"
 	]],
-	[Ee, [
+	[Oe, [
 		"scrape-codes",
 		"jav-discovery-metadata",
 		"want-scrape",
@@ -263,12 +263,12 @@ var ze = new Map([
 		"studio-mark"
 	]],
 	[T, ["media-repair", "mp4-header-repair"]],
-	[we, [
+	[Ee, [
 		"link-check",
 		"link-prune",
 		"source-check"
 	]],
-	[me, ["download-postprocess"]],
+	[he, ["download-postprocess"]],
 	[d, ["taste-refresh"]],
 	[b, [
 		"upgrade-repairs",
@@ -279,31 +279,31 @@ var ze = new Map([
 		"ledger-restore"
 	]]
 ].flatMap(([e, t]) => t.map((t) => [t, e])));
-function Be({ taskKey: e, className: t }) {
-	let n = ze.get(e) ?? S;
-	return /* @__PURE__ */ (0, J.jsx)(n, {
+function We({ taskKey: e, className: t }) {
+	let n = Ue.get(e) ?? S;
+	return /* @__PURE__ */ (0, K.jsx)(n, {
 		className: t,
 		"aria-hidden": !0
 	});
 }
 // src/react/activity/resource-chip.tsx
-var Ve = {
+var Ge = {
 	blue: "bg-status-blue-text text-background-primary-default",
 	purple: "bg-status-purple-text text-background-primary-default",
 	cyan: "bg-status-cyan-text text-background-primary-default"
 };
-function He({ color: e, high: t, ...r }) {
-	return t ? /* @__PURE__ */ (0, J.jsx)("span", {
+function Ke({ color: e, high: t, ...r }) {
+	return t ? /* @__PURE__ */ (0, K.jsx)("span", {
 		...r,
-		className: ne("inline-flex items-center justify-center rounded-md px-1.5 py-1 whitespace-nowrap text-caption-1-medium", Ve[e])
-	}) : /* @__PURE__ */ (0, J.jsx)(n, {
+		className: ne("inline-flex items-center justify-center rounded-md px-1.5 py-1 whitespace-nowrap text-caption-1-medium", Ge[e])
+	}) : /* @__PURE__ */ (0, K.jsx)(n, {
 		variant: "caption",
 		color: e,
 		...r
 	});
 }
 // src/react/activity/task-resources.tsx
-var Ue = {
+var qe = {
 	cpu: {
 		name: "CPU",
 		color: "blue"
@@ -317,16 +317,16 @@ var Ue = {
 		color: "cyan"
 	}
 };
-function We(e) {
+function Je(e) {
 	return e.state === "sampling" ? z("manage:taskResources.sampling") : e.via === "cloud" ? z("manage:taskResources.viaCloudDrive") : z("manage:taskResources.unavailable");
 }
-function Ge(e, t) {
-	return t === 0 ? z("manage:taskResources.idle") : e === "network" ? `${ae(t)}/s` : `${t.toLocaleString(ue, { maximumFractionDigits: 1 })}%`;
+function Ye(e, t) {
+	return t === 0 ? z("manage:taskResources.idle") : e === "network" ? `${ae(t)}/s` : `${t.toLocaleString(de, { maximumFractionDigits: 1 })}%`;
 }
-function Ke({ run: e, active: t = F(e) || !!e.control }) {
+function Xe({ run: e, active: t = P(e) || !!e.control }) {
 	if (!t || !e.resources) return null;
 	let n = e.resources;
-	return /* @__PURE__ */ (0, J.jsx)("div", {
+	return /* @__PURE__ */ (0, K.jsx)("div", {
 		"data-task-resources": e.id,
 		className: "flex min-w-0 flex-wrap items-center gap-2",
 		children: [
@@ -334,8 +334,8 @@ function Ke({ run: e, active: t = F(e) || !!e.control }) {
 			"gpu",
 			"network"
 		].map((e) => {
-			let t = n[e], r = Ue[e], i = e === "network" ? n.network.bytes_per_second : n[e].percent, a = t.state === "ready" && i !== null, o = a && t.high, s = a ? Ge(e, i) : We(t), c = [t.reason, o ? z("manage:taskResources.highUsage") : ""].filter(Boolean).join("\n");
-			return /* @__PURE__ */ (0, J.jsxs)(He, {
+			let t = n[e], r = qe[e], i = e === "network" ? n.network.bytes_per_second : n[e].percent, a = t.state === "ready" && i !== null, o = a && t.high, s = a ? Ye(e, i) : Je(t), c = [t.reason, o ? z("manage:taskResources.highUsage") : ""].filter(Boolean).join("\n");
+			return /* @__PURE__ */ (0, K.jsxs)(Ke, {
 				color: r.color,
 				high: o,
 				tabIndex: c ? 0 : void 0,
@@ -356,76 +356,76 @@ function Ke({ run: e, active: t = F(e) || !!e.control }) {
 	});
 }
 // src/react/activity/activity-page.tsx
-var qe = /* @__PURE__ */ new Set(["upgrade-repairs"]), Je = /* @__PURE__ */ new Set(["asset_id", "name"]), Ye = {
+var Ze = /* @__PURE__ */ new Set(["upgrade-repairs"]), Qe = /* @__PURE__ */ new Set(["asset_id", "name"]), $e = {
 	succeeded: "lime",
 	failed: "rose",
 	cancelled: "rose",
 	interrupted: "yellow",
 	running: "blue",
 	pending: "neutral"
-}, Xe = {
+}, J = {
 	running: z("manage:taskStatus.running"),
 	pausing: z("manage:taskStatus.pausing"),
 	paused: z("manage:taskStatus.paused"),
 	cancelling: z("manage:taskStatus.canceling")
 };
-function X({ run: e }) {
+function Y({ run: e }) {
 	let t = e.control?.state;
-	if (t && (t !== "running" || !F(e))) return /* @__PURE__ */ (0, J.jsx)(n, {
+	if (t && (t !== "running" || !P(e))) return /* @__PURE__ */ (0, K.jsx)(n, {
 		color: t === "running" ? "blue" : "neutral",
-		children: /* @__PURE__ */ (0, J.jsx)("span", {
+		children: /* @__PURE__ */ (0, K.jsx)("span", {
 			"data-copy-key": `tasks.control.state.${t}`,
-			children: Xe[t]
+			children: J[t]
 		})
 	});
 	let r = e.status === "failed" && e.task_key === "library-processing" && e.result_summary?.outcome === "partial", i = r || e.status === "succeeded" && N(e);
-	return /* @__PURE__ */ (0, J.jsx)(n, {
-		color: i ? "yellow" : Ye[e.status] ?? "neutral",
-		children: r ? z("manage:taskStatus.partial") : i ? z("manage:taskStatus.issuesFound") : xe(e.status)
+	return /* @__PURE__ */ (0, K.jsx)(n, {
+		color: i ? "yellow" : $e[e.status] ?? "neutral",
+		children: r ? z("manage:taskStatus.partial") : i ? z("manage:taskStatus.issuesFound") : Ce(e.status)
 	});
 }
-function Ze({ rows: e }) {
-	let [t, n] = (0, q.useState)({
+function et({ rows: e }) {
+	let [t, n] = (0, G.useState)({
 		pageIndex: 0,
 		pageSize: 20
 	}), { pageSize: a } = t, o = Math.min(t.pageIndex, Math.max(0, Math.ceil(e.length / a) - 1));
-	return /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [/* @__PURE__ */ (0, J.jsx)("ul", {
+	return /* @__PURE__ */ (0, K.jsxs)(K.Fragment, { children: [/* @__PURE__ */ (0, K.jsx)("ul", {
 		className: "-mr-5 flex min-w-0 flex-col",
 		children: e.slice(o * a, (o + 1) * a).map((e) => {
 			let t = ce(e);
-			return /* @__PURE__ */ (0, J.jsxs)("li", {
+			return /* @__PURE__ */ (0, K.jsxs)("li", {
 				"data-status": e.status,
 				"data-followup-key": e.followup_key,
 				className: "flex min-w-0 flex-col gap-1 border-t border-separator-border py-2.5 pr-10 pl-5",
 				children: [
-					/* @__PURE__ */ (0, J.jsxs)("div", {
+					/* @__PURE__ */ (0, K.jsxs)("div", {
 						className: "flex min-w-0 flex-wrap items-start justify-between gap-3",
-						children: [/* @__PURE__ */ (0, J.jsxs)("div", {
+						children: [/* @__PURE__ */ (0, K.jsxs)("div", {
 							className: "flex min-w-0 flex-1 basis-40 flex-wrap items-center gap-x-2 gap-y-1",
 							children: [
-								/* @__PURE__ */ (0, J.jsx)(Be, {
+								/* @__PURE__ */ (0, K.jsx)(We, {
 									taskKey: e.task_key,
 									className: "size-4 shrink-0 text-text-secondary"
 								}),
-								/* @__PURE__ */ (0, J.jsx)("span", {
+								/* @__PURE__ */ (0, K.jsx)("span", {
 									className: "min-w-0 break-words text-caption-1-regular text-text-primary",
 									children: B(e)
 								}),
-								/* @__PURE__ */ (0, J.jsx)(X, { run: e }),
-								t ? /* @__PURE__ */ (0, J.jsx)("span", {
+								/* @__PURE__ */ (0, K.jsx)(Y, { run: e }),
+								t ? /* @__PURE__ */ (0, K.jsx)("span", {
 									className: "min-w-0 break-words text-caption-1-regular text-text-secondary",
 									children: t
 								}) : null
 							]
-						}), /* @__PURE__ */ (0, J.jsx)(Re, { run: e })]
+						}), /* @__PURE__ */ (0, K.jsx)(He, { run: e })]
 					}),
-					/* @__PURE__ */ (0, J.jsx)(Ke, { run: e }),
-					Object.keys(e.result_summary || {}).length ? /* @__PURE__ */ (0, J.jsx)("div", {
+					/* @__PURE__ */ (0, K.jsx)(Xe, { run: e }),
+					Object.keys(e.result_summary || {}).length ? /* @__PURE__ */ (0, K.jsx)("div", {
 						className: "w-full min-w-0",
-						children: /* @__PURE__ */ (0, J.jsx)(i, {
+						children: /* @__PURE__ */ (0, K.jsx)(i, {
 							summary: z("manage:taskCenter.technicalDetails"),
 							contentClassName: "pb-2.5",
-							children: /* @__PURE__ */ (0, J.jsx)(G, {
+							children: /* @__PURE__ */ (0, K.jsx)(ke, {
 								code: JSON.stringify(e.result_summary, null, 2),
 								language: "json",
 								label: z("manage:taskCenter.taskTechnicalDetails", { task: B(e) })
@@ -435,7 +435,7 @@ function Ze({ rows: e }) {
 				]
 			}, e.id);
 		})
-	}), /* @__PURE__ */ (0, J.jsx)(r, {
+	}), /* @__PURE__ */ (0, K.jsx)(r, {
 		label: z("manage:taskCenter.taskDetails"),
 		total: e.length,
 		pagination: {
@@ -445,8 +445,8 @@ function Ze({ rows: e }) {
 		onChange: n
 	})] });
 }
-function Z({ run: e, meta: t, children: n, error: r, issues: a, followups: o, followupTotal: s = 0, badge: c, resourceActive: l, controlled: u }) {
-	let [d, f] = (0, q.useState)(!!o?.some(F)), p = (u || [e]).map((e) => e.id), g = s > (o?.length || 0), _ = U({
+function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, followupTotal: s = 0, badge: c, resourceActive: l, controlled: u }) {
+	let [d, f] = (0, G.useState)(!!o?.some(P)), p = (u || [e]).map((e) => e.id), g = s > (o?.length || 0), _ = U({
 		queryKey: [
 			...C,
 			"followups",
@@ -455,8 +455,8 @@ function Z({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 		enabled: d && g,
 		queryFn: async ({ signal: e }) => (await Promise.all(p.map((t) => D(`/api/tasks/${t}`, e)))).flatMap((e) => e.followups),
 		refetchInterval: l ? 2e3 : !1
-	}), v = (e) => e.status === "running" ? 3 : e.status === "pending" ? 2 : +(e.status === "failed" || e.status === "interrupted"), y = [...(g ? _.data : void 0) || o || []].sort((e, t) => v(t) - v(e) || t.id - e.id), b = y.length, x = Math.max(o?.length || 0, s), S = V(e), w = String(r || "").trim(), T = R(w);
-	return /* @__PURE__ */ (0, J.jsxs)("li", {
+	}), v = (e) => e.status === "running" ? 3 : e.status === "pending" ? 2 : +(e.status === "failed" || e.status === "interrupted"), y = [...(g ? _.data : void 0) || o || []].sort((e, t) => v(t) - v(e) || t.id - e.id), b = y.length, x = Math.max(o?.length || 0, s), S = V(e), w = String(r || "").trim(), T = L(w);
+	return /* @__PURE__ */ (0, K.jsxs)("li", {
 		id: `run-${e.id}`,
 		"data-status": e.status,
 		"data-task-key": e.task_key,
@@ -467,45 +467,45 @@ function Z({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 			className: "flex flex-col"
 		}),
 		children: [
-			/* @__PURE__ */ (0, J.jsxs)("div", {
+			/* @__PURE__ */ (0, K.jsxs)("div", {
 				className: "flex flex-col gap-2 px-5 py-4",
 				children: [
-					/* @__PURE__ */ (0, J.jsxs)("div", {
+					/* @__PURE__ */ (0, K.jsxs)("div", {
 						className: "flex min-w-0 flex-wrap items-start justify-between gap-3",
-						children: [/* @__PURE__ */ (0, J.jsxs)("div", {
+						children: [/* @__PURE__ */ (0, K.jsxs)("div", {
 							className: "flex min-w-0 flex-1 basis-48 flex-wrap items-center gap-2",
 							children: [
-								/* @__PURE__ */ (0, J.jsx)(Be, {
+								/* @__PURE__ */ (0, K.jsx)(We, {
 									taskKey: e.task_key,
 									className: "size-5 shrink-0 text-text-secondary"
 								}),
-								/* @__PURE__ */ (0, J.jsx)("strong", {
+								/* @__PURE__ */ (0, K.jsx)("strong", {
 									className: "min-w-0 break-words text-title-3-medium text-text-primary",
 									children: B(e)
 								}),
-								c ?? /* @__PURE__ */ (0, J.jsx)(X, { run: e })
+								c ?? /* @__PURE__ */ (0, K.jsx)(Y, { run: e })
 							]
-						}), /* @__PURE__ */ (0, J.jsx)(Re, {
+						}), /* @__PURE__ */ (0, K.jsx)(He, {
 							run: e,
 							runs: u
 						})]
 					}),
-					/* @__PURE__ */ (0, J.jsx)("p", {
+					/* @__PURE__ */ (0, K.jsx)("p", {
 						className: "text-caption-1-regular text-text-secondary",
 						children: t
 					}),
-					/* @__PURE__ */ (0, J.jsx)(Ke, {
+					/* @__PURE__ */ (0, K.jsx)(Xe, {
 						run: e,
 						active: l
 					}),
-					S ? /* @__PURE__ */ (0, J.jsx)(m, {
+					S ? /* @__PURE__ */ (0, K.jsx)(m, {
 						href: S.href,
 						"data-task-subject": e.id,
 						title: S.label,
 						className: "min-w-0 max-w-full self-start truncate text-text-primary",
 						children: S.label
 					}) : null,
-					T ? /* @__PURE__ */ (0, J.jsx)("p", {
+					T ? /* @__PURE__ */ (0, K.jsx)("p", {
 						"data-task-error": "",
 						className: "text-caption-1-regular text-text-secondary wrap-anywhere",
 						children: T
@@ -513,50 +513,50 @@ function Z({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 					n
 				]
 			}),
-			a ? /* @__PURE__ */ (0, J.jsx)("div", {
+			a ? /* @__PURE__ */ (0, K.jsx)("div", {
 				className: "border-t border-separator-border",
 				children: a
 			}) : null,
-			T && w !== T ? /* @__PURE__ */ (0, J.jsx)("div", {
+			T && w !== T ? /* @__PURE__ */ (0, K.jsx)("div", {
 				className: "border-t border-separator-border",
-				children: /* @__PURE__ */ (0, J.jsx)(i, {
+				children: /* @__PURE__ */ (0, K.jsx)(i, {
 					row: !0,
 					summary: z("manage:taskCenter.errorDetails"),
 					contentClassName: "pb-5",
-					children: /* @__PURE__ */ (0, J.jsx)(De, {
+					children: /* @__PURE__ */ (0, K.jsx)(je, {
 						label: z("manage:taskCenter.taskErrorDetails", { task: B(e) }),
 						children: w
 					})
 				})
 			}) : null,
-			x ? /* @__PURE__ */ (0, J.jsx)("div", {
+			x ? /* @__PURE__ */ (0, K.jsx)("div", {
 				className: "border-t border-separator-border",
-				children: /* @__PURE__ */ (0, J.jsxs)(i, {
+				children: /* @__PURE__ */ (0, K.jsxs)(i, {
 					row: !0,
 					summary: z("manage:taskCenter.taskDetailsCount", { count: x }),
 					contentClassName: "pb-5",
 					isOpen: d,
 					onOpenChange: f,
 					children: [
-						_.error ? /* @__PURE__ */ (0, J.jsx)(h, {
+						_.error ? /* @__PURE__ */ (0, K.jsx)(h, {
 							tone: "error",
 							children: j(_.error)
 						}) : null,
-						b < x ? /* @__PURE__ */ (0, J.jsx)("p", {
+						b < x ? /* @__PURE__ */ (0, K.jsx)("p", {
 							className: "text-caption-1-regular text-text-secondary",
 							children: z("manage:taskCenter.showingCount", { count: b })
 						}) : null,
-						/* @__PURE__ */ (0, J.jsx)(Ze, { rows: y })
+						/* @__PURE__ */ (0, K.jsx)(et, { rows: y })
 					]
 				})
 			}) : null,
-			Object.keys(e.result_summary || {}).some((e) => !(S && Je.has(e))) ? /* @__PURE__ */ (0, J.jsx)("div", {
+			Object.keys(e.result_summary || {}).some((e) => !(S && Qe.has(e))) ? /* @__PURE__ */ (0, K.jsx)("div", {
 				className: "border-t border-separator-border",
-				children: /* @__PURE__ */ (0, J.jsx)(i, {
+				children: /* @__PURE__ */ (0, K.jsx)(i, {
 					row: !0,
 					summary: z("manage:taskCenter.technicalDetails"),
 					contentClassName: "pb-5",
-					children: /* @__PURE__ */ (0, J.jsx)(G, {
+					children: /* @__PURE__ */ (0, K.jsx)(ke, {
 						code: JSON.stringify(e.result_summary, null, 2),
 						language: "json",
 						label: z("manage:taskCenter.taskTechnicalDetails", { task: B(e) })
@@ -566,69 +566,69 @@ function Z({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 		]
 	});
 }
-function Qe({ run: e, followups: t, followupTotal: n }) {
-	let r = e.progress_total || 0, i = e.progress_current || 0, a = e.control?.state, o = a && a !== "running", s = o ? Xe[a] : e.progress_label || z("manage:taskCenter.inProgress"), c = re(e.elapsed_seconds), l = [w[e.trigger] || e.trigger, c && z("manage:taskCenter.runningFor", { elapsed: c })].filter(Boolean).join(" · ");
-	return /* @__PURE__ */ (0, J.jsx)(Z, {
+function tt({ run: e, followups: t, followupTotal: n }) {
+	let r = e.progress_total || 0, i = e.progress_current || 0, a = e.control?.state, o = a && a !== "running", s = o ? J[a] : ve(e) || z("manage:taskCenter.inProgress"), c = re(e.elapsed_seconds), l = [w[e.trigger] || e.trigger, c && z("manage:taskCenter.runningFor", { elapsed: c })].filter(Boolean).join(" · ");
+	return /* @__PURE__ */ (0, K.jsx)(X, {
 		run: e,
 		meta: l,
 		followups: t,
 		followupTotal: n,
-		children: r > 0 ? /* @__PURE__ */ (0, J.jsxs)("div", {
+		children: r > 0 ? /* @__PURE__ */ (0, K.jsxs)("div", {
 			className: "flex flex-col gap-1.5",
-			children: [/* @__PURE__ */ (0, J.jsx)(y, {
+			children: [/* @__PURE__ */ (0, K.jsx)(y, {
 				label: s,
 				value: Math.min(i, r),
 				max: r
-			}), /* @__PURE__ */ (0, J.jsxs)("p", {
+			}), /* @__PURE__ */ (0, K.jsxs)("p", {
 				className: "text-caption-1-regular text-text-secondary wrap-anywhere",
 				children: [
 					s,
 					" · ",
-					z("manage:taskCenter.progressItems", { progress: L(i, r) })
+					z("manage:taskCenter.progressItems", { progress: I(i, r) })
 				]
 			})]
-		}) : o ? /* @__PURE__ */ (0, J.jsx)("p", {
+		}) : o ? /* @__PURE__ */ (0, K.jsx)("p", {
 			"data-copy-key": `tasks.control.state.${a}`,
 			className: "text-caption-1-regular text-text-secondary",
 			children: s
-		}) : /* @__PURE__ */ (0, J.jsx)(f, { label: s })
+		}) : /* @__PURE__ */ (0, K.jsx)(f, { label: s })
 	});
 }
-function $e({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followupFailed: s = 0, followupCancelled: c = 0 }) {
-	let d = !!(r && r.length > 1 && o), f = d ? [z("manage:taskCenter.processedTotal", { count: o }), s ? z("manage:taskCenter.failedCount", { count: s }) : ""].filter(Boolean) : Se(V(e) ? {
+function Z({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followupFailed: s = 0, followupCancelled: c = 0 }) {
+	let d = !!(r && r.length > 1 && o), f = d ? [z("manage:taskCenter.processedTotal", { count: o }), s ? z("manage:taskCenter.failedCount", { count: s }) : ""].filter(Boolean) : we(V(e) ? {
 		...e.result_summary,
 		name: ""
-	} : e.result_summary).filter((t) => t !== e.error && t !== R(e.error)), p = Ce(e), m = ge(e, a), h = re(e.elapsed_seconds), g = r && r.length > 1 ? r[r.length - 1] : void 0, _ = (g ? [
+	} : e.result_summary).filter((t) => t !== R(e) && t !== L(R(e))), p = Te(e), m = _e(e, a), h = re(e.elapsed_seconds), g = r && r.length > 1 ? r[r.length - 1] : void 0, _ = (g ? [
 		w[e.trigger] || e.trigger,
 		z("manage:taskCenter.lastRuns", { count: r.length }),
-		`${I(g.finished_at)} – ${I(e.finished_at)}`
+		`${F(g.finished_at)} – ${F(e.finished_at)}`
 	] : [
 		w[e.trigger] || e.trigger,
-		I(e.finished_at),
+		F(e.finished_at),
 		h && z("manage:taskCenter.took", { elapsed: h })
 	]).filter(Boolean).join(" · ");
-	return /* @__PURE__ */ (0, J.jsxs)(Z, {
+	return /* @__PURE__ */ (0, K.jsxs)(X, {
 		run: e,
 		meta: _,
-		error: e.error,
+		error: R(e),
 		followups: t,
 		followupTotal: o,
 		controlled: r,
-		issues: p.length ? /* @__PURE__ */ (0, J.jsx)(i, {
+		issues: p.length ? /* @__PURE__ */ (0, K.jsx)(i, {
 			row: !0,
 			summary: z("manage:taskCenter.issueDetailsCount", { count: p.length }),
 			contentClassName: "pb-5",
-			children: /* @__PURE__ */ (0, J.jsx)(De, {
+			children: /* @__PURE__ */ (0, K.jsx)(je, {
 				label: z("manage:taskCenter.issueDetails"),
-				children: /* @__PURE__ */ (0, J.jsx)("ul", {
+				children: /* @__PURE__ */ (0, K.jsx)("ul", {
 					className: "flex min-w-0 flex-col whitespace-normal",
 					"data-task-issues": "",
-					children: p.map((e, t) => /* @__PURE__ */ (0, J.jsx)(l, {
-						title: /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [e.label, e.provider || e.kind ? /* @__PURE__ */ (0, J.jsxs)("span", {
+					children: p.map((e, t) => /* @__PURE__ */ (0, K.jsx)(l, {
+						title: /* @__PURE__ */ (0, K.jsxs)(K.Fragment, { children: [e.label, e.provider || e.kind ? /* @__PURE__ */ (0, K.jsxs)("span", {
 							className: "text-body-2-regular text-text-secondary",
 							children: [" · ", [e.provider, e.kind].filter(Boolean).join(" · ")]
 						}) : null] }),
-						children: /* @__PURE__ */ (0, J.jsx)(Oe, {
+						children: /* @__PURE__ */ (0, K.jsx)(Me, {
 							text: e.error,
 							className: "text-caption-1-regular text-text-secondary"
 						})
@@ -636,78 +636,78 @@ function $e({ run: e, followups: t, runs: r, latest: a, followupTotal: o, follow
 				})
 			})
 		}) : void 0,
-		badge: c && e.status === "succeeded" ? /* @__PURE__ */ (0, J.jsx)(n, {
+		badge: c && e.status === "succeeded" ? /* @__PURE__ */ (0, K.jsx)(n, {
 			color: "rose",
-			children: /* @__PURE__ */ (0, J.jsx)("span", {
+			children: /* @__PURE__ */ (0, K.jsx)("span", {
 				"data-copy-key": `tasks.followups.cancelled.${c === o ? "all" : "partial"}`,
 				children: z(c === o ? "manage:taskCenter.followupsCanceled" : "manage:taskCenter.someFollowupsCanceled")
 			})
-		}) : d && s ? /* @__PURE__ */ (0, J.jsx)(n, {
+		}) : d && s ? /* @__PURE__ */ (0, K.jsx)(n, {
 			color: "yellow",
 			children: z("manage:taskStatus.issuesFound")
 		}) : void 0,
 		children: [
-			c ? /* @__PURE__ */ (0, J.jsx)("p", {
+			c ? /* @__PURE__ */ (0, K.jsx)("p", {
 				className: "text-caption-1-regular text-text-secondary",
 				children: z("manage:taskCenter.followupsCanceledCount", { count: c })
 			}) : null,
-			f.length === 1 ? /* @__PURE__ */ (0, J.jsx)("p", {
+			f.length === 1 ? /* @__PURE__ */ (0, K.jsx)("p", {
 				className: "text-caption-1-regular text-text-secondary wrap-anywhere",
 				children: f[0]
-			}) : f.length ? /* @__PURE__ */ (0, J.jsx)("ul", {
+			}) : f.length ? /* @__PURE__ */ (0, K.jsx)("ul", {
 				className: "flex list-disc flex-col gap-1 pl-5 text-caption-1-regular text-text-secondary wrap-anywhere",
-				children: f.map((e, t) => /* @__PURE__ */ (0, J.jsx)("li", { children: e }, t))
+				children: f.map((e, t) => /* @__PURE__ */ (0, K.jsx)("li", { children: e }, t))
 			}) : null,
-			!p.length && N(e) && ["follow-check", "feed-check"].includes(e.task_key) ? /* @__PURE__ */ (0, J.jsx)("p", {
+			!p.length && N(e) && ["follow-check", "feed-check"].includes(e.task_key) ? /* @__PURE__ */ (0, K.jsx)("p", {
 				className: "text-body-2-regular text-text-secondary",
 				children: z("manage:taskCenter.noIssueDetails")
 			}) : null,
-			m ? /* @__PURE__ */ (0, J.jsx)(u, {
+			m ? /* @__PURE__ */ (0, K.jsx)(u, {
 				href: m.href,
 				size: "small",
-				trailingIcon: P,
+				trailingIcon: ue,
 				className: "self-start",
 				children: m.label
 			}) : null
 		]
 	});
 }
-function et({ runs: e, followups: t, counts: r }) {
-	let i = e[0], a = e[e.length - 1], o = M(r, e), s = Math.max(o.total, t.length), c = o.total ? o.settled : t.filter((e) => !F(e)).length, l = o.total ? o.failed : t.filter((e) => e.status === "failed" || e.status === "interrupted").length, u = [
+function nt({ runs: e, followups: t, counts: r }) {
+	let i = e[0], a = e[e.length - 1], o = M(r, e), s = Math.max(o.total, t.length), c = o.total ? o.settled : t.filter((e) => !P(e)).length, l = o.total ? o.failed : t.filter((e) => e.status === "failed" || e.status === "interrupted").length, u = [
 		w[i.trigger] || i.trigger,
 		e.length > 1 ? z("manage:taskCenter.batches", { count: e.length }) : "",
-		z("manage:taskCenter.startedAt", { time: I(a.started_at || a.finished_at) })
+		z("manage:taskCenter.startedAt", { time: F(a.started_at || a.finished_at) })
 	].filter(Boolean).join(" · ");
-	return /* @__PURE__ */ (0, J.jsx)(Z, {
+	return /* @__PURE__ */ (0, K.jsx)(X, {
 		run: i,
 		meta: u,
 		followups: t,
 		followupTotal: s,
 		resourceActive: !0,
 		controlled: e,
-		badge: i.control ? /* @__PURE__ */ (0, J.jsx)(X, { run: i }) : /* @__PURE__ */ (0, J.jsx)(n, {
+		badge: i.control ? /* @__PURE__ */ (0, K.jsx)(Y, { run: i }) : /* @__PURE__ */ (0, K.jsx)(n, {
 			color: "blue",
 			children: z("manage:taskStatus.running")
 		}),
-		children: /* @__PURE__ */ (0, J.jsxs)("div", {
+		children: /* @__PURE__ */ (0, K.jsxs)("div", {
 			className: "flex flex-col gap-1.5",
-			children: [/* @__PURE__ */ (0, J.jsx)(y, {
+			children: [/* @__PURE__ */ (0, K.jsx)(y, {
 				label: z("manage:taskCenter.taskProgress", { task: B(i) }),
 				value: c,
 				max: s
-			}), /* @__PURE__ */ (0, J.jsxs)("p", {
+			}), /* @__PURE__ */ (0, K.jsxs)("p", {
 				className: "text-caption-1-regular text-text-secondary",
-				children: [z("manage:taskCenter.processedProgress", { progress: L(c, s) }), l ? z("manage:taskCenter.failedSuffix", { count: l }) : ""]
+				children: [z("manage:taskCenter.processedProgress", { progress: I(c, s) }), l ? z("manage:taskCenter.failedSuffix", { count: l }) : ""]
 			})]
 		})
 	});
 }
 function Q({ title: e, children: t }) {
-	let n = (0, q.useId)();
-	return /* @__PURE__ */ (0, J.jsxs)("section", {
+	let n = (0, G.useId)();
+	return /* @__PURE__ */ (0, K.jsxs)("section", {
 		"aria-labelledby": n,
 		className: "flex min-w-0 flex-col gap-3",
-		children: [/* @__PURE__ */ (0, J.jsx)("h3", {
+		children: [/* @__PURE__ */ (0, K.jsx)("h3", {
 			id: n,
 			className: "text-title-2-medium text-text-primary",
 			children: e
@@ -715,15 +715,15 @@ function Q({ title: e, children: t }) {
 	});
 }
 function $({ live: e = !1, paginate: t = !0, children: n }) {
-	let [i, a] = (0, q.useState)({
+	let [i, a] = (0, G.useState)({
 		pageIndex: 0,
 		pageSize: 20
-	}), o = q.Children.toArray(n), { pageSize: s } = i, c = Math.min(i.pageIndex, Math.max(0, Math.ceil(o.length / s) - 1));
-	return /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [/* @__PURE__ */ (0, J.jsx)("ul", {
+	}), o = G.Children.toArray(n), { pageSize: s } = i, c = Math.min(i.pageIndex, Math.max(0, Math.ceil(o.length / s) - 1));
+	return /* @__PURE__ */ (0, K.jsxs)(K.Fragment, { children: [/* @__PURE__ */ (0, K.jsx)("ul", {
 		"aria-live": e ? "polite" : void 0,
 		className: "flex min-w-0 flex-col gap-3",
 		children: t ? o.slice(c * s, (c + 1) * s) : o
-	}), t ? /* @__PURE__ */ (0, J.jsx)(r, {
+	}), t ? /* @__PURE__ */ (0, K.jsx)(r, {
 		label: z("manage:taskCenter.taskList"),
 		total: o.length,
 		pagination: {
@@ -733,8 +733,8 @@ function $({ live: e = !1, paginate: t = !0, children: n }) {
 		onChange: a
 	}) : null] });
 }
-function tt() {
-	let [e, t] = (0, q.useState)(1), [n, i] = (0, q.useState)(20), s = U({
+function rt() {
+	let [e, t] = (0, G.useState)(1), [n, i] = (0, G.useState)(20), s = U({
 		queryKey: e === 1 && n === 20 ? C : [
 			...C,
 			"page",
@@ -742,12 +742,12 @@ function tt() {
 			n
 		],
 		queryFn: ({ signal: t }) => ie(t, e, n),
-		refetchInterval: (e) => he(e.state.data),
+		refetchInterval: (e) => ge(e.state.data),
 		placeholderData: (e) => e
-	}), [c, l] = (0, q.useState)(s.data);
+	}), [c, l] = (0, G.useState)(s.data);
 	s.data && s.data !== c && l(s.data);
 	let u = s.data || c, d = s.error ? j(s.error) : "";
-	if (!u) return /* @__PURE__ */ (0, J.jsx)(K, { children: /* @__PURE__ */ (0, J.jsx)(h, {
+	if (!u) return /* @__PURE__ */ (0, K.jsx)(Ae, { children: /* @__PURE__ */ (0, K.jsx)(h, {
 		tone: "error",
 		children: d || z("manage:taskCenter.loadFailed")
 	}) });
@@ -756,56 +756,56 @@ function tt() {
 		...u.skipped || [],
 		...f,
 		...p
-	], g = le(m), _ = new Set(m.map((e) => e.id)), v = (e) => e.filter((e) => !(e.followup_key && e.parent_run_id != null && _.has(e.parent_run_id))), y = v(f), b = u.followup_counts || {}, x = (e) => e.flatMap((e) => g.get(e.id) || []), S = [...y, ...v(p)].filter((e) => M(b, [e]).active > 0 || g.get(e.id)?.some(F)).sort((e, t) => t.id - e.id), w = v(u.running || []), T = v(u.skipped || []), E = y.filter((e) => !S.includes(e) && !T.some((t) => t.id === e.id)), D = (e) => (g.get(e.id) || []).every((e) => e.status === "succeeded" && !N(e)) && M(b, [e]).failed === 0, O = se(E, (e) => de(e) && (D(e) || qe.has(e.task_key))), k = oe(S, (e) => e.control?.state || "").sort((e, t) => t.run.id - e.run.id), A = fe(m), ee = !w.length && !S.length && !T.length && !E.length;
-	return /* @__PURE__ */ (0, J.jsxs)(K, { children: [
-		d ? /* @__PURE__ */ (0, J.jsx)(h, {
+	], g = le(m), _ = new Set(m.map((e) => e.id)), v = (e) => e.filter((e) => !(e.followup_key && e.parent_run_id != null && _.has(e.parent_run_id))), y = v(f), b = u.followup_counts || {}, x = (e) => e.flatMap((e) => g.get(e.id) || []), S = [...y, ...v(p)].filter((e) => M(b, [e]).active > 0 || g.get(e.id)?.some(P)).sort((e, t) => t.id - e.id), w = v(u.running || []), T = v(u.skipped || []), E = y.filter((e) => !S.includes(e) && !T.some((t) => t.id === e.id)), D = (e) => (g.get(e.id) || []).every((e) => e.status === "succeeded" && !N(e)) && M(b, [e]).failed === 0, O = se(E, (e) => fe(e) && (D(e) || Ze.has(e.task_key))), k = oe(S, (e) => e.control?.state || "").sort((e, t) => t.run.id - e.run.id), A = pe(m), ee = !w.length && !S.length && !T.length && !E.length;
+	return /* @__PURE__ */ (0, K.jsxs)(Ae, { children: [
+		d ? /* @__PURE__ */ (0, K.jsx)(h, {
 			tone: "error",
 			children: d
 		}) : null,
-		/* @__PURE__ */ (0, J.jsx)(Le, {}),
-		u.available === !1 ? /* @__PURE__ */ (0, J.jsx)(h, {
+		/* @__PURE__ */ (0, K.jsx)(Ve, {}),
+		u.available === !1 ? /* @__PURE__ */ (0, K.jsx)(h, {
 			tone: "warning",
 			children: u.message || z("manage:taskCenter.tableNotReady")
 		}) : null,
-		/* @__PURE__ */ (0, J.jsx)(Me, {}),
-		ee ? /* @__PURE__ */ (0, J.jsx)(o, {
-			icon: Te,
+		/* @__PURE__ */ (0, K.jsx)(Ie, {}),
+		ee ? /* @__PURE__ */ (0, K.jsx)(o, {
+			icon: De,
 			title: z("manage:taskCenter.emptyTitle"),
 			children: z("manage:taskCenter.emptyText")
-		}) : /* @__PURE__ */ (0, J.jsxs)(J.Fragment, { children: [
-			/* @__PURE__ */ (0, J.jsx)(Q, {
+		}) : /* @__PURE__ */ (0, K.jsxs)(K.Fragment, { children: [
+			/* @__PURE__ */ (0, K.jsx)(Q, {
 				title: z("manage:taskCenter.inProgress"),
-				children: w.length || S.length ? /* @__PURE__ */ (0, J.jsxs)($, {
+				children: w.length || S.length ? /* @__PURE__ */ (0, K.jsxs)($, {
 					live: !0,
-					children: [w.map((e) => /* @__PURE__ */ (0, J.jsx)(Qe, {
+					children: [w.map((e) => /* @__PURE__ */ (0, K.jsx)(tt, {
 						run: e,
 						followups: g.get(e.id),
 						followupTotal: M(b, [e]).total
-					}, e.id)), k.map(({ run: e, runs: t }) => /* @__PURE__ */ (0, J.jsx)(et, {
+					}, e.id)), k.map(({ run: e, runs: t }) => /* @__PURE__ */ (0, K.jsx)(nt, {
 						runs: t,
 						followups: x(t),
 						counts: b
 					}, e.id))]
-				}) : /* @__PURE__ */ (0, J.jsx)(h, {
+				}) : /* @__PURE__ */ (0, K.jsx)(h, {
 					tone: "neutral",
 					children: z("manage:taskCenter.noneRunning")
 				})
 			}),
-			T.length ? /* @__PURE__ */ (0, J.jsx)(Q, {
+			T.length ? /* @__PURE__ */ (0, K.jsx)(Q, {
 				title: z("manage:taskCenter.skipped"),
-				children: /* @__PURE__ */ (0, J.jsx)($, { children: T.map((e) => /* @__PURE__ */ (0, J.jsx)($e, {
+				children: /* @__PURE__ */ (0, K.jsx)($, { children: T.map((e) => /* @__PURE__ */ (0, K.jsx)(Z, {
 					run: e,
 					latest: A.has(e.id),
 					followups: g.get(e.id)
 				}, e.id)) })
 			}) : null,
-			E.length || u.finished_total ? /* @__PURE__ */ (0, J.jsxs)(Q, {
+			E.length || u.finished_total ? /* @__PURE__ */ (0, K.jsxs)(Q, {
 				title: z("manage:taskCenter.recentlyCompleted"),
-				children: [E.length ? /* @__PURE__ */ (0, J.jsx)($, {
+				children: [E.length ? /* @__PURE__ */ (0, K.jsx)($, {
 					paginate: !1,
 					children: O.map(({ run: e, runs: t }) => {
 						let n = M(b, t);
-						return /* @__PURE__ */ (0, J.jsx)($e, {
+						return /* @__PURE__ */ (0, K.jsx)(Z, {
 							run: e,
 							runs: t,
 							latest: A.has(e.id),
@@ -815,7 +815,7 @@ function tt() {
 							followupCancelled: n.cancelled
 						}, e.id);
 					})
-				}) : null, /* @__PURE__ */ (0, J.jsx)(r, {
+				}) : null, /* @__PURE__ */ (0, K.jsx)(r, {
 					label: z("manage:taskCenter.recentlyCompleted"),
 					total: u.finished_total ?? y.length,
 					unit: z("manage:taskCenter.footerUnit"),
@@ -830,9 +830,9 @@ function tt() {
 				})]
 			}) : null
 		] }),
-		/* @__PURE__ */ (0, J.jsx)(a, {})
+		/* @__PURE__ */ (0, K.jsx)(a, {})
 	] });
 }
-export { tt as ActivityPage };
+export { rt as ActivityPage };
 
-//# debugId=a2cf4b82-2e73-4aba-91b8-d19b7f208365
+//# debugId=a563e90d-d131-4724-b9bf-45f4e930b2a6

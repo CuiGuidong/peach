@@ -40,7 +40,7 @@ import { TaskResources } from './task-resources';
 import {
   elapsedText, fetchTasks, foldByKind, foldRoutine, followupDetail, followupTally, groupFollowups, isActive,
   hasResultProblems, isRoutine, latestOfKind, momentText, pollInterval, problemDestination, progressText,
-  readableErrorHeadline, statusLabel, summaryItems, taskIssues, taskName, taskSubject, TASKS_KEY, TRIGGER_LABELS, type FollowupCounts, type TaskControlState, type TaskRunPayload,
+  progressLabel, readableErrorHeadline, runError, statusLabel, summaryItems, taskIssues, taskName, taskSubject, TASKS_KEY, TRIGGER_LABELS, type FollowupCounts, type TaskControlState, type TaskRunPayload,
 } from './tasks';
 import { t } from '../../i18n';
 
@@ -215,7 +215,7 @@ function RunningRun({ run, followups, followupTotal }:
   const current = run.progress_current || 0;
   const control = run.control?.state;
   const stopping = control && control !== 'running';
-  const label = stopping ? CONTROL_LABELS[control] : run.progress_label || t('manage:taskCenter.inProgress');
+  const label = stopping ? CONTROL_LABELS[control] : progressLabel(run) || t('manage:taskCenter.inProgress');
   const elapsed = elapsedText(run.elapsed_seconds);
   const meta = [TRIGGER_LABELS[run.trigger] || run.trigger, elapsed && t('manage:taskCenter.runningFor', { elapsed })]
     .filter(Boolean).join(' · ');
@@ -250,7 +250,7 @@ function SettledRun(
     // 作品链接已写出文件名，摘要不再列「名称」。
     : summaryItems(taskSubject(run) ? { ...run.result_summary, name: '' } : run.result_summary)
         // 结束原因由卡片单独写一行，摘要里同一句不再重复。
-        .filter((line) => line !== run.error && line !== readableErrorHeadline(run.error));
+        .filter((line) => line !== runError(run) && line !== readableErrorHeadline(runError(run)));
   const issues = taskIssues(run);
   const destination = problemDestination(run, latest);
   const elapsed = elapsedText(run.elapsed_seconds);
@@ -261,7 +261,7 @@ function SettledRun(
     : [TRIGGER_LABELS[run.trigger] || run.trigger, momentText(run.finished_at),
        elapsed && t('manage:taskCenter.took', { elapsed })]).filter(Boolean).join(' · ');
   return (
-    <RunCard run={run} meta={meta} error={run.error} followups={followups} followupTotal={followupTotal} controlled={runs}
+    <RunCard run={run} meta={meta} error={runError(run)} followups={followups} followupTotal={followupTotal} controlled={runs}
       issues={issues.length ? <Disclosure row summary={t('manage:taskCenter.issueDetailsCount', { count: issues.length })} contentClassName="pb-5">
         <ErrorDetails label={t('manage:taskCenter.issueDetails')}>
         {/* 与数据管理的问题清单同一种分层：名字一层，来源与问题类别跟在名字后面用次级色，原因再低一档。 */}

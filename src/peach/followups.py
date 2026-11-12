@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Callable
 
 from .repository import in_background
-from .task_runs import TaskRunHandle, TaskRunStore
+from .task_runs import TaskRunHandle, TaskRunStore, item_progress, run_error
 
 LOGGER = logging.getLogger(__name__)
 
@@ -47,9 +47,27 @@ class Followup:
     key: str
     task_key: str
     label: str = ""
+    #: `label` 的 code 与参数（ADR-0156 第三条）。参数存成元组，后继要能放进集合去重。
+    code: str | None = None
+    params: tuple[tuple[str, object], ...] = ()
 
-    def as_row(self) -> tuple[str, str, str]:
-        return (self.key, self.task_key, self.label)
+    @classmethod
+    def item(cls, key: str, task_key: str, name: str = "") -> "Followup":
+        """说明写成「任务名：条目」的那一种，界面按 `task_key` 换任务名、按参数取条目。"""
+        return cls.coded(key, task_key, item_progress(task_key, name))
+
+    @classmethod
+    def coded(cls, key: str, task_key: str, text: dict) -> "Followup":
+        """`text` 是 `run_progress` 一类给出的 `label`、`code`、`params`。"""
+        return cls(key, task_key, text["label"], text["code"], tuple(sorted(text["params"].items())))
+
+    def as_row(self) -> tuple[str, str, str, str | None, dict]:
+        return (self.key, self.task_key, self.label, self.code, dict(self.params))
+
+    def declared(self) -> dict:
+        """任务结果里声明后继的写法，`task_runs.declared_rows` 读回同样的五项。"""
+        return {"key": self.key, "task_key": self.task_key, "label": self.label,
+                "label_code": self.code, "label_params": dict(self.params)}
 
 
 class Attempts:
@@ -269,7 +287,7 @@ class FollowupRunner:
         if followup_type is None:
             # 登记表里没有这一种：多半是账本里留着上一个版本排下的行。判失败而不是
             # 丢在 `running` 上，否则它的互斥键会一直占着，同一件事再也排不进来。
-            handle.finish("failed", error=f"没有登记 {run.task_key} 这种后继")
+            handle.finish("failed", **run_error("unknownFollowup", run.task_key))
             return
         try:
             from .task_control import bind, checkpoint, Cancelled
@@ -297,7 +315,7 @@ class FollowupRunner:
         if summary.get("continue"):
             from .update_tasks import UpdateBusy
             try:
-                self.store.continue_followup(run, followup_type.label)
+                self.store.continue_followup(run)
             except UpdateBusy as error:
                 # 接续没排上只是少接一轮，存量规划下次会再派；异常不能打死通道线程。
                 LOGGER.warning("followup continuation skipped: %s: %s", run.followup_key, error)

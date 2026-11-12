@@ -179,7 +179,8 @@ class PendingTests(LedgerCase):
         self.work(1, "SSIS-057")
         self.assertEqual(sample_followup.plan(self.database, config, self.covers),
                          [{"key": sample_followup.FOLLOWUP_KEY, "task_key": sample_followup.TASK_KEY,
-                           "label": sample_followup.TASK_LABEL}])
+                           "label": sample_followup.TASK_LABEL, "label_code": "taskRun.progress.item",
+                           "label_params": {"name": ""}}])
 
 
 class FollowupTests(LedgerCase):

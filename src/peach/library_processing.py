@@ -2088,7 +2088,7 @@ def _entity_followups(database, config, watermark, covered=(), *, include_stock=
             found += performer_profile_followup.plan(connection, since_entity_id=watermark)
             found += creator_identity_followup.plan(connection, since_entity_id=watermark)
             if not include_stock:
-                return [{'key': item.key, 'task_key': item.task_key, 'label': item.label} for item in found]
+                return [item.declared() for item in found]
             taken = {item.key for item in found}
             aliases = min(performer_alias_followup.STOCK_SHARE, max(0, MAX_FOLLOWUPS - len(found)))
             profiles = min(performer_profile_followup.STOCK_SHARE,
@@ -2113,8 +2113,7 @@ def _entity_followups(database, config, watermark, covered=(), *, include_stock=
                 connection, attempts, limit=min(profiles, MAX_FOLLOWUPS - len(found)), skip=taken)
     except sqlite3.Error:
         return []
-    return [{'key': item.key, 'task_key': item.task_key, 'label': item.label}
-            for item in found]
+    return [item.declared() for item in found]
 
 
 def _ffprobe_path(config):

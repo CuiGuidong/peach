@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "615b2fdb-5bcf-4f99-aaab-0501844efd30", e._sentryDebugIdIdentifier = "sentry-dbid-615b2fdb-5bcf-4f99-aaab-0501844efd30");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "1ce5a8ad-fa83-43c5-a0fe-d767d2d948fc", e._sentryDebugIdIdentifier = "sentry-dbid-1ce5a8ad-fa83-43c5-a0fe-d767d2d948fc");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -4576,6 +4576,7 @@ var He = {
 		scopePreviews: "Imported videos (data saver directories skipped)"
 	},
 	taskCenter: {
+		batchItems: "{{first}} and others ({{count}} total)",
 		batches_one: "{{count, number}} batch",
 		batches_other: "{{count, number}} batches",
 		emptyText: "Progress and results for scans, update checks, bulk actions, and CLI batch jobs appear here.",
@@ -7246,6 +7247,22 @@ var He = {
 		"upgrade-library": "Metadata auto-repair",
 		"upgrade-repairs": "Auto-repair",
 		"want-scrape": "Want metadata fetch"
+	},
+	taskRun: {
+		progress: {
+			item: "{{task}}: {{name}}",
+			items: "{{task}}: {{first}} and others ({{count}} total)",
+			downloadLanded: "Download imported: {{name}}",
+			waitingForUpdate: "Continues after the update is installed",
+			waitingForService: "Continues after the service starts",
+			pausedWaiting: "Paused, waiting to continue"
+		},
+		error: {
+			skippedBy: "Skipped: run {{run}} ({{trigger}}) was still in progress",
+			skipped: "Skipped: another run was still in progress",
+			interrupted: "The service restarted before this run finished",
+			unknownFollowup: "No follow-up task is registered for {{task}}"
+		}
 	}
 }, Xe = {
 	accessSetup: {
@@ -10900,6 +10917,7 @@ var He = {
 		scopePreviews: "已入库的视频（跳过流量保护目录）"
 	},
 	taskCenter: {
+		batchItems: "{{first}} 等 {{count}} 部",
 		batches: "{{count, number}} 批",
 		emptyText: "扫描、追更检查、批量操作和命令行批处理的进度与结果会显示在这里。",
 		emptyTitle: "还没有任务记录",
@@ -13511,6 +13529,22 @@ var He = {
 		"upgrade-library": "资料自动修复",
 		"upgrade-repairs": "自动修复",
 		"want-scrape": "想要作品资料采集"
+	},
+	taskRun: {
+		progress: {
+			item: "{{task}}：{{name}}",
+			items: "{{task}}：{{first}} 等 {{count}} 部",
+			downloadLanded: "下载已入库：{{name}}",
+			waitingForUpdate: "等待安装完成后继续",
+			waitingForService: "等待服务启动后继续",
+			pausedWaiting: "已暂停，等待继续"
+		},
+		error: {
+			skippedBy: "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
+			skipped: "已有一轮在进行，本次跳过",
+			interrupted: "服务重启，这一轮没有跑完",
+			unknownFollowup: "没有登记 {{task}} 这种后继"
+		}
 	}
 }, at = {
 	accessSetup: {
@@ -37049,4 +37083,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=615b2fdb-5bcf-4f99-aaab-0501844efd30
+//# debugId=1ce5a8ad-fa83-43c5-a0fe-d767d2d948fc

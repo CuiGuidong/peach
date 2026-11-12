@@ -53,6 +53,7 @@ from . import minnano_av
 from .entities import (is_short_single_name, merge_entity, name_chain, name_rank,
                        normalize_entity_name)
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_runs import item_progress
 from .kanji import fold_glyphs
 from .metadata_alias_resolve import is_descriptive, is_planning_alias
 from .migrations import sqlite_backup
@@ -283,8 +284,8 @@ def _stock_facts(connection: sqlite3.Connection):
     return aliases, refs, fc2
 
 
-def _label(name: str) -> str:
-    return f"{TASK_LABEL}：{name}" if name else TASK_LABEL
+def _label(name: str) -> dict:
+    return item_progress(TASK_KEY, name)
 
 
 def plan(connection: sqlite3.Connection, *, since_entity_id: int) -> list[Followup]:
@@ -296,7 +297,7 @@ def plan(connection: sqlite3.Connection, *, since_entity_id: int) -> list[Follow
         (int(since_entity_id),)).fetchall()
     found = sorted(((int(row[2] or 0), int(row[0]), str(row[1] or "")) for row in rows
                     if has_entry(connection, int(row[0]))), key=lambda item: (-item[0], item[1]))
-    return [Followup(key=followup_key(entity_id), task_key=TASK_KEY, label=_label(name))
+    return [Followup.coded(followup_key(entity_id), TASK_KEY, _label(name))
             for _assets, entity_id, name in found]
 
 
@@ -331,7 +332,7 @@ def stock(connection: sqlite3.Connection, attempts, *, limit: int, skip=(),
         others = [alias for alias, source in written if not _ours(source)]
         if attempts.settled(key, _fingerprint((canonical, others), numbers, has_fc2)):
             continue
-        found.append(Followup(key=key, task_key=TASK_KEY, label=_label(canonical)))
+        found.append(Followup.coded(key, TASK_KEY, _label(canonical)))
         if len(found) >= limit:
             break
     return found
@@ -870,7 +871,7 @@ def _run(contract, key: str, handle) -> dict:
         return {"outcome": "档案已不存在"}
     canonical = names[0]
     if handle is not None:
-        handle.progress(label=_label(canonical), throttle=0)
+        handle.progress(**_label(canonical), throttle=0)
     sites = open_sites(contract)
     try:
         reports: dict[str, str] = {}

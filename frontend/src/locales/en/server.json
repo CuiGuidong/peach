@@ -373,5 +373,21 @@
     "upgrade-library": "Metadata auto-repair",
     "upgrade-repairs": "Auto-repair",
     "want-scrape": "Want metadata fetch"
+  },
+  "taskRun": {
+    "progress": {
+      "item": "{{task}}: {{name}}",
+      "items": "{{task}}: {{first}} and others ({{count}} total)",
+      "downloadLanded": "Download imported: {{name}}",
+      "waitingForUpdate": "Continues after the update is installed",
+      "waitingForService": "Continues after the service starts",
+      "pausedWaiting": "Paused, waiting to continue"
+    },
+    "error": {
+      "skippedBy": "Skipped: run {{run}} ({{trigger}}) was still in progress",
+      "skipped": "Skipped: another run was still in progress",
+      "interrupted": "The service restarted before this run finished",
+      "unknownFollowup": "No follow-up task is registered for {{task}}"
+    }
   }
 }

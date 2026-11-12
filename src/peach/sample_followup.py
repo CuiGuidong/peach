@@ -18,7 +18,8 @@ import time
 from pathlib import Path
 
 from . import sample_images
-from .followups import FollowupType, register
+from .followups import Followup, FollowupType, register
+from .task_runs import item_progress
 
 TASK_KEY = "code-samples"
 TASK_LABEL = "番号样张采集"
@@ -53,7 +54,7 @@ def plan(database, config, cover_root) -> list[dict]:
                 connection, lambda key: (covers / f"{key}.jpg").is_file(), misses, snapshots, limit=1)
     except (OSError, sqlite3.Error):
         return []
-    return [{"key": FOLLOWUP_KEY, "task_key": TASK_KEY, "label": TASK_LABEL}] if found else []
+    return [Followup.item(FOLLOWUP_KEY, TASK_KEY).declared()] if found else []
 
 
 def _missing(error: Exception) -> bool:
@@ -116,7 +117,7 @@ def run(contract, key: str, handle, *, transport=None, clock=time.monotonic) -> 
             if code in checkpoint.completed:
                 continue
             if handle is not None:
-                handle.progress(current=max(index, len(checkpoint.completed)), total=len(codes), label=f"{TASK_LABEL}：{code}")
+                handle.progress(current=max(index, len(checkpoint.completed)), total=len(codes), **item_progress(TASK_KEY, code))
             site, urls = "", []
             snapshot = sample_images.snapshot_samples(snapshots.get(code, ()))
             if snapshot:
@@ -176,7 +177,7 @@ def run(contract, key: str, handle, *, transport=None, clock=time.monotonic) -> 
     if landed:
         contract.cache_bust()
     if handle is not None:
-        handle.progress(current=len(codes), total=len(codes), label=TASK_LABEL, throttle=0)
+        handle.progress(current=len(codes), total=len(codes), **item_progress(TASK_KEY), throttle=0)
     with contract.database.read_connection() as connection:
         remaining = len(sample_images.pending(connection, contract.has_cover, misses, snapshots, limit=10 ** 6))
     summary = {"codes": len(codes), "landed": landed, "images": images, "absent": absent, "failed": failed,
