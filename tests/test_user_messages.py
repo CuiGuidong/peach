@@ -1,6 +1,7 @@
 """发给界面的文字带 `message_code`（ADR-0156 第三条）：信封字段、统一出口、code 都有译文、后端中文只减不增。"""
 from __future__ import annotations
 
+import ast
 import importlib.util
 import json
 import re
@@ -13,7 +14,7 @@ from unittest.mock import patch
 from support.ledger import fresh_ledger
 
 from peach import (data_storage, downloads, entity_classification, ledger_backups, release_notices, release_updates,
-                   repair_center, task_runs, task_stages)
+                   repair_center, task_outcomes, task_runs, task_stages)
 from peach.jobs import BackgroundJob
 from peach import interface_text
 from peach.user_messages import UserFacingError, error_fields, message_fields
@@ -60,6 +61,7 @@ def registered_keys() -> set[str]:
              for field in ("label", "description", "note")}
     keys |= {f"ledgerBackup.purpose.{key}" for key in ledger_backups.PURPOSES}
     keys |= {f"identity.category.{key}" for key in entity_classification.CATEGORIES}
+    keys |= {f"outcome.{code}" for code in task_outcomes.CODES}
     for version, notice in release_notices.NOTICES.items():
         base = "releaseNotes.v" + version.replace(".", "-")
         keys.add(f"{base}.headline")
@@ -76,6 +78,18 @@ class TranslationCoverageTests(unittest.TestCase):
             with self.subTest(language):
                 self.assertEqual(sorted(used - checker.server_keys(language)), [],
                                  "新的 code 要在 resources/locales/<语言>/server.json 里同时写中文和英文")
+
+    def test_every_outcome_code_written_in_the_backend_is_registered(self):
+        # 结论段落的 code 是不带点的短名，`used_codes` 认不出来；按 `part`、`said` 与延后原因的写法单独扫。
+        calls = {"part", "said", "RepairDeferred"}
+        written = set()
+        for path in (ROOT / "src" / "peach").rglob("*.py"):
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                if (isinstance(node, ast.Call) and getattr(node.func, "id", getattr(node.func, "attr", "")) in calls
+                        and node.args and isinstance(node.args[0], ast.Constant) and isinstance(node.args[0].value, str)):
+                    written.add(node.args[0].value)
+        self.assertGreater(len(written), 50)
+        self.assertEqual(sorted(written - set(task_outcomes.CODES)), [])
 
     def test_the_waiting_stage_and_the_waiting_progress_say_the_same_thing(self):
         # 后台任务等安装完成那一句，阶段名与任务中心的进度说明是同一句话，两个键要一起改。

@@ -21,6 +21,7 @@ import logging
 import threading
 
 from . import face_detect
+from .task_outcomes import said
 
 LOGGER = logging.getLogger(__name__)
 
@@ -52,7 +53,9 @@ class Reporter:
             if error is None:
                 if last is None or last.status != "failed":
                     return
-                status, summary, message = "succeeded", {"outcome": f"已取得{label}"}, ""
+                from . import face_match
+                fetched = "matchModelFetched" if label == face_match.MODEL_LABEL else "faceModelFetched"
+                status, summary, message = "succeeded", said(fetched), ""
             else:
                 if last is not None and last.status == "failed":
                     return
@@ -132,4 +135,4 @@ def download_all() -> dict:
             failures.append(str(error))
     if failures:
         return {"ok": False, "error": "；".join(failures)}
-    return {"ok": True, "outcome": "人脸模型已就绪"}
+    return {"ok": True, **said("faceModelsReady")}

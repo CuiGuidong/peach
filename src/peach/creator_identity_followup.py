@@ -28,6 +28,7 @@ from . import entity_identity_research as research
 from . import performer_alias_followup as alias
 from .entity_classification import write_claim
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_outcomes import is_outcome, outcome_parts, said
 from .task_runs import item_progress
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
@@ -121,9 +122,9 @@ def run(contract, key: str, handle) -> dict:
     summary = _run(contract, key, handle)
     with contract.database.read_connection() as connection:
         current = fingerprint(connection, parse_key(key))
-    outcome = str(summary.get("outcome", ""))
     Attempts(attempts_root(contract.candidate_root)).record(
-        key, current, outcome, retry_after=RETRY_UNFETCHED if outcome == "未取得" else None)
+        key, current, outcome_parts(summary),
+        retry_after=RETRY_UNFETCHED if is_outcome(summary, "unfetched") else None)
     return summary
 
 
@@ -144,10 +145,10 @@ def _run(contract, key: str, handle) -> dict:
         current = _current(connection, entity_id)
         if current is None:
             # 实体被合并、删掉或改成厂牌了。这不是失败：那件事已经不存在了。
-            return {"outcome": "档案已不存在"}
+            return said("gone")
         name, open_ = current
         if not open_:
-            return {"name": name, "outcome": "已有身份"}
+            return {"name": name, **said("hasIdentity")}
         keys = research.lookup_keys(name, research.filename_prefixes(connection, [entity_id])[entity_id])
     if handle is not None:
         handle.progress(**_label(name), throttle=0)
@@ -158,17 +159,17 @@ def _run(contract, key: str, handle) -> dict:
         for pages in sites.values():
             pages.close()
     if finding is None:
-        return {"name": name, "outcome": "未取得", "keys": keys}
+        return {"name": name, **said("unfetched"), "keys": keys}
     claims = [claim for claim in finding["claims"] if claim["status"] == "observed"]
     if not claims:
-        return {"name": name, "outcome": "两站都没有作品一览", "asked": finding["claims"][0]["evidence"]}
+        return {"name": name, **said("noVideoLists"), "asked": finding["claims"][0]["evidence"]}
     with contract.database.write_transaction() as connection:
         if _current(connection, entity_id) != (name, True):
-            return {"name": name, "outcome": "已变"}
+            return {"name": name, **said("changedElsewhere")}
         for claim in claims:
             write_claim(connection, entity_id=entity_id, source=batch, **claim)
     contract.cache_bust()
-    return {"name": name, "outcome": "是厂牌或系列", "page": claims[0]["source_url"],
+    return {"name": name, **said("isStudioOrSeries"), "page": claims[0]["source_url"],
             "evidence": claims[0]["evidence"]}
 
 

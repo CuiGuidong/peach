@@ -33,7 +33,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
-from . import interface_text, task_stages
+from . import interface_text, task_outcomes, task_stages
 from .jobs import TaskRunConflict, process_alive, process_matches
 from .repository import LedgerDatabase
 
@@ -107,13 +107,14 @@ def trigger_label(trigger: str) -> str:
     return interface_text.label(f"manage:taskTrigger.{trigger}", trigger)
 
 
-#: 落库的进度说明与结束原因（ADR-0156 第三条）的键：文字在 `server.json` 的 `taskRun.progress.*`、
-#: `taskRun.error.*`。`progress_label` / `error` 存按 zh-CN 渲染的一句，code 与参数存进旁边的列。
+#: 落库的进度说明与结束原因（ADR-0159 第二条）的键：文字在 `server.json` 的 `taskRun.progress.*`、
+#: `taskRun.error.*`。带 code 的那一句只存 code 与参数，`progress_label` / `error` 列留空，读出时
+#: 按资源渲染；没有 code 的那一句（文件名、异常原文）照旧存原文。
 #: `{{task}}`、`{{trigger}}`、`{{stage}}` 不进参数：库里只有 `task_key`、触发方式的 id 与阶段 code，
 #: 读的一方按界面语言换成名字。
 PROGRESS_KEYS = ("item", "items", "downloadLanded", "batch", "subjectStage", "videosStage",
-                 "waitingForUpdate", "waitingForService", "pausedWaiting")
-ERROR_KEYS = ("skippedBy", "skipped", "interrupted", "unknownFollowup")
+                 "waitingForUpdate", "waitingForService", "pausedWaiting", "schedulingRepairs")
+ERROR_KEYS = ("skippedBy", "skipped", "interrupted", "unknownFollowup", "dispatchInterrupted")
 
 
 def _fill(key: str, task_key: str, params: dict) -> str:
@@ -123,6 +124,16 @@ def _fill(key: str, task_key: str, params: dict) -> str:
     if "stage" in params:
         names["stage"] = task_stages.text(str(params["stage"]))
     return interface_text.text(f"server:{key}", {**params, **names})
+
+
+def coded_text(code: str, params: dict, task_key: str = "") -> str:
+    """库里一句带 code 的说明按资源渲染。阶段名的 code 是 `stage.<阶段>`；只说任务名的条目说明
+    （`item_progress` 不带条目名）渲染成任务名。"""
+    if code.startswith("stage."):
+        return task_stages.text(code.removeprefix("stage."))
+    if code == "taskRun.progress.item" and not params.get("name"):
+        return task_label(task_key)
+    return _fill(code, task_key, params)
 
 
 def run_progress(key: str, task_key: str = "", **params) -> dict:
@@ -148,6 +159,20 @@ def _coded(code: str | None, params: dict | None) -> tuple[str | None, str | Non
     if not code:
         return None, None
     return code, json.dumps(params or {}, ensure_ascii=False)
+
+
+def _text(text: str | None, code: str | None) -> str | None:
+    """原文那一列：带 code 的那句不存文字，读出时按资源渲染。"""
+    return None if code else text
+
+
+def _render(text: str | None, code: str | None, params: dict, task_key: str) -> str:
+    if code:
+        try:
+            return coded_text(code, params, task_key)
+        except (KeyError, TypeError, interface_text.InterfaceTextMissing):
+            LOGGER.warning("task_run text code %s has no resource entry", code)
+    return text or ""
 
 
 def _params(raw: str | None) -> dict:
@@ -235,7 +260,7 @@ class TaskRun:
             "progress_label": self.progress_label,
             "progress_code": self.progress_code,
             "progress_params": self.progress_params,
-            "result_summary": self.result_summary,
+            "result_summary": task_outcomes.rendered(self.result_summary),
             "error": self.error,
             "error_code": self.error_code,
             "error_params": self.error_params,
@@ -257,20 +282,23 @@ def _row(row: sqlite3.Row) -> TaskRun:
         summary = json.loads(row["result_summary"] or "{}")
     except ValueError:
         summary = {}
+    task_key = row["task_key"]
+    progress_code, progress_params = row["progress_code"] or "", _params(row["progress_params"])
+    error_code, error_params = row["error_code"] or "", _params(row["error_params"])
     return TaskRun(
-        id=row["id"], task_key=row["task_key"], trigger=row["trigger"],
+        id=row["id"], task_key=task_key, trigger=row["trigger"],
         status=row["status"], mutex_key=row["mutex_key"], pid=row["pid"],
         host=row["host"] or "", started_at=row["started_at"],
         finished_at=row["finished_at"], heartbeat_at=row["heartbeat_at"],
         progress_current=row["progress_current"], progress_total=row["progress_total"],
-        progress_label=row["progress_label"] or "",
+        progress_label=_render(row["progress_label"], progress_code, progress_params, task_key),
         result_summary=summary if isinstance(summary, dict) else {},
-        error=row["error"] or "",
+        error=_render(row["error"], error_code, error_params, task_key),
         parent_run_id=row["parent_run_id"], root_run_id=row["root_run_id"],
         followup_key=row["followup_key"] or "",
         followup_depth=int(row["followup_depth"] or 0),
-        progress_code=row["progress_code"] or "", progress_params=_params(row["progress_params"]),
-        error_code=row["error_code"] or "", error_params=_params(row["error_params"]),
+        progress_code=progress_code, progress_params=progress_params,
+        error_code=error_code, error_params=error_params,
     )
 
 
@@ -337,7 +365,7 @@ class TaskRunStore:
             connection.execute(
                 "UPDATE task_run SET status='pending',pid=0,progress_label=?,progress_code=?,"
                 "progress_params=?,result_summary=? WHERE id=? AND status='running'",
-                (label, *_coded(code, params),
+                (_text(label, code), *_coded(code, params),
                  json.dumps({'paused_for_update': True} if paused_for_update else {}), run_id))
 
     def _resume(self, run_id, task_key):
@@ -378,7 +406,7 @@ class TaskRunStore:
                     "progress_label,progress_code,progress_params,result_summary) "
                     "VALUES(?,?,'running',?,?,?,?,?,0,?,?,?,?,?)",
                     (task_key, trigger, mutex_key, pid if pid is not None else os.getpid(),
-                     self.host, moment, moment, total, label, *_coded(code, params),
+                     self.host, moment, moment, total, _text(label, code), *_coded(code, params),
                      json.dumps(summary or {}, ensure_ascii=False)))
                 run_id = int(cursor.lastrowid)
                 from .task_control import initialize_speed
@@ -411,7 +439,7 @@ class TaskRunStore:
                 "finished_at,result_summary,error,error_code,error_params) "
                 "VALUES(?,?,'cancelled',?,?,?,?,?,?,?,?)",
                 (task_key, trigger, mutex_key, os.getpid(), self.host, stamp(), summary,
-                 reason["error"], *_coded(reason["error_code"], reason["error_params"])))
+                 None, *_coded(reason["error_code"], reason["error_params"])))
 
     def progress(self, run_id: int | None, *, current: int | None = None,
                  total: int | None = None, label: str | None = None,
@@ -433,14 +461,13 @@ class TaskRunStore:
         assignments = ["heartbeat_at=?"]
         values: list[object] = [stamp()]
         for column, value in (("progress_current", current),
-                              ("progress_total", total),
-                              ("progress_label", label)):
+                              ("progress_total", total)):
             if value is not None:
                 assignments.append(f"{column}=?")
                 values.append(value)
         if label is not None:
-            assignments += ["progress_code=?", "progress_params=?"]
-            values += _coded(code, params)
+            assignments += ["progress_label=?", "progress_code=?", "progress_params=?"]
+            values += [_text(label, code), *_coded(code, params)]
         return self._update_progress(run_id, assignments, values)
 
     def heartbeat(self, run_id: int | None, *,
@@ -484,9 +511,10 @@ class TaskRunStore:
         moment = stamp()
         assignments = ["status=?", "finished_at=?", "heartbeat_at=?", "result_summary=?",
                        "error=?", "error_code=?", "error_params=?"]
+        coded = error_code if error else None
         values = [status, moment, moment,
-                  json.dumps(summary or {}, ensure_ascii=False), error,
-                  *_coded(error_code if error else None, error_params)]
+                  json.dumps(summary or {}, ensure_ascii=False), _text(error, coded),
+                  *_coded(coded, error_params)]
         delays = list(self.finish_retry_delays)
         while True:
             try:
@@ -530,7 +558,7 @@ class TaskRunStore:
             result["depth_exceeded"] = len(items)
             return result
         seen: set[str] = set()
-        planned: list[tuple[str, str, str, str | None, str | None]] = []
+        planned: list[tuple[str, str, str | None, str | None, str | None]] = []
         for item in items:
             key, task_key, label, code, params = (*item, None, None)[:5]
             key = str(key).strip()
@@ -538,7 +566,7 @@ class TaskRunStore:
                 result["duplicates"] += 1
                 continue
             seen.add(key)
-            planned.append((key, str(task_key), str(label or ""), *_coded(code, params)))
+            planned.append((key, str(task_key), _text(str(label or ""), code), *_coded(code, params)))
         if len(planned) > MAX_FOLLOWUPS:
             result["truncated"] = len(planned) - MAX_FOLLOWUPS
             planned = planned[:MAX_FOLLOWUPS]
@@ -591,7 +619,7 @@ class TaskRunStore:
                     "parent_run_id,root_run_id,followup_key,followup_depth) "
                     "VALUES(?,?,'pending',?,?,?,?,?,?,?,'{}',?,?,?,?)",
                     (run.task_key, run.trigger, run.followup_key, os.getpid(), self.host,
-                     stamp(), waiting["label"], *_coded(waiting["code"], waiting["params"]),
+                     stamp(), None, *_coded(waiting["code"], waiting["params"]),
                      run.parent_run_id, run.root_run_id, run.followup_key, run.followup_depth))
             except sqlite3.IntegrityError:
                 return None

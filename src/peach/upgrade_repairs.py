@@ -19,7 +19,8 @@ from .fsutil import atomic_path, atomic_write_text
 from .jobs import DiskSpaceDenied, JobPaused
 from .migrations import sqlite_backup
 from . import interface_text
-from .task_runs import MAX_FOLLOWUPS, run_progress
+from .task_outcomes import joined, part, render, said
+from .task_runs import MAX_FOLLOWUPS, run_error, run_progress
 from .task_stages import stage_code, stage_label
 from .update_tasks import UpdateBusy
 
@@ -48,10 +49,13 @@ def retry_at(attempts: int, now: float) -> float | None:
 
 
 class RepairDeferred(Exception):
-    """这部片这会儿补不了（挂载不可达、计费来源未确认、来源冷却），过 `retry_after` 秒再派。"""
+    """这部片这会儿补不了（挂载不可达、计费来源未确认、来源冷却），过 `retry_after` 秒再派。
 
-    def __init__(self, message: str, retry_after: float):
-        super().__init__(message)
+    `code` 是结论里那一段原因（`task_outcomes`），异常文字按它渲染。"""
+
+    def __init__(self, code: str, retry_after: float):
+        self.code = code
+        super().__init__(render([part(code)]))
         self.retry_after = retry_after
 
 
@@ -196,8 +200,9 @@ def _batched(planned) -> list:
                 rows.append(chunk[0][1])
                 continue
             ids = ','.join(str(asset_id) for asset_id, _ in chunk)
+            first = dict(chunk[0][1].params).get('name') or chunk[0][1].label
             rows.append(Followup.coded(f'{_BATCH_PREFIX}{rule}:{ids}', MEDIA_TASK,
-                                       run_progress('batch', first=chunk[0][1].label, count=len(chunk))))
+                                       run_progress('items', MEDIA_TASK, first=first, count=len(chunk))))
     return rows
 
 
@@ -874,6 +879,7 @@ class UpgradeRepairs:
                 self._settle_dangling_candidates()
                 self._settle_javdb_records()
                 self._settle_resolution_tags()
+                self._convert_interface_text()
                 self._isolate_system_files()
                 return
             self._restore_receipt(None)
@@ -924,6 +930,7 @@ class UpgradeRepairs:
             self._settle_dangling_candidates()
             self._settle_javdb_records()
             self._settle_resolution_tags()
+            self._convert_interface_text()
             self._isolate_system_files()
 
     def _prepare_display_dimensions(self) -> None:
@@ -1158,6 +1165,35 @@ class UpgradeRepairs:
             LOGGER.exception('来源分辨率标签补修失败')
             return
         LOGGER.info('来源分辨率标签：解除 %s 行', len(result['tags']))
+
+    def _convert_interface_text(self) -> None:
+        """旧任务行与补全记录里的界面文字转成 code（`interface_text_upgrade`），只做一次。
+
+        改动前的原值逐条记进回执：任务行按 id，补全记录按文件名。补全记录在回执落库之后才改写，
+        中途失败的那几个文件留着原文，界面照原文显示。出错只记日志，下次启动再试。
+        """
+        from . import interface_text_upgrade as upgrade
+        key = upgrade.RECEIPT_KEY
+        root = attempts_root(self.contract.candidate_root)
+        try:
+            with self.contract.database.read_connection() as connection:
+                if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?', (key,)).fetchone():
+                    return
+            planned = upgrade.plan_attempts(root)
+            with self.contract.database.write_transaction() as connection:
+                if connection.execute('SELECT 1 FROM ledger_upgrade_repair WHERE id=?', (key,)).fetchone():
+                    return
+                result = upgrade.convert_task_runs(connection)
+                result.update(attempts=len(planned),
+                              attempt_originals={name: text for name, (text, _parts) in planned.items()})
+                connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
+                                   (key, str(time.time()), json.dumps(result, ensure_ascii=False)))
+            upgrade.apply_attempts(root, planned)
+        except Exception:
+            LOGGER.exception('interface text conversion failed')
+            return
+        LOGGER.info('interface text converted to codes: %s task rows, %s follow-up records',
+                    result['rows'], result['attempts'])
 
     def _clear_stale_codes(self) -> None:
         """清掉旧版从文件名误认的番号（`stale_filename_codes`），只做一次。"""
@@ -1426,7 +1462,7 @@ class UpgradeRepairs:
             if cost_for(row['location'], row['path'], config) != 'free':
                 deferred.append(row['id'])
                 continue
-            planned.append(Followup(key, MEDIA_TASK, _title(row)))
+            planned.append(Followup.item(key, MEDIA_TASK, _title(row)))
             media_count += 1
             if len(planned) >= MAX_FOLLOWUPS:
                 break
@@ -1540,14 +1576,14 @@ class UpgradeRepairs:
         store = self.contract.task_runs
         orphan = store.blocking(TASK_KEY)
         if orphan is not None:
-            store.finish(orphan.id, 'failed', error='资料派发被中断，正在重新安排')
-        run = store.start(TASK_KEY, trigger='scheduled', mutex_key=TASK_KEY, label='安排自动更新资料')
+            store.finish(orphan.id, 'failed', **run_error('dispatchInterrupted'))
+        run = store.start(TASK_KEY, trigger='scheduled', mutex_key=TASK_KEY, **run_progress('schedulingRepairs'))
         if run is None:
             return None
         planned_keys = {row.key for row in planned}
         batched = _batched(planned)
         try:
-            result = store.enqueue_followups(run.id, [(row.key, row.task_key, row.label) for row in batched])
+            result = store.enqueue_followups(run.id, [row.as_row() for row in batched])
             queued = receipt.setdefault('queued', {})
             # 回执队列按每部片记：一批里的每部片都指向这一批的任务，防重复派发与结算照旧按片。
             for run_id in result['queued']:
@@ -1561,7 +1597,7 @@ class UpgradeRepairs:
                         child = child or store.blocking(row.key)
                         if child is not None:
                             queued[key] = child.id
-            store.finish(run.id, 'succeeded', summary={'outcome': f'已安排 {len(result["queued"])} 项处理'})
+            store.finish(run.id, 'succeeded', summary=said(part('scheduled', count=len(result["queued"]))))
         except Exception as exc:
             store.finish(run.id, 'failed', error=str(exc))
             raise
@@ -1743,7 +1779,7 @@ def _media_run(contract, key: str, handle) -> dict:
                 raise DiskSpaceDenied(paused['message'])
         if found is not None and mount_unreachable(found['path']):
             return _defer(contract, key, handle, [asset_id],
-                          RepairDeferred('影片所在目录读不到，挂载恢复后再补全', MOUNT_RETRY_SECONDS))
+                          RepairDeferred('deferMountMedia', MOUNT_RETRY_SECONDS))
         guard = CapacityGuard(config)
         guard.check(force=True)
         result = process_library(config, contract.db_path, contract.candidate_root, contract.cover_root,
@@ -1767,11 +1803,11 @@ def _media_run(contract, key: str, handle) -> dict:
         result.get('outcome') == 'partial' and not result.get('paused_count'))
     if not finished and asset_id in result.get('paused_asset_ids', ()):
         return _defer(contract, key, handle, [asset_id],
-                      RepairDeferred('资料来源正在冷却，来源放开后再补全', COOLDOWN_RETRY_SECONDS))
+                      RepairDeferred('deferCooling', COOLDOWN_RETRY_SECONDS))
     if not finished:
         raise RuntimeError(result.get('error') or '影片升级补全未完成，请在任务中心查看后重试')
     discard_checkpoint(state_file)
-    return {'outcome': '影片升级补全完成', 'name': title, 'asset_id': asset_id}
+    return {**said('videoUpgraded'), 'name': title, 'asset_id': asset_id}
 
 
 def _batch_run(contract, key: str, handle) -> dict:
@@ -1851,10 +1887,10 @@ def _settle_batch(contract, handle, rule: str, asset_ids, offline, cooling) -> d
               'retry_at': now + COOLDOWN_RETRY_SECONDS} for asset_id in cooling]
     with contract.database.write_transaction(notify=False) as connection:
         upsert_items(connection, rows, mode='finish')
-    outcome = f'影片升级补全完成 {len(done)} 部'
-    if offline or cooling:
-        outcome += f'；目录读不到或来源冷却，延后 {len(offline) + len(cooling)} 部'
-    return {'outcome': outcome, 'asset_ids': asset_ids, 'done': len(done), 'deferred': len(offline) + len(cooling)}
+    deferred = len(offline) + len(cooling)
+    outcome = joined([part('videosUpgraded', count=len(done)),
+                      part('videosDeferred', count=deferred) if deferred else []])
+    return {**said(outcome), 'asset_ids': asset_ids, 'done': len(done), 'deferred': deferred}
 
 
 def _display_run(contract, key: str, handle) -> dict:
@@ -1892,7 +1928,7 @@ def _display_run(contract, key: str, handle) -> dict:
         if service is not None and service.stopping.is_set():
             raise JobPaused('服务重启后继续') from None
         raise
-    return {'outcome': 'skipped' if result.get('skipped') else '显示尺寸补测完成',
+    return {**({'outcome': 'skipped'} if result.get('skipped') else said('dimensionsMeasured')),
             'asset_id': asset_id, 'dimensions_changed': result['changed']}
 
 
@@ -1909,7 +1945,7 @@ def _defer(contract, key: str, handle, asset_ids, error: RepairDeferred) -> dict
         upsert_items(connection, [{'rule': rule, 'asset_id': asset_id, 'generation': generation, 'state': 'deferred',
                                    'run_id': _run_id(handle), 'retry_at': until} for asset_id in asset_ids],
                      mode='finish')
-    return {'outcome': f'已延后：{error}', 'deferred': len(asset_ids), 'retry_at': until}
+    return {**said(part('deferredBy', reason=[part(error.code)])), 'deferred': len(asset_ids), 'retry_at': until}
 
 
 def _pause_for_capacity(service, handle, error):

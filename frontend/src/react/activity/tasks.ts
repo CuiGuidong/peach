@@ -5,7 +5,7 @@
 import { apiGet, apiSend } from '../../api';
 import { fmtSize } from '@peach/legacy/core';
 import { requestErrorMessage } from '../../core/request-error';
-import { serverLabel, stageText } from '../../core/server-text';
+import { partsText, serverLabel, stageText } from '../../core/server-text';
 import { queryClient } from '../query';
 import type { ProcessingSpeed } from '../library-processing/library-processing';
 import { interfaceLanguage, t } from '../../i18n';
@@ -377,18 +377,10 @@ export function readableErrorHeadline(text: string | null | undefined): string {
   return /[㐀-鿿]/.test(technical[1]!) ? technical[1]! : requestErrorMessage(head);
 }
 
+/* 域状态里的英文结局值。后继的结论按段存 code，见 `summaryParts`；对不上资源的旧句子照原文显示。 */
 const OUTCOME_LABELS: Record<string, string> = {
   partial: t('manage:taskOutcome.partial'), complete: t('manage:taskOutcome.complete'), interrupted: t('manage:taskOutcome.interrupted'),
   cancelled: t('manage:shared.canceled'),
-  '没有新写法': t('manage:taskOutcome.noNewAliases'), '已装上': t('manage:taskOutcome.imageSaved'),
-  '已装着认得准的小图': t('manage:taskOutcome.smallImageKept'),
-  '档案已不存在': t('manage:taskOutcome.profileGone'), '资料未过期': t('manage:taskOutcome.stillCurrent'),
-  '图太小': t('manage:taskOutcome.imageTooSmall'), '官网未取得': t('manage:taskOutcome.noOfficialSite'),
-  '两站都没有作品一览': t('manage:taskOutcome.noVideoLists'),
-  '哪一站都没对上她': t('manage:taskOutcome.noMatch'),
-  '两站都没对上她': t('manage:taskOutcome.noMatchTwo'),
-  '三站都没对上她': t('manage:taskOutcome.noMatchThree'),
-  '已有身份': t('manage:taskOutcome.alreadyCreator'), '已变': t('manage:taskOutcome.changedElsewhere'),
 };
 const SOURCE_NAMES: Record<string, string> = { avwikidb: 'AVWikiDB', javdb: 'JavDB', 'minnano-av': 'みんなのAV' };
 const OPERATION_LABELS: Record<string, string> = {
@@ -396,11 +388,7 @@ const OPERATION_LABELS: Record<string, string> = {
   restore: t('manage:shared.restore'), delete: t('manage:shared.deletePermanently'), 'empty-trash': t('manage:shared.emptyTrash'),
   'dismiss-junk': t('manage:taskOperation.notJunk'), 'reconsider-junk': t('manage:taskOperation.recheckJunk'), region: t('manage:batchDock.setRegion'),
 };
-const outcomeText = (text: string): string => OUTCOME_LABELS[text] || text
-  .replace(/(avwikidb|javdb|minnano-av) (绑定|写入)/gi, (_, site: string, action: string) =>
-    // i18n-exempt: 服务端结论里的动作原词
-    action === '绑定' ? t('manage:taskOutcome.linkedSite', { site: SOURCE_NAMES[site.toLowerCase()] })
-      : t('manage:taskOutcome.savedFromSite', { site: SOURCE_NAMES[site.toLowerCase()] }));
+const outcomeText = (text: string): string => OUTCOME_LABELS[text] || text;
 
 /** 时间戳说成本地的「月-日 时:分」。数据库里存的是 UTC，界面上一律按本机时区读。 */
 export function momentText(stamp: string | null | undefined): string {
@@ -418,11 +406,23 @@ const SUMMARY_HIDDEN = new Set([
   'blocked_by', 'status', 'run_id', 'request_id', 'started_at', 'completed_at', 'finished_at',
 ]);
 
+/** 结论里已经说了模型或人像闸不可用的那几段。 */
+const UNAVAILABLE_PARTS = new Set(['faceModelUnavailable', 'matchModelUnavailable', 'galleryMatchUnavailable', 'faceGateOff']);
+
+/** 按段存的结论与来源（ADR-0159）按界面语言拼；站点 id 换成站名。旧记录只有原文，照原文显示。 */
+const summaryParts = (summary: Record<string, unknown>, field: 'outcome' | 'source'): string | null => {
+  const parts = summary?.[`${field}_parts`];
+  if (!Array.isArray(parts)) return null;
+  return partsText(parts, String(summary[field] ?? ''), (params) =>
+    typeof params.site === 'string' ? { ...params, site: SOURCE_NAMES[params.site] || params.site } : params);
+};
+
 /** 任务结果只展示面向使用者的字段。 */
 export function summaryItems(summary: Record<string, unknown>): string[] {
   const items = fieldItems(summary);
   // 「发现问题」要说得出是什么问题。原因已写进结论（「人脸模型不可用：…」「人像闸未生效…」）时不再说一遍。
-  if (summary?.face_match_unavailable === true && !items.some((line) => /不可用|未生效/.test(line))) {
+  const parts = Array.isArray(summary?.outcome_parts) ? summary.outcome_parts as { code?: unknown }[] : [];
+  if (summary?.face_match_unavailable === true && !parts.some((part) => UNAVAILABLE_PARTS.has(String(part?.code)))) {
     items.push(t('manage:taskOutcome.faceModelUnavailable'));
   }
   return items;
@@ -437,7 +437,9 @@ function fieldItems(summary: Record<string, unknown>): string[] {
     .map(([key, value]) => {
       if (key === 'followups') return t('manage:taskOutcome.followupsScheduled', { count: Number(value) });
       if (key === 'error') return readableErrorHeadline(String(value));
-      if (key === 'outcome' || key === 'result') return outcomeText(String(value));
+      if (key === 'outcome') return summaryParts(summary, 'outcome') ?? outcomeText(String(value));
+      if (key === 'result') return outcomeText(String(value));
+      if (key === 'source') return `${SUMMARY_LABELS[key]} ${summaryParts(summary, 'source') ?? value}`;
       if (key === 'cache_bytes' || key === 'bytes_reclaimed') return `${SUMMARY_LABELS[key]} ${fmtSize(Number(value))}`;
       if (key === 'operation') return t('manage:taskSummary.operationValue', { operation: OPERATION_LABELS[String(value)] || t('manage:taskOperation.bulk') });
       return `${SUMMARY_LABELS[key]} ${typeof value === 'number' ? value.toLocaleString() : value}`;

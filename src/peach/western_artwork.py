@@ -113,6 +113,7 @@ def face_matched_portrait(fetched: list, covers: list, matcher) -> tuple:
     返回 `(None, {}, 原因)`；比上时返回 `(Candidate, 比对证据, '')`。
     """
     from .avatar_followup import Candidate, match_gallery
+    from .task_outcomes import render
 
     found, candidates = [], {}
     for origin, body, inspected in fetched:
@@ -123,7 +124,7 @@ def face_matched_portrait(fetched: list, covers: list, matcher) -> tuple:
         return None, {}, '没有单人作品封面可比，只留候选'
     result = match_gallery(found, covers, matcher, lambda choice: candidates.get(choice['ref']))
     if result.winner is None or not result.evidence.get('covers'):
-        return None, {}, result.reason or '没有比上封面的图，只留候选'
+        return None, {}, render(result.reason) if result.reason else '没有比上封面的图，只留候选'
     return result.winner, result.evidence, ''
 
 

@@ -1079,27 +1079,12 @@
     "watchLater": "Add to Watch later"
   },
   "taskOutcome": {
-    "alreadyCreator": "Already classified as a creator",
-    "changedElsewhere": "Metadata was changed by another operation and wasn't saved",
     "complete": "Processing complete",
     "faceModelUnavailable": "Face model unavailable; face check skipped",
     "followupsScheduled_one": "Scheduled {{count, number}} follow-up task",
     "followupsScheduled_other": "Scheduled {{count, number}} follow-up tasks",
-    "imageSaved": "Profile image saved",
-    "imageTooSmall": "Image resolution too low",
     "interrupted": "Processing interrupted",
-    "linkedSite": "Linked {{site}} profile page",
-    "noMatch": "No matching profile page found for this person",
-    "noMatchThree": "None of the three sources has a matching profile page for this person",
-    "noMatchTwo": "Neither source has a matching profile page for this person",
-    "noNewAliases": "No new aliases found",
-    "noOfficialSite": "Label's official site info not found",
-    "noVideoLists": "Neither source has a video list",
-    "partial": "Finished; some items need attention",
-    "profileGone": "Profile record no longer exists",
-    "savedFromSite": "Saved metadata from {{site}}",
-    "smallImageKept": "Kept the small image that passed the identity check",
-    "stillCurrent": "Existing metadata is still current"
+    "partial": "Finished; some items need attention"
   },
   "taskResources": {
     "highUsage": "Usage is high right now.",
