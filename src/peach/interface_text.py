@@ -1,0 +1,73 @@
+"""后端读界面文字（ADR-0159）：唯一来源是 `resources/locales/<语言>/<命名空间>.json`。
+
+后端只写 code 和参数，需要一句完整的话时（接口里给旧前端兜底的 `message`、托盘、通知）由这里渲染。
+渲染只支持 i18next 写法的一个子集：`{{name}}` 插值与点号分隔的嵌套键；`server` 命名空间不用复数后缀
+与格式选项，测试核对。语言缺这一条时回落到 zh-CN；两边都没有时抛 `KeyError`，不拿键名冒充文字。
+"""
+from __future__ import annotations
+
+import json
+import re
+from functools import lru_cache
+from pathlib import Path
+
+from .settings_file import PROJECT_ROOT
+
+SOURCE_LANGUAGE = "zh-CN"
+LOCALES = PROJECT_ROOT / "resources" / "locales"
+_PLACEHOLDER = re.compile(r"\{\{\s*([A-Za-z_][\w-]*)\s*\}\}")
+
+
+class InterfaceTextMissing(RuntimeError):
+    """语言资源目录不在：安装包缺了 `resources/locales/`。"""
+
+
+@lru_cache(maxsize=None)
+def _namespace(root: Path, language: str, namespace: str) -> dict:
+    path = root / language / f"{namespace}.json"
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+
+
+def _lookup(tree: dict, key: str):
+    node = tree
+    for part in key.split("."):
+        if not isinstance(node, dict) or part not in node:
+            return None
+        node = node[part]
+    return node if isinstance(node, str) else None
+
+
+def template(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> str:
+    """`<命名空间>:<键>` 对应的原始模板。"""
+    namespace, _, name = key.partition(":")
+    if not name:
+        raise KeyError(f"interface text keys look like <namespace>:<key>: {key}")
+    for candidate in dict.fromkeys((language, SOURCE_LANGUAGE)):
+        found = _lookup(_namespace(root, candidate, namespace), name)
+        if found is not None:
+            return found
+    raise KeyError(key)
+
+
+def has(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> bool:
+    try:
+        template(key, language, root=root)
+    except KeyError:
+        return False
+    return True
+
+
+def text(key: str, params: dict | None = None, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> str:
+    """渲染一句界面文字。模板里用到、参数里没给的占位符原样留着，便于在界面上一眼看出漏传。"""
+    values = params or {}
+    return _PLACEHOLDER.sub(lambda match: str(values[match[1]]) if match[1] in values else match[0],
+                            template(key, language, root=root))
+
+
+def ensure_available(root: Path = LOCALES) -> None:
+    """启动与健康检查用：源语言的 `server` 命名空间必须读得到。"""
+    if not (root / SOURCE_LANGUAGE / "server.json").is_file():
+        raise InterfaceTextMissing(f"interface text resources are missing: {root}")

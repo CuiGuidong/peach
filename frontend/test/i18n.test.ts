@@ -7,7 +7,7 @@ import { createTranslator, resolveInterfaceLanguage, resources, storedInterfaceL
 import { countLiterals, scan } from '../scripts/i18n-literals.mjs';
 
 const frontend = resolve(__dirname, '..');
-const locales = join(frontend, 'src/locales');
+const locales = join(frontend, '../resources/locales');
 
 type Tree = { [key: string]: string | Tree };
 const flatten = (tree: Tree, prefix = ''): Record<string, string> => Object.fromEntries(Object.entries(tree).flatMap(
@@ -167,7 +167,7 @@ describe('界面语言', () => {
 
 describe('前端不写死中文', () => {
   it('src 下没有未豁免的中文文案', () => {
-    expect(scan(), '新文案写进 src/locales/<语言>/*.json，用 t() 取；不是界面文案的中文在同一行或上一行写 // i18n-exempt: 理由').toEqual({});
+    expect(scan(), '新文案写进 resources/locales/<语言>/*.json，用 t() 取；不是界面文案的中文在同一行或上一行写 // i18n-exempt: 理由').toEqual({});
   }, 60_000);
 
   it('外壳页面里的中文文字和属性都标了翻译键，键在资源里', () => {

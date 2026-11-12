@@ -1,6 +1,6 @@
 // 数源码里还写死的中文界面文案（ADR-0156）：字符串、模板与 JSX 文字里带汉字或中文全角标点的节点各算一处。
 // 注释、import 路径、对象键和 console 调用不算；测试文件不扫。
-// 门槛在 `test/i18n.test.ts`：`src/` 下一处都不许有；文案写进 `src/locales/<语言>/*.json`，用 `t()` 取。
+// 门槛在 `test/i18n.test.ts`：`src/` 下一处都不许有；文案写进 `resources/locales/<语言>/*.json`，用 `t()` 取。
 // 直接运行列出还有中文的文件与处数。
 import { readFileSync, readdirSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';

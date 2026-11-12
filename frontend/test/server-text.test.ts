@@ -3,13 +3,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SETTINGS_KEY } from '../src/settings-key';
-import enServer from '../src/locales/en/server.json' with { type: 'json' };
-import enShell from '../src/locales/en/shell.json' with { type: 'json' };
+import enServer from '../../resources/locales/en/server.json' with { type: 'json' };
+import enShell from '../../resources/locales/en/shell.json' with { type: 'json' };
 
 async function load(language: 'en' | 'zh-CN') {
   vi.resetModules();
   localStorage.setItem(SETTINGS_KEY, JSON.stringify({ interfaceLanguage: language }));
-  vi.doMock('../src/locales/en/server.json', () => ({
+  vi.doMock('../../resources/locales/en/server.json', () => ({
     default: { ...enServer, sample: { withParams: 'Peach found {{count}} files in {{folder}}.' } },
   }));
   const [server, request, api, core] = await Promise.all([
@@ -25,7 +25,7 @@ const respond = (status: number, body: unknown) => vi.fn(async () => new Respons
 afterEach(() => {
   localStorage.removeItem(SETTINGS_KEY);
   vi.unstubAllGlobals();
-  vi.doUnmock('../src/locales/en/server.json');
+  vi.doUnmock('../../resources/locales/en/server.json');
   vi.resetModules();
 });
 

@@ -22,7 +22,7 @@ def files(root: Path):
     yield from sorted((root / "frontend/src").rglob("*.tsx"))
     yield from sorted((root / "frontend/src").rglob("*.ts"))
     # 抽进语言资源的界面文案（ADR-0156）：源文只在 zh-CN，改的是这一份；其他语言经翻译流程跟上。
-    yield from sorted((root / "frontend/src/locales/zh-CN").glob("*.json"))
+    yield from sorted((root / "resources/locales/zh-CN").glob("*.json"))
 
 
 def _template_parts(node: ast.JoinedStr):
