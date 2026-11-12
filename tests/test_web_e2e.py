@@ -157,6 +157,19 @@ def e2e_log_name(path: str) -> str:
     return "e2e-" + path.removeprefix("e2e/").removesuffix(".test.ts").replace("/", "-") + ".tap"
 
 
+NETWORK_LOG_LINE = re.compile(r"浏览器网络事件日志：(network-[\w-]+\.json)")
+
+
+def discard_network_logs(output: str, folder: Path) -> None:
+    """通过的文件删掉自己的网络事件日志，失败的留着排查。
+
+    一次全量会写 2–5 GB 网络事件日志；每个工作树都留一份，几百个工作树就占掉上百 GB。
+    日志只在定位失败时有用，`harness.ts` 会把每次启动的文件名写进该文件的输出。
+    """
+    for name in NETWORK_LOG_LINE.findall(output):
+        (folder / name).unlink(missing_ok=True)
+
+
 @unittest.skipIf(os.name == "nt", "Windows 由完整浏览器入口执行画面比例用例")
 class PlayerFramingE2ETests(unittest.TestCase):
     def test_fullscreen_framing_without_library(self):
@@ -391,6 +404,7 @@ class WebE2ESmokeTests(unittest.TestCase):
         if not success:
             return path, time.monotonic() - started, \
                 f"{path} 退出码 {completed.returncode}，日志：{log_path}\n{output}"
+        discard_network_logs(output, BROWSER_LOGS / "network")
         return path, time.monotonic() - started, None
 
 
@@ -492,6 +506,7 @@ class SetupE2ETests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, f"{output}\n--- serve.log ---\n{self._server_log()}")
         self.assertRegex(output, r"# pass 1\b", output)
         self.assertRegex(output, r"# skipped 0\b", output)
+        discard_network_logs(output, BROWSER_LOGS / "network")
         # 改对的那一次提交在临时 Peach 数据目录里落了设置文件，媒体库就是传进去的那个目录。
         written = settings_file.load_config(environ={settings_file.DATA_ROOT_ENV: str(self.data)})
         self.assertTrue(written.present)
