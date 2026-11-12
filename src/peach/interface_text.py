@@ -78,27 +78,18 @@ def label(key: str, fallback: str, params: dict | None = None, language: str = S
     return text(key, params, language) if has(key, language) else fallback
 
 
-#: 命令行可选的语言。
-CLI_LANGUAGES = (SOURCE_LANGUAGE, "en")
-
-
-def system_language(environ=None, locale_name: str | None = None) -> str:
-    """命令行用哪种语言（ADR-0159 第三条）：`PEACH_LANGUAGE` 优先，否则看系统语言，中文系统用中文，其余用英文。"""
-    import locale
+def cli_language(environ=None) -> str:
+    """命令行用哪种语言（ADR-0159 第三条）：`PEACH_LANGUAGE` 优先，否则跟系统显示语言
+    （与设置页「自动」的兜底同一个判断），没有译文的语言用英文。"""
     import os
+    from .system_language import interface_language, system_language
     environ = os.environ if environ is None else environ
-    chosen = str(environ.get("PEACH_LANGUAGE") or "").strip()
-    if not chosen:
-        chosen = next((str(environ[name]) for name in ("LC_ALL", "LC_MESSAGES", "LANG") if environ.get(name)), "")
-    if not chosen:
-        chosen = locale_name if locale_name is not None else (locale.getlocale()[0] or "")
-    lowered = chosen.lower()
-    return SOURCE_LANGUAGE if lowered.startswith("zh") or lowered.startswith("chinese") else "en"
+    return interface_language(environ.get("PEACH_LANGUAGE")) or system_language() or "en"
 
 
 def cli(key: str, params: dict | None = None, /, **values) -> str:
-    """命令行的一句话：`cli` 命名空间，按 `system_language` 选语言。"""
-    return text(f"cli:{key}", {**(params or {}), **values}, system_language())
+    """命令行的一句话：`cli` 命名空间，按 `cli_language` 选语言。"""
+    return text(f"cli:{key}", {**(params or {}), **values}, cli_language())
 
 
 def subtree(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> dict:

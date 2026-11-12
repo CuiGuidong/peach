@@ -528,7 +528,7 @@ def _processing_line(state: dict) -> str:
     from . import interface_text
     from .task_stages import stage_code
     code = stage_code(state)
-    stage = interface_text.label(f"server:stage.{code}", str(state['stage']), language=interface_text.system_language()) \
+    stage = interface_text.label(f"server:stage.{code}", str(state['stage']), language=interface_text.cli_language()) \
         if code else str(state['stage'])
     if state.get('total'):
         return _t("process.progress", stage=stage, checked=state.get('checked', 0), total=state['total'])

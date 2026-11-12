@@ -118,15 +118,16 @@ class StatusCommandTests(unittest.TestCase):
 
 
 class CommandLanguageTests(unittest.TestCase):
-    def test_peach_language_wins_then_the_system_locale_decides(self):
-        from peach.interface_text import system_language
-        self.assertEqual(system_language({"PEACH_LANGUAGE": "en", "LANG": "zh_CN.UTF-8"}), "en")
-        self.assertEqual(system_language({"LANG": "zh_CN.UTF-8"}), "zh-CN")
-        self.assertEqual(system_language({"LC_ALL": "en_US.UTF-8", "LANG": "zh_CN.UTF-8"}), "en")
-        # Windows 的区域名写成「Chinese (Simplified)_China」。
-        self.assertEqual(system_language({}, "Chinese (Simplified)_China"), "zh-CN")
-        self.assertEqual(system_language({}, "Japanese_Japan"), "en")
-        self.assertEqual(system_language({}, ""), "en")
+    def test_peach_language_wins_then_the_system_display_language_decides(self):
+        from peach.interface_text import cli_language
+        with mock.patch("peach.system_language.system_language", return_value="zh-CN"):
+            self.assertEqual(cli_language({"PEACH_LANGUAGE": "en"}), "en")
+            self.assertEqual(cli_language({"PEACH_LANGUAGE": "zh_CN.UTF-8"}), "zh-CN")
+            self.assertEqual(cli_language({}), "zh-CN")
+            # 没有译文的写法不算指定，照旧跟系统。
+            self.assertEqual(cli_language({"PEACH_LANGUAGE": "ja"}), "zh-CN")
+        with mock.patch("peach.system_language.system_language", return_value=None):
+            self.assertEqual(cli_language({}), "en")
 
 
 class InitCommandTests(unittest.TestCase):
