@@ -1,6 +1,6 @@
 # ADR-0156：界面翻译以 zh-CN 语言资源为源，术语表与门槛放在仓库里
 
-- 状态：已采纳，分阶段实施；第一阶段随本 ADR 合入，第三阶段第一批于 2026-11-09、第二批与③a 于 2026-11-12 合入
+- 状态：已采纳，分阶段实施；第一阶段随本 ADR 合入，第三阶段第一批于 2026-11-09、第二批与③a 于 2026-11-12 合入；第四阶段于 2026-11-12 开放 Weblate
 - 日期：2026-11-08
 - 修订：[ADR-0159](0159-interface-text-lives-only-in-locale-resources.md) 把语言资源搬到 `resources/locales/`，后端不再写中文原文、日志改用英文、命令行跟系统语言；第一、三、七条以 ADR-0159 为准。
 - 关系：[ADR-0153](0153-content-translations-live-beside-originals.md) 管内容翻译和翻译平台的备选顺序，本 ADR 管界面文案；沿用 [ADR-0022](0022-frontend-vite-preact-strangler.md) 的前端产物入库与 [ADR-0031](0031-frontend-react-boardui-tailwind.md) 的 React 迁移边界。需求来自 issue #398。
@@ -36,7 +36,7 @@ Peach 的界面只有中文。前端源码里写死的中文文案节点约 7,00
 - 换语言就整页重载，不做运行中切换。这样导航词表这类在模块顶层取文案的代码不用改成响应式。
 - 资源在构建时打进主包。全部抽完后两种语言共约 520 KB（gzip 约 150 KB），主包从 3.0 MB 涨到 3.6 MB，登录与初始设置页的包从 2.5 MB 涨到 3.1 MB。加第三种语言时改成按语言拆分动态载入，入口不变。
 - `<html lang>` 跟着界面语言走。
-- 界面语言存在共享设置的 `interfaceLanguage` 里，和「女优名称」一样跟着数据库走，所有设备读同一份。可选值是 `auto` 和 `frontend/src/locales/` 下有资源目录的语言，后端只放行这些。
+- 界面语言存在共享设置的 `interfaceLanguage` 里，和「女优名称」一样跟着数据库走，所有设备读同一份。可选值是 `auto` 和已登记上线的语言，后端只放行这些；每种登记的语言都要有资源目录，资源目录可以多于登记的语言（见第六条「新语言」）。
 - 默认值是 `auto`，由每个浏览器自己算：按浏览器的语言偏好（`navigator.languages`）找第一个有译文的语言，中文的各种写法都算简体中文；浏览器里一个都没有时，用运行 Peach 的电脑的系统语言（`/api/settings` 的 `systemLanguage`，前端缓存在本地）；再没有就用英文。服务端要用界面语言 L（ADR-0153）时，`auto` 按系统语言算。
 - 语言名称用各自语言的自称（简体中文、English），不随界面语言翻译。
 - 句中带链接或强调的文案，按整句写成几条键，在组件里组合，保证每种语言能各自调整语序；不引入 `react-i18next`。
@@ -56,11 +56,11 @@ Peach 的界面只有中文。前端源码里写死的中文文案节点约 7,00
 
 ### 四、术语表
 
-术语表只有一份：`frontend/src/locales/glossary/en.tbx`，Weblate 的术语组件读的也是这个文件。TBX 字段按 Weblate 的映射写：
+术语表只有一份：`resources/locales/glossary/en.tbx`，Weblate 的术语组件读的也是这个文件。TBX 字段按 Weblate 的映射写：
 
 | 内容 | TBX 写法 |
 | --- | --- |
-| 中文词 | `langSet xml:lang="zh-CN"` 里的 `term` |
+| 中文词 | `langSet xml:lang="zh-Hans"` 里的 `term`（Weblate 的简体中文代码是 `zh_Hans`，写 `zh-CN` 对不上，中文词会读成空） |
 | 定义 | `termEntry` 下的 `descrip` |
 | 英文定稿 | `langSet xml:lang="en"` 里的 `term` |
 | 理由与按位置的用法 | `note from="translator"` |
@@ -110,10 +110,15 @@ Peach 的界面只有中文。前端源码里写死的中文文案节点约 7,00
 
 ### 六、Weblate
 
-- 平台按 ADR-0153 第七条的顺序选。
-- 每个命名空间建一个组件：单语 i18next JSON v4，模板是 `frontend/src/locales/zh-CN/<命名空间>.json`，文件掩码是 `frontend/src/locales/*/<命名空间>.json`。术语组件用 TBX，文件掩码是 `frontend/src/locales/glossary/*.tbx`。
-- 开启建议和投票，不开自动采纳；开启审核，由审核者批准。Weblate 的改动经 PR 回到仓库，照常审查合入。
-- 英文以仓库为准：PR 作者维护，Weblate 上的英文修改同样经 PR 回来。
+- 平台按 ADR-0153 第七条的顺序选，现用 Hosted Weblate 的 [Peach 项目](https://hosted.weblate.org/projects/peach/)。
+- 每个命名空间建一个组件：单语 i18next JSON v4，模板是 `resources/locales/zh-CN/<命名空间>.json`，文件掩码是 `resources/locales/*/<命名空间>.json`，各组件共用 `navigation` 组件的仓库副本。新语言的目录名用 BCP 写法（`ja`、`pt-BR`、`zh-Hant`）。写回的 JSON 缩进 2 个空格、不排序键，与仓库一致。
+- 术语组件用 TBX，文件掩码是 `resources/locales/glossary/*.tbx`。Weblate 建项目时自带的本地术语表已删除，术语只有仓库这一份。
+- 仓库到 Weblate：仓库的推送 webhook 指向 `https://hosted.weblate.org/hooks/github/`，master 一有提交就拉取。新增的键出现为待翻译；中文改了措辞而键不变，各语言译文标成「需要修改」；删掉的键由「清理翻译文件」插件从各语言文件里一并删掉。组件关闭「管理字符串」，键只在仓库增删。
+- Weblate 到仓库：版本控制选「GitHub 拉取请求」，Weblate 的机器人从自己的分叉开 PR，不需要仓库写权限。「挤压 Git 提交」按作者合并，每位译者保留自己署名的提交，合入后计入 GitHub 贡献者。
+- 组件带 `i18next-interpolation` 标记，插值检查设为强制，占位不对的译文存不进去。仓库测试另外检查其他语言不多出源文没有的占位。
+- 开启建议和投票，不开自动采纳；开启审核，由审核者批准。提交筛选保持「提交所有译文」：还没批准的译文照样写回仓库，不会因为开启审核从文件里消失。
+- 英文以仓库为准：PR 作者维护，Weblate 上的英文修改同样经 PR 回来。现有英文由智能体起草，在 Weblate 上带「AI draft」标签，贡献者可以筛出来复核、提建议和投票。
+- 新语言：在 Weblate 上开新语言只新建资源目录，不进界面语言的选项。翻到能用后，由维护者在前端 `INTERFACE_LANGUAGES` 和后端 `web_settings.INTERFACE_LANGUAGES` 两处登记；登记第三种语言时，按第二条改成按语言拆分动态载入。
 - 第一版不用 `max-length` 标记，超框由实测判断；截图在第四阶段接入。
 
 ### 七、分阶段
@@ -159,10 +164,11 @@ Peach 的界面只有中文。前端源码里写死的中文文案节点约 7,00
 5. 界面语言默认自动探测：先看浏览器语言，再看系统语言（2026-11-09）。浏览器偏好英文的中文用户会看到英文，可以在设置里固定成简体中文。
 6. 第二阶段剩余的页面组一次抽完，补上「老文件里改中文不受拦」的漏洞；后端文案接着在第三阶段做（2026-11-09）。
 7. 后端字段名用 `message_code` 与 `message_params`，不占用表示番号的 `code`；运行表的 code 存在新加的可空列里，旧行不回填（2026-11-09）。
+8. 用户建好 Hosted Weblate 项目，要求仓库与 Weblate 双向同步全部接上；现有英文是 AI 初稿，要让贡献者能继续修改、补充和投票（2026-11-12）。
 
 ## 验证
 
-- 前端：`test/i18n.test.ts` 覆盖资源一致、占位、禁用写法、界面语言读取与回落，以及前端不写死中文和豁免注释的计数；`test/appearance/settings.test.ts` 覆盖界面语言的同步；`test/react/settings-panel.test.tsx` 覆盖保存成功和失败两种情况。
-- 后端：`tests/test_web_settings.py` 覆盖界面语言的存取、非法值拒收和白名单与资源目录一致；`tests/test_dev_copy.py` 覆盖原位改字写进 `zh-CN` 资源、不碰英文；`tests/test_user_messages.py` 覆盖信封字段、统一出口、code 有译文和后端中文基线。
+- 前端：`test/i18n.test.ts` 覆盖资源一致、占位（含 Weblate 回流的其他语言）、禁用写法、界面语言读取与回落，以及前端不写死中文和豁免注释的计数；`test/appearance/settings.test.ts` 覆盖界面语言的同步；`test/react/settings-panel.test.tsx` 覆盖保存成功和失败两种情况。
+- 后端：`tests/test_web_settings.py` 覆盖界面语言的存取、非法值拒收和放行的语言都有资源目录；`tests/test_dev_copy.py` 覆盖原位改字写进 `zh-CN` 资源、不碰英文；`tests/test_user_messages.py` 覆盖信封字段、统一出口、code 有译文和后端中文基线。
 - 服务端文字：`frontend/test/server-text.test.ts` 在英文界面下验证按 code 翻译、缺译文回落原文、英文协议值不直接显示，以及取数入口给出的原因经页面再处理一次不被换成通用句。
 - 页面：界面语言切到 English 后，前端自己的文案全部是英文；仍是中文的只有内容（标题、人名、标签值）和第三阶段还没迁移的后端文字。

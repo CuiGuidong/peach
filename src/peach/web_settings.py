@@ -44,7 +44,8 @@ DEFAULT_FOLLOW_INITIAL_DAYS = 30
 #: 搜索框下拉里列几条最近搜索；0 是不记录。记录本身就在账本里（`/api/search-history`），
 #: 上限跟着它走，否则同一份记录在两台设备上显示的条数不一样。
 SEARCH_HISTORY_LIMIT_MAX = 50
-#: 有译文的界面语言，与前端 `frontend/src/i18n/index.ts` 的 `INTERFACE_LANGUAGES` 逐项一致（test_web_settings.py）。
+#: 已登记上线的界面语言，与前端 `frontend/src/i18n/index.ts` 的 `INTERFACE_LANGUAGES` 逐项一致。
+#: Weblate 新开的语言只有 `resources/locales/` 目录，翻到能用后两处一起登记。
 INTERFACE_LANGUAGES = ("zh-CN", "en")
 #: 设置里能存的值：`auto` 由每个浏览器按自己的语言偏好、再按运行 Peach 的电脑的系统语言选（默认）。
 INTERFACE_LANGUAGE_CHOICES = ("auto", *INTERFACE_LANGUAGES)
