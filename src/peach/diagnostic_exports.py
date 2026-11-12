@@ -7,6 +7,7 @@ import threading
 from .jobs import BackgroundJob
 from .scraping_diagnostics import ExportCancelled, selected_codes
 from .task_stages import stage as stage_fields
+from .user_messages import UserValueError
 
 
 class DiagnosticExports:
@@ -22,11 +23,11 @@ class DiagnosticExports:
 
     def start(self, kind, codes='', *, report=None, browser=None):
         if kind not in ('support', 'scraping'):
-            raise ValueError('请选择诊断报告或刮削记录')
+            raise UserValueError('errors.diagnosticExports.chooseKind')
         selected_codes(codes)
         with self.lock:
             if self.snapshot()['status'] in ('running', 'cancelling'):
-                raise ValueError('已有诊断导出正在进行，请等待完成或取消')
+                raise UserValueError('errors.diagnosticExports.alreadyRunning')
             self.cancelled = threading.Event()
             cancelled = self.cancelled
             previous = self.snapshot().get('job_id', '')
@@ -42,7 +43,7 @@ class DiagnosticExports:
                 final = self.root / f'{identity}.zip'
                 def progress(**values):
                     if cancelled.is_set():
-                        raise ExportCancelled('导出已取消')
+                        raise ExportCancelled('export canceled')
                     self.job.update(identity, **values)
                 try:
                     if kind == 'scraping':
@@ -59,7 +60,7 @@ class DiagnosticExports:
                                   progress=progress, cancelled=cancelled.is_set)
                     with self.job.editing(identity) as state:
                         if state is None or cancelled.is_set():
-                            raise ExportCancelled('导出已取消')
+                            raise ExportCancelled('export canceled')
                         pending.replace(final)
                         state.update(status='complete', **stage_fields('diagnostics.done'), bytes=final.stat().st_size,
                                      download_url=f'/api/diagnostics/exports/{identity}/download')
@@ -74,7 +75,7 @@ class DiagnosticExports:
     def cancel(self, identity):
         with self.job.editing(identity) as state:
             if state is None:
-                raise ValueError('导出任务已变化，请刷新后重试')
+                raise UserValueError('errors.diagnosticExports.jobChanged')
             if state['status'] in ('running', 'cancelling'):
                 self.cancelled.set()
                 state.update(status='cancelling', **stage_fields('diagnostics.cancelling'))

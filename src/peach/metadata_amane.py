@@ -131,7 +131,7 @@ def pinned_revision(root: Path = BRIDGE_ROOT) -> str:
         matched = re.fullmatch(r"amane\s*@\s*git\+\S+@([0-9a-f]{40})", requirement.strip())
         if matched:
             return matched.group(1)
-    raise ValueError("amane 桥的清单没有钉住 amane 的 revision")
+    raise ValueError("amane bridge manifest doesn't pin an amane revision")
 
 
 def locked_version(root: Path = BRIDGE_ROOT) -> str:
@@ -494,9 +494,9 @@ class AmaneBridge:
         names = [str(site).strip() for site in sites]
         unknown = [site for site in names if site not in SITES]
         if not names or unknown:
-            raise ValueError("未开放的 amane 站点：" + "、".join(unknown or ["（空）"]))
+            raise ValueError("amane sites not enabled: " + ", ".join(unknown or ["(empty)"]))
         if set(direct_sites) - set(names):
-            raise ValueError("直连站点必须属于本次查询来源")
+            raise ValueError("direct sites must be among the queried sites")
         from .processing_control import low_mode, checkpoint
         if low_mode() and len(names) > 1:
             return self._serial_query(code, names, language=language, proxy_options=proxy_options,

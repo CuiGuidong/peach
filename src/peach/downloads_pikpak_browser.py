@@ -34,6 +34,7 @@ from typing import Callable
 
 from .browser_transport import BrowserUnavailable, _Browser, find_browser
 from .downloads_pikpak import SESSION_LOCK, new_device_id
+from .user_messages import UserValueError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -153,7 +154,7 @@ class BrowserLogin:
         """拉起登录窗口。已经在等就回当前状态，不开第二个。没有浏览器时抛 ValueError。"""
         executable = self._find()
         if executable is None:
-            raise ValueError("这台电脑上没有找到 Chrome 或 Edge，用不了浏览器登录。可以展开下方用账号密码登录")
+            raise UserValueError("errors.downloadsPikpakBrowser.browserMissing")
         with self._lock:
             if self._state["state"] == WAITING:
                 return self._snapshot()

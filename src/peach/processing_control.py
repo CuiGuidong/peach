@@ -12,6 +12,7 @@ from contextvars import ContextVar
 
 from .fsutil import atomic_write_text
 from .task_stages import stage as stage_fields, stage_code
+from .user_messages import UserInterruptedError, UserValueError
 
 CURRENT = ContextVar('peach_library_processing_control', default=None)
 _CONTROLS = {}
@@ -52,7 +53,7 @@ IO_INTERVALS = {
 
 def valid_mode(value):
     if value not in MODES:
-        raise ValueError('请选择低占用、标准或高强度模式')
+        raise UserValueError('errors.processingControl.invalidMode')
     return value
 
 
@@ -267,7 +268,7 @@ class ProcessingControl:
         with self.lock:
             self.refresh(force=True)
             if self.job_id != job_id:
-                raise ValueError('任务已变化，请刷新页面后重试')
+                raise UserValueError('errors.processingControl.jobChanged')
             self.skip_asset_id = asset_id
             self._save()
             self.event.set()
@@ -278,12 +279,12 @@ class ProcessingControl:
             from .jobs import JobCancelled
             raise JobCancelled('用户停止任务')
         if self.current_asset_id is not None and self.skip_asset_id == self.current_asset_id:
-            raise ItemSkipped('已跳过当前影片')
+            raise ItemSkipped('current item skipped')
 
     def request(self, action, job_id=None, mode=None):
         with self.lock:
             if job_id is not None and job_id != self.job_id:
-                raise ValueError('任务已变化，请刷新页面后重试')
+                raise UserValueError('errors.processingControl.jobChanged')
             if action == 'set_speed':
                 self.mode = valid_mode(mode)
                 self.next_work.clear()
@@ -332,7 +333,7 @@ class ProcessingControl:
             self.refresh()
             self.check_item()
             if not self.active():
-                raise InterruptedError('处理任务已停止')
+                raise UserInterruptedError('errors.processingControl.stopped')
             with self.lock:
                 paused, mode = self.paused, self.mode
                 if mode != self._paced_mode:

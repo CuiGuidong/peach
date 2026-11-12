@@ -41,6 +41,7 @@ from .downloads import (
     magnet_info_hash,
 )
 from .user_agent import USER_AGENT
+from .user_messages import UserValueError
 
 USER_HOST = "https://user.mypikpak.com"
 API_HOST = "https://api-drive.mypikpak.com"
@@ -490,7 +491,7 @@ def login(load: Callable[[], dict], username: str, password: str, *, remember: b
     """
     username, password = str(username or "").strip(), str(password or "")
     if not username or not password:
-        raise ValueError("请填写 PikPak 账号和密码")
+        raise UserValueError("errors.downloadsPikpak.missingCredentials")
     saved: dict = {}
 
     def keep(update: dict) -> None:

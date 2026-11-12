@@ -23,6 +23,7 @@ from filelock import FileLock, Timeout
 import httpx
 
 from . import release_updates, standalone_update, update_packages
+from .user_messages import UserValueError
 
 LABELS = {"ffmpeg": "FFmpeg", "untrunc": "untrunc"}
 
@@ -75,10 +76,10 @@ def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
     事务目录，下次安装开头清掉，已有的那份不动。同一工具同时只装一次。
     """
     if tool not in LABELS:
-        raise ValueError("未知的媒体工具")
+        raise UserValueError("errors.mediaTools.unknownTool")
     label = LABELS[tool]
     if not supported():
-        raise ValueError(f"发布只提供 Windows x64 的 {label} 工具包，请从官方下载并加入 PATH")
+        raise UserValueError("errors.mediaTools.unsupportedPlatform", {"label": label})
     tools_root = Path(tools_root)
     tools_root.mkdir(parents=True, exist_ok=True)
     target = tools_root / tool
@@ -86,7 +87,7 @@ def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
     try:
         lock.acquire(timeout=0)
     except Timeout:
-        raise ValueError(f"{label} 正在安装，请稍候") from None
+        raise UserValueError("errors.mediaTools.installing", {"label": label}) from None
     try:
         version = _verified(target, tool) if target.is_dir() else None
         if version is not None:
@@ -103,19 +104,19 @@ def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
             try:
                 fetch(package["url"], archive, size, digest, lambda _count: None)
             except httpx.HTTPError as exc:
-                raise ValueError(f"{label} 工具包下载失败：{exc}") from exc
+                raise UserValueError("errors.mediaTools.downloadFailed", {"label": label, "error": str(exc)}) from exc
             except ValueError as exc:
-                raise ValueError(f"{label} 工具包与发布摘要不符，已丢弃这次下载，请重试") from exc
+                raise UserValueError("errors.mediaTools.digestMismatch", {"label": label}) from exc
             prefix = update_packages.TOOL_PATHS[tool][0] + "/"
             with zipfile.ZipFile(archive) as bundle:
                 files = _manifest_files(lambda: bundle.read(f"Peach/{prefix}manifest.json").decode("utf-8"),
                                         tool, prefix=prefix)
             if files is None:
-                raise ValueError(f"{label} 工具包缺少有效的文件清单")
+                raise UserValueError("errors.mediaTools.manifestMissing", {"label": label})
             stage = standalone_update.extract(archive, work / "stage", lambda *_: None,
                                               tool_files=set(files) | {prefix + "manifest.json"})
             if not update_packages.matches(stage, files):
-                raise ValueError(f"{label} 工具包文件校验失败")
+                raise UserValueError("errors.mediaTools.checksumFailed", {"label": label})
             previous = work / "previous"
             if target.exists():
                 os.replace(target, previous)

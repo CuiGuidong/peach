@@ -11,6 +11,7 @@ from typing import Any
 
 from . import platform, media_identity
 from .media_sources import SOURCE_OPTIONS, cost_for
+from .user_messages import UserValueError
 
 
 def _windows_installed_names() -> list[str]:
@@ -195,32 +196,32 @@ def _validated_paths(row: dict, *, windows: bool) -> tuple[PureWindowsPath, Pure
     text = str(row.get("path", "")).strip()
     from .smb_media import is_address, canonical
     if row.get('transport') == 'smb' and not is_address(text):
-        raise ValueError('请填写 smb://服务器/共享/目录')
+        raise UserValueError('errors.mediaConfiguration.smbAddressRequired')
     if is_address(text):
         text = canonical(text)
         row['path'] = text
         if any(not isinstance(row.get(key, ''), str) for key in ('smb_username', 'smb_password')):
-            raise ValueError('SMB 账号和密码必须是文字')
+            raise UserValueError('errors.mediaConfiguration.smbCredentialsNotText')
         if any(key in row and not isinstance(row[key], bool) for key in ('smb_encrypt', 'smb_clear')):
-            raise ValueError('SMB 连接选项无效')
+            raise UserValueError('errors.mediaConfiguration.smbOptionsInvalid')
         root = str(row.get('root', ''))
         if not platform.is_windows_path(root) or '..' in PureWindowsPath(root).parts:
-            raise ValueError('SMB 目录的内部路径无效')
+            raise UserValueError('errors.mediaConfiguration.smbRootInvalid')
         return PureWindowsPath(root), PurePosixPath(text)
     root = str(row.get("root") or text).strip() if windows else str(row.get("root", "")).strip()
     if any(ord(char) < 32 for char in text + root):
-        raise ValueError("路径不能包含控制字符")
+        raise UserValueError("errors.mediaConfiguration.controlCharacters")
     if not windows and not root:
-        raise ValueError("无法自动配置媒体目录，请检查配置文件中的目录对应关系")
+        raise UserValueError("errors.mediaConfiguration.rootMappingMissing")
     if not platform.is_windows_path(root) or ".." in PureWindowsPath(root).parts:
-        raise ValueError("媒体路径必须包含盘符，例如 B:\\；网络共享请先映射为 Windows 盘符" if windows
-                         else "配置文件中 [media.locations] 的路径格式无效；请使用 Windows 格式，例如 R:\\media")
+        raise UserValueError("errors.mediaConfiguration.driveLetterRequired" if windows
+                             else "errors.mediaConfiguration.mappingFormatInvalid")
     path = PureWindowsPath(text) if windows else PurePosixPath(text)
     if not text or not (platform.is_windows_path(text) if windows else text.startswith("/")):
-        raise ValueError("请填写媒体目录的完整路径，例如 D:\\Movies" if windows
-                         else "请填写媒体目录的完整路径，例如 /media")
+        raise UserValueError("errors.mediaConfiguration.fullPathRequiredWindows" if windows
+                             else "errors.mediaConfiguration.fullPathRequiredPosix")
     if ".." in path.parts:
-        raise ValueError("媒体目录路径不能包含上级目录 ..")
+        raise UserValueError("errors.mediaConfiguration.parentSegment")
     return PureWindowsPath(root), path
 
 
@@ -236,20 +237,20 @@ def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, l
     for index, row in enumerate(raws):
         try:
             if not isinstance(row, dict):
-                raise ValueError("媒体来源格式不正确")
+                raise UserValueError("errors.mediaConfiguration.rowInvalid")
             location = row.get("location")
             if not isinstance(location, str) or location not in dict(SOURCE_OPTIONS):
-                raise ValueError("请选择列表中的媒体来源")
+                raise UserValueError("errors.mediaConfiguration.locationRequired")
             if "cost" in row and row["cost"] not in ("free", "metered"):
-                raise ValueError("请选择代理流量保护设置")
+                raise UserValueError("errors.mediaConfiguration.costRequired")
             declared, path = _validated_paths(row, windows=windows)
             for other_root, other_path in seen:
                 if (declared == other_root or declared.is_relative_to(other_root)
                         or other_root.is_relative_to(declared)):
-                    raise ValueError("媒体路径与另一文件夹重复或互相包含" if windows
-                                     else "配置文件中的目录对应关系重复或互相包含")
+                    raise UserValueError("errors.mediaConfiguration.pathOverlaps" if windows
+                                         else "errors.mediaConfiguration.mappingOverlaps")
                 if path == other_path or path.is_relative_to(other_path) or other_path.is_relative_to(path):
-                    raise ValueError("媒体目录与另一行重复或互相包含")
+                    raise UserValueError("errors.mediaConfiguration.directoryOverlaps")
             seen.append((declared, path))
             locations.setdefault(location, []).append(str(declared))
             from .smb_media import is_address

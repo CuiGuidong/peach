@@ -32,6 +32,7 @@ from . import auth, certs, settings_file
 from .migrations import upgrade
 from .platform import is_windows_path
 from .settings_file import PeachConfig
+from .user_messages import UserFacingError, UserValueError
 
 #: 提问函数：(题目, 默认值) -> 用户输入的原文。空串表示接受默认值。
 Ask = Callable[[str, str], str]
@@ -70,7 +71,7 @@ _YES = {"", "y", "yes", "是"}
 _NO = {"n", "no", "否"}
 
 
-class OnboardingAborted(RuntimeError):
+class OnboardingAborted(UserFacingError, RuntimeError):
     """一题没有问出有效答案：连续给错、或者输入结束。消息以句号结尾，前端接着说后果。"""
 
 
@@ -99,10 +100,10 @@ class Answers:
 def validate_data_root(raw: str) -> Path:
     text = raw.strip()
     if not text:
-        raise ValueError("Peach 数据目录不能为空")
+        raise UserValueError("errors.onboarding.dataRootEmpty")
     path = Path(text).expanduser()
     if path.is_file():
-        raise ValueError(f"{path} 是一个文件，Peach 数据目录要是目录")
+        raise UserValueError("errors.onboarding.dataRootIsFile", {"path": str(path)})
     return path
 
 
@@ -110,14 +111,14 @@ def media_dir_validator(*, windows: bool) -> Callable[[str], Path]:
     def validate(raw: str) -> Path:
         text = raw.strip()
         if not text:
-            raise ValueError("媒体目录不能为空")
+            raise UserValueError("errors.onboarding.mediaDirEmpty")
         path = Path(text).expanduser()
         if not path.is_dir():
-            raise ValueError(f"目录不存在，或者不是目录：{path}。先建好再填。")
+            raise UserValueError("errors.onboarding.mediaDirMissing", {"path": str(path)})
         # Windows 媒体目录保留盘符；挂载盘的最终路径可能是 UNC。
         resolved = Path(os.path.abspath(path)) if windows else path.resolve()
         if windows and not is_windows_path(str(resolved)):
-            raise ValueError(f"{resolved} 不是盘符路径；网络位置先映射成盘符再来")
+            raise UserValueError("errors.onboarding.mediaDirNotDrive", {"path": str(resolved)})
         return resolved
     return validate
 
@@ -189,13 +190,13 @@ def validate_host(raw: str) -> str:
     try:
         return _HOST_CHOICES[key]
     except KeyError:
-        raise ValueError("填 1（只有这台电脑）或 2（同一局域网的设备）") from None
+        raise UserValueError("errors.onboarding.hostChoice") from None
 
 
 def validate_port(raw: str) -> int:
     text = raw.strip()
     if not text.isdigit() or not 1 <= int(text) <= 65535:
-        raise ValueError("端口要是 1 到 65535 之间的整数")
+        raise UserValueError("errors.onboarding.portInvalid")
     return int(text)
 
 
@@ -206,13 +207,13 @@ def check_available_port(port: int, current: int) -> None:
         with socket.socket() as candidate:
             candidate.bind(("127.0.0.1", port))
     except OSError as exc:
-        raise ValueError("这个端口已被占用，请换一个端口") from exc
+        raise UserValueError("errors.onboarding.portInUse") from exc
 
 
 def validate_mdns_name(raw: str) -> str:
     text = raw.strip()
     if not _DNS_LABEL.match(text):
-        raise ValueError("名字只能用字母、数字和连字符，不能以连字符开头或结尾")
+        raise UserValueError("errors.onboarding.mdnsNameInvalid")
     return text
 
 
@@ -222,7 +223,7 @@ def validate_yes_no(raw: str) -> bool:
         return True
     if key in _NO:
         return False
-    raise ValueError("填 y 或 n")
+    raise UserValueError("errors.onboarding.yesNo")
 
 
 # --------------------------------------------------------------------------- 题目
@@ -284,7 +285,8 @@ def ask_until_valid(
         except ValueError as exc:
             remaining = max_attempts - attempt
             report(f"  {exc}" + (f"（还可以再试 {remaining} 次）" if remaining else ""))
-    raise OnboardingAborted(f"「{question.prompt}」连续 {max_attempts} 次没有拿到有效值。")
+    raise OnboardingAborted("errors.onboarding.tooManyAttempts",
+                            {"prompt": question.prompt, "attempts": max_attempts})
 
 
 def collect(
@@ -526,7 +528,7 @@ def console_ask(prompt: str, default: str) -> str:
     try:
         return input(f"{prompt}{suffix}: ")
     except EOFError:
-        raise OnboardingAborted("输入已结束。") from None
+        raise OnboardingAborted("errors.onboarding.inputEnded") from None
 
 
 def is_interactive(stdin) -> bool:

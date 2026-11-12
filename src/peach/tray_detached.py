@@ -8,6 +8,8 @@ import sys
 from ctypes import wintypes
 from pathlib import Path
 
+from .user_messages import UserOSError
+
 _CREATE_SUSPENDED = 0x00000004
 _HANDOFF_ENV = "PEACH_TRAY_DESKTOP_HANDOFF"
 
@@ -189,7 +191,7 @@ def _create_child(kernel, executable, argv, cwd, block, startup, flags, context)
 def launch_detached(argv, *, cwd, env=None) -> DetachedProcess:
     """由当前会话桌面进程承接父身份；失败明确报错，不回退到启动器 Job。"""
     if os.name != "nt":
-        raise OSError("独立托盘启动仅适用于 Windows")
+        raise OSError("detached tray launch is only supported on Windows")
     environment = os.environ.copy() if env is None else dict(env)
     executable = Path(argv[0])
     config = executable.parent.parent / "pyvenv.cfg"
@@ -200,7 +202,7 @@ def launch_detached(argv, *, cwd, env=None) -> DetachedProcess:
                       if "=" in line)
         home = next((value.strip() for key, value in values.items() if key.strip() == "home"), None)
         if home is None:
-            raise OSError(f"虚拟环境缺少基础解释器目录：{config}")
+            raise UserOSError("errors.trayDetached.venvHomeMissing", {"path": str(config)})
         environment["__PYVENV_LAUNCHER__"] = str(executable.resolve())
         executable = Path(home) / executable.name
     kernel = _kernel()
@@ -213,7 +215,7 @@ def launch_detached(argv, *, cwd, env=None) -> DetachedProcess:
     shell = user.GetShellWindow()
     pid = wintypes.DWORD()
     if not shell or not user.GetWindowThreadProcessId(shell, ctypes.byref(pid)):
-        error = OSError("未取得当前会话的 Windows 桌面进程，请确认已登录 Windows 桌面")
+        error = UserOSError("errors.trayDetached.desktopProcessMissing")
         error.peach_context = context
         raise error
     context["desktop"] = {"pid": pid.value}

@@ -12,6 +12,7 @@ from .entity_classification import write_claim
 from .field_owners import owner_of, write_owned_fields
 from .media_folders import path_predicate, within
 from .profiles import DEFAULT_PROFILE_ID
+from .user_messages import UserValueError
 
 KEY = 'folderRules'
 KINDS = {'category': '', 'creator': 'creator', 'performer': 'performer', 'seller': 'creator', 'studio': 'studio'}
@@ -25,10 +26,10 @@ def load(connection) -> tuple[dict, dict]:
     row = connection.execute('SELECT settings_json FROM profile WHERE id=?', (DEFAULT_PROFILE_ID,)).fetchone()
     settings = json.loads(row[0] or '{}') if row else {}
     if not isinstance(settings, dict):
-        raise ValueError('用户设置格式不正确')
+        raise UserValueError('errors.folderRules.settingsInvalid')
     data = settings.get(KEY, {'revision': 0, 'rules': []})
     if not isinstance(data, dict) or not isinstance(data.get('rules'), list) or type(data.get('revision')) is not int:
-        raise ValueError('目录规则格式不正确')
+        raise UserValueError('errors.folderRules.rulesInvalid')
     for rule in data['rules']:
         if rule.get('entity_id'):
             target = resolve_entity_id(connection, rule['entity_id'])
@@ -51,18 +52,18 @@ def effective(rules, location: str, path: str):
 def validate(connection, node, body):
     purpose = body.get('purpose', 'category')
     if purpose not in KINDS:
-        raise ValueError('请选择目录用途')
+        raise UserValueError('errors.folderRules.choosePurpose')
     if not isinstance(body.get('recursive'), bool) or not isinstance(body.get('future'), bool):
-        raise ValueError('目录范围与新文件设置须明确选择')
+        raise UserValueError('errors.folderRules.scopeRequired')
     name = body.get('name', '')
     if not isinstance(name, str) or len(name) > 200:
-        raise ValueError('关联名称最多 200 个字符')
+        raise UserValueError('errors.folderRules.nameTooLong')
     kind = KINDS[purpose]
     canonical = canonicalize_entity_name(kind, name) if kind else ''
     entity_id = None
     if kind:
         if not canonical:
-            raise ValueError('请输入关联名称')
+            raise UserValueError('errors.folderRules.nameRequired')
         entity = resolve_entity(connection, kind, canonical)
         if entity is None:
             possible = connection.execute(
@@ -70,7 +71,7 @@ def validate(connection, node, body):
                 'WHERE e.kind=? AND (e.normalized_name=? OR al.normalized_alias=?)',
                 (kind, normalize_entity_name(canonical), normalize_entity_name(canonical))).fetchall()
             if possible:
-                raise ValueError('名称存在多个身份或不同写法，请使用资料页的规范名称')
+                raise UserValueError('errors.folderRules.nameAmbiguous')
         else:
             entity_id, canonical = entity['id'], entity['canonical_name']
     return {'id': node['id'], 'location': node['location'], 'path': node['path'], 'purpose': purpose,
@@ -204,7 +205,7 @@ def _store(connection, settings):
     changed = connection.execute('UPDATE profile SET settings_json=? WHERE id=?',
                                  (json.dumps(settings, ensure_ascii=False), DEFAULT_PROFILE_ID)).rowcount
     if not changed:
-        raise ValueError('当前用户设置不存在')
+        raise UserValueError('errors.folderRules.settingsMissing')
 
 
 def remove(connection, settings, data, key):

@@ -38,6 +38,7 @@ from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
 from . import interface_text
+from .user_messages import UserValueError
 from .repository import LedgerDatabase, in_background
 from .task_retry import RETRY_DELAYS, retry_delay
 
@@ -114,7 +115,7 @@ class DownloadError(RuntimeError):
 
     def __init__(self, failure: str, detail: str, *, block: bool = False):
         if failure not in FAILURE_KINDS:
-            raise ValueError(f"未知的失败类别：{failure}")
+            raise ValueError(f"unknown failure kind: {failure}")
         super().__init__(detail)
         self.failure = failure
         self.detail = detail
@@ -170,7 +171,7 @@ def normalise_info_hash(raw: str) -> str:
             return base64.b32decode(text.upper()).hex()
         except binascii.Error:
             pass
-    raise ValueError("磁力链接里的 infohash 不是 40 位十六进制或 32 位 base32")
+    raise UserValueError("errors.downloads.infohashInvalid")
 
 
 _TRACKER = re.compile(r"^(?:udp|https?|wss?)://[A-Za-z0-9.\-]+(?::\d{1,5})?(?:/[!-~]*)?$")
@@ -204,7 +205,7 @@ def parse_magnet(raw: str) -> Magnet:
     """解析用户粘贴的磁力，或一个裸 infohash。只认 `urn:btih`，v2 的 `btmh` 不在幂等键口径内。"""
     text = str(raw or "").strip()
     if not text:
-        raise ValueError("请粘贴磁力链接")
+        raise UserValueError("errors.downloads.magnetRequired")
     if not text.casefold().startswith("magnet:"):
         info_hash = normalise_info_hash(text)
         return Magnet(info_hash, f"magnet:?xt=urn:btih:{info_hash}")
@@ -214,7 +215,7 @@ def parse_magnet(raw: str) -> Magnet:
             info_hash = normalise_info_hash(value[len("urn:btih:"):])
             name = (query.get("dn") or [""])[0].strip()
             return Magnet(info_hash, clean_magnet(text), name[:300])
-    raise ValueError("磁力链接里没有 urn:btih，Peach 只接受 BitTorrent 磁力")
+    raise UserValueError("errors.downloads.magnetNotBittorrent")
 
 
 def magnet_info_hash(uri: str) -> str:
@@ -614,7 +615,7 @@ def normalise_target(raw: str) -> str:
     """网盘里的目标目录统一成 `/a/b`。CloudDrive2 与 PikPak 都是 POSIX 口径。"""
     text = normalise_prefix(raw)
     if text == "/" or any(part in {".", ".."} for part in text.split("/")):
-        raise ValueError("目标目录要写成网盘里的一个具体文件夹，不能是网盘根目录")
+        raise UserValueError("errors.downloads.targetIsRoot")
     return text
 
 
@@ -638,19 +639,19 @@ def clean_address(raw) -> str:
         return ""
     if "://" not in text:
         text = "http://" + text
-    message = "CloudDrive2 地址只写协议、主机和端口，例如 http://127.0.0.1:19798"
+    message = "errors.downloads.addressFormat"
     if len(text) > 2048 or "\\" in text or any(char.isspace() or ord(char) < 32 for char in text):
-        raise ValueError(message)
+        raise UserValueError(message)
     try:
         parts = urlsplit(text)
         port = parts.port
     except ValueError:
-        raise ValueError("CloudDrive2 地址的端口必须是 1–65535 的整数，IPv6 地址须放在方括号内") from None
+        raise UserValueError("errors.downloads.addressPortInvalidIpv6") from None
     if parts.scheme not in {"http", "https"} or not parts.hostname or parts.path not in {"", "/"} \
             or parts.query or parts.fragment or parts.username is not None or parts.password is not None:
-        raise ValueError(message)
+        raise UserValueError(message)
     if port == 0 or parts.netloc.endswith(":"):
-        raise ValueError("CloudDrive2 地址的端口必须是 1–65535 的整数")
+        raise UserValueError("errors.downloads.addressPortInvalid")
     return f"{parts.scheme}://{parts.netloc}"
 
 
@@ -688,15 +689,17 @@ class DownloadSettings:
         if root and declared_roots is not None:
             known = {str(item).casefold(): str(item) for item in declared_roots.get("pikpak", ())}
             if root.casefold() not in known:
-                shown = "、".join(known.values()) or "（设置文件里没有 pikpak 来源）"
-                raise ValueError(f"{root} 不是已声明的 PikPak 媒体根；已知：{shown}")
+                if not known:
+                    raise UserValueError("errors.downloads.notPikpakRootNoneDeclared", {"root": root})
+                raise UserValueError("errors.downloads.notPikpakRoot",
+                                     {"root": root, "known": "、".join(known.values())})
             root = known[root.casefold()]
         try:
             hours = int(body.get("wait_hours") or DEFAULT_WAIT_HOURS)
         except (TypeError, ValueError) as error:
-            raise ValueError("等待上限要写成小时数") from error
+            raise UserValueError("errors.downloads.waitHoursNotNumber") from error
         if not 1 <= hours <= MAX_WAIT_HOURS:
-            raise ValueError(f"等待上限在 1 到 {MAX_WAIT_HOURS} 小时之间")
+            raise UserValueError("errors.downloads.waitHoursOutOfRange", {"max": MAX_WAIT_HOURS})
         problems = ()
         try:
             address = clean_address(body.get("clouddrive_address"))
@@ -709,7 +712,7 @@ class DownloadSettings:
 
     def save(self, body: dict, declared_roots) -> DownloadConfig:
         if not isinstance(body, dict):
-            raise ValueError("设置必须是一个对象")
+            raise ValueError("settings must be an object")
         config = self._parse(body, declared_roots=declared_roots)
         atomic_write_text(self.path, json.dumps(config.payload(), ensure_ascii=False, indent=2) + "\n")
         return config
@@ -767,16 +770,16 @@ class DownloadService:
                code: str | None = None, title: str | None = None,
                origin: str | None = None, dedupe_code: bool = False) -> SubmitResult:
         if not self.available:
-            raise ValueError("云下载只在允许修改数据库的设备上可用")
+            raise UserValueError("errors.downloads.writerOnly")
         magnet = parse_magnet(source)
         channels = self.channel_snapshot()["providers"]
         channel = next((row for row in channels if row["key"] == provider), None)
         if channel is None or (self.channel_catalog is not None and not channel["configured"]):
-            raise ValueError("请选择媒体库中可用的云下载渠道")
+            raise UserValueError("errors.downloads.channelUnavailable")
         folder = normalise_target(target or channel["target"])
         if provider.startswith("clouddrive:") and not (
                 folder == channel["target"] or folder.startswith(channel["target"].rstrip("/") + "/")):
-            raise ValueError("下载目标目录必须位于所选媒体库内")
+            raise UserValueError("errors.downloads.targetOutsideLibrary")
         with self._submit_lock:
             now = self.clock()
             if dedupe_code and code and (existing := self.store.active_by_code(code)) is not None:
@@ -875,17 +878,17 @@ class DownloadService:
 
     def cancel(self, task_id: int) -> DownloadTask:
         if not self.available:
-            raise ValueError("云下载只在允许修改数据库的设备上可用")
+            raise UserValueError("errors.downloads.writerOnly")
         task = self.store.get(int(task_id))
         if task is None:
-            raise ValueError("没有这个下载任务")
+            raise UserValueError("errors.downloads.taskNotFound")
         if task.state not in TRACKED_STATES:
-            raise ValueError("这个任务已经结束，不能取消")
+            raise UserValueError("errors.downloads.taskFinished")
         if task.state in {SUBMITTED, REMOTE_RUNNING}:
             try:
                 self.providers(task.provider).cancel(task)
             except DownloadError as error:
-                raise ValueError(f"远端没有取消成功：{error.detail}") from error
+                raise UserValueError("errors.downloads.cancelFailed", {"detail": error.detail}) from error
         now = self.clock()
         task.state = CANCELLED
         task.finished_at = iso(now)
@@ -928,9 +931,9 @@ class DownloadService:
     def retry_postprocess(self, task_id: int) -> DownloadTask:
         task = self.store.get(int(task_id))
         if task is None:
-            raise ValueError("没有这个下载任务")
+            raise UserValueError("errors.downloads.taskNotFound")
         if task.state != INGESTED or task.postprocess_state != POSTPROCESS_FAILED:
-            raise ValueError("这个任务没有失败的后处理可以重试")
+            raise UserValueError("errors.downloads.nothingToRetry")
         task.postprocess_retries = 0
         self.store.save(task)
         self.store.postprocess(task.id, POSTPROCESS_PENDING, detail="等待重新处理")

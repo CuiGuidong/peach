@@ -14,6 +14,7 @@ from filelock import FileLock
 
 from . import desktop_installer, desktop_startup, distribution, settings_file, standalone_update
 from .fsutil import atomic_write_text
+from .user_messages import UserValueError
 
 
 #: Peach 生成的设置备份：`config.toml.<说明>-YYYYMMDD-HHMMSS`，时间戳跟着
@@ -34,22 +35,22 @@ def _generated_backups(root: Path) -> list[Path]:
 
 def plan(config, *, delete_data: bool, program: Path | None = None) -> dict:
     if type(delete_data) is not bool:
-        raise ValueError("请选择是否删除 Peach 数据")
+        raise UserValueError("errors.desktopUninstall.deleteDataChoiceRequired")
     target = (program or Path(sys.executable).parent).resolve()
     root = config.data_root.resolve()
     if not (target / "_internal/standalone.txt").is_file() or not (target / "Peach.exe").is_file():
-        raise ValueError("源码安装请先退出托盘，再手动移除项目；数据目录见下方")
+        raise UserValueError("errors.desktopUninstall.sourceInstall")
     if len(target.parts) < 3 or target == Path.home().resolve() or (target / ".git").exists():
-        raise ValueError("程序目录不适合自动卸载")
+        raise UserValueError("errors.desktopUninstall.programDirectoryUnsuitable")
     if root.is_relative_to(target) or target.is_relative_to(root):
-        raise ValueError("程序与数据目录重叠，请手动卸载")
+        raise UserValueError("errors.desktopUninstall.programDataOverlap")
     directories = [config.directory(key).resolve() for key in settings_file.DIRECTORY_KEYS] if delete_data else []
     if any(path.parent != root or path.is_symlink() or path.is_junction() for path in directories):
-        raise ValueError("数据使用了外部或嵌套目录，请保留数据卸载后按目录清单手动清理")
+        raise UserValueError("errors.desktopUninstall.externalDataDirectories")
     media = [Path(value).resolve() for group in (config.locations, config.mounts) for rows in group.values() for value in rows]
     for path in [target, *directories]:
         if any(item.is_relative_to(path) or path.is_relative_to(item) for item in media):
-            raise ValueError("卸载目录与媒体目录重叠，请手动检查")
+            raise UserValueError("errors.desktopUninstall.mediaOverlap")
     files: list[Path] = []
     if delete_data:
         generated = [config.path.resolve(), root / "config.previous.toml", root / "config.pending.toml",
@@ -70,7 +71,7 @@ def snapshot(config) -> dict:
         return result
     try:
         if not distribution.standalone():
-            raise ValueError("源码安装请先关闭开机自启并退出托盘，再手动移除项目与数据目录")
+            raise UserValueError("errors.desktopUninstall.sourceInstallStartup")
         plan(config, delete_data=False)
         result.update(available=True, message="")
         try:
@@ -87,7 +88,7 @@ def request(config, delete_data: bool) -> dict:
     if not distribution.standalone() or sys.platform != "win32":
         raise ValueError(snapshot(config)["message"])
     if standalone_update.public().get("state") in standalone_update.ACTIVE | {"ready"}:
-        raise ValueError("更新任务尚未结束，请完成后卸载")
+        raise UserValueError("errors.desktopUninstall.updateRunning")
     data = plan(config, delete_data=delete_data)
     path = config.directory("state") / "uninstall-request.json"
     with FileLock(str(path) + ".lock", timeout=0):
@@ -215,7 +216,7 @@ def poll(tray) -> None:
             return
         checked = plan(config, delete_data=data["delete_data"])
         if any(data.get(key) != value for key, value in checked.items()):
-            raise ValueError("配置已变更，请重新确认卸载")
+            raise UserValueError("errors.desktopUninstall.configChanged")
         shell = Path(os.environ.get("SystemRoot", r"C:\Windows")) / "System32/WindowsPowerShell/v1.0/powershell.exe"
         # 桌面图标和启动项都在 Peach 数据目录之外，`_SCRIPT` 的路径校验只认 Peach 数据目录里的东西，
         # 列进 `files` 会被它 `exit 2`。卸载前先由这一步把两个 `.lnk` 都撤掉。

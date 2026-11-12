@@ -23,6 +23,7 @@ from .scripting import HostLimiter
 from .user_agent import JAVDB_APP_USER_AGENT
 from .jav_cache import DAY, PublicSnapshots, cache_lifetime
 from .javdb_identity import RULE, cache_key as identity_cache_key, current_evidence
+from .user_messages import UserFacingError, UserValueError
 
 WEB = "https://catembylegacy.fastcdn.dpdns.org"
 #: 接口主机按序使用（ADR-0148）。2026-11-05 实测三家对同一作品给出同一份详情，网页签名与 App 签名都收；
@@ -146,15 +147,15 @@ class PublicSourceUnavailable(ValueError):
     """公开来源当前未取得。"""
 
 
-class PublicIdentityAmbiguous(PublicSourceUnavailable):
+class PublicIdentityAmbiguous(UserFacingError, PublicSourceUnavailable):
     """同番号有多个来源身份，不能按番号绑定资料或媒体。"""
 
 
-class PublicNotFound(PublicSourceUnavailable):
+class PublicNotFound(UserFacingError, PublicSourceUnavailable):
     """来源搜索结果里没有这个番号。"""
 
 
-class PublicSourcePaused(PublicSourceUnavailable):
+class PublicSourcePaused(UserFacingError, PublicSourceUnavailable):
     """来源冷却期内不发请求。"""
 
 
@@ -166,7 +167,7 @@ class PublicLoginRequired(PublicSourceUnavailable):
     """接口要求登录（`JWTVerificationError`）。2026-11-10 起搜索与作品资料匿名都回它，评论与磁链仍答。"""
 
 
-class PublicBudgetExceeded(PublicSourceUnavailable):
+class PublicBudgetExceeded(UserFacingError, PublicSourceUnavailable):
     """本轮匿名资料请求预算已用完。"""
 
 
@@ -191,7 +192,7 @@ class PublicRequestBudget:
                 ("time_budget", time.monotonic() - self.started - paused >= self.max_seconds)):
             if exhausted:
                 self.stop_reason = reason
-                raise PublicBudgetExceeded("本轮作品资料预算已用完")
+                raise PublicBudgetExceeded("errors.javdbPublic.budgetExceeded")
 
 
 def actor_gender(actor: dict) -> str:
@@ -285,7 +286,8 @@ class PublicAPI:
         failed = PublicHostFailed if host else PublicSourceUnavailable
         paused = self.image_paused_until if image else self.paused_until
         if self.clock() < paused:
-            raise PublicSourcePaused("图片来源暂时不可用，请稍后重试" if image else "作品资料来源暂时不可用，请稍后重试")
+            raise PublicSourcePaused("errors.javdbPublic.imageSourcePaused" if image
+                                     else "errors.javdbPublic.sourcePaused")
         if not image:
             self.limiter.wait(url)
         budget = self.request_context.get()
@@ -366,7 +368,7 @@ class PublicAPI:
         else:
             if attempted:
                 raise PublicSourceUnavailable("作品资料来源暂时不可用，请稍后重试")
-            raise PublicSourcePaused("作品资料来源暂时不可用，请稍后重试")
+            raise PublicSourcePaused("errors.javdbPublic.sourcePaused")
         if isinstance(payload, dict) and payload.get("action") == "JWTVerificationError":
             # 只停搜索与作品资料：评论与磁链端点匿名仍答，不能跟着整源冷却。
             self.login_until = self.clock() + LOGIN_SECONDS
@@ -505,7 +507,7 @@ class PublicAPI:
             matches = [row for row in rows if isinstance(row, dict)
                        and same_release_code(canonical, row.get("number"))]
             if not matches:
-                raise PublicNotFound("未取得这个番号的作品资料")
+                raise PublicNotFound("errors.javdbPublic.notFound")
             if any(not isinstance(row.get('id'), str)
                    or not re.fullmatch(r'[A-Za-z0-9]+', row['id']) for row in matches):
                 raise PublicSourceUnavailable("未取得这个番号的作品资料")
@@ -523,7 +525,8 @@ class PublicAPI:
                     self._remember('movie-id:' + canonical, [resolved['id']])
                     return resolved
             if len(identities) != 1:
-                raise PublicIdentityAmbiguous("同番号对应多个作品，请核对来源身份：" + '、'.join(identities))
+                raise PublicIdentityAmbiguous("errors.javdbPublic.identityAmbiguous",
+                                              {"identities": '、'.join(identities)})
             movie_id = identities[0]
         elif isinstance(source_id, str) and re.fullmatch(r'[A-Za-z0-9]+', source_id):
             movie_id = source_id
@@ -625,7 +628,7 @@ class PublicAPI:
 
     def reviews(self, code: str, page: int, *, refresh=False, movie=None) -> list[dict]:
         if not 1 <= page <= MAX_REVIEW_PAGES:
-            raise ValueError("评论页码必须在 1 至 8 之间")
+            raise UserValueError("errors.javdbPublic.reviewPageOutOfRange")
         movie = self._bound_movie(code, movie)
         return self._cached(f"reviews:{movie['id']}:{page}", lambda:
                             self._rows(f"/v1/movies/{movie['id']}/reviews", "reviews", {"page": page}),
@@ -722,14 +725,14 @@ class PublicAPI:
             actor = next((actor for actor in movie.get("actors") or []
                           if isinstance(actor, dict) and str(actor.get("id")) == actor_id), None)
             if not actor:
-                raise ValueError("出演者头像不存在")
+                raise UserValueError("errors.javdbPublic.performerAvatarMissing")
             url = actor.get("avatar_url")
         else:
             previews = movie.get("preview_images") or []
             try:
                 url = previews[int(index)]
             except (ValueError, IndexError, TypeError):
-                raise ValueError("预览图不存在") from None
+                raise UserValueError("errors.javdbPublic.previewImageMissing") from None
             if isinstance(url, dict):
                 url = url.get("large_url") or url.get("url")
         return self.image_from_url(url, original=True) if original else self.image_from_url(url)

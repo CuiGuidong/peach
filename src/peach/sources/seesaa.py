@@ -92,7 +92,7 @@ def page_url(url: str, root: str = ROOT) -> str:
     parsed = urlsplit(absolute)
     if (parsed.scheme != 'https' or parsed.netloc != 'seesaawiki.jp'
             or not parsed.path.startswith(urlsplit(root).path + 'd/') or parsed.query):
-        raise ValueError('需要这个 Wiki 的公开详情页')
+        raise ValueError('expected a public detail page of this wiki')
     return absolute
 
 

@@ -820,8 +820,9 @@ class IwaraConnector(_BaseConnector):
         if not isinstance(payload, dict):
             raise FollowSourceError("Iwara 接口响应格式不符")
         if payload.get("message"):
-            code = str(payload["message"])
-            if code in {"errors.privateVideo", "errors.notFound", "errors.unauthorized"}:
+            # Iwara 接口自己的错误码，形如 `errors.notFound`，不是 Peach 语言资源里的键。
+            scope, _, name = str(payload["message"]).partition(".")
+            if scope == "errors" and name in {"privateVideo", "notFound", "unauthorized"}:
                 raise FollowSourceError("Iwara 内容未取得：请确认账号有访问权并更新登录凭据")
             raise FollowSourceError("Iwara 接口拒绝请求，请在来源页面核对内容状态")
         return payload

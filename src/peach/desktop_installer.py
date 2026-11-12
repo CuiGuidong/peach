@@ -19,6 +19,7 @@ import sys
 import time
 
 from . import distribution
+from .user_messages import UserValueError
 
 APP_ID = "02D9748A-78F6-4866-AC75-918177194DAB"
 UNINSTALL_KEY = rf"Software\Microsoft\Windows\CurrentVersion\Uninstall\{{{APP_ID}}}_is1"
@@ -154,7 +155,7 @@ def prepare_install_tools(program: Path, cache: Path, error_file: Path, *, stage
             cached = cache / url.rsplit('/', 1)[-1]
             if cached.is_file():
                 if cached.stat().st_size != size or update_packages.digest(cached) != checksum:
-                    raise ValueError(f'本地工具包校验失败：{cached.name}。请重新下载或移走此文件后重试。')
+                    raise UserValueError("errors.desktopInstaller.cachedToolInvalid", {"name": cached.name})
                 shutil.copy2(cached, archive)
                 progress(size)
             else:

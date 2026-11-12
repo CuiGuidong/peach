@@ -595,7 +595,7 @@ class PublicProtocolTests(unittest.TestCase):
 class DetailProjectionTests(unittest.TestCase):
     def test_ambiguous_detail_does_not_fall_back_to_number_bound_preview(self):
         from peach.javdb_public import PublicIdentityAmbiguous
-        with patch('peach.web_jav_detail.PUBLIC_API.movie', side_effect=PublicIdentityAmbiguous('多个作品')), \
+        with patch('peach.web_jav_detail.PUBLIC_API.movie', side_effect=PublicIdentityAmbiguous('errors.javdbPublic.identityAmbiguous', {'identities': 'Aa1'})), \
                 patch('peach.web_jav_detail._preview_fields') as preview:
             result = q_jav_detail(self.contract, {'code': 'MIKR-023'})
         self.assertEqual(result['state'], 'partial')

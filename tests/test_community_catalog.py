@@ -538,16 +538,16 @@ class PublicSourceTests(unittest.TestCase):
 
     def test_query_maps_public_answers_without_holding_the_page_cooldown(self):
         session = Session(serve({}))
-        cases = ((PublicNotFound("没有"), FailureReason.NOT_FOUND),
-                 (PublicIdentityAmbiguous("同番号对应多个作品"), FailureReason.PARSE_ERROR),
-                 (PublicBudgetExceeded("超出预算"), FailureReason.TIMEOUT))
+        cases = ((PublicNotFound("errors.javdbPublic.notFound"), FailureReason.NOT_FOUND),
+                 (PublicIdentityAmbiguous("errors.javdbPublic.identityAmbiguous", {"identities": "Aa1"}), FailureReason.PARSE_ERROR),
+                 (PublicBudgetExceeded("errors.javdbPublic.budgetExceeded"), FailureReason.TIMEOUT))
         for error, reason in cases:
             with self.subTest(error=type(error).__name__), patch.object(PUBLIC_API, "movie", side_effect=error):
                 with self.assertRaises(SourceFailure) as caught:
                     JavDBPublicSource().query("ABW-358", session=session)
                 self.assertEqual(caught.exception.reason, reason)
                 self.assertEqual(caught.exception.cooldown_action, "")
-        with patch.object(PUBLIC_API, "movie", side_effect=PublicIdentityAmbiguous("x")):
+        with patch.object(PUBLIC_API, "movie", side_effect=PublicIdentityAmbiguous("errors.javdbPublic.identityAmbiguous", {"identities": "x"})):
             with self.assertRaises(SourceFailure) as caught:
                 JavDBPublicSource().query("ABW-358", session=session)
         self.assertEqual(caught.exception.detail, "identity_ambiguous")
@@ -555,7 +555,7 @@ class PublicSourceTests(unittest.TestCase):
 
     def test_query_reads_the_detail_page_when_the_api_cannot_answer(self):
         pages = {JAVDB_SEARCH: JAVDB_RESULTS, JAVDB_DETAIL: JAVDB_PAGE}
-        for error in (PublicSourceUnavailable("請登錄帳號"), PublicSourcePaused("暂时不可用")):
+        for error in (PublicSourceUnavailable("請登錄帳號"), PublicSourcePaused("errors.javdbPublic.sourcePaused")):
             with self.subTest(error=type(error).__name__), patch.object(PUBLIC_API, "movie", side_effect=error):
                 record = JavDBPublicSource().query("ABW-358", session=Session(serve(pages)))
             self.assertEqual((record.source, record.provenance, record.code), ("javdb", "javdb-page", "ABW-358"))

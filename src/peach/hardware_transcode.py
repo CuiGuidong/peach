@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from .task_control import run as run_task_process
+from .user_messages import UserValueError
 
 logger = logging.getLogger(__name__)
 CUDA_DECODE_CODECS = frozenset({"h264", "hevc", "vp9", "av1"})
@@ -197,7 +198,7 @@ class HardwareTranscoder:
         self.state_root = state_root
         self.backend = os.environ.get("PEACH_TRANSCODE_BACKEND", "auto").strip().lower()
         if self.backend not in BACKENDS:
-            raise ValueError("PEACH_TRANSCODE_BACKEND 必须为 " + "、".join(BACKENDS))
+            raise UserValueError("errors.hardwareTranscode.backendInvalid", {"backends": "、".join(BACKENDS)})
         self.device = os.environ.get("PEACH_VAAPI_DEVICE", "").strip()
         self._encoders: dict[Path, tuple[HardwareEncoder, ...]] = {}
         self._lock = threading.Lock()

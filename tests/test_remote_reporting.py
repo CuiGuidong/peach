@@ -565,7 +565,7 @@ class RemoteReportingTests(unittest.TestCase):
             reporting.capture('http-request', unsupported, status_code=501, route='api/pick-folder')
             send.assert_not_called()
             failed = HTTPException(501, 'private')
-            failed.__cause__ = PickerUnavailable('private')
+            failed.__cause__ = PickerUnavailable('errors.folderPicker.cannotOpen')
             reporting.capture('http-request', failed, status_code=501, route='api/pick-folder')
             send.assert_called_once()
             send.reset_mock()
@@ -589,7 +589,7 @@ class RemoteReportingTests(unittest.TestCase):
         from peach.transcodes import TranscodeCancelled
         from starlette.requests import ClientDisconnect
         errors = [asyncio.CancelledError(), CancelledError(), InterruptedError(), JobPaused(),
-                  MeteredSourceDenied(), DiskSpaceDenied(), TaskRunConflict('processing', 1),
+                  MeteredSourceDenied('errors.jobs.meteredSourceDenied', {'location': 'x'}), DiskSpaceDenied(), TaskRunConflict('processing', 1),
                   SourcePaused(), DeadlineExceeded(), CoverConnectError(), PreviewUnavailable(),
                   SegmentCancelled(), TranscodeCancelled(), BrowserUnavailable(), ChallengeUnsolved(),
                   ClientDisconnect(),

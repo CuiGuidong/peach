@@ -14,6 +14,7 @@ from apscheduler.jobstores.base import JobLookupError
 from apscheduler.schedulers.background import BackgroundScheduler
 from .update_tasks import UpdateBusy
 from .fsutil import atomic_write_text
+from .user_messages import UserValueError
 
 
 LOGGER = logging.getLogger(__name__)
@@ -124,18 +125,18 @@ class FollowUpdateScheduler:
         try:
             state = json.loads(self._runtime_path.read_text(encoding='utf-8'))
             if not isinstance(state, dict):
-                raise ValueError('运行状态应为对象')
+                raise ValueError('runtime state must be an object')
             for key in RUNTIME_COUNTS:
                 value = state.get(key, 0)
                 if type(value) is not int or value < 0:
-                    raise ValueError('运行计数无效')
+                    raise ValueError('invalid runtime count')
             for key in RUNTIME_TIMES:
                 value = state.get(key)
                 if value is not None and (not isinstance(value, str)
                         or datetime.fromisoformat(value.replace('Z', '+00:00')).tzinfo is None):
-                    raise ValueError('运行时间无效')
+                    raise ValueError('invalid runtime timestamp')
             if state.get('last_error') is not None and not isinstance(state['last_error'], str):
-                raise ValueError('运行错误无效')
+                raise ValueError('invalid runtime error')
             for key in (*RUNTIME_COUNTS, *RUNTIME_TIMES, 'last_error'):
                 setattr(self, '_' + key, state.get(key, 0 if key in RUNTIME_COUNTS else None))
         except FileNotFoundError:
@@ -185,7 +186,7 @@ class FollowUpdateScheduler:
         if not self.available:
             raise ValueError(self.unavailable_message)
         if not self._started or not self.config.enabled:
-            raise ValueError("自动运行没有开启")
+            raise UserValueError("errors.followScheduler.autoRunOff")
         with self._state_lock:
             already = self._running
             # 提前标成运行中：调度线程领走这一轮之前，读状态的人不该再看到旧的失败。
@@ -199,7 +200,7 @@ class FollowUpdateScheduler:
         except JobLookupError:
             with self._state_lock:
                 self._running = False
-            raise ValueError("自动运行没有开启") from None
+            raise UserValueError("errors.followScheduler.autoRunOff") from None
         self._save_runtime()
         accepted['next_run_at'] = _stamp(scheduled_at)
         return accepted

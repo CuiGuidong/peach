@@ -966,5 +966,948 @@
       "previewsDisabled": "Preview generation is off. Turn it on in library preferences first.",
       "ffmpegMissing": "ffmpeg not found, so thumbnails can't be captured."
     }
+  },
+  "errors": {
+    "hardwareTranscode": {
+      "backendInvalid": "PEACH_TRANSCODE_BACKEND must be one of {{backends}}"
+    },
+    "processingInventory": {
+      "previewEnded": "The directory pre-check has ended. Reopen the sync dialog."
+    },
+    "gfriends": {
+      "indexHttpStatus": "Gfriends index returned HTTP {{status}}",
+      "indexTooLarge": "Gfriends index exceeds the size limit"
+    },
+    "researchParticipation": {
+      "stateTooLarge": "Research participation state exceeds the size limit on this device",
+      "stateInvalid": "Research participation state is malformed"
+    },
+    "trayDetached": {
+      "venvHomeMissing": "The virtual environment does not name a base interpreter directory: {{path}}",
+      "desktopProcessMissing": "Could not find the Windows desktop process for this session. Make sure you are signed in to the Windows desktop."
+    },
+    "entities": {
+      "tagAliasConflict": "Tag aliases conflict. Merge the duplicate tags first.",
+      "mergeIntoSelf": "Cannot merge a profile into itself",
+      "mergeTargetMissing": "Merge target profile {{id}} does not exist"
+    },
+    "strm": {
+      "urlInvalid": "STRM needs an HTTP or HTTPS playback URL without an account or password",
+      "fileTooLarge": "STRM file exceeds 64 KiB",
+      "fileUnreadable": "STRM file could not be read or is not UTF-8 text",
+      "singleUrlRequired": "STRM file must contain exactly one playback URL"
+    },
+    "feeds": {
+      "dmmActressIdDigits": "DMM actress IDs must be numeric",
+      "httpsRequired": "Subscription URL must start with https://",
+      "duplicateUrl": "This subscription URL is already in the list"
+    },
+    "mp4recover": {
+      "stagedSizeMismatch": "The copy written to the original directory has the wrong size"
+    },
+    "javdbPublic": {
+      "budgetExceeded": "The metadata request budget for this run is used up",
+      "imageSourcePaused": "The image source is temporarily unavailable. Try again later.",
+      "sourcePaused": "The metadata source is temporarily unavailable. Try again later.",
+      "notFound": "No metadata found for this code",
+      "identityAmbiguous": "Several videos share this code. Check the source identity: {{identities}}",
+      "reviewPageOutOfRange": "Comment page must be between 1 and 8",
+      "performerAvatarMissing": "Performer avatar does not exist",
+      "previewImageMissing": "Preview image does not exist"
+    },
+    "storageBudget": {
+      "unsupportedField": "Capacity settings contain an unsupported field",
+      "gibOutOfRange": "{{key}} must be a whole number of GiB from {{minimum}} to 1048576",
+      "switchRequired": "{{key}} must be on or off",
+      "externalPathNotString": "External cache directory must be a path",
+      "externalPathNotAbsoluteDirectory": "External cache directory must be an absolute directory readable on this device",
+      "policyUnreadable": "Could not read capacity settings: {{error}}",
+      "externalPathOverlaps": "External cache directory must be separate from Peach data and every configured directory",
+      "hardLinkIdentityMissing": "The file system does not report hard link identity, so allocated size is unknown",
+      "externalPathForeign": "The external cache path does not apply to this system. Update the path.",
+      "externalDirectoryInaccessible": "External cache directory is not accessible",
+      "cacheLayoutChanged": "Cache directories changed during the count. Count again.",
+      "dataLayoutChanged": "Data directories changed during the count. Count again.",
+      "capacityLayoutChanged": "Capacity directories changed during the count. Count again.",
+      "externalDirectoryMoved": "External cache directory is not accessible. If you moved it, update the path in capacity settings.",
+      "usageUnavailable": "Capacity usage unavailable: {{errors}}"
+    },
+    "mediaConfiguration": {
+      "smbAddressRequired": "Enter smb://server/share/directory",
+      "smbCredentialsNotText": "SMB account and password must be text",
+      "smbOptionsInvalid": "SMB connection options are invalid",
+      "smbRootInvalid": "The internal path of the SMB directory is invalid",
+      "controlCharacters": "Paths cannot contain control characters",
+      "rootMappingMissing": "Cannot configure the media directory automatically. Check the directory mapping in the configuration file.",
+      "driveLetterRequired": "Media path must include a drive letter, for example B:\\. Map a network share to a Windows drive letter first.",
+      "mappingFormatInvalid": "A path in [media.locations] in the configuration file is invalid. Use Windows format, for example R:\\media",
+      "fullPathRequiredWindows": "Enter the full path of the media directory, for example D:\\Movies",
+      "fullPathRequiredPosix": "Enter the full path of the media directory, for example /media",
+      "parentSegment": "Media directory path cannot contain the parent directory ..",
+      "rowInvalid": "Storage entry is malformed",
+      "locationRequired": "Choose a storage from the list",
+      "costRequired": "Choose a proxy data usage protection setting",
+      "pathOverlaps": "Media path duplicates or overlaps another folder",
+      "mappingOverlaps": "Directory mappings in the configuration file duplicate or overlap each other",
+      "directoryOverlaps": "Media directory duplicates or overlaps another row"
+    },
+    "smbMedia": {
+      "addressInvalid": "SMB address or port is invalid",
+      "addressFormat": "Enter smb://server/share/directory. Enter the account and password separately.",
+      "sharePathInvalid": "SMB address needs a share name, and the directory cannot contain parent directories or path separators",
+      "rootIdentityInvalid": "SMB media directory identity is invalid",
+      "credentialsNotText": "SMB account and password must be text",
+      "outsideRoot": "Path is outside the media directory",
+      "rootNotWritable": "Cannot write to a declared media root directory",
+      "rootNotRenamable": "Cannot modify a declared media root directory",
+      "rootNotDeletable": "Cannot delete a declared media root directory",
+      "rootNotReplaceable": "Cannot create or replace a declared media root directory"
+    },
+    "jobs": {
+      "meteredSourceDenied": "Proxy data usage protection is on for {{location}} directories. Confirm the budget, then add --allow-metered."
+    },
+    "organizeTemplates": {
+      "unclosedPlaceholder": "A placeholder `{` has no matching `}`",
+      "unknownPlaceholder": "Unknown placeholder `{{placeholder}}`. Available: {{available}}",
+      "unopenedGroup": "An optional group `]` has no matching `[`",
+      "unclosedGroup": "An optional group `[` has no matching `]`",
+      "tooLong": "Template is too long",
+      "driveLetter": "Templates cannot include a drive letter. They describe a location relative to the storage root.",
+      "leadingSeparator": "Templates cannot start with a separator. They describe a location relative to the storage root.",
+      "separatorInFilename": "File name templates cannot contain directory separators. Put levels in the directory template.",
+      "dotSegment": "Templates cannot contain `.` or `..`",
+      "emptyLevel": "The directory template has an empty level"
+    },
+    "desktopUninstall": {
+      "deleteDataChoiceRequired": "Choose whether to delete Peach data",
+      "sourceInstall": "For a source install, quit the tray first, then remove the project manually. Data directories are listed below.",
+      "programDirectoryUnsuitable": "This program directory is not suitable for automatic uninstall",
+      "programDataOverlap": "Program and data directories overlap. Uninstall manually.",
+      "externalDataDirectories": "Data uses external or nested directories. Keep data when uninstalling, then clean up manually using the directory list.",
+      "mediaOverlap": "Uninstall directories overlap media directories. Check manually.",
+      "sourceInstallStartup": "For a source install, turn off launch at startup and quit the tray first, then remove the project and data directories manually.",
+      "updateRunning": "An update is still running. Uninstall after it finishes.",
+      "configChanged": "Configuration changed. Confirm the uninstall again."
+    },
+    "scrapingDiagnostics": {
+      "codesInvalid": "Enter valid codes, up to {{limit}} at a time"
+    },
+    "tasteBrowsers": {
+      "historyFormatUnsupported": "This browser history format is not supported. Choose a history file that contains page visits.",
+      "historyExUnsupported": "HistoryEx has no recognizable page visits. 115 download records cannot be used as browsing history. Choose the History file.",
+      "historyLocked": "The history file is in use. Quit the browser, then add it.",
+      "historyUnreadable": "Could not read the browser history file. Check the profile directory.",
+      "nameAndPathRequired": "Enter a browser name and profile directory",
+      "noHistoryFiles": "No browser history or bookmark files found in the directory",
+      "browserMissing": "Browser source does not exist",
+      "operationInvalid": "Invalid browser operation"
+    },
+    "taskControl": {
+      "actionInvalid": "Choose pause, resume, cancel, or change speed",
+      "otherHost": "Do this on the primary computer that is running this task",
+      "runFinished": "This task run has already finished",
+      "cancelling": "The task is being canceled and can no longer be paused or resumed"
+    },
+    "tasteHistory": {
+      "snapshotTimeout": "Could not take a browser history snapshot. Quit the browser and read it again.",
+      "takeoutNoActivity": "Takeout has no recognizable browsing or search activity",
+      "takeoutHistoryListMissing": "Takeout Chrome History is missing the Browser History list",
+      "takeoutHistoryRowInvalid": "Takeout Chrome History contains an invalid record",
+      "takeoutActivityUnparsed": "{{profile}} has activity records that could not be parsed: {{count}}"
+    },
+    "localPoster": {
+      "unreadable": "Could not read the companion image",
+      "tooLarge": "Companion image size is out of range"
+    },
+    "seedPack": {
+      "duplicateField": "Duplicate field in seed JSON: {{key}}",
+      "previousNameTaken": "The previous canonical name is used by another entity, so the Chinese name was not reverted"
+    },
+    "organizeClouddrive": {
+      "pikpakRootInvalid": "The PikPak root must be a declared absolute Windows path",
+      "cloudDirectoryInvalid": "The PikPak cloud directory format is invalid",
+      "cloudPrefixIsRoot": "The PikPak cloud prefix cannot be the CloudDrive top-level root directory",
+      "pathOutsideSource": "The path is outside the declared PikPak source",
+      "sampleOutsideRoot": "The authentication sample is not under a declared PikPak root",
+      "prefixNotUnique": "Set a single CloudDrive path prefix for this PikPak root in push discovery",
+      "webdavResponseTooLarge": "The WebDAV response is over the size limit",
+      "webdavNoResponse": "No network response from WebDAV",
+      "webdavTreeTooLarge": "The WebDAV directory walk is over the limit or loops",
+      "webdavTooManyFiles": "The WebDAV directory has too many files",
+      "targetParentNotDirectory": "The target parent path is not a directory",
+      "webdavMkcolFailed": "WebDAV could not create the parent directory: HTTP {{status}}",
+      "crossParentRename": "The official API only accepts a rename in the same parent or a move that keeps the name; split a cross-directory rename into two steps",
+      "moveNotExecuted": "The official API rejected or did not run the move; the original is confirmed to still be in place",
+      "cloudPathTooDeep": "The official directory path is too deep",
+      "cloudListingInvalid": "The official directory listing has out-of-bounds entries, duplicate names, or invalid sizes",
+      "cloudListingTooLarge": "The official directory listing has too many entries",
+      "moveMismatch": "The official move source, parent directory, or file name does not match",
+      "renameOutsideParent": "The official rename only works within the same parent directory in a declared source",
+      "refreshFailed": "Could not refresh the directory cache: {{status}}",
+      "directLinkAuthMissing": "Could not get the existing CloudDrive direct-link authentication",
+      "directLinkMismatch": "The existing direct link source or path does not match",
+      "webdavAuthMissing": "Could not get the existing WebDAV authentication",
+      "authSampleMissing": "Could not get an existing CloudDrive authentication sample",
+      "tokenMissing": "Could not get the existing CloudDrive token",
+      "webdavSourceMissing": "Could not find the existing PikPak WebDAV source",
+      "accountRootMissing": "CloudDrive did not return the WebDAV account root directory",
+      "prefixOutsideAccountRoot": "The CloudDrive path prefix is not under the returned account root directory"
+    },
+    "downloads": {
+      "infohashInvalid": "The infohash in the magnet link is not 40 hex characters or 32 base32 characters",
+      "magnetRequired": "Paste a magnet link",
+      "magnetNotBittorrent": "The magnet link has no urn:btih; Peach only accepts BitTorrent magnet links",
+      "targetIsRoot": "The target directory must be a specific directory in the cloud drive, not its root",
+      "addressFormat": "Enter only the scheme, host, and port for the CloudDrive2 address, for example http://127.0.0.1:19798",
+      "addressPortInvalidIpv6": "The CloudDrive2 port must be an integer from 1 to 65535; put IPv6 addresses in square brackets",
+      "addressPortInvalid": "The CloudDrive2 port must be an integer from 1 to 65535",
+      "notPikpakRoot": "{{root}} is not a declared PikPak root; known roots: {{known}}",
+      "notPikpakRootNoneDeclared": "{{root}} is not a declared PikPak root; the settings file has no pikpak storage",
+      "waitHoursNotNumber": "Enter the wait limit in hours",
+      "waitHoursOutOfRange": "The wait limit must be between 1 and {{max}} hours",
+      "writerOnly": "Cloud download is only available on a device that can modify the database",
+      "channelUnavailable": "Choose a cloud download channel available in the library",
+      "targetOutsideLibrary": "The download target directory must be inside the selected library",
+      "taskNotFound": "This download task does not exist",
+      "taskFinished": "This task has already finished and cannot be canceled",
+      "cancelFailed": "The remote did not cancel the task: {{detail}}",
+      "nothingToRetry": "This task has no failed post-processing to retry"
+    },
+    "followStore": {
+      "aliasNamesRequired": "Both the canonical creator name and the platform alias are required",
+      "aliasSameAsName": "These two names are the same after normalization; no alias is needed",
+      "nameRequired": "The unified name is required",
+      "aliasGroupMissing": "This creator alias group no longer exists; refresh the list",
+      "nameTaken": "This name already belongs to another creator; check whether they should be merged first",
+      "aliasRequired": "The alias is required",
+      "aliasMissing": "This creator alias does not exist",
+      "canonicalNotRemovable": "The canonical name cannot be removed as an alias"
+    },
+    "followCreators": {
+      "holdGone": "This group of followed creators is no longer waiting for confirmation; refresh and check again"
+    },
+    "onlineTagManagement": {
+      "nameInvalid": "Tag names must be 1 to 80 characters with no commas or control characters",
+      "nameTaken": "\"{{name}}\" already belongs to the tag \"{{tag}}\"; use Merge tags instead",
+      "selectionInvalid": "Select valid online tags, up to 2000 at a time",
+      "tagsChanged": "The tags have changed; refresh and try again",
+      "mergeSelection": "Select at least two tags and choose the one to keep",
+      "mergeSameType": "Select tags of the same source type to merge",
+      "previewStale": "The tags have changed; preview the affected items again",
+      "itemTagLimit": "Each item can have at most 100 manual tags"
+    },
+    "tagManagement": {
+      "selectionInvalid": "Select valid tags, up to 2000 at a time",
+      "nameInvalid": "Tag names must be 1 to 80 characters",
+      "nameTaken": "\"{{name}}\" already belongs to the tag \"{{tag}}\"; use Merge tags instead",
+      "tagsChanged": "The tags have changed; refresh and try again",
+      "mergeSelection": "Select at least two tags and choose the one to keep",
+      "previewStale": "The tags have changed; preview the affected items again"
+    },
+    "reviewMirror": {
+      "notWriter": "The target instance is not currently the primary computer",
+      "readFailed": "Could not read from the primary computer: {{type}}: {{error}}",
+      "readFailedWithCurl": "Could not read from the primary computer: {{type}}: {{error}}; system network channel: {{curl}}",
+      "responseTooLarge": "The review response from the primary computer is over the 8 MiB limit",
+      "invalidJson": "The primary computer did not return valid JSON",
+      "notObject": "The primary computer did not return a JSON object",
+      "curlStartFailed": "curl failed to start: {{type}}: {{error}}",
+      "curlExit": "curl exited with {{code}}: {{detail}}",
+      "curlExitNoDetail": "curl exited with {{code}}: no error details",
+      "responseMissingKey": "The review response from the primary computer is missing {{key}}",
+      "queuesMissing": "The primary computer did not provide review state; update Peach on the primary computer",
+      "queueMissing": "Review state {{key}} from the primary computer was not found"
+    },
+    "subtitleSearch": {
+      "urlUnsupported": "This subtitle download URL is not supported",
+      "responseTooLarge": "The subtitle response is larger than 4 MiB",
+      "unreachable": "Cannot reach SubtitleCat right now; try again later",
+      "tooManyRedirects": "The subtitle download redirected too many times",
+      "idInvalid": "The subtitle ID is invalid",
+      "queryInvalid": "Search terms must be 3 to 200 characters; if the page position is invalid, search again",
+      "searchPageMissing": "Could not load the SubtitleCat search page; try again later",
+      "fileMissing": "The subtitle file does not exist",
+      "fileTooLarge": "The subtitle file is larger than 4 MiB",
+      "formatUnsupported": "Choose an SRT, ASS, SSA, or VTT text subtitle",
+      "noTimeline": "The subtitle file has no playable timeline"
+    },
+    "devCopy": {
+      "placeholdersChanged": "Keep the existing placeholders and change only the text; write literal braces as {{open}} and {{close}}",
+      "placeholdersIncomplete": "Keep every placeholder, each exactly once",
+      "textTooLong": "Select text of no more than 2000 characters",
+      "replacementInvalid": "The new text must be a string of no more than 2000 characters",
+      "sourceChanged": "The source file has changed; select the text again",
+      "fileNotEditable": "This file cannot be edited"
+    },
+    "dockerUpdate": {
+      "watchtowerMissing": "Watchtower was not detected; start it with the compose watchtower profile",
+      "unreachable": "Cannot reach Watchtower ({{error}}); try again later",
+      "tokenMismatch": "The token Watchtower read does not match Peach; run docker compose restart watchtower in the directory that contains compose.yaml, then try again",
+      "busy": "Watchtower is running another update; try again later",
+      "httpStatus": "Watchtower returned HTTP {{status}}"
+    },
+    "updatePackages": {
+      "toolPathInvalid": "A path in the tool manifest is invalid",
+      "toolPathEscapes": "A path in the tool manifest is outside the package or contains a link",
+      "manifestInvalid": "The update package tool manifest is invalid",
+      "fileListInvalid": "The update package tool file list is invalid",
+      "requiredFileMissing": "The update package tool manifest is missing required files",
+      "downloadInfoInvalid": "The update package tool download information is invalid"
+    },
+    "feedFollowup": {
+      "noMetadata": "No source in the chain {{chain}} has metadata for this code"
+    },
+    "westernArtwork": {
+      "babepediaUrlMismatch": "Babepedia not found: the profile URL does not match",
+      "babepediaHttp": "Babepedia not found: HTTP {{status}}",
+      "babepediaIdentityMismatch": "Babepedia not found: the profile identity does not match",
+      "babepediaHostMismatch": "Babepedia not found: the source domain does not match",
+      "officialCoverHttp": "Official cover not found: HTTP {{status}}",
+      "officialCoverInvalid": "Official cover not found: the API did not return valid metadata"
+    },
+    "peachProxy": {
+      "modeRequired": "Choose a connection mode for the Peach proxy",
+      "addressInvalid": "Enter an HTTP or SOCKS proxy address with a port",
+      "conflict": "The source proxy settings differ; choose the Peach proxy in Settings first",
+      "requestFailed": "External request failed ({{kind}})"
+    },
+    "wants": {
+      "codeEmpty": "Cannot recognize a code: (empty)",
+      "codeUnrecognized": "Cannot recognize a code: {{text}}",
+      "alreadyInLibrary": "{{code}} is already in the library",
+      "feedItemMissing": "Cannot find this new release",
+      "followItemMissing": "Cannot find this followed item",
+      "wantMissing": "Cannot find this want"
+    },
+    "mediaProcessingPolicy": {
+      "previewStateRequired": "Choose whether to generate previews",
+      "accelerationModeRequired": "Choose automatic or software-only mode",
+      "choiceRequired": "Choose a media processing mode"
+    },
+    "server": {
+      "databaseMissing": "Settings exist but the database is missing; restore the database, then start Peach",
+      "migrateFailed": "The database upgrade failed with exit code {{code}}; the service did not start",
+      "settingsMissing": "The database exists but the settings file is missing; restore config.toml, then start Peach",
+      "initFailed": "Initialization failed with exit code {{code}}"
+    },
+    "entryLinks": {
+      "sitesRequired": "Submit an address for each site",
+      "siteMissing": "Settings for {{site}} are missing",
+      "hostNotText": "The address for {{site}} must be text",
+      "hostTooLong": "Keep the address for {{site}} within {{limit}} characters",
+      "hostShape": "For {{site}}, enter only the domain name, like {{example}}"
+    },
+    "gpuLinux": {
+      "clientIdMissing": "The GPU driver did not provide a DRM client ID for deduplication",
+      "engineFormatInvalid": "The GPU engine time or capacity format is invalid",
+      "engineTimeMissing": "The GPU driver did not provide DRM engine busy time"
+    },
+    "remoteMediaCache": {
+      "capacityDenied": "{{detail}}",
+      "incompleteResponse": "The media response length is incomplete",
+      "unavailable": "Media not found"
+    },
+    "supportBundle": {
+      "notWritable": "Could not write the diagnostics report to the data directory or the temporary directory"
+    },
+    "smbTransport": {
+      "hostShareNotComponent": "SMB host and share name must each be a single path component",
+      "invalidPort": "Invalid SMB port",
+      "invalidTimeout": "SMB request timeout must be a finite positive number",
+      "pathNotRelative": "SMB path must be relative to the share root",
+      "invalidPathComponent": "SMB path contains an invalid component"
+    },
+    "resourceSearch": {
+      "invalidEndpoint": "Indexer address is not valid",
+      "endpointFormat": "Enter an HTTP or HTTPS API address; enter the API key separately and leave query parameters out of the address",
+      "unreadableConfig": "Indexer settings can't be read. Save them again in Settings → Downloads on this device",
+      "tooManyIndexers": "You can configure at most {{max}} indexers",
+      "indexerNotObject": "Each indexer setting must be an object",
+      "invalidIndexerKey": "Indexer ID is empty or duplicated",
+      "invalidIndexerName": "Indexer name must be 1 to 80 characters",
+      "invalidApiKey": "API key is not valid",
+      "invalidSizeRange": "Size range must be between 0 and 1 TiB, and the minimum can't exceed the maximum",
+      "invalidGoal": "Quality goal must be HD, Chinese subtitles or uncensored",
+      "responseTooLarge": "Indexer response is larger than 2 MiB",
+      "xmlEntities": "Indexer XML contains unsupported entity declarations",
+      "notTorznab": "Indexer didn't return Torznab XML",
+      "invalidCode": "Enter a recognizable code",
+      "indexerLimitExceeded": "Too many indexers",
+      "noCodeSearch": "Indexer doesn't declare code search support"
+    },
+    "scrapingAccess": {
+      "unknownSource": "Unknown fetch source",
+      "cookieFileFormat": "Cookie file must be in Netscape text format",
+      "cookieOneLine": "Paste a single-line Cookie header",
+      "invalidCookieHeader": "Cookie header is not valid",
+      "chooseNetwork": "Choose how to connect to this source",
+      "cookieNotAccepted": "This source doesn't accept sign-in cookies",
+      "cookieOneMethod": "Either paste cookies or import a cookie file, not both",
+      "cookieTooLarge": "Cookie text is larger than 256 KiB",
+      "noValidCookie": "No unexpired cookies for this source were found",
+      "redirectNotHttps": "Fetch redirects must use HTTPS",
+      "tooManyRedirects": "Too many fetch redirects",
+      "geoRestricted": "{{label}} isn't available in the region of your current exit. In your proxy, route it through an exit in a region it accepts; requests to it are paused for {{minutes}} minutes",
+      "ipBanned": "{{label}} has banned your current exit IP. Requests to it are paused for a while; you can also route it through a different exit in your proxy"
+    },
+    "downloadPostprocess": {
+      "noLandingPath": "The download task has no landing path",
+      "noVideoInLanding": "No recognizable video in the landing directory",
+      "mainBoundToOtherCode": "The full video is already linked to another code: {{code}}",
+      "configMismatchProbe": "The current collection doesn't match the storage settings, so downloaded media can't be probed",
+      "configMismatchCollect": "The current collection doesn't match the storage settings, so metadata for the download can't be fetched",
+      "collectFailed": "Fetching metadata failed",
+      "organizeIncomplete": "Organizing files didn't finish: {{reasons}}",
+      "integrityBefore": "Database check failed before organizing: integrity={{integrity}}",
+      "integrityAfter": "Database check failed after organizing: integrity={{integrity}} new_foreign_keys={{count}}",
+      "notIngested": "The cloud download hasn't been imported yet"
+    },
+    "subtitleMemory": {
+      "invalidFields": "Invalid playback memory fields",
+      "chooseSubtitle": "Choose subtitles or turn them off",
+      "invalidRotation": "Invalid rotation",
+      "invalidRate": "Invalid playback speed",
+      "invalidCaptionStyle": "Invalid subtitle appearance",
+      "invalidSelection": "Invalid subtitle selection",
+      "invalidVideoKey": "Invalid video ID",
+      "invalidTrack": "Invalid subtitle track",
+      "invalidTrackContent": "Invalid subtitle content or name",
+      "selectionNotSaved": "The selected subtitles haven't been saved"
+    },
+    "entityIdentityResearch": {
+      "nameMismatch": "The identity list doesn't match the entity name",
+      "performerNeedsOccupation": "Moving to performers needs a fetched public occupation source",
+      "planExpired": "The identity plan is out of date",
+      "multiplePublishers": "The video has several publishers and needs review",
+      "recordChanged": "The identity repair records have changed since",
+      "newIdentityChanged": "The new identity has changed since",
+      "newIdentityHasVideos": "The new identity has extra video links",
+      "newIdentityHasData": "The new identity has extra metadata"
+    },
+    "updateTasks": {
+      "gateBusy": "The task gate is busy. It will retry automatically."
+    },
+    "avatarProvider": {
+      "unsupportedFormat": "{{format}} images aren't supported yet. Use a JPEG, PNG, WebP or AVIF image",
+      "unsupportedFormatUnknown": "This image format isn't supported yet. Use a JPEG, PNG, WebP or AVIF image",
+      "imageTooLarge": "The image has too many pixels. Make it smaller and choose it again",
+      "unrecognizedImage": "Can't recognize the image. The file may be damaged or in an unsupported format; export the image again",
+      "incompleteImage": "The image data is incomplete or can't be decoded. Download or export the image again"
+    },
+    "processingControl": {
+      "invalidMode": "Choose low, standard or high intensity mode",
+      "jobChanged": "The task has changed. Refresh the page and try again",
+      "stopped": "The processing task stopped"
+    },
+    "avatarWatermark": {
+      "modelMissing": "The text detection model isn't at {{path}}, and downloading isn't allowed",
+      "downloadFailed": "Couldn't get the text detection model: {{error}}",
+      "checksumMismatch": "The text detection model failed verification: expected {{expected}}, got {{actual}}"
+    },
+    "previewCache": {
+      "playlistNotFetched": "Playlist not found",
+      "contentSteering": "Content Steering playlists aren't supported yet",
+      "sourceUnavailable": "The preview source is unavailable",
+      "objectMissing": "The preview object doesn't exist",
+      "manifestNotFetched": "Preview manifest not found"
+    },
+    "metadataRoutes": {
+      "overrideFormat": "Source chain overrides must be written as `type=source,source`",
+      "unknownContentType": "Unknown content type: {{type}}",
+      "unknownSources": "Unknown sources: {{sources}}"
+    },
+    "libraryNfo": {
+      "tooLargeOrEntities": "The NFO file is too large or contains entity declarations",
+      "notVideo": "The NFO isn't video or episode metadata",
+      "multipleCodes": "The NFO contains several different codes"
+    },
+    "remoteReporting": {
+      "notBoolean": "Telemetry and automatic error diagnostics must be true or false",
+      "mustMatch": "Version stats and error diagnostics must be turned on or off together"
+    },
+    "studioIcons": {
+      "hashMismatch": "The candidate file's hash doesn't match the review record, so it wasn't installed: {{name}}",
+      "notSquare": "Couldn't make a usable square image, so it wasn't installed: {{name}}"
+    },
+    "fileIdentity": {
+      "invalidCache": "The local file identity cache is invalid"
+    },
+    "releaseUpdates": {
+      "toolPackageNotFound": "Couldn't get tool package details from the releases page. Check your network and the Peach proxy, then try again"
+    },
+    "sourcePreflight": {
+      "unknownSource": "Choose a supported metadata source ID"
+    },
+    "libraryProcessingScope": {
+      "libraryGone": "The selected library no longer exists. Choose again",
+      "noDirectories": "The selected library has no directories to process"
+    },
+    "access": {
+      "passwordMismatch": "The passwords don't match",
+      "passwordLength": "The access password must be 8–256 characters",
+      "invalidRememberDays": "Choose a valid stay-signed-in duration"
+    },
+    "downloadsPikpak": {
+      "missingCredentials": "Enter your PikPak account and password"
+    },
+    "upgradeRepairs": {
+      "invalidReceipt": "The post-update processing record is invalid",
+      "noDanglingReceipt": "No receipt for the dangling candidate repair",
+      "integrityFailed": "The database integrity check failed while updating existing metadata",
+      "foreignKeyFailed": "The relationship check failed while updating existing metadata",
+      "receiptNeedsPrepare": "The post-update processing record needs to be prepared again. Try again",
+      "primaryOnly": "Post-update processing is only available when this device is the primary computer",
+      "displayRepairNotReady": "Display size re-measurement isn't ready yet. Try again later",
+      "mediaRepairIncomplete": "The video upgrade fill-in didn't finish. Check Tasks, then try again"
+    },
+    "tunnel": {
+      "standalonePortInvalid": "The standalone package's Tunnel HTTP port is invalid: {{port}}",
+      "lanAddressUnknown": "Can't determine the LAN address of the source-checkout server",
+      "lanAddressNotIp": "The source-checkout Tunnel's LAN address isn't an IP: {{address}}",
+      "mdnsMissing": "The source-checkout server has no mDNS name configured",
+      "caMissing": "The source-checkout Tunnel needs the project CA: {{path}}",
+      "httpsPortInvalid": "The source-checkout Tunnel's HTTPS port is invalid: {{port}}",
+      "accessLocked": "Access settings are damaged, so the public Tunnel can't start",
+      "passwordRequired": "Set an access password before starting the public Tunnel",
+      "unsupportedAccessMode": "Access settings aren't in a supported password mode",
+      "internalTokenMissing": "The Peach internal access token is missing, so the public Tunnel can't start",
+      "invalidMode": "tunnel.mode must be quick or named: {{value}}",
+      "hostnameRequired": "A named tunnel needs a public hostname",
+      "invalidHostname": "The public hostname isn't a valid domain: {{value}}",
+      "standaloneQuickOnly": "The standalone package only supports temporary links",
+      "tokenRequired": "A named tunnel needs a Cloudflare tunnel token",
+      "httpsRequired": "The source-checkout Tunnel needs a running HTTPS server",
+      "cloudflaredMissing": "cloudflared not found: install the official cloudflared, or set its path with tunnel.binary in the settings file or PEACH_CLOUDFLARED",
+      "exitedBeforeEntry": "cloudflared exited before getting an address",
+      "startFailed": "cloudflared failed to start: {{error}}",
+      "noOutput": "cloudflared has no output channel",
+      "stateFailed": "Couldn't record the Tunnel start state: {{error}}",
+      "noEntry": "cloudflared didn't get an address in time",
+      "notConnected": "cloudflared didn't connect to the Cloudflare edge in time",
+      "stateWriteFailed": "Couldn't write the Tunnel state: {{error}}"
+    },
+    "automaticUpdates": {
+      "chooseInterval": "Choose how often to check",
+      "chooseMode": "Choose an automatic update mode",
+      "downloadUnsupported": "Automatic download only works with the standalone Windows test package",
+      "needsTray": "Automatic updates need a service managed by the tray"
+    },
+    "certs": {
+      "opensslFailed": "openssl {{command}} failed: {{detail}}",
+      "opensslMissing": "OpenSSL not found. Install it, add it to PATH, then try again."
+    },
+    "clouddriveProxy": {
+      "accountChanged": "The cloud drive account has changed. Reload it.",
+      "chooseMode": "Choose direct, system, HTTP, or SOCKS5",
+      "chooseSettings": "Choose the proxy settings to save",
+      "clearPasswordNotBoolean": "Clear password must be a boolean",
+      "configChanged": "CloudDrive2 settings have changed. Reload them before saving.",
+      "hostOnly": "Enter only a host name or IP for the proxy address",
+      "hostUserNotText": "Proxy address and username must be text",
+      "invalidCredentials": "Invalid proxy credentials format",
+      "libraryChanged": "The library has changed. Reload it.",
+      "needsModifyPermission": "The CloudDrive2 API token needs the “Modify cloud drives” permission",
+      "needsViewPermission": "The CloudDrive2 API token needs the “View cloud drives” permission",
+      "notConfigured": "Enter the CloudDrive2 address and API token in download settings first",
+      "portRange": "Proxy port must be between 1 and 65535",
+      "tokenUnreadable": "The CloudDrive2 API token can't be read. Enter it again in download settings."
+    },
+    "customMetadata": {
+      "chooseNetwork": "Choose direct connection or Peach proxy",
+      "chooseSource": "Choose a source",
+      "codeMismatch": "The code returned by the source doesn't match the requested code",
+      "codePathRequired": "Enter the path of the code field in the response",
+      "configNotObject": "Source settings must be an object",
+      "connectionFailed": "Couldn't connect to the source",
+      "contentTypeRequired": "Choose at least one valid content type",
+      "enabledNotBoolean": "The enabled state must be a boolean",
+      "endpointNeedsCode": "The endpoint URL must contain exactly one {code}",
+      "endpointNotPublicHttps": "The endpoint must be an HTTPS URL on a fixed public domain using port 443",
+      "fieldNeedsText": "The {{field}} field must be text or a number",
+      "fieldNeedsTextArray": "The {{field}} field must be an array of text",
+      "hostNotPublic": "The source domain must resolve to a public address",
+      "httpStatus": "Source responded with HTTP {{status}}",
+      "invalidCodeFormat": "Invalid code format",
+      "invalidFieldPath": "Field mappings only accept dot paths made of object keys or array indexes",
+      "invalidJson": "The source response isn't valid JSON",
+      "invalidSavedConfig": "Custom source settings are invalid",
+      "nameLength": "Source name must be 1–80 characters",
+      "proxyConfigMissing": "Peach proxy settings not found",
+      "responseTooLarge": "The source response is larger than 1 MiB",
+      "sourceMissing": "The source doesn't exist. Refresh the page.",
+      "timedOut": "The source query timed out",
+      "tooManySources": "You can save up to {{max}} sources"
+    },
+    "dataStorage": {
+      "backupNotCleaned": "Database backups weren't cleaned up: {{reason}}",
+      "busy": "Measuring or cleaning up. Please wait.",
+      "busyBeforeMigration": "Measuring or cleaning up. Wait for it to finish before migrating.",
+      "categoryNotCleanable": "This category can't be cleaned up here",
+      "chooseTarget": "Choose a new data directory",
+      "copyIncomplete": "Copy didn't finish (code 0x{{code}})",
+      "copyMismatch": "Copy is incomplete: the original directory has {{sourceFiles}} files ({{sourceSize}}), the new location has {{targetFiles}} files ({{targetSize}})",
+      "databaseCheckFailed": "Database check failed",
+      "driveRootNotAllowed": "Choose or create a dedicated directory instead of using the root of a disk",
+      "fileExists": "A file with this name already exists at this location",
+      "folderNotEmpty": "Choose an empty folder or create a new one",
+      "fullPathRequired": "Enter the full path",
+      "layoutChanged": "Storage directories changed while measuring. Measure again.",
+      "localDiskRequired": "Choose a folder on a disk of this device, for example D:\\Peach\\peach-data",
+      "measureFirst": "Measure storage usage first",
+      "measureStopped": "Measuring stopped",
+      "migrationCanceled": "Migration canceled",
+      "notEnoughSpace": "The disk at the new location has {{free}} free; migration needs about {{needed}}",
+      "notWritable": "The current user can't write to this location",
+      "overlapsCurrent": "The new location can't be the current data directory, inside it, or contain it",
+      "overlapsMedia": "The new location can't overlap a media directory",
+      "overlapsProgram": "The new location can't overlap the program directory",
+      "pathsNotRewritten": "Preview image paths couldn't be updated ({{error}}). They'll be added again the next time the collection is processed.",
+      "sourceChanged": "The data directory has changed. Choose again.",
+      "trayStillRunning": "The tray hasn't exited yet",
+      "updateRunning": "An update is still in progress. Finish it before migrating."
+    },
+    "desktopInstaller": {
+      "cachedToolInvalid": "Local tool package failed verification: {{name}}. Download it again or move this file away, then try again."
+    },
+    "devCopyRuntime": {
+      "applying": "Copy changes are being applied. Edit again later.",
+      "buildFailed": "Build failed: {{detail}}",
+      "buildIncomplete": "Build output is incomplete. See build/copy-editor/build.log for details.",
+      "nothingToRetry": "No apply task to retry",
+      "npmMissing": "npm not found. Install the Node.js version the project needs.",
+      "saving": "Other copy is being saved. Try again later.",
+      "serviceNotRecovered": "The service hasn't recovered. Check the tray log."
+    },
+    "entityClassification": {
+      "classificationConflict": "Classification sources conflict. Review them first.",
+      "identityLinkConflict": "Identity link sources conflict. Review them first.",
+      "reviewedClaim": "Can't overwrite a reviewed claim"
+    },
+    "fieldOwners": {
+      "revisionConflict": "The asset has changed: expected revision {{expected}}, current value in the database {{current}}"
+    },
+    "folderPicker": {
+      "busy": "A folder selection window is already open",
+      "cannotOpen": "The system folder dialog can't be opened on this device",
+      "failed": "Couldn't open the folder dialog",
+      "noPermission": "Peach on this device doesn't have permission to show the dialog",
+      "unsupportedSystem": "No folder dialog is available on this system"
+    },
+    "followEvidence": {
+      "estimating": "Still counting files that can be cleaned up. Try again later.",
+      "running": "Cleaning up. Wait for this run to finish."
+    },
+    "javBrowser": {
+      "channelNotConfigured": "Set up a cloud drive account and target directory in download channels first",
+      "chooseAction": "Choose to turn on, renew the token, or turn off",
+      "codeNotRecognized": "No video code recognized. Select the full code on the page, then add it to Peach.",
+      "codeProductMismatch": "The code on the page doesn't match the product ID. Check the video details.",
+      "codeRequired": "Provide a specific JAV code",
+      "deviceNotAllowed": "Browser adding is only available on devices allowed to change the database.",
+      "invalidDismiss": "Invalid acknowledgment parameters",
+      "invalidEdition": "Invalid edition parameter",
+      "invalidRetryAttempt": "Invalid retry count in the browser adding queue",
+      "invalidRetryTime": "Invalid retry time in the browser adding queue",
+      "invalidSwitch": "Invalid switch magnet link parameter",
+      "manualRejectsSource": "Manual adding doesn't accept a source page URL",
+      "notEnabled": "Turn on browser adding first",
+      "nothingToRetry": "This code has no failed organizing to retry",
+      "queueFull": "The adding queue is full. Wait for current tasks to finish.",
+      "queueUnreadable": "The browser adding queue can't be read",
+      "unsupportedPage": "Add from a supported JAV video detail page"
+    },
+    "librarySharing": {
+      "choiceNotBoolean": "The collection and taste upload option must be a boolean",
+      "compressedTooLarge": "Collection and taste details exceed 18 MiB after compression, so nothing was sent",
+      "previewFirst": "Review the field and data preview first, then explicitly agree to upload",
+      "tooLarge": "Collection and taste details exceed 100 MiB, so nothing was sent"
+    },
+    "localPlayback": {
+      "deploymentUnsupported": "For this deployment, use the network playback URL or an M3U playlist",
+      "fileUnsupported": "For this file, use the network playback URL or an M3U playlist",
+      "playerMissing": "The player isn't installed. Choose again."
+    },
+    "mediaFolders": {
+      "folderMissing": "The directory doesn't exist or was moved out of the library"
+    },
+    "mediaTools": {
+      "checksumFailed": "{{label}} tool package files failed verification",
+      "digestMismatch": "The {{label}} tool package doesn't match the release checksum. The download was discarded. Try again.",
+      "downloadFailed": "{{label}} tool package download failed: {{error}}",
+      "installing": "{{label}} is being installed. Please wait.",
+      "manifestMissing": "The {{label}} tool package is missing a valid file manifest",
+      "unknownTool": "Unknown media tool",
+      "unsupportedPlatform": "Releases only include the {{label}} tool package for Windows x64. Download it from the official site and add it to PATH."
+    },
+    "metadataAutoApply": {
+      "codeMismatch": "The source didn't return {{code}}: id={{providerId}} content_id={{contentId}}",
+      "confidenceOutOfRange": "Candidate confidence is out of range",
+      "invalidConfidence": "Invalid candidate confidence",
+      "invalidPerformer": "Invalid performer candidate entry",
+      "invalidReleaseDate": "Invalid release date candidate",
+      "invalidSource": "Invalid candidate source",
+      "invalidTitle": "The title candidate is empty, too long, or has control characters",
+      "noMatchingAsset": "No matching available asset in the current database",
+      "performersEmpty": "Performer candidate is empty",
+      "performersNotArray": "Performer candidates must be an array",
+      "r18TitleEvidenceMissing": "r18 original title evidence not found. Fetch the metadata again.",
+      "releaseDateFormat": "The release date candidate must be YYYY-MM-DD",
+      "tagsEmpty": "Tag candidate is empty",
+      "tagsNotArray": "Tag candidates must be an array",
+      "tooManyAssets": "{{count}} assets share this code, more than the limit of {{limit}} per approval",
+      "undecodableText": "Source text has characters that can't be decoded. Fetch the metadata again.",
+      "unmappedField": "This metadata field has no Peach write mapping",
+      "unnormalizedName": "The candidate still has a duplicated or unnormalized name, so it wasn't written"
+    },
+    "metadataCreatorAttributions": {
+      "assetChanged": "Asset {{asset}} has changed since, so the batch wasn't rolled back",
+      "creatorLinkExists": "The creator link already exists, so the batch wasn't rolled back",
+      "creatorLinksChanged": "Creator links have changed since, so the batch wasn't rolled back",
+      "creatorWriteRefused": "The creator field of asset {{asset}} wasn't written",
+      "labelLinksChanged": "Label links have changed since, so the batch wasn't rolled back",
+      "multipleCreators": "Asset {{asset}} has several remaining creators. Review its compatibility projection.",
+      "newLabelChanged": "The new label's metadata has changed since",
+      "newLabelHasExtra": "The new label has additional metadata, so the batch wasn't rolled back",
+      "planOutdated": "The audit plan doesn't match the current database. Preview again.",
+      "plannedAccountMissing": "The planned account identity doesn't exist",
+      "plannedLabelMissing": "The planned label identity doesn't exist",
+      "profileMissing": "The profile no longer exists, so the batch wasn't rolled back"
+    },
+    "metadataTextRepair": {
+      "entityTaken": "The id or name of entity {{id}} “{{name}}” is already taken, so the batch wasn't restored"
+    },
+    "recordRehome": {
+      "batchMissing": "No batch {{batch}} to revert",
+      "oldNotVanished": "Only a vanished row can be reconnected",
+      "oldRowTaken": "The id or path of old row {{row}} is already taken, so it can't be reverted",
+      "targetNotPresent": "Can only reconnect to another row that's in the collection"
+    },
+    "seedCorrections": {
+      "contentChanged": "Seed content for this version differs from the imported history",
+      "legacyVersionBack": "Legacy seed version can't go back",
+      "revisionReused": "Seed revision can't go back or be reused",
+      "withdrawalsMissing": "Seed must carry over every previous withdrawal unchanged"
+    },
+    "standaloneUpdate": {
+      "checksumFailed": "The update package failed verification. Download it again.",
+      "dataInsideProgram": "The data directory is inside the program directory, so it can't be replaced automatically",
+      "databaseRestoreCheckFailed": "Database restore check failed",
+      "databaseUpgradeFailed": "Database update failed",
+      "expandedTooLarge": "The update package is too large when extracted",
+      "inAppUnsupported": "This installation doesn't support in-app updates. Download the new version from the release page.",
+      "invalidPath": "The update package contains an invalid path",
+      "invalidSize": "{{label}} size is invalid",
+      "invalidUpdateDirectory": "The update directory is invalid",
+      "missingChecksum": "{{label}} is missing SHA-256 checksum information",
+      "newVersionNotReady": "The new version didn't become ready",
+      "notReady": "The update isn't ready yet",
+      "notStandalone": "The update package isn't the standalone Windows version",
+      "pathConflict": "The update package has duplicate or out-of-bounds paths",
+      "recoveryPathOutside": "A task recovery path is outside the allowed directory",
+      "secondaryCannotMigrate": "A secondary computer can't migrate the database",
+      "secondaryNeedsPrimary": "This device can't migrate the database: {{reason}}. Migrate on the primary computer first, then sync.",
+      "signatureFailed": "Release signature verification failed, so the update was stopped. Download the new version from the release page.",
+      "sizeMismatch": "The download size doesn't match the release record",
+      "stateFileMismatch": "The update state file doesn't match",
+      "toolChecksumFailed": "{{tool}} tool package files failed verification",
+      "toolReuseFailed": "Reused {{tool}} tool failed verification",
+      "trayStillRunning": "The tray hasn't exited, so the installation was canceled",
+      "unlistedToolFile": "The tool package contains files not in its manifest",
+      "versionMismatch": "The package version doesn't match the release version"
+    },
+    "subtitles": {
+      "encodingUnknown": "Encoding not recognized",
+      "imageSubtitle": "Image-based subtitles can't be played as a text track"
+    },
+    "westernProfiles": {
+      "identityChanged": "The performer identity has changed. Preview again."
+    },
+    "libraryProcessing": {
+      "stopped": "Processing task stopped.",
+      "companionImageChangedOnSave": "The companion image changed while being saved.",
+      "readOnlyDevice": "This device is read-only. Scan and import metadata on the primary computer.",
+      "evidenceNotSaved": "Couldn't save metadata evidence: {{error}}",
+      "invalidSelection": "Select valid videos.",
+      "selectionGone": "The selected videos no longer exist or were moved to the trash. Refresh and try again.",
+      "previewNotGenerated": "The preview image wasn't generated. Check the media file and try again.",
+      "previewUnreadable": "Couldn't read the preview image. Try again.",
+      "previewNotSaved": "Couldn't save the preview image: {{error}}",
+      "progressNotSaved": "Couldn't save processing progress: {{error}}",
+      "invalidStage": "Invalid processing stage.",
+      "previewsDisabled": "Preview generation is turned off. Turn it on in library preferences first.",
+      "selectionWithRetry": "Selected items and failed-item retries can't be used together.",
+      "previewsNeedWriter": "Generating preview images requires a write connection to the shared collection.",
+      "nfoCodeConflict": "The file name and NFO code conflict. Review it.",
+      "notInLibrary": "The selected videos don't belong to the current library."
+    },
+    "followStream": {
+      "coolingDown": "{{provider}} is cooling down after rate limiting. Try again in {{seconds}} seconds.",
+      "recentMiss": "The source media wasn't found just now. Try again later.",
+      "noSuchMedia": "This media index doesn't exist.",
+      "badMediaEntry": "The media entry has an unexpected format.",
+      "gofileUntrustedUrl": "Gofile returned an untrusted media URL.",
+      "gofileTokenMissing": "The Gofile API token isn't set up.",
+      "fanboxUntrustedUrl": "FANBOX returned an untrusted image URL.",
+      "f95UntrustedUrl": "F95 returned an untrusted image URL.",
+      "f95NeedsSession": "F95 attachments need a signed-in session.",
+      "mediaUrlUnavailable": "The source media URL is unavailable.",
+      "unsupportedProvider": "This media provider isn't supported.",
+      "needsSession": "This media needs a signed-in session for its source.",
+      "rule34videoDetailUrlUnavailable": "The Rule34Video detail URL is unavailable.",
+      "iwaraUrlUnavailable": "The Iwara video URL is unavailable.",
+      "sourceFailed": "{{reason}}",
+      "rule34videoDetailNotFetched": "Couldn't get the Rule34Video detail page.",
+      "rule34videoVideoUrlNotFetched": "Couldn't get the Rule34Video full video URL."
+    },
+    "mediaIdentity": {
+      "libraryNameInvalid": "Library names must be 1 to 80 visible characters.",
+      "libraryIconInvalid": "Choose a library icon from the list.",
+      "libraryColorInvalid": "Choose a source color from the list.",
+      "libraryPolicyInvalid": "Choose a processing mode from the list.",
+      "stagesInvalid": "Invalid processing steps.",
+      "rootLibraryMissing": "The library for this storage root directory doesn't exist.",
+      "rootPathNotWindows": "Storage root directories must use a full Windows path.",
+      "rootSourceInvalid": "The storage root directory has an invalid source or read policy.",
+      "rootOverlap": "This media path duplicates or contains another directory.",
+      "transportInvalid": "Invalid media connection type.",
+      "mountNotAbsolute": "Mount directories must use a full path.",
+      "mountOverlap": "This media directory duplicates or contains another row.",
+      "mountOverlapsRoot": "The mount directory overlaps a database path. Use a separate directory.",
+      "rootChanged": "Storage root directories have changed. Refresh the settings.",
+      "rootIdentityFixed": "The source and database path of an existing root directory can't be changed. Add another directory instead.",
+      "relocateOrAdd": "Choose to relocate this directory, or add another directory.",
+      "rootDuplicate": "The same storage root directory can't be added more than once.",
+      "libraryMismatch": "Name, icon, source color and processing mode must match within the same library."
+    },
+    "ledgerBackups": {
+      "ledgerMissing": "The database doesn't exist.",
+      "backupIntegrityFailed": "The backup failed the integrity check: {{check}}",
+      "chooseBackup": "Choose a backup from the list.",
+      "backupGone": "This backup no longer exists. Refresh the list.",
+      "thisBackupIntegrityFailed": "This backup failed the integrity check: {{check}}",
+      "schemaMismatch": "This backup's schema doesn't match this version of Peach: {{error}}",
+      "migratedIntegrityFailed": "The backup failed the integrity check after migrating to the current schema: {{check}}",
+      "pageSizeMismatch": "This backup's page size differs from the current database, so it can't be restored while the server is running.",
+      "savedCopyIntegrityFailed": "The saved copy of the current database failed the integrity check. Nothing was restored.",
+      "restoredIntegrityFailed": "The restored database failed the integrity check: {{check}}",
+      "restoreSettled": "{{message}}",
+      "busy": "A backup or restore is in progress. Wait for it to finish.",
+      "writerOnly": "Only the primary computer can restore the database: {{reason}}",
+      "tasksRunning": "Background tasks are still running: {{tasks}}. Wait for them to finish or stop them, then restore.",
+      "tasksRunningNotRestored": "Background tasks are still running: {{tasks}}. Nothing was restored."
+    },
+    "onboarding": {
+      "dataRootEmpty": "The Peach data directory can't be empty.",
+      "dataRootIsFile": "{{path}} is a file. The Peach data directory must be a directory.",
+      "mediaDirEmpty": "The media directory can't be empty.",
+      "mediaDirMissing": "The directory doesn't exist or isn't a directory: {{path}}. Create it first.",
+      "mediaDirNotDrive": "{{path}} isn't a drive-letter path. Map network locations to a drive letter first.",
+      "hostChoice": "Enter 1 (this device only) or 2 (devices on the same LAN)",
+      "portInvalid": "The port must be a whole number from 1 to 65535.",
+      "portInUse": "This port is already in use. Choose another port.",
+      "mdnsNameInvalid": "Names can only use letters, digits and hyphens, and can't start or end with a hyphen.",
+      "yesNo": "Enter y or n.",
+      "tooManyAttempts": "No valid answer for \"{{prompt}}\" after {{attempts}} attempts.",
+      "inputEnded": "Input ended."
+    },
+    "pushDiscovery": {
+      "badSegment": "✗ The cloud path has an unacceptable segment: {{segment}}",
+      "nothingAfterPrefix": "✗ The cloud path has nothing after the prefix.",
+      "noCloudPath": "✗ The request has no cloud path.",
+      "pathIsPrefix": "✗ The cloud path is the prefix itself, with no file.",
+      "noPrefixes": "✗ {{path}} isn't under any configured prefix. Known: (none configured)",
+      "notUnderPrefix": "✗ {{path}} isn't under any configured prefix. Known: {{known}}",
+      "noDeclaredRoots": "{{root}} isn't a declared media root. Known: (none in the settings file)",
+      "undeclaredRoot": "{{root}} isn't a declared media root. Known: {{known}}",
+      "duplicatePrefix": "Prefix {{prefix}} is added more than once.",
+      "cloudChannelOff": "✗ The cloud channel isn't turned on.",
+      "notUnderStorage": "✗ {{path}} isn't under any directory configured in storage.",
+      "writerOnly": "Push discovery is only available on devices allowed to change the database."
+    },
+    "organize": {
+      "unverifiedBatch": "Renames on the mounted {{locations}} can't be verified in the cloud, so the whole batch was not run. Use the official verified channel (for example organize_library_dirs.py --pikpak-webdav)",
+      "scopeNotDirectory": "The organize path must be a directory path.",
+      "scopeTraversal": "The organize path can't contain parent-directory jumps or null characters.",
+      "scopeNotAbsolute": "The organize path must be an absolute directory path inside the selected location, without parent-directory jumps.",
+      "scopeOutsideLocation": "The organize path isn't inside the selected location.",
+      "unverifiedRename": "Renames on the mounted {{location}} can't be verified in the cloud. Use the official verified channel.",
+      "smbSameRootOnly": "SMB organizing only works within the same media root directory.",
+      "rowChanged": "This row has changed in the database."
+    },
+    "desktopStartup": {
+      "shortcutTimeout": "The Windows shortcut operation timed out (waited {{seconds}} seconds). Try again later.",
+      "shortcutNotSaved": "Couldn't save the startup entry. Check permissions on the current user's Startup folder (PowerShell: {{reason}})",
+      "desktopShortcutForeign": "The desktop shortcut belongs to another Peach installation.",
+      "startupEntryForeign": "The startup entry belongs to another Peach installation.",
+      "optionsNotBoolean": "Startup options must be on or off.",
+      "desktopShortcutUnsupported": "This system doesn't offer desktop shortcuts.",
+      "trayMissing": "The tray app wasn't found on this device.",
+      "platformUnsupported": "This system doesn't offer a start-at-sign-in entry."
+    },
+    "folderRules": {
+      "settingsInvalid": "User settings have an invalid format.",
+      "rulesInvalid": "Directory rules have an invalid format.",
+      "choosePurpose": "Choose what this directory is for.",
+      "scopeRequired": "Choose the directory scope and the setting for new files.",
+      "nameTooLong": "Linked names can be up to 200 characters.",
+      "nameRequired": "Enter a linked name.",
+      "nameAmbiguous": "This name matches several identities or spellings. Use the canonical name from the profile page.",
+      "settingsMissing": "The current user settings don't exist."
+    },
+    "diagnosticExports": {
+      "chooseKind": "Choose a diagnostics report or scraping records.",
+      "alreadyRunning": "A diagnostics export is already running. Wait for it to finish or cancel it.",
+      "jobChanged": "The export task has changed. Refresh and try again."
+    },
+    "migrations": {
+      "unsupportedMigrations": "The database contains migrations this version of Peach doesn't support. Use a matching version or the backup from before the upgrade.",
+      "checksumChanged": "The checksum of applied migration {{version}} has changed."
+    },
+    "followScheduler": {
+      "autoRunOff": "Automatic runs aren't turned on."
+    },
+    "tasteBookmarks": {
+      "tooLarge": "The bookmarks file is larger than 64 MB.",
+      "missingRoots": "The bookmarks JSON is missing Chromium roots.",
+      "invalidNode": "The bookmarks JSON contains an invalid node.",
+      "invalidFolder": "The bookmarks JSON contains an invalid folder.",
+      "unsupportedFile": "Choose an HTML bookmarks file exported from a browser, or a Chromium Bookmarks file.",
+      "unreadable": "Couldn't read the bookmarks file. Check the file format and import it again."
+    },
+    "displayDimensionsRepair": {
+      "notPrepared": "The display dimension re-measure record isn't ready yet.",
+      "ffprobeMissing": "ffprobe wasn't found for re-measuring display dimensions.",
+      "notMeasured": "Couldn't get the display dimensions. The existing measurement was kept.",
+      "changedDuringRepair": "The video or its measurement changed while re-measuring. Try again."
+    },
+    "fanbox": {
+      "emptyPostType": "Unsupported FANBOX post type: empty.",
+      "unsupportedPostType": "Unsupported FANBOX post type: {{type}}",
+      "missingBody": "The public FANBOX post is missing its body."
+    },
+    "storageExternalCache": {
+      "remoteNeedsManualPath": "For a remote CloudDrive, enter a cache mapping directory that Peach can reach.",
+      "tokenNeedsPermission": "Reading it automatically needs the “View system settings” permission on the CloudDrive API token.",
+      "noCacheDirectory": "CloudDrive didn't return a cache directory. Enter it manually."
+    },
+    "downloadsPikpakBrowser": {
+      "browserMissing": "Chrome or Edge wasn't found on this device, so browser sign-in isn't available. Expand the section below to sign in with an account and password."
+    },
+    "taskResources": {
+      "ownersUnavailable": "Couldn't get the resource ownership record for this task run.",
+      "ownersInvalid": "The resource ownership record for this task run is invalid."
+    },
+    "genreDecisions": {
+      "emptyGenre": "The genre to add is empty."
+    },
+    "mediaProbe": {
+      "strmIsoNotProbed": "STRM and ISO files aren't probed."
+    },
+    "platform": {
+      "windowsDirectoryUnavailable": "Couldn't get the Windows system directory."
+    },
+    "seedFollowup": {
+      "digestMismatch": "The seed contents don't match the queued task's digest. Dispatch it again."
+    }
   }
 }

@@ -23,6 +23,7 @@ from pathlib import Path, PureWindowsPath
 from .mp4repair import RepairUnavailable, _top_level
 from .ffmpeg import bundled_tools_root
 from .task_control import run as run_task_process
+from .user_messages import UserOSError
 
 UNTRUNC_ENV = "PEACH_UNTRUNC"
 #: 一部坏片最多试几个参照。每试一个都要把坏片完整读一遍，网盘上是实打实的流量。
@@ -175,7 +176,7 @@ def replace_original(source: Path, repaired: Path) -> Path:
     try:
         shutil.copyfile(repaired, staged)
         if staged.stat().st_size != repaired.stat().st_size:
-            raise OSError("写到原目录的副本大小不对")
+            raise UserOSError("errors.mp4recover.stagedSizeMismatch")
         os.replace(source, kept)
     except BaseException:
         staged.unlink(missing_ok=True)

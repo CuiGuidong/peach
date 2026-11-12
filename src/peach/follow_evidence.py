@@ -19,6 +19,7 @@ import threading
 import time
 from contextlib import nullcontext
 from pathlib import Path
+from .user_messages import UserValueError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -155,9 +156,9 @@ class Reclaim:
         with self._lock:
             phase = self._state['phase']
             if phase == 'running':
-                raise ValueError('正在清理，请等这一次做完')
+                raise UserValueError("errors.followEvidence.running")
             if phase != 'ready':
-                raise ValueError('还在统计能清理的文件，请稍后再试')
+                raise UserValueError("errors.followEvidence.estimating")
             self._state = {'phase': 'running', 'done': 0, 'total': int(self._state.get('files') or 0)}
             self.worker = threading.Thread(target=self._run, name='follow-evidence-reclaim', daemon=True)
             self.worker.start()

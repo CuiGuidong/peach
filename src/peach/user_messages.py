@@ -36,6 +36,26 @@ class UserValueError(UserFacingError, ValueError):
     再用 `error_fields` 或 `error_detail` 把 code 带进响应。"""
 
 
+class UserRuntimeError(UserFacingError, RuntimeError):
+    """运行到一半做不下去、要告诉用户原因的错误；仍是 `RuntimeError`。"""
+
+
+class UserPermissionError(UserFacingError, PermissionError):
+    """权限或身份不对；仍是 `PermissionError`。"""
+
+
+class UserOSError(UserFacingError, OSError):
+    """文件、目录或挂载读写不了；仍是 `OSError`。"""
+
+
+class UserTimeoutError(UserFacingError, TimeoutError):
+    """等太久没有结果；仍是 `TimeoutError`。"""
+
+
+class UserInterruptedError(UserFacingError, InterruptedError):
+    """任务被停下时给人看的原因；仍是 `InterruptedError`，按停止信号捕获的地方照旧。"""
+
+
 def message_fields(code: str, params: Mapping[str, Any] | None = None, *, key: str = "message") -> dict[str, Any]:
     """一句界面文字的响应字段。`key` 是兜底原文所在的键：成功用 `message`，失败用 `error`。"""
     values = dict(params or {})

@@ -304,7 +304,7 @@ class EntityClassificationTests(unittest.TestCase):
                 classification.write_claim(self.connection,entity_id=entity_id,facet='identity',value='person',source='script:lookup',evidence='推断',**patch)
         with self.assertRaises(ValueError):
             self.claim(entity_id,'occupation','unknown_profession')
-        with self.assertRaisesRegex(ValueError,'代码判据'):
+        with self.assertRaisesRegex(ValueError,'code-rule sources'):
             classification.write_claim(self.connection,entity_id=entity_id,facet='identity',value='person',
                 source='script:identity-research',source_url='https://publisher.test/profile',
                 evidence='研究清单判断',status='observed',confidence=1)

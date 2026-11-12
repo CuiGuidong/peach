@@ -1481,12 +1481,12 @@ class StandaloneConfigurationTests(_Case):
                 self.assertEqual(client.post("/api/pick-folder", headers=headers, json={}).status_code, 403)
             self.assertEqual(picker.call_count, 1)
         with mock.patch("peach.folder_picker.pick_folder",
-                        side_effect=folder_picker.PickerUnavailable("这个系统上没有可用的文件夹对话框")):
+                        side_effect=folder_picker.PickerUnavailable("errors.folderPicker.unsupportedSystem")):
             with self.client() as client:
                 response = client.post("/api/pick-folder", headers=headers, json={})
         self.assertEqual(response.status_code, 501)
         self.assertEqual(response.json()["error"], "这个系统上没有可用的文件夹对话框")
-        busy = folder_picker.PickerBusy("已经有一个选择文件夹的窗口开着")
+        busy = folder_picker.PickerBusy("errors.folderPicker.busy")
         with mock.patch("peach.folder_picker.pick_folder", side_effect=busy):
             with self.client() as client:
                 self.assertEqual(client.post("/api/pick-folder", headers=headers, json={}).status_code, 409)

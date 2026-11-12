@@ -143,7 +143,7 @@ def validate_provider_code(code: str) -> str:
         return tokyo
     value = raw.upper()
     if not _SAFE_CODE.fullmatch(value):
-        raise ValueError("metadata provider 只接受规范化番号，不接受路径、URL 或任意文本")
+        raise ValueError("metadata provider only accepts normalized codes, not paths, URLs, or arbitrary text")
     return value
 
 

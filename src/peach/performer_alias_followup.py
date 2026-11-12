@@ -188,7 +188,7 @@ def parse_key(key: str) -> int:
     """把后继 key 拆回女优 id。形状不对就抛——那说明排队的行不是这个版本写的。"""
     prefix, _, raw = str(key).partition(":")
     if prefix != TASK_KEY or not raw.isdigit():
-        raise ValueError(f"认不出这条补别名后继：{key}")
+        raise ValueError(f"unrecognized performer alias followup key: {key}")
     return int(raw)
 
 
@@ -836,7 +836,7 @@ def merge_one_person(contract, entity_id: int, rows: list[dict], batch: str) -> 
         broken = [row for row in connection.execute("PRAGMA foreign_key_check")
                   if tuple(row) not in existing]
         if broken:
-            raise RuntimeError(f"合并实体 {source_id} 进 {target_id} 后外键校验有 {len(broken)} 条违规")
+            raise RuntimeError(f"foreign key check found {len(broken)} violations after merging entity {source_id} into {target_id}")
     contract.cache_bust()
     sites = "、".join(dict.fromkeys(row["site"] for row in taken))
     for row in taken:

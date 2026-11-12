@@ -15,6 +15,7 @@ from pathlib import Path
 from .media_sources import SOURCE_COSTS, cost_for, cost_sql
 from .repository import in_background
 from .task_stages import stage as stage_fields, stage_progress
+from .user_messages import UserFacingError
 
 DEFAULT_METERED_LOCATIONS = frozenset(location for location, cost in SOURCE_COSTS.items()
                                     if cost == 'metered') | {'online'}
@@ -24,7 +25,7 @@ class JobPolicyError(RuntimeError):
     exit_code = 1
 
 
-class MeteredSourceDenied(JobPolicyError):
+class MeteredSourceDenied(UserFacingError, JobPolicyError):
     exit_code = 2
 
 
@@ -105,9 +106,7 @@ class SourceAccessPolicy:
     ) -> tuple[str, tuple[str, ...]]:
         """返回参数化 location 条件；显式计费授权是唯一放行入口。"""
         if location and not allow_metered and self.requires_budget(location):
-            raise MeteredSourceDenied(
-                f"{location} 的目录已开启代理流量保护；确认预算后显式加 --allow-metered"
-            )
+            raise MeteredSourceDenied("errors.jobs.meteredSourceDenied", {"location": location})
 
         clauses: list[str] = []
         parameters: list[str] = []

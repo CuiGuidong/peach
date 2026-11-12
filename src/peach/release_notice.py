@@ -139,4 +139,4 @@ def acknowledge(connection, version: str = __version__) -> None:
         'UPDATE profile SET settings_json=?,updated_at=? WHERE id=?',
         (json.dumps(settings, ensure_ascii=False), record['acknowledged_at'], DEFAULT_PROFILE_ID)).rowcount
     if not updated:
-        raise ValueError('当前用户设置不存在')
+        raise ValueError('current profile settings do not exist')

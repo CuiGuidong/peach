@@ -59,6 +59,7 @@ from .processing_control import (task_control, bind_control, checkpoint_values,
                                  initial_estimate, ProcessingEstimate, interrupted_state,
                                  deadline_after, resume_fields, processing_item, ItemSkipped)
 from .task_stages import stage as stage_fields, stage_code
+from .user_messages import UserFacingError, UserInterruptedError, UserOSError, UserValueError
 
 
 def translate_ledger_path(raw):
@@ -139,6 +140,13 @@ def _again(error):
     """缓存着的失败再抛一次时交一个同类同措辞的新实例；`SourceFailure` 连细档与状态码一起带上。"""
     if isinstance(error, SourceFailure):
         return SourceFailure(error.reason, error.message, status_code=error.status_code, detail=error.detail)
+    from .user_messages import UserFacingError
+    if isinstance(error, UserFacingError):
+        # 带 code 的异常第一个参数是 code，不能拿原句重建：复制一份，code、参数与状态码原样带上。
+        again = type(error).__new__(type(error))
+        again.__dict__.update(error.__dict__)
+        again.args = error.args
+        return again
     again = type(error)(str(error))
     if hasattr(error, 'sites'):
         again.sites = error.sites
@@ -809,7 +817,7 @@ class LibraryMetadataProvider:
             if problems:
                 # 有来源这一趟没问成（冷却、配额、超时），它那里可能有原图：不能记成一周不问。
                 raise _unreached(problems)
-            raise CoverKept(f'来源给的封面 {size[0]}×{size[1]} 未提高本机封面质量')
+            raise CoverKept(f'source cover {size[0]}x{size[1]} does not improve the local cover')
         from .cover_artwork import install_cover
         title = artwork_title(snapshots)
         install_cover(target, code, data, size, evidence=dict(source=candidate.source, title=title,
@@ -899,7 +907,7 @@ def _processing_lock(config, *, background, active):
                 break
             except Timeout:
                 if not active():
-                    raise InterruptedError('处理任务已停止') from None
+                    raise UserInterruptedError('errors.libraryProcessing.stopped') from None
                 time.sleep(LOCK_RETRY_SECONDS)
         try:
             yield active
@@ -1125,7 +1133,7 @@ def _read_local_posters(jobs, state, *, update, issue, generated_root=None):
                     data, size, stamp = future.result()
                     derived = generated_root is not None and target.parent == generated_root
                     if derived and stamp != artifact_rules.fingerprint(source):
-                        raise OSError('配套图片在读取时发生变化')
+                        raise OSError('companion image changed while being read')
                 except InterruptedError:
                     raise
                 except (OSError, ValueError, subprocess.TimeoutExpired) as error:
@@ -1138,7 +1146,7 @@ def _read_local_posters(jobs, state, *, update, issue, generated_root=None):
                         install_cover(target, code, data, size)
                         if derived and not artifact_rules.remember(
                                 target, upgrade_rules.LOCAL_POSTERS, source=source, source_fingerprint=stamp):
-                            raise OSError('配套图片在保存时发生变化')
+                            raise UserOSError('errors.libraryProcessing.companionImageChangedOnSave')
                         state['covers'] += 1
                 done += 1
                 update(checked=done, covers=state['covers'])
@@ -1178,7 +1186,7 @@ def _require_writer(config, db_path):
         device_path = config.directory('state') / 'device-id'
         device = device_path.read_text(encoding='utf-8').strip() if device_path.is_file() else ''
         if not device or writer_device(Path(db_path), config.shared_root / 'database' / 'ledger.db') != device:
-            raise ValueError('这台电脑是只读端，请在写入端扫描和导入资料')
+            raise UserValueError('errors.libraryProcessing.readOnlyDevice')
 
 
 def _text(raw):
@@ -1576,7 +1584,8 @@ class _MetadataResults:
         except InterruptedError:
             raise
         except OSError as error:
-            raise _ProcessingPersistenceError(f'资料证据无法保存：{error}') from error
+            raise _ProcessingPersistenceError('errors.libraryProcessing.evidenceNotSaved',
+                                              {'error': str(error)}) from error
 
 
 class _RemoteSession:
@@ -2498,21 +2507,21 @@ def _asset_selection(db_path, asset_ids):
         return None
     if not isinstance(asset_ids, list) or not asset_ids or any(
             type(value) is not int or value <= 0 for value in asset_ids):
-        raise ValueError('请选择有效的视频项目')
+        raise UserValueError('errors.libraryProcessing.invalidSelection')
     chosen = list(dict.fromkeys(asset_ids))
     with closing(sqlite3.connect(db_path, timeout=30)) as connection:
         found = {row[0] for row in connection.execute(
             "SELECT id FROM asset WHERE id IN (SELECT value FROM json_each(?)) "
             "AND medium='video' AND disposal IS NULL", (json.dumps(chosen),))}
     if found != set(chosen):
-        raise ValueError('所选视频已不存在或已移入回收站，请刷新后重试')
+        raise UserValueError('errors.libraryProcessing.selectionGone')
     return chosen
 
 
 PREVIEW_TIMEOUT_SECONDS = 120.0
 
 
-class _ProcessingPersistenceError(RuntimeError):
+class _ProcessingPersistenceError(UserFacingError, RuntimeError):
     """公共进度或检查点未保存，必须由任务层处理。"""
 
 
@@ -2641,11 +2650,12 @@ def _generate_preview(config, row, database, resolver, *, progress):
                 with atomic_path(destination) as output:
                     if not frame_capture.tile_frames(str(choice.path), str(frames / 's%02d.jpg'), 3, 3, output,
                                                      timeout=remaining(60)):
-                        raise ValueError('预览图未生成，请检查媒体文件后重试')
+                        raise UserValueError('errors.libraryProcessing.previewNotGenerated')
                     if not measure_image_file(output):
-                        raise ValueError('预览图无法读取，请重试')
+                        raise UserValueError('errors.libraryProcessing.previewUnreadable')
             except OSError as error:
-                raise _ProcessingPersistenceError(f'预览图无法保存：{error}') from error
+                raise _ProcessingPersistenceError('errors.libraryProcessing.previewNotSaved',
+                                                  {'error': str(error)}) from error
     artifact_rules.remember(destination)
     progress()
     with database.write_transaction() as connection:
@@ -2693,7 +2703,8 @@ def _generate_previews(config, rows, database, *, update, issue, guard,
             except InterruptedError:
                 raise
             except OSError as error:
-                raise _ProcessingPersistenceError(f'处理进度无法保存：{error}') from error
+                raise _ProcessingPersistenceError('errors.libraryProcessing.progressNotSaved',
+                                                  {'error': str(error)}) from error
         progress()
         try:
             made += int(_generate_preview(config, row, database, resolver, progress=progress))
@@ -2782,14 +2793,14 @@ def _validate_processing_request(config, db_path, stage, asset_ids, retry_ids, d
     """校验处理范围、选择与预览生成所需条件，返回规范的所选影片。"""
     _require_writer(config, db_path)
     if stage not in STAGES:
-        raise ValueError('处理阶段无效')
+        raise UserValueError('errors.libraryProcessing.invalidStage')
     if stage == PREVIEWS_STAGE and metadata_only(config.directory('state')):
-        raise ValueError('视频预览生成已关闭，请先在媒体库设置中开启')
+        raise UserValueError('errors.libraryProcessing.previewsDisabled')
     if asset_ids is not None and retry_ids is not None:
-        raise ValueError('选择项目与失败重试不能同时使用')
+        raise UserValueError('errors.libraryProcessing.selectionWithRetry')
     selected_ids = _asset_selection(db_path, asset_ids)
     if stage == PREVIEWS_STAGE and database is None:
-        raise ValueError('生成预览图需要共享馆藏写入连接')
+        raise UserValueError('errors.libraryProcessing.previewsNeedWriter')
     return selected_ids
 
 
@@ -2829,7 +2840,7 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
         try:
             payload, raw = read_nfo(nfo)
             if payload['id'] and code and not same_release_code(code, payload['id']):
-                raise ValueError('文件名与 NFO 番号冲突，请复核')
+                raise UserValueError('errors.libraryProcessing.nfoCodeConflict')
             code = code or _provider_code(payload['id'])
         except InterruptedError:
             raise
@@ -3028,7 +3039,7 @@ def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, databas
     selected_ids = _validate_processing_request(config, db_path, stage, asset_ids, retry_ids, database)
     if library_id and selected_ids is not None:
         if set(scoped_assets(config, db_path, library_id, selected_ids)) != set(selected_ids):
-            raise ValueError('所选影片不属于当前媒体库')
+            raise UserValueError('errors.libraryProcessing.notInLibrary')
     return config, library_id, selected_ids
 
 
@@ -3131,7 +3142,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
         def update(**values):
             _require_writer(config, db_path)
             if not active():
-                raise InterruptedError('处理任务已停止')
+                raise UserInterruptedError('errors.libraryProcessing.stopped')
             checkpoint_values(values)
             state.update(values)
             estimate.update(state)

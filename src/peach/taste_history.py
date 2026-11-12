@@ -34,6 +34,7 @@ import ahocorasick
 from .catalog_rules import LENGTH_TAGS, TECH_TAGS
 from .review_csv import read_rows, write_rows
 from .taste_sites import ADULT_DOMAINS, MIXED_DOMAINS, account_key, identity_context, mixed_adult, parse_url
+from .user_messages import UserTimeoutError, UserValueError
 
 
 @dataclass(frozen=True)
@@ -219,7 +220,7 @@ def _consistent_copy(source: Path, destination: Path) -> None:
         started = time.monotonic()
         def progress(_status, _remaining, _total):
             if time.monotonic() - started > 20:
-                raise TimeoutError("浏览器历史快照未取得，请退出该浏览器后重新读取")
+                raise UserTimeoutError("errors.tasteHistory.snapshotTimeout")
         with closing(sqlite3.connect(destination)) as destination_db:
             source_db.backup(destination_db, pages=256, progress=progress)
 
@@ -432,7 +433,7 @@ def _normalize_takeout_url(value: str) -> str:
 def _parse_takeout_date(value: str) -> datetime:
     match = TAKEOUT_DATE_RE.fullmatch(value.replace("\u202f", " "))
     if not match:
-        raise ValueError("Google My Activity 时间格式无法识别")
+        raise ValueError(f"unrecognized Google My Activity timestamp: {value!r}")
     naive = datetime.strptime(match.group("date"), "%b %d, %Y, %I:%M:%S %p")
     source_timezone = HONG_KONG_TIMEZONE if match.group("zone") == "HKT" else UTC
     return naive.replace(tzinfo=source_timezone).astimezone(UTC)
@@ -525,16 +526,16 @@ def _read_takeout_archive(path: Path) -> list[tuple[str, str, list[HistoryVisit]
         if TAKEOUT_HISTORY_MEMBER not in members and not any(
             member in members for _browser, _profile, member in TAKEOUT_ACTIVITY_MEMBERS
         ):
-            raise ValueError("Takeout 未包含可识别的浏览或搜索活动")
+            raise UserValueError("errors.tasteHistory.takeoutNoActivity")
         history_visits: list[HistoryVisit] = []
         if TAKEOUT_HISTORY_MEMBER in members:
             history_payload = json.loads(archive.read(TAKEOUT_HISTORY_MEMBER))
             history_rows = history_payload.get("Browser History")
             if not isinstance(history_rows, list):
-                raise ValueError("Takeout Chrome History 缺少 Browser History 列表")
+                raise UserValueError("errors.tasteHistory.takeoutHistoryListMissing")
             for index, row in enumerate(history_rows, 1):
                 if not isinstance(row, dict) or not row.get("url") or row.get("time_usec") is None:
-                    raise ValueError("Takeout Chrome History 含无效记录")
+                    raise UserValueError("errors.tasteHistory.takeoutHistoryRowInvalid")
                 url = str(row["url"])
                 time_usec = int(row["time_usec"])
                 digest = hashlib.sha256(url.encode("utf-8")).hexdigest()[:16]
@@ -556,7 +557,8 @@ def _read_takeout_archive(path: Path) -> list[tuple[str, str, list[HistoryVisit]
             activity.feed(archive.read(member).decode("utf-8"))
             activity.close()
             if activity.errors:
-                raise ValueError(f"{profile} 含无法解析的活动记录：{activity.errors}")
+                raise UserValueError("errors.tasteHistory.takeoutActivityUnparsed",
+                                     {"profile": profile, "count": activity.errors})
             sources.append((browser, profile, activity.visits, activity.skipped))
     return sources
 

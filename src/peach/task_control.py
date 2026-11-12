@@ -20,6 +20,7 @@ import psutil
 
 from .fsutil import atomic_write_text
 from .update_tasks import state_for
+from .user_messages import UserPermissionError, UserValueError
 
 CURRENT = ContextVar('peach_task_control', default=None)
 _LIVE = {}
@@ -161,7 +162,7 @@ def request(store, run_id, action, *, mode=None):
 
 def _request(store, run_id, action, *, mode=None):
     if action not in ('pause', 'resume', 'cancel', 'set_speed'):
-        raise ValueError('请选择暂停、继续、取消或调整速度')
+        raise UserValueError('errors.taskControl.actionInvalid')
     if action == 'set_speed':
         from .processing_control import valid_mode
         mode = valid_mode(mode)
@@ -169,14 +170,14 @@ def _request(store, run_id, action, *, mode=None):
     if run is None:
         raise KeyError('任务未取得，请刷新后重试')
     if not store.enabled or run.host != store.host:
-        raise PermissionError('请在执行这轮任务的写入端操作')
+        raise UserPermissionError('errors.taskControl.otherHost')
     if projection(store, run) is None:
-        raise ValueError('这轮任务已经结束')
+        raise UserValueError('errors.taskControl.runFinished')
     db = store.database.db_path
     current = requested(db, run.id, (run.parent_run_id, run.root_run_id))
     if current == 'cancel':
         if action != 'cancel':
-            raise ValueError('任务正在取消，不能再暂停或继续')
+            raise UserValueError('errors.taskControl.cancelling')
         return run
     if current == action:
         return run
@@ -530,7 +531,7 @@ def run(command, *, capture_output=False, timeout=None, check=False, input=None,
                               check=check, input=input, **kwargs)
     checkpoint()
     if (idle_timeout is not None or on_stdout is not None) and not capture_output:
-        raise ValueError('输出活动监测需要 capture_output=True')
+        raise ValueError('idle_timeout and on_stdout require capture_output=True')
     capture = _OutputCapture() if idle_timeout is not None or on_stdout is not None else None
     if capture_output:
         kwargs.update(stdout=capture.writers[0] if capture else subprocess.PIPE,

@@ -14,6 +14,7 @@ from pathlib import Path
 
 from . import error_reporting
 from .task_stages import stage as stage_fields
+from .user_messages import UserOSError
 
 LOG_NAMES = ("tray.log", "tray-lifecycle.log", "tray-setup.err.log", "tray-setup.out.log",
              "tray-http.err.log", "tray-http.out.log", "tray-https.err.log", "tray-https.out.log",
@@ -360,7 +361,7 @@ def save_bundle(destination: Path | None = None) -> Path:
             return target
         except OSError:
             continue
-    raise OSError("诊断报告无法写入数据目录或临时目录")
+    raise UserOSError("errors.supportBundle.notWritable")
 
 
 def main(argv=None) -> int:

@@ -9,6 +9,7 @@ import sys
 import threading
 
 from . import access, distribution, onboarding, settings_file
+from .user_messages import UserRuntimeError
 
 #: 容器首次启动时直接设好的访问密码（ADR-0149）；读过就从环境里删掉，不传给子进程。
 ACCESS_PASSWORD_ENV = "PEACH_ACCESS_PASSWORD"
@@ -38,7 +39,7 @@ def initialize() -> None:
     config = settings_file.load_config()
     if config.present:
         if not (config.directory('database') / 'ledger.db').is_file():
-            raise RuntimeError('已有配置但缺少数据库，请恢复数据库后启动')
+            raise UserRuntimeError('errors.server.databaseMissing')
         from .runtime_prepare import configured_ledger_writer
         writer, _reason = configured_ledger_writer(config)
         if not writer:
@@ -48,12 +49,12 @@ def initialize() -> None:
         try:
             code = migrate.wait(timeout=180)
             if code:
-                raise RuntimeError(f"数据库升级失败，退出码 {code}；服务未启动")
+                raise UserRuntimeError("errors.server.migrateFailed", {"code": code})
         finally:
             stop_process(migrate)
         return
     if config.directory("database").joinpath("ledger.db").exists():
-        raise RuntimeError("已有数据库但缺少配置文件，请恢复 config.toml 后启动")
+        raise UserRuntimeError("errors.server.settingsMissing")
     if distribution.docker():
         # 全新数据卷不替用户答题：服务以未配置状态起来，浏览器打开就是首次设置页（ADR-0149）。
         return
@@ -61,7 +62,7 @@ def initialize() -> None:
     try:
         code = process.wait(timeout=120)
         if code:
-            raise RuntimeError(f"初始化失败，退出码 {code}")
+            raise UserRuntimeError("errors.server.initFailed", {"code": code})
     finally:
         stop_process(process)
 

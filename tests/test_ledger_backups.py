@@ -679,7 +679,7 @@ class LedgerBackupManagerTests(unittest.TestCase):
             missing = client.post("/api/configuration/ledger-backups/restore",
                                   json={"id": "database/ledger.pre-manual-1.db", "confirm": True})
             self.assertEqual(missing.status_code, 409)
-            self.assertIn("已经不在", missing.json()["detail"])
+            self.assertIn("已经不在", missing.json()["detail"]["message"])
             self.assertEqual(client.post("/api/configuration/ledger-backups/backup",
                                          headers={"origin": "https://other.invalid"}).status_code, 403)
 

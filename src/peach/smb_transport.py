@@ -31,6 +31,8 @@ from smbprotocol.open import (
 )
 from smbprotocol.tree import TreeConnect
 
+from .user_messages import UserValueError
+
 
 # SDK 的 INFO/DEBUG 记录包含会话用户名与认证报文。
 for _namespace in ("smbprotocol", "smbclient"):
@@ -53,11 +55,11 @@ class SmbConnection:
     def __post_init__(self):
         for value in (self.host, self.share):
             if not value or any(c in value for c in "\\/\x00") or value in (".", ".."):
-                raise ValueError("SMB 主机和共享名必须是单独的路径分量")
+                raise UserValueError("errors.smbTransport.hostShareNotComponent")
         if not 0 < self.port <= 65535:
-            raise ValueError("SMB 端口无效")
+            raise UserValueError("errors.smbTransport.invalidPort")
         if not math.isfinite(self.timeout) or self.timeout <= 0:
-            raise ValueError("SMB 请求期限必须是有限正数")
+            raise UserValueError("errors.smbTransport.invalidTimeout")
 
 
 @dataclass(frozen=True)
@@ -89,17 +91,17 @@ class SmbEntry(SmbStat):
 def _parts(relative: tuple[str, ...] | str) -> tuple[str, ...]:
     if isinstance(relative, str):
         if ntpath.isabs(relative) or ntpath.splitdrive(relative)[0]:
-            raise ValueError("SMB 路径必须相对共享根")
+            raise UserValueError("errors.smbTransport.pathNotRelative")
         parts = tuple(relative.replace("\\", "/").split("/")) if relative else ()
     elif isinstance(relative, tuple):
         parts = relative
     else:
-        raise TypeError("SMB 路径必须是字符串或路径分量元组")
+        raise TypeError("SMB path must be a string or a tuple of path components")
     for part in parts:
         if (not isinstance(part, str) or not part or part in (".", "..")
                 or any(c in part for c in "\\/:\x00*?\"<>|")
                 or any(ord(c) < 32 for c in part) or part.endswith((" ", "."))):
-            raise ValueError("SMB 路径含无效分量")
+            raise UserValueError("errors.smbTransport.invalidPathComponent")
     return parts
 
 
@@ -398,7 +400,7 @@ class SmbTransport:
 
     def open_write(self, relative, mode='wb'):
         if mode not in ('wb', 'xb', 'ab', 'r+b'):
-            raise ValueError('SMB 写入模式无效')
+            raise ValueError('invalid SMB write mode')
         parts = _parts(relative)
         if not parts:
             raise PermissionError(errno.EACCES, '不能写入共享根目录')
@@ -440,7 +442,7 @@ class _SmbReader:
 
     def _check(self):
         if self.closed:
-            raise ValueError("SMB 文件已关闭")
+            raise ValueError("SMB file is closed")
         if self._transport._closed or not self._fd.connection.transport.connected:
             raise OSError(errno.ENETDOWN, "SMB 连接已断开")
 
@@ -457,10 +459,10 @@ class _SmbReader:
         with self._lock:
             self._check()
             if whence not in (io.SEEK_SET, io.SEEK_CUR, io.SEEK_END):
-                raise ValueError("SMB seek whence 无效")
+                raise ValueError("invalid SMB seek whence")
             target = (0, self._offset, self._fd.end_of_file)[whence] + offset
             if not isinstance(target, int) or target < 0:
-                raise ValueError("SMB seek 位置无效")
+                raise ValueError("invalid SMB seek position")
             self._offset = target
             return target
 

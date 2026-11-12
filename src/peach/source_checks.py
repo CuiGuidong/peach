@@ -48,7 +48,7 @@ def check_source(secrets_root, source, *, preflight=False):
     """复用来源连接与图片 CDN 判据；安装检查只使用有界 HTTP 请求。"""
     from .metadata import auth_wall_reason
     if source not in SOURCES:
-        raise ValueError("未知采集来源")
+        raise ValueError("unknown scraping source")
     if not SOURCES[source]["login"]:
         return {"ok": True, "results": [{"label": "来源页面", "ok": False, "kind": "unavailable",
                 "reason": "needs_code", "message": "片商官网按番号选择，请输入馆藏番号检查高清封面。"}],

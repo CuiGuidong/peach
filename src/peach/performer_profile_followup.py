@@ -103,7 +103,7 @@ def followup_key(entity_id: int) -> str:
 def parse_key(key: str) -> int:
     prefix, _, raw = str(key).partition(":")
     if prefix != TASK_KEY or not raw.isdigit():
-        raise ValueError(f"认不出这条补女优资料后继：{key}")
+        raise ValueError(f"unrecognized actress profile followup key: {key}")
     return int(raw)
 
 

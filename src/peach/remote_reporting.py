@@ -17,6 +17,7 @@ from urllib.parse import urlsplit
 
 from .reporting_identity import event_metadata, machine_facts
 from .diagnostic_exceptions import media_details
+from .user_messages import UserValueError
 
 FIELDS = {
     "usage": "Peach 版本、分发方式（Windows／macOS 应用、Docker、wheel 或源码）、操作系统类型与版本、CPU 架构与核数、内存档位、Python 版本、运行环境与公开构建编号；每天最多一条活跃日志和一条日联系会话汇总。开启后自动生成随机技术实例标识，用于统计受影响实例和升级路径，与研究标识独立；关闭后移除本机标识，再开启生成新值。连续运行时按 UTC 日统计，代表运行中的实例，不代表人数、真实会话或当天有人操作。",
@@ -133,13 +134,13 @@ def snapshot(config=None):
 
 def parse_choices(body, *, partial=False):
     if not isinstance(body, dict):
-        raise ValueError("遥测和自动错误诊断必须是布尔值")
+        raise UserValueError("errors.remoteReporting.notBoolean")
     defaults = consent() if partial else {}
     choices = {key: body.get(key, defaults.get(key)) for key in FIELDS}
     if any(type(value) is not bool for value in choices.values()):
-        raise ValueError("遥测和自动错误诊断必须是布尔值")
+        raise UserValueError("errors.remoteReporting.notBoolean")
     if choices["usage"] != choices["errors"]:
-        raise ValueError("版本统计与错误诊断须同时开启或关闭")
+        raise UserValueError("errors.remoteReporting.mustMatch")
     return choices
 
 

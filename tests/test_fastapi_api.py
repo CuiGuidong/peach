@@ -2797,7 +2797,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                         self.assertEqual(fields["upstream_status"], 403)
                         self.assertNotIn("private upstream error", response.text)
             with patch.object(self.app.state.follow_media_resolver, "resolve",
-                              side_effect=FollowMediaUnavailable("详情未取得", status_code=429)), \
+                              side_effect=FollowMediaUnavailable("errors.followStream.recentMiss", status_code=429)), \
                     patch.object(error_reporting, "event") as emit:
                 response = await self.client.get("/follow-qualities?id=7&t=secret")
                 self.assertEqual(response.json(), {"qualities": [], "size": None})

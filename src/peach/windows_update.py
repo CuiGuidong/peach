@@ -107,11 +107,11 @@ def swap_tray_binary(
     才会按 `KEEP_BACKUPS` 收口；换个名字就会在 `dist/Peach/` 里越堆越多。
     """
     if not staged.is_file():
-        raise FileNotFoundError(f"暂存包不存在：{staged}")
+        raise FileNotFoundError(f"staged package not found: {staged}")
     if target.name.lower() != "peach.exe" or not target.is_file():
-        raise ValueError(f"生产入口不存在或不是 Peach.exe：{target}")
+        raise ValueError(f"production entry point is missing or is not Peach.exe: {target}")
     if os.path.normcase(os.path.abspath(staged)) == os.path.normcase(os.path.abspath(target)):
-        raise ValueError("暂存包与生产入口是同一个文件")
+        raise ValueError("staged package and production entry point are the same file")
 
     backup = target.with_name(f"Peach.pre-source-sync-{now().strftime('%Y%m%d-%H%M%S')}.exe")
     shutil.copy2(target, backup)

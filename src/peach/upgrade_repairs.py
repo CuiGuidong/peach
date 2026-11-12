@@ -23,6 +23,7 @@ from .task_outcomes import joined, part, render, said
 from .task_runs import MAX_FOLLOWUPS, run_error, run_progress
 from .task_stages import stage_code, stage_label
 from .update_tasks import UpdateBusy
+from .user_messages import UserRuntimeError, UserValueError
 
 LOGGER = logging.getLogger(__name__)
 TASK_KEY = 'upgrade-repairs'
@@ -246,7 +247,7 @@ def _read(path: Path) -> dict:
     except FileNotFoundError:
         return {}
     if not isinstance(value, dict):
-        raise ValueError('更新后的处理记录格式无效')
+        raise UserValueError('errors.upgradeRepairs.invalidReceipt')
     return value
 
 
@@ -519,7 +520,7 @@ def restore_dangling_candidates(database, candidate_root) -> dict:
         stored = connection.execute('SELECT result_json FROM ledger_upgrade_repair WHERE id=?',
                                     (DANGLING_KEY,)).fetchone()
         if stored is None:
-            raise ValueError('没有悬空候选补修的回执')
+            raise UserValueError('errors.upgradeRepairs.noDanglingReceipt')
         receipt = json.loads(stored[0])
         if receipt.get('restored_at'):
             return {'rows': 0, 'decisions': 0, 'skipped': 0}
@@ -905,9 +906,9 @@ class UpgradeRepairs:
                 changed = _catalog_apply(connection, plan)
                 garbled = changed.pop(metadata_text_repair.RECEIPT_KEY)
                 if connection.execute('PRAGMA integrity_check').fetchone()[0] != 'ok':
-                    raise RuntimeError('更新已有资料时账本完整性校验失败')
+                    raise UserRuntimeError('errors.upgradeRepairs.integrityFailed')
                 if any(tuple(row) not in violations for row in connection.execute('PRAGMA foreign_key_check')):
-                    raise RuntimeError('更新已有资料时关联校验失败')
+                    raise UserRuntimeError('errors.upgradeRepairs.foreignKeyFailed')
                 after = _counts(connection)
                 receipt = {'revision': REVISION, 'local': {'state': 'succeeded', 'changed': changed,
                            'review_count': review, 'before': before, 'after': after, 'backup': str(backup)},
@@ -1342,7 +1343,7 @@ class UpgradeRepairs:
         with self.contract.database.write_transaction(notify=False) as connection:
             stored = connection.execute('SELECT result_json FROM ledger_upgrade_repair WHERE id=?', (REVISION,)).fetchone()
             if stored is None:
-                raise ValueError('更新后的处理记录需要重新准备，请重试')
+                raise UserValueError('errors.upgradeRepairs.receiptNeedsPrepare')
             from .display_dimensions_repair import LEGACY_FIELDS, RECEIPT_KEY
             saved = json.loads(stored[0]).get(RECEIPT_KEY)
             if saved is not None:
@@ -1630,14 +1631,14 @@ class UpgradeRepairs:
         升级时自动补测只看本机与局域网的来源（`display_dimensions_repair.collect`）；
         网盘这一批交给用户决定什么时候做，照样受容量保护和计费来源设置约束。"""
         if not self.available:
-            raise ValueError('更新后自动处理只在本机写入端可用')
+            raise UserValueError('errors.upgradeRepairs.primaryOnly')
         from . import display_dimensions_repair as repair
         self.prepare()
         with FileLock(str(self.receipt) + '.lock', timeout=0):
             receipt = _read(self.receipt)
             display = receipt.get(repair.RECEIPT_KEY)
             if display is None:
-                raise ValueError('显示尺寸补测还没准备好，请稍后再试')
+                raise UserValueError('errors.upgradeRepairs.displayRepairNotReady')
             with self.contract.database.read_connection() as connection:
                 known = self._display_targets_known(connection)
                 extra = {asset_id: size for asset_id, size in repair.collect(connection, cloud=True).items()
@@ -1652,7 +1653,7 @@ class UpgradeRepairs:
     def retry(self) -> dict:
         """显式重试失败项；用户取消的任务保持取消。"""
         if not self.available:
-            raise ValueError('更新后自动处理只在本机写入端可用')
+            raise UserValueError('errors.upgradeRepairs.primaryOnly')
         self.prepare(retry_media=True)
         with FileLock(str(self.receipt) + '.lock', timeout=0):
             receipt = _read(self.receipt)
@@ -1805,7 +1806,9 @@ def _media_run(contract, key: str, handle) -> dict:
         return _defer(contract, key, handle, [asset_id],
                       RepairDeferred('deferCooling', COOLDOWN_RETRY_SECONDS))
     if not finished:
-        raise RuntimeError(result.get('error') or '影片升级补全未完成，请在任务中心查看后重试')
+        if result.get('error'):
+            raise RuntimeError(result['error'])
+        raise UserRuntimeError('errors.upgradeRepairs.mediaRepairIncomplete')
     discard_checkpoint(state_file)
     return {**said('videoUpgraded'), 'name': title, 'asset_id': asset_id}
 
@@ -1854,7 +1857,9 @@ def _batch_run(contract, key: str, handle) -> dict:
             raise JobPaused('服务重启后继续') from None
         raise
     if result.get('status') not in ('complete', 'succeeded') and result.get('outcome') != 'partial':
-        raise RuntimeError(result.get('error') or '影片升级补全未完成，请在任务中心查看后重试')
+        if result.get('error'):
+            raise RuntimeError(result['error'])
+        raise UserRuntimeError('errors.upgradeRepairs.mediaRepairIncomplete')
     cooling = [asset_id for asset_id in targets if asset_id in set(result.get('paused_asset_ids', ()))]
     settled = _settle_batch(contract, handle, rule, asset_ids, offline, cooling)
     discard_checkpoint(state_file)

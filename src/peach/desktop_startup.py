@@ -13,6 +13,7 @@ import sys
 from . import distribution, settings_file
 from .appid import MACOS_LAUNCH_AGENT_LABEL
 from .fsutil import atomic_write_text
+from .user_messages import UserOSError, UserValueError
 
 #: 结论只走 stdout 的一行 JSON，`ok` 决定成败。退出码和 stderr 都不作判据：
 #: Windows PowerShell 5.1 把进度流序列化成 `#< CLIXML` 写到 stderr，成功那一次也写，
@@ -105,7 +106,7 @@ def shortcut(action: str, path: Path, *, target: str = "", arguments: str = "", 
                                 capture_output=True, text=True, encoding="utf-8", timeout=_SHORTCUT_TIMEOUT,
                                 creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0), check=False)
     except subprocess.TimeoutExpired as exc:
-        raise OSError(f"Windows 快捷方式操作超时（等待 {_SHORTCUT_TIMEOUT} 秒），请稍后重试。") from exc
+        raise UserOSError("errors.desktopStartup.shortcutTimeout", {"seconds": _SHORTCUT_TIMEOUT}) from exc
     try:
         payload = json.loads(result.stdout.lstrip("﻿"))
     except ValueError:
@@ -114,8 +115,8 @@ def shortcut(action: str, path: Path, *, target: str = "", arguments: str = "", 
         # PowerShell 说的原因不能吞掉。只留「请检查权限」这一句时，Windows runner 上
         # 这一步失败了三次，而权限、`WScript.Shell` COM 不可用、路径没落地和扩展名
         # 校验不通过在消息里长得一模一样，谁都没法往下查。
-        raise OSError("启动项未能保存，请检查当前用户的启动文件夹权限"
-                      f"（PowerShell：{_shortcut_reason(payload, result)}）")
+        raise UserOSError("errors.desktopStartup.shortcutNotSaved",
+                          {"reason": _shortcut_reason(payload, result)})
     if action == "read":
         # 记的是读之前那次指纹。这一趟里文件正好被换掉的话，它与之后 stat 出来的对不上，
         # 下次就重读一遍；记读完那次则相反——旧结论会配上新指纹，从此一直命中错的。
@@ -206,7 +207,7 @@ def desktop_entry(program: Path) -> tuple[Path, dict]:
     path = desktop_directory() / "Peach.lnk"
     current = shortcut("read", path)
     if current["enabled"] and not owned_target(Path(current["target"]).resolve(), program):
-        raise ValueError("桌面快捷方式属于另一份 Peach 安装")
+        raise UserValueError("errors.desktopStartup.desktopShortcutForeign")
     return path, current
 
 
@@ -220,7 +221,7 @@ def windows_entry(config, program: Path) -> tuple[Path, dict]:
     path = directory / f"Peach-{identity}.lnk"
     current = shortcut("read", path)
     if current["enabled"] and Path(current["target"]).resolve() != program.resolve():
-        raise ValueError("启动项属于另一份 Peach 安装")
+        raise UserValueError("errors.desktopStartup.startupEntryForeign")
     return path, current
 
 
@@ -273,7 +274,7 @@ def _launch_agent(program: Path) -> tuple[Path, dict]:
     path = launch_agent_path()
     entry = plistlib.loads(path.read_bytes()) if path.is_file() else {}
     if entry.get("ProgramArguments") and Path(entry["ProgramArguments"][0]).resolve() != program.resolve():
-        raise ValueError("启动项属于另一份 Peach 安装")
+        raise UserValueError("errors.desktopStartup.startupEntryForeign")
     return path, entry
 
 
@@ -323,12 +324,12 @@ def snapshot(config=None) -> dict:
 
 def save(config, *, enabled: bool, silent: bool, desktop: bool, executable: Path | None = None) -> dict:
     if type(enabled) is not bool or type(silent) is not bool or type(desktop) is not bool:
-        raise ValueError("启动选项必须为开或关")
+        raise UserValueError("errors.desktopStartup.optionsNotBoolean")
     if desktop and sys.platform != "win32":
-        raise ValueError(_NO_DESKTOP)
+        raise UserValueError("errors.desktopStartup.desktopShortcutUnsupported")
     program, args, directory = target(config, executable=executable)
     if (enabled or desktop) and not program.is_file():
-        raise ValueError("未找到本机托盘入口")
+        raise UserValueError("errors.desktopStartup.trayMissing")
     if sys.platform == "win32":
         # 桌面图标固定 `--show`，跟登录自启的静默选项无关：用户是特意去点它的。托盘已经
         # 在跑时 `main()` 拿不到单实例锁，`--show` 那一支正好打开网页，这跟点桌面图标该
@@ -357,7 +358,7 @@ def save(config, *, enabled: bool, silent: bool, desktop: bool, executable: Path
                                          "PATH": "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"}
         atomic_write_text(path, plistlib.dumps(entry).decode("utf-8"))
     else:
-        raise ValueError("此系统未提供登录自启入口")
+        raise UserValueError("errors.desktopStartup.platformUnsupported")
     atomic_write_text(config.directory("state") / "desktop-startup.json", json.dumps({"silent": silent}))
     return {"available": True, "enabled": enabled, "silent": silent, "message": "",
             "desktop": desktop, "desktop_message": "" if sys.platform == "win32" else _NO_DESKTOP}

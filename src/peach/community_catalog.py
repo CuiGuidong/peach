@@ -109,7 +109,7 @@ def picture(candidate: Candidate, data: bytes) -> Picture:
     落进 `.jpg` 之后卡片就一直在动。"""
     with Image.open(io.BytesIO(data)) as image:
         if getattr(image, "is_animated", False):
-            raise ValueError(f"{candidate.url} 是动图")
+            raise ValueError(f"{candidate.url} is animated")
         image.load()
         return Picture(candidate, image.size, data, fingerprint(image))
 

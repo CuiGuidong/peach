@@ -49,6 +49,7 @@ from typing import Callable
 from .fsutil import atomic_write_text
 from .repository import in_background
 from .discovery_rules import system_path
+from .user_messages import UserFacingError, UserValueError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -93,7 +94,7 @@ CLOUD_ACTIONS = frozenset({"create", "rename"})
 _TRUE_WORDS = frozenset({"true", "1", "yes"})
 
 
-class CloudPathError(ValueError):
+class CloudPathError(UserFacingError, ValueError):
     """云端路径映射不出账本路径。消息可以直接给人看。"""
 
 
@@ -120,10 +121,10 @@ def _clean_segments(tail: str) -> tuple[str, ...]:
             continue
         if (segment == ".." or "\\" in segment or ":" in segment
                 or any(character < " " for character in segment)):
-            raise CloudPathError(f"✗ 云端路径里有不能接受的层级：{segment!r}")
+            raise CloudPathError("errors.pushDiscovery.badSegment", {"segment": repr(segment)})
         parts.append(segment)
     if not parts:
-        raise CloudPathError("✗ 云端路径在前缀之后没有内容")
+        raise CloudPathError("errors.pushDiscovery.nothingAfterPrefix")
     return tuple(parts)
 
 
@@ -244,7 +245,7 @@ def map_cloud_path(cloud_path: str, prefixes: tuple[CloudPrefix, ...]) -> str:
     """
     text = str(cloud_path or "").strip().replace("\\", "/")
     if not text:
-        raise CloudPathError("✗ 请求里没有云端路径")
+        raise CloudPathError("errors.pushDiscovery.noCloudPath")
     while "//" in text:
         text = text.replace("//", "/")
     if not text.startswith("/"):
@@ -253,15 +254,17 @@ def map_cloud_path(cloud_path: str, prefixes: tuple[CloudPrefix, ...]) -> str:
     for entry in prefixes:
         prefix = normalise_prefix(entry.prefix)
         if text == prefix:
-            raise CloudPathError("✗ 云端路径就是前缀本身，没有文件")
+            raise CloudPathError("errors.pushDiscovery.pathIsPrefix")
         if not text.startswith(prefix + "/"):
             continue
         depth = len(prefix)
         if best is None or depth > best[0]:
             best = (depth, entry, text[len(prefix):])
     if best is None:
-        known = "、".join(normalise_prefix(entry.prefix) for entry in prefixes) or "（一条都没配）"
-        raise CloudPathError(f"✗ {text} 不在任何已配置的前缀下；已知：{known}")
+        known = "、".join(normalise_prefix(entry.prefix) for entry in prefixes)
+        if not known:
+            raise CloudPathError("errors.pushDiscovery.noPrefixes", {"path": text})
+        raise CloudPathError("errors.pushDiscovery.notUnderPrefix", {"path": text, "known": known})
     return str(PureWindowsPath(best[1].root).joinpath(*_clean_segments(best[2])))
 
 
@@ -564,10 +567,12 @@ def _prefix_rows(raw, declared_roots) -> tuple[CloudPrefix, ...]:
             continue
         settled = known.get(root.casefold())
         if settled is None:
-            shown = "、".join(sorted(known.values())) or "（设置文件里一个都没有）"
-            raise ValueError(f"{root} 不是已声明的媒体根；已知：{shown}")
+            if not known:
+                raise UserValueError("errors.pushDiscovery.noDeclaredRoots", {"root": root})
+            shown = "、".join(sorted(known.values()))
+            raise UserValueError("errors.pushDiscovery.undeclaredRoot", {"root": root, "known": shown})
         if prefix in seen:
-            raise ValueError(f"前缀 {prefix} 登记了不止一次")
+            raise UserValueError("errors.pushDiscovery.duplicatePrefix", {"prefix": prefix})
         seen.add(prefix)
         rows.append(CloudPrefix(prefix, settled))
     return tuple(rows)
@@ -605,7 +610,7 @@ class PushDiscoverySettings:
 
     def save(self, body: dict, declared_roots) -> PushDiscoveryConfig:
         if not isinstance(body, dict):
-            raise ValueError("设置必须是一个对象")
+            raise ValueError("settings must be an object")
         config = PushDiscoveryConfig(
             enabled=body.get("enabled") is True,
             watch_local=body.get("watch_local") is not False,
@@ -806,12 +811,12 @@ class PushDiscoveryService:
     def submit_cloud(self, cloud_path: str) -> str:
         """webhook 收到一条云端路径：映射成账本路径再进队列，返回那条账本路径。"""
         if not self.config.cloud:
-            raise CloudPathError("✗ 云端通道没有打开")
+            raise CloudPathError("errors.pushDiscovery.cloudChannelOff")
         path = map_cloud_path(cloud_path, self.config.prefixes)
         from .platform import resolve_location
         location = resolve_location(path, self.declared_roots)[0]
         if location is None:
-            raise CloudPathError(f"✗ {path} 不在任何媒体来源已配置的目录下")
+            raise CloudPathError("errors.pushDiscovery.notUnderStorage", {"path": path})
         self.submit(location, path)
         return path
 
@@ -891,7 +896,7 @@ class PushDiscoveryService:
 
     def save(self, body: dict) -> dict:
         if not self.available:
-            raise ValueError("推送发现只在允许修改数据库的设备上可用")
+            raise UserValueError("errors.pushDiscovery.writerOnly")
         with self._lock:
             self.config = self.settings.save(body, self.declared_roots)
             # 密钥由 `start` 补：云端通道一打开，CloudDrive2 那一侧马上要填，页面得当场给出来。
@@ -901,7 +906,7 @@ class PushDiscoveryService:
 
     def rotate_secret(self) -> dict:
         if not self.available:
-            raise ValueError("推送发现只在允许修改数据库的设备上可用")
+            raise UserValueError("errors.pushDiscovery.writerOnly")
         self.secret.rotate()
         return self.snapshot(reveal=True)
 

@@ -392,9 +392,9 @@ class TaskRunStore:
         `conflict="raise"` 是手动触发的语义：告诉用户是哪一轮挡着，让他自己决定。
         """
         if trigger not in TRIGGERS:
-            raise ValueError(f"未知的触发方式：{trigger}")
+            raise ValueError(f"unknown trigger: {trigger}")
         if conflict not in ("skip", "raise"):
-            raise ValueError(f"未知的冲突处理方式：{conflict}")
+            raise ValueError(f"unknown conflict mode: {conflict}")
         if not self.enabled:
             return None
         moment = stamp()
@@ -505,7 +505,7 @@ class TaskRunStore:
         写锁拿不到时按 `finish_retry_delays` 重试，全部用完仍写不进去才抛。
         """
         if status not in TERMINAL_STATUSES:
-            raise ValueError(f"{status} 不是终态")
+            raise ValueError(f"{status} is not a terminal status")
         if not self.enabled or run_id is None:
             return False
         moment = stamp()
@@ -884,7 +884,7 @@ class TaskRunStore:
             clauses.append("status IN (%s)" % ",".join(f"'{s}'" for s in TERMINAL_STATUSES))
         elif status:
             if status not in (*ACTIVE_STATUSES, *TERMINAL_STATUSES):
-                raise ValueError(f"未知的状态：{status}")
+                raise ValueError(f"unknown status: {status}")
             clauses.append("status=?")
             values.append(status)
         if task_key:

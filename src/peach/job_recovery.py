@@ -17,7 +17,7 @@ current_job_id = ContextVar('peach_resuming_job_id', default=None)
 
 def _path(db: Path, key: str) -> Path:
     if not key or any(c not in "abcdefghijklmnopqrstuvwxyz0123456789-" for c in key):
-        raise ValueError("任务恢复标识无效")
+        raise ValueError("invalid job recovery key")
     return state_for(db).parent / "job-recovery" / (key + ".json")
 
 

@@ -102,7 +102,7 @@ def watch(path: Path, *, open_process=ProcessHandle, popen=None,
     try:
         process = open_process(record["pid"])
         if process.created != record["created"]:
-            raise RuntimeError("托盘进程身份不一致")
+            raise RuntimeError("tray process identity does not match")
         audit(log, "watchdog_ready", session, tray_pid=record["pid"])
         atomic_write_text(ready, str(os.getpid()))
         while True:
@@ -215,7 +215,7 @@ class Lifecycle:
             deadline = time.monotonic() + 10
             while not self.path.with_suffix(".ready").exists():
                 if self.guard.poll() is not None or time.monotonic() >= deadline:
-                    raise RuntimeError("托盘监视器未能就绪")
+                    raise RuntimeError("tray watchdog did not become ready")
                 time.sleep(0.05)
             ack = os.environ.pop(ACK_ENV, None)
             if ack:

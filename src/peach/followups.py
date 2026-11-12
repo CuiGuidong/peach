@@ -148,7 +148,7 @@ def register(followup_type: FollowupType) -> FollowupType:
     """登记一种后继。同一个 task_key 只能登记一次——两份实现抢同一个身份时，
     活动页上那条记录说的是哪一个就再也答不出来了。"""
     if followup_type.task_key in REGISTRY:
-        raise ValueError(f"后继类型 {followup_type.task_key} 已经登记过")
+        raise ValueError(f"follow-up type {followup_type.task_key} is already registered")
     REGISTRY[followup_type.task_key] = followup_type
     return followup_type
 

@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 
 from . import __version__, remote_reporting
 from .fsutil import atomic_write_text
+from .user_messages import UserValueError
 
 SCHEMA = 6
 CONSENT_SCHEMA = 5
@@ -90,7 +91,7 @@ def consent_state(config):
 def save_choice(config, enabled):
     """保存设置页或安装器的主动选择，不读取馆藏或初始化上传。"""
     if type(enabled) is not bool:
-        raise ValueError("馆藏与口味上传选项必须是布尔值")
+        raise UserValueError("errors.librarySharing.choiceNotBoolean")
     value = {"enabled": enabled, "schema": SCHEMA, "consent_schema": CONSENT_SCHEMA, "revision": uuid.uuid4().hex,
              "selected_at": datetime.now(timezone.utc).isoformat()}
     with _state_lock(config):
@@ -161,7 +162,7 @@ def collect(contract):
                **projection, 'capacity': capacity_projection(getattr(contract, 'upgrade_config', None))}
     data = json.dumps(payload, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
     if len(data) > MAX_RAW_BYTES:
-        raise ValueError("馆藏与口味明细超过 100 MiB，整份未发送")
+        raise UserValueError("errors.librarySharing.tooLarge")
     return payload, data
 
 
@@ -169,7 +170,7 @@ def compressed(data):
     """使用无文件名和时间戳的 gzip 附件，保持全部 JSON 字段。"""
     wire = gzip.compress(data, mtime=0)
     if len(wire) > MAX_BYTES:
-        raise ValueError("馆藏与口味明细压缩后超过 18 MiB，整份未发送")
+        raise UserValueError("errors.librarySharing.compressedTooLarge")
     return wire
 
 
@@ -205,12 +206,12 @@ class Service:
 
     def save(self, body):
         if type(body.get("enabled")) is not bool:
-            raise ValueError("馆藏与口味上传选项必须是布尔值")
+            raise UserValueError("errors.librarySharing.choiceNotBoolean")
         with self._lock:
             if body["enabled"] and (not self._preview or body.get("preview_token") != self._preview[0]
                     or time.monotonic() > self._preview[1]
                     or body.get("consent") is not True or body.get("schema") != SCHEMA):
-                raise ValueError("请先查看字段与数据预览，再明确同意上传")
+                raise UserValueError("errors.librarySharing.previewFirst")
             save_choice(self.config, body["enabled"])
             self._preview = None
         self._wake.set()
@@ -376,12 +377,12 @@ class Service:
         def active():
             nonlocal next_check
             if self._stop.is_set():
-                raise InterruptedError('研究容量采样已停止')
+                raise InterruptedError("research capacity sampling stopped")
             now = time.monotonic()
             if now >= next_check:
                 next_check = now + 2
                 if consent(self.config).get('revision') != current['revision']:
-                    raise InterruptedError('研究容量采样的同意已变化')
+                    raise InterruptedError("consent for research capacity sampling changed")
         try:
             data_bytes = storage_budget.data_usage(self.config, check=active)
             cache = storage_budget.cache_usage(self.config, check=active)

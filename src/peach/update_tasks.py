@@ -15,13 +15,14 @@ from weakref import WeakValueDictionary
 from filelock import FileLock, Timeout
 
 from .fsutil import atomic_write_text
+from .user_messages import UserFacingError
 
 
 class UpdateBusy(ValueError):
     """任务或安装事务占用数据目录，调用方应保留当前程序。"""
 
 
-class GateBusy(UpdateBusy):
+class GateBusy(UserFacingError, UpdateBusy):
     """闸门锁等满超时：不是在装更新，只是别人拿着锁，过一会儿再试就好。"""
 
 
@@ -83,7 +84,7 @@ def gate(root: Path):
     try:
         stack.enter_context(_mutex(root))
     except Timeout:
-        raise GateBusy("任务闸门正忙，稍后自动重试。") from None
+        raise GateBusy("errors.updateTasks.gateBusy") from None
     with stack:
         yield
 

@@ -22,6 +22,7 @@ from . import __version__, desktop_installer, distribution, release_signing, rel
 from .fsutil import atomic_write_text
 from .windows_update import replace_with_retry
 from . import update_tasks
+from .user_messages import UserRuntimeError, UserTimeoutError, UserValueError
 
 ACTIVE = {"downloading", "verifying", "extracting", "preparing", "restarting", "installing"}
 MAX_ARCHIVE = 512 * 1024 * 1024
@@ -88,26 +89,26 @@ def extract(archive: Path, destination: Path, progress, *, tool_files: set[str] 
     with zipfile.ZipFile(archive) as package:
         entries = package.infolist()
         if sum(item.file_size for item in entries) > MAX_EXPANDED or len(entries) > 20000:
-            raise ValueError("更新包展开体积超限")
+            raise UserValueError("errors.standaloneUpdate.expandedTooLarge")
         seen = set()
         for index, item in enumerate(entries):
             name = item.filename
             parts = PurePosixPath(name).parts
             if (not parts or parts[0] != "Peach" or "\\" in name or ":" in name
                     or ".." in parts or name.startswith("/") or (item.external_attr >> 16) & 0o170000 == 0o120000):
-                raise ValueError("更新包含无效路径")
+                raise UserValueError("errors.standaloneUpdate.invalidPath")
             if tool_files is not None and (item.is_dir() or "/".join(parts[1:]) not in tool_files):
-                raise ValueError("工具包包含清单外的文件")
+                raise UserValueError("errors.standaloneUpdate.unlistedToolFile")
             target = destination.joinpath(*parts).resolve()
             key = str(target).casefold()
             if not target.is_relative_to(destination) or key in seen:
-                raise ValueError("更新包路径重复或越界")
+                raise UserValueError("errors.standaloneUpdate.pathConflict")
             seen.add(key)
             package.extract(item, destination)
             progress(index + 1, len(entries))
     root = destination / "Peach"
     if tool_files is None and (not (root / "Peach.exe").is_file() or not (root / "_internal" / "standalone.txt").is_file()):
-        raise ValueError("更新包不是独立 Windows 版本")
+        raise UserValueError("errors.standaloneUpdate.notStandalone")
     return root
 
 
@@ -133,12 +134,12 @@ def _download_once(url: str, archive: Path, size: int, digest: str, progress) ->
             for chunk in response.iter_bytes(256 * 1024):
                 received += len(chunk)
                 if received > size:
-                    raise ValueError("下载体积与发布记录不符")
+                    raise UserValueError("errors.standaloneUpdate.sizeMismatch")
                 output.write(chunk)
                 checksum.update(chunk)
                 progress(received)
     if received != size or checksum.hexdigest() != digest:
-        raise ValueError("更新包校验失败，请重新下载")
+        raise UserValueError("errors.standaloneUpdate.checksumFailed")
 
 
 def prepare_tools(stage: Path, target: Path, transaction: Path, release: dict, data: dict,
@@ -170,14 +171,14 @@ def prepare_tools(stage: Path, target: Path, transaction: Path, release: dict, d
         report(data, state="verifying", message=f"正在校验 {tool} 工具包")
         extracted = extract(archive, transaction / f"tool-{tool}", lambda *_: None, tool_files=set(bundle["files"]))
         if not update_packages.matches(extracted, bundle["files"]):
-            raise ValueError(f"{tool} 工具包文件校验失败")
+            raise UserValueError("errors.standaloneUpdate.toolChecksumFailed", {"tool": tool})
         for name in bundle["files"]:
             destination = update_packages.checked_path(stage, name)
             destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(update_packages.checked_path(extracted, name), destination)
     for tool, bundle in manifest["tools"].items():
         if not update_packages.matches(stage, bundle["files"]):
-            raise ValueError(f"{tool} 工具复用校验失败")
+            raise UserValueError("errors.standaloneUpdate.toolReuseFailed", {"tool": tool})
 
 
 def _fetch_small(client, url: str) -> bytes:
@@ -187,7 +188,7 @@ def _fetch_small(client, url: str) -> bytes:
         for chunk in response.iter_bytes(64 * 1024):
             body += chunk
             if len(body) > release_signing.MAX_BYTES:
-                raise ValueError("发布签名文件过大")
+                raise ValueError("release signature file is too large")
     return bytes(body)
 
 
@@ -211,7 +212,7 @@ def signed_release(release: dict) -> dict:
         except (httpx.HTTPError, ValueError):
             continue
     if name not in digests:
-        raise ValueError("发布签名校验未通过，已停止更新；请到发布页手动下载新版本")
+        raise UserValueError("errors.standaloneUpdate.signatureFailed")
     full = release.get("full_url")
     full = digests.get(full.rsplit("/", 1)[1]) if isinstance(full, str) else None
     return dict(release, asset_digest="sha256:" + digests[name], full_digest=full and "sha256:" + full)
@@ -219,9 +220,9 @@ def signed_release(release: dict) -> dict:
 
 def checked_asset(digest: object, size: object, label: str) -> tuple[str, int]:
     if not isinstance(digest, str) or not digest.startswith("sha256:") or len(digest) != 71:
-        raise ValueError(f"{label}缺少 SHA-256 校验信息")
+        raise UserValueError("errors.standaloneUpdate.missingChecksum", {"label": label})
     if not isinstance(size, int) or not 0 < size <= MAX_ARCHIVE:
-        raise ValueError(f"{label}大小无效")
+        raise UserValueError("errors.standaloneUpdate.invalidSize", {"label": label})
     return digest[7:], size
 
 
@@ -237,7 +238,7 @@ def fetch_package(url: str, size: int, digest: str, transaction: Path, name: str
     from .buildinfo import read_build_info
     info = read_build_info(stage / "_internal")
     if not info or info.version != version:
-        raise ValueError("包内版本与发布版本不符")
+        raise UserValueError("errors.standaloneUpdate.versionMismatch")
     return stage
 
 
@@ -250,7 +251,7 @@ def prepare(data: dict, lock: FileLock) -> None:
         digest, total = checked_asset(release.get("asset_digest"), release.get("asset_size", 0), "更新包")
         target = Path(sys.executable).resolve().parent
         if state_path().resolve().is_relative_to(target):
-            raise ValueError("数据目录位于程序目录内，不能自动替换")
+            raise UserValueError("errors.standaloneUpdate.dataInsideProgram")
         transaction = target.parent / f".{target.name}-update-{data['id']}"
         transaction.mkdir()
         version = release["latest_version"]
@@ -285,7 +286,7 @@ def prepare(data: dict, lock: FileLock) -> None:
 
 def start() -> dict:
     if not distribution.in_app_update():
-        raise ValueError("此安装方式不支持应用内更新，请从发布页下载新版本")
+        raise UserValueError("errors.standaloneUpdate.inAppUnsupported")
     lock = FileLock(str(state_path()) + ".lock", thread_local=False)
     try:
         lock.acquire(timeout=0)
@@ -307,17 +308,17 @@ def _update_writer(stage: Path) -> bool:
     writer, reason = configured_ledger_writer(config)
     database = config.directory('database') / 'ledger.db'
     if not writer and database.is_file() and plan(database, stage / '_internal' / 'migrations')[1]:
-        raise ValueError(f'本机不能迁移账本：{reason}；请先在写入端迁移并同步')
+        raise UserValueError("errors.standaloneUpdate.secondaryNeedsPrimary", {"reason": reason})
     return writer
 
 
 def request_restart() -> dict:
     if not distribution.in_app_update():
-        raise ValueError("此安装方式不支持应用内更新，请从发布页下载新版本")
+        raise UserValueError("errors.standaloneUpdate.inAppUnsupported")
     with FileLock(str(state_path()) + ".lock", timeout=0):
         data = read()
         if data.get("state") != "ready":
-            raise ValueError("更新尚未准备完成")
+            raise UserValueError("errors.standaloneUpdate.notReady")
         writer = _update_writer(Path(data.get('stage', '')))
         db = settings_file.load_config().directory("database") / "ledger.db"
         token = update_tasks.reserve(db) if writer else None
@@ -371,7 +372,7 @@ def migrate_database(stage: Path, data: dict) -> Path | None:
     if not pending:
         return None
     if not _update_writer(stage):
-        raise ValueError('读取端不能迁移账本')
+        raise UserValueError("errors.standaloneUpdate.secondaryCannotMigrate")
     backup = config.directory("state") / "update-backups" / data["id"] / "ledger.db"
     if not backup.is_file():
         sqlite_backup(database, backup)
@@ -382,7 +383,7 @@ def migrate_database(stage: Path, data: dict) -> Path | None:
                                 cwd=str(stage), env=environment, stdout=log, stderr=log, stdin=subprocess.DEVNULL,
                                 timeout=180, check=False, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
     if result.returncode:
-        raise RuntimeError("数据库更新失败")
+        raise UserRuntimeError("errors.standaloneUpdate.databaseUpgradeFailed")
     return backup
 
 
@@ -395,7 +396,7 @@ def restore_database(data: dict) -> None:
     with closing(sqlite3.connect(backup.as_uri() + "?mode=ro", uri=True)) as source, closing(sqlite3.connect(database)) as destination:
         source.backup(destination)
         if destination.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
-            raise RuntimeError("数据库恢复检查失败")
+            raise UserRuntimeError("errors.standaloneUpdate.databaseRestoreCheckFailed")
 
 
 def preserve_local_state(data: dict, *, include_database: bool = True) -> None:
@@ -433,7 +434,7 @@ def restore_local_state(data: dict) -> None:
     for name, path in paths.items():
         resolved = path.resolve()
         if name != 'config' and not resolved.is_relative_to(config.directory('state').resolve()):
-            raise ValueError('任务恢复路径越界')
+            raise UserValueError("errors.standaloneUpdate.recoveryPathOutside")
         if path.is_dir():
             shutil.rmtree(path)
         else:
@@ -449,7 +450,7 @@ def restore_local_state(data: dict) -> None:
 def _transaction_paths(manifest: Path):
     """只接受本机状态文件与同卷暂存目录，安装目标须为完整独立包。"""
     if manifest.resolve() != state_path().resolve():
-        raise ValueError('更新状态文件不匹配')
+        raise UserValueError("errors.standaloneUpdate.stateFileMismatch")
     data = read()
     target = Path(data["target"]).resolve()
     transaction = Path(data["transaction"]).resolve()
@@ -457,7 +458,7 @@ def _transaction_paths(manifest: Path):
     if (transaction.parent != target.parent or transaction.name != f".{target.name}-update-{data['id']}"
             or stage != transaction / "stage" / "Peach" or state_path().resolve().is_relative_to(target)
             or not (target / "_internal" / "standalone.txt").is_file()):
-        raise ValueError('更新目录无效')
+        raise UserValueError("errors.standaloneUpdate.invalidUpdateDirectory")
     return data, target, transaction, stage
 
 
@@ -508,7 +509,7 @@ def apply(manifest: Path, wait_pid: int) -> int:
         deadline = time.monotonic() + 90
         while process_alive(wait_pid):
             if time.monotonic() > deadline:
-                raise TimeoutError("托盘尚未退出，安装已取消")
+                raise UserTimeoutError("errors.standaloneUpdate.trayStillRunning")
             time.sleep(.25)
         previous = job_recovery.legacy_library_request(db) if writer else None
         preserve_local_state(data, include_database=writer)
@@ -544,7 +545,7 @@ def apply(manifest: Path, wait_pid: int) -> int:
             except (httpx.HTTPError, ValueError):
                 pass
             time.sleep(1)
-        raise TimeoutError("新版本未能就绪")
+        raise UserTimeoutError("errors.standaloneUpdate.newVersionNotReady")
     except Exception as exc:
         if moved:
             from .error_reporting import event

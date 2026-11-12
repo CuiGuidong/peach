@@ -1227,7 +1227,7 @@ class LibraryDirectoryTests(unittest.TestCase):
         from peach.organize_clouddrive import MoveNotExecuted
         script = self.script
         def reject(source):
-            raise MoveNotExecuted('官方接口拒绝')
+            raise MoveNotExecuted('errors.organizeClouddrive.moveNotExecuted')
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             ledger, translate, calls, operations, patches = self._provider_batch(root, reject)

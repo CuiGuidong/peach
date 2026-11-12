@@ -157,10 +157,10 @@ class _WebSocket:
         while b"\r\n\r\n" not in head:
             chunk = self.sock.recv(4096)
             if not chunk:
-                raise ConnectionError("浏览器在握手时关闭了连接")
+                raise ConnectionError("browser closed the connection during the handshake")
             head += chunk
         if b" 101 " not in head.split(b"\r\n", 1)[0]:
-            raise ConnectionError("浏览器拒绝了调试连接")
+            raise ConnectionError("browser refused the debugging connection")
         self.buffer = head.split(b"\r\n\r\n", 1)[1]
         self.next_id = 0
 
@@ -168,7 +168,7 @@ class _WebSocket:
         while len(self.buffer) < size:
             chunk = self.sock.recv(65536)
             if not chunk:
-                raise ConnectionError("浏览器关闭了调试连接")
+                raise ConnectionError("browser closed the debugging connection")
             self.buffer += chunk
         out, self.buffer = self.buffer[:size], self.buffer[size:]
         return out
@@ -200,7 +200,7 @@ class _WebSocket:
             if opcode == 0x1:
                 return data.decode()
             if opcode == 0x8:
-                raise ConnectionError("浏览器关闭了调试连接")
+                raise ConnectionError("browser closed the debugging connection")
 
     def call(self, method: str, timeout: float = 30.0, **params):
         """发一条 CDP 命令，等它的回包；中途到的事件跳过。"""
@@ -303,7 +303,7 @@ class _Browser:
         assert self.socket is not None
         result = self.socket.call("Runtime.evaluate", timeout, expression=expression, returnByValue=True)
         if "exceptionDetails" in result:
-            raise RuntimeError(result["exceptionDetails"].get("text") or "页面脚本出错")
+            raise RuntimeError(result["exceptionDetails"].get("text") or "page script error")
         return result.get("result", {}).get("value")
 
     def navigate(self, url: str, *, referrer: str | None = None) -> None:
@@ -439,7 +439,7 @@ class BrowserTransport:
         from .processing_traffic import unobserved
         unobserved('浏览器采集流量未观测')
         if request.method.upper() != "GET":
-            raise BrowserUnavailable("浏览器传输只发 GET")
+            raise BrowserUnavailable("browser transport only sends GET")
         with self._lock:
             browser = self._ensure()
             try:
@@ -451,7 +451,7 @@ class BrowserTransport:
                     raise
                 # 页面脚本、调试连接或进程任一处坏了都按断连处理：关掉，下一次请求重新拉起。
                 self._drop()
-                raise BrowserUnavailable(f"浏览器请求未取得：{error}") from None
+                raise BrowserUnavailable(f"browser request failed: {error}") from None
             finally:
                 self._touch()
         body = document["html"].encode("utf-8")[:max_bytes + 1]
@@ -528,7 +528,7 @@ class BrowserTransport:
                 if shown_at is not None:
                     if now - shown_at >= self.click_seconds:
                         self._unsolved.add(host)
-                        raise ChallengeUnsolved(f"{host} 的人机验证在 {int(elapsed)} 秒内没有通过")
+                        raise ChallengeUnsolved(f"{host} verification did not pass within {int(elapsed)} s")
                 elif challenged_seen:
                     waited = now - phase_started
                     if not cleared and waited >= reset_limit:
@@ -539,11 +539,12 @@ class BrowserTransport:
                         phase_started = now
                     elif cleared and waited >= auto_limit:
                         if host in self._unsolved:
-                            raise ChallengeUnsolved(f"{host} 的人机验证在 {int(elapsed)} 秒内没有自动通过；"
-                                                    "窗口上次弹出后没点过去，这次不再弹")
+                            raise ChallengeUnsolved(f"{host} verification did not pass automatically within "
+                                                    f"{int(elapsed)} s; the window was not clicked last time, "
+                                                    "so it is not shown again")
                         shown_at = show("没有自动通过")
                 elif elapsed >= timeout:
-                    raise PageTimeout(f"{host} 的页面在 {int(elapsed)} 秒内没有打开")
+                    raise PageTimeout(f"{host} page did not open within {int(elapsed)} s")
                 self._sleep(1.0)
         except ChallengeUnsolved:
             # 放弃的验证页不能留在窗口里：它每 50 秒自己重载一次，`cf_chl_rc_ni` 跟着涨，在没人看的窗口里
