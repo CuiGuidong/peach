@@ -745,6 +745,11 @@ class CapacityProtectionTests(unittest.TestCase):
         refresh = patch.object(self.budget, '_refresh_in_background')
         self.background = refresh.start()
         self.addCleanup(refresh.stop)
+        # 磁盘读数默认是两块各剩 100 GiB 的盘，不读本机；要看真实磁盘的用例用 `self.real_disks`。
+        free = 100 * self.budget.GIB
+        self.disks = patch.object(self.budget, '_disks', return_value=[('system', free, free * 2), ('data', free, free * 2)])
+        self.disks.start()
+        self.addCleanup(self.disks.stop)
         # 样本文件刚写出来，用例里不按「最近用过」跳过；进程启动延迟也不等。
         for name in ('RECENT_SECONDS', 'DATA_START_DELAY'):
             delay = patch.object(self.budget, name, 0)
@@ -761,10 +766,6 @@ class CapacityProtectionTests(unittest.TestCase):
         for thread in threading.enumerate():
             if thread.name == 'PeachCapacityClean':
                 thread.join(10)
-        free = 100 * self.budget.GIB
-        self.disks = patch.object(self.budget, '_disks', return_value=[('system', free, free * 2), ('data', free, free * 2)])
-        self.disks.start()
-        self.addCleanup(self.disks.stop)
 
     def policy(self, **changes):
         from dataclasses import asdict

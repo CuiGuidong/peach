@@ -45,7 +45,7 @@ from peach.ffmpeg import FFmpegResolver
 from peach.library_processing import process_library
 from peach.web_contract import WebContract
 from peach.web_tutorial import CAMPAIGN, w_tutorial_progress
-from support.conditions import missing_prerequisite, windows_ledger_roots
+from support.conditions import missing_prerequisite, windows_ledger_roots, pin_capacity_reserve
 from support.browser import chrome_executable
 from support.ledger import fresh_ledger
 from support.demo import seed_metadata_cache
@@ -221,6 +221,8 @@ class WebE2ESmokeTests(unittest.TestCase):
                                     ffmpeg=cls.ffmpeg)
         data = cls.root / "peach-data"
         (data / "database").mkdir(parents=True)
+        # 服务是子进程，补丁伸不过去：容量保留值写进它的数据目录。
+        pin_capacity_reserve(data)
         cls.db = fresh_ledger(data / "database")
         cls.port = free_port()
         config = settings_file.PeachConfig(
