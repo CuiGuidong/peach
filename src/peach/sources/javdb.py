@@ -59,8 +59,10 @@ _JAPANESE = re.compile(r"[぀-ヿ一-鿿]")
 #: 不占这份配额，图片校验也只放行它（2026-11-12 实测封面、小封面、样张与头像都在）。
 _CDN = "https://tp.spfcas.com/rhe951l4q/"
 _STATIC = re.compile(r"https://c\d+\.jdbstatic\.com/((?:covers|samples)/[a-z0-9]{2}/[A-Za-z0-9_]+\.jpg)")
-_SCORE = re.compile(r"([0-9]+(?:\.[0-9]+)?)分, 由[0-9]+人評價")
-_REVIEWS = re.compile(r"短評\(([0-9]+)\)")
+#: 评分是星级图标后面那个数，短评数在评论页签的括号里；按页面结构认，不按文字认。
+_SCORE = re.compile(r'class="score-stars".*?</span>&nbsp;([0-9]+(?:\.[0-9]+)?)', re.S)
+_REVIEWS = re.compile(r'class="review-tab"[^>]*>\s*<span>[^<(]*\(([0-9]+)\)')
+_MISSING = "javdb 没有这个番号"
 
 
 def actresses(value: str) -> list[dict]:
@@ -102,12 +104,8 @@ def page_search_rows(text: str) -> list[dict]:
     return rows
 
 
-def page_movie(text: str, movie_id: str) -> dict:
-    """详情页投影成接口作品资料的同名字段，库外详情、评论与磁链照旧按来源 id 取。
-
-    男优与女优挂同样的 `/actors/` 链接，只有女优带 `actor-female`，所以没带的记作男优；头像按演员 id
-    指向接口 CDN。网页不给视频预览地址，预告仍由视频预览那条路读同一页。
-    """
+def _detail(text: str) -> dict:
+    """详情页面板与标题区：刮削记录与接口同名投影共用一份读法。栏名是站上 `?locale=zh` 的繁体原词。"""
     panel = {clean(label): value for label, value in _PANEL.findall(text)}
     soup = BeautifulSoup(text, "html.parser")
     title = soup.select_one("strong.current-title")
@@ -115,30 +113,42 @@ def page_movie(text: str, movie_id: str) -> dict:
     runtime = re.search(r"\d+", clean(panel.get("時長", "")))
     cover = _COVER.search(text)
     cover = _IMG_SRC.search(cover.group(0)) if cover else None
+    genres = (clean(link.get_text(" ", strip=True))
+              for link in BeautifulSoup(panel.get("類別", ""), "html.parser").find_all("a"))
+    return {"code": clean(panel.get("番號", "")).replace(" ", ""), "soup": soup,
+            "display_title": clean(title.get_text(" ", strip=True)) if title else "",
+            "origin_title": clean(original.get_text(" ", strip=True)) if original else "",
+            "cover": cover.group(1) if cover else "", "actors": panel.get("演員", ""),
+            "studio": maker_writing(clean(panel.get("片商", ""))), "label": clean(panel.get("發行", "")),
+            "series": clean(panel.get("系列", "")), "director": clean(panel.get("導演", "")),
+            "release_date": clean(panel.get("日期", "")), "runtime": int(runtime.group()) if runtime else None,
+            "genres": tuple(dict.fromkeys(word for word in genres if word))}
+
+
+def page_movie(text: str, movie_id: str) -> dict:
+    """详情页投影成接口作品资料的同名字段，库外详情、评论与磁链照旧按来源 id 取。
+
+    男优与女优挂同样的 `/actors/` 链接，只有女优带 `actor-female`，所以没带的记作男优；头像按演员 id
+    指向接口 CDN。网页不给视频预览地址，预告仍由视频预览那条路读同一页。
+    """
+    fields = _detail(text)
     score = _SCORE.search(text)
     reviews = _REVIEWS.search(text)
     actors = []
-    for attributes, name in _ACTRESS.findall(panel.get("演員", "")):
+    for attributes, name in _ACTRESS.findall(fields["actors"]):
         actor = _ACTOR_HREF.search(attributes)
         if actor and clean(name):
             actors.append({"id": actor[1], "name": clean(name),
                            "gender": "female" if "actor-female" in attributes else "male",
                            "avatar_url": f"{_CDN}avatars/{actor[1][:2].lower()}/{actor[1]}.jpg"})
-    genres = [clean(link.get_text(" ", strip=True))
-              for link in BeautifulSoup(panel.get("類別", ""), "html.parser").find_all("a")]
-    previews = [_cdn(link.get("href")) for link in soup.select(".preview-images a.tile-item")]
-    return {"id": movie_id, "number": clean(panel.get("番號", "")).replace(" ", ""),
-            "title": clean(title.get_text(" ", strip=True)) if title else "",
-            "origin_title": clean(original.get_text(" ", strip=True)) if original else "",
-            "cover_url": _cdn(cover.group(1)) if cover else "",
+    previews = [_cdn(link.get("href")) for link in fields["soup"].select(".preview-images a.tile-item")]
+    return {"id": movie_id, "number": fields["code"], "title": fields["display_title"],
+            "origin_title": fields["origin_title"], "cover_url": _cdn(fields["cover"]),
             "preview_images": [url for url in previews if url], "actors": actors,
-            "maker_name": maker_writing(clean(panel.get("片商", ""))),
-            "publisher_name": clean(panel.get("發行", "")), "series_name": clean(panel.get("系列", "")),
-            "director_name": clean(panel.get("導演", "")), "release_date": clean(panel.get("日期", "")),
-            "duration": int(runtime.group()) if runtime else None,
-            "score": float(score[1]) if score else None,
-            "comments_count": int(reviews[1]) if reviews else 0,
-            "tags": [word for word in genres if word]}
+            "maker_name": fields["studio"], "publisher_name": fields["label"], "series_name": fields["series"],
+            "director_name": fields["director"], "release_date": fields["release_date"],
+            "duration": fields["runtime"], "score": float(score[1]) if score else None,
+            "comments_count": int(reviews[1]) if reviews else 0, "tags": list(fields["genres"])}
 
 
 @contextlib.contextmanager
@@ -181,7 +191,7 @@ class JavDBSource(SiteSource):
         paths = list(dict.fromkeys(path for path, shown in _BOX.findall(search.text)
                                   if same_release_code(code, clean(shown))))
         if not paths:
-            raise SourceFailure(FailureReason.NOT_FOUND, "javdb 没有这个番号")
+            raise SourceFailure(FailureReason.NOT_FOUND, _MISSING)
         if len(paths) > 1:
             raise SourceFailure(FailureReason.PARSE_ERROR, "javdb 同番号对应多个作品，请核对来源身份：" + '、'.join(paths),
                                 detail='identity_ambiguous')
@@ -191,32 +201,17 @@ class JavDBSource(SiteSource):
         return Page(self.config.base_url + path, detail.body)
 
     def parse(self, page: Page, code: str) -> SiteRecord:
-        text = page.text
-        panel = {clean(label): value for label, value in _PANEL.findall(text)}
-        shown = clean(panel.get("番號", "")).replace(" ", "")
+        fields = _detail(page.text)
+        shown = fields["code"]
         if not same_release_code(code, shown):
             raise SourceFailure(FailureReason.PARSE_ERROR, "javdb 详情页的番号与搜索结果不一致")
-        runtime = re.search(r"\d+", clean(panel.get("時長", "")))
-        soup = BeautifulSoup(text, "html.parser")
-        title = soup.select_one('strong.current-title')
-        original = soup.select_one('.origin-title')
-        display_title = clean(title.get_text(' ', strip=True)) if title else ''
-        origin_title = clean(original.get_text(' ', strip=True)) if original else ''
-        tag = _COVER.search(text)
-        cover = _IMG_SRC.search(tag.group(0)) if tag else None
-        genres = tuple(dict.fromkeys(
-            clean(link.get_text(" ", strip=True))
-            for link in BeautifulSoup(panel.get("類別", ""), "html.parser").find_all("a")
-            if clean(link.get_text(" ", strip=True))))
+        display_title, origin_title = fields["display_title"], fields["origin_title"]
         return SiteRecord(
             source=self.config.name, provenance=self.config.provider, code=shown, source_url=page.url,
-            title=origin_title or display_title,
-            performers=tuple(actresses(panel.get("演員", ""))),
-            studio=maker_writing(clean(panel.get("片商", ""))), label=clean(panel.get("發行", "")),
-            series=clean(panel.get("系列", "")), director=clean(panel.get("導演", "")),
-            release_date=clean(panel.get("日期", "")), runtime=int(runtime.group()) if runtime else None,
-            tags=genres,
-            cover_urls=(cover.group(1),) if cover else (),
+            title=origin_title or display_title, performers=tuple(actresses(fields["actors"])),
+            studio=fields["studio"], label=fields["label"], series=fields["series"], director=fields["director"],
+            release_date=fields["release_date"], runtime=fields["runtime"], tags=fields["genres"],
+            cover_urls=(fields["cover"],) if fields["cover"] else (),
             extra={'origin_title': origin_title, 'display_title': display_title,
                    'source_id': urllib.parse.urlsplit(page.url).path.rsplit('/', 1)[-1], 'javdb_rule': RULE})
 
@@ -283,7 +278,7 @@ class JavDBPublicSource(JavDBSource):
             except PublicIdentityAmbiguous as error:
                 raise SourceFailure(FailureReason.PARSE_ERROR, f"javdb {error}", detail="identity_ambiguous") from None
             except PublicNotFound:
-                raise SourceFailure(FailureReason.NOT_FOUND, "javdb 没有这个番号") from None
+                raise SourceFailure(FailureReason.NOT_FOUND, _MISSING) from None
             except PublicBudgetExceeded:
                 raise SourceFailure(FailureReason.TIMEOUT, "javdb 作品资料在本次预算内未取得") from None
             except PublicSourceUnavailable:

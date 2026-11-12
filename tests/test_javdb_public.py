@@ -339,7 +339,8 @@ class PublicProtocolTests(unittest.TestCase):
         '<span class="value"><a class="actor-female" href="/actors/Ab12">示例女优</a>, '
         '<a href="/actors/Cd34">示例男优</a></span></div><div class="tile-images preview-images">'
         '<a class="tile-item" href="https://c0.jdbstatic.com/samples/ex/Exact_l_0.jpg"></a>'
-        '<a class="tile-item" href="https://example.invalid/other.jpg"></a></div><a>短評(3)</a>')
+        '<a class="tile-item" href="https://example.invalid/other.jpg"></a></div>'
+        '<a class="review-tab" href="javascript:;"><span>短評(3)</span></a>')
 
     def login_walled_api(self):
         """搜索与作品资料要求登录、评论与磁链照常答的接口；网页由 `self.pages` 按路径给。"""

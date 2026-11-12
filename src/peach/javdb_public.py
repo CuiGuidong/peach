@@ -43,6 +43,7 @@ MAX_REVIEW_PAGES = 8
 API_INTERVAL = 0.5
 #: 接口要求登录后，搜索与作品资料这么久内不再问接口，直接读网页；过后再试一次接口。
 LOGIN_SECONDS = 6 * 3600
+_UNAVAILABLE = "作品资料未取得，请稍后重试"
 _JS_IDENTIFIER = r'[A-Za-z_$][A-Za-z0-9_$]*'
 _CACHE_ROOT = ContextVar('jav_public_cache_root', default=None)
 _CACHE_READS = ContextVar('jav_public_cache_reads', default=None)
@@ -250,11 +251,11 @@ class PublicAPI:
                 pass
         reader = self.page_context.get()
         if reader is None:
-            raise PublicLoginRequired("JavDB 接口要求登录，作品资料未取得")
+            raise PublicLoginRequired(_UNAVAILABLE)
         try:
             return parse(reader(path))
         except (OSError, ValueError, TypeError, AttributeError, KeyError, SourceFailure) as error:
-            raise PublicSourceUnavailable("JavDB 网页未取得，请稍后重试") from error
+            raise PublicSourceUnavailable(_UNAVAILABLE) from error
 
     @contextmanager
     def request_budget(self, budget: PublicRequestBudget):
@@ -307,7 +308,7 @@ class PublicAPI:
             response = self.transport(HttpRequest("GET", url, headers), 15, limit)
         except Exception as error:
             self._pause(60, image=image, host=host)
-            raise failed("作品资料未取得，请稍后重试") from error
+            raise failed(_UNAVAILABLE) from error
         if budget:
             budget.bytes += len(response.body)
         if response.status != 200:
@@ -369,10 +370,10 @@ class PublicAPI:
         if isinstance(payload, dict) and payload.get("action") == "JWTVerificationError":
             # 只停搜索与作品资料：评论与磁链端点匿名仍答，不能跟着整源冷却。
             self.login_until = self.clock() + LOGIN_SECONDS
-            raise PublicLoginRequired("JavDB 接口要求登录")
+            raise PublicLoginRequired(_UNAVAILABLE)
         if not isinstance(payload, dict) or payload.get("success") != 1:
             self.paused_until = self.clock() + 60
-            raise PublicSourceUnavailable("作品资料未取得，请稍后重试")
+            raise PublicSourceUnavailable(_UNAVAILABLE)
         data = payload.get("data")
         if not isinstance(data, dict):
             self.paused_until = self.clock() + 60
