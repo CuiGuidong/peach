@@ -9,11 +9,14 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 
-from peach import display_dimensions_repair, entry_links, r18_legacy_repair, upgrade_repairs, upgrade_rules
+from peach import (display_dimensions_repair, entry_links, interface_text_upgrade, r18_legacy_repair, upgrade_repairs,
+                   upgrade_rules)
 from peach.entities import upsert_asset_entity
 from peach.repository import LedgerDatabase
 from peach.task_runs import TaskRunStore
+from peach.task_outcomes import parts
 from support.ledger import fresh_ledger
+from support.outcomes import told
 
 #: 0.51.0 之前采集桥按 GBK 输出、按 UTF-8 宽松读回的人物名（#478）。
 BAD = chr(0xFFFD)
@@ -577,7 +580,7 @@ class UpgradeRepairTests(unittest.TestCase):
         self.assertNotEqual(new_key, old_key)
         with patch.object(media_probe, 'measure') as probe:
             result = upgrade_repairs._media_run(self.contract, old_key, Mock())
-        self.assertEqual(result['outcome'], 'skipped')
+        self.assertEqual(told(result)['outcome'], 'skipped')
         probe.assert_not_called()
         with patch('peach.library_processing._people_allowed', return_value=False), \
                 patch('peach.seed_followup.plan', return_value=[]):
@@ -643,7 +646,7 @@ class UpgradeRepairTests(unittest.TestCase):
         self.display_sample()
         run = self.run_queued_display(unreachable=True)
         self.assertEqual(run.status, 'succeeded')
-        self.assertIn('已延后', run.result_summary['outcome'])
+        self.assertIn('已延后', told(run.result_summary)['outcome'])
         row = self.display_items()['1']
         self.assertEqual((row['state'], row['attempts']), ('deferred', 0))
         self.assertGreater(row['retry_at'], time.time() + 60)
@@ -685,7 +688,7 @@ class UpgradeRepairTests(unittest.TestCase):
                   'paused_asset_ids': [1], 'retryable_asset_ids': [1]}
         with patch('peach.library_processing.process_library', return_value=cooled):
             result = upgrade_repairs._media_run(self.contract, key, Mock(run_id=None))
-        self.assertIn('来源', result['outcome'])
+        self.assertIn('来源', told(result)['outcome'])
         with self.database.read_connection() as connection:
             row = connection.execute("SELECT state,retry_at FROM ledger_upgrade_item WHERE rule='media:processing-v2'").fetchone()
         self.assertEqual(row['state'], 'deferred')
@@ -719,7 +722,7 @@ class UpgradeRepairTests(unittest.TestCase):
         with patch.object(media_probe, 'probe_file') as probe, \
                 patch('peach.library_processing.process_library') as process:
             result = upgrade_repairs._media_run(self.contract, 'upgrade-library:display-dimensions-1:1', Mock())
-        self.assertEqual(result['outcome'], 'skipped')
+        self.assertEqual(told(result)['outcome'], 'skipped')
         probe.assert_not_called()
         process.assert_not_called()
         self.assertTrue(artifact_rules.current(sheet))
@@ -1049,11 +1052,12 @@ class UpgradeRepairTests(unittest.TestCase):
             row=connection.execute('SELECT catalog_title,field_owners FROM asset WHERE id=1').fetchone()
             self.assertEqual(row[0], '元の題名')
             self.assertEqual(json.loads(row[1])['catalog_title'], 'auto:dmm')
-            # 悬空候选、JavDB 记录类型与来源分辨率标签三条补修各记一行，这里只数更新已有资料的回执。
-            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?,?)',
+            # 悬空候选、JavDB 记录类型、来源分辨率标签与旧记录转换四条补修各记一行，这里只数更新已有资料的回执。
+            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?,?,?)',
                                                 (upgrade_repairs.DANGLING_KEY,
                                                  upgrade_repairs.JAVDB_RECORDS_KEY,
-                                                 upgrade_repairs.RESOLUTION_TAGS_KEY)).fetchone()[0], 2)
+                                                 upgrade_repairs.RESOLUTION_TAGS_KEY,
+                                                 interface_text_upgrade.RECEIPT_KEY)).fetchone()[0], 2)
             self.assertEqual(connection.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
         self.assertEqual(len(list(self.root.glob('ledger.pre-upgrade-*.db'))), 2)
         self.assertEqual(upgrade_repairs._read(self.service.receipt)['text_media_ids'], [1])
@@ -1246,7 +1250,7 @@ class UpgradeRepairTests(unittest.TestCase):
         # 任务中心那一行写的是哪部片，不是一句笼统的「更新影片资料」。
         with self.service.contract.database.read_connection() as connection:
             code, name = connection.execute('SELECT code,name FROM asset WHERE id=1').fetchone()
-        self.assertEqual(planned[0].label, code or name)
+        self.assertEqual(dict(planned[0].params)['name'], code or name)
 
     def test_text_only_dispatch_does_not_plan_unrelated_people(self):
         from peach.settings_file import load_config
@@ -1419,10 +1423,85 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.database.read_connection() as connection:
             self.assertEqual(connection.execute('SELECT code FROM asset WHERE id=1').fetchone()[0], '125735-816')
 
+    def test_old_task_records_are_converted_to_codes_once_with_their_originals(self):
+        # ADR-0159 第五条：升级前写进库里的中文换成 code，原值记进回执；对不上的原样留着。
+        from peach import interface_text_upgrade, repair_center
+        from peach.followups import attempts_root
+        legacy = {
+            'outcome': '补上 2 部的样张（9 张）；跳过 1 部没有可问的官方站、3 部联网名额用完留到下一轮；还有 4 部待补，接着排下一轮'}
+        rows = [  # (task_key, progress_label, error, result_summary)
+            ('code-samples', '扫描文件', None, legacy),
+            ('performer-profile', '女优资料补全：涼森れむ', None, {'name': '涼森れむ', 'outcome': 'avbase 绑定；javdb 写入'}),
+            ('upgrade-library', '影片升级补全', None,
+             {'outcome': '已延后：影片所在目录读不到，挂载恢复后再补测', 'deferred': 1}),
+            ('studio-mark', 'SSIS-123.mp4', '服务重启，这一轮没有跑完', {'outcome': '官网未取得', 'site': {'outcome': '未取得'}}),
+            ('demo', None, 'RuntimeError: 原文', {'outcome': '一句对不上的旧话'}),
+        ]
+        with self.database.write_transaction() as connection:
+            for key, label, error, summary in rows:
+                connection.execute("INSERT INTO task_run(task_key,trigger,status,host,finished_at,progress_label,"
+                                   "error,result_summary) VALUES(?,'manual','succeeded','h','2026-01-01T00:00:00Z',?,?,?)",
+                                   (key, label, error, json.dumps(summary, ensure_ascii=False)))
+        root = attempts_root(self.contract.candidate_root)
+        root.mkdir(parents=True)
+        (root / 'performer-alias-7.json').write_text(json.dumps(
+            {'key': 'performer-alias:7', 'fingerprint': 'fp', 'outcome': '登记 3 个别名'}, ensure_ascii=False),
+            encoding='utf-8')
+        (root / 'entity-avatar-performer-8.json').write_text(json.dumps(
+            {'key': 'entity-avatar:performer:8', 'fingerprint': 'fp', 'outcome': '更早的措辞'}, ensure_ascii=False),
+            encoding='utf-8')
+
+        self.service._convert_interface_text()
+
+        runs = {run.task_key: run for run in self.store.query(limit=20)}
+        sample = runs['code-samples'].payload()
+        self.assertEqual((sample['progress_code'], sample['progress_label']), ('stage.library.scanFiles', '扫描文件'))
+        self.assertEqual(sample['result_summary']['outcome'], legacy['outcome'])
+        self.assertEqual([part['code'] for part in sample['result_summary']['outcome_parts']],
+                         ['samplesLanded', 'semicolon', 'skipped', 'skipNoSite', 'listComma', 'skipDeferred',
+                          'semicolon', 'remainingNext'])
+        profile = runs['performer-profile'].payload()
+        self.assertEqual((profile['progress_code'], profile['progress_params']),
+                         ('taskRun.progress.item', {'name': '涼森れむ'}))
+        # 措辞改写过的段落按新措辞显示：库里存的已经是 code。
+        self.assertEqual(profile['result_summary']['outcome'], '已关联 avbase 资料页；已保存来自 javdb 的资料')
+        deferred = runs['upgrade-library'].result_summary['outcome_parts']
+        self.assertEqual(deferred, [{'code': 'deferredBy', 'params': {
+            'reason': [{'code': 'deferMountDimensions', 'params': {}}]}}])
+        studio = runs['studio-mark']
+        self.assertEqual((studio.progress_label, studio.progress_code), ('SSIS-123.mp4', ''))
+        self.assertEqual((studio.error_code, studio.error), ('taskRun.error.interrupted', '服务重启，这一轮没有跑完'))
+        self.assertEqual([part['code'] for part in studio.result_summary['outcome_parts']], ['officialSite', 'unfetched'])
+        self.assertEqual(studio.result_summary['site'], {'outcome_parts': [{'code': 'unfetched', 'params': {}}]})
+        untouched = runs['demo']
+        self.assertEqual((untouched.error, untouched.result_summary), ('RuntimeError: 原文', {'outcome': '一句对不上的旧话'}))
+        self.assertEqual(json.loads((root / 'performer-alias-7.json').read_text(encoding='utf-8'))['outcome_parts'],
+                         [{'code': 'aliasesAdded', 'params': {'count': 3}}])
+        self.assertEqual(json.loads((root / 'entity-avatar-performer-8.json').read_text(encoding='utf-8'))['outcome'],
+                         '更早的措辞')
+
+        with self.database.read_connection() as connection:
+            receipt = json.loads(connection.execute('SELECT result_json FROM ledger_upgrade_repair WHERE id=?',
+                                                    (interface_text_upgrade.RECEIPT_KEY,)).fetchone()[0])
+            center = repair_center.snapshot(connection, {}, cloud_pending=0)
+        self.assertEqual((receipt['rows'], receipt['attempts']), (4, 1))
+        self.assertEqual(receipt['attempt_originals'], {'performer-alias-7.json': '登记 3 个别名'})
+        original = receipt['originals'][str(runs['studio-mark'].id)]
+        self.assertEqual((original['error'], json.loads(original['result_summary'])['outcome']),
+                         ('服务重启，这一轮没有跑完', '官网未取得'))
+        item = next(item for item in center['items'] if item['id'] == 'interface-text')
+        self.assertEqual((item['state'], item['changed']), ('done', 5))
+        # 只做一次：之后再写进来的旧句子不再转。
+        with self.database.write_transaction() as connection:
+            connection.execute("UPDATE task_run SET error='服务重启，这一轮没有跑完',error_code=NULL WHERE id=?",
+                               (studio.id,))
+        self.service._convert_interface_text()
+        self.assertEqual(self.store.get(studio.id).error_code, '')
+
     def test_old_studio_misses_are_released_only_once(self):
         from peach.followups import Attempts, attempts_root
         root = attempts_root(self.contract.candidate_root)
-        Attempts(root).record('studio-mark:7', 'fp', '官网未取得')
+        Attempts(root).record('studio-mark:7', 'fp', parts('officialSite', 'unfetched'))
         self.service._release_studio_misses()
         record = json.loads((root / 'studio-mark-7.json').read_text(encoding='utf-8'))
         self.assertIn('retry_until', record)
@@ -1431,7 +1510,7 @@ class UpgradeRepairTests(unittest.TestCase):
                                          "WHERE id='studio-unbounded-misses-1'").fetchone()
         self.assertEqual(json.loads(receipt[0]), {'released': 1})
         # 放行之后又照旧规则记下的「未取得」，升级补修不再碰第二次。
-        Attempts(root).record('studio-mark:7', 'fp', '官网未取得')
+        Attempts(root).record('studio-mark:7', 'fp', parts('officialSite', 'unfetched'))
         self.service._release_studio_misses()
         self.assertNotIn('retry_until', json.loads((root / 'studio-mark-7.json').read_text(encoding='utf-8')))
 
@@ -1465,11 +1544,12 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.database.read_connection() as connection:
             rows = connection.execute('SELECT id,code,duration FROM asset ORDER BY id').fetchall()
             self.assertEqual([tuple(row) for row in rows], [(1, 'SSIS-123', None), (2, 'BAD-001', None)])
-            # 悬空候选、JavDB 记录类型与来源分辨率标签三条补修各记一行，这里只数更新已有资料的回执。
-            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?,?)',
+            # 悬空候选、JavDB 记录类型、来源分辨率标签与旧记录转换四条补修各记一行，这里只数更新已有资料的回执。
+            self.assertEqual(connection.execute('SELECT count(*) FROM ledger_upgrade_repair WHERE id NOT IN (?,?,?,?)',
                                                 (upgrade_repairs.DANGLING_KEY,
                                                  upgrade_repairs.JAVDB_RECORDS_KEY,
-                                                 upgrade_repairs.RESOLUTION_TAGS_KEY)).fetchone()[0], 1)
+                                                 upgrade_repairs.RESOLUTION_TAGS_KEY,
+                                                 interface_text_upgrade.RECEIPT_KEY)).fetchone()[0], 1)
         self.assertEqual(len(list(self.root.glob('ledger.pre-upgrade-*.db'))), 1)
         receipt = upgrade_repairs._read(self.service.receipt)
         self.assertEqual(receipt['local']['before'], receipt['local']['after'])
@@ -2178,7 +2258,7 @@ class UpgradeRepairTests(unittest.TestCase):
                 'retryable_asset_ids': [1]}):
             result = upgrade_repairs._media_run(
                 self.contract, 'upgrade-library:processing-v2:1', Mock())
-        self.assertEqual(result['outcome'], '影片升级补全完成')
+        self.assertEqual(told(result)['outcome'], '影片升级补全完成')
 
     def test_cooldown_without_the_paused_film_list_is_settled_as_a_retryable_failure(self):
         """旧版断点没有 `paused_asset_ids`，分不出哪部在等来源：按失败结算，由退避重派。"""

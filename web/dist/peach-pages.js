@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d154480d-f7d2-4d3c-b2ee-a637a3648de4", e._sentryDebugIdIdentifier = "sentry-dbid-d154480d-f7d2-4d3c-b2ee-a637a3648de4");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "e379d3b4-d254-42cc-8887-b41e6171bb32", e._sentryDebugIdIdentifier = "sentry-dbid-e379d3b4-d254-42cc-8887-b41e6171bb32");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -4656,27 +4656,12 @@ var He = {
 		watchLater: "Add to Watch later"
 	},
 	taskOutcome: {
-		alreadyCreator: "Already classified as a creator",
-		changedElsewhere: "Metadata was changed by another operation and wasn't saved",
 		complete: "Processing complete",
 		faceModelUnavailable: "Face model unavailable; face check skipped",
 		followupsScheduled_one: "Scheduled {{count, number}} follow-up task",
 		followupsScheduled_other: "Scheduled {{count, number}} follow-up tasks",
-		imageSaved: "Profile image saved",
-		imageTooSmall: "Image resolution too low",
 		interrupted: "Processing interrupted",
-		linkedSite: "Linked {{site}} profile page",
-		noMatch: "No matching profile page found for this person",
-		noMatchThree: "None of the three sources has a matching profile page for this person",
-		noMatchTwo: "Neither source has a matching profile page for this person",
-		noNewAliases: "No new aliases found",
-		noOfficialSite: "Label's official site info not found",
-		noVideoLists: "Neither source has a video list",
-		partial: "Finished; some items need attention",
-		profileGone: "Profile record no longer exists",
-		savedFromSite: "Saved metadata from {{site}}",
-		smallImageKept: "Kept the small image that passed the identity check",
-		stillCurrent: "Existing metadata is still current"
+		partial: "Finished; some items need attention"
 	},
 	taskResources: {
 		highUsage: "Usage is high right now.",
@@ -7086,7 +7071,8 @@ var He = {
 			"source-resolution-tags": "4K tags from sources",
 			"stale-filename-codes": "Misread codes cleared",
 			"studio-unbounded-misses": "Label lookup cache",
-			"verification-settlement": "Verification differences settled"
+			"verification-settlement": "Verification differences settled",
+			"interface-text-codes": "Interface text in task records"
 		},
 		items: {
 			catalog: {
@@ -7124,6 +7110,10 @@ var He = {
 			"system-files": {
 				summary: "Moves NAS system thumbnails, macOS ._ files, and similar extras out of the collection. The files aren't deleted.",
 				title: "System extras"
+			},
+			"interface-text": {
+				title: "Interface text in task records",
+				summary: "Earlier task records now store codes instead of text, so they show in English; unmatched text is kept"
 			}
 		}
 	},
@@ -7257,13 +7247,15 @@ var He = {
 			pausedWaiting: "Paused, waiting to continue",
 			batch: "{{first}} and others ({{count}} total)",
 			subjectStage: "{{subject}} · {{stage}}",
-			videosStage: "{{count}} videos · {{stage}}"
+			videosStage: "{{count}} videos · {{stage}}",
+			schedulingRepairs: "Scheduling automatic metadata updates"
 		},
 		error: {
 			skippedBy: "Skipped: run {{run}} ({{trigger}}) was still in progress",
 			skipped: "Skipped: another run was still in progress",
 			interrupted: "The service restarted before this run finished",
-			unknownFollowup: "No follow-up task is registered for {{task}}"
+			unknownFollowup: "No follow-up task is registered for {{task}}",
+			dispatchInterrupted: "Metadata dispatch was interrupted, rescheduling"
 		}
 	},
 	stage: {
@@ -7352,6 +7344,104 @@ var He = {
 		"reconsider-duplicates": "List duplicate groups again",
 		region: "Bulk set region",
 		"performer-delete": "Delete actresses' videos permanently"
+	},
+	outcome: {
+		semicolon: ". ",
+		comma: ". ",
+		listComma: ", ",
+		gone: "Profile record no longer exists",
+		unfetched: "Couldn't be retrieved",
+		needsReview: "Needs review",
+		registered: "Registered",
+		installed: "Profile image saved",
+		hasIdentity: "Already classified as a creator",
+		noVideoLists: "Neither source has a video list",
+		changedElsewhere: "Metadata was changed by another operation and wasn't saved",
+		isStudioOrSeries: "This is a label or series, not a creator",
+		merged: "Merged {{absorbed}} into {{kept}}",
+		aliasesAdded: "Added {{count}} aliases",
+		noNewAliases: "No new aliases found",
+		noMatchTwo: "Neither source has a matching profile page for this person",
+		noMatchThree: "None of the three sources has a matching profile page for this person",
+		noMatch: "No matching profile page found for this person",
+		siteSaved: "Saved metadata from {{site}}",
+		siteLinked: "Linked {{site}} profile page",
+		stillCurrent: "Existing metadata is still current",
+		officialSite: "Official site: ",
+		hasMark: "Already has a logo",
+		noSiteLink: "No official site link",
+		faceGateOff: "Portrait check unavailable, nothing installed automatically ({{reason}})",
+		stillWordmark: "Still a wordmark",
+		onlySmallIcon: "Only a small icon",
+		paddedWordmark: "Padded wordmark",
+		sharedIcon: "Platform-wide icon",
+		portraitNotMark: "A portrait, not a logo",
+		hasAvatar: "Already has an avatar",
+		galleryIndexUnfetched: "Couldn't retrieve the gallery index",
+		galleryMissing: "Name not found in the gallery",
+		galleryTooSmall: "The gallery image is too small",
+		imageTooSmall: "Image resolution too low",
+		smallImageKept: "Kept the small image that passed the identity check",
+		galleryMatchUnavailable: "{{count}} gallery images, face matching model unavailable: {{reason}}",
+		galleryNoMatch: "None of the {{count}} gallery images matched",
+		galleryUnsure: "Couldn't confirm a match among {{count}} gallery images",
+		galleryDisagree: "The {{count}} gallery images don't agree on one person",
+		faceModelUnavailable: "Face model unavailable: {{reason}}",
+		matchModelUnavailable: "Face matching model unavailable: {{reason}}",
+		noCoverFace: "No usable face on the covers",
+		clearestCoverFace: "Already using the clearest cover face",
+		coverCutFailed: "Couldn't crop the face from the cover",
+		noIdentity: "No evidence that this account shows the person",
+		noSheetFace: "No usable face in video frames",
+		sheetFacesUnconfirmed: "Found {{count}} faces in video frames, but not in two videos that confirm each other",
+		clearestSheetFace: "Already using the clearest video-frame face",
+		sheetCutFailed: "Couldn't crop the face from the frame",
+		offsiteUnfetched: "Couldn't retrieve solo videos from avwikidb: {{error}}",
+		offsiteNoWorks: "No solo videos on avwikidb",
+		offsiteNoFace: "No usable face on the covers of {{count}} solo videos outside the library",
+		offsiteFacesUnconfirmed: "Only {{count}} faces on solo-video covers outside the library, not in two videos that confirm each other",
+		sourceGalleryByCovers: "{{label}} (matched by cover faces)",
+		sourceGalleryByGallery: "{{label}} (confirmed across the gallery)",
+		sourceGallerySmall: "{{label}} (small-image fallback)",
+		sourceCover: "Video cover {{code}}",
+		sourceOffsiteCover: "Solo-video cover {{code}} outside the library ({{count}} videos confirm)",
+		sourceSheet: "Video frame {{code}} ({{count}} videos confirm)",
+		noCodes: "No codes to fill in",
+		samplesLanded: "Added sample images for {{landed}} videos ({{images}} images)",
+		noSamples: "No sample images added this round",
+		skipped: "Skipped ",
+		skipNoSite: "{{count}} with no official site to ask",
+		skipRecentMiss: "{{count}} the site recently reported missing",
+		skipPaused: "{{count}} while the source cools down",
+		skipDeferred: "{{count}} left for the next round (network quota used up)",
+		remainingNext: "{{count}} left, queued for the next round",
+		remainingLater: "{{count}} left for next time",
+		seedAliases: "Aliases {{count}}",
+		seedRefs: "IDs {{count}}",
+		seedLinks: "Links {{count}}",
+		seedProfiles: "Profiles {{count}}",
+		seedMemberships: "Memberships {{count}}",
+		seedMakers: "Makers {{count}}",
+		seedRefreshed: "Refreshed {{count}}",
+		seedWithdrawn: "Withdrawn {{count}}",
+		seedNames: "Chinese names {{count}}",
+		seedConflicts: "Conflicts {{count}}",
+		seedDuplicates: "Duplicate identities {{count}}",
+		seedWithdrawalConflicts: "Withdrawals to review {{count}}",
+		seedNothing: "Nothing to add ({{count}} matched)",
+		scheduled: "{{count}} items scheduled",
+		videoUpgraded: "Video metadata upgrade complete",
+		videosUpgraded: "Upgraded metadata for {{count}} videos",
+		videosDeferred: "{{count}} postponed: folder unreadable or source cooling down",
+		dimensionsMeasured: "Display dimensions re-measured",
+		deferredBy: "Postponed: {{reason}}",
+		deferMountMedia: "The video's folder is unreadable, will retry when the mount is back",
+		deferMountDimensions: "The video's folder is unreadable, will re-measure when the mount is back",
+		deferBilling: "Traffic on the metered source isn't confirmed yet, will re-measure later",
+		deferCooling: "The metadata source is cooling down, will retry when it's available",
+		faceModelFetched: "Face model downloaded",
+		matchModelFetched: "Face matching model downloaded",
+		faceModelsReady: "Face models are ready"
 	}
 }, Xe = {
 	accessSetup: {
@@ -11076,26 +11166,11 @@ var He = {
 		watchLater: "加入稍后看"
 	},
 	taskOutcome: {
-		alreadyCreator: "已有创作者分类",
-		changedElsewhere: "资料已被其他操作修改，本次未保存",
 		complete: "处理完成",
 		faceModelUnavailable: "人脸模型不可用，未做人脸核对",
 		followupsScheduled: "已安排 {{count, number}} 项补充任务",
-		imageSaved: "已保存资料图片",
-		imageTooSmall: "图片分辨率不足",
 		interrupted: "处理已中断",
-		linkedSite: "已关联 {{site}} 资料页",
-		noMatch: "未找到与该人物相符的资料页",
-		noMatchThree: "三个来源均未找到与该人物相符的资料页",
-		noMatchTwo: "两个来源均未找到与该人物相符的资料页",
-		noNewAliases: "未发现新别名",
-		noOfficialSite: "未取得厂牌官网信息",
-		noVideoLists: "两个来源均未提供作品列表",
-		partial: "处理已结束，部分项目需处理",
-		profileGone: "资料记录已不存在",
-		savedFromSite: "已保存来自 {{site}} 的资料",
-		smallImageKept: "已保留身份核对通过的小尺寸图片",
-		stillCurrent: "现有资料仍在有效期内"
+		partial: "处理已结束，部分项目需处理"
 	},
 	taskResources: {
 		highUsage: "当前为高占用。",
@@ -13457,7 +13532,8 @@ var He = {
 			"source-resolution-tags": "来源的 4K 标签",
 			"stale-filename-codes": "清除误认的番号",
 			"studio-unbounded-misses": "厂牌查询缓存",
-			"verification-settlement": "核查差异结算"
+			"verification-settlement": "核查差异结算",
+			"interface-text-codes": "任务记录的界面文字"
 		},
 		items: {
 			catalog: {
@@ -13495,6 +13571,10 @@ var He = {
 			"system-files": {
 				summary: "NAS 系统目录里的缩略图、macOS 的 ._ 附属文件等移出馆藏，文件本身不删",
 				title: "系统附属文件"
+			},
+			"interface-text": {
+				title: "任务记录的界面文字",
+				summary: "旧任务记录里的说明和结论改存 code，英文界面也能显示；对不上的保留原文"
 			}
 		}
 	},
@@ -13628,13 +13708,15 @@ var He = {
 			pausedWaiting: "已暂停，等待继续",
 			batch: "{{first}} 等 {{count}} 部",
 			subjectStage: "{{subject}} · {{stage}}",
-			videosStage: "{{count}} 部影片 · {{stage}}"
+			videosStage: "{{count}} 部影片 · {{stage}}",
+			schedulingRepairs: "安排自动更新资料"
 		},
 		error: {
 			skippedBy: "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
 			skipped: "已有一轮在进行，本次跳过",
 			interrupted: "服务重启，这一轮没有跑完",
-			unknownFollowup: "没有登记 {{task}} 这种后继"
+			unknownFollowup: "没有登记 {{task}} 这种后继",
+			dispatchInterrupted: "资料派发被中断，正在重新安排"
 		}
 	},
 	stage: {
@@ -13723,6 +13805,104 @@ var He = {
 		"reconsider-duplicates": "重复组重新列出",
 		region: "批量判定产地",
 		"performer-delete": "按女优永久删除影片"
+	},
+	outcome: {
+		semicolon: "；",
+		comma: "，",
+		listComma: "、",
+		gone: "资料记录已不存在",
+		unfetched: "未取得",
+		needsReview: "待人确认",
+		registered: "已登记",
+		installed: "已保存资料图片",
+		hasIdentity: "已有创作者分类",
+		noVideoLists: "两个来源均未提供作品列表",
+		changedElsewhere: "资料已被其他操作修改，本次未保存",
+		isStudioOrSeries: "是厂牌或系列",
+		merged: "{{absorbed}} 并入 {{kept}}",
+		aliasesAdded: "登记 {{count}} 个别名",
+		noNewAliases: "未发现新别名",
+		noMatchTwo: "两个来源均未找到与该人物相符的资料页",
+		noMatchThree: "三个来源均未找到与该人物相符的资料页",
+		noMatch: "未找到与该人物相符的资料页",
+		siteSaved: "已保存来自 {{site}} 的资料",
+		siteLinked: "已关联 {{site}} 资料页",
+		stillCurrent: "现有资料仍在有效期内",
+		officialSite: "厂牌官网",
+		hasMark: "已有标识",
+		noSiteLink: "无官网链接",
+		faceGateOff: "人像闸未生效，不自动装（{{reason}}）",
+		stillWordmark: "仍是字标",
+		onlySmallIcon: "只有小图标",
+		paddedWordmark: "字标补白",
+		sharedIcon: "平台通用图标",
+		portraitNotMark: "人像不是标识",
+		hasAvatar: "已有头像",
+		galleryIndexUnfetched: "图库索引未取得",
+		galleryMissing: "图库里没有这个名字",
+		galleryTooSmall: "图库那张太小",
+		imageTooSmall: "图片分辨率不足",
+		smallImageKept: "已保留身份核对通过的小尺寸图片",
+		galleryMatchUnavailable: "图库 {{count}} 张，比对模型不可用：{{reason}}",
+		galleryNoMatch: "图库 {{count}} 张里比不出她",
+		galleryUnsure: "图库 {{count}} 张认不准",
+		galleryDisagree: "图库 {{count}} 张彼此认不出同一个人",
+		faceModelUnavailable: "人脸模型不可用：{{reason}}",
+		matchModelUnavailable: "比对模型不可用：{{reason}}",
+		noCoverFace: "封面上没有能截的脸",
+		clearestCoverFace: "已是最清楚的封面人脸",
+		coverCutFailed: "封面截不出这一块",
+		noIdentity: "账号没有本人身份依据",
+		noSheetFace: "作品画面上没有能截的脸",
+		sheetFacesUnconfirmed: "作品画面截到 {{count}} 张脸，凑不齐两部互证",
+		clearestSheetFace: "已是最清楚的作品画面人脸",
+		sheetCutFailed: "画面截不出这一块",
+		offsiteUnfetched: "avwikidb 单人作品未取得：{{error}}",
+		offsiteNoWorks: "avwikidb 上没有她的单人作品",
+		offsiteNoFace: "馆外 {{count}} 部单人作品封面上没有能截的脸",
+		offsiteFacesUnconfirmed: "馆外单人作品封面只截到 {{count}} 张脸，凑不齐两部互证",
+		sourceGalleryByCovers: "{{label}}（按封面人脸认定）",
+		sourceGalleryByGallery: "{{label}}（按图库互证认定）",
+		sourceGallerySmall: "{{label}}（小图兜底）",
+		sourceCover: "作品封面 {{code}}",
+		sourceOffsiteCover: "馆外单人作品封面 {{code}}（{{count}} 部互证）",
+		sourceSheet: "作品画面 {{code}}（{{count}} 部互证）",
+		noCodes: "没有要补的番号",
+		samplesLanded: "补上 {{landed}} 部的样张（{{images}} 张）",
+		noSamples: "这一轮没有补上样张",
+		skipped: "跳过 ",
+		skipNoSite: "{{count}} 部没有可问的官方站",
+		skipRecentMiss: "{{count}} 部那一站近期说过没有",
+		skipPaused: "{{count}} 部因来源冷却",
+		skipDeferred: "{{count}} 部联网名额用完留到下一轮",
+		remainingNext: "还有 {{count}} 部待补，接着排下一轮",
+		remainingLater: "还有 {{count}} 部待补，等下一次处理",
+		seedAliases: "别名 {{count}}",
+		seedRefs: "编号 {{count}}",
+		seedLinks: "链接 {{count}}",
+		seedProfiles: "资料 {{count}}",
+		seedMemberships: "归属 {{count}}",
+		seedMakers: "片商 {{count}}",
+		seedRefreshed: "换新 {{count}}",
+		seedWithdrawn: "撤销 {{count}}",
+		seedNames: "中文名 {{count}}",
+		seedConflicts: "不一致 {{count}}",
+		seedDuplicates: "重复身份 {{count}}",
+		seedWithdrawalConflicts: "撤销待复核 {{count}}",
+		seedNothing: "没有可补的（对上 {{count}} 位）",
+		scheduled: "已安排 {{count}} 项处理",
+		videoUpgraded: "影片升级补全完成",
+		videosUpgraded: "影片升级补全完成 {{count}} 部",
+		videosDeferred: "目录读不到或来源冷却，延后 {{count}} 部",
+		dimensionsMeasured: "显示尺寸补测完成",
+		deferredBy: "已延后：{{reason}}",
+		deferMountMedia: "影片所在目录读不到，挂载恢复后再补全",
+		deferMountDimensions: "影片所在目录读不到，挂载恢复后再补测",
+		deferBilling: "计费来源的流量还没确认，稍后再补测",
+		deferCooling: "资料来源正在冷却，来源放开后再补全",
+		faceModelFetched: "已取得人脸模型",
+		matchModelFetched: "已取得人脸比对模型",
+		faceModelsReady: "人脸模型已就绪"
 	}
 }, at = {
 	accessSetup: {
@@ -37268,4 +37448,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=d154480d-f7d2-4d3c-b2ee-a637a3648de4
+//# debugId=e379d3b4-d254-42cc-8887-b41e6171bb32

@@ -12,6 +12,7 @@ from peach import face_detect, face_match, face_models, web_router
 from peach.jobs import BackgroundJob
 from peach.repository import LedgerDatabase
 from peach.task_runs import DEFAULT_KEEP, TaskRunStore, task_label
+from support.outcomes import told
 
 TASK = face_models.TASK_KEY
 DOWN = face_detect.FaceModelUnavailable("取人脸模型失败：getaddrinfo failed")
@@ -60,7 +61,7 @@ class ReporterTests(FaceModelsCase):
         self.report("人脸模型", None)
         latest, failed = self.rows()
         self.assertEqual((latest.status, failed.status), ("succeeded", "failed"))
-        self.assertEqual(latest.result_summary["outcome"], "已取得人脸模型")
+        self.assertEqual(told(latest.result_summary)["outcome"], "已取得人脸模型")
         # 恢复之后再断，是新的一次失败。
         self.report("人脸模型", DOWN)
         self.assertEqual([run.status for run in self.rows()], ["failed", "succeeded", "failed"])

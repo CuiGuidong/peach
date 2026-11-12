@@ -53,6 +53,7 @@ from . import minnano_av
 from .entities import (is_short_single_name, merge_entity, name_chain, name_rank,
                        normalize_entity_name)
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_outcomes import is_outcome, outcome_parts, part, said
 from .task_runs import item_progress
 from .kanji import fold_glyphs
 from .metadata_alias_resolve import is_descriptive, is_planning_alias
@@ -854,9 +855,9 @@ def run(contract, key: str, handle) -> dict:
     summary = _run(contract, key, handle)
     with contract.database.read_connection() as connection:
         current = fingerprint(connection, parse_key(key))
-    outcome = str(summary.get("outcome", ""))
     Attempts(attempts_root(contract.candidate_root)).record(
-        key, current, outcome, retry_after=RETRY_UNFETCHED if outcome == "未取得" else None)
+        key, current, outcome_parts(summary),
+        retry_after=RETRY_UNFETCHED if is_outcome(summary, "unfetched") else None)
     return summary
 
 
@@ -868,7 +869,7 @@ def _run(contract, key: str, handle) -> dict:
         refs = _refs(connection, entity_id)
         codes = fc2_codes(connection, entity_id)
     if names is None:
-        return {"outcome": "档案已不存在"}
+        return said("gone")
     canonical = names[0]
     if handle is not None:
         handle.progress(**_label(canonical), throttle=0)
@@ -890,16 +891,16 @@ def _run(contract, key: str, handle) -> dict:
         _record_review(contract.candidate_root, entity_id, rows)
     taken = sum(1 for row in rows if row["action"] == TAKEN)
     if merged:
-        outcome = f"{merged['absorbed']} 并入 {merged['kept']}"
+        outcome = part("merged", absorbed=merged['absorbed'], kept=merged['kept'])
     elif written:
-        outcome = f"登记 {len(written)} 个别名"
+        outcome = part("aliasesAdded", count=len(written))
     elif rows:
-        outcome = "没有新写法"
+        outcome = part("noNewAliases")
     elif any(report.startswith("未取得") for report in reports.values()):
-        outcome = "未取得"
+        outcome = part("unfetched")
     else:
-        outcome = f"{'三' if codes else '两'}站都没对上她"
-    summary = {"name": canonical, "outcome": outcome, "sites": reports}
+        outcome = part("noMatchThree" if codes else "noMatchTwo")
+    summary = {"name": canonical, **said(outcome), "sites": reports}
     if written:
         summary["aliases"] = written[:12]
     if taken:

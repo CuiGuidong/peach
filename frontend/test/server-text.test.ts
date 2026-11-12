@@ -52,6 +52,23 @@ describe('serverText', () => {
   });
 });
 
+describe('partsText', () => {
+  it('按段存的结论逐段取当前语言，嵌套的原因与改写过的参数一并填进去', async () => {
+    const { partsText } = await load('en');
+    const parts = [{ code: 'siteSaved', params: { site: 'javdb' } }, { code: 'semicolon' },
+      { code: 'deferredBy', params: { reason: [{ code: 'deferCooling' }] } }];
+    const site = (params: Record<string, unknown>) => ({ ...params, site: params.site === 'javdb' ? 'JavDB' : params.site });
+    expect(partsText(parts, '原文', site)).toBe(
+      `Saved metadata from JavDB. Postponed: ${enServer.outcome.deferCooling}`);
+  });
+
+  it('有一段没有译文就整句用服务端渲染好的原文', async () => {
+    const { partsText } = await load('en');
+    expect(partsText([{ code: 'installed' }, { code: 'notYetTranslated' }], '已装上')).toBe('已装上');
+    expect(partsText('不是段落', '原文')).toBe('原文');
+  });
+});
+
 describe('取数失败的原因', () => {
   it('apiGet 抛出的译文经过页面再处理一次仍是译文', async () => {
     const { apiGet, ApiError, requestErrorMessage, errorMessage } = await load('en');

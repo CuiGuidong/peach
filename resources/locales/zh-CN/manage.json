@@ -979,26 +979,11 @@
     "watchLater": "加入稍后看"
   },
   "taskOutcome": {
-    "alreadyCreator": "已有创作者分类",
-    "changedElsewhere": "资料已被其他操作修改，本次未保存",
     "complete": "处理完成",
     "faceModelUnavailable": "人脸模型不可用，未做人脸核对",
     "followupsScheduled": "已安排 {{count, number}} 项补充任务",
-    "imageSaved": "已保存资料图片",
-    "imageTooSmall": "图片分辨率不足",
     "interrupted": "处理已中断",
-    "linkedSite": "已关联 {{site}} 资料页",
-    "noMatch": "未找到与该人物相符的资料页",
-    "noMatchThree": "三个来源均未找到与该人物相符的资料页",
-    "noMatchTwo": "两个来源均未找到与该人物相符的资料页",
-    "noNewAliases": "未发现新别名",
-    "noOfficialSite": "未取得厂牌官网信息",
-    "noVideoLists": "两个来源均未提供作品列表",
-    "partial": "处理已结束，部分项目需处理",
-    "profileGone": "资料记录已不存在",
-    "savedFromSite": "已保存来自 {{site}} 的资料",
-    "smallImageKept": "已保留身份核对通过的小尺寸图片",
-    "stillCurrent": "现有资料仍在有效期内"
+    "partial": "处理已结束，部分项目需处理"
   },
   "taskResources": {
     "highUsage": "当前为高占用。",

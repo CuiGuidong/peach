@@ -19,6 +19,7 @@ from pathlib import Path
 
 from . import sample_images
 from .followups import Followup, FollowupType, register
+from .task_outcomes import joined, part, said
 from .task_runs import item_progress
 
 TASK_KEY = "code-samples"
@@ -97,7 +98,7 @@ def run(contract, key: str, handle, *, transport=None, clock=time.monotonic) -> 
     checkpoint = _SampleCheckpoint(contract, handle, misses, snapshots)
     codes = checkpoint.codes
     if not codes:
-        return {"outcome": "没有要补的番号", "codes": 0}
+        return {**said("noCodes"), "codes": 0}
     batch = sample_images.batch_for(getattr(handle, "run_id", None))
     owned = transport is None
     if owned:
@@ -187,22 +188,19 @@ def run(contract, key: str, handle, *, transport=None, clock=time.monotonic) -> 
                "continue": remaining > 0 and landed + absent + probed > 0}
     if paused:
         summary["paused"] = sorted(paused)
-    return {"outcome": _outcome(summary), **summary}
+    return {**said(_outcome(summary)), **summary}
 
 
-def _outcome(summary: dict) -> str:
-    """活动页上那一行：补上几部、跳过几部各为什么、还剩几部、接不接着跑。"""
+def _outcome(summary: dict) -> list[dict]:
+    """活动页上那一行的段落：补上几部、跳过几部各为什么、还剩几部、接不接着跑。"""
     skipped, deferred, remaining = summary["skipped"], summary["deferred"], summary["remaining"]
-    text = f"补上 {summary['landed']} 部的样张（{summary['images']} 张）" if summary["landed"] else "这一轮没有补上样张"
-    reasons = [line for count, line in ((skipped["no_site"], f"{skipped['no_site']} 部没有可问的官方站"),
-                                        (skipped["recent_miss"], f"{skipped['recent_miss']} 部那一站近期说过没有"),
-                                        (skipped["paused"], f"{skipped['paused']} 部因来源冷却"),
-                                        (deferred, f"{deferred} 部联网名额用完留到下一轮")) if count]
-    if reasons:
-        text += "；跳过 " + "、".join(reasons)
-    if remaining:
-        text += f"；还有 {remaining} 部待补，" + ("接着排下一轮" if summary["continue"] else "等下一次处理")
-    return text
+    landed = (part("samplesLanded", landed=summary["landed"], images=summary["images"]) if summary["landed"]
+              else part("noSamples"))
+    reasons = [part(code, count=count) for code, count in (
+        ("skipNoSite", skipped["no_site"]), ("skipRecentMiss", skipped["recent_miss"]),
+        ("skipPaused", skipped["paused"]), ("skipDeferred", deferred)) if count]
+    rest = part("remainingNext" if summary["continue"] else "remainingLater", count=remaining) if remaining else []
+    return joined([landed, [part("skipped"), *joined(reasons, "listComma")] if reasons else [], rest])
 
 
 #: 写账本：样张地址写在 `code_sample_image`。联网在事务外做，每部写一次，很短；

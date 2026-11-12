@@ -57,6 +57,7 @@ from urllib.parse import quote
 from . import avwikidb, entry_links, javdb, minnano_av
 from . import performer_alias_followup as alias
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_outcomes import joined, outcome_parts, part, said
 from .task_runs import item_progress
 from .performer_profiles import fetched_at as profile_fetched_at, read_profile, write_profile
 from .scripting import HostLimiter
@@ -325,7 +326,6 @@ def run(contract, key: str, handle) -> dict:
     summary = _run(contract, key, handle)
     with contract.database.read_connection() as connection:
         current = fingerprint(connection, parse_key(key))
-    outcome = str(summary.get("outcome", ""))
     reports = summary.get("sites") or {}
     if any(str(report).startswith(UNFETCHED) for report in reports.values()):
         retry = RETRY_UNFETCHED
@@ -333,7 +333,7 @@ def run(contract, key: str, handle) -> dict:
         retry = REFRESH
     else:
         retry = None
-    Attempts(attempts_root(contract.candidate_root)).record(key, current, outcome,
+    Attempts(attempts_root(contract.candidate_root)).record(key, current, outcome_parts(summary),
                                                             retry_after=retry)
     return summary
 
@@ -351,7 +351,7 @@ def _run(contract, key: str, handle) -> dict:
                  "fetched": None if _avbase_row(read_profile(connection, entity_id))
                  else profile_fetched_at(connection, entity_id)}
     if names is None:
-        return {"outcome": "档案已不存在"}
+        return said("gone")
     canonical = names[0]
     if handle is not None:
         handle.progress(**_label(canonical), throttle=0)
@@ -374,16 +374,17 @@ def _run(contract, key: str, handle) -> dict:
     if rows:
         _record_review(contract.candidate_root, entity_id, rows)
     landed = [row for row in rows if row["action"] in (WRITE, BIND, FRESH)]
-    done = [f"{row['site']} {row['action']}" for row in rows if row["action"] in (WRITE, BIND)]
+    done = [part("siteSaved" if row["action"] == WRITE else "siteLinked", site=row["site"])
+            for row in rows if row["action"] in (WRITE, BIND)]
     if done:
-        outcome = "；".join(done)
+        outcome = joined(done)
     elif landed:
-        outcome = "资料未过期"
+        outcome = [part("stillCurrent")]
     elif any(report.startswith(UNFETCHED) for report in reports.values()):
-        outcome = UNFETCHED
+        outcome = [part("unfetched")]
     else:
-        outcome = "哪一站都没对上她"
-    summary = {"name": canonical, "outcome": outcome, "sites": reports, "landed": bool(landed)}
+        outcome = [part("noMatch")]
+    summary = {"name": canonical, **said(outcome), "sites": reports, "landed": bool(landed)}
     if conflict_count:
         summary["conflicts"] = conflict_count
     return summary

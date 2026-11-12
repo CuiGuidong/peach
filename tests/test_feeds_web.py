@@ -22,6 +22,7 @@ from peach import feed_followup, feeds, web_entity, web_feeds, web_settings, web
 from peach import web_jav_browser_performer as performer  # noqa: E402
 from peach.http import HttpResponse  # noqa: E402
 from peach.web_contract import WebContract  # noqa: E402
+from peach.task_outcomes import part  # noqa: E402
 from peach.web_router import dispatch_api_get, dispatch_api_post  # noqa: E402
 from support.ledger import fresh_ledger  # noqa: E402
 
@@ -1165,7 +1166,7 @@ class FeedWebTest(FeedWebFixture):
         self.assertIn(key, [item["key"] for item in self._check(automatic=True)["followups"]])
         with self.contract.database.read_connection() as connection:
             current = avatar_followup.fingerprint(connection, entity_id, providers_root)
-        Attempts(attempts_root(self.contract.candidate_root)).record(key, current, "图库 6 张认不准")
+        Attempts(attempts_root(self.contract.candidate_root)).record(key, current, [part("galleryUnsure", count=6)])
         self._stock_window_passes()
         self.assertNotIn(key, [item["key"] for item in self._check(automatic=True)["followups"]])
         index_path.write_text(json.dumps({"Content": {"1-S1": {"二の宮すずか.jpg": "二の宮すずか.jpg"}}}), encoding="utf-8")

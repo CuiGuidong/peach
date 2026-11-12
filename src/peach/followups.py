@@ -100,10 +100,13 @@ class Attempts:
         until = record.get("retry_until")
         return until is None or float(until) > self.clock()
 
-    def record(self, key: str, fingerprint: str, outcome: str, *,
+    def record(self, key: str, fingerprint: str, outcome: list, *,
                retry_after: float | None = None) -> None:
+        """`outcome` 是那一轮结论的段落（`task_outcomes`），文件里不存文字。"""
+        if not isinstance(outcome, list):
+            raise TypeError("Attempts.record takes outcome parts, not text")
         self.root.mkdir(parents=True, exist_ok=True)
-        entry = {"key": key, "fingerprint": fingerprint, "outcome": outcome,
+        entry = {"key": key, "fingerprint": fingerprint, "outcome_parts": outcome,
                  "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(self.clock()))}
         if retry_after is not None:
             entry["retry_until"] = self.clock() + float(retry_after)

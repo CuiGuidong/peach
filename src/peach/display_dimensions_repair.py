@@ -92,19 +92,19 @@ def reprobe(contract, config, asset_id: int, *, checkpoint, expected_generation=
     if completed is not None and completed.get('generation') == current_generation:
         return completed
     if cost_for(row['location'], row['path'], config) != 'free':
-        raise RepairDeferred('计费来源的流量还没确认，稍后再补测', MOUNT_RETRY_SECONDS)
+        raise RepairDeferred('deferBilling', MOUNT_RETRY_SECONDS)
     ffprobe = _ffprobe_path(config)
     if not ffprobe:
         raise ValueError('显示尺寸补测未取得 ffprobe')
     if mount_unreachable(row['path']):
-        raise RepairDeferred('影片所在目录读不到，挂载恢复后再补测', MOUNT_RETRY_SECONDS)
+        raise RepairDeferred('deferMountDimensions', MOUNT_RETRY_SECONDS)
     checkpoint()
     measured = media_probe.measure(ffprobe, asset_id, row['path'])
     checkpoint()
     if measured[0] <= 0 or measured[1] <= 0 or measured[2] <= 0:
         # 测量途中掉线也是挂载的事，不按这部片失败结算。
         if mount_unreachable(row['path']):
-            raise RepairDeferred('影片所在目录读不到，挂载恢复后再补测', MOUNT_RETRY_SECONDS)
+            raise RepairDeferred('deferMountDimensions', MOUNT_RETRY_SECONDS)
         raise ValueError('显示尺寸未取得，保留原有测量')
     changed = (row['width'], row['height']) != tuple(measured[1:3])
     result = {'changed': changed, 'dimensions': list(measured[1:3]), 'generation': current_generation}
