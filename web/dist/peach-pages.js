@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d3713b70-2dcf-4b4d-b0ed-82470968bfd4", e._sentryDebugIdIdentifier = "sentry-dbid-d3713b70-2dcf-4b4d-b0ed-82470968bfd4");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d154480d-f7d2-4d3c-b2ee-a637a3648de4", e._sentryDebugIdIdentifier = "sentry-dbid-d154480d-f7d2-4d3c-b2ee-a637a3648de4");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -36784,7 +36784,14 @@ function $y({ setup: e, onDone: t, onRestore: n }) {
 																			},
 																			children: [...new Map(v.rows.map((e) => [e.library_id, e])).values()].map((e) => /* @__PURE__ */ (0, V.jsx)(h_, {
 																				id: e.library_id,
-																				children: e.library || F("shell:shared.untitledLibrary")
+																				textValue: e.library || F("shell:shared.untitledLibrary"),
+																				children: /* @__PURE__ */ (0, V.jsxs)("span", {
+																					className: "flex min-w-0 items-center gap-2",
+																					children: [/* @__PURE__ */ (0, V.jsx)(Ag, { mark: e.library_icon || _y(e.location)[0] }), /* @__PURE__ */ (0, V.jsx)("span", {
+																						className: "truncate",
+																						children: e.library || F("shell:shared.untitledLibrary")
+																					})]
+																				})
 																			}, e.library_id))
 																		})
 																	}) : null
@@ -37261,4 +37268,4 @@ Et();
 var ib = document.getElementById("peach-page"), ab = ib ? rb[ib.dataset.page ?? ""] : void 0;
 ib && ab && (0, Ft.createRoot)(ib).render(/* @__PURE__ */ (0, V.jsx)(nb, { children: /* @__PURE__ */ (0, V.jsx)(ab, { data: { ...ib.dataset } }) }));
 
-//# debugId=d3713b70-2dcf-4b4d-b0ed-82470968bfd4
+//# debugId=d154480d-f7d2-4d3c-b2ee-a637a3648de4
