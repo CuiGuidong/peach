@@ -834,7 +834,15 @@ class IdleWorktreeTests(_WorktreeCase):
     def _age(self, worker: Path, days: int = agent_worktree.IDLE_DAYS + 1) -> None:
         then = time.time() - days * 86400
         admin = Path(_git(worker, "rev-parse", "--path-format=absolute", "--git-dir").stdout.strip())
-        for path in [admin / "HEAD", admin / "logs" / "HEAD", *worker.rglob("*")]:
+        reflog = admin / "logs" / "HEAD"
+        entries = []
+        for line in reflog.read_text(encoding="utf-8").splitlines():
+            head, _, message = line.partition("\t")
+            fields = head.split()
+            fields[-2] = str(int(then))
+            entries.append(" ".join(fields) + "\t" + message)
+        reflog.write_text("".join(entry + "\n" for entry in entries), encoding="utf-8")
+        for path in [admin / "HEAD", reflog, *worker.rglob("*")]:
             if path.exists():
                 os.utime(path, (then, then))
 
@@ -844,6 +852,39 @@ class IdleWorktreeTests(_WorktreeCase):
         report = prune(self.repo, apply=True)
         self.assertIn(str(worker), report["reclaimed"])
         self.assertFalse(worker.exists())
+
+    def test_touching_the_reflog_file_does_not_count_as_activity(self):
+        """reflog 文件被批量操作碰过，mtime 刷新了，记录里的时间仍是旧的。"""
+        worker = self._created("touched-reflog")
+        self._age(worker)
+        admin = Path(_git(worker, "rev-parse", "--path-format=absolute", "--git-dir").stdout.strip())
+        os.utime(admin / "logs" / "HEAD")
+        report = prune(self.repo, apply=True)
+        self.assertIn(str(worker), report["reclaimed"])
+
+    def test_an_emptied_reflog_falls_back_to_the_commit_time(self):
+        worker = self._created("emptied-reflog")
+        old = time.time() - (agent_worktree.IDLE_DAYS + 1) * 86400
+        (worker / "worker.txt").write_text("old change\n", encoding="utf-8")
+        with mock.patch.dict(os.environ, {"GIT_COMMITTER_DATE": f"{int(old)} +0000"}):
+            commit(worker, "old change")
+        _git(self.repo, "merge", "--no-ff", "-m", "merge old change", "agent/codex/emptied-reflog")
+        self._age(worker)
+        admin = Path(_git(worker, "rev-parse", "--path-format=absolute", "--git-dir").stdout.strip())
+        (admin / "logs" / "HEAD").write_text("", encoding="utf-8")
+        report = prune(self.repo, apply=True)
+        self.assertIn(str(worker), report["reclaimed"])
+
+    def test_an_emptied_reflog_on_a_recent_commit_is_kept(self):
+        worker = self._created("recent-commit")
+        (worker / "worker.txt").write_text("fresh change\n", encoding="utf-8")
+        commit(worker, "fresh change")
+        self._age(worker)
+        admin = Path(_git(worker, "rev-parse", "--path-format=absolute", "--git-dir").stdout.strip())
+        (admin / "logs" / "HEAD").write_text("", encoding="utf-8")
+        report = prune(self.repo, apply=True)
+        self.assertTrue(worker.is_dir())
+        self.assertEqual(report["reclaimed"], [])
 
     def test_deleting_old_files_under_build_does_not_count_as_activity(self):
         """清理删掉旧文件会把目录 mtime 刷成今天；工作树本身仍然闲置。"""

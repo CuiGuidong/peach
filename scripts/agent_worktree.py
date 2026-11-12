@@ -600,16 +600,34 @@ def _session_files(path: Path) -> list[Path]:
             if child.is_file() and output not in child.parents]
 
 
+def _reflog_time(log: Path) -> float | None:
+    """reflog 最后一条记下的时间；没有记录或读不出时返回 None。"""
+    try:
+        lines = log.read_text(encoding="utf-8", errors="replace").splitlines()
+        return float(lines[-1].split("\t", 1)[0].split()[-2]) if lines else None
+    except (OSError, ValueError, IndexError):
+        return None
+
+
 def _idle(path: Path) -> bool:
     """最近 `IDLE_DAYS` 天里没有提交、切换分支、改动文件，也没往 `build/` 写东西。
 
     不看 index 的 mtime：`git status` 会顺手刷新 index，一次只读检查就能把它刷成今天。
     也不看目录的 mtime：清理时删掉目录里的旧文件会把目录刷成今天，2026-11-12 清网络日志
     之后，187 个早已没人碰的工作树因此全被当成还在用。
+    HEAD 的活动取 reflog 最后一条记下的时间，reflog 为空时取 HEAD 提交的提交时间，都不看
+    `logs/HEAD` 的 mtime：同一天实测所有工作树的 reflog 曾被整体清空，文件 mtime 全刷成了
+    清空那一刻。
     """
     stamps: list[float] = []
     admin = _git(path, "rev-parse", "--path-format=absolute", "--git-dir", check=False).stdout.strip()
-    candidates = [Path(admin) / "HEAD", Path(admin) / "logs" / "HEAD"] if admin else []
+    moved = _reflog_time(Path(admin) / "logs" / "HEAD") if admin else None
+    if moved is None:
+        committed = _git(path, "log", "-1", "--format=%ct", "HEAD", check=False).stdout.strip()
+        moved = float(committed) if committed.isdigit() else None
+    if moved is not None:
+        stamps.append(moved)
+    candidates: list[Path] = []
     if (path / "build").is_dir():
         candidates.extend(child for child in (path / "build").rglob("*") if child.is_file())
     for line in _lines(_git(path, "status", "--porcelain", "--untracked-files=all", check=False)):
