@@ -38,7 +38,7 @@ import uuid
 
 from filelock import FileLock
 
-from . import distribution, ledger_backups, settings_file
+from . import distribution, interface_text, ledger_backups, settings_file
 from .fsutil import atomic_write_text
 
 USAGE_NAME = "storage-usage.json"
@@ -70,44 +70,35 @@ def backup_directories(config) -> tuple[Path, ...]:
 
 @dataclass(frozen=True)
 class Category:
+    """一类存储。名字、它是什么、清理后会怎样（不能清理的写为什么不能）在
+    `server:storage.category.<key>` 的 `label`、`description`、`note`（ADR-0159）。"""
+
     key: str
-    label: str
-    #: 这一类是什么。
-    description: str
     cleanable: bool = False
-    #: 可清理的写清理之后会怎样；不能清理的写为什么不能。
-    note: str = ""
+
+    def _text(self, field: str) -> str:
+        return interface_text.text(f"server:storage.category.{self.key}.{field}")
+
+    @property
+    def label(self) -> str:
+        return self._text("label")
+
+    @property
+    def description(self) -> str:
+        return self._text("description")
+
+    @property
+    def note(self) -> str:
+        return self._text("note")
 
 
-#: 每一类都说清是什么；能清理的说清理后会怎样，不能清理的说为什么。
 #: 缩略图与预览图名字相近，区别在来源：缩略图由已下载的封面、头像缩小而来，本机随时能重算；
 #: 预览图从视频抽帧，重建要重新读取整部影片。
-CATEGORIES = (
-    Category("database", "数据库", "影片、人物、标签与观看记录",
-             note="Peach 的全部资料都在这里，删除就是清空媒体库"),
-    Category("backups", "数据库备份", "升级、迁移与整理前自动留下的数据库副本", True,
-             "每处保留最近一份，更早的无法再恢复"),
-    Category("playback", "播放缓存", "浏览器不能直接播放的影片转码后的副本", True,
-             "再次播放时重新转码"),
-    Category("thumbnails", "缩略图", "封面与头像的小尺寸副本，列表和网格里显示的就是它", True,
-             "浏览时从本机已有的封面重新缩小"),
-    Category("previews", "预览图", "从视频抽帧生成的九宫格、海报与进度条预览",
-             note="重建要重新读取整部影片，网盘里的影片会重新下载，所以不在这里清理"),
-    Category("downloads", "封面与网络资料", "从资料站下载的封面、头像、厂牌标志与网页缓存",
-             note="删除后要重新联网下载，已下架的来源再也取不回来"),
-    Category("sources", "导入资料", "从其他软件导入的资料与原始记录",
-             note="Peach 无法重新生成，删除后只能重新导入"),
-    Category("records", "任务与复核记录", "断点续跑、自动修复回执、待复核清单与归档",
-             note="删除会丢失任务进度和尚未处理的复核结论"),
-    Category("tools", "媒体工具", "FFmpeg、人脸识别等播放、抽帧与识别用到的程序",
-             note="删除后播放、预览与识别不可用，需要重新安装"),
-    Category("accounts", "登录状态", "访问令牌与资料站登录用的浏览器资料",
-             note="删除后需要重新登录各个网站与设备"),
-    Category("logs", "日志", "运行日志与崩溃记录", True,
-             "只清理已归档的日志与崩溃记录，正在写入的保留"),
-    Category("other", "其他", "数据目录里不属于以上各类的文件",
-             note="Peach 无法判断它们的用途，请自行确认后手动处理"),
-)
+CATEGORIES = tuple(Category(key, cleanable) for key, cleanable in (
+    ("database", False), ("backups", True), ("playback", True), ("thumbnails", True), ("previews", False),
+    ("downloads", False), ("sources", False), ("records", False), ("tools", False), ("accounts", False),
+    ("logs", True), ("other", False),
+))
 CATEGORY_KEYS = tuple(category.key for category in CATEGORIES)
 CLEANABLE = frozenset(category.key for category in CATEGORIES if category.cleanable)
 

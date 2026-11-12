@@ -20,7 +20,7 @@ from .catalog_rules import (
 from .config import PROJECT_ROOT
 from .downloads import (
     CLOUDDRIVE_CREDENTIAL, INGESTED, POSTPROCESS_FAILED, POSTPROCESS_PENDING, POSTPROCESS_QUEUED,
-    POSTPROCESS_RUNNING, REMOTE_RUNNING, RESUBMITTABLE_STATES, STATE_LABELS, TRACKED_STATES, iso,
+    POSTPROCESS_RUNNING, REMOTE_RUNNING, RESUBMITTABLE_STATES, TRACKED_STATES, iso, state_label,
     never_seen, submit_offline_download, parse_magnet,
     parse_iso, DownloadError,
 )
@@ -414,7 +414,7 @@ class JavBrowser:
                 if task.asset_id:
                     row["asset_id"] = task.asset_id
                 progress = task.progress
-                detail["download"] = {"state": task.state, "label": STATE_LABELS.get(task.state, ""),
+                detail["download"] = {"state": task.state, "label": state_label(task.state),
                     "phase": "organize" if task.state == INGESTED else "ingest" if task.remote_done_at
                         or task.state in {"remote_done", "landed"} else "download",
                     "progress": min(1.0, max(0.0, progress)) if task.state in {REMOTE_RUNNING, "remote_done", "landed", INGESTED}
@@ -442,7 +442,7 @@ class JavBrowser:
         with self._lock:
             row = self.rows.get(code)
             if row is None or row["state"] != "queued":
-                raise UserFacingError("这个番号不在排队中", code="javBrowser.notQueued")
+                raise UserFacingError("javBrowser.notQueued")
             ordered = [(code, row), *((key, other) for key, other in self.rows.items() if key != code)]
             self.rows.clear()
             self.rows.update(ordered)

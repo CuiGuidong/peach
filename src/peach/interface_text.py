@@ -71,3 +71,17 @@ def ensure_available(root: Path = LOCALES) -> None:
     """启动与健康检查用：源语言的 `server` 命名空间必须读得到。"""
     if not (root / SOURCE_LANGUAGE / "server.json").is_file():
         raise InterfaceTextMissing(f"interface text resources are missing: {root}")
+
+
+def label(key: str, fallback: str, params: dict | None = None, language: str = SOURCE_LANGUAGE) -> str:
+    """有这一条就渲染，没有就用 `fallback`：登记表之外的 id（如别处新加的任务种类）照原样显示。"""
+    return text(key, params, language) if has(key, language) else fallback
+
+
+def subtree(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> dict:
+    """`<命名空间>:<键>` 下面那一层的原始内容，键不存在时是空字典。"""
+    namespace, _, name = key.partition(":")
+    node = _namespace(root, language, namespace)
+    for part in filter(None, name.split(".")):
+        node = node.get(part, {}) if isinstance(node, dict) else {}
+    return node if isinstance(node, dict) else {}

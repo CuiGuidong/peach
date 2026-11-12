@@ -26,74 +26,61 @@ HAS_DEPS = all(importlib.util.find_spec(name) for name in ("fastapi", "httpx"))
 LOCALES = ROOT / "resources" / "locales"
 
 
-def server_resource(language: str) -> dict:
-    return json.loads((LOCALES / language / "server.json").read_text(encoding="utf-8"))
-
-
-def braces(text: str) -> str:
-    """Python 的 `{name}` 写成 i18next 的 `{{name}}`。"""
-    return text.replace("{", "{{").replace("}", "}}")
-
-
 class EnvelopeTests(unittest.TestCase):
-    def test_coded_text_carries_code_and_params_beside_the_original(self):
-        self.assertEqual(message_fields("已整理 3 部", "organize.done", {"count": 3}),
-                         {"message": "已整理 3 部", "message_code": "organize.done", "message_params": {"count": 3}})
-        self.assertEqual(message_fields("尚未检查"), {"message": "尚未检查"})
+    def test_coded_text_is_rendered_from_the_resources_beside_its_code(self):
+        self.assertEqual(message_fields("release.message.imagePending", {"version": "1.0"}),
+                         {"message": "Peach 1.0 的镜像尚未发布，请稍后再检查。", "message_code": "release.message.imagePending",
+                          "message_params": {"version": "1.0"}})
 
     def test_user_facing_errors_keep_their_code_and_other_errors_keep_their_text(self):
-        error = UserFacingError("整理路径不在所选来源内", code="organize.pathOutsideSource", params={"path": "R:/x"},
-                                status_code=409)
+        error = UserFacingError("javBrowser.notQueued", status_code=409)
         self.assertEqual(error.status_code, 409)
-        self.assertEqual(error_fields(error), {"error": "整理路径不在所选来源内", "message_code": "organize.pathOutsideSource",
-                                               "message_params": {"path": "R:/x"}})
-        self.assertEqual(error_fields(ValueError("旧的报错")), {"error": "旧的报错"})
+        self.assertEqual(error_fields(error), {"error": "这个番号不在排队中", "message_code": "javBrowser.notQueued",
+                                               "message_params": {}})
+        self.assertEqual(error_fields(ValueError("old message")), {"error": "old message"})
+
+
+def registered_keys() -> set[str]:
+    """后端登记表里能枚举出来的全部 `server` 键（ADR-0159）：不靠扫描拼接出来的字符串。"""
+    keys = {f"task.{key}" for key in task_runs.TASK_KEYS}
+    keys |= {f"taskRun.progress.{key}" for key in task_runs.PROGRESS_KEYS}
+    keys |= {f"taskRun.error.{key}" for key in task_runs.ERROR_KEYS}
+    keys |= {f"stage.{code}" for code in task_stages.STAGE_CODES}
+    keys |= {f"batchOperation.{key}" for key in task_stages.BATCH_OPERATIONS}
+    keys |= {f"release.installation.{key}" for key in release_updates.INSTALLATIONS}
+    keys |= {f"release.channel.{key}" for key in release_updates.CHANNELS}
+    keys |= {f"release.message.{key}" for key in release_updates.MESSAGES}
+    keys |= {f"release.dockerStep.{step}" for step, _ in release_updates.DOCKER_STEPS}
+    keys |= {f"repairCenter.items.{key}.{field}" for key, _ in repair_center.ITEMS for field in ("title", "summary")}
+    keys |= {f"repairCenter.history.{prefix.rstrip('-')}" for prefix, _ in repair_center.RULES}
+    keys |= {f"download.state.{key}" for key in downloads.STATES}
+    keys |= {f"download.postprocess.{key}" for key in downloads.POSTPROCESS_STATES}
+    keys |= {f"download.failure.{key}" for key in downloads.FAILURE_KINDS}
+    keys |= {f"storage.category.{item.key}.{field}" for item in data_storage.CATEGORIES
+             for field in ("label", "description", "note")}
+    keys |= {f"ledgerBackup.purpose.{key}" for key in ledger_backups.PURPOSES}
+    keys |= {f"identity.category.{key}" for key in entity_classification.CATEGORIES}
+    for version, notice in release_notices.NOTICES.items():
+        base = "releaseNotes.v" + version.replace(".", "-")
+        keys.add(f"{base}.headline")
+        keys |= {f"{base}.items.{item['id']}.{field}" for group in ("features", "automatic", "attention")
+                 for item in notice.get(group, []) for field in ("title", "body")}
+    return keys
 
 
 class TranslationCoverageTests(unittest.TestCase):
     def test_every_code_written_in_the_backend_has_both_languages(self):
-        used = checker.used_codes()
+        used = checker.used_codes() | registered_keys()
         self.assertTrue(used)
         for language in ("zh-CN", "en"):
             with self.subTest(language):
                 self.assertEqual(sorted(used - checker.server_keys(language)), [],
-                                 "新的 message code 要在 resources/locales/<语言>/server.json 里同时写中文和英文")
+                                 "新的 code 要在 resources/locales/<语言>/server.json 里同时写中文和英文")
 
-    def test_display_tables_keep_their_chinese_in_step_with_the_source_resource(self):
-        zh = server_resource("zh-CN")
-        self.assertEqual(zh["release"]["installation"], release_updates.INSTALLATIONS)
-        self.assertEqual({key: (row["title"], row["summary"]) for key, row in zh["repairCenter"]["items"].items()},
-                         {key: (title, summary) for key, title, summary, _ in repair_center.ITEMS})
-        self.assertEqual(zh["repairCenter"]["history"], {prefix.rstrip("-"): title for prefix, title, _ in repair_center.RULES})
-        self.assertEqual(zh["task"], task_runs.TASK_LABELS)
-        self.assertEqual(zh["download"], {
-            "state": downloads.STATE_LABELS, "postprocess": downloads.POSTPROCESS_LABELS,
-            "failure": {key: kind.label for key, kind in downloads.FAILURE_KINDS.items()}})
-        self.assertEqual(zh["storage"]["category"], {item.key: {"label": item.label, "description": item.description,
-                                                                "note": item.note} for item in data_storage.CATEGORIES})
-        self.assertEqual(zh["ledgerBackup"]["purpose"], ledger_backups.PURPOSE_LABELS)
-        self.assertEqual(zh["identity"]["category"], entity_classification.CATEGORIES)
-        self.assertEqual(zh["release"]["channel"], release_updates.CHANNELS)
-        self.assertEqual(zh["release"]["message"], {key: braces(text) for key, text in release_updates.MESSAGES.items()})
-        self.assertEqual(zh["release"]["dockerStep"], {step: text for step, text, _ in release_updates.DOCKER_STEPS})
-        self.assertEqual(zh["taskRun"], {
-            "progress": {key: braces(text) for key, text in task_runs.PROGRESS_MESSAGES.items()},
-            "error": {key: braces(text) for key, text in task_runs.ERROR_MESSAGES.items()}})
-        self.assertEqual(zh["stage"], task_stages.STAGES)
-        self.assertEqual(zh["batchOperation"], task_stages.BATCH_LABELS)
-        # 后台任务等安装完成那一句，阶段名与任务中心的进度说明是同一句话。
-        self.assertEqual(task_stages.text("job.waitingForUpdate"), task_runs.PROGRESS_MESSAGES["waitingForUpdate"])
-
-    def test_every_release_notice_is_in_the_source_resource_by_version_and_item_id(self):
-        # 定版前加一版公告，要同时在 zh-CN 与英文的 server.json 里按 `v<版本，点换成连字符>` 补上这一版。
-        zh = server_resource("zh-CN")["releaseNotes"]
-        for version, notice in release_notices.NOTICES.items():
-            with self.subTest(version):
-                entry = zh.get("v" + version.replace(".", "-"), {})
-                self.assertEqual(entry.get("headline"), notice["headline"])
-                rows = [item for group in ("features", "automatic", "attention") for item in notice.get(group, [])]
-                self.assertEqual({item["id"]: {"title": item["title"], "body": item["body"]} for item in rows},
-                                 entry.get("items", {}))
+    def test_the_waiting_stage_and_the_waiting_progress_say_the_same_thing(self):
+        # 后台任务等安装完成那一句，阶段名与任务中心的进度说明是同一句话，两个键要一起改。
+        self.assertEqual(task_stages.text("job.waitingForUpdate"),
+                         interface_text.text("server:taskRun.progress.waitingForUpdate"))
 
 
 class StageCodeTests(unittest.TestCase):
@@ -179,12 +166,13 @@ class BackendCopyRatchetTests(unittest.TestCase):
         source = "\n".join([
             'SAMPLE_CODE = "sample.constant"',
             'def handler():',
-            '    message_fields("原文", "sample.positional")',
-            '    raise UserFacingError("原文", code="sample.keyword")',
+            '    message_fields("sample.positional")',
+            '    raise UserFacingError("sample.first")',
+            '    raise SomeError(code="sample.keyword")',
             '    return {"message": "原文", "message_code": "sample.dict"}',
         ])
         self.assertEqual(checker.codes_in(source),
-                         {"sample.constant", "sample.positional", "sample.keyword", "sample.dict"})
+                         {"sample.constant", "sample.positional", "sample.first", "sample.keyword", "sample.dict"})
 
 
 @unittest.skipUnless(HAS_DEPS, "fastapi/httpx not installed")
@@ -200,7 +188,7 @@ class ResponseExitTests(unittest.IsolatedAsyncioTestCase):
         self.addCleanup(app.state.http_transport.close)
 
         def refuse():
-            raise UserFacingError("来源正在冷却", code="sample.coolingDown", params={"minutes": 5}, status_code=409)
+            raise UserFacingError("release.message.imagePending", {"version": "1.0"}, status_code=409)
 
         def crash():
             raise RuntimeError("boom")
@@ -215,11 +203,12 @@ class ResponseExitTests(unittest.IsolatedAsyncioTestCase):
     async def test_user_facing_errors_leave_through_one_exit(self):
         response = await self.client.get("/api/sample-refusal")
         self.assertEqual(response.status_code, 409)
-        self.assertEqual(response.json(), {"error": "来源正在冷却", "message_code": "sample.coolingDown",
-                                           "message_params": {"minutes": 5}})
+        self.assertEqual(response.json(), {"error": "Peach 1.0 的镜像尚未发布，请稍后再检查。",
+                                           "message_code": "release.message.imagePending",
+                                           "message_params": {"version": "1.0"}})
         page = await self.client.get("/sample-refusal", headers={"Accept": "text/html"})
         self.assertEqual(page.status_code, 409)
-        self.assertIn('data-detail="来源正在冷却"', page.text)
+        self.assertIn('data-detail="Peach 1.0 的镜像尚未发布，请稍后再检查。"', page.text)
 
     async def test_starlette_and_unexpected_errors_carry_codes(self):
         missing = await self.client.get("/dist/no-such.js")

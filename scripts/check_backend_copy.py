@@ -31,7 +31,7 @@ CONTENT_FILES = {
     "catalog_rules.py",   # 番号、标题、转载站与特典版的识别词
 }
 CODE_KEYWORDS = {"code", "message_code"}
-CODED_CALLS = {"message_fields"}
+CODED_CALLS = {"message_fields", "UserFacingError"}
 #: 一个 code 是用点分开的 camelCase 段，末段可以是带连字符的显示表 id。
 CODE_SHAPE = re.compile(r"^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9][A-Za-z0-9-]*)+$")
 
@@ -84,15 +84,15 @@ def scan(root: Path = ROOT) -> dict[str, int]:
 
 
 def codes_in(source: str) -> set[str]:
-    """源码里写死的 message code：`code=`／`message_code=` 关键字、`message_fields` 的第二个参数、
+    """源码里写死的 message code：`code=`／`message_code=` 关键字、`message_fields` 与 `UserFacingError` 的第一个参数、
     字典里 `message_code` 键的值，以及名字以 `_CODE` 结尾的常量。"""
     found = set()
     for node in ast.walk(ast.parse(source)):
         values: list[ast.AST] = []
         if isinstance(node, ast.Call):
             values += [kw.value for kw in node.keywords if kw.arg in CODE_KEYWORDS]
-            if _call_name(node) in CODED_CALLS and len(node.args) > 1:
-                values.append(node.args[1])
+            if _call_name(node) in CODED_CALLS and node.args:
+                values.append(node.args[0])
         elif isinstance(node, ast.Dict):
             values += [value for key, value in zip(node.keys, node.values)
                        if isinstance(key, ast.Constant) and key.value == "message_code"]
