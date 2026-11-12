@@ -16,6 +16,7 @@ from .ffmpeg import FFmpegResolver
 from .fsutil import atomic_path
 from .storage_budget import CapacityGuard
 from .media_processing_policy import metadata_only
+from .task_stages import stage as stage_fields
 
 MODE_PATH = STATE_DIR / 'timeline-thumbnails.json'
 
@@ -206,7 +207,7 @@ def w_thumbnail_jobs(contract, body):
 
     contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode},
                                  initial={'mode': mode, 'interval': interval,
-                                          'stage': '采集缩略图', 'checked': 0,
+                                          **stage_fields('thumbnails.fetch'), 'checked': 0,
                                           'total': 0, 'done': 0, 'made': 0,
                                           'skipped': 0, 'failed': 0, 'stopped': ''})
     return q_thumbnail_jobs(contract, {})

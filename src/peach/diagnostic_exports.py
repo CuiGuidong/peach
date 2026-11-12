@@ -6,6 +6,7 @@ import threading
 
 from .jobs import BackgroundJob
 from .scraping_diagnostics import ExportCancelled, selected_codes
+from .task_stages import stage as stage_fields
 
 
 class DiagnosticExports:
@@ -49,7 +50,7 @@ class DiagnosticExports:
                         bundle_to(self.config, pending, codes=codes, progress=progress, cancelled=cancelled.is_set)
                     else:
                         from .support_bundle import bundle_to
-                        progress(stage='读取系统诊断', done=0, total=0)
+                        progress(**stage_fields('diagnostics.readSystem'), done=0, total=0)
                         try:
                             facts = report() if callable(report) else report
                         except Exception:
@@ -60,14 +61,14 @@ class DiagnosticExports:
                         if state is None or cancelled.is_set():
                             raise ExportCancelled('导出已取消')
                         pending.replace(final)
-                        state.update(status='complete', stage='导出已完成', bytes=final.stat().st_size,
+                        state.update(status='complete', **stage_fields('diagnostics.done'), bytes=final.stat().st_size,
                                      download_url=f'/api/diagnostics/exports/{identity}/download')
                 except ExportCancelled:
-                    self.job.update(identity, status='cancelled', stage='导出已取消', error='')
+                    self.job.update(identity, status='cancelled', **stage_fields('diagnostics.cancelled'), error='')
                 finally:
                     pending.unlink(missing_ok=True)
 
-            return self.job.start(work, restart=True, initial={'kind': kind, 'stage': '准备导出',
+            return self.job.start(work, restart=True, initial={'kind': kind, **stage_fields('diagnostics.prepare'),
                                                               'done': 0, 'total': 0, 'files': 0, 'rows': 0})
 
     def cancel(self, identity):
@@ -76,7 +77,7 @@ class DiagnosticExports:
                 raise ValueError('导出任务已变化，请刷新后重试')
             if state['status'] in ('running', 'cancelling'):
                 self.cancelled.set()
-                state.update(status='cancelling', stage='正在取消导出')
+                state.update(status='cancelling', **stage_fields('diagnostics.cancelling'))
         if self.job.runs is not None:
             self.job.stop(resume=False)
         return self.snapshot()

@@ -79,7 +79,8 @@ def w_performer_delete(contract, body):
     ids = _performer_ids(body.get('entity_ids'))
     if not isinstance(body.get('plan'), str) or len(body['plan']) != 64:
         raise ValueError("请先查看影片删除清单")
-    run = contract.task_runs.start('batch', trigger='manual', label='按女优永久删除影片')
+    from .task_stages import batch_progress
+    run = contract.task_runs.start('batch', trigger='manual', **batch_progress('performer-delete'))
     handle = TaskRunHandle(contract.task_runs, run.id if run else None)
 
     def reviewed(connection):

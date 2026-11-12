@@ -13,6 +13,7 @@ from itertools import islice
 from pathlib import Path
 
 from . import error_reporting
+from .task_stages import stage as stage_fields
 
 LOG_NAMES = ("tray.log", "tray-lifecycle.log", "tray-setup.err.log", "tray-setup.out.log",
              "tray-http.err.log", "tray-http.out.log", "tray-https.err.log", "tray-https.out.log",
@@ -309,7 +310,7 @@ def bundle_to(destination, *, report: dict | None = None, config=None, browser: 
             if cancelled():
                 from .scraping_diagnostics import ExportCancelled
                 raise ExportCancelled('导出已取消')
-            progress(stage='整理诊断日志', done=index, total=len(directories))
+            progress(**stage_fields('diagnostics.collectLogs'), done=index, total=len(directories))
             try:
                 candidates = _log_candidates(directory, entries)
                 _archive_files(archive, directory, candidates, f'logs/{index}', entries)

@@ -129,7 +129,6 @@
     "nothingToRepair": "已检查媒体库，没有需要修复的视频",
     "preparing": "准备中",
     "progress": "修复进度",
-    "repairStage": "修复",
     "repaired": "已修复 {{count, number}} 部视频",
     "repairedDone": "修好 {{count, number}} 部",
     "repairedWithFailures": "修好 {{count, number}} 部，{{failed, number}} 部修不了",

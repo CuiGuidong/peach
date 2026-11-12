@@ -18,6 +18,7 @@ from .organize_templates import PLACEHOLDERS, TemplateError, example_path, valid
 from .platform import location_roots
 from .scripting import verify_after_write
 from .web_settings import organize_templates
+from .task_stages import stage as stage_fields
 
 #: 界面上能整理的来源。`online` 是追更抓来的东西，不在任何一个媒体根下面。
 ORGANIZE_LOCATIONS = SCANNABLE_LOCATIONS
@@ -130,7 +131,7 @@ def w_organize_apply(contract, body) -> dict:
                                            dir_template=dir_template, path=path_scope)
             if not job.checkpoint(job_id, plan=plan, batch_stamp=batch_stamp):
                 raise InterruptedError('整理已停止')
-        job.update(job_id, total=plan["counts"]["change"], stage="正在整理")
+        job.update(job_id, total=plan["counts"]["change"], **stage_fields('organize.running'))
         result = _run_write(contract, job_id, lambda connection: organize.apply_plan(
             connection, plan["rows"], generated_root=contract.candidate_root,
             stamp=batch_stamp,
@@ -139,7 +140,7 @@ def w_organize_apply(contract, body) -> dict:
                    completed_at=time.time())
 
     started = job.start(work, restart=True,
-                     initial={"stage": "正在核对计划", "location": location, 'path': path_scope},
+                     initial={**stage_fields('organize.checkingPlan'), "location": location, 'path': path_scope},
                      recovery={'confirm': True, 'location': location, 'file_template': file_template,
                                'dir_template': dir_template, 'path': path_scope, 'action': 'apply'})
     return {key: value for key, value in started.items() if key not in ('plan', 'batch_stamp')}
@@ -169,7 +170,7 @@ def w_organize_rollback(contract, body) -> dict:
         job.update(job_id, **result, status="complete", completed_at=time.time())
 
     return job.start(work, restart=True,
-                     initial={"stage": "正在回滚上一批", "batch": latest.name},
+                     initial={**stage_fields('organize.rollingBack'), "batch": latest.name},
                      recovery={'confirm': True, 'action': 'rollback'})
 
 

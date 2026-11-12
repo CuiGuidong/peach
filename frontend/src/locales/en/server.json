@@ -381,7 +381,10 @@
       "downloadLanded": "Download imported: {{name}}",
       "waitingForUpdate": "Continues after the update is installed",
       "waitingForService": "Continues after the service starts",
-      "pausedWaiting": "Paused, waiting to continue"
+      "pausedWaiting": "Paused, waiting to continue",
+      "batch": "{{first}} and others ({{count}} total)",
+      "subjectStage": "{{subject}} · {{stage}}",
+      "videosStage": "{{count}} videos · {{stage}}"
     },
     "error": {
       "skippedBy": "Skipped: run {{run}} ({{trigger}}) was still in progress",
@@ -389,5 +392,94 @@
       "interrupted": "The service restarted before this run finished",
       "unknownFollowup": "No follow-up task is registered for {{task}}"
     }
+  },
+  "stage": {
+    "library": {
+      "scanFiles": "Scanning files",
+      "checkCompanions": "Checking companion files",
+      "probeMedia": "Reading duration and resolution",
+      "checkNetwork": "Checking internet connection",
+      "checkJunk": "Checking junk files",
+      "recheckJunk": "Rechecking junk files",
+      "prepareImages": "Preparing to read companion images",
+      "readImages": "Reading companion images",
+      "preparePreviews": "Preparing previews",
+      "makePreviews": "Generating previews",
+      "prepareMetadata": "Preparing to fetch metadata",
+      "prepareSources": "Preparing fetch tools",
+      "fetchMetadata": "Fetching missing metadata",
+      "saveCandidates": "Saving metadata for review",
+      "fetchCovers": "Fetching missing covers",
+      "collectResults": "Wrapping up fetch results",
+      "finished": "Finished"
+    },
+    "backup": {
+      "prepareBackup": "Preparing backup",
+      "copyLedger": "Copying database",
+      "checkIntegrity": "Checking backup integrity",
+      "backupDone": "Backup complete",
+      "prepareRestore": "Preparing restore",
+      "copyBackup": "Copying backup",
+      "migrateBackup": "Updating backup to the current structure",
+      "saveCurrent": "Saving current database",
+      "writeLedger": "Writing database",
+      "restoreDone": "Restore complete"
+    },
+    "diagnostics": {
+      "prepare": "Preparing export",
+      "readSystem": "Reading system diagnostics",
+      "collectLogs": "Collecting diagnostic logs",
+      "collectEvidence": "Collecting scrape evidence",
+      "readCandidates": "Reading field candidates",
+      "collectSnapshots": "Collecting source snapshots",
+      "scrapingDone": "Scrape record created",
+      "cancelling": "Canceling export",
+      "done": "Export complete",
+      "cancelled": "Export canceled"
+    },
+    "mediaRepair": {
+      "scan": "Scanning",
+      "repair": "Repairing",
+      "done": "Done",
+      "readTimestamps": "Reading frame timestamps"
+    },
+    "organize": {
+      "checkingPlan": "Checking the plan",
+      "running": "Organizing",
+      "rollingBack": "Rolling back the last batch"
+    },
+    "thumbnails": {
+      "fetch": "Fetching thumbnails"
+    },
+    "download": {
+      "isolateExtras": "Setting aside promotional extras",
+      "probeMedia": "Reading downloaded media details",
+      "fetchMetadata": "Fetching video metadata",
+      "organizeFiles": "Organizing files by template"
+    },
+    "upgrade": {
+      "updateMetadata": "Updating video metadata",
+      "displayDimensions": "Re-measuring display dimensions",
+      "displayDimensionsAll": "Re-measuring video display dimensions"
+    },
+    "job": {
+      "waitingForUpdate": "Continues after the update is installed",
+      "cancelled": "Canceled",
+      "stopped": "Stopped"
+    }
+  },
+  "batchOperation": {
+    "like": "Bulk like",
+    "seen": "Bulk mark watched",
+    "later": "Bulk add to Watch later",
+    "dispose": "Bulk move to trash",
+    "restore": "Bulk restore",
+    "delete": "Bulk delete permanently",
+    "dismiss-junk": "Bulk mark as not junk",
+    "reconsider-junk": "Bulk recheck junk",
+    "keep-duplicates": "Keep all in duplicate groups",
+    "reconsider-duplicates": "List duplicate groups again",
+    "region": "Bulk set region",
+    "performer-delete": "Delete actresses' videos permanently"
   }
 }

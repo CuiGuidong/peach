@@ -381,7 +381,10 @@
       "downloadLanded": "下载已入库：{{name}}",
       "waitingForUpdate": "等待安装完成后继续",
       "waitingForService": "等待服务启动后继续",
-      "pausedWaiting": "已暂停，等待继续"
+      "pausedWaiting": "已暂停，等待继续",
+      "batch": "{{first}} 等 {{count}} 部",
+      "subjectStage": "{{subject}} · {{stage}}",
+      "videosStage": "{{count}} 部影片 · {{stage}}"
     },
     "error": {
       "skippedBy": "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
@@ -389,5 +392,94 @@
       "interrupted": "服务重启，这一轮没有跑完",
       "unknownFollowup": "没有登记 {{task}} 这种后继"
     }
+  },
+  "stage": {
+    "library": {
+      "scanFiles": "扫描文件",
+      "checkCompanions": "检查配套文件",
+      "probeMedia": "读取时长与分辨率",
+      "checkNetwork": "检查外网连接",
+      "checkJunk": "检查垃圾文件",
+      "recheckJunk": "复查垃圾文件",
+      "prepareImages": "准备读取配套图片",
+      "readImages": "读取配套图片",
+      "preparePreviews": "准备生成预览",
+      "makePreviews": "生成预览图",
+      "prepareMetadata": "准备采集外部资料",
+      "prepareSources": "准备采集工具",
+      "fetchMetadata": "采集缺失资料",
+      "saveCandidates": "保存待确认资料",
+      "fetchCovers": "采集缺失封面",
+      "collectResults": "整理采集结果",
+      "finished": "处理结束"
+    },
+    "backup": {
+      "prepareBackup": "准备备份",
+      "copyLedger": "复制账本",
+      "checkIntegrity": "检查备份完整性",
+      "backupDone": "备份完成",
+      "prepareRestore": "准备恢复",
+      "copyBackup": "复制备份",
+      "migrateBackup": "把备份迁到当前结构",
+      "saveCurrent": "另存当前账本",
+      "writeLedger": "写入账本",
+      "restoreDone": "恢复完成"
+    },
+    "diagnostics": {
+      "prepare": "准备导出",
+      "readSystem": "读取系统诊断",
+      "collectLogs": "整理诊断日志",
+      "collectEvidence": "整理刮削证据",
+      "readCandidates": "读取字段候选",
+      "collectSnapshots": "整理来源快照",
+      "scrapingDone": "刮削记录已生成",
+      "cancelling": "正在取消导出",
+      "done": "导出已完成",
+      "cancelled": "导出已取消"
+    },
+    "mediaRepair": {
+      "scan": "扫描",
+      "repair": "修复",
+      "done": "完成",
+      "readTimestamps": "读取帧时间戳"
+    },
+    "organize": {
+      "checkingPlan": "正在核对计划",
+      "running": "正在整理",
+      "rollingBack": "正在回滚上一批"
+    },
+    "thumbnails": {
+      "fetch": "采集缩略图"
+    },
+    "download": {
+      "isolateExtras": "隔离推广附件",
+      "probeMedia": "读取下载媒体属性",
+      "fetchMetadata": "采集作品资料",
+      "organizeFiles": "按模板整理文件"
+    },
+    "upgrade": {
+      "updateMetadata": "更新影片资料",
+      "displayDimensions": "补测显示尺寸",
+      "displayDimensionsAll": "补测视频显示尺寸"
+    },
+    "job": {
+      "waitingForUpdate": "等待安装完成后继续",
+      "cancelled": "已取消",
+      "stopped": "已停止"
+    }
+  },
+  "batchOperation": {
+    "like": "批量标记喜欢",
+    "seen": "批量标记看过",
+    "later": "批量加入稍后看",
+    "dispose": "批量移入回收站",
+    "restore": "批量还原",
+    "delete": "批量永久删除",
+    "dismiss-junk": "批量确认不是垃圾",
+    "reconsider-junk": "批量重新判定垃圾",
+    "keep-duplicates": "重复组标记都保留",
+    "reconsider-duplicates": "重复组重新列出",
+    "region": "批量判定产地",
+    "performer-delete": "按女优永久删除影片"
   }
 }

@@ -9,6 +9,7 @@ from .library_processing import (ALL_STAGES, COLLECT_STAGE, SCAN_STAGE, STAGES,
                                 METADATA_STAGE, PREVIEWS_STAGE, _asset_selection,
                                 decorate, issues_path, process_library, snapshot)
 from .processing_control import control_for, initial_estimate, valid_mode, mode_ratio
+from .task_stages import stage as stage_fields
 
 ACTIVE = ('running', 'pausing', 'paused', 'stopping')
 LOGGER = logging.getLogger(__name__)
@@ -185,7 +186,7 @@ def _cancel_processing(contract, config, control, previous, job_id):
     if not (live and thread is not None and thread.is_alive()) and not _writer_active(config):
         from .job_recovery import finish
         from .library_processing import _save, state_path
-        previous.update(status='cancelled', outcome='cancelled', stage='已停止', error='')
+        previous.update(status='cancelled', outcome='cancelled', **stage_fields('job.stopped'), error='')
         _save(state_path(config), previous)
         finish(contract.db_path, 'library-processing', job_id, 'cancelled')
         if previous.get('run_id') is not None:

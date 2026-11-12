@@ -14,6 +14,7 @@ from pathlib import Path
 
 from .media_sources import SOURCE_COSTS, cost_for, cost_sql
 from .repository import in_background
+from .task_stages import stage as stage_fields, stage_progress
 
 DEFAULT_METERED_LOCATIONS = frozenset(location for location, cost in SOURCE_COSTS.items()
                                     if cost == 'metered') | {'online'}
@@ -29,6 +30,13 @@ class MeteredSourceDenied(JobPolicyError):
 
 class DiskSpaceDenied(JobPolicyError):
     exit_code = 3
+
+
+def _with_stage_code(fields: dict) -> dict:
+    """只改了 `stage` 原文、没给 code 的那一次把旧 code 清掉，界面不会把这一步译成上一步。"""
+    if "stage" in fields and "stage_code" not in fields:
+        return {**fields, "stage_code": ""}
+    return fields
 
 
 class JobPaused(JobPolicyError):
@@ -390,7 +398,7 @@ class BackgroundJob:
         with self.editing(job_id) as state:
             if state is None:
                 return False
-            state.update(fields)
+            state.update(_with_stage_code(fields))
             return True
 
     def checkpoint(self, job_id: str, **fields: object) -> bool:
@@ -440,27 +448,37 @@ class BackgroundJob:
         total = state.get("total")
         counts = (int(current) if isinstance(current, (int, float)) else None,
                   int(total) if isinstance(total, (int, float)) else None)
-        label = self._progress_label(state) or None
-        if counts == (None, None) and label is None:
+        label = self._progress_label(state)
+        if counts == (None, None) and not label["label"]:
             # 这一次改的是别的字段（`run_id` 本身就是一例），没有进度可报。不往下走：
             # 空写一次会白占掉节流窗口，真正的第一份计数要等两秒才进得去表。
             return
-        self.runs.progress(run_id, current=counts[0], total=counts[1], label=label)
+        if not label["label"]:
+            label = {"label": None, "code": None, "params": None}
+        self.runs.progress(run_id, current=counts[0], total=counts[1], **label)
 
     @staticmethod
-    def _progress_label(state: dict) -> str:
-        """一行「此刻在做什么」。域各有各的字段名，这里按可读性从具体到笼统取第一个。"""
+    def _progress_label(state: dict) -> dict:
+        """一行「此刻在做什么」：`label`、`code`、`params`。域各有各的字段名，这里按可读性从具体到笼统取第一个。
+
+        阶段名带 code；当前条目（`current` 的名字或来源）是内容，`message`、`step` 还没有 code，都照原文。
+        暂停时任务卡显示的是控制状态，这一句只留在库里，不带 code。
+        """
+        def plain(text: object) -> dict:
+            return {"label": str(text)[:120], "code": None, "params": {}}
         if state.get('status') in ('paused', 'pausing'):
-            return ('已暂停' if state['status'] == 'paused' else '正在暂停') + ' · ' + str(state.get('stage') or '')
+            return plain(('已暂停' if state['status'] == 'paused' else '正在暂停') + ' · ' + str(state.get('stage') or ''))
         current = state.get("current")
         if isinstance(current, dict):
             for key in ("label", "provider"):
                 if current.get(key):
-                    return str(current[key])[:120]
-        for key in ("stage", "message", "step"):
+                    return plain(current[key])
+        if state.get("stage"):
+            return stage_progress(state)
+        for key in ("message", "step"):
             if state.get(key):
-                return str(state[key])[:120]
-        return ""
+                return plain(state[key])
+        return plain("")
 
     def _summary(self, state: dict) -> dict:
         """结算摘要保留标量与领域定义的问题清单。"""
@@ -499,8 +517,8 @@ class BackgroundJob:
             if existing.get('status') != 'active':
                 save(db, self.task_key, job_id, recovery, waiting=True)
             self.state = {self.id_key: job_id, 'status': 'running', 'run_id': None,
-                          **(initial or {}), 'waiting_for_update': True,
-                          'stage': '等待安装完成后继续', 'error': '',
+                          **_with_stage_code(initial or {}), 'waiting_for_update': True,
+                          **stage_fields('job.waitingForUpdate'), 'error': '',
                           'message': '任务将在安装完成后自动继续。'}
             return copy.deepcopy(self.state)
 
@@ -527,7 +545,7 @@ class BackgroundJob:
                 from .job_recovery import current_job_id
                 job_id = current_job_id.get() or uuid.uuid4().hex
                 state = {self.id_key: job_id, "status": "running", "run_id": None,
-                         "started_at": time.time(), "error": "", **(initial or {})}
+                         "started_at": time.time(), "error": "", **_with_stage_code(initial or {})}
                 state.update(self._resuming_fields(job_id, initial))
                 self.state = state
                 thread = threading.Thread(target=in_background(self._run), args=(fn, job_id),
@@ -598,7 +616,7 @@ class BackgroundJob:
             self.task_key, trigger=trigger, mutex_key=self.mutex_key,
             conflict="raise" if trigger == "manual" else "skip",
             total=int(total) if isinstance(total, (int, float)) else None,
-            label=self._progress_label(state), summary=subject)
+            **self._progress_label(state), summary=subject)
         if run is None:
             return
         self._run_ids[job_id] = run.id
@@ -715,7 +733,7 @@ class BackgroundJob:
         except JobPaused:
             with self.lock:
                 if self.state is not None and self.state.get(self.id_key) == job_id:
-                    self.state.update(waiting_for_update=True, stage='等待安装完成后继续', error='',
+                    self.state.update(waiting_for_update=True, **stage_fields('job.waitingForUpdate'), error='',
                                       message='任务已暂停，安装完成后自动继续。')
         except JobCancelled:
             with self.lock:

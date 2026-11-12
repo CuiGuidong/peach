@@ -29,6 +29,7 @@ import {
   type OrganizeCommand, type OrganizeData, type OrganizeJob, type OrganizePlan,
 } from './organize';
 import { t } from '../../i18n';
+import { stageText } from '../../core/server-text';
 
 const APPLY_BODY = (name: string, path: string) => (path
   ? t('cleanup:organize.applyBodyPath', { name, path })
@@ -181,7 +182,7 @@ export function OrganizeCard(
   const current = job.job;
   const outcome = job.outcome;
   if (current?.status === 'running') {
-    const line = current.message || current.stage || t('cleanup:organize.running');
+    const line = current.message || stageText(current) || t('cleanup:organize.running');
     state = <TaskProgress embedded label={line} value={Math.min(current.checked || 0, current.total || 0)} total={current.total} />;
   } else if (outcome?.status === 'failed') {
     state = <Note tone="error" title={t('cleanup:organize.incomplete')}>{outcome.error || t('cleanup:shared.checkTaskLogFiles')}</Note>;

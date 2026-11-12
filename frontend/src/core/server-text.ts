@@ -13,6 +13,11 @@ export function serverLabel(key: string, fallback: string, params?: Params): str
   return key && hasTranslation(full) ? t(full, params ?? {}) : fallback;
 }
 
+/** 后台任务此刻的阶段：`stage_code` 有译文用译文，否则显示服务端的 `stage` 原文。 */
+export function stageText(state: { stage?: string | null; stage_code?: string | null } | null | undefined): string {
+  return serverLabel(state?.stage_code ? `stage.${state.stage_code}` : '', state?.stage || '');
+}
+
 /** 一组按 id 取的显示名：`ids` 与服务端给的 `labels` 一一对应，缺 id 或缺译文的项用原文。 */
 export function serverLabels(prefix: string, ids: readonly string[] | undefined, labels: readonly string[]): string[] {
   return labels.map((label, index) => serverLabel(ids?.[index] ? `${prefix}.${ids[index]}` : '', label));

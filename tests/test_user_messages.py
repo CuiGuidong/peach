@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -12,7 +13,8 @@ from unittest.mock import patch
 from support.ledger import fresh_ledger
 
 from peach import (data_storage, downloads, entity_classification, ledger_backups, release_notices, release_updates,
-                   repair_center, task_runs)
+                   repair_center, task_runs, task_stages)
+from peach.jobs import BackgroundJob
 from peach.user_messages import UserFacingError, error_fields, message_fields
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -76,6 +78,10 @@ class TranslationCoverageTests(unittest.TestCase):
         self.assertEqual(zh["taskRun"], {
             "progress": {key: braces(text) for key, text in task_runs.PROGRESS_MESSAGES.items()},
             "error": {key: braces(text) for key, text in task_runs.ERROR_MESSAGES.items()}})
+        self.assertEqual(zh["stage"], task_stages.STAGES)
+        self.assertEqual(zh["batchOperation"], task_stages.BATCH_LABELS)
+        # 后台任务等安装完成那一句，阶段名与任务中心的进度说明是同一句话。
+        self.assertEqual(task_stages.text("job.waitingForUpdate"), task_runs.PROGRESS_MESSAGES["waitingForUpdate"])
 
     def test_every_release_notice_is_in_the_source_resource_by_version_and_item_id(self):
         # 定版前加一版公告，要同时在 zh-CN 与英文的 server.json 里按 `v<版本，点换成连字符>` 补上这一版。
@@ -87,6 +93,29 @@ class TranslationCoverageTests(unittest.TestCase):
                 rows = [item for group in ("features", "automatic", "attention") for item in notice.get(group, [])]
                 self.assertEqual({item["id"]: {"title": item["title"], "body": item["body"]} for item in rows},
                                  entry.get("items", {}))
+
+
+class StageCodeTests(unittest.TestCase):
+    def test_a_stage_without_its_code_is_not_translated_as_the_previous_one(self):
+        job = BackgroundJob("stage-code-test")
+        job.state = {job.id_key: "j", "status": "running", **task_stages.stage("library.scanFiles")}
+        self.assertEqual(BackgroundJob._progress_label(job.state),
+                         {"label": "扫描文件", "code": "stage.library.scanFiles", "params": {}})
+        job.update("j", stage="某个还没登记的阶段")
+        self.assertEqual(job.state["stage_code"], "")
+        self.assertEqual(BackgroundJob._progress_label(job.state)["code"], None)
+        # 升级前留下的检查点只有中文，按表认回 code，续跑时的判断不变。
+        self.assertEqual(task_stages.stage_code({"stage": "处理结束"}), "library.finished")
+        self.assertEqual(task_stages.stage_code({"stage": "处理结束", "stage_code": "library.scanFiles"}), "")
+
+    def test_stage_names_are_written_through_the_table(self):
+        # 阶段名只在 `task_stages` 里写中文；别处写 `stage="中文"` 界面就译不出来。
+        pattern = re.compile(r"""(['"]stage['"]\s*:\s*|\bstage\s*=\s*)f?(['"])([^'"]*)\2""")
+        found = [f"{path.name}:{number}" for path in sorted((ROOT / "src" / "peach").rglob("*.py"))
+                 if path.name != "task_stages.py"
+                 for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)
+                 for match in pattern.finditer(line) if re.search("[\u4e00-\u9fff]", match.group(3))]
+        self.assertEqual(found, [], "阶段名加进 peach/task_stages.py，写入时用 stage(code) 展开")
 
 
 class BackendCopyRatchetTests(unittest.TestCase):

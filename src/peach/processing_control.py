@@ -11,6 +11,7 @@ from contextlib import contextmanager, closing, nullcontext
 from contextvars import ContextVar
 
 from .fsutil import atomic_write_text
+from .task_stages import stage as stage_fields, stage_code
 
 CURRENT = ContextVar('peach_library_processing_control', default=None)
 _CONTROLS = {}
@@ -90,7 +91,7 @@ def checkpoint_values(values):
 
 def interrupted_state(control):
     if control is not None and control.cancelled:
-        return dict(status='cancelled', outcome='cancelled', stage='已取消', error='')
+        return dict(status='cancelled', outcome='cancelled', **stage_fields('job.cancelled'), error='')
     return dict(status='paused', error='', completed_at=None) if control is not None and control.paused else {}
 
 
@@ -496,12 +497,12 @@ class ProcessingEstimate:
             return
         if any(step['id'] == 'sources' and step['status'] == 'current' for step in state.get('steps', [])):
             return
-        stage = state.get('stage')
-        phase = ('previews' if stage == '生成预览图' else
-                 'images' if stage == '读取配套图片' else
-                 'local' if stage in ('读取本地资料', '检查配套文件') else
-                 'metadata' if stage in ('采集缺失资料', '采集缺失封面', '保存待确认资料') else
-                 'probe' if stage == '读取时长与分辨率' else None)
+        code = stage_code(state)
+        phase = ('previews' if code == 'library.makePreviews' else
+                 'images' if code == 'library.readImages' else
+                 'local' if code == 'library.checkCompanions' else
+                 'metadata' if code in ('library.fetchMetadata', 'library.fetchCovers', 'library.saveCandidates') else
+                 'probe' if code == 'library.probeMedia' else None)
         done, total = state.get('checked', 0), state.get('total', 0)
         now = time.monotonic() - self.paused_elapsed()
         if phase != self.phase or done < self.last_done:

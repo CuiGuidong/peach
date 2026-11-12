@@ -151,7 +151,6 @@
     "nothingToRepair": "Checked the library; no videos need repair",
     "preparing": "Preparing",
     "progress": "Repair progress",
-    "repairStage": "Repairing",
     "repairedDone_one": "Repaired {{count, number}} video",
     "repairedDone_other": "Repaired {{count, number}} videos",
     "repairedWithFailures_one": "Repaired {{count, number}} video; {{failed, number}} couldn't be repaired",
