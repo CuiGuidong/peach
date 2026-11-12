@@ -390,7 +390,10 @@
       "batch": "{{first}} 等 {{count}} 部",
       "subjectStage": "{{subject}} · {{stage}}",
       "videosStage": "{{count}} 部影片 · {{stage}}",
-      "schedulingRepairs": "安排自动更新资料"
+      "schedulingRepairs": "安排自动更新资料",
+      "paused": "已暂停 · {{stage}}",
+      "pausing": "正在暂停 · {{stage}}",
+      "resumesAfterUpdate": "任务将在安装完成后自动继续。"
     },
     "error": {
       "skippedBy": "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",

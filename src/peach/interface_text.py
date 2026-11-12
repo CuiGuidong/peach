@@ -78,18 +78,39 @@ def label(key: str, fallback: str, params: dict | None = None, language: str = S
     return text(key, params, language) if has(key, language) else fallback
 
 
-def cli_language(environ=None) -> str:
-    """命令行用哪种语言（ADR-0159 第三条）：`PEACH_LANGUAGE` 优先，否则跟系统显示语言
-    （与设置页「自动」的兜底同一个判断），没有译文的语言用英文。"""
+def local_language(environ=None) -> str:
+    """在这台电脑上直接给人看的文字用哪种语言：命令行（ADR-0159 第三条）与托盘。
+    `PEACH_LANGUAGE` 优先，否则跟系统显示语言（与设置页「自动」的兜底同一个判断），没有译文的语言用英文。"""
     import os
     from .system_language import interface_language, system_language
     environ = os.environ if environ is None else environ
     return interface_language(environ.get("PEACH_LANGUAGE")) or system_language() or "en"
 
 
+def request_language(accept_language: str | None) -> str:
+    """服务端直接出的页面（首次运行、登录、用户脚本连接页）用哪种语言：与前端界面语言选「自动」时一样，
+    先按浏览器的 `Accept-Language` 依权重取第一个有译文的，没有再跟系统显示语言，都没有用英文。"""
+    from .system_language import interface_language, system_language
+    ranked = []
+    for index, item in enumerate(str(accept_language or "").split(",")):
+        tag, _, rest = item.strip().partition(";")
+        weight = 1.0
+        if rest.strip().startswith("q="):
+            try:
+                weight = float(rest.strip()[2:])
+            except ValueError:
+                weight = 0.0
+        if tag and weight > 0:
+            ranked.append((-weight, index, tag))
+    for _weight, _index, tag in sorted(ranked):
+        if match := interface_language(tag):
+            return match
+    return system_language() or "en"
+
+
 def cli(key: str, params: dict | None = None, /, **values) -> str:
-    """命令行的一句话：`cli` 命名空间，按 `cli_language` 选语言。"""
-    return text(f"cli:{key}", {**(params or {}), **values}, cli_language())
+    """命令行的一句话：`cli` 命名空间，按 `local_language` 选语言。"""
+    return text(f"cli:{key}", {**(params or {}), **values}, local_language())
 
 
 def subtree(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> dict:

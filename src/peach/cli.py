@@ -521,7 +521,7 @@ def _scan(args: argparse.Namespace) -> int:
     except scan.ScanTargetError as exc:
         from . import interface_text
         raise SystemExit(interface_text.text(f"server:{exc.code}", exc.params,
-                                             interface_text.cli_language())) from None
+                                             interface_text.local_language())) from None
     return 0
 
 
@@ -530,7 +530,7 @@ def _processing_line(state: dict) -> str:
     from . import interface_text
     from .task_stages import stage_code
     code = stage_code(state)
-    stage = interface_text.label(f"server:stage.{code}", str(state['stage']), language=interface_text.cli_language()) \
+    stage = interface_text.label(f"server:stage.{code}", str(state['stage']), language=interface_text.local_language()) \
         if code else str(state['stage'])
     if state.get('total'):
         return _t("process.progress", stage=stage, checked=state.get('checked', 0), total=state['total'])

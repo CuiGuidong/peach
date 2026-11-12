@@ -50,6 +50,16 @@ export function serverLabels(prefix: string, ids: readonly string[] | undefined,
   return labels.map((label, index) => serverLabel(ids?.[index] ? `${prefix}.${ids[index]}` : '', label));
 }
 
+/** 后台任务状态里的一句：`message`（进度说明）或 `error`（失败原因），配同名的 `<名>_code` 与 `<名>_params`。
+ *  有 code 且有译文用译文，否则显示服务端原文。 */
+export function jobText(state: object | null | undefined, key: 'message' | 'error' = 'message'): string {
+  const body = (state ?? {}) as Record<string, unknown>;
+  const original = typeof body[key] === 'string' ? body[key] as string : '';
+  const code = typeof body[`${key}_code`] === 'string' ? body[`${key}_code`] as string : '';
+  const params = body[`${key}_params`] && typeof body[`${key}_params`] === 'object' ? body[`${key}_params`] as Params : {};
+  return serverLabel(code, original, params);
+}
+
 /** 响应体里那句给人看的话；没有就是空串，由调用方按状态码给通用句。
  *
  *  没带 code 的原文只有中文才是给人看的话：服务端的界面文字以中文为源文，

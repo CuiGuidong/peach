@@ -52,6 +52,20 @@ describe('serverText', () => {
   });
 });
 
+describe('jobText', () => {
+  it('后台任务的进度说明与失败原因各按自己的 code 取译文，没有 code 照原文', async () => {
+    const { jobText } = await load('en');
+    const state = {
+      message: '在 R:\\media 找到 3 个文件。', message_code: 'sample.withParams', message_params: { count: 3, folder: 'R:\\media' },
+      error: '这个地址下没有页面。', error_code: 'http.notFound', error_params: {},
+    };
+    expect(jobText(state)).toBe('Peach found 3 files in R:\\media.');
+    expect(jobText(state, 'error')).toBe(enServer.http.notFound);
+    expect(jobText({ message: '正在准备', message_code: '' })).toBe('正在准备');
+    expect(jobText(null, 'error')).toBe('');
+  });
+});
+
 describe('partsText', () => {
   it('按段存的结论逐段取当前语言，嵌套的原因与改写过的参数一并填进去', async () => {
     const { partsText } = await load('en');

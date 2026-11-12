@@ -15,7 +15,7 @@ from pathlib import Path
 from .media_sources import SOURCE_COSTS, cost_for, cost_sql
 from .repository import in_background
 from .task_stages import stage as stage_fields, stage_progress
-from .user_messages import UserFacingError
+from .user_messages import UserFacingError, message_fields
 
 DEFAULT_METERED_LOCATIONS = frozenset(location for location, cost in SOURCE_COSTS.items()
                                     if cost == 'metered') | {'online'}
@@ -34,10 +34,17 @@ class DiskSpaceDenied(UserFacingError, JobPolicyError):
 
 
 def _with_stage_code(fields: dict) -> dict:
-    """只改了 `stage` 原文、没给 code 的那一次把旧 code 清掉，界面不会把这一步译成上一步。"""
+    """只改了原文、没给 code 的那一次把旧 code 清掉，界面不会把这一句译成上一句。
+
+    `stage` 配 `stage_code`；`message`、`error` 配 `<名>_code` 与 `<名>_params`
+    （`user_messages.message_fields`、`failure_fields` 展开进来的就带着）。"""
+    cleared = {}
     if "stage" in fields and "stage_code" not in fields:
-        return {**fields, "stage_code": ""}
-    return fields
+        cleared["stage_code"] = ""
+    for key in ("message", "error"):
+        if key in fields and f"{key}_code" not in fields:
+            cleared.update({f"{key}_code": "", f"{key}_params": {}})
+    return {**fields, **cleared} if cleared else fields
 
 
 class JobPaused(UserFacingError, JobPolicyError):
@@ -458,13 +465,14 @@ class BackgroundJob:
     def _progress_label(state: dict) -> dict:
         """一行「此刻在做什么」：`label`、`code`、`params`。域各有各的字段名，这里按可读性从具体到笼统取第一个。
 
-        阶段名带 code；当前条目（`current` 的名字或来源）是内容，`message`、`step` 还没有 code，都照原文。
-        暂停时任务卡显示的是控制状态，这一句只留在库里，不带 code。
+        阶段名与带 `message_code` 的 `message` 带 code；当前条目（`current` 的名字或来源）是内容，
+        `step` 与没给 code 的 `message` 照原文。暂停时任务卡显示的是控制状态，这一句只留在库里。
         """
         def plain(text: object) -> dict:
             return {"label": str(text)[:120], "code": None, "params": {}}
         if state.get('status') in ('paused', 'pausing'):
-            return plain(('已暂停' if state['status'] == 'paused' else '正在暂停') + ' · ' + str(state.get('stage') or ''))
+            from .task_runs import run_progress
+            return run_progress(state['status'], stage=str(state.get('stage') or ''))
         current = state.get("current")
         if isinstance(current, dict):
             for key in ("label", "provider"):
@@ -472,6 +480,9 @@ class BackgroundJob:
                     return plain(current[key])
         if state.get("stage"):
             return stage_progress(state)
+        if state.get("message") and state.get("message_code"):
+            return {"label": str(state["message"])[:120], "code": state["message_code"],
+                    "params": dict(state.get("message_params") or {})}
         for key in ("message", "step"):
             if state.get(key):
                 return plain(state[key])
@@ -516,7 +527,7 @@ class BackgroundJob:
             self.state = {self.id_key: job_id, 'status': 'running', 'run_id': None,
                           **_with_stage_code(initial or {}), 'waiting_for_update': True,
                           **stage_fields('job.waitingForUpdate'), 'error': '',
-                          'message': '任务将在安装完成后自动继续。'}
+                          **message_fields('taskRun.progress.resumesAfterUpdate')}
             return copy.deepcopy(self.state)
 
     def _start(self, fn: Callable[[str], None], *, initial: dict | None = None,
@@ -704,7 +715,7 @@ class BackgroundJob:
             if not result.get('ok', True):
                 from .error_reporting import event
                 event('background-result', job_id=job_id, task_key=self.task_key,
-                      message=result.get('error') or result.get('message') or '任务失败')
+                      message=result.get('error') or result.get('message') or 'task failed')
             self.update(job_id, **result, status=(
                 "complete" if result.get("ok", True) else "failed"),
                 completed_at=time.time())

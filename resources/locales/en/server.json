@@ -390,7 +390,10 @@
       "batch": "{{first}} and others ({{count}} total)",
       "subjectStage": "{{subject}} · {{stage}}",
       "videosStage": "{{count}} videos · {{stage}}",
-      "schedulingRepairs": "Scheduling automatic metadata updates"
+      "schedulingRepairs": "Scheduling automatic metadata updates",
+      "paused": "Paused · {{stage}}",
+      "pausing": "Pausing · {{stage}}",
+      "resumesAfterUpdate": "The task continues automatically after the update is installed."
     },
     "error": {
       "skippedBy": "Skipped: run {{run}} ({{trigger}}) was still in progress",
