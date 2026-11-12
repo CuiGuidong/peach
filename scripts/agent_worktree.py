@@ -604,12 +604,14 @@ def _idle(path: Path) -> bool:
     """最近 `IDLE_DAYS` 天里没有提交、切换分支、改动文件，也没往 `build/` 写东西。
 
     不看 index 的 mtime：`git status` 会顺手刷新 index，一次只读检查就能把它刷成今天。
+    也不看目录的 mtime：清理时删掉目录里的旧文件会把目录刷成今天，2026-11-12 清网络日志
+    之后，187 个早已没人碰的工作树因此全被当成还在用。
     """
     stamps: list[float] = []
     admin = _git(path, "rev-parse", "--path-format=absolute", "--git-dir", check=False).stdout.strip()
     candidates = [Path(admin) / "HEAD", Path(admin) / "logs" / "HEAD"] if admin else []
     if (path / "build").is_dir():
-        candidates.extend((path / "build").rglob("*"))
+        candidates.extend(child for child in (path / "build").rglob("*") if child.is_file())
     for line in _lines(_git(path, "status", "--porcelain", "--untracked-files=all", check=False)):
         candidates.append(path / line[3:].strip('"'))
     for candidate in candidates:

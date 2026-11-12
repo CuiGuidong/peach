@@ -845,6 +845,18 @@ class IdleWorktreeTests(_WorktreeCase):
         self.assertIn(str(worker), report["reclaimed"])
         self.assertFalse(worker.exists())
 
+    def test_deleting_old_files_under_build_does_not_count_as_activity(self):
+        """清理删掉旧文件会把目录 mtime 刷成今天；工作树本身仍然闲置。"""
+        worker = self._created("cleaned-up")
+        logs = worker / agent_worktree.TEST_OUTPUT / "browser" / "network"
+        logs.mkdir(parents=True)
+        (logs / "network-1.json").write_text("{}", encoding="utf-8")
+        (logs / "network-2.json").write_text("{}", encoding="utf-8")
+        self._age(worker)
+        (logs / "network-2.json").unlink()
+        report = prune(self.repo, apply=True)
+        self.assertIn(str(worker), report["reclaimed"])
+
     def test_a_recent_worktree_with_the_task_lock_is_kept(self):
         worker = self._created("in-progress")
         report = prune(self.repo, apply=True)
