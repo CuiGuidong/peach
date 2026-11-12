@@ -32,7 +32,7 @@ const walk = (dir) => {
 walk(join(frontend, 'src'));
 
 const tbx = readFileSync(join(frontend, '../resources/locales/glossary/en.tbx'), 'utf8');
-const known = [...tbx.matchAll(/<langSet xml:lang="zh-CN"><tig><term>([^<]+)<\/term>/g)].map((match) => match[1]);
+const known = [...tbx.matchAll(/<langSet xml:lang="zh-Hans"><tig><term>([^<]+)<\/term>/g)].map((match) => match[1]);
 const counts = new Map();
 for (const text of texts) {
   const seen = new Set();
