@@ -15,7 +15,7 @@ from .javdb_public import (MAX_REVIEW_PAGES, PAGE_SIZE, PUBLIC_API, PublicSource
                           PublicIdentityAmbiguous, actor_gender, preview_video_url, public_image_url,
                           public_cache_scope, cache_checked_at, cache_error)
 from .jav_discovery_metadata import discovery_metadata
-from .sources.javdb import maker_writing
+from .sources.javdb import maker_writing, page_reader
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, cache_for
 from .preview_cache import PreviewCache
 
@@ -67,10 +67,16 @@ def _refs(contract, connection, kind, names):
     return refs
 
 
+def _jav_pages(contract):
+    """接口要求登录时，作品身份与资料改读 javdb.com 网页；带用户的 JavDB Cookie。"""
+    return page_reader(contract.follow_secrets_root)
+
+
 def _source_cache(handler):
     @wraps(handler)
     def read(contract, args):
-        with public_cache_scope(contract.cover_root.parent / 'jav-public') as reads:
+        with (public_cache_scope(contract.cover_root.parent / 'jav-public') as reads,
+              _jav_pages(contract) as pages, PUBLIC_API.page_reader(pages)):
             payload = handler(contract, args)
             prefix ={'q_jav_reviews': ('reviews:',), 'q_jav_resources': ('reviews:', 'magnets:')}.get(
                 handler.__name__, ('movie:',))
@@ -280,7 +286,8 @@ def jav_image(contract, args) -> tuple[bytes, int]:
             and (not index.isdigit() or not 0 <= int(index) < 30)):
         raise ValueError("预览图不存在")
     actor = index.startswith("actor:")
-    with public_cache_scope(contract.cover_root.parent / 'jav-public'):
+    with (public_cache_scope(contract.cover_root.parent / 'jav-public'), _jav_pages(contract) as pages,
+          PUBLIC_API.page_reader(pages)):
         movie = None
         if not actor:
             stored, _ = discovery_metadata(contract).peek(code)

@@ -14,6 +14,7 @@ MGS 的 5/23、标题带 MGS 附注、演员里有男优，各字段按 Peach �
 """
 from __future__ import annotations
 
+import contextlib
 import dataclasses
 import re
 import time
@@ -54,6 +55,12 @@ _ACTRESS = re.compile(r'<a\s([^>]*)>([^<]+)</a>')
 #: 取名字时顺手带出来——另走一趟演员页只是把同一页再取一遍，而 javdb 的配额最紧。
 _ACTOR_HREF = re.compile(r'href="/actors/([A-Za-z0-9]+)"')
 _JAPANESE = re.compile(r"[぀-ヿ一-鿿]")
+#: 网页上的封面与样张在 `c0.jdbstatic.com`，与 javdb.com 同算出口配额。接口 CDN 上同一路径的图
+#: 不占这份配额，图片校验也只放行它（2026-11-12 实测封面、小封面、样张与头像都在）。
+_CDN = "https://tp.spfcas.com/rhe951l4q/"
+_STATIC = re.compile(r"https://c\d+\.jdbstatic\.com/((?:covers|samples)/[a-z0-9]{2}/[A-Za-z0-9_]+\.jpg)")
+_SCORE = re.compile(r"([0-9]+(?:\.[0-9]+)?)分, 由[0-9]+人評價")
+_REVIEWS = re.compile(r"短評\(([0-9]+)\)")
 
 
 def actresses(value: str) -> list[dict]:
@@ -76,6 +83,85 @@ def maker_writing(value: str) -> str:
     """片商一栏并列英文与日文（`PRESTIGE,プレステージ`），取日文那一种。"""
     parts = [part.strip() for part in value.split(",") if part.strip()]
     return next((part for part in parts if _JAPANESE.search(part)), parts[0] if parts else "")
+
+
+def _cdn(url: object) -> str:
+    match = _STATIC.fullmatch(str(url or ""))
+    return _CDN + match[1] if match else ""
+
+
+def page_search_rows(text: str) -> list[dict]:
+    """搜索页的结果卡片，投影成接口搜索行：来源 id、番号与卡片标题。"""
+    rows = []
+    for box in BeautifulSoup(text, "html.parser").select('a.box[href^="/v/"]'):
+        movie_id = box["href"].rsplit("/", 1)[-1]
+        number = box.find("strong")
+        if number and re.fullmatch(r"[A-Za-z0-9]+", movie_id):
+            rows.append({"id": movie_id, "number": clean(number.get_text(" ", strip=True)),
+                         "origin_title": clean(box.get("title") or "")})
+    return rows
+
+
+def page_movie(text: str, movie_id: str) -> dict:
+    """详情页投影成接口作品资料的同名字段，库外详情、评论与磁链照旧按来源 id 取。
+
+    男优与女优挂同样的 `/actors/` 链接，只有女优带 `actor-female`，所以没带的记作男优；头像按演员 id
+    指向接口 CDN。网页不给视频预览地址，预告仍由视频预览那条路读同一页。
+    """
+    panel = {clean(label): value for label, value in _PANEL.findall(text)}
+    soup = BeautifulSoup(text, "html.parser")
+    title = soup.select_one("strong.current-title")
+    original = soup.select_one(".origin-title")
+    runtime = re.search(r"\d+", clean(panel.get("時長", "")))
+    cover = _COVER.search(text)
+    cover = _IMG_SRC.search(cover.group(0)) if cover else None
+    score = _SCORE.search(text)
+    reviews = _REVIEWS.search(text)
+    actors = []
+    for attributes, name in _ACTRESS.findall(panel.get("演員", "")):
+        actor = _ACTOR_HREF.search(attributes)
+        if actor and clean(name):
+            actors.append({"id": actor[1], "name": clean(name),
+                           "gender": "female" if "actor-female" in attributes else "male",
+                           "avatar_url": f"{_CDN}avatars/{actor[1][:2].lower()}/{actor[1]}.jpg"})
+    genres = [clean(link.get_text(" ", strip=True))
+              for link in BeautifulSoup(panel.get("類別", ""), "html.parser").find_all("a")]
+    previews = [_cdn(link.get("href")) for link in soup.select(".preview-images a.tile-item")]
+    return {"id": movie_id, "number": clean(panel.get("番號", "")).replace(" ", ""),
+            "title": clean(title.get_text(" ", strip=True)) if title else "",
+            "origin_title": clean(original.get_text(" ", strip=True)) if original else "",
+            "cover_url": _cdn(cover.group(1)) if cover else "",
+            "preview_images": [url for url in previews if url], "actors": actors,
+            "maker_name": maker_writing(clean(panel.get("片商", ""))),
+            "publisher_name": clean(panel.get("發行", "")), "series_name": clean(panel.get("系列", "")),
+            "director_name": clean(panel.get("導演", "")), "release_date": clean(panel.get("日期", "")),
+            "duration": int(runtime.group()) if runtime else None,
+            "score": float(score[1]) if score else None,
+            "comments_count": int(reviews[1]) if reviews else 0,
+            "tags": [word for word in genres if word]}
+
+
+@contextlib.contextmanager
+def page_reader(secrets_root, *, seconds: float = 30.0):
+    """库外详情与磁链读 javdb.com 网页的入口：带用户在「来源和凭证」里贴的 Cookie，与资料处理和视频预览
+    共用 `SOURCE_LIMITER` 的主机间隔，撞登录页、验证页或封禁时按 `javdb` 这一站的来源冷却停下。"""
+    from ..jav_cover_fetch import HostLimitedTransport
+    from ..library_processing import SOURCE_LIMITER
+    from ..scraping_access import SourceTransport
+
+    transport = HostLimitedTransport(SourceTransport(secrets_root, max_requests=6, max_bytes=6 * 1024 * 1024,
+                                                     max_seconds=seconds), JAVDB.interval, limiter=SOURCE_LIMITER)
+    session = Session(transport, deadline=time.monotonic() + seconds)
+    source = JavDBSource(JAVDB)
+
+    def read(path: str) -> str:
+        with source.holding(session):
+            return source._page(JAVDB.base_url + path, session=session).text
+
+    try:
+        yield read
+    finally:
+        transport.close()
 
 
 class JavDBSource(SiteSource):

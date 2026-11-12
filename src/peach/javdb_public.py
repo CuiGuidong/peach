@@ -41,6 +41,8 @@ MAX_REVIEW_PAGES = 8
 #: 再按 0.5 秒连发 600 次（5 分钟），全部 HTTP 200 且业务成功；更长时间的累计配额未测。
 #: 一个接口主机撞上 403/429 时冷却 15 分钟、换下一家，全部冷却才整源停（`_json`）。
 API_INTERVAL = 0.5
+#: 接口要求登录后，搜索与作品资料这么久内不再问接口，直接读网页；过后再试一次接口。
+LOGIN_SECONDS = 6 * 3600
 _JS_IDENTIFIER = r'[A-Za-z_$][A-Za-z0-9_$]*'
 _CACHE_ROOT = ContextVar('jav_public_cache_root', default=None)
 _CACHE_READS = ContextVar('jav_public_cache_reads', default=None)
@@ -159,6 +161,10 @@ class PublicHostFailed(PublicSourceUnavailable):
     """这一个主机没有答复或答复不可用；同协议的下一个主机可以接替。"""
 
 
+class PublicLoginRequired(PublicSourceUnavailable):
+    """接口要求登录（`JWTVerificationError`）。2026-11-10 起搜索与作品资料匿名都回它，评论与磁链仍答。"""
+
+
 class PublicBudgetExceeded(PublicSourceUnavailable):
     """本轮匿名资料请求预算已用完。"""
 
@@ -218,6 +224,37 @@ class PublicAPI:
         self.paused_until = 0.0
         self.image_paused_until = 0.0
         self.request_context = ContextVar("jav_public_request_budget", default=None)
+        self.login_until = 0.0
+        self.page_context = ContextVar("jav_public_pages", default=None)
+
+    @contextmanager
+    def page_reader(self, reader):
+        """接口要求登录时，搜索与作品资料由 `reader(path)` 读 javdb.com 网页（`sources.javdb.page_reader`）。
+
+        读取由调用方给：网页带用户的 Cookie、按 javdb.com 的主机间隔与来源冷却走，这些都不在本模块。
+        没给读取的调用（刮削那一问）照旧报未取得，由它自己的详情页那条路接手（ADR-0160）。
+        """
+        token = self.page_context.set(reader)
+        try:
+            yield
+        finally:
+            self.page_context.reset(token)
+
+    def _login_walled(self, ask, path, parse):
+        """搜索与作品资料：接口答就用接口；要求登录时改读网页，评论与磁链不经这里、照常问接口。"""
+        from .sources.base import SourceFailure
+        if self.clock() >= self.login_until:
+            try:
+                return ask()
+            except PublicLoginRequired:
+                pass
+        reader = self.page_context.get()
+        if reader is None:
+            raise PublicLoginRequired("JavDB 接口要求登录，作品资料未取得")
+        try:
+            return parse(reader(path))
+        except (OSError, ValueError, TypeError, AttributeError, KeyError, SourceFailure) as error:
+            raise PublicSourceUnavailable("JavDB 网页未取得，请稍后重试") from error
 
     @contextmanager
     def request_budget(self, budget: PublicRequestBudget):
@@ -329,6 +366,10 @@ class PublicAPI:
             if attempted:
                 raise PublicSourceUnavailable("作品资料来源暂时不可用，请稍后重试")
             raise PublicSourcePaused("作品资料来源暂时不可用，请稍后重试")
+        if isinstance(payload, dict) and payload.get("action") == "JWTVerificationError":
+            # 只停搜索与作品资料：评论与磁链端点匿名仍答，不能跟着整源冷却。
+            self.login_until = self.clock() + LOGIN_SECONDS
+            raise PublicLoginRequired("JavDB 接口要求登录")
         if not isinstance(payload, dict) or payload.get("success") != 1:
             self.paused_until = self.clock() + 60
             raise PublicSourceUnavailable("作品资料未取得，请稍后重试")
@@ -407,8 +448,10 @@ class PublicAPI:
                 raise
             if previous is not None:
                 self._remember(key, previous.value, snapshot=previous)
-            with self.lock:
-                self.failures[cache_key] = (self.clock() + 900, error)
+            if not isinstance(error, PublicLoginRequired):
+                # 没给网页读取的那一问不记失败：同一部片接着由带读取的调用（库外详情）来问时仍要去读网页。
+                with self.lock:
+                    self.failures[cache_key] = (self.clock() + 900, error)
             if previous is not None:
                 future.set_result(previous.value)
                 _record_read(key, previous, str(error))
@@ -447,6 +490,7 @@ class PublicAPI:
     def movie(self, code: str, *, refresh=False, source_id=None) -> dict:
         """番号对应的来源作品。来源去掉 MGS 的数字前缀（`259LUXU-891` 记作 `LUXU-891`），
         搜索词与身份核对都按 `release_identity` 认同一部作品。"""
+        from .sources.javdb import page_search_rows
         canonical = normalise_code_key(code)
         matches = []
 
@@ -454,7 +498,9 @@ class PublicAPI:
             nonlocal matches
             product = re.fullmatch(r'FC2-PPV-(\d+)', canonical)
             query = product[1] if product else release_identity(canonical) or canonical
-            rows = self._rows("/v2/search", "movies", {"q": query, "type": "movie", "page": 1})
+            rows = self._login_walled(
+                lambda: self._rows("/v2/search", "movies", {"q": query, "type": "movie", "page": 1}),
+                "/search?" + urlencode({"q": query, "f": "all"}), page_search_rows)
             matches = [row for row in rows if isinstance(row, dict)
                        and same_release_code(canonical, row.get("number"))]
             if not matches:
@@ -508,8 +554,11 @@ class PublicAPI:
 
     def _movie(self, canonical, movie_id, *, refresh):
 
+        from .sources.javdb import page_movie
+
         def fetch():
-            movie = self._json("/v4/movies/" + movie_id).get("movie")
+            movie = self._login_walled(lambda: self._json("/v4/movies/" + movie_id).get("movie"),
+                                       f"/v/{movie_id}?locale=zh", lambda text: page_movie(text, movie_id))
             if (not isinstance(movie, dict) or not same_release_code(canonical, movie.get("number"))
                     or movie.get("id") != movie_id):
                 raise PublicSourceUnavailable("来源作品身份不匹配")

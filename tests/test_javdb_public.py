@@ -323,6 +323,76 @@ class PublicProtocolTests(unittest.TestCase):
         with self.assertRaisesRegex(PublicSourceUnavailable, '身份不匹配'):
             self.api(number='LUXU-892').movie('259LUXU-891', source_id='Exact')
 
+    LOGIN_SEARCH = ('<a href="/v/Exact" class="box" title="サンプル作品"><strong>EXM-001</strong> サンプル作品</a>'
+                    '<a href="/v/Other" class="box" title="別の作品"><strong>EXM-002</strong></a>')
+    LOGIN_DETAIL = (
+        '<strong class="current-title">示例作品</strong><span class="origin-title">サンプル作品</span>'
+        '<img class="video-cover" src="https://c0.jdbstatic.com/covers/ex/Exact.jpg" />'
+        '<div class="panel-block"><strong>番號:</strong>&nbsp;<span class="value"><a href="/video_codes/EXM">EXM</a>'
+        '-001</span></div><div class="panel-block"><strong>日期:</strong>&nbsp;<span class="value">2026-01-02</span></div>'
+        '<div class="panel-block"><strong>時長:</strong>&nbsp;<span class="value">120 分鍾</span></div>'
+        '<div class="panel-block"><strong>片商:</strong>&nbsp;<span class="value"><a href="/makers/x">SAMPLE,サンプル</a>'
+        '</span></div><div class="panel-block"><strong>評分:</strong>&nbsp;<span class="value">'
+        '<span class="score-stars"></span>&nbsp;4.5分, 由12人評價</span></div>'
+        '<div class="panel-block"><strong>類別:</strong>&nbsp;<span class="value"><a href="/tags?c1=1">劇情</a>,'
+        '&nbsp;<a href="/tags?c2=2">單體作品</a></span></div><div class="panel-block"><strong>演員:</strong>&nbsp;'
+        '<span class="value"><a class="actor-female" href="/actors/Ab12">示例女优</a>, '
+        '<a href="/actors/Cd34">示例男优</a></span></div><div class="tile-images preview-images">'
+        '<a class="tile-item" href="https://c0.jdbstatic.com/samples/ex/Exact_l_0.jpg"></a>'
+        '<a class="tile-item" href="https://example.invalid/other.jpg"></a></div><a>短評(3)</a>')
+
+    def login_walled_api(self):
+        """搜索与作品资料要求登录、评论与磁链照常答的接口；网页由 `self.pages` 按路径给。"""
+        self.requests, self.page_paths = [], []
+        self.pages = lambda path: (self.page_paths.append(path)
+                                   or (self.LOGIN_SEARCH if path.startswith('/search') else self.LOGIN_DETAIL))
+
+        def transport(request, *_):
+            self.requests.append(request.url)
+            if '/reviews' in request.url:
+                payload = {'success': 1, 'data': {'reviews': [{'id': 'first', 'content': '示例评论'}]}}
+            elif '/magnets' in request.url:
+                payload = {'success': 1, 'data': {'magnets': []}}
+            else:
+                payload = {'success': 0, 'action': 'JWTVerificationError', 'message': '請登錄帳號', 'data': None}
+            return HttpResponse(200, {}, json.dumps(payload).encode())
+
+        api = PublicAPI(transport, sleeper=lambda _: None)
+        api.signature_parts, api.signature_until = APP_SIGNATURE, float('inf')
+        return api
+
+    def test_login_walled_identity_and_detail_read_pages_while_reviews_stay_on_the_api(self):
+        api = self.login_walled_api()
+        with api.page_reader(self.pages):
+            movie = api.movie('EXM-001')
+            reviews = api.reviews('EXM-001', 1)
+        self.assertEqual(self.page_paths, ['/search?q=EXM-001&f=all', '/v/Exact?locale=zh'])
+        self.assertEqual((movie['id'], movie['number'], movie['title'], movie['origin_title']),
+                         ('Exact', 'EXM-001', '示例作品', 'サンプル作品'))
+        self.assertEqual(movie['cover_url'], 'https://tp.spfcas.com/rhe951l4q/covers/ex/Exact.jpg')
+        self.assertEqual(movie['preview_images'], ['https://tp.spfcas.com/rhe951l4q/samples/ex/Exact_l_0.jpg'])
+        self.assertEqual([(actor['id'], actor_gender(actor), actor['avatar_url']) for actor in movie['actors']], [
+            ('Ab12', 'female', 'https://tp.spfcas.com/rhe951l4q/avatars/ab/Ab12.jpg'),
+            ('Cd34', 'male', 'https://tp.spfcas.com/rhe951l4q/avatars/cd/Cd34.jpg')])
+        self.assertEqual((movie['maker_name'], movie['release_date'], movie['duration'], movie['score'],
+                          movie['comments_count'], movie['tags']),
+                         ('サンプル', '2026-01-02', 120, 4.5, 3, ['劇情', '單體作品']))
+        self.assertEqual([row['id'] for row in reviews], ['first'])
+        self.assertTrue(any('/movies/Exact/reviews' in url for url in self.requests))
+        asked = sum('/v2/search' in url for url in self.requests)
+        with api.page_reader(self.pages):
+            api.movie('EXM-001', refresh=True)
+        self.assertEqual(sum('/v2/search' in url for url in self.requests), asked, '要求登录后一段时间内不再问接口')
+
+    def test_login_walled_call_without_pages_does_not_block_a_later_call_with_pages(self):
+        api = self.login_walled_api()
+        with self.assertRaises(PublicSourceUnavailable):
+            api.movie('EXM-001')
+        self.assertEqual(self.page_paths, [])
+        self.assertEqual(api.paused_until, 0.0, '评论与磁链端点不跟着冷却')
+        with api.page_reader(self.pages):
+            self.assertEqual(api.movie('EXM-001')['id'], 'Exact')
+
     def test_missing_search_result_and_cooldown_have_their_own_kinds(self):
         with self.assertRaises(PublicNotFound):
             self.api().movie('EXM-999')
