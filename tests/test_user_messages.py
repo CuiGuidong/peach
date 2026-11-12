@@ -168,11 +168,14 @@ class BackendCopyRatchetTests(unittest.TestCase):
             'def handler():',
             '    message_fields("sample.positional")',
             '    raise UserFacingError("sample.first")',
+            '    raise SampleError("sample.subclass")',
             '    raise SomeError(code="sample.keyword")',
             '    return {"message": "原文", "message_code": "sample.dict"}',
+            'class SampleError(UserFacingError, ValueError):',
+            '    pass',
         ])
-        self.assertEqual(checker.codes_in(source),
-                         {"sample.constant", "sample.positional", "sample.first", "sample.keyword", "sample.dict"})
+        self.assertEqual(checker.codes_in(source), {"sample.constant", "sample.positional", "sample.first",
+                                                    "sample.subclass", "sample.keyword", "sample.dict"})
 
 
 @unittest.skipUnless(HAS_DEPS, "fastapi/httpx not installed")

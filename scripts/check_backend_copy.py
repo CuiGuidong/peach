@@ -84,14 +84,18 @@ def scan(root: Path = ROOT) -> dict[str, int]:
 
 
 def codes_in(source: str) -> set[str]:
-    """源码里写死的 message code：`code=`／`message_code=` 关键字、`message_fields` 与 `UserFacingError` 的第一个参数、
+    """源码里写死的 message code：`code=`／`message_code=` 关键字、`message_fields`、`UserFacingError` 及其子类的第一个参数、
     字典里 `message_code` 键的值，以及名字以 `_CODE` 结尾的常量。"""
     found = set()
-    for node in ast.walk(ast.parse(source)):
+    tree = ast.parse(source)
+    # 同一模块里继承 `UserFacingError` 的异常类，构造方式与它相同。
+    coded = CODED_CALLS | {node.name for node in ast.walk(tree) if isinstance(node, ast.ClassDef)
+                           and any(isinstance(base, ast.Name) and base.id in CODED_CALLS for base in node.bases)}
+    for node in ast.walk(tree):
         values: list[ast.AST] = []
         if isinstance(node, ast.Call):
             values += [kw.value for kw in node.keywords if kw.arg in CODE_KEYWORDS]
-            if _call_name(node) in CODED_CALLS and node.args:
+            if _call_name(node) in coded and node.args:
                 values.append(node.args[0])
         elif isinstance(node, ast.Dict):
             values += [value for key, value in zip(node.keys, node.values)

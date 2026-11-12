@@ -32,11 +32,11 @@ def main(argv=None):
     try:
         result = _run(args)
     except research_archive.ArchiveError as error:
-        print(json.dumps({'status': 'failed', **message_fields(error.message, error.code, error.params, key='reason')},
+        print(json.dumps({'status': 'failed', **message_fields(error.code, error.params, key='reason')},
                          ensure_ascii=False), file=sys.stderr)
         return 1
     except (OSError, sqlite3.Error):
-        print(json.dumps({'status': 'failed', **message_fields('研究归档文件操作失败',
+        print(json.dumps({'status': 'failed', **message_fields(
             'researchArchive.storageFailed', key='reason')}, ensure_ascii=False), file=sys.stderr)
         return 1
     print(json.dumps(result, ensure_ascii=False))

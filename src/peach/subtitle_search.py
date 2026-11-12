@@ -84,7 +84,7 @@ def _detail(subtitle_id: str) -> str:
 
 def _targets(language: str) -> tuple[tuple[str, str], ...]:
     if language not in TARGETS:
-        raise SubtitleLanguageError("字幕语言只支持 zh 或 en", code="subtitles.unsupportedLanguage")
+        raise SubtitleLanguageError("subtitles.unsupportedLanguage")
     return TARGETS[language]
 
 
