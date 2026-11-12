@@ -15,6 +15,7 @@ from support.ledger import fresh_ledger
 from peach import (data_storage, downloads, entity_classification, ledger_backups, release_notices, release_updates,
                    repair_center, task_runs, task_stages)
 from peach.jobs import BackgroundJob
+from peach import interface_text
 from peach.user_messages import UserFacingError, error_fields, message_fields
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -22,7 +23,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import check_backend_copy as checker  # noqa: E402
 
 HAS_DEPS = all(importlib.util.find_spec(name) for name in ("fastapi", "httpx"))
-LOCALES = ROOT / "frontend" / "src" / "locales"
+LOCALES = ROOT / "resources" / "locales"
 
 
 def server_resource(language: str) -> dict:
@@ -56,7 +57,7 @@ class TranslationCoverageTests(unittest.TestCase):
         for language in ("zh-CN", "en"):
             with self.subTest(language):
                 self.assertEqual(sorted(used - checker.server_keys(language)), [],
-                                 "新的 message code 要在 frontend/src/locales/<语言>/server.json 里同时写中文和英文")
+                                 "新的 message code 要在 resources/locales/<语言>/server.json 里同时写中文和英文")
 
     def test_display_tables_keep_their_chinese_in_step_with_the_source_resource(self):
         zh = server_resource("zh-CN")
@@ -118,15 +119,43 @@ class StageCodeTests(unittest.TestCase):
         self.assertEqual(found, [], "阶段名加进 peach/task_stages.py，写入时用 stage(code) 展开")
 
 
+class InterfaceTextTests(unittest.TestCase):
+    """后端读界面文字（ADR-0159）：与前端同一份 `resources/locales/`。"""
+
+    def test_renders_from_the_shared_resources_and_falls_back_to_the_source_language(self):
+        self.assertEqual(interface_text.text("server:task.library-processing"), "扫描与采集")
+        self.assertEqual(interface_text.text("server:task.library-processing", language="en"), "Scan & fetch")
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for language, body in (("zh-CN", {"a": {"b": "第 {{n}} 轮，{{who}}"}}), ("en", {})):
+                (root / language).mkdir()
+                (root / language / "server.json").write_text(json.dumps(body, ensure_ascii=False), encoding="utf-8")
+            self.assertEqual(interface_text.text("server:a.b", {"n": 3}, "en", root=root), "第 3 轮，{{who}}")
+            with self.assertRaises(KeyError):
+                interface_text.text("server:a.missing", root=root)
+            interface_text.ensure_available(root)
+            with self.assertRaises(interface_text.InterfaceTextMissing):
+                interface_text.ensure_available(root / "nowhere")
+
+    def test_server_texts_use_only_what_the_backend_renderer_understands(self):
+        # 后端渲染器只认 `{{name}}` 与点号嵌套：复数后缀与 `{{count, number}}` 这类格式选项只给前端用。
+        for language in ("zh-CN", "en"):
+            with self.subTest(language):
+                keys = checker.server_keys(language)
+                self.assertEqual([key for key in keys if key.rsplit("_", 1)[-1] in ("zero", "one", "two", "few", "many", "other")], [])
+                options = [key for key in keys if re.search(r"\{\{[^}]*,", interface_text.template(f"server:{key}", language))]
+                self.assertEqual(options, [])
+
+
 class BackendCopyRatchetTests(unittest.TestCase):
-    def test_no_module_has_more_uncoded_interface_chinese_than_its_baseline(self):
+    def test_no_module_has_more_chinese_strings_than_its_baseline(self):
         baseline = json.loads(checker.BASELINE.read_text(encoding="utf-8"))
         raised = [f"{name}: {count}（基线 {baseline.get(name, 0)}）"
                   for name, count in checker.scan().items() if count > baseline.get(name, 0)]
-        self.assertEqual(raised, [], "给人看的中文改用 UserFacingError 或 message_fields 带上 message_code；"
+        self.assertEqual(raised, [], "界面文字写进 resources/locales/<语言>/*.json，后端只写 code；日志与命令行用英文。"
                                      "抽走后跑 python scripts/check_backend_copy.py --write 收紧基线")
 
-    def test_routes_count_every_string_and_other_modules_count_only_raise(self):
+    def test_every_chinese_string_counts_except_docstrings_and_content_files(self):
         source = "\n".join([
             '"""模块说明不算。"""',
             'import logging',
@@ -141,8 +170,10 @@ class BackendCopyRatchetTests(unittest.TestCase):
             '    raise UserFacingError("带 code 的不算", code="x.y")',
             '    return {"error": "回执", "message_code": "x.z"} or message_fields("也不算", "x.w")',
         ])
-        self.assertEqual(checker.count_literals("routes_sample.py", source), 2)
-        self.assertEqual(checker.count_literals("sample.py", source), 1)
+        # 界面文字只在语言资源里，日志与命令行用英文（ADR-0159）：除 docstring 外每一句都算。
+        self.assertEqual(checker.count_literals("routes_sample.py", source), 8)
+        self.assertEqual(checker.count_literals("sample.py", source), 8)
+        self.assertEqual(checker.count_literals("genre_taxonomy.py", source), 0)
 
     def test_codes_are_found_wherever_the_backend_writes_them(self):
         source = "\n".join([

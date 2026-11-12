@@ -4,7 +4,7 @@
 修复与完整清单留给 Release 页的变更日志。
 
 条目字段：
-- `id`：条目在这一版里的稳定 id。标题与说明同时写进 `frontend/src/locales/<语言>/server.json` 的
+- `id`：条目在这一版里的稳定 id。标题与说明同时写进 `resources/locales/<语言>/server.json` 的
   `releaseNotes.v<版本，点换成连字符>`，前端按版本和 id 取界面语言的译文；`tests/test_user_messages.py` 核对中文一致。
 - `platforms`：只对这些平台或安装方式显示，取值见 `release_notice.PLATFORM_TOKENS`，`+` 连接表示同时满足（如 `macos+standalone`）；省略表示全部。
 - `when`：只在这台机器的数据满足条件时显示，取值见 `release_notice.FACTS`；省略表示总是显示。

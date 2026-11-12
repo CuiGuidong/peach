@@ -2,6 +2,7 @@
 
 - 状态：已采纳，分阶段实施；第一阶段随本 ADR 合入，第三阶段第一批于 2026-11-09、第二批与③a 于 2026-11-12 合入
 - 日期：2026-11-08
+- 修订：[ADR-0159](0159-interface-text-lives-only-in-locale-resources.md) 把语言资源搬到 `resources/locales/`，后端不再写中文原文、日志改用英文、命令行跟系统语言；第一、三、七条以 ADR-0159 为准。
 - 关系：[ADR-0153](0153-content-translations-live-beside-originals.md) 管内容翻译和翻译平台的备选顺序，本 ADR 管界面文案；沿用 [ADR-0022](0022-frontend-vite-preact-strangler.md) 的前端产物入库与 [ADR-0031](0031-frontend-react-boardui-tailwind.md) 的 React 迁移边界。需求来自 issue #398。
 
 ## 背景

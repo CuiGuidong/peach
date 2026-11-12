@@ -194,7 +194,7 @@ class SettingsRoundTripTests(unittest.TestCase):
 
     def test_interface_languages_match_the_shipped_locales(self):
         """后端放行的语言必须有前端译文：多放一个，存进去以后整页回落成中文；少放一个，选了存不进去。"""
-        locales = Path(__file__).resolve().parents[1] / 'frontend' / 'src' / 'locales'
+        locales = Path(__file__).resolve().parents[1] / 'resources' / 'locales'
         shipped = sorted(path.name for path in locales.iterdir() if path.is_dir() and path.name != 'glossary')
         self.assertEqual(sorted(web_settings.INTERFACE_LANGUAGES), shipped)
 

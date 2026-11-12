@@ -391,6 +391,8 @@ AUTO_SCOPE_PREFIXES: tuple[tuple[str, str | tuple[str, ...]], ...] = (
     # 应用图标：页面站标（web）、托盘与菜单栏（sync）、安装包与 DMG（packaging），
     # `test_scripts.py` 读 `peach-logo.png`（tooling）。
     ("resources/setup/", ("web", "packaging")),
+    # 语言资源：前端（web）直接导入；后端渲染与资源对照测试在 tooling（ADR-0159）。
+    ("resources/locales/", ("web", "tooling")),
     ("resources/", ("sync", "tooling", "web", "packaging")),
     ("web/", "web"),
     ("frontend/", "web"),
