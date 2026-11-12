@@ -19,6 +19,7 @@ from urllib.parse import quote
 
 from . import feed_followup, wants, web_follow
 from .jobs import TaskRunConflict
+from .user_messages import UserValueError
 
 #: 取不到资料或封面的想要，隔多久再试一次；与 Feed 壳同一个间隔。
 RETRY_AFTER = feed_followup.RETRY_AFTER
@@ -219,7 +220,7 @@ def q_want_magnets(contract, args) -> dict:
 
     raw = str(args.get("id") or "")
     if not raw.isdigit():
-        raise ValueError("缺少想要条目编号")
+        raise UserValueError("api.wants.missingId")
     with contract.database.read_connection() as connection:
         row = wants.get(connection, int(raw))
     if row is None:

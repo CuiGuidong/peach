@@ -35,6 +35,7 @@ from .media_sources import SCANNABLE_LOCATIONS
 from .personal_records import VANISHED, mark_vanished, record_holders
 from .platform import is_unmapped, root_online, translate_ledger_path, within_root
 from .record_rehome import reattach_vanished
+from .user_messages import UserValueError
 
 #: 「同步删除」回执里，记录已接到另一个版本、旧行已删的那一条。
 REATTACHED = "reattached"
@@ -655,10 +656,10 @@ def w_resource_sync_scan(contract: ResourceSyncContract, body=None):
                 }
             return _resource_scan_public(state)
         if not configured_resource_locations():
-            raise ValueError("请先在配置页添加媒体目录")
+            raise UserValueError("api.resourceSync.addMediaDirectory")
         return _background_resource_scan(contract, restart=body.get("restart") is True)
     if not configured_resource_locations():
-        raise ValueError("请先在配置页添加媒体目录")
+        raise UserValueError("api.resourceSync.addMediaDirectory")
     return _scan_result(contract, _scan_sources(contract))
 
 
@@ -777,7 +778,7 @@ def w_resource_sync_apply(contract: ResourceSyncContract, body, *, progress=None
     `blocked`；删除这一档不可撤销，所以只认检查给的候选集合。
     """
     if not configured_resource_locations():
-        raise ValueError("请先在配置页添加媒体目录")
+        raise UserValueError("api.resourceSync.addMediaDirectory")
     if body.get("confirm") is not True:
         raise ValueError("resource sync requires confirmation")
     scan_id = str(body.get("scan_id") or "")

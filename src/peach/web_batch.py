@@ -36,6 +36,7 @@ from .task_stages import batch_progress
 from .web_activity import DEFAULT_PROFILE_ID
 from .web_catalog import attach_card_performers
 from .media_sources import cost_for
+from .user_messages import UserValueError
 from .web_resource_sync import _managed_cache_root, clean_purged_caches
 from .web_state import WebContract
 
@@ -156,10 +157,10 @@ def _restore_staged_media(staged):
             if quarantine.name == 'content' and manifest.is_file():
                 record = json.loads(manifest.read_text(encoding='utf-8'))
                 if record['original'] != str(original):
-                    raise ValueError('隔离恢复路径不符')
+                    raise UserValueError('api.batch.quarantinePathMismatch')
                 shutil.copyfile(quarantine, original)
                 if hashlib.sha256(original.read_bytes()).hexdigest() != record['sha256']:
-                    raise ValueError('隔离恢复内容不符')
+                    raise UserValueError('api.batch.quarantineContentMismatch')
                 quarantine.unlink()
                 manifest.unlink()
                 quarantine.parent.rmdir()

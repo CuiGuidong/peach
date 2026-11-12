@@ -1,5 +1,6 @@
 """原目录浏览与用户确认的目录用途契约。"""
 from . import folder_rules, media_folders, settings_file
+from .user_messages import UserValueError
 
 
 def _index(contract, args):
@@ -40,7 +41,7 @@ def q_folders(contract, args):
 def w_folder_preview(contract, body):
     node = _index(contract, {}).get(body.get('folder'))
     if node is None:
-        raise ValueError('目录不存在或已移出媒体库')
+        raise UserValueError("api.folders.folderMissing")
     with contract.read_connection() as connection:
         _, data = folder_rules.load(connection)
         rule = folder_rules.validate(connection, node, body)
@@ -51,7 +52,7 @@ def w_folder_preview(contract, body):
 def w_folder_rule(contract, body):
     node = _index(contract, {}).get(body.get('folder'))
     if node is None:
-        raise ValueError('目录不存在或已移出媒体库')
+        raise UserValueError("api.folders.folderMissing")
     with contract.write_transaction() as connection:
         settings, data = folder_rules.load(connection)
         if type(body.get('expected_revision')) is not int or data['revision'] != body['expected_revision']:
@@ -64,5 +65,5 @@ def w_folder_rule(contract, body):
             result = {'applied': folder_rules.save(connection, settings, data, rule, preview, body.get('plan_version')),
                       'conflicts': len(preview['conflicts'])}
         else:
-            raise ValueError('不支持的目录规则操作')
+            raise UserValueError("api.folders.unsupportedAction")
     return {'ok': True, **result}

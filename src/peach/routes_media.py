@@ -63,6 +63,7 @@ from .streaming import (
 )
 from .remote_media_cache import MEDIA_SECURITY_HEADERS
 from .transcodes import TranscodeCancelled, TranscodeNeedsSession, TranscodeUnavailable
+from .user_messages import UserValueError, error_detail, error_fields, message_fields
 
 router = APIRouter()
 
@@ -227,10 +228,10 @@ def external_playback(request: Request, id: int, args: dict[str, str] = Depends(
     raw = supplied or str(request.base_url)
     parsed = urlsplit(raw)
     if any(ord(char) <= 32 or ord(char) == 127 for char in raw) or parsed.username or parsed.password:
-        raise HTTPException(400, '播放地址无效')
+        raise HTTPException(400, message_fields('api.media.invalidPlaybackOrigin'))
     key = _origin_key(raw) if supplied else (_tunnel_origin(request) or _named_origin(request) or _origin_key(raw))
     if key is None:
-        raise HTTPException(400, '播放地址无效')
+        raise HTTPException(400, message_fields('api.media.invalidPlaybackOrigin'))
     scheme, host, port = key
     host = f'[{host}]' if ':' in host else host
     origin = f'{scheme}://{host}' + (f':{port}' if port is not None else '')
@@ -266,17 +267,17 @@ def local_playback(request: Request, id: int, player: str = 'default', args=Depe
     import subprocess
     same_origin(request)
     if not launcher.available() or not _local_playback_client(request):
-        raise HTTPException(403, '请使用网络播放地址或 M3U 播放列表在此设备打开')
+        raise HTTPException(403, message_fields('api.media.localPlaybackUnavailable'))
     asset = request.app.state.media_engine.asset(id)
     path = request.app.state.media_engine.filesystem.file_for(asset, thumbnail=False)
     try:
         launcher.open_media(path, player, track=_playback_tracker(request.app.state, id))
     except ValueError as exc:
-        raise HTTPException(400, str(exc)) from None
+        raise HTTPException(400, error_detail(exc)) from None
     except (OSError, subprocess.SubprocessError) as exc:
         LOGGER.warning('Local player failed to start: player=%s type=%s errno=%s winerror=%s',
                        player, type(exc).__name__, getattr(exc, 'errno', None), getattr(exc, 'winerror', None))
-        raise HTTPException(503, '无法打开播放器，请检查系统文件关联或选择其他播放器') from None
+        raise HTTPException(503, message_fields('api.media.playerLaunchFailed')) from None
     return {'opened': True}
 
 
@@ -301,7 +302,7 @@ def _external_asset(request: Request, asset_id: int, ticket: str, origin: str):
     from fastapi import HTTPException
     state = request.app.state
     if not origin or not valid(state.external_playback_key, asset_id, ticket, origin=origin):
-        raise HTTPException(401, "播放链接已失效，请在作品详情重新打开")
+        raise HTTPException(401, message_fields("api.media.playbackLinkExpired"))
     asset = state.media_engine.asset(asset_id)
     return state.media_engine.filesystem.file_for(asset, thumbnail=False)
 
@@ -342,7 +343,7 @@ def stream(request: Request, id: int, session: str = "", args: dict[str, str] = 
     if strm.is_pointer(path):
         return strm_stream.proxy(request, id, path, session)
     if path.suffix.lower() in strm.DISC_SUFFIXES:
-        return JSONResponse({'error': 'ISO 原盘请使用作品详情中的外部播放器打开'}, status_code=415)
+        return JSONResponse(message_fields('api.media.discNeedsExternalPlayer', key='error'), status_code=415)
     header = _repaired_header(state, id, path, source_stat)
     if header is not None:
         return SplicedMp4Response(
@@ -399,13 +400,13 @@ def stream_plan(request: Request, id: int, session: str = "", mode: str = "", ar
         try:
             target = strm.read_target(source_path)
         except ValueError as error:
-            return JSONResponse({'error': str(error)}, status_code=400)
+            return JSONResponse(error_fields(error), status_code=400)
         mime = strm_stream.mime_type(target)
         return _record_stream_plan(state, id, source_path, {'id': id, 'protocol': 'hls' if mime in strm_stream.PLAYLIST_TYPES else 'range',
                 'mime_type': mime, 'duration': asset.duration,
                 'src': f'/stream?id={id}&session={quote(session, safe="")}', 'reason': 'strm-pointer'})
     if source_path.suffix.lower() in strm.DISC_SUFFIXES:
-        return JSONResponse({'error': 'ISO 原盘请使用作品详情中的外部播放器打开'}, status_code=415)
+        return JSONResponse(message_fields('api.media.discNeedsExternalPlayer', key='error'), status_code=415)
     conversion = _needs_conversion(state, id, source_path, session)
     resolved = (_hls_plan(state, id, session, conversion)
                 if conversion or plan.protocol == "hls" else None)
@@ -671,7 +672,7 @@ def asset_subtitle_track(request: Request, id: int, index: int,
     try:
         text = subtitles.to_webvtt(data, row["format"])
     except subtitles.SubtitleUndecodable as error:
-        return JSONResponse({"error": str(error)}, status_code=415)
+        return JSONResponse(error_fields(error), status_code=415)
     response = PlainTextResponse(text, media_type="text/vtt; charset=utf-8")
     response.headers["Cache-Control"] = "private, no-cache"
     return response
@@ -829,10 +830,10 @@ def _apply_cover_crop(state, payload: dict):
     code = str(payload.get("code") or "")
     path = state.cover_path(code)
     if path is None:
-        return JSONResponse({"error": "这个番号没有封面"}, status_code=404)
+        return JSONResponse(message_fields("api.media.coverMissing", key="error"), status_code=404)
     size = images.measure_image_size(path.read_bytes())
     if size is None:
-        return JSONResponse({"error": "这张封面读不出来"}, status_code=422)
+        return JSONResponse(message_fields("api.media.coverUnreadable", key="error"), status_code=422)
     if payload.get("box") is None:
         # 恢复默认是当场按折痕判据重算一遍，不是删掉 sidecar：删掉之后没有人会
         # 再来算，页面拿到的是「这张图不该裁」，正封从此再也回不来。
@@ -853,7 +854,7 @@ def _apply_cover_crop(state, payload: dict):
     else:
         record = jav_poster_crop.manual_record(size[0], size[1], payload.get("box"))
     if record is None:
-        return JSONResponse({"error": "框选的区域不成立"}, status_code=400)
+        return JSONResponse(message_fields("api.media.invalidCropBox", key="error"), status_code=400)
     jav_poster_crop.write_sidecar(path, record)
     state.cache_bust()
     return JSONResponse({"ok": True, "code": code,
@@ -945,8 +946,9 @@ def follow_avatar(request: Request, service: str = "", id: str = "",
     path = follow_assets.cached_image(_asset_root(state), "avatars", key,
                                       AVATAR_REFRESH_SECONDS, fetch)
     if path is None and service == "profile":
-        reason = "；".join(failures) or "社媒头像未取得，来源暂不可用或仍在重试等待中"
-        return JSONResponse({"error": reason}, status_code=404,
+        body = ({"error": "；".join(failures)} if failures
+                else message_fields("api.media.socialAvatarUnavailable", key="error"))
+        return JSONResponse(body, status_code=404,
                             headers={"cache-control": "no-store"})
     return _asset_response(request, path, placeholder=False)
 
@@ -1222,7 +1224,7 @@ def follow_stream(request: Request, id: int, media: int | None = None,
             headers=extra)
     except FollowMediaUnavailable as error:
         _report_follow_media_failure(item, error, operation="stream", phase=phase, media_index=media)
-        return JSONResponse({"error": str(error)}, status_code=404)
+        return JSONResponse(error_fields(error), status_code=404)
     except FollowProxyError as error:
         # 上游的状态码与正文不转发：403 页面、限流提示、错误 JSON 交给播放器
         # 没有用处，还会把上游主机和提示语抄给浏览器。对外统一是 502。
@@ -1249,11 +1251,11 @@ def follow_image(request: Request, id: int, media: int | None = None,
         else:
             rows = web_follow._raw_media_items(item)
             if media < 0 or media >= len(rows):
-                raise ValueError("媒体序号不存在")
+                raise UserValueError("api.media.mediaIndexMissing")
             url = rows[media].get("thumb_url") or rows[media].get("url")
         from .http import public_https_url
         if not public_https_url(url or ""):
-            raise ValueError("图片来源不可用")
+            raise UserValueError("api.media.imageSourceUnavailable")
         key = f"image:{url}"
         hit = cache.response(key, request)
         if hit is not None:
@@ -1285,7 +1287,7 @@ def cover_image(request: Request, code: str, args: dict[str, str] = Depends(requ
     try:
         url = stored_cover_url(state.web_contract, detail_code({"code": code}))
         if not url:
-            raise ValueError("封面未取得")
+            raise UserValueError("api.media.coverNotFound")
         cache = cache_for(state.web_contract)
         key = f"cover:{url}"
         hit = cache.response(key, request)
@@ -1361,7 +1363,7 @@ def jav_preview(request: Request, code: str, ref: str, args: dict[str, str] = De
                     for chunk in response.iter_bytes():
                         size += len(chunk)
                         if size > 1024 * 1024:
-                            raise ValueError("预览清单过大")
+                            raise UserValueError("api.media.previewPlaylistTooLarge")
                         chunks.append(chunk)
                     return b"".join(chunks)
                 finally:
@@ -1743,10 +1745,10 @@ def avatar_choice(request: Request, kind: str = "performer", id: int = 0,
                 online=_picker_online(request, connection, id))
             body = avatar_picker.prepare_image(body)
         except avatar_picker.PickerError as error:
-            return JSONResponse({"error": str(error)}, status_code=404)
+            return JSONResponse(error_fields(error), status_code=404)
     inspected = avatar_provider.inspect_avatar(body)
     if inspected is None:
-        return JSONResponse({"error": "这不是一张能识别的图片"}, status_code=415)
+        return JSONResponse(message_fields("api.media.unrecognizedImage", key="error"), status_code=415)
     _remember_library(providers_root, body, origin, inspected)
     result = Response(b"" if request.method == "HEAD" else body,
                       media_type=inspected.mime_type)
@@ -1820,7 +1822,7 @@ async def avatar_frame(request: Request, args: dict[str, str] = Depends(require_
         elif url:
             if not avatar_picker.allowed_source(url):
                 return JSONResponse(
-                    {"error": "只接受指向公网的 https 地址"}, status_code=400)
+                    message_fields("api.media.publicHttpsRequired", key="error"), status_code=400)
             choice = await asyncio.to_thread(
                 avatar_picker.typed_address, url, providers_root,
                 partial(avatar_picker.fetch_image, transport), probe)
@@ -1829,9 +1831,9 @@ async def avatar_frame(request: Request, args: dict[str, str] = Depends(require_
                 avatar_picker.uploaded, body, providers_root, probe,
                 label=str(payload.get("name") or ""))
         else:
-            return JSONResponse({"error": "没有可用的图片"}, status_code=400)
+            return JSONResponse(message_fields("api.media.noImage", key="error"), status_code=400)
     except avatar_picker.PickerError as error:
-        return JSONResponse({"error": str(error)}, status_code=400)
+        return JSONResponse(error_fields(error), status_code=400)
     return JSONResponse(choice.as_dict())
 
 
@@ -1887,7 +1889,7 @@ async def avatar_pick(request: Request, args: dict[str, str] = Depends(require_a
     try:
         entity_id, result = await asyncio.to_thread(confirm)
     except avatar_picker.PickerError as error:
-        return JSONResponse({"error": str(error)}, status_code=400)
+        return JSONResponse(error_fields(error), status_code=400)
     # 页面按这份索引决定「出 `<img>` 还是首字母垫底」，换完不失效就看不到新图。
     state.cache_bust()
     return JSONResponse({"ok": True, "kind": kind, "id": entity_id, **result})
@@ -1947,11 +1949,11 @@ async def avatar_code_cover(request: Request, args: dict[str, str] = Depends(req
     try:
         code = validate_provider_code(str(payload.get("code") or ""))
     except ValueError:
-        return JSONResponse({"error": "认不出这个番号"}, status_code=400)
+        return JSONResponse(message_fields("api.media.unrecognizedCode", key="error"), status_code=400)
     try:
         choice = await asyncio.to_thread(
             avatar_picker.code_cover, code, state.cover_root, providers_root,
             partial(_official_cover, state), _WORK_FACE_PROBE.on_bytes)
     except avatar_picker.PickerError as error:
-        return JSONResponse({"error": str(error)}, status_code=400)
+        return JSONResponse(error_fields(error), status_code=400)
     return JSONResponse(choice.as_dict())

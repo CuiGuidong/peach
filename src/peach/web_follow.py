@@ -52,6 +52,7 @@ from .entities import canonicalize_entity_name, normalize_entity_name, prefer_en
 from .taste_history import read_creator_candidates
 from .web_state import path_version
 from .online_tag_management import OnlineTagPolicy, TYPE_RANK, tag_key
+from .user_messages import UserValueError, message_fields
 
 
 #: 界面上给每个来源的中文短名。没登记的 provider 直接显示原名。
@@ -2100,7 +2101,7 @@ def w_follow_tag(contract, body) -> dict:
         item = _store(contract, connection).item(int(body['id']))
         enabled = {row['id'] for row in _store(contract, connection).sources() if row['enabled']}
         if item is None or item.source_id not in enabled or _excluded_item(item):
-            raise ValueError('关注内容不存在')
+            raise UserValueError('api.follow.itemMissing')
         write_item_tag(connection, item, body)
     contract.cache_bust()
     page = q_follow(contract, {'item': item.id})
@@ -2108,7 +2109,7 @@ def w_follow_tag(contract, body) -> dict:
         for projected in (group['primary'], *group['variants'], *group['duplicates']):
             if projected['id'] == item.id:
                 return {'ok': True, 'item': projected, 'group': group}
-    raise ValueError('关注内容已不可用')
+    raise UserValueError('api.follow.itemUnavailable')
 
 
 def w_follow_status(contract, body) -> dict:
@@ -2167,18 +2168,18 @@ def w_follow_image_dims(contract, body) -> dict:
     """
     entries = body.get("entries")
     if not isinstance(entries, list):
-        raise ValueError("entries 必须是列表")
+        raise UserValueError("api.follow.entriesNotList")
     if len(entries) > IMAGE_DIMS_BATCH_LIMIT:
-        raise ValueError(f"一次最多回写 {IMAGE_DIMS_BATCH_LIMIT} 张")
+        raise UserValueError("api.follow.imageDimsBatchLimit", {"limit": IMAGE_DIMS_BATCH_LIMIT})
     learned = 0
     with contract.database.write_transaction() as connection:
         store = _store(contract, connection)
         for entry in entries:
             if not isinstance(entry, dict):
-                raise ValueError("每一项必须是对象")
+                raise UserValueError("api.follow.entryNotObject")
             dims = positive_dims(entry.get("width"), entry.get("height"))
             if dims is None:
-                raise ValueError("width/height 必须是正整数")
+                raise UserValueError("api.follow.invalidImageDims")
             media = entry.get("media")
             index = int(media) if media is not None else None
             if store.set_image_dims(int(entry["item"]), *dims, media_index=index):
@@ -2593,7 +2594,7 @@ def w_follow_source(contract, body) -> dict:
             store = _store(contract, connection)
             exists = any(row["id"] == source_id for row in store.sources())
             if not exists:
-                raise ValueError("这个关注来源不存在")
+                raise UserValueError("api.follow.sourceMissing")
             store.set_enabled(source_id, enabled)
         return {"ok": True, "source": source_id, "enabled": enabled}
     if action != "add":
@@ -2630,8 +2631,8 @@ def w_follow_source(contract, body) -> dict:
             "source": source_id, "provider": parsed.provider,
             "provider_label": PROVIDER_LABELS.get(parsed.provider, parsed.provider),
             "ref": parsed.ref, "label": label, "ok": True, "deferred": True,
-            "message": ("已登记，等待检查更新" if body.get("defer_check") else
-                        "已登记，另一次检查正在进行，这条稍后再查"),
+            **message_fields("api.follow.addedPendingCheck" if body.get("defer_check") else
+                             "api.follow.addedCheckBusy"),
         }
     return {"ok": True, "source": source_id, "provider": parsed.provider,
             "ref": parsed.ref, "label": label, "checked": outcome,
@@ -2680,7 +2681,7 @@ def w_follow_creator(contract, body) -> dict:
     """资料页上「是同一个人」：把同名等确认的那组关注作者绑到这位创作者名下。"""
     entity_id, key = body.get("entity_id"), str(body.get("key") or "")
     if type(entity_id) is not int or not key.startswith("name:"):
-        raise ValueError("entity_id 与 key 都要给")
+        raise UserValueError("api.follow.creatorBindingIncomplete")
     with contract.database.write_transaction() as connection:
         written = follow_creators.confirm(connection, entity_id, key)
     contract.cache_bust()
@@ -2700,9 +2701,9 @@ def w_follow_author_alias(contract, body) -> dict:
             linked = {int(row["entity_id"]) for row in store.sources()
                       if row["entity_id"] and name_key(row, mapping) == f"name:{key}"}
             if len(linked) > 1:
-                raise ValueError("这组别名关联了多份创作者档案，请先确认档案归属")
+                raise UserValueError("api.follow.aliasGroupSpansProfiles")
             if not chosen:
-                raise ValueError("请填写有效的创作者名称")
+                raise UserValueError("api.follow.creatorNameRequired")
             result = store.rename_author_group(key, chosen)
             for entity_id in linked:
                 connection.execute(
@@ -2800,9 +2801,9 @@ def w_follow_resolve(contract, body, *, progress=None, checkpoint=None, resume_s
         raise ValueError("lines must be a list of strings")
     lines = [str(line).strip() for line in raw if str(line).strip()]
     if not lines:
-        raise ValueError("没有可解析的内容")
+        raise UserValueError("api.follow.nothingToResolve")
     if len(lines) > MAX_RESOLVE_LINES:
-        raise ValueError(f"一次最多解析 {MAX_RESOLVE_LINES} 行，收到 {len(lines)} 行")
+        raise UserValueError("api.follow.resolveLineLimit", {"limit": MAX_RESOLVE_LINES, "count": len(lines)})
 
     known = {(row["provider"], canonical_source_ref(row["provider"], row["ref"])) for row in
              (_source_payload(r) for r in _existing_sources(contract))}
@@ -2873,14 +2874,15 @@ def w_follow_credential(contract, body) -> dict:
     provider = str(body.get("provider") or "")
     guide = CREDENTIAL_GUIDE.get(provider)
     if guide is None or not guide.get("fields"):
-        raise ValueError(f"{provider or '(空)'} 不接受凭据")
+        raise (UserValueError("api.follow.credentialsNotAccepted", {"provider": provider}) if provider
+               else UserValueError("api.follow.credentialsProviderMissing"))
     values = body.get("values")
     if not isinstance(values, dict):
         raise ValueError("values must be an object")
     allowed = set(guide["fields"])
     unknown = sorted(set(values) - allowed)
     if unknown:
-        raise ValueError(f"{provider} 不认识这些字段：{', '.join(unknown)}")
+        raise UserValueError("api.follow.unknownCredentialFields", {"provider": provider, "fields": ", ".join(unknown)})
     cleaned = {name: str(values[name]).strip() for name in guide["fields"]
                if str(values.get(name) or "").strip()}
     store = _credential_store(contract)

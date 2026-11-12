@@ -23,6 +23,7 @@ from . import link_status, studio_sites
 from .jobs import BackgroundJob
 
 from .user_agent import USER_AGENT
+from .user_messages import UserValueError, error_fields, message_fields
 #: 「这个页面没了」——只有上游明确这么说，才够格作为删除依据。
 GONE_STATUSES = frozenset({404, 410})
 CHECK_TIMEOUT = 12.0
@@ -255,9 +256,9 @@ def w_links_check(contract: LinkContract, body=None):
     if body.get("retry") is not None:
         state = contract.link_check.snapshot()
         if state is None or state["status"] != "complete":
-            return {"ok": False, "error": "没有已完成的检查结果"}
+            return {"ok": False, **message_fields("api.links.noCompletedCheck", key="error")}
         if body.get("check_id") != state["check_id"]:
-            return {"ok": False, "error": "检查结果已过期，请重新检查"}
+            return {"ok": False, **message_fields("api.links.checkExpired", key="error")}
         # 只认这次结果里真有的那些行。前端传来的 id 决定要删哪几条结论，放行库里
         # 别的链接等于让一个请求把没检查过的东西也标成「已通过」。
         known = {int(item["id"]) for item in state["gone"]}
@@ -265,7 +266,7 @@ def w_links_check(contract: LinkContract, body=None):
         link_ids = [int(value) for value in body["retry"]
                     if str(value).lstrip("-").isdigit() and int(value) in known]
         if not link_ids:
-            return {"ok": False, "error": "没有可重试的链接"}
+            return {"ok": False, **message_fields("api.links.nothingToRetry", key="error")}
         return _check_public(contract.link_check.start(
             lambda check_id: _run_link_check(contract, check_id, link_ids),
             initial=_retry_state(state, link_ids), restart=True,
@@ -286,10 +287,10 @@ def _prune_selection(planned: list[dict], body: dict) -> list[dict]:
         return planned
     ids = body["ids"]
     if not isinstance(ids, list) or not ids or any(type(item) is not int for item in ids):
-        raise ValueError("请选择失效链接")
+        raise UserValueError("api.links.selectionRequired")
     requested = set(ids)
     if not requested.issubset({item["id"] for item in planned}):
-        raise ValueError("所选链接不在本次失效清单中")
+        raise UserValueError("api.links.selectionOutsideCheck")
     return [item for item in planned if item["id"] in requested]
 
 
@@ -329,7 +330,7 @@ def w_links_prune(contract: LinkContract, body, *, progress=None, checkpoint=Non
     """
     body = body or {}
     if body.get("confirm") is not True:
-        return {"ok": False, "error": "需要 confirm"}
+        return {"ok": False, **message_fields("api.links.confirmRequired", key="error")}
     if body.get("background"):
         job = contract.link_prune_job
         def work(job_id):
@@ -342,13 +343,13 @@ def w_links_prune(contract: LinkContract, body, *, progress=None, checkpoint=Non
         return resume_state['prune_receipt']
     state = contract.link_check.snapshot()
     if state is None or state["status"] != "complete":
-        return {"ok": False, "error": "没有已完成的检查结果"}
+        return {"ok": False, **message_fields("api.links.noCompletedCheck", key="error")}
     if body.get("check_id") != state["check_id"]:
-        return {"ok": False, "error": "检查结果已过期，请重新检查"}
+        return {"ok": False, **message_fields("api.links.checkExpired", key="error")}
     try:
         planned = _prune_selection([dict(item) for item in state["gone"]], body)
     except ValueError as error:
-        return {"ok": False, "error": str(error)}
+        return {"ok": False, **error_fields(error)}
 
     confirmed, recovered = _recheck_prune_links(planned, progress, checkpoint, resume_state)
 

@@ -22,6 +22,7 @@ from .feeds import DEFAULT_HIDDEN_COMPILATIONS, EXCERPT, GROUP_COMPILATION, SOLO
 from .media_sources import SCANNABLE_LOCATIONS
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, FAVICON_REFRESH_SECONDS
 from .system_language import system_language
+from .user_messages import UserValueError
 
 from .profiles import DEFAULT_PROFILE_ID
 
@@ -107,10 +108,10 @@ def normalise_navigation_orders(raw):
 
 def navigation_orders_patch(raw):
     if not isinstance(raw, dict) or set(raw) - NAVIGATION_ORDERS.keys():
-        raise ValueError('导航排序需要已知分组与顺序数组')
+        raise UserValueError('api.settings.navigationOrdersInvalid')
     if any(not isinstance(entries, list) or any(not isinstance(key, str) or key not in NAVIGATION_ORDERS[group]
                                                for key in entries) for group, entries in raw.items()):
-        raise ValueError('导航顺序包含无效项目')
+        raise UserValueError('api.settings.navigationOrderUnknownEntry')
     return normalise_navigation_orders(raw)
 
 
@@ -277,7 +278,7 @@ def _navigation_patch(body):
         if (not isinstance(order, list) or len(order) > 1000
                 or any(not isinstance(key, str) or not key or len(key) > 120 for key in order)
                 or len(set(order)) != len(order)):
-            raise ValueError("媒体库顺序须使用不重复的媒体库 ID")
+            raise UserValueError("api.settings.libraryOrderInvalid")
         patch["libraryOrder"] = order
     return patch
 
@@ -292,9 +293,9 @@ def w_settings(contract: SettingsContract, body) -> dict:
         raise TypeError("settings body must be an object")
     unknown = set(body) - SYNCED_SETTING_KEYS
     if unknown:
-        raise ValueError(f"这些设置不跟数据库同步：{sorted(unknown)}")
+        raise UserValueError("api.settings.unknownKeys", {"keys": str(sorted(unknown))})
     if not body:
-        raise ValueError("没有要写入的设置")
+        raise UserValueError("api.settings.empty")
 
     merged = _stored(contract)
     merged.update(_navigation_patch(body))
@@ -304,11 +305,12 @@ def w_settings(contract: SettingsContract, body) -> dict:
     if "performerNameLanguage" in body:
         language = body["performerNameLanguage"]
         if language not in ("zh-CN", "ja"):
-            raise ValueError("performerNameLanguage 只收 zh-CN 或 ja")
+            raise UserValueError("api.settings.performerNameLanguageInvalid")
         merged["performerNameLanguage"] = language
     if "interfaceLanguage" in body:
         if body["interfaceLanguage"] not in INTERFACE_LANGUAGE_CHOICES:
-            raise ValueError("interfaceLanguage 只收 " + "、".join(INTERFACE_LANGUAGE_CHOICES))
+            raise UserValueError("api.settings.interfaceLanguageInvalid",
+                                 {"choices": "、".join(INTERFACE_LANGUAGE_CHOICES)})
         merged["interfaceLanguage"] = body["interfaceLanguage"]
     if "manageOrder" in body:
         merged["manageOrder"] = normalise_manage_order(body["manageOrder"])
@@ -325,12 +327,12 @@ def w_settings(contract: SettingsContract, body) -> dict:
     if "searchHistoryLimit" in body:
         limit = normalise_search_history_limit(body["searchHistoryLimit"])
         if limit is None:
-            raise ValueError(f"searchHistoryLimit 只收 0 到 {SEARCH_HISTORY_LIMIT_MAX} 的整数")
+            raise UserValueError("api.settings.searchHistoryLimitInvalid", {"max": SEARCH_HISTORY_LIMIT_MAX})
         merged["searchHistoryLimit"] = limit
     for key, _kind in FEED_COMPILATION_SWITCHES:
         if key in body:
             if not isinstance(body[key], bool):
-                raise ValueError(f"{key} 只收 true 或 false")
+                raise UserValueError("api.settings.switchNotBoolean", {"key": key})
             merged[key] = body[key]
     stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with contract.write_transaction() as connection:
@@ -350,5 +352,5 @@ def w_settings(contract: SettingsContract, body) -> dict:
             (json.dumps(current, ensure_ascii=False), stamp, DEFAULT_PROFILE_ID),
         ).rowcount
         if not updated:
-            raise ValueError(f"profile {DEFAULT_PROFILE_ID} 不存在")
+            raise UserValueError("api.settings.profileMissing", {"profile": DEFAULT_PROFILE_ID})
     return {"ok": True, **q_settings(contract)}

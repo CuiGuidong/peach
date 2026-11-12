@@ -9,6 +9,7 @@ from PIL import Image
 from .scraping_access import SOURCES, SourcePaused, SourceTransport, describe, save
 
 from .source_checks import MOBILE_BROADBAND_HINT, check_source
+from .user_messages import UserValueError, error_fields, message_fields
 
 
 def _kept_cover_size(target, incoming, incoming_size, installed, previous):
@@ -43,7 +44,7 @@ def w_scraping_cover(contract, body):
         raise ValueError(MIB_NOT_JAV)
     with contract.database.read_connection() as connection:
         if not connection.execute("SELECT 1 FROM asset WHERE code=? LIMIT 1", (code,)).fetchone():
-            raise ValueError("馆藏未找到这个番号")
+            raise UserValueError("api.scraping.codeNotInCollection")
     return contract.scraping_cover_job.start_result(lambda: _fetch_cover(contract, code), recovery={'code': code})
 
 
@@ -132,13 +133,16 @@ def _fetch_cover(contract, code):
             message = ("候选封面未通过检查。" if reason == "unusable_candidate" else message) + details + "。"
         return {"ok": False, "code": code, "reason": reason, "error": message + "已有图片保留。"}
     except SourcePaused as exc:
-        return {"ok": False, "code": code, "reason": "paused", "error": str(exc)}
+        return {"ok": False, "code": code, "reason": "paused", **error_fields(exc)}
     except httpx.TransportError:
-        return {"ok": False, "code": code, "reason": "network", "error": "来源连接失败，请检查来源连接设置；已有图片保留。"}
+        return {"ok": False, "code": code, "reason": "network",
+                **message_fields("api.scraping.sourceConnectionFailed", key="error")}
     except OSError:
-        return {"ok": False, "code": code, "reason": "local_file", "error": "本机封面读取或保存失败，请检查封面目录权限与磁盘空间。"}
+        return {"ok": False, "code": code, "reason": "local_file",
+                **message_fields("api.scraping.localCoverFailed", key="error")}
     except Exception as exc:
-        return {"ok": False, "code": code, "reason": "processing_error", "error": f"封面处理失败（{type(exc).__name__}），未能完成比较；请查看服务日志。",
+        return {"ok": False, "code": code, "reason": "processing_error",
+                **message_fields("api.scraping.coverProcessingFailed", {"errorType": type(exc).__name__}, key="error"),
                 "error_type": type(exc).__name__}
     finally:
         transport.close()

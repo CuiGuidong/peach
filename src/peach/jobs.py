@@ -632,12 +632,14 @@ class BackgroundJob:
         self.update(job_id, run_id=run.id)
 
     def _close_run(self, job_id: str, status: str, *, error: str = "",
-                   summary: dict | None = None) -> None:
+                   summary: dict | None = None, error_code: str | None = None,
+                   error_params: dict | None = None) -> None:
         with self._close_lock:
             run_id = self._run_ids.pop(job_id, None)
             if self.runs is None or run_id is None:
                 return
-            self.runs.finish(run_id, status, summary=summary, error=error)
+            self.runs.finish(run_id, status, summary=summary, error=error, error_code=error_code,
+                             error_params=error_params)
         self.runs.prune(self.task_key)
 
     def stop(self, timeout: float | None = 2.0, *, resume: bool = True) -> None:
@@ -747,7 +749,8 @@ class BackgroundJob:
             # 抛出来就是没跑完：途中声明过的后继作废，结算时一条都不派。
             with self.lock:
                 if self.state is not None and self.state.get(self.id_key) == job_id:
-                    self.state.update(status='failed', error=f'{type(error).__name__}: {error}',
+                    from .user_messages import failure_fields
+                    self.state.update(status='failed', **failure_fields(error),
                                       followups=[], completed_at=time.time())
         finally:
             try:
@@ -821,6 +824,7 @@ class BackgroundJob:
             # 声明了后继就是结算到了底，只是留下了要人处理的项（ADR-0053）：后继照派。
             # 中途抛异常的那一轮走不到声明那一步，一条都不派。
             self._close_run(job_id, "failed", error=str(state.get("error") or "任务失败"),
+                            error_code=state.get("error_code"), error_params=state.get("error_params"),
                             summary={**self._summary(state),
                                      **self._dispatch_followups(job_id, state)})
             return

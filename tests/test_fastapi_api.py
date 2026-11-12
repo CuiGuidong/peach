@@ -2285,7 +2285,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertNotIn("set-cookie", refused.headers)
         refused = await self.client.post("/login", content=body, headers=form)
         self.assertEqual(refused.status_code, 400)
-        self.assertEqual(refused.json(), {"error": "请选择有效的保持登录时间"})
+        self.assertEqual(refused.json(), {"error": "请选择有效的保持登录时间", "message_code": "api.auth.invalidRememberDays", "message_params": {}})
         routes_auth._ATTEMPTS.clear()
         for _ in range(10):
             wrong = await self.client.post("/login", content="token=wrong&next=%2Fstats", headers=form)
@@ -2298,7 +2298,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                       limited.text)
         limited = await self.client.post("/login", content="token=secret&next=%2Fstats", headers=form)
         self.assertEqual(limited.status_code, 429)
-        self.assertEqual(limited.json(),{"error": "尝试次数较多，请一分钟后重试"})
+        self.assertEqual(limited.json(),{"error": "尝试次数较多，请一分钟后重试", "message_code": "api.auth.tooManyAttempts", "message_params": {}})
 
     async def test_index_directory_urls_keep_query_and_use_canonical_path(self):
         await self.client.post('/login', content='token=secret&next=%2F',

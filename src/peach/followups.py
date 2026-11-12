@@ -310,7 +310,8 @@ class FollowupRunner:
         except Exception as error:  # 后继失败只是它自己失败，父任务的结论不动。
             LOGGER.warning("followup failed: %s: %s", run.followup_key, error,
                            exc_info=True)
-            handle.finish("failed", error=f"{type(error).__name__}: {error}")
+            from .user_messages import failure_fields
+            handle.finish("failed", **failure_fields(error))
             return
         summary = summary if isinstance(summary, dict) else {}
         handle.finish("succeeded", summary=summary)

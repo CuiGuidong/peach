@@ -1014,8 +1014,9 @@ class TaskRunStore:
                 checkpoint()
         except BaseException as error:
             from .task_control import Cancelled
+            from .user_messages import failure_fields
             handle.finish('cancelled' if isinstance(error, Cancelled) else 'failed',
-                          error='' if isinstance(error, Cancelled) else f"{type(error).__name__}: {error}")
+                          **({} if isinstance(error, Cancelled) else failure_fields(error)))
             raise
         else:
             handle.finish("succeeded")

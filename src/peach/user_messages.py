@@ -31,6 +31,11 @@ class UserFacingError(Exception):
             self.status_code = status_code
 
 
+class UserValueError(UserFacingError, ValueError):
+    """输入或状态不对、要告诉用户的错误。仍是 `ValueError`：按 `except ValueError` 捕获的调用方照旧接得住，
+    再用 `error_fields` 或 `error_detail` 把 code 带进响应。"""
+
+
 def message_fields(code: str, params: Mapping[str, Any] | None = None, *, key: str = "message") -> dict[str, Any]:
     """一句界面文字的响应字段。`key` 是兜底原文所在的键：成功用 `message`，失败用 `error`。"""
     values = dict(params or {})
@@ -42,3 +47,19 @@ def error_fields(error: BaseException) -> dict[str, Any]:
     if isinstance(error, UserFacingError):
         return message_fields(error.code, error.params, key="error")
     return {"error": str(error)}
+
+
+def failure_fields(error: BaseException) -> dict[str, Any]:
+    """任务失败时写进任务行的报错：带 code 的写原句与 `error_code`／`error_params`，
+    别的异常照旧写「类名: 原文」，排查时看得出是哪一类故障。展开给 `finish(...)`。"""
+    if isinstance(error, UserFacingError):
+        return {"error": error.message, "error_code": error.code, "error_params": dict(error.params)}
+    return {"error": f"{type(error).__name__}: {error}"}
+
+
+def error_detail(error: BaseException) -> str | dict[str, Any]:
+    """`HTTPException(status, error_detail(error))`：带 code 的异常写成 `api.py` 认得的字典明细
+    （`message` 是兜底原文，code 与参数原样带给页面），别的异常照旧只给原文。"""
+    if isinstance(error, UserFacingError):
+        return message_fields(error.code, error.params)
+    return str(error)

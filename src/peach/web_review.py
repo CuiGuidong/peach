@@ -65,6 +65,7 @@ from .metadata_policy import (
 )
 from .previews import logo_key
 from .review_csv import CANDIDATE_PREFIX, candidate_root_version, read_candidates
+from .user_messages import UserValueError
 
 
 class ReviewContract(Protocol):
@@ -856,18 +857,18 @@ def _selected_metadata_candidate(contract: ReviewContract, item_key: str, candid
               for row in read_candidates("metadata_fields", contract.candidate_root)[0]}
     group = groups.get(item_key)
     if group is None:
-        raise ValueError("所选字段资料不在当前批次，无法批准")
+        raise UserValueError("api.review.fieldNotInBatch")
     if str(group.get("status") or "").strip() != "candidate":
-        raise ValueError("只有待确认的资料字段可以批准")
+        raise UserValueError("api.review.fieldNotPending")
     try:
         candidates = json.loads(str(group.get("candidates_json") or "[]"))
     except (TypeError, ValueError) as exc:
-        raise ValueError("待确认资料的 JSON 格式无效") from exc
+        raise UserValueError("api.review.candidateJsonInvalid") from exc
     selected = next((candidate for candidate in candidates
                      if isinstance(candidate, dict)
                      and str(candidate.get("candidate_key") or "") == candidate_key), None)
     if selected is None:
-        raise ValueError("所选来源的资料不在当前待确认列表中")
+        raise UserValueError("api.review.sourceNotPending")
     return group, selected
 
 
@@ -919,20 +920,20 @@ def _install_performer_avatar(contract: ReviewContract, entity_id: str) -> int:
             for row in read_candidates("performer_avatars", contract.candidate_root)[0]}
     candidate = rows.get(str(entity_id))
     if candidate is None:
-        raise ValueError("所选资料不在当前批次，无法批准")
+        raise UserValueError("api.review.itemNotInBatch")
     if str(candidate.get("verdict") or "").strip() != "ok":
-        raise ValueError("只有通过图片质量检查的备选图片可以使用")
+        raise UserValueError("api.review.imageNotPassed")
     digest = str(candidate.get("sha256") or "").strip().lower()
     if len(digest) != 64 or any(char not in "0123456789abcdef" for char in digest):
-        raise ValueError("所选图片缺少有效的 SHA-256 校验值")
+        raise UserValueError("api.review.imageChecksumMissing")
     objects_root = contract.candidate_root / "provider-cache" / "performer-avatars"
     source = next((item for item in objects_root.glob(f"*/objects/{digest}.*")
                    if item.is_file()), None)
     if source is None:
-        raise ValueError(f"所选图片不在本机缓存：{digest[:12]}")
+        raise UserValueError("api.review.imageNotCached", {"digest": digest[:12]})
     body = source.read_bytes()
     if hashlib.sha256(body).hexdigest() != digest:
-        raise ValueError("图片内容与待确认记录不一致，无法使用")
+        raise UserValueError("api.review.imageContentMismatch")
     content_type = str(candidate.get("mime_type") or "").strip() or "image/jpeg"
     with contract.read_connection() as connection:
         # 候选出来之后实体并入了别人：图装到现在那一条名下，不写成没人读的孤立文件。
@@ -970,20 +971,20 @@ def _install_studio_logo(contract: ReviewContract, studio: str) -> int:
             for row in read_candidates("studio_logos", contract.candidate_root)[0]}
     candidate = rows.get(studio)
     if candidate is None:
-        raise ValueError("所选资料不在当前批次，无法批准")
+        raise UserValueError("api.review.itemNotInBatch")
     saved = str(candidate.get("saved") or "").strip()
     if not saved:
-        raise ValueError("所选资料中没有可用的本机图片，无法使用")
+        raise UserValueError("api.review.noLocalImage")
     source = contract.candidate_root / "studio-logos" / PurePosixPath(
         saved.replace("\\", "/")).name
     if not source.is_file():
-        raise ValueError(f"所选图片未保存在本机：{source.name}")
+        raise UserValueError("api.review.imageNotSaved", {"name": source.name})
     key = studio_logo_key(studio)
     if not key:
-        raise ValueError("厂牌名无法生成存盘文件名")
+        raise UserValueError("api.review.labelFileNameInvalid")
     content_type = LOGO_CONTENT_TYPES.get(source.suffix.lower())
     if content_type is None:
-        raise ValueError(f"不支持的图片格式：{source.suffix}")
+        raise UserValueError("api.review.imageFormatUnsupported", {"suffix": source.suffix})
     contract.logo_root.mkdir(parents=True, exist_ok=True)
     destination = contract.logo_root / f"{key}.img"
     # 原子替换：中途失败不会留下半张图被 `/logo` 读到。
@@ -1034,10 +1035,10 @@ def _restore_review_decision(contract: ReviewContract, category: str, item_key: 
             'SELECT status,note FROM review_decision WHERE category=? AND item_key=?',
             (category, item_key)).fetchone()
         if prior is None or prior[0] not in {'skipped', 'rejected'} or _is_automatic({'note': prior[1]}):
-            raise ValueError('只有稍后处理或已忽略的资料可以恢复，已批准的资料不会撤回')
+            raise UserValueError('api.review.restoreNotAllowed')
         rows, _source, _dropped = _queue_rows(contract, category, connection)
         if item_key not in {row['item_key'] for row in rows}:
-            raise ValueError('所选资料已不在当前候选中，未恢复')
+            raise UserValueError('api.review.restoreItemGone')
         connection.execute(
             'INSERT INTO review_decision_history'
             '(category,item_key,status,reviewer,note,decided_at,restored_at) '
@@ -1074,7 +1075,7 @@ def w_review_decision(contract: ReviewContract, body):
     try:
         expected_revision = None if raw_revision in (None, "") else int(raw_revision)
     except (TypeError, ValueError) as exc:
-        raise ValueError(f"{EXPECTED_REVISION_FIELD} 必须是整数") from exc
+        raise UserValueError("api.review.revisionNotInteger", {"field": EXPECTED_REVISION_FIELD}) from exc
     asset_revisions = {}
     with contract.write_transaction() as connection:
         connection.execute(
@@ -1087,7 +1088,7 @@ def w_review_decision(contract: ReviewContract, body):
             if category == "metadata_fields":
                 candidate_key = str(body.get("candidate_key") or "").strip()
                 if not candidate_key:
-                    raise ValueError("批准资料字段时，请先选择要采用的来源")
+                    raise UserValueError("api.review.sourceRequired")
                 group, candidate = _selected_metadata_candidate(contract, item_key, candidate_key)
                 applied, asset_revisions = _approve_metadata_with_receipt(
                     connection, group, candidate, now, note, expected_revision)
@@ -1098,15 +1099,15 @@ def w_review_decision(contract: ReviewContract, body):
                               for row in read_candidates(category, contract.candidate_root)[0]}
                 candidate = candidates.get(item_key)
                 if candidate is None:
-                    raise ValueError("所选资料不在当前批次，无法批准")
+                    raise UserValueError("api.review.itemNotInBatch")
                 if str(candidate.get("status") or "").strip() != "candidate":
-                    raise ValueError("只有 candidate 状态的复核项可以批准")
+                    raise UserValueError("api.review.itemNotCandidate")
                 creator = str(candidate.get("creator") or "").strip()
                 tags = [tag.strip() for tag in str(candidate.get("tags") or "").split("|") if tag.strip()]
                 claimed_creator = str(body.get("creator", "")).strip()
                 claimed_tags = [tag.strip() for tag in str(body.get("tags", "")).split("|") if tag.strip()]
                 if (claimed_creator and claimed_creator != creator) or (claimed_tags and claimed_tags != tags):
-                    raise ValueError("提交内容与所选资料不一致，未保存")
+                    raise UserValueError("api.review.submissionMismatch")
                 tags = current_tags(tags)
                 if not creator or not tags:
                     raise ValueError("approved creator review requires creator and tags")
@@ -1129,10 +1130,8 @@ def w_review_decision(contract: ReviewContract, body):
                     # approved 的话，留痕说通过、实际没写是最糟的组合。
                     asset_ids = sorted(available_ids)
                     if len(asset_ids) > REVIEW_APPLY_LIMIT:
-                        raise ValueError(
-                            f"该创作者有 {len(asset_ids)} 条作品，超过单次批准上限 "
-                            f"{REVIEW_APPLY_LIMIT}，请在页面上显式勾选后再通过"
-                        )
+                        raise UserValueError("api.review.creatorOverApproveLimit",
+                                             {"count": len(asset_ids), "limit": REVIEW_APPLY_LIMIT})
                 payload = json.dumps({"review_item": item_key}, ensure_ascii=False)
                 for tag in tags:
                     # 每种标签只解析一次，批量关系沿用同一身份与统一名称。
@@ -1171,11 +1170,11 @@ def w_review_genre(contract: ReviewContract, body):
     genre = str(body.get("genre", "")).strip()
     tag = str(body.get("tag", "")).strip()
     if not genre:
-        raise ValueError("要收录的 genre 是空的")
+        raise UserValueError("api.review.genreEmpty")
     # 标签名进的是和账本同一套词表，判据照 `w_item_tag` 那条：长度上限一致，
     # `演员:` 是出演者标记不是标签。两处各写一套的话，同一个名字这边收得进、那边加不上。
     if tag and (len(tag) > 80 or tag.startswith("演员:")):
-        raise ValueError("标签名须为 1 到 80 个字符，且不能是出演者标记")
+        raise UserValueError("api.review.tagNameInvalid")
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with contract.write_transaction() as connection:
         key = record_genre_decision(connection, genre, tag or None, now)

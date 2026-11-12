@@ -28,6 +28,7 @@ from . import media_libraries, media_probe, mp4recover, mp4repair, settings_file
 from .mp4repair import RepairUnavailable
 from .platform import translate_ledger_path
 from .task_stages import stage as stage_fields
+from .user_messages import UserValueError
 
 #: 判定结论的落盘位置，放在边车自己的目录里：它们同生同灭，清缓存时一起走。
 SCAN_CACHE_NAME = "mp4-repair-scan.json"
@@ -82,7 +83,7 @@ def _key(asset_id: int, source: Path) -> str:
 def _library_filter(library: str) -> tuple[str, list]:
     condition, parameters = media_libraries.predicate(settings_file.active(), library)
     if condition == "0":
-        raise ValueError("没有这个媒体库")
+        raise UserValueError("api.mediaRepair.libraryNotFound")
     return condition, parameters
 
 
@@ -325,10 +326,10 @@ def w_media_repair(contract, body=None):
     if body.get("status_only") is True:
         return _public(job.snapshot())
     if contract.header_repairs is None or contract.transcode_service is None:
-        raise ValueError("这个服务实例没有接上转码与修复组件")
+        raise UserValueError("api.mediaRepair.repairUnavailable")
     library = str(body.get("library") or "")
     if not library:
-        raise ValueError("先选一个媒体库")
+        raise UserValueError("api.mediaRepair.libraryRequired")
     scope = _library_filter(library)
     return _public(job.start(
         lambda job_id: run_media_repair(contract, job_id, scope),

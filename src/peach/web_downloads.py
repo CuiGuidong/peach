@@ -14,6 +14,7 @@ from .downloads import (
 )
 from .follow_secrets import CredentialError, CredentialStore
 from .repository import LedgerDatabase
+from .user_messages import UserValueError
 
 
 def _values(credentials: CredentialStore, provider: str) -> dict:
@@ -64,7 +65,7 @@ def build_download_service(*, database: LedgerDatabase, state_root: Path,
 def _service(contract) -> DownloadService:
     service = getattr(contract, "downloads", None)
     if service is None:
-        raise ValueError("云下载没有启用")
+        raise UserValueError("api.downloads.disabled")
     return service
 
 
@@ -80,12 +81,12 @@ def q_downloads(contract, args) -> dict:
     try:
         before_id = int(before) if before is not None else None
     except (TypeError, ValueError):
-        raise ValueError("下载任务分页位置无效") from None
+        raise UserValueError("api.downloads.invalidCursor") from None
     if before_id is not None and before_id < 1:
-        raise ValueError("下载任务分页位置无效")
+        raise UserValueError("api.downloads.invalidCursor")
     page = int(args.get('page') or 1)
     if page < 1 or (before_id is not None and page != 1):
-        raise ValueError('下载任务页码无效')
+        raise UserValueError("api.downloads.invalidPage")
     snapshot = _service(contract).snapshot(limit, before_id=before_id, page=page)
     _attach_library_artwork(contract, snapshot["tasks"])
     return snapshot
@@ -115,7 +116,7 @@ def _attach_library_artwork(contract, tasks: list[dict]) -> None:
 
 def w_download_submit(contract, body) -> dict:
     if not isinstance(body, dict):
-        raise ValueError("请求体必须是一个对象")
+        raise UserValueError("api.downloads.bodyNotObject")
     return submit_offline_download(
         _service(contract), magnet=str(body.get("magnet") or ""),
         provider=str(body.get("provider") or ""), target=body.get("target") or None,
@@ -124,14 +125,14 @@ def w_download_submit(contract, body) -> dict:
 
 def w_download_cancel(contract, body) -> dict:
     if not isinstance(body, dict) or not str(body.get("id") or "").isdigit():
-        raise ValueError("缺少任务编号")
+        raise UserValueError("api.downloads.missingTaskId")
     task = _service(contract).cancel(int(body["id"]))
     return {"ok": True, "task": task.payload()}
 
 
 def w_download_postprocess(contract, body) -> dict:
     if not isinstance(body, dict) or not str(body.get("id") or "").isdigit():
-        raise ValueError("缺少任务编号")
+        raise UserValueError("api.downloads.missingTaskId")
     task = _service(contract).retry_postprocess(int(body["id"]))
     return {"ok": True, "task": task.payload()}
 
@@ -179,7 +180,7 @@ def save_settings(service: DownloadService, body: dict, declared_roots) -> dict:
     在报告里给出建议值，其他字段照常保存。没有令牌时 `report` 为 None。
     """
     if not isinstance(body, dict):
-        raise ValueError("设置必须是一个对象")
+        raise UserValueError("api.downloads.settingsNotObject")
     token = str(body.get("token") or "").strip()
     config = service.save_settings(body, declared_roots)
     if token:
@@ -294,10 +295,10 @@ def _browser_login(service: DownloadService):
 def pikpak_browser_start(service: DownloadService, declared_roots) -> dict:
     """拉起登录窗口，立刻回设置块；页面看 `pikpak_browser.state` 轮询，不在这里等。"""
     if not service.available:
-        raise ValueError("云下载只在允许修改数据库的设备上可用")
+        raise UserValueError("api.downloads.writableDeviceOnly")
     login = _browser_login(service)
     if login is None:
-        raise ValueError("浏览器登录没有启用")
+        raise UserValueError("api.downloads.browserLoginDisabled")
     login.start()
     return settings_payload(service, declared_roots)
 

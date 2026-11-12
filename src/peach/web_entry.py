@@ -11,6 +11,8 @@ import re
 from collections.abc import Mapping
 from html import escape
 
+from .user_messages import UserValueError
+
 #: 三页共用的文档头。`robots` 那一行管只读 HTML 的爬虫，响应头 `X-Robots-Tag` 管所有响应：
 #: 公网入口在跑的时候登录页就在互联网上，不希望它进任何搜索结果。图标声明和主站同一份，
 #: 没有会话时登录页就是书签实际停在的地方。
@@ -41,7 +43,7 @@ def page_shell(title: str, page: str, data: Mapping[str, str] | None = None, *, 
     attributes = ""
     for key, value in (data or {}).items():
         if not _DATA_KEY.fullmatch(key):
-            raise ValueError(f"data-* 键名不合法：{key!r}")
+            raise UserValueError("api.entry.invalidDataKey", {"key": repr(key)})
         attributes += f' data-{key}="{escape(value, quote=True)}"'
     sprite = f'<svg width="0" height="0" aria-hidden="true" style="position:absolute">{symbols}</svg>' if symbols else ""
     return (f'{_PAGE_HEAD}<title>{escape(title)}</title>{_THEME_SCRIPT}'

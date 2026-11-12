@@ -24,6 +24,7 @@ from .followups import Attempts, attempts_root
 from .jobs import TaskRunConflict
 from .http import HttpRequest, public_https_url
 from .task_runs import MAX_FOLLOWUPS
+from .user_messages import UserValueError
 
 #: 一次拉取的超时与体积上限。JavDB 演员页 78 KB；2 MiB 之外的东西不是演员页，
 #: 是被替换成了别的页面。
@@ -67,10 +68,10 @@ def _paused_by_source(error: Exception) -> bool:
 def _parse_source(kind: str, body: bytes, url: str):
     """演员页受登录限制时返回可操作的原因。"""
     if kind == feeds.KIND_JAVDB_ACTOR and javdb.LOGIN.search(body.decode("utf-8", "replace")):
-        raise ValueError("JavDB 返回登入页，请在「来源和凭证」为 JavDB 配置有效 Cookie 后重试")
+        raise UserValueError("api.feeds.javdbLoginRequired")
     parsed = feeds.parse(kind, body, url)
     if parsed is None:
-        raise ValueError("这一页解不出任何条目")
+        raise UserValueError("api.feeds.pageUnparsable")
     return parsed
 
 
@@ -87,7 +88,7 @@ def fetch(transport, url: str, *, etag: str | None = None,
           last_modified: str | None = None):
     """取一次订阅地址。304 不是失败，原样交给调用方判。"""
     if not public_https_url(url):
-        raise ValueError("订阅地址必须是解析到公网的 HTTPS 地址")
+        raise UserValueError("api.feeds.publicHttpsRequired")
     headers = {"Accept": "text/html"}
     if etag:
         headers["If-None-Match"] = etag
@@ -228,7 +229,7 @@ def _backfill_solo_works(contract, transport, source, report: dict) -> None:
     try:
         response = fetch(transport, url)
         if response.status != 200:
-            raise ValueError(f"来源回了 HTTP {response.status}")
+            raise UserValueError("api.feeds.sourceHttpStatus", {"status": response.status})
         parsed = _parse_source(source["kind"], response.body, url)
     except Exception as error:  # noqa: BLE001 - 主页已经落库，补拉只记原因
         report["backfill_error"] = str(error)
@@ -428,7 +429,7 @@ def w_feed_schedule_run(contract, _body) -> dict:
     """让订阅源定时拉取立刻跑一轮，结果照常记进调度状态。"""
     scheduler = contract.feed_scheduler
     if scheduler is None:
-        raise ValueError("订阅源拉取没有启用")
+        raise UserValueError("api.feeds.scheduleDisabled")
     return scheduler.run_now()
 
 
@@ -485,7 +486,7 @@ def subscribe_performer(connection, entity_id: int, canonical_name: str) -> list
     pages = [*entry_links.javdb_actor_pages(canonical_name, refs),
              *feeds.dmm_actress_pages(connection, entity_id)]
     if not pages:
-        raise ValueError("这位在 JavDB 与 DMM 上都没有编号")
+        raise UserValueError("api.feeds.noSourceIds")
     return feeds.follow_entity(connection, entity_id, pages)
 
 
@@ -513,7 +514,7 @@ def _follow_entity(contract, body) -> dict:
             "SELECT canonical_name FROM entity WHERE id=? AND kind='performer'",
             (entity_id,)).fetchone()
         if row is None:
-            raise ValueError("找不到这位女优")
+            raise UserValueError("api.feeds.performerMissing")
         if not enabled:
             feeds.unfollow_entity(connection, entity_id)
             ids: list[int] = []
@@ -543,7 +544,7 @@ def q_feed_lookup(contract, args) -> dict:
     """
     name = entities.canonicalize_entity_name("performer", str(args.get("q") or ""))
     if not name:
-        raise ValueError("要先给一个女优名")
+        raise UserValueError("api.feeds.nameRequired")
     url = javdb.SEARCH.format(quote(name))
     with contract.database.read_connection() as connection:
         # 账本里按这个名字认得出谁：登记时没人持有所勾的卡就挂到她名下（`_follow_by_name`），
@@ -575,12 +576,12 @@ def _search_javdb(contract, url: str) -> str:
         response = _transport(contract)(HttpRequest("GET", url, {"Accept": "text/html"}),
                                         LOOKUP_TIMEOUT, FETCH_MAX_BYTES)
     except Exception as error:  # noqa: BLE001 - 冷却、限流还是断网，原因原样交给页面
-        raise ValueError(f"JavDB 没有搜成：{error}") from error
+        raise UserValueError("api.feeds.javdbSearchFailed", {"error": str(error)}) from error
     if response.status != 200:
-        raise ValueError(f"JavDB 回了 HTTP {response.status}")
+        raise UserValueError("api.feeds.javdbHttpStatus", {"status": response.status})
     html = response.body.decode("utf-8", "replace")
     if javdb.LOGIN.search(html):
-        raise ValueError("JavDB 回的是登入页，这一趟搜不了；稍后再试")
+        raise UserValueError("api.feeds.javdbSearchLogin")
     return html
 
 
@@ -645,12 +646,12 @@ def _follow_by_name(contract, body) -> dict:
     """
     name = entities.canonicalize_entity_name("performer", str(body.get("name") or ""))
     if not name:
-        raise ValueError("女优名不能为空")
+        raise UserValueError("api.feeds.nameEmpty")
     raw = body.get("ids")
     ids = [value for value in (raw if isinstance(raw, list) else [])
            if isinstance(value, str) and ACTOR_ID.match(value)]
     if not ids:
-        raise ValueError("要先勾选至少一张演员卡")
+        raise UserValueError("api.feeds.cardRequired")
     with contract.database.write_transaction() as connection:
         holders: dict[int, str] = {}
         for actor_id in ids:
@@ -661,7 +662,7 @@ def _follow_by_name(contract, body) -> dict:
             if held is not None:
                 holders[int(held[0])] = str(held[1])
         if len(holders) > 1:
-            raise ValueError("这几张卡分属数据库里不同的人：" + "、".join(holders.values()))
+            raise UserValueError("api.feeds.cardsSpanPeople", {"names": "、".join(holders.values())})
         created = False
         if holders:
             [(entity_id, canonical)] = holders.items()

@@ -25,6 +25,7 @@ from .catalog_rules import normalise_code_key
 from .library_processing import LABELS
 from .metadata_auto_apply import VERIFIED_REPLACE_RULE, VERIFIED_UNION_RULE
 from .migrations import sqlite_backup
+from .user_messages import UserValueError
 from .web_state import WebContract
 
 #: 网页能撤的规则与它们写给人看的名字。
@@ -160,11 +161,11 @@ def list_writes(contract: WebContract, connection) -> list[dict]:
 def _plans(contract: WebContract, connection, keys: list[str]) -> list[dict]:
     """勾选那几行决定的撤回计划，每条规则一份。"""
     if not keys:
-        raise ValueError("请选择要撤回的资料")
+        raise UserValueError("api.autoLandings.selectionRequired")
     rules = {item_key: rule for rule, item_key, _note in _decisions(connection)}
     unknown = [key for key in keys if key not in rules]
     if unknown:
-        raise ValueError(f"这条自动写入已不在，请刷新后重试：{unknown[0]}")
+        raise UserValueError("api.autoLandings.writeGone", {"item": unknown[0]})
     plans = []
     for rule in RULES:
         chosen = {key for key in keys if rules[key] == rule}
@@ -229,7 +230,7 @@ def w_auto_landing_revert(contract: WebContract, body):
         connection.execute("BEGIN IMMEDIATE")
         plans = _plans(contract, connection, keys)
         if _token(plans) != str((body or {}).get("token") or ""):
-            raise ValueError("这几条自动写入已有变化，请重新预览")
+            raise UserValueError("api.autoLandings.writesChanged")
         summary = _summary(contract, connection, plans)
         # 与标签管理同一个做法：写锁里只复制一份，完整性检查与清退留给账本备份那一轮，
         # 不让任务中心的心跳在这里多等几十秒。

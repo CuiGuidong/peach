@@ -186,7 +186,7 @@ class DesktopSettingsTests(unittest.TestCase):
             app.state.web_contract = SimpleNamespace(follow_job=follow)
             busy = client.post('/api/configuration/uninstall',json={'delete_data':False,'confirmation':'卸载 Peach'})
             self.assertEqual(busy.status_code,409)
-            self.assertEqual(busy.json()['detail'],'追更检查正在运行，请在任务中心等它完成或取消后再卸载')
+            self.assertEqual(busy.json()['detail']['message'],'追更检查正在运行，请在任务中心等它完成或取消后再卸载')
             remove.assert_called_once()
             self.assertEqual(client.post('/api/configuration/startup',json={'enabled':'false','silent':True}).status_code,400)
             self.assertEqual(client.post('/api/configuration/peach-proxy',json={'mode':'proxy','proxy':'invalid'}).status_code,400)

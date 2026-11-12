@@ -862,28 +862,29 @@ class SetupJsonContractTests(_SetupHttpCase):
                 self.assertEqual(response.json(), {"error": message}, "/api/ 下一律回 JSON")
         with self.subTest("独立包的非回环主机名"), mock.patch.object(distribution, "standalone", return_value=True):
             response = self._send("GET", self.QUESTIONS, base_url="http://peach.local:8900")
-            self.assertEqual((response.status_code, response.json()), (403, {"error": "请使用本机地址打开设置"}))
+            self.assertEqual((response.status_code, response.json()), (403, {"error": "请使用本机地址打开设置", "message_code": "api.pages.openSetupLocally", "message_params": {}}))
         with self.subTest("读题不看 Origin"):
             response = self._send("GET", self.QUESTIONS, headers={"Origin": "http://elsewhere.example"})
             self.assertEqual(response.status_code, 200)
 
     def test_the_submission_is_loopback_only_and_same_origin(self):
         cases = (
-            ("已配置", {"configured": True}, 404, "not found"),
-            ("非回环调用方", {"client": ("198.51.100.7", 51000)}, 403, "setup is loopback-only"),
-            ("别的页面发来", {"headers": {"Origin": "http://elsewhere.example"}}, 403, "请从 Peach 设置页提交"),
+            ("已配置", {"configured": True}, 404, {"error": "not found"}),
+            ("非回环调用方", {"client": ("198.51.100.7", 51000)}, 403, {"error": "setup is loopback-only"}),
+            ("别的页面发来", {"headers": {"Origin": "http://elsewhere.example"}}, 403,
+             {"error": "请从 Peach 设置页提交", "message_code": "api.pages.submitFromSetup", "message_params": {}}),
         )
-        for name, kwargs, status, message in cases:
+        for name, kwargs, status, body in cases:
             with self.subTest(name):
                 response = self._send("POST", self.SUBMIT, json=self._body(), **kwargs)
-                self.assertEqual((response.status_code, response.json()), (status, {"error": message}))
+                self.assertEqual((response.status_code, response.json()), (status, body))
         with self.subTest("独立包的非回环主机名"), mock.patch.object(distribution, "standalone", return_value=True):
             response = self._send("POST", self.SUBMIT, json=self._body(), base_url="http://peach.local:8900")
-            self.assertEqual((response.status_code, response.json()), (403, {"error": "请使用本机地址打开设置"}))
+            self.assertEqual((response.status_code, response.json()), (403, {"error": "请使用本机地址打开设置", "message_code": "api.pages.openSetupLocally", "message_params": {}}))
         self.assertFalse(self.data_root.exists(), "被守卫挡下的提交不落任何文件")
         with self.subTest("不是 JSON 对象"):
             response = self._send("POST", self.SUBMIT, json=["not", "an", "object"])
-            self.assertEqual((response.status_code, response.json()), (400, {"error": "请求正文要是 JSON 对象"}))
+            self.assertEqual((response.status_code, response.json()), (400, {"error": "请求正文要是 JSON 对象", "message_code": "api.pages.bodyNotObject", "message_params": {}}))
 
     def test_the_submission_trusts_the_browser_asserted_origin_over_the_origin_header(self):
         """本机代理改写 Host、浏览器发 `Origin: null` 时，以浏览器自己标的 Sec-Fetch-Site 为准。"""
@@ -894,7 +895,7 @@ class SetupJsonContractTests(_SetupHttpCase):
         for name, headers in refused:
             with self.subTest(name):
                 response = self._send("POST", self.SUBMIT, json=self._body(), headers=headers)
-                self.assertEqual((response.status_code, response.json()), (403, {"error": "请从 Peach 设置页提交"}))
+                self.assertEqual((response.status_code, response.json()), (403, {"error": "请从 Peach 设置页提交", "message_code": "api.pages.submitFromSetup", "message_params": {}}))
         self.assertFalse(self.data_root.exists())
         response = self._send("POST", self.SUBMIT, json=self._body(),
                               headers={"Origin": "null", "Sec-Fetch-Site": "same-origin"})
@@ -1078,7 +1079,7 @@ class DockerFirstSetupTests(_SetupHttpCase):
                 self.assertIn('data-page="setup"', page.text)
         foreign = self._send("POST", self.SUBMIT, json=self._body(), client=self.LAN,
                              headers={"Origin": "http://elsewhere.example"})
-        self.assertEqual((foreign.status_code, foreign.json()), (403, {"error": "请从 Peach 设置页提交"}))
+        self.assertEqual((foreign.status_code, foreign.json()), (403, {"error": "请从 Peach 设置页提交", "message_code": "api.pages.submitFromSetup", "message_params": {}}))
         self.assertFalse(self.data_root.exists(), "被拒的提交不落任何文件")
 
     def test_a_lan_submission_initializes_the_fixed_data_root_and_writes_the_access_policy(self):
@@ -1415,7 +1416,7 @@ class StandaloneConfigurationTests(_Case):
             self.assertFalse(client.get("/healthz").json()["configurable"])
             response = client.get("/api/configuration", headers=headers)
             self.assertEqual(response.status_code, 403)
-            self.assertEqual(response.json(), {"error": "请在运行 Peach 的电脑上打开配置"})
+            self.assertEqual(response.json(), {"error": "请在运行 Peach 的电脑上打开配置", "message_code": "api.configuration.openOnHost", "message_params": {}})
             response = client.post("/api/configuration", headers=headers, json=data)
             self.assertEqual(response.status_code, 403)
         self.assertEqual(before, self.config.path.read_bytes())

@@ -46,7 +46,7 @@ from .entities import resolve_entity, resolve_entity_id
 from .media_libraries import LIBRARY_ICONS
 from .routes_auth import (FIRST_ACCESS_DENIED_CODE, origin_allowed, query_auth_redirect, require_asset_auth,
                           require_page_auth, set_auth_cookie)
-from .user_messages import message_fields
+from .user_messages import UserValueError, error_detail, message_fields
 from .web_local_access import local_client
 from .web_entry import page_shell, runtime_fact_entries
 from .web_state import FAVICON
@@ -382,7 +382,7 @@ def copy_editor_candidates(text: str = "", args: dict[str, str] = Depends(requir
     try:
         return JSONResponse(dev_copy.candidates(PROJECT_ROOT, text), headers={"Cache-Control": "no-store"})
     except ValueError as error:
-        raise HTTPException(400, str(error)) from error
+        raise HTTPException(400, error_detail(error)) from error
 
 
 @router.post("/dev/copy-save")
@@ -438,17 +438,17 @@ def _setup_guard(request: Request, *, submit: bool) -> None:
             raise HTTPException(status_code=403, detail={**message_fields(FIRST_ACCESS_DENIED_CODE),
                                                          "docker": True})
         if submit and not origin_allowed(request, guard="setup", tunnels=False):
-            raise HTTPException(status_code=403, detail="请从 Peach 设置页提交")
+            raise HTTPException(status_code=403, detail=message_fields("api.pages.submitFromSetup"))
         return
     host = request.client.host if request.client else ""
     if host not in _LOOPBACK:
         raise HTTPException(status_code=403, detail="setup is loopback-only")
     if distribution.standalone() and request.url.hostname not in _LOOPBACK:
-        raise HTTPException(status_code=403, detail="请使用本机地址打开设置")
+        raise HTTPException(status_code=403, detail=message_fields("api.pages.openSetupLocally"))
     if not submit:
         return
     if not origin_allowed(request, guard="setup", tunnels=False):
-        raise HTTPException(status_code=403, detail="请从 Peach 设置页提交")
+        raise HTTPException(status_code=403, detail=message_fields("api.pages.submitFromSetup"))
 
 
 @router.get("/api/setup/questions")
@@ -554,12 +554,12 @@ async def setup_submit_json(request: Request):
     except ValueError:
         body = None
     if not isinstance(body, dict):
-        raise HTTPException(status_code=400, detail="请求正文要是 JSON 对象")
+        raise HTTPException(status_code=400, detail=message_fields("api.pages.bodyNotObject"))
     from . import remote_reporting
     try:
         reporting = remote_reporting.parse_choices(body.get("remote_reporting", {}), partial=True)
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        raise HTTPException(status_code=400, detail=error_detail(exc)) from exc
     submitted: dict[str, object] = {
         key: _json_text(body[key])
         for key in ("data_root", "host", "port", "mdns_name", "access_password", "access_confirm")
@@ -576,7 +576,7 @@ async def setup_submit_json(request: Request):
     confirmation = submitted.get("access_confirm", "") if password_enabled else ""
     try:
         if password_enabled and not password:
-            raise ValueError("请输入访问密码")
+            raise UserValueError("api.pages.passwordRequired")
         access.validate_password(password, confirmation)
     except ValueError as exc:
         errors["access_password"] = str(exc)
@@ -609,7 +609,7 @@ async def setup_submit_json(request: Request):
         except (OSError, RuntimeError) as exc:
             errors = {"data_root": str(exc)}
     if errors:
-        raise HTTPException(status_code=400, detail={"message": "有几项需要修改", "errors": errors})
+        raise HTTPException(status_code=400, detail={**message_fields("api.pages.needsChanges"), "errors": errors})
     remote_reporting.save(reporting, applied.config)
     if scan_now:
         onboarding.request_first_scan(applied.config, "configured" if answers.media_sources is not None else "local")
@@ -647,19 +647,20 @@ async def setup_restore(request: Request):
         body = await request.json()
         raw = body.get("data_root") if isinstance(body, dict) else None
         if not isinstance(raw, str) or not raw.strip() or not Path(raw).is_absolute():
-            raise ValueError("请选择已有数据目录的绝对路径")
+            raise UserValueError("api.pages.restoreNeedsAbsolutePath")
         config, broken = onboarding.resolve_config(Path(raw))
         if broken:
             raise broken
         if not config.present:
-            raise ValueError("此目录中没有有效的 config.toml")
+            raise UserValueError("api.pages.restoreMissingConfig")
         if not (config.directory("database") / "ledger.db").is_file():
-            raise ValueError("此目录中没有数据库，请选择保存原配置和数据库的数据目录")
+            raise UserValueError("api.pages.restoreMissingDatabase")
         if distribution.standalone():
             onboarding.check_available_port(config.server.port, request.url.port or 80)
         settings_file.remember_data_root(settings_file.active(), config)
     except (ValueError, OSError, RuntimeError) as exc:
-        raise HTTPException(400, {"message": "无法使用此数据目录", "errors": {"data_root": str(exc)}}) from exc
+        raise HTTPException(400, {**message_fields("api.pages.restoreRejected"),
+                                  "errors": {"data_root": str(exc)}}) from exc
     return _setup_done(config, restored=True)
 
 

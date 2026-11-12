@@ -31,7 +31,7 @@ CONTENT_FILES = {
     "catalog_rules.py",   # 番号、标题、转载站与特典版的识别词
 }
 CODE_KEYWORDS = {"code", "message_code"}
-CODED_CALLS = {"message_fields", "UserFacingError"}
+CODED_CALLS = {"message_fields", "UserFacingError", "UserValueError"}
 #: 一个 code 是用点分开的 camelCase 段，末段可以是带连字符的显示表 id。
 CODE_SHAPE = re.compile(r"^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9][A-Za-z0-9-]*)+$")
 

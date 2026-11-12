@@ -10,6 +10,7 @@ from .related import rank_related
 from .taste_preferences import preference_profile, preference_score
 from .genre_decisions import load_genre_decisions
 from .jav_discovery_metadata import discovery_metadata, source_number
+from .user_messages import UserValueError
 from .web_state import path_version
 from .web_jav_detail import _source_fields, discovery_cover_url, visible_actors, source_performer_refs
 
@@ -149,7 +150,7 @@ def w_jav_discovery_metadata(contract, body):
     """
     action = str(body.get("action") or "start")
     if action not in ("start", "refresh", "cancel"):
-        raise ValueError("action 只能是 start、refresh 或 cancel")
+        raise UserValueError("api.javDiscovery.invalidMetadataAction")
     metadata = discovery_metadata(contract)
     if action == "cancel":
         job = metadata.cancel(body.get("job_id") or None)
@@ -388,7 +389,7 @@ def w_jav_release_metadata(contract, body):
     """
     action = str(body.get("action") or "start")
     if action not in ("start", "cancel"):
-        raise ValueError("action 只能是 start 或 cancel")
+        raise UserValueError("api.javDiscovery.invalidReleaseMetadataAction")
     metadata = discovery_metadata(contract)
     if action == "cancel":
         job = metadata.cancel(body.get("job_id") or None)

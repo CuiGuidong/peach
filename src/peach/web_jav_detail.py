@@ -18,12 +18,13 @@ from .jav_discovery_metadata import discovery_metadata
 from .sources.javdb import maker_writing, page_reader
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, cache_for
 from .preview_cache import PreviewCache
+from .user_messages import UserValueError, message_fields
 
 
 def detail_code(args) -> str:
     raw = str(args.get("code") or "").strip()
     if not re.fullmatch(r"[A-Za-z0-9_-]{2,64}", raw):
-        raise ValueError("需要有效的作品番号")
+        raise UserValueError("api.javDetail.invalidCode")
     return normalise_code_key(raw)
 
 
@@ -263,9 +264,11 @@ def w_jav_cover(contract, body) -> dict:
         message = str(record.get('reason') or '') if isinstance(record, dict) else ''
     contract.cache_bust()
     covered = contract.has_cover(code)
+    # 取图记录里的原因没有 code，照原文给；没有原因时才用这句固定的话。
+    missing = {} if covered or message else message_fields("api.javDetail.officialCoverMissing")
     return {"ok": True, "code": code, "has_cover": covered, "cover_version": contract.cover_version(code),
             "cover_frame": contract.cover_frame(code), "poster_box": contract.poster_box(code),
-            "message": '' if covered else message or '没有找到可用的官方封面'}
+            "message": '' if covered else message, **missing}
 
 
 #: 来源图片在浏览器里留多久。样张与来源封面落盘后不再刷新；来源头像在服务端按
@@ -284,7 +287,7 @@ def jav_image(contract, args) -> tuple[bytes, int]:
     index = str(args.get("image") or "cover")
     if (index != "cover" and not re.fullmatch(r"actor:[A-Za-z0-9]{1,64}", index)
             and (not index.isdigit() or not 0 <= int(index) < 30)):
-        raise ValueError("预览图不存在")
+        raise UserValueError("api.javDetail.previewImageMissing")
     actor = index.startswith("actor:")
     with (public_cache_scope(contract.cover_root.parent / 'jav-public'), _jav_pages(contract) as pages,
           PUBLIC_API.page_reader(pages)):

@@ -16,6 +16,7 @@ import threading
 import time
 from urllib.parse import urlsplit
 from . import access, distribution, tunnel
+from .user_messages import message_fields
 from .web_entry import page_shell
 from .web_local_access import local_client
 from starlette.concurrency import run_in_threadpool
@@ -56,7 +57,7 @@ def _login_attempt(request: Request) -> None:
         attempts = [stamp for stamp in _ATTEMPTS.pop(peer, []) if now - stamp < 60]
         _ATTEMPTS[peer] = attempts
         if len(attempts) >= 10:
-            raise HTTPException(429, "尝试次数较多，请一分钟后重试", headers={"Retry-After": "60"})
+            raise HTTPException(429, message_fields("api.auth.tooManyAttempts"), headers={"Retry-After": "60"})
         attempts.append(now)
         while len(_ATTEMPTS) > 1024:
             _ATTEMPTS.popitem(last=False)
@@ -255,7 +256,7 @@ def same_origin(request: Request) -> None:
     声明一个可信地址。
     """
     if not origin_allowed(request, guard="same-origin"):
-        raise HTTPException(403, "请从 Peach 配置页提交")
+        raise HTTPException(403, message_fields("api.auth.submitFromSettings"))
 
 
 def require_auth(request: Request) -> dict[str, str]:
@@ -385,7 +386,9 @@ async def login_submit(request: Request):
     except HTTPException as exc:
         if not _wants_page(request):
             raise
-        return HTMLResponse(login_html(next_path, mode=mode, error=str(exc.detail)), status_code=exc.status_code,
+        detail = exc.detail
+        message = str(detail.get("message", "")) if isinstance(detail, dict) else str(detail)
+        return HTMLResponse(login_html(next_path, mode=mode, error=message), status_code=exc.status_code,
                             headers=exc.headers)
     token = request.app.state.settings.token
     supplied = (form.get("token") or [""])[0]
@@ -397,16 +400,16 @@ async def login_submit(request: Request):
         if not 0 <= days <= 365:
             raise ValueError
     except ValueError:
-        message = "请选择有效的保持登录时间"
+        fields = message_fields("api.auth.invalidRememberDays")
         if _wants_page(request):
-            return HTMLResponse(login_html(next_path, mode=mode, error=message), status_code=400)
-        raise HTTPException(400, message) from None
+            return HTMLResponse(login_html(next_path, mode=mode, error=fields["message"]), status_code=400)
+        raise HTTPException(400, fields) from None
     response = RedirectResponse(next_path, status_code=303)
     try:
         set_auth_cookie(response, request, days=days, login=True)
     except OSError:
-        message = "登录设备未能记下，请检查数据目录能否写入后重试"
+        fields = message_fields("api.auth.sessionNotSaved")
         if _wants_page(request):
-            return HTMLResponse(login_html(next_path, mode=mode, error=message), status_code=503)
-        raise HTTPException(503, message) from None
+            return HTMLResponse(login_html(next_path, mode=mode, error=fields["message"]), status_code=503)
+        raise HTTPException(503, fields) from None
     return response

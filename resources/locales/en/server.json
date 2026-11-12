@@ -586,5 +586,385 @@
     "faceModelFetched": "Face model downloaded",
     "matchModelFetched": "Face matching model downloaded",
     "faceModelsReady": "Face models are ready"
+  },
+  "api": {
+    "auth": {
+      "invalidRememberDays": "Choose a valid stay-signed-in duration.",
+      "sessionNotSaved": "Couldn't remember this device. Check that the data directory is writable, then try again.",
+      "submitFromSettings": "Submit from the Settings page.",
+      "tooManyAttempts": "Too many attempts. Try again in a minute."
+    },
+    "configuration": {
+      "accessAlreadySet": "Access is already set up. Refresh the page.",
+      "accessChanged": "Access settings have changed. Refresh, then save again.",
+      "accessChangedRetry": "Access settings have changed. Refresh, then try again.",
+      "accessSaving": "Access settings are being saved. Try again later.",
+      "accessUnreadable": "Can't read access settings. Check the configuration file on this device.",
+      "cannotRevokeThisDevice": "This device can't be revoked here.",
+      "categoryNotCleanable": "This category can't be cleaned up here.",
+      "chooseDeviceToRevoke": "Choose a device to revoke.",
+      "chooseFirstAccess": "Choose to set an access password or skip sign-in.",
+      "chooseSetOrDisable": "Choose to set or turn off the password.",
+      "clientErrorInvalid": "Invalid error report format.",
+      "clientErrorMissingMessage": "The error report has no reason.",
+      "clientErrorRateLimited": "Too many error reports.",
+      "clientErrorTooLong": "The error report is too long.",
+      "cloudProxiesUnconfirmed": "Couldn't confirm that CloudDrive2 saved it. Reload the settings and check.",
+      "cloudProxiesUnreadable": "Can't read the CloudDrive2 proxy settings. Check the connection and token permissions.",
+      "configurationChanged": "Settings have changed. Refresh, then save again.",
+      "configurationSaveFailed": "Couldn't save settings: {{error}}",
+      "confirmDisablePassword": "Check the confirmation box before turning off the access password.",
+      "confirmUninstall": "Confirm that you want to uninstall Peach.",
+      "currentPasswordWrong": "The current access password is incorrect.",
+      "deviceGone": "This device is no longer in the list.",
+      "dockerUpdateOnly": "One-click updates are only available for the Docker image.",
+      "enabledNotBoolean": "enabled must be true or false.",
+      "errorLogUnwritable": "Can't write the error log.",
+      "fieldNotText": "{{field}} must be text.",
+      "fileManaged": "This deployment manages the service through a configuration file.",
+      "hostRequired": "Choose who can access Peach.",
+      "indexersNotSaved": "Indexer settings weren't saved. Check permissions on the credentials directory on this device.",
+      "indexersUnreadable": "Can't read the indexer settings.",
+      "invalidCode": "Enter a valid code.",
+      "mdnsNameRequired": "Enter a LAN name.",
+      "needsChanges": "Some fields need changes.",
+      "newVersionInstalled": "Peach has been updated. Refresh the page.",
+      "noLocalCertificate": "This device doesn't provide a local HTTPS certificate.",
+      "noUpgradeReview": "No upgrade review record yet.",
+      "openDiagnosticsOnHost": "Open system diagnostics on the device running Peach.",
+      "openOnHost": "Open Settings on the device running Peach.",
+      "passwordNotText": "The password must be text.",
+      "passwordRequired": "Enter an access password.",
+      "portManagedByTray": "The access port is managed by the tray.",
+      "primaryOnly": "Only available when this device is the primary computer.",
+      "qrExpired": "The QR code has expired. Scan it again from Settings.",
+      "relocateBusy": "A migration request is already being processed.",
+      "relocateRejected": "Can't move data to this location.",
+      "restoreConfirmRequired": "Restoring replaces the current database. Confirm first.",
+      "serverManagedByLaunch": "Access scope and name are managed by the service startup configuration.",
+      "sessionsWriting": "Device records are being written. Try again later.",
+      "settingsChanged": "Settings have changed. Refresh, then save again.",
+      "settingsSaving": "Settings are being saved. Try again later.",
+      "settingsWriteFailed": "Couldn't write settings: {{error}}",
+      "setupRequired": "Finish first-time setup first.",
+      "smbAccessDenied": "SMB sign-in failed or read access was denied. Check the account, password, and share permissions.",
+      "smbCredentialsNotText": "The SMB account and password must be text.",
+      "smbUnreadable": "Can't read the SMB share. Check the address, share name, and network connection.",
+      "storagePolicySaveFailed": "Couldn't save storage limits: {{error}}",
+      "submitFromAccessPage": "Submit from the Peach access setup page.",
+      "tokenFromLaunch": "The token is set by the --token launch option or the PEACH_TOKEN environment variable. Change it there.",
+      "tokenNotUsed": "This launch doesn't use an access token.",
+      "uninstallTasksRunning": "{{tasks}} is running. Wait for it to finish or cancel it in Tasks before uninstalling.",
+      "updateInstalling": "An update is being installed. Try again later."
+    },
+    "javBrowser": {
+      "errorReportInvalid": "Invalid error report format.",
+      "errorReportTooLong": "The error report is too long.",
+      "primaryOnly": "Browser adding is only available on devices allowed to change the database.",
+      "tokenRequired": "Turn on browser adding in Peach download channels and set up a dedicated token."
+    },
+    "pages": {
+      "bodyNotObject": "The request body must be a JSON object.",
+      "needsChanges": "Some fields need changes.",
+      "openSetupLocally": "Open setup using this device's local address.",
+      "passwordRequired": "Enter an access password.",
+      "restoreMissingConfig": "This directory has no valid config.toml.",
+      "restoreMissingDatabase": "This directory has no database. Choose the data directory that holds the original settings and database.",
+      "restoreNeedsAbsolutePath": "Choose the absolute path of an existing data directory.",
+      "restoreRejected": "Can't use this data directory.",
+      "submitFromSetup": "Submit from the Peach setup page."
+    },
+    "routes": {
+      "importEmpty": "The export file is empty.",
+      "importTooLarge": "The export file is larger than 1 GB.",
+      "revealFailed": "Couldn't open the file manager. Try again.",
+      "revealMissing": "This location no longer exists.",
+      "revealOutsideDataRoot": "Peach doesn't manage this location. Open it yourself.",
+      "revealUnsupported": "Can't open a file manager on this device.",
+      "taskAlreadyRunning": "{{task}} is already running. Try again after it finishes.",
+      "taskCanceled": "Task canceled. Saved results are kept.",
+      "taskChanged": "The task has changed. Refresh, then try again.",
+      "taskOnOtherHost": "Do this on the primary computer running this task."
+    },
+    "settings": {
+      "empty": "No preferences to save.",
+      "interfaceLanguageInvalid": "interfaceLanguage only accepts {{choices}}",
+      "libraryOrderInvalid": "Library order must use unique library IDs.",
+      "navigationOrderUnknownEntry": "Navigation order contains invalid items.",
+      "navigationOrdersInvalid": "Navigation order needs known groups and order arrays.",
+      "performerNameLanguageInvalid": "performerNameLanguage only accepts zh-CN or ja.",
+      "profileMissing": "profile {{profile}} doesn't exist.",
+      "searchHistoryLimitInvalid": "searchHistoryLimit only accepts integers from 0 to {{max}}.",
+      "switchNotBoolean": "{{key}} only accepts true or false.",
+      "unknownKeys": "These preferences don't sync with the database: {{keys}}"
+    },
+    "subtitles": {
+      "fileTooLarge": "The subtitle file is larger than 4 MiB.",
+      "invalidVideo": "Invalid video ID.",
+      "memoryTooLarge": "The subtitle data is too large.",
+      "trackMissing": "The subtitle doesn't exist.",
+      "videoMissing": "The video doesn't exist."
+    },
+    "tasks": {
+      "cursorIdInvalid": "before_id must be a positive integer.",
+      "cursorIncomplete": "before_finished_at and before_id must be given together.",
+      "cursorWithFilter": "before_finished_at/before_id only apply to the recently finished section and can't be combined with status or task_key.",
+      "invalidPage": "Invalid task page number.",
+      "noTaskTable": "The database is missing the task history table. Check your backups as the operations guide describes, then run peach migrate upgrade --yes."
+    },
+    "tutorial": {
+      "campaignChanged": "The tour has been updated. Refresh to continue.",
+      "invalidIdentifier": "Invalid tour chapter or step ID.",
+      "invalidPosition": "Invalid tour position.",
+      "invalidSkipped": "Invalid tour skip state.",
+      "profileMissing": "The current user preferences don't exist.",
+      "tooManyChapters": "Too many tour chapters.",
+      "tooManySteps": "Too many tour steps.",
+      "unsupportedAction": "Unsupported tour action."
+    },
+    "review": {
+      "fieldNotInBatch": "The selected metadata field isn't in the current batch and can't be approved",
+      "fieldNotPending": "Only metadata fields awaiting review can be approved",
+      "candidateJsonInvalid": "The pending metadata has invalid JSON",
+      "sourceNotPending": "Metadata from the selected source isn't in the current review list",
+      "itemNotInBatch": "The selected metadata isn't in the current batch and can't be approved",
+      "imageNotPassed": "Only candidate images that passed the quality check can be used",
+      "imageChecksumMissing": "The selected image has no valid SHA-256 checksum",
+      "imageNotCached": "The selected image isn't in this device's cache: {{digest}}",
+      "imageContentMismatch": "The image content doesn't match the pending record and can't be used",
+      "noLocalImage": "The selected metadata has no usable image on this device",
+      "imageNotSaved": "The selected image isn't saved on this device: {{name}}",
+      "labelFileNameInvalid": "Can't make a file name from this label name",
+      "imageFormatUnsupported": "Unsupported image format: {{suffix}}",
+      "restoreNotAllowed": "Only metadata marked for later or ignored can be restored; approved metadata isn't reverted",
+      "restoreItemGone": "The selected metadata is no longer among the current candidates and wasn't restored",
+      "revisionNotInteger": "{{field}} must be an integer",
+      "sourceRequired": "Choose the source to use before approving a metadata field",
+      "itemNotCandidate": "Only review items in candidate status can be approved",
+      "submissionMismatch": "The submission doesn't match the selected metadata and wasn't saved",
+      "creatorOverApproveLimit": "This creator has {{count}} videos, over the limit of {{limit}} per approval. Select them on the page, then approve",
+      "genreEmpty": "The genre to add is empty",
+      "tagNameInvalid": "Tag names must be 1 to 80 characters and can't be a performer marker"
+    },
+    "libraryProcessing": {
+      "currentVideoChanged": "The current video changed or isn't fetching external metadata. Refresh and try again",
+      "taskChanged": "The task changed. Refresh the page and try again",
+      "archiveAfterFinish": "Notices can be archived only after the task finishes",
+      "actionInvalid": "Invalid processing action",
+      "taskRequired": "Select the running task",
+      "noActiveTask": "No task to pause or resume",
+      "waitingForStop": "Waiting for the task to stop. Try again shortly",
+      "issuesUnavailable": "The full issue log wasn't found. Export a diagnostics log",
+      "issuesChanged": "The issue log changed. Export it again",
+      "originalTaskChanged": "The original task changed. Refresh the page and try again",
+      "retryItemsInvalid": "Invalid retry items",
+      "retryItemNotFailed": "A retry item isn't among the original task's failures",
+      "incrementalNotBoolean": "The new-files scope must be on or off",
+      "incrementalExclusive": "New-file discovery can't be combined with other processing scopes",
+      "newScopeExclusive": "The newly imported scope can't be combined with other processing scopes",
+      "noNewVideos": "No newly imported videos to process",
+      "addMediaDirectory": "Add a media directory first",
+      "collectionConfigMismatch": "The current collection doesn't match the media settings",
+      "selectionInvalid": "Select valid videos",
+      "selectionRetryExclusive": "Selected items and retrying failures can't be used together",
+      "stageInvalid": "Invalid processing stage",
+      "incrementalStageUnsupported": "New-file discovery supports only scan or sync",
+      "previewsDisabled": "Preview generation is off. Turn it on in library settings first",
+      "meteredGrantNotBoolean": "The data usage protection override must be on or off",
+      "meteredGrantPreviewsOnly": "The data usage protection override applies only to filling in previews for selected videos",
+      "libraryMustMatch": "Retry or resume must use the original task's library",
+      "videoOutsideLibrary": "The selected videos aren't in the current library",
+      "libraryNoPending": "The selected library has no videos to process"
+    },
+    "scraping": {
+      "codeNotInCollection": "This code isn't in your collection",
+      "sourceConnectionFailed": "Couldn't connect to the source. Check the source connection settings; the existing image was kept.",
+      "localCoverFailed": "Couldn't read or save the cover on this device. Check the cover directory permissions and disk space.",
+      "coverProcessingFailed": "Cover processing failed ({{errorType}}) and the comparison didn't finish. Check the server log."
+    },
+    "resourceSync": {
+      "addMediaDirectory": "Add a media directory on the Settings page first"
+    },
+    "organize": {
+      "sourceMissing": "Unknown source: (empty)",
+      "unknownSource": "Unknown source: {{location}}",
+      "confirmRequired": "Organizing needs confirmation",
+      "unverifiedMount": "Renames on the {{location}} mount can't be verified in the cloud, so only a preview is shown and nothing runs",
+      "rollbackConfirmRequired": "Rolling back needs confirmation",
+      "noBatchToRollBack": "No batch to roll back"
+    },
+    "autoLandings": {
+      "selectionRequired": "Select the metadata to revert",
+      "writeGone": "This automatic write no longer exists. Refresh and try again: {{item}}",
+      "writesChanged": "These automatic writes have changed. Preview again"
+    },
+    "batch": {
+      "quarantinePathMismatch": "The quarantine restore path doesn't match",
+      "quarantineContentMismatch": "The quarantine restore content doesn't match"
+    },
+    "mediaRepair": {
+      "libraryNotFound": "No such library",
+      "repairUnavailable": "This server instance has no transcoding and repair components",
+      "libraryRequired": "Select a library first"
+    },
+    "performerDelete": {
+      "selectionRequired": "Select an actress first",
+      "selectionInvalid": "Select a valid actress",
+      "performerGone": "The selected actress no longer exists. Refresh the list",
+      "planRequired": "Review the video deletion list first",
+      "planChanged": "The video list changed. Close the confirmation and review it again",
+      "nothingToDelete": "No videos to delete"
+    },
+    "media": {
+      "invalidPlaybackOrigin": "Invalid playback address.",
+      "localPlaybackUnavailable": "Open it on this device with the network playback address or the M3U playlist.",
+      "playerLaunchFailed": "Couldn't open the player. Check the system file associations or choose another player.",
+      "playbackLinkExpired": "This playback link has expired. Open it again from the video details.",
+      "discNeedsExternalPlayer": "Open ISO disc images with an external player from the video details.",
+      "coverMissing": "This code has no cover.",
+      "coverUnreadable": "This cover can't be read.",
+      "invalidCropBox": "The selected area is invalid.",
+      "socialAvatarUnavailable": "Social media avatar not found. The source is unavailable or still waiting to retry.",
+      "mediaIndexMissing": "This media index doesn't exist.",
+      "imageSourceUnavailable": "The image source is unavailable.",
+      "coverNotFound": "Cover not found.",
+      "previewPlaylistTooLarge": "The preview playlist is too large.",
+      "unrecognizedImage": "This isn't a recognizable image.",
+      "publicHttpsRequired": "Only public https addresses are accepted.",
+      "noImage": "No usable image.",
+      "unrecognizedCode": "This code isn't recognized."
+    },
+    "follow": {
+      "itemMissing": "This followed item doesn't exist.",
+      "itemUnavailable": "This followed item is no longer available.",
+      "entriesNotList": "entries must be a list.",
+      "imageDimsBatchLimit": "Up to {{limit}} images can be written back at once.",
+      "entryNotObject": "Each entry must be an object.",
+      "invalidImageDims": "width/height must be positive integers.",
+      "sourceMissing": "This follow source doesn't exist.",
+      "addedPendingCheck": "Added. Waiting to check for updates.",
+      "addedCheckBusy": "Added. Another check is running, so this one will be checked later.",
+      "creatorBindingIncomplete": "Both entity_id and key are required.",
+      "aliasGroupSpansProfiles": "These aliases are linked to more than one creator profile. Confirm which profile they belong to first.",
+      "creatorNameRequired": "Enter a valid creator name.",
+      "nothingToResolve": "Nothing to look up.",
+      "resolveLineLimit": "Up to {{limit}} lines can be looked up at once; received {{count}}.",
+      "credentialsNotAccepted": "{{provider}} doesn't accept credentials.",
+      "credentialsProviderMissing": "(empty) doesn't accept credentials.",
+      "unknownCredentialFields": "{{provider}} doesn't recognize these fields: {{fields}}"
+    },
+    "feeds": {
+      "javdbLoginRequired": "JavDB returned its sign-in page. Set a valid JavDB cookie in Sources, then try again.",
+      "pageUnparsable": "No entries could be read from this page.",
+      "publicHttpsRequired": "The subscription address must be an HTTPS address that resolves to the public internet.",
+      "sourceHttpStatus": "The source returned HTTP {{status}}.",
+      "scheduleDisabled": "Subscription fetching isn't enabled.",
+      "noSourceIds": "This person has no ID on JavDB or DMM.",
+      "performerMissing": "This actress can't be found.",
+      "nameRequired": "Enter an actress name first.",
+      "javdbSearchFailed": "JavDB search failed: {{error}}",
+      "javdbHttpStatus": "JavDB returned HTTP {{status}}.",
+      "javdbSearchLogin": "JavDB returned its sign-in page, so this search can't run. Try again later.",
+      "nameEmpty": "Actress name can't be empty.",
+      "cardRequired": "Select at least one performer card first.",
+      "cardsSpanPeople": "These cards belong to different people in the database: {{names}}"
+    },
+    "catalog": {
+      "invalidReleaseYear": "Release year must be a four-digit year or unknown.",
+      "tagNotInVocabulary": "This tag isn't in the current vocabulary."
+    },
+    "links": {
+      "noCompletedCheck": "No completed check results.",
+      "checkExpired": "The check results are out of date. Run the check again.",
+      "nothingToRetry": "No links to retry.",
+      "selectionRequired": "Select the broken links.",
+      "selectionOutsideCheck": "The selected links aren't in this check's broken-link list.",
+      "confirmRequired": "confirm is required."
+    },
+    "entry": {
+      "invalidDataKey": "Invalid data-* key name: {{key}}"
+    },
+    "downloads": {
+      "disabled": "Cloud download isn't enabled.",
+      "invalidCursor": "Invalid page position for download tasks.",
+      "invalidPage": "Invalid page number for download tasks.",
+      "bodyNotObject": "The request body must be an object.",
+      "missingTaskId": "Missing task ID.",
+      "settingsNotObject": "Settings must be an object.",
+      "writableDeviceOnly": "Cloud download is only available on a device that can change the database.",
+      "browserLoginDisabled": "Browser sign-in isn't enabled."
+    },
+    "javDiscovery": {
+      "invalidMetadataAction": "action must be start, refresh, or cancel.",
+      "invalidReleaseMetadataAction": "action must be start or cancel."
+    },
+    "libraryShortcuts": {
+      "invalidFilterHref": "The filter URL is too long or malformed.",
+      "collectionFiltersOnly": "Only collection filters can be saved.",
+      "unsupportedFilterCondition": "The filter contains an unsupported condition.",
+      "filtersChanged": "The filter list has changed. Reopen it, then reorder.",
+      "invalidFavorite": "The favorite doesn't exist or its state is invalid.",
+      "onlineTagMissing": "The online tag doesn't exist. Refresh and try again.",
+      "favoritesLimit": "You can have up to 1000 favorites.",
+      "filterNameLength": "Filter names must be 1 to 80 characters.",
+      "filtersLimit": "You can save up to 100 filters.",
+      "unsupportedAction": "Unsupported favorites action.",
+      "profileMissing": "The current user's preferences don't exist."
+    },
+    "javBrowserPerformer": {
+      "invalidName": "Invalid actress name.",
+      "invalidSourceUrl": "Invalid source page URL.",
+      "unsupportedPage": "This page isn't a supported actress page.",
+      "dmmLookupFailed": "DMM didn't return this actress: {{error}}",
+      "nameMissing": "Couldn't read this actress's name.",
+      "javdbUnconfirmed": "Couldn't confirm the same actress on JavDB by \"{{name}}\". Subscribe from her JavDB actor page.",
+      "invalidEnabled": "enabled must be true or false.",
+      "notInLibrary": "This actress isn't in Peach."
+    },
+    "playlists": {
+      "nameRequired": "Playlist name can't be empty.",
+      "nameTooLong": "Playlist names can be up to 80 characters.",
+      "itemsRequired": "A playlist needs at least one video.",
+      "tooManyItems": "A playlist can have up to {{limit}} videos.",
+      "unavailableVideo": "The playlist contains an unavailable video: {{assetId}}",
+      "mixSeedMissing": "The Mix seed must be in the playlist.",
+      "reorderIncomplete": "The new order must include every video in the playlist.",
+      "progressOutsidePlaylist": "The resume position isn't in this playlist."
+    },
+    "javBrowserPeople": {
+      "snapshotTooLarge": "The local people snapshot is too large.",
+      "snapshotInvalid": "The local people snapshot is malformed.",
+      "snapshotUnavailable": "Local people snapshot not found.",
+      "performersLimit": "Up to 10 performers, each up to 60 characters.",
+      "codesLimit": "You can look up at most 50 codes at a time.",
+      "performersNeedSingleCode": "Performers can only be looked up with a single code."
+    },
+    "folders": {
+      "folderMissing": "The directory doesn't exist or was removed from the library.",
+      "unsupportedAction": "Unsupported directory rule action."
+    },
+    "javDetail": {
+      "invalidCode": "A valid video code is required.",
+      "previewImageMissing": "The preview image doesn't exist.",
+      "officialCoverMissing": "No usable official cover found."
+    },
+    "tags": {
+      "unknownScope": "Unknown tag vocabulary.",
+      "unknownState": "Unknown tag state.",
+      "unknownView": "Unknown tag view.",
+      "tagsChanged": "Tags have changed. Preview the scope again."
+    },
+    "wants": {
+      "missingId": "Missing Want item ID."
+    },
+    "resourceSearch": {
+      "downloadsDisabled": "Cloud download service isn't enabled.",
+      "invalidSizeRange": "The size range must be in bytes."
+    },
+    "timelineThumbnails": {
+      "invalidMode": "Invalid capture density.",
+      "previewsDisabled": "Preview generation is off. Turn it on in library preferences first.",
+      "ffmpegMissing": "ffmpeg not found, so thumbnails can't be captured."
+    }
   }
 }
