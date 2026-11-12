@@ -29,6 +29,7 @@ from urllib.parse import urlsplit
 
 from . import studio_icons, studio_sites
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_runs import item_progress
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "studio-mark"
@@ -108,8 +109,7 @@ def plan(connection: sqlite3.Connection, logo_root, *, since_entity_id: int) -> 
     found = [(int(row[2] or 0), int(row[0]), str(row[1] or "")) for row in rows
              if not has_mark(logo_root, str(row[1] or ""))]
     found.sort(key=lambda item: (-item[0], item[1]))
-    return [Followup(key=followup_key(entity_id), task_key=TASK_KEY,
-                     label=f"{TASK_LABEL}：{name}" if name else TASK_LABEL)
+    return [Followup.item(followup_key(entity_id), TASK_KEY, name)
             for _assets, entity_id, name in found]
 
 
@@ -145,8 +145,7 @@ def stock(connection: sqlite3.Connection, logo_root, attempts, *, limit: int,
             continue
         if attempts.settled(key, fingerprint(connection, entity_id)):
             continue
-        found.append(Followup(key=key, task_key=TASK_KEY,
-                              label=f"{TASK_LABEL}：{name}" if name else TASK_LABEL))
+        found.append(Followup.item(key, TASK_KEY, name))
         if len(found) >= limit:
             break
     return found
@@ -190,7 +189,7 @@ def _run(contract, key: str, handle) -> dict:
             (entity_id, *studio_icons.ICON_LINK_KINDS)).fetchone()[0]
         aliases = studio_sites.load_aliases(connection, [entity_id]).get(entity_id, ())
     if handle is not None:
-        handle.progress(label=f"{TASK_LABEL}：{name}", throttle=0)
+        handle.progress(**item_progress(TASK_KEY, name), throttle=0)
     summary: dict[str, object] = {"name": name}
     if not linked:
         site = _land_site(contract, entity_id, name, aliases, batch)

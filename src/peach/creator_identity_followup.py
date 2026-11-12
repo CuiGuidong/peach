@@ -28,6 +28,7 @@ from . import entity_identity_research as research
 from . import performer_alias_followup as alias
 from .entity_classification import write_claim
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_runs import item_progress
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "creator-identity"
@@ -56,8 +57,8 @@ def parse_key(key: str) -> int:
     return int(raw)
 
 
-def _label(name: str) -> str:
-    return f"{TASK_LABEL}：{name}" if name else TASK_LABEL
+def _label(name: str) -> dict:
+    return item_progress(TASK_KEY, name)
 
 
 def _open(connection: sqlite3.Connection, where: str, params: tuple) -> list[tuple[int, str]]:
@@ -72,7 +73,7 @@ def _open(connection: sqlite3.Connection, where: str, params: tuple) -> list[tup
 
 def plan(connection: sqlite3.Connection, *, since_entity_id: int) -> list[Followup]:
     """这一轮新登记的创作者，一个一条后继。「新登记」按实体 id 的水位判，与补头像那条同一个水位。"""
-    return [Followup(key=followup_key(entity_id), task_key=TASK_KEY, label=_label(name))
+    return [Followup.coded(followup_key(entity_id), TASK_KEY, _label(name))
             for entity_id, name in _open(connection, "e.id>?", (int(since_entity_id),))]
 
 
@@ -99,7 +100,7 @@ def stock(connection: sqlite3.Connection, attempts, *, limit: int, skip=()) -> l
         key = followup_key(entity_id)
         if key in skip or attempts.settled(key, fingerprint(connection, entity_id)):
             continue
-        found.append(Followup(key=key, task_key=TASK_KEY, label=_label(name)))
+        found.append(Followup.coded(key, TASK_KEY, _label(name)))
         if len(found) >= limit:
             break
     return found
@@ -149,7 +150,7 @@ def _run(contract, key: str, handle) -> dict:
             return {"name": name, "outcome": "已有身份"}
         keys = research.lookup_keys(name, research.filename_prefixes(connection, [entity_id])[entity_id])
     if handle is not None:
-        handle.progress(label=_label(name), throttle=0)
+        handle.progress(**_label(name), throttle=0)
     sites = open_sites(contract)
     try:
         finding = research.wiki_finding(entity_id, name, keys, sites)

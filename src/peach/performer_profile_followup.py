@@ -57,6 +57,7 @@ from urllib.parse import quote
 from . import avwikidb, entry_links, javdb, minnano_av
 from . import performer_alias_followup as alias
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
+from .task_runs import item_progress
 from .performer_profiles import fetched_at as profile_fetched_at, read_profile, write_profile
 from .scripting import HostLimiter
 from .sources import avbase
@@ -141,8 +142,8 @@ def fingerprint(connection: sqlite3.Connection, entity_id: int) -> str:
     return hashlib.sha1(raw.encode("utf-8")).hexdigest()[:16]
 
 
-def _label(name: str) -> str:
-    return f"{TASK_LABEL}：{name}" if name else TASK_LABEL
+def _label(name: str) -> dict:
+    return item_progress(TASK_KEY, name)
 
 
 def plan(connection: sqlite3.Connection, *, since_entity_id: int) -> list[Followup]:
@@ -154,7 +155,7 @@ def plan(connection: sqlite3.Connection, *, since_entity_id: int) -> list[Follow
         (int(since_entity_id),)).fetchall()
     found = sorted(((int(row[2] or 0), int(row[0]), str(row[1] or "")) for row in rows
                     if has_entry(connection, int(row[0]))), key=lambda item: (-item[0], item[1]))
-    return [Followup(key=followup_key(entity_id), task_key=TASK_KEY, label=_label(name))
+    return [Followup.coded(followup_key(entity_id), TASK_KEY, _label(name))
             for _works, entity_id, name in found]
 
 
@@ -176,7 +177,7 @@ def stock(connection: sqlite3.Connection, attempts, *, limit: int, skip=()) -> l
             continue
         if attempts.settled(key, fingerprint(connection, entity_id)):
             continue
-        found.append(Followup(key=key, task_key=TASK_KEY, label=_label(str(row[1] or ""))))
+        found.append(Followup.coded(key, TASK_KEY, _label(str(row[1] or ""))))
         if len(found) >= limit:
             break
     return found
@@ -353,7 +354,7 @@ def _run(contract, key: str, handle) -> dict:
         return {"outcome": "档案已不存在"}
     canonical = names[0]
     if handle is not None:
-        handle.progress(label=_label(canonical), throttle=0)
+        handle.progress(**_label(canonical), throttle=0)
     base = {"entity_id": entity_id, "canonical_name": canonical, "batch": ""}
     sites = open_sites(contract)
     reports: dict[str, str] = {}

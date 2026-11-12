@@ -675,7 +675,8 @@ class BackgroundJob:
     def _suspend_run(self, job_id, run_id):
         from .processing_control import user_paused
         if self.task_key == 'library-processing' and user_paused(self._database_path(), job_id):
-            self.runs.suspend(run_id, label='已暂停，等待继续')
+            from .task_runs import run_progress
+            self.runs.suspend(run_id, **run_progress('pausedWaiting'))
         else:
             self.runs.suspend(run_id)
 

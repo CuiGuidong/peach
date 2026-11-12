@@ -998,6 +998,7 @@
     "scopePreviews": "Imported videos (data saver directories skipped)"
   },
   "taskCenter": {
+    "batchItems": "{{first}} and others ({{count}} total)",
     "batches_one": "{{count, number}} batch",
     "batches_other": "{{count, number}} batches",
     "emptyText": "Progress and results for scans, update checks, bulk actions, and CLI batch jobs appear here.",

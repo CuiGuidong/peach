@@ -76,7 +76,6 @@
   "src/peach/jobs.py": 6,
   "src/peach/junk.py": 2,
   "src/peach/ledger_backups.py": 16,
-  "src/peach/library_new_assets.py": 1,
   "src/peach/library_nfo.py": 3,
   "src/peach/library_processing.py": 27,
   "src/peach/library_processing_scope.py": 2,

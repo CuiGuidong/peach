@@ -11,12 +11,12 @@ from .downloads import (INGESTED, POSTPROCESS_COMPLETE,
                         POSTPROCESS_PENDING, POSTPROCESS_QUEUED, POSTPROCESS_RUNNING,
                         DownloadStore, iso)
 from .field_owners import SCAN_FILENAME, write_owned_fields
-from .followups import FollowupType, register
+from .followups import Followup, FollowupType, register
 from .ingest_notices import NOTICES
 from .jobs import JobDeferred
 from .library_processing import COLLECT_STAGE, _ffprobe_path, process_library
 from .media_probe import probe_unmeasured
-from .task_runs import declared_rows
+from .task_runs import declared_rows, run_progress
 from .task_retry import RetryableTaskError
 
 TASK_KEY = "download-postprocess"
@@ -44,12 +44,11 @@ def enqueue(contract, task) -> int | None:
         return None
     parent = contract.task_runs.start(
         TASK_KEY, trigger="scheduled", mutex_key=f"download-ingest:{task.id}",
-        conflict="skip", label=f"下载已入库：{task.code or task.display_name or task.id}")
+        conflict="skip", **run_progress("downloadLanded", name=str(task.code or task.display_name or task.id)))
     if parent is None:
         return None
-    result = contract.task_runs.enqueue_followups(parent.id, [(
-        followup_key(task.id), TASK_KEY,
-        f"{TASK_LABEL}：{task.code or task.display_name or task.id}")])
+    result = contract.task_runs.enqueue_followups(parent.id, [Followup.item(
+        followup_key(task.id), TASK_KEY, str(task.code or task.display_name or task.id)).as_row()])
     active = contract.task_runs.blocking(followup_key(task.id))
     run_id = result["queued"][0] if result["queued"] else (active.id if active else None)
     contract.task_runs.finish(parent.id, "succeeded", summary={"followups": len(result["queued"])})

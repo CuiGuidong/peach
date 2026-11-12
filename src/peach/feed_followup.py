@@ -37,6 +37,7 @@ from pathlib import Path
 from . import feeds, metadata_routes
 from .catalog_rules import normalise_code_key
 from .followups import Followup, FollowupType, register
+from .task_runs import item_progress, run_progress
 from .metadata import extract_peach_fields
 
 TASK_KEY = "feed-scrape"
@@ -78,11 +79,10 @@ def parse_key(key: str, task_key: str = TASK_KEY) -> list[str]:
     return codes
 
 
-def _label(codes: list[str], task_key: str = TASK_KEY) -> str:
-    name = LABELS[task_key]
+def _label(codes: list[str], task_key: str = TASK_KEY) -> dict:
     if len(codes) == 1:
-        return f"{name}：{codes[0]}"
-    return f"{name}：{codes[0]} 等 {len(codes)} 部"
+        return item_progress(task_key, codes[0])
+    return run_progress("items", task_key, first=codes[0], count=len(codes))
 
 
 def plan(codes, task_key: str = TASK_KEY) -> list[Followup]:
@@ -90,8 +90,7 @@ def plan(codes, task_key: str = TASK_KEY) -> list[Followup]:
     batch = list(dict.fromkeys(code for code in codes if code))[:MAX_BATCH]
     if not batch:
         return []
-    return [Followup(key=followup_key(batch, task_key), task_key=task_key,
-                     label=_label(batch, task_key))]
+    return [Followup.coded(followup_key(batch, task_key), task_key, _label(batch, task_key))]
 
 
 def plan_covers(codes) -> list[Followup]:
@@ -483,7 +482,7 @@ def run(contract, key: str, handle) -> dict:
         if code in done:
             continue
         handle.progress(current=index, total=len(codes),
-                        label=f"{TASK_LABEL}：{code}", throttle=0)
+                        **item_progress(TASK_KEY, code), throttle=0)
         with contract.database.read_connection() as connection:
             row = connection.execute(
                 "SELECT id,code,scraped_at,scrape_error FROM feed_discovery WHERE code=?",
@@ -514,7 +513,7 @@ def run(contract, key: str, handle) -> dict:
         done.add(code)
         handle.checkpoint(done_codes=sorted(done), fetched=fetched, covers=covers,
                           miss=missed, cover_network=unreachable)
-    handle.progress(current=len(codes), total=len(codes), label=TASK_LABEL, throttle=0)
+    handle.progress(current=len(codes), total=len(codes), **item_progress(TASK_KEY), throttle=0)
     contract.cache_bust()
     summary = {"total": len(codes), "ok": fetched, "miss": missed, "covers": covers}
     if unreachable:
@@ -539,7 +538,7 @@ def run_covers(contract, key: str, handle) -> dict:
         if code in done:
             continue
         handle.progress(current=index, total=len(codes),
-                        label=f"{COVER_TASK_LABEL}：{code}", throttle=0)
+                        **item_progress(COVER_TASK_KEY, code), throttle=0)
         with contract.database.read_connection() as connection:
             row = connection.execute(
                 "SELECT cover_url FROM feed_discovery WHERE code=? AND ignored_at IS NULL",
@@ -553,7 +552,7 @@ def run_covers(contract, key: str, handle) -> dict:
                 pass
         done.add(code)
         handle.checkpoint(done_codes=sorted(done), covers=covers, cover_network=unreachable)
-    handle.progress(current=len(codes), total=len(codes), label=COVER_TASK_LABEL, throttle=0)
+    handle.progress(current=len(codes), total=len(codes), **item_progress(COVER_TASK_KEY), throttle=0)
     contract.cache_bust()
     summary = {"total": len(codes), "covers": covers}
     if unreachable:

@@ -28,7 +28,7 @@ import sqlite3
 import threading
 import time
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
@@ -40,7 +40,8 @@ __all__ = [
     "ACTIVE_STATUSES", "DEFAULT_KEEP", "LEASE_SECONDS", "MAX_FOLLOWUPS",
     "MAX_FOLLOWUP_DEPTH", "PROGRESS_INTERVAL", "TASK_LABELS", "TERMINAL_STATUSES",
     "TRIGGERS", "TaskRun", "TaskRunConflict", "TaskRunHandle", "TaskRunStore",
-    "cli_run", "inert_handle", "stamp", "task_label",
+    "cli_run", "inert_handle", "item_progress", "run_error", "run_progress", "stamp",
+    "task_label",
 ]
 
 LOGGER = logging.getLogger(__name__)
@@ -141,6 +142,65 @@ def trigger_label(trigger: str) -> str:
     return TRIGGER_LABELS.get(trigger, trigger)
 
 
+#: 落库的进度说明与结束原因（ADR-0156 第三条）。中文原文存进 `progress_label` / `error`，
+#: code 与参数存进旁边的列，`server.json` 的 `taskRun` 与这两张表一致（测试核对）。
+#: `{task}` 与 `{trigger}` 不进参数：库里只有 `task_key` 和触发方式的 id，读的一方按界面语言换成名字。
+PROGRESS_MESSAGES = {
+    "item": "{task}：{name}",
+    "items": "{task}：{first} 等 {count} 部",
+    "downloadLanded": "下载已入库：{name}",
+    "waitingForUpdate": "等待安装完成后继续",
+    "waitingForService": "等待服务启动后继续",
+    "pausedWaiting": "已暂停，等待继续",
+}
+ERROR_MESSAGES = {
+    "skippedBy": "与第 {run} 轮（{trigger}触发）冲突，本次跳过",
+    "skipped": "已有一轮在进行，本次跳过",
+    "interrupted": "服务重启，这一轮没有跑完",
+    "unknownFollowup": "没有登记 {task} 这种后继",
+}
+
+
+def _fill(template: str, task_key: str, params: dict) -> str:
+    names = {"task": task_label(task_key)}
+    if "trigger" in params:
+        names["trigger"] = trigger_label(str(params["trigger"]))
+    return template.format(**{**params, **names})
+
+
+def run_progress(key: str, task_key: str = "", **params) -> dict:
+    """一句进度说明：`label` 是中文原文，`code` 与 `params` 供界面翻译。直接展开给 `progress`、`start`、`suspend`。"""
+    return {"label": _fill(PROGRESS_MESSAGES[key], task_key, params),
+            "code": f"taskRun.progress.{key}", "params": params}
+
+
+def item_progress(task_key: str, name: str = "") -> dict:
+    """后继正在做哪一件：「任务名：条目」。没有条目名时只写任务名，界面同样只显示任务名。"""
+    progress = run_progress("item", task_key, name=name)
+    return {**progress, "label": progress["label"] if name else task_label(task_key)}
+
+
+def run_error(key: str, task_key: str = "", **params) -> dict:
+    """一句结束原因：展开给 `finish`，`error` 是中文原文，`error_code` 与 `error_params` 供界面翻译。"""
+    return {"error": _fill(ERROR_MESSAGES[key], task_key, params),
+            "error_code": f"taskRun.error.{key}", "error_params": params}
+
+
+def _coded(code: str | None, params: dict | None) -> tuple[str | None, str | None]:
+    """code 与参数按列存。没有 code 的那句把两列清空，不让上一句的 code 盖住这一句的原文。"""
+    if not code:
+        return None, None
+    return code, json.dumps(params or {}, ensure_ascii=False)
+
+
+def _params(raw: str | None) -> dict:
+    try:
+        value = json.loads(raw or "{}")
+    except ValueError:
+        return {}
+    return value if isinstance(value, dict) else {}
+
+
 def stamp(moment: datetime | None = None) -> str:
     """ISO-8601 UTC 文本，与 `entity`、`follow_schedule` 同一种写法。"""
     return (moment or datetime.now(timezone.utc)).astimezone(
@@ -180,6 +240,11 @@ class TaskRun:
     #: 这条后继要做的那件事的全名，同时是它的互斥键。不是后继时为空。
     followup_key: str = ""
     followup_depth: int = 0
+    #: `progress_label` 与 `error` 那两句的 code 和参数（ADR-0156 第三条）；旧行与没迁移的句子为空。
+    progress_code: str = ""
+    progress_params: dict = field(default_factory=dict)
+    error_code: str = ""
+    error_params: dict = field(default_factory=dict)
 
     @property
     def active(self) -> bool:
@@ -211,8 +276,12 @@ class TaskRun:
             "progress_current": self.progress_current,
             "progress_total": self.progress_total,
             "progress_label": self.progress_label,
+            "progress_code": self.progress_code,
+            "progress_params": self.progress_params,
             "result_summary": self.result_summary,
             "error": self.error,
+            "error_code": self.error_code,
+            "error_params": self.error_params,
             "parent_run_id": self.parent_run_id,
             "root_run_id": self.root_run_id,
             "followup_key": self.followup_key,
@@ -222,7 +291,8 @@ class TaskRun:
 
 _COLUMNS = ("id,task_key,trigger,status,mutex_key,pid,host,started_at,finished_at,"
             "heartbeat_at,progress_current,progress_total,progress_label,"
-            "result_summary,error,parent_run_id,root_run_id,followup_key,followup_depth")
+            "result_summary,error,parent_run_id,root_run_id,followup_key,followup_depth,"
+            "progress_code,progress_params,error_code,error_params")
 
 
 def _row(row: sqlite3.Row) -> TaskRun:
@@ -242,6 +312,8 @@ def _row(row: sqlite3.Row) -> TaskRun:
         parent_run_id=row["parent_run_id"], root_run_id=row["root_run_id"],
         followup_key=row["followup_key"] or "",
         followup_depth=int(row["followup_depth"] or 0),
+        progress_code=row["progress_code"] or "", progress_params=_params(row["progress_params"]),
+        error_code=row["error_code"] or "", error_params=_params(row["error_params"]),
     )
 
 
@@ -284,7 +356,8 @@ class TaskRunStore:
     def start(self, task_key: str, *, trigger: str, mutex_key: str | None = None,
               conflict: str = "skip", total: int | None = None,
               label: str = "", pid: int | None = None,
-              summary: dict | None = None) -> TaskRun | None:
+              summary: dict | None = None, code: str | None = None,
+              params: dict | None = None) -> TaskRun | None:
         from .update_tasks import admission
         with admission(self.database.db_path):
             from .job_recovery import current_run
@@ -293,17 +366,22 @@ class TaskRunStore:
                 return resumed
             return self._start(task_key, trigger=trigger, mutex_key=mutex_key,
                                conflict=conflict, total=total, label=label, pid=pid,
-                               summary=summary)
+                               summary=summary, code=code, params=params)
 
-    def suspend(self, run_id: int, *, label: str = '等待安装完成后继续',
-                paused_for_update: bool = True) -> None:
+    def suspend(self, run_id: int, *, label: str | None = None, code: str | None = None,
+                params: dict | None = None, paused_for_update: bool = True) -> None:
+        """放回排队。不给说明时写「等待安装完成后继续」；只给原文、没给 code 的，界面照原文显示。"""
         if not self.enabled:
             return
+        if label is None:
+            waiting = run_progress("waitingForUpdate")
+            label, code, params = waiting["label"], waiting["code"], waiting["params"]
         with self.database.write_transaction(notify=False) as connection:
             connection.execute(
-                "UPDATE task_run SET status='pending',pid=0,progress_label=?,result_summary=? "
-                "WHERE id=? AND status='running'",
-                (label, json.dumps({'paused_for_update': True} if paused_for_update else {}), run_id))
+                "UPDATE task_run SET status='pending',pid=0,progress_label=?,progress_code=?,"
+                "progress_params=?,result_summary=? WHERE id=? AND status='running'",
+                (label, *_coded(code, params),
+                 json.dumps({'paused_for_update': True} if paused_for_update else {}), run_id))
 
     def _resume(self, run_id, task_key):
         if run_id is None or not self.enabled:
@@ -319,7 +397,8 @@ class TaskRunStore:
     def _start(self, task_key: str, *, trigger: str, mutex_key: str | None = None,
                conflict: str = "skip", total: int | None = None,
                label: str = "", pid: int | None = None,
-               summary: dict | None = None) -> TaskRun | None:
+               summary: dict | None = None, code: str | None = None,
+               params: dict | None = None) -> TaskRun | None:
         """开一轮。互斥冲突时按 `conflict` 处理，返回 None 或抛 `TaskRunConflict`。
 
         `summary` 是开跑时就知道的那部分摘要，例如这一轮处理的是哪部作品；结算时由最终摘要替换。
@@ -339,10 +418,11 @@ class TaskRunStore:
                 cursor = connection.execute(
                     "INSERT INTO task_run(task_key,trigger,status,mutex_key,pid,host,"
                     "started_at,heartbeat_at,progress_current,progress_total,"
-                    "progress_label,result_summary) "
-                    "VALUES(?,?,'running',?,?,?,?,?,0,?,?,?)",
+                    "progress_label,progress_code,progress_params,result_summary) "
+                    "VALUES(?,?,'running',?,?,?,?,?,0,?,?,?,?,?)",
                     (task_key, trigger, mutex_key, pid if pid is not None else os.getpid(),
-                     self.host, moment, moment, total, label, json.dumps(summary or {}, ensure_ascii=False)))
+                     self.host, moment, moment, total, label, *_coded(code, params),
+                     json.dumps(summary or {}, ensure_ascii=False)))
                 run_id = int(cursor.lastrowid)
                 from .task_control import initialize_speed
                 initialize_speed(self, run_id)
@@ -364,22 +444,25 @@ class TaskRunStore:
     def _record_skip(self, task_key: str, trigger: str, mutex_key: str,
                      blocking: TaskRun | None) -> None:
         """把一次静默跳过写成终态记录。它没有 `started_at`——这一轮从没开跑。"""
-        reason = (f"与第 {blocking.id} 轮（{trigger_label(blocking.trigger)}触发）冲突，本次跳过"
-                  if blocking else "已有一轮在进行，本次跳过")
+        reason = (run_error("skippedBy", run=blocking.id, trigger=blocking.trigger)
+                  if blocking else run_error("skipped"))
         summary = json.dumps({"blocked_by": blocking.id if blocking else None},
                              ensure_ascii=False)
         with self.database.write_transaction(notify=False) as connection:
             connection.execute(
                 "INSERT INTO task_run(task_key,trigger,status,mutex_key,pid,host,"
-                "finished_at,result_summary,error) "
-                "VALUES(?,?,'cancelled',?,?,?,?,?,?)",
-                (task_key, trigger, mutex_key, os.getpid(), self.host,
-                 stamp(), summary, reason))
+                "finished_at,result_summary,error,error_code,error_params) "
+                "VALUES(?,?,'cancelled',?,?,?,?,?,?,?,?)",
+                (task_key, trigger, mutex_key, os.getpid(), self.host, stamp(), summary,
+                 reason["error"], *_coded(reason["error_code"], reason["error_params"])))
 
     def progress(self, run_id: int | None, *, current: int | None = None,
                  total: int | None = None, label: str | None = None,
-                 throttle: float = PROGRESS_INTERVAL) -> bool:
+                 throttle: float = PROGRESS_INTERVAL, code: str | None = None,
+                 params: dict | None = None) -> bool:
         """推进度并顺带续租。已经进终态的行不再接受进度。
+
+        `label` 与它的 `code`、`params` 一起写：只给原文的那一次把 code 清掉。
 
         `throttle` 是墙钟节流：页面两秒轮询一次，比这更密的写入没有读者，只有代价。
         收尾前那一次要看到真实的最终计数，调用方传 `throttle=0`。
@@ -398,6 +481,9 @@ class TaskRunStore:
             if value is not None:
                 assignments.append(f"{column}=?")
                 values.append(value)
+        if label is not None:
+            assignments += ["progress_code=?", "progress_params=?"]
+            values += _coded(code, params)
         return self._update_progress(run_id, assignments, values)
 
     def heartbeat(self, run_id: int | None, *,
@@ -425,7 +511,8 @@ class TaskRunStore:
         return done
 
     def finish(self, run_id: int | None, status: str, *, summary: dict | None = None,
-               error: str = "") -> bool:
+               error: str = "", error_code: str | None = None,
+               error_params: dict | None = None) -> bool:
         """结算。只能从活跃态进终态，一条 UPDATE 带 WHERE 做 CAS。
 
         返回是否由本次调用落地。`False` 表示这一轮已经被别人结算过——租约回收和任务
@@ -439,9 +526,10 @@ class TaskRunStore:
             return False
         moment = stamp()
         assignments = ["status=?", "finished_at=?", "heartbeat_at=?", "result_summary=?",
-                       "error=?"]
+                       "error=?", "error_code=?", "error_params=?"]
         values = [status, moment, moment,
-                  json.dumps(summary or {}, ensure_ascii=False), error]
+                  json.dumps(summary or {}, ensure_ascii=False), error,
+                  *_coded(error_code if error else None, error_params)]
         delays = list(self.finish_retry_delays)
         while True:
             try:
@@ -465,8 +553,8 @@ class TaskRunStore:
                           followups) -> dict:
         """把一轮任务声明的后继写成 `pending` 行，返回这次入队的结果。
 
-        `followups` 的每一项是 `(key, task_key, label)`：`key` 是这件事的全名，同时是
-        互斥键；`task_key` 决定谁来跑它、活动页上显示成什么。
+        `followups` 的每一项是 `(key, task_key, label)`，可再带 `code, params`：`key` 是这件事的
+        全名，同时是互斥键；`task_key` 决定谁来跑它、活动页上显示成什么；`label` 是排队时的进度说明。
 
         三种没入队的情况分开计数，都不静默：`duplicates` 是同一件事已经在排或在跑
         （同一次声明里重复的也算），`truncated` 是超出 `MAX_FOLLOWUPS` 被截掉的，
@@ -485,14 +573,15 @@ class TaskRunStore:
             result["depth_exceeded"] = len(items)
             return result
         seen: set[str] = set()
-        planned: list[tuple[str, str, str]] = []
-        for key, task_key, label in items:
+        planned: list[tuple[str, str, str, str | None, str | None]] = []
+        for item in items:
+            key, task_key, label, code, params = (*item, None, None)[:5]
             key = str(key).strip()
             if not key or key in seen:
                 result["duplicates"] += 1
                 continue
             seen.add(key)
-            planned.append((key, str(task_key), str(label or "")))
+            planned.append((key, str(task_key), str(label or ""), *_coded(code, params)))
         if len(planned) > MAX_FOLLOWUPS:
             result["truncated"] = len(planned) - MAX_FOLLOWUPS
             planned = planned[:MAX_FOLLOWUPS]
@@ -506,15 +595,15 @@ class TaskRunStore:
             connection.execute(
                 "UPDATE task_run SET root_run_id=id WHERE id=? AND root_run_id IS NULL",
                 (parent.id,))
-            for key, task_key, label in planned:
+            for key, task_key, label, code, params in planned:
                 try:
                     cursor = connection.execute(
                         "INSERT INTO task_run(task_key,trigger,status,mutex_key,pid,host,"
-                        "heartbeat_at,progress_label,result_summary,parent_run_id,"
-                        "root_run_id,followup_key,followup_depth) "
-                        "VALUES(?,?,'pending',?,?,?,?,?,'{}',?,?,?,?)",
+                        "heartbeat_at,progress_label,progress_code,progress_params,result_summary,"
+                        "parent_run_id,root_run_id,followup_key,followup_depth) "
+                        "VALUES(?,?,'pending',?,?,?,?,?,?,?,'{}',?,?,?,?)",
                         (task_key, parent.trigger, key, os.getpid(), self.host,
-                         moment, label, parent.id, root, key, depth))
+                         moment, label, code, params, parent.id, root, key, depth))
                 except sqlite3.IntegrityError:
                     # 活跃互斥索引拦下的：同一件事已经在排队或在跑，这一条不必再排。
                     result["duplicates"] += 1
@@ -524,7 +613,7 @@ class TaskRunStore:
                 result["queued"].append(run_id)
         return result
 
-    def continue_followup(self, run: TaskRun, label: str = "") -> int | None:
+    def continue_followup(self, run: TaskRun) -> int | None:
         """一条后继结算后说「还没做完」，在原地接一条同样的：同一个父任务、同一层、同一个键。
 
         不走 `enqueue_followups`：那是往下派一层，存量要跑几十轮的事会撞上 `MAX_FOLLOWUP_DEPTH`。
@@ -537,14 +626,16 @@ class TaskRunStore:
         from .update_tasks import gate, state_for
         with gate(state_for(self.database.db_path)), self.database.write_transaction(notify=False) as connection:
             try:
+                # 接续的那一行只说任务名：要做的那一件还没领到，上一轮的条目已经做完。
+                waiting = item_progress(run.task_key)
                 cursor = connection.execute(
                     "INSERT INTO task_run(task_key,trigger,status,mutex_key,pid,host,"
-                    "heartbeat_at,progress_label,result_summary,parent_run_id,"
-                    "root_run_id,followup_key,followup_depth) "
-                    "VALUES(?,?,'pending',?,?,?,?,?,'{}',?,?,?,?)",
+                    "heartbeat_at,progress_label,progress_code,progress_params,result_summary,"
+                    "parent_run_id,root_run_id,followup_key,followup_depth) "
+                    "VALUES(?,?,'pending',?,?,?,?,?,?,?,'{}',?,?,?,?)",
                     (run.task_key, run.trigger, run.followup_key, os.getpid(), self.host,
-                     stamp(), label, run.parent_run_id, run.root_run_id, run.followup_key,
-                     run.followup_depth))
+                     stamp(), waiting["label"], *_coded(waiting["code"], waiting["params"]),
+                     run.parent_run_id, run.root_run_id, run.followup_key, run.followup_depth))
             except sqlite3.IntegrityError:
                 return None
             run_id = int(cursor.lastrowid)
@@ -698,10 +789,9 @@ class TaskRunStore:
                 from .job_recovery import read
                 recovery = read(self.database.db_path, run.task_key)
                 if recovery.get('status') == 'active' and recovery.get('run_id') == run.id:
-                    self.suspend(run.id, label='等待服务启动后继续')
+                    self.suspend(run.id, **run_progress("waitingForService"))
                     continue
-            if self.finish(run.id, "interrupted",
-                           error="服务重启，这一轮没有跑完"):
+            if self.finish(run.id, "interrupted", **run_error("interrupted")):
                 recovered.append(run.id)
         return recovered
 
@@ -982,15 +1072,16 @@ def cli_run(task_key: str, db_path: Path | str | None, *, label: str = "",
         yield handle
 
 
-def declared_rows(declared) -> list[tuple[str, str, str]]:
-    """任务结果里声明的后继（`[{"key", "task_key", "label"}]`）换成 `enqueue_followups` 要的行。
+def declared_rows(declared) -> list[tuple]:
+    """任务结果里声明的后继（`Followup.declared()` 的写法）换成 `enqueue_followups` 要的行。
 
     后台任务的结算与命令行入口共用这一份：任务结果是同一个函数给的，两边各拆一遍，
     命令行那边漏掉，就是一整轮新登记的女优全都没人去补头像和资料。
     """
     if not isinstance(declared, list):
         return []
-    return [(item.get("key"), item.get("task_key"), item.get("label", ""))
+    return [(item.get("key"), item.get("task_key"), item.get("label", ""),
+             item.get("label_code"), item.get("label_params") or {})
             for item in declared if isinstance(item, dict) and item.get("key")]
 
 
@@ -1025,11 +1116,12 @@ class TaskRunHandle:
 
     def progress(self, current: int | None = None, total: int | None = None,
                  label: str | None = None, *,
-                 throttle: float = PROGRESS_INTERVAL) -> None:
+                 throttle: float = PROGRESS_INTERVAL, code: str | None = None,
+                 params: dict | None = None) -> None:
         from .task_control import checkpoint
         checkpoint()
         self.store.progress(self.run_id, current=current, total=total,
-                            label=label, throttle=throttle)
+                            label=label, throttle=throttle, code=code, params=params)
 
     def heartbeat(self) -> None:
         from .task_control import checkpoint
@@ -1037,9 +1129,11 @@ class TaskRunHandle:
         self.store.heartbeat(self.run_id)
 
     def finish(self, status: str, *, summary: dict | None = None,
-               error: str = "") -> bool:
+               error: str = "", error_code: str | None = None,
+               error_params: dict | None = None) -> bool:
         """结算一次。重复调用不再写入——终态一次性这条约束在句柄这一层也要成立。"""
         if self.settled:
             return False
         self.settled = True
-        return self.store.finish(self.run_id, status, summary=summary, error=error)
+        return self.store.finish(self.run_id, status, summary=summary, error=error,
+                                 error_code=error_code, error_params=error_params)

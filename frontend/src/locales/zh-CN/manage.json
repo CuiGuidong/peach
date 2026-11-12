@@ -908,6 +908,7 @@
     "scopePreviews": "已入库的视频（跳过流量保护目录）"
   },
   "taskCenter": {
+    "batchItems": "{{first}} 等 {{count}} 部",
     "batches": "{{count, number}} 批",
     "emptyText": "扫描、追更检查、批量操作和命令行批处理的进度与结果会显示在这里。",
     "emptyTitle": "还没有任务记录",
