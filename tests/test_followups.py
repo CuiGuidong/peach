@@ -20,8 +20,15 @@ from peach.jobs import BackgroundJob, JobDeferred
 from peach.library_processing import process_library
 from peach.repository import LedgerDatabase
 from peach.task_runs import MAX_FOLLOWUPS, TaskRunStore
-from support.conditions import windows_ledger_roots
+from support.conditions import windows_ledger_roots, without_capacity_reserve
 from support.ledger import fresh_ledger
+
+
+def setUpModule():
+    # 这些用例不测容量闸；不让本机磁盘余量决定它们红不红（见 `without_capacity_reserve`）。
+    reserve = without_capacity_reserve()
+    reserve.start()
+    unittest.addModuleCleanup(reserve.stop)
 
 
 @contextmanager
