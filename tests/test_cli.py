@@ -553,6 +553,15 @@ class ScanCommandTests(unittest.TestCase):
         self.assertIn("local", str(caught.exception))
         self.assertEqual(self._count(), 0)
 
+    def test_a_refused_scan_target_is_said_in_the_command_language(self):
+        refused = cli.scan.ScanTargetError("errors.scan.unknownSourceNoneDeclared", {"location": "nas"})
+        with mock.patch.object(cli.scan, "scan_location", side_effect=refused), \
+                mock.patch.dict(os.environ, {"PEACH_LANGUAGE": "en"}), \
+                self.assertRaises(SystemExit) as caught:
+            self._run(["scan", "local", "--db", str(self.db)])
+        self.assertEqual(str(caught.exception),
+                         "✗ Undeclared storage nas; known in [media.locations]: (none in the settings file)")
+
     def test_a_missing_ledger_points_at_init(self):
         code, output = self._run(["scan", "local", "--db", str(self.root / "nope.db")])
         self.assertEqual(code, 4)

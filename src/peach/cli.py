@@ -521,7 +521,7 @@ def _scan(args: argparse.Namespace) -> int:
     except scan.ScanTargetError as exc:
         from . import interface_text
         raise SystemExit(interface_text.text(f"server:{exc.code}", exc.params,
-                                             interface_text.system_language())) from None
+                                             interface_text.cli_language())) from None
     return 0
 
 
