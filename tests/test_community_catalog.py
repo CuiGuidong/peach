@@ -358,11 +358,17 @@ class VerifiedCoverTests(unittest.TestCase):
             verified_cover(serve(pages), "ABW-358", [("javbus", {"cover_urls": []}), works[1]])
 
     def test_a_site_cut_off_while_another_answers_keeps_the_cover_retryable(self):
-        """#342：JavBus 作品页断线、AVBase 说没有、javdb 答上；只剩 javdb 带水印的图，不是「来源没有封面」。"""
+        """#342：JavBus 作品页断线、AVBase 说没有、javdb 答上；只剩 javdb 带水印的图，不是「来源没有封面」。
+
+        javdb 一档的接口固定为未取得，由详情页答上（ADR-0160）：全局 `PUBLIC_API` 用真实传输，不拦会连外网。
+        """
         from peach.library_processing import LibraryMetadataProvider
+        self.enterContext(patch.object(PUBLIC_API, "movie", side_effect=PublicSourceUnavailable("接口未取得")))
         pages = {JAVDB_SEARCH: JAVDB_RESULTS, JAVDB_DETAIL: JAVDB_PAGE, JAVDB_COVER: gradient(800, 534)}
+        asked = []
 
         def transport(request, timeout, limit):
+            asked.append(request.url)
             if request.url == JAVBUS_WORK:
                 raise httpx.ConnectError("proxy down")
             return serve(pages)(request, timeout, limit)
@@ -376,6 +382,7 @@ class VerifiedCoverTests(unittest.TestCase):
             provider.cover("ABW-358", covers)
         self.assertNotIsInstance(caught.exception, NotFound)
         self.assertFalse((covers / "ABW-358.jpg").exists())
+        self.assertIn(JAVDB_DETAIL, asked)
 
     def test_a_small_official_cover_counts_as_the_second_origin(self):
         works = [("javdb", {"cover_urls": [JAVDB_COVER]})]

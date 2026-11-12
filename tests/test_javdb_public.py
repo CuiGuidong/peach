@@ -812,7 +812,9 @@ class DetailProjectionTests(unittest.TestCase):
         with self.contract.database.write_transaction() as connection:
             connection.execute("INSERT INTO entity(id,kind,canonical_name,normalized_name,created_at,updated_at) VALUES (7,'studio','Prestige','prestige','2026-10-12','2026-10-12')")
             connection.execute("INSERT INTO entity_alias(entity_id,alias,normalized_alias,source) VALUES (7,'プレステージ','プレステージ','test')")
+        # PRESTIGE 的作品会去 Prestige 官网取预告，这里只核对厂牌引用，预告不联网。
         with patch('peach.web_jav_detail.PUBLIC_API.movie', return_value={'id': 'Exact', 'maker_name': 'PRESTIGE,プレステージ'}), \
+                patch('peach.web_jav_detail._preview_fields', return_value={}), \
                 patch.object(self.contract, 'has_logo', side_effect=lambda name: name == 'Prestige') as logo:
             reference = q_jav_detail(self.contract, {'code': 'EXM-001'})['studio_refs'][0]
         self.assertEqual((reference['id'], reference['name'], reference['has_logo']), (7, 'Prestige', True))
