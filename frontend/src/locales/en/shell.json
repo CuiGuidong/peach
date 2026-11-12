@@ -284,9 +284,14 @@
   },
   "format": {
     "clauseSeparator": ", ",
+    "labelPrefix": "{{label}}: ",
+    "labelValue": "{{label}}: {{value}}",
     "listSeparator": ", ",
+    "period": ".",
     "quoted": "“{{text}}”",
-    "sentenceGap": " "
+    "semicolonSeparator": "; ",
+    "sentenceGap": " ",
+    "withNote": "{{text}} ({{note}})"
   },
   "gauge": {
     "almostFull": "Almost full",

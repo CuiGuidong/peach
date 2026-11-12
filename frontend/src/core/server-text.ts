@@ -13,6 +13,11 @@ export function serverLabel(key: string, fallback: string, params?: Params): str
   return key && hasTranslation(full) ? t(full, params ?? {}) : fallback;
 }
 
+/** 一组按 id 取的显示名：`ids` 与服务端给的 `labels` 一一对应，缺 id 或缺译文的项用原文。 */
+export function serverLabels(prefix: string, ids: readonly string[] | undefined, labels: readonly string[]): string[] {
+  return labels.map((label, index) => serverLabel(ids?.[index] ? `${prefix}.${ids[index]}` : '', label));
+}
+
 /** 响应体里那句给人看的话；没有就是空串，由调用方按状态码给通用句。
  *
  *  没带 code 的原文只有中文才是给人看的话：服务端的界面文字以中文为源文，

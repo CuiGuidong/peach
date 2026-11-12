@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "82269ec7-19b3-470f-8edb-5896e9f7f0fc", e._sentryDebugIdIdentifier = "sentry-dbid-82269ec7-19b3-470f-8edb-5896e9f7f0fc");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "c47aee62-5718-4ea1-b70e-f52959498b0f", e._sentryDebugIdIdentifier = "sentry-dbid-c47aee62-5718-4ea1-b70e-f52959498b0f");
 	} catch {}
 })();
 import { $542a13ca2fa5b484$export$5b6b19405a83ff9d as e, $b4f18e3395fe64d7$export$3d96ec278d3efce4 as t, $b4f18e3395fe64d7$export$3e41faf802a29e71 as n, $b4f18e3395fe64d7$export$b2539bed5023c21c as r, Button as i, ButtonLink as a, Disclosure as o, E3 as s, EmptyState as c, FLOW_LABEL_X as l, FLOW_VIEWBOX as u, Gg as d, IDLE_POLL_MS as f, Input as p, M6 as m, MENU_ITEM as h, MENU_ITEM_INTERACTIVE as g, MENU_POPOVER_SURFACE as _, MenuDialog as v, Note as y, OV as b, Progress as x, Rf as S, SEGMENT as ee, SEGMENTED_TRACK as te, STAT_STRIP as ne, SegmentedTabList as re, Select$1 as ie, SelectItem as ae, StatCard as C, TASTE_REFRESH_KEY as oe, TASTE_WINDOWS as se, TaskProgress as ce, Wt as w, Xt as le, _8 as T, __toESM as ue, aB as de, avatarInner as fe, busyProps as E, cB as pe, cardClass as D, clsx as O, configureTasteBrowser as k, confirmModal as A, cx as me, errorMessage as j, f1 as M, fetchTaste as he, fetchTasteJob as ge, firstGrapheme as _e, flowGraph as ve, flowLabel as ye, fmtSize as be, g4 as xe, historySpan as Se, importTasteExport as Ce, joinList as we, keepPreviousData as Te, mM as Ee, pv as De, queryClient as N, r2 as Oe, radarRows as ke, rankDetail as Ae, rankShares as je, removeTasteSource as Me, require_jsx_runtime as Ne, require_react as Pe, siteMarkUrl as Fe, startTasteRefresh as Ie, statCardClass as Le, t as P, tasteDate as Re, tasteDimensions as ze, tasteHours as Be, tasteKey as F, tasteRefetchInterval as Ve, tasteTime as He, topScores as Ue, uo as We, useBackgroundJob as Ge, useMutation as I, useQuery as Ke } from "./peach-app.js";
@@ -2204,7 +2204,7 @@ function ma(e) {
 							}) : null,
 							S?.warnings?.length ? /* @__PURE__ */ (0, Y.jsx)(y, {
 								tone: "warning",
-								children: S.warnings.join("；")
+								children: S.warnings.join(P("shell:format.semicolonSeparator"))
 							}) : null
 						]
 					}),
@@ -2500,4 +2500,4 @@ function ha({ term: e, value: t, rest: n }) {
 }
 export { ta as TASTE_GUIDE_KEY, ma as TastePage };
 
-//# debugId=82269ec7-19b3-470f-8edb-5896e9f7f0fc
+//# debugId=c47aee62-5718-4ea1-b70e-f52959498b0f

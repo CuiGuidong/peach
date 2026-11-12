@@ -88,7 +88,7 @@ export function FolderRuleDialog({ folder, rule, revision, close }: {
             {preview.sample.map(item => <li className="wrap-anywhere" key={item.id}>{item.name}</li>)}
           </ul> : null}
           {preview.conflicts.length ? <Note tone="warning" extra={<Disclosure summary={t('catalog:catalogFolders.viewConflicts')}>
-            <ul className="mt-2 flex flex-col gap-2">{preview.conflicts.slice(0, 30).map(item => <li className="wrap-anywhere" key={item.id}>{item.name}：{item.reason}</li>)}</ul>
+            <ul className="mt-2 flex flex-col gap-2">{preview.conflicts.slice(0, 30).map(item => <li className="wrap-anywhere" key={item.id}>{t('shell:format.labelValue', { label: item.name, value: item.reason })}</li>)}</ul>
           </Disclosure>}>{t('catalog:folderRule.conflictNote')}</Note> : null}
         </section> : null}
         {action.error ? <Note tone="error">{action.error}</Note> : null}

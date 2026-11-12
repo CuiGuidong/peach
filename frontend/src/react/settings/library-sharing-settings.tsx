@@ -10,7 +10,7 @@ import { CodeBlock } from '../components/code-block';
 import { StatusLabel, type StatusTone } from '../components/status-label';
 import { Disclosure, ErrorText, Fact, FactList, Footer, Help, Rows, Stack } from './section';
 import { busyProps, useAction } from './use-action';
-import { t } from '../../i18n';
+import { interfaceLanguage, t } from '../../i18n';
 
 export interface LibrarySharingState {
   enabled: boolean; available: boolean; schema: number; fields: string[]; notice: string;
@@ -77,7 +77,7 @@ export function LibrarySharingSettings({ initial, receipt }: {
         {participation.pending_state
         ? (participation.pending_state === 'disabled' ? t('settings:librarySharing.pendingOff') : t('settings:librarySharing.pendingOn'))
         : deliveryNames[participation.status] || t('settings:librarySharing.resultUnknown')}</StatusLabel></Fact></FactList>
-      {value.last_sent_at ? <Help>{t('settings:librarySharing.lastSentAt', { date: new Date(value.last_sent_at).toLocaleDateString() })}</Help> : null}
+      {value.last_sent_at ? <Help>{t('settings:librarySharing.lastSentAt', { date: new Date(value.last_sent_at).toLocaleDateString(interfaceLanguage) })}</Help> : null}
     </Stack> : null}
     {value.enabled && value.last_attempt?.snapshot_id ? <Stack divided>
       <FactList>

@@ -57,12 +57,14 @@ COPY_PAGES = 4096
 MARKER_NAME = "ledger.restore.json"
 STAGING_NAME = "ledger.restore-staging.db"
 RESULT_NAME = "ledger.restore-result.json"
-#: 备份列表里「用途」一栏；不在表里的写入前备份统称「写入前自动备份」。
+#: 备份列表里「用途」一栏；不在表里的写入前备份统称「写入前自动备份」（`OTHER_PURPOSE`）。
+#: 响应带 `purpose_code`，前端按它取译文（`server:ledgerBackup.purpose.<code>`），中文是没有译文时的显示。
+OTHER_PURPOSE = "other"
 PURPOSE_LABELS = {
     MANUAL_PURPOSE: "手动备份", RESTORE_PURPOSE: "恢复前另存",
     "migrate": "迁移前", "schema": "迁移前", "upgrade": "自动修复前",
     "organize": "整理前", "download": "下载后整理前", "tag-management": "标签管理前",
-    "auto-landing-revert": "撤回自动写入前", "sar": "显示尺寸补测前",
+    "auto-landing-revert": "撤回自动写入前", "sar": "显示尺寸补测前", OTHER_PURPOSE: "写入前自动备份",
 }
 
 ORGANIZE_DIRNAME = "organize-backups"
@@ -329,12 +331,13 @@ def purpose_of(name: str) -> str:
 
 def describe(path: Path, location: str) -> dict:
     purpose = purpose_of(path.name)
+    code = purpose if purpose in PURPOSE_LABELS else OTHER_PURPOSE
     stat = path.stat()
     return {
         "id": f"{location}/{path.name}", "name": path.name,
         "bytes": stat.st_size, "modified_at": stat.st_mtime,
         "source": "manual" if purpose == MANUAL_PURPOSE else "auto",
-        "purpose": PURPOSE_LABELS.get(purpose, "写入前自动备份"),
+        "purpose": PURPOSE_LABELS[code], "purpose_code": code,
     }
 
 

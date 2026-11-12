@@ -697,7 +697,7 @@ it('跑完那一轮显示摘要，失败那一轮显示原因', async () => {
   const { host } = await open(payload({ finished: [
     run({ id: 2, status: 'succeeded', finished_at: '2026-09-11T10:02:00Z',
           progress_total: null, result_summary: { checked: 7, results: [1, 2] } }),
-    run({ id: 3, status: 'failed', task_label: '扫描与采集', finished_at: '2026-09-11T10:03:00Z',
+    run({ id: 3, status: 'failed', task_key: 'library-processing', task_label: '扫描与采集', finished_at: '2026-09-11T10:03:00Z',
           progress_total: null, error: 'RuntimeError: 上游挡回来了' }),
   ] }));
   expect(host.querySelector('[data-status=succeeded]')?.textContent).toContain('已检查 7');
@@ -923,7 +923,7 @@ it('轮询间隔跟着内容走：有东西在跑两秒一次，全是终态十�
 
 it('一轮请求失败不擦掉上一份数据，只在页内多一条原因', async () => {
   vi.useFakeTimers();
-  const fetcher = serve(payload({ finished: [run({ id: 5, status: 'succeeded', task_label: '扫描与采集' })] }), null);
+  const fetcher = serve(payload({ finished: [run({ id: 5, status: 'succeeded', task_key: 'library-processing', task_label: '扫描与采集' })] }), null);
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
 

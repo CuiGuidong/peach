@@ -54,7 +54,7 @@ function Written({ item }: { item: AutoLandingWrite }) {
   return (
     <span className="flex min-w-0 flex-col gap-0.5">
       <span title={writtenText(item)} className="truncate text-body-regular text-text-primary">
-        <span className="text-text-secondary">{`${item.field}：`}</span>{writtenText(item)}
+        <span className="text-text-secondary">{t('shell:format.labelPrefix', { label: item.field })}</span>{writtenText(item)}
       </span>
       <small title={previousText(item)} className="truncate text-caption-1-regular text-text-secondary">{previousText(item)}</small>
     </span>

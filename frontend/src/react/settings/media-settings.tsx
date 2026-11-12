@@ -223,7 +223,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
       <Section guide="media" title={t('settings:libraryFolders.title')}>
         <Stack>
           <Note tone="success" title={t('settings:shared.configSaved')}>
-            {t('settings:mediaLibraries.restartingRedirect')}<LinkButton href={saved.url} size="small">{t('settings:mediaLibraries.goToCollection')}</LinkButton>。
+            {t('settings:mediaLibraries.restartingRedirect')}<LinkButton href={saved.url} size="small">{t('settings:mediaLibraries.goToCollection')}</LinkButton>{t('shell:format.period')}
           </Note>
         </Stack>
       </Section>
@@ -364,7 +364,7 @@ function MediaForm({ data, receipt }: ConfigurationGroupProps) {
         {cloud ? <><MediaReadPolicyHelp /><CloudDriveGuide /></> : null}
         {missing.map((dependency) => (
           <Help key={dependency.name}>
-            {t('settings:mediaLibraries.dependencyMissing')} {dependency.name}。<ExternalLink href={dependency.download_url}>{t('settings:shared.download')} {dependency.name}</ExternalLink>
+            {t('settings:mediaLibraries.dependencyMissingName', { name: dependency.name })}{t('shell:format.sentenceGap')}<ExternalLink href={dependency.download_url}>{t('settings:shared.download')} {dependency.name}</ExternalLink>
           </Help>
         ))}
         <Checkbox isSelected={scanNow} onChange={setScanNow}>{t('settings:mediaLibraries.scanAfterSave')}</Checkbox>

@@ -5,9 +5,10 @@
 import { apiGet, apiSend } from '../../api';
 import { fmtSize } from '@peach/legacy/core';
 import { requestErrorMessage } from '../../core/request-error';
+import { serverLabel } from '../../core/server-text';
 import { queryClient } from '../query';
 import type { ProcessingSpeed } from '../library-processing/library-processing';
-import { t } from '../../i18n';
+import { interfaceLanguage, t } from '../../i18n';
 
 export const TASKS_URL = '/api/tasks';
 /** 整页共用这一个键：三段是同一次响应的三个字段。 */
@@ -287,10 +288,15 @@ export const isRoutine = (run: TaskRunPayload) => run.trigger === 'scheduled'
 
 export const isActive = (run: TaskRunPayload) => run.status === 'pending' || run.status === 'running';
 
+/** 任务名按 `task_key` 取当前界面语言；没有译文的照用服务端的中文名。
+ *  `task_label` 本身保持原样：后继的进度标签以它开头，去重复前缀时要拿原文比。 */
+export const taskName = (run: Pick<TaskRunPayload, 'task_key' | 'task_label'>): string =>
+  serverLabel(`task.${run.task_key}`, run.task_label);
+
 /** 后继那一行的说明：它在做哪一件（标签去掉与任务名重复的前缀）、做到第几项或结果如何。
  *  标题已经是任务名，这里再写一遍「新作资料采集：」读起来就是同一句话说了两次。 */
 export function followupDetail(row: TaskRunPayload): string {
-  const prefix = `${row.task_label}：`;
+  const prefix = `${row.task_label}：`; // i18n-exempt: 服务端进度标签的原文前缀，只用来比较
   const label = row.progress_label || '';
   const item = String(row.result_summary?.name || '')
     || (label.startsWith(prefix) ? label.slice(prefix.length) : label === row.task_label ? '' : label);
@@ -367,7 +373,7 @@ export function momentText(stamp: string | null | undefined): string {
   if (!stamp) return '';
   const moment = new Date(stamp);
   if (Number.isNaN(moment.getTime())) return '';
-  return moment.toLocaleString(undefined,
+  return moment.toLocaleString(interfaceLanguage,
     { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
 }
 
