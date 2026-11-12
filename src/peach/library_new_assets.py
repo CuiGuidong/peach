@@ -27,9 +27,9 @@ def _set_aside(path):
     try:
         os.replace(path, target)
     except OSError as error:
-        LOGGER.warning('新入库处理范围文件无效，改名留证失败：%s', error)
+        LOGGER.warning('Invalid new-asset scope file, and renaming it for inspection failed: %s', error)
         return
-    LOGGER.warning('新入库处理范围文件无效，已改名为 %s；重新扫描媒体库会重新登记新影片', target.name)
+    LOGGER.warning('Invalid new-asset scope file, renamed to %s; rescanning the library registers new videos again', target.name)
 
 
 def _legacy(path):

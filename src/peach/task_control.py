@@ -121,7 +121,7 @@ def _unlink(paths):
             path.unlink(missing_ok=True)
             removed += 1
         except OSError:
-            logging.getLogger(__name__).warning('任务控制文件清退失败：%s', path, exc_info=True)
+            logging.getLogger(__name__).warning('Failed to clean up task control files: %s', path, exc_info=True)
     return removed
 
 

@@ -100,7 +100,7 @@ def parse_capture(payload: dict) -> dict[str, str] | None:
         return None
     device = str(payload.get("device") or "")
     if not device:
-        LOGGER.warning("PikPak 网页的 localStorage 里没有 deviceid，换一个新的设备号")
+        LOGGER.warning("PikPak web localStorage has no deviceid; generating a new device id")
         device = new_device_id()
     return {"refresh_token": refresh, "access_token": access, "expires_at": str(_epoch(payload.get("expires_at"))),
             "user_id": str(payload.get("sub") or ""), "device_id": device, "client_id": client_id}
@@ -204,7 +204,7 @@ class BrowserLogin:
         except BrowserUnavailable as error:
             self._finish(run_id, FAILED, f"浏览器没有打开：{error}")
         except Exception as error:  # noqa: BLE001 —— 线程里的任何异常都要变成可轮询的状态，否则页面一直等
-            LOGGER.error("PikPak 浏览器登录出错：%s", type(error).__name__)
+            LOGGER.error("PikPak browser login error: %s", type(error).__name__)
             self._finish(run_id, FAILED, f"浏览器登录出错：{type(error).__name__}")
         finally:
             if browser is not None:
@@ -245,4 +245,4 @@ class BrowserLogin:
         try:
             browser.evaluate(_FORGET_SCRIPT, timeout=10)
         except (OSError, RuntimeError, ValueError):
-            LOGGER.warning("PikPak 登录窗口里的 credentials_* 没有删掉，浏览器照常关闭")
+            LOGGER.warning("credentials_* entries in the PikPak login window were not removed; closing the browser anyway")

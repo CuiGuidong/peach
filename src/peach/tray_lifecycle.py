@@ -29,7 +29,7 @@ def remove_records(paths) -> None:
         try:
             path.unlink(missing_ok=True)
         except OSError:
-            logging.getLogger(__name__).warning("托盘监视记录清理失败：%s", path, exc_info=True)
+            logging.getLogger(__name__).warning("Failed to clean up the tray watcher record: %s", path, exc_info=True)
 
 
 def audit(log: Path, event: str, session: str, **fields) -> None:
@@ -40,7 +40,7 @@ def audit(log: Path, event: str, session: str, **fields) -> None:
         with log.open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(record, ensure_ascii=False) + "\n")
     except OSError:
-        logging.getLogger(__name__).exception("托盘退出记录写入失败")
+        logging.getLogger(__name__).exception("Failed to write the tray exit record")
 
 
 def recovery_history(value: str, now: float) -> list[float]:
@@ -232,7 +232,7 @@ class Lifecycle:
                   reason=reason, actor_pid=actor_pid)
             atomic_write_text(self.path.with_suffix(".stop"), reason)
         except OSError:
-            logging.getLogger(__name__).exception("托盘退出意图写入失败，正在停止本实例监视器")
+            logging.getLogger(__name__).exception("Failed to write the tray exit intent; stopping this instance's watcher")
         finally:
             if self.guard is not None:
                 self._disarm()

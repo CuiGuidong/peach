@@ -187,7 +187,7 @@ def _update_saved(config, change) -> bool:
             atomic_write_text(path, json.dumps({'invalidated_at': marker, 'readings': readings}, ensure_ascii=False))
         return True
     except (OSError, TimeoutError) as error:
-        logging.getLogger(__name__).warning('容量读数未保存（%s）', type(error).__name__)
+        logging.getLogger(__name__).warning('Capacity reading not saved (%s)', type(error).__name__)
         return False
 
 
@@ -253,7 +253,7 @@ def _refresh_in_background(config, policy, part):
             with _REFRESH_GUARD:
                 _FAILURES[_reading_key(config, policy, part)] = (time.time(), str(error))
         except (OSError, ValueError) as error:
-            logging.getLogger(__name__).warning('容量统计未取得（%s）', type(error).__name__)
+            logging.getLogger(__name__).warning('Capacity count unavailable (%s)', type(error).__name__)
         finally:
             lock.release()
     threading.Thread(target=run, name=f'PeachCapacityMeasure-{part}', daemon=True).start()
@@ -352,7 +352,7 @@ def _history_due(config):
     try:
         return sample_due(config)
     except (OSError, ValueError) as error:
-        logging.getLogger(__name__).warning('容量历史未取得（%s）', type(error).__name__)
+        logging.getLogger(__name__).warning('Capacity history unavailable (%s)', type(error).__name__)
         return False
 
 
@@ -362,7 +362,7 @@ def record_history(config, *, data_bytes, cache_bytes, cleaned_bytes=0):
     try:
         record_sample(config, data_bytes, cache_bytes, cleaned_bytes)
     except (OSError, ValueError) as error:
-        logging.getLogger(__name__).warning('容量历史未取得（%s）', type(error).__name__)
+        logging.getLogger(__name__).warning('Capacity history unavailable (%s)', type(error).__name__)
 
 
 @lru_cache(maxsize=1)
@@ -525,7 +525,7 @@ def _allocated(roots, check):
                 except (FileNotFoundError, PermissionError):
                     skipped[0] += 1
     if skipped[0]:
-        logging.getLogger(__name__).info('容量统计跳过 %d 个正在变化的文件或目录', skipped[0])
+        logging.getLogger(__name__).info('Capacity count skipped %d files or directories that were changing', skipped[0])
     return total
 
 
@@ -754,7 +754,7 @@ class CapacityGuard:
             try:
                 self._clean(policy)  # 结论由后台检查点按新读数自己下
             except (OSError, ValueError, TimeoutError) as error:
-                logging.getLogger(__name__).warning('自动清理未完成（%s）', type(error).__name__)
+                logging.getLogger(__name__).warning('Automatic cleanup did not finish (%s)', type(error).__name__)
             finally:
                 _CLEANING.release()
         threading.Thread(target=run, name='PeachCapacityClean', daemon=True).start()
@@ -827,7 +827,7 @@ class CapacityGuard:
             raise
         except (OSError, ValueError, TimeoutError) as error:
             if self.foreground:
-                logging.getLogger(__name__).warning('容量检查未取得，播放照常（%s）', type(error).__name__)
+                logging.getLogger(__name__).warning('Capacity check unavailable, playback continues (%s)', type(error).__name__)
                 self._denied = None
                 return {'paused': False, 'reasons': [], 'error': str(error), 'checked_at': time.time()}
             self._denied = DiskSpaceDenied(f'容量保护检查未取得，已暂停：{error}')

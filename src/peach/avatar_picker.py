@@ -159,7 +159,7 @@ class IndexRefresher:
                 if close is not None:
                     close()
         except Exception as error:
-            LOGGER.warning("图库索引未取得：%s", error)
+            LOGGER.warning("Gallery index unavailable: %s", error)
             with self._lock:
                 self._failed_at = time.monotonic()
                 self.error = str(error)

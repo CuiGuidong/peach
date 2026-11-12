@@ -101,7 +101,7 @@ def _serve(args: argparse.Namespace) -> int:
         try:
             log_retention.sweep(settings_file.active().directory("logs"))
         except Exception:
-            logging.getLogger(__name__).warning("日志整理失败", exc_info=True)
+            logging.getLogger(__name__).warning("Log maintenance failed", exc_info=True)
     if bool(args.ssl_certfile) != bool(args.ssl_keyfile):
         raise SystemExit("--ssl-certfile and --ssl-keyfile must be provided together")
     for path in (args.ssl_certfile, args.ssl_keyfile):

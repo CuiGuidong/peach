@@ -394,7 +394,7 @@ class DiscoveryQueue:
             wrote = (self.ingest(entry.location, entry.path, entry.move_from) if entry.move_from
                      else self.ingest(entry.location, entry.path))
         except Exception as error:  # 一条路径失败不该带走整条队列
-            LOGGER.exception("推送发现登记失败：%s", entry.path)
+            LOGGER.exception("Push discovery registration failed: %s", entry.path)
             self.counters.failed += 1
             self.last_error = str(error)
             return 0
@@ -424,7 +424,7 @@ class DiscoveryQueue:
         except FileNotFoundError:
             return 0
         except (OSError, ValueError):
-            LOGGER.warning("推送发现的待办清单读不出来，跳过：%s", self.journal)
+            LOGGER.warning("Could not read the push discovery queue, skipping: %s", self.journal)
             return 0
         restored = 0
         for row in rows if isinstance(rows, list) else ():
@@ -456,7 +456,7 @@ class DiscoveryQueue:
             else:
                 self.journal.unlink(missing_ok=True)
         except OSError:
-            LOGGER.warning("推送发现的待办清单写不进去：%s", self.journal, exc_info=True)
+            LOGGER.warning("Could not write the push discovery queue: %s", self.journal, exc_info=True)
             with self._lock:
                 self._dirty = True
 
@@ -585,7 +585,7 @@ class PushDiscoverySettings:
         except FileNotFoundError:
             return PushDiscoveryConfig(enabled=True, cloud=False)
         except (OSError, ValueError):
-            LOGGER.warning("推送发现设置读不出来，按默认值跑：%s", self.path)
+            LOGGER.warning("Could not read push discovery settings, using defaults: %s", self.path)
             return PushDiscoveryConfig()
         if not isinstance(payload, dict):
             return PushDiscoveryConfig()
@@ -594,7 +594,7 @@ class PushDiscoverySettings:
         except ValueError:
             # 存进去的时候核对过；此刻对不上多半是媒体根改了。宁可让云端通道空转，
             # 也不要拿一张过期的表往账本里写路径。
-            LOGGER.warning("推送发现的前缀表与当前媒体根对不上，云端通道按未配置处理")
+            LOGGER.warning("Push discovery prefix table does not match the current media roots; treating the cloud channel as unconfigured")
             prefixes = ()
         return PushDiscoveryConfig(
             enabled=payload.get("enabled") is True,
@@ -770,7 +770,7 @@ class PushDiscoveryService:
         try:
             probe_path(self.db_path, str(choice.path) if choice else None, location, path)
         except sqlite3.Error:
-            LOGGER.exception("推送发现探测时长失败：%s", path)
+            LOGGER.exception("Push discovery duration probe failed: %s", path)
 
     def submit(self, location: str, path: str) -> bool:
         if ignored(path):

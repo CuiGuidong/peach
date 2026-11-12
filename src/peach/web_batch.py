@@ -359,7 +359,7 @@ def _finish_purge(outcome, contract=None):
         try:
             withdraw_purged_rows(candidate_root, ids)
         except (OSError, ValueError, csv.Error):
-            LOGGER.exception("撤下已删除资产的资料候选失败")
+            LOGGER.exception("Failed to withdraw metadata candidates of deleted assets")
     cleanup_pending = []
     for _original, quarantine in outcome.pop("_staged"):
         try:

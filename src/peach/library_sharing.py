@@ -391,7 +391,7 @@ class Service:
         except InterruptedError:
             return
         except (OSError, ValueError) as error:
-            logging.getLogger(__name__).warning('研究容量采样未取得（%s）', type(error).__name__)
+            logging.getLogger(__name__).warning('Research capacity sample unavailable (%s)', type(error).__name__)
 
     def stop(self):
         self._stop.set()

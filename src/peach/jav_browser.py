@@ -289,7 +289,7 @@ class JavBrowser:
         except FileNotFoundError:
             ended = {"since": iso(time.time() - RECENT_SECONDS), "dismissed": []}
         except (ValueError, KeyError, TypeError):
-            LOGGER.warning("浏览器添加的结束确认记录无法读取，从现在起重新计")
+            LOGGER.warning("Could not read the browser-add completion record; counting from now")
             ended = {"since": iso(time.time()), "dismissed": []}
         atomic_write_text(self.ended_path, json.dumps(ended, ensure_ascii=False, indent=2) + "\n")
         return ended
@@ -596,7 +596,7 @@ class JavBrowser:
                     with self._lock:
                         self._submitting.discard(code)
         except Exception as error:
-            LOGGER.error("JAV 浏览器添加失败：%s (%s)", code, type(error).__name__)
+            LOGGER.error("JAV browser add failed: %s (%s)", code, type(error).__name__)
             with self._lock:
                 self._submitting.discard(code)
                 if row["state"] == "searching":

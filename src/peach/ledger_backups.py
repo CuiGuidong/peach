@@ -122,7 +122,7 @@ def organize_backup(live: Path, generated_root: Path | str, name: str) -> Iterat
             prune(live, apply=True, directory=backup.parent, pattern=ORGANIZE_PATTERN,
                   keep_recent=ORGANIZE_KEEP_RECENT, min_age=ORGANIZE_MIN_AGE)
         except Exception:
-            log.warning("整理备份清退失败", exc_info=True)
+            log.warning("Organize backup retention cleanup failed", exc_info=True)
         yield backup
 
 
@@ -249,7 +249,7 @@ def prune(
         try:
             target.unlink(missing_ok=True)
         except OSError as exc:
-            log.warning("数据库备份未能删除 %s: %s", target, exc)
+            log.warning("Failed to delete database backup %s: %s", target, exc)
     return decided
 
 
@@ -316,7 +316,7 @@ def create(live: Path, *, purpose: str = MANUAL_PURPOSE, progress=None, now: dat
     try:
         prune(live, apply=True)
     except Exception:
-        log.warning("账本备份清退失败", exc_info=True)
+        log.warning("Ledger backup retention cleanup failed", exc_info=True)
     return target
 
 
@@ -395,7 +395,7 @@ def _record(live: Path, **fields) -> dict:
     try:
         atomic_write_text(live.with_name(RESULT_NAME), json.dumps(data, ensure_ascii=False))
     except OSError:
-        log.warning("账本恢复结果未能写入", exc_info=True)
+        log.warning("Failed to write the ledger restore result", exc_info=True)
     return data
 
 
@@ -534,7 +534,7 @@ def restore(live: Path, backup: Path, *, migrations_dir: Path, progress=None,
             try:
                 _carry_operational(live, saved)
             except sqlite3.Error:
-                log.warning("恢复后未能接回任务历史与账本版本号", exc_info=True)
+                log.warning("Failed to reattach task history and the ledger version after restore", exc_info=True)
         marker.unlink(missing_ok=True)
         live.with_name(RESULT_NAME).unlink(missing_ok=True)
     finally:
@@ -542,7 +542,7 @@ def restore(live: Path, backup: Path, *, migrations_dir: Path, progress=None,
     try:
         prune(live, apply=True)
     except Exception:
-        log.warning("账本备份清退失败", exc_info=True)
+        log.warning("Ledger backup retention cleanup failed", exc_info=True)
     return RestoreOutcome(backup, saved, tuple(migration.version for migration in pending))
 
 
@@ -586,7 +586,7 @@ def settle(live: Path, *, reason: str = "上次从备份恢复被中断", state:
     result = _record(live, state=state, outcome=outcome, message=message,
                      backup=Path(data.get("backup") or "").name)
     marker.unlink(missing_ok=True)
-    log.warning("账本恢复标记处理：%s", message)
+    log.warning("Ledger restore marker processed: %s", message)
     return result
 
 
@@ -681,7 +681,7 @@ class LedgerBackups:
                     try:
                         self.after_restore()
                     except Exception:
-                        log.warning("恢复后清理缓存失败", exc_info=True)
+                        log.warning("Failed to clear caches after restore", exc_info=True)
                 job.update(identity, status="complete", **stage_fields('backup.restoreDone'), backup=backup.name,
                            saved=outcome.saved.name if outcome.saved else "",
                            migrated=len(outcome.migrated))

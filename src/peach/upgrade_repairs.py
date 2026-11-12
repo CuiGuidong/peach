@@ -1065,7 +1065,7 @@ class UpgradeRepairs:
                                (json.dumps(receipt, ensure_ascii=False), REVISION))
         atomic_write_text(self.receipt, json.dumps(receipt, ensure_ascii=False))
         if plan['withdrawn']:
-            LOGGER.info('旧番号下的资料候选：撤下 %s 行，快照失效 %s 份',
+            LOGGER.info('Metadata candidates under stale codes: withdrew %s rows, invalidated %s snapshots',
                         len(plan['withdrawn']), len(plan['snapshots']))
 
     def _settle_dangling_candidates(self) -> None:
@@ -1078,7 +1078,7 @@ class UpgradeRepairs:
         try:
             self._settle_dangling_candidates_once()
         except Exception:
-            LOGGER.exception('悬空资料候选补修失败')
+            LOGGER.exception('Dangling metadata candidate repair failed')
 
     def _settle_dangling_candidates_once(self) -> None:
         from .review_csv import write_rows
@@ -1114,7 +1114,7 @@ class UpgradeRepairs:
             # 候选件在事务里写，写不成整个事务回滚、下次启动重做（`_withdraw_stale_code_evidence` 同一做法）。
             for path, (header, rows) in plan['files'].items():
                 write_rows(path, header, rows, atomic=True)
-        LOGGER.info('悬空资料候选：改挂 %s 行，撤下 %s 行，决定改挂或清掉 %s 条',
+        LOGGER.info('Dangling metadata candidates: repinned %s rows, withdrew %s rows, repinned or cleared %s decisions',
                     len(plan['repinned']), len(plan['withdrawn']), len(decisions))
 
     def _settle_javdb_records(self) -> None:
@@ -1138,9 +1138,9 @@ class UpgradeRepairs:
                 connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
                                    (JAVDB_RECORDS_KEY, str(time.time()), json.dumps(result, ensure_ascii=False)))
         except Exception:
-            LOGGER.exception('JavDB 演员页记录类型补修失败')
+            LOGGER.exception('JavDB actor page record type repair failed')
             return
-        LOGGER.info('JavDB 演员页：补记 %s 个记录类型，%s 枚入口不再给出，停用 %s 条订阅',
+        LOGGER.info('JavDB actor pages: recorded %s record types, stopped offering %s entries, disabled %s feeds',
                     len(result['recorded']), len(result['hidden']), len(result['disabled_feeds']))
 
     def _settle_resolution_tags(self) -> None:
@@ -1162,9 +1162,9 @@ class UpgradeRepairs:
                 connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
                                    (RESOLUTION_TAGS_KEY, str(time.time()), json.dumps(result, ensure_ascii=False)))
         except Exception:
-            LOGGER.exception('来源分辨率标签补修失败')
+            LOGGER.exception('Source resolution tag repair failed')
             return
-        LOGGER.info('来源分辨率标签：解除 %s 行', len(result['tags']))
+        LOGGER.info('Source resolution tags: removed %s rows', len(result['tags']))
 
     def _convert_interface_text(self) -> None:
         """旧任务行与补全记录里的界面文字转成 code（`interface_text_upgrade`），只做一次。
@@ -1205,7 +1205,7 @@ class UpgradeRepairs:
                 write_owned_fields(connection, [row['id'] for row in rows], {'code': None}, SCAN_FILENAME)
             connection.execute('INSERT INTO ledger_upgrade_repair(id,applied_at,result_json) VALUES(?,?,?)',
                                (STALE_CODES_KEY, str(time.time()), json.dumps({'cleared': rows})))
-        LOGGER.info('旧版误认的番号：清掉 %s 条', len(rows))
+        LOGGER.info('Codes misread by older versions: cleared %s', len(rows))
 
     def _release_studio_misses(self) -> None:
         """旧版断网时记下的「官网未取得」各放一次重试（`studio_followup.release_unbounded_misses`）。
@@ -1222,9 +1222,9 @@ class UpgradeRepairs:
             with self.contract.database.write_transaction() as connection:
                 connection.execute('INSERT OR IGNORE INTO ledger_upgrade_repair(id,applied_at,result_json) '
                                    'VALUES(?,?,?)', (key, str(time.time()), json.dumps({'released': changed})))
-            LOGGER.info('旧的「官网未取得」放行重试：%s 条', changed)
+            LOGGER.info('Released old "official site not retrieved" records for retry: %s', changed)
         except Exception:
-            LOGGER.exception('放行旧的「官网未取得」重试失败')
+            LOGGER.exception('Failed to release old "official site not retrieved" records for retry')
 
     def _prune_task_controls(self) -> None:
         """旧版每轮任务留下的 `state/task-controls` 即时状态文件一次清掉（`task_control.prune_controls`）。
@@ -1241,9 +1241,9 @@ class UpgradeRepairs:
             with self.contract.database.write_transaction() as connection:
                 connection.execute('INSERT OR IGNORE INTO ledger_upgrade_repair(id,applied_at,result_json) '
                                    'VALUES(?,?,?)', (key, str(time.time()), json.dumps({'removed': removed})))
-            LOGGER.info('已结束任务的控制文件：清掉 %s 个', removed)
+            LOGGER.info('Control files of finished tasks: removed %s', removed)
         except Exception:
-            LOGGER.exception('清退已结束任务的控制文件失败')
+            LOGGER.exception('Failed to clean up control files of finished tasks')
 
     def _prune_repair_checkpoints(self) -> None:
         """旧版补修完不删的续跑状态一次清掉；之后每部、每批有了结论就当场删（`discard_checkpoint`）。
@@ -1281,9 +1281,9 @@ class UpgradeRepairs:
                 connection.execute('INSERT OR IGNORE INTO ledger_upgrade_repair(id,applied_at,result_json) '
                                    'VALUES(?,?,?)', (key, str(time.time()),
                                                      json.dumps({'removed': removed, 'bytes': size})))
-            LOGGER.info('补修续跑状态：清掉 %s 个文件，%s 字节', removed, size)
+            LOGGER.info('Repair resume state: removed %s files, %s bytes', removed, size)
         except Exception:
-            LOGGER.exception('清退补修续跑状态失败')
+            LOGGER.exception('Failed to clean up repair resume state')
 
     def _settle_verification(self) -> None:
         """核查差异的结算规则（ADR-0139）对存量候选跑一遍，规则版本变了才再跑。
@@ -1297,7 +1297,7 @@ class UpgradeRepairs:
             self._settle_verification_once()
         except Exception as exc:
             self.error = str(exc)
-            LOGGER.exception('核查差异存量结算失败')
+            LOGGER.exception('Verification difference settlement failed')
 
     def _settle_verification_once(self) -> None:
         from .metadata_auto_apply import _parsed_candidates, auto_apply_metadata
@@ -1326,7 +1326,7 @@ class UpgradeRepairs:
         with contract.database.write_transaction() as connection:
             connection.execute('INSERT OR IGNORE INTO ledger_upgrade_repair(id,applied_at,result_json) '
                                'VALUES(?,?,?)', (key, str(time.time()), json.dumps(result, ensure_ascii=False)))
-        LOGGER.info('核查差异存量结算：%s', result)
+        LOGGER.info('Verification difference settlement: %s', result)
 
     def _restore_receipt(self, authoritative):
         try:
@@ -1512,7 +1512,7 @@ class UpgradeRepairs:
             return
         except Exception as exc:
             self.error = str(exc)
-            LOGGER.exception('升级补修派发失败')
+            LOGGER.exception('Upgrade repair dispatch failed')
 
     def _settle_queue(self, receipt) -> list[dict] | None:
         """已结束的影片补全移出回执队列，结论记进状态表；没有要结算的返回 None。

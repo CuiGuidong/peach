@@ -152,7 +152,7 @@ def resume(db: Path, handlers: dict) -> list[str]:
                         TaskRunStore(db).finish(data['run_id'], 'failed', error=str(exc))
                     data.update(status="blocked", error=str(exc))
                     atomic_write_text(_path(db, key), json.dumps(data, ensure_ascii=False))
-                    LOGGER.warning("任务 %s 未能恢复：%s", key, exc)
+                    LOGGER.warning("Task %s could not be resumed: %s", key, exc)
                 else:
                     resumed.append(key)
         except UpdateBusy:

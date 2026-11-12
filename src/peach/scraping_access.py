@@ -400,7 +400,7 @@ def record_source_check(root: Path, source: str, stage: str, record: dict) -> No
             atomic_write_text(Path(root) / f"source-check-{source}.json",
                               json.dumps(state, ensure_ascii=False), mode=0o600)
         except OSError:
-            LOGGER.warning("来源 %s 的诊断记录未保存", source)
+            LOGGER.warning("Diagnostics record for source %s was not saved", source)
 
 
 def browser_profile(root: Path) -> Path:
@@ -604,17 +604,17 @@ class SourceTransport:
         try:
             response = browser(request, timeout, max_bytes)
         except (browser_transport.BrowserUnavailable, browser_transport.ChallengeUnsolved) as error:
-            LOGGER.info("%s 的 HTTP 客户端被拦，浏览器验证也没取到：%s", source, error)
+            LOGGER.info("%s blocked the HTTP client and browser verification also failed: %s", source, error)
             return None
         if response.status != 200 or _refused(response):
-            LOGGER.info("%s 的 HTTP 客户端被拦，浏览器验证回 HTTP %s", source, response.status)
+            LOGGER.info("%s blocked the HTTP client; browser verification returned HTTP %s", source, response.status)
             return None
         fix_to_browser(self.root, source)
         replaced = self.transports.get(source)
         if isinstance(replaced, HttpxTransport):
             replaced.close()
         self.transports[source] = browser
-        LOGGER.warning("%s 的 HTTP 客户端被拦，浏览器验证取到正常页；这个来源之后固定走本机浏览器", source)
+        LOGGER.warning("%s blocked the HTTP client; browser verification got a normal page, so this source now always uses the local browser", source)
         return response
 
     def _browser_for(self, source: str):

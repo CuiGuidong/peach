@@ -4071,7 +4071,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
                             self.assertEqual(page.status_code, 200)
                             self.assertIn('id="tutorialBtn"', page.text)
                 self.assertEqual([record.levelname for record in captured.records], ["WARNING"])
-                self.assertIn("数据库准备完成后重启服务", captured.output[0])
+                self.assertIn("Restart the service once the database is ready", captured.output[0])
                 self.assertNotIn(str(database), captured.output[0])
                 self.assertEqual(database.read_bytes() if database.exists() else None, original)
 

@@ -204,7 +204,7 @@ def _start_tunnel(settings: PeachSettings, manager: tunnel.TunnelManager) -> Non
     try:
         manager.start(tunnel.plan_for_settings(settings))
     except tunnel.TunnelError:
-        LOGGER.warning("Cloudflare Tunnel 未能启动", exc_info=True)
+        LOGGER.warning("Cloudflare Tunnel failed to start", exc_info=True)
 
 
 def _restore_task_center(contract) -> None:
@@ -247,7 +247,7 @@ def _start_ledger_services(settings: PeachSettings, contract, services) -> bool:
         # 上次从备份恢复没走完：先把账本收拾到确定的状态，再判它能不能用（ADR-0138）。
         ledger_backups.recover(settings.db_path)
     except Exception:
-        LOGGER.exception('账本恢复标记未能处理')
+        LOGGER.exception('Could not process the ledger restore marker')
     status = inspect_database(settings.db_path)
     repairs = getattr(contract, 'upgrade_repairs', None)
     if status['schema'] == 'pending' and repairs is not None and repairs.available:
@@ -261,10 +261,10 @@ def _start_ledger_services(settings: PeachSettings, contract, services) -> bool:
             contract.task_runs.enabled = contract.task_runs.available()
         except Exception as exc:
             repairs.error = str(exc)
-            LOGGER.exception('自动迁移失败，后台任务保持停止')
+            LOGGER.exception('Automatic migration failed; background tasks stay stopped')
             return False
     if not status["readable"] or status["schema"] != "current":
-        LOGGER.warning("数据库未就绪，依赖数据库的后台任务保持停止（数据库：%s；结构：%s）；数据库准备完成后重启服务。",
+        LOGGER.warning("Database not ready; background tasks that need it stay stopped (database: %s; schema: %s). Restart the service once the database is ready.",
                        status["database"], status["schema"])
         return False
     if repairs is not None:
@@ -272,7 +272,7 @@ def _start_ledger_services(settings: PeachSettings, contract, services) -> bool:
             repairs.prepare()
         except Exception as exc:
             repairs.error = str(exc)
-            LOGGER.exception('升级补修未完成，后台任务保持停止')
+            LOGGER.exception('Upgrade repairs did not finish; background tasks stay stopped')
             return False
     _restore_task_center(contract)
     from .web_job_recovery import restore
@@ -373,7 +373,7 @@ class _LedgerActivation:
                 await self.resume()
         except Exception as exc:
             self.contract.upgrade_repairs.error = str(exc)
-            LOGGER.exception('安装后的后台服务未能启动')
+            LOGGER.exception('Background services failed to start after the update was installed')
         finally:
             self.app.state.ledger_background_deferred = False
 

@@ -101,7 +101,7 @@ class ReviewMirror:
             self._write_cache(rewritten, fetched_at)
         except OSError as error:
             # 缓存只是 writer 暂时离线时的降级，落盘失败不能把刚取得的实时队列也变成 500。
-            LOGGER.warning("复核镜像缓存写入失败：%s", error)
+            LOGGER.warning("Failed to write the review mirror cache: %s", error)
         self._live_payload = rewritten
         self._live_at = now
         return deepcopy(rewritten)

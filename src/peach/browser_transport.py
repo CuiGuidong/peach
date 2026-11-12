@@ -506,7 +506,7 @@ class BrowserTransport:
         def show(reason: str) -> float:
             browser.place(visible=True)
             _set_attention(host, f"{host} 的人机验证需要点一下，浏览器窗口已打开")
-            LOGGER.warning("%s 的验证页%s，窗口已放到屏幕内，等待用户点击", host, reason)
+            LOGGER.warning("%s verification page %s; window moved on screen, waiting for the user to click", host, reason)
             return self._clock()
 
         try:
@@ -534,7 +534,7 @@ class BrowserTransport:
                     if not cleared and waited >= reset_limit:
                         cleared = True
                         count = browser.clear_cookies(url)
-                        LOGGER.info("%s 的验证页 %d 秒没有自动通过，清掉该站 %d 条 cookie 重载", host, int(elapsed), count)
+                        LOGGER.info("%s verification page did not pass within %d s; cleared %d cookies for the site and reloaded", host, int(elapsed), count)
                         browser.navigate(url, referrer=referrer)
                         phase_started = now
                     elif cleared and waited >= auto_limit:
@@ -563,7 +563,7 @@ class BrowserTransport:
             return state
         clicked = browser.evaluate(_CLICK_SCRIPT % {"pattern": json.dumps(gate["button"])})
         if not clicked:
-            LOGGER.warning("%s 的年龄门上没有找到能点的按钮", parts.hostname)
+            LOGGER.warning("%s age gate has no clickable button", parts.hostname)
             return state
         started = self._clock()
         while self._clock() - started < GATE_SECONDS:
@@ -571,7 +571,7 @@ class BrowserTransport:
             state = self._state(browser)
             if state["ready"] in ("interactive", "complete") and state["url"] and gate["path"] not in urlsplit(state["url"]).path:
                 return state
-        LOGGER.warning("%s 的年龄门点了「%s」但没有跳回去", parts.hostname, clicked)
+        LOGGER.warning("%s age gate: clicked \"%s\" but the page did not navigate back", parts.hostname, clicked)
         return state
 
     def _touch(self) -> None:

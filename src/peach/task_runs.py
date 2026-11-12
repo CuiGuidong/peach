@@ -487,7 +487,7 @@ class TaskRunStore:
                 first = run_id not in self._progress_failing
                 self._progress_failing.add(run_id)
             if first:
-                LOGGER.warning("第 %s 轮的进度没写进 task_run，下一次进度再写：%s",
+                LOGGER.warning("Progress for run %s was not written to task_run, will retry with the next update: %s",
                                run_id, error)
             return False
         with self._lock:
@@ -524,7 +524,7 @@ class TaskRunStore:
                 if not delays:
                     raise
                 delay = delays.pop(0)
-                LOGGER.warning("第 %s 轮结算没写进 task_run，%s 秒后重试：%s",
+                LOGGER.warning("Settlement for run %s was not written to task_run, retrying in %s s: %s",
                                run_id, delay, failure)
                 time.sleep(delay)
         with self._lock:

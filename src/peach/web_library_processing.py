@@ -430,7 +430,7 @@ def retry_after_network_recovery(contract, sync=None):
             return None
         return w_library_processing(contract, {'job_id': previous.get('job_id'), 'retry': []})
     except Exception:
-        LOGGER.warning('联网恢复后自动重试未完成项失败', exc_info=True)
+        LOGGER.warning('Automatic retry of unfinished items after the network came back failed', exc_info=True)
         return None
 
 

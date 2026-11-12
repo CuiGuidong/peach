@@ -218,7 +218,7 @@ def bundled_model(name: str, sha256: str) -> Path | None:
         return None
     _verified[path] = (key, actual == sha256)
     if actual != sha256:
-        LOGGER.warning("随包的人脸模型校验不符，退回数据目录或联网取：%s（期望 %s，实际 %s）",
+        LOGGER.warning("Bundled face model checksum mismatch, falling back to the data directory or a download: %s (expected %s, got %s)",
                        path, sha256, actual)
         return None
     return path

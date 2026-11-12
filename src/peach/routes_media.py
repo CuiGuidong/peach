@@ -274,7 +274,7 @@ def local_playback(request: Request, id: int, player: str = 'default', args=Depe
     except ValueError as exc:
         raise HTTPException(400, str(exc)) from None
     except (OSError, subprocess.SubprocessError) as exc:
-        LOGGER.warning('本地播放器启动失败：player=%s type=%s errno=%s winerror=%s',
+        LOGGER.warning('Local player failed to start: player=%s type=%s errno=%s winerror=%s',
                        player, type(exc).__name__, getattr(exc, 'errno', None), getattr(exc, 'winerror', None))
         raise HTTPException(503, '无法打开播放器，请检查系统文件关联或选择其他播放器') from None
     return {'opened': True}
@@ -441,7 +441,7 @@ def _record_stream_plan(state, asset_id: int, source: Path, plan: dict) -> dict:
                     media_profile=state.transcode_service.diagnostic_profile(source),
                     hardware=state.transcode_service.hardware.diagnostic_snapshot())
     except Exception:
-        LOGGER.debug('播放诊断未取得', exc_info=True)
+        LOGGER.debug('Playback diagnostics unavailable', exc_info=True)
     return plan
 
 

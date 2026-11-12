@@ -86,7 +86,7 @@ def sweep_onefile_extractions(
                 continue
             shutil.rmtree(entry)
         except OSError as exc:
-            log.warning("单文件包解压残留未能删除 %s: %s", entry, exc)
+            log.warning("Failed to delete one-file bundle extraction leftovers %s: %s", entry, exc)
             continue
         removed.append(entry)
     return tuple(removed)
@@ -189,7 +189,7 @@ class WindowsUpdateInstaller:
             try:
                 stale.unlink()
             except OSError as exc:
-                log.warning("旧托盘备份未能删除 %s: %s", stale, exc)
+                log.warning("Failed to delete old tray backup %s: %s", stale, exc)
                 continue
             removed.append(stale)
 
@@ -204,7 +204,7 @@ class WindowsUpdateInstaller:
                 try:
                     shutil.rmtree(entry)
                 except OSError as exc:
-                    log.warning("暂存构建未能删除 %s: %s", entry, exc)
+                    log.warning("Failed to delete staged build %s: %s", entry, exc)
                     continue
                 removed.append(entry)
         return tuple(removed)

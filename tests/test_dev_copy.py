@@ -139,7 +139,7 @@ class DevCopyTests(unittest.TestCase):
                     self._wait_for_state(runtime, root, 'error' if blocked else 'ready')
                 self.assertEqual(tray.manager.restart.call_count, 0 if blocked else 1)
                 if not blocked:
-                    tray.manager.restart.assert_called_once_with(reason='源码改字构建完成，重载服务')
+                    tray.manager.restart.assert_called_once_with(reason='source copy edit built, reloading services')
                 # 终态写盘时托盘动作锁已经释放，看到终态的调用方不会抢在释放之前。
                 self.assertEqual(locked_at_terminal, [False])
                 self.assertFalse(tray._action_lock.locked())

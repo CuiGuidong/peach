@@ -165,7 +165,7 @@ def record_playback(contract):
         try:
             record_activity(config)
         except (OSError, ValueError) as error:
-            LOGGER.warning('播放活跃日记录未取得（%s）', type(error).__name__)
+            LOGGER.warning('Playback activity days unavailable (%s)', type(error).__name__)
 
 
 def _metric(rows, key):

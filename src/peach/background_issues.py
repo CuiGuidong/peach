@@ -191,7 +191,7 @@ class IssueLog:
             try:
                 issues.extend(provider(state, contract, config))
             except Exception:  # 一个服务读坏了不该让整块消失
-                LOGGER.exception("读取后台问题失败：%s", getattr(provider, "__name__", provider))
+                LOGGER.exception("Failed to read background issues: %s", getattr(provider, "__name__", provider))
         now = _stamp(self.clock())
         with self._lock:
             current = {issue.key for issue in issues}

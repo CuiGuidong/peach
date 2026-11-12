@@ -298,17 +298,17 @@ def clouddrive_inbox(request: Request, body: dict[str, Any] = Body(default_facto
         raise HTTPException(404, "这个地址下没有页面。")
     host = request.client.host if request.client else ""
     if not push_discovery.allowed_source(host):
-        LOGGER.warning("推送发现拒收来自 %s 的请求", host or "未知来源")
+        LOGGER.warning("Push discovery rejected a request from %s", host or "an unknown address")
         raise HTTPException(404, "这个地址下没有页面。")
     if not service.secret.matches(request.headers.get(push_discovery.SECRET_HEADER, "")):
-        LOGGER.warning("推送发现拒收密钥不符的请求")
+        LOGGER.warning("Push discovery rejected a request with a mismatched key")
         raise HTTPException(404, "这个地址下没有页面。")
     for cloud_path in push_discovery.parse_notification(body):
         try:
             service.submit_cloud(cloud_path)
         except push_discovery.CloudPathError as exc:
             # 一条路径映射不出来，同一批里的其余条目照常登记。
-            LOGGER.info("推送发现跳过一条云端路径：%s", exc)
+            LOGGER.info("Push discovery skipped a cloud path: %s", exc)
     return Response(status_code=204)
 
 

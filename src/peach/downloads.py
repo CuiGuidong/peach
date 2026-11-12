@@ -666,14 +666,14 @@ class DownloadSettings:
         except FileNotFoundError:
             return DownloadConfig()
         except (OSError, ValueError):
-            LOGGER.warning("云下载设置读不出来，按默认值跑：%s", self.path)
+            LOGGER.warning("Could not read cloud download settings, using defaults: %s", self.path)
             return DownloadConfig(problems=("云下载设置无法读取，请检查设置文件或重新填写。",))
         if not isinstance(payload, dict):
             return DownloadConfig(problems=("云下载设置格式不符，请检查设置文件或重新填写。",))
         try:
             return self._parse(payload, declared_roots=None, saved=True)
         except ValueError:
-            LOGGER.warning("云下载设置有不合法的值，按默认值跑：%s", self.path)
+            LOGGER.warning("Cloud download settings contain invalid values, using defaults: %s", self.path)
             return DownloadConfig(problems=("云下载设置含有无效值，请检查目标目录和等待上限。",))
 
     def _parse(self, body: dict, *, declared_roots, saved: bool = False) -> DownloadConfig:
@@ -981,7 +981,7 @@ class DownloadService:
                 upcoming = self.store.next_due(self.clock())
             except Exception:
                 # 一轮里出什么错都不能让线程退出：退出之后所有任务都不再推进，界面上只是不动。
-                LOGGER.exception("云下载对账失败")
+                LOGGER.exception("Cloud download reconciliation failed")
                 upcoming = self.clock() + POLL_DELAYS[2]
             delay = POLL_DELAYS[-1] if upcoming is None else upcoming - self.clock()
             self._wake.wait(timeout=min(max(delay, 1.0), POLL_DELAYS[-1]))
@@ -993,7 +993,7 @@ class DownloadService:
             try:
                 self.advance(task)
             except Exception:
-                LOGGER.exception("云下载任务 %s 对账失败", task.id)
+                LOGGER.exception("Reconciliation failed for cloud download task %s", task.id)
                 self._reschedule(task, self.clock(), "对账时出现未预期的错误，稍后再试")
         return len(due)
 
@@ -1141,7 +1141,7 @@ class DownloadService:
         try:
             self.after_ingest(task)
         except Exception as error:
-            LOGGER.exception("云下载任务 %s 后处理入队失败", task.id)
+            LOGGER.exception("Failed to queue post-processing for cloud download task %s", task.id)
             if self.store.fail_postprocess(task.id, error, now=self.clock()):
                 self.wake()
 

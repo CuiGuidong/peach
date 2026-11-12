@@ -192,7 +192,7 @@ def create_local_ca(files: CertificateFiles, days: int = CA_DAYS) -> Path:
              "-addext", "basicConstraints=critical,CA:TRUE,pathlen:0",
              "-addext", "keyUsage=critical,keyCertSign,cRLSign",
              "-addext", "subjectKeyIdentifier=hash")
-    LOGGER.info("已生成本机 CA：%s", files.ca_cert)
+    LOGGER.info("Generated local CA: %s", files.ca_cert)
     return files.ca_cert
 
 
@@ -233,7 +233,7 @@ def ensure_certificate(
     reason = reissue_reason(files, names, wanted)
     if reason is None:
         return None
-    LOGGER.info("重签服务器证书：%s", reason)
+    LOGGER.info("Reissued server certificate: %s", reason)
     reissue(files, common_name, names, wanted)
     return reason
 
