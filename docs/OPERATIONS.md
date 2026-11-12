@@ -210,6 +210,8 @@ Mac 与 Windows 托盘的首层只显示简短状态与提醒数量，展开状�
 
 ### 终端 `peach init`
 
+`peach` 命令行的输出跟系统语言：中文系统显示中文，其余显示英文；设置环境变量 `PEACH_LANGUAGE=zh-CN` 或 `PEACH_LANGUAGE=en` 可以指定。日志固定用英文。
+
 在终端里直接运行 `peach init`（不带参数）会进入问答：
 
 1. 数据目录。

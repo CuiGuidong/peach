@@ -111,6 +111,22 @@ class StatusCommandTests(unittest.TestCase):
         self.assertEqual(code, 4)
         self.assertIn("数据库不存在", output)
         self.assertFalse(missing.exists())
+        # 命令行跟系统语言走（ADR-0159 第三条）：英文系统看到的是英文。
+        with mock.patch.dict(os.environ, {"PEACH_LANGUAGE": "en"}):
+            _code, english = self._run(["status", "--db", str(missing), "--shared-db", str(self.shared)])
+        self.assertIn(f"Database not found: {missing}", english)
+
+
+class CommandLanguageTests(unittest.TestCase):
+    def test_peach_language_wins_then_the_system_locale_decides(self):
+        from peach.interface_text import system_language
+        self.assertEqual(system_language({"PEACH_LANGUAGE": "en", "LANG": "zh_CN.UTF-8"}), "en")
+        self.assertEqual(system_language({"LANG": "zh_CN.UTF-8"}), "zh-CN")
+        self.assertEqual(system_language({"LC_ALL": "en_US.UTF-8", "LANG": "zh_CN.UTF-8"}), "en")
+        # Windows 的区域名写成「Chinese (Simplified)_China」。
+        self.assertEqual(system_language({}, "Chinese (Simplified)_China"), "zh-CN")
+        self.assertEqual(system_language({}, "Japanese_Japan"), "en")
+        self.assertEqual(system_language({}, ""), "en")
 
 
 class InitCommandTests(unittest.TestCase):

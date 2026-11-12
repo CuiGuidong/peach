@@ -16,7 +16,7 @@
   "src/peach/catalog_versions.py": 7,
   "src/peach/certs.py": 7,
   "src/peach/classification.py": 12,
-  "src/peach/cli.py": 137,
+  "src/peach/cli.py": 3,
   "src/peach/clouddrive_proxy.py": 18,
   "src/peach/code_creators.py": 16,
   "src/peach/community_catalog.py": 7,
