@@ -3576,7 +3576,7 @@
       "manualAliasKept": "人工别名保持原样",
       "item": {
         "receipt": "更新后自动处理",
-        "local": "更新已有资料",
+        "existing": "更新已有资料",
         "background": "后台更新进度"
       },
       "receiptUnreadable": "更新后的处理记录无法读取",

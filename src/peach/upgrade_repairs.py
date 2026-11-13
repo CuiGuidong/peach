@@ -822,7 +822,7 @@ class UpgradeRepairs:
         state = 'failed' if self.error or paused else 'running' if active else 'failed' if failed else (
             'running' if waiting else 'review' if review else
             'complete' if receipt.get('dispatch_complete') and local else 'pending')
-        items = [{'id': REVISION, **_coded('labels.upgradeRepairs.item.local', key='label'), 'state': local.get('state', 'pending'),
+        items = [{'id': REVISION, **_coded('labels.upgradeRepairs.item.existing', key='label'), 'state': local.get('state', 'pending'),
                   'changed': local.get('changed', {}), 'review_count': review},
                  {'id': 'background', **_coded('labels.upgradeRepairs.item.background', key='label'), 'state': state,
                   'pending': active, 'failed': failed, 'deferred': waiting, 'queued': len(queued)}]
