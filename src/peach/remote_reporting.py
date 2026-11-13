@@ -18,7 +18,7 @@ from urllib.parse import urlsplit
 from . import interface_text
 from .reporting_identity import event_metadata, machine_facts
 from .diagnostic_exceptions import media_details
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserValueError
 
 #: 两类上报，各自的「上传哪些字段」说明是 `labels.remoteReporting.field.<类>`（ADR-0159）。
 FIELDS = ("usage", "errors")
@@ -437,7 +437,9 @@ def usage(config=None):
 
 
 def _http_status(error):
-    status = getattr(error, "status_code", None)
+    # 带 code 的报错（`UserFacingError`）身上的 `status_code` 只是「漏到接口层时回什么状态」的提示，
+    # 不是一次 HTTP 失败；按它判 4xx 会把后台技术故障当成预期情况、不再上报。
+    status = None if isinstance(error, UserFacingError) else getattr(error, "status_code", None)
     if type(status) is not int or not 100 <= status <= 599:
         status = getattr(getattr(error, "response", None), "status_code", None)
     if type(status) is not int and any(cls.__module__ == "urllib.error" and cls.__name__ == "HTTPError"
