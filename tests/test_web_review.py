@@ -3325,7 +3325,7 @@ class ReviewQueueTests(unittest.TestCase):
             connection.execute("UPDATE asset SET disposal='trash' WHERE id=3")
         connection.close()
         self._csv("babepedia-candidates.csv", ["entity_id", "creator", "videos", "verdict"],
-                  [{"entity_id": "1", "creator": "ukiru", "videos": "2", "verdict": "命中"}])
+                  [{"entity_id": "1", "creator": "ukiru", "videos": "2", "verdict": "matched"}])
         row = rm_review.q_review(self.contract)["sections"]["western_identity"][0]
         self.assertEqual([asset["id"] for asset in row["preview_assets"]], [1, 2])
         with sqlite3.connect(self.db_path) as connection:
@@ -3336,33 +3336,48 @@ class ReviewQueueTests(unittest.TestCase):
 
     def test_settled_western_identity_rows_stay_out_of_the_queue(self):
         # 168 条里 143 条是「确认无档案」，站上确实没有这个人，没有可判断的东西。
+        # 旧版候选表写的中文取值照样认。
         fields = ["entity_id", "creator", "videos", "verdict", "matched_variant",
                   "babepedia_name", "token_overlap", "portrait_url", "profile_url"]
-        self._csv("babepedia-candidates.csv", fields, [
-            {"entity_id": "1", "creator": "ruth_lee", "videos": "336", "verdict": "命中",
-             "matched_variant": "ruth_lee", "babepedia_name": "Ruth Lee",
-             "token_overlap": "1.0", "portrait_url": "https://x/p.jpg", "profile_url": ""},
-            {"entity_id": "2", "creator": "minhie", "videos": "17", "verdict": "需人工确认",
-             "matched_variant": "minhie", "babepedia_name": "Aryminh",
-             "token_overlap": "0.0", "portrait_url": "", "profile_url": ""},
-            {"entity_id": "3", "creator": "luckydog22", "videos": "496",
-             "verdict": "确认无档案", "matched_variant": "", "babepedia_name": "",
-             "token_overlap": "0.0", "portrait_url": "", "profile_url": ""},
-        ])
-        rows = rm_review.q_review(self.contract)["sections"]["western_identity"]
-        self.assertEqual({r["creator"] for r in rows}, {"ruth_lee", "minhie"})
+        for verdicts in (("matched", "needs-review", "no-profile"), ("命中", "需人工确认", "确认无档案")):
+            with self.subTest(verdicts=verdicts):
+                self._csv("babepedia-candidates.csv", fields, [
+                    {"entity_id": "1", "creator": "ruth_lee", "videos": "336", "verdict": verdicts[0],
+                     "matched_variant": "ruth_lee", "babepedia_name": "Ruth Lee",
+                     "token_overlap": "1.0", "portrait_url": "https://x/p.jpg", "profile_url": ""},
+                    {"entity_id": "2", "creator": "minhie", "videos": "17", "verdict": verdicts[1],
+                     "matched_variant": "minhie", "babepedia_name": "Aryminh",
+                     "token_overlap": "0.0", "portrait_url": "", "profile_url": ""},
+                    {"entity_id": "3", "creator": "luckydog22", "videos": "496",
+                     "verdict": verdicts[2], "matched_variant": "", "babepedia_name": "",
+                     "token_overlap": "0.0", "portrait_url": "", "profile_url": ""},
+                ])
+                self.contract.cache_bust()
+                rows = rm_review.q_review(self.contract)["sections"]["western_identity"]
+                self.assertEqual({r["creator"] for r in rows}, {"ruth_lee", "minhie"})
 
     def test_western_identity_rows_carry_a_readable_evidence_line(self):
         fields = ["entity_id", "creator", "videos", "verdict", "matched_variant",
                   "babepedia_name", "token_overlap", "portrait_url"]
         self._csv("babepedia-candidates.csv", fields, [
-            {"entity_id": "1", "creator": "SexySaffron", "videos": "357", "verdict": "命中",
+            {"entity_id": "1", "creator": "SexySaffron", "videos": "357", "verdict": "matched",
              "matched_variant": "Sexy Saffron", "babepedia_name": "Saffron Bacchus",
              "token_overlap": "0.33", "portrait_url": "https://x/s.jpg"}])
         row = rm_review.q_review(self.contract)["sections"]["western_identity"][0]
-        self.assertIn("Saffron Bacchus", row["reason"])
+        self.assertIn("命中 → Saffron Bacchus", row["reason"])
         self.assertIn("写法 Sexy Saffron", row["reason"], "别名跳转必须写明用了哪个写法")
         self.assertEqual(row["preview_url"], "https://x/s.jpg")
+        first = row["reason_parts"][0]
+        self.assertEqual(interface_text.text(f"server:{first['code']}", first["params"], language="en"),
+                         "Matched → Saffron Bacchus (spelled Sexy Saffron)")
+
+    def test_a_legacy_chinese_western_verdict_reads_in_english(self):
+        self._csv("babepedia-candidates.csv", ["entity_id", "creator", "videos", "verdict", "babepedia_name"],
+                  [{"entity_id": "1", "creator": "Aryminh", "videos": "3", "verdict": "需人工确认",
+                    "babepedia_name": "Aryminh"}])
+        first = rm_review.q_review(self.contract)["sections"]["western_identity"][0]["reason_parts"][0]
+        self.assertEqual(interface_text.text(f"server:{first['code']}", first["params"], language="en"),
+                         "Needs review → Aryminh")
 
     def test_review_rows_say_up_front_whether_the_face_can_be_fetched(self):
         """复核卡片那张脸和别处一样先问再出图，只是这里没有代表作可退。
@@ -3374,7 +3389,7 @@ class ReviewQueueTests(unittest.TestCase):
         self._csv("babepedia-candidates.csv",
                   ["entity_id", "creator", "videos", "verdict", "matched_variant",
                    "babepedia_name", "token_overlap", "portrait_url"],
-                  [{"entity_id": "1", "creator": "ukiru", "videos": "3", "verdict": "命中",
+                  [{"entity_id": "1", "creator": "ukiru", "videos": "3", "verdict": "matched",
                     "matched_variant": "ukiru", "babepedia_name": "Ukiru",
                     "token_overlap": "1.0", "portrait_url": ""}])
         self.write_candidates("creator-tags-candidate-20260818.csv", [

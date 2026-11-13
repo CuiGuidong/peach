@@ -2893,7 +2893,13 @@
       "tokenOverlap": "词元重合 {{overlap}}",
       "videos": "{{count}} 部作品",
       "westernMatch": "{{verdict}} → {{name}}",
-      "westernMatchSpelling": "{{verdict}} → {{name}}（写法 {{variant}}）"
+      "westernMatchSpelling": "{{verdict}} → {{name}}（写法 {{variant}}）",
+      "westernVerdict": {
+        "matched": "命中",
+        "needs-review": "需人工确认",
+        "no-profile": "确认无档案",
+        "rate-limited": "限流未取得"
+      }
     },
     "webScraping": {
       "compareIncompleteMobileHint": "，未能完成封面比较；中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。",
