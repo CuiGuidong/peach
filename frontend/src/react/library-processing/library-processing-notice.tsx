@@ -103,9 +103,10 @@ export function ProcessingNoticePanel({ state, problem = '', measure = false, on
           : 'border-border-button-default text-text-primary')}>
     <div className="flex min-w-0 flex-col gap-3">
     <div className="flex min-w-0 items-center gap-3">
-      {/* 图标位：有总量是当前阶段完成率的小环形，没有总量是那一阶段的语义动画，与同一位置的图标同档。 */}
-      {active && state?.total ? <ProgressRing label={t('manage:processingNotice.stageProgress')} value={state.checked || 0} max={state.total} className="size-5" />
-        : active && !warning ? <span className="inline-grid size-5 shrink-0 place-items-center"><ActivityMotion kind={activityKind('library-processing', state?.stage_code)} still={state?.status === 'paused'} /></span>
+      {/* 图标位：进行中时旁边是标题加预估两行，环形与语义动画按两行高（`lead`）；有总量是当前阶段完成率的小环形，
+          没有总量是那一阶段的语义动画。 */}
+      {active && state?.total ? <ProgressRing size="lead" label={t('manage:processingNotice.stageProgress')} value={state.checked || 0} max={state.total} />
+        : active && !warning ? <ActivityMotion size="lead" kind={activityKind('library-processing', state?.stage_code)} still={state?.status === 'paused'} />
         : failed || warning ? <RiErrorWarningLine aria-hidden className="size-5 shrink-0" />
           : <RiInformationLine aria-hidden className="size-5 shrink-0" />}
       <div className="min-w-0 flex-1">

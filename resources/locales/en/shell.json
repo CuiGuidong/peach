@@ -144,6 +144,8 @@
     "restartReady": "An update is ready. Restart to install it.",
     "updating": "Updating to Peach {{version}} · {{step}} {{percent}}%",
     "updatingUnversioned": "Updating Peach · {{step}} {{percent}}%",
+    "updatingStep": "Updating to Peach {{version}} · {{step}}",
+    "updatingStepUnversioned": "Updating Peach · {{step}}",
     "viewProgress": "View progress",
     "viewUpdate": "View update"
   },

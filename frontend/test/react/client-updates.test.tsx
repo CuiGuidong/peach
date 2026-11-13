@@ -291,11 +291,20 @@ it('没有百分比时按那一步的语义画：等服务回来是 Clock，下�
   expect(activity(slot)).toBe('linear-dots');
 });
 
-it('Windows 更新器迁移账本时显示更新的当前步骤与百分比', async () => {
+it('Windows 更新器迁移账本时显示当前步骤；安装阶段的数值只是里程碑，不报百分比', async () => {
   const { slot } = await render({ ...available(), update_job: { state: 'installing', progress: 10, version: '0.10.0',
     message: '正在更新本地数据库', message_code: 'jobMessage.standaloneUpdate.updatingDatabase' } });
-  expect(slot.querySelector('[data-client-update="migrating"] [data-copy-key]')?.textContent).toBe('正在更新 Peach 0.10.0 · 正在更新本地数据库 10%');
-  expect(ring(slot)).toBe(10);
+  expect(slot.querySelector('[data-client-update="migrating"] [data-copy-key]')?.textContent).toBe('正在更新 Peach 0.10.0 · 正在更新本地数据库');
+  expect(ring(slot)).toBeNull();
+  expect(activity(slot), '迁移账本是整理').toBe('blocks');
+});
+
+it('重启服务时在等服务回来：不报百分比，画 Clock', async () => {
+  const { slot } = await render({ ...available(), update_job: { state: 'restarting', progress: 100, version: '0.10.0',
+    message: '正在保存任务', message_code: 'jobMessage.standaloneUpdate.savingTasks' } });
+  expect(slot.querySelector('[data-client-update="preparing"] [data-copy-key]')?.textContent).not.toMatch(/%/);
+  expect(ring(slot)).toBeNull();
+  expect(activity(slot)).toBe('clock');
 });
 
 it('更新进行中显示当前步骤与百分比，换步骤时跟着刷新', async () => {
@@ -314,7 +323,9 @@ it('更新进行中显示当前步骤与百分比，换步骤时跟着刷新', a
   fetcher.mockResolvedValue(response({ ...current, release: { ...current.release, latest_version: '' },
     update_job: { state: 'downloading', progress: 0, message: '正在连接发布源', message_code: 'jobMessage.standaloneUpdate.connecting' } }));
   await advance(PROGRESS_INTERVAL);
-  expect(banner()).toBe('正在更新 Peach · 正在连接发布源 0%');
+  expect(banner(), '还不知道包多大，不报 0%').toBe('正在更新 Peach · 正在连接发布源');
+  expect(ring(slot)).toBeNull();
+  expect(activity(slot)).toBe('linear-dots');
 });
 
 it('可更新与准备好时仍是信息图标，不显示加载动画', async () => {

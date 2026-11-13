@@ -12,6 +12,8 @@
 /* 封面格里与卡片角标同一档：按封面格状态字（`--fs-xs`）算，密集网格小一档。 */
 .ui-activity[data-size="card"]{--ld-size:2em;font-size:var(--fs-xs)}
 body[data-density="dense"] .ui-activity[data-size="card"]{--ld-size:1.5em}
+/* 标题加一行说明的两行图标位：与两行文字同高，React 岛 `base.css` 的 `--icon-lead`。 */
+.ui-activity[data-size="lead"]{--ld-size:var(--icon-lead,2.25rem)}
 .ui-activity svg{display:block;width:100%;height:100%}
 
 /* Clock 1200ms、Radar 1500ms：一段扇形绕画框中心匀速转。 */
@@ -49,11 +51,16 @@ body[data-density="dense"] .ui-activity[data-size="card"]{--ld-size:1.5em}
 .ui-activity[data-activity="blocks"] i:is(:nth-child(6),:nth-child(8)){animation-delay:-520ms}
 .ui-activity[data-activity="blocks"] i:nth-child(9){animation-delay:-260ms}
 
-/* 静帧：排队的卡片与减少动效。 */
+/* 静帧：排队的卡片与减少动效。Clock 停下来换成表盘加指针，转动时不画表盘。 */
+.ui-activity-face{display:none}
+.ui-activity[data-still] .ui-activity-face{display:inline}
+.ui-activity[data-still] .ui-activity-spin{display:none}
 .ui-activity[data-still],.ui-activity[data-still] *{animation:none}
 .ui-activity[data-still][data-activity="linear-dots"] i{opacity:.75}
 .ui-activity[data-still][data-activity="blocks"] i{transform:scale(.8)}
 @media (prefers-reduced-motion:reduce){
+  .ui-activity .ui-activity-face{display:inline}
+  .ui-activity[data-activity="clock"] .ui-activity-spin{display:none}
   .ui-activity[data-activity="linear-dots"] i{opacity:.75}
   .ui-activity[data-activity="blocks"] i{transform:scale(.8)}
 }

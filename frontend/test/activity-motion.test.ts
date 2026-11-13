@@ -45,7 +45,7 @@ describe('后台推进按语义选动画', () => {
 
 describe('语义动画的节点', () => {
   it.each([
-    ['clock', 'svg path', 1], ['radar', 'svg path', 1], ['linear-dots', ':scope > i', 3],
+    ['clock', 'svg > path', 1], ['radar', 'svg path', 1], ['linear-dots', ':scope > i', 3],
     ['gather', ':scope > span > i', 4], ['blocks', ':scope > i', 9],
   ] as const)('%s 只出一个读屏忽略的动画节点，形状完整，不写内联样式', (kind, part, count) => {
     const motion = node(activityMotionHtml(kind));
@@ -70,6 +70,13 @@ describe('语义动画的节点', () => {
     expect(queued.dataset.size).toBe('card');
     expect(node(activityMotionHtml('blocks', { size: 'block' })).dataset.size).toBe('block');
     expect(node(activityMotionHtml('blocks')).hasAttribute('data-still')).toBe(false);
+    expect(node(activityMotionHtml('radar', { size: 'lead' })).dataset.size, '通知卡标题加说明的两行图标位').toBe('lead');
+  });
+
+  it('Clock 停下来时画表盘加指针，不是一块扇形', () => {
+    const face = node(activityMotionHtml('clock', { still: true })).querySelector('.ui-activity-face');
+    expect(face?.querySelector('circle'), '表盘').not.toBeNull();
+    expect(face?.querySelector('path')?.getAttribute('d'), '时针与分针').toMatch(/^M8 /);
   });
 
   it('遗留层那一行：读屏读状态文字，动画藏起来，文字照原样转义', () => {

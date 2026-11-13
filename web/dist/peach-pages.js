@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "8731ac3f-58e5-46cb-aeec-1a3be5e98837", e._sentryDebugIdIdentifier = "sentry-dbid-8731ac3f-58e5-46cb-aeec-1a3be5e98837");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141", e._sentryDebugIdIdentifier = "sentry-dbid-f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7870,6 +7870,8 @@ var He = {
 		restartReady: "An update is ready. Restart to install it.",
 		updating: "Updating to Peach {{version}} · {{step}} {{percent}}%",
 		updatingUnversioned: "Updating Peach · {{step}} {{percent}}%",
+		updatingStep: "Updating to Peach {{version}} · {{step}}",
+		updatingStepUnversioned: "Updating Peach · {{step}}",
 		viewProgress: "View progress",
 		viewUpdate: "View update"
 	},
@@ -14590,6 +14592,8 @@ var He = {
 		restartReady: "更新已准备好，可重启安装。",
 		updating: "正在更新 Peach {{version}} · {{step}} {{percent}}%",
 		updatingUnversioned: "正在更新 Peach · {{step}} {{percent}}%",
+		updatingStep: "正在更新 Peach {{version}} · {{step}}",
+		updatingStepUnversioned: "正在更新 Peach · {{step}}",
 		viewProgress: "查看进度",
 		viewUpdate: "查看更新"
 	},
@@ -38112,4 +38116,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=8731ac3f-58e5-46cb-aeec-1a3be5e98837
+//# debugId=f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141

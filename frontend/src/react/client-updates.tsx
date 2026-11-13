@@ -44,6 +44,11 @@ const migrating = (snapshot: ClientUpdates): boolean => snapshot.ledger_migratio
 /** 迁移或更新正在推进：横幅显示进度，按 `PROGRESS_INTERVAL` 刷新。 */
 const progressing = (snapshot: ClientUpdates): boolean => migrating(snapshot) || ACTIVE.has(snapshot.update_job.state);
 const percent = (value: unknown): number => Math.round(Math.min(Math.max(Number(value) || 0, 0), 100));
+/** 更新任务里没有真实进度的几步：连接发布源时还不知道包多大；重启与安装是在等服务回来，后端写的数值只是里程碑。 */
+const WAITING = new Set(['restarting', 'installing']);
+const CONNECTING = 'jobMessage.standaloneUpdate.connecting';
+const jobPercent = (job: UpdateJob): number | null => typeof job.progress !== 'number' || WAITING.has(job.state)
+  || job.message_code === CONNECTING ? null : percent(job.progress);
 
 function pageRuntime(): ClientUpdates['runtime'] | null {
   try {
@@ -182,18 +187,21 @@ function bannerMessage(kind: BannerKind, snapshot: ClientUpdates, version: strin
     return ['message', t('shell:clientUpdate.migrating')];
   }
   if (kind === 'migrating' || kind === 'preparing') {
-    const params = { version, step: jobText(job), percent: percent(job.progress) };
+    const share = jobPercent(job);
+    const params = { version, step: jobText(job), percent: share };
+    if (share === null) return ['progress', version ? t('shell:clientUpdate.updatingStep', params) : t('shell:clientUpdate.updatingStepUnversioned', params)];
     return ['progress', version ? t('shell:clientUpdate.updating', params) : t('shell:clientUpdate.updatingUnversioned', params)];
   }
   return ['message', t(kind === 'refresh' ? 'shell:clientUpdate.refreshReady'
     : kind === 'ready' ? 'shell:clientUpdate.restartReady' : 'shell:clientUpdate.available')];
 }
 
-/** 进行中那一步有没有确定的百分比：迁移的备份阶段与更新任务带 `progress`；应用迁移、旧服务不报阶段时没有。 */
+/** 进行中那一步有没有确定的百分比：迁移的备份阶段与更新任务下载、校验、解包时有；应用迁移、旧服务不报阶段、
+ *  连接发布源、重启与安装时没有（`jobPercent`）。 */
 function bannerMeter(kind: BannerKind, snapshot: ClientUpdates): number | null {
   const { ledger_migration: migration, update_job: job } = snapshot;
   if (kind === 'migrating' && migration?.state === 'running') return migration.stage === 'backup' ? percent(migration.progress) : null;
-  if ((kind === 'migrating' || kind === 'preparing') && typeof job.progress === 'number') return percent(job.progress);
+  if (kind === 'migrating' || kind === 'preparing') return jobPercent(job);
   return null;
 }
 

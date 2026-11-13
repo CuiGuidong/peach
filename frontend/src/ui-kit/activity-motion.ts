@@ -8,19 +8,23 @@
  * - 错相不写内联 `--ld-step`，由 `activity-motion.css` 的 `:nth-child()` 写死 `animation-delay`；
  * - 尺寸不用固定像素，`--ld-size` 跟所在那一行的字号走（`data-size`：行内、区块、卡片）；
  * - 颜色取强调色，LinearDots 的三颗点在正方形画框里居中，与同一行的图标等宽；
- * - `still` 出静帧（排队中的卡片），减少动效时全局规则同样停在静帧。
+ * - `still` 出静帧（排队中的卡片），减少动效时全局规则同样停在静帧；Clock 的静帧换成表盘加指针。
  * 只出 `aria-hidden` 的动画节点；读屏的状态文字由外层（`activityStatusHtml` 或 React 的
  * `ActivityStatus`）给。 */
 import { esc } from '../core';
 
 export type ActivityKind = 'clock' | 'radar' | 'linear-dots' | 'gather' | 'blocks';
 /** `inline`：状态行、横幅、按钮旁，与旁边的图标同为 `--icon-inline`；`block`：区块正中的等待，大一档；
- *  `card`：封面格里，按卡片角标的尺寸，随网格密度变。 */
-export type ActivitySize = 'inline' | 'block' | 'card';
+ *  `card`：封面格里，按卡片角标的尺寸，随网格密度变；`lead`：标题加一行说明的两行图标位（扫描与采集通知卡），
+ *  与两行文字同高（`--icon-lead`）。 */
+export type ActivitySize = 'inline' | 'block' | 'card' | 'lead';
 
 export const ACTIVITY_KINDS: readonly ActivityKind[] = ['clock', 'radar', 'linear-dots', 'gather', 'blocks'];
 
+/** 静帧是表盘加两根指针（Peach 自加）：上游的扇形停下来像一张饼图，看不出是在排队等。 */
 const CLOCK = '<svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="currentColor" opacity=".1"/>'
+  + '<g class="ui-activity-face" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'
+  + '<circle cx="8" cy="8" r="5.75"/><path d="M8 4.75V8l2.25 1.5"/></g>'
   + '<path class="ui-activity-spin" fill="currentColor" d="M11.1937 2.92061C10.5206 2.49739 9.77304 2.21397 8.9954 2.08314C8.45076 1.99151 8 2.44772 8 3V7.20324C8 7.49211 8.12492 7.76686 8.34259 7.95677L11.8999 11.0603C12.3287 11.4344 12.9913 11.378 13.2643 10.8787C13.6356 10.1998 13.8736 9.45248 13.9617 8.67713C14.0892 7.55433 13.8971 6.41834 13.4074 5.39993C12.9177 4.38152 12.1503 3.5221 11.1937 2.92061Z"/></svg>';
 
 /** 渐变要有页面内唯一的 id：同一屏可能同时有好几枚 Radar。 */
