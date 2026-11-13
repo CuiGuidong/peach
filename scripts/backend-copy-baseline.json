@@ -24,7 +24,7 @@
   "src/peach/diagnostics.py": 67,
   "src/peach/docker_update.py": 4,
   "src/peach/download_postprocess.py": 9,
-  "src/peach/downloads.py": 10,
+  "src/peach/downloads.py": 6,
   "src/peach/downloads_clouddrive.py": 1,
   "src/peach/endcard.py": 3,
   "src/peach/entities.py": 6,

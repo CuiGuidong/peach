@@ -17,12 +17,13 @@ from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit
 from .catalog_rules import (
     is_jav_code, normalise_code_key, release_code_from_product, same_release_code, without_store_prefix,
 )
+from . import interface_text
 from .config import PROJECT_ROOT
 from .downloads import (
     CLOUDDRIVE_CREDENTIAL, INGESTED, POSTPROCESS_FAILED, POSTPROCESS_PENDING, POSTPROCESS_QUEUED,
     POSTPROCESS_RUNNING, REMOTE_RUNNING, RESUBMITTABLE_STATES, TRACKED_STATES, iso, state_label,
-    never_seen, submit_offline_download, parse_magnet,
-    parse_iso, DownloadError,
+    CHANNEL_FAILURES, never_seen, submit_offline_download, parse_magnet,
+    parse_iso, storage_full, DownloadError,
 )
 from .task_retry import RETRY_DELAYS, RetryableTaskError, retry_delay
 from .follow_secrets import CredentialError
@@ -35,11 +36,38 @@ from .user_messages import UserFacingError, UserValueError
 LOGGER = logging.getLogger(__name__)
 CREDENTIAL = "jav-browser"
 ACTIVE = {"queued", "searching"}
-#: 共享进度列表的上限，与持久队列同为 200；结束的任务保留 10 分钟，供各窗口看到完成。
+#: 排队与搜索中的番号上限，也是共享进度列表里进行中与已结束两部分各自的上限；
+#: 结束的任务保留 10 分钟，供各窗口看到完成。
 ACTIVE_LIMIT = 200
+#: 持久队列连同已结束的行最多留这么多；满了先腾出结果已记在下载任务或馆藏里的行，
+#: 「未找到资源」这类只记在队列里的结果尽量留着，不让它们变回「可以加入」。
+ROWS_LIMIT = 1000
+#: 结果已记在别处、可以从队列里腾掉的状态。
+RECORDED_ELSEWHERE = ("owned", "ingested", "submitted")
 RECENT_SECONDS = 600
-#: 浏览器添加的任务结束后一直留在列表里，直到用户在脚本里标为已读；键是「任务编号@结束时间」。
-ENDED_KEY = re.compile(r"^[1-9][0-9]{0,11}@[0-9T:+.\-]{19,32}$")
+#: 渠道级失败（额度用完、网盘空间不足、配置失效、CloudDrive2 连不上）后暂停这个渠道，
+#: 每隔这么久拿排在最前的番号试一次，成功就继续。
+PAUSE_PROBE_SECONDS = 600
+#: 会让浏览器添加暂停的原因。`search` 是资源搜索暂不可用，暂停的是整条队列而不是某个渠道。
+#: 原因与恢复说明在 `server:javBrowser.paused.<原因>`：用户脚本的提示框分两行显示，排队行的说明连成一句。
+PAUSED_FAILURES = frozenset({"storage", "quota", "config", "network", "search"})
+#: 提示框的语气：要用户动手修的用 error，等着就会恢复或只需腾空间的用 warning。
+PAUSED_TONES = {"config": "error", "network": "error"}
+SEARCH_PAUSE = "search"
+
+
+def paused_text(failure: str) -> dict:
+    """暂停的原因、恢复说明与连成的一句。"""
+    reason = interface_text.text(f"server:javBrowser.paused.{failure}.reason")
+    hint = interface_text.text(f"server:javBrowser.paused.{failure}.hint")
+    return {"reason": reason, "hint": hint,
+            "message": interface_text.text("server:javBrowser.paused.message", {"reason": reason, "hint": hint})}
+#: 不怪这个番号、过一会儿再交就可能成的下载失败，不等用户手点：放回队列自动重来。
+#: 渠道级失败（空间、额度、配置）跟着渠道暂停与试探走，不限次数；其余按这张表限次，免得死循环。
+AUTO_RETRY_LIMITS = {"not_accepted": 2, "network": 2}
+#: 浏览器添加的任务结束后一直留在列表里，直到用户在脚本里标为已读。键是「任务编号@结束时间」；
+#: 没有下载任务的结果（未找到资源、搜索失败）用「番号@结束时间」。
+ENDED_KEY = re.compile(r"^([1-9][0-9]{0,11}|[0-9A-Z][0-9A-Z-]{1,39})@[0-9T:+.\-]{19,32}$")
 ENDED_DISMISSED_LIMIT = 1000
 #: 结束时间：整理完成的取整理时间，失败、取消、停滞取结束时间；停滞复查只改 updated_at，不让任务重新冒出来。
 ENDED_AT = "coalesce(nullif(postprocessed_at,''), nullif(finished_at,''), updated_at)"
@@ -50,7 +78,8 @@ MESSAGES = {
 }
 #: 下载失败按原因分给用户脚本：磁力本身的问题换一个磁力，网盘一侧的问题修好后重试同一个磁力。
 MAGNET_FAILURES = frozenset({"rejected", "invalid_link", "no_source", "mismatch"})
-CLOUD_FAILURES = frozenset({"config", "quota", "network", "not_landed", "duplicate", "not_accepted", "removed"})
+CLOUD_FAILURES = frozenset({"config", "quota", "storage", "network", "not_landed", "duplicate", "not_accepted",
+                            "removed"})
 NO_OTHER_MAGNET = "没有其他可用磁力，可在 Peach 手动选择资源"
 #: 细分之前「列表里找不到」统一记为 no_source 的原文；这些旧任务从没被网盘列出过，按网盘问题处理。
 LEGACY_MISSING = "远端任务列表里找不到这个任务"
@@ -217,6 +246,32 @@ def _download_candidate(items, code, skip=frozenset(), edition=""):
                 eligible[0] if eligible else None)
 
 
+def _failure_projection(task) -> dict:
+    """失败任务给用户脚本的类别与原因：磁力本身的问题换磁力，网盘一侧的问题修好后重试同一个磁力。"""
+    # 区分空间不足之前，115 的「云空间不足」被记成 rejected，按原文认回来。
+    storage = not task.blocked_at and (task.failure == "storage" or storage_full(task.failure_detail))
+    # 旧任务把「列表里找不到」记成 no_source；从没被网盘列出过的按网盘问题处理。
+    legacy_unseen = (task.failure == "no_source" and never_seen(task)
+                     and (task.failure_detail or "").startswith(LEGACY_MISSING))
+    cause = ("magnet" if task.blocked_at
+             else "cloud" if storage or legacy_unseen or task.failure in CLOUD_FAILURES
+             else "magnet" if task.failure in MAGNET_FAILURES else "")
+    return {"failure": "storage" if storage else task.failure or "", "cause": cause}
+
+
+def _download_projection(task) -> dict:
+    """下载任务的阶段与进度，不带内部字段。"""
+    progress = task.progress
+    return {"state": task.state, "label": state_label(task.state),
+            "phase": "organize" if task.state == INGESTED else "ingest" if task.remote_done_at
+                or task.state in {"remote_done", "landed"} else "download",
+            "progress": min(1.0, max(0.0, progress)) if task.state in {REMOTE_RUNNING, "remote_done", "landed", INGESTED}
+                and type(progress) in (int, float) and math.isfinite(progress) else None,
+            "postprocess_state": task.postprocess_state,
+            "postprocess_label": task.postprocess_label,
+            "updated_at": task.updated_at}
+
+
 def _postprocess_retry_status(task) -> dict:
     """后处理的等待与耗尽状态，投影成浏览器可读的重试回执。"""
     if task.postprocess_state == POSTPROCESS_PENDING and task.next_check_at:
@@ -244,6 +299,9 @@ class JavBrowser:
         self._stop = threading.Event()
         self._thread = None
         self._submitting = set()
+        #: 资源搜索回了「稍后再试」时整条队列等到这一刻，其余番号不去一个个撞同一个故障。
+        self._search_pause: dict | None = None
+        self._swept_at = float("-inf")
         from .jav_browser_diagnostics import BrowserDiagnostics
         self.diagnostics = BrowserDiagnostics()
         self.rows = self._load()
@@ -253,7 +311,7 @@ class JavBrowser:
         if not self.path.exists():
             return {}
         payload = json.loads(self.path.read_text(encoding="utf-8"))
-        if not isinstance(payload, dict) or len(payload) > 200:
+        if not isinstance(payload, dict) or len(payload) > ROWS_LIMIT:
             raise UserValueError("errors.javBrowser.queueUnreadable")
         rows = {}
         for key, row in payload.items():
@@ -404,29 +462,37 @@ class JavBrowser:
                     "failed" if task.state in RESUBMITTABLE_STATES or task.blocked_at else "submitted")
                 row.update(state=state, message=task.failure_detail or MESSAGES[state])
                 if state == "failed":
-                    detail["failure"] = task.failure or ""
-                    # 旧任务把「列表里找不到」记成 no_source；从没被网盘列出过的按网盘问题处理。
-                    legacy_unseen = (task.failure == "no_source" and never_seen(task)
-                                     and (task.failure_detail or "").startswith(LEGACY_MISSING))
-                    detail["cause"] = ("magnet" if task.blocked_at
-                                       else "cloud" if legacy_unseen or task.failure in CLOUD_FAILURES
-                                       else "magnet" if task.failure in MAGNET_FAILURES else "")
+                    failure = _failure_projection(task)
+                    if failure["failure"] == "storage":
+                        row["message"] = interface_text.text("server:javBrowser.storageFull")
+                    detail.update(failure)
                 if task.asset_id:
                     row["asset_id"] = task.asset_id
-                progress = task.progress
-                detail["download"] = {"state": task.state, "label": state_label(task.state),
-                    "phase": "organize" if task.state == INGESTED else "ingest" if task.remote_done_at
-                        or task.state in {"remote_done", "landed"} else "download",
-                    "progress": min(1.0, max(0.0, progress)) if task.state in {REMOTE_RUNNING, "remote_done", "landed", INGESTED}
-                        and type(progress) in (int, float) and math.isfinite(progress) else None,
-                    "postprocess_state": task.postprocess_state,
-                    "postprocess_label": task.postprocess_label,
-                    "updated_at": task.updated_at}
+                detail["download"] = _download_projection(task)
                 row.update(_postprocess_retry_status(task))
             state = row.get("state", "idle")
+            if state == "queued" and (paused := self._paused(row.get("provider", ""))):
+                detail["paused"] = paused
+                row["message"] = paused_text(paused["failure"])["message"]
             return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
                     "message": row.get("message") or MESSAGES[state]}
+
+    def _channel_pause(self, provider: str) -> dict | None:
+        """渠道级失败后这个渠道处于暂停：失败类别、开始时间与下一次试探时间。成功提交一次就解除。"""
+        alert = self.downloads.channel_alert(provider) if provider else None
+        if not alert or alert["failure"] not in PAUSED_FAILURES:
+            return None
+        return {"failure": alert["failure"], "since": alert["since"],
+                "retry_at": iso(parse_iso(alert["since"]) + PAUSE_PROBE_SECONDS)}
+
+    def _active_search_pause(self) -> dict | None:
+        pause = self._search_pause
+        return dict(pause) if pause and parse_iso(pause["retry_at"]) > self.downloads.clock() else None
+
+    def _paused(self, provider: str) -> dict | None:
+        """排在这个渠道的番号此刻为什么不往下走：渠道暂停优先，其次是资源搜索暂停。"""
+        return self._channel_pause(provider) or self._active_search_pause()
 
     def _queue_detail(self, code: str, state: str) -> dict:
         """排队中的番号排在搜索队列第几位；搜索逐个进行，用户脚本据此决定要不要给「提前处理」。"""
@@ -466,6 +532,8 @@ class JavBrowser:
         最近 `RECENT_SECONDS` 内结束的任务带着终态留在列表里，脚本据此看到「进行中 → 完成」。
         浏览器添加（来处 `browser:`）的任务结束后一直留着，直到 `dismiss()` 确认。结束项带 `ended_key`
         与 `dismissed`：确认过的在 10 分钟内仍然列出、只标 `dismissed`，各窗口的本页状态照旧读得到。
+        没有下载任务的结果（未找到资源、搜索失败）同样留到确认为止。进行中与已结束各自最多
+        `ACTIVE_LIMIT` 项，排队再多也挤不掉失败项。`paused` 列出因额度或空间暂停的渠道。
         """
         cutoff = iso(time.time() - RECENT_SECONDS)
         tracked = sorted(TRACKED_STATES)
@@ -479,29 +547,72 @@ class JavBrowser:
                 "OR max(updated_at, coalesce(postprocessed_at,''), coalesce(finished_at,''))>=? "
                 f"OR (origin LIKE 'browser:%' AND {ENDED_AT}>=?)) "
                 "GROUP BY key ORDER BY max(id) DESC LIMIT ?",
-                (*tracked, INGESTED, *organizing, cutoff, since, ACTIVE_LIMIT))]
+                (*tracked, INGESTED, *organizing, cutoff, since, ACTIVE_LIMIT * 2))]
         with self._lock:
             queued = [code for code, row in self.rows.items() if row["state"] in ACTIVE or code in self._submitting]
-        items = []
-        for code in dict.fromkeys([*queued, *codes]):
+            unrecorded = [code for code, row in reversed(self.rows.items())
+                          if row["state"] in {"failed", "no_match"} and not row.get("task_id") and row.get("ended_at")]
+        running, ended = [], []
+        for code in dict.fromkeys([*queued, *codes, *unrecorded]):
             try:
                 status = self.status(code)
             except ValueError:
                 continue
             if status["state"] == "idle":
                 continue
-            task = self.downloads.store.get(status["task_id"]) if status.get("task_id") else None
-            if task is not None and task.state not in TRACKED_STATES and not (
-                    task.state == INGESTED and task.postprocess_state in organizing):
-                ended_at = task.postprocessed_at or task.finished_at or task.updated_at
-                key = f"{task.id}@{ended_at}"
-                acknowledged = ended_at < since or key in dismissed
-                recent = max(task.updated_at or "", task.postprocessed_at or "", task.finished_at or "") >= cutoff
-                if not recent and (acknowledged or not (task.origin or "").startswith("browser:")):
-                    continue
-                status.update(ended_key=key, dismissed=acknowledged)
-            items.append(status)
-        return {"ok": True, "items": items[:ACTIVE_LIMIT]}
+            mark = self._ended_mark(code, status, since, dismissed, cutoff)
+            if mark is None:
+                continue
+            status.update(mark)
+            (ended if mark else running).append(status)
+        return {"ok": True, "items": [*running[:ACTIVE_LIMIT], *ended[:ACTIVE_LIMIT]], "paused": self._paused_channels()}
+
+    def _ended_mark(self, code: str, status: dict, since: str, dismissed: set, cutoff: str) -> dict | None:
+        """一项在共享列表里怎么列：进行中给空字典，已结束给确认键与是否已确认，不再列出给 None。
+
+        浏览器添加的任务结束后留到确认为止，别处添加的只留最近 10 分钟；
+        没有下载任务的结果（未找到资源、搜索失败）按队列行记下的结束时间同样处理。
+        """
+        organizing = (POSTPROCESS_PENDING, POSTPROCESS_QUEUED, POSTPROCESS_RUNNING)
+        task = self.downloads.store.get(status["task_id"]) if status.get("task_id") else None
+        if task is not None and task.state not in TRACKED_STATES and not (
+                task.state == INGESTED and task.postprocess_state in organizing):
+            ended_at = task.postprocessed_at or task.finished_at or task.updated_at
+            key = f"{task.id}@{ended_at}"
+            acknowledged = ended_at < since or key in dismissed
+            recent = max(task.updated_at or "", task.postprocessed_at or "", task.finished_at or "") >= cutoff
+            if not recent and (acknowledged or not (task.origin or "").startswith("browser:")):
+                return None
+            return {"ended_key": key, "dismissed": acknowledged}
+        if task is None and status["state"] in {"failed", "no_match"}:
+            ended_at = status.get("ended_at")
+            if not ended_at:
+                return None
+            key = f"{code}@{ended_at}"
+            acknowledged = ended_at < since or key in dismissed
+            return None if acknowledged and ended_at < cutoff else {"ended_key": key, "dismissed": acknowledged}
+        return {}
+
+    def _paused_channels(self) -> list[dict]:
+        """暂停中的渠道与各自排着的番号数，用户脚本据此给出一条渠道提示。"""
+        with self._lock:
+            waiting: dict[str, int] = {}
+            for row in self.rows.values():
+                if row["state"] == "queued":
+                    waiting[row.get("provider", "")] = waiting.get(row.get("provider", ""), 0) + 1
+        labels = {row["key"]: row["label"] for row in self.downloads.channel_snapshot()["providers"]}
+
+        def entry(provider, label, count, paused):
+            failure = paused["failure"]
+            return {"provider": provider, "provider_label": label, "waiting": count, **paused_text(failure),
+                    "tone": PAUSED_TONES.get(failure, "warning"), **paused}
+
+        channels = [entry(provider, labels.get(provider, provider), count, paused)
+                    for provider, count in waiting.items() if (paused := self._channel_pause(provider))]
+        rest = sum(count for provider, count in waiting.items() if not self._channel_pause(provider))
+        if rest and (search := self._active_search_pause()):
+            channels.append(entry(SEARCH_PAUSE, "Peach", rest, search))
+        return channels
 
     def add(self, body: dict) -> dict:
         code = code_key(body.get("code"))
@@ -530,11 +641,11 @@ class JavBrowser:
                 if task is not None and task.info_hash and task.info_hash not in skip:
                     skip.append(task.info_hash)
             self._ready(config.get("provider", ""), remote=False)
-            if code not in self.rows and len(self.rows) >= 200:
-                completed = next((key for key, row in self.rows.items() if row["state"] not in ACTIVE), None)
-                if completed is None:
-                    raise UserValueError("errors.javBrowser.queueFull")
-                del self.rows[completed]
+            if sum(row["state"] in ACTIVE for row in self.rows.values()) >= ACTIVE_LIMIT:
+                raise UserValueError("errors.javBrowser.queueFull")
+            if code not in self.rows and len(self.rows) >= ROWS_LIMIT:
+                ended = [key for key, row in self.rows.items() if row["state"] not in ACTIVE]
+                del self.rows[next((key for key in ended if self.rows[key]["state"] in RECORDED_ELSEWHERE), ended[0])]
             # 要哪一版：本次明说的优先，其次沿用上一次的选择（换磁力），都没有时按来源页的商品号定。
             edition = body.get("edition") or previous.get("edition") or (
                 "bonus" if bonus_cid(dmm_cid(page)) else "")
@@ -544,12 +655,75 @@ class JavBrowser:
             self._wake.set()
             return self.status(code)
 
+    def _requeue_recoverable(self) -> None:
+        """把能自动重来的失败放回队列，原来的位置不变；换磁力、无资源这类仍等用户决定。
+
+        覆盖升级前留下的失败：11-12 之前空间不足被记成 rejected，按原文认回来一并放回。
+        队列里已入库的行也要逐条读任务，一分钟最多扫一遍。
+        """
+        now = self.downloads.clock()
+        if now - self._swept_at < 60:
+            return
+        self._swept_at = now
+        changed = False
+        for row in self.rows.values():
+            if row["state"] not in {"submitted", "failed"} or not row.get("task_id"):
+                continue
+            task = self.downloads.store.get(row["task_id"])
+            if task is None or task.state not in RESUBMITTABLE_STATES or task.blocked_at:
+                continue
+            channel = task.failure in CHANNEL_FAILURES or storage_full(task.failure_detail)
+            used = row.get("auto_retries", 0)
+            if not channel and used >= AUTO_RETRY_LIMITS.get(task.failure or "", 0):
+                continue
+            row["state"] = "queued"
+            for key in ("task_id", "message", "retry_at", "retry_attempt", "retry_limit", "retry_exhausted", "ended_at"):
+                row.pop(key, None)
+            if not channel:
+                row["auto_retries"] = used + 1
+            changed = True
+        if changed:
+            self._save()
+
+    def _next_queued(self) -> str | None:
+        """排在最前、到了时间的番号；暂停中的渠道到了试探时间才放一个过去，其余照旧排着。"""
+        now = self.downloads.clock()
+        waiting = {provider: parse_iso(paused["retry_at"]) > now for provider in
+                   {row.get("provider", "") for row in self.rows.values() if row["state"] == "queued"}
+                   if (paused := self._paused(provider))}
+        return next((key for key, row in self.rows.items() if row["state"] == "queued"
+                     and not waiting.get(row.get("provider", ""))
+                     and (not row.get('retry_at') or parse_iso(row['retry_at']) <= now)), None)
+
+    def _hold_for_channel(self, row: dict, provider: str, error: Exception) -> None:
+        """渠道没配好或读不到媒体库渠道时每个番号都会同样失败：放回队列、暂停这个渠道，配好后试探时自动继续。"""
+        LOGGER.warning("JAV browser channel not ready: %s (%s)", provider, type(error).__name__)
+        with self._lock:
+            if row["state"] == "searching":
+                row["state"] = "queued"
+                self._save()
+        reason = (DownloadError("config", error.code, error.params) if isinstance(error, UserFacingError)
+                  else DownloadError("config", "errors.javBrowser.channelNotConfigured"))
+        self.downloads.note_channel(provider, reason, self.downloads.clock())
+
+    @staticmethod
+    def _settle_submission(row: dict, submitted: dict) -> None:
+        """按提交结果更新队列行。额度、空间、配置问题不怪这个番号：放回队列等渠道恢复，位置不变。"""
+        task = submitted["task"]
+        if submitted["outcome"] == "failed" and task["failure"] in CHANNEL_FAILURES:
+            row["state"] = "queued"
+            for key in ("task_id", "message"):
+                row.pop(key, None)
+        else:
+            row.update(state="failed" if submitted["outcome"] in {"failed", "refused"} else "submitted",
+                       task_id=task["id"])
+
     def process_one(self) -> bool:
         with self._lock:
             if self._stop.is_set() or not self.downloads.available or not self._config().get("token_hash"):
                 return False
-            code = next((key for key, row in self.rows.items() if row["state"] == "queued"
-                         and (not row.get('retry_at') or parse_iso(row['retry_at']) <= self.downloads.clock())), None)
+            self._requeue_recoverable()
+            code = self._next_queued()
             if code is None:
                 return False
             row = self.rows[code]
@@ -564,10 +738,16 @@ class JavBrowser:
             provider = row["provider"]
         try:
             self._ready(provider)
+        except Exception as error:
+            self._hold_for_channel(row, provider, error)
+            return True
+        try:
             skip = list(row.get("skip", ()))
             result = self.search(self.contract, {"code": code, "goal": "quality", **({"skip": skip} if skip else {})})
             candidate = _download_candidate(result.get("items", ()), code, frozenset(row.get("skip", ())),
                                             row.get("edition", ""))
+            if not (result.get('state') in {'error', 'unavailable'} or result.get('error')):
+                self._search_pause = None
             should_submit = False
             with self._lock:
                 if row["state"] != "searching" or not self._config().get("token_hash"):
@@ -587,10 +767,8 @@ class JavBrowser:
                     submitted = submit_offline_download(
                         self.downloads, magnet=candidate["uri"], provider=provider, code=code,
                         origin="browser:" + (row["source_url"] or "manual"), dedupe_code=True)
-                    task = submitted["task"]
                     with self._lock:
-                        row.update(state="failed" if submitted["outcome"] in {"failed", "refused"} else "submitted",
-                                   task_id=task["id"])
+                        self._settle_submission(row, submitted)
                         self._save()
                 finally:
                     with self._lock:
@@ -614,15 +792,20 @@ class JavBrowser:
         after = result.get('retry_after')
         if failed and type(after) in (int, float) and math.isfinite(after) and after >= 0:
             self._schedule_retry(row, RetryableTaskError('errors.javBrowser.searchUnavailable', after=after))
+            # 来源让稍后再试时，整条队列一起等，不让后面的番号各自撞一次、各自耗掉重试次数。
+            now = self.downloads.clock()
+            self._search_pause = {"failure": SEARCH_PAUSE, "since": iso(now),
+                                  "retry_at": row.get('retry_at') or iso(now + after)}
         else:
-            row.update(state='failed' if failed else 'no_match', message=message)
+            row.update(state='failed' if failed else 'no_match', message=message, ended_at=iso(self.downloads.clock()))
 
     def _schedule_retry(self, row: dict, error: Exception) -> None:
         attempt = row.get('retry_attempt', 0)
         delay = retry_delay(error, attempt)
         if delay is None:
             prefix = f'自动重试 {attempt} 次后仍未完成；' if attempt == len(RETRY_DELAYS) else ''
-            row.update(state='failed', message=prefix + '搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试')
+            row.update(state='failed', message=prefix + '搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试',
+                       ended_at=iso(self.downloads.clock()))
             row['retry_exhausted'] = attempt == len(RETRY_DELAYS)
             return
         row.update(state='queued', retry_attempt=attempt + 1, retry_limit=len(RETRY_DELAYS),

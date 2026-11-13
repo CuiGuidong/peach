@@ -96,10 +96,23 @@ class FailureKind:
 
 
 FAILURE_KINDS: dict[str, FailureKind] = {kind.key: kind for kind in (
-    FailureKind("config"), FailureKind("quota"), FailureKind("rejected"), FailureKind("invalid_link"),
+    FailureKind("config"), FailureKind("quota"), FailureKind("storage"), FailureKind("rejected"), FailureKind("invalid_link"),
     FailureKind("no_source"), FailureKind("not_accepted"), FailureKind("removed"), FailureKind("duplicate"),
     FailureKind("not_landed"), FailureKind("mismatch"), FailureKind("network", retryable=True),
 )}
+
+
+#: 渠道级失败：额度用完、网盘空间不足、配置或登录失效时，交给这个渠道的每一个任务都会同样失败。
+#: 网络故障本身按任务自动重提交；只有带 `channel_down` 的（CloudDrive2 根本连不上）才算渠道级。
+CHANNEL_FAILURES = frozenset({"quota", "storage", "config"})
+#: 网盘空间不足的说法。115 经 CloudDrive2 回 `190031 云空间不足`，有时走 gRPC 错误，有时写在 `errorMessage` 里；
+#: PikPak 的错误码是 `file_space_not_enough`。
+STORAGE_FULL = re.compile(r"190031|空间不足|空间已满|space_not_enough|insufficient (storage|space)|storage (is )?full",
+                          re.IGNORECASE)
+
+
+def storage_full(text: object) -> bool:
+    return bool(STORAGE_FULL.search(str(text or "")))
 
 
 def never_seen(task: "DownloadTask") -> bool:
@@ -112,16 +125,23 @@ class DownloadError(UserFacingError, RuntimeError):
 
     `detail` 是按 zh-CN 渲染的那一句，任务行的失败原因与设置页的检查报告照旧读它。
     `block` 只给 115 的违规拦截（`50038`）：这类失败不重试，同一 infohash 以后直接拒收。
+    `channel_down` 表示整个渠道连不上（服务没在运行、地址不通），不是一次超时。
     """
 
     def __init__(self, failure: str, code: str, params: Mapping[str, Any] | None = None, *,
-                 block: bool = False):
+                 block: bool = False, channel_down: bool = False):
         if failure not in FAILURE_KINDS:
             raise ValueError(f"unknown failure kind: {failure}")
         super().__init__(code, params)
         self.failure = failure
         self.detail = self.message
         self.block = block
+        self.channel_down = channel_down
+
+    @property
+    def channel_wide(self) -> bool:
+        """这次失败说明整个渠道暂时用不了，交给它的其他任务也会一样失败。"""
+        return self.failure in CHANNEL_FAILURES or self.channel_down
 
     @property
     def retryable(self) -> bool:
@@ -157,6 +177,12 @@ def problem_codes(problems) -> list[dict]:
 #: 115 对违规内容的离线拦截码。CloudDrive2 把 115 的原文放进 `errorMessage`，
 #: 只认得出码或「违规」字样，所以两样都匹配。
 BLOCKED_PATTERN = re.compile(r"50038|违规|敏感")
+#: 远端原话里的字样到失败类别，按顺序取第一个对上的。
+REMOTE_WORDS = (
+    (re.compile(r"配额|quota|次数|上限|limit", re.IGNORECASE), "quota", "errors.downloads.remoteQuota"),
+    (re.compile(r"已存在|exist|重复|duplicate", re.IGNORECASE), "duplicate", "errors.downloads.remoteDuplicate"),
+    (re.compile(r"链接|无效|invalid|url|格式", re.IGNORECASE), "invalid_link", "errors.downloads.remoteInvalidLink"),
+)
 
 
 def classify_remote_message(message: str) -> DownloadError:
@@ -164,15 +190,13 @@ def classify_remote_message(message: str) -> DownloadError:
     text = str(message or "").strip()
     if not text:
         return DownloadError("rejected", "errors.downloads.remoteRejectedNoReason")
-    lowered = text.casefold()
     if BLOCKED_PATTERN.search(text):
         return DownloadError("rejected", "errors.downloads.remoteBlocked", {"text": text}, block=True)
-    if any(word in lowered for word in ("配额", "quota", "次数", "上限", "limit")):
-        return DownloadError("quota", "errors.downloads.remoteQuota", {"text": text})
-    if any(word in lowered for word in ("已存在", "exist", "重复", "duplicate")):
-        return DownloadError("duplicate", "errors.downloads.remoteDuplicate", {"text": text})
-    if any(word in lowered for word in ("链接", "无效", "invalid", "url", "格式")):
-        return DownloadError("invalid_link", "errors.downloads.remoteInvalidLink", {"text": text})
+    if storage_full(text):
+        return DownloadError("storage", "errors.downloads.remoteStorageFull")
+    for pattern, failure, code in REMOTE_WORDS:
+        if pattern.search(text):
+            return DownloadError(failure, code, {"text": text})
     return DownloadError("rejected", "errors.downloads.remoteRejected", {"text": text})
 
 
@@ -315,6 +339,10 @@ POLL_DELAYS = (10.0, 30.0, 60.0, 120.0, 300.0, 600.0, 900.0)
 #: 提交时网盘暂时没应答（如 CloudDrive2 刷新 115 离线列表超时），从第一次提交起按 `POLL_DELAYS`
 #: 再交，这么久还没交上才算失败。
 SUBMIT_RETRY_WINDOW = 3600.0
+#: 正在提交的任务这么久之内不归后台对账：一次提交要依次调好几个接口，每个最多等 30 秒。
+#: 新任务没有排下次检查时间时会被对账线程当作到期，读到「已提交」去查离线列表，再把这份旧状态
+#: 写回去，盖掉提交线程刚记下的「等待重新提交」，磁力从没交出去就被判成网盘没收下。
+SUBMIT_IN_FLIGHT = 600.0
 #: 远端完成后先等推送发现登记；过了这一段账本里还没有，才定向登记一次。
 LANDING_GRACE = 60.0
 #: 远端完成之后最多等这么久让文件出现在挂载目录、进入账本，超过算「落地未见」。
@@ -806,6 +834,9 @@ class DownloadService:
         self.after_ingest = after_ingest
         self.channel_catalog = channel_catalog
         self.config = self.settings.load()
+        #: 按 provider 记最近一次渠道级失败（`CHANNEL_FAILURES`），这个渠道下一次提交成功时撤掉。
+        #: 只放在内存里：重启后第一次提交自然会再试一次。
+        self._channel_alerts: dict[str, dict] = {}
         self._submit_lock = threading.Lock()
         self._wake = threading.Event()
         self._stop = threading.Event()
@@ -844,6 +875,7 @@ class DownloadService:
             try:
                 status = self.providers(provider).submit(magnet, folder)
             except DownloadError as error:
+                self.note_channel(provider, error, now)
                 if not error.retryable:
                     self._fail(task, error, now)
                     self.store.record_submission(task=task, outcome="failed", now=now,
@@ -855,6 +887,7 @@ class DownloadService:
                 self.store.record_submission(task=task, outcome=outcome, now=now,
                                              failure=error.failure, detail=error.detail)
             else:
+                self.note_channel(provider, None, now)
                 self._accepted(task, status, now)
                 outcome = "adopted_remote" if status.adopted else "submitted"
                 self.store.record_submission(task=task, outcome=outcome, now=now)
@@ -880,6 +913,7 @@ class DownloadService:
             try:
                 status = self.providers(task.provider).submit(parse_magnet(task.source_uri), task.target)
             except DownloadError as error:
+                self.note_channel(task.provider, error, now)
                 started = parse_iso(task.submitted_at) or now
                 if error.retryable and now - started < SUBMIT_RETRY_WINDOW:
                     self._reschedule(task, now, error.detail)
@@ -895,6 +929,7 @@ class DownloadService:
             if latest is None or latest.state != SUBMIT_PENDING:
                 return  # 再交的这段时间里任务被取消了。
             task.submitted_at = iso(now)
+            self.note_channel(task.provider, None, now)
             self._accepted(task, status, now)
             self.store.record_submission(task=task, outcome="adopted_remote" if status.adopted else "submitted",
                                          now=now)
@@ -908,7 +943,7 @@ class DownloadService:
             code=_short(code) or (task.code if task else None),
             title=_short(title) or (task.title if task else None),
             origin=_short(origin) or (task.origin if task else None),
-            submitted_at=iso(now), updated_at=iso(now))
+            submitted_at=iso(now), updated_at=iso(now), next_check_at=iso(now + SUBMIT_IN_FLIGHT))
         return self.store.save(fresh)
 
     def _fail(self, task: DownloadTask, error: DownloadError, now: float, *, state: str = FAILED) -> None:
@@ -969,7 +1004,27 @@ class DownloadService:
             "total": total,
             "page": page,
             "next_before_id": tasks[-1].id if has_more else None,
+            "channel_alerts": [{**alert, "provider_label": labels.get(alert["provider"], alert["provider"])}
+                               for alert in self.channel_alerts()],
         }
+
+    def note_channel(self, provider: str, error: DownloadError | None, now: float) -> None:
+        """按一次提交的结果更新渠道告警：渠道级失败记下，提交成功撤掉，其他失败不动。"""
+        if error is None:
+            self._channel_alerts.pop(provider, None)
+        elif error.channel_wide:
+            self._channel_alerts[provider] = {
+                "provider": provider, "failure": "network" if error.channel_down else error.failure,
+                "message": error.detail, "message_code": error.code, "message_params": dict(error.params),
+                "since": iso(now)}
+
+    def channel_alert(self, provider: str) -> dict | None:
+        """这个渠道最近一次渠道级失败；之后成功提交过就是 None。"""
+        alert = self._channel_alerts.get(provider)
+        return dict(alert) if alert else None
+
+    def channel_alerts(self) -> list[dict]:
+        return [dict(alert) for alert in list(self._channel_alerts.values())]
 
     def channel_snapshot(self) -> dict:
         if self.channel_catalog is not None:

@@ -39,7 +39,7 @@ import httpx
 
 from .downloads import (
     DONE, ERROR, MISSING, RUNNING, DownloadError, DownloadTask, Magnet, RemoteStatus,
-    magnet_info_hash,
+    magnet_info_hash, storage_full,
 )
 from . import interface_text
 from .user_agent import USER_AGENT
@@ -395,6 +395,8 @@ class PikPakApiError(Exception):
             return DownloadError("config", "errors.downloadsPikpak.signInInvalid", params)
         if "captcha" in lowered:
             return DownloadError("config", "errors.downloadsPikpak.captchaDemanded", params)
+        if storage_full(lowered):
+            return DownloadError("storage", "errors.downloads.remoteStorageFull")
         if any(word in lowered for word in ("limit", "quota", "space", "exceed")):
             return DownloadError("quota", "errors.downloadsPikpak.quotaExceeded", params)
         if any(word in lowered for word in ("url", "invalid_argument", "magnet")):

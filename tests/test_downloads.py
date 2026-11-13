@@ -9,6 +9,7 @@ import json
 import os
 import sqlite3
 import tempfile
+import threading
 import unittest
 from contextlib import closing
 from pathlib import Path, PureWindowsPath
@@ -110,10 +111,11 @@ class MagnetTests(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 dl.parse_magnet(bad)
 
-    def test_remote_messages_are_sorted_into_the_eleven_kinds(self):
+    def test_remote_messages_are_sorted_into_the_twelve_kinds(self):
         cases = {
             "errno 50038 涉嫌违规": ("rejected", True),
             "本月离线配额已用完": ("quota", False),
+            "code: 190031, message: 云空间不足，请扩容空间或升级VIP": ("storage", False),
             "任务已存在": ("duplicate", False),
             "链接无效": ("invalid_link", False),
             "something else": ("rejected", False),
@@ -123,7 +125,7 @@ class MagnetTests(unittest.TestCase):
                 error = dl.classify_remote_message(message)
                 self.assertEqual((error.failure, error.block), (failure, block))
         self.assertEqual(set(dl.FAILURE_KINDS), {
-            "config", "quota", "rejected", "invalid_link", "no_source", "duplicate",
+            "config", "quota", "storage", "rejected", "invalid_link", "no_source", "duplicate",
             "not_landed", "mismatch", "network", "not_accepted", "removed"})
         self.assertEqual([key for key, kind in dl.FAILURE_KINDS.items() if kind.retryable],
                          ["network"])
@@ -216,6 +218,40 @@ class SubmitTests(_Deployment):
         self.assertEqual([row[:2] for row in self.submissions()],
                          [("failed", "quota"), ("submitted", None)])
 
+    def test_full_storage_raises_a_channel_alert_until_the_next_successful_submission(self):
+        self.provider.submit_result = dl.classify_remote_message("code: 190031, message: 云空间不足")
+        failed = self.submit()
+        self.assertEqual((failed["task"]["failure"], failed["task"]["failure_label"]), ("storage", "网盘空间不足"))
+        alerts = self.service.snapshot()["channel_alerts"]
+        self.assertEqual([(alert["provider"], alert["provider_label"], alert["failure"], alert["message_code"])
+                          for alert in alerts], [("115", "115", "storage", "errors.downloads.remoteStorageFull")])
+        # 资源本身的问题不算渠道告警，也不撤掉已有的告警。
+        self.provider.submit_result = dl.classify_remote_message("链接无效")
+        self.submit(magnet="b" * 40)
+        self.assertEqual(self.service.channel_alert("115")["failure"], "storage")
+        self.provider.submit_result = dl.RemoteStatus(dl.RUNNING, "r1", "ABC-123")
+        self.assertEqual(self.submit()["outcome"], "submitted")
+        self.assertIsNone(self.service.channel_alert("115"))
+        self.assertEqual(self.service.snapshot()["channel_alerts"], [])
+
+    def test_broken_settings_and_an_unreachable_service_are_channel_alerts_but_timeouts_are_not(self):
+        self.provider.submit_result = dl.DownloadError("config", "errors.downloadsClouddrive.tokenMissing")
+        self.submit()
+        self.assertEqual(self.service.channel_alert("115")["failure"], "config")
+        self.provider.submit_result = unreachable()
+        self.submit(magnet="b" * 40)
+        self.assertEqual(self.service.channel_alert("115")["failure"], "config")
+        self.provider.submit_result = dl.DownloadError(
+            "network", "errors.downloadsClouddrive.unreachable", {"action": "查离线任务", "details": "Connection refused"},
+            channel_down=True)
+        pending = self.submit(magnet="c" * 40)
+        self.assertEqual((pending["outcome"], self.service.channel_alert("115")["failure"]), ("deferred", "network"))
+        # 那条等待重新提交的任务交上之后，告警随之撤掉。
+        self.provider.submit_result = dl.RemoteStatus(dl.RUNNING, "r1", "ABC-123")
+        self.tick(dl.POLL_DELAYS[1])
+        self.assertEqual(self.service.store.get(pending["task"]["id"]).state, dl.SUBMITTED)
+        self.assertIsNone(self.service.channel_alert("115"))
+
     def test_a_network_failure_while_submitting_is_submitted_again_by_the_poller(self):
         self.provider.submit_result = unreachable()
         deferred = self.submit(code="ABC-123")
@@ -250,6 +286,39 @@ class SubmitTests(_Deployment):
         self.assertRegex(task.failure_detail, r"^查离线任务时连不上 CloudDrive2：Deadline Exceeded（自动重试 \d+ 次后仍未提交）$")
         self.assertTrue(task.payload()["resubmittable"])
         self.assertEqual(self.submissions()[-1][:2], ("failed", "network"))
+
+    def test_reconciliation_during_a_slow_submission_does_not_mark_it_accepted(self):
+        # 2026-11-12 的现场：提交线程卡在网盘接口上，后台对账读到这条「已提交」去查离线列表；
+        # 查询期间提交超时、记成等待重新提交，对账随后把读到的旧状态写回，磁力从没交出去就被判网盘没收下。
+        entered, release = threading.Event(), threading.Event()
+        result = {}
+
+        def slow_submit(magnet, target):
+            self.provider.submitted.append((magnet.info_hash, target))
+            entered.set()
+            release.wait(5)
+            raise unreachable()
+
+        def status_while_submitting(task):
+            release.set()
+            worker.join(5)
+            return dl.RemoteStatus(dl.MISSING)
+
+        self.provider.submit, self.provider.status = slow_submit, status_while_submitting
+        worker = threading.Thread(target=lambda: result.update(self.submit()))
+        worker.start()
+        self.assertTrue(entered.wait(5))
+        self.service.poll_once()
+        release.set()
+        worker.join(5)
+        task_id = result["task"]["id"]
+        self.assertEqual(self.service.store.get(task_id).state, dl.SUBMIT_PENDING)
+        # 到期后照常再交一次，这次交上了。
+        self.provider.submit = FakeProvider.submit.__get__(self.provider)
+        self.provider.status = FakeProvider.status.__get__(self.provider)
+        self.tick(dl.POLL_DELAYS[1])
+        self.assertEqual(self.service.store.get(task_id).state, dl.SUBMITTED)
+        self.assertEqual(len(self.provider.submitted), 2)
 
     def test_a_task_waiting_to_be_submitted_again_is_cancelled_locally(self):
         self.provider.submit_result = unreachable()
