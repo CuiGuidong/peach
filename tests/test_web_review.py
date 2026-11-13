@@ -3590,7 +3590,7 @@ class ReviewQueueTests(unittest.TestCase):
             (101, "18歳Eカップ彼氏持ち美女.mp4", r"A:\Pack From Shared\pen\banbi_555\18歳.mp4")])
         rows = rm_review.q_review(self.contract)["sections"]["code_creators"]
         self.assertEqual([row["item_key"] for row in rows], ["6869"])
-        self.assertEqual(rows[0]["verdict"], "存疑")
+        self.assertEqual(rows[0]["verdict"], "unclear")
         self.assertIn("没有同番号文件", rows[0]["reason"])
 
     def test_a_cleaned_up_creator_leaves_the_queue_on_its_own(self):

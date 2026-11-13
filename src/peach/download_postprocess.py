@@ -181,12 +181,15 @@ def _organize(contract, task, main: int) -> dict:
     blocked = [row for row in plan['rows'] if row.get('reason') in {
         organize.SKIP_TARGET_EXISTS, organize.SKIP_OFFLINE, organize.SKIP_TOO_LONG}]
     if blocked:
-        reasons = '；'.join(str(row['reason']) for row in blocked)
+        reasons = [{'code': organize.SKIP_REASON_CODES[reason]}
+                   for reason in dict.fromkeys(str(row['reason']) for row in blocked)]
         if all(row['reason'] == organize.SKIP_OFFLINE for row in blocked):
             raise RetryableTaskError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
         raise UserRuntimeError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
     if not movable:
-        return {"moved": 0, "skipped": next(iter(plan["reasons"]), Said("labels.downloadPostprocess.nothingToOrganize"))}
+        first = next(iter(plan["reasons"]), "")
+        return {"moved": 0, "skipped": Said(organize.SKIP_REASON_CODES[first]) if first in organize.SKIP_REASON_CODES
+                else Said("labels.downloadPostprocess.nothingToOrganize")}
     name = f"ledger.pre-download-{task.id}-{time.strftime('%Y%m%d-%H%M%S')}.db"
     with ledger_backups.organize_backup(Path(contract.db_path), contract.candidate_root,
                                         name) as backup, \

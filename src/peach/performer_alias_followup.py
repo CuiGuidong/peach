@@ -108,16 +108,14 @@ _BRACKETS = re.compile(r"[（(【\[][^（()）【】\[\]]*[）)】\]]")
 _UNCERTAIN = re.compile(r"[?？▲�]|不明|未確認")
 
 def _said(name: str, /, **params) -> str:
-    """判词、站点结论与复核产物的说明，按 zh-CN 资源渲染（`server:labels.performerAliasFollowup.<名字>`）。
+    """站点结论与复核产物的说明，按 zh-CN 资源渲染（`server:labels.performerAliasFollowup.<名字>`）。
 
-    这几样写进复核 CSV（`REVIEW_FILE`）与结果摘要的 `sites`，那里只存一句原文；动作值同时是 CSV 里的取值，
-    按它读回，所以渲染成固定的 zh-CN。"""
+    这几样写进复核 CSV（`REVIEW_FILE`）的 `detail` 列与结果摘要的 `sites`，那里只存一句原文。"""
     return interface_text.text(f"server:labels.performerAliasFollowup.{name}", params)
 
 
-WRITE, HAVE, TAKEN, STALE, GONE, SKIP = (_said(f"action.{name}") for name in
-                                         ("write", "have", "taken", "stale", "gone", "skip"))
-MERGE = _said("action.merge")
+#: 复核 CSV `action` 列的取值（ADR-0161 的英文 id）：同一轮里按它分拣；文件只在换掉这位的旧行时读回，不比对动作。
+WRITE, HAVE, TAKEN, STALE, GONE, SKIP, MERGE = "write", "have", "taken", "stale", "gone", "skip", "merge"
 #: 站点结论开头的那个词：没命中的那一站第二圈再搜（`_visit`）。
 MISSED = _said("site.missed")
 #: 名字栏能当合并证据的站：这两站的人物页由编辑维护，一页一个人。

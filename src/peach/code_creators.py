@@ -42,11 +42,12 @@ from .field_owners import write_owned_fields
 _SITE_POST = re.compile(r"^(fantia)[-_](\d{6,10})$", re.I)
 _EXTENSION = re.compile(r"\.(?:mp4|mkv|avi|wmv|ts|mov|m4v|jpg|jpeg|png|webp)$", re.I)
 
-#: 判定值写进审计 CSV、由 `apply_rows` 读回，是数据，不随界面语言变。
-VERDICT_CODE = "番号"
-VERDICT_SITE = "站点作品号"
-VERDICT_UNCLEAR = "存疑"
-VERDICT_KEEP = "保留"
+#: 判定值（ADR-0161 的英文 id）：同一次运行里分拣、交给 `apply_rows`，审计 CSV 照写一份给人看；
+#: 不从文件读回。
+VERDICT_CODE = "release-code"
+VERDICT_SITE = "site-post"
+VERDICT_UNCLEAR = "unclear"
+VERDICT_KEEP = "keep"
 #: 有文件级证据、可以直接清理的判定。
 SETTLED_VERDICTS = (VERDICT_CODE, VERDICT_SITE)
 

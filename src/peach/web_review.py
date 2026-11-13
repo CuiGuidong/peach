@@ -20,7 +20,7 @@ from urllib.parse import quote
 
 from .avatar_provider import install_entity_avatar
 from .catalog_rules import current_tags, is_korean_mib_code, normalise_code_key
-from .catalog_vocabulary import COVER_FETCHED, PERFORMER_TAG_PREFIX, WESTERN_IDENTITY_REVIEW_VERDICTS
+from .catalog_vocabulary import COVER_FETCHED, PERFORMER_TAG_PREFIX, WESTERN_IDENTITY_REVIEW_VERDICTS, fetch_result
 from .code_creators import collect
 from .entities import memoized_resolution, resolve_entity, resolve_entity_id, upsert_asset_entity
 from .field_owners import (
@@ -496,7 +496,7 @@ def _review_rows(contract: ReviewContract, category: str, *, queue: str | None =
                 row["preview_url"] = (
                     f"/endcard-frame?id={asset_id}&name={quote(frame.name)}"
                 )
-        if category == "cover_sources" and row.get("result") == COVER_FETCHED:
+        if category == "cover_sources" and fetch_result(row.get("result")) == COVER_FETCHED:
             # 封面已经在本机，直接看落盘的那张，不要回源站再拉一次。
             row["preview_url"] = f"/cover?code={quote(str(row.get('code') or ''))}"
         asset_code = str(row.get("asset_code") or row.get("code") or "")
@@ -854,7 +854,7 @@ def _review_evidence(category: str, row: dict) -> list[dict]:
             _said("labels.webReview.tokenOverlap", overlap=row.get("token_overlap") or "0"),
             _said("labels.webReview.videos", count=row.get("videos", ""))])
     if category == "cover_sources":
-        if row.get("result") != COVER_FETCHED:
+        if fetch_result(row.get("result")) != COVER_FETCHED:
             return [_said("labels.webReview.coverUnfetched", reason=row["note"]) if row.get("note")
                     else _said("labels.webReview.coverNoCandidates")]
         return [{"text": f"{row.get('source', '')} · {row.get('width', '')}×{row.get('height', '')}"

@@ -1550,7 +1550,7 @@ class RunTests(unittest.TestCase):
 
     def test_a_studio_with_no_link_is_counted_separately(self):
         stats = self.invoke()
-        self.assertEqual((stats["ok"], stats["无官网链接"]), (1, 1))
+        self.assertEqual((stats[MODULE.OK], stats[MODULE.SKIP]), (1, 1))
 
     def test_reporting_never_touches_the_installed_directory(self):
         """默认只出复核件。装图必须是显式的第二步。"""

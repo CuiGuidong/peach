@@ -1099,6 +1099,19 @@ class SettledMissTests(unittest.TestCase):
                     "catalog_rules": covers.upgrade_rules.OFFICIAL_COVER_CATALOG_MISSES}])
         self.assertEqual(covers.settled_misses(self.log), {"HEYZO-1380", "ABW-220"})
 
+    def test_result_column_is_written_as_english_ids_and_old_chinese_values_still_read(self):
+        self.assertEqual(covers.failure_log_row("ABW-221", covers.NotFound(covers.NO_CANDIDATES_CODE))["result"], "missed")
+        settled = {"note": "所有渠道都没有候选", "outcome": "not_found",
+                   "catalog_rules": covers.upgrade_rules.OFFICIAL_COVER_CATALOG_MISSES}
+        self._log([{"code": "ABW-221", "result": "missed", **settled},
+                   {"code": "ABW-222", "result": "未取得", **settled},
+                   {"code": "ABW-223", "result": "found", "width": "800"},
+                   {"code": "ABW-224", "result": "取得", "width": "800"}])
+        self.assertEqual(covers.settled_misses(self.log), {"ABW-221", "ABW-222"})
+        found = [row["code"] for row in covers.logged_rows(self.log)
+                 if covers.fetch_result(row["result"]) == covers.FOUND]
+        self.assertEqual(found, ["ABW-223", "ABW-224"])
+
     def test_catalog_absence_logs_use_the_current_rules_and_preserve_fc2_memories(self):
         self._log([{'code': 'SSIS-057', 'result': '未取得', 'note': 'NotFound: 所有渠道都没有候选'},
                    {'code': 'SSIS-058', 'result': '未取得', 'outcome': 'not_found', 'catalog_rules': 0},

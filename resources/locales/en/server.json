@@ -3417,15 +3417,6 @@
       "evidence": "{{note}}; title “{{title}}”"
     },
     "performerAliasFollowup": {
-      "action": {
-        "write": "write",
-        "have": "already have",
-        "taken": "taken",
-        "stale": "changed",
-        "gone": "no such person",
-        "skip": "skip",
-        "merge": "merge"
-      },
       "site": {
         "missed": "No match",
         "gone": "No match: the record no longer exists",

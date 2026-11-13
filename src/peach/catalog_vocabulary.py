@@ -31,8 +31,8 @@ PROCESSING_MARKERS = ("修复", "美颜")
 
 #: 西方身份候选 CSV 的 `verdict` 里要人看的两种取值。
 WESTERN_IDENTITY_REVIEW_VERDICTS = ("命中", "需人工确认")
-#: 封面来源候选 CSV 的 `result` 里「已取得」的取值。
-COVER_FETCHED = "取得"
+#: 封面来源候选 CSV（批量封面日志）`result` 里「已取得」的取值，读入时先经 `fetch_result` 归一。
+COVER_FETCHED = "found"
 
 #: 写进 `review_decision.note` 的用户决定备注：垃圾队列里点「不是垃圾」、重复组里点「都保留」。
 NOT_JUNK_NOTE = "用户确认不是垃圾"
@@ -45,3 +45,15 @@ QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "低画质")
 
 #: 素人发行的内容标签名（`asset_tag.tag` 与标签实体的规范名）。
 AMATEUR_TAG = "素人"
+
+
+# ── 旧版文件取值（ADR-0161）──────────────────────────────────────────────
+#: 批量封面日志与 FC2 候选日志 `result` 列的英文 id。旧文件里写的是中文，读入时用 `fetch_result` 换成 id。
+FETCH_FOUND, FETCH_MISSED = COVER_FETCHED, "missed"
+_LEGACY_FETCH_RESULTS = {"取得": FETCH_FOUND, "未取得": FETCH_MISSED}
+
+
+def fetch_result(value: object) -> str:
+    """日志 `result` 列的取值：旧中文值换成英文 id，其余原样。"""
+    text = str(value or "")
+    return _LEGACY_FETCH_RESULTS.get(text, text)

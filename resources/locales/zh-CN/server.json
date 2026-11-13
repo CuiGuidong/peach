@@ -3417,15 +3417,6 @@
       "evidence": "{{note}}；标题「{{title}}」"
     },
     "performerAliasFollowup": {
-      "action": {
-        "write": "写入",
-        "have": "已有",
-        "taken": "占用",
-        "stale": "已变",
-        "gone": "查无此人",
-        "skip": "不收",
-        "merge": "合并"
-      },
       "site": {
         "missed": "未命中",
         "gone": "未命中：档案已不存在",
