@@ -34,7 +34,7 @@ PARKED = re.compile(
     r"|ドメイン(?:の)?販売|sedo\.com|afternic|godaddy\.com/domain|hugedomains",
     re.I)
 
-#: 标识复核件与边车 `*.provenance.json` 里的判词（`studio_icons`，ADR-0161 的英文 id）：同一次运行里分拣与装图，
+#: 标识复核件与边车 `*.provenance.json` 里的判词（`studio_icons`，ADR-0162 的英文 id）：同一次运行里分拣与装图，
 #: `scripts/harvest_studio_icons.py` 按它排序；不从文件读回。取证失败的 `MISSING` 与官网判词共用。
 #: 仍是字标、只有小图标。
 WORDMARK, TOOSMALL = "still-wordmark", "small-icon-only"

@@ -42,7 +42,7 @@ from .field_owners import write_owned_fields
 _SITE_POST = re.compile(r"^(fantia)[-_](\d{6,10})$", re.I)
 _EXTENSION = re.compile(r"\.(?:mp4|mkv|avi|wmv|ts|mov|m4v|jpg|jpeg|png|webp)$", re.I)
 
-#: 判定值（ADR-0161 的英文 id）：同一次运行里分拣、交给 `apply_rows`，审计 CSV 照写一份给人看；
+#: 判定值（ADR-0162 的英文 id）：同一次运行里分拣、交给 `apply_rows`，审计 CSV 照写一份给人看；
 #: 不从文件读回。
 VERDICT_CODE = "release-code"
 VERDICT_SITE = "site-post"

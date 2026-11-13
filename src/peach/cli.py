@@ -636,7 +636,7 @@ def _announce_token(config: settings_file.PeachConfig) -> None:
     print(_t("token.lanHint"))
 
 
-#: 情境层取值（账本里的英文 id，ADR-0161）的显示名；表里没有的（`4K`、`1080P` 这类通用写法）原样打印。
+#: 情境层取值（账本里的英文 id，ADR-0162）的显示名；表里没有的（`4K`、`1080P` 这类通用写法）原样打印。
 CONTEXT_VALUE_CODES = {
     "portrait": "status.contextValue.portrait", "landscape": "status.contextValue.landscape",
     "quick": "status.contextValue.quick", "short": "status.contextValue.short",

@@ -1,4 +1,4 @@
-/* 账本取值是英文 id，界面按语言显示；旧书签里的中文参数读入时换成 id（ADR-0161）。 */
+/* 账本取值是英文 id，界面按语言显示；旧书签里的中文参数读入时换成 id（ADR-0162）。 */
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { SETTINGS_KEY } from '../src/settings-key';

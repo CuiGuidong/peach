@@ -119,7 +119,7 @@ NO_USABLE_OFFICIAL = tuple(_zh(code) for code in NO_USABLE_OFFICIAL_CODES)
 PLACEHOLDER_REASON = _zh(PLACEHOLDER_CODE)
 OFFICIAL_PLACEHOLDER_ONLY = _zh(OFFICIAL_PLACEHOLDER_ONLY_CODE)
 MIB_NOT_JAV = _zh(MIB_NOT_JAV_CODE)
-#: 批量封面日志 `result` 列的取值（ADR-0161 的英文 id）。读回时先经 `fetch_result` 归一，旧日志里的中文值也认。
+#: 批量封面日志 `result` 列的取值（ADR-0162 的英文 id）。读回时先经 `fetch_result` 归一，旧日志里的中文值也认。
 FOUND, MISSED = FETCH_FOUND, FETCH_MISSED
 #: 量尺寸只需要 JPEG 头部，别把整张 1 MB 的图拉下来。
 PROBE_BYTES = 64 * 1024

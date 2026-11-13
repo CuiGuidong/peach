@@ -15,7 +15,7 @@ from collections.abc import Iterable
 from functools import lru_cache
 from pathlib import PureWindowsPath
 
-#: 规则给出的几种取值（ADR-0161 的英文 id）。本模块是最底层纯规则、不依赖别的 Peach 模块，定义放在这里，
+#: 规则给出的几种取值（ADR-0162 的英文 id）。本模块是最底层纯规则、不依赖别的 Peach 模块，定义放在这里，
 #: `catalog_vocabulary` 从这里导入后对外提供，含义与用法见那边的说明。
 PERFORMER_TAG_PREFIX = "performer:"
 CHINESE_SUBTITLES = "chinese-subtitles"

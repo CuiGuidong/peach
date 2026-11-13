@@ -1,4 +1,4 @@
--- 账本里会被代码读回比对的中文取值改成英文稳定 id（ADR-0161），界面按语言显示。
+-- 账本里会被代码读回比对的中文取值改成英文稳定 id（ADR-0162），界面按语言显示。
 --
 -- 画幅 `asset.ctx_orient`：竖屏 → portrait，横屏 → landscape。
 -- 时长档 `asset.ctx_length`：速食 → quick，短 → short，中 → medium，长 → long。

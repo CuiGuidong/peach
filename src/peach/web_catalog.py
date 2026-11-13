@@ -324,7 +324,7 @@ def catalog_filter(contract: WebContract, args):
     if args.get("owner") == "none":
         where.append(UNOWNED_ASSET_CLAUSE)
     if args.get("tag"):
-        # 旧书签里的出演者标记还是旧前缀，先换成现在的写法（ADR-0161）。
+        # 旧书签里的出演者标记还是旧前缀，先换成现在的写法（ADR-0162）。
         tags = [current_tag(x) for x in args["tag"].split(",") if x]
         tags = _canonical_tag_names(contract, tags)
         tag_clause = (
@@ -351,7 +351,7 @@ def catalog_filter(contract: WebContract, args):
     if not trash and args.get("dur_max"):
         where.append("a.duration <= ?"); par.append(max(0, float(args["dur_max"])))
     if not trash and args.get("orient"):
-        # 旧书签与历史地址里的 `orient=竖屏` 长期照认（ADR-0161）。
+        # 旧书签与历史地址里的 `orient=竖屏` 长期照认（ADR-0162）。
         where.append("a.ctx_orient = ?"); par.append(current_orientation(args["orient"]))
     elif not trash and args.get("exclude_vertical") == "1":
         where.append("(a.ctx_orient IS NULL OR a.ctx_orient <> ?)"); par.append(PORTRAIT)

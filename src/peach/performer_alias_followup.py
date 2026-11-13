@@ -114,7 +114,7 @@ def _said(name: str, /, **params) -> str:
     return interface_text.text(f"server:labels.performerAliasFollowup.{name}", params)
 
 
-#: 复核 CSV `action` 列的取值（ADR-0161 的英文 id）：同一轮里按它分拣；文件只在换掉这位的旧行时读回，不比对动作。
+#: 复核 CSV `action` 列的取值（ADR-0162 的英文 id）：同一轮里按它分拣；文件只在换掉这位的旧行时读回，不比对动作。
 WRITE, HAVE, TAKEN, STALE, GONE, SKIP, MERGE = "write", "have", "taken", "stale", "gone", "skip", "merge"
 #: 站点结论开头的那个词：没命中的那一站第二圈再搜（`_visit`）。
 MISSED = _said("site.missed")

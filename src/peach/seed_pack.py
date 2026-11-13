@@ -336,7 +336,7 @@ def _land_links(connection, entity_id: int, item: dict, batch: str, stamp: str) 
         connection.execute(
             "INSERT OR IGNORE INTO entity_link(entity_id,link_kind,label,url,hostname,is_sensitive,"
             "metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,0,?,?,?)",
-            # 早先导出的种子写着中文的通用链接名，落库前换成 id（ADR-0161）。
+            # 早先导出的种子写着中文的通用链接名，落库前换成 id（ADR-0162）。
             (entity_id, link["kind"], current_link_label(str(link.get("label") or urlsplit(url).hostname or url)), url,
              urlsplit(url).hostname or "", json.dumps({"source": SOURCE, "batch": batch}, ensure_ascii=False),
              stamp, stamp))

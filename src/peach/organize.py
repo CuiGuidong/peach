@@ -60,7 +60,7 @@ def _preset(preset_id: str, file_template: str, dir_template: str) -> dict[str, 
 PRESETS: tuple[dict[str, str], ...] = tuple(_preset(*row) for row in _PRESET_TEMPLATES)
 
 
-#: 跳过原因的 id（ADR-0161）。计划行的 `reason` 与计划结果的 `reasons` 计数按 id 记，下载后整理按 id 判断；
+#: 跳过原因的 id（ADR-0162）。计划行的 `reason` 与计划结果的 `reasons` 计数按 id 记，下载后整理按 id 判断；
 #: 界面按 `reason_codes`（id → code）取当前语言，写给人看的计划 CSV 按本机语言渲染。
 SKIP_REASON_IDS = ("offline", "missingField", "outsideRoot", "targetExists", "crossVolume", "tooLong")
 SKIP_OFFLINE, SKIP_MISSING_FIELD, SKIP_OUTSIDE_ROOT, SKIP_TARGET_EXISTS, SKIP_CROSS_VOLUME, SKIP_TOO_LONG = SKIP_REASON_IDS
