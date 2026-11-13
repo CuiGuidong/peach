@@ -329,6 +329,10 @@ POLL_DELAYS = (10.0, 30.0, 60.0, 120.0, 300.0, 600.0, 900.0)
 #: 提交时网盘暂时没应答（如 CloudDrive2 刷新 115 离线列表超时），从第一次提交起按 `POLL_DELAYS`
 #: 再交，这么久还没交上才算失败。
 SUBMIT_RETRY_WINDOW = 3600.0
+#: 正在提交的任务这么久之内不归后台对账：一次提交要依次调好几个接口，每个最多等 30 秒。
+#: 新任务没有排下次检查时间时会被对账线程当作到期，读到「已提交」去查离线列表，再把这份旧状态
+#: 写回去，盖掉提交线程刚记下的「等待重新提交」，磁力从没交出去就被判成网盘没收下。
+SUBMIT_IN_FLIGHT = 600.0
 #: 远端完成后先等推送发现登记；过了这一段账本里还没有，才定向登记一次。
 LANDING_GRACE = 60.0
 #: 远端完成之后最多等这么久让文件出现在挂载目录、进入账本，超过算「落地未见」。
@@ -930,7 +934,7 @@ class DownloadService:
             code=_short(code) or (task.code if task else None),
             title=_short(title) or (task.title if task else None),
             origin=_short(origin) or (task.origin if task else None),
-            submitted_at=iso(now), updated_at=iso(now))
+            submitted_at=iso(now), updated_at=iso(now), next_check_at=iso(now + SUBMIT_IN_FLIGHT))
         return self.store.save(fresh)
 
     def _fail(self, task: DownloadTask, error: DownloadError, now: float, *, state: str = FAILED) -> None:

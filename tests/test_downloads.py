@@ -9,6 +9,7 @@ import json
 import os
 import sqlite3
 import tempfile
+import threading
 import unittest
 from contextlib import closing
 from pathlib import Path, PureWindowsPath
@@ -267,6 +268,39 @@ class SubmitTests(_Deployment):
         self.assertRegex(task.failure_detail, r"^查离线任务时连不上 CloudDrive2：Deadline Exceeded（自动重试 \d+ 次后仍未提交）$")
         self.assertTrue(task.payload()["resubmittable"])
         self.assertEqual(self.submissions()[-1][:2], ("failed", "network"))
+
+    def test_reconciliation_during_a_slow_submission_does_not_mark_it_accepted(self):
+        # 2026-11-12 的现场：提交线程卡在网盘接口上，后台对账读到这条「已提交」去查离线列表；
+        # 查询期间提交超时、记成等待重新提交，对账随后把读到的旧状态写回，磁力从没交出去就被判网盘没收下。
+        entered, release = threading.Event(), threading.Event()
+        result = {}
+
+        def slow_submit(magnet, target):
+            self.provider.submitted.append((magnet.info_hash, target))
+            entered.set()
+            release.wait(5)
+            raise unreachable()
+
+        def status_while_submitting(task):
+            release.set()
+            worker.join(5)
+            return dl.RemoteStatus(dl.MISSING)
+
+        self.provider.submit, self.provider.status = slow_submit, status_while_submitting
+        worker = threading.Thread(target=lambda: result.update(self.submit()))
+        worker.start()
+        self.assertTrue(entered.wait(5))
+        self.service.poll_once()
+        release.set()
+        worker.join(5)
+        task_id = result["task"]["id"]
+        self.assertEqual(self.service.store.get(task_id).state, dl.SUBMIT_PENDING)
+        # 到期后照常再交一次，这次交上了。
+        self.provider.submit = FakeProvider.submit.__get__(self.provider)
+        self.provider.status = FakeProvider.status.__get__(self.provider)
+        self.tick(dl.POLL_DELAYS[1])
+        self.assertEqual(self.service.store.get(task_id).state, dl.SUBMITTED)
+        self.assertEqual(len(self.provider.submitted), 2)
 
     def test_a_task_waiting_to_be_submitted_again_is_cancelled_locally(self):
         self.provider.submit_result = unreachable()
