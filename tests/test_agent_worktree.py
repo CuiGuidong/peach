@@ -32,9 +32,14 @@ def install_commit_hooks(repo: Path) -> None:
     sources += [HOOKS.parent / name for name in
                 ("check_commit_message.py", "check_readme_impact.py", "co_author.py")
                 if (HOOKS.parent / name).is_file()]
+    # 钩子的报错按本机语言渲染（`peach.interface_text.dev`），连同它读的语言资源一起装进去。
+    package = HOOKS.parents[1] / "src" / "peach"
+    sources += [package / name for name in ("interface_text.py", "project_root.py", "system_language.py")]
+    sources += sorted((HOOKS.parent / "locales").glob("*/dev.json"))
     for source in sources:
         relative = source.relative_to(HOOKS.parent.parent)
         target = repo / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(source, target)
         target.chmod(0o755)
         _git(repo, "add", relative.as_posix())

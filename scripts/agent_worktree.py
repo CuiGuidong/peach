@@ -15,7 +15,10 @@ from pathlib import Path
 
 if not __package__:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+    sys.path.insert(1, str(Path(__file__).resolve().parents[1] / "src"))
     __package__ = "scripts"
+from peach.interface_text import dev as t
+
 from . import (changelog, check_public_text, co_author, commit_subject,
                test_evidence, test_runner, version_bump)
 from .release_tag import MASTER_WRITER
@@ -172,7 +175,7 @@ def preflight(repo: Path, target_branch: str = "master") -> dict[str, object]:
     """快速核对当前交付提交；不读取或签发测试证明，也不查询 PR。"""
     report = _worker_delivery(repo, target_branch)
     if require_metadata(repo, target_branch) != report["head"]:
-        raise WorkspaceError("预检期间工作者分支改变，请重试")
+        raise WorkspaceError(t("agent_worktree.branchChangedPreflight"))
     return {"ok": True, "action": "preflight", **report,
             "metadata": "passed", "tests": "not_checked", "pull_request": "not_checked"}
 
@@ -181,7 +184,7 @@ def ready(repo: Path, target_branch: str = "master", *, ci_run: int | None = Non
     report = _worker_delivery(repo, target_branch)
     proof = require_verified(repo, target_branch, set(report["files"]), ci_run=ci_run)
     if _git(repo, "rev-parse", "HEAD").stdout.strip() != report["head"]:
-        raise WorkspaceError("验证检查期间工作者分支改变，请重试")
+        raise WorkspaceError(t("agent_worktree.branchChangedVerification"))
     return {"ok": True, "action": "ready", **report, "verification": proof}
 
 
@@ -189,16 +192,16 @@ def require_metadata(worker: Path, target_branch: str) -> str:
     """干净交付内容、目标祖先与提交声明的共用判据。"""
     head = _git(worker, "rev-parse", "HEAD").stdout.strip()
     if _git(worker, "status", "--porcelain").stdout.strip():
-        raise WorkspaceError("验证工作树必须干净")
+        raise WorkspaceError(t("agent_worktree.worktreeMustBeClean"))
     if _git(worker, "merge-base", "--is-ancestor", target_branch, "HEAD", check=False).returncode:
-        raise WorkspaceError("目标分支已前进；请在工作树 rebase 后运行 auto 验证")
+        raise WorkspaceError(t("agent_worktree.targetAdvanced"))
     problems = (co_author.check(worker, target_branch)
                 + commit_subject.check(worker, target_branch))
     if problems:
         raise WorkspaceError("; ".join(problems))
     if _git(worker, "rev-parse", "HEAD").stdout.strip() != head or \
             _git(worker, "status", "--porcelain").stdout.strip():
-        raise WorkspaceError("元数据检查期间工作树改变，请重试")
+        raise WorkspaceError(t("agent_worktree.worktreeChangedMetadata"))
     return head
 
 
@@ -221,11 +224,11 @@ def require_verified(worker: Path, target_branch: str, paths: Iterable[str], *,
             proof = {"source": "local", "state": state, "scopes": list(scopes)}
     if proof is None:
         if ci_error is not None:
-            raise WorkspaceError(f"CI 测试证明未取得或无效：{ci_error}") from ci_error
-        raise WorkspaceError("缺少有效测试记录；请运行统一测试入口 auto，或 ready --ci-run 指定成功 Test")
+            raise WorkspaceError(t("agent_worktree.ciProofInvalid", error=ci_error)) from ci_error
+        raise WorkspaceError(t("agent_worktree.noTestRecord"))
     if _git(worker, "rev-parse", "HEAD").stdout.strip() != head or \
             _git(worker, "status", "--porcelain").stdout.strip():
-        raise WorkspaceError("验证检查期间工作树改变，请重试")
+        raise WorkspaceError(t("agent_worktree.worktreeChangedVerification"))
     if proof['source'] == 'github':
         ci_test_evidence.remember(worker, proof)
     return proof
@@ -249,23 +252,23 @@ def require_pull_request(worker: Path, branch: str, target_branch: str, head: st
             capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60,
         )
     except (OSError, subprocess.TimeoutExpired) as error:
-        raise WorkspaceError(f"未取得 PR：{error}") from error
+        raise WorkspaceError(t("agent_worktree.pullRequestUnavailable", error=error)) from error
     if result.returncode:
-        raise WorkspaceError("未取得 PR：" + (result.stderr or result.stdout).strip())
+        raise WorkspaceError(t("agent_worktree.pullRequestUnavailable", error=(result.stderr or result.stdout).strip()))
     try:
         pr = json.loads(result.stdout)
     except json.JSONDecodeError as error:
-        raise WorkspaceError("PR 回执不是有效 JSON") from error
+        raise WorkspaceError(t("agent_worktree.pullRequestNotJson")) from error
     if not isinstance(pr, dict) or any(not isinstance(pr.get(key), str) or not pr[key] for key in fields):
-        raise WorkspaceError("PR 回执字段无效")
+        raise WorkspaceError(t("agent_worktree.pullRequestBadFields"))
     if not re.fullmatch(r"https://[^/\s]+/[^/\s]+/[^/\s]+/pull/[1-9]\d*", pr["url"]):
-        raise WorkspaceError("PR 回执链接无效")
+        raise WorkspaceError(t("agent_worktree.pullRequestBadUrl"))
     if pr["state"] != "OPEN":
-        raise WorkspaceError(f"PR 状态为 {pr['state']}；交付 PR 必须开放待合入")
+        raise WorkspaceError(t("agent_worktree.pullRequestNotOpen", state=pr['state']))
     if pr["headRefOid"] != head:
-        raise WorkspaceError("PR 提交与工作者分支不一致；请先推送当前提交并核对对应 CI")
+        raise WorkspaceError(t("agent_worktree.pullRequestHeadMismatch"))
     if pr["baseRefName"] != target_branch:
-        raise WorkspaceError(f"PR 目标分支不是 {target_branch}")
+        raise WorkspaceError(t("agent_worktree.pullRequestWrongBase", branch=target_branch))
     body = pr.get("body") if isinstance(pr.get("body"), str) else ""
     refs = [line.strip() for line in body.splitlines() if ISSUE_LINK.fullmatch(line.strip())]
     return {"url": pr["url"], "head": head, "base": target_branch, "refs": refs, "body": body}
@@ -278,14 +281,18 @@ def require_public_text(repo: Path, texts: dict[str, str]) -> None:
     只查 PR 正文，提交说明写给开发者，改工作树脚本的提交本来就要写工作树。
     """
     library = check_public_text.load_library(repo)
-    found = [f"{name}（{'；'.join(problems)}）" for name, text in texts.items()
+    found = [t("agent_worktree.publicTextItem", name=name,
+               problems=t("agent_worktree.clauseSeparator").join(problems))
+             for name, text in texts.items()
              for problems in [check_public_text.problems(text, library)] if problems]
     if found:
-        raise WorkspaceError("公开文字成串列出了馆藏细节，改写 PR 正文或提交说明后再合入：" + "，".join(found))
-    insider = check_public_text.insider_terms(texts.get("PR 正文", ""))
+        raise WorkspaceError(t("agent_worktree.publicTextListsLibrary",
+                               items=t("agent_worktree.itemSeparator").join(found)))
+    insider = check_public_text.insider_terms(texts.get(t("agent_worktree.prBodyLabel"), ""))
     if insider:
-        raise WorkspaceError("PR 正文用了外部读者看不懂的内部用语（" + "；".join(insider) + "），"
-                             + check_public_text.INSIDER_HINT + "；改写后再合入")
+        raise WorkspaceError(t("agent_worktree.prBodyInsiderTerms",
+                               terms=t("agent_worktree.clauseSeparator").join(insider),
+                               hint=check_public_text.INSIDER_HINT))
 
 
 def merge_message(branch: str, pull_request: dict[str, object]) -> str:
@@ -309,13 +316,13 @@ def integrate(repo: Path, worker_branch: str, target_branch: str = "master", *,
             with test_evidence.held(folder / "integration.lock",
                                     branch=worker_branch, root=str(repo)):
                 if documents and not _documents_only(repo, worker_branch, target_branch):
-                    raise WorkspaceError("等待集成期间分支影响面改变；本次未修改分支，请重试")
+                    raise WorkspaceError(t("agent_worktree.surfaceChangedWhileWaiting"))
                 refreshed = _refresh_worker(repo, worker_branch, target_branch, documents=documents)
                 return {**_integrate_locked(repo, worker_branch, target_branch), "refreshed": refreshed}
     except test_evidence.Timeout as error:
         raise WorkspaceError(
-            f"另一任务正在集成或全量验证（{test_evidence.describe_holder(Path(error.lock_file))}）；"
-            "本次未修改分支，请等待后重试") from error
+            t("agent_worktree.integrationBusy",
+              holder=test_evidence.describe_holder(Path(error.lock_file)))) from error
 
 
 def _refresh_worker(main: Path, worker_branch: str, target_branch: str, *,
@@ -331,7 +338,7 @@ def _refresh_worker(main: Path, worker_branch: str, target_branch: str, *,
         return None
     workers = [Path(item["path"]) for item in _worktree_entries(main) if item.get("branch") == worker_branch]
     if len(workers) != 1 or _git(workers[0], "status", "--porcelain").stdout.strip():
-        raise WorkspaceError("工作者必须有唯一、干净且已注册的工作树")
+        raise WorkspaceError(t("agent_worktree.workerWorktreeRequired"))
     worker = workers[0]
     before = _git(worker, "rev-parse", "HEAD").stdout.strip()
     old_base = _git(worker, "merge-base", target_branch, "HEAD").stdout.strip()
@@ -342,14 +349,14 @@ def _refresh_worker(main: Path, worker_branch: str, target_branch: str, *,
         raise WorkspaceError("same-file review required: " + ", ".join(overlap))
     if _git(worker, "rebase", target_branch, check=False).returncode:
         _git(worker, "rebase", "--abort", check=False)
-        raise WorkspaceError("目标分支已前进，自动 rebase 有冲突，已撤回；请在工作树解决冲突后重新验证")
-    print(f"目标分支已前进：工作者分支已 rebase 到 {target_branch}，持锁补验。", file=sys.stderr, flush=True)
+        raise WorkspaceError(t("agent_worktree.rebaseConflict"))
+    print(t("agent_worktree.rebasedReverifying", branch=target_branch), file=sys.stderr, flush=True)
     _verify_worker(main, worker, frontend="frontend/package-lock.json" in moved)
     after = _git(worker, "rev-parse", "HEAD").stdout.strip()
     pushed = _git(worker, "push", f"--force-with-lease={worker_branch}:{before}", "origin",
                   f"{worker_branch}:{worker_branch}", check=False)
     if pushed.returncode:
-        raise WorkspaceError("rebase 后的工作者分支推送失败：" + (pushed.stderr or pushed.stdout).strip())
+        raise WorkspaceError(t("agent_worktree.rebasedPushFailed", error=(pushed.stderr or pushed.stdout).strip()))
     _await_pull_request_head(worker, worker_branch, after)
     return {"from": before, "to": after}
 
@@ -377,7 +384,7 @@ def _verify_worker(main: Path, worker: Path, *, frontend: bool) -> None:
         for command in steps:
             if subprocess.run(command, cwd=worker, env=environment, stdout=stream, stderr=subprocess.STDOUT,
                               check=False).returncode:
-                raise WorkspaceError(f"rebase 后补验未通过，分支已 rebase 但未推送；日志：{log}")
+                raise WorkspaceError(t("agent_worktree.reverifyFailed", log=log))
 
 
 def _await_pull_request_head(worker: Path, branch: str, head: str, *, attempts: int = 12) -> None:
@@ -388,7 +395,7 @@ def _await_pull_request_head(worker: Path, branch: str, head: str, *, attempts: 
         if result.returncode == 0 and result.stdout.strip() == head:
             return
         time.sleep(5)
-    raise WorkspaceError("推送后 PR 头没有跟上 rebase 后的提交；请稍后重试 integrate")
+    raise WorkspaceError(t("agent_worktree.pullRequestHeadLagging"))
 
 
 def _documents_only(repo: Path, worker_branch: str, target_branch: str) -> bool:
@@ -425,20 +432,20 @@ def _integrate_locked(repo: Path, worker_branch: str,
     workers = [Path(item["path"]) for item in _worktree_entries(main)
                if item.get("branch") == worker_branch]
     if len(workers) != 1 or _git(workers[0], "status", "--porcelain").stdout.strip():
-        raise WorkspaceError("工作者必须有唯一、干净且已注册的工作树")
+        raise WorkspaceError(t("agent_worktree.workerWorktreeRequired"))
     worker_head = _git(main, "rev-parse", worker_branch).stdout.strip()
     require_verified(workers[0], target_branch, worker_files)
     pull_request = require_pull_request(workers[0], worker_branch, target_branch, worker_head)
     commits = _git(main, "log", "--format=%h%x00%B%x1e", f"{base}..{worker_head}").stdout
-    require_public_text(main, {"PR 正文": str(pull_request.get("body") or ""), **{
-        f"提交 {sha}": message for sha, _, message in
+    require_public_text(main, {t("agent_worktree.prBodyLabel"): str(pull_request.get("body") or ""), **{
+        t("agent_worktree.commitLabel", sha=sha): message for sha, _, message in
         (entry.strip().partition("\0") for entry in commits.split("\x1e") if entry.strip())}})
     if _git(main, "rev-parse", worker_branch).stdout.strip() != worker_head or \
             _git(workers[0], "rev-parse", "HEAD").stdout.strip() != worker_head:
-        raise WorkspaceError("验证检查期间工作者分支改变，请重试")
+        raise WorkspaceError(t("agent_worktree.branchChangedVerification"))
     if _git(main, "rev-parse", "HEAD").stdout.strip() != before or \
             _git(main, "status", "--porcelain").stdout.strip():
-        raise WorkspaceError("验证检查期间集成工作树改变，请重试")
+        raise WorkspaceError(t("agent_worktree.integrationWorktreeChanged"))
     _install_hooks(main)
     _git(main, "-c", f"{MASTER_WRITER}=integrate", "merge", "--no-ff", "--no-edit",
          "-m", merge_message(worker_branch, pull_request), worker_head)
@@ -524,7 +531,7 @@ def processes_under(roots: Iterable[Path], *, sample: float = 0.0) -> list[dict]
     try:
         import psutil
     except ImportError:
-        return "未取得：当前 venv 缺 psutil，先运行 uv sync --locked --all-extras"
+        return t("agent_worktree.psutilMissing")
     prefixes = [os.path.normcase(os.path.normpath(str(root))) for root in roots]
     caller: set[int] = set()
     try:
@@ -643,10 +650,11 @@ def _idle(path: Path) -> bool:
 def _holders(path: Path) -> str:
     holders = processes_under([path])
     if isinstance(holders, str):
-        return f"无法判断是否有进程在用（{holders}）"
+        return t("agent_worktree.holdersUnknown", reason=holders)
     others = [row for row in holders if not row["caller"]]
     if others:
-        return "还有进程在用（PID " + "、".join(str(row["pid"]) for row in others[:5]) + "），多半是会话、终端或服务"
+        return t("agent_worktree.holdersPresent",
+                 pids=t("common.listSeparator").join(str(row["pid"]) for row in others[:5]))
     return ""
 
 
@@ -688,7 +696,7 @@ def _in_use(path: Path, *, idle: bool = False) -> str:
     闲置满 `IDLE_DAYS` 天的例外：会话文件由 `_archive_build` 移进 attic 后再回收。
     """
     if not idle and _session_files(path):
-        return "build/ 里还有过程文件（日志、报告、派单），闲置满 7 天后移进 attic 再回收"
+        return t("agent_worktree.sessionFiles")
     return _holders(path)
 
 
@@ -716,7 +724,7 @@ def _reclaim(main: Path, path: Path, branch: str) -> tuple[str, dict[str, str]]:
         left = _delete_tree(path)
         if left:
             return "residue", {"path": str(path), "branch": branch,
-                               "why": f"注册已摘掉，目录删不掉，确认没人占用后手动删：{left}（{why}）",
+                               "why": t("agent_worktree.residueAfterUnregister", left=left, why=why),
                                "holders": processes_under([path])}
     return "reclaimed", {"path": str(path), "branch": branch}
 
@@ -747,14 +755,14 @@ def _sweep_unregistered(main: Path, here: Path, *, apply: bool
                 continue
             if any(child.is_file() for child in path.rglob("*")):
                 kept.append({"path": str(path), "branch": "",
-                             "why": "未登记的目录里还有文件，确认没人在用后手动删"})
+                             "why": t("agent_worktree.unregisteredWithFiles")})
                 continue
             if not apply:
                 swept.append(str(path))
                 continue
             left = _delete_tree(path)
             if left:
-                residue.append({"path": str(path), "branch": "", "why": "目录删不掉：" + left,
+                residue.append({"path": str(path), "branch": "", "why": t("agent_worktree.cannotDelete", left=left),
                                 "holders": processes_under([path])})
             else:
                 swept.append(str(path))
@@ -807,18 +815,18 @@ def prune(repo: Path, target_branch: str = "master", *,
         lock = item.get("locked", "")
         expired = lock == f"locked {ACTIVE_LOCK}"
         if lock and not expired:
-            kept.append({"path": str(path), "branch": branch, "why": "工作树带人为保留的锁"})
+            kept.append({"path": str(path), "branch": branch, "why": t("agent_worktree.manualLock")})
             continue
         idle = path.is_dir() and _idle(path)
         if lock and not idle:
-            kept.append({"path": str(path), "branch": branch, "why": "工作树被活动任务锁定"})
+            kept.append({"path": str(path), "branch": branch, "why": t("agent_worktree.activeLock")})
             continue
         if branch not in merged:
-            keep(kept, path, branch, "分支未并入 " + target_branch, idle)
+            keep(kept, path, branch, t("agent_worktree.notMerged", branch=target_branch), idle)
             continue
         if _git(main, "-C", str(path), "status", "--porcelain",
                 check=False).stdout.strip():
-            keep(dirty, path, branch, "工作区有未提交改动", idle)
+            keep(dirty, path, branch, t("agent_worktree.uncommittedChanges"), idle)
             continue
         busy = _in_use(path, idle=idle)
         if busy:
@@ -868,15 +876,15 @@ def main() -> int:
         inspect = sub.add_parser(name)
         inspect.add_argument("--target", default="master")
         if name == 'ready':
-            inspect.add_argument('--ci-run', type=int, help='复用同一提交的受信 GitHub Test 运行')
+            inspect.add_argument('--ci-run', type=int, help=t("agent_worktree.helpCiRun"))
     merge = sub.add_parser("integrate")
     merge.add_argument("--branch", required=True)
     merge.add_argument("--target", default="master")
     sweep = sub.add_parser("prune")
     sweep.add_argument("--target", default="master")
     sweep.add_argument("--apply", action="store_true",
-                       help="真的回收；不给这个参数就只报告")
-    sub.add_parser("processes", help="列出两个工作树落点下还活着的进程，只报告不结束")
+                       help=t("agent_worktree.helpApply"))
+    sub.add_parser("processes", help=t("agent_worktree.helpProcesses"))
     args = parser.parse_args()
     try:
         if args.command == "create":

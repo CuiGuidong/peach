@@ -3,9 +3,15 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 import subprocess
+import sys
 import time
 import uuid
+
+if str(Path(__file__).resolve().parents[1] / "src") not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+from peach.interface_text import dev as t  # noqa: E402
 
 
 def docker(*arguments: str, check: bool = True) -> str:
@@ -49,7 +55,7 @@ def ready(name: str, *, setup: bool = False) -> None:
             if docker("inspect", "-f", "{{.State.Running}}", name) != "true":
                 raise RuntimeError(docker("logs", name)) from None
             time.sleep(1)
-    raise RuntimeError("容器未就绪：" + docker("logs", name))
+    raise RuntimeError(t("smoke_docker.notReady", logs=docker("logs", name)))
 
 
 def transcode_checks(name: str) -> None:
@@ -144,7 +150,7 @@ def main() -> None:
                 asset = int(raw.strip("(), "))
                 break
             time.sleep(1)
-        assert asset is not None, "资料处理请求未登记测试视频"
+        assert asset is not None, t("smoke_docker.processingNotRegistered")
         media = json.loads(request(name, f"/stream?id={asset}", headers={"Range": "bytes=0-63"}))
         assert media == {"status": 206, "size": 64}, media
         transcode_checks(name)
@@ -160,7 +166,7 @@ def main() -> None:
             if marker == "False":
                 break
             time.sleep(0.5)
-        assert marker == "False", "配置重载请求未消费"
+        assert marker == "False", t("smoke_docker.reloadNotConsumed")
         ready(name)
         docker("restart", "--time", "75", name)
         ready(name)
