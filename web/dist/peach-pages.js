@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141", e._sentryDebugIdIdentifier = "sentry-dbid-f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "47986520-1c1d-4162-a5c2-12386afb1bc5", e._sentryDebugIdIdentifier = "sentry-dbid-47986520-1c1d-4162-a5c2-12386afb1bc5");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -5698,7 +5698,9 @@ var He = {
 		peachUrl: "Peach URL",
 		token: "Add-from-browser token",
 		tokenIssued: "Dedicated token generated",
-		turnedOff: "Add from browser turned off"
+		turnedOff: "Add from browser turned off",
+		wantOnNoMatch: "Add to Wants when nothing is found",
+		wantOnNoMatchHelp: "When adding from the browser finds no downloadable magnet, add the code to JAV Wants."
 	},
 	certificateTrust: {
 		androidSteps: "After downloading, go to Settings → Security → Encryption & credentials → Install a certificate → CA certificate and choose the downloaded file. Menu names vary by manufacturer.",
@@ -7312,7 +7314,8 @@ var He = {
 			skipped: "Skipped: another run was still in progress",
 			interrupted: "The service restarted before this run finished",
 			unknownFollowup: "No follow-up task is registered for {{task}}",
-			dispatchInterrupted: "Metadata dispatch was interrupted, rescheduling"
+			dispatchInterrupted: "Metadata dispatch was interrupted, rescheduling",
+			stoppedEarly: "Stopped early with exit code {{code}}"
 		}
 	},
 	stage: {
@@ -12463,7 +12466,9 @@ var He = {
 		peachUrl: "Peach 地址",
 		token: "浏览器添加专用令牌",
 		tokenIssued: "已生成专用令牌",
-		turnedOff: "已关闭浏览器添加"
+		turnedOff: "已关闭浏览器添加",
+		wantOnNoMatch: "没找到资源时加入想要",
+		wantOnNoMatchHelp: "浏览器添加没搜到可下载的磁力时，把番号加进 JAV 的「想要」。"
 	},
 	certificateTrust: {
 		androidSteps: "扫码下载后，到「设置 → 安全 → 加密与凭据 → 安装证书 → CA 证书」选择下载的文件。菜单名称因厂商而异。",
@@ -14054,7 +14059,8 @@ var He = {
 			skipped: "已有一轮在进行，本次跳过",
 			interrupted: "服务重启，这一轮没有跑完",
 			unknownFollowup: "没有登记 {{task}} 这种后继",
-			dispatchInterrupted: "资料派发被中断，正在重新安排"
+			dispatchInterrupted: "资料派发被中断，正在重新安排",
+			stoppedEarly: "提前收工，退出码 {{code}}"
 		}
 	},
 	stage: {
@@ -38116,4 +38122,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141
+//# debugId=47986520-1c1d-4162-a5c2-12386afb1bc5

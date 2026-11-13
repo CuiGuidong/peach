@@ -7,7 +7,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, Response
 
 from . import interface_text
 from .config import PROJECT_ROOT
-from .jav_browser import identify_source, page_edition
+from .jav_browser import code_key, identify_source, page_edition
 from .routes_auth import require_auth
 from .user_messages import error_detail, message_fields
 
@@ -41,7 +41,7 @@ def userscript_bridge(request: Request):
 
 def status(code: str, service=Depends(browser_client)):
     try:
-        return JSONResponse(service.status(code), headers={"Cache-Control": "no-store"})
+        return JSONResponse({**service.status(code), **service.want_state(code)}, headers={"Cache-Control": "no-store"})
     except ValueError as error:
         raise HTTPException(400, error_detail(error)) from None
 
@@ -55,7 +55,7 @@ def identify(source_url: str, code: str = "", service=Depends(browser_client)):
         status = service.status(identify_source(source_url, code))
         # 作品同时有特典版与通常版时带回来源页是哪一版，用户脚本据此给出两个添加按钮。
         edition = page_edition(source_url, service.edition_probe)
-        return JSONResponse({**status, **({"edition": edition} if edition else {})},
+        return JSONResponse({**status, **service.want_state(status["code"]), **({"edition": edition} if edition else {})},
                             headers={"Cache-Control": "no-store"})
     except ValueError as error:
         raise HTTPException(400, error_detail(error)) from None
@@ -104,6 +104,18 @@ def retry_postprocess(body: dict = Body(...), service=Depends(browser_client)):
 def prioritize(body: dict = Body(...), service=Depends(browser_client)):
     try:
         return JSONResponse(service.prioritize(body.get("code")), headers={"Cache-Control": "no-store"})
+    except ValueError as error:
+        raise HTTPException(400, error_detail(error)) from None
+
+
+def want(body: dict = Body(...), service=Depends(browser_client)):
+    """从用户脚本登记想要，与想要清单的「按番号添加」同一入口（ADR-0161）；已登记的原样返回。"""
+    from .web_wants import w_wants
+    try:
+        code = code_key(body.get("code"))
+        result = w_wants(service.contract, {"action": "add", "code": code})
+        return JSONResponse({**service.status(code), "want": {"phase": result["want"]["phase"], "created": result["created"]}},
+                            headers={"Cache-Control": "no-store"})
     except ValueError as error:
         raise HTTPException(400, error_detail(error)) from None
 
@@ -162,6 +174,7 @@ def create_router(local_only) -> APIRouter:
     router.add_api_route("/api/jav-browser/performer", performer, methods=["GET"])
     router.add_api_route("/api/jav-browser/performer", follow_performer, methods=["POST"])
     router.add_api_route("/api/jav-browser/dismiss", dismiss, methods=["POST"])
+    router.add_api_route("/api/jav-browser/want", want, methods=["POST"])
     router.add_api_route("/api/jav-browser/errors", errors, methods=["POST"])
     permissions = [Depends(require_auth), Depends(local_only)]
     router.add_api_route("/api/configuration/jav-browser", settings, methods=["GET"], dependencies=permissions)

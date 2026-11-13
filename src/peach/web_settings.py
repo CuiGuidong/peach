@@ -60,11 +60,12 @@ INTERFACE_LANGUAGE_CHOICES = ("auto", *INTERFACE_LANGUAGES)
 #: 替哪些壳补封面都按它算，所以跟着账本走。
 #: 番号识别规则描述的是这套馆藏的命名，处理任务按它往账本里写番号，同样跟着账本走。
 #: 界面语言（ADR-0156）是用这套馆藏的那个人读的语言，每个部署只有一人，换台设备不该再选一遍。
+#: 浏览器入库没搜到资源时加不加入想要（ADR-0161）是服务端在入库队列里做的事，同样跟着账本走。
 SYNCED_SETTING_KEYS = frozenset({
     "sidebarOrder", "manageOrder", "navigationOrders", "libraryOrder", "followInitialDays", "postSetupTutorialDone",
     "organizeTemplates", "feedHideGroupCompilations", "feedHideSoloCompilations",
     "feedHideExcerpts", "searchHistoryLimit", "codePatterns", "performerNameLanguage", "taskSpeedMode",
-    "interfaceLanguage",
+    "interfaceLanguage", "javBrowserWantOnNoMatch",
 })
 #: 三个收起开关的键与各自对应的那一类，缺省值取 `feeds.DEFAULT_HIDDEN_COMPILATIONS`。
 FEED_COMPILATION_SWITCHES = (
@@ -269,6 +270,7 @@ def q_settings(contract: SettingsContract, _args=None) -> dict:
         "interfaceLanguage": payload["interfaceLanguage"] if payload.get("interfaceLanguage") in INTERFACE_LANGUAGE_CHOICES else "auto",
         "systemLanguage": system_language(),
         "taskSpeedMode": payload.get("taskSpeedMode", "standard"),
+        "javBrowserWantOnNoMatch": payload.get("javBrowserWantOnNoMatch") is not False,
     }
 
 
@@ -332,7 +334,7 @@ def w_settings(contract: SettingsContract, body) -> dict:
         if limit is None:
             raise UserValueError("api.settings.searchHistoryLimitInvalid", {"max": SEARCH_HISTORY_LIMIT_MAX})
         merged["searchHistoryLimit"] = limit
-    for key, _kind in FEED_COMPILATION_SWITCHES:
+    for key in [key for key, _kind in FEED_COMPILATION_SWITCHES] + ["javBrowserWantOnNoMatch"]:
         if key in body:
             if not isinstance(body[key], bool):
                 raise UserValueError("api.settings.switchNotBoolean", {"key": key})
