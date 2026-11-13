@@ -475,6 +475,34 @@ class BrowserTests(unittest.TestCase):
         result = self.status().json()
         self.assertEqual((result["state"], result["task_id"]), ("submitted", failed["task_id"]))
 
+    def test_failures_a_short_retry_can_fix_go_back_to_the_queue_without_a_click(self):
+        self.add()
+        self.service.process_one()
+        task_id = self.status().json()["task_id"]
+
+        def fail(failure, detail):
+            task = self.downloads.store.get(task_id)
+            task.state, task.failure, task.failure_detail = dl.FAILED, failure, detail
+            self.downloads.store.save(task)
+            self.service._swept_at = float("-inf")
+
+        # 网盘没收下：自动再交，最多两次，之后留给用户。
+        for _ in range(2):
+            fail("not_accepted", "网盘没有收下这个任务")
+            self.assertTrue(self.service.process_one())
+            self.assertEqual((self.status().json()["state"], self.status().json()["task_id"]), ("submitted", task_id))
+        fail("not_accepted", "网盘没有收下这个任务")
+        self.assertFalse(self.service.process_one())
+        self.assertEqual(self.status().json()["state"], "failed")
+        # 磁力本身的问题不自动重来。
+        fail("no_source", "没有可用下载源")
+        self.assertFalse(self.service.process_one())
+        # 升级前空间不足被记成 rejected：按原文认回来，不限次数放回队列。
+        fail("rejected", "提交离线任务失败：api error: code: 190031, message: 云空间不足")
+        self.assertTrue(self.service.process_one())
+        self.assertEqual(self.status().json()["state"], "submitted")
+        self.assertEqual(self.remote.submit.call_count, 4)
+
     def test_broken_cloud_settings_pause_the_channel_until_a_probe_succeeds(self):
         self.remote.submit.side_effect = dl.DownloadError("config", "errors.downloadsClouddrive.tokenMissing")
         self.add()

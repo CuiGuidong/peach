@@ -61,6 +61,9 @@ PAUSED_MESSAGES = {failure: f"{reason}，已暂停；{hint}" for failure, (reaso
 PAUSED_TONES = {"config": "error", "network": "error"}
 SEARCH_PAUSE = "search"
 STORAGE_MESSAGE = "网盘空间不足，扩容或清理后重试"
+#: 不怪这个番号、过一会儿再交就可能成的下载失败，不等用户手点：放回队列自动重来。
+#: 渠道级失败（空间、额度、配置）跟着渠道暂停与试探走，不限次数；其余按这张表限次，免得死循环。
+AUTO_RETRY_LIMITS = {"not_accepted": 2, "network": 2}
 #: 浏览器添加的任务结束后一直留在列表里，直到用户在脚本里标为已读。键是「任务编号@结束时间」；
 #: 没有下载任务的结果（未找到资源、搜索失败）用「番号@结束时间」。
 ENDED_KEY = re.compile(r"^([1-9][0-9]{0,11}|[0-9A-Z][0-9A-Z-]{1,39})@[0-9T:+.\-]{19,32}$")
@@ -271,6 +274,7 @@ class JavBrowser:
         self._submitting = set()
         #: 资源搜索回了「稍后再试」时整条队列等到这一刻，其余番号不去一个个撞同一个故障。
         self._search_pause: dict | None = None
+        self._swept_at = float("-inf")
         from .jav_browser_diagnostics import BrowserDiagnostics
         self.diagnostics = BrowserDiagnostics()
         self.rows = self._load()
@@ -629,10 +633,41 @@ class JavBrowser:
             self._wake.set()
             return self.status(code)
 
+    def _requeue_recoverable(self) -> None:
+        """把能自动重来的失败放回队列，原来的位置不变；换磁力、无资源这类仍等用户决定。
+
+        覆盖升级前留下的失败：11-12 之前空间不足被记成 rejected，按原文认回来一并放回。
+        队列里已入库的行也要逐条读任务，一分钟最多扫一遍。
+        """
+        now = self.downloads.clock()
+        if now - self._swept_at < 60:
+            return
+        self._swept_at = now
+        changed = False
+        for row in self.rows.values():
+            if row["state"] not in {"submitted", "failed"} or not row.get("task_id"):
+                continue
+            task = self.downloads.store.get(row["task_id"])
+            if task is None or task.state not in RESUBMITTABLE_STATES or task.blocked_at:
+                continue
+            channel = task.failure in CHANNEL_FAILURES or storage_full(task.failure_detail)
+            used = row.get("auto_retries", 0)
+            if not channel and used >= AUTO_RETRY_LIMITS.get(task.failure or "", 0):
+                continue
+            row["state"] = "queued"
+            for key in ("task_id", "message", "retry_at", "retry_attempt", "retry_limit", "retry_exhausted", "ended_at"):
+                row.pop(key, None)
+            if not channel:
+                row["auto_retries"] = used + 1
+            changed = True
+        if changed:
+            self._save()
+
     def process_one(self) -> bool:
         with self._lock:
             if self._stop.is_set() or not self.downloads.available or not self._config().get("token_hash"):
                 return False
+            self._requeue_recoverable()
             now = self.downloads.clock()
             # 暂停中的渠道到了试探时间才放一个番号过去，其余照旧排着。
             waiting = {provider: parse_iso(paused["retry_at"]) > now for provider in
