@@ -39,10 +39,16 @@ import { TaskIcon } from './task-icon';
 import { TaskResources } from './task-resources';
 import {
   elapsedText, fetchTasks, foldByKind, foldRoutine, followupDetail, followupTally, groupFollowups, isActive,
-  hasResultProblems, isRoutine, latestOfKind, momentText, pollInterval, problemDestination, progressText,
+  hasResultProblems, isRoutine, latestOfKind, momentText, pollInterval, problemDestination, progressText, RUNNING_POLL_MS,
   progressLabel, readableErrorHeadline, runError, statusLabel, summaryItems, taskIssues, taskName, taskSubject, TASKS_KEY, TRIGGER_LABELS, type FollowupCounts, type TaskControlState, type TaskRunPayload,
 } from './tasks';
+import { withBackoff } from '../../polling';
 import { t } from '../../i18n';
+
+/** 整页那一份：有东西在跑两秒、全是终态十秒，读失败按 4、8、16、30 秒退避。 */
+const tasksInterval = withBackoff(pollInterval);
+/** 展开的后继明细：有在跑的才问，失败同样退避。 */
+const followupsInterval = (active: boolean | undefined) => withBackoff(() => (active ? RUNNING_POLL_MS : false));
 
 /** 自己只负责派发后继的任务：一轮只是「安排了几项」，要看的是那几项的结果。 */
 const DISPATCHERS = new Set(['upgrade-repairs']);
@@ -140,7 +146,7 @@ function RunCard(
         apiGet<{ followups: TaskRunPayload[] }>(`/api/tasks/${id}`, signal)));
       return snapshots.flatMap((snapshot) => snapshot.followups);
     },
-    refetchInterval: resourceActive ? 2000 : false,
+    refetchInterval: followupsInterval(resourceActive),
   });
   const rank = (row: TaskRunPayload) => (row.status === 'running' ? 3 : row.status === 'pending' ? 2
     : row.status === 'failed' || row.status === 'interrupted' ? 1 : 0);
@@ -363,7 +369,7 @@ export function ActivityPage() {
   const tasks = useQuery({
     queryKey: page === 1 && pageSize === 20 ? TASKS_KEY : [...TASKS_KEY, 'page', page, pageSize],
     queryFn: ({ signal }) => fetchTasks(signal, page, pageSize),
-    refetchInterval: (query) => pollInterval(query.state.data),
+    refetchInterval: tasksInterval,
     placeholderData: (previous) => previous,
   });
   const [lastData, setLastData] = useState(tasks.data);

@@ -4,6 +4,7 @@
  * 轮询也由 Query 合成一份，进度、失败与完成状态由服务端统一提供。
  * 端点在 `frontend/src` 里只在这里声明一次（`tests/test_frontend_build.py` 盯着）。 */
 import { apiGet } from '../../api';
+import { withBackoff } from '../../polling';
 import { elapsedText, progressText } from '../activity/tasks';
 import { queryClient } from '../query';
 import { joinList, quoted, t } from '../../i18n';
@@ -210,10 +211,11 @@ export async function prefetchLibraryProcessing(signal: AbortSignal): Promise<vo
   });
 }
 
-/** 在跑的时候两秒问一次，和别的后台任务同一个节律。 */
+/** 在跑的时候两秒问一次，和别的后台任务同一个节律。闲着不问：后台自己起的那一趟由全站那一处
+ *  读到的 `running_tasks` 带来（`LIBRARY_PROCESSING_TASK`），停靠栏据此重取一次再接上。 */
 export const RUNNING_POLL_MS = 2000;
-/** 闲着时也接着问：任务由后台自己起，两个读者都要认出「现在跑起来了」。 */
-export const IDLE_POLL_MS = 10_000;
+/** 任务中心登记这一种任务用的 `task_key`。 */
+export const LIBRARY_PROCESSING_TASK = 'library-processing';
 
 /** 读失败时页面上留的那句话。上一份数据不撤，下一轮轮询自己会接上。 */
 export const DISCONNECTED_TEXT = t('manage:scanFetch.disconnected');
@@ -241,12 +243,9 @@ export function busyText(state: LibraryProcessingData): string {
   return origin ? t('manage:scanFetch.busyOrigin', { origin }) : t('manage:scanFetch.busy');
 }
 
-export function pollInterval(
-  data: LibraryProcessingData | undefined, watching: boolean,
-): number | false {
-  if (processingActive(data)) return RUNNING_POLL_MS;
-  return watching ? IDLE_POLL_MS : false;
-}
+/** 同一个键只由停靠栏一处驱动轮询，卡片与补全提示只读缓存。在跑两秒一次，失败退避，闲着不问。 */
+export const pollInterval = withBackoff<LibraryProcessingData>((data) =>
+  (processingActive(data) ? RUNNING_POLL_MS : false));
 
 const ACTION_LABELS: Record<string, string> = {
   scanning_files: t('manage:scanFetch.actionScanning'),

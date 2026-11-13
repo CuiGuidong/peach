@@ -19,10 +19,13 @@ import { CONFIGURATION_KEY, fetchConfiguration } from './configuration';
 import { ExternalLink, ErrorText, Footer, Help, Section, Stack } from './section';
 import { busyProps, useAction } from './use-action';
 import { bodyFieldErrors, codedText } from '../../core/server-text';
+import { pollUntil } from '../../polling';
 import { t } from '../../i18n';
 
-/** 连接握手在服务端进行，页面按固定间隔重问，直到拿到入口或失败原因。 */
+/** 连接握手在服务端进行，页面按固定间隔重问，直到拿到入口或失败原因；读失败退避，页面不可见时暂停。 */
 const POLL_INTERVAL = 2000;
+/** 握手最多等这么久，过了由用户重新打开。 */
+const POLL_LIMIT_MS = 5 * 60_000;
 
 const MODES: [TunnelState['mode'], string][] = [['quick', t('settings:cloudflareTunnel.quick')], ['named', t('settings:cloudflareTunnel.named')]];
 
@@ -51,21 +54,19 @@ export function TunnelSettings({ revision: initialRevision, initial, receipt }: 
   useEffect(() => {
     if (state.state !== 'starting') return undefined;
     const controller = new AbortController();
-    const timer = window.setInterval(() => {
-      void fetchConfiguration(controller.signal)
-        .then((next: ConfigurationData) => {
-          if (controller.signal.aborted || !next.tunnel) return;
-          // 取回来的是整份配置，换进整页那一个键：屏幕上只有一份真相。
-          queryClient.setQueryData(CONFIGURATION_KEY, next);
-          setState(next.tunnel);
-          setRevision(next.revision);
-        })
-        .catch(() => undefined);
-    }, POLL_INTERVAL);
-    return () => {
-      controller.abort();
-      window.clearInterval(timer);
-    };
+    void pollUntil<ConfigurationData>({
+      signal: controller.signal, everyMs: POLL_INTERVAL, limitMs: POLL_LIMIT_MS,
+      read: (signal) => fetchConfiguration(signal),
+      apply: (next) => {
+        if (!next.tunnel) return;
+        // 取回来的是整份配置，换进整页那一个键：屏幕上只有一份真相。
+        queryClient.setQueryData(CONFIGURATION_KEY, next);
+        setState(next.tunnel);
+        setRevision(next.revision);
+      },
+      done: (next) => !!next.tunnel && next.tunnel.state !== 'starting',
+    });
+    return () => controller.abort();
   }, [state.state]);
 
   /** 开关和保存走同一个端点：形态与开关状态一次提交，服务端据此构造启动计划。 */

@@ -535,10 +535,8 @@ export interface LibraryProcessingProps {
   toast(message: string): void;
   /** 这一趟从运行走到终态：让遗留层重画数据管理页那几个计数。 */
   onComplete?(): void;
-    /** 紧凑任务面持续观察后台状态。 */
+  /** 紧凑任务面：这一个键的轮询只由它驱动，卡片只读缓存。 */
   mode?: 'notice';
-  /** 卡片闲着时也接着问：任务由后台自己起，页面要认出「现在跑起来了」。 */
-  monitor?: boolean;
 }
 
 /** 换头像：资料页圆框角上那个加号，连同它点开的那一屏候选。资料卡（`entity-hero`）在自己

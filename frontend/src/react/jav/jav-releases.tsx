@@ -27,7 +27,7 @@ import { addWant, invalidateWants } from '../wants/wants';
 import { useAction } from '../settings/use-action';
 import { useEntityNames } from '../use-entity-names';
 import { DiscoveryCard, resourcePrefill } from './discovery-card';
-import { controlReleaseMetadata, coverArrived, DISCOVERY_METADATA_KEY, DISCOVERY_REFRESH_MS, fetchCoverNow, fetchDiscoveryMetadata, fetchReleases,
+import { controlReleaseMetadata, coverArrived, DISCOVERY_METADATA_KEY, fetchCoverNow, fetchDiscoveryMetadata, fetchReleases, metadataInterval,
   releaseFilters, releaseKey, RELEASE_PAGE_SIZE, RELEASE_PAGE_SIZES,
   type Discovery, type DiscoveryMetadataStatus, type ReleaseFacetPerformer, type ReleaseFacetStudio, type ReleaseFilters,
   writeJavQuery } from './jav';
@@ -121,13 +121,11 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
   /* 卡片／列表与馆藏同一个开关（`peach.catalog-view.v1`）：JAV 页的馆藏与新作一起切。 */
   const view = useCatalogView();
   const ratio = cardRatio(gridLayout({ active: true, home: false, portrait: false }));
-  /* 新作列表只读：每问一次都把全部候选重算一遍，不拿它当进度轮询。还没读过来源资料的那几部由
-     「读取资料」起一轮（与「发现」共用一个任务），进度单独轮询；读的期间列表隔 `DISCOVERY_REFRESH_MS`
-     才重取一次，跑完再取一次，标签与筛选项补全。 */
-  const readingNow = useRef(false);
+  /* 新作列表只读：每问一次都把全部候选重算一遍，不拿它当进度轮询，自己也不轮询。还没读过来源资料的
+     那几部由「读取资料」起一轮（与「发现」共用一个任务），进度单独轮询；读的期间读到的标签与评分由
+     全站那一处的 `discoveries` 版本作废列表带上来，跑完再取一次，标签与筛选项补全。 */
   const releases = useQuery({ queryKey: releaseKey(filters), queryFn: ({ signal }) => fetchReleases(filters, signal),
-    placeholderData: keepPreviousData, retry: false, refetchOnWindowFocus: false,
-    refetchInterval: () => (readingNow.current ? DISCOVERY_REFRESH_MS : false) });
+    placeholderData: keepPreviousData, retry: false, refetchOnWindowFocus: false });
   const listedJob = releases.data?.metadata_job;
   const listedRunning = useRef(false);
   listedRunning.current = listedJob?.status === 'running';
@@ -136,13 +134,11 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
   const progress = useQuery({ queryKey: DISCOVERY_METADATA_KEY, retry: false, refetchOnWindowFocus: false,
     enabled: listedJob?.status === 'running' || polled?.status === 'running',
     queryFn: ({ signal }) => fetchDiscoveryMetadata(signal),
-    refetchInterval: current => current.state.data?.metadata_job?.status === 'running' || listedRunning.current
-      ? Math.max(1000, current.state.data?.poll_after_ms || 3000) : false });
+    refetchInterval: metadataInterval(() => listedRunning.current) });
   // 两处谁新用谁：进度轮询与起读的回执写在进度那份里，列表重取时也带回当前任务。
   const metadata = progress.data && progress.dataUpdatedAt >= releases.dataUpdatedAt
     ? progress.data.metadata_job : listedJob;
   const reading = metadata?.status === 'running';
-  readingNow.current = reading;
   const wasReading = useRef(false);
   useEffect(() => {
     if (wasReading.current && !reading) void releases.refetch();

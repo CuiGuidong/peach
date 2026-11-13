@@ -13,7 +13,7 @@ import { apiSend } from '../../api';
 import { patchCatalogItems } from '../catalog-grid/catalog-grid';
 import type { MediaItem } from '../catalog-grid/types';
 import {
-  fetchLibraryProcessing, LIBRARY_PROCESSING_KEY, pollInterval, processingActive,
+  fetchLibraryProcessing, LIBRARY_PROCESSING_KEY, processingActive,
 } from '../library-processing/library-processing';
 import { confirmMeteredPreviews, startPreviews } from '../library-processing/metered-previews';
 import { queryClient } from '../query';
@@ -120,7 +120,8 @@ function PreviewsButton({ id, metered, onDone, onProblem }: {
 }) {
   const [started, setStarted] = useState<string | null>(null);
   const job = useQuery({ queryKey: LIBRARY_PROCESSING_KEY, queryFn: ({ signal }) => fetchLibraryProcessing(signal),
-    staleTime: 15_000, refetchInterval: query => started ? pollInterval(query.state.data, true) : false }, queryClient);
+    /* 只读缓存：这一趟的进度由壳里常驻的停靠栏一处轮询，回来的快照换进同一个键。 */
+    staleTime: 15_000 }, queryClient);
   const action = useAction();
   const state = job.data;
   const mine = !!started && state?.job_id === started;

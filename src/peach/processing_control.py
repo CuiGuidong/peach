@@ -54,6 +54,8 @@ def processing_item(asset_id):
                 control.skip_asset_id = None
                 control._save()
 MODES = ('low', 'standard', 'high')
+#: 用户暂停期间多久重读一次控制文件。
+PAUSED_POLL_SECONDS = 1.0
 MODE_FACTORS = {'low': 1.8, 'standard': 1.0, 'high': 0.75}
 IO_INTERVALS = {
     'low': {'scan': 0.008, 'probe': 0.75, 'network': 1.5, 'frame': 0.75, 'work': 0.15},
@@ -356,7 +358,8 @@ class ProcessingControl:
                     started = time.monotonic()
                     generic_started = task.paused_seconds if task is not None else 0.0
                     self.publish(status='paused', speed_mode=mode)
-                self.event.wait(0.25)
+                # 本进程的继续、停止由 `request` 设 `event` 立刻叫醒；这一等只管别的进程改控制文件。
+                self.event.wait(PAUSED_POLL_SECONDS)
                 continue
             if started is not None:
                 spent = time.monotonic() - started

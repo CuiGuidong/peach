@@ -14,7 +14,7 @@ import { WantList } from '../wants/want-list';
 import { JavSelectionProvider, useVisibleJavWorks } from './jav-selection';
 import { addWant, invalidateWants } from '../wants/wants';
 import { busyProps, useAction } from '../settings/use-action';
-import { controlDiscoveryMetadata, DISCOVERY_METADATA_KEY, DISCOVERY_REFRESH_MS, discoveryKey, fetchDiscoveries, fetchDiscoveryMetadata, writeJavQuery,
+import { controlDiscoveryMetadata, DISCOVERY_METADATA_KEY, discoveryKey, fetchDiscoveries, fetchDiscoveryMetadata, metadataInterval, writeJavQuery,
   type DiscoveryMetadataJob, type DiscoveryScope } from './jav';
 import { queryClient } from '../query';
 import { DiscoveryCard, resourcePrefill } from './discovery-card';
@@ -77,12 +77,10 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   const layout = javLayout();
   const ratio = cardRatio(gridLayout({ active: true, home: false, portrait: false }));
   const direction = ascending ? 'asc' : 'desc';
-  const reading = useRef(false);
-  /* 推荐列表只读。资料读取进行中时进度单独轮询；列表隔 `DISCOVERY_REFRESH_MS` 才重取一次，
-     把读到的标签与评分带上来，读完再取一次。 */
+  /* 推荐列表只读，自己不轮询。资料读取进行中时进度单独轮询；读到的标签与评分由全站那一处的
+     `discoveries` 版本作废列表带上来，读完再取一次。 */
   const discoveries = useQuery({ queryKey: discoveryKey(scope, sort, direction), retry: false, refetchOnWindowFocus: false,
     queryFn: ({ signal }) => fetchDiscoveries(scope, signal, { sort, direction }),
-    refetchInterval: () => (reading.current ? DISCOVERY_REFRESH_MS : false),
   });
   const listedJob = discoveries.data?.metadata_job;
   const listedRunning = useRef(false);
@@ -90,13 +88,11 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   const progress = useQuery({ queryKey: DISCOVERY_METADATA_KEY, retry: false, refetchOnWindowFocus: false,
     enabled: scope === 'external',
     queryFn: ({ signal }) => fetchDiscoveryMetadata(signal),
-    refetchInterval: current => current.state.data?.metadata_job?.status === 'running' || listedRunning.current
-      ? Math.max(1000, current.state.data?.poll_after_ms || 3000) : false,
+    refetchInterval: metadataInterval(() => listedRunning.current),
   });
   // 两处谁新用谁：进度轮询与起停的回执写在进度那份里，列表重取时也带回当前任务。
   const metadata = progress.data && progress.dataUpdatedAt >= discoveries.dataUpdatedAt
     ? progress.data.metadata_job : listedJob;
-  reading.current = scope === 'external' && metadata?.status === 'running';
   const jobState = (job: DiscoveryMetadataJob | null | undefined) => (job ? `${job.job_id}:${job.status}` : '');
   const answered = useRef('');
   const seen = useRef('');

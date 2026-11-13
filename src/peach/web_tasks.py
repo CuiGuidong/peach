@@ -34,17 +34,40 @@ NO_TABLE = "api.tasks.noTaskTable"
 
 
 def q_result_updates(contract, _args):
-    """每个页面常驻的轻量轮询：结果版本、入库通知与有没有任务在排或在跑，不组装任务列表。
+    """每个页面常驻的轻量轮询：结果版本、入库通知与在排或在跑的任务，不组装任务列表。
 
-    全局组件只用这三样，却曾每两秒取一次完整的 `/api/tasks`；任务一多，那份组装就把服务进程
+    全局组件只用这几样，却曾每两秒取一次完整的 `/api/tasks`；任务一多，那份组装就把服务进程
     占满，所有页面一起变慢。完整列表只留给任务中心页。
+
+    `running_tasks` 是全站「有什么任务在跑」的唯一来源：页面据此决定要不要开始盯自己那份
+    任务进度，闲着时不各自轮询。
     """
     try:
-        busy = any(contract.task_runs.query(status=status, limit=1) for status in ACTIVE_STATUSES)
+        running = running_tasks(contract)
     except sqlite3.OperationalError:
-        busy = False
+        running = []
+    busy = bool(running)
     return {"ok": True, "result_versions": _throttled_versions(contract, busy),
-            "ingest_notices": NOTICES.snapshot(), "busy": busy}
+            "ingest_notices": NOTICES.snapshot(), "busy": busy, "running_tasks": running}
+
+
+def running_tasks(contract) -> list[dict]:
+    """在排或在跑的任务，每个 `task_key` 一项 `{task_key, run_id, status}`，按 `task_key` 排。
+
+    有一轮在跑时 `status` 是 `running`，`run_id` 是在跑的最新一轮；只在排队时是 `pending`
+    与最新排进来的那一轮。一轮派出上千条后继也只多几项，一条分组查询取齐。
+    """
+    marks = ",".join(f"'{name}'" for name in ACTIVE_STATUSES)
+    with contract.task_runs.database.read_connection() as connection:
+        rows = connection.execute(
+            f"SELECT task_key, status, MAX(id) FROM task_run WHERE status IN ({marks}) "
+            "GROUP BY task_key, status").fetchall()
+    tasks: dict[str, dict] = {}
+    for task_key, status, run_id in rows:
+        known = tasks.get(task_key)
+        if known is None or (status == "running" and known["status"] != "running"):
+            tasks[task_key] = {"task_key": task_key, "run_id": int(run_id), "status": status}
+    return [tasks[key] for key in sorted(tasks)]
 
 
 #: 有任务在跑时，结果版本最多隔这么久变一次（`_throttled_versions`）。

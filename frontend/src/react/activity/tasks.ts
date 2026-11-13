@@ -109,20 +109,22 @@ export function foldByKind(rows: TaskRunPayload[], split: (run: TaskRunPayload) 
   return [...folds.values()];
 }
 
-/** 有东西在跑就两秒一次（和进度写库的节流同一个数），全是终态时十秒一次。 */
+/** 任务中心有东西在跑就两秒一次（和进度写库的节流同一个数），全是终态时十秒一次；读失败按 `withBackoff` 退避。 */
 export const RUNNING_POLL_MS = 2000;
 export const SETTLED_POLL_MS = 10000;
 export const pollInterval = (data: ActivityData | undefined): number =>
   data?.running?.length ? RUNNING_POLL_MS : SETTLED_POLL_MS;
 
+/** 全站那一处（`/api/result-updates`）有任务时五秒一次：结果版本在任务期间本就每 30 秒才放出一次
+ *  （`web_tasks.RESULT_UPDATE_INTERVAL`），再密只是重复读到同一份。闲着时十秒一次，是全站唯一的心跳。 */
+export const RESULT_BUSY_POLL_MS = 5000;
+export const RESULT_IDLE_POLL_MS = SETTLED_POLL_MS;
+
 export const fetchTasks = (signal?: AbortSignal, page = 1, limit = 20) =>
   apiGet<ActivityData>(page === 1 && limit === 20 ? TASKS_URL : `${TASKS_URL}?page=${page}&limit=${limit}`, signal);
 
-/** 每个页面常驻轮询的那一小份：结果版本、入库通知与有没有任务在排或在跑。完整任务列表只给任务中心。 */
-export const RESULT_UPDATES_KEY = ['result-updates'] as const;
-export type ResultUpdatesData = Pick<ActivityData, 'result_versions' | 'ingest_notices'> & { busy?: boolean };
-export const fetchResultUpdates = (signal?: AbortSignal) =>
-  apiGet<ResultUpdatesData>('/api/result-updates', signal);
+/** 每个页面常驻轮询的那一小份：结果版本、入库通知与在排在跑的任务（`running_tasks`）。完整任务列表只给任务中心。 */
+export { fetchResultUpdates, RESULT_UPDATES_KEY, type ResultUpdatesPayload as ResultUpdatesData } from '../../running-tasks';
 
 export const controlTask = (id: number, action: TaskControlAction, signal?: AbortSignal) =>
   apiSend(`${TASKS_URL}/${id}/control`, { action }, 'POST', signal);

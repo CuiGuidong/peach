@@ -360,18 +360,38 @@ class TasksEndpointTests(unittest.TestCase):
         self.assertNotEqual(web_tasks.q_tasks(self.contract, {})['result_versions']['review'], committed['review'])
 
     def test_the_page_wide_poll_carries_versions_and_notices_without_the_task_list(self):
-        """每个页面常驻的那份轮询只带结果版本、入库通知和忙不忙，和任务中心那份版本一致。"""
+        """每个页面常驻的那份轮询只带结果版本、入库通知、忙不忙与在跑任务，和任务中心那份版本一致。"""
         from pathlib import Path
         self.contract.candidate_root = Path(self.tmp.name) / 'candidates'
         self.contract.candidate_root.mkdir()
         idle = web_tasks.q_result_updates(self.contract, {})
-        self.assertEqual(set(idle), {'ok', 'result_versions', 'ingest_notices', 'busy'})
+        self.assertEqual(set(idle), {'ok', 'result_versions', 'ingest_notices', 'busy', 'running_tasks'})
         self.assertFalse(idle['busy'])
+        self.assertEqual(idle['running_tasks'], [])
         self.assertEqual(idle['result_versions'], web_tasks.q_tasks(self.contract, {})['result_versions'])
         run = self.store.start('library-processing', trigger='manual')
-        self.assertTrue(web_tasks.q_result_updates(self.contract, {})['busy'])
+        busy = web_tasks.q_result_updates(self.contract, {})
+        self.assertTrue(busy['busy'])
+        self.assertEqual(busy['running_tasks'],
+                         [{'task_key': 'library-processing', 'run_id': run.id, 'status': 'running'}])
         self.store.finish(run.id, 'succeeded')
-        self.assertFalse(web_tasks.q_result_updates(self.contract, {})['busy'])
+        settled = web_tasks.q_result_updates(self.contract, {})
+        self.assertFalse(settled['busy'])
+        self.assertEqual(settled['running_tasks'], [])
+
+    def test_running_tasks_list_each_kind_once_and_prefer_the_running_round(self):
+        """在排在跑的任务按种类各报一项：在跑的那轮压过排队的，多条后继也只占一项。"""
+        parent = self.store.start('library-processing', trigger='manual')
+        self.store.enqueue_followups(parent.id, [(f'leaf:{index}', 'leaf', '还在排的后继') for index in range(3)])
+        check = self.store.start('follow-check', trigger='scheduled')
+        listed = web_tasks.q_result_updates(self.contract, {})['running_tasks']
+        self.assertEqual([entry['task_key'] for entry in listed], ['follow-check', 'leaf', 'library-processing'])
+        by_key = {entry['task_key']: entry for entry in listed}
+        self.assertEqual(by_key['follow-check'], {'task_key': 'follow-check', 'run_id': check.id, 'status': 'running'})
+        self.assertEqual(by_key['leaf']['status'], 'pending')
+        self.store.finish(check.id, 'succeeded')
+        self.assertNotIn('follow-check', [entry['task_key'] for entry in
+                                          web_tasks.q_result_updates(self.contract, {})['running_tasks']])
 
     def _insert_asset(self, name, *, background):
         from peach.repository import in_background

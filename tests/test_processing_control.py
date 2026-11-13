@@ -294,6 +294,34 @@ class ProcessingControlTests(unittest.TestCase):
         self.assertEqual(errors, [])
         self.assertFalse(user_paused(self.db, 'one'))
 
+    def test_a_paused_checkpoint_rereads_its_control_about_once_a_second(self):
+        from peach import processing_control
+        control = control_for(self.config)
+        paused, finished = threading.Event(), threading.Event()
+
+        def worker():
+            with control.bind('one', publish=lambda **values: values['status'] == 'paused' and paused.set(),
+                              active=lambda: True, db_path=self.db, mode='high'):
+                control.request('pause', 'one')
+                checkpoint('probe')
+                finished.set()
+
+        thread = threading.Thread(target=worker)
+        thread.start()
+        self.addCleanup(lambda: thread.join(2))
+        self.addCleanup(lambda: control.request('resume', 'one'))
+        self.assertTrue(paused.wait(2))
+        reads = []
+        original = processing_control._read
+        with patch.object(processing_control, '_read', side_effect=lambda path: reads.append(path) or original(path)):
+            time.sleep(1.5)
+        self.assertLessEqual(len(reads), 3)
+        resumed = time.monotonic()
+        control.request('resume', 'one')
+        self.assertTrue(finished.wait(2))
+        # 本进程的继续立刻叫醒停点，不等满一秒。
+        self.assertLess(time.monotonic() - resumed, .5)
+
     def test_saved_pause_intent_prevents_automatic_restart(self):
         control = control_for(self.config)
         with control.bind('one', publish=lambda **_: None, active=lambda: True, db_path=self.db, mode='high'):

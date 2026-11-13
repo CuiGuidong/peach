@@ -1263,6 +1263,41 @@ class UpgradeRepairTests(unittest.TestCase):
             planned=self.service._plan(receipt)
         self.assertEqual([row.key for row in planned],[f'upgrade-library:processing-v2:text-{upgrade_rules.PROVIDER_TEXT}:1'])
 
+    def test_completed_dispatch_rereads_the_seed_pack_only_after_it_or_the_entities_change(self):
+        """派发完成后每分钟一问：包文件与实体都没变时不再整包读、算摘要。"""
+        import os
+        pack = self.root / 'entities.json'
+        pack.write_text('{}', encoding='utf-8')
+        revision = {'entity': 1}
+        self.contract.ledger_revision = lambda tables: revision['entity']
+        self.service.prepare()
+        receipt = upgrade_repairs._read(self.service.receipt)
+        receipt['dispatch_complete'] = True
+        self.service._save_receipt(receipt)
+        with patch('peach.seed_pack.DEFAULT_PACK', pack), \
+                patch('peach.seed_followup.plan', return_value=[]) as plan, \
+                patch('peach.library_processing._people_allowed', return_value=False):
+            self.service.tick()
+            self.service.tick()
+            self.assertEqual(plan.call_count, 1)
+            revision['entity'] = 2
+            self.service.tick()
+            self.assertEqual(plan.call_count, 2)
+            changed = pack.stat().st_mtime_ns + 10 ** 9
+            os.utime(pack, ns=(changed, changed))
+            self.service.tick()
+            self.assertEqual(plan.call_count, 3)
+            # 包要派时不记指纹，下一轮照旧整包判断。
+            plan.return_value = [SimpleNamespace(key='seed-import:new')]
+            receipt = upgrade_repairs._read(self.service.receipt)
+            receipt['queued'] = {**receipt.get('queued', {}), 'seed-import:new': 1}
+            self.service._save_receipt(receipt)
+            revision['entity'] = 3
+            self.service.tick()
+            self.service.tick()
+            self.assertEqual(plan.call_count, 5)
+        self.assertTrue(upgrade_repairs._read(self.service.receipt)['dispatch_complete'])
+
     def test_completed_catalog_dispatch_preserves_deferred_work_across_text_revision(self):
         with patch.object(upgrade_repairs,'REVISION',upgrade_repairs.CATALOG_REVISION):
             self.service.prepare()
