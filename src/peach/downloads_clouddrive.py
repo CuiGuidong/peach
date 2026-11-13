@@ -154,9 +154,10 @@ def _action_label(action: str) -> dict | str:
     return {"code": f"labels.downloadsClouddrive.action.{action}"} if action in CALL_ACTIONS else action
 
 
-def _call_error(failure: str, kind: str, action: str, details: str | None = None) -> DownloadError:
+def _call_error(failure: str, kind: str, action: str, details: str | None = None, *,
+                channel_down: bool = False) -> DownloadError:
     params = {"action": _action_label(action), **({} if details is None else {"details": details})}
-    return DownloadError(failure, _CALL_CODES[kind], params)
+    return DownloadError(failure, _CALL_CODES[kind], params, channel_down=channel_down)
 
 
 def path_not_found(error: DownloadError) -> bool:
@@ -167,7 +168,10 @@ def _translate(error: grpc.RpcError, action: str) -> DownloadError:
     code = error.code() if hasattr(error, "code") else None
     details = str((error.details() if hasattr(error, "details") else "") or code)
     if code in _NETWORK_CODES:
-        return _call_error("network", "unreachable", action, details)
+        # 超时多是批量提交时 115 一侧慢，按任务自动重提交；UNAVAILABLE 是连接本身建不起来，
+        # 多半是 CloudDrive2 没在运行，整条渠道都用不了。
+        return _call_error("network", "unreachable", action, details,
+                           channel_down=code == grpc.StatusCode.UNAVAILABLE)
     if code in _AUTH_CODES:
         return _call_error("config", "tokenRejected", action, details)
     if code == grpc.StatusCode.NOT_FOUND:

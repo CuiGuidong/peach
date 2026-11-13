@@ -44,14 +44,22 @@ ROWS_LIMIT = 1000
 #: 结果已记在别处、可以从队列里腾掉的状态。
 RECORDED_ELSEWHERE = ("owned", "ingested", "submitted")
 RECENT_SECONDS = 600
-#: 渠道级失败（额度用完、网盘空间不足）后暂停这个渠道，每隔这么久拿排在最前的番号试一次，成功就继续。
+#: 渠道级失败（额度用完、网盘空间不足、配置失效、CloudDrive2 连不上）后暂停这个渠道，
+#: 每隔这么久拿排在最前的番号试一次，成功就继续。
 PAUSE_PROBE_SECONDS = 600
-#: 暂停原因与恢复说明：用户脚本的渠道提示框分两行显示，排队行的说明把两段连成一句。
+#: 暂停原因与恢复说明：用户脚本的提示框分两行显示，排队行的说明把两段连成一句。
+#: `search` 是资源搜索暂不可用，暂停的是整条队列而不是某个渠道。
 PAUSED_TEXT = {
     "storage": ("网盘空间不足", "扩容或清理后自动继续"),
     "quota": ("下载额度已用完", "额度恢复后自动继续"),
+    "config": ("网盘配置或登录有问题", "在 Peach 下载设置里修好后自动继续"),
+    "network": ("连不上 CloudDrive2", "CloudDrive2 恢复后自动继续"),
+    "search": ("资源搜索暂不可用", "到时自动继续"),
 }
 PAUSED_MESSAGES = {failure: f"{reason}，已暂停；{hint}" for failure, (reason, hint) in PAUSED_TEXT.items()}
+#: 提示框的语气：要用户动手修的用 error，等着就会恢复或只需腾空间的用 warning。
+PAUSED_TONES = {"config": "error", "network": "error"}
+SEARCH_PAUSE = "search"
 STORAGE_MESSAGE = "网盘空间不足，扩容或清理后重试"
 #: 浏览器添加的任务结束后一直留在列表里，直到用户在脚本里标为已读。键是「任务编号@结束时间」；
 #: 没有下载任务的结果（未找到资源、搜索失败）用「番号@结束时间」。
@@ -261,6 +269,8 @@ class JavBrowser:
         self._stop = threading.Event()
         self._thread = None
         self._submitting = set()
+        #: 资源搜索回了「稍后再试」时整条队列等到这一刻，其余番号不去一个个撞同一个故障。
+        self._search_pause: dict | None = None
         from .jav_browser_diagnostics import BrowserDiagnostics
         self.diagnostics = BrowserDiagnostics()
         self.rows = self._load()
@@ -452,13 +462,21 @@ class JavBrowser:
                     "stage": "submitting" if code in self._submitting else state,
                     "message": row.get("message") or MESSAGES[state]}
 
-    def _paused(self, provider: str) -> dict | None:
+    def _channel_pause(self, provider: str) -> dict | None:
         """渠道级失败后这个渠道处于暂停：失败类别、开始时间与下一次试探时间。成功提交一次就解除。"""
         alert = self.downloads.channel_alert(provider) if provider else None
         if not alert or alert["failure"] not in PAUSED_MESSAGES:
             return None
         return {"failure": alert["failure"], "since": alert["since"],
                 "retry_at": iso(parse_iso(alert["since"]) + PAUSE_PROBE_SECONDS)}
+
+    def _active_search_pause(self) -> dict | None:
+        pause = self._search_pause
+        return dict(pause) if pause and parse_iso(pause["retry_at"]) > self.downloads.clock() else None
+
+    def _paused(self, provider: str) -> dict | None:
+        """排在这个渠道的番号此刻为什么不往下走：渠道暂停优先，其次是资源搜索暂停。"""
+        return self._channel_pause(provider) or self._active_search_pause()
 
     def _queue_detail(self, code: str, state: str) -> dict:
         """排队中的番号排在搜索队列第几位；搜索逐个进行，用户脚本据此决定要不要给「提前处理」。"""
@@ -556,10 +574,19 @@ class JavBrowser:
                 if row["state"] == "queued":
                     waiting[row.get("provider", "")] = waiting.get(row.get("provider", ""), 0) + 1
         labels = {row["key"]: row["label"] for row in self.downloads.channel_snapshot()["providers"]}
-        return [{"provider": provider, "provider_label": labels.get(provider, provider), "waiting": count,
-                 "message": PAUSED_MESSAGES[paused["failure"]], "reason": PAUSED_TEXT[paused["failure"]][0],
-                 "hint": PAUSED_TEXT[paused["failure"]][1], **paused}
-                for provider, count in waiting.items() if (paused := self._paused(provider))]
+
+        def entry(provider, label, count, paused):
+            failure = paused["failure"]
+            return {"provider": provider, "provider_label": label, "waiting": count, "message": PAUSED_MESSAGES[failure],
+                    "reason": PAUSED_TEXT[failure][0], "hint": PAUSED_TEXT[failure][1],
+                    "tone": PAUSED_TONES.get(failure, "warning"), **paused}
+
+        channels = [entry(provider, labels.get(provider, provider), count, paused)
+                    for provider, count in waiting.items() if (paused := self._channel_pause(provider))]
+        rest = sum(count for provider, count in waiting.items() if not self._channel_pause(provider))
+        if rest and (search := self._active_search_pause()):
+            channels.append(entry(SEARCH_PAUSE, "Peach", rest, search))
+        return channels
 
     def add(self, body: dict) -> dict:
         code = code_key(body.get("code"))
@@ -628,10 +655,25 @@ class JavBrowser:
             provider = row["provider"]
         try:
             self._ready(provider)
+        except Exception as error:
+            # 渠道没配好或读不到媒体库渠道时每个番号都会同样失败：放回队列、暂停这个渠道，
+            # 配好后试探时自动继续。
+            LOGGER.warning("JAV browser channel not ready: %s (%s)", provider, type(error).__name__)
+            with self._lock:
+                if row["state"] == "searching":
+                    row["state"] = "queued"
+                    self._save()
+            reason = (DownloadError("config", error.code, error.params) if isinstance(error, UserFacingError)
+                      else DownloadError("config", "errors.javBrowser.channelNotConfigured"))
+            self.downloads.note_channel(provider, reason, self.downloads.clock())
+            return True
+        try:
             skip = list(row.get("skip", ()))
             result = self.search(self.contract, {"code": code, "goal": "quality", **({"skip": skip} if skip else {})})
             candidate = _download_candidate(result.get("items", ()), code, frozenset(row.get("skip", ())),
                                             row.get("edition", ""))
+            if not (result.get('state') in {'error', 'unavailable'} or result.get('error')):
+                self._search_pause = None
             should_submit = False
             with self._lock:
                 if row["state"] != "searching" or not self._config().get("token_hash"):
@@ -684,6 +726,10 @@ class JavBrowser:
         after = result.get('retry_after')
         if failed and type(after) in (int, float) and math.isfinite(after) and after >= 0:
             self._schedule_retry(row, RetryableTaskError('errors.javBrowser.searchUnavailable', after=after))
+            # 来源让稍后再试时，整条队列一起等，不让后面的番号各自撞一次、各自耗掉重试次数。
+            now = self.downloads.clock()
+            self._search_pause = {"failure": SEARCH_PAUSE, "since": iso(now),
+                                  "retry_at": row.get('retry_at') or iso(now + after)}
         else:
             row.update(state='failed' if failed else 'no_match', message=message, ended_at=iso(self.downloads.clock()))
 

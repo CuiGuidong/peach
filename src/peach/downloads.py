@@ -102,8 +102,9 @@ FAILURE_KINDS: dict[str, FailureKind] = {kind.key: kind for kind in (
 )}
 
 
-#: 渠道级失败：额度用完或网盘空间不足时，交给这个渠道的每一个任务都会同样失败。
-CHANNEL_FAILURES = frozenset({"quota", "storage"})
+#: 渠道级失败：额度用完、网盘空间不足、配置或登录失效时，交给这个渠道的每一个任务都会同样失败。
+#: 网络故障本身按任务自动重提交；只有带 `channel_down` 的（CloudDrive2 根本连不上）才算渠道级。
+CHANNEL_FAILURES = frozenset({"quota", "storage", "config"})
 #: 网盘空间不足的说法。115 经 CloudDrive2 回 `190031 云空间不足`，有时走 gRPC 错误，有时写在 `errorMessage` 里；
 #: PikPak 的错误码是 `file_space_not_enough`。
 STORAGE_FULL = re.compile(r"190031|空间不足|空间已满|space_not_enough|insufficient (storage|space)|storage (is )?full",
@@ -124,16 +125,23 @@ class DownloadError(UserFacingError, RuntimeError):
 
     `detail` 是按 zh-CN 渲染的那一句，任务行的失败原因与设置页的检查报告照旧读它。
     `block` 只给 115 的违规拦截（`50038`）：这类失败不重试，同一 infohash 以后直接拒收。
+    `channel_down` 表示整个渠道连不上（服务没在运行、地址不通），不是一次超时。
     """
 
     def __init__(self, failure: str, code: str, params: Mapping[str, Any] | None = None, *,
-                 block: bool = False):
+                 block: bool = False, channel_down: bool = False):
         if failure not in FAILURE_KINDS:
             raise ValueError(f"unknown failure kind: {failure}")
         super().__init__(code, params)
         self.failure = failure
         self.detail = self.message
         self.block = block
+        self.channel_down = channel_down
+
+    @property
+    def channel_wide(self) -> bool:
+        """这次失败说明整个渠道暂时用不了，交给它的其他任务也会一样失败。"""
+        return self.failure in CHANNEL_FAILURES or self.channel_down
 
     @property
     def retryable(self) -> bool:
@@ -865,14 +873,11 @@ class DownloadService:
             try:
                 status = self.providers(provider).submit(magnet, folder)
             except DownloadError as error:
+                self.note_channel(provider, error, now)
                 if not error.retryable:
                     self._fail(task, error, now)
                     self.store.record_submission(task=task, outcome="failed", now=now,
                                                  failure=error.failure, detail=error.detail)
-                    if error.failure in CHANNEL_FAILURES:
-                        self._channel_alerts[provider] = {
-                            "provider": provider, "failure": error.failure, "message": error.detail,
-                            "message_code": error.code, "message_params": dict(error.params), "since": iso(now)}
                     return SubmitResult("failed", task)
                 task.state = SUBMIT_PENDING
                 self._reschedule(task, now, error.detail)
@@ -880,7 +885,7 @@ class DownloadService:
                 self.store.record_submission(task=task, outcome=outcome, now=now,
                                              failure=error.failure, detail=error.detail)
             else:
-                self._channel_alerts.pop(provider, None)
+                self.note_channel(provider, None, now)
                 self._accepted(task, status, now)
                 outcome = "adopted_remote" if status.adopted else "submitted"
                 self.store.record_submission(task=task, outcome=outcome, now=now)
@@ -906,6 +911,7 @@ class DownloadService:
             try:
                 status = self.providers(task.provider).submit(parse_magnet(task.source_uri), task.target)
             except DownloadError as error:
+                self.note_channel(task.provider, error, now)
                 started = parse_iso(task.submitted_at) or now
                 if error.retryable and now - started < SUBMIT_RETRY_WINDOW:
                     self._reschedule(task, now, error.detail)
@@ -921,6 +927,7 @@ class DownloadService:
             if latest is None or latest.state != SUBMIT_PENDING:
                 return  # 再交的这段时间里任务被取消了。
             task.submitted_at = iso(now)
+            self.note_channel(task.provider, None, now)
             self._accepted(task, status, now)
             self.store.record_submission(task=task, outcome="adopted_remote" if status.adopted else "submitted",
                                          now=now)
@@ -998,6 +1005,16 @@ class DownloadService:
             "channel_alerts": [{**alert, "provider_label": labels.get(alert["provider"], alert["provider"])}
                                for alert in self.channel_alerts()],
         }
+
+    def note_channel(self, provider: str, error: DownloadError | None, now: float) -> None:
+        """按一次提交的结果更新渠道告警：渠道级失败记下，提交成功撤掉，其他失败不动。"""
+        if error is None:
+            self._channel_alerts.pop(provider, None)
+        elif error.channel_wide:
+            self._channel_alerts[provider] = {
+                "provider": provider, "failure": "network" if error.channel_down else error.failure,
+                "message": error.detail, "message_code": error.code, "message_params": dict(error.params),
+                "since": iso(now)}
 
     def channel_alert(self, provider: str) -> dict | None:
         """这个渠道最近一次渠道级失败；之后成功提交过就是 None。"""

@@ -290,6 +290,12 @@ class TrackingTests(_Server):
         with self.assertRaises(dl.DownloadError) as caught:
             self.provider.landed(self.task())
         self.assertEqual(caught.exception.failure, 'network')
+        # 连接建不起来说明 CloudDrive2 整个用不了；超时只是这一次慢，按任务重试。
+        self.assertTrue(caught.exception.channel_down)
+        self.fake.list_error = grpc.StatusCode.DEADLINE_EXCEEDED
+        with self.assertRaises(dl.DownloadError) as caught:
+            self.provider.landed(self.task())
+        self.assertEqual((caught.exception.failure, caught.exception.channel_down), ('network', False))
 
     def test_cancelling_keeps_the_downloaded_files(self):
         self.provider.submit(MAGNET, TARGET)

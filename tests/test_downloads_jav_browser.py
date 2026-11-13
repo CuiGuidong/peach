@@ -462,18 +462,54 @@ class BrowserTests(unittest.TestCase):
         self.assertEqual(dispatch.call_args.args[0].id, task.id)
 
     def test_cloud_failure_is_visible_and_a_manual_retry_uses_existing_task(self):
-        self.remote.submit.side_effect = dl.DownloadError("config", "errors.downloadsClouddrive.tokenMissing")
+        self.remote.submit.side_effect = dl.classify_remote_message("任务已存在")
         self.add()
         self.service.process_one()
         failed = self.status().json()
         self.assertEqual(failed["state"], "failed")
-        self.assertEqual((failed["failure"], failed["cause"]), ("config", "cloud"))
-        self.assertEqual(failed["message"], "还没有填 CloudDrive2 的 API 令牌")
+        self.assertEqual((failed["failure"], failed["cause"]), ("duplicate", "cloud"))
+        self.assertEqual(failed["message"], "远端已有同一个任务：任务已存在")
         self.remote.submit.side_effect = None
         self.add()
         self.service.process_one()
         result = self.status().json()
         self.assertEqual((result["state"], result["task_id"]), ("submitted", failed["task_id"]))
+
+    def test_broken_cloud_settings_pause_the_channel_until_a_probe_succeeds(self):
+        self.remote.submit.side_effect = dl.DownloadError("config", "errors.downloadsClouddrive.tokenMissing")
+        self.add()
+        self.service.process_one()
+        waiting = self.status().json()
+        self.assertEqual((waiting["state"], waiting["paused"]["failure"]), ("queued", "config"))
+        paused = self.listed()["paused"]
+        self.assertEqual([(row["reason"], row["tone"]) for row in paused], [("网盘配置或登录有问题", "error")])
+        self.assertFalse(self.service.process_one())
+        # 令牌补上后，到了试探时间拿同一个磁力再交一次。
+        self.remote.submit.side_effect = None
+        start = time.time()
+        self.downloads.clock = lambda: start + 601
+        self.service.process_one()
+        self.assertEqual(self.status().json()["state"], "submitted")
+        self.assertEqual(self.remote.submit.call_count, 2)
+
+    def test_an_unavailable_search_source_pauses_the_whole_queue(self):
+        self.service.search.return_value = {"items": [], "state": "unavailable", "retry_after": 300}
+        for code in ("ABC-123", "ABC-124"):
+            self.add(code)
+        self.service.process_one()
+        # 后面的番号不再各自撞同一个故障，也不耗它们自己的重试次数。
+        self.assertFalse(self.service.process_one())
+        self.assertEqual(self.service.search.call_count, 1)
+        second = self.client.get("/api/jav-browser", params={"code": "ABC-124"}, headers=self.script_headers).json()
+        self.assertEqual((second["state"], second["paused"]["failure"]), ("queued", "search"))
+        self.assertNotIn("retry_attempt", second)
+        self.assertEqual([(row["provider"], row["waiting"], row["tone"]) for row in self.listed()["paused"]],
+                         [("search", 2, "warning")])
+        self.service.search.return_value = {"items": [{"name": "ABC-123 1080p", "uri": MAGNET}]}
+        start = time.time()
+        self.downloads.clock = lambda: start + 301
+        self.assertTrue(self.service.process_one())
+        self.assertEqual(self.listed()["paused"], [])
 
     def listed(self):
         response = self.client.get("/api/jav-browser/active", headers=self.script_headers)
@@ -722,7 +758,10 @@ class BrowserTests(unittest.TestCase):
         self.assertEqual(self.add().json()["state"], "queued")
         self.downloads.channel_catalog.assert_not_called()
         self.service.process_one()
-        self.assertEqual(self.status().json()["state"], "failed")
+        # 渠道读不到时不让番号逐个失败：放回队列、暂停这个渠道，不搜索也不提交。
+        waiting = self.status().json()
+        self.assertEqual((waiting["state"], waiting["paused"]["failure"]), ("queued", "config"))
+        self.assertFalse(self.service.process_one())
         self.service.search.assert_not_called()
         self.remote.submit.assert_not_called()
 

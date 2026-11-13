@@ -234,6 +234,24 @@ class SubmitTests(_Deployment):
         self.assertIsNone(self.service.channel_alert("115"))
         self.assertEqual(self.service.snapshot()["channel_alerts"], [])
 
+    def test_broken_settings_and_an_unreachable_service_are_channel_alerts_but_timeouts_are_not(self):
+        self.provider.submit_result = dl.DownloadError("config", "errors.downloadsClouddrive.tokenMissing")
+        self.submit()
+        self.assertEqual(self.service.channel_alert("115")["failure"], "config")
+        self.provider.submit_result = unreachable()
+        self.submit(magnet="b" * 40)
+        self.assertEqual(self.service.channel_alert("115")["failure"], "config")
+        self.provider.submit_result = dl.DownloadError(
+            "network", "errors.downloadsClouddrive.unreachable", {"action": "查离线任务", "details": "Connection refused"},
+            channel_down=True)
+        pending = self.submit(magnet="c" * 40)
+        self.assertEqual((pending["outcome"], self.service.channel_alert("115")["failure"]), ("deferred", "network"))
+        # 那条等待重新提交的任务交上之后，告警随之撤掉。
+        self.provider.submit_result = dl.RemoteStatus(dl.RUNNING, "r1", "ABC-123")
+        self.tick(dl.POLL_DELAYS[1])
+        self.assertEqual(self.service.store.get(pending["task"]["id"]).state, dl.SUBMITTED)
+        self.assertIsNone(self.service.channel_alert("115"))
+
     def test_a_network_failure_while_submitting_is_submitted_again_by_the_poller(self):
         self.provider.submit_result = unreachable()
         deferred = self.submit(code="ABC-123")
