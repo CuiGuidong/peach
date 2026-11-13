@@ -117,10 +117,24 @@ def reconcile_paused(db: Path) -> None:
                 waiting(db, path.stem, data['job_id'])
 
 
+def _maybe_active(db: Path, key: str) -> bool:
+    """无锁先看一眼：没有记录或记录已结束就不必取闸门锁。读不出来（替换瞬间的共享冲突）
+    不算结束，交给持锁的那次重读。"""
+    try:
+        data = json.loads(_path(db, key).read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return False
+    except (OSError, ValueError):
+        return True
+    return not isinstance(data, dict) or data.get('status') == 'active'
+
+
 def resume(db: Path, handlers: dict) -> list[str]:
     """领取与起跑在同一把锁内；失败保留参数但不循环重试。"""
     resumed = []
     for key, handler in handlers.items():
+        if not _maybe_active(db, key):
+            continue
         try:
             with admission(db):
                 data = read(db, key)

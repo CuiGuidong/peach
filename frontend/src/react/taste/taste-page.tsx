@@ -54,9 +54,9 @@ import { ActivityHeat } from '../charts/heat-card';
 import { CreatorSankey, RankedBars, TasteRadar } from './charts';
 import { BrowserSources, SOURCE_TILE } from './browser-sources';
 import {
-  DEFAULT_WINDOW, fetchTaste, fetchTasteJob, historySpan, IDLE_POLL_MS, importTasteExport, radarRows,
+  DEFAULT_WINDOW, fetchTaste, fetchTasteJob, historySpan, importTasteExport, radarRows,
   rankDetail, rankShares, removeTasteSource, startTasteRefresh, tasteDate, tasteDimensions, tasteHours,
-  tasteKey, tasteRefetchInterval, tasteTime, TASTE_REFRESH_KEY, TASTE_WINDOWS, type RankRow, type TasteData,
+  tasteKey, tasteRefetchInterval, tasteTime, TASTE_REFRESH_KEY, TASTE_REFRESH_TASK, TASTE_WINDOWS, type RankRow, type TasteData,
   type TasteJob,
 } from './taste';
 import { codedText, jobText, serverLabel, serverLabelList } from '../../core/server-text';
@@ -422,14 +422,14 @@ export function TastePage(props: TasteProps) {
     /* 换范围时留住上一份：这一屏的结构不变，只有数在变。退回骨架就是把已经读到的东西
        收走再放回来，而服务端那一层缓存多半立刻就回来了。 */
     placeholderData: keepPreviousData,
-    refetchInterval: (query) => tasteRefetchInterval(query.state.data),
+    refetchInterval: tasteRefetchInterval,
   });
   const { job, running, outcome, start: refresh } = useBackgroundJob<TasteJob>({
     queryKey: TASTE_REFRESH_KEY,
     queryFn: ({ signal }) => fetchTasteJob(signal),
     start: () => startTasteRefresh(range),
-    /* 读取可以从引导页或上一次会话里起来，闲着也隔一会儿问一次。 */
-    idlePollMs: IDLE_POLL_MS,
+    /* 读取可以从引导页或上一次会话里起来：闲着不问，由全站那一处报出它在跑时接上。 */
+    taskKey: TASTE_REFRESH_TASK,
     onFinish: (state) => {
       if (state.status === 'failed') return;
       void queryClient.invalidateQueries({ queryKey: ['taste'] });

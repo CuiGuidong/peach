@@ -4,6 +4,7 @@ from __future__ import annotations
 from contextlib import ExitStack, contextmanager
 from contextvars import ContextVar
 import json
+import logging
 import os
 from pathlib import Path
 import socket
@@ -36,6 +37,28 @@ def state_for(db: Path) -> Path:
 _locks = WeakValueDictionary()
 _locks_guard = threading.Lock()
 current_db = ContextVar('peach_task_database', default=None)
+LOGGER = logging.getLogger(__name__)
+
+#: 本进程里关心安装预约的人（任务恢复服务）：预约撤下（`released`）、本进程看见活着的预约
+#: （`pausing`）时各收到一次 `(闸门目录, 事件)`。回调在调用方线程里、可能还持着闸门锁，只登记就返回。
+_listeners: list = []
+
+
+def subscribe(callback) -> None:
+    _listeners.append(callback)
+
+
+def unsubscribe(callback) -> None:
+    if callback in _listeners:
+        _listeners.remove(callback)
+
+
+def _announce(root: Path, event: str) -> None:
+    for callback in tuple(_listeners):
+        try:
+            callback(root, event)
+        except Exception:
+            LOGGER.exception('update task listener failed')
 
 
 def _mutex(root: Path) -> FileLock:
@@ -81,6 +104,7 @@ def _maintenance(root: Path) -> dict:
     data = _read(path)
     if data and not _alive(data):
         path.unlink(missing_ok=True)
+        _announce(root, 'released')
         return {}
     return data
 
@@ -106,6 +130,8 @@ def admission(db: Path):
     root = state_for(db)
     with gate(root):
         if data := _maintenance(root):
+            # 被挡下的任务会存成「等安装结束」，恢复服务要等预约撤下再接回它。
+            _announce(root, 'pausing')
             raise _busy(data, "errors.updateTasks.preparingInstall")
         yield
 
@@ -164,8 +190,13 @@ def is_pausing(db: Path) -> bool:
         data = None
     if not isinstance(data, dict):
         with gate(root):
-            return bool(_maintenance(root))
-    return bool(data) and _alive(data)
+            pausing = bool(_maintenance(root))
+    else:
+        pausing = bool(data) and _alive(data)
+    if pausing:
+        # 预约可能是别的进程（安装助手、安装器）下的：本进程看见了，恢复服务才知道要等它撤下。
+        _announce(root, 'pausing')
+    return pausing
 
 
 def check_pause(db: Path | None) -> None:
@@ -262,6 +293,7 @@ def release(db: Path, token: str) -> None:
     with _mutex(root):
         if _read(root / "install.json").get("token") == token:
             (root / "install.json").unlink(missing_ok=True)
+            _announce(root, 'released')
 
 
 def release_owner(db: Path, owner: int) -> None:

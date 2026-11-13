@@ -35,6 +35,7 @@ import { busyProps, useAction } from './use-action';
 import { JavBrowserSettings } from './jav-browser-settings';
 import { CLOUD_LOCATIONS } from '../../core/media-sources';
 import { jobText, serverLabel } from '../../core/server-text';
+import { pollUntil } from '../../polling';
 import { t } from '../../i18n';
 
 export const DOWNLOADS_URL = '/api/configuration/downloads';
@@ -44,6 +45,8 @@ const LOGIN_URL = '/api/configuration/downloads/pikpak/login';
 const LOGOUT_URL = '/api/configuration/downloads/pikpak/logout';
 const BROWSER_URL = '/api/configuration/downloads/pikpak/browser-login';
 const POLL_MS = 2000;
+/** 浏览器登录最多等这么久，过了由用户重新打开。 */
+const BROWSER_LOGIN_LIMIT_MS = 15 * 60_000;
 const PikPakIcon = providerIcon('pikpak');
 
 /** 设置块与检查报告里的问题：`problems` 是服务端按 zh-CN 渲染的原句，`problem_codes` 与之一一对应，
@@ -332,26 +335,22 @@ function PikPakAccount({ state, settle, receipt, username, setUsername }: CardPr
   const browser = state.pikpak_browser;
   const waiting = browser.state === 'waiting';
 
+  /* 等浏览器里那次登录：两秒读一次，读失败退避，页面不可见时暂停，等满上限就停。 */
   useEffect(() => {
     if (!waiting) return;
     const controller = new AbortController();
-    let timer: ReturnType<typeof setTimeout>;
-    const poll = async () => {
-      try {
-        const next = await apiGet<DownloadSettingsState>(BROWSER_URL, controller.signal);
-        if (controller.signal.aborted) return;
+    void pollUntil({
+      signal: controller.signal, everyMs: POLL_MS, limitMs: BROWSER_LOGIN_LIMIT_MS,
+      read: (signal) => apiGet<DownloadSettingsState>(BROWSER_URL, signal),
+      apply: (next) => {
         settle(next);
         if (next.pikpak_browser.state === 'done') receipt(t('settings:pikpakAccount.signedInReceipt'));
         else if (next.pikpak_browser.state !== 'waiting') setOutcome(jobText(next.pikpak_browser));
-        if (next.pikpak_browser.state !== 'waiting') return;
-      } catch (cause) {
-        if (controller.signal.aborted) return;
-        setFailure(errorMessage(cause));
-      }
-      timer = setTimeout(poll, POLL_MS);
-    };
-    timer = setTimeout(poll, POLL_MS);
-    return () => { controller.abort(); clearTimeout(timer); };
+      },
+      done: (next) => next.pikpak_browser.state !== 'waiting',
+      failed: (cause) => setFailure(errorMessage(cause)),
+    });
+    return () => controller.abort();
   }, [waiting]);
 
   const openBrowser = () => {

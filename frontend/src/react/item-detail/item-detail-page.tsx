@@ -23,7 +23,7 @@ import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
 import { patchCatalogItems, replaceCatalogItem } from '../catalog-grid/catalog-grid';
 import type { MediaItem } from '../catalog-grid/types';
 import { RetryNote } from '../components/grid-reveal';
-import { PendingWork, pendingRefetch } from '../components/pending-work';
+import { PendingWork, pendingRefetch, usePendingWorkRefetch } from '../components/pending-work';
 import { MixQueue, MixQueueRow } from '../components/mix-queue';
 import { RelatedSection } from '../components/related-section';
 import { DetailContinuation } from '../components/detail-continuation';
@@ -76,6 +76,7 @@ export function ItemDetailPage(props: ItemDetailProps) {
     enabled: id != null,
     refetchInterval: pendingRefetch,
   });
+  usePendingWorkRefetch(result.data?.pending_work, itemKey(id ?? 0));
   if (!result.data || (ref && !queue)) {
     const error = result.error || queueResult.error;
     return (

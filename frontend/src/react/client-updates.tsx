@@ -1,5 +1,5 @@
 /** 应用级更新提示读取本机快照；刷新由用户明确触发。 */
-import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import { useState, useSyncExternalStore, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 
@@ -53,85 +53,121 @@ function pageRuntime(): ClientUpdates['runtime'] | null {
   } catch { return null; }
 }
 
-/** 文档携带加载时的运行标记，后台标签和首次断连也保留同一份基线。
+export interface ClientUpdatesView {
+  snapshot: ClientUpdates | null;
+  /** 运行标记变了，或看到过的迁移已结束：页面要刷新才用得上新版本。 */
+  refresh: boolean;
+  /** 连续没取得快照的次数；0 是连得上。 */
+  failures: number;
+}
+
+const IDLE: ClientUpdatesView = { snapshot: null, refresh: false, failures: 0 };
+let view = IDLE;
+const listeners = new Set<() => void>();
+let stop: (() => void) | undefined;
+
+function publish(next: ClientUpdatesView) {
+  view = next;
+  for (const listener of listeners) listener();
+}
+
+/** 全页只有一份更新快照：横幅、设置页的「检查更新」与「升级补修」读同一份，第一个读者挂上时开始查，最后一个卸下时停下并清空。
  *
+ *  文档携带加载时的运行标记，后台标签和首次断连也保留同一份基线。
  *  平时每 2 分钟读一次；请求入口遇到迁移期间的 503 或连不上服务时派发 `peach:client-updates`，这里立即查一次。
  *  迁移或更新进行中每 `PROGRESS_INTERVAL` 读一次刷新进度，期间的事件不插队；结束即回到常规节奏。
  *  同一时刻只有一个检查在飞，连不上服务时按 `RECOVERY_DELAYS` 退避，退避期间的事件不再插队。
  *  看到过迁移的页面在迁移结束后提示刷新：迁移期间取到的数据不完整，运行标记即使没变也要重新加载。 */
-export function useClientUpdates() {
-  const baseline = useRef<ClientUpdates['runtime'] | null>(pageRuntime());
-  const sawMigration = useRef(false);
-  const [snapshot, setSnapshot] = useState<ClientUpdates | null>(null);
-  const [migrated, setMigrated] = useState(false);
-  useEffect(() => {
-    let disposed = false;
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    let request: AbortController | undefined;
-    /** 连续没取得快照的次数；0 是连得上。 */
-    let failures = 0;
-    /** 上一份快照里迁移或更新正在推进。 */
-    let active = false;
-    const schedule = () => {
-      clearTimeout(timer);
-      if (disposed || !visible()) return;
-      timer = setTimeout(poll, failures ? RECOVERY_DELAYS[Math.min(failures, RECOVERY_DELAYS.length) - 1]
-        : active ? PROGRESS_INTERVAL : CLIENT_UPDATES_INTERVAL);
-    };
-    const poll = async () => {
-      if (disposed || !visible() || request) return;
-      clearTimeout(timer);
-      const controller = new AbortController();
-      request = controller;
-      const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-      controller.signal.addEventListener('abort', () => clearTimeout(timeout), { once: true });
-      let received = false;
-      try {
-        const next = await apiGet<ClientUpdates>('/api/client-updates', controller.signal);
-        if (!disposed && !controller.signal.aborted && typeof next?.runtime?.version === 'string'
-          && typeof next.runtime.build_id === 'string') {
-          baseline.current ??= { ...next.runtime };
-          setSnapshot(next);
-          received = true;
-          active = progressing(next);
-          if (migrating(next)) sawMigration.current = true;
-          else if (sawMigration.current) setMigrated(true);
-        }
-      } catch {
-        // 服务重启、断连和未取得快照都保留当前提示，按退避再查。
-      } finally {
-        clearTimeout(timeout);
-        if (request === controller) {
-          request = undefined;
-          failures = received ? 0 : failures + 1;
-          schedule();
-        }
+function start(): () => void {
+  let baseline = pageRuntime();
+  let sawMigration = false;
+  let migrated = false;
+  let disposed = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  let request: AbortController | undefined;
+  let failures = 0;
+  /** 上一份快照里迁移或更新正在推进。 */
+  let active = false;
+  const changed = (snapshot: ClientUpdates | null) => publish({ snapshot, failures, refresh: !!snapshot
+    && (migrated || (!!baseline && (snapshot.runtime.version !== baseline.version || snapshot.runtime.build_id !== baseline.build_id))) });
+  const schedule = () => {
+    clearTimeout(timer);
+    if (disposed || !visible()) return;
+    timer = setTimeout(poll, failures ? RECOVERY_DELAYS[Math.min(failures, RECOVERY_DELAYS.length) - 1]
+      : active ? PROGRESS_INTERVAL : CLIENT_UPDATES_INTERVAL);
+  };
+  const poll = async () => {
+    if (disposed || !visible() || request) return;
+    clearTimeout(timer);
+    const controller = new AbortController();
+    request = controller;
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+    controller.signal.addEventListener('abort', () => clearTimeout(timeout), { once: true });
+    let received: ClientUpdates | null = null;
+    try {
+      const next = await apiGet<ClientUpdates>('/api/client-updates', controller.signal);
+      if (!disposed && !controller.signal.aborted && typeof next?.runtime?.version === 'string'
+        && typeof next.runtime.build_id === 'string') {
+        baseline ??= { ...next.runtime };
+        received = next;
+        active = progressing(next);
+        if (migrating(next)) sawMigration = true;
+        else if (sawMigration) migrated = true;
       }
-    };
-    const visibility = () => {
-      clearTimeout(timer);
-      request?.abort();
-      request = undefined;
-      if (visible()) void poll();
-    };
-    /** 请求入口报告服务用不了：正常状态下立即查一次；在飞、正在退避或按进度节奏查时由那一次接着查。 */
-    const notice = () => {
-      if (!failures && !active) void poll();
-    };
-    document.addEventListener('visibilitychange', visibility);
-    document.addEventListener(CLIENT_UPDATES_EVENT, notice);
-    void poll();
-    return () => {
-      disposed = true;
-      clearTimeout(timer);
-      request?.abort();
-      document.removeEventListener('visibilitychange', visibility);
-      document.removeEventListener(CLIENT_UPDATES_EVENT, notice);
-    };
-  }, []);
-  const refresh = !!snapshot && (migrated || (!!baseline.current && (snapshot.runtime.version !== baseline.current.version
-    || snapshot.runtime.build_id !== baseline.current.build_id)));
-  return { snapshot, refresh };
+    } catch {
+      // 服务重启、断连和未取得快照都保留当前提示，按退避再查。
+    } finally {
+      clearTimeout(timeout);
+      if (request === controller && !disposed) {
+        request = undefined;
+        failures = received ? 0 : failures + 1;
+        changed(received ?? view.snapshot);
+        schedule();
+      }
+    }
+  };
+  const visibility = () => {
+    clearTimeout(timer);
+    request?.abort();
+    request = undefined;
+    if (visible()) void poll();
+  };
+  /** 请求入口报告服务用不了：正常状态下立即查一次；在飞、正在退避或按进度节奏查时由那一次接着查。 */
+  const notice = () => {
+    if (!failures && !active) void poll();
+  };
+  document.addEventListener('visibilitychange', visibility);
+  document.addEventListener(CLIENT_UPDATES_EVENT, notice);
+  void poll();
+  return () => {
+    disposed = true;
+    clearTimeout(timer);
+    request?.abort();
+    document.removeEventListener('visibilitychange', visibility);
+    document.removeEventListener(CLIENT_UPDATES_EVENT, notice);
+  };
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  stop ??= start();
+  return () => {
+    listeners.delete(listener);
+    if (listeners.size) return;
+    stop?.();
+    stop = undefined;
+    view = IDLE;
+  };
+}
+
+/** 本页的更新快照；没有别的读者时由这里开始查。 */
+export function useClientUpdates(): ClientUpdatesView {
+  return useSyncExternalStore(subscribe, () => view);
+}
+
+/** 本页刚发起了更新、重启或补修：立即查一次，看到进行中就换成进度节奏。 */
+export function checkClientUpdates(): void {
+  document.dispatchEvent(new Event(CLIENT_UPDATES_EVENT));
 }
 
 type BannerKind = 'migrating' | 'refresh' | 'ready' | 'preparing' | 'available';

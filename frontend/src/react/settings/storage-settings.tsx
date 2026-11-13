@@ -27,10 +27,13 @@ import { CommandSteps, ErrorText, Fact, FactList, Footer, Help, Stack, Section, 
 import { CATEGORY_SWATCH, REST_SWATCH, StorageOverview } from './storage-charts';
 import { busyProps, useAction } from './use-action';
 import { StorageBudgetSettings } from './storage-budget-settings';
+import { pollUntil } from '../../polling';
 import { interfaceLanguage, joinList, t } from '../../i18n';
 
 const STORAGE_URL = '/api/configuration/storage';
 const POLL_MS = 1500;
+/** 一轮统计或清理最多跟这么久。 */
+const POLL_LIMIT_MS = 60 * 60_000;
 /** 迁移完成的回执留一天；之后只在还有要处理的事（备注）时显示。 */
 const RESULT_MS = 24 * 3600 * 1000;
 
@@ -123,16 +126,18 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
     void action.run('measure', signal => apiSend<StorageState>(`${STORAGE_URL}/measure`, {}, 'POST', signal), setStorage);
   }, []);
 
+  /* 有一轮在跑时 1.5 秒读一次，读失败退避，页面不可见时暂停，跑满上限就停。 */
   useEffect(() => {
     if (!running) return;
     const controller = new AbortController();
-    const timer = setTimeout(() => {
-      apiGet<StorageState>(STORAGE_URL, controller.signal).then(setStorage, () => {
-        if (!controller.signal.aborted) setStorage((current) => ({ ...current }));
-      });
-    }, POLL_MS);
-    return () => { controller.abort(); clearTimeout(timer); };
-  }, [storage]);
+    void pollUntil({
+      signal: controller.signal, everyMs: POLL_MS, limitMs: POLL_LIMIT_MS,
+      read: (signal) => apiGet<StorageState>(STORAGE_URL, signal),
+      apply: setStorage,
+      done: (next) => next.job.state === 'idle',
+    });
+    return () => controller.abort();
+  }, [running]);
 
   // 一轮统计或清理结束：成功的回执走 Toast，失败的原因留在分区里；清掉的类别不再勾着。
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { apiGet, apiSend } from '../../api';
+import { withBackoff } from '../../polling';
 import { queryClient } from '../query';
 import { fetchWants, WANTS_KEY } from '../wants/wants';
 import type { CoverState, FaceRef, CoverItem } from '@peach/card-art';
@@ -103,9 +104,12 @@ export function fetchDiscoveries(scope: DiscoveryScope, signal: AbortSignal, opt
 }
 
 export const DISCOVERY_METADATA_KEY = ['jav-discovery-metadata'] as const;
-/** 资料读取进行中，推荐与新作列表隔这么久重取一次，把读到的标签与评分带上来；进度条另按任务轮询走。 */
-export const DISCOVERY_REFRESH_MS = 15000;
 export type DiscoveryMetadataStatus = Pick<DiscoveryResult, 'metadata_job' | 'poll_after_ms'>;
+/** 资料读取进度的 `refetchInterval`：有一轮在跑时按服务端给的 `poll_after_ms`（至少一秒），读失败退避。
+ *  列表本身读的期间不另起轮询：读到的标签与评分由全站那一处的 `discoveries` 版本作废列表带上来，
+ *  读完页面再取一次。`listed` 是列表带回来的那一轮是不是在跑。 */
+export const metadataInterval = (listed: () => boolean) => withBackoff<DiscoveryMetadataStatus>((data) =>
+  (data?.metadata_job?.status === 'running' || listed() ? Math.max(1000, data?.poll_after_ms || 3000) : false));
 /** 资料读取进度：只读任务快照，不重算推荐。 */
 export const fetchDiscoveryMetadata = (signal: AbortSignal) =>
   apiGet<DiscoveryMetadataStatus>('/api/jav/discoveries/metadata', signal);

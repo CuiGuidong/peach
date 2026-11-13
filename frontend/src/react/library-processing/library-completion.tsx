@@ -13,7 +13,7 @@ import { Note } from '../components/note';
 import { queryClient } from '../query';
 import {
   DISCONNECTED_TEXT, fetchLibraryProcessing, LIBRARY_PROCESSING_KEY, LIBRARY_PROCESSING_URL,
-  pollInterval, processingActive, type LibraryProcessingCommand, type LibraryProcessingData,
+  processingActive, type LibraryProcessingCommand, type LibraryProcessingData,
 } from './library-processing';
 import { ProcessingActions } from './processing-actions';
 import { confirmMeteredPreviews, startPreviews } from './metered-previews';
@@ -60,9 +60,9 @@ export function LibraryCompletionPrompt({ assetIds, meteredIds = [], onComplete,
 function Completion({ assetIds, meteredIds, onComplete, className }: {
   assetIds: number[]; meteredIds: number[]; onComplete?(): void; className: string;
 }) {
+  /* 只读缓存：这个键的轮询由壳里常驻的停靠栏一处驱动（`use-library-processing.ts`）。 */
   const job = useQuery({ queryKey: LIBRARY_PROCESSING_KEY,
-    queryFn: ({ signal }) => fetchLibraryProcessing(signal),
-    refetchInterval: query => pollInterval(query.state.data, true) });
+    queryFn: ({ signal }) => fetchLibraryProcessing(signal) });
   const [started, setStarted] = useState<string | null>(null);
   const [outcome, setOutcome] = useState('');
   const completed = useRef<string | null>(null);

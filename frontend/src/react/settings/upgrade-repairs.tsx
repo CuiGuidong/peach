@@ -1,11 +1,11 @@
-/** 升级补修与程序安装分别显示；复核和重试都由用户明确发起。 */
+/** 升级补修与程序安装分别显示；复核和重试都由用户明确发起。进度读页面顶部横幅那份更新快照，本页不另查。 */
 import { useEffect, useState } from 'react';
 import { RiArrowRightLine } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
 import { LinkButton } from '@/components/base/buttons/link-button';
 import { REPAIR_CENTER_PATH } from '@peach/history';
 import { apiSend } from '../../api';
-import { useClientUpdates } from '../client-updates';
+import { checkClientUpdates, useClientUpdates } from '../client-updates';
 import type { ClientUpdates } from '../client-updates';
 import { AnimatedNumber } from '../components/animated-number';
 import { StatusLabel } from '../components/status-label';
@@ -33,7 +33,7 @@ export function UpgradeRepairs() {
   const retry = () => void action.run('retry', signal => apiSend<ClientUpdates['repairs']>(
     '/api/configuration/upgrade-repairs/retry', {}, 'POST', signal), next => {
     setSaved(next);
-    document.dispatchEvent(new Event('peach:client-updates'));
+    checkClientUpdates();
   });
   return <Section id="upgradeRepairs" title={t('settings:upgradeRepairs.title')} aside={<StatusLabel
     tone={state === 'failed' ? 'error' : state === 'running' ? 'progress' : state === 'review' ? 'warning'

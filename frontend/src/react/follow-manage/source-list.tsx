@@ -59,6 +59,7 @@ import {
 } from './follow-manage';
 import { AuthorAvatar, ErrorLine, SourceIcon, SourceLink, StatusBadge } from './source-view';
 import { codedText, jobText } from '../../core/server-text';
+import { FOLLOW_CHECK_TASK } from '../../running-tasks';
 import { joinList, t } from '../../i18n';
 
 const sourceTableFeatures = tableFeatures({
@@ -270,6 +271,7 @@ export function SourceList(props: SourceListProps) {
 
   const { job, running, outcome, start: check } = useBackgroundJob<CheckJob, number[]>({
     queryKey: FOLLOW_CHECK_KEY,
+    taskKey: FOLLOW_CHECK_TASK,
     queryFn: ({ signal }) => fetchCheckJob(signal),
     start: (ids) => startCheck(ids),
     onError: (cause) => setProblem(errorMessage(cause)),

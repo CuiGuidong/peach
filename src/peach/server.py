@@ -13,6 +13,9 @@ from .user_messages import UserFacingError, UserRuntimeError
 
 #: 容器首次启动时直接设好的访问密码（ADR-0149）；读过就从环境里删掉，不传给子进程。
 ACCESS_PASSWORD_ENV = "PEACH_ACCESS_PASSWORD"
+#: 看守循环多久看一次服务进程、重载与迁移请求。每轮要读两遍设置文件；重载、迁移本来就要重启
+#: 服务，多等一秒看不出来。
+SUPERVISE_SECONDS = 2
 
 
 def _said(error: BaseException) -> str:
@@ -145,7 +148,7 @@ def supervise(host: str, port: int, stopping: threading.Event) -> int:
                 location = onboarding.take_first_scan_request(config)
                 if location is not None:
                     scanner = launch("process", location)
-            stopping.wait(1)
+            stopping.wait(SUPERVISE_SECONDS)
         return 0
     finally:
         stop_process(scanner)

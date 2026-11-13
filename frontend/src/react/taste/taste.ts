@@ -13,6 +13,7 @@ import { sankey, sankeyLinkHorizontal } from 'd3-sankey';
 import { clipGraphemes } from '@peach/legacy/core';
 
 import { apiGet, apiSend, ApiError } from '../../api';
+import { BACKOFF_MAX_MS, backoffMs, failureStreak } from '../../polling';
 import type { BarRow } from '../charts/bar-card';
 import type { ActivityCounts } from '../charts/heat';
 import { queryClient } from '../query';
@@ -131,12 +132,28 @@ export interface TasteData {
   message_params?: Record<string, unknown>;
 }
 
-/** 看板在后台重算时隔这么久再问一次，算完换上新结果。 */
+/** 看板在后台重算时第一次隔这么久再问，算完换上新结果。 */
 export const STALE_POLL_MS = 2_000;
 
-/** `stale` 时的轮询间隔：只在服务端说「这是旧的」时才问，算完或算失败就停。 */
-export const tasteRefetchInterval = (data: TasteData | undefined): number | false =>
-  (data?.stale && !data.error ? STALE_POLL_MS : false);
+/* 每个查询这一段「还是旧的」从第几次取数开始：连着读到旧的几次，间隔就翻几番。 */
+const staleSince = new WeakMap<object, number>();
+
+/** `stale` 时的轮询间隔：只在服务端说「这是旧的」时才问，2、4、8、16 秒地拉长，封顶 30 秒；
+ *  读失败另按失败次数退避。算完或算失败就停。 */
+export function tasteRefetchInterval(query: {
+  state: { data?: TasteData | undefined; status?: string; dataUpdateCount?: number; errorUpdateCount?: number };
+}): number | false {
+  const data = query.state.data;
+  if (!data?.stale || data.error) {
+    staleSince.delete(query);
+    return false;
+  }
+  const failures = failureStreak(query);
+  if (failures) return backoffMs(failures);
+  const count = query.state.dataUpdateCount ?? 0;
+  if (!staleSince.has(query)) staleSince.set(query, count);
+  return Math.min(STALE_POLL_MS * 2 ** (count - (staleSince.get(query) ?? count)), BACKOFF_MAX_MS);
+}
 
 /** 快照时刻，精确到分钟：重算通常几秒内完成，只写日期看不出是哪一份。 */
 export const tasteTime = (value: string | null | undefined): string =>
@@ -220,8 +237,9 @@ export async function importTasteExport(file: File): Promise<{ dashboard: TasteD
   return payload as { dashboard: TasteData };
 }
 
-/** 读取闲着时十秒问一次——这一趟可以从别的页面或上一次会话里起来。 */
-export const IDLE_POLL_MS = 10_000;
+/** 读取浏览记录那一趟在任务中心登记的 `task_key`：它可以从别的页面或上一次会话里起来，
+ *  页面闲着不问，由全站那一处读到的 `running_tasks` 带来。 */
+export const TASTE_REFRESH_TASK = 'taste-refresh';
 
 export const tasteDate = (value: string | null | undefined): string =>
   (value ? new Date(value).toLocaleDateString(interfaceLanguage) : '—');

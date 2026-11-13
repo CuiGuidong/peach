@@ -25,6 +25,8 @@ from .user_messages import UserPermissionError, UserValueError
 CURRENT = ContextVar('peach_task_control', default=None)
 _LIVE = {}
 _LOCK = threading.RLock()
+#: 暂停期间多久重读一次控制文件。本进程的请求会立刻叫醒停点，这个间隔只管命令行等别的进程发来的继续。
+PAUSED_POLL_SECONDS = 1.0
 
 
 class Cancelled(KeyboardInterrupt):
@@ -157,7 +159,14 @@ def projection(store, run, *, descendants_active=None):
 def request(store, run_id, action, *, mode=None):
     from .update_tasks import _mutex
     with _mutex(state_for(store.database.db_path)):
-        return _request(store, run_id, action, mode=mode)
+        result = _request(store, run_id, action, mode=mode)
+    # 后代的停点也可能在等这条请求，叫醒同一数据库下的全部停点，各自重读控制文件。
+    database, _run = _key(store.database.db_path, run_id)
+    with _LOCK:
+        for (path, _identity), control in _LIVE.items():
+            if path == database:
+                control.wakeup.set()
+    return result
 
 
 def _request(store, run_id, action, *, mode=None):
@@ -239,6 +248,8 @@ class Control:
         self.recoverable = recoverable
         self.db = store.database.db_path
         self.stopping = threading.Event()
+        #: 本进程发出控制请求或要停服务时叫醒暂停中的停点，不必等满 `PAUSED_POLL_SECONDS`。
+        self.wakeup = threading.Event()
         self.lock = threading.RLock()
         self.operations = {}
         self.owners = {}
@@ -293,6 +304,7 @@ class Control:
         parked = []
         try:
             while True:
+                self.wakeup.clear()
                 self.usage.publish()
                 from .update_tasks import check_pause
                 check_pause(self.db if self.recoverable else None)
@@ -329,7 +341,8 @@ class Control:
                     quiet = all(self.operations.values())
                 self._publish(command, 'paused' if quiet else 'pausing')
                 self.store.heartbeat(self.run_id)
-                self.stopping.wait(.1)
+                # 还有线程没停稳时照旧勤看，好尽快报「已暂停」；停稳之后只等继续，放慢重读控制文件。
+                self.wakeup.wait(PAUSED_POLL_SECONDS if quiet else .1)
         finally:
             for child in reversed(suspended):
                 try:
@@ -371,6 +384,7 @@ def shutdown(db, run_id):
         control = _LIVE.get(_key(db, run_id))
     if control is not None:
         control.stopping.set()
+        control.wakeup.set()
 
 
 def checkpoint(kind='work'):

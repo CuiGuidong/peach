@@ -28,6 +28,7 @@ import { CollapseRegion } from '../components/collapse-region';
 import { ErrorText } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import { momentText } from './tasks';
+import { withBackoff } from '../../polling';
 import { SourceLabel } from '../components/source-label';
 import { ArtSlot } from '../components/art-slot';
 import { avatarInner, coverImage, relayoutCovers } from '@peach/card-art';
@@ -42,6 +43,8 @@ const POSTPROCESS_URL = '/api/downloads/postprocess';
 
 export const downloadPollInterval = (data: DownloadsSnapshot | undefined) =>
   data?.tasks.some((task) => task.cancellable || task.postprocess_active) ? 5_000 : 30_000;
+/** 给 `refetchInterval`：常规节律同上，读失败按 4、8、16、30 秒退避。 */
+export const downloadsInterval = withBackoff(downloadPollInterval);
 
 const STATE_COLORS: Record<string, 'lime' | 'rose' | 'yellow' | 'blue' | 'neutral'> = {
   ingested: 'lime', failed: 'rose', cancelled: 'neutral', stalled: 'yellow',
@@ -81,7 +84,7 @@ export function DownloadsPanel() {
   const query = useQuery({
     queryKey: [...DOWNLOADS_KEY, 'page', page, pageSize],
     queryFn: ({ signal }) => apiGet<DownloadsSnapshot>(`${DOWNLOADS_URL}?limit=${pageSize}&page=${page}`, signal),
-    refetchInterval: (state) => downloadPollInterval(state.state.data),
+    refetchInterval: downloadsInterval,
     placeholderData: (previous) => previous,
   });
   const [lastData, setLastData] = useState(query.data);

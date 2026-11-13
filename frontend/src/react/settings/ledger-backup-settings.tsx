@@ -16,10 +16,13 @@ import { Progress } from '../components/progress';
 import { ErrorText, Footer, Help, Rows, Section, Stack, TaskCenterLink } from './section';
 import { busyProps, useAction } from './use-action';
 import { codedText, jobText, serverLabel, stageText } from '../../core/server-text';
+import { pollUntil } from '../../polling';
 import { interfaceLanguage, t } from '../../i18n';
 
 export const LEDGER_BACKUPS_URL = '/api/configuration/ledger-backups';
 const POLL_MS = 1500;
+/** 一轮备份或恢复最多跟这么久；更久的看任务中心。 */
+const POLL_LIMIT_MS = 60 * 60_000;
 
 export interface LedgerBackup {
   id: string;
@@ -87,16 +90,18 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
     return () => controller.abort();
   }, []);
 
+  /* 有一轮在跑时 1.5 秒读一次，读失败退避，页面不可见时暂停，跑满上限就停。 */
   useEffect(() => {
     if (!running) return;
     const controller = new AbortController();
-    const timer = setTimeout(() => {
-      apiGet<LedgerBackupState>(LEDGER_BACKUPS_URL, controller.signal).then(setState, () => {
-        if (!controller.signal.aborted) setState((current) => current && { ...current });
-      });
-    }, POLL_MS);
-    return () => { controller.abort(); clearTimeout(timer); };
-  }, [state]);
+    void pollUntil({
+      signal: controller.signal, everyMs: POLL_MS, limitMs: POLL_LIMIT_MS,
+      read: (signal) => apiGet<LedgerBackupState>(LEDGER_BACKUPS_URL, signal),
+      apply: setState,
+      done: (next) => next.backup.status !== 'running' && next.restore.status !== 'running',
+    });
+    return () => controller.abort();
+  }, [running]);
 
   // 一轮结束：成功的回执走 Toast，失败的原因留在分区里。只报这一页上看着开始的那一轮。
   useEffect(() => {
