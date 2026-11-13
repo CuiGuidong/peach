@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "db2e5bef-3c9b-4d2f-bd42-db0a30bcb59d", e._sentryDebugIdIdentifier = "sentry-dbid-db2e5bef-3c9b-4d2f-bd42-db0a30bcb59d");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "416bcd5b-335f-4634-bdb6-c35149475ee3", e._sentryDebugIdIdentifier = "sentry-dbid-416bcd5b-335f-4634-bdb6-c35149475ee3");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7673,7 +7673,7 @@ var He = {
 				numbered: "PikPak cloud drive {{index}}"
 			}
 		},
-		qualityBand: { low: "Low quality" },
+		qualityBand: { low: "Low" },
 		report: {
 			title: "Browsing history taste analysis",
 			generatedAt: "Generated: {{time}}",
@@ -38136,4 +38136,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=db2e5bef-3c9b-4d2f-bd42-db0a30bcb59d
+//# debugId=416bcd5b-335f-4634-bdb6-c35149475ee3
