@@ -2,7 +2,7 @@
 
 - 状态：已采纳
 - 日期：2026-11-14
-- 关系：补充 [ADR-0159](0159-interface-text-lives-only-in-locale-resources.md) 第四条（内容数据）与第五条（旧记录转换）；账本迁移照 [ADR-0126](0126-upgrade-effective-repairs.md) 在升级时自动执行并先备份
+- 关系：补充 [ADR-0159](0159-interface-text-lives-only-in-locale-resources.md) 第四条（内容数据）与第五条（旧记录转换）；账本迁移照 [ADR-0126](0126-upgrade-effective-repairs.md) 在升级时自动执行并先备份；修订 ADR-0159 第三条（开发工具产物里被读回比对的取值改用英文 id）
 
 ## 背景
 
