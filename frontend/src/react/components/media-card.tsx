@@ -36,6 +36,7 @@ import { RecommendationReason } from './recommendation-reason';
 import { useLibraryTints } from './library-tint';
 import { suppressShiftTextSelection } from './row-click';
 import { joinList, t } from '../../i18n';
+import { codedText, serverLabelList } from '../../core/server-text';
 
 /** 竖屏一律同一个比例，不按每条视频的实际宽高：竖屏条与竖屏网格才高低一致。 */
 const PORTRAIT_RATIO = 9 / 16;
@@ -48,6 +49,12 @@ const UNNAMED = t('shell:mediaCard.untitledVideo');
 
 const RESOURCE_LABELS: Record<string, string> = { image: t('shell:mediaCard.resourceImage'), audio: t('shell:mediaCard.resourceAudio'), archive: t('shell:mediaCard.resourceArchive'), other: t('shell:mediaCard.resourceOther') };
 const DISPOSAL_LABELS = { manual: t('shell:mediaCard.disposalManual'), junk: t('shell:mediaCard.disposalJunk'), duplicate: t('shell:mediaCard.disposalDuplicate'), missing: t('shell:mediaCard.disposalMissing') };
+
+/** 推荐理由：`why` 是服务端拼好的 zh-CN 原文，带 `why_codes` 时逐条换成当前语言。 */
+function whyReasons(item: MediaItem): string[] {
+  const texts = item.why ? item.why.split(' · ') : [];
+  return item.why_codes?.length === texts.length ? serverLabelList(texts, item.why_codes) : texts;
+}
 
 function DisposalReason({ item }: { item: MediaItem }) {
   if (item.disposal !== 'trash') return null;
@@ -231,7 +238,9 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
   const gap = !artwork.html ? missingArtwork(item, frameOnly) : failed
     ? failed.gap || { key: 'checking', title: drawn.kind === 'cover' ? t('shell:artworkGap.coverNotFound') : t('shell:artworkGap.previewNotFound'), reason: t('shell:mediaCard.checkingCause'), fix: '' as const }
     : null;
-  const rawName = parts?.title || item.name || '';
+  const rawName = (parts ? codedText(parts, 'title') : '') || item.name || '';
+  const reasons = whyReasons(item);
+  const why = reasons.join(' · ');
   const shownName = helpers.displayName(item, rawName).trim() || UNNAMED;
   const titleHtml = helpers.titleHtml(item, rawName).trim() || esc(UNNAMED);
   const shownSize = parts?.total_size ?? item.size;
@@ -336,13 +345,13 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
           </button>
           <div data-media-byline="">
             {who}
-            {item.why && variant !== 'next' ? <span data-media-why="" title={item.why}>{item.why}</span> : null}
+            {why && variant !== 'next' ? <span data-media-why="" title={why}>{why}</span> : null}
             <span data-media-facts="">
               {item.is_jav && item.release_date ? <CardDate value={item.release_date} label={item.release_date} /> : null}
               <span data-media-size=""><Icon name="hard-drive" />{Number(shownSize) > 0 ? fmtSize(Number(shownSize)) : t('shell:fileSize.unknown')}</span>
             </span>
           </div>
-          {variant === 'next' ? <RecommendationReason reasons={item.why ? item.why.split(' · ') : []}
+          {variant === 'next' ? <RecommendationReason reasons={reasons}
             tags={(item.why_tags || []).map(helpers.tagLabel)} /> : tags.length || item.disposal === 'trash'
             ? <CardTags tags={tags} label={helpers.tagLabel} readOnly={!!item.follow_item_id} />
             : null}
@@ -394,7 +403,7 @@ function ResourceCard({ item, selected, selectMode, helpers, actions, onOpen }: 
             dangerouslySetInnerHTML={{ __html: esc(name || t('shell:mediaCard.untitledResource')) }} />
           <div data-media-byline="">
             <span data-media-who="">{label}</span>
-            {item.why ? <span data-media-why="">{item.why}</span> : null}
+            {item.why ? <span data-media-why="">{whyReasons(item).join(' · ')}</span> : null}
             <span data-media-size="">{Number(item.size) > 0 ? fmtSize(Number(item.size)) : t('shell:fileSize.unknown')}</span>
           </div>
           {item.disposal === 'trash' ? <div data-media-tags="" /> : null}

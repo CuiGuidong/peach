@@ -14,7 +14,7 @@ import sqlite3
 
 from urllib.parse import urlsplit
 
-from . import (company_profiles, entry_links, feeds, link_status, performer_header, web_feeds,
+from . import (company_profiles, entry_links, feeds, interface_text, link_status, performer_header, web_feeds,
                web_follow)
 from .catalog_rules import (LENGTH_TAGS, dir_expr, photo_set_title, solo_performer_clause, tag_cat)
 from .entities import (USER_ALIAS_SOURCE, normalize_entity_name, prefer_entity_name, resolve_entity,
@@ -936,13 +936,11 @@ SUGGEST_WORKS = 4
 #: 挑近作时每人先取的候选数。有的片还没装封面、也没抽帧，要从后面几部补上。
 SUGGEST_WORK_CANDIDATES = SUGGEST_WORKS * 3
 
-#: 补全的分组顺序与显示名，顺序就是下拉栏里的先后。它只定在这里，界面照抄——
+#: 补全的分组顺序与显示名的 code，顺序就是下拉栏里的先后。它只定在这里，界面照抄——
 #: 两侧各排一次的话，改了一侧就会出现「后端认为最该先看的组显示在第三位」。
 #: 作品垫底：它的值是番号或整句标题，扫读成本比一个人名高。
-SUGGEST_GROUPS = (
-    ("performer", "女优"), ("creator", "创作者"), ("studio", "厂牌"),
-    ("agency", "事务所"), ("series", "系列"), ("tag", "标签"), ("asset", "视频"),
-)
+SUGGEST_GROUPS = tuple((kind, f"labels.webEntity.suggestGroup.{kind}") for kind in (
+    "performer", "creator", "studio", "agency", "series", "tag", "asset"))
 
 #: 直接挂在作品上的实体种类。事务所不在内：`asset_entity` 里没有它的行，
 #: 作品是它的成员拍的，所以它单走一条查询。
@@ -1288,8 +1286,9 @@ def q_suggest(contract: WebContract, q: str, limit: int = SUGGEST_GROUP_LIMIT,
                 item["has_logo"] = contract.has_logo(item["value"])
                 item["logo_version"] = contract.logo_version(item["value"])
     return {"q": query, "groups": [
-        {"kind": kind, "label": label, "total": totals.get(kind, 0), "items": buckets[kind]}
-        for kind, label in SUGGEST_GROUPS if buckets.get(kind)
+        {"kind": kind, "label": interface_text.text(f"server:{code}"), "label_code": code,
+         "total": totals.get(kind, 0), "items": buckets[kind]}
+        for kind, code in SUGGEST_GROUPS if buckets.get(kind)
     ]}
 
 

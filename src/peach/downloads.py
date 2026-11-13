@@ -34,10 +34,13 @@ from pathlib import Path, PureWindowsPath
 from typing import Any, Callable, Mapping, Protocol
 from urllib.parse import parse_qs, unquote, urlsplit
 
+from .content_words import (CLOUD_BLOCKED, CLOUD_DUPLICATE_WORDS, CLOUD_INVALID_LINK_WORDS, CLOUD_QUOTA_WORDS,
+                            CLOUD_STORAGE_FULL, PROMO_NAME)
 from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
 from . import interface_text
+from .coded_text import Said, coded, columns, from_error, restored
 from .user_messages import UserFacingError, UserValueError, nested_message
 from .repository import LedgerDatabase, in_background
 from .task_retry import RETRY_DELAYS, retry_delay
@@ -107,8 +110,7 @@ FAILURE_KINDS: dict[str, FailureKind] = {kind.key: kind for kind in (
 CHANNEL_FAILURES = frozenset({"quota", "storage", "config"})
 #: 网盘空间不足的说法。115 经 CloudDrive2 回 `190031 云空间不足`，有时走 gRPC 错误，有时写在 `errorMessage` 里；
 #: PikPak 的错误码是 `file_space_not_enough`。
-STORAGE_FULL = re.compile(r"190031|空间不足|空间已满|space_not_enough|insufficient (storage|space)|storage (is )?full",
-                          re.IGNORECASE)
+STORAGE_FULL = re.compile(CLOUD_STORAGE_FULL, re.IGNORECASE)
 
 
 def storage_full(text: object) -> bool:
@@ -123,7 +125,7 @@ def never_seen(task: "DownloadTask") -> bool:
 class DownloadError(UserFacingError, RuntimeError):
     """一次远端操作失败。`failure` 是故障类别；原因写成 code 与参数，不含凭据。
 
-    `detail` 是按 zh-CN 渲染的那一句，任务行的失败原因与设置页的检查报告照旧读它。
+    `detail` 是按 zh-CN 渲染的那一句（`Said`，带着 code），任务行的失败原因与设置页的检查报告照旧读它。
     `block` 只给 115 的违规拦截（`50038`）：这类失败不重试，同一 infohash 以后直接拒收。
     `channel_down` 表示整个渠道连不上（服务没在运行、地址不通），不是一次超时。
     """
@@ -134,7 +136,7 @@ class DownloadError(UserFacingError, RuntimeError):
             raise ValueError(f"unknown failure kind: {failure}")
         super().__init__(code, params)
         self.failure = failure
-        self.detail = self.message
+        self.detail = from_error(self)
         self.block = block
         self.channel_down = channel_down
 
@@ -176,13 +178,13 @@ def problem_codes(problems) -> list[dict]:
 
 #: 115 对违规内容的离线拦截码。CloudDrive2 把 115 的原文放进 `errorMessage`，
 #: 只认得出码或「违规」字样，所以两样都匹配。
-BLOCKED_PATTERN = re.compile(r"50038|违规|敏感")
-#: 远端原话里的字样到失败类别，按顺序取第一个对上的。
-REMOTE_WORDS = (
-    (re.compile(r"配额|quota|次数|上限|limit", re.IGNORECASE), "quota", "errors.downloads.remoteQuota"),
-    (re.compile(r"已存在|exist|重复|duplicate", re.IGNORECASE), "duplicate", "errors.downloads.remoteDuplicate"),
-    (re.compile(r"链接|无效|invalid|url|格式", re.IGNORECASE), "invalid_link", "errors.downloads.remoteInvalidLink"),
-)
+BLOCKED_PATTERN = re.compile(CLOUD_BLOCKED)
+#: 远端原话里的字样到失败类别，按顺序取第一个对上的。字样是网盘接口的原话（内容数据，在 `content_words`）。
+REMOTE_WORDS = tuple(
+    (re.compile("|".join(map(re.escape, words)), re.IGNORECASE), failure, code)
+    for words, failure, code in ((CLOUD_QUOTA_WORDS, "quota", "errors.downloads.remoteQuota"),
+                                 (CLOUD_DUPLICATE_WORDS, "duplicate", "errors.downloads.remoteDuplicate"),
+                                 (CLOUD_INVALID_LINK_WORDS, "invalid_link", "errors.downloads.remoteInvalidLink")))
 
 
 def classify_remote_message(message: str) -> DownloadError:
@@ -429,7 +431,11 @@ class DownloadTask:
 
     @classmethod
     def from_row(cls, row: sqlite3.Row) -> "DownloadTask":
-        return cls(**{name: row[name] for name in row.keys()})
+        values = {name: row[name] for name in row.keys()}
+        for name in _CODED_COLUMNS:
+            values[name] = restored(values.get(name), values.pop(f"{name}_code", None),
+                                    values.pop(f"{name}_params", None))
+        return cls(**values)
 
     def payload(self, asset: dict | None = None) -> dict:
         from .catalog_rules import jav_fallback_title, release_code_from_filename, same_release_code
@@ -457,7 +463,7 @@ class DownloadTask:
             "display_code": display_code, "display_title": display_title,
             "state": self.state, "state_label": state_label(self.state),
             "failure": self.failure, "failure_label": kind.label if kind else None,
-            "failure_detail": self.failure_detail,
+            **coded("failure_detail", self.failure_detail),
             "progress": self.progress, "remote_name": self.remote_name,
             "ledger_path": self.ledger_path, "asset_id": self.asset_id,
             "submitted_at": self.submitted_at, "updated_at": self.updated_at,
@@ -466,7 +472,7 @@ class DownloadTask:
             "postprocess_label": self.postprocess_label,
             "postprocess_label_code": self.postprocess_label_code[0],
             "postprocess_label_params": self.postprocess_label_code[1],
-            "postprocess_detail": self.postprocess_detail,
+            **coded("postprocess_detail", self.postprocess_detail),
             "postprocess_run_id": self.postprocess_run_id,
             "postprocessed_at": self.postprocessed_at,
             "postprocess_retries": self.postprocess_retries,
@@ -487,6 +493,18 @@ _TASK_COLUMNS = (
     "postprocess_state", "postprocess_detail", "postprocess_run_id", "postprocessed_at",
     "postprocess_retries",
 )
+#: 只有一列原句的说明字段；旁边的 `<列>_code`、`<列>_params` 存 code 与参数（迁移 0056）。
+_CODED_COLUMNS = ("failure_detail", "postprocess_detail")
+
+
+def _task_values(task: "DownloadTask") -> tuple[tuple[str, ...], list]:
+    """任务行要写的列与值：`_TASK_COLUMNS`，再加每个说明字段的 code 与参数两列。"""
+    names = list(_TASK_COLUMNS)
+    values = [getattr(task, name) for name in _TASK_COLUMNS]
+    for name in _CODED_COLUMNS:
+        names += [f"{name}_code", f"{name}_params"]
+        values += columns(getattr(task, name))
+    return tuple(names), values
 
 
 class DownloadStore:
@@ -578,16 +596,16 @@ class DownloadStore:
         return parse_iso(row[0]) or 0.0
 
     def save(self, task: DownloadTask) -> DownloadTask:
-        values = [getattr(task, name) for name in _TASK_COLUMNS]
+        names, values = _task_values(task)
         with self.database.write_transaction(notify=False) as connection:
             if task.id:
-                assignments = ",".join(f"{name}=?" for name in _TASK_COLUMNS)
+                assignments = ",".join(f"{name}=?" for name in names)
                 connection.execute(f"UPDATE download_task SET {assignments} WHERE id=?",
                                    (*values, task.id))
             else:
-                marks = ",".join("?" for _ in _TASK_COLUMNS)
+                marks = ",".join("?" for _ in names)
                 cursor = connection.execute(
-                    f"INSERT INTO download_task({','.join(_TASK_COLUMNS)}) VALUES({marks})", values)
+                    f"INSERT INTO download_task({','.join(names)}) VALUES({marks})", values)
                 task.id = int(cursor.lastrowid)
         return task
 
@@ -596,16 +614,19 @@ class DownloadStore:
         with self.database.write_transaction(notify=False) as connection:
             connection.execute(
                 "INSERT INTO download_submission(task_id,info_hash,provider,source_uri,target,code,"
-                "origin,outcome,failure,detail,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                "origin,outcome,failure,detail,detail_code,detail_params,created_at) "
+                "VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
                 (task.id or None, task.info_hash, task.provider, task.source_uri, task.target,
-                 task.code, task.origin, outcome, failure, detail, iso(now)))
+                 task.code, task.origin, outcome, failure, detail, *columns(detail), iso(now)))
 
     def submissions(self, task_id: int) -> list[dict]:
         with self.database.read_connection() as connection:
             rows = connection.execute(
-                "SELECT outcome,failure,detail,provider,created_at FROM download_submission "
-                "WHERE task_id=? ORDER BY id", (task_id,)).fetchall()
-        return [dict(row) for row in rows]
+                "SELECT outcome,failure,detail,detail_code,detail_params,provider,created_at "
+                "FROM download_submission WHERE task_id=? ORDER BY id", (task_id,)).fetchall()
+        return [{"outcome": row["outcome"], "failure": row["failure"],
+                 **coded("detail", restored(row["detail"], row["detail_code"], row["detail_params"])),
+                 "provider": row["provider"], "created_at": row["created_at"]} for row in rows]
 
     def assets_under(self, location: str, ledger_path: str) -> list[dict]:
         """账本里这条路径或目录下的全部活动资产；路径按 Windows 口径不区分。"""
@@ -628,7 +649,7 @@ class DownloadStore:
         def rank(row):
             shown = row.get("code") or release_code_from_filename(row.get("name") or "")
             exact = bool(code and shown and same_release_code(code, shown))
-            promo = bool(re.search(r"(?i)(?:manko\.fun|广告|廣告|扫码|掃碼|最新地址)",
+            promo = bool(re.search(rf"(?i)(?:{PROMO_NAME})",
                                    str(row.get("name") or "")))
             duration = float(row.get("duration") or 0)
             pixels = int(row.get("width") or 0) * int(row.get("height") or 0)
@@ -645,8 +666,9 @@ class DownloadStore:
 
     def postprocess(self, task_id: int, state: str, *, detail: str | None = None,
                     run_id: int | None = None, finished: str | None = None) -> None:
-        assignments = ["postprocess_state=?", "postprocess_detail=?", "next_check_at=NULL"]
-        values: list[object] = [state, detail]
+        assignments = ["postprocess_state=?", "postprocess_detail=?", "postprocess_detail_code=?",
+                       "postprocess_detail_params=?", "next_check_at=NULL"]
+        values: list[object] = [state, detail, *columns(detail)]
         if run_id is not None:
             assignments.append("postprocess_run_id=?")
             values.append(run_id)
@@ -661,18 +683,18 @@ class DownloadStore:
         """在原任务上排下一次后处理；终止条件与错误都保留，不重交磁力。"""
         task = self.get(task_id)
         delay = retry_delay(error, task.postprocess_retries)
-        detail = f'{type(error).__name__}: {error}'
+        detail = from_error(error, f'{type(error).__name__}: {error}')
         if delay is None:
             if task.postprocess_retries >= len(RETRY_DELAYS):
-                # 任务表只有原句一列，存按 zh-CN 渲染的那句（ADR-0159 延后：要存 code 得加列）。
-                detail = interface_text.text("server:labels.downloads.postprocessRetriesExhausted",
-                                             {"retries": task.postprocess_retries, "detail": detail})
+                detail = Said("labels.downloads.postprocessRetriesExhausted",
+                              retries=task.postprocess_retries, detail=detail)
             self.postprocess(task_id, POSTPROCESS_FAILED, detail=detail)
             return False
         with self.database.write_transaction(notify=False) as connection:
             connection.execute(
-                'UPDATE download_task SET postprocess_state=?,postprocess_detail=?,postprocess_retries=?,next_check_at=? WHERE id=?',
-                (POSTPROCESS_PENDING, detail, task.postprocess_retries + 1,
+                'UPDATE download_task SET postprocess_state=?,postprocess_detail=?,postprocess_detail_code=?,'
+                'postprocess_detail_params=?,postprocess_retries=?,next_check_at=? WHERE id=?',
+                (POSTPROCESS_PENDING, detail, *columns(detail), task.postprocess_retries + 1,
                  iso((time.time() if now is None else now) + delay), task_id))
         return True
 
@@ -767,7 +789,7 @@ class DownloadSettings:
                 if not known:
                     raise UserValueError("errors.downloads.notPikpakRootNoneDeclared", {"root": root})
                 raise UserValueError("errors.downloads.notPikpakRoot",
-                                     {"root": root, "known": "、".join(known.values())})
+                                     {"root": root, "known": list(known.values())})
             root = known[root.casefold()]
         try:
             hours = int(body.get("wait_hours") or DEFAULT_WAIT_HOURS)
@@ -1040,7 +1062,7 @@ class DownloadService:
         task.postprocess_retries = 0
         self.store.save(task)
         self.store.postprocess(task.id, POSTPROCESS_PENDING,
-                               detail=interface_text.text("server:labels.downloads.postprocessRequeued"))
+                               detail=Said("labels.downloads.postprocessRequeued"))
         task = self.store.get(task.id)
         self._dispatch_postprocess(task)
         return self.store.get(task.id)
@@ -1102,7 +1124,7 @@ class DownloadService:
             except Exception:
                 LOGGER.exception("Reconciliation failed for cloud download task %s", task.id)
                 self._reschedule(task, self.clock(),
-                                 interface_text.text("server:labels.downloads.reconcileUnexpected"))
+                                 Said("labels.downloads.reconcileUnexpected"))
         return len(due)
 
     def advance(self, task: DownloadTask) -> None:

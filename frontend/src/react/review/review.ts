@@ -14,7 +14,7 @@ import { selectRange } from '../../selection';
 import { queryClient } from '../query';
 import { localTime } from '../time';
 import { t } from '../../i18n';
-import { partsLabel, type TextPart } from '../../core/server-text';
+import { codedText, partsLabel, type TextPart } from '../../core/server-text';
 
 export const REVIEW_URL = '/api/review';
 export const REVIEW_DECISION_URL = '/api/review/decision';
@@ -55,7 +55,11 @@ export const ENTITY_REVIEW_KINDS: Partial<Record<ReviewCategory, string>> = {
 /** 默认每页 20 张；接口读取整条队列，页面按所选数量挂载候选表单。 */
 export const REVIEW_PAGE_SIZE = 20;
 
-export interface CatalogEvidence { display_value?: string; warnings?: string[] }
+/** 来源顺带交回的一项旁证：`display_value`、`warnings` 是 zh-CN 原句，旁边的 code 与参数给当前语言。 */
+export interface CatalogEvidence {
+  display_value?: string; display_value_code?: string; display_value_params?: Record<string, unknown>;
+  warnings?: string[]; warning_codes?: (string | null)[]; warning_params?: (Record<string, unknown> | null)[];
+}
 
 /** 一个来源给出的候选值。选中它就是把 `display_value` 写进数据库。 */
 export interface ReviewCandidate {
@@ -66,6 +70,8 @@ export interface ReviewCandidate {
   provider_id?: string;
   display_value?: string;
   warnings?: string[];
+  warning_codes?: (string | null)[];
+  warning_params?: (Record<string, unknown> | null)[];
   /** 同一来源顺带交回来的其它字段，只作判断依据。 */
   catalog_evidence?: Record<string, CatalogEvidence>;
   /** 静态词表还没收录的 genre。 */
@@ -140,6 +146,8 @@ export interface ReviewMirror {
   origin?: string | null;
   fetched_at?: string | null;
   error?: string | null;
+  error_code?: string | null;
+  error_params?: Record<string, unknown> | null;
   read_only?: boolean;
 }
 
@@ -425,5 +433,5 @@ export function mirrorText(
 ): string {
   if (mirror?.state === 'live') return t('manage:reviewQueue.mirrorLive');
   if (mirror?.state === 'cached') return t('manage:reviewQueue.mirrorCached', { time: localTime(mirror.fetched_at) });
-  return mirror?.error || readOnlyMessage;
+  return (mirror?.error ? codedText(mirror, 'error') : '') || readOnlyMessage;
 }

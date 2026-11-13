@@ -16,7 +16,7 @@ import { Button } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend, errorMessage } from '../../api';
 import { javTitleParts } from '../../core/jav-title';
-import { serverLabel } from '../../core/server-text';
+import { codedText, serverLabel } from '../../core/server-text';
 import { entityDisplayName } from '../../core/entity-names';
 import { useEntityNames } from '../use-entity-names';
 import type { DownloadsSnapshot, DownloadTask } from '../bundle';
@@ -66,11 +66,11 @@ const postprocessLabel = (task: DownloadTask) =>
 export const failureText = (task: DownloadTask) => {
   if (!task.failure_label) return '';
   const label = serverLabel(`download.failure.${task.failure}`, task.failure_label);
-  return task.failure_detail ? t('shell:format.labelValue', { label, value: task.failure_detail }) : label;
+  return task.failure_detail ? t('shell:format.labelValue', { label, value: codedText(task, 'failure_detail') }) : label;
 };
 
-// 服务端的入库后处理说明是中文原文（后端文案阶段再本地化），这里只把两句内部用语换成用户读得懂的说法。
-const postprocessDetail = (task: DownloadTask) => (task.postprocess_detail || '')
+// 入库后处理说明按 code 取当前语言（旧任务只有中文原文）；中文里的两句内部用语换成用户读得懂的说法。
+const postprocessDetail = (task: DownloadTask) => codedText(task, 'postprocess_detail')
   .replace('正片已绑定', '已确认主视频对应的作品') // i18n-exempt: 改写服务端返回的中文说明
   .replace('整理跳过：', '未整理文件：'); // i18n-exempt: 改写服务端返回的中文说明
 
@@ -125,7 +125,7 @@ function TaskCard({ task, writable }: { task: DownloadTask; writable: boolean })
   const titleId = useId();
   /* 还在对账的任务没有失败分类：暂时性故障只记下原因、退避后再查，底栏照样把它读出来。 */
   const reason = failureText(task)
-    || (task.cancellable && task.failure_detail ? t('manage:downloadsPanel.retryLater', { detail: task.failure_detail }) : '');
+    || (task.cancellable && task.failure_detail ? t('manage:downloadsPanel.retryLater', { detail: codedText(task, 'failure_detail') }) : '');
   const artwork = task.artwork;
   const people = artwork?.performer_entities || [];
   const detailHref = task.state === 'ingested' && task.asset_id ? `/assets/${task.asset_id}` : undefined;

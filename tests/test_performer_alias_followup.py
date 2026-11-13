@@ -772,10 +772,10 @@ class RevertTests(Case):
                 "--source", alias.SOURCE]
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(revert.main([*base, "--batch", f"{alias.SOURCE}@8"]), 0)
-        self.assertIn("'别名': 0", printed.getvalue())
+        self.assertIn("'aliases': 0", printed.getvalue())
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(revert.main(base), 0)
-        self.assertIn("'别名': 4", printed.getvalue())
+        self.assertIn("'aliases': 4", printed.getvalue())
         self.assertEqual(len(self.aliases(momoka)), 5)
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(revert.main(

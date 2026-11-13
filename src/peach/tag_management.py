@@ -6,6 +6,7 @@ import json
 from datetime import datetime, timezone
 
 from .catalog_rules import canonical_tag_name, clean_tag_name, tag_cat
+from .catalog_vocabulary import PERFORMER_TAG_PREFIX
 from .entities import _transfer_favorites, merge_entity, normalize_entity_name
 from .metadata_policy import SOURCE_SPECS
 from .user_messages import UserValueError
@@ -80,7 +81,7 @@ def _ids(body: dict) -> list[int]:
 
 def _validate_rename(rows, ids, name):
     """改名须对应一个有效名称，并避开其他实体及其别名。"""
-    if len(ids) != 1 or not name or len(name) > 80 or name.startswith('演员:'):
+    if len(ids) != 1 or not name or len(name) > 80 or name.startswith(PERFORMER_TAG_PREFIX):
         raise UserValueError('errors.tagManagement.nameInvalid')
     key = normalize_entity_name(canonical_tag_name(name))
     for row in rows:

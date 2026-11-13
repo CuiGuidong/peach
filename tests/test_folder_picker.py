@@ -45,7 +45,7 @@ class CommandTests(unittest.TestCase):
         self.assertIn("dialog.Show(IntPtr.Zero)", script, "不挂所有者窗口：透明置顶的 Form 会把对话框一起藏起来")
         self.assertIn("SetWindowPos(window, new IntPtr(-1)", script, "后台服务进程没有前台权，对话框要自己置顶")
         self.assertNotIn("System.Windows.Forms", script)
-        self.assertIn(f"Pick('{folder_picker.PROMPT}', $env:PEACH_PICK_INITIAL)", script)
+        self.assertIn(f"Pick('{folder_picker.prompt()}', $env:PEACH_PICK_INITIAL)", script)
         self.assertEqual(env, {"PEACH_PICK_INITIAL": r"D:\Media"})
 
     def test_windows_powershell_is_found_under_the_system_root_not_through_path(self):

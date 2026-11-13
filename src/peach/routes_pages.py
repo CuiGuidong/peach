@@ -186,6 +186,12 @@ def _normal_url(config) -> str:
     return f"https://{config.server.mdns_name}.local/"
 
 
+def _ledger_migrating(request: Request) -> bool:
+    """服务启动时正在迁移账本（`api.LedgerMigration`）：页面壳照给，但不读账本。"""
+    migration = getattr(request.app.state, "ledger_migration", None)
+    return bool(migration is not None and migration.running)
+
+
 def asset_response(request: Request, path: Path, media: str, *, immutable: bool = False) -> Response:
     """页面资产与图标用 ETag 复验，`/board.css`、`/dist/`、图标共用。
 
@@ -332,7 +338,8 @@ def index(request: Request, args: dict[str, str] = Depends(require_page_auth)):
     html = settings.page_path.read_text(encoding="utf-8")
     from .web_tutorial import q_tutorial_progress
     try:
-        if q_tutorial_progress(request.app.state.web_contract)['completed']:
+        # 启动迁移期间不读账本：页面壳照给，教程入口按未完成显示。
+        if not _ledger_migrating(request) and q_tutorial_progress(request.app.state.web_contract)['completed']:
             html = html.replace('id="tutorialBtn"', 'id="tutorialBtn" hidden', 1)
     except sqlite3.Error:
         # 账本不可读时仍可进入配置；教程客户端保留“未取得状态”的提示与重试入口。
@@ -982,7 +989,8 @@ def settings_section_route(request: Request, section: str,
 @router.api_route("/tags/{name:path}", methods=["GET", "HEAD"])
 def entity_route(request: Request, name: str,
                  args: dict[str, str] = Depends(require_page_auth)):
-    if not request.app.state.settings.configured:
+    if not request.app.state.settings.configured or _ledger_migrating(request):
+        # 启动迁移期间不查实体：给页面壳，页面自己的请求会拿到「正在更新本地数据库」。
         return index(request, args)
     from .web_entity import INDEX_ENTITY_KINDS, entity_id_redirect, entity_page_shape
 

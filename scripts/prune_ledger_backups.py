@@ -70,7 +70,10 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{verb} {len(decided.remove)} 份加 {len(decided.orphans)} 个无主副文件，"
               f"约 {decided.removable_bytes / 1_048_576:.0f} MB")
         if decided.refused:
-            print(f"拒绝清退：{decided.refused}")
+            from peach import interface_text
+            # 拒绝原因是一句带 code 的话，按 zh-CN 渲染后打印（脚本输出的语言另起一批再改）。
+            code, params = decided.refused["code"], decided.refused.get("params")
+            print(f"拒绝清退：{interface_text.text(f'server:{code}', params)}")
     return 2 if decided.refused else 0
 
 

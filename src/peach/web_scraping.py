@@ -9,6 +9,7 @@ from PIL import Image
 from .scraping_access import SOURCES, SourcePaused, SourceTransport, describe, save
 
 from . import interface_text
+from .coded_text import coded
 from .source_checks import check_source
 from .user_messages import UserValueError, failure_fields
 
@@ -238,7 +239,7 @@ def w_scraping_amane_check(contract, body):
     """只读 GitHub API 问上游最新 release。取不到就是「未取得」；升不升级由人读 diff 决定。"""
     from . import metadata_amane, peach_proxy
     latest = metadata_amane.latest_upstream_tag(peach_proxy.client_options(contract.follow_secrets_root))
-    return {"ok": True, "latest": latest, "checked_at": time.time()}
+    return {"ok": True, **coded("latest", latest), "checked_at": time.time()}
 
 
 def w_scraping_amane_rebuild(contract, body):

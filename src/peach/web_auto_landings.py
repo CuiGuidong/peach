@@ -261,7 +261,7 @@ def w_auto_landing_revert(contract: WebContract, body):
         results = [auto_landing_revert.apply(connection, planned) for planned in plans]
     contract.cache_bust()
     return {"ok": True, "items": keys,
-            "restored": sum(result["还原核查覆盖"] for result in results),
-            "removed_tags": sum(result["删除核查并集标签"] for result in results),
-            "decisions": sum(result["删除核查决定"] for result in results),
+            "restored": sum(result["restored_verified"] for result in results),
+            "removed_tags": sum(result["deleted_verified_tags"] for result in results),
+            "decisions": sum(result["deleted_verified_decisions"] for result in results),
             "changed": summary["changed"], "backup": backup.name}

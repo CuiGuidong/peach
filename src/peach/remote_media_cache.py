@@ -13,7 +13,7 @@ from starlette.responses import Response, StreamingResponse
 
 from .fsutil import atomic_path, atomic_write_text
 from .streaming import BufferedFileResponse
-from .user_messages import UserFacingError, UserOSError
+from .user_messages import UserFacingError, UserOSError, nested_message
 
 AVATAR_REFRESH_SECONDS = 90 * 86400
 FAVICON_REFRESH_SECONDS = 365 * 86400
@@ -57,7 +57,7 @@ class RemoteMediaCache:
             try:
                 self.capacity_guard.check()
             except DiskSpaceDenied as error:
-                raise RemoteMediaUnavailable("errors.remoteMediaCache.capacityDenied", {"detail": str(error)}) from error
+                raise RemoteMediaUnavailable("errors.remoteMediaCache.capacityDenied", {"detail": nested_message(error)}) from error
 
     def folder(self, key: str) -> Path:
         return self.root / hashlib.sha256(key.encode()).hexdigest()
@@ -130,7 +130,7 @@ class RemoteMediaCache:
             upstream = fetch()
             if not passive_media_type(upstream.headers.get('content-type','')):
                 close()
-                return Response('媒体响应类型不受支持',status_code=502,media_type='text/plain',
+                return Response('unsupported media response type',status_code=502,media_type='text/plain',
                                 headers={'cache-control':'no-store',**MEDIA_SECURITY_HEADERS})
             forwarded = {name: upstream.headers[name] for name in MEDIA_HEADERS if name in upstream.headers}
             forwarded.update({'cache-control':'private, no-cache', **(headers or {}), **MEDIA_SECURITY_HEADERS})

@@ -751,7 +751,7 @@ class RemoteReportingTests(unittest.TestCase):
             made = library_processing._generate_previews(self.config, [row], mock.Mock(),
                 update=mock.Mock(), issue=issue, guard=mock.Mock())
         self.assertEqual(made, 0)
-        self.assertIn('FFmpeg', issue.call_args.args[1])
+        self.assertIn('FFmpeg', library_processing.phrase_text(issue.call_args.args[1]))
         self.assertTrue(issue.call_args.kwargs['retryable'])
         send.assert_not_called()
 

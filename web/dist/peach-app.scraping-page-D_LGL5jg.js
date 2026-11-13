@@ -1,10 +1,10 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "4634c33d-f103-4140-b5dc-d622075c59f0", e._sentryDebugIdIdentifier = "sentry-dbid-4634c33d-f103-4140-b5dc-d622075c59f0");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "784803cd-a25c-446a-9d9d-680f5867aea7", e._sentryDebugIdIdentifier = "sentry-dbid-784803cd-a25c-446a-9d9d-680f5867aea7");
 	} catch {}
 })();
-import { $fe21c36db05242bb$export$d7b12c4107be0d61 as e, AMANE_BRIDGE_CHECK_URL as t, AMANE_BRIDGE_KEY as n, AMANE_BRIDGE_REBUILD_URL as r, Button as i, CHECK_ALL_KEY as a, COVER_JOB_KEY as o, CUSTOM_SOURCES_KEY as s, CUSTOM_SOURCES_URL as c, Checkbox as l, Disclosure as u, ErrorText as d, ExternalLink as f, Fact as p, FactList as m, FieldLabel as h, Footer as g, Help as _, Input as v, IssueRow as y, LinkButton as ee, LoadingDots as b, Note as x, Progress as S, Rows as te, SCRAPING_CHECK_ALL_URL as C, SCRAPING_CHECK_URL as ne, SCRAPING_COVER_URL as w, SCRAPING_KEY as T, SCRAPING_SETTINGS_URL as re, SEGMENT as ie, SEGMENTED_TRACK as ae, Section as E, SegmentedRadioGroup as oe, Select$1 as se, SelectField as D, SelectItem as ce, SettingsRow as le, Stack as O, StatusLabel as k, __toESM as A, apiSend as j, busyProps as M, checkText as ue, codedText as N, composingKey as P, confirmModal as de, errorMessage as F, esc as I, fetchAmaneBridge as L, fetchCheckAllJob as R, fetchCoverJob as z, fetchCustomSources as fe, fetchSources as pe, i2 as me, interfaceLanguage as he, jobText as B, joinList as ge, momentText as _e, partsLabel as ve, queryClient as V, require_jsx_runtime as ye, require_react as be, serverLabel as xe, spinnerHtml as Se, t as H, useAction as U, useBackgroundJob as W, useMutation as G, useQuery as K } from "./peach-app.js";
+import { $fe21c36db05242bb$export$d7b12c4107be0d61 as e, AMANE_BRIDGE_CHECK_URL as t, AMANE_BRIDGE_KEY as n, AMANE_BRIDGE_REBUILD_URL as r, Button as i, CHECK_ALL_KEY as a, COVER_JOB_KEY as o, CUSTOM_SOURCES_KEY as s, CUSTOM_SOURCES_URL as c, Checkbox as l, Disclosure as u, ErrorText as d, ExternalLink as f, Fact as p, FactList as m, FieldLabel as h, Footer as g, Help as _, Input as v, IssueRow as y, LinkButton as ee, LoadingDots as b, Note as x, Progress as S, Rows as te, SCRAPING_CHECK_ALL_URL as C, SCRAPING_CHECK_URL as ne, SCRAPING_COVER_URL as w, SCRAPING_KEY as T, SCRAPING_SETTINGS_URL as re, SEGMENT as ie, SEGMENTED_TRACK as ae, Section as E, SegmentedRadioGroup as oe, Select$1 as se, SelectField as D, SelectItem as ce, SettingsRow as le, Stack as O, StatusLabel as k, __toESM as A, apiSend as j, busyProps as M, checkText as ue, codedText as N, composingKey as P, confirmModal as de, errorMessage as F, esc as fe, fetchAmaneBridge as I, fetchCheckAllJob as L, fetchCoverJob as R, fetchCustomSources as z, fetchSources as pe, i2 as me, interfaceLanguage as he, jobText as B, joinList as ge, momentText as _e, partsLabel as ve, queryClient as V, require_jsx_runtime as ye, require_react as be, serverLabel as xe, spinnerHtml as Se, t as H, useAction as U, useBackgroundJob as W, useMutation as G, useQuery as K } from "./peach-app.js";
 import { ConnectionStatus as Ce } from "./peach-app.connection-status-BrXhLGSm.js";
 import { Page as q } from "./peach-app.page-QAncjzM1.js";
 import { SiteMark as J } from "./peach-app.site-mark-D_VlIyJz.js";
@@ -40,7 +40,7 @@ var Y = /* @__PURE__ */ A(be(), 1), X = ye(), Te = [
 function Oe({ receipt: e }) {
 	let [t, n] = (0, Y.useState)(null), r = K({
 		queryKey: s,
-		queryFn: ({ signal: e }) => fe(e)
+		queryFn: ({ signal: e }) => z(e)
 	}), a = U(), o = (e) => V.setQueryData(s, e), l = !!(r.isPending || r.error || r.data?.items.length || a.error), u = /* @__PURE__ */ (0, X.jsx)(i, {
 		variant: "secondary",
 		onClick: () => n(De()),
@@ -87,7 +87,7 @@ function Oe({ receipt: e }) {
 							variant: "danger",
 							onClick: () => de({
 								title: H("manage:customSources.deleteTitle"),
-								body: H("manage:customSources.deleteBody", { name: I(t.name) }),
+								body: H("manage:customSources.deleteBody", { name: fe(t.name) }),
 								confirmLabel: H("manage:customSources.deleteConfirm"),
 								danger: !0,
 								onConfirm: async () => {
@@ -273,11 +273,11 @@ function Pe({ source: t, toast: n }) {
 				sources: t.sources.map((t) => t.source === e.saved.source ? e.saved : t)
 			}), C(), n(H(t ? "manage:sourceSettings.cookieRevoked" : "manage:sourceSettings.saved"));
 		}
-	}), D = G({ mutationFn: () => j(ne, { source: t.source }) }), A = w.isPending || D.isPending, N = (e) => {
+	}), D = G({ mutationFn: () => j(ne, { source: t.source }) }), A = w.isPending || D.isPending, P = (e) => {
 		e.preventDefault(), A || (D.reset(), w.mutate(!1));
-	}, P = () => {
-		A || (D.reset(), w.mutate(!0));
 	}, de = () => {
+		A || (D.reset(), w.mutate(!0));
+	}, fe = () => {
 		A || (w.reset(), D.mutate());
 	};
 	async function I(e) {
@@ -293,8 +293,8 @@ function Pe({ source: t, toast: n }) {
 	}
 	let L = y || (w.error ? F(w.error) : "") || (D.error ? F(D.error) : ""), R = D.data?.results ?? [], z = r === "peach" || t.accepts_cookie || t.browser || !!L || R.length > 0;
 	return /* @__PURE__ */ (0, X.jsxs)(E, {
-		title: t.label,
-		onSubmit: N,
+		title: N(t, "label"),
+		onSubmit: P,
 		aside: /* @__PURE__ */ (0, X.jsxs)("span", {
 			className: "flex min-w-0 items-center gap-1",
 			children: [/* @__PURE__ */ (0, X.jsx)(J, { source: t.source }), t.login ? /* @__PURE__ */ (0, X.jsx)(f, {
@@ -414,7 +414,7 @@ function Pe({ source: t, toast: n }) {
 							children: [/* @__PURE__ */ (0, X.jsx)(Ce, {
 								tone: e.ok ? "success" : "error",
 								children: e.ok ? H("manage:sourceSettings.reachable") : H("manage:sourceSettings.connectionFailed")
-							}), /* @__PURE__ */ (0, X.jsx)("span", { children: ue(e, t.label) })]
+							}), /* @__PURE__ */ (0, X.jsx)("span", { children: ue(e, N(t, "label")) })]
 						})
 					}, e.label))
 				]
@@ -422,13 +422,13 @@ function Pe({ source: t, toast: n }) {
 			/* @__PURE__ */ (0, X.jsxs)(g, { children: [
 				t.accepts_cookie && t.cookie_saved ? /* @__PURE__ */ (0, X.jsx)(i, {
 					variant: "secondary",
-					onClick: P,
+					onClick: de,
 					...M(A),
 					children: H("manage:sourceSettings.revokeCookie")
 				}) : null,
 				/* @__PURE__ */ (0, X.jsx)(i, {
 					variant: "secondary",
-					onClick: de,
+					onClick: fe,
 					...M(A),
 					children: H("manage:sourceSettings.testConnection")
 				}),
@@ -457,12 +457,13 @@ var Fe = {
 	"skipped"
 ];
 function Ie(e, t) {
-	return t.label === "来源页面" ? e.label : H("manage:connectionCheck.hdImages", { source: e.label });
+	let n = N(e, "label");
+	return t.target === "cdn" ? H("manage:connectionCheck.hdImages", { source: n }) : n;
 }
 function Le({ toast: e }) {
 	let { job: t, running: n, start: r, query: o } = W({
 		queryKey: a,
-		queryFn: ({ signal: e }) => R(e),
+		queryFn: ({ signal: e }) => L(e),
 		start: () => j(C, {}),
 		onFinish: (t) => {
 			V.invalidateQueries({
@@ -517,7 +518,7 @@ function Le({ toast: e }) {
 					return t ? /* @__PURE__ */ (0, X.jsxs)(k, {
 						tone: Fe[e],
 						children: [
-							c.find(({ check: t }) => t.outcome === e)?.check.outcome_label,
+							N(c.find(({ check: t }) => t.outcome === e)?.check, "outcome_label"),
 							" ",
 							t
 						]
@@ -532,10 +533,10 @@ function Le({ toast: e }) {
 						className: "flex flex-wrap items-center gap-2",
 						children: [/* @__PURE__ */ (0, X.jsx)(k, {
 							tone: Fe[n.outcome],
-							children: n.outcome_label
+							children: N(n, "outcome_label")
 						}), n.message ? /* @__PURE__ */ (0, X.jsx)("span", {
 							className: "text-body-2-regular text-text-secondary",
-							children: n.message
+							children: N(n, "message")
 						}) : null]
 					})
 				}, t))
@@ -562,7 +563,7 @@ var $ = (e) => xe(e.result_code ?? "", e.result ?? "", e.result_params), Re = (e
 function ze({ toast: e }) {
 	let [t, n] = (0, Y.useState)(""), { running: r, outcome: a, start: s, query: c } = W({
 		queryKey: o,
-		queryFn: ({ signal: e }) => z(e),
+		queryFn: ({ signal: e }) => R(e),
 		start: () => j(w, { code: t }),
 		onFinish: (t) => {
 			t.status === "complete" && e($(t) || H("manage:hdCover.fetched"));
@@ -614,7 +615,7 @@ function ze({ toast: e }) {
 function Be({ toast: e }) {
 	let { query: a, running: o, outcome: s, start: c } = W({
 		queryKey: n,
-		queryFn: ({ signal: e }) => L(e),
+		queryFn: ({ signal: e }) => I(e),
 		start: () => j(r, {}),
 		jobOf: (e) => e.job,
 		withJob: (e, t) => e && {
@@ -650,7 +651,7 @@ function Be({ toast: e }) {
 				}),
 				/* @__PURE__ */ (0, X.jsx)(p, {
 					term: H("manage:amaneRuntime.latestVersion"),
-					children: l.data?.latest ?? H("manage:amaneRuntime.notChecked")
+					children: l.data ? N(l.data, "latest") : H("manage:amaneRuntime.notChecked")
 				}),
 				/* @__PURE__ */ (0, X.jsx)(p, {
 					term: H("manage:amaneRuntime.runtime"),
@@ -668,7 +669,7 @@ function Be({ toast: e }) {
 						summary: H("manage:amaneRuntime.showSites"),
 						children: /* @__PURE__ */ (0, X.jsx)("p", {
 							className: "text-body-2-regular text-text-secondary",
-							children: ge(d.sites.map((e) => e.label))
+							children: ge(d.sites.map((e) => N(e, "label")))
 						})
 					}) : null,
 					d.problem ? /* @__PURE__ */ (0, X.jsx)(x, {
@@ -733,4 +734,4 @@ function Ve({ toast: e }) {
 }
 export { Ve as ScrapingPage, je as linkHost, Ae as networkOptions };
 
-//# debugId=4634c33d-f103-4140-b5dc-d622075c59f0
+//# debugId=784803cd-a25c-446a-9d9d-680f5867aea7

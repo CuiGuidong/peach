@@ -311,11 +311,11 @@ class FollowupTests(LedgerCase):
                 "--source", sample_images.SOURCE]
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(revert.main(base), 0)
-        self.assertIn("'样张': 1", printed.getvalue())
+        self.assertIn("'samples': 1", printed.getvalue())
         self.assertEqual(len(self.rows()), 1, "只列计划不删")
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(revert.main([*base, "--apply", "--backup", str(self.root / "backup.db")]), 0)
-        self.assertIn("'删除样张': 1", printed.getvalue())
+        self.assertIn("'deleted_samples': 1", printed.getvalue())
         self.assertEqual(self.rows(), [])
 
 

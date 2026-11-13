@@ -1203,8 +1203,8 @@ class UpgradeRepairTests(unittest.TestCase):
         self.service.prepare()
         planned, result = self.revert_garbled_people(upgrade_repairs.REVISION)
         # 实体行、它的别名与编号、另一位被摘的编号、两条关联、一个标签。
-        self.assertEqual(auto_landing_revert.counts(planned)['乱码人物'], 7)
-        self.assertEqual(result['插回乱码人物行'], 7)
+        self.assertEqual(auto_landing_revert.counts(planned)['garbled'], 7)
+        self.assertEqual(result['restored_garbled_rows'], 7)
         self.assertEqual((self.performer_links(), self.asset_tags()), (links, tags))
         with self.database.read_connection() as connection:
             self.assertEqual([tuple(row) for row in connection.execute(
@@ -1213,7 +1213,7 @@ class UpgradeRepairTests(unittest.TestCase):
                              entity)
             self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
         planned, result = self.revert_garbled_people()
-        self.assertEqual((planned['garbled'], result['插回乱码人物行']), ([], 0))
+        self.assertEqual((planned['garbled'], result['restored_garbled_rows']), ([], 0))
 
     def test_garbled_people_revert_refuses_when_the_entity_name_is_taken(self):
         with patch.object(upgrade_repairs, 'REVISION', f'{upgrade_repairs.CATALOG_REVISION}:text-3'):
@@ -1844,7 +1844,7 @@ class UpgradeRepairTests(unittest.TestCase):
             planned = auto_landing_revert.plan(connection, upgrade_repairs.JAVDB_RECORDS_SOURCE,
                                                logo_root=self.root / 'logos', cover_root=self.root / 'covers')
             self.assertEqual(len(planned['javdb_records']), 4)
-            self.assertEqual(auto_landing_revert.apply(connection, planned)['还原 JavDB 类型与订阅'], 4)
+            self.assertEqual(auto_landing_revert.apply(connection, planned)['restored_javdb_records'], 4)
         self.assertEqual(pages(1, '森日向子'), ['https://javdb.com/actors/bkxd', 'https://javdb.com/actors/MmbDR'])
         self.service.prepare()
         with self.database.read_connection() as connection:
@@ -1888,7 +1888,7 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.database.write_transaction() as connection:
             planned = auto_landing_revert.plan(connection, upgrade_repairs.RESOLUTION_TAGS_SOURCE,
                                                logo_root=self.root / 'logos', cover_root=self.root / 'covers')
-            self.assertEqual(auto_landing_revert.apply(connection, planned)['插回来源分辨率标签'], 4)
+            self.assertEqual(auto_landing_revert.apply(connection, planned)['restored_resolution_tags'], 4)
         self.assertEqual(tagged(), before)
         self.service.prepare()
         self.assertEqual(tagged(), before)
@@ -2144,12 +2144,40 @@ class UpgradeRepairTests(unittest.TestCase):
             connection.execute("DELETE FROM schema_migration WHERE version='0048'")
         self.contract.upgrade_repairs = self.service
         settings = SimpleNamespace(db_path=self.db)
-        service = Mock()
+        service, migration, seen = Mock(), api.LedgerMigration(), []
+        report = migration.report
+
+        def record(stage, progress):
+            report(stage, progress)
+            seen.append(migration.payload())
+        migration.report = record
         with patch.object(api, '_restore_task_center'), patch('peach.web_job_recovery.restore'), patch.object(
                 config, 'MIGRATIONS_DIR', Path(__file__).resolve().parents[1] / 'migrations'):
-            self.assertTrue(api._start_ledger_services(settings, self.contract, [service]))
+            self.assertTrue(api._start_ledger_services(settings, self.contract, [service], migration))
         service.start.assert_called_once()
         self.assertEqual(len(list(self.root.glob('ledger.pre-schema-*.db'))), 1)
+        # 状态接口在备份时读到阶段与百分比，执行迁移脚本时只读到阶段；做完回到 idle。
+        self.assertEqual((seen[0], seen[-1]), ({'state': 'running', 'stage': 'backup', 'progress': 0},
+                                               {'state': 'running', 'stage': 'apply'}))
+        self.assertIn({'state': 'running', 'stage': 'backup', 'progress': 100}, seen)
+        self.assertEqual(migration.payload(), {'state': 'idle'})
+
+    def test_failed_startup_migration_keeps_services_stopped_and_reports_why(self):
+        from peach import api, config
+        with self.database.write_transaction() as connection:
+            connection.execute("DELETE FROM schema_migration WHERE version='0056'")
+        self.contract.upgrade_repairs = self.service
+        migration, service = api.LedgerMigration(), Mock()
+        with (patch('peach.migrations.upgrade', side_effect=RuntimeError('foreign key violations')),
+              patch.object(api, '_restore_task_center'), patch('peach.web_job_recovery.restore'),
+              patch.object(config, 'MIGRATIONS_DIR', Path(__file__).resolve().parents[1] / 'migrations'),
+              self.assertLogs('peach.api', level='ERROR')):
+            self.assertFalse(api._start_ledger_services(SimpleNamespace(db_path=self.db), self.contract, [service], migration))
+        service.start.assert_not_called()
+        payload = migration.payload()
+        self.assertEqual((payload['state'], payload['message_code']), ('failed', 'api.ledger.migrationFailed'))
+        self.assertIn('foreign key violations', payload['message'])
+        self.assertEqual(self.service.error, 'foreign key violations')
 
     def test_media_dispatch_is_bounded_and_rechecks_deferred_cost(self):
         from peach.settings_file import load_config
@@ -2407,6 +2435,60 @@ class LedgerActivationTests(unittest.IsolatedAsyncioTestCase):
                 service = api._configure_upgrade_repairs(SimpleNamespace(configured=True, db_path=database), contract, None)
             self.assertFalse(service.available)
             self.assertFalse(service.root.exists())
+
+    async def test_pending_schema_migrates_in_the_background_after_the_service_starts_listening(self):
+        from unittest.mock import AsyncMock
+        from peach.api import _LedgerActivation
+        app = SimpleNamespace(state=SimpleNamespace())
+        settings = SimpleNamespace(configured=True, db_path=Path('unused.db'))
+        contract = SimpleNamespace(upgrade_repairs=SimpleNamespace(error='', available=True))
+        automatic, sharing = Mock(), Mock()
+        activation = _LedgerActivation(app, settings, contract, (), automatic, sharing)
+        release, seen = threading.Event(), []
+
+        def migrate(_settings, _contract, _services, migration):
+            seen.append(migration.state)
+            release.wait(5)
+            migration.state = 'idle'
+            return True
+        with patch('peach.api._installation_in_progress', return_value=False), patch(
+                'peach.api._migration_pending', return_value=True), patch(
+                'peach.api._start_ledger_services', side_effect=migrate), patch(
+                'peach.api._warm_ledger_aggregates', new=AsyncMock()) as warm:
+            self.assertFalse(await activation.start())
+            self.assertTrue(app.state.ledger_migration.running)
+            self.assertFalse(app.state.ledger_background_ready)
+            release.set()
+            await activation.task
+        self.assertEqual(seen, ['running'])
+        self.assertEqual(app.state.ledger_migration.payload(), {'state': 'idle'})
+        self.assertTrue(app.state.ledger_background_ready)
+        sharing.start.assert_called_once()
+        warm.assert_awaited_once()
+        await activation.stop()
+
+    async def test_background_migration_failure_is_reported_and_workers_stay_stopped(self):
+        from peach import interface_text
+        from peach.api import _LedgerActivation
+        app = SimpleNamespace(state=SimpleNamespace())
+        settings = SimpleNamespace(configured=True, db_path=Path('unused.db'))
+        contract = SimpleNamespace(upgrade_repairs=SimpleNamespace(error='', available=True))
+        activation = _LedgerActivation(app, settings, contract, (), Mock(), Mock())
+
+        def migrate(_settings, _contract, _services, migration):
+            migration.fail(RuntimeError('disk full'))
+            return False
+        with patch('peach.api._installation_in_progress', return_value=False), patch(
+                'peach.api._migration_pending', return_value=True), patch(
+                'peach.api._start_ledger_services', side_effect=migrate):
+            self.assertFalse(await activation.start())
+            await activation.task
+        payload = app.state.ledger_migration.payload()
+        self.assertEqual(payload['state'], 'failed')
+        self.assertFalse(app.state.ledger_background_ready)
+        self.assertEqual(interface_text.text(f"server:{payload['message_code']}", payload['message_params'], 'en'),
+                         "The local database couldn't be updated, so background tasks didn't start: disk full")
+        await activation.stop()
 
     async def test_successful_retry_restarts_workers_once_after_prepare_failure(self):
         from peach.api import _LedgerActivation

@@ -32,7 +32,7 @@ class MigrationTests(unittest.TestCase):
                                    [(index, index) for index in range(1, 1501)])
             connection.commit()
             asset = connection.execute('SELECT * FROM asset').fetchall()
-        self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0052', '0053', '0054', '0055'])
+        self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0052', '0053', '0054', '0055', '0056'])
         with closing(sqlite3.connect(self.db)) as connection:
             self.assertEqual(connection.execute('SELECT * FROM asset').fetchall(), asset)
             self.assertEqual(connection.execute('SELECT count(*) FROM task_run').fetchone()[0], 1500)
@@ -57,7 +57,7 @@ class MigrationTests(unittest.TestCase):
                                "VALUES(1,'local','a.mp4','a.mp4','video',2)")
             connection.commit()
             asset = connection.execute('SELECT * FROM asset').fetchall()
-        self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0054', '0055'])
+        self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0054', '0055', '0056'])
 
         def revision(connection):
             return connection.execute("SELECT n FROM ledger_revision WHERE tbl='asset'").fetchone()[0]
@@ -71,6 +71,37 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(revision(connection), before + 1)
             connection.execute("UPDATE asset SET rating=80 WHERE id=1")
             self.assertEqual(revision(connection), before + 2)
+
+    def test_stored_text_code_columns_keep_old_rows_as_plain_text(self):
+        previous = self.root / 'previous-text'
+        previous.mkdir()
+        for path in MIGRATIONS.glob('*.sql'):
+            if path.name < '0056_':
+                shutil.copyfile(path, previous / path.name)
+        upgrade(self.db, previous)
+        tables = {'download_task': ('failure_detail', 'postprocess_detail'), 'download_submission': ('detail',),
+                  'feed_source': ('last_error',), 'follow_source': ('last_error',)}
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            connection.execute("INSERT INTO download_task(id,provider,source_uri,target,state,updated_at,failure_detail,"
+                               "postprocess_detail) VALUES(1,'115','magnet:?xt=1','/Movies','failed','t','旧失败原因','旧整理说明')")
+            connection.execute("INSERT INTO download_submission(task_id,provider,source_uri,target,outcome,detail,created_at) "
+                               "VALUES(1,'115','magnet:?xt=1','/Movies','failed','旧提交原因','t')")
+            connection.execute("INSERT INTO feed_source(kind,url,last_error,created_at) VALUES('rss','https://a.test','旧拉取原因','t')")
+            connection.execute("INSERT INTO follow_source(provider,ref,label,url,last_error,created_at,updated_at) "
+                               "VALUES('kemono','a','A','https://b.test','旧检查原因','t','t')")
+            before = {table: connection.execute(f'SELECT * FROM {table}').fetchall() for table in tables}
+        self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0056'])
+        with closing(sqlite3.connect(self.db)) as connection:
+            for table, fields in tables.items():
+                names = [row[1] for row in connection.execute(f'PRAGMA table_info({table})')]
+                added = [f'{field}_{part}' for field in fields for part in ('code', 'params')]
+                self.assertEqual(names[-len(added):], added)
+                kept = ','.join(name for name in names if name not in added)
+                self.assertEqual(connection.execute(f'SELECT {kept} FROM {table}').fetchall(), before[table])
+                self.assertEqual(connection.execute(f"SELECT {','.join(added)} FROM {table}").fetchall(),
+                                 [(None,) * len(added)])
+            self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+        self.assertEqual(upgrade(self.db, MIGRATIONS), [])
 
     def test_foreign_key_failure_rolls_back_data_schema_and_migration_record(self):
         directory = self.root / 'boundary-migrations'
@@ -103,7 +134,7 @@ class MigrationTests(unittest.TestCase):
                 [('creator_tags', state, state, '本人', '旧记录', 'old') for state in ('approved', 'rejected', 'skipped')])
             connection.commit()
             before = connection.execute('SELECT * FROM review_decision ORDER BY item_key').fetchall()
-            self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0050', '0051', '0052', '0053', '0054', '0055'])
+            self.assertEqual([item.version for item in upgrade(self.db, MIGRATIONS)], ['0050', '0051', '0052', '0053', '0054', '0055', '0056'])
             self.assertEqual(connection.execute('SELECT * FROM review_decision ORDER BY item_key').fetchall(), before)
             self.assertEqual(connection.execute('SELECT COUNT(*) FROM review_decision_history').fetchone()[0], 0)
             def revision():
@@ -146,7 +177,7 @@ class MigrationTests(unittest.TestCase):
             assets = connection.execute('SELECT * FROM asset').fetchall()
             tags = connection.execute('SELECT * FROM asset_tag').fetchall()
             self.assertEqual(len(connection.execute('PRAGMA foreign_key_check').fetchall()), 4)
-            self.assertEqual([m.version for m in upgrade(self.db, MIGRATIONS)], ['0049', '0050', '0051', '0052', '0053', '0054', '0055'])
+            self.assertEqual([m.version for m in upgrade(self.db, MIGRATIONS)], ['0049', '0050', '0051', '0052', '0053', '0054', '0055', '0056'])
             self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
             self.assertEqual(connection.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
             self.assertEqual(connection.execute('SELECT id,parent_run_id,root_run_id FROM task_run ORDER BY id').fetchall(),
@@ -172,7 +203,7 @@ class MigrationTests(unittest.TestCase):
             connection.execute("INSERT INTO asset(id,location,path,medium,disposal) VALUES(1,'local','sample.mp4','video','trash')")
             connection.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'示例','user')")
             connection.commit()
-            self.assertEqual([migration.version for migration in upgrade(self.db, MIGRATIONS)], ['0046', '0047', '0048', '0049', '0050', '0051', '0052', '0053', '0054', '0055'])
+            self.assertEqual([migration.version for migration in upgrade(self.db, MIGRATIONS)], ['0046', '0047', '0048', '0049', '0050', '0051', '0052', '0053', '0054', '0055', '0056'])
             self.assertEqual(connection.execute("SELECT disposal,disposal_reason FROM asset WHERE id=1").fetchone(), ('trash', None))
             self.assertEqual(connection.execute("SELECT tag,source FROM asset_tag WHERE asset_id=1").fetchall(), [('示例', 'user')])
             self.assertEqual(connection.execute("SELECT count(*) FROM asset").fetchone()[0], 1)
@@ -191,7 +222,7 @@ class MigrationTests(unittest.TestCase):
         sqlite3.connect(self.db).close()
         backup = self.root / "before.db"
         done = upgrade(self.db, MIGRATIONS, backup)
-        self.assertEqual([m.version for m in done], [f'{number:04d}' for number in range(56)])
+        self.assertEqual([m.version for m in done], [f'{number:04d}' for number in range(57)])
         self.assertTrue(backup.exists())
         con = sqlite3.connect(self.db)
         tables = {row[0] for row in con.execute(
@@ -209,9 +240,25 @@ class MigrationTests(unittest.TestCase):
                          "asset_tag_preference", "asset_search", "follow_playback",
                          "genre_decision", "asset_subtitle", "task_run", "performer_profile", "code_sample_image",
                          "entity_classification", "entity_identity_link", "seed_pack_history", "schema_migration"} <= tables)
-        self.assertEqual(versions, [f'{number:04d}' for number in range(56)])
+        self.assertEqual(versions, [f'{number:04d}' for number in range(57)])
         self.assertEqual(upgrade(self.db, MIGRATIONS), [])
         self.assertEqual(plan(self.db, MIGRATIONS)[1], [])
+
+    def test_backup_reports_page_progress_before_the_scripts_run(self):
+        """带进度的升级按页复制备份、逐步报百分比，开始执行迁移脚本时再报一次 `apply`。"""
+        from unittest.mock import patch
+        with closing(sqlite3.connect(self.db)) as connection:
+            connection.execute("CREATE TABLE filler (body BLOB)")
+            connection.executemany("INSERT INTO filler VALUES (?)", ((bytes(4000),) for _ in range(40)))
+            connection.commit()
+        reports = []
+        with patch("peach.migrations.BACKUP_PAGES", 8):
+            upgrade(self.db, MIGRATIONS, self.root / "before.db", progress=lambda *report: reports.append(report))
+        backup = [percent for stage, percent in reports if stage == "backup"]
+        self.assertEqual((backup[0], backup[-1], reports[-1]), (0, 100, ("apply", None)))
+        self.assertGreater(len(backup), 4)
+        self.assertEqual(backup, sorted(backup))
+        self.assertEqual([stage for stage, _ in reports].count("apply"), 1)
 
     def test_old_schema_columns_are_reconciled(self):
         con = sqlite3.connect(self.db)

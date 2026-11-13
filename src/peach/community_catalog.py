@@ -224,7 +224,7 @@ def _unverified(pool: list[Picture], usable: int, fetched: int,
     origins = sorted({one.origin for one in pool})
     if len(origins) > 1:
         # 几家都答了、图都下到了，只是互相对不上：再问还是这几张，交 `NotFound` 让采集任务记住。
-        raise _settled("errors.communityCatalog.mismatch", missed, {"origins": '、'.join(origins)})
+        raise _settled("errors.communityCatalog.mismatch", missed, {"origins": origins})
     allowed = [one for one in pool if not is_javdb_image(one.candidate.url)]
     if not allowed:
         raise _settled(NO_UNWATERMARKED, missed)

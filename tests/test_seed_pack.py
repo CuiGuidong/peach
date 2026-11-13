@@ -388,8 +388,8 @@ class ImportTests(SeedPackCase):
         base = ["--db", str(db), "--source", "auto:seed", "--logo-root", str(self.root / "no-logos")]
         with contextlib.redirect_stdout(io.StringIO()) as out:
             self.assertEqual(revert.main(base), 0)
-        self.assertIn("'归属': 1", out.getvalue())
-        self.assertIn("'片商': 1", out.getvalue())
+        self.assertIn("'memberships': 1", out.getvalue())
+        self.assertIn("'makers': 1", out.getvalue())
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(revert.main([*base, "--apply", "--backup", str(self.root / "backup.db")]), 0)
         con = connect(db)

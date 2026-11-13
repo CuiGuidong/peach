@@ -11,6 +11,7 @@ import { Note } from '../components/note';
 import { Disclosure, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import type { LibraryGroup, LibraryItem } from './diagnostics';
+import { codedText } from '../../core/server-text';
 import { t } from '../../i18n';
 
 const identity = (item: LibraryItem) => item.title || item.name || item.code || t('manage:healthList.videoFallback', { id: item.id });
@@ -24,6 +25,7 @@ export function HealthList({ group, openItem, receipt }: {
   group: LibraryGroup; openItem(id: number): void; receipt(message: string): void;
 }) {
   const action = useAction();
+  const label = codedText(group, 'label');
   const [selected, setSelected] = useState<string[]>([]);
   const tints = useLibraryTints({ names: true });
   const libraryName = (item: LibraryItem) => tints.get(item.library_id || '')?.name || LOC[item.location] || item.location;
@@ -50,7 +52,7 @@ export function HealthList({ group, openItem, receipt }: {
     { id: 'size', label: t('manage:shared.size'), width: 112, value: item => item.size ?? 0,
       render: item => item.size !== null ? fmtSize(item.size) : t('manage:shared.notFound') },
   ];
-  return <Disclosure summary={group.count === null ? `${group.label} · ${t('manage:shared.notFound')}` : t('manage:healthList.groupSummary', { label: group.label, count: group.count })}>
+  return <Disclosure summary={group.count === null ? `${label} · ${t('manage:shared.notFound')}` : t('manage:healthList.groupSummary', { label, count: group.count })}>
     {group.count === null ? <Note tone="neutral">{t('manage:healthList.listNotFound')}</Note> : !group.items.length
       ? <EmptyState icon={RiFileListLine} title={t('manage:healthList.emptyTitle')} size="compact">{t('manage:healthList.emptyBody')}</EmptyState>
       : <Stack>
@@ -62,7 +64,7 @@ export function HealthList({ group, openItem, receipt }: {
             onClick={() => copy(group.items)}>{t('manage:healthList.copyList')}</Button>
         </div>
         {action.error ? <Note tone="error">{action.error}</Note> : null}
-        <DataTable label={group.label} title={t('manage:healthList.tableTitle')} unit={t('manage:healthList.tableUnit')} panel={false}
+        <DataTable label={label} title={t('manage:healthList.tableTitle')} unit={t('manage:healthList.tableUnit')} panel={false}
           items={group.items} columns={columns} rowId={item => String(item.id)} rowLabel={identity}
           selected={selected} onSelected={setSelected}
           actions={items => <Button size="small" variant="secondary" {...busyProps(action.busy === 'copy')}

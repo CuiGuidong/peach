@@ -20,6 +20,7 @@ from . import (
     web_settings, web_wants,
 )
 from .catalog_rules import normalise_code_key
+from .coded_text import Said, from_error
 from .followups import Attempts, attempts_root
 from .jobs import TaskRunConflict
 from .http import HttpRequest, public_https_url
@@ -133,7 +134,7 @@ def poll_source(contract, transport, source) -> dict:
         if retry_at is not None:
             report["paused"] = True
         with contract.database.write_transaction() as connection:
-            feeds.settle(connection, source_id, error=str(error),
+            feeds.settle(connection, source_id, error=from_error(error),
                          interval_minutes=interval, retry_at=retry_at)
         return report
     if response.status == _NOT_MODIFIED:
@@ -143,16 +144,15 @@ def poll_source(contract, transport, source) -> dict:
         _backfill_solo_works(contract, transport, source, report)
         return report
     if response.status != 200:
-        # 源那一行的 `last_error` 只有一列原文，存 code 要改表，见延后清单；结果行带 code。
-        failure = _reason("api.feeds.sourceHttpStatus", status=response.status)
-        report.update(ok=False, **failure)
+        failure = Said("api.feeds.sourceHttpStatus", status=response.status)
+        report.update(ok=False, error=str(failure), error_code=failure.code, error_params=dict(failure.params))
         with contract.database.write_transaction() as connection:
-            feeds.settle(connection, source_id, error=failure["error"], interval_minutes=interval)
+            feeds.settle(connection, source_id, error=failure, interval_minutes=interval)
         return report
     try:
         parsed = _parse_source(source["kind"], response.body, source["url"])
     except ValueError as error:
-        message = str(error)
+        message = from_error(error)
         report.update(ok=False, **_failure(error))
         with contract.database.write_transaction() as connection:
             feeds.settle(connection, source_id, error=message, interval_minutes=interval)
@@ -192,7 +192,7 @@ def _poll_dmm(contract, transport, source, report: dict) -> dict:
             works = site.actress_works(feeds.dmm_actress_id(source["url"]), session=session,
                                        known=known, limit=feeds.MAX_ENTRIES)
     except Exception as error:  # noqa: BLE001 - 原因写到源那一行上给人看
-        message = error.message if isinstance(error, SourceFailure) else str(error)
+        message = from_error(error)
         report.update(ok=False, **{**_failure(error), "error": message},
                       reason=str(error.reason) if isinstance(error, SourceFailure) else None)
         # 和演员页同一条：整站冷却挡回来的，冷却一过就重拉（ADR-0134）。
@@ -767,10 +767,9 @@ def _discovery_performers(connection, contract, rows) -> dict[int, list[dict]]:
 
 
 def cover_state_fields(states: dict, code: str) -> dict:
-    """新作卡封面格的两个字段：`cover_state`（`fetching`／`queued`／`missing`，有封面时为 None）与原因。
-    首页这一行和 JAV 页「新作」「发现」两个分区共用同一份口径。"""
-    state, reason = states.get(normalise_code_key(code), (None, ""))
-    return {"cover_state": state, "cover_reason": reason}
+    """新作卡封面格的字段：`cover_state`（`fetching`／`queued`／`missing`，有封面时为 None）与原因
+    （`feed_followup.cover_state_fields`）。首页这一行和 JAV 页「新作」「发现」两个分区共用同一份口径。"""
+    return feed_followup.cover_state_fields(states, code)
 
 
 def q_feed_discoveries(contract, args) -> dict:

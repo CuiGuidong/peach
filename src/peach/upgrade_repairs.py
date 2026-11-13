@@ -23,7 +23,7 @@ from .task_outcomes import joined, part, render, said
 from .task_runs import MAX_FOLLOWUPS, run_error, run_progress
 from .task_stages import stage_code, stage_label
 from .update_tasks import UpdateBusy
-from .user_messages import UserRuntimeError, UserValueError
+from .user_messages import UserRuntimeError, UserValueError, nested_message
 
 LOGGER = logging.getLogger(__name__)
 TASK_KEY = 'upgrade-repairs'
@@ -260,9 +260,22 @@ def _media_progress(state: dict, key: str, **params) -> dict:
     return {'label': label, 'code': None, 'params': {}}
 
 
+def _coded(code: str, params: dict | None = None, *, key: str = 'message') -> dict:
+    """`<key>` 是 zh-CN 原文，旁边是 `<key>_code` 与 `<key>_params`（ADR-0159）。"""
+    values = dict(params or {})
+    return {key: interface_text.text(f'server:{code}', values), f'{key}_code': code, f'{key}_params': values}
+
+
+def _paused_phrase(paused: dict) -> dict | str:
+    """影片补全暂停回执里的那一句，作为另一句的参数。"""
+    if paused.get('message_code'):
+        return {'code': paused['message_code'], 'params': paused.get('message_params') or {}}
+    return str(paused.get('message', ''))
+
+
 def _title(row) -> str:
     """任务中心里这一条写哪部片：有番号写番号，没有就写文件名。"""
-    return str(row['code'] or row['name'] or f'影片 {row["id"]}')
+    return str(row['code'] or row['name'] or interface_text.text('server:labels.upgradeRepairs.video', {'id': row['id']}))
 
 
 def _legacy_display_rows(display: dict) -> list[dict]:
@@ -713,7 +726,7 @@ def _catalog_plan(connection, sources: Path, *, catalog: bool = True) -> dict:
     aliases = composite_alias_repair.collect(connection)
     for row in aliases:
         if is_protected(row['source']):
-            row.update(verdict='review', note='人工别名保持原样')
+            row.update(verdict='review', note=interface_text.text('server:labels.upgradeRepairs.manualAliasKept'))
     return {'codes': codes, 'fields': fields, 'names': names, 'aliases': aliases,
             'text': text, 'catalog': True}
 
@@ -775,6 +788,8 @@ class UpgradeRepairs:
         self.contract, self.available = contract, available
         self.config = config
         self.error = ''
+        #: `error` 那一句的 `{code, params}`（带 code 的异常），没有时是原文。
+        self.error_phrase: dict | str = ''
         self.stopping = threading.Event()
         self.root = Path(contract.follow_state_root) / 'upgrade-repairs'
         self.scheduler = BackgroundScheduler(timezone='UTC', daemon=True)
@@ -789,9 +804,9 @@ class UpgradeRepairs:
         try:
             receipt = _read(self.receipt)
         except (OSError, ValueError, TypeError):
-            return {'state': 'failed', 'items': [{'id': 'receipt', 'label': '更新后自动处理', 'state': 'failed',
-                                                 'message': '更新后的处理记录无法读取'}],
-                    'available': True, 'message': '处理记录无法读取，请重试'}
+            return {'state': 'failed', 'items': [{'id': 'receipt', **_coded('labels.upgradeRepairs.item.receipt', key='label'),
+                                                 'state': 'failed', **_coded('labels.upgradeRepairs.receiptUnreadable')}],
+                    'available': True, **_coded('labels.upgradeRepairs.receiptRetry')}
         local = receipt.get('local', {})
         queued = receipt.get('queued', {})
         runs = self._run_states(queued.values())
@@ -807,12 +822,20 @@ class UpgradeRepairs:
         state = 'failed' if self.error or paused else 'running' if active else 'failed' if failed else (
             'running' if waiting else 'review' if review else
             'complete' if receipt.get('dispatch_complete') and local else 'pending')
-        items = [{'id': REVISION, 'label': '更新已有资料', 'state': local.get('state', 'pending'),
+        items = [{'id': REVISION, **_coded('labels.upgradeRepairs.item.existing', key='label'), 'state': local.get('state', 'pending'),
                   'changed': local.get('changed', {}), 'review_count': review},
-                 {'id': 'background', 'label': '后台更新进度', 'state': state,
+                 {'id': 'background', **_coded('labels.upgradeRepairs.item.background', key='label'), 'state': state,
                   'pending': active, 'failed': failed, 'deferred': waiting, 'queued': len(queued)}]
-        return {'state': state, 'items': items, 'available': self.available,
-                'message': self.error or paused.get('message', '')}
+        return {'state': state, 'items': items, 'available': self.available, **self._message(paused)}
+
+    def _message(self, paused: dict) -> dict:
+        """快照里那一句：派发出错或影片补全暂停的原因；`message` 是 zh-CN 原文，旁边带 code。"""
+        if self.error:
+            phrase = self.error_phrase
+            return _coded(phrase['code'], phrase['params']) if isinstance(phrase, dict) else {'message': self.error}
+        if paused.get('message_code'):
+            return _coded(paused['message_code'], paused.get('message_params'))
+        return {'message': paused.get('message', '')}
 
     def _item_counts(self) -> dict[str, int]:
         """状态表里等用户决定的失败、到时间会自己重派的（延后与退避中的失败）各几条。
@@ -1297,7 +1320,7 @@ class UpgradeRepairs:
         try:
             self._settle_verification_once()
         except Exception as exc:
-            self.error = str(exc)
+            self.error, self.error_phrase = str(exc), nested_message(exc)
             LOGGER.exception('Verification difference settlement failed')
 
     def _settle_verification_once(self) -> None:
@@ -1504,7 +1527,7 @@ class UpgradeRepairs:
                     if dispatched is None:
                         return
                 self._save_receipt(receipt, [('dispatch', dispatched)])
-                self.error = ''
+                self.error, self.error_phrase = '', ''
             self.contract.followups.wake()
         except Timeout:
             return
@@ -1512,7 +1535,7 @@ class UpgradeRepairs:
             # 装更新或闸门正忙：这一轮不派，下一分钟再看，不算派发失败。
             return
         except Exception as exc:
-            self.error = str(exc)
+            self.error, self.error_phrase = str(exc), nested_message(exc)
             LOGGER.exception('Upgrade repair dispatch failed')
 
     def _settle_queue(self, receipt) -> list[dict] | None:
@@ -1671,7 +1694,7 @@ class UpgradeRepairs:
             with self.contract.database.write_transaction(notify=False) as connection:
                 connection.execute("UPDATE ledger_upgrade_item SET state='pending',attempts=0,retry_at=NULL,"
                                    "updated_at=? WHERE state IN ('failed','deferred')", (str(time.time()),))
-            self.error = ''
+            self.error, self.error_phrase = '', ''
         from . import task_control
         from .update_tasks import _mutex, state_for
         with _mutex(state_for(self.contract.db_path)):
@@ -1716,7 +1739,7 @@ class UpgradeRepairs:
             with _mutex(state_for(self.contract.db_path)):
                 ids = [row['id'] for row in rows if task_control.requested(
                     self.contract.db_path, row['id'], (row['parent_run_id'], row['root_run_id'])) == 'resume']
-                receipt['media_paused'] = {'message': f'{error}；影片自动补全已暂停，请检查缓存后显式重试',
+                receipt['media_paused'] = {**_coded('labels.upgradeRepairs.mediaPaused', {'error': nested_message(error)}),
                                            'run_ids': ids, 'commands': {}}
                 self._save_receipt(receipt)
                 for run_id in ids:
@@ -1749,7 +1772,7 @@ class UpgradeRepairs:
 def _media_run(contract, key: str, handle) -> dict:
     # 旧队列保留撤下状态，新规则拥有独立回执。
     if f':{upgrade_rules.DISPLAY_DIMENSIONS}:' in key:
-        return {'outcome': 'skipped', 'reason': '已停用自动显示尺寸重探，保留已有测量和预览'}
+        return {'outcome': 'skipped', **_coded('labels.upgradeRepairs.displayProbeRetired', key='reason')}
     if f':{upgrade_rules.DISPLAY_DIMENSIONS_SAR}:' in key:
         return _display_run(contract, key, handle)
     if batch_members(key) is not None:
@@ -1770,14 +1793,14 @@ def _media_run(contract, key: str, handle) -> dict:
     service = getattr(contract, 'upgrade_repairs', None)
     with contract.database.read_connection() as connection:
         found = connection.execute('SELECT id,code,name,path FROM asset WHERE id=?', (asset_id,)).fetchone()
-    title = _title(found) if found else f'影片 {asset_id}'
+    title = _title(found) if found else interface_text.text('server:labels.upgradeRepairs.video', {'id': asset_id})
     def active():
         return service is None or not service.stopping.is_set()
     try:
         if service is not None:
             paused = _read(service.receipt).get('media_paused')
             if paused:
-                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': paused['message']})
+                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': _paused_phrase(paused)})
         if found is not None and mount_unreachable(found['path']):
             return _defer(contract, key, handle, [asset_id],
                           RepairDeferred('deferMountMedia', MOUNT_RETRY_SECONDS))
@@ -1839,7 +1862,7 @@ def _batch_run(contract, key: str, handle) -> dict:
         if service is not None:
             paused = _read(service.receipt).get('media_paused')
             if paused:
-                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': paused['message']})
+                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': _paused_phrase(paused)})
         if targets:
             guard = CapacityGuard(config)
             guard.check(force=True)
@@ -1920,7 +1943,7 @@ def _display_run(contract, key: str, handle) -> dict:
         if service is not None:
             paused = _read(service.receipt).get('media_paused')
             if paused:
-                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': paused['message']})
+                raise DiskSpaceDenied('errors.upgradeRepairs.mediaPaused', {'message': _paused_phrase(paused)})
         handle.progress(**stage_label('upgrade.displayDimensionsAll'))
         result = display_dimensions_repair.reprobe(contract, config, asset_id, checkpoint=available,
                                                    expected_generation=key.rsplit(':', 2)[1],
@@ -1961,4 +1984,4 @@ def _pause_for_capacity(service, handle, error):
     raise CapacityPaused(error.code, error.params) from error
 
 
-TYPE = register(FollowupType(MEDIA_TASK, '更新影片资料', True, _media_run))
+TYPE = register(FollowupType(MEDIA_TASK, interface_text.text('server:stage.upgrade.updateMetadata'), True, _media_run))

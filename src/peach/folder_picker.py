@@ -45,7 +45,13 @@ _LOCK = threading.Lock()
 #: 用户在对话框里翻多久都行，但进程不能被一个忘了关的窗口永久占住。
 DIALOG_TIMEOUT_SECONDS = 15 * 60
 
-PROMPT = "选择媒体目录"
+#: 对话框标题的 code（ADR-0159）：对话框开在这台电脑上，跟本机语言。
+PROMPT_CODE = "labels.folderPicker.prompt"
+
+
+def prompt() -> str:
+    from . import interface_text
+    return interface_text.text(f"server:{PROMPT_CODE}", None, interface_text.local_language())
 
 #: osascript 没法弹窗的错误码：-1713 当前会话不允许用户交互，-1743 未获自动化授权。
 _MACOS_NO_DIALOG = frozenset({"-1713", "-1743"})
@@ -109,8 +115,9 @@ namespace PeachPick {
     static extern bool SetWindowPos(IntPtr window, IntPtr insertAfter, int x, int y, int width, int height, uint flags);
     [DllImport("user32.dll")]
     static extern bool SetForegroundWindow(IntPtr window);
-    // 服务进程在后台，Windows 不给它前台权：对话框会开在浏览器后面。等它的窗口
-    // 出现后置顶（SetWindowPos 到 HWND_TOPMOST 不需要前台权），模态窗关掉即消失。
+    // The server runs in the background and Windows won't give it the foreground, so the dialog
+    // would open behind the browser. Once its window appears, make it topmost (SetWindowPos to
+    // HWND_TOPMOST needs no foreground rights); it goes away when the modal dialog closes.
     static void Raise(string title) {
       for (int attempt = 0; attempt < 200; attempt++) {
         var window = FindWindow("#32770", title);
@@ -157,7 +164,7 @@ Add-Type -TypeDefinition @'
 '@
 $picked = [PeachPick.Picker]::Pick('@PROMPT@', $env:PEACH_PICK_INITIAL)
 if ($picked) { [Console]::Out.Write($picked) }
-""".replace("@INTEROP@", _WINDOWS_INTEROP.strip()).replace("@PROMPT@", PROMPT)
+""".replace("@INTEROP@", _WINDOWS_INTEROP.strip())
 
 
 def _applescript_string(text: str) -> str:
@@ -175,11 +182,13 @@ def _windows_powershell() -> str:
 def command(initial: str | None, platform: str = sys.platform) -> tuple[list[str], dict[str, str]]:
     """这个平台弹对话框的命令行，以及要附加的环境变量。"""
     if platform == "win32":
-        encoded = base64.b64encode(_WINDOWS_SCRIPT.encode("utf-16-le")).decode("ascii")
+        # 标题放进 PowerShell 单引号字符串：单引号写两次。
+        script = _WINDOWS_SCRIPT.replace("@PROMPT@", prompt().replace("'", "''"))
+        encoded = base64.b64encode(script.encode("utf-16-le")).decode("ascii")
         argv = [_windows_powershell(), "-NoProfile", "-NonInteractive", "-STA", "-EncodedCommand", encoded]
         return argv, {"PEACH_PICK_INITIAL": initial or ""}
     if platform == "darwin":
-        script = f'choose folder with prompt "{_applescript_string(PROMPT)}"'
+        script = f'choose folder with prompt "{_applescript_string(prompt())}"'
         if initial and os.path.isdir(initial):
             script += f' default location POSIX file "{_applescript_string(initial)}"'
         return ["osascript", "-e", f"POSIX path of ({script})"], {}

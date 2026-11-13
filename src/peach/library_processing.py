@@ -34,7 +34,7 @@ from .library_nfo import sidecars, SidecarIndex
 from .media_io import directory_files, read_nfo, local_art, root_online, directory_entries, file_stat
 from .genre_decisions import load_genre_decisions
 from .metadata import (candidate_text_is_valid, source_text_is_valid,
-                       extract_catalog_evidence, extract_peach_fields, relay_args, relayed,
+                       extract_catalog_evidence, extract_peach_fields, relay_args,
                        validate_provider_code)
 from . import metadata_routes
 from . import media_identity
@@ -62,6 +62,7 @@ from .processing_control import (task_control, bind_control, checkpoint_values,
                                  deadline_after, resume_fields, processing_item, ItemSkipped)
 from .task_stages import stage as stage_fields, stage_code
 from .user_messages import UserFacingError, UserInterruptedError, UserOSError, UserValueError
+from . import interface_text
 
 
 def translate_ledger_path(raw):
@@ -72,8 +73,12 @@ def translate_ledger_path(raw):
 FIELDS = ('item_key', 'code', 'query', 'asset_id', 'asset_path', 'field', 'field_label', 'current_value',
           'candidates_json', 'source_count', 'source_profile', 'policy_version', 'status',
           'size_gb', 'videos', 'fetched_at')
-LABELS = dict(title='标题', original_title='原标题', performers='演员', studio='厂牌',
-              series='系列', release_date='发行日期', tags='内容标签')
+#: 采集字段的显示名（`server.json` 的 code，与自动写入页同一份）。候选表的 `field_label` 列存按 zh-CN 渲染的原文。
+FIELD_CODES = {'title': 'labels.webAutoLandings.fieldTitle', 'original_title': 'labels.webAutoLandings.fieldOriginalTitle',
+               'performers': 'labels.webAutoLandings.fieldPerformers', 'studio': 'labels.webAutoLandings.fieldStudio',
+               'series': 'labels.webAutoLandings.fieldSeries', 'release_date': 'labels.webAutoLandings.fieldReleaseDate',
+               'tags': 'labels.webAutoLandings.fieldTags'}
+LABELS = {field: interface_text.text(f'server:{code}') for field, code in FIELD_CODES.items()}
 
 #: 状态里最多保留这么多条问题；完整问题写在任务专属 JSONL 里，接口分页读取。
 ISSUE_PREVIEW_LIMIT = 20
@@ -121,6 +126,10 @@ SOURCE_LABELS = {'r18dev': 'r18.dev', 'dmm': 'DMM / FANZA', 'avbase': 'AVBase', 
                  # av_name 只由 `scrape_codes` 点名。
                  'sougouwiki': '素人系総合 Wiki', 'av_neme': 'このAV女優の名前教えてwiki',
                  'av_name': 'AV女優の名前特定wiki'}
+#: `SOURCE_LABELS` 里要随界面语言换写法的几项：放进句子时用 `source_name` 交嵌套的那一句。
+SOURCE_NAME_CODES = {'1pondo': 'labels.libraryProcessing.source.onePondo',
+                     'local_nfo': 'labels.libraryProcessing.source.localNfo',
+                     'makers': 'labels.libraryProcessing.source.makers'}
 PROVIDER_NAMES = {'local_nfo': 'local-nfo', 'r18dev': 'r18-json', 'dmm': 'dmm-graphql', 'avbase': 'avbase-search',
                   'javbus': 'javbus-page', 'javdb': 'javdb-api', 'fc2': 'fc2-article',
                   'fc2cmadb': 'fc2cmadb-article', 'fc2ppvdb': 'fc2ppvdb-page', 'javten': 'javten-page',
@@ -131,6 +140,44 @@ PROVIDER_NAMES = {'local_nfo': 'local-nfo', 'r18dev': 'r18-json', 'dmm': 'dmm-gr
                   'fc2club': 'amane-fc2club',
                   'freejavbt': 'amane-freejavbt', 'airav': 'amane-airav', 'avsox': 'amane-avsox',
                   'sougouwiki': 'sougouwiki', 'av_neme': 'av_neme', 'av_name': 'av_name'}
+
+
+def phrase(code, params=None):
+    """问题项与汇总句里的一句：`{code, params}`，与 `interface_text.nested` 同形，可以再嵌进别的句子当参数。"""
+    return {'code': code, 'params': dict(params or {})}
+
+
+def phrase_text(said):
+    """一句的 zh-CN 原文：`phrase` 按资源渲染，纯文本（异常原文、文件名）原样。"""
+    if isinstance(said, dict):
+        return interface_text.text(f"server:{said['code']}", said.get('params'))
+    return str(said)
+
+
+def joined_phrases(phrases):
+    """几处原因连成一句：`errors.libraryProcessing.problems` 一层套一层，分隔符在资源里，各语言自己定。"""
+    said = phrases[-1]
+    for head in reversed(phrases[:-1]):
+        said = phrase('errors.libraryProcessing.problems', {'first': head, 'rest': said})
+    return said
+
+
+def source_name(source):
+    """放进句子的来源名：要翻译的那几项是嵌套的一句，别的是站名原文。"""
+    code = SOURCE_NAME_CODES.get(source)
+    return phrase(code) if code else SOURCE_LABELS.get(source, source)
+
+
+def said_of(error):
+    """异常写进问题项与参数：带 code 的交 `phrase`，别的交原文。"""
+    return phrase(error.code, error.params) if isinstance(error, UserFacingError) else str(error)
+
+
+def _error_fields(said):
+    """状态里的失败原因：`error` 是 zh-CN 原文，`error_code`／`error_params` 供界面翻译；没有原因时一起清空。"""
+    if not said:
+        return {'error': '', 'error_code': None, 'error_params': None}
+    return {'error': phrase_text(said), 'error_code': said['code'], 'error_params': dict(said.get('params') or {})}
 
 
 def is_missing(error):
@@ -169,11 +216,13 @@ def _unreached(problems):
     """几处没问成的原因 `[(原因, 是否冷却)]` 合成一个异常：全是冷却就是本趟没轮到（`SourcePaused`），
     有一处是别的原因就是 `Unavailable`。
 
-    每处原因已是问题清单那一句（`describe_failure`），这里只用「；」连起来转述，不再有自己的 code。"""
+    每处原因已是问题清单那一句（`describe_failure` 给的 `phrase`）；一处就照搬它的 code，
+    几处按 `joined_phrases` 连成一句，每处仍是自己的 code 与参数。"""
     from .jav_cover_fetch import Unavailable
     from .scraping_access import SourcePaused
     kind = SourcePaused if all(paused for _, paused in problems) else Unavailable
-    return kind(*relayed('；'.join(text for text, _ in problems)))
+    said = joined_phrases([said for said, _ in problems])
+    return kind(said['code'], said['params'])
 
 
 def _fc2_official_images(payload):
@@ -253,18 +302,18 @@ def _said_no(code, sites):
 
 
 def describe_failure(error):
-    """把来源失败写成问题清单里能直接读懂的一句。"""
+    """把来源失败写成问题清单里能直接读懂的一句（`phrase`）。"""
     import httpx
     from .avatar_picker import PickerError
     from .jav_cover_fetch import Unavailable
     from .scraping_access import SourcePaused
     text = str(error).strip()
     if isinstance(error, (Unavailable, SourceFailure)) and text.startswith('HTTP '):
-        return f'来源返回 {text}'
-    # 这几个的消息本来就是写给人看的，原样用；别的只报类型，免得把内部细节贴到界面上。
+        return phrase('errors.libraryProcessing.sourceReturned', {'status': text})
+    # 这几个的消息本来就是写给人看的，照用；别的只报类型，免得把内部细节贴到界面上。
     if isinstance(error, (Unavailable, SourceFailure, SourcePaused, PickerError, httpx.TransportError)) and text:
-        return text
-    return f'处理出错（{type(error).__name__}）'
+        return phrase(*relay_args(error))
+    return phrase('errors.libraryProcessing.processingError', {'type': type(error).__name__})
 
 
 def _source_failure_details(error, code, action, *, source=None):
@@ -275,12 +324,29 @@ def _source_failure_details(error, code, action, *, source=None):
                   'automatic_retry_delay': transient_delay(error), **exception_facts(error)})
 #: 来源说「没有」不是待办：馆藏里本来就有大量独立资源和创作者作品，任何目录站都收不到
 #: 它们。逐条记在日志里备查，界面只按这两类各报一个数（`state['notes']`），不进问题清单。
-MISS_MESSAGES = {'querying_metadata': '外部来源没有这部片的资料，7 天内不再问',
-                 'fetching_cover': '外部来源没有这部片的封面，7 天内不再问'}
-#: 日志里的写法反查回上面的键，界面按键取自己的短标签。
-NOTE_KEYS = {message: key for key, message in MISS_MESSAGES.items()}
+MISS_MESSAGES = {'querying_metadata': phrase('errors.libraryProcessing.missMetadata'),
+                 'fetching_cover': phrase('errors.libraryProcessing.missCover')}
+#: 日志里的 code 反查回上面的键，界面按键取自己的短标签。
+NOTE_KEYS = {said['code']: key for key, said in MISS_MESSAGES.items()}
 #: 外网不通时要出网的那些行不去问，直接记这一句；联网之后可以重试（`network_reachability`）。
-OFFLINE_MESSAGE = '外部资料未取得：连不上外网'
+OFFLINE_MESSAGE = phrase('errors.libraryProcessing.offline')
+
+
+def _note_key(record):
+    """这条记录是哪一类告知项，不是就返回 None。升级前的日志只有原文，按 zh-CN 渲染的那句认。"""
+    code = record.get('message_code')
+    if code:
+        return NOTE_KEYS.get(code)
+    message = record.get('message')
+    return next((key for key, said in MISS_MESSAGES.items() if message == phrase_text(said)), None)
+
+
+def _message_fields(message):
+    """问题项那一句写进记录的字段：`phrase` 存 zh-CN 原文与 `message_code`／`message_params`，纯文本只存原文。"""
+    if isinstance(message, dict):
+        return {'message': phrase_text(message), 'message_code': message['code'],
+                'message_params': dict(message.get('params') or {})}
+    return {'message': str(message)}
 
 #: 状态文件与候选 CSV 的落盘节流。页面轮询读的是内存里的任务快照，文件只为进程没了
 #: 之后还能看到最后状态；候选 CSV 随处理进度越写越大，每条资产都重写一遍是平方级开销。
@@ -474,12 +540,12 @@ class LibraryMetadataProvider:
                                   else peach_proxy.client_options(self.secrets_root), direct_sites=direct_sites)
         except Exception as error:  # noqa: BLE001 - 桥没装、venv 坏了、超时：整档未取得，原因给人看
             _raise_task_failure(error)
-            return Unavailable('errors.libraryProcessing.amaneBridgeFailed',
-                               {'error': str(error).strip() or describe_failure(error)})
+            said = said_of(error) if isinstance(error, UserFacingError) else str(error).strip() or describe_failure(error)
+            return Unavailable('errors.libraryProcessing.amaneBridgeFailed', {'error': said})
         raw_sites = report.get('sites')
         raw_sites = raw_sites if isinstance(raw_sites, dict) else {}
         reports = {site: raw_sites[site] if isinstance(raw_sites.get(site), dict) else {
-            'status': 'failed', 'reason': 'parse_error', 'detail': '桥未返回有效的来源记录',
+            'status': 'failed', 'reason': 'parse_error', 'detail': 'bridge returned no record for this site',
         } for site in sites}
         found, failures = metadata_amane.split_report(code, {**report, 'sites': reports})
         for site, result in reports.items():
@@ -503,8 +569,9 @@ class LibraryMetadataProvider:
             return found
         if not problems:
             return _said_no('errors.libraryProcessing.amaneSitesSaidNo', sites)
-        # 一站出错就照搬它的 code；几站都出错时把各站那一句用「；」连起来转述。
-        said = relay_args(problems[0]) if len(problems) == 1 else relayed('；'.join(map(str, problems)))
+        # 一站出错就照搬它的 code；几站都出错时按 `joined_phrases` 连成一句，每站仍是自己的 code。
+        combined = joined_phrases([phrase(*relay_args(problem)) for problem in problems])
+        said = combined['code'], combined['params']
         # 出错的站全都进了冷却，这一档就是「本趟没轮到」；只要有一站是别的原因就是「未取得」。
         if held and held == len(problems):
             return SourcePaused(*said)
@@ -559,9 +626,10 @@ class LibraryMetadataProvider:
                 if is_missing(error):
                     said_no.append(source)
                     continue
-                text = describe_failure(error)
-                problems.append((text if text.startswith(SOURCE_LABELS[source]) else f'{SOURCE_LABELS[source]}：{text}',
-                                 source_paused(error)))
+                said = describe_failure(error)
+                problems.append((said if phrase_text(said).startswith(SOURCE_LABELS[source]) else phrase(
+                    'errors.libraryProcessing.sourceProblem', {'source': source_name(source), 'problem': said}),
+                    source_paused(error)))
                 continue
             found.append((source, payload))
             received([(source, payload)])
@@ -700,7 +768,7 @@ class LibraryMetadataProvider:
                 raise NotFound(*relay_args(error)) from error
             raise (SourcePaused if source_paused(error) else Unavailable)(
                 'errors.libraryProcessing.sourceProblem',
-                {'source': SOURCE_LABELS[source], 'problem': describe_failure(error)}) from error
+                {'source': source_name(source), 'problem': describe_failure(error)}) from error
         addresses = []
         for _, payload in found:
             for url in payload.get('cover_urls') or [payload.get('cover_url')]:
@@ -868,11 +936,11 @@ def _lock_free(config) -> bool:
         return False
 
 
-class ProcessingBusy(JobDeferred):
+class ProcessingBusy(UserFacingError, JobDeferred):
     """全库处理锁被占着，或者有用户发起的处理在等它；后台定向任务回到队列。"""
 
     def __init__(self, config):
-        super().__init__('等待扫描与采集完成后继续')
+        super().__init__('jobMessage.libraryProcessing.waitingForProcessing')
         self.config = config
 
     def ready(self) -> bool:
@@ -991,24 +1059,23 @@ def source_paused(error):
 
 
 def issue_summary(problems, paused=0):
-    """问题清单顶上那一句：几项要处理，其中几项只是等来源放开。
+    """问题清单顶上那一句（`phrase`，没有问题时是 None）：几项要处理，其中几项只是等来源放开。
 
     两类的下一步动作不同。限流那些现在按多少次重试都是同一句「来源正在冷却」，得等；
     其余是这一部片自己的事，当场重试就有结果。数混在一起报，等的人会一直点重试。
     """
     if not problems:
-        return ''
+        return None
     if paused >= problems:
-        return f'{problems} 项都卡在来源限流上，等一会儿再跑一次。'
+        return phrase('labels.libraryProcessing.issuesAllPaused', {'count': problems})
     if paused:
-        return (f'{problems} 项需要处理，其中 {paused} 项是来源限流，等一会儿再跑；'
-                '其余可重试未完成的部分。')
-    return f'{problems} 项需要处理，可重试未完成的部分。'
+        return phrase('labels.libraryProcessing.issuesSomePaused', {'count': problems, 'paused': paused})
+    return phrase('labels.libraryProcessing.issues', {'count': problems})
 
 
-def _issue_classification(message, retryable, paused):
+def _issue_classification(record, retryable, paused):
     """这条记录写进日志的级别，以及它值不值得重试。告知项两样都不是问题。"""
-    note = NOTE_KEYS.get(message)
+    note = _note_key(record)
     return ('info' if note else 'paused' if paused else 'error'), retryable and not note
 
 
@@ -1022,7 +1089,7 @@ def _record_issue(state, log_path, record, *, diagnostics=None):
         record['diagnostics'] = diagnostics
     with open(log_path, 'a', encoding='utf-8') as handle:
         handle.write(json.dumps(record, ensure_ascii=False) + '\n')
-    note = NOTE_KEYS.get(record['message'])
+    note = _note_key(record)
     if note:
         state['notes'][note] = state['notes'].get(note, 0) + 1
         return
@@ -1031,7 +1098,8 @@ def _record_issue(state, log_path, record, *, diagnostics=None):
         state['paused_count'] = state.get('paused_count', 0) + 1
     if len(state['issue_preview']) < ISSUE_PREVIEW_LIMIT:
         state['issue_preview'].append({key: record[key] for key in
-                                       ('asset_id', 'title', 'path', 'message', 'severity')})
+                                       ('asset_id', 'title', 'path', 'message', 'message_code', 'message_params',
+                                        'severity') if key in record})
     else:
         state['issues_truncated'] = True
     asset_id = record['asset_id']
@@ -1056,7 +1124,8 @@ def snapshot(config):
                 if state.get('status') == 'running':
                     # 拿得到锁说明写入者已经不在了。结论写回文件：只改副本的话，另一个读取者
                     # 正好短暂占着锁时会读到原样的「运行中」，界面就在两种状态之间来回跳。
-                    state.update(status='failed', outcome='interrupted', error='处理被中断，可重试未完成的部分。',
+                    state.update(status='failed', outcome='interrupted',
+                                 **_error_fields(phrase('errors.libraryProcessing.interrupted')),
                                  completed_at=state.get('last_progress_at') or time.time())
                     _save(state_path(config), state)
         except Timeout:
@@ -1070,7 +1139,7 @@ def snapshot(config):
                 for line in handle:
                     item = json.loads(line)
                     count += 1
-                    key = NOTE_KEYS.get(item.get('message'))
+                    key = _note_key(item)
                     if key:
                         notes[key] = notes.get(key, 0) + 1
                         continue
@@ -1079,14 +1148,14 @@ def snapshot(config):
                         retryable.add(item['asset_id'])
             if count == state.get('issue_count'):
                 preview = [item for item in state.get('issue_preview', [])
-                           if item.get('message') not in NOTE_KEYS]
+                           if _note_key(item) is None]
                 state.update(notes=notes, issue_count=problems, issue_preview=preview,
                              issues_truncated=problems > len(preview),
                              retryable_asset_ids=sorted(retryable))
                 # 这条兼容路径读的是没有 `notes` 的旧状态，那一版还不分限流，所以只按项数写。
-                if state.get('error') == issue_summary(count):
+                if state.get('error') == phrase_text(issue_summary(count) or ''):
                     state['status'] = 'failed' if problems else 'complete'
-                    state['error'] = issue_summary(problems)
+                    state.update(_error_fields(issue_summary(problems)))
         except (OSError, ValueError, TypeError):
             pass
     return decorate(state)
@@ -1145,8 +1214,9 @@ def _read_local_posters(jobs, state, *, update, issue, generated_root=None):
                     raise
                 except (OSError, ValueError, subprocess.TimeoutExpired) as error:
                     failed.add(row['id'])
-                    message = ('读取配套图片超时，可稍后重试' if isinstance(error, subprocess.TimeoutExpired)
-                               else '配套图片无法读取')
+                    message = phrase('errors.libraryProcessing.companionImageTimeout'
+                                     if isinstance(error, subprocess.TimeoutExpired)
+                                     else 'errors.libraryProcessing.companionImageUnreadable')
                     issue(row, message, action='reading_local_cover', retryable=True)
                 else:
                     if not target.is_file() or derived:
@@ -1282,6 +1352,9 @@ def _source_candidate(source, document, value, evidence_path, mode):
         candidate['requires_identity_review'] = True
     if value.get('unmapped_genres'):
         candidate['unmapped_genres'] = value['unmapped_genres']
+    # `metadata.with_codes` 给显示值与提醒配的 code 一并带上，复核页按它们取当前语言。
+    candidate.update({key: value[key] for key in ('display_value_code', 'display_value_params',
+                                                  'warning_codes', 'warning_params') if key in value})
     return candidate
 
 
@@ -1888,7 +1961,7 @@ class _RemoteSession:
                 self.reset()
                 if entries:
                     break
-                issue(row, '外部资料在预算时间内未取得，可稍后重试', action=action, retryable=True)
+                issue(row, phrase('errors.libraryProcessing.deadlineRetryLater'), action=action, retryable=True)
                 return []
             except Exception as error:
                 _raise_task_failure(error)
@@ -1900,7 +1973,8 @@ class _RemoteSession:
                     # 就成了「社区来源：javdb：…」。单家来源的原因不带来源名，这里补上。
                     problems.append(describe_failure(error)
                                     if source in ('community', 'amane', 'amane_official')
-                                    else f'{SOURCE_LABELS.get(source, source)}：{describe_failure(error)}')
+                                    else phrase('errors.libraryProcessing.sourceProblem',
+                                                {'source': source_name(source), 'problem': describe_failure(error)}))
                     failures.append(_source_failure_details(error, code, action, source=source))
                     held.append(source_paused(error))
                 # 认人 Wiki 没给出演员时，MGStage 给的字段够停手就停，不为它落到综合索引那条 3 秒的队。
@@ -1924,7 +1998,8 @@ class _RemoteSession:
             return entries
         # 链上任何一档还在正常作答，这一行就是真没取到；全被限住时才算没轮到。
         paused = bool(held) and all(held)
-        issue(row, ('外部资料本趟没轮到：' if paused else '外部资料未取得：') + '；'.join(problems)
+        issue(row, phrase('errors.libraryProcessing.metadataPaused' if paused
+                          else 'errors.libraryProcessing.metadataUnfetched', {'problems': joined_phrases(problems)})
               if problems else MISS_MESSAGES[action],
               action=action, retryable=True, paused=paused,
               **({'diagnostics': {'failures': failures}} if failures else {}))
@@ -1962,11 +2037,12 @@ class _RemoteSession:
             if isinstance(error, DeadlineExceeded):
                 self.reset()
                 if not settled:
-                    issue(row, 'JavDB 标签在预算时间内未取得', action='querying_metadata', retryable=True)
+                    issue(row, phrase('errors.libraryProcessing.javdbTagsDeadline'), action='querying_metadata',
+                          retryable=True)
             elif is_missing(error):
                 self._record_miss(source, code)
             elif not settled:
-                issue(row, 'JavDB 标签未取得：' + describe_failure(error),
+                issue(row, phrase('errors.libraryProcessing.javdbTagsUnfetched', {'problem': describe_failure(error)}),
                       action='querying_metadata', retryable=True, paused=source_paused(error),
                       diagnostics=_source_failure_details(error, code, 'querying_metadata', source=source))
             return []
@@ -1991,7 +2067,7 @@ class _RemoteSession:
                                              absent=absent))
         except DeadlineExceeded:
             self.reset()
-            issue(row, '封面在预算时间内未取得，可稍后重试', action=action, retryable=True)
+            issue(row, phrase('errors.libraryProcessing.coverDeadline'), action=action, retryable=True)
         except CoverKept:
             self._record_miss('cover', code, lineup)
         except NotFound:
@@ -2000,7 +2076,8 @@ class _RemoteSession:
         except Exception as error:
             _raise_task_failure(error)
             paused = source_paused(error)
-            issue(row, ('封面本趟没轮到：' if paused else '封面未取得：') + describe_failure(error),
+            issue(row, phrase('errors.libraryProcessing.coverPaused' if paused
+                              else 'errors.libraryProcessing.coverUnfetched', {'problem': describe_failure(error)}),
                   action=action, retryable=True, paused=paused,
                   diagnostics=_source_failure_details(error, code, action))
         return 0
@@ -2179,9 +2256,10 @@ def _online_source_root(source, root, chosen_paths, *, retrying, issue):
     except InterruptedError:
         raise
     except OSError as error:
-        issue(None, f'{source} 来源目录读取失败：{error}', action='reading_local')
+        issue(None, phrase('errors.libraryProcessing.sourceRootUnreadable', {'source': source, 'error': str(error)}),
+              action='reading_local')
         return None
-    issue(None, f'{source} 来源离线', action='reading_local')
+    issue(None, phrase('errors.libraryProcessing.sourceRootOffline', {'source': source}), action='reading_local')
     return None
 
 
@@ -2228,7 +2306,7 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
                 registered = scan_location(db_path, source, root, declared_roots=config.locations,
                                            mounts=mounts, report=lambda line: None,
                                            read_directory=partial(directory_entries, file_identity=source == 'local'),
-                                           onerror=lambda error: issue(None, str(error), action='scanning_files'),
+                                           onerror=lambda error: issue(None, said_of(error), action='scanning_files'),
                                            resume_state=scan_checkpoints.get(key), save_checkpoint=remember,
                                            new_only=incremental,
                                            progress=lambda files, size: update(
@@ -2362,26 +2440,27 @@ class _SourceBudget:
         return [] if row['id'] == self.skipped_row else entries
 
     def summarize(self, issue):
-        message = budget_summary(self.state)
-        if message:
-            issue(None, message, action='source_budget')
+        said = budget_summary(self.state)
+        if said:
+            issue(None, said, action='source_budget')
 
 
 def budget_summary(state):
-    """预算到顶跳过了几部时，任务卡与问题清单上的那一句；没跳过是空串。"""
+    """预算到顶跳过了几部时，任务卡与问题清单上的那一句（`phrase`）；没跳过是 None。"""
     skipped = state.get('budget_skipped') or 0
     if not skipped:
-        return ''
+        return None
     from .scraping_access import BUDGET_SPENT
     # `budget_reason` 是 `BUDGET_SPENT` 的 code；认不出的（升级前按原句记下的）按时间到顶说。
     reason = state.get('budget_reason')
     kind = next((key for key, code in BUDGET_SPENT.items() if code == reason), 'seconds')
-    head = _BUDGET_HEADS[kind]
-    return f'{head}，还有 {skipped} 部没问外部来源，再跑一次接着采。'
+    return phrase('labels.libraryProcessing.budgetSkipped', {'head': phrase(_BUDGET_HEADS[kind]), 'count': skipped})
 
 
 #: 预算三项到顶时汇总句的开头，键与 `scraping_access.BUDGET_SPENT` 一致。
-_BUDGET_HEADS = {'requests': '本趟采集次数已用完', 'seconds': '本趟采集时间已用完', 'bytes': '本趟下载量已用完'}
+_BUDGET_HEADS = {'requests': 'labels.libraryProcessing.budget.requests',
+                 'seconds': 'labels.libraryProcessing.budget.seconds',
+                 'bytes': 'labels.libraryProcessing.budget.bytes'}
 
 
 def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, covered, *,
@@ -2406,7 +2485,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
                                                fetch_cover='cover' in allowed)
         except ItemSkipped:
             remote.reset()
-            issue(row, '已跳过这部影片，可在任务结束后重试', action='skipped', retryable=True)
+            issue(row, phrase('errors.libraryProcessing.itemSkipped'), action='skipped', retryable=True)
         finally:
             traffic.finish_work('metadata', code, successful=succeeded())
             update(current_source=None)
@@ -2544,7 +2623,7 @@ def _raise_task_failure(error):
         raise error
 
 
-class _PreviewCaptureError(ValueError):
+class _PreviewCaptureError(UserValueError):
     """预览失败的操作提示及脱敏工具证据。"""
 
     def __init__(self, diagnostics):
@@ -2552,12 +2631,12 @@ class _PreviewCaptureError(ValueError):
         from .diagnostic_exceptions import media_details
         category = media_details(None, diagnostics, {})
         self.diagnostics = {**scrub(diagnostics), 'failure_category': category or 'unclassified'}
-        message = {
-            'timeout': '视频抽帧超时，可重试；反馈问题请导出诊断报告',
-            'ffmpeg_error': 'FFmpeg 抽帧失败，反馈问题请导出诊断报告',
-            'no_frame': '采样位置未取得画面，反馈问题请导出诊断报告',
-        }.get(diagnostics.get('reason'), '视频抽帧未取得，反馈问题请导出诊断报告')
-        super().__init__(message)
+        code = {
+            'timeout': 'errors.libraryProcessing.captureTimeout',
+            'ffmpeg_error': 'errors.libraryProcessing.captureFfmpegFailed',
+            'no_frame': 'errors.libraryProcessing.captureNoFrame',
+        }.get(diagnostics.get('reason'), 'errors.libraryProcessing.captureUnfetched')
+        super().__init__(code)
 
 
 def _earlier_timestamps(timestamp, duration):
@@ -2727,9 +2806,9 @@ def _generate_previews(config, rows, database, *, update, issue, guard,
         except (OSError, ValueError, subprocess.SubprocessError, PreviewUnavailable) as error:
             from .error_reporting import event
             event('library-preview', error, asset_id=row['id'])
-            message = (str(error) if isinstance(error, (ValueError, PreviewUnavailable)) else
-                       '生成预览图超时，请重试' if isinstance(error, subprocess.SubprocessError) else
-                       '生成预览图失败，请检查 FFmpeg 与目录权限后重试')
+            message = (said_of(error) if isinstance(error, (ValueError, PreviewUnavailable)) else
+                       phrase('errors.libraryProcessing.previewTimeout') if isinstance(error, subprocess.SubprocessError)
+                       else phrase('errors.libraryProcessing.previewFailed'))
             details = {'diagnostics': error.diagnostics} if isinstance(error, _PreviewCaptureError) else {}
             issue(row, message, action='generating_preview', retryable=True, **details)
         else:
@@ -2841,10 +2920,10 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
     except InterruptedError:
         raise
     except OSError as error:
-        issue(row, str(error), action='reading_local', retryable=True)
+        issue(row, said_of(error), action='reading_local', retryable=True)
         return None
     if video.name.casefold() not in files:
-        issue(row, '媒体文件不可访问', action='reading_local', retryable=True)
+        issue(row, phrase('errors.libraryProcessing.mediaInaccessible'), action='reading_local', retryable=True)
         return None
     code = _provider_code(row['code']) or release_code_from_filename(row['name'], patterns=code_patterns)
     payload = None
@@ -2859,7 +2938,7 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
         except InterruptedError:
             raise
         except (OSError, ValueError, ET.ParseError) as error:
-            issue(row, str(error), action='reading_local', retryable=isinstance(error, OSError))
+            issue(row, said_of(error), action='reading_local', retryable=isinstance(error, OSError))
             payload = None
     if code and not row['code']:
         with closing(sqlite3.connect(db_path, timeout=30)) as connection, connection:
@@ -2873,7 +2952,8 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
     except InterruptedError:
         raise
     except (OSError, ValueError):
-        issue(row, '配套图片无法读取', action='reading_local_cover', retryable=True)
+        issue(row, phrase('errors.libraryProcessing.companionImageUnreadable'), action='reading_local_cover',
+              retryable=True)
     if payload:
         evidence_path = config.directory('sources') / 'library-metadata' / (hashlib.sha256(raw).hexdigest() + '.nfo')
         evidence_path.parent.mkdir(parents=True, exist_ok=True)
@@ -2890,28 +2970,41 @@ def _settle_collection_state(state, summary, rows, update):
     update(status='failed' if state['issue_count'] else 'complete', **stage_fields('library.finished'),
            outcome='partial' if state['issue_count'] else 'complete',
            checked=len(rows), total=len(rows), **summary,
-           error=' '.join(text for text in (budget_summary(state),
-                                            issue_summary(state['issue_count'], state['paused_count'])) if text),
+           **_error_fields(_finish_summary(budget_summary(state),
+                                           issue_summary(state['issue_count'], state['paused_count']))),
            completed_at=time.time(), current_asset_id=None, current_asset_name='',
            current_action='', current_started_at=None, current_deadline_at=None)
+
+
+def _finish_summary(budget, issues):
+    """收尾那一句：预算跳过的说明在前、问题汇总在后，两句都有时连成一句。"""
+    if budget and issues:
+        return phrase('labels.libraryProcessing.budgetAndIssues', {'budget': budget, 'issues': issues})
+    return budget or issues
 
 
 def _processing_steps(stage, asset_ids, *, metadata_only_enabled):
     """按本趟真实处理范围构造有序阶段清单。"""
     scanning = asset_ids is None and stage in (ALL_STAGES, SCAN_STAGE)
-    steps = [('sources', '扫描文件' if scanning else '检查媒体目录')]
-    steps.append(('inspect', '检查垃圾文件' if stage in (SCAN_STAGE, PREVIEWS_STAGE, METADATA_STAGE)
-                  else '读取媒体属性与检查垃圾'))
+    steps = [('sources', 'scanFiles' if scanning else 'checkFolders')]
+    steps.append(('inspect', 'checkJunk' if stage in (SCAN_STAGE, PREVIEWS_STAGE, METADATA_STAGE)
+                  else 'probeAndCheckJunk'))
     if stage not in (SCAN_STAGE, PREVIEWS_STAGE):
-        steps.append(('local', '检查配套文件'))
+        steps.append(('local', 'checkCompanions'))
     if stage == PREVIEWS_STAGE or stage in (ALL_STAGES, COLLECT_STAGE):
-        media_label = ('生成视频预览' if stage == PREVIEWS_STAGE or not metadata_only_enabled
-                       else '检查媒体预览设置')
-        steps.append(('media', media_label))
+        steps.append(('media', 'makePreviews' if stage == PREVIEWS_STAGE or not metadata_only_enabled
+                      else 'checkPreviewSettings'))
     if stage not in (SCAN_STAGE, PREVIEWS_STAGE):
-        steps.append(('collect', '采集外部资料与封面'))
-    return [dict(id=key, label=label, status='current' if index == 0 else 'pending')
-            for index, (key, label) in enumerate(steps)]
+        steps.append(('collect', 'fetchMetadataAndCovers'))
+    return [dict(id=key, label=interface_text.text(f'server:{STEP_PREFIX}{name}'), label_code=STEP_PREFIX + name,
+                 status='current' if index == 0 else 'pending')
+            for index, (key, name) in enumerate(steps)]
+
+
+#: 处理步骤名的 code 前缀；`label` 存按 zh-CN 渲染的原文。
+STEP_PREFIX = 'labels.libraryProcessing.step.'
+STEP_NAMES = ('scanFiles', 'checkFolders', 'checkJunk', 'probeAndCheckJunk', 'checkCompanions', 'makePreviews',
+              'checkPreviewSettings', 'fetchMetadataAndCovers')
 
 
 def _complete_processing_step(steps, key):
@@ -3020,12 +3113,14 @@ class _ProcessingIssues:
         self.flush_state, self.report = flush_state, report
 
     def __call__(self, asset, message, *, action='', retryable=False, paused=False, diagnostics=None):
+        """`message` 是 `phrase`（带 code 的一句），或没有 code 的原文（异常原文、文件名）。"""
         asset = asset or {}
         title = str(asset.get('catalog_title') or '') or Path(str(asset.get('name') or '')).name
-        severity, retryable = _issue_classification(message, retryable, paused)
+        fields = _message_fields(message)
+        severity, retryable = _issue_classification(fields, retryable, paused)
         _record_issue(self.state, self.log_path, {
             'asset_id': asset.get('id'), 'title': title, 'path': str(asset.get('path') or ''),
-            'message': message, 'severity': severity, 'failed_action': action, 'retryable': retryable,
+            **fields, 'severity': severity, 'failed_action': action, 'retryable': retryable,
             'last_failed_at': time.time()}, diagnostics=diagnostics)
         self.state['last_progress_at'] = time.time()
         self.flush_state()
@@ -3130,7 +3225,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                      current_started_at=None, current_deadline_at=None,
                      followups=[], offline_skipped=0,
                      junk_isolated=0, junk_review=0,
-                     started_at=time.time(), error='')
+                     started_at=time.time(), **_error_fields(None))
         state.update(initial_estimate(config, db_path, stage, initial_ids, speed_mode))
         if incremental:
             state['incremental_ids'] = initial_ids
@@ -3219,7 +3314,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 update(status='failed' if state['issue_count'] else 'complete',
                        outcome='partial' if state['issue_count'] else 'complete',
                        **stage_fields('library.finished'), completed_at=time.time(), checked=0, total=0,
-                       error=issue_summary(state['issue_count'], state['paused_count']))
+                       **_error_fields(issue_summary(state['issue_count'], state['paused_count'])))
                 return state
             rows, genre_decisions = _collection_rows(
                 db_path, locations=locations, online_roots=sources.online_roots, asset_ids=scope_ids)
@@ -3237,7 +3332,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 finish_step('media')
                 update(status='failed' if state['issue_count'] else 'complete', **stage_fields('library.finished'),
                        outcome='partial' if state['issue_count'] else 'complete',
-                       completed_at=time.time(), error=issue_summary(state['issue_count'], state['paused_count']))
+                       completed_at=time.time(),
+                       **_error_fields(issue_summary(state['issue_count'], state['paused_count'])))
                 return state
             output = candidate_root / 'library-metadata-field-candidates.csv'
             groups = {row['item_key']: row for row in read_rows_shared(output, missing_ok=True)}
@@ -3335,8 +3431,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 remote.prepare(prepared, stages_of, update, cover_root=cover_root, groups=groups,
                                offline=gate.offline)
             except PreparationError as error:
-                message = f'采集工具准备失败：{error}'
-                issue(None, message, action='preparing_sources')
+                issue(None, phrase('errors.libraryProcessing.toolsNotPrepared', {'error': phrase(error.code, error.params)}),
+                      action='preparing_sources')
                 blocked = set(error.asset_ids)
                 state['retryable_asset_ids'] = sorted(set(state['retryable_asset_ids'])
                                                      | blocked)
@@ -3382,7 +3478,9 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
             finish_step('collect')
             _settle_collection_state(state, summary, rows, update)
         except Exception:
-            state.update(status='failed', outcome='interrupted', error='处理被中断。核对媒体目录后重试。', completed_at=time.time())
+            state.update(status='failed', outcome='interrupted',
+                         **_error_fields(phrase('errors.libraryProcessing.interruptedCheckFolders')),
+                         completed_at=time.time())
             state.update(interrupted_state(control))
             state['traffic'] = traffic.snapshot(finished=state.get('status') in ('failed', 'cancelled'))
             _save(path, state)

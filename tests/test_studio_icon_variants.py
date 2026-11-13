@@ -1063,15 +1063,19 @@ class HarvestTests(unittest.TestCase):
     def test_only_small_icons_is_its_own_verdict(self):
         """FC2 全站只有 16×16。那不是「只有字标」，下一步是找更大的资产。
         两者混成一个结论，就再没人会去找了。"""
-        rows = self.harvest_with_reasons(["只有 16x16"])
+        rows = self.harvest_with_reasons(images=[block_png((16, 16), inset=1)])
         self.assertEqual(rows[0]["verdict"], MODULE.TOOSMALL)
+        self.assertIn("只有 16x16", rows[0]["evidence"])
 
-    def harvest_with_reasons(self, reasons):
+    def harvest_with_reasons(self, reasons=(), images=()):
+        """站点声明的图标一枚都不合格：`reasons` 直接记成退回理由，`images` 交给闸门自己判。"""
         original = MODULE.site_icons.best_mark
 
         def stub(url, fetcher, policy, fallback=None, accept=None):
             fetcher(url)
             policy.reasons.extend(reasons)
+            for data in images:
+                policy(data)
             return None
 
         MODULE.site_icons.best_mark = stub

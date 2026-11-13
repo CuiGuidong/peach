@@ -111,7 +111,7 @@ Peach 的界面只有中文。前端源码里写死的中文文案节点约 7,00
 ### 六、Weblate
 
 - 平台按 ADR-0153 第七条的顺序选，现用 Hosted Weblate 的 [Peach 项目](https://hosted.weblate.org/projects/peach/)。
-- 每个命名空间建一个组件：单语 i18next JSON v4，模板是 `resources/locales/zh-CN/<命名空间>.json`，文件掩码是 `resources/locales/*/<命名空间>.json`，各组件共用 `navigation` 组件的仓库副本。新语言的目录名用 BCP 写法（`ja`、`pt-BR`、`zh-Hant`）。写回的 JSON 缩进 2 个空格、不排序键，与仓库一致。
+- 每个命名空间建一个组件：单语 i18next JSON v4，模板是 `resources/locales/zh-CN/<命名空间>.json`，文件掩码是 `resources/locales/*/<命名空间>.json`，各组件共用 `navigation` 组件的仓库副本。新增命名空间不用手动建组件：`navigation` 装了「组件发现」插件，按 `resources/locales/(?P<language>[^/.]+)/(?P<component>[^/]+)\.json` 匹配，拉到含新文件的提交时照上述设置自动建组件，不删除组件；新组件源文字的「AI draft」标签仍要手动打。新语言的目录名用 BCP 写法（`ja`、`pt-BR`、`zh-Hant`）。写回的 JSON 缩进 2 个空格、不排序键，与仓库一致。
 - 术语组件用 TBX，文件掩码是 `resources/locales/glossary/*.tbx`。Weblate 建项目时自带的本地术语表已删除，术语只有仓库这一份。
 - 仓库到 Weblate：仓库的推送 webhook 指向 `https://hosted.weblate.org/hooks/github/`，master 一有提交就拉取。新增的键出现为待翻译；中文改了措辞而键不变，各语言译文标成「需要修改」；删掉的键由「清理翻译文件」插件从各语言文件里一并删掉。组件关闭「管理字符串」，键只在仓库增删。
 - Weblate 到仓库：版本控制选「GitHub 拉取请求」，Weblate 的机器人从自己的分叉开 PR，不需要仓库写权限。「挤压 Git 提交」按作者合并，每位译者保留自己署名的提交，合入后计入 GitHub 贡献者。

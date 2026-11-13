@@ -691,6 +691,12 @@ class ScrapingAccessTests(unittest.TestCase):
                       w_scraping_check(SimpleNamespace(follow_secrets_root=self.root), {"source": "dmm"})["results"]}
         self.assertIn(MOBILE_BROADBAND_HINT, checks["高清图片 CDN"]["message"])
         self.assertNotIn(MOBILE_BROADBAND_HINT, checks["来源页面"]["message"])
+        cdn = checks["高清图片 CDN"]
+        self.assertEqual((cdn["target"], checks["来源页面"]["target"]), ("cdn", "page"))
+        self.assertEqual(interface_text.text(f"server:{cdn['label_code']}", language="en"), "HD image CDN")
+        self.assertEqual(interface_text.text(f"server:{cdn['message_code']}", cdn["message_params"], language="en"),
+                         "Can't connect. On China Mobile broadband, direct connections to DMM image hosts are often "
+                         "dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.")
 
 
 class BrowserFallbackTests(unittest.TestCase):

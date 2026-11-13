@@ -33,8 +33,11 @@ import ahocorasick
 
 from . import interface_text
 from .catalog_rules import LENGTH_TAGS, TECH_TAGS
+from .catalog_vocabulary import PORTRAIT
 from .review_csv import read_rows, write_rows
 from .taste_sites import ADULT_DOMAINS, MIXED_DOMAINS, account_key, identity_context, mixed_adult, parse_url
+from .taste_words import (CATEGORY_TERMS, STOPWORDS, SUBTITLE_AND_RESTORE_TAGS, TASTE_CATEGORY_TAGS,
+                          TITLE_AMBIGUOUS_TERMS)
 from .user_messages import UserTimeoutError, UserValueError, message_fields
 
 
@@ -65,11 +68,6 @@ RESERVED_HANDLES = {
     "about", "account", "creator", "creators", "explore", "home", "login", "messages", "model",
     "models", "notifications", "post", "posts", "search", "settings", "share", "user", "users",
 }
-STOPWORDS = {
-    "and", "com", "download", "for", "from", "html", "http", "https", "in", "index", "is",
-    "login", "of", "one", "page", "search", "the", "this", "to", "video", "watch", "www",
-    "图片", "搜索", "视频",
-}
 TASTE_DOMAIN_SUFFIXES = {
     "cangku.moe", "coomer.st", "e-hentai.org", "exhentai.org", "f95zone.to", "fanbox.cc",
     "fansly.com", "fantia.jp", "gelbooru.com", "hanime1.me", "jable.tv", "javbus.com",
@@ -80,33 +78,7 @@ TASTE_DOMAIN_SUFFIXES = {
 }
 TASTE_DOMAIN_SUFFIXES = (TASTE_DOMAIN_SUFFIXES | ADULT_DOMAINS) - MIXED_DOMAINS
 QUERY_KEYS |= {"searchstr", "search_word", "search_query", "k", "word", "text"}
-#: 口味维度：键是维度 id，显示名在 `taste.category.<id>`；值是识别网址与标题用的匹配词（内容数据）。
-CATEGORY_TERMS: dict[str, set[str]] = {
-    "feet": {"feet", "foot", "footjob", "soles", "toes", "足", "足交", "脚", "脚交"},
-    "animation": {"3d", "animation", "blender", "daz", "sfm", "动画"},
-    "cosplay": {"cosplay", "jk", "maid", "schoolgirl", "uniform", "制服", "女仆", "角色扮演"},
-    "breasts": {"bigbreasts", "bigboobs", "boobs", "breasts", "tits", "巨乳", "乳"},
-    "oral": {"blowjob", "deepthroat", "oral", "口交", "深喉"},
-    "glans": {"glans", "glansjob", "sounding", "urethra", "尿道", "马眼", "龟头"},
-    "asmr": {"asmr", "audio", "音声"},
-    "gameDoujin": {"detroit", "detroitbecomehuman", "game", "gamecg", "hgame", "游戏", "同人"},
-    "leaks": {"leak", "leaked", "private", "反差", "探花", "泄密", "流出"},
-}
-#: 每个维度在馆藏里对应的规范标签名（内容数据），口味总结据此给出可以点进去的标签。
-TASTE_CATEGORY_TAGS: dict[str, tuple[str, ...]] = {
-    "animation": ("3D动画", "游戏同人", "动漫同人"),
-    "oral": ("口交", "打扫口交", "深喉"),
-    "cosplay": ("制服", "角色扮演", "JK制服", "女仆"),
-    "feet": ("足交", "恋足", "裸足"),
-    "gameDoujin": ("游戏同人", "动漫同人", "日系同人"),
-    "breasts": ("巨乳", "美乳"),
-    "glans": ("马眼", "龟头责"),
-    "asmr": ("ASMR", "淫语"),
-    "leaks": ("反差", "泄密流出", "探花"),
-}
-NON_TASTE_SUMMARY_TAGS = TECH_TAGS | LENGTH_TAGS | {
-    "中文字幕", "内嵌字幕", "外挂字幕", "AI修复", "AI去码", "60fps",
-}
+NON_TASTE_SUMMARY_TAGS = TECH_TAGS | LENGTH_TAGS | SUBTITLE_AND_RESTORE_TAGS
 TAKEOUT_HISTORY_MEMBER = "Takeout/Chrome/History.json"
 TAKEOUT_ACTIVITY_MEMBERS = (
     ("chrome", "Google My Activity - Chrome", "Takeout/My Activity/Chrome/MyActivity.html"),
@@ -1209,7 +1181,7 @@ def _tag_inventory(connection: sqlite3.Connection) -> dict[str, int]:
     if "snapshot_path" in columns:
         clauses.append("a.snapshot_path IS NOT NULL")
     if "ctx_orient" in columns:
-        clauses.append("(a.ctx_orient IS NULL OR a.ctx_orient<>'竖屏')")
+        clauses.append(f"(a.ctx_orient IS NULL OR a.ctx_orient<>'{PORTRAIT}')")
     query = (
         "SELECT e.canonical_name,count(DISTINCT ae.asset_id) "
         "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
@@ -1645,7 +1617,7 @@ def _title_genre_matcher():
     """标题复用内容词表，排除依赖来源语境的省写与单字。"""
     from .genre_taxonomy import CONTENT_GENRES, CONTENT_ALIASES, normalise_genre, resolve_genre
     matcher = ahocorasick.Automaton()
-    ambiguous = {"お掃除", "掃除", "仁王立ち", "ノーハンド", "swallow", "oral", "private", "生"}
+    ambiguous = TITLE_AMBIGUOUS_TERMS
     for raw in CONTENT_GENRES.keys() | CONTENT_ALIASES.keys() | set(CONTENT_GENRES.values()):
         term = normalise_genre(raw)
         label = resolve_genre(term)

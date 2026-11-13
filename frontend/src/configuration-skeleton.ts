@@ -13,6 +13,7 @@ import { NAVIGATION_GROUPS, normalizeNavigationOrder } from './navigation-order'
 import { diagnosticsSkeleton } from './diagnostics-skeleton';
 import { LIBRARY_FOLDER_HELP, POLICY_SUMMARY } from './react/settings/library-policy-copy';
 import { ENTRY_LINKS_HELP, ENTRY_LINKS_HINT } from './configuration-copy';
+import { serverLabel } from './core/server-text';
 import { t } from './i18n';
 import { sectionId, sectionTitle } from './history/settings-route';
 import CREDENTIAL_REGISTRY from './react/follow-manage/credential-providers.json' with { type: 'json' };
@@ -117,6 +118,10 @@ export const CREDENTIAL_PROVIDERS: readonly CredentialProvider[] = CREDENTIAL_RE
 
 export interface CredentialSkeletonRow extends CredentialProvider { done: boolean; open: boolean }
 
+/** 凭据说明的当前语言：按 provider 取 `labels.followSecrets.<why|howto>.<provider>`，没有译文用登记里的原文。 */
+const guide = (row: CredentialProvider, part: 'why' | 'howto'): string =>
+  serverLabel(`labels.followSecrets.${part}.${row.provider}`, row[part] ?? '');
+
 /** 骨架里每一行：站点、分组与要的字段取自登记；配好没有取自上次记录，没有记录时按都没配。
  *  展开规则与终态同一条：必填且没配好的展开。 */
 export function credentialSkeletonRows(shape = rememberedShape('credentials')): CredentialSkeletonRow[] {
@@ -134,10 +139,10 @@ function credentialRow(row: CredentialSkeletonRow): string {
   const chips = chip() + (configurable && !row.done ? fields.map(() => chip('4.5em')).join('') : '');
   const head = `<span class="flex min-w-0 flex-wrap items-center gap-2">${block('14px', '14px')}<b class="min-w-0 text-body-medium wrap-anywhere text-text-primary">${esc(row.label)}</b>${chips}</span>`;
   if (!configurable) {
-    return `<div class="flex flex-wrap items-center gap-3 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${head}${row.requirement === 'blocked' && row.why ? help(esc(row.why)) : ''}</div>`;
+    return `<div class="flex flex-wrap items-center gap-3 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${head}${row.requirement === 'blocked' && row.why ? help(esc(guide(row, 'why'))) : ''}</div>`;
   }
   const form = row.open ? '<div class="flex flex-col gap-2 pt-3"><div class="flex flex-col gap-3">'
-    + help(`${esc(row.why ?? '')}${row.where ? ` ${t('follow:sourceCredentials.getCredentials')}` : ''}`) + (row.howto ? help(esc(row.howto)) : '')
+    + help(`${esc(guide(row, 'why'))}${row.where ? ` ${t('follow:sourceCredentials.getCredentials')}` : ''}`) + (row.howto ? help(esc(guide(row, 'howto'))) : '')
     + `<div class="flex w-full flex-col gap-3">${fields.map(name => inputField(esc(name))).join('')}</div>`
     + `<div class="flex flex-wrap items-center gap-2">${button(t('settings:shared.saveSettings'))}</div>${summary(t('follow:sourceCredentials.credentialsFile'))}</div></div>` : '';
   return `<div class="flex flex-col gap-2 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${head}<div>${summary(row.done ? t('follow:sourceCredentials.editCredentials') : t('follow:sourceCredentials.enterCredentials'), row.open)}${form}</div></div>`;

@@ -5,8 +5,9 @@ import time
 import json
 from pathlib import Path
 
-from . import junk, ledger_backups, organize, settings_file
+from . import interface_text, junk, ledger_backups, organize, settings_file
 from .catalog_rules import same_release_code
+from .coded_text import Said, from_error
 from .downloads import (INGESTED, POSTPROCESS_COMPLETE,
                         POSTPROCESS_PENDING, POSTPROCESS_QUEUED, POSTPROCESS_RUNNING,
                         DownloadStore, iso)
@@ -22,7 +23,7 @@ from .task_retry import RELAYED, RetryableTaskError
 from .user_messages import UserRuntimeError, UserValueError
 
 TASK_KEY = "download-postprocess"
-TASK_LABEL = "云下载后处理"
+TASK_LABEL = interface_text.text(f"server:task.{TASK_KEY}")
 
 
 def followup_key(task_id: int) -> str:
@@ -56,7 +57,7 @@ def enqueue(contract, task) -> int | None:
     contract.task_runs.finish(parent.id, "succeeded", summary={"followups": len(result["queued"])})
     if run_id is not None:
         DownloadStore(contract.database).postprocess(
-            task.id, POSTPROCESS_QUEUED, detail="等待识别正片并整理", run_id=run_id)
+            task.id, POSTPROCESS_QUEUED, detail=Said("labels.downloadPostprocess.waiting"), run_id=run_id)
         contract.followups.wake()
     return run_id
 
@@ -169,9 +170,9 @@ def _collection_retry_delay(state: dict, main: int) -> float | None:
 def _organize(contract, task, main: int) -> dict:
     templates = contract.download_organize_templates().get(task.location, {})
     if not templates:
-        return {"moved": 0, "skipped": "未配置整理模板"}
+        return {"moved": 0, "skipped": Said("labels.downloadPostprocess.noTemplate")}
     if organize.unverified_location(task.location):
-        return {"moved": 0, "skipped": f"{task.location} 缺少官方核验改名通道"}
+        return {"moved": 0, "skipped": Said("labels.downloadPostprocess.noVerifiedRename", location=task.location)}
     with contract.database.read_connection() as connection:
         plan = organize.build_plan(
             connection, location=task.location, file_template=templates.get("file", ""),
@@ -185,7 +186,7 @@ def _organize(contract, task, main: int) -> dict:
             raise RetryableTaskError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
         raise UserRuntimeError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
     if not movable:
-        return {"moved": 0, "skipped": next(iter(plan["reasons"]), "无需整理")}
+        return {"moved": 0, "skipped": next(iter(plan["reasons"]), Said("labels.downloadPostprocess.nothingToOrganize"))}
     name = f"ledger.pre-download-{task.id}-{time.strftime('%Y%m%d-%H%M%S')}.db"
     with ledger_backups.organize_backup(Path(contract.db_path), contract.candidate_root,
                                         name) as backup, \
@@ -217,7 +218,7 @@ def run(contract, key: str, handle) -> dict:
         raise UserValueError("errors.downloadPostprocess.notIngested")
     if task.postprocess_state == POSTPROCESS_COMPLETE:
         return {"task_id": task_id, "already_complete": True}
-    store.postprocess(task_id, POSTPROCESS_RUNNING, detail="正在识别正片")
+    store.postprocess(task_id, POSTPROCESS_RUNNING, detail=Said("labels.downloadPostprocess.recognizing"))
     try:
         main, _path, folder_ids = _bind_main(contract, task)
         handle.progress(**stage_label("download.isolateExtras"), throttle=0)
@@ -239,17 +240,18 @@ def run(contract, key: str, handle) -> dict:
             contract.task_runs.enqueue_followups(handle.run_id, rows)
     except JobDeferred as error:
         # 给扫描与采集让路：后继回到队列，路让回来后从头续跑，这次不算失败。
-        store.postprocess(task_id, POSTPROCESS_QUEUED, detail=str(error))
+        store.postprocess(task_id, POSTPROCESS_QUEUED, detail=from_error(error))
         raise
     except Exception as error:
         store.fail_postprocess(task_id, error, now=contract.downloads.clock())
         contract.downloads.wake()
         raise
-    detail = (f"正片已绑定，资料已采集；整理跳过：{organized['skipped']}"
-              if organized.get('skipped') else "正片已绑定，资料已采集并完成整理")
+    detail = (Said("labels.downloadPostprocess.doneSkipped", reason=organized['skipped'])
+              if organized.get('skipped') else Said("labels.downloadPostprocess.done"))
     pending = metadata.get('paused_pending')
     if pending:
-        detail += "；部分资料等来源恢复后重新采集：" + "；".join(filter(None, pending))[:300]
+        detail = Said("labels.downloadPostprocess.donePending", summary=detail,
+                      pending="；".join(filter(None, pending))[:300])
     store.postprocess(task_id, POSTPROCESS_COMPLETE, detail=detail, finished=iso(time.time()))
     contract.cache_bust()
     NOTICES.add("download", int(main), task.code or task.display_name)

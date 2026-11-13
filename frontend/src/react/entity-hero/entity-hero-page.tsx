@@ -32,7 +32,7 @@ import {
   type EntityHeroActions, type EntityHeroData, type EntityHeroHelpers, type EntityHeroProps,
   type HeroCostar, type HeroFollow, type LinkMark, type LinkView,
 } from './entity-hero';
-import { serverLabels } from '../../core/server-text';
+import { codedText, serverLabels } from '../../core/server-text';
 import { interfaceLanguage, t } from '../../i18n';
 
 /** 译文里数字的占位记号：`{{num}}` 先代入它，再按它切开放进 `<b>`。 */
@@ -200,7 +200,7 @@ function AliasLine({ kind, entity, actions }: { kind: string; entity: EntityHero
                 heading={t('catalog:entityHero.aliasCount', { count: line.total })}>
                 <dl>
                   {(groups?.groups || []).map((group, at) => (
-                    <NameGroup key={at} label={group.label} names={group.names} />
+                    <NameGroup key={at} label={codedText(group, 'label')} names={group.names} />
                   ))}
                 </dl>
               </MorePop>

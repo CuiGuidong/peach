@@ -8,6 +8,8 @@ from pathlib import PureWindowsPath
 
 from .entities import (_creator_attribution_rejected, canonicalize_entity_name,
                        normalize_entity_name, resolve_entity, resolve_entity_id, upsert_asset_entity)
+from .catalog_vocabulary import PERFORMER_TAG_PREFIX
+from .content_words import SELLER_FOLDER_EVIDENCE
 from .entity_classification import write_claim
 from .field_owners import owner_of, write_owned_fields
 from .media_folders import path_predicate, within
@@ -158,10 +160,10 @@ def _link(connection, asset, rule):
         write_owned_fields(connection, [asset['id']], {field: rule['name']}, own, require_empty=True)
     if kind == 'performer':
         connection.execute('INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) VALUES(?,?,1,?)',
-                           (asset['id'], '演员:' + rule['name'], own))
+                           (asset['id'], PERFORMER_TAG_PREFIX + rule['name'], own))
     if rule['purpose'] == 'seller':
         write_claim(connection, entity_id=entity_id, facet='account_role', value='seller', source=own,
-                    evidence='用户确认目录用途：' + rule['path'], status='approved', confidence=1)
+                    evidence=SELLER_FOLDER_EVIDENCE + rule['path'], status='approved', confidence=1)
     return True
 
 

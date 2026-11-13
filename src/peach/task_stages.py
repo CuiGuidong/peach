@@ -15,7 +15,7 @@ STAGE_NAMES = {
     "library": ("startAll", "startScan", "startCollect", "startPreviews", "scanFiles", "checkCompanions",
                 "probeMedia", "checkNetwork", "checkJunk", "recheckJunk", "prepareImages", "readImages",
                 "preparePreviews", "makePreviews", "prepareMetadata", "prepareSources", "fetchMetadata",
-                "saveCandidates", "fetchCovers", "collectResults", "finished"),
+                "saveCandidates", "fetchCovers", "collectResults", "fillPerformerProfiles", "finished"),
     "backup": ("prepareBackup", "copyLedger", "checkIntegrity", "backupDone", "prepareRestore", "copyBackup",
                "migrateBackup", "saveCurrent", "writeLedger", "restoreDone"),
     "diagnostics": ("prepare", "readSystem", "collectLogs", "collectEvidence", "readCandidates",

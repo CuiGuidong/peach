@@ -16,7 +16,15 @@ import httpx
 
 from .fsutil import atomic_write_text
 from .http import HttpRequest
-from .user_messages import UserOSError, UserValueError
+from . import interface_text
+from .user_messages import UserOSError, UserValueError, message_fields
+
+
+def _blocked(name: str, **params) -> dict:
+    """不能一键更新：`reason` 是 zh-CN 原文，旁边是 `labels.dockerUpdate.<名字>` 的 code（ADR-0159）。"""
+    code = f"labels.dockerUpdate.{name}"
+    return {"available": False, "reason": interface_text.text(f"server:{code}", params),
+            "reason_code": code, "reason_params": params}
 
 REPOSITORY = "longmeidao/peach"
 REGISTRY = "https://registry-1.docker.io"
@@ -99,11 +107,11 @@ def status(*, transport: httpx.BaseTransport | None = None) -> dict:
     """能不能一键更新；不能时 `reason` 说明为什么，没启用 Watchtower 时为空。"""
     tag = image_tag()
     if not tag:
-        return {"available": False, "reason": "容器里没有镜像标签，compose.yaml 可能还是旧版；换成仓库当前的 compose.yaml 并重建容器后可一键更新。"}
+        return _blocked("noImageTag")
     if tag != ROLLING_TAG:
-        return {"available": False, "reason": f"镜像标签是 {tag}，Watchtower 只换同一标签的新镜像；把 .env 的 PEACH_VERSION 删掉或改成 edge 后可一键更新。"}
+        return _blocked("pinnedTag", tag=tag)
     if not _token():
-        return {"available": False, "reason": "更新令牌还没有生成，重建 Peach 容器后可一键更新。"}
+        return _blocked("noToken")
     try:
         with _client(transport, 3.0) as client:
             client.get(WATCHTOWER_URL + "/v1/update")
@@ -122,7 +130,7 @@ def trigger(*, transport: httpx.BaseTransport | None = None) -> dict:
     if not state["available"]:
         if not state["reason"]:
             raise UserValueError("errors.dockerUpdate.watchtowerMissing")
-        raise ValueError(state["reason"])
+        raise UserValueError(state["reason_code"], state["reason_params"])
     try:
         with _client(transport, 15.0) as client:
             response = client.post(WATCHTOWER_URL + "/v1/update", params={"async": "true"},
@@ -130,7 +138,7 @@ def trigger(*, transport: httpx.BaseTransport | None = None) -> dict:
     except httpx.HTTPError as error:
         raise UserOSError("errors.dockerUpdate.unreachable", {"error": type(error).__name__}) from error
     if response.status_code == 202:
-        return {"state": "updating", "message": "Watchtower 正在拉取新镜像并重建容器。"}
+        return {"state": "updating", **message_fields("labels.dockerUpdate.updating")}
     if response.status_code == 401:
         raise UserValueError("errors.dockerUpdate.tokenMismatch")
     if response.status_code == 429:

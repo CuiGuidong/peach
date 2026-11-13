@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3124c8f4-af00-4bee-b981-dac97b913b6a", e._sentryDebugIdIdentifier = "sentry-dbid-3124c8f4-af00-4bee-b981-dac97b913b6a");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "1bf93edb-4c5b-4d2d-8bef-6c2ff3e43481", e._sentryDebugIdIdentifier = "sentry-dbid-1bf93edb-4c5b-4d2d-8bef-6c2ff3e43481");
 	} catch {}
 })();
 import { Button as e, Bx as t, Chip as n, DataTableFooter as r, Disclosure as i, DownloadsPanel as a, EmptyState as o, Gg as s, HN as c, IssueRow as l, LinkButton as u, Lo as d, LoadingDots as f, Ma as p, NameLink as m, Note as h, OV as g, Pf as _, ProcessingMode as v, Progress as y, RB as b, Rk as x, Su as S, TASKS_KEY as C, TRIGGER_LABELS as w, Xl as T, __toESM as E, apiGet as D, apiSend as ee, busyProps as O, cardClass as k, codedText as A, confirmModal as te, controlTask as ne, cx as re, elapsedText as ie, errorMessage as j, fetchTasks as ae, fmtSize as oe, foldByKind as se, foldRoutine as ce, followupDetail as le, followupTally as M, groupFollowups as ue, hasResultProblems as N, i2 as de, interfaceLanguage as fe, isActive as P, isRoutine as pe, latestOfKind as me, momentText as F, notifyManager as he, oe as ge, pollInterval as _e, problemDestination as ve, progressLabel as ye, progressText as I, readableErrorHeadline as L, replaceEqualDeep as be, require_jsx_runtime as xe, require_react as Se, runError as R, setTaskSpeed as Ce, statusLabel as we, summaryItems as Te, t as z, taskIssues as Ee, taskName as B, taskSubject as V, um as De, uo as Oe, useMutation as H, useQuery as U, useQueryClient as W, vl as ke } from "./peach-app.js";
@@ -334,7 +334,7 @@ function Xe({ run: e, active: t = P(e) || !!e.control }) {
 			"gpu",
 			"network"
 		].map((e) => {
-			let t = n[e], r = qe[e], i = e === "network" ? n.network.bytes_per_second : n[e].percent, a = t.state === "ready" && i !== null, o = a && t.high, s = a ? Ye(e, i) : Je(t), c = [t.reason, o ? z("manage:taskResources.highUsage") : ""].filter(Boolean).join("\n");
+			let t = n[e], r = qe[e], i = e === "network" ? n.network.bytes_per_second : n[e].percent, a = t.state === "ready" && i !== null, o = a && t.high, s = a ? Ye(e, i) : Je(t), c = [t.reason ? A(t, "reason") : "", o ? z("manage:taskResources.highUsage") : ""].filter(Boolean).join("\n");
 			return /* @__PURE__ */ (0, K.jsxs)(Ke, {
 				color: r.color,
 				high: o,
@@ -835,4 +835,4 @@ function it() {
 }
 export { it as ActivityPage };
 
-//# debugId=3124c8f4-af00-4bee-b981-dac97b913b6a
+//# debugId=1bf93edb-4c5b-4d2d-8bef-6c2ff3e43481

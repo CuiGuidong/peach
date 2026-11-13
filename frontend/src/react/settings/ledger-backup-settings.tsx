@@ -15,7 +15,7 @@ import { LoadingDots } from '../components/loading-dots';
 import { Progress } from '../components/progress';
 import { ErrorText, Footer, Help, Rows, Section, Stack, TaskCenterLink } from './section';
 import { busyProps, useAction } from './use-action';
-import { serverLabel } from '../../core/server-text';
+import { codedText, jobText, serverLabel, stageText } from '../../core/server-text';
 import { interfaceLanguage, t } from '../../i18n';
 
 export const LEDGER_BACKUPS_URL = '/api/configuration/ledger-backups';
@@ -35,6 +35,7 @@ export interface LedgerBackup {
 export interface LedgerBackupJob {
   status: 'idle' | 'running' | 'complete' | 'failed' | 'cancelled';
   stage?: string;
+  stage_code?: string;
   done?: number;
   total?: number;
   error?: string;
@@ -64,7 +65,7 @@ function Running({ job, label }: { job: LedgerBackupJob; label: string }) {
       {job.total
         ? <Progress label={label} value={job.done || 0} max={job.total} />
         : <LoadingDots label={label} />}
-      <Help>{job.stage || label}</Help>
+      <Help>{stageText(job) || label}</Help>
       <TaskCenterLink />
     </div>
   );
@@ -142,12 +143,12 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
     <Section id="ledgerBackups" guide="ledger-backups" title={t('settings:databaseBackups.title')}>
       <Stack>
         <Help>{t('settings:databaseBackups.help')}</Help>
-        {!state.writer ? <Help>{t('settings:databaseBackups.notPrimary')}{state.writer_reason}</Help> : null}
+        {!state.writer ? <Help>{t('settings:databaseBackups.notPrimary')}{codedText(state, 'writer_reason')}</Help> : null}
         {backingUp ? <Running job={state.backup} label={t('settings:databaseBackups.backupProgress')} /> : null}
         {restoring ? <Running job={state.restore} label={t('settings:databaseBackups.restoreProgress')} /> : null}
-        {failed ? <ErrorText>{failed.error || t('settings:databaseBackups.jobIncomplete')}</ErrorText> : null}
+        {failed ? <ErrorText>{jobText(failed, 'error') || t('settings:databaseBackups.jobIncomplete')}</ErrorText> : null}
         {last ? (last.outcome === 'kept' || last.outcome === 'completed'
-          ? <Help>{last.message}</Help> : <ErrorText>{last.message}</ErrorText>) : null}
+          ? <Help>{codedText(last, 'message')}</Help> : <ErrorText>{codedText(last, 'message')}</ErrorText>) : null}
         {action.error ? <ErrorText>{action.error}</ErrorText> : null}
       </Stack>
       {state.backups.length

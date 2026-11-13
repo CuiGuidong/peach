@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 from peach.http import HttpResponse
 from peach.jav_cover_fetch import R18_COMBINED, R18_DETAIL, NotFound, Unavailable
-from peach.library_processing import LibraryMetadataProvider, describe_failure, is_missing
+from peach.library_processing import LibraryMetadataProvider, describe_failure, is_missing, phrase_text
 from peach.metadata import extract_catalog_evidence, extract_peach_fields, original_wording, relayed
 from peach.scraping_access import SourcePaused
 from peach.sources import R18DEV, FailureReason, Page, R18DevSource, Session, SourceFailure
@@ -258,13 +258,14 @@ class FailureWordingTests(unittest.TestCase):
         self.assertFalse(is_missing(ValueError("x")))
 
     def test_describe_failure_words_a_source_failure_like_an_unavailable(self):
-        self.assertEqual(describe_failure(SourceFailure(FailureReason.SERVER_ERROR, *relayed("HTTP 503"), status_code=503)),
+        said = lambda error: phrase_text(describe_failure(error))
+        self.assertEqual(said(SourceFailure(FailureReason.SERVER_ERROR, *relayed("HTTP 503"), status_code=503)),
                          "来源返回 HTTP 503")
-        self.assertEqual(describe_failure(SourceFailure(FailureReason.AUTH_REQUIRED, "errors.javdb.loginRequired")), "javdb 要求登录")
-        self.assertEqual(describe_failure(SourceFailure(FailureReason.PARSE_ERROR, "errors.base.codeMismatch")),
+        self.assertEqual(said(SourceFailure(FailureReason.AUTH_REQUIRED, "errors.javdb.loginRequired")), "javdb 要求登录")
+        self.assertEqual(said(SourceFailure(FailureReason.PARSE_ERROR, "errors.base.codeMismatch")),
                          "来源返回的番号不匹配")
-        self.assertEqual(describe_failure(Unavailable(*relayed("HTTP 503"))), "来源返回 HTTP 503")
-        self.assertEqual(describe_failure(ValueError("x")), "处理出错（ValueError）")
+        self.assertEqual(said(Unavailable(*relayed("HTTP 503"))), "来源返回 HTTP 503")
+        self.assertEqual(said(ValueError("x")), "处理出错（ValueError）")
 
 
 if __name__ == "__main__":

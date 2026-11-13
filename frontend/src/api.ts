@@ -10,6 +10,7 @@ import { markResolved, requestErrorMessage } from './core/request-error';
 import { registerResponseEntities } from './core/entity-links';
 import { libraryScopedPath } from './core/library-scope';
 import { serverText } from './core/server-text';
+import { noticeFailedResponse, noticeRequestFailure } from './core/service-status';
 
 export class ApiError extends Error {
   readonly status: number;
@@ -32,10 +33,20 @@ export class ApiError extends Error {
  * 两边显示的必须是同一句话，否则同一个失败会因为落在哪儿而说法不同。 */
 export const errorMessage = (cause: unknown): string => requestErrorMessage(cause);
 
+/** 发出请求；连不上服务时通知页面顶部横幅立即查一次更新状态（`core/service-status`）。 */
+async function send(path: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(path, init);
+  } catch (error) {
+    noticeRequestFailure(error);
+    throw error;
+  }
+}
+
 /** GET 一个 `/api/...` 契约端点。`signal` 中止时抛出 `AbortError`，调用方据此放弃写 DOM。 */
 export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> {
   path = libraryScopedPath(path);
-  const response = await fetch(path, {
+  const response = await send(path, {
     headers: { Accept: 'application/json' },
     // 页面口令是 httponly cookie，取数必须带上；跨源请求不在此列。
     credentials: 'same-origin',
@@ -49,6 +60,7 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
     // 失败响应不一定是 JSON（例如 401 的登录页），下面用状态码兜底。
   }
   if (!response.ok) {
+    noticeFailedResponse(response.status, payload);
     throw new ApiError(serverText(payload), response.status, null, { fromServer: true });
   }
   registerResponseEntities(path, payload);
@@ -57,7 +69,7 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
 
 /** 带 JSON 请求体的写操作。失败时原响应体挂在 `ApiError.body` 上，字段级原因由调用方取。 */
 export async function apiSend<T>(path: string, body: unknown, method = 'POST', signal?: AbortSignal): Promise<T> {
-  const response = await fetch(path, {
+  const response = await send(path, {
     method, ...(signal ? { signal } : {}),
     headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
     credentials: 'same-origin',
@@ -71,6 +83,7 @@ export async function apiSend<T>(path: string, body: unknown, method = 'POST', s
     // 同上：失败响应不一定是 JSON。
   }
   if (!response.ok) {
+    noticeFailedResponse(response.status, payload);
     throw new ApiError(serverText(payload), response.status, payload, { fromServer: true });
   }
   return payload as T;

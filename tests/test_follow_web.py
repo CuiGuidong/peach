@@ -19,7 +19,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from peach import (avatar_face, follow_assets, follow_discovery, follow_identity,
-                   follow_store, web_follow, web_stats)
+                   follow_store, interface_text, web_follow, web_stats)
 from peach.follow import FollowHistoryEnd
 from peach.follow import FollowSourceError, internal_error
 from peach.follow_discovery import Discovery, ExternalSearch
@@ -2341,8 +2341,14 @@ class FollowContractTests(unittest.TestCase):
             factory.return_value.fetch.side_effect = FollowSourceError(
                 "errors.followSources.httpStatus", {"provider": "rule34video", "status": 503})
             self._post("/api/follow/check", {})
-        self.assertEqual(self._get()["sources"][0]["last_status"], "error")
-        self.assertIn("503", self._get()["sources"][0]["last_error"])
+        source = self._get()["sources"][0]
+        self.assertEqual(source["last_status"], "error")
+        self.assertIn("503", source["last_error"])
+        # 原因连同 code 落在来源那一行上，英文界面照 code 显示（迁移 0056）。
+        from peach import interface_text
+        self.assertEqual(source["last_error_code"], "errors.followSources.httpStatus")
+        self.assertEqual(interface_text.text(f"server:{source['last_error_code']}", source["last_error_params"], "en"),
+                         "rule34video returned HTTP 503")
 
     def test_credentials_say_what_each_source_actually_needs(self):
         payload = self._get("/api/follow/credentials")
@@ -2761,8 +2767,12 @@ class FollowSourceAddTests(FollowContractTests):
             "provider": "fanbox", "provider_label": "FANBOX",
             "ref": "lazyprocrast", "url": "https://lazyprocrast.fanbox.cc/",
             "label": "lazyprocrast", "author": "", "aliases": [], "semantics": "work",
-            "evidence": "链接直接指明", "known": False,
+            "evidence": "链接直接指明", "evidence_code": "labels.followSources.linkEvidence", "evidence_params": {},
+            "known": False,
         }])
+        # 依据那一句带 code，英文界面拿到的是英文。
+        self.assertEqual(interface_text.text("server:labels.followSources.linkEvidence", None, "en"),
+                         "Named directly by the link")
 
     def test_resolve_progress_counts_sources_instead_of_lines(self):
         """一行的背后是十几个来源在查：进度按来源数走，环才会逐个涨过去。"""
@@ -3251,7 +3261,7 @@ def _source_row(**kwargs):
             "enabled": 1, "entity_id": None, "entity_name": None,
             "backfill_page": 0, "created_at": "2026-08-01T00:00:00Z",
             "last_checked_at": "2026-08-30T00:00:00Z",
-            "last_status": "ok", "last_error": None}
+            "last_status": "ok", "last_error": None, "last_error_code": None, "last_error_params": None}
     row.update(kwargs)
     return row
 

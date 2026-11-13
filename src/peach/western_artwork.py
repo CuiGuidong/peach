@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 
 from .catalog_rules import normalise_code_key
 from .http import HttpRequest, HttpTransport, public_https_url, response_text
+from . import interface_text
 from .user_agent import USER_AGENT
 from .user_messages import UserValueError
 
@@ -122,10 +123,11 @@ def face_matched_portrait(fetched: list, covers: list, matcher) -> tuple:
         found.append(choice)
         candidates[choice['ref']] = Candidate(choice, body, origin, inspected)
     if not covers:
-        return None, {}, '没有单人作品封面可比，只留候选'
+        return None, {}, interface_text.text('server:labels.westernArtwork.noSoloCovers')
     result = match_gallery(found, covers, matcher, lambda choice: candidates.get(choice['ref']))
     if result.winner is None or not result.evidence.get('covers'):
-        return None, {}, render(result.reason) if result.reason else '没有比上封面的图，只留候选'
+        return None, {}, (render(result.reason) if result.reason
+                          else interface_text.text('server:labels.westernArtwork.noCoverMatch'))
     return result.winner, result.evidence, ''
 
 

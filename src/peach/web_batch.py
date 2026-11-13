@@ -25,6 +25,7 @@ from typing import Sequence
 
 from . import interface_text, junk
 from .catalog_rules import duration_clusters, is_jav_code, normalise_code_key
+from .catalog_vocabulary import KEEP_DUPLICATES_NOTE, NOT_JUNK_NOTE
 from .config import GENERATED_DIR, LOCATION_ROOT_DECLARATIONS
 from .field_owners import USER_MANUAL, write_owned_fields
 from .media_sources import SCANNABLE_LOCATIONS
@@ -629,11 +630,11 @@ def _write_review_mark(connection, operation, ids, now):
               "status='rejected',note=excluded.note,updated_at=excluded.updated_at")
     remove = "DELETE FROM review_decision WHERE category=? AND item_key=?"
     if operation == "dismiss-junk":
-        connection.executemany(upsert, [("junk_file", str(i), "用户确认不是垃圾", stamp) for i in ids])
+        connection.executemany(upsert, [("junk_file", str(i), NOT_JUNK_NOTE, stamp) for i in ids])
     elif operation == "reconsider-junk":
         connection.executemany(remove, [("junk_file", str(i)) for i in ids])
     elif operation == "keep-duplicates":
-        connection.execute(upsert, (DUPLICATE_KEEP_CATEGORY, duplicate_group_key(ids), "用户确认这组都保留", stamp))
+        connection.execute(upsert, (DUPLICATE_KEEP_CATEGORY, duplicate_group_key(ids), KEEP_DUPLICATES_NOTE, stamp))
     else:
         connection.execute(remove, (DUPLICATE_KEEP_CATEGORY, duplicate_group_key(ids)))
 

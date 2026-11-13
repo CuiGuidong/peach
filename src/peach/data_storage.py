@@ -40,7 +40,8 @@ from filelock import FileLock
 
 from . import distribution, interface_text, ledger_backups, settings_file
 from .fsutil import atomic_write_text
-from .user_messages import UserFacingError, UserInterruptedError, UserOSError, UserRuntimeError, UserTimeoutError, UserValueError
+from .user_messages import (UserFacingError, UserInterruptedError, UserOSError, UserRuntimeError, UserTimeoutError,
+                            UserValueError, message_fields, nested_message)
 
 USAGE_NAME = "storage-usage.json"
 REQUEST_NAME = "data-relocation-request.json"
@@ -62,6 +63,17 @@ _TRANSCODE = re.compile(r"^\d+-.+\.mp4$")
 _ROTATED_LOG = re.compile(r"^(?:.+\.until-\d{8}\.log|crash-\d+\.log)$")
 #: 账本目录里归「数据库备份」的文件：`ledger.pre-*.db` 和它的 `-wal`／`-shm`。
 _BACKUP_FILE = re.compile(r"^ledger\.pre-.+\.db(?:-wal|-shm)?$")
+
+
+def _phrase(code: str, params: dict | None = None, language: str = interface_text.SOURCE_LANGUAGE) -> str:
+    """渲染一句（ADR-0159）；列表参数（每项可以是一句带 code 的话）由 `interface_text.text` 逐项渲染，
+    按语言资源的列表分隔符连起来，前端 `serverLabel` 对列表也这样处理。"""
+    return interface_text.text(f"server:{code}", params, language)
+
+
+def _coded(code: str, params: dict | None = None, *, key: str = "message") -> dict:
+    """`<key>` 放 zh-CN 原文，旁边是 `<key>_code` 与 `<key>_params`。"""
+    return {key: _phrase(code, params), f"{key}_code": code, f"{key}_params": dict(params or {})}
 
 
 def backup_directories(config) -> tuple[Path, ...]:
@@ -404,7 +416,8 @@ class StorageJobs:
             thread.join(timeout)
 
     def _run(self, config, keys: list[str]) -> None:
-        message = ""
+        # 清理回执：code 是 `labels.dataStorage.cleaned`、`cleanedInUse`，出错时再接上原因。
+        done: tuple[str, dict] | None = None
         try:
             if keys:
                 freed = failed = 0
@@ -414,21 +427,25 @@ class StorageJobs:
                     result = clean(config, key)
                     freed += result["bytes"]
                     failed += result["failed"]
-                labels = "、".join(item.label for item in CATEGORIES if item.key in keys)
-                message = f"已清理{labels}，释放 {format_size(freed)}"
-                if failed:
-                    message += f"；{failed} 个文件正在使用，未能删除"
+                params = {"labels": [{"code": f"storage.category.{item.key}.label"} for item in CATEGORIES
+                                     if item.key in keys], "size": format_size(freed), "failed": failed}
+                done = ("labels.dataStorage.cleanedInUse" if failed else "labels.dataStorage.cleaned", params)
                 with self._lock:
-                    self._state.update(state="measuring", category="", message=message, files=0, bytes=0)
+                    self._state.update(state="measuring", category="", **_coded(*done), files=0, bytes=0)
             usage = measure(config, report=self._progress)
             atomic_write_text(config.directory("state") / USAGE_NAME, json.dumps(usage))
         except Exception as exc:
-            message = f"{message}；{exc}" if message else str(exc)
+            if done:
+                fields = _coded(done[0] + "ThenFailed", {**done[1], "error": nested_message(exc)})
+            elif isinstance(exc, UserFacingError):
+                fields = _coded(exc.code, exc.params)
+            else:
+                fields = {"message": str(exc)}
             with self._lock:
-                self._state = {"state": "idle", "message": message, "error": True}
+                self._state = {"state": "idle", **fields, "error": True}
             return
         with self._lock:
-            self._state = {"state": "idle", "message": message}
+            self._state = {"state": "idle", **(_coded(*done) if done else {"message": ""})}
 
 
 JOBS = StorageJobs()
@@ -449,36 +466,38 @@ def format_size(size: int) -> str:
 
 # --------------------------------------------------------------------------- 迁移
 
-def availability(config) -> tuple[bool, str]:
-    """这份部署能不能在设置页迁移数据目录；不能时说清为什么、该怎么手动做。"""
+def blocked(config) -> str:
+    """这份部署为什么不能在设置页迁移数据目录：`labels.dataStorage.relocation` 下的 code，能迁移时是空串。"""
     if os.environ.get("PEACH_DISTRIBUTION") == "docker":
-        return False, ("容器的数据目录是宿主机上的数据卷，位置由 compose.yaml 的挂载决定，容器里改不了；"
-                       "在容器里搬走会离开数据卷，重建容器就丢失。请在宿主机上按下面几步迁移")
+        return "labels.dataStorage.relocation.docker"
     if not (distribution.standalone() or os.environ.get("PEACH_TRAY_MANAGED") == "1"
             or os.environ.get("PEACH_HEADLESS_MANAGED") == "1"):
-        return False, ("迁移要由托盘或无桌面服务（python -m peach.server）停止并重新启动 Peach，"
-                       "当前服务是直接启动的。请改用其中一种方式启动后再迁移；也可以退出 Peach，"
-                       "手动移动数据目录，再将 PEACH_DATA_ROOT 设为新位置")
+        return "labels.dataStorage.relocation.unmanaged"
     root = config.data_root.resolve()
     for key in settings_file.DIRECTORY_KEYS:
         raw = (config.directories.get(key) or "").strip()
         directory = config.directory(key)
         if raw and (PureWindowsPath(raw).is_absolute() or Path(raw).is_absolute()):
-            return False, "部分数据设置在数据目录之外，请退出 Peach 后手动迁移"
+            return "labels.dataStorage.relocation.outsideRoot"
         if directory.is_symlink() or directory.is_junction() or not directory.resolve().is_relative_to(root):
-            return False, "部分数据使用了目录链接，请退出 Peach 后手动迁移"
-    return True, ""
+            return "labels.dataStorage.relocation.linked"
+    return ""
 
 
-#: 容器部署在宿主机上迁移数据目录的几步：每步一句说明加一条命令。命令按仓库的 compose.yaml 写，
+def availability(config) -> tuple[bool, str]:
+    """这份部署能不能在设置页迁移数据目录；不能时说清为什么、该怎么手动做（zh-CN 原文）。"""
+    code = blocked(config)
+    return not code, _phrase(code) if code else ""
+
+
+#: 容器部署在宿主机上迁移数据目录的几步：每步一句说明（`labels.dataStorage.dockerStep.<id>`）加一条命令；
+#: 命令里有要换成实际值的占位名时，命令本身也在语言资源里（`<id>Command`）。命令按仓库的 compose.yaml 写，
 #: 数据卷名带 compose 项目名前缀，第一步先查出来。
 DOCKER_STEPS = (
-    ("查出数据卷的名字（以 _peach-data 结尾）", "docker volume ls"),
-    ("在 compose.yaml 所在目录停止 Peach", "docker compose down"),
-    ("把数据卷复制到新文件夹；新文件夹要让 UID 1000 可写",
-     "docker run --rm -v <数据卷名>:/from -v <新文件夹>:/to alpine cp -a /from/. /to/"),
-    ("把 compose.yaml 里的 peach-data:/data 改成 <新文件夹>:/data，再启动；确认一切正常前不要删除旧数据卷",
-     "docker compose up -d"),
+    ("volume", "docker volume ls"),
+    ("stop", "docker compose down"),
+    ("copy", None),
+    ("edit", "docker compose up -d"),
 )
 
 
@@ -486,7 +505,13 @@ def manual_steps() -> list[dict[str, str]]:
     """设置页不能迁移时，给出的手动步骤。目前只有容器有。"""
     if os.environ.get("PEACH_DISTRIBUTION") != "docker":
         return []
-    return [{"text": text, "command": command} for text, command in DOCKER_STEPS]
+    steps = []
+    for step, command in DOCKER_STEPS:
+        code = f"labels.dataStorage.dockerStep.{step}"
+        row = {"id": step, "text": _phrase(code), "text_code": code}
+        row.update({"command": command} if command else _coded(code + "Command", key="command"))
+        steps.append(row)
+    return steps
 
 
 def _vacant(folder: Path) -> bool:
@@ -584,9 +609,8 @@ def _record(root: Path, **fields) -> None:
 
 def request(config, raw: object) -> dict:
     """校验并写下迁移请求，由托盘接手。返回给页面的回执。"""
-    available, message = availability(config)
-    if not available:
-        raise ValueError(message)
+    if code := blocked(config):
+        raise UserValueError(code)
     from . import standalone_update
     if standalone_update.public().get("state") in standalone_update.ACTIVE | {"ready"}:
         raise UserValueError("errors.dataStorage.updateRunning")
@@ -604,8 +628,7 @@ def request(config, raw: object) -> dict:
                                             "requested_at": time.time()}, ensure_ascii=False))
     headless = os.environ.get("PEACH_HEADLESS_MANAGED") == "1"
     return {"accepted": True, "target": str(target),
-            "message": "正在迁移数据目录，服务会暂停，完成后自动恢复，稍后刷新页面。" if headless
-            else "正在迁移数据目录，Peach 将暂时退出，完成后自动重新打开。"}
+            **message_fields("labels.dataStorage.relocatingHeadless" if headless else "labels.dataStorage.relocating")}
 
 
 def snapshot(config) -> dict:
@@ -619,7 +642,7 @@ def snapshot(config) -> dict:
         free = total = None
     drive = PureWindowsPath(str(root)).drive.casefold()
     system = os.environ.get("SystemDrive", "C:").casefold()
-    available, message = availability(config)
+    reason = blocked(config)
     usage = read_usage(config)
     categories = None
     if usage is not None:
@@ -640,7 +663,8 @@ def snapshot(config) -> dict:
             "managed_cache_bytes": usage.get('managed_cache_bytes'),
             "external_cache_bytes": usage.get('external_cache_bytes')},
         "job": JOBS.snapshot(),
-        "relocation": {"available": available, "message": message, "steps": manual_steps(),
+        "relocation": {"available": not reason, **(_coded(reason) if reason else {"message": ""}),
+                       "steps": manual_steps(),
                        "last": read_result(config)},
     }
 
@@ -671,14 +695,14 @@ def poll(tray) -> None:
         atomic_write_text(path, json.dumps(dict(data, token=token), ensure_ascii=False))
         process = _spawn([*_program_command(), *_helper_arguments(path, os.getpid())])
         update_tasks.transfer(database, token, process.pid)
-        _notify(tray, "正在迁移数据目录，Peach 将暂时退出，完成后自动重新打开。")
+        _notify(tray, "labels.dataStorage.relocating")
         tray.exit(reason="data-relocation")
     except Exception as exc:
         if token:
             update_tasks.release(database, token)
         path.unlink(missing_ok=True)
-        _record(config.data_root, state="error", message=f"未能开始迁移：{exc}")
-        _notify(tray, f"数据目录未能迁移：{exc}")
+        _record(config.data_root, state="error", **_coded("labels.dataStorage.startFailed", {"error": nested_message(exc)}))
+        _notify(tray, "labels.dataStorage.notRelocated", {"error": nested_message(exc)})
     finally:
         tray._action_lock.release()
 
@@ -714,17 +738,17 @@ def poll_headless(stop: Callable[[], None], restart: Callable[[dict[str, str]], 
         if token:
             update_tasks.release(database, token)
         path.unlink(missing_ok=True)
-        _record(config.data_root, state="error", message=f"未能开始迁移：{exc}")
+        _record(config.data_root, state="error", **_coded("labels.dataStorage.startFailed", {"error": nested_message(exc)}))
         return True
     stop()
     apply(path, None, start=lambda _program, environment: restart(environment))
     return True
 
 
-def _notify(tray, message: str) -> None:
-    """托盘气泡只是顺带告知；有的平台不支持，不能让它打断迁移流程。"""
+def _notify(tray, code: str, params: dict | None = None) -> None:
+    """托盘气泡只是顺带告知，跟本机语言；有的平台不支持，不能让它打断迁移流程。"""
     try:
-        tray.icon.notify(message, "Peach")
+        tray.icon.notify(_phrase(code, params, interface_text.local_language()), "Peach")
     except Exception:
         pass
 
@@ -801,7 +825,7 @@ def _shell_copy(source: Path, target: Path) -> None:
     copy, no_confirmation, simple_progress, no_confirm_mkdir, no_error_ui = 2, 0x10, 0x100, 0x200, 0x400
     operation = Operation(None, copy, str(source / "*") + "\0", str(target) + "\0",
                           no_confirmation | simple_progress | no_confirm_mkdir | no_error_ui,
-                          False, None, "正在迁移 Peach 数据")
+                          False, None, _phrase("labels.dataStorage.copyTitle", None, interface_text.local_language()))
     code = ctypes.windll.shell32.SHFileOperationW(ctypes.byref(operation))
     if operation.fAnyOperationsAborted:
         raise UserRuntimeError("errors.dataStorage.migrationCanceled")
@@ -909,7 +933,7 @@ def relocate(config, target: Path, *, bootstrap: Path,
             except OSError:
                 # 改不回去时数据已经整个在新位置：照样记下位置，否则下次启动会进首次设置页。
                 _point(source, target, bootstrap)
-                raise MovedWithoutRewrite("errors.dataStorage.pathsNotRewritten", {"error": str(exc)}) from exc
+                raise MovedWithoutRewrite("errors.dataStorage.pathsNotRewritten", {"error": nested_message(exc)}) from exc
             raise
         copied = False
     else:
@@ -954,17 +978,23 @@ def _startup(config) -> dict | None:
     return state if state.get("available") else None
 
 
-def _restore_startup(config, state: dict | None) -> str:
-    """按迁移前的开关在新位置重写开机自启与桌面图标；失败只提示，不影响迁移结果。"""
+def _restore_startup(config, state: dict | None) -> dict | None:
+    """按迁移前的开关在新位置重写开机自启与桌面图标；失败只提示（一条备注），不影响迁移结果。"""
     if not state or not (state.get("enabled") or state.get("desktop")):
-        return ""
+        return None
     from . import desktop_startup
     try:
         desktop_startup.save(config, enabled=bool(state["enabled"]), silent=bool(state["silent"]),
                              desktop=bool(state.get("desktop")))
     except Exception as exc:
-        return f"开机自启与桌面图标未能更新（{exc}），请在设置页重新打开"
-    return ""
+        return {"code": "labels.dataStorage.startupNotUpdated", "params": {"error": nested_message(exc)}}
+    return None
+
+
+def _notes(notes: list) -> dict:
+    """迁移回执的备注：`notes` 是 zh-CN 原文，`note_codes` 是同序的 `{code, params}`。"""
+    kept = [note for note in notes if note]
+    return {"notes": [_phrase(note["code"], note["params"]) for note in kept], "note_codes": kept}
 
 
 def apply(request_path: Path, wait_pid: int | None, *, environ: dict[str, str] | None = None,
@@ -1009,24 +1039,24 @@ def apply(request_path: Path, wait_pid: int | None, *, environ: dict[str, str] |
         try:
             copied = relocate(old, target, bootstrap=bootstrap, copy=copy)
         except MovedWithoutRewrite as exc:
-            notes.append(str(exc))
+            notes.append({"code": exc.code, "params": exc.params})
         final = target
     except Exception as exc:
         Path(request_path).unlink(missing_ok=True)
         if old is not None:
             notes.append(_restore_startup(old, startup))
+        # 备注不再拼进 `message`，页面把它们接在原因后面显示。
         _record(source, state="error", source=str(source), target=str(target_raw),
-                message="；".join(filter(None, [f"数据目录未迁移，仍在原位置：{exc}", *notes])))
+                **_coded("labels.dataStorage.notMoved", {"error": nested_message(exc)}), **_notes(notes))
         _start_tray(dict(environ, PEACH_DATA_ROOT=str(source)), start)
         return 1
     try:
         new = settings_file.load_config(environ=dict(environ, PEACH_DATA_ROOT=str(final)))
         notes.append(_restore_startup(new, startup))
     except Exception as exc:
-        notes.append(f"开机自启与桌面图标未能更新（{exc}），请在设置页重新打开")
-    message = "数据目录已迁移"
-    _record(final, state="done", source=str(source), target=str(final), message=message,
-            notes=[note for note in notes if note], leftovers=0)
+        notes.append({"code": "labels.dataStorage.startupNotUpdated", "params": {"error": nested_message(exc)}})
+    message = _coded("labels.dataStorage.moved")
+    _record(final, state="done", source=str(source), target=str(final), **message, **_notes(notes), leftovers=0)
     _start_tray(dict(environ, PEACH_DATA_ROOT=str(final)), start)
     if copied:
         # 新托盘只读新位置，原目录这时才删：删几十 GB 要几分钟，不让人对着没有托盘的桌面等。
@@ -1035,9 +1065,9 @@ def apply(request_path: Path, wait_pid: int | None, *, environ: dict[str, str] |
         except OSError:
             leftovers = -1
         if leftovers:
-            notes.append(f"原位置还有文件未能删除，确认新位置一切正常后可手动删除：{source}")
-        _record(final, state="done", source=str(source), target=str(final), message=message,
-                notes=[note for note in notes if note], leftovers=leftovers)
+            notes.append({"code": "labels.dataStorage.leftovers", "params": {"path": str(source)}})
+        _record(final, state="done", source=str(source), target=str(final), **message, **_notes(notes),
+                leftovers=leftovers)
     return 0
 
 

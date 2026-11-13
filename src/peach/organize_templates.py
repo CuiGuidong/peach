@@ -22,25 +22,30 @@ import re
 import unicodedata
 from dataclasses import dataclass
 
+from . import interface_text
+from .catalog_vocabulary import UNCENSORED
 from .user_messages import UserFacingError, error_fields
 
-#: 模板认识的占位符，以及它在界面上的说明。顺序就是界面上列出来的顺序。
+#: 模板认识的占位符，顺序就是界面上列出来的顺序。键是用户写进模板的语法（`{code}`），是协议值，不翻译；
+#: 界面上的说明在 `server:labels.organizeTemplates.placeholder.<键>`，这里放 zh-CN 原文给命令行与老前端兜底。
+PLACEHOLDER_KEYS = ("code", "title", "studio", "series", "year", "actors", "cd", "mosaic", "definition")
 PLACEHOLDERS: dict[str, str] = {
-    "code": "番号",
-    "title": "标题",
-    "studio": "厂牌",
-    "series": "系列",
-    "year": "发行年",
-    "actors": "出演者",
-    "cd": "分片号",
-    "mosaic": "有码无码",
-    "definition": "画质",
-}
+    key: interface_text.text(f"server:labels.organizeTemplates.placeholder.{key}") for key in PLACEHOLDER_KEYS}
 
-EXAMPLE_VALUES = {
-    "code": "ABC-123", "title": "标题", "studio": "厂牌", "series": "系列",
-    "year": "2024", "actors": "甲、乙", "cd": "2", "mosaic": "无码", "definition": "1080p",
-}
+#: 示例字段里与语言无关的那几项；标题、厂牌、系列与出演者是示例文字，按界面语言取
+#: `server:labels.organizeTemplates.example.<键>`。`mosaic` 只会取到账本的无码取值。
+_FIXED_EXAMPLES = {"code": "ABC-123", "year": "2024", "cd": "2", "mosaic": UNCENSORED, "definition": "1080p"}
+_WORDED_EXAMPLES = ("title", "studio", "series", "actors")
+
+
+def example_values(language: str = interface_text.SOURCE_LANGUAGE) -> dict[str, str]:
+    """预览模板用的固定示例字段。"""
+    return {**_FIXED_EXAMPLES, **{key: interface_text.text(f"server:labels.organizeTemplates.example.{key}",
+                                                           language=language)
+                                  for key in _WORDED_EXAMPLES}}
+
+
+EXAMPLE_VALUES = example_values()
 
 #: 单个路径组件的长度上限。Windows 的组件上限是 255 个字符，但长名字在资源管理器、
 #: 压缩包和网盘客户端里到处挨截断，所以留一大截余量；超出的从中间截断而不是末尾——
@@ -279,13 +284,14 @@ def render(template: str, values: dict[str, str], *,
     return "/".join(components), frozenset(missing)
 
 
-def example_path(file_template: str, dir_template: str) -> dict:
-    """以固定示例字段渲染当前输入的路径。"""
+def example_path(file_template: str, dir_template: str, language: str = interface_text.SOURCE_LANGUAGE) -> dict:
+    """以固定示例字段渲染当前输入的路径；示例文字按 `language` 取。"""
+    values = EXAMPLE_VALUES if language == interface_text.SOURCE_LANGUAGE else example_values(language)
     parts = {}
     for field, text, directory in (("file", file_template, False), ("dir", dir_template, True)):
         try:
-            parts[field], _missing = render(text, EXAMPLE_VALUES, directory=directory)
+            parts[field], _missing = render(text, values, directory=directory)
         except TemplateError as error:
             return {"ok": False, **error_fields(error), "field": field}
-    filename = (parts["file"] if file_template.strip() else "ABC-123 标题") + ".mp4"
+    filename = (parts["file"] if file_template.strip() else f"{values['code']} {values['title']}") + ".mp4"
     return {"ok": True, "example": "/".join(filter(None, (parts["dir"], filename)))}

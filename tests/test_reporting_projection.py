@@ -25,6 +25,14 @@ class ReportingProjectionTests(unittest.TestCase):
             self.assertEqual(send.call_args.args[1]['tags']['media_failure'], 'decoder_unavailable')
             self.assertNotIn('private', json.dumps(send.call_args.args[1]))
 
+    def test_coded_errors_are_reported_like_the_plain_errors_they_replace(self):
+        """带 code 的报错身上的 `status_code` 只是接口层的状态提示，不能让后台技术故障被当成 4xx 而不上报。"""
+        from peach.user_messages import UserRuntimeError, UserValueError
+        for error in (UserRuntimeError('errors.libraryProcessing.captureUnfetched'),
+                      UserValueError('errors.libraryProcessing.captureUnfetched')):
+            with self.subTest(kind=type(error).__name__):
+                self.assertTrue(remote_reporting._actionable('background-job', error, {}))
+
     def test_python_chain_has_separate_frames_and_sqlite_error_identity(self):
         code = compile('def fail():\n    import sqlite3\n    connection = sqlite3.connect(":memory:")\n'
                        '    try:\n        connection.execute("SELECT private_column")\n'

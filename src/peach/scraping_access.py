@@ -18,6 +18,8 @@ from urllib.parse import urlsplit, urljoin
 
 import httpx
 
+from .coded_text import Said, coded
+from .content_words import AGE_GATE_BUTTON, ONEPONDO_NAME
 from .follow_secrets import CredentialStore
 from . import browser_transport, peach_proxy
 from .http import HttpRequest, HttpxTransport
@@ -36,7 +38,7 @@ SOURCES = {
     "mgstage": {"label": "MGStage", "domains": ("mgstage.com",), "login": "https://www.mgstage.com/"},
     "faleno": {"label": "FALENO", "domains": ("faleno.jp",), "login": "https://faleno.jp/"},
     "dahlia": {"label": "DAHLIA", "domains": ("dahlia-av.jp",), "login": "https://dahlia-av.jp/"},
-    "makers": {"label": "片商官网", "domains": (), "login": ""},
+    "makers": {"label": Said("labels.scrapingAccess.makers"), "domains": (), "login": ""},
     "fc2club": {"label": "FC2Club", "domains": ("fc2club.top",), "login": "https://fc2club.top/"},
     "freejavbt": {"label": "FreeJavBT", "domains": ("freejavbt.com",), "login": "https://freejavbt.com/"},
     "airav": {"label": "AIRAV", "domains": ("airav.io",), "login": "https://airav.io/"},
@@ -57,7 +59,7 @@ SOURCES = {
     # 「18 岁以上」的按钮才回到要看的页；浏览器传输落到这个路径就替用户点。
     "fc2ppvdb": {"label": "FC2PPV-DB", "domains": ("fc2ppv-db.com",), "login": "https://fc2ppv-db.com/",
                  "cookie": True, "session": True, "browser": True, "blocked_pause": 6 * 3600,
-                 "browser_gate": {"path": "/age-verify", "button": r"18|はい|入場|同意|以上|Enter|Yes"}},
+                 "browser_gate": {"path": "/age-verify", "button": AGE_GATE_BUTTON}},
     "javten": {"label": "JAVten", "domains": ("javten.com",), "login": "https://javten.com/",
                "cookie": True, "session": True, "browser": True, "blocked_pause": 6 * 3600},
     # 下架 FC2 的最后一档。作品页在 javarchive.com、封面转存在 javstore.net 上，两边算同一个
@@ -65,7 +67,7 @@ SOURCES = {
     "javarchive": {"label": "JavArchive", "domains": ("javarchive.com", "javstore.net"),
                    "login": "https://javarchive.com/"},
     # 作品 JSON、剧照和样片都在 1pondo.tv 底下（含 `smovie.`）。免登录可读，不收 Cookie。
-    "1pondo": {"label": "一本道", "domains": ("1pondo.tv",), "login": "https://www.1pondo.tv/"},
+    "1pondo": {"label": ONEPONDO_NAME, "domains": ("1pondo.tv",), "login": "https://www.1pondo.tv/"},
     "instagram": {"label": "Instagram", "domains": ("instagram.com", "cdninstagram.com"), "login": "https://www.instagram.com/accounts/login/", "cookie": True},
     # 三家社区来源拒绝访问时回 403，不发 Retry-After：javdb 是出口 IP 超了配额（一封 3～7 日，
     # docs/SOURCING.md），AVBase 是 Cloudflare 验证，JavBus 的 403 原因未取得。封期里接着问只会每条都
@@ -337,7 +339,7 @@ def fix_to_browser(root: Path, source: str) -> None:
 def describe(root: Path, source: str) -> dict:
     values = values_for(root, source)
     until = paused_until(root, source)
-    return {"source": source, "label": SOURCES[source]["label"],
+    return {"source": source, **coded("label", SOURCES[source]["label"]),
             "login": SOURCES[source]["login"], "accepts_cookie": bool(SOURCES[source].get("cookie")),
             "network": "direct" if values.get("network") == "direct" else "peach",
             "cookie_saved": bool(values.get("cookie") or values.get("cookies_text")),
@@ -507,7 +509,7 @@ class SourceTransport:
         try:
             response = self.transports[source](request, timeout, max_bytes)
         except (httpx.HTTPError, browser_transport.BrowserUnavailable):
-            raise httpx.TransportError("来源连接未取得，请检查该来源的网络设置") from None
+            raise httpx.TransportError(Said("labels.scrapingAccess.unreachable")) from None
         except browser_transport.ChallengeUnsolved:
             blocks += 1
             _pause(cooldown, time.time() + min(FIRST_BLOCKED_PAUSE * 2 ** (blocks - 1),

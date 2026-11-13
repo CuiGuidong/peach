@@ -29,11 +29,11 @@ from . import performer_alias_followup as alias
 from .entity_classification import write_claim
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
 from .task_outcomes import is_outcome, outcome_parts, said
-from .task_runs import item_progress
+from .task_runs import item_progress, task_label
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "creator-identity"
-TASK_LABEL = "创作者身份查找"
+TASK_LABEL = task_label(TASK_KEY)
 
 #: 这条后继写下的断言来源都以它开头，后面接 `@<任务行 id>`；撤回按它认。
 SOURCE = "script:creator-identity-wiki"

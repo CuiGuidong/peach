@@ -10,9 +10,20 @@ from collections import deque
 from contextlib import contextmanager, closing, nullcontext
 from contextvars import ContextVar
 
+from . import interface_text
 from .fsutil import atomic_write_text
 from .task_stages import stage as stage_fields, stage_code
 from .user_messages import UserInterruptedError, UserValueError
+
+
+def _eta(scope: str, basis: str, basis_params: dict | None = None) -> dict:
+    """剩余时间估算的范围与依据（ADR-0159）：`eta_scope`、`eta_basis` 是 zh-CN 原文，
+    旁边是 `labels.processingControl.scope|basis.<名字>` 的 code 与参数。"""
+    scope_code, basis_code = f"labels.processingControl.scope.{scope}", f"labels.processingControl.basis.{basis}"
+    params = dict(basis_params or {})
+    return {"eta_scope": interface_text.text(f"server:{scope_code}"), "eta_scope_code": scope_code,
+            "eta_basis": interface_text.text(f"server:{basis_code}", params), "eta_basis_code": basis_code,
+            "eta_basis_params": params}
 
 CURRENT = ContextVar('peach_library_processing_control', default=None)
 _CONTROLS = {}
@@ -413,10 +424,9 @@ def initial_estimate(config, db_path, stage, asset_ids=None, mode=None, *, allow
                 eta_seconds_min=max(1, math.ceil(estimate * 0.4)) if known and count else 0 if known else None,
                 eta_seconds_max=max(1, math.ceil(estimate * 2.5)) if known and count else 0 if known else None,
                 eta_kind='historical' if historical else 'estimating', eta_initial=True,
-                eta_scope='本趟处理（已登记文件，未含未知新增）' if stage in ('scan', 'all') else '本趟处理',
-                eta_basis=f'根据已登记的 {count} 个视频、{size / 1024**3:.1f} GiB'
-                          + ('及本机同类历史耗时粗估' if historical else '粗估，运行后校准')
-                          if known else '正在统计新目录的文件数量和大小',
+                **_eta('knownFiles' if stage in ('scan', 'all') else 'thisRun',
+                       ('registeredHistory' if historical else 'registeredRough') if known else 'counting',
+                       {'count': count, 'size': f'{size / 1024**3:.1f}'} if known else None),
                 estimate_file_count=count, estimate_bytes=size)
 
 
@@ -444,8 +454,7 @@ class ProcessingEstimate:
         known = phase in rates and total > 0
         state.update(eta_seconds_min=math.ceil(seconds * 0.4) if known else None,
                      eta_seconds_max=math.ceil(seconds * 2.5) if known else None,
-                     eta_kind='estimating', eta_initial=True, eta_scope='整趟任务',
-                     eta_basis='根据当前阶段待处理数量粗估，运行后校准')
+                     eta_kind='estimating', eta_initial=True, **_eta('wholeTask', 'stageRough'))
 
     def _total_estimate(self, state, phase, done, total, now):
         """当前阶段用独立样本校准，待执行阶段保留各自的粗估范围。"""
@@ -473,7 +482,7 @@ class ProcessingEstimate:
         state.update(eta_seconds_min=math.ceil(low) if high else None,
                      eta_seconds_max=math.ceil(high) if high else None,
                      eta_kind='estimating' if rough or not high else 'measured', eta_initial=rough,
-                     eta_scope='整趟任务', eta_basis='汇总当前阶段与所有待执行阶段的剩余耗时')
+                     **_eta('wholeTask', 'allStages'))
 
     def update(self, state):
         mode = self.control.mode if self.control is not None else self.mode
@@ -529,5 +538,4 @@ class ProcessingEstimate:
         remaining = (total - done) * per_item
         state.update(eta_seconds_min=max(1, math.ceil(remaining * (1 - uncertainty))),
                      eta_seconds_max=max(1, math.ceil(remaining * (1 + uncertainty))),
-                     eta_kind='measured', eta_initial=False, eta_scope='整趟任务',
-                     eta_basis=f'根据当前阶段最近完成的 {sampled} 个视频耗时校准')
+                     eta_kind='measured', eta_initial=False, **_eta('wholeTask', 'measured', {'count': sampled}))

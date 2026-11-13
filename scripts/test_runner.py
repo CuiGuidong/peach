@@ -232,6 +232,15 @@ AUTO_SCOPE_FILES: dict[str, tuple[str, ...]] = {
     "src/peach/genre_taxonomy.py": ("metadata", "catalog", "web"),
     # 标签词表是 genre 投影的落点，复核页与目录页也按它筛选。
     "src/peach/catalog_rules.py": ("metadata", "catalog", "web"),
+    # 内容数据模块与带 code 的原句（ADR-0159）：没有自己的测试文件，域取直接用它们的那些模块。
+    # 账本取值、文件名原词与 `Said` 散在扫描、采集、关注、下载与页面各处，几乎每个域都有读者。
+    "src/peach/catalog_vocabulary.py": ("follow", "catalog", "media", "sync", "metadata", "tooling", "web", "core"),
+    "src/peach/content_words.py": ("follow", "catalog", "media", "sync", "metadata", "tooling", "web", "core"),
+    "src/peach/coded_text.py": ("follow", "catalog", "media", "metadata", "tooling", "web", "core"),
+    "src/peach/junk_words.py": ("follow", "catalog", "media", "metadata", "tooling", "web", "core"),
+    "src/peach/source_page_words.py": ("metadata",),
+    "src/peach/studio_words.py": ("catalog", "metadata", "web"),
+    "src/peach/taste_words.py": ("catalog", "tooling"),
     # 来源顺序一变，`test_scripts.py` 里钉住的 field_rank 就跟着挪，而那份用例
     # 住在 tooling——按名字只推得出 metadata，不指明就跑不到。
     "src/peach/metadata_policy.py": ("metadata", "tooling"),

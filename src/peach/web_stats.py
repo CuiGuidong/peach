@@ -19,6 +19,7 @@ import time
 from datetime import UTC, datetime, timedelta
 
 from .catalog_rules import tag_cat
+from .catalog_vocabulary import LENGTH_BANDS, QUALITY_BANDS
 from . import media_libraries, settings_file
 from .config import LOCATION_ROOT_DECLARATIONS
 from .fsutil import atomic_write_text
@@ -443,10 +444,8 @@ PRESENT = "COALESCE(disposal,'')<>'vanished' AND NOT peach_is_local_extra(name,p
 PRESENT_A = "COALESCE(a.disposal,'')<>'vanished' AND NOT peach_is_local_extra(a.name,a.path)"
 
 
-#: 视频的时长与画质分档，顺序同 `media_probe.context_fields` 的判据：由短到长、由高到低。
-#: 档名是账本 `ctx_length`、`ctx_quality` 里的取值（内容数据）；时长档的显示名由前端按取值给。
-LENGTH_BANDS = ("速食", "短", "中", "长")
-QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "低画质")
+#: 视频的时长与画质分档（`LENGTH_BANDS`、`QUALITY_BANDS`）是账本 `ctx_length`、`ctx_quality` 的取值，
+#: 定义在 `catalog_vocabulary`；时长档的显示名由前端按取值给。
 #: 画质档里要翻译的那一档（最低一档的取值是中文词）的显示名 code；其余档名本身就是通用写法。
 QUALITY_LABEL_CODES = {QUALITY_BANDS[-1]: "taste.qualityBand.low"}
 

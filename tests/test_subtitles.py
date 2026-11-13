@@ -80,6 +80,16 @@ class PairingTests(unittest.TestCase):
         self.assertEqual(subtitles.track_label("ABP-758.director.srt", "", "ABP-758.mp4"),
                          "director")
 
+    def test_every_recognised_language_has_a_label_in_both_interface_languages(self):
+        """界面按语言码用 `Intl.DisplayNames` 显示语言名；`track_label` 的兜底原文来自资源，两种语言都要有。"""
+        from peach import interface_text
+        self.assertEqual(set(subtitles.LANGUAGE_TOKENS.values()), set(subtitles.LANGUAGE_LABEL_CODES))
+        for language, code in subtitles.LANGUAGE_LABEL_CODES.items():
+            with self.subTest(language=language):
+                self.assertTrue(interface_text.has(f"server:{code}", "en"))
+        self.assertEqual(interface_text.text(f"server:{subtitles.LANGUAGE_LABEL_CODES['ja']}", language="en"), "Japanese")
+        self.assertEqual(subtitles.language_of("ABP-758.日本語.srt"), "ja")
+
     def test_a_subtitle_named_exactly_like_the_video_is_labelled_by_format(self):
         """完全同名时文件名一个字也没多说，菜单里写 `SRT` 比复述正片标题好读。
         """

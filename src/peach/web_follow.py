@@ -29,7 +29,7 @@ from .follow_check import plan_check, run_check
 from .follow_covers import fanbox_video_indexes
 from .web_settings import follow_initial_days
 from .follow_discovery import (
-    MAX_SUGGESTIONS, PROFILE_ALIAS_SKIP_SERVICES, archive_suggestions, discover,
+    MAX_SUGGESTIONS, PROFILE_ALIAS_SKIP_SERVICES, TAG_TYPES, archive_suggestions, discover,
     discovery_plan, no_backoff, suggest_term, tag_suggestions,
 )
 from .follow_image_dims import positive_dims
@@ -53,6 +53,7 @@ from .taste_history import read_creator_candidates
 from .web_state import path_version
 from .online_tag_management import OnlineTagPolicy, TYPE_RANK, tag_key
 from .user_messages import UserInterruptedError, UserValueError, failure_fields, message_fields
+from .coded_text import coded, restored
 
 
 #: 界面上给每个来源的中文短名。没登记的 provider 直接显示原名。
@@ -1289,7 +1290,8 @@ def _source_payload(row, aliases: dict[str, str] | None = None) -> dict:
         "created_at": row["created_at"],
         "last_checked_at": row["last_checked_at"],
         "last_status": "not_modified" if history_exhausted else row["last_status"],
-        "last_error": None if history_exhausted else row["last_error"],
+        **coded("last_error", None if history_exhausted else
+                restored(row["last_error"], row["last_error_code"], row["last_error_params"])),
         "history_exhausted": history_exhausted,
     }
 
@@ -1760,7 +1762,9 @@ def q_follow_suggest(contract, q: str, limit: int = MAX_SUGGESTIONS,
     # 的才标，`角色`／`作品` 之间的差别正是这一列存在的理由。
     buckets["tag_artist"] = [{"value": row.value, "n": row.count, "matched": ""}
                              for row in tags if row.tag_type == "artist"]
-    buckets["tag"] = [{"value": row.value, "n": row.count, "matched": row.matched}
+    buckets["tag"] = [{"value": row.value, "n": row.count, "matched": row.matched,
+                       **({"matched_code": f"labels.followDiscovery.tagType.{row.tag_type}"}
+                          if row.tag_type in TAG_TYPES else {})}
                       for row in tags if row.tag_type != "artist"]
     return {"q": query, "groups": [
         {"kind": kind, "label": interface_text.text(f"server:{code}"), "label_code": code,
@@ -2351,10 +2355,10 @@ def _check_payload(result) -> dict:
         payload.update({"status": result.status, "error": result.error})
         return payload
     if result.status == "skipped":
-        payload.update({"deferred": True, "message": result.message})
+        payload.update({"deferred": True, **coded("message", result.message)})
         return payload
     if result.exhausted:
-        payload.update({"exhausted": True, "message": result.message})
+        payload.update({"exhausted": True, **coded("message", result.message)})
         return payload
     fetch, outcome = result.fetch, result.outcome
     payload.update({
@@ -2369,7 +2373,7 @@ def _check_payload(result) -> dict:
         # 列表判不出来、额外抓了详情页的条数。这是唯一会放大请求数的路径。
         "probed": fetch.probed,
         # 证据没存下来不算检查失败，但界面必须说出来，不能悄悄少一份原始响应。
-        "evidence_error": outcome.evidence_error,
+        **coded("evidence_error", outcome.evidence_error),
         "author_alias_learned": result.author_alias_learned,
     })
     return payload
@@ -2747,20 +2751,29 @@ MAX_RESOLVE_LINES = 40
 MAX_DISCOVERY_ALIASES = 8
 
 
+def _phrase_fields(key: str, text: object, phrase: dict | None) -> dict:
+    """`<key>` 放 zh-CN 原文，有 code 时旁边是 `<key>_code`、`<key>_params`（`follow_discovery.phrase` 那一句，
+    或身上带 code 的 `Said`），前端 `codedText` 按当前语言显示。"""
+    if isinstance(phrase, dict):
+        return {key: text, f"{key}_code": phrase["code"], f"{key}_params": dict(phrase.get("params") or {})}
+    return coded(key, text)
+
+
 def _candidate_payload(candidate, *, author: str = "") -> dict:
     return {"provider": candidate.provider,
             "provider_label": PROVIDER_LABELS.get(candidate.provider, candidate.provider),
             "ref": canonical_source_ref(candidate.provider, candidate.ref),
-            "url": candidate.url, "label": candidate.label, "author": author,
-            "aliases": list(getattr(candidate, "aliases", ())),
-            "semantics": candidate.semantics, "evidence": candidate.evidence}
+            "url": candidate.url, **_phrase_fields("label", candidate.label, getattr(candidate, "label_phrase", None)),
+            "author": author, "aliases": list(getattr(candidate, "aliases", ())),
+            "semantics": candidate.semantics,
+            **_phrase_fields("evidence", candidate.evidence, getattr(candidate, "reason", None))}
 
 
 def _external_search_payload(search) -> dict:
     return {"provider": search.provider,
             "provider_label": PROVIDER_LABELS.get(search.provider, search.provider),
-            "label": search.label, "query": search.query,
-            "url": search.url, "evidence": search.evidence}
+            **_phrase_fields("label", search.label, search.label_phrase), "query": search.query,
+            "url": search.url, **_phrase_fields("evidence", search.evidence, search.reason)}
 
 
 def _resolve_follow_line(contract, line, known, on_progress):
@@ -2780,7 +2793,7 @@ def _resolve_follow_line(contract, line, known, on_progress):
                 'candidates': [{**_candidate_payload(c, author=line),
                                 'known': (c.provider, canonical_source_ref(c.provider, c.ref)) in known}
                                for c in found.candidates],
-                'failures': found.failures,
+                'failures': found.failures, 'failure_codes': found.failure_phrases,
                 'external_searches': [_external_search_payload(search) for search in found.external_searches]}
     return {'line': line, 'kind': 'url',
             'candidates': [{**_candidate_payload(parsed),
@@ -2979,9 +2992,9 @@ def q_follow_credentials(contract, _args) -> dict:
             "requirement": guide["requirement"],
             "needs": fields,
             "missing": [name for name in fields if name not in described["fields"]],
-            "why": guide.get("why", ""),
+            "why": guide.get("why", ""), "why_code": guide.get("why_code", ""),
             "where": guide.get("where", ""),
-            "howto": guide.get("howto", ""),
+            "howto": guide.get("howto", ""), "howto_code": guide.get("howto_code", ""),
             "path": str(store.path_for(provider)),
             "example": (json.dumps({name: "…" for name in fields}, ensure_ascii=False)
                         if fields else ""),

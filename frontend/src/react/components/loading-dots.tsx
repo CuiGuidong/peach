@@ -4,14 +4,21 @@
  * 三颗点的错相由 `../styles.css` 的 `dot-wave-*` 给，减少动效时全局规则关掉动画。
  * 点已经在动，`label` 不带省略号。 */
 
+/** 只有三颗点、随文字色：放在已有状态文字行里当前导图标（页面顶部的更新横幅），文字与读屏状态由那一行给。 */
+export function LoadingDotsMark() {
+  return (
+    <span aria-hidden className="inline-flex shrink-0 items-center gap-1">
+      <i className="dot-wave-0 size-1 rounded-full bg-current" />
+      <i className="dot-wave-1 size-1 rounded-full bg-current" />
+      <i className="dot-wave-2 size-1 rounded-full bg-current" />
+    </span>
+  );
+}
+
 export function LoadingDots({ label }: { label: string }) {
   return (
     <p role="status" className="flex min-w-0 items-center gap-2 text-caption-1-regular text-text-secondary">
-      <span aria-hidden className="inline-flex shrink-0 items-center gap-1">
-        <i className="dot-wave-0 size-1 rounded-full bg-current" />
-        <i className="dot-wave-1 size-1 rounded-full bg-current" />
-        <i className="dot-wave-2 size-1 rounded-full bg-current" />
-      </span>
+      <LoadingDotsMark />
       <span className="min-w-0 wrap-anywhere">{label}</span>
     </p>
   );

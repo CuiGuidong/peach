@@ -6,6 +6,7 @@ import { entityLinkId, registerEntityLink, registerResponseEntities } from './en
 import { SOURCE_LABELS } from './media-sources';
 import { markResolved, requestErrorMessage } from './request-error';
 import { serverText } from './server-text';
+import { noticeFailedResponse, noticeRequestFailure } from './service-status';
 import { iconGeometry } from './icon-geometry';
 import { libraryScopedPath } from './library-scope';
 import { t } from '../i18n';
@@ -27,10 +28,11 @@ const api=async(p:string,o?:RequestInit):Promise<unknown>=>{
   const init:RequestInit={headers:{'Content-Type':'application/json'},...rest};
   if(signal)init.signal=signal;
   let response:Response;
-  try{response=await fetch(p,init)}catch(error:any){if(error?.name==='AbortError')throw error;throw markResolved(new Error(requestErrorMessage(error),{cause:error}))}
+  try{response=await fetch(p,init)}catch(error:any){noticeRequestFailure(error);if(error?.name==='AbortError')throw error;throw markResolved(new Error(requestErrorMessage(error),{cause:error}))}
   let payload:any=null;
   try{payload=await response.json()}catch{}
   if(!response.ok){
+    noticeFailedResponse(response.status,payload);
     const reason=serverText(payload);
     throw markResolved(new Error(reason||requestErrorMessage('',response.status)));
   }

@@ -32,6 +32,8 @@ from pathlib import Path
 from typing import Callable, Mapping
 from urllib.parse import urlsplit, urlunsplit
 
+from .coded_text import Said
+from .content_words import BROWSER_CHALLENGE_MARKS
 from .http import HttpRequest, HttpResponse
 from .user_messages import UserFacingError
 
@@ -57,8 +59,7 @@ OFFSCREEN = (-32000, -32000)
 ONSCREEN = (200, 100)
 WINDOW_SIZE = (1000, 800)
 #: 验证页的标记，前两条是 Cloudflare 的标题（英文与中文界面），后面是它脚本与文案里的固定字串。
-CHALLENGE_MARKS = ("Just a moment", "请稍候", "cf-chl-", "challenge-platform",
-                   "Verifying you are human", "Attention Required")
+CHALLENGE_MARKS = BROWSER_CHALLENGE_MARKS
 #: 导航时不下载的资源：图片、字体与媒体。要的是 HTML，验证页也不靠这些。
 BLOCKED_RESOURCES = ("*.jpg", "*.jpeg", "*.png", "*.gif", "*.webp", "*.avif", "*.ico",
                      "*.woff", "*.woff2", "*.ttf", "*.mp4", "*.webm", "*.m3u8")
@@ -448,7 +449,7 @@ class BrowserTransport:
 
     def __call__(self, request: HttpRequest, timeout: float, max_bytes: int) -> HttpResponse:
         from .processing_traffic import unobserved
-        unobserved('浏览器采集流量未观测')
+        unobserved(Said('labels.browserTransport.trafficUnobserved'))
         if request.method.upper() != "GET":
             raise BrowserUnavailable("browser transport only sends GET")
         with self._lock:
@@ -516,7 +517,7 @@ class BrowserTransport:
 
         def show(reason: str) -> float:
             browser.place(visible=True)
-            _set_attention(host, f"{host} 的人机验证需要点一下，浏览器窗口已打开")
+            _set_attention(host, f"{host} verification needs a click; the browser window is open")
             LOGGER.warning("%s verification page %s; window moved on screen, waiting for the user to click", host, reason)
             return self._clock()
 
@@ -525,7 +526,7 @@ class BrowserTransport:
                 # 先看窗口再读页面：最小化的窗口里页面脚本要好几秒才回（2026-11-09 本机 Chrome 实测），
                 # 先拉上屏，用户点完任务栏马上就能看到。
                 if shown_at is None and challenged_seen and browser.minimized_by_user():
-                    shown_at = show("被用户从任务栏唤出")
+                    shown_at = show("restored from the taskbar by the user")
                 state = self._state(browser)
                 challenged = any(mark in state["head"] or mark in state["title"] for mark in CHALLENGE_MARKS)
                 # DOM 解析完（`interactive`）就够：验证页的标记在页头里，此时已经看得到；不等外部
@@ -553,7 +554,7 @@ class BrowserTransport:
                             raise ChallengeUnsolved(f"{host} verification did not pass automatically within "
                                                     f"{int(elapsed)} s; the window was not clicked last time, "
                                                     "so it is not shown again")
-                        shown_at = show("没有自动通过")
+                        shown_at = show("did not pass automatically")
                 elif elapsed >= timeout:
                     raise PageTimeout(f"{host} page did not open within {int(elapsed)} s")
                 self._sleep(1.0)

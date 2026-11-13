@@ -12,7 +12,7 @@ from datetime import datetime, timezone
 from itertools import islice
 from pathlib import Path
 
-from . import error_reporting
+from . import error_reporting, interface_text
 from .task_stages import stage as stage_fields
 from .user_messages import UserOSError
 
@@ -246,9 +246,9 @@ def _archive_scraping(archive, config, entries, *, progress, cancelled, include_
                                 if cancelled():
                                     raise ExportCancelled()
                                 target.write(chunk)
-                index['detail'] = '详细刮削记录已包含在 scraping/ 目录'
+                index['detail'] = 'Detailed scraping records are included under scraping/'
             else:
-                index['detail'] = '详细刮削记录超过自动合并上限，请按问题番号单独导出'
+                index['detail'] = 'Detailed scraping records exceed the automatic merge limit; export them separately by code'
     index['export'] = state
     archive.writestr('scraping/summary.json', json.dumps(error_reporting.scrub(index), ensure_ascii=False, indent=2))
     entries.append({'name': 'summary.json', 'section': 'scraping', 'status': 'included'})
@@ -365,7 +365,8 @@ def save_bundle(destination: Path | None = None) -> Path:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="保存本机脱敏诊断包，无需启动 Peach 服务")
+    parser = argparse.ArgumentParser(description=interface_text.text(
+        "server:labels.supportBundle.cliDescription", None, interface_text.local_language()))
     parser.add_argument("destination", nargs="?", type=Path)
     args = parser.parse_args(argv)
     print(save_bundle(args.destination))

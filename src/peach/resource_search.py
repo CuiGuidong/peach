@@ -28,10 +28,12 @@ from torznab.parser import parse_capabilities, parse_torznab
 from .catalog_rules import (
     UNCENSORED_EDITIONS, jav_edition_badges, normalise_code_key, release_code_from_text, same_release_code,
 )
+from .coded_text import Said, coded, parallel
+from .content_words import CHINESE_SUBTITLE_BADGE
 from .downloads import parse_magnet
 from .follow_secrets import CredentialError, CredentialStore
 from .feeds import scan_code
-from .user_messages import UserValueError
+from .user_messages import UserValueError, nested_message
 
 CREDENTIAL = "resource-indexers"
 MAX_INDEXERS = 4
@@ -138,7 +140,7 @@ def qualities(title: str, tags: list[str], code: str) -> dict:
         (r"(?i)\b(?:h[ ._-]?264|x264|avc)\b", "AVC"),
         (r"(?i)\bav1\b", "AV1")) if re.search(pattern, text)), "")
     editions = jav_edition_badges(title, code, tags)
-    return {"resolution": resolution, "codec": codec, "chinese": "中字" in editions,
+    return {"resolution": resolution, "codec": codec, "chinese": CHINESE_SUBTITLE_BADGE in editions,
             "uncensored": any(label in UNCENSORED_EDITIONS for label in editions)}
 
 
@@ -155,7 +157,8 @@ def torrent_info_hash(data: bytes) -> str:
 
 
 #: 条目被筛掉的原因。搜索结果为空时据此分开「索引器里没有」和「有，但都不合格」。
-REJECT_REASONS = {"code": "番号不符", "size": "体积不在区间", "seeders": "没有人做种", "hash": "取不到 infohash"}
+REJECT_REASONS = {"code": "labels.resourceSearch.reject.code", "size": "labels.resourceSearch.reject.size",
+                  "seeders": "labels.resourceSearch.reject.seeders", "hash": "labels.resourceSearch.reject.hash"}
 
 
 def candidate(item, indexer: dict, code: str, filters: Filters,
@@ -267,10 +270,10 @@ class Search:
             raise UserValueError("errors.resourceSearch.indexerLimitExceeded")
         if not active:
             return {"ok": True, "state": "unavailable", "items": [], "warnings": [],
-                    "error": "请在本机「配置 → 下载」中添加并启用索引器"}
+                    **coded("error", Said("labels.resourceSearch.noIndexer"))}
         if not self.lock.acquire(blocking=False):
             return {"ok": False, "state": "busy", "items": [], "warnings": [],
-                    "error": "资源搜索正在进行，请稍后重试", "retry_after": 0.0}
+                    **coded("error", Said("labels.resourceSearch.busy")), "retry_after": 0.0}
         try:
             key = (json.dumps(active, sort_keys=True), code, filters)
             cached = self.cache.get(key)
@@ -325,20 +328,22 @@ class Search:
                         else:
                             found[row["info_hash"]] = row
                 except (httpx.HTTPError, TimeoutError, UnicodeError, ParseError, TorznabAPIError) as error:
-                    warnings.append(f"{indexer['name']}：请求失败或响应格式不正确，请检查索引器")
+                    warnings.append(Said("labels.resourceSearch.indexerFailed", indexer=indexer['name']))
                     if (delay := transient_delay(error)) is not None:
                         retry_delays.append(delay)
                 except ValueError as error:
-                    warnings.append(f"{indexer['name']}：{error}")
+                    warnings.append(Said("labels.resourceSearch.indexerError", indexer=indexer['name'],
+                                         error=nested_message(error)))
         def rank(row):
             target = row[filters.goal] if filters.goal in ("chinese", "uncensored") else row["resolution"]
             return (-int(target), -row["resolution"], -row["seeders"], row["size"], row["info_hash"])
         if not found and rejected:
             # 一条都没留下时说清是哪种「没有」：索引器里有、只是没过筛选，换体积区间或换来源还有救。
-            counts = "、".join(f"{label} {rejected[key]} 条" for key, label in REJECT_REASONS.items() if rejected[key])
-            warnings.append(f"索引器返回了 {sum(rejected.values())} 条结果，都没通过筛选：{counts}")
+            counts = [Said("labels.resourceSearch.rejectedCount", reason=Said(code), count=rejected[key])
+                      for key, code in REJECT_REASONS.items() if rejected[key]]
+            warnings.append(Said("labels.resourceSearch.allRejected", total=sum(rejected.values()), counts=counts))
         return {"ok": successful > 0, "state": "ready" if successful else "error",
                 "retry_after": max(retry_delays) if retry_delays else None,
-                "items": sorted(found.values(), key=rank), "warnings": warnings,
+                "items": sorted(found.values(), key=rank), "warnings": warnings, **parallel("warning", warnings),
                 "rejected": dict(rejected),
-                "error": "" if successful else "所有索引器都未能完成搜索"}
+                **coded("error", "" if successful else Said("labels.resourceSearch.allFailed"))}

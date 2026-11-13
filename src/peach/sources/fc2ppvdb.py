@@ -23,6 +23,9 @@ from dataclasses import replace
 
 from bs4 import BeautifulSoup
 
+from ..source_page_words import (FC2PPVDB_CAST, FC2PPVDB_JAPANESE_DATE, FC2PPVDB_LEAKED, FC2PPVDB_META_TAIL,
+                                 FC2PPVDB_NO_INFORMATION, FC2PPVDB_NOT_LEAKED, FC2PPVDB_SELLER, FC2PPVDB_SOLD_ON,
+                                 FC2PPVDB_TAGS)
 from .base import FailureReason, Page, Session, SiteConfig, SiteRecord, SiteSource, SourceFailure, challenge_page
 from .fc2 import PAGE_LIMIT, fc2_record, runtime_minutes, seller_page, strip_code, text_of, unrecognised, video_id
 
@@ -35,10 +38,10 @@ VIDEO_PATH = "/ja/videos/{video_id}"
 AGE_GATE_PATH = "/age-verify"
 
 #: `<meta name="description">` 末尾那三项。
-_META_TAIL = re.compile(r"販売者:\s*(?P<seller>.*?)\s*/\s*公開日:\s*(?P<date>[^/]*?)\s*/\s*再生時間:\s*(?P<runtime>[\d:]+)\s*$")
-_JAPANESE_DATE = re.compile(r"(\d{4})年(\d{1,2})月(\d{1,2})日")
+_META_TAIL = re.compile(FC2PPVDB_META_TAIL)
+_JAPANESE_DATE = re.compile(FC2PPVDB_JAPANESE_DATE)
 #: 站上没有女优时那一栏写的话。
-_NO_INFORMATION = "情報がありません"
+_NO_INFORMATION = FC2PPVDB_NO_INFORMATION
 #: 女优页地址末尾那段 uuid。
 _ACTRESS_ID = re.compile(r"/actresses/([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})/?(?:[?#]|$)")
 
@@ -81,7 +84,7 @@ def _performers(soup: BeautifulSoup) -> list[dict]:
     `external_id` 是站内女优页 `/ja/actresses/<uuid>` 的 uuid：同一个人在站上只有一页，落库时登记成外部
     编号，她以后的作品按编号挂回同一条实体（ADR-0061）。女优页自己的别名栏几乎是空的，不去读它。
     """
-    block = _block_after(soup, "出演女優")
+    block = _block_after(soup, FC2PPVDB_CAST)
     if block is None:
         return []
     found: dict[str, dict] = {}
@@ -107,21 +110,21 @@ def _seller(soup: BeautifulSoup) -> tuple[str, str]:
     picture = link.select_one("img[alt]")
     name = str(picture.get("alt") or "").strip() if picture is not None else ""
     if not name:
-        name = text_of(link).replace("販売者", "", 1).strip()
+        name = text_of(link).replace(FC2PPVDB_SELLER, "", 1).strip()
     return name, slug
 
 
 def _tags(soup: BeautifulSoup) -> list[str]:
-    block = _block_after(soup, "タグ")
+    block = _block_after(soup, FC2PPVDB_TAGS)
     return [text_of(link) for link in block.select("a")] if block is not None else []
 
 
 def _leaked(soup: BeautifulSoup) -> bool | None:
     """「流出あり」／「流出なし」那枚标记；页上没有就不知道。"""
     marks = {text_of(node) for node in soup.find_all("span")}
-    if "流出あり" in marks:
+    if FC2PPVDB_LEAKED in marks:
         return True
-    if "流出なし" in marks:
+    if FC2PPVDB_NOT_LEAKED in marks:
         return False
     return None
 
@@ -168,7 +171,7 @@ class Fc2ppvdbSource(SiteSource):
         record = fc2_record(
             self.config, wanted, self.video_url(code),
             title=strip_code(title, wanted),
-            release_date=japanese_date(_labelled(soup, "販売日") or (tail.group("date") if tail else "")),
+            release_date=japanese_date(_labelled(soup, FC2PPVDB_SOLD_ON) or (tail.group("date") if tail else "")),
             runtime=runtime_minutes(tail.group("runtime")) if tail else None,
             performers=_performers(soup),
             label=seller or (tail.group("seller").strip() if tail else ""),

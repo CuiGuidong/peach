@@ -120,7 +120,7 @@ class ErrorReportingTests(unittest.TestCase):
             self.assertEqual(summary['export']['status'], 'separate_export_required')
             self.assertGreater(summary['export']['compressed_bytes'], summary['export']['inline_limit_bytes'])
             self.assertNotIn('scraping/manifest.json', archive.namelist())
-            self.assertIn('按问题番号', summary['detail'])
+            self.assertIn('separately by code', summary['detail'])
         with zipfile.ZipFile(io.BytesIO(scraping_diagnostics.bundle_bytes(config, codes='ABC-123'))) as archive:
             self.assertIn('snapshots/0.json', archive.namelist())
 

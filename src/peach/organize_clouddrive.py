@@ -18,7 +18,7 @@ import grpc
 from google.protobuf import descriptor_pb2, descriptor_pool, message_factory
 from google.protobuf.empty_pb2 import Empty
 
-from . import organize
+from . import interface_text, organize
 from .task_retry import TRANSIENT_STATUS, RetryableIOError, transient_delay
 from .downloads_clouddrive import CloudDriveClient, SERVICE, discover
 from .downloads import CLOUDDRIVE_CREDENTIAL, DownloadSettings
@@ -43,7 +43,14 @@ REJECTED_CODES = frozenset({grpc.StatusCode.INVALID_ARGUMENT, grpc.StatusCode.PE
 
 
 class UnconfirmedMove(SystemExit):
-    """原件与目标都在或都不在、成员不符或目录读不到：状态未知，保留意图并停止当前进程。"""
+    """原件与目标都在或都不在、成员不符或目录读不到：状态未知，保留意图并停止当前进程。
+
+    仍是 `SystemExit`（停进程的语义不变），说明文字按 zh-CN 从资源渲染；换成带 code 的类型见延后清单。"""
+
+    CODE = "errors.organizeClouddrive.moveUnconfirmed"
+
+    def __init__(self, message: str | None = None) -> None:
+        super().__init__(message or interface_text.text(f"server:{self.CODE}"))
 
 
 class MoveNotExecuted(UserFacingError, FileNotFoundError):
@@ -269,7 +276,7 @@ class PikPakDav:
                 raise
             except (UnconfirmedMove, OSError, ValueError):
                 if final:
-                    raise UnconfirmedMove('移动状态未确认，保留意图回执并停止；不重复操作、不写数据库') from None
+                    raise UnconfirmedMove() from None
                 time.sleep(2)
 
     def confirm_move(self, source, target, source_entry, before, response_status, *, final=True):
@@ -296,7 +303,7 @@ class PikPakDav:
         except MoveNotExecuted:
             raise
         except Exception:
-            raise UnconfirmedMove('移动状态未确认，保留意图回执并停止；不重复操作、不写数据库') from None
+            raise UnconfirmedMove() from None
 
 
 def _cloud_listing(cloud, path, mapping):

@@ -32,6 +32,7 @@ import { javLibraryPath, javTab } from '../../jav/jav';
 import { ShellActionsContext, useOpenEpoch } from '../router';
 import type { ManagedOpenProps, ManagedPath, ShellActions } from '../shell-actions';
 import { t } from '../../../i18n';
+import { serverLabel } from '../../../core/server-text';
 
 /** 一次打开的存活状态：元素卸掉就不再画、不再滚动、不再写地址。 */
 interface Run {
@@ -46,6 +47,9 @@ interface Run {
 interface Runtime {
   ledger_read_only?: boolean;
   ledger_read_only_message?: string;
+  /** 同一句的 code 与参数，按界面语言显示；缺译文时用 `ledger_read_only_message` 原文。 */
+  ledger_read_only_message_code?: string | null;
+  ledger_read_only_message_params?: Record<string, unknown> | null;
   ledger_writer_origin?: string;
 }
 
@@ -65,7 +69,8 @@ function readRuntime(run: Run): Promise<Runtime | null> {
 function writerProps(runtime: Runtime | null, path: string) {
   return {
     readOnly: !!runtime?.ledger_read_only,
-    readOnlyMessage: runtime?.ledger_read_only_message || t('shell:managedPage.readOnly'),
+    readOnlyMessage: serverLabel(runtime?.ledger_read_only_message_code ?? '', runtime?.ledger_read_only_message ?? '',
+      runtime?.ledger_read_only_message_params) || t('shell:managedPage.readOnly'),
     writerUrl: runtime?.ledger_writer_origin ? new URL(path, runtime.ledger_writer_origin).href : '',
   };
 }

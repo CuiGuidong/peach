@@ -17,6 +17,7 @@ import urllib.parse
 from bs4 import BeautifulSoup
 
 from ..jav_cover_fetch import NotFound
+from ..source_page_words import JAVARCHIVE_ROWS
 from .base import FailureReason, Page, Session, SiteConfig, SiteRecord, SiteSource, SourceFailure
 from .fc2 import (PAGE_LIMIT, canonical_code, fc2_record, runtime_minutes, strip_code, text_of, unrecognised,
                   video_id)
@@ -40,9 +41,7 @@ _PREVIEW = re.compile(r"_s\.(?:jpe?g|png)$", re.I)
 #: 只在 `div.news` 里搜：head 的 `<meta name="description">` 里有同样的字样，值被站方
 #: 截断成 `…｜S級...`，跟着一串属性和标签，当成资料取回来就是一条坏值。
 _ROWS = {
-    "genres": re.compile(r"标签\s*[:：]\s*([^<]*)"),
-    "release_date": re.compile(r"日期\s*[:：]\s*(\d{4})/(\d{2})/(\d{2})"),
-    "runtime": re.compile(r"时长\s*[:：]\s*([\d:]+)"),
+    name: re.compile(pattern) for name, pattern in JAVARCHIVE_ROWS.items()
 }
 
 

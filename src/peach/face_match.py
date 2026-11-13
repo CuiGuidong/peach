@@ -24,8 +24,8 @@ from .face_detect import FaceDetector, main_face
 #: opencv_zoo 的 SFace 定版模型，与 YuNet 同一个定版提交。LFS 指针里的 oid 就是下面这个哈希。
 MODEL_URL = face_detect.ZOO_MEDIA + "face_recognition_sface/face_recognition_sface_2021dec.onnx"
 MODEL_SHA256 = "0ba9fbfa01b5270c96627c4ef784da859931e02f04419c829e83484087c34e79"
-#: 报错里这个模型的名字；任务中心按它认是哪一个模型。
-MODEL_LABEL = "人脸比对模型"
+#: 回报给 `observer` 的模型标识；任务中心按它认是哪一个模型。
+MODEL_LABEL = "face-match"
 MODEL_PATH = TOOLS_DIR / "sface" / "face_recognition_sface_2021dec.onnx"
 #: 记进头像边车的模型名，回溯时要答得出「这个分是哪一版模型给的」。
 MODEL_NAME = "sface_2021dec"

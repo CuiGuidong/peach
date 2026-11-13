@@ -122,7 +122,7 @@
 
 `GET /api/review/auto-landings` 逐条列出 ADR-0139 两条规则仍在的自动写入：作品、封面地址、写入的字段与值、写入前的值或补上的标签、规则与时间；带 `items=<决定键>`（换行分隔）时只读返回这几条要改回的值、要删的标签、写入后被改过或已删除而不动的作品，以及计划摘要 `token`。`POST /api/review/auto-landings/revert` 接收 `items` 与 `token`，在写锁里重算计划，对不上返回 400 要求重新预览；对上后先备份账本再撤回，回执带备份文件名与未改动的作品。列表里没有的决定键一律拒绝，其余自动落库来源仍由 `scripts/revert_auto_landing.py` 撤回；只读端拒绝撤回（ADR-0141）。
 
-`GET /api/client-updates` 要求应用鉴权，返回运行版本与构建标记、发行版检查结果、安装状态、用户脚本版本和自动补修状态，不触发外部检查。`GET /api/jav-browser/updates` 使用用户脚本专用令牌，无需番号，返回运行与发行版、脚本版本快照，不暴露补修明细。`POST /api/configuration/upgrade-repairs/retry` 限本机同源请求，重试失败项；`GET /api/configuration/upgrade-repairs/review` 限本机管理权限，下载 JSON 复核记录，无记录时返回 404。
+`GET /api/client-updates` 要求应用鉴权，返回运行版本与构建标记、发行版检查结果、安装状态、用户脚本版本、自动补修状态和启动迁移状态（进行中带阶段 `stage`，备份阶段另带百分比 `progress`），不触发外部检查。服务启动时迁移数据库期间，它与 `/healthz` 照常回应且不读数据库，其余 `/api/` 与媒体路由回 503，`message_code` 为 `api.ledger.migrating`。`GET /api/jav-browser/updates` 使用用户脚本专用令牌，无需番号，返回运行与发行版、脚本版本快照，不暴露补修明细。`POST /api/configuration/upgrade-repairs/retry` 限本机同源请求，重试失败项；`GET /api/configuration/upgrade-repairs/review` 限本机管理权限，下载 JSON 复核记录，无记录时返回 404。
 
 Docker 镜像的一键更新（[ADR-0140](adr/0140-docker-one-click-update-via-watchtower.md)）：容器里的 `GET /api/configuration/updates` 在 Docker Hub 的版本号标签与 `edge` 指向同一镜像前返回 `state: pending`；有新镜像时多一个 `one_click`，`available` 表示镜像标签是 `edge`、令牌已生成且探测得到 Watchtower，不能时 `reason` 说明原因，没启用 Watchtower 时为空。`POST /api/configuration/docker-update` 请 Watchtower 异步拉取并重建容器，收到 202 后返回 `state: updating`；条件不满足、Watchtower 拒绝令牌或正忙返回 409。接口限本机同源请求，非 Docker 部署返回 404，从不回传令牌。
 

@@ -30,6 +30,7 @@ from google.protobuf import empty_pb2
 
 from . import downloads_clouddrive_pb2 as pb
 from . import interface_text
+from .content_words import SUGGESTED_CLOUD_FOLDER
 from .downloads import (
     DONE, ERROR, MISSING, RUNNING, DownloadError, DownloadTask, Magnet, Problem, RemoteStatus,
     classify_remote_message, clean_address, magnet_info_hash, problem_codes, storage_full,
@@ -67,7 +68,7 @@ CALL_ACTIONS = frozenset({
 CLOUDS_115 = frozenset({"115", "115open"})
 CLOUDS_PIKPAK = frozenset({"pikpak"})
 #: 115 目标目录留空时，在 115 前缀下建议的文件夹名。
-SUGGESTED_FOLDER = "云下载"
+SUGGESTED_FOLDER = SUGGESTED_CLOUD_FOLDER
 
 _METHODS = {
     "GetSystemInfo": (empty_pb2.Empty, pb.CloudDriveSystemInfo),
@@ -134,8 +135,7 @@ def discover(addresses: tuple[str, ...] = LOCAL_ADDRESSES) -> str:
             continue
         if normalized and answers(normalized):
             return normalized
-    tried = "、".join(addresses)
-    raise DownloadError("network", "errors.downloadsClouddrive.noLocalAnswer", {"tried": tried})
+    raise DownloadError("network", "errors.downloadsClouddrive.noLocalAnswer", {"tried": list(addresses)})
 
 
 #: gRPC 报「没有这个路径」时的原因；`find` 按它把「不存在」与别的失败分开。
@@ -522,7 +522,7 @@ def _suggest_target(report: dict, client: CloudDriveClient, probe: _PrefixProbe,
     hits = sorted(probe.of_cloud(CLOUDS_115),
                   key=lambda hit: (hit[0].root.casefold() not in declared, len(hit[0].prefix)))
     if not hits:
-        known = "、".join(entry.prefix for entry in probe.prefixes)
+        known = [entry.prefix for entry in probe.prefixes]
         add_problem(report, Problem("labels.downloadsClouddrive.no115Prefix", {"known": known}) if known
                     else Problem("labels.downloadsClouddrive.noPrefixes"))
         return ""

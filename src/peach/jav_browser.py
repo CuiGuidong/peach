@@ -19,6 +19,8 @@ from .catalog_rules import (
 )
 from . import interface_text
 from .config import PROJECT_ROOT
+from .coded_text import Said
+from .content_words import BONUS_EDITION, LEGACY_REMOTE_MISSING, TRAILER_NAME
 from .downloads import (
     CLOUDDRIVE_CREDENTIAL, INGESTED, POSTPROCESS_FAILED, POSTPROCESS_PENDING, POSTPROCESS_QUEUED,
     POSTPROCESS_RUNNING, REMOTE_RUNNING, RESUBMITTABLE_STATES, TRACKED_STATES, iso, state_label,
@@ -71,18 +73,36 @@ ENDED_KEY = re.compile(r"^([1-9][0-9]{0,11}|[0-9A-Z][0-9A-Z-]{1,39})@[0-9T:+.\-]
 ENDED_DISMISSED_LIMIT = 1000
 #: 结束时间：整理完成的取整理时间，失败、取消、停滞取结束时间；停滞复查只改 updated_at，不让任务重新冒出来。
 ENDED_AT = "coalesce(nullif(postprocessed_at,''), nullif(finished_at,''), updated_at)"
+#: 每个状态给用户脚本看的那句话（code）。用户脚本显示 `message`，认得 code 的按 `message_code` 取译文。
 MESSAGES = {
-    "idle": "可以加入 Peach 馆藏", "queued": "等待搜索磁力", "searching": "正在搜索磁力",
-    "submitted": "云下载进行中", "ingested": "已加入 Peach 馆藏", "owned": "馆藏已有该番号影片",
-    "failed": "添加失败，可重试", "no_match": "未找到可自动下载的磁力，可重试",
+    "idle": "labels.javBrowser.idle", "queued": "labels.javBrowser.queued", "searching": "labels.javBrowser.searching",
+    "submitted": "labels.javBrowser.submitted", "ingested": "labels.javBrowser.ingested",
+    "owned": "labels.javBrowser.owned", "failed": "labels.javBrowser.failed", "no_match": "labels.javBrowser.noMatch",
 }
 #: 下载失败按原因分给用户脚本：磁力本身的问题换一个磁力，网盘一侧的问题修好后重试同一个磁力。
 MAGNET_FAILURES = frozenset({"rejected", "invalid_link", "no_source", "mismatch"})
 CLOUD_FAILURES = frozenset({"config", "quota", "storage", "network", "not_landed", "duplicate", "not_accepted",
                             "removed"})
-NO_OTHER_MAGNET = "没有其他可用磁力，可在 Peach 手动选择资源"
+NO_OTHER_MAGNET = "labels.javBrowser.noOtherMagnet"
 #: 细分之前「列表里找不到」统一记为 no_source 的原文；这些旧任务从没被网盘列出过，按网盘问题处理。
-LEGACY_MISSING = "远端任务列表里找不到这个任务"
+LEGACY_MISSING = LEGACY_REMOTE_MISSING
+
+
+def _message(said: str) -> dict:
+    """一行的 `message` 与它的 code：`Said` 带上 code 与参数；下载任务记下的失败原文把旧 code 清掉。"""
+    if isinstance(said, Said):
+        return {"message": str(said), "message_code": said.code, "message_params": dict(said.params)}
+    return {"message": said, "message_code": None, "message_params": None}
+
+
+def _state_message(state: str) -> dict:
+    return _message(Said(MESSAGES[state]))
+
+
+def _message_of(row: dict) -> dict:
+    """行里记下的那句与它的 code；旧版本写下的行只有原文。"""
+    return {"message": row.get("message"), "message_code": row.get("message_code"),
+            "message_params": row.get("message_params")}
 
 
 @lru_cache(maxsize=1)
@@ -196,7 +216,7 @@ def identify_source(value: object, hint: str = "") -> str:
 
 
 #: 种子名、磁力显示名或文件名里标明特典版的写法。
-_BONUS_MARK = re.compile(r"特典|special[\s._-]*edition", re.IGNORECASE)
+_BONUS_MARK = re.compile(BONUS_EDITION, re.IGNORECASE)
 
 
 def _bonus_code(code: str):
@@ -227,7 +247,7 @@ def _download_candidate(items, code, skip=frozenset(), edition=""):
         matches = (same_release_code(scan_code(name), code)
                    or same_release_code(scan_code(name, product=True), code)
                    or bool(bonus and bonus.search(name)))
-        if not matches or re.search(r"(?i)\b(?:sample|trailer|preview)\b|予告|预告|預告", name):
+        if not matches or re.search(TRAILER_NAME, name):
             continue
         try:
             magnet = parse_magnet(str(item.get("uri") or ""))
@@ -401,7 +421,7 @@ class JavBrowser:
                 self.credentials.clear(CREDENTIAL)
                 for code, row in self.rows.items():
                     if row["state"] in ACTIVE and code not in self._submitting:
-                        row.update(state="failed", message="浏览器添加已关闭")
+                        row.update(state="failed", **_message(Said("labels.javBrowser.disabled")))
                 self._save()
             else:
                 token = secrets.token_urlsafe(32)
@@ -460,7 +480,8 @@ class JavBrowser:
             if task is not None:
                 state = "ingested" if task.state == INGESTED else (
                     "failed" if task.state in RESUBMITTABLE_STATES or task.blocked_at else "submitted")
-                row.update(state=state, message=task.failure_detail or MESSAGES[state])
+                row.update(state=state, **(_message(task.failure_detail) if task.failure_detail
+                                           else _state_message(state)))
                 if state == "failed":
                     failure = _failure_projection(task)
                     if failure["failure"] == "storage":
@@ -476,7 +497,7 @@ class JavBrowser:
                 row["message"] = paused_text(paused["failure"])["message"]
             return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
-                    "message": row.get("message") or MESSAGES[state]}
+                    **(_message_of(row) if row.get("message") else _state_message(state))}
 
     def _channel_pause(self, provider: str) -> dict | None:
         """渠道级失败后这个渠道处于暂停：失败类别、开始时间与下一次试探时间。成功提交一次就解除。"""
@@ -787,8 +808,8 @@ class JavBrowser:
     def _empty_search_result(self, row: dict, result: dict) -> None:
         """搜索没有正片磁力时，分别结算无命中、可恢复故障与永久故障。"""
         failed = result.get('state') in {'error', 'unavailable'} or bool(result.get('error'))
-        message = ('资源搜索暂不可用，请在 Peach 检查来源后重试' if failed
-                   else NO_OTHER_MAGNET if row.get('skip') else MESSAGES['no_match'])
+        message = Said('labels.javBrowser.searchUnavailable' if failed
+                       else NO_OTHER_MAGNET if row.get('skip') else MESSAGES['no_match'])
         after = result.get('retry_after')
         if failed and type(after) in (int, float) and math.isfinite(after) and after >= 0:
             self._schedule_retry(row, RetryableTaskError('errors.javBrowser.searchUnavailable', after=after))
@@ -797,19 +818,19 @@ class JavBrowser:
             self._search_pause = {"failure": SEARCH_PAUSE, "since": iso(now),
                                   "retry_at": row.get('retry_at') or iso(now + after)}
         else:
-            row.update(state='failed' if failed else 'no_match', message=message, ended_at=iso(self.downloads.clock()))
+            row.update(state='failed' if failed else 'no_match', **_message(message), ended_at=iso(self.downloads.clock()))
 
     def _schedule_retry(self, row: dict, error: Exception) -> None:
         attempt = row.get('retry_attempt', 0)
         delay = retry_delay(error, attempt)
         if delay is None:
-            prefix = f'自动重试 {attempt} 次后仍未完成；' if attempt == len(RETRY_DELAYS) else ''
-            row.update(state='failed', message=prefix + '搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试',
-                       ended_at=iso(self.downloads.clock()))
+            message = (Said('labels.javBrowser.retriesExhausted', attempts=attempt) if attempt == len(RETRY_DELAYS)
+                       else Said('labels.javBrowser.submitFailed'))
+            row.update(state='failed', **_message(message), ended_at=iso(self.downloads.clock()))
             row['retry_exhausted'] = attempt == len(RETRY_DELAYS)
             return
         row.update(state='queued', retry_attempt=attempt + 1, retry_limit=len(RETRY_DELAYS),
-                   retry_at=iso(self.downloads.clock() + delay), message='暂时不可用，等待自动重试')
+                   retry_at=iso(self.downloads.clock() + delay), **_message(Said('labels.javBrowser.retryWaiting')))
 
     def start(self):
         if not self.downloads.available or self._thread is not None:

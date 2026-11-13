@@ -45,7 +45,7 @@ from itertools import chain
 from pathlib import Path, PureWindowsPath
 from filelock import FileLock
 
-from . import folder_rules, junk, record_rehome, subtitles, wants
+from . import folder_rules, interface_text, junk, record_rehome, subtitles, wants
 from .platform import is_windows_path, is_unmapped, resolve_location, resolve_root
 from .processing_control import checkpoint
 from .fsutil import atomic_write_text
@@ -96,7 +96,7 @@ class ScanPathConflict(ScanTargetError):
         self.asset_ids = tuple(entry[0] for entry in entries)
         self.paths = tuple(entry[1] for entry in entries)
         super().__init__('errors.scan.pathConflict',
-                         {'ids': '、'.join(str(value) for value in self.asset_ids), 'path': self.paths[0]})
+                         {'ids': [str(value) for value in self.asset_ids], 'path': self.paths[0]})
 
 
 def _registered_paths(connection, location, root):
@@ -465,12 +465,13 @@ class ScanResult:
     relocated_ids: tuple[int, ...] = ()
 
     def summary(self) -> str:
-        return (f"✓ {self.location}: {self.files:,} 文件 / "
-                f"{self.total_bytes / 1024 ** 4:.2f} TB / 耗时 {self.seconds:.0f}s；"
-                f"附属文件未登记 {self.sidecars:,} 个；清单中已消失 {self.gone:,} 个；"
-                f"字幕 {self.subtitles:,} 条（孤立 {self.orphan_subtitles:,} 条）；"
-                f"垃圾移入回收站 {self.junk_isolated:,} 个，待复核 {self.junk_review:,} 个；"
-                f"路径重复待复核 {self.path_conflicts:,} 组")
+        """命令行打印的一行摘要，跟本机语言（`labels.scan.summary`）。"""
+        return interface_text.text("server:labels.scan.summary", {
+            "location": self.location, "files": f"{self.files:,}", "size": f"{self.total_bytes / 1024 ** 4:.2f}",
+            "seconds": f"{self.seconds:.0f}", "sidecars": f"{self.sidecars:,}", "gone": f"{self.gone:,}",
+            "subtitles": f"{self.subtitles:,}", "orphans": f"{self.orphan_subtitles:,}",
+            "junk": f"{self.junk_isolated:,}", "junkReview": f"{self.junk_review:,}",
+            "conflicts": f"{self.path_conflicts:,}"}, interface_text.local_language())
 
 
 def _walk(top: Path, pending: list[str] | None = None, *, onerror=lambda error: None, read_directory=None):
@@ -821,8 +822,9 @@ def _scan_location(
                                                        identities, observations)
                     discovered.update(inserted_ids)
                     save_directory(directory, name, here)
-                    report(f"  {time.time() - started:5.0f}s  {files:,} 文件  "
-                           f"{total / 1024 ** 4:.2f} TB")
+                    report(interface_text.text("server:labels.scan.progress", {
+                        "seconds": f"{time.time() - started:5.0f}", "files": f"{files:,}",
+                        "size": f"{total / 1024 ** 4:.2f}"}, interface_text.local_language()))
             inserted_ids = _commit_scan_records(connection, db_path, batch, registered, conflicts,
                                                identities, observations)
             directory_tracks, directory_orphans = _record_directory_subtitles(

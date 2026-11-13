@@ -69,8 +69,10 @@ def _web_ready(settings: PeachSettings) -> bool:
     return settings.page_path.is_file()
 
 
-def readiness(settings: PeachSettings, *, background_ready: bool | None = None) -> dict:
+def readiness(settings: PeachSettings, *, background_ready: bool | None = None, migrating: bool = False) -> dict:
     """服务能不能用：已配置、页面在、账本可读且结构是最新的，后台任务按需也算进去。
+
+    `migrating`：服务启动时正在迁移账本，这时不打开账本，数据库与结构两项直接记为未就绪。
 
     Docker 全新数据卷先起首次设置服务，等用户在页面上答题，这就是它此刻该在的状态：报就绪，
     另带 `setup: true`。否则镜像的 HEALTHCHECK 会在首启窗口里把容器标成 unhealthy，等它健康
@@ -80,8 +82,9 @@ def readiness(settings: PeachSettings, *, background_ready: bool | None = None) 
         return {"ready": True, "setup": True, "checks": {"web": _web_ready(settings)}}
     checks = {"configured": bool(settings.configured),
               "web": _web_ready(settings), "database": False, "schema": False}
-    inspected = inspect_database(settings.db_path)
-    checks.update(database=inspected["readable"], schema=inspected["schema"] == "current")
+    if not migrating:
+        inspected = inspect_database(settings.db_path)
+        checks.update(database=inspected["readable"], schema=inspected["schema"] == "current")
     if background_ready is not None:
         checks["background"] = background_ready
     return {"ready": all(checks.values()), "checks": checks}

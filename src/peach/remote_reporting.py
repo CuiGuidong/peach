@@ -15,16 +15,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from . import interface_text
 from .reporting_identity import event_metadata, machine_facts
 from .diagnostic_exceptions import media_details
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserValueError
 
-FIELDS = {
-    "usage": "Peach 版本、分发方式（Windows／macOS 应用、Docker、wheel 或源码）、操作系统类型与版本、CPU 架构与核数、内存档位、Python 版本、运行环境与公开构建编号；每天最多一条活跃日志和一条日联系会话汇总。开启后自动生成随机技术实例标识，用于统计受影响实例和升级路径，与研究标识独立；关闭后移除本机标识，再开启生成新值。连续运行时按 UTC 日统计，代表运行中的实例，不代表人数、真实会话或当天有人操作。",
-    "errors": "诊断补充：故障环节、异常链、Peach 与白名单框架的代码文件名/函数名/行号、结构化错误码、媒体工具故障类别、浏览器白名单异常类型与正式脚本构建映射、客户端浏览器品牌及主要版本与系统大类、HTTP 方法/路由模板/关联错误编号、同类故障次数与统计日期；同一版本的同类故障只上传一次完整诊断，每天最多 5 条，全部发生次数每 6 小时或退出时合并为计数日志。盘掉线、媒体缺失或损坏、磁盘满、超时与数据库忙等环境条件只统计类别、代码位置与次数，不上传完整诊断。",
-}
+#: 两类上报，各自的「上传哪些字段」说明是 `labels.remoteReporting.field.<类>`（ADR-0159）。
+FIELDS = ("usage", "errors")
 CONSENT_SCHEMA = 2
-NOTICE = "发送至 Sentry。不上报错误原文、完整日志、诊断 ZIP、媒体名称、路径、网址、观看记录或凭据。接收服务会接触连接 IP；关闭后停止新发送，已发送的信息无法撤回。"
+NOTICE_CODE = "labels.remoteReporting.notice"
 _lock = threading.RLock()
 _client = None
 _client_dsn = ""
@@ -128,7 +127,10 @@ def snapshot(config=None):
     config = _config(config)
     current = consent(config)
     return {**{key: current[key] for key in FIELDS},
-            "available": bool(dsn()), "fields": FIELDS, "notice": NOTICE,
+            "available": bool(dsn()),
+            "fields": {key: interface_text.text(f"server:labels.remoteReporting.field.{key}") for key in FIELDS},
+            "field_codes": {key: f"labels.remoteReporting.field.{key}" for key in FIELDS},
+            "notice": interface_text.text(f"server:{NOTICE_CODE}"), "notice_code": NOTICE_CODE,
             "delivery": reporting_delivery.snapshot(config)}
 
 
@@ -435,7 +437,9 @@ def usage(config=None):
 
 
 def _http_status(error):
-    status = getattr(error, "status_code", None)
+    # 带 code 的报错（`UserFacingError`）身上的 `status_code` 只是「漏到接口层时回什么状态」的提示，
+    # 不是一次 HTTP 失败；按它判 4xx 会把后台技术故障当成预期情况、不再上报。
+    status = None if isinstance(error, UserFacingError) else getattr(error, "status_code", None)
     if type(status) is not int or not 100 <= status <= 599:
         status = getattr(getattr(error, "response", None), "status_code", None)
     if type(status) is not int and any(cls.__module__ == "urllib.error" and cls.__name__ == "HTTPError"

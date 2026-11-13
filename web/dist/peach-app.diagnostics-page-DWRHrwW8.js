@@ -1,15 +1,15 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7569582a-8a6d-4cea-ac8a-8a4ea1d2ba4f", e._sentryDebugIdIdentifier = "sentry-dbid-7569582a-8a6d-4cea-ac8a-8a4ea1d2ba4f");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "c4d51946-e2c8-4456-a75a-ab188e907845", e._sentryDebugIdIdentifier = "sentry-dbid-c4d51946-e2c8-4456-a75a-ab188e907845");
 	} catch {}
 })();
-import { ApiError as e, Button as t, ButtonLink as n, Chip as r, DIAGNOSTICS_KEY as i, Disclosure as a, EmptyState as o, Fact as s, FactList as c, Fieldset as l, FieldsetTitle as u, Input as d, ItemLibrary as f, LOC as p, LinkButton as m, Note as h, Section as g, SettingsCard as _, SettingsSectionLabel as v, Stack as y, TaskProgress as b, __toESM as x, apiGet as S, apiSend as C, busyProps as w, configurationSection as T, cx as E, diagnosticHeaders as D, diagnosticsSkeleton as O, errorMessage as k, fetchDiagnostics as A, fmtDur as ee, fmtSize as te, interfaceLanguage as ne, queryClient as re, require_jsx_runtime as ie, require_react as ae, settingsPath as j, stageText as M, t as N, tl as P, useAction as F, useLibraryTints as I, useQuery as L } from "./peach-app.js";
+import { ApiError as e, Button as t, ButtonLink as n, Chip as r, DIAGNOSTICS_KEY as i, Disclosure as a, EmptyState as o, Fact as s, FactList as c, Fieldset as l, FieldsetTitle as u, Input as d, ItemLibrary as f, LOC as p, LinkButton as m, Note as h, Section as g, SettingsCard as _, SettingsSectionLabel as v, Stack as y, TaskProgress as b, __toESM as x, apiGet as ee, apiSend as S, busyProps as C, checkText$1 as w, codedText as T, configurationSection as E, cx as D, diagnosticHeaders as O, diagnosticsSkeleton as te, errorMessage as k, fetchDiagnostics as ne, fmtDur as re, fmtSize as ie, interfaceLanguage as ae, queryClient as oe, require_jsx_runtime as se, require_react as A, settingsPath as j, stageText as M, t as N, tl as P, useAction as F, useLibraryTints as I, useQuery as L } from "./peach-app.js";
 import { ErrorExcerpt as R } from "./peach-app.error-excerpt-Ugft6I5o.js";
 import { SiteMark as z } from "./peach-app.site-mark-D_VlIyJz.js";
 import { DataTable as B } from "./peach-app.data-table-C4egVbd2.js";
 // src/react/diagnostics/health-list.tsx
-var V = /* @__PURE__ */ x(ae(), 1), H = ie(), U = (e) => e.title || e.name || e.code || N("manage:healthList.videoFallback", { id: e.id }), W = (e, t) => [[
+var V = /* @__PURE__ */ x(A(), 1), H = se(), U = (e) => e.title || e.name || e.code || N("manage:healthList.videoFallback", { id: e.id }), W = (e, t) => [[
 	N("manage:shared.video"),
 	N("manage:shared.code"),
 	N("manage:shared.fileName"),
@@ -27,7 +27,7 @@ var V = /* @__PURE__ */ x(ae(), 1), H = ie(), U = (e) => e.title || e.name || e.
 	e.size ?? ""
 ])].map((e) => e.map((e) => String(e ?? "").replace(/[\t\r\n]+/g, " ")).join("	")).join("\n");
 function G({ group: e, openItem: n, receipt: r }) {
-	let i = F(), [s, c] = (0, V.useState)([]), l = I({ names: !0 }), u = (e) => l.get(e.library_id || "")?.name || p[e.location] || e.location, d = (e) => void i.run("copy", () => navigator.clipboard.writeText(W(e, u)), () => r(N("manage:healthList.copied"))), g = [
+	let i = F(), s = T(e, "label"), [c, l] = (0, V.useState)([]), u = I({ names: !0 }), d = (e) => u.get(e.library_id || "")?.name || p[e.location] || e.location, g = (e) => void i.run("copy", () => navigator.clipboard.writeText(W(e, d)), () => r(N("manage:healthList.copied"))), _ = [
 		{
 			id: "title",
 			label: N("manage:shared.video"),
@@ -66,7 +66,7 @@ function G({ group: e, openItem: n, receipt: r }) {
 			id: "location",
 			label: N("manage:shared.library"),
 			width: 160,
-			value: u,
+			value: d,
 			render: (e) => /* @__PURE__ */ (0, H.jsx)(f, {
 				libraryId: e.library_id,
 				location: e.location,
@@ -91,19 +91,19 @@ function G({ group: e, openItem: n, receipt: r }) {
 			label: N("manage:shared.duration"),
 			width: 112,
 			value: (e) => e.duration ?? 0,
-			render: (e) => e.duration && e.duration > 0 ? ee(e.duration) : N("manage:shared.notFound")
+			render: (e) => e.duration && e.duration > 0 ? re(e.duration) : N("manage:shared.notFound")
 		},
 		{
 			id: "size",
 			label: N("manage:shared.size"),
 			width: 112,
 			value: (e) => e.size ?? 0,
-			render: (e) => e.size === null ? N("manage:shared.notFound") : te(e.size)
+			render: (e) => e.size === null ? N("manage:shared.notFound") : ie(e.size)
 		}
 	];
 	return /* @__PURE__ */ (0, H.jsx)(a, {
-		summary: e.count === null ? `${e.label} · ${N("manage:shared.notFound")}` : N("manage:healthList.groupSummary", {
-			label: e.label,
+		summary: e.count === null ? `${s} · ${N("manage:shared.notFound")}` : N("manage:healthList.groupSummary", {
+			label: s,
 			count: e.count
 		}),
 		children: e.count === null ? /* @__PURE__ */ (0, H.jsx)(h, {
@@ -121,8 +121,8 @@ function G({ group: e, openItem: n, receipt: r }) {
 				}) : null, /* @__PURE__ */ (0, H.jsx)(t, {
 					size: "small",
 					variant: "secondary",
-					...w(i.busy === "copy"),
-					onClick: () => d(e.items),
+					...C(i.busy === "copy"),
+					onClick: () => g(e.items),
 					children: N("manage:healthList.copyList")
 				})]
 			}),
@@ -131,21 +131,21 @@ function G({ group: e, openItem: n, receipt: r }) {
 				children: i.error
 			}) : null,
 			/* @__PURE__ */ (0, H.jsx)(B, {
-				label: e.label,
+				label: s,
 				title: N("manage:healthList.tableTitle"),
 				unit: N("manage:healthList.tableUnit"),
 				panel: !1,
 				items: e.items,
-				columns: g,
+				columns: _,
 				rowId: (e) => String(e.id),
 				rowLabel: U,
-				selected: s,
-				onSelected: c,
+				selected: c,
+				onSelected: l,
 				actions: (e) => /* @__PURE__ */ (0, H.jsx)(t, {
 					size: "small",
 					variant: "secondary",
-					...w(i.busy === "copy"),
-					onClick: () => d(e),
+					...C(i.busy === "copy"),
+					onClick: () => g(e),
 					children: N("manage:healthList.copySelected")
 				})
 			})
@@ -162,17 +162,17 @@ var K = "/api/diagnostics/exports", q = ["diagnostic-export"];
 function J({ kind: r, codes: i = "", children: a }) {
 	let o = F(), s = L({
 		queryKey: q,
-		queryFn: ({ signal: e }) => S(K, e),
+		queryFn: ({ signal: e }) => ee(K, e),
 		refetchInterval: (e) => ["running", "cancelling"].includes(e.state.data?.status || "") ? 1e3 : !1
 	}), c = s.data, l = c?.kind === r, u = c?.status === "running" || c?.status === "cancelling", d = N(r === "support" ? "manage:diagnosticsExport.downloadReport" : "manage:diagnosticsExport.exportFetchLog"), f = (e) => {
-		re.setQueryData(q, e);
+		oe.setQueryData(q, e);
 	}, p = () => void o.run("start", async (t) => {
 		let n = await fetch(K, {
 			method: "POST",
 			signal: t,
 			credentials: "same-origin",
 			headers: {
-				...await D(),
+				...await O(),
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
@@ -183,7 +183,7 @@ function J({ kind: r, codes: i = "", children: a }) {
 		if (!n.ok) throw new e(a?.detail || a?.error || N("manage:diagnosticsExport.startFailed"), n.status, a);
 		if (!a || !a.job_id) throw Error(N("manage:diagnosticsExport.statusNotFound"));
 		return a;
-	}, f), m = () => void o.run("cancel", (e) => C(`${K}/${c.job_id}/cancel`, {}, "POST", e), f);
+	}, f), m = () => void o.run("cancel", (e) => S(`${K}/${c.job_id}/cancel`, {}, "POST", e), f);
 	return /* @__PURE__ */ (0, H.jsxs)("div", {
 		className: "flex min-w-0 flex-col gap-3",
 		children: [
@@ -194,7 +194,7 @@ function J({ kind: r, codes: i = "", children: a }) {
 						type: "button",
 						variant: "secondary",
 						disabled: u,
-						...w(o.busy === "start"),
+						...C(o.busy === "start"),
 						onClick: p,
 						children: d
 					}),
@@ -202,7 +202,7 @@ function J({ kind: r, codes: i = "", children: a }) {
 						type: "button",
 						variant: "secondary",
 						disabled: c.status === "cancelling",
-						...w(o.busy === "cancel"),
+						...C(o.busy === "cancel"),
 						onClick: m,
 						children: N("manage:diagnosticsExport.cancelExport")
 					}) : null,
@@ -242,7 +242,7 @@ function J({ kind: r, codes: i = "", children: a }) {
 				action: /* @__PURE__ */ (0, H.jsx)(t, {
 					type: "button",
 					variant: "secondary",
-					...w(s.isFetching),
+					...C(s.isFetching),
 					onClick: () => {
 						s.refetch();
 					},
@@ -294,7 +294,7 @@ function Y() {
 	});
 }
 // src/react/diagnostics/diagnostics-page.tsx
-var oe = {
+var ce = {
 	ok: N("manage:diagnostics.statusOk"),
 	warning: N("manage:diagnostics.statusWarning"),
 	failed: N("manage:diagnostics.statusFailed"),
@@ -302,7 +302,7 @@ var oe = {
 	disabled: N("manage:diagnostics.statusDisabled"),
 	stale: N("manage:diagnostics.statusStale"),
 	unchecked: N("manage:diagnostics.statusUnchecked")
-}, se = { "/tasks": N("manage:diagnostics.viewTasks") }, ce = [
+}, le = { "/tasks": N("manage:diagnostics.viewTasks") }, ue = [
 	[N("manage:diagnostics.groupLibraries"), ["media_mounts", "data_root"]],
 	[N("manage:diagnostics.groupDatabase"), ["database", "schema"]],
 	[N("manage:diagnostics.groupTools"), ["ffmpeg"]],
@@ -313,41 +313,41 @@ var oe = {
 		"version"
 	]],
 	[N("manage:diagnostics.groupTasks"), ["tasks"]]
-], X = (e) => new Date(e).toLocaleString(ne);
+], X = (e) => new Date(e).toLocaleString(ae);
 function Z({ status: e }) {
 	return /* @__PURE__ */ (0, H.jsx)(r, {
 		variant: "caption",
 		"data-diagnostic-status": e,
 		color: e === "failed" ? "rose" : e === "ok" ? "lime" : e === "warning" || e === "stale" ? "yellow" : "neutral",
-		children: oe[e] ?? N("manage:shared.notFound")
+		children: ce[e] ?? N("manage:shared.notFound")
 	});
 }
-function le() {
+function Q() {
 	return /* @__PURE__ */ (0, H.jsx)(J, { kind: "support" });
 }
-function Q({ name: e, check: t, compact: r = !1 }) {
-	let i = t.target === "/settings/library" && (e === "security" || e === "port") ? j("network") : t.target, a = r ? "h4" : "h3";
+function $({ name: e, check: t, compact: r = !1 }) {
+	let i = t.target === "/settings/library" && (e === "security" || e === "port") ? j("network") : t.target, a = r ? "h4" : "h3", o = w(t);
 	return /* @__PURE__ */ (0, H.jsxs)("div", {
 		"data-diagnostic-check": e,
-		className: E("flex flex-col gap-4 border-b border-separator-border pr-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between", r ? "py-3" : "py-5"),
+		className: D("flex flex-col gap-4 border-b border-separator-border pr-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between", r ? "py-3" : "py-5"),
 		children: [/* @__PURE__ */ (0, H.jsxs)("div", {
-			className: E("flex min-w-0 flex-1 flex-col", r ? "gap-1" : "gap-2"),
+			className: D("flex min-w-0 flex-1 flex-col", r ? "gap-1" : "gap-2"),
 			children: [
 				/* @__PURE__ */ (0, H.jsxs)("div", {
 					className: "flex flex-wrap items-center gap-3",
 					children: [/* @__PURE__ */ (0, H.jsx)(a, {
-						className: E("text-text-primary", r ? "text-body-2-medium" : "text-body-medium"),
-						children: t.label
+						className: D("text-text-primary", r ? "text-body-2-medium" : "text-body-medium"),
+						children: o.label
 					}), /* @__PURE__ */ (0, H.jsx)(Z, { status: t.status })]
 				}),
 				/* @__PURE__ */ (0, H.jsx)("p", {
 					"data-check-reason": !0,
-					className: E("text-body-2-regular break-words", r ? "text-text-secondary" : "text-text-primary"),
-					children: t.reason
+					className: D("text-body-2-regular break-words", r ? "text-text-secondary" : "text-text-primary"),
+					children: o.reason
 				}),
-				t.action ? /* @__PURE__ */ (0, H.jsx)("p", {
+				o.action ? /* @__PURE__ */ (0, H.jsx)("p", {
 					className: "text-body-2-regular text-text-secondary",
-					children: N("manage:diagnostics.suggestedFixText", { action: t.action })
+					children: N("manage:diagnostics.suggestedFixText", { action: o.action })
 				}) : null
 			]
 		}), i ? /* @__PURE__ */ (0, H.jsx)("div", {
@@ -356,15 +356,15 @@ function Q({ name: e, check: t, compact: r = !1 }) {
 				size: "small",
 				variant: "secondary",
 				href: i,
-				children: i.startsWith("/settings/") ? N("manage:diagnostics.openSection", { section: T(i) }) : se[i] ?? N("manage:diagnostics.openRelated")
+				children: i.startsWith("/settings/") ? N("manage:diagnostics.openSection", { section: E(i) }) : le[i] ?? N("manage:diagnostics.openRelated")
 			})
 		}) : null]
 	});
 }
-function $(e) {
+function de(e) {
 	let r = L({
 		queryKey: i,
-		queryFn: ({ signal: e }) => A(e),
+		queryFn: ({ signal: e }) => ne(e),
 		staleTime: 1e4
 	}), o = F(), [l, u] = (0, V.useState)(""), d = () => void o.run("refresh", async () => {
 		let e = await r.refetch();
@@ -374,19 +374,19 @@ function $(e) {
 	if (!f && r.isPending) return /* @__PURE__ */ (0, H.jsx)("div", {
 		role: "status",
 		"aria-label": N("manage:diagnostics.loading"),
-		dangerouslySetInnerHTML: { __html: O() }
+		dangerouslySetInnerHTML: { __html: te() }
 	});
 	if (!f) return /* @__PURE__ */ (0, H.jsxs)("div", {
 		className: "ui-configpage",
 		children: [
-			/* @__PURE__ */ (0, H.jsx)(le, {}),
+			/* @__PURE__ */ (0, H.jsx)(Q, {}),
 			/* @__PURE__ */ (0, H.jsx)(h, {
 				tone: "error",
 				title: N("manage:diagnostics.loadFailed"),
 				action: /* @__PURE__ */ (0, H.jsx)(t, {
 					variant: "secondary",
 					onClick: d,
-					...w(o.busy === "refresh"),
+					...C(o.busy === "refresh"),
 					children: N("manage:diagnostics.checkAgain")
 				}),
 				children: r.error ? k(r.error) : N("manage:diagnostics.reportNotFound")
@@ -413,7 +413,7 @@ function $(e) {
 					children: /* @__PURE__ */ (0, H.jsx)(t, {
 						variant: "secondary",
 						onClick: d,
-						...w(o.busy === "refresh"),
+						...C(o.busy === "refresh"),
 						children: N("manage:diagnostics.checkAgain")
 					})
 				})
@@ -425,7 +425,7 @@ function $(e) {
 			p.length ? /* @__PURE__ */ (0, H.jsx)(g, {
 				guide: "attention",
 				title: N("manage:diagnostics.attentionTitle", { count: p.length }),
-				children: p.map(([e, t]) => /* @__PURE__ */ (0, H.jsx)(Q, {
+				children: p.map(([e, t]) => /* @__PURE__ */ (0, H.jsx)($, {
 					name: e,
 					check: t
 				}, e))
@@ -446,7 +446,7 @@ function $(e) {
 				children: /* @__PURE__ */ (0, H.jsx)(a, {
 					summary: N("manage:diagnostics.otherChecks", { count: m.length }),
 					contentClassName: "gap-5",
-					children: ce.map(([e, t]) => {
+					children: ue.map(([e, t]) => {
 						let n = m.filter(([e]) => t.some((t) => t === e));
 						return n.length ? /* @__PURE__ */ (0, H.jsxs)("section", {
 							"aria-label": e,
@@ -458,7 +458,7 @@ function $(e) {
 									className: "text-caption-1-regular text-text-secondary",
 									children: N("manage:diagnostics.groupCount", { count: n.length })
 								})]
-							}), /* @__PURE__ */ (0, H.jsx)(_, { children: n.map(([e, t]) => /* @__PURE__ */ (0, H.jsx)(Q, {
+							}), /* @__PURE__ */ (0, H.jsx)(_, { children: n.map(([e, t]) => /* @__PURE__ */ (0, H.jsx)($, {
 								name: e,
 								check: t,
 								compact: !0
@@ -485,7 +485,7 @@ function $(e) {
 								}), /* @__PURE__ */ (0, H.jsx)(Z, { status: e.status })]
 							}),
 							/* @__PURE__ */ (0, H.jsx)(R, {
-								text: e.reason,
+								text: T(e, "reason"),
 								className: "text-body-regular text-text-primary"
 							}),
 							/* @__PURE__ */ (0, H.jsxs)(c, { children: [
@@ -515,6 +515,6 @@ function $(e) {
 		]
 	});
 }
-export { $ as DiagnosticsPage };
+export { de as DiagnosticsPage };
 
-//# debugId=7569582a-8a6d-4cea-ac8a-8a4ea1d2ba4f
+//# debugId=c4d51946-e2c8-4456-a75a-ab188e907845

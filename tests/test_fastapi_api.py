@@ -347,6 +347,10 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         con.executescript(BASE_SCHEMA)
         for migration in ("0018_online_follow.sql", "0034_feed_discovery.sql"):
             con.executescript((ROOT / "migrations" / migration).read_text(encoding="utf-8"))
+        # 0056 给这两张表加的失败原因 code 列；整份 0056 还要下载任务表，这里只加这两张表的。
+        for table in ("follow_source", "feed_source"):
+            con.executescript(f"ALTER TABLE {table} ADD COLUMN last_error_code TEXT;"
+                              f"ALTER TABLE {table} ADD COLUMN last_error_params TEXT;")
         # 删除与清空回收站后的缓存清理按想要清单认封面的主人；整份 0042 迁移还要连带
         # 修订号与账户表，这里只建清理读的两列。
         con.execute("CREATE TABLE want_item(code_key TEXT, state TEXT NOT NULL)")
@@ -432,7 +436,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.json()["attention"], [])
         checks = response.json()["checks"]
         self.assertEqual(set(checks), {"database", "schema", "configured", "ffmpeg", "media_mounts", "security"})
-        self.assertTrue(all(set(check) == {"status", "reason"} for check in checks.values()))
+        # 原因原文是 zh-CN，旁边带 code（`reason_code`／`reason_params`，几条并列时是 `reason_parts`）。
+        self.assertTrue(all({"status", "reason"} <= set(check) <= {"status", "reason", "reason_code", "reason_params",
+                                                                  "reason_parts"} for check in checks.values()))
         self.assertNotIn(str(self.media_root), json.dumps(checks))
 
     async def test_client_update_snapshot_is_authenticated_and_never_fetches_releases(self):
@@ -447,6 +453,46 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn('minimum_version', value['userscript'])
         self.assertEqual(value['repairs']['state'], 'unavailable')
         self.assertEqual(self.db.read_bytes(), before)
+
+    async def test_startup_migration_answers_status_and_page_shell_but_holds_ledger_requests(self):
+        """启动迁移期间：状态与横幅接口、页面壳照常回应且不碰账本，需要账本的请求回 503 与迁移 code。"""
+        from peach import interface_text
+        untouched = AssertionError('迁移期间不得打开账本')
+        migration = self.app.state.ledger_migration
+        migration.begin()
+        migration.report('backup', 42)
+        try:
+            with (patch('peach.health.inspect_database', side_effect=untouched),
+                  patch('peach.diagnostics.inspect_database', side_effect=untouched),
+                  patch('peach.web_tutorial.q_tutorial_progress', side_effect=untouched),
+                  patch.object(self.app.state.upgrade_repairs, 'snapshot', side_effect=untouched)):
+                health = await self.client.get('/healthz')
+                ready = await self.client.get('/healthz?ready=1')
+                updates = await self.client.get('/api/client-updates?t=secret')
+                await self.client.post('/login', content='token=secret&next=%2F',
+                                       headers={'Content-Type': 'application/x-www-form-urlencoded'})
+                page = await self.client.get('/')
+                held = [await self.client.get('/api/items?t=secret'), await self.client.get('/thumb?id=1&t=secret'),
+                        await self.client.post('/api/tutorial-progress?t=secret', json={})]
+                migration.report('apply', None)
+                applying = await self.client.get('/api/client-updates?t=secret')
+        finally:
+            migration.state = 'idle'
+        self.assertEqual((health.status_code, health.json()['db'], health.json()['ledger_migration']),
+                         (200, 'migrating', {'state': 'running', 'stage': 'backup', 'progress': 42}))
+        self.assertEqual(health.json()['checks']['database']['reason_code'], 'labels.diagnostics.reason.databaseMigrating')
+        self.assertEqual((ready.status_code, ready.json()['ready'], ready.json()['ledger_migration']['state']),
+                         (503, False, 'running'))
+        self.assertEqual((updates.status_code, updates.json()['ledger_migration']),
+                         (200, {'state': 'running', 'stage': 'backup', 'progress': 42}))
+        self.assertEqual(applying.json()['ledger_migration'], {'state': 'running', 'stage': 'apply'})
+        self.assertEqual(page.status_code, 200)
+        for response in held:
+            self.assertEqual((response.status_code, response.json()['message_code']), (503, 'api.ledger.migrating'))
+            self.assertEqual(response.json()['error'], '正在更新本地数据库，完成后刷新页面即可使用。')
+        self.assertEqual(interface_text.text('server:api.ledger.migrating', None, 'en'),
+                         "Updating the local database. Refresh the page when it's done.")
+        self.assertEqual((await self.client.get('/api/client-updates?t=secret')).json()['ledger_migration'], {'state': 'idle'})
 
     async def test_userscript_update_snapshot_uses_scoped_token_without_a_movie_code(self):
         with patch.object(self.app.state.jav_browser, 'authorized', side_effect=lambda token: token == 'script-token'):
@@ -579,6 +625,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             detail = "写入端是 mac"
             read_only = True
             read_only_message = "数据库由 mac 负责写入，本机当前只能浏览。"
+            read_only_phrase = {"code": "labels.sync.readOnlyWriter", "params": {"owner": "mac"}}
 
             def observe(self):
                 return None
@@ -603,6 +650,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(health.json()["ledger_sync"], "reader")
             self.assertTrue(health.json()["ledger_read_only"])
             self.assertIn("只能浏览", health.json()["ledger_read_only_message"])
+            # 同一句另带 code 与参数，页面按界面语言显示。
+            self.assertEqual((health.json()["ledger_read_only_message_code"], health.json()["ledger_read_only_message_params"]),
+                             ("labels.sync.readOnlyWriter", {"owner": "mac"}))
             reviewed = await client.get("/api/review?t=secret")
             self.assertEqual(reviewed.status_code, 200)
             self.assertEqual(reviewed.json()["mirror"]["state"], "live")
@@ -3624,10 +3674,11 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(denied.status_code, 401)
 
     async def test_missing_poster_reports_which_step_failed(self):
-        """卡片按 `reason` 写缺图原因：没有接触印相时说的是缺印相，不是笼统的不可用。"""
+        """卡片按 `reason_code` 写缺图原因：没有接触印相时说的是缺印相，不是笼统的不可用。"""
         missing = await self.client.get("/poster?id=999&c=4", headers={"X-Token": "secret"})
         self.assertEqual(missing.status_code, 404)
-        self.assertEqual(missing.json(), {"error": "unavailable", "reason": "snapshot unavailable"})
+        self.assertEqual(missing.json(), {"error": "unavailable", "reason": "snapshot unavailable",
+                                          "reason_code": "errors.previews.snapshotUnavailable", "reason_params": {}})
 
     async def test_endcard_frame_is_authenticated_and_confined_to_evidence_root(self):
         denied = await self.client.get(

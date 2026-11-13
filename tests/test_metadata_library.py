@@ -1356,7 +1356,8 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual(title, 'Local title')
         self.assertEqual(sorted(result['retryable_asset_ids']), sorted([ids['ABW-358.mp4'], ids['SSIS-057.mp4']]))
         self.assertIn('holiday.mp4', ids)
-        self.assertEqual({issue['message'] for issue in result['issue_preview']}, {OFFLINE_MESSAGE})
+        self.assertEqual({issue['message_code'] for issue in result['issue_preview']}, {OFFLINE_MESSAGE['code']})
+        self.assertEqual({issue['message'] for issue in result['issue_preview']}, {'外部资料未取得：连不上外网'})
 
         online = NetworkReachability(check=lambda: True, retry_delay=0)
         self.addCleanup(online.stop)
@@ -2392,12 +2393,30 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual(state['paused_asset_ids'], [1], '升级补全据此把这部片延后而不是判失败')
 
     def test_the_two_kinds_are_counted_apart_in_the_line_that_sums_them_up(self):
-        from peach.library_processing import issue_summary
-        self.assertEqual(issue_summary(0), '')
-        self.assertEqual(issue_summary(3), '3 项需要处理，可重试未完成的部分。')
-        self.assertEqual(issue_summary(3, 1),
+        from peach.library_processing import issue_summary, phrase_text
+        self.assertIsNone(issue_summary(0))
+        self.assertEqual(phrase_text(issue_summary(3)), '3 项需要处理，可重试未完成的部分。')
+        self.assertEqual(phrase_text(issue_summary(3, 1)),
                          '3 项需要处理，其中 1 项是来源限流，等一会儿再跑；其余可重试未完成的部分。')
-        self.assertEqual(issue_summary(3, 3), '3 项都卡在来源限流上，等一会儿再跑一次。')
+        self.assertEqual(phrase_text(issue_summary(3, 3)), '3 项都卡在来源限流上，等一会儿再跑一次。')
+
+    def test_several_reasons_stay_coded_so_an_english_interface_reads_english(self):
+        """几处原因连成一句时每处仍是自己的 code，分隔符在资源里：英文界面不露中文。"""
+        import re
+        from peach import interface_text
+        from peach.library_processing import _unreached, describe_failure, phrase, source_name
+        from peach.scraping_access import SourcePaused
+        problems = [(phrase('errors.libraryProcessing.sourceProblem',
+                            {'source': source_name('local_nfo'), 'problem': describe_failure(
+                                SourcePaused('errors.scrapingAccess.requestBudgetSpent'))}), True),
+                    (describe_failure(RuntimeError('boom')), True)]
+        error = _unreached(problems)
+        self.assertIsInstance(error, SourcePaused)
+        self.assertEqual(str(error), '本地 NFO：本趟采集次数已用完，再跑一次接着采；已有图片保留；处理出错（RuntimeError）')
+        english = interface_text.text(f'server:{error.code}', error.params, 'en')
+        self.assertIn('Local NFO', english)
+        self.assertIn('Processing error (RuntimeError)', english)
+        self.assertIsNone(re.search(r'[㐀-鿿]', english), english)
 
     @windows_ledger_roots
     def test_a_source_that_said_no_is_not_asked_again_for_a_week(self):

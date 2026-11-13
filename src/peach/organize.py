@@ -21,39 +21,55 @@ from collections.abc import Callable, Iterable, Sequence
 from contextlib import contextmanager
 from pathlib import Path, PureWindowsPath
 
+from . import interface_text
 from .catalog_rules import is_jav_code, is_uncensored_release, normalise_code_key, part_marker
+from .catalog_vocabulary import UNCENSORED
 from .jobs import ACTIVE_ASSET_SQL
 from .task_retry import transient_delay
-from .organize_templates import MAX_PATH, TemplateError, clean_filename, render, validate_template
+from .organize_templates import MAX_PATH, TemplateError, clean_filename, example_path, render, validate_template
 from .platform import (is_windows_path, location_mounts, location_roots, resolve_root, root_online,
                        translate_ledger_path, within_root)
 from .review_csv import write_rows
 from .fsutil import atomic_write_text
-from .user_messages import UserFacingError, UserOSError
+from .user_messages import UserFacingError, UserOSError, nested_message
 
 #: 计划 CSV 的列。`reason` 只在 `action=skip` 时有值。
 PLAN_FIELDS = ["asset_id", "location", "current_path", "target_path", "action", "reason"]
 
-#: 文件名与目录组合，以及使用示例字段时的完整路径。
-PRESETS: tuple[dict[str, str], ...] = (
-    {"label": "仅番号", "file": "{code}", "dir": "", "example": "ABC-123.mp4"},
-    {"label": "番号和标题", "file": "{code}[ {title}]", "dir": "", "example": "ABC-123 标题.mp4"},
-    {"label": "番号和画质", "file": "{code}[ {definition}]", "dir": "", "example": "ABC-123 1080p.mp4"},
-    {"label": "番号和出演者", "file": "{code}[ {actors}]", "dir": "", "example": "ABC-123 甲、乙.mp4"},
-    {"label": "按厂牌建文件夹", "file": "{code}[ {title}]", "dir": "{studio}", "example": "厂牌/ABC-123 标题.mp4"},
-    {"label": "按系列建文件夹", "file": "{code}[ {title}]", "dir": "{series}", "example": "系列/ABC-123 标题.mp4"},
-    {"label": "按出演者建文件夹", "file": "{code}[ {title}]", "dir": "{actors}", "example": "甲、乙/ABC-123 标题.mp4"},
-    {"label": "按发行年建文件夹", "file": "{code}[ {title}]", "dir": "{year}", "example": "2024/ABC-123 标题.mp4"},
-    {"label": "厂牌下按番号建文件夹", "file": "{code}[ {title}][ CD{cd}]", "dir": "{studio}/{code}", "example": "厂牌/ABC-123/ABC-123 标题 CD2.mp4"},
+#: 文件名与目录组合：`(id, 文件名模板, 目录模板)`。显示名在 `server:labels.organize.preset.<id>`（ADR-0159）。
+_PRESET_TEMPLATES = (
+    ("codeOnly", "{code}", ""),
+    ("codeTitle", "{code}[ {title}]", ""),
+    ("codeDefinition", "{code}[ {definition}]", ""),
+    ("codeActors", "{code}[ {actors}]", ""),
+    ("byStudio", "{code}[ {title}]", "{studio}"),
+    ("bySeries", "{code}[ {title}]", "{series}"),
+    ("byActors", "{code}[ {title}]", "{actors}"),
+    ("byYear", "{code}[ {title}]", "{year}"),
+    ("studioThenCode", "{code}[ {title}][ CD{cd}]", "{studio}/{code}"),
 )
 
-#: 跳过原因的固定写法。界面按这几个键分组计数，所以它们是契约的一部分。
-SKIP_OFFLINE = "来源未挂载"
-SKIP_MISSING_FIELD = "字段缺失"
-SKIP_OUTSIDE_ROOT = "不在来源根内"
-SKIP_TARGET_EXISTS = "目标已存在"
-SKIP_CROSS_VOLUME = "跨盘"
-SKIP_TOO_LONG = "路径过长"
+
+def _preset(preset_id: str, file_template: str, dir_template: str) -> dict[str, str]:
+    """一个预设：`label` 是 zh-CN 原文，`label_code` 给前端取当前语言；`example` 是用示例字段渲染的完整路径。"""
+    code = f"labels.organize.preset.{preset_id}"
+    return {"id": preset_id, "label": interface_text.text(f"server:{code}"), "label_code": code,
+            "file": file_template, "dir": dir_template, "example": example_path(file_template, dir_template)["example"]}
+
+
+PRESETS: tuple[dict[str, str], ...] = tuple(_preset(*row) for row in _PRESET_TEMPLATES)
+
+
+def _skip_reason(reason_id: str) -> str:
+    return interface_text.text(f"server:labels.organize.skip.{reason_id}")
+
+
+#: 跳过原因。计划 CSV 的 `reason` 列与计划结果的 `reasons` 计数按 zh-CN 原文记，下载后整理按这几个值判断，
+#: 所以它们是契约的一部分；界面按 `reason_codes`（原文 → code）取当前语言。
+SKIP_REASON_IDS = ("offline", "missingField", "outsideRoot", "targetExists", "crossVolume", "tooLong")
+SKIP_OFFLINE, SKIP_MISSING_FIELD, SKIP_OUTSIDE_ROOT, SKIP_TARGET_EXISTS, SKIP_CROSS_VOLUME, SKIP_TOO_LONG = (
+    map(_skip_reason, SKIP_REASON_IDS))
+SKIP_REASON_CODES = {_skip_reason(reason_id): f"labels.organize.skip.{reason_id}" for reason_id in SKIP_REASON_IDS}
 
 
 #: 挂载上的 `os.rename` 证明不了云端真的改了名的来源：PikPak 挂载对大文件常报 WinError 50，
@@ -145,7 +161,7 @@ def placeholder_values(row, performers: Sequence[str] = ()) -> dict[str, str]:
         "cd": marker.upper() if marker else "",
         # 有码不是本机可核验的事实，所以只在有无码证据时给值；`[{mosaic}]` 于是
         # 在普通片上整段消失，而不是写上一个猜出来的「有码」。
-        "mosaic": "无码" if is_uncensored_release(name, code) else "",
+        "mosaic": UNCENSORED if is_uncensored_release(name, code) else "",
         "definition": _definition(row["width"], row["height"]),
     }
 
@@ -254,7 +270,7 @@ def build_plan(connection: sqlite3.Connection, *, location: str,
     if not online:
         for row in rows:
             skip(row, SKIP_OFFLINE)
-        return {"rows": plan, "counts": counts, "reasons": reasons}
+        return _plan(plan, counts, reasons)
 
     performers = _performers(connection, location)
     # 目标撞名先按账本已知的路径判一遍：同一批里两行算出同一个名字，或者目标位置上
@@ -317,7 +333,13 @@ def build_plan(connection: sqlite3.Connection, *, location: str,
             "target_path": target,
             "action": "rename" if target_dir == current_dir else "move", "reason": "",
         })
-    return {"rows": plan, "counts": counts, "reasons": reasons}
+    return _plan(plan, counts, reasons)
+
+
+def _plan(rows: list[dict], counts: dict[str, int], reasons: dict[str, int]) -> dict:
+    """计划结果；`reason_codes` 是跳过原因原文到 code 的对照，界面按它取当前语言。"""
+    return {"rows": rows, "counts": counts, "reasons": reasons,
+            "reason_codes": {reason: SKIP_REASON_CODES[reason] for reason in reasons if reason in SKIP_REASON_CODES}}
 
 
 def write_plan(path: Path | str, rows: Sequence[dict]) -> Path:
@@ -379,13 +401,33 @@ def _update_row(connection: sqlite3.Connection, asset_id: int,
 
 
 class MoveFailure(str):
-    """保留原有原因字符串，并把可自动恢复的移动失败带回批次结果。"""
+    """一条没动成的原因：字符串本身是 zh-CN 原文，另带 code 与参数；可自动恢复的带重试间隔。"""
 
-    def __new__(cls, reason: str, *, retry_after: float | None):
+    def __new__(cls, reason: str, *, retry_after: float | None = None, code: str = "",
+                params: dict | None = None):
         value = super().__new__(cls, reason)
         value.retryable = retry_after is not None
         value.retry_after = retry_after
+        value.code = code
+        value.params = dict(params or {})
         return value
+
+
+def _failure(code: str, params: dict | None = None, *, retry_after: float | None = None) -> MoveFailure:
+    return MoveFailure(interface_text.text(f"server:{code}", params), retry_after=retry_after, code=code,
+                       params=params)
+
+
+def _skipped(reason: str) -> MoveFailure:
+    """执行时撞上的跳过原因，与计划里的写法相同。"""
+    return MoveFailure(reason, code=SKIP_REASON_CODES.get(reason, ""))
+
+
+def _reason_fields(outcome: str) -> dict:
+    """失败行里的原因：`reason` 是 zh-CN 原文，带 code 的另给 `reason_code` 与 `reason_params`。"""
+    if isinstance(outcome, MoveFailure) and outcome.code:
+        return {"reason": str(outcome), "reason_code": outcome.code, "reason_params": outcome.params}
+    return {"reason": outcome}
 
 
 def _move_one(connection: sqlite3.Connection, asset_id: int,
@@ -399,19 +441,20 @@ def _move_one(connection: sqlite3.Connection, asset_id: int,
         # 计划那一步已经拦过一次。这里再拦是因为执行接受的是一份计划数据，而计划可以
         # 来自命令行、来自一份被人编辑过的 CSV；跨盘「改名」在这台机器上会退化成
         # 拷贝加删除，中断就是半个文件。
-        return SKIP_CROSS_VOLUME
+        return _skipped(SKIP_CROSS_VOLUME)
     local_source = _media_path(old_path)
     local_target = _media_path(new_path)
     if not local_source.exists():
-        return "源文件不存在"
+        return _failure("labels.organize.failure.sourceMissing")
     case_only = old_path.casefold() == new_path.casefold()
     if local_target.exists() and not (
             case_only and isinstance(local_source, Path) and local_source.samefile(local_target)):
-        return SKIP_TARGET_EXISTS
+        return _skipped(SKIP_TARGET_EXISTS)
     try:
         _rename(old_path, new_path)
     except OSError as error:
-        return MoveFailure(f"改名失败：{error.strerror or error}", retry_after=transient_delay(error))
+        return _failure("labels.organize.failure.renameFailed", {"error": str(error.strerror or error)},
+                        retry_after=transient_delay(error))
     try:
         if not _update_row(connection, asset_id, old_path, new_path):
             raise OrganizeError("errors.organize.rowChanged")
@@ -420,9 +463,9 @@ def _move_one(connection: sqlite3.Connection, asset_id: int,
         connection.rollback()
         try:
             _rename(new_path, old_path)
-            return f"数据库写入失败，已改回原名：{error}"
+            return _failure("labels.organize.failure.ledgerRolledBack", {"error": nested_message(error)})
         except OSError:
-            return f"数据库写入失败且改不回原名，需要人工处理：{error}"
+            return _failure("labels.organize.failure.ledgerStuck", {"error": nested_message(error)})
     return "ok"
 
 
@@ -457,7 +500,7 @@ def apply_plan(connection: sqlite3.Connection, rows: Sequence[dict], *,
                       and _media_path(new_path).is_file()
                       and (old_path.casefold() == new_path.casefold() or not _media_path(old_path).exists()))
             if current is None or current[1] is not None:
-                outcome = '资产已不在馆藏，未执行整理'
+                outcome = _failure('labels.organize.failure.assetGone')
             else:
                 outcome = 'ok' if landed else _move_one(connection, int(row["asset_id"]), old_path, new_path)
             if outcome == "ok":
@@ -465,7 +508,7 @@ def apply_plan(connection: sqlite3.Connection, rows: Sequence[dict], *,
                                 "old_path": old_path, "new_path": new_path})
             else:
                 failures.append({"asset_id": int(row["asset_id"]),
-                                 "path": old_path, "reason": outcome,
+                                 "path": old_path, **_reason_fields(outcome),
                                  "retryable": isinstance(outcome, MoveFailure) and outcome.retryable,
                                  "retry_after": outcome.retry_after if isinstance(outcome, MoveFailure) else None})
             save()
@@ -499,7 +542,7 @@ def rollback_batch(connection: sqlite3.Connection, log_path: Path | str, *,
             restored.append(entry)
         else:
             failures.append({"asset_id": int(entry["asset_id"]),
-                             "path": str(entry["new_path"]), "reason": outcome})
+                             "path": str(entry["new_path"]), **_reason_fields(outcome)})
         payload['entries'] = [row for row in entries if row not in restored]
         payload['restored_count'] = previous_restored + len(restored)
         atomic_write_text(path, json.dumps(payload, ensure_ascii=False, indent=1))

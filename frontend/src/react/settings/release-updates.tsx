@@ -8,7 +8,7 @@ import { confirmModal } from '@peach/legacy/ui';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend, errorMessage } from '../../api';
-import { jobText, serverLabel, serverText } from '../../core/server-text';
+import { codedText, jobText, serverLabel, serverText } from '../../core/server-text';
 import type { ReleaseState, UpdateJob } from '../bundle';
 import { Note } from '../components/note';
 import { Progress } from '../components/progress';
@@ -131,7 +131,7 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
           ? <>
               <CommandSteps label={t('settings:releaseUpdates.updateOnHost')}
                 steps={data.steps.map((step) => ({ ...step, text: serverLabel(`release.dockerStep.${step.id}`, step.text) }))} />
-              <Help>{data.one_click?.reason || t('settings:releaseUpdates.watchtowerHint')}</Help>
+              <Help>{(data.one_click?.reason ? codedText(data.one_click, 'reason') : '') || t('settings:releaseUpdates.watchtowerHint')}</Help>
             </> : null}
         <DockerUpdateProgress job={container.job} />
         {job.state === 'error' ? <ErrorText>{jobText(job)}</ErrorText> : null}

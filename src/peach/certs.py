@@ -116,22 +116,22 @@ def has_authority_key_identifier(cert: Path) -> bool:
 def reissue_reason(
     files: CertificateFiles, names: set[str], addresses: set[str], now: datetime | None = None,
 ) -> str | None:
-    """需要重签就返回原因，不需要返回 None。"""
+    """需要重签就返回原因（英文，只进日志），不需要返回 None。"""
     if not files.cert.is_file() or not files.key.is_file():
-        return "服务器证书不存在"
+        return "server certificate missing"
     if not has_authority_key_identifier(files.cert):
-        return "证书缺少颁发者密钥标识"
+        return "certificate lacks an authority key identifier"
     have_names, have_addresses = subject_alt_names(files.cert)
     missing = (names - have_names) | (addresses - have_addresses)
     if missing:
-        return "证书未覆盖：" + "、".join(sorted(missing))
+        return "certificate does not cover: " + ", ".join(sorted(missing))
     expiry = not_after(files.cert)
     if expiry is None:
-        return "读不出证书有效期"
+        return "certificate expiry unreadable"
     stamp = now or datetime.now(timezone.utc)
     remaining = (expiry - stamp).days
     if remaining <= RENEW_BEFORE_DAYS:
-        return f"证书还有 {remaining} 天到期"
+        return f"certificate expires in {remaining} days"
     return None
 
 

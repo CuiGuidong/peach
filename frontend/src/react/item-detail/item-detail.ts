@@ -48,6 +48,8 @@ export interface DetailItem extends Omit<CardFields, 'tags'> {
   release_date?: string | null;
   region?: string | null;
   region_label?: string | null;
+  /** 产地显示名的 code（`server:labels.regions.<分区码>`）。 */
+  region_label_code?: string | null;
   region_settled?: boolean;
   rating?: number | null;
   liked?: boolean | number;

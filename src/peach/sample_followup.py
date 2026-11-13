@@ -20,10 +20,10 @@ from pathlib import Path
 from . import sample_images
 from .followups import Followup, FollowupType, register
 from .task_outcomes import joined, part, said
-from .task_runs import item_progress
+from .task_runs import item_progress, task_label
 
 TASK_KEY = "code-samples"
-TASK_LABEL = "番号样张采集"
+TASK_LABEL = task_label(TASK_KEY)
 
 #: 一轮只派一条，key 固定：同一件事同时只会有一条在排队或在跑。
 FOLLOWUP_KEY = f"{TASK_KEY}:stock"

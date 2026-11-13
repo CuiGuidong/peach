@@ -17,8 +17,9 @@ import time
 from collections.abc import Callable
 from functools import lru_cache
 
-from . import entities, media_libraries, sample_images, settings_file
+from . import entities, interface_text, media_libraries, sample_images, settings_file
 
+from .catalog_vocabulary import CENSORED, EDITION_ORDER, FC2_BONUS_PREFIX, PERFORMER_TAG_PREFIX, PORTRAIT
 from .catalog_rules import (
     LENGTH_TAGS,
     canonical_tag_name,
@@ -39,7 +40,7 @@ from .catalog_versions import foldable_versions, partition_versions, version_lab
 from .field_owners import parse_owners
 from .metadata_policy import SOURCE_SPECS
 from .media_sources import cost_for
-from .regions import infer_region, normalize_region, region_label
+from .regions import UNKNOWN_LABEL_CODE, infer_region, normalize_region, region_label, region_label_code
 from .web_activity import DEFAULT_PROFILE_ID
 from .web_state import WebContract
 from .western_artwork import artwork_key
@@ -139,6 +140,7 @@ def attach_jav_display_fields(row: dict, tags=(), entity_kinds=(), source_names=
         region = infer_region(code, row.get("name"))
     row["region"] = region
     row["region_label"] = region_label(region)
+    row["region_label_code"] = region_label_code(region)
     # 详情页要能分开「这条是你定的」和「这是按番号猜的」，后者才需要请人确认。
     row["region_settled"] = bool(stored)
     row["is_jav"] = is_jav_asset(
@@ -241,10 +243,14 @@ def region_facet_rows(rows) -> list[dict]:
     """产地筛选项，连未判定那一档一起给。
 
     判产地是人一条条过的活，看不见还剩多少就没人会去过。未判定在筛选参数里写作
-    `none`，空串到不了查询串里。
+    `none`，空串到不了查询串里。`label` 是 zh-CN 原文，前端按 `label_code` 取当前语言。
     """
-    return [{**dict(row), "k": row["k"] or "none",
-             "label": region_label(row["k"]) or "未判定"} for row in rows]
+    out = []
+    for row in rows:
+        code = region_label_code(row["k"]) or UNKNOWN_LABEL_CODE
+        out.append({**dict(row), "k": row["k"] or "none",
+                    "label": interface_text.text(f"server:{code}"), "label_code": code})
+    return out
 
 
 def _entity_asset_filter(connection, kind: str, name: str) -> tuple[str, list[int]]:
@@ -344,7 +350,7 @@ def catalog_filter(contract: WebContract, args):
     if not trash and args.get("orient"):
         where.append("a.ctx_orient = ?"); par.append(args["orient"])
     elif not trash and args.get("exclude_vertical") == "1":
-        where.append("(a.ctx_orient IS NULL OR a.ctx_orient <> '竖屏')")
+        where.append("(a.ctx_orient IS NULL OR a.ctx_orient <> ?)"); par.append(PORTRAIT)
     region_where, region_par = region_filter(args.get("region"), trash)
     where += region_where
     par += region_par
@@ -413,7 +419,7 @@ def orientation_member(args) -> Callable[[dict], bool] | None:
         orient = args["orient"]
         return lambda member: member.get("ctx_orient") == orient
     if args.get("exclude_vertical") == "1":
-        return lambda member: member.get("ctx_orient") != "竖屏"
+        return lambda member: member.get("ctx_orient") != PORTRAIT
     return None
 
 
@@ -520,11 +526,11 @@ def q_items(contract: WebContract, args):
             canonical_tags = canonical.get("tag", [])
             canonical_performers = canonical.get("performer", [])
             all_performers = canonical_performers or [
-                tag[3:] for tag in ts if tag.startswith("演员:")
+                tag[3:] for tag in ts if tag.startswith(PERFORMER_TAG_PREFIX)
             ]
             performers = all_performers[:CARD_PERFORMERS]
             performer_names = {normalize_entity_name(name) for name in all_performers}
-            visible_tags = canonical_tags or [t for t in ts if not t.startswith("演员:")]
+            visible_tags = canonical_tags or [t for t in ts if not t.startswith(PERFORMER_TAG_PREFIX)]
             r["tags"] = [
                 tag for tag in visible_tags
                 if tag_cat(tag) in (
@@ -576,7 +582,7 @@ def visible_identity_data(connection, canonical, legacy, *, tag_column=0):
         f'SELECT alias FROM entity_alias WHERE entity_id IN ({marks})', (*excluded, *excluded))
     hidden = {normalize_entity_name(row[0]) for row in names}
     canonical = [row for row in canonical if row[0] not in excluded]
-    legacy = [row for row in legacy if not row[tag_column].startswith('演员:')
+    legacy = [row for row in legacy if not row[tag_column].startswith(PERFORMER_TAG_PREFIX)
               or normalize_entity_name(row[tag_column][3:]) not in hidden]
     return canonical, legacy
 
@@ -739,9 +745,6 @@ def attach_saved_follow_cards(contract: WebContract, rows):
         row["follow_tags"] = _item_tags(item)
 
 
-#: 版次的展示次序：正片在前，处理过的在后。这不是偏好排序，只是要一个稳定的
-#: 锚点——卡片标题取第一个，次序一变卡片就换名字。
-EDITION_ORDER = ("有码", "中字", "无码", "无码流出", "无码破解")
 
 
 def _edition_label(row: dict, tags: tuple[str, ...] = (), source_names: tuple[str, ...] = ()) -> str:
@@ -757,7 +760,15 @@ def _edition_label(row: dict, tags: tuple[str, ...] = (), source_names: tuple[st
 def _edition_badge(name, code, tags: tuple[str, ...], source_names: tuple[str, ...]) -> str:
     # 分组快照每次重算都要判一遍；判据只看这四样，按它们记住。
     badges = jav_edition_badges(name, code, tags, source_names)
-    return str(badges[0]) if badges else "有码"
+    return str(badges[0]) if badges else CENSORED
+
+
+def _group_title(code: str, row: dict, fallback: str) -> dict:
+    """聚合卡片的标题：规范番号；一个番号都取不到时用固定说法，`title_code` 给前端取当前语言。"""
+    title = code or str(row.get("code") or "")
+    if title:
+        return {"title": title}
+    return {"title": interface_text.text(f"server:{fallback}"), "title_code": fallback}
 
 
 def _edition_rows(contract: WebContract, codes) -> list[dict]:
@@ -852,7 +863,7 @@ def attach_edition_groups(contract: WebContract, rows,
         members = members or group
         row["edition_group"] = {
             "key": code,
-            "title": code or str(row.get("code") or "多版本作品"),
+            **_group_title(code, row, "labels.webCatalog.editionGroup"),
             "count": len({item['version_id'] for item in members}),
             "seed_id": group[0]["id"],
             "item_ids": [item["id"] for item in members],
@@ -960,7 +971,7 @@ def attach_multipart_groups(contract: WebContract, rows,
         members = members or group
         row["part_group"] = {
             "key": key,
-            "title": code or str(row.get("code") or "分卷作品"),
+            **_group_title(code, row, "labels.webCatalog.partGroup"),
             "count": len(members),
             "seed_id": group[0]["id"],
             "item_ids": [item["id"] for item in members],
@@ -1006,7 +1017,7 @@ def _part_labels(group: list[dict]) -> dict[int, str]:
     # 那段尾缀才取得到卷标；这一步和分组用的是同一个判据。卷标按整套算，进了回收站
     # 的那一卷只是不进队列，后面几卷的卷标不跟着前移。
     stripped = names_without_shared_part_tail(group) or [""] * len(group)
-    has_bonus = any(fc2_collection_label(row).startswith("特典 ") for row in group)
+    has_bonus = any(fc2_collection_label(row).startswith(FC2_BONUS_PREFIX) for row in group)
     labels = {}
     for position, (row, bare) in enumerate(zip(group, stripped), 1):
         marker = part_marker(bare) or part_marker(str(row.get("name") or ""))
@@ -1155,12 +1166,12 @@ def q_item(contract: WebContract, aid):
     }
     performers = canonical_performers or [
         tag[3:] for tag in legacy
-        if tag.startswith("演员:")
+        if tag.startswith(PERFORMER_TAG_PREFIX)
         and normalize_entity_name(tag[3:]) not in canonical_creators
     ]
     performer_names = {normalize_entity_name(name) for name in performers}
     tags = [tag for tag in (canonical_tags or [
-        tag for tag in legacy if not tag.startswith("演员:")
+        tag for tag in legacy if not tag.startswith(PERFORMER_TAG_PREFIX)
     ]) if normalize_entity_name(tag) not in performer_names]
     d["tags"] = [
         {
@@ -1241,7 +1252,7 @@ def _name_shared_tags(contract: WebContract, aid, picked, related_tags) -> None:
 
     只留两边都看得见的标签：排序用的是实体关联，被用户隐藏的标签也在里面。一个都不剩时
     照旧写「标签接近」。"""
-    from peach.related import TAG_REASON
+    from peach.related import TAG_REASON_CODE, reason_text
 
     ids = sorted({tag for row in picked for tag in row.get("shared_tags", ())})
     names: dict[int, str] = {}
@@ -1257,7 +1268,9 @@ def _name_shared_tags(contract: WebContract, aid, picked, related_tags) -> None:
         shared = [names[tag] for tag in row.pop("shared_tags", ()) if names.get(tag) in visible]
         if shared:
             row["why_tags"] = shared[:6]
-            row["why"] = " · ".join(reason for reason in row["why"].split(" · ") if reason != TAG_REASON)
+            codes = [code for code in row.get("why_codes", ()) if code != TAG_REASON_CODE]
+            row["why_codes"] = codes
+            row["why"] = " · ".join(map(reason_text, codes))
 
 
 def q_related(contract: WebContract, aid, limit=24):
@@ -1519,7 +1532,9 @@ def _release_year_facets(contract, connection, scope, values, state, filters, as
         conditions, parameters = catalog_filter(contract, {**filters, 'state':state, 'year':''})
         scope += 'AND ' + ' AND '.join(conditions) + ' '
         values = [*values, *parameters]
-    return [dict(k=row['k'] or 'none', label=row['k'] or '未知年份', n=row['n'])
+    unknown = {'label': interface_text.text('server:labels.webCatalog.unknownYear'),
+               'label_code': 'labels.webCatalog.unknownYear'}
+    return [dict(k=row['k'] or 'none', **({'label': row['k']} if row['k'] else unknown), n=row['n'])
             for row in connection.execute('SELECT '+RELEASE_YEAR_SQL+' AS k,count(*) AS n FROM asset a '
                 "WHERE a.medium='video' "+scope+' GROUP BY k ORDER BY k DESC', values)]
 
@@ -1640,7 +1655,7 @@ def w_item_tag(contract: WebContract, body):
     tag = str(body.get("tag", "")).strip()
     if operation not in {"add", "remove"}:
         raise ValueError("operation must be add or remove")
-    if not tag or len(tag) > 80 or tag.startswith("演员:"):
+    if not tag or len(tag) > 80 or tag.startswith(PERFORMER_TAG_PREFIX):
         raise ValueError("tag must be 1 to 80 characters and cannot be a performer marker")
     if operation == "add":
         canonical = current_tags([tag])

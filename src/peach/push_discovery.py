@@ -49,6 +49,7 @@ from typing import Callable
 from .fsutil import atomic_write_text
 from .repository import in_background
 from .discovery_rules import system_path
+from . import interface_text
 from .user_messages import UserFacingError, UserValueError
 
 LOGGER = logging.getLogger(__name__)
@@ -261,7 +262,7 @@ def map_cloud_path(cloud_path: str, prefixes: tuple[CloudPrefix, ...]) -> str:
         if best is None or depth > best[0]:
             best = (depth, entry, text[len(prefix):])
     if best is None:
-        known = "、".join(normalise_prefix(entry.prefix) for entry in prefixes)
+        known = [normalise_prefix(entry.prefix) for entry in prefixes]
         if not known:
             raise CloudPathError("errors.pushDiscovery.noPrefixes", {"path": text})
         raise CloudPathError("errors.pushDiscovery.notUnderPrefix", {"path": text, "known": known})
@@ -569,7 +570,7 @@ def _prefix_rows(raw, declared_roots) -> tuple[CloudPrefix, ...]:
         if settled is None:
             if not known:
                 raise UserValueError("errors.pushDiscovery.noDeclaredRoots", {"root": root})
-            shown = "、".join(sorted(known.values()))
+            shown = sorted(known.values())
             raise UserValueError("errors.pushDiscovery.undeclaredRoot", {"root": root, "known": shown})
         if prefix in seen:
             raise UserValueError("errors.pushDiscovery.duplicatePrefix", {"prefix": prefix})
@@ -677,6 +678,14 @@ class ChannelState:
     running: bool = False
     message: str = ""
     roots: tuple[str, ...] = field(default_factory=tuple)
+    #: `message` 那一句的 code 与参数（ADR-0159）；`message` 是 zh-CN 原文。
+    message_code: str = ""
+    message_params: dict = field(default_factory=dict)
+
+    @classmethod
+    def stopped(cls, name: str, **params) -> "ChannelState":
+        code = f"labels.pushDiscovery.{name}"
+        return cls(False, interface_text.text(f"server:{code}", params), message_code=code, message_params=params)
 
 
 class PushDiscoveryService:
@@ -859,16 +868,16 @@ class PushDiscoveryService:
 
     def _start_local(self) -> None:
         if not self.config.watch_local:
-            self.local_channel = ChannelState(False, "本地通道没有打开")
+            self.local_channel = ChannelState.stopped("localOff")
             return
         roots = self._local_roots()
         if not roots:
-            self.local_channel = ChannelState(False, "本地来源在这台机器上没有可监视的目录")
+            self.local_channel = ChannelState.stopped("noLocalRoots")
             return
         try:
             from watchdog.observers import Observer
         except ImportError as error:  # 打包漏装时不该让整条服务起不来
-            self.local_channel = ChannelState(False, f"文件监视不可用：{error}")
+            self.local_channel = ChannelState.stopped("watchUnavailable", error=str(error))
             return
         handler = _LocalEventHandler(self)
         observer = Observer()
@@ -878,7 +887,7 @@ class PushDiscoveryService:
         try:
             observer.start()
         except OSError as error:
-            self.local_channel = ChannelState(False, f"文件监视启动失败：{error}")
+            self.local_channel = ChannelState.stopped("watchFailed", error=str(error))
             return
         self._observer = observer
         self.local_channel = ChannelState(
@@ -920,6 +929,8 @@ class PushDiscoveryService:
             "endpoint": WEBHOOK_PATH,
             "local_running": self.local_channel.running,
             "local_message": self.local_channel.message,
+            "local_message_code": self.local_channel.message_code,
+            "local_message_params": self.local_channel.message_params,
             "local_roots": list(self.local_channel.roots),
             "queue": self.queue.snapshot(),
             "media_roots": [root for roots in self.declared_roots.values() for root in roots],

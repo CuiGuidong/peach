@@ -184,7 +184,7 @@ export const choiceDetailText = (choice: AvatarChoice): string =>
 export const cropNote = (choice: AvatarChoice): string =>
   sharedCast(choice)
     ? t('catalog:avatarPicker.cropNoteShared', { label: choiceLabel(choice), count: choice.cast })
-    : t('catalog:avatarPicker.cropNote', { label: choiceLabel(choice), detail: choice.source === 'social' && choice.detail ? ` · ${choice.detail}` : '' });
+    : t('catalog:avatarPicker.cropNote', { label: choiceLabel(choice), detail: choice.source === 'social' && choice.detail ? ` · ${choiceDetailText(choice)}` : '' });
 
 const SOURCE_LABELS: Record<string, string> = {
   gfriends: t('catalog:avatarPicker.sourceGallery'), history: t('catalog:avatarPicker.sourceHistory'), asset: t('catalog:avatarPicker.sourceVideoStill'), code: t('catalog:avatarPicker.sourceCodeCover'),

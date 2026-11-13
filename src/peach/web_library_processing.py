@@ -21,7 +21,7 @@ LOGGER = logging.getLogger(__name__)
 #: 就是两兆多，还把媒体路径交给了浏览器。续跑与重试读的是 `_current()`，不经过这里。
 PUBLIC_FIELDS = frozenset({
     'library_id', 'library_name', 'run_id', 'metadata_only', 'status', 'outcome', 'speed_mode', 'eta_seconds_min', 'eta_seconds_max', 'eta_kind',
-    'eta_scope', 'eta_initial', 'job_id', 'stage', 'stage_code', 'requested_stage', 'steps', 'checked', 'total',
+    'eta_scope', 'eta_scope_code', 'eta_initial', 'job_id', 'stage', 'stage_code', 'requested_stage', 'steps', 'checked', 'total',
     'scanned', 'scanned_bytes', 'identified', 'candidates', 'auto_applied', 'covers', 'previews',
     'performer_aliases', 'performer_avatars', 'performer_profile_conflicts',
     'performer_profile_failed', 'error', 'error_code', 'error_params', 'issue_count', 'paused_count', 'issue_preview',
@@ -144,7 +144,9 @@ def q_library_processing(contract, _args):
     from .library_new_assets import pending
     state['new_asset_count'] = len(pending(contract.db_path))
     if state.get('status') not in ACTIVE and recovery.get('status') == 'blocked':
-        reason = recovery.get('error')
+        # 恢复记录带 code 时把原因嵌成同一语言的一句，旧记录只有原文。
+        reason = ({"code": recovery['error_code'], "params": recovery.get('error_params') or {}}
+                  if recovery.get('error_code') else recovery.get('error'))
         code, params = (("errors.webLibraryProcessing.recoveryFailed", {"reason": reason}) if reason
                         else ("errors.webLibraryProcessing.recoveryFailedRestart", {}))
         state.update(status='failed', outcome='interrupted', error=interface_text.text(f"server:{code}", params),

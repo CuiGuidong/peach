@@ -20,7 +20,8 @@ interface SubtitleFile { index: number; name: string; playable: boolean; languag
 /** 在线字幕找界面语言的那一种：中文界面找简繁中文，其余找英文。服务端回语言标签，语言名按界面语言显示。 */
 const SEARCH_LANGUAGE = interfaceLanguage === 'zh-CN' ? 'zh' : 'en';
 const languageNames = new Intl.DisplayNames([interfaceLanguage], { type: 'language' });
-const languageName = (tag: string): string => { try { return languageNames.of(tag) ?? tag } catch { return tag } };
+/** 语言标签按界面语言说出的语言名；认不出的标签原样返回。 */
+export const languageName = (tag: string): string => { try { return languageNames.of(tag) ?? tag } catch { return tag } };
 /** 在线字幕记在播放记忆里的键；中文沿用改版前的写法，已加载过的不会重复下载。 */
 const onlineKey = (id: string, file: SubtitleFile): string =>
   SEARCH_LANGUAGE === 'zh' ? `subtitlecat:${id}:${file.index}` : `subtitlecat:${id}:${SEARCH_LANGUAGE}:${file.index}`;

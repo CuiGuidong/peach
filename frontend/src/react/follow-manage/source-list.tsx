@@ -58,7 +58,7 @@ import {
   type TableRow as SourceTableRow,
 } from './follow-manage';
 import { AuthorAvatar, ErrorLine, SourceIcon, SourceLink, StatusBadge } from './source-view';
-import { jobText } from '../../core/server-text';
+import { codedText, jobText } from '../../core/server-text';
 import { joinList, t } from '../../i18n';
 
 const sourceTableFeatures = tableFeatures({
@@ -165,7 +165,7 @@ function SourceRow(
           <span aria-hidden className="w-4 shrink-0" />
           <span className="flex min-w-0 grow gap-1.5">
             <span aria-hidden className="w-(--icon-inline) shrink-0 text-body-medium" />
-            <span className="min-w-0 grow"><ErrorLine text={source.last_error} /></span>
+            <span className="min-w-0 grow"><ErrorLine text={codedText(source, 'last_error')} /></span>
           </span>
         </span>
       ) : null}
@@ -404,7 +404,7 @@ export function SourceList(props: SourceListProps) {
         cell: (context) => (
           <span className="flex min-w-0 flex-col gap-0.5">
             <SourceLink source={context.row.original.source} />
-            {context.row.original.source.last_error ? <ErrorLine text={context.row.original.source.last_error} /> : null}
+            {context.row.original.source.last_error ? <ErrorLine text={codedText(context.row.original.source, 'last_error')} /> : null}
           </span>
         ),
       }),

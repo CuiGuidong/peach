@@ -160,7 +160,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
   const detailed = network === 'peach' || source.accepts_cookie || source.browser || !!problem || results.length > 0;
 
   return (
-    <Section title={source.label} onSubmit={submit} aside={
+    <Section title={codedText(source, 'label')} onSubmit={submit} aside={
       <span className="flex min-w-0 items-center gap-1">
         <SiteMark source={source.source} />
         {source.login ? <ExternalLink href={source.login}>{linkHost(source.login)}</ExternalLink> : null}
@@ -224,7 +224,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
         {problem ? <ErrorText>{problem}</ErrorText> : null}
         {results.map((result) => (
           <Note key={result.label} tone={result.ok ? 'success' : 'error'}>
-            <span className="flex flex-col items-start gap-1"><ConnectionStatus tone={result.ok ? 'success' : 'error'}>{result.ok ? t('manage:sourceSettings.reachable') : t('manage:sourceSettings.connectionFailed')}</ConnectionStatus><span>{checkText(result, source.label)}</span></span>
+            <span className="flex flex-col items-start gap-1"><ConnectionStatus tone={result.ok ? 'success' : 'error'}>{result.ok ? t('manage:sourceSettings.reachable') : t('manage:sourceSettings.connectionFailed')}</ConnectionStatus><span>{checkText(result, codedText(source, 'label'))}</span></span>
           </Note>
         ))}
       </Stack> : null}
@@ -250,8 +250,8 @@ const OUTCOME_ORDER: CheckOutcome[] = ['ok', 'auth', 'cooldown', 'http', 'networ
 
 /** 一项检查的名字：只查一跳的来源就是它本身。 */
 function targetName(report: SourceReport, check: ReportedCheck): string {
-  // i18n-exempt: 服务端给的检查项名，按原值判断
-  return check.label === '来源页面' ? report.label : t('manage:connectionCheck.hdImages', { source: report.label });
+  const source = codedText(report, 'label');
+  return check.target === 'cdn' ? t('manage:connectionCheck.hdImages', { source }) : source;
 }
 
 /** 全部来源一次检查完，与 `peach check-sources` 同一检查、同一报告口径。这一趟在后台跑，
@@ -308,7 +308,7 @@ function CheckAllCard({ toast }: ScrapingProps) {
               {OUTCOME_ORDER.map((key) => {
                 const count = checks.filter(({ check }) => check.outcome === key).length;
                 return count ? <StatusLabel key={key} tone={OUTCOME_TONES[key]}>
-                  {checks.find(({ check }) => check.outcome === key)?.check.outcome_label} {count}
+                  {codedText(checks.find(({ check }) => check.outcome === key)?.check, 'outcome_label')} {count}
                 </StatusLabel> : null;
               })}
             </div>
@@ -318,9 +318,9 @@ function CheckAllCard({ toast }: ScrapingProps) {
               {problems.map(({ source, name, check }) => (
                 <IssueRow key={name} title={titled(source, name)}>
                   <span className="flex flex-wrap items-center gap-2">
-                    <StatusLabel tone={OUTCOME_TONES[check.outcome]}>{check.outcome_label}</StatusLabel>
+                    <StatusLabel tone={OUTCOME_TONES[check.outcome]}>{codedText(check, 'outcome_label')}</StatusLabel>
                     {check.message
-                      ? <span className="text-body-2-regular text-text-secondary">{check.message}</span>
+                      ? <span className="text-body-2-regular text-text-secondary">{codedText(check, 'message')}</span>
                       : null}
                   </span>
                 </IssueRow>
@@ -414,7 +414,7 @@ function AmaneBridgeCard({ toast }: ScrapingProps) {
     },
   });
   const check = useMutation({
-    mutationFn: () => apiSend<{ latest: string }>(AMANE_BRIDGE_CHECK_URL, {}),
+    mutationFn: () => apiSend<{ latest: string; latest_code?: string }>(AMANE_BRIDGE_CHECK_URL, {}),
   });
 
   const data = bridge.data;
@@ -432,14 +432,14 @@ function AmaneBridgeCard({ toast }: ScrapingProps) {
     <Section id="amane" title="amane" aside={<ExternalLink href={data.repository} leadingIcon={GitHubMark}>{data.repository}</ExternalLink>}>
       <FactList>
         <Fact term={t('manage:amaneRuntime.installedVersion')}>{data.installed_version || t('manage:amaneRuntime.notInstalled')}</Fact>
-        <Fact term={t('manage:amaneRuntime.latestVersion')}>{check.data?.latest ?? t('manage:amaneRuntime.notChecked')}</Fact>
+        <Fact term={t('manage:amaneRuntime.latestVersion')}>{check.data ? codedText(check.data, 'latest') : t('manage:amaneRuntime.notChecked')}</Fact>
         <Fact term={t('manage:amaneRuntime.runtime')}>{data.installed ? t('manage:amaneRuntime.installed') : t('manage:amaneRuntime.notInstalled')}</Fact>
         <Fact term={t('manage:amaneRuntime.builtInSites')}>{t('manage:amaneRuntime.siteCount', { count: data.sites.length })}</Fact>
       </FactList>
       <Stack divided>
         {data.sites.length
           ? <Disclosure summary={t('manage:amaneRuntime.showSites')}>
-              <p className="text-body-2-regular text-text-secondary">{joinList(data.sites.map((site) => site.label))}</p>
+              <p className="text-body-2-regular text-text-secondary">{joinList(data.sites.map((site) => codedText(site, 'label')))}</p>
             </Disclosure>
           : null}
         {data.problem

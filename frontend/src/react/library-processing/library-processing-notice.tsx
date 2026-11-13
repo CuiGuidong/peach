@@ -15,7 +15,7 @@ import { ProcessingLine } from './processing-line';
 import { CollapseChevron, CollapseRegion } from '../components/collapse-region';
 import { TrafficProgress } from './processing-traffic';
 import { t } from '../../i18n';
-import { jobText, stageText } from '../../core/server-text';
+import { codedText, jobText, stageText } from '../../core/server-text';
 
 const COLLAPSE_KEY = 'peach.library-processing.collapsed';
 function expandedFor(jobId?: string): boolean {
@@ -138,7 +138,7 @@ export function ProcessingNoticePanel({ state, problem = '', measure = false, on
           {step.status === 'complete' ? <RiCheckLine aria-hidden className="size-(--icon-inline) shrink-0" />
             : <RiCheckboxBlankCircleLine aria-hidden className={cx('size-(--icon-inline) shrink-0', step.status === 'current' && 'text-border-focus-ring')} />}
           <VisuallyHidden>{step.status === 'complete' ? t('manage:processingNotice.stepDone') : step.status === 'current' ? t('manage:processingNotice.stepCurrent') : t('manage:processingNotice.stepPending')}</VisuallyHidden>
-          {step.status === 'complete' ? <s className="wrap-anywhere">{step.label}</s> : <span className="wrap-anywhere">{step.label}</span>}
+          {step.status === 'complete' ? <s className="wrap-anywhere">{codedText(step, 'label')}</s> : <span className="wrap-anywhere">{codedText(step, 'label')}</span>}
         </li>)}
       </ol> : null}
       <p className="text-body-2-regular wrap-anywhere">{problem || (failed || partial ? jobText(state, 'error') || t('manage:processingNotice.reviewUnfinished') : <ProcessingLine state={state!} />)}</p>

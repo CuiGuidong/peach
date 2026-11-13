@@ -432,6 +432,8 @@ def api_post(
                 "error": "ledger read-only",
                 "detail": sync.detail,
                 "message": sync.read_only_message,
+                "message_code": sync.read_only_phrase["code"],
+                "message_params": sync.read_only_phrase.get("params", {}),
             },
             status_code=409,
         )

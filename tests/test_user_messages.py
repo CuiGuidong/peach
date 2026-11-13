@@ -14,11 +14,13 @@ from unittest.mock import patch
 
 from support.ledger import fresh_ledger
 
-from peach import (data_storage, downloads, downloads_clouddrive, entity_classification, ledger_backups, release_notices,
-                   release_updates, repair_center, task_outcomes, task_runs, task_stages, taste_history, taste_preferences,
-                   web_entry, web_stats)
+from peach import (code_creators, data_storage, downloads, downloads_clouddrive, entity_classification, feed_followup,
+                   follow_discovery, ledger_backups, library_processing, previews, release_notices, release_updates,
+                   repair_center, task_outcomes, task_runs, task_stages, taste_history, taste_preferences, web_entry,
+                   web_stats)
 from peach.jobs import BackgroundJob
 from peach import interface_text
+from peach.coded_text import Said, coded, parallel
 from peach.user_messages import UserFacingError, error_fields, message_fields
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -41,6 +43,67 @@ class EnvelopeTests(unittest.TestCase):
         self.assertEqual(error_fields(error), {"error": "这个番号不在排队中", "message_code": "javBrowser.notQueued",
                                                "message_params": {}})
         self.assertEqual(error_fields(ValueError("old message")), {"error": "old message"})
+
+
+class ListParameterTests(unittest.TestCase):
+    def test_list_parameters_are_joined_with_the_separator_of_the_same_language(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            resources = {
+                "zh-CN": {"labels": {"listSeparator": "、"}, "x": {"has": "有：{{items}}", "item": "第 {{n}} 项"}},
+                "en": {"labels": {"listSeparator": ", "}, "x": {"has": "Has: {{items}}", "item": "item {{n}}"}},
+            }
+            for language, tree in resources.items():
+                (root / language).mkdir()
+                (root / language / "server.json").write_text(json.dumps(tree), encoding="utf-8")
+            items = ["a", {"code": "x.item", "params": {"n": 2}}]
+            # 嵌套的一句先按同一语言渲染，再与别的项一起按那一语言的分隔符连起来（同前端 `joinList`）。
+            self.assertEqual(interface_text.text("server:x.has", {"items": items}, root=root), "有：a、第 2 项")
+            self.assertEqual(interface_text.text("server:x.has", {"items": tuple(items)}, "en", root=root),
+                             "Has: a, item 2")
+
+
+class SaidTests(unittest.TestCase):
+    def setUp(self):
+        self.said = Said("labels.fc2Sellers.evidence", code="FC2-PPV-1", name="卖家", account="seller")
+
+    def test_the_value_is_the_zh_cn_sentence_with_its_code_beside_it(self):
+        self.assertEqual(self.said, "作品 FC2-PPV-1 的販売者：卖家；账号 seller")
+        self.assertEqual((self.said.code, self.said.params),
+                         ("labels.fc2Sellers.evidence", {"code": "FC2-PPV-1", "name": "卖家", "account": "seller"}))
+        self.assertEqual(interface_text.text(f"server:{self.said.code}", self.said.params, "en"),
+                         "Seller of FC2-PPV-1: 卖家; account seller")
+
+    def test_string_operations_return_plain_text_without_the_code(self):
+        for derived in (self.said + "。", "：" + self.said, self.said[:2], self.said.strip(), f"{self.said}",
+                        "{}".format(self.said), "".join([self.said])):
+            with self.subTest(derived=derived):
+                self.assertIs(type(derived), str)
+                self.assertFalse(hasattr(derived, "code"))
+
+    def test_pickle_and_copy_keep_the_code_and_json_writes_only_the_text(self):
+        import copy
+        import pickle
+
+        for restored in (pickle.loads(pickle.dumps(self.said)), copy.copy(self.said), copy.deepcopy(self.said)):
+            with self.subTest(restored=type(restored)):
+                self.assertIsInstance(restored, Said)
+                self.assertEqual((restored, restored.code, restored.params),
+                                 (self.said, self.said.code, self.said.params))
+        self.assertIsNot(copy.deepcopy(self.said).params, self.said.params)
+        self.assertEqual(json.loads(json.dumps({"note": self.said})), {"note": str(self.said)})
+
+    def test_outlets_lay_the_code_beside_the_text(self):
+        nested = Said("labels.seesaa.reviewCast")
+        self.assertEqual(coded("note", self.said), {"note": str(self.said), "note_code": self.said.code,
+                                                    "note_params": self.said.params})
+        self.assertEqual(coded("note", "原文"), {"note": "原文"})
+        self.assertEqual(parallel("warning", [nested, "原文"]),
+                         {"warning_codes": [nested.code, None], "warning_params": [{}, None]})
+        self.assertEqual(parallel("warning", ["原文"]), {})
+        listed = Said("labels.fc2Sellers.evidence", code="X", name=[nested, "b"], account="c")
+        self.assertEqual(listed.params["name"], [nested.phrase, "b"])
+        self.assertIn(f"{nested}、b", listed)
 
 
 def registered_keys() -> set[str]:
@@ -87,6 +150,13 @@ def registered_keys() -> set[str]:
     keys |= {f"labels.routesMedia.subtitle.{note}"
              for note in ("outsideFolder", "tooLarge", "notFound", "imageBased", "encodingUnknown")}
     keys |= {f"labels.taskResults.kind.{kind}" for kind in ("check", "backfill")}
+    keys |= {f"errors.previews.{name}" for name in previews.REASONS}
+    keys |= {library_processing.STEP_PREFIX + name for name in library_processing.STEP_NAMES}
+    keys |= set(library_processing._BUDGET_HEADS.values()) | set(library_processing.SOURCE_NAME_CODES.values())
+    keys |= set(library_processing.FIELD_CODES.values())
+    keys |= {f"labels.feedFollowup.cover.{name}" for name in feed_followup.COVER_REASONS}
+    keys |= {f"labels.codeCreators.reason.{name}" for name in code_creators.REASONS}
+    keys |= {f"labels.followDiscovery.tagType.{kind}" for kind in follow_discovery.TAG_TYPES}
     if HAS_DEPS:
         from peach import routes_pages
         keys |= {f"pages.setup.question.{name}.{field}" for name, has_help in routes_pages._SETUP_COPY.values()
@@ -213,6 +283,8 @@ class BackendCopyRatchetTests(unittest.TestCase):
         self.assertEqual(checker.count_literals("routes_sample.py", source), 8)
         self.assertEqual(checker.count_literals("sample.py", source), 8)
         self.assertEqual(checker.count_literals("genre_taxonomy.py", source), 0)
+        # 白名单按 `src/peach/` 下的相对路径认，子包里的同名模块照样计数。
+        self.assertEqual(checker.count_literals("sources/genre_taxonomy.py", source), 8)
 
     def test_codes_are_found_wherever_the_backend_writes_them(self):
         source = "\n".join([

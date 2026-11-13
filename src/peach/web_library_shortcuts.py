@@ -6,6 +6,7 @@ import time
 import uuid
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
+from . import interface_text
 from .catalog_rules import solo_performer_clause
 from .library_favorites import KEY, favorite_entry, favorite_entries, favorite_entities
 from .profiles import DEFAULT_PROFILE_ID, read_settings
@@ -85,7 +86,9 @@ def _favorite_art(contract, row, representative):
         row['image_fallbacks'] = ref.get('source_avatar_fallbacks', [])
     elif row['kind'] not in {'studio', 'agency'} and representative and contract.has_avatar(*representative):
         row['image_url'] = f'/avatar?id={representative[0]}'
-        row['image_label'] = row['name'] + ' · 代表作'
+        params = {'name': row['name']}
+        row['image_label'] = interface_text.text('server:labels.webLibraryShortcuts.representativeImage', params)
+        row['image_label_code'], row['image_label_params'] = 'labels.webLibraryShortcuts.representativeImage', params
 
 
 def favorite_ids(connection):

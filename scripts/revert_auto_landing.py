@@ -145,7 +145,7 @@ def main(argv: list[str] | None = None) -> int:
     summary = {}
     for key, value in result.items():
         summary[key] = value
-        if key == "删除建档实体":
+        if key == "deleted_creator_entities":
             summary["删除文件"] = removed
     print({**summary, "integrity_check": integrity, "foreign_key_check": orphans})
     return 0

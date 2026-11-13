@@ -13,22 +13,16 @@ from . import entity_classification
 from .entities import USER_ALIAS_SOURCE, normalize_entity_name
 from .kanji import fold_glyphs, simplify_kanji
 from .metadata_alias_resolve import is_descriptive, is_planning_alias
-from .performer_header import HIDDEN_SOURCES, OTHER, SHOWN, page_names
+from .performer_header import HIDDEN_SOURCES, OTHER, SHOWN, name_group, page_names
 from .performer_profiles import read_profile
+from .source_page_words import PROFILE_SENTENCE, REVIEWED_WRITINGS
 from .sources.seesaa import split_names
 
 _KANA = re.compile(r"[\u3040-\u30ff]")
 _LATIN = re.compile(r"[A-Za-z]")
 _BRACKET = re.compile(r"[()（）【】\[\]]")
-_SENTENCE = re.compile(r"中に.+ながらも|を実現して|を我慢でき|現在は|正式女優名")
-# 已核对的同一艺名译写。仅当资料原文含对应日文写法时使用，
-# 不把同一人物的新旧艺名当作语言对应。
-_REVIEWED_WRITINGS = (
-    ("枫花恋", "楓カレン"),
-    ("田中柠檬", "田中レモン"),
-    ("松永纱奈", "松永さな"),
-    ("森泽佳奈", "森沢かな"),
-)
+_SENTENCE = re.compile(PROFILE_SENTENCE)
+_REVIEWED_WRITINGS = REVIEWED_WRITINGS
 
 
 def _key(name: str) -> str:
@@ -132,7 +126,7 @@ def _language_groups(stages: dict, canonical: str, page: dict, grouped: dict | N
                 shown.append({"name": row[field]})
                 taken.add(key)
         if shown:
-            sections.append({"label": section.get("label", ""), "names": shown})
+            sections.append(name_group(section.get("label", ""), shown))
     reading = ""
     if field == "ja":
         if _stage_key(page["name"], page) == current_key:
@@ -150,7 +144,7 @@ def _language_groups(stages: dict, canonical: str, page: dict, grouped: dict | N
     if missing:
         other = next((section for section in sections if section["label"] in (OTHER, "")), None)
         if other is None:
-            other = {"label": OTHER if sections else "", "names": []}
+            other = name_group(OTHER if sections else "", [])
             sections.append(other)
         other["names"].extend(missing)
     everyone = [entry["name"] for section in sections for entry in section["names"]]

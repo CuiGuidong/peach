@@ -299,7 +299,7 @@ class DataStorageTests(unittest.TestCase):
         from peach.storage_budget import layout
         config = self.config()
         target = self.base / "new" / "peach-data"
-        with patch.object(data_storage, "availability", return_value=(True, "")), \
+        with patch.object(data_storage, "blocked", return_value=""), \
                 patch("peach.standalone_update.public", return_value={"state": "idle"}):
             with self.assertRaisesRegex(ValueError, "请先统计"):
                 data_storage.request(config, str(target))
@@ -438,7 +438,7 @@ class DataStorageTests(unittest.TestCase):
         config = self.config()
         with TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 123)) as client, \
                 patch.object(settings_file, "load_config", return_value=config), \
-                patch.object(data_storage, "availability", return_value=(True, "")), \
+                patch.object(data_storage, "blocked", return_value=""), \
                 patch("peach.standalone_update.public", return_value={"state": "idle"}):
             snapshot = client.get("/api/configuration/storage").json()
             self.assertEqual((snapshot["data_root"], snapshot["usage"]), (str(self.data), None))

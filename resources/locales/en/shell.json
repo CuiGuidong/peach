@@ -136,10 +136,14 @@
   "clientUpdate": {
     "available": "An update is available.",
     "later": "Later",
-    "preparing": "Preparing update.",
+    "migrating": "Updating the local database.",
+    "migratingApply": "Updating the local database · Applying migrations",
+    "migratingBackup": "Updating the local database · Backing up {{percent}}%",
     "refreshPage": "Refresh page",
     "refreshReady": "Peach has been updated. Refresh the page to use it.",
     "restartReady": "An update is ready. Restart to install it.",
+    "updating": "Updating to Peach {{version}} · {{step}} {{percent}}%",
+    "updatingUnversioned": "Updating Peach · {{step}} {{percent}}%",
     "viewProgress": "View progress",
     "viewUpdate": "View update"
   },

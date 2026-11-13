@@ -7,6 +7,7 @@ from typing import Callable
 import time
 
 from .scraping_access import SOURCES
+from .coded_text import Said, coded
 from .source_checks import check_source
 from .user_messages import UserValueError
 
@@ -18,8 +19,12 @@ OUTCOMES = {
     "proxy": "network", "timeout": "network", "network": "network",
     "needs_code": "skipped",
 }
-OUTCOME_LABELS = {"ok": "可连接", "auth": "登录或人机验证", "http": "HTTP 错误",
-                  "cooldown": "冷却", "network": "网络失败", "skipped": "未检查"}
+#: 口径的说法，`outcome_label` 是 zh-CN 原文，`outcome_label_code` 给界面取译文。
+OUTCOME_LABEL_CODES = {
+    "ok": "labels.sourcePreflight.outcome.ok", "auth": "labels.sourcePreflight.outcome.auth",
+    "http": "labels.sourcePreflight.outcome.http", "cooldown": "labels.sourcePreflight.outcome.cooldown",
+    "network": "labels.sourcePreflight.outcome.network", "skipped": "labels.sourcePreflight.outcome.skipped",
+}
 
 
 def outcome(target: dict) -> str:
@@ -45,8 +50,8 @@ def check_sources(secrets_root: Path, sources: list[str] | None = None, *,
         targets = []
         for target in result["results"]:
             key = outcome(target)
-            targets.append({**target, "outcome": key, "outcome_label": OUTCOME_LABELS[key]})
-        return {"source": source, "label": SOURCES[source]["label"],
+            targets.append({**target, "outcome": key, **coded("outcome_label", Said(OUTCOME_LABEL_CODES[key]))})
+        return {"source": source, **coded("label", SOURCES[source]["label"]),
                 "results": targets, "session_verified": False}
 
     started = time.monotonic()

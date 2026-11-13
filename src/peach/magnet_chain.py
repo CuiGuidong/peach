@@ -18,6 +18,8 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 
 from .catalog_rules import normalise_code_key, release_code_from_text, same_release_code
+from .coded_text import Said, coded, parallel
+from .content_words import PROMO_NAME, TRAILER_NAME
 from .downloads import parse_magnet
 from .jav_cover_fetch import HostLimitedTransport
 from .metadata import relay_args
@@ -27,6 +29,7 @@ from .resource_search import qualities
 from .scraping_access import SourceTransport
 from .sources import FailureReason, Session, SourceFailure
 from .task_retry import transient_delay
+from .user_messages import nested_message
 
 HIGH_QUALITY = 1080
 MAX_RESULTS = 8
@@ -37,7 +40,7 @@ BASE91_ALPHABET = (
 _BASE91 = {character: index for index, character in enumerate(BASE91_ALPHABET)}
 _SIZE = re.compile(r"(?i)\b(\d+(?:\.\d+)?)\s*(TiB|GiB|MiB|KiB|TB|GB|MB|KB)\b")
 _MAGNET = re.compile(r'href=["\'](magnet:\?[^"\']+)', re.I)
-_PROMO_FILE = re.compile(r"(?i)(?:\.url$|\.apk$|\.exe$|manko\.fun|广告|廣告|扫码|掃碼|最新地址)")
+_PROMO_FILE = re.compile(rf"(?i)(?:\.url$|\.apk$|\.exe$|{PROMO_NAME})")
 
 
 @dataclass(frozen=True)
@@ -158,7 +161,7 @@ def rank_candidates(items: list[dict], goal: str = "quality") -> list[dict]:
             prior["file_count"] = item["file_count"]
             prior["promo_files"] = item["promo_files"]
     def rank(row):
-        trailer = bool(re.search(r"(?i)\b(?:sample|trailer|preview)\b|予告|预告|預告", row["name"]))
+        trailer = bool(re.search(TRAILER_NAME, row["name"]))
         preferred = bool(row.get(goal)) if goal in {"chinese", "uncensored"} else False
         return (trailer, -int(preferred), -row["resolution"], -row["seeders"], row["promo_files"],
                 -row["size"], row["info_hash"])
@@ -235,7 +238,7 @@ class Fetcher:
         except PublicSourceUnavailable as error:
             reason = FailureReason.PARSE_ERROR if isinstance(error, PublicIdentityAmbiguous) else FailureReason.NETWORK
             raise SourceFailure(reason, *relay_args(error)) from error
-        stale = [f"已沿用上次结果：{read['error']}" for read in reads if read['error']]
+        stale = [Said("labels.magnetChain.staleReused", error=read['error']) for read in reads if read['error']]
         result["warnings"] = list(dict.fromkeys([*result["warnings"], *stale]))
         self.resource_result = result
         return rank_candidates([candidate for item in result["items"] if (candidate := _normalise(
@@ -293,31 +296,33 @@ def search(root: Path, code: str, *, transport=None, min_size: int = 0,
                 items = collect(code)
             except SourceFailure as error:
                 items = []
-                warnings.append(f"{source.label}：{error}")
+                warnings.append(Said("labels.magnetChain.sourceFailed", source=source.label,
+                                     error=nested_message(error)))
                 if (delay := transient_delay(error)) is not None:
                     retry_delays.append(delay)
             except Exception as error:
                 items = []
-                warnings.append(f"{source.label}：未取得")
+                warnings.append(Said("labels.magnetChain.sourceUnfetched", source=source.label))
                 if (delay := transient_delay(error)) is not None:
                     retry_delays.append(delay)
             items = [item for item in items if min_size <= item["size"] <= max_size]
             found.extend(items)
             if stop_on_preferred and source.key == "manko" and any(item["resolution"] >= HIGH_QUALITY for item in items):
-                trace.append(f"{source.label}：取得 1080p/2160p，已短路")
+                trace.append(f"{source.label}: 1080p/2160p found, stopped early")
                 break
-            trace.append(f"{source.label}：取得 {len(items)} 条" if items else f"{source.label}：无结果")
+            trace.append(f"{source.label}: {len(items)} found" if items else f"{source.label}: no results")
     finally:
         fetcher.close()
     incomplete = bool(warnings) and not found
     result = {"items": rank_candidates(found, goal), "warnings": warnings, "trace": trace,
             'retry_after': max(retry_delays) if retry_delays else None,
             'state': 'error' if incomplete else 'ready',
-            'error': '部分来源未取得，请稍后重试或检查来源连接。' if incomplete else '',
+            **coded('error', Said('labels.magnetChain.incomplete') if incomplete else ''),
             "next_sources": [source.label for source in CHAIN[3:]],
             "reference_only": list(REFERENCE_ONLY)}
     if not stop_on_preferred:
         linked = getattr(fetcher, 'resource_result', {})
         result.update(linked_resources=linked.get('items', []), source_url=linked.get('source_url', ''))
         result['warnings'].extend(linked.get('warnings') or [])
+    result.update(parallel('warning', result['warnings']))
     return result
