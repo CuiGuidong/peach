@@ -422,7 +422,8 @@ it('横幅闲着不问，全站那一处报出任务在跑才接上，任务结�
   expect(served.calls).toHaveLength(1);
   expect(mounted.host.textContent).toContain('采集缺失资料');
   expect(mounted.host.querySelector('a')?.getAttribute('href')).toBe('/data-cleanup#libraryProcessing');
-  expect(mounted.host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('40');
+  const ring = mounted.host.querySelector('[role="progressbar"]');
+  expect([ring?.getAttribute('aria-valuenow'), ring?.getAttribute('aria-valuemax')], '小环形报真实计数').toEqual(['2', '5']);
 
   job.at = { status: 'complete', job_id: 'one', identified: 3, candidates: 2 };
   await tick(2000);

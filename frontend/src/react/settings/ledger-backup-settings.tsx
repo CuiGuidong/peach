@@ -11,9 +11,10 @@ import { SettingsRow } from '@/components/application/settings/settings-rows';
 import { Button } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend } from '../../api';
-import { LoadingDots } from '../components/loading-dots';
-import { Progress } from '../components/progress';
-import { ErrorText, Footer, Help, Rows, Section, Stack, TaskCenterLink } from './section';
+import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
+import { ledgerBackupsSkeleton } from '../../configuration-skeleton';
+import { ErrorText, Footer, Help, Rows, Section, SectionSkeleton, Stack, TaskCenterLink } from './section';
 import { busyProps, useAction } from './use-action';
 import { codedText, jobText, serverLabel, stageText } from '../../core/server-text';
 import { pollUntil } from '../../polling';
@@ -61,14 +62,11 @@ function describe(backup: LedgerBackup) {
   return [backup.source === 'manual' ? t('settings:databaseBackups.manual') : t('settings:databaseBackups.automatic', { purpose: serverLabel(`ledgerBackup.purpose.${backup.purpose_code}`, backup.purpose) }), fmtSize(backup.bytes)].join(' · ');
 }
 
-/** 进行中的那一个任务：知道页数就画进度条，否则只说在做哪一步。 */
-function Running({ job, label }: { job: LedgerBackupJob; label: string }) {
+/** 进行中的那一个任务：知道页数就画进度条，否则画写入动画；说明写当前那一步。 */
+function Running({ job, task, label }: { job: LedgerBackupJob; task: 'ledger-backup' | 'ledger-restore'; label: string }) {
   return (
     <div aria-live="polite" className="flex flex-col gap-2">
-      {job.total
-        ? <Progress label={label} value={job.done || 0} max={job.total} />
-        : <LoadingDots label={label} />}
-      <Help>{stageText(job) || label}</Help>
+      <TaskProgress embedded kind={activityKind(task, job.stage_code)} label={[label, stageText(job)].filter(Boolean).join(' · ')} value={job.done || 0} total={job.total} />
       <TaskCenterLink />
     </div>
   );
@@ -118,10 +116,12 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
     }
   }, [state]);
 
+  /* 首次读取：骨架按最终结构占住说明、备份行与底栏。 */
+  if (!state && !loadError) return <SectionSkeleton label={t('settings:databaseBackups.loading')} html={ledgerBackupsSkeleton} />;
   if (!state) {
     return (
       <Section id="ledgerBackups" guide="ledger-backups" title={t('settings:databaseBackups.title')}>
-        <Stack>{loadError ? <ErrorText>{loadError}</ErrorText> : <LoadingDots label={t('settings:databaseBackups.loading')} />}</Stack>
+        <Stack><ErrorText>{loadError}</ErrorText></Stack>
       </Section>
     );
   }
@@ -149,8 +149,8 @@ export function LedgerBackupSettings({ receipt }: { receipt(message: string): vo
       <Stack>
         <Help>{t('settings:databaseBackups.help')}</Help>
         {!state.writer ? <Help>{t('settings:databaseBackups.notPrimary')}{codedText(state, 'writer_reason')}</Help> : null}
-        {backingUp ? <Running job={state.backup} label={t('settings:databaseBackups.backupProgress')} /> : null}
-        {restoring ? <Running job={state.restore} label={t('settings:databaseBackups.restoreProgress')} /> : null}
+        {backingUp ? <Running job={state.backup} task="ledger-backup" label={t('settings:databaseBackups.backupProgress')} /> : null}
+        {restoring ? <Running job={state.restore} task="ledger-restore" label={t('settings:databaseBackups.restoreProgress')} /> : null}
         {failed ? <ErrorText>{jobText(failed, 'error') || t('settings:databaseBackups.jobIncomplete')}</ErrorText> : null}
         {last ? (last.outcome === 'kept' || last.outcome === 'completed'
           ? <Help>{codedText(last, 'message')}</Help> : <ErrorText>{codedText(last, 'message')}</ErrorText>) : null}

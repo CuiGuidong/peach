@@ -17,6 +17,7 @@ import type { DownloadPrefill } from '../activity/cloud-download-dialog';
 import { Note } from '../components/note';
 import { CoverQueue } from '../components/cover-queue';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { EmptyState } from '../components/empty-state';
 import { DataTableFooter } from '../components/table-controls';
 import { FilterGlassRows, FilterPill, GlassPill } from '../components/filter-glass';
@@ -210,7 +211,7 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
       </>} />
     {waiting && view === 'cards' ? <div role="status" aria-label={t('catalog:javReleases.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
     {releases.error ? <Note tone="error" title={t('catalog:javReleases.failed')}>{errorMessage(releases.error)}</Note> : null}
-    {reading && metadata ? <div data-jav-metadata="" className="min-w-0"><TaskProgress
+    {reading && metadata ? <div data-jav-metadata="" className="min-w-0"><TaskProgress kind={activityKind('jav-discovery-metadata')}
       label={t('catalog:javMetadata.loadingProgress', { completed: metadata.completed, count: metadata.total })} value={metadata.completed} total={metadata.total} /></div> : null}
     {readOnly ? null : <CoverQueue scope={t('catalog:javReleases.coverQueueScope')} fetchOne={fetchReleaseCover}
       codes={(data?.items || []).filter(item => item.cover_state === 'queued' && !item.cover_url).map(item => item.code)}

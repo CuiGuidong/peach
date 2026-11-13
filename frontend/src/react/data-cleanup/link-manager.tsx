@@ -28,6 +28,7 @@ import {
 import { Note } from '../components/note';
 import { SiteMark } from '../components/site-mark';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { LEGACY_AVATAR_IMG } from '../components/legacy-avatar';
 import { LinkCheckIcon } from './link-check-icon';
@@ -185,10 +186,10 @@ export function LinkManager() {
   } else if (state && state.status !== 'idle') {
     progress = <>
       {state.status === 'running'
-        ? <TaskProgress embedded label={checkLine(state)} value={Math.min(state.checked || 0, state.total || 0)} total={state.total} />
+        ? <TaskProgress embedded kind={activityKind('link-check')} label={checkLine(state)} value={Math.min(state.checked || 0, state.total || 0)} total={state.total} />
         : null}
       {removing
-        ? <TaskProgress embedded label={jobText(prune.job) || t('cleanup:links.pruning')}
+        ? <TaskProgress embedded kind={activityKind('link-prune')} label={jobText(prune.job) || t('cleanup:links.pruning')}
             value={Math.min(prune.job?.checked || 0, prune.job?.total || 0)} total={prune.job?.total} />
         : null}
     </>;

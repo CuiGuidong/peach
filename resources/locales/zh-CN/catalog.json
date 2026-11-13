@@ -349,7 +349,6 @@
   "feedCover": {
     "coverAction": "{{action}} {{code}} 的封面",
     "fetching": "抓取中",
-    "fetchingCover": "正在取封面",
     "prioritize": "优先处理"
   },
   "folderRule": {
@@ -395,7 +394,6 @@
     "hostMissing": "沉浸模式还没有接上宿主（configureImmerse）",
     "loading": "加载中",
     "loadingContent": "加载内容",
-    "loadingMedia": "媒体加载中",
     "logClimax": "记一次高潮",
     "markDisliked": "标为不喜欢",
     "markWatched": "标为看过",

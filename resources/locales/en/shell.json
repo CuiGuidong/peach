@@ -297,14 +297,6 @@
     "sentenceGap": " ",
     "withNote": "{{text}} ({{note}})"
   },
-  "gauge": {
-    "almostFull": "Almost full",
-    "labelWithStatus": "{{label}}: {{status}}",
-    "plentyOfSpace": "Plenty of space",
-    "runningLow": "Space running low",
-    "taskProgress": "Task progress",
-    "unavailable": "{{label}}: Not found"
-  },
   "glowPicker": {
     "title": "Glow colors"
   },

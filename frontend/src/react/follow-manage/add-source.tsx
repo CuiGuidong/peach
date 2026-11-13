@@ -22,9 +22,10 @@ import { cx } from '@/utils/cx';
 import { errorMessage } from '../../api';
 import { useBackgroundJob } from '../background-job';
 import { cardClass } from '../components/card';
-import { LoadingDots } from '../components/loading-dots';
+import { ActivityStatus } from '../components/activity-motion';
 import { Note } from '../components/note';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { SelectionPopover } from '../components/selection-popover';
 import { busyProps } from '../settings/use-action';
 import { ExternalLink, FieldLabel, Help } from '../settings/section';
@@ -90,7 +91,7 @@ function SuggestMenu(
       placement="bottom start" offset={4} aria-label={t('follow:addCreatorSource.suggestions')}
       className={cx(MENU_POPOVER_SURFACE, 'flex w-(--trigger-width) flex-col gap-1 overscroll-contain')}>
       {busy && !options.length
-        ? <div className="px-2 py-1.5"><LoadingDots label={t('follow:addCreatorSource.findingSuggestions')} /></div>
+        ? <div className="px-2 py-1.5"><ActivityStatus kind="radar" label={t('follow:addCreatorSource.findingSuggestions')} /></div>
         : null}
       {options.map((option, at) => (
         <Fragment key={`${option.group}-${option.value}`}>
@@ -354,7 +355,7 @@ export function AddSource({ data, credentials, readOnly, toast }: AddSourceProps
       </div>
 
       <div aria-live="polite" className="flex flex-col gap-3 empty:hidden">
-        {running || resolve.isPending ? <TaskProgress embedded
+        {running || resolve.isPending ? <TaskProgress embedded kind={activityKind('follow-resolve')}
           label={jobText(job) || (job?.total ? t('follow:addCreatorSource.searchProgress', { checked: job.checked || 0, count: job.total }) : byName ? BY_NAME_HINT : BY_LINK_HINT)}
           value={job?.checked} total={job?.total} /> : null}
         {problem ? <Note tone="error" title={t('follow:addJavFeed.notCompleted')}>{problem}</Note> : null}

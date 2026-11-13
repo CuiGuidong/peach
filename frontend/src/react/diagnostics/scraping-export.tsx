@@ -7,6 +7,7 @@ import { diagnosticHeaders } from '../../browser-diagnostics';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { queryClient } from '../query';
 import { busyProps, useAction } from '../settings/use-action';
 import { t } from '../../i18n';
@@ -53,7 +54,7 @@ export function DiagnosticExportAction({ kind, codes = '', children }: {
         href={state.download_url}>{t('manage:diagnosticsExport.downloadFile')}</ButtonLink> : null}
       {children}
     </div>
-    {mine && active ? <TaskProgress embedded={kind === 'scraping'} value={state.done || 0} total={state.total}
+    {mine && active ? <TaskProgress embedded={kind === 'scraping'} kind={activityKind('diagnostic-export', state.stage_code)} value={state.done || 0} total={state.total}
       label={state.total ? t('manage:diagnosticsExport.progress', { stage: stageText(state), done: state.done || 0, count: state.total })
         : [stageText(state) || t('manage:diagnosticsExport.preparing'), state.rows ? t('manage:diagnosticsExport.candidateCount', { count: state.rows }) : '',
           state.files ? t('manage:diagnosticsExport.fileCount', { count: state.files }) : ''].filter(Boolean).join(' · ')} /> : null}

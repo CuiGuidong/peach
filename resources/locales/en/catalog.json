@@ -375,7 +375,6 @@
   "feedCover": {
     "coverAction": "{{action}}: {{code}} cover",
     "fetching": "Fetching",
-    "fetchingCover": "Fetching cover",
     "prioritize": "Prioritize"
   },
   "folderRule": {
@@ -425,7 +424,6 @@
     "hostMissing": "Immersive mode isn't connected to a host (configureImmerse)",
     "loading": "Loading",
     "loadingContent": "Loading content",
-    "loadingMedia": "Loading media",
     "logClimax": "Log a climax",
     "markDisliked": "Dislike",
     "markWatched": "Mark as watched",

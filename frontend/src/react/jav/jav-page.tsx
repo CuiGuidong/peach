@@ -26,6 +26,7 @@ import { FilterGlassRows, FilterIconButton, FilterPill, GlassPill } from '../com
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
 import { Segments, SortKeys } from '../entity-filter/entity-filter-page';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { DISCOVERY_SORTS, discoveryScore, recommendationScore, type DiscoverySort } from './discovery-sorts';
 import { jobText, serverLabelList } from '../../core/server-text';
 import { t } from '../../i18n';
@@ -162,7 +163,7 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
       </>} />
     {waiting ? <div role="status" aria-label={t('catalog:javDiscover.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
     {discoveries.error ? <Note tone="error" title={t('catalog:javDiscover.failed')}>{errorMessage(discoveries.error)}</Note> : null}
-    {scope === 'external' && metadata?.status === 'running' ? <div data-jav-metadata="" className="min-w-0"><TaskProgress
+    {scope === 'external' && metadata?.status === 'running' ? <div data-jav-metadata="" className="min-w-0"><TaskProgress kind={activityKind('jav-discovery-metadata')}
         label={t('catalog:javMetadata.loadingProgress', { completed: metadata.completed, count: metadata.total })} value={metadata.completed} total={metadata.total} /></div> : null}
     {metadata && metadata.status !== 'running' && (metadata.status !== 'complete' || metadata.failed > 0)
       ? <Note tone="neutral" action={<Button variant="secondary" {...busyProps(metadataAction.busy === 'retry')}

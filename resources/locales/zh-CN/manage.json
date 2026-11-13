@@ -130,7 +130,6 @@
     "loadingStatus": "正在读取连接检查状态",
     "messageSuffix": "。{{message}}",
     "notFinished": "检查未完成",
-    "progress": "连接检查进度",
     "reachableCount": "可连接的 {{count, number}} 项",
     "reachableTarget": "{{target}}：可连接",
     "seconds": "{{seconds}} 秒",
@@ -325,11 +324,8 @@
     "checkFailed": "检查失败",
     "historySources": "抓取历史：已完成 {{checked}}/{{count, number}} 个来源",
     "preparing": "正在准备检查任务",
-    "processed": "已处理 {{done}} / {{total}}",
-    "progressLabel": "任务进度",
     "reconnecting": "暂时无法读取进度，正在重新连接…",
     "stateExpired": "任务状态已失效，请重新发起任务",
-    "status": "任务状态",
     "titledProgress": "{{title}}：已完成 {{checked}}/{{total}}",
     "updateSources": "检查更新：已完成 {{checked}}/{{count, number}} 个来源"
   },
@@ -941,7 +937,6 @@
     "taskDetailsCount": "任务明细 · {{count, number}} 项",
     "taskErrorDetails": "{{task}}错误详情",
     "taskList": "任务列表",
-    "taskProgress": "{{task}}进度",
     "taskTechnicalDetails": "{{task}}技术详情",
     "technicalDetails": "技术详情",
     "took": "用时 {{elapsed}}"

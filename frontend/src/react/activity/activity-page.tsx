@@ -24,11 +24,11 @@ import { cardClass } from '../components/card';
 import { CodeBlock } from '../components/code-block';
 import { EmptyState } from '../components/empty-state';
 import { IssueRow } from '../components/issue-row';
-import { LoadingDots } from '../components/loading-dots';
 import { NameLink } from '../components/name-link';
 import { Note } from '../components/note';
 import { Page } from '../components/page';
-import { Progress } from '../components/progress';
+import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { DataTableFooter } from '../components/table-controls';
 import { Disclosure } from '../settings/section';
 import { BackgroundIssues } from './background-issues';
@@ -227,13 +227,12 @@ function RunningRun({ run, followups, followupTotal }:
     .filter(Boolean).join(' · ');
   return (
     <RunCard run={run} meta={meta} followups={followups} followupTotal={followupTotal}>
-      {total > 0
-        ? <div className="flex flex-col gap-1.5">
-            <Progress label={label} value={Math.min(current, total)} max={total} />
-            <p className="text-caption-1-regular text-text-secondary wrap-anywhere">{label} · {t('manage:taskCenter.progressItems', { progress: progressText(current, total) })}</p>
-          </div>
-        : stopping ? <p data-copy-key={`tasks.control.state.${control}`}
-            className="text-caption-1-regular text-text-secondary">{label}</p> : <LoadingDots label={label} />}
+      {/* 暂停、取消这些控制态不是在推进：有总量照画停住的横条，没有总量只写状态，不画动画。 */}
+      {stopping && !(total > 0) ? <p data-copy-key={`tasks.control.state.${control}`}
+            className="text-caption-1-regular text-text-secondary">{label}</p>
+        : <TaskProgress embedded kind={activityKind(run.task_key, String(run.progress_params?.stage || '') || null)}
+            label={total > 0 ? `${label} · ${t('manage:taskCenter.progressItems', { progress: progressText(current, total) })}` : label}
+            value={Math.min(current, total)} total={total} />}
     </RunCard>
   );
 }
@@ -329,12 +328,8 @@ function WorkingRun(
   return (
     <RunCard run={run} meta={meta} followups={followups} followupTotal={total} resourceActive controlled={runs}
       badge={run.control ? <StatusBadge run={run} /> : <Chip color="blue">{t('manage:taskStatus.running')}</Chip>}>
-      <div className="flex flex-col gap-1.5">
-        <Progress label={t('manage:taskCenter.taskProgress', { task: taskName(run) })} value={settled} max={total} />
-        <p className="text-caption-1-regular text-text-secondary">
-          {t('manage:taskCenter.processedProgress', { progress: progressText(settled, total) })}{failed ? t('manage:taskCenter.failedSuffix', { count: failed }) : ''}
-        </p>
-      </div>
+      <TaskProgress embedded kind={activityKind(run.task_key)} value={settled} total={total}
+        label={`${t('manage:taskCenter.processedProgress', { progress: progressText(settled, total) })}${failed ? t('manage:taskCenter.failedSuffix', { count: failed }) : ''}`} />
     </RunCard>
   );
 }

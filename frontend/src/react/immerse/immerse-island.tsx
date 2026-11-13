@@ -23,12 +23,11 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { avatarInner, representativeOf } from '@peach/card-art';
 import { fmtDur, realDuration } from '@peach/legacy/core';
-import { spinnerHtml } from '@peach/legacy/ui';
 
 import { apiSend } from '../../api';
 import {
-  cancelStreamSession, createSeekPreview, fmtSpeed, mountPlayer, newStreamSession, seekVideoBy, streamSpeedBits,
-  toggleVideoPlayback, type SeekPreview,
+  cancelStreamSession, createSeekPreview, fmtSpeed, mountPlayer, newStreamSession, PLAYER_SPINNER_HTML, seekVideoBy,
+  streamSpeedBits, toggleVideoPlayback, type SeekPreview,
 } from '../../player';
 import { replaceCatalogItem } from '../catalog-grid/catalog-grid';
 import {
@@ -664,7 +663,8 @@ function Caption({ shown }: { shown: Shown | null }) {
 
 /* ── 外框 ── */
 
-const SPINNER = { __html: spinnerHtml(t('catalog:immerse.loadingMedia')) };
+/* 媒体加载与播放器缓冲同一枚转圈；读屏读的是旁边那句。 */
+const SPINNER = { __html: PLAYER_SPINNER_HTML };
 
 function ImmerseView({ view: at }: { view: View }) {
   const frame = useRef<HTMLDivElement>(null);
@@ -701,7 +701,7 @@ function ImmerseView({ view: at }: { view: View }) {
         </div>
       </div>
       <div data-immerse-loader="" role="status" aria-live="polite" hidden={at.loading === null}>
-        <span data-immerse-spinner="" dangerouslySetInnerHTML={SPINNER} />
+        <span data-immerse-spinner="" aria-hidden dangerouslySetInnerHTML={SPINNER} />
         <span>{at.loading ?? ''}</span>
       </div>
       <button type="button" data-immerse-close="" title={t('catalog:shared.close')} aria-label={t('catalog:shared.close')} onClick={close}>

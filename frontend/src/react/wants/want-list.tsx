@@ -19,7 +19,8 @@ import { Note } from '../components/note';
 import { DataTableFooter } from '../components/table-controls';
 import { pageWindow } from '../follow-manage/follow-manage';
 import { ErrorLine } from '../follow-manage/source-view';
-import { Help } from '../settings/section';
+import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { WantMagnets } from './want-magnets';
 import { cachedMagnetStates } from './resource-cache';
 import { SEGMENT, SEGMENTED_TRACK, SegmentedRadioGroup } from '../components/segmented';
@@ -206,7 +207,7 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
 
       {wants.error ? <Note tone="error" title={t('catalog:wants.loadFailed')}>{errorMessage(wants.error)}</Note> : null}
       {wants.isPending ? <div role="status" aria-label={t('catalog:wants.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('wants') }} /> : null}
-      {data?.scraping ? <Help role="status">{t('catalog:wants.fetchingNew')}</Help> : null}
+      {data?.scraping ? <TaskProgress embedded kind={activityKind('want-scrape')} label={t('catalog:wants.fetchingNew')} /> : null}
       {downloads.error ? <Note tone="error" title={t('catalog:wants.downloadSettingsFailed')}>{errorMessage(downloads.error)}</Note> : null}
       {downloads.data && !configured.length ? <Note tone="neutral">{t('shell:downloadChannels.notConfigured')}{t('shell:format.sentenceGap')}<a href="/settings/downloads">{t('shell:downloadChannels.settingsLink')}</a></Note> : null}
       {downloads.data && !downloads.data.available ? <Note tone="neutral">{t('catalog:wants.cloudPrimaryOnly')}</Note> : null}

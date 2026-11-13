@@ -416,7 +416,7 @@
       "snapshot": "docs/reference-snapshots/upstream/vercel-geist-command-menu.md",
       "checked_on": "2026-09-03",
       "sha256": "028e0fdfe4eabff3e1fafe8fcc84b1263cdb370448f1f2f550b5edd141fb47d1",
-      "role": "设置 Dialog 动效、搜索前缀、用户动作 Spinner、等待按钮可聚焦 busy 状态、后台 Loading Dots 与无更多历史内容中性反馈的项目级依据。",
+      "role": "设置 Dialog 动效、搜索前缀、用户动作 Spinner、等待按钮可聚焦 busy 状态、后台等待（现由 loading.dev 语义动画承担，见 `loading-dev-*`）与无更多历史内容中性反馈的项目级依据。",
       "consumers": [
         "frontend/src/ui-kit/",
         "web/css/",
@@ -1104,6 +1104,125 @@
       },
       "role": "javinfo 的归档仓没有许可证，只借思路不借代码；它依赖的 r18 旧 API 已失效，没有 Peach 缺的解析器（待办第 65 条）。",
       "consumers": []
+    },
+    {
+      "id": "loading-dev-clock",
+      "cadence": "monthly",
+      "name": "loading.dev Clock 加载动画",
+      "url": "https://raw.githubusercontent.com/jakubkrehel/loading/755235bf7eea3dfb05ec4c3661088e3521ee2d75/src/clock.tsx",
+      "snapshot": "docs/reference-snapshots/upstream/loading-dev-clock.tsx",
+      "checked_on": "2026-11-13",
+      "sha256": "426a6472a3613de5c0090702abb14f95fe657c4d944ea5afb51db6a614fdcc10",
+      "git": {
+        "repository": "https://github.com/jakubkrehel/loading.git",
+        "ref": "refs/heads/main",
+        "revision": "755235bf7eea3dfb05ec4c3661088e3521ee2d75"
+      },
+      "role": "MIT 的 loading-dev 0.3.6 源码，Clock 是「排队、等外部」的语义等待动画；保留路径、形状、周期与关键帧，移植成原生 HTML 与样式表，与用户脚本同一 revision。",
+      "consumers": [
+        "frontend/src/ui-kit/activity-motion.ts",
+        "frontend/src/ui-kit/activity-motion.css",
+        "docs/REUSE.md"
+      ]
+    },
+    {
+      "id": "loading-dev-radar",
+      "cadence": "monthly",
+      "name": "loading.dev Radar 加载动画",
+      "url": "https://raw.githubusercontent.com/jakubkrehel/loading/755235bf7eea3dfb05ec4c3661088e3521ee2d75/src/radar.tsx",
+      "snapshot": "docs/reference-snapshots/upstream/loading-dev-radar.tsx",
+      "checked_on": "2026-11-13",
+      "sha256": "850e66cc27b027cd01780d5bac441bc9b11da2e35f60dbef012db5f1af877bb4",
+      "git": {
+        "repository": "https://github.com/jakubkrehel/loading.git",
+        "ref": "refs/heads/main",
+        "revision": "755235bf7eea3dfb05ec4c3661088e3521ee2d75"
+      },
+      "role": "MIT 的 loading-dev 0.3.6 源码，Radar 是「搜索、检查、探测」的语义等待动画；保留路径、形状、周期与关键帧，移植成原生 HTML 与样式表，与用户脚本同一 revision。",
+      "consumers": [
+        "frontend/src/ui-kit/activity-motion.ts",
+        "frontend/src/ui-kit/activity-motion.css",
+        "docs/REUSE.md"
+      ]
+    },
+    {
+      "id": "loading-dev-linear-dots",
+      "cadence": "monthly",
+      "name": "loading.dev LinearDots 加载动画",
+      "url": "https://raw.githubusercontent.com/jakubkrehel/loading/755235bf7eea3dfb05ec4c3661088e3521ee2d75/src/linear-dots.tsx",
+      "snapshot": "docs/reference-snapshots/upstream/loading-dev-linear-dots.tsx",
+      "checked_on": "2026-11-13",
+      "sha256": "e5ec4ad0e5546000dbad7760f01db5a6f759d3510659540ec541a53e70471bbe",
+      "git": {
+        "repository": "https://github.com/jakubkrehel/loading.git",
+        "ref": "refs/heads/main",
+        "revision": "755235bf7eea3dfb05ec4c3661088e3521ee2d75"
+      },
+      "role": "MIT 的 loading-dev 0.3.6 源码，LinearDots 是「传输，兼做语义不明的通用后台推进」的语义等待动画；保留路径、形状、周期与关键帧，移植成原生 HTML 与样式表，与用户脚本同一 revision。",
+      "consumers": [
+        "frontend/src/ui-kit/activity-motion.ts",
+        "frontend/src/ui-kit/activity-motion.css",
+        "docs/REUSE.md"
+      ]
+    },
+    {
+      "id": "loading-dev-gather",
+      "cadence": "monthly",
+      "name": "loading.dev Gather 加载动画",
+      "url": "https://raw.githubusercontent.com/jakubkrehel/loading/755235bf7eea3dfb05ec4c3661088e3521ee2d75/src/gather.tsx",
+      "snapshot": "docs/reference-snapshots/upstream/loading-dev-gather.tsx",
+      "checked_on": "2026-11-13",
+      "sha256": "0e7aa35fcce361b44553a5610b79825500f597e3efd2e125064e7361c5f9e87c",
+      "git": {
+        "repository": "https://github.com/jakubkrehel/loading.git",
+        "ref": "refs/heads/main",
+        "revision": "755235bf7eea3dfb05ec4c3661088e3521ee2d75"
+      },
+      "role": "MIT 的 loading-dev 0.3.6 源码，Gather 是「写入入库」的语义等待动画；保留路径、形状、周期与关键帧，移植成原生 HTML 与样式表，与用户脚本同一 revision。",
+      "consumers": [
+        "frontend/src/ui-kit/activity-motion.ts",
+        "frontend/src/ui-kit/activity-motion.css",
+        "docs/REUSE.md"
+      ]
+    },
+    {
+      "id": "loading-dev-blocks",
+      "cadence": "monthly",
+      "name": "loading.dev Blocks 加载动画",
+      "url": "https://raw.githubusercontent.com/jakubkrehel/loading/755235bf7eea3dfb05ec4c3661088e3521ee2d75/src/blocks.tsx",
+      "snapshot": "docs/reference-snapshots/upstream/loading-dev-blocks.tsx",
+      "checked_on": "2026-11-13",
+      "sha256": "af0ab5d80e93071ed7ec6a5843f1aa7da61843d93c03293c2a26f26fde18fb07",
+      "git": {
+        "repository": "https://github.com/jakubkrehel/loading.git",
+        "ref": "refs/heads/main",
+        "revision": "755235bf7eea3dfb05ec4c3661088e3521ee2d75"
+      },
+      "role": "MIT 的 loading-dev 0.3.6 源码，Blocks 是「整理、分析」的语义等待动画；保留路径、形状、周期与关键帧，移植成原生 HTML 与样式表，与用户脚本同一 revision。",
+      "consumers": [
+        "frontend/src/ui-kit/activity-motion.ts",
+        "frontend/src/ui-kit/activity-motion.css",
+        "docs/REUSE.md"
+      ]
+    },
+    {
+      "id": "loading-dev-motion",
+      "cadence": "monthly",
+      "name": "loading.dev 动画周期与错相公式",
+      "url": "https://raw.githubusercontent.com/jakubkrehel/loading/755235bf7eea3dfb05ec4c3661088e3521ee2d75/src/motion.ts",
+      "snapshot": "docs/reference-snapshots/upstream/loading-dev-motion.ts",
+      "checked_on": "2026-11-13",
+      "sha256": "8d0179ea3f0a651cb1604f71ddc19b3146735edfae9e7f663e7a3920a4ef2e44",
+      "git": {
+        "repository": "https://github.com/jakubkrehel/loading.git",
+        "ref": "refs/heads/main",
+        "revision": "755235bf7eea3dfb05ec4c3661088e3521ee2d75"
+      },
+      "role": "五种语义动画的周期（Clock 1200ms、Radar 1500ms、LinearDots 900ms、Gather 1600ms、Blocks 1300ms）与错相公式；Peach 把错相展开成 `:nth-child()` 的固定 `animation-delay`，不写内联样式。",
+      "consumers": [
+        "frontend/src/ui-kit/activity-motion.css",
+        "docs/REUSE.md"
+      ]
     }
   ]
 }

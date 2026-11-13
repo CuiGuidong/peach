@@ -7,7 +7,7 @@ import { apiGet } from '../api';
 import { jobText } from '../core/server-text';
 import { CLIENT_UPDATES_EVENT } from '../core/service-status';
 import type { ReleaseState, UpdateJob } from './bundle';
-import { LoadingDotsMark } from './components/loading-dots';
+import { ActivityMotion, type ActivityKind } from './components/activity-motion';
 import { ProgressRing } from './components/progress-ring';
 import { t } from '../i18n';
 
@@ -197,8 +197,19 @@ function bannerMeter(kind: BannerKind, snapshot: ClientUpdates): number | null {
   return null;
 }
 
+/** 没有百分比时那一步做的是哪一类事：迁移账本是整理，连发布源、下载还没有总量是传输，校验是检查，
+ *  解包是整理，重启与安装是在等服务回来。 */
+function bannerActivity(kind: BannerKind, snapshot: ClientUpdates): ActivityKind {
+  const { ledger_migration: migration, update_job: job } = snapshot;
+  if (kind === 'migrating' && (migration?.state === 'running' || job.message_code === UPDATING_DATABASE)) return 'blocks';
+  if (job.state === 'restarting' || job.state === 'installing') return 'clock';
+  if (job.state === 'verifying') return 'radar';
+  if (job.state === 'extracting') return 'blocks';
+  return 'linear-dots';
+}
+
 /** 横幅复用项目 Banner，动作用 BoardUI 的小号描边按钮，和横幅里的文字一眼分得开；关闭只作用于当前状态。进行中有确定百分比时左侧换成小环形进度，
- *  没有百分比时换成 Loading Dots。 */
+ *  没有百分比时换成那一步的语义动画（`bannerActivity`）；完成、可更新、已就绪是信息图标。 */
 export function ClientUpdateBanner({ navigate }: { navigate(path: string): void }) {
   const { snapshot, refresh } = useClientUpdates();
   const [dismissed, setDismissed] = useState('');
@@ -222,7 +233,7 @@ export function ClientUpdateBanner({ navigate }: { navigate(path: string): void 
   return createPortal(
     <aside key={identity} className="ui-project-banner peach-react" role="status" data-client-update={kind}>
       <div>{meter !== null ? <ProgressRing label={message} value={meter} />
-        : busy ? <LoadingDotsMark /> : <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg>}
+        : busy ? <ActivityMotion kind={bannerActivity(kind, snapshot)} /> : <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg>}
         <p><span data-copy-key={`clientUpdates.${kind}.${copy}`}>{message}</span>
           {(kind === 'ready' || kind === 'available') && version ? <span data-copy-ignore=""> Peach {version}</span> : null}</p></div>
       <div className="flex-wrap">

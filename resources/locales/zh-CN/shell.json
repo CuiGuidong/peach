@@ -270,14 +270,6 @@
     "sentenceGap": "",
     "withNote": "{{text}}（{{note}}）"
   },
-  "gauge": {
-    "almostFull": "空间即将用满",
-    "labelWithStatus": "{{label}}：{{status}}",
-    "plentyOfSpace": "空间充足",
-    "runningLow": "空间使用偏高",
-    "taskProgress": "任务完成率",
-    "unavailable": "{{label}}：未取得"
-  },
   "glowPicker": {
     "title": "配色"
   },

@@ -238,12 +238,14 @@ async function advance(milliseconds: number) {
   await settle();
 }
 
-/** 横幅左侧是 Loading Dots（三颗错相的点），不是信息图标。没有确定百分比时用它。 */
-const loading = (slot: Element) => !!slot.querySelector('aside .dot-wave-0') && !slot.querySelector('aside svg use[href="#i-info"]');
+/** 没有确定百分比时横幅左侧是那一步的语义动画，不是信息图标。 */
+const loading = (slot: Element) => !!slot.querySelector('aside [data-activity]') && !slot.querySelector('aside svg use[href="#i-info"]');
+/** 那一枚语义动画是哪一种。 */
+const activity = (slot: Element) => slot.querySelector('aside [data-activity]')?.getAttribute('data-activity') ?? null;
 /** 有确定百分比时左侧是小环形进度，读屏值就是那个百分比；不同时出现 Loading Dots。 */
 const ring = (slot: Element) => {
   const meter = slot.querySelector('aside [role="progressbar"]');
-  return meter && !slot.querySelector('aside .dot-wave-0') ? Number(meter.getAttribute('aria-valuenow')) : null;
+  return meter && !slot.querySelector('aside [data-activity]') ? Number(meter.getAttribute('aria-valuenow')) : null;
 };
 
 it('启动迁移期间显示正在更新本地数据库，迁移结束后换成刷新提示', async () => {
@@ -276,6 +278,17 @@ it('启动迁移按阶段显示备份百分比与正在应用迁移，每 2 秒�
   expect(banner()).toBe('正在更新本地数据库 · 正在应用迁移');
   expect(ring(slot)).toBeNull();
   expect(loading(slot)).toBe(true);
+  expect(activity(slot), '应用迁移是整理').toBe('blocks');
+});
+
+it('没有百分比时按那一步的语义画：等服务回来是 Clock，下载还没总量是传输', async () => {
+  const job = (state: string) => ({ ...available(), update_job: { state, version: '0.10.0' } }) as ClientUpdates;
+  const { slot, fetcher } = await render(job('restarting'));
+  expect(ring(slot)).toBeNull();
+  expect(activity(slot)).toBe('clock');
+  fetcher.mockResolvedValue(response(job('downloading')));
+  await advance(PROGRESS_INTERVAL);
+  expect(activity(slot)).toBe('linear-dots');
 });
 
 it('Windows 更新器迁移账本时显示更新的当前步骤与百分比', async () => {
@@ -307,7 +320,7 @@ it('更新进行中显示当前步骤与百分比，换步骤时跟着刷新', a
 it('可更新与准备好时仍是信息图标，不显示加载动画', async () => {
   const { slot, fetcher } = await render(available());
   expect(slot.querySelector('aside svg use[href="#i-info"]')).not.toBeNull();
-  expect(slot.querySelector('aside .dot-wave-0')).toBeNull();
+  expect(slot.querySelector('aside [data-activity]')).toBeNull();
   fetcher.mockResolvedValue(response({ ...available(), update_job: { state: 'ready', progress: 100, version: '0.10.0' } }));
   await tick();
   expect(slot.querySelector('[data-client-update="ready"] svg use[href="#i-info"]')).not.toBeNull();

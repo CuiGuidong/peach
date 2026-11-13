@@ -16,21 +16,13 @@ import { CollapseChevron, CollapseRegion } from '../components/collapse-region';
 import { TrafficProgress } from './processing-traffic';
 import { t } from '../../i18n';
 import { codedText, jobText, stageText } from '../../core/server-text';
+import { activityKind, stepActivityKind } from '../../activity-kinds';
+import { ActivityMotion } from '../components/activity-motion';
+import { ProgressRing } from '../components/progress-ring';
 
 const COLLAPSE_KEY = 'peach.library-processing.collapsed';
 function expandedFor(jobId?: string): boolean {
   try { return !jobId || sessionStorage.getItem(COLLAPSE_KEY) !== jobId } catch { return true }
-}
-
-/** 圆环只表达当前阶段的实际完成率；未知总量使用静态任务图标。 */
-function Gauge({ value, max }: { value: number; max: number }) {
-  const percent = Math.max(0, Math.min(100, value / max * 100));
-  return <svg role="progressbar" aria-label={t('manage:processingNotice.stageProgress')} aria-valuemin={0} aria-valuemax={100}
-    aria-valuenow={percent} viewBox="0 0 32 32" fill="none" className="size-8 shrink-0 -rotate-90 text-border-focus-ring">
-    <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="3" className="opacity-20" />
-    <circle cx="16" cy="16" r="13" stroke="currentColor" strokeWidth="3" pathLength={100}
-      strokeDasharray={`${percent} 100`} strokeLinecap="round" />
-  </svg>;
 }
 
 export function ProcessingNoticePanel({ state, problem = '', measure = false, onHide }: {
@@ -111,7 +103,9 @@ export function ProcessingNoticePanel({ state, problem = '', measure = false, on
           : 'border-border-button-default text-text-primary')}>
     <div className="flex min-w-0 flex-col gap-3">
     <div className="flex min-w-0 items-center gap-3">
-      {active && state?.total ? <Gauge value={state.checked || 0} max={state.total} />
+      {/* 图标位：有总量是当前阶段完成率的小环形，没有总量是那一阶段的语义动画，与同一位置的图标同档。 */}
+      {active && state?.total ? <ProgressRing label={t('manage:processingNotice.stageProgress')} value={state.checked || 0} max={state.total} className="size-5" />
+        : active && !warning ? <span className="inline-grid size-5 shrink-0 place-items-center"><ActivityMotion kind={activityKind('library-processing', state?.stage_code)} still={state?.status === 'paused'} /></span>
         : failed || warning ? <RiErrorWarningLine aria-hidden className="size-5 shrink-0" />
           : <RiInformationLine aria-hidden className="size-5 shrink-0" />}
       <div className="min-w-0 flex-1">
@@ -136,6 +130,8 @@ export function ProcessingNoticePanel({ state, problem = '', measure = false, on
           className={cx('flex min-h-8 items-center gap-2 text-body-2-regular',
             step.status === 'current' ? 'text-text-primary' : 'text-text-tertiary')}>
           {step.status === 'complete' ? <RiCheckLine aria-hidden className="size-(--icon-inline) shrink-0" />
+            /* 当前那一步画它在做的那类事，与用户脚本的阶段清单同一个做法；暂停时停在静帧。 */
+            : step.status === 'current' && active ? <ActivityMotion kind={stepActivityKind(step.id)} still={state?.status === 'paused'} />
             : <RiCheckboxBlankCircleLine aria-hidden className={cx('size-(--icon-inline) shrink-0', step.status === 'current' && 'text-border-focus-ring')} />}
           <VisuallyHidden>{step.status === 'complete' ? t('manage:processingNotice.stepDone') : step.status === 'current' ? t('manage:processingNotice.stepCurrent') : t('manage:processingNotice.stepPending')}</VisuallyHidden>
           {step.status === 'complete' ? <s className="wrap-anywhere">{codedText(step, 'label')}</s> : <span className="wrap-anywhere">{codedText(step, 'label')}</span>}

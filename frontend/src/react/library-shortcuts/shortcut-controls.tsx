@@ -172,7 +172,7 @@ function ShortcutContents({ currentHref, kind, close }: { currentHref?: () => st
       </nav>
       </aside>
       <div ref={content} data-shortcuts-content="" role="tabpanel" id={`${id}-content`} aria-labelledby={`${id}-${scope}`} tabIndex={0} className="flex min-h-0 min-w-0 flex-col gap-4 overflow-y-auto overscroll-contain">
-    {query.isPending ? <div aria-busy="true" data-skeleton="" className="h-12 animate-pulse rounded-lg bg-background-secondary-default" /> : null}
+    {query.isPending ? <div aria-busy="true" data-skeleton="" className="relative h-12 rounded-lg skeleton-sheen" /> : null}
     {query.isError ? <Note tone="error" action={<Button variant="secondary" onClick={() => void query.refetch()}>{t('settings:shared.retryNow')}</Button>}>{errorMessage(query.error)}</Note> : null}
     {write.isError ? <Note tone="error">{errorMessage(write.error)}</Note> : null}
     {data ? scope !== 'filters' ? <>

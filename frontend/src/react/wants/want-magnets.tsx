@@ -8,7 +8,7 @@ import { Chip } from '@/components/base/badges/chip';
 import { apiGet, apiSend, errorMessage } from '../../api';
 import type { DownloadsSnapshot, DownloadSubmitResult } from '../bundle';
 import { DOWNLOADS_KEY, DOWNLOADS_URL } from '../activity/downloads-panel';
-import { LoadingDots } from '../components/loading-dots';
+import { ActivityStatus } from '../components/activity-motion';
 import { Note } from '../components/note';
 import { busyProps, useAction } from '../settings/use-action';
 import type { Want } from './wants';
@@ -124,7 +124,8 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
           if (!waiting) { refresh.current = true; void query.refetch() }
         }}>{t('catalog:wantMagnets.refresh')}</Button>
       </div>
-      {waiting ? <LoadingDots label={t('catalog:wantMagnets.searching')} /> : null}
+      {/* 还没有结果时是整块面板在等，动画大一档摆在正中；已有结果时换一批，等待留在行内。 */}
+      {waiting ? <ActivityStatus kind="radar" size={query.data?.items.length ? 'inline' : 'block'} label={t('catalog:wantMagnets.searching')} /> : null}
       {failure ? <Note tone="error" title={t('catalog:wantMagnets.notFound')}>{failure}</Note> : null}
       {query.data?.warnings?.map((warning, index) => <Note key={warning} tone="neutral">
         {serverLabel(query.data?.warning_codes?.[index] ?? '', resourceNotice(warning), query.data?.warning_params?.[index])}</Note>)}
