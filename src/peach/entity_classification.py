@@ -6,6 +6,7 @@ from urllib.parse import urlsplit
 
 from . import interface_text
 from .entry_links import EXTERNAL_KIND, JAV_DIRECTORIES
+from .user_messages import UserValueError
 
 VALUES = {
     'identity': {'person':'个人', 'account':'发布账号', 'organization':'机构',
@@ -59,22 +60,22 @@ def write_claim(connection, *, entity_id, facet, value, source, evidence,
                 source_url='', status='candidate', confidence=0.5, checked_at=None):
     """目录、检索与研究推断保持 candidate，代码判据事实使用 observed，用户复核使用 approved。"""
     if facet not in VALUES or value not in VALUES[facet]:
-        raise ValueError('未知身份分类')
+        raise ValueError("unknown identity classification")
     if status not in {'candidate','observed','approved','rejected'}:
-        raise ValueError('未知断言状态')
+        raise ValueError("unknown claim status")
     if not source or not evidence or not 0 <= confidence <= 1:
-        raise ValueError('断言缺少来源、证据或有效置信度')
+        raise ValueError("claim is missing a source, evidence, or valid confidence")
     if status == 'approved' and not source.startswith(('user:', 'review:')):
-        raise ValueError('approved 只属于用户复核')
+        raise ValueError("approved is reserved for user review")
     if status == 'observed' and urlsplit(source_url).scheme != 'https':
-        raise ValueError('公开事实需要 HTTPS 来源')
+        raise ValueError("public facts need an HTTPS source")
     if status == 'observed' and not source.startswith(CODE_SOURCES):
-        raise ValueError('observed 只属于代码判据来源')
+        raise ValueError("observed is reserved for code-rule sources")
     # 脚本不覆盖同来源上的用户复核。
     old = connection.execute('SELECT status FROM entity_classification WHERE entity_id=? AND facet=? AND value=? AND source=?',
                              (entity_id,facet,value,source)).fetchone()
     if old and old[0] == 'approved' and status != 'approved':
-        raise ValueError('不能覆盖已复核断言')
+        raise UserValueError("errors.entityClassification.reviewedClaim")
     connection.execute('INSERT INTO entity_classification VALUES(?,?,?,?,?,?,?,?,?) '
                        'ON CONFLICT(entity_id,facet,value,source) DO UPDATE SET source_url=excluded.source_url,'
                        'evidence=excluded.evidence,status=excluded.status,confidence=excluded.confidence,checked_at=excluded.checked_at',
@@ -241,7 +242,7 @@ def transfer(connection, source_id, target_id):
         old = connection.execute('SELECT source_url,evidence,status,confidence,checked_at FROM entity_classification WHERE entity_id=? AND facet=? AND value=? AND source=?',
                                  (target_id,*row[:3])).fetchone()
         if old and tuple(old)[:-1] != tuple(row[3:-1]):
-            raise ValueError('实体分类来源冲突，需先复核')
+            raise UserValueError("errors.entityClassification.classificationConflict")
         connection.execute('INSERT OR IGNORE INTO entity_classification VALUES(?,?,?,?,?,?,?,?,?)', (target_id,*row))
         if old and row[-1] > old[-1]:
             connection.execute('UPDATE entity_classification SET checked_at=? '
@@ -254,5 +255,5 @@ def transfer(connection, source_id, target_id):
             continue
         old = connection.execute('SELECT * FROM entity_identity_link WHERE left_id=? AND right_id=? AND relation=? AND source=?', row[:4]).fetchone()
         if old and tuple(old) != tuple(row):
-            raise ValueError('身份关联来源冲突，需先复核')
+            raise UserValueError("errors.entityClassification.identityLinkConflict")
         connection.execute('INSERT OR IGNORE INTO entity_identity_link VALUES(?,?,?,?,?,?,?,?)', row)

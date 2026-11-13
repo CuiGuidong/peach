@@ -19,6 +19,7 @@ from .platform import location_roots
 from .scripting import verify_after_write
 from .web_settings import organize_templates
 from .task_stages import stage as stage_fields
+from .user_messages import UserInterruptedError, UserValueError
 
 #: 界面上能整理的来源。`online` 是追更抓来的东西，不在任何一个媒体根下面。
 ORGANIZE_LOCATIONS = SCANNABLE_LOCATIONS
@@ -27,8 +28,10 @@ ORGANIZE_LOCATIONS = SCANNABLE_LOCATIONS
 def _templates(contract, body) -> tuple[str, str, str]:
     """取出这一次要用的来源与两份模板；模板缺省时用账本里存着的那一份。"""
     location = str(body.get("location") or "").strip()
+    if not location:
+        raise UserValueError("api.organize.sourceMissing")
     if location not in ORGANIZE_LOCATIONS:
-        raise ValueError(f"不认识的来源：{location or '(空)'}")
+        raise UserValueError("api.organize.unknownSource", {"location": location})
     stored = organize_templates(contract).get(location, {})
     file_template = body.get("file_template")
     dir_template = body.get("dir_template")
@@ -94,7 +97,7 @@ def _run_write(contract, job_id: str, work) -> dict:
         try:
             before, _ = verify_after_write(connection)
             if before != 'ok':
-                raise RuntimeError(f'写入前 ledger 校验失败：integrity={before}')
+                raise RuntimeError(f'ledger integrity check failed before writing: integrity={before}')
             baseline = {tuple(row) for row in connection.execute('PRAGMA foreign_key_check')}
             result = work(connection)
             integrity, _ = verify_after_write(connection)
@@ -104,18 +107,19 @@ def _run_write(contract, job_id: str, work) -> dict:
     contract.cache_bust()
     if integrity != "ok" or introduced:
         raise RuntimeError(
-            f"写入后 ledger 校验失败：integrity={integrity} new_foreign_keys={len(introduced)}")
+            f"ledger integrity check failed after writing: integrity={integrity} "
+            f"new_foreign_keys={len(introduced)}")
     return {**result, "backup": str(backup), 'existing_foreign_keys': len(baseline)}
 
 
 def w_organize_apply(contract, body) -> dict:
     """按确认过的范围与可选模板执行整理，计划由服务端核对。"""
     if body.get("confirm") is not True:
-        raise ValueError("整理需要确认")
+        raise UserValueError("api.organize.confirmRequired")
     location, file_template, dir_template = _templates(contract, body)
     path_scope = organize.scope_path(location, body.get('path', ''))
     if organize.unverified_location(location):
-        raise ValueError(f"{location} 挂载上的改名无法核验云端结果，界面只出预览，不执行")
+        raise UserValueError("api.organize.unverifiedMount", {"location": location})
     job = contract.organize_job
 
     def work(job_id: str) -> None:
@@ -130,7 +134,7 @@ def w_organize_apply(contract, body) -> dict:
                                            file_template=file_template,
                                            dir_template=dir_template, path=path_scope)
             if not job.checkpoint(job_id, plan=plan, batch_stamp=batch_stamp):
-                raise InterruptedError('整理已停止')
+                raise UserInterruptedError("errors.webOrganize.stopped")
         job.update(job_id, total=plan["counts"]["change"], **stage_fields('organize.running'))
         result = _run_write(contract, job_id, lambda connection: organize.apply_plan(
             connection, plan["rows"], generated_root=contract.candidate_root,
@@ -149,19 +153,19 @@ def w_organize_apply(contract, body) -> dict:
 def w_organize_rollback(contract, body) -> dict:
     """把上一批整理原样退回去。"""
     if body.get("confirm") is not True:
-        raise ValueError("回滚需要确认")
+        raise UserValueError("api.organize.rollbackConfirmRequired")
     from .job_recovery import current_job_id, read
     saved = read(contract.db_path, 'organize') if current_job_id.get() else {}
     batch = (saved.get('checkpoint') or {}).get('rollback_batch')
     latest = (organize.batch_log_dir(contract.candidate_root) / batch if batch
               else organize.latest_batch(contract.candidate_root))
     if latest is None:
-        raise ValueError("没有可以回滚的批次")
+        raise UserValueError("api.organize.noBatchToRollBack")
     job = contract.organize_job
 
     def work(job_id: str) -> None:
         if not job.checkpoint(job_id, rollback_batch=latest.name):
-            raise InterruptedError('整理回滚已停止')
+            raise UserInterruptedError("errors.webOrganize.rollbackStopped")
         if not latest.exists():
             job.update(job_id, status='complete', restored=0, failed=0)
             return

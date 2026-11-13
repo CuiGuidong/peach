@@ -54,7 +54,7 @@ def parse_key(key: str) -> int:
     """把后继 key 拆回创作者 id。形状不对就抛——那说明排队的行不是这个版本写的。"""
     prefix, _, raw = str(key).partition(":")
     if prefix != TASK_KEY or not raw.isdigit():
-        raise ValueError(f"认不出这条创作者身份查找后继：{key}")
+        raise ValueError(f"unrecognized creator identity follow-up key: {key}")
     return int(raw)
 
 

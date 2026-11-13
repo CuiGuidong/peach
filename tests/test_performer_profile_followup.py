@@ -888,10 +888,10 @@ class SweepTests(unittest.TestCase):
 
     def test_one_failure_is_hers_alone_and_the_sweep_goes_on(self):
         sweep = load_sweep()
-        outcomes = [RuntimeError("坏页"), {"outcome": "minnano-av 写入"}, {"outcome": "现有资料仍在有效期内"}]
+        outcomes = [RuntimeError("bad page"), {"outcome": "minnano-av 写入"}, {"outcome": "现有资料仍在有效期内"}]
         with mock.patch.object(followup, "run", side_effect=outcomes):
             tally = sweep.sweep(None, self.items(3), "manual-test", out=io.StringIO())
-        self.assertEqual(tally, {"出错：RuntimeError: 坏页": 1, "minnano-av 写入": 1, "现有资料仍在有效期内": 1})
+        self.assertEqual(tally, {"出错：RuntimeError: bad page": 1, "minnano-av 写入": 1, "现有资料仍在有效期内": 1})
 
     def test_the_batch_carries_the_manual_run_id(self):
         sweep = load_sweep()

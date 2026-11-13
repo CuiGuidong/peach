@@ -339,7 +339,7 @@ class VerifiedCoverTests(unittest.TestCase):
         conflicting = {**pages, JAVBUS_COVER: gradient(800, 538, rising=False),
                        DMM_COVER: gradient(800, 538, rising=False)}
         failures = ((httpx.ConnectError("proxy down"), Unavailable), (httpx.ReadTimeout("read timeout"), Unavailable),
-                    (503, Unavailable), (404, Unavailable), (SourcePaused("来源正在冷却"), SourcePaused))
+                    (503, Unavailable), (404, Unavailable), (SourcePaused("errors.scrapingAccess.coolingDown"), SourcePaused))
         for failure, expected in failures:
             with self.subTest(failure=failure), patch("peach.jav_cover_fetch.time.sleep"):
                 # 只剩 javdb 带水印的那张；或另两家各给一张对不上：没下到的 JavBus 那张都可能改变结论。
@@ -363,7 +363,7 @@ class VerifiedCoverTests(unittest.TestCase):
         javdb 一档的接口固定为未取得，由详情页答上（ADR-0160）：全局 `PUBLIC_API` 用真实传输，不拦会连外网。
         """
         from peach.library_processing import LibraryMetadataProvider
-        self.enterContext(patch.object(PUBLIC_API, "movie", side_effect=PublicSourceUnavailable("接口未取得")))
+        self.enterContext(patch.object(PUBLIC_API, "movie", side_effect=PublicSourceUnavailable("errors.javdbPublic.unavailable")))
         pages = {JAVDB_SEARCH: JAVDB_RESULTS, JAVDB_DETAIL: JAVDB_PAGE, JAVDB_COVER: gradient(800, 534)}
         asked = []
 
@@ -377,7 +377,7 @@ class VerifiedCoverTests(unittest.TestCase):
         provider.transport = transport
         covers = Path(self.enterContext(tempfile.TemporaryDirectory()))
         with patch("peach.jav_cover_fetch.time.sleep"), \
-                patch("peach.jav_cover_fetch.best_cover", side_effect=NotFound("所有渠道都没有候选")), \
+                patch("peach.jav_cover_fetch.best_cover", side_effect=NotFound("errors.javCoverFetch.noCandidates")), \
                 self.assertRaisesRegex(Unavailable, "JavBus") as caught:
             provider.cover("ABW-358", covers)
         self.assertNotIsInstance(caught.exception, NotFound)
@@ -538,16 +538,16 @@ class PublicSourceTests(unittest.TestCase):
 
     def test_query_maps_public_answers_without_holding_the_page_cooldown(self):
         session = Session(serve({}))
-        cases = ((PublicNotFound("没有"), FailureReason.NOT_FOUND),
-                 (PublicIdentityAmbiguous("同番号对应多个作品"), FailureReason.PARSE_ERROR),
-                 (PublicBudgetExceeded("超出预算"), FailureReason.TIMEOUT))
+        cases = ((PublicNotFound("errors.javdbPublic.notFound"), FailureReason.NOT_FOUND),
+                 (PublicIdentityAmbiguous("errors.javdbPublic.identityAmbiguous", {"identities": "Aa1"}), FailureReason.PARSE_ERROR),
+                 (PublicBudgetExceeded("errors.javdbPublic.budgetExceeded"), FailureReason.TIMEOUT))
         for error, reason in cases:
             with self.subTest(error=type(error).__name__), patch.object(PUBLIC_API, "movie", side_effect=error):
                 with self.assertRaises(SourceFailure) as caught:
                     JavDBPublicSource().query("ABW-358", session=session)
                 self.assertEqual(caught.exception.reason, reason)
                 self.assertEqual(caught.exception.cooldown_action, "")
-        with patch.object(PUBLIC_API, "movie", side_effect=PublicIdentityAmbiguous("x")):
+        with patch.object(PUBLIC_API, "movie", side_effect=PublicIdentityAmbiguous("errors.javdbPublic.identityAmbiguous", {"identities": "x"})):
             with self.assertRaises(SourceFailure) as caught:
                 JavDBPublicSource().query("ABW-358", session=session)
         self.assertEqual(caught.exception.detail, "identity_ambiguous")
@@ -555,12 +555,12 @@ class PublicSourceTests(unittest.TestCase):
 
     def test_query_reads_the_detail_page_when_the_api_cannot_answer(self):
         pages = {JAVDB_SEARCH: JAVDB_RESULTS, JAVDB_DETAIL: JAVDB_PAGE}
-        for error in (PublicSourceUnavailable("請登錄帳號"), PublicSourcePaused("暂时不可用")):
+        for error in (PublicSourceUnavailable("errors.javdbPublic.unavailable"), PublicSourcePaused("errors.javdbPublic.sourcePaused")):
             with self.subTest(error=type(error).__name__), patch.object(PUBLIC_API, "movie", side_effect=error):
                 record = JavDBPublicSource().query("ABW-358", session=Session(serve(pages)))
             self.assertEqual((record.source, record.provenance, record.code), ("javdb", "javdb-page", "ABW-358"))
             self.assertEqual(record.payload(), work(JavDBSource(), pages, "ABW-358"))
-        with patch.object(PUBLIC_API, "movie", side_effect=PublicSourceUnavailable("請登錄帳號")):
+        with patch.object(PUBLIC_API, "movie", side_effect=PublicSourceUnavailable("errors.javdbPublic.unavailable")):
             with self.assertRaises(SourceFailure) as caught:
                 JavDBPublicSource().query("ABW-358", session=Session(serve({
                     JAVDB_SEARCH: "<title>登入 | JavDB</title>".encode()})))

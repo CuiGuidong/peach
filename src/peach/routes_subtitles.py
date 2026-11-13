@@ -9,7 +9,7 @@ from starlette.concurrency import run_in_threadpool
 
 from . import subtitle_memory, subtitle_search, subtitles
 from .routes_auth import require_auth
-from .user_messages import error_fields
+from .user_messages import error_fields, message_fields
 
 router = APIRouter(dependencies=[Depends(require_auth)])
 
@@ -29,7 +29,7 @@ async def convert_subtitle(request: Request, name: str = ""):
     async for chunk in request.stream():
         data.extend(chunk)
         if len(data) > subtitle_search.MAX_BYTES:
-            return JSONResponse({"error": "字幕文件超过 4 MiB"}, status_code=413)
+            return JSONResponse(message_fields("api.subtitles.fileTooLarge", key="error"), status_code=413)
     try:
         return _track(subtitle_search.convert(bytes(data), subtitles.subtitle_format(name)))
     except (subtitle_search.SubtitleSearchError, subtitles.SubtitleUndecodable) as error:
@@ -39,12 +39,12 @@ async def convert_subtitle(request: Request, name: str = ""):
 def _memory(request: Request, video: str) -> subtitle_memory.SubtitleMemory:
     state = request.app.state
     if not subtitle_memory.VIDEO_KEY.fullmatch(video):
-        raise HTTPException(400, "视频标识无效")
+        raise HTTPException(400, message_fields("api.subtitles.invalidVideo"))
     kind, identity, *_ = video.split(":")
     table = "asset" if kind == "item" else "follow_item"
     with state.database.read_connection() as connection:
         if not connection.execute(f"SELECT 1 FROM {table} WHERE id=?", (int(identity),)).fetchone():
-            raise HTTPException(404, "视频不存在")
+            raise HTTPException(404, message_fields("api.subtitles.videoMissing"))
     return subtitle_memory.SubtitleMemory(state.web_contract.follow_state_root / "player-subtitles", video)
 
 
@@ -71,7 +71,7 @@ async def remember_subtitles(request: Request, video: str):
     async for chunk in request.stream():
         data.extend(chunk)
         if len(data) > subtitle_memory.MAX_BYTES * 2:
-            return JSONResponse({"error": "字幕内容过大"}, status_code=413)
+            return JSONResponse(message_fields("api.subtitles.memoryTooLarge", key="error"), status_code=413)
     try:
         value = json.loads(data)
         saved = await run_in_threadpool(memory.patch, value)
@@ -84,7 +84,7 @@ async def remember_subtitles(request: Request, video: str):
 def remembered_subtitle_track(request: Request, filename: str, video: str):
     path = _memory(request, video).track_path(filename)
     if path is None:
-        raise HTTPException(404, "字幕不存在")
+        raise HTTPException(404, message_fields("api.subtitles.trackMissing"))
     return FileResponse(path, media_type="text/vtt", headers={"Cache-Control": "private, no-cache"})
 
 

@@ -8,7 +8,7 @@ import { confirmModal } from '@peach/legacy/ui';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend, errorMessage } from '../../api';
-import { serverLabel, serverText } from '../../core/server-text';
+import { jobText, serverLabel, serverText } from '../../core/server-text';
 import type { ReleaseState, UpdateJob } from '../bundle';
 import { Note } from '../components/note';
 import { Progress } from '../components/progress';
@@ -134,11 +134,11 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
               <Help>{data.one_click?.reason || t('settings:releaseUpdates.watchtowerHint')}</Help>
             </> : null}
         <DockerUpdateProgress job={container.job} />
-        {job.state === 'error' ? <ErrorText>{job.message}</ErrorText> : null}
+        {job.state === 'error' ? <ErrorText>{jobText(job)}</ErrorText> : null}
         {job.state !== 'idle' && job.state !== 'error' ? (
           <div aria-live="polite" className="flex flex-col gap-2">
             <Progress label={t('settings:releaseUpdates.progressLabel')} value={job.progress} stops={STOPS} />
-            <Help>{t('settings:releaseUpdates.progressSteps')} {job.message}</Help>
+            <Help>{t('settings:releaseUpdates.progressSteps')} {jobText(job)}</Help>
             <Help>{reading}</Help>
           </div>
         ) : null}

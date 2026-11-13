@@ -18,7 +18,8 @@ from .library_processing import COLLECT_STAGE, _ffprobe_path, process_library
 from .media_probe import probe_unmeasured
 from .task_runs import declared_rows, item_progress, run_progress
 from .task_stages import stage_label, stage_progress
-from .task_retry import RetryableTaskError
+from .task_retry import RELAYED, RetryableTaskError
+from .user_messages import UserRuntimeError, UserValueError
 
 TASK_KEY = "download-postprocess"
 TASK_LABEL = "云下载后处理"
@@ -31,7 +32,7 @@ def followup_key(task_id: int) -> str:
 def _task_id(key: str) -> int:
     prefix, separator, raw = str(key).partition(":")
     if prefix != TASK_KEY or not separator or not raw.isdigit():
-        raise ValueError("云下载后处理任务编号无效")
+        raise ValueError("invalid cloud download postprocess task key")
     return int(raw)
 
 
@@ -62,7 +63,7 @@ def enqueue(contract, task) -> int | None:
 
 def _bind_main(contract, task) -> tuple[int, str, list[int]]:
     if not task.ledger_path:
-        raise ValueError("下载任务没有落地路径")
+        raise UserValueError("errors.downloadPostprocess.noLandingPath")
     store = DownloadStore(contract.database)
     rows = store.assets_under(task.location, task.ledger_path)
     with contract.database.read_connection() as connection:
@@ -71,12 +72,12 @@ def _bind_main(contract, task) -> tuple[int, str, list[int]]:
             (task.asset_id, task.location)).fetchone()
     main = int(bound['id']) if bound else store.asset_under(task.location, task.ledger_path, task.code)
     if main is None:
-        raise ValueError("落地目录里没有可识别的视频")
+        raise UserValueError("errors.downloadPostprocess.noVideoInLanding")
     wrote_code = False
     with contract.database.write_transaction(notify=False) as connection:
         existing = connection.execute("SELECT code FROM asset WHERE id=?", (main,)).fetchone()[0]
         if task.code and existing and not same_release_code(task.code, existing):
-            raise ValueError(f"正片已绑定其他番号：{existing}")
+            raise UserValueError("errors.downloadPostprocess.mainBoundToOtherCode", {"code": existing})
         if task.code and not existing:
             write_owned_fields(connection, [main], {"code": task.code},
                                SCAN_FILENAME, require_empty=True)
@@ -99,7 +100,7 @@ def _probe_folder(contract, task, main, folder_ids, *, on_junk=lambda result: No
     config = settings_file.active()
     if not config.configured or Path(contract.db_path).resolve() != (
             config.directory('database') / 'ledger.db').resolve():
-        raise ValueError('当前馆藏与媒体配置不一致，不能探测下载媒体')
+        raise UserValueError('errors.downloadPostprocess.configMismatchProbe')
     return probe_unmeasured(contract.db_path, _ffprobe_path(config), task.location, task.ledger_path,
                             asset_ids=folder_ids, config=config, protected_ids=[main], on_junk=on_junk)
 
@@ -108,7 +109,7 @@ def _collect(contract, main: int, handle) -> dict:
     config = settings_file.active()
     if not config.configured or Path(contract.db_path).resolve() != (
             config.directory("database") / "ledger.db").resolve():
-        raise ValueError("当前馆藏与媒体配置不一致，不能采集下载资料")
+        raise UserValueError("errors.downloadPostprocess.configMismatchCollect")
     state_file = config.directory('state') / 'download-processing' / f'{main}.json'
     try:
         previous = json.loads(state_file.read_text(encoding='utf-8'))
@@ -126,11 +127,15 @@ def _collect(contract, main: int, handle) -> dict:
         # 不为一项暂缺的资料把整条下载卡在云下载目录里。
         issues, paused = int(state.get("issue_count") or 0), int(state.get("paused_count") or 0)
         if not issues or paused < issues:
-            message = str(state.get("error") or "资料采集失败")
+            message = str(state.get("error") or "")
             delay = _collection_retry_delay(state, main)
             if delay is not None:
-                raise RetryableTaskError(message, after=delay)
-            raise RuntimeError(message)
+                if message:
+                    raise RetryableTaskError(RELAYED, {"message": message}, after=delay)
+                raise RetryableTaskError("errors.downloadPostprocess.collectFailed", after=delay)
+            if message:
+                raise RuntimeError(message)
+            raise UserRuntimeError("errors.downloadPostprocess.collectFailed")
         state = {**state, "paused_pending": [str(row.get("message") or "") for row in state.get("issue_preview") or ()]}
     return state
 
@@ -175,10 +180,10 @@ def _organize(contract, task, main: int) -> dict:
     blocked = [row for row in plan['rows'] if row.get('reason') in {
         organize.SKIP_TARGET_EXISTS, organize.SKIP_OFFLINE, organize.SKIP_TOO_LONG}]
     if blocked:
-        message = '文件整理未完成：' + '；'.join(str(row['reason']) for row in blocked)
+        reasons = '；'.join(str(row['reason']) for row in blocked)
         if all(row['reason'] == organize.SKIP_OFFLINE for row in blocked):
-            raise RetryableTaskError(message)
-        raise RuntimeError(message)
+            raise RetryableTaskError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
+        raise UserRuntimeError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
     if not movable:
         return {"moved": 0, "skipped": next(iter(plan["reasons"]), "无需整理")}
     name = f"ledger.pre-download-{task.id}-{time.strftime('%Y%m%d-%H%M%S')}.db"
@@ -187,19 +192,20 @@ def _organize(contract, task, main: int) -> dict:
             contract.database.write_transaction() as connection:
         integrity = connection.execute('PRAGMA integrity_check').fetchone()[0]
         if integrity != 'ok':
-            raise RuntimeError(f'整理前 ledger 校验失败：integrity={integrity}')
+            raise UserRuntimeError('errors.downloadPostprocess.integrityBefore', {'integrity': integrity})
         baseline = {tuple(row) for row in connection.execute('PRAGMA foreign_key_check')}
         result = organize.apply_plan(connection, movable, generated_root=contract.candidate_root)
         integrity = connection.execute('PRAGMA integrity_check').fetchone()[0]
         introduced = {tuple(row) for row in connection.execute('PRAGMA foreign_key_check')} - baseline
         if integrity != 'ok' or introduced:
-            raise RuntimeError(f'整理后 ledger 校验失败：integrity={integrity} new_foreign_keys={len(introduced)}')
+            raise UserRuntimeError('errors.downloadPostprocess.integrityAfter',
+                                   {'integrity': integrity, 'count': len(introduced)})
     if result.get('failed'):
         reasons = '；'.join(str(row['reason']) for row in result.get('failures', ()))
         if all(row.get('retryable') for row in result.get('failures', ())):
-            raise RetryableTaskError(f'文件整理未完成：{reasons}',
+            raise RetryableTaskError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons},
                                      after=max(row.get('retry_after') or 0 for row in result['failures']))
-        raise RuntimeError(f'文件整理未完成：{reasons}')
+        raise UserRuntimeError('errors.downloadPostprocess.organizeIncomplete', {'reasons': reasons})
     return {**result, 'backup': str(backup), 'existing_foreign_keys': len(baseline)}
 
 
@@ -208,7 +214,7 @@ def run(contract, key: str, handle) -> dict:
     store = DownloadStore(contract.database)
     task = store.get(task_id)
     if task is None or task.state != INGESTED:
-        raise ValueError("云下载任务尚未入库")
+        raise UserValueError("errors.downloadPostprocess.notIngested")
     if task.postprocess_state == POSTPROCESS_COMPLETE:
         return {"task_id": task_id, "already_complete": True}
     store.postprocess(task_id, POSTPROCESS_RUNNING, detail="正在识别正片")

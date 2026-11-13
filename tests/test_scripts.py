@@ -24,6 +24,8 @@ from peach import follow_image_dims, scripting
 from peach.follow_sources import FollowCandidate, SourceFetch
 from peach.follow_store import FollowStore
 from peach.http import HttpResponse
+from peach.metadata import relayed
+from peach.user_messages import UserOSError
 from peach.migrations import upgrade
 from peach.scan import medium_of
 from support.ledger import fresh_ledger
@@ -374,7 +376,7 @@ class DesktopSmokeTests(unittest.TestCase):
                 self.script.assert_public_resources(application)
 
     def test_cleanup_waits_for_a_released_windows_directory(self):
-        error = PermissionError('目录仍被占用')
+        error = PermissionError('The process cannot access the file because it is being used by another process')
         error.winerror = 32
         directory = mock.Mock()
         directory.cleanup.side_effect = [error, None]
@@ -385,7 +387,7 @@ class DesktopSmokeTests(unittest.TestCase):
     def test_cleanup_preserves_persistent_or_unrelated_failures(self):
         for winerror in (32, 5):
             with self.subTest(winerror=winerror):
-                error = PermissionError('无法清理')
+                error = PermissionError('Access is denied')
                 error.winerror = winerror
                 directory = mock.Mock()
                 directory.cleanup.side_effect = error
@@ -1162,7 +1164,7 @@ class LibraryDirectoryTests(unittest.TestCase):
                     if outcomes[index]:
                         receipt['entries'].append(dict(key=op['key'],status='committed'))
                         return None
-                    error=OSError('不支持该请求');error.winerror=50
+                    error=OSError('The request is not supported');error.winerror=50
                     receipt['failures'].append(dict(key=op['key'],source=op['source'],error=str(error)))
                     return error
                 with mock.patch.object(script,'DATABASE_PATH',ledger),mock.patch.object(script,'OUT',root), \
@@ -1227,7 +1229,7 @@ class LibraryDirectoryTests(unittest.TestCase):
         from peach.organize_clouddrive import MoveNotExecuted
         script = self.script
         def reject(source):
-            raise MoveNotExecuted('官方接口拒绝')
+            raise MoveNotExecuted('errors.organizeClouddrive.moveNotExecuted')
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()
             ledger, translate, calls, operations, patches = self._provider_batch(root, reject)
@@ -1591,7 +1593,7 @@ class OperationalScriptTests(unittest.TestCase):
                 def __init__(self): self.calls = []
                 def query(self, code, source):
                     self.calls.append(code)
-                    raise error("timeout", kind="unavailable",
+                    raise error(*relayed("timeout"), kind="unavailable",
                                 retryable=True, temporary=True)
 
             provider = Flaky()
@@ -1661,7 +1663,7 @@ class OperationalScriptTests(unittest.TestCase):
                     self.calls.append((source, code))
                     if source == "javbus":
                         raise auth_error("javbus", "来源返回 403", status_code=403)
-                    raise error("no such code", kind="not_found")
+                    raise error(*relayed("no such code"), kind="not_found")
 
             provider = Walled()
             health = root / "health.csv"
@@ -3862,7 +3864,7 @@ class OperationalScriptTests(unittest.TestCase):
                     self.calls.append((code, source))
                     if source == "javbus" and code == "DEF-002":
                         raise self_error(
-                            "rate limited", kind="rate_limited", status_code=429,
+                            *relayed("rate limited"), kind="rate_limited", status_code=429,
                             retryable=True, temporary=True,
                         )
                     if source == "javbus":
@@ -3922,7 +3924,7 @@ class OperationalScriptTests(unittest.TestCase):
                 def query(self, code, source):
                     self.calls.append((code, source))
                     if code == "LUXU-1642":
-                        raise self_error("status 404", kind="not_found",
+                        raise self_error(*relayed("status 404"), kind="not_found",
                                          status_code=404, retryable=False, temporary=False)
                     return {"source": source, "id": "259LUXU-1642", "maker": "Maan Sha"}
 
@@ -4054,7 +4056,7 @@ class OperationalScriptTests(unittest.TestCase):
                     self.calls.append((code, source))
                     # DEF-002 在 r18.dev 与它兜底的 DMM 都没有，链才走到综合索引那一档。
                     if source == "makers" or (code == "DEF-002" and source in ("r18dev", "dmm")):
-                        raise self_error("status 404", kind="not_found", status_code=404)
+                        raise self_error(*relayed("status 404"), kind="not_found", status_code=404)
                     if code == "DEF-002":
                         return {"source": source, "id": code, "maker": "Studio B"}
                     return OperationalScriptTests._full_payload(code, source)
@@ -4188,17 +4190,17 @@ class OperationalScriptTests(unittest.TestCase):
         from peach.jav_cover_fetch import DeadlineExceeded, NotFound, Unavailable
         from peach.scraping_access import SourcePaused
         translate = self.scrape_codes.translate_failure
-        self.assertEqual((translate("javdb", NotFound("没有")).kind,
-                          translate("javdb", NotFound("没有")).retryable), ("not_found", False))
-        paused = translate("javdb", SourcePaused("来源正在冷却"))
+        self.assertEqual((translate("javdb", NotFound("errors.javdb.notFound")).kind,
+                          translate("javdb", NotFound("errors.javdb.notFound")).retryable), ("not_found", False))
+        paused = translate("javdb", SourcePaused("errors.scrapingAccess.coolingDown"))
         self.assertEqual((paused.kind, paused.status_code, paused.retryable), ("rate_limited", 429, True))
-        walled = translate("javdb", SourcePaused("javdb 返回 403，已冷却"))
+        walled = translate("javdb", SourcePaused(*relayed("HTTP 403")))
         self.assertEqual((walled.kind, walled.status_code, walled.retryable), ("auth", 403, False))
-        self.assertEqual(translate("fc2", DeadlineExceeded("预算用尽")).kind, "timeout")
-        flaky = translate("fc2", Unavailable("HTTP 503 upstream"))
+        self.assertEqual(translate("fc2", DeadlineExceeded("errors.javCoverFetch.deadline")).kind, "timeout")
+        flaky = translate("fc2", Unavailable(*relayed("HTTP 503")))
         self.assertEqual((flaky.kind, flaky.status_code, flaky.temporary), ("unavailable", 503, True))
         # 已经是本脚本分档的错误原样返回，不再套一层。
-        own = self.scrape_codes.MetadataProviderError("x", kind="identity_mismatch")
+        own = self.scrape_codes.MetadataProviderError("errors.base.codeMismatch", kind="identity_mismatch")
         self.assertIs(translate("javdb", own), own)
 
     def test_creator_tag_review_queue_requires_approval_and_backup(self):
@@ -5585,7 +5587,7 @@ class MainlineScopeTests(unittest.TestCase):
         self.git(root, "checkout", "-q", "master")
 
         def unavailable(_environ):
-            raise OSError("外部请求未取得（ConnectError）")
+            raise UserOSError("errors.peachProxy.requestFailed", {"kind": "ConnectError"})
         for name, pipelines in (("首次推送", []), ("强推后旧提交不是祖先", [{"sha": rewritten, "status": "success"}]),
                                 ("克隆里没有这个提交", [{"sha": "f" * 40, "status": "success"}]),
                                 ("只有本提交自己", [{"sha": head, "status": "success"}]),

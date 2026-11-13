@@ -45,8 +45,9 @@ describe('界面文案的语言资源', () => {
   });
 
   it('入口登记的资源就是目录里的全部文件', () => {
+    /* `cli` 只给 `peach` 命令行用（ADR-0159 第三条），不打进前端包。 */
     for (const language of INTERFACE_LANGUAGES) {
-      expect(Object.keys(resources[language]).sort(), language).toEqual(namespaces(language));
+      expect(Object.keys(resources[language]).sort(), language).toEqual(namespaces(language).filter((ns) => ns !== 'cli'));
     }
   });
 

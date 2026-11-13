@@ -83,7 +83,7 @@ class MigrationTests(unittest.TestCase):
         (directory / '9001_invalid.sql').write_text(
             '-- peach:foreign_keys=off\nCREATE TABLE introduced(id INTEGER);DELETE FROM parent;',
             encoding='utf-8')
-        with self.assertRaisesRegex(RuntimeError, '违约'):
+        with self.assertRaisesRegex(RuntimeError, 'foreign key violations'):
             upgrade(self.db, directory)
         with closing(sqlite3.connect(self.db)) as connection:
             self.assertEqual(connection.execute('SELECT id FROM parent').fetchall(), [(1,)])

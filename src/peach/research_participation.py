@@ -9,6 +9,7 @@ import uuid
 
 from . import __version__, remote_reporting
 from .fsutil import atomic_write_text
+from .user_messages import UserValueError
 
 MESSAGE = 'Peach research participation'
 PURPOSE = 'population-research-participation'
@@ -76,7 +77,7 @@ def _load(config):
     path = _path(config)
     try:
         if path.stat().st_size > MAX_STATE_BYTES:
-            raise ValueError('研究联系状态超过本机记录上限')
+            raise UserValueError('errors.researchParticipation.stateTooLarge')
         value = json.loads(path.read_text(encoding='utf-8'))
     except FileNotFoundError:
         return None
@@ -89,7 +90,7 @@ def _load(config):
             or ('status_code' in value and (type(value['status_code']) is not int or not 100 <= value['status_code'] <= 599))
             or ('reason' in value and (not isinstance(value['reason'], str) or value['reason'] not in {
                 'network', 'http_status', 'rate_limit', 'queue_full', 'consent', 'disabled', 'unknown'}))):
-        raise ValueError('研究联系状态格式无效')
+        raise UserValueError('errors.researchParticipation.stateInvalid')
     return value
 
 

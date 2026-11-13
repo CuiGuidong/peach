@@ -56,10 +56,12 @@ const taskName = (task: DownloadTask) => {
   return [code, title].filter(Boolean).join(' · ') || t('manage:downloadsPanel.magnetHash', { hash: task.info_hash?.slice(0, 8) ?? task.id });
 };
 
-/** 状态、失败类别与整理状态按 id 取当前界面语言；没有译文的照用服务端的中文名。 */
+/** 状态、失败类别与整理状态按 id 取当前界面语言；没有译文的照用服务端的中文名。
+ *  整理状态排了自动重试时服务端给 `postprocess_label_code`（第几次），优先用它。 */
 const stateLabel = (task: DownloadTask) => serverLabel(`download.state.${task.state}`, task.state_label);
 const postprocessLabel = (task: DownloadTask) =>
-  serverLabel(`download.postprocess.${task.postprocess_state}`, task.postprocess_label);
+  serverLabel(task.postprocess_label_code || `download.postprocess.${task.postprocess_state}`, task.postprocess_label,
+    task.postprocess_label_params);
 
 export const failureText = (task: DownloadTask) => {
   if (!task.failure_label) return '';

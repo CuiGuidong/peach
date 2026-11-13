@@ -11,7 +11,7 @@ import re
 from functools import lru_cache
 from pathlib import Path
 
-from .settings_file import PROJECT_ROOT
+from .project_root import PROJECT_ROOT
 
 SOURCE_LANGUAGE = "zh-CN"
 LOCALES = PROJECT_ROOT / "resources" / "locales"
@@ -60,11 +60,26 @@ def has(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> b
     return True
 
 
+def nested(value) -> bool:
+    """参数值是不是另一句带 code 的话：`{"code": "<server 键>", "params": {...}}`，`params` 可省。"""
+    return (isinstance(value, dict) and isinstance(value.get("code"), str) and set(value) <= {"code", "params"}
+            and isinstance(value.get("params", {}), dict))
+
+
 def text(key: str, params: dict | None = None, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> str:
-    """渲染一句界面文字。模板里用到、参数里没给的占位符原样留着，便于在界面上一眼看出漏传。"""
+    """渲染一句界面文字。模板里用到、参数里没给的占位符原样留着，便于在界面上一眼看出漏传。
+    参数值是 `nested` 那种形状且资源里有那一句时，先按同一语言渲染那一句再填进去；别的值照旧 `str()`。"""
     values = params or {}
-    return _PLACEHOLDER.sub(lambda match: str(values[match[1]]) if match[1] in values else match[0],
-                            template(key, language, root=root))
+
+    def fill(match: re.Match) -> str:
+        if match[1] not in values:
+            return match[0]
+        value = values[match[1]]
+        if nested(value) and has(f"server:{value['code']}", language, root=root):
+            return text(f"server:{value['code']}", value.get("params"), language, root=root)
+        return str(value)
+
+    return _PLACEHOLDER.sub(fill, template(key, language, root=root))
 
 
 def ensure_available(root: Path = LOCALES) -> None:
@@ -76,6 +91,41 @@ def ensure_available(root: Path = LOCALES) -> None:
 def label(key: str, fallback: str, params: dict | None = None, language: str = SOURCE_LANGUAGE) -> str:
     """有这一条就渲染，没有就用 `fallback`：登记表之外的 id（如别处新加的任务种类）照原样显示。"""
     return text(key, params, language) if has(key, language) else fallback
+
+
+def local_language(environ=None) -> str:
+    """在这台电脑上直接给人看的文字用哪种语言：命令行（ADR-0159 第三条）与托盘。
+    `PEACH_LANGUAGE` 优先，否则跟系统显示语言（与设置页「自动」的兜底同一个判断），没有译文的语言用英文。"""
+    import os
+    from .system_language import interface_language, system_language
+    environ = os.environ if environ is None else environ
+    return interface_language(environ.get("PEACH_LANGUAGE")) or system_language() or "en"
+
+
+def request_language(accept_language: str | None) -> str:
+    """服务端直接出的页面（首次运行、登录、用户脚本连接页）用哪种语言：与前端界面语言选「自动」时一样，
+    先按浏览器的 `Accept-Language` 依权重取第一个有译文的，没有再跟系统显示语言，都没有用英文。"""
+    from .system_language import interface_language, system_language
+    ranked = []
+    for index, item in enumerate(str(accept_language or "").split(",")):
+        tag, _, rest = item.strip().partition(";")
+        weight = 1.0
+        if rest.strip().startswith("q="):
+            try:
+                weight = float(rest.strip()[2:])
+            except ValueError:
+                weight = 0.0
+        if tag and weight > 0:
+            ranked.append((-weight, index, tag))
+    for _weight, _index, tag in sorted(ranked):
+        if match := interface_language(tag):
+            return match
+    return system_language() or "en"
+
+
+def cli(key: str, params: dict | None = None, /, **values) -> str:
+    """命令行的一句话：`cli` 命名空间，按 `local_language` 选语言。"""
+    return text(f"cli:{key}", {**(params or {}), **values}, local_language())
 
 
 def subtree(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> dict:

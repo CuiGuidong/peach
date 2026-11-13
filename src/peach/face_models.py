@@ -40,7 +40,7 @@ class Reporter:
         try:
             self._record(label, error)
         except Exception:                       # 记录失败不能拖垮取模型的那一方
-            LOGGER.warning("人脸模型的任务记录没写进去", exc_info=True)
+            LOGGER.warning("Failed to record the face model task", exc_info=True)
 
     def _record(self, label: str, error: Exception | None) -> None:
         if not self.runs.enabled:

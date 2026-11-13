@@ -1,34 +1,34 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a563e90d-d131-4724-b9bf-45f4e930b2a6", e._sentryDebugIdIdentifier = "sentry-dbid-a563e90d-d131-4724-b9bf-45f4e930b2a6");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3124c8f4-af00-4bee-b981-dac97b913b6a", e._sentryDebugIdIdentifier = "sentry-dbid-3124c8f4-af00-4bee-b981-dac97b913b6a");
 	} catch {}
 })();
-import { Button as e, Bx as t, Chip as n, DataTableFooter as r, Disclosure as i, DownloadsPanel as a, EmptyState as o, Gg as s, HN as c, IssueRow as l, LinkButton as u, Lo as d, LoadingDots as f, Ma as p, NameLink as m, Note as h, OV as g, Pf as _, ProcessingMode as v, Progress as y, RB as b, Rk as x, Su as S, TASKS_KEY as C, TRIGGER_LABELS as w, Xl as T, __toESM as E, apiGet as D, apiSend as O, busyProps as k, cardClass as A, confirmModal as ee, controlTask as te, cx as ne, elapsedText as re, errorMessage as j, fetchTasks as ie, fmtSize as ae, foldByKind as oe, foldRoutine as se, followupDetail as ce, followupTally as M, groupFollowups as le, hasResultProblems as N, i2 as ue, interfaceLanguage as de, isActive as P, isRoutine as fe, latestOfKind as pe, momentText as F, notifyManager as me, oe as he, pollInterval as ge, problemDestination as _e, progressLabel as ve, progressText as I, readableErrorHeadline as L, replaceEqualDeep as ye, require_jsx_runtime as be, require_react as xe, runError as R, setTaskSpeed as Se, statusLabel as Ce, summaryItems as we, t as z, taskIssues as Te, taskName as B, taskSubject as V, um as Ee, uo as De, useMutation as H, useQuery as U, useQueryClient as W, vl as Oe } from "./peach-app.js";
-import { CodeBlock as ke } from "./peach-app.code-block-CXu10nIP.js";
-import { Page as Ae } from "./peach-app.page-QAncjzM1.js";
-import { ErrorDetails as je, ErrorExcerpt as Me } from "./peach-app.error-excerpt-Ugft6I5o.js";
+import { Button as e, Bx as t, Chip as n, DataTableFooter as r, Disclosure as i, DownloadsPanel as a, EmptyState as o, Gg as s, HN as c, IssueRow as l, LinkButton as u, Lo as d, LoadingDots as f, Ma as p, NameLink as m, Note as h, OV as g, Pf as _, ProcessingMode as v, Progress as y, RB as b, Rk as x, Su as S, TASKS_KEY as C, TRIGGER_LABELS as w, Xl as T, __toESM as E, apiGet as D, apiSend as ee, busyProps as O, cardClass as k, codedText as A, confirmModal as te, controlTask as ne, cx as re, elapsedText as ie, errorMessage as j, fetchTasks as ae, fmtSize as oe, foldByKind as se, foldRoutine as ce, followupDetail as le, followupTally as M, groupFollowups as ue, hasResultProblems as N, i2 as de, interfaceLanguage as fe, isActive as P, isRoutine as pe, latestOfKind as me, momentText as F, notifyManager as he, oe as ge, pollInterval as _e, problemDestination as ve, progressLabel as ye, progressText as I, readableErrorHeadline as L, replaceEqualDeep as be, require_jsx_runtime as xe, require_react as Se, runError as R, setTaskSpeed as Ce, statusLabel as we, summaryItems as Te, t as z, taskIssues as Ee, taskName as B, taskSubject as V, um as De, uo as Oe, useMutation as H, useQuery as U, useQueryClient as W, vl as ke } from "./peach-app.js";
+import { CodeBlock as Ae } from "./peach-app.code-block-CXu10nIP.js";
+import { Page as je } from "./peach-app.page-QAncjzM1.js";
+import { ErrorDetails as Me, ErrorExcerpt as Ne } from "./peach-app.error-excerpt-Ugft6I5o.js";
 // node_modules/@tanstack/react-query/build/modern/useMutationState.js
-var G = /* @__PURE__ */ E(xe(), 1);
-function Ne() {
+var G = /* @__PURE__ */ E(Se(), 1);
+function Pe() {
 	let e;
 	return (t, n) => {
 		let r = [], i;
 		return () => {
 			let a = t.findAll(n.filters), o = a.flatMap((e) => [e, e.state]);
-			return (!i || o.length !== r.length || o.some((e, t) => !Object.is(e, r[t]))) && (r = o, i = ye(e, a.map((e) => n.select ? n.select(e) : e.state)), e = i), i;
+			return (!i || o.length !== r.length || o.some((e, t) => !Object.is(e, r[t]))) && (r = o, i = be(e, a.map((e) => n.select ? n.select(e) : e.state)), e = i), i;
 		};
 	};
 }
-function Pe(e = {}, t) {
-	let n = W(t).getMutationCache(), [r] = G.useState(() => Ne()), i = r(n, e);
-	return G.useSyncExternalStore(G.useCallback((e) => n.subscribe(me.batchCalls(e)), [n]), i, i);
+function Fe(e = {}, t) {
+	let n = W(t).getMutationCache(), [r] = G.useState(() => Pe()), i = r(n, e);
+	return G.useSyncExternalStore(G.useCallback((e) => n.subscribe(he.batchCalls(e)), [n]), i, i);
 }
 // src/react/activity/background-issues.tsx
-var K = be(), Fe = ["background-issues"];
+var K = xe(), q = ["background-issues"];
 function Ie() {
 	let e = (0, G.useId)(), t = U({
-		queryKey: Fe,
+		queryKey: q,
 		queryFn: ({ signal: e }) => D("/api/background-issues", e),
 		refetchInterval: 3e4
 	}).data?.issues || [];
@@ -47,26 +47,26 @@ function Ie() {
 }
 function Le({ issue: t }) {
 	let n = W(), r = H({
-		mutationFn: () => O(t.retry, {}),
+		mutationFn: () => ee(t.retry, {}),
 		onSuccess: () => {
-			n.invalidateQueries({ queryKey: Fe });
+			n.invalidateQueries({ queryKey: q });
 		}
 	}), i = t.since ? z("manage:backgroundIssues.since", { time: F(t.since) }) : z("manage:backgroundIssues.detectedAt", { time: F(t.noticed_at) });
 	return /* @__PURE__ */ (0, K.jsx)(h, {
 		tone: "error",
-		title: t.title,
+		title: A(t, "title"),
 		action: /* @__PURE__ */ (0, K.jsxs)("div", {
 			className: "flex flex-wrap items-center gap-2",
 			children: [/* @__PURE__ */ (0, K.jsx)(u, {
 				href: t.href,
 				size: "small",
-				trailingIcon: ue,
-				children: t.link_label
+				trailingIcon: de,
+				children: A(t, "link_label")
 			}), t.retry ? /* @__PURE__ */ (0, K.jsx)(e, {
 				variant: "secondary",
 				size: "small",
 				disabled: !t.retry_available,
-				...k(r.isPending),
+				...O(r.isPending),
 				onClick: () => r.mutate(),
 				children: z("manage:shared.retryNow")
 			}) : null]
@@ -78,7 +78,7 @@ function Le({ issue: t }) {
 	});
 }
 // src/react/activity/task-controls.tsx
-var q = ["task-control"], Re = {
+var J = ["task-control"], Re = {
 	pause: g,
 	resume: s,
 	cancel: c
@@ -92,8 +92,8 @@ var q = ["task-control"], Re = {
 	cancel: z("manage:taskControls.cancelFollowups")
 };
 function Ve() {
-	let e = Pe({
-		filters: { mutationKey: q },
+	let e = Fe({
+		filters: { mutationKey: J },
 		select: (e) => ({
 			id: e.mutationId,
 			command: e.state.variables,
@@ -134,14 +134,14 @@ function He({ run: t, runs: n = [t] }) {
 	}, o = async (e) => {
 		let t = null;
 		for (let r of n) try {
-			await te(r.id, e.action);
+			await ne(r.id, e.action);
 		} catch (e) {
 			t ??= e;
 		}
 		if (t !== null) throw t;
 	}, s = H({
 		mutationKey: [
-			...q,
+			...J,
 			t.id,
 			"change"
 		],
@@ -151,7 +151,7 @@ function He({ run: t, runs: n = [t] }) {
 		}
 	}), c = H({
 		mutationKey: [
-			...q,
+			...J,
 			t.id,
 			"cancel"
 		],
@@ -161,7 +161,7 @@ function He({ run: t, runs: n = [t] }) {
 		}
 	}), l = H({
 		mutationFn: async (e) => {
-			let t = (await Promise.allSettled(n.map((t) => Se(t.id, e)))).find((e) => e.status === "rejected");
+			let t = (await Promise.allSettled(n.map((t) => Ce(t.id, e)))).find((e) => e.status === "rejected");
 			if (t?.status === "rejected") throw t.reason;
 		},
 		onSettled: a
@@ -176,7 +176,7 @@ function He({ run: t, runs: n = [t] }) {
 		};
 		if (e === "cancel") {
 			if (i.current.cancel || i.current.confirmation || c.isSuccess) return;
-			i.current.confirmation = !0, ee({
+			i.current.confirmation = !0, te({
 				title: z(f ? "manage:taskControls.cancelFollowupsTitle" : "manage:taskControls.cancelTaskTitle", { task: B(t) }),
 				body: f ? n.length > 1 ? z("manage:taskControls.cancelBatchFollowupsBody", { count: n.length }) : z("manage:taskControls.cancelFollowupsBody") : z("manage:taskControls.cancelTaskBody"),
 				confirmLabel: z(f ? "manage:taskControls.cancelFollowups" : "manage:shared.cancelTask"),
@@ -212,7 +212,7 @@ function He({ run: t, runs: n = [t] }) {
 					leadingIcon: Re[t],
 					"aria-label": n,
 					title: n,
-					...k(r),
+					...O(r),
 					"aria-disabled": i || void 0,
 					onClick: () => m(t),
 					"data-tooltip-copy-key": `tasks.control.action.${f ? "followups." : ""}${t}`
@@ -243,7 +243,7 @@ var Ue = new Map([
 		"resource-apply",
 		"seed-import"
 	]],
-	[Oe, [
+	[ke, [
 		"scrape-codes",
 		"jav-discovery-metadata",
 		"want-scrape",
@@ -263,12 +263,12 @@ var Ue = new Map([
 		"studio-mark"
 	]],
 	[T, ["media-repair", "mp4-header-repair"]],
-	[Ee, [
+	[De, [
 		"link-check",
 		"link-prune",
 		"source-check"
 	]],
-	[he, ["download-postprocess"]],
+	[ge, ["download-postprocess"]],
 	[d, ["taste-refresh"]],
 	[b, [
 		"upgrade-repairs",
@@ -295,7 +295,7 @@ var Ge = {
 function Ke({ color: e, high: t, ...r }) {
 	return t ? /* @__PURE__ */ (0, K.jsx)("span", {
 		...r,
-		className: ne("inline-flex items-center justify-center rounded-md px-1.5 py-1 whitespace-nowrap text-caption-1-medium", Ge[e])
+		className: re("inline-flex items-center justify-center rounded-md px-1.5 py-1 whitespace-nowrap text-caption-1-medium", Ge[e])
 	}) : /* @__PURE__ */ (0, K.jsx)(n, {
 		variant: "caption",
 		color: e,
@@ -321,7 +321,7 @@ function Je(e) {
 	return e.state === "sampling" ? z("manage:taskResources.sampling") : e.via === "cloud" ? z("manage:taskResources.viaCloudDrive") : z("manage:taskResources.unavailable");
 }
 function Ye(e, t) {
-	return t === 0 ? z("manage:taskResources.idle") : e === "network" ? `${ae(t)}/s` : `${t.toLocaleString(de, { maximumFractionDigits: 1 })}%`;
+	return t === 0 ? z("manage:taskResources.idle") : e === "network" ? `${oe(t)}/s` : `${t.toLocaleString(fe, { maximumFractionDigits: 1 })}%`;
 }
 function Xe({ run: e, active: t = P(e) || !!e.control }) {
 	if (!t || !e.resources) return null;
@@ -363,25 +363,25 @@ var Ze = /* @__PURE__ */ new Set(["upgrade-repairs"]), Qe = /* @__PURE__ */ new 
 	interrupted: "yellow",
 	running: "blue",
 	pending: "neutral"
-}, J = {
+}, Y = {
 	running: z("manage:taskStatus.running"),
 	pausing: z("manage:taskStatus.pausing"),
 	paused: z("manage:taskStatus.paused"),
 	cancelling: z("manage:taskStatus.canceling")
 };
-function Y({ run: e }) {
+function X({ run: e }) {
 	let t = e.control?.state;
 	if (t && (t !== "running" || !P(e))) return /* @__PURE__ */ (0, K.jsx)(n, {
 		color: t === "running" ? "blue" : "neutral",
 		children: /* @__PURE__ */ (0, K.jsx)("span", {
 			"data-copy-key": `tasks.control.state.${t}`,
-			children: J[t]
+			children: Y[t]
 		})
 	});
 	let r = e.status === "failed" && e.task_key === "library-processing" && e.result_summary?.outcome === "partial", i = r || e.status === "succeeded" && N(e);
 	return /* @__PURE__ */ (0, K.jsx)(n, {
 		color: i ? "yellow" : $e[e.status] ?? "neutral",
-		children: r ? z("manage:taskStatus.partial") : i ? z("manage:taskStatus.issuesFound") : Ce(e.status)
+		children: r ? z("manage:taskStatus.partial") : i ? z("manage:taskStatus.issuesFound") : we(e.status)
 	});
 }
 function et({ rows: e }) {
@@ -392,7 +392,7 @@ function et({ rows: e }) {
 	return /* @__PURE__ */ (0, K.jsxs)(K.Fragment, { children: [/* @__PURE__ */ (0, K.jsx)("ul", {
 		className: "-mr-5 flex min-w-0 flex-col",
 		children: e.slice(o * a, (o + 1) * a).map((e) => {
-			let t = ce(e);
+			let t = le(e);
 			return /* @__PURE__ */ (0, K.jsxs)("li", {
 				"data-status": e.status,
 				"data-followup-key": e.followup_key,
@@ -411,7 +411,7 @@ function et({ rows: e }) {
 									className: "min-w-0 break-words text-caption-1-regular text-text-primary",
 									children: B(e)
 								}),
-								/* @__PURE__ */ (0, K.jsx)(Y, { run: e }),
+								/* @__PURE__ */ (0, K.jsx)(X, { run: e }),
 								t ? /* @__PURE__ */ (0, K.jsx)("span", {
 									className: "min-w-0 break-words text-caption-1-regular text-text-secondary",
 									children: t
@@ -425,7 +425,7 @@ function et({ rows: e }) {
 						children: /* @__PURE__ */ (0, K.jsx)(i, {
 							summary: z("manage:taskCenter.technicalDetails"),
 							contentClassName: "pb-2.5",
-							children: /* @__PURE__ */ (0, K.jsx)(ke, {
+							children: /* @__PURE__ */ (0, K.jsx)(Ae, {
 								code: JSON.stringify(e.result_summary, null, 2),
 								language: "json",
 								label: z("manage:taskCenter.taskTechnicalDetails", { task: B(e) })
@@ -445,7 +445,7 @@ function et({ rows: e }) {
 		onChange: n
 	})] });
 }
-function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, followupTotal: s = 0, badge: c, resourceActive: l, controlled: u }) {
+function Z({ run: e, meta: t, children: n, error: r, issues: a, followups: o, followupTotal: s = 0, badge: c, resourceActive: l, controlled: u }) {
 	let [d, f] = (0, G.useState)(!!o?.some(P)), p = (u || [e]).map((e) => e.id), g = s > (o?.length || 0), _ = U({
 		queryKey: [
 			...C,
@@ -461,7 +461,7 @@ function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 		"data-status": e.status,
 		"data-task-key": e.task_key,
 		"data-run-id": e.id,
-		className: A({
+		className: k({
 			padding: "none",
 			bordered: e.status === "failed" ? "error" : void 0,
 			className: "flex flex-col"
@@ -483,7 +483,7 @@ function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 									className: "min-w-0 break-words text-title-3-medium text-text-primary",
 									children: B(e)
 								}),
-								c ?? /* @__PURE__ */ (0, K.jsx)(Y, { run: e })
+								c ?? /* @__PURE__ */ (0, K.jsx)(X, { run: e })
 							]
 						}), /* @__PURE__ */ (0, K.jsx)(He, {
 							run: e,
@@ -523,7 +523,7 @@ function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 					row: !0,
 					summary: z("manage:taskCenter.errorDetails"),
 					contentClassName: "pb-5",
-					children: /* @__PURE__ */ (0, K.jsx)(je, {
+					children: /* @__PURE__ */ (0, K.jsx)(Me, {
 						label: z("manage:taskCenter.taskErrorDetails", { task: B(e) }),
 						children: w
 					})
@@ -556,7 +556,7 @@ function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 					row: !0,
 					summary: z("manage:taskCenter.technicalDetails"),
 					contentClassName: "pb-5",
-					children: /* @__PURE__ */ (0, K.jsx)(ke, {
+					children: /* @__PURE__ */ (0, K.jsx)(Ae, {
 						code: JSON.stringify(e.result_summary, null, 2),
 						language: "json",
 						label: z("manage:taskCenter.taskTechnicalDetails", { task: B(e) })
@@ -567,8 +567,8 @@ function X({ run: e, meta: t, children: n, error: r, issues: a, followups: o, fo
 	});
 }
 function tt({ run: e, followups: t, followupTotal: n }) {
-	let r = e.progress_total || 0, i = e.progress_current || 0, a = e.control?.state, o = a && a !== "running", s = o ? J[a] : ve(e) || z("manage:taskCenter.inProgress"), c = re(e.elapsed_seconds), l = [w[e.trigger] || e.trigger, c && z("manage:taskCenter.runningFor", { elapsed: c })].filter(Boolean).join(" · ");
-	return /* @__PURE__ */ (0, K.jsx)(X, {
+	let r = e.progress_total || 0, i = e.progress_current || 0, a = e.control?.state, o = a && a !== "running", s = o ? Y[a] : ye(e) || z("manage:taskCenter.inProgress"), c = ie(e.elapsed_seconds), l = [w[e.trigger] || e.trigger, c && z("manage:taskCenter.runningFor", { elapsed: c })].filter(Boolean).join(" · ");
+	return /* @__PURE__ */ (0, K.jsx)(Z, {
 		run: e,
 		meta: l,
 		followups: t,
@@ -594,11 +594,11 @@ function tt({ run: e, followups: t, followupTotal: n }) {
 		}) : /* @__PURE__ */ (0, K.jsx)(f, { label: s })
 	});
 }
-function Z({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followupFailed: s = 0, followupCancelled: c = 0 }) {
-	let d = !!(r && r.length > 1 && o), f = d ? [z("manage:taskCenter.processedTotal", { count: o }), s ? z("manage:taskCenter.failedCount", { count: s }) : ""].filter(Boolean) : we(V(e) ? {
+function nt({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followupFailed: s = 0, followupCancelled: c = 0 }) {
+	let d = !!(r && r.length > 1 && o), f = d ? [z("manage:taskCenter.processedTotal", { count: o }), s ? z("manage:taskCenter.failedCount", { count: s }) : ""].filter(Boolean) : Te(V(e) ? {
 		...e.result_summary,
 		name: ""
-	} : e.result_summary).filter((t) => t !== R(e) && t !== L(R(e))), p = Te(e), m = _e(e, a), h = re(e.elapsed_seconds), g = r && r.length > 1 ? r[r.length - 1] : void 0, _ = (g ? [
+	} : e.result_summary).filter((t) => t !== R(e) && t !== L(R(e))), p = Ee(e), m = ve(e, a), h = ie(e.elapsed_seconds), g = r && r.length > 1 ? r[r.length - 1] : void 0, _ = (g ? [
 		w[e.trigger] || e.trigger,
 		z("manage:taskCenter.lastRuns", { count: r.length }),
 		`${F(g.finished_at)} – ${F(e.finished_at)}`
@@ -607,7 +607,7 @@ function Z({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followu
 		F(e.finished_at),
 		h && z("manage:taskCenter.took", { elapsed: h })
 	]).filter(Boolean).join(" · ");
-	return /* @__PURE__ */ (0, K.jsxs)(X, {
+	return /* @__PURE__ */ (0, K.jsxs)(Z, {
 		run: e,
 		meta: _,
 		error: R(e),
@@ -618,7 +618,7 @@ function Z({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followu
 			row: !0,
 			summary: z("manage:taskCenter.issueDetailsCount", { count: p.length }),
 			contentClassName: "pb-5",
-			children: /* @__PURE__ */ (0, K.jsx)(je, {
+			children: /* @__PURE__ */ (0, K.jsx)(Me, {
 				label: z("manage:taskCenter.issueDetails"),
 				children: /* @__PURE__ */ (0, K.jsx)("ul", {
 					className: "flex min-w-0 flex-col whitespace-normal",
@@ -628,7 +628,7 @@ function Z({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followu
 							className: "text-body-2-regular text-text-secondary",
 							children: [" · ", [e.provider, e.kind].filter(Boolean).join(" · ")]
 						}) : null] }),
-						children: /* @__PURE__ */ (0, K.jsx)(Me, {
+						children: /* @__PURE__ */ (0, K.jsx)(Ne, {
 							text: e.error,
 							className: "text-caption-1-regular text-text-secondary"
 						})
@@ -665,27 +665,27 @@ function Z({ run: e, followups: t, runs: r, latest: a, followupTotal: o, followu
 			m ? /* @__PURE__ */ (0, K.jsx)(u, {
 				href: m.href,
 				size: "small",
-				trailingIcon: ue,
+				trailingIcon: de,
 				className: "self-start",
 				children: m.label
 			}) : null
 		]
 	});
 }
-function nt({ runs: e, followups: t, counts: r }) {
+function rt({ runs: e, followups: t, counts: r }) {
 	let i = e[0], a = e[e.length - 1], o = M(r, e), s = Math.max(o.total, t.length), c = o.total ? o.settled : t.filter((e) => !P(e)).length, l = o.total ? o.failed : t.filter((e) => e.status === "failed" || e.status === "interrupted").length, u = [
 		w[i.trigger] || i.trigger,
 		e.length > 1 ? z("manage:taskCenter.batches", { count: e.length }) : "",
 		z("manage:taskCenter.startedAt", { time: F(a.started_at || a.finished_at) })
 	].filter(Boolean).join(" · ");
-	return /* @__PURE__ */ (0, K.jsx)(X, {
+	return /* @__PURE__ */ (0, K.jsx)(Z, {
 		run: i,
 		meta: u,
 		followups: t,
 		followupTotal: s,
 		resourceActive: !0,
 		controlled: e,
-		badge: i.control ? /* @__PURE__ */ (0, K.jsx)(Y, { run: i }) : /* @__PURE__ */ (0, K.jsx)(n, {
+		badge: i.control ? /* @__PURE__ */ (0, K.jsx)(X, { run: i }) : /* @__PURE__ */ (0, K.jsx)(n, {
 			color: "blue",
 			children: z("manage:taskStatus.running")
 		}),
@@ -733,7 +733,7 @@ function $({ live: e = !1, paginate: t = !0, children: n }) {
 		onChange: a
 	}) : null] });
 }
-function rt() {
+function it() {
 	let [e, t] = (0, G.useState)(1), [n, i] = (0, G.useState)(20), s = U({
 		queryKey: e === 1 && n === 20 ? C : [
 			...C,
@@ -741,13 +741,13 @@ function rt() {
 			e,
 			n
 		],
-		queryFn: ({ signal: t }) => ie(t, e, n),
-		refetchInterval: (e) => ge(e.state.data),
+		queryFn: ({ signal: t }) => ae(t, e, n),
+		refetchInterval: (e) => _e(e.state.data),
 		placeholderData: (e) => e
 	}), [c, l] = (0, G.useState)(s.data);
 	s.data && s.data !== c && l(s.data);
 	let u = s.data || c, d = s.error ? j(s.error) : "";
-	if (!u) return /* @__PURE__ */ (0, K.jsx)(Ae, { children: /* @__PURE__ */ (0, K.jsx)(h, {
+	if (!u) return /* @__PURE__ */ (0, K.jsx)(je, { children: /* @__PURE__ */ (0, K.jsx)(h, {
 		tone: "error",
 		children: d || z("manage:taskCenter.loadFailed")
 	}) });
@@ -756,8 +756,8 @@ function rt() {
 		...u.skipped || [],
 		...f,
 		...p
-	], g = le(m), _ = new Set(m.map((e) => e.id)), v = (e) => e.filter((e) => !(e.followup_key && e.parent_run_id != null && _.has(e.parent_run_id))), y = v(f), b = u.followup_counts || {}, x = (e) => e.flatMap((e) => g.get(e.id) || []), S = [...y, ...v(p)].filter((e) => M(b, [e]).active > 0 || g.get(e.id)?.some(P)).sort((e, t) => t.id - e.id), w = v(u.running || []), T = v(u.skipped || []), E = y.filter((e) => !S.includes(e) && !T.some((t) => t.id === e.id)), D = (e) => (g.get(e.id) || []).every((e) => e.status === "succeeded" && !N(e)) && M(b, [e]).failed === 0, O = se(E, (e) => fe(e) && (D(e) || Ze.has(e.task_key))), k = oe(S, (e) => e.control?.state || "").sort((e, t) => t.run.id - e.run.id), A = pe(m), ee = !w.length && !S.length && !T.length && !E.length;
-	return /* @__PURE__ */ (0, K.jsxs)(Ae, { children: [
+	], g = ue(m), _ = new Set(m.map((e) => e.id)), v = (e) => e.filter((e) => !(e.followup_key && e.parent_run_id != null && _.has(e.parent_run_id))), y = v(f), b = u.followup_counts || {}, x = (e) => e.flatMap((e) => g.get(e.id) || []), S = [...y, ...v(p)].filter((e) => M(b, [e]).active > 0 || g.get(e.id)?.some(P)).sort((e, t) => t.id - e.id), w = v(u.running || []), T = v(u.skipped || []), E = y.filter((e) => !S.includes(e) && !T.some((t) => t.id === e.id)), D = (e) => (g.get(e.id) || []).every((e) => e.status === "succeeded" && !N(e)) && M(b, [e]).failed === 0, ee = ce(E, (e) => pe(e) && (D(e) || Ze.has(e.task_key))), O = se(S, (e) => e.control?.state || "").sort((e, t) => t.run.id - e.run.id), k = me(m), A = !w.length && !S.length && !T.length && !E.length;
+	return /* @__PURE__ */ (0, K.jsxs)(je, { children: [
 		d ? /* @__PURE__ */ (0, K.jsx)(h, {
 			tone: "error",
 			children: d
@@ -768,8 +768,8 @@ function rt() {
 			children: u.message || z("manage:taskCenter.tableNotReady")
 		}) : null,
 		/* @__PURE__ */ (0, K.jsx)(Ie, {}),
-		ee ? /* @__PURE__ */ (0, K.jsx)(o, {
-			icon: De,
+		A ? /* @__PURE__ */ (0, K.jsx)(o, {
+			icon: Oe,
 			title: z("manage:taskCenter.emptyTitle"),
 			children: z("manage:taskCenter.emptyText")
 		}) : /* @__PURE__ */ (0, K.jsxs)(K.Fragment, { children: [
@@ -781,7 +781,7 @@ function rt() {
 						run: e,
 						followups: g.get(e.id),
 						followupTotal: M(b, [e]).total
-					}, e.id)), k.map(({ run: e, runs: t }) => /* @__PURE__ */ (0, K.jsx)(nt, {
+					}, e.id)), O.map(({ run: e, runs: t }) => /* @__PURE__ */ (0, K.jsx)(rt, {
 						runs: t,
 						followups: x(t),
 						counts: b
@@ -793,9 +793,9 @@ function rt() {
 			}),
 			T.length ? /* @__PURE__ */ (0, K.jsx)(Q, {
 				title: z("manage:taskCenter.skipped"),
-				children: /* @__PURE__ */ (0, K.jsx)($, { children: T.map((e) => /* @__PURE__ */ (0, K.jsx)(Z, {
+				children: /* @__PURE__ */ (0, K.jsx)($, { children: T.map((e) => /* @__PURE__ */ (0, K.jsx)(nt, {
 					run: e,
-					latest: A.has(e.id),
+					latest: k.has(e.id),
 					followups: g.get(e.id)
 				}, e.id)) })
 			}) : null,
@@ -803,12 +803,12 @@ function rt() {
 				title: z("manage:taskCenter.recentlyCompleted"),
 				children: [E.length ? /* @__PURE__ */ (0, K.jsx)($, {
 					paginate: !1,
-					children: O.map(({ run: e, runs: t }) => {
+					children: ee.map(({ run: e, runs: t }) => {
 						let n = M(b, t);
-						return /* @__PURE__ */ (0, K.jsx)(Z, {
+						return /* @__PURE__ */ (0, K.jsx)(nt, {
 							run: e,
 							runs: t,
-							latest: A.has(e.id),
+							latest: k.has(e.id),
 							followups: x(t),
 							followupTotal: n.total,
 							followupFailed: n.failed,
@@ -833,6 +833,6 @@ function rt() {
 		/* @__PURE__ */ (0, K.jsx)(a, {})
 	] });
 }
-export { rt as ActivityPage };
+export { it as ActivityPage };
 
-//# debugId=a563e90d-d131-4724-b9bf-45f4e930b2a6
+//# debugId=3124c8f4-af00-4bee-b981-dac97b913b6a

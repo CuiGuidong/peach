@@ -1487,6 +1487,8 @@ def isolated_temp(base: Path | None = None):
 if __name__ == "__main__":
     # 故障注入的默认错误日志属于当前测试进程，不能写进真实数据目录。
     os.environ["PEACH_REPORTING_TEST_MODE"] = "1"
+    # 命令行跟系统语言（ADR-0159 第三条）；测试按源语言断言，不随跑测试那台机器的语言变。
+    os.environ["PEACH_LANGUAGE"] = "zh-CN"
     from peach import error_reporting, remote_reporting
     remote_reporting.disable_for_process()
     with isolated_temp(), tempfile.TemporaryDirectory(prefix='peach-test-errors-') as error_logs:

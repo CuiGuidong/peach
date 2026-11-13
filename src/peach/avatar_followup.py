@@ -91,7 +91,7 @@ def parse_key(key: str) -> tuple[str, int]:
     prefix, _, rest = str(key).partition(":")
     kind, _, raw = rest.partition(":")
     if prefix != TASK_KEY or kind not in KINDS or not raw.isdigit():
-        raise ValueError(f"认不出这条补头像后继：{key}")
+        raise ValueError(f"unrecognized avatar followup key: {key}")
     return kind, int(raw)
 
 

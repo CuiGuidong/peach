@@ -22,6 +22,7 @@ import {
   deletePerformerVideos, fetchDeletePerformers, fetchDeletePlan, PERFORMER_DELETE_KEY,
   type DeletePerformer, type PerformerDeleteResult,
 } from './performer-delete';
+import { serverLabel } from '../../core/server-text';
 import { t } from '../../i18n';
 
 function PerformerName({ person }: { person: DeletePerformer }) {
@@ -112,7 +113,8 @@ export function PerformerDeleteCard({ toast }: { toast(message: string): void })
   };
 
   const failures = result ? [
-    ...result.blocked, ...result.cleanup_pending,
+    ...result.blocked.map(item => ({ path: item.path, reason: serverLabel(item.reason_code ?? '', item.reason, item.reason_params) })),
+    ...result.cleanup_pending,
     ...result.cache_blocked.map(item => ({ path: item.name, reason: item.reason })),
   ] : [];
   return <section id="batch-delete" className="flex min-w-0 scroll-mt-20 flex-col gap-3" aria-label={t('cleanup:tools.bulkDelete')}>

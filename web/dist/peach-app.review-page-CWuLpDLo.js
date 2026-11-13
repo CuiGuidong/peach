@@ -1,60 +1,60 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "db270c8c-0adf-4a4e-8ab2-f2f9eec005f2", e._sentryDebugIdIdentifier = "sentry-dbid-db270c8c-0adf-4a4e-8ab2-f2f9eec005f2");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ac0bb9ce-3989-4df8-95f8-7ab00035b42c", e._sentryDebugIdIdentifier = "sentry-dbid-ac0bb9ce-3989-4df8-95f8-7ab00035b42c");
 	} catch {}
 })();
-import { $ea3928288112382f$export$439d29a4e110a164 as e, $fe21c36db05242bb$export$a98f0dcb43a68a25 as t, $fe21c36db05242bb$export$d7b12c4107be0d61 as n, Button as r, ButtonLink as i, Checkbox as a, CheckboxGlyph as o, Chip as s, CollapseChevron as c, CollapseRegion as l, DEFAULT_CATEGORY as u, DataTableFooter as d, ENTITY_REVIEW_KINDS as f, Ea as p, EmptyState as m, ExternalLink as h, FIELDSET_FOOT as ee, FilterGlassRows as g, Gg as _, InputBase as v, LinkButton as te, Note as y, REVIEW_CATEGORIES as b, REVIEW_DECISION_LABELS as ne, REVIEW_KEY as re, REVIEW_LABELS as x, REVIEW_QUEUES as ie, REVIEW_QUEUE_LABELS as S, Select as C, SelectItem as w, SelectionActions as T, SelectionDock as ae, SortableBoardTabs as E, TextField as D, Wt as O, __toESM as k, apiGet as A, apiSend as j, avatarInner as M, busyProps as N, canApprove as oe, cardClass as P, commonReviewSources as se, composingKey as F, confirmModal as ce, currentReviewRow as le, cx as I, decisionPayload as ue, decisionReceipt as de, defaultChoice as fe, errorMessage as L, fetchReview as pe, filterReviewRows as me, groupReviewRows as he, isReviewCategory as ge, joinList as _e, l7 as ve, localTime as ye, m7 as be, mirrorText as xe, pendingGenres as Se, queryClient as Ce, quoted as we, recordGenre as R, reloadReview as Te, require_jsx_runtime as Ee, require_react as De, reviewGroupingOptions as Oe, reviewQueueData as ke, reviewQueueOf as Ae, reviewWindow as je, rowEvidence as z, rowFieldName as B, rowSubject as Me, rowTags as Ne, rowTitle as Pe, selectReviewRange as Fe, settleReviewRows as Ie, spinnerHtml as V, submitDecision as Le, t as H, useMutation as Re, useNavigationOrder as ze, useOverlayScrollbar as Be, useQuery as Ve, useViewGlide as U } from "./peach-app.js";
+import { $ea3928288112382f$export$439d29a4e110a164 as e, $fe21c36db05242bb$export$a98f0dcb43a68a25 as t, $fe21c36db05242bb$export$d7b12c4107be0d61 as n, Button as r, ButtonLink as i, Checkbox as a, CheckboxGlyph as o, Chip as s, CollapseChevron as c, CollapseRegion as l, DEFAULT_CATEGORY as u, DataTableFooter as d, ENTITY_REVIEW_KINDS as f, Ea as p, EmptyState as m, ExternalLink as h, FIELDSET_FOOT as ee, FilterGlassRows as g, Gg as _, InputBase as v, LinkButton as te, Note as y, REVIEW_CATEGORIES as b, REVIEW_DECISION_LABELS as ne, REVIEW_KEY as re, REVIEW_LABELS as x, REVIEW_QUEUES as ie, REVIEW_QUEUE_LABELS as S, Select as C, SelectItem as w, SelectionActions as T, SelectionDock as ae, SortableBoardTabs as E, TextField as D, Wt as O, __toESM as k, apiGet as A, apiSend as j, avatarInner as M, busyProps as N, canApprove as oe, cardClass as P, commonReviewSources as se, composingKey as F, confirmModal as ce, currentReviewRow as le, cx as I, decisionPayload as ue, decisionReceipt as de, defaultChoice as fe, errorMessage as L, fetchReview as pe, filterReviewRows as me, groupReviewRows as he, isReviewCategory as ge, joinList as _e, l7 as ve, localTime as ye, m7 as be, mirrorText as xe, pendingGenres as Se, queryClient as Ce, quoted as we, recordGenre as R, reloadReview as Te, require_jsx_runtime as Ee, require_react as De, reviewGroupingOptions as Oe, reviewQueueData as ke, reviewQueueOf as Ae, reviewWindow as je, rowEvidence as z, rowFieldName as B, rowSubject as V, rowTags as Me, rowTitle as Ne, selectReviewRange as Pe, serverLabel as H, settleReviewRows as Fe, spinnerHtml as Ie, submitDecision as Le, t as U, useMutation as Re, useNavigationOrder as ze, useOverlayScrollbar as W, useQuery as Be, useViewGlide as Ve } from "./peach-app.js";
 import { Page as He } from "./peach-app.page-QAncjzM1.js";
 import { DataTable as Ue } from "./peach-app.data-table-C4egVbd2.js";
 import { LEGACY_AVATAR_IMG as We } from "./peach-app.legacy-avatar-NSITxLRS.js";
 // src/react/review/auto-landings.ts
-var W = /* @__PURE__ */ k(De(), 1), G = "/api/review/auto-landings", Ge = "/api/review/auto-landings/revert", Ke = ["review", "auto-landings"], qe = (e) => A(G, e), Je = (e) => A(`${G}?items=${encodeURIComponent(e.join("\n"))}`), K = (e, t) => j(Ge, {
+var G = /* @__PURE__ */ k(De(), 1), Ge = "/api/review/auto-landings", Ke = "/api/review/auto-landings/revert", qe = ["review", "auto-landings"], K = (e) => H(e.field_code ?? "", e.field), q = (e) => H(e.label_code ?? "", e.label), J = (e) => A(Ge, e), Je = (e) => A(`${Ge}?items=${encodeURIComponent(e.join("\n"))}`), Ye = (e, t) => j(Ke, {
 	items: e,
 	token: t
-}), q = (e) => e.at === null ? "" : ye((/* @__PURE__ */ new Date(e.at * 1e3)).toISOString()), J = (e) => e.code || e.name || (e.asset_id ? `#${e.asset_id}` : H("manage:autoLandings.unknownVideo")), Y = (e) => e ? we(e) : H("manage:autoLandings.emptyValue"), Ye = (e) => e.tags.length ? _e(e.tags) : e.value, Xe = (e) => e.tags.length ? H("manage:autoLandings.existingTagsKept") : H("manage:autoLandings.previousValue", { value: e.previous.length ? _e(e.previous.map(Y)) : H("manage:autoLandings.emptyValue") });
-function Ze(e) {
+}), Xe = (e) => e.at === null ? "" : ye((/* @__PURE__ */ new Date(e.at * 1e3)).toISOString()), Y = (e) => e.code || e.name || (e.asset_id ? `#${e.asset_id}` : U("manage:autoLandings.unknownVideo")), Ze = (e) => e ? we(e) : U("manage:autoLandings.emptyValue"), X = (e) => e.tags.length ? _e(e.tags) : e.value, Z = (e) => e.tags.length ? U("manage:autoLandings.existingTagsKept") : U("manage:autoLandings.previousValue", { value: e.previous.length ? _e(e.previous.map(Ze)) : U("manage:autoLandings.emptyValue") });
+function Qe(e) {
 	return [
-		...e.restores.map((e) => H("manage:autoLandings.previewRestore", {
-			video: J(e),
-			field: e.field,
-			current: Y(e.current),
-			previous: Y(e.previous)
+		...e.restores.map((e) => U("manage:autoLandings.previewRestore", {
+			video: Y(e),
+			field: K(e),
+			current: Ze(e.current),
+			previous: Ze(e.previous)
 		})),
-		...e.tags.map((e) => H("manage:autoLandings.previewRemoveTag", {
-			video: J(e),
+		...e.tags.map((e) => U("manage:autoLandings.previewRemoveTag", {
+			video: Y(e),
 			tag: e.tag
 		})),
-		...e.changed.map((e) => e.gone ? H("manage:autoLandings.previewGone", {
-			video: J(e),
-			field: e.field
-		}) : H("manage:autoLandings.previewEdited", {
-			video: J(e),
-			field: e.field
+		...e.changed.map((e) => e.gone ? U("manage:autoLandings.previewGone", {
+			video: Y(e),
+			field: K(e)
+		}) : U("manage:autoLandings.previewEdited", {
+			video: Y(e),
+			field: K(e)
 		}))
 	];
 }
-function X(e) {
-	let t = [e.restores.length ? H("manage:autoLandings.previewRestoreCount", { count: e.restores.length }) : "", e.tags.length ? H("manage:autoLandings.previewRemoveTags", { count: e.tags.length }) : ""].filter(Boolean);
+function $e(e) {
+	let t = [e.restores.length ? U("manage:autoLandings.previewRestoreCount", { count: e.restores.length }) : "", e.tags.length ? U("manage:autoLandings.previewRemoveTags", { count: e.tags.length }) : ""].filter(Boolean);
 	return [
-		t.length ? H("manage:autoLandings.previewRevert", {
+		t.length ? U("manage:autoLandings.previewRevert", {
 			count: e.decisions,
-			details: t.join(H("shell:format.clauseSeparator"))
-		}) : H("manage:autoLandings.previewRevertNothing", { count: e.decisions }),
-		e.changed.length ? H("manage:autoLandings.previewUnchanged", { count: e.changed.length }) : "",
-		H("manage:autoLandings.revertBackupNote")
-	].filter(Boolean).join(H("shell:format.sentenceGap"));
+			details: t.join(U("shell:format.clauseSeparator"))
+		}) : U("manage:autoLandings.previewRevertNothing", { count: e.decisions }),
+		e.changed.length ? U("manage:autoLandings.previewUnchanged", { count: e.changed.length }) : "",
+		U("manage:autoLandings.revertBackupNote")
+	].filter(Boolean).join(U("shell:format.sentenceGap"));
 }
-function Z(e) {
-	let t = [e.restored ? H("manage:autoLandings.resultRestoreCount", { count: e.restored }) : "", e.removed_tags ? H("manage:autoLandings.resultRemovedTags", { count: e.removed_tags }) : ""].filter(Boolean);
-	return t.length ? H("manage:autoLandings.resultSummaryDetails", {
+function et(e) {
+	let t = [e.restored ? U("manage:autoLandings.resultRestoreCount", { count: e.restored }) : "", e.removed_tags ? U("manage:autoLandings.resultRemovedTags", { count: e.removed_tags }) : ""].filter(Boolean);
+	return t.length ? U("manage:autoLandings.resultSummaryDetails", {
 		count: e.decisions,
-		details: t.join(H("shell:format.clauseSeparator"))
-	}) : H("manage:autoLandings.resultSummary", { count: e.decisions });
+		details: t.join(U("shell:format.clauseSeparator"))
+	}) : U("manage:autoLandings.resultSummary", { count: e.decisions });
 }
 // src/react/review/auto-landings-card.tsx
-var Q = Ee(), Qe = H("manage:autoLandings.description");
-function $e({ item: t, openItem: n }) {
+var Q = Ee(), tt = U("manage:autoLandings.description");
+function nt({ item: t, openItem: n }) {
 	let r = t.asset_id && !t.gone ? () => n(t.asset_id) : void 0;
 	return /* @__PURE__ */ (0, Q.jsxs)("span", {
 		className: "flex min-w-0 items-center gap-3",
@@ -70,58 +70,58 @@ function $e({ item: t, openItem: n }) {
 				className: "size-full object-cover"
 			}) : /* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-caption-1-regular text-text-secondary",
-				children: H("manage:shared.noCover")
-			}), /* @__PURE__ */ (0, Q.jsx)(e, { children: H("manage:autoLandings.openVideo", { name: J(t) }) })]
+				children: U("manage:shared.noCover")
+			}), /* @__PURE__ */ (0, Q.jsx)(e, { children: U("manage:autoLandings.openVideo", { name: Y(t) }) })]
 		}), /* @__PURE__ */ (0, Q.jsxs)("span", {
 			className: "flex min-w-0 flex-1 flex-col gap-0.5",
 			children: [/* @__PURE__ */ (0, Q.jsxs)("span", {
 				className: "truncate text-body-medium text-text-primary",
-				children: [J(t), t.assets > 1 ? /* @__PURE__ */ (0, Q.jsx)("small", {
+				children: [Y(t), t.assets > 1 ? /* @__PURE__ */ (0, Q.jsx)("small", {
 					className: "ml-1 text-caption-1-regular text-text-secondary",
-					children: H("manage:autoLandings.fileCount", { count: t.assets })
+					children: U("manage:autoLandings.fileCount", { count: t.assets })
 				}) : null]
 			}), /* @__PURE__ */ (0, Q.jsx)("small", {
 				title: t.name,
 				className: "truncate text-caption-1-regular text-text-secondary",
-				children: t.gone ? H("manage:autoLandings.videoGone") : t.name
+				children: t.gone ? U("manage:autoLandings.videoGone") : t.name
 			})]
 		})]
 	});
 }
-function et({ item: e }) {
+function rt({ item: e }) {
 	return /* @__PURE__ */ (0, Q.jsxs)("span", {
 		className: "flex min-w-0 flex-col gap-0.5",
 		children: [/* @__PURE__ */ (0, Q.jsxs)("span", {
-			title: Ye(e),
+			title: X(e),
 			className: "truncate text-body-regular text-text-primary",
 			children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-text-secondary",
-				children: H("shell:format.labelPrefix", { label: e.field })
-			}), Ye(e)]
+				children: U("shell:format.labelPrefix", { label: K(e) })
+			}), X(e)]
 		}), /* @__PURE__ */ (0, Q.jsx)("small", {
-			title: Xe(e),
+			title: Z(e),
 			className: "truncate text-caption-1-regular text-text-secondary",
-			children: Xe(e)
+			children: Z(e)
 		})]
 	});
 }
-function tt({ locked: e, openItem: t, toast: n }) {
-	let [i, a] = (0, W.useState)([]), [o, s] = (0, W.useState)(null), c = Ve({
-		queryKey: Ke,
-		queryFn: ({ signal: e }) => qe(e)
+function it({ locked: e, openItem: t, toast: n }) {
+	let [i, a] = (0, G.useState)([]), [o, s] = (0, G.useState)(null), c = Be({
+		queryKey: qe,
+		queryFn: ({ signal: e }) => J(e)
 	}), l = c.data?.items ?? [], u = Re({
 		mutationFn: async (e) => {
 			let t = await Je(e), { confirmed: n, result: r } = await ce({
-				title: H("manage:autoLandings.revertTitle"),
-				body: X(t),
-				items: Ze(t),
-				confirmLabel: H("manage:shared.revert"),
-				onConfirm: () => K(t.items, t.token)
+				title: U("manage:autoLandings.revertTitle"),
+				body: $e(t),
+				items: Qe(t),
+				confirmLabel: U("manage:shared.revert"),
+				onConfirm: () => Ye(t.items, t.token)
 			});
 			return n ? r : null;
 		},
 		onSuccess: (e) => {
-			e && (s(e), a([]), n(Z(e)), Ce.invalidateQueries({ queryKey: re }));
+			e && (s(e), a([]), n(et(e)), Ce.invalidateQueries({ queryKey: re }));
 		},
 		onError: (e) => n(L(e))
 	});
@@ -129,26 +129,26 @@ function tt({ locked: e, openItem: t, toast: n }) {
 	let d = [
 		{
 			id: "work",
-			label: H("manage:shared.video"),
+			label: U("manage:shared.video"),
 			width: 300,
 			min: 240,
-			value: (e) => J(e),
-			render: (e) => /* @__PURE__ */ (0, Q.jsx)($e, {
+			value: (e) => Y(e),
+			render: (e) => /* @__PURE__ */ (0, Q.jsx)(nt, {
 				item: e,
 				openItem: t
 			})
 		},
 		{
 			id: "written",
-			label: H("manage:autoLandings.columnWritten"),
+			label: U("manage:autoLandings.columnWritten"),
 			width: 320,
 			min: 220,
-			value: (e) => `${e.field}${Ye(e)}`,
-			render: (e) => /* @__PURE__ */ (0, Q.jsx)(et, { item: e })
+			value: (e) => `${K(e)}${X(e)}`,
+			render: (e) => /* @__PURE__ */ (0, Q.jsx)(rt, { item: e })
 		},
 		{
 			id: "rule",
-			label: H("manage:autoLandings.columnRuleTime"),
+			label: U("manage:autoLandings.columnRuleTime"),
 			width: 176,
 			min: 144,
 			value: (e) => e.at ?? 0,
@@ -157,10 +157,10 @@ function tt({ locked: e, openItem: t, toast: n }) {
 				className: "flex min-w-0 flex-col gap-0.5 text-text-secondary",
 				children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 					className: "truncate text-body-2-regular",
-					children: e.label
+					children: q(e)
 				}), /* @__PURE__ */ (0, Q.jsx)("small", {
 					className: "tabular-nums text-caption-1-regular",
-					children: q(e) || H("manage:autoLandings.timeUnknown")
+					children: Xe(e) || U("manage:autoLandings.timeUnknown")
 				})]
 			})
 		}
@@ -170,35 +170,35 @@ function tt({ locked: e, openItem: t, toast: n }) {
 		className: "flex flex-col gap-4",
 		children: [o ? /* @__PURE__ */ (0, Q.jsxs)(y, {
 			tone: "success",
-			title: Z(o),
+			title: et(o),
 			children: [/* @__PURE__ */ (0, Q.jsx)("p", {
 				className: "text-body-2-regular",
-				children: H("manage:autoLandings.backupDone", { path: o.backup })
+				children: U("manage:autoLandings.backupDone", { path: o.backup })
 			}), o.changed.length ? /* @__PURE__ */ (0, Q.jsxs)("p", {
 				className: "flex flex-wrap items-center gap-x-2 gap-y-1 text-body-2-regular",
-				children: [H("manage:autoLandings.leftUnchanged", { count: o.changed.length }), o.changed.map((e) => e.gone ? /* @__PURE__ */ (0, Q.jsx)("span", {
+				children: [U("manage:autoLandings.leftUnchanged", { count: o.changed.length }), o.changed.map((e) => e.gone ? /* @__PURE__ */ (0, Q.jsx)("span", {
 					className: "text-text-secondary",
-					children: H("manage:autoLandings.deletedAsset", { id: e.asset_id })
+					children: U("manage:autoLandings.deletedAsset", { id: e.asset_id })
 				}, `${e.asset_id}:${e.field}`) : /* @__PURE__ */ (0, Q.jsx)(te, {
 					size: "small",
 					onClick: () => t(e.asset_id),
-					children: J(e)
+					children: Y(e)
 				}, `${e.asset_id}:${e.field}`))]
 			}) : null]
 		}) : null, c.isError ? /* @__PURE__ */ (0, Q.jsx)(y, {
 			tone: "error",
-			title: H("manage:autoLandings.loadFailed"),
+			title: U("manage:autoLandings.loadFailed"),
 			children: L(c.error)
 		}) : l.length ? /* @__PURE__ */ (0, Q.jsx)(Ue, {
-			label: H("manage:autoLandings.title"),
+			label: U("manage:autoLandings.title"),
 			items: l,
 			columns: d,
-			title: H("manage:autoLandings.title"),
+			title: U("manage:autoLandings.title"),
 			titleId: "auto-landings-title",
-			unit: H("manage:autoLandings.unit"),
-			description: Qe,
+			unit: U("manage:autoLandings.unit"),
+			description: tt,
 			rowId: (e) => e.item_key,
-			rowLabel: (e) => `${J(e)} ${e.field}`,
+			rowLabel: (e) => `${Y(e)} ${K(e)}`,
 			selected: i,
 			onSelected: a,
 			actions: (t) => /* @__PURE__ */ (0, Q.jsx)(r, {
@@ -207,15 +207,15 @@ function tt({ locked: e, openItem: t, toast: n }) {
 				disabled: e || !t.length,
 				...N(u.isPending),
 				onClick: () => u.mutate(t.map((e) => e.item_key)),
-				children: H("manage:autoLandings.revertSelected", { count: t.length })
+				children: U("manage:autoLandings.revertSelected", { count: t.length })
 			})
 		}) : null]
 	});
 }
 // src/react/review/bulk-toolbar.tsx
-function nt(e) {
-	let { groupOptions: t, groupBy: n, onGroupBy: i, groups: a, filter: o, onFilter: s, pageKeys: c, selected: l, onSelected: u, selectedRows: d, metadata: f, approvable: p, busy: m, feedback: h, onUnifySource: ee, onRun: _, queueView: v = "pending", queueCounts: te, onQueueChange: y, locked: b, fields: ne, fieldFilter: re, onFieldFilter: x } = e, T = c.filter((e) => l.has(e)), E = T.length > 0 && T.length === c.length, D = se(d), O = f && d.some((e) => (e.candidates?.length || 0) > 1), k = D.length ? H("manage:reviewToolbar.sourceForAll") : H("manage:reviewToolbar.noCommonSource"), A = (0, W.useRef)(null), j = (0, W.useRef)(null), M = (0, W.useRef)(null), [N, oe] = (0, W.useState)(!1), P = U(A, j, "[data-entity-state][aria-pressed=\"true\"]", v);
-	return (0, W.useLayoutEffect)(() => {
+function at(e) {
+	let { groupOptions: t, groupBy: n, onGroupBy: i, groups: a, filter: o, onFilter: s, pageKeys: c, selected: l, onSelected: u, selectedRows: d, metadata: f, approvable: p, busy: m, feedback: h, onUnifySource: ee, onRun: _, queueView: v = "pending", queueCounts: te, onQueueChange: y, locked: b, fields: ne, fieldFilter: re, onFieldFilter: x } = e, T = c.filter((e) => l.has(e)), E = T.length > 0 && T.length === c.length, D = se(d), O = f && d.some((e) => (e.candidates?.length || 0) > 1), k = D.length ? U("manage:reviewToolbar.sourceForAll") : U("manage:reviewToolbar.noCommonSource"), A = (0, G.useRef)(null), j = (0, G.useRef)(null), M = (0, G.useRef)(null), [N, oe] = (0, G.useState)(!1), P = Ve(A, j, "[data-entity-state][aria-pressed=\"true\"]", v);
+	return (0, G.useLayoutEffect)(() => {
 		let e = j.current, t = M.current, n = e?.parentElement, r = e?.closest("[data-review-filter]");
 		if (!e || !t || !n || !r) return;
 		let i = () => oe(t.offsetHeight > 0 && Math.abs(n.getBoundingClientRect().top - t.getBoundingClientRect().top) < 1), a = new ResizeObserver(i);
@@ -226,8 +226,8 @@ function nt(e) {
 		]) a.observe(n);
 		return i(), () => a.disconnect();
 	}, []), /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(g, {
-		label: H("manage:reviewToolbar.filters"),
-		topLabel: H("manage:reviewToolbar.processingStatus"),
+		label: U("manage:reviewToolbar.filters"),
+		topLabel: U("manage:reviewToolbar.processingStatus"),
 		attrs: { "data-review-filter": "" },
 		className: "mb-0 flex-row flex-wrap",
 		topClassName: "max-w-full flex-none",
@@ -241,7 +241,7 @@ function nt(e) {
 		top: /* @__PURE__ */ (0, Q.jsxs)("div", {
 			ref: j,
 			role: "group",
-			"aria-label": H("manage:reviewToolbar.reviewStatus"),
+			"aria-label": U("manage:reviewToolbar.reviewStatus"),
 			"data-entity-states": "",
 			onPointerLeave: P.leave,
 			children: [ie.map((e) => /* @__PURE__ */ (0, Q.jsxs)("button", {
@@ -273,12 +273,12 @@ function nt(e) {
 		}),
 		bottom: c.length ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
 			f && ne.length ? /* @__PURE__ */ (0, Q.jsxs)(C, {
-				"aria-label": H("manage:reviewToolbar.filterField"),
+				"aria-label": U("manage:reviewToolbar.filterField"),
 				size: "sm",
 				prefix: /* @__PURE__ */ (0, Q.jsx)("span", {
 					"data-copy-key": "review.filter.field",
 					className: "pointer-events-auto",
-					children: H("manage:reviewToolbar.field")
+					children: U("manage:reviewToolbar.field")
 				}),
 				selectedKey: re || "*",
 				isDisabled: m,
@@ -287,14 +287,14 @@ function nt(e) {
 				},
 				children: [/* @__PURE__ */ (0, Q.jsx)(w, {
 					id: "*",
-					children: H("manage:shared.all")
+					children: U("manage:shared.all")
 				}), ne.map((e) => /* @__PURE__ */ (0, Q.jsx)(w, {
 					id: e.key,
 					children: `${e.title} · ${e.rows.length}`
 				}, e.key))]
 			}) : null,
 			/* @__PURE__ */ (0, Q.jsx)(C, {
-				"aria-label": H("manage:reviewToolbar.groupBy"),
+				"aria-label": U("manage:reviewToolbar.groupBy"),
 				size: "sm",
 				selectedKey: n,
 				onSelectionChange: (e) => {
@@ -306,16 +306,16 @@ function nt(e) {
 				}, e))
 			}),
 			a.length > 1 ? /* @__PURE__ */ (0, Q.jsxs)(C, {
-				"aria-label": H(n === "field" ? "manage:reviewToolbar.filterFieldGroup" : "manage:reviewToolbar.filterGroup"),
+				"aria-label": U(n === "field" ? "manage:reviewToolbar.filterFieldGroup" : "manage:reviewToolbar.filterGroup"),
 				size: "sm",
-				prefix: H("manage:reviewToolbar.group"),
+				prefix: U("manage:reviewToolbar.group"),
 				selectedKey: o || "*",
 				onSelectionChange: (e) => {
 					e !== null && s(String(e) === "*" ? "" : String(e));
 				},
 				children: [/* @__PURE__ */ (0, Q.jsx)(w, {
 					id: "*",
-					children: H("manage:shared.all")
+					children: U("manage:shared.all")
 				}), a.map((e) => /* @__PURE__ */ (0, Q.jsx)(w, {
 					id: e.key,
 					children: `${e.title} · ${e.rows.length}`
@@ -332,16 +332,16 @@ function nt(e) {
 					for (let t of c) E ? e.delete(t) : e.add(t);
 					u(e);
 				},
-				children: H(E ? "manage:reviewToolbar.clearSelection" : o ? "manage:reviewToolbar.selectGroup" : "manage:reviewToolbar.selectPage")
+				children: U(E ? "manage:reviewToolbar.clearSelection" : o ? "manage:reviewToolbar.selectGroup" : "manage:reviewToolbar.selectPage")
 			})
 		] }) : null
 	}), /* @__PURE__ */ (0, Q.jsxs)(ae, {
-		label: H("manage:reviewToolbar.selectedDock"),
+		label: U("manage:reviewToolbar.selectedDock"),
 		visible: !b && l.size > 0,
-		count: H("manage:reviewToolbar.selectedCount", { count: l.size }),
+		count: U("manage:reviewToolbar.selectedCount", { count: l.size }),
 		children: [
 			O && v !== "ignored" ? /* @__PURE__ */ (0, Q.jsxs)(C, {
-				"aria-label": H("manage:reviewToolbar.sourceForAll"),
+				"aria-label": U("manage:reviewToolbar.sourceForAll"),
 				size: "sm",
 				selectedKey: "",
 				isDisabled: m || !D.length,
@@ -361,34 +361,34 @@ function nt(e) {
 				size: "small",
 				disabled: m || !l.size,
 				onClick: () => _("rejected"),
-				children: H("manage:reviewToolbar.ignoreSelected")
+				children: U("manage:reviewToolbar.ignoreSelected")
 			}),
 			v === "pending" ? /* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: "secondary",
 				size: "small",
 				disabled: m || !l.size,
 				onClick: () => _("skipped"),
-				children: H("manage:reviewToolbar.laterSelected")
+				children: U("manage:reviewToolbar.laterSelected")
 			}) : /* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: v === "ignored" ? "primary" : "secondary",
 				size: "small",
 				disabled: m || !l.size,
 				onClick: () => _("restore"),
-				children: H("manage:reviewToolbar.restoreSelected")
+				children: U("manage:reviewToolbar.restoreSelected")
 			}),
 			v === "ignored" ? null : /* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: "primary",
 				size: "small",
 				disabled: m || !l.size || !p,
 				onClick: () => _("approved"),
-				children: H("manage:reviewToolbar.approveSelected")
+				children: U("manage:reviewToolbar.approveSelected")
 			}),
 			/* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: "ghost",
 				size: "small",
 				disabled: m,
 				onClick: () => u(/* @__PURE__ */ new Set()),
-				children: H("manage:reviewToolbar.deselect")
+				children: U("manage:reviewToolbar.deselect")
 			}),
 			h ? /* @__PURE__ */ (0, Q.jsx)("p", {
 				role: "status",
@@ -399,7 +399,7 @@ function nt(e) {
 	})] });
 }
 // src/react/boardui/components/base/radio/radio.tsx
-var rt = {
+var ot = {
 	sm: {
 		dot: "size-3.5",
 		inner: "size-[5px]",
@@ -417,8 +417,8 @@ var rt = {
 		label: "text-body-medium"
 	}
 };
-function it({ selected: e = !1, size: t = "sm", focusVisible: n = !1, className: r }) {
-	let i = rt[t];
+function st({ selected: e = !1, size: t = "sm", focusVisible: n = !1, className: r }) {
+	let i = ot[t];
 	return /* @__PURE__ */ (0, Q.jsxs)("span", {
 		"aria-hidden": !0,
 		className: I("relative flex shrink-0 items-center justify-center rounded-full", i.dot, n && "ring-2 ring-border-focus-ring ring-offset-2", r),
@@ -429,7 +429,7 @@ function it({ selected: e = !1, size: t = "sm", focusVisible: n = !1, className:
 		]
 	});
 }
-function at({ className: e, children: n, ref: r, ...i }) {
+function ct({ className: e, children: n, ref: r, ...i }) {
 	return /* @__PURE__ */ (0, Q.jsx)(t, {
 		ref: r,
 		...i,
@@ -438,7 +438,7 @@ function at({ className: e, children: n, ref: r, ...i }) {
 	});
 }
 // src/react/boardui/components/base/radio/radio-card.tsx
-function ot({ className: e, title: t, description: r, ref: i, ...a }) {
+function lt({ className: e, title: t, description: r, ref: i, ...a }) {
 	return /* @__PURE__ */ (0, Q.jsx)(n, {
 		ref: i,
 		...a,
@@ -454,7 +454,7 @@ function ot({ className: e, title: t, description: r, ref: i, ...a }) {
 			})]
 		}), /* @__PURE__ */ (0, Q.jsx)("span", {
 			className: "flex shrink-0 items-center py-1",
-			children: /* @__PURE__ */ (0, Q.jsx)(it, {
+			children: /* @__PURE__ */ (0, Q.jsx)(st, {
 				size: "md",
 				selected: e.isSelected,
 				focusVisible: e.isFocusVisible
@@ -591,41 +591,41 @@ var $ = class {
 		}
 		return r;
 	}
-}, st = new class extends $ {}();
-function ct(e, t, n) {
-	return st.diff(e, t, n);
+}, ut = new class extends $ {}();
+function dt(e, t, n) {
+	return ut.diff(e, t, n);
 }
 // node_modules/diff/libesm/util/string.js
-function lt(e, t) {
+function ft(e, t) {
 	let n = 0;
 	for (; n < e.length && n < t.length; n++) if (e[n] != t[n]) return e.slice(0, n);
 	return e.slice(0, n);
 }
-function ut(e, t) {
+function pt(e, t) {
 	let n;
 	if (!e || !t || e[e.length - 1] != t[t.length - 1]) return "";
 	for (n = 0; n < e.length && n < t.length; n++) if (e[e.length - (n + 1)] != t[t.length - (n + 1)]) return e.slice(-n);
 	return e.slice(-n);
 }
-function dt(e, t, n) {
+function mt(e, t, n) {
 	if (e.slice(0, t.length) != t) throw Error(`string ${JSON.stringify(e)} doesn't start with prefix ${JSON.stringify(t)}; this is a bug`);
 	return n + e.slice(t.length);
 }
-function ft(e, t, n) {
+function ht(e, t, n) {
 	if (!t) return e + n;
 	if (e.slice(-t.length) != t) throw Error(`string ${JSON.stringify(e)} doesn't end with suffix ${JSON.stringify(t)}; this is a bug`);
 	return e.slice(0, -t.length) + n;
 }
-function pt(e, t) {
-	return dt(e, t, "");
-}
-function mt(e, t) {
-	return ft(e, t, "");
-}
-function ht(e, t) {
-	return t.slice(0, gt(e, t));
-}
 function gt(e, t) {
+	return mt(e, t, "");
+}
+function _t(e, t) {
+	return ht(e, t, "");
+}
+function vt(e, t) {
+	return t.slice(0, yt(e, t));
+}
+function yt(e, t) {
 	let n = 0;
 	e.length > t.length && (n = e.length - t.length);
 	let r = t.length;
@@ -643,7 +643,7 @@ function gt(e, t) {
 	}
 	return a;
 }
-function _t(e, t) {
+function bt(e, t) {
 	let n = [];
 	for (let r of Array.from(t.segment(e))) {
 		let e = r.segment;
@@ -651,25 +651,25 @@ function _t(e, t) {
 	}
 	return n;
 }
-function vt(e, t) {
-	if (t) return bt(e, t)[1];
+function xt(e, t) {
+	if (t) return Ct(e, t)[1];
 	let n;
 	for (n = e.length - 1; n >= 0 && e[n].match(/\s/); n--);
 	return e.substring(n + 1);
 }
-function yt(e, t) {
-	if (t) return bt(e, t)[0];
+function St(e, t) {
+	if (t) return Ct(e, t)[0];
 	let n = e.match(/^\s*/);
 	return n ? n[0] : "";
 }
-function bt(e, t) {
-	if (!t) return [yt(e), vt(e)];
+function Ct(e, t) {
+	if (!t) return [St(e), xt(e)];
 	if (t.resolvedOptions().granularity != "word") throw Error("The segmenter passed must have a granularity of \"word\"");
-	let n = _t(e, t), r = n[0], i = n[n.length - 1];
+	let n = bt(e, t), r = n[0], i = n[n.length - 1];
 	return [/\s/.test(r) ? r : "", /\s/.test(i) ? i : ""];
 }
 // node_modules/diff/libesm/diff/word.js
-var xt = "a-zA-Z0-9_\\u{AD}\\u{C0}-\\u{D6}\\u{D8}-\\u{F6}\\u{F8}-\\u{2C6}\\u{2C8}-\\u{2D7}\\u{2DE}-\\u{2FF}\\u{1E00}-\\u{1EFF}", St = RegExp(`[${xt}]+|\\s+|[^${xt}]`, "ug");
+var wt = "a-zA-Z0-9_\\u{AD}\\u{C0}-\\u{D6}\\u{D8}-\\u{F6}\\u{F8}-\\u{2C6}\\u{2C8}-\\u{2D7}\\u{2DE}-\\u{2FF}\\u{1E00}-\\u{1EFF}", Tt = RegExp(`[${wt}]+|\\s+|[^${wt}]`, "ug");
 new class extends $ {
 	equals(e, t, n) {
 		return n.ignoreCase && (e = e.toLowerCase(), t = t.toLowerCase()), e.trim() === t.trim();
@@ -679,8 +679,8 @@ new class extends $ {
 		if (t.intlSegmenter) {
 			let r = t.intlSegmenter;
 			if (r.resolvedOptions().granularity != "word") throw Error("The segmenter passed must have a granularity of \"word\"");
-			n = _t(e, r);
-		} else n = e.match(St) || [];
+			n = bt(e, r);
+		} else n = e.match(Tt) || [];
 		let r = [], i = null;
 		return n.forEach((e) => {
 			/\s/.test(e) ? i == null ? r.push(e) : r.push(r.pop() + e) : i != null && /\s/.test(i) ? r[r.length - 1] == i ? r.push(r.pop() + e) : r.push(i + e) : r.push(e), i = e;
@@ -693,57 +693,57 @@ new class extends $ {
 		if (!e || t.oneChangePerToken) return e;
 		let n = null, r = null, i = null;
 		return e.forEach((e) => {
-			e.added ? r = e : e.removed ? i = e : ((r || i) && Ct(n, i, r, e, t.intlSegmenter), n = e, r = null, i = null);
-		}), (r || i) && Ct(n, i, r, null, t.intlSegmenter), e;
+			e.added ? r = e : e.removed ? i = e : ((r || i) && Et(n, i, r, e, t.intlSegmenter), n = e, r = null, i = null);
+		}), (r || i) && Et(n, i, r, null, t.intlSegmenter), e;
 	}
 }();
-function Ct(e, t, n, r, i) {
+function Et(e, t, n, r, i) {
 	if (t && n) {
-		let [a, o] = bt(t.value, i), [s, c] = bt(n.value, i);
+		let [a, o] = Ct(t.value, i), [s, c] = Ct(n.value, i);
 		if (e) {
-			let r = lt(a, s);
-			e.value = ft(e.value, s, r), t.value = pt(t.value, r), n.value = pt(n.value, r);
+			let r = ft(a, s);
+			e.value = ht(e.value, s, r), t.value = gt(t.value, r), n.value = gt(n.value, r);
 		}
 		if (r) {
-			let e = ut(o, c);
-			r.value = dt(r.value, c, e), t.value = mt(t.value, e), n.value = mt(n.value, e);
+			let e = pt(o, c);
+			r.value = mt(r.value, c, e), t.value = _t(t.value, e), n.value = _t(n.value, e);
 		}
 	} else if (n) {
 		if (e) {
-			let e = yt(n.value, i);
+			let e = St(n.value, i);
 			n.value = n.value.substring(e.length);
 		}
 		if (r) {
-			let e = yt(r.value, i);
+			let e = St(r.value, i);
 			r.value = r.value.substring(e.length);
 		}
 	} else if (e && r) {
-		let n = yt(r.value, i), [a, o] = bt(t.value, i), s = lt(n, a);
-		t.value = pt(t.value, s);
-		let c = ut(pt(n, s), o);
-		t.value = mt(t.value, c), r.value = dt(r.value, n, c), e.value = ft(e.value, n, n.slice(0, n.length - c.length));
+		let n = St(r.value, i), [a, o] = Ct(t.value, i), s = ft(n, a);
+		t.value = gt(t.value, s);
+		let c = pt(gt(n, s), o);
+		t.value = _t(t.value, c), r.value = mt(r.value, n, c), e.value = ht(e.value, n, n.slice(0, n.length - c.length));
 	} else if (r) {
-		let e = yt(r.value, i), n = ht(vt(t.value, i), e);
-		t.value = mt(t.value, n);
+		let e = St(r.value, i), n = vt(xt(t.value, i), e);
+		t.value = _t(t.value, n);
 	} else if (e) {
-		let n = ht(vt(e.value, i), yt(t.value, i));
-		t.value = pt(t.value, n);
+		let n = vt(xt(e.value, i), St(t.value, i));
+		t.value = gt(t.value, n);
 	}
 }
 new class extends $ {
 	tokenize(e) {
-		let t = RegExp(`(\\r?\\n)|[${xt}]+|[^\\S\\n\\r]+|[^${xt}]`, "ug");
+		let t = RegExp(`(\\r?\\n)|[${wt}]+|[^\\S\\n\\r]+|[^${wt}]`, "ug");
 		return e.match(t) || [];
 	}
 }(), new class extends $ {
 	constructor() {
-		super(...arguments), this.tokenize = wt;
+		super(...arguments), this.tokenize = Dt;
 	}
 	equals(e, t, n) {
 		return n.ignoreWhitespace ? (n.newlineIsToken && e.includes("\n") || (e = e.trim()), n.newlineIsToken && t.includes("\n") || (t = t.trim())) : n.ignoreNewlineAtEof && !n.newlineIsToken && (e.endsWith("\n") && (e = e.slice(0, -1)), t.endsWith("\n") && (t = t.slice(0, -1))), super.equals(e, t, n);
 	}
 }();
-function wt(e, t) {
+function Dt(e, t) {
 	t.stripTrailingCr && (e = e.replace(/\r\n/g, "\n"));
 	let n = [], r = e.split(/(\n|\r\n)/);
 	r[r.length - 1] || r.pop();
@@ -754,7 +754,7 @@ function wt(e, t) {
 	return n;
 }
 // node_modules/diff/libesm/diff/sentence.js
-function Tt(e) {
+function Ot(e) {
 	return e == "." || e == "!" || e == "?";
 }
 new class extends $ {
@@ -765,7 +765,7 @@ new class extends $ {
 				t.push(e.slice(n));
 				break;
 			}
-			if (Tt(e[r]) && e[r + 1].match(/\s/)) {
+			if (Ot(e[r]) && e[r + 1].match(/\s/)) {
 				for (t.push(e.slice(n, r + 1)), r = n = r + 1; e[r + 1]?.match(/\s/);) r++;
 				t.push(e.slice(n, r + 1)), n = r + 1;
 			}
@@ -778,26 +778,26 @@ new class extends $ {
 	}
 }(), new class extends $ {
 	constructor() {
-		super(...arguments), this.tokenize = wt;
+		super(...arguments), this.tokenize = Dt;
 	}
 	get useLongestToken() {
 		return !0;
 	}
 	castInput(e, t) {
 		let { undefinedReplacement: n, stringifyReplacer: r = (e, t) => t === void 0 ? n : t } = t;
-		return typeof e == "string" ? e : JSON.stringify(Et(e, null, null, r), null, "  ");
+		return typeof e == "string" ? e : JSON.stringify(kt(e, null, null, r), null, "  ");
 	}
 	equals(e, t, n) {
 		return super.equals(e.replace(/,([\r\n])/g, "$1"), t.replace(/,([\r\n])/g, "$1"), n);
 	}
 }();
-function Et(e, t, n, r, i) {
+function kt(e, t, n, r, i) {
 	t ||= [], n ||= [], r && (e = r(i === void 0 ? "" : i, e));
 	let a = 0;
 	for (; a < t.length; a += 1) if (t[a] === e) return n[a];
 	let o;
 	if (Object.prototype.toString.call(e) === "[object Array]") {
-		for (t.push(e), o = Array(e.length), n.push(o), a = 0; a < e.length; a += 1) o[a] = Et(e[a], t, n, r, String(a));
+		for (t.push(e), o = Array(e.length), n.push(o), a = 0; a < e.length; a += 1) o[a] = kt(e[a], t, n, r, String(a));
 		return t.pop(), n.pop(), o;
 	}
 	if (e && e.toJSON && (e = e.toJSON()), typeof e == "object" && e) {
@@ -806,7 +806,7 @@ function Et(e, t, n, r, i) {
 		for (s in e)
  /* istanbul ignore else */
 		Object.prototype.hasOwnProperty.call(e, s) && i.push(s);
-		for (i.sort(), a = 0; a < i.length; a += 1) s = i[a], o[s] = Et(e[s], t, n, r, s);
+		for (i.sort(), a = 0; a < i.length; a += 1) s = i[a], o[s] = kt(e[s], t, n, r, s);
 		t.pop(), n.pop();
 	} else o = e;
 	return o;
@@ -823,8 +823,8 @@ new class extends $ {
 	}
 }();
 // src/react/review/comparison-text.tsx
-function Dt({ value: e, reference: t }) {
-	let n = (0, W.useMemo)(() => t ? ct(t, e).filter((e) => !e.removed) : [{
+function At({ value: e, reference: t }) {
+	let n = (0, G.useMemo)(() => t ? dt(t, e).filter((e) => !e.removed) : [{
 		value: e,
 		added: !1
 	}], [e, t]);
@@ -835,25 +835,25 @@ function Dt({ value: e, reference: t }) {
 	}, t) : /* @__PURE__ */ (0, Q.jsx)("span", { children: e.value }, t)) });
 }
 // src/react/review/candidate-form.tsx
-var Ot = {
-	title: H("manage:shared.title"),
-	original_title: H("manage:reviewCandidate.originalTitle"),
-	runtime: H("manage:reviewCandidate.sourceRuntime"),
-	director: H("manage:reviewCandidate.director"),
+var jt = {
+	title: U("manage:shared.title"),
+	original_title: U("manage:reviewCandidate.originalTitle"),
+	runtime: U("manage:reviewCandidate.sourceRuntime"),
+	director: U("manage:reviewCandidate.director"),
 	label: "Label",
-	poster_url: H("manage:reviewCandidate.poster"),
-	cover_url: H("manage:shared.cover"),
-	screenshot_urls: H("manage:reviewCandidate.screenshots"),
-	trailer_url: H("manage:reviewCandidate.trailer")
-}, kt = "reviewgenretags";
-function At({ tags: e }) {
+	poster_url: U("manage:reviewCandidate.poster"),
+	cover_url: U("manage:shared.cover"),
+	screenshot_urls: U("manage:reviewCandidate.screenshots"),
+	trailer_url: U("manage:reviewCandidate.trailer")
+}, Mt = "reviewgenretags";
+function Nt({ tags: e }) {
 	return e.length ? /* @__PURE__ */ (0, Q.jsx)("datalist", {
-		id: kt,
+		id: Mt,
 		children: e.map((e) => /* @__PURE__ */ (0, Q.jsx)("option", { value: e }, e))
 	}) : null;
 }
-function jt({ candidate: e, row: t }) {
-	let [n, i] = (0, W.useState)(!1), a = (0, W.useId)(), o = Object.entries(e.catalog_evidence || {}).filter(([, e]) => e && e.display_value);
+function Pt({ candidate: e, row: t }) {
+	let [n, i] = (0, G.useState)(!1), a = (0, G.useId)(), o = Object.entries(e.catalog_evidence || {}).filter(([, e]) => e && e.display_value);
 	return o.length ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "min-w-0",
 		children: [/* @__PURE__ */ (0, Q.jsxs)(r, {
@@ -862,11 +862,11 @@ function jt({ candidate: e, row: t }) {
 			leadingIcon: c,
 			"aria-expanded": n,
 			"aria-controls": a,
-			"aria-label": H(n ? "manage:reviewCandidate.collapseEvidence" : "manage:reviewCandidate.expandEvidence", { source: e.source || H("manage:reviewCandidate.thisSource") }),
+			"aria-label": U(n ? "manage:reviewCandidate.collapseEvidence" : "manage:reviewCandidate.expandEvidence", { source: e.source || U("manage:reviewCandidate.thisSource") }),
 			onClick: () => i(!n),
 			children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 				"data-copy-key": "review.card.source_evidence",
-				children: H("manage:reviewCandidate.sourceEvidence")
+				children: U("manage:reviewCandidate.sourceEvidence")
 			}), ` · ${o.length}`]
 		}), /* @__PURE__ */ (0, Q.jsx)(l, {
 			id: a,
@@ -878,11 +878,11 @@ function jt({ candidate: e, row: t }) {
 					children: [
 						/* @__PURE__ */ (0, Q.jsx)("dt", {
 							className: "text-caption-1-regular text-text-tertiary",
-							children: Ot[n] || n
+							children: jt[n] || n
 						}),
 						/* @__PURE__ */ (0, Q.jsx)("dd", {
 							className: "min-w-0 text-body-2-regular break-words text-text-primary",
-							children: /* @__PURE__ */ (0, Q.jsx)(Dt, {
+							children: /* @__PURE__ */ (0, Q.jsx)(At, {
 								value: r.display_value || "",
 								reference: n === t.field && t.current_value ? t.current_value : t.candidates?.find((t) => t.candidate_key !== e.candidate_key && t.catalog_evidence?.[n]?.display_value)?.catalog_evidence?.[n]?.display_value
 							})
@@ -897,16 +897,16 @@ function jt({ candidate: e, row: t }) {
 		})]
 	}) : null;
 }
-function Mt(e) {
+function Ft(e) {
 	let t = e.content_id || e.provider_id;
-	return `${e.source || H("manage:reviewQueue.unspecifiedSource")}${e.official ? ` · ${H("manage:reviewCandidate.officialFirst")}` : ""}${t ? ` · ID ${t}` : ""}`;
+	return `${e.source || U("manage:reviewQueue.unspecifiedSource")}${e.official ? ` · ${U("manage:reviewCandidate.officialFirst")}` : ""}${t ? ` · ID ${t}` : ""}`;
 }
-function Nt({ candidate: e, reference: t }) {
+function It({ candidate: e, reference: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)("span", {
 		className: "flex min-w-0 flex-col gap-2 whitespace-normal wrap-anywhere",
 		children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 			className: "text-body-regular text-text-primary",
-			children: /* @__PURE__ */ (0, Q.jsx)(Dt, {
+			children: /* @__PURE__ */ (0, Q.jsx)(At, {
 				value: e.display_value || "",
 				reference: t
 			})
@@ -916,7 +916,7 @@ function Nt({ candidate: e, reference: t }) {
 		}, e))]
 	});
 }
-function Pt({ row: e, fieldName: t, value: n, onChange: r, locked: i }) {
+function Lt({ row: e, fieldName: t, value: n, onChange: r, locked: i }) {
 	let a = e.candidates || [];
 	return a.length ? a.length === 1 ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex min-w-0 flex-col gap-2",
@@ -924,17 +924,17 @@ function Pt({ row: e, fieldName: t, value: n, onChange: r, locked: i }) {
 			className: "flex min-w-0 flex-col gap-2 rounded-2lg bg-background-primary-default px-4 py-3",
 			children: [/* @__PURE__ */ (0, Q.jsx)("p", {
 				className: "text-body-medium text-text-primary",
-				children: Mt(a[0])
-			}), /* @__PURE__ */ (0, Q.jsx)(Nt, {
+				children: Ft(a[0])
+			}), /* @__PURE__ */ (0, Q.jsx)(It, {
 				candidate: a[0],
 				reference: e.current_value || void 0
 			})]
-		}), /* @__PURE__ */ (0, Q.jsx)(jt, {
+		}), /* @__PURE__ */ (0, Q.jsx)(Pt, {
 			candidate: a[0],
 			row: e
 		})]
-	}) : /* @__PURE__ */ (0, Q.jsx)(at, {
-		"aria-label": H("manage:reviewCandidate.sourceFor", { field: t || H("manage:scanFetch.slowWhatMetadata") }),
+	}) : /* @__PURE__ */ (0, Q.jsx)(ct, {
+		"aria-label": U("manage:reviewCandidate.sourceFor", { field: t || U("manage:scanFetch.slowWhatMetadata") }),
 		value: n,
 		isDisabled: i,
 		onChange: r,
@@ -942,18 +942,18 @@ function Pt({ row: e, fieldName: t, value: n, onChange: r, locked: i }) {
 			className: "flex min-w-0 flex-col gap-3",
 			children: a.map((t) => /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex min-w-0 flex-col gap-1",
-				children: [/* @__PURE__ */ (0, Q.jsx)(ot, {
+				children: [/* @__PURE__ */ (0, Q.jsx)(lt, {
 					value: t.candidate_key,
 					className: "relative items-start",
 					title: /* @__PURE__ */ (0, Q.jsx)("span", {
-						title: Mt(t),
-						children: Mt(t)
+						title: Ft(t),
+						children: Ft(t)
 					}),
-					description: /* @__PURE__ */ (0, Q.jsx)(Nt, {
+					description: /* @__PURE__ */ (0, Q.jsx)(It, {
 						candidate: t,
 						reference: e.current_value || a.find((e) => e.candidate_key !== t.candidate_key)?.display_value
 					})
-				}), /* @__PURE__ */ (0, Q.jsx)(jt, {
+				}), /* @__PURE__ */ (0, Q.jsx)(Pt, {
 					candidate: t,
 					row: e
 				})]
@@ -961,19 +961,19 @@ function Pt({ row: e, fieldName: t, value: n, onChange: r, locked: i }) {
 		})
 	}) : null;
 }
-function Ft({ genre: e, tags: t, locked: n, toast: i }) {
-	let [a, o] = (0, W.useState)(""), [s, c] = (0, W.useState)(""), l = Re({
+function Rt({ genre: e, tags: t, locked: n, toast: i }) {
+	let [a, o] = (0, G.useState)(""), [s, c] = (0, G.useState)(""), l = Re({
 		mutationFn: (t) => R(e, t),
 		onSuccess: async (t, n) => {
-			t.ok ? (i(n ? H("manage:reviewCandidate.mapped", {
+			t.ok ? (i(n ? U("manage:reviewCandidate.mapped", {
 				genre: e,
 				tag: n
-			}) : H("manage:reviewCandidate.markedNonContent", { genre: e })), await Te()) : c(t.error || H("manage:reviewCandidate.mapRejected"));
+			}) : U("manage:reviewCandidate.markedNonContent", { genre: e })), await Te()) : c(t.error || U("manage:reviewCandidate.mapRejected"));
 		},
 		onError: (e) => c(L(e))
 	}), u = () => {
 		let e = a.trim();
-		e ? (c(""), l.mutate(e)) : c(H("manage:reviewCandidate.tagRequired"));
+		e ? (c(""), l.mutate(e)) : c(U("manage:reviewCandidate.tagRequired"));
 	};
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex flex-wrap items-center gap-2",
@@ -984,7 +984,7 @@ function Ft({ genre: e, tags: t, locked: n, toast: i }) {
 				children: e
 			}),
 			/* @__PURE__ */ (0, Q.jsx)(D, {
-				"aria-label": H("manage:reviewCandidate.tagFor", { genre: e }),
+				"aria-label": U("manage:reviewCandidate.tagFor", { genre: e }),
 				value: a,
 				onChange: o,
 				maxLength: 40,
@@ -992,9 +992,9 @@ function Ft({ genre: e, tags: t, locked: n, toast: i }) {
 				className: "min-w-40 flex-1",
 				children: /* @__PURE__ */ (0, Q.jsx)(v, {
 					size: "small",
-					list: t.length ? kt : void 0,
+					list: t.length ? Mt : void 0,
 					autoComplete: "off",
-					placeholder: H("manage:reviewCandidate.tagPlaceholder"),
+					placeholder: U("manage:reviewCandidate.tagPlaceholder"),
 					onKeyDown: (e) => {
 						e.key !== "Enter" || F(e.nativeEvent) || (e.preventDefault(), u());
 					}
@@ -1005,7 +1005,7 @@ function Ft({ genre: e, tags: t, locked: n, toast: i }) {
 				size: "small",
 				disabled: n || l.isPending,
 				onClick: u,
-				children: H("manage:reviewCandidate.map")
+				children: U("manage:reviewCandidate.map")
 			}),
 			/* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: "secondary",
@@ -1014,7 +1014,7 @@ function Ft({ genre: e, tags: t, locked: n, toast: i }) {
 				onClick: () => {
 					c(""), l.mutate("");
 				},
-				children: H("manage:reviewCandidate.notContent")
+				children: U("manage:reviewCandidate.notContent")
 			}),
 			s ? /* @__PURE__ */ (0, Q.jsx)("p", {
 				role: "status",
@@ -1024,22 +1024,22 @@ function Ft({ genre: e, tags: t, locked: n, toast: i }) {
 		]
 	});
 }
-function It({ row: e, tags: t, locked: n, toast: r }) {
+function zt({ row: e, tags: t, locked: n, toast: r }) {
 	let i = Se(e);
 	return i.length ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 		role: "group",
-		"aria-label": H("manage:reviewCandidate.unmappedGenres"),
+		"aria-label": U("manage:reviewCandidate.unmappedGenres"),
 		className: "flex flex-col gap-2 border-t border-separator-border pt-4",
 		children: [/* @__PURE__ */ (0, Q.jsx)("h5", {
 			className: "text-body-2-medium text-text-secondary",
-			children: H("manage:reviewCandidate.unmappedGenresCount", { count: i.length })
+			children: U("manage:reviewCandidate.unmappedGenresCount", { count: i.length })
 		}), /* @__PURE__ */ (0, Q.jsx)("div", {
 			role: "list",
 			className: "flex flex-col",
 			children: i.map((e, i) => /* @__PURE__ */ (0, Q.jsx)("div", {
 				role: "listitem",
 				className: `py-3 first:pt-0 last:pb-0 ${i ? "border-t border-separator-border" : ""}`,
-				children: /* @__PURE__ */ (0, Q.jsx)(Ft, {
+				children: /* @__PURE__ */ (0, Q.jsx)(Rt, {
 					genre: e,
 					tags: t,
 					locked: n,
@@ -1050,14 +1050,14 @@ function It({ row: e, tags: t, locked: n, toast: r }) {
 	}) : null;
 }
 // src/react/review/review-evidence.tsx
-var Lt = (e = "") => /^https?:\/\//i.test(e) ? e : "", Rt = (e = "") => Lt(e) || (e.startsWith("/") && !e.startsWith("//") ? e : "");
-function zt({ url: e }) {
-	let t = Rt(e || "");
-	return /* @__PURE__ */ (0, Q.jsx)(Bt, { source: t }, t);
+var Bt = (e = "") => /^https?:\/\//i.test(e) ? e : "", Vt = (e = "") => Bt(e) || (e.startsWith("/") && !e.startsWith("//") ? e : "");
+function Ht({ url: e }) {
+	let t = Vt(e || "");
+	return /* @__PURE__ */ (0, Q.jsx)(Ut, { source: t }, t);
 }
-function Bt({ source: e }) {
-	let [t, n] = (0, W.useState)("idle");
-	return (0, W.useEffect)(() => {
+function Ut({ source: e }) {
+	let [t, n] = (0, G.useState)("idle");
+	return (0, G.useEffect)(() => {
 		if (t !== "loading") return;
 		let e = setTimeout(() => n("failed"), 3e4);
 		return () => clearTimeout(e);
@@ -1066,10 +1066,10 @@ function Bt({ source: e }) {
 		children: [t === "loading" ? /* @__PURE__ */ (0, Q.jsxs)("span", {
 			role: "status",
 			className: "absolute flex items-center gap-2 text-body-2-regular text-text-secondary",
-			children: [/* @__PURE__ */ (0, Q.jsx)("span", { dangerouslySetInnerHTML: { __html: V(H("manage:reviewEvidence.loadingImage")) } }), H("manage:reviewEvidence.loadingImage")]
+			children: [/* @__PURE__ */ (0, Q.jsx)("span", { dangerouslySetInnerHTML: { __html: Ie(U("manage:reviewEvidence.loadingImage")) } }), U("manage:reviewEvidence.loadingImage")]
 		}) : null, e && (t === "loading" || t === "ready") ? /* @__PURE__ */ (0, Q.jsx)("img", {
 			src: e,
-			alt: H("manage:reviewEvidence.candidateImageAlt"),
+			alt: U("manage:reviewEvidence.candidateImageAlt"),
 			referrerPolicy: "no-referrer",
 			decoding: "async",
 			className: `size-full object-contain ${t === "loading" ? "invisible" : ""}`,
@@ -1079,21 +1079,21 @@ function Bt({ source: e }) {
 			className: "flex flex-col items-center gap-2",
 			children: [t === "failed" ? /* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-body-2-regular text-text-secondary",
-				children: H("manage:reviewEvidence.imageNotFound")
+				children: U("manage:reviewEvidence.imageNotFound")
 			}) : null, /* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: "secondary",
 				size: "small",
-				"aria-label": t === "failed" ? H("manage:reviewEvidence.retryImage") : void 0,
+				"aria-label": t === "failed" ? U("manage:reviewEvidence.retryImage") : void 0,
 				onClick: () => n("loading"),
-				children: H(t === "failed" ? "manage:shared.retryNow" : "manage:reviewEvidence.viewImage")
+				children: U(t === "failed" ? "manage:shared.retryNow" : "manage:reviewEvidence.viewImage")
 			})]
 		}) : /* @__PURE__ */ (0, Q.jsx)("span", {
 			className: "text-body-2-regular text-text-secondary",
-			children: H("manage:reviewEvidence.imageNotFound")
+			children: U("manage:reviewEvidence.imageNotFound")
 		})]
 	});
 }
-function Vt({ asset: t, openItem: n }) {
+function Wt({ asset: t, openItem: n }) {
 	let i = t.name || "";
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex min-w-0 items-center gap-3",
@@ -1108,30 +1108,30 @@ function Vt({ asset: t, openItem: n }) {
 				className: "size-full object-cover"
 			}) : /* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "text-caption-1-regular text-text-secondary",
-				children: H("manage:shared.noCover")
-			}), /* @__PURE__ */ (0, Q.jsx)(e, { children: H("manage:reviewEvidence.openOriginalNamed", { name: i }) })]
+				children: U("manage:shared.noCover")
+			}), /* @__PURE__ */ (0, Q.jsx)(e, { children: U("manage:reviewEvidence.openOriginalNamed", { name: i }) })]
 		}), /* @__PURE__ */ (0, Q.jsxs)("div", {
 			className: "flex min-w-0 flex-col items-start gap-1",
 			children: [/* @__PURE__ */ (0, Q.jsx)("b", {
 				title: i,
 				className: "w-full truncate text-body-medium text-text-primary",
-				children: t.code || i || H("manage:reviewEvidence.originalVideo")
+				children: t.code || i || U("manage:reviewEvidence.originalVideo")
 			}), /* @__PURE__ */ (0, Q.jsx)(r, {
 				variant: "secondary",
 				size: "small",
 				leadingIcon: _,
 				onClick: () => n(t.id),
-				children: H("manage:reviewEvidence.openOriginal")
+				children: U("manage:reviewEvidence.openOriginal")
 			})]
 		})]
 	});
 }
-function Ht({ kind: e, name: t, works: n, avatar: r, openEntity: i }) {
+function Gt({ kind: e, name: t, works: n, avatar: r, openEntity: i }) {
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex min-w-0 items-center gap-3",
 		children: [/* @__PURE__ */ (0, Q.jsx)("button", {
 			type: "button",
-			"aria-label": H("manage:reviewEvidence.openCreator", { name: t }),
+			"aria-label": U("manage:reviewEvidence.openCreator", { name: t }),
 			onClick: () => i(e, t),
 			className: `relative inline-grid size-11 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full bg-background-secondary-default text-caption-1-medium text-text-secondary outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring ${We}`,
 			dangerouslySetInnerHTML: { __html: r }
@@ -1144,19 +1144,19 @@ function Ht({ kind: e, name: t, works: n, avatar: r, openEntity: i }) {
 				children: t
 			}), n ? /* @__PURE__ */ (0, Q.jsx)("small", {
 				className: "tabular-nums text-body-2-regular text-text-secondary",
-				children: H("manage:reviewEvidence.videoCount", { count: n })
+				children: U("manage:reviewEvidence.videoCount", { count: n })
 			}) : null]
 		})]
 	});
 }
-function Ut({ row: e, openItem: t, openEntity: n, onReveal: a, revealing: o, note: s }) {
-	let c = Lt(e.profile_url || ""), l = (e.preview_assets || []).slice(0, 6), u = Math.max(0, Number(e.video_count || e.videos || 0));
+function Kt({ row: e, openItem: t, openEntity: n, onReveal: a, revealing: o, note: s }) {
+	let c = Bt(e.profile_url || ""), l = (e.preview_assets || []).slice(0, 6), u = Math.max(0, Number(e.video_count || e.videos || 0));
 	return /* @__PURE__ */ (0, Q.jsxs)("section", {
 		className: "flex flex-col gap-3",
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)("h5", {
 				className: "text-body-medium text-text-primary",
-				children: H("manage:reviewEvidence.pendingPerson", { name: e.babepedia_name || H("manage:reviewEvidence.unlabeled") })
+				children: U("manage:reviewEvidence.pendingPerson", { name: e.babepedia_name || U("manage:reviewEvidence.unlabeled") })
 			}),
 			/* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex flex-wrap items-center gap-2",
@@ -1167,18 +1167,18 @@ function Ut({ row: e, openItem: t, openEntity: n, onReveal: a, revealing: o, not
 					href: c,
 					target: "_blank",
 					rel: "noopener noreferrer",
-					children: H("manage:reviewEvidence.sourceProfile")
+					children: U("manage:reviewEvidence.sourceProfile")
 				}) : null, /* @__PURE__ */ (0, Q.jsx)(r, {
 					variant: "secondary",
 					size: "small",
 					onClick: () => n("creator", e.creator || ""),
-					children: H("manage:reviewEvidence.viewAllVideos", { count: u })
+					children: U("manage:reviewEvidence.viewAllVideos", { count: u })
 				})]
 			}),
-			/* @__PURE__ */ (0, Q.jsx)(zt, { url: e.preview_url }),
+			/* @__PURE__ */ (0, Q.jsx)(Ht, { url: e.preview_url }),
 			l.length ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)("h5", {
 				className: "text-body-medium text-text-primary",
-				children: H("manage:reviewEvidence.localSamples")
+				children: U("manage:reviewEvidence.localSamples")
 			}), /* @__PURE__ */ (0, Q.jsx)("ul", {
 				className: "flex flex-col gap-1",
 				children: l.map((e) => /* @__PURE__ */ (0, Q.jsxs)("li", {
@@ -1196,15 +1196,15 @@ function Ut({ row: e, openItem: t, openEntity: n, onReveal: a, revealing: o, not
 					}), /* @__PURE__ */ (0, Q.jsx)(r, {
 						variant: "ghost",
 						size: "small",
-						"aria-label": H("manage:reviewEvidence.revealNamed", { name: e.name }),
+						"aria-label": U("manage:reviewEvidence.revealNamed", { name: e.name }),
 						...N(o === e.id),
 						onClick: () => a(e.id),
-						children: H("manage:reviewEvidence.fileLocation")
+						children: U("manage:reviewEvidence.fileLocation")
 					})]
 				}, e.id))
 			})] }) : /* @__PURE__ */ (0, Q.jsx)("p", {
 				className: "text-body-2-regular text-text-secondary",
-				children: H("manage:reviewEvidence.noLocalSamples")
+				children: U("manage:reviewEvidence.noLocalSamples")
 			}),
 			s ? /* @__PURE__ */ (0, Q.jsx)("p", {
 				role: "status",
@@ -1214,8 +1214,8 @@ function Ut({ row: e, openItem: t, openEntity: n, onReveal: a, revealing: o, not
 		]
 	});
 }
-function Wt({ assets: t, picked: n, onPicked: r, locked: i }) {
-	let [a, s] = (0, W.useState)(null), c = new Set(n), l = (e, n) => {
+function qt({ assets: t, picked: n, onPicked: r, locked: i }) {
+	let [a, s] = (0, G.useState)(null), c = new Set(n), l = (e, n) => {
 		if (i) return;
 		let o = new Set(c);
 		if (n && a !== null) {
@@ -1232,17 +1232,17 @@ function Wt({ assets: t, picked: n, onPicked: r, locked: i }) {
 		children: [/* @__PURE__ */ (0, Q.jsx)(T, {
 			prefix: /* @__PURE__ */ (0, Q.jsx)("span", {
 				className: "tabular-nums text-body-2-regular text-text-secondary",
-				children: H("manage:reviewEvidence.selectedOfTotal", {
+				children: U("manage:reviewEvidence.selectedOfTotal", {
 					count: c.size,
 					total: t.length
 				})
 			}),
 			actions: [{
-				label: H("manage:shared.selectAll"),
+				label: U("manage:shared.selectAll"),
 				disabled: i,
 				onPress: () => r(t.map((e) => e.id))
 			}, {
-				label: H("manage:reviewEvidence.clearSelection"),
+				label: U("manage:reviewEvidence.clearSelection"),
 				disabled: i,
 				onPress: () => r([])
 			}]
@@ -1276,7 +1276,7 @@ function Wt({ assets: t, picked: n, onPicked: r, locked: i }) {
 								}
 							})
 						}),
-						/* @__PURE__ */ (0, Q.jsx)(e, { children: H(r ? "manage:reviewEvidence.assetSelected" : "manage:reviewEvidence.assetUnselected", { name: t.name || t.id }) })
+						/* @__PURE__ */ (0, Q.jsx)(e, { children: U(r ? "manage:reviewEvidence.assetSelected" : "manage:reviewEvidence.assetUnselected", { name: t.name || t.id }) })
 					]
 				}, t.id);
 			})
@@ -1284,22 +1284,22 @@ function Wt({ assets: t, picked: n, onPicked: r, locked: i }) {
 	});
 }
 // src/react/review/review-card.tsx
-var Gt = P({
+var Jt = P({
 	variant: "filled",
 	padding: "none",
 	className: "flex flex-col overflow-hidden"
-}), Kt = "flex min-h-6 min-w-0 items-center", qt = 2, Jt = (e) => e === "western_identity" ? "h-review-card-tall" : "h-review-card";
-function Yt(e) {
-	let { category: t, row: n, choice: i, onChoice: o, selected: c, onSelect: l, locked: u, busy: d, problem: h, genreTags: g, onDecide: _, handlers: v, queueView: y = "pending" } = e, b = (0, W.useRef)(!1), re = Be(), x = t === "metadata_fields", ie = f[t] || "", S = String(n.creator || "").trim(), C = !!ie && !!S, w = Pe(t, n), T = B(t, n), ae = Me(t, n), E = z(n), D = Ne(n), O = oe(t, n), k = n.comparison_assets || [], A = n.preview_assets || [], j = ne[n.decision || ""], P = k.length > 1 ? /* @__PURE__ */ (0, Q.jsxs)("div", {
+}), Yt = "flex min-h-6 min-w-0 items-center", Xt = 2, Zt = (e) => e === "western_identity" ? "h-review-card-tall" : "h-review-card";
+function Qt(e) {
+	let { category: t, row: n, choice: i, onChoice: o, selected: c, onSelect: l, locked: u, busy: d, problem: h, genreTags: g, onDecide: _, handlers: v, queueView: y = "pending" } = e, b = (0, G.useRef)(!1), re = W(), x = t === "metadata_fields", ie = f[t] || "", S = String(n.creator || "").trim(), C = !!ie && !!S, w = Ne(t, n), T = B(t, n), ae = V(t, n), E = z(n), D = Me(n), O = oe(t, n), k = n.comparison_assets || [], A = n.preview_assets || [], j = ne[n.decision || ""], P = k.length > 1 ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex flex-col gap-3",
-		children: [k.slice(0, qt).map((e) => /* @__PURE__ */ (0, Q.jsx)(Vt, {
+		children: [k.slice(0, Xt).map((e) => /* @__PURE__ */ (0, Q.jsx)(Wt, {
 			asset: e,
 			openItem: v.openItem
-		}, e.id)), k.length > qt ? /* @__PURE__ */ (0, Q.jsx)("p", {
+		}, e.id)), k.length > Xt ? /* @__PURE__ */ (0, Q.jsx)("p", {
 			className: "text-body-2-regular text-text-secondary",
-			children: H("manage:reviewCard.moreComparison", { count: k.length - qt })
+			children: U("manage:reviewCard.moreComparison", { count: k.length - Xt })
 		}) : null]
-	}) : C ? /* @__PURE__ */ (0, Q.jsx)(Ht, {
+	}) : C ? /* @__PURE__ */ (0, Q.jsx)(Gt, {
 		kind: ie,
 		name: S,
 		works: Number(n.video_count || n.videos || 0),
@@ -1310,7 +1310,7 @@ function Yt(e) {
 			image_version: n.image_version,
 			avatar_focus: n.avatar_focus
 		} : null, null, ie)
-	}) : n.asset_id ? /* @__PURE__ */ (0, Q.jsx)(Vt, {
+	}) : n.asset_id ? /* @__PURE__ */ (0, Q.jsx)(Wt, {
 		openItem: v.openItem,
 		asset: {
 			id: n.asset_id,
@@ -1318,7 +1318,7 @@ function Yt(e) {
 			code: n.code,
 			preview_url: n.asset_preview_url
 		}
-	}) : null, se = x ? /* @__PURE__ */ (0, Q.jsx)(Pt, {
+	}) : null, se = x ? /* @__PURE__ */ (0, Q.jsx)(Lt, {
 		row: n,
 		fieldName: T,
 		value: i.candidateKey,
@@ -1327,7 +1327,7 @@ function Yt(e) {
 			candidateKey: e
 		}),
 		locked: u
-	}) : t === "creator_tags" ? A.length ? /* @__PURE__ */ (0, Q.jsx)(Wt, {
+	}) : t === "creator_tags" ? A.length ? /* @__PURE__ */ (0, Q.jsx)(qt, {
 		assets: A,
 		picked: i.assets,
 		locked: u,
@@ -1338,17 +1338,17 @@ function Yt(e) {
 	}) : /* @__PURE__ */ (0, Q.jsx)(m, {
 		size: "compact",
 		icon: p,
-		title: H("manage:reviewCard.noFramesTitle"),
-		children: n.video_count ? H("manage:reviewCard.noFramesBody", { count: n.video_count }) : H("manage:reviewCard.noFramesBodyUncounted")
-	}) : t === "fc2_similarity" ? null : t === "western_identity" ? /* @__PURE__ */ (0, Q.jsx)(Ut, {
+		title: U("manage:reviewCard.noFramesTitle"),
+		children: n.video_count ? U("manage:reviewCard.noFramesBody", { count: n.video_count }) : U("manage:reviewCard.noFramesBodyUncounted")
+	}) : t === "fc2_similarity" ? null : t === "western_identity" ? /* @__PURE__ */ (0, Q.jsx)(Kt, {
 		row: n,
 		openItem: v.openItem,
 		openEntity: v.openEntity,
 		onReveal: v.onReveal,
 		revealing: v.revealing,
 		note: v.revealNote
-	}) : /* @__PURE__ */ (0, Q.jsx)(zt, { url: n.preview_url }), F = C ? P : T ? /* @__PURE__ */ (0, Q.jsxs)("h4", {
-		className: I(Kt, "flex-wrap gap-2"),
+	}) : /* @__PURE__ */ (0, Q.jsx)(Ht, { url: n.preview_url }), F = C ? P : T ? /* @__PURE__ */ (0, Q.jsxs)("h4", {
+		className: I(Yt, "flex-wrap gap-2"),
 		children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 			title: T,
 			className: "flex max-w-full min-w-0 overflow-hidden rounded-md",
@@ -1363,7 +1363,7 @@ function Yt(e) {
 			children: ae
 		})]
 	}) : /* @__PURE__ */ (0, Q.jsx)("h4", {
-		className: Kt,
+		className: Yt,
 		children: /* @__PURE__ */ (0, Q.jsx)("span", {
 			title: w,
 			className: "min-w-0 truncate text-body-medium text-text-primary",
@@ -1373,13 +1373,13 @@ function Yt(e) {
 	return /* @__PURE__ */ (0, Q.jsxs)("section", {
 		"aria-label": w,
 		"data-review-key": n.item_key,
-		className: I(Gt, Jt(t)),
+		className: I(Jt, Zt(t)),
 		children: [
 			/* @__PURE__ */ (0, Q.jsxs)("header", {
 				className: "flex min-w-0 shrink-0 items-center gap-2 border-b border-separator-border px-5 py-4",
 				children: [
 					u ? null : /* @__PURE__ */ (0, Q.jsx)("span", {
-						className: I(Kt, "shrink-0"),
+						className: I(Yt, "shrink-0"),
 						onPointerDownCapture: (e) => {
 							b.current = e.shiftKey;
 						},
@@ -1388,7 +1388,7 @@ function Yt(e) {
 						},
 						children: /* @__PURE__ */ (0, Q.jsx)(a, {
 							isSelected: c,
-							"aria-label": H("manage:reviewCard.selectItem", { title: w }),
+							"aria-label": U("manage:reviewCard.selectItem", { title: w }),
 							onChange: (e) => l(b.current, e)
 						})
 					}),
@@ -1411,16 +1411,16 @@ function Yt(e) {
 					children: [
 						n.source_name ? /* @__PURE__ */ (0, Q.jsx)("p", {
 							className: "text-body-2-regular text-text-secondary",
-							children: H("manage:reviewCard.sourceSpelling", { name: n.source_name })
+							children: U("manage:reviewCard.sourceSpelling", { name: n.source_name })
 						}) : null,
 						!C && (n.board || n.assets) ? /* @__PURE__ */ (0, Q.jsx)("p", {
 							className: "text-body-2-regular text-text-secondary",
-							children: H("manage:reviewCard.comparisonFiles", { count: Number(n.video_count || n.assets || 0) })
+							children: U("manage:reviewCard.comparisonFiles", { count: Number(n.video_count || n.assets || 0) })
 						}) : null,
 						!C && P ? P : null,
 						x && (E || n.current_value !== void 0) ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 							role: "region",
-							"aria-label": H("manage:reviewCard.currentInfo"),
+							"aria-label": U("manage:reviewCard.currentInfo"),
 							className: "flex min-w-0 flex-col gap-1 border-b border-separator-border pb-4",
 							children: [
 								/* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -1428,23 +1428,23 @@ function Yt(e) {
 									children: [/* @__PURE__ */ (0, Q.jsx)("h5", {
 										"data-copy-key": "review.card.current_value",
 										className: "text-caption-1-medium text-text-secondary",
-										children: H("manage:reviewCard.currentValue")
+										children: U("manage:reviewCard.currentValue")
 									}), n.current_owner?.startsWith("user:") || n.current_owner?.startsWith("review:") ? /* @__PURE__ */ (0, Q.jsx)(s, {
 										variant: "caption",
 										color: "neutral",
-										children: H("manage:reviewCard.manuallyConfirmed")
+										children: U("manage:reviewCard.manuallyConfirmed")
 									}) : null]
 								}),
 								/* @__PURE__ */ (0, Q.jsx)("p", {
 									className: "text-body-2-regular text-text-primary wrap-anywhere",
-									children: n.current_value === void 0 ? E : n.current_value ? /* @__PURE__ */ (0, Q.jsx)(Dt, {
+									children: n.current_value === void 0 ? E : n.current_value ? /* @__PURE__ */ (0, Q.jsx)(At, {
 										value: n.current_value,
 										reference: (n.candidates?.find((e) => e.candidate_key === i.candidateKey) || n.candidates?.[0])?.display_value
-									}) : H("manage:reviewCard.noMetadata")
+									}) : U("manage:reviewCard.noMetadata")
 								}),
 								n.videos === void 0 ? null : /* @__PURE__ */ (0, Q.jsx)("p", {
 									className: "text-caption-1-regular text-text-secondary",
-									children: H(n.asset_path ? "manage:reviewCard.matchingFiles" : "manage:reviewCard.sameCodeFiles", { count: Number(n.videos) })
+									children: U(n.asset_path ? "manage:reviewCard.matchingFiles" : "manage:reviewCard.sameCodeFiles", { count: Number(n.videos) })
 								})
 							]
 						}) : null,
@@ -1456,7 +1456,7 @@ function Yt(e) {
 								children: e
 							}, e)) : /* @__PURE__ */ (0, Q.jsx)("small", {
 								className: "text-body-2-regular text-text-secondary",
-								children: H("manage:reviewCard.noPendingTags")
+								children: U("manage:reviewCard.noPendingTags")
 							})
 						}) : null,
 						x ? /* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -1465,16 +1465,16 @@ function Yt(e) {
 								className: "text-caption-1-medium text-text-secondary",
 								children: [/* @__PURE__ */ (0, Q.jsx)("span", {
 									"data-copy-key": "review.card.candidate_sources",
-									children: H("manage:reviewCard.candidateSources")
+									children: U("manage:reviewCard.candidateSources")
 								}), ` · ${n.candidates?.length || 0}`]
 							}), n.current_value || (n.candidates?.length || 0) > 1 ? /* @__PURE__ */ (0, Q.jsx)("span", {
 								"data-copy-key": n.current_value ? "review.card.compare_current" : "review.card.compare_sources",
 								className: "text-caption-1-regular text-text-tertiary",
-								children: n.current_value ? H("manage:reviewCard.comparedToCurrent") : H("manage:reviewCard.sourceDifferences")
+								children: n.current_value ? U("manage:reviewCard.comparedToCurrent") : U("manage:reviewCard.sourceDifferences")
 							}) : null]
 						}) : null,
 						se,
-						/* @__PURE__ */ (0, Q.jsx)(It, {
+						/* @__PURE__ */ (0, Q.jsx)(zt, {
 							row: n,
 							tags: g,
 							locked: u,
@@ -1497,7 +1497,7 @@ function Yt(e) {
 						disabled: u,
 						...N(d),
 						onClick: () => _("rejected"),
-						children: H("manage:shared.ignore")
+						children: U("manage:shared.ignore")
 					}),
 					y === "pending" ? /* @__PURE__ */ (0, Q.jsx)(r, {
 						variant: "secondary",
@@ -1505,23 +1505,23 @@ function Yt(e) {
 						disabled: u,
 						...N(d),
 						onClick: () => _("skipped"),
-						children: H("manage:reviewDecision.later")
+						children: U("manage:reviewDecision.later")
 					}) : /* @__PURE__ */ (0, Q.jsx)(r, {
 						variant: y === "ignored" ? "primary" : "secondary",
 						size: "small",
 						disabled: u,
 						...N(d),
 						onClick: () => _("restore"),
-						children: H("manage:reviewDecision.moveToPending")
+						children: U("manage:reviewDecision.moveToPending")
 					}),
 					y === "ignored" ? null : /* @__PURE__ */ (0, Q.jsx)(r, {
 						variant: "primary",
 						size: "small",
 						disabled: u || !O,
 						...N(d),
-						title: O ? void 0 : H("manage:reviewCard.cannotApproveHint"),
+						title: O ? void 0 : U("manage:reviewCard.cannotApproveHint"),
 						onClick: () => _("approved"),
-						children: H(O ? "manage:reviewDecision.approve" : "manage:reviewCard.cannotApprove")
+						children: U(O ? "manage:reviewDecision.approve" : "manage:reviewCard.cannotApprove")
 					}),
 					h ? /* @__PURE__ */ (0, Q.jsx)("p", {
 						role: "status",
@@ -1534,18 +1534,18 @@ function Yt(e) {
 	});
 }
 // src/react/review/review-page.tsx
-var Xt = "flex cursor-pointer items-center justify-between gap-2";
-function Zt(e) {
-	let t = ze("review").keys.filter(ge), [n, i] = (0, W.useState)(() => matchMedia("(max-width:900px)").matches);
-	(0, W.useEffect)(() => {
+var $t = "flex cursor-pointer items-center justify-between gap-2";
+function en(e) {
+	let t = ze("review").keys.filter(ge), [n, i] = (0, G.useState)(() => matchMedia("(max-width:900px)").matches);
+	(0, G.useEffect)(() => {
 		let e = matchMedia("(max-width:900px)"), t = () => i(e.matches);
 		return e.addEventListener("change", t), () => e.removeEventListener("change", t);
 	}, []);
-	let { route: a, openItem: o, openEntity: s, revealSource: c, toast: l, readOnly: f, readOnlyMessage: p, writerUrl: ee } = e, [g, _] = (0, W.useState)(ge(e.category) ? e.category : u), [v, te] = (0, W.useState)(() => Ae(e.queue)), [ne, S] = (0, W.useState)("candidates"), [C, w] = (0, W.useState)(""), [T, ae] = (0, W.useState)(""), [D, O] = (0, W.useState)(1), [k, A] = (0, W.useState)(20), [j, M] = (0, W.useState)(/* @__PURE__ */ new Set()), [N, P] = (0, W.useState)(/* @__PURE__ */ new Map()), [se, F] = (0, W.useState)(/* @__PURE__ */ new Map()), [ce, I] = (0, W.useState)(""), _e = (0, W.useRef)(null), [ve, ye] = (0, W.useState)(0), [Se, Ce] = (0, W.useState)(""), we = (0, W.useRef)(!0);
-	(0, W.useEffect)(() => () => {
+	let { route: a, openItem: o, openEntity: s, revealSource: c, toast: l, readOnly: f, readOnlyMessage: p, writerUrl: ee } = e, [g, _] = (0, G.useState)(ge(e.category) ? e.category : u), [v, te] = (0, G.useState)(() => Ae(e.queue)), [ne, S] = (0, G.useState)("candidates"), [C, w] = (0, G.useState)(""), [T, ae] = (0, G.useState)(""), [D, O] = (0, G.useState)(1), [k, A] = (0, G.useState)(20), [j, M] = (0, G.useState)(/* @__PURE__ */ new Set()), [N, P] = (0, G.useState)(/* @__PURE__ */ new Map()), [se, F] = (0, G.useState)(/* @__PURE__ */ new Map()), [ce, I] = (0, G.useState)(""), _e = (0, G.useRef)(null), [ve, ye] = (0, G.useState)(0), [Se, Ce] = (0, G.useState)(""), we = (0, G.useRef)(!0);
+	(0, G.useEffect)(() => () => {
 		we.current = !1;
 	}, []);
-	let R = Ve({
+	let R = Be({
 		queryKey: re,
 		queryFn: ({ signal: e }) => pe(e)
 	}), Te = R.data || {
@@ -1561,8 +1561,8 @@ function Zt(e) {
 				counts: {}
 			}
 		}
-	}, Ee = ke(Te, v), De = R.data ? Object.fromEntries(ie.map((e) => [e, b.reduce((t, n) => t + Number(ke(Te, e).counts[n] || 0), 0)])) : void 0, z = Ee.sections[g] || [], B = g === "metadata_fields", Me = f;
-	(0, W.useEffect)(() => {
+	}, Ee = ke(Te, v), De = R.data ? Object.fromEntries(ie.map((e) => [e, b.reduce((t, n) => t + Number(ke(Te, e).counts[n] || 0), 0)])) : void 0, z = Ee.sections[g] || [], B = g === "metadata_fields", V = f;
+	(0, G.useEffect)(() => {
 		let e = new Set(z.map((e) => e.item_key));
 		M((t) => {
 			let n = [...t].filter((t) => e.has(t));
@@ -1575,54 +1575,54 @@ function Zt(e) {
 			return n.length === t.size ? t : new Map(n);
 		});
 	}, [z]);
-	let Ne = (0, W.useMemo)(() => B ? he(z, "field") : [], [z, B]), Pe = Ne.some((e) => e.key === T) ? T : "", V = (0, W.useMemo)(() => B ? me(z, "field", Pe) : z, [
+	let Me = (0, G.useMemo)(() => B ? he(z, "field") : [], [z, B]), Ne = Me.some((e) => e.key === T) ? T : "", H = (0, G.useMemo)(() => B ? me(z, "field", Ne) : z, [
 		z,
 		B,
-		Pe
-	]), Be = (0, W.useMemo)(() => Oe(V, B), [V, B]), U = Be.some(([e]) => e === ne) ? ne : "candidates", Ue = (0, W.useMemo)(() => he(V, U), [V, U]), We = Ue.some((e) => e.key === C) ? C : "", G = (0, W.useMemo)(() => me(V, U, We), [
-		V,
-		U,
-		We
-	]), Ge = (0, W.useMemo)(() => je(G, D, k), [
-		G,
+		Ne
+	]), Ie = (0, G.useMemo)(() => Oe(H, B), [H, B]), W = Ie.some(([e]) => e === ne) ? ne : "candidates", Ve = (0, G.useMemo)(() => he(H, W), [H, W]), Ue = Ve.some((e) => e.key === C) ? C : "", We = (0, G.useMemo)(() => me(H, W, Ue), [
+		H,
+		W,
+		Ue
+	]), Ge = (0, G.useMemo)(() => je(We, D, k), [
+		We,
 		D,
 		k
-	]), Ke = Ge.rows.map((e) => e.item_key), qe = new Set(Ke), Je = Ue.map((e) => ({
+	]), Ke = Ge.rows.map((e) => e.item_key), qe = new Set(Ke), K = Ve.map((e) => ({
 		...e,
 		rows: e.rows.filter((e) => qe.has(e.item_key))
-	})).filter((e) => e.rows.length), K = (e) => N.get(e.item_key) || fe(e), q = (0, W.useMemo)(() => z.filter((e) => j.has(e.item_key)), [z, j]), J = (e) => {
+	})).filter((e) => e.rows.length), q = (e) => N.get(e.item_key) || fe(e), J = (0, G.useMemo)(() => z.filter((e) => j.has(e.item_key)), [z, j]), Je = (e) => {
 		let t = new Set(e);
 		M((e) => new Set([...e].filter((e) => !t.has(e)))), P((e) => new Map([...e].filter(([e]) => !t.has(e)))), F((e) => new Map([...e].filter(([e]) => !t.has(e))));
-	}, Y = (e, t) => F((n) => new Map(n).set(e, t)), Ye = () => {
+	}, Ye = (e, t) => F((n) => new Map(n).set(e, t)), Xe = () => {
 		S("candidates"), w(""), ae(""), O(1), M(/* @__PURE__ */ new Set()), P(/* @__PURE__ */ new Map()), F(/* @__PURE__ */ new Map()), I(""), _e.current = null;
-	}, Xe = (e) => {
-		_(e), Ye(), a({
+	}, Y = (e) => {
+		_(e), Xe(), a({
 			category: e === "metadata_fields" ? "" : e,
 			queue: v === "pending" ? "" : v
 		});
 	}, Ze = (e) => {
-		te(e), Ye(), a({
+		te(e), Xe(), a({
 			category: g === "metadata_fields" ? "" : g,
 			queue: e === "pending" ? "" : e
 		});
 	}, X = Re({
-		mutationFn: ({ row: e, status: t, category: n }) => Le(ue(n, le(n, e), t, K(e))),
+		mutationFn: ({ row: e, status: t, category: n }) => Le(ue(n, le(n, e), t, q(e))),
 		onSuccess: (e, { row: t, status: n, category: r }) => {
-			e.ok ? (Ie(r, [t.item_key], n), J([t.item_key]), l(de(n))) : Y(t.item_key, e.error || H("manage:reviewPage.decisionRejected"));
+			e.ok ? (Fe(r, [t.item_key], n), Je([t.item_key]), l(de(n))) : Ye(t.item_key, e.error || U("manage:reviewPage.decisionRejected"));
 		},
-		onError: (e, { row: t }) => Y(t.item_key, L(e))
+		onError: (e, { row: t }) => Ye(t.item_key, L(e))
 	}), Z = Re({
 		mutationFn: async ({ status: e, category: t, rows: n }) => {
 			let r = [], i = [];
 			for (let [a, o] of n.entries()) {
 				if (!we.current) break;
-				I(H("manage:reviewPage.processingProgress", {
+				I(U("manage:reviewPage.processingProgress", {
 					current: a,
 					total: n.length
 				}));
 				try {
-					let n = await Le(ue(t, le(t, o), e, K(o)));
-					if (!n.ok) throw Error(n.error || H("manage:reviewPage.itemNotAccepted"));
+					let n = await Le(ue(t, le(t, o), e, q(o)));
+					if (!n.ok) throw Error(n.error || U("manage:reviewPage.itemNotAccepted"));
 					r.push(o.item_key);
 				} catch (e) {
 					i.push([o.item_key, L(e)]);
@@ -1636,42 +1636,42 @@ function Zt(e) {
 			};
 		},
 		onSuccess: ({ status: e, category: t, done: n, failures: r }) => {
-			Ie(t, n, e), J(n), r.forEach(([e, t]) => Y(e, t)), I("");
+			Fe(t, n, e), Je(n), r.forEach(([e, t]) => Ye(e, t)), I("");
 			let i = {
 				approved: "manage:reviewPage.approvedCount",
 				rejected: "manage:reviewPage.ignoredCount",
 				skipped: "manage:reviewPage.laterCount",
 				restore: "manage:reviewPage.pendingCount"
 			}[e];
-			l(H(i, { count: n.length }) + (r.length ? H("manage:reviewPage.notCompletedSuffix", { count: r.length }) : ""));
+			l(U(i, { count: n.length }) + (r.length ? U("manage:reviewPage.notCompletedSuffix", { count: r.length }) : ""));
 		},
 		onError: (e) => {
 			I(L(e));
 		}
 	}), Qe = (e) => {
-		!Z.isPending && q.length && (e === "approved" && B && q.some((e) => !K(e).candidateKey) ? I(H("manage:reviewPage.chooseSourceFirst")) : (I(""), Z.mutate({
+		!Z.isPending && J.length && (e === "approved" && B && J.some((e) => !q(e).candidateKey) ? I(U("manage:reviewPage.chooseSourceFirst")) : (I(""), Z.mutate({
 			status: e,
 			category: g,
-			rows: q
+			rows: J
 		})));
 	}, $e = (e) => {
 		P((t) => {
 			let n = new Map(t);
-			for (let t of q) {
+			for (let t of J) {
 				let r = t.candidates?.find((t) => t.source === e);
 				r && n.set(t.item_key, {
-					...K(t),
+					...q(t),
 					candidateKey: r.candidate_key
 				});
 			}
 			return n;
-		}), I(H("manage:reviewPage.sourceChosen", { source: e }));
+		}), I(U("manage:reviewPage.sourceChosen", { source: e }));
 	}, et = async (e) => {
 		if (ve) return;
 		ye(e), Ce("");
 		let t = await c(e);
 		we.current && (ye(0), Ce(t));
-	}, rt = xe(Te.mirror, p), it = Te.genre_tags || [], at = {
+	}, tt = xe(Te.mirror, p), nt = Te.genre_tags || [], rt = {
 		openItem: o,
 		openEntity: s,
 		onReveal: et,
@@ -1682,19 +1682,19 @@ function Zt(e) {
 	return /* @__PURE__ */ (0, Q.jsx)(He, { children: /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex flex-col gap-5 pb-10",
 		children: [
-			Me ? /* @__PURE__ */ (0, Q.jsx)(y, {
+			V ? /* @__PURE__ */ (0, Q.jsx)(y, {
 				tone: "warning",
-				title: H("manage:reviewPage.readOnly"),
+				title: U("manage:reviewPage.readOnly"),
 				extra: ee ? /* @__PURE__ */ (0, Q.jsx)("p", {
 					className: "text-body-2-regular",
 					children: /* @__PURE__ */ (0, Q.jsx)(h, {
 						href: ee,
-						children: H("manage:reviewPage.goToPrimary")
+						children: U("manage:reviewPage.goToPrimary")
 					})
 				}) : void 0,
-				children: rt
+				children: tt
 			}) : null,
-			/* @__PURE__ */ (0, Q.jsx)(At, { tags: it }),
+			/* @__PURE__ */ (0, Q.jsx)(Nt, { tags: nt }),
 			/* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex flex-col gap-5 review-split:flex-row review-split:items-start review-split:gap-6",
 				children: [/* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -1702,17 +1702,17 @@ function Zt(e) {
 					className: "w-full min-w-0 review-split:sticky review-split:top-topbar review-split:w-review-tabs review-split:shrink-0",
 					children: [/* @__PURE__ */ (0, Q.jsx)("h2", {
 						id: "reviewcategories",
-						children: H("manage:reviewPage.categories")
+						children: U("manage:reviewPage.categories")
 					}), /* @__PURE__ */ (0, Q.jsx)(E, {
 						group: "review",
-						label: H("manage:reviewPage.categories"),
+						label: U("manage:reviewPage.categories"),
 						value: g,
-						onChange: Xe,
+						onChange: Y,
 						orientation: n ? "horizontal" : "vertical",
 						panelPrefix: "review",
 						sectionItems: !0,
 						className: "",
-						itemClassName: Xt,
+						itemClassName: $t,
 						disabled: X.isPending || Z.isPending,
 						tabs: b.map((e) => {
 							let t = Number(Ee.counts[e] || 0);
@@ -1732,45 +1732,45 @@ function Zt(e) {
 					"aria-labelledby": `review-tab-${g}`,
 					className: "flex min-w-0 flex-1 flex-col gap-5",
 					children: [
-						/* @__PURE__ */ (0, Q.jsx)(nt, {
+						/* @__PURE__ */ (0, Q.jsx)(at, {
 							queueView: v,
 							queueCounts: De,
 							onQueueChange: Ze,
-							locked: Me,
-							fields: Ne,
-							fieldFilter: Pe,
+							locked: V,
+							fields: Me,
+							fieldFilter: Ne,
 							onFieldFilter: (e) => {
 								ae(e), w(""), O(1);
 							},
-							groupOptions: Be,
-							groupBy: U,
+							groupOptions: Ie,
+							groupBy: W,
 							onGroupBy: (e) => {
 								S(e), w(""), O(1);
 							},
-							groups: Ue,
-							filter: We,
+							groups: Ve,
+							filter: Ue,
 							onFilter: (e) => {
 								w(e), O(1);
 							},
 							pageKeys: Ke,
 							selected: j,
 							onSelected: M,
-							selectedRows: q,
+							selectedRows: J,
 							metadata: B,
-							approvable: q.every((e) => oe(g, e)),
+							approvable: J.every((e) => oe(g, e)),
 							busy: Z.isPending || X.isPending,
 							feedback: ce,
 							onUnifySource: $e,
 							onRun: Qe
 						}),
-						Ge.rows.length ? Je.map((e) => /* @__PURE__ */ (0, Q.jsxs)("section", {
+						Ge.rows.length ? K.map((e) => /* @__PURE__ */ (0, Q.jsxs)("section", {
 							className: "flex flex-col gap-3",
-							children: [Je.length > 1 || U !== "candidates" ? /* @__PURE__ */ (0, Q.jsxs)("div", {
+							children: [K.length > 1 || W !== "candidates" ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 								className: "flex flex-wrap items-center gap-2",
 								children: [/* @__PURE__ */ (0, Q.jsx)("h3", {
 									className: "text-body-medium text-text-primary",
 									children: `${e.title} · ${e.rows.length}`
-								}), Me ? null : /* @__PURE__ */ (0, Q.jsx)(r, {
+								}), V ? null : /* @__PURE__ */ (0, Q.jsx)(r, {
 									variant: "ghost",
 									size: "small",
 									onClick: () => {
@@ -1778,25 +1778,25 @@ function Zt(e) {
 										for (let e of t) n ? r.delete(e) : r.add(e);
 										M(r);
 									},
-									children: e.rows.every((e) => j.has(e.item_key)) ? H("manage:reviewPage.clearGroup") : H("manage:reviewPage.selectGroup")
+									children: e.rows.every((e) => j.has(e.item_key)) ? U("manage:reviewPage.clearGroup") : U("manage:reviewPage.selectGroup")
 								})]
 							}) : null, /* @__PURE__ */ (0, Q.jsx)("div", {
 								className: "review-grid gap-5",
-								children: e.rows.map((e) => /* @__PURE__ */ (0, Q.jsx)(Yt, {
+								children: e.rows.map((e) => /* @__PURE__ */ (0, Q.jsx)(Qt, {
 									category: g,
 									row: e,
 									queueView: v,
-									choice: K(e),
+									choice: q(e),
 									onChoice: (t) => P((n) => new Map(n).set(e.item_key, t)),
 									selected: j.has(e.item_key),
 									onSelect: (t, n) => M((r) => {
 										let i = new Set(r);
-										return _e.current = Fe(i, Ke, _e.current, e.item_key, t, n), i;
+										return _e.current = Pe(i, Ke, _e.current, e.item_key, t, n), i;
 									}),
-									locked: Me,
+									locked: V,
 									busy: Z.isPending || X.isPending && X.variables?.row.item_key === e.item_key,
 									problem: se.get(e.item_key) || "",
-									genreTags: it,
+									genreTags: nt,
 									onDecide: (t) => {
 										X.isPending || Z.isPending || (F((t) => new Map([...t].filter(([t]) => t !== e.item_key))), X.mutate({
 											row: e,
@@ -1804,23 +1804,23 @@ function Zt(e) {
 											category: g
 										}));
 									},
-									handlers: at
+									handlers: rt
 								}, e.item_key))
 							})]
 						}, e.key)) : R.isError && !R.data ? /* @__PURE__ */ (0, Q.jsx)(y, {
 							tone: "error",
-							title: H("manage:reviewPage.queueLoadFailed"),
+							title: U("manage:reviewPage.queueLoadFailed"),
 							action: /* @__PURE__ */ (0, Q.jsx)(r, {
 								variant: "secondary",
 								size: "small",
 								disabled: R.isFetching,
 								onClick: () => void R.refetch(),
-								children: H("manage:shared.retryNow")
+								children: U("manage:shared.retryNow")
 							}),
 							children: L(R.error)
 						}) : /* @__PURE__ */ (0, Q.jsx)(m, {
 							icon: be,
-							title: H({
+							title: U({
 								pending: "manage:reviewPage.emptyPending",
 								later: "manage:reviewPage.emptyLater",
 								ignored: "manage:reviewPage.emptyIgnored"
@@ -1829,15 +1829,15 @@ function Zt(e) {
 								size: "small",
 								onClick: () => {
 									let e = t.find((e) => e !== g && Number(Ee.counts[e] || 0) > 0);
-									e && Xe(e);
+									e && Y(e);
 								},
-								children: H("manage:reviewPage.viewOtherCategories")
+								children: U("manage:reviewPage.viewOtherCategories")
 							}) : void 0,
-							children: H(v === "pending" ? "manage:reviewPage.switchCategoryHint" : v === "later" ? "manage:reviewPage.laterKeptHint" : "manage:reviewPage.ignoredKeptHint")
+							children: U(v === "pending" ? "manage:reviewPage.switchCategoryHint" : v === "later" ? "manage:reviewPage.laterKeptHint" : "manage:reviewPage.ignoredKeptHint")
 						}),
-						G.length ? /* @__PURE__ */ (0, Q.jsx)(d, {
-							label: H("manage:reviewPage.footerLabel"),
-							total: G.length,
+						We.length ? /* @__PURE__ */ (0, Q.jsx)(d, {
+							label: U("manage:reviewPage.footerLabel"),
+							total: We.length,
 							pagination: {
 								pageIndex: Ge.page - 1,
 								pageSize: k
@@ -1846,8 +1846,8 @@ function Zt(e) {
 								O(e.pageIndex + 1), A(e.pageSize);
 							}
 						}) : null,
-						B && v === "pending" ? /* @__PURE__ */ (0, Q.jsx)(tt, {
-							locked: Me,
+						B && v === "pending" ? /* @__PURE__ */ (0, Q.jsx)(it, {
+							locked: V,
 							openItem: o,
 							toast: l
 						}) : null
@@ -1857,6 +1857,6 @@ function Zt(e) {
 		]
 	}) });
 }
-export { Zt as ReviewPage };
+export { en as ReviewPage };
 
-//# debugId=db270c8c-0adf-4a4e-8ab2-f2f9eec005f2
+//# debugId=ac0bb9ce-3989-4df8-95f8-7ab00035b42c

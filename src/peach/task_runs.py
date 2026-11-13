@@ -392,9 +392,9 @@ class TaskRunStore:
         `conflict="raise"` 是手动触发的语义：告诉用户是哪一轮挡着，让他自己决定。
         """
         if trigger not in TRIGGERS:
-            raise ValueError(f"未知的触发方式：{trigger}")
+            raise ValueError(f"unknown trigger: {trigger}")
         if conflict not in ("skip", "raise"):
-            raise ValueError(f"未知的冲突处理方式：{conflict}")
+            raise ValueError(f"unknown conflict mode: {conflict}")
         if not self.enabled:
             return None
         moment = stamp()
@@ -487,7 +487,7 @@ class TaskRunStore:
                 first = run_id not in self._progress_failing
                 self._progress_failing.add(run_id)
             if first:
-                LOGGER.warning("第 %s 轮的进度没写进 task_run，下一次进度再写：%s",
+                LOGGER.warning("Progress for run %s was not written to task_run, will retry with the next update: %s",
                                run_id, error)
             return False
         with self._lock:
@@ -505,7 +505,7 @@ class TaskRunStore:
         写锁拿不到时按 `finish_retry_delays` 重试，全部用完仍写不进去才抛。
         """
         if status not in TERMINAL_STATUSES:
-            raise ValueError(f"{status} 不是终态")
+            raise ValueError(f"{status} is not a terminal status")
         if not self.enabled or run_id is None:
             return False
         moment = stamp()
@@ -524,7 +524,7 @@ class TaskRunStore:
                 if not delays:
                     raise
                 delay = delays.pop(0)
-                LOGGER.warning("第 %s 轮结算没写进 task_run，%s 秒后重试：%s",
+                LOGGER.warning("Settlement for run %s was not written to task_run, retrying in %s s: %s",
                                run_id, delay, failure)
                 time.sleep(delay)
         with self._lock:
@@ -884,7 +884,7 @@ class TaskRunStore:
             clauses.append("status IN (%s)" % ",".join(f"'{s}'" for s in TERMINAL_STATUSES))
         elif status:
             if status not in (*ACTIVE_STATUSES, *TERMINAL_STATUSES):
-                raise ValueError(f"未知的状态：{status}")
+                raise ValueError(f"unknown status: {status}")
             clauses.append("status=?")
             values.append(status)
         if task_key:
@@ -1014,8 +1014,9 @@ class TaskRunStore:
                 checkpoint()
         except BaseException as error:
             from .task_control import Cancelled
+            from .user_messages import failure_fields
             handle.finish('cancelled' if isinstance(error, Cancelled) else 'failed',
-                          error='' if isinstance(error, Cancelled) else f"{type(error).__name__}: {error}")
+                          **({} if isinstance(error, Cancelled) else failure_fields(error)))
             raise
         else:
             handle.finish("succeeded")

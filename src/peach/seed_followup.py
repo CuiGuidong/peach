@@ -19,6 +19,7 @@ from . import seed_pack, seed_corrections, seed_validation
 from .followups import Followup, FollowupType, register
 from .task_outcomes import joined, part, said
 from .task_runs import item_progress
+from .user_messages import UserValueError
 
 TASK_KEY = "seed-import"
 TASK_LABEL = "初始资料导入"
@@ -126,7 +127,7 @@ def run(contract, key: str, handle) -> dict:
     """将随应用分发的种子包补进账本；测试使用临时种子包。"""
     pack = seed_pack.load(seed_pack.DEFAULT_PACK)
     if key != followup_key(pack["version"], seed_validation.digest(pack)):
-        raise ValueError("种子内容与排队任务的摘要不一致，请重新派发")
+        raise UserValueError("errors.seedFollowup.digestMismatch")
     if handle is not None:
         handle.progress(**item_progress(TASK_KEY, pack['version']), throttle=0)
     with contract.database.read_connection() as connection:

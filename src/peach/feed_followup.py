@@ -39,6 +39,7 @@ from .catalog_rules import normalise_code_key
 from .followups import Followup, FollowupType, register
 from .task_runs import item_progress, run_progress
 from .metadata import extract_peach_fields
+from .user_messages import UserValueError
 
 TASK_KEY = "feed-scrape"
 TASK_LABEL = "新作资料采集"
@@ -75,7 +76,7 @@ def parse_key(key: str, task_key: str = TASK_KEY) -> list[str]:
     prefix, _, body = str(key).partition(":")
     codes = [code for code in body.split(",") if code]
     if prefix != task_key or not codes:
-        raise ValueError(f"认不出这条{LABELS.get(task_key, task_key)}后继：{key}")
+        raise ValueError(f"unrecognized {task_key} followup key: {key}")
     return codes
 
 
@@ -235,8 +236,8 @@ def collect(provider, code: str) -> tuple[dict, str | None]:
             code, deadline=deadline_after(budget),
             route=metadata_routes.community_route(code))
     except DeadlineExceeded as error:
-        raise DeadlineExceeded(
-            f"来源链 {'、'.join(chain)} 在 {budget:g} 秒内没有答复") from error
+        raise DeadlineExceeded("errors.feedFollowup.chainTimedOut",
+                               {"chain": '、'.join(chain), "seconds": f"{budget:g}"}) from error
     fields: dict[str, object] = {}
     cover: str | None = None
     for _source, payload in found:
@@ -249,7 +250,7 @@ def collect(provider, code: str) -> tuple[dict, str | None]:
         if all(name in fields for name in WANTED):
             break
     if not fields and cover is None:
-        raise ValueError(f"来源链 {'、'.join(chain)} 上都没有这个番号的资料")
+        raise UserValueError("errors.feedFollowup.noMetadata", {"chain": '、'.join(chain)})
     return fields, cover
 
 

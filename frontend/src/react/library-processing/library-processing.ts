@@ -63,6 +63,9 @@ export interface LibraryProcessingData {
   performer_profile_conflicts?: number;
   performer_profile_failed?: number;
   error?: string;
+  /** `error` 的 code 与参数；有译文时显示译文。 */
+  error_code?: string;
+  error_params?: Record<string, unknown>;
   issue_count?: number;
   /** `issue_count` 里卡在来源限流上的那些，等来源放开再跑一次就有。 */
   paused_count?: number;

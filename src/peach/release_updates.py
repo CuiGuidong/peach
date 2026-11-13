@@ -12,7 +12,7 @@ from . import __version__, distribution, docker_update
 from .http import HttpRequest, HttpxTransport
 from .update_packages import TOOL_PATHS
 from . import interface_text
-from .user_messages import message_fields
+from .user_messages import UserValueError, message_fields
 
 RELEASES_URL = "https://github.com/peach-mitao/peach/releases"
 API_URL = "https://api.github.com/repos/peach-mitao/peach/releases?per_page=100"
@@ -149,7 +149,7 @@ def tool_package(tool: str, *, transport=None) -> dict:
                 found.append((version, {"url": f"{directory}/{name}", "size": asset["size"],
                                         "digest": asset["digest"], "version": tag.removeprefix("v")}))
         if not found:
-            raise ValueError("未能从发布页取得工具包信息，请检查网络与 Peach 代理后重试")
+            raise UserValueError("errors.releaseUpdates.toolPackageNotFound")
         return max(found, key=lambda item: item[0])[1]
     finally:
         if transport is None:
