@@ -52,7 +52,31 @@
     }
   },
   "javBrowser": {
-    "notQueued": "This code isn't in the queue."
+    "notQueued": "This code isn't in the queue.",
+    "paused": {
+      "config": {
+        "hint": "Resumes once the download settings are fixed",
+        "reason": "Cloud drive settings or sign-in problem"
+      },
+      "message": "{{reason}}, paused; {{hint}}",
+      "network": {
+        "hint": "Resumes once CloudDrive2 is back",
+        "reason": "Can't reach CloudDrive2"
+      },
+      "quota": {
+        "hint": "Resumes once the quota resets",
+        "reason": "Download quota used up"
+      },
+      "search": {
+        "hint": "Resumes automatically",
+        "reason": "Resource search is unavailable"
+      },
+      "storage": {
+        "hint": "Resumes after you free up space or upgrade",
+        "reason": "Cloud drive storage is full"
+      }
+    },
+    "storageFull": "Cloud drive storage is full; free up space or upgrade, then retry"
   },
   "ledgerBackup": {
     "purpose": {
@@ -1215,7 +1239,7 @@
       "remoteRejectedNoReason": "The remote side rejected this task without giving a reason",
       "remoteBlocked": "115 blocked this resource (prohibited content, 50038), so it will not be retried: {{text}}",
       "remoteQuota": "Not enough cloud download quota: {{text}}",
-      "remoteStorageFull": "Free up or add cloud storage, then submit again",
+      "remoteStorageFull": "Free up space on the cloud drive or upgrade it, then submit again",
       "remoteDuplicate": "The same task already exists on the remote side: {{text}}",
       "remoteInvalidLink": "The remote side does not accept this link: {{text}}",
       "remoteRejected": "The remote side rejected this task: {{text}}",

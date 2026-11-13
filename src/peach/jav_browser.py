@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, parse_qsl, urlencode, urlsplit
 from .catalog_rules import (
     is_jav_code, normalise_code_key, release_code_from_product, same_release_code, without_store_prefix,
 )
+from . import interface_text
 from .config import PROJECT_ROOT
 from .downloads import (
     CLOUDDRIVE_CREDENTIAL, INGESTED, POSTPROCESS_FAILED, POSTPROCESS_PENDING, POSTPROCESS_QUEUED,
@@ -47,20 +48,20 @@ RECENT_SECONDS = 600
 #: 渠道级失败（额度用完、网盘空间不足、配置失效、CloudDrive2 连不上）后暂停这个渠道，
 #: 每隔这么久拿排在最前的番号试一次，成功就继续。
 PAUSE_PROBE_SECONDS = 600
-#: 暂停原因与恢复说明：用户脚本的提示框分两行显示，排队行的说明把两段连成一句。
-#: `search` 是资源搜索暂不可用，暂停的是整条队列而不是某个渠道。
-PAUSED_TEXT = {
-    "storage": ("网盘空间不足", "扩容或清理后自动继续"),
-    "quota": ("下载额度已用完", "额度恢复后自动继续"),
-    "config": ("网盘配置或登录有问题", "修好下载设置后自动继续"),
-    "network": ("连不上 CloudDrive2", "CloudDrive2 恢复后自动继续"),
-    "search": ("资源搜索暂不可用", "到时自动继续"),
-}
-PAUSED_MESSAGES = {failure: f"{reason}，已暂停；{hint}" for failure, (reason, hint) in PAUSED_TEXT.items()}
+#: 会让浏览器添加暂停的原因。`search` 是资源搜索暂不可用，暂停的是整条队列而不是某个渠道。
+#: 原因与恢复说明在 `server:javBrowser.paused.<原因>`：用户脚本的提示框分两行显示，排队行的说明连成一句。
+PAUSED_FAILURES = frozenset({"storage", "quota", "config", "network", "search"})
 #: 提示框的语气：要用户动手修的用 error，等着就会恢复或只需腾空间的用 warning。
 PAUSED_TONES = {"config": "error", "network": "error"}
 SEARCH_PAUSE = "search"
-STORAGE_MESSAGE = "网盘空间不足，扩容或清理后重试"
+
+
+def paused_text(failure: str) -> dict:
+    """暂停的原因、恢复说明与连成的一句。"""
+    reason = interface_text.text(f"server:javBrowser.paused.{failure}.reason")
+    hint = interface_text.text(f"server:javBrowser.paused.{failure}.hint")
+    return {"reason": reason, "hint": hint,
+            "message": interface_text.text("server:javBrowser.paused.message", {"reason": reason, "hint": hint})}
 #: 不怪这个番号、过一会儿再交就可能成的下载失败，不等用户手点：放回队列自动重来。
 #: 渠道级失败（空间、额度、配置）跟着渠道暂停与试探走，不限次数；其余按这张表限次，免得死循环。
 AUTO_RETRY_LIMITS = {"not_accepted": 2, "network": 2}
@@ -463,7 +464,7 @@ class JavBrowser:
                 if state == "failed":
                     failure = _failure_projection(task)
                     if failure["failure"] == "storage":
-                        row["message"] = STORAGE_MESSAGE
+                        row["message"] = interface_text.text("server:javBrowser.storageFull")
                     detail.update(failure)
                 if task.asset_id:
                     row["asset_id"] = task.asset_id
@@ -472,7 +473,7 @@ class JavBrowser:
             state = row.get("state", "idle")
             if state == "queued" and (paused := self._paused(row.get("provider", ""))):
                 detail["paused"] = paused
-                row["message"] = PAUSED_MESSAGES[paused["failure"]]
+                row["message"] = paused_text(paused["failure"])["message"]
             return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
                     "message": row.get("message") or MESSAGES[state]}
@@ -480,7 +481,7 @@ class JavBrowser:
     def _channel_pause(self, provider: str) -> dict | None:
         """渠道级失败后这个渠道处于暂停：失败类别、开始时间与下一次试探时间。成功提交一次就解除。"""
         alert = self.downloads.channel_alert(provider) if provider else None
-        if not alert or alert["failure"] not in PAUSED_MESSAGES:
+        if not alert or alert["failure"] not in PAUSED_FAILURES:
             return None
         return {"failure": alert["failure"], "since": alert["since"],
                 "retry_at": iso(parse_iso(alert["since"]) + PAUSE_PROBE_SECONDS)}
@@ -603,8 +604,7 @@ class JavBrowser:
 
         def entry(provider, label, count, paused):
             failure = paused["failure"]
-            return {"provider": provider, "provider_label": label, "waiting": count, "message": PAUSED_MESSAGES[failure],
-                    "reason": PAUSED_TEXT[failure][0], "hint": PAUSED_TEXT[failure][1],
+            return {"provider": provider, "provider_label": label, "waiting": count, **paused_text(failure),
                     "tone": PAUSED_TONES.get(failure, "warning"), **paused}
 
         channels = [entry(provider, labels.get(provider, provider), count, paused)

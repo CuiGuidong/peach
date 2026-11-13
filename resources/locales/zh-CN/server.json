@@ -52,7 +52,31 @@
     }
   },
   "javBrowser": {
-    "notQueued": "这个番号不在排队中"
+    "notQueued": "这个番号不在排队中",
+    "paused": {
+      "config": {
+        "hint": "修好下载设置后自动继续",
+        "reason": "网盘配置或登录有问题"
+      },
+      "message": "{{reason}}，已暂停；{{hint}}",
+      "network": {
+        "hint": "CloudDrive2 恢复后自动继续",
+        "reason": "连不上 CloudDrive2"
+      },
+      "quota": {
+        "hint": "额度恢复后自动继续",
+        "reason": "下载额度已用完"
+      },
+      "search": {
+        "hint": "到时自动继续",
+        "reason": "资源搜索暂不可用"
+      },
+      "storage": {
+        "hint": "扩容或清理后自动继续",
+        "reason": "网盘空间不足"
+      }
+    },
+    "storageFull": "网盘空间不足，扩容或清理后重试"
   },
   "ledgerBackup": {
     "purpose": {

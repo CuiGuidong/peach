@@ -177,6 +177,12 @@ def problem_codes(problems) -> list[dict]:
 #: 115 对违规内容的离线拦截码。CloudDrive2 把 115 的原文放进 `errorMessage`，
 #: 只认得出码或「违规」字样，所以两样都匹配。
 BLOCKED_PATTERN = re.compile(r"50038|违规|敏感")
+#: 远端原话里的字样到失败类别，按顺序取第一个对上的。
+REMOTE_WORDS = (
+    (re.compile(r"配额|quota|次数|上限|limit", re.IGNORECASE), "quota", "errors.downloads.remoteQuota"),
+    (re.compile(r"已存在|exist|重复|duplicate", re.IGNORECASE), "duplicate", "errors.downloads.remoteDuplicate"),
+    (re.compile(r"链接|无效|invalid|url|格式", re.IGNORECASE), "invalid_link", "errors.downloads.remoteInvalidLink"),
+)
 
 
 def classify_remote_message(message: str) -> DownloadError:
@@ -184,17 +190,13 @@ def classify_remote_message(message: str) -> DownloadError:
     text = str(message or "").strip()
     if not text:
         return DownloadError("rejected", "errors.downloads.remoteRejectedNoReason")
-    lowered = text.casefold()
     if BLOCKED_PATTERN.search(text):
         return DownloadError("rejected", "errors.downloads.remoteBlocked", {"text": text}, block=True)
     if storage_full(text):
         return DownloadError("storage", "errors.downloads.remoteStorageFull")
-    if any(word in lowered for word in ("配额", "quota", "次数", "上限", "limit")):
-        return DownloadError("quota", "errors.downloads.remoteQuota", {"text": text})
-    if any(word in lowered for word in ("已存在", "exist", "重复", "duplicate")):
-        return DownloadError("duplicate", "errors.downloads.remoteDuplicate", {"text": text})
-    if any(word in lowered for word in ("链接", "无效", "invalid", "url", "格式")):
-        return DownloadError("invalid_link", "errors.downloads.remoteInvalidLink", {"text": text})
+    for pattern, failure, code in REMOTE_WORDS:
+        if pattern.search(text):
+            return DownloadError(failure, code, {"text": text})
     return DownloadError("rejected", "errors.downloads.remoteRejected", {"text": text})
 
 
