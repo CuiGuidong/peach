@@ -55,6 +55,7 @@ from peach.entities import normalize_entity_name  # noqa: E402
 from peach.genre_decisions import load_genre_decisions  # noqa: E402
 from peach.genre_taxonomy import map_genres  # noqa: E402
 from peach.http import HttpRequest, HttpxTransport  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 from peach.images import REJECT, bake_square, classify  # noqa: E402
 from peach.logo_provider import (  # noqa: E402
     LogoCandidateCache, inspect_logo, provenance_now as logo_provenance,
@@ -608,10 +609,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--snapshot", type=Path, default=SNAPSHOT_DIR)
     parser.add_argument("--out", type=Path, default=GENERATED_DIR)
-    parser.add_argument("--fetch", action="store_true", help="联网补快照")
-    parser.add_argument("--refresh", action="store_true", help="--fetch 时重取已有详情页")
-    parser.add_argument("--interval", type=float, default=1.5, help="同主机请求间隔秒数")
-    parser.add_argument("--apply", action="store_true", help="写 ledger 与生成物（先备份）")
+    parser.add_argument("--fetch", action="store_true", help=t("harvest_kmib.fetchHelp"))
+    parser.add_argument("--refresh", action="store_true", help=t("harvest_kmib.refreshHelp"))
+    parser.add_argument("--interval", type=float, default=1.5, help=t("harvest_kmib.intervalHelp"))
+    parser.add_argument("--apply", action="store_true", help=t("harvest_kmib.applyHelp"))
     return parser
 
 
@@ -629,7 +630,7 @@ def main(argv: list[str] | None = None) -> int:
             stats = fetch_snapshot(args.snapshot, fetcher, refresh=args.refresh,
                                    ledger_codes=ledger_codes)
         except Fetcher.Blocked as exc:
-            print(f"停止：站点拒绝访问（{exc}），已落盘的快照保留", file=sys.stderr)
+            print(t("harvest_kmib.blocked", exc=exc), file=sys.stderr)
             return 2
         print(json.dumps({"fetch": stats, "requests": fetcher.requests}, ensure_ascii=False))
     releases = load_releases(args.snapshot)

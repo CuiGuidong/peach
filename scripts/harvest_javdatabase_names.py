@@ -30,6 +30,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.catalog_rules import is_jav_code   # noqa: E402
 from peach.config import STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.page_cache import HttpStatusError, Site   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
@@ -227,12 +228,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-assets", type=int, default=1)
-    parser.add_argument("--codes", type=int, default=2, help="每人最多用几个番号做入口")
+    parser.add_argument("--codes", type=int, default=2, help=t("harvest_javdatabase_names.codesHelp"))
     parser.add_argument("--limit", type=int, default=0)
-    parser.add_argument("--only", help="只查这些 entity_id（逗号分隔），用来先跑小批")
+    parser.add_argument("--only", help=t("harvest_javdatabase_names.onlyHelp"))
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=30.0)
-    parser.add_argument("--refresh", action="store_true", help="忽略缓存重抓")
+    parser.add_argument("--refresh", action="store_true", help=t("harvest_javdatabase_names.refreshHelp"))
     parser.add_argument("--cache-dir", type=Path, default=STATE_DIR / "javdatabase-names")
     parser.add_argument("--lock", type=Path, default=STATE_DIR / ".javdatabase-names.lock")
     return parser
@@ -261,8 +262,8 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
     rows.sort(key=lambda item: (order.get(item["verdict"], 9), -int(item["assets"]),
                                 str(item["entity_id"])))
     write_rows(args.output, FIELDS, rows)
-    print({"复核行": len(rows), **stats, "取页": site.fetched, "命中缓存": site.cached,
-           "重试": site.retried, "output": str(args.output)})
+    print({t("harvest_javdatabase_names.reviewRows"): len(rows), **stats, t("harvest_javdatabase_names.fetched"): site.fetched, t("harvest_javdatabase_names.cached"): site.cached,
+           t("harvest_javdatabase_names.retried"): site.retried, "output": str(args.output)})
     return 0
 
 

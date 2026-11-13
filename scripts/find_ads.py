@@ -34,6 +34,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from peach.interface_text import dev as t
 from peach.review_csv import write_rows
 from peach.scripting import open_readonly
 from peach.config import DATABASE_PATH, GENERATED_DIR
@@ -156,7 +157,7 @@ def write_candidates(output: Path | str, plan: list[dict]) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="生成广告文件人工复核清单")
+    parser = argparse.ArgumentParser(description=t("find_ads.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
     parser.add_argument("--min-group", type=int, default=3)
@@ -166,17 +167,17 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     if args.min_group < 2:
-        raise SystemExit("--min-group 必须至少为 2")
+        raise SystemExit(t("find_ads.minGroupTooSmall"))
     plan, scanned = find_candidates(args.db, args.min_group)
-    print(f"扫描 {scanned} 条视频")
+    print(t("find_ads.scanned", scanned=scanned))
     write_candidates(args.output, plan)
 
-    print(f"命中 {len(plan)} 条，合计 {sum(r['size_mb'] for r in plan)/1024:.1f} GB")
+    print(t("find_ads.matched", count=len(plan), size=f"{sum(r['size_mb'] for r in plan) / 1024:.1f}"))
     for level in ("确认", "存疑"):
         sub = [r for r in plan if r["confidence"] == level]
-        print(f"  {level}: {len(sub):>4} 条  {sum(r['size_mb'] for r in sub)/1024:>6.2f} GB")
-    print(f"\n判据分布: {collections.Counter(r['hits'] for r in plan).most_common(6)}")
-    print(f"→ {args.output}（仅清单，未删任何文件）")
+        print(t("find_ads.level", level=level, count=f"{len(sub):>4}", size=f"{sum(r['size_mb'] for r in sub) / 1024:>6.2f}"))
+    print(t("find_ads.hits", hits=str(collections.Counter(r['hits'] for r in plan).most_common(6))))
+    print(t("find_ads.output", output=args.output))
     return 0
 
 

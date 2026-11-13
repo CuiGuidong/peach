@@ -37,6 +37,7 @@ from peach.scripting import HostLimiter, open_readonly
 from peach.config import DATABASE_PATH, GENERATED_DIR, LOG_DIR, SECRETS_DIR, SOURCES_DIR, TOOLS_DIR
 from peach.genre_decisions import load_genre_decisions
 from peach.genre_taxonomy import CONTENT_GENRES, map_genres
+from peach.interface_text import dev as t
 from peach.jobs import DiskGuard, JobPolicyError
 from peach.task_runs import cli_run
 from peach.metadata import (
@@ -217,7 +218,7 @@ class ChainAdapter:
                 # 按链走到素人链上的认人 Wiki：没有点名就没有本批自己的 `WikiPages`，用正式链那一份。
                 pairs = self.inner.wiki(stage, code)
             else:
-                raise ValueError(f"链上没有这一档：{stage}")
+                raise ValueError(t("scrape_codes.stageMissing", stage=stage))
         except Exception as error:  # noqa: BLE001 - 每种失败都翻成本脚本的分档
             translated = translate_failure(stage, error)
             return found, {member: translated for member in members}
@@ -319,7 +320,7 @@ def _identity_mismatch(query: str, payload: dict) -> MetadataProviderError | Non
         ):
             return None
         return MetadataProviderError(
-            *relayed(f"MGStage 商品编号 {product_code} 与查询 {query} 或返回番号 {returned} 不一致"),
+            *relayed(t("scrape_codes.mgstageMismatch", productCode=product_code, query=query, returned=returned)),
             kind="identity_mismatch",
         )
     # DMM content_id 的厂牌段属于该来源的编码；只用于没有展示 id 的裸番号查询。
@@ -331,7 +332,7 @@ def _identity_mismatch(query: str, payload: dict) -> MetadataProviderError | Non
     if not returned or same_release_code(query, returned):
         return None
     return MetadataProviderError(
-        *relayed(f"来源返回的番号 {returned} 不是查询的 {query}"),
+        *relayed(t("scrape_codes.returnedMismatch", returned=returned, query=query)),
         kind="identity_mismatch",
     )
 
@@ -473,13 +474,13 @@ def parse_sources(raw: str) -> tuple[str, ...]:
     """`--sources` 的来源名：去重、保序，必须是链上能问的来源。"""
     sources = tuple(dict.fromkeys(part.strip() for part in raw.split(",") if part.strip()))
     if not sources:
-        raise ValueError("至少指定一个来源")
+        raise ValueError(t("scrape_codes.noSource"))
     unknown = [source for source in sources if source not in QUERYABLE_SOURCES]
     if unknown:
         historical = [source for source in unknown if source in SOURCE_SPECS]
         if historical:
-            raise ValueError("这些来源只是历史来源身份，当前没有解析器可问：" + ", ".join(historical))
-        raise ValueError("未知来源：" + ", ".join(unknown))
+            raise ValueError(t("scrape_codes.historicalSources") + ", ".join(historical))
+        raise ValueError(t("scrape_codes.unknownSources") + ", ".join(unknown))
     return sources
 
 
@@ -489,39 +490,39 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", type=Path, default=None)
     parser.add_argument("--errors", type=Path, default=None)
     parser.add_argument("--raw-dir", type=Path, default=SOURCES_DIR / "metadata" / "javinizer-go",
-                        help="原始快照目录；默认沿用历史快照所在的目录，离线复用与封面获取都读它")
+                        help=t("scrape_codes.rawDirHelp"))
     parser.add_argument("--log-dir", type=Path, default=LOG_DIR)
     parser.add_argument("--secrets-root", type=Path, default=SECRETS_DIR,
-                        help="凭据根（采集设置里贴的 Cookie 与冷却记录都在这里）")
+                        help=t("scrape_codes.secretsHelp"))
     parser.add_argument("--tools-root", type=Path, default=TOOLS_DIR,
-                        help="工具区（amane 桥的 venv 在这里）")
+                        help=t("scrape_codes.toolsHelp"))
     source_group = parser.add_mutually_exclusive_group()
     source_group.add_argument(
         "--profile", choices=(CHAIN_PROFILE, WIKI_PROFILE), default=CHAIN_PROFILE,
-        help="chain：按番号内容类型走正式来源链（默认）；seesaa：只问 Seesaa 作品表")
-    source_group.add_argument("--sources", help="逗号分隔的来源名，按给的顺序全部问，不短路")
+        help=t("scrape_codes.profileHelp"))
+    source_group.add_argument("--sources", help=t("scrape_codes.sourcesHelp"))
     parser.add_argument("--health", type=Path, default=None)
     parser.add_argument("--unmapped", type=Path, default=None,
-                        help="未收录 genre 清单；不写这个文件等于把来源给过的值悄悄丢掉")
+                        help=t("scrape_codes.unmappedHelp"))
     parser.add_argument(
         "--codes-file", type=Path,
-        help="只处理文件中列出的番号；每行一个，空行和 # 注释忽略",
+        help=t("scrape_codes.codesFileHelp"),
     )
     parser.add_argument(
         "--english-title-only", action="store_true",
-        help="只处理已有非空英文标题、但没有日文标题的番号",
+        help=t("scrape_codes.missingJapaneseHelp"),
     )
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--delay", type=float, default=1.2)
     parser.add_argument("--min-free", type=float, default=40.0,
-                        help="系统盘最低可用 GiB；运行中每隔一段时间复查")
+                        help=t("scrape_codes.minFreeHelp"))
     parser.add_argument("--disk-check-secs", type=float, default=20.0)
     parser.add_argument("--refresh", action="store_true", help="ignore reusable raw snapshots")
     parser.add_argument('--resume', action=argparse.BooleanOptionalAction, default=True,
-                        help='复用同一批次已保存的成功结果；--no-resume 开始新批次')
-    parser.add_argument("--wiki-pages-file", type=Path, help="预取 Wiki 作品目录页，每行一个 URL")
+                        help=t("scrape_codes.resumeHelp"))
+    parser.add_argument("--wiki-pages-file", type=Path, help=t("scrape_codes.wikiPagesHelp"))
     parser.add_argument("--wiki-max-requests", type=int, default=80,
-                        help="每个 Wiki 本批 HTTP 请求上限；每个请求最多 4 MiB，同主机几个 Wiki 合计间隔至少 2 秒")
+                        help=t("scrape_codes.wikiBudgetHelp"))
     return parser
 
 
@@ -546,8 +547,7 @@ def _select_requested_codes(codes: list[tuple], path: Path, *,
     withheld = [query for query in requested if query in labels]
     if withheld:
         preview = "、".join(withheld[:10])
-        raise ValueError(f"番号文件含账本里当 code 存着的目录名，不是发行番号：{preview}"
-                         "（缺分隔符，且没有厂牌、发行日或出演者证据）")
+        raise ValueError(t("scrape_codes.directoryLabels", preview=preview))
     available: dict[str, tuple] = {}
     for row in codes:
         query = normalise_code_key(row[0])
@@ -559,8 +559,8 @@ def _select_requested_codes(codes: list[tuple], path: Path, *,
     missing = [query for query in requested if query not in available]
     if missing:
         preview = "、".join(missing[:10])
-        suffix = f" 等 {len(missing)} 个" if len(missing) > 10 else ""
-        raise ValueError(f"番号文件含 ledger 中不存在的番号：{preview}{suffix}")
+        suffix = t("scrape_codes.moreMissing", count=len(missing)) if len(missing) > 10 else ""
+        raise ValueError(t("scrape_codes.codesMissing", preview=preview, suffix=suffix))
     return [available[query] for query in requested]
 
 
@@ -700,7 +700,7 @@ class _Throttle:
         if source in WIKI_SOURCES and (error.kind == "budget" or error.status_code in {403, 429}):
             self.cooldown_until[source] = float("inf")
             row["blocked"] += 1
-            log(f"{source} 本批联网停止；已取得的候选已保留")
+            log(f"{source}: network stopped for this batch; candidates already obtained are kept")
         if error.kind == AUTH_ERROR_KIND:
             self.auth_blocked[source] = str(error)
             self.consecutive_failures[source] = 0
@@ -708,7 +708,7 @@ class _Throttle:
             # 下一步由错误消息自己带着：判据明确就说换凭据，只剩状态码
             # 可看的 403 则不替用户断成因。这里再补一句通用建议会盖掉那份
             # 区分，把撞上 IP 封禁的人引去反复换 Cookie。
-            log(f"{source} 鉴权失败，本批不再向它发请求：{error}")
+            log(f"{source}: authentication failed; no more requests to it in this batch: {error}")
         elif error.kind == SEARCH_MISS_KIND:
             # 站答了，只是搜索范围内没有这部片：不是限流信号。FC2 排在前面的一批里连着几个
             # 没收录，就会把整站冷却掉，后面收录了的番号一个都问不到。
@@ -719,8 +719,8 @@ class _Throttle:
                 self.cooldown_until[source] = time.monotonic() + COOLDOWN_SECONDS
                 self.consecutive_failures[source] = 0
                 row["blocked"] += 1
-                log(f"{source} 连续 {COOLDOWN_AFTER_FAILURES} 次可重试失败，"
-                    f"冷却 {COOLDOWN_SECONDS:.0f} 秒后自动恢复：{error}")
+                log(f"{source}: {COOLDOWN_AFTER_FAILURES} retryable failures in a row; "
+                    f"cooling down {COOLDOWN_SECONDS:.0f} s, then resuming automatically: {error}")
         else:
             self.consecutive_failures[source] = 0
 
@@ -751,7 +751,7 @@ def _ask_stage(adapter, *, query: str, variants, stage: str, members, args, heal
                 error = _identity_mismatch(query, payload)
                 payload = None if error is not None else payload
             if payload is not None and attempt != query:
-                log(f"{query} 在 {source} 改用 {attempt} 命中")
+                log(f"{query}: matched on {source} as {attempt}")
             if payload is None and error is not None and not (
                     error.retryable or error.kind == AUTH_ERROR_KIND
                     or error.status_code in BLOCKING_STATUS_CODES):
@@ -821,7 +821,7 @@ def _build_adapter(args, sources, provider=None):
              if args.wiki_pages_file and names else [])
     stray = [url for url in pages if not any(url.startswith(WIKI_SITES[name].root) for name in names)]
     if stray:
-        raise ValueError("预取页不属于本批点名的 Wiki：" + "、".join(stray[:3]))
+        raise ValueError(t("scrape_codes.strayWikiPages") + "、".join(stray[:3]))
     # 几个 Wiki 都在 seesaawiki.jp 上：共用一个主机间隔，合起来仍是每 2 秒至多一次请求。
     limiter = HostLimiter({}, default_interval=SEESAA.interval)
     for name in names:
@@ -935,7 +935,7 @@ def _scrape_batch(parser, args):
     saved = json.loads(checkpoint_path.read_text(encoding='utf-8')) if args.resume and checkpoint_path.is_file() else {}
     completed = set(saved.get('completed') or [])
     if completed and not output.is_file():
-        parser.error('续跑候选文件未取得，请恢复原文件或使用 --no-resume')
+        parser.error(t("scrape_codes.resumeFileMissing"))
     return sources, profile, signature, active_path, output, checkpoint_path, saved, completed
 
 
@@ -943,7 +943,7 @@ def _prepare_scrape_output(parser, args, connection, saved, signature, output, e
     """固定原批次番号，并保留成功番号的候选行。"""
     codes = _load_codes(connection, args, parser)
     if saved and saved.get('signature') != signature:
-        parser.error('续跑参数与原批次不一致，请使用原参数或 --no-resume')
+        parser.error(t("scrape_codes.resumeMismatch"))
     if saved.get('codes'):
         by_code = {normalise_code_key(row[0]): row for row in codes}
         codes = [by_code[code] for code in saved['codes'] if code in by_code]
@@ -973,7 +973,7 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
         log(f"[stop] {error}")
         close_log()
         return error.exit_code
-    log(f"系统盘可用 {free_gb:.1f} GiB，运行期阈值 {args.min_free:.1f} GiB")
+    log(f"System drive free {free_gb:.1f} GiB, runtime threshold {args.min_free:.1f} GiB")
     # 健康表覆盖这一趟可能问到的全部来源：点名的就是那几家，走链的是所有链的并集。
     covered = sources or ((WIKI_SOURCE,) if profile == WIKI_PROFILE else CHAIN_SOURCES)
     health = _health_rows(covered, profile)
@@ -996,7 +996,7 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
         atomic_write_text(checkpoint_path, json.dumps(record, ensure_ascii=False))
         atomic_write_text(active_path, json.dumps(record, ensure_ascii=False))
     save_progress()
-    log(f"字段候选批次：profile {profile}，番号 {len(codes)}，来源 {','.join(covered)}；只读查询，不写 ledger")
+    log(f"Field candidate batch: profile {profile}, codes {len(codes)}, sources {','.join(covered)}; read-only queries, no ledger writes")
 
     throttle = _Throttle(health)
     stopped: JobPolicyError | None = None
@@ -1050,21 +1050,22 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
             _write_health(health_path, health)
             _write_unmapped(unmapped_path, unmapped_genres)
             if index % 25 == 0:
-                log(f"{index}/{len(codes)}：已落 {groups_written} 个字段组，错误 {errors_written}")
+                log(f"{index}/{len(codes)}: {groups_written} field groups written, {errors_written} errors")
             handle.progress(index, len(codes), f"{query}")
     save_progress('complete' if len(completed) == len(codes) else 'active')
     _write_health(health_path, health)
     _write_unmapped(unmapped_path, unmapped_genres)
-    log(f"完成：{groups_written} 个字段候选组 → {output}")
-    log(f"来源健康 → {health_path}")
-    log(f"未收录 genre {len(unmapped_genres)} 种 → {unmapped_path}")
+    log(f"Done: {groups_written} field candidate groups → {output}")
+    log(f"Source health → {health_path}")
+    log(f"Unmapped genres: {len(unmapped_genres)} → {unmapped_path}")
     if errors_written:
-        log(f"来源错误 {errors_written} 条 → {errors_path}")
+        log(f"Source errors: {errors_written} → {errors_path}")
     # 鉴权失败单列。混在错误总数里看不出「这一批有几家其实一条都没问到」，
     # 而它决定的是下一步做什么：补凭据重跑，而不是等限流过去。
     if throttle.auth_blocked:
-        log(f"鉴权失败的来源 {len(throttle.auth_blocked)} 家，本批已停止请求；按各自的说明处理后重跑："
-            + "；".join(f"{source}（{detail}）" for source, detail in throttle.auth_blocked.items()))
+        log(f"Sources with failed authentication: {len(throttle.auth_blocked)}; requests stopped for this batch. "
+            "Follow each note, then rerun: "
+            + "; ".join(f"{source} ({detail})" for source, detail in throttle.auth_blocked.items()))
     close_log()
     return stopped.exit_code if stopped is not None else 0
 

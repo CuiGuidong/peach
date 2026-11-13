@@ -33,6 +33,7 @@ from peach.config import GENERATED_DIR
 from peach.follow_sources import (
     FollowSourceError, FollowSourceRateLimited, Rule34VideoConnector, build_connector,
 )
+from peach.interface_text import dev as t
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import (
     BACKUP_REQUIRED, add_ledger_write_args, open_for_write, open_readonly,
@@ -51,14 +52,14 @@ SETTLED = frozenset({"无需改动"})
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="把 rule34video 追更条目里站方单列的角色改记成 character")
+        description=t("backfill_rule34video_characters.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--out", type=Path,
                         default=GENERATED_DIR / "rule34video-character-backfill.csv")
-    parser.add_argument("--limit", type=int, default=0, help="只处理前 N 条，0 为全部")
+    parser.add_argument("--limit", type=int, default=0, help=t("backfill_rule34video_characters.limitHelp"))
     parser.add_argument("--delay", type=float, default=DEFAULT_DELAY)
     parser.add_argument("--resume", action="store_true",
-                        help="跳过 --out 里已经写入或无需改动的条目，接着上一趟跑")
+                        help=t("backfill_rule34video_characters.resumeHelp"))
     return parser
 
 
@@ -171,7 +172,7 @@ def run(args: argparse.Namespace) -> int:
                 if int(row.get("item_id") or 0) in done] if args.resume else []
     reader = open_readonly(args.db)
     rows = pending_rows(reader, args.limit, done)
-    print(f"rule34video 已记类型的条目：上一趟问定 {len(done)} 条，本趟待问 {len(rows)} 条",
+    print(t("backfill_rule34video_characters.pending", done=len(done), pending=len(rows)),
           flush=True)
     if not rows:
         reader.close()
@@ -182,7 +183,7 @@ def run(args: argparse.Namespace) -> int:
         writer = open_for_write(args)
         writer.isolation_level = None
         writer.execute("PRAGMA busy_timeout=60000")
-        print(f"备份：{args.backup}", flush=True)
+        print(t("backfill_rule34video_characters.backup", backup=args.backup), flush=True)
         before = writer.execute("SELECT COUNT(*) FROM follow_item").fetchone()[0]
 
     connector = build_connector("rule34video")
@@ -205,12 +206,12 @@ def run(args: argparse.Namespace) -> int:
         except FollowSourceRateLimited as error:
             limited += 1
             if limited >= RATE_LIMIT_STOP:
-                print(f"连续 {limited} 次被限流，停在第 {index} 条；用 --resume 接着跑",
+                print(t("backfill_rule34video_characters.stopped", limited=limited, index=index),
                       flush=True)
                 stopped = True
                 break
             wait = max(COOLDOWN_SECONDS, float(error.retry_after or 0))
-            print(f"被限流，静默 {wait:.0f} 秒", flush=True)
+            print(t("backfill_rule34video_characters.cooldown", wait=f"{wait:.0f}"), flush=True)
             time.sleep(wait)
             continue
         counts[entry["result"]] += 1
@@ -221,19 +222,17 @@ def run(args: argparse.Namespace) -> int:
         log.append(entry)
         if index % FLUSH_EVERY == 0:
             flush()
-            print(f"{index}/{len(rows)}：改记角色 {counts['取得']} 条（{counts['names']} 个名字），"
-                  f"无需改动 {counts['无需改动']}，未取得 {counts['未取得']}", flush=True)
+            print(t("backfill_rule34video_characters.progress", index=index, total=len(rows), found=counts['取得'], names=counts['names'], unchanged=counts['无需改动'], missing=counts['未取得']), flush=True)
     flush()
     reader.close()
-    summary = (f"改记角色 {counts['取得']} 条（{counts['names']} 个名字），无需改动 "
-               f"{counts['无需改动']}，未取得 {counts['未取得']}，跳过 {counts['跳过']} → {args.out}")
+    summary = (t("backfill_rule34video_characters.summary", found=counts['取得'], names=counts['names'], unchanged=counts['无需改动'], missing=counts['未取得'], skipped=counts['跳过'], out=args.out))
     if writer is None:
-        print(f"dry-run：{summary}；加 --apply --backup 才真正写入", flush=True)
+        print(t("backfill_rule34video_characters.dryRun", summary=summary), flush=True)
         return 1 if stopped else 0
     after = writer.execute("SELECT COUNT(*) FROM follow_item").fetchone()[0]
     writer.close()
     # 条数必须不变：这一趟只改已有条目的一列。
-    print(f"已写入：{summary}；follow_item {before} → {after}", flush=True)
+    print(t("backfill_rule34video_characters.written", summary=summary, before=before, after=after), flush=True)
     return 0 if before == after and not stopped else 1
 
 

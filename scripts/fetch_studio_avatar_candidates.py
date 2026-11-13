@@ -23,6 +23,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.http import HttpRequest, HttpxTransport      # noqa: E402
 from peach.images import REJECT, bake_square, classify  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 from peach.logo_provider import (  # noqa: E402
     POLICY_VERSION,
     LogoCandidateCache,
@@ -90,7 +91,7 @@ def download(http, urls: list[str], timeout: float) -> tuple[bytes, str]:
         if response.status == 200 and response.body:
             return response.body, candidate
         last = f"HTTP {response.status}"
-    raise RuntimeError(last or "没有可用的头像地址")
+    raise RuntimeError(last or t("fetch_studio_avatar_candidates.noAvatarUrl"))
 
 
 def resolve(http, platform: str, handle: str, timeout: float) -> str:
@@ -103,17 +104,17 @@ def resolve(http, platform: str, handle: str, timeout: float) -> str:
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=Path, required=True,
-                        help="缺 Logo 的厂牌清单，需含 studio 列")
+                        help=t("fetch_studio_avatar_candidates.inputHelp"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--handles", type=Path,
-                        help="studio,handle 映射 CSV；没有它就不解析")
+                        help=t("fetch_studio_avatar_candidates.handlesHelp"))
     parser.add_argument("--platform", default="x")
     parser.add_argument("--guess-handles", action="store_true",
-                        help="按厂牌名猜 handle，产出一律标记 needs_confirmation")
+                        help=t("fetch_studio_avatar_candidates.guessHandlesHelp"))
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=20.0)
     parser.add_argument("--image-dir", type=Path,
-                        help="落盘目录；默认放在 output 同级的 studio-logos/")
+                        help=t("fetch_studio_avatar_candidates.imageDirHelp"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument(
         "--cache-dir", type=Path,

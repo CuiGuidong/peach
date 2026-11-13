@@ -52,6 +52,7 @@ if str(SRC_DIR) not in sys.path:
 from peach import javdb   # noqa: E402
 from peach.config import STATE_DIR   # noqa: E402
 from peach.entry_links import EXTERNAL_KIND, JAV_DIRECTORIES   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.performer_alias_followup import match_key, rejection   # noqa: E402
 from peach.review_csv import read_rows, write_rows   # noqa: E402
 from peach.scripting import add_ledger_write_args, open_for_write, verify_after_write   # noqa: E402
@@ -271,14 +272,14 @@ def apply_rows(connection: sqlite3.Connection, rows: list[dict],
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="把 javdb 演员 id 与 minnano-av 女优 id 落成 entity_external_ref")
+        description=t("backfill_performer_entry_ids.description"))
     add_ledger_write_args(parser)
-    parser.add_argument("--out", type=Path, required=True, help="复核 CSV 的落点")
+    parser.add_argument("--out", type=Path, required=True, help=t("backfill_performer_entry_ids.outHelp"))
     parser.add_argument("--javdb-cache", type=Path,
                         default=STATE_DIR / "directory-links" / "javdb",
-                        help="javdb 的页面缓存目录")
+                        help=t("backfill_performer_entry_ids.javdbCacheHelp"))
     parser.add_argument("--csv", type=Path, action="append", default=[],
-                        help="带 entity_id 与 actor_id／actress_id 的复核 CSV，可重复给")
+                        help=t("backfill_performer_entry_ids.csvHelp"))
     return parser
 
 
@@ -290,16 +291,15 @@ def run(args: argparse.Namespace) -> int:
         counts = collections.Counter(str(row["verdict"]) for row in rows)
         by_site = collections.Counter(
             str(row["provider"]) for row in rows if row["verdict"] == OK)
-        print(f"外部入口 id 候选 {len(rows)} 行，复核 CSV：{args.out}")
-        print("  判定分布：", dict(counts))
-        print("  可补的引用：", dict(by_site))
+        print(t("backfill_performer_entry_ids.candidates", count=len(rows), out=args.out))
+        print(t("backfill_performer_entry_ids.verdicts"), dict(counts))
+        print(t("backfill_performer_entry_ids.refsToAdd"), dict(by_site))
         if args.apply:
             records = (javdb.card_records(_cached_pages(args.javdb_cache))
                        if args.javdb_cache and Path(args.javdb_cache).is_dir() else {})
             planned, written = apply_rows(connection, rows, records)
             integrity, violations = verify_after_write(connection)
-            print(f"打算写 {planned} 条、实际写入 {written} 条 entity_external_ref；"
-                  f"integrity_check={integrity}、外键违规 {violations} 条")
+            print(t("backfill_performer_entry_ids.written", planned=planned, written=written, integrity=integrity, violations=violations))
             return 1 if violations or integrity != "ok" or planned != written else 0
     finally:
         connection.close()

@@ -25,6 +25,7 @@ if str(SRC_DIR) not in sys.path:
 
 from peach.config import GENERATED_DIR
 from peach.entities import merge_entity, normalize_entity_name
+from peach.interface_text import dev as t
 from peach.metadata import collapse_repeated_phrase
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
@@ -296,7 +297,7 @@ EXTRA_COUNTS = {
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="用官方日文证据本地化系列规范名")
+    parser = argparse.ArgumentParser(description=t("localize_series_names.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--candidates", type=Path, required=True)
     parser.add_argument("--revision", required=True)
@@ -314,22 +315,22 @@ def run(args: argparse.Namespace) -> int:
     try:
         rows = collect(connection, evidence, args.revision)
         write_csv(args.audit_csv, rows)
-        print(f"已审计 series {len(rows)} 个；审计 CSV：{args.audit_csv}")
-        print("  动作分布：", dict(Counter(str(row["action"]) for row in rows)))
+        print(t("localize_series_names.audited", count=len(rows), auditCsv=args.audit_csv))
+        print(t("localize_series_names.actions"), dict(Counter(str(row["action"]) for row in rows)))
         if not args.apply:
-            print("  未写 ledger（加 --apply --backup 才写）")
+            print(t("localize_series_names.notWritten"))
             return 0
 
-        print(f"  已备份到 {args.backup}")
+        print(t("localize_series_names.backedUp", backup=args.backup))
         before = counts_of(connection, EXTRA_COUNTS)
         with connection:
             changed = apply_rows(connection, rows, args.revision)
         after = counts_of(connection, EXTRA_COUNTS)
         integrity, foreign_keys = verify_after_write(connection)
-        print("  写入结果：", changed)
+        print(t("localize_series_names.results"), changed)
         for key in before:
             print(f"    {key}: {before[key]} -> {after[key]}")
-        print(f"  integrity_check={integrity}；foreign_key_check={foreign_keys}")
+        print(t("localize_series_names.checks", integrity=integrity, foreignKeys=foreign_keys))
         return 1 if integrity != "ok" or foreign_keys else 0
     finally:
         connection.close()

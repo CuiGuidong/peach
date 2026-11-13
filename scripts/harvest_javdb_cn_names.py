@@ -63,6 +63,7 @@ if str(SRC_DIR) not in sys.path:
 
 from peach import javdb   # noqa: E402
 from peach.config import STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.kanji import fold_glyphs   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
@@ -116,7 +117,7 @@ def _simplify():
     try:
         import opencc
     except ImportError as exc:   # pragma: no cover - 取决于安装方式
-        raise SystemExit("需要 opencc：pip install -e .[naming]") from exc
+        raise SystemExit(t("harvest_javdb_cn_names.needOpencc")) from exc
     return opencc.OpenCC("t2s").convert
 
 
@@ -397,16 +398,15 @@ def localize(rows: list[dict]) -> list[dict]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="从 javdb 资料页取女优中文名，产出映射 CSV")
+    parser = argparse.ArgumentParser(description=t("harvest_javdb_cn_names.description"))
     parser.add_argument("--db", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--aliases", type=Path,
-                        help="别名候选 CSV：页面上账本还没有的中文写法")
+                        help=t("harvest_javdb_cn_names.aliasesHelp"))
     parser.add_argument("--scope", choices=("kana", "all"), default="kana",
-                        help="kana 只查规范名还带假名的人；all 查全部有发行来源的人")
+                        help=t("harvest_javdb_cn_names.scopeHelp"))
     parser.add_argument("--only", action="append", default=[],
-                        help="只查点名的这几位：实体 id 或她名字链上的任一写法，"
-                             "逗号分隔，可重复给；给了就不受 --scope 限制")
+                        help=t("harvest_javdb_cn_names.onlyHelp"))
     parser.add_argument("--limit", type=int, default=0)
     # javdb 按出口 IP 自己封速率。5 秒是 `harvest_directory_links.SOURCE_INTERVAL`
     # 定下的那一档，两处必须一致：换个脚本就换个速度等于没有速度约束。
@@ -422,7 +422,7 @@ def run(args: argparse.Namespace) -> int:
     from peach.page_cache import Site
 
     if args.scope == "all" and not args.aliases:
-        raise SystemExit("--scope all 放开的是别名候选的范围，请一并给 --aliases <路径>")
+        raise SystemExit(t("harvest_javdb_cn_names.scopeNeedsAliases"))
     only = [part.strip() for value in args.only for part in str(value).split(",")
             if part.strip()]
     site = Site(args.cache_dir / "javdb", max(args.interval, 5.0), args.timeout,
@@ -435,8 +435,8 @@ def run(args: argparse.Namespace) -> int:
         connection.close()
     write_rows(args.out, FIELDS, rows, fill_missing=True)
     counts = Counter(str(row.get("verdict")) for row in rows)
-    print(f"javdb 中文名 {len(rows)} 行，映射 CSV：{args.out}")
-    print("  判定分布：", dict(counts))
+    print(t("harvest_javdb_cn_names.namesWritten", count=len(rows), out=args.out))
+    print(t("harvest_javdb_cn_names.verdicts"), dict(counts))
     for row in rows:
         if row.get("adopt"):
             print(f"    [{row['verdict']}] {row['current_name']} -> {row['adopt']}"
@@ -444,9 +444,8 @@ def run(args: argparse.Namespace) -> int:
     if args.aliases:
         write_rows(args.aliases, ALIAS_FIELDS, alias_rows, fill_missing=True)
         fresh = [row for row in alias_rows if row.get("verdict") == OK]
-        print(f"javdb 别名候选 {len(alias_rows)} 行（新写法 {len(fresh)} 个），"
-              f"CSV：{args.aliases}")
-        print("  判定分布：", dict(Counter(str(row.get("verdict")) for row in alias_rows)))
+        print(t("harvest_javdb_cn_names.aliasesWritten", count=len(alias_rows), fresh=len(fresh), aliases=args.aliases))
+        print(t("harvest_javdb_cn_names.verdicts"), dict(Counter(str(row.get("verdict")) for row in alias_rows)))
         for row in fresh:
             print(f"    [{row['origin']}] {row['current_name']} + {row['alias']}"
                   f"  ({row['url']})")

@@ -1685,7 +1685,7 @@ class OperationalScriptTests(unittest.TestCase):
             self.assertEqual(rows["javbus"]["auth_skips"], "4")
             self.assertEqual(rows["javbus"]["blocked"], "1")
             self.assertEqual(rows["r18dev"]["auth_skips"], "0")
-            self.assertIn("鉴权失败的来源", printed.getvalue())
+            self.assertIn("Sources with failed authentication", printed.getvalue())
 
     def test_only_not_found_counts_as_a_settled_source_verdict(self):
         # 本机配置问题（凭据没贴、桥没装）返回的是 unknown / unavailable 错误。把它当

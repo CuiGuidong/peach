@@ -35,6 +35,7 @@ if str(SRC_DIR) not in sys.path:
 import httpx
 
 from peach.config import SECRETS_DIR
+from peach.interface_text import dev as t
 from peach.jav_cover_fetch import DeadlineExceeded, HostLimitedTransport
 from peach.scraping_access import SourceBudgetExhausted, SourcePaused, SourceTransport
 from peach.sources import SITE_SOURCES, FailureReason
@@ -124,20 +125,20 @@ def record(source: str, code: str, *, secrets: Path, credentials: bool, note: st
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n", 1)[0])
-    parser.add_argument("samples", nargs="+", metavar="来源:番号")
-    parser.add_argument("--secrets", type=Path, default=SECRETS_DIR, help="凭据与代理设置所在的 secrets 根，只读")
-    parser.add_argument("--update", action="store_true", help="已有录制也重录")
-    parser.add_argument("--with-credentials", action="store_true", help="带上这一站的 Cookie；不登录拿不到作品页时才用")
-    parser.add_argument("--note", default="", help="写进录制的场景说明")
+    parser.add_argument("samples", nargs="+", metavar=t("record_source_fixtures.sampleMetavar"))
+    parser.add_argument("--secrets", type=Path, default=SECRETS_DIR, help=t("record_source_fixtures.secretsHelp"))
+    parser.add_argument("--update", action="store_true", help=t("record_source_fixtures.updateHelp"))
+    parser.add_argument("--with-credentials", action="store_true", help=t("record_source_fixtures.withCredentialsHelp"))
+    parser.add_argument("--note", default="", help=t("record_source_fixtures.noteHelp"))
     args = parser.parse_args(argv)
     if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS"):
-        print("CI 里只回放，不录制", file=sys.stderr)
+        print(t("record_source_fixtures.ciReplayOnly"), file=sys.stderr)
         return 2
     results = []
     for sample in args.samples:
         source, _, code = sample.partition(":")
         if source not in SITE_SOURCES or not code:
-            print(f"无法识别 {sample}：写成「来源:番号」，来源取 {', '.join(SITE_SOURCES)}", file=sys.stderr)
+            print(t("record_source_fixtures.badSample", sample=sample, sources=', '.join(SITE_SOURCES)), file=sys.stderr)
             return 2
         if fixture_path(source, code).exists() and not args.update:
             result = {"status": "已有录制"}

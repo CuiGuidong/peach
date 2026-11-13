@@ -23,6 +23,7 @@ from bs4 import BeautifulSoup
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.http import HttpRequest, HttpxTransport, body_text   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import USER_AGENT
 from peach.social_links import NON_HANDLES, handle
@@ -142,21 +143,21 @@ def parse_args():
     """校验采集输入及进度文件，避免覆盖来源。"""
     parser = argparse.ArgumentParser()
     source = parser.add_mutually_exclusive_group(required=True)
-    source.add_argument("--input", type=Path, help="含 studio,site 两列的 CSV")
-    source.add_argument("--db", type=Path, help="只读账本里的厂牌官网")
+    source.add_argument("--input", type=Path, help=t("find_studio_socials.inputHelp"))
+    source.add_argument("--db", type=Path, help=t("find_studio_socials.dbHelp"))
     parser.add_argument("--output", type=Path, required=True)
-    parser.add_argument("--review-output", type=Path, help="待复核链接表，确认归属后交 install_entity_links.py")
-    parser.add_argument("--resume", action="store_true", help="复用有账号证据的行；空结果与失败重新检查")
+    parser.add_argument("--review-output", type=Path, help=t("find_studio_socials.reviewOutputHelp"))
+    parser.add_argument("--resume", action="store_true", help=t("find_studio_socials.resumeHelp"))
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=25.0)
     args = parser.parse_args()
     source_path = (args.db or args.input).resolve()
     if any(path and path.resolve() == source_path for path in (args.output, args.review_output)):
-        parser.error("输出文件不能覆盖输入文件或账本")
+        parser.error(t("find_studio_socials.overwritesSource"))
     if args.review_output and args.output.resolve() == args.review_output.resolve():
-        parser.error("扫描表与复核表必须使用不同路径")
+        parser.error(t("find_studio_socials.samePaths"))
     if args.resume and args.output.exists() and args.review_output and not args.review_output.exists():
-        parser.error("续跑缺少原复核表；去掉 --resume 可重新采集")
+        parser.error(t("find_studio_socials.resumeMissingReview"))
     return args
 
 
@@ -200,7 +201,7 @@ def main() -> int:
             write_rows(args.output, SCAN_FIELDS, results)
             if args.review_output:
                 write_rows(args.review_output, REVIEW_FIELDS, reviews)
-            print(f"{studio:<20} {'|'.join(sorted(found)) or '未取得':<28} {note}")
+            print(f"{studio:<20} {'|'.join(sorted(found)) or t('find_studio_socials.notFound'):<28} {note}")
     finally:
         http.close()
 

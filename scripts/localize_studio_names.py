@@ -33,6 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.config import STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.page_cache import HttpStatusError, Site   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
@@ -161,12 +162,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-assets", type=int, default=1)
-    parser.add_argument("--codes", type=int, default=2, help="每个厂牌最多查几个不同前缀的番号")
-    parser.add_argument("--depth", type=int, default=3, help="同前缀最多试几个番号（只为顶替 404）")
+    parser.add_argument("--codes", type=int, default=2, help=t("localize_studio_names.codesHelp"))
+    parser.add_argument("--depth", type=int, default=3, help=t("localize_studio_names.depthHelp"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=25.0)
-    parser.add_argument("--refresh", action="store_true", help="忽略缓存重抓")
+    parser.add_argument("--refresh", action="store_true", help=t("localize_studio_names.refreshHelp"))
     parser.add_argument("--cache-dir", type=Path, default=STATE_DIR / "studio-names")
     parser.add_argument("--lock", type=Path, default=STATE_DIR / ".studio-names.lock")
     return parser
@@ -215,7 +216,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
              KEEP_JP: 5, SKIP: 6}
     rows.sort(key=lambda item: (order.get(item["verdict"], 9), -int(item["assets"]), item["studio"]))
     write_rows(args.output, FIELDS, rows)
-    print({"复核行": len(rows), **stats, "取页": site.fetched, "命中缓存": site.cached,
+    print({t("localize_studio_names.reviewRows"): len(rows), **stats, t("localize_studio_names.fetched"): site.fetched, t("localize_studio_names.cached"): site.cached,
            "output": str(args.output)})
     return 0
 

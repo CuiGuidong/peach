@@ -52,6 +52,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach import javdb   # noqa: E402
 from peach.config import STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.page_cache import HttpStatusError, Site   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
@@ -334,7 +335,7 @@ def bstar_page(site: Site, url: str) -> str:
         bstar_pass_gate(site)
         html = site.get(url, refresh=True)
         if bstar_gated(html):
-            raise RuntimeError("年龄门没过")
+            raise RuntimeError(t("harvest_directory_links.ageGateFailed"))
     return html
 
 
@@ -815,15 +816,15 @@ def build_parser() -> argparse.ArgumentParser:
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True,
-                        help="安装队列 CSV；复核表写到同目录的 <stem>-review.csv")
+                        help=t("harvest_directory_links.outputHelp"))
     parser.add_argument("--source", choices=("all", *SOURCES), default="all")
     parser.add_argument("--min-assets", type=int, default=1)
-    parser.add_argument("--limit", type=int, default=0, help="每个来源最多看几页（试跑用）")
+    parser.add_argument("--limit", type=int, default=0, help=t("harvest_directory_links.limitHelp"))
     parser.add_argument("--interval", type=float, default=1.2)
     parser.add_argument("--x-interval", type=float, default=2.0)
     parser.add_argument("--timeout", type=float, default=25.0)
-    parser.add_argument("--refresh", action="store_true", help="忽略本地缓存重新抓")
-    parser.add_argument("--no-probe", action="store_true", help="不去 x.com 验活")
+    parser.add_argument("--refresh", action="store_true", help=t("harvest_directory_links.refreshHelp"))
+    parser.add_argument("--no-probe", action="store_true", help=t("harvest_directory_links.noProbeHelp"))
     parser.add_argument("--cache-dir", type=Path, default=STATE_DIR / "directory-links")
     parser.add_argument("--lock", type=Path, default=STATE_DIR / ".directory-links.lock")
     return parser
@@ -836,7 +837,7 @@ def run(args) -> int:
         existing_handles, existing_urls = load_existing(connection)
     finally:
         connection.close()
-    print(f"账本可比对 performer {len(performers)} 位")
+    print(t("harvest_directory_links.performersLoaded", count=len(performers)))
 
     rows: list[dict] = []
     portraits: list[dict] = []
@@ -850,7 +851,7 @@ def run(args) -> int:
             site_links, pages = (collector(site, args.limit) if collector
                                  else NAME_ENTRY[source](site, args.limit, performers))
         except Exception as exc:
-            print(f"[{source}] 未取得：{type(exc).__name__}: {exc}")
+            print(t("harvest_directory_links.sourceFailed", source=source, error=type(exc).__name__, exc=exc))
             continue
         finally:
             site.close()
@@ -858,8 +859,7 @@ def run(args) -> int:
         rows += source_rows
         portraits += portrait_rows(pages, performers)
         totals.update(stats)
-        print(f"[{source}] 页面 {len(pages)}，网络 {site.fetched} / 缓存 {site.cached}，"
-              f"站方账号 {len(site_links)} 条已剔除，{dict(stats)}")
+        print(t("harvest_directory_links.sourceSummary", source=source, pages=len(pages), fetched=site.fetched, cached=site.cached, siteLinks=len(site_links), stats=dict(stats)))
 
     x_site = None if args.no_probe else Site(args.cache_dir / "x", args.x_interval, args.timeout,
                                               refresh=args.refresh, via_proxy=True)
@@ -868,7 +868,7 @@ def run(args) -> int:
     finally:
         if x_site is not None:
             x_site.close()
-    print(f"X 验活 {dict(alive)}" if x_site is not None else "本轮未验活")
+    print(t("harvest_directory_links.probeSummary", alive=dict(alive)) if x_site is not None else t("harvest_directory_links.probeSkipped"))
 
     order = {"conflict": 0, FAN_VERDICT: 1, "ok": 2, "需人工消歧": 3, "已有": 4, "未取得": 5}
     rows.sort(key=lambda item: (order.get(item["verdict"], 9), str(item["name"]), item["url"]))
@@ -876,12 +876,12 @@ def run(args) -> int:
     queue = installable(rows)
     write_rows(args.output, FIELDS, queue)
     write_rows(review, FIELDS, rows)
-    result = {"安装队列": len(queue), "复核行": len(rows), **totals,
+    result = {t("harvest_directory_links.installQueue"): len(queue), t("harvest_directory_links.reviewRows"): len(rows), **totals,
               "output": str(args.output), "review": str(review)}
     if portraits:
         portrait_path = args.output.with_name(args.output.stem + "-portraits.csv")
         write_rows(portrait_path, PORTRAIT_FIELDS, portraits)
-        result.update({"人像候选": len(portraits), "portraits": str(portrait_path)})
+        result.update({t("harvest_directory_links.portraitCandidates"): len(portraits), "portraits": str(portrait_path)})
     print(result)
     return 0
 

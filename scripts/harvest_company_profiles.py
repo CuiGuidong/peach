@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from peach.company_profiles import (entity_names, fill, merge_page, official_hosts, page_facts,  # noqa: E402
                                     replay, settle)
 from peach.http import HttpRequest, HttpxTransport, body_text  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 from peach.scripting import (USER_AGENT, HostLimiter, add_ledger_write_args, counts_of,
                              open_for_write, open_readonly, verify_after_write)  # noqa: E402
 from peach.studio_sites import parked_reason, page_title  # noqa: E402
@@ -145,7 +146,7 @@ def main() -> int:
     args = parser.parse_args()
     if args.input:
         if args.apply and not args.batch.startswith(SOURCE + '@'):
-            parser.error(f'--apply 需要 {SOURCE}@ 开头的 --batch，撤回按这个前缀认')
+            parser.error(t("harvest_company_profiles.batchPrefix", source=SOURCE))
         return land(args)
     if args.inventory:
         entities = json.loads(args.inventory.read_text(encoding='utf-8'))['entities']
@@ -158,7 +159,7 @@ def main() -> int:
                 item['aliases'] = [alias for (alias,) in connection.execute('SELECT alias FROM entity_alias WHERE entity_id=?', (item['id'],))]
                 entities.append(item)
     if args.cache is None:
-        parser.error('采集需要 --cache 保存原始页面')
+        parser.error(t("harvest_company_profiles.needCache"))
     args.cache.mkdir(parents=True, exist_ok=True)
     results = json.loads(args.output.read_text(encoding='utf-8'))['entities'] if args.resume and args.output.exists() else []
     done = {item['entity_id'] for item in results if settled(item)}

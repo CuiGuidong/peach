@@ -40,6 +40,7 @@ from peach.follow_image_dims import ImageDimsUnavailable, positive_dims, probe_i
 from peach.follow_secrets import credential_store_for
 from peach.follow_sources import display_thumb_url, f95_attachment_media_items
 from peach.follow_store import FollowItemRow, FollowStore
+from peach.interface_text import dev as t
 from peach.follow_stream import FollowMediaResolver, FollowMediaUnavailable
 from peach.http import HttpTransport, HttpxTransport
 from peach.review_csv import write_rows
@@ -62,17 +63,17 @@ FLUSH_EVERY = 50
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="补齐关注图片的固有宽高")
+    parser = argparse.ArgumentParser(description=t("backfill_follow_image_dims.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--out", type=Path,
                         default=GENERATED_DIR / "follow-image-dims-backfill.csv")
     parser.add_argument("--archives", type=Path, default=SOURCES_DIR / "follow",
-                        help="原始响应归档根目录（各来源一个子目录）")
+                        help=t("backfill_follow_image_dims.archivesHelp"))
     parser.add_argument("--mode", choices=("all", "archives", "probe"), default="all",
-                        help="archives 只对归档、probe 只发请求，默认两路都走")
+                        help=t("backfill_follow_image_dims.modeHelp"))
     parser.add_argument("--provider", action="append", default=[],
-                        help="只处理这些来源，可重复给")
-    parser.add_argument("--limit", type=int, default=0, help="只处理前 N 张，0 为全部")
+                        help=t("backfill_follow_image_dims.providerHelp"))
+    parser.add_argument("--limit", type=int, default=0, help=t("backfill_follow_image_dims.limitHelp"))
     parser.add_argument("--delay", type=float, default=DEFAULT_DELAY)
     return parser
 
@@ -188,20 +189,20 @@ def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int
     targets = pending_targets(items, providers)
     if args.limit:
         targets = targets[:args.limit]
-    print(f"关注条目 {len(items)} 条，待补尺寸 {len(targets)} 张", flush=True)
+    print(t("backfill_follow_image_dims.pending", items=len(items), targets=len(targets)), flush=True)
     if not targets:
         return 0
 
     archive = archived_dims(args.archives) if args.mode in ("all", "archives") else {}
     if args.mode in ("all", "archives"):
-        print(f"归档里有尺寸的 rule34.xxx 帖子 {len(archive)} 个", flush=True)
+        print(t("backfill_follow_image_dims.archived", count=len(archive)), flush=True)
 
     writer: sqlite3.Connection | None = None
     store: FollowStore | None = None
     before = after = 0
     if args.apply:
         writer = open_for_write(args)
-        print(f"备份：{args.backup}", flush=True)
+        print(t("backfill_follow_image_dims.backup", backup=args.backup), flush=True)
         before = writer.execute("SELECT COUNT(*) FROM follow_item").fetchone()[0]
         store = FollowStore(lambda: writer)
 
@@ -254,18 +255,18 @@ def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int
             log.append(row)
             if since_flush >= FLUSH_EVERY or position % 200 == 0:
                 flush()
-                print(f"{position}/{len(targets)}：已取得 {found}，已写入 {written}", flush=True)
+                print(t("backfill_follow_image_dims.progress", position=position, total=len(targets), found=found, written=written), flush=True)
     finally:
         flush()
 
-    print(f"取得 {found}/{len(targets)} 张 → {args.out}", flush=True)
+    print(t("backfill_follow_image_dims.found", found=found, total=len(targets), out=args.out), flush=True)
     if writer is None:
-        print(f"dry-run：可写入 {found} 张；加 --apply --backup 才真正写入")
+        print(t("backfill_follow_image_dims.dryRun", found=found))
         return 0
     after = writer.execute("SELECT COUNT(*) FROM follow_item").fetchone()[0]
     writer.close()
     # 条数必须不变：这一趟只补 metadata 里的两个数，不新增也不删除条目。
-    print(f"已写入 {written} 张；follow_item {before} → {after}")
+    print(t("backfill_follow_image_dims.written", written=written, before=before, after=after))
     return 0 if before == after else 1
 
 
