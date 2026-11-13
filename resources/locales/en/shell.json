@@ -136,6 +136,7 @@
   "clientUpdate": {
     "available": "An update is available.",
     "later": "Later",
+    "migrating": "Updating the local database.",
     "preparing": "Preparing update.",
     "refreshPage": "Refresh page",
     "refreshReady": "Peach has been updated. Refresh the page to use it.",

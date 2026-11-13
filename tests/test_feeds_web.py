@@ -512,6 +512,10 @@ class FeedWebTest(FeedWebFixture):
         row = dispatch_api_get(self.contract, "/api/feeds", {})["sources"][0]
         self.assertEqual(row["last_error"], "来源回了 HTTP 503")
         self.assertIsNotNone(row["next_fetch_at"])
+        # 原因连同 code 落在源那一行上，英文界面照 code 显示（迁移 0056）。
+        from peach import interface_text
+        self.assertEqual(interface_text.text(f"server:{row['last_error_code']}", row["last_error_params"], "en"),
+                         "The source returned HTTP 503.")
 
     def _sources_named(self, *names):
         """再加几个演员页源，各回一份同样的样本页。返回全部源 id，第一个是 `_add` 那个。"""

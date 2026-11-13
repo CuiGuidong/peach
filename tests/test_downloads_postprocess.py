@@ -88,6 +88,12 @@ class DownloadPostprocessTests(unittest.TestCase):
         self.assertEqual(task.postprocess_state, 'failed')
         self.assertIsNone(task.next_check_at)
         self.assertIn('自动重试 3 次', task.postprocess_detail)
+        # 说明连同 code 一起落库，读回来照样能按界面语言显示（迁移 0056）。
+        from peach import interface_text
+        payload = task.payload()
+        self.assertEqual(payload['postprocess_detail_code'], 'labels.downloads.postprocessRetriesExhausted')
+        self.assertEqual(interface_text.text(f"server:{payload['postprocess_detail_code']}", payload['postprocess_detail_params'], 'en'),
+                         'Still not finished after 3 automatic retries; TimeoutError: connect timed out')
 
     def test_offline_mount_retries_but_target_collision_stops_immediately(self):
         with patch.object(post.organize, 'build_plan', return_value={

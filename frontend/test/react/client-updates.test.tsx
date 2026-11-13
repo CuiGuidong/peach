@@ -1,7 +1,8 @@
 import { act } from 'react';
 import { expect, it, vi } from 'vitest';
 
-import { ClientUpdateBanner, CLIENT_UPDATES_INTERVAL, RELEASE_UPDATES_PATH, type ClientUpdates } from '../../src/react/client-updates';
+import { ClientUpdateBanner, CLIENT_UPDATES_INTERVAL, RECOVERY_DELAYS, RELEASE_UPDATES_PATH, type ClientUpdates } from '../../src/react/client-updates';
+import { SETTINGS_KEY } from '../../src/settings-key';
 import { buttonNamed, click, linkNamed, mountRoot, pending, settle } from './render';
 
 const current: ClientUpdates = {
@@ -203,4 +204,115 @@ it('准备更新中的稍后选择贯穿下载、校验和解压，准备好时�
   fetcher.mockResolvedValue(response({ ...preparing, update_job: { ...preparing.update_job, state: 'ready' } }));
   await tick();
   expect(slot.textContent).toContain('可重启安装');
+});
+
+const migrating: ClientUpdates = { ...current, ledger_migration: { state: 'running' } };
+
+async function advance(milliseconds: number) {
+  await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });
+  await settle();
+}
+
+it('启动迁移期间显示正在更新本地数据库，迁移结束后换成刷新提示', async () => {
+  seedRuntime();
+  const { slot, fetcher } = await render(migrating);
+  expect(slot.querySelector('[data-client-update="migrating"]')?.textContent).toContain('正在更新本地数据库。');
+  expect(slot.textContent).not.toContain('Peach 0.9.0');
+  expect(linkNamed('查看进度', slot)).toBeNull();
+  fetcher.mockResolvedValue(response({ ...current, ledger_migration: { state: 'idle' } }));
+  await advance(RECOVERY_DELAYS[0]);
+  expect(slot.querySelector('[data-client-update="refresh"]')).not.toBeNull();
+  expect(slot.textContent).toContain('Peach 已更新，刷新页面即可使用。');
+});
+
+it('Windows 更新器迁移账本时也显示正在更新本地数据库', async () => {
+  const { slot } = await render({ ...available(), update_job: { state: 'installing', progress: 10, version: '0.10.0',
+    message: '正在更新本地数据库', message_code: 'jobMessage.standaloneUpdate.updatingDatabase' } });
+  expect(slot.querySelector('[data-client-update="migrating"]')?.textContent).toContain('正在更新本地数据库。');
+});
+
+it('没恢复时按 2、4、8、16、30 秒退避，恢复后回到每 2 分钟一次', async () => {
+  const { fetcher } = await render(migrating);
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  let calls = 1;
+  for (const delay of [...RECOVERY_DELAYS, 30_000]) {
+    await advance(delay - 1);
+    expect(fetcher).toHaveBeenCalledTimes(calls);
+    await advance(1);
+    expect(fetcher).toHaveBeenCalledTimes(++calls);
+  }
+  fetcher.mockRejectedValue(new TypeError('Failed to fetch'));
+  await advance(30_000);
+  expect(fetcher).toHaveBeenCalledTimes(++calls);
+  fetcher.mockResolvedValue(response(current));
+  await advance(30_000);
+  expect(fetcher).toHaveBeenCalledTimes(++calls);
+  await advance(CLIENT_UPDATES_INTERVAL - 1);
+  expect(fetcher).toHaveBeenCalledTimes(calls);
+  await advance(1);
+  expect(fetcher).toHaveBeenCalledTimes(++calls);
+});
+
+it('检查事件立即查一次，同一时刻只有一个检查在飞，退避期间的事件不插队', async () => {
+  const { fetcher } = await render();
+  const late = pending<ReturnType<typeof response>>();
+  fetcher.mockImplementationOnce(async () => late.answer);
+  await act(async () => { for (let index = 0; index < 3; index += 1) document.dispatchEvent(new Event('peach:client-updates')); });
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  await late.release(response(migrating));
+  await settle();
+  await act(async () => { document.dispatchEvent(new Event('peach:client-updates')); });
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  await advance(RECOVERY_DELAYS[0]);
+  expect(fetcher).toHaveBeenCalledTimes(3);
+});
+
+it('两个取数入口遇到迁移的 503 或连不上服务时派发检查事件，别的失败与中止不派发', async () => {
+  const [{ apiGet, apiSend }, { api }] = await Promise.all([import('../../src/api'), import('../../src/core')]);
+  const heard = vi.fn();
+  document.addEventListener('peach:client-updates', heard);
+  const answer = (status: number, body: unknown) => vi.fn(async () => new Response(JSON.stringify(body), {
+    status, headers: { 'Content-Type': 'application/json' } }));
+  try {
+    vi.stubGlobal('fetch', answer(503, { error: '正在更新本地数据库，完成后刷新页面即可使用。', message_code: 'api.ledger.migrating' }));
+    await expect(apiGet('/api/items')).rejects.toThrow('正在更新本地数据库');
+    await expect(apiSend('/api/items', {})).rejects.toThrow();
+    await expect(api('/api/items')).rejects.toThrow();
+    expect(heard).toHaveBeenCalledTimes(3);
+    vi.stubGlobal('fetch', answer(503, { error: '别的原因', message_code: 'http.serverError' }));
+    await expect(apiGet('/api/items')).rejects.toThrow();
+    expect(heard).toHaveBeenCalledTimes(3);
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+    await expect(apiGet('/api/items')).rejects.toThrow();
+    await expect(api('/api/items')).rejects.toThrow();
+    expect(heard).toHaveBeenCalledTimes(5);
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new DOMException('aborted', 'AbortError'); }));
+    await expect(apiGet('/api/items')).rejects.toThrow();
+    await expect(api('/api/items')).rejects.toThrow();
+    expect(heard).toHaveBeenCalledTimes(5);
+  } finally {
+    document.removeEventListener('peach:client-updates', heard);
+    vi.unstubAllGlobals();
+  }
+});
+
+it('英文界面显示英文的迁移提示', async () => {
+  vi.resetModules();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ interfaceLanguage: 'en' }));
+  try {
+    const { ClientUpdateBanner: Banner } = await import('../../src/react/client-updates');
+    vi.useFakeTimers();
+    visible('visible');
+    vi.stubGlobal('fetch', vi.fn(async () => response(migrating)));
+    const slot = document.createElement('div');
+    slot.setAttribute('data-network-banner', '');
+    document.body.append(slot);
+    await mountRoot(<Banner navigate={vi.fn()} />);
+    await settle();
+    expect(slot.querySelector('[data-client-update="migrating"]')?.textContent).toContain('Updating the local database.');
+    expect(buttonNamed('Later', slot)).not.toBeNull();
+  } finally {
+    localStorage.removeItem(SETTINGS_KEY);
+    vi.resetModules();
+  }
 });

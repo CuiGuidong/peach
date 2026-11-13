@@ -80,10 +80,13 @@ class RetryUpgradeTests(unittest.TestCase):
                      r'C:\Media\film.mp4', 'failed', '需要检查挂载'))
                 connection.commit()
                 before = dict(connection.execute('SELECT * FROM download_task').fetchone())
-            self.assertEqual([item.version for item in migrations.upgrade(database, directory)], ['0051', '0052', '0053', '0054', '0055'])
+            self.assertEqual([item.version for item in migrations.upgrade(database, directory)], ['0051', '0052', '0053', '0054', '0055', '0056'])
             with closing(sqlite3.connect(database)) as connection:
                 connection.row_factory = sqlite3.Row
                 after = dict(connection.execute('SELECT * FROM download_task').fetchone())
             self.assertEqual(after.pop('postprocess_retries'), 0)
+            # 0056 加的 code 列不回填：旧行照原文显示。
+            codes = ('failure_detail_code', 'failure_detail_params', 'postprocess_detail_code', 'postprocess_detail_params')
+            self.assertEqual({name: after.pop(name) for name in codes}, dict.fromkeys(codes))
             self.assertEqual(after, before)
             self.assertEqual(migrations.upgrade(database, directory), [])

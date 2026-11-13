@@ -69,6 +69,9 @@ export interface FollowSource {
   last_checked_at?: string | null;
   last_status?: string;
   last_error?: string;
+  /** 有 code 的按界面语言显示；旧记录只有原文。 */
+  last_error_code?: string;
+  last_error_params?: Record<string, unknown>;
   history_exhausted?: boolean;
 }
 
@@ -563,6 +566,8 @@ export interface FeedSource {
   interval_minutes: number;
   last_fetched_at: string | null;
   last_error: string | null;
+  last_error_code?: string;
+  last_error_params?: Record<string, unknown>;
   last_new_count: number;
   seen: number;
 }

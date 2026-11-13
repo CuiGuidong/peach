@@ -2151,6 +2151,23 @@ class UpgradeRepairTests(unittest.TestCase):
         service.start.assert_called_once()
         self.assertEqual(len(list(self.root.glob('ledger.pre-schema-*.db'))), 1)
 
+    def test_failed_startup_migration_keeps_services_stopped_and_reports_why(self):
+        from peach import api, config
+        with self.database.write_transaction() as connection:
+            connection.execute("DELETE FROM schema_migration WHERE version='0056'")
+        self.contract.upgrade_repairs = self.service
+        migration, service = api.LedgerMigration(), Mock()
+        with (patch('peach.migrations.upgrade', side_effect=RuntimeError('foreign key violations')),
+              patch.object(api, '_restore_task_center'), patch('peach.web_job_recovery.restore'),
+              patch.object(config, 'MIGRATIONS_DIR', Path(__file__).resolve().parents[1] / 'migrations'),
+              self.assertLogs('peach.api', level='ERROR')):
+            self.assertFalse(api._start_ledger_services(SimpleNamespace(db_path=self.db), self.contract, [service], migration))
+        service.start.assert_not_called()
+        payload = migration.payload()
+        self.assertEqual((payload['state'], payload['message_code']), ('failed', 'api.ledger.migrationFailed'))
+        self.assertIn('foreign key violations', payload['message'])
+        self.assertEqual(self.service.error, 'foreign key violations')
+
     def test_media_dispatch_is_bounded_and_rechecks_deferred_cost(self):
         from peach.settings_file import load_config
         self.service.config = load_config(environ={'PEACH_DATA_ROOT': str(self.root)})
@@ -2407,6 +2424,60 @@ class LedgerActivationTests(unittest.IsolatedAsyncioTestCase):
                 service = api._configure_upgrade_repairs(SimpleNamespace(configured=True, db_path=database), contract, None)
             self.assertFalse(service.available)
             self.assertFalse(service.root.exists())
+
+    async def test_pending_schema_migrates_in_the_background_after_the_service_starts_listening(self):
+        from unittest.mock import AsyncMock
+        from peach.api import _LedgerActivation
+        app = SimpleNamespace(state=SimpleNamespace())
+        settings = SimpleNamespace(configured=True, db_path=Path('unused.db'))
+        contract = SimpleNamespace(upgrade_repairs=SimpleNamespace(error='', available=True))
+        automatic, sharing = Mock(), Mock()
+        activation = _LedgerActivation(app, settings, contract, (), automatic, sharing)
+        release, seen = threading.Event(), []
+
+        def migrate(_settings, _contract, _services, migration):
+            seen.append(migration.state)
+            release.wait(5)
+            migration.state = 'idle'
+            return True
+        with patch('peach.api._installation_in_progress', return_value=False), patch(
+                'peach.api._migration_pending', return_value=True), patch(
+                'peach.api._start_ledger_services', side_effect=migrate), patch(
+                'peach.api._warm_ledger_aggregates', new=AsyncMock()) as warm:
+            self.assertFalse(await activation.start())
+            self.assertTrue(app.state.ledger_migration.running)
+            self.assertFalse(app.state.ledger_background_ready)
+            release.set()
+            await activation.task
+        self.assertEqual(seen, ['running'])
+        self.assertEqual(app.state.ledger_migration.payload(), {'state': 'idle'})
+        self.assertTrue(app.state.ledger_background_ready)
+        sharing.start.assert_called_once()
+        warm.assert_awaited_once()
+        await activation.stop()
+
+    async def test_background_migration_failure_is_reported_and_workers_stay_stopped(self):
+        from peach import interface_text
+        from peach.api import _LedgerActivation
+        app = SimpleNamespace(state=SimpleNamespace())
+        settings = SimpleNamespace(configured=True, db_path=Path('unused.db'))
+        contract = SimpleNamespace(upgrade_repairs=SimpleNamespace(error='', available=True))
+        activation = _LedgerActivation(app, settings, contract, (), Mock(), Mock())
+
+        def migrate(_settings, _contract, _services, migration):
+            migration.fail(RuntimeError('disk full'))
+            return False
+        with patch('peach.api._installation_in_progress', return_value=False), patch(
+                'peach.api._migration_pending', return_value=True), patch(
+                'peach.api._start_ledger_services', side_effect=migrate):
+            self.assertFalse(await activation.start())
+            await activation.task
+        payload = app.state.ledger_migration.payload()
+        self.assertEqual(payload['state'], 'failed')
+        self.assertFalse(app.state.ledger_background_ready)
+        self.assertEqual(interface_text.text(f"server:{payload['message_code']}", payload['message_params'], 'en'),
+                         "The local database couldn't be updated, so background tasks didn't start: disk full")
+        await activation.stop()
 
     async def test_successful_retry_restarts_workers_once_after_prepare_failure(self):
         from peach.api import _LedgerActivation

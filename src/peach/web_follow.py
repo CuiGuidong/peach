@@ -53,7 +53,7 @@ from .taste_history import read_creator_candidates
 from .web_state import path_version
 from .online_tag_management import OnlineTagPolicy, TYPE_RANK, tag_key
 from .user_messages import UserInterruptedError, UserValueError, failure_fields, message_fields
-from .coded_text import coded
+from .coded_text import coded, restored
 
 
 #: 界面上给每个来源的中文短名。没登记的 provider 直接显示原名。
@@ -1290,7 +1290,8 @@ def _source_payload(row, aliases: dict[str, str] | None = None) -> dict:
         "created_at": row["created_at"],
         "last_checked_at": row["last_checked_at"],
         "last_status": "not_modified" if history_exhausted else row["last_status"],
-        "last_error": None if history_exhausted else row["last_error"],
+        **coded("last_error", None if history_exhausted else
+                restored(row["last_error"], row["last_error_code"], row["last_error_params"])),
         "history_exhausted": history_exhausted,
     }
 

@@ -275,6 +275,18 @@ class SubmitTests(_Deployment):
         self.tick(10)
         self.assertEqual(self.service.store.get(task["id"]).state, dl.REMOTE_RUNNING)
 
+    def test_failure_reasons_keep_their_code_in_the_ledger_for_the_interface_language(self):
+        from peach import interface_text
+        self.provider.submit_result = dl.DownloadError("rejected", "errors.downloads.remoteRejectedNoReason")
+        task_id = self.submit()["task"]["id"]
+        stored = self.service.store.get(task_id).payload()
+        self.assertEqual(stored["failure_detail_code"], "errors.downloads.remoteRejectedNoReason")
+        self.assertEqual(interface_text.text(f"server:{stored['failure_detail_code']}", stored["failure_detail_params"], "en"),
+                         "The remote side rejected this task without giving a reason")
+        submitted = self.service.store.submissions(task_id)[-1]
+        self.assertEqual((submitted["detail"], submitted["detail_code"]),
+                         (stored["failure_detail"], "errors.downloads.remoteRejectedNoReason"))
+
     def test_a_submission_that_never_gets_through_fails_after_an_hour(self):
         self.provider.submit_result = unreachable()
         task_id = self.submit()["task"]["id"]
@@ -284,6 +296,8 @@ class SubmitTests(_Deployment):
         self.assertEqual((task.state, task.failure), (dl.FAILED, "network"))
         self.assertGreaterEqual(self.clock() - 1_800_000_000.0, dl.SUBMIT_RETRY_WINDOW)
         self.assertRegex(task.failure_detail, r"^查离线任务时连不上 CloudDrive2：Deadline Exceeded（自动重试 \d+ 次后仍未提交）$")
+        self.assertEqual((task.failure_detail.code, task.failure_detail.params["detail"]["code"]),
+                         ("errors.downloads.retriesExhausted", "errors.downloadsClouddrive.unreachable"))
         self.assertTrue(task.payload()["resubmittable"])
         self.assertEqual(self.submissions()[-1][:2], ("failed", "network"))
 

@@ -1034,6 +1034,10 @@
     "mediaTools": {
       "installed": "Installed {{label}} ({{version}})",
       "alreadyInstalled": "{{label}} is already installed ({{version}}). No download needed."
+    },
+    "ledger": {
+      "migrating": "Updating the local database. Refresh the page when it's done.",
+      "migrationFailed": "The local database couldn't be updated, so background tasks didn't start: {{error}}"
     }
   },
   "errors": {
@@ -3790,7 +3794,8 @@
         "taskFailuresUnknown": "Task failure records unavailable",
         "noTaskFailures": "No task failures recorded",
         "taskFailures": "Some task failures were recorded",
-        "versions": "Peach {{peach}} · Python {{python}}"
+        "versions": "Peach {{peach}} · Python {{python}}",
+        "databaseMigrating": "Updating the local database"
       },
       "action": {
         "repairConfiguration": "Fix the settings file on this device",

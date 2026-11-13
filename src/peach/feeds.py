@@ -20,7 +20,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from .catalog_rules import normalise_code_key, release_code_from_text
-from .coded_text import Said, coded
+from .coded_text import Said, coded, columns, restored
 from .content_words import COMPILATION_TITLE, DMM_HOURS, DMM_MINUTES, JAVDB_WORK_COUNT
 from .entities import normalize_entity_name
 from .user_messages import UserValueError
@@ -424,7 +424,7 @@ def sources(connection: sqlite3.Connection) -> list[dict]:
         "interval_minutes": int(row["interval_minutes"]),
         "last_fetched_at": row["last_fetched_at"],
         "next_fetch_at": row["next_fetch_at"],
-        "last_error": row["last_error"],
+        **coded("last_error", restored(row["last_error"], row["last_error_code"], row["last_error_params"])),
         "last_seen_count": int(row["last_seen_count"]),
         "last_new_count": int(row["last_new_count"]),
         "seen": int(row["seen"] or 0),
@@ -465,14 +465,15 @@ def settle(connection: sqlite3.Connection, source_id: int, *, error: str | None 
     失败也按同一间隔排下一次，不做指数退避——退避要么在这里写第二套判据，要么让一个
     临时挡回来的源沉默半天。下次时间在所有返回路径上都写，任何一种结局都不会让源卡住。
     `retry_at` 是来源冷却的结束时刻：被整站挡回来的不是这个源的错，冷却一过就该再拉。
+    `error` 是 `Said` 时旁边一并存下 code 与参数，界面按当前语言显示。
     """
     moment = now or datetime.now(timezone.utc)
     upcoming = retry_at or next_fetch(source_id, moment, interval_minutes)
     connection.execute(
-        "UPDATE feed_source SET last_error=?,last_fetched_at=?,next_fetch_at=?,"
-        "etag=COALESCE(?,etag),last_modified=COALESCE(?,last_modified),"
+        "UPDATE feed_source SET last_error=?,last_error_code=?,last_error_params=?,last_fetched_at=?,"
+        "next_fetch_at=?,etag=COALESCE(?,etag),last_modified=COALESCE(?,last_modified),"
         "name=COALESCE(?,name),last_seen_count=?,last_new_count=? WHERE id=?",
-        (error, stamp(moment), stamp(upcoming),
+        (error, *columns(error), stamp(moment), stamp(upcoming),
          etag, last_modified, page_name or None, int(seen), int(new), int(source_id)))
 
 

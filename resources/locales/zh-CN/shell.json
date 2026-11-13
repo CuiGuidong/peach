@@ -116,6 +116,7 @@
   "clientUpdate": {
     "available": "有可用更新。",
     "later": "稍后",
+    "migrating": "正在更新本地数据库。",
     "preparing": "正在准备更新。",
     "refreshPage": "刷新页面",
     "refreshReady": "Peach 已更新，刷新页面即可使用。",

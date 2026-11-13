@@ -254,6 +254,9 @@ export interface DownloadTask {
   failure: string | null;
   failure_label: string | null;
   failure_detail: string | null;
+  /** 有 code 的按界面语言显示；旧任务只有原文。 */
+  failure_detail_code?: string;
+  failure_detail_params?: Record<string, unknown>;
   progress: number | null;
   remote_name: string | null;
   ledger_path: string | null;
@@ -270,6 +273,8 @@ export interface DownloadTask {
   postprocess_label_code?: string;
   postprocess_label_params?: Record<string, unknown>;
   postprocess_detail: string | null;
+  postprocess_detail_code?: string;
+  postprocess_detail_params?: Record<string, unknown>;
   postprocess_run_id: number | null;
   postprocessed_at: string | null;
   postprocess_active: boolean;

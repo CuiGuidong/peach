@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Mapping
 
 from . import error_reporting, follow_providers
-from .coded_text import Said
+from .coded_text import Said, from_error
 from .follow import FollowHistoryEnd, FollowSourceError, FollowSourceRateLimited
 from .follow_secrets import CredentialError
 from .follow_sources import SourceFetch, enrichment_mark, history_window, published_stamp
@@ -293,7 +293,7 @@ def _fill_floor(row, connector, writer, fetch, outcome, cutoff, floor, moment, *
 def _record_failure(writer, base: dict, error: Exception, moment: datetime,
                     status: str, *, phase: str) -> CheckResult:
     with writer() as store:
-        store.record_error(base["source_id"], str(error), moment, status=status)
+        store.record_error(base["source_id"], from_error(error), moment, status=status)
     error_reporting.event("follow-check", error, provider=base["provider"],
                           source_id=base["source_id"], phase=phase,
                           page=base["page"], older=base["older"], status=status)

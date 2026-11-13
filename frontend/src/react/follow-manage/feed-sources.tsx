@@ -401,8 +401,8 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
             <Note tone="error" title={t('follow:feedSources.failedTitle', { count: failing.length })}
               extra={<ul className="flex flex-col gap-0.5 text-body-2-regular">
                 {failing.map((source) => (
-                  <li key={source.id} className="min-w-0 truncate" title={source.last_error || ''}>
-                    {t('follow:shared.labeled', { label: feedName(source), value: errorHeadline(source.last_error || '') || t('follow:shared.noReason') })}
+                  <li key={source.id} className="min-w-0 truncate" title={codedText(source, 'last_error')}>
+                    {t('follow:shared.labeled', { label: feedName(source), value: errorHeadline(codedText(source, 'last_error')) || t('follow:shared.noReason') })}
                   </li>
                 ))}
               </ul>}>

@@ -18,13 +18,18 @@
 `strip`、`format`、f-string 之后 code 就没了，得到的是那句 zh-CN 原文。`pickle`、`copy`、`deepcopy`
 按 `__reduce__` 原样带着 code 与参数；`json.dumps` 只写原文（JSON 没有地方放 code），要交给界面的
 先经 `coded`／`parallel` 摆成字段再序列化。
+
+**落库。** 账本里只有一列原句的字段，旁边另有 `<列>_code`、`<列>_params` 两列：写入时用 `columns`
+取出这两列的值，读出时用 `restored` 把三列还原成 `Said`，之后照样经 `coded` 交给界面。
 """
 from __future__ import annotations
 
+import json
 from collections.abc import Iterable, Mapping
 from typing import Any
 
 from . import interface_text
+from .user_messages import UserFacingError
 
 
 class Said(str):
@@ -76,3 +81,29 @@ def coded(key: str, value: object) -> dict[str, Any]:
     if isinstance(value, Said):
         return {key: str(value), f"{key}_code": value.code, f"{key}_params": dict(value.params)}
     return {key: value}
+
+
+def columns(value: object) -> tuple[str | None, str | None]:
+    """落库时原句旁的两列：`Said` 写 code 与 JSON 参数，原文或 `None` 两列都是 `None`。"""
+    if isinstance(value, Said):
+        return value.code, json.dumps(value.params, ensure_ascii=False, default=str)
+    return None, None
+
+
+def restored(text: str | None, code: str | None, params: str | None) -> str | None:
+    """从库里读回的一句：有 code 的还原成 `Said`（值用库里存的原句，不重渲染），没有的原样返回。
+    参数列读不出来时按没有参数处理。"""
+    if text is None or not code:
+        return text
+    try:
+        values = json.loads(params) if params else {}
+    except ValueError:
+        values = {}
+    return _restore(text, code, values if isinstance(values, dict) else {})
+
+
+def from_error(error: BaseException, fallback: str | None = None) -> str:
+    """把异常写成一句：带 code 的是 `Said`（值是异常的原句），别的给 `fallback`，没给就是 `str(error)`。"""
+    if isinstance(error, UserFacingError):
+        return _restore(error.message, error.code, dict(error.params))
+    return str(error) if fallback is None else fallback

@@ -2341,8 +2341,14 @@ class FollowContractTests(unittest.TestCase):
             factory.return_value.fetch.side_effect = FollowSourceError(
                 "errors.followSources.httpStatus", {"provider": "rule34video", "status": 503})
             self._post("/api/follow/check", {})
-        self.assertEqual(self._get()["sources"][0]["last_status"], "error")
-        self.assertIn("503", self._get()["sources"][0]["last_error"])
+        source = self._get()["sources"][0]
+        self.assertEqual(source["last_status"], "error")
+        self.assertIn("503", source["last_error"])
+        # 原因连同 code 落在来源那一行上，英文界面照 code 显示（迁移 0056）。
+        from peach import interface_text
+        self.assertEqual(source["last_error_code"], "errors.followSources.httpStatus")
+        self.assertEqual(interface_text.text(f"server:{source['last_error_code']}", source["last_error_params"], "en"),
+                         "rule34video returned HTTP 503")
 
     def test_credentials_say_what_each_source_actually_needs(self):
         payload = self._get("/api/follow/credentials")
@@ -3255,7 +3261,7 @@ def _source_row(**kwargs):
             "enabled": 1, "entity_id": None, "entity_name": None,
             "backfill_page": 0, "created_at": "2026-08-01T00:00:00Z",
             "last_checked_at": "2026-08-30T00:00:00Z",
-            "last_status": "ok", "last_error": None}
+            "last_status": "ok", "last_error": None, "last_error_code": None, "last_error_params": None}
     row.update(kwargs)
     return row
 

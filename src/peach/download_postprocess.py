@@ -7,7 +7,7 @@ from pathlib import Path
 
 from . import interface_text, junk, ledger_backups, organize, settings_file
 from .catalog_rules import same_release_code
-from .coded_text import Said
+from .coded_text import Said, from_error
 from .downloads import (INGESTED, POSTPROCESS_COMPLETE,
                         POSTPROCESS_PENDING, POSTPROCESS_QUEUED, POSTPROCESS_RUNNING,
                         DownloadStore, iso)
@@ -240,13 +240,12 @@ def run(contract, key: str, handle) -> dict:
             contract.task_runs.enqueue_followups(handle.run_id, rows)
     except JobDeferred as error:
         # 给扫描与采集让路：后继回到队列，路让回来后从头续跑，这次不算失败。
-        store.postprocess(task_id, POSTPROCESS_QUEUED, detail=str(error))
+        store.postprocess(task_id, POSTPROCESS_QUEUED, detail=from_error(error))
         raise
     except Exception as error:
         store.fail_postprocess(task_id, error, now=contract.downloads.clock())
         contract.downloads.wake()
         raise
-    # `postprocess_detail` 只有一列文字，存的是按 zh-CN 渲染的原句；code 要等这一列旁边有地方放（见延后清单）。
     detail = (Said("labels.downloadPostprocess.doneSkipped", reason=organized['skipped'])
               if organized.get('skipped') else Said("labels.downloadPostprocess.done"))
     pending = metadata.get('paused_pending')

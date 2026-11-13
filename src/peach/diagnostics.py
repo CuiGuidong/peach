@@ -171,9 +171,10 @@ def media_mounts(snapshot):
                 details=snapshot)
 
 
-def component_checks(settings, snapshot, *, config=None, validate_config=True, inspect_tools=True):
+def component_checks(settings, snapshot, *, config=None, validate_config=True, inspect_tools=True, migrating=False):
     config = config or settings_file.active()
-    database, schema = database_checks(settings)
+    database, schema = ((item("database", "unknown", "databaseMigrating"), item("schema", "unknown", "databaseMigrating"))
+                        if migrating else database_checks(settings))
     checks = {"database": database, "schema": schema, "configured": configuration(config, settings.configured, validate=validate_config),
               "media_mounts": media_mounts(snapshot), "security": security(settings)}
     checks["ffmpeg"] = tools(settings, inspect=inspect_tools)
@@ -257,8 +258,9 @@ def report(settings, snapshot, *, config=None):
             "sources": library_diagnostics.sources(settings, config)}
 
 
-def health_components(settings, snapshot):
-    checks = component_checks(settings, snapshot, validate_config=False, inspect_tools=False)
+def health_components(settings, snapshot, *, migrating=False):
+    """公开健康检查的分项。`migrating`：服务启动时正在迁移账本，数据库两项不打开账本，记为正在更新。"""
+    checks = component_checks(settings, snapshot, validate_config=False, inspect_tools=False, migrating=migrating)
     # 公开健康检查只保留分项原因与它的 code；工具路径与详细修法由本机诊断提供。
     fields = ("status", "reason", "reason_code", "reason_params", "reason_parts")
     return {key: {name: value[name] for name in fields if name in value} for key, value in checks.items()}

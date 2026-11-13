@@ -841,10 +841,14 @@ def check_updates(request: Request, _args=Depends(require_auth)):
 
 @router.get('/api/client-updates')
 def client_updates(request: Request, _args=Depends(require_auth)):
+    """页面顶部横幅读的更新状态。启动迁移期间照常回应、不碰账本：升级修复的进度要查账本，先报未开始。"""
     from .client_updates import snapshot
     result = snapshot(request.app.state.automatic_updates)
     result['update_job'] = standalone_update.public()
-    result['repairs'] = request.app.state.upgrade_repairs.snapshot()
+    migration = request.app.state.ledger_migration
+    result['ledger_migration'] = migration.payload()
+    result['repairs'] = ({'state': 'pending', 'items': [], 'available': request.app.state.upgrade_repairs.available}
+                         if migration.running else request.app.state.upgrade_repairs.snapshot())
     return result
 
 

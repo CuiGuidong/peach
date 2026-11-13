@@ -19,7 +19,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import follow_evidence, follow_providers
-from .coded_text import Said
+from .coded_text import Said, columns
 from .follow import FollowSourceError, internal_error, write_immutable
 from .follow_image_dims import positive_dims
 from .follow_sources import (
@@ -443,7 +443,8 @@ class FollowStore:
         if fetch.not_modified:
             connection.execute(
                 "UPDATE follow_source SET last_checked_at=?, last_status='not_modified',"
-                " last_error=NULL, updated_at=? WHERE id=?", (stamp, stamp, source_id))
+                " last_error=NULL, last_error_code=NULL, last_error_params=NULL, updated_at=?"
+                " WHERE id=?", (stamp, stamp, source_id))
             return RecordOutcome(source_id, not_modified=True)
 
         evidence, evidence_error, fresh = (self._persist_evidence(fetch, moment) if complete
@@ -523,12 +524,13 @@ class FollowStore:
             # 站点回 304，新的更新从此再也进不来。只推进游标。
             connection.execute(
                 "UPDATE follow_source SET backfill_page=max(backfill_page,?),"
-                " last_checked_at=?, last_status='ok', last_error=NULL, updated_at=?"
-                " WHERE id=?", (page, stamp, stamp, source_id))
+                " last_checked_at=?, last_status='ok', last_error=NULL, last_error_code=NULL,"
+                " last_error_params=NULL, updated_at=? WHERE id=?", (page, stamp, stamp, source_id))
         else:
             connection.execute(
                 "UPDATE follow_source SET etag=?, last_modified=?, last_checked_at=?,"
-                " last_status='ok', last_error=NULL, updated_at=? WHERE id=?",
+                " last_status='ok', last_error=NULL, last_error_code=NULL, last_error_params=NULL,"
+                " updated_at=? WHERE id=?",
                 (fetch.etag, fetch.last_modified, stamp, stamp, source_id))
         return RecordOutcome(source_id, len(fetch.candidates), added, updated,
                              evidence_path=evidence, evidence_error=evidence_error)
@@ -683,10 +685,12 @@ class FollowStore:
 
     def record_error(self, source_id: int, message: str,
                      moment: datetime | None = None, *, status: str = "error") -> None:
+        """记下这次失败；`message` 是 `Said` 时旁边一并存下 code 与参数，界面按当前语言显示。"""
         stamp = _now_text(moment)
         self._connect().execute(
             "UPDATE follow_source SET last_checked_at=?, last_status=?, last_error=?,"
-            " updated_at=? WHERE id=?", (stamp, status, message[:500], stamp, source_id))
+            " last_error_code=?, last_error_params=?, updated_at=? WHERE id=?",
+            (stamp, status, message[:500], *columns(message), stamp, source_id))
 
     def record_history_end(self, source_id: int,
                            moment: datetime | None = None) -> None:
@@ -694,7 +698,8 @@ class FollowStore:
         stamp = _now_text(moment)
         self._connect().execute(
             "UPDATE follow_source SET last_checked_at=?, last_status='not_modified',"
-            " last_error=NULL, updated_at=? WHERE id=?", (stamp, stamp, source_id))
+            " last_error=NULL, last_error_code=NULL, last_error_params=NULL, updated_at=?"
+            " WHERE id=?", (stamp, stamp, source_id))
 
     def _persist_evidence(self, fetch: SourceFetch,
                           moment: datetime | None) -> tuple[str | None, str | None, bool]:

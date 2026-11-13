@@ -1034,6 +1034,10 @@
     "mediaTools": {
       "installed": "已安装 {{label}}（{{version}}）",
       "alreadyInstalled": "{{label}} 已安装（{{version}}），无需重新下载"
+    },
+    "ledger": {
+      "migrating": "正在更新本地数据库，完成后刷新页面即可使用。",
+      "migrationFailed": "本地数据库更新失败，后台任务没有启动：{{error}}"
     }
   },
   "errors": {
@@ -3790,7 +3794,8 @@
         "taskFailuresUnknown": "任务失败记录未取得",
         "noTaskFailures": "没有已记录的任务失败",
         "taskFailures": "存在已记录的任务失败",
-        "versions": "Peach {{peach}} · Python {{python}}"
+        "versions": "Peach {{peach}} · Python {{python}}",
+        "databaseMigrating": "正在更新本地数据库"
       },
       "action": {
         "repairConfiguration": "在本机修复配置文件",
