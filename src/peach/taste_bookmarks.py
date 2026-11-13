@@ -97,6 +97,11 @@ def is_bookmark_export(path: Path) -> bool:
     return False
 
 
+#: 书签来源在私有历史库里的资料名后缀。它进了 `history_source.profile` 与来源键的哈希，换掉会把同一份书签
+#: 拆成两个来源，所以存储里保持原值；返回给界面的结果另给 `kind`，由界面按语言写「书签」。
+BOOKMARK_PROFILE_SUFFIX = " · 书签"
+
+
 def refresh_bookmarks(sources, store_path: Path, *, host=None, progress=None, strict=False):
     from .taste_history import HistorySource, _consistent_copy, _open_history_store, _source_key, failure_row
     results = []
@@ -115,7 +120,7 @@ def refresh_bookmarks(sources, store_path: Path, *, host=None, progress=None, st
         except (OSError, ValueError, TypeError, sqlite3.DatabaseError, TimeoutError):
             if strict:
                 raise UserValueError("errors.tasteBookmarks.unreadable") from None
-            results.append({"browser": source.browser, "profile": source.profile + " · 书签",
+            results.append({"browser": source.browser, "profile": source.profile, "kind": "bookmarks",
                             "bookmarks": 0, "added": 0, "status": "failed",
                             **failure_row("errors.tasteBookmarks.browserBookmarksNotRead")})
             continue
@@ -123,7 +128,7 @@ def refresh_bookmarks(sources, store_path: Path, *, host=None, progress=None, st
             from .taste_browsers import browser_snapshot_allowed
             if not browser_snapshot_allowed(store, source):
                 continue
-            tagged = HistorySource(source.browser, source.profile + " · 书签", source.path)
+            tagged = HistorySource(source.browser, source.profile + BOOKMARK_PROFILE_SUFFIX, source.path)
             key = _source_key(tagged, resolved_host)
             path_hash = hashlib.sha256(str(source.path.resolve()).encode()).hexdigest()
             store.execute("INSERT INTO history_source VALUES(?,?,?,?,?,?,?) "
@@ -137,7 +142,7 @@ def refresh_bookmarks(sources, store_path: Path, *, host=None, progress=None, st
             store.executemany("INSERT INTO history_bookmark(source_key,url,title,added_at) VALUES(?,?,?,?)",
                               ((key, url, title, added) for url, title, added in rows))
             store.commit()
-            results.append({"browser": tagged.browser, "profile": tagged.profile, "bookmarks": len(rows),
+            results.append({"browser": tagged.browser, "profile": source.profile, "kind": "bookmarks", "bookmarks": len(rows),
                             "added": sum(url not in previous for url, _, _ in rows)})
     return results
 

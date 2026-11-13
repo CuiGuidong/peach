@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141", e._sentryDebugIdIdentifier = "sentry-dbid-f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "9fa19c6b-9177-45c1-a5b0-7131fe58ea50", e._sentryDebugIdIdentifier = "sentry-dbid-9fa19c6b-9177-45c1-a5b0-7131fe58ea50");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -5889,6 +5889,7 @@ var He = {
 		serverOnly: "Open this page on the computer running Peach to sign out devices.",
 		thisDevice: "This device",
 		unknownBrowser: "Unrecognized browser",
+		androidTablet: "Android tablet",
 		viaRemoteAccess: "Remote access · {{network}}"
 	},
 	diagnosticsReporting: {
@@ -7312,7 +7313,8 @@ var He = {
 			skipped: "Skipped: another run was still in progress",
 			interrupted: "The service restarted before this run finished",
 			unknownFollowup: "No follow-up task is registered for {{task}}",
-			dispatchInterrupted: "Metadata dispatch was interrupted, rescheduling"
+			dispatchInterrupted: "Metadata dispatch was interrupted, rescheduling",
+			stoppedEarly: "Stopped early with exit code {{code}}"
 		}
 	},
 	stage: {
@@ -7652,6 +7654,7 @@ var He = {
 			nearDistribution: "close to what you collect and watch"
 		},
 		refreshWarning: "{{browser}} · {{profile}}: {{reason}}",
+		bookmarkProfile: "{{profile}} · Bookmarks",
 		volume: {
 			system: {
 				name: "System drive",
@@ -12647,6 +12650,7 @@ var He = {
 		serverOnly: "在运行 Peach 的电脑上打开这一页才能撤销。",
 		thisDevice: "本机",
 		unknownBrowser: "未识别的浏览器",
+		androidTablet: "Android 平板",
 		viaRemoteAccess: "公网入口 · {{network}}"
 	},
 	diagnosticsReporting: {
@@ -14054,7 +14058,8 @@ var He = {
 			skipped: "已有一轮在进行，本次跳过",
 			interrupted: "服务重启，这一轮没有跑完",
 			unknownFollowup: "没有登记 {{task}} 这种后继",
-			dispatchInterrupted: "资料派发被中断，正在重新安排"
+			dispatchInterrupted: "资料派发被中断，正在重新安排",
+			stoppedEarly: "提前收工，退出码 {{code}}"
 		}
 	},
 	stage: {
@@ -14394,6 +14399,7 @@ var He = {
 			nearDistribution: "与你的馆藏和观看分布接近"
 		},
 		refreshWarning: "{{browser}} · {{profile}}：{{reason}}",
+		bookmarkProfile: "{{profile}} · 书签",
 		volume: {
 			system: {
 				name: "系统盘",
@@ -38116,4 +38122,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141
+//# debugId=9fa19c6b-9177-45c1-a5b0-7131fe58ea50

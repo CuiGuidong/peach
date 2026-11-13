@@ -99,6 +99,12 @@ class TasteHistoryTests(unittest.TestCase):
             failed = refresh_bookmarks([source], store)
         self.assertEqual(failed[0]["status"], "failed")
         self.assertNotIn("私有标题", str(failed))
+        # 资料名不带写死的「书签」后缀，由 `kind` 交给界面按语言写。
+        self.assertEqual((failed[0]["profile"], failed[0]["kind"]), ("default", "bookmarks"))
+        from peach.web_stats import BOOKMARK_PROFILE_CODE, _refresh_warnings
+        warning = _refresh_warnings(failed)
+        self.assertEqual(warning["warning_params"][0]["profile"]["code"], BOOKMARK_PROFILE_CODE)
+        self.assertTrue(warning["warnings"][0].startswith("firefox · default · 书签："), warning["warnings"][0])
         with closing(sqlite3.connect(store)) as db:
             self.assertEqual(db.execute("SELECT count(*) FROM history_bookmark").fetchone()[0], 1)
 

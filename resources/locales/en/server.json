@@ -4187,6 +4187,7 @@
       "nearDistribution": "close to what you collect and watch"
     },
     "refreshWarning": "{{browser}} · {{profile}}: {{reason}}",
+    "bookmarkProfile": "{{profile}} · Bookmarks",
     "volume": {
       "system": {
         "name": "System drive",

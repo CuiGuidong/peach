@@ -4187,6 +4187,7 @@
       "nearDistribution": "与你的馆藏和观看分布接近"
     },
     "refreshWarning": "{{browser}} · {{profile}}：{{reason}}",
+    "bookmarkProfile": "{{profile}} · 书签",
     "volume": {
       "system": {
         "name": "系统盘",
