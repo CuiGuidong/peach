@@ -19,7 +19,7 @@ SRC_DIR = PROJECT_ROOT / 'src'
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.interface_text import dev as t, list_separator, local_language
+from peach.interface_text import dev as t
 from peach.javdb_genres import genre_key
 
 #: 一个类别至少在这么多部作品里多出来，才认作详情页不显示。
@@ -99,7 +99,7 @@ def main():
     print(t('generate_javdb_genres.done', table=len(table), hidden=len(hidden), conflicts=len(conflicts),
             skipped=skipped))
     for key, words in conflicts.items():
-        print(t('generate_javdb_genres.conflict', key=key, words=list_separator(local_language()).join(words)))
+        print(t('generate_javdb_genres.conflict', key=key, words=words))
 
 
 if __name__ == '__main__':

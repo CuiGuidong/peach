@@ -23,7 +23,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from peach.interface_text import dev as t, list_separator, local_language  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 from peach.update_packages import MANIFEST, SELF_PROVISIONED  # noqa: E402
 
 #: 支持自动更新到新版的最旧客户端。更早的版本要求工具集合与它认得的完全相等，0.48.0 加入人脸
@@ -127,7 +127,7 @@ def check_clients(root: Path, rows: list[dict], manifest: dict, version: str,
             orphaned = set(manifest.get("tools", {})) - set(result.get("tools", [])) - SELF_PROVISIONED
             if orphaned:
                 reasons.append(t("update_compat.orphanedTools",
-                                     tools=list_separator(local_language()).join(sorted(orphaned))))
+                                     tools=sorted(orphaned)))
         if reasons:
             problems[tag] = reasons
     return problems

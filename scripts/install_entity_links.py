@@ -292,7 +292,7 @@ def relabel(connection: sqlite3.Connection, planned: list[dict]) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("install_entity_links.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--input", type=Path,
                         help=t("install_entity_links.inputHelp", fields=','.join(FIELDS)))

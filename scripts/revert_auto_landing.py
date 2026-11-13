@@ -32,12 +32,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach import auto_landing_revert  # noqa: E402
 from peach.config import COVER_DIR, GENERATED_DIR  # noqa: E402
-from peach.interface_text import dev as t  # noqa: E402
+from peach.interface_text import dev as t, list_separator, local_language  # noqa: E402
 from peach.scripting import add_ledger_write_args, open_for_write, verify_after_write  # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("revert_auto_landing.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--source", default="auto:studio-mark",
                         help=t("revert_auto_landing.sourceHelp"))
@@ -59,7 +59,7 @@ def print_verified(planned: list[dict]) -> None:
     """核查结算的撤回清单：覆盖写还原几条资产、几条已被改过不动，并集删几个标签。"""
     for entry in planned:
         if "tags" in entry:
-            names = t("common.enumSeparator").join(tag["tag"] for tag in entry["tags"])
+            names = list_separator(local_language()).join(tag["tag"] for tag in entry["tags"])
             print(t("revert_auto_landing.verifiedUnionRow", key=f"{entry['item_key']:<28}", tags=names[:40]))
         else:
             print(t("revert_auto_landing.verifiedReplaceRow", key=f"{entry['item_key']:<28}",

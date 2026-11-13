@@ -282,17 +282,17 @@ def require_public_text(repo: Path, texts: dict[str, str]) -> None:
     """
     library = check_public_text.load_library(repo)
     found = [t("agent_worktree.publicTextItem", name=name,
-               problems=t("agent_worktree.clauseSeparator").join(problems))
+               problems=t("common.clauseSeparator").join(problems))
              for name, text in texts.items()
              for problems in [check_public_text.problems(text, library)] if problems]
     if found:
         raise WorkspaceError(t("agent_worktree.publicTextListsLibrary",
-                               items=t("agent_worktree.itemSeparator").join(found)))
+                               items=t("common.commaSeparator").join(found)))
     insider = check_public_text.insider_terms(texts.get(t("agent_worktree.prBodyLabel"), ""))
     if insider:
         raise WorkspaceError(t("agent_worktree.prBodyInsiderTerms",
-                               terms=t("agent_worktree.clauseSeparator").join(insider),
-                               hint=check_public_text.INSIDER_HINT))
+                               terms=t("common.clauseSeparator").join(insider),
+                               hint=check_public_text.insider_hint()))
 
 
 def merge_message(branch: str, pull_request: dict[str, object]) -> str:
@@ -654,7 +654,7 @@ def _holders(path: Path) -> str:
     others = [row for row in holders if not row["caller"]]
     if others:
         return t("agent_worktree.holdersPresent",
-                 pids=t("common.listSeparator").join(str(row["pid"]) for row in others[:5]))
+                 pids=list(str(row["pid"]) for row in others[:5]))
     return ""
 
 

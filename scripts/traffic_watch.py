@@ -17,7 +17,7 @@ if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
 from peach.config import LOG_DIR
-from peach.interface_text import dev as t
+from peach.interface_text import dev as t, dev_log
 
 
 DEFAULT_PIPE = r"\\.\pipe\verge-mihomo"
@@ -173,7 +173,7 @@ def stop_owned_jobs(log) -> list[str]:
             if result.returncode == 0:
                 stopped.append(f"{pid} {command[:80]}")
     except Exception as exc:
-        log(f"Failed to stop jobs: {exc}")
+        log("traffic_watch.logStopFailed", error=exc)
     return stopped
 
 
@@ -190,13 +190,12 @@ def run(args: argparse.Namespace, log) -> int:
     counted_bytes = 0.0
     uncounted_bytes = 0.0
     counted_hosts: dict[str, float] = {}
-    log(f"Watcher started. mihomo total (incl. direct) {total_start/1024**3:,.1f} GB, "
-        f"active connections {len(previous)}")
+    log("traffic_watch.logStarted", total=f"{total_start/1024**3:,.1f}", connections=len(previous))
     if args.count_direct:
-        log("Metering: proxy and direct download deltas both count; this is a polling lower bound")
+        log("traffic_watch.logMeteringDirect")
     else:
-        log("Metering: only non-DIRECT download deltas count; this is a polling lower bound")
-    log(f"Limit {args.limit:.0f} GB, warning at {warn_gb:.0f} GB, checking every {args.interval}s")
+        log("traffic_watch.logMeteringProxy")
+    log("traffic_watch.logLimits", limit=f"{args.limit:.0f}", warn=f"{warn_gb:.0f}", interval=args.interval)
 
     if args.once:
         aggregate: dict[str, int] = {}
@@ -213,7 +212,7 @@ def run(args: argparse.Namespace, log) -> int:
         try:
             _total, current = snapshot(args.pipe, args.secret)
         except Exception as exc:
-            log(f"Read failed ({exc}); skipping this round")
+            log("traffic_watch.logReadFailed", error=exc)
             continue
         counted_delta, uncounted_delta, host_delta = accumulate(
             previous, current, args.count_direct
@@ -225,7 +224,7 @@ def run(args: argparse.Namespace, log) -> int:
         previous = current
         used_gb = counted_bytes / 1024**3
         if used_gb >= args.limit:
-            log(f"Delta {used_gb:.1f} GB exceeds the {args.limit:.0f} GB limit; stopping owned jobs")
+            log("traffic_watch.logOverLimit", used=f"{used_gb:.1f}", limit=f"{args.limit:.0f}")
             stopped = stop_owned_jobs(log)
             top = sorted(counted_hosts.items(), key=lambda item: -item[1])[:5]
             scope = t("traffic_watch.scopeProxyDirect" if args.count_direct else "traffic_watch.scopeProxy")
@@ -243,14 +242,14 @@ def run(args: argparse.Namespace, log) -> int:
             # 警报正文给人读，跟本机语言；日志只记一行英文指向它。
             for line in lines:
                 print(line, flush=True)
-            log(f"Traffic alert written to {args.alert}; stopped {len(stopped)} job(s)")
+            log("traffic_watch.logAlertWritten", path=args.alert, count=len(stopped))
             return 10
         if used_gb >= warn_gb and not warned:
             warned = True
-            log(f"Delta reached {used_gb:.1f} GB, close to the stop line")
-        scope = "proxy+direct" if args.count_direct else "proxy"
-        log(f"{scope} {used_gb:>7.2f}/{args.limit:.0f} GB"
-            f" (uncounted {uncounted_bytes/1024**3:>7.2f} GB) connections {len(current)}")
+            log("traffic_watch.logNearLimit", used=f"{used_gb:.1f}")
+        log("traffic_watch.logUsageDirect" if args.count_direct else "traffic_watch.logUsageProxy",
+            used=f"{used_gb:>7.2f}", limit=f"{args.limit:.0f}", uncounted=f"{uncounted_bytes/1024**3:>7.2f}",
+            connections=len(current))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -258,10 +257,11 @@ def main(argv: list[str] | None = None) -> int:
     args.log_dir.mkdir(parents=True, exist_ok=True)
     log_path = args.log_dir / f"trafficwatch-{time.strftime('%Y%m%d-%H%M%S')}.log"
     with log_path.open("a", encoding="utf-8", buffering=1) as log_file:
-        def log(message: str) -> None:
-            line = f"[{time.strftime('%H:%M:%S')}] {message}"
-            print(line, flush=True)
-            log_file.write(line + "\n")
+        def log(key: str, **params) -> None:
+            """控制台一行跟本机语言，日志文件一行固定英文。"""
+            stamp = f"[{time.strftime('%H:%M:%S')}] "
+            print(stamp + t(key, **params), flush=True)
+            log_file.write(stamp + dev_log(key, **params) + "\n")
 
         return run(args, log)
 

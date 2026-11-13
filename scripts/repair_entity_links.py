@@ -235,7 +235,7 @@ def review(links: list[dict]) -> list[dict]:
         if len(peers) > 1:
             problems.append((DUPLICATE, FIX_REPORT_ONLY,
                              t("repair_entity_links.duplicateLinks", count=len(peers),
-                               ids=t("common.enumSeparator").join(str(peer) for peer in peers))))
+                               ids=list(str(peer) for peer in peers))))
         row["problems"] = problems
     return [row for row in links if row["problems"]]
 
@@ -420,7 +420,7 @@ def write_plan(connection: sqlite3.Connection, plans: list[dict], now: str) -> d
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("repair_entity_links.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--audit-output", type=Path, required=True,
                         help=t("repair_entity_links.auditOutputHelp"))

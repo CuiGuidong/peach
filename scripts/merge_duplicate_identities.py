@@ -295,7 +295,7 @@ def collect(connection: sqlite3.Connection) -> list[dict[str, object]]:
                 aliases.get(performer_id, []),
             )
             if evidence:
-                fuzzy.append((creator, performer, t("common.semicolonSeparator").join((evidence, relation))))
+                fuzzy.append((creator, performer, t("common.clauseSeparator").join((evidence, relation))))
 
     # 一方若同时命中多个候选，就留给人工复核，避免同作品集合内的连锁误并。
     fuzzy_counts = Counter(

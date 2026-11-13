@@ -115,7 +115,7 @@ def run(args: argparse.Namespace) -> int:
             jav_poster_crop.write_sidecar(path, record)
         if index % PROGRESS_EVERY == 0:
             print(f"[{index}/{len(todo)}] "
-                  + t("poster_crop_boxes.countSeparator").join(f"{key} {value}" for key, value in counts.items()),
+                  + t("common.commaSeparator").join(f"{key} {value}" for key, value in counts.items()),
                   flush=True)
 
     print("\n" + t("poster_crop_boxes.summary",

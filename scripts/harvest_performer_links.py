@@ -73,7 +73,7 @@ def scan(http, name: str, timeout: float, owner_of=None) -> tuple[list[dict], st
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_performer_links.description"))
     parser.add_argument("--db", type=Path, required=True, help=t("harvest_performer_links.dbHelp"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-assets", type=int, default=3)
@@ -117,6 +117,8 @@ def run(args) -> int:
             if rows:
                 hit += 1
             for row in rows:
+                # ok 行经 install_entity_links.py 写进 entity_link.metadata，
+                # merge_duplicate_identities.py 再按 `minnano-av actress<id>` 读回，保留中文。
                 row["evidence"] += f"；账本名「{record['name']}」经「{used}」检索命中"
                 results.append({"entity_id": record["entity_id"], "kind": "performer",
                                 "name": record["name"], "actress_id": found_id,
@@ -126,7 +128,8 @@ def run(args) -> int:
                 blank.update(entity_id=record["entity_id"], kind="performer",
                              name=record["name"], actress_id=found_id, agency=agency,
                              verdict="未取得",
-                             evidence=f"{note}（试过 {'、'.join(record['chain']) or '无候选'}）")
+                             evidence=t("harvest_performer_links.triedNames", note=note,
+                                        names=record["chain"] or t("harvest_performer_links.noCandidates")))
                 results.append(blank)
             print(f"{record['name'][:12]:<12} {used[:12]:<12} {note}")
     finally:

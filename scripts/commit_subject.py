@@ -11,7 +11,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.interface_text import dev as t, list_separator, local_language  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 
 from . import co_author  # noqa: E402
 from .check_readme_impact import git, unpublished  # noqa: E402
@@ -54,5 +54,5 @@ def check(repo: Path, base: str, head: str = "HEAD") -> list[str]:
             problems.append(t("commit_subject.badForm", subject=subject, example=EXAMPLE))
         elif parsed["type"] not in TYPES:
             problems.append(t("commit_subject.unknownType", subject=subject, type=parsed["type"],
-                              allowed=list_separator(local_language()).join(sorted(TYPES))))
+                              allowed=sorted(TYPES)))
     return problems

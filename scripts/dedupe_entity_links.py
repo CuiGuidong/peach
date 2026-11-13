@@ -103,7 +103,7 @@ def apply_rows(connection, rows) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("dedupe_entity_links.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--out", help=t("dedupe_entity_links.outHelp"))
     args = parser.parse_args()

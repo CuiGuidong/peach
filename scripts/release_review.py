@@ -67,11 +67,11 @@ def collect(root: Path, repo: str, *, public_github: bool = False,
     registry = references.load_registry(root / "docs/reference-sources.json")
     problems = references.validate_registry(root, registry)
     if problems:
-        raise ValueError(t("release_review.clauseSeparator").join(problems))
+        raise ValueError(t("common.clauseSeparator").join(problems))
     evidence = reference_evidence or {}
     sources = references.selected_sources(registry, None)
     if unknown := evidence.keys() - {source["id"] for source in sources}:
-        raise ValueError(t("release_review.unknownEvidence", sources=t("common.listSeparator").join(sorted(unknown))))
+        raise ValueError(t("release_review.unknownEvidence", sources=sorted(unknown)))
     report = {"checked_at": dt.datetime.now(dt.timezone.utc).isoformat(),
               "commit": run(["git", "rev-parse", "HEAD"], root),
               "checks": [], "complete": True}
@@ -157,7 +157,7 @@ def review(root: Path, repo: str, *, public_github: bool = False,
     path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     if not report["complete"]:
         missing = [item["id"] for item in report["checks"] if item["status"] == "未取得"]
-        raise ValueError(t("release_review.incomplete", checks=t("common.listSeparator").join(missing), path=path))
+        raise ValueError(t("release_review.incomplete", checks=list(missing), path=path))
     return {"report": str(path), "checks": len(report["checks"]), "complete": True}
 
 

@@ -164,7 +164,7 @@ def apply_rows(connection: sqlite3.Connection,
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(description=t("repair_link_labels.description"),
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     add_ledger_write_args(parser)
     parser.add_argument("--review-csv", type=Path,

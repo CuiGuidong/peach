@@ -427,6 +427,16 @@ def fetch_image(http: HttpTransport, url: str, timeout: float, limiter: HostLimi
     return response.body, inspected
 
 
+def anchor_evidence(host: str, title: str, gated: bool) -> str:
+    """集链页锚点链接的证据。过了闸门的进安装队列、写进 `entity_link.metadata`，保留中文原文；
+    没过的只进复核表给人看，跟本机语言。"""
+    if gated:
+        return f"{host} 页面锚点" + (f"，标题「{title}」" if title else "")
+    if title:
+        return t("harvest_social_avatars.pageAnchorTitled", host=host, title=title)
+    return t("harvest_social_avatars.pageAnchor", host=host)
+
+
 def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                    timeout: float,
                    caches: dict[str, AvatarCandidateCache]) -> dict:
@@ -456,8 +466,11 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                 notes.append(t("harvest_social_avatars.xNameMissed", handle=x_handle_value))
             for url in parsed["bio_urls"]:
                 kind, label = classify(url)
+                # 闸门过了的链接进安装队列，证据写进 entity_link.metadata，保留中文；
+                # 没过的只进复核表给人看，跟本机语言。
                 links.append({"link_kind": kind, "label": label, "url": url,
-                              "evidence": f"X @{x_handle_value} 简介外链",
+                              "evidence": (f"X @{x_handle_value} 简介外链" if x_identity
+                                           else t("harvest_social_avatars.bioLink", handle=x_handle_value)),
                               "gated": bool(x_identity)})
             for url in parsed["avatars"]:
                 got = fetch_image(http, url, timeout, limiter)
@@ -472,8 +485,8 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                     "mime_type": inspected.mime_type, "sha256": inspected.sha256,
                     "object_path": object_path,
                     "matched": x_identity, "name_source": "social_identity_gate",
-                    "evidence": f"X @{x_handle_value} 头像 "
-                                f"{inspected.width}×{inspected.height}",
+                    "evidence": t("harvest_social_avatars.xAvatar", handle=x_handle_value,
+                                  width=inspected.width, height=inspected.height),
                 })
                 break
 
@@ -500,9 +513,7 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                 # 用主机名当标签让人一眼看清它其实是什么。
                 kind, label = "social", hostname_of(href)
             links.append({"link_kind": kind, "label": label, "url": href,
-                          "evidence": (f"{hostname_of(agg_url)} 页面锚点"
-                                       + (f"，标题「{page['title'][:40]}」"
-                                          if page["title"] else "")),
+                          "evidence": anchor_evidence(hostname_of(agg_url), page["title"][:40], bool(agg_identity)),
                           "gated": bool(agg_identity)})
         if page["icon"] and agg_identity:
             got = fetch_image(http, page["icon"], timeout, limiter)
@@ -517,8 +528,8 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                     "mime_type": inspected.mime_type, "sha256": inspected.sha256,
                     "object_path": object_path,
                     "matched": agg_identity, "name_source": "social_identity_gate",
-                    "evidence": f"{hostname_of(agg_url)} 头像 "
-                                f"{inspected.width}×{inspected.height}",
+                    "evidence": t("harvest_social_avatars.pageAvatar", host=hostname_of(agg_url),
+                                  width=inspected.width, height=inspected.height),
                 })
 
     # babepedia 路线（creator）。身份结论沿用回配时的判定，这里不重新猜人。
@@ -541,9 +552,9 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                 "matched": str(babe_row.get("babepedia_name") or ""),
                 "name_source": "babepedia_match",
                 "identity_verified": str(babe_row.get("verdict") or "") == "命中",
-                "evidence": (f"babepedia「{babe_row.get('babepedia_name', '')}」档案像 "
-                             f"{inspected.width}×{inspected.height}，"
-                             f"回配判定「{babe_row.get('verdict', '')}」"),
+                "evidence": t("harvest_social_avatars.babepediaPortrait",
+                              name=babe_row.get("babepedia_name", ""), width=inspected.width,
+                              height=inspected.height, verdict=babe_row.get("verdict", "")),
             })
 
     # jae 路线（performer）。名字判定在 harvest_directory_links.py 那一步做完，只收 `命中`
@@ -567,8 +578,8 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
             "object_path": object_path,
             "matched": matched, "name_source": "jae_directory",
             "identity_verified": str(jae_row.get("verdict") or "") == "命中",
-            "evidence": (f"jae 名录「{matched}」人像 "
-                         f"{inspected.width}×{inspected.height}，页面 {page}"),
+            "evidence": t("harvest_social_avatars.jaePortrait", matched=matched,
+                          width=inspected.width, height=inspected.height, page=page),
         })
 
     return {"links": links, "candidates": candidates, "notes": notes}
@@ -608,7 +619,7 @@ def cover_fallback(connection, record: dict, cache: AvatarCandidateCache,
                                sha256=inspected.sha256, object_path=stored,
                                matched=record['canonical'], name_source='ledger-performer',
                                identity_verified=False,
-                               evidence=f'单人作品 {code} 完整封面'))
+                               evidence=t("harvest_social_avatars.coverFallback", code=code)))
     if not candidates:
         return None
     if probe is not None:
@@ -711,8 +722,8 @@ def select_winner(candidates: list[dict]) -> tuple[dict | None, list[dict]]:
             continue
         larger = max((kept, candidate),
                      key=lambda row: (row["width"], row["height"]))
-        larger["evidence"] += "；" + (candidate if larger is kept else kept)["evidence"] \
-            + "（同图）"
+        larger["evidence"] += t("harvest_social_avatars.sameImage",
+                                evidence=(candidate if larger is kept else kept)["evidence"])
         by_sha[candidate["sha256"]] = larger
     if not by_sha:
         return None, []
@@ -840,7 +851,7 @@ def merge_prior_pending(db_path: Path, new_path: Path, rows: list[dict]) -> None
 
 def build_parser() -> argparse.ArgumentParser:
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_social_avatars.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--avatars", type=Path, default=GENERATED_DIR / "avatars")
     parser.add_argument("--cache-root", type=Path,
@@ -887,8 +898,8 @@ def run(args) -> int:
         targets = load_targets(connection, args.avatars, entities, args.force, include_cover_targets=True)
         if args.limit:
             targets = targets[:args.limit]
-        print(t("harvest_social_avatars.targets", count=len(targets))
-              + "、".join(f"{r['entity_id']}({r['kind'][0]})" for r in targets[:15])
+        print(t("harvest_social_avatars.targets", count=len(targets),
+                targets=[f"{r['entity_id']}({r['kind'][0]})" for r in targets[:15]])
               + ("…" if len(targets) > 15 else ""), flush=True)
 
         for record in targets:
@@ -940,28 +951,28 @@ def run(args) -> int:
                 is_winner = candidate is winner
                 note = ""
                 if is_winner and identity_ok and not shows_a_real_face(candidate):
-                    note = "竞选赢家但检不出真人脸（多半是动漫头像），不自动安装，待复核"
+                    note = t("harvest_social_avatars.winnerNoFace")
                 elif is_winner and identity_ok:
-                    note = "竞选赢家；质量与身份过关"
+                    note = t("harvest_social_avatars.winnerPassed")
                     # 「没过线」和「空跑」是两件事，别都写成待复核：前者要人去看，
                     # 后者只差一个 --apply。
                     if not passes_auto_bar(candidate["width"], candidate["height"]):
-                        note += "，未达自动安装线，待复核"
+                        note += t("harvest_social_avatars.belowAutoBar")
                     elif not args.apply:
-                        note += "，已过自动安装线；加 --apply 才落盘"
+                        note += t("harvest_social_avatars.aboveAutoBar")
                     elif not outranks_incumbent(candidate, incumbent):
-                        note += (f"，盘上那张的脸更大（{incumbent['face_width']} px "
-                                 f"vs {candidate.get('face_width') or 0} px），不覆盖")
+                        note += t("harvest_social_avatars.incumbentLarger", incumbent=incumbent["face_width"],
+                                  candidate=candidate.get("face_width") or 0)
                         kept += 1
                     else:
                         destination = install_avatar(args.avatars, kind, entity_id,
                                                      candidate)
-                        note += f"，已安装 {destination.name}"
+                        note += t("harvest_social_avatars.installedAs", name=destination.name)
                         installed += 1
                 elif is_winner:
-                    note = "竞选赢家但身份未核实；先核链接再装"
+                    note = t("harvest_social_avatars.winnerUnverified")
                 else:
-                    note = "竞选落选（同图或脸更小）；留档备查"
+                    note = t("harvest_social_avatars.runnerUp")
                 candidate_rows.append({
                     "entity_id": entity_id, "current_name": record["canonical"],
                     "matched_name": candidate.get("matched") or "",
@@ -983,7 +994,7 @@ def run(args) -> int:
                                 else "no_real_face" if identity_ok
                                 else "identity_unverified"),
                     "avatar_url": candidate["source_url"],
-                    "evidence": candidate["evidence"] + "；" + note,
+                    "evidence": candidate["evidence"] + t("common.clauseSeparator") + note,
                 })
             for note in result["notes"]:
                 print(f"  [{entity_id}] {note}", flush=True)

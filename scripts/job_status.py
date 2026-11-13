@@ -99,7 +99,7 @@ def collect(db_path: Path, generated: Path, state_path: Path | None = None) -> l
 
     sources = conn.execute(
         "SELECT source,count(*) FROM asset_tag GROUP BY source ORDER BY 2 DESC").fetchall()
-    lines.append(t("job_status.tagSources", sources=t("common.listSeparator").join(f"`{s}` {n}" for s, n in sources)))
+    lines.append(t("job_status.tagSources", sources=list(f"`{s}` {n}" for s, n in sources)))
 
     codes = one("SELECT count(DISTINCT code) FROM asset WHERE code>''")
     with_studio = one("SELECT count(DISTINCT code) FROM asset WHERE code>'' AND studio>''")

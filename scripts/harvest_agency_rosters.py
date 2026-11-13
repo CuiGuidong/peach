@@ -191,7 +191,7 @@ def find_production(site: Site, agency: dict[str, object], names: dict[int, str]
                 tried.append(t("harvest_agency_rosters.otherAgency", candidate=candidate, shown=shown, found=found))
                 continue
             return found, t("harvest_agency_rosters.foundViaMember", candidate=candidate, shown=shown)
-    return "", "；".join(tried) or t("harvest_agency_rosters.noKnownMembers")
+    return "", t("common.clauseSeparator").join(tried) or t("harvest_agency_rosters.noKnownMembers")
 
 
 def fetch_roster(site: Site, production: str, max_pages: int
@@ -261,7 +261,7 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
         if not people:
             rows.append({**base, "roster_name": "", "actress_id": "", "entity_id": "",
                          "performer": "", "current_agency": "", "verdict": MISSING,
-                         "evidence": f"{note}；名册 {roster_note}"})
+                         "evidence": t("harvest_agency_rosters.rosterEvidence", note=note, roster=roster_note)})
             print(t("harvest_agency_rosters.agencyNotFound", agency=f"{str(agency['name'])[:16]:<16}", note=roster_note))
             continue
         absent: list[str] = []
@@ -269,7 +269,7 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
             matched = sorted(index.get(roster_key(person), ()))
             row = {**base, "roster_name": person, "actress_id": found_id,
                    "entity_id": "", "performer": "", "current_agency": "",
-                   "evidence": f"{note}；名册 {roster_note}"}
+                   "evidence": t("harvest_agency_rosters.rosterEvidence", note=note, roster=roster_note)}
             if not matched:
                 # 默认收成一行
                 # 计数，`--all-names` 才逐个记：复核件是给人看的，不是站点镜像。
@@ -280,8 +280,8 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
                 continue
             if len(matched) > 1:
                 rows.append({**row, "verdict": AMBIGUOUS,
-                             "evidence": row["evidence"] + "；账本里这个写法对上 "
-                                         + "、".join(names[item] for item in matched)})
+                             "evidence": row["evidence"] + t("harvest_agency_rosters.sameSpelling",
+                                                             names=[names[item] for item in matched])})
                 continue
             member_id = matched[0]
             row.update(entity_id=member_id, performer=names[member_id])
@@ -295,11 +295,10 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
             else:
                 rows.append({**row, "verdict": MOVED, "current_agency": held[1]})
         if absent:
-            shown = "、".join(absent[:20])
             rows.append({**base, "roster_name": "", "actress_id": "", "entity_id": "",
                          "performer": "", "current_agency": "", "verdict": ABSENT,
-                         "evidence": f"名册上 {len(absent)} 位不在账本里："
-                                     f"{shown}{'…' if len(absent) > 20 else ''}"})
+                         "evidence": t("harvest_agency_rosters.absentFromLedger", count=len(absent),
+                                       names=absent[:20], more="…" if len(absent) > 20 else "")})
         hit = sum(1 for row in rows if row["agency_id"] == agency["id"]
                   and row["verdict"] == NEW)
         print(t("harvest_agency_rosters.agencySummary", agency=f"{str(agency['name'])[:16]:<16}", production=production, rosterNote=roster_note, hit=hit))
@@ -332,7 +331,7 @@ def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[st
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_agency_rosters.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--output", type=Path, default=REVIEW_DIR / "agency-rosters.csv")
     parser.add_argument("--only", nargs="*", default=[],

@@ -22,7 +22,7 @@ if str(SRC_DIR) not in sys.path:
 from peach import junk, record_rehome
 from peach.config import DATABASE_PATH, FFMPEG_DIR, LOG_DIR, STATE_DIR
 from peach.ffmpeg import FFmpegResolver
-from peach.interface_text import dev as t
+from peach.interface_text import dev as t, dev_log
 from peach.jobs import (
     ACTIVE_ASSET_SQL,
     DiskGuard,
@@ -101,16 +101,17 @@ def run(args: argparse.Namespace) -> int:
     log_path = args.log_dir / f"probe-{time.strftime('%Y%m%d-%H%M%S')}.log"
     lock = threading.RLock()
     with log_path.open("w", encoding="utf-8", buffering=1) as log_file:
-        def log(message: str) -> None:
+        def log(key: str, **params) -> None:
+            """控制台一行跟本机语言，日志文件一行固定英文。"""
             with lock:
-                line = f"[{time.strftime('%H:%M:%S')}] {message}"
-                print(line, flush=True)
-                log_file.write(line + "\n")
+                stamp = f"[{time.strftime('%H:%M:%S')}] "
+                print(stamp + t(key, **params), flush=True)
+                log_file.write(stamp + dev_log(key, **params) + "\n")
 
         if args.allow_metered:
-            log("Metered sources explicitly allowed")
+            log("probe.logMeteredAllowed")
         if args.redo != "none":
-            log(f"Re-probing failed records: --redo {args.redo}")
+            log("probe.logRedo", redo=args.redo)
         connection = sqlite3.connect(args.db)
         if args.asset:
             # 显式点名就不再套时长筛选，但计费来源和 online 的边界照旧生效。
@@ -137,7 +138,7 @@ def run(args: argparse.Namespace) -> int:
         isolated = junk.isolate(args.db, asset_ids=[row[0] for row in tasks])
         tasks = [row for row in tasks if row[0] not in isolated['ids']]
         total = len(tasks)
-        log(f"{total:,} videos to process workers={args.workers} interval={args.interval}s log={log_path}")
+        log("probe.logPending", total=f"{total:,}", workers=args.workers, interval=args.interval, path=log_path)
         if not total:
             return 0
 
@@ -179,13 +180,14 @@ def run(args: argparse.Namespace) -> int:
                             elapsed = time.time() - started
                             rate = counters["done"] / elapsed if elapsed else 0
                             eta = (total - counters["done"]) / rate / 60 if rate else 0
-                            log(f"{counters['done']:,}/{total:,} failed {counters['failed']} {rate:.1f}/s remaining {eta:.0f} min")
+                            log("probe.logProgress", done=f"{counters['done']:,}", total=f"{total:,}",
+                                failed=counters['failed'], rate=f"{rate:.1f}", minutes=f"{eta:.0f}")
                         try:
                             guard.check()
                         except JobPolicyError as exc:
                             if not stop.is_set():
                                 stop_reason.append(str(exc))
-                                log(f"[stop] {exc}")
+                                log("probe.logStop", reason=exc)
                             stop.set()
                     time.sleep(args.interval)
 
@@ -213,15 +215,15 @@ def run(args: argparse.Namespace) -> int:
             connection.commit()
             measured_ids.extend(row[-1] for row in buffer)
         elapsed = time.time() - started
-        log(f"Done {counters['done']:,}, failed {counters['failed']}, took {elapsed/60:.1f} min")
+        log("probe.logDone", done=f"{counters['done']:,}", failed=counters['failed'], minutes=f"{elapsed/60:.1f}")
         record_rehome.reattach(connection, measured_ids)
         connection.commit()
         connection.close()
         checked = junk.isolate(args.db, asset_ids=measured_ids)
-        log(f"Junk check: {isolated['isolated'] + checked['isolated']} isolated, {checked['review']} awaiting review")
+        log("probe.logJunkCheck", isolated=isolated['isolated'] + checked['isolated'], review=checked['review'])
         if stop_reason:
             # 已探测的部分都已入库；中止必须体现在退出码上，不能报成正常完成。
-            log(f"Stopped by the disk guard: {stop_reason[0]}")
+            log("probe.logDiskStopped", reason=stop_reason[0])
             return DiskSpaceDenied.exit_code
     return 0
 

@@ -21,7 +21,7 @@ from peach.scripting import open_readonly   # noqa: E402
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_studio_sites.description"))
     parser.add_argument("--db", type=Path, required=True, help=t("harvest_studio_sites.dbHelp"))
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--seeds", type=Path, help=t("harvest_studio_sites.sitesHelp"))

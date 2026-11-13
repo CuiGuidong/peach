@@ -79,7 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         if startup is None:
             payload["message"] += t("restart_windows_tray.noStartupRecord")
         elif not startup.get("ok"):
-            failed = t("restart_windows_tray.clauseSeparator").join(step["message"] for step in startup.get("steps", ())
+            failed = t("common.clauseSeparator").join(step["message"] for step in startup.get("steps", ())
                               if step.get("state") in ("failed", "stale"))
             payload["ok"] = False
             if failed:

@@ -38,7 +38,7 @@ def verified_jobs(client, repo: str, build: dict) -> dict[str, int]:
            or selected[name]["status"] != "success" or selected[name].get("allow_failure")
            or selected[name].get("commit", {}).get("id") != build["commit"]]
     if bad:
-        raise ValueError(t("release_candidate.missingVerification", jobs=t("common.listSeparator").join(bad)))
+        raise ValueError(t("release_candidate.missingVerification", jobs=list(bad)))
     return {name: selected[name]["id"] for name in sorted(required)}
 
 

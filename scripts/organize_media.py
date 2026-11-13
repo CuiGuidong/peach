@@ -39,8 +39,8 @@ def _server_text(code: str) -> str:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    placeholders = t("organize_media.listSeparator").join(
-        f"{{{key}}}={_server_text(f'labels.organizeTemplates.placeholder.{key}')}" for key in PLACEHOLDERS)
+    placeholders = [
+        f"{{{key}}}={_server_text(f'labels.organizeTemplates.placeholder.{key}')}" for key in PLACEHOLDERS]
     parser = argparse.ArgumentParser(
         description=t("organize_media.description"),
         epilog=t("organize_media.placeholders", items=placeholders))

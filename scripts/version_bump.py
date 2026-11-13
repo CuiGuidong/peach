@@ -19,7 +19,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from peach.interface_text import dev as t, list_separator, local_language  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 
 #: 版本号的唯一来源。GitHub Release 的 `v<版本>` tag 必须与它相等。
 VERSION_FILE = "src/peach/__init__.py"
@@ -228,7 +228,7 @@ def readme_link_problems(root: Path) -> list[str]:
             problems.append(t("version_bump.readmeNoLinks", name=name))
         elif len(versions) != 1 or not versions <= set(allowed):
             problems.append(t("version_bump.readmeStaleLinks", name=name,
-                              versions=list_separator(local_language()).join(sorted(versions)),
+                              versions=sorted(versions),
                               allowed=t("version_bump.or").join(allowed)))
     return problems
 

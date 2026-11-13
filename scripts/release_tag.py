@@ -144,7 +144,7 @@ def _stalled(queued: list[dict], first_seen: dict, now: float) -> list[str]:
     for job in queued:
         seen = first_seen.setdefault(job["id"], now)
         waited = max(job.get("queued") or 0.0, now - seen)
-        tags = t("common.listSeparator").join(job["tags"]) or t("release_tag.noTags")
+        tags = list(job["tags"]) or t("release_tag.noTags")
         if job["runners"] == "offline":
             lines.append(t("release_tag.jobStalledOffline", job=job['name'], tags=tags, minutes=f"{waited / 60:.0f}"))
         elif waited >= STALL_SECONDS:
@@ -177,11 +177,11 @@ def await_test(repo: str, sha: str, *, timeout: float = TEST_TIMEOUT, poll: floa
             url = latest.get("html_url", "")
             if latest.get("failed_jobs"):
                 raise ValueError(t("release_tag.requiredJobsFailed", sha=sha[:8],
-                                   jobs=t("common.listSeparator").join(latest['failed_jobs']), url=url))
+                                   jobs=list(latest['failed_jobs']), url=url))
             stalled = _stalled(latest.get("queued_jobs") or [], first_seen, now)
             if stalled:
                 raise ValueError(t("release_tag.testStalled", minutes=f"{(now - start) / 60:.0f}", sha=sha[:8],
-                                   jobs=t("release_tag.clauseSeparator").join(stalled), url=url))
+                                   jobs=t("common.clauseSeparator").join(stalled), url=url))
         if now >= deadline:
             raise ValueError(t("release_tag.testTimedOut", minutes=f"{timeout / 60:.0f}", sha=sha[:8]))
         sleep(poll)
@@ -248,7 +248,7 @@ def require_clean_dependencies(root: Path = None) -> None:
     failed = [str(project.relative_to(root)) or "." for project in (root, root / "frontend")
               if npm_audit.audit(project) != 0]
     if failed:
-        raise ValueError(t("release_tag.auditFailed", projects=t("common.listSeparator").join(failed)))
+        raise ValueError(t("release_tag.auditFailed", projects=list(failed)))
 
 
 def require_release_notice(root: Path, version: str, part: str) -> None:
@@ -330,7 +330,7 @@ def _staged_release(repo: str) -> tuple[str, str, list[str]]:
         raise ValueError(t("release_tag.localTagExists", tag=tag))
     pending = _pending_files()
     if pending and pending != sorted(RELEASE_FILES):
-        raise ValueError(t("release_tag.extraChanges", files=t("common.listSeparator").join(pending)))
+        raise ValueError(t("release_tag.extraChanges", files=list(pending)))
     return version, tag, pending
 
 
@@ -388,7 +388,7 @@ def point_readme(repo: str, *, apply: bool, timeout: float = TEST_TIMEOUT, poll:
     tag = "v" + version
     pending = _pending_files()
     if not set(pending) <= set(version_bump.README_FILES):
-        raise ValueError(t("release_tag.extraReadmeChanges", files=t("common.listSeparator").join(pending)))
+        raise ValueError(t("release_tag.extraReadmeChanges", files=list(pending)))
     names = version_bump.readme_assets(ROOT, version)
     if not names:
         raise ValueError(t("release_tag.noReadmeLinks"))
@@ -399,7 +399,7 @@ def point_readme(repo: str, *, apply: bool, timeout: float = TEST_TIMEOUT, poll:
     while missing := sorted(set(names) - release_assets(repo, tag)):
         if clock() - start >= timeout:
             raise ValueError(t("release_tag.assetsMissing", minutes=f"{timeout / 60:.0f}", tag=tag,
-                               assets=t("common.listSeparator").join(missing)))
+                               assets=list(missing)))
         sleep(poll)
     changed = version_bump.point_readmes(ROOT, version)
     subject = README_SUBJECT.format(tag=tag)
@@ -463,7 +463,7 @@ def require_candidate(repo: str, sha: str) -> dict:
 
 def main(argv=None) -> int:
     global GITLAB
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(description=t("release_tag.description"),
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--repo", default="peach-mitao/peach")
     parser.add_argument("--gitlab-host", help=t("release_tag.helpGitlabHost"))

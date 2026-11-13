@@ -47,7 +47,7 @@ HEALTH_FIELDS = (
 
 def build_parser() -> argparse.ArgumentParser:
     stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("audit_fc2_similarity.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument(
         "--harvest", type=Path, default=GENERATED_DIR / "fc2-comment-harvest.csv",

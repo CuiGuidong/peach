@@ -148,7 +148,7 @@ def apply_rows(connection, rows, stamp: str) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("install_agencies.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--out", help=t("install_agencies.outHelp"))
     args = parser.parse_args()

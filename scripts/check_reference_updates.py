@@ -125,13 +125,13 @@ def validate_registry(root: Path, registry: dict) -> list[str]:
             problems.append(t("check_reference_updates.revisionNotFull", id=source_id))
         if source.get("cadence") not in CADENCES:
             problems.append(t("check_reference_updates.badCadence", id=source_id,
-                                  cadences=t("common.listSeparator").join(CADENCES)))
+                                  cadences=list(CADENCES)))
         if source.get("volatile") and not git and source.get("cadence") != "manual":
             problems.append(t("check_reference_updates.volatileManual", id=source_id))
     for pin in registry.get("pins", []):
         if pin.get("cadence") not in CADENCES:
             problems.append(t("check_reference_updates.badCadence", id=pin.get('id'),
-                                  cadences=t("common.listSeparator").join(CADENCES)))
+                                  cadences=list(CADENCES)))
         try:
             pinned_revision(root, pin)
         except (OSError, KeyError, ValueError) as exc:
@@ -270,7 +270,7 @@ def command_accept(args: argparse.Namespace) -> int:
 
 
 def parser() -> argparse.ArgumentParser:
-    result = argparse.ArgumentParser(description=__doc__)
+    result = argparse.ArgumentParser(description=t("check_reference_updates.description"))
     result.add_argument("--registry", default=str(DEFAULT_REGISTRY))
     sub = result.add_subparsers(dest="command", required=True)
     check = sub.add_parser("check", help=t("check_reference_updates.helpCheck"))

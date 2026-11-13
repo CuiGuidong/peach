@@ -131,8 +131,8 @@ def summarise(video_id: str, props: dict) -> dict:
         "cover_url": "" if is_collection else high_resolution_cover_url(
             article.get("image_url") or ""
         ),
-        "note": (f"合集，{len(parts)} 个分片各自独立，封面不下发" if is_collection
-                 else ("FC2 官方页已下架" if article.get("not_found") else "")),
+        "note": (t("fetch_fc2_metadata.collectionNote", count=len(parts)) if is_collection
+                 else (t("fetch_fc2_metadata.delisted") if article.get("not_found") else "")),
     }
 
 
@@ -309,7 +309,7 @@ def pending(database: Path, limit: int) -> list[tuple[str, str]]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("fetch_fc2_metadata.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--log", type=Path,
                         default=GENERATED_DIR / "fc2-candidate-log.csv")

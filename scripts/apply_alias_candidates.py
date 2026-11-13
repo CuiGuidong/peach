@@ -114,7 +114,7 @@ def plan(connection: sqlite3.Connection, rows: list[dict]) -> list[dict]:
                 "SELECT source FROM entity_alias WHERE entity_id=? AND normalized_alias=?",
                 (entity_id, alias_key))]
             out.append({**planned, "action": REMOVE, "detail": t(
-                "apply_alias_candidates.sourcesBeforeRemoval", sources=t("common.enumSeparator").join(sources))}
+                "apply_alias_candidates.sourcesBeforeRemoval", sources=list(sources))}
                        if sources else {**planned, "action": ABSENT,
                                         "detail": t("apply_alias_candidates.absent", name=canonical)})
             continue
@@ -193,7 +193,7 @@ def run(args: argparse.Namespace) -> int:
         write_rows(args.review_csv, FIELDS, rows, fill_missing=True)
         counts = Counter(str(row["action"]) for row in rows)
         print(t("apply_alias_candidates.planned", count=len(rows),
-                verdicts=t("common.enumSeparator").join(verdicts), path=args.review_csv))
+                verdicts=list(verdicts), path=args.review_csv))
         print(t("apply_alias_candidates.actions", counts=dict(counts)))
         for row in rows:
             if row["action"] in (TAKEN, STALE, GONE, REMOVE, ABSENT):

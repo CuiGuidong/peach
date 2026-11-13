@@ -101,7 +101,7 @@ def plan(platform: str, root: Path, environ: dict[str, str], *,
     except (OSError, subprocess.CalledProcessError) as error:
         return ["full"], t("ci_scope.cannotCompare", base=base[:12], error=error)
     if definitions := sorted(PIPELINE_DEFINITIONS.intersection(paths)):
-        return ["full"], t("ci_scope.pipelineChanged", files=t("common.listSeparator").join(definitions))
+        return ["full"], t("ci_scope.pipelineChanged", files=list(definitions))
     if "full" in scopes:
         return ["full"], explanation
     return [base, *PLATFORM_TESTS[platform]], t("ci_scope.baseline", base=base[:12], explanation=explanation)

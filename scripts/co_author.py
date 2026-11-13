@@ -74,7 +74,7 @@ def problems(label: str, found: list[str], *, own: bool = True) -> list[str]:
         elif parsed["tool"] not in VENDORS:
             if own:
                 problems.append(t("co_author.unknownTool", label=label, tool=parsed['tool'],
-                                  tools=t("common.listSeparator").join(VENDORS)))
+                                  tools=list(VENDORS)))
         elif parsed["mail"] != VENDORS[parsed["tool"]]:
             problems.append(t("co_author.wrongMail", label=label, tool=parsed['tool'],
                               expected=VENDORS[parsed['tool']], actual=parsed['mail']))

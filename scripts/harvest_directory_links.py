@@ -95,6 +95,10 @@ ALIVE, GONE, UNVERIFIED, UNKNOWN = "活", "疑似失效", "未验", "未取得"
 #: 链接曾被当本人账号装进账本（jae 8 条、javdb 3 条）。
 FAN_ACCOUNT = re.compile(r"応援|非公式|ファン垢|ファンアカ|fan account", re.I)
 FAN_VERDICT = "应援账号"
+#: 登出页是空壳时 `probe_x` 给的说明。进安装队列的行连同证据写进 entity_link.metadata，
+#: 保留中文；其余行在 `probe_rows` 里换成本机语言。
+SHELL_GONE = "登出页无资料，对照账号正常"
+SHELL_THROTTLED = "登出页无资料，对照账号也无（限流）"
 
 LAOSHI = "https://laoshi.ink/"
 LAOSHI_OWN = ("laoshi.ink",)
@@ -300,7 +304,8 @@ def owned_link(url: str, shown: str) -> tuple[str, str]:
 
 
 def failed(source: str, url: str, exc: Exception) -> dict:
-    return page_record(source, url, [], [], note=f"未取得：{type(exc).__name__}: {exc}"[:160])
+    return page_record(source, url, [], [],
+                       note=t("harvest_directory_links.pageFailed", error=type(exc).__name__, exc=exc)[:160])
 
 
 def rate_limited(exc: Exception) -> bool:
@@ -553,7 +558,7 @@ def collect_javdb(site: Site, limit: int, performers: list[dict]) -> tuple[list[
         if not details:
             pages.append(page_record(
                 "javdb", search, record["chain"], [],
-                note=f"搜过名字链的 {len(record['chain'])} 个写法，javdb 上没有这个人"))
+                note=t("harvest_directory_links.javdbNoMatch", count=len(record["chain"]))))
             continue
         for detail in details:
             try:
@@ -566,7 +571,7 @@ def collect_javdb(site: Site, limit: int, performers: list[dict]) -> tuple[list[
                 continue
             if JAVDB_LOGIN.search(html):
                 pages.append(page_record("javdb", detail, record["chain"], [],
-                                         note="javdb 这一页要登录才给，不注册账号"))
+                                         note=t("harvest_directory_links.javdbLoginWall")))
                 continue
             pages.append(page_record("javdb", detail, javdb.all_names(html), javdb_links(html),
                                      portrait=javdb_portrait(html)))
@@ -664,20 +669,26 @@ def judge(pages: list[dict], site_links: list[str], performers: list[dict],
             continue
         matched_name = "、".join(used)
         if len(matched) > 1:
-            names = "、".join(by_id[entity_id]["name"] for entity_id in sorted(matched))
+            names = [by_id[entity_id]["name"] for entity_id in sorted(matched)]
             for url, _, _ in socials:
                 link_kind, label = classify(url)
                 rows.append(row(**base, link_kind=link_kind, label=label, url=url,
                                 matched_name=matched_name, verdict="需人工消歧",
-                                evidence=f"页面名「{matched_name}」对上多位：{names}"))
+                                evidence=t("harvest_directory_links.matchedSeveral",
+                                           matchedName=matched_name, names=names)))
                 stats["需人工消歧"] += 1
             continue
         entity_id = matched.pop()
         record = by_id[entity_id]
         base.update(entity_id=entity_id, name=record["name"], matched_name=matched_name)
+        # ok 行的证据经 install_entity_links.py 写进 entity_link.metadata，保留中文；
+        # 不进安装队列的行只给复核的人看，跟本机语言。
         where = f"{page['source']} {page['page']}；页面名「{matched_name}」对上数据库「{record['name']}」"
+        shown_where = t("harvest_directory_links.pageMatched", source=page["source"], page=page["page"],
+                        matchedName=matched_name, name=record["name"])
         if not socials and not page["official"] and not page["owned"]:
-            rows.append(row(**base, verdict="未取得", evidence=f"{where}；页面上没有社交链接"))
+            rows.append(row(**base, verdict="未取得",
+                            evidence=t("harvest_directory_links.noSocialLinks", where=shown_where)))
             stats["命中但无社媒"] += 1
             continue
         held = existing_handles.setdefault(entity_id, {})
@@ -686,12 +697,14 @@ def judge(pages: list[dict], site_links: list[str], performers: list[dict],
             link_kind, label = classify(url)
             item = row(**base, link_kind=link_kind, label=label, url=url)
             if (name, account) in prior:
-                item.update(verdict="已有", evidence=f"{where}；账本已有 {prior[(name, account)]}")
+                item.update(verdict="已有", evidence=t("harvest_directory_links.alreadyHeld",
+                                                     where=shown_where, url=prior[(name, account)]))
             else:
                 others = [held_url for (held_name, _), held_url in prior.items() if held_name == name]
                 if others:
                     item.update(verdict="conflict",
-                                evidence=f"{where}；账本同平台另有 {'、'.join(others)}，需交叉核对")
+                                evidence=t("harvest_directory_links.otherAccount",
+                                           where=shown_where, urls=others))
                 else:
                     item.update(verdict="ok", evidence=where)
                     held[(name, account)] = url
@@ -702,7 +715,7 @@ def judge(pages: list[dict], site_links: list[str], performers: list[dict],
             link_kind, label = owned_link(url, shown)
             item = row(**base, link_kind=link_kind, label=label, url=url)
             if url in existing_urls.get(entity_id, set()):
-                item.update(verdict="已有", evidence=f"{where}；账本已有此地址")
+                item.update(verdict="已有", evidence=t("harvest_directory_links.urlHeld", where=shown_where))
             else:
                 item.update(verdict="ok",
                             evidence=f"{where}；资料页写明的本人链接「{shown or label}」")
@@ -713,7 +726,7 @@ def judge(pages: list[dict], site_links: list[str], performers: list[dict],
             url, label = page["official"]
             if url in existing_urls.get(entity_id, set()):
                 rows.append(row(**base, link_kind="official", label=label, url=url,
-                                verdict="已有", evidence=f"{where}；账本已有此页"))
+                                verdict="已有", evidence=t("harvest_directory_links.pageHeld", where=shown_where)))
                 stats["已有"] += 1
             else:
                 rows.append(row(**base, link_kind="official", label=label, url=url,
@@ -760,7 +773,7 @@ def probe_x(site: Site, account: str, memo: dict[str, tuple[str, str]]) -> tuple
                 # 对照也没有，是我们被限流，只能记未取得。
                 control, _ = x_profile_state(site.get(X_PROFILE.format(X_CONTROL), refresh=True))
                 state = "gone" if control == "alive" else "unknown"
-                display = "登出页无资料，对照账号正常" if state == "gone" else "登出页无资料，对照账号也无（限流）"
+                display = SHELL_GONE if state == "gone" else SHELL_THROTTLED
             memo[key] = ({"alive": ALIVE, "gone": GONE}.get(state, UNKNOWN), display)
         except HttpStatusError as exc:
             memo[key] = (GONE if exc.status == 404 else UNKNOWN, f"HTTP {exc.status}")
@@ -787,9 +800,16 @@ def probe_rows(rows: list[dict], existing_handles: dict, site: Site | None) -> C
         state, display = probe_x(site, handle(item["url"]), memo)
         item["alive"] = state
         stats[state] += 1
-        if display:
+        fan = state == ALIVE and bool(FAN_ACCOUNT.search(display))
+        if display and item["verdict"] == "ok" and state != GONE and not fan:
+            # 这一行会进安装队列，证据写进账本，保留中文。
             item["evidence"] += (f"；X 显示名「{display}」" if state == ALIVE else f"；X 验活：{display}")
-        if state == ALIVE and FAN_ACCOUNT.search(display):
+        elif display:
+            shown = {SHELL_GONE: t("harvest_directory_links.shellGone"),
+                     SHELL_THROTTLED: t("harvest_directory_links.shellThrottled")}.get(display, display)
+            item["evidence"] += (t("harvest_directory_links.xDisplayName", display=shown) if state == ALIVE
+                                 else t("harvest_directory_links.xProbe", display=shown))
+        if fan:
             # 不能只标一句「疑似」了事：`installable()` 只看 verdict 和 alive，标注留在证据里
             # 照样会装进账本。降级成自己的判定，队列里就见不到它了。
             item["verdict"] = FAN_VERDICT
@@ -800,7 +820,7 @@ def probe_rows(rows: list[dict], existing_handles: dict, site: Site | None) -> C
                     if held_name == "X" and handle(url) != handle(item["url"])]
             for old in olds:
                 old_state, _ = probe_x(site, handle(old), memo)
-                item["evidence"] += f"；数据库旧号 {old}：{old_state}"
+                item["evidence"] += t("harvest_directory_links.oldAccount", url=old, state=old_state)
     return stats
 
 
@@ -812,7 +832,7 @@ def installable(rows: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------- 入口
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(description=t("harvest_directory_links.description"),
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True,

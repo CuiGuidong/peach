@@ -37,9 +37,9 @@ from peach.scripting import HostLimiter, open_readonly
 from peach.config import DATABASE_PATH, GENERATED_DIR, LOG_DIR, SECRETS_DIR, SOURCES_DIR, TOOLS_DIR
 from peach.genre_decisions import load_genre_decisions
 from peach.genre_taxonomy import CONTENT_GENRES, map_genres
-from peach.interface_text import dev as t
+from peach.interface_text import dev as t, dev_log
 from peach.jobs import DiskGuard, JobPolicyError
-from peach.task_runs import cli_run
+from peach.task_runs import cli_run, run_error
 from peach.metadata import (
     CATALOG_EVIDENCE_FIELDS,
     MetadataProviderError,
@@ -107,11 +107,12 @@ def configure_log(log_dir: str | Path) -> None:
     )
 
 
-def log(message: str) -> None:
-    line = f"[{time.strftime('%H:%M:%S')}] {message}"
-    print(line, flush=True)
+def log(key: str, **params) -> None:
+    """控制台一行跟本机语言，日志文件一行固定英文。"""
+    stamp = f"[{time.strftime('%H:%M:%S')}] "
+    print(stamp + t(key, **params), flush=True)
     if _logf is not None:
-        _logf.write(line + "\n")
+        _logf.write(stamp + dev_log(key, **params) + "\n")
 
 
 def close_log() -> None:
@@ -546,8 +547,7 @@ def _select_requested_codes(codes: list[tuple], path: Path, *,
     requested = _requested_codes(path)
     withheld = [query for query in requested if query in labels]
     if withheld:
-        preview = "、".join(withheld[:10])
-        raise ValueError(t("scrape_codes.directoryLabels", preview=preview))
+        raise ValueError(t("scrape_codes.directoryLabels", preview=withheld[:10]))
     available: dict[str, tuple] = {}
     for row in codes:
         query = normalise_code_key(row[0])
@@ -558,9 +558,8 @@ def _select_requested_codes(codes: list[tuple], path: Path, *,
             available[query] = (previous[0], previous[1] + row[1], previous[2] + row[2], *previous[3:])
     missing = [query for query in requested if query not in available]
     if missing:
-        preview = "、".join(missing[:10])
         suffix = t("scrape_codes.moreMissing", count=len(missing)) if len(missing) > 10 else ""
-        raise ValueError(t("scrape_codes.codesMissing", preview=preview, suffix=suffix))
+        raise ValueError(t("scrape_codes.codesMissing", preview=missing[:10], suffix=suffix))
     return [available[query] for query in requested]
 
 
@@ -700,7 +699,7 @@ class _Throttle:
         if source in WIKI_SOURCES and (error.kind == "budget" or error.status_code in {403, 429}):
             self.cooldown_until[source] = float("inf")
             row["blocked"] += 1
-            log(f"{source}: network stopped for this batch; candidates already obtained are kept")
+            log("scrape_codes.logNetworkStopped", source=source)
         if error.kind == AUTH_ERROR_KIND:
             self.auth_blocked[source] = str(error)
             self.consecutive_failures[source] = 0
@@ -708,7 +707,7 @@ class _Throttle:
             # 下一步由错误消息自己带着：判据明确就说换凭据，只剩状态码
             # 可看的 403 则不替用户断成因。这里再补一句通用建议会盖掉那份
             # 区分，把撞上 IP 封禁的人引去反复换 Cookie。
-            log(f"{source}: authentication failed; no more requests to it in this batch: {error}")
+            log("scrape_codes.logAuthFailed", source=source, error=error)
         elif error.kind == SEARCH_MISS_KIND:
             # 站答了，只是搜索范围内没有这部片：不是限流信号。FC2 排在前面的一批里连着几个
             # 没收录，就会把整站冷却掉，后面收录了的番号一个都问不到。
@@ -719,8 +718,8 @@ class _Throttle:
                 self.cooldown_until[source] = time.monotonic() + COOLDOWN_SECONDS
                 self.consecutive_failures[source] = 0
                 row["blocked"] += 1
-                log(f"{source}: {COOLDOWN_AFTER_FAILURES} retryable failures in a row; "
-                    f"cooling down {COOLDOWN_SECONDS:.0f} s, then resuming automatically: {error}")
+                log("scrape_codes.logCoolingDown", source=source, count=COOLDOWN_AFTER_FAILURES,
+                    seconds=f"{COOLDOWN_SECONDS:.0f}", error=error)
         else:
             self.consecutive_failures[source] = 0
 
@@ -751,7 +750,7 @@ def _ask_stage(adapter, *, query: str, variants, stage: str, members, args, heal
                 error = _identity_mismatch(query, payload)
                 payload = None if error is not None else payload
             if payload is not None and attempt != query:
-                log(f"{query}: matched on {source} as {attempt}")
+                log("scrape_codes.logMatchedVariant", query=query, source=source, attempt=attempt)
             if payload is None and error is not None and not (
                     error.retryable or error.kind == AUTH_ERROR_KIND
                     or error.status_code in BLOCKING_STATUS_CODES):
@@ -821,7 +820,7 @@ def _build_adapter(args, sources, provider=None):
              if args.wiki_pages_file and names else [])
     stray = [url for url in pages if not any(url.startswith(WIKI_SITES[name].root) for name in names)]
     if stray:
-        raise ValueError(t("scrape_codes.strayWikiPages") + "、".join(stray[:3]))
+        raise ValueError(t("scrape_codes.strayWikiPages", pages=stray[:3]))
     # 几个 Wiki 都在 seesaawiki.jp 上：共用一个主机间隔，合起来仍是每 2 秒至多一次请求。
     limiter = HostLimiter({}, default_interval=SEESAA.interval)
     for name in names:
@@ -904,12 +903,12 @@ def main(argv: list[str] | None = None, *, provider=None) -> int:
     """
     parser = build_parser()
     args = parser.parse_args(argv)
-    with cli_run("scrape-codes", args.db, label="番号资料刮削") as handle, ExitStack() as resources:
+    with cli_run("scrape-codes", args.db) as handle, ExitStack() as resources:
         resources.callback(close_log)
         code = _scrape(parser, args, handle, provider=provider, resources=resources)
         if code:
             handle.finish("cancelled", summary={"exit_code": code},
-                          error=f"提前收工，退出码 {code}")
+                          **run_error("stoppedEarly", "scrape-codes", code=code))
         return code
 
 
@@ -970,10 +969,10 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
     try:
         free_gb = guard.check(force=True)
     except JobPolicyError as error:
-        log(f"[stop] {error}")
+        log("scrape_codes.logStop", reason=error)
         close_log()
         return error.exit_code
-    log(f"System drive free {free_gb:.1f} GiB, runtime threshold {args.min_free:.1f} GiB")
+    log("scrape_codes.logFreeSpace", free=f"{free_gb:.1f}", threshold=f"{args.min_free:.1f}")
     # 健康表覆盖这一趟可能问到的全部来源：点名的就是那几家，走链的是所有链的并集。
     covered = sources or ((WIKI_SOURCE,) if profile == WIKI_PROFILE else CHAIN_SOURCES)
     health = _health_rows(covered, profile)
@@ -996,7 +995,7 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
         atomic_write_text(checkpoint_path, json.dumps(record, ensure_ascii=False))
         atomic_write_text(active_path, json.dumps(record, ensure_ascii=False))
     save_progress()
-    log(f"Field candidate batch: profile {profile}, codes {len(codes)}, sources {','.join(covered)}; read-only queries, no ledger writes")
+    log("scrape_codes.logBatch", profile=profile, codes=len(codes), sources=','.join(covered))
 
     throttle = _Throttle(health)
     stopped: JobPolicyError | None = None
@@ -1015,7 +1014,7 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
                 guard.check()
             except JobPolicyError as error:
                 stopped = error
-                log(f"[stop] {error}")
+                log("scrape_codes.logStop", reason=error)
                 break
             query = normalise_code_key(code)
             # 第一个永远是账本的规范写法，评审键不随回退漂移。
@@ -1050,22 +1049,22 @@ def _scrape(parser, args, handle, *, provider=None, resources) -> int:
             _write_health(health_path, health)
             _write_unmapped(unmapped_path, unmapped_genres)
             if index % 25 == 0:
-                log(f"{index}/{len(codes)}: {groups_written} field groups written, {errors_written} errors")
+                log("scrape_codes.logProgress", index=index, total=len(codes), groups=groups_written, errors=errors_written)
             handle.progress(index, len(codes), f"{query}")
     save_progress('complete' if len(completed) == len(codes) else 'active')
     _write_health(health_path, health)
     _write_unmapped(unmapped_path, unmapped_genres)
-    log(f"Done: {groups_written} field candidate groups → {output}")
-    log(f"Source health → {health_path}")
-    log(f"Unmapped genres: {len(unmapped_genres)} → {unmapped_path}")
+    log("scrape_codes.logDone", groups=groups_written, path=output)
+    log("scrape_codes.logHealth", path=health_path)
+    log("scrape_codes.logUnmapped", count=len(unmapped_genres), path=unmapped_path)
     if errors_written:
-        log(f"Source errors: {errors_written} → {errors_path}")
+        log("scrape_codes.logErrors", count=errors_written, path=errors_path)
     # 鉴权失败单列。混在错误总数里看不出「这一批有几家其实一条都没问到」，
     # 而它决定的是下一步做什么：补凭据重跑，而不是等限流过去。
     if throttle.auth_blocked:
-        log(f"Sources with failed authentication: {len(throttle.auth_blocked)}; requests stopped for this batch. "
-            "Follow each note, then rerun: "
-            + "; ".join(f"{source} ({detail})" for source, detail in throttle.auth_blocked.items()))
+        log("scrape_codes.logAuthBlocked", count=len(throttle.auth_blocked))
+        for source, detail in throttle.auth_blocked.items():
+            log("scrape_codes.logAuthBlockedSource", source=source, detail=detail)
     close_log()
     return stopped.exit_code if stopped is not None else 0
 

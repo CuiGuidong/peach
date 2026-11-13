@@ -605,7 +605,7 @@ def apply(args, releases: list[dict], stars: list[dict]) -> dict:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=t("harvest_kmib.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--snapshot", type=Path, default=SNAPSHOT_DIR)
     parser.add_argument("--out", type=Path, default=GENERATED_DIR)

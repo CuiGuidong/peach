@@ -240,19 +240,19 @@ def judge(record: dict, html: str, url: str) -> dict:
     """一页资料页对一位账本女优的判定。"""
     current = javdb.current_names(html)
     wanted = {key(value) for value in record["chain"]}
+    shown = current or t("harvest_javdb_cn_names.noNames")
     row = {"entity_id": record["entity_id"], "current_name": record["name"],
            "assets": record["assets"], "actor_id": javdb.actor_id(html), "url": url,
            "jp": "", "zh_cn": "", "zh_tw": "", "adopt": "",
            "keywords": "|".join(current),
-           "verdict": "", "evidence": f"现名 {'、'.join(current) or '未取得'}"}
+           "verdict": "", "evidence": t("harvest_javdb_cn_names.currentNames", names=shown)}
     if not wanted & {key(value) for value in current}:
         row.update(verdict=FORMER, jp=record["name"], adopt=adopted_name(current),
-                   evidence=f"账本名只出现在旧艺名里；站上现名 {'、'.join(current) or '未取得'}")
+                   evidence=t("harvest_javdb_cn_names.onlyFormerName", names=shown))
         return row
     if key(record["name"]) not in {key(value) for value in current}:
         row.update(verdict=RENAMED, jp=record["name"], adopt=adopted_name(current),
-                   evidence=(f"靠别名对上的页；账本规范名 {record['name']} 不在现名栏，"
-                             f"站上现名 {'、'.join(current)}"))
+                   evidence=t("harvest_javdb_cn_names.matchedByAlias", name=record["name"], names=current))
         return row
     zh_tw, why = chinese_name(current)
     if not zh_tw:
@@ -261,10 +261,10 @@ def judge(record: dict, html: str, url: str) -> dict:
     jp = next((value for value in current if KANA.search(value)), record["name"])
     if not same_person(zh_tw, jp):
         row["verdict"] = UNRELATED
-        row["evidence"] = f"现名栏并排的 {zh_tw} 与 {jp} 姓氏对不上，不是同一个名字"
+        row["evidence"] = t("harvest_javdb_cn_names.surnamesDiffer", zhTw=zh_tw, jp=jp)
         return row
     row.update(jp=jp, zh_tw=zh_tw, adopt=zh_tw, verdict=OK,
-               evidence=f"资料页现名一栏同时写着 {zh_tw} 与 {jp}")
+               evidence=t("harvest_javdb_cn_names.bothWritten", zhTw=zh_tw, jp=jp))
     return row
 
 
@@ -302,16 +302,18 @@ def alias_candidates(record: dict, html: str, url: str,
             row = {"entity_id": record["entity_id"], "current_name": record["name"],
                    "assets": record["assets"], "actor_id": actor, "url": url,
                    "alias": convert(written), "alias_zh_tw": written, "origin": origin,
-                   "verdict": OK, "evidence": f"资料页{origin}写着 {written}"}
+                   "verdict": OK,
+                   "evidence": t("harvest_javdb_cn_names.writtenInCurrentRow" if origin == CURRENT_ROW
+                                 else "harvest_javdb_cn_names.writtenInOtherRow", written=written)}
             owner = owners.get(folded)
             if owner and owner[0] != record["entity_id"]:
                 row.update(verdict=TAKEN,
-                           evidence=f"{owner[1]}（实体 {owner[0]}）已经用着这个写法")
+                           evidence=t("harvest_javdb_cn_names.writingTaken", name=owner[1], entityId=owner[0]))
             rows.append(row)
     if not rows:
         row = _note(record, url, NOTHING,
-                    f"页面上的写法 {'、'.join(javdb.all_names(html)) or '未取得'}，"
-                    "没有一个是账本以外的中文写法")
+                    t("harvest_javdb_cn_names.noNewWriting",
+                      names=javdb.all_names(html) or t("harvest_javdb_cn_names.noNames")))
         row["actor_id"] = actor
         rows.append(row)
     return rows
@@ -354,14 +356,14 @@ def harvest(connection: sqlite3.Connection, site, limit: int,
             continue
         if not hits:
             note(record, search, MISSING,
-                 f"搜过名字链的 {len(record['chain'])} 个写法，站上没有这个人")
+                 t("harvest_javdb_cn_names.noMatch", count=len(record["chain"])))
             continue
         crowded = len(hits) > 1
         if crowded and not KANA.search(record["name"]):
             # 这一位只为别名候选而来，而别名候选在多页时一个都不产。那就别把这几页
             # 取回来了——每页 5 秒，取回来也只是再写一遍同一句「分不清是哪一页」。
             alias_rows.append(_note(record, search, CROWDED,
-                                    f"搜到 {len(hits)} 页同名的人"))
+                                    t("harvest_javdb_cn_names.samePages", count=len(hits))))
             continue
         for path in hits:
             url = urljoin(javdb.BASE, path)
@@ -371,13 +373,13 @@ def harvest(connection: sqlite3.Connection, site, limit: int,
                 note(record, url, FAILED, f"{type(exc).__name__}: {exc}")
                 continue
             if javdb.LOGIN.search(html):
-                note(record, url, LOGIN, "这一页要登录才给，不注册账号")
+                note(record, url, LOGIN, t("harvest_javdb_cn_names.loginWall"))
                 continue
             if KANA.search(record["name"]):
                 rows.append(judge(record, html, url))
             if crowded:
                 alias_rows.append(_note(record, url, CROWDED,
-                                        f"搜到 {len(hits)} 页同名的人"))
+                                        t("harvest_javdb_cn_names.samePages", count=len(hits))))
                 continue
             alias_rows.extend(alias_candidates(record, html, url, owners))
     return rows, alias_rows

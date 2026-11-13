@@ -155,7 +155,7 @@ def recipe_for(paths: list[str]) -> tuple[str, dict]:
     matched = [key for key, recipe in RECIPES.items()
                if any(matches(entry, path) for entry in recipe["manifests"] for path in paths)]
     if not matched:
-        known = t("common.listSeparator").join(entry for recipe in RECIPES.values() for entry in recipe["manifests"])
+        known = [entry for recipe in RECIPES.values() for entry in recipe["manifests"]]
         raise RuntimeError(t("adopt_dependency_bump.noKnownManifest", known=known))
     if len(matched) > 1:
         raise RuntimeError(t("adopt_dependency_bump.severalManifests", count=len(matched), manifests=str(matched)))
@@ -355,7 +355,7 @@ def adopt_all(prs: list[dict], *, signature: str, root: Path = ROOT) -> dict:
             rebuild = [" ".join(command) for command in (*recipe["commands"], *recipe["checks"])]
             return {"ok": False, "error": str(exc), "stopped_at": pr["number"],
                     "conflicts": exc.files, "done": done,
-                    "next": [t("adopt_dependency_bump.nextResolve", files=t("common.listSeparator").join(exc.files)),
+                    "next": [t("adopt_dependency_bump.nextResolve", files=list(exc.files)),
                              *(t("adopt_dependency_bump.nextRebuild", command=command) for command in rebuild),
                              f"git add -- {' '.join(exc.files)}"
                              + (t("adopt_dependency_bump.nextWithDerived") if recipe["commands"] else ""),

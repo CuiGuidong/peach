@@ -83,6 +83,7 @@ def accounts_in(html: str) -> list[dict[str, str]]:
 
 def scan(http, site: str, timeout: float, *, evidence: list | None = None) -> tuple[set[str], str, str]:
     """返回（找到的 handle, 最终 URL, 说明）。"""
+    # 「未取得」开头的说明保留中文：`--resume` 按 `note.startswith("未取得")` 判断要不要重查。
     current, note = site, ""
     found: set[str] = set()
     visited = set()
@@ -104,8 +105,9 @@ def scan(http, site: str, timeout: float, *, evidence: list | None = None) -> tu
                                  "sha256": hashlib.sha256(response.body).hexdigest()})
         following = affirmative_link(html, current)
         if following is None or following in visited or hop == MAX_HOPS:
-            return found, current, note or ("官网页面直接给出社交链接" if found else "页面无社交链接")
-        note = f"穿过 {hop + 1} 层年龄门"
+            return found, current, note or (t("find_studio_socials.linksOnSite") if found
+                                            else t("find_studio_socials.noLinksOnPage"))
+        note = t("find_studio_socials.ageGates", count=hop + 1)
         current = following
     return found, current, note
 
@@ -135,7 +137,7 @@ def review_rows(row: dict, evidence: list[dict]) -> list[dict]:
                        "name": row["studio"], "link_kind": "social",
                        "label": f"X @{item['handle']}", "url": f"https://x.com/{item['handle']}",
                        "evidence": f"{item['page']} ; sha256={item['sha256']} ; {item['anchor']}",
-                       "context": item["context"], "review": "待复核账号归属"})
+                       "context": item["context"], "review": t("find_studio_socials.reviewOwnership")})
     return result
 
 

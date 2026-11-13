@@ -42,7 +42,7 @@ def profile_urls(connection, candidates: Path, ids: list[int]) -> dict[int, str]
 def install_portrait(args, connection, avatar_root: Path, item: dict, fetched: list) -> None:
     """出演者的 Babepedia 主图与她单人作品封面比上脸才装；账号只留候选。"""
     if item['kind'] != 'performer':
-        item['avatar'] = '账号不自动装头像，只留候选'
+        item['avatar'] = t('harvest_western_artwork.accountNoAvatar')
         return
     from peach.avatar_face import FaceProbe
     from peach.face_match import FaceMatcher
@@ -122,7 +122,7 @@ def run(args) -> dict:
                 try:
                     scene = official_scene(http, site, name, released)
                     if scene is None:
-                        record['issue'] = '官方封面未取得：没有唯一的名字与日期匹配'
+                        record['issue'] = t('harvest_western_artwork.noOfficialCover')
                         continue
                     record.update(scene)
                     body = avatar_picker.fetch_image(http, scene['image_url'])
@@ -152,7 +152,7 @@ def run(args) -> dict:
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_western_artwork.description"))
     parser.add_argument('--db', type=Path, default=DATABASE_PATH)
     parser.add_argument('--generated', type=Path, default=GENERATED_DIR)
     parser.add_argument('--covers', type=Path, default=COVER_DIR)

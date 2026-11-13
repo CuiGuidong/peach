@@ -72,7 +72,7 @@ def run(args: argparse.Namespace) -> int:
         print(t("check_mdns.noResponse", hostname=hostname))
         print(t("check_mdns.noResponseHint"))
         return 1
-    print(t("check_mdns.responders", hostname=hostname, addresses=t("common.listSeparator").join(responders)))
+    print(t("check_mdns.responders", hostname=hostname, addresses=list(responders)))
     if len(responders) > 1:
         # 同一个名字两台机器都在广播。不会报错，只是有一边按名字访问不到。
         print(t("check_mdns.nameClash"))

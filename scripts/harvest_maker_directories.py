@@ -208,7 +208,7 @@ def logo_state(safe: str, logo_root: Path) -> str:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_maker_directories.description"))
     parser.add_argument("--db", type=Path, required=True, help=t("harvest_maker_directories.dbHelp"))
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--logo-root", type=Path,

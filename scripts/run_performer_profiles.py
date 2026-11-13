@@ -95,7 +95,7 @@ def main(argv=None) -> int:
     print(t("run_performer_profiles.backup", path=args.backup))
     run_id = f"manual-{time.strftime('%Y%m%dT%H%M%S')}"
     tally = sweep(contract, items, run_id)
-    print(t("run_performer_profiles.tally", tally=t("run_performer_profiles.tallySeparator").join(
+    print(t("run_performer_profiles.tally", tally=t("common.commaSeparator").join(
         f"{key} {value}" for key, value in tally.items())))
     print(t("run_performer_profiles.batch", source=profiles.SOURCE, run_id=run_id,
             path=contract.candidate_root / profiles.REVIEW_FILE))

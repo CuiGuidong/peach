@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from peach import library_sharing, remote_reporting
-from peach.interface_text import dev as t, list_separator, local_language
+from peach.interface_text import dev as t
 
 TARGETS = {"dsn": "PEACH_SENTRY_DSN", "library_dsn": "PEACH_LIBRARY_SENTRY_DSN"}
 
@@ -29,7 +29,7 @@ def reporting_config(*, require: bool = False) -> dict[str, str]:
     missing = [name for key, name in TARGETS.items() if not config[key]]
     if missing:
         raise SystemExit(t("write_reporting_config.missingVariables",
-                           names=list_separator(local_language()).join(missing)))
+                           names=missing))
     if remote_reporting.dsn() != config["dsn"]:
         raise SystemExit(t("write_reporting_config.badDsn"))
     if library_sharing.target() != config["library_dsn"]:

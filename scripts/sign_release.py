@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach import release_signing  # noqa: E402
-from peach.interface_text import dev as t, list_separator, local_language  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 
 
 def sign(sums: Path, private_keys: list[str], trusted: tuple[str, ...] | None = None) -> dict:
@@ -29,7 +29,7 @@ def sign(sums: Path, private_keys: list[str], trusted: tuple[str, ...] | None = 
     public = [release_signing.public_key(key) for key in private_keys]
     unknown = [key for key in public if trusted and key not in trusted]
     if unknown:
-        raise ValueError(t("sign_release.unknownKeys", keys=list_separator(local_language()).join(unknown)))
+        raise ValueError(t("sign_release.unknownKeys", keys=unknown))
     target.write_bytes("".join(release_signing.sign(content, key) for key in private_keys).encode("ascii"))
     # 源码还没有公钥时用这次的公钥自验，至少证明签名文件本身读得回来。
     release_signing.verify(content, target.read_bytes(), trusted or tuple(public))

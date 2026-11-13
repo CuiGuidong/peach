@@ -90,7 +90,7 @@ def install(destination: Path, *, rclone_only: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("fetch_release_tools.description"))
     parser.add_argument("--rclone-only", action="store_true")
     args = parser.parse_args()
     install(Path("build/release-tools").resolve(), rclone_only=args.rclone_only)

@@ -179,7 +179,7 @@ def run(args: argparse.Namespace) -> int:
             sheets.append({**base, "candidates": shots,
                            "works": works(connection, entity_id)})
             rows.append({**base, "action": MANY,
-                         "detail": t("common.semicolonSeparator").join(choice["detail"] for choice in found)})
+                         "detail": t("common.clauseSeparator").join(choice["detail"] for choice in found)})
     finally:
         connection.close()
         close = getattr(transport, "close", None)

@@ -82,7 +82,7 @@ def install(destination: Path, *, cache: Path = CACHE, fetch=download) -> list[P
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("fetch_face_models.description"))
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--cache", type=Path, default=CACHE)
     args = parser.parse_args()

@@ -268,7 +268,7 @@ def rollback(done: list[tuple[Path, Path]]) -> None:
         except OSError as error:
             failures.append(f"{target} -> {source}: {error}")
     if failures:
-        raise RuntimeError(t("flatten_release_dirs.restoreFailed", failures="；".join(failures)))
+        raise RuntimeError(t("flatten_release_dirs.restoreFailed", failures=t("common.clauseSeparator").join(failures)))
 
 
 def build_parser() -> argparse.ArgumentParser:

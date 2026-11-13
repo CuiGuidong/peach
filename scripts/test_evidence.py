@@ -21,7 +21,7 @@ from pathlib import Path
 from filelock import FileLock, Timeout
 if str(Path(__file__).resolve().parents[1] / "src") not in sys.path:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
-from peach.interface_text import dev as t  # noqa: E402
+from peach.interface_text import dev as t, list_separator, local_language  # noqa: E402
 
 from . import change_impact, test_environment_identity
 
@@ -510,7 +510,7 @@ def describe_holder(lock_path: Path) -> str:
         return t("test_evidence.holderGone")
     parts = [f"pid {note.get('pid')}", t("test_evidence.holderSince", time=note.get('started_at'))]
     parts.extend(f"{key} {note[key]}" for key in ("scope", "branch", "root") if note.get(key))
-    return t("common.listSeparator").join(parts)
+    return list_separator(local_language()).join(parts)
 
 
 def run_lock(repo: Path, state: str, **note: object):

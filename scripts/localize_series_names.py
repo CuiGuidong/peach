@@ -158,34 +158,34 @@ def collect(
         if mismatched_assets:
             base.update(
                 action="skip-projection-mismatch",
-                reason="asset.series 与规范系列关系不一致：" +
-                       ",".join(map(str, mismatched_assets)),
+                reason=t("localize_series_names.projectionMismatch",
+                         assets=",".join(map(str, mismatched_assets))),
             )
         elif not _contains_latin(str(entity["canonical_name"])):
             base.update(
                 target_name=str(entity["canonical_name"]),
-                action="keep-localized", reason="规范名已无拉丁字母",
+                action="keep-localized", reason=t("localize_series_names.noLatin"),
             )
         elif not targets:
-            base.update(action="skip-no-japanese-evidence", reason="没有可验证的官方日文系列名")
+            base.update(action="skip-no-japanese-evidence", reason=t("localize_series_names.noJapaneseEvidence"))
         elif len(targets) != 1:
             base.update(
                 action="skip-evidence-conflict",
-                reason="同一系列关联番号返回多个日文名：" + " | ".join(targets),
+                reason=t("localize_series_names.evidenceConflict", names=" | ".join(targets)),
             )
         else:
             target = targets[0]
             normalized = normalize_entity_name(target)
             base["target_name"] = target
             if normalized == str(entity["normalized_name"]):
-                base.update(action="keep-source-same", reason="官方日文原文与当前规范名相同")
+                base.update(action="keep-source-same", reason=t("localize_series_names.sourceSame"))
             elif normalized in owners and owners[normalized] != entity_id:
                 base.update(
-                    action="merge-into-existing", reason="日文规范实体已存在",
+                    action="merge-into-existing", reason=t("localize_series_names.targetExists"),
                     merge_target_id=owners[normalized],
                 )
             else:
-                base.update(action="rename", reason="官方日文翻译证据唯一")
+                base.update(action="rename", reason=t("localize_series_names.uniqueEvidence"))
         rows.append(base)
     return rows
 

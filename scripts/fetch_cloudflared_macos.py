@@ -65,7 +65,7 @@ def validate(destination: Path, architecture: str) -> dict:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("fetch_cloudflared_macos.description"))
     parser.add_argument("--arch", choices=("arm64", "x86_64"), required=True)
     parser.add_argument("--destination", type=Path, required=True)
     args = parser.parse_args()

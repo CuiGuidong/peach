@@ -216,7 +216,7 @@ def due(root: Path) -> dict:
         why.append(t("changelog.dueByEntries", entries=entries))
     urgent = [group for group in URGENT if group in grouped]
     if urgent:
-        why.append(t("changelog.dueUrgent", groups=t("common.listSeparator").join(urgent)))
+        why.append(t("changelog.dueUrgent", groups=list(urgent)))
     return {"entries": entries, "days": days, "due": bool(why), "why": why,
             "groups": {group: len(items) for group, items in grouped.items()}}
 
@@ -248,7 +248,7 @@ def require_labeled_entries(document: str, version: str) -> None:
     entries = [line for line in section_of(document, version).splitlines() if line.startswith("- ")]
     invalid = [line for line in entries if labeled.match(line) is None]
     if invalid:
-        preview = t("changelog.previewSeparator").join(invalid[:3])
+        preview = t("common.clauseSeparator").join(invalid[:3])
         remainder = t("changelog.moreEntries", count=len(invalid) - 3) if len(invalid) > 3 else ""
         raise version_bump.VersionError(t("changelog.unlabeledEntries", file=CHANGELOG, version=version,
                                           preview=preview, remainder=remainder))
@@ -260,7 +260,7 @@ def require_labeled_entries(document: str, version: str) -> None:
             if line.startswith("- ")
             and len(re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", label.sub("", line))) > ENTRY_LIMIT]
     if long:
-        preview = t("changelog.previewSeparator").join(
+        preview = t("common.clauseSeparator").join(
             t("changelog.longEntry", version=released, line=line[:40]) for released, line in long[:3])
         remainder = t("changelog.moreEntries", count=len(long) - 3) if len(long) > 3 else ""
         raise version_bump.VersionError(t("changelog.entriesTooLong", file=CHANGELOG, limit=ENTRY_LIMIT,
@@ -324,7 +324,7 @@ def release(root: Path, version: str, *, repo: str, spec: str, today: str | None
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__,
+    parser = argparse.ArgumentParser(description=t("changelog.description"),
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--repo", default="peach-mitao/peach")
     parser.add_argument("--range", dest="spec", help=t("changelog.helpRange"))

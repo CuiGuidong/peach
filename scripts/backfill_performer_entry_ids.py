@@ -184,17 +184,17 @@ def plan(connection: sqlite3.Connection, args: argparse.Namespace) -> list[dict]
     if args.javdb_cache and Path(args.javdb_cache).is_dir():
         cache = Path(args.javdb_cache)
         for entity_id, ids in from_page_cache(cache, owners).items():
-            candidates[(JAVDB, entity_id)] = (ids, f"javdb 页面缓存 {cache}")
+            candidates[(JAVDB, entity_id)] = (ids, t("backfill_performer_entry_ids.pageCache", cache=cache))
         carded, namesakes = from_search_cards(cache, owners)
         for entity_id, ids in carded.items():
             have, origin = candidates.get((JAVDB, entity_id), (set(), ""))
             candidates[(JAVDB, entity_id)] = (
-                have | ids, origin or f"javdb 搜索页缓存 {cache}")
+                have | ids, origin or t("backfill_performer_entry_ids.searchCache", cache=cache))
     for path in args.csv:
         for (provider, entity_id), ids in from_csv([path], CSV_COLUMNS).items():
             have, origin = candidates.get((provider, entity_id), (set(), ""))
             candidates[(provider, entity_id)] = (
-                have | ids, f"{origin}；{Path(path).name}".strip("；"))
+                have | ids, t("common.clauseSeparator").join(filter(None, (origin, Path(path).name))))
     names = {int(entity_id): str(written) for entity_id, written in connection.execute(
         "SELECT id,canonical_name FROM entity WHERE kind='performer'")}
     owner = _owner_of(connection)
@@ -210,27 +210,26 @@ def plan(connection: sqlite3.Connection, args: argparse.Namespace) -> list[dict]
         if entity_id not in names:
             rows.append({"entity_id": entity_id, "canonical_name": "", "provider": provider,
                          "external_id": "", "origin": origin, "verdict": NOT_PERFORMER,
-                         "evidence": "账本里这条实体不是女优"})
+                         "evidence": t("backfill_performer_entry_ids.notPerformer")})
             continue
         for external_id in sorted(ids):
             row = {"entity_id": entity_id, "canonical_name": names[entity_id],
                    "provider": provider, "external_id": external_id, "origin": origin,
-                   "verdict": OK, "evidence": f"{origin} 给的 id"}
+                   "verdict": OK, "evidence": t("backfill_performer_entry_ids.idFrom", origin=origin)}
             held = owner.get((provider, external_id))
             others = claimants[(provider, external_id)] - {entity_id}
             if held == entity_id:
-                row.update(verdict=HAVE, evidence="账本里已有这一行")
+                row.update(verdict=HAVE, evidence=t("backfill_performer_entry_ids.alreadyRegistered"))
             elif held is not None:
                 row.update(verdict=TAKEN,
-                           evidence=f"账本里这个 id 挂在实体 {held} 名下")
+                           evidence=t("backfill_performer_entry_ids.idTaken", entityId=held))
             elif others:
                 row.update(verdict=CONFLICT,
-                           evidence="同一个 id 对上 "
-                                    f"{len(others) + 1} 位实体："
-                                    f"{'、'.join(str(x) for x in sorted(others | {entity_id}))}")
+                           evidence=t("backfill_performer_entry_ids.idClaimed", count=len(others) + 1,
+                                      entities=sorted(others | {entity_id})))
             elif provider == JAVDB and entity_id in creators:
                 row.update(verdict=FC2_ONLY,
-                           evidence=f"没有 JAV 目录站 id，带番号的 {creators[entity_id]} 部作品全是 FC2")
+                           evidence=t("backfill_performer_entry_ids.fc2Only", count=creators[entity_id]))
             rows.append(row)
     registered = {entity_id for (provider, _external_id), entity_id in owner.items()
                   if provider == JAVDB}
@@ -238,8 +237,9 @@ def plan(connection: sqlite3.Connection, args: argparse.Namespace) -> list[dict]
         if entity_id in names and entity_id not in registered and (JAVDB, entity_id) not in candidates:
             rows.append({"entity_id": entity_id, "canonical_name": names[entity_id],
                          "provider": JAVDB, "external_id": "",
-                         "origin": f"javdb 搜索页缓存 {args.javdb_cache}", "verdict": NAMESAKE,
-                         "evidence": f"对得上的卡片不止一个人：{'、'.join(ids)}"})
+                         "origin": t("backfill_performer_entry_ids.searchCache", cache=args.javdb_cache),
+                         "verdict": NAMESAKE,
+                         "evidence": t("backfill_performer_entry_ids.severalCards", ids=ids)})
     return rows
 
 

@@ -165,7 +165,7 @@ class GitLabForge:
                or selected[name].get("allow_failure")
                or selected[name].get("commit", {}).get("id") != sha]
         if bad:
-            raise ValueError(t("release_forge.missingTestJobs", jobs=t("common.listSeparator").join(bad)))
+            raise ValueError(t("release_forge.missingTestJobs", jobs=list(bad)))
 
     def require_rehearsal(self, repo: str, pipeline: int) -> None:
         """版本提交的流水线里，演练的标签作业必须都在且成功；缺一个都不打标签。"""
@@ -173,4 +173,4 @@ class GitLabForge:
         bad = [name for name in sorted(REHEARSAL_JOBS)
                if name not in selected or selected[name]["status"] != "success"]
         if bad:
-            raise ValueError(t("release_forge.rehearsalFailed", jobs=t("common.listSeparator").join(bad)))
+            raise ValueError(t("release_forge.rehearsalFailed", jobs=list(bad)))

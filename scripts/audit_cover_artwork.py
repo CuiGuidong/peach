@@ -90,7 +90,7 @@ def inspect(path, metadata, *, detector=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("audit_cover_artwork.description"))
     parser.add_argument('--data-root', type=Path, required=True)
     parser.add_argument('--report', type=Path, required=True)
     parser.add_argument('--apply', action='store_true', help=t('audit_cover_artwork.applyHelp'))

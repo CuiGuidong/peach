@@ -129,7 +129,7 @@ def inspect_row(connector, reader: sqlite3.Connection, row: dict) -> tuple[dict,
     entry = {"item_id": row["id"], "external_id": row["external_id"], "result": "",
              "characters": "", "written": "否", "note": ""}
     if not Rule34VideoConnector._VIDEO_RE.match(row["url"]):
-        entry.update(result="跳过", note="url 不是详情页")
+        entry.update(result="跳过", note=t("backfill_rule34video_characters.notDetailPage"))
         return entry, []
     try:
         response = connector._get(row["url"], headers={"Accept": "text/html"})
@@ -144,7 +144,7 @@ def inspect_row(connector, reader: sqlite3.Connection, row: dict) -> tuple[dict,
         entry.update(result="未取得", note=f"{type(error).__name__}: {error}"[:120])
         return entry, []
     if not detail:
-        entry.update(result="未取得", note="详情页没有解析出细节")
+        entry.update(result="未取得", note=t("backfill_rule34video_characters.noDetail"))
         return entry, []
     characters = characters_of(detail)
     current = reader.execute("SELECT metadata_json FROM follow_item WHERE id=?",

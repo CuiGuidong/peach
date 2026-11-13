@@ -10,6 +10,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / 'src'))
 
+from peach.interface_text import dev as t
 from peach.catalog_rules import duration_clusters, normalise_code_key
 from peach.catalog_versions import filename_matches_code
 from peach.review_csv import write_rows
@@ -97,7 +98,7 @@ def audit(database: Path, output: Path, baseline: Path | None = None) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("audit_catalog_versions.description"))
     parser.add_argument('--db', type=Path, required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--baseline', type=Path)

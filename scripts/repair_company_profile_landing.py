@@ -98,7 +98,7 @@ def apply(connection, planned: dict) -> dict:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = add_ledger_write_args(argparse.ArgumentParser(description=__doc__,
+    parser = add_ledger_write_args(argparse.ArgumentParser(description=t("repair_company_profile_landing.description"),
                                    formatter_class=argparse.RawDescriptionHelpFormatter))
     parser.add_argument("--batch", required=True)
     parser.add_argument("--plan", type=Path, default=REVIEW_DIR / "company-profile-observed-plan.json")

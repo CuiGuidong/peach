@@ -102,7 +102,7 @@ def verdict(root: Path, latch: Path) -> dict:
     reasons = changelog.due(root)
     if not reasons["due"]:
         return quiet
-    return {"say": t("release_due.due", reasons=t("release_due.clauseSeparator").join(reasons["why"]))
+    return {"say": t("release_due.due", reasons=t("common.clauseSeparator").join(reasons["why"]))
             + t("release_due.advice"),
             "sha": head}
 
@@ -118,7 +118,7 @@ def payload() -> dict:
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
-        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+        description=t("release_due.description"), formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--hook-event", action="store_true",
                         help=t("release_due.helpHookEvent"))
     parser.add_argument("--repo", type=Path, default=PROJECT_ROOT)

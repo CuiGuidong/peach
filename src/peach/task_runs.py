@@ -114,7 +114,7 @@ def trigger_label(trigger: str) -> str:
 #: 读的一方按界面语言换成名字。
 PROGRESS_KEYS = ("item", "items", "downloadLanded", "batch", "subjectStage", "videosStage",
                  "waitingForUpdate", "waitingForService", "pausedWaiting", "schedulingRepairs")
-ERROR_KEYS = ("skippedBy", "skipped", "interrupted", "unknownFollowup", "dispatchInterrupted")
+ERROR_KEYS = ("skippedBy", "skipped", "interrupted", "unknownFollowup", "dispatchInterrupted", "stoppedEarly")
 
 
 def _fill(key: str, task_key: str, params: dict) -> str:

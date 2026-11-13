@@ -148,7 +148,7 @@ def drop_performers(connection, performers: list[dict]) -> dict[str, int]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("repair_fc2_sellers_and_descriptive_names.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--generated-root", type=Path, default=GENERATED_DIR)
     return parser

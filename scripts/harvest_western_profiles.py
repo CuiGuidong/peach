@@ -57,7 +57,7 @@ def collect(args, http, limiter) -> dict:
         for entity_id in sorted(set(args.entity)):
             row = connection.execute("SELECT canonical_name FROM entity WHERE id=? AND kind IN ('performer','creator')",(entity_id,)).fetchone()
             if not row:
-                records.append({'entity_id':entity_id, 'issue':'艺人不存在或不是出演者、账号'})
+                records.append({'entity_id':entity_id, 'issue':t('harvest_western_profiles.notPerformer')})
             else:
                 aliases = [r[0] for r in connection.execute('SELECT alias FROM entity_alias WHERE entity_id=?',(entity_id,))]
                 url = dict(args.profile_url or []).get(str(entity_id), '')
@@ -75,7 +75,7 @@ def collect(args, http, limiter) -> dict:
 
 
 if __name__ == '__main__':
-    parser = add_ledger_write_args(argparse.ArgumentParser(description=__doc__))
+    parser = add_ledger_write_args(argparse.ArgumentParser(description=t("harvest_western_profiles.description")))
     parser.add_argument('--entity',type=int,action='append')
     parser.add_argument('--profile-url',nargs=2,action='append',metavar=('ENTITY_ID','URL'))
     parser.add_argument('--plan',type=Path)

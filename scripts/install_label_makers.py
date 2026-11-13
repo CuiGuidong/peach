@@ -150,7 +150,7 @@ def install(connection: sqlite3.Connection, planned: list[dict], *, source: str)
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=t("install_label_makers.description"))
     parser.add_argument("--input", type=Path, required=True, help=t("install_label_makers.inputHelp"))
     parser.add_argument("--create-makers", action="store_true",
                         help=t("install_label_makers.createMakersHelp"))

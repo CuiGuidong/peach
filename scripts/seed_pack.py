@@ -27,7 +27,7 @@ from peach.scripting import add_ledger_write_args, open_for_write, open_readonly
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(description=t("seed_pack.description"), formatter_class=argparse.RawDescriptionHelpFormatter)
     commands = parser.add_subparsers(dest="command", required=True)
     export = commands.add_parser("export", help=t("seed_pack.exportHelp"))
     export.add_argument("--db", type=Path, default=DATABASE_PATH, help=t("seed_pack.dbHelp"))

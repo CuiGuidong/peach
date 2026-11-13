@@ -26,7 +26,7 @@ if str(SRC_DIR) not in sys.path:
 
 from peach.review_csv import ENCODING
 from peach.config import DATABASE_PATH, LOG_DIR, REVIEW_DIR, SECRETS_DIR
-from peach.interface_text import dev as t
+from peach.interface_text import dev as t, dev_log
 
 
 def parse_args(argv=None):
@@ -94,21 +94,22 @@ def main(argv=None):
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     log_path = LOG_DIR / "sha1-{}.log".format(time.strftime("%Y%m%d-%H%M%S"))
     with log_path.open("w", encoding="utf-8", buffering=1) as log_stream:
-        def log(message):
-            print(message, flush=True)
-            log_stream.write(message + "\n")
+        def log(key: str, **params) -> None:
+            """控制台一行跟本机语言，日志文件一行固定英文。"""
+            print(t(key, **params), flush=True)
+            log_stream.write(dev_log(key, **params) + "\n")
 
         if args.cookie_file.is_file():
             client = P115Client(str(args.cookie_file))
-            log(f"Signing in with the saved cookie: {args.cookie_file}")
+            log("sync_sha1_115.logSavedCookie", path=args.cookie_file)
         else:
-            log("First run: scan the QR code in the terminal with the 115 mobile app to sign in")
+            log("sync_sha1_115.logScanQr")
             client = P115Client(console_qrcode=True)
             args.cookie_file.parent.mkdir(parents=True, exist_ok=True)
             args.cookie_file.write_text(client.cookies_str, encoding="utf-8")
-            log(f"Cookie saved to {args.cookie_file} (this device only; do not share)")
+            log("sync_sha1_115.logCookieSaved", path=args.cookie_file)
 
-        log("Fetching the full file list (metadata only; no file content is downloaded)...")
+        log("sync_sha1_115.logFetching")
         rows = []
         started = time.time()
         for index, item in enumerate(iter_files(client, 0, type=99, with_path=True), 1):
@@ -117,15 +118,15 @@ def main(argv=None):
                 continue
             rows.append((sha, item.get("name") or "", int(item.get("size") or 0)))
             if index % 5000 == 0:
-                log(f"  {index:,} items  {time.time()-started:.0f}s")
-        log(f"{len(rows):,} files with SHA1 in {time.time()-started:.0f}s")
+                log("sync_sha1_115.logFetchProgress", count=f"{index:,}", seconds=f"{time.time()-started:.0f}")
+        log("sync_sha1_115.logFetched", count=f"{len(rows):,}", seconds=f"{time.time()-started:.0f}")
 
         # 云端与 ledger 的路径口径不同，使用文件名和大小匹配。
         with closing(sqlite3.connect(str(DATABASE_PATH), timeout=120)) as conn:
             have = defaultdict(list)
             for aid, name, size in conn.execute("SELECT id,name,size FROM asset WHERE location='115'"):
                 have[(name, size)].append(aid)
-            log(f"115 records in the database: {sum(len(ids) for ids in have.values()):,}")
+            log("sync_sha1_115.logLedgerRecords", count=f"{sum(len(ids) for ids in have.values()):,}")
             updates, missed = [], 0
             for sha, name, size in rows:
                 ids = have.get((name, size))
@@ -135,11 +136,11 @@ def main(argv=None):
                     missed += 1
             conn.executemany("UPDATE asset SET hash_kind=?, hash=? WHERE id=?", updates)
             conn.commit()
-            log(f"Wrote {len(updates):,} SHA1 values; {missed:,} cloud files matched nothing in the database")
+            log("sync_sha1_115.logWritten", written=f"{len(updates):,}", missed=f"{missed:,}")
             if args.dupes:
                 count, waste = write_duplicate_report(conn, args.dupes_out, args.deprioritize_dir)
-                log(f"Exact SHA1 duplicates: {count:,} groups, {waste/1024**3:.1f} GB reclaimable")
-                log(f"→ {args.dupes_out}")
+                log("sync_sha1_115.logDuplicates", count=f"{count:,}", size=f"{waste/1024**3:.1f}")
+                log("sync_sha1_115.logReportPath", path=args.dupes_out)
     return 0
 
 

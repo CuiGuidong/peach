@@ -176,7 +176,7 @@ def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[st
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("reject_agency.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--input", type=Path, required=True,
                         help=t("reject_agency.inputHelp"))

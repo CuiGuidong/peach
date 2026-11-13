@@ -22,7 +22,7 @@ if str(SRC_DIR) not in sys.path:
 from peach import frame_capture, junk
 from peach.config import DATABASE_PATH, FFMPEG_DIR, GENERATED_DIR, LOG_DIR, STATE_DIR
 from peach.ffmpeg import FFmpegResolver
-from peach.interface_text import dev as t
+from peach.interface_text import dev as t, dev_log
 from peach.jobs import (
     ACTIVE_ASSET_SQL,
     DiskGuard,
@@ -162,14 +162,15 @@ def run(args: argparse.Namespace) -> int:
     lock = threading.RLock()
 
     with log_path.open("w", encoding="utf-8", buffering=1) as log_file:
-        def log(message: str) -> None:
+        def log(key: str, **params) -> None:
+            """控制台一行跟本机语言，日志文件一行固定英文。"""
             with lock:
-                line = f"[{time.strftime('%H:%M:%S')}] {message}"
-                print(line, flush=True)
-                log_file.write(line + "\n")
+                stamp = f"[{time.strftime('%H:%M:%S')}] "
+                print(stamp + t(key, **params), flush=True)
+                log_file.write(stamp + dev_log(key, **params) + "\n")
 
         if args.allow_metered:
-            log("Metered sources explicitly allowed")
+            log("sheets.logMeteredAllowed")
         connection = sqlite3.connect(args.db)
         if args.asset:
             # 点名重抽时不套 snapshot_path IS NULL：修完时长要重抽的那条，可能已经带着
@@ -196,11 +197,11 @@ def run(args: argparse.Namespace) -> int:
         connection.close()
         checked = junk.isolate(args.db, asset_ids=[row[0] for row in tasks])
         tasks = [row for row in tasks if row[0] not in checked['ids']]
-        log(f"Junk check: {checked['isolated']} isolated, {checked['review']} awaiting review")
+        log("sheets.logJunkCheck", isolated=checked['isolated'], review=checked['review'])
         total = len(tasks)
-        log(f"{total:,} videos to process workers={args.workers} frames={args.frames} log={log_path}")
+        log("sheets.logPending", total=f"{total:,}", workers=args.workers, frames=args.frames, path=log_path)
         if not total:
-            log("Nothing to process; probe may need to run first")
+            log("sheets.logNothing")
             return 0
 
         pending: queue.Queue = queue.Queue()
@@ -239,12 +240,12 @@ def run(args: argparse.Namespace) -> int:
                             with lock:
                                 counters["failed"] += 1
                                 failure_reasons[reason] += 1
-                            log(f"[fail] asset {asset_id} {reason} {path}")
+                            log("sheets.logFailed", asset=asset_id, reason=reason, path=path)
                 except Exception as exc:
                     with lock:
                         counters["failed"] += 1
                         failure_reasons["exception"] += 1
-                    log(f"[fail] asset {asset_id} exception {type(exc).__name__} {path}")
+                    log("sheets.logFailed", asset=asset_id, reason=f"exception {type(exc).__name__}", path=path)
                 finally:
                     with lock:
                         counters["done"] += 1
@@ -252,13 +253,14 @@ def run(args: argparse.Namespace) -> int:
                             elapsed = time.time() - started
                             rate = counters["done"] / elapsed if elapsed else 0
                             eta = (total - counters["done"]) / rate / 3600 if rate else 0
-                            log(f"{counters['done']:,}/{total:,} failed {counters['failed']} existing {counters['existing']} remaining {eta:.1f} h")
+                            log("sheets.logProgress", done=f"{counters['done']:,}", total=f"{total:,}",
+                                failed=counters['failed'], existing=counters['existing'], hours=f"{eta:.1f}")
                         try:
                             guard.check()
                         except JobPolicyError as exc:
                             if not stop.is_set():
                                 stop_reason.append(str(exc))
-                                log(f"[stop] {exc}")
+                                log("sheets.logStop", reason=exc)
                             stop.set()
 
         threads = [threading.Thread(target=worker, daemon=True) for _ in range(args.workers)]
@@ -282,14 +284,15 @@ def run(args: argparse.Namespace) -> int:
             connection.executemany("UPDATE asset SET snapshot_path=? WHERE id=?", buffer)
             connection.commit()
         elapsed = time.time() - started
-        log(f"Done {counters['done']:,}, failed {counters['failed']}, existing {counters['existing']}, took {elapsed/3600:.2f} h")
+        log("sheets.logDone", done=f"{counters['done']:,}", failed=counters['failed'],
+            existing=counters['existing'], hours=f"{elapsed/3600:.2f}")
         if failure_reasons:
-            breakdown = ", ".join(f"{reason} {count}" for reason, count in failure_reasons.most_common())
-            log(f"Failure reasons: {breakdown}")
+            log("sheets.logFailureReasons",
+                reasons=[f"{reason} {count}" for reason, count in failure_reasons.most_common()])
         connection.close()
         if stop_reason:
             # 已完成的部分都已入库；磁盘闸门中止不能报成正常完成，否则续跑决策会被误导。
-            log(f"Stopped: {stop_reason[0]}")
+            log("sheets.logStopped", reason=stop_reason[0])
             return DiskSpaceDenied.exit_code
     return 0
 

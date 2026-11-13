@@ -1685,7 +1685,11 @@ class OperationalScriptTests(unittest.TestCase):
             self.assertEqual(rows["javbus"]["auth_skips"], "4")
             self.assertEqual(rows["javbus"]["blocked"], "1")
             self.assertEqual(rows["r18dev"]["auth_skips"], "0")
-            self.assertIn("Sources with failed authentication", printed.getvalue())
+            # 控制台跟本机语言（测试固定 zh-CN），日志文件同一句固定英文。
+            self.assertIn("鉴权失败的来源 1 家", printed.getvalue())
+            written = "\n".join(path.read_text(encoding="utf-8") for path in (root / "logs").glob("*.log"))
+            self.assertIn("Sources with failed authentication: 1", written)
+            self.assertIn("  javbus (", written)
 
     def test_only_not_found_counts_as_a_settled_source_verdict(self):
         # 本机配置问题（凭据没贴、桥没装）返回的是 unknown / unavailable 错误。把它当
@@ -3257,7 +3261,7 @@ class OperationalScriptTests(unittest.TestCase):
                                 for p in (root / "log").glob("sheets-*.log"))
         self.assertIn("18349", written)
         self.assertIn("duration_mismatch", written)
-        self.assertIn("失败原因：duration_mismatch 1", written)
+        self.assertIn("Failure reasons: duration_mismatch 1", written)
 
     def test_sheets_can_reshoot_one_named_asset_over_a_stale_product(self):
         """点名重抽是为了盖掉上一次的错结果，撞上已存在的产物就短路等于没修。"""

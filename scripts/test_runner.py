@@ -49,10 +49,6 @@ PHASE_KEYS = {"输入快照": "phaseSnapshot", "历史记录": "phaseHistory", "
               "快速门槛": "phaseGates", "普通测试": "phaseRegular"}
 
 
-def joined(items) -> str:
-    return t("common.listSeparator").join(items)
-
-
 def phase_label(name: str) -> str:
     return t(f"test_runner.{PHASE_KEYS[name]}") if name in PHASE_KEYS else name
 
@@ -153,7 +149,7 @@ SCOPES: dict[str, tuple[str, ...]] = {
                 "test_copy_final_state.py", "test_demo_dataset.py",
                 "test_cloudflared_packaging.py", "test_tunnel.py", "test_process_job.py",
                 "test_ffmpeg_build.py", "test_ffmpeg_bundle.py", "test_untrunc_build.py", "test_macos_media.py",
-                "test_media_tool_import.py", "test_seed_corrections.py", "test_face_models_bundle.py"),
+                "test_media_tool_import.py", "test_seed_corrections.py", "test_face_models_bundle.py", "test_dev_text.py"),
     # 前端 island 层（ADR-0022）。产物与源码的断言不需要 Node；vitest 那部分在没有
     # npm 时自己跳过，所以这个域在任何机器上都能跑，`full` 也就自动包含它。
     # `test_web_perf.py` 两个域都登记：压缩与 ETag 是 API 交付（catalog），
@@ -1081,16 +1077,16 @@ def environment_preflight(scopes: tuple[str, ...], timings: Path | None = None,
     if not blocked:
         return
     if os.environ.get("PEACH_SKIP_PREFLIGHT") == "1":
-        print(t("test_runner.preflightSkipped", tools=joined(blocked)), flush=True)
+        print(t("test_runner.preflightSkipped", tools=blocked), flush=True)
         return
     needed = tools_needed_by(scopes)
     fatal = tuple(name for name in blocked if name in needed)
     spared = tuple(name for name in blocked if name not in needed)
     if spared:
-        print(t("test_runner.toolsSpared", tools=joined(spared)), flush=True)
+        print(t("test_runner.toolsSpared", tools=spared), flush=True)
     if not fatal:
         return
-    print(t("test_runner.toolsBlocked", tools=joined(fatal)), flush=True)
+    print(t("test_runner.toolsBlocked", tools=fatal), flush=True)
     if timings is not None:
         timings.write_text(json.dumps({"success": False, "count": 0, "timings": []}),
                            encoding="utf-8")
@@ -1459,7 +1455,7 @@ def verified_run(args, requested, scopes, files) -> int:
         slowest = sorted(timings, reverse=True)[:20]
         progress.persist(final=True, success=success, elapsed=time.monotonic() - started,
                          slowest=slowest, count=count, flaky=FLAKY if success else None)
-        print(t("test_runner.phaseTimings", phases=t("test_runner.phaseSeparator").join(
+        print(t("test_runner.phaseTimings", phases=t("common.clauseSeparator").join(
             f'{phase_label(name)} {seconds:.2f}s' for name, seconds in phases.items())), flush=True)
         for seconds, name in slowest[:5]:
             print(t("test_runner.slowTest", seconds=f"{seconds:.3f}", name=name), flush=True)

@@ -69,22 +69,23 @@ def shape(name: str) -> str:
 def decide(current: str, makers: list[str]) -> tuple[str, str, str]:
     """返回 (判词, 建议名, 证据说明)。makers 是各番号页读到的製作商，按出现顺序。"""
     if shape(current) != "拉丁":
-        return KEEP_JP, "", "账本现名已含日文"
+        return KEEP_JP, "", t("localize_studio_names.alreadyJapanese")
     found = [m for m in dict.fromkeys(makers) if m]
     if not found:
-        return UNKNOWN, "", "番号页没读到製作商"
+        return UNKNOWN, "", t("localize_studio_names.noMaker")
     if len(found) > 1:
-        return SPLIT, "", "多个番号给出不同製作商：" + "／".join(found)
+        return SPLIT, "", t("localize_studio_names.makersDiffer", makers="／".join(found))
     maker = found[0]
-    corroboration = f"{len(makers)} 个番号一致" if len(makers) > 1 else "只有 1 个番号可查"
+    corroboration = (t("localize_studio_names.codesAgree", count=len(makers)) if len(makers) > 1
+                     else t("localize_studio_names.singleCode"))
     if shape(maker) == "片假名":
-        return KEEP_KATAKANA, "", f"製作商 {maker} 是纯片假名，按规则保留英文原名（{corroboration}）"
+        return KEEP_KATAKANA, "", t("localize_studio_names.makerKatakana", maker=maker, corroboration=corroboration)
     if maker == current:
-        return KEEP_JP, "", f"製作商与现名相同（{corroboration}）"
+        return KEEP_JP, "", t("localize_studio_names.makerSame", corroboration=corroboration)
     if shape(maker) == "拉丁":
         # 来源自己也写拉丁，两边差的只是空格或符号，那不是「去罗马音」，别拿它改名。
-        return KEEP_LATIN, "", f"製作商 {maker} 也是拉丁写法，与现名只差写法（{corroboration}）"
-    return RENAME, maker, f"製作商 {maker}（{corroboration}）"
+        return KEEP_LATIN, "", t("localize_studio_names.makerLatin", maker=maker, corroboration=corroboration)
+    return RENAME, maker, t("localize_studio_names.makerFound", maker=maker, corroboration=corroboration)
 
 
 # ---------------------------------------------------------------- 取数
@@ -147,7 +148,7 @@ def inspect(site: Site, groups: list[list[str]]) -> tuple[list[str], list[str], 
                 continue
             maker = maker_of(page)
             if not maker:
-                notes.append(f"{code}: 页面无製作商字段")
+                notes.append(t("localize_studio_names.pageNoMaker", code=code))
                 continue
             urls.append(url)
             makers.append(maker)
@@ -158,7 +159,7 @@ def inspect(site: Site, groups: list[list[str]]) -> tuple[list[str], list[str], 
 # ---------------------------------------------------------------- 入口
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=t("localize_studio_names.description"))
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-assets", type=int, default=1)
@@ -195,7 +196,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
                 # Blacked、Tushy、FC2-PPV 这些压根不走番号体系，回查无从谈起。
                 # 写「未取得」等于把「不适用」伪装成取证失败。
                 makers, urls, tried, notes = [], [], [], []
-                verdict, proposed, evidence = SKIP, "", "账本里没有 JAV 番号，不走番号体系"
+                verdict, proposed, evidence = SKIP, "", t("localize_studio_names.noJavCodes")
             else:
                 makers, urls, tried, notes = inspect(site, groups)
                 verdict, proposed, evidence = decide(name, makers)
@@ -205,7 +206,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
                 "codes": " ".join(tried), "source_url": " ".join(urls),
                 "maker": "／".join(dict.fromkeys(makers)), "shape": shape(name),
                 "verdict": verdict, "proposed": proposed,
-                "evidence": "；".join([evidence, *notes]),
+                "evidence": t("common.clauseSeparator").join([evidence, *notes]),
             })
     finally:
         if owned:

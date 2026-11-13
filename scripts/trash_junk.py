@@ -97,7 +97,7 @@ def skip_reason(connection, row, path: Path, candidates: set[int], holders: set[
         return t("trash_junk.skipSubtitles")
     sidecars = sidecar_files(path)
     if sidecars:
-        return t("trash_junk.skipSidecars", files="、".join(sidecars))
+        return t("trash_junk.skipSidecars", files=sidecars)
     return ""
 
 

@@ -73,7 +73,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_studio_icons.description"))
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path,
                         default=REVIEW_DIR / "studio-icons.csv")

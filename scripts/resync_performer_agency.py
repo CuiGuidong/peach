@@ -194,7 +194,7 @@ def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[st
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("resync_performer_agency.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--output", type=Path,
                         default=REVIEW_DIR / "performer-agency-resync.csv")

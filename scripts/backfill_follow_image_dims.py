@@ -148,17 +148,17 @@ def probe_attempts(resolver: FollowMediaResolver, item: FollowItemRow, index: in
     thumb = str((media or {}).get("thumb_url") or "") if media is not None \
         else str(display_thumb_url(item) or "")
     if thumb.startswith("https://"):
-        attempts.append((thumb, {}, "缩略图"))
+        attempts.append((thumb, {}, t("backfill_follow_image_dims.viaThumbnail")))
     try:
         resolved = resolver.resolve(item, index)
     except FollowMediaUnavailable as error:
-        notes.append(f"解析器拒收：{error}")
+        notes.append(t("backfill_follow_image_dims.resolverRefused", error=error))
     else:
         headers = dict(resolved.headers or {})
         if resolved.referer:
             headers.setdefault("Referer", resolved.referer)
         if resolved.url != thumb:
-            attempts.append((resolved.url, headers, "媒体地址"))
+            attempts.append((resolved.url, headers, t("backfill_follow_image_dims.viaMediaUrl")))
     return attempts, notes
 
 
@@ -172,8 +172,9 @@ def probe_target(resolver: FollowMediaResolver, transport: HttpTransport,
         try:
             return probe_image_dims(transport, url, headers, timeout=PROBE_TIMEOUT), via
         except (ImageDimsUnavailable, OSError, httpx.HTTPError) as error:
-            notes.append(f"{via}：{type(error).__name__}: {error}"[:120])
-    return None, "；".join(notes) or "没有可问的地址"
+            notes.append(t("backfill_follow_image_dims.attemptFailed", via=via, error=type(error).__name__,
+                           detail=error)[:120])
+    return None, t("common.clauseSeparator").join(notes) or t("backfill_follow_image_dims.noAddress")
 
 
 def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int:
@@ -237,7 +238,7 @@ def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int
                 dims = archive.get(str(item.external_id))
                 row["mode"] = "归档"
                 if dims is None:
-                    row["note"] = "归档里没有这个帖子"
+                    row["note"] = t("backfill_follow_image_dims.notArchived")
             if dims is None and resolver is not None:
                 dims, note = probe_target(resolver, transport, limiter, item, index, media)
                 row["mode"] = "探测"
@@ -251,7 +252,7 @@ def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int
                         written += 1
                         since_flush += 1
                     else:
-                        row["note"] = "已有尺寸，未改动"
+                        row["note"] = t("backfill_follow_image_dims.alreadySized")
             log.append(row)
             if since_flush >= FLUSH_EVERY or position % 200 == 0:
                 flush()

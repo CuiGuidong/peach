@@ -16,7 +16,7 @@ from peach.scripting import add_ledger_write_args, counts_of, open_for_write, ve
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("import_fc2_sellers.description"))
     add_ledger_write_args(parser)
     parser.add_argument('--cache', type=Path, default=DATABASE_PATH.parent.parent / 'sources' / 'library-metadata')
     parser.add_argument('--output', type=Path, required=True)

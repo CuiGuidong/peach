@@ -81,7 +81,7 @@ def validate(destination: Path) -> dict:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("fetch_sparkle_macos.description"))
     parser.add_argument("--destination", type=Path, required=True)
     parser.add_argument("--tools", action="store_true", help=t("fetch_sparkle_macos.toolsHelp"))
     args = parser.parse_args()

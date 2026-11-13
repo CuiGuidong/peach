@@ -163,7 +163,7 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
         held = {name_key(name) for name in ledger_names.get(entity_id, ()) if name_key(name)}
         codes = codes_of(connection, entity_id, codes_per_performer)
         if not codes:
-            rows.append(row(**base, verdict=MISSING, evidence="账本里没有 JAV 番号可做入口"))
+            rows.append(row(**base, verdict=MISSING, evidence=t("harvest_javdatabase_names.noCodes")))
             stats["无番号入口"] += 1
             continue
         notes: list[str] = []
@@ -176,7 +176,7 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
                 continue
             links = idol_links(page)
             if not links:
-                notes.append(f"{code}: 作品页没有 idol 链接")
+                notes.append(t("harvest_javdatabase_names.noIdolLinks", code=code))
                 continue
             for idol_url in links:
                 if idol_url not in seen_idol:
@@ -194,11 +194,12 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
                 display = next((value for field, value in names if field == "romaji"), "")
                 where = f"{movie_url} → {idol_url}"
                 if len(owners) > 1:
-                    others = "、".join(ledger_names[other][0] for other in sorted(owners)
-                                      if ledger_names.get(other))
+                    others = [ledger_names[other][0] for other in sorted(owners)
+                              if ledger_names.get(other)]
                     rows.append(row(**base, code=code, movie_url=movie_url, idol_url=idol_url,
                                     idol_name=display, verdict=AMBIGUOUS,
-                                    evidence=f"{where}；页面名字同时对上：{others}"))
+                                    evidence=t("harvest_javdatabase_names.matchedSeveral",
+                                               where=where, names=others)))
                     stats[AMBIGUOUS] += 1
                     matched = True
                     continue
@@ -216,7 +217,8 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
                 break
         if not matched:
             rows.append(row(**base, code=" ".join(codes), verdict=MISSING,
-                            evidence="；".join(notes) or "作品页上的 idol 都对不上账本这个人"))
+                            evidence=(t("common.clauseSeparator").join(notes)
+                                      or t("harvest_javdatabase_names.noIdolMatched"))))
             stats["未对上"] += 1
     return rows, stats
 
@@ -224,7 +226,7 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
 # ---------------------------------------------------------------- 入口
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=t("harvest_javdatabase_names.description"))
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-assets", type=int, default=1)

@@ -149,7 +149,7 @@ def script_variants(names: dict[int, str], counts: dict[int, int],
             # 两种都交人工——这条捷径唯一的身份保证就是前缀，它不成立就没有别的。
             continue
         other, common = hits[0]
-        prefixes_text = t("common.enumSeparator").join(common)
+        prefixes_text = list(common)
         if NATIVE_JAPANESE.search(name):
             rows.append(_pair(entity_id, other, names, counts, "日文名／罗马字名",
                               t("merge_studio_name_variants.sharedPrefixRomanized", prefixes=prefixes_text)))

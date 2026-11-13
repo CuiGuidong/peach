@@ -155,14 +155,14 @@ def inspect_row(connector, row: dict) -> tuple[dict, dict | None]:
              "duration": row["duration"] if row["duration"] is not None else "",
              "tag_types_added": "", "written": "否", "note": ""}
     if not post_id.isdigit():
-        entry.update(result="跳过", note="external_id 不是帖子号")
+        entry.update(result="跳过", note=t("backfill_rule34_details.notPostId"))
         return entry, None
     try:
         detail = connector._detail(post_id)
     except (FollowSourceError, OSError) as error:
         detail, entry["note"] = {}, f"{type(error).__name__}: {error}"[:120]
     if not detail.get("tag_types"):
-        entry.update(result="未取得", note=entry["note"] or "dapi 没有给出标签分类")
+        entry.update(result="未取得", note=entry["note"] or t("backfill_rule34_details.noTagTypes"))
         return entry, None
     duration = (connector._video_seconds(row["media_url"])
                 if row["duration"] is None else None)
@@ -172,9 +172,9 @@ def inspect_row(connector, row: dict) -> tuple[dict, dict | None]:
                  duration=update.get("duration", entry["duration"]),
                  tag_types_added="是" if "metadata_json" in update else "")
     if not detail.get("published_at"):
-        entry["note"] = "dapi 没有给出 created_at"
+        entry["note"] = t("backfill_rule34_details.noCreatedAt")
     elif _is_mp4(row["media_url"]) and row["duration"] is None and not duration:
-        entry["note"] = "时长未取得"
+        entry["note"] = t("backfill_rule34_details.durationMissing")
     return entry, update or None
 
 
@@ -189,7 +189,7 @@ def inspect_duration(connector, row: dict) -> tuple[dict, dict | None]:
              "duration": "", "tag_types_added": "", "written": "否", "note": ""}
     seconds = connector._video_seconds(row["media_url"])
     if not seconds:
-        entry.update(result="未取得", note="时长未取得")
+        entry.update(result="未取得", note=t("backfill_rule34_details.durationMissing"))
         return entry, None
     entry.update(result="取得", duration=seconds)
     return entry, {"duration": seconds}

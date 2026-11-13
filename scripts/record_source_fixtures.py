@@ -104,16 +104,16 @@ def record(source: str, code: str, *, secrets: Path, credentials: bool, note: st
         return {"status": "未取得", "reason": outcome, "message": (live[2] or {}).get("message", "")}
     cassette.outcome, cassette.payload, cassette.failure = live
     if any(piece in row["url"] for row in cassette.interactions for piece in pieces):
-        return {"status": "拒绝", "reason": "凭据出现在请求地址里", "message": ""}
+        return {"status": "拒绝", "reason": t("record_source_fixtures.credentialInUrl"), "message": ""}
     safe = rewrite_texts(cassette, lambda text: redact(text, pieces), urls=True)
     if not replays_same(safe, live):
-        return {"status": "拒绝", "reason": "替换凭据后解析结局变了，凭据值进了解析字段", "message": ""}
+        return {"status": "拒绝", "reason": t("record_source_fixtures.credentialParsed"), "message": ""}
     small = rewrite_texts(safe, minimize)
     trimmed = replays_same(small, live)
     final = small if trimmed else safe
     text = final.dump()
     if any(piece in text for piece in pieces) or WINDOWS_PATH.search(text):
-        return {"status": "拒绝", "reason": "录制里仍有凭据或本机路径", "message": ""}
+        return {"status": "拒绝", "reason": t("record_source_fixtures.secretsLeft"), "message": ""}
     path = fixture_path(source, code)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(text.encode("utf-8"))
@@ -124,7 +124,7 @@ def record(source: str, code: str, *, secrets: Path, credentials: bool, note: st
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split("\n\n", 1)[0])
+    parser = argparse.ArgumentParser(description=t("record_source_fixtures.description"))
     parser.add_argument("samples", nargs="+", metavar=t("record_source_fixtures.sampleMetavar"))
     parser.add_argument("--secrets", type=Path, default=SECRETS_DIR, help=t("record_source_fixtures.secretsHelp"))
     parser.add_argument("--update", action="store_true", help=t("record_source_fixtures.updateHelp"))

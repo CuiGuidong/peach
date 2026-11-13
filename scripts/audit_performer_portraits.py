@@ -523,7 +523,7 @@ def audit_orphans(connection: sqlite3.Connection, avatar_dir: Path) -> list[dict
         row["policy_version"] = provenance.get("policy_version", "legacy")
         if len(hits) > 1:
             row["verdict"] = "orphan_ambiguous"
-            row["note"] = t("audit_performer_portraits.provenanceAmbiguous", ids=t("common.enumSeparator").join(
+            row["note"] = t("audit_performer_portraits.provenanceAmbiguous", ids=list(
                 str(hit) for hit in sorted(hits)))
         elif not hits:
             row["verdict"] = "orphan_no_provenance"
@@ -697,7 +697,7 @@ def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int
         print(t("audit_performer_portraits.auditCsv", path=args.out))
         print(t("audit_performer_portraits.candidatesCsv", path=args.candidates))
         print(t("audit_performer_portraits.sourceHealth", path=args.health))
-        print(t("audit_performer_portraits.verdicts", counts=t("common.enumSeparator").join(
+        print(t("audit_performer_portraits.verdicts", counts=list(
             f"{k} {v}" for k, v in summary.most_common())))
         relinks = summary.get("orphan_relink", 0)
         if relinks:
