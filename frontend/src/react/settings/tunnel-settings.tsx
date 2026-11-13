@@ -18,7 +18,7 @@ import { SEGMENT, SEGMENTED_TRACK, SegmentedRadioGroup as RadioGroup } from '../
 import { CONFIGURATION_KEY, fetchConfiguration } from './configuration';
 import { ExternalLink, ErrorText, Footer, Help, Section, Stack } from './section';
 import { busyProps, useAction } from './use-action';
-import { bodyFieldErrors } from '../../core/server-text';
+import { bodyFieldErrors, codedText } from '../../core/server-text';
 import { t } from '../../i18n';
 
 /** 连接握手在服务端进行，页面按固定间隔重问，直到拿到入口或失败原因。 */
@@ -129,7 +129,7 @@ export function TunnelSettings({ revision: initialRevision, initial, receipt }: 
           ? <Note tone="info" title={t('settings:cloudflareTunnel.publicUrl')}><ExternalLink href={state.url}>{state.url}</ExternalLink></Note>
           : null}
         {state.state === 'starting' ? <Note tone="info" title={t('settings:cloudflareTunnel.connectingTitle')}>{t('settings:cloudflareTunnel.connectingHelp')}</Note> : null}
-        {state.error ? <ErrorText>{state.error}</ErrorText> : null}
+        {state.error ? <ErrorText>{codedText(state, 'error')}</ErrorText> : null}
         {action.error ? <ErrorText>{action.error}</ErrorText> : null}
       </Stack>
       <Footer>

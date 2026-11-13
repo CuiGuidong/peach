@@ -579,7 +579,7 @@ describe('作品卡', () => {
   });
 
   it('有图却取失败时不留坏图：问服务端卡在哪一步，缺印相的本地影片给「补全预览」', async () => {
-    vi.stubGlobal('fetch', fetchMock(404, { error: 'unavailable', reason: 'snapshot unavailable' }));
+    vi.stubGlobal('fetch', fetchMock(404, { error: 'unavailable', reason: 'snapshot unavailable', reason_code: 'errors.previews.snapshotUnavailable' }));
     const { host } = await render(item(31, { location: 'local', has_thumb: true }));
     const img = host.querySelector('[data-media-art] img')!;
     await act(async () => { img.dispatchEvent(new Event('error')) });
@@ -591,7 +591,7 @@ describe('作品卡', () => {
   });
 
   it('取失败后「重试」换一个地址重新取图', async () => {
-    vi.stubGlobal('fetch', fetchMock(404, { error: 'unavailable', reason: 'ffmpeg generation failed' }));
+    vi.stubGlobal('fetch', fetchMock(404, { error: 'unavailable', reason: 'ffmpeg generation failed', reason_code: 'errors.previews.ffmpegFailed' }));
     const { host } = await render(item(32, { location: '115', has_thumb: true }));
     await act(async () => { host.querySelector('[data-media-art] img')!.dispatchEvent(new Event('error')) });
     await settle();

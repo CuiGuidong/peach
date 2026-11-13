@@ -151,11 +151,11 @@ def translate_failure(source: str, error: Exception) -> MetadataProviderError:
     这里认出来后本批不再问它——限流会过去，凭据不会。
     """
     from peach.jav_cover_fetch import DeadlineExceeded
-    from peach.library_processing import describe_failure, is_missing
+    from peach.library_processing import describe_failure, is_missing, phrase_text
     from peach.scraping_access import SourcePaused
     if isinstance(error, MetadataProviderError):
         return error
-    text = describe_failure(error)
+    text = phrase_text(describe_failure(error))
     status = re.search(r"\b(40[13]|429|503)\b", text)
     code = int(status.group(1)) if status else 0
     reason = auth_wall_reason(status_code=code) if code in {401, 403} else ""

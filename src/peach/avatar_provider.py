@@ -16,6 +16,7 @@ from PIL import Image, ImageOps, UnidentifiedImageError
 
 from .avatar_face import FaceProbe, drop_sidecar, write_sidecar
 from .fsutil import atomic_write_bytes
+from . import interface_text
 from .images import CROP_JPEG_QUALITY
 from .user_messages import UserFacingError
 
@@ -273,12 +274,12 @@ def mark_duplicate_candidates(rows: list[dict], installed: dict[str, int]) -> No
         digest = str(row.get("sha256") or "")
         if not digest:
             row["verdict"] = "rejected"
-            row["note"] = "缺少内容哈希，不能进入复核候选"
+            row["note"] = interface_text.text("server:labels.avatarProvider.missingHash")
             continue
         owner = owners.get(digest)
         if owner is not None and owner != int(row["entity_id"]):
             row["verdict"] = "duplicate"
             row["duplicate_of_entity_id"] = owner
-            row["note"] = f"与 performer-{owner} 的头像内容完全相同"
+            row["note"] = interface_text.text("server:labels.avatarProvider.duplicateOf", {"entity": f"performer-{owner}"})
             continue
         owners[digest] = int(row["entity_id"])

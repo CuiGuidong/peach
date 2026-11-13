@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .catalog_rules import normalise_code_key
+from .coded_text import Said
 from .classification import creator_collection_base
 from .entities import canonicalize_entity_name, normalize_entity_name, upsert_asset_entity
 from .entity_classification import trusted_sql, write_claim
@@ -78,11 +79,11 @@ def existing_account(connection, rows: list[dict]) -> tuple[int | None, str]:
             (name, name)).fetchall()
         found.update(int(item[0]) for item in matches)
     if len(found) > 1:
-        return None, '同名命中多个账号'
+        return None, Said('labels.fc2Sellers.nameMatchesAccounts')
     entity_id = next(iter(found), None)
     if entity_id and connection.execute("SELECT 1 FROM entity_external_ref WHERE entity_id=? AND provider='fc2' "
                                        "AND external_kind='creator' AND external_id<>?", (entity_id, account)).fetchone():
-        return None, '同名对应不同 FC2 账号'
+        return None, Said('labels.fc2Sellers.nameOtherAccount')
     return entity_id, ''
 
 
@@ -95,7 +96,7 @@ def _account_groups(connection, groups, skipped):
     for account, rows in sorted(groups.items()):
         entity_id, conflict = existing_account(connection, rows)
         if not entity_id and any(len(names[normalize_entity_name(row['name'])]) > 1 for row in rows):
-            conflict = '不同 FC2 账号使用相同卖家名称'
+            conflict = Said('labels.fc2Sellers.sharedName')
         if conflict:
             skipped.append({'account': account, 'reason': conflict})
         else:
@@ -118,7 +119,7 @@ def collect(connection, root: Path) -> dict:
     skipped = []
     for code, rows in sorted(by_code.items()):
         if len({row['account'] for row in rows}) != 1:
-            skipped.append({'code': code, 'reason': '作品来源给出不同卖家账号'})
+            skipped.append({'code': code, 'reason': Said('labels.fc2Sellers.conflictingAccounts')})
         else:
             groups[rows[0]['account']].extend(rows)
     accounts = _account_groups(connection, groups, skipped)
@@ -141,7 +142,9 @@ def _claim(connection, entity_id, record, owner):
                           "AND value='seller' AND " + trusted_sql(), (entity_id,)).fetchone():
         return
     write_claim(connection, entity_id=entity_id, facet='account_role', value='seller', source=owner,
-                source_url=record['source_url'], evidence=f"作品 {record['code']} 的販売者：{record['name']}；账号 {record['account_url']}",
+                source_url=record['source_url'],
+                evidence=Said('labels.fc2Sellers.evidence', code=record['code'], name=record['name'],
+                              account=record['account_url']),
                 status='observed', confidence=1)
 
 
@@ -170,7 +173,7 @@ def _associate(connection, entity_id, name, record, metadata, batch, skipped):
             source=batch, metadata=payload, update_entity_metadata=False)
         if landed is None:
             skipped.append({'account': record['account'], 'code': record['code'], 'asset_id': asset_id,
-                            'reason': '摄取判定不收这个卖家名'})
+                            'reason': Said('labels.fc2Sellers.rejectedName')})
             continue
         actual = connection.execute('SELECT kind FROM entity WHERE id=?', (landed,)).fetchone()
         if not actual or actual[0] != 'creator':

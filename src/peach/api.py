@@ -415,6 +415,16 @@ def _configure_capacity_guard(settings, contract, services):
         service.capacity_guard = guard
 
 
+def _read_only_fields(sync, read_only: bool) -> dict:
+    """健康检查里的只读说明：zh-CN 原文给旧页面，旁边是同一句的 code 与参数（ADR-0159），页面按界面语言显示。"""
+    if not read_only:
+        return {"ledger_read_only_message": None, "ledger_read_only_message_code": None,
+                "ledger_read_only_message_params": None}
+    phrase = sync.read_only_phrase
+    return {"ledger_read_only_message": sync.read_only_message, "ledger_read_only_message_code": phrase["code"],
+            "ledger_read_only_message_params": phrase.get("params", {})}
+
+
 def create_app(
     settings: PeachSettings | None = None,
     sync: LedgerSync | None = None,
@@ -734,7 +744,11 @@ def create_app(
 
     @app.exception_handler(AssetLoginRequired)
     def _asset_login_required_handler(request: Request, exc: AssetLoginRequired):
-        return PlainTextResponse("需要 ?t=口令", status_code=401)
+        # 纯文本没有 code 可带：浏览器给了语言就按它渲染，没给（脚本、测试客户端）用源语言。
+        accepted = request.headers.get("accept-language")
+        language = interface_text.request_language(accepted) if accepted else interface_text.SOURCE_LANGUAGE
+        return PlainTextResponse(interface_text.text("server:api.auth.assetTokenRequired", None, language),
+                                 status_code=401)
 
     # 挂在 Starlette 的基类上：路由没匹配到的 404 是它抛的，不是 FastAPI 子类，
     # 只挂子类的话地址栏敲错一个字母仍会看到一行 JSON。
@@ -820,7 +834,7 @@ def create_app(
                 "mdns_address": mdns.address if mdns is not None else None,
                 "ledger_sync": sync.status if sync is not None else "disabled",
                 "ledger_read_only": read_only,
-                "ledger_read_only_message": sync.read_only_message if read_only else None,
+                **_read_only_fields(sync, read_only),
                 "ledger_writer_origin": settings.review_writer_origin if read_only else None,
                 "scheme": "https" if settings.tls_enabled else "http",
                 # 采集用的浏览器窗口正等着人点验证的站，供排查时看一眼；窗口本身就是提醒，不另弹通知（ADR-0065）。

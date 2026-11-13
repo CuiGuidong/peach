@@ -2,7 +2,8 @@
 
 界面文字只在 `resources/locales/` 里，日志与命令行用英文，所以源码里的中文字符串都在计数之内：
 带不带 code、是报错、日志还是命令行输出都算。docstring 不算；内容数据文件（`CONTENT_FILES`：标签词表、
-汉字转换表、番号与标题规则的词表）整份不算。
+汉字转换表、番号与标题规则的词表、页面原词与账本取值）整份不算。内容数据文件只放数据，按 `src/peach/` 下的
+相对路径登记：带逻辑的模块整份列入，以后在里面新加的界面文字就拦不住了，数据要拆到这些文件里再导入。
 
 用法：
   python scripts/check_backend_copy.py          列出超过基线的文件，有就以 1 退出
@@ -23,12 +24,18 @@ BASELINE = ROOT / "scripts" / "backend-copy-baseline.json"
 SERVER_LOCALES = ROOT / "resources" / "locales"
 
 HAN = re.compile(r"[㐀-鿿]")
-#: 内容数据：词表与规则里的中文是数据本身，不是界面文字。
+#: 内容数据：词表与规则里的中文是数据本身，不是界面文字。键是 `src/peach/` 下的相对路径。
 CONTENT_FILES = {
-    "genre_taxonomy.py",  # 标签的中文规范名、别名与分组
-    "javdb_genres.py",    # JavDB 类别名到本地标签的对照
-    "kanji.py",           # 繁简与日文汉字转换表
-    "catalog_rules.py",   # 番号、标题、转载站与特典版的识别词
+    "genre_taxonomy.py",      # 标签的中文规范名、别名与分组
+    "javdb_genres.py",        # JavDB 类别名到本地标签的对照
+    "kanji.py",               # 繁简与日文汉字转换表
+    "catalog_rules.py",       # 番号、标题、转载站与特典版的识别词
+    "catalog_vocabulary.py",  # 账本与复核产物里的约定取值：标签前缀、画幅与版次取值、分档、决定备注
+    "content_words.py",       # 文件名、目录名、网盘回执与来源页面里认的原词，账本里的通用链接标签
+    "source_page_words.py",   # 资料站页面上的原文栏名、站名、记号与日期写法
+    "studio_words.py",        # 厂牌官网与公司资料判据的页面原词、复核判词与按厂牌名索引的取图来源
+    "taste_words.py",         # 口味维度匹配词、停用词、馆藏规范标签名与成人站标题记号
+    "junk_words.py",          # 推广套话、推广品牌、推广目录形态与分卷标记
 }
 CODE_KEYWORDS = {"code", "message_code"}
 CODED_CALLS = {"message_fields", "UserFacingError", "UserValueError", "UserRuntimeError", "UserPermissionError",
@@ -53,8 +60,8 @@ def _docstrings(tree: ast.AST) -> set[int]:
 
 
 def count_literals(name: str, source: str) -> int:
-    """一个模块里的中文字符串条数。f-string 整条算一处；内容数据文件记 0。"""
-    if Path(name).name in CONTENT_FILES:
+    """一个模块里的中文字符串条数（`name` 是 `src/peach/` 下的相对路径）。f-string 整条算一处；内容数据文件记 0。"""
+    if Path(name).as_posix() in CONTENT_FILES:
         return 0
     tree = ast.parse(source)
     parents = {id(child): node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
@@ -78,7 +85,7 @@ def scan(root: Path = ROOT) -> dict[str, int]:
     for path in sorted((root / "src" / "peach").rglob("*.py")):
         if "__pycache__" in path.parts:
             continue
-        found = count_literals(path.name, path.read_text(encoding="utf-8"))
+        found = count_literals(path.relative_to(root / "src" / "peach").as_posix(), path.read_text(encoding="utf-8"))
         if found:
             counts[path.relative_to(root).as_posix()] = found
     return counts

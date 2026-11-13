@@ -15,6 +15,7 @@ from pathlib import Path
 from .media_sources import SOURCE_COSTS, cost_for, cost_sql
 from .repository import in_background
 from .task_stages import stage as stage_fields, stage_progress
+from . import interface_text
 from .user_messages import UserFacingError, message_fields
 
 DEFAULT_METERED_LOCATIONS = frozenset(location for location, cost in SOURCE_COSTS.items()
@@ -27,6 +28,11 @@ class JobPolicyError(RuntimeError):
 
 class MeteredSourceDenied(UserFacingError, JobPolicyError):
     exit_code = 2
+
+
+def _closing(code: str) -> dict:
+    """写进任务行的固定原因（ADR-0159）：`error` 是 zh-CN 原文，旁边带 code。"""
+    return {"error": interface_text.text(f"server:{code}"), "error_code": code, "error_params": {}}
 
 
 class DiskSpaceDenied(UserFacingError, JobPolicyError):
@@ -595,7 +601,7 @@ class BackgroundJob:
                     from .job_recovery import checkpoint
                     checkpoint(db, self.task_key, job_id, self.snapshot() or snapshot)
         except Exception:
-            self._close_run(job_id, 'failed', error='任务未能启动')
+            self._close_run(job_id, 'failed', **_closing('errors.jobs.startFailed'))
             activity = self._activity_files.pop(job_id, None)
             if activity is not None:
                 activity.unlink(missing_ok=True)
@@ -708,7 +714,7 @@ class BackgroundJob:
             if self.runs is not None and run_id is not None:
                 self._suspend_run(job_id, run_id)
             return
-        self._close_run(job_id, 'cancelled', error='服务关停，这一轮没有跑完')
+        self._close_run(job_id, 'cancelled', **_closing('errors.jobs.serviceStopped'))
 
     def _suspend_run(self, job_id, run_id):
         from .processing_control import user_paused
@@ -754,7 +760,7 @@ class BackgroundJob:
             with self.lock:
                 if self.state is not None and self.state.get(self.id_key) == job_id:
                     self.state.update(waiting_for_update=True, **stage_fields('job.waitingForUpdate'), error='',
-                                      message='任务已暂停，安装完成后自动继续。')
+                                      **message_fields('jobMessage.jobs.pausedForInstall'))
         except JobCancelled:
             with self.lock:
                 if self.state is not None and self.state.get(self.id_key) == job_id:
@@ -823,7 +829,7 @@ class BackgroundJob:
             return
         if state.get(self.id_key) != job_id:
             # 已经被 `start` 在顶替的那一刻收过尾了，这里再收一次是空操作。
-            self._close_run(job_id, "cancelled", error="这一轮已被新的任务顶替")
+            self._close_run(job_id, "cancelled", **_closing("errors.jobs.superseded"))
             return
         self._settle_from(job_id, state)
 
@@ -841,14 +847,15 @@ class BackgroundJob:
         if status == "failed":
             # 声明了后继就是结算到了底，只是留下了要人处理的项（ADR-0053）：后继照派。
             # 中途抛异常的那一轮走不到声明那一步，一条都不派。
-            self._close_run(job_id, "failed", error=str(state.get("error") or "任务失败"),
-                            error_code=state.get("error_code"), error_params=state.get("error_params"),
+            reason = ({"error": str(state["error"]), "error_code": state.get("error_code"),
+                       "error_params": state.get("error_params")} if state.get("error") else _closing("errors.jobs.failed"))
+            self._close_run(job_id, "failed", **reason,
                             summary={**self._summary(state),
                                      **self._dispatch_followups(job_id, state)})
             return
         if superseded and status == "running":
             # 还在跑就被顶掉：它的结果没人要了，记成取消而不是成功。
-            self._close_run(job_id, "cancelled", error="这一轮已被新的任务顶替")
+            self._close_run(job_id, "cancelled", **_closing("errors.jobs.superseded"))
             return
         # `fn` 正常返回就是跑完了。域没有把状态推到 `complete` 只说明它不靠状态报结果
         # （`w_links` 这类直接返回 payload），不代表这一轮失败。
@@ -917,5 +924,6 @@ def _run_batch_with_updates(db, label, run, args):
                 return result
         except (JobPaused, UpdateBusy):
             pass
-        print('[pause] 任务进度已保留，安装完成后自动继续。')
+        print('[pause] ' + interface_text.text('server:jobMessage.jobs.progressKept', None,
+                                               interface_text.local_language()))
         wait_for_installation(db)

@@ -9,6 +9,7 @@ import re
 import sqlite3
 from datetime import datetime, timezone
 
+from . import interface_text
 from .entities import resolve_entity, upsert_asset_entity
 from .entity_classification import trusted_sql, write_claim
 from .field_owners import is_protected, owner_of, write_owned_fields
@@ -96,22 +97,22 @@ def wiki_finding(entity_id, name, keys, pages):
             try:
                 url = root + 'd/' + quote(key.encode('euc_jp'))
             except UnicodeEncodeError:
-                queried.append(f'{wiki}「{key}」（写不成站上编码）')
+                queried.append(_said('unencodable', wiki=wiki, key=key))
                 continue
             try:
                 page = pages[wiki].get(url)
             except LookupError:
-                queried.append(f'{wiki}「{key}」（页不存在）')
+                queried.append(_said('pageMissing', wiki=wiki, key=key))
                 continue
             except RuntimeError:
                 return None
             found = _label_page(page, source)
             if not found:
-                queried.append(f'{wiki}「{key}」（不是作品一览）')
+                queried.append(_said('notListing', wiki=wiki, key=key))
                 continue
             works, cast, prefix = found
-            evidence = (f'{wiki}「{key}」页是作品一览：{works} 部、出演者 {cast} 位'
-                        + (f'，番号前缀 {prefix}' if prefix else '') + '；名称指向厂牌或系列，不是个人账号')
+            evidence = (_said('labelPageWithPrefix', wiki=wiki, key=key, works=works, performers=cast, prefix=prefix)
+                        if prefix else _said('labelPage', wiki=wiki, key=key, works=works, performers=cast))
             return {'entity_id': entity_id, 'name': name, 'claims': [
                 {'facet': 'identity', 'value': 'release', 'status': 'observed', 'confidence': 0.8,
                  'source_url': url, 'evidence': evidence},
@@ -119,7 +120,13 @@ def wiki_finding(entity_id, name, keys, pages):
                  'source_url': url, 'evidence': evidence}]}
     return {'entity_id': entity_id, 'name': name, 'claims': [
         {'facet': 'identity', 'value': 'unknown', 'status': 'candidate', 'confidence': 0.5,
-         'evidence': '公开身份来源未取得；已按页名直取 ' + '、'.join(queried) + '。同名命中不构成唯一身份依据。'}]}
+         'evidence': _said('unresolved', queried=list(queried))}]}
+
+
+def _said(name: str, /, *, root: str = 'labels.entityIdentityResearch', **params) -> str:
+    """证据说明，写进账本的 `evidence` 与备注列；按 zh-CN 资源渲染（`server:labels.entityIdentityResearch.<名字>`）。
+    那几列只存一句原文，要随界面语言变得另存 code（见延后清单）。"""
+    return interface_text.text(f"server:{root}.{name}", params)
 
 
 def _rows(connection, table, clause, params):
@@ -184,7 +191,7 @@ def apply(connection, frozen):
                 'params':[entity_id,performer_id,SOURCE], 'before':_rows(connection,'entity_identity_link','left_id=? AND right_id=? AND source=?',(entity_id,performer_id,SOURCE))})
             connection.execute('INSERT OR IGNORE INTO entity_identity_link VALUES(?,?,?,?,?,?,?,?)',
                 (entity_id,performer_id,'same_person',SOURCE,finding['cast_source_url'],
-                 '发行文件完整署名与公开出演者身份一致','candidate',stamp))
+                 _said('fullCredit'),'candidate',stamp))
             for cast in row['cast']:
                 asset_id = cast['asset']['id']
                 receipt['changes'].append({'table':'asset_entity','clause':"asset_id=? AND (entity_id=? OR (entity_id=? AND source=?))",
@@ -193,7 +200,7 @@ def apply(connection, frozen):
                 receipt['changes'].append({'table':'asset','clause':'id=?','params':[asset_id],
                     'before':_rows(connection,'asset','id=?',(asset_id,))})
                 upsert_asset_entity(connection, kind='performer',name=finding['name'],asset_id=asset_id,
-                    role='performer',source=SOURCE,metadata={'source_url':finding['cast_source_url'], 'evidence':'厂牌发行文件完整署名'},update_entity_metadata=False)
+                    role='performer',source=SOURCE,metadata={'source_url':finding['cast_source_url'], 'evidence':_said('labelCredit')},update_entity_metadata=False)
                 connection.execute("DELETE FROM asset_entity WHERE asset_id=? AND entity_id=? AND role='creator' AND source='legacy:asset'",(asset_id,entity_id))
                 survivors = connection.execute("SELECT e.canonical_name FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id WHERE ae.asset_id=? AND ae.role='creator'", (asset_id,)).fetchall()
                 if cast['asset']['creator'] == finding['name']:

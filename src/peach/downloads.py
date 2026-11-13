@@ -34,6 +34,8 @@ from pathlib import Path, PureWindowsPath
 from typing import Any, Callable, Mapping, Protocol
 from urllib.parse import parse_qs, unquote, urlsplit
 
+from .content_words import (CLOUD_BLOCKED, CLOUD_DUPLICATE_WORDS, CLOUD_INVALID_LINK_WORDS, CLOUD_QUOTA_WORDS,
+                            CLOUD_STORAGE_FULL, PROMO_NAME)
 from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
@@ -107,8 +109,7 @@ FAILURE_KINDS: dict[str, FailureKind] = {kind.key: kind for kind in (
 CHANNEL_FAILURES = frozenset({"quota", "storage", "config"})
 #: 网盘空间不足的说法。115 经 CloudDrive2 回 `190031 云空间不足`，有时走 gRPC 错误，有时写在 `errorMessage` 里；
 #: PikPak 的错误码是 `file_space_not_enough`。
-STORAGE_FULL = re.compile(r"190031|空间不足|空间已满|space_not_enough|insufficient (storage|space)|storage (is )?full",
-                          re.IGNORECASE)
+STORAGE_FULL = re.compile(CLOUD_STORAGE_FULL, re.IGNORECASE)
 
 
 def storage_full(text: object) -> bool:
@@ -176,13 +177,13 @@ def problem_codes(problems) -> list[dict]:
 
 #: 115 对违规内容的离线拦截码。CloudDrive2 把 115 的原文放进 `errorMessage`，
 #: 只认得出码或「违规」字样，所以两样都匹配。
-BLOCKED_PATTERN = re.compile(r"50038|违规|敏感")
-#: 远端原话里的字样到失败类别，按顺序取第一个对上的。
-REMOTE_WORDS = (
-    (re.compile(r"配额|quota|次数|上限|limit", re.IGNORECASE), "quota", "errors.downloads.remoteQuota"),
-    (re.compile(r"已存在|exist|重复|duplicate", re.IGNORECASE), "duplicate", "errors.downloads.remoteDuplicate"),
-    (re.compile(r"链接|无效|invalid|url|格式", re.IGNORECASE), "invalid_link", "errors.downloads.remoteInvalidLink"),
-)
+BLOCKED_PATTERN = re.compile(CLOUD_BLOCKED)
+#: 远端原话里的字样到失败类别，按顺序取第一个对上的。字样是网盘接口的原话（内容数据，在 `content_words`）。
+REMOTE_WORDS = tuple(
+    (re.compile("|".join(map(re.escape, words)), re.IGNORECASE), failure, code)
+    for words, failure, code in ((CLOUD_QUOTA_WORDS, "quota", "errors.downloads.remoteQuota"),
+                                 (CLOUD_DUPLICATE_WORDS, "duplicate", "errors.downloads.remoteDuplicate"),
+                                 (CLOUD_INVALID_LINK_WORDS, "invalid_link", "errors.downloads.remoteInvalidLink")))
 
 
 def classify_remote_message(message: str) -> DownloadError:
@@ -628,7 +629,7 @@ class DownloadStore:
         def rank(row):
             shown = row.get("code") or release_code_from_filename(row.get("name") or "")
             exact = bool(code and shown and same_release_code(code, shown))
-            promo = bool(re.search(r"(?i)(?:manko\.fun|广告|廣告|扫码|掃碼|最新地址)",
+            promo = bool(re.search(rf"(?i)(?:{PROMO_NAME})",
                                    str(row.get("name") or "")))
             duration = float(row.get("duration") or 0)
             pixels = int(row.get("width") or 0) * int(row.get("height") or 0)
@@ -767,7 +768,7 @@ class DownloadSettings:
                 if not known:
                     raise UserValueError("errors.downloads.notPikpakRootNoneDeclared", {"root": root})
                 raise UserValueError("errors.downloads.notPikpakRoot",
-                                     {"root": root, "known": "、".join(known.values())})
+                                     {"root": root, "known": list(known.values())})
             root = known[root.casefold()]
         try:
             hours = int(body.get("wait_hours") or DEFAULT_WAIT_HOURS)

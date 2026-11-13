@@ -421,7 +421,7 @@ class SuggestionTests(_Server):
         self.assertIn("「推送发现」", report["problems"][0])
         self.assertIn("/115假", report["problems"][0])
         self.assertEqual(report["problem_codes"], [
-            {"code": "labels.downloadsClouddrive.no115Prefix", "params": {"known": "/115假"}}])
+            {"code": "labels.downloadsClouddrive.no115Prefix", "params": {"known": ["/115假"]}}])
         report = cd.check(self.address, TOKEN, "", hints=self.hints(prefixes=(), pikpak_root="A:\\"))
         self.assertIn("没有登记云端路径前缀", report["problems"][0])
 

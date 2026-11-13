@@ -32,6 +32,7 @@ from typing import Callable, Mapping, Sequence
 from filelock import FileLock, Timeout
 
 from . import interface_text
+from .coded_text import Said, coded
 from .metadata import MetadataProviderError, identifies_code, relay_args, relayed, validate_provider_code
 from .sources.base import (COOLDOWN_ACTIONS, REASON_KINDS, FailureReason, SiteConfig, SiteRecord,
                            SourceFailure)
@@ -59,7 +60,7 @@ DEFAULT_TIMEOUT = 60
 COMMUNITY_SITES = (("fc2club", "FC2Club"), ("freejavbt", "FreeJavBT"), ("airav", "AIRAV"), ("avsox", "AVSOX"))
 #: `makers` 是 amane 的 `official`：按系列前缀路由到二十九家片商官网（S1、MOODYZ、IDEA POCKET……），
 #: 前缀不在它的表里就不发请求。另外三家片商各有自己的解析器；MGStage 是 MGS 素人系的发行渠道。
-OFFICIAL_SITES = (("makers", "片商官网"), ("prestige", "Prestige"), ("faleno", "FALENO"),
+OFFICIAL_SITES = (("makers", Said("labels.scrapingAccess.makers")), ("prestige", "Prestige"), ("faleno", "FALENO"),
                   ("dahlia", "DAHLIA"), ("mgstage", "MGStage"))
 SITE_CONFIGS: dict[str, SiteConfig] = {
     name: SiteConfig(name=name, label=label, provider="amane-" + name, base_url="", domains=(), stage=stage)
@@ -99,15 +100,15 @@ AMANE_REASONS: dict[str, FailureReason] = {
     "age_verification": FailureReason.AUTH_REQUIRED,
     "login_required": FailureReason.AUTH_REQUIRED,
 }
-#: `auth` 一档的措辞，按上游 reason 写。
+#: `auth` 一档的措辞（code），按上游 reason 写。
 AUTH_MESSAGES: dict[str, str] = {
-    "age_verification": "站方要求年龄验证",
-    "login_required": "站点要求登录，凭据缺失或已失效",
-    "geo_restricted": "站方按地区拒绝了这个出口",
-    "cloudflare_challenge": "撞上 Cloudflare 挑战页",
-    "cloudflare_blocked": "被 Cloudflare 拦下",
-    "ip_banned": "出口 IP 已被站方封禁",
-    "http_error": "站方拒绝了这个出口",
+    "age_verification": "labels.metadataAmane.auth.ageVerification",
+    "login_required": "labels.metadataAmane.auth.loginRequired",
+    "geo_restricted": "labels.metadataAmane.auth.geoRestricted",
+    "cloudflare_challenge": "labels.metadataAmane.auth.cloudflareChallenge",
+    "cloudflare_blocked": "labels.metadataAmane.auth.cloudflareBlocked",
+    "ip_banned": "labels.metadataAmane.auth.ipBanned",
+    "http_error": "labels.metadataAmane.auth.httpError",
 }
 
 Runner = Callable[..., subprocess.CompletedProcess[str]]
@@ -292,7 +293,7 @@ def rebuild(tools_root: Path, *, runner: Runner = run_task_process, timeout: int
             force: bool = True) -> dict:
     """重建桥 venv，返回给设置页的回执。首次要下载约 98 MB，之后只校验。"""
     from .task_resources import unobserved_network
-    unobserved_network('独立采集工具的网络传输未提供逐任务计量')
+    unobserved_network(Said('labels.metadataAmane.trafficUnmetered'))
     if packaged_runtime(root=root):
         return {"ok": True, **_said("result", "labels.metadataAmane.bundled"),
                 **describe(tools_root, root=root)}
@@ -410,7 +411,7 @@ def describe(tools_root: Path, *, root: Path = BRIDGE_ROOT) -> dict:
         "installed": installed(tools_root, root=root),
         "installed_version": installed_version(tools_root),
         "python": str(python),
-        "sites": [{"source": name, "label": label} for name, label in SITES.items()],
+        "sites": [{"source": name, **coded("label", label)} for name, label in SITES.items()],
     }
 
 
@@ -438,6 +439,10 @@ def installed_version(tools_root: Path) -> str:
     return ""
 
 
+#: 上游版本问不到时的那一句（`latest_upstream_tag` 回的是按 zh-CN 渲染、带着这个 code 的 `Said`）。
+UPSTREAM_UNFETCHED = "labels.metadataAmane.latestUnfetched"
+
+
 def latest_upstream_tag(client_options: Mapping[str, object], *, timeout: float = 10.0) -> str:
     """上游最新 release 的 tag，只读 GitHub API；取不到一律回「未取得」，不猜。"""
     import httpx
@@ -448,11 +453,11 @@ def latest_upstream_tag(client_options: Mapping[str, object], *, timeout: float 
             response = client.get(f"https://api.github.com/repos/{AMANE_REPOSITORY.rsplit('/', 2)[-2]}/"
                                   f"{AMANE_REPOSITORY.rsplit('/', 1)[-1]}/releases/latest")
             if response.status_code != 200:
-                return "未取得"
+                return Said(UPSTREAM_UNFETCHED)
             tag = response.json().get("tag_name")
-            return str(tag) if tag else "未取得"
+            return str(tag) if tag else Said(UPSTREAM_UNFETCHED)
     except Exception:  # noqa: BLE001 - 网络、代理、限额都是同一个答案
-        return "未取得"
+        return Said(UPSTREAM_UNFETCHED)
 
 
 def proxy_argument(proxy_options: Mapping[str, object]) -> tuple[list[str], dict]:
@@ -506,7 +511,7 @@ class AmaneBridge:
               timeout: float | None = None) -> dict:
         """问几站，返回桥的整份报告（`sites` 键下每站一条记录）。"""
         from .processing_traffic import unobserved
-        unobserved('外部采集器流量未观测')
+        unobserved(Said('labels.metadataAmane.trafficUnobserved'))
         number = validate_provider_code(code)
         names = [str(site).strip() for site in sites]
         unknown = [site for site in names if site not in SITES]
@@ -607,16 +612,22 @@ def failure_error(site: str, record: Mapping[str, object]) -> MetadataProviderEr
     return site_failure(site, record).provider_error(SITES.get(site, site))
 
 
+def _label_param(site: str):
+    """站名当报错参数：`片商官网` 那样有译文的写成嵌套的一句，界面按当前语言渲染；其余是站方原名。"""
+    label = SITES.get(site, site)
+    return label.phrase if isinstance(label, Said) else label
+
+
 def site_failure(site: str, record: Mapping[str, object]) -> SourceFailure:
     """桥记录里一站的失败 → 契约的 `SourceFailure`。分档、冷却与可否重试都由契约那张表定。"""
     reason = str(record.get("reason") or "unexpected")
     status = diagnostic_status(record.get("http_status"))
-    label = SITES.get(site, site)
+    label = _label_param(site)
     translated = contract_reason(reason, status)
     kind = REASON_KINDS[translated]
     params: dict[str, object] = {"label": label, "reason": reason, "status": status}
     if kind == "auth":
-        params["message"] = AUTH_MESSAGES.get(reason, AUTH_MESSAGES["http_error"])
+        params["message"] = {"code": AUTH_MESSAGES.get(reason, AUTH_MESSAGES["http_error"])}
         code = "errors.metadataAmane.refusedWithStatus" if status else "errors.metadataAmane.refused"
     elif kind == "not_found":
         code = "errors.metadataAmane.notFound"
@@ -734,7 +745,7 @@ def split_report(code: str, report: Mapping[str, object]) -> tuple[list[tuple[st
                 continue
             failures[site] = MetadataProviderError(
                 "errors.metadataAmane.productMismatch",
-                {"label": SITES.get(site, site), "code": code, "contentId": repr(payload['content_id'])},
+                {"label": _label_param(site), "code": code, "contentId": repr(payload['content_id'])},
                 kind="not_found", detail="not_found")
             continue
         failures[site] = failure_error(site, record)

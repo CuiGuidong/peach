@@ -19,7 +19,8 @@ from .metadata import relay_args
 from .sources.javdb import maker_writing, page_reader
 from .remote_media_cache import AVATAR_REFRESH_SECONDS, cache_for
 from .preview_cache import PreviewCache
-from .user_messages import UserValueError, message_fields
+from .coded_text import parallel
+from .user_messages import UserValueError, failure_fields, message_fields
 
 
 def detail_code(args) -> str:
@@ -370,6 +371,10 @@ def _preview_fields(contract, code, source, *, refresh=False):
     return {'preview_video_url': f"/jav-preview/{code}/{ref}{'.m3u8' if playlist else ''}", 'preview_state': 'ready'}
 
 
+#: 磁力与评论两路都没取到时的总述。
+RESOURCES_FAILED_CODE = "errors.webJavDetail.resourcesFailed"
+
+
 @_source_cache
 def q_jav_resources(contract, args) -> dict:
     """公开资源列表；只返回候选，下载提交由既有入口接受用户选择。"""
@@ -379,11 +384,16 @@ def q_jav_resources(contract, args) -> dict:
     try:
         found = PUBLIC_API.resources(code, refresh=args.get('refresh') == '1')
     except PublicSourceUnavailable as error:
-        return {"state": "error", "items": [], "error": str(error), "checked_at": None}
+        return {"state": "error", "items": [], **failure_fields(error), "checked_at": None}
     warnings = found["warnings"]
     magnet_failed, comments_failed = found["magnet_failed"], found["comments_failed"]
     failed = magnet_failed and comments_failed and not found["items"]
+    # 都没取到时 `error` 仍是几条提醒连成的原文（旧前端照原文显示）；界面按 code 显示一句总述，
+    # 各条提醒按 `warning_codes` 逐条显示。
+    failure = ({"error": "；".join(warnings), "error_code": RESOURCES_FAILED_CODE, "error_params": {}}
+               if failed else {"error": ""})
     return {"state": "error" if failed else "ready", "items": found["items"],
-            "error": "；".join(warnings) if failed else "", "source_url": found["source_url"],
+            **failure, "source_url": found["source_url"],
             "checked_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "warnings": warnings,
+            **parallel("warning", warnings),
             "cache_stale": magnet_failed or comments_failed, "complete": not (magnet_failed or comments_failed)}

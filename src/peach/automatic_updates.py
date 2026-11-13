@@ -8,7 +8,7 @@ from pathlib import Path
 from apscheduler.schedulers.background import BackgroundScheduler
 from filelock import FileLock, Timeout
 
-from . import distribution, release_updates, standalone_update
+from . import distribution, interface_text, release_updates, standalone_update
 from .fsutil import atomic_write_text
 from .user_messages import UserValueError
 
@@ -29,7 +29,8 @@ class AutomaticUpdates:
         except FileNotFoundError:
             return {"mode": "check", "interval_hours": 24}
         except (OSError, ValueError):
-            return {"mode": "off", "interval_hours": 24, "error": "自动更新设置无法读取，请重新保存。"}
+            return {"mode": "off", "interval_hours": 24, "error": interface_text.text("server:errors.automaticUpdates.unreadable"),
+                    "error_code": "errors.automaticUpdates.unreadable"}
 
     def snapshot(self) -> dict:
         data = self.read()
@@ -50,6 +51,7 @@ class AutomaticUpdates:
             with FileLock(str(self.path) + ".lock", timeout=0):
                 data = self.read()
                 data.pop("error", None)
+                data.pop("error_code", None)
                 self.write(dict(data, checked_at=time.time(), result=result,
                                 listing_rule=release_updates.LISTING_RULE))
         except Timeout:
@@ -96,6 +98,7 @@ class AutomaticUpdates:
                 self.write(dict(data, checked_at=now, listing_rule=release_updates.LISTING_RULE))
                 result = release_updates.check()
                 data.pop("error", None)
+                data.pop("error_code", None)
                 data = dict(data, checked_at=now, result=result, listing_rule=release_updates.LISTING_RULE)
                 self.write(data)
                 # 以前在 macOS 独立包上存下的「自动下载」只按检查处理：那里没有应用内安装。

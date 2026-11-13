@@ -307,7 +307,7 @@ def tunnel_payload(config, state: tunnel.TunnelSnapshot, enabled: bool) -> dict[
         "enabled": enabled,
         "state": state.state,
         "url": state.url,
-        "error": state.error,
+        "error": state.error, "error_code": state.error_code, "error_params": dict(state.error_params),
         "available": tunnel.resolve_binary(config.tunnel.binary) is not None,
         "mode": (getattr(config.tunnel, "mode", "") or tunnel.QUICK_MODE).strip().lower(),
         "hostname": getattr(config.tunnel, "hostname", ""),

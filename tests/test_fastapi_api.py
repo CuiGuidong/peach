@@ -432,7 +432,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(response.json()["attention"], [])
         checks = response.json()["checks"]
         self.assertEqual(set(checks), {"database", "schema", "configured", "ffmpeg", "media_mounts", "security"})
-        self.assertTrue(all(set(check) == {"status", "reason"} for check in checks.values()))
+        # 原因原文是 zh-CN，旁边带 code（`reason_code`／`reason_params`，几条并列时是 `reason_parts`）。
+        self.assertTrue(all({"status", "reason"} <= set(check) <= {"status", "reason", "reason_code", "reason_params",
+                                                                  "reason_parts"} for check in checks.values()))
         self.assertNotIn(str(self.media_root), json.dumps(checks))
 
     async def test_client_update_snapshot_is_authenticated_and_never_fetches_releases(self):
@@ -579,6 +581,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             detail = "写入端是 mac"
             read_only = True
             read_only_message = "数据库由 mac 负责写入，本机当前只能浏览。"
+            read_only_phrase = {"code": "labels.sync.readOnlyWriter", "params": {"owner": "mac"}}
 
             def observe(self):
                 return None
@@ -603,6 +606,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(health.json()["ledger_sync"], "reader")
             self.assertTrue(health.json()["ledger_read_only"])
             self.assertIn("只能浏览", health.json()["ledger_read_only_message"])
+            # 同一句另带 code 与参数，页面按界面语言显示。
+            self.assertEqual((health.json()["ledger_read_only_message_code"], health.json()["ledger_read_only_message_params"]),
+                             ("labels.sync.readOnlyWriter", {"owner": "mac"}))
             reviewed = await client.get("/api/review?t=secret")
             self.assertEqual(reviewed.status_code, 200)
             self.assertEqual(reviewed.json()["mirror"]["state"], "live")
@@ -3624,10 +3630,11 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(denied.status_code, 401)
 
     async def test_missing_poster_reports_which_step_failed(self):
-        """卡片按 `reason` 写缺图原因：没有接触印相时说的是缺印相，不是笼统的不可用。"""
+        """卡片按 `reason_code` 写缺图原因：没有接触印相时说的是缺印相，不是笼统的不可用。"""
         missing = await self.client.get("/poster?id=999&c=4", headers={"X-Token": "secret"})
         self.assertEqual(missing.status_code, 404)
-        self.assertEqual(missing.json(), {"error": "unavailable", "reason": "snapshot unavailable"})
+        self.assertEqual(missing.json(), {"error": "unavailable", "reason": "snapshot unavailable",
+                                          "reason_code": "errors.previews.snapshotUnavailable", "reason_params": {}})
 
     async def test_endcard_frame_is_authenticated_and_confined_to_evidence_root(self):
         denied = await self.client.get(

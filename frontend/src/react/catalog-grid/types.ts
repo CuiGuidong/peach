@@ -47,6 +47,8 @@ export interface MediaItem {
   creator_entity?: MediaEntityRef | null;
   studio?: string;
   why?: string;
+  /** `why` 按「 · 」拆开的每一条理由的 code（`/api/related`）；没有就照原文显示。 */
+  why_codes?: string[];
   /** 接着看：与当前作品共有的标签，稀有的在前（`/api/related`）。 */
   why_tags?: string[];
   feedback?: string;
@@ -54,7 +56,8 @@ export interface MediaItem {
   disposal_reason?: 'manual' | 'junk' | 'duplicate' | 'missing' | null;
   watch_later?: boolean;
   part_group?: {
-    key: string; seed_id: number; count: number; title?: string; total_size?: number; total_duration?: number;
+    key: string; seed_id: number; count: number; title?: string; title_code?: string; total_size?: number;
+    total_duration?: number;
   } | null;
   edition_group?: { key: string; seed_id: number; count: number; editions: string[] } | null;
   [field: string]: unknown;

@@ -27,7 +27,8 @@ export interface Discovery extends CoverItem {
   taste_score?: number | null; ranking_score?: number | null; rank?: number;
   source_score?: number | null; duration?: number | null;
   metadata_state?: 'pending' | 'ready' | 'partial' | 'unavailable' | 'stale'; metadata_message?: string;
-  cover_state?: CoverState | null; cover_reason?: string;
+  cover_state?: CoverState | null; cover_reason?: string; cover_reason_code?: string;
+  cover_reason_params?: Record<string, unknown>;
 }
 export type DiscoveryScope = 'external' | 'library';
 

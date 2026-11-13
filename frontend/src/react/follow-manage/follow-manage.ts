@@ -21,6 +21,7 @@ import { clampPage, pageCount } from '../../pagination';
 import { queryClient } from '../query';
 import { localTime } from '../time';
 import { t } from '../../i18n';
+import { codedText } from '../../core/server-text';
 
 export const FOLLOW_URL = '/api/follow';
 export const FOLLOW_CREDENTIALS_URL = '/api/follow/credentials';
@@ -111,9 +112,12 @@ export interface CredentialRow {
   shared_fields?: string[];
   present?: boolean;
   world_readable?: boolean | null;
+  /** 说明的原文，旁边的 `why_code`、`howto_code` 给当前语言。 */
   why?: string;
+  why_code?: string;
   where?: string;
   howto?: string;
+  howto_code?: string;
   path?: string;
 }
 
@@ -129,6 +133,8 @@ export interface CheckResult {
   ref?: string;
   error?: string;
   evidence_error?: string;
+  evidence_error_code?: string;
+  evidence_error_params?: Record<string, unknown>;
   added?: number;
   updated?: number;
   skipped?: number;
@@ -157,10 +163,22 @@ export interface ResolveCandidate {
   provider_label: string;
   url: string;
   label: string;
+  /** 站上没给标题时（「线程 123」）`label` 的 code 与参数。 */
+  label_code?: string;
+  label_params?: Record<string, unknown>;
   author?: string;
   aliases?: string[];
   evidence?: string;
+  evidence_code?: string;
+  evidence_params?: Record<string, unknown>;
   known?: boolean;
+}
+
+/** 站内索引没命中时交给人继续核对的外部搜索入口；`label`、`evidence` 各配 code 与参数。 */
+export interface ExternalSearch {
+  label: string; label_code?: string; label_params?: Record<string, unknown>;
+  query: string; url: string;
+  evidence: string; evidence_code?: string; evidence_params?: Record<string, unknown>;
 }
 
 export interface ResolveRow {
@@ -170,8 +188,10 @@ export interface ResolveRow {
   error_code?: string;
   error_params?: Record<string, unknown>;
   candidates?: ResolveCandidate[];
-  external_searches?: { label: string; query: string; url: string; evidence: string }[];
+  external_searches?: ExternalSearch[];
   failures?: Record<string, string>;
+  /** `failures` 里带 code 的那几条：来源 → code 与参数。 */
+  failure_codes?: Record<string, { code: string; params?: Record<string, unknown> }>;
 }
 
 export interface ResolveJob {
@@ -189,7 +209,7 @@ export interface SuggestGroup {
   kind: string;
   label: string;
   label_code?: string;
-  items: { value: string; matched?: string; n?: number }[];
+  items: { value: string; matched?: string; matched_code?: string; n?: number }[];
 }
 export interface SuggestData { q: string; groups: SuggestGroup[] }
 
@@ -526,6 +546,7 @@ export interface FeedSource {
   id: number;
   kind: string;
   kind_label: string;
+  kind_label_code?: string;
   /** 挂着人物时是她在数据库里的统称，否则是存下的名字。 */
   name: string;
   /** 上次拉取时这一页在站上挂的名字。同一个人的旧艺名页靠它和本名页分开。 */
@@ -704,8 +725,10 @@ export function checkSummary(job: CheckJob): string {
 export const checkFailures = (job: CheckJob | null): CheckResult[] =>
   (job?.results || []).filter((row) => !row.ok);
 
-export const checkEvidenceGap = (job: CheckJob | null): string =>
-  (job?.results || []).find((row) => row.evidence_error)?.evidence_error || '';
+export const checkEvidenceGap = (job: CheckJob | null): string => {
+  const row = (job?.results || []).find((item) => item.evidence_error);
+  return row ? codedText(row, 'evidence_error') : '';
+};
 
 export { localTime };
 

@@ -12,7 +12,8 @@ import { Note } from '../components/note';
 import { SiteMark } from '../components/site-mark';
 import { Disclosure, Fact, FactList, Section, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
-import { DIAGNOSTICS_KEY, fetchDiagnostics, type DiagnosticCheck } from './diagnostics';
+import { codedText } from '../../core/server-text';
+import { checkText, DIAGNOSTICS_KEY, fetchDiagnostics, type DiagnosticCheck } from './diagnostics';
 import { HealthList } from './health-list';
 import { DiagnosticExportAction, ScrapingExport } from './scraping-export';
 import { interfaceLanguage, t } from '../../i18n';
@@ -52,14 +53,15 @@ function Check({ name, check, compact = false }: {
   const target = check.target === '/settings/library' && (name === 'security' || name === 'port')
     ? settingsPath('network') : check.target;
   const Heading = compact ? 'h4' : 'h3';
+  const text = checkText(check);
   return <div data-diagnostic-check={name} className={cx('flex flex-col gap-4 border-b border-separator-border pr-3 last:border-b-0 sm:flex-row sm:items-center sm:justify-between', compact ? 'py-3' : 'py-5')}>
     <div className={cx('flex min-w-0 flex-1 flex-col', compact ? 'gap-1' : 'gap-2')}>
       <div className="flex flex-wrap items-center gap-3">
-        <Heading className={cx('text-text-primary', compact ? 'text-body-2-medium' : 'text-body-medium')}>{check.label}</Heading>
+        <Heading className={cx('text-text-primary', compact ? 'text-body-2-medium' : 'text-body-medium')}>{text.label}</Heading>
         <DiagnosticStatus status={check.status} />
       </div>
-      <p data-check-reason className={cx('text-body-2-regular break-words', compact ? 'text-text-secondary' : 'text-text-primary')}>{check.reason}</p>
-      {check.action ? <p className="text-body-2-regular text-text-secondary">{t('manage:diagnostics.suggestedFixText', { action: check.action })}</p> : null}
+      <p data-check-reason className={cx('text-body-2-regular break-words', compact ? 'text-text-secondary' : 'text-text-primary')}>{text.reason}</p>
+      {text.action ? <p className="text-body-2-regular text-text-secondary">{t('manage:diagnostics.suggestedFixText', { action: text.action })}</p> : null}
     </div>
     {target ? <div className="shrink-0 self-end sm:self-auto"><ButtonLink size="small" variant="secondary" href={target}>
       {target.startsWith('/settings/') ? t('manage:diagnostics.openSection', { section: configurationSection(target) }) : TARGET_LABELS[target] ?? t('manage:diagnostics.openRelated')}</ButtonLink></div> : null}
@@ -117,7 +119,7 @@ export function DiagnosticsPage(props: DiagnosticsProps) {
           <DiagnosticStatus status={source.status} />
         </div>
         {/* 原因常是整段堆栈：平时只露异常那一行，全文收在「查看详情」后面。 */}
-        <ErrorExcerpt text={source.reason} className="text-body-regular text-text-primary" />
+        <ErrorExcerpt text={codedText(source, 'reason')} className="text-body-regular text-text-primary" />
         <FactList>
           <Fact term={t('manage:diagnostics.lastSuccess')}>{source.last_success_at ? moment(source.last_success_at) : t('manage:diagnostics.noSuccessYet')}</Fact>
           {source.last_check_at ? <Fact term={t('manage:diagnostics.lastChecked')}>{moment(source.last_check_at)}

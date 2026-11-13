@@ -1729,7 +1729,7 @@ class ReviewQueueTests(unittest.TestCase):
             self.assertEqual(revert.main([
                 "--db", self.db_path, "--logo-root", str(self.logo_root),
                 "--source", "javinizer:r18dev:tag"]), 0)
-        self.assertIn("'标签': 0", printed.getvalue())
+        self.assertIn("'tags': 0", printed.getvalue())
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(revert.main([
                 "--db", self.db_path, "--logo-root", str(self.logo_root),
@@ -1791,7 +1791,7 @@ class ReviewQueueTests(unittest.TestCase):
                 "--source", "adr-0079-fc2-descriptive-performer"]
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(revert.main(base), 0)
-        self.assertIn("'否决': 1", printed.getvalue())
+        self.assertIn("'rejections': 1", printed.getvalue())
         self.assertEqual(self._decision("AUTO")[0], "rejected", "只列计划时不动数据库")
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(revert.main(

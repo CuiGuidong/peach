@@ -68,18 +68,30 @@ def nested(value) -> bool:
 
 def text(key: str, params: dict | None = None, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> str:
     """渲染一句界面文字。模板里用到、参数里没给的占位符原样留着，便于在界面上一眼看出漏传。
-    参数值是 `nested` 那种形状且资源里有那一句时，先按同一语言渲染那一句再填进去；别的值照旧 `str()`。"""
+    参数值是 `nested` 那种形状且资源里有那一句时，先按同一语言渲染那一句再填进去；列表与元组逐项这样渲染，
+    再按同一语言的 `labels.listSeparator` 连起来（前端 `serverLabel` 的 `joinList` 同样处理）；别的值照旧 `str()`。"""
     values = params or {}
+
+    def item(value) -> str:
+        if nested(value) and has(f"server:{value['code']}", language, root=root):
+            return text(f"server:{value['code']}", value.get("params"), language, root=root)
+        return str(value)
 
     def fill(match: re.Match) -> str:
         if match[1] not in values:
             return match[0]
         value = values[match[1]]
-        if nested(value) and has(f"server:{value['code']}", language, root=root):
-            return text(f"server:{value['code']}", value.get("params"), language, root=root)
-        return str(value)
+        if isinstance(value, (list, tuple)):
+            return list_separator(language, root=root).join(map(item, value))
+        return item(value)
 
     return _PLACEHOLDER.sub(fill, template(key, language, root=root))
+
+
+def list_separator(language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> str:
+    """并列几项之间的分隔符（`labels.listSeparator`）；资源里没有这一条时用英文逗号。"""
+    key = "server:labels.listSeparator"
+    return template(key, language, root=root) if has(key, language, root=root) else ", "
 
 
 def ensure_available(root: Path = LOCALES) -> None:

@@ -3,6 +3,7 @@ import { fmtSize } from '@peach/legacy/core';
 import { ResourceChip } from './resource-chip';
 
 import { isActive, type TaskResourceMetric, type TaskRunPayload } from './tasks';
+import { codedText } from '../../core/server-text';
 import { interfaceLanguage, t } from '../../i18n';
 
 const METRICS = {
@@ -35,7 +36,7 @@ export function TaskResources({ run, active = isActive(run) || Boolean(run.contr
       const ready = metric.state === 'ready' && value !== null;
       const high = ready && metric.high;
       const label = ready ? reading(key, value) : unavailable(metric);
-      const explanation = [metric.reason, high ? t('manage:taskResources.highUsage') : ''].filter(Boolean).join('\n');
+      const explanation = [metric.reason ? codedText(metric, 'reason') : '', high ? t('manage:taskResources.highUsage') : ''].filter(Boolean).join('\n');
       return <ResourceChip key={key} color={appearance.color} high={high}
         tabIndex={explanation ? 0 : undefined} title={explanation || undefined}
         data-task-resource={key} data-resource-state={metric.state} data-resource-via={metric.via} data-resource-high={high || undefined}

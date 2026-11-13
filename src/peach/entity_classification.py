@@ -5,16 +5,17 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from . import interface_text
+from .catalog_vocabulary import AMATEUR_TAG
 from .entry_links import EXTERNAL_KIND, JAV_DIRECTORIES
 from .user_messages import UserValueError
 
+#: 各维度认得的取值；显示名在 `server:identity.classification.<维度>.<取值>`（ADR-0159）。
 VALUES = {
-    'identity': {'person':'个人', 'account':'发布账号', 'organization':'机构',
-                 'platform':'平台', 'collection':'合集目录', 'release':'作品标识', 'unknown':'身份待核验'},
-    'occupation': {'adult_performer':'成人出演者', 'amateur_performer':'非职业出演者', 'model':'模特', 'actor':'演员',
-                   'artist':'艺术创作者', 'animator':'动画作者', 'content_creator':'内容创作者'},
-    'market': {'japanese_av':'日本 AV', 'western_adult':'西方成人发行'},
-    'account_role': {'seller':'卖家', 'publisher':'发布者', 'studio':'发行厂牌'},
+    'identity': ('person', 'account', 'organization', 'platform', 'collection', 'release', 'unknown'),
+    'occupation': ('adult_performer', 'amateur_performer', 'model', 'actor', 'artist', 'animator',
+                   'content_creator'),
+    'market': ('japanese_av', 'western_adult'),
+    'account_role': ('seller', 'publisher', 'studio'),
 }
 #: 人物分类的 id；名字在 `server:identity.category.<id>`（ADR-0159）。
 CATEGORIES = ('japanese_av', 'amateur', 'western', 'blogger', 'seller', 'animation')
@@ -97,7 +98,11 @@ def classifications(connection, entity_ids):
     columns = [column[0] for column in cursor.description]
     for raw in cursor:
         row = dict(zip(columns,raw))
-        row['label'] = VALUES.get(row['facet'], {}).get(row['value'], row['value'])
+        if row['value'] in VALUES.get(row['facet'], ()):
+            row['label_code'] = f"identity.classification.{row['facet']}.{row['value']}"
+            row['label'] = interface_text.text(f"server:{row['label_code']}")
+        else:
+            row['label'] = row['value']
         result[row.pop('entity_id')].append(row)
     return result
 
@@ -125,10 +130,10 @@ def category_predicates(column='e.id', kind_column='e.kind', connection=None):
     # 视觉模型读画面得出的标签（`vision*` 来源，含复核页整批通过的创作者风格标签）只描述观感，
     # 不参与身份判定；刮削、文件名、用户与发行元数据来源照收。
     amateur_release = ("COALESCE(av.code,'') LIKE 'FC2-PPV-%' "
-                       f"OR EXISTS (SELECT 1 FROM asset_tag t WHERE t.asset_id=av.id AND t.tag='素人' "
+                       f"OR EXISTS (SELECT 1 FROM asset_tag t WHERE t.asset_id=av.id AND t.tag='{AMATEUR_TAG}' "
                        f"AND t.source NOT LIKE '{MODEL_TAG_SOURCE_PREFIX}%') "
                        "OR EXISTS (SELECT 1 FROM asset_entity ta JOIN entity te ON te.id=ta.entity_id "
-                       "WHERE ta.asset_id=av.id AND te.kind='tag' AND te.canonical_name='素人' "
+                       f"WHERE ta.asset_id=av.id AND te.kind='tag' AND te.canonical_name='{AMATEUR_TAG}' "
                        f"AND ta.source NOT LIKE '{MODEL_TAG_SOURCE_PREFIX}%')")
     only_amateur_releases = f"{work('1')} AND NOT {work(f'NOT ({amateur_release})')}"
     amateur = (f"({claim('occupation', 'amateur_performer')} OR ({only_amateur_releases})) "

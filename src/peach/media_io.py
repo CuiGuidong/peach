@@ -159,7 +159,7 @@ def _read(operation, path, value):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='限时读取媒体目录与配套文件')
+    parser = argparse.ArgumentParser(description='Read media directories and companion files with a time limit')
     parser.add_argument('operation', choices=OPERATIONS)
     parser.add_argument('path', type=Path)
     parser.add_argument('value', nargs='?', default='')

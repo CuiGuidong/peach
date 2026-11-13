@@ -12,11 +12,12 @@ import sqlite3
 import time
 from pathlib import Path
 
-from . import junk, ledger_backups, organize
+from . import interface_text, junk, ledger_backups, organize
 from .media_sources import SCANNABLE_LOCATIONS
 from .organize_templates import PLACEHOLDERS, TemplateError, example_path, validate_template
 from .platform import location_roots
 from .scripting import verify_after_write
+from .system_language import interface_language
 from .web_settings import organize_templates
 from .task_stages import stage as stage_fields
 from .user_messages import UserInterruptedError, UserValueError
@@ -41,8 +42,14 @@ def _templates(contract, body) -> tuple[str, str, str]:
             validate_template(dir_template, directory=True))
 
 
-def q_organize(contract, _args=None) -> dict:
-    """整理这一块的当前状态：任务快照、可选来源、占位符说明与上一批。"""
+def _language(args) -> str:
+    """示例路径用哪种语言的示例字段：界面传来的 `language`，认不出时用 zh-CN。"""
+    return interface_language((args or {}).get("language")) or interface_text.SOURCE_LANGUAGE
+
+
+def q_organize(contract, args=None) -> dict:
+    """整理这一块的当前状态：任务快照、可选来源、占位符说明与上一批。预设的示例路径按 `language` 取示例字段。"""
+    language = _language(args)
     # 任务快照摊在顶层：进度组件（`followJobProgress`）认的就是这个形状，
     # 多包一层 `job` 就要在前端再写一遍拆包。
     state = contract.organize_job.snapshot() or {"status": "idle"}
@@ -54,16 +61,17 @@ def q_organize(contract, _args=None) -> dict:
         "locations": [{"location": location, "roots": list(declared.get(location, ()))}
                       for location in ORGANIZE_LOCATIONS if declared.get(location)],
         "templates": organize_templates(contract),
-        "presets": [dict(preset) for preset in organize.PRESETS],
+        "presets": [{**preset, "example": example_path(preset["file"], preset["dir"], language)["example"]}
+                    for preset in organize.PRESETS],
         "placeholders": [{"key": key, "label": label} for key, label in PLACEHOLDERS.items()],
         "last_batch": latest.name if latest else "",
     }
 
 
 def q_organize_example(_contract, args=None) -> dict:
-    """以示例字段预览模板，保持账本与文件系统只读。"""
+    """以示例字段预览模板，保持账本与文件系统只读；示例里的标题、厂牌等按 `language` 取。"""
     args = args or {}
-    return example_path(str(args.get("file_template") or ""), str(args.get("dir_template") or ""))
+    return example_path(str(args.get("file_template") or ""), str(args.get("dir_template") or ""), _language(args))
 
 
 def w_organize_preview(contract, body) -> dict:
@@ -78,7 +86,7 @@ def w_organize_preview(contract, body) -> dict:
     organize.write_plan(path, plan["rows"])
     changes = [row for row in plan["rows"] if row["action"] != "skip"]
     return {"ok": True, "location": location, "path": path_scope, "counts": plan["counts"],
-            "reasons": plan["reasons"], "rows": changes[:200],
+            "reasons": plan["reasons"], "reason_codes": plan["reason_codes"], "rows": changes[:200],
             "truncated": len(changes) > 200, "plan_csv": str(path)}
 
 

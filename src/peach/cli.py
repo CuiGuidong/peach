@@ -56,7 +56,7 @@ def _require_readable_settings() -> None:
     比直接失败难查得多。
     """
     if SETTINGS_ERROR is not None:
-        raise SystemExit(_t("settingsUnreadable", error=SETTINGS_ERROR))
+        raise SystemExit(_t("settingsUnreadable", error=_local(SETTINGS_ERROR)))
 
 
 def _run_uvicorn(app, **options) -> None:
@@ -568,14 +568,16 @@ def _process_library(args: argparse.Namespace) -> int:
     from .task_runs import cli_run, declared_rows
     _require_readable_settings()
     config = settings_file.active()
-    with cli_run('library-processing', args.db, label='资料处理') as handle:
+    with cli_run('library-processing', args.db,
+                 label=interface_text.text('server:labels.cli.libraryProcessing')) as handle:
         from .jobs import JobCancelled
         try:
             result = process_library(config, args.db, config.directory('generated'),
                                      config.directory('generated') / 'covers', location=args.location,
                                      database=LedgerDatabase(args.db), report=_processing_printer())
         except JobCancelled:
-            handle.finish('cancelled', error='用户停止任务')
+            handle.finish('cancelled', error=interface_text.text('server:errors.processingControl.userStopped'),
+                          error_code='errors.processingControl.userStopped')
             print(_t("process.cancelled"))
             return 130
         rows = declared_rows(result.get('followups'))
@@ -584,9 +586,13 @@ def _process_library(args: argparse.Namespace) -> int:
             print(_t("process.followups", declared=len(rows), queued=len(queued['queued']),
                      duplicates=queued['duplicates']), flush=True)
         complete = result['status'] == 'complete'
+        failure = {} if complete else (
+            {'error': str(result['error']), 'error_code': result.get('error_code'),
+             'error_params': result.get('error_params')} if result.get('error')
+            else {'error': interface_text.text('server:errors.cli.processingIncomplete'),
+                  'error_code': 'errors.cli.processingIncomplete'})
         handle.finish('succeeded' if complete else 'failed',
-                      summary={'followups': len(queued['queued'])},
-                      error='' if complete else str(result.get('error') or '资料处理未完成'))
+                      summary={'followups': len(queued['queued'])}, **failure)
     return 0 if complete else 1
 
 
@@ -756,6 +762,7 @@ def _doctor(args: argparse.Namespace) -> int:
         print(json.dumps(result, ensure_ascii=False))
     else:
         for check in result["checks"].values():
+            check = diagnostics.localized(check, interface_text.local_language())
             print(f"{check['label']} [{check['status']}] {check['reason']}")
             if check["action"]:
                 print(f"  {check['action']}")
@@ -772,9 +779,18 @@ def _check_sources(args: argparse.Namespace) -> int:
         print(json.dumps(result, ensure_ascii=False))
     else:
         print(_t("sources.intro"))
+        language = interface_text.local_language()
+
+        def shown(fields: dict, key: str) -> str:
+            # 结果里的文字是 zh-CN 原文，旁边带 code：命令行按本机语言重新渲染，认不出的照原文。
+            code = fields.get(f"{key}_code")
+            original = str(fields.get(key) or "")
+            return interface_text.label(f"server:{code}", original, fields.get(f"{key}_params"), language) if code else original
+
         for source in result["sources"]:
             for target in source["results"]:
-                print(f"{source['label']} / {target['label']} [{target['outcome_label']}] {target.get('message', '')}")
+                print(f"{shown(source, 'label')} / {shown(target, 'label')} [{shown(target, 'outcome_label')}] "
+                      f"{shown(target, 'message')}")
     return 0 if result["ok"] else 1
 
 

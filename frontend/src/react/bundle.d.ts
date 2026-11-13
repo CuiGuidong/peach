@@ -37,6 +37,9 @@ export interface TunnelState {
   state: 'stopped' | 'starting' | 'running' | 'error';
   url: string;
   error: string;
+  /** `error` 的 code 与参数（ADR-0159）；旧状态文件没有，界面照原文显示。 */
+  error_code?: string;
+  error_params?: Record<string, unknown>;
   available: boolean;
   mode: 'quick' | 'named';
   /** 命名隧道绑定的公开主机名，临时链接模式下为空。 */
@@ -70,23 +73,36 @@ export interface StorageCategory {
   bytes: number; files: number; reclaimable: number;
 }
 
-export interface StorageRelocation { state: 'done' | 'error'; message: string; notes?: string[]; finished_at: number }
+/** 一句带 code 的话（`interface_text.nested` 的形状）；`null` 是这一项没有 code，照原文显示。 */
+type CodedPhrase = { code: string; params?: Record<string, unknown> } | null;
+
+export interface StorageRelocation {
+  state: 'done' | 'error'; message: string; notes?: string[]; finished_at: number;
+  message_code?: string; message_params?: Record<string, unknown>;
+  /** 与 `notes` 同序的 code；旧回执没有。 */
+  note_codes?: CodedPhrase[];
+}
 
 export interface StorageState {
   data_root: string;
   free_bytes: number | null;
   total_bytes: number | null;
   system_drive: boolean;
-  budget?: { policy: StoragePolicy | null; error: string; recommendation_state?: string; last_check: {
-    checked_at: number; paused: boolean; reasons: string[]; freed_bytes: number;
+  budget?: { policy: StoragePolicy | null; error: string; error_code?: string; error_params?: Record<string, unknown>;
+    recommendation_state?: string; last_check: {
+    checked_at: number; paused: boolean; reasons: string[]; reason_codes?: CodedPhrase[]; freed_bytes: number;
     cache_bytes: number | null; data_bytes: number | null; external_cache_bytes: number | null;
   } | null };
   usage: { measured_at: number; total_bytes: number; total_files: number; categories: StorageCategory[];
     allocated_bytes?: number | null; managed_cache_bytes?: number | null; external_cache_bytes?: number | null;
     capacity_error?: string } | null;
   job: { state: 'idle' | 'measuring' | 'cleaning'; category?: string; categories?: string[]; message: string; error?: boolean;
+    message_code?: string | null; message_params?: Record<string, unknown>;
     files?: number; bytes?: number; expected_files?: number | null };
-  relocation: { available: boolean; message: string; steps?: { text: string; command: string }[]; last: StorageRelocation | null };
+  relocation: { available: boolean; message: string; message_code?: string; message_params?: Record<string, unknown>;
+    steps?: { id?: string; text: string; text_code?: string; command: string; command_code?: string;
+      command_params?: Record<string, unknown> }[];
+    last: StorageRelocation | null };
 }
 
 export interface StoragePolicy {
@@ -132,6 +148,8 @@ export interface PushDiscoveryState {
   endpoint: string;
   local_running: boolean;
   local_message: string;
+  local_message_code?: string;
+  local_message_params?: Record<string, unknown>;
   local_roots: string[];
   queue: PushDiscoveryQueue;
   /** 可选的媒体根，前缀表里的下拉就从这里取。 */
@@ -310,7 +328,7 @@ export interface ReleaseState {
   /** 容器换新版要在宿主机上做的几步；其他安装方式是空表。`id` 用来取说明的译文。 */
   steps?: { id?: string; text: string; command: string }[];
   /** Docker 镜像检查到新镜像时才有：能否经 Watchtower 一键更新（ADR-0140），不能时 `reason` 说明为什么。 */
-  one_click?: { available: boolean; reason: string };
+  one_click?: { available: boolean; reason: string; reason_code?: string; reason_params?: Record<string, unknown> };
 }
 
 export interface UpdateJob {

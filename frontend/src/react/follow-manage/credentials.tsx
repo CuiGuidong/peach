@@ -25,7 +25,7 @@ import {
 } from './follow-manage';
 import { SourceIcon } from './source-view';
 import { RiKey2Line } from '@remixicon/react';
-import { serverLabel } from '../../core/server-text';
+import { codedText, serverLabel } from '../../core/server-text';
 import { joinList, t } from '../../i18n';
 
 const CLEAR_BODY = t('follow:sourceCredentials.clearBody');
@@ -75,11 +75,11 @@ function CredentialForm({ row, readOnly, toast }:
   return (
     <div className="flex flex-col gap-3">
       <Help>
-        {row.why}
+        {codedText(row, 'why')}
         {/* 「去取」跳到那个站自己的页面，会离开 Peach，所以带外链标。 */}
         {row.where ? <> <ExternalLink href={row.where}>{t('follow:sourceCredentials.getCredentials')}</ExternalLink></> : null}
       </Help>
-      {row.howto ? <Help>{row.howto}</Help> : null}
+      {row.howto ? <Help>{codedText(row, 'howto')}</Help> : null}
       <div className="flex w-full flex-col gap-3">
         {(row.needs || []).map((name) => (
           <Input key={name} type="password" label={name} placeholder={fieldHint(row, name)}
@@ -127,7 +127,7 @@ function CredentialSection({ row, readOnly, toast }:
     return (
       <div className="flex flex-wrap items-center gap-3 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">
         {head}
-        {row.requirement === 'blocked' ? <Help>{row.why}</Help> : null}
+        {row.requirement === 'blocked' ? <Help>{codedText(row, 'why')}</Help> : null}
       </div>
     );
   }

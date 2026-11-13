@@ -7,6 +7,7 @@ import os
 from contextvars import ContextVar
 from pathlib import Path
 
+from . import interface_text
 from .fsutil import atomic_write_text
 from .update_tasks import admission, state_for, UpdateBusy, _mutex
 
@@ -42,7 +43,14 @@ def read(db: Path, key: str) -> dict:
     except FileNotFoundError:
         return {}
     except (OSError, ValueError):
-        return {'status': 'blocked', 'error': '任务恢复记录无法读取，请重新发起任务。'}
+        return {'status': 'blocked', 'error': interface_text.text('server:errors.jobRecovery.unreadable'),
+                'error_code': 'errors.jobRecovery.unreadable'}
+
+
+def _stopped() -> dict:
+    """用户停止的那一轮写进任务行的原因（与 `processing_control` 的停止信号同一句）。"""
+    return {'error': interface_text.text('server:errors.processingControl.userStopped'),
+            'error_code': 'errors.processingControl.userStopped'}
 
 
 def save(db: Path, key: str, job_id: str, request: dict, *, run_id=None, waiting=False) -> None:
@@ -76,7 +84,7 @@ def cancel(db: Path, key: str) -> None:
         data = read(db, key)
         if data.get('run_id') is not None:
             from .task_runs import TaskRunStore
-            TaskRunStore(db).finish(data['run_id'], 'cancelled', error='用户停止任务')
+            TaskRunStore(db).finish(data['run_id'], 'cancelled', **_stopped())
         _path(db, key).unlink(missing_ok=True)
 
 
@@ -130,7 +138,7 @@ def resume(db: Path, handlers: dict) -> list[str]:
                 if key == 'library-processing' and user_cancelled(db, data.get('job_id')):
                     if data.get('run_id') is not None:
                         from .task_runs import TaskRunStore
-                        TaskRunStore(db).finish(data['run_id'], 'cancelled', error='用户停止任务')
+                        TaskRunStore(db).finish(data['run_id'], 'cancelled', **_stopped())
                     finish(db, key, data['job_id'], 'cancelled')
                     continue
                 try:

@@ -16,8 +16,8 @@ import { Checkbox } from '@/components/base/checkbox/checkbox';
 
 import { ApiError, apiGet, apiSend, errorMessage } from '../../api';
 import { PICK_FOLDER_URL } from '../../configuration-endpoints';
-import { bodyFieldErrors, serverLabel } from '../../core/server-text';
-import type { StorageCategory, StorageState } from '../bundle';
+import { bodyFieldErrors, codedText, serverLabel, serverText } from '../../core/server-text';
+import type { StorageCategory, StorageRelocation, StorageState } from '../bundle';
 import { AnimatedNumber } from '../components/animated-number';
 import { cardClass } from '../components/card';
 import { LoadingDots } from '../components/loading-dots';
@@ -52,6 +52,14 @@ const localizeCategory = (category: StorageCategory): StorageCategory => ({
   description: serverLabel(`storage.category.${category.key}.description`, category.description),
   note: serverLabel(`storage.category.${category.key}.note`, category.note),
 });
+
+/** 迁移回执的原因与备注，按当前界面语言；`note_codes` 与 `notes` 同序，缺 code 的备注照原文。 */
+const relocationLines = (last: StorageRelocation) =>
+  [codedText(last, 'message'), ...(last.notes ?? []).map((note, index) =>
+    serverLabel(last.note_codes?.[index]?.code ?? '', note, last.note_codes?.[index]?.params))];
+/** 宿主机上的迁移步骤：说明与带占位名的命令都按当前界面语言。 */
+const localizeStep = (step: { text: string; command: string }) =>
+  ({ text: codedText(step, 'text'), command: codedText(step, 'command') });
 
 /** 统计进行中：知道上次有多少文件就画进度条，不知道就只说走过多少。 */
 function Measuring({ job }: { job: StorageState['job'] }) {
@@ -132,7 +140,7 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
     if (!reported.current) return;
     reported.current = false;
     setPicked(new Set());
-    if (!storage.job.error) receipt(storage.job.message || t('settings:storageSpace.measured'));
+    if (!storage.job.error) receipt(codedText(storage.job, 'message') || t('settings:storageSpace.measured'));
   }, [running]);
 
   const measure = () => void action.run('measure', (signal) =>
@@ -166,7 +174,7 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
       confirmLabel: t('settings:storageSpace.moveDataDirectory'),
       onConfirm: async () => {
         try {
-          setAccepted((await apiSend<{ message: string }>(`${STORAGE_URL}/relocate`, { target })).message);
+          setAccepted(serverText(await apiSend<{ message: string }>(`${STORAGE_URL}/relocate`, { target })));
         } catch (cause) {
           throw new Error(targetReason(cause));
         }
@@ -213,16 +221,16 @@ export function StorageSettings({ initial, receipt }: { initial: StorageState; r
             </div>
           : storage.job.state === 'measuring' ? null
             : <Help>{t('settings:diskUsage.emptyHelp')}</Help>}
-        {!storage.relocation.available ? <Help>{storage.relocation.message}</Help> : null}
+        {!storage.relocation.available ? <Help>{codedText(storage.relocation, 'message')}</Help> : null}
         {/* 设置页迁移不了的部署（容器）：宿主机上该做的几步，每步一句说明加一条可照抄的命令。 */}
         {!storage.relocation.available && storage.relocation.steps?.length
-          ? <CommandSteps label={t('settings:storageSpace.moveOnHost')} steps={storage.relocation.steps} />
+          ? <CommandSteps label={t('settings:storageSpace.moveOnHost')} steps={storage.relocation.steps.map(localizeStep)} />
           : null}
-        {storage.job.error ? <ErrorText>{storage.job.message}</ErrorText> : null}
+        {storage.job.error ? <ErrorText>{codedText(storage.job, 'message')}</ErrorText> : null}
         {action.error ? <ErrorText>{action.error}</ErrorText> : null}
         {recent && last ? (last.state === 'error'
-          ? <ErrorText>{last.message}</ErrorText>
-          : <Help>{[last.message, ...(last.notes ?? [])].join(t('shell:format.semicolonSeparator'))}</Help>) : null}
+          ? <ErrorText>{relocationLines(last).join(t('shell:format.semicolonSeparator'))}</ErrorText>
+          : <Help>{relocationLines(last).join(t('shell:format.semicolonSeparator'))}</Help>) : null}
       </Stack>
       <Footer status={status ? <p role={accepted ? 'status' : undefined}>{status}</p> : null}>
         {usage ? <>

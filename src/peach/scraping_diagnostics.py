@@ -118,7 +118,7 @@ def summary(config) -> dict:
     return {'schema': 1, 'kind': 'recent-source-index', 'limit': SUMMARY_LIMIT,
             'status': 'available' if records else 'unavailable',
             'truncated': len(records) > SUMMARY_LIMIT, 'records': records[:SUMMARY_LIMIT],
-            'detail': '完整字段与归属证据请单独导出刮削记录'}
+            'detail': 'Export scraping records separately for full fields and credit evidence'}
 
 
 class _Export:
@@ -373,7 +373,8 @@ def bundle_to(config, destination, *, codes: str = '', include_all: bool = False
             'codes': selected, 'selection': 'codes' if codes.strip() else 'available' if include_all else 'recent',
             'limits': {'codes': ROW_LIMIT if include_all else CODE_LIMIT, 'rows': ROW_LIMIT,
                        'file_bytes': FILE_LIMIT, 'content_bytes': EXPORT_LIMIT},
-            'evidence_scope': '现存来源快照、字段候选和当前归属；空记录表示未取得，历史快照可能被后续采集覆盖',
+            'evidence_scope': ('Current source snapshots, field candidates and current credits; empty records mean '
+                               'not found, and older snapshots may have been overwritten by later fetches'),
             'entries': list(export.entries)})
         export.check()
     progress(**stage_fields('diagnostics.scrapingDone'), done=len(snapshots), total=len(snapshots))

@@ -8,6 +8,7 @@ from contextvars import ContextVar
 from datetime import datetime, timezone
 from sqlite3 import Connection
 
+from .catalog_vocabulary import PERFORMER_TAG_PREFIX
 from .user_messages import UserValueError
 
 #: 只读请求里记住的名字解析结果，见 `memoized_resolution`。
@@ -346,7 +347,7 @@ def rewrite_flat_projection(connection: Connection, kind: str, entity_id: int,
                            (new_name, old_name))
         return connection.execute("SELECT changes()").fetchone()[0]
     rewritten = 0
-    old_tag, new_tag = f"演员:{old_name}", f"演员:{new_name}"
+    old_tag, new_tag = PERFORMER_TAG_PREFIX + old_name, PERFORMER_TAG_PREFIX + new_name
     for item in connection.execute(
         "SELECT DISTINCT asset_id FROM asset_entity WHERE entity_id=?", (entity_id,)
     ):

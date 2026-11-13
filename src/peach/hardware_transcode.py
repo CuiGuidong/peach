@@ -198,7 +198,7 @@ class HardwareTranscoder:
         self.state_root = state_root
         self.backend = os.environ.get("PEACH_TRANSCODE_BACKEND", "auto").strip().lower()
         if self.backend not in BACKENDS:
-            raise UserValueError("errors.hardwareTranscode.backendInvalid", {"backends": "、".join(BACKENDS)})
+            raise UserValueError("errors.hardwareTranscode.backendInvalid", {"backends": list(BACKENDS)})
         self.device = os.environ.get("PEACH_VAAPI_DEVICE", "").strip()
         self._encoders: dict[Path, tuple[HardwareEncoder, ...]] = {}
         self._lock = threading.Lock()

@@ -19,6 +19,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from . import follow_evidence, follow_providers
+from .coded_text import Said
 from .follow import FollowSourceError, internal_error, write_immutable
 from .follow_image_dims import positive_dims
 from .follow_sources import (
@@ -51,7 +52,7 @@ def _same_snapshot(raw: Path, fetch: SourceFetch, digest: str) -> bool:
 #: 标签里跟在中点后面的服务名。`LazyProcrastinator · fanbox` 和 rule34video 上的
 #: `lazyprocrastinator` 是同一个人，中点后面那截只说明他在哪个平台连载。
 _LABEL_SERVICE_RE = re.compile(r"\s*[·|]\s*[A-Za-z0-9_\-]+\s*$")
-_AUTHOR_NOISE_RE = re.compile(r"[^0-9a-z一-鿿]+")
+_AUTHOR_NOISE_RE = re.compile(r"[^0-9a-z\u4e00-\u9fff]+")
 _F95_TITLE_SUFFIX_RE = re.compile(r"\s+collections?\s*$", re.IGNORECASE)
 
 #: F95 线程标题里的每一个方括号段。站点的标题约定是
@@ -733,7 +734,9 @@ class FollowStore:
             write_immutable(path, fetch.raw_body)
             write_immutable(path.with_suffix(".json"), sidecar)
         except OSError as error:
-            return None, f"证据未取得（{self.sources_root} 不可写：{error.strerror or error}）", False
+            # 参数要能写进任务状态与检查点（JSON）：路径与异常都转成文字。
+            return None, Said("labels.followStore.evidenceUnwritable", path=str(self.sources_root),
+                              error=error.strerror or str(error)), False
         return str(path.relative_to(self.sources_root.parent)), None, True
 
     def _evidence_directory(self, fetch: SourceFetch) -> Path:

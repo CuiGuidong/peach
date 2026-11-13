@@ -28,6 +28,7 @@ from ..javdb_genres import page_genres
 from ..javdb_identity import RULE
 from ..javdb_public import actor_gender, public_image_url
 from ..metadata import relay_args
+from ..source_page_words import JAVDB_COMMENT_SOURCE, JAVDB_FIELDS
 from .base import FailureReason, Page, Session, SiteConfig, SiteRecord, SiteSource, SourceFailure
 
 #: 主机间隔由用户定（2026-09-22 定为 3 秒，每分钟 20 页）。参照面：每分钟 40～50 页会招来 3～7 天
@@ -55,7 +56,7 @@ _ACTRESS = re.compile(r'<a\s([^>]*)>([^<]+)</a>')
 #: 演員一栏里每个人名都挂着自己的资料页。那串 id 正是人物页 JavDB 入口要的东西，
 #: 取名字时顺手带出来——另走一趟演员页只是把同一页再取一遍，而 javdb 的配额最紧。
 _ACTOR_HREF = re.compile(r'href="/actors/([A-Za-z0-9]+)"')
-_JAPANESE = re.compile(r"[぀-ヿ一-鿿]")
+_JAPANESE = re.compile(r"[\u3040-\u30ff\u4e00-\u9fff]")
 #: 网页上的封面与样张在 `c0.jdbstatic.com`，与 javdb.com 同算出口配额。接口 CDN 上同一路径的图
 #: 不占这份配额，图片校验也只放行它（2026-11-12 实测封面、小封面、样张与头像都在）。
 _CDN = "https://tp.spfcas.com/rhe951l4q/"
@@ -111,18 +112,18 @@ def _detail(text: str) -> dict:
     soup = BeautifulSoup(text, "html.parser")
     title = soup.select_one("strong.current-title")
     original = soup.select_one(".origin-title")
-    runtime = re.search(r"\d+", clean(panel.get("時長", "")))
+    runtime = re.search(r"\d+", clean(panel.get(JAVDB_FIELDS["runtime"], "")))
     cover = _COVER.search(text)
     cover = _IMG_SRC.search(cover.group(0)) if cover else None
     genres = (clean(link.get_text(" ", strip=True))
-              for link in BeautifulSoup(panel.get("類別", ""), "html.parser").find_all("a"))
-    return {"code": clean(panel.get("番號", "")).replace(" ", ""), "soup": soup,
+              for link in BeautifulSoup(panel.get(JAVDB_FIELDS["genres"], ""), "html.parser").find_all("a"))
+    return {"code": clean(panel.get(JAVDB_FIELDS["code"], "")).replace(" ", ""), "soup": soup,
             "display_title": clean(title.get_text(" ", strip=True)) if title else "",
             "origin_title": clean(original.get_text(" ", strip=True)) if original else "",
-            "cover": cover.group(1) if cover else "", "actors": panel.get("演員", ""),
-            "studio": maker_writing(clean(panel.get("片商", ""))), "label": clean(panel.get("發行", "")),
-            "series": clean(panel.get("系列", "")), "director": clean(panel.get("導演", "")),
-            "release_date": clean(panel.get("日期", "")), "runtime": int(runtime.group()) if runtime else None,
+            "cover": cover.group(1) if cover else "", "actors": panel.get(JAVDB_FIELDS["actors"], ""),
+            "studio": maker_writing(clean(panel.get(JAVDB_FIELDS["studio"], ""))), "label": clean(panel.get(JAVDB_FIELDS["label"], "")),
+            "series": clean(panel.get(JAVDB_FIELDS["series"], "")), "director": clean(panel.get(JAVDB_FIELDS["director"], "")),
+            "release_date": clean(panel.get(JAVDB_FIELDS["release_date"], "")), "runtime": int(runtime.group()) if runtime else None,
             "genres": tuple(dict.fromkeys(word for word in genres if word))}
 
 
@@ -308,7 +309,8 @@ def comment_resources(links: list[str], origin: str, date: str) -> list[dict]:
         uri = uri.strip()
         item = {"id": "", "protocol": "url", "info_hash": "", "uri": uri,
                 "name": uri, "size": "", "files": "", "date": date,
-                "attributes": [], "source": "JavDB 评论", "source_url": origin, "origins": [origin]}
+                "attributes": [], "source": JAVDB_COMMENT_SOURCE, "source_code": "labels.javdb.commentSource",
+                "source_url": origin, "origins": [origin]}
         if uri.lower().startswith('magnet:'):
             try:
                 magnet = parse_magnet(uri)

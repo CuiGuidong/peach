@@ -14,6 +14,7 @@ from weakref import WeakValueDictionary
 
 from filelock import FileLock, Timeout
 
+from . import interface_text
 from .fsutil import atomic_write_text
 from .user_messages import UserFacingError
 
@@ -60,7 +61,10 @@ def _read(path: Path) -> dict:
 
 
 def _busy(data: dict, code: str) -> UpdateBusy:
-    """预约期间拒绝新任务：预约者写下了自己的那句话（`reserve(busy=...)`）就照转，否则用 `code`。"""
+    """预约期间拒绝新任务：预约者写下了自己的那句话（`reserve(busy=<code>)`）就用它，否则用 `code`。
+    旧版写下的是原文（`busy`），照转。"""
+    if isinstance(data.get("busy_code"), str) and interface_text.has(f"server:{data['busy_code']}"):
+        return UpdateBusy(data["busy_code"])
     if data.get("busy"):
         return UpdateBusy("errors.updateTasks.reservedBusy", {"message": str(data["busy"])})
     return UpdateBusy(code)
@@ -129,7 +133,7 @@ def activity(db: Path, label: str):
 def reserve(db: Path, *, owner: int | None = None, busy: str | None = None) -> str:
     """接受安装预约并通知所有服务保存进度、暂停任务。
 
-    `busy` 是预约期间拒绝新任务时给人看的那句话；账本恢复也借这把闸门挡新任务。
+    `busy` 是预约期间拒绝新任务时给人看的那句话的 code（`server` 命名空间）；账本恢复也借这把闸门挡新任务。
     """
     root = state_for(db)
     with _mutex(root):
@@ -138,7 +142,7 @@ def reserve(db: Path, *, owner: int | None = None, busy: str | None = None) -> s
         token = uuid.uuid4().hex
         atomic_write_text(root / "install.json", json.dumps({
             "pid": owner if owner is not None else os.getpid(), "token": token,
-            **({"busy": busy} if busy else {})}, ensure_ascii=False))
+            **({"busy_code": busy} if busy else {})}, ensure_ascii=False))
         from .job_recovery import request_pause
         request_pause(db)
         return token
@@ -191,13 +195,13 @@ def _running(db: Path, *, own_files=(), own_runs=(), task_rows: bool = True) -> 
                 continue
             data = _read(path)
             if _alive(data):
-                labels.append(str(data.get("label") or "后台任务"))
+                labels.append(str(data.get("label") or interface_text.text("server:labels.updateTasks.unnamedTask")))
             else:
                 path.unlink(missing_ok=True)
         if task_rows:
             gate = task_gate(db, host=socket.gethostname(), alive=process_alive)
             if gate.error:
-                labels.append('任务状态未取得')
+                labels.append(interface_text.text("server:labels.updateTasks.stateUnknown"))
             labels.extend(run.describe() for run in (*gate.blocking, *gate.resumable)
                           if run.status == "running" and run.id not in own_runs
                           and (run.pid is None or process_alive(run.pid)))
@@ -218,7 +222,7 @@ def _running(db: Path, *, own_files=(), own_runs=(), task_rows: bool = True) -> 
             with FileLock(library_lock, timeout=0):
                 pass
         except Timeout:
-            labels.append('馆藏资料与预览处理')
+            labels.append(interface_text.text("server:labels.updateTasks.libraryProcessing"))
         return list(dict.fromkeys(labels))
 
 

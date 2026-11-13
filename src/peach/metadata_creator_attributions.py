@@ -7,6 +7,7 @@ import re
 import sqlite3
 from collections import defaultdict
 
+from . import interface_text
 from .catalog_rules import compact_label, western_release_identity
 from .classification import (is_structural_creator, is_repost_creator, creator_collection_base,
                              creator_release_identifier, numbered_cast_shape)
@@ -63,6 +64,14 @@ def _release_title(row: dict, people: set[str]) -> bool:
     return False
 
 
+def _said(name: str, /, **params) -> str:
+    """判定理由，按 zh-CN 资源渲染（`server:labels.metadataCreatorAttributions.<名字>`）。
+
+    理由写进创作者归属复核 CSV 的 `reason` 列，那一列只存一句原文（与 `classification._said` 同一写法）。
+    """
+    return interface_text.text(f"server:labels.metadataCreatorAttributions.{name}", params)
+
+
 def classify(row: dict, *, studios: dict[str, set[str]], people: set[str]) -> tuple[str, str, str]:
     """明确错误才提供 remove；身份冲突与目录推断只提供 review。
 
@@ -72,52 +81,53 @@ def classify(row: dict, *, studios: dict[str, set[str]], people: set[str]) -> tu
     shape = row.get('label_shape')
     if not shape or verdict[1] not in {'keep', 'review'}:
         return verdict
-    named = f"「{shape['prefix']}+编号+出演者」" if shape['form'] == 'prefix' else '「出演者组合-编号-标题」'
-    return 'label_shape', 'review', (f"文件名是{named}的发行命名，{shape['total']} 部里 {shape['files']} 部命中、"
-                                     f"出演者 {shape['cast']} 位轮换；疑似厂牌或系列，需查资料站或用户确认")
+    named = (_said('shapePrefix', prefix=shape['prefix']) if shape['form'] == 'prefix'
+             else _said('shapeCastNumberTitle'))
+    return 'label_shape', 'review', _said('labelShape', shape=named, total=shape['total'], files=shape['files'],
+                                          performers=shape['cast'])
 
 
 def _relation_verdict(row: dict, *, studios: dict[str, set[str]], people: set[str]) -> tuple[str, str, str]:
     creator = str(row['current_creator'])
     source = str(row['relation_source'])
     if source != 'legacy:asset':
-        return 'source_identity', 'keep', '保留独立来源的创作者关系'
+        return 'source_identity', 'keep', _said('sourceIdentity')
     if is_protected(str(row['field_owner'])):
-        return 'protected', 'review', '兼容字段属于用户或复核判断'
+        return 'protected', 'review', _said('protected')
     if re.match(r'^[a-z][a-z0-9+.-]*://', str(row['path']), re.I):
-        return 'online_account', 'keep', '在线账号身份，不参与本地目录判定'
+        return 'online_account', 'keep', _said('onlineAccount')
     if row.get('has_identity_evidence'):
-        return 'identity_conflict', 'review', '实体有外部身份引用或用户判断，需逐项复核'
+        return 'identity_conflict', 'review', _said('identityConflict')
     if row.get('studio_source_url'):
-        return 'verified_studio', 'remove', '公开发行来源确认其为厂牌；作品不归属真人发布账号'
+        return 'verified_studio', 'remove', _said('verifiedStudio')
     if is_platform(creator):
-        return 'platform', 'remove', '名称是发行平台；实际卖主或账号才是创作者'
+        return 'platform', 'remove', _said('platform')
     if is_repost_creator(creator):
-        return 'repost_site', 'remove', '名称是转载站水印或站点日期目录'
+        return 'repost_site', 'remove', _said('repostSite')
     studio = str(row['studio'] or '')
     studio_names = studios.get(normalise(studio), {normalise(studio)}) if studio else set()
     if normalise(creator) and normalise(creator) in studio_names:
-        return 'studio', 'remove', f'同作品发行厂牌为 {studio}，与创作者名称或其别名一致'
+        return 'studio', 'remove', _said('studio', studio=studio)
     if _publisher_release(row, studios):
-        return 'studio_release', 'remove', '已登记厂牌名称与同作品发行文件的厂牌 token 一致'
+        return 'studio_release', 'remove', _said('studioRelease')
     identifier_verdict, identifier_reason = creator_release_identifier(
         creator,path=str(row['path']),filename=str(row['name'] or ''),code=row['code'])
     if identifier_verdict == 'release_identifier':
         return identifier_verdict, 'remove', identifier_reason
     if is_structural_creator(creator):
-        return 'structural', 'remove', '名称是已核定的结构目录'
+        return 'structural', 'remove', _said('structural')
     if _release_title(row, people):
-        return 'release_title', 'remove', '名称与带厂牌、发行日期的场景标题一致'
+        return 'release_title', 'remove', _said('releaseTitle')
     title = str(row.get('catalog_title') or '')
     if (len(compact_label(creator)) >= 8 and title
             and compact_label(creator) == compact_label(title)
             and normalize_entity_name(creator) not in people):
-        return 'catalog_title', 'remove', '名称与同作品的发行标题完全一致'
+        return 'catalog_title', 'remove', _said('catalogTitle')
     if normalize_entity_name(creator) in people:
-        return 'performer_overlap', 'review', '与出演者姓名或别名一致，尚无卖主身份或同人确认'
+        return 'performer_overlap', 'review', _said('performerOverlap')
     if identifier_verdict:
         return identifier_verdict, 'review', identifier_reason
-    return 'legacy_projection', 'review', '只有历史目录投影；需账号、水印、发行来源或用户确认'
+    return 'legacy_projection', 'review', _said('legacyProjection')
 
 
 def collect(connection: sqlite3.Connection) -> list[dict]:
@@ -171,7 +181,7 @@ def collect(connection: sqlite3.Connection) -> list[dict]:
             row['proposed_creator'] = _collection_identity(str(row['current_creator']), creators)
             if row['proposed_creator']:
                 row.update(verdict='collection_identity', action='replace',
-                           reason='目录的月份或画质后缀与已存在的完整账号名对应')
+                           reason=_said('collectionIdentity'))
         result.append({field: row[field] for field in FIELDS})
     return result
 

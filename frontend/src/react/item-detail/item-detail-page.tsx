@@ -16,6 +16,7 @@ import {
 import { confirmModal, spinnerHtml } from '@peach/legacy/ui';
 
 import { apiGet, apiSend } from '../../api';
+import { codedText } from '../../core/server-text';
 import { Button } from '@/components/base/buttons/button';
 import { RiArrowDownSLine } from '@remixicon/react';
 import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
@@ -397,7 +398,7 @@ function Side({ item, queue, write, helpers, actions }: {
             <button type="button" data-spec-item="" data-open-region={item.region || ''}
               title={t('catalog:detailSpecs.openRegion')}
               onClick={() => actions.openRegion(item.region || '')}>
-              <Glyph name="globe" /><span>{item.region_settled ? item.region_label : t('catalog:detailSpecs.regionInferred', { region: item.region_label })}</span>
+              <Glyph name="globe" /><span>{item.region_settled ? codedText(item, 'region_label') : t('catalog:detailSpecs.regionInferred', { region: codedText(item, 'region_label') })}</span>
             </button>
           ) : null}
         </div>

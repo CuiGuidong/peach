@@ -19,7 +19,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from peach import (avatar_face, follow_assets, follow_discovery, follow_identity,
-                   follow_store, web_follow, web_stats)
+                   follow_store, interface_text, web_follow, web_stats)
 from peach.follow import FollowHistoryEnd
 from peach.follow import FollowSourceError, internal_error
 from peach.follow_discovery import Discovery, ExternalSearch
@@ -2761,8 +2761,12 @@ class FollowSourceAddTests(FollowContractTests):
             "provider": "fanbox", "provider_label": "FANBOX",
             "ref": "lazyprocrast", "url": "https://lazyprocrast.fanbox.cc/",
             "label": "lazyprocrast", "author": "", "aliases": [], "semantics": "work",
-            "evidence": "链接直接指明", "known": False,
+            "evidence": "链接直接指明", "evidence_code": "labels.followSources.linkEvidence", "evidence_params": {},
+            "known": False,
         }])
+        # 依据那一句带 code，英文界面拿到的是英文。
+        self.assertEqual(interface_text.text("server:labels.followSources.linkEvidence", None, "en"),
+                         "Named directly by the link")
 
     def test_resolve_progress_counts_sources_instead_of_lines(self):
         """一行的背后是十几个来源在查：进度按来源数走，环才会逐个涨过去。"""

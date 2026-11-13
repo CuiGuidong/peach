@@ -19,6 +19,7 @@ import { useSidebarReorder } from '../sidebar/use-sidebar-reorder';
 import { busyProps } from '../settings/busy-props';
 import { favoriteHref, isFavorite, useShortcuts, useShortcutWrite, type Favorite } from './library-shortcuts';
 import { t } from '../../i18n';
+import { codedText } from '../../core/server-text';
 import './shortcuts.css';
 
 const Star = spriteGlyph('star');
@@ -214,7 +215,7 @@ function ShortcutContents({ currentHref, kind, close }: { currentHref?: () => st
 
 function FavoriteAvatar({ item }: { item: Favorite }) {
   const Glyph = GLYPHS[item.kind as keyof typeof GLYPHS] || Star;
-  return <span data-shortcuts-avatar="" title={item.image_label || item.name}>
+  return <span data-shortcuts-avatar="" title={codedText(item, 'image_label') || item.name}>
     {item.image_url ? <img src={item.image_url} alt="" loading="lazy" decoding="async"
       data-drop="self" data-fallbacks={item.image_fallbacks?.join('|') || undefined} /> : null}
     <Glyph aria-hidden className="size-5" />

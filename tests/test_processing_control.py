@@ -998,7 +998,9 @@ class ProcessingControlTests(unittest.TestCase):
                                    issue=lambda row, message, **values: issues.append((message, values)))
         self.assertEqual((result.scanned, result.scanned_bytes), (3, 12))
         self.assertEqual(len(issues), 1)
-        self.assertIn('记录 1、2', issues[0][0])
+        # 问题项是 `{code, params}`，按 zh-CN 渲染后核对；记录号是列表参数，按资源里的分隔符连起来。
+        from peach.library_processing import phrase_text
+        self.assertIn('记录 1、2', phrase_text(issues[0][0]))
         self.assertEqual(issues[0][1]['action'], 'scanning_files')
         with closing(sqlite3.connect(self.db)) as connection:
             self.assertEqual(connection.execute('SELECT count(*) FROM asset').fetchone()[0], 4)

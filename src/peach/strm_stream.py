@@ -17,6 +17,7 @@ from .http import public_https_url, resolves_publicly
 from .remote_media_cache import MEDIA_HEADERS
 from .preview_cache import rewrite_hls
 from .strm import read_target, validate_url
+from .user_messages import message_fields
 
 PLAYLIST_TYPES = frozenset({'application/vnd.apple.mpegurl', 'application/x-mpegurl', 'audio/mpegurl'})
 PLAYLIST_LIMIT = 2 * 1024 * 1024
@@ -143,8 +144,8 @@ def proxy(request, asset_id: int, path, session: str = '', resource: str = ''):
     except ValueError:
         if upstream is not None:
             upstream.close()
-        return JSONResponse({'error': 'STRM 内容无法解析，请检查播放地址和列表格式'}, status_code=400)
+        return JSONResponse(message_fields('errors.strm.contentUnparsable', key='error'), status_code=400)
     except (FollowProxyError, OSError, httpx.HTTPError):
         if upstream is not None:
             upstream.close()
-        return JSONResponse({'error': 'STRM 媒体未取得，请检查播放地址或在生成工具中更新 STRM'}, status_code=502)
+        return JSONResponse(message_fields('errors.strm.mediaUnavailable', key='error'), status_code=502)

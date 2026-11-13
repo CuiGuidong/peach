@@ -20,6 +20,7 @@ from urllib.parse import urlsplit
 import httpx
 
 from . import interface_text, link_status, studio_sites
+from .coded_text import coded
 from .jobs import BackgroundJob
 
 from .user_agent import USER_AGENT
@@ -94,7 +95,8 @@ def _note(status: int, note: str) -> dict:
     """面板上那一格说明：`note`，取不到时另带 `note_code` 与 `note_params` 给界面取译文。
     停放页只写状态码就看不出为什么判了没了。"""
     if status == 200 or note.startswith(studio_sites.PARKED_NOTE):
-        return {"note": note}
+        # 停放页那句是 `studio_sites` 给的 `Said`，身上带 code；200 的说明为空或原文。
+        return coded("note", note)
     if status:
         return {"note": f"HTTP {status}"}
     params = {"reason": note}

@@ -20,12 +20,13 @@ from urllib.parse import quote
 
 from .avatar_provider import install_entity_avatar
 from .catalog_rules import current_tags, is_korean_mib_code, normalise_code_key
+from .catalog_vocabulary import COVER_FETCHED, PERFORMER_TAG_PREFIX, WESTERN_IDENTITY_REVIEW_VERDICTS
 from .code_creators import collect
 from .entities import memoized_resolution, resolve_entity, resolve_entity_id, upsert_asset_entity
 from .field_owners import (
     EXPECTED_REVISION_FIELD,
-    owner_label,
     owner_of,
+    owner_phrase,
     review_owner,
 )
 from .fsutil import atomic_write_bytes
@@ -105,7 +106,7 @@ def _needs_review(category: str, row: dict) -> bool:
     宽的高清图不需要人确认，未取得和仍停在 800 低清基线的才需要。
     """
     if category == "western_identity":
-        return str(row.get("verdict") or "") in ("命中", "需人工确认")
+        return str(row.get("verdict") or "") in WESTERN_IDENTITY_REVIEW_VERDICTS
     if category == "studio_logos":
         # 无 handle、无落盘图片和与现有 Logo 完全相同都没有人工可判断项。
         # 只有新的/变化的确认来源，或明确标 needs_confirmation 的图片才进队列。
@@ -305,7 +306,7 @@ def _metadata_decision_in_force(decision: dict, row: dict, genre_decisions: dict
 
 def _code_creator_rows(connection) -> list[dict]:
     """番号目录被投影成创作者的队列，按 `peach.code_creators` 的判据现算。"""
-    rows = [dict(row) for row in collect(connection)]
+    rows = [dict(row) for row in collect(connection, with_parts=True)]
     for row in rows:
         row["item_key"] = str(row["entity_id"])
     return rows
@@ -495,7 +496,7 @@ def _review_rows(contract: ReviewContract, category: str, *, queue: str | None =
                 row["preview_url"] = (
                     f"/endcard-frame?id={asset_id}&name={quote(frame.name)}"
                 )
-        if category == "cover_sources" and row.get("result") == "取得":
+        if category == "cover_sources" and row.get("result") == COVER_FETCHED:
             # 封面已经在本机，直接看落盘的那张，不要回源站再拉一次。
             row["preview_url"] = f"/cover?code={quote(str(row.get('code') or ''))}"
         asset_code = str(row.get("asset_code") or row.get("code") or "")
@@ -798,7 +799,7 @@ def _evidence_text(parts: list[dict]) -> str:
 def _metadata_evidence(row: dict) -> list[dict]:
     """字段候选：现值（及谁写的）、对得上几个文件、几个资料来源。"""
     current = str(row.get("current_value") or "").strip()
-    owner = owner_label(str(row.get("current_owner") or ""))
+    owner = owner_phrase(str(row.get("current_owner") or ""))
     if current:
         head = (_said("labels.webReview.currentValueOwned", value=current, owner=owner) if owner
                 else _said("labels.webReview.currentValue", value=current))
@@ -853,7 +854,7 @@ def _review_evidence(category: str, row: dict) -> list[dict]:
             _said("labels.webReview.tokenOverlap", overlap=row.get("token_overlap") or "0"),
             _said("labels.webReview.videos", count=row.get("videos", ""))])
     if category == "cover_sources":
-        if row.get("result") != "取得":
+        if row.get("result") != COVER_FETCHED:
             return [_said("labels.webReview.coverUnfetched", reason=row["note"]) if row.get("note")
                     else _said("labels.webReview.coverNoCandidates")]
         return [{"text": f"{row.get('source', '')} · {row.get('width', '')}×{row.get('height', '')}"
@@ -1227,7 +1228,7 @@ def w_review_genre(contract: ReviewContract, body):
         raise UserValueError("api.review.genreEmpty")
     # 标签名进的是和账本同一套词表，判据照 `w_item_tag` 那条：长度上限一致，
     # `演员:` 是出演者标记不是标签。两处各写一套的话，同一个名字这边收得进、那边加不上。
-    if tag and (len(tag) > 80 or tag.startswith("演员:")):
+    if tag and (len(tag) > 80 or tag.startswith(PERFORMER_TAG_PREFIX)):
         raise UserValueError("api.review.tagNameInvalid")
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with contract.write_transaction() as connection:

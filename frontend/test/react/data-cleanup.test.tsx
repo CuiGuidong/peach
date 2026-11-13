@@ -69,11 +69,13 @@ function serve(routes: Record<string, Route>) {
       const params = new URL(path, 'http://localhost').searchParams;
       return { ok: true, status: 200, json: async () => ({ ok: true, example: `${params.get('dir_template')}/${params.get('file_template')}.mp4` }) };
     }
-    if (!(path in routes)) {
+    /* 整理状态带界面语言（`?language=`，预设示例按它取示例字段），按不带它的路径应答。 */
+    const key = path in routes ? path : path.replace(/\?language=[\w-]+$/, '');
+    if (!(key in routes)) {
       unknown.push(path);
       return { ok: false, status: 404, json: async () => ({}) };
     }
-    const route = routes[path];
+    const route = routes[key];
     const answer = typeof route === 'function' ? (route as (b: unknown, m: string) => unknown)(body, method) : route;
     if (answer && typeof answer === 'object' && FAIL in answer) {
       const { status, body: payload } = answer as ReturnType<typeof failWith>;

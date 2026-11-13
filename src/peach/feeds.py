@@ -20,6 +20,8 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from .catalog_rules import normalise_code_key, release_code_from_text
+from .coded_text import Said, coded
+from .content_words import COMPILATION_TITLE, DMM_HOURS, DMM_MINUTES, JAVDB_WORK_COUNT
 from .entities import normalize_entity_name
 from .user_messages import UserValueError
 
@@ -28,7 +30,7 @@ KIND_JAVDB_ACTOR = "javdb-actor"
 #: DMM 按女优编号列的片单（GraphQL）。预购排在最前，番号是官方 `makerContentId`。
 KIND_DMM_ACTRESS = "dmm-actress"
 
-KIND_LABELS = {KIND_JAVDB_ACTOR: "JAV 订阅", KIND_DMM_ACTRESS: "JAV 订阅 · DMM"}
+KIND_LABELS = {KIND_JAVDB_ACTOR: "labels.feeds.kind.javdbActor", KIND_DMM_ACTRESS: "labels.feeds.kind.dmmActress"}
 
 #: DMM 片单那一类的订阅地址：用户点得开的女优片单页，同时是 `feed_source.url` 的去重键。
 #: 拉取不 GET 它，而是按地址里的编号问 GraphQL。
@@ -72,13 +74,12 @@ _TAGS = re.compile(r"<[^>]+>")
 #: 演员页标题栏：站上这一页挂在哪个名字下，和页面自报的作品数。一位女优常有两页，
 #: 本名一页、旧艺名一页（森日向子的另一页挂在「白石アイリ」下），名字是区分两行的唯一线索。
 _JAVDB_ACTOR_NAME = re.compile(r'<span class="actor-section-name">([^<]*)</span>')
-_JAVDB_WORK_COUNT = re.compile(r'<span class="section-meta">\s*(\d+)\s*部影片\s*</span>')
+_JAVDB_WORK_COUNT = re.compile(JAVDB_WORK_COUNT)
 
 #: 合集的标题记号：精选、总集、连发。`BEST` 前后不许紧挨字母，`BESTIE` 那种词不算。
-_COMPILATION_TITLE = re.compile(
-    r"(?<![A-Za-z])BEST(?![A-Za-z])|ベスト|総集編|傑作選|\d+\s*連発")
-_HOURS = re.compile(r"(\d+)\s*時間")
-_MINUTES = re.compile(r"(\d{3,})\s*分")
+_COMPILATION_TITLE = re.compile(COMPILATION_TITLE)
+_HOURS = re.compile(DMM_HOURS)
+_MINUTES = re.compile(DMM_MINUTES)
 #: 片长到这个数就是剪辑合集：单部新片两到三小时，四小时起是把旧片拼起来卖。
 COMPILATION_MINUTES = 240
 #: 出演人数到这个数就是合集：正常共演两三人，合集一列就是十几二十个名字。
@@ -413,7 +414,7 @@ def sources(connection: sqlite3.Connection) -> list[dict]:
     return [{
         "id": int(row["id"]),
         "kind": row["kind"],
-        "kind_label": KIND_LABELS.get(row["kind"], row["kind"]),
+        **coded("kind_label", Said(KIND_LABELS[row["kind"]]) if row["kind"] in KIND_LABELS else row["kind"]),
         "name": row["entity_name"] or row["name"] or "",
         "page_name": row["name"] or "",
         "url": row["url"],

@@ -767,10 +767,9 @@ def _discovery_performers(connection, contract, rows) -> dict[int, list[dict]]:
 
 
 def cover_state_fields(states: dict, code: str) -> dict:
-    """新作卡封面格的两个字段：`cover_state`（`fetching`／`queued`／`missing`，有封面时为 None）与原因。
-    首页这一行和 JAV 页「新作」「发现」两个分区共用同一份口径。"""
-    state, reason = states.get(normalise_code_key(code), (None, ""))
-    return {"cover_state": state, "cover_reason": reason}
+    """新作卡封面格的字段：`cover_state`（`fetching`／`queued`／`missing`，有封面时为 None）与原因
+    （`feed_followup.cover_state_fields`）。首页这一行和 JAV 页「新作」「发现」两个分区共用同一份口径。"""
+    return feed_followup.cover_state_fields(states, code)
 
 
 def q_feed_discoveries(contract, args) -> dict:

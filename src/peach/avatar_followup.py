@@ -46,19 +46,15 @@ from .avatar_provider import (
 )
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
 from .task_outcomes import codes, is_outcome, joined, outcome_parts, part, said
-from .task_runs import item_progress
+from .task_runs import item_progress, task_label
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "entity-avatar"
-TASK_LABEL = "资料图片补全"
+TASK_LABEL = task_label(TASK_KEY)
 
 #: 会被派后继的实体种类。厂牌的图是标识，归 `studio_followup`；系列、标签没有头像位。
 #: 发布账号只派过 `work_portrait_predicate` 的那些（`_candidates`）。
 KINDS = ("performer", "creator")
-
-#: 一次刮削最多为这么多个新实体派后继。上限本身由 `task_runs.MAX_FOLLOWUPS` 判，
-#: 这里先按作品数排好序再交出去：截断真的发生时，留下的该是库里出现得最多的那些。
-PLAN_ORDER = "作品多的在前"
 
 #: 封面人脸最多截几张：装上的一张，加上留进挑图弹层的几张。
 MAX_KEPT_FACES = 8

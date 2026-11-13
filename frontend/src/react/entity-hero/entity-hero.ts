@@ -62,7 +62,8 @@ export interface HeroNameGroups {
   reading?: string;
   shown?: string[];
   total?: number;
-  groups?: { label?: string; names: { name: string; reading?: string }[] }[];
+  /** 固定的三组（现名、旧名义、其它）带 `label_code`；各渠道名义的 `label` 是资料站上的注记原文。 */
+  groups?: { label?: string; label_code?: string; names: { name: string; reading?: string }[] }[];
 }
 
 /** 创作者名下的关注来源（ADR-0096）。`key` 是关注页的作者键，没绑来源时是空串；`held` 是

@@ -10,10 +10,13 @@ import { CodeBlock } from '../components/code-block';
 import { StatusLabel, type StatusTone } from '../components/status-label';
 import { Disclosure, ErrorText, Fact, FactList, Footer, Help, Rows, Stack } from './section';
 import { busyProps, useAction } from './use-action';
+import { codedText, serverLabelList } from '../../core/server-text';
 import { interfaceLanguage, t } from '../../i18n';
 
 export interface LibrarySharingState {
   enabled: boolean; available: boolean; schema: number; fields: string[]; notice: string;
+  /** 与 `fields` 同序的 code 与 `notice` 的 code，按界面语言取译文。 */
+  field_codes?: string[]; notice_code?: string;
   last_sent_at?: string | null;
   last_attempt?: { period?: string; status?: string; reason?: string; attempted?: boolean;
     snapshot_id?: string; raw_bytes?: number; compressed_bytes?: number };
@@ -68,8 +71,8 @@ export function LibrarySharingSettings({ initial, receipt }: {
       <Help>{t('settings:librarySharing.fieldsChanged')}</Help>
     </Stack> : null}
     <Stack divided><Disclosure summary={t('settings:librarySharing.fieldsAndRules')}>
-      <ul className="list-disc space-y-2 pl-5">{value.fields.map(field => <li key={field}><Help>{field}</Help></li>)}</ul>
-      <Help>{value.notice}</Help>
+      <ul className="list-disc space-y-2 pl-5">{serverLabelList(value.fields, value.field_codes).map(field => <li key={field}><Help>{field}</Help></li>)}</ul>
+      <Help>{codedText(value, 'notice')}</Help>
     </Disclosure></Stack>
     {participation ? <Stack divided>
       <FactList><Fact term={t('settings:librarySharing.participation')}><StatusLabel aria-label={t('settings:librarySharing.participation')}

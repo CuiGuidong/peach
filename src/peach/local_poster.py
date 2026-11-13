@@ -65,7 +65,7 @@ def _decode(source, *, report=None):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description='读取单张配套图片')
+    parser = argparse.ArgumentParser(description='Read one companion image')
     parser.add_argument('source', type=Path)
     parser.add_argument('output', type=Path)
     args = parser.parse_args(argv)

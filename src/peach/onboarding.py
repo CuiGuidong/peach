@@ -60,11 +60,18 @@ HOST_OPTIONS = (("1", "labels.onboarding.hostOption.thisDevice"), ("2", "labels.
 
 _DNS_LABEL = re.compile(r"^[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?$")
 _HOST_CHOICES = {
-    "1": LOOPBACK_HOST, "本机": LOOPBACK_HOST, LOOPBACK_HOST: LOOPBACK_HOST,
-    "2": LAN_HOST, "局域网": LAN_HOST, LAN_HOST: LAN_HOST,
+    "1": LOOPBACK_HOST, LOOPBACK_HOST: LOOPBACK_HOST,
+    "2": LAN_HOST, LAN_HOST: LAN_HOST,
 }
-_YES = {"", "y", "yes", "是"}
-_NO = {"n", "no", "否"}
+_YES = {"", "y", "yes"}
+_NO = {"n", "no"}
+
+
+def _answers(name: str) -> set[str]:
+    """问答接受的一个简写（`labels.onboarding.answer.<名字>`）：中文与命令行语言里的写法都认。"""
+    code = f"server:labels.onboarding.answer.{name}"
+    return {interface_text.text(code, None, language).strip().lower()
+            for language in (interface_text.SOURCE_LANGUAGE, interface_text.local_language())}
 
 
 def _label(code: str, params: dict | None = None, language: str | None = None) -> str:
@@ -195,10 +202,13 @@ def more_media_dir_validator(
 
 def validate_host(raw: str) -> str:
     key = raw.strip().lower()
-    try:
+    if key in _HOST_CHOICES:
         return _HOST_CHOICES[key]
-    except KeyError:
-        raise UserValueError("errors.onboarding.hostChoice") from None
+    if key in _answers("thisDevice"):
+        return LOOPBACK_HOST
+    if key in _answers("lan"):
+        return LAN_HOST
+    raise UserValueError("errors.onboarding.hostChoice")
 
 
 def validate_port(raw: str) -> int:
@@ -227,9 +237,9 @@ def validate_mdns_name(raw: str) -> str:
 
 def validate_yes_no(raw: str) -> bool:
     key = raw.strip().lower()
-    if key in _YES:
+    if key in _YES or key in _answers("yes"):
         return True
-    if key in _NO:
+    if key in _NO or key in _answers("no"):
         return False
     raise UserValueError("errors.onboarding.yesNo")
 

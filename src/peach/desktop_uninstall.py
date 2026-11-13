@@ -126,14 +126,15 @@ foreach ($peachPath in @($peachJob.directories) + @($peachJob.files)) {
 if ($peachJob.installer_key -and $peachJob.installer_key -notmatch '^Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\\{[0-9A-F-]{36}\}_is1$') { exit 2 }
 if ($peachJob.installer_menu -and [IO.Path]::GetFileName($peachJob.installer_menu) -ne 'Peach.lnk') { exit 2 }
 function Stop-PeachProgramProcesses {
-  # 托盘退出时被硬杀的服务会留下自己的子进程：扫描、转码用的可执行文件可能就在
-  # `_internal` 里。按镜像路径清场，只匹配程序目录前缀加一个分隔符，不误伤名字
-  # 相近的其它解压目录。
-  # 读 `Path` 要打开目标进程、枚举它的全部模块，七百多个进程逐个读一遍要七秒以上，
-  # 删除重试时还要再清场。进程名就是镜像文件名去掉 `.exe`，先拿 `$peachImageNames`
-  # 筛出与程序目录里某个 `.exe` 同名的进程，只读这几个的路径。
-  # `Path` 每读一次都现查一次进程：判空和比前缀各读一次的话，进程恰好在两次之间退出，
-  # 第二次读到的就是 Null。只读一次。
+  # A server killed when the tray quits leaves its child processes behind; scanning and
+  # transcoding executables may live under `_internal`. Clear them by image path, matching only
+  # the program directory prefix plus a separator so similarly named folders are untouched.
+  # Reading `Path` opens the process and enumerates all its modules; doing that for 700+
+  # processes takes over seven seconds, and deletion retries clear again. The process name is
+  # the image name without `.exe`, so first keep only processes named like an `.exe` in the
+  # program directory (`$peachImageNames`) and read just their paths.
+  # Each `Path` read queries the process again: reading it twice (null check, prefix check)
+  # can see Null if the process exits in between. Read it once.
   $peachStrays = @(Get-Process -ErrorAction SilentlyContinue | Where-Object {
     $peachImageNames.Contains($_.ProcessName)
   } | Where-Object {
@@ -150,7 +151,7 @@ function Stop-PeachProgramProcesses {
 try {
   function Test-PeachTree($peachNode) {
     $peachItem = Get-Item -LiteralPath $peachNode -Force
-    if ($peachItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw ('卸载目标含有链接：' + $peachNode) }
+    if ($peachItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw ($peachJob.text.linkInside + $peachNode) }
     if ($peachItem.PSIsContainer) {
       foreach ($peachChild in Get-ChildItem -LiteralPath $peachNode -Force) { Test-PeachTree $peachChild.FullName }
     }
@@ -158,7 +159,8 @@ try {
   foreach ($peachPath in @($peachJob.directories) + @($peachJob.files) + @($peachProgram)) {
     if (Test-Path -LiteralPath $peachPath) { Test-PeachTree $peachPath }
   }
-  # 名单在链接检查之后收：程序树里有链接的话上一步已经抛出，递归不会走出程序目录。
+  # Collect names after the link check: a link in the program tree has already thrown, so the
+  # recursion can't leave the program directory.
   $peachImageNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
   foreach ($peachExecutable in Get-ChildItem -LiteralPath $peachProgram -Recurse -Force -File -Filter '*.exe') {
     [void]$peachImageNames.Add($peachExecutable.BaseName)
@@ -169,11 +171,11 @@ try {
       if (-not (Test-Path -LiteralPath $peachPath)) { break }
       try {
         $peachItem = Get-Item -LiteralPath $peachPath -Force
-        if ($peachItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw ('卸载目标是链接：' + $peachPath) }
+        if ($peachItem.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw ($peachJob.text.isLink + $peachPath) }
         Remove-Item -LiteralPath $peachPath -Recurse -Force
         break
       } catch {
-        if ($peachAttempt -le 1) { throw ('删除失败：' + $peachPath + '：' + $_.Exception.Message) }
+        if ($peachAttempt -le 1) { throw ($peachJob.text.deleteFailed + $peachPath + $peachJob.text.separator + $_.Exception.Message) }
         Stop-PeachProgramProcesses
         Start-Sleep -Seconds 2
       }
@@ -182,8 +184,9 @@ try {
   if ($peachJob.delete_data -and (Test-Path -LiteralPath $peachData) -and -not (Get-ChildItem -LiteralPath $peachData -Force | Select-Object -First 1)) {
     Remove-Item -LiteralPath $peachData
   }
-  # 安装包装的程序还有「应用和功能」里那一条和开始菜单项，程序目录删掉后它们都指向空处。
-  # 开始菜单项只在仍指向这个程序目录时才删：同名的可能是另一份安装放的。
+  # An installer-installed program also has an Apps & features entry and a Start menu item, both
+  # pointing at nothing once the program directory is gone. Remove the Start menu item only while
+  # it still points at this program directory: one with the same name may belong to another install.
   if ($peachJob.installer_key) {
     Remove-Item -LiteralPath ('HKCU:\' + $peachJob.installer_key) -Recurse -Force -ErrorAction SilentlyContinue
   }
@@ -195,21 +198,30 @@ try {
   }
 } catch {
   $peachReason = $_.Exception.Message
-  # 弹窗只说原因；日志另记出错的那一行，「不能对 Null 值表达式调用方法」单看查不出是哪一步。
+  # The dialog shows only the reason; the log also records the failing line, because a bare
+  # "cannot call a method on a null-valued expression" doesn't say which step failed.
   $peachWhere = $_.InvocationInfo.PositionMessage
   $peachLog = if ($peachJob.log) { $peachJob.log } else { Join-Path ([IO.Path]::GetTempPath()) 'peach-uninstall.log' }
-  $peachDetail = '原因：' + $peachReason
+  $peachDetail = $peachJob.text.reason + $peachReason
   try {
     Add-Content -LiteralPath $peachLog -Value ((Get-Date -Format s) + '  ' + $peachReason + [Environment]::NewLine + $peachWhere) -Encoding UTF8
-    $peachDetail += [Environment]::NewLine + '详情记录在 ' + $peachLog
+    $peachDetail += [Environment]::NewLine + $peachJob.text.logged + $peachLog
   } catch { }
   if (-not $peachJob.quiet) {
     [System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms') | Out-Null
-    [System.Windows.Forms.MessageBox]::Show('卸载未完成，请手动检查：' + [Environment]::NewLine + $peachProgram + [Environment]::NewLine + $peachData + [Environment]::NewLine + $peachDetail, 'Peach') | Out-Null
+    [System.Windows.Forms.MessageBox]::Show($peachJob.text.incomplete + [Environment]::NewLine + $peachProgram + [Environment]::NewLine + $peachData + [Environment]::NewLine + $peachDetail, 'Peach') | Out-Null
   }
   exit 1
 }
 """
+
+
+def script_text() -> dict[str, str]:
+    """卸载脚本的报错与弹窗文字（`tray.uninstallScript.<名字>`），跟本机语言，经 stdin 交给脚本。"""
+    from . import interface_text
+    language = interface_text.local_language()
+    return {name: interface_text.text(f"server:tray.uninstallScript.{name}", None, language)
+            for name in ("linkInside", "isLink", "deleteFailed", "separator", "reason", "logged", "incomplete")}
 
 
 def poll(tray) -> None:
@@ -234,7 +246,7 @@ def poll(tray) -> None:
         process = subprocess.Popen([str(shell), "-NoProfile", "-NonInteractive", "-EncodedCommand",
                                     base64.b64encode(_SCRIPT.encode("utf-16-le")).decode("ascii")],
                                    stdin=subprocess.PIPE, creationflags=subprocess.CREATE_NO_WINDOW)
-        job = dict(checked, pid=os.getpid())
+        job = dict(checked, pid=os.getpid(), text=script_text())
         if desktop_installer.installed(Path(checked["program"])):
             job.update(installer_key=desktop_installer.UNINSTALL_KEY,
                        installer_menu=str(desktop_installer.menu_shortcut()))

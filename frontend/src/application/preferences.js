@@ -25,6 +25,7 @@ import { loadingState } from './loading.js';
 import { updateManagedRoute } from './../history/managed';
 import { MEDIA_SOURCE_ICONS, emptyStateHtml, wireHorizontalScroller } from '../ui-kit';
 import { tagLabel } from '../core/tags';
+import { codedText } from '../core/server-text';
 import { rereadPlaylists } from './playlists.js';
 import { receiptsState } from './receipts.js';
 import { dropBars } from './../catalog-bars';
@@ -63,7 +64,7 @@ export function sidebarDot(loc){
 }
 
 export function sidebarFacets(facetData,context){
-  const rows=(items,named=row=>row.label||tagLabel(row.k))=>(items||[]).map(row=>({value:String(row.k),label:named(row),n:row.n??null}));
+  const rows=(items,named=row=>codedText(row,'label')||tagLabel(row.k))=>(items||[]).map(row=>({value:String(row.k),label:named(row),n:row.n??null}));
   const creators=context.type==='entity'&&context.kind==='creator'
     ?(facetData.creators||[]).filter(row=>row.k!==context.name):facetData.creators;
   return {

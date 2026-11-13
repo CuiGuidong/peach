@@ -19,6 +19,7 @@ import threading
 import time
 from contextlib import nullcontext
 from pathlib import Path
+from .coded_text import Said
 from .user_messages import UserValueError
 
 LOGGER = logging.getLogger(__name__)
@@ -204,7 +205,8 @@ class Reclaim:
         error = None
         status = 'succeeded'
         run = self._task(lambda: self.runs.start(TASK_KEY, trigger='manual', mutex_key=TASK_KEY,
-                                                 total=self._state.get('total') or None, label='删除旧快照'))
+                                                 total=self._state.get('total') or None,
+                                                 label=Said('labels.followEvidence.runLabel')))
         run_id = getattr(run, 'id', None)
 
         def pace(done_here: int) -> None:
@@ -224,7 +226,7 @@ class Reclaim:
                     with self._lock:
                         self._state['done'] = removed
         except Cancelled:
-            status, error = 'cancelled', '用户停止任务'
+            status, error = 'cancelled', Said('labels.followEvidence.stoppedByUser')
         except Exception as exc:  # noqa: BLE001 — 删了多少照实记进历史
             LOGGER.exception('Follow snapshot cleanup interrupted')
             status, error = 'failed', str(exc)

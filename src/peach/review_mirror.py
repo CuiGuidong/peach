@@ -76,7 +76,7 @@ class ReviewMirror:
         """优先返回 writer 实时队列；失败时退回上次安全缓存或本机队列。"""
         if not self.enabled:
             return self._annotate(local_payload, state="unavailable",
-                                  error="未配置可严格校验的写入端 HTTPS")
+                                  error=ReviewMirrorError("errors.reviewMirror.strictHttpsMissing"))
         try:
             payload = self._fetch_cached_live()
             return self._annotate(payload, state="live")
@@ -84,8 +84,8 @@ class ReviewMirror:
             cached = self._read_cache()
             if cached is not None:
                 return self._annotate(cached["payload"], state="cached",
-                                      fetched_at=cached["fetched_at"], error=str(error))
-            return self._annotate(local_payload, state="unavailable", error=str(error))
+                                      fetched_at=cached["fetched_at"], error=error)
+            return self._annotate(local_payload, state="unavailable", error=error)
 
     def _fetch_cached_live(self) -> dict:
         now = self._now()
@@ -269,14 +269,18 @@ class ReviewMirror:
         *,
         state: str,
         fetched_at: str | None = None,
-        error: str = "",
+        error: str | BaseException = "",
     ) -> dict:
+        """`error` 是异常时：`error` 放 zh-CN 原文，带 code 的另有 `error_code`、`error_params`（ADR-0159）。"""
         result = deepcopy(payload)
+        coded = isinstance(error, UserFacingError)
         result["mirror"] = {
             "state": state,
             "origin": self.origin or None,
             "fetched_at": fetched_at,
-            "error": error or None,
+            "error": str(error) or None,
+            "error_code": error.code if coded else None,
+            "error_params": dict(error.params) if coded else {},
             "read_only": True,
         }
         return result

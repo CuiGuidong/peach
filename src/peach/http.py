@@ -329,7 +329,7 @@ class CurlCffiTransport:
         from .processing_control import checkpoint as processing_checkpoint
         processing_checkpoint('network')
         from .processing_traffic import unobserved
-        unobserved('浏览器指纹传输流量未观测')
+        unobserved('labels.taskResources.network.fingerprint')
         chunks: list[bytes] = []
         total = 0
         try:

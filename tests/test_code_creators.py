@@ -284,11 +284,11 @@ class DurationEvidenceTests(unittest.TestCase):
         # `bbsxv.xyz-DOCP-324` 目录里只有一条 90 秒的广告，DOCP-324 本身 120 分钟。
         confirmed, reason = confirm.duration_confirms_code(90, 120)
         self.assertFalse(confirmed)
-        self.assertIn("超出容差", reason)
+        self.assertIn("outside tolerance", reason)
 
     def test_no_runtime_from_the_source_decides_nothing(self):
         self.assertEqual(confirm.duration_confirms_code(3600, None),
-                         (False, "来源没有给片长"))
+                         (False, "the source gave no runtime"))
 
     def test_the_longest_video_is_the_feature(self):
         """目录里还躺着论坛文宣和封面图，拿它们比片长必然对不上。"""

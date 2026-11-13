@@ -114,6 +114,13 @@ def _timestamp(value: datetime) -> tuple[float, int]:
     return ns / 1_000_000_000, ns
 
 
+def _request_failed() -> str:
+    """SDK 没给出原因时的兜底说明。仍是内置 `OSError`：按错误号自动成为 `FileNotFoundError` 等子类，
+    上层按子类与 `PATH_ERRNOS` 区分，所以这里只换文字来源（zh-CN 渲染）、不换类型。"""
+    from . import interface_text
+    return interface_text.text("server:errors.smbTransport.requestFailed")
+
+
 def _error(exc: Exception, filename: str | None = None) -> OSError:
     """转成标准 `OSError`；打开文件时带上共享内路径，诊断据此区分输入缺失与代码缺陷。"""
     if isinstance(exc, SMBAuthenticationError):
@@ -122,10 +129,10 @@ def _error(exc: Exception, filename: str | None = None) -> OSError:
         if exc.status in (NtStatus.STATUS_ACCESS_DENIED, NtStatus.STATUS_LOGON_FAILURE,
                           NtStatus.STATUS_STOPPED_ON_SYMLINK):
             return CodedPermissionError(errno.EACCES, "errors.smbTransport.accessDenied", filename=filename)
-        mapped = SMBOSError(exc.status, "SMB 共享")
-        return OSError(mapped.errno or errno.EIO, mapped.strerror or "SMB 请求失败", filename)
+        mapped = SMBOSError(exc.status, "SMB share")
+        return OSError(mapped.errno or errno.EIO, mapped.strerror or _request_failed(), filename)
     if isinstance(exc, SMBOSError):
-        return OSError(exc.errno or errno.EIO, exc.strerror or 'SMB 请求失败', filename)
+        return OSError(exc.errno or errno.EIO, exc.strerror or _request_failed(), filename)
     if isinstance(exc, OSError):
         return exc
     return CodedOSError(errno.ENETUNREACH, "errors.smbTransport.connectionUnavailable")

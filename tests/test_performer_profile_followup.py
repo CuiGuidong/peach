@@ -801,8 +801,8 @@ class RevertTests(Case):
                 "--source", followup.SOURCE]
         with contextlib.redirect_stdout(io.StringIO()) as printed:
             self.assertEqual(revert.main(base), 0)
-        self.assertIn("'资料': 1", printed.getvalue())
-        self.assertIn("'编号': 1", printed.getvalue())
+        self.assertIn("'profiles': 1", printed.getvalue())
+        self.assertIn("'refs': 1", printed.getvalue())
         with contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(revert.main([*base, "--apply", "--backup", str(self.root / "b.db")]), 0)
         self.assertIsNone(self.profile(meguri))

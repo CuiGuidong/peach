@@ -52,6 +52,7 @@ import {
   checkFeeds, errorHeadline, FEEDS_KEY, feedIntervalText, fetchFeeds, removeFeed, setFeedEnabled,
   pageWindow, type FeedSource,
 } from './follow-manage';
+import { codedText } from '../../core/server-text';
 import { t } from '../../i18n';
 
 const feedTableFeatures = tableFeatures({
@@ -276,7 +277,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection }: {
           );
         },
       }),
-      column.accessor((row) => row.kind_label, {
+      column.accessor((row) => codedText(row, 'kind_label'), {
         id: 'kind',
         header: label('kind'),
         cell: (context) => <span className="whitespace-nowrap">{context.getValue()}</span>,

@@ -35,7 +35,7 @@ import {
 } from './follow-manage';
 import { SourceIcon } from './source-view';
 import { composingKey } from '../components/ime';
-import { jobText, serverLabel } from '../../core/server-text';
+import { codedText, jobText, serverLabel } from '../../core/server-text';
 import { joinList, t } from '../../i18n';
 
 const MENU_ROW = cx(MENU_ITEM, MENU_ITEM_INTERACTIVE, 'text-body-2-medium');
@@ -173,9 +173,9 @@ function PickRow(
             <span className="flex min-w-0 flex-wrap items-center gap-1.5">
               <SourceIcon provider={candidate.provider} />
               <b className="text-body-medium">{candidate.provider_label}</b>
-              <span className="min-w-0 break-words">{candidate.label}</span>
+              <span className="min-w-0 break-words">{codedText(candidate, 'label')}</span>
               <small className="text-caption-1-regular text-text-secondary">
-                {candidate.known ? t('follow:addCreatorSource.alreadyFollowing') : candidate.evidence}
+                {candidate.known ? t('follow:addCreatorSource.alreadyFollowing') : codedText(candidate, 'evidence')}
               </small>
             </span>
           </Checkbox>
@@ -183,13 +183,14 @@ function PickRow(
       }) : <Help>{NO_CANDIDATE}</Help>}
       {(row.external_searches || []).map((search) => (
         <div key={search.url} className="flex flex-wrap items-center gap-2">
-          <small className="text-caption-1-regular text-text-secondary">{search.evidence}</small>
+          <small className="text-caption-1-regular text-text-secondary">{codedText(search, 'evidence')}</small>
           {/* 这一条会离开 Peach，所以带外链标；标由共用的 `ExternalLink` 给，全站一个写法。 */}
-          <ExternalLink href={search.url}>{t('follow:shared.labeled', { label: search.label, value: search.query })}</ExternalLink>
+          <ExternalLink href={search.url}>{t('follow:shared.labeled', { label: codedText(search, 'label'), value: search.query })}</ExternalLink>
         </div>
       ))}
       {failures.length ? (
-        <Help>{joinList(failures.map(([name, reason]) => t('follow:shared.labeled', { label: name, value: reason })))}</Help>
+        <Help>{joinList(failures.map(([name, reason]) => t('follow:shared.labeled', {
+          label: name, value: serverLabel(row.failure_codes?.[name]?.code ?? '', reason, row.failure_codes?.[name]?.params) })))}</Help>
       ) : null}
     </div>
   );
@@ -229,7 +230,7 @@ export function AddSource({ data, credentials, readOnly, toast }: AddSourceProps
 
   const options = useMemo<SuggestOption[]>(() => (suggest.data?.groups || []).flatMap((group) => (
     group.items.map((item) => ({
-      value: item.value, matched: item.matched || '', n: item.n || 0, group: serverLabel(group.label_code ?? '', group.label),
+      value: item.value, matched: serverLabel(item.matched_code ?? '', item.matched || ''), n: item.n || 0, group: serverLabel(group.label_code ?? '', group.label),
     }))
   )), [suggest.data]);
 

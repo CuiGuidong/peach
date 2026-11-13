@@ -7,7 +7,7 @@ import { apiGet } from '../../api';
 import { elapsedText, progressText } from '../activity/tasks';
 import { queryClient } from '../query';
 import { joinList, quoted, t } from '../../i18n';
-import { stageText } from '../../core/server-text';
+import { codedText, serverLabel, stageText } from '../../core/server-text';
 
 export const LIBRARY_PROCESSING_URL = '/api/library-processing';
 
@@ -20,6 +20,9 @@ export interface LibraryProcessingIssue {
   title?: string;
   path?: string;
   message: string;
+  /** `message` 的 code 与参数；有译文时显示译文，没有 code 的（异常原文、文件名）照原文。 */
+  message_code?: string;
+  message_params?: Record<string, unknown>;
   /** `paused` 是来源限流没轮到这一项，等来源放开再跑就有；`error` 是它自己出的事。 */
   severity?: 'info' | 'error' | 'paused';
 }
@@ -42,12 +45,14 @@ export interface LibraryProcessingData {
   eta_seconds_max?: number | null;
   eta_kind?: 'historical' | 'measured' | 'estimating';
   eta_scope?: string;
+  eta_scope_code?: string;
   eta_initial?: boolean;
   job_id?: string;
   stage?: string;
   stage_code?: string;
   requested_stage?: string;
-  steps?: { id: string; label: string; status: 'pending' | 'current' | 'complete' }[];
+  /** `label` 是 zh-CN 原文，`label_code` 有译文时显示译文。 */
+  steps?: { id: string; label: string; label_code?: string; status: 'pending' | 'current' | 'complete' }[];
   checked?: number;
   total?: number;
   scanned?: number;
@@ -191,7 +196,7 @@ export function remainingTime(state: LibraryProcessingData): string {
   const span = start === end ? `${end}` : `${start}–${end}`;
   const rough = state.eta_initial || state.eta_kind !== 'measured' ? t('manage:scanFetch.roughEstimate') : '';
   const key = unit === 86400 ? 'manage:scanFetch.etaDays' : unit === 3600 ? 'manage:scanFetch.etaHours' : 'manage:scanFetch.etaMinutes';
-  return t(key, { count: end, span, rough, scope: state.eta_scope ? ` · ${state.eta_scope}` : '' });
+  return t(key, { count: end, span, rough, scope: state.eta_scope ? ` · ${serverLabel(state.eta_scope_code ?? '', state.eta_scope)}` : '' });
 }
 
 export const fetchLibraryProcessing = (signal?: AbortSignal) =>
@@ -306,7 +311,7 @@ export function issueDetails(state: LibraryProcessingData): IssueDetails | null 
       key: `${issue.asset_id ?? 'source'}-${at}`,
       label: issue.title || (issue.asset_id ? t('manage:scanFetch.issueVideo', { id: issue.asset_id }) : t('manage:shared.storage')),
       href: issue.asset_id ? `/assets/${issue.asset_id}` : '',
-      note: issue.message,
+      note: codedText(issue, 'message'),
       hint: issue.path || '',
     })),
     log: state.issues_log || '',

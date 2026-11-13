@@ -15,14 +15,14 @@ import sqlite3
 import time
 from pathlib import Path
 
-from . import seed_pack, seed_corrections, seed_validation
+from . import interface_text, seed_pack, seed_corrections, seed_validation
 from .followups import Followup, FollowupType, register
 from .task_outcomes import joined, part, said
-from .task_runs import item_progress
+from .task_runs import item_progress, task_label
 from .user_messages import UserValueError
 
 TASK_KEY = "seed-import"
-TASK_LABEL = "初始资料导入"
+TASK_LABEL = task_label(TASK_KEY)
 REVIEW_FILE = "seed-landing.csv"
 FIELDS = ("kind", "entity", "field", "ours", "source", "theirs", "detail", "batch", "withdrawal_id", "evidence")
 #: 活动页摘要里的计数键与它们在结论里的 code（`task_outcomes`），按这个顺序拼结论。
@@ -89,17 +89,23 @@ def plan(connection: sqlite3.Connection, *, since_entity_id: int, pack_path: Pat
     return [Followup.item(key, TASK_KEY, version)]
 
 
+def _said(name: str, /, **params) -> str:
+    """复核产物 `seed-landing.csv` 的说明列，按 zh-CN 资源渲染（`server:labels.seedFollowup.<名字>`）。"""
+    return interface_text.text(f"server:labels.seedFollowup.{name}", params)
+
+
 def _rows(report: dict) -> list[dict]:
     rows = [{"kind": item["kind"], "entity": item["entity"], "field": item["field"], "ours": item["ours"],
              "source": item["source"], "theirs": item["theirs"], "batch": report["batch"],
-             "detail": "包里说的与本机不一致；本机这条不是种子写的，种子不动它"}
+             "detail": _said("conflict")}
             for item in report["conflicts"]]
     rows += [{"kind": item["kind"], "entity": "、".join(item["entities"]), "field": "identity", "ours": "",
               "source": "", "theirs": item["name"], "batch": report["batch"],
-              "detail": "包里一条对上本机两位，可能是重复身份；合并不可逆，由人决定"}
+              "detail": _said("duplicate")}
              for item in report["duplicates"]]
     rows += [{"kind": item["kind"], "entity": item["entity"], "field": item["field"], "source": item["source"],
-              "detail": item["detail"] + "；" + item["reason"], "withdrawal_id": item["id"],
+              "detail": _said("withdrawalConflict", detail=item["detail"], reason=item["reason"]),
+              "withdrawal_id": item["id"],
               "evidence": item["evidence"], "batch": report["batch"]}
              for item in report.get("withdrawal_conflicts", [])]
     return rows

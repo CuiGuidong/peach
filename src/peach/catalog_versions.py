@@ -8,6 +8,8 @@ from .catalog_rules import (
     names_without_shared_part_tail, normalise_code_key, ordered_multipart_items,
     _jav_code_pattern, duration_clusters, part_marker, release_code_from_filename,
 )
+from . import interface_text
+from .catalog_vocabulary import CENSORED, PROCESSING_MARKERS
 from .field_owners import owner_of
 from .metadata import identifies_code
 
@@ -26,8 +28,8 @@ def resolution_label(row: dict) -> str:
 
 def version_signature(row: dict) -> tuple[str, str, str]:
     name = str(row.get('name') or '')
-    processing = '修复' if '修复' in name else '美颜' if '美颜' in name else ''
-    return str(row.get('edition') or '有码'), resolution_label(row), processing
+    processing = next((marker for marker in PROCESSING_MARKERS if marker in name), '')
+    return str(row.get('edition') or CENSORED), resolution_label(row), processing
 
 
 def filename_matches_code(row: dict) -> bool:
@@ -124,6 +126,7 @@ def version_labels(versions: list[dict]) -> list[str]:
         if show_spec and not same_editions and spec:
             label += ' · ' + spec
         if forms and len({version['signature'] for version in versions}) == 1:
-            label += ' · ' + ('分卷版' if version['multipart'] else '完整文件')
+            form = 'multipart' if version['multipart'] else 'singleFile'
+            label += ' · ' + interface_text.text(f'server:labels.catalogVersions.{form}')
         labels.append(label)
     return labels

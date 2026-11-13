@@ -11,6 +11,7 @@ from collections import OrderedDict
 from pathlib import Path
 
 from . import timeline_sheets, timeline_sources
+from .coded_text import coded
 from .config import FFMPEG_DIR, STATE_DIR
 from .ffmpeg import FFmpegResolver
 from .fsutil import atomic_path
@@ -160,7 +161,7 @@ def q_thumbnail_jobs(contract, _args):
             'job_id': state.get('job_id') or '',
             'total': state.get('total') or 0, 'done': state.get('done') or 0,
             'made': state.get('made') or 0, 'skipped': state.get('skipped') or 0,
-            'failed': state.get('failed') or 0, 'stopped': state.get('stopped') or ''}
+            'failed': state.get('failed') or 0, **coded('stopped', state.get('stopped') or '')}
 
 
 def _with_progress(fields: dict) -> dict:
@@ -199,12 +200,13 @@ def w_thumbnail_jobs(contract, body):
             checkpoint=lambda **fields: contract.thumbnail_job.checkpoint(job_id, **fields))
         # 磁盘触线停下来的那一轮不能记成完成：队列后面还剩几千部，而页面上「完成」
         # 和「跑完了」是同一个意思。按停是用户自己做的，不算故障。
-        stopped = str(result.get('stopped') or '')
+        # 磁盘闸门那句带 code（`Said`），失败原因随它按界面语言显示。
+        stopped = result.get('stopped') or ''
         failed = bool(stopped) and stopped != timeline_sheets.STOPPED_BY_USER
         contract.thumbnail_job.update(
             job_id, **_with_progress(result), completed_at=time.time(),
             status='failed' if failed else 'complete',
-            error=stopped if failed else '')
+            **coded('error', stopped if failed else ''))
 
     contract.thumbnail_job.start(work, restart=True, recovery={'mode': mode},
                                  initial={'mode': mode, 'interval': interval,

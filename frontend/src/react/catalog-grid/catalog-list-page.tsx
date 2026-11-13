@@ -31,6 +31,7 @@ import { CatalogRating, catalogTableDate } from './catalog-table-controls';
 import { TableColumnControls, TableColumnResizer } from '../components/table-column-controls';
 import { TableSelectionHeader } from '../components/table-selection-header';
 import { joinList, t } from '../../i18n';
+import { codedText } from '../../core/server-text';
 import './catalog-list.css';
 
 const features = tableFeatures({ rowSortingFeature, rowSelectionFeature, rowPaginationFeature, columnVisibilityFeature });
@@ -235,7 +236,7 @@ function ListIdentity({ item, props, disabled }: { item: MediaItem; props: Catal
   /* 与卡片同一判据：按画幅筛时组里只剩这一卷或这一个版本，就按单个文件写。 */
   const parts = Number(item.part_group?.count) > 1 ? item.part_group || null : null;
   const editions = Number(item.edition_group?.count) > 1 ? item.edition_group || null : null;
-  const rawName = parts?.title || item.name || '';
+  const rawName = (parts ? codedText(parts, 'title') : '') || item.name || '';
   const name = props.helpers.displayName(item, rawName).trim() || t('catalog:catalogList.untitled');
   const titleHtml = props.helpers.titleHtml(item, rawName).trim() || t('catalog:catalogList.untitled');
   useEntityNames();

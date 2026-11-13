@@ -22,6 +22,7 @@ import urllib.parse
 
 from ..catalog_rules import same_release_code
 from ..jav_cover_fetch import THUMBNAIL, is_cross_product_cover
+from .. import interface_text
 from ..metadata import identifies_code
 from .base import FailureReason, Page, Session, SiteConfig, SiteRecord, SiteSource, SourceFailure, challenge_page
 
@@ -34,9 +35,9 @@ AVBASE = SiteConfig(name="avbase", label="AVBase", provider="avbase-search",
 #: `mgstage`、`duga`）；写错的名字不会报错，只是那家店排到末位。
 PRODUCT_ORDER = ("fanza", "mgstage", "duga")
 #: 页面结构对不上时的那一句。Cloudflare 验证页与站点改版都走这一句，细档分开记。
-UNRECOGNISED = "AVBase 页面结构未识别，可能在验证访问"
-#: 抛出时用的 code，zh-CN 文字与 `UNRECOGNISED` 相同；`UNRECOGNISED` 另被人物资料的备注拿去拼句。
+#: 抛出时用的 code；`UNRECOGNISED` 是它按 zh-CN 渲染的原文，另被人物资料的备注拿去拼句。
 UNRECOGNISED_CODE = "errors.avbase.unrecognized"
+UNRECOGNISED = interface_text.text(f"server:{UNRECOGNISED_CODE}")
 
 _NEXT_DATA = re.compile(r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>', re.S)
 _DATE = re.compile(r"^[A-Za-z]{3} ([A-Za-z]{3}) (\d{1,2}) (\d{4})")

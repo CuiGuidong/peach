@@ -45,8 +45,8 @@ ZOO_MEDIA = f"https://media.githubusercontent.com/media/opencv/opencv_zoo/{ZOO_C
 #: opencv_zoo 的 YuNet 定版模型。
 MODEL_URL = ZOO_MEDIA + "face_detection_yunet/face_detection_yunet_2023mar.onnx"
 MODEL_SHA256 = "8f2383e4dd3cfbb4553ea8718107fc0423210dc964f9f4280604804ed2552fa4"
-#: 报错里这个模型的名字；任务中心按它认是哪一个模型。
-MODEL_LABEL = "人脸模型"
+#: 回报给 `observer` 的模型标识；任务中心按它认是哪一个模型。
+MODEL_LABEL = "face-detection"
 MODEL_PATH = TOOLS_DIR / "yunet" / "face_detection_yunet_2023mar.onnx"
 
 #: 随包模型目录的环境变量。Docker 镜像经它指到镜像里那份；桌面包不设，读程序目录。

@@ -22,12 +22,12 @@ import sys
 import tempfile
 import threading
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, TextIO
 
-from . import access
+from . import access, interface_text
 from .process_job import assign_to_job, close_job, create_kill_on_close_job
 from .user_messages import UserFacingError
 
@@ -44,7 +44,8 @@ EDGE_HEADERS = ("cf-connecting-ip", "cf-ray")
 QUICK_MODE = "quick"
 NAMED_MODE = "named"
 MODES = (QUICK_MODE, NAMED_MODE)
-STANDALONE_NAMED_ERROR = "独立包只支持临时链接"
+#: 与 `errors.tunnel.standaloneQuickOnly` 同一句的 zh-CN 原文，给按原文比对的旧调用方。
+STANDALONE_NAMED_ERROR = interface_text.text("server:errors.tunnel.standaloneQuickOnly")
 #: 一段主机名标签：字母数字开头结尾，中间可带连字符；整串至少两段且不超过 253 字符。
 HOSTNAME_RE = re.compile(
     r"^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
@@ -79,9 +80,24 @@ class TunnelPlan:
 class TunnelSnapshot:
     state: str = "stopped"
     url: str = ""
+    #: 给人看的错误：`error` 是 zh-CN 原文，`error_code`／`error_params` 是同一句的 code（ADR-0159）。
     error: str = ""
     pid: int | None = None
     started_at: str = ""
+    error_code: str = ""
+    error_params: dict = field(default_factory=dict)
+
+
+def _error_fields(code: str, params: dict | None = None) -> dict:
+    values = dict(params or {})
+    return {"error": interface_text.text(f"server:{code}", values), "error_code": code, "error_params": values}
+
+
+def _failure_fields(failure: "TunnelError | None", fallback: str = "") -> dict:
+    """进程记下的失败：有带 code 的异常就用它，否则只有原文。"""
+    if failure is not None:
+        return {"error": failure.message, "error_code": failure.code, "error_params": dict(failure.params)}
+    return {"error": fallback}
 
 
 def state_path(state_dir: Path) -> Path:
@@ -394,15 +410,17 @@ def _read_state(path: Path) -> TunnelSnapshot:
     except FileNotFoundError:
         return TunnelSnapshot()
     except (OSError, ValueError, TypeError):
-        return TunnelSnapshot(error="Tunnel 状态文件不可读")
+        return TunnelSnapshot(**_error_fields("labels.tunnel.stateUnreadable"))
     if not isinstance(data, dict):
-        return TunnelSnapshot(error="Tunnel 状态文件格式错误")
+        return TunnelSnapshot(**_error_fields("labels.tunnel.stateInvalid"))
     return TunnelSnapshot(
         state=str(data.get("state") or "stopped"),
         url=str(data.get("url") or ""),
         error=str(data.get("error") or ""),
         pid=int(data["pid"]) if isinstance(data.get("pid"), int) else None,
         started_at=str(data.get("started_at") or ""),
+        error_code=str(data.get("error_code") or ""),
+        error_params=data["error_params"] if isinstance(data.get("error_params"), dict) else {},
     )
 
 
@@ -410,9 +428,7 @@ def saved_snapshot(state_dir: Path) -> TunnelSnapshot:
     """读取状态文件；不把旧的 running 记录误报成当前进程仍在运行。"""
     saved = _read_state(state_path(state_dir))
     if saved.state in {"running", "starting"}:
-        return TunnelSnapshot(
-            state="stopped", error="上一次 Tunnel 没有正常收尾，运行结果未取得",
-        )
+        return TunnelSnapshot(state="stopped", **_error_fields("labels.tunnel.notSettled"))
     return saved
 
 
@@ -422,6 +438,8 @@ def _write_state(path: Path, snapshot: TunnelSnapshot) -> None:
         "state": snapshot.state,
         "url": snapshot.url,
         "error": snapshot.error,
+        "error_code": snapshot.error_code,
+        "error_params": snapshot.error_params,
         "pid": snapshot.pid,
         "started_at": snapshot.started_at,
     }
@@ -650,14 +668,14 @@ class TunnelManager:
         terminate_pid(pid)
         return pid
 
-    def _write_error(self, message: str) -> None:
-        self._error = message
+    def _write_error(self, failure: TunnelError) -> None:
+        self._error, self._failure = failure.message, failure
         # 启动失败后不留着命名隧道那个固定地址：它是计划里的值，不是一条在服务的入口。
         self._url = ""
         self._fixed_url = False
         self._secret = ""
         try:
-            _write_state(self.state_file, TunnelSnapshot(state="error", error=message))
+            _write_state(self.state_file, TunnelSnapshot(state="error", **_failure_fields(failure)))
         except OSError:
             # The process must still be stopped when the state directory is not writable.
             pass
@@ -668,14 +686,15 @@ class TunnelManager:
             if self._process_alive(process):
                 return TunnelSnapshot(
                     state="running" if self._url and self._pidfile_matches(process) else "starting",
-                    url=self._url, error=self._error, pid=self._process_pid(process),
-                    started_at=self._started_at,
+                    url=self._url, pid=self._process_pid(process), started_at=self._started_at,
+                    **_failure_fields(self._failure, self._error),
                 )
             if process is not None and not self._process_alive(process):
-                error = self._error or "cloudflared 已退出"
+                error = (_failure_fields(self._failure, self._error) if self._error
+                         else _error_fields("labels.tunnel.exited"))
                 return TunnelSnapshot(
-                    state="error", url=self._url, error=error,
-                    pid=self._process_pid(process), started_at=self._started_at,
+                    state="error", url=self._url, pid=self._process_pid(process), started_at=self._started_at,
+                    **error,
                 )
         # 服务重启后不复用旧进程；状态文件只用于给页面一个明确的 stopped/error 结论。
         return saved_snapshot(self.state_dir)
@@ -719,8 +738,8 @@ class TunnelManager:
                             self._failure = TunnelError("errors.tunnel.exitedBeforeEntry")
                             self._error = self._failure.message
                         snapshot = TunnelSnapshot(
-                            state="error", url=self._url, error=self._error,
-                            pid=self._process_pid(process), started_at=self._started_at,
+                            state="error", url=self._url, pid=self._process_pid(process),
+                            started_at=self._started_at, **_failure_fields(self._failure, self._error),
                         )
                     try:
                         _write_state(self.state_file, snapshot)
@@ -778,7 +797,7 @@ class TunnelManager:
                 self._process = None
                 self._reader = None
                 self._ready.set()
-                self._write_error(failure.message)
+                self._write_error(failure)
                 raise failure from exc
             assign_to_job(self._job, process)
             self._process = process
@@ -795,7 +814,7 @@ class TunnelManager:
                         handle.close()
                     except OSError:
                         pass
-                self._write_error(failure.message)
+                self._write_error(failure)
                 raise failure
             self._reader = threading.Thread(
                 target=self._read_output, args=(stream, process, handle, generation),
@@ -819,7 +838,7 @@ class TunnelManager:
                         handle.close()
                     except OSError:
                         pass
-                self._write_error(failure.message)
+                self._write_error(failure)
                 raise failure from exc
 
         deadline = self._clock() + self._wait_timeout
@@ -847,7 +866,7 @@ class TunnelManager:
             # 等待期间 `_error` 只会由读输出的线程写入，它同时留下了带 code 的 `_failure`。
             if not (error and failure is not None):
                 failure = TunnelError("errors.tunnel.noEntry" if not url else "errors.tunnel.notConnected")
-            self._write_error(failure.message)
+            self._write_error(failure)
             raise failure
         snapshot = TunnelSnapshot(
             state="running", url=url, pid=self._process_pid(process),
@@ -858,7 +877,7 @@ class TunnelManager:
         except OSError as exc:
             failure = TunnelError("errors.tunnel.stateWriteFailed", {"error": str(exc)})
             self.stop()
-            self._write_error(failure.message)
+            self._write_error(failure)
             raise failure from exc
         return snapshot
 

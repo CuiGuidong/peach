@@ -23,7 +23,8 @@ import httpx
 from bs4 import BeautifulSoup
 
 from .fanbox import FanboxContentError, normalize_fanbox_post
-from . import follow_providers
+from . import follow_providers, interface_text
+from .coded_text import Said
 from .follow import (
     DEFAULT_MAX_BYTES, FollowHistoryEnd, FollowSourceError, FollowSourceRateLimited,
     plain_text, stable_id,
@@ -66,6 +67,17 @@ _LINK_RE = re.compile(r"https?://[^\s\"'<>)\]]+", re.IGNORECASE)
 #: URL 看起来指向一张图片。不只 f95 在用：归档站推导旧行缩略图时也要这个判据。
 _IMAGE_URL_RE = re.compile(
     r"\.(?:avif|bmp|gif|jpe?g|png|webp)(?:$|[?#])", re.IGNORECASE)
+
+
+def _status_text_pattern() -> re.Pattern[str]:
+    """`<provider> 返回 HTTP <status>` 那句（按 zh-CN 渲染、已落盘的旧错误文本）的正则，由资源模板反推。"""
+    template = interface_text.template("server:errors.followSources.httpStatus")
+    head, _, rest = template.partition("{{provider}}")
+    middle, _, tail = rest.partition("{{status}}")
+    return re.compile(re.escape(head) + ".+" + re.escape(middle) + r"(\d{3})" + re.escape(tail), re.IGNORECASE)
+
+
+_HTTP_STATUS_TEXT = _status_text_pattern()
 
 
 def resource_links(text: str | None) -> list[str]:
@@ -387,7 +399,7 @@ class ParsedSource:
 
     @property
     def evidence(self) -> str:
-        return "链接直接指明"
+        return Said("labels.followSources.linkEvidence")
 
 
 #: 站点主机 → 来源键。粘进来的链接靠它认出属于哪个站，不再是一串 if/elif。
@@ -744,8 +756,7 @@ class _BaseConnector:
         声明的 `HISTORY_END_STATUSES`——放在 Web 层照站点名硬编码中文串比较的话，
         新增来源时没人会想到还要改那一处。
         """
-        matched = re.fullmatch(r".+ 返回 HTTP (\d{3})",
-                               str(message or "").strip(), re.IGNORECASE)
+        matched = _HTTP_STATUS_TEXT.fullmatch(str(message or "").strip())
         return bool(matched) and int(matched.group(1)) in cls.HISTORY_END_STATUSES
 
     def probe(self, url: str, *, headers: Mapping[str, str] | None = None) -> HttpResponse:
@@ -880,7 +891,7 @@ class IwaraConnector(_BaseConnector):
         url = f"https://www.iwara.tv/video/{video_id}"
         extra = {"media_kind": "video", **self._tag_metadata(row.get("tags"))}
         if row.get("embedUrl"):
-            extra["media_error"] = "Iwara 此条目使用外部播放器，请打开来源页面观看"
+            extra["media_error"] = Said("labels.followSources.iwaraExternalPlayer")
         return FollowCandidate(
             provider=self.provider, external_id=video_id,
             title=plain_text(str(row.get("title") or "")) or video_id,
@@ -2115,7 +2126,7 @@ class Rule34PahealConnector(_BaseConnector):
         return FollowCandidate(
             provider=self.provider,
             external_id=post_id,
-            title=self._tag_label(tags, tag) or f"Paheal 帖子 {post_id}",
+            title=self._tag_label(tags, tag) or Said("labels.followSources.postTitle", site="Paheal", post=post_id),
             url=urllib.parse.urljoin(
                 "https://rule34.paheal.net",
                 str(link.get("href") if link else f"/post/view/{post_id}")),
@@ -2427,7 +2438,7 @@ class F95ZoneConnector(_BaseConnector):
         slug = path.split("/threads/", 1)[1].rsplit(".", 1)[0] if "." in path else ""
         return ParsedSource("f95zone", thread,
                             f"https://f95zone.to/threads/{thread}/",
-                            _slug_label(slug) or f"线程 {thread}")
+                            _slug_label(slug) or Said("labels.followDiscovery.threadTitle", thread=thread))
 
     def fetch(self, ref: str, *, etag: str | None = None,
               last_modified: str | None = None, page: int = 0) -> SourceFetch:
@@ -2781,7 +2792,8 @@ class FanboxConnector(_BaseConnector):
         return FollowCandidate(
             provider=self.provider,
             external_id=post_id,
-            title=plain_text(str(post.get("title") or "")) or f"FANBOX 帖子 {post_id}",
+            title=plain_text(str(post.get("title") or "")) or Said("labels.followSources.postTitle", site="FANBOX",
+                                                                   post=post_id),
             url=f"https://{creator}.fanbox.cc/posts/{post_id}",
             thumb_url=str(cover.get("url")) if cover.get("url") else None,
             published_at=_iso_from_text(post.get("publishedDatetime")),
@@ -2943,7 +2955,7 @@ class SubscribeStarConnector(_BaseConnector):
             candidates.append(FollowCandidate(
                 provider=self.provider,
                 external_id=post_id,
-                title=title or f"SubscribeStar 帖子 {post_id}",
+                title=title or Said("labels.followSources.postTitle", site="SubscribeStar", post=post_id),
                 url=f"https://{host}/posts/{post_id}",
                 thumb_url=_visible_post_image(post.select_one(".post-uploads")),
                 published_at=published,
@@ -3043,7 +3055,7 @@ class PatreonConnector(_BaseConnector):
             candidates.append(FollowCandidate(
                 provider=self.provider,
                 external_id=post_id,
-                title=title or f"Patreon 帖子 {post_id}",
+                title=title or Said("labels.followSources.postTitle", site="Patreon", post=post_id),
                 url=urllib.parse.urljoin("https://www.patreon.com", href),
                 thumb_url=_visible_post_image(node),
                 published_at=_iso_from_relative(relative.group(0)) if relative else None,
@@ -3091,7 +3103,7 @@ class SimpCityConnector(_BaseConnector):
         slug = segment.rsplit(".", 1)[0] if "." in segment else ""
         return ParsedSource("simpcity", thread,
                             f"https://{cls.HOST}/threads/{thread}/",
-                            _slug_label(slug) or f"线程 {thread}")
+                            _slug_label(slug) or Said("labels.followDiscovery.threadTitle", thread=thread))
 
     def _cookie(self) -> str:
         if self.credential is None:
@@ -3303,7 +3315,7 @@ def parse_source_url(raw_url: str) -> ParsedSource:
     factory = CONNECTORS.get(provider)
     if factory is None:
         raise FollowSourceError("errors.followSources.hostUnknown",
-                                {"host": host, "hosts": "、".join(sorted(_URL_HOSTS))})
+                                {"host": host, "hosts": sorted(_URL_HOSTS)})
     return factory.parse_url(provider, parsed, host)
 
 

@@ -329,7 +329,7 @@ class HlsSegmentService:
                         size = temporary.stat().st_size if temporary.is_file() else None
                         detail = (
                             f"ffmpeg wrote no data: returncode={returncode} "
-                            f"bytes={'缺文件' if size is None else size} "
+                            f"bytes={'missing' if size is None else size} "
                             f"ss={start:.3f} to={start + duration:.3f}"
                         )
                     detail = f"{name}: {detail}"

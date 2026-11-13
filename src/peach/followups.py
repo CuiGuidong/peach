@@ -166,6 +166,15 @@ def _ahead(keys) -> tuple[str, ...]:
     return tuple(key for key in keys if key in REGISTRY and REGISTRY[key].jumps_queue)
 
 
+def _waiting(error: Exception) -> dict:
+    """让路或暂停的原因写成进度说明：带 code 的存 code 与参数，别的存原文；
+    都没有时不给，由 `suspend` 写「等待安装完成后继续」。"""
+    from .user_messages import UserFacingError
+    if isinstance(error, UserFacingError):
+        return {"label": error.message, "code": error.code, "params": dict(error.params)}
+    return {"label": str(error)} if str(error) else {}
+
+
 class FollowupRunner:
     """把库里排着的后继跑掉。每条通道一个线程，通道内串行。
 
@@ -301,10 +310,10 @@ class FollowupRunner:
             handle.finish('cancelled', summary={'cancelled_by_user': True})
             return
         except JobDeferred as error:
-            self.store.suspend(run.id, label=str(error), paused_for_update=False)
+            self.store.suspend(run.id, **_waiting(error), paused_for_update=False)
             return error
         except JobPaused as error:
-            self.store.suspend(run.id, label=str(error) or '等待安装完成后继续')
+            self.store.suspend(run.id, **_waiting(error))
             self._paused_for_update = True
             return
         except Exception as error:  # 后继失败只是它自己失败，父任务的结论不动。

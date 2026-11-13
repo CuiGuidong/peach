@@ -1049,7 +1049,7 @@ def cli_run(task_key: str, db_path: Path | str | None, *, label: str = "",
             candidate.query(limit=1)
             store = candidate
         except sqlite3.OperationalError:
-            print(f"[task-run] {db_path} 没有 task_run 表，本趟不登记进任务中心")
+            print(f"[task-run] {db_path} has no task_run table; this run is not recorded in the task center")
     if store is None:
         yield TaskRunHandle(TaskRunStore(Path(db_path or ":memory:"), enabled=False), None)
         return

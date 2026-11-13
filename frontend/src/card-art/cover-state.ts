@@ -1,12 +1,20 @@
 import { esc } from '@peach/legacy/core';
 import { gaugeHtml } from '@peach/legacy/ui';
+import { codedText } from '../core/server-text';
 import { t } from '../i18n';
 
 /** 还没有封面的新作，封面那一格的三档（服务端 `feed_followup.cover_states`）：正在取、排在队里、
  *  取过没取到或后台不会替它取。首页新作那一行与 JAV 页「新作」「发现」共用这一份字样。 */
 export type CoverState = 'fetching' | 'queued' | 'missing';
 
-export interface CoverStateItem { code?: string; cover_state?: CoverState | null; cover_reason?: string }
+export interface CoverStateItem {
+  code?: string; cover_state?: CoverState | null;
+  /** 原因的 zh-CN 原文；`cover_reason_code` 与参数有译文时显示译文。 */
+  cover_reason?: string; cover_reason_code?: string; cover_reason_params?: Record<string, unknown>;
+}
+
+/** 这一格说的原因，按当前界面语言。 */
+export const coverReason = (item: CoverStateItem): string => codedText(item, 'cover_reason');
 
 export const COVER_STATE_TITLE: Record<CoverState, string> = { fetching: t('catalog:feedCover.fetching'), queued: t('catalog:shared.queued'), missing: t('catalog:shared.noCover') };
 
@@ -25,7 +33,7 @@ export function coverStateHtml(item: CoverStateItem): string {
   const state = item.code ? item.cover_state : null;
   if (!state) return `<span class="nopic" data-feed-cover-state="missing">${t('catalog:shared.noCover')}</span>`;
   if (state === 'fetching') return coverFetchingHtml();
-  const reason = item.cover_reason || '';
+  const reason = coverReason(item);
   return `<span class="feedcoverstate" data-feed-cover-state="${state}"><span class="nopic">${COVER_STATE_TITLE[state]}</span>${
     reason ? `<span class="feedcoverreason" title="${esc(reason)}">${esc(reason)}</span>` : ''}<button type="button" class="geist-button" data-feed-action="prioritise" data-code="${esc(item.code!)}" aria-label="${t('catalog:feedCover.coverAction', { action: coverStateAction(state), code: esc(item.code!) })}">${coverStateAction(state)}</button></span>`;
 }

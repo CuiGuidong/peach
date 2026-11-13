@@ -33,6 +33,12 @@ def remember(connection: sqlite3.Connection, pack: dict, stamp: str) -> None:
                                               validation.canonical(pack.get("withdrawals", [])), stamp))
 
 
+def _said(name: str) -> str:
+    """撤销冲突的说明，写进 `seed-landing.csv`；按 zh-CN 资源渲染（`server:labels.seedCorrections.<名字>`）。"""
+    from . import interface_text
+    return interface_text.text(f"server:labels.seedCorrections.{name}")
+
+
 def _conflict(report: dict, withdrawal: dict, *, entity: str, detail: str, source: str = "") -> None:
     report["withdrawal_conflicts"].append({"id": withdrawal["id"], "kind": withdrawal["identity"]["kind"],
                                          "entity": entity, "field": withdrawal["field"], "source": source,
@@ -48,7 +54,7 @@ def withdraw(connection: sqlite3.Connection, pack: dict, report: dict) -> None:
         found = seed_pack.matches(connection, identity)
         if len(found) != 1:
             _conflict(report, withdrawal, entity=identity["name"],
-                      detail="身份锚点未唯一命中，保留断言" if found else "身份锚点未命中，未取得可撤销实体")
+                      detail=_said("anchorAmbiguous") if found else _said("anchorMissing"))
             continue
         entity_id = found.pop()
         field, expected = withdrawal["field"], withdrawal["value"]
@@ -80,7 +86,7 @@ def withdraw(connection: sqlite3.Connection, pack: dict, report: dict) -> None:
             actual["fields"]["tags"] = profile["tags"]
             wanted = {**expected, "fields": {**expected["fields"], "tags": expected["fields"].get("tags", [])}}
             if validation.fact_key(field, actual) != validation.fact_key(field, wanted):
-                _conflict(report, withdrawal, entity=identity["name"], detail="现有资料与精确撤销值不一致，保留断言", source=profile["source"])
+                _conflict(report, withdrawal, entity=identity["name"], detail=_said("profileDiffers"), source=profile["source"])
                 continue
             candidates, table = [(entity_id, profile["source"])], "performer_profile"
         else:
@@ -89,12 +95,12 @@ def withdraw(connection: sqlite3.Connection, pack: dict, report: dict) -> None:
             if row is None:
                 continue
             if validation.fact_key(field, {"name": row[1]}) != validation.fact_key(field, expected):
-                _conflict(report, withdrawal, entity=identity["name"], detail="现有归属与精确撤销值不一致，保留断言", source=row[2])
+                _conflict(report, withdrawal, entity=identity["name"], detail=_said("pointerDiffers"), source=row[2])
                 continue
             candidates = [(row[0], row[2])]
         for rowid, source in candidates:
             if not seed_pack._ours(source):
-                _conflict(report, withdrawal, entity=identity["name"], detail="断言归其他写入者所有，保留断言", source=source)
+                _conflict(report, withdrawal, entity=identity["name"], detail=_said("otherWriter"), source=source)
                 continue
             connection.execute(f"DELETE FROM {table} WHERE rowid=?", (rowid,))
             report["withdrawn"] += connection.execute("SELECT changes()").fetchone()[0]

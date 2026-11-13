@@ -1,10 +1,19 @@
 """资源搜索的只读 Web 契约；下载仍由云下载写入口接收。"""
+from .coded_text import parallel
 from .javdb_public import public_cache_scope
 from .magnet_chain import HIGH_QUALITY, rank_candidates, search as direct_search
 from .resource_search import Filters, Indexers, Search
 from .user_messages import UserValueError
 
 _SEARCH = Search()
+
+
+def _merged_error(direct: dict, indexed: dict) -> dict:
+    """两路都没给出结果时用后备索引器那一句报错，连同它的 code 一起交给界面；有结果时报错为空。"""
+    if direct["items"] or indexed.get("ok"):
+        return {"error": ""}
+    return {"error": indexed.get("error", ""),
+            **{key: indexed[key] for key in ("error_code", "error_params") if key in indexed}}
 
 
 def q_resource_search(contract, args) -> dict:
@@ -41,14 +50,15 @@ def q_resource_search(contract, args) -> dict:
             **row, "size_text": "", "files": "", "file_count": 0, "file_list": [],
             "promo_files": 0, "source_url": "", "watermark_check": "pending",
         })
+    warnings = direct["warnings"] + list(indexed.get("warnings") or ())
     return {
         "ok": bool(direct["items"]) or indexed.get("ok", False),
         "state": "ready" if direct["items"] or indexed.get("state") == "ready" else indexed.get("state", "error"),
         "items": rank_candidates(combined, filters.goal),
-        "warnings": direct["warnings"] + list(indexed.get("warnings") or ()),
-        "trace": direct["trace"] + (["索引器后备：已查询"] if indexed.get("state") != "unavailable" else []),
+        "warnings": warnings, **parallel("warning", warnings),
+        "trace": direct["trace"] + (["indexer fallback: queried"] if indexed.get("state") != "unavailable" else []),
         "next_sources": direct["next_sources"], "reference_only": direct["reference_only"],
-        "error": "" if direct["items"] or indexed.get("ok") else indexed.get("error", ""),
+        **_merged_error(direct, indexed),
         "retry_after": max((value for value in (direct.get('retry_after'), indexed.get('retry_after'))
                             if value is not None), default=None),
     }

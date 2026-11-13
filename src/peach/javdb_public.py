@@ -18,13 +18,15 @@ from urllib.parse import urlencode, urlsplit
 from PIL import Image
 
 from .catalog_rules import normalise_code_key, release_identity, same_release_code
+from .coded_text import Said, parallel
+from .content_words import CHINESE_SUBTITLE_BADGE, HD_BADGE
 from .http import HttpRequest, HttpxTransport, response_text
 from .scripting import HostLimiter
 from .user_agent import JAVDB_APP_USER_AGENT
 from .jav_cache import DAY, PublicSnapshots, cache_lifetime
 from .javdb_identity import RULE, cache_key as identity_cache_key, current_evidence
 from .metadata import RelayableError
-from .user_messages import UserValueError
+from .user_messages import UserValueError, nested_message
 
 WEB = "https://catembylegacy.fastcdn.dpdns.org"
 #: 接口主机按序使用（ADR-0148）。2026-11-05 实测三家对同一作品给出同一份详情，网页签名与 App 签名都收；
@@ -535,7 +537,7 @@ class PublicAPI:
                     return resolved
             if len(identities) != 1:
                 raise PublicIdentityAmbiguous("errors.javdbPublic.identityAmbiguous",
-                                              {"identities": '、'.join(identities)})
+                                              {"identities": list(identities)})
             movie_id = identities[0]
         elif isinstance(source_id, str) and re.fullmatch(r'[A-Za-z0-9]+', source_id):
             movie_id = source_id
@@ -678,7 +680,7 @@ class PublicAPI:
         except PublicSourceUnavailable as error:
             rows = []
             magnet_failed = True
-            warnings.append("磁链区资源未取得：" + str(error))
+            warnings.append(Said("labels.javdbPublic.magnetsUnfetched", error=nested_message(error)))
         for row in rows:
             try:
                 magnet = parse_magnet(str(row.get("hash") or ""))
@@ -686,7 +688,7 @@ class PublicAPI:
                 continue
             if magnet.info_hash in items:
                 continue
-            attributes = [label for key, label in (("cnsub", "中字"), ("hd", "高清")) if row.get(key)]
+            attributes = [label for key, label in (("cnsub", CHINESE_SUBTITLE_BADGE), ("hd", HD_BADGE)) if row.get(key)]
             items[magnet.info_hash] = {"id": "magnet:" + magnet.info_hash, "protocol": "magnet",
                 "info_hash": magnet.info_hash, "uri": magnet.uri, "name": row.get("name") or code,
                 "size": magnet_size(row.get("size")), "files": str(row.get("files_count") or ""),
@@ -703,12 +705,12 @@ class PublicAPI:
                 if len(reviews) < PAGE_SIZE:
                     break
             else:
-                warnings.append(f"已查询前 {review_pages} 页评论资源。")
+                warnings.append(Said("labels.javdbPublic.reviewPagesQueried", pages=review_pages))
         except PublicSourceUnavailable as error:
             comments_failed = True
-            warnings.append("评论资源未取得：" + str(error))
+            warnings.append(Said("labels.javdbPublic.commentsUnfetched", error=nested_message(error)))
         return {"items": merge_resources([*items.values(), *comments]), "warnings": warnings,
-                "source_url": source_url, "magnet_failed": magnet_failed, "comments_failed": comments_failed}
+                **parallel("warning", warnings), "source_url": source_url, "magnet_failed": magnet_failed, "comments_failed": comments_failed}
 
     def official_preview(self, code, fetch, *, released=None, refresh=False, provider='prestige', source_id=None):
         """预告按来源独立保存；DMM、JavDB 和未提供的预告每天可再检查。"""

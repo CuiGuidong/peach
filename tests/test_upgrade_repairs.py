@@ -1203,8 +1203,8 @@ class UpgradeRepairTests(unittest.TestCase):
         self.service.prepare()
         planned, result = self.revert_garbled_people(upgrade_repairs.REVISION)
         # 实体行、它的别名与编号、另一位被摘的编号、两条关联、一个标签。
-        self.assertEqual(auto_landing_revert.counts(planned)['乱码人物'], 7)
-        self.assertEqual(result['插回乱码人物行'], 7)
+        self.assertEqual(auto_landing_revert.counts(planned)['garbled'], 7)
+        self.assertEqual(result['restored_garbled_rows'], 7)
         self.assertEqual((self.performer_links(), self.asset_tags()), (links, tags))
         with self.database.read_connection() as connection:
             self.assertEqual([tuple(row) for row in connection.execute(
@@ -1213,7 +1213,7 @@ class UpgradeRepairTests(unittest.TestCase):
                              entity)
             self.assertEqual(connection.execute('PRAGMA foreign_key_check').fetchall(), [])
         planned, result = self.revert_garbled_people()
-        self.assertEqual((planned['garbled'], result['插回乱码人物行']), ([], 0))
+        self.assertEqual((planned['garbled'], result['restored_garbled_rows']), ([], 0))
 
     def test_garbled_people_revert_refuses_when_the_entity_name_is_taken(self):
         with patch.object(upgrade_repairs, 'REVISION', f'{upgrade_repairs.CATALOG_REVISION}:text-3'):
@@ -1844,7 +1844,7 @@ class UpgradeRepairTests(unittest.TestCase):
             planned = auto_landing_revert.plan(connection, upgrade_repairs.JAVDB_RECORDS_SOURCE,
                                                logo_root=self.root / 'logos', cover_root=self.root / 'covers')
             self.assertEqual(len(planned['javdb_records']), 4)
-            self.assertEqual(auto_landing_revert.apply(connection, planned)['还原 JavDB 类型与订阅'], 4)
+            self.assertEqual(auto_landing_revert.apply(connection, planned)['restored_javdb_records'], 4)
         self.assertEqual(pages(1, '森日向子'), ['https://javdb.com/actors/bkxd', 'https://javdb.com/actors/MmbDR'])
         self.service.prepare()
         with self.database.read_connection() as connection:
@@ -1888,7 +1888,7 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.database.write_transaction() as connection:
             planned = auto_landing_revert.plan(connection, upgrade_repairs.RESOLUTION_TAGS_SOURCE,
                                                logo_root=self.root / 'logos', cover_root=self.root / 'covers')
-            self.assertEqual(auto_landing_revert.apply(connection, planned)['插回来源分辨率标签'], 4)
+            self.assertEqual(auto_landing_revert.apply(connection, planned)['restored_resolution_tags'], 4)
         self.assertEqual(tagged(), before)
         self.service.prepare()
         self.assertEqual(tagged(), before)

@@ -27,19 +27,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlsplit
 
-from . import studio_icons, studio_sites
+from . import interface_text, studio_icons, studio_sites
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
 from .task_outcomes import is_outcome, outcome_parts, said
-from .task_runs import item_progress
+from .task_runs import item_progress, task_label
 
 #: 这类后继在任务中心的身份，也是活动页上那一行的名字来源。
 TASK_KEY = "studio-mark"
-TASK_LABEL = "厂牌官网与标识补全"
+TASK_LABEL = task_label(TASK_KEY)
 
 #: 这条后继写下的一切都带这个归属串，撤回按它认。
 SOURCE = "auto:studio-mark"
 
-#: 官网登记成哪一种链接、链接上写什么字，与人工复核装进去的那批相同。
+#: 官网登记成哪一种链接、链接上写什么字，与人工复核装进去的那批相同。链接名写进账本，是数据。
 OFFICIAL, OFFICIAL_LABEL = "official", "官方网站"
 
 #: 取候选地址的间隔与超时，与命令行那一趟的缺省相同。
@@ -218,7 +218,9 @@ def _land_site(contract, entity_id: int, name: str, aliases, batch: str) -> dict
     url = str(row["final_url"] or row["candidate_url"])
     now = datetime.now(timezone.utc).isoformat()
     metadata = {"source": SOURCE, "batch": batch, "verdict": verdict, "installed_at": now,
-                "evidence": f"{row['note']}；标题「{row['title']}」", "sha256": row["sha256"]}
+                "evidence": interface_text.text("server:labels.studioFollowup.evidence",
+                                                {"note": row["note"], "title": row["title"]}),
+                "sha256": row["sha256"]}
     with contract.database.write_transaction() as connection:
         connection.execute(
             "INSERT OR IGNORE INTO entity_link"
