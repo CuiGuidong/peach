@@ -90,7 +90,7 @@ Peach 的界面只有中文。前端源码里写死的中文文案节点约 7,00
 
 | 门槛 | 拦什么 | 位置 |
 | --- | --- | --- |
-| 前端不写死中文 | `frontend/src` 里带汉字或中文全角标点（、。：；（）「」等）的字符串、模板和 JSX 文字，同一行或上一行没有写明理由的 `i18n-exempt` 注释 | `frontend/test/i18n.test.ts`，计数在 `frontend/scripts/i18n-literals.mjs` |
+| 前端不写死中文 | `frontend/src` 里带汉字或中文全角标点（、。：；（）「」等）的字符串、模板和 JSX 文字，同一行或上一行没有写明理由的 `i18n-exempt` 注释 | `frontend/test/i18n.test.ts`，计数在 `frontend/scripts/i18n-literals.ts` |
 | 日期按界面语言 | 日期和时间格式化不传区域、按浏览器语言出格式 | `frontend/test/i18n.test.ts` |
 | 资源一致 | 英文和 `zh-CN` 的键不一一对应；插值占位不一致；入口没登记某个命名空间 | 同上 |
 | 禁用写法 | 中文含某个术语时，英文用了它的禁用写法 | 同上，读 TBX |
