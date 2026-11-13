@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f08b5fba-124e-481e-bcdb-435b31347158", e._sentryDebugIdIdentifier = "sentry-dbid-f08b5fba-124e-481e-bcdb-435b31347158");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141", e._sentryDebugIdIdentifier = "sentry-dbid-f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -1824,7 +1824,6 @@ var He = {
 	feedCover: {
 		coverAction: "{{action}}: {{code}} cover",
 		fetching: "Fetching",
-		fetchingCover: "Fetching cover",
 		prioritize: "Prioritize"
 	},
 	folderRule: {
@@ -1874,7 +1873,6 @@ var He = {
 		hostMissing: "Immersive mode isn't connected to a host (configureImmerse)",
 		loading: "Loading",
 		loadingContent: "Loading content",
-		loadingMedia: "Loading media",
 		logClimax: "Log a climax",
 		markDisliked: "Dislike",
 		markWatched: "Mark as watched",
@@ -3591,7 +3589,7 @@ var He = {
 		notChecked: "Not checked",
 		notInstalled: "Not installed",
 		rebuildNotFinished: "Rebuild didn't finish",
-		rebuilding: "Rebuilding runtime…",
+		rebuilding: "Rebuilding runtime",
 		rebuilt: "amane bridge rebuilt",
 		reinstall: "Reinstall",
 		runtime: "Runtime",
@@ -3732,7 +3730,6 @@ var He = {
 		loadingStatus: "Loading connection check status",
 		messageSuffix: ". {{message}}",
 		notFinished: "Check didn't finish",
-		progress: "Connection check progress",
 		reachableCount_one: "{{count, number}} reachable",
 		reachableCount_other: "{{count, number}} reachable",
 		reachableTarget: "{{target}}: reachable",
@@ -3881,7 +3878,7 @@ var He = {
 		codePlaceholder: "Enter a code from your collection, e.g. ABW-232",
 		fetchCover: "Fetch cover",
 		fetched: "Cover fetched",
-		fetching: "Fetching cover…",
+		fetching: "Fetching cover",
 		loadingStatus: "Loading cover task status",
 		notFound: "Cover not found",
 		title: "HD cover"
@@ -3940,11 +3937,8 @@ var He = {
 		historySources_one: "Fetching history: {{checked}}/{{count, number}} source completed",
 		historySources_other: "Fetching history: {{checked}}/{{count, number}} sources completed",
 		preparing: "Preparing checks",
-		processed: "Processed {{done}} / {{total}}",
-		progressLabel: "Task progress",
 		reconnecting: "Can't read progress right now. Reconnecting…",
 		stateExpired: "Task state expired. Start the task again.",
-		status: "Task status",
 		titledProgress: "{{title}}: {{checked}}/{{total}} completed",
 		updateSources_one: "Checking for updates: {{checked}}/{{count, number}} source completed",
 		updateSources_other: "Checking for updates: {{checked}}/{{count, number}} sources completed"
@@ -4617,7 +4611,6 @@ var He = {
 		taskDetailsCount_other: "Task details · {{count, number}} items",
 		taskErrorDetails: "{{task}} error details",
 		taskList: "Task list",
-		taskProgress: "{{task}} progress",
 		taskTechnicalDetails: "{{task}} technical details",
 		technicalDetails: "Technical details",
 		took: "Took {{elapsed}}"
@@ -6018,7 +6011,7 @@ var He = {
 		autoCheckHelp: "Sources updated in the last 7 days are checked at this interval; quieter sources are checked less often, down to once a day.",
 		autoCheckInterval: "Auto-check interval",
 		avatarRefresh: "Every 3 months",
-		checking: "Checking sources for updates…",
+		checking: "Checking sources for updates",
 		consecutiveFailures_one: "Failed {{count, number}} time in a row",
 		consecutiveFailures_other: "Failed {{count, number}} times in a row",
 		everyHours_one: "Every hour",
@@ -6027,7 +6020,7 @@ var He = {
 		everyMinutes_other: "Every {{count, number}} minutes",
 		faviconRefresh: "Yearly",
 		feedOff: "Off",
-		fetchingFeeds: "Fetching subscriptions…",
+		fetchingFeeds: "Fetching subscriptions",
 		initialRangeSaved: "Initial fetch range saved",
 		invalidInterval: "Enter a whole number from 15 to 10080 (minutes).",
 		lastCheckFailed: "Last auto-check failed",
@@ -6620,7 +6613,7 @@ var He = {
 		running: "Running",
 		saveSettings: "Save settings",
 		savedLeaveBlank: "Saved; leave blank to keep",
-		saving: "Saving…",
+		saving: "Saving",
 		settingsSaved: "Settings saved",
 		signIn: "Sign in",
 		signOut: "Sign out",
@@ -6762,12 +6755,12 @@ var He = {
 		cleanSize: "Clean up {{size}}",
 		cleaningCategory: "Cleaning up {{category}}…",
 		diskFreeOfTotal: "{{free}} free of {{total}}",
-		measureProgress: "Measuring progress",
+		measureProgress: "Measuring progress (estimated from the last count)",
 		measured: "Disk usage measured",
 		measuredAt: "Measured {{time}}",
 		measuringLabel: "Measuring disk usage",
-		measuringOfLast_one: "Counted {{files}} file · {{size}}, of {{expected, number}} last time",
-		measuringOfLast_other: "Counted {{files}} files · {{size}}, of {{expected, number}} last time",
+		measuringOfLast_one: "Counted {{files}} file · {{size}}, progress estimated from {{expected, number}} last time",
+		measuringOfLast_other: "Counted {{files}} files · {{size}}, progress estimated from {{expected, number}} last time",
 		measuringStatus: "Measuring disk usage…",
 		measuring_one: "Counted {{files}} file · {{size}}",
 		measuring_other: "Counted {{files}} files · {{size}}",
@@ -6796,7 +6789,7 @@ var He = {
 	},
 	timelineThumbnails: {
 		coarse: "Every 30 seconds",
-		generating: "Generating thumbnails.",
+		generating: "Generating thumbnails",
 		interval: "Thumbnail interval",
 		off: "Off",
 		precise: "Every 10 seconds",
@@ -7877,6 +7870,8 @@ var He = {
 		restartReady: "An update is ready. Restart to install it.",
 		updating: "Updating to Peach {{version}} · {{step}} {{percent}}%",
 		updatingUnversioned: "Updating Peach · {{step}} {{percent}}%",
+		updatingStep: "Updating to Peach {{version}} · {{step}}",
+		updatingStepUnversioned: "Updating Peach · {{step}}",
 		viewProgress: "View progress",
 		viewUpdate: "View update"
 	},
@@ -8021,14 +8016,6 @@ var He = {
 		semicolonSeparator: "; ",
 		sentenceGap: " ",
 		withNote: "{{text}} ({{note}})"
-	},
-	gauge: {
-		almostFull: "Almost full",
-		labelWithStatus: "{{label}}: {{status}}",
-		plentyOfSpace: "Plenty of space",
-		runningLow: "Space running low",
-		taskProgress: "Task progress",
-		unavailable: "{{label}}: Not found"
 	},
 	glowPicker: { title: "Glow colors" },
 	ingestToast: {
@@ -8905,7 +8892,6 @@ var He = {
 	feedCover: {
 		coverAction: "{{action}} {{code}} 的封面",
 		fetching: "抓取中",
-		fetchingCover: "正在取封面",
 		prioritize: "优先处理"
 	},
 	folderRule: {
@@ -8951,7 +8937,6 @@ var He = {
 		hostMissing: "沉浸模式还没有接上宿主（configureImmerse）",
 		loading: "加载中",
 		loadingContent: "加载内容",
-		loadingMedia: "媒体加载中",
 		logClimax: "记一次高潮",
 		markDisliked: "标为不喜欢",
 		markWatched: "标为看过",
@@ -10615,7 +10600,6 @@ var He = {
 		loadingStatus: "正在读取连接检查状态",
 		messageSuffix: "。{{message}}",
 		notFinished: "检查未完成",
-		progress: "连接检查进度",
 		reachableCount: "可连接的 {{count, number}} 项",
 		reachableTarget: "{{target}}：可连接",
 		seconds: "{{seconds}} 秒",
@@ -10810,11 +10794,8 @@ var He = {
 		checkFailed: "检查失败",
 		historySources: "抓取历史：已完成 {{checked}}/{{count, number}} 个来源",
 		preparing: "正在准备检查任务",
-		processed: "已处理 {{done}} / {{total}}",
-		progressLabel: "任务进度",
 		reconnecting: "暂时无法读取进度，正在重新连接…",
 		stateExpired: "任务状态已失效，请重新发起任务",
-		status: "任务状态",
 		titledProgress: "{{title}}：已完成 {{checked}}/{{total}}",
 		updateSources: "检查更新：已完成 {{checked}}/{{count, number}} 个来源"
 	},
@@ -11422,7 +11403,6 @@ var He = {
 		taskDetailsCount: "任务明细 · {{count, number}} 项",
 		taskErrorDetails: "{{task}}错误详情",
 		taskList: "任务列表",
-		taskProgress: "{{task}}进度",
 		taskTechnicalDetails: "{{task}}技术详情",
 		technicalDetails: "技术详情",
 		took: "用时 {{elapsed}}"
@@ -12789,13 +12769,13 @@ var He = {
 		autoCheckHelp: "近 7 天有更新的来源按这个间隔检查，久未更新的逐级放慢，最长一天一次",
 		autoCheckInterval: "自动检查间隔",
 		avatarRefresh: "每 3 个月",
-		checking: "正在检查来源更新…",
+		checking: "正在检查来源更新",
 		consecutiveFailures: "已连续失败 {{count, number}} 次",
 		everyHours: "每 {{count, number}} 小时",
 		everyMinutes: "每 {{count, number}} 分钟",
 		faviconRefresh: "每年",
 		feedOff: "已关闭",
-		fetchingFeeds: "正在拉取订阅源…",
+		fetchingFeeds: "正在拉取订阅源",
 		initialRangeSaved: "已保存首次采集范围",
 		invalidInterval: "请输入 15–10080 的整数（分钟）。",
 		lastCheckFailed: "上次自动检查失败",
@@ -13380,7 +13360,7 @@ var He = {
 		running: "运行中",
 		saveSettings: "保存配置",
 		savedLeaveBlank: "已保存，留空不改",
-		saving: "正在保存…",
+		saving: "正在保存",
 		settingsSaved: "已保存配置",
 		signIn: "登录",
 		signOut: "登出",
@@ -13521,12 +13501,12 @@ var He = {
 		cleanSize: "清理 {{size}}",
 		cleaningCategory: "正在清理{{category}}…",
 		diskFreeOfTotal: "{{free}} 可用，共 {{total}}",
-		measureProgress: "统计进度",
+		measureProgress: "统计进度（按上次文件数估算）",
 		measured: "已统计占用空间",
 		measuredAt: "统计于 {{time}}",
 		measuring: "已统计 {{files}} 个文件 · {{size}}",
 		measuringLabel: "正在统计占用空间",
-		measuringOfLast: "已统计 {{files}} 个文件 · {{size}}，上次共 {{expected, number}} 个",
+		measuringOfLast: "已统计 {{files}} 个文件 · {{size}}，按上次的 {{expected, number}} 个估算进度",
 		measuringStatus: "正在统计占用空间…",
 		moveConfirm: "将 {{size}} 数据从 {{from}} 移到 {{to}}。迁移期间 Peach 会退出，完成后自动重新打开；原位置的数据在新位置核对无误后删除。",
 		moveDataDirectory: "迁移数据目录",
@@ -13552,7 +13532,7 @@ var He = {
 	},
 	timelineThumbnails: {
 		coarse: "每 30 秒一张",
-		generating: "正在采集。",
+		generating: "正在采集",
 		interval: "缩略图采集间隔",
 		off: "关闭",
 		precise: "每 10 秒一张",
@@ -14612,6 +14592,8 @@ var He = {
 		restartReady: "更新已准备好，可重启安装。",
 		updating: "正在更新 Peach {{version}} · {{step}} {{percent}}%",
 		updatingUnversioned: "正在更新 Peach · {{step}} {{percent}}%",
+		updatingStep: "正在更新 Peach {{version}} · {{step}}",
+		updatingStepUnversioned: "正在更新 Peach · {{step}}",
 		viewProgress: "查看进度",
 		viewUpdate: "查看更新"
 	},
@@ -14749,14 +14731,6 @@ var He = {
 		semicolonSeparator: "；",
 		sentenceGap: "",
 		withNote: "{{text}}（{{note}}）"
-	},
-	gauge: {
-		almostFull: "空间即将用满",
-		labelWithStatus: "{{label}}：{{status}}",
-		plentyOfSpace: "空间充足",
-		runningLow: "空间使用偏高",
-		taskProgress: "任务完成率",
-		unavailable: "{{label}}：未取得"
 	},
 	glowPicker: { title: "配色" },
 	ingestToast: {
@@ -38142,4 +38116,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=f08b5fba-124e-481e-bcdb-435b31347158
+//# debugId=f6c3ec05-89ac-4a9c-8f09-00d3f3fa3141

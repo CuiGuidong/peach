@@ -648,10 +648,13 @@ export function mountPlayerMediaSession(player: VjsPlayer, item: PlayerItem): vo
 }
 
 /** 加载提示复用 YouTube e937390a 的 `FsY`：四段嵌套元素与四段动画。 */
+/** 播放器缓冲那一圈（`player.css` 的 `vjs-peach-spinner-*`）。沉浸页等媒体加载用同一份，媒体等待只有这一种转圈。 */
+export const PLAYER_SPINNER_HTML = '<span class="vjs-peach-spinner-container"><span class="vjs-peach-spinner-rotator"><span class="vjs-peach-spinner-left"><span class="vjs-peach-spinner-circle"></span></span><span class="vjs-peach-spinner-right"><span class="vjs-peach-spinner-circle"></span></span></span></span>';
+
 export function mountPlayerSpinner(player: VjsPlayer): void {
   const spinner = player.el().querySelector('.vjs-loading-spinner');
   if (!spinner || spinner.querySelector('.vjs-peach-spinner-container')) return;
-  spinner.innerHTML = '<span class="vjs-peach-spinner-container"><span class="vjs-peach-spinner-rotator"><span class="vjs-peach-spinner-left"><span class="vjs-peach-spinner-circle"></span></span><span class="vjs-peach-spinner-right"><span class="vjs-peach-spinner-circle"></span></span></span></span>';
+  spinner.innerHTML = PLAYER_SPINNER_HTML;
 }
 
 /** 本机资产的外挂字幕。服务端已经把 srt/ass/ssa 换成 WebVTT，这里只把它挂成 text track。

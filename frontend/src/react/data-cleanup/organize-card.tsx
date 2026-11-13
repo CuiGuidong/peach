@@ -19,6 +19,7 @@ import { useBackgroundJob } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { queryClient } from '../query';
 import { SourceMark } from '../settings/section';
 import { FolderSearchIcon } from '../settings/folder-rows';
@@ -183,7 +184,7 @@ export function OrganizeCard(
   const outcome = job.outcome;
   if (current?.status === 'running') {
     const line = jobText(current) || stageText(current) || t('cleanup:organize.running');
-    state = <TaskProgress embedded label={line} value={Math.min(current.checked || 0, current.total || 0)} total={current.total} />;
+    state = <TaskProgress embedded kind={activityKind('organize', current.stage_code)} label={line} value={Math.min(current.checked || 0, current.total || 0)} total={current.total} />;
   } else if (outcome?.status === 'failed') {
     state = <Note tone="error" title={t('cleanup:organize.incomplete')}>{jobText(outcome, 'error') || t('cleanup:shared.checkTaskLogFiles')}</Note>;
   } else if (outcome) {
@@ -192,7 +193,7 @@ export function OrganizeCard(
   } else if (job.start.isError) {
     state = <Note tone="error" title={t('cleanup:organize.failed')}>{errorMessage(job.start.error)}</Note>;
   } else if (preview.isPending) {
-    state = <TaskProgress embedded label={t('cleanup:organize.checkingPlan')} />;
+    state = <TaskProgress embedded kind={activityKind('organize', 'organize.checkingPlan')} label={t('cleanup:organize.checkingPlan')} />;
   } else if (preview.isError && previewMatches) {
     state = <Note tone="error" title={t('cleanup:organize.previewFailed')}>{errorMessage(preview.error)}</Note>;
   } else if (plan) {

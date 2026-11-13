@@ -314,6 +314,13 @@ export function devicesSkeleton(): string {
     on(shape?.manageable) ? { status: t('settings:signedInDevices.passwordChangeNotice') } : {});
 }
 
+/** 账本备份：分区自己首次取数时画这一份。备份行数随机器变、首次读回前不知道，按三行画。 */
+export function ledgerBackupsSkeleton(): string {
+  const rows = Array.from({ length: 3 }, () => controlRow(text('9em'), text('14em'), button(t('settings:databaseBackups.restore'), 'secondary'))).join('');
+  return section(t('settings:databaseBackups.title'), stack(help(t('settings:databaseBackups.help')))
+    + `<div class="border-t border-separator-border">${rows}</div>`, button(t('settings:databaseBackups.backUpNow')), { status: text('5em') });
+}
+
 const network = () => {
   const shape = rememberedShape('network');
   /* 没有记录时按服务端的默认状态画：没有访问设置文件就是 `legacy`（系统生成的口令）。 */

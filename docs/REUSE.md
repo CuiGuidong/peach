@@ -413,6 +413,16 @@ Docker 一键更新复用 [nicholas-fedor/watchtower](https://github.com/nichola
 
 Open Claude UI（MIT）只用于[设计准则](DESIGN_GUIDELINES.md)与[源码取舍](reference-snapshots/open-claude-ui.md)，原文锁定在 `reference-sources.json`。采用减少重复外框、语义排版、容器适配、输入法保护、保持阅读位置、可恢复手势、锚点缩放与真实反馈等原则；组件复用现有 BoardUI、React Aria、Motion、Swiper 和滚动入口。示例任务终态、全局样式、宿主、语音与专有协议不进入运行时。源码审阅完成，浏览器 POC 未取得；无新增依赖、生产设置或 ledger 写入。
 
+## 加载态语义动画
+
+不定时长的后台推进按做的事画 [loading.dev](https://github.com/jakubkrehel/loading) 的五种动画：排队与等外部用 Clock，搜索、检查与探测用 Radar，传输用 LinearDots（兼做语义不明的通用后台推进），写入入库用 Gather，整理与分析用 Blocks。上游是 npm 包 `loading-dev` 0.3.6（MIT，revision `755235bf7eea3dfb05ec4c3661088e3521ee2d75`），与用户脚本 peach-jav 用同一 revision、同一次移植；许可原文在 `web/vendor/loading-dev-LICENSE.txt`，上游原文锁在 `reference-sources.json` 的 `loading-dev-*` 几条。不引入 npm 包：上游是带运行时 `<style>` 注入的 React 组件，Peach 的遗留层与 React 要共用一份画法。
+
+移植在 `frontend/src/ui-kit/activity-motion.ts`（`activityMotionHtml`、`activityStatusHtml`）与同名 `.css`，React 的 `ActivityMotion`、`ActivityStatus`、`TaskProgress` 用 `dangerouslySetInnerHTML` 插同一份 HTML。保留 SVG 路径、形状、周期、关键帧与错相公式；错相展开成 `:nth-child()` 的固定 `animation-delay`，不写内联样式；`--ld-size` 不取上游的 20px，行内是 `--icon-inline`，区块级加倍，封面格按状态字与网格密度取档；颜色取 `--color-accent-500`。动画写在元素上，全局减少动效规则停在静帧，封面网格里排队的卡片用 `data-still` 静帧。任务类型与后端阶段 code 到动画的对照只在 `frontend/src/activity-kinds.ts` 一张表。
+
+上游文件的 SHA-256（GitHub 原始字节，LF）：`src/clock.tsx` `426a6472a3613de5c0090702abb14f95fe657c4d944ea5afb51db6a614fdcc10`、`src/radar.tsx` `850e66cc27b027cd01780d5bac441bc9b11da2e35f60dbef012db5f1af877bb4`、`src/linear-dots.tsx` `e5ec4ad0e5546000dbad7760f01db5a6f759d3510659540ec541a53e70471bbe`、`src/gather.tsx` `0e7aa35fcce361b44553a5610b79825500f597e3efd2e125064e7361c5f9e87c`、`src/blocks.tsx` `af0ab5d80e93071ed7ec6a5843f1aa7da61843d93c03293c2a26f26fde18fb07`、`src/motion.ts` `8d0179ea3f0a651cb1604f71ddc19b3146735edfae9e7f663e7a3920a4ef2e44`、`LICENSE.md` `ed1dfe988fc40511b4845ccd9050a143a2002fee3bedc8064c47fa342b5d8d4f`。用户脚本仓库 `assets/loading-dev-source.json` 记的是 CRLF 签出后的摘要，同一份文件换行不同，两边的值对不上不代表内容不同。
+
+有真实分母的进度不用这些动画：整行宽的位置用 `Progress`，图标大小的位置（状态行前导、更新横幅、扫描采集通知卡）用 `ProgressRing`；用户刚点下的动作用按钮或输入框里的 Spinner。「换一批」描线、资源同步「检查文件」与链接检查键的忙态动画是按钮自带的例外。沉浸页的媒体加载用播放器缓冲同一枚转圈（`PLAYER_SPINNER_HTML`）。
+
 ## 上游应用功能
 
 amane `0.20.0 / cc42cee6ecf290cf05af1caa347d2dc2d5aeffcd`（GPL-3.0）提供实体收藏、
@@ -634,8 +644,8 @@ OneJAV、Free JAV Torrent 只给种子链接。这类条目经索引器同源的
 - React 设置分区用 `frontend/src/react/settings/section.tsx`：`Section` 给标题、卡片与表单外壳，`Footer`、`Note`、`ErrorText`、`FactList`、`Progress`、`Disclosure` 补齐 BoardUI 注册表没有的部分。`Rows` 与 `FactList` 标记共享行组，分隔线由行与相邻组边界共同绘制，左侧内缩、右侧通到卡片边缘；设置弹层遵循同一规则，底部操作栏使用通栏线。`service-preferences.tsx` 组合缩略图与订阅采集参数，继续使用已有设置、关注计划和缩略图 API。`use-action.ts` 的 `useAction` 管提交互斥、卸载取消与原位错误，`busy-props.ts` 的 `busyProps` 写忙态；媒体目录行（`folder-rows.tsx`）与密码加确认两格（`password-pair.tsx`）由配置页与首启页共用；密码校验与服务端回执归各分区，不自动重试写入。口味读取、封面采集、amane 桥重建、关注检查与查找共用 `frontend/src/react/background-job.ts` 的 `useBackgroundJob`。
 - 增量列表用 `catalog-grid/catalog-grid-page.tsx` 的 `LoadMore`：请求互斥、失败留原位重试、卸载即停；目录、资料页照片墙与关注页注入读取和可用条件。首页页码在读取成功后推进，照片沿用随机种子，关注合并分组；显式页码用 `pagination.ts`。
 - 在图上框一块由 `frontend/src/crop-geometry.ts`（纯算术）加 `react/crop/crop-frame.tsx`（四块压暗、一个可拖可缩的框）承担，换头像与裁封面共用；坐标一律是源图像素、右下开区间。不引 `react-image-crop`：换到的只有把手样式，代价是一条依赖和它自己的坐标约定。裁封面通过 Application 的媒体域动作连接 React 裁剪组件（ADR-0031）。
-- 后台任务用 `watchJob`、`followJobProgress` 默认面板与 `jobActivityHtml` 的真实计数／未知总量显示，关注、来源扫描、链接检查和扫描采集共用；业务保留启动、终态回执和结果面板，不新增轮询循环。任务本体是 `jobs.BackgroundJob`，不加队列或调度依赖；浏览器由 `frontend/src/jobs.ts` 跟进，刷新后经读接口恢复。可恢复的采集任务由本机恢复记录重放，其他任务只保留终态；`BackgroundJob.update(job_id)` 报阶段与计数，查询不重新执行任务。
-- 遗留层反馈控件 `noteHtml`、`progressHtml`、`gaugeHtml`、`projectBannerHtml` 与 `wireContextCard` 集中在共享 UI 模块；信息卡片用原生 Popover 与现有锚定菜单定位，不加浮层依赖。证据见 `reference-snapshots/vercel-geist-note-progress-switch-analytics.md`。
+- 后台任务用 `watchJob` 跟进状态；进度提示全站一套 `TaskProgress`（说明 + 横条或语义动画 + 失败时 `Note`），关注页的 `followJobProgress` 只给出要画的内容，由页面用同一组件画；业务保留启动、终态回执和结果面板，不新增轮询循环。任务本体是 `jobs.BackgroundJob`，不加队列或调度依赖；浏览器由 `frontend/src/jobs.ts` 跟进，刷新后经读接口恢复。可恢复的采集任务由本机恢复记录重放，其他任务只保留终态；`BackgroundJob.update(job_id)` 报阶段与计数，查询不重新执行任务。
+- 遗留层反馈控件 `noteHtml`、`activityStatusHtml` 与 `wireContextCard` 集中在共享 UI 模块；信息卡片用原生 Popover 与现有锚定菜单定位，不加浮层依赖。证据见 `reference-snapshots/vercel-geist-note-progress-switch-analytics.md`。
 - 资源核对复用 `web_resource_sync` 的目录枚举、离线跳过、写前逐条复验与 BackgroundJob，覆盖 local、115、PikPak；失效记录的永久删除复用 `web_batch.purge_assets`，文件仍在盘上的行进 `blocked`。确认弹层复用 Fieldset、Note、Toast 与 confirmModal：失败留在弹层，危险动作初始聚焦取消，忙态阻止重入与关闭；不引入另一套对话框库。
 - 新界面走 BoardUI／React（ADR-0031），遗留层共用的 Geist 控件随页面迁走，不引入 Geist React 运行时。覆盖式滚动条 `attachOverlayScrollbar`（滑块不占宽度）、Collapse 的 `wireCollapse`／`setCollapseOpen`、Geist Select 的 `selectFieldHtml`／`wireSelectField`、来源站标 `MEDIA_SOURCE_ICONS`，以及模板、骨架、确认框等其余共用控件的唯一实现在 `frontend/src/ui-kit/`，Application 与 React 页面直接引用共享源码，随 `/dist/peach-app.js` 发出一份；独立页面包只打入用到的控件；覆盖式滚动条与 `.ui-geist-scroller`（只给两端渐隐）可叠加；整页异步重绘复用导航代际隔离。
 - 局部等待复用 `skeleton-sheen`：绝对定位的微光由占位元素自己的 `relative` 或 `absolute` 定位，并在该元素内裁切。JAV 评论占位在折叠正文内预留结构，首次展开按占位高度测量；请求仍按展开触发，收起时不标记等待态。

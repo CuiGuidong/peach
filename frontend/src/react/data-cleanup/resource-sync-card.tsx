@@ -19,6 +19,7 @@ import { Note } from '../components/note';
 import { ConnectionStatus } from '../components/connection-status';
 import { StatusLabel } from '../components/status-label';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { PlainStat, plainStatClass } from '../components/stat-card';
 import { queryClient } from '../query';
@@ -139,7 +140,7 @@ export function ResourceSyncCard(
   } else if (done) {
     result = receipt(done);
   } else if (apply.running) {
-    progress = <TaskProgress embedded label={jobText(apply.job) || t('cleanup:resourceSync.applying')} />;
+    progress = <TaskProgress embedded kind={activityKind('resource-apply')} label={jobText(apply.job) || t('cleanup:resourceSync.applying')} />;
   } else if (scan.start.isError) {
     result = <Note tone="error" title={t('cleanup:resourceSync.scanFailed')}>{errorMessage(scan.start.error)}</Note>;
   } else if (scan.query.isError && state) {
@@ -147,7 +148,7 @@ export function ResourceSyncCard(
   } else if (state?.status === 'running') {
     const line = scanLine(state);
     progress = (
-      <TaskProgress embedded label={line} value={state.completed_sources} total={state.total_sources} />
+      <TaskProgress embedded kind={activityKind('resource-scan')} label={line} value={state.completed_sources} total={state.total_sources} />
     );
     if (state.sources?.length) result = <ScanResult scan={state} partial />;
   } else if (state?.status === 'failed') {

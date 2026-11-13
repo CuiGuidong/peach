@@ -110,7 +110,7 @@ it('统计中按上次的文件数画进度，读数是已走过的文件与大�
   const host = await mount(<StorageSettings initial={measuring} receipt={vi.fn()} />);
   const bar = host.querySelector('[role="progressbar"]')!;
   expect([bar.getAttribute('aria-valuenow'), bar.getAttribute('aria-valuemax')]).toEqual(['120', '300']);
-  expect(host.textContent).toContain('已统计 120 个文件 · 1.0 GB，上次共 300 个');
+  expect(host.textContent).toContain('已统计 120 个文件 · 1.0 GB，按上次的 300 个估算进度');
   expect(buttonNamed('全部清理', host)!.disabled).toBe(true);
 });
 

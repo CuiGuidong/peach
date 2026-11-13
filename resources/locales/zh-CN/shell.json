@@ -124,6 +124,8 @@
     "restartReady": "更新已准备好，可重启安装。",
     "updating": "正在更新 Peach {{version}} · {{step}} {{percent}}%",
     "updatingUnversioned": "正在更新 Peach · {{step}} {{percent}}%",
+    "updatingStep": "正在更新 Peach {{version}} · {{step}}",
+    "updatingStepUnversioned": "正在更新 Peach · {{step}}",
     "viewProgress": "查看进度",
     "viewUpdate": "查看更新"
   },
@@ -269,14 +271,6 @@
     "semicolonSeparator": "；",
     "sentenceGap": "",
     "withNote": "{{text}}（{{note}}）"
-  },
-  "gauge": {
-    "almostFull": "空间即将用满",
-    "labelWithStatus": "{{label}}：{{status}}",
-    "plentyOfSpace": "空间充足",
-    "runningLow": "空间使用偏高",
-    "taskProgress": "任务完成率",
-    "unavailable": "{{label}}：未取得"
   },
   "glowPicker": {
     "title": "配色"

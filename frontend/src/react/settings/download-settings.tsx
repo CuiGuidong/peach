@@ -24,7 +24,7 @@ import { apiGet, apiSend, errorMessage } from '../../api';
 import type {
   ConfigurationPanel, DownloadCheckReport, DownloadConfig, DownloadSaveResult, DownloadSettingsState, PikPakLoginResult,
 } from '../bundle';
-import { LoadingDots } from '../components/loading-dots';
+import { ActivityStatus } from '../components/activity-motion';
 import { Note } from '../components/note';
 import { SourceLabel, providerIcon } from '../components/source-label';
 import { groupRoot } from './configuration-panel';
@@ -241,7 +241,7 @@ function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { p
           hint={t('settings:cloudDownload.waitHint', { max: state.max_wait_hours })}
           value={hours} isDisabled={!state.available} onChange={setHours} />
       </Stack>
-      {action.busy === 'auto' ? <Stack divided><LoadingDots label={t('settings:cloudDownload.checking')} /></Stack> : null}
+      {action.busy === 'auto' ? <Stack divided><ActivityStatus kind="radar" label={t('settings:cloudDownload.checking')} /></Stack> : null}
       {report ? (
         <CheckReport report={report} detected={detected} suggested={suggested}
           create={state.available ? create : undefined} creating={action.busy === 'folder'} />
@@ -432,7 +432,7 @@ function PikPakAccount({ state, settle, receipt, username, setUsername }: CardPr
       )}
       {failure || action.error ? <Stack divided><ErrorText>{failure || action.error}</ErrorText></Stack> : null}
       <Footer status={!account.logged_in && waiting
-        ? <LoadingDots label={jobText(browser) || t('settings:pikpakAccount.waitingBrowser')} /> : null}>
+        ? <ActivityStatus kind="clock" label={jobText(browser) || t('settings:pikpakAccount.waitingBrowser')} /> : null}>
         {account.logged_in ? (
           <Button variant="secondary" onClick={logout} disabled={!state.available} {...busyProps(action.busy === 'logout')}>{t('settings:shared.signOut')}</Button>
         ) : <>{!browser.available ? null : waiting ? (

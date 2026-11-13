@@ -7,7 +7,7 @@ import { apiGet } from '../api';
 import { jobText } from '../core/server-text';
 import { CLIENT_UPDATES_EVENT } from '../core/service-status';
 import type { ReleaseState, UpdateJob } from './bundle';
-import { LoadingDotsMark } from './components/loading-dots';
+import { ActivityMotion, type ActivityKind } from './components/activity-motion';
 import { ProgressRing } from './components/progress-ring';
 import { t } from '../i18n';
 
@@ -44,6 +44,11 @@ const migrating = (snapshot: ClientUpdates): boolean => snapshot.ledger_migratio
 /** 迁移或更新正在推进：横幅显示进度，按 `PROGRESS_INTERVAL` 刷新。 */
 const progressing = (snapshot: ClientUpdates): boolean => migrating(snapshot) || ACTIVE.has(snapshot.update_job.state);
 const percent = (value: unknown): number => Math.round(Math.min(Math.max(Number(value) || 0, 0), 100));
+/** 更新任务里没有真实进度的几步：连接发布源时还不知道包多大；重启与安装是在等服务回来，后端写的数值只是里程碑。 */
+const WAITING = new Set(['restarting', 'installing']);
+const CONNECTING = 'jobMessage.standaloneUpdate.connecting';
+const jobPercent = (job: UpdateJob): number | null => typeof job.progress !== 'number' || WAITING.has(job.state)
+  || job.message_code === CONNECTING ? null : percent(job.progress);
 
 function pageRuntime(): ClientUpdates['runtime'] | null {
   try {
@@ -182,23 +187,37 @@ function bannerMessage(kind: BannerKind, snapshot: ClientUpdates, version: strin
     return ['message', t('shell:clientUpdate.migrating')];
   }
   if (kind === 'migrating' || kind === 'preparing') {
-    const params = { version, step: jobText(job), percent: percent(job.progress) };
+    const share = jobPercent(job);
+    const params = { version, step: jobText(job), percent: share };
+    if (share === null) return ['progress', version ? t('shell:clientUpdate.updatingStep', params) : t('shell:clientUpdate.updatingStepUnversioned', params)];
     return ['progress', version ? t('shell:clientUpdate.updating', params) : t('shell:clientUpdate.updatingUnversioned', params)];
   }
   return ['message', t(kind === 'refresh' ? 'shell:clientUpdate.refreshReady'
     : kind === 'ready' ? 'shell:clientUpdate.restartReady' : 'shell:clientUpdate.available')];
 }
 
-/** 进行中那一步有没有确定的百分比：迁移的备份阶段与更新任务带 `progress`；应用迁移、旧服务不报阶段时没有。 */
+/** 进行中那一步有没有确定的百分比：迁移的备份阶段与更新任务下载、校验、解包时有；应用迁移、旧服务不报阶段、
+ *  连接发布源、重启与安装时没有（`jobPercent`）。 */
 function bannerMeter(kind: BannerKind, snapshot: ClientUpdates): number | null {
   const { ledger_migration: migration, update_job: job } = snapshot;
   if (kind === 'migrating' && migration?.state === 'running') return migration.stage === 'backup' ? percent(migration.progress) : null;
-  if ((kind === 'migrating' || kind === 'preparing') && typeof job.progress === 'number') return percent(job.progress);
+  if (kind === 'migrating' || kind === 'preparing') return jobPercent(job);
   return null;
 }
 
+/** 没有百分比时那一步做的是哪一类事：迁移账本是整理，连发布源、下载还没有总量是传输，校验是检查，
+ *  解包是整理，重启与安装是在等服务回来。 */
+function bannerActivity(kind: BannerKind, snapshot: ClientUpdates): ActivityKind {
+  const { ledger_migration: migration, update_job: job } = snapshot;
+  if (kind === 'migrating' && (migration?.state === 'running' || job.message_code === UPDATING_DATABASE)) return 'blocks';
+  if (job.state === 'restarting' || job.state === 'installing') return 'clock';
+  if (job.state === 'verifying') return 'radar';
+  if (job.state === 'extracting') return 'blocks';
+  return 'linear-dots';
+}
+
 /** 横幅复用项目 Banner，动作用 BoardUI 的小号描边按钮，和横幅里的文字一眼分得开；关闭只作用于当前状态。进行中有确定百分比时左侧换成小环形进度，
- *  没有百分比时换成 Loading Dots。 */
+ *  没有百分比时换成那一步的语义动画（`bannerActivity`）；完成、可更新、已就绪是信息图标。 */
 export function ClientUpdateBanner({ navigate }: { navigate(path: string): void }) {
   const { snapshot, refresh } = useClientUpdates();
   const [dismissed, setDismissed] = useState('');
@@ -222,7 +241,7 @@ export function ClientUpdateBanner({ navigate }: { navigate(path: string): void 
   return createPortal(
     <aside key={identity} className="ui-project-banner peach-react" role="status" data-client-update={kind}>
       <div>{meter !== null ? <ProgressRing label={message} value={meter} />
-        : busy ? <LoadingDotsMark /> : <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg>}
+        : busy ? <ActivityMotion kind={bannerActivity(kind, snapshot)} /> : <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-info" /></svg>}
         <p><span data-copy-key={`clientUpdates.${kind}.${copy}`}>{message}</span>
           {(kind === 'ready' || kind === 'available') && version ? <span data-copy-ignore=""> Peach {version}</span> : null}</p></div>
       <div className="flex-wrap">

@@ -23,9 +23,9 @@ import { momentText } from '../activity/tasks';
 import { useBackgroundJob } from '../background-job';
 import type { ScrapingProps } from '../bundle';
 import { IssueRow } from '../components/issue-row';
-import { LoadingDots } from '../components/loading-dots';
+import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { Note } from '../components/note';
-import { Progress } from '../components/progress';
 import { StatusLabel, type StatusTone } from '../components/status-label';
 import { ConnectionStatus } from '../components/connection-status';
 import { Page } from '../components/page';
@@ -297,10 +297,8 @@ function CheckAllCard({ toast }: ScrapingProps) {
         {/* 说明写在一行里：拆行的 JSX 文本渲染时多出空格，改字工具就对不上源码。 */}
         <Help>{t('manage:connectionCheck.help')}</Help>
         {running
-          ? <div className="flex flex-col gap-2">
-              <Progress label={t('manage:connectionCheck.progress')} value={job?.checked ?? 0} max={job?.total ?? 0} />
-              <Help role="status">{t('manage:connectionCheck.checkedCount', { checked: job?.checked ?? 0, count: job?.total ?? 0 })}</Help>
-            </div>
+          ? <TaskProgress embedded kind="radar" value={job?.checked ?? 0} total={job?.total ?? 0}
+              label={t('manage:connectionCheck.checkedCount', { checked: job?.checked ?? 0, count: job?.total ?? 0 })} />
           : null}
         {problem ? <Note tone="error">{problem}</Note> : null}
         {checks.length
@@ -389,7 +387,7 @@ function CoverCard({ toast }: ScrapingProps) {
         </div>
         {/* 这一趟要挨个问几家站点、还可能走代理，没有可数的总量，也不能编一个百分比出来。
             关掉页面它照样在跑，回来能接上，所以状态得留在页面上，而不是只让按钮转一下。 */}
-        {running ? <LoadingDots label={t('manage:hdCover.fetching')} /> : null}
+        {running ? <TaskProgress embedded kind={activityKind('scraping-cover')} label={t('manage:hdCover.fetching')} /> : null}
         {problem ? <Note tone="error">{problem}</Note> : null}
         {outcome?.status === 'complete'
           ? <Note tone="success">{coverResult(outcome) || t('manage:hdCover.fetched')}</Note>
@@ -445,7 +443,7 @@ function AmaneBridgeCard({ toast }: ScrapingProps) {
         {data.problem
           ? <Note tone="error">{data.problem}</Note>
           : <Help>{t('manage:amaneRuntime.help', { license: data.license, version: data.version })}</Help>}
-        {running ? <LoadingDots label={t('manage:amaneRuntime.rebuilding')} /> : null}
+        {running ? <TaskProgress embedded kind={activityKind('amane-bridge')} label={t('manage:amaneRuntime.rebuilding')} /> : null}
         {problem ? <Note tone="error">{problem}</Note> : null}
         {outcome?.status === 'complete' ? <Note tone="success">{codedText(outcome, 'result') || t('manage:amaneRuntime.rebuilt')}</Note> : null}
       </Stack>

@@ -26,6 +26,31 @@ export const fetchResultUpdates = (signal?: AbortSignal) =>
 export const runningTasks = (): RunningTask[] =>
   queryClient.getQueryData<{ running_tasks?: RunningTask[] }>(RESULT_UPDATES_KEY)?.running_tasks || [];
 
+/** 全站那一处读到的快照里有没有 `running_tasks`：还没读到是 `undefined`；旧服务或前后端版本错位时
+ *  后端不报这个字段，是 `false`。 */
+export function tasksReported(): boolean | undefined {
+  const data = queryClient.getQueryData<ResultUpdatesPayload>(RESULT_UPDATES_KEY);
+  return data === undefined ? undefined : Array.isArray(data.running_tasks);
+}
+
+/** 后端不报 `running_tasks` 时调一次 `listener`：靠它决定「什么时候开始盯进度」的页面退回进页查一次。
+ *  已经读到快照时当场判断，还没读到时等第一份；报了这个字段就什么都不做。返回取消订阅。 */
+export function whenTasksUnreported(listener: () => void): () => void {
+  const known = tasksReported();
+  if (known !== undefined) {
+    if (!known) listener();
+    return () => {};
+  }
+  const stop = queryClient.getQueryCache().subscribe((event) => {
+    if (event.type !== 'updated' || event.query.queryKey[0] !== RESULT_UPDATES_KEY[0]) return;
+    const reported = tasksReported();
+    if (reported === undefined) return;
+    stop();
+    if (!reported) listener();
+  });
+  return stop;
+}
+
 /** 这一种任务在排或在跑的那一项。 */
 export const runningTask = (taskKey: string, tasks: readonly RunningTask[] = runningTasks()) =>
   tasks.find((task) => task.task_key === taskKey);

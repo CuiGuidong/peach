@@ -42,6 +42,7 @@ import { EmptyState } from '../components/empty-state';
 import { ExpandableRanking } from '../components/expandable-ranking';
 import { LEGACY_AVATAR_IMG } from '../components/legacy-avatar';
 import { TaskProgress } from '../components/task-progress';
+import { activityKind } from '../../activity-kinds';
 import { Note } from '../components/note';
 import { Page } from '../components/page';
 import { Progress } from '../components/progress';
@@ -529,15 +530,15 @@ export function TastePage(props: TasteProps) {
           done={!!(summary.history_sources || data.updated_at)} />
         {/* 这一趟在后台跑，关掉页面还在继续，所以状态留在页面上而不是只让按钮转一下。 */}
         <div aria-live="polite" className="flex flex-col gap-3 empty:hidden">
-          {running ? <TaskProgress label={jobText(job, 'message') || t('manage:taste.refreshing')}
+          {running ? <TaskProgress kind={activityKind('taste-refresh')} label={jobText(job, 'message') || t('manage:taste.refreshing')}
             value={job?.checked} total={job?.total} /> : null}
-          {load.isPending ? <TaskProgress label={t('manage:taste.importing')} /> : null}
+          {load.isPending ? <TaskProgress kind="gather" label={t('manage:taste.importing')} /> : null}
           {data.stale && data.error ? (
             <Note tone="error" action={<Button variant="secondary" size="small"
               {...busyProps(retry.isPending)} onClick={() => retry.mutate(range)}>{t('manage:shared.retryNow')}</Button>}>
               {t('manage:taste.updateFailedStale', { time: tasteTime(data.computed_at), error: serverLabel(data.message_code ?? '', data.error, data.message_params) })}
             </Note>
-          ) : data.stale ? <TaskProgress label={t('manage:taste.updatingStale', { time: tasteTime(data.computed_at) })} /> : null}
+          ) : data.stale ? <TaskProgress kind={activityKind('taste-refresh')} label={t('manage:taste.updatingStale', { time: tasteTime(data.computed_at) })} /> : null}
           {problem ? <Note tone="error">{problem}</Note> : null}
           {outcome?.warnings?.length ? <Note tone="warning">{serverLabelList(outcome.warnings, outcome.warning_codes, outcome.warning_params).join(t('shell:format.semicolonSeparator'))}</Note> : null}
         </div>

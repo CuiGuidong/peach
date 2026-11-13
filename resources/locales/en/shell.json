@@ -144,6 +144,8 @@
     "restartReady": "An update is ready. Restart to install it.",
     "updating": "Updating to Peach {{version}} · {{step}} {{percent}}%",
     "updatingUnversioned": "Updating Peach · {{step}} {{percent}}%",
+    "updatingStep": "Updating to Peach {{version}} · {{step}}",
+    "updatingStepUnversioned": "Updating Peach · {{step}}",
     "viewProgress": "View progress",
     "viewUpdate": "View update"
   },
@@ -296,14 +298,6 @@
     "semicolonSeparator": "; ",
     "sentenceGap": " ",
     "withNote": "{{text}} ({{note}})"
-  },
-  "gauge": {
-    "almostFull": "Almost full",
-    "labelWithStatus": "{{label}}: {{status}}",
-    "plentyOfSpace": "Plenty of space",
-    "runningLow": "Space running low",
-    "taskProgress": "Task progress",
-    "unavailable": "{{label}}: Not found"
   },
   "glowPicker": {
     "title": "Glow colors"
