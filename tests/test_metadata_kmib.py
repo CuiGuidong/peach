@@ -216,7 +216,7 @@ class KmibHarvestTests(unittest.TestCase):
             asset = con.execute("SELECT catalog_title,release_date,studio FROM asset "
                                 "WHERE id=1").fetchone()
             tags = [r[0] for r in con.execute(
-                "SELECT tag FROM asset_tag WHERE asset_id=1 AND tag NOT LIKE '演员:%' "
+                "SELECT tag FROM asset_tag WHERE asset_id=1 AND tag NOT LIKE 'performer:%' "
                 "ORDER BY tag")]
             ref = con.execute(
                 "SELECT e.canonical_name FROM entity_external_ref x JOIN entity e "

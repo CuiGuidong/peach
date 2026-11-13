@@ -8,6 +8,7 @@ import { brandIcon, foldName, linkMarkUrl, officialLinkText } from '@peach/legac
 import type { FeedNew } from '../feed-new/feed-new';
 import type { PendingWorkItem } from '../components/pending-work';
 import { t } from '../../i18n';
+import { linkLabel } from '../../core/stored-values';
 
 /** 一条外链，形状同 `/api/entity` 的 `links[]`。 */
 export interface HeroLink {
@@ -193,7 +194,7 @@ export function agencyOf(entity: EntityHeroData): { name: string; linked: boolea
 export function performerLinkName(link: HeroLink, agency: string): string {
   const text = officialLinkText(link, 'performer'), home = foldName(agency);
   const own = home && [link.label, text].map(foldName).some((said) => said && (home.includes(said) || said.includes(home)));
-  return own ? t('catalog:entityFacts.agencyProfile', { agency }) : (text || link.label || '');
+  return own ? t('catalog:entityFacts.agencyProfile', { agency }) : (text || linkLabel(link.label));
 }
 
 /** 链接前那枚圆标：常见社媒走雪碧图里的品牌字形，其余取服务端合成的站点圆标，取不到露出地球。 */
@@ -222,15 +223,15 @@ export function heroLinks(entity: EntityHeroData, kind: string): LinkView[] {
       return { type: 'gone', title: `${performerLinkName(x, agency)} · ${why}` };
     }
     const url = x.url || '';
-    if (!(x.clickable && /^https?:\/\//i.test(url))) return { type: 'private', label: x.label || x.hostname || t('catalog:entityFacts.onFile') };
+    if (!(x.clickable && /^https?:\/\//i.test(url))) return { type: 'private', label: linkLabel(x.label) || x.hostname || t('catalog:entityFacts.onFile') };
     if (isPeople(kind) && x.link_kind !== 'social') {
       return { type: 'icon', url, title: performerLinkName(x, agency), mark: siteMark(x) };
     }
     if (x.link_kind === 'social') {
       const brand = brandIcon(url);
-      return { type: 'icon', url, title: x.label || '', mark: brand ? { brand } : siteMark(x) };
+      return { type: 'icon', url, title: linkLabel(x.label), mark: brand ? { brand } : siteMark(x) };
     }
-    return { type: 'url', url, title: x.label || '', text: officialLinkText(x, kind, names), mark: siteMark(x) };
+    return { type: 'url', url, title: linkLabel(x.label), text: officialLinkText(x, kind, names), mark: siteMark(x) };
   });
   return [...pills, ...foldPrivate(links)];
 }

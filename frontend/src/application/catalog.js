@@ -15,6 +15,7 @@ import { buildManageBar, cardLayout, homeLayoutActive, javActive, layoutState, s
 import { selectionState, setSelectMode, toggleSelection } from './selection.js';
 import { javDisplayName, javTitleHtml } from '../core/jav-title';
 import { tagLabel } from '../core/tags';
+import { PORTRAIT } from '../core/stored-values';
 import { entityDisplayName } from '../core/entity-names';
 import { loadStage, stageApi } from '../react/application-residents';
 import { currentBarsContext, entityState, openEntity, pushEntityPage, routeEntityPage, sortKeys } from './entity.js';
@@ -449,7 +450,7 @@ export function paintGridPage(page,propsFor,surface,options={}) {
 
 export function catalogGridLayout(){
   const home=homeLayoutActive();
-  return gridLayout({active:javActive()||home,home,portrait:state.orient==='竖屏'}); // i18n-exempt: 竖屏是地址参数与状态值
+  return gridLayout({active:javActive()||home,home,portrait:state.orient===PORTRAIT});
 }
 
 export function catalogSkeletonHtml(label=tr('shell:skeleton.loadingVideos')){
@@ -486,7 +487,7 @@ export function catalogGridProps(){
     excludeVertical:(home&&path!=='/wall'&&!state.q&&!state.orient&&state.browse!=='folders')||state.jav==='1',
     mix:home&&path!=='/wall'&&!trash&&state.browse!=='folders',
     /* JAV 模式不插竖屏带：主列表的 exclude_vertical 管不到它，它是独立请求、独立插入的。 */
-    shorts:home&&path!=='/wall'&&!javActive()&&state.orient!=='竖屏'&&!trash&&state.browse!=='folders', // i18n-exempt: 竖屏是地址参数与状态值
+    shorts:home&&path!=='/wall'&&!javActive()&&state.orient!==PORTRAIT&&!trash&&state.browse!=='folders',
     countRow:$('#count'),onCount:paintCatalogCount,onCountFailed:()=>paintCatalogFilter({count:false}),
     emptyHtml:({trash:inTrash,libraryEmpty})=>inTrash
       ?preferencesState.emptyState('trash',tr('shell:trash.emptyTitle'),tr('shell:trash.emptyHint'))

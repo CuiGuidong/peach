@@ -430,10 +430,10 @@ def _rewrite_actor_tags(
     rewritten = 0
     asset_ids = [int(row[0]) for row in connection.execute(
         "SELECT DISTINCT asset_id FROM asset_entity WHERE entity_id=?", (entity_id,))]
-    target_tag = f"演员:{target}"
+    target_tag = f"performer:{target}"
     for asset_id in asset_ids:
         for old_name in old_names:
-            old_tag = f"演员:{old_name}"
+            old_tag = f"performer:{old_name}"
             if old_tag == target_tag:
                 continue
             connection.execute(

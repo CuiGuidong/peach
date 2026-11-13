@@ -899,7 +899,7 @@ class ReviewQueueTests(unittest.TestCase):
                 upsert_asset_entity(con, kind=kind, name=name, asset_id=97, role=role,
                                     source=source)
             con.execute("INSERT INTO asset_tag(asset_id,tag,confidence,source) "
-                        "VALUES(97,'演员:三浦沙綾',0.9,'r18:performer')")
+                        "VALUES(97,'performer:三浦沙綾',0.9,'r18:performer')")
             con.commit()
         finally:
             con.close()
@@ -917,12 +917,12 @@ class ReviewQueueTests(unittest.TestCase):
                 "SELECT ae.role, e.canonical_name FROM asset_entity ae "
                 "JOIN entity e ON e.id=ae.entity_id WHERE ae.asset_id=97")}
             flat = {row[0] for row in con.execute(
-                "SELECT tag FROM asset_tag WHERE asset_id=97 AND tag LIKE '演员:%'")}
+                "SELECT tag FROM asset_tag WHERE asset_id=97 AND tag LIKE 'performer:%'")}
         finally:
             con.close()
         self.assertEqual(linked, {("series", "美人CAのマゾ性癖"), ("performer", "永沢咲良"),
                                   ("performer", "手挂的人")})
-        self.assertEqual(flat, {"演员:永沢咲良"})
+        self.assertEqual(flat, {"performer:永沢咲良"})
 
     def test_a_stage_name_between_the_intro_and_the_age_lands(self):
         """MGS 的 `300NTK` 把介绍写在最前：`…/はな/20歳` 的艺名是年龄前那一段。"""
@@ -3035,7 +3035,7 @@ class ReviewQueueTests(unittest.TestCase):
         ).fetchall(), [("performer", "木村さん", "performer")])
         self.assertEqual(con.execute(
             "SELECT tag FROM asset_tag WHERE asset_id=1 AND source='javinizer:r18dev:performer'"
-        ).fetchall(), [("演员:木村さん",)])
+        ).fetchall(), [("performer:木村さん",)])
         self.assertEqual(con.execute(
             "SELECT provider,external_id FROM entity_external_ref"
         ).fetchall(), [("r18dev", "7")])

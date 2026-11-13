@@ -20,7 +20,7 @@ from urllib.parse import quote
 
 from .avatar_provider import install_entity_avatar
 from .catalog_rules import current_tags, is_korean_mib_code, normalise_code_key
-from .catalog_vocabulary import COVER_FETCHED, PERFORMER_TAG_PREFIX, WESTERN_IDENTITY_REVIEW_VERDICTS
+from .catalog_vocabulary import COVER_FETCHED, WESTERN_IDENTITY_REVIEW_VERDICTS, is_performer_marker
 from .code_creators import collect
 from .entities import memoized_resolution, resolve_entity, resolve_entity_id, upsert_asset_entity
 from .field_owners import (
@@ -1227,8 +1227,8 @@ def w_review_genre(contract: ReviewContract, body):
     if not genre:
         raise UserValueError("api.review.genreEmpty")
     # 标签名进的是和账本同一套词表，判据照 `w_item_tag` 那条：长度上限一致，
-    # `演员:` 是出演者标记不是标签。两处各写一套的话，同一个名字这边收得进、那边加不上。
-    if tag and (len(tag) > 80 or tag.startswith(PERFORMER_TAG_PREFIX)):
+    # `performer:`（与旧版前缀）是出演者标记不是标签。两处各写一套的话，同一个名字这边收得进、那边加不上。
+    if tag and (len(tag) > 80 or is_performer_marker(tag)):
         raise UserValueError("api.review.tagNameInvalid")
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with contract.write_transaction() as connection:

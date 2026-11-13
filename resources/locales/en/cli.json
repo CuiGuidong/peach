@@ -38,6 +38,15 @@
     "contextLength": "Length",
     "contextOrient": "Orientation",
     "contextQuality": "Quality",
+    "contextValue": {
+      "landscape": "horizontal",
+      "long": "over 40 min",
+      "low": "low",
+      "medium": "15–40 min",
+      "portrait": "vertical",
+      "quick": "under 5 min",
+      "short": "5–15 min"
+    },
     "migrations": "\n  Migrations: {{total}} total, {{pending}} pending",
     "sync": "  Sync: {{action}} · {{reason}}; primary computer {{writer}}",
     "writerLocal": "this device",

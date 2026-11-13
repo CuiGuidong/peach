@@ -655,7 +655,7 @@ class JudgeTests(unittest.TestCase):
             owned=[(blog, "公式ブログ"), (home, "")])
         rows, stats = self.judge([page])
         self.assertEqual([(row["link_kind"], row["label"], row["verdict"]) for row in rows],
-                         [("social", "博客", "ok"), ("official", "官方网站", "ok")])
+                         [("social", "blog", "ok"), ("official", "official-site", "ok")])
         self.assertIn("资料页写明的本人链接「公式ブログ」", rows[0]["evidence"])
         self.assertEqual(stats["ok"], 2)
 
@@ -678,11 +678,11 @@ class OwnedLinkTests(unittest.TestCase):
         for url in ("http://www.me-nana.alicejapan.co.jp/",
                     "http://plaza.rakuten.co.jp/rinsakuragi/",
                     "http://takasyo.blog.jp/"):
-            self.assertEqual(self.module.owned_link(url, "公式ブログ"), ("social", "博客"))
+            self.assertEqual(self.module.owned_link(url, "公式ブログ"), ("social", "blog"))
 
     def test_a_generic_line_falls_back_to_the_ledger_wording(self):
         for shown in ("公式ブログ", "オフィシャルブログ", "ブログ", "Official Blog"):
-            self.assertEqual(self.module.owned_link("http://ameblo.jp/x/", shown)[1], "博客")
+            self.assertEqual(self.module.owned_link("http://ameblo.jp/x/", shown)[1], "blog")
 
     def test_a_blog_that_has_a_name_keeps_it(self):
         self.assertEqual(self.module.owned_link("http://a.jp/", "公式ブログ「旬の果実」"),
@@ -692,7 +692,7 @@ class OwnedLinkTests(unittest.TestCase):
 
     def test_a_site_that_is_not_a_blog_keeps_classify_result(self):
         self.assertEqual(self.module.owned_link("https://eikawa-noa.com/", ""),
-                         ("official", "官方网站"))
+                         ("official", "official-site"))
 
 
 class PortraitTests(unittest.TestCase):

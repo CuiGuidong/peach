@@ -68,7 +68,7 @@ class StatusCommandTests(unittest.TestCase):
             "creator,ctx_length) VALUES(?,?,?,?,?,?,?,?,?)",
             [
                 ("local", r"R:\media\a.mp4", "a.mp4", "video", 2 << 30, 1800.0,
-                 r"R:\snap\a.jpg", "Someone", "中"),
+                 r"R:\snap\a.jpg", "Someone", "medium"),
                 ("local", r"R:\media\b.mp4", "b.mp4", "video", 1 << 30, None, None,
                  None, None),
                 ("online", "https://example.test/x", "x", "account", None, None, None,
@@ -92,6 +92,8 @@ class StatusCommandTests(unittest.TestCase):
         # 在线资产不进「加工进度」的分母，否则百分比永远到不了 100。
         self.assertIn("有时长 (ffprobe)", output)
         self.assertIn("1 / 2", output)
+        # 情境层取值存的是 id，按命令行语言显示。
+        self.assertIn("中=1", output)
         self.assertIn("待应用 0 个", output)
         self.assertIn("同步：", output)
 

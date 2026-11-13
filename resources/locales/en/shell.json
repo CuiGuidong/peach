@@ -417,6 +417,10 @@
   "objectOrder": {
     "save": "Save order"
   },
+  "orientation": {
+    "landscape": "Horizontal",
+    "portrait": "Vertical"
+  },
   "pathLine": {
     "reveal": "Show in folder"
   },
@@ -721,6 +725,7 @@
     "loadingVideos": "Loading videos"
   },
   "sourceLink": {
+    "blog": "Blog",
     "officialSite": "Official site"
   },
   "sourcePicture": {

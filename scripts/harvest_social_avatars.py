@@ -210,11 +210,11 @@ def classify(url: str) -> tuple[str, str]:
     if host_under(host, AGGREGATOR_HOSTS):
         return "social", f"链接集（{host}）"
     if host_under(host, BLOG_HOSTS):
-        return "social", "博客"
+        return "social", "blog"
     for hosts, label in CATALOG_LABELS.items():
         if host_under(host, hosts):
             return "catalog", label
-    return "official", "官方网站"
+    return "official", "official-site"
 
 
 def profile_shaped(url: str) -> bool:

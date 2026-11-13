@@ -328,7 +328,7 @@ def canonicalize_entity_name(kind: str, name: str | None) -> str:
     return canonical
 
 
-#: 规范名有一份扁平投影（ADR-0005）：女优落在 `asset_tag` 的 `演员:` 标签里，其余三种
+#: 规范名有一份扁平投影（ADR-0005）：女优落在 `asset_tag` 的 `performer:` 标签里，其余三种
 #: 落在 `asset` 的同名列里。只改实体名不改这一份，卡片上还写着旧名、按旧名也照样查得到，
 #: 资料页和卡片就各说各话了。
 FLAT_COLUMN = {"studio": "studio", "creator": "creator", "series": "series"}

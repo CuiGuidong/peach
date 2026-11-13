@@ -15,6 +15,8 @@ from collections.abc import Iterable
 from functools import lru_cache
 from pathlib import PureWindowsPath
 
+from .catalog_vocabulary import PERFORMER_TAG_PREFIX
+
 
 VIDEO_EXTENSIONS = frozenset({
     '.mp4', '.m4v', '.mkv', '.avi', '.wmv', '.mov', '.ts', '.flv', '.rmvb', '.mpg',
@@ -1402,7 +1404,7 @@ def face_focus(ratio: float, cx: float, cy: float) -> dict | None:
 
 def tag_cat(tag: str) -> str:
     """Classify one tag for the web surface."""
-    if tag.startswith("演员:"):
+    if tag.startswith(PERFORMER_TAG_PREFIX):
         return "artist"
     if tag in LENGTH_TAGS or tag in TECH_TAGS or tag in ATTRIBUTE_TAGS:
         return "meta"

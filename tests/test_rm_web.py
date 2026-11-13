@@ -238,16 +238,16 @@ class WebDataTests(unittest.TestCase):
                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             [
                 (1, "local", r"R:\\Media\\one.mp4", "one.mp4", "video", 100,
-                 "Alice", "Studio A", "ABC-001", 100, 1920, 1080, "速食", "横屏", "2K", "2026-08-14"),
+                 "Alice", "Studio A", "ABC-001", 100, 1920, 1080, "quick", "landscape", "2K", "2026-08-14"),
                 (2, "115", r"B:\\two.mp4", "two.mp4", "video", 200,
-                 "Bob", None, None, 200, 1080, 1920, "速食", "竖屏", "1080P", "2026-08-13"),
+                 "Bob", None, None, 200, 1080, 1920, "quick", "portrait", "1080P", "2026-08-13"),
                 (3, "local", r"R:\\Media\\cover.jpg", "cover.jpg", "image", 10,
                  "Alice", None, None, None, None, None, None, None, None, "2026-08-12"),
             ],
         )
         con.executemany(
             "INSERT INTO asset_tag(asset_id,tag,source) VALUES(?,?,?)",
-            [(1, "足交", "name"), (1, "演员:Alice", "performer"),
+            [(1, "足交", "name"), (1, "performer:Alice", "performer"),
              (1, "Canonical Alice", "vision"), (2, "竖屏", "probe")],
         )
         con.executemany(
@@ -626,12 +626,21 @@ class WebDataTests(unittest.TestCase):
         self.assertEqual(strict["items"], [])
         self.assertEqual({item["id"] for item in broad["items"]}, {1, 2})
 
+    def test_old_bookmark_filter_values_still_match(self):
+        """旧书签里的中文画幅、时长档与旧出演者前缀照认，结果与新 id 相同。"""
+        ids = lambda args: {item["id"] for item in rm_web.q_items(self.contract, {**args, "limit": "10"})["items"]}
+        self.assertEqual(ids({"orient": "竖屏"}), ids({"orient": "portrait"}))
+        self.assertEqual(ids({"orient": "portrait"}), {2})
+        self.assertEqual(ids({"len": "速食"}), ids({"len": "quick"}))
+        self.assertEqual(ids({"len": "quick"}), {1, 2})
+        self.assertEqual(ids({"tag": "演员:Alice"}), ids({"tag": "performer:Alice"}))
+
     def test_canonical_creator_beats_same_named_legacy_performer_tag(self):
-        """1065 类数据不能被旧 `演员:` 投影改成艺人。"""
+        """1065 类数据不能被旧 `performer:` 投影改成艺人。"""
         con = sqlite3.connect(self.db_path)
         con.execute(
             "INSERT INTO asset_tag(asset_id,tag,source) "
-            "VALUES(2,'演员:Canonical Creator','performer')"
+            "VALUES(2,'performer:Canonical Creator','performer')"
         )
         con.commit(); con.close()
 
@@ -657,10 +666,10 @@ class WebDataTests(unittest.TestCase):
     def test_stats_band_videos_by_length_and_quality_in_probe_order(self):
         stats = rm_web.q_stats(self.contract)
         self.assertEqual(stats["by_length"], [
-            {"k": "速食", "n": 2}, {"k": "短", "n": 0}, {"k": "中", "n": 0}, {"k": "长", "n": 0}])
+            {"k": "quick", "n": 2}, {"k": "short", "n": 0}, {"k": "medium", "n": 0}, {"k": "long", "n": 0}])
         self.assertEqual(stats["by_quality"], [
             {"k": "4K", "n": 0}, {"k": "2K", "n": 1}, {"k": "1080P", "n": 1},
-            {"k": "720P", "n": 0}, {"k": "低画质", "n": 0, "label_code": "taste.qualityBand.low"}])
+            {"k": "720P", "n": 0}, {"k": "low", "n": 0, "label_code": "taste.qualityBand.low"}])
 
     def test_stats_play_activity_and_replays_count_each_work_once(self):
         """在线追更那条关联的馆藏视频自己播过，就只按馆藏那一次算；没关联的照常算。"""
@@ -854,12 +863,12 @@ class WebDataTests(unittest.TestCase):
             self.contract, scope_kind="creator", scope_name="Canonical Creator",
         )
         self.assertEqual({row["k"] for row in creator["locations"]}, {"local", "115"})
-        self.assertEqual({row["k"] for row in creator["orientations"]}, {"横屏", "竖屏"})
+        self.assertEqual({row["k"] for row in creator["orientations"]}, {"landscape", "portrait"})
         self.assertEqual(creator["stats"]["duration"], 2)
 
         item = rm_web.q_facets(self.contract, asset_id=1)
         self.assertEqual(item["locations"], [{"k": "local", "n": 1, "played": 0}])
-        self.assertEqual(item["orientations"], [{"k": "横屏", "n": 1}])
+        self.assertEqual(item["orientations"], [{"k": "landscape", "n": 1}])
         self.assertEqual([row["k"] for row in item["creators"]], ["Canonical Creator"])
         self.assertEqual([row["k"] for row in item["tags"]], ["足交"])
         self.assertEqual(item["stats"]["duration"], 1)
@@ -951,7 +960,7 @@ class WebDataTests(unittest.TestCase):
 
         flagged = rm_web.q_facets(self.contract, state="flagged")
         self.assertEqual({row["k"] for row in flagged["locations"]}, {"115"})
-        self.assertEqual({row["k"] for row in flagged["orientations"]}, {"竖屏"})
+        self.assertEqual({row["k"] for row in flagged["orientations"]}, {"portrait"})
         local = rm_web.q_facets(self.contract, filters={"loc": "local"})
         remote = rm_web.q_facets(self.contract, filters={"loc": "115"})
         self.assertEqual(local['stats']['total'], 1)
@@ -2515,9 +2524,9 @@ class WebDataTests(unittest.TestCase):
                VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             [
                 (4, "local", r"R:\Media\four.mp4", "four.mp4", "video", 400,
-                 None, "ラグジュTV", "259LUXU-1509", 400, 1280, 720, "速食", "横屏", "720P", "2026-08-11"),
+                 None, "ラグジュTV", "259LUXU-1509", 400, 1280, 720, "quick", "landscape", "720P", "2026-08-11"),
                 (5, "local", r"R:\Media\five.mp4", "five.mp4", "video", 500,
-                 None, None, None, 500, 1920, 1080, "速食", "横屏", "2K", "2026-08-10"),
+                 None, None, None, 500, 1920, 1080, "quick", "landscape", "2K", "2026-08-10"),
             ],
         )
         con.execute("INSERT INTO asset_entity(asset_id,entity_id,role,source,confidence) "
@@ -2722,7 +2731,7 @@ class WebDataTests(unittest.TestCase):
             "INSERT INTO asset_entity(asset_id,entity_id,role,source,confidence)"
             " VALUES(1,20,'performer','test',1.0)")
         con.execute(
-            "INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'演员:飯岡かなこ','performer')")
+            "INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'performer:飯岡かなこ','performer')")
         con.commit(); con.close()
 
     def _names_of(self, entity_id=20):
@@ -2733,7 +2742,7 @@ class WebDataTests(unittest.TestCase):
             "SELECT alias,source FROM entity_alias WHERE entity_id=?", (entity_id,))}
         # 只看这两个写法：夹具本来就给 asset 1 挂着另一位女优的扁平标签。
         tags = [row[0] for row in con.execute(
-            "SELECT tag FROM asset_tag WHERE tag IN ('演员:飯岡かなこ','演员:森泽佳奈')"
+            "SELECT tag FROM asset_tag WHERE tag IN ('performer:飯岡かなこ','performer:森泽佳奈')"
             " ORDER BY tag")]
         con.close()
         return canonical, aliases, tags
@@ -2754,7 +2763,7 @@ class WebDataTests(unittest.TestCase):
         self.assertEqual(canonical, "森泽佳奈")
         self.assertEqual(aliases.get("飯岡かなこ"), "user:preferred-name")
         # 扁平投影跟着走，否则卡片上还写着旧名、按旧名也照样查得到。
-        self.assertEqual(tags, ["演员:森泽佳奈"])
+        self.assertEqual(tags, ["performer:森泽佳奈"])
         self.assertEqual(result["flat_rewritten"], 1)
 
     def test_preferred_name_can_be_chosen_back(self):
@@ -2767,7 +2776,7 @@ class WebDataTests(unittest.TestCase):
         canonical, aliases, tags = self._names_of()
         self.assertEqual(canonical, "飯岡かなこ")
         self.assertIn("森泽佳奈", aliases)
-        self.assertEqual(tags, ["演员:飯岡かなこ"])
+        self.assertEqual(tags, ["performer:飯岡かなこ"])
 
     def test_preferred_name_is_a_no_op_when_it_is_already_the_canonical_one(self):
         self._performer_with_two_names()
@@ -4001,11 +4010,13 @@ class DuplicateDetectionTests(unittest.TestCase):
         只算三卷横屏，队列仍是整部作品。"""
         ids = [self.add("FC2-PPV-3189161", 600 + n, 1_000 * n, name=f"FC2-3189161-{n}.mp4") for n in range(1, 6)]
         lone = [self.add("FC2-PPV-4028828", 1000 + n, 2_000, name=f"FC2-4028828-{n}.mp4") for n in (1, 2)]
-        for asset_id, orient in zip(ids + lone, ["横屏"] * 3 + ["竖屏"] * 2 + ["横屏", "竖屏"]):
+        for asset_id, orient in zip(ids + lone, ["landscape"] * 3 + ["portrait"] * 2 + ["landscape", "portrait"]):
             self.con.execute("UPDATE asset SET ctx_orient=? WHERE id=?", (orient, asset_id))
         self.con.commit()
 
-        portrait = rm_web.q_items(self.contract, {"orient": "竖屏", "limit": "10"})["items"]
+        portrait = rm_web.q_items(self.contract, {"orient": "portrait", "limit": "10"})["items"]
+        # 旧书签里的 `orient=竖屏` 照认，结果相同。
+        self.assertEqual(rm_web.q_items(self.contract, {"orient": "竖屏", "limit": "10"})["items"], portrait)
         groups = {row["id"]: row["part_group"] for row in portrait}
         self.assertEqual(set(groups), {ids[3], ids[4], lone[1]})
         self.assertEqual(groups[ids[3]], {
@@ -4578,9 +4589,10 @@ class CatalogVersionTests(unittest.TestCase):
         self.add(2, 'FC2-PPV-1110408-1-4K修复.mp4', 3013, 2160)
         self.add(3, 'FC2-PPV-1110408-2-4K修复.mp4', 200, 2160)
         with closing(sqlite3.connect(self.db)) as connection, connection:
-            connection.executemany('UPDATE asset SET ctx_orient=? WHERE id=?', [('横屏', 1), ('竖屏', 2), ('竖屏', 3)])
+            connection.executemany('UPDATE asset SET ctx_orient=? WHERE id=?', [('landscape', 1), ('portrait', 2), ('portrait', 3)])
         editions = lambda args: {row['id']: row['edition_group'] for row in q_items(self.contract, args)['items']}
-        portrait = editions({'orient': '竖屏'})
+        portrait = editions({'orient': 'portrait'})
+        self.assertEqual(editions({'orient': '竖屏'}), portrait)
         self.assertEqual(set(portrait), {2, 3})
         self.assertEqual((portrait[2]['count'], portrait[2]['item_ids'], portrait[2]['seed_id']), (1, [2, 3], 1))
         self.assertEqual(len(portrait[2]['editions']), 1)

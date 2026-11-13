@@ -38,6 +38,15 @@
     "contextLength": "时长档",
     "contextOrient": "屏向",
     "contextQuality": "画质",
+    "contextValue": {
+      "landscape": "横屏",
+      "long": "长",
+      "low": "低画质",
+      "medium": "中",
+      "portrait": "竖屏",
+      "quick": "速食",
+      "short": "短"
+    },
     "migrations": "\n  迁移：共 {{total}} 个，待应用 {{pending}} 个",
     "sync": "  同步：{{action}} · {{reason}}；写入端 {{writer}}",
     "writerLocal": "本机",

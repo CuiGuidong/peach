@@ -1171,7 +1171,7 @@ def _rank_for_source(
 def _tag_inventory(connection: sqlite3.Connection) -> dict[str, int]:
     """Count usable local tag matches without assuming every test schema is current."""
     columns = {str(row[1]) for row in connection.execute("PRAGMA table_info(asset)")}
-    clauses = ["e.kind='tag'"]
+    clauses, parameters = ["e.kind='tag'"], []
     if "medium" in columns:
         clauses.append("a.medium='video'")
     if "disposal" in columns:
@@ -1181,14 +1181,15 @@ def _tag_inventory(connection: sqlite3.Connection) -> dict[str, int]:
     if "snapshot_path" in columns:
         clauses.append("a.snapshot_path IS NOT NULL")
     if "ctx_orient" in columns:
-        clauses.append(f"(a.ctx_orient IS NULL OR a.ctx_orient<>'{PORTRAIT}')")
+        clauses.append("(a.ctx_orient IS NULL OR a.ctx_orient<>?)")
+        parameters.append(PORTRAIT)
     query = (
         "SELECT e.canonical_name,count(DISTINCT ae.asset_id) "
         "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
         "JOIN asset a ON a.id=ae.asset_id WHERE " + " AND ".join(clauses) +
         " GROUP BY e.id,e.canonical_name"
     )
-    return {str(name): int(count) for name, count in connection.execute(query)}
+    return {str(name): int(count) for name, count in connection.execute(query, parameters)}
 
 
 def _taste_category_scores(rows: list[dict[str, object]]) -> Counter[str]:

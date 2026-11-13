@@ -2525,7 +2525,7 @@ class OperationalScriptTests(unittest.TestCase):
                 self.assertEqual(self.rehome_unknown._direct_children(target), {})
 
     def test_media_batch_scripts_are_import_safe_and_keep_context_rules(self):
-        self.assertEqual(self.probe.context_fields(1920, 1080, 180), ("速食", "横屏", "2K"))
+        self.assertEqual(self.probe.context_fields(1920, 1080, 180), ("quick", "landscape", "2K"))
         with tempfile.TemporaryDirectory() as tmp:
             output = self.sheets.output_path(Path(tmp), "local", "R:/media/one.mp4")
             self.assertFalse(output.exists())
@@ -4153,7 +4153,7 @@ class OperationalScriptTests(unittest.TestCase):
             self.assertGreaterEqual(auto_apply_metadata(LedgerDatabase(db), candidate_root)["applied"], 1)
             with closing(sqlite3.connect(db)) as con:
                 self.assertEqual(set(con.execute("SELECT tag,source FROM asset_tag WHERE asset_id=1"
-                                                 " AND tag NOT LIKE '演员:%'")),
+                                                 " AND tag NOT LIKE 'performer:%'")),
                                  {("高跟", "javinizer:javdb:tag"), ("丝袜", "javinizer:javdb:tag")})
 
     def test_explicit_sources_ask_every_named_source_and_refuse_retired_names(self):
@@ -6549,7 +6549,7 @@ class Fc2SellerAndDescriptiveNameRepairTests(unittest.TestCase):
             con.execute("INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(?,?,?,?)",
                         (asset_id, entity_id, role, source))
         con.execute("INSERT INTO asset_tag(asset_id,tag,confidence,source) VALUES(11,?,0.6,?)",
-                    ("演员:145cm色白お嬢様", "javinizer:javdb:performer"))
+                    ("performer:145cm色白お嬢様", "javinizer:javdb:performer"))
         con.execute("INSERT INTO entity_alias(entity_id,alias,normalized_alias,source,confidence)"
                     " VALUES(3,'色白お嬢様','色白お嬢様','test',1.0)")
         con.execute("INSERT INTO review_decision(category,item_key,status,reviewer,note,updated_at)"

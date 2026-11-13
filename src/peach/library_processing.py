@@ -25,6 +25,7 @@ from PIL import Image
 
 from .catalog_rules import (compile_code_patterns, is_jav_code, is_local_extra, normalise_code_key,
                             release_code_from_filename, same_release_code, scrapes_as_jav)
+from .catalog_vocabulary import PERFORMER_TAG_PREFIX
 from .field_owners import SCAN_FILENAME, write_owned_fields
 from .profiles import read_settings
 from .images import measure_image_file
@@ -2537,12 +2538,12 @@ def _collection_rows(db_path, *, locations, online_roots, asset_ids):
              " JOIN entity ON entity.id=asset_entity.entity_id"
              " WHERE asset_entity.asset_id=asset.id AND entity.kind='performer') AS performers,"
              " (SELECT group_concat(asset_tag.tag) FROM asset_tag"
-             " WHERE asset_tag.asset_id=asset.id AND asset_tag.tag NOT LIKE '演员:%') AS tags")
+             " WHERE asset_tag.asset_id=asset.id AND asset_tag.tag NOT LIKE ?) AS tags")
     query = f"SELECT asset.*, {multi} FROM asset WHERE medium='video' AND disposal IS NULL"
-    parameters = []
+    parameters = [PERFORMER_TAG_PREFIX + '%']
     if asset_ids is not None:
         query += ' AND id IN (SELECT value FROM json_each(?))'
-        parameters = [json.dumps(asset_ids)]
+        parameters.append(json.dumps(asset_ids))
     query += ' ORDER BY id'
     library_roots = tuple(root for roots in locations.values() for root in roots)
     with closing(sqlite3.connect(db_path, timeout=30)) as connection:

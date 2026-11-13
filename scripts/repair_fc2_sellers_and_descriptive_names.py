@@ -5,7 +5,7 @@
 
 - FC2 番号上厂牌不是 `FC2-PPV` 的作品，厂牌改成 `FC2-PPV`、关系改挂到 `FC2-PPV` 实体；
   改完不再有作品的卖家厂牌实体删掉。卖家名留在候选证据的 `label` 上，账本没有这一列。
-- 规范名是描述性称呼、且全部关系都由自动落库写下的女优实体：连同 `演员:` 标签删掉，
+- 规范名是描述性称呼、且全部关系都由自动落库写下的女优实体：连同 `performer:` 标签删掉，
   那几条自动批准的出演者决定一并撤掉，让这几部片按新判据重新排进人工队列；头像文件
   挪进 `avatars-superseded/`，不删。
 
@@ -131,7 +131,7 @@ def drop_performers(connection, performers: list[dict]) -> dict[str, int]:
         for asset_id in person["assets"]:
             connection.execute(
                 "DELETE FROM asset_tag WHERE asset_id=? AND tag=? AND source LIKE 'javinizer:%'",
-                (asset_id, f"演员:{person['name']}"))
+                (asset_id, f"performer:{person['name']}"))
             done["tags"] += connection.execute("SELECT changes()").fetchone()[0]
             key = f"asset:{asset_id}:performers"
             decision = connection.execute(

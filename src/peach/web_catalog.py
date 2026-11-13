@@ -19,7 +19,8 @@ from functools import lru_cache
 
 from . import entities, interface_text, media_libraries, sample_images, settings_file
 
-from .catalog_vocabulary import CENSORED, EDITION_ORDER, FC2_BONUS_PREFIX, PERFORMER_TAG_PREFIX, PORTRAIT
+from .catalog_vocabulary import (CENSORED, EDITION_ORDER, FC2_BONUS_PREFIX, PERFORMER_TAG_PREFIX, PORTRAIT,
+                                 current_length_band, current_orientation, current_tag, is_performer_marker)
 from .catalog_rules import (
     LENGTH_TAGS,
     canonical_tag_name,
@@ -322,7 +323,8 @@ def catalog_filter(contract: WebContract, args):
     if args.get("owner") == "none":
         where.append(UNOWNED_ASSET_CLAUSE)
     if args.get("tag"):
-        tags = [x for x in args["tag"].split(",") if x]
+        # 旧书签里的出演者标记还是旧前缀，先换成现在的写法（ADR-0161）。
+        tags = [current_tag(x) for x in args["tag"].split(",") if x]
         tags = _canonical_tag_names(contract, tags)
         tag_clause = (
             "(a.id IN (SELECT ae.asset_id FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
@@ -342,13 +344,14 @@ def catalog_filter(contract: WebContract, args):
     # 回收站是跨类型恢复入口。首页遗留的「只看有缩略图」、时长、画幅和 JAV
     # 条件只对视频成立，带进这里会再次把图片、网址快捷方式等资源藏起来。
     if not trash and args.get("len"):
-        where.append("a.ctx_length = ?"); par.append(args["len"])
+        where.append("a.ctx_length = ?"); par.append(current_length_band(args["len"]))
     if not trash and args.get("dur_min"):
         where.append("a.duration >= ?"); par.append(max(0, float(args["dur_min"])))
     if not trash and args.get("dur_max"):
         where.append("a.duration <= ?"); par.append(max(0, float(args["dur_max"])))
     if not trash and args.get("orient"):
-        where.append("a.ctx_orient = ?"); par.append(args["orient"])
+        # 旧书签与历史地址里的 `orient=竖屏` 长期照认（ADR-0161）。
+        where.append("a.ctx_orient = ?"); par.append(current_orientation(args["orient"]))
     elif not trash and args.get("exclude_vertical") == "1":
         where.append("(a.ctx_orient IS NULL OR a.ctx_orient <> ?)"); par.append(PORTRAIT)
     region_where, region_par = region_filter(args.get("region"), trash)
@@ -416,7 +419,7 @@ def orientation_member(args) -> Callable[[dict], bool] | None:
     if args.get("state") == "trash":
         return None
     if args.get("orient"):
-        orient = args["orient"]
+        orient = current_orientation(args["orient"])
         return lambda member: member.get("ctx_orient") == orient
     if args.get("exclude_vertical") == "1":
         return lambda member: member.get("ctx_orient") != PORTRAIT
@@ -526,7 +529,7 @@ def q_items(contract: WebContract, args):
             canonical_tags = canonical.get("tag", [])
             canonical_performers = canonical.get("performer", [])
             all_performers = canonical_performers or [
-                tag[3:] for tag in ts if tag.startswith(PERFORMER_TAG_PREFIX)
+                tag.removeprefix(PERFORMER_TAG_PREFIX) for tag in ts if tag.startswith(PERFORMER_TAG_PREFIX)
             ]
             performers = all_performers[:CARD_PERFORMERS]
             performer_names = {normalize_entity_name(name) for name in all_performers}
@@ -583,7 +586,7 @@ def visible_identity_data(connection, canonical, legacy, *, tag_column=0):
     hidden = {normalize_entity_name(row[0]) for row in names}
     canonical = [row for row in canonical if row[0] not in excluded]
     legacy = [row for row in legacy if not row[tag_column].startswith(PERFORMER_TAG_PREFIX)
-              or normalize_entity_name(row[tag_column][3:]) not in hidden]
+              or normalize_entity_name(row[tag_column].removeprefix(PERFORMER_TAG_PREFIX)) not in hidden]
     return canonical, legacy
 
 
@@ -1165,9 +1168,9 @@ def q_item(contract: WebContract, aid):
         for _, kind, name in canonical if kind == "creator"
     }
     performers = canonical_performers or [
-        tag[3:] for tag in legacy
+        tag.removeprefix(PERFORMER_TAG_PREFIX) for tag in legacy
         if tag.startswith(PERFORMER_TAG_PREFIX)
-        and normalize_entity_name(tag[3:]) not in canonical_creators
+        and normalize_entity_name(tag.removeprefix(PERFORMER_TAG_PREFIX)) not in canonical_creators
     ]
     performer_names = {normalize_entity_name(name) for name in performers}
     tags = [tag for tag in (canonical_tags or [
@@ -1598,7 +1601,7 @@ def q_facets(
             "FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
             "WHERE e.kind='creator' AND ae.asset_id IN (" + facet_assets + ") "
             "GROUP BY e.id,e.canonical_name ORDER BY n DESC LIMIT 60", scope_params)]
-        # 标签要分层 —— 一锅端会让「演员:一个ren」和「1080P」「足交」混在一起。
+        # 标签要分层 —— 一锅端会让「performer:一个ren」和「1080P」「足交」混在一起。
         # 三类分开：技术规格（画质/时长/画幅，筛选价值低）、内容维度（真正有用的）、演员（另立一栏）。
         rows = [dict(r) for r in c.execute(
             "SELECT e.canonical_name AS k, count(DISTINCT ae.asset_id) AS n "
@@ -1655,7 +1658,7 @@ def w_item_tag(contract: WebContract, body):
     tag = str(body.get("tag", "")).strip()
     if operation not in {"add", "remove"}:
         raise ValueError("operation must be add or remove")
-    if not tag or len(tag) > 80 or tag.startswith(PERFORMER_TAG_PREFIX):
+    if not tag or len(tag) > 80 or is_performer_marker(tag):
         raise ValueError("tag must be 1 to 80 characters and cannot be a performer marker")
     if operation == "add":
         canonical = current_tags([tag])

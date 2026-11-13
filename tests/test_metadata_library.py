@@ -416,7 +416,7 @@ class LibraryNfoTests(unittest.TestCase):
         def tags():
             with database.read_connection() as connection:
                 return {row[0] for row in connection.execute(
-                    "SELECT tag FROM asset_tag WHERE asset_id=1 AND tag NOT LIKE '演员:%'")}
+                    "SELECT tag FROM asset_tag WHERE asset_id=1 AND tag NOT LIKE 'performer:%'")}
 
         def query(code, source='r18dev', **kwargs):
             if source == 'javdb':
@@ -1213,7 +1213,7 @@ class LibraryNfoTests(unittest.TestCase):
             aliases = {row[0] for row in connection.execute(
                 'SELECT alias FROM entity_alias WHERE entity_id=?', (entity_id,))}
             tags = {row[0] for row in connection.execute(
-                "SELECT tag FROM asset_tag WHERE tag NOT LIKE '演员:%'")}
+                "SELECT tag FROM asset_tag WHERE tag NOT LIKE 'performer:%'")}
         self.assertEqual(aliases, {'すずもりれむ', 'Remu Suzumori'})
         self.assertEqual(tags, {'主观视角', '苗条'})
         self.assertTrue((self.root / 'generated' / 'avatars'
@@ -1470,7 +1470,7 @@ class LibraryNfoTests(unittest.TestCase):
 
     @windows_ledger_roots
     def test_a_performer_marker_is_not_a_content_tag_the_ledger_already_has(self):
-        """`演员:` 是出演者在 `asset_tag` 上的扁平投影，算成标签就再也采不回 genre。
+        """`performer:` 是出演者在 `asset_tag` 上的扁平投影，算成标签就再也采不回 genre。
         """
         media = self.root / 'media'
         media.mkdir()
@@ -1489,7 +1489,7 @@ class LibraryNfoTests(unittest.TestCase):
             connection.execute("UPDATE asset SET catalog_title=?, studio=?, release_date=? WHERE id=?",
                                ('痴女秘書', 'MOODYZ', '2018-01-01', asset_id))
             connection.execute("INSERT INTO asset_tag(asset_id, tag, confidence, source) VALUES(?,?,?,?)",
-                               (asset_id, '演员:本田岬', 1.0, 'user'))
+                               (asset_id, 'performer:本田岬', 1.0, 'user'))
         candidates.unlink()
         process_library(config, db, self.root / 'generated', self.root / 'covers', provider_factory=factory)
         self.assertIn('tags', {row['field'] for row in read_rows(candidates, missing_ok=True)})
