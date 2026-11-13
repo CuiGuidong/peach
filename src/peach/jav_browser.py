@@ -52,7 +52,7 @@ PAUSE_PROBE_SECONDS = 600
 PAUSED_TEXT = {
     "storage": ("网盘空间不足", "扩容或清理后自动继续"),
     "quota": ("下载额度已用完", "额度恢复后自动继续"),
-    "config": ("网盘配置或登录有问题", "在 Peach 下载设置里修好后自动继续"),
+    "config": ("网盘配置或登录有问题", "修好下载设置后自动继续"),
     "network": ("连不上 CloudDrive2", "CloudDrive2 恢复后自动继续"),
     "search": ("资源搜索暂不可用", "到时自动继续"),
 }
