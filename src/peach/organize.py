@@ -23,7 +23,7 @@ from pathlib import Path, PureWindowsPath
 
 from . import interface_text
 from .catalog_rules import is_jav_code, is_uncensored_release, normalise_code_key, part_marker
-from .catalog_vocabulary import UNCENSORED
+from .content_words import UNCENSORED_FILENAME_WORD
 from .jobs import ACTIVE_ASSET_SQL
 from .task_retry import transient_delay
 from .organize_templates import MAX_PATH, TemplateError, clean_filename, example_path, render, validate_template
@@ -60,16 +60,17 @@ def _preset(preset_id: str, file_template: str, dir_template: str) -> dict[str, 
 PRESETS: tuple[dict[str, str], ...] = tuple(_preset(*row) for row in _PRESET_TEMPLATES)
 
 
-def _skip_reason(reason_id: str) -> str:
-    return interface_text.text(f"server:labels.organize.skip.{reason_id}")
-
-
-#: 跳过原因。计划 CSV 的 `reason` 列与计划结果的 `reasons` 计数按 zh-CN 原文记，下载后整理按这几个值判断，
-#: 所以它们是契约的一部分；界面按 `reason_codes`（原文 → code）取当前语言。
+#: 跳过原因的 id（ADR-0162）。计划行的 `reason` 与计划结果的 `reasons` 计数按 id 记，下载后整理按 id 判断；
+#: 界面按 `reason_codes`（id → code）取当前语言，写给人看的计划 CSV 按本机语言渲染。
 SKIP_REASON_IDS = ("offline", "missingField", "outsideRoot", "targetExists", "crossVolume", "tooLong")
-SKIP_OFFLINE, SKIP_MISSING_FIELD, SKIP_OUTSIDE_ROOT, SKIP_TARGET_EXISTS, SKIP_CROSS_VOLUME, SKIP_TOO_LONG = (
-    map(_skip_reason, SKIP_REASON_IDS))
-SKIP_REASON_CODES = {_skip_reason(reason_id): f"labels.organize.skip.{reason_id}" for reason_id in SKIP_REASON_IDS}
+SKIP_OFFLINE, SKIP_MISSING_FIELD, SKIP_OUTSIDE_ROOT, SKIP_TARGET_EXISTS, SKIP_CROSS_VOLUME, SKIP_TOO_LONG = SKIP_REASON_IDS
+SKIP_REASON_CODES = {reason_id: f"labels.organize.skip.{reason_id}" for reason_id in SKIP_REASON_IDS}
+
+
+def skip_reason_text(reason_id: str, language: str = interface_text.SOURCE_LANGUAGE) -> str:
+    """跳过原因的一句话；不是登记过的 id 时原样返回。"""
+    code = SKIP_REASON_CODES.get(reason_id)
+    return interface_text.text(f"server:{code}", None, language) if code else reason_id
 
 
 #: 挂载上的 `os.rename` 证明不了云端真的改了名的来源：PikPak 挂载对大文件常报 WinError 50，
@@ -161,7 +162,7 @@ def placeholder_values(row, performers: Sequence[str] = ()) -> dict[str, str]:
         "cd": marker.upper() if marker else "",
         # 有码不是本机可核验的事实，所以只在有无码证据时给值；`[{mosaic}]` 于是
         # 在普通片上整段消失，而不是写上一个猜出来的「有码」。
-        "mosaic": UNCENSORED if is_uncensored_release(name, code) else "",
+        "mosaic": UNCENSORED_FILENAME_WORD if is_uncensored_release(name, code) else "",
         "definition": _definition(row["width"], row["height"]),
     }
 
@@ -337,13 +338,16 @@ def build_plan(connection: sqlite3.Connection, *, location: str,
 
 
 def _plan(rows: list[dict], counts: dict[str, int], reasons: dict[str, int]) -> dict:
-    """计划结果；`reason_codes` 是跳过原因原文到 code 的对照，界面按它取当前语言。"""
+    """计划结果；`reason_codes` 是跳过原因 id 到 code 的对照，界面按它取当前语言。"""
     return {"rows": rows, "counts": counts, "reasons": reasons,
             "reason_codes": {reason: SKIP_REASON_CODES[reason] for reason in reasons if reason in SKIP_REASON_CODES}}
 
 
 def write_plan(path: Path | str, rows: Sequence[dict]) -> Path:
-    write_rows(path, PLAN_FIELDS, rows, atomic=True)
+    """计划 CSV 是写给人看的：跳过原因按本机语言写成一句话。"""
+    language = interface_text.local_language()
+    write_rows(path, PLAN_FIELDS, [{**row, "reason": skip_reason_text(str(row.get("reason") or ""), language)}
+                                   for row in rows], atomic=True)
     return Path(path)
 
 
@@ -419,8 +423,8 @@ def _failure(code: str, params: dict | None = None, *, retry_after: float | None
 
 
 def _skipped(reason: str) -> MoveFailure:
-    """执行时撞上的跳过原因，与计划里的写法相同。"""
-    return MoveFailure(reason, code=SKIP_REASON_CODES.get(reason, ""))
+    """执行时撞上的跳过原因：失败行的 `reason` 是 zh-CN 原文，`reason_code` 是与计划同一条 code。"""
+    return MoveFailure(skip_reason_text(reason), code=SKIP_REASON_CODES.get(reason, ""))
 
 
 def _reason_fields(outcome: str) -> dict:

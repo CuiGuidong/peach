@@ -151,7 +151,7 @@ class PlanTests(StudioFollowupCase):
             connection.execute(
                 "INSERT INTO entity_link(entity_id,link_kind,label,url,hostname,is_sensitive,"
                 "metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,0,'{}',?,?)",
-                (studio, "official", "官方网站", "https://old.jp/", "old.jp", STAMP, STAMP))
+                (studio, "official", "official-site", "https://old.jp/", "old.jp", STAMP, STAMP))
         self.assertEqual(planned(), [key])
 
     def test_stock_tries_again_after_a_round_without_the_face_gate(self):
@@ -280,7 +280,7 @@ class SiteTests(StudioFollowupCase):
         self.assertEqual(told(summary["site"])["outcome"], "已登记")
         [link] = self.links(entity_id)
         self.assertEqual((link["link_kind"], link["label"], link["url"]),
-                         ("official", "官方网站", "https://newlabel.jp/"))
+                         ("official", "official-site", "https://newlabel.jp/"))
         metadata = json.loads(link["metadata_json"])
         self.assertEqual(told(metadata)["source"], studio_followup.SOURCE)
         self.assertEqual(metadata["batch"], f"{studio_followup.SOURCE}@77")
@@ -305,7 +305,7 @@ class SiteTests(StudioFollowupCase):
             connection.execute(
                 "INSERT INTO entity_link(entity_id,link_kind,label,url,hostname,is_sensitive,"
                 "metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,0,'{}',?,?)",
-                (entity_id, "official", "官方网站", "https://newlabel.jp/", "newlabel.jp",
+                (entity_id, "official", "official-site", "https://newlabel.jp/", "newlabel.jp",
                  STAMP, STAMP))
         with mock.patch.object(studio_followup.studio_sites, "discover") as discover, \
                 mock.patch.object(studio_followup.studio_icons, "land_one",

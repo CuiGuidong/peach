@@ -38,7 +38,7 @@ def parse_args(argv=None):
     parser.add_argument("--dupes", action="store_true", help=t("sync_sha1_115.dupesHelp"))
     parser.add_argument("--dupes-out", type=Path,
                         default=Path(os.environ.get("PEACH_115_DUPES_OUT")
-                                     or REVIEW_DIR / "115-sha1重复.csv"),
+                                     or REVIEW_DIR / "115-sha1-duplicates.csv"),
                         help=t("sync_sha1_115.dupesOutHelp"))
     parser.add_argument("--deprioritize-dir", action="append", default=[],
                         help=t("sync_sha1_115.deprioritizeDirHelp"))
@@ -59,6 +59,10 @@ def duplicate_score(path, deprioritize_dirs=()):
     return score
 
 
+#: 重复报告 `action` 列：每组留一份，其余建议删除（只是报告，不删文件）。
+KEEP, DELETE = "keep", "delete"
+
+
 def write_duplicate_report(conn, output, deprioritize_dirs=()):
     groups = defaultdict(list)
     for aid, path, size, sha in conn.execute(
@@ -69,12 +73,12 @@ def write_duplicate_report(conn, output, deprioritize_dirs=()):
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("w", newline="", encoding=ENCODING) as stream:
         writer = csv.writer(stream)
-        writer.writerow(["组号", "动作", "大小GB", "路径", "SHA1"])
+        writer.writerow(["group", "action", "size_gb", "path", "sha1"])
         ordered = sorted(duplicates.items(), key=lambda item: -item[1][0][2] * (len(item[1]) - 1))
         for index, (sha, items) in enumerate(ordered, 1):
             items = sorted(items, key=lambda item: -duplicate_score(item[1], deprioritize_dirs))
             for position, (_aid, path, size) in enumerate(items):
-                writer.writerow([index, "保留" if position == 0 else "删除",
+                writer.writerow([index, KEEP if position == 0 else DELETE,
                                  round(size / 1024**3, 3), path, sha])
     return len(duplicates), waste
 

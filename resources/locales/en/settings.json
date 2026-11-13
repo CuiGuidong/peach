@@ -288,6 +288,7 @@
     "serverOnly": "Open this page on the computer running Peach to sign out devices.",
     "thisDevice": "This device",
     "unknownBrowser": "Unrecognized browser",
+    "androidTablet": "Android tablet",
     "viaRemoteAccess": "Remote access · {{network}}"
   },
   "diagnosticsReporting": {

@@ -244,15 +244,15 @@ class WebJsBehaviourTests(unittest.TestCase):
         ])
 
     def test_only_the_three_edition_badges_survive(self):
-        # 版本徽章是白名单：其它 edition_badges（画质、分卷之类）不进标题行。
+        # 版本徽章是白名单：其它 edition_badges（画质、分卷之类）不进标题行；徽章按版次 id 给，显示名随界面语言。
         self.assertJsResults([
             ("jav-title.js", "javTitleParts",
              [{"is_jav": True, "code": "ABC-123", "name": "ABC-123 标题",
-               "edition_badges": ["中字", "4K", "无码破解"]}],
-             {"code": "ABC-123", "title": "标题", "badges": ["中字", "无码破解"]}),
+               "edition_badges": ["chinese-subtitles", "4K", "uncensored-crack"]}],
+             {"code": "ABC-123", "title": "标题", "badges": ["chinese-subtitles", "uncensored-crack"]}),
             ("jav-title.js", "javDisplayName",
              [{"is_jav": True, "code": "ABC-123", "name": "ABC-123 标题",
-               "edition_badges": ["中字"]}],
+               "edition_badges": ["chinese-subtitles"]}],
              "ABC-123 中字 标题"),
             # 没标题就只剩番号，不留下尾随空格。
             ("jav-title.js", "javDisplayName",
@@ -274,7 +274,7 @@ class WebJsBehaviourTests(unittest.TestCase):
              '</span> <span class="ui-javtitle" lang="en">&lt;b&gt;x&lt;/b&gt;</span>'),
             ("jav-title.js", "javTitleHtml",
              [{"is_jav": True, "code": "ABC-123", "display_title": "",
-               "name": "ABC-123", "edition_badges": ["无码"]}],
+               "name": "ABC-123", "edition_badges": ["uncensored"]}],
              '<span class="ui-javidentity"><strong class="ui-javcode">ABC-123</strong>'
              '<small class="javedition uncensored">无码</small></span>'),
         ])

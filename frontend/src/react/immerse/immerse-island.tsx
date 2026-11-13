@@ -41,6 +41,7 @@ import {
 } from './immerse';
 import type { ImmerseApi, ImmerseHost } from './immerse-api';
 import { t } from '../../i18n';
+import { orientLabel } from '../../core/stored-values';
 
 /* ── 状态 ── */
 
@@ -654,7 +655,7 @@ function Caption({ shown }: { shown: Shown | null }) {
         <button type="button" data-immerse-avatar="" aria-label={t('catalog:immerse.openOwner')} onClick={openOwner}
           dangerouslySetInnerHTML={{ __html: avatar }} />
         <a href="#" onClick={openOwner}>{owner?.who ?? ''}</a>
-        <span>{shown && item ? `· ${fmtDur(item.duration)} · ${item.ctx_orient || ''} · ${shown.index + 1}/${shown.length}` : ''}</span>
+        <span>{shown && item ? `· ${fmtDur(item.duration)} · ${orientLabel(item.ctx_orient)} · ${shown.index + 1}/${shown.length}` : ''}</span>
       </div>
       <button type="button" data-immerse-title="" onClick={openTitle}>{item ? helpers.displayName(item).trim() || t('catalog:immerse.untitled') : ''}</button>
     </div>

@@ -368,6 +368,8 @@ AUTO_SCOPE_PREFIXES: tuple[tuple[str, str | tuple[str, ...]], ...] = (
     ("scripts/localize_studio_names.py", ("metadata", "tooling")),
     ("scripts/apply_studio_name_localization.py", ("metadata", "tooling")),
     ("scripts/match_babepedia_creators.py", ("metadata", "tooling")),
+    # 旧版中文取值的对照表，读它的多是元数据脚本（babepedia、javdb 名字、厂牌名本地化）。
+    ("scripts/legacy_values.py", ("metadata", "tooling")),
     ("scripts/audit_code_creators.py", ("metadata", "tooling")),
     ("scripts/rename_retired_tags.py", ("metadata", "tooling")),
     ("scripts/reproject_snapshot_tags.py", ("metadata", "tooling")),

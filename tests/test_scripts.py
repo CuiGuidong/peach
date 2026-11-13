@@ -516,7 +516,7 @@ class Sha1SyncOptionsTests(unittest.TestCase):
                     mock.patch.object(self.script, "REVIEW_DIR", root / "review"):
                 args = self.script.parse_args([])
             self.assertEqual(args.cookie_file, root / "secrets" / "115-cookies.txt")
-            self.assertEqual(args.dupes_out, root / "review" / "115-sha1重复.csv")
+            self.assertEqual(args.dupes_out, root / "review" / "115-sha1-duplicates.csv")
             self.assertEqual(args.deprioritize_dir, [])
             self.assertFalse((root / "secrets").exists())
             self.assertFalse((root / "review").exists())
@@ -561,8 +561,8 @@ class Sha1SyncOptionsTests(unittest.TestCase):
                              (1, 1024**3))
             with output.open(encoding=self.script.ENCODING, newline="") as stream:
                 rows = list(csv.DictReader(stream))
-            self.assertEqual([(row["动作"], row["路径"]) for row in rows],
-                             [("保留", r"B:\library\b.mp4"), ("删除", r"B:\incoming\a.mp4")])
+            self.assertEqual([(row["action"], row["path"]) for row in rows],
+                             [("keep", r"B:\library\b.mp4"), ("delete", r"B:\incoming\a.mp4")])
             self.assertEqual(conn.execute("SELECT * FROM asset ORDER BY id").fetchall(), assets)
 
 
@@ -1741,7 +1741,7 @@ class OperationalScriptTests(unittest.TestCase):
         self.assertIsNone(backfill.plan_update(
             typed, {"tag_types": {"a": "artist"}, "published_at": None}, None))
 
-        # 写入与续跑：写过的条目在 CSV 里记 `written=是`，下一趟 `--resume` 跳过它。
+        # 写入与续跑：写过的条目在 CSV 里记 `written=yes`，下一趟 `--resume` 跳过它。
         writer = sqlite3.connect(database)
         self.addCleanup(writer.close)
         backfill._apply(writer, [(2, plan)])
@@ -1750,6 +1750,10 @@ class OperationalScriptTests(unittest.TestCase):
         ).fetchone()
         self.assertEqual(tuple(row), ("2026-05-01T16:32:21Z", 60.054, "exact"))
         out = database.parent / "log.csv"
+        backfill.write_rows(out, backfill.FIELDS, [{"item_id": 2, "written": "yes"},
+                                          {"item_id": 1, "written": "no"}], fill_missing=True)
+        self.assertEqual(backfill.written_ids(out), {2})
+        # 旧版日志写的「是／否」照样认。
         backfill.write_rows(out, backfill.FIELDS, [{"item_id": 2, "written": "是"},
                                           {"item_id": 1, "written": "否"}], fill_missing=True)
         self.assertEqual(backfill.written_ids(out), {2})
@@ -1856,6 +1860,11 @@ class OperationalScriptTests(unittest.TestCase):
                                    "harry potter (harry potter)": "character"}})
         self.assertEqual(json.loads(rows[2]), {"tags": []})
         self.assertEqual(backfill.settled_ids(out), {1})
+        # 旧版日志写的中文取值照样认：写过的与「无需改动」的都算问定。
+        backfill.write_rows(out, backfill.FIELDS, [
+            {"item_id": 1, "result": "取得", "written": "是"}, {"item_id": 2, "result": "无需改动", "written": "否"},
+            {"item_id": 3, "result": "未取得", "written": "否"}], fill_missing=True)
+        self.assertEqual(backfill.settled_ids(out), {1, 2})
 
     def test_rule34_backfill_without_credentials_stops_before_the_backup(self):
         """分类与上传时间要问 dapi，dapi 要账号凭据；缺凭据就在备份与写入之前停。"""
@@ -1972,7 +1981,7 @@ class OperationalScriptTests(unittest.TestCase):
         with out.open(encoding="utf-8", newline="") as handle:
             rows = list(csv.DictReader(handle))
         self.assertEqual({(row["external_id"], row["mode"], row["result"]) for row in rows},
-                         {("11", "归档", "取得"), ("21", "探测", "取得"), ("23", "探测", "取得")})
+                         {("11", "archive", "found"), ("21", "probe", "found"), ("23", "probe", "found")})
         self.assertTrue((root / "backup.db").exists())
 
         # 第二遍：全部已有尺寸，没有待补，也不再发请求。
@@ -2206,7 +2215,7 @@ class OperationalScriptTests(unittest.TestCase):
             plan, scanned = self.find_ads.find_candidates(db, min_group=3)
             self.assertEqual(scanned, 3)
             self.assertEqual(len(plan), 3)
-            self.assertTrue(all("等长重复x3" in row["hits"] for row in plan))
+            self.assertTrue(all("same-length-x3" in row["hits"] for row in plan))
             self.assertFalse((root / "ad-candidates.csv").exists())
 
     def test_ledger_paths_are_split_with_windows_semantics_on_any_host(self):
@@ -2247,9 +2256,9 @@ class OperationalScriptTests(unittest.TestCase):
             plan, scanned = self.find_ads.find_candidates(db, min_group=3)
             self.assertEqual(scanned, 3)
             by_id = {row["id"]: row for row in plan}
-            self.assertIn("推广目录", by_id[1]["hits"])
-            self.assertIn("推广目录", by_id[2]["hits"])
-            self.assertEqual(by_id[1]["confidence"], "确认")
+            self.assertIn("promo-dir", by_id[1]["hits"])
+            self.assertIn("promo-dir", by_id[2]["hits"])
+            self.assertEqual(by_id[1]["confidence"], "confirmed")
             self.assertNotIn(3, by_id)
 
     def test_filename_cleanup_is_conservative(self):
@@ -2525,7 +2534,7 @@ class OperationalScriptTests(unittest.TestCase):
                 self.assertEqual(self.rehome_unknown._direct_children(target), {})
 
     def test_media_batch_scripts_are_import_safe_and_keep_context_rules(self):
-        self.assertEqual(self.probe.context_fields(1920, 1080, 180), ("速食", "横屏", "2K"))
+        self.assertEqual(self.probe.context_fields(1920, 1080, 180), ("quick", "landscape", "2K"))
         with tempfile.TemporaryDirectory() as tmp:
             output = self.sheets.output_path(Path(tmp), "local", "R:/media/one.mp4")
             self.assertFalse(output.exists())
@@ -2598,16 +2607,26 @@ class OperationalScriptTests(unittest.TestCase):
         responses = iter([HttpResponse(200, {}, gate, "https://brand.test/"),
                           HttpResponse(200, {}, inside, "https://brand.test/top")])
         evidence = []
-        found, final, _ = module.scan(lambda *args: next(responses), "https://brand.test/", 1,
-                                     evidence=evidence)
+        found, final, result, _ = module.scan(lambda *args: next(responses), "https://brand.test/", 1,
+                                             evidence=evidence)
         self.assertEqual(found, {"main_brand", "other_brand"})
+        self.assertEqual(result, "checked")
         self.assertEqual(final, "https://brand.test/top")
         self.assertEqual(len(evidence), 2)
         for response in (HttpResponse(403, {}, inside, "https://brand.test/"),
                          HttpResponse(200, {}, inside, "https://elsewhere.test/")):
-            found, _, note = module.scan(lambda *args, response=response: response, "https://brand.test/", 1)
-            self.assertEqual(found, set())
+            found, _, result, note = module.scan(lambda *args, response=response: response,
+                                                 "https://brand.test/", 1)
+            self.assertEqual((found, result), (set(), "missed"))
             self.assertIn("未取得", note)
+
+    def test_studio_social_resume_rechecks_missed_rows_from_old_and_new_progress_files(self):
+        module = load_script("find_studio_socials")
+        self.assertTrue(module.missed({"result": "missed", "note": ""}))
+        self.assertFalse(module.missed({"result": "checked", "note": "未取得：说明照本机语言写"}))
+        # 旧版进度文件没有 `result` 列，没取到的说明以「未取得」开头。
+        self.assertTrue(module.missed({"note": "未取得：HTTP 403"}))
+        self.assertFalse(module.missed({"note": "官网页面有社交链接"}))
 
     def test_studio_social_ledger_input_includes_existing_socials_and_only_official_sites(self):
         module = load_script("find_studio_socials")
@@ -4153,7 +4172,7 @@ class OperationalScriptTests(unittest.TestCase):
             self.assertGreaterEqual(auto_apply_metadata(LedgerDatabase(db), candidate_root)["applied"], 1)
             with closing(sqlite3.connect(db)) as con:
                 self.assertEqual(set(con.execute("SELECT tag,source FROM asset_tag WHERE asset_id=1"
-                                                 " AND tag NOT LIKE '演员:%'")),
+                                                 " AND tag NOT LIKE 'performer:%'")),
                                  {("高跟", "javinizer:javdb:tag"), ("丝袜", "javinizer:javdb:tag")})
 
     def test_explicit_sources_ask_every_named_source_and_refuse_retired_names(self):
@@ -6549,7 +6568,7 @@ class Fc2SellerAndDescriptiveNameRepairTests(unittest.TestCase):
             con.execute("INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(?,?,?,?)",
                         (asset_id, entity_id, role, source))
         con.execute("INSERT INTO asset_tag(asset_id,tag,confidence,source) VALUES(11,?,0.6,?)",
-                    ("演员:145cm色白お嬢様", "javinizer:javdb:performer"))
+                    ("performer:145cm色白お嬢様", "javinizer:javdb:performer"))
         con.execute("INSERT INTO entity_alias(entity_id,alias,normalized_alias,source,confidence)"
                     " VALUES(3,'色白お嬢様','色白お嬢様','test',1.0)")
         con.execute("INSERT INTO review_decision(category,item_key,status,reviewer,note,updated_at)"

@@ -39,6 +39,7 @@ import { useEntityOnline } from './use-entity-online';
 import { PENDING_REFETCH_MS, usePendingWorkRefetch } from '../components/pending-work';
 import { pollUntil } from '../../polling';
 import { t } from '../../i18n';
+import { codedText } from '../../core/server-text';
 
 /** 订上新作后等服务端那一轮拉取：几秒问一次，最多等两分钟。 */
 const FEED_CHECK_POLL_MS = 3000;
@@ -414,7 +415,7 @@ function EntityLoaded(props: EntityPageProps & { entity: EntityPageData }) {
       picked ? t('catalog:tagFilters.selectedCount', { count: picked }) : '',
     ].filter(Boolean).join(' · ') : '';
   } else if (wallPage && !wallPage.error) {
-    readout = inSet ? t('catalog:entityPage.setImageCount', { title: wallPage.title, count: wallPage.total || 0 })
+    readout = inSet ? t('catalog:entityPage.setImageCount', { title: codedText(wallPage, 'title'), count: wallPage.total || 0 })
       : photoReadout(wallPage, codeSetsOf(wallPage).length);
   } else busy = wall.isPending;
 

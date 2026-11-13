@@ -50,25 +50,28 @@ JAV_CODE = re.compile(r"^([A-Za-z]{2,6})-(\d{2,5})$")
 KANA_KANJI = re.compile(r"[぀-ゟ一-鿿]")   # 平假名或汉字
 KATAKANA = re.compile(r"[゠-ヿ]")
 
+#: 复核件 `verdict` 列：改名、保留（片假名外来语／来源也是拉丁／已是日文）、各页製作商不一致、没取到、
+#: 不适用（非番号体系）。`apply_studio_name_localization.py` 只认 `rename`。
 RENAME, KEEP_KATAKANA, KEEP_LATIN, KEEP_JP, SPLIT, UNKNOWN, SKIP = (
-    "改名", "保留（片假名外来语）", "保留（来源也是拉丁）", "保留（已是日文）",
-    "不一致", "未取得", "不适用（非番号体系）")
+    "rename", "keep-katakana", "keep-latin", "keep-japanese", "makers-differ", "missed", "not-applicable")
+#: 复核件 `shape` 列：名字里有汉字或平假名、只有片假名、只有拉丁字母。
+KANA_KANJI_SHAPE, KATAKANA_SHAPE, LATIN_SHAPE = "kana-kanji", "katakana", "latin"
 
 
 # ---------------------------------------------------------------- 判定
 
 def shape(name: str) -> str:
-    """按用户的判据给名字分类：只有「汉字假名」这一类才值得顶掉英文写法。"""
+    """按用户的判据给名字分类：只有汉字假名这一类才值得顶掉英文写法。"""
     if KANA_KANJI.search(name):
-        return "汉字假名"
+        return KANA_KANJI_SHAPE
     if KATAKANA.search(name):
-        return "片假名"
-    return "拉丁"
+        return KATAKANA_SHAPE
+    return LATIN_SHAPE
 
 
 def decide(current: str, makers: list[str]) -> tuple[str, str, str]:
     """返回 (判词, 建议名, 证据说明)。makers 是各番号页读到的製作商，按出现顺序。"""
-    if shape(current) != "拉丁":
+    if shape(current) != LATIN_SHAPE:
         return KEEP_JP, "", t("localize_studio_names.alreadyJapanese")
     found = [m for m in dict.fromkeys(makers) if m]
     if not found:
@@ -78,11 +81,11 @@ def decide(current: str, makers: list[str]) -> tuple[str, str, str]:
     maker = found[0]
     corroboration = (t("localize_studio_names.codesAgree", count=len(makers)) if len(makers) > 1
                      else t("localize_studio_names.singleCode"))
-    if shape(maker) == "片假名":
+    if shape(maker) == KATAKANA_SHAPE:
         return KEEP_KATAKANA, "", t("localize_studio_names.makerKatakana", maker=maker, corroboration=corroboration)
     if maker == current:
         return KEEP_JP, "", t("localize_studio_names.makerSame", corroboration=corroboration)
-    if shape(maker) == "拉丁":
+    if shape(maker) == LATIN_SHAPE:
         # 来源自己也写拉丁，两边差的只是空格或符号，那不是「去罗马音」，别拿它改名。
         return KEEP_LATIN, "", t("localize_studio_names.makerLatin", maker=maker, corroboration=corroboration)
     return RENAME, maker, t("localize_studio_names.makerFound", maker=maker, corroboration=corroboration)
@@ -188,7 +191,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
             targets = targets[:args.limit]
         for entity in targets:
             name = entity["canonical_name"]
-            if shape(name) != "拉丁":
+            if shape(name) != LATIN_SHAPE:
                 stats[KEEP_JP] += 1
                 continue
             groups = code_groups(connection, name, args.codes, args.depth)

@@ -36,7 +36,7 @@ import { RecommendationReason } from './recommendation-reason';
 import { useLibraryTints } from './library-tint';
 import { suppressShiftTextSelection } from './row-click';
 import { joinList, t } from '../../i18n';
-import { codedText, serverLabelList } from '../../core/server-text';
+import { codedText, partsLabel, serverLabelList } from '../../core/server-text';
 
 /** 竖屏一律同一个比例，不按每条视频的实际宽高：竖屏条与竖屏网格才高低一致。 */
 const PORTRAIT_RATIO = 9 / 16;
@@ -112,6 +112,10 @@ export interface MediaCardProps {
 }
 
 /** 署名：头像和名字落到同一个身份上（`cardIdentity`）。共演只写第一位再给总人数。 */
+/** 版本数角标的提示：同番号的几个版本名，按当前语言拼（版次随语言，规格是文件名里的原样）。 */
+export const editionNames = (group: NonNullable<MediaItem['edition_group']>) =>
+  group.editions.map((label, index) => partsLabel(group.editions_parts?.[index], label)).join(' · ');
+
 export function identityParts(item: MediaItem): { avatar: ReactNode; who: ReactNode } {
   const { kind, name, coStarred, performers, refs, total } = cardIdentity(item);
   const performer = performers[0] || '';
@@ -285,7 +289,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
       <span data-media-trash-mark=""><Icon name="trash" /><b>{t('shell:shared.trash')}</b></span>
       {parts && !editions ? <span data-media-group="">{t('shell:mediaCard.partCount', { count: Number(parts.count) })}</span> : null}
       {editions
-        ? <span data-media-group="" title={editions.editions.join(' · ')}>{t('shell:mediaCard.editionCount', { count: Number(editions.count) })}</span>
+        ? <span data-media-group="" title={editionNames(editions)}>{t('shell:mediaCard.editionCount', { count: Number(editions.count) })}</span>
         : null}
       {Number(shownDuration) > 0 ? <span data-media-duration="">{fmtDur(shownDuration)}</span> : null}
       {!selectMode && item.disposal === 'trash' ? <ResourceAction item={item} actions={actions} /> : null}

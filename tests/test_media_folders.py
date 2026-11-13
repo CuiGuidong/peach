@@ -189,7 +189,7 @@ class MediaFolderTests(unittest.TestCase):
     def test_performer_and_seller_use_existing_entity_contracts(self):
         self.save(purpose='performer', name='演示人物')
         with self.contract.read_connection() as connection:
-            self.assertEqual(connection.execute("SELECT count(*) FROM asset_tag WHERE tag='演员:演示人物'").fetchone()[0], 2)
+            self.assertEqual(connection.execute("SELECT count(*) FROM asset_tag WHERE tag='performer:演示人物'").fetchone()[0], 2)
         self.save(purpose='seller', name='演示卖家')
         with self.contract.read_connection() as connection:
             self.assertEqual(connection.execute("SELECT count(*) FROM entity_classification WHERE value='seller' AND status='approved'").fetchone()[0], 1)

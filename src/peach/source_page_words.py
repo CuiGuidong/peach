@@ -79,8 +79,6 @@ JAVDB_FIELDS = {
     "director": "導演",
     "release_date": "日期",
 }
-#: 评论区磁力链接的 `source` 取值：资源缓存与前端按它比较，界面另按 `source_code` 显示。
-JAVDB_COMMENT_SOURCE = "JavDB 评论"
 #: FANZA 限定版带生写真特典的原题：`【FANZA限定】<原题> 生写真N枚付き`。
 FANZA_LIMITED_PREFIX = "【FANZA限定】"
 FANZA_PHOTO_BONUS_TITLE = r"【FANZA限定】(.+) 生写真[1-9]\d?枚付き"

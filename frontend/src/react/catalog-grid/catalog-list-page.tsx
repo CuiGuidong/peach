@@ -15,7 +15,7 @@ import { apiGet } from '../../api';
 import { ArtSlot } from '../components/art-slot';
 import { useLibraryTints } from '../components/library-tint';
 import { catalogListSkeletonCellHtml } from '../../catalog-content-skeleton';
-import { identityParts } from '../components/media-card';
+import { editionNames, identityParts } from '../components/media-card';
 import { useEntityNames } from '../use-entity-names';
 import { SourceMark } from '../settings/section';
 import { DataTableFrame } from '../components/data-table-frame';
@@ -256,7 +256,7 @@ function ListIdentity({ item, props, disabled }: { item: MediaItem; props: Catal
       <span data-list-picture="">{artwork.html
         ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} /> : <span>{t('catalog:catalogList.noPreview')}</span>}
         {parts && !editions ? <span data-media-group="">{t('catalog:catalogList.partCount', { count: Number(parts.count) })}</span> : null}
-        {editions ? <span data-media-group="" title={editions.editions.join(' · ')}>{t('catalog:catalogList.editionCount', { count: Number(editions.count) })}</span> : null}
+        {editions ? <span data-media-group="" title={editionNames(editions)}>{t('catalog:catalogList.editionCount', { count: Number(editions.count) })}</span> : null}
         {watched > 0
           ? <span data-media-progress="" role="progressbar" aria-label={t('catalog:catalogList.watchProgress')} aria-valuemin={0} aria-valuemax={100}
             aria-valuenow={Math.round(watched * 100)}>

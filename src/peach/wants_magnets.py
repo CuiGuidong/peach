@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from .coded_text import Said, coded
 from .sources import FailureReason, SourceFailure
 from .catalog_rules import normalise_code_key
+from .catalog_vocabulary import resource_item
 from .fsutil import atomic_write_text
 from .jav_cache import cache_fresh, cache_lifetime as cache_lifetime
 
@@ -68,8 +69,10 @@ class MagnetSearch:
                 if (type(saved) not in (int, float) or not math.isfinite(saved)
                         or saved > self.wallclock() or not reusable_result(row.get('result'))):
                     continue
+                # 旧版写进缓存的中文来源与属性（「JavDB 评论」「中字」「高清」）读入时换成 id。
+                result = {**row['result'], 'items': [resource_item(item) for item in row['result']['items']]}
                 self.cache[normalise_code_key(row['code'])] = (
-                    self.clock() - (self.wallclock() - saved), row['result'])
+                    self.clock() - (self.wallclock() - saved), result)
                 self.saved_wall[normalise_code_key(row['code'])] = saved
         except (OSError, ValueError, TypeError, AttributeError):
             return

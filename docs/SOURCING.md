@@ -575,7 +575,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
   有空格、括号内逗号分隔、两侧都是罗马字」。同一个字面形状在账本里还用于厂牌消歧（`AV DEBUT（本物人妻）`）、
   角色出处（`アスナ(SAO)`）、接稿状态和去重后缀，只能靠这条签名收窄。
 - `XX XX` 是来源节点文字重复，不是合法别名。person 名进入 CSV、兼容字段或 `upsert_asset_entity` 之前先收敛
-  完整重复串；清理时同时审计 `asset.creator`、`演员:` 标签和 `entity_alias`。
+  完整重复串；清理时同时审计 `asset.creator`、`performer:` 标签和 `entity_alias`。
 - 判断「账本已经有这个名字」要连罗马字一起看，不能用 `peach.entities.name_chain`。那条链按设计剔掉罗马字
   （拿罗马字去日文站查是白跑），拿它当「已有」判据会把 `entity_alias` 里明摆着的 `Rin Natsuki` 再报一遍新别名。
   要全量就直接读 `canonical_name` 加 `entity_alias`。
@@ -604,7 +604,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
 - creator 与 performer 跨类重复不用「作品多的一侧」规则。只有两边非空作品集合完全相同，并且 performer 别名
   精确命中 creator 名、或 creator 名由 performer 本名与账号别名组成时，才自动归并。
 - `r18:performer`／`javbus:performer` 是正式发行的出演元数据，保留 performer；通用 `performer` 是压平后的兼容
-  断言，保留 creator。合并要同步 `asset.creator` 与 `演员:` 投影，否则已删的实体仍会在详情页伪造链接。
+  断言，保留 creator。合并要同步 `asset.creator` 与 `performer:` 投影，否则已删的实体仍会在详情页伪造链接。
 - `merge_entity` 的两个陷阱：sqlite 连接默认 `foreign_keys=OFF`，子表行必须在函数内显式 DELETE；计数用
   `SELECT changes()`，不用连接累计的 `total_changes`。合并不可逆，合并后 `PRAGMA foreign_key_check` 应为 0。
 
@@ -732,7 +732,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
   中文名；末尾成串的裸 `@A @B @C` 是互推，`📷：@X` 是摄影师，都不建。
 - **发行平台既不是厂牌也不是创作者。** FC2、myfans 这类是卖东西的地方，站上有实际卖主（出品者）的那个账号才是
   creator。平台本身只能当来源／平台实体，链接按 `catalog` 登记，不给它找「厂牌官网」：
-  `studio_sites.PLATFORM_ENTITIES` 直接判「不适用（发行平台）」，一个请求都不发，也不静默跳过。
+  `studio_sites.PLATFORM_ENTITIES` 直接判 `platform`（不适用：发行平台），一个请求都不发，也不静默跳过。
 - 账本里有些 FC2 作品标着女优、有些评论里提到人，那是 **performer** 身份，不能顺手把平台记成创作者。一旦记了，
   这个平台下所有卖主的作品都会挂到同一个「创作者」名下，和给聚合目录打统一标签是同一类事故。
 - 转载渠道水印不是创作者水印，目录名也可能是伪装。判定优先级：画面水印 > 作品名联网反查 > 文件名文本。
@@ -1267,14 +1267,14 @@ AV 厂牌 Logo 的来源是厂牌自己的社交账号头像：社交头像天�
   声明的图标和 header。有官网的一概不走：账本里的社媒绝大多数挂在艺人身上，混进来就成了运营的自拍。twimg 的头像地址不带签名。
 - **共享主机守卫。** 主机级发现只代表主机，代表不了同一主机路径下的频道：`bangbros.com/websites/` 下三个厂牌的 official 链接会
   坍缩成同一个主机，取到站点模板的通用 favicon。所以链接带非根路径时，
-  `studio_icons.py` 给 `site_icons.best_mark(accept=...)` 挂守卫：`site_icons.HOST_SCOPE` 的候选不算数，判词 `平台通用图标`，证据写明
+  `studio_icons.py` 给 `site_icons.best_mark(accept=...)` 挂守卫：`site_icons.HOST_SCOPE` 的候选不算数，判词 `shared-icon`（平台通用图标），证据写明
   主机、哪一份和 sha256。`/link-mark` 本来就按主机（`cache_key` 也按主机），不受这条约束。
 - **可达性探测要扛住 TLS 抖动。** `install_entity_links.resolves` 对传输层异常重试三次，状态码一次成局。`site_logos.logo_images`
   丢掉 `data:` 懒加载占位图，它顶着标识的 class，取字节又打不开。
 - **Instagram 头像**：`--avatars` 读本机 `peach-data/state/agency-avatars.json`，是人工地址输入，不是通用解析器；地址发现与
   字节下载分开验证，取图边界见 [来源采集](SOURCING.md) 与 [ADR-0024](adr/0024-mark-manifest-not-bundled-bytes.md)。
 - **字标补白**：方标一个都没做成、却取回过短边 ≥ `MIN_SHORT_EDGE` 的宽扁字标时，用 `peach.images.bake_square` 烤成方图装上，判词
-  `字标补白`，`content_aspect` 照记。同一份方图再出一行 `logo`（判词 `ok`）装进 `<safe>.logo.img`，否则大位会回落到 `<safe>.img`
+  `padded-wordmark`（字标补白），`content_aspect` 照记。同一份方图再出一行 `logo`（判词 `ok`）装进 `<safe>.logo.img`，否则大位会回落到 `<safe>.img`
   （BangBus 页顶上就会挂母品牌 BANGBROS）。人工指定的 logo 来源做成时优先；留第一份而不是最大的一份，因为 `best_mark` 的遍历
   顺序已经是「覆盖表 → 声明 → 根路径猜测」。BangBus、BangBros18 的字标取自 `bangbros.com/websites` 服务端渲染进 HTML 的
   `*_LOGO` 资产（注意 `/` 转义）；MonstersOfCock 没有对应资产，记**未取得**，继续用现有的 `MonstersOfCock.img`，不用推测顶替。
@@ -1293,12 +1293,12 @@ AV 厂牌 Logo 的来源是厂牌自己的社交账号头像：社交头像天�
 | 判词 | 含义与下一步 |
 | --- | --- |
 | `ok` | 可装 |
-| `字标补白` | 可装，见上 |
-| `只有小图标` | FC2 全站只有 16×16，该去找更大的资产 |
-| `平台通用图标` | 见「共享主机守卫」 |
-| `仍是字标` | 没有合格方标 |
-| `未取得` | 一份字节都没取回，`Fetcher` 自己数取回几份才判得出来 |
-| `无官网链接` | 先补链接 |
+| `padded-wordmark`（字标补白） | 可装，见上 |
+| `small-icon-only`（只有小图标） | FC2 全站只有 16×16，该去找更大的资产 |
+| `shared-icon`（平台通用图标） | 见「共享主机守卫」 |
+| `still-wordmark`（仍是字标） | 没有合格方标 |
+| `missed`（未取得） | 一份字节都没取回，`Fetcher` 自己数取回几份才判得出来 |
+| `no-site-link`（无官网链接） | 先补链接 |
 
 只有前两档会被 `--install` 写盘。`best_mark` 只回结果不回理由，退回原因由 `SquareMark` 就地记下，否则复核件上只剩一个空判词。
 

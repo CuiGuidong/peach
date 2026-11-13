@@ -65,6 +65,7 @@ from peach.jobs import DiskGuard, JobPolicyError
 from peach.task_runs import TaskRunHandle, cli_run, inert_handle
 from peach.user_messages import UserFacingError, failure_fields, nested_message
 from peach.platform import system_volume
+from peach.catalog_vocabulary import FETCH_FOUND, FETCH_MISSED, fetch_result
 from peach.catalog_rules import (
     code_letter_stem,
     code_serial,
@@ -118,8 +119,8 @@ NO_USABLE_OFFICIAL = tuple(_zh(code) for code in NO_USABLE_OFFICIAL_CODES)
 PLACEHOLDER_REASON = _zh(PLACEHOLDER_CODE)
 OFFICIAL_PLACEHOLDER_ONLY = _zh(OFFICIAL_PLACEHOLDER_ONLY_CODE)
 MIB_NOT_JAV = _zh(MIB_NOT_JAV_CODE)
-#: 批量封面日志 `result` 列的取值。旧日志按这两个值读回，是数据，不随界面语言变。
-FOUND, MISSED = "取得", "未取得"
+#: 批量封面日志 `result` 列的取值（ADR-0162 的英文 id）。读回时先经 `fetch_result` 归一，旧日志里的中文值也认。
+FOUND, MISSED = FETCH_FOUND, FETCH_MISSED
 #: 量尺寸只需要 JPEG 头部，别把整张 1 MB 的图拉下来。
 PROBE_BYTES = 64 * 1024
 # 瞬时 TLS EOF / 连接重置不能落成“官方没有封面”。按项目外网退避规则重试，
@@ -403,7 +404,7 @@ def fc2_cover_candidates(path: Path | None) -> dict[str, Candidate]:
     for row in read_rows(path):
         url = re.sub(r"(/w)\d+(/)", r"\g<1>1200\2", str(row.get("cover_url") or ""), count=1)
         code = normalise_code_key(str(row.get("code") or ""))
-        if (row.get("result") == FOUND and not row.get("is_collection")
+        if (fetch_result(row.get("result")) == FOUND and not row.get("is_collection")
                 and code.startswith("FC2-PPV-") and IMAGE_URL.fullmatch(url)):
             found[code] = Candidate(urlparse(url).netloc.lower(), url, "https://fc2cmadb.com/")
     return found
@@ -526,7 +527,7 @@ def logged_success_evidence(
     """复用历史精确 URL 与已量尺寸；DUGA 等无需重复探同一张图。"""
     for row in reversed(rows):
         if (normalise_code_key(str(row.get("code") or "")) == code
-                and row.get("result") == FOUND
+                and fetch_result(row.get("result")) == FOUND
                 and isinstance(row.get("url"), str)
                 and IMAGE_URL.fullmatch(str(row["url"]))):
             try:
@@ -1052,7 +1053,7 @@ def settled_misses(log: Path) -> set[str]:
                 and str(row.get('catalog_rules')) == str(upgrade_rules.OFFICIAL_COVER_CATALOG_MISSES))
 
     return {str(row.get("code") or "").strip() for row in rows
-            if row.get("result") == MISSED
+            if fetch_result(row.get("result")) == MISSED
             and confirmed(row)
             and not TRANSIENT.search(str(row.get("note") or ""))
             and str(row.get("code") or "").strip()}
@@ -1077,7 +1078,7 @@ def restore_logged_successes(transport: HttpTransport, log: Path, root: Path,
     # 恢复不做发现请求，所以它比抓取更容易把历史错图原样搬回本地：跨片封套与 MIB
     # 在这里也要挡掉，否则删掉错图重跑恢复只会把同一张再下一次。
     successes = [row for row in logged_rows(log)
-                 if row.get("result") == FOUND and row.get("code") and row.get("url")
+                 if fetch_result(row.get("result")) == FOUND and row.get("code") and row.get("url")
                  and not is_cross_product_cover(str(row["code"]), str(row["url"]))
                  and not is_korean_mib_code(str(row["code"]))]
     for index, row in enumerate(successes, 1):
@@ -1200,8 +1201,8 @@ def audit_state(database: Path, root: Path, log: Path) -> dict[str, object]:
         "missing": len(codes - set(dimensions)),
         "invalid": invalid,
         "width_buckets": widths,
-        "log_successes": sum(row.get("result") == FOUND for row in rows),
-        "log_misses": sum(row.get("result") == MISSED for row in rows),
+        "log_successes": sum(fetch_result(row.get("result")) == FOUND for row in rows),
+        "log_misses": sum(fetch_result(row.get("result")) == MISSED for row in rows),
         "settled_misses": len(settled_misses(log)),
     }
 

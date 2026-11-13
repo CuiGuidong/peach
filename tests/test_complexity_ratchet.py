@@ -51,7 +51,7 @@ BASELINE: dict[str, int] = {
     "src/peach/taste_history.py:_taste_analysis": 34,
     "src/peach/web_catalog.py:catalog_filter": 40,
     "scripts/audit_domain_codes.py:collect": 39,
-    "scripts/harvest_social_avatars.py:harvest_entity": 37,
+    "scripts/harvest_social_avatars.py:harvest_entity": 36,
     "scripts/merge_duplicate_identities.py:collect_repeated_projections": 34,
     "src/peach/fc2_similarity.py:media_evidence": 34,
     "scripts/clean_names.py:run": 33,

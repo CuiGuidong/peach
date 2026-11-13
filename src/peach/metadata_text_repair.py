@@ -1,7 +1,7 @@
 """按字段归属和同番号来源证据补修已损坏的机器文字。
 
 0.51.0 之前中文 Windows 上的采集桥按 GBK 输出、主程序按 UTF-8 宽松读，人物名里留下 U+FFFD
-（#478）。刮削来源（`javinizer:*`）挂上的这类人物关联在升级时直接解除，`演员:` 标签一起删，
+（#478）。刮削来源（`javinizer:*`）挂上的这类人物关联在升级时直接解除，`performer:` 标签一起删，
 作品按现行严格解码重采；失去全部关联、也没有人维护痕迹的乱码实体连同子表行删掉。删掉的每一行
 原样记进升级回执的 `garbled_people`，可用
 `revert_auto_landing.py --source upgrade:garbled-performers` 整批插回。
@@ -227,7 +227,7 @@ def _dispose(connection, entity_id: int) -> dict:
 
 
 def _unlink_garbled(connection, rows: list[dict]) -> dict:
-    """解除乱码人物的刮削关联与对应的 `演员:` 标签；人手挂的关联不在选择范围内。"""
+    """解除乱码人物的刮削关联与对应的 `performer:` 标签；人手挂的关联不在选择范围内。"""
     links, tags, assets, entities = [], [], [], []
     for row in rows:
         if row['action'] != 'unlink':

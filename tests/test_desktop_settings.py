@@ -175,16 +175,16 @@ class DesktopSettingsTests(unittest.TestCase):
                 patch.object(settings_file, 'load_config', return_value=self.config), \
                 patch.object(desktop_uninstall, 'request', return_value={'accepted':True}) as remove:
             self.assertEqual(client.post('/api/configuration/uninstall',json={'delete_data':True}).status_code,400)
-            self.assertEqual(client.post('/api/configuration/uninstall',json={'delete_data':True,'confirmation':'卸载 Peach'},
+            self.assertEqual(client.post('/api/configuration/uninstall',json={'delete_data':True,'confirmation':'uninstall-peach'},
                                          headers={'origin':'https://other.invalid'}).status_code,403)
             remove.assert_not_called()
-            self.assertEqual(client.post('/api/configuration/uninstall',json={'delete_data':False,'confirmation':'卸载 Peach'}).status_code,200)
+            self.assertEqual(client.post('/api/configuration/uninstall',json={'delete_data':False,'confirmation':'uninstall-peach'}).status_code,200)
             remove.assert_called_once_with(self.config,False)
             from peach.jobs import BackgroundJob
             follow = BackgroundJob('PeachFollowCheckJob', task_key='follow-check')
             follow.state = {'job_id': 'running-follow', 'status': 'running'}
             app.state.web_contract = SimpleNamespace(follow_job=follow)
-            busy = client.post('/api/configuration/uninstall',json={'delete_data':False,'confirmation':'卸载 Peach'})
+            busy = client.post('/api/configuration/uninstall',json={'delete_data':False,'confirmation':'uninstall-peach'})
             self.assertEqual(busy.status_code,409)
             self.assertEqual(busy.json()['detail']['message'],'追更检查正在运行，请在任务中心等它完成或取消后再卸载')
             remove.assert_called_once()

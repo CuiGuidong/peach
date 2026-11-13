@@ -42,7 +42,7 @@ class RejectFixture(unittest.TestCase):
             [(11, 30, STAMP), (12, 31, STAMP), (13, 31, STAMP)])
         self.con.execute(
             "INSERT INTO entity_link(entity_id,link_kind,label,url,hostname,created_at,updated_at)"
-            " VALUES(30,'official','官方网站','https://miss.co.jp/','miss.co.jp','t','t')")
+            " VALUES(30,'official','official-site','https://miss.co.jp/','miss.co.jp','t','t')")
         self.con.execute(
             "INSERT INTO entity_external_ref(entity_id,provider,external_kind,external_id,"
             "metadata_json,last_synced_at) VALUES(30,'minnano-av','production','1215','{}',?)",
@@ -143,7 +143,7 @@ class RejectTests(RejectFixture):
         wrong = self.add_link("株式会社Miss", "https://ones-double.com/people/mikami-yua/",
                               "ones-double.com")
         self.reject("三上悠亚", "株式会社Miss")
-        self.assertEqual(self.label(wrong), "官方网站")
+        self.assertEqual(self.label(wrong), "official-site")
 
 
 class WriteBackTests(RejectFixture):
@@ -173,7 +173,7 @@ class WriteBackTests(RejectFixture):
             "'ones-double.com','t','t')")
         found = [row for row in collect_labels(self.con) if row["entity_id"] == 11]
         self.assertEqual([(row["verdict"], row["new_label"], row["agency"]) for row in found],
-                         [("auto", "官方网站", "")])
+                         [("auto", "official-site", "")])
 
 
 if __name__ == "__main__":

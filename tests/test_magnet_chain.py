@@ -33,7 +33,7 @@ class MagnetChainTests(unittest.TestCase):
                       date='', attributes=[], source='JavDB', source_url='https://example.test/work', origins=['JavDB'])
                  for index in range(10)]
         links.append({**links[0], 'id': 'ed2k:example', 'protocol': 'ed2k', 'info_hash': '',
-                      'uri': 'ed2k://|file|ABC-123|1234|' + 'a' * 32 + '|/', 'source': 'JavDB 评论'})
+                      'uri': 'ed2k://|file|ABC-123|1234|' + 'a' * 32 + '|/', 'source': 'javdb-comments'})
         direct = _normalise({'uri': item(HASH_A)['uri'], 'size': '8 GiB'}, CHAIN[0], 'ABC-123')
         with patch('peach.magnet_chain.search', return_value={'items': [direct], 'linked_resources': links}):
             shown = fetch(Path('.'), 'ABC-123')['items']
@@ -62,11 +62,13 @@ class MagnetChainTests(unittest.TestCase):
     def test_wishlist_candidates_have_display_and_download_fields(self):
         from peach.wants_magnets import fetch
         candidate = _normalise({'uri': item(HASH_A)['uri'], 'size': '2 GiB',
-                                'attributes': ['中字']}, CHAIN[1], 'ABC-123')
+                                'attributes': ['chinese-subtitles']}, CHAIN[1], 'ABC-123')
+        # JavDB 磁链的中字属性是 id，名字里没写中字也算中字。
+        self.assertTrue(candidate['chinese'])
         with patch('peach.magnet_chain.search', return_value={'items': [candidate]}):
             result = fetch(Path('.'), 'ABC-123')['items'][0]
         self.assertEqual(result['protocol'], 'magnet')
-        self.assertEqual(result['attributes'], ['中字'])
+        self.assertEqual(result['attributes'], ['chinese-subtitles'])
         self.assertEqual(result['size'], '2 GiB')
 
     def test_unavailable_sources_without_results_use_the_failure_cooldown(self):

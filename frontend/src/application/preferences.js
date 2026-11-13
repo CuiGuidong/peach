@@ -4,6 +4,7 @@ import { buildBars, catalogState, dropOfflineFromDefaultLoc, homePath, loadCatal
 import { appSettingsStore } from './../appearance/settings';
 import { interfaceLanguage, storedInterfaceLanguage, t } from '../i18n';
 import { entityDisplayName, setNameLanguage } from '../core/entity-names';
+import { orientLabel } from '../core/stored-values';
 import { playUiSound, setUiSoundsEnabled, wireUiSounds } from '../ui-kit/sounds';
 import { applyTheme, watchSystemTheme } from './../appearance/theme';
 import { applyAccent, applyGlassFaces, applyHomeGlow, paintHomeGlowNow } from './../appearance/glow';
@@ -70,7 +71,7 @@ export function sidebarFacets(facetData,context){
   return {
     locations:(facetData.locations||[]).map(row=>({value:row.k,label:LOC[row.k]||row.k,n:row.n??null,dot:sidebarDot(row.k),
       ...(preferencesState.sourceOffline(row.k)?{offline:preferencesState.OFFLINE_HINT}:{})})),
-    regions:rows(facetData.regions),orientations:rows(facetData.orientations),years:rows(facetData.years),
+    regions:rows(facetData.regions),orientations:rows(facetData.orientations,row=>orientLabel(row.k)),years:rows(facetData.years),
     creators:rows(creators,row=>entityDisplayName('creator',row.k)),tags:rows(facetData.tags),tech:rows(facetData.tech),
     followTags:rows(facetData.follow_tags,row=>tagLabel(row.k)),
     duration:!!facetData.stats?.duration,

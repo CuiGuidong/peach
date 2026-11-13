@@ -17,14 +17,14 @@ r"""从 javdb 资料页取女优的中文写法，产出可喂给 `localize_perf
 三条闸：
 
 1. **账本的名字必须出现在「现名」那一栏。** 只出现在旧艺名里说明站上已经改了名，
-   用哪个名字当规范名是人要决定的事（`京香じゅりあ` 那页现名是 `JULIA`），记 `旧名`。
+   用哪个名字当规范名是人要决定的事（`京香じゅりあ` 那页现名是 `JULIA`），记 `former-name`。
 2. **中文写法只认整名汉字、无假名无拉丁的那一个。** 有两个就是站上把别的名字也并进
-   了同一栏，记 `多义`，不猜。
+   了同一栏，记 `ambiguous`，不猜。
 3. **搜索命中多页时全部记下来**，不取第一个——取第一个是默默替用户挑了一位。
 
 现名栏里并排的两个值不一定是同一个名字的两种写法，也可能是两个艺名
-（`一之瀨亞美莉, 美空あやか`）。姓对不上就不是一对，判 `不同名`；账本规范名压根不在
-现名栏、只靠别名对上的，判 `改艺名`——换规范名是人要决定的事。
+（`一之瀨亞美莉, 美空あやか`）。姓对不上就不是一对，判 `unrelated-names`；账本规范名压根不在
+现名栏、只靠别名对上的，判 `renamed`——换规范名是人要决定的事。
 
 `?locale=zh-CN` 只切界面语言，女优名是数据不跟着变（2026-09-04 实测：简体界面下
 `愛音麻里亞` 仍是繁体）。所以不带这个参数——带上只会让缓存键变一套、把已经取回的
@@ -75,19 +75,21 @@ KANA = re.compile(r"[぀-ヿ]")
 HAN = re.compile(r"[㐀-䶿一-鿿]")
 LATIN = re.compile(r"[A-Za-z]")
 
+#: 复核 CSV 的 `verdict`，`localize_performer_names.py` 与 `apply_alias_candidates.py` 按 `--accept` 读：
+#: 对上了、只在旧艺名栏、中文写法不止一个、站上只有日文名、要登录、搜不到、取页失败。
 OK, FORMER, AMBIGUOUS, SAME_SHAPE, LOGIN, MISSING, FAILED = (
-    "ok", "旧名", "多义", "同形（站上只有日文名）", "要登录", "未取得", "取页失败")
+    "ok", "former-name", "ambiguous", "japanese-only", "login-required", "missed", "fetch-failed")
 #: 靠别名对上的页，现名栏写的是另一个艺名。换规范名是人要决定的事。
-RENAMED = "改艺名（现名栏是另一个艺名）"
-#: 现名栏并排的两个名字不是同一个名字的两种写法。
-UNRELATED = "不同名（两栏姓氏对不上）"
+RENAMED = "renamed"
+#: 现名栏并排的两个名字不是同一个名字的两种写法（两栏姓氏对不上）。
+UNRELATED = "unrelated-names"
 
 #: 名字开头那一串汉字。日本艺名的姓写汉字、名写假名，中文写法保留同一个姓，
 #: 所以这一串是中日两栏能不能配成一对的判据。
 KANJI_HEAD = re.compile(r"[㐀-䶿一-鿿]+")
 
 #: `adopt` 是这一行建议采用的规范名。`ok` 行就是查到的中文写法；站上已经改了名的
-#: （`改艺名`、`旧名`）填站上的现名——有中文写法用中文写法，没有就用现名本身。
+#: （`renamed`、`former-name`）填站上的现名——有中文写法用中文写法，没有就用现名本身。
 #: 采不采用是落库那一步按 `--accept` 决定的，这里只把候选摆出来。
 FIELDS = ("entity_id", "current_name", "assets", "actor_id", "url",
           "jp", "zh_cn", "zh_tw", "adopt", "keywords", "verdict", "evidence")
@@ -101,14 +103,14 @@ ALIAS_FIELDS = ("entity_id", "current_name", "assets", "actor_id", "url",
 #: 现名底下那一栏站上没给标签，放的是这个人的其他叫法：旧艺名、昵称都在里面
 #: （`RJM8` 是 `橋本ありな、上乃木まな、岩谷志季、橋本有菜`，`KxPb` 只有一个爱称 `傻梦`）。
 #: 站上不给这一栏任何标签，解析层照样不给：判它是不是艺名要靠人认得这个人。
-CURRENT_ROW, OTHER_ROW = "现名栏", "别名栏"
+CURRENT_ROW, OTHER_ROW = "current-names", "other-names"
 #: 搜到两页同名的人。规范名那一份把两页都记下来让人挑，别名这一份一个都不产：
 #: 别名进的是身份，配错了人比缺一个写法更难查回来。
-CROWDED = "多页（同名两位，分不清是哪一页）"
+CROWDED = "several-pages"
 #: 这个写法已经挂在另一条实体名下。那是两条实体该不该合并的问题，不是补别名。
-TAKEN = "占用（另一条实体已有这个名字）"
+TAKEN = "taken"
 #: 页面上的中文写法账本都有了。这一行留着是为了证明这个人查过。
-NOTHING = "无新写法"
+NOTHING = "nothing-new"
 
 
 @lru_cache(maxsize=1)

@@ -46,7 +46,9 @@ CONTENT_FILES = {
     "junk_words.py",          # 推广套话、推广品牌、推广目录形态与分卷标记
 }
 #: 开发工具里整份只有数据的脚本，键是 `scripts/` 下的相对路径；数据和输出混在一起的脚本照常计数。
-DEV_CONTENT_FILES: set[str] = set()
+DEV_CONTENT_FILES = {
+    "legacy_values.py",  # 旧版复核产物与续跑日志里的中文取值到英文 id 的对照
+}
 CODE_KEYWORDS = {"code", "message_code"}
 CODED_CALLS = {"message_fields", "UserFacingError", "UserValueError", "UserRuntimeError", "UserPermissionError",
                "UserOSError", "UserTimeoutError", "UserInterruptedError", "CodePatternError"}

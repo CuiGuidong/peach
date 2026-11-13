@@ -280,6 +280,7 @@
     "serverOnly": "在运行 Peach 的电脑上打开这一页才能撤销。",
     "thisDevice": "本机",
     "unknownBrowser": "未识别的浏览器",
+    "androidTablet": "Android 平板",
     "viaRemoteAccess": "公网入口 · {{network}}"
   },
   "diagnosticsReporting": {

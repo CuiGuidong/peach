@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from urllib.parse import urljoin, urlsplit
 
 from .coded_text import Said
-from .content_words import RAW_ALIASES_KEY, RAW_NAME_KEY, WESTERN_OFFICIAL_LINK
+from .content_words import LINK_LABEL_OFFICIAL, RAW_ALIASES_KEY, RAW_NAME_KEY
 from .http import public_https_url
 from .western_artwork import babepedia_page
 from .performer_profiles import read_profile, write_profile
@@ -18,7 +18,7 @@ from .user_messages import UserValueError
 
 MONTHS = {name: i for i, name in enumerate(('January', 'February', 'March', 'April', 'May',
     'June', 'July', 'August', 'September', 'October', 'November', 'December'), 1)}
-LINK_NAMES = {'www': WESTERN_OFFICIAL_LINK, 'instagram': 'Instagram', 'x': 'X', 'tiktok': 'TikTok',
+LINK_NAMES = {'www': LINK_LABEL_OFFICIAL, 'instagram': 'Instagram', 'x': 'X', 'tiktok': 'TikTok',
     'onlyfans': 'OnlyFans', 'onlyfansfree': 'OnlyFans', 'twitch': 'Twitch',
     'imdb': 'IMDb', 'iafd': 'IAFD', 'facebook': 'Facebook', 'youtube': 'YouTube'}
 

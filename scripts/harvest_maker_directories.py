@@ -51,6 +51,10 @@ EXCLUSIVE = re.compile(r"^【[^】]*】")
 COOKIES = {"adc": "1"}
 FIELDS = ("directory", "slug", "maker_ja", "entity_id", "studio", "assets",
           "how", "logo_url", "state")
+#: `how` 列：slug 归一后相等、日文名相等、罗马字对上别名、唯一的前缀候选。
+SLUG_EQUAL, NAME_EQUAL, ROMAN_ALIAS, PREFIX_CANDIDATE = "slug-equal", "name-equal", "roman-alias", "prefix-candidate"
+#: `state` 列：现有标识用 `+` 连起来（`icon`、`logo`、主位 `main`），一样都没有记 `none`。
+MAIN_SLOT, NO_LOGO = "main", "none"
 
 PRESTIGE_API = "https://www.prestige-av.com/api/maker"
 PRESTIGE_MEDIA = "https://www.prestige-av.com/api/media/"
@@ -182,29 +186,29 @@ def match(slug: str, name_ja: str, by_roman: dict, by_text: dict):
     """返回（entity_id, canonical_name, 判据）；对不上返回 None。"""
     roman, text = fold_roman(slug), fold_text(name_ja)
     if roman and roman in by_roman:
-        return (*by_roman[roman], "slug 归一相等")
+        return (*by_roman[roman], SLUG_EQUAL)
     if text and text in by_text:
-        return (*by_text[text], "日文名相等")
+        return (*by_text[text], NAME_EQUAL)
     if roman and roman in by_text:
-        return (*by_text[roman], "罗马字对上别名")
+        return (*by_text[roman], ROMAN_ALIAS)
     if roman and len(roman) >= 4:
         # slug 是缩写时（`aknr` 对 `Akinori`）只能靠前缀，唯一命中才当候选。
         hits = {value for key, value in by_roman.items()
                 if len(key) >= 4 and (key.startswith(roman) or roman.startswith(key))}
         if len(hits) == 1:
-            return (*hits.pop(), "前缀候选")
+            return (*hits.pop(), PREFIX_CANDIDATE)
     return None
 
 
 def logo_state(safe: str, logo_root: Path) -> str:
     """这个厂牌现在两个位置上各有什么，决定这一枚是补空还是替换。"""
     if not logo_root.is_dir():
-        return "无图"
+        return NO_LOGO
     has = {"icon": (logo_root / f"{safe}.icon.img").is_file(),
            "logo": (logo_root / f"{safe}.logo.img").is_file(),
-           "主位": (logo_root / f"{safe}.img").is_file()}
+           MAIN_SLOT: (logo_root / f"{safe}.img").is_file()}
     marks = [key for key, ok in has.items() if ok]
-    return "+".join(marks) if marks else "无图"
+    return "+".join(marks) if marks else NO_LOGO
 
 
 def build_parser() -> argparse.ArgumentParser:

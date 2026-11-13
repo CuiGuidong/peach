@@ -355,13 +355,16 @@ class DeviceSessionTests(unittest.IsolatedAsyncioTestCase):
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 15_0) AppleWebKit/605.1.15 Version/19.0 Safari/605.1.15": "Safari · macOS",
             "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 Chrome/150.0 Safari/537.36 Edg/150.0": "Edge · Windows",
             "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/150.0 Mobile Safari/537.36": "Chrome · Android",
-            "Mozilla/5.0 (Linux; Android 16; SM-X910) AppleWebKit/537.36 Chrome/150.0 Safari/537.36": "Chrome · Android 平板",
+            "Mozilla/5.0 (Linux; Android 16; SM-X910) AppleWebKit/537.36 Chrome/150.0 Safari/537.36": "Chrome · Android tablet",
             "Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0": "Firefox · Linux",
             "python-httpx/0.28": "",
         }
         for agent, name in cases.items():
             with self.subTest(agent=agent):
                 self.assertEqual(access.device_name(agent), name)
+        # 会话文件里旧会话的中文系统词，列出时换成同一个词。
+        self.assertEqual(access._current_device("Chrome · Android 平板"), "Chrome · Android tablet")
+        self.assertEqual(access._current_device("Chrome · Android"), "Chrome · Android")
         self.assertEqual(access.network_of("198.51.100.20"), "198.51.100.0/24")
         self.assertEqual(access.network_of("::ffff:192.0.2.7"), "192.0.2.0/24")
         self.assertEqual(access.network_of("2001:db8:1:2:3:4:5:6"), "2001:db8:1:2::/64")

@@ -2,6 +2,7 @@
  * 条目与分页的形状以 `/api/items`（`src/peach/web_router.py`）为准。 */
 
 import type { FaceRef } from '@peach/card-art';
+import type { TextPart } from '../../core/server-text';
 /** 卡片署名行上一个实体的引用：头像取图与取景都从这里来。 */
 export interface MediaEntityRef extends FaceRef { id: number }
 
@@ -59,7 +60,8 @@ export interface MediaItem {
     key: string; seed_id: number; count: number; title?: string; title_code?: string; total_size?: number;
     total_duration?: number;
   } | null;
-  edition_group?: { key: string; seed_id: number; count: number; editions: string[] } | null;
+  /** 同番号的几个版本。`editions` 是 zh-CN 原文，同序的 `editions_parts` 按段给当前语言拼。 */
+  edition_group?: { key: string; seed_id: number; count: number; editions: string[]; editions_parts?: TextPart[][] } | null;
   [field: string]: unknown;
 }
 

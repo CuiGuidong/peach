@@ -345,7 +345,9 @@
     "rateLimited": "[{{index}}/{{total}}] 限流未取得 {{name}}",
     "verdicts": "判定分布：",
     "candidateCsv": "候选 CSV → {{path}}",
-    "notTruth": "这是候选，不是真相：命中项仍需人工确认后才能写 ledger 或下载头像。"
+    "notTruth": "这是候选，不是真相：命中项仍需人工确认后才能写 ledger 或下载头像。",
+    "verdictMatched": "命中",
+    "verdictNeedsReview": "需人工确认"
   },
   "identify_resources": {
     "description": "无番号视频的检索清单与候选合并",
@@ -454,7 +456,9 @@
     "notFound": "没找到",
     "checked": "复查",
     "stillThere": "实际还在（换了地址）",
-    "gone": "确实没了"
+    "gone": "确实没了",
+    "noJapaneseName": "没有可用于日文站的名字",
+    "noTitleMatch": "在 {{count}} 个候选里没有标题自述该人的页面"
   },
   "prune_ledger_backups": {
     "description": "清退旧的账本备份 `{{pattern}}`。默认只列计划，`--apply` 才删。",
@@ -1068,7 +1072,7 @@
   "repair_entity_links": {
     "sharedUrl": "{{count}} 个实体共用这一个地址",
     "hasDirectId": "账本里有 {{provider}} id",
-    "noDirectId": "账本里没有这个站的直达 id",
+    "noDirectId": "没有直达 id，不按名字拼地址",
     "entityLeak": "服务端收到的参数名带 amp; 前缀，真正的参数因此丢失",
     "plainHttp": "账本里存的是明文 http",
     "emptySegment": "路径里有空段",
@@ -1089,7 +1093,9 @@
     "foreignKeysKey": "foreign_key_check 违规",
     "toRepairKey": "待修",
     "requestsKey": "请求数",
-    "description": "全库审计 `entity_link`，并把能确证的那几类修法落成计划。\n\n用户在一位女优的资料页上点开 official 链接，落到了事务所的全站模特列表。那条链接\n200、有图、也确实是那家事务所——从后台看不出任何异常。他的要求是「检查所有的并修复」，\n所以这里不挑单条，而是把全库按形状过一遍。\n\n## 问题分四类，处置各不相同\n\n- **目录页**：链接落在「有哪些人」那一层。修法是在站点索引里按名字找回本人页。\n- **检索页**：把「这个人在那边是谁」交给站内检索去猜。只有账本里存着那个站的 id\n  才换成直达页；没有 id 就标 `保留检索页` 交给用户，**不按名字拼一个直达地址**——\n  拼出来的地址打开是 404 还算好的，打开是别人才麻烦。\n- **明文 http**：站点已提供 https 时升级。\n- **HTML 实体未还原**：`model.php?alias=x&amp;id=176` 是从页面源码里抄地址时把 `&amp;`\n  一起抄了进来，服务端收到的参数名成了 `amp;id`，`id` 因此丢失。\n\n同一实体同一站点有多条链接只报不改：那可能是同一个人的两个账号，也可能有一条是别人\n的，两种都要人看过才知道，脚本删哪一条都是替用户做决定。\n\n## 换地址前必须过的那一关\n\n新地址要回 200，**并且**页面标题自述这个人。标题这一关不能省：列表页同样回 200，\n少了它，一批人会被改写成同一个列表地址，而且每一条都「能打开」。\n\n纯粹换协议或还原实体时，新旧是同一页，标题里未必有人名（博客的标题常是栏目名）。\n这时改判「新地址的标题和旧地址完全一致」——那是比人名更强的同一页证据。两条都不\n成立就写 `未取得`，不进计划。\n\n限流按 `peach-batch-jobs`：同一域名两次请求至少隔 `--interval` 秒，整轮有\n`--max-requests` 上限，取回的页面在本轮内缓存（几十条链接共用同一张索引页）。\n"
+    "description": "全库审计 `entity_link`，并把能确证的那几类修法落成计划。\n\n用户在一位女优的资料页上点开 official 链接，落到了事务所的全站模特列表。那条链接\n200、有图、也确实是那家事务所——从后台看不出任何异常。他的要求是「检查所有的并修复」，\n所以这里不挑单条，而是把全库按形状过一遍。\n\n## 问题分四类，处置各不相同\n\n- **目录页**：链接落在「有哪些人」那一层。修法是在站点索引里按名字找回本人页。\n- **检索页**：把「这个人在那边是谁」交给站内检索去猜。只有账本里存着那个站的 id\n  才换成直达页；没有 id 就标 `保留检索页` 交给用户，**不按名字拼一个直达地址**——\n  拼出来的地址打开是 404 还算好的，打开是别人才麻烦。\n- **明文 http**：站点已提供 https 时升级。\n- **HTML 实体未还原**：`model.php?alias=x&amp;id=176` 是从页面源码里抄地址时把 `&amp;`\n  一起抄了进来，服务端收到的参数名成了 `amp;id`，`id` 因此丢失。\n\n同一实体同一站点有多条链接只报不改：那可能是同一个人的两个账号，也可能有一条是别人\n的，两种都要人看过才知道，脚本删哪一条都是替用户做决定。\n\n## 换地址前必须过的那一关\n\n新地址要回 200，**并且**页面标题自述这个人。标题这一关不能省：列表页同样回 200，\n少了它，一批人会被改写成同一个列表地址，而且每一条都「能打开」。\n\n纯粹换协议或还原实体时，新旧是同一页，标题里未必有人名（博客的标题常是栏目名）。\n这时改判「新地址的标题和旧地址完全一致」——那是比人名更强的同一页证据。两条都不\n成立就写 `未取得`，不进计划。\n\n限流按 `peach-batch-jobs`：同一域名两次请求至少隔 `--interval` 秒，整轮有\n`--max-requests` 上限，取回的页面在本轮内缓存（几十条链接共用同一张索引页）。\n",
+    "requestBudgetUsed": "本轮请求上限已用完",
+    "uniqueClash": "；该实体已有 id={{id}} 指向这个地址"
   },
   "repair_fc2_sellers_and_descriptive_names": {
     "studioRow": " - 厂牌 {{code}} {{studio}} → {{target}}",
@@ -1239,7 +1245,7 @@
     "installQueue": "安装队列",
     "reviewRows": "复核行",
     "portraitCandidates": "人像候选",
-    "description": "目录型来源的社媒采集：整站翻一遍，按名字对回账本，X 账号再验一次活。\n\nminnano-av 采集器是「拿名字去搜」。laoshi.ink（686 位）和事务所官网 bstar-pro（22 位）\n反过来：页面数有限，一次全部抓下来缓存在本地，再拿每页的名字去账本里找人。比对不花\n网络，同一批页面能反复对比；「同名多人」「同平台另有账号」都能在离线阶段判出来，\n不会静默装错人。\n\n来源本身可能是旧数据（用户 2026-09-02 指出：抄来的 X / Instagram 账号点进去已经封停，\n本人一般早换了新号）。所以采到的 X 账号逐个取登出页验活：有 og:title 且 og:image 指向\nprofile_images 才算活。Instagram / TikTok / YouTube 登出页给不出可靠信号，标「未验」。\n只有「活」和「未验」的进安装队列；「疑似失效」只进复核表。冲突行两边都验，证据里写明\n账本旧号是死是活——旧号死、新号活，就是用户说的「一般都会有新的」。\n\n判定（verdict）：\n    ok            账本唯一命中，该平台该账号账本还没有\n    已有          同账号已在账本（twitter.com/x.com 视为同一主机，handle 不分大小写）\n    conflict      同平台账本另有账号——用户要的「交叉对比」，只报不装\n    需人工消歧    页面名字对上不止一位 performer\n    未取得        页面抓不到，或命中的人页面上没有社交链接\n\n输出两份 CSV：`<output>` 只含可装的 ok 行，直接喂 install_entity_links.py；\n`<stem>-review.csv` 含全部判定，是复核产物。\n\njae.tokyo 是第三个这样的来源：Japan Adult Expo 的参展女优名录，2014／2015／2017 三届\n各一套片商自己交的资料，页面上写明本人的博客与官网（`公式ブログ`／`ツイッター`）。\n名录同时带一张人像，所以这个来源多产一份 `<stem>-portraits.csv`，由\nharvest_social_avatars.py 的名录路线接着走——头像与链接出自同一批页面、同一次名字判定。\n\njavdb.com（用户 2026-09-04 指定）是第四个来源，但它的入口反过来。前三个来源页面数有限、\n能整站翻一遍；javdb 没有可翻的女优名录，`/actors` 只给推荐的几十位，全站演员没有分页入口。\n所以它拿账本每个人的名字链去 `/search?f=actor` 搜——搜索结果的 `title` 一栏就列着这个人在\n站上的全部写法（`三上悠亜, 三上悠亞, 鬼头桃菜`），对得上才点进资料页。资料页给 Twitter 与\nInstagram 按钮和一张 250×250 的圆头像。\n\nlaoshi.ink 与 bstar-pro.com 直连（经代理握手失败，站点本身可达）；x.com、jae.tokyo 与\njavdb.com 走代理。bstar-pro 的 models.html 有年龄门：同一会话先 `POST age_check=yes`，\n之后的 GET 才给列表。\n",
+    "description": "目录型来源的社媒采集：整站翻一遍，按名字对回账本，X 账号再验一次活。\n\nminnano-av 采集器是「拿名字去搜」。laoshi.ink（686 位）和事务所官网 bstar-pro（22 位）\n反过来：页面数有限，一次全部抓下来缓存在本地，再拿每页的名字去账本里找人。比对不花\n网络，同一批页面能反复对比；「同名多人」「同平台另有账号」都能在离线阶段判出来，\n不会静默装错人。\n\n来源本身可能是旧数据（用户 2026-09-02 指出：抄来的 X / Instagram 账号点进去已经封停，\n本人一般早换了新号）。所以采到的 X 账号逐个取登出页验活：有 og:title 且 og:image 指向\nprofile_images 才算活。Instagram / TikTok / YouTube 登出页给不出可靠信号，标 `unverified`（未验）。\n只有 `alive`（活）和 `unverified` 的进安装队列；`gone`（疑似失效）只进复核表。冲突行两边都验，证据里写明\n账本旧号是死是活——旧号死、新号活，就是用户说的「一般都会有新的」。\n\n判定（verdict）：\n    ok            账本唯一命中，该平台该账号账本还没有\n    held          同账号已在账本（twitter.com/x.com 视为同一主机，handle 不分大小写）\n    conflict      同平台账本另有账号——用户要的「交叉对比」，只报不装\n    ambiguous     页面名字对上不止一位 performer\n    missed        页面抓不到，或命中的人页面上没有社交链接\n    fan-account   X 显示名写明是应援号，只进复核表\n\n输出两份 CSV：`<output>` 只含可装的 ok 行，直接喂 install_entity_links.py；\n`<stem>-review.csv` 含全部判定，是复核产物。\n\njae.tokyo 是第三个这样的来源：Japan Adult Expo 的参展女优名录，2014／2015／2017 三届\n各一套片商自己交的资料，页面上写明本人的博客与官网（`公式ブログ`／`ツイッター`）。\n名录同时带一张人像，所以这个来源多产一份 `<stem>-portraits.csv`，由\nharvest_social_avatars.py 的名录路线接着走——头像与链接出自同一批页面、同一次名字判定。\n\njavdb.com（用户 2026-09-04 指定）是第四个来源，但它的入口反过来。前三个来源页面数有限、\n能整站翻一遍；javdb 没有可翻的女优名录，`/actors` 只给推荐的几十位，全站演员没有分页入口。\n所以它拿账本每个人的名字链去 `/search?f=actor` 搜——搜索结果的 `title` 一栏就列着这个人在\n站上的全部写法（`三上悠亜, 三上悠亞, 鬼头桃菜`），对得上才点进资料页。资料页给 Twitter 与\nInstagram 按钮和一张 250×250 的圆头像。\n\nlaoshi.ink 与 bstar-pro.com 直连（经代理握手失败，站点本身可达）；x.com、jae.tokyo 与\njavdb.com 走代理。bstar-pro 的 models.html 有年龄门：同一会话先 `POST age_check=yes`，\n之后的 GET 才给列表。\n",
     "pageFailed": "未取得：{{error}}: {{exc}}",
     "javdbNoMatch": "搜过名字链的 {{count}} 个写法，javdb 上没有这个人",
     "javdbLoginWall": "javdb 这一页要登录才给，不注册账号",
@@ -1254,7 +1260,11 @@
     "shellThrottled": "登出页无资料，对照账号也无（限流）",
     "xDisplayName": "；X 显示名「{{display}}」",
     "xProbe": "；X 验活：{{display}}",
-    "oldAccount": "；数据库旧号 {{url}}：{{state}}"
+    "oldAccount": "；数据库旧号 {{url}}：{{state}}",
+    "stateAlive": "活",
+    "stateGone": "疑似失效",
+    "stateUnverified": "未验",
+    "stateUnknown": "未取得"
   },
   "harvest_social_avatars": {
     "xNotFound": "X @{{handle}} 未取得（HTTP {{status}}）",
@@ -1300,7 +1310,10 @@
     "incumbentLarger": "，盘上那张的脸更大（{{incumbent}} px vs {{candidate}} px），不覆盖",
     "installedAs": "，已安装 {{name}}",
     "winnerUnverified": "竞选赢家但身份未核实；先核链接再装",
-    "runnerUp": "竞选落选（同图或脸更小）；留档备查"
+    "runnerUp": "竞选落选（同图或脸更小）；留档备查",
+    "verdictMatched": "命中",
+    "verdictNeedsReview": "需人工确认",
+    "nameGateFailed": "名字闸门未过"
   },
   "install_entity_links": {
     "byEntityId": "按 entity_id",
@@ -1527,7 +1540,9 @@
     "matched": "命中 {{count}} 条，合计 {{size}} GB",
     "level": "  {{level}}: {{count}} 条  {{size}} GB",
     "hits": "\n判据分布: {{hits}}",
-    "output": "→ {{output}}（仅清单，未删任何文件）"
+    "output": "→ {{output}}（仅清单，未删任何文件）",
+    "confirmed": "确认",
+    "suspect": "存疑"
   },
   "backfill_follow_image_dims": {
     "description": "补齐关注图片的固有宽高",
@@ -1618,7 +1633,10 @@
     "linksOnSite": "官网页面直接给出社交链接",
     "noLinksOnPage": "页面无社交链接",
     "ageGates": "穿过 {{count}} 层年龄门",
-    "reviewOwnership": "待复核账号归属"
+    "reviewOwnership": "待复核账号归属",
+    "missedHttp": "未取得：HTTP {{status}}",
+    "missedOffsite": "未取得：重定向离开官网域名",
+    "missedError": "未取得：{{error}}"
   },
   "harvest_performer_links": {
     "httpFailed": "未取得：HTTP {{status}}",
@@ -2505,7 +2523,11 @@
     "description": "只读审计全部带 code 的视频，核对 JAV 番号、标题清洁与版本徽章投影。"
   },
   "audit_performer_entry_names": {
-    "description": "只读审计全库艺人的 MISSAV 入口与中文名证据缺口。"
+    "description": "只读审计全库艺人的 MISSAV 入口与中文名证据缺口。",
+    "notApplicable": "不适用",
+    "directoryMissed": "未取得：未取得名录条目，目标未逐页请求",
+    "directoryNotUnique": "未取得：名录无唯一匹配",
+    "directoryMatched": "已取得：名录 href，目标未逐页请求"
   },
   "audit_related_ranker": {
     "description": "在真实账本上只读抽样相关推荐，只输出聚合指标和资产 ID。"

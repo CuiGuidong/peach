@@ -41,6 +41,7 @@ import {
 } from './links';
 import { jobText, serverLabel } from '../../core/server-text';
 import { t } from '../../i18n';
+import { linkLabel } from '../../core/stored-values';
 
 const RETRY = spriteGlyph('rotate-cw');
 
@@ -86,9 +87,9 @@ function LinkTable(
       </a> },
     { id: 'kind', label: t('cleanup:shared.type'), width: 128, value: (item) => LINK_KINDS[item.link_kind] || item.link_kind,
       render: (item) => LINK_KINDS[item.link_kind] || item.link_kind },
-    { id: 'label', label: t('cleanup:links.columnName'), min: 128, value: (item) => item.label || '',
+    { id: 'label', label: t('cleanup:links.columnName'), min: 128, value: (item) => linkLabel(item.label),
       render: (item) => <span className="flex min-w-24 items-center gap-2" data-link-name="">
-        <span className="min-w-0 wrap-anywhere">{item.label || new URL(item.url).hostname}</span></span> },
+        <span className="min-w-0 wrap-anywhere">{linkLabel(item.label) || new URL(item.url).hostname}</span></span> },
     { id: 'note', label: t('cleanup:links.columnResult'), width: 320, min: 192, value: (item) => item.note,
       render: (item) => <div className="min-w-0 w-full" data-link-result={confirmed ? 'gone' : 'unclear'}>
         {/^(?:HTTP\s+)?[1-5]\d{2}$/.test(item.note.trim())
@@ -108,7 +109,7 @@ function LinkTable(
     <div className={RESULT_SECTION} data-link-results={confirmed ? 'gone' : 'unclear'}>
       <DataTable label={title} items={items} columns={columns} rowId={(item) => String(item.id)}
         description={hint} unit={t('cleanup:links.unit')} panel={false} footerActions={footer}
-        rowLabel={(item) => t('cleanup:links.rowLabel', { entity: item.entity, link: item.label || item.url })}
+        rowLabel={(item) => t('cleanup:links.rowLabel', { entity: item.entity, link: linkLabel(item.label) || item.url })}
         selected={picked.map(String)} onSelected={(ids) => onPick(ids.map(Number))}
         actions={() => children} />
     </div>

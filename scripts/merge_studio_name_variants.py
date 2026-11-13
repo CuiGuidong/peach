@@ -56,6 +56,8 @@ from peach.scripting import (   # noqa: E402
 )
 
 MERGE_ALIAS_SOURCE = "merge:studio-name-variant"
+#: 复核件 `klass` 列：同一名字的写法变体、日文名与罗马字名各存一条、日英并写的一串另存了一条。
+SPELLING_VARIANT, SCRIPT_VARIANT, BRACKETED_VARIANT = "spelling-variant", "japanese-romaji", "bracketed"
 
 #: 假名、汉字与全角片假名。判「这个名字是日文写法」只看有没有这些字符。
 JAPANESE = re.compile(r"[぀-ヿ㐀-䶿一-鿿]")
@@ -127,7 +129,7 @@ def spelling_variants(names: dict[int, str], counts: dict[int, int]) -> list[dic
             keep = max(ids, key=lambda i: (counts.get(i, 0), -i))
             why = t("merge_studio_name_variants.keepMoreVideos")
         drop = next(i for i in ids if i != keep)
-        rows.append(_pair(keep, drop, names, counts, "写法变体", why))
+        rows.append(_pair(keep, drop, names, counts, SPELLING_VARIANT, why))
     return rows
 
 
@@ -151,10 +153,10 @@ def script_variants(names: dict[int, str], counts: dict[int, int],
         other, common = hits[0]
         prefixes_text = list(common)
         if NATIVE_JAPANESE.search(name):
-            rows.append(_pair(entity_id, other, names, counts, "日文名／罗马字名",
+            rows.append(_pair(entity_id, other, names, counts, SCRIPT_VARIANT,
                               t("merge_studio_name_variants.sharedPrefixRomanized", prefixes=prefixes_text)))
         else:
-            rows.append(_pair(other, entity_id, names, counts, "日文名／罗马字名",
+            rows.append(_pair(other, entity_id, names, counts, SCRIPT_VARIANT,
                               t("merge_studio_name_variants.sharedPrefixKatakana", prefixes=prefixes_text)))
     return rows
 
@@ -190,7 +192,7 @@ def bracketed_variants(connection: sqlite3.Connection, names: dict[int, str],
         keep = next(iter(sides[0]))
         if keep in taken:
             continue
-        rows.append(_pair(keep, entity_id, names, counts, "并写名",
+        rows.append(_pair(keep, entity_id, names, counts, BRACKETED_VARIANT,
                           t("merge_studio_name_variants.bracketedRegistered", name=names[keep])))
         taken.update({keep, entity_id})
     return rows

@@ -28,6 +28,7 @@ import { pageOpens, state, subscribeShell, writeShell, type CatalogFilters } fro
 
 import { junkPath, junkRoute } from '../../../junk-queue';
 import { sortFromAddress } from '../../../sort-preferences';
+import { lengthParam, orientParam } from '../../../core/stored-values';
 import {
   pageNavigationReady, rememberPageState, restoredPageState, restoringPage, settlePageNavigation,
 } from '../../../history/page-navigation';
@@ -91,8 +92,8 @@ function filtersAt(pathname: string, search: string, entering: boolean, shell: C
     creator: params.get('creator') || '', studio: params.get('studio') || '',
     owner: params.get('owner') === 'none' ? 'none' : '',
     tag: cleanTagFilter(params.get('tag')), tag_match: params.get('tag_match') === 'any' ? 'any' : 'all',
-    len: params.get('len') || '', dur_min: params.get('dur_min') || '', dur_max: params.get('dur_max') || '',
-    orient: params.get('orient') || '',
+    len: lengthParam(params.get('len')), dur_min: params.get('dur_min') || '', dur_max: params.get('dur_max') || '',
+    orient: orientParam(params.get('orient')),
     state: ROUTE_STATES[pathname] || params.get('state') || '',
     ...sortFromAddress(params.get('sort'), params.get('dir'), defaultSort, defaultSortDirection),
     seed: params.get('seed') || (entering ? newSeed() : previous.seed || newSeed()),

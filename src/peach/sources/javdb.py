@@ -28,7 +28,8 @@ from ..javdb_genres import page_genres
 from ..javdb_identity import RULE
 from ..javdb_public import actor_gender, public_image_url
 from ..metadata import relay_args
-from ..source_page_words import JAVDB_COMMENT_SOURCE, JAVDB_FIELDS
+from ..catalog_vocabulary import RESOURCE_COMMENT_SOURCE
+from ..source_page_words import JAVDB_FIELDS
 from .base import FailureReason, Page, Session, SiteConfig, SiteRecord, SiteSource, SourceFailure
 
 #: 主机间隔由用户定（2026-09-22 定为 3 秒，每分钟 20 页）。参照面：每分钟 40～50 页会招来 3～7 天
@@ -309,7 +310,7 @@ def comment_resources(links: list[str], origin: str, date: str) -> list[dict]:
         uri = uri.strip()
         item = {"id": "", "protocol": "url", "info_hash": "", "uri": uri,
                 "name": uri, "size": "", "files": "", "date": date,
-                "attributes": [], "source": JAVDB_COMMENT_SOURCE, "source_code": "labels.javdb.commentSource",
+                "attributes": [], "source": RESOURCE_COMMENT_SOURCE, "source_code": "labels.javdb.commentSource",
                 "source_url": origin, "origins": [origin]}
         if uri.lower().startswith('magnet:'):
             try:

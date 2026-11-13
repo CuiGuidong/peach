@@ -70,7 +70,7 @@ class UpgradeRepairTests(unittest.TestCase):
         artifact_rules.remember(sheet)
         with self.database.write_transaction() as connection:
             connection.execute('UPDATE asset SET width=?,height=?,ctx_orient=?,snapshot_path=?,rating=5 WHERE id=1',
-                               (width, height, '竖屏', str(sheet)))
+                               (width, height, 'portrait', str(sheet)))
         self.service.prepare()
         return sheet
 
@@ -252,7 +252,7 @@ class UpgradeRepairTests(unittest.TestCase):
         meta.write_text(json.dumps({'frames': 6, 'interval': 10, 'sheets': 1}), encoding='utf-8')
         with self.database.write_transaction() as connection:
             connection.execute("UPDATE asset SET has_audio=1,vcodec='old',fps=24 WHERE id=1")
-        measured = (61, 1440, 1280, 'new', 30, None, '速食', '横屏', '1080P', 1)
+        measured = (61, 1440, 1280, 'new', 30, None, 'quick', 'landscape', '1080P', 1)
         result, _ = self.run_display_probe(measured)
         self.assertTrue(result['changed'])
         self.assertEqual(sheet.read_bytes(), b'old grid')
@@ -261,7 +261,7 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.database.read_connection() as connection:
             self.assertEqual(tuple(connection.execute(
                 'SELECT duration,width,height,ctx_orient,rating,has_audio,vcodec,fps FROM asset').fetchone()),
-                (60, 1440, 1280, '横屏', 5, 1, 'old', 24))
+                (60, 1440, 1280, 'landscape', 5, 1, 'old', 24))
             row = connection.execute('SELECT * FROM asset').fetchone()
         self.assertFalse(upgrade_repairs._stale_previews(self.contract, row))
         with patch('peach.library_processing._people_allowed', return_value=False), \
@@ -271,7 +271,7 @@ class UpgradeRepairTests(unittest.TestCase):
     def test_successful_measurement_is_not_repeated_after_restart_or_task_settlement_failure(self):
         from peach import artifact_rules
         sheet = self.display_sample()
-        measured = (60, 720, 1280, 'h264', 25, None, '速食', '竖屏', '720P', 1)
+        measured = (60, 720, 1280, 'h264', 25, None, 'quick', 'portrait', '720P', 1)
         first, _ = self.run_display_probe(measured)
         self.service.prepare()
         second, probe = self.run_display_probe(measured)
@@ -311,13 +311,13 @@ class UpgradeRepairTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '未取得'):
             self.run_display_probe((-1, 0, 0, None, 0, 0, None, None, None, 1))
         with self.assertRaises(DiskSpaceDenied):
-            self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1),
+            self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1),
                                    checkpoint=Mock(side_effect=[None, DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})]))
         self.assertEqual(self.display_completed(), {})
         self.assertTrue(artifact_rules.current(sheet))
         with self.database.read_connection() as connection:
             self.assertEqual(tuple(connection.execute('SELECT width,height FROM asset').fetchone()), (720, 1280))
-        result, _ = self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1))
+        result, _ = self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1))
         self.assertTrue(result['changed'])
 
     def test_display_planner_defers_metered_sources_and_uses_the_existing_batch_limit(self):
@@ -419,11 +419,11 @@ class UpgradeRepairTests(unittest.TestCase):
         self.display_sample()
         stale = upgrade_repairs._read(self.service.receipt)
         with patch('peach.upgrade_repairs.atomic_write_text') as written:
-            self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1))
+            self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1))
         written.assert_not_called()
         self.service._save_receipt(stale)
         self.assertEqual(self.display_completed()['1']['dimensions'], [1440, 1280])
-        _, probe = self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1))
+        _, probe = self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1))
         probe.assert_not_called()
 
     def test_display_handler_only_probes_and_pauses_before_committing_when_capacity_is_exhausted(self):
@@ -436,7 +436,7 @@ class UpgradeRepairTests(unittest.TestCase):
             (self.display_key(), upgrade_repairs.MEDIA_TASK, '补测')])['queued'][0]
         with patch('peach.storage_budget.CapacityGuard.check', side_effect=[None, DiskSpaceDenied('errors.storageBudget.intakeStopped', {'reasons': '空间不足'})]), \
                 patch('peach.library_processing._ffprobe_path', return_value='ffprobe'), \
-                patch('peach.media_probe.measure', return_value=(60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1)), \
+                patch('peach.media_probe.measure', return_value=(60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1)), \
                 patch('peach.library_processing.process_library') as process, \
                 self.assertRaises(DiskSpaceDenied):
             upgrade_repairs._media_run(self.contract, self.display_key(), Mock())
@@ -459,7 +459,7 @@ class UpgradeRepairTests(unittest.TestCase):
                 patch('peach.library_processing._ffprobe_path', return_value='ffprobe'), \
                 patch('peach.media_probe.measure', side_effect=[
                     (-1, 0, 0, None, 0, 0, None, None, None, 1),
-                    (60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 2)]) as probe, \
+                    (60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 2)]) as probe, \
                 patch('peach.library_processing.process_library') as process:
             self.service.tick()
             queued = dict(upgrade_repairs._read(self.service.receipt)['queued'])
@@ -487,7 +487,7 @@ class UpgradeRepairTests(unittest.TestCase):
         self.store.finish(parent.id, 'succeeded')
         def measured(*_args):
             task_control.request(self.store, child, 'cancel')
-            return (60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1)
+            return (60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1)
         with patch('peach.library_processing._ffprobe_path', return_value='ffprobe'), \
                 patch('peach.media_probe.measure', side_effect=measured):
             self.assertEqual(FollowupRunner(self.contract).drain(), 1)
@@ -570,7 +570,7 @@ class UpgradeRepairTests(unittest.TestCase):
         from peach import media_probe
         self.display_sample()
         old_key = self.display_key()
-        self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1))
+        self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1))
         receipt = upgrade_repairs._read(self.service.receipt)
         receipt.update(dispatch_complete=True, queued={old_key: 999})
         self.service._save_receipt(receipt)
@@ -594,7 +594,7 @@ class UpgradeRepairTests(unittest.TestCase):
         def replacement(*_args):
             with self.database.write_transaction() as connection:
                 connection.execute("UPDATE asset SET size=200,mtime='2026-11-07' WHERE id=1")
-            return (60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1)
+            return (60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1)
         from peach import display_dimensions_repair
         with patch('peach.library_processing._ffprobe_path', return_value='ffprobe'), \
                 patch('peach.media_probe.measure', side_effect=replacement), self.assertRaisesRegex(ValueError, '已变化'):
@@ -605,17 +605,17 @@ class UpgradeRepairTests(unittest.TestCase):
 
     def test_stale_file_receipt_preserves_only_the_successful_measurement_for_the_current_generation(self):
         self.display_sample()
-        self.run_display_probe((60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1))
+        self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1))
         stale = upgrade_repairs._read(self.service.receipt)
         with self.database.write_transaction() as connection:
             connection.execute("UPDATE asset SET size=200,mtime='2026-11-07' WHERE id=1")
-        self.run_display_probe((60, 1920, 1280, None, 0, 0, None, '横屏', '2K', 1))
+        self.run_display_probe((60, 1920, 1280, None, 0, 0, None, 'landscape', '2K', 1))
         self.service._save_receipt(stale)
         self.assertEqual(self.display_completed()['1']['dimensions'], [1920, 1280])
-        _, probe = self.run_display_probe((60, 1920, 1280, None, 0, 0, None, '横屏', '2K', 1))
+        _, probe = self.run_display_probe((60, 1920, 1280, None, 0, 0, None, 'landscape', '2K', 1))
         probe.assert_not_called()
 
-    def run_queued_display(self, measured=(60, 1440, 1280, None, 0, 0, None, '横屏', '1080P', 1), *, unreachable=False):
+    def run_queued_display(self, measured=(60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1), *, unreachable=False):
         """派出显示尺寸补测再在当前线程跑完，返回这一轮的任务行。"""
         from peach.followups import FollowupRunner
         self.contract.upgrade_repairs = self.service
@@ -728,7 +728,7 @@ class UpgradeRepairTests(unittest.TestCase):
         self.assertTrue(artifact_rules.current(sheet))
         with self.database.read_connection() as connection:
             self.assertEqual(tuple(connection.execute('SELECT duration,width,height,ctx_orient,rating FROM asset').fetchone()),
-                             (60, 720, 1280, '竖屏', 5))
+                             (60, 720, 1280, 'portrait', 5))
 
     def disk_batch(self):
         from peach import task_control
@@ -1096,10 +1096,10 @@ class UpgradeRepairTests(unittest.TestCase):
             connection.execute("INSERT INTO entity_alias(entity_id,alias,normalized_alias,source,confidence) "
                                "VALUES(?,?,?,'javinizer:alias',.9)", (garbled, 'ǰ' + BAD, 'ǰ' + BAD))
             connection.executemany('INSERT INTO asset_tag(asset_id,tag,confidence,source) VALUES(?,?,?,?)', [
-                (1, '演员:' + GARBLED, .75, 'javinizer:dmm:performer'),
-                (1, '演员:他の女優', .75, 'javinizer:dmm:performer'),
-                (2, '演员:桃乃木かな', .75, 'javinizer:dmm:performer'),
-                (3, '演员:' + BAD + '名前', 1, 'user:manual')])
+                (1, 'performer:' + GARBLED, .75, 'javinizer:dmm:performer'),
+                (1, 'performer:他の女優', .75, 'javinizer:dmm:performer'),
+                (2, 'performer:桃乃木かな', .75, 'javinizer:dmm:performer'),
+                (3, 'performer:' + BAD + '名前', 1, 'user:manual')])
         return {'garbled': garbled, 'correct': correct, 'manual': manual}
 
     def performer_links(self):
@@ -1133,9 +1133,9 @@ class UpgradeRepairTests(unittest.TestCase):
                           (3, fixture['manual'], 'javinizer:dmm:performer')])
         self.assertIn((3, fixture['manual'], 'user:manual'), after)
         self.assertIn((2, fixture['correct'], 'javinizer:dmm:performer'), after)
-        self.assertEqual(self.asset_tags(), [(1, '演员:他の女優', 'javinizer:dmm:performer'),
-                                             (2, '演员:桃乃木かな', 'javinizer:dmm:performer'),
-                                             (3, '演员:' + BAD + '名前', 'user:manual')])
+        self.assertEqual(self.asset_tags(), [(1, 'performer:他の女優', 'javinizer:dmm:performer'),
+                                             (2, 'performer:桃乃木かな', 'javinizer:dmm:performer'),
+                                             (3, 'performer:' + BAD + '名前', 'user:manual')])
         with self.database.read_connection() as connection:
             names = dict(connection.execute("SELECT id,canonical_name FROM entity WHERE kind='performer'").fetchall())
             refs = connection.execute('SELECT count(*) FROM entity_external_ref').fetchone()[0]

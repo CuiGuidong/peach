@@ -34,19 +34,21 @@ PARKED = re.compile(
     r"|ドメイン(?:の)?販売|sedo\.com|afternic|godaddy\.com/domain|hugedomains",
     re.I)
 
-#: 标识复核件与边车 `*.provenance.json` 里的判词（`studio_icons`）：`scripts/harvest_studio_icons.py` 按它排序，
-#: ADR-0052 的表格照原词引用。取证失败的 `MISSING` 与官网判词共用。
-WORDMARK, TOOSMALL = "仍是字标", "只有小图标"
-SKIP = "无官网链接"
-#: 方标没有，装的是补白过的字标。可以装，但复核件上要能看出装的是哪一类。
-PADDED = "字标补白"
-#: 取到了、也够清楚，但那是整个主机共用的一枚，代表不了这个实体。
-SHARED = "平台通用图标"
-#: 取回来的是一张照片。站点自己声明它是图标也不算数——那一位要的是标识。
-PORTRAIT = "人像不是标识"
+#: 标识复核件与边车 `*.provenance.json` 里的判词（`studio_icons`，ADR-0162 的英文 id）：同一次运行里分拣与装图，
+#: `scripts/harvest_studio_icons.py` 按它排序；不从文件读回。取证失败的 `MISSING` 与官网判词共用。
+#: 仍是字标、只有小图标。
+WORDMARK, TOOSMALL = "still-wordmark", "small-icon-only"
+#: 没有官网链接，没查。
+SKIP = "no-site-link"
+#: 方标没有，装的是补白过的字标（字标补白）。可以装，但复核件上要能看出装的是哪一类。
+PADDED = "padded-wordmark"
+#: 取到了、也够清楚，但那是整个主机共用的一枚（平台通用图标），代表不了这个实体。
+SHARED = "shared-icon"
+#: 取回来的是一张照片（人像不是标识）。站点自己声明它是图标也不算数——那一位要的是标识。
+PORTRAIT = "portrait-not-mark"
 
-#: 取证失败的判词（项目的固定写法，复核件按它排序与筛选），是数据取值不是界面文字。
-MISSING = "未取得"
+#: 取证失败（未取得）的判词，复核件按它排序与筛选。
+MISSING = "missed"
 
 # 「标题里有厂牌名」证明不了这是**这个**厂牌的站——同名的无关公司照样通过。实测四例：
 # `madonna.com` 是歌手麦当娜、`hunter.com` 是 Hunter Engineering（四轮定位）、
@@ -89,7 +91,8 @@ CONFIRMED_SITES: dict[str, tuple[str, str]] = {
     ),
 }
 
-PLATFORM_VERDICT = "不适用（发行平台）"
+#: 发行平台不找官网（不适用）：一个请求都不发。
+PLATFORM_VERDICT = "platform"
 
 #: `logo` 位的指定来源，按 canonical_name。`icon` 位的覆盖在
 #: `site_icons.HOST_OVERRIDES`，两张表不能合并：那一张是「按主机发现图标」的例外，

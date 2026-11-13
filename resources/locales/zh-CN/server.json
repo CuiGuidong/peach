@@ -2893,7 +2893,13 @@
       "tokenOverlap": "词元重合 {{overlap}}",
       "videos": "{{count}} 部作品",
       "westernMatch": "{{verdict}} → {{name}}",
-      "westernMatchSpelling": "{{verdict}} → {{name}}（写法 {{variant}}）"
+      "westernMatchSpelling": "{{verdict}} → {{name}}（写法 {{variant}}）",
+      "westernVerdict": {
+        "matched": "命中",
+        "needs-review": "需人工确认",
+        "no-profile": "确认无档案",
+        "rate-limited": "限流未取得"
+      }
     },
     "webScraping": {
       "compareIncompleteMobileHint": "，未能完成封面比较；中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。",
@@ -3144,6 +3150,20 @@
     "catalogVersions": {
       "multipart": "分卷版",
       "singleFile": "完整文件"
+    },
+    "catalogEdition": {
+      "censored": "有码",
+      "chinese-subtitles": "中字",
+      "uncensored": "无码",
+      "uncensored-leak": "无码流出",
+      "uncensored-crack": "无码破解"
+    },
+    "catalogParts": {
+      "main": "本篇",
+      "bonus": "特典 {{number}}"
+    },
+    "photoSet": {
+      "untitled": "未命名图集"
     },
     "organizeTemplates": {
       "placeholder": {
@@ -3417,15 +3437,6 @@
       "evidence": "{{note}}；标题「{{title}}」"
     },
     "performerAliasFollowup": {
-      "action": {
-        "write": "写入",
-        "have": "已有",
-        "taken": "占用",
-        "stale": "已变",
-        "gone": "查无此人",
-        "skip": "不收",
-        "merge": "合并"
-      },
       "site": {
         "missed": "未命中",
         "gone": "未命中：档案已不存在",
@@ -4187,6 +4198,7 @@
       "nearDistribution": "与你的馆藏和观看分布接近"
     },
     "refreshWarning": "{{browser}} · {{profile}}：{{reason}}",
+    "bookmarkProfile": "{{profile}} · 书签",
     "volume": {
       "system": {
         "name": "系统盘",

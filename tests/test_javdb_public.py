@@ -857,7 +857,7 @@ class DetailProjectionTests(unittest.TestCase):
         self.assertEqual(len(result['items']), 1)
         self.assertEqual(result['items'][0]['info_hash'], fingerprint)
         self.assertTrue(result['items'][0]['uri'].startswith('magnet:?'))
-        self.assertEqual(result['items'][0]['attributes'], ['中字', '高清'])
+        self.assertEqual(result['items'][0]['attributes'], ['chinese-subtitles', 'high-definition'])
         self.assertEqual(result['source_url'], 'https://javdb.com/v/Exact')
 
     def test_resource_sizes_are_mebibytes_written_with_units(self):
@@ -881,7 +881,7 @@ class DetailProjectionTests(unittest.TestCase):
         self.assertEqual([item['protocol'] for item in result['items']], ['magnet', 'ed2k', 'url'])
         link = result['items'][1]
         self.assertEqual(link['uri'], ed2k)
-        self.assertEqual(link['source'], 'JavDB 评论')
+        self.assertEqual(link['source'], 'javdb-comments')
         self.assertEqual(link['size'], '19,735,225,787 B')
         self.assertEqual(link['origins'], ['https://javdb.com/v/Exact#review-item-31', 'https://javdb.com/v/Exact#review-item-32'])
         self.assertEqual(reviews.call_count, 2)

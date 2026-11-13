@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b620acf0-3ba7-41fa-8eb6-d965b5cc4297", e._sentryDebugIdIdentifier = "sentry-dbid-b620acf0-3ba7-41fa-8eb6-d965b5cc4297");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b6f9932c-14e4-47dc-b2fa-b553108e89f4", e._sentryDebugIdIdentifier = "sentry-dbid-b6f9932c-14e4-47dc-b2fa-b553108e89f4");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $3a442827418ebe87$export$eb2fcfdbd7ba97d4 as t, $542a13ca2fa5b484$export$5b6b19405a83ff9d as n, $72abaeab4d80592f$export$78efe591171d7d45 as r, $bd263d78e9bf3c56$export$f5c9f3c2c4054eec as i, $ea3928288112382f$export$439d29a4e110a164 as a, $f2ff30fde7b014be$export$3ddf2d174ce01153 as o, $fe21c36db05242bb$export$a98f0dcb43a68a25 as s, $fe21c36db05242bb$export$d7b12c4107be0d61 as c, ACCENTS as l, ActivityStatus as u, ApiError as d, Button as f, ButtonLink as p, CLOUD_LOCATIONS as m, CLOUD_PROXY_HELP as h, CONFIGURATION_KEY as g, CONFIGURATION_SECTIONS as _, CONFIGURATION_URL as v, CREDENTIAL_STATE as y, Checkbox as b, Chip as x, CommandSteps as S, Disclosure as C, ENTRY_LINKS_HELP as ee, ENTRY_LINKS_HINT as te, EmptyState as w, ErrorText as T, Eu as ne, ExternalLink as E, FEED_SCHEDULE_KEY as re, FOLLOW_CREDENTIALS_KEY as ie, FOLLOW_INITIAL_RANGE_OPTIONS as ae, FOLLOW_SCHEDULE_KEY as oe, Fact as D, FactList as O, FieldLabel as se, Footer as k, Help as A, HintText as ce, Input as j, L1 as le, LIBRARY_FOLDER_HELP as ue, LIBRARY_PROCESSING_KEY as de, Label as fe, LinkButton as pe, M6 as me, MEDIA_PROCESSING_KEY as he, MEDIA_PROCESSING_URL as ge, MEDIA_SOURCE_ICONS as _e, MENU_POPOVER_SURFACE as ve, Note as M, PICK_FOLDER_URL as ye, POLICY_COLUMNS as be, POLICY_COVER_NOTE as xe, POLICY_MATRIX as Se, POLICY_SUMMARY as Ce, PathLine as we, ProcessingMode as Te, Progress as Ee, RELEASE_NOTICE_EVENT as De, REPAIR_CENTER_PATH as Oe, Rows as N, SEGMENT as ke, SEGMENTED_TRACK as Ae, SETTINGS_KEY as je, SETTINGS_URL as Me, Section as P, SectionSkeleton as Ne, SegmentedRadioGroup as Pe, Select as Fe, Select$1 as F, SelectItem as I, SettingsCard as Ie, SettingsRow as L, SiteLabel as Le, SortableBoardTabs as Re, SourceLabel as ze, SourceMark as Be, Stack as R, StatusLabel as z, Switch as B, THUMBNAIL_JOBS_KEY as Ve, TaskCenterLink as He, TaskProgress as Ue, TextField as We, TextFieldContext as Ge, Uz as Ke, __toESM as qe, _p as Je, activityKind as Ye, animate as Xe, apiGet as V, apiSend as H, appSettingsStore as Ze, bodyFieldErrors as Qe, boundedPreference as $e, busyProps as U, cardClass as et, checkClientUpdates as tt, cloudProxySkeleton as nt, clsx as rt, cn as it, codedText as W, confirmModal as at, credentialDone as ot, credentialsSkeleton as st, cx as ct, d6 as lt, devicesSkeleton as ut, errorMessage as G, fetchConfiguration as dt, fetchCredentials as ft, fetchFeedSchedule as pt, fetchFollowSchedule as mt, fetchLibraryProcessing as ht, fetchMediaProcessing as gt, fetchSettings as _t, fetchThumbnailJobs as vt, fmtSize as K, i2 as yt, indexersSkeleton as bt, interfaceLanguage as xt, javBrowserSkeleton as St, jobText as Ct, joinList as wt, l1 as Tt, ledgerBackupsSkeleton as Et, localizedFact as Dt, momentText as Ot, motion as kt, overlayHost as At, peachHistory$1 as jt, pollUntil as Mt, previewLibraryColor as Nt, processingActive as Pt, providerIcon as Ft, queryClient as It, randomId as Lt, rememberShape as Rt, require_jsx_runtime as zt, require_react as Bt, restartEffectText as Vt, saveCredential as Ht, schedulePollInterval as Ut, sectionTitle as Wt, serverLabel as q, serverLabelList as Gt, serverText as Kt, settingsPath as qt, shellNavigate as Jt, sortCx as Yt, sourceDefaultCost as Xt, stageText as Zt, t as J, translateWithNodes as Qt, useAction as Y, useClientUpdates as $t, useLibraryTints as en, useMutation as tn, useOrderedLibraries as nn, useQuery as X, useQueryClient as rn, useReducedMotion as an, useRunSchedule as on, useSaveFollowSchedule as sn, useSaveSettings as cn, useSaveThumbnailMode as ln, we as un, z3 as dn } from "./peach-app.js";
@@ -2680,7 +2680,7 @@ function ho({ uninstall: e, receipt: t }) {
 		onConfirm: async () => {
 			let e = await H("/api/configuration/uninstall", {
 				delete_data: n,
-				confirmation: "卸载 Peach"
+				confirmation: "uninstall-peach"
 			});
 			a(Kt(e) || e.message);
 		}
@@ -5189,9 +5189,10 @@ var Ls = "/api/configuration/access/sessions", Rs = (e) => e.device || J("settin
 		platform: Bs,
 		terminal: Je
 	},
-	"Android 平板": {
+	"Android tablet": {
 		platform: Bs,
-		terminal: ne
+		terminal: ne,
+		label: () => J("settings:deviceSessions.androidTablet")
 	},
 	ChromeOS: {
 		platform: { browser: "chrome" },
@@ -5231,7 +5232,7 @@ function Ws({ row: e }) {
 			className: Hs
 		}) : null, r] }) : null,
 		r && n ? " · " : null,
-		n ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [i ? /* @__PURE__ */ (0, Q.jsx)(Us, { platform: i }) : null, n] }) : null
+		n ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [i ? /* @__PURE__ */ (0, Q.jsx)(Us, { platform: i }) : null, Vs[n].label?.() ?? n] }) : null
 	] });
 }
 function Gs({ row: e }) {
@@ -6417,4 +6418,4 @@ function jc({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 }
 export { Oc as ConfigurationPage };
 
-//# debugId=b620acf0-3ba7-41fa-8eb6-d965b5cc4297
+//# debugId=b6f9932c-14e4-47dc-b2fa-b553108e89f4

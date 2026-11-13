@@ -25,9 +25,8 @@ PROMO_NAME = r"manko\.fun|广告|廣告|扫码|掃碼|最新地址"
 #: 资源名尾部的画质与版本标签（`resource_identification` 一层层剥掉）。
 QUALITY_TAIL_WORDS = (r"uncensored|無修正|无码|無碼|破解|中文字幕|中字|中文|完整版|全集|"
                       r"原版|无水印|無水印|4k|2160p|1440p|1080p|720p|hd|fhd|sd|xxx|p2p|mp4|mov|avi|wmv")
-#: 资源属性：与 `catalog_rules.jav_edition_badges` 给的版次标记同一个词。
-CHINESE_SUBTITLE_BADGE = "中字"
-HD_BADGE = "高清"
+#: 整理模板 `{mosaic}` 写进用户文件名的无码字样。
+UNCENSORED_FILENAME_WORD = "无码"
 #: 目录名里的月份写法（`2024年3月`、`03月`）与数量单位：判断目录名剩下的是不是结构词时剥掉。
 DIRECTORY_MONTH = r"(?:\d{4}[年._-]?)?(?:0?[1-9]|1[0-2])月"
 DIRECTORY_COUNT_UNITS = "部|集|个"
@@ -80,12 +79,10 @@ DMM_MINUTES = r"(\d{3,})\s*分"
 
 # ---- 账本里的取值 ----
 
-#: 资料页链接没有平台名可写时的通用标签：写进 `entity_link.label`，`social_links.host_owners`
-#: 按这个词认出「没有归属」的那些。
-LINK_LABEL_BLOG = "博客"
-LINK_LABEL_OFFICIAL = "官方网站"
-#: 欧美资料站那一行官网链接的标签。
-WESTERN_OFFICIAL_LINK = "官网"
+#: 资料页链接没有平台名可写时的通用标签：写进 `entity_link.label` 的是 id，界面按语言显示；
+#: `social_links.host_owners` 按它认出「没有归属」的那些。欧美资料站那一行官网链接也写它。
+LINK_LABEL_BLOG = "blog"
+LINK_LABEL_OFFICIAL = "official-site"
 #: 资料快照 `raw` 里名字与别名的键：与 minnano-av 快照同一种写法，读快照的地方按它取。
 RAW_NAME_KEY = "名前"
 RAW_ALIASES_KEY = "別名"

@@ -1453,10 +1453,10 @@ class RunTests(unittest.TestCase):
              (4, "studio", "Hon Naka"), (5, "agency", "T-POWERS")])
         connection.executemany(
             "INSERT INTO entity_link(entity_id, link_kind, label, url) VALUES(?,?,?,?)",
-            [(1, "official", "官方网站", "https://fitch-av.com/"),
-             (2, "official", "官方网站", "https://www.heyzo.com/"),
+            [(1, "official", "official-site", "https://fitch-av.com/"),
+             (2, "official", "official-site", "https://www.heyzo.com/"),
              # 有链接、一张图都没有：账本里 Hon Naka 就是这一例。
-             (4, "official", "官方网站", "https://honnaka.jp/"),
+             (4, "official", "official-site", "https://honnaka.jp/"),
              (5, "official", "T-POWERS", "https://t-powers.co.jp/")])
         connection.commit()
         connection.close()
@@ -1550,7 +1550,7 @@ class RunTests(unittest.TestCase):
 
     def test_a_studio_with_no_link_is_counted_separately(self):
         stats = self.invoke()
-        self.assertEqual((stats["ok"], stats["无官网链接"]), (1, 1))
+        self.assertEqual((stats[MODULE.OK], stats[MODULE.SKIP]), (1, 1))
 
     def test_reporting_never_touches_the_installed_directory(self):
         """默认只出复核件。装图必须是显式的第二步。"""
@@ -1721,9 +1721,9 @@ class StudioLinkTests(unittest.TestCase):
              (4, "studio", "FC2-PPV"), (5, "studio", "EST")])
         self.connection.executemany(
             "INSERT INTO entity_link(entity_id, link_kind, label, url) VALUES(?,?,?,?)",
-            [(1, "official", "官方网站", "https://ideapocket.com/"),
+            [(1, "official", "official-site", "https://ideapocket.com/"),
              (1, "social", "X", "https://x.com/ideapocket"),
-             (3, "official", "官方网站", "https://example.com/"),
+             (3, "official", "official-site", "https://example.com/"),
              (4, "catalog", "FC2-PPV", "https://adult.contents.fc2.com/"),
              (5, "social", "X", "https://x.com/EST_prod")])
 

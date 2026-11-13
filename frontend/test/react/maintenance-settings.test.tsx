@@ -303,7 +303,7 @@ it('卸载默认保留数据，勾选完全卸载后确认文案点名要删的�
   const options = modal.mock.calls[1]![0];
   expect(String(options.body)).toContain('凭据和缓存');
   await act(async () => { await options.onConfirm?.(); });
-  expect(sentBody(fetcher)).toEqual({ delete_data: true, confirmation: '卸载 Peach' });
+  expect(sentBody(fetcher)).toEqual({ delete_data: true, confirmation: 'uninstall-peach' });
   expect(area.querySelector('[role="status"]')?.textContent).toBe('Peach 将在几秒后退出并卸载。');
   expect(buttonNamed('卸载 Peach', area)?.disabled).toBe(true);
 });

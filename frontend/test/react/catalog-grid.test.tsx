@@ -107,7 +107,7 @@ describe('目录取数', () => {
 
   it('竖屏带跟着主列表的筛选走，一条取一批竖屏', () => {
     const params = new URLSearchParams(shortsParams({ sort: 'seed', tag: '' }, 36));
-    expect(Object.fromEntries(params)).toEqual({ sort: 'seed', orient: '竖屏', limit: String(SHORTS_BATCH), offset: '36' });
+    expect(Object.fromEntries(params)).toEqual({ sort: 'seed', orient: 'portrait', limit: String(SHORTS_BATCH), offset: '36' });
   });
 });
 
@@ -245,7 +245,7 @@ describe('续页', () => {
       if (init?.method === 'POST') posts.push(JSON.parse(String(init.body)));
       const url = new URL(String(input), 'http://peach.test');
       const body = url.pathname === '/api/library-processing' ? { status: 'idle' }
-        : url.searchParams.get('orient') === '竖屏' ? { items: strip, total: strip.length, has_more: false }
+        : url.searchParams.get('orient') === 'portrait' ? { items: strip, total: strip.length, has_more: false }
           : { items: [1, 2, 3].map((n) => item(n)), total: 3, has_more: false };
       return Promise.resolve(reply(body));
     }));
@@ -266,7 +266,7 @@ describe('续页', () => {
     const strip = [item(41, { part_group: group, duration: 600 }), item(43), item(42, { part_group: group, duration: 600 })];
     vi.stubGlobal('fetch', vi.fn((input: string) => {
       const url = new URL(String(input), 'http://peach.test');
-      const body = url.searchParams.get('orient') === '竖屏'
+      const body = url.searchParams.get('orient') === 'portrait'
         ? { items: strip, total: strip.length, has_more: false }
         : { items: [1, 2, 3].map((n) => item(n)), total: 3, has_more: false };
       return Promise.resolve(reply(body));
@@ -309,7 +309,7 @@ describe('续页', () => {
     vi.stubGlobal('IntersectionObserver', FakeObserver);
     vi.stubGlobal('fetch', vi.fn((input: string) => {
       const url = new URL(String(input), 'http://peach.test');
-      const body = url.searchParams.get('orient') === '竖屏'
+      const body = url.searchParams.get('orient') === 'portrait'
         ? { items: portraitParts, total: portraitParts.length, has_more: false }
         : { items: [1, 2, 3].map((n) => item(n)), total: 3, has_more: false };
       return Promise.resolve(reply(body));

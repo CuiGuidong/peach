@@ -134,7 +134,7 @@ class SummaryTests(unittest.TestCase):
             "created_at,updated_at) VALUES(?,?,?,?,?,'2026-01-01','2026-01-01')",
             [(1, "social", "X @a", "https://x.com/a", "x.com"),
              (1, "official", "T-POWERS", "https://www.t-powers.co.jp/talent/x/", "www.t-powers.co.jp"),
-             (2, "official", "官方网站", "https://moodyz.com/", "moodyz.com")])
+             (2, "official", "official-site", "https://moodyz.com/", "moodyz.com")])
         connection.commit()
         connection.close()
         self.contract = FakeContract(db)
@@ -193,7 +193,7 @@ class SummaryTests(unittest.TestCase):
             "gone": [
                 {"id": 1, "entity": "凉森玲梦", "link_kind": "social", "label": "X @a",
                  "url": "https://x.com/a", "note": "HTTP 404"},
-                {"id": 3, "entity": "MOODYZ", "link_kind": "official", "label": "官方网站",
+                {"id": 3, "entity": "MOODYZ", "link_kind": "official", "label": "official-site",
                  "url": "https://moodyz.com/", "note": "HTTP 404"},
             ],
             "unclear": [], "error": "",
@@ -219,7 +219,7 @@ class SummaryTests(unittest.TestCase):
         self._finished_check()
         state = self.contract.link_check.state
         state["gone"].append({"id": 3, "entity": "MOODYZ", "link_kind": "official",
-                              "label": "官方网站", "url": "https://moodyz.com/", "note": "HTTP 404"})
+                              "label": "official-site", "url": "https://moodyz.com/", "note": "HTTP 404"})
         probed = []
         original = web_links._probe
         self.addCleanup(setattr, web_links, "_probe", original)
@@ -251,7 +251,7 @@ class SummaryTests(unittest.TestCase):
                  "label": "T-POWERS", "url": "https://www.t-powers.co.jp/talent/x/",
                  "note": "HTTP 403"},
                 {"id": 3, "entity": "MOODYZ", "link_kind": "official",
-                 "label": "官方网站", "url": "https://moodyz.com/", "note": "HTTP 500"},
+                 "label": "official-site", "url": "https://moodyz.com/", "note": "HTTP 500"},
             ],
         }
 

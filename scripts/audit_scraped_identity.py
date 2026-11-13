@@ -31,7 +31,8 @@ from peach.metadata import identifies_code  # noqa: E402
 from peach.review_csv import write_rows  # noqa: E402
 from peach.scripting import open_readonly  # noqa: E402
 
-MISMATCH, PREFIX, NO_ID = "错配", "前缀未证实", "来源无编号"
+#: `tier` 列：来源编号对不上番号、只差厂牌数字前缀未证实、来源没给编号。
+MISMATCH, PREFIX, NO_ID = "mismatch", "prefix-unproven", "no-source-id"
 FIELDS = ("tier", "asset_code", "review_code", "provider_id", "content_id", "source_url",
           "asset_count", "link_count", "sources", "asset_ids", "sample_path")
 _MAKER_PREFIX = re.compile(r"^\d{3}(?=[A-Z])")

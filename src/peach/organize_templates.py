@@ -23,7 +23,7 @@ import unicodedata
 from dataclasses import dataclass
 
 from . import interface_text
-from .catalog_vocabulary import UNCENSORED
+from .content_words import UNCENSORED_FILENAME_WORD
 from .user_messages import UserFacingError, error_fields
 
 #: 模板认识的占位符，顺序就是界面上列出来的顺序。键是用户写进模板的语法（`{code}`），是协议值，不翻译；
@@ -33,8 +33,9 @@ PLACEHOLDERS: dict[str, str] = {
     key: interface_text.text(f"server:labels.organizeTemplates.placeholder.{key}") for key in PLACEHOLDER_KEYS}
 
 #: 示例字段里与语言无关的那几项；标题、厂牌、系列与出演者是示例文字，按界面语言取
-#: `server:labels.organizeTemplates.example.<键>`。`mosaic` 只会取到账本的无码取值。
-_FIXED_EXAMPLES = {"code": "ABC-123", "year": "2024", "cd": "2", "mosaic": UNCENSORED, "definition": "1080p"}
+#: `server:labels.organizeTemplates.example.<键>`。`mosaic` 只会取到写进文件名的无码字样。
+_FIXED_EXAMPLES = {"code": "ABC-123", "year": "2024", "cd": "2", "mosaic": UNCENSORED_FILENAME_WORD,
+                   "definition": "1080p"}
 _WORDED_EXAMPLES = ("title", "studio", "series", "actors")
 
 

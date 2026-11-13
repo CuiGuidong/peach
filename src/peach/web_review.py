@@ -20,7 +20,8 @@ from urllib.parse import quote
 
 from .avatar_provider import install_entity_avatar
 from .catalog_rules import current_tags, is_korean_mib_code, normalise_code_key
-from .catalog_vocabulary import COVER_FETCHED, PERFORMER_TAG_PREFIX, WESTERN_IDENTITY_REVIEW_VERDICTS
+from .catalog_vocabulary import (COVER_FETCHED, LEGACY_WESTERN_IDENTITY_VERDICTS, WESTERN_IDENTITY_REVIEW_VERDICTS,
+                                 fetch_result, is_performer_marker)
 from .code_creators import collect
 from .entities import memoized_resolution, resolve_entity, resolve_entity_id, upsert_asset_entity
 from .field_owners import (
@@ -98,6 +99,16 @@ REVIEW_TABLES = ("asset", "asset_tag", "asset_entity", "entity", "entity_alias",
 ENTITY_REVIEW_KINDS = {"creator_tags": "creator", "western_identity": "creator"}
 
 
+#: 西方身份候选 `verdict` 有译文的取值，显示文字是 `labels.webReview.westernVerdict.<取值>`。
+WESTERN_VERDICT_CODES = frozenset(LEGACY_WESTERN_IDENTITY_VERDICTS.values())
+
+
+def _western_verdict(row: dict) -> str:
+    """西方身份候选的 `verdict`，旧版中文取值先归一成英文 id。"""
+    verdict = str(row.get("verdict") or "")
+    return LEGACY_WESTERN_IDENTITY_VERDICTS.get(verdict, verdict)
+
+
 def _needs_review(category: str, row: dict) -> bool:
     """已经有定论的行不该占复核页。
 
@@ -106,7 +117,7 @@ def _needs_review(category: str, row: dict) -> bool:
     宽的高清图不需要人确认，未取得和仍停在 800 低清基线的才需要。
     """
     if category == "western_identity":
-        return str(row.get("verdict") or "") in WESTERN_IDENTITY_REVIEW_VERDICTS
+        return _western_verdict(row) in WESTERN_IDENTITY_REVIEW_VERDICTS
     if category == "studio_logos":
         # 无 handle、无落盘图片和与现有 Logo 完全相同都没有人工可判断项。
         # 只有新的/变化的确认来源，或明确标 needs_confirmation 的图片才进队列。
@@ -496,7 +507,7 @@ def _review_rows(contract: ReviewContract, category: str, *, queue: str | None =
                 row["preview_url"] = (
                     f"/endcard-frame?id={asset_id}&name={quote(frame.name)}"
                 )
-        if category == "cover_sources" and row.get("result") == COVER_FETCHED:
+        if category == "cover_sources" and fetch_result(row.get("result")) == COVER_FETCHED:
             # 封面已经在本机，直接看落盘的那张，不要回源站再拉一次。
             row["preview_url"] = f"/cover?code={quote(str(row.get('code') or ''))}"
         asset_code = str(row.get("asset_code") or row.get("code") or "")
@@ -847,14 +858,17 @@ def _review_evidence(category: str, row: dict) -> list[dict]:
     """给本身没有 reason 列的候选拼一句可判断的证据（段落），别让复核页只剩一个名字。"""
     if category == "western_identity":
         variant = row.get("matched_variant") or ""
-        match = {"verdict": row.get("verdict", ""), "name": row.get("babepedia_name", "")}
+        verdict = _western_verdict(row)
+        # 已知取值按界面语言显示；认不出的取值照原文接上。
+        match = {"verdict": _said(f"labels.webReview.westernVerdict.{verdict}")
+                 if verdict in WESTERN_VERDICT_CODES else verdict, "name": row.get("babepedia_name", "")}
         return _joined([
             _said("labels.webReview.westernMatchSpelling", **match, variant=variant)
             if variant and variant != row.get("creator") else _said("labels.webReview.westernMatch", **match),
             _said("labels.webReview.tokenOverlap", overlap=row.get("token_overlap") or "0"),
             _said("labels.webReview.videos", count=row.get("videos", ""))])
     if category == "cover_sources":
-        if row.get("result") != COVER_FETCHED:
+        if fetch_result(row.get("result")) != COVER_FETCHED:
             return [_said("labels.webReview.coverUnfetched", reason=row["note"]) if row.get("note")
                     else _said("labels.webReview.coverNoCandidates")]
         return [{"text": f"{row.get('source', '')} · {row.get('width', '')}×{row.get('height', '')}"
@@ -1227,8 +1241,8 @@ def w_review_genre(contract: ReviewContract, body):
     if not genre:
         raise UserValueError("api.review.genreEmpty")
     # 标签名进的是和账本同一套词表，判据照 `w_item_tag` 那条：长度上限一致，
-    # `演员:` 是出演者标记不是标签。两处各写一套的话，同一个名字这边收得进、那边加不上。
-    if tag and (len(tag) > 80 or tag.startswith(PERFORMER_TAG_PREFIX)):
+    # `performer:`（与旧版前缀）是出演者标记不是标签。两处各写一套的话，同一个名字这边收得进、那边加不上。
+    if tag and (len(tag) > 80 or is_performer_marker(tag)):
         raise UserValueError("api.review.tagNameInvalid")
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     with contract.write_transaction() as connection:

@@ -29,7 +29,7 @@ from .catalog_rules import (
     UNCENSORED_EDITIONS, jav_edition_badges, normalise_code_key, release_code_from_text, same_release_code,
 )
 from .coded_text import Said, coded, parallel
-from .content_words import CHINESE_SUBTITLE_BADGE
+from .catalog_vocabulary import CHINESE_SUBTITLES, RESOURCE_CHINESE_SUBTITLES
 from .downloads import parse_magnet
 from .follow_secrets import CredentialError, CredentialStore
 from .feeds import scan_code
@@ -140,7 +140,9 @@ def qualities(title: str, tags: list[str], code: str) -> dict:
         (r"(?i)\b(?:h[ ._-]?264|x264|avc)\b", "AVC"),
         (r"(?i)\bav1\b", "AV1")) if re.search(pattern, text)), "")
     editions = jav_edition_badges(title, code, tags)
-    return {"resolution": resolution, "codec": codec, "chinese": CHINESE_SUBTITLE_BADGE in editions,
+    # 来源给的中字属性（JavDB 磁链的 `cnsub`）是 id，不在标签判据里，单独认。
+    chinese = CHINESE_SUBTITLES in editions or RESOURCE_CHINESE_SUBTITLES in tags
+    return {"resolution": resolution, "codec": codec, "chinese": chinese,
             "uncensored": any(label in UNCENSORED_EDITIONS for label in editions)}
 
 

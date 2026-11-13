@@ -2893,7 +2893,13 @@
       "tokenOverlap": "Token overlap {{overlap}}",
       "videos": "{{count}} videos",
       "westernMatch": "{{verdict}} → {{name}}",
-      "westernMatchSpelling": "{{verdict}} → {{name}} (spelled {{variant}})"
+      "westernMatchSpelling": "{{verdict}} → {{name}} (spelled {{variant}})",
+      "westernVerdict": {
+        "matched": "Matched",
+        "needs-review": "Needs review",
+        "no-profile": "No profile",
+        "rate-limited": "Rate limited"
+      }
     },
     "webScraping": {
       "compareIncompleteMobileHint": ", so the cover comparison didn't finish. On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.",
@@ -3144,6 +3150,20 @@
     "catalogVersions": {
       "multipart": "Multi-part",
       "singleFile": "Single file"
+    },
+    "catalogEdition": {
+      "censored": "Censored",
+      "chinese-subtitles": "Chinese subs",
+      "uncensored": "Uncensored",
+      "uncensored-leak": "Uncensored leak",
+      "uncensored-crack": "Decensored"
+    },
+    "catalogParts": {
+      "main": "Main",
+      "bonus": "Bonus {{number}}"
+    },
+    "photoSet": {
+      "untitled": "Untitled image set"
     },
     "organizeTemplates": {
       "placeholder": {
@@ -3417,15 +3437,6 @@
       "evidence": "{{note}}; title “{{title}}”"
     },
     "performerAliasFollowup": {
-      "action": {
-        "write": "write",
-        "have": "already have",
-        "taken": "taken",
-        "stale": "changed",
-        "gone": "no such person",
-        "skip": "skip",
-        "merge": "merge"
-      },
       "site": {
         "missed": "No match",
         "gone": "No match: the record no longer exists",
@@ -4187,6 +4198,7 @@
       "nearDistribution": "close to what you collect and watch"
     },
     "refreshWarning": "{{browser}} · {{profile}}: {{reason}}",
+    "bookmarkProfile": "{{profile}} · Bookmarks",
     "volume": {
       "system": {
         "name": "System drive",
@@ -4206,7 +4218,7 @@
       }
     },
     "qualityBand": {
-      "low": "Low quality"
+      "low": "Low"
     },
     "report": {
       "title": "Browsing history taste analysis",

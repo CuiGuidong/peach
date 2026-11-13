@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
+from .catalog_vocabulary import PERFORMER_TAG_PREFIX
 from .catalog_rules import (
     code_release_date,
     current_tags,
@@ -1581,7 +1582,7 @@ def _drop_superseded_links(connection, asset_ids: list[int], field: str, entity_
 def _apply_performer_candidate(connection, asset_ids: list[int], candidate: dict, *,
                                source: str, confidence: float, metadata: dict,
                                now: str) -> None:
-    """把演员候选写成这些资产的 performer 实体与 `演员:` 标签。
+    """把演员候选写成这些资产的 performer 实体与 `performer:` 标签。
 
     演员是 performer 真相，不回写 `asset.creator`；两种身份混写正是重复名称事故的
     来源之一。
@@ -1621,7 +1622,7 @@ def _apply_performer_candidate(connection, asset_ids: list[int], candidate: dict
             external_id = str(performer.get("external_id") or "").strip()
             connection.execute(
                 "INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) VALUES(?,?,?,?)",
-                (asset_id, "演员:" + name, confidence, f"javinizer:{source}:performer"),
+                (asset_id, PERFORMER_TAG_PREFIX + name, confidence, f"javinizer:{source}:performer"),
             )
             entity_id = upsert_asset_entity(
                 connection, kind="performer", name=name, asset_id=asset_id,

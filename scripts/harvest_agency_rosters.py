@@ -60,10 +60,11 @@ FIELDS = ("agency", "agency_id", "production", "roster_name", "actress_id",
 MEMBERSHIP_SOURCE = "minnano-av:事務所名簿"
 PROVIDER, PRODUCTION = "minnano-av", "production"
 
-NEW, KNOWN, MOVED = "新增归属", "已归属", "另有归属"
-AMBIGUOUS, ABSENT, MISSING = "重名", "不在库", "未取得"
+#: 复核 CSV `verdict` 列：新增归属、已归属、另有归属、重名、不在库、名册没取到。
+NEW, KNOWN, MOVED = "new", "known", "elsewhere"
+AMBIGUOUS, ABSENT, MISSING = "ambiguous", "not-in-ledger", "missed"
 #: 名册收了这个人，而她驳回过这一家（`peach.entities.AGENCY_REJECTED`）。
-REJECTED = "已驳回"
+REJECTED = "rejected"
 #: 会被 `--apply` 写进账本的判词。只有这一个。
 INSTALLABLE = (NEW,)
 
@@ -306,7 +307,7 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
 
 
 def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[str, int]:
-    done = {"编号": 0, "归属": 0}
+    done = {"refs": 0, "memberships": 0}
     for agency_id, production in sorted({
             (int(row["agency_id"]), str(row["production"])) for row in rows
             if row["production"]}):
@@ -316,7 +317,7 @@ def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[st
             " VALUES(?,?,?,?,?,?)",
             (agency_id, PROVIDER, PRODUCTION, production,
              json.dumps({"source": "harvest_agency_rosters"}, ensure_ascii=False), stamp))
-        done["编号"] += connection.execute("SELECT changes()").fetchone()[0]
+        done["refs"] += connection.execute("SELECT changes()").fetchone()[0]
     for row in rows:
         if row["verdict"] not in INSTALLABLE or not row["entity_id"]:
             continue
@@ -326,7 +327,7 @@ def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[st
             "INSERT OR IGNORE INTO entity_membership"
             "(member_id,agency_id,source,confidence,checked_at) VALUES(?,?,?,1.0,?)",
             (int(row["entity_id"]), int(row["agency_id"]), MEMBERSHIP_SOURCE, stamp))
-        done["归属"] += connection.execute("SELECT changes()").fetchone()[0]
+        done["memberships"] += connection.execute("SELECT changes()").fetchone()[0]
     return done
 
 
@@ -367,7 +368,7 @@ def run(args) -> int:
         connection.commit()
         after = counts_of(connection, EXTRA_COUNTS)
         integrity, violations = verify_after_write(connection)
-        print(t("harvest_agency_rosters.written", refs=done["编号"], memberships=done["归属"]))
+        print(t("harvest_agency_rosters.written", refs=done["refs"], memberships=done["memberships"]))
         for key in sorted(before):
             print(f"  {key}: {before[key]} -> {after[key]}")
         print(f"integrity_check={integrity} foreign_key_check={violations}")

@@ -689,11 +689,16 @@ def save_startup(request: Request, body: dict = Body(...), _args=Depends(require
         raise HTTPException(400, error_detail(exc)) from exc
 
 
+#: 卸载请求里页面带上的确认值，挡住误发的请求；用户不输入它，与界面语言无关。旧页面（升级后浏览器里
+#: 还开着的那一页）发的是中文原值，一并认。
+UNINSTALL_CONFIRMATIONS = frozenset({"uninstall-peach", "卸载 Peach"})
+
+
 @router.post("/api/configuration/uninstall")
 def uninstall(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
     local_only(request)
     same_origin(request)
-    if body.get("confirmation") != "卸载 Peach":
+    if body.get("confirmation") not in UNINSTALL_CONFIRMATIONS:
         raise HTTPException(400, message_fields("api.configuration.confirmUninstall"))
     from .jobs import BackgroundJob
     from .task_runs import task_label

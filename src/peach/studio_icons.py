@@ -94,7 +94,7 @@ FIELDS = ("entity_id", "studio", "safe", "variant", "installed", "original_size"
 from peach.user_agent import USER_AGENT
 
 OK = "ok"
-#: 会被 `--install` 落盘的判词。`平台通用图标` 与 `仍是字标` 不在内。
+#: 会被 `--install` 落盘的判词。平台通用图标（`SHARED`）与仍是字标（`WORDMARK`）不在内。
 INSTALLABLE = (OK, PADDED)
 #: 补厂牌后继没装上时，第一张候选的判词在结论里的 code（`task_outcomes`）。判 `ok` 却没写入的是
 #: 装着的那张与它相同。

@@ -61,9 +61,11 @@ JAVDB, MINNANO = "javdb", "minnano-av"
 #: 复核 CSV 里这两列就是站点 id，列名由产出它们的脚本定下。
 CSV_COLUMNS = {"actor_id": JAVDB, "actress_id": MINNANO}
 
-OK, HAVE, CONFLICT = "ok", "已登记", "冲突"
-TAKEN, NOT_PERFORMER, NAMESAKE = "id 已归他人", "不是女优实体", "站上同名"
-FC2_ONLY = "只有 FC2 作品"
+#: 复核 CSV `verdict` 列：可登记、已登记、对上几个 id 互相冲突、id 已归他人、不是女优实体、站上同名、
+#: 只有 FC2 作品。
+OK, HAVE, CONFLICT = "ok", "registered", "conflict"
+TAKEN, NOT_PERFORMER, NAMESAKE = "taken", "not-performer", "namesake"
+FC2_ONLY = "fc2-only"
 
 FIELDS = ("entity_id", "canonical_name", "provider", "external_id",
           "origin", "verdict", "evidence")

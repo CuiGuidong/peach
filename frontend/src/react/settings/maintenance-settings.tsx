@@ -147,7 +147,7 @@ export function UninstallSettings(
       : t('settings:uninstall.confirmAppOnly'),
     confirmLabel: t('settings:uninstall.title'),
     onConfirm: async () => {
-      const result = await apiSend<{ message: string }>('/api/configuration/uninstall', { delete_data: removeData, confirmation: '卸载 Peach' }); // i18n-exempt: 服务端校验的确认值
+      const result = await apiSend<{ message: string }>('/api/configuration/uninstall', { delete_data: removeData, confirmation: 'uninstall-peach' }); // 服务端校验的确认值，用户不输入
       setAccepted(serverText(result) || result.message);
     },
   });
