@@ -110,10 +110,11 @@ class MagnetTests(unittest.TestCase):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 dl.parse_magnet(bad)
 
-    def test_remote_messages_are_sorted_into_the_eleven_kinds(self):
+    def test_remote_messages_are_sorted_into_the_twelve_kinds(self):
         cases = {
             "errno 50038 涉嫌违规": ("rejected", True),
             "本月离线配额已用完": ("quota", False),
+            "code: 190031, message: 云空间不足，请扩容空间或升级VIP": ("storage", False),
             "任务已存在": ("duplicate", False),
             "链接无效": ("invalid_link", False),
             "something else": ("rejected", False),
@@ -123,7 +124,7 @@ class MagnetTests(unittest.TestCase):
                 error = dl.classify_remote_message(message)
                 self.assertEqual((error.failure, error.block), (failure, block))
         self.assertEqual(set(dl.FAILURE_KINDS), {
-            "config", "quota", "rejected", "invalid_link", "no_source", "duplicate",
+            "config", "quota", "storage", "rejected", "invalid_link", "no_source", "duplicate",
             "not_landed", "mismatch", "network", "not_accepted", "removed"})
         self.assertEqual([key for key, kind in dl.FAILURE_KINDS.items() if kind.retryable],
                          ["network"])
@@ -215,6 +216,22 @@ class SubmitTests(_Deployment):
         self.assertIsNone(again["task"]["failure"])
         self.assertEqual([row[:2] for row in self.submissions()],
                          [("failed", "quota"), ("submitted", None)])
+
+    def test_full_storage_raises_a_channel_alert_until_the_next_successful_submission(self):
+        self.provider.submit_result = dl.classify_remote_message("code: 190031, message: 云空间不足")
+        failed = self.submit()
+        self.assertEqual((failed["task"]["failure"], failed["task"]["failure_label"]), ("storage", "网盘空间不足"))
+        alerts = self.service.snapshot()["channel_alerts"]
+        self.assertEqual([(alert["provider"], alert["provider_label"], alert["failure"], alert["message_code"])
+                          for alert in alerts], [("115", "115", "storage", "errors.downloads.remoteStorageFull")])
+        # 资源本身的问题不算渠道告警，也不撤掉已有的告警。
+        self.provider.submit_result = dl.classify_remote_message("链接无效")
+        self.submit(magnet="b" * 40)
+        self.assertEqual(self.service.channel_alert("115")["failure"], "storage")
+        self.provider.submit_result = dl.RemoteStatus(dl.RUNNING, "r1", "ABC-123")
+        self.assertEqual(self.submit()["outcome"], "submitted")
+        self.assertIsNone(self.service.channel_alert("115"))
+        self.assertEqual(self.service.snapshot()["channel_alerts"], [])
 
     def test_a_network_failure_while_submitting_is_submitted_again_by_the_poller(self):
         self.provider.submit_result = unreachable()

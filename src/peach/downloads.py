@@ -96,10 +96,22 @@ class FailureKind:
 
 
 FAILURE_KINDS: dict[str, FailureKind] = {kind.key: kind for kind in (
-    FailureKind("config"), FailureKind("quota"), FailureKind("rejected"), FailureKind("invalid_link"),
+    FailureKind("config"), FailureKind("quota"), FailureKind("storage"), FailureKind("rejected"), FailureKind("invalid_link"),
     FailureKind("no_source"), FailureKind("not_accepted"), FailureKind("removed"), FailureKind("duplicate"),
     FailureKind("not_landed"), FailureKind("mismatch"), FailureKind("network", retryable=True),
 )}
+
+
+#: 渠道级失败：额度用完或网盘空间不足时，交给这个渠道的每一个任务都会同样失败。
+CHANNEL_FAILURES = frozenset({"quota", "storage"})
+#: 网盘空间不足的说法。115 经 CloudDrive2 回 `190031 云空间不足`，有时走 gRPC 错误，有时写在 `errorMessage` 里；
+#: PikPak 的错误码是 `file_space_not_enough`。
+STORAGE_FULL = re.compile(r"190031|空间不足|空间已满|space_not_enough|insufficient (storage|space)|storage (is )?full",
+                          re.IGNORECASE)
+
+
+def storage_full(text: object) -> bool:
+    return bool(STORAGE_FULL.search(str(text or "")))
 
 
 def never_seen(task: "DownloadTask") -> bool:
@@ -167,6 +179,8 @@ def classify_remote_message(message: str) -> DownloadError:
     lowered = text.casefold()
     if BLOCKED_PATTERN.search(text):
         return DownloadError("rejected", "errors.downloads.remoteBlocked", {"text": text}, block=True)
+    if storage_full(text):
+        return DownloadError("storage", "errors.downloads.remoteStorageFull")
     if any(word in lowered for word in ("配额", "quota", "次数", "上限", "limit")):
         return DownloadError("quota", "errors.downloads.remoteQuota", {"text": text})
     if any(word in lowered for word in ("已存在", "exist", "重复", "duplicate")):
@@ -806,6 +820,9 @@ class DownloadService:
         self.after_ingest = after_ingest
         self.channel_catalog = channel_catalog
         self.config = self.settings.load()
+        #: 按 provider 记最近一次渠道级失败（`CHANNEL_FAILURES`），这个渠道下一次提交成功时撤掉。
+        #: 只放在内存里：重启后第一次提交自然会再试一次。
+        self._channel_alerts: dict[str, dict] = {}
         self._submit_lock = threading.Lock()
         self._wake = threading.Event()
         self._stop = threading.Event()
@@ -848,6 +865,10 @@ class DownloadService:
                     self._fail(task, error, now)
                     self.store.record_submission(task=task, outcome="failed", now=now,
                                                  failure=error.failure, detail=error.detail)
+                    if error.failure in CHANNEL_FAILURES:
+                        self._channel_alerts[provider] = {
+                            "provider": provider, "failure": error.failure, "message": error.detail,
+                            "message_code": error.code, "message_params": dict(error.params), "since": iso(now)}
                     return SubmitResult("failed", task)
                 task.state = SUBMIT_PENDING
                 self._reschedule(task, now, error.detail)
@@ -855,6 +876,7 @@ class DownloadService:
                 self.store.record_submission(task=task, outcome=outcome, now=now,
                                              failure=error.failure, detail=error.detail)
             else:
+                self._channel_alerts.pop(provider, None)
                 self._accepted(task, status, now)
                 outcome = "adopted_remote" if status.adopted else "submitted"
                 self.store.record_submission(task=task, outcome=outcome, now=now)
@@ -969,7 +991,17 @@ class DownloadService:
             "total": total,
             "page": page,
             "next_before_id": tasks[-1].id if has_more else None,
+            "channel_alerts": [{**alert, "provider_label": labels.get(alert["provider"], alert["provider"])}
+                               for alert in self.channel_alerts()],
         }
+
+    def channel_alert(self, provider: str) -> dict | None:
+        """这个渠道最近一次渠道级失败；之后成功提交过就是 None。"""
+        alert = self._channel_alerts.get(provider)
+        return dict(alert) if alert else None
+
+    def channel_alerts(self) -> list[dict]:
+        return [dict(alert) for alert in list(self._channel_alerts.values())]
 
     def channel_snapshot(self) -> dict:
         if self.channel_catalog is not None:

@@ -475,6 +475,74 @@ class BrowserTests(unittest.TestCase):
         result = self.status().json()
         self.assertEqual((result["state"], result["task_id"]), ("submitted", failed["task_id"]))
 
+    def listed(self):
+        response = self.client.get("/api/jav-browser/active", headers=self.script_headers)
+        self.assertEqual(response.status_code, 200, response.text)
+        return response.json()
+
+    def test_full_storage_pauses_the_channel_keeps_titles_queued_and_resumes_after_a_probe(self):
+        def by_code(contract, query):
+            digest = hashlib.sha1(query["code"].encode()).hexdigest()
+            return {"items": [{"name": f"{query['code']} 1080p", "uri": f"magnet:?xt=urn:btih:{digest}"}]}
+
+        self.service.search = Mock(side_effect=by_code)
+        self.remote.submit.side_effect = dl.classify_remote_message("code: 190031, message: 云空间不足")
+        for code in ("ABC-123", "ABC-124"):
+            self.assertEqual(self.add(code).json()["state"], "queued")
+        self.assertTrue(self.service.process_one())
+        first = self.status().json()
+        self.assertEqual((first["state"], first["paused"]["failure"], first["message"]),
+                         ("queued", "storage", "网盘空间不足，已暂停；扩容或清理后自动继续"))
+        self.assertNotIn("task_id", first)
+        # 暂停期间后面的番号不搜索也不提交，不会一个接一个地失败。
+        self.assertFalse(self.service.process_one())
+        self.assertEqual((self.service.search.call_count, self.remote.submit.call_count), (1, 1))
+        paused = self.listed()["paused"]
+        self.assertEqual([(row["provider"], row["waiting"], row["failure"]) for row in paused], [("115", 2, "storage")])
+        # 到了试探时间拿排在最前的番号再交一次；网盘恢复了就解除暂停，后面的接着处理。
+        self.remote.submit.side_effect = None
+        start = time.time()
+        self.downloads.clock = lambda: start + 601
+        self.assertTrue(self.service.process_one())
+        self.assertEqual(self.status().json()["state"], "submitted")
+        self.assertEqual(self.listed()["paused"], [])
+        self.assertTrue(self.service.process_one())
+        second = self.client.get("/api/jav-browser", params={"code": "ABC-124"}, headers=self.script_headers).json()
+        self.assertEqual(second["state"], "submitted")
+
+    def test_storage_failures_recorded_before_the_split_point_to_the_cloud(self):
+        self.add()
+        self.service.process_one()
+        task = self.downloads.store.get(self.status().json()["task_id"])
+        task.state, task.failure = dl.FAILED, "rejected"
+        task.failure_detail = "提交离线任务失败：api error: code: 190031, message: 云空间不足，请扩容空间或升级VIP"
+        self.downloads.store.save(task)
+        failed = self.status().json()
+        self.assertEqual((failed["failure"], failed["cause"], failed["message"]),
+                         ("storage", "cloud", "网盘空间不足，扩容或清理后重试"))
+
+    def test_results_without_a_download_task_survive_a_full_queue_and_stay_listed_until_dismissed(self):
+        self.service.search.return_value = {"items": []}
+        self.service.ended["since"] = "2026-01-01T00:00:00+00:00"
+        self.add()
+        self.service.process_one()
+        item = {row["code"]: row for row in self.listed()["items"]}["ABC-123"]
+        self.assertEqual((item["state"], item["dismissed"]), ("no_match", False))
+        self.assertTrue(item["ended_key"].startswith("ABC-123@"))
+        # 队列连同已结束的行满了，先腾掉结果已记在别处的行，「未找到资源」留着。
+        self.service.rows["XYZ-001"] = {"state": "owned", "provider": "115", "source_url": ""}
+        with patch("peach.jav_browser.ROWS_LIMIT", 2):
+            self.assertEqual(self.add("ABC-124").json()["state"], "queued")
+        self.assertEqual(set(self.service.rows), {"ABC-123", "ABC-124"})
+        self.assertEqual(self.status().json()["state"], "no_match")
+        response = self.client.post("/api/jav-browser/dismiss", json={"keys": [item["ended_key"]]},
+                                    headers=self.script_headers)
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertTrue({row["code"]: row for row in response.json()["items"]}["ABC-123"]["dismissed"])
+        # 只有排队与搜索中的番号计入添加上限。
+        with patch("peach.jav_browser.ACTIVE_LIMIT", 1):
+            self.assertEqual(self.add("ABC-125").status_code, 400)
+
     def test_ingested_and_cancelled_states_follow_the_download_task(self):
         self.add()
         self.service.process_one()

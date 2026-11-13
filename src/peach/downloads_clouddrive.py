@@ -32,7 +32,7 @@ from . import downloads_clouddrive_pb2 as pb
 from . import interface_text
 from .downloads import (
     DONE, ERROR, MISSING, RUNNING, DownloadError, DownloadTask, Magnet, Problem, RemoteStatus,
-    classify_remote_message, clean_address, magnet_info_hash, problem_codes,
+    classify_remote_message, clean_address, magnet_info_hash, problem_codes, storage_full,
 )
 from .push_discovery import CloudPrefix, normalise_prefix
 from .user_messages import UserValueError
@@ -172,6 +172,8 @@ def _translate(error: grpc.RpcError, action: str) -> DownloadError:
         return _call_error("config", "tokenRejected", action, details)
     if code == grpc.StatusCode.NOT_FOUND:
         return _call_error("config", "pathNotFound", action)
+    if storage_full(details):
+        return DownloadError("storage", "errors.downloads.remoteStorageFull")
     return _call_error("rejected", "failed", action, details)
 
 

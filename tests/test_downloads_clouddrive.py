@@ -35,6 +35,7 @@ class FakeCloudDrive:
         self.offline: list[pb.OfflineFile] = []
         self.quota = pb.OfflineQuotaInfo(total=1500, used=3, left=1497)
         self.add_error = ""
+        self.add_abort = ""
         self.files: set[str] = set()
         self.files_after_refresh: set[str] = set()
         self.list_error = None
@@ -112,6 +113,8 @@ class FakeCloudDrive:
 
     def AddOfflineFiles(self, request, context):
         self._auth("AddOfflineFiles", request, context)
+        if self.add_abort:
+            context.abort(grpc.StatusCode.UNKNOWN, self.add_abort)
         if self.add_error:
             return pb.FileOperationResult(success=False, errorMessage=self.add_error)
         self.offline.append(pb.OfflineFile(name="ABC-123", url=request.urls, infoHash=HASH,
@@ -214,6 +217,18 @@ class SubmitTests(_Server):
             self.provider.submit(MAGNET, TARGET)
         self.assertEqual(caught.exception.failure, "quota")
         self.assertNotIn("AddOfflineFiles", self.methods())
+
+    def test_full_cloud_storage_is_its_own_failure_on_both_error_paths(self):
+        text = "api error Cloud 115open(1) api error: code: 190031, message: 云空间不足，请扩容空间或升级VIP"
+        for field in ("add_abort", "add_error"):
+            with self.subTest(field=field):
+                self.fake.add_abort = self.fake.add_error = ""
+                setattr(self.fake, field, text)
+                with self.assertRaises(dl.DownloadError) as caught:
+                    self.provider.submit(MAGNET, TARGET)
+                self.assertEqual((caught.exception.failure, caught.exception.code),
+                                 ("storage", "errors.downloads.remoteStorageFull"))
+                self.assertNotIn("115open", caught.exception.detail)
 
     def test_the_50038_block_is_flagged(self):
         self.fake.add_error = "errno: 50038, 该资源涉嫌违规"
