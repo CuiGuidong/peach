@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "8a871541-eada-47ab-91c6-25266153c3b2", e._sentryDebugIdIdentifier = "sentry-dbid-8a871541-eada-47ab-91c6-25266153c3b2");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "6ebd2187-6d01-4fe2-a841-0ab8f2ca8ae3", e._sentryDebugIdIdentifier = "sentry-dbid-6ebd2187-6d01-4fe2-a841-0ab8f2ca8ae3");
 	} catch {}
 })();
 import { BATCH_DELETE_TEXT as e, Button as t, CLEANUP_ENTRY as n, CLEANUP_ENTRY_GRID as r, CLEANUP_HASH_REDIRECTS as i, CLEANUP_TOOLS as a, Chip as o, DIRECTORY_TEMPLATE_ERROR as s, DUPLICATES_KEY as c, Fieldset as l, FieldsetTitle as u, IDLE_REPAIR as d, IconButton as f, IndexSearch as p, Input as m, JUNK_KEY as h, LINKS_KEY as g, LINK_CHECK_KEY as _, LINK_KINDS as v, LINK_PRUNE_KEY as ee, LOC as y, LibraryLabel as b, LibraryProcessingCard as x, MEDIA_REPAIR_KEY as S, MEDIA_REPAIR_URL as C, MEDIA_SOURCES_KEY as w, MEDIA_SOURCE_ICONS as T, Note as E, ORGANIZE_KEY as te, ORGANIZE_PARAMETER_HINT as ne, ORGANIZE_SCOPE_HINT as re, ORGANIZE_TEXT as D, ORPHAN_RECORDS_KEY as O, ORPHAN_RECORDS_TEXT as k, PERFORMER_DELETE_KEY as A, PLAIN_STAT_STRIP as j, PlainStat as M, Progress as ie, QUALITY_GOALS_KEY as N, REPAIR_CARD_TEXT as ae, REPAIR_LIBRARIES_KEY as oe, RESOURCE_APPLY_KEY as P, RESOURCE_SCAN_KEY as F, RESOURCE_SYNC_TEXT as I, RESULT_PANEL as se, RESULT_SECTION as ce, REVIEW_COUNTS_KEY as L, SOURCE_LABELS as le, SectionHeading as ue, Select as de, SelectItem as fe, SourceLabel as pe, SourceMark as me, StatusLabel as he, TRASH_KEY as ge, TaskProgress as R, Wt as _e, __toESM as ve, apiSend as z, applyConfirmText as ye, applyLeftovers as B, applyPlanText as be, applyText as xe, attachOrphan as Se, baseName as Ce, busyProps as V, candidateText as we, checkLine as Te, codedText as Ee, confirmModal as H, cx as De, deletePerformerVideos as Oe, entityDisplayName as ke, entityFaceImg as Ae, entityPath as je, errorMessage as U, esc as Me, fetchDeletePerformers as Ne, fetchDeletePlan as Pe, fetchDuplicates as Fe, fetchJunkSummary as Ie, fetchLinkCheck as Le, fetchLinkPrune as Re, fetchLinkStats as ze, fetchMediaRepair as Be, fetchMediaSources as Ve, fetchOrganize as He, fetchOrganizeExample as Ue, fetchOrphanRecords as We, fetchQualityGoals as Ge, fetchRepairLibraries as Ke, fetchResourceApply as qe, fetchResourceScan as Je, fetchReviewCounts as Ye, fetchTrashSummary as Xe, firstGrapheme as Ze, fmtSize as W, hasChanges as Qe, hasResourceRoots as $e, jobText as G, junkBreakdown as et, missingToolText as tt, organizeOutcome as nt, peachHistory$1 as rt, pickOrganizeFolder as it, plainStatClass as K, planSummary as at, previewOrganize as ot, pruneText as st, purgeCount as ct, purgeOrphan as lt, queryClient as q, recordsText as ut, rememberTemplates as dt, require_jsx_runtime as ft, require_react as pt, reviewSummary as mt, scanLine as ht, serverLabel as gt, sourceMeta as _t, spriteGlyph as J, stageText as vt, startLinkCheck as yt, startLinkPrune as bt, startOrganize as xt, startResourceApply as St, startResourceScan as Ct, statusLine as wt, t as Y, useAction as Tt, useBackgroundJob as X, useEntityNames as Et, useMutation as Dt, useOrderedLibraries as Ot, useQuery as Z, withOrganizeJob as kt } from "./peach-app.js";
@@ -1779,7 +1779,6 @@ function jn({ toast: e, open: t, navigate: n }) {
 			className: "scroll-mt-20",
 			children: /* @__PURE__ */ (0, $.jsx)(x, {
 				toast: (t) => e(t),
-				monitor: !0,
 				onComplete: An
 			})
 		}),
@@ -1815,4 +1814,4 @@ function jn({ toast: e, open: t, navigate: n }) {
 }
 export { jn as DataCleanupPage, xn as DataCleanupToolPage };
 
-//# debugId=8a871541-eada-47ab-91c6-25266153c3b2
+//# debugId=6ebd2187-6d01-4fe2-a841-0ab8f2ca8ae3

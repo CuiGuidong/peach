@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as legacyUi from '@peach/legacy/ui';
 
 import type { ConfigurationData, ReleaseState, UpdateJob } from '../../src/react/bundle';
@@ -7,6 +7,7 @@ import {
   AutomaticUpdates, MaintenanceSettings, TutorialSettings, UninstallSettings,
 } from '../../src/react/settings/maintenance-settings';
 import { ReleaseUpdates } from '../../src/react/settings/release-updates';
+import { ClientUpdateBanner, CLIENT_UPDATES_INTERVAL, PROGRESS_INTERVAL } from '../../src/react/client-updates';
 import { actionOrder, buttonNamed, choose, click, fetchMock, mount, section, sentBody, settle, submit, switches } from './render';
 
 const automatic = { mode: 'off', interval_hours: 24, available: true, download_available: true };
@@ -92,6 +93,9 @@ describe('自动更新', () => {
 });
 
 describe('检查更新', () => {
+  // 分区挂上就读一次横幅那份更新快照；没给接口的用例按连不上作答，不打到真实网络。
+  beforeEach(() => { vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); })); });
+
   it('标明应用更新包体积和工具补下载条件', async () => {
     const host = await mount(<ReleaseUpdates initial={{ ...release, state: 'available', latest_version: '1.0.0',
       package_kind: 'update', asset_size: 12 * 1048576 }} />);
@@ -126,9 +130,90 @@ describe('检查更新', () => {
     expect(modal.mock.calls[0]?.[0]).toMatchObject({
       title: '更新已准备好', body: 'Peach 0.10.0 将在重启后安装。', confirmLabel: '立即重启', cancelLabel: '稍后',
     });
-    expect(fetcher).not.toHaveBeenCalled();
+    // 挂上时只读一次横幅那份更新快照。
+    const sent = () => fetcher.mock.calls.map(([url]) => url).filter((url) => url !== '/api/client-updates');
+    expect(sent()).toEqual([]);
     await act(async () => { await modal.mock.calls[0]?.[0].onConfirm?.(); });
-    expect(fetcher.mock.calls.map(([url]) => url)).toEqual(['/api/configuration/update-restart']);
+    expect(sent()).toEqual(['/api/configuration/update-restart']);
+  });
+
+  describe('读页面顶部横幅那份更新快照，不另查', () => {
+    const snapshot = (job: UpdateJob, extra: Partial<ReleaseState> = {}) => ({
+      runtime: { version: '0.9.0', build_id: 'build-a' },
+      release: { ...release, state: 'available', latest_version: '0.10.0', message: '有新版本可下载。', checked_at: 1, ...extra },
+      update_job: job, userscript: { version: '0.8.0', minimum_version: '0.7.0', install_url: '/peach.user.js' },
+      repairs: { state: 'complete', items: [] },
+    });
+    const advance = async (milliseconds: number) => {
+      await act(async () => { await vi.advanceTimersByTimeAsync(milliseconds); });
+      await settle();
+    };
+
+    it('横幅与本分区同时挂上只有一处在查，空闲时 2 分钟一次，不再每 30 秒查更新状态', async () => {
+      vi.useFakeTimers();
+      vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+      const fetcher = vi.fn(async (_url: string, _init?: RequestInit) => ({ ok: true, status: 200,
+        json: async () => snapshot({ state: 'idle', progress: 0 }) }));
+      vi.stubGlobal('fetch', fetcher);
+      const slot = document.createElement('div');
+      slot.setAttribute('data-network-banner', '');
+      document.body.append(slot);
+      await mount(<ClientUpdateBanner navigate={vi.fn()} />);
+      const host = await mount(<ReleaseUpdates initial={release} />);
+      await settle();
+      expect(fetcher.mock.calls.map(([url]) => url)).toEqual(['/api/client-updates']);
+      await advance(CLIENT_UPDATES_INTERVAL - 1);
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      await advance(1);
+      expect(fetcher.mock.calls.map(([url]) => url)).toEqual(['/api/client-updates', '/api/client-updates']);
+      // 挂上之后取到的检查结果换进本分区。
+      expect(section(host, '检查更新')?.textContent).toContain('最新版本0.10.0');
+    });
+
+    it('开始下载立即查一次，进行中跟着横幅每 2 秒刷新进度，装好后回到常规节奏', async () => {
+      vi.useFakeTimers();
+      vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+      let job: UpdateJob = { state: 'idle', progress: 0 };
+      const fetcher = vi.fn(async (url: string, _init?: RequestInit) => ({ ok: true, status: 200,
+        json: async () => url === '/api/configuration/update' ? { state: 'downloading', progress: 0 } : snapshot(job) }));
+      vi.stubGlobal('fetch', fetcher);
+      const host = await mount(<ReleaseUpdates initial={{ ...release, state: 'available', latest_version: '0.10.0' }} />);
+      await settle();
+      const reads = () => fetcher.mock.calls.filter(([url]) => url === '/api/client-updates').length;
+      expect(reads()).toBe(1);
+      job = { state: 'downloading', progress: 30, version: '0.10.0' };
+      await click(buttonNamed('下载并安装', section(host, '检查更新')!));
+      await settle();
+      expect(reads()).toBe(2);
+      expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('30');
+      job = { state: 'verifying', progress: 70, version: '0.10.0' };
+      await advance(PROGRESS_INTERVAL);
+      expect(reads()).toBe(3);
+      expect(host.querySelector('[role="progressbar"]')?.getAttribute('aria-valuenow')).toBe('70');
+      job = { state: 'ready', progress: 100, version: '0.10.0' };
+      await advance(PROGRESS_INTERVAL);
+      expect(reads()).toBe(4);
+      await advance(CLIENT_UPDATES_INTERVAL - 1);
+      expect(reads()).toBe(4);
+      expect(fetcher.mock.calls.some(([url]) => url === '/api/configuration/update-status' || url === '/api/configuration/automatic-updates')).toBe(false);
+    });
+
+    it('横幅的快照约 2 分钟取不到就说明连不上，取到后撤掉', async () => {
+      vi.useFakeTimers();
+      vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+      const fetcher = vi.fn(async (_url: string, _init?: RequestInit): Promise<unknown> => { throw new TypeError('Failed to fetch'); });
+      vi.stubGlobal('fetch', fetcher);
+      const host = await mount(<ReleaseUpdates initial={release} />);
+      await settle();
+      await advance(2_000 + 4_000 + 8_000 + 16_000 + 30_000 - 1);
+      expect(host.textContent).not.toContain('尚未连接到 Peach');
+      await advance(30_001);
+      expect(fetcher).toHaveBeenCalledTimes(7);
+      expect(host.querySelector('[role="alert"]')?.textContent).toContain('尚未连接到 Peach');
+      fetcher.mockImplementation(async () => ({ ok: true, status: 200, json: async () => snapshot({ state: 'idle', progress: 0 }) }));
+      await advance(30_000);
+      expect(host.textContent).not.toContain('尚未连接到 Peach');
+    });
   });
 
   it('显式查询更新，连点只发一次，失败后可重试且焦点留在原处', async () => {

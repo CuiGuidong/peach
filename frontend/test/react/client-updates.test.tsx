@@ -2,7 +2,7 @@ import { act } from 'react';
 import { expect, it, vi } from 'vitest';
 
 import { ClientUpdateBanner, CLIENT_UPDATES_INTERVAL, PROGRESS_INTERVAL, RECOVERY_DELAYS, RELEASE_UPDATES_PATH,
-  type ClientUpdates } from '../../src/react/client-updates';
+  useClientUpdates, type ClientUpdates } from '../../src/react/client-updates';
 import { SETTINGS_KEY } from '../../src/settings-key';
 import { buttonNamed, click, linkNamed, mountRoot, pending, settle } from './render';
 
@@ -156,6 +156,28 @@ it('页面隐藏停止轮询，恢复可见立即读取且只请求本机快照'
   await settle();
   expect(fetcher).toHaveBeenCalledTimes(2);
   expect(fetcher.mock.calls.every(([path]) => path === '/api/client-updates')).toBe(true);
+});
+
+it('横幅与设置页读同一份快照：只查一处，卸下一个另一个照常，全部卸下才停', async () => {
+  const { slot, fetcher, unmount } = await render(available());
+  function Reader() {
+    const { snapshot } = useClientUpdates();
+    return <p data-reader="">{snapshot?.release.latest_version}</p>;
+  }
+  const reader = await mountRoot(<Reader />);
+  await settle();
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(reader.host.textContent).toBe('0.10.0');
+  await unmount();
+  await tick();
+  expect(fetcher).toHaveBeenCalledTimes(2);
+  fetcher.mockResolvedValue(response(available('0.11.0')));
+  await tick();
+  expect(reader.host.textContent).toBe('0.11.0');
+  await reader.unmount();
+  await tick();
+  expect(fetcher).toHaveBeenCalledTimes(3);
+  expect(slot.childElementCount).toBe(0);
 });
 
 it('卸载中止请求，迟到响应不再显示提示，监听和定时器释放', async () => {

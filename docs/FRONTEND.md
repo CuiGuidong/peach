@@ -414,7 +414,9 @@ const job = useQuery({
 `src/react/running-tasks.ts` 只读缓存：页面闲着不轮询自己的任务状态，用 `useRefetchOnTask`
 （或 `useBackgroundJob` 的 `taskKey`）在对应任务开跑时重取一次，再按 `running` 接上节律。
 同一个键只由一处驱动轮询，其余读者不写 `refetchInterval`。手写的状态循环用 `pollUntil`，
-它自带退避、页面隐藏时暂停与上限。
+它自带退避、页面隐藏时暂停与上限。`/api/client-updates` 那份更新快照同理：顶部横幅、设置里的
+「检查更新」与「升级补修」都读 `client-updates.tsx` 的 `useClientUpdates`，模块里只有一个检查在跑，
+本页发起更新或补修后调 `checkClientUpdates()` 立即查一次。
 
 统计页（`src/react/stats/`）是这条判据的另一端：整页只有 `STATS_KEY` 这一个键，读的是账本
 此刻的样子，没有后台任务也不轮询。一屏里的四个读数和下面三个面板分开取的话，就会出现这一格

@@ -1,6 +1,7 @@
 /* 检查更新：当前与最新版本、下载安装进度，准备好之后确认重启。
  *
- * 更新任务进行中每秒问一次状态，空闲时 30 秒一次；连续 120 次问不到就停下并说明原因。
+ * 更新任务与检查结果读页面顶部横幅那份 `/api/client-updates` 快照（`useClientUpdates`），本页不另查：
+ * 更新进行中它每 2 秒刷新，空闲时 2 分钟一次；连不上时它按退避重试，约 2 分钟仍连不上就在这里说明。
  * Docker 镜像配好 Watchtower 时给「一键更新」，没配好时列出宿主机上的两步命令。 */
 import { useEffect, useRef, useState } from 'react';
 import { confirmModal } from '@peach/legacy/ui';
@@ -8,6 +9,7 @@ import { confirmModal } from '@peach/legacy/ui';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 
 import { apiGet, apiSend, errorMessage } from '../../api';
+import { checkClientUpdates, useClientUpdates } from '../client-updates';
 import { codedText, jobText, serverLabel, serverText } from '../../core/server-text';
 import type { ReleaseState, UpdateJob } from '../bundle';
 import { Note } from '../components/note';
@@ -21,14 +23,17 @@ import { interfaceLanguage, t } from '../../i18n';
 
 const ACTIVE = new Set(['downloading', 'verifying', 'extracting', 'preparing', 'restarting', 'installing']);
 const STOPS = [65, 75, 90];
-const MAX_FAILURES = 120;
+/** 横幅的快照连续这么多次没取得（按 2、4、8、16、30 秒退避，约 2 分钟）就说明连不上。 */
+const LOST_AFTER_FAILURES = 7;
 /** 服务端没给发布页时的去处；检查到新版本后服务端给的是那一版自己的发布页。 */
 const RELEASES_URL = 'https://github.com/peach-mitao/peach/releases';
 
 export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState; initialJob?: UpdateJob | undefined }) {
   const [data, setData] = useState(initial);
   const [job, setJob] = useState<UpdateJob>(initialJob || { state: 'idle', progress: 0 });
-  const [pollError, setPollError] = useState('');
+  const { snapshot, failures } = useClientUpdates();
+  /** 挂上时已有的那份快照可能比 `initial`／`initialJob` 旧，只接之后取到的。 */
+  const mountedSnapshot = useRef(snapshot);
   const action = useAction();
   const prompted = useRef(false);
   const mounted = useRef(true);
@@ -50,6 +55,7 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
   const restart = async () => {
     const result = await apiSend<UpdateJob>('/api/configuration/update-restart', {});
     if (mounted.current) setJob(result);
+    checkClientUpdates();
   };
   const confirmRestart = () => void confirmModal({
     title: t('settings:releaseUpdates.updateReady'), body: t('settings:releaseUpdates.installAfterRestart', { version: job.version || '' }),
@@ -63,40 +69,28 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
   }, [job.state]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    const delay = ACTIVE.has(job.state) ? 1000 : 30000;
-    let timer: ReturnType<typeof setTimeout>;
-    let failures = 0;
-    const poll = async () => {
-      try {
-        const result = await apiGet<UpdateJob>('/api/configuration/update-status', controller.signal);
-        if (controller.signal.aborted) return;
-        setJob(result);
-        failures = 0;
-        if (result.state === 'complete') {
-          setData((current) => ({ ...current, current_version: result.version || current.current_version, state: 'current', message: t('settings:releaseUpdates.latestTestBuild') }));
-        }
-        const automatic = await apiGet<{ result?: ReleaseState }>('/api/configuration/automatic-updates', controller.signal);
-        if (!controller.signal.aborted && automatic.result) setData(automatic.result);
-      } catch {
-        failures += 1;
-        if (failures >= MAX_FAILURES && !controller.signal.aborted) setPollError(t('settings:releaseUpdates.connectionLost'));
-      }
-      if (!controller.signal.aborted && failures < MAX_FAILURES) timer = setTimeout(poll, delay);
-    };
-    timer = setTimeout(poll, delay);
-    return () => { controller.abort(); clearTimeout(timer); };
-  }, [job.state]);
+    if (!snapshot || snapshot === mountedSnapshot.current) return;
+    const next = snapshot.update_job;
+    setJob(next);
+    // 没检查过时快照里是默认的「尚未检查」，不覆盖本页已有的结果。
+    if (snapshot.release.checked_at) setData(snapshot.release);
+    if (next.state === 'complete') {
+      setData((current) => ({ ...current, current_version: next.version || current.current_version, state: 'current', message: t('settings:releaseUpdates.latestTestBuild') }));
+    }
+  }, [snapshot]);
 
   const download = () => {
     if (running) return;
     prompted.current = false;
-    setPollError('');
-    void action.run('download', (signal) => apiSend<UpdateJob>('/api/configuration/update', {}, 'POST', signal), setJob);
+    void action.run('download', (signal) => apiSend<UpdateJob>('/api/configuration/update', {}, 'POST', signal), (next) => {
+      setJob(next);
+      checkClientUpdates();
+    });
   };
   const check = () => void action.run('check', (signal) => apiGet<ReleaseState>('/api/configuration/updates', signal), setData,
     (cause) => { setData({ ...initial, state: 'error' }); action.setError(errorMessage(cause)); });
 
+  const pollError = failures >= LOST_AFTER_FAILURES ? t('settings:releaseUpdates.connectionLost') : '';
   const error = action.error || pollError || container.error;
   const message = serverText(data);
   const reading = job.state === 'downloading' && job.total
