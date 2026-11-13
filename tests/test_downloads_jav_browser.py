@@ -428,6 +428,56 @@ class BrowserTests(unittest.TestCase):
         exhausted = self.status().json()
         self.assertEqual((exhausted["state"], exhausted["message"]), ("no_match", "没有其他可用磁力，可在 Peach 手动选择资源"))
 
+    def test_magnet_failures_switch_to_the_next_candidate_without_waiting_for_the_user(self):
+        hashes = [HASH, *(letter * 40 for letter in "bcdef")]
+        items = [{"name": f"ABC-123 {index}", "uri": f"magnet:?xt=urn:btih:{value}&dn=ABC-123"}
+                 for index, value in enumerate(hashes)]
+        self.service.search.return_value = {"items": items}
+        self.add()
+        self.service.process_one()
+
+        def fail_current(failure="no_source"):
+            task = self.downloads.store.get(self.status().json()["task_id"])
+            task.state, task.failure, task.failure_detail = dl.FAILED, failure, "没有可用下载源"
+            self.downloads.store.save(task)
+            self.service._swept_at = float("-inf")
+            return task.info_hash
+
+        # 每次磁力失败都跳过它交下一个候选，不用用户点「换一个磁力」。
+        tried = []
+        for failure in ("no_source", "invalid_link", "mismatch"):
+            tried.append(fail_current(failure))
+            self.assertTrue(self.service.process_one())
+            self.assertEqual(self.service.search.call_args.args[1]["skip"], tried)
+            self.assertEqual(self.status().json()["state"], "submitted")
+        self.assertEqual(self.downloads.store.get(self.status().json()["task_id"]).info_hash, hashes[3])
+        # 自动换满三次后停下，留给用户决定；状态仍是磁力问题，脚本给「换一个磁力」。
+        fail_current()
+        self.assertFalse(self.service.process_one())
+        stopped = self.status().json()
+        self.assertEqual((stopped["state"], stopped["cause"]), ("failed", "magnet"))
+        # 用户手动换磁力时沿用已跳过的名单，接着交下一个候选。
+        self.assertEqual(self.add(switch=True).json()["state"], "queued")
+        self.service.process_one()
+        self.assertEqual(self.downloads.store.get(self.status().json()["task_id"]).info_hash, hashes[4])
+
+    def test_automatic_magnet_switch_ends_as_no_other_magnet_when_candidates_run_out(self):
+        other = "b" * 40
+        self.service.search.return_value = {"items": [{"name": "ABC-123 1080p", "uri": MAGNET},
+                                                      {"name": "ABC-123 720p", "uri": f"magnet:?xt=urn:btih:{other}&dn=ABC-123"}]}
+        self.add()
+        self.service.process_one()
+        for expected in (other, None):
+            task = self.downloads.store.get(self.status().json()["task_id"])
+            task.state, task.failure = dl.FAILED, "rejected"
+            self.downloads.store.save(task)
+            self.service._swept_at = float("-inf")
+            self.assertTrue(self.service.process_one())
+            if expected:
+                self.assertEqual(self.downloads.store.get(self.status().json()["task_id"]).info_hash, expected)
+        exhausted = self.status().json()
+        self.assertEqual((exhausted["state"], exhausted["message"]), ("no_match", "没有其他可用磁力，可在 Peach 手动选择资源"))
+
     def test_tasks_the_cloud_never_listed_count_as_cloud_problems_including_legacy_rows(self):
         self.add()
         self.service.process_one()
@@ -494,9 +544,7 @@ class BrowserTests(unittest.TestCase):
         fail("not_accepted", "网盘没有收下这个任务")
         self.assertFalse(self.service.process_one())
         self.assertEqual(self.status().json()["state"], "failed")
-        # 磁力本身的问题不自动重来。
-        fail("no_source", "没有可用下载源")
-        self.assertFalse(self.service.process_one())
+        # 磁力本身的问题改为跳过换下一个候选，见 test_magnet_failures_switch_to_the_next_candidate_without_waiting_for_the_user。
         # 升级前空间不足被记成 rejected：按原文认回来，不限次数放回队列。
         fail("rejected", "提交离线任务失败：api error: code: 190031, message: 云空间不足")
         self.assertTrue(self.service.process_one())
