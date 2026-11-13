@@ -63,6 +63,13 @@ class JobCancelled(UserFacingError, InterruptedError):
     """用户停止任务；已保存结果保留，不再自动恢复。"""
 
 
+class TaskRunMissing(UserFacingError, KeyError):
+    """要的那一轮任务不在了。仍是 `KeyError`：接口层按它回 404，带上 code。
+    放在这一层：任务控制（`task_control`）与任务接口（`web_tasks`）都抛它，非 web 模块不能依赖 web 层。"""
+
+    status_code = 404
+
+
 class JobAlreadyRunning(UserFacingError, JobPolicyError):
     exit_code = 0
 

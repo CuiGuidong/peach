@@ -17,9 +17,10 @@ import time
 from datetime import datetime
 
 from .ingest_notices import NOTICES
+from .jobs import TaskRunMissing
 from .task_runs import ACTIVE_STATUSES, SETTLED_FOLLOWUP_LIMIT, TERMINAL_STATUSES
 from .task_results import RESULT_FIELDS, result_counts
-from .user_messages import UserFacingError, UserValueError, message_fields
+from .user_messages import UserValueError, message_fields
 from .web_result_versions import result_versions
 
 #: 不带筛选时「最近完成」那一段每页的默认条数。一屏看得完，更早的往前翻。
@@ -30,12 +31,6 @@ TASK_FOLLOWUP_LIMIT = SETTLED_FOLLOWUP_LIMIT
 #: 账本还没跑到 0028 时页面上显示的那一句的 code。迁移是单独一步，升级后第一次打开活动页
 #: 撞上没有这张表是正常路径，不该是一个 500。
 NO_TABLE = "api.tasks.noTaskTable"
-
-
-class TaskRunMissing(UserFacingError, KeyError):
-    """要的那一轮任务不在了。仍是 `KeyError`：接口层按它回 404，带上 code。"""
-
-    status_code = 404
 
 
 def q_result_updates(contract, _args):

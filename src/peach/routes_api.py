@@ -242,7 +242,7 @@ async def taste_import(
 
 
 def _not_found(exc: KeyError) -> JSONResponse:
-    """任务那两条路由的 404：带 code 的（`web_tasks.TaskRunMissing`）给原句与 code，
+    """任务那两条路由的 404：带 code 的（`jobs.TaskRunMissing`）给原句与 code，
     别的 `KeyError` 照旧给原句。`str(KeyError(...))` 会把消息连引号一起带出来，取 args 才是那句话本身。"""
     if isinstance(exc, UserFacingError):
         return JSONResponse(error_fields(exc), status_code=404)

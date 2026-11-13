@@ -168,7 +168,7 @@ def _request(store, run_id, action, *, mode=None):
         mode = valid_mode(mode)
     run = store.get(run_id)
     if run is None:
-        from .web_tasks import TaskRunMissing
+        from .jobs import TaskRunMissing
         raise TaskRunMissing('errors.taskControl.runMissing')
     if not store.enabled or run.host != store.host:
         raise UserPermissionError('errors.taskControl.otherHost')
