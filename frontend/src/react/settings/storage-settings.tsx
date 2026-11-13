@@ -16,7 +16,7 @@ import { Checkbox } from '@/components/base/checkbox/checkbox';
 
 import { ApiError, apiGet, apiSend, errorMessage } from '../../api';
 import { PICK_FOLDER_URL } from '../../configuration-endpoints';
-import { serverLabel } from '../../core/server-text';
+import { bodyFieldErrors, serverLabel } from '../../core/server-text';
 import type { StorageCategory, StorageState } from '../bundle';
 import { AnimatedNumber } from '../components/animated-number';
 import { cardClass } from '../components/card';
@@ -35,7 +35,7 @@ const POLL_MS = 1500;
 const RESULT_MS = 24 * 3600 * 1000;
 
 const targetReason = (cause: unknown) =>
-  (cause instanceof ApiError && (cause.body as { errors?: { target?: string } } | null)?.errors?.target)
+  (cause instanceof ApiError && bodyFieldErrors<{ target?: string }>(cause.body)?.target)
   || errorMessage(cause);
 
 function diskLine(storage: StorageState) {

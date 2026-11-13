@@ -9,12 +9,12 @@ from pathlib import Path
 
 from .downloads import (
     CLOUDDRIVE_CREDENTIAL, MAX_WAIT_HOURS, PIKPAK_CREDENTIAL, DownloadError,
-    DownloadService, Landing, OfflineProvider, clean_address, normalise_target,
-    submit_offline_download,
+    DownloadService, Landing, OfflineProvider, Problem, clean_address, normalise_target,
+    problem_codes, submit_offline_download,
 )
 from .follow_secrets import CredentialError, CredentialStore
 from .repository import LedgerDatabase
-from .user_messages import UserValueError
+from .user_messages import UserValueError, message_fields
 
 
 def _values(credentials: CredentialStore, provider: str) -> dict:
@@ -149,14 +149,15 @@ def settings_payload(service: DownloadService, declared_roots) -> dict:
         pikpak = account(_values(credentials, PIKPAK_CREDENTIAL))
     except DownloadError:
         pikpak = account(None)
-        problems.append("PikPak 登录信息无法读取，请重新登录。")
+        problems.append(Problem("labels.downloadsChannels.pikpakSignInUnreadable"))
     try:
         token_set = "token" in credentials.describe(CLOUDDRIVE_CREDENTIAL)["fields"]
     except CredentialError:
         token_set = False
-        problems.append("CloudDrive2 令牌无法读取，请重新填写。")
+        problems.append(Problem("labels.downloadsChannels.clouddriveTokenUnreadable"))
     login = _browser_login(service)
     channels = service.channel_snapshot()
+    problems = list(dict.fromkeys((*problems, *channels.get("problems", ()))))
     return {
         "available": service.available,
         "media_sources": [key for key, roots in declared_roots.items() if roots],
@@ -167,7 +168,8 @@ def settings_payload(service: DownloadService, declared_roots) -> dict:
                            **(login.status() if login is not None else {"state": "idle", "message": ""})},
         "pikpak_roots": list(declared_roots.get("pikpak", ())),
         "providers": channels["providers"],
-        "problems": list(dict.fromkeys((*problems, *channels.get("problems", ())))),
+        "problems": problems,
+        "problem_codes": problem_codes(problems),
         "max_wait_hours": MAX_WAIT_HOURS,
     }
 
@@ -196,7 +198,7 @@ def save_settings(service: DownloadService, body: dict, declared_roots) -> dict:
                 "target": config.targets.get("115", ""), "pikpak_root": config.pikpak_root,
                 "pikpak_account": body.get("pikpak_account") is True})
         except DownloadError as error:
-            report = empty_report(config.clouddrive_address, [error.detail])
+            report = empty_report(config.clouddrive_address, [Problem.of(error)])
         suggested = report.get("suggested_target")
         if not config.targets.get("115") and suggested and suggested.get("exists"):
             filled = config.payload()
@@ -250,7 +252,7 @@ def check_clouddrive(service: DownloadService, body: dict) -> dict:
     try:
         return check(address, token, target, hints=_hints(service, body))
     except DownloadError as error:
-        return empty_report(address, [error.detail])
+        return empty_report(address, [Problem.of(error)])
 
 
 def create_clouddrive_folder(service: DownloadService, body: dict) -> dict:
@@ -275,7 +277,7 @@ def pikpak_login(service: DownloadService, body: dict, declared_roots, *, transp
               persist=lambda values: credentials.save(PIKPAK_CREDENTIAL, values),
               transport=transport)
     except CaptchaRequired as error:
-        return {"ok": False, "captcha_url": error.url, "message": error.detail,
+        return {"ok": False, "captcha_url": error.url, **message_fields(error.code, error.params),
                 "settings": settings_payload(service, declared_roots)}
     except DownloadError as error:
         raise UserValueError(error.code, error.params) from None

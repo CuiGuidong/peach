@@ -38,7 +38,7 @@ from .follow_secrets import CredentialStore
 from .fsutil import atomic_write_text
 from .push_discovery import CloudPathError, CloudPrefix, map_cloud_path, normalise_prefix
 from . import interface_text
-from .user_messages import UserFacingError, UserValueError
+from .user_messages import UserFacingError, UserValueError, nested_message
 from .repository import LedgerDatabase, in_background
 from .task_retry import RETRY_DELAYS, retry_delay
 
@@ -126,6 +126,32 @@ class DownloadError(UserFacingError, RuntimeError):
     @property
     def retryable(self) -> bool:
         return FAILURE_KINDS[self.failure].retryable
+
+
+class Problem(str):
+    """设置块与检查报告里的一条问题（ADR-0159）：值是按 zh-CN 渲染的原句，`code`、`params` 给页面取译文。
+
+    仍是 `str`：去重、比对与老前端读 `problems` 都照旧；`problem_codes` 把它们并行列给页面。
+    """
+
+    code: str
+    params: dict
+
+    def __new__(cls, code: str, params: Mapping[str, Any] | None = None) -> "Problem":
+        values = dict(params or {})
+        problem = super().__new__(cls, interface_text.text(f"server:{code}", values))
+        problem.code, problem.params = code, values
+        return problem
+
+    @classmethod
+    def of(cls, error: UserFacingError) -> "Problem":
+        return cls(error.code, error.params)
+
+
+def problem_codes(problems) -> list[dict]:
+    """与 `problems` 一一对应的 code 与参数；不带 code 的旧原句给空 code，页面照原文显示。"""
+    return [{"code": getattr(problem, "code", ""), "params": dict(getattr(problem, "params", {}))}
+            for problem in problems]
 
 
 #: 115 对违规内容的离线拦截码。CloudDrive2 把 115 的原文放进 `errorMessage`，
@@ -242,6 +268,13 @@ class RemoteStatus:
     message: str = ""
     #: 提交时远端目录里已有同一 infohash 的任务，接过来跟踪，没有调提交接口。
     adopted: bool = False
+    #: 远端只报失败、没给原文时，渠道自己写的原因 code；有它就不再按 `message` 的字面归类。
+    message_code: str = ""
+
+    def failure(self) -> "DownloadError":
+        if self.message_code:
+            return DownloadError("rejected", self.message_code)
+        return classify_remote_message(self.message)
 
 
 RUNNING, DONE, ERROR, MISSING = "running", "done", "error", "missing"
@@ -349,10 +382,17 @@ class DownloadTask:
     postprocess_retries: int = 0
 
     @property
-    def postprocess_label(self) -> str:
+    def postprocess_label_code(self) -> tuple[str, dict]:
+        """整理状态显示名的 code 与参数：排了自动重试的说第几次，其余按状态取。"""
         if self.postprocess_state == POSTPROCESS_PENDING and self.next_check_at:
-            return f"等待自动重试（{self.postprocess_retries}/{len(RETRY_DELAYS)}）"
-        return postprocess_label(self.postprocess_state)
+            return "labels.downloads.postprocessRetrying", {
+                "retries": self.postprocess_retries, "limit": len(RETRY_DELAYS)}
+        return f"download.postprocess.{self.postprocess_state}", {}
+
+    @property
+    def postprocess_label(self) -> str:
+        code, params = self.postprocess_label_code
+        return interface_text.label(f"server:{code}", self.postprocess_state, params)
 
     @property
     def location(self) -> str:
@@ -396,6 +436,8 @@ class DownloadTask:
             "finished_at": self.finished_at, "blocked": bool(self.blocked_at),
             "postprocess_state": self.postprocess_state,
             "postprocess_label": self.postprocess_label,
+            "postprocess_label_code": self.postprocess_label_code[0],
+            "postprocess_label_params": self.postprocess_label_code[1],
             "postprocess_detail": self.postprocess_detail,
             "postprocess_run_id": self.postprocess_run_id,
             "postprocessed_at": self.postprocessed_at,
@@ -594,7 +636,9 @@ class DownloadStore:
         detail = f'{type(error).__name__}: {error}'
         if delay is None:
             if task.postprocess_retries >= len(RETRY_DELAYS):
-                detail = f'自动重试 {task.postprocess_retries} 次后仍未完成；{detail}'
+                # 任务表只有原句一列，存按 zh-CN 渲染的那句（ADR-0159 延后：要存 code 得加列）。
+                detail = interface_text.text("server:labels.downloads.postprocessRetriesExhausted",
+                                             {"retries": task.postprocess_retries, "detail": detail})
             self.postprocess(task_id, POSTPROCESS_FAILED, detail=detail)
             return False
         with self.database.write_transaction(notify=False) as connection:
@@ -671,14 +715,14 @@ class DownloadSettings:
             return DownloadConfig()
         except (OSError, ValueError):
             LOGGER.warning("Could not read cloud download settings, using defaults: %s", self.path)
-            return DownloadConfig(problems=("云下载设置无法读取，请检查设置文件或重新填写。",))
+            return DownloadConfig(problems=(Problem("labels.downloads.settingsUnreadable"),))
         if not isinstance(payload, dict):
-            return DownloadConfig(problems=("云下载设置格式不符，请检查设置文件或重新填写。",))
+            return DownloadConfig(problems=(Problem("labels.downloads.settingsMalformed"),))
         try:
             return self._parse(payload, declared_roots=None, saved=True)
         except ValueError:
             LOGGER.warning("Cloud download settings contain invalid values, using defaults: %s", self.path)
-            return DownloadConfig(problems=("云下载设置含有无效值，请检查目标目录和等待上限。",))
+            return DownloadConfig(problems=(Problem("labels.downloads.settingsInvalid"),))
 
     def _parse(self, body: dict, *, declared_roots, saved: bool = False) -> DownloadConfig:
         from .media_sources import SOURCE_REGISTRY
@@ -710,7 +754,7 @@ class DownloadSettings:
             if not saved:
                 raise
             address = str(body.get("clouddrive_address") or "").strip()
-            problems = (str(error),)
+            problems = (Problem.of(error) if isinstance(error, UserFacingError) else str(error),)
         return DownloadConfig(address, targets, root, hours, problems)
 
     def save(self, body: dict, declared_roots) -> DownloadConfig:
@@ -842,7 +886,7 @@ class DownloadService:
                     return
                 if error.retryable:
                     error = DownloadError(error.failure, "errors.downloads.retriesExhausted",
-                                          {"detail": error.detail, "checks": task.checks})
+                                          {"detail": nested_message(error), "checks": task.checks})
                 self._fail(task, error, now)
                 self.store.record_submission(task=task, outcome="failed", now=now,
                                              failure=error.failure, detail=error.detail)
@@ -892,7 +936,7 @@ class DownloadService:
             try:
                 self.providers(task.provider).cancel(task)
             except DownloadError as error:
-                raise UserValueError("errors.downloads.cancelFailed", {"detail": error.detail}) from error
+                raise UserValueError("errors.downloads.cancelFailed", {"detail": nested_message(error)}) from error
         now = self.clock()
         task.state = CANCELLED
         task.finished_at = iso(now)
@@ -940,7 +984,8 @@ class DownloadService:
             raise UserValueError("errors.downloads.nothingToRetry")
         task.postprocess_retries = 0
         self.store.save(task)
-        self.store.postprocess(task.id, POSTPROCESS_PENDING, detail="等待重新处理")
+        self.store.postprocess(task.id, POSTPROCESS_PENDING,
+                               detail=interface_text.text("server:labels.downloads.postprocessRequeued"))
         task = self.store.get(task.id)
         self._dispatch_postprocess(task)
         return self.store.get(task.id)
@@ -1001,7 +1046,8 @@ class DownloadService:
                 self.advance(task)
             except Exception:
                 LOGGER.exception("Reconciliation failed for cloud download task %s", task.id)
-                self._reschedule(task, self.clock(), "对账时出现未预期的错误，稍后再试")
+                self._reschedule(task, self.clock(),
+                                 interface_text.text("server:labels.downloads.reconcileUnexpected"))
         return len(due)
 
     def advance(self, task: DownloadTask) -> None:
@@ -1077,7 +1123,7 @@ class DownloadService:
             self._reschedule(task, now)
             return
         if status.state == ERROR:
-            raise classify_remote_message(status.message)
+            raise status.failure()
         if status.state == MISSING:
             if not provider.landed(task):
                 started = parse_iso(task.submitted_at) or now

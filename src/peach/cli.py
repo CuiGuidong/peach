@@ -34,6 +34,7 @@ from .sync import LedgerSync, device_id
 from .sync import plan as sync_plan
 from .sync import writer_device
 from . import tunnel
+from . import interface_text
 from .interface_text import cli as _t
 
 
@@ -221,7 +222,7 @@ def _migrate(args: argparse.Namespace) -> int:
     config = settings_file.active()
     if args.db.resolve() == (config.directory('database') / 'ledger.db').resolve():
         from .runtime_prepare import configured_ledger_writer
-        writer, reason = configured_ledger_writer(config)
+        writer, reason = configured_ledger_writer(config, language=interface_text.local_language())
         if not writer:
             raise SystemExit(_t("migrate.notWriter", reason=reason))
     if args.db.resolve() == DEFAULT_DB.resolve() and not args.yes:
@@ -456,7 +457,7 @@ def _init_interactive(
                     print(_t("init.forceHintInteractive"))
                     return 3
     except onboarding.OnboardingAborted as exc:
-        raise SystemExit(_t("init.aborted", reason=exc)) from None
+        raise SystemExit(_t("init.aborted", reason=_local(exc))) from None
     answers = onboarding.Answers(**collected)  # type: ignore[arg-type]
     applied = onboarding.apply(config, answers, windows=windows)
     prepared = applied.config
@@ -470,7 +471,7 @@ def _init_interactive(
     try:
         scan_now = onboarding.ask_until_valid(onboarding.scan_question(answers.media_dirs), ask)
     except onboarding.OnboardingAborted as exc:
-        print(_t("init.scanSkipped", reason=exc))
+        print(_t("init.scanSkipped", reason=_local(exc)))
         scan_now = False
     if scan_now:
         for root in onboarding.scan_roots(prepared):
@@ -523,6 +524,12 @@ def _scan(args: argparse.Namespace) -> int:
         raise SystemExit(interface_text.text(f"server:{exc.code}", exc.params,
                                              interface_text.local_language())) from None
     return 0
+
+
+def _local(error) -> str:
+    """带 code 的报错按命令行语言渲染。"""
+    from . import interface_text
+    return interface_text.text(f"server:{error.code}", error.params, interface_text.local_language())
 
 
 def _processing_line(state: dict) -> str:

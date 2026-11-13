@@ -241,6 +241,21 @@ class ServiceStatusTests(unittest.TestCase):
         self.assertEqual(manager.status_details(), ("HTTP 正常", "HTTPS 异常（状态码 503）"))
         self.assertEqual(self.manager({"http": (False, "无响应")}).status_summary(), "服务未运行")
 
+    def test_menu_and_status_follow_the_local_language(self):
+        manager = self.manager({"http": (True, ""), "https": (False, "")})
+        with patch.dict(os.environ, {"PEACH_LANGUAGE": "en"}):
+            self.assertEqual(manager.status_summary(), "Some services have errors")
+            self.assertEqual(manager.status_details(), ("HTTP OK", "HTTPS Error"))
+            with patch("peach.tray.pystray.Icon") as icon:
+                PeachTray(manager)
+            labels = [item.text for item in icon.call_args.args[3].items if item.text]
+            self.assertIn("Restart services", labels)
+            self.assertIn("Quit Peach", labels)
+            self.assertIn("Status: Some services have errors", labels)
+            self.assertEqual(icon.call_args.args[2], "Peach")
+            prepared = WindowsUpdatePreparation.of("services", "tray.sourceSync.testsPassed")
+            self.assertEqual(prepared.message, "Code and full tests passed.")
+
     def test_windows_style_menu_keeps_details_out_of_the_root_and_refreshes(self):
         manager = self.manager({"http": (True, "")})
         with patch("peach.tray.pystray.Icon") as icon:
@@ -813,10 +828,10 @@ class SourceSyncTests(unittest.TestCase):
 
     def test_windows_tray_lists_source_sync_next_to_ledger(self):
         source = inspect.getsource(PeachTray.__init__)
-        self.assertIn('MenuItem("同步开发进度", self.sync_source,', source)
+        self.assertIn('MenuItem(tray_text("tray.menu.syncSource"), self.sync_source,', source)
         self.assertIn('visible=lambda _: not standalone()', source)
-        self.assertLess(source.index("同步开发进度"), source.index("ledger_menu_items"))
-        self.assertLess(source.index("ledger_menu_items"), source.index("重启服务"))
+        self.assertLess(source.index("tray.menu.syncSource"), source.index("ledger_menu_items"))
+        self.assertLess(source.index("ledger_menu_items"), source.index("tray.menu.restart"))
 
     def test_windows_source_sync_tests_then_restarts_services(self):
         snapshot = VersionSnapshot("0.6.4", "master", "abc12345", False, True, "origin/master")

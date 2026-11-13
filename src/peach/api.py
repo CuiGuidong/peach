@@ -35,13 +35,13 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.datastructures import MutableHeaders
 from starlette.middleware.gzip import DEFAULT_EXCLUDED_CONTENT_TYPES, GZipMiddleware
 
-from . import (__version__, browser_transport, distribution, feeds, ledger_backups, tunnel, web_contract,
+from . import (__version__, browser_transport, distribution, feeds, interface_text, ledger_backups, tunnel, web_contract,
                web_feeds, web_follow, web_settings)
 from . import routes_api, routes_auth, routes_configuration, routes_jav_browser, routes_media, routes_pages, routes_subtitles
 from .buildinfo import frozen_build
 from .config import LOCATION_ROOT_DECLARATIONS, MEDIA_ROOT_DECLARATIONS, PeachSettings
 from .ffmpeg import FFmpegResolver
-from .follow_scheduler import FEED_JOB_ID, FollowScheduleConfig, FollowUpdateScheduler
+from .follow_scheduler import FEED_JOB_ID, FEED_UNAVAILABLE_CODE, FollowScheduleConfig, FollowUpdateScheduler
 from .follow_covers import FollowCoverService
 from .follow_faces import FollowFaceIndex
 from .follow_stream import FollowMediaResolver
@@ -182,6 +182,15 @@ def _navigation(request: Request) -> bool:
             and "text/html" in request.headers.get("accept", ""))
 
 
+def _error_page(request: Request, status: int, body: dict) -> str:
+    """导航撞上的错误页：说明按浏览器的 `Accept-Language` 渲染，没有 code 的照原文。"""
+    language = interface_text.request_language(request.headers.get("accept-language"))
+    code = body.get("message_code")
+    detail = (interface_text.text(f"server:{code}", body.get("message_params"), language)
+              if isinstance(code, str) and code and interface_text.has(f"server:{code}", language) else body["error"])
+    return routes_pages.error_page(status, detail, language=language)
+
+
 def _offline_response(exc: MediaOffline) -> JSONResponse:
     """脱盘：来源盘整体不在，客户端据此显示「脱盘模式」而不是当成文件丢失。"""
     response = JSONResponse(
@@ -312,9 +321,9 @@ def _user_facing_response(request: Request, exc: UserFacingError):
     """带 code 的报错漏到接口层：给原句与 code；5xx 照服务错误处理，生成错误编号并记进错误日志。"""
     status = response_status(exc)
     headers = _server_error_headers(request, exc, status)
-    if _navigation(request):
-        return HTMLResponse(routes_pages.error_page(status, exc.message), status_code=status, headers=headers)
     body = error_fields(exc)
+    if _navigation(request):
+        return HTMLResponse(_error_page(request, status, body), status_code=status, headers=headers)
     if 'X-Peach-Error-ID' in headers:
         body['error_id'] = headers['X-Peach-Error-ID']
     return JSONResponse(body, status_code=status, headers=headers)
@@ -541,7 +550,7 @@ def create_app(
         default=FollowScheduleConfig(enabled=True,
                                      interval_minutes=feeds.DEFAULT_INTERVAL_MINUTES),
         tick_minutes=feeds.TICK_MINUTES,
-        unavailable_message="订阅源拉取只在写入端可用",
+        unavailable_code=FEED_UNAVAILABLE_CODE,
     )
     contract.feed_scheduler = feed_scheduler
     from .web_job_recovery import RecoveryService
@@ -740,7 +749,7 @@ def create_app(
             body = dict(_DEFAULT_DETAILS.get(str(detail)) or {"error": str(detail)})
         # 浏览器地址栏直接打开一个页面路径撞上 403／404／409 时，给人看的是一页话，不是一行 JSON。
         if _navigation(request):
-            return HTMLResponse(routes_pages.error_page(exc.status_code, body["error"]),
+            return HTMLResponse(_error_page(request, exc.status_code, body),
                                 status_code=exc.status_code, headers=headers)
         return JSONResponse(body, status_code=exc.status_code, headers=headers)
 

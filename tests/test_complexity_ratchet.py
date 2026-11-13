@@ -48,7 +48,7 @@ BASELINE: dict[str, int] = {
     "scripts/fetch_studio_avatar_candidates.py:main": 44,
     "src/peach/web_catalog.py:q_item": 44,
     "src/peach/web_follow.py:_follow_author_rows": 35,
-    "src/peach/taste_history.py:_taste_analysis": 40,
+    "src/peach/taste_history.py:_taste_analysis": 34,
     "src/peach/web_catalog.py:catalog_filter": 40,
     "scripts/audit_domain_codes.py:collect": 39,
     "scripts/harvest_social_avatars.py:harvest_entity": 37,

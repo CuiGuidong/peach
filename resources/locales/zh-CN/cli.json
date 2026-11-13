@@ -154,5 +154,24 @@
     "doctorJson": "输出脱敏 JSON 报告",
     "doctorHost": "诊断指定的服务监听地址",
     "doctorPort": "诊断指定的服务端口"
+  },
+  "server": {
+    "description": "运行通过浏览器管理的 Peach 服务",
+    "accessIgnored": "已有访问设置，忽略 {{env}}；要改访问密码请到配置页「网络与访问」。",
+    "accessRejected": "{{env}} 未采用：{{error}}。浏览器打开 Peach 后会进入访问设置。",
+    "accessWriteFailed": "{{env}} 未能写入：{{error}}",
+    "accessSet": "已按 {{env}} 设置访问密码。",
+    "processFailed": "资料处理失败，退出码 {{code}}",
+    "updateTokenFailed": "一键更新令牌未能生成：{{error}}",
+    "listening": "Peach 服务监听：{{host}}:{{port}}。容器外部访问地址以宿主机端口映射为准。",
+    "firstSetup": "首次设置：从部署机器或局域网的浏览器打开 Peach，按页面完成设置。",
+    "firstOpen": "首次打开：从部署机器或局域网的浏览器打开 Peach，设置访问密码或选择免登录。",
+    "firstSignIn": "首次登录：在运行 Peach 的环境中执行 peach token 查看口令，登录后设置访问密码。",
+    "lanAccess": "NAS / 局域网访问：Compose 的 PEACH_BIND 应为宿主机局域网 IP；127.0.0.1 只允许宿主机访问。"
+  },
+  "trayCommand": {
+    "description": "启动 Peach 托盘（macOS 上是菜单栏项）并接管本机服务；通常不带参数直接运行。",
+    "silent": "启动后仅显示托盘",
+    "show": "启动后打开浏览器"
   }
 }

@@ -3,7 +3,7 @@ import json
 import hashlib
 import logging
 
-from . import settings_file
+from . import interface_text, settings_file
 from .library_processing_scope import scoped_config, scoped_assets
 from .library_processing import (ALL_STAGES, COLLECT_STAGE, SCAN_STAGE, STAGES,
                                 METADATA_STAGE, PREVIEWS_STAGE, _asset_selection,
@@ -21,10 +21,10 @@ LOGGER = logging.getLogger(__name__)
 #: 就是两兆多，还把媒体路径交给了浏览器。续跑与重试读的是 `_current()`，不经过这里。
 PUBLIC_FIELDS = frozenset({
     'library_id', 'library_name', 'run_id', 'metadata_only', 'status', 'outcome', 'speed_mode', 'eta_seconds_min', 'eta_seconds_max', 'eta_kind',
-    'eta_scope', 'eta_initial', 'job_id', 'stage', 'requested_stage', 'steps', 'checked', 'total',
+    'eta_scope', 'eta_initial', 'job_id', 'stage', 'stage_code', 'requested_stage', 'steps', 'checked', 'total',
     'scanned', 'scanned_bytes', 'identified', 'candidates', 'auto_applied', 'covers', 'previews',
     'performer_aliases', 'performer_avatars', 'performer_profile_conflicts',
-    'performer_profile_failed', 'error', 'issue_count', 'paused_count', 'issue_preview',
+    'performer_profile_failed', 'error', 'error_code', 'error_params', 'issue_count', 'paused_count', 'issue_preview',
     'issues_log', 'issues_truncated', 'retryable_asset_ids', 'notes', 'current_asset_id',
     'current_asset_name', 'current_action', 'current_started_at', 'last_progress_at', 'stalled',
     'waited_seconds', 'completed_at', 'current_source', 'skip_requested', 'archived', 'new_asset_count', 'trigger',
@@ -144,7 +144,11 @@ def q_library_processing(contract, _args):
     from .library_new_assets import pending
     state['new_asset_count'] = len(pending(contract.db_path))
     if state.get('status') not in ACTIVE and recovery.get('status') == 'blocked':
-        state.update(status='failed', outcome='interrupted', error=f"任务未能自动恢复：{recovery.get('error') or '请重新发起任务'}")
+        reason = recovery.get('error')
+        code, params = (("errors.webLibraryProcessing.recoveryFailed", {"reason": reason}) if reason
+                        else ("errors.webLibraryProcessing.recoveryFailedRestart", {}))
+        state.update(status='failed', outcome='interrupted', error=interface_text.text(f"server:{code}", params),
+                     error_code=code, error_params=params)
     # 上一趟任务的状态文件里没有这个字段，而它那份完整清单还在磁盘上：按 job_id
     # 推出地址补回去，界面才有得可给。
     if state.get('issue_count') and state.get('job_id') and not state.get('issues_log'):
@@ -511,8 +515,8 @@ def w_library_processing(contract, body, *, resume=False):
             contract.cache_bust()
     # 起步那行字按这一趟真正要做的事写：点了「只扫描」却看到「读取本地资料」，
     # 人会以为点错了。
-    labels = {ALL_STAGES: '准备处理', SCAN_STAGE: '准备扫描文件', COLLECT_STAGE: '准备采集资料',
-              METADATA_STAGE: '准备采集资料', PREVIEWS_STAGE: '准备生成预览图'}
+    labels = {ALL_STAGES: 'library.startAll', SCAN_STAGE: 'library.startScan', COLLECT_STAGE: 'library.startCollect',
+              METADATA_STAGE: 'library.startCollect', PREVIEWS_STAGE: 'library.startPreviews'}
     estimate_ids = asset_ids if asset_ids is not None else retry_ids
     if incremental:
         from .library_new_assets import pending
@@ -520,7 +524,7 @@ def w_library_processing(contract, body, *, resume=False):
     estimate_ids = scoped_assets(config, contract.db_path, library_id, estimate_ids)
     library_name = config.library_catalog.get(library_id, {}).get('name', '')
     result = contract.library_processing_job.start(
-        work, restart=True, initial={'stage': labels[stage], 'requested_stage': stage,
+        work, restart=True, initial={**stage_fields(labels[stage]), 'requested_stage': stage,
                                     'library_id': library_id, 'library_name': library_name,
                                     **({'allow_metered': True} if allow_metered else {}),
                                     **initial_estimate(config, contract.db_path, stage, estimate_ids, mode,

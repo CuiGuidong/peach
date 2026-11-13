@@ -472,7 +472,10 @@ class BackgroundJob:
             return {"label": str(text)[:120], "code": None, "params": {}}
         if state.get('status') in ('paused', 'pausing'):
             from .task_runs import run_progress
-            return run_progress(state['status'], stage=str(state.get('stage') or ''))
+            from .task_stages import stage_code
+            # `run_progress` 的 `stage` 参数收阶段 code；没有认得出的阶段就只说暂停。
+            code = stage_code(state) if state.get('stage') else ""
+            return run_progress(state['status'], stage=code) if code else run_progress(f"{state['status']}Only")
         current = state.get("current")
         if isinstance(current, dict):
             for key in ("label", "provider"):

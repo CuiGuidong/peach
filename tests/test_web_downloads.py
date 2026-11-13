@@ -279,6 +279,8 @@ class SettingsBlockTests(_App):
         self.assertEqual(state["config"], raw)
         self.assertTrue(state["token_set"])
         self.assertTrue(any("端口" in problem for problem in state["problems"]))
+        self.assertEqual(len(state["problem_codes"]), len(state["problems"]))
+        self.assertIn("errors.downloads.addressPortInvalidIpv6", [item["code"] for item in state["problem_codes"]])
         self.assertEqual(state["providers"], [])
         self.assertNotIn("test-only-token", response.text)
         self.assertEqual(self.service.settings.path.read_bytes(), before)
@@ -440,6 +442,7 @@ class SettingsBlockTests(_App):
             transport=httpx.MockTransport(handler))
         self.assertEqual((result["ok"], result["captcha_url"]),
                          (False, "https://user.mypikpak.com/captcha"))
+        self.assertEqual(result["message_code"], "errors.downloadsPikpak.captchaRequired")
         self.assertFalse(result["settings"]["pikpak"]["logged_in"])
         self.assertNotIn("pw", self.secrets().get("download-pikpak.json", ""))
 

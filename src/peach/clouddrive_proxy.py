@@ -52,7 +52,7 @@ def _revision(client, api, config):
 
 def _get(client, api):
     return client.call('GetCloudAPIConfig', pb.GetCloudAPIConfigRequest(
-        cloudName=api.name, userName=api.userName), '读取网盘代理')
+        cloudName=api.name, userName=api.userName), 'readProxy')
 
 
 def _proxy(config, field):
@@ -73,7 +73,7 @@ def _accounts(client):
     info = client.token_info()
     if not info.permissions.allow_get_cloud_apis:
         raise UserValueError("errors.clouddriveProxy.needsViewPermission")
-    apis = client.call('GetAllCloudApis', Empty(), '读取网盘账号').apis
+    apis = client.call('GetAllCloudApis', Empty(), 'readAccounts').apis
     return info.permissions, apis
 
 
@@ -140,7 +140,7 @@ def save(config, body):
             if key in body:
                 _apply(getattr(current, field), body[key])
         client.call('SetCloudAPIConfig', pb.SetCloudAPIConfigRequest(
-            cloudName=api.name, userName=api.userName, config=current), '保存网盘代理')
+            cloudName=api.name, userName=api.userName, config=current), 'saveProxy')
         # 写请求只发一次；重新读取才能确认 CloudDrive 实际保存的值。
         return _account(client, api, _get(client, api), True, libraries)
 
@@ -175,7 +175,7 @@ def _bindings(config, client, permissions, apis):
     mounts = []
     if permissions.allow_get_mounts:
         try:
-            mounts = client.call('GetMountPoints', Empty(), '读取挂载点').mountPoints
+            mounts = client.call('GetMountPoints', Empty(), 'readMountPoints').mountPoints
         except DownloadError:
             pass
     result = []

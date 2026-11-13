@@ -26,7 +26,7 @@ def read(config):
             raise UserValueError('errors.storageExternalCache.remoteNeedsManualPath')
         if not client.token_info().permissions.allow_get_system_settings:
             raise UserValueError('errors.storageExternalCache.tokenNeedsPermission')
-        settings = client.call('GetSystemSettings', Empty(), '读取缓存目录')
+        settings = client.call('GetSystemSettings', Empty(), 'readCacheDir')
         if not settings.HasField('fileBufferDiskCacheLocation') or not settings.fileBufferDiskCacheLocation:
             raise UserValueError('errors.storageExternalCache.noCacheDirectory')
         path = validate({'external_cache_path': settings.fileBufferDiskCacheLocation}).external_cache_path

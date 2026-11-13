@@ -19,7 +19,7 @@ from datetime import datetime
 from .ingest_notices import NOTICES
 from .task_runs import ACTIVE_STATUSES, SETTLED_FOLLOWUP_LIMIT, TERMINAL_STATUSES
 from .task_results import RESULT_FIELDS, result_counts
-from .user_messages import UserValueError, message_fields
+from .user_messages import UserFacingError, UserValueError, message_fields
 from .web_result_versions import result_versions
 
 #: 不带筛选时「最近完成」那一段每页的默认条数。一屏看得完，更早的往前翻。
@@ -30,6 +30,12 @@ TASK_FOLLOWUP_LIMIT = SETTLED_FOLLOWUP_LIMIT
 #: 账本还没跑到 0028 时页面上显示的那一句的 code。迁移是单独一步，升级后第一次打开活动页
 #: 撞上没有这张表是正常路径，不该是一个 500。
 NO_TABLE = "api.tasks.noTaskTable"
+
+
+class TaskRunMissing(UserFacingError, KeyError):
+    """要的那一轮任务不在了。仍是 `KeyError`：接口层按它回 404，带上 code。"""
+
+    status_code = 404
 
 
 def q_result_updates(contract, _args):
@@ -155,7 +161,7 @@ def q_task(contract, run_id):
     run = contract.task_runs.get(int(run_id))
     if run is None:
         # KeyError 在 API 层被翻成 404；ValueError 会变成 400，那是参数错，不是这里的事。
-        raise KeyError(f"没有第 {run_id} 轮任务")
+        raise TaskRunMissing("errors.webTasks.runMissing", {"run_id": run_id})
     # 父子两头都给：从后继那一行点进来的人要知道它是哪一轮派出来的，从父任务点进来的
     # 要知道派出去的几条跑成什么样（ADR-0040）。父只给一层，链根在 `root_run_id` 上。
     parent = (contract.task_runs.get(run.parent_run_id)

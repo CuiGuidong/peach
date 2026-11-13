@@ -12,14 +12,23 @@ from .entity_classification import write_claim
 from .field_owners import owner_of, write_owned_fields
 from .media_folders import path_predicate, within
 from .profiles import DEFAULT_PROFILE_ID
-from .user_messages import UserValueError
+from . import interface_text
+from .user_messages import UserFacingError, UserValueError
 
 KEY = 'folderRules'
 KINDS = {'category': '', 'creator': 'creator', 'performer': 'performer', 'seller': 'creator', 'studio': 'studio'}
 
 
-class FolderRuleConflict(ValueError):
-    """目录范围或规则版本与预览不一致。"""
+class FolderRuleConflict(UserFacingError, ValueError):
+    """目录范围或规则版本与预览不一致。读接口按类型回 409，写接口照旧按 `ValueError` 回 400。"""
+
+
+#: 预览里不能套用这条规则的原因，显示名在 `labels.folderRules.conflict.<id>`。
+CONFLICT_REASON = 'labels.folderRules.conflict.'
+
+
+def _reason(name: str) -> str:
+    return interface_text.text(f'server:{CONFLICT_REASON}{name}')
 
 
 def load(connection) -> tuple[dict, dict]:
@@ -98,13 +107,13 @@ def _conflict(connection, asset, rule, relations):
     field = kind if kind in {'creator', 'studio'} else ''
     own = source(rule)
     if field and asset[field] and asset[field] != rule['name'] and owner_of(asset['field_owners'], field) != own:
-        return '已有不同的归属'
+        return 'differentOwner'
     if field and owner_of(asset['field_owners'], field).startswith(('user:', 'review:')) and owner_of(asset['field_owners'], field) != source(rule):
-        return '已有逐件确认'
+        return 'perItemConfirmed'
     if any(row['kind'] == kind and row['canonical_name'] != rule['name'] and row['source'] != own for row in relations):
-        return '已有不同的身份关系'
+        return 'differentIdentity'
     if kind == 'creator' and _creator_attribution_rejected(connection, [rule['name']], asset['id'], asset['path']):
-        return '已有归属否定'
+        return 'ownerRejected'
     return ''
 
 
@@ -115,8 +124,8 @@ def plan(connection, rule, data):
     for asset in _asset_rows(connection, rule):
         chosen = effective(rules, asset['location'], asset['path'])
         relations = _relations(connection, asset['id'])
-        reason = '由子目录规则管理' if chosen and chosen['id'] != rule['id'] else _conflict(connection, asset, rule, relations)
-        rows.append({**asset, 'reason': reason, 'relations': relations})
+        reason = 'childRule' if chosen and chosen['id'] != rule['id'] else _conflict(connection, asset, rule, relations)
+        rows.append({**asset, 'reason': _reason(reason) if reason else '', 'reason_code': reason, 'relations': relations})
     old = next((item for item in data['rules'] if item['id'] == rule['id']), None)
     changing = old and any(old.get(key) != rule[key] for key in ('purpose', 'name', 'entity_id', 'recursive'))
     previous = [dict(row) for row in connection.execute(
@@ -126,7 +135,8 @@ def plan(connection, rule, data):
     signature = sha256(json.dumps([rule, data['revision'], rows, previous], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     return {'plan_version': signature, 'total': len(rows), 'withdrawn': len({row['id'] for row in previous}),
             'applicable': sum(not row['reason'] for row in rows),
-            'conflicts': [{'id': row['id'], 'name': row['name'], 'reason': row['reason']} for row in rows if row['reason']],
+            'conflicts': [{'id': row['id'], 'name': row['name'], 'reason': row['reason'],
+                           'reason_code': CONFLICT_REASON + row['reason_code']} for row in rows if row['reason']],
             'sample': [{'id': row['id'], 'name': row['name']} for row in rows[:6]], 'rows': rows}
 
 
@@ -189,7 +199,7 @@ def withdraw(connection, rule):
 
 def save(connection, settings, data, rule, preview, expected):
     if preview['plan_version'] != expected:
-        raise FolderRuleConflict('目录内容或归属已变化，请重新预览')
+        raise FolderRuleConflict('errors.folderRules.planChanged')
     old = next((row for row in data['rules'] if row['id'] == rule['id']), None)
     if old and any(old.get(key) != rule[key] for key in ('purpose', 'name', 'entity_id', 'recursive')):
         withdraw(connection, old)

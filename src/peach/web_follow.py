@@ -22,7 +22,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import NamedTuple
 
-from . import avatar_face, follow_assets, follow_creators, follow_providers, wants
+from . import avatar_face, follow_assets, follow_creators, follow_providers, interface_text, wants
 from .follow import FollowSourceError
 from .follow_faces import annotate_group
 from .follow_check import plan_check, run_check
@@ -52,7 +52,7 @@ from .entities import canonicalize_entity_name, normalize_entity_name, prefer_en
 from .taste_history import read_creator_candidates
 from .web_state import path_version
 from .online_tag_management import OnlineTagPolicy, TYPE_RANK, tag_key
-from .user_messages import UserValueError, message_fields
+from .user_messages import UserInterruptedError, UserValueError, failure_fields, message_fields
 
 
 #: 界面上给每个来源的中文短名。没登记的 provider 直接显示原名。
@@ -1192,12 +1192,20 @@ def _profile_link_suggestions(rows, aliases: dict[str, str]) -> list[dict]:
             suggestions.append({
                 "canonical": canonical,
                 "alias": handle,
-                "evidence": f"{PROVIDER_LABELS.get(row['provider'], row['provider'])}"
-                            f" 首楼的创作者主页链接指向 {service}/{handle}",
+                **_evidence("labels.webFollow.profileLinkEvidence", {
+                    "provider": PROVIDER_LABELS.get(row['provider'], row['provider']),
+                    "service": service, "handle": handle}),
             })
             if len(suggestions) >= MAX_ALIAS_SUGGESTIONS:
                 return suggestions
     return suggestions
+
+
+def _evidence(code: str, params: dict | None = None) -> dict:
+    """别名建议的那句依据：`evidence` 是 zh-CN 原文，`evidence_code` 与 `evidence_params` 给界面取译文。"""
+    values = dict(params or {})
+    return {"evidence": interface_text.text(f"server:{code}", values),
+            "evidence_code": code, "evidence_params": values}
 
 
 def _follow_alias_suggestions(rows, aliases: dict[str, str]) -> list[dict]:
@@ -1236,7 +1244,7 @@ def _follow_alias_suggestions(rows, aliases: dict[str, str]) -> list[dict]:
             suggestions.append({
                 "canonical": shorter["name"],
                 "alias": longer["name"],
-                "evidence": "规范化名称存在包含关系，仅供人工确认",
+                **_evidence("labels.webFollow.nameContainsEvidence"),
             })
             if len(suggestions) >= MAX_ALIAS_SUGGESTIONS:
                 return suggestions
@@ -1677,10 +1685,10 @@ def _sorted_groups(groups: tuple, sort: str, direction: str, seed: int = 1) -> t
 #: 建议分组的名字与先后。顺序在这里定，页面照抄——两侧各排一次的话，改了一侧就会
 #: 出现「服务端认为最该先看的组显示在第三位」。
 FOLLOW_SUGGEST_GROUPS = (
-    ("followed", "已关注"),
-    ("archive", "归档站的创作者"),
-    ("tag_artist", "Rule34.xxx 的创作者"),
-    ("tag", "Rule34.xxx 标签"),
+    ("followed", "labels.webFollow.suggestFollowed"),
+    ("archive", "labels.webFollow.suggestArchive"),
+    ("tag_artist", "labels.webFollow.suggestTagArtist"),
+    ("tag", "labels.webFollow.suggestTag"),
 )
 
 
@@ -1755,8 +1763,9 @@ def q_follow_suggest(contract, q: str, limit: int = MAX_SUGGESTIONS,
     buckets["tag"] = [{"value": row.value, "n": row.count, "matched": row.matched}
                       for row in tags if row.tag_type != "artist"]
     return {"q": query, "groups": [
-        {"kind": kind, "label": label, "items": buckets[kind]}
-        for kind, label in FOLLOW_SUGGEST_GROUPS if buckets[kind]
+        {"kind": kind, "label": interface_text.text(f"server:{code}"), "label_code": code,
+         "items": buckets[kind]}
+        for kind, code in FOLLOW_SUGGEST_GROUPS if buckets[kind]
     ]}
 
 
@@ -2383,7 +2392,7 @@ class _FollowCheckSession:
 
     def checkpoint(self, **fields):
         if self.job_id and not self.contract.follow_job.checkpoint(self.job_id, **fields):
-            raise InterruptedError('关注检查已停止')
+            raise UserInterruptedError("errors.webFollow.checkStopped")
 
     def remember(self, row, result, *, finished):
         if result.get('deferred'):
@@ -2411,7 +2420,7 @@ class _FollowCheckSession:
         older = bool(self.body.get('older'))
         for round_index in range(501):
             if self.job_id and self.contract.follow_job.snapshot() is None:
-                raise InterruptedError('关注检查已停止')
+                raise UserInterruptedError("errors.webFollow.checkStopped")
             result = _check_payload(run_check(row, credentials=self.credentials, writer=self.writer,
                 connector_factory=build_connector, older=older, progress=progress,
                 initial_days=self.initial_days, cooldown=self.cooldown))
@@ -2760,13 +2769,13 @@ def _resolve_follow_line(contract, line, known, on_progress):
         parsed = parse_source_url(line)
     except FollowSourceError as url_error:
         if '://' in line or '/' in line:
-            return {'line': line, 'kind': 'error', 'error': str(url_error)}
+            return {'line': line, 'kind': 'error', **failure_fields(url_error)}
         try:
             found = discover(line, secrets_root=contract.follow_secrets_root,
                              shared_root=contract.follow_shared_root,
                              state_root=contract.follow_state_root, on_progress=on_progress)
         except (FollowSourceError, CredentialError) as term_error:
-            return {'line': line, 'kind': 'error', 'error': str(term_error)}
+            return {'line': line, 'kind': 'error', **failure_fields(term_error)}
         return {'line': line, 'kind': 'term',
                 'candidates': [{**_candidate_payload(c, author=line),
                                 'known': (c.provider, canonical_source_ref(c.provider, c.ref)) in known}
@@ -2792,7 +2801,7 @@ def w_follow_resolve(contract, body, *, progress=None, checkpoint=None, resume_s
                 progress=lambda **fields: job.update(job_id, **fields),
                 checkpoint=lambda **fields: job.checkpoint(job_id, **fields), resume_state=job.snapshot())
             job.update(job_id, **result, status="complete", completed_at=time.time())
-        return job.start(work, restart=True, initial={"message": "正在准备查找关注来源"},
+        return job.start(work, restart=True, initial=message_fields("jobMessage.webFollow.resolvePreparing"),
                          recovery={'lines': body.get('lines'), 'background': True})
     raw = body.get("lines")
     if isinstance(raw, str):
@@ -2826,11 +2835,14 @@ def w_follow_resolve(contract, body, *, progress=None, checkpoint=None, resume_s
     def source_progress(line_index: int):
         def note(provider: str, position: int, plan_total: int) -> None:
             if progress is not None:
-                label = PROVIDER_LABELS.get(provider, provider)
-                progress(
-                    checked=done_units + position, total=total_units,
-                    message=f"查找关注来源：来源 {done_units + position + 1}/{total_units} · {label}"
-                            + (f"（第 {line_index + 1}/{len(lines)} 行）" if len(lines) > 1 else ""))
+                params = {"current": done_units + position + 1, "total": total_units,
+                          "provider": PROVIDER_LABELS.get(provider, provider)}
+                if len(lines) > 1:
+                    message = message_fields("jobMessage.webFollow.resolveProgressLines",
+                                             {**params, "line": line_index + 1, "lines": len(lines)})
+                else:
+                    message = message_fields("jobMessage.webFollow.resolveProgress", params)
+                progress(checked=done_units + position, total=total_units, **message)
 
         return note
 
@@ -2844,12 +2856,12 @@ def w_follow_resolve(contract, body, *, progress=None, checkpoint=None, resume_s
             results = [row for row in results if row['line'] != line]
             results.append(result)
             if checkpoint and not checkpoint(results=results.copy(), checked=done_units + plan_units(line), total=total_units):
-                raise InterruptedError('关注来源查找已停止')
+                raise UserInterruptedError("errors.webFollow.resolveStopped")
         done_units += plan_units(line)
     if progress is not None and total_units:
         # 每个来源是开查前报一次自己的序号，最后一个报的是 total-1；收尾这一下才走满。
         progress(checked=total_units, total=total_units,
-                 message=f"查找关注来源：{total_units} 个来源已查完")
+                 **message_fields("jobMessage.webFollow.resolveDone", {"total": total_units}))
     return {"ok": True, "results": results}
 
 
@@ -2892,9 +2904,10 @@ def w_follow_credential(contract, body) -> dict:
         # `load()` 会从共享副本把 key 重新拼回来，而共享副本还会跟着 peach-sync
         # 传到另一台，变成哪台都撤不掉。共享盘不在就如实说，不静默跳过。
         outcome = store.clear(provider)
+        note = CLEAR_NOTES.get(str(outcome["shared"]))
         return {"ok": True, "provider": provider, "cleared": True,
                 "shared_cleared": outcome["shared"],
-                "note": CLEAR_NOTES.get(str(outcome["shared"]), ""),
+                "note": interface_text.text(f"server:{note}") if note else "", "note_code": note or "",
                 "saved": store.describe(provider)}
     _write_secret(path, cleaned)
     shared_written = _write_shared(store, provider, cleaned)
@@ -2909,7 +2922,7 @@ def w_follow_credential(contract, body) -> dict:
 #: 撤销后要不要多说一句。共享副本删掉了或压根没有都不必打扰用户；
 #: 只有「盘不在、这次只撤掉了本机」必须说出来，否则用户以为撤干净了。
 CLEAR_NOTES = {
-    "offline": "共享盘不在，只撤掉了本机这份。等盘回来要再撤一次，否则会被同步回来。",
+    "offline": "labels.webFollow.sharedOfflineNote",
 }
 
 

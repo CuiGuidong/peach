@@ -276,6 +276,12 @@ def bundle_problem(root: Path = BRIDGE_ROOT) -> str:
     return interface_text.text(f"server:{problem[0]}", problem[1]) if problem else ""
 
 
+def _said(key: str, code: str, params: dict | None = None) -> dict:
+    """回执里的一句：`<key>` 是 zh-CN 原句，`<key>_code`、`<key>_params` 给界面取当前语言。"""
+    values = dict(params or {})
+    return {key: interface_text.text(f"server:{code}", values), f"{key}_code": code, f"{key}_params": values}
+
+
 def _failed(code: str, params: dict | None = None) -> dict:
     """重建没成的回执：`error` 是 zh-CN 原句，`message_code` 与 `message_params` 给页面与 `prepare`。"""
     return {"ok": False, **message_fields(code, params, key="error")}
@@ -288,14 +294,14 @@ def rebuild(tools_root: Path, *, runner: Runner = run_task_process, timeout: int
     from .task_resources import unobserved_network
     unobserved_network('独立采集工具的网络传输未提供逐任务计量')
     if packaged_runtime(root=root):
-        return {"ok": True, "result": "采集工具已随 Peach 安装，无需另行准备",
+        return {"ok": True, **_said("result", "labels.metadataAmane.bundled"),
                 **describe(tools_root, root=root)}
     home = bridge_home(tools_root)
     try:
         home.mkdir(parents=True, exist_ok=True)
         with FileLock(str(home / "install.lock"), timeout=timeout):
             if not force and _ready(tools_root, root=root):
-                return {"ok": True, "result": "amane 运行环境已就绪", **describe(tools_root, root=root)}
+                return {"ok": True, **_said("result", "labels.metadataAmane.ready"), **describe(tools_root, root=root)}
             return _rebuild(tools_root, runner=runner, timeout=timeout, root=root,
                             proxy_options=proxy_options)
     except Timeout:
@@ -325,7 +331,7 @@ def _rebuild(tools_root, *, runner, timeout, root, proxy_options):
     if problem := _bundle_problem(root):
         return _failed(*problem)
     if packaged_runtime(root=root):
-        return {"ok": True, "result": "采集工具已随 Peach 安装，无需另行准备",
+        return {"ok": True, **_said("result", "labels.metadataAmane.bundled"),
                 **describe(tools_root, root=root)}
     uv = find_uv()
     if uv is None:
@@ -362,7 +368,7 @@ def _rebuild(tools_root, *, runner, timeout, root, proxy_options):
     atomic_write_text(bridge_home(tools_root) / "installed.json", json.dumps({
         "revision": pinned_revision(root), "version": installed_version(tools_root),
         "lock_sha256": lock_fingerprint(root)}))
-    return {"ok": True, "result": f"amane 桥已按 {pinned_revision(root)[:12]} 重建",
+    return {"ok": True, **_said("result", "labels.metadataAmane.rebuilt", {"revision": pinned_revision(root)[:12]}),
             **describe(tools_root, root=root)}
 
 

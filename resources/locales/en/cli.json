@@ -154,5 +154,24 @@
     "doctorJson": "Print a redacted JSON report",
     "doctorHost": "Diagnose this service listen address",
     "doctorPort": "Diagnose this service port"
+  },
+  "server": {
+    "description": "Run the Peach service managed from the browser",
+    "accessIgnored": "Access is already set up, ignoring {{env}}; change the access password in Settings under Network and access.",
+    "accessRejected": "{{env}} was not used: {{error}}. Opening Peach in a browser leads to the access setup.",
+    "accessWriteFailed": "{{env}} could not be saved: {{error}}",
+    "accessSet": "Access password set from {{env}}.",
+    "processFailed": "Library processing failed with exit code {{code}}",
+    "updateTokenFailed": "The one-click update token could not be created: {{error}}",
+    "listening": "Peach is listening on {{host}}:{{port}}. Access from outside the container follows the host port mapping.",
+    "firstSetup": "First-time setup: open Peach in a browser on the host or the LAN and follow the page.",
+    "firstOpen": "First open: open Peach in a browser on the host or the LAN, then set an access password or turn off sign-in.",
+    "firstSignIn": "First sign-in: run peach token where Peach runs to see the access token, then set an access password after signing in.",
+    "lanAccess": "NAS / LAN access: set PEACH_BIND in Compose to the host's LAN IP; 127.0.0.1 allows only the host."
+  },
+  "trayCommand": {
+    "description": "Start the Peach tray (the menu bar item on macOS) and manage services on this device; usually run without arguments.",
+    "silent": "Show only the tray after starting",
+    "show": "Open the browser after starting"
   }
 }

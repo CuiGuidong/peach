@@ -267,7 +267,9 @@ class DesktopSettingsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, '另一份'):
                 desktop_startup.save(self.config, enabled=False, silent=True, desktop=True)
             self.assertEqual(desktop_startup.desktop_snapshot(self.config),
-                             {'desktop': False, 'desktop_message': '桌面快捷方式属于另一份 Peach 安装'})
+                             {'desktop': False, 'desktop_message': '桌面快捷方式属于另一份 Peach 安装',
+                              'desktop_message_code': 'errors.desktopStartup.desktopShortcutForeign',
+                              'desktop_message_params': {}})
             desktop_startup.save(self.config, enabled=True, silent=True, desktop=False)
             self.assertEqual(len(list(startup.iterdir())), 1)
             self.assertTrue(icon.is_file())
@@ -383,7 +385,7 @@ class DesktopSettingsTests(unittest.TestCase):
         message = str(raised.exception)
         self.assertIn('启动项未能保存', message)
         self.assertIn('Expected shortcut', message)
-        self.assertRegex(message, r'第 \d+ 行')
+        self.assertRegex(message, r'RuntimeException line \d+')
         self.assertNotIn('CLIXML', message)
 
     @unittest.skipUnless(os.name == 'nt', 'Windows 系统卸载助手')

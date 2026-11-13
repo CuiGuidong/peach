@@ -1,9 +1,11 @@
 """JAV 用户脚本的专用权限端点与本机配对设置。"""
 import json
+from html import escape
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, JSONResponse, Response
 
+from . import interface_text
 from .config import PROJECT_ROOT
 from .jav_browser import identify_source, page_edition
 from .routes_auth import require_auth
@@ -26,10 +28,13 @@ def userscript():
     return Response(script, media_type="application/javascript", headers={"Cache-Control": "no-cache"})
 
 
-def userscript_bridge():
-    return HTMLResponse('<!doctype html><html lang="zh-CN"><head><meta charset="utf-8">'
+def userscript_bridge(request: Request):
+    """用户脚本连接用的空页面；标题与 `<html lang>` 按请求的语言。"""
+    language = interface_text.request_language(request.headers.get("accept-language"))
+    title = escape(interface_text.text("server:pages.userscriptBridge.title", None, language))
+    return HTMLResponse(f'<!doctype html><html lang="{escape(language, quote=True)}"><head><meta charset="utf-8">'
                         '<meta name="peach-userscript-bridge" content="1">'
-                        '<title>Peach 用户脚本连接</title></head><body></body></html>',
+                        f'<title>{title}</title></head><body></body></html>',
                         headers={"Cache-Control": "no-store", "X-Frame-Options": "SAMEORIGIN",
                                  "Content-Security-Policy": "default-src 'none'; frame-ancestors 'self'; base-uri 'none'"})
 

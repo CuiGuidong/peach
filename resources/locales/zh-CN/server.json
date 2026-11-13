@@ -393,7 +393,9 @@
       "schedulingRepairs": "安排自动更新资料",
       "paused": "已暂停 · {{stage}}",
       "pausing": "正在暂停 · {{stage}}",
-      "resumesAfterUpdate": "任务将在安装完成后自动继续。"
+      "resumesAfterUpdate": "任务将在安装完成后自动继续。",
+      "pausedOnly": "已暂停",
+      "pausingOnly": "正在暂停"
     },
     "error": {
       "skippedBy": "与第 {{run}} 轮（{{trigger}}触发）冲突，本次跳过",
@@ -421,7 +423,11 @@
       "saveCandidates": "保存待确认资料",
       "fetchCovers": "采集缺失封面",
       "collectResults": "整理采集结果",
-      "finished": "处理结束"
+      "finished": "处理结束",
+      "startAll": "准备处理",
+      "startCollect": "准备采集资料",
+      "startPreviews": "准备生成预览图",
+      "startScan": "准备扫描文件"
     },
     "backup": {
       "prepareBackup": "准备备份",
@@ -968,6 +974,10 @@
       "invalidMode": "采集密度无效",
       "previewsDisabled": "视频预览生成已关闭，请先在媒体库设置中开启",
       "ffmpegMissing": "未找到 ffmpeg，无法采集缩略图"
+    },
+    "mediaTools": {
+      "installed": "已安装 {{label}}（{{version}}）",
+      "alreadyInstalled": "{{label}} 已安装（{{version}}），无需重新下载"
     }
   },
   "errors": {
@@ -1062,7 +1072,8 @@
       "costRequired": "请选择代理流量保护设置",
       "pathOverlaps": "媒体路径与另一文件夹重复或互相包含",
       "mappingOverlaps": "配置文件中的目录对应关系重复或互相包含",
-      "directoryOverlaps": "媒体目录与另一行重复或互相包含"
+      "directoryOverlaps": "媒体目录与另一行重复或互相包含",
+      "rowCount": "请添加 1 到 100 个媒体目录"
     },
     "smbMedia": {
       "addressInvalid": "SMB 地址或端口无效",
@@ -1126,14 +1137,17 @@
       "otherHost": "请在执行这轮任务的写入端操作",
       "runFinished": "这轮任务已经结束",
       "cancelling": "任务正在取消，不能再暂停或继续",
-      "shuttingDown": "服务正在关闭，已保存的进度留待恢复"
+      "shuttingDown": "服务正在关闭，已保存的进度留待恢复",
+      "runMissing": "任务未取得，请刷新后重试"
     },
     "tasteHistory": {
       "snapshotTimeout": "浏览器历史快照未取得，请退出该浏览器后重新读取",
       "takeoutNoActivity": "Takeout 未包含可识别的浏览或搜索活动",
       "takeoutHistoryListMissing": "Takeout Chrome History 缺少 Browser History 列表",
       "takeoutHistoryRowInvalid": "Takeout Chrome History 含无效记录",
-      "takeoutActivityUnparsed": "{{profile}} 含无法解析的活动记录：{{count}}"
+      "takeoutActivityUnparsed": "{{profile}} 含无法解析的活动记录：{{count}}",
+      "historyInUse": "历史文件正在使用，请退出该浏览器后重新读取",
+      "historyNotRead": "浏览器历史未取得，请检查资料目录或退出浏览器后重试"
     },
     "localPoster": {
       "unreadable": "配套图片无法读取",
@@ -1550,7 +1564,8 @@
       "linkRejected": "PikPak 不认这个链接：{{description}}（{{code}}）",
       "taskRejected": "PikPak 拒绝了这个任务：{{description}}（{{code}}）",
       "noRemoteId": "这个任务还没有 PikPak 任务号，无法取消",
-      "signInFailed": "PikPak 登录失败：{{description}}（{{code}}）"
+      "signInFailed": "PikPak 登录失败：{{description}}（{{code}}）",
+      "offlineFailed": "远端拒绝了这个任务：PikPak 报告离线失败"
     },
     "upgradeRepairs": {
       "invalidReceipt": "更新后的处理记录格式无效",
@@ -1929,7 +1944,9 @@
       "mdnsNameInvalid": "名字只能用字母、数字和连字符，不能以连字符开头或结尾",
       "yesNo": "填 y 或 n",
       "tooManyAttempts": "「{{prompt}}」连续 {{attempts}} 次没有拿到有效值。",
-      "inputEnded": "输入已结束。"
+      "inputEnded": "输入已结束。",
+      "mediaDirDuplicate": "和上面的 {{other}} 重复了",
+      "mediaDirNested": "已经在 {{other}} 里面，不用再加"
     },
     "pushDiscovery": {
       "badSegment": "✗ 云端路径里有不能接受的层级：{{segment}}",
@@ -1973,7 +1990,8 @@
       "nameTooLong": "关联名称最多 200 个字符",
       "nameRequired": "请输入关联名称",
       "nameAmbiguous": "名称存在多个身份或不同写法，请使用资料页的规范名称",
-      "settingsMissing": "当前用户设置不存在"
+      "settingsMissing": "当前用户设置不存在",
+      "planChanged": "目录内容或归属已变化，请重新预览"
     },
     "diagnosticExports": {
       "chooseKind": "请选择诊断报告或刮削记录",
@@ -1987,7 +2005,8 @@
       "checksumChanged": "已应用 migration {{version}} 的 checksum 已变化"
     },
     "followScheduler": {
-      "autoRunOff": "自动运行没有开启"
+      "autoRunOff": "自动运行没有开启",
+      "feedWriterOnly": "订阅源拉取只在写入端可用"
     },
     "tasteBookmarks": {
       "tooLarge": "书签文件超过 64 MB",
@@ -1995,7 +2014,8 @@
       "invalidNode": "书签 JSON 含无效节点",
       "invalidFolder": "书签 JSON 含无效文件夹",
       "unsupportedFile": "请选择浏览器导出的 HTML 书签文件或 Chromium Bookmarks 文件",
-      "unreadable": "书签文件未取得，请检查文件格式后重新导入"
+      "unreadable": "书签文件未取得，请检查文件格式后重新导入",
+      "browserBookmarksNotRead": "浏览器书签未取得，请检查资料目录或退出浏览器后重试"
     },
     "displayDimensionsRepair": {
       "notPrepared": "显示尺寸补测记录尚未准备",
@@ -2243,7 +2263,8 @@
       "addressMissing": "还没有填 CloudDrive2 地址，先在设置页「检查」探测本机端口后保存",
       "offlineUnsupported": "{{target}} 所在的网盘不支持离线下载",
       "quotaUsedUp": "云下载配额已用完（{{used}}/{{total}}）",
-      "cancelUnsupported": "这个网盘不支持从 Peach 取消云下载，请到网盘中处理"
+      "cancelUnsupported": "这个网盘不支持从 Peach 取消云下载，请到网盘中处理",
+      "offlineFailed": "远端拒绝了这个任务：115 报告离线失败，多半是资源无人做种或被拒"
     },
     "routesMedia": {
       "imageTimedOut": "这张图未取得：请求超时",
@@ -2256,7 +2277,8 @@
       "codeCoverUnavailable": "取不到这个番号的封面：{{error}}",
       "codeCoverTimedOut": "{{seconds}} 秒内没取到这个番号的封面，稍后再试",
       "sourcePaused": "{{reason}}",
-      "sourceConnectionFailed": "来源连接失败，请检查来源连接设置"
+      "sourceConnectionFailed": "来源连接失败，请检查来源连接设置",
+      "avatarSourceUnavailable": "头像来源暂不可用"
     },
     "webDownloads": {
       "credentialsUnreadable": "本机凭据文件读不出来，请在设置页重新填写：{{error}}",
@@ -2456,6 +2478,806 @@
       "deadlinePassed": "媒体读取已超过期限",
       "readTimedOut": "读取媒体目录或配套文件超时，已跳过，可重试",
       "readerFailed": "媒体读取进程未完成"
+    },
+    "webStats": {
+      "tasteNotFound": "口味分析未取得",
+      "tasteReadStopped": "口味读取已停止"
+    },
+    "webBatch": {
+      "changedDuringQuarantine": "文件在隔离备份期间发生变化",
+      "pathUnmapped": "媒体路径未映射到可访问的挂载目录",
+      "storageOffline": "媒体来源未挂载或不可读取"
+    },
+    "webFeeds": {
+      "checkStopped": "订阅检查已停止"
+    },
+    "webFollow": {
+      "checkStopped": "关注检查已停止",
+      "resolveStopped": "关注来源查找已停止"
+    },
+    "webLibraryProcessing": {
+      "recoveryFailed": "任务未能自动恢复：{{reason}}",
+      "recoveryFailedRestart": "任务未能自动恢复：请重新发起任务"
+    },
+    "webLinks": {
+      "checkStopped": "链接检查已停止",
+      "pruneStopped": "链接清理已停止"
+    },
+    "webMediaRepair": {
+      "repairStopped": "媒体修复已停止",
+      "scanStopped": "媒体检查已停止"
+    },
+    "webOrganize": {
+      "rollbackStopped": "整理回滚已停止",
+      "stopped": "整理已停止"
+    },
+    "webResourceSync": {
+      "cacheCleanupStopped": "缓存清理已停止",
+      "cleanupStopped": "资源清理已停止",
+      "scanStopped": "资源检查已停止"
+    },
+    "webScraping": {
+      "candidateChecksFailed": "候选封面未通过检查。",
+      "downloadFailed": "候选封面完整下载或图片校验失败，未取得可保存的图片。",
+      "noCoverCandidates": "来源没有返回这个番号的封面候选，无法判断是否有高清版。",
+      "sourceAccessDenied": "来源拒绝访问（HTTP {{status}}），请检查登录或来源验证状态。",
+      "sourceConnectionFailed": "来源连接失败，未能完成封面比较；请检查来源连接设置。",
+      "sourceServerError": "来源服务异常（HTTP 5xx），请稍后重试。",
+      "unusableCandidate": "候选封面未通过检查：图片未取得、无法解码或宽度不足 700px。"
+    },
+    "webWants": {
+      "scrapeStopped": "想要资料任务已停止"
+    },
+    "webFolders": {
+      "rulesChanged": "目录规则已变化，请重新打开设置"
+    },
+    "webTasks": {
+      "runMissing": "没有第 {{run_id}} 轮任务"
+    }
+  },
+  "jobMessage": {
+    "tasteHistory": {
+      "readingProfile": "读取浏览记录：第 {{index}} / {{total}} 个浏览器资料，已读取 {{count}} 条",
+      "preparingSnapshot": "准备浏览器快照：第 {{index}} / {{total}} 个资料",
+      "analyzing": "分析浏览记录：已处理 {{checked}} / {{total}} 条",
+      "reporting": "正在生成口味分析报告与候选清单"
+    },
+    "tasteBookmarks": {
+      "reading": "正在读取浏览器书签"
+    },
+    "webStats": {
+      "partialHistory": "部分浏览记录未取得",
+      "analysisUpdated": "口味分析已更新",
+      "findingProfiles": "正在查找 Peach 主机上的浏览器资料",
+      "summarizing": "正在汇总口味分布、标签与创作者排名"
+    },
+    "standaloneUpdate": {
+      "interrupted": "更新任务已中断，请重试。",
+      "downloadingTool": "正在下载 {{tool}} 工具包",
+      "verifyingTool": "正在校验 {{tool}} 工具包",
+      "verifying": "正在校验",
+      "extracting": "正在解压",
+      "downloading": "正在下载",
+      "reusingTools": "正在复用和校验已安装工具",
+      "packageUnusable": "应用更新包无法使用（{{error}}），改为下载完整包",
+      "preparingInstall": "正在准备安装",
+      "ready": "更新已准备好，重启后安装。",
+      "connecting": "正在连接发布源",
+      "savingTasks": "正在保存任务进度，随后重启安装",
+      "restartFailed": "未能重启：{{error}}",
+      "updatingDatabase": "正在更新本地数据库",
+      "preflightFailed": "安装预检未通过，程序与数据库未更改：{{error}}",
+      "keepingOld": "正在保留旧版本",
+      "installing": "正在安装新版本",
+      "starting": "正在启动新版本",
+      "complete": "已更新至 {{version}}",
+      "failedRestored": "更新失败，已恢复旧版本：{{error}}",
+      "rollbackIncomplete": "更新失败，回滚未完成：{{error}}",
+      "notInstalled": "更新未安装：{{error}}",
+      "databaseRestoreIncomplete": "更新失败，数据库恢复未完成：{{error}}"
+    },
+    "webFollow": {
+      "resolveDone": "查找关注来源：{{total}} 个来源已查完",
+      "resolvePreparing": "正在准备查找关注来源",
+      "resolveProgress": "查找关注来源：来源 {{current}}/{{total}} · {{provider}}",
+      "resolveProgressLines": "查找关注来源：来源 {{current}}/{{total}} · {{provider}}（第 {{line}}/{{lines}} 行）"
+    },
+    "webJavDiscovery": {
+      "byteBudget": "本轮流量预算已用完",
+      "cancelled": "已取消作品资料读取",
+      "cancelling": "正在取消作品资料读取",
+      "complete": "作品资料读取完成",
+      "reading": "正在读取作品资料",
+      "requestBudget": "本轮请求预算已用完",
+      "sourceCooldown": "来源暂时不可用，已停止读取",
+      "stopped": "已停止读取作品资料",
+      "timeBudget": "本轮时间预算已用完",
+      "unfetched": "作品资料未取得"
+    },
+    "webLinks": {
+      "prunePreparing": "正在核对失效链接清单",
+      "recheckDone": "重验结束：准备处理 {{confirmed}} 条，保留 {{recovered}} 条",
+      "recheckProgress": "重验失效链接：已检查 {{checked}} / {{total}} 条"
+    },
+    "webResourceSync": {
+      "checkingCache": "正在核对可重建缓存清单",
+      "cleaningCache": "清理缓存：已处理 {{checked}} / {{total}} 个",
+      "processingRecords": "正在处理失效记录",
+      "recheckingRecords": "正在逐条复核失效记录",
+      "removingEmptyFolders": "正在删除空文件夹",
+      "tidyingCache": "正在整理缓存目录并汇总释放空间"
+    }
+  },
+  "labels": {
+    "listSeparator": "、",
+    "runtimePrepare": {
+      "writer": {
+        "standalone": "replication.enabled = false，按独立写者",
+        "noDeviceId": "本机没有 device-id，判不出是不是写入端",
+        "noWriter": "没有可验证的写入端",
+        "otherWriter": "写入端是 {{owner}}，本机是只读端",
+        "thisDevice": "本机是写入端"
+      }
+    },
+    "standaloneUpdate": {
+      "updatePackage": "更新包",
+      "fullPackage": "完整包"
+    },
+    "downloadNamed": "下载 {{name}}",
+    "onboarding": {
+      "hostOption": {
+        "thisDevice": "只有这台电脑",
+        "lan": "同一局域网的设备"
+      },
+      "prompt": {
+        "dataRoot": "数据目录（Peach 数据库、缓存和设置文件都放在这里）",
+        "mediaDir": "媒体目录（必须已经存在，可以在外置硬盘上）",
+        "moreMediaDir": "再加一个媒体目录（不加就直接回车）",
+        "host": "谁可以访问：1 = {{thisDevice}}，2 = {{lan}}",
+        "port": "端口",
+        "mdnsName": "局域网访问地址（<名字>.local，只在允许局域网访问时发布）",
+        "scan": "现在扫描 {{target}}？"
+      },
+      "scanTargetCount": "这 {{count}} 个文件夹",
+      "retryReport": "{{reason}}（还可以再试 {{remaining}} 次）",
+      "requiredMark": "（必填）",
+      "notFilled": "（还没填）",
+      "mountsExplanation": "Peach 数据库用 Windows 格式保存影片路径，前缀为 {{roots}}；实际媒体目录为 {{shown}}，按相同顺序保存在 [media.mounts] local，读取文件前自动转换。"
+    },
+    "runtimeFacts": {
+      "version": "版本",
+      "os": "操作系统",
+      "dataRoot": "数据目录",
+      "settingsFile": "设置文件",
+      "logs": "日志目录",
+      "available": "可用",
+      "ffmpegNotInstalled": "未安装；MP4 可直接播放，转码和缩略图需要安装 FFmpeg。",
+      "untruncNotInstalled": "未安装；缺索引的 MP4 需要它才修得了。",
+      "untruncExtractTo": "未安装；缺索引的 MP4 需要它才修得了。解压到 {{path}}。",
+      "installedVersion": "已安装，版本 {{version}}",
+      "installedInDataRoot": "已安装在数据目录",
+      "ffmpegToolMissing": "未找到 {{tool}}；转码、媒体信息与缩略图需要 FFmpeg 工具包。",
+      "ffmpegToolsMissing": "未找到 {{first}}、{{second}}；转码、媒体信息与缩略图需要 FFmpeg 工具包。"
+    },
+    "configuration": {
+      "fileManagedNotice": "这个部署由配置文件管理服务；在本机编辑下方的设置文件。",
+      "sectionUnavailable": "{{section}}未取得",
+      "sectionRetry": "请重新读取；持续失败时导出诊断报告。",
+      "tunnelStoppedUnsaved": "临时远程链接已停止；设置文件未能写入，请在本机检查设置文件。",
+      "tunnelStopped": "已停止临时远程链接：没有访问密码时不保留公网入口。",
+      "section": {
+        "remoteReporting": "错误诊断设置",
+        "librarySharing": "馆藏上传设置",
+        "startup": "开机启动设置",
+        "uninstall": "卸载信息",
+        "storage": "存储空间",
+        "peachProxy": "Peach 代理",
+        "entryLinks": "外部入口",
+        "updates": "版本更新",
+        "updateJob": "更新任务",
+        "access": "访问设置",
+        "mediaSources": "媒体目录",
+        "libraryCount": "媒体库状态",
+        "mountDependencies": "挂载依赖",
+        "facts": "运行信息",
+        "network": "访问地址",
+        "apiToken": "访问口令",
+        "certificate": "HTTPS 证书",
+        "tunnel": "公网入口",
+        "automaticUpdates": "自动更新",
+        "pushDiscovery": "推送发现",
+        "downloads": "下载设置"
+      }
+    },
+    "followScheduler": {
+      "runtimeUnavailable": "上次自动检查的运行状态未取得",
+      "sourcesFailed": "{{count}} 个来源检查失败"
+    },
+    "webAutoLandings": {
+      "fieldOriginalTitle": "原标题",
+      "fieldPerformers": "演员",
+      "fieldReleaseDate": "发行日期",
+      "fieldSeries": "系列",
+      "fieldStudio": "厂牌",
+      "fieldTags": "内容标签",
+      "fieldTitle": "标题",
+      "fieldUnionTags": "标签",
+      "ruleVerifiedReplace": "官方来源一致，覆盖原值",
+      "ruleVerifiedUnion": "补上来源多给的标签"
+    },
+    "webBatch": {
+      "changedDuringDelete": "删除期间这一条已经变了",
+      "stillOnDisk": "文件仍在盘上"
+    },
+    "webFeeds": {
+      "cooling": "来源 正在冷却，这一轮没有拉",
+      "deferredRest": "其余 {{count}} 个源顺延到冷却结束后再拉",
+      "sourceCooling": "{{source}} 正在冷却，这一轮没有拉"
+    },
+    "webFollow": {
+      "nameContainsEvidence": "规范化名称存在包含关系，仅供人工确认",
+      "profileLinkEvidence": "{{provider}} 首楼的创作者主页链接指向 {{service}}/{{handle}}",
+      "sharedOfflineNote": "共享盘不在，只撤掉了本机这份。等盘回来要再撤一次，否则会被同步回来。",
+      "suggestArchive": "归档站的创作者",
+      "suggestFollowed": "已关注",
+      "suggestTag": "Rule34.xxx 标签",
+      "suggestTagArtist": "Rule34.xxx 的创作者"
+    },
+    "webJavDetail": {
+      "anonymousUser": "匿名用户"
+    },
+    "webLinks": {
+      "unreachable": "取不到：{{reason}}"
+    },
+    "webReview": {
+      "commentVotes": "评论标记 {{votes}}",
+      "coverNoCandidates": "未取得：所有渠道都没有候选",
+      "coverUnfetched": "未取得：{{reason}}",
+      "currentNone": "当前值：尚无",
+      "currentNoneOwned": "当前值：尚无（{{owner}}）",
+      "currentValue": "当前值：{{value}}",
+      "currentValueOwned": "当前值：{{value}}（{{owner}}）",
+      "durationDelta": "时长差 {{seconds}} 秒",
+      "equivalents": "等同于 {{codes}}",
+      "evidenceInsufficient": "所选资料缺少足够依据",
+      "evidenceKinds": "证据 {{kinds}}",
+      "fc2Collection": "合集，{{count}} 个分片各自独立；封面不下发，分片回落到自己的缩略图",
+      "matchedAssets": "{{count}} 个匹配资产",
+      "metadataSources": "{{count}} 个资料来源",
+      "sameCodeAssets": "{{count}} 个同番号资产",
+      "seller": "卖家 {{seller}}",
+      "separator": "；",
+      "sharedPerformers": "共同演员 {{names}}",
+      "sizeDelta": "体积差 {{percent}}%",
+      "tokenOverlap": "词元重合 {{overlap}}",
+      "videos": "{{count}} 部作品",
+      "westernMatch": "{{verdict}} → {{name}}",
+      "westernMatchSpelling": "{{verdict}} → {{name}}（写法 {{variant}}）"
+    },
+    "webScraping": {
+      "compareIncompleteMobileHint": "，未能完成封面比较；中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。",
+      "coverSaved": "高清封面已保存",
+      "diagnosticDimensionMismatch": "完整图片尺寸与探测结果不一致 {{count}} 张",
+      "diagnosticDownloadFailed": "完整下载失败 {{count}} 张",
+      "diagnosticInvalidImage": "图片无法解码 {{count}} 张",
+      "diagnosticPlaceholder": "「准备中」占位图 {{count}} 张",
+      "diagnosticProbeFailed": "图片头请求失败 {{count}} 张",
+      "diagnosticSeparator": "；",
+      "diagnosticTooSmall": "图片宽度不足 700px {{count}} 张",
+      "instagramPending": "Instagram 自动头像定位尚待独立登录会话验证",
+      "kept": "已有图片保留。",
+      "keptAfterDetails": "。已有图片保留。",
+      "keptLocalNoBetter": "本机封面 {{localWidth}} × {{localHeight}}，来源可用封面 {{width}} × {{height}}；保留本机封面。没有找到更大或更合适的封面。",
+      "keptLocalPartial": "本机封面 {{localWidth}} × {{localHeight}}，来源可用封面 {{width}} × {{height}}；保留本机封面。部分来源连接失败，未能完成全部来源比较。",
+      "period": "。",
+      "reusedCover": "复用 24 小时内核验过的本机封面（{{width}} × {{height}}），没有再向来源请求。"
+    },
+    "downloads": {
+      "postprocessRetrying": "等待自动重试（{{retries}}/{{limit}}）",
+      "postprocessRetriesExhausted": "自动重试 {{retries}} 次后仍未完成；{{detail}}",
+      "postprocessRequeued": "等待重新处理",
+      "reconcileUnexpected": "对账时出现未预期的错误，稍后再试",
+      "settingsUnreadable": "云下载设置无法读取，请检查设置文件或重新填写。",
+      "settingsMalformed": "云下载设置格式不符，请检查设置文件或重新填写。",
+      "settingsInvalid": "云下载设置含有无效值，请检查目标目录和等待上限。"
+    },
+    "downloadsClouddrive": {
+      "permission": {
+        "addOffline": "提交离线任务",
+        "listOffline": "查看离线任务与配额",
+        "modifyOffline": "取消离线任务"
+      },
+      "no115Prefix": "还没有填 115 目标目录，「推送发现」登记的前缀（{{known}}）里也没有 115 网盘上的。在「推送发现」卡里加上 CloudDrive2 里 115 的挂载根，再点检查；也可以直接填目标目录",
+      "noPrefixes": "还没有填 115 目标目录，「推送发现」里也没有登记云端路径前缀。在「推送发现」卡里登记 CloudDrive2 里 115 的挂载根和它对应的媒体目录，再点检查；也可以直接填目标目录",
+      "noPikpakRootPrefix": "还没有选 PikPak 根目录对应的媒体目录，「推送发现」里也没有 PikPak 云盘根那条前缀可以推。在下拉框里直接选，或在「推送发现」卡里登记 PikPak 的挂载根",
+      "action": {
+        "verifyToken": "核对 API 令牌",
+        "findTarget": "查找目标目录",
+        "refreshLanding": "刷新落地目录",
+        "readQuota": "查离线配额",
+        "listOffline": "查离线任务",
+        "createFolder": "新建目录",
+        "submitOffline": "提交离线任务",
+        "cancelOffline": "取消离线任务",
+        "findLandedFile": "查目标目录里的文件",
+        "findPrefix": "查推送发现的云端路径前缀",
+        "readProxy": "读取网盘代理",
+        "readAccounts": "读取网盘账号",
+        "saveProxy": "保存网盘代理",
+        "readMountPoints": "读取挂载点",
+        "readLibraryMounts": "读取媒体库挂载点",
+        "readCacheDir": "读取缓存目录"
+      }
+    },
+    "downloadsChannels": {
+      "clouddriveTokenUnreadable": "CloudDrive2 令牌无法读取，请重新填写。",
+      "pikpakSignInUnreadable": "PikPak 登录信息无法读取，请重新登录。",
+      "tokenNeedsOffline": "CloudDrive2 令牌需要提交和查看离线任务权限。",
+      "libraryCapabilityUnavailable": "{{name}}的云下载能力未取得。",
+      "clouddriveCapabilityUnavailable": "CloudDrive2 云下载能力未取得，请检查连接与令牌。",
+      "libraryNotMapped": "{{name}}尚未关联云端目录，请检查挂载或推送发现配置。"
+    },
+    "downloadsPikpakBrowser": {
+      "waiting": "浏览器窗口已打开，在里面登录 PikPak",
+      "cancelled": "已取消浏览器登录",
+      "notOpened": "浏览器没有打开：{{error}}",
+      "failed": "浏览器登录出错：{{type}}",
+      "windowClosed": "浏览器窗口已关闭，登录没有完成",
+      "done": "已用浏览器登录 PikPak",
+      "timeout": "{{minutes}} 分钟内没有完成登录，窗口已关闭。可以再点一次「用浏览器登录」"
+    },
+    "folderRules": {
+      "conflict": {
+        "differentOwner": "已有不同的归属",
+        "perItemConfirmed": "已有逐件确认",
+        "differentIdentity": "已有不同的身份关系",
+        "ownerRejected": "已有归属否定",
+        "childRule": "由子目录规则管理"
+      }
+    },
+    "routesMedia": {
+      "defaultPlayer": "系统默认播放器",
+      "subtitle": {
+        "outsideFolder": "不在正片所在目录",
+        "tooLarge": "文件过大",
+        "notFound": "文件未找到",
+        "imageBased": "图形字幕，播放器里不显示",
+        "encodingUnknown": "编码未识别"
+      }
+    },
+    "avatarPicker": {
+      "source": {
+        "gallery": "图库",
+        "expoDirectory": "展会名录",
+        "socialProfile": "社交主页",
+        "onlineVideo": "在线作品",
+        "videoCover": "作品封面",
+        "coverFace": "封面人脸",
+        "officialSite": "官网",
+        "picked": "自己挑的",
+        "fetched": "取过的图",
+        "videoStill": "作品画面",
+        "codeCover": "番号封面",
+        "address": "地址",
+        "thisDevice": "本机"
+      },
+      "sourceUnknown": "来源未记录",
+      "named": "{{name}}",
+      "galleryCategory": "图库 · {{category}}",
+      "imageAddress": "图片地址 · {{host}}",
+      "cropped": "{{label}} · 已裁剪",
+      "assetFallback": "作品 {{id}}",
+      "standIn": "代表作画面，非本人",
+      "standInWithTitle": "代表作画面，非本人 · {{title}}"
+    },
+    "mediaTools": {
+      "unknownVersion": "未知版本",
+      "toolPackage": "工具包"
+    },
+    "taskResults": {
+      "kind": {
+        "check": "检查失败",
+        "backfill": "补查失败"
+      },
+      "noResult": "来源未返回检查结果"
+    },
+    "desktopStartup": {
+      "noDesktop": "此系统未提供桌面快捷方式",
+      "desktopFailed": "{{error}}",
+      "desktopUnknown": "桌面快捷方式状态未取得",
+      "noLoginItem": "此系统未提供登录自启入口",
+      "trayMissing": "未找到本机托盘入口",
+      "startupUnknown": "启动项状态未取得"
+    },
+    "desktopUninstall": {
+      "manual": "这个系统上先退出 Peach，再手动移除程序与数据目录",
+      "macos": "先关闭开机自启并退出 Peach，再把「应用程序」中的 Peach 移到废纸篓；完全卸载时一并删除下列数据目录",
+      "accepted": "正在卸载，Peach 将退出。完成后可关闭此页。"
+    },
+    "backgroundIssues": {
+      "pushDiscovery": {
+        "title": "自动发现新文件入库失败",
+        "link": "打开推送设置"
+      },
+      "pushDiscoveryWatch": {
+        "title": "本机文件夹监视没有运行",
+        "link": "打开推送设置"
+      },
+      "downloads": {
+        "title": "{{count}} 个云下载任务对账暂时失败",
+        "link": "查看云下载"
+      },
+      "followSchedule": {
+        "title": "关注自动检查失败",
+        "link": "打开关注调度"
+      },
+      "feedSchedule": {
+        "title": "订阅源自动拉取失败",
+        "link": "打开订阅源调度"
+      },
+      "tunnel": {
+        "title": "公网入口连接失败",
+        "link": "打开公网入口设置"
+      },
+      "librarySharing": {
+        "title": "馆藏分享上传失败",
+        "link": "打开数据上传设置"
+      },
+      "automaticUpdates": {
+        "title": "自动更新出错",
+        "link": "打开自动更新设置"
+      },
+      "amaneBridge": {
+        "title": "amane 桥未安装",
+        "link": "打开 amane 设置"
+      },
+      "network": {
+        "title": "网络不通",
+        "link": "打开 Peach 代理设置"
+      },
+      "faceModels": {
+        "title": "人脸模型下载失败",
+        "link": "查看失败记录"
+      }
+    },
+    "metadataAmane": {
+      "rebuilt": "amane 桥已按 {{revision}} 重建",
+      "bundled": "采集工具已随 Peach 安装，无需另行准备",
+      "ready": "amane 运行环境已就绪"
+    }
+  },
+  "taste": {
+    "items": "{{items}}",
+    "category": {
+      "feet": "足系",
+      "animation": "3D/动画",
+      "cosplay": "制服/角色扮演",
+      "breasts": "乳系",
+      "oral": "口交",
+      "glans": "马眼/尿道/龟头",
+      "asmr": "ASMR/音声",
+      "gameDoujin": "游戏同人",
+      "leaks": "反差/泄密/探花"
+    },
+    "evidence": {
+      "watched": "观看与反馈",
+      "collection": "馆藏积累",
+      "browsing": "浏览记录",
+      "bookmarks": "浏览器书签",
+      "follows": "关注",
+      "peach": "Peach"
+    },
+    "headline": {
+      "browserAndPeach": "浏览兴趣以{{category}}为主，Peach 中稳定出现{{tags}}。",
+      "browserOnly": "浏览兴趣目前以{{category}}为主，Peach 观看证据仍偏少。",
+      "peachOnly": "Peach 观看行为目前更集中在{{tags}}。",
+      "notEnough": "证据还不足以形成稳定口味结论。"
+    },
+    "point": {
+      "browsing": "浏览主线",
+      "peach": "Peach 印证",
+      "shared": "共同信号",
+      "unverified": "待验证"
+    },
+    "confidence": {
+      "high": "可信度较高",
+      "medium": "可信度中等",
+      "early": "仍在学习"
+    },
+    "explore": {
+      "title": "探索 {{tag}}",
+      "corroborated": "浏览信号 {{signals}} 次 · 馆藏 {{items}} 部 · 已有观看印证",
+      "uncorroborated": "浏览信号 {{signals}} 次 · 馆藏 {{items}} 部 · 尚无观看印证"
+    },
+    "next": {
+      "follow": "追踪常访创作者",
+      "review": "补齐馆藏证据",
+      "reviewDetail": "{{untagged}} 项待补 Tag · {{unidentified}} 项待补身份",
+      "feedback": "去馆藏评价作品",
+      "feedbackDetail": "当前喜欢 {{liked}} · 不合口味 {{disliked}}"
+    },
+    "flow": {
+      "otherSites": "其他网站",
+      "otherCreators": "其他创作者"
+    },
+    "dimension": {
+      "performer": "出演者偏好",
+      "creator": "创作者偏好",
+      "tag": "标签偏好",
+      "studio": "厂牌偏好",
+      "series": "系列偏好",
+      "era": "发行年代偏好",
+      "length": "时长偏好"
+    },
+    "reason": {
+      "line": "{{dimension}}：{{names}}（{{sources}}）",
+      "nearDistribution": "与你的馆藏和观看分布接近"
+    },
+    "refreshWarning": "{{browser}} · {{profile}}：{{reason}}",
+    "volume": {
+      "system": {
+        "name": "系统盘",
+        "numbered": "系统盘 {{index}}"
+      },
+      "local": {
+        "name": "资源盘",
+        "numbered": "资源盘 {{index}}"
+      },
+      "115": {
+        "name": "115 网盘",
+        "numbered": "115 网盘 {{index}}"
+      },
+      "pikpak": {
+        "name": "PikPak 网盘",
+        "numbered": "PikPak 网盘 {{index}}"
+      }
+    },
+    "qualityBand": {
+      "low": "低画质"
+    },
+    "report": {
+      "title": "浏览记录口味分析",
+      "generatedAt": "生成时间：{{time}}",
+      "range": "范围：{{start}} 至 {{end}}",
+      "none": "无",
+      "visits": "访问记录：{{count}}",
+      "bookmarks": "浏览器书签：{{count}}",
+      "sources": "数据源：{{count}}",
+      "privacy": "隐私：报告不含完整 URL、页面标题或原始搜索记录；所有结论均为 candidate。",
+      "candidate": "候选",
+      "signals": "信号数",
+      "nothingExtracted": "未提取到",
+      "section": {
+        "categories": "口味维度候选",
+        "tags": "Tag 候选",
+        "creators": "创作者候选",
+        "domains": "高频域名"
+      }
+    }
+  },
+  "tray": {
+    "listSeparator": "、",
+    "clauseSeparator": "；",
+    "menu": {
+      "tooltip": "Peach · 蜜桃",
+      "open": "打开 Peach",
+      "reopenSetup": "重新打开设置页",
+      "configure": "配置 Peach",
+      "status": "状态：{{status}}",
+      "address": "地址：{{url}}",
+      "fullConfiguration": "查看完整配置",
+      "syncSource": "同步开发进度",
+      "syncLedger": "同步数据库",
+      "takeOwnership": "由本机接管数据库写入",
+      "restart": "重启服务",
+      "logs": "查看日志",
+      "diagnostics": "导出诊断报告",
+      "versions": "版本与更新",
+      "checkUpdates": "检查更新",
+      "quit": "退出 Peach"
+    },
+    "title": {
+      "ledger": "Peach 数据库",
+      "ledgerFailed": "Peach 数据库同步失败",
+      "diagnostics": "Peach 诊断报告",
+      "versions": "Peach 版本与更新",
+      "sourceSync": "Peach 开发进度",
+      "sourceSyncFailed": "Peach 开发进度失败",
+      "startFailed": "Peach 启动失败"
+    },
+    "health": {
+      "notChecked": "未检测",
+      "statusCode": "状态码 {{code}}",
+      "noResponse": "无响应",
+      "stopped": "已停止",
+      "ok": "正常",
+      "okDetail": "正常（{{detail}}）",
+      "failed": "异常",
+      "failedDetail": "异常（{{detail}}）",
+      "starting": "启动中"
+    },
+    "status": {
+      "running": "运行中",
+      "partial": "部分服务异常",
+      "down": "服务未运行",
+      "withWarnings": "{{state}} · {{count}} 项提醒",
+      "waitingSetup": "等待完成首次设置"
+    },
+    "readiness": {
+      "configured": "未初始化",
+      "web": "页面文件缺失",
+      "database": "数据库打不开",
+      "schema": "数据库结构与迁移不一致",
+      "noResponse": "{{service}} 就绪检查无响应（{{error}}）",
+      "notReady": "{{service}} 未就绪：{{detail}}"
+    },
+    "ledger": {
+      "undecidable": "未同步：无法判定数据库状态（{{error}}）",
+      "notTakenOver": "未接管：{{reason}}；先挂上共享副本所在的盘。",
+      "notSynced": "未同步：{{reason}}",
+      "result": "数据库同步：{{action}} · {{reason}}",
+      "replicationOff": "未同步：replication.enabled = false，这台机器不做数据库复制",
+      "external": "未同步：{{services}} 服务不归本托盘管理",
+      "noOutput": "数据库同步没有输出",
+      "startFailed": "数据库同步启动失败：{{error}}",
+      "notRecovered": "{{output}}；服务未能在 20 秒内恢复",
+      "stoppingForSync": "正在安全停止服务并同步…",
+      "stoppingForTakeover": "正在安全停止服务并接管写入…",
+      "decidingForSync": "正在判定数据库状态并同步…",
+      "decidingForTakeover": "正在判定数据库状态并接管写入…"
+    },
+    "setup": {
+      "loaded": "配置已载入，正在启动服务：{{url}}",
+      "scanFailed": "首次扫描没能启动：{{error}}",
+      "scanStarted": "首次扫描已在后台开始，进度写在 {{path}}"
+    },
+    "prepare": {
+      "noOutput": "退出码 {{code}}，没有输出",
+      "frozen": "打包进程不加载项目 venv，依赖由重启脚本核对",
+      "noLock": "没有 uv.lock：{{path}}",
+      "noVenv": "没有项目 venv：{{path}}",
+      "noUv": "未取得 uv：PATH 与 winget 安装目录里都没有",
+      "uvFailed": "uv 没能运行：{{error}}",
+      "dependenciesCurrent": "项目 venv 与 uv.lock 一致",
+      "checkFailed": "核对依赖失败：{{output}}",
+      "stale": "项目 venv 与 uv.lock 不一致，要装 {{count}} 个包",
+      "staleListed": "项目 venv 与 uv.lock 不一致，要装 {{count}} 个包：{{packages}}",
+      "staleMore": "项目 venv 与 uv.lock 不一致，要装 {{count}} 个包：{{packages}}等",
+      "syncFailed": "uv sync 失败：{{output}}",
+      "synced": "已按 uv.lock 同步依赖（{{check}}，用时 {{seconds}} 秒）",
+      "databaseMissing": "数据库不存在：{{path}}",
+      "notMigrating": "不迁移：{{reason}}",
+      "migrateStartFailed": "迁移没能启动：{{error}}",
+      "statusFailed": "migrate status 失败：{{output}}",
+      "statusNoPending": "migrate status 没有报待迁移数：{{output}}",
+      "migrationsCurrent": "数据库结构已是最新",
+      "upgradeFailed": "执行 {{count}} 个待迁移时失败，数据库目录里有迁移前备份：{{output}}",
+      "appliedVersions": "已执行迁移 {{versions}}，迁移前备份 {{backup}}",
+      "appliedCount": "已执行迁移 {{count}} 个，迁移前备份 {{backup}}",
+      "notObtained": "未取得",
+      "tasksUnreadable": "拒绝重启：读不了任务表（{{error}}）；确认没有任务在跑后加 --force",
+      "tasksBlocking": "拒绝重启：这些任务重启后续跑不了：{{tasks}}；等它们结束，或加 --force",
+      "noTaskTable": "数据库里还没有可判的任务表：{{error}}",
+      "venvInUse": "拒绝重启：{{reason}}，但这些进程还在用项目 venv：PID {{pids}}；先停掉它们再重启",
+      "ready": "服务已就绪",
+      "stillStarting": "服务仍在启动，请查看托盘状态",
+      "notStarted": "服务未能启动，请查看托盘状态和日志",
+      "staleHint": "{{message}}；点托盘「重启服务」会整体重启托盘并同步依赖"
+    },
+    "restart": {
+      "syncing": "{{reason}}，正在整体重启托盘以同步依赖…",
+      "spawnFailed": "整体重启托盘没能启动（{{error}}），只重启子服务。",
+      "pending": "整体重启托盘还没有结果，详情见 tray-restart.out.log。",
+      "exitCode": "退出码 {{code}}",
+      "incomplete": "整体重启托盘没有完成：{{message}}。只重启子服务。",
+      "stillStarting": "服务仍在启动，请查看托盘状态。",
+      "notRecovered": "服务未能在 20 秒内恢复，请查看日志。",
+      "notRecoveredProblems": "服务未能在 20 秒内恢复，请查看日志；{{problems}}。",
+      "withProblems": "服务已重启，但{{problems}}",
+      "strayServices": "拒绝重启：旧托盘名下只有 {{count}} 个子服务，端口由不归它管的 serve 进程占着（PID {{pids}}），重启托盘换不掉它们",
+      "stopMessageFailed": "托盘停止消息发送失败",
+      "oldTrayStillRunning": "托盘未在期限内正常退出；未强杀、未另启",
+      "oldServicesStillRunning": "旧托盘已退出，但它的子服务未在期限内退出；未另启",
+      "newTrayExited": "新托盘退出，代码 {{code}}",
+      "newTrayMissing": "新托盘窗口未在期限内出现",
+      "newTrayServices": "新托盘（PID {{pid}}）已起，但名下只有 {{count}} 个子服务：端口可能被不归它管的进程占着",
+      "rollbackFailed": "{{reason}}；回滚失败，生产入口停在新二进制：{{error}}",
+      "rolledBackNotStarted": "{{reason}}；已回滚到备份，但旧托盘也没起来",
+      "rolledBack": "{{reason}}；已回滚到备份并重开旧托盘",
+      "notPrepared": "{{result}}，但运行环境没有备齐：{{note}}",
+      "targetInvalid": "拒绝重启：入口不存在或不是 Peach.exe：{{path}}",
+      "serviceMissing": "拒绝重启：服务入口不存在：{{path}}",
+      "windowNotUnique": "拒绝重启：没有找到唯一且路径匹配的 Peach 托盘窗口",
+      "swapFailed": "换二进制失败，已按原样重开旧托盘：{{error}}",
+      "swapFailedNotStarted": "换二进制失败，且旧托盘未能重开：{{error}}",
+      "restarted": "托盘已正常重启并重新拥有 HTTP/HTTPS 子服务",
+      "sourceWindowNotUnique": "拒绝重启：没有找到唯一且命令行匹配的源码托盘窗口",
+      "notSourceTray": "拒绝重启：托盘窗口的命令行里没有 peach.tray，照原样重启会起错东西",
+      "sourceServiceMissing": "拒绝重启：源码托盘旁没有服务入口 {{path}}",
+      "sourceRestarted": "源码托盘已正常重启并重新拥有 HTTP/HTTPS 子服务"
+    },
+    "diagnostics": {
+      "savedOpenFailed": "诊断报告已保存：\n{{path}}\n\n窗口或打开操作未完成：{{error}}",
+      "saved": "诊断报告已保存：{{name}}",
+      "savedLine": "Peach 诊断报告：诊断报告已保存：{{path}}",
+      "savedChoose": "诊断报告已保存，可打开目录或文件。",
+      "openDirectory": "打开目录",
+      "openFile": "打开文件",
+      "close": "关闭"
+    },
+    "update": {
+      "checking": "正在检查更新…"
+    },
+    "sourceSync": {
+      "checking": "正在检查更新通道…",
+      "notFrozen": "当前不是打包托盘，源码已是最新。",
+      "standalone": "独立测试包不自建托盘；请下载新版并完整解压替换程序目录。",
+      "buildCurrent": "托盘构建与检出一致（{{build}}）。",
+      "notPackaged": "检出比托盘构建新，但改动不进打包产物，托盘无需重建。",
+      "pendingMismatch": "待应用记录与当前代码不一致，需要人工检查。",
+      "restarted": "服务已重启。",
+      "notRecovered": "服务未能恢复，请查看日志。",
+      "withProblems": "{{result}}但{{problems}}。",
+      "done": "{{message}}{{result}}",
+      "restartingMenuBar": "{{message}}正在重启菜单栏项…",
+      "menuBarRestartFailed": "代码已同步，但菜单栏项重启失败；服务已恢复。",
+      "menuBarManual": "{{message}}服务已重启；菜单栏项本身要手动退出重开才会生效。",
+      "noPowerShell": "代码已快进，但找不到 PowerShell，未运行测试或重启服务。",
+      "inputsKeptChanging": "测试期间代码或依赖持续变化，三次验证均未取得有效记录；请稍后重试。",
+      "testsFailed": "代码已快进，但完整测试失败；服务与托盘均未重启，请查看日志。",
+      "testsPassed": "代码与完整测试已通过。",
+      "manualTray": "代码与完整测试已通过；当前不是打包托盘，托盘进程需手动重开。",
+      "trayExeMissing": "代码与测试已通过，但找不到当前托盘 EXE，未执行替换。",
+      "buildFailed": "代码与测试已通过，但新托盘构建失败；旧托盘和服务保持运行。",
+      "packagedMigrationsFailed": "新托盘未通过打包迁移资源检查；旧托盘和服务保持运行。",
+      "helperIncomplete": "新托盘已构建，但替换助手不完整；旧托盘和服务保持运行。",
+      "helperFailed": "新托盘已构建，但替换助手启动失败；旧托盘和服务保持运行。",
+      "replacing": "代码、完整测试和新托盘检查均已通过；正在安全替换并重启。"
+    },
+    "startup": {
+      "handoffFailed": "无法独立启动托盘：{{details}}"
+    },
+    "installer": {
+      "toolsFailed": "媒体工具准备失败：{{error}}"
+    },
+    "uninstallFailed": "卸载未能启动：{{error}}"
+  },
+  "pages": {
+    "setup": {
+      "title": "Peach · 首次运行",
+      "question": {
+        "dataRoot": {
+          "label": "数据目录",
+          "help": "Peach 数据库、封面、预览图和缓存都放在这里，馆藏较大时会占用数十 GB。系统盘空间紧张时，请选择其他磁盘上的文件夹；之后也可在设置页迁移。"
+        },
+        "mediaDir": {
+          "label": "媒体目录",
+          "help": "选择存放视频和图片的现有文件夹，也可以使用外置硬盘。"
+        },
+        "host": {
+          "label": "谁可以访问"
+        },
+        "port": {
+          "label": "端口",
+          "help": "浏览器地址里冒号后面的数字，一般不用改。"
+        },
+        "mdnsName": {
+          "label": "局域网访问地址",
+          "help": "选了「同一局域网的设备」之后，其他设备在浏览器里输入这个地址就能打开 Peach。",
+          "standaloneHelp": "其他设备打开这个地址时要加上上面的端口，例如 http://peach.local:8900。首次连接请允许 Windows 专用网络访问。"
+        }
+      },
+      "posixMediaNote": "填写这台设备实际读取媒体的文件夹；Docker 部署填写容器内目录，例如 /media。",
+      "cloudHelp": "请先将 CloudDrive2 或 OpenList 中的网盘挂载为本机文件夹；Windows 读取 NAS 共享时，请先映射为盘符，再选择对应文件夹。本机安装提示仅适用于在本机运行 CloudDrive。文件操作需要挂载工具和网盘账号授予写入权限；光鸭云盘的上传、建文件夹、改名和移动需要 CloudDrive2 v1.1.0 或更高版本，删除和复制暂不支持。",
+      "cloudHelpLink": "挂载帮助",
+      "mountMissing": "未检测到 {{name}}。"
+    },
+    "login": {
+      "title": "登录 Peach",
+      "accessSetupTitle": "Peach · 访问设置"
+    },
+    "userscriptBridge": {
+      "title": "Peach 用户脚本连接"
     }
   }
 }

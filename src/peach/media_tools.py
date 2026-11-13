@@ -23,7 +23,7 @@ from filelock import FileLock, Timeout
 import httpx
 
 from . import release_updates, standalone_update, update_packages
-from .user_messages import UserValueError
+from .user_messages import UserValueError, message_fields
 
 LABELS = {"ffmpeg": "FFmpeg", "untrunc": "untrunc"}
 
@@ -48,7 +48,7 @@ def _verified(folder: Path, tool: str) -> str | None:
     files = _manifest_files(folder / "manifest.json", tool, prefix="")
     if files is None or not update_packages.matches(folder, files):
         return None
-    return installed_version(folder.parent, folder.name) or "未知版本"
+    return installed_version(folder.parent, folder.name) or ""
 
 
 def _manifest_files(source, tool: str, *, prefix: str) -> dict[str, str] | None:
@@ -69,8 +69,8 @@ def _manifest_files(source, tool: str, *, prefix: str) -> dict[str, str] | None:
 
 
 def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
-            fetch=standalone_update.download) -> str:
-    """下载、校验并换入 `tools_root/<tool>`，返回回执。已装好且校验通过时不下载。
+            fetch=standalone_update.download) -> dict:
+    """下载、校验并换入 `tools_root/<tool>`，返回回执（`message_fields` 那三个字段）。已装好且校验通过时不下载。
 
     下载和解压都在 `tools_root` 下的事务目录里做，校验全过才整目录换入；中途失败只留下
     事务目录，下次安装开头清掉，已有的那份不动。同一工具同时只装一次。
@@ -91,7 +91,8 @@ def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
     try:
         version = _verified(target, tool) if target.is_dir() else None
         if version is not None:
-            return f"{label} 已安装（{version}），无需重新下载"
+            return message_fields("api.mediaTools.alreadyInstalled",
+                                  {"label": label, "version": version or {"code": "labels.mediaTools.unknownVersion"}})
         for leftover in tools_root.glob(f".install-{tool}-*"):
             shutil.rmtree(leftover, ignore_errors=True)
         work = tools_root / f".install-{tool}-{uuid.uuid4().hex[:12]}"
@@ -99,7 +100,8 @@ def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
         try:
             package = locate(tool)
             release = standalone_update.signed_release({"asset_url": package["url"], "asset_digest": package["digest"]})
-            digest, size = standalone_update.checked_asset(release["asset_digest"], package["size"], "工具包")
+            digest, size = standalone_update.checked_asset(release["asset_digest"], package["size"],
+                                                        {"code": "labels.mediaTools.toolPackage"})
             archive = work / "package.zip"
             try:
                 fetch(package["url"], archive, size, digest, lambda _count: None)
@@ -128,6 +130,7 @@ def install(tools_root: Path, tool: str, *, locate=release_updates.tool_package,
                 raise
         finally:
             shutil.rmtree(work, ignore_errors=True)
-        return f"已安装 {label}（{installed_version(tools_root, tool) or package['version']}）"
+        return message_fields("api.mediaTools.installed",
+                              {"label": label, "version": installed_version(tools_root, tool) or package["version"]})
     finally:
         lock.release()

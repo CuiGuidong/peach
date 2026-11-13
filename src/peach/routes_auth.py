@@ -15,7 +15,7 @@ from collections import OrderedDict
 import threading
 import time
 from urllib.parse import urlsplit
-from . import access, distribution, tunnel
+from . import access, distribution, interface_text, tunnel
 from .user_messages import message_fields
 from .web_entry import page_shell
 from .web_local_access import local_client
@@ -342,8 +342,11 @@ def login_mode(request: Request) -> str:
     return "setup" if local_client(request) else "denied"
 
 
-def login_html(next_path: str, *, mode: str = "password", invalid: bool = False, error: str = "") -> str:
-    """登录页的薄壳：表单由页面包画，服务端只给净化过的 `next`、页面模式、口令是否错误与限流或参数错误的原因。"""
+def login_html(next_path: str, *, mode: str = "password", invalid: bool = False, error: str = "",
+               language: str = interface_text.SOURCE_LANGUAGE) -> str:
+    """登录页的薄壳：表单由页面包画，服务端只给净化过的 `next`、页面模式、口令是否错误与限流或参数错误的原因。
+
+    `error` 只收文字，由调用方按 `language`（请求的语言）渲染好；标题与 `<html lang>` 跟着同一种语言。"""
     data = {"next": next_path}
     if mode != "password":
         data["mode"] = mode
@@ -351,7 +354,22 @@ def login_html(next_path: str, *, mode: str = "password", invalid: bool = False,
         data["invalid"] = "true"
     if error:
         data["error"] = error
-    return page_shell("Peach · 访问设置" if mode == "setup" else "登录 Peach", "login", data)
+    title = "pages.login.accessSetupTitle" if mode == "setup" else "pages.login.title"
+    return page_shell(interface_text.text(f"server:{title}", None, language), "login", data, language=language)
+
+
+def _page_language(request: Request) -> str:
+    return interface_text.request_language(request.headers.get("accept-language"))
+
+
+def _page_error(detail: object, language: str) -> str:
+    """接口报错的明细按页面语言渲染成一句：带 `message_code` 的取译文，其余照原文。"""
+    if isinstance(detail, dict):
+        code = detail.get("message_code")
+        if isinstance(code, str) and code:
+            return interface_text.text(f"server:{code}", detail.get("message_params") or {}, language)
+        return str(detail.get("message", ""))
+    return str(detail)
 
 
 def safe_next(value: str) -> str:
@@ -370,7 +388,7 @@ def login(request: Request, next: str = "/"):
     if _authorized(request, request.app.state.settings.token,
                    _first_query_values(request)):
         return RedirectResponse(next_path, status_code=303)
-    return HTMLResponse(login_html(next_path, mode=login_mode(request)))
+    return HTMLResponse(login_html(next_path, mode=login_mode(request), language=_page_language(request)))
 
 
 @router.post("/login")
@@ -381,20 +399,19 @@ async def login_submit(request: Request):
     )
     next_path = safe_next((form.get("next") or ["/"])[0])
     mode = login_mode(request)
+    language = _page_language(request)
     try:
         _login_attempt(request)
     except HTTPException as exc:
         if not _wants_page(request):
             raise
-        detail = exc.detail
-        message = str(detail.get("message", "")) if isinstance(detail, dict) else str(detail)
-        return HTMLResponse(login_html(next_path, mode=mode, error=message), status_code=exc.status_code,
-                            headers=exc.headers)
+        return HTMLResponse(login_html(next_path, mode=mode, error=_page_error(exc.detail, language), language=language),
+                            status_code=exc.status_code, headers=exc.headers)
     token = request.app.state.settings.token
     supplied = (form.get("token") or [""])[0]
     policy = access.load(request.app.state.settings.access_path)
     if token and policy["mode"] != "open" and not await run_in_threadpool(access.verify, policy, supplied, token):
-        return HTMLResponse(login_html(next_path, mode=mode, invalid=True), status_code=401)
+        return HTMLResponse(login_html(next_path, mode=mode, invalid=True, language=language), status_code=401)
     try:
         days = int((form.get("days") or ["0"])[0])
         if not 0 <= days <= 365:
@@ -402,7 +419,8 @@ async def login_submit(request: Request):
     except ValueError:
         fields = message_fields("api.auth.invalidRememberDays")
         if _wants_page(request):
-            return HTMLResponse(login_html(next_path, mode=mode, error=fields["message"]), status_code=400)
+            return HTMLResponse(login_html(next_path, mode=mode, error=_page_error(fields, language), language=language),
+                                status_code=400)
         raise HTTPException(400, fields) from None
     response = RedirectResponse(next_path, status_code=303)
     try:
@@ -410,6 +428,7 @@ async def login_submit(request: Request):
     except OSError:
         fields = message_fields("api.auth.sessionNotSaved")
         if _wants_page(request):
-            return HTMLResponse(login_html(next_path, mode=mode, error=fields["message"]), status_code=503)
+            return HTMLResponse(login_html(next_path, mode=mode, error=_page_error(fields, language), language=language),
+                                status_code=503)
         raise HTTPException(503, fields) from None
     return response

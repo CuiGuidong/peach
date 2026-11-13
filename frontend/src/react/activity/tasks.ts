@@ -5,7 +5,7 @@
 import { apiGet, apiSend } from '../../api';
 import { fmtSize } from '@peach/legacy/core';
 import { requestErrorMessage } from '../../core/request-error';
-import { partsText, serverLabel, stageText } from '../../core/server-text';
+import { codedText, partsLabel, partsText, serverLabel, stageText, type TextPart } from '../../core/server-text';
 import { queryClient } from '../query';
 import type { ProcessingSpeed } from '../library-processing/library-processing';
 import { interfaceLanguage, t } from '../../i18n';
@@ -194,13 +194,18 @@ export const hasResultProblems = (run: TaskRunPayload): boolean => run.result_su
   || PROBLEM_FLAGS.some((key) => run.result_summary?.[key] === true)
   || PROBLEM_COUNTS.some((key) => Number(run.result_summary?.[key]) > 0);
 
-export interface TaskIssue { source: number; label: string; provider: string; kind: string; error: string }
+/** 一条来源问题。`kind` 与 `error` 是服务端按中文渲染的原句；`kind_code` 与按段存的 `error_parts` 给当前语言。 */
+export interface TaskIssue {
+  source: number; label: string; provider: string; kind: string; error: string;
+  kind_code?: string; error_parts?: TextPart[];
+}
 
-/** 问题明细绑定本轮快照，当前来源状态由对应管理页查看。 */
+/** 问题明细绑定本轮快照，当前来源状态由对应管理页查看。类别与原因已换成当前语言。 */
 export function taskIssues(run: TaskRunPayload): TaskIssue[] {
   const issues = run.result_summary?.issues;
   return Array.isArray(issues) ? issues.filter((item): item is TaskIssue => !!item
-    && typeof item === 'object' && typeof item.error === 'string' && typeof item.label === 'string') : [];
+    && typeof item === 'object' && typeof item.error === 'string' && typeof item.label === 'string')
+    .map((issue) => ({ ...issue, kind: codedText(issue, 'kind'), error: partsLabel(issue.error_parts, issue.error) })) : [];
 }
 
 /** 处理入口只对同一种任务最新那一轮有意义的任务：目标页只显示最新一轮，更早的失败已经被后来的结果取代。

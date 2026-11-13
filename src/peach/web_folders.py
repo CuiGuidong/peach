@@ -56,7 +56,7 @@ def w_folder_rule(contract, body):
     with contract.write_transaction() as connection:
         settings, data = folder_rules.load(connection)
         if type(body.get('expected_revision')) is not int or data['revision'] != body['expected_revision']:
-            raise folder_rules.FolderRuleConflict('目录规则已变化，请重新打开设置')
+            raise folder_rules.FolderRuleConflict('errors.webFolders.rulesChanged')
         if body.get('action') == 'remove':
             result = {'removed': folder_rules.remove(connection, settings, data, node['id'])}
         elif body.get('action') == 'save':

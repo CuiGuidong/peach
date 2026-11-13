@@ -35,17 +35,17 @@ from .config import REPLICATION_ENABLED
 from .jobs import JobAlreadyRunning
 from .routes_auth import (FIRST_ACCESS_DENIED_CODE, login_mode, origin_allowed, require_auth, require_authenticated_client, safe_next, same_origin,
                           set_auth_cookie, sessions as access_sessions)
-from .web_entry import runtime_fact_entries
+from .web_entry import field_errors, runtime_fact_entries
 from .user_messages import UserValueError, error_detail, message_fields
 from .web_local_access import local_client, managed_configuration
-from . import (release_updates, standalone_update, peach_proxy, desktop_startup, desktop_uninstall, docker_update,
-               media_tools)
+from . import (interface_text, release_updates, standalone_update, peach_proxy, desktop_startup, desktop_uninstall,
+               docker_update, media_tools)
 
 router = APIRouter()
 _SAVE_LOCK = threading.Lock()
 RELOAD_NAME = onboarding.RELOAD_NAME
-#: 直接由 CLI 管理的服务使用设置文件。
-FILE_MANAGED_NOTICE = "这个部署由配置文件管理服务；在本机编辑下方的设置文件。"
+#: 直接由 CLI 管理的服务使用设置文件：配置页不能编辑时给的那句话。
+FILE_MANAGED_NOTICE = "labels.configuration.fileManagedNotice"
 
 
 def dev_environment() -> bool:
@@ -227,18 +227,28 @@ def configurable(request: Request) -> bool:
             and local_client(request))
 
 
-def _read_section(result: dict, key: str, title: str, reader) -> None:
-    """各配置区域独立读取；故障留痕并提供重试信息。"""
+def _read_section(result: dict, key: str, reader) -> None:
+    """各配置区域独立读取；故障留痕并提供重试信息。
+
+    区域名是 `labels.configuration.section.<键的驼峰写法>`。`section_errors[键]` 的 `title`、`message` 是 zh-CN
+    原句；`title_code`／`title_params`（`section` 是 zh-CN 区域名）、`section_code` 与 `message_code` 给页面按当前语言渲染。
+    """
     try:
         result[key] = reader()
     except Exception as error:
         error_id = uuid.uuid4().hex
+        section_code = "labels.configuration.section." + "".join(
+            part if index == 0 else part.capitalize() for index, part in enumerate(key.split("_")))
+        section = interface_text.text(f"server:{section_code}")
         result.setdefault("section_errors", {})[key] = {
-            "title": f"{title}未取得", "message": "请重新读取；持续失败时导出诊断报告。",
+            "title": interface_text.text("server:labels.configuration.sectionUnavailable", {"section": section}),
+            "title_code": "labels.configuration.sectionUnavailable", "title_params": {"section": section},
+            "section_code": section_code,
+            **message_fields("labels.configuration.sectionRetry"),
             "error_id": error_id,
         }
         error_reporting.event("logging", error, logger=__name__, level="ERROR",
-                              message=f"配置区域 {key} 读取失败", section=key, error_id=error_id)
+                              message=f"configuration section {key} could not be read", section=key, error_id=error_id)
 
 
 def snapshot(config, reachability=None) -> dict[str, Any]:
@@ -252,7 +262,9 @@ def snapshot(config, reachability=None) -> dict[str, Any]:
     media = config.mounts.get("local") or config.locations.get("local", ())
     result = {
         "editable": editable,
-        "notice": "" if editable else FILE_MANAGED_NOTICE,
+        # 不能编辑时的原因：`notice` 是 zh-CN 原句，`notice_code` 给页面按当前语言渲染。
+        "notice": "" if editable else interface_text.text(f"server:{FILE_MANAGED_NOTICE}"),
+        "notice_code": "" if editable else FILE_MANAGED_NOTICE,
         "revision": revision(config),
         "media_dirs": list(media),
         # 媒体库按持久身份计数，与侧栏切换器和 `/api/libraries` 共用分组。
@@ -263,25 +275,25 @@ def snapshot(config, reachability=None) -> dict[str, Any]:
         "facts": [],
     }
     readers = (
-        ("remote_reporting", "错误诊断设置", lambda: remote_reporting.snapshot(config)),
-        ("library_sharing", "馆藏上传设置", lambda: library_sharing.snapshot(config)),
-        ("startup", "开机启动设置", lambda: desktop_startup.snapshot(config)),
-        ("uninstall", "卸载信息", lambda: desktop_uninstall.snapshot(config)),
-        ("storage", "存储空间", lambda: data_storage.snapshot(config)),
-        ("peach_proxy", "Peach 代理", lambda: peach_proxy.describe(config.directory("secrets"))),
-        ("entry_links", "外部入口", lambda: entry_links.snapshot(config.directory("state"))),
-        ("updates", "版本更新", release_updates.snapshot),
-        ("update_job", "更新任务", standalone_update.public),
-        ("access", "访问设置", lambda: access.public(access.load(config.directory("secrets") / "access.json"))),
-        ("media_sources", "媒体目录", lambda: media_configuration.rows(
+        ("remote_reporting", lambda: remote_reporting.snapshot(config)),
+        ("library_sharing", lambda: library_sharing.snapshot(config)),
+        ("startup", lambda: desktop_startup.snapshot(config)),
+        ("uninstall", lambda: desktop_uninstall.snapshot(config)),
+        ("storage", lambda: data_storage.snapshot(config)),
+        ("peach_proxy", lambda: peach_proxy.describe(config.directory("secrets"))),
+        ("entry_links", lambda: entry_links.snapshot(config.directory("state"))),
+        ("updates", release_updates.snapshot),
+        ("update_job", standalone_update.public),
+        ("access", lambda: access.public(access.load(config.directory("secrets") / "access.json"))),
+        ("media_sources", lambda: media_configuration.rows(
             config, windows=os.name == "nt", probe=True,
             known=media_configuration.reachability_states(reachability))),
-        ("library_count", "媒体库状态", lambda: len(media_libraries.libraries(config))),
-        ("mount_dependencies", "挂载依赖", media_configuration.mount_dependencies),
-        ("facts", "运行信息", lambda: runtime_fact_entries(config)),
+        ("library_count", lambda: len(media_libraries.libraries(config))),
+        ("mount_dependencies", media_configuration.mount_dependencies),
+        ("facts", lambda: runtime_fact_entries(config)),
     )
-    for key, title, reader in readers:
-        _read_section(result, key, title, reader)
+    for key, reader in readers:
+        _read_section(result, key, reader)
     return result
 
 
@@ -368,17 +380,17 @@ def read_configuration(request: Request, _args=Depends(require_auth)):
     if not config.present:
         raise HTTPException(409, message_fields("api.configuration.setupRequired"))
     result = snapshot(config, getattr(request.app.state, "mount_reachability", None))
-    _read_section(result, 'network', '访问地址', lambda: network_payload(request, config))
+    _read_section(result, 'network', lambda: network_payload(request, config))
     sync = getattr(request.app.state, "sync", None)
     result["ledger_read_only"] = bool(sync is not None and sync.read_only)
-    _read_section(result, "api_token", "访问口令", lambda: api_token_payload(request))
-    _read_section(result, "certificate", "HTTPS 证书", lambda: certificate_payload(request))
-    _read_section(result, "tunnel", "公网入口", lambda: tunnel_payload(
+    _read_section(result, "api_token", lambda: api_token_payload(request))
+    _read_section(result, "certificate", lambda: certificate_payload(request))
+    _read_section(result, "tunnel", lambda: tunnel_payload(
         config, request.app.state.tunnel.snapshot(), config.tunnel.enabled))
-    _read_section(result, "automatic_updates", "自动更新", lambda: request.app.state.automatic_updates.snapshot())
+    _read_section(result, "automatic_updates", lambda: request.app.state.automatic_updates.snapshot())
     # 这一路已经过了 `local_only`，密钥可以给出来：用户要把它抄进 CloudDrive2。
-    _read_section(result, "push_discovery", "推送发现", lambda: push_discovery_payload(request))
-    _read_section(result, "downloads", "下载设置", lambda: web_downloads.settings_payload(*_downloads(request)))
+    _read_section(result, "push_discovery", lambda: push_discovery_payload(request))
+    _read_section(result, "downloads", lambda: web_downloads.settings_payload(*_downloads(request)))
     if result.get("automatic_updates", {}).get("result"):
         result["updates"] = result["automatic_updates"]["result"]
     return result
@@ -441,10 +453,10 @@ def install_media_tool(request: Request, body: dict = Body(...), _args=Depends(r
     same_origin(request)
     config = settings_file.load_config()
     try:
-        message = media_tools.install(config.directory("tools"), str(body.get("tool", "")))
+        receipt = media_tools.install(config.directory("tools"), str(body.get("tool", "")))
     except (ValueError, OSError) as exc:
         raise HTTPException(400, error_detail(exc)) from exc
-    return {"message": message, "facts": runtime_fact_entries(config)}
+    return {**receipt, "facts": runtime_fact_entries(config)}
 
 
 @router.post("/api/configuration/peach-proxy")
@@ -778,7 +790,7 @@ def relocate_storage(request: Request, body: dict[str, Any] = Body(default_facto
         return data_storage.request(config, body.get("target"))
     except ValueError as exc:
         raise HTTPException(400, {**message_fields("api.configuration.relocateRejected"),
-                                  "errors": {"target": str(exc)}}) from exc
+                                  **field_errors({"target": exc})}) from exc
     except Timeout as exc:
         raise HTTPException(409, message_fields("api.configuration.relocateBusy")) from exc
 
@@ -1070,14 +1082,14 @@ def _validate(body: dict[str, Any], config) -> tuple[dict[str, Any], dict[str, A
                                  locations=prepared.locations, mounts=prepared.mounts,
                                  media_costs=prepared.media_costs)
             except ValueError as exc:
-                problems = [str(exc)] * len(sources)
+                problems = [exc] * len(sources)
         names, icons = {}, {}
         if not problems:
             for index, row in enumerate(sources):
                 name = str(row.get("library", "")).strip()
                 if len(name) > 80 or any(ord(char) < 32 for char in name):
                     problems = [""] * len(body["media_sources"])
-                    problems[index] = "媒体库名称请使用 1 到 80 个可见字符"
+                    problems[index] = UserValueError("errors.mediaIdentity.libraryNameInvalid")
                     break
                 root = str(media_configuration.PureWindowsPath(row.get('root') or row['path']))
                 if name:
@@ -1086,7 +1098,7 @@ def _validate(body: dict[str, Any], config) -> tuple[dict[str, Any], dict[str, A
                 glyph = str(row.get("library_icon", ""))
                 if glyph and glyph not in LIBRARY_ICONS:
                     problems = [""] * len(body["media_sources"])
-                    problems[index] = "请选择列表中的媒体库图标"
+                    problems[index] = UserValueError("errors.mediaIdentity.libraryIconInvalid")
                     break
                 if glyph:
                     icons[root] = glyph
@@ -1104,7 +1116,7 @@ def _validate(body: dict[str, Any], config) -> tuple[dict[str, Any], dict[str, A
                                  library_names=prepared.library_names, library_icons=prepared.library_icons,
                                  media_costs=prepared.media_costs)
             except ValueError as exc:
-                problems = [str(exc)] * max(1, len(rows))
+                problems = [exc] * max(1, len(rows))
     if problems:
         errors["media_dirs"] = problems
     else:
@@ -1126,7 +1138,7 @@ def _validate_server(body, config):
             raise UserValueError("api.configuration.portManagedByTray")
         validated["port"] = port
     except ValueError as exc:
-        errors["port"] = str(exc)
+        errors["port"] = exc
     for field, validator in (('host', onboarding.validate_host), ('mdns_name', onboarding.validate_mdns_name)):
         if field not in body:
             continue
@@ -1139,12 +1151,12 @@ def _validate_server(body, config):
                 raise UserValueError('api.configuration.serverManagedByLaunch')
             validated[field] = value
         except ValueError as exc:
-            errors[field] = str(exc)
+            errors[field] = exc
     return errors, validated
 
 
 def _close_tunnel_without_password(request: Request) -> str:
-    """没有访问密码就不能留着公网入口；这里当场停掉并把开关写回关闭。
+    """没有访问密码就不能留着公网入口；这里当场停掉并把开关写回关闭。返回给用户那句话的 code，没停什么时为空串。
 
     启动前的检查挡不住这条路径：隧道是在有密码时起来的，密码被关掉之后它还在转发。
     """
@@ -1167,14 +1179,18 @@ def _close_tunnel_without_password(request: Request) -> str:
                     force=True,
                 )
     except (Timeout, OSError, ValueError):
-        return "临时远程链接已停止；设置文件未能写入，请在本机检查设置文件。"
-    return "已停止临时远程链接：没有访问密码时不保留公网入口。"
+        return "labels.configuration.tunnelStoppedUnsaved"
+    return "labels.configuration.tunnelStopped"
+
+
+def _field_failure(field: str, error: Exception) -> dict[str, Any]:
+    """总话与出错字段是同一句：明细带 code，字段底下写同一句，`error_codes` 里同一个 code。"""
+    detail = error_detail(error)
+    return {**(detail if isinstance(detail, dict) else {"message": detail}), **field_errors({field: error})}
 
 
 def _field_error(code: str, field: str) -> dict[str, Any]:
-    """总话与出错字段是同一句：明细带 code，字段底下写同一句兜底原文。"""
-    fields = message_fields(code)
-    return {**fields, "errors": {field: fields["message"]}}
+    return _field_failure(field, UserValueError(code))
 
 
 @router.post("/api/configuration/access")
@@ -1199,7 +1215,7 @@ def save_access(request: Request, body: dict[str, Any] = Body(default_factory=di
             access.validate_password(password, body.get("confirmation", ""))
         except ValueError as exc:
             field = "confirmation" if password != body.get("confirmation", "") else "password"
-            raise HTTPException(400, {"message": str(exc), "errors": {field: str(exc)}}) from exc
+            raise HTTPException(400, _field_failure(field, exc)) from exc
         path.parent.mkdir(parents=True, exist_ok=True)
         with FileLock(str(path.with_suffix(".lock")), timeout=0):
             policy = access.load(path)
@@ -1218,7 +1234,8 @@ def save_access(request: Request, body: dict[str, Any] = Body(default_factory=di
     if policy["mode"] != "password":
         notice = _close_tunnel_without_password(request)
         if notice:
-            payload["tunnel_notice"] = notice
+            payload["tunnel_notice"] = interface_text.text(f"server:{notice}")
+            payload["tunnel_notice_code"] = notice
     response = JSONResponse(payload, headers={"Cache-Control": "no-store"})
     response.delete_cookie("tok", path="/")
     response.delete_cookie(access.COOKIE, path="/")
@@ -1258,7 +1275,7 @@ def first_access(request: Request, body: dict[str, Any] = Body(default_factory=d
             access.validate_password(password, body.get("confirmation", ""))
         except ValueError as exc:
             field = "confirmation" if password != body.get("confirmation", "") else "password"
-            raise HTTPException(400, {"message": str(exc), "errors": {field: str(exc)}}) from exc
+            raise HTTPException(400, _field_failure(field, exc)) from exc
     try:
         with FileLock(str(path.with_suffix(".lock")), timeout=0):
             if access.load(path)["mode"] != "legacy":
@@ -1337,7 +1354,8 @@ def api_token_payload(request: Request) -> dict[str, Any]:
     reason = message_fields(fixed)["message"] if fixed else ""
     # 两台机器互取复核结果时发的是自己的口令，换了这边，另一台要换成同一份文件。
     paired = REPLICATION_ENABLED or bool(settings.review_writer_origin)
-    return {"rotatable": not fixed, "reason": reason, "paired": paired}
+    # `reason` 是 zh-CN 原句，`reason_code` 给页面按当前语言渲染。
+    return {"rotatable": not fixed, "reason": reason, "reason_code": fixed, "paired": paired}
 
 
 @router.post("/api/configuration/access/token/rotate")
@@ -1472,12 +1490,12 @@ def tunnel_changes(config, body: dict[str, Any]) -> dict[str, Any]:
             changes["hostname"] = tunnel.normalize_hostname(body["hostname"])
     except tunnel.TunnelError as exc:
         field = "mode" if "mode" in body and "mode" not in changes else "hostname"
-        raise HTTPException(400, {"message": str(exc), "errors": {field: str(exc)}}) from exc
+        raise HTTPException(400, _field_failure(field, exc)) from exc
     if body.get("token", "").strip():
         changes["token"] = body["token"].strip()
     mode = changes.get("mode") or (getattr(config.tunnel, "mode", "") or tunnel.QUICK_MODE)
     if mode == tunnel.NAMED_MODE and distribution.standalone():
-        raise HTTPException(400, tunnel.STANDALONE_NAMED_ERROR)
+        raise HTTPException(400, message_fields("errors.tunnel.standaloneQuickOnly"))
     return changes
 
 
@@ -1576,7 +1594,7 @@ def save_configuration(request: Request, body: dict[str, Any] = Body(default_fac
         errors, validated = _validate(body, config)
         if errors:
             # 400 的响应体带每个字段的原因：页面把它写回出错的那一行底下，不是弹一句总话。
-            raise HTTPException(400, {**message_fields("api.configuration.needsChanges"), "errors": errors})
+            raise HTTPException(400, {**message_fields("api.configuration.needsChanges"), **field_errors(errors)})
         paths = validated["media_dirs"]
         locations, mounts = dict(config.locations), dict(config.mounts)
         if "locations" in validated:
@@ -1593,7 +1611,7 @@ def save_configuration(request: Request, body: dict[str, Any] = Body(default_fac
             local_roots, local_mounts, problems = media_configuration.validate(sources, windows=False, config=config)
             if problems:
                 raise HTTPException(400, {**message_fields("api.configuration.needsChanges"),
-                                          "errors": {"media_dirs": problems}})
+                                          **field_errors({"media_dirs": problems})})
             locations["local"], mounts["local"] = local_roots["local"], local_mounts["local"]
             validated["library_names"] = {**config.library_names, **{
                 row["root"]: row["library"] for row in sources if row.get("library")}}

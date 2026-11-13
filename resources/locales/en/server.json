@@ -393,7 +393,9 @@
       "schedulingRepairs": "Scheduling automatic metadata updates",
       "paused": "Paused · {{stage}}",
       "pausing": "Pausing · {{stage}}",
-      "resumesAfterUpdate": "The task continues automatically after the update is installed."
+      "resumesAfterUpdate": "The task continues automatically after the update is installed.",
+      "pausedOnly": "Paused",
+      "pausingOnly": "Pausing"
     },
     "error": {
       "skippedBy": "Skipped: run {{run}} ({{trigger}}) was still in progress",
@@ -421,7 +423,11 @@
       "saveCandidates": "Saving metadata for review",
       "fetchCovers": "Fetching missing covers",
       "collectResults": "Wrapping up fetch results",
-      "finished": "Finished"
+      "finished": "Finished",
+      "startAll": "Preparing to process",
+      "startCollect": "Preparing to fetch metadata",
+      "startPreviews": "Preparing to generate preview images",
+      "startScan": "Preparing to scan files"
     },
     "backup": {
       "prepareBackup": "Preparing backup",
@@ -968,6 +974,10 @@
       "invalidMode": "Invalid capture density.",
       "previewsDisabled": "Preview generation is off. Turn it on in library preferences first.",
       "ffmpegMissing": "ffmpeg not found, so thumbnails can't be captured."
+    },
+    "mediaTools": {
+      "installed": "Installed {{label}} ({{version}})",
+      "alreadyInstalled": "{{label}} is already installed ({{version}}). No download needed."
     }
   },
   "errors": {
@@ -1062,7 +1072,8 @@
       "costRequired": "Choose a proxy data usage protection setting",
       "pathOverlaps": "Media path duplicates or overlaps another folder",
       "mappingOverlaps": "Directory mappings in the configuration file duplicate or overlap each other",
-      "directoryOverlaps": "Media directory duplicates or overlaps another row"
+      "directoryOverlaps": "Media directory duplicates or overlaps another row",
+      "rowCount": "Add 1 to 100 library directories"
     },
     "smbMedia": {
       "addressInvalid": "SMB address or port is invalid",
@@ -1126,14 +1137,17 @@
       "otherHost": "Do this on the primary computer that is running this task",
       "runFinished": "This task run has already finished",
       "cancelling": "The task is being canceled and can no longer be paused or resumed",
-      "shuttingDown": "The service is shutting down. Saved progress will resume later"
+      "shuttingDown": "The service is shutting down. Saved progress will resume later",
+      "runMissing": "Could not get the task. Refresh and try again."
     },
     "tasteHistory": {
       "snapshotTimeout": "Could not take a browser history snapshot. Quit the browser and read it again.",
       "takeoutNoActivity": "Takeout has no recognizable browsing or search activity",
       "takeoutHistoryListMissing": "Takeout Chrome History is missing the Browser History list",
       "takeoutHistoryRowInvalid": "Takeout Chrome History contains an invalid record",
-      "takeoutActivityUnparsed": "{{profile}} has activity records that could not be parsed: {{count}}"
+      "takeoutActivityUnparsed": "{{profile}} has activity records that could not be parsed: {{count}}",
+      "historyInUse": "The history file is in use. Quit that browser and read it again.",
+      "historyNotRead": "Browser history not found. Check the profile directory, or quit the browser and try again."
     },
     "localPoster": {
       "unreadable": "Could not read the companion image",
@@ -1550,7 +1564,8 @@
       "linkRejected": "PikPak does not accept this link: {{description}} ({{code}})",
       "taskRejected": "PikPak rejected this task: {{description}} ({{code}})",
       "noRemoteId": "This task has no PikPak task ID yet, so it cannot be canceled",
-      "signInFailed": "PikPak sign-in failed: {{description}} ({{code}})"
+      "signInFailed": "PikPak sign-in failed: {{description}} ({{code}})",
+      "offlineFailed": "The remote side rejected this task: PikPak reported that the cloud download failed"
     },
     "upgradeRepairs": {
       "invalidReceipt": "The post-update processing record is invalid",
@@ -1929,7 +1944,9 @@
       "mdnsNameInvalid": "Names can only use letters, digits and hyphens, and can't start or end with a hyphen.",
       "yesNo": "Enter y or n.",
       "tooManyAttempts": "No valid answer for \"{{prompt}}\" after {{attempts}} attempts.",
-      "inputEnded": "Input ended."
+      "inputEnded": "Input ended.",
+      "mediaDirDuplicate": "Duplicates {{other}} above",
+      "mediaDirNested": "Already inside {{other}}; no need to add it"
     },
     "pushDiscovery": {
       "badSegment": "✗ The cloud path has an unacceptable segment: {{segment}}",
@@ -1973,7 +1990,8 @@
       "nameTooLong": "Linked names can be up to 200 characters.",
       "nameRequired": "Enter a linked name.",
       "nameAmbiguous": "This name matches several identities or spellings. Use the canonical name from the profile page.",
-      "settingsMissing": "The current user settings don't exist."
+      "settingsMissing": "The current user settings don't exist.",
+      "planChanged": "The directory contents or credits have changed. Preview again."
     },
     "diagnosticExports": {
       "chooseKind": "Choose a diagnostics report or scraping records.",
@@ -1987,7 +2005,8 @@
       "checksumChanged": "The checksum of applied migration {{version}} has changed."
     },
     "followScheduler": {
-      "autoRunOff": "Automatic runs aren't turned on."
+      "autoRunOff": "Automatic runs aren't turned on.",
+      "feedWriterOnly": "Fetching feeds is available only on the primary computer"
     },
     "tasteBookmarks": {
       "tooLarge": "The bookmarks file is larger than 64 MB.",
@@ -1995,7 +2014,8 @@
       "invalidNode": "The bookmarks JSON contains an invalid node.",
       "invalidFolder": "The bookmarks JSON contains an invalid folder.",
       "unsupportedFile": "Choose an HTML bookmarks file exported from a browser, or a Chromium Bookmarks file.",
-      "unreadable": "Couldn't read the bookmarks file. Check the file format and import it again."
+      "unreadable": "Couldn't read the bookmarks file. Check the file format and import it again.",
+      "browserBookmarksNotRead": "Browser bookmarks not found. Check the profile directory, or quit the browser and try again."
     },
     "displayDimensionsRepair": {
       "notPrepared": "The display dimension re-measure record isn't ready yet.",
@@ -2231,10 +2251,10 @@
     "downloadsClouddrive": {
       "addressEmpty": "The CloudDrive2 address is empty",
       "noLocalAnswer": "No CloudDrive2 address is set, and nothing answered at {{tried}} on this device. Make sure CloudDrive2 is running, or enter its actual address",
-      "unreachable": "Cannot reach CloudDrive2 ({{action}}): {{details}}",
-      "tokenRejected": "CloudDrive2 rejected this API token ({{action}}): {{details}}",
-      "pathNotFound": "{{action}}: this path does not exist in CloudDrive2",
-      "callFailed": "{{action}} failed: {{details}}",
+      "unreachable": "Cannot reach CloudDrive2 while {{action}}: {{details}}",
+      "tokenRejected": "CloudDrive2 rejected this API token while {{action}}: {{details}}",
+      "pathNotFound": "Path not found in CloudDrive2 while {{action}}",
+      "callFailed": "Failed while {{action}}: {{details}}",
       "tokenMissing": "No CloudDrive2 API token is set yet",
       "folderMissing": "There is no {{path}} directory in CloudDrive2",
       "folderNotCreated": "CloudDrive2 did not create {{path}}: {{reason}}",
@@ -2243,7 +2263,8 @@
       "addressMissing": "No CloudDrive2 address is set yet. Use Check in Settings to detect the port on this device, then save",
       "offlineUnsupported": "The cloud drive that holds {{target}} does not support cloud downloads",
       "quotaUsedUp": "Cloud download quota used up ({{used}}/{{total}})",
-      "cancelUnsupported": "This cloud drive does not support canceling cloud downloads from Peach. Handle it in the cloud drive"
+      "cancelUnsupported": "This cloud drive does not support canceling cloud downloads from Peach. Handle it in the cloud drive",
+      "offlineFailed": "The remote side rejected this task: 115 reported that the cloud download failed, most likely because nobody is seeding or the resource was refused"
     },
     "routesMedia": {
       "imageTimedOut": "This image was not found: the request timed out",
@@ -2256,7 +2277,8 @@
       "codeCoverUnavailable": "Cannot get the cover for this code: {{error}}",
       "codeCoverTimedOut": "Could not get the cover for this code within {{seconds}} seconds. Try again later",
       "sourcePaused": "{{reason}}",
-      "sourceConnectionFailed": "Could not connect to the source. Check the source connection settings"
+      "sourceConnectionFailed": "Could not connect to the source. Check the source connection settings",
+      "avatarSourceUnavailable": "The avatar source is temporarily unavailable"
     },
     "webDownloads": {
       "credentialsUnreadable": "Cannot read the credentials file on this device. Enter them again in Settings: {{error}}",
@@ -2456,6 +2478,806 @@
       "deadlinePassed": "The media read passed its deadline",
       "readTimedOut": "Reading the media directory or sidecar files timed out and was skipped. You can retry",
       "readerFailed": "The media reader process didn't finish"
+    },
+    "webStats": {
+      "tasteNotFound": "Taste analysis not found",
+      "tasteReadStopped": "Taste reading stopped"
+    },
+    "webBatch": {
+      "changedDuringQuarantine": "The file changed while it was being backed up",
+      "pathUnmapped": "The media path is not mapped to an accessible mount directory",
+      "storageOffline": "The storage is not mounted or cannot be read"
+    },
+    "webFeeds": {
+      "checkStopped": "Subscription check stopped"
+    },
+    "webFollow": {
+      "checkStopped": "Follow check stopped",
+      "resolveStopped": "Follow source search stopped"
+    },
+    "webLibraryProcessing": {
+      "recoveryFailed": "The task could not resume automatically: {{reason}}",
+      "recoveryFailedRestart": "The task could not resume automatically: start it again"
+    },
+    "webLinks": {
+      "checkStopped": "Link check stopped",
+      "pruneStopped": "Link cleanup stopped"
+    },
+    "webMediaRepair": {
+      "repairStopped": "Media repair stopped",
+      "scanStopped": "Media check stopped"
+    },
+    "webOrganize": {
+      "rollbackStopped": "Organize rollback stopped",
+      "stopped": "Organizing stopped"
+    },
+    "webResourceSync": {
+      "cacheCleanupStopped": "Cache cleanup stopped",
+      "cleanupStopped": "Resource cleanup stopped",
+      "scanStopped": "Resource check stopped"
+    },
+    "webScraping": {
+      "candidateChecksFailed": "The candidate covers failed the checks.",
+      "downloadFailed": "Downloading or verifying the candidate cover failed; no image could be saved.",
+      "noCoverCandidates": "The source returned no cover candidates for this code, so it can't tell whether an HD version exists.",
+      "sourceAccessDenied": "The source denied access (HTTP {{status}}). Check the sign-in or source verification status.",
+      "sourceConnectionFailed": "Couldn't connect to the source, so the cover comparison didn't finish. Check the source connection settings.",
+      "sourceServerError": "The source had a server error (HTTP 5xx). Try again later.",
+      "unusableCandidate": "The candidate covers failed the checks: the image wasn't found, couldn't be decoded, or is narrower than 700px."
+    },
+    "webWants": {
+      "scrapeStopped": "Want metadata task stopped"
+    },
+    "webFolders": {
+      "rulesChanged": "The directory rules have changed. Open the settings again."
+    },
+    "webTasks": {
+      "runMissing": "Task run {{run_id}} does not exist"
+    }
+  },
+  "jobMessage": {
+    "tasteHistory": {
+      "readingProfile": "Reading browsing history: profile {{index}} of {{total}}, {{count}} entries read",
+      "preparingSnapshot": "Preparing browser snapshot: profile {{index}} of {{total}}",
+      "analyzing": "Analyzing browsing history: {{checked}} of {{total}} entries processed",
+      "reporting": "Writing the taste report and candidate lists"
+    },
+    "tasteBookmarks": {
+      "reading": "Reading browser bookmarks"
+    },
+    "webStats": {
+      "partialHistory": "Some browsing history not found",
+      "analysisUpdated": "Taste analysis updated",
+      "findingProfiles": "Looking for browser profiles on the Peach host",
+      "summarizing": "Summarizing taste dimensions, tags, and creator rankings"
+    },
+    "standaloneUpdate": {
+      "interrupted": "The update was interrupted. Try again.",
+      "downloadingTool": "Downloading the {{tool}} tool package",
+      "verifyingTool": "Verifying the {{tool}} tool package",
+      "verifying": "Verifying",
+      "extracting": "Extracting",
+      "downloading": "Downloading",
+      "reusingTools": "Reusing and verifying installed tools",
+      "packageUnusable": "The update package cannot be used ({{error}}); downloading the full package instead",
+      "preparingInstall": "Preparing to install",
+      "ready": "The update is ready and installs after a restart.",
+      "connecting": "Connecting to the release source",
+      "savingTasks": "Saving task progress, then restarting to install",
+      "restartFailed": "Could not restart: {{error}}",
+      "updatingDatabase": "Updating the local database",
+      "preflightFailed": "The install check failed; the program and database were not changed: {{error}}",
+      "keepingOld": "Keeping the previous version",
+      "installing": "Installing the new version",
+      "starting": "Starting the new version",
+      "complete": "Updated to {{version}}",
+      "failedRestored": "The update failed and the previous version was restored: {{error}}",
+      "rollbackIncomplete": "The update failed and the rollback did not finish: {{error}}",
+      "notInstalled": "The update was not installed: {{error}}",
+      "databaseRestoreIncomplete": "The update failed and the database restore did not finish: {{error}}"
+    },
+    "webFollow": {
+      "resolveDone": "Searching follow sources: all {{total}} sources checked",
+      "resolvePreparing": "Preparing to search follow sources",
+      "resolveProgress": "Searching follow sources: source {{current}}/{{total}} · {{provider}}",
+      "resolveProgressLines": "Searching follow sources: source {{current}}/{{total}} · {{provider}} (line {{line}}/{{lines}})"
+    },
+    "webJavDiscovery": {
+      "byteBudget": "Data usage budget for this round is used up",
+      "cancelled": "Metadata read canceled",
+      "cancelling": "Canceling the metadata read",
+      "complete": "Video metadata read",
+      "reading": "Reading video metadata",
+      "requestBudget": "Request budget for this round is used up",
+      "sourceCooldown": "The source is temporarily unavailable; reading stopped",
+      "stopped": "Stopped reading video metadata",
+      "timeBudget": "Time budget for this round is used up",
+      "unfetched": "Video metadata not found"
+    },
+    "webLinks": {
+      "prunePreparing": "Checking the list of broken links",
+      "recheckDone": "Recheck finished: {{confirmed}} to remove, {{recovered}} kept",
+      "recheckProgress": "Rechecking broken links: {{checked}} / {{total}} checked"
+    },
+    "webResourceSync": {
+      "checkingCache": "Checking the list of rebuildable cache files",
+      "cleaningCache": "Cleaning up cache: {{checked}} / {{total}} processed",
+      "processingRecords": "Processing missing records",
+      "recheckingRecords": "Rechecking missing records one by one",
+      "removingEmptyFolders": "Deleting empty folders",
+      "tidyingCache": "Tidying cache directories and totaling freed space"
+    }
+  },
+  "labels": {
+    "listSeparator": ", ",
+    "runtimePrepare": {
+      "writer": {
+        "standalone": "replication.enabled = false, acting as the only primary computer",
+        "noDeviceId": "This device has no device-id, so it cannot tell whether it is the primary computer",
+        "noWriter": "No primary computer can be verified",
+        "otherWriter": "The primary computer is {{owner}}; this device is read-only",
+        "thisDevice": "This device is the primary computer"
+      }
+    },
+    "standaloneUpdate": {
+      "updatePackage": "Update package",
+      "fullPackage": "Full package"
+    },
+    "downloadNamed": "Download {{name}}",
+    "onboarding": {
+      "hostOption": {
+        "thisDevice": "This device only",
+        "lan": "Devices on the same LAN"
+      },
+      "prompt": {
+        "dataRoot": "Data directory (holds the Peach database, cache and settings file)",
+        "mediaDir": "Media directory (must already exist; can be on an external drive)",
+        "moreMediaDir": "Add another media directory (press Enter to skip)",
+        "host": "Who can connect: 1 = {{thisDevice}}, 2 = {{lan}}",
+        "port": "Port",
+        "mdnsName": "LAN address (<name>.local, published only when LAN access is allowed)",
+        "scan": "Scan {{target}} now? "
+      },
+      "scanTargetCount": "these {{count}} folders",
+      "retryReport": "{{reason}} ({{remaining}} attempts left)",
+      "requiredMark": " (required)",
+      "notFilled": "(not filled in yet)",
+      "mountsExplanation": "The Peach database stores video paths in Windows format with the prefixes {{roots}}. The actual media directories are {{shown}}, saved in the same order under [media.mounts] local and converted automatically before files are read."
+    },
+    "runtimeFacts": {
+      "version": "Version",
+      "os": "Operating system",
+      "dataRoot": "Data directory",
+      "settingsFile": "Settings file",
+      "logs": "Log directory",
+      "available": "Available",
+      "ffmpegNotInstalled": "Not installed. MP4 files play directly; transcoding and thumbnails need FFmpeg.",
+      "untruncNotInstalled": "Not installed. It's needed to repair MP4 files with a missing index.",
+      "untruncExtractTo": "Not installed. It's needed to repair MP4 files with a missing index. Extract it to {{path}}.",
+      "installedVersion": "Installed, version {{version}}",
+      "installedInDataRoot": "Installed in the data directory",
+      "ffmpegToolMissing": "{{tool}} not found. Transcoding, media info and thumbnails need the FFmpeg tools.",
+      "ffmpegToolsMissing": "{{first}} and {{second}} not found. Transcoding, media info and thumbnails need the FFmpeg tools."
+    },
+    "configuration": {
+      "fileManagedNotice": "This deployment's service is managed by its settings file. Edit the settings file below on this device.",
+      "sectionUnavailable": "{{section}}: not found",
+      "sectionRetry": "Reload. If it keeps failing, export a diagnostics report.",
+      "tunnelStoppedUnsaved": "The temporary remote link stopped, but the settings file couldn't be written. Check the settings file on this device.",
+      "tunnelStopped": "Stopped the temporary remote link: remote access isn't kept without an access password.",
+      "section": {
+        "remoteReporting": "Diagnostics settings",
+        "librarySharing": "Collection upload settings",
+        "startup": "Startup settings",
+        "uninstall": "Uninstall details",
+        "storage": "Storage space",
+        "peachProxy": "Peach proxy",
+        "entryLinks": "External links",
+        "updates": "Updates",
+        "updateJob": "Update task",
+        "access": "Access settings",
+        "mediaSources": "Media directories",
+        "libraryCount": "Library status",
+        "mountDependencies": "Mount dependencies",
+        "facts": "Runtime info",
+        "network": "Access addresses",
+        "apiToken": "Access token",
+        "certificate": "HTTPS certificate",
+        "tunnel": "Remote access",
+        "automaticUpdates": "Automatic updates",
+        "pushDiscovery": "Push discovery",
+        "downloads": "Download settings"
+      }
+    },
+    "followScheduler": {
+      "runtimeUnavailable": "Status of the last automatic check was not found",
+      "sourcesFailed": "{{count}} sources failed to check"
+    },
+    "webAutoLandings": {
+      "fieldOriginalTitle": "Original title",
+      "fieldPerformers": "Performers",
+      "fieldReleaseDate": "Release date",
+      "fieldSeries": "Series",
+      "fieldStudio": "Label",
+      "fieldTags": "Content tags",
+      "fieldTitle": "Title",
+      "fieldUnionTags": "Tags",
+      "ruleVerifiedReplace": "Official sources agree; replaced the old value",
+      "ruleVerifiedUnion": "Added the extra tags from sources"
+    },
+    "webBatch": {
+      "changedDuringDelete": "This item changed during deletion",
+      "stillOnDisk": "The file is still on disk"
+    },
+    "webFeeds": {
+      "cooling": "The source is cooling down; not fetched this round",
+      "deferredRest": "The other {{count}} feeds will be fetched after the cooldown",
+      "sourceCooling": "{{source}} is cooling down; not fetched this round"
+    },
+    "webFollow": {
+      "nameContainsEvidence": "One normalized name contains the other; confirm manually",
+      "profileLinkEvidence": "The first post on {{provider}} links the creator profile to {{service}}/{{handle}}",
+      "sharedOfflineNote": "The shared drive is unavailable, so only the copy on this device was removed. Remove it again when the drive is back, or it will sync back.",
+      "suggestArchive": "Creators on archive sites",
+      "suggestFollowed": "Following",
+      "suggestTag": "Rule34.xxx tags",
+      "suggestTagArtist": "Creators on Rule34.xxx"
+    },
+    "webJavDetail": {
+      "anonymousUser": "Anonymous"
+    },
+    "webLinks": {
+      "unreachable": "Unreachable: {{reason}}"
+    },
+    "webReview": {
+      "commentVotes": "Comment marks {{votes}}",
+      "coverNoCandidates": "Not found: no source had a candidate",
+      "coverUnfetched": "Not found: {{reason}}",
+      "currentNone": "Current value: none",
+      "currentNoneOwned": "Current value: none ({{owner}})",
+      "currentValue": "Current value: {{value}}",
+      "currentValueOwned": "Current value: {{value}} ({{owner}})",
+      "durationDelta": "Duration differs by {{seconds}} s",
+      "equivalents": "Same as {{codes}}",
+      "evidenceInsufficient": "The selected metadata lacks enough evidence",
+      "evidenceKinds": "Evidence {{kinds}}",
+      "fc2Collection": "Compilation with {{count}} independent parts; no cover is applied, and each part falls back to its own thumbnail",
+      "matchedAssets": "{{count}} matching files",
+      "metadataSources": "{{count}} metadata sources",
+      "sameCodeAssets": "{{count}} files with the same code",
+      "seller": "Seller {{seller}}",
+      "separator": "; ",
+      "sharedPerformers": "Shared performers {{names}}",
+      "sizeDelta": "Size differs by {{percent}}%",
+      "tokenOverlap": "Token overlap {{overlap}}",
+      "videos": "{{count}} videos",
+      "westernMatch": "{{verdict}} → {{name}}",
+      "westernMatchSpelling": "{{verdict}} → {{name}} (spelled {{variant}})"
+    },
+    "webScraping": {
+      "compareIncompleteMobileHint": ", so the cover comparison didn't finish. On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.",
+      "coverSaved": "HD cover saved",
+      "diagnosticDimensionMismatch": " Full image size didn't match the probe: {{count}}",
+      "diagnosticDownloadFailed": " Full downloads failed: {{count}}",
+      "diagnosticInvalidImage": " Images that couldn't be decoded: {{count}}",
+      "diagnosticPlaceholder": " \"Coming soon\" placeholders: {{count}}",
+      "diagnosticProbeFailed": " Image header requests failed: {{count}}",
+      "diagnosticSeparator": ";",
+      "diagnosticTooSmall": " Images narrower than 700px: {{count}}",
+      "instagramPending": "Automatic Instagram avatar lookup still needs to be verified with a separate signed-in session",
+      "kept": " The existing image was kept.",
+      "keptAfterDetails": ". The existing image was kept.",
+      "keptLocalNoBetter": "Cover on this device is {{localWidth}} × {{localHeight}}, the best source cover is {{width}} × {{height}}; kept the cover on this device. No larger or better cover was found.",
+      "keptLocalPartial": "Cover on this device is {{localWidth}} × {{localHeight}}, the best source cover is {{width}} × {{height}}; kept the cover on this device. Some sources couldn't be reached, so not all of them were compared.",
+      "period": ".",
+      "reusedCover": "Reused the cover on this device verified within 24 hours ({{width}} × {{height}}); the source wasn't asked again."
+    },
+    "downloads": {
+      "postprocessRetrying": "Waiting to retry automatically ({{retries}}/{{limit}})",
+      "postprocessRetriesExhausted": "Still not finished after {{retries}} automatic retries; {{detail}}",
+      "postprocessRequeued": "Waiting to process again",
+      "reconcileUnexpected": "An unexpected error occurred while checking the task. Trying again later",
+      "settingsUnreadable": "Cannot read the cloud download settings. Check the settings file or enter them again.",
+      "settingsMalformed": "The cloud download settings have an invalid format. Check the settings file or enter them again.",
+      "settingsInvalid": "The cloud download settings contain invalid values. Check the target directory and the wait limit."
+    },
+    "downloadsClouddrive": {
+      "permission": {
+        "addOffline": "Submit cloud download tasks",
+        "listOffline": "View cloud download tasks and quota",
+        "modifyOffline": "Cancel cloud download tasks"
+      },
+      "no115Prefix": "No 115 target directory is set, and none of the prefixes in Push discovery ({{known}}) are on 115. Add the 115 mount root in CloudDrive2 to the Push discovery card, then check again, or enter a target directory directly",
+      "noPrefixes": "No 115 target directory is set, and Push discovery has no cloud path prefixes. In the Push discovery card, add the 115 mount root in CloudDrive2 and its library directory, then check again, or enter a target directory directly",
+      "noPikpakRootPrefix": "No library directory is chosen for the PikPak root, and Push discovery has no PikPak root prefix to suggest one. Choose it in the list, or add the PikPak mount root in the Push discovery card",
+      "action": {
+        "verifyToken": "checking the API token",
+        "findTarget": "finding the target directory",
+        "refreshLanding": "refreshing the landing directory",
+        "readQuota": "checking the cloud download quota",
+        "listOffline": "listing cloud download tasks",
+        "createFolder": "creating the directory",
+        "submitOffline": "submitting the cloud download task",
+        "cancelOffline": "canceling the cloud download task",
+        "findLandedFile": "looking for files in the target directory",
+        "findPrefix": "looking up the Push discovery cloud path prefix",
+        "readProxy": "reading the cloud drive proxy",
+        "readAccounts": "reading cloud drive accounts",
+        "saveProxy": "saving the cloud drive proxy",
+        "readMountPoints": "reading mount points",
+        "readLibraryMounts": "reading library mount points",
+        "readCacheDir": "reading the cache directory"
+      }
+    },
+    "downloadsChannels": {
+      "clouddriveTokenUnreadable": "Cannot read the CloudDrive2 token. Enter it again.",
+      "pikpakSignInUnreadable": "Cannot read the PikPak sign-in. Sign in again.",
+      "tokenNeedsOffline": "The CloudDrive2 token needs permission to submit and view cloud download tasks.",
+      "libraryCapabilityUnavailable": "Could not get cloud download support for {{name}}.",
+      "clouddriveCapabilityUnavailable": "Could not get CloudDrive2 cloud download support. Check the connection and the token.",
+      "libraryNotMapped": "{{name}} is not linked to a cloud directory yet. Check the mounts or the Push discovery settings."
+    },
+    "downloadsPikpakBrowser": {
+      "waiting": "The browser window is open. Sign in to PikPak there",
+      "cancelled": "Browser sign-in canceled",
+      "notOpened": "The browser did not open: {{error}}",
+      "failed": "Browser sign-in failed: {{type}}",
+      "windowClosed": "The browser window was closed before sign-in finished",
+      "done": "Signed in to PikPak with the browser",
+      "timeout": "Sign-in did not finish within {{minutes}} minutes, so the window was closed. Click Sign in with browser to try again"
+    },
+    "folderRules": {
+      "conflict": {
+        "differentOwner": "Already credited to someone else",
+        "perItemConfirmed": "Already confirmed one by one",
+        "differentIdentity": "Already linked to a different identity",
+        "ownerRejected": "This credit was already rejected",
+        "childRule": "Managed by a subdirectory rule"
+      }
+    },
+    "routesMedia": {
+      "defaultPlayer": "System default player",
+      "subtitle": {
+        "outsideFolder": "Not in the video's directory",
+        "tooLarge": "File too large",
+        "notFound": "File not found",
+        "imageBased": "Image-based subtitles aren't shown in the player",
+        "encodingUnknown": "Encoding not recognized"
+      }
+    },
+    "avatarPicker": {
+      "source": {
+        "gallery": "Gallery",
+        "expoDirectory": "Expo directory",
+        "socialProfile": "Social profile",
+        "onlineVideo": "Online video",
+        "videoCover": "Video cover",
+        "coverFace": "Face from cover",
+        "officialSite": "Official site",
+        "picked": "Picked by you",
+        "fetched": "Previously fetched",
+        "videoStill": "Video still",
+        "codeCover": "Cover by code",
+        "address": "URL",
+        "thisDevice": "This device"
+      },
+      "sourceUnknown": "Source not recorded",
+      "named": "{{name}}",
+      "galleryCategory": "Gallery · {{category}}",
+      "imageAddress": "Image URL · {{host}}",
+      "cropped": "{{label}} · Cropped",
+      "assetFallback": "Video {{id}}",
+      "standIn": "Still from a representative video, not this person",
+      "standInWithTitle": "Still from a representative video, not this person · {{title}}"
+    },
+    "mediaTools": {
+      "unknownVersion": "unknown version",
+      "toolPackage": "Tool package"
+    },
+    "taskResults": {
+      "kind": {
+        "check": "Check failed",
+        "backfill": "Recheck failed"
+      },
+      "noResult": "The source returned no check result"
+    },
+    "desktopStartup": {
+      "noDesktop": "This system doesn't provide desktop shortcuts.",
+      "desktopFailed": "{{error}}",
+      "desktopUnknown": "Desktop shortcut status not found",
+      "noLoginItem": "This system doesn't provide launch at login.",
+      "trayMissing": "The tray launcher on this device wasn't found.",
+      "startupUnknown": "Startup item status not found"
+    },
+    "desktopUninstall": {
+      "manual": "On this system, quit Peach first, then remove the program and data directories manually.",
+      "macos": "Turn off launch at startup and quit Peach, then move Peach from Applications to the Trash. For a full uninstall, also delete the data directories below.",
+      "accepted": "Uninstalling. Peach will quit. You can close this page when it's done."
+    },
+    "backgroundIssues": {
+      "pushDiscovery": {
+        "title": "Couldn't add newly found files automatically",
+        "link": "Open push settings"
+      },
+      "pushDiscoveryWatch": {
+        "title": "Watching directories on this device isn't running",
+        "link": "Open push settings"
+      },
+      "downloads": {
+        "title": "Couldn't reconcile {{count}} cloud download tasks for now",
+        "link": "View cloud downloads"
+      },
+      "followSchedule": {
+        "title": "Automatic follow check failed",
+        "link": "Open follow schedule"
+      },
+      "feedSchedule": {
+        "title": "Automatic feed fetch failed",
+        "link": "Open feed schedule"
+      },
+      "tunnel": {
+        "title": "Public access connection failed",
+        "link": "Open public access settings"
+      },
+      "librarySharing": {
+        "title": "Library sharing upload failed",
+        "link": "Open data upload settings"
+      },
+      "automaticUpdates": {
+        "title": "Automatic update ran into an error",
+        "link": "Open automatic update settings"
+      },
+      "amaneBridge": {
+        "title": "amane bridge isn't installed",
+        "link": "Open amane settings"
+      },
+      "network": {
+        "title": "Network unreachable",
+        "link": "Open Peach proxy settings"
+      },
+      "faceModels": {
+        "title": "Face model download failed",
+        "link": "View the failed run"
+      }
+    },
+    "metadataAmane": {
+      "rebuilt": "Rebuilt the amane bridge at {{revision}}",
+      "bundled": "The scraping tools come with Peach. Nothing else to prepare.",
+      "ready": "The amane runtime is ready."
+    }
+  },
+  "taste": {
+    "items": "{{items}}",
+    "category": {
+      "feet": "Feet",
+      "animation": "3D/Animation",
+      "cosplay": "Uniforms/Cosplay",
+      "breasts": "Breasts",
+      "oral": "Oral",
+      "glans": "Glans/Urethra",
+      "asmr": "ASMR/Audio",
+      "gameDoujin": "Game doujin",
+      "leaks": "Leaks/Amateur"
+    },
+    "evidence": {
+      "watched": "Watching and feedback",
+      "collection": "Collection",
+      "browsing": "Browsing history",
+      "bookmarks": "Browser bookmarks",
+      "follows": "Following",
+      "peach": "Peach"
+    },
+    "headline": {
+      "browserAndPeach": "Your browsing centers on {{category}}, and {{tags}} show up steadily in Peach.",
+      "browserOnly": "Your browsing currently centers on {{category}}; Peach has little watching evidence so far.",
+      "peachOnly": "Your watching in Peach currently centers on {{tags}}.",
+      "notEnough": "Not enough evidence yet for a stable taste conclusion."
+    },
+    "point": {
+      "browsing": "Browsing focus",
+      "peach": "Confirmed in Peach",
+      "shared": "Shared signals",
+      "unverified": "To verify"
+    },
+    "confidence": {
+      "high": "High confidence",
+      "medium": "Medium confidence",
+      "early": "Still learning"
+    },
+    "explore": {
+      "title": "Discover {{tag}}",
+      "corroborated": "{{signals}} browsing signals · {{items}} videos in collection · Confirmed by watching",
+      "uncorroborated": "{{signals}} browsing signals · {{items}} videos in collection · Not yet confirmed by watching"
+    },
+    "next": {
+      "follow": "Follow creators you visit often",
+      "review": "Fill in collection evidence",
+      "reviewDetail": "{{untagged}} need tags · {{unidentified}} need identities",
+      "feedback": "Rate videos in your collection",
+      "feedbackDetail": "{{liked}} liked · {{disliked}} disliked"
+    },
+    "flow": {
+      "otherSites": "Other sites",
+      "otherCreators": "Other creators"
+    },
+    "dimension": {
+      "performer": "Performer preference",
+      "creator": "Creator preference",
+      "tag": "Tag preference",
+      "studio": "Label preference",
+      "series": "Series preference",
+      "era": "Release era preference",
+      "length": "Length preference"
+    },
+    "reason": {
+      "line": "{{dimension}}: {{names}} ({{sources}})",
+      "nearDistribution": "close to what you collect and watch"
+    },
+    "refreshWarning": "{{browser}} · {{profile}}: {{reason}}",
+    "volume": {
+      "system": {
+        "name": "System drive",
+        "numbered": "System drive {{index}}"
+      },
+      "local": {
+        "name": "Media drive",
+        "numbered": "Media drive {{index}}"
+      },
+      "115": {
+        "name": "115 cloud drive",
+        "numbered": "115 cloud drive {{index}}"
+      },
+      "pikpak": {
+        "name": "PikPak cloud drive",
+        "numbered": "PikPak cloud drive {{index}}"
+      }
+    },
+    "qualityBand": {
+      "low": "Low quality"
+    },
+    "report": {
+      "title": "Browsing history taste analysis",
+      "generatedAt": "Generated: {{time}}",
+      "range": "Range: {{start}} to {{end}}",
+      "none": "none",
+      "visits": "Visits: {{count}}",
+      "bookmarks": "Browser bookmarks: {{count}}",
+      "sources": "Sources: {{count}}",
+      "privacy": "Privacy: the report contains no full URLs, page titles, or raw searches. Every conclusion is a candidate.",
+      "candidate": "Candidate",
+      "signals": "Signals",
+      "nothingExtracted": "None extracted",
+      "section": {
+        "categories": "Taste dimension candidates",
+        "tags": "Tag candidates",
+        "creators": "Creator candidates",
+        "domains": "Top domains"
+      }
+    }
+  },
+  "tray": {
+    "listSeparator": ", ",
+    "clauseSeparator": "; ",
+    "menu": {
+      "tooltip": "Peach",
+      "open": "Open Peach",
+      "reopenSetup": "Reopen setup",
+      "configure": "Settings",
+      "status": "Status: {{status}}",
+      "address": "Address: {{url}}",
+      "fullConfiguration": "View all settings",
+      "syncSource": "Sync development changes",
+      "syncLedger": "Sync database",
+      "takeOwnership": "Make this device the primary computer",
+      "restart": "Restart services",
+      "logs": "View logs",
+      "diagnostics": "Export diagnostics report",
+      "versions": "Version and updates",
+      "checkUpdates": "Check for updates",
+      "quit": "Quit Peach"
+    },
+    "title": {
+      "ledger": "Peach database",
+      "ledgerFailed": "Peach database sync failed",
+      "diagnostics": "Peach diagnostics report",
+      "versions": "Peach version and updates",
+      "sourceSync": "Peach development changes",
+      "sourceSyncFailed": "Peach development sync failed",
+      "startFailed": "Peach failed to start"
+    },
+    "health": {
+      "notChecked": "Not checked",
+      "statusCode": "Status code {{code}}",
+      "noResponse": "No response",
+      "stopped": "Stopped",
+      "ok": "OK",
+      "okDetail": "OK ({{detail}})",
+      "failed": "Error",
+      "failedDetail": "Error ({{detail}})",
+      "starting": "Starting"
+    },
+    "status": {
+      "running": "Running",
+      "partial": "Some services have errors",
+      "down": "Services are not running",
+      "withWarnings": "{{state}} · {{count}} warnings",
+      "waitingSetup": "Waiting for first-time setup"
+    },
+    "readiness": {
+      "configured": "Not set up",
+      "web": "Web page files are missing",
+      "database": "The database cannot be opened",
+      "schema": "The database structure does not match the migrations",
+      "noResponse": "{{service}} readiness check did not respond ({{error}})",
+      "notReady": "{{service}} is not ready: {{detail}}"
+    },
+    "ledger": {
+      "undecidable": "Not synced: could not determine the database state ({{error}})",
+      "notTakenOver": "Not taken over: {{reason}}. Mount the drive that holds the shared copy first.",
+      "notSynced": "Not synced: {{reason}}",
+      "result": "Database sync: {{action}} · {{reason}}",
+      "replicationOff": "Not synced: replication.enabled = false, this device does not replicate the database",
+      "external": "Not synced: the {{services}} services are not managed by this tray",
+      "noOutput": "Database sync produced no output",
+      "startFailed": "Database sync could not start: {{error}}",
+      "notRecovered": "{{output}}; services did not recover within 20 seconds",
+      "stoppingForSync": "Stopping services safely and syncing…",
+      "stoppingForTakeover": "Stopping services safely and taking over writes…",
+      "decidingForSync": "Checking the database state and syncing…",
+      "decidingForTakeover": "Checking the database state and taking over writes…"
+    },
+    "setup": {
+      "loaded": "Settings loaded, starting services: {{url}}",
+      "scanFailed": "The first scan could not start: {{error}}",
+      "scanStarted": "The first scan started in the background; progress is written to {{path}}"
+    },
+    "prepare": {
+      "noOutput": "Exit code {{code}}, no output",
+      "frozen": "The packaged app does not load the project venv; the restart script checks dependencies",
+      "noLock": "No uv.lock: {{path}}",
+      "noVenv": "No project venv: {{path}}",
+      "noUv": "uv not found in PATH or the winget install directory",
+      "uvFailed": "uv could not run: {{error}}",
+      "dependenciesCurrent": "The project venv matches uv.lock",
+      "checkFailed": "Dependency check failed: {{output}}",
+      "stale": "The project venv does not match uv.lock; {{count}} packages to install",
+      "staleListed": "The project venv does not match uv.lock; {{count}} packages to install: {{packages}}",
+      "staleMore": "The project venv does not match uv.lock; {{count}} packages to install: {{packages}} and more",
+      "syncFailed": "uv sync failed: {{output}}",
+      "synced": "Dependencies synced with uv.lock ({{check}}, took {{seconds}} s)",
+      "databaseMissing": "Database not found: {{path}}",
+      "notMigrating": "No migration: {{reason}}",
+      "migrateStartFailed": "Migration could not start: {{error}}",
+      "statusFailed": "migrate status failed: {{output}}",
+      "statusNoPending": "migrate status did not report pending migrations: {{output}}",
+      "migrationsCurrent": "The database structure is up to date",
+      "upgradeFailed": "Running {{count}} pending migrations failed; the database directory has a pre-migration backup: {{output}}",
+      "appliedVersions": "Applied migrations {{versions}}, pre-migration backup {{backup}}",
+      "appliedCount": "Applied {{count}} migrations, pre-migration backup {{backup}}",
+      "notObtained": "Not found",
+      "tasksUnreadable": "Restart refused: the task table cannot be read ({{error}}); add --force once no task is running",
+      "tasksBlocking": "Restart refused: these tasks cannot resume after a restart: {{tasks}}; wait for them to finish, or add --force",
+      "noTaskTable": "The database has no task table to check yet: {{error}}",
+      "venvInUse": "Restart refused: {{reason}}, but these processes still use the project venv: PID {{pids}}; stop them before restarting",
+      "ready": "Services are ready",
+      "stillStarting": "Services are still starting; check the tray status",
+      "notStarted": "Services could not start; check the tray status and logs",
+      "staleHint": "{{message}}; choose Restart services in the tray to restart the whole tray and sync dependencies"
+    },
+    "restart": {
+      "syncing": "{{reason}}; restarting the whole tray to sync dependencies…",
+      "spawnFailed": "The full tray restart could not start ({{error}}); restarting only the services.",
+      "pending": "The full tray restart has no result yet; see tray-restart.out.log.",
+      "exitCode": "exit code {{code}}",
+      "incomplete": "The full tray restart did not finish: {{message}}. Restarting only the services.",
+      "stillStarting": "Services are still starting; check the tray status.",
+      "notRecovered": "Services did not recover within 20 seconds; check the logs.",
+      "notRecoveredProblems": "Services did not recover within 20 seconds; check the logs; {{problems}}.",
+      "withProblems": "Services restarted, but {{problems}}",
+      "strayServices": "Restart refused: the old tray owns only {{count}} services, and serve processes it does not manage hold the ports (PID {{pids}}); restarting the tray cannot replace them",
+      "stopMessageFailed": "Could not send the stop message to the tray",
+      "oldTrayStillRunning": "The tray did not exit in time; it was not killed and no new tray was started",
+      "oldServicesStillRunning": "The old tray exited, but its services did not exit in time; no new tray was started",
+      "newTrayExited": "The new tray exited with code {{code}}",
+      "newTrayMissing": "The new tray window did not appear in time",
+      "newTrayServices": "The new tray (PID {{pid}}) started but owns only {{count}} services: processes it does not manage may hold the ports",
+      "rollbackFailed": "{{reason}}; rollback failed and the production entry point is left on the new binary: {{error}}",
+      "rolledBackNotStarted": "{{reason}}; rolled back to the backup, but the old tray did not start either",
+      "rolledBack": "{{reason}}; rolled back to the backup and reopened the old tray",
+      "notPrepared": "{{result}}, but the runtime environment is not ready: {{note}}",
+      "targetInvalid": "Restart refused: the entry point is missing or is not Peach.exe: {{path}}",
+      "serviceMissing": "Restart refused: the service entry point is missing: {{path}}",
+      "windowNotUnique": "Restart refused: no single Peach tray window with a matching path was found",
+      "swapFailed": "Replacing the binary failed; the old tray was reopened as is: {{error}}",
+      "swapFailedNotStarted": "Replacing the binary failed, and the old tray could not be reopened: {{error}}",
+      "restarted": "The tray restarted normally and owns the HTTP/HTTPS services again",
+      "sourceWindowNotUnique": "Restart refused: no single source tray window with a matching command line was found",
+      "notSourceTray": "Restart refused: the tray window's command line has no peach.tray, so restarting it as is would start the wrong program",
+      "sourceServiceMissing": "Restart refused: there is no service entry point next to the source tray: {{path}}",
+      "sourceRestarted": "The source tray restarted normally and owns the HTTP/HTTPS services again"
+    },
+    "diagnostics": {
+      "savedOpenFailed": "Diagnostics report saved:\n{{path}}\n\nThe window or open action did not finish: {{error}}",
+      "saved": "Diagnostics report saved: {{name}}",
+      "savedLine": "Peach diagnostics report: diagnostics report saved: {{path}}",
+      "savedChoose": "Diagnostics report saved. Open the directory or the file.",
+      "openDirectory": "Open directory",
+      "openFile": "Open file",
+      "close": "Close"
+    },
+    "update": {
+      "checking": "Checking for updates…"
+    },
+    "sourceSync": {
+      "checking": "Checking the update channel…",
+      "notFrozen": "This is not a packaged tray; the source is already current.",
+      "standalone": "Standalone test builds do not rebuild the tray; download the new version and replace the program directory with the full extracted files.",
+      "buildCurrent": "The tray build matches the checkout ({{build}}).",
+      "notPackaged": "The checkout is newer than the tray build, but the changes are not packaged, so the tray does not need a rebuild.",
+      "pendingMismatch": "The pending update record does not match the current code; check it manually.",
+      "restarted": "Services restarted.",
+      "notRecovered": "Services did not recover; check the logs.",
+      "withProblems": "{{result}} However, {{problems}}.",
+      "done": "{{message}} {{result}}",
+      "restartingMenuBar": "{{message}} Restarting the menu bar item…",
+      "menuBarRestartFailed": "Code synced, but the menu bar item could not restart; services were restored.",
+      "menuBarManual": "{{message}} Services restarted; quit and reopen the menu bar item for it to take effect.",
+      "noPowerShell": "Code fast-forwarded, but PowerShell was not found; tests did not run and services were not restarted.",
+      "inputsKeptChanging": "Code or dependencies kept changing during testing, and none of three runs produced a valid record; try again later.",
+      "testsFailed": "Code fast-forwarded, but the full tests failed; services and the tray were not restarted. Check the logs.",
+      "testsPassed": "Code and full tests passed.",
+      "manualTray": "Code and full tests passed; this is not a packaged tray, so reopen the tray process manually.",
+      "trayExeMissing": "Code and tests passed, but the current tray EXE was not found; nothing was replaced.",
+      "buildFailed": "Code and tests passed, but building the new tray failed; the old tray and services keep running.",
+      "packagedMigrationsFailed": "The new tray failed the packaged migration check; the old tray and services keep running.",
+      "helperIncomplete": "The new tray is built, but the replacement helper is incomplete; the old tray and services keep running.",
+      "helperFailed": "The new tray is built, but the replacement helper could not start; the old tray and services keep running.",
+      "replacing": "Code, full tests and the new tray check all passed; replacing and restarting safely."
+    },
+    "startup": {
+      "handoffFailed": "Could not start the tray on its own: {{details}}"
+    },
+    "installer": {
+      "toolsFailed": "Preparing media tools failed: {{error}}"
+    },
+    "uninstallFailed": "Couldn't start the uninstall: {{error}}"
+  },
+  "pages": {
+    "setup": {
+      "title": "Peach · Setup",
+      "question": {
+        "dataRoot": {
+          "label": "Data directory",
+          "help": "Peach keeps its database, covers, previews and cache here. A large collection can take tens of GB. If the system drive is short on space, choose a folder on another disk. You can also move it later in Settings."
+        },
+        "mediaDir": {
+          "label": "Media directory",
+          "help": "Choose an existing folder that holds your videos and images. An external drive works too."
+        },
+        "host": {
+          "label": "Who can connect"
+        },
+        "port": {
+          "label": "Port",
+          "help": "The number after the colon in the browser address. You usually don't need to change it."
+        },
+        "mdnsName": {
+          "label": "LAN address",
+          "help": "After you choose \"Devices on the same LAN\", other devices can open Peach by entering this address in a browser.",
+          "standaloneHelp": "Other devices need to add the port above when opening this address, for example http://peach.local:8900. On the first connection, allow access on Windows private networks."
+        }
+      },
+      "posixMediaNote": "Enter the directory this device actually reads media from. For Docker deployments, enter the directory inside the container, for example /media.",
+      "cloudHelp": "First mount the cloud drive from CloudDrive2 or OpenList as a folder on this device. To read a NAS share on Windows, map it to a drive letter first, then choose the matching folder. The install hint only applies when CloudDrive runs on this device. File operations need write permission from the mount tool and the cloud drive account. Uploading, creating folders, renaming and moving on Guangya Cloud need CloudDrive2 v1.1.0 or later; deleting and copying aren't supported yet.",
+      "cloudHelpLink": "Mount help",
+      "mountMissing": "{{name}} not detected."
+    },
+    "login": {
+      "title": "Sign in to Peach",
+      "accessSetupTitle": "Peach · Access settings"
+    },
+    "userscriptBridge": {
+      "title": "Peach userscript connection"
     }
   }
 }

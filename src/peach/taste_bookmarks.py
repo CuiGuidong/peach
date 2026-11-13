@@ -12,7 +12,7 @@ from urllib.parse import urlsplit
 
 from bs4 import BeautifulSoup
 
-from .user_messages import UserValueError
+from .user_messages import UserValueError, message_fields
 
 
 def _date(value, *, chromium=False, firefox=False) -> str:
@@ -98,11 +98,12 @@ def is_bookmark_export(path: Path) -> bool:
 
 
 def refresh_bookmarks(sources, store_path: Path, *, host=None, progress=None, strict=False):
-    from .taste_history import HistorySource, _consistent_copy, _open_history_store, _source_key
+    from .taste_history import HistorySource, _consistent_copy, _open_history_store, _source_key, failure_row
     results = []
     for index, source in enumerate(sources):
         if progress:
-            progress(stage="bookmarks", checked=index, total=len(sources), message="正在读取浏览器书签")
+            progress(stage="bookmarks", checked=index, total=len(sources),
+                     **message_fields("jobMessage.tasteBookmarks.reading"))
         try:
             if source.engine == "firefox":
                 with tempfile.TemporaryDirectory(prefix="peach-bookmarks-") as directory:
@@ -116,7 +117,7 @@ def refresh_bookmarks(sources, store_path: Path, *, host=None, progress=None, st
                 raise UserValueError("errors.tasteBookmarks.unreadable") from None
             results.append({"browser": source.browser, "profile": source.profile + " · 书签",
                             "bookmarks": 0, "added": 0, "status": "failed",
-                            "error": "浏览器书签未取得，请检查资料目录或退出浏览器后重试"})
+                            **failure_row("errors.tasteBookmarks.browserBookmarksNotRead")})
             continue
         with _open_history_store(store_path, host) as (store, resolved_host, now):
             from .taste_browsers import browser_snapshot_allowed

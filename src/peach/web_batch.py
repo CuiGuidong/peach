@@ -23,7 +23,7 @@ import uuid
 from pathlib import Path, PureWindowsPath
 from typing import Sequence
 
-from . import junk
+from . import interface_text, junk
 from .catalog_rules import duration_clusters, is_jav_code, normalise_code_key
 from .config import GENERATED_DIR, LOCATION_ROOT_DECLARATIONS
 from .field_owners import USER_MANUAL, write_owned_fields
@@ -36,7 +36,7 @@ from .task_stages import batch_progress
 from .web_activity import DEFAULT_PROFILE_ID
 from .web_catalog import attach_card_performers
 from .media_sources import cost_for
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserOSError, UserValueError
 from .web_resource_sync import _managed_cache_root, clean_purged_caches
 from .web_state import WebContract
 
@@ -242,7 +242,7 @@ def _quarantine_media(original: Path, *, location: str | None = None) -> Path:
         body = quarantine.read_bytes()
         current = original.stat()
         if len(body) != stat.st_size or (current.st_size, current.st_mtime_ns) != (stat.st_size, stat.st_mtime_ns):
-            raise OSError('文件在隔离备份期间发生变化')
+            raise UserOSError("errors.webBatch.changedDuringQuarantine")
         record = dict(original=str(original), size=len(body),
                       sha256=hashlib.sha256(body).hexdigest())
         manifest.write_text(json.dumps(record, ensure_ascii=False), encoding='utf-8')
@@ -400,7 +400,7 @@ def _purge_media_path(row, online_roots: dict[str, tuple[Path, ...]], *,
         return remote
     translated = translate_ledger_path(media)
     if is_unmapped(translated):
-        raise OSError("媒体路径未映射到可访问的挂载目录")
+        raise UserOSError("errors.webBatch.pathUnmapped")
     if PureWindowsPath(str(media)).drive:
         location = row["location"] if "location" in row.keys() else None
         if any(within_root(translated, root) and root_online(root)
@@ -408,7 +408,7 @@ def _purge_media_path(row, online_roots: dict[str, tuple[Path, ...]], *,
             return translated
         if missing_only and not _inside_declared_root(translated) and root_online(Path(translated.anchor)):
             return translated
-        raise OSError("媒体来源未挂载或不可读取")
+        raise UserOSError("errors.webBatch.storageOffline")
     return translated
 
 
@@ -435,6 +435,17 @@ def purge_assets(connection, rows, *, missing_only: bool = False):
     return outcome
 
 
+def _blocked(asset_id, path, error: OSError | None = None, *, code: str | None = None) -> dict:
+    """删不掉的一条：`reason` 是 zh-CN 原文；带 code 的原因另给 `reason_code` 与 `reason_params`，
+    界面按它取译文。系统报的错（权限、占用）只有原文。"""
+    item = {"id": asset_id, "path": path}
+    if code is not None:
+        return {**item, "reason": interface_text.text(f"server:{code}"), "reason_code": code, "reason_params": {}}
+    if isinstance(error, UserFacingError):
+        return {**item, "reason": error.message, "reason_code": error.code, "reason_params": dict(error.params)}
+    return {**item, "reason": error.strerror or str(error)}
+
+
 def stage_purge(rows, *, missing_only: bool = False) -> dict:
     """在写事务外处理媒体文件：核对路径与来源、stat、同目录隔离。
 
@@ -458,8 +469,7 @@ def stage_purge(rows, *, missing_only: bool = False) -> dict:
                     online_roots = _online_source_roots()
                 translated = _purge_media_path(row, online_roots or {}, missing_only=missing_only)
             except OSError as error:
-                blocked.append({"id": row["id"], "path": media,
-                                "reason": error.strerror or str(error)})
+                blocked.append(_blocked(row["id"], media, error))
                 continue
         media_stat = None
         if media:
@@ -468,12 +478,11 @@ def stage_purge(rows, *, missing_only: bool = False) -> dict:
             except FileNotFoundError:
                 pass
             except OSError as error:
-                blocked.append({"id": row["id"], "path": media,
-                                "reason": error.strerror or str(error)})
+                blocked.append(_blocked(row["id"], media, error))
                 continue
         if media and missing_only:
             if media_stat is not None:
-                blocked.append({"id": row["id"], "path": media, "reason": "文件仍在盘上"})
+                blocked.append(_blocked(row["id"], media, code="labels.webBatch.stillOnDisk"))
                 continue
         staged = None
         if media and not missing_only:
@@ -488,8 +497,7 @@ def stage_purge(rows, *, missing_only: bool = False) -> dict:
                         staged = (original, _quarantine_media(
                             original, location=row['location'] if 'location' in row.keys() else None))
             except OSError as error:
-                blocked.append({"id": row["id"], "path": media,
-                                "reason": error.strerror or str(error)})
+                blocked.append(_blocked(row["id"], media, error))
                 continue
         snapshot = row["snapshot_path"]
         items.append({"id": row["id"], "path": media, "staged": staged,
@@ -541,7 +549,7 @@ def commit_purge(connection, outcome: dict, *, eligible=None) -> None:
             "DELETE FROM review_decision WHERE category='metadata_fields' AND item_key GLOB ?",
             [(f"asset:{asset_id}:*",) for asset_id in purged])
         connection.execute(f"DELETE FROM asset WHERE id IN ({marks})", purged)
-    outcome["blocked"].extend({"id": item["id"], "path": item["path"], "reason": "删除期间这一条已经变了"}
+    outcome["blocked"].extend(_blocked(item["id"], item["path"], code="labels.webBatch.changedDuringDelete")
                               for item in returned)
     outcome.update(
         purged=len(purged), _ids=purged,

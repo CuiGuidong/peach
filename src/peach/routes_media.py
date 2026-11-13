@@ -34,7 +34,7 @@ from starlette.requests import ClientDisconnect
 
 from . import (
     avatar_face, avatar_online, avatar_picker, avatar_provider, error_reporting,
-    follow_assets, follow_providers, images,
+    follow_assets, follow_providers, images, interface_text,
     jav_poster_crop, link_marks, link_status, scraping_access, site_icons, social_links, subtitles,
     taste_history, timeline_sheets, web_follow, web_timeline_thumbnails,
 )
@@ -243,12 +243,17 @@ def external_playback(request: Request, id: int, args: dict[str, str] = Depends(
                         headers={"Cache-Control": "no-store"})
 
 
+def _label(code: str) -> dict:
+    """列表项的显示名：`label` 是按 zh-CN 渲染的原文，`label_code` 给页面取译文（ADR-0159）。"""
+    return {'label': interface_text.text(f'server:{code}'), 'label_code': code}
+
+
 @router.get('/api/local-players')
 def local_players(request: Request, args=Depends(require_auth)):
     from . import local_playback
     players = []
     if local_playback.available() and _local_playback_client(request):
-        players = [{'id': 'default', 'label': '系统默认播放器'}, *[
+        players = [{'id': 'default', **_label('labels.routesMedia.defaultPlayer')}, *[
             {'id': key, 'label': value[0]} for key, value in local_playback.installed().items()]]
     return JSONResponse({'players': players}, headers={'Cache-Control': 'no-store'})
 
@@ -599,29 +604,29 @@ def _subtitle_path(state, asset, row) -> Path | None:
 
 
 def _subtitle_bytes(state, asset, row) -> tuple[bytes | None, str]:
-    """字幕文件的内容，以及取不到时的原因。原因直接进列表给人看。"""
+    """字幕文件的内容，以及取不到时的原因 id（`labels.routesMedia.subtitle.<id>`）。原因进列表给人看。"""
     path = _subtitle_path(state, asset, row)
     if path is None:
-        return None, "不在正片所在目录"
+        return None, "outsideFolder"
     try:
         if path.stat().st_size > SUBTITLE_BYTE_LIMIT:
-            return None, "文件过大"
+            return None, "tooLarge"
         return path.read_bytes(), ""
     except OSError:
-        return None, "文件未找到"
+        return None, "notFound"
 
 
 def _subtitle_note(state, asset, row) -> str:
-    """这一条为什么不能播；能播返回空串。"""
+    """这一条为什么不能播的原因 id；能播返回空串。"""
     if not subtitles.is_playable_format(row["format"]):
-        return "图形字幕，播放器里不显示"
+        return "imageBased"
     data, note = _subtitle_bytes(state, asset, row)
     if data is None:
         return note
     try:
         subtitles.decode(data)
     except subtitles.SubtitleUndecodable:
-        return "编码未识别"
+        return "encodingUnknown"
     return ""
 
 
@@ -646,7 +651,8 @@ def asset_subtitles(request: Request, id: int, args: dict[str, str] = Depends(re
             "language": row["language"],
             "label": subtitles.track_label(row["name"], row["language"], asset.name),
             "pairing": row["pairing"],
-            "note": note,
+            "note": interface_text.text(f"server:labels.routesMedia.subtitle.{note}") if note else "",
+            "note_code": f"labels.routesMedia.subtitle.{note}" if note else "",
             "playable": not note,
             "src": f"/api/assets/{id}/subtitles/{index}?track={subtitles.file_key(row['name'])}",
         })
@@ -901,7 +907,7 @@ def follow_avatar(request: Request, service: str = "", id: str = "",
     state = request.app.state
     transport = state.http_transport
     client = transport.client
-    failures: list[str] = []
+    failures: list[UserFacingError] = []
     if provider:
         target = follow_assets.mirror_avatar_url(provider, ref)
         if target is None:
@@ -923,10 +929,10 @@ def follow_avatar(request: Request, service: str = "", id: str = "",
                 try:
                     tier_lists.append(profile_avatar_tiers(name, handle, transport=transport))
                 except FollowSourceError as error:
-                    failures.append(str(error))
+                    failures.append(error)
                     continue
                 except OSError:
-                    failures.append("头像来源暂不可用")
+                    failures.append(UserFacingError("errors.routesMedia.avatarSourceUnavailable"))
                     continue
             return follow_assets.largest_image(client, tier_lists)
     else:
@@ -946,11 +952,21 @@ def follow_avatar(request: Request, service: str = "", id: str = "",
     path = follow_assets.cached_image(_asset_root(state), "avatars", key,
                                       AVATAR_REFRESH_SECONDS, fetch)
     if path is None and service == "profile":
-        body = ({"error": "；".join(failures)} if failures
-                else message_fields("api.media.socialAvatarUnavailable", key="error"))
+        body = _avatar_failure(failures)
         return JSONResponse(body, status_code=404,
                             headers={"cache-control": "no-store"})
     return _asset_response(request, path, placeholder=False)
+
+
+def _avatar_failure(failures: list[UserFacingError]) -> dict:
+    """名片头像几家都没取到时的失败体。原因只有一种时带它的 code；几种不同的原因用「；」连成一句原文，
+    没有 code（ADR-0159 延后：要列表结构）；一条原因都没有时用兜底句。"""
+    distinct = list({(error.code, repr(sorted(error.params.items()))): error for error in failures}.values())
+    if len(distinct) == 1:
+        return error_fields(distinct[0])
+    if distinct:
+        return {"error": "；".join(error.message for error in distinct)}
+    return message_fields("api.media.socialAvatarUnavailable", key="error")
 
 
 @router.api_route("/source-icon", methods=["GET", "HEAD"])
@@ -1298,7 +1314,7 @@ def cover_image(request: Request, code: str, args: dict[str, str] = Depends(requ
             upstream = open_upstream(state.http_transport.client, request.method, target, incoming=request.headers)
             if PLACEHOLDER.search(str(upstream.url)):
                 upstream.close()
-                raise FollowProxyError("上游给的是「准备中」占位图")
+                raise FollowProxyError("upstream returned the not-ready placeholder image")
             return upstream
         return cache.stream(key, request, fetch)
     except (ValueError, FollowProxyError, OSError, httpx.HTTPError):
@@ -1377,7 +1393,7 @@ def jav_preview(request: Request, code: str, ref: str, args: dict[str, str] = De
                 kind = response.headers.get('content-type', '').split(';')[0].lower()
                 if kind not in {'video/mp4', 'application/octet-stream', 'binary/octet-stream'}:
                     response.close()
-                    raise FollowProxyError('视频预览响应未取得')
+                    raise FollowProxyError('video preview response is not a video')
                 response.headers['content-type'] = 'video/mp4'
             return response
         return cache.stream(f"preview:{code}:{ref}", request, media)
@@ -1679,7 +1695,7 @@ def _picker_online(request: Request, connection, entity_id: int):
         if isinstance(response, FileResponse):
             return Path(response.path).read_bytes()
         if isinstance(response, JSONResponse):
-            # 头像端点的失败体：兜底句带 `message_code`；几处来源原因拼成的一句没有 code，整句作参数。
+            # 头像端点的失败体：兜底句与只有一种原因时带 `message_code`；几种原因拼成的一句没有 code，整句作参数。
             failure = json.loads(response.body)
             if failure.get("message_code"):
                 raise avatar_picker.PickerError(failure["message_code"], failure.get("message_params"))

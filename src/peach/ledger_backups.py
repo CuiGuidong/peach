@@ -650,7 +650,7 @@ class LedgerBackups:
         from .health import inspect_database
         from .runtime_prepare import configured_ledger_writer
         from . import update_tasks
-        writer, reason = configured_ledger_writer(self.config)
+        writer, reason = configured_ledger_writer(self.config, language=None)
         if not writer:
             raise BackupRejected("errors.ledgerBackups.writerOnly", {"reason": reason})
         backup = resolve(self.live, self.organize, ident)

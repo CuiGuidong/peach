@@ -2971,6 +2971,7 @@ class FollowSourceAddTests(FollowContractTests):
         self.assertEqual(payload["alias_suggestions"], [{
             "canonical": "InitialA", "alias": "FFXIVInitialA",
             "evidence": "规范化名称存在包含关系，仅供人工确认",
+            "evidence_code": "labels.webFollow.nameContainsEvidence", "evidence_params": {},
         }])
 
     def test_confirmed_alias_merges_sources_and_can_be_removed(self):

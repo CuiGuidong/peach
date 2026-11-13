@@ -177,6 +177,21 @@ class AskUntilValidTests(_Case):
         self.assertIn("服务端口", str(caught.exception))
         self.assertIn("3 次", str(caught.exception))
 
+    def test_the_terminal_interview_follows_the_command_line_language(self):
+        """题面、重试提示和放弃的原因都按命令行的语言说（放弃原因由 `cli.py` 渲染）；`message` 仍是 zh-CN 原句。"""
+        with mock.patch.dict(os.environ, {"PEACH_LANGUAGE": "en"}):
+            question = onboarding.questions(self.config, windows=True, home=self.home)[3]
+            self.assertEqual(question.prompt, "Port")
+            reported: list[str] = []
+            onboarding.ask_until_valid(question, scripted("x", "9000"), report=reported.append)
+            self.assertEqual(reported, ["  The port must be a whole number from 1 to 65535. (2 attempts left)"])
+            with self.assertRaises(onboarding.OnboardingAborted) as caught:
+                onboarding.ask_until_valid(question, scripted("x", "y", "z"), report=lambda _: None)
+            from peach import cli
+            self.assertEqual(cli._local(caught.exception), 'No valid answer for "Port" after 3 attempts.')
+            self.assertEqual(caught.exception.message, "「Port」连续 3 次没有拿到有效值。")
+            self.assertIn("these 2 folders", onboarding.scan_question(["a", "b"]).prompt)
+
 
 class ConfigureTests(_Case):
     def _answers(self, **overrides):
@@ -221,10 +236,10 @@ class ConfigureTests(_Case):
         other.mkdir()
         self.assertEqual(onboarding.check_media_dirs((self.media, other)), {})
         self.assertEqual(list(onboarding.check_media_dirs((self.media, self.media))), [1])
-        self.assertIn("重复", onboarding.check_media_dirs((self.media, self.media))[1])
+        self.assertIn("重复", str(onboarding.check_media_dirs((self.media, self.media))[1]))
         problems = onboarding.check_media_dirs((self.media, nested))
         self.assertEqual(list(problems), [1])
-        self.assertIn(str(self.media), problems[1])
+        self.assertEqual((problems[1].code, problems[1].params), ("errors.onboarding.mediaDirNested", {"other": str(self.media)}))
         # 父目录排在后面时，多余的仍是子目录那一行：用户后来给的父目录已经把它包住了。
         self.assertEqual(list(onboarding.check_media_dirs((nested, self.media))), [0])
 
@@ -241,12 +256,12 @@ class ConfigureTests(_Case):
         _paths, problems = onboarding.read_media_dirs(
             [str(self.media), "", str(self.root / "nope")], validate=validate)
         self.assertEqual(problems[:2], ["", ""])
-        self.assertIn("目录不存在", problems[2])
+        self.assertIn("目录不存在", str(problems[2]))
         (self.media / "inner").mkdir()
         _paths, problems = onboarding.read_media_dirs(
             [str(self.media), str(self.media / "inner")], validate=validate)
         self.assertEqual(problems[0], "")
-        self.assertIn("已经在", problems[1])
+        self.assertIn("已经在", str(problems[1]))
 
     def test_only_the_asked_settings_change_and_replication_stays_off(self):
         prepared = onboarding.configure(
@@ -458,12 +473,12 @@ class _SetupHttpCase(_Case):
 
         return asyncio.run(run())
 
-    def _get(self, path, **kwargs):
+    def _get(self, path, *, headers=None, **kwargs):
         import asyncio
 
         async def run():
             async with self._client(**kwargs) as client:
-                return await client.get(path)
+                return await client.get(path, headers=headers)
 
         return asyncio.run(run())
 
@@ -602,10 +617,14 @@ class SetupJsonContractTests(_SetupHttpCase):
 
     def test_the_first_run_page_is_a_shell_around_the_standalone_page_bundle(self):
         """首次运行页由独立页面包画：薄壳只带主题预读、样式、脚本、借来的字形与挂载点。"""
-        response = self._get("/")
+        response = self._get("/", headers={"Accept-Language": "zh-CN,zh;q=0.9"})
         self.assertEqual(response.status_code, 200)
         body = response.text
+        self.assertIn('<html lang="zh-CN">', body)
         self.assertIn("<title>Peach · 首次运行</title>", body)
+        english = self._get("/", headers={"Accept-Language": "en-US,en;q=0.9"}).text
+        self.assertIn('<html lang="en">', english)
+        self.assertIn("<title>Peach · Setup</title>", english)
         self.assertIn('<link rel="icon" href="/favicon.ico" type="image/x-icon">', body)
         self.assertLess(body.index('localStorage.getItem("peach.settings.v1")'), body.index("/dist/peach-pages.css"))
         for symbol in ("folder-search", "hard-drive", "database"):
@@ -745,12 +764,17 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertEqual([item["default"] for item in questions],
                          ["" if question.key == "media_dir" else question.default for question in asked])
         self.assertEqual([item["label"] for item in questions], ["数据目录", "媒体目录", "谁可以访问", "端口", "局域网访问地址"])
+        self.assertEqual([interface_text.text(f"server:{item['label_code']}", None, "en") for item in questions],
+                         ["Data directory", "Media directory", "Who can connect", "Port", "LAN address"])
+        for item in questions:
+            self.assertEqual([interface_text.text(f"server:{code}") for code in item["help_codes"]], item["help"])
         by_key = {item["key"]: item for item in questions}
         self.assertEqual([key for key, item in by_key.items() if not item["required"]], ["host"])
         self.assertEqual([key for key, item in by_key.items() if not item["advanced"]], ["data_root", "media_dir", "host"])
         self.assertEqual(by_key["data_root"]["input"], "folder")
-        self.assertEqual(by_key["host"]["options"], [{"value": "2", "label": "同一局域网的设备"},
-                                                     {"value": "1", "label": "只有这台电脑"}])
+        self.assertEqual(by_key["host"]["options"], [
+            {"value": "2", "label": "同一局域网的设备", "label_code": "labels.onboarding.hostOption.lan"},
+            {"value": "1", "label": "只有这台电脑", "label_code": "labels.onboarding.hostOption.thisDevice"}])
         self.assertEqual((by_key["port"]["input"], by_key["port"]["prefix"]), ("number", "localhost:"))
         self.assertEqual((by_key["mdns_name"]["prefix"], by_key["mdns_name"]["suffix"]), ("https://", ".local"))
         self.assertEqual(by_key["mdns_name"]["visible_when"], {"host": "2"})
@@ -768,6 +792,9 @@ class SetupJsonContractTests(_SetupHttpCase):
             self.assertEqual(by_key["media_dir"]["help"][-1],
                              "填写这台设备实际读取媒体的文件夹；Docker 部署填写容器内目录，例如 /media。")
         self.assertEqual(data["cloud"]["link"]["url"], "https://www.clouddrive2.com/help.html")
+        self.assertEqual((data["cloud"]["link"]["label"], data["cloud"]["link"]["label_code"]),
+                         ("挂载帮助", "pages.setup.cloudHelpLink"))
+        self.assertEqual(data["cloud"]["help"], interface_text.text(f"server:{data['cloud']['help_code']}"))
         # 默认对局域网开放，所以访问密码开关第一次出现就开着；扫描默认勾上，导入历史默认不勾。
         self.assertEqual((data["access_enabled"], data["scan_now"], data["history_guide"]), (True, True, False))
 
@@ -841,8 +868,10 @@ class SetupJsonContractTests(_SetupHttpCase):
         with mock.patch("peach.media_configuration.mount_dependencies", return_value=rows):
             data = self._send("GET", self.QUESTIONS).json()
         self.assertEqual(data["cloud"]["dependencies"], [{
-            "name": "WinFsp", "message": "未检测到 WinFsp。",
-            "download_url": "https://winfsp.dev/rel/", "download_label": "下载 WinFsp"}])
+            "name": "WinFsp", "message": "未检测到 WinFsp。", "message_code": "pages.setup.mountMissing",
+            "message_params": {"name": "WinFsp"}, "download_url": "https://winfsp.dev/rel/",
+            "download_label": "下载 WinFsp", "download_label_code": "labels.downloadNamed",
+            "download_label_params": {"name": "WinFsp"}}])
 
     def test_the_standalone_package_gets_its_own_address_form_in_the_questions(self):
         with mock.patch.object(distribution, "standalone", return_value=True):
@@ -1366,6 +1395,14 @@ class StandaloneConfigurationTests(_Case):
             self.assertEqual(body["errors"]["media_dirs"][0], "", "没问题的行给空串，页面据此不画红字")
             self.assertTrue(body["errors"]["media_dirs"][1], "重复的那一行要点名")
             self.assertTrue(body["errors"]["port"])
+            # 同形的 `error_codes` 让页面按当前语言显示：英文界面拿到的是英文。
+            codes = body["error_codes"]
+            self.assertIsNone(codes["media_dirs"][0])
+            duplicate = codes["media_dirs"][1]
+            self.assertEqual((duplicate["code"], list(duplicate["params"])), ("errors.onboarding.mediaDirDuplicate", ["other"]))
+            self.assertEqual(interface_text.text(f"server:{duplicate['code']}", duplicate["params"], "en"),
+                             f"Duplicates {duplicate['params']['other']} above")
+            self.assertEqual(codes["port"], {"code": "errors.onboarding.portInvalid", "params": {}})
         self.assertEqual(before, self.config.path.read_bytes())
 
     def test_cloud_configuration_saves_all_sources_and_requests_configured_scan(self):
@@ -1455,7 +1492,7 @@ class StandaloneConfigurationTests(_Case):
                     self.assertIn('<script type="module" src="/dist/peach-pages.js"></script>', page.text)
                     self.assertNotIn("/dist/peach-entry.js", page.text)
                     self.assertNotIn("<style", page.text)
-            missing = client.get("/no-such-page", headers={"Accept": "text/html"})
+            missing = client.get("/no-such-page", headers={"Accept": "text/html", "Accept-Language": "zh-CN"})
             self.assertEqual(missing.status_code, 404)
             self.assertIn('data-page="error" data-status="404" data-detail="这个地址下没有页面。"', missing.text)
             data = client.get("/refuse/409", headers={"Accept": "application/json"})

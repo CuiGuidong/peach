@@ -19,7 +19,7 @@ from .platform import location_roots
 from .scripting import verify_after_write
 from .web_settings import organize_templates
 from .task_stages import stage as stage_fields
-from .user_messages import UserValueError
+from .user_messages import UserInterruptedError, UserValueError
 
 #: 界面上能整理的来源。`online` 是追更抓来的东西，不在任何一个媒体根下面。
 ORGANIZE_LOCATIONS = SCANNABLE_LOCATIONS
@@ -97,7 +97,7 @@ def _run_write(contract, job_id: str, work) -> dict:
         try:
             before, _ = verify_after_write(connection)
             if before != 'ok':
-                raise RuntimeError(f'写入前 ledger 校验失败：integrity={before}')
+                raise RuntimeError(f'ledger integrity check failed before writing: integrity={before}')
             baseline = {tuple(row) for row in connection.execute('PRAGMA foreign_key_check')}
             result = work(connection)
             integrity, _ = verify_after_write(connection)
@@ -107,7 +107,8 @@ def _run_write(contract, job_id: str, work) -> dict:
     contract.cache_bust()
     if integrity != "ok" or introduced:
         raise RuntimeError(
-            f"写入后 ledger 校验失败：integrity={integrity} new_foreign_keys={len(introduced)}")
+            f"ledger integrity check failed after writing: integrity={integrity} "
+            f"new_foreign_keys={len(introduced)}")
     return {**result, "backup": str(backup), 'existing_foreign_keys': len(baseline)}
 
 
@@ -133,7 +134,7 @@ def w_organize_apply(contract, body) -> dict:
                                            file_template=file_template,
                                            dir_template=dir_template, path=path_scope)
             if not job.checkpoint(job_id, plan=plan, batch_stamp=batch_stamp):
-                raise InterruptedError('整理已停止')
+                raise UserInterruptedError("errors.webOrganize.stopped")
         job.update(job_id, total=plan["counts"]["change"], **stage_fields('organize.running'))
         result = _run_write(contract, job_id, lambda connection: organize.apply_plan(
             connection, plan["rows"], generated_root=contract.candidate_root,
@@ -164,7 +165,7 @@ def w_organize_rollback(contract, body) -> dict:
 
     def work(job_id: str) -> None:
         if not job.checkpoint(job_id, rollback_batch=latest.name):
-            raise InterruptedError('整理回滚已停止')
+            raise UserInterruptedError("errors.webOrganize.rollbackStopped")
         if not latest.exists():
             job.update(job_id, status='complete', restored=0, failed=0)
             return

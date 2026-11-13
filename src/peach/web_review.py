@@ -65,6 +65,7 @@ from .metadata_policy import (
 )
 from .previews import logo_key
 from .review_csv import CANDIDATE_PREFIX, candidate_root_version, read_candidates
+from . import interface_text
 from .user_messages import UserValueError
 
 
@@ -515,7 +516,7 @@ def _review_rows(contract: ReviewContract, category: str, *, queue: str | None =
                 comparison["preview_url"] = ""
             comparison.pop("snapshot_path", None)
         if not row.get("reason"):
-            row["reason"] = _review_evidence(category, row)
+            row.update(_evidence_fields(category, row))
     # 卡片左边那张脸和别处的圆头像同一条链，只是这里没有代表作可退：装了实体图才
     # 出 `<img>`，否则就是首字母垫底，不再靠 404 把图摘掉。判定读的是目录索引，
     # 所以放在库连接之外。
@@ -766,53 +767,106 @@ def _select_review_queue(rows: list[dict], queue: str | None) -> list[dict]:
             and (queue is None or state == queue)]
 
 
-def _review_evidence(category: str, row: dict) -> str:
-    """给本身没有 reason 列的候选拼一句可判断的证据，别让复核页只剩一个名字。"""
-    if category == "metadata_fields":
-        current = str(row.get("current_value") or "").strip() or "尚无"
-        target = '匹配资产' if row.get('asset_path') else '同番号资产'
-        owner = owner_label(str(row.get("current_owner") or ""))
-        return (f"当前值：{current}"
-                + (f"（{owner}）" if owner else "")
-                + f"；{row.get('videos') or 0} 个{target}；"
-                f"{len(row.get('candidates') or [])} 个资料来源")
+def _said(code: str, **params) -> dict:
+    return {"code": code, "params": params}
+
+
+#: 证据句里几段之间的连接。
+EVIDENCE_SEPARATOR = "labels.webReview.separator"
+
+
+def _joined(items: list[dict]) -> list[dict]:
+    out: list[dict] = []
+    for item in items:
+        if out:
+            out.append(_said(EVIDENCE_SEPARATOR))
+        out.append(item)
+    return out
+
+
+def _evidence_text(parts: list[dict]) -> str:
+    """证据段落按 zh-CN 拼成的原句。段落是 `{"code", "params"}`，来源原文是 `{"text"}`；
+    参数里的列表按 `outcome.listComma` 连起来。"""
+    comma = interface_text.text("server:outcome.listComma")
+
+    def value(item):
+        return comma.join(map(str, item)) if isinstance(item, list) else item
+    return "".join(part["text"] if "text" in part else interface_text.text(
+        f"server:{part['code']}", {key: value(item) for key, item in part["params"].items()}) for part in parts)
+
+
+def _metadata_evidence(row: dict) -> list[dict]:
+    """字段候选：现值（及谁写的）、对得上几个文件、几个资料来源。"""
+    current = str(row.get("current_value") or "").strip()
+    owner = owner_label(str(row.get("current_owner") or ""))
+    if current:
+        head = (_said("labels.webReview.currentValueOwned", value=current, owner=owner) if owner
+                else _said("labels.webReview.currentValue", value=current))
+    else:
+        head = (_said("labels.webReview.currentNoneOwned", owner=owner) if owner
+                else _said("labels.webReview.currentNone"))
+    assets = "labels.webReview.matchedAssets" if row.get("asset_path") else "labels.webReview.sameCodeAssets"
+    return _joined([head, _said(assets, count=row.get("videos") or 0),
+                    _said("labels.webReview.metadataSources", count=len(row.get("candidates") or []))])
+
+
+def _fc2_marking_evidence(row: dict) -> list[dict]:
+    """FC2 标记：合集说明，或评论票数、等同番号与卖家。"""
+    if row.get("is_collection"):
+        return [_said("labels.webReview.fc2Collection", count=row.get("collection_parts", ""))]
+    bits = []
+    if row.get("performer_votes"):
+        # 票数就是「几条独立评论这么说」，是这批候选唯一的置信度信号。
+        bits.append(_said("labels.webReview.commentVotes", votes=row.get("performer_votes")))
+    if row.get("equivalents"):
+        bits.append(_said("labels.webReview.equivalents", codes=row.get("equivalents")))
+    if row.get("writer"):
+        bits.append(_said("labels.webReview.seller", seller=row.get("writer")))
+    return _joined(bits)
+
+
+def _fc2_similarity_evidence(row: dict) -> list[dict]:
+    """FC2 相似：证据种类、时长与体积差、共同演员，再接候选表里的提醒原文。"""
+    kinds = str(row.get("evidence_kinds") or "").split()
+    detail = [_said("labels.webReview.evidenceKinds", kinds=kinds) if kinds
+              else _said("labels.webReview.evidenceInsufficient")]
+    if row.get("duration_delta_seconds") != "":
+        detail.append(_said("labels.webReview.durationDelta", seconds=row.get("duration_delta_seconds")))
+    if row.get("size_delta_percent") != "":
+        detail.append(_said("labels.webReview.sizeDelta", percent=row.get("size_delta_percent")))
+    if row.get("shared_performers"):
+        detail.append(_said("labels.webReview.sharedPerformers", names=row.get("shared_performers")))
+    if row.get("warnings"):
+        # 候选表里写好的提醒是来源原文，原样接上。
+        detail.append({"text": str(row.get("warnings"))})
+    return _joined(detail)
+
+
+def _review_evidence(category: str, row: dict) -> list[dict]:
+    """给本身没有 reason 列的候选拼一句可判断的证据（段落），别让复核页只剩一个名字。"""
     if category == "western_identity":
-        overlap = row.get("token_overlap") or "0"
         variant = row.get("matched_variant") or ""
-        spelling = f"（写法 {variant}）" if variant and variant != row.get("creator") else ""
-        return (f"{row.get('verdict', '')} → {row.get('babepedia_name', '')}"
-                f"{spelling}；词元重合 {overlap}；{row.get('videos', '')} 部作品")
+        match = {"verdict": row.get("verdict", ""), "name": row.get("babepedia_name", "")}
+        return _joined([
+            _said("labels.webReview.westernMatchSpelling", **match, variant=variant)
+            if variant and variant != row.get("creator") else _said("labels.webReview.westernMatch", **match),
+            _said("labels.webReview.tokenOverlap", overlap=row.get("token_overlap") or "0"),
+            _said("labels.webReview.videos", count=row.get("videos", ""))])
     if category == "cover_sources":
         if row.get("result") != "取得":
-            return f"未取得：{row.get('note') or '所有渠道都没有候选'}"
-        return (f"{row.get('source', '')} · {row.get('width', '')}×{row.get('height', '')}"
-                f" · {row.get('kb', '')} KB")
-    if category == "fc2_markings":
-        if row.get("is_collection"):
-            return (f"合集，{row.get('collection_parts', '')} 个分片各自独立；"
-                    f"封面不下发，分片回落到自己的缩略图")
-        bits = []
-        if row.get("performer_votes"):
-            # 票数就是「几条独立评论这么说」，是这批候选唯一的置信度信号。
-            bits.append(f"评论标记 {row.get('performer_votes')}")
-        if row.get("equivalents"):
-            bits.append(f"等同于 {row.get('equivalents')}")
-        if row.get("writer"):
-            bits.append(f"卖家 {row.get('writer')}")
-        return "；".join(bits)
-    if category == "fc2_similarity":
-        kinds = str(row.get("evidence_kinds") or "").replace(" ", "、")
-        detail = [f"证据 {kinds}" if kinds else "所选资料缺少足够依据"]
-        if row.get("duration_delta_seconds") != "":
-            detail.append(f"时长差 {row.get('duration_delta_seconds')} 秒")
-        if row.get("size_delta_percent") != "":
-            detail.append(f"体积差 {row.get('size_delta_percent')}%")
-        if row.get("shared_performers"):
-            detail.append(f"共同演员 {row.get('shared_performers')}")
-        if row.get("warnings"):
-            detail.append(str(row.get("warnings")))
-        return "；".join(detail)
-    return ""
+            return [_said("labels.webReview.coverUnfetched", reason=row["note"]) if row.get("note")
+                    else _said("labels.webReview.coverNoCandidates")]
+        return [{"text": f"{row.get('source', '')} · {row.get('width', '')}×{row.get('height', '')}"
+                         f" · {row.get('kb', '')} KB"}]
+    builder = {"metadata_fields": _metadata_evidence, "fc2_markings": _fc2_marking_evidence,
+               "fc2_similarity": _fc2_similarity_evidence}.get(category)
+    return builder(row) if builder else []
+
+
+def _evidence_fields(category: str, row: dict) -> dict:
+    """`reason` 是 zh-CN 原文；`reason_parts` 每段一个 code（来源原文是 `text`），界面逐段取译文。"""
+    parts = _review_evidence(category, row)
+    return {"reason": _evidence_text(parts), **({"reason_parts": parts} if parts else {})}
 
 
 def q_review_counts(contract: ReviewContract):
@@ -889,12 +943,12 @@ studio_logo_key = logo_key
 #: 表现就是「点通过、什么也没发生」——`creator_tags` 和 `studio_logos` 各犯过一次，
 #: `performer_avatars` 是第三次。`test_every_approvable_category_can_land` 守住这条。
 DECISION_ONLY_CATEGORIES = {
-    "western_identity": "身份判断落在 entity 上，由专门的合并流程写，不在复核这一步",
-    "code_creators": "番号与创作者的绑定由 metadata_fields 那条路写",
-    "cover_sources": "封面已在 /cover 缓存里，复核只是确认取得与否",
-    "fc2_markings": "只记录识别依据，不修改影片资料",
-    "fc2_similarity": "提供不同番号之间的对应线索，合并需另行确认",
-    "video_endcards": "只登记首尾帧证据，不改资产",
+    "western_identity": "identity lands on the entity through the dedicated merge flow, not in review",
+    "code_creators": "code-to-creator bindings are written by the metadata_fields path",
+    "cover_sources": "the cover is already in the /cover cache; review only confirms whether it was found",
+    "fc2_markings": "records the identifying evidence only; video metadata is not changed",
+    "fc2_similarity": "links between different codes only; merging needs a separate confirmation",
+    "video_endcards": "records first and last frame evidence only; assets are not changed",
 }
 
 

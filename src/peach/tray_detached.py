@@ -208,7 +208,7 @@ def launch_detached(argv, *, cwd, env=None) -> DetachedProcess:
     kernel = _kernel()
     context = {"caller": {"pid": os.getpid(), **_job_facts(kernel, wintypes.HANDLE(-1), current=True)},
                "parent_source": "Windows desktop",
-               "job_chain": {"status": "unavailable", "reason": "未取得各层 Job 句柄与归属；仅记录已知进程和直接 Job"}}
+               "job_chain": {"status": "unavailable", "reason": "job handles and ownership for each level were not obtained; only known processes and the direct job are recorded"}}
     user = ctypes.WinDLL("user32", use_last_error=True)
     user.GetShellWindow.restype = wintypes.HWND
     user.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.POINTER(wintypes.DWORD)]

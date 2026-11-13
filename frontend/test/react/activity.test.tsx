@@ -134,11 +134,16 @@ it('扫描各阶段已结束且留有问题时显示部分结果状态', async (
 
 it('追更检查的问题详情绑定任务快照并提供来源入口', async () => {
   serve(payload({ finished: [run({ status: 'succeeded', result_summary: { source_failed: 1,
-    issues: [{ source: 7, label: '示例作者', provider: '示例站点', kind: '检查失败', error: 'HTTP 403' }] } })] }));
+    issues: [{ source: 7, label: '示例作者', provider: '示例站点', kind: '检查失败', error: 'HTTP 403' },
+      // 带 code 的一条按 code 渲染：类别取 `kind_code`，原因按段拼，不读服务端的原句。
+      { source: 8, label: '订阅源', provider: '', kind: '旧类别', kind_code: 'labels.taskResults.kind.backfill',
+        error: '旧原句', error_parts: [{ code: 'labels.taskResults.noResult' }] }] } })] }));
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
   expect(host.querySelector('[data-task-issues]')?.textContent).toContain('示例作者 · 示例站点 · 检查失败');
   expect(host.querySelector('[data-task-issues]')?.textContent).toContain('HTTP 403');
+  expect(host.querySelector('[data-task-issues]')?.textContent).toContain('订阅源 · 补查失败');
+  expect(host.querySelector('[data-task-issues]')?.textContent).toContain('来源未返回检查结果');
   expect(host.querySelector('[data-task-issues]')?.closest('details')?.open).toBe(false);
   expect(host.querySelector('a[href="/subscriptions"]')?.textContent).toContain('查看关注来源');
 });

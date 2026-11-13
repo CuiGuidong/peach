@@ -24,6 +24,7 @@ token，旧的随即作废，所以每次刷新后立刻写回，同一份 token
 """
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import re
@@ -40,6 +41,7 @@ from .downloads import (
     DONE, ERROR, MISSING, RUNNING, DownloadError, DownloadTask, Magnet, RemoteStatus,
     magnet_info_hash,
 )
+from . import interface_text
 from .user_agent import USER_AGENT
 from .user_messages import UserValueError
 
@@ -424,8 +426,11 @@ def task_status(item: dict | None) -> RemoteStatus:
     if phase == "PHASE_TYPE_COMPLETE":
         return RemoteStatus(DONE, remote_id, name, 1.0)
     if phase == "PHASE_TYPE_ERROR":
-        return RemoteStatus(ERROR, remote_id, name, progress,
-                            str(item.get("message") or "PikPak 报告离线失败"))
+        if item.get("message"):
+            return RemoteStatus(ERROR, remote_id, name, progress, str(item["message"]))
+        code = "errors.downloadsPikpak.offlineFailed"
+        return RemoteStatus(ERROR, remote_id, name, progress, interface_text.text(f"server:{code}"),
+                            message_code=code)
     if phase in {"PHASE_TYPE_RUNNING", "PHASE_TYPE_PENDING"}:
         return RemoteStatus(RUNNING, remote_id, name, progress)
     if not phase:
@@ -463,8 +468,7 @@ class PikPakProvider:
             existing = match_task(client.tasks(), probe)
             if existing is not None:
                 status = task_status(existing)
-                return RemoteStatus(status.state, status.remote_id, status.name, status.progress,
-                                    status.message, adopted=True)
+                return dataclasses.replace(status, adopted=True)
             created = client.add_offline(magnet.uri, parent)
         return RemoteStatus(RUNNING, str(created.get("id")), str(created.get("file_name") or
                                                                     created.get("name") or magnet.name))

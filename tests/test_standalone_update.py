@@ -16,7 +16,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives.serialization import Encoding, NoEncryption, PrivateFormat
 import httpx
 
-from peach import release_signing, settings_file, standalone_update as update
+from peach import interface_text, release_signing, settings_file, standalone_update as update
 from peach import update_packages
 from peach.user_messages import UserValueError
 from scripts.package_windows_release import package as package_release
@@ -125,7 +125,7 @@ class MediaToolInstallTests(unittest.TestCase):
 
     def test_installs_the_verified_package_into_the_data_directory_and_reports_its_version(self):
         from peach import media_tools
-        self.assertEqual(self.install(), '已安装 untrunc（abc1234）')
+        self.assertEqual(self.install()['message'], '已安装 untrunc（abc1234）')
         self.assertEqual((self.tools / 'untrunc' / 'untrunc.exe').read_bytes(), 'untrunc.exe 内容'.encode())
         self.assertEqual(media_tools.installed_version(self.tools, 'untrunc'), 'abc1234')
         self.assertEqual(self.entries(), ['untrunc'])
@@ -140,10 +140,13 @@ class MediaToolInstallTests(unittest.TestCase):
 
     def test_installing_again_skips_the_download_until_a_file_stops_matching(self):
         self.install()
-        self.assertEqual(self.install(), 'untrunc 已安装（abc1234），无需重新下载')
+        receipt = self.install()
+        self.assertEqual(receipt['message'], 'untrunc 已安装（abc1234），无需重新下载')
+        self.assertEqual(interface_text.text(f"server:{receipt['message_code']}", receipt['message_params'], 'en'),
+                         'untrunc is already installed (abc1234). No download needed.')
         self.assertEqual(len(self.downloads), 1)
         (self.tools / 'untrunc' / 'NOTICE.md').write_text('改坏了', encoding='utf-8')
-        self.assertEqual(self.install(), '已安装 untrunc（abc1234）')
+        self.assertEqual(self.install()['message'], '已安装 untrunc（abc1234）')
         self.assertEqual(len(self.downloads), 2)
 
     def test_an_interrupted_install_is_cleared_by_the_next_one(self):
@@ -314,6 +317,22 @@ class StandaloneUpdateTests(unittest.TestCase):
         with patch.object(update.time, "time", return_value=10**12):
             self.assertEqual(update.public()["state"], "error")
         self.assertNotIn("target", update.public())
+
+    def test_progress_carries_its_code_and_a_plain_message_drops_the_previous_one(self):
+        update.write({}, state="downloading", **update.message_fields("jobMessage.standaloneUpdate.complete",
+                                                                       {"version": "1.2.0"}))
+        state = update.public()
+        self.assertEqual(state["message"], "已更新至 1.2.0")
+        self.assertEqual(interface_text.text(f"server:{state['message_code']}", state["message_params"], "en"),
+                         "Updated to 1.2.0")
+        update.write(update.read(), state="error", message="OSError: disk full")
+        self.assertNotIn("message_code", update.public())
+        update.write({}, state="downloading", progress=22)
+        with patch.object(update.time, "time", return_value=10**12):
+            stale = update.public()
+        self.assertEqual(stale["message_code"], "jobMessage.standaloneUpdate.interrupted")
+        self.assertEqual(interface_text.text("server:jobMessage.standaloneUpdate.interrupted", None, "en"),
+                         "The update was interrupted. Try again.")
 
     def test_restart_requires_ready_and_only_records_intent(self):
         with patch.object(update.distribution, "standalone", return_value=True), patch.object(update.sys, "platform", "win32"):

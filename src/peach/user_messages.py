@@ -87,6 +87,14 @@ def error_fields(error: BaseException) -> dict[str, Any]:
     return {"error": str(error)}
 
 
+def nested_message(error: BaseException) -> dict[str, Any] | str:
+    """把异常当作另一句的参数：带 code 的写成嵌套参数 `{"code", "params"}`，后端 `interface_text.text`
+    与前端 `serverLabel` 按外面那句的语言一起渲染；别的异常照旧是原文。"""
+    if isinstance(error, UserFacingError):
+        return {"code": error.code, "params": dict(error.params)}
+    return str(error)
+
+
 def response_status(error: UserFacingError) -> int:
     """带 code 的报错漏到接口层时回的 HTTP 状态。
 

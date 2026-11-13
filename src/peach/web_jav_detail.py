@@ -7,7 +7,7 @@ import base64
 from datetime import datetime, timezone
 from functools import wraps
 
-from . import entities, wants, web_catalog
+from . import entities, interface_text, wants, web_catalog
 from .catalog_rules import normalise_code_key, tag_cat
 from .genre_decisions import load_genre_decisions
 from .genre_taxonomy import resolve_genre
@@ -222,6 +222,17 @@ def _source_fields(source, decisions):
             "comments_count": int(source.get("comments_count") or 0)}
 
 
+#: 评论没有用户名时显示的名字。
+ANONYMOUS_CODE = "labels.webJavDetail.anonymousUser"
+
+
+def _username(name) -> dict:
+    """评论者：来源给的名字原样；没有名字时 `username` 是 zh-CN 原文，`username_code` 给界面取译文。"""
+    if name:
+        return {"username": str(name)}
+    return {"username": interface_text.text(f"server:{ANONYMOUS_CODE}"), "username_code": ANONYMOUS_CODE}
+
+
 @_source_cache
 def q_jav_reviews(contract, args) -> dict:
     code = detail_code(args)
@@ -234,7 +245,7 @@ def q_jav_reviews(contract, args) -> dict:
             rows = PUBLIC_API.reviews(code, page)
     except PublicSourceUnavailable as error:
         return {"ok": False, "items": [], "more": False, "message": str(error)}
-    items = [{"id": str(row.get("id")), "username": str(row.get("username") or "匿名用户"),
+    items = [{"id": str(row.get("id")), **_username(row.get("username")),
               "content": str(row.get("content") or ""), "score": row.get("score"),
               "created_at": str(row.get("created_at") or "")} for row in rows[:PAGE_SIZE] if isinstance(row, dict)]
     return {"ok": True, "items": items, "page": page,

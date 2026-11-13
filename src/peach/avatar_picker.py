@@ -29,7 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 
-from . import gfriends, images, jav_poster_crop
+from . import gfriends, images, interface_text, jav_poster_crop
 from .avatar_cover_face import WHOLE_COVER_PROVIDERS, face_square
 from .avatar_face import read_sidecar
 from .catalog_rules import normalise_code_key
@@ -57,25 +57,28 @@ MAX_IMAGE_BYTES = 16 * 1024 * 1024
 FETCH_TIMEOUT = 30
 #: 证据里的 `provider` 是采集路线的代号，摆到格子底下要换成来源本身的名字：
 #: `jae:actress.html#joyu117` 这种串回答的是「批处理怎么再找到它」，不是「这张图哪来的」。
-#: 表里没有的按代号原样显示——新来源接进来时先露一个代号，好过盖成一个含混的
-#: 「其他」：看到代号的人才知道该来这里补一行。
+#: 值是来源名的 code（`labels.avatarPicker.source.<id>`，ADR-0159）；品牌名本身不译，在 `BRAND_SOURCES`。
+#: 两张表里都没有的显示「来源未记录」。
 SOURCE_NAMES = {
-    "gfriends": "图库",
-    "jae": "展会名录",
-    "social-web": "社交主页",
-    "follow-content": "在线作品",
-    "cover": "作品封面",
-    "cover-fallback": "作品封面",
-    "cover-face": "封面人脸",
-    "babepedia": "Babepedia",
-    "kmib": "官网",
-    "picker": "自己挑的",
-    "history": "取过的图",
-    "asset": "作品画面",
-    "code-cover": "番号封面",
-    "url": "地址",
-    "upload": "本机",
+    "gfriends": "labels.avatarPicker.source.gallery",
+    "jae": "labels.avatarPicker.source.expoDirectory",
+    "social-web": "labels.avatarPicker.source.socialProfile",
+    "follow-content": "labels.avatarPicker.source.onlineVideo",
+    "cover": "labels.avatarPicker.source.videoCover",
+    "cover-fallback": "labels.avatarPicker.source.videoCover",
+    "cover-face": "labels.avatarPicker.source.coverFace",
+    "kmib": "labels.avatarPicker.source.officialSite",
+    "picker": "labels.avatarPicker.source.picked",
+    "history": "labels.avatarPicker.source.fetched",
+    "asset": "labels.avatarPicker.source.videoStill",
+    "code-cover": "labels.avatarPicker.source.codeCover",
+    "url": "labels.avatarPicker.source.address",
+    "upload": "labels.avatarPicker.source.thisDevice",
 }
+BRAND_SOURCES = {"babepedia": "Babepedia"}
+#: 证据没说清来源时的来源名；品牌名与账号名（`X @…`、`lit.link @…`）原样填进 `NAMED_SOURCE`。
+UNKNOWN_SOURCE = "labels.avatarPicker.sourceUnknown"
+NAMED_SOURCE = "labels.avatarPicker.named"
 #: 按番号取来的封面放在这个来源目录里。它不属于任何人，所以只存对象、不写证据：
 #: 证据按 `performer-<id>-*` 存，写了就会冒充成某个人「取过的图」。
 CODE_COVER_CACHE = "code-cover"
@@ -87,8 +90,9 @@ SHEET_CELLS = 9
 #: 手填地址取来的图放在这个来源目录里，按地址存。框选、确认都从这里读，不再出网；
 #: 装上去时来源记录的 `provider` 也是它，整张装的那一份和取来的落在同一条记录上。
 ADDRESS_CACHE = "url"
-#: 发布账号没有本人身份依据时，作品画面格子上的说明。
-STAND_IN_NOTE = "代表作画面，非本人"
+#: 发布账号没有本人身份依据时，作品画面格子上的说明；有片名时接在说明后面。
+STAND_IN_NOTE = "labels.avatarPicker.standIn"
+STAND_IN_NOTE_WITH_TITLE = "labels.avatarPicker.standInWithTitle"
 
 
 #: 图库索引取失败后，隔这么久才再试。头像框一天能开几十次，离线时每开一次就出网
@@ -215,6 +219,15 @@ class Choice:
     #: 图库与历史按内容寻址，九宫格从视频抽帧，都不会原地变，是空串。
     version: str = ""
     user_cropped: bool = False
+    #: `label` 的来源名部分的 code 与参数（ADR-0159），页面按它取译文，再按 `user_cropped` 与 `cover_code`
+    #: 接上「已裁剪」与番号；空串表示 `label` 本身是内容（图库分类、番号、片名），原样显示。
+    label_code: str = ""
+    label_params: tuple[tuple[str, object], ...] = ()
+    #: 整张作品封面那一格的番号，`label` 末尾那一段。
+    cover_code: str = ""
+    #: `detail` 的 code 与参数；空串表示 `detail` 是内容（文件名、地址、片名）。
+    detail_code: str = ""
+    detail_params: tuple[tuple[str, object], ...] = ()
 
     def as_dict(self) -> dict:
         focus = (dict(zip(("x0", "y0", "x1", "y1"), self.focus))
@@ -224,7 +237,10 @@ class Choice:
                 "detail": self.detail, "found_by": self.found_by,
                 "current": self.current, "crop": self.crop,
                 "bases": list(self.bases), "focus": focus, "cast": self.cast,
-                "version": self.version, "user_cropped": self.user_cropped}
+                "version": self.version, "user_cropped": self.user_cropped,
+                "label_code": self.label_code, "label_params": dict(self.label_params),
+                "cover_code": self.cover_code,
+                "detail_code": self.detail_code, "detail_params": dict(self.detail_params)}
 
 
 def cover_version(cover: Path | None) -> str:
@@ -329,29 +345,33 @@ def _history_records(providers_root: Path, entity_id: int) -> dict[str, list[dic
     return records
 
 
-def _history_source_label(record: dict) -> str:
-    """标签只使用证据明确给出的站点、账号或图库分类。"""
+def _history_source_label(record: dict) -> tuple[str, dict]:
+    """来源名的 code 与参数。标签只使用证据明确给出的站点、账号或图库分类。"""
     provider = str(record.get("provider") or "")
     external_id = str(record.get("external_id") or "")
     url = str(record.get("upstream_url") or "")
     host = urllib.parse.urlsplit(url).hostname or ""
     if provider == "social-web":
         if host == "pbs.twimg.com":
-            return f"X @{external_id[2:]}" if external_id.startswith("x:") else "X"
+            return NAMED_SOURCE, {"name": f"X @{external_id[2:]}" if external_id.startswith("x:") else "X"}
         page = urllib.parse.urlsplit(external_id)
         if page.hostname == "lit.link" and page.path.strip("/"):
-            return f"lit.link @{page.path.strip('/')}"
+            return NAMED_SOURCE, {"name": f"lit.link @{page.path.strip('/')}"}
         if host in ("prd.storage.lit.link", "prd.resource-api.lit.link"):
-            return "lit.link"
-        return "来源未记录"
+            return NAMED_SOURCE, {"name": "lit.link"}
+        return UNKNOWN_SOURCE, {}
     if provider == "gfriends":
         category, _, _ = external_id.partition("/")
-        return f"图库 · {gfriends.category_label(category)}" if category else "图库"
+        if category:
+            return "labels.avatarPicker.galleryCategory", {"category": gfriends.category_label(category)}
+        return SOURCE_NAMES["gfriends"], {}
     if provider in ("history", "picker", ""):
-        return "来源未记录"
+        return UNKNOWN_SOURCE, {}
     if provider == "url":
-        return f"图片地址 · {host}" if host else "来源未记录"
-    return SOURCE_NAMES.get(provider, "来源未记录")
+        return ("labels.avatarPicker.imageAddress", {"host": host}) if host else (UNKNOWN_SOURCE, {})
+    if provider in BRAND_SOURCES:
+        return NAMED_SOURCE, {"name": BRAND_SOURCES[provider]}
+    return SOURCE_NAMES.get(provider, UNKNOWN_SOURCE), {}
 
 
 def _history_source(records: dict[str, list[dict]], digest: str) -> dict:
@@ -361,7 +381,7 @@ def _history_source(records: dict[str, list[dict]], digest: str) -> dict:
     while digest in records and digest not in visited:
         visited.add(digest)
         record = min(records[digest], key=lambda row: (
-            _history_source_label(row) == "来源未记录",
+            _history_source_label(row)[0] == UNKNOWN_SOURCE,
             row.get("provider") in ("history", "picker")))
         if record.get("provider") != "history":
             return record
@@ -399,13 +419,14 @@ def _history(providers_root: Path, entity_id: int, current: str,
         record = evidence[0]
         source = _history_source(records, digest)
         provider = str(source.get("provider") or "")
-        label = _history_source_label(source)
+        label_code, label_params = _history_source_label(source)
+        label = interface_text.text(f"server:{label_code}", label_params)
         cropped = any(row.get("source_kind") == "user_cropped" for row in evidence)
         if cropped:
-            label += " · 已裁剪"
+            label = interface_text.text("server:labels.avatarPicker.cropped", {"label": label})
         width, height = int(record.get("width") or 0), int(record.get("height") or 0)
         whole = provider in WHOLE_COVER_PROVIDERS and not cropped
-        focus, cast = None, 0
+        focus, cast, key = None, 0, ""
         if whole:
             key = normalise_code_key(source.get("external_id"))
             label = f"{label} {key}".strip()
@@ -418,6 +439,7 @@ def _history(providers_root: Path, entity_id: int, current: str,
         source_url = str(source.get("upstream_url") or "")
         out.append(Choice(
             ref=f"sha256:{digest}", source="history", label=label,
+            label_code=label_code, label_params=tuple(label_params.items()), cover_code=key,
             width=width, height=height,
             detail=source_url if source_url.startswith(("https://", "http://")) else "",
             current=digest == current, crop=whole, focus=focus, cast=cast,
@@ -480,11 +502,18 @@ def asset_artwork(connection: sqlite3.Connection, cover_root: Path,
             "SELECT count(DISTINCT entity_id) FROM asset_entity WHERE asset_id=? AND role='performer'",
             (int(asset_id),)).fetchone()[0]
         cast = artwork_cast_size(cover, cast)
+        title = str(title or "")
+        label_code = "" if code or title else "labels.avatarPicker.assetFallback"
+        label_params = (("id", int(asset_id)),) if label_code else ()
+        detail_code = (STAND_IN_NOTE_WITH_TITLE if title else STAND_IN_NOTE) if stand_in else ""
+        detail_params = (("title", title),) if detail_code and title else ()
         found.append((width * height, order, Choice(
             ref=bases[0], source="asset",
-            label=str(code or title or f"作品 {asset_id}"),
+            label=str(code or title or interface_text.text(f"server:{label_code}", dict(label_params))),
+            label_code=label_code, label_params=label_params,
             width=width, height=height,
-            detail=" · ".join(filter(None, (STAND_IN_NOTE if stand_in else "", str(title or "")))),
+            detail=interface_text.text(f"server:{detail_code}", dict(detail_params)) if detail_code else title,
+            detail_code=detail_code, detail_params=detail_params,
             crop=True, bases=tuple(bases),
             focus=cover_focus(key, cover, _focus_face(read_sidecar(cover), cast), width, height)
             if size else None, cast=cast, version=cover_version(cover) if size else "")))
@@ -879,7 +908,7 @@ def resolve(ref: str, connection: sqlite3.Connection, providers_root: Path,
         records = _history_records(providers_root, entity_id)
         source = _history_source(records, digest)
         origin = {"source": "avatar picker", "provider": "history", "external_id": digest}
-        if _history_source_label(source) != "来源未记录":
+        if _history_source_label(source)[0] != UNKNOWN_SOURCE:
             origin.update({key: source[key] for key in (
                 "provider", "external_id", "upstream_url", "matched_name", "name_source") if key in source})
         if any(row.get("source_kind") == "user_cropped" for row in records.get(digest, ())):

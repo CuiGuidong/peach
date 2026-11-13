@@ -43,6 +43,7 @@ import {
   ErrorText, ExternalLink, Fact, FactList, Footer, Help, Section, SourceMark, Stack,
 } from './section';
 import { busyProps, useAction } from './use-action';
+import { bodyFieldErrors } from '../../core/server-text';
 import { confirmModal } from '@peach/legacy/ui';
 import { fetchLibraryProcessing, processingActive, restartEffectText } from '../library-processing/library-processing';
 import { t } from '../../i18n';
@@ -104,7 +105,7 @@ function initialRows(data: ConfigurationData): MediaRow[] {
 
 const fieldErrorsOf = (cause: unknown): FieldErrors | null => {
   if (!(cause instanceof ApiError) || cause.status !== 400) return null;
-  return (cause.body as { errors?: FieldErrors } | null)?.errors ?? null;
+  return bodyFieldErrors<FieldErrors>(cause.body) ?? null;
 };
 
 /* 能编辑时挂载状态标在每个文件夹行上；只读时没有那张表，单列一块。 */

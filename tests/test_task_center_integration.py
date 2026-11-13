@@ -14,7 +14,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from peach import web_contract, web_tasks
+from peach import interface_text, web_contract, web_tasks
 from peach.jobs import BackgroundJob, TaskRunConflict
 from peach.routes_api import api_get, api_post, task_run_detail, task_run_control
 from peach.repository import LedgerDatabase
@@ -121,15 +121,25 @@ class BackgroundJobTaskRunTests(unittest.TestCase):
                 {'source': 17, 'label': '示例作者', 'provider_label': '示例站点',
                  'ok': False, 'error': 'HTTP 403', 'url': 'private'},
                 {'source': 18, 'label': '另一来源', 'ok': True, 'backfill_error': '连接超时'},
+                {'source': 19, 'label': '订阅源', 'ok': False, 'error': '冷却中；还有 2 个顺延',
+                 'error_code': 'labels.webFeeds.cooling', 'error_params': {},
+                 'deferred_note_code': 'labels.webFeeds.deferredRest', 'deferred_note_params': {'count': 2}},
             ],
         })
         job.thread.join(5)
         summary = self.store.query(task_key='follow-check')[0].result_summary
-        self.assertEqual(summary['source_failed'], 1)
+        self.assertEqual(summary['source_failed'], 2)
         self.assertEqual(summary['source_warning'], 1)
+        check, backfill = 'labels.taskResults.kind.check', 'labels.taskResults.kind.backfill'
         self.assertEqual(summary['issues'], [
-            {'source': 17, 'label': '示例作者', 'provider': '示例站点', 'kind': '检查失败', 'error': 'HTTP 403'},
-            {'source': 18, 'label': '另一来源', 'provider': '', 'kind': '补查失败', 'error': '连接超时'},
+            {'source': 17, 'label': '示例作者', 'provider': '示例站点', 'kind': '检查失败', 'kind_code': check,
+             'error': 'HTTP 403'},
+            {'source': 18, 'label': '另一来源', 'provider': '', 'kind': '补查失败', 'kind_code': backfill,
+             'error': '连接超时'},
+            {'source': 19, 'label': '订阅源', 'provider': '', 'kind': '检查失败', 'kind_code': check,
+             'error': '冷却中；还有 2 个顺延',
+             'error_parts': [{'code': 'labels.webFeeds.cooling', 'params': {}}, {'code': 'outcome.semicolon'},
+                             {'code': 'labels.webFeeds.deferredRest', 'params': {'count': 2}}]},
         ])
         self.assertNotIn('private', json.dumps(summary))
 
@@ -679,8 +689,13 @@ class ConflictStatusTests(unittest.TestCase):
     def test_the_detail_route_answers_by_id_and_404s_for_the_rest(self):
         run = self.contract.task_runs.start("batch", trigger="manual")
         self.assertEqual(task_run_detail(self.request, run.id, {})["run"]["id"], run.id)
-        self.assertEqual(
-            task_run_detail(self.request, run.id + 1000, {}).status_code, 404)
+        missing = task_run_detail(self.request, run.id + 1000, {})
+        self.assertEqual(missing.status_code, 404)
+        body = json.loads(missing.body)
+        self.assertEqual((body["error"], body["message_code"], body["message_params"]),
+                         (f"没有第 {run.id + 1000} 轮任务", "errors.webTasks.runMissing", {"run_id": run.id + 1000}))
+        self.assertEqual(interface_text.text(f"server:{body['message_code']}", body["message_params"], language="en"),
+                         f"Task run {run.id + 1000} does not exist")
 
     def test_control_endpoint_exposes_pending_pause_and_resumes_the_same_row(self):
         parent = self.contract.task_runs.start('parent', trigger='manual')

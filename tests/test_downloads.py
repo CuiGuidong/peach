@@ -15,6 +15,7 @@ from pathlib import Path, PureWindowsPath
 from unittest.mock import patch
 
 from peach import downloads as dl
+from peach import interface_text
 from peach import push_discovery as push
 from peach import wants
 from peach.follow_secrets import CredentialStore
@@ -310,6 +311,15 @@ class PollingTests(_Deployment):
         task = self.service.store.get(task_id)
         self.assertEqual((task.state, task.failure_detail), (dl.SUBMITTED, None))
 
+    def test_a_failure_reported_without_remote_text_keeps_the_channel_reason(self):
+        task_id = self.submit()["task"]["id"]
+        code = "errors.downloadsClouddrive.offlineFailed"
+        self.provider.statuses = [dl.RemoteStatus(dl.ERROR, "r1", "", None, "ignored", message_code=code)]
+        self.tick(10)
+        task = self.service.store.get(task_id)
+        self.assertEqual((task.state, task.failure), (dl.FAILED, "rejected"))
+        self.assertEqual(task.failure_detail, "远端拒绝了这个任务：115 报告离线失败，多半是资源无人做种或被拒")
+
     def test_a_block_seen_while_polling_also_blacklists(self):
         task_id = self.submit()["task"]["id"]
         self.provider.statuses = [dl.RemoteStatus(dl.ERROR, "r1", "", None, "50038")]
@@ -586,10 +596,23 @@ class SettingsTests(_Deployment):
         loaded = self.service.settings.load()
         self.assertEqual(loaded.payload(), stored)
         self.assertIn("端口", loaded.problems[0])
+        self.assertEqual(dl.problem_codes(loaded.problems), [{"code": "errors.downloads.addressPortInvalidIpv6", "params": {}}])
         self.assertEqual(path.read_bytes(), payload)
         corrected = self.service.settings.save({**stored, "clouddrive_address": "localhost:19798"}, None)
         self.assertEqual(corrected.problems, ())
         self.assertEqual(corrected.targets, stored["targets"])
+
+    def test_a_scheduled_postprocess_retry_is_labelled_with_its_attempt(self):
+        task = dl.DownloadTask(1, HASH, "115", "magnet:", "", "/115", dl.INGESTED,
+                               postprocess_state=dl.POSTPROCESS_PENDING, next_check_at="2026-11-13T00:00:00+00:00",
+                               postprocess_retries=1)
+        payload = task.payload()
+        self.assertEqual(payload["postprocess_label"], f"等待自动重试（1/{len(dl.RETRY_DELAYS)}）")
+        self.assertEqual((payload["postprocess_label_code"], payload["postprocess_label_params"]),
+                         ("labels.downloads.postprocessRetrying", {"retries": 1, "limit": len(dl.RETRY_DELAYS)}))
+        english = interface_text.text(f"server:{payload['postprocess_label_code']}",
+                                      payload["postprocess_label_params"], language="en")
+        self.assertEqual(english, f"Waiting to retry automatically (1/{len(dl.RETRY_DELAYS)})")
 
     def test_snapshot_hides_remote_cancel_when_the_channel_cannot_cancel(self):
         task_id = self.submit()["task"]["id"]

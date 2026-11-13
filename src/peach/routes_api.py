@@ -241,6 +241,14 @@ async def taste_import(
         return JSONResponse(error_fields(exc), status_code=400)
 
 
+def _not_found(exc: KeyError) -> JSONResponse:
+    """任务那两条路由的 404：带 code 的（`web_tasks.TaskRunMissing`）给原句与 code，
+    别的 `KeyError` 照旧给原句。`str(KeyError(...))` 会把消息连引号一起带出来，取 args 才是那句话本身。"""
+    if isinstance(exc, UserFacingError):
+        return JSONResponse(error_fields(exc), status_code=404)
+    return JSONResponse({"error": str(exc.args[0])}, status_code=404)
+
+
 @router.get("/api/tasks/{run_id}")
 def task_run_detail(request: Request, run_id: int,
                     _args: dict[str, str] = Depends(require_auth)):
@@ -248,8 +256,7 @@ def task_run_detail(request: Request, run_id: int,
     try:
         return web_tasks.q_task(request.app.state.web_contract, run_id)
     except KeyError as exc:
-        # `str(KeyError(...))` 会把消息连引号一起带出来，取 args 才是那句话本身。
-        return JSONResponse({"error": str(exc.args[0])}, status_code=404)
+        return _not_found(exc)
 
 
 @router.post('/api/tasks/{run_id}/control')
@@ -275,7 +282,7 @@ def task_run_control(request: Request, run_id: int, body: dict = Body(default_fa
         contract.followups.wake()
         return web_tasks.q_task(contract, run_id)
     except KeyError as exc:
-        return JSONResponse({'error': str(exc.args[0])}, status_code=404)
+        return _not_found(exc)
     except PermissionError as exc:
         return JSONResponse({'error': str(exc)}, status_code=403)
     except ValueError as exc:
@@ -384,9 +391,9 @@ def api_get(request: Request, route: str, args: dict[str, str] = Depends(require
     except TaskCancelled:
         return JSONResponse(message_fields('api.routes.taskCanceled', key='error'), status_code=409)
     except UpdateBusy as exc:
-        return JSONResponse({'error': 'update in progress', 'message': str(exc)}, status_code=409)
+        return JSONResponse({'error': 'update in progress', **message_fields(exc.code, exc.params)}, status_code=409)
     except FolderRuleConflict as exc:
-        return JSONResponse({'error': 'folder rule conflict', 'message': str(exc)}, status_code=409)
+        return JSONResponse({'error': 'folder rule conflict', **message_fields(exc.code, exc.params)}, status_code=409)
     except KeyError:
         return JSONResponse({"error": "not found"}, status_code=404)
     except UserFacingError as exc:
@@ -436,7 +443,7 @@ def api_post(
     except TaskRunConflict as exc:
         return _conflict(exc)
     except UpdateBusy as exc:
-        return JSONResponse({'error': 'update in progress', 'message': str(exc)}, status_code=409)
+        return JSONResponse({'error': 'update in progress', **message_fields(exc.code, exc.params)}, status_code=409)
     except KeyError:
         return JSONResponse({"error": "not found"}, status_code=404)
     except RevisionConflict as exc:

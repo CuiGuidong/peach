@@ -19,7 +19,15 @@ import sys
 import time
 
 from . import distribution
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserValueError
+
+
+def _local_text(error: BaseException) -> str:
+    """写给安装器弹窗的报错：本机直接给人看，按本机语言渲染；没带 code 的异常照旧给原文。"""
+    from . import interface_text
+    if isinstance(error, UserFacingError):
+        return interface_text.text(f"server:{error.code}", error.params, interface_text.local_language())
+    return str(error)
 
 APP_ID = "02D9748A-78F6-4866-AC75-918177194DAB"
 UNINSTALL_KEY = rf"Software\Microsoft\Windows\CurrentVersion\Uninstall\{{{APP_ID}}}_is1"
@@ -140,7 +148,7 @@ def prepare(program: Path, owner: int, error_file: Path) -> int:
     except Exception as exc:
         if token:
             update_tasks.release(db, token)
-        atomic_write_text(error_file, str(exc))
+        atomic_write_text(error_file, _local_text(exc))
         return 1
 
 
@@ -168,7 +176,9 @@ def prepare_install_tools(program: Path, cache: Path, error_file: Path, *, stage
                                             report=lambda data, **changes: data.update(changes), fetch=fetch)
         return 0
     except Exception as exc:
-        atomic_write_text(error_file, f'媒体工具准备失败：{exc}')
+        from . import interface_text
+        atomic_write_text(error_file, interface_text.text("server:tray.installer.toolsFailed", {"error": _local_text(exc)},
+                                                          interface_text.local_language()))
         return 1
 
 

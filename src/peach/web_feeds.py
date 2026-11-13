@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from urllib.parse import quote
 
 from . import (
-    avatar_followup, entities, entry_links, feed_followup, feeds, javdb,
+    avatar_followup, entities, entry_links, feed_followup, feeds, interface_text, javdb,
     performer_alias_followup as alias, performer_profile_followup, wants, web_catalog,
     web_settings, web_wants,
 )
@@ -24,7 +24,7 @@ from .followups import Attempts, attempts_root
 from .jobs import TaskRunConflict
 from .http import HttpRequest, public_https_url
 from .task_runs import MAX_FOLLOWUPS
-from .user_messages import UserValueError
+from .user_messages import UserFacingError, UserInterruptedError, UserValueError
 
 #: 一次拉取的超时与体积上限。JavDB 演员页 78 KB；2 MiB 之外的东西不是演员页，
 #: 是被替换成了别的页面。
@@ -97,6 +97,18 @@ def fetch(transport, url: str, *, etag: str | None = None,
     return transport(HttpRequest("GET", url, headers), FETCH_TIMEOUT, FETCH_MAX_BYTES)
 
 
+def _reason(code: str, **params) -> dict:
+    """结果行上的一句失败原因：`error` 是 zh-CN 原文，`error_code` 与 `error_params` 给界面取译文。"""
+    return {"error": interface_text.text(f"server:{code}", params), "error_code": code, "error_params": params}
+
+
+def _failure(error: BaseException) -> dict:
+    """异常写成结果行的失败原因：带 code 的连同 code 一起给，别的只给原文。"""
+    if isinstance(error, UserFacingError):
+        return {"error": error.message, "error_code": error.code, "error_params": dict(error.params)}
+    return {"error": str(error)}
+
+
 def poll_source(contract, transport, source) -> dict:
     """拉一个源并落库，返回这一轮的账。任何失败都写进源的 `last_error`。
 
@@ -115,7 +127,7 @@ def poll_source(contract, transport, source) -> dict:
         response = fetch(transport, source["url"], etag=source["etag"],
                          last_modified=source["last_modified"])
     except Exception as error:  # noqa: BLE001 - 原因写到源那一行上给人看
-        report.update(ok=False, error=str(error))
+        report.update(ok=False, **_failure(error))
         # 整站冷却挡回来的，冷却一过就重拉，不跟着间隔再等一整轮。
         retry_at = _cooling_until(contract, source["url"]) if _paused_by_source(error) else None
         if retry_at is not None:
@@ -131,16 +143,17 @@ def poll_source(contract, transport, source) -> dict:
         _backfill_solo_works(contract, transport, source, report)
         return report
     if response.status != 200:
-        message = f"来源回了 HTTP {response.status}"
-        report.update(ok=False, error=message)
+        # 源那一行的 `last_error` 只有一列原文，存 code 要改表，见延后清单；结果行带 code。
+        failure = _reason("api.feeds.sourceHttpStatus", status=response.status)
+        report.update(ok=False, **failure)
         with contract.database.write_transaction() as connection:
-            feeds.settle(connection, source_id, error=message, interval_minutes=interval)
+            feeds.settle(connection, source_id, error=failure["error"], interval_minutes=interval)
         return report
     try:
         parsed = _parse_source(source["kind"], response.body, source["url"])
     except ValueError as error:
         message = str(error)
-        report.update(ok=False, error=message)
+        report.update(ok=False, **_failure(error))
         with contract.database.write_transaction() as connection:
             feeds.settle(connection, source_id, error=message, interval_minutes=interval)
         return report
@@ -180,7 +193,7 @@ def _poll_dmm(contract, transport, source, report: dict) -> dict:
                                        known=known, limit=feeds.MAX_ENTRIES)
     except Exception as error:  # noqa: BLE001 - 原因写到源那一行上给人看
         message = error.message if isinstance(error, SourceFailure) else str(error)
-        report.update(ok=False, error=message,
+        report.update(ok=False, **{**_failure(error), "error": message},
                       reason=str(error.reason) if isinstance(error, SourceFailure) else None)
         # 和演员页同一条：整站冷却挡回来的，冷却一过就重拉（ADR-0134）。
         retry_at = _cooling_until(contract, source["url"]) if _paused_by_source(error) else None
@@ -270,7 +283,7 @@ def _execute_check(contract, body, job_id: str) -> dict:
     completed = {row['source'] for row in results if row.get('ok') and not row.get('backfill_error')}
     codes = [code for row in results for code in row.get('codes') or []]
     if not contract.feed_job.checkpoint(job_id, source_ids=[int(row['id']) for row in rows]):
-        raise InterruptedError('订阅检查已停止')
+        raise UserInterruptedError("errors.webFeeds.checkStopped")
     deferred, held = 0, set()
     try:
         for index, source in enumerate(rows):
@@ -286,18 +299,18 @@ def _execute_check(contract, body, job_id: str) -> dict:
                 held.update(int(row['id']) for row in pending)
                 if not contract.feed_job.checkpoint(job_id, results=results, checked=len(results),
                                                     total=len(rows), added=len(set(codes))):
-                    raise InterruptedError('订阅检查已停止')
+                    raise UserInterruptedError("errors.webFeeds.checkStopped")
                 continue
             if not contract.feed_job.update(job_id, checked=len(results), total=len(rows),
                                             current=source["name"] or source["url"]):
-                raise InterruptedError('订阅检查已停止')
+                raise UserInterruptedError("errors.webFeeds.checkStopped")
             report = poll_source(contract, transport, source)
             results = [row for row in results if row['source'] != report['source']]
             results.append(report)
             codes.extend(report.get("codes") or [])
             if not contract.feed_job.checkpoint(job_id, results=results, checked=len(results),
                                                 total=len(rows), added=len(set(codes))):
-                raise InterruptedError('订阅检查已停止')
+                raise UserInterruptedError("errors.webFeeds.checkStopped")
     finally:
         close = getattr(transport, "close", None)
         if close:
@@ -357,14 +370,20 @@ def _defer_round(contract, pending, until: datetime, results: list) -> tuple[lis
     if trigger is None:
         from .scraping_access import SOURCES, source_for
         first = pending[0]
-        label = SOURCES.get(source_for(first["url"]) or "", {}).get("label", "来源")
+        label = SOURCES.get(source_for(first["url"]) or "", {}).get("label")
         trigger = {"source": int(first["id"]), "name": first["name"] or first["url"],
                    "ok": False, "seen": 0, "added": 0, "without_code": 0, "paused": True,
-                   "error": f"{label} 正在冷却，这一轮没有拉"}
+                   **(_reason("labels.webFeeds.sourceCooling", source=label) if label
+                      else _reason("labels.webFeeds.cooling"))}
         results.append(trigger)
         rest -= 1
     if rest:
-        trigger["error"] = f"{trigger['error']}；其余 {rest} 个源顺延到冷却结束后再拉"
+        # 顺延了几个另成一句：前面的原因可能是别处的报错，两句各带各的 code。`error` 仍是连起来的原文，
+        # 读 `error_code` 的界面要把 `deferred_note` 接在后面。
+        note = _reason("labels.webFeeds.deferredRest", count=rest)
+        trigger.update(deferred_note=note["error"], deferred_note_code=note["error_code"],
+                       deferred_note_params=note["error_params"])
+        trigger["error"] = f"{trigger['error']}{interface_text.text('server:outcome.semicolon')}{note['error']}"
     return results, len(pending)
 
 
@@ -557,7 +576,9 @@ def q_feed_lookup(contract, args) -> dict:
         # 她已有 JavDB 或 DMM 编号时不必靠这一趟搜索，按库里的她直接订；原因照样告诉页面。
         if known and known["subscribable"]:
             return {"ok": True, "q": name, "url": url, "candidates": [], "suggested": [],
-                    "known": known, "unavailable": str(error)}
+                    "known": known, "unavailable": str(error),
+                    **({"unavailable_code": error.code, "unavailable_params": dict(error.params)}
+                       if isinstance(error, UserFacingError) else {})}
         raise
     cards = javdb.search_cards(html)
     wanted = alias.match_key(name)

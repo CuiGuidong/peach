@@ -12,6 +12,7 @@ from unittest.mock import patch
 from pathlib import Path
 
 from peach import downloads_pikpak_browser as pb
+from peach import interface_text
 from peach.browser_transport import BrowserUnavailable
 
 KEY = "credentials_YUMx5nI8ZU8Ap8pm"
@@ -130,7 +131,8 @@ class BrowserLoginTests(unittest.TestCase):
         with self.assertNoLogs(pb.LOGGER, level="WARNING"):
             self.assertEqual(login.start()["state"], pb.WAITING)
             status = self.finish(login)
-        self.assertEqual(status, {"state": pb.DONE, "message": "已用浏览器登录 PikPak"})
+        self.assertEqual(status, {"state": pb.DONE, "message": "已用浏览器登录 PikPak",
+                                  "message_code": "labels.downloadsPikpakBrowser.done", "message_params": {}})
         self.assertEqual(made[0][1], Path("C:/fake/secrets/browser-pikpak"))
         self.assertEqual(self.saved, [{
             "refresh_token": "page-refresh", "access_token": "page-access", "expires_at": "1790935200",
@@ -177,6 +179,8 @@ class BrowserLoginTests(unittest.TestCase):
         status = self.finish(login)
         self.assertEqual(status["state"], pb.TIMEOUT)
         self.assertIn("用浏览器登录", status["message"])
+        english = interface_text.text(f"server:{status['message_code']}", status["message_params"], language="en")
+        self.assertIn("Sign in with browser", english)
         self.assertTrue(browser.closed)
 
     def test_cancel_returns_at_once_and_the_thread_closes_the_window(self):

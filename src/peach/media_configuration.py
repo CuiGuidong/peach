@@ -225,14 +225,17 @@ def _validated_paths(row: dict, *, windows: bool) -> tuple[PureWindowsPath, Pure
     return PureWindowsPath(root), path
 
 
-def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, list[str]]:
-    """离线来源允许保存；绝对路径、盘符根与来源间重叠在保存前校验。"""
+def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, list]:
+    """离线来源允许保存；绝对路径、盘符根与来源间重叠在保存前校验。
+
+    错误与行对齐：没问题的行是空串，有问题的是带 code 的异常，由 `web_entry.field_errors` 写成原句与 code。
+    整表不成立（一行都没填、超过 100 行）时只有一项。"""
     if not isinstance(raws, list) or not raws or len(raws) > 100:
-        return {}, {}, ["请添加 1 到 100 个媒体目录"]
+        return {}, {}, [UserValueError("errors.mediaConfiguration.rowCount")]
     raws = prepare_sources(raws, windows=windows, config=config)
     locations: dict[str, list[str]] = {}
     mounts: dict[str, list[str]] = {}
-    errors = [""] * len(raws)
+    errors: list = [""] * len(raws)
     seen: list[tuple[PureWindowsPath, PurePath]] = []
     for index, row in enumerate(raws):
         try:
@@ -257,7 +260,7 @@ def validate(raws: object, *, windows: bool, config=None) -> tuple[dict, dict, l
             mounts.setdefault(location, []).append(row['path'] if is_address(row['path'])
                                                     else str(path) if not windows or declared != path else "")
         except ValueError as exc:
-            errors[index] = str(exc)
+            errors[index] = exc
     return ({key: tuple(value) for key, value in locations.items()},
             {key: tuple(value) for key, value in mounts.items() if any(value)},
             errors if any(errors) else [])

@@ -13,7 +13,7 @@ import sys
 from . import distribution, settings_file
 from .appid import MACOS_LAUNCH_AGENT_LABEL
 from .fsutil import atomic_write_text
-from .user_messages import UserOSError, UserValueError
+from .user_messages import UserFacingError, UserOSError, UserValueError, message_fields
 
 #: 结论只走 stdout 的一行 JSON，`ok` 决定成败。退出码和 stderr 都不作判据：
 #: Windows PowerShell 5.1 把进度流序列化成 `#< CLIXML` 写到 stderr，成功那一次也写，
@@ -136,11 +136,11 @@ def _shortcut_reason(payload, result) -> str:
     if isinstance(payload, dict) and payload.get("error"):
         kind = str(payload.get("kind", "")).rsplit(".", 1)[-1]
         line = payload.get("line")
-        located = f"{kind} 第 {line} 行" if kind and line else kind
-        return f"{payload['error']}（{located}）" if located else str(payload["error"])
+        located = f"{kind} line {line}" if kind and line else kind
+        return f"{payload['error']} ({located})" if located else str(payload["error"])
     noise = next((line.strip() for line in (result.stderr or "").splitlines()
                   if line.strip() and not line.lstrip().startswith(("#<", "<"))), "")
-    return noise or f"退出码 {result.returncode}，输出为空"
+    return noise or f"exit code {result.returncode}, no output"
 
 
 def target(config, *, executable: Path | None = None) -> tuple[Path, list[str], Path]:
@@ -227,7 +227,15 @@ def windows_entry(config, program: Path) -> tuple[Path, dict]:
 
 #: 桌面快捷方式只有 Windows 有。macOS 的等价物是 Finder 别名，得靠 osascript 造，
 #: 而 Dock 已经是那个平台放常用程序的地方。
-_NO_DESKTOP = "此系统未提供桌面快捷方式"
+_NO_DESKTOP = "labels.desktopStartup.noDesktop"
+
+
+def _said(key: str, code: str = "", params: dict | None = None) -> dict:
+    """状态卡上的一句说明：`<key>` 是 zh-CN 原句，旁边配 `<key>_code` 与 `<key>_params`；没有说明时都空。"""
+    if not code:
+        return {key: "", f"{key}_code": "", f"{key}_params": {}}
+    fields = message_fields(code, params)
+    return {key: fields["message"], f"{key}_code": code, f"{key}_params": fields["message_params"]}
 
 
 def desktop_snapshot(config) -> dict:
@@ -237,15 +245,18 @@ def desktop_snapshot(config) -> dict:
     说出原因，不该把整个「开机自启」面板打成「状态未取得」，把还好着的两个开关一起锁住。
     """
     if sys.platform != "win32":
-        return {"desktop": False, "desktop_message": _NO_DESKTOP}
+        return {"desktop": False, **_said("desktop_message", _NO_DESKTOP)}
     try:
         program, _, _ = target(config)
         _, entry = desktop_entry(program)
-        return {"desktop": entry["enabled"], "desktop_message": ""}
+        return {"desktop": entry["enabled"], **_said("desktop_message")}
     except (OSError, ValueError) as exc:
-        return {"desktop": False, "desktop_message": str(exc)}
+        if isinstance(exc, UserFacingError):
+            return {"desktop": False, **_said("desktop_message", exc.code, exc.params)}
+        return {"desktop": False, **_said("desktop_message", "labels.desktopStartup.desktopFailed",
+                                            {"error": str(exc)})}
     except (KeyError, subprocess.TimeoutExpired):
-        return {"desktop": False, "desktop_message": "桌面快捷方式状态未取得"}
+        return {"desktop": False, **_said("desktop_message", "labels.desktopStartup.desktopUnknown")}
 
 
 #: launchd 只在菜单栏项异常结束时把它拉回来。从菜单「退出 Peach」退出码是 0，不拉起；
@@ -300,7 +311,7 @@ def snapshot(config=None) -> dict:
     config = config or settings_file.load_config()
     if sys.platform not in {"win32", "darwin"}:
         return {"available": False, "enabled": False, "silent": True,
-                "message": "此系统未提供登录自启入口", **desktop_snapshot(config)}
+                **_said("message", "labels.desktopStartup.noLoginItem"), **desktop_snapshot(config)}
     try:
         preference = json.loads((config.directory("state") / "desktop-startup.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):
@@ -316,10 +327,11 @@ def snapshot(config=None) -> dict:
             enabled = bool(entry.get("RunAtLoad", False))
             silent = "--show" not in entry.get("ProgramArguments", []) if enabled else bool(preference.get("silent", True))
         return {"available": program.is_file(), "enabled": enabled, "silent": silent,
-                "message": "" if program.is_file() else "未找到本机托盘入口", **desktop_snapshot(config)}
+                **_said("message", "" if program.is_file() else "labels.desktopStartup.trayMissing"),
+                **desktop_snapshot(config)}
     except (OSError, ValueError, KeyError, subprocess.TimeoutExpired):
         return {"available": False, "enabled": False, "silent": True,
-                "message": "启动项状态未取得", **desktop_snapshot(config)}
+                **_said("message", "labels.desktopStartup.startupUnknown"), **desktop_snapshot(config)}
 
 
 def save(config, *, enabled: bool, silent: bool, desktop: bool, executable: Path | None = None) -> dict:

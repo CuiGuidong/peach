@@ -23,6 +23,7 @@ import {
   fetchMediaRepair, fetchRepairLibraries, IDLE_REPAIR, MEDIA_REPAIR_KEY, MEDIA_REPAIR_URL,
   missingToolText, REPAIR_LIBRARIES_KEY, statusLine, type MediaRepairState,
 } from './media-repair';
+import { jobText } from '../../core/server-text';
 import { t } from '../../i18n';
 
 const libraryMark = (icon: string) => MEDIA_SOURCE_ICONS[icon] || icon;
@@ -66,7 +67,7 @@ export function MediaRepairCard({ toast = () => {} }: { toast?(message: string):
 
   const outcome = repair.outcome;
   const line = statusLine(running ? state : outcome ?? IDLE_REPAIR);
-  const problem = action.error || outcome?.error || (repair.query.error ? t('cleanup:mediaRepair.statusUnavailable') : '');
+  const problem = action.error || jobText(outcome, 'error') || (repair.query.error ? t('cleanup:mediaRepair.statusUnavailable') : '');
   return (
     <div className="flex flex-col gap-4">
       <Fieldset layout="split" label={t('cleanup:tools.mediaRepair')} footer={

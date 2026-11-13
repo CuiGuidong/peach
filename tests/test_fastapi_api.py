@@ -17,7 +17,7 @@ from unittest.mock import patch
 from types import SimpleNamespace
 from urllib.parse import parse_qs, quote, urlsplit
 
-from peach import __version__
+from peach import __version__, interface_text
 from support.amane import write_amane_metadata
 from support.ledger import fresh_ledger
 from support.mp4 import minimal_mp4
@@ -2276,12 +2276,16 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         routes_auth._ATTEMPTS.clear()
         self.addCleanup(routes_auth._ATTEMPTS.clear)
         form = {"Content-Type": "application/x-www-form-urlencoded"}
-        page = {**form, "Accept": "text/html,application/xhtml+xml,*/*;q=0.8"}
+        page = {**form, "Accept": "text/html,application/xhtml+xml,*/*;q=0.8", "Accept-Language": "zh-CN,zh;q=0.9"}
         body = "token=secret&next=%2Fstats&days=999"
         refused = await self.client.post("/login", content=body, headers=page)
         self.assertEqual(refused.status_code, 400)
         self.assertTrue(refused.headers["content-type"].startswith("text/html"))
         self.assertIn('data-page="login" data-next="/stats" data-mode="legacy" data-error="请选择有效的保持登录时间">', refused.text)
+        # 页面只收文字的位置按请求的语言渲染好：英文浏览器看到英文原因。
+        english = await self.client.post("/login", content=body, headers={**page, "Accept-Language": "en-US,en;q=0.9"})
+        self.assertIn(f'data-error="{interface_text.text("server:api.auth.invalidRememberDays", None, "en")}">', english.text)
+        self.assertIn('<html lang="en">', english.text)
         self.assertNotIn("set-cookie", refused.headers)
         refused = await self.client.post("/login", content=body, headers=form)
         self.assertEqual(refused.status_code, 400)
@@ -3266,7 +3270,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                 patch.object(local_playback, 'open_media') as launch:
             options = await self.client.get('/api/local-players', headers=headers)
             self.assertEqual(options.json(), {'players': [
-                {'id': 'default', 'label': '系统默认播放器'}, {'id': 'vlc', 'label': 'VLC'}]})
+                {'id': 'default', 'label': '系统默认播放器', 'label_code': 'labels.routesMedia.defaultPlayer'},
+                {'id': 'vlc', 'label': 'VLC'}]})
             result = await self.client.post('/api/local-playback?id=1&player=vlc', json={}, headers=headers)
             self.assertEqual(result.status_code, 200, result.text)
             self.assertEqual(launch.call_args.args[1], 'vlc')
@@ -4463,7 +4468,7 @@ class LoginPageWithoutSessionTests(unittest.IsolatedAsyncioTestCase):
     async def test_a_missing_bundle_opened_in_the_browser_is_the_error_page(self):
         login = await self.client.post("/login", data={"token": "entry-password", "next": "/"})
         self.assertEqual(login.status_code, 303)
-        page = await self.client.get("/dist/no-such.js", headers={"Accept": "text/html"})
+        page = await self.client.get("/dist/no-such.js", headers={"Accept": "text/html", "Accept-Language": "zh-CN"})
         self.assertEqual(page.status_code, 404)
         self.assertIn('data-page="error" data-status="404" data-detail="这个地址下没有页面。"', page.text)
         script = await self.client.get("/dist/no-such.js")

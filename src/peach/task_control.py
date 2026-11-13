@@ -168,7 +168,8 @@ def _request(store, run_id, action, *, mode=None):
         mode = valid_mode(mode)
     run = store.get(run_id)
     if run is None:
-        raise KeyError('任务未取得，请刷新后重试')
+        from .web_tasks import TaskRunMissing
+        raise TaskRunMissing('errors.taskControl.runMissing')
     if not store.enabled or run.host != store.host:
         raise UserPermissionError('errors.taskControl.otherHost')
     if projection(store, run) is None:
