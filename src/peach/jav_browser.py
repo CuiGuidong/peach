@@ -37,6 +37,8 @@ from .user_messages import UserFacingError, UserValueError
 
 LOGGER = logging.getLogger(__name__)
 CREDENTIAL = "jav-browser"
+#: 跟着账本走的设置键（`web_settings.SYNCED_SETTING_KEYS` 登记，ADR-0161）。
+WANT_ON_NO_MATCH = "javBrowserWantOnNoMatch"
 ACTIVE = {"queued", "searching"}
 #: 排队与搜索中的番号上限，也是共享进度列表里进行中与已结束两部分各自的上限；
 #: 结束的任务保留 10 分钟，供各窗口看到完成。
@@ -403,6 +405,7 @@ class JavBrowser:
             providers[0]["key"] if providers else "")
         return {"enabled": bool(config.get("token_hash")), "provider": selected,
                 "active_provider": preferred, "available": self.downloads.available, **catalog,
+                "want_on_no_match": self.want_on_no_match(),
                 "userscript": {"version": release["version"],
                                "minimum_version": release.get("bridge_min_version", release["version"]),
                                "install_url": release.get("install_url", "/integrations/peach-jav.user.js")},
@@ -539,6 +542,40 @@ class JavBrowser:
             self._save()
             self._wake.set()
         return self.status(code)
+
+    def want_state(self, value: object) -> dict:
+        """这个番号在不在「想要」里：`want` 为 null 是还没登记，否则带清单上的那一段（ADR-0161）。
+
+        字段一直给出，用户脚本据此知道这台 Peach 能从浏览器登记想要。
+        """
+        from datetime import date
+        from . import wants
+        with self.contract.database.read_connection() as connection:
+            row = wants.by_code_key(connection, code_key(value))
+        return {"want": {"phase": wants.phase(row, date.today())} if row else None}
+
+    def want_on_no_match(self) -> bool:
+        """账本设置 `javBrowserWantOnNoMatch`：没搜到资源时是否加入想要，没设置过按开启算。"""
+        from .profiles import read_settings
+        with self.contract.database.read_connection() as connection:
+            return read_settings(connection).get(WANT_ON_NO_MATCH) is not False
+
+    def _want_unmatched(self, code: str) -> None:
+        """没搜到资源时按设置把番号加入想要；已在库、已登记或写入失败都不影响队列本身。
+
+        只登记这一行：封面与资料的积压由新作的定时刷新顺带补上，不在队列线程里另起取资料任务。
+        """
+        from . import wants
+        try:
+            if not self.want_on_no_match():
+                return
+            with self.contract.database.write_transaction() as connection:
+                wants.add_code(connection, code)
+            self.contract.cache_bust()
+        except UserValueError:
+            pass
+        except Exception as error:
+            LOGGER.warning("JAV browser want after no match failed: %s (%s)", code, type(error).__name__)
 
     def retry_postprocess(self, value: object) -> dict:
         """重试这个番号入库后失败的整理，与任务中心的「重试整理」同一入口。"""
@@ -799,6 +836,9 @@ class JavBrowser:
                     self._submitting.add(code)
                     should_submit = True
                 self._save()
+                unmatched = row["state"] == "no_match"
+            if unmatched:
+                self._want_unmatched(code)
             if should_submit:
                 try:
                     submitted = submit_offline_download(

@@ -95,7 +95,9 @@
     "peachUrl": "Peach URL",
     "token": "Add-from-browser token",
     "tokenIssued": "Dedicated token generated",
-    "turnedOff": "Add from browser turned off"
+    "turnedOff": "Add from browser turned off",
+    "wantOnNoMatch": "Add to Wants when nothing is found",
+    "wantOnNoMatchHelp": "When adding from the browser finds no downloadable magnet, add the code to JAV Wants."
   },
   "certificateTrust": {
     "androidSteps": "After downloading, go to Settings → Security → Encryption & credentials → Install a certificate → CA certificate and choose the downloaded file. Menu names vary by manufacturer.",

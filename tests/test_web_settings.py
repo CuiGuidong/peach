@@ -138,7 +138,7 @@ class SettingsRoundTripTests(unittest.TestCase):
                           "feedHideGroupCompilations": True,
                           "feedHideSoloCompilations": False, "feedHideExcerpts": True,
                           "searchHistoryLimit": None, "performerNameLanguage": "zh-CN", "taskSpeedMode": "standard",
-                          "interfaceLanguage": "auto", "systemLanguage": None})
+                          "interfaceLanguage": "auto", "systemLanguage": None, "javBrowserWantOnNoMatch": True})
 
     def test_code_patterns_are_checked_when_saved(self):
         """写错的规则在保存那一刻报出来；存下的规则去掉空行，读回来是同一份。"""
@@ -229,6 +229,15 @@ class SettingsRoundTripTests(unittest.TestCase):
                                    "feedHideGroupCompilations": False, "feedHideExcerpts": False})
         self.assertEqual(web_settings.hidden_compilations(self.contract), frozenset({"solo"}))
 
+    def test_the_browser_want_switch_defaults_on_and_takes_only_booleans(self):
+        self.assertTrue(q_settings(self.contract)["javBrowserWantOnNoMatch"])
+        with self.assertRaises(ValueError):
+            w_settings(self.contract, {"javBrowserWantOnNoMatch": "off"})
+        self.assertEqual(self._stored_json(), {})
+        self.assertFalse(w_settings(self.contract, {"javBrowserWantOnNoMatch": False})["javBrowserWantOnNoMatch"])
+        self.assertFalse(q_settings(self.contract)["javBrowserWantOnNoMatch"])
+        self.assertEqual(self._stored_json(), {"javBrowserWantOnNoMatch": False})
+
     def test_avatar_and_favicon_periods_are_read_only(self):
         settings = q_settings(self.contract)
         self.assertEqual(settings["avatarRefreshDays"], 90)
@@ -248,7 +257,7 @@ class SettingsRoundTripTests(unittest.TestCase):
                           "feedHideGroupCompilations": True,
                           "feedHideSoloCompilations": False, "feedHideExcerpts": True,
                           "searchHistoryLimit": None, "performerNameLanguage": "zh-CN", "taskSpeedMode": "standard",
-                          "interfaceLanguage": "auto", "systemLanguage": None})
+                          "interfaceLanguage": "auto", "systemLanguage": None, "javBrowserWantOnNoMatch": True})
         self.assertEqual(q_settings(self.contract)["sidebarOrder"], order)
         self.assertEqual(self._stored_json()["sidebarOrder"], order)
 
