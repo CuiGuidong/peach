@@ -12,6 +12,7 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from peach.interface_text import dev as t
 from peach.catalog_rules import (
     is_jav_asset,
     is_jav_code,
@@ -83,7 +84,7 @@ def audit(database: Path) -> list[dict[str, object]]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("audit_jav_display.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument(
         "--out", type=Path, default=GENERATED_DIR / "jav-display-audit.csv",

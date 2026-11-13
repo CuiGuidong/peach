@@ -20,6 +20,7 @@ from peach.config import DATABASE_PATH, GENERATED_DIR, COVER_DIR, REVIEW_DIR
 from peach.cover_artwork import install_cover
 from peach.entities import resolve_entity_id
 from peach.http import HttpxTransport
+from peach.interface_text import dev as t
 from peach.review_csv import read_rows
 from peach.scripting import open_readonly
 from peach.western_artwork import (SITES, SOURCE, artwork_key, babepedia_portraits, face_matched_portrait,
@@ -41,7 +42,7 @@ def profile_urls(connection, candidates: Path, ids: list[int]) -> dict[int, str]
 def install_portrait(args, connection, avatar_root: Path, item: dict, fetched: list) -> None:
     """出演者的 Babepedia 主图与她单人作品封面比上脸才装；账号只留候选。"""
     if item['kind'] != 'performer':
-        item['avatar'] = '账号不自动装头像，只留候选'
+        item['avatar'] = t('harvest_western_artwork.accountNoAvatar')
         return
     from peach.avatar_face import FaceProbe
     from peach.face_match import FaceMatcher
@@ -67,7 +68,7 @@ def run(args) -> dict:
     try:
         ids = sorted({resolve_entity_id(connection, raw) for raw in args.entity} - {None})
         if len(ids) > 16:
-            raise ValueError('每轮至多 16 位')
+            raise ValueError(t("harvest_western_artwork.tooMany"))
         profiles = profile_urls(connection, args.generated / 'babepedia-candidates.csv', ids)
         seen_assets = set()
         for entity_id in ids:
@@ -121,7 +122,7 @@ def run(args) -> dict:
                 try:
                     scene = official_scene(http, site, name, released)
                     if scene is None:
-                        record['issue'] = '官方封面未取得：没有唯一的名字与日期匹配'
+                        record['issue'] = t('harvest_western_artwork.noOfficialCover')
                         continue
                     record.update(scene)
                     body = avatar_picker.fetch_image(http, scene['image_url'])
@@ -151,7 +152,7 @@ def run(args) -> dict:
 
 
 def build_parser():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_western_artwork.description"))
     parser.add_argument('--db', type=Path, default=DATABASE_PATH)
     parser.add_argument('--generated', type=Path, default=GENERATED_DIR)
     parser.add_argument('--covers', type=Path, default=COVER_DIR)
@@ -161,14 +162,14 @@ def build_parser():
     parser.add_argument('--apply', action='store_true')
     parser.add_argument('--portraits-only', action='store_true')
     parser.add_argument('--batch', default=SOURCE + '@' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ'),
-                        help='封面边车记的批次，revert_auto_landing.py 按它整批撤回')
+                        help=t("harvest_western_artwork.batchHelp"))
     return parser
 
 
 if __name__ == '__main__':
     args = build_parser().parse_args()
     if args.delay < 1:
-        raise SystemExit('请求间隔至少 1 秒')
+        raise SystemExit(t("harvest_western_artwork.delayTooShort"))
     if not args.batch.startswith(SOURCE + '@'):
-        raise SystemExit(f'批次需要以 {SOURCE}@ 开头')
+        raise SystemExit(t("harvest_western_artwork.batchPrefix", source=SOURCE))
     print(json.dumps(run(args), ensure_ascii=False))

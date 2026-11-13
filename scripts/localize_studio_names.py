@@ -33,6 +33,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.config import STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.page_cache import HttpStatusError, Site   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
@@ -68,22 +69,23 @@ def shape(name: str) -> str:
 def decide(current: str, makers: list[str]) -> tuple[str, str, str]:
     """返回 (判词, 建议名, 证据说明)。makers 是各番号页读到的製作商，按出现顺序。"""
     if shape(current) != "拉丁":
-        return KEEP_JP, "", "账本现名已含日文"
+        return KEEP_JP, "", t("localize_studio_names.alreadyJapanese")
     found = [m for m in dict.fromkeys(makers) if m]
     if not found:
-        return UNKNOWN, "", "番号页没读到製作商"
+        return UNKNOWN, "", t("localize_studio_names.noMaker")
     if len(found) > 1:
-        return SPLIT, "", "多个番号给出不同製作商：" + "／".join(found)
+        return SPLIT, "", t("localize_studio_names.makersDiffer", makers="／".join(found))
     maker = found[0]
-    corroboration = f"{len(makers)} 个番号一致" if len(makers) > 1 else "只有 1 个番号可查"
+    corroboration = (t("localize_studio_names.codesAgree", count=len(makers)) if len(makers) > 1
+                     else t("localize_studio_names.singleCode"))
     if shape(maker) == "片假名":
-        return KEEP_KATAKANA, "", f"製作商 {maker} 是纯片假名，按规则保留英文原名（{corroboration}）"
+        return KEEP_KATAKANA, "", t("localize_studio_names.makerKatakana", maker=maker, corroboration=corroboration)
     if maker == current:
-        return KEEP_JP, "", f"製作商与现名相同（{corroboration}）"
+        return KEEP_JP, "", t("localize_studio_names.makerSame", corroboration=corroboration)
     if shape(maker) == "拉丁":
         # 来源自己也写拉丁，两边差的只是空格或符号，那不是「去罗马音」，别拿它改名。
-        return KEEP_LATIN, "", f"製作商 {maker} 也是拉丁写法，与现名只差写法（{corroboration}）"
-    return RENAME, maker, f"製作商 {maker}（{corroboration}）"
+        return KEEP_LATIN, "", t("localize_studio_names.makerLatin", maker=maker, corroboration=corroboration)
+    return RENAME, maker, t("localize_studio_names.makerFound", maker=maker, corroboration=corroboration)
 
 
 # ---------------------------------------------------------------- 取数
@@ -146,7 +148,7 @@ def inspect(site: Site, groups: list[list[str]]) -> tuple[list[str], list[str], 
                 continue
             maker = maker_of(page)
             if not maker:
-                notes.append(f"{code}: 页面无製作商字段")
+                notes.append(t("localize_studio_names.pageNoMaker", code=code))
                 continue
             urls.append(url)
             makers.append(maker)
@@ -157,16 +159,16 @@ def inspect(site: Site, groups: list[list[str]]) -> tuple[list[str], list[str], 
 # ---------------------------------------------------------------- 入口
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = argparse.ArgumentParser(description=t("localize_studio_names.description"))
     parser.add_argument("--database", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--min-assets", type=int, default=1)
-    parser.add_argument("--codes", type=int, default=2, help="每个厂牌最多查几个不同前缀的番号")
-    parser.add_argument("--depth", type=int, default=3, help="同前缀最多试几个番号（只为顶替 404）")
+    parser.add_argument("--codes", type=int, default=2, help=t("localize_studio_names.codesHelp"))
+    parser.add_argument("--depth", type=int, default=3, help=t("localize_studio_names.depthHelp"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=25.0)
-    parser.add_argument("--refresh", action="store_true", help="忽略缓存重抓")
+    parser.add_argument("--refresh", action="store_true", help=t("localize_studio_names.refreshHelp"))
     parser.add_argument("--cache-dir", type=Path, default=STATE_DIR / "studio-names")
     parser.add_argument("--lock", type=Path, default=STATE_DIR / ".studio-names.lock")
     return parser
@@ -194,7 +196,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
                 # Blacked、Tushy、FC2-PPV 这些压根不走番号体系，回查无从谈起。
                 # 写「未取得」等于把「不适用」伪装成取证失败。
                 makers, urls, tried, notes = [], [], [], []
-                verdict, proposed, evidence = SKIP, "", "账本里没有 JAV 番号，不走番号体系"
+                verdict, proposed, evidence = SKIP, "", t("localize_studio_names.noJavCodes")
             else:
                 makers, urls, tried, notes = inspect(site, groups)
                 verdict, proposed, evidence = decide(name, makers)
@@ -204,7 +206,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
                 "codes": " ".join(tried), "source_url": " ".join(urls),
                 "maker": "／".join(dict.fromkeys(makers)), "shape": shape(name),
                 "verdict": verdict, "proposed": proposed,
-                "evidence": "；".join([evidence, *notes]),
+                "evidence": t("common.clauseSeparator").join([evidence, *notes]),
             })
     finally:
         if owned:
@@ -215,7 +217,7 @@ def run(args: argparse.Namespace, site: Site | None = None) -> int:
              KEEP_JP: 5, SKIP: 6}
     rows.sort(key=lambda item: (order.get(item["verdict"], 9), -int(item["assets"]), item["studio"]))
     write_rows(args.output, FIELDS, rows)
-    print({"复核行": len(rows), **stats, "取页": site.fetched, "命中缓存": site.cached,
+    print({t("localize_studio_names.reviewRows"): len(rows), **stats, t("localize_studio_names.fetched"): site.fetched, t("localize_studio_names.cached"): site.cached,
            "output": str(args.output)})
     return 0
 

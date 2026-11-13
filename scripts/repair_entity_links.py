@@ -47,6 +47,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.entities import name_chain   # noqa: E402
 from peach.http import HttpRequest, HttpxTransport, response_text   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.link_repair import (   # noqa: E402
     anchors_naming, bare_root, confirms, directory_reason, empty_path_segment,
     html_entity_leak, index_candidates, is_search_page, page_title, same_document_path,
@@ -215,27 +216,26 @@ def review(links: list[dict]) -> list[dict]:
         if row["link_kind"] == "official":
             reason = directory_reason(url, deeper[host])
             if shared[url] > 1:
-                reason = f"{shared[url]} 个实体共用这一个地址"
+                reason = t("repair_entity_links.sharedUrl", count=shared[url])
             if reason:
                 problems.append((DIRECTORY, FIX_REDISCOVER, reason))
         if is_search_page(url):
             provider = DIRECT_PAGES.get(host, ("", ""))[0]
             has_id = bool(provider and row["refs"].get(provider))
             problems.append((SEARCH, FIX_DIRECT_ID if has_id else FIX_KEEP_SEARCH,
-                             f"账本里有 {provider} id" if has_id
-                             else "账本里没有这个站的直达 id"))
+                             t("repair_entity_links.hasDirectId", provider=provider) if has_id
+                             else t("repair_entity_links.noDirectId")))
         if html_entity_leak(url):
-            problems.append((ENTITY_LEAK, FIX_ENTITY,
-                             "服务端收到的参数名带 amp; 前缀，真正的参数因此丢失"))
+            problems.append((ENTITY_LEAK, FIX_ENTITY, t("repair_entity_links.entityLeak")))
         if urlsplit(url).scheme == "http":
-            problems.append((PLAIN_HTTP, FIX_HTTPS, "账本里存的是明文 http"))
+            problems.append((PLAIN_HTTP, FIX_HTTPS, t("repair_entity_links.plainHttp")))
         if empty_path_segment(url):
-            problems.append((EMPTY_SEGMENT, FIX_REPORT_ONLY, "路径里有空段"))
+            problems.append((EMPTY_SEGMENT, FIX_REPORT_ONLY, t("repair_entity_links.emptySegment")))
         peers = by_site[(row["entity_id"], host)]
         if len(peers) > 1:
             problems.append((DUPLICATE, FIX_REPORT_ONLY,
-                             f"该实体在这个站上有 {len(peers)} 条链接："
-                             f"{'、'.join(str(peer) for peer in peers)}"))
+                             t("repair_entity_links.duplicateLinks", count=len(peers),
+                               ids=list(str(peer) for peer in peers))))
         row["problems"] = problems
     return [row for row in links if row["problems"]]
 
@@ -420,19 +420,19 @@ def write_plan(connection: sqlite3.Connection, plans: list[dict], now: str) -> d
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("repair_entity_links.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--audit-output", type=Path, required=True,
-                        help="全库审计表：一条链接犯几条问题就写几行")
-    parser.add_argument("--output", type=Path, required=True, help="修复计划表")
+                        help=t("repair_entity_links.auditOutputHelp"))
+    parser.add_argument("--output", type=Path, required=True, help=t("repair_entity_links.outputHelp"))
     parser.add_argument("--offline", action="store_true",
-                        help="只做审计，不发任何请求")
+                        help=t("repair_entity_links.offlineHelp"))
     parser.add_argument("--interval", type=float, default=2.0,
-                        help="同一域名两次请求之间的最小间隔（秒）")
+                        help=t("repair_entity_links.intervalHelp"))
     parser.add_argument("--timeout", type=float, default=20.0)
     parser.add_argument("--max-requests", type=int, default=600,
-                        help="整轮的请求总量上限")
-    parser.add_argument("--limit", type=int, default=0, help="只处理前若干条待修链接")
+                        help=t("repair_entity_links.maxRequestsHelp"))
+    parser.add_argument("--limit", type=int, default=0, help=t("repair_entity_links.limitHelp"))
     return parser
 
 
@@ -451,12 +451,12 @@ def main(argv: list[str] | None = None) -> int:
     counted: dict[str, int] = defaultdict(int)
     for row in audit:
         counted[row["problem"]] += 1
-    print({"链接": len(findings), "问题行": len(audit), **counted,
-           "audit": str(args.audit_output)})
+    print({t("repair_entity_links.linksKey"): len(findings), t("repair_entity_links.problemRowsKey"): len(audit),
+           **counted, "audit": str(args.audit_output)})
 
     if args.offline:
         write_rows(args.output, FIELDS, [])
-        print("只做审计，没有发请求")
+        print(t("repair_entity_links.offlineDone"))
         return 0
 
     todo = [row for row in findings if primary(row)]
@@ -471,7 +471,7 @@ def main(argv: list[str] | None = None) -> int:
         try:
             integrity = writable.execute("PRAGMA integrity_check").fetchone()[0]
             if str(integrity) != "ok":
-                raise SystemExit(f"写入前 integrity_check 不是 ok：{integrity}")
+                raise SystemExit(t("repair_entity_links.integrityBeforeWrite", result=integrity))
             before = counts_of(writable, {"entity_link": "SELECT count(*) FROM entity_link"})
             tally = write_plan(writable, plans, now)
             writable.commit()
@@ -479,14 +479,15 @@ def main(argv: list[str] | None = None) -> int:
             after = counts_of(writable, {"entity_link": "SELECT count(*) FROM entity_link"})
         finally:
             writable.close()
-        print({"写入": tally, "前": before, "后": after,
-               "integrity_check": integrity, "foreign_key_check 违规": violations})
+        print({t("repair_entity_links.writtenKey"): tally, t("repair_entity_links.beforeKey"): before,
+               t("repair_entity_links.afterKey"): after, "integrity_check": integrity,
+               t("repair_entity_links.foreignKeysKey"): violations})
 
     write_rows(args.output, FIELDS, plans)
     verdicts: dict[str, int] = defaultdict(int)
     for plan in plans:
         verdicts[plan["verdict"]] += 1
-    print({"待修": len(plans), **verdicts, "请求数": fetcher.used,
+    print({t("repair_entity_links.toRepairKey"): len(plans), **verdicts, t("repair_entity_links.requestsKey"): fetcher.used,
            "output": str(args.output)})
     return 0
 

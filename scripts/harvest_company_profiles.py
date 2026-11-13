@@ -19,6 +19,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from peach.company_profiles import (entity_names, fill, merge_page, official_hosts, page_facts,  # noqa: E402
                                     replay, settle)
 from peach.http import HttpRequest, HttpxTransport, body_text  # noqa: E402
+from peach.interface_text import dev as t  # noqa: E402
 from peach.scripting import (USER_AGENT, HostLimiter, add_ledger_write_args, counts_of,
                              open_for_write, open_readonly, verify_after_write)  # noqa: E402
 from peach.studio_sites import parked_reason, page_title  # noqa: E402
@@ -42,7 +43,7 @@ def scan(entity: dict, root: Path, limiter: HostLimiter) -> dict:
     urls = [link['url'] for link in entity['links'] if link['link_kind'] == 'official'
             and link['url'].startswith('https://') and 'web.archive.org' not in link['url']][:2]
     if not urls:
-        result['reason'] = '没有可访问的已确认官网；存档官网另行复核'
+        result['reason'] = t('harvest_company_profiles.noOfficialSite')
         return result
     http = HttpxTransport()
     try:
@@ -71,7 +72,7 @@ def scan(entity: dict, root: Path, limiter: HostLimiter) -> dict:
                     continue
                 # 域名改变需要重新核对身份，不跟随新站自动写入。
                 if (urlsplit(final).hostname or '').removeprefix('www.') != (urlsplit(url).hostname or '').removeprefix('www.'):
-                    item['reason'] = '官网重定向到其他域名，需要身份复核'
+                    item['reason'] = t('harvest_company_profiles.redirectedAway')
                     continue
                 file = root / f"{entity['id']}-{len(visited)}.html"
                 file.write_text(html, encoding='utf-8')
@@ -105,7 +106,8 @@ def land(args: argparse.Namespace) -> int:
         for row in rows:
             names = entity_names(connection, row['entity_id'])
             if names is None:
-                changes.append({'entity_id': row['entity_id'], 'skipped': '实体不在或不是厂牌、事务所'})
+                changes.append({'entity_id': row['entity_id'],
+                                'skipped': t('harvest_company_profiles.notCompany')})
                 continue
             facts = replay(row.get('pages', []), names, official_hosts(connection, row['entity_id']))['facts']
             change = {'entity_id': row['entity_id']}
@@ -134,7 +136,7 @@ def land(args: argparse.Namespace) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_company_profiles.description"))
     add_ledger_write_args(parser)
     parser.add_argument('--inventory', type=Path)
     parser.add_argument('--output', type=Path, required=True)
@@ -145,7 +147,7 @@ def main() -> int:
     args = parser.parse_args()
     if args.input:
         if args.apply and not args.batch.startswith(SOURCE + '@'):
-            parser.error(f'--apply 需要 {SOURCE}@ 开头的 --batch，撤回按这个前缀认')
+            parser.error(t("harvest_company_profiles.batchPrefix", source=SOURCE))
         return land(args)
     if args.inventory:
         entities = json.loads(args.inventory.read_text(encoding='utf-8'))['entities']
@@ -158,7 +160,7 @@ def main() -> int:
                 item['aliases'] = [alias for (alias,) in connection.execute('SELECT alias FROM entity_alias WHERE entity_id=?', (item['id'],))]
                 entities.append(item)
     if args.cache is None:
-        parser.error('采集需要 --cache 保存原始页面')
+        parser.error(t("harvest_company_profiles.needCache"))
     args.cache.mkdir(parents=True, exist_ok=True)
     results = json.loads(args.output.read_text(encoding='utf-8'))['entities'] if args.resume and args.output.exists() else []
     done = {item['entity_id'] for item in results if settled(item)}

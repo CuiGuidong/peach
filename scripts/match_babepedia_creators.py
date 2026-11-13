@@ -45,6 +45,7 @@ if str(SRC_DIR) not in sys.path:
 
 from peach.config import DATABASE_PATH, GENERATED_DIR
 from peach.http import HttpRequest, HttpTransport, HttpxTransport
+from peach.interface_text import dev
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import USER_AGENT, open_readonly
 
@@ -124,7 +125,7 @@ def fetch_title(transport: HttpTransport, query: str, timeout: int = 30) -> str 
     if SEARCH_TITLE.search(body):
         return None
     # 既不是档案页也不是搜索页：形态未知，按未取得处理而不是否定。
-    raise RateLimited(f"{query}: 未知页面形态 HTTP {response.status}")
+    raise RateLimited(dev("match_babepedia_creators.unknownPage", query=query, status=response.status))
 
 
 def resolve(transport: HttpTransport, name: str, delay: float,
@@ -175,15 +176,15 @@ FIELDS = ("entity_id", "creator", "videos", "verdict", "matched_variant",
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="把拉丁名出演者与网黄博主回配到 babepedia")
+    parser = argparse.ArgumentParser(description=dev("match_babepedia_creators.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--out", type=Path,
                         default=GENERATED_DIR / "babepedia-candidates.csv")
     parser.add_argument("--delay", type=float, default=3.0,
-                        help="请求间隔秒；实测 1.8 秒并发其它探测时会被 Cloudflare 打到 429")
+                        help=dev("match_babepedia_creators.helpDelay"))
     parser.add_argument("--limit", type=int, default=0)
     parser.add_argument("--resume", action="store_true",
-                        help="跳过 CSV 里已有确定结论的行；限流行会重试")
+                        help=dev("match_babepedia_creators.helpResume"))
     return parser
 
 
@@ -199,7 +200,7 @@ def run(args: argparse.Namespace) -> int:
     done = load_done(args.out) if args.resume else {}
     if args.limit:
         todo = todo[:args.limit]
-    print(f"拉丁名人物候选 {len(todo)} 个（已完成 {len(done)} 个），间隔 {args.delay}s")
+    print(dev("match_babepedia_creators.started", todo=len(todo), checked=len(done), delay=args.delay))
 
     transport = HttpxTransport()
     rows: list[dict] = []
@@ -221,18 +222,19 @@ def run(args: argparse.Namespace) -> int:
                 "profile_url": f"https://www.babepedia.com/babe/{slug}" if slug else "",
             })
             if verdict in (VERDICT_HIT, VERDICT_REVIEW):
-                print(f"[{index}/{len(todo)}] {verdict} {name} -> {found} "
-                      f"（写法 {variant}，重合 {overlap}，{videos} 部）", flush=True)
+                print(dev("match_babepedia_creators.matched", index=index, total=len(todo), verdict=verdict,
+                          name=name, found=found, variant=variant, overlap=overlap, videos=videos),
+                      flush=True)
             elif verdict == VERDICT_BLOCKED:
-                print(f"[{index}/{len(todo)}] 限流未取得 {name}", flush=True)
+                print(dev("match_babepedia_creators.rateLimited", index=index, total=len(todo), name=name), flush=True)
             _write(args.out, rows)
     finally:
         transport.close()
         _write(args.out, rows)
 
-    print("\n判定分布：", counts)
-    print(f"候选 CSV → {args.out}")
-    print("这是候选，不是真相：命中项仍需人工确认后才能写 ledger 或下载头像。")
+    print("\n" + dev("match_babepedia_creators.verdicts"), counts)
+    print(dev("match_babepedia_creators.candidateCsv", path=args.out))
+    print(dev("match_babepedia_creators.notTruth"))
     return 0
 
 

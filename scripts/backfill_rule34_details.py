@@ -42,6 +42,7 @@ if str(SRC_DIR) not in sys.path:
 from peach.config import GENERATED_DIR, SECRETS_DIR, SHARED_CREDENTIAL_ROOT
 from peach.follow_secrets import CredentialError, credential_store_for
 from peach.follow_sources import FollowSourceError, build_connector
+from peach.interface_text import dev as t
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import (
     BACKUP_REQUIRED, add_ledger_write_args, open_for_write, open_readonly,
@@ -65,18 +66,18 @@ FLUSH_EVERY = 50
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="补齐 rule34.xxx 追更条目的标签类型、上传时间与视频时长")
+        description=t("backfill_rule34_details.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--out", type=Path,
                         default=GENERATED_DIR / "rule34-detail-backfill.csv")
-    parser.add_argument("--limit", type=int, default=0, help="只处理前 N 条，0 为全部")
+    parser.add_argument("--limit", type=int, default=0, help=t("backfill_rule34_details.limitHelp"))
     parser.add_argument("--delay", type=float, default=DEFAULT_DELAY)
     parser.add_argument("--resume", action="store_true",
-                        help="跳过 --out 里已经写入的条目，接着上一趟跑")
+                        help=t("backfill_rule34_details.resumeHelp"))
     parser.add_argument("--duration-only", action="store_true",
-                        help="只补 mp4 缺的时长：不问 dapi，只读原文件头，只写 duration")
+                        help=t("backfill_rule34_details.durationOnlyHelp"))
     parser.add_argument("--missing-types", action="store_true",
-                        help="只挑还没有标签类型的条目")
+                        help=t("backfill_rule34_details.missingTypesHelp"))
     return parser
 
 
@@ -154,14 +155,14 @@ def inspect_row(connector, row: dict) -> tuple[dict, dict | None]:
              "duration": row["duration"] if row["duration"] is not None else "",
              "tag_types_added": "", "written": "否", "note": ""}
     if not post_id.isdigit():
-        entry.update(result="跳过", note="external_id 不是帖子号")
+        entry.update(result="跳过", note=t("backfill_rule34_details.notPostId"))
         return entry, None
     try:
         detail = connector._detail(post_id)
     except (FollowSourceError, OSError) as error:
         detail, entry["note"] = {}, f"{type(error).__name__}: {error}"[:120]
     if not detail.get("tag_types"):
-        entry.update(result="未取得", note=entry["note"] or "dapi 没有给出标签分类")
+        entry.update(result="未取得", note=entry["note"] or t("backfill_rule34_details.noTagTypes"))
         return entry, None
     duration = (connector._video_seconds(row["media_url"])
                 if row["duration"] is None else None)
@@ -171,9 +172,9 @@ def inspect_row(connector, row: dict) -> tuple[dict, dict | None]:
                  duration=update.get("duration", entry["duration"]),
                  tag_types_added="是" if "metadata_json" in update else "")
     if not detail.get("published_at"):
-        entry["note"] = "dapi 没有给出 created_at"
+        entry["note"] = t("backfill_rule34_details.noCreatedAt")
     elif _is_mp4(row["media_url"]) and row["duration"] is None and not duration:
-        entry["note"] = "时长未取得"
+        entry["note"] = t("backfill_rule34_details.durationMissing")
     return entry, update or None
 
 
@@ -188,7 +189,7 @@ def inspect_duration(connector, row: dict) -> tuple[dict, dict | None]:
              "duration": "", "tag_types_added": "", "written": "否", "note": ""}
     seconds = connector._video_seconds(row["media_url"])
     if not seconds:
-        entry.update(result="未取得", note="时长未取得")
+        entry.update(result="未取得", note=t("backfill_rule34_details.durationMissing"))
         return entry, None
     entry.update(result="取得", duration=seconds)
     return entry, {"duration": seconds}
@@ -225,7 +226,7 @@ def run(args: argparse.Namespace) -> int:
         total = reader.execute(
             "SELECT COUNT(*) FROM follow_item i JOIN follow_source s ON s.id=i.source_id"
             " WHERE s.provider='rule34xxx'").fetchone()[0]
-    print(f"rule34xxx 共 {total} 条，已写入 {len(done)} 条，本趟待问 {len(rows)} 条", flush=True)
+    print(t("backfill_rule34_details.pending", total=total, done=len(done), pending=len(rows)), flush=True)
     if not rows:
         return 0
     # dapi 要账号自己的 user_id + api_key；只读文件头不需要。缺凭据在备份与写入之前就停。
@@ -235,11 +236,10 @@ def run(args: argparse.Namespace) -> int:
             credential = credential_store_for(
                 SECRETS_DIR, shared_root=SHARED_CREDENTIAL_ROOT).load("rule34xxx")
         except CredentialError as error:
-            print(f"rule34xxx 凭据不可用：{error}", file=sys.stderr)
+            print(t("backfill_rule34_details.credentialUnavailable", error=error), file=sys.stderr)
             return 2
         if credential is None:
-            print("rule34xxx 需要 user_id 与 api_key；请把它们写进 "
-                  "peach-data/secrets/follow/rule34xxx.json", file=sys.stderr)
+            print(t("backfill_rule34_details.credentialMissing"), file=sys.stderr)
             return 2
 
     writer: sqlite3.Connection | None = None
@@ -249,7 +249,7 @@ def run(args: argparse.Namespace) -> int:
         writer = open_for_write(args)
         # 服务的关注检查同时在写 follow_item；它的事务很短，等它提交而不是 5 秒就报锁。
         writer.execute("PRAGMA busy_timeout=60000")
-        print(f"备份：{args.backup}", flush=True)
+        print(t("backfill_rule34_details.backup", backup=args.backup), flush=True)
         before = writer.execute("SELECT COUNT(*) FROM follow_item").fetchone()[0]
 
     connector = build_connector("rule34xxx", credential=credential)
@@ -280,8 +280,7 @@ def run(args: argparse.Namespace) -> int:
             counts["未取得"] += 1
             miss_streak += 1
             if miss_streak >= MISS_STREAK_LIMIT:
-                print(f"连续 {miss_streak} 条取不到，按限流处理，静默 "
-                      f"{COOLDOWN_SECONDS:.0f} 秒", flush=True)
+                print(t("backfill_rule34_details.rateLimited", streak=miss_streak, seconds=f"{COOLDOWN_SECONDS:.0f}"), flush=True)
                 flush()
                 time.sleep(COOLDOWN_SECONDS)
                 miss_streak = 0
@@ -294,19 +293,16 @@ def run(args: argparse.Namespace) -> int:
             staged_logs.append(entry)
         if index % FLUSH_EVERY == 0:
             flush()
-            print(f"{index}/{len(rows)}：上传时间 {counts['published_at']}，时长 "
-                  f"{counts['duration']}，类型 {counts['metadata_json']}，未取得 "
-                  f"{counts['未取得']}", flush=True)
+            print(t("backfill_rule34_details.progress", index=index, total=len(rows), publishedAt=counts['published_at'], duration=counts['duration'], types=counts['metadata_json'], missing=counts['未取得']), flush=True)
     flush()
-    summary = (f"上传时间改正 {counts['published_at']}，补时长 {counts['duration']}，"
-               f"补类型 {counts['metadata_json']}，未取得 {counts['未取得']} → {args.out}")
+    summary = (t("backfill_rule34_details.summary", publishedAt=counts['published_at'], duration=counts['duration'], types=counts['metadata_json'], missing=counts['未取得'], out=args.out))
     if writer is None:
-        print(f"dry-run：{summary}；加 --apply --backup 才真正写入", flush=True)
+        print(t("backfill_rule34_details.dryRun", summary=summary), flush=True)
         return 0
     after = writer.execute("SELECT COUNT(*) FROM follow_item").fetchone()[0]
     writer.close()
     # 条数必须不变：这一趟只补已有条目的列，不新增也不删除条目。
-    print(f"已写入：{summary}；follow_item {before} → {after}", flush=True)
+    print(t("backfill_rule34_details.written", summary=summary, before=before, after=after), flush=True)
     return 0 if before == after else 1
 
 

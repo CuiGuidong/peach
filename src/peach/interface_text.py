@@ -89,9 +89,13 @@ def text(key: str, params: dict | None = None, language: str = SOURCE_LANGUAGE, 
 
 
 def list_separator(language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> str:
-    """并列几项之间的分隔符（`labels.listSeparator`）；资源里没有这一条时用英文逗号。"""
+    """并列几项之间的分隔符（`labels.listSeparator`）；`root` 里没有这一条（开发工具的 `scripts/locales`）时
+    用产品资源里的同一条，都没有时用英文逗号。"""
     key = "server:labels.listSeparator"
-    return template(key, language, root=root) if has(key, language, root=root) else ", "
+    for candidate in dict.fromkeys((root, LOCALES)):
+        if has(key, language, root=candidate):
+            return template(key, language, root=candidate)
+    return ", "
 
 
 def ensure_available(root: Path = LOCALES) -> None:
@@ -138,6 +142,20 @@ def request_language(accept_language: str | None) -> str:
 def cli(key: str, params: dict | None = None, /, **values) -> str:
     """命令行的一句话：`cli` 命名空间，按 `local_language` 选语言。"""
     return text(f"cli:{key}", {**(params or {}), **values}, local_language())
+
+
+#: 仓库 `scripts/` 下开发工具的文字。只在源码检出里有，不随安装包发布。
+DEV_LOCALES = PROJECT_ROOT / "scripts" / "locales"
+
+
+def dev(key: str, params: dict | None = None, /, **values) -> str:
+    """开发工具的一句话：`scripts/locales/<语言>/dev.json`，键写成 `<脚本名>.<名字>`，按 `local_language` 选语言。"""
+    return text(f"dev:{key}", {**(params or {}), **values}, local_language(), root=DEV_LOCALES)
+
+
+def dev_log(key: str, params: dict | None = None, /, **values) -> str:
+    """`dev` 同一个键写进日志文件的那一行：日志固定英文（ADR-0159 第三条），与控制台那一行逐句对应。"""
+    return text(f"dev:{key}", {**(params or {}), **values}, "en", root=DEV_LOCALES)
 
 
 def subtree(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> dict:

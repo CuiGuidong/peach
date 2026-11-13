@@ -127,6 +127,7 @@ Node 脚本与测试写成 `.ts`（前端源码另有 `.tsx` 与少量 `.js`）�
 
 - 文档职责、事实归属和界面提示遵循 [文档与界面文案](docs/WRITING.md)。正式测试入口执行 seiso 稳定规则；预览规则供人工复核。
 - 文档、注释、界面文字和测试名一律用中文；代码标识、命令、协议名和库名保留英文。
+- `scripts/` 下开发工具的新输出用 `t()`（`from peach.interface_text import dev as t`），文字写进 `scripts/locales/zh-CN/dev.json` 和 `scripts/locales/en/dev.json`，中英两份在同一个 PR 里写；写进日志文件的那一行用同一个键经 `dev_log` 渲染成英文。`tests/test_dev_text.py` 检查两份对得上。
 - 只写现在的状态，不写「改动前后」的对比，也不保留被否掉的做法。`tests/test_copy_final_state.py` 会检查这一条；确实需要记录的事故原文，逐行加 `copy-lint-disable-line` 放行。
 - 不要提交媒体、数据库、凭据、日志、构建缓存和个人信息（局域网地址、主机名、账号名、个人目录）。
 

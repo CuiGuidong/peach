@@ -285,6 +285,16 @@ class BackendCopyRatchetTests(unittest.TestCase):
         self.assertEqual(checker.count_literals("genre_taxonomy.py", source), 0)
         # 白名单按 `src/peach/` 下的相对路径认，子包里的同名模块照样计数。
         self.assertEqual(checker.count_literals("sources/genre_taxonomy.py", source), 8)
+        # 开发工具另有一份内容数据登记，按 `scripts/` 下的路径认。
+        self.assertEqual(checker.count_literals("genre_taxonomy.py", source, {"words.py"}), 8)
+        self.assertEqual(checker.count_literals("words.py", source, {"words.py"}), 0)
+
+    def test_writing_a_baseline_only_lowers_limits_and_drops_cleared_files(self):
+        counts = {"a.py": 2, "b.py": 9, "new.py": 1}
+        baseline = {"a.py": 5, "b.py": 4, "gone.py": 3}
+        self.assertEqual(checker.raised(counts, baseline), {"b.py": 9, "new.py": 1})
+        self.assertEqual(checker.tightened(counts, baseline), {"a.py": 2, "b.py": 4})
+        self.assertEqual(checker.tightened(counts, None), counts)
 
     def test_codes_are_found_wherever_the_backend_writes_them(self):
         source = "\n".join([

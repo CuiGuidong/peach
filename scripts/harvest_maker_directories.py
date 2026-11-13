@@ -31,6 +31,7 @@ from urllib.parse import urljoin
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.config import STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.page_cache import Site   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
@@ -207,20 +208,20 @@ def logo_state(safe: str, logo_root: Path) -> str:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--db", type=Path, required=True, help="账本路径")
+    parser = argparse.ArgumentParser(description=t("harvest_maker_directories.description"))
+    parser.add_argument("--db", type=Path, required=True, help=t("harvest_maker_directories.dbHelp"))
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--logo-root", type=Path,
-                        help="给了就在复核件上标出每个厂牌现在两个位置各有什么")
+                        help=t("harvest_maker_directories.logoRootHelp"))
     parser.add_argument("--cache-dir", type=Path, default=STATE_DIR / "cache" / "makers")
     parser.add_argument("--directory", nargs="*", default=[],
                         choices=[entry.key for entry in DIRECTORIES],
-                        help="只跑这几个名录；不给就全部")
+                        help=t("harvest_maker_directories.directoryHelp"))
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=30.0)
     parser.add_argument("--refresh", action="store_true")
     parser.add_argument("--matched-only", action="store_true",
-                        help="只输出对上账本的那些；默认连没对上的一起出，它们是入库时的现成来源")
+                        help=t("harvest_maker_directories.matchedOnlyHelp"))
     # `job_main` 直接读 args.lock，没有这一行会在拿锁时才 AttributeError。
     parser.add_argument("--lock", type=Path, default=STATE_DIR / ".maker-directories.lock")
     return parser
@@ -264,8 +265,8 @@ def run(args) -> int:
                           if studio and args.logo_root else ""),
             })
     write_rows(args.out, FIELDS, rows)
-    print({"名录": counted, "合计": sum(counted.values()), "对上账本": matched,
-           "取页": fetched, "命中缓存": cached, "output": str(args.out)})
+    print({t("harvest_maker_directories.directories"): counted, t("harvest_maker_directories.total"): sum(counted.values()), t("harvest_maker_directories.matched"): matched,
+           t("harvest_maker_directories.fetched"): fetched, t("harvest_maker_directories.cached"): cached, "output": str(args.out)})
     return 0
 
 

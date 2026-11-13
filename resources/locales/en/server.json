@@ -456,7 +456,8 @@
       "skipped": "Skipped: another run was still in progress",
       "interrupted": "The service restarted before this run finished",
       "unknownFollowup": "No follow-up task is registered for {{task}}",
-      "dispatchInterrupted": "Metadata dispatch was interrupted, rescheduling"
+      "dispatchInterrupted": "Metadata dispatch was interrupted, rescheduling",
+      "stoppedEarly": "Stopped early with exit code {{code}}"
     }
   },
   "stage": {

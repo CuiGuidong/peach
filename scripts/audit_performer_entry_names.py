@@ -15,6 +15,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT))
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
+from peach.interface_text import dev as t  # noqa: E402
 from peach import entry_links  # noqa: E402
 from peach.config import DATABASE_PATH, DATA_ROOT, STATE_DIR  # noqa: E402
 from peach.review_csv import write_rows  # noqa: E402
@@ -96,7 +97,7 @@ def collect(connection: sqlite3.Connection, directory=None) -> list[dict]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("audit_performer_entry_names.description"))
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
     parser.add_argument("--out", type=Path, default=DATA_ROOT / "review" / "performer-entry-name-audit.csv")
     parser.add_argument("--missav-directory", type=Path, default=STATE_DIR / entry_links.DIRECTORY_FILENAME)

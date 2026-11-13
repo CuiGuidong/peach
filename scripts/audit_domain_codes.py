@@ -49,6 +49,7 @@ from peach.catalog_rules import (
     release_code_from_text,
 )
 from peach.config import GENERATED_DIR
+from peach.interface_text import dev as t
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import (
     add_ledger_write_args,
@@ -206,7 +207,7 @@ def collect(connection: sqlite3.Connection) -> list[dict[str, object]]:
                     row_confidence, row_tier = "高", "E2"
                 else:
                     row_confidence, row_tier = "中", "E3"
-                evidence = direct[asset_id] or shared or f"名单命中 {label}"
+                evidence = direct[asset_id] or shared or t("audit_domain_codes.listedLabel", label=label)
             meta = ",".join(part for part in (
                 f"studio={asset['studio']}" if asset["studio"] else "",
                 f"release_date={asset['release_date']}" if asset["release_date"] else "",
@@ -272,8 +273,8 @@ def apply_rows(connection: sqlite3.Connection,
 
 #: 本脚本自己关心的计数口径，接在 `scripting.counts_of` 的基础计数后面。
 _CODE_COUNTS = {
-    "有 code": "SELECT COUNT(*) FROM asset WHERE COALESCE(code,'')<>''",
-    "不同 code": "SELECT COUNT(DISTINCT code) FROM asset WHERE COALESCE(code,'')<>''",
+    t("audit_domain_codes.withCode"): "SELECT COUNT(*) FROM asset WHERE COALESCE(code,'')<>''",
+    t("audit_domain_codes.distinctCodes"): "SELECT COUNT(DISTINCT code) FROM asset WHERE COALESCE(code,'')<>''",
     "asset_search": "SELECT COUNT(*) FROM asset_search",
 }
 
@@ -294,13 +295,13 @@ def verify(connection: sqlite3.Connection, asset_ids: list[int]) -> dict[str, st
     return {
         "integrity_check": integrity,
         "foreign_key_check": str(violations),
-        "FTS 未同步": str(stale),
+        t("audit_domain_codes.ftsStale"): str(stale),
     }
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = add_ledger_write_args(argparse.ArgumentParser(
-        description="排查被转载站水印域名顶替的 asset.code；默认只读"))
+        description=t("audit_domain_codes.description")))
     parser.add_argument("--review-csv", type=Path,
                         default=GENERATED_DIR / "domain-code-review.csv")
     return parser
@@ -314,16 +315,16 @@ def survey(args: argparse.Namespace) -> int:
     finally:
         connection.close()
 
-    print(f"命中 {len(rows)} 条资产，涉及 code {len({r['current_code'] for r in rows})} 个")
-    print("  判定分布：", dict(Counter(str(row["verdict"]) for row in rows)))
-    print("  证据档位：", dict(Counter(str(row["tier"]) for row in rows)))
+    print(t("audit_domain_codes.matched", assets=len(rows), codes=len({r['current_code'] for r in rows})))
+    print(t("audit_domain_codes.verdicts", counts=dict(Counter(str(row["verdict"]) for row in rows))))
+    print(t("audit_domain_codes.tiers", counts=dict(Counter(str(row["tier"]) for row in rows))))
     for code, count in Counter(str(row["current_code"]) for row in rows).most_common():
         sample = next(row for row in rows if row["current_code"] == code)
-        print(f"    {code:12} {count:4} 条  {sample['verdict']}  "
-              f"证据 {sample['evidence']!r}  提案 {sample['code_proposals']!r}")
+        print(t("audit_domain_codes.codeRow", code=f"{code:12}", count=f"{count:4}", verdict=sample['verdict'],
+                evidence=repr(sample['evidence']), proposals=repr(sample['code_proposals'])))
 
     write_rows(args.review_csv, FIELDS, rows)
-    print(f"复核 CSV → {args.review_csv}")
+    print(t("audit_domain_codes.reviewCsv", path=args.review_csv))
     return 0
 
 
@@ -331,12 +332,12 @@ def apply_reviewed(args: argparse.Namespace) -> int:
     plan = [row for row in read_rows(args.review_csv)
             if str(row.get("tier") or "") in APPLICABLE_TIERS]
     if not plan:
-        raise SystemExit(f"{args.review_csv} 里没有可写入的行；存疑档不自动写。")
+        raise SystemExit(t("audit_domain_codes.nothingToApply", path=args.review_csv))
 
     # 备份、`--backup` 缺失的拒绝和可写连接都在 `open_for_write` 里一次做完，
     # 备份必定早于任何写入。
     connection = open_for_write(args)
-    print(f"已备份 → {args.backup}")
+    print(t("audit_domain_codes.backedUp", path=args.backup))
     try:
         before = counts_of(connection, _CODE_COUNTS)
         connection.execute("BEGIN IMMEDIATE")
@@ -358,12 +359,13 @@ def apply_reviewed(args: argparse.Namespace) -> int:
         f"{Path(args.review_csv).stem}.applied-{stamp}.csv")
     write_rows(applied_csv, (*FIELDS, "applied"), outcome)
 
-    print("  处置分布：", dict(Counter(str(row["applied"]) for row in outcome)))
+    print(t("audit_domain_codes.outcomes", counts=dict(Counter(str(row["applied"]) for row in outcome))))
     for key in before:
-        arrow = "" if before[key] == after[key] else f"  ← 变了 {after[key] - before[key]:+d}"
+        arrow = "" if before[key] == after[key] else t("audit_domain_codes.changedBy",
+                                                       delta=f"{after[key] - before[key]:+d}")
         print(f"    {key:12} {before[key]} → {after[key]}{arrow}")
-    print("  写后自检：", checks)
-    print(f"应用记录 → {applied_csv}")
+    print(t("audit_domain_codes.selfCheck", checks=checks))
+    print(t("audit_domain_codes.appliedRecord", path=applied_csv))
     return survey(args)
 
 
@@ -371,7 +373,7 @@ def run(args: argparse.Namespace) -> int:
     if args.apply:
         return apply_reviewed(args)
     result = survey(args)
-    print("这是只读排查：未写 ledger。确认 CSV 后再加 --apply --backup。")
+    print(t("audit_domain_codes.readOnly"))
     return result
 
 

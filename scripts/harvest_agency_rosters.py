@@ -37,6 +37,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from peach.config import REVIEW_DIR, SECRETS_DIR, STATE_DIR   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.entities import (   # noqa: E402
     FORMER_PREFIX, agency_key, agency_rejections, name_chain, normalize_entity_name, split_name,
 )
@@ -180,17 +181,17 @@ def find_production(site: Site, agency: dict[str, object], names: dict[int, str]
         for candidate in name_chain(names.get(member_id, ""), aliases_of(member_id)):
             final, html = site(search_url(candidate))
             if not html or not actress_id(final):
-                tried.append(f"{candidate} 未唯一命中")
+                tried.append(t("harvest_agency_rosters.notUnique", candidate=candidate))
                 continue
             found, shown = production_ref(html)
             if not found:
-                tried.append(f"{candidate} 的资料表没有事务所链接")
+                tried.append(t("harvest_agency_rosters.noAgencyLink", candidate=candidate))
                 continue
             if not shown_keys(shown) & keys:
-                tried.append(f"{candidate} 指向「{shown}」（production={found}），不是这家")
+                tried.append(t("harvest_agency_rosters.otherAgency", candidate=candidate, shown=shown, found=found))
                 continue
-            return found, f"由成员「{candidate}」的资料表取得，站上写作「{shown}」"
-    return "", "；".join(tried) or "这家在账本里没有已知成员，无从取得编号"
+            return found, t("harvest_agency_rosters.foundViaMember", candidate=candidate, shown=shown)
+    return "", t("common.clauseSeparator").join(tried) or t("harvest_agency_rosters.noKnownMembers")
 
 
 def fetch_roster(site: Site, production: str, max_pages: int
@@ -211,7 +212,7 @@ def fetch_roster(site: Site, production: str, max_pages: int
         walked.add(url)
         final, html = site(url)
         if not html:
-            return people, total, f"第 {pages + 1} 页取不回来（{final}）"
+            return people, total, t("harvest_agency_rosters.pageFailed", page=pages + 1, final=final)
         page, declared, following = roster_page(html, final)
         total = max(total, declared)
         pages += 1
@@ -221,12 +222,12 @@ def fetch_roster(site: Site, production: str, max_pages: int
         if not fresh:
             break
         url = following
-    note = f"{pages} 页、{len(people)} 位"
+    note = t("harvest_agency_rosters.rosterNote", pages=pages, people=len(people))
     if total and len(people) != total:
         # 差额分两种，复核件上要能分得开：页数封顶是我们没走完，走完了还差是站点自己的
         # 名册里有重号（T-POWERS 声明 420 位，14 页去重后 410 位，2026-09-05 实测）。
-        reason = "页数封顶没采全" if pages >= max_pages else "翻到最后一页去重后就这些"
-        note += f"，站点声明 {total} 位，{reason}"
+        reason = t("harvest_agency_rosters.pageCapped") if pages >= max_pages else t("harvest_agency_rosters.lastPageDeduped")
+        note += t("harvest_agency_rosters.declaredTotal", total=total, reason=reason)
     return people, total, note
 
 
@@ -245,7 +246,7 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
         if wanted and normalize_entity_name(str(agency["name"])) not in wanted:
             continue
         production = str(agency["production"])
-        note = "账本里已经记着这个编号"
+        note = t("harvest_agency_rosters.productionKnown")
         if not production:
             production, note = find_production(site, agency, names, aliases_of, args.probe)
         base = {"agency": agency["name"], "agency_id": agency["id"],
@@ -254,21 +255,21 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
             rows.append({**base, "roster_name": "", "actress_id": "", "entity_id": "",
                          "performer": "", "current_agency": "", "verdict": MISSING,
                          "evidence": note})
-            print(f"{str(agency['name'])[:16]:<16} 未取得：{note}")
+            print(t("harvest_agency_rosters.agencyNotFound", agency=f"{str(agency['name'])[:16]:<16}", note=note))
             continue
         people, total, roster_note = fetch_roster(site, production, args.max_pages)
         if not people:
             rows.append({**base, "roster_name": "", "actress_id": "", "entity_id": "",
                          "performer": "", "current_agency": "", "verdict": MISSING,
-                         "evidence": f"{note}；名册 {roster_note}"})
-            print(f"{str(agency['name'])[:16]:<16} 未取得：{roster_note}")
+                         "evidence": t("harvest_agency_rosters.rosterEvidence", note=note, roster=roster_note)})
+            print(t("harvest_agency_rosters.agencyNotFound", agency=f"{str(agency['name'])[:16]:<16}", note=roster_note))
             continue
         absent: list[str] = []
         for person, found_id in people:
             matched = sorted(index.get(roster_key(person), ()))
             row = {**base, "roster_name": person, "actress_id": found_id,
                    "entity_id": "", "performer": "", "current_agency": "",
-                   "evidence": f"{note}；名册 {roster_note}"}
+                   "evidence": t("harvest_agency_rosters.rosterEvidence", note=note, roster=roster_note)}
             if not matched:
                 # 默认收成一行
                 # 计数，`--all-names` 才逐个记：复核件是给人看的，不是站点镜像。
@@ -279,8 +280,8 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
                 continue
             if len(matched) > 1:
                 rows.append({**row, "verdict": AMBIGUOUS,
-                             "evidence": row["evidence"] + "；账本里这个写法对上 "
-                                         + "、".join(names[item] for item in matched)})
+                             "evidence": row["evidence"] + t("harvest_agency_rosters.sameSpelling",
+                                                             names=[names[item] for item in matched])})
                 continue
             member_id = matched[0]
             row.update(entity_id=member_id, performer=names[member_id])
@@ -294,15 +295,13 @@ def plan(site: Site, connection, args) -> list[dict[str, object]]:
             else:
                 rows.append({**row, "verdict": MOVED, "current_agency": held[1]})
         if absent:
-            shown = "、".join(absent[:20])
             rows.append({**base, "roster_name": "", "actress_id": "", "entity_id": "",
                          "performer": "", "current_agency": "", "verdict": ABSENT,
-                         "evidence": f"名册上 {len(absent)} 位不在账本里："
-                                     f"{shown}{'…' if len(absent) > 20 else ''}"})
+                         "evidence": t("harvest_agency_rosters.absentFromLedger", count=len(absent),
+                                       names=absent[:20], more="…" if len(absent) > 20 else "")})
         hit = sum(1 for row in rows if row["agency_id"] == agency["id"]
                   and row["verdict"] == NEW)
-        print(f"{str(agency['name'])[:16]:<16} production={production} "
-              f"{roster_note}，新增 {hit}")
+        print(t("harvest_agency_rosters.agencySummary", agency=f"{str(agency['name'])[:16]:<16}", production=production, rosterNote=roster_note, hit=hit))
     return rows
 
 
@@ -332,17 +331,17 @@ def apply_rows(connection, rows: list[dict[str, object]], stamp: str) -> dict[st
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("harvest_agency_rosters.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--output", type=Path, default=REVIEW_DIR / "agency-rosters.csv")
     parser.add_argument("--only", nargs="*", default=[],
-                        help="只采这几家，按 canonical_name 给")
+                        help=t("harvest_agency_rosters.onlyHelp"))
     parser.add_argument("--all-names", action="store_true",
-                        help="名册上不在账本里的人也逐个记进复核件")
+                        help=t("harvest_agency_rosters.allNamesHelp"))
     parser.add_argument("--probe", type=int, default=3,
-                        help="为取站内编号最多问几位已知成员")
+                        help=t("harvest_agency_rosters.probeHelp"))
     parser.add_argument("--max-pages", type=int, default=20,
-                        help="一家最多翻几页；30 位一页，20 页是 600 位")
+                        help=t("harvest_agency_rosters.maxPagesHelp"))
     parser.add_argument("--interval", type=float, default=1.5)
     parser.add_argument("--timeout", type=float, default=25.0)
     parser.add_argument("--lock", type=Path, default=STATE_DIR / ".agency-rosters.lock")
@@ -359,16 +358,16 @@ def run(args) -> int:
         write_rows(args.output, FIELDS, rows, atomic=True, fill_missing=True)
         stats = {verdict: sum(1 for row in rows if row["verdict"] == verdict)
                  for verdict in (NEW, KNOWN, MOVED, AMBIGUOUS, ABSENT, MISSING)}
-        print({"复核行": len(rows), **stats, "output": str(args.output)})
+        print({t("harvest_agency_rosters.reviewRows"): len(rows), **stats, "output": str(args.output)})
         if not args.apply:
-            print("dry-run：没有写入。加 --apply --backup <路径> 才真的写。")
+            print(t("harvest_agency_rosters.dryRun"))
             return 0
         stamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         done = apply_rows(connection, rows, stamp)
         connection.commit()
         after = counts_of(connection, EXTRA_COUNTS)
         integrity, violations = verify_after_write(connection)
-        print("写入：" + "，".join(f"{key} {value}" for key, value in done.items()))
+        print(t("harvest_agency_rosters.written", refs=done["编号"], memberships=done["归属"]))
         for key in sorted(before):
             print(f"  {key}: {before[key]} -> {after[key]}")
         print(f"integrity_check={integrity} foreign_key_check={violations}")

@@ -13,8 +13,13 @@ import sys
 if not __package__:
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
     __package__ = "scripts"
+SRC_DIR = Path(__file__).resolve().parents[1] / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
-from . import issue_intake
+from peach.interface_text import dev as t  # noqa: E402
+
+from . import issue_intake  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / ".github/project-board.json"
@@ -30,7 +35,7 @@ def gh(*args, payload=None):
     result = subprocess.run(command, input=None if payload is None else json.dumps(payload),
                             cwd=ROOT, capture_output=True, text=True, encoding="utf-8", timeout=120)
     if result.returncode:
-        raise RuntimeError(f"GitHub CLI 调用失败：{result.stderr.strip()} {result.stdout[:2000]}")
+        raise RuntimeError(t("project_board.ghFailed", stderr=result.stderr.strip(), stdout=result.stdout[:2000]))
     return json.loads(result.stdout) if result.stdout.strip() else None
 
 
@@ -53,7 +58,7 @@ def connection(query, path, **variables):
         if not page["hasNextPage"]:
             return nodes
         if not page["endCursor"] or page["endCursor"] == cursor:
-            raise RuntimeError("GitHub 分页游标没有前进")
+            raise RuntimeError(t("project_board.cursorStuck"))
         cursor = page["endCursor"]
 
 
@@ -63,7 +68,7 @@ def ancestor(commit, ref):
     result = subprocess.run(["git", "merge-base", "--is-ancestor", commit, ref],
                             cwd=ROOT, capture_output=True, timeout=30)
     if result.returncode not in (0, 1, 128):
-        raise RuntimeError("提交归属验证失败")
+        raise RuntimeError(t("project_board.ancestryFailed"))
     return result.returncode == 0
 
 
@@ -91,7 +96,7 @@ def canonical(key, aliases):
     seen = set()
     while key in aliases:
         if key in seen:
-            raise ValueError("Issue 迁移映射存在循环")
+            raise ValueError(t("project_board.aliasCycle"))
         seen.add(key)
         key = aliases[key]
     return key
@@ -164,7 +169,7 @@ fields(first:100){nodes{... on ProjectV2Field{id name dataType}
     fields = {field["name"]: field for field in fields if "name" in field}
     for required in ("Status", "Delivery", "Release", "Release notes", "Implementation"):
         if required not in fields:
-            raise ValueError(f"看板缺少字段：{required}")
+            raise ValueError(t("project_board.fieldMissing", field=required))
     items = connection('''query($id:ID!,$cursor:String){node(id:$id){... on ProjectV2{
 items(first:100,after:$cursor,archivedStates:[ARCHIVED,NOT_ARCHIVED]){nodes{id isArchived content{''' + CONTENT + '''}
 fieldValues(first:100){nodes{... on ProjectV2ItemFieldSingleSelectValue{name field{... on ProjectV2SingleSelectField{name}}}
@@ -316,14 +321,14 @@ def reconcile(config, *, apply=False, event=None):
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=t("project_board.description"))
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--event", type=Path)
     args = parser.parse_args()
     event = json.loads(args.event.read_text(encoding="utf-8")) if args.event else None
     config = json.loads(CONFIG.read_text(encoding="utf-8"))
     if os.environ.get("GITHUB_REPOSITORY", config["repository"]) != config["repository"]:
-        raise ValueError("仓库不匹配，拒绝同步项目")
+        raise ValueError(t("project_board.repositoryMismatch"))
     changes = reconcile(config, apply=args.apply, event=event)
     print(json.dumps({"apply": args.apply, "changes": changes}, ensure_ascii=False, indent=2))
     return 0

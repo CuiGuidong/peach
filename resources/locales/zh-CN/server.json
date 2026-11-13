@@ -456,7 +456,8 @@
       "skipped": "已有一轮在进行，本次跳过",
       "interrupted": "服务重启，这一轮没有跑完",
       "unknownFollowup": "没有登记 {{task}} 这种后继",
-      "dispatchInterrupted": "资料派发被中断，正在重新安排"
+      "dispatchInterrupted": "资料派发被中断，正在重新安排",
+      "stoppedEarly": "提前收工，退出码 {{code}}"
     }
   },
   "stage": {

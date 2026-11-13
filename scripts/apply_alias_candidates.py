@@ -45,6 +45,7 @@ if str(SRC_DIR) not in sys.path:
 from peach import javdb   # noqa: E402
 from peach.config import GENERATED_DIR   # noqa: E402
 from peach.entities import normalize_entity_name   # noqa: E402
+from peach.interface_text import dev as t   # noqa: E402
 from peach.review_csv import read_rows, write_rows   # noqa: E402
 from peach.scripting import (   # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write)
@@ -95,31 +96,32 @@ def plan(connection: sqlite3.Connection, rows: list[dict]) -> list[dict]:
                    "verdict": row.get("verdict", ""), "url": row.get("url", "")}
         alias_key = normalize_entity_name(alias)
         if not alias_key:
-            out.append({**planned, "action": BAD, "detail": "归一之后是空的"})
+            out.append({**planned, "action": BAD, "detail": t("apply_alias_candidates.emptyAfterNormalize")})
             continue
         entity = connection.execute(
             "SELECT canonical_name,normalized_name FROM entity WHERE id=? AND kind='performer'",
             (entity_id,)).fetchone()
         if not entity:
-            out.append({**planned, "action": GONE, "detail": f"实体 {entity_id} 不在或不是 performer"})
+            out.append({**planned, "action": GONE, "detail": t("apply_alias_candidates.entityGone", id=entity_id)})
             continue
         canonical, canonical_key = str(entity[0]), str(entity[1])
         if canonical_key != normalize_entity_name(str(row.get("current_name", ""))):
             out.append({**planned, "action": STALE,
-                        "detail": f"账本里这条实体现在叫 {canonical}"})
+                        "detail": t("apply_alias_candidates.renamedSince", name=canonical)})
             continue
         if str(row.get("verdict", "")).strip() == REMOVE_VERDICT:
             sources = [str(found[0]) for found in connection.execute(
                 "SELECT source FROM entity_alias WHERE entity_id=? AND normalized_alias=?",
                 (entity_id, alias_key))]
-            out.append({**planned, "action": REMOVE, "detail": "摘掉前的来源 " + "、".join(sources)}
+            out.append({**planned, "action": REMOVE, "detail": t(
+                "apply_alias_candidates.sourcesBeforeRemoval", sources=list(sources))}
                        if sources else {**planned, "action": ABSENT,
-                                        "detail": f"{canonical} 名下没有这个写法"})
+                                        "detail": t("apply_alias_candidates.absent", name=canonical)})
             continue
         if alias_key == canonical_key or connection.execute(
                 "SELECT 1 FROM entity_alias WHERE entity_id=? AND normalized_alias=? LIMIT 1",
                 (entity_id, alias_key)).fetchone():
-            out.append({**planned, "action": HAVE, "detail": f"{canonical} 已经有这个写法"})
+            out.append({**planned, "action": HAVE, "detail": t("apply_alias_candidates.alreadyHas", name=canonical)})
             continue
         owner = connection.execute(
             "SELECT e.id,e.canonical_name FROM entity e"
@@ -130,9 +132,9 @@ def plan(connection: sqlite3.Connection, rows: list[dict]) -> list[dict]:
             (entity_id, alias_key, alias_key)).fetchone()
         if owner:
             out.append({**planned, "action": TAKEN,
-                        "detail": f"{owner[1]}（实体 {owner[0]}）已经用着这个写法"})
+                        "detail": t("apply_alias_candidates.takenBy", name=owner[1], id=owner[0])})
             continue
-        out.append({**planned, "action": WRITE, "detail": f"给 {canonical} 添一个写法"})
+        out.append({**planned, "action": WRITE, "detail": t("apply_alias_candidates.addAlias", name=canonical)})
     return out
 
 
@@ -167,16 +169,16 @@ def remove_rows(connection: sqlite3.Connection, rows: list[dict]) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="把 javdb 别名候选写进 entity_alias")
+    parser = argparse.ArgumentParser(description=t("apply_alias_candidates.description"))
     add_ledger_write_args(parser)
     parser.add_argument("--candidates", type=Path, required=True,
-                        help="`harvest_javdb_cn_names.py --aliases` 产出的 CSV")
+                        help=t("apply_alias_candidates.candidatesHelp"))
     parser.add_argument("--accept", default="ok",
-                        help="逗号分隔的判定名，照抄 CSV 的 verdict 列；默认只收 ok")
+                        help=t("apply_alias_candidates.acceptHelp"))
     parser.add_argument("--revision", required=True,
-                        help="这一趟的批次号，写进来源串；认得出批次才撤得回整批")
+                        help=t("apply_alias_candidates.revisionHelp"))
     parser.add_argument("--alias-source", default=javdb.ALIAS_SOURCE,
-                        help="来源串 @ 前那一段；候选取自别的站（如 Seesaa 的 av_name）时照实写")
+                        help=t("apply_alias_candidates.aliasSourceHelp"))
     parser.add_argument("--review-csv", type=Path,
                         default=GENERATED_DIR / "javdb-alias-apply.csv")
     return parser
@@ -190,31 +192,32 @@ def run(args: argparse.Namespace) -> int:
         rows = plan(connection, candidates)
         write_rows(args.review_csv, FIELDS, rows, fill_missing=True)
         counts = Counter(str(row["action"]) for row in rows)
-        print(f"别名候选 {len(rows)} 行（判定 {'、'.join(verdicts)}）；复核 CSV：{args.review_csv}")
-        print("  动作分布：", dict(counts))
+        print(t("apply_alias_candidates.planned", count=len(rows),
+                verdicts=list(verdicts), path=args.review_csv))
+        print(t("apply_alias_candidates.actions", counts=dict(counts)))
         for row in rows:
             if row["action"] in (TAKEN, STALE, GONE, REMOVE, ABSENT):
-                print(f"    [{row['action']}] {row['current_name']} + {row['alias']}"
-                      f"  ({row['detail']}；{row['url']})")
+                print(t("apply_alias_candidates.flaggedRow", action=row['action'], name=row['current_name'],
+                        alias=row['alias'], detail=row['detail'], url=row['url']))
         if not args.apply:
-            print("  未写 ledger（加 --apply --backup 才写）")
+            print(t("apply_alias_candidates.dryRun"))
             return 0
 
-        print(f"  已备份到 {args.backup}")
+        print(t("apply_alias_candidates.backedUp", path=args.backup))
         before = counts_of(connection, EXTRA_COUNTS)
         with connection:
             written = apply_rows(connection, rows, args.revision, base=args.alias_source)
             removed = remove_rows(connection, rows)
         after = counts_of(connection, EXTRA_COUNTS)
         integrity, foreign_keys = verify_after_write(connection)
-        print(f"  写入别名 {written} 条，来源 {source_for(args.revision, args.alias_source)}；"
-              f"摘掉别名 {removed} 条")
+        print(t("apply_alias_candidates.written", written=written,
+                source=source_for(args.revision, args.alias_source), removed=removed))
         for name in before:
             print(f"    {name}: {before[name]} -> {after[name]}")
-        print(f"  integrity_check={integrity}；foreign_key_check={foreign_keys}")
+        print(t("apply_alias_candidates.selfCheck", integrity=integrity, foreignKeys=foreign_keys))
         # 服务把实体页缓存在进程里，失效只由自己的写入端点触发。这一趟是从外面写的，
         # 页面上要看见新名字得让服务重起一次。
-        print("  服务需重启一次才看得到（页面缓存在进程内）")
+        print(t("apply_alias_candidates.restartNeeded"))
         return 1 if integrity != "ok" or foreign_keys else 0
     finally:
         connection.close()
