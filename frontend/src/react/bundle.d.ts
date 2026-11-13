@@ -266,6 +266,18 @@ export interface DownloadsSnapshot {
   tasks: DownloadTask[];
   has_more?: boolean;
   next_before_id?: number | null;
+  /** 渠道级失败（额度用完、网盘空间不足）：这个渠道下一次提交成功前一直列着。 */
+  channel_alerts?: DownloadChannelAlert[];
+}
+
+export interface DownloadChannelAlert {
+  provider: string;
+  provider_label: string;
+  failure: 'quota' | 'storage';
+  message: string;
+  message_code: string;
+  message_params: Record<string, string | number>;
+  since: string;
 }
 
 export interface DownloadSubmitResult {

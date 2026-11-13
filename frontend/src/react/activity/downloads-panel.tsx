@@ -93,6 +93,14 @@ export function DownloadsPanel() {
     <section id="cloudDownloads" aria-labelledby={id} className="flex min-w-0 flex-col gap-3">
       <h3 id={id} className="text-title-2-medium text-text-primary">{t('manage:downloadsPanel.title')}</h3>
       {query.error ? <Note tone="error">{errorMessage(query.error)}</Note> : null}
+      {(data?.channel_alerts || []).map((alert) => (
+        <Note key={alert.provider} tone="warning"
+          title={t('shell:format.labelValue', { label: alert.provider_label,
+            value: serverLabel(`download.failure.${alert.failure}`, alert.failure) })}>
+          {t('manage:downloadsPanel.channelAlert', {
+            detail: serverLabel(alert.message_code, alert.message, alert.message_params) })}
+        </Note>
+      ))}
       {tasks.length
         ? <ul aria-live="polite" className="flex min-w-0 flex-col gap-3">
             {tasks.map((task) => <TaskCard key={task.id} task={task} writable={data?.available ?? false} />)}

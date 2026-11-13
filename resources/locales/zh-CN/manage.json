@@ -238,6 +238,7 @@
   },
   "downloadsPanel": {
     "cancelDownload": "取消",
+    "channelAlert": "{{detail}}。浏览器添加已暂停，恢复后自动继续",
     "codeUnrecognized": "番号未识别",
     "collapseTitle": "收起标题",
     "copyFailed": "复制失败，请检查剪贴板权限",
