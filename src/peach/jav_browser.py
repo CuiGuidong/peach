@@ -67,6 +67,9 @@ def paused_text(failure: str) -> dict:
 #: 不怪这个番号、过一会儿再交就可能成的下载失败，不等用户手点：放回队列自动重来。
 #: 渠道级失败（空间、额度、配置）跟着渠道暂停与试探走，不限次数；其余按这张表限次，免得死循环。
 AUTO_RETRY_LIMITS = {"not_accepted": 2, "network": 2}
+#: 磁力本身的问题（网盘拒收、链接无效、没人做种、内容不符、被网盘拦截）不等用户点「换一个磁力」：
+#: 跳过这个磁力重新搜索、交下一个候选，最多自动换这么多次；候选用完时照旧记为没有其他可用磁力。
+MAGNET_SWITCH_LIMIT = 3
 #: 浏览器添加的任务结束后一直留在列表里，直到用户在脚本里标为已读。键是「任务编号@结束时间」；
 #: 没有下载任务的结果（未找到资源、搜索失败）用「番号@结束时间」。
 ENDED_KEY = re.compile(r"^([1-9][0-9]{0,11}|[0-9A-Z][0-9A-Z-]{1,39})@[0-9T:+.\-]{19,32}$")
@@ -677,8 +680,9 @@ class JavBrowser:
             return self.status(code)
 
     def _requeue_recoverable(self) -> None:
-        """把能自动重来的失败放回队列，原来的位置不变；换磁力、无资源这类仍等用户决定。
+        """把能自动重来的失败放回队列，原来的位置不变；无资源仍等用户决定。
 
+        磁力本身的问题跳过这个磁力换下一个候选，最多 `MAGNET_SWITCH_LIMIT` 次，与用户点「换一个磁力」同一条路。
         覆盖升级前留下的失败：11-12 之前空间不足被记成 rejected，按原文认回来一并放回。
         队列里已入库的行也要逐条读任务，一分钟最多扫一遍。
         """
@@ -691,7 +695,19 @@ class JavBrowser:
             if row["state"] not in {"submitted", "failed"} or not row.get("task_id"):
                 continue
             task = self.downloads.store.get(row["task_id"])
-            if task is None or task.state not in RESUBMITTABLE_STATES or task.blocked_at:
+            if task is None or not (task.state in RESUBMITTABLE_STATES or task.blocked_at):
+                continue
+            if _failure_projection(task)["cause"] == "magnet":
+                switched = row.get("magnet_switches", 0)
+                if switched >= MAGNET_SWITCH_LIMIT or not task.info_hash:
+                    continue
+                skip = [*row.get("skip", ()), task.info_hash]
+                row["state"], row["skip"], row["magnet_switches"] = "queued", list(dict.fromkeys(skip))[-20:], switched + 1
+                for key in ("task_id", "message", "retry_at", "retry_attempt", "retry_limit", "retry_exhausted", "ended_at"):
+                    row.pop(key, None)
+                changed = True
+                continue
+            if task.blocked_at:
                 continue
             channel = task.failure in CHANNEL_FAILURES or storage_full(task.failure_detail)
             used = row.get("auto_retries", 0)
