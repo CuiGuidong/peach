@@ -13,6 +13,7 @@ COPY web ./web
 COPY resources ./resources
 COPY tools/amane-bridge ./tools/amane-bridge
 COPY scripts/write_reporting_config.py ./scripts/
+# write_reporting_config.py 的说明与报错由 scripts/locales 渲染（ADR-0159 第三条），构建阶段要带上。
 COPY scripts/locales ./scripts/locales
 COPY scripts/build_amane_runtime.py scripts/amane_bridge.spec ./scripts/
 # vision 带上 OpenCV：镜像里随附的人脸模型要靠它才能检出与比对。
