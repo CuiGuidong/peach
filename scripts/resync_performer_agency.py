@@ -39,9 +39,10 @@ from peach.scripting import (   # noqa: E402
 
 FIELDS = ("entity_id", "performer", "current_agency", "site_agency", "verdict", "evidence")
 
-MOVED, SAME, GONE, MISSING = "移籍", "未变", "站上没有事务所", "未取得"
+#: 复核 CSV `verdict` 列：移籍、未变、站上没有事务所、资料表没取到。
+MOVED, SAME, GONE, MISSING = "moved", "unchanged", "no-agency-on-site", "missed"
 #: 站上写的是这个人驳回过的那一家（`peach.entities.AGENCY_REJECTED`），不当移籍写回。
-REJECTED = "已驳回"
+REJECTED = "rejected"
 
 #: 这一行是从哪儿来的。和 `repair_link_labels.py` 写的那一条同源，所以两条路径
 #: 采到的同一件事在账本里长得一样。

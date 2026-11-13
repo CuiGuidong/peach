@@ -89,6 +89,12 @@ METADATA_FIELDS = (
     "candidates_json", "source_count", "source_profile", "policy_version",
     "status", "size_gb", "videos", "fetched_at",
 )
+#: 目录 CSV `result` 列与封面装载结果：取到、官网目录没有、封面已有、图解不开。
+FOUND, MISSED, HELD, UNDECODABLE = "found", "missed", "held", "undecodable"
+#: 演员 CSV `match` 列：已凭官网作品候选关联到 MIB 作品、未关联。
+LINKED, UNLINKED = "linked", "unlinked"
+#: 报告里厂牌标识的结果：已装载；没有新图时记 `held`，其余照候选的 `content_state`。
+LOGO_INSTALLED = "installed"
 CATALOG_FIELDS = (
     "code", "result", "maker", "partner", "title", "release_date", "runtime_minutes",
     "performers", "genres", "tags", "unmapped_genres", "ledger_assets", "cover_url",
@@ -324,7 +330,7 @@ def catalog_rows(connection, releases: list[dict]) -> list[dict]:
         listed.add(release["id"])
         tags, unmapped = map_genres(release["genres"], genre_decisions)
         rows.append({
-            "code": release["id"], "result": "取得", "maker": release["maker"],
+            "code": release["id"], "result": FOUND, "maker": release["maker"],
             "partner": release["partner"], "title": release["title"],
             "release_date": release["release_date"],
             "runtime_minutes": release["runtime"] or "",
@@ -335,7 +341,7 @@ def catalog_rows(connection, releases: list[dict]) -> list[dict]:
             "cover_url": release["cover_url"], "source_url": release["source_url"],
         })
     for code in sorted(ledger_mib_codes(connection) - listed):
-        rows.append({"code": code, "result": "未取得", "maker": STUDIO,
+        rows.append({"code": code, "result": MISSED, "maker": STUDIO,
                      "ledger_assets": len(ledger_assets(connection, code))})
     return rows
 
@@ -357,7 +363,7 @@ def performer_rows(connection, stars: list[dict]) -> list[dict]:
             **{key: star.get(key, "") for key in PERFORMER_FIELDS},
             "tags": "、".join(star.get("tags") or []),
             "entity_id": entity_id or "",
-            "match": "已关联 MIB 作品" if entity_id else "未关联",
+            "match": LINKED if entity_id else UNLINKED,
         })
     return rows
 
@@ -397,10 +403,10 @@ def fill_missing_codes(connection, catalog_codes: set[str]) -> list[tuple[int, s
 def install_cover(snapshot: Path, cover_root: Path, release: dict) -> str:
     target = cover_root / f"{release['id']}.jpg"
     if target.is_file():
-        return "已有"
+        return HELD
     data = cached_image(snapshot, release["cover_url"])
     if data is None:
-        return "未取得"
+        return MISSED
     try:
         with Image.open(io.BytesIO(data)) as image:
             image.load()
@@ -410,14 +416,14 @@ def install_cover(snapshot: Path, cover_root: Path, release: dict) -> str:
                 image.convert("RGB").save(buffer, "JPEG", quality=95)
                 data = buffer.getvalue()
     except Exception:
-        return "无法解码"
+        return UNDECODABLE
     atomic_write_bytes(target, data)
     atomic_write_bytes(target.with_suffix(".scraping.json"), json.dumps({
         "source": SOURCE, "source_url": release["cover_url"], "width": size[0],
         "height": size[1], "raw_sha256": hashlib.sha256(data).hexdigest(),
         "checked_at": time.time(),
     }, ensure_ascii=False).encode("utf-8"))
-    return "取得"
+    return FOUND
 
 
 def add_link(connection, entity_id: int, kind: str, label: str, url: str, now: str) -> bool:
@@ -593,13 +599,13 @@ def apply(args, releases: list[dict], stars: list[dict]) -> dict:
     report["avatars"] = {"candidates": len(avatars), "installed": installed}
 
     logo = logo_candidate(args.snapshot, args.out, contract.logo_root)
-    report["logo"] = "已有" if logo is None else logo["content_state"]
+    report["logo"] = HELD if logo is None else logo["content_state"]
     if logo is not None:
         write_rows(args.out / f"studio-logo-candidate-kmib-{stamp}.csv", LOGO_FIELDS, [logo])
         if logo["saved"]:
             w_review_decision(contract, {"category": "studio_logos", "item_key": STUDIO,
                                          "status": "approved", "note": "MIB 官网 og 图"})
-            report["logo"] = "已装载"
+            report["logo"] = LOGO_INSTALLED
     report.update(verify(args.db))
     return report
 

@@ -50,7 +50,10 @@ JP_FIELD = re.compile(r"JP:\s*(?:</[a-z]+>)?\s*([^<]{1,60})")
 ALT_FIELD = re.compile(r"Alt:\s*(?:</[a-z]+>)?\s*([^<]{1,160})")
 TAG = re.compile(r"<[^>]+>")
 
-OK, HELD, AMBIGUOUS, MISSING = "ok", "已有", "需人工消歧", "未取得"
+#: 复核 CSV `verdict` 列：可收、账本已有、对上多位要人消歧、没取到。
+OK, HELD, AMBIGUOUS, MISSING = "ok", "held", "ambiguous", "missed"
+#: 汇总里不是判定的两项计数：账本里没有番号可以当入口、番号页上的人一位都没对上。
+NO_CODES, UNMATCHED = "no-codes", "unmatched"
 
 
 # ---------------------------------------------------------------- 解析
@@ -164,7 +167,7 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
         codes = codes_of(connection, entity_id, codes_per_performer)
         if not codes:
             rows.append(row(**base, verdict=MISSING, evidence=t("harvest_javdatabase_names.noCodes")))
-            stats["无番号入口"] += 1
+            stats[NO_CODES] += 1
             continue
         notes: list[str] = []
         matched = False
@@ -219,7 +222,7 @@ def harvest(site: Site, connection: sqlite3.Connection, performers: list[dict],
             rows.append(row(**base, code=" ".join(codes), verdict=MISSING,
                             evidence=(t("common.clauseSeparator").join(notes)
                                       or t("harvest_javdatabase_names.noIdolMatched"))))
-            stats["未对上"] += 1
+            stats[UNMATCHED] += 1
     return rows, stats
 
 

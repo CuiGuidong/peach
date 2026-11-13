@@ -32,6 +32,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from peach import javdb
 from peach.config import DATA_ROOT, GENERATED_DIR
@@ -41,6 +42,7 @@ from peach.interface_text import dev as t
 from peach.kanji import JP_KANJI_TO_SIMPLIFIED, simplify_kanji   # noqa: F401 - 供测试与脚本共用
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import add_ledger_write_args, counts_of, open_for_write, verify_after_write
+from legacy_values import JAVDB_NAME_VERDICTS
 
 
 RELEASE_SOURCES = frozenset({
@@ -114,8 +116,9 @@ def read_mapping(path: Path) -> list[ActorMapping]:
 def read_mapping_csv(path: Path, accept: Sequence[str] = ("ok",)) -> list[ActorMapping]:
     """读资料页复核映射，只收 `accept` 里那几种判定的行。
 
-    默认只收 `ok`。站上已经改了名的（`改艺名`、`旧名`）要不要跟着改，是人的决定，
-    所以得在命令行里点名——判定名照抄 CSV 里那一列的字面值。
+    默认只收 `ok`。站上已经改了名的（`renamed`、`former-name`）要不要跟着改，是人的决定，
+    所以得在命令行里点名——判定名照抄 CSV 里那一列的字面值。旧版 CSV 与 `--accept` 里的中文判定词
+    先归一成英文 id 再比。
 
     `jp` 取账本规范名而不是页面上的日文写法：规范名在账本里唯一，拿它回查是一对一，
     页面写法还要绕别名。采用的名字在这里再过一次字形归一：javdb 给的是繁体中文，
@@ -123,13 +126,18 @@ def read_mapping_csv(path: Path, accept: Sequence[str] = ("ok",)) -> list[ActorM
     字形不是译名判断，这一步不需要外部证据。
     """
     rows = []
-    order = {str(value).strip(): rank for rank, value in enumerate(accept)}
+    def verdict(value) -> str:
+        value = str(value or "").strip()
+        return JAVDB_NAME_VERDICTS.get(value, value)
+
+    order: dict[str, int] = {}
+    for rank, value in enumerate(accept):
+        order.setdefault(verdict(value), rank)
     taken: dict[str, int] = {}
-    candidates = [record for record in read_rows(path)
-                  if str(record.get("verdict") or "").strip() in order]
+    candidates = [record for record in read_rows(path) if verdict(record.get("verdict")) in order]
     # 同一位女优可能命中多页（`アンナ` 命中了 `安娜`、`Anna`、`ANNA` 三页）。
     # 按 `--accept` 的书写次序定优先级：先写的判定先采用，一位只留一条。
-    candidates.sort(key=lambda record: order[str(record["verdict"]).strip()])
+    candidates.sort(key=lambda record: order[verdict(record["verdict"])])
     for record in candidates:
         name = str(record.get("current_name") or "").strip()
         if not name or name in taken:

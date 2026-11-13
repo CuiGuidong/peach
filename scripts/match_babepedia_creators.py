@@ -25,7 +25,7 @@ r"""把 ledger 里的拉丁名出演者与网黄博主回配到 babepedia，产�
     MattieDoll   -> MattieDoll         站上就这么写，不能拆
 
 别名解析会把查询带到另一个名字上，这是能力也是风险。因此记录命中用的变体、
-返回的档案名和两者的词元重合度；重合度为 0 的一律标 `需人工确认`，不当作已确认。
+返回的档案名和两者的词元重合度；重合度为 0 的一律标 `needs-review`（需人工确认），不当作已确认。
 
 只产出候选 CSV，不写 ledger、不下载图片。
 """
@@ -43,6 +43,9 @@ SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from peach.catalog_vocabulary import (LEGACY_WESTERN_IDENTITY_VERDICTS, WESTERN_IDENTITY_MATCHED,
+                                      WESTERN_IDENTITY_NEEDS_REVIEW, WESTERN_IDENTITY_NO_PROFILE,
+                                      WESTERN_IDENTITY_RATE_LIMITED)
 from peach.config import DATABASE_PATH, GENERATED_DIR
 from peach.http import HttpRequest, HttpTransport, HttpxTransport
 from peach.interface_text import dev
@@ -62,10 +65,11 @@ CHALLENGE = re.compile(r"Just a moment|cf-browser-verification|Checking your bro
 
 LATIN_NAME = re.compile(r"^[A-Za-z][A-Za-z0-9 ._'-]*$")
 
-VERDICT_HIT = "命中"
-VERDICT_REVIEW = "需人工确认"
-VERDICT_NONE = "确认无档案"
-VERDICT_BLOCKED = "未取得:限流"
+#: `verdict` 列的取值，与复核页、取图脚本共用 `catalog_vocabulary` 里的定义。
+VERDICT_HIT = WESTERN_IDENTITY_MATCHED
+VERDICT_REVIEW = WESTERN_IDENTITY_NEEDS_REVIEW
+VERDICT_NONE = WESTERN_IDENTITY_NO_PROFILE
+VERDICT_BLOCKED = WESTERN_IDENTITY_RATE_LIMITED
 
 
 #: 截断后短于这个长度的写法不再查询。`G3104` 削成 `G`、`N1032` 削成 `N` 之后
@@ -189,10 +193,16 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def load_done(path: Path) -> dict[str, dict]:
+    """续跑时已有确定结论的行；旧版中文 `verdict` 归一成英文 id，重写时一并换掉。"""
     if not path.is_file():
         return {}
-    return {row["creator"]: row for row in read_rows(path)
-            if row.get("verdict") != VERDICT_BLOCKED}
+    done = {}
+    for row in read_rows(path):
+        verdict = str(row.get("verdict") or "")
+        verdict = LEGACY_WESTERN_IDENTITY_VERDICTS.get(verdict, verdict)
+        if verdict != VERDICT_BLOCKED:
+            done[row["creator"]] = {**row, "verdict": verdict}
+    return done
 
 
 def run(args: argparse.Namespace) -> int:
@@ -222,7 +232,9 @@ def run(args: argparse.Namespace) -> int:
                 "profile_url": f"https://www.babepedia.com/babe/{slug}" if slug else "",
             })
             if verdict in (VERDICT_HIT, VERDICT_REVIEW):
-                print(dev("match_babepedia_creators.matched", index=index, total=len(todo), verdict=verdict,
+                shown = dev("match_babepedia_creators.verdictMatched" if verdict == VERDICT_HIT
+                            else "match_babepedia_creators.verdictNeedsReview")
+                print(dev("match_babepedia_creators.matched", index=index, total=len(todo), verdict=shown,
                           name=name, found=found, variant=variant, overlap=overlap, videos=videos),
                       flush=True)
             elif verdict == VERDICT_BLOCKED:

@@ -775,9 +775,9 @@ class AuditScriptTests(unittest.TestCase):
         self._asset(12, folder + r"\最新成人AV.gif", "HJD2048")
         rows = self._rows()
         self.assertEqual((rows[10]["proposed_code"], rows[10]["proposal_from"]),
-                         ("MIDE-612", "文件名"))
+                         ("MIDE-612", "filename"))
         self.assertEqual((rows[12]["proposed_code"], rows[12]["proposal_from"]),
-                         ("MIDE-612", "同目录兄弟"))
+                         ("MIDE-612", "siblings"))
 
     def test_two_codes_in_one_directory_leave_the_rest_unproposed(self):
         # 目录里有两部片时，兄弟证据指不出这条属于哪一部，宁可报「无番号」。
@@ -795,7 +795,7 @@ class AuditScriptTests(unittest.TestCase):
         self._asset(6, r"B:\番号\_未知厂牌\NEWSITE77\newsite77.com@SSIS-070\SSIS-070.mp4",
                     "NEWSITE77")
         row = self._rows()[6]
-        self.assertEqual((row["tier"], row["confidence"]), ("E2", "高"))
+        self.assertEqual((row["tier"], row["confidence"]), ("E2", "high"))
         self.assertEqual(row["proposed_code"], "SSIS-070")
 
     def test_a_sibling_carries_the_evidence_for_a_renamed_file(self):
@@ -804,7 +804,7 @@ class AuditScriptTests(unittest.TestCase):
                     "NEWSITE77")
         self._asset(8, r"B:\番号\_未知厂牌\NEWSITE77\SSIS-071\SSIS-071.mp4", "NEWSITE77")
         row = self._rows()[8]
-        self.assertEqual((row["tier"], row["confidence"]), ("E3", "中"))
+        self.assertEqual((row["tier"], row["confidence"]), ("E3", "medium"))
         self.assertEqual(row["proposed_code"], "SSIS-071")
         self.assertEqual(row["evidence"], "newsite77.com")
 
@@ -873,13 +873,14 @@ class ApplyTests(unittest.TestCase):
         self.assertTrue((self.root / "b.db").exists())
 
     def test_a_pack_row_is_never_written(self):
-        # `存疑` 的 269 条论坛整合包要人工看过再定，不能跟着这一批一起改。
+        # `suspect` 的 269 条论坛整合包要人工看过再定，不能跟着这一批一起改；旧版表里写「存疑」。
         self._asset(3, r"B:\x\WX17\[mtfdz.club]WX17.3\a.rar", "WX17")
-        self._plan({"asset_id": "3", "current_code": "WX17",
-                    "proposed_code": "", "tier": "存疑"})
-        with self.assertRaises(SystemExit):
-            self._run("--apply", "--backup", str(self.root / "b.db"))
-        self.assertEqual(self._codes()[3][0], "WX17")
+        for tier in ("suspect", "存疑"):
+            self._plan({"asset_id": "3", "current_code": "WX17",
+                        "proposed_code": "", "tier": tier})
+            with self.assertRaises(SystemExit):
+                self._run("--apply", "--backup", str(self.root / "b.db"))
+            self.assertEqual(self._codes()[3][0], "WX17")
 
     def test_a_row_edited_since_the_review_is_skipped_not_overwritten(self):
         # 出表和写库之间隔着一次人工阅读，期间别的脚本可能已经改过同一行。

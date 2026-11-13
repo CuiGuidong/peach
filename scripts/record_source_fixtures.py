@@ -44,6 +44,8 @@ from peach.sources.replay import (Cassette, RecordingTransport, ReplayMiss, Repl
 
 FIXTURES = PROJECT_ROOT / "tests" / "fixtures" / "source-replay"
 REPORT = PROJECT_ROOT / "build" / "source-replay" / "record-report.json"
+#: 报告里每个样本的 `status`：录好了、已有录制没重录、没取到、凭据没剥干净拒绝落盘。
+RECORDED, ALREADY_RECORDED, MISSED, REFUSED = "recorded", "already-recorded", "missed", "refused"
 #: 与作品有关的结局才落盘；其余是这台机器此刻的网络状况，换个出口、等一会儿结果就变。
 RECORDABLE = {"ok", FailureReason.NOT_FOUND.value, FailureReason.GONE.value, FailureReason.PARSE_ERROR.value,
               FailureReason.NO_USABLE_METADATA.value, FailureReason.AUTH_REQUIRED.value}
@@ -95,29 +97,29 @@ def record(source: str, code: str, *, secrets: Path, credentials: bool, note: st
     try:
         live = outcome_of(source, code, transport)
     except (SourcePaused, SourceBudgetExhausted, DeadlineExceeded, httpx.TransportError) as error:
-        return {"status": "未取得", "reason": type(error).__name__, "message": str(error)}
+        return {"status": MISSED, "reason": type(error).__name__, "message": str(error)}
     finally:
         inner.close()
         shutil.rmtree(root, ignore_errors=True)
     outcome = live[0]
     if outcome not in RECORDABLE:
-        return {"status": "未取得", "reason": outcome, "message": (live[2] or {}).get("message", "")}
+        return {"status": MISSED, "reason": outcome, "message": (live[2] or {}).get("message", "")}
     cassette.outcome, cassette.payload, cassette.failure = live
     if any(piece in row["url"] for row in cassette.interactions for piece in pieces):
-        return {"status": "拒绝", "reason": t("record_source_fixtures.credentialInUrl"), "message": ""}
+        return {"status": REFUSED, "reason": t("record_source_fixtures.credentialInUrl"), "message": ""}
     safe = rewrite_texts(cassette, lambda text: redact(text, pieces), urls=True)
     if not replays_same(safe, live):
-        return {"status": "拒绝", "reason": t("record_source_fixtures.credentialParsed"), "message": ""}
+        return {"status": REFUSED, "reason": t("record_source_fixtures.credentialParsed"), "message": ""}
     small = rewrite_texts(safe, minimize)
     trimmed = replays_same(small, live)
     final = small if trimmed else safe
     text = final.dump()
     if any(piece in text for piece in pieces) or WINDOWS_PATH.search(text):
-        return {"status": "拒绝", "reason": t("record_source_fixtures.secretsLeft"), "message": ""}
+        return {"status": REFUSED, "reason": t("record_source_fixtures.secretsLeft"), "message": ""}
     path = fixture_path(source, code)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(text.encode("utf-8"))
-    return {"status": "已录制", "outcome": outcome, "path": path.relative_to(PROJECT_ROOT).as_posix(),
+    return {"status": RECORDED, "outcome": outcome, "path": path.relative_to(PROJECT_ROOT).as_posix(),
             "bytes": len(text.encode("utf-8")), "raw_bytes": len(cassette.dump().encode("utf-8")),
             "trimmed": trimmed, "requests": len(cassette.interactions),
             "seconds": round(time.monotonic() - started, 1)}
@@ -141,7 +143,7 @@ def main(argv: list[str] | None = None) -> int:
             print(t("record_source_fixtures.badSample", sample=sample, sources=', '.join(SITE_SOURCES)), file=sys.stderr)
             return 2
         if fixture_path(source, code).exists() and not args.update:
-            result = {"status": "已有录制"}
+            result = {"status": ALREADY_RECORDED}
         else:
             result = record(source, code, secrets=args.secrets, credentials=args.with_credentials,
                             note=args.note)
@@ -150,7 +152,7 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(result, ensure_ascii=False))
     REPORT.parent.mkdir(parents=True, exist_ok=True)
     REPORT.write_text(json.dumps(results, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    return 0 if all(row["status"] in {"已录制", "已有录制", "未取得"} for row in results) else 1
+    return 0 if all(row["status"] in {RECORDED, ALREADY_RECORDED, MISSED} for row in results) else 1
 
 
 if __name__ == "__main__":

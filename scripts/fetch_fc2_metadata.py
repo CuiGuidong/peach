@@ -48,6 +48,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from peach.catalog_rules import normalise_code_key
 from peach.config import SECRETS_DIR
@@ -58,11 +59,14 @@ from peach.interface_text import dev as t
 from peach.review_csv import read_rows, write_rows
 from peach.scripting import open_readonly
 from peach.config import DATABASE_PATH, GENERATED_DIR
+from legacy_values import FC2_LOG_RESULTS
 from peach.sources.fc2 import canonical_code
 from peach.sources.fc2cmadb import (VIDEO_ID, Fc2cmadbSource, collection_parts, inertia_props,
                                     page_comments, parse_equivalences, parse_performers)
 
 FC2_COVER_WIDTH = 1200
+#: 候选日志 `fc2-candidate-log.csv` 的 `result` 取值：取到、没取到。封面取图（`peach.jav_cover_fetch`）也按这两个读。
+FOUND, MISSED = "found", "missed"
 #: 判定合集所需的最少分片映射数。一两条可能只是同一段内容的重复投稿。
 COLLECTION_MIN_PARTS = 3
 
@@ -228,7 +232,8 @@ def metadata_candidate_rows(rows: list[dict], database: Path, *, raw_snapshot: P
         # 用户在复核页收录过的 genre 这一批就当已知词，不再作为未收录回来问一遍。
         genre_decisions = load_genre_decisions(connection)
         for row in rows:
-            if row.get("result") != "取得":
+            result = str(row.get("result") or "")
+            if FC2_LOG_RESULTS.get(result, result) != FOUND:
                 continue
             code = normalise_code_key(str(row.get("code") or ""))
             assets = connection.execute(
@@ -352,18 +357,18 @@ def run(args: argparse.Namespace) -> int:
             try:
                 props = fetch_article(client, video_id)
                 data = summarise(video_id, props)
-            # 长跑任务不能因为一个作品的网络问题整体退出；按条记「未取得」继续。
+            # 长跑任务不能因为一个作品的网络问题整体退出；按条记 `missed` 继续。
             # Ctrl-C 是 BaseException，不受影响。
             except Exception as exc:
                 stats["miss"] += 1
                 reason = f"{type(exc).__name__}: {exc}"
                 rows.append({"code": code, "video_id": video_id,
-                             "result": "未取得", "note": reason[:120]})
+                             "result": MISSED, "note": reason[:120]})
                 print(t("fetch_fc2_metadata.missed", index=index, total=len(todo), code=code, reason=reason[:70]), flush=True)
             else:
                 stats["hit"] += 1
                 rows.append({"code": code, "video_id": video_id,
-                             "result": "取得", **data})
+                             "result": FOUND, **data})
                 harvest(video_id, props, collected)
                 # 原文照存。这些是用户多年攒下的标记，我的正则漏掉哪种写法都不该
                 # 意味着要重爬一遍。

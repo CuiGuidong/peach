@@ -16,13 +16,13 @@ r"""转载站水印顶替番号的排查器（只读，只出复核 CSV）。
 - `E3` 同 `code` 的其他资产 path 里有 E2 证据，本条没有。同一批搬运包里只有部分
   文件保留了水印，靠自己那条 path 判不出来。
 
-拿不到直接证据、但同 `code` 的 path 里存在别的域名水印时判 `疑似搬运包标识`，只报
+拿不到直接证据、但同 `code` 的 path 里存在别的域名水印时判 `suspected-pack-label`（疑似搬运包标识），只报
 存疑不给提案：论坛整合包（`WX17`）的标识确实不是番号，但也不一定是域名，得人工看。
 
 默认只读，只出复核 CSV。`code` 是真相字段，改它要按
 `.claude/skills/peach-ledger-write/SKILL.md` 单独授权：`--apply` 必须同时给 `--backup`，
 写入的内容取自**复核过的那份 CSV**而不是当场重新推断，人工在表里改过什么就写什么。
-`存疑` 档一律不自动写。
+`suspect`（存疑）档一律不自动写。
 """
 from __future__ import annotations
 
@@ -70,17 +70,24 @@ _ANY_WATERMARK = re.compile(
 #: `TZ-105` 自带分隔符，就算它的文件来自 thzu.cc 也不必怀疑 code 本身。
 _FABRICATED_SEPARATOR = re.compile(r"[A-Za-z]{2,8}\d{2,5}$")
 
-VERDICT_CODED = "域名顶替-有番号"
-VERDICT_BLANK = "域名顶替-无番号"
-VERDICT_PACK = "疑似搬运包标识"
+#: 复核 CSV `verdict` 列：域名顶替了番号且路径里有真番号、域名顶替但找不到番号、疑似搬运包标识。
+VERDICT_CODED = "domain-with-code"
+VERDICT_BLANK = "domain-without-code"
+VERDICT_PACK = "suspected-pack-label"
+#: `tier` 列里没有直接证据那一档；`confidence` 列的高、中、低。
+TIER_SUSPECT = "suspect"
+HIGH, MEDIUM, LOW = "high", "medium", "low"
+#: `proposal_from` 列：提案番号取自文件名、目录名、同目录的兄弟文件。
+FROM_FILENAME, FROM_DIRECTORY, FROM_SIBLINGS = "filename", "directory", "siblings"
 
-#: 允许自动写入的证据档。`存疑` 不在其中：论坛整合包的标识确实不是番号，但没有任何
+#: 允许自动写入的证据档。`suspect` 不在其中：论坛整合包的标识确实不是番号，但没有任何
 #: 证据指向某个具体番号，替它下手等于把「人工看过」这一步跳过去。
 APPLICABLE_TIERS = frozenset({"E1", "E2", "E3"})
 
-APPLIED_WRITTEN = "已写入"
-APPLIED_STALE = "跳过-原值已变"
-APPLIED_REJECTED = "跳过-提案不是番号"
+#: 写入回执 `applied` 列：已写入、原值已变跳过、提案不是番号跳过。
+APPLIED_WRITTEN = "written"
+APPLIED_STALE = "skipped-stale"
+APPLIED_REJECTED = "skipped-not-a-code"
 
 FIELDS = ("asset_id", "location", "dir", "name", "current_code", "proposed_code",
           "proposal_from", "verdict", "confidence", "tier", "evidence",
@@ -120,13 +127,13 @@ def proposed_code(label: str, path: str, name: str) -> tuple[str, str]:
     """
     from_file = release_code_from_filename(name)
     if from_file:
-        return from_file, "文件名"
+        return from_file, FROM_FILENAME
     for part in reversed(PureWindowsPath(path or "").parts[:-1]):
         if compact_label(part) == label:
             continue
         found = release_code_from_text(part) or release_code_from_filename(part)
         if found and compact_label(found) != label:
-            return found, "目录名"
+            return found, FROM_DIRECTORY
     return "", ""
 
 
@@ -148,7 +155,7 @@ def fill_from_siblings(rows: dict[int, tuple[str, str]],
             continue
         siblings = by_dir.get(dirs[asset_id], set())
         if len(siblings) == 1:
-            rows[asset_id] = (next(iter(siblings)), "同目录兄弟")
+            rows[asset_id] = (next(iter(siblings)), FROM_SIBLINGS)
 
 
 def collect(connection: sqlite3.Connection) -> list[dict[str, object]]:
@@ -196,17 +203,17 @@ def collect(connection: sqlite3.Connection) -> list[dict[str, object]]:
             if pack:
                 # 标识本身不是域名，只是同一批包里出现了域名水印。给提案就等于让复核
                 # 的人照着按，而这里没有任何证据支持某个具体番号。
-                row_verdict, row_confidence, row_tier = VERDICT_PACK, "低", "存疑"
+                row_verdict, row_confidence, row_tier = VERDICT_PACK, LOW, TIER_SUSPECT
                 proposal, proposal_from = "", ""
                 evidence = pack
             else:
                 row_verdict = VERDICT_CODED if proposal else VERDICT_BLANK
                 if listed:
-                    row_confidence, row_tier = "高", "E1"
+                    row_confidence, row_tier = HIGH, "E1"
                 elif direct[asset_id]:
-                    row_confidence, row_tier = "高", "E2"
+                    row_confidence, row_tier = HIGH, "E2"
                 else:
-                    row_confidence, row_tier = "中", "E3"
+                    row_confidence, row_tier = MEDIUM, "E3"
                 evidence = direct[asset_id] or shared or t("audit_domain_codes.listedLabel", label=label)
             meta = ",".join(part for part in (
                 f"studio={asset['studio']}" if asset["studio"] else "",

@@ -20,7 +20,8 @@ from urllib.parse import quote
 
 from .avatar_provider import install_entity_avatar
 from .catalog_rules import current_tags, is_korean_mib_code, normalise_code_key
-from .catalog_vocabulary import COVER_FETCHED, PERFORMER_TAG_PREFIX, WESTERN_IDENTITY_REVIEW_VERDICTS, fetch_result
+from .catalog_vocabulary import (COVER_FETCHED, LEGACY_WESTERN_IDENTITY_VERDICTS, PERFORMER_TAG_PREFIX,
+                                 WESTERN_IDENTITY_REVIEW_VERDICTS, fetch_result)
 from .code_creators import collect
 from .entities import memoized_resolution, resolve_entity, resolve_entity_id, upsert_asset_entity
 from .field_owners import (
@@ -98,6 +99,16 @@ REVIEW_TABLES = ("asset", "asset_tag", "asset_entity", "entity", "entity_alias",
 ENTITY_REVIEW_KINDS = {"creator_tags": "creator", "western_identity": "creator"}
 
 
+#: 西方身份候选 `verdict` 有译文的取值，显示文字是 `labels.webReview.westernVerdict.<取值>`。
+WESTERN_VERDICT_CODES = frozenset(LEGACY_WESTERN_IDENTITY_VERDICTS.values())
+
+
+def _western_verdict(row: dict) -> str:
+    """西方身份候选的 `verdict`，旧版中文取值先归一成英文 id。"""
+    verdict = str(row.get("verdict") or "")
+    return LEGACY_WESTERN_IDENTITY_VERDICTS.get(verdict, verdict)
+
+
 def _needs_review(category: str, row: dict) -> bool:
     """已经有定论的行不该占复核页。
 
@@ -106,7 +117,7 @@ def _needs_review(category: str, row: dict) -> bool:
     宽的高清图不需要人确认，未取得和仍停在 800 低清基线的才需要。
     """
     if category == "western_identity":
-        return str(row.get("verdict") or "") in WESTERN_IDENTITY_REVIEW_VERDICTS
+        return _western_verdict(row) in WESTERN_IDENTITY_REVIEW_VERDICTS
     if category == "studio_logos":
         # 无 handle、无落盘图片和与现有 Logo 完全相同都没有人工可判断项。
         # 只有新的/变化的确认来源，或明确标 needs_confirmation 的图片才进队列。
@@ -847,7 +858,10 @@ def _review_evidence(category: str, row: dict) -> list[dict]:
     """给本身没有 reason 列的候选拼一句可判断的证据（段落），别让复核页只剩一个名字。"""
     if category == "western_identity":
         variant = row.get("matched_variant") or ""
-        match = {"verdict": row.get("verdict", ""), "name": row.get("babepedia_name", "")}
+        verdict = _western_verdict(row)
+        # 已知取值按界面语言显示；认不出的取值照原文接上。
+        match = {"verdict": _said(f"labels.webReview.westernVerdict.{verdict}")
+                 if verdict in WESTERN_VERDICT_CODES else verdict, "name": row.get("babepedia_name", "")}
         return _joined([
             _said("labels.webReview.westernMatchSpelling", **match, variant=variant)
             if variant and variant != row.get("creator") else _said("labels.webReview.westernMatch", **match),

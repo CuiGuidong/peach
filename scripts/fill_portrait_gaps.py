@@ -46,7 +46,8 @@ from peach.previews import entity_image_key   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
 from peach.scripting import open_readonly   # noqa: E402
 
-INSTALL, MANY, NONE, SMALL, FAILED = "装上", "多张（认不准）", "无候选", "图太小", "取图失败"
+#: 对照表 `action` 列：装上、多张认不准、图库没有候选、图太小、取图失败。
+INSTALL, MANY, NONE, SMALL, FAILED = "install", "several", "no-candidate", "too-small", "fetch-failed"
 
 FIELDS = ("entity_id", "name", "assets", "candidates", "action", "file", "size",
           "profile_url", "detail")

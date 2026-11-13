@@ -53,6 +53,10 @@ def fetch(url: str, timeout: float = 12.0) -> tuple[int, str, str]:
     return response.status_code, response.text, str(response.url)
 
 
+#: 复核 CSV `verdict` 列：找到了新地址、没找到。
+OK, MISSED = "ok", "missed"
+
+
 def rediscover(record: dict, interval: float, timeout: float) -> dict:
     """给一条死链找回它现在的地址。就地返回一行复核结果。"""
     limiter = RateLimiter(interval)
@@ -60,9 +64,9 @@ def rediscover(record: dict, interval: float, timeout: float) -> dict:
     row = {field: "" for field in FIELDS}
     row.update(entity_id=record["entity_id"], kind=record["kind"], name=record["name"],
                link_kind=record["link_kind"], label=record["label"],
-               old_url=record["url"], verdict="未取得")
+               old_url=record["url"], verdict=MISSED)
     if not names:
-        row["evidence"] = "没有可用于日文站的名字"
+        row["evidence"] = t("rediscover_entity_links.noJapaneseName")
         return row
 
     seen: set[str] = set()
@@ -88,13 +92,13 @@ def rediscover(record: dict, interval: float, timeout: float) -> dict:
             title = confirms(hit_html, names)
             if title:
                 row.update(url=hit_final, matched_name=matched, found_via=index,
-                           verdict="ok",
+                           verdict=OK,
                            evidence=f"站点索引 {index} 指向该页，标题自述「{title}」；"
                                     f"旧址 {record['url']} 回 404")
                 return row
         if len(seen) > 30:
             break
-    row["evidence"] = f"在 {len(seen)} 个候选里没有标题自述该人的页面"
+    row["evidence"] = t("rediscover_entity_links.noTitleMatch", count=len(seen))
     return row
 
 

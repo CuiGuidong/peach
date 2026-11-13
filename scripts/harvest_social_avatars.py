@@ -52,6 +52,7 @@ import urllib.parse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from peach.avatar_face import (   # noqa: E402
     FaceProbe, face_px_width, read_sidecar,
@@ -63,6 +64,8 @@ from peach.avatar_provider import (   # noqa: E402
     install_entity_avatar,
     provenance_now,
 )
+from peach.catalog_vocabulary import (   # noqa: E402
+    LEGACY_WESTERN_IDENTITY_VERDICTS, WESTERN_IDENTITY_MATCHED, WESTERN_IDENTITY_REVIEW_VERDICTS)
 from peach.config import (   # noqa: E402
     DATABASE_PATH, GENERATED_DIR, REVIEW_DIR, STATE_DIR, COVER_DIR,
 )
@@ -70,6 +73,7 @@ from peach.entities import resolve_entity_id  # noqa: E402
 from peach.lit_link_avatar import parse_avatar_url  # noqa: E402
 from peach.http import HttpRequest, HttpTransport, HttpxTransport   # noqa: E402
 from peach.interface_text import dev as t   # noqa: E402
+from legacy_values import JAE_PORTRAIT_VERDICTS   # noqa: E402
 from peach.review_csv import read_rows, write_rows   # noqa: E402
 from peach.scripting import (   # noqa: E402
     USER_AGENT, HostLimiter, host_under, hostname_of, open_readonly,
@@ -80,6 +84,10 @@ from peach.social_links import is_lit_share_image, twimg_tiers   # noqa: E402
 X_HOSTS = ("x.com", "twitter.com", "mobile.twitter.com")
 AGGREGATOR_HOSTS = ("lit.link", "linktr.ee", "allmylinks.com", "twpf.jp")
 BLOG_HOSTS = ("ameblo.jp", "lineblog.me", "note.com", "livedoor.jp", "hatenablog.com")
+#: jae 人像候选表（`harvest_directory_links.py` 写）里唯一命中那一行的 `verdict`，只收这一种。
+JAE_MATCHED = "matched"
+#: 链接安装队列与复核表的 `verdict`：名字闸门过了、没过要人看。
+LINK_CONFIRMED, LINK_NEEDS_REVIEW = "confirmed", "needs-review"
 #: 候选的 provider 归到哪个内容寻址缓存。
 PROVIDER_CACHES = {"social-web": "social", "babepedia": "babepedia", "jae": "jae", "cover-fallback": "cover"}
 SOCIAL_LABELS = {
@@ -316,15 +324,17 @@ def x_handle(url: str) -> str:
 
 
 def load_babepedia_rows(path: Path) -> dict[int, dict]:
-    """babepedia-candidates.csv → {entity_id: 行}，只留命中与需人工确认。"""
+    """babepedia-candidates.csv → {entity_id: 行}，只留命中与需人工确认；旧版中文 `verdict` 归一成英文 id。"""
     if not path.is_file():
         return {}
     out = {}
     for row in read_rows(path):
-        if str(row.get("verdict") or "") not in ("命中", "需人工确认"):
+        verdict = str(row.get("verdict") or "")
+        verdict = LEGACY_WESTERN_IDENTITY_VERDICTS.get(verdict, verdict)
+        if verdict not in WESTERN_IDENTITY_REVIEW_VERDICTS:
             continue
         if str(row.get("entity_id") or "").isdigit() and row.get("portrait_url"):
-            out[int(row["entity_id"])] = row
+            out[int(row["entity_id"])] = {**row, "verdict": verdict}
     return out
 
 
@@ -337,10 +347,11 @@ def load_jae_rows(path: Path) -> dict[int, list[dict]]:
     if not path.is_file():
         return out
     for row in read_rows(path):
-        if str(row.get("verdict") or "") != "命中" or not row.get("portrait_url"):
+        verdict = str(row.get("verdict") or "")
+        if JAE_PORTRAIT_VERDICTS.get(verdict, verdict) != JAE_MATCHED or not row.get("portrait_url"):
             continue
         if str(row.get("entity_id") or "").isdigit():
-            out.setdefault(int(row["entity_id"]), []).append(row)
+            out.setdefault(int(row["entity_id"]), []).append({**row, "verdict": JAE_MATCHED})
     return out
 
 
@@ -551,13 +562,16 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
                 "object_path": object_path,
                 "matched": str(babe_row.get("babepedia_name") or ""),
                 "name_source": "babepedia_match",
-                "identity_verified": str(babe_row.get("verdict") or "") == "命中",
+                "identity_verified": babe_row.get("verdict") == WESTERN_IDENTITY_MATCHED,
                 "evidence": t("harvest_social_avatars.babepediaPortrait",
                               name=babe_row.get("babepedia_name", ""), width=inspected.width,
-                              height=inspected.height, verdict=babe_row.get("verdict", "")),
+                              height=inspected.height,
+                              verdict=t("harvest_social_avatars.verdictMatched"
+                                        if babe_row.get("verdict") == WESTERN_IDENTITY_MATCHED
+                                        else "harvest_social_avatars.verdictNeedsReview")),
             })
 
-    # jae 路线（performer）。名字判定在 harvest_directory_links.py 那一步做完，只收 `命中`
+    # jae 路线（performer）。名字判定在 harvest_directory_links.py 那一步做完，只收 `matched`
     # 的行，这里不重新猜人——头像装错人和链接装错人是同一个错误。
     for jae_row in record["routes"].get("jae") or ():
         portrait = str(jae_row.get("portrait_url") or "")
@@ -577,7 +591,7 @@ def harvest_entity(record: dict, http: HttpTransport, limiter: HostLimiter,
             "mime_type": inspected.mime_type, "sha256": inspected.sha256,
             "object_path": object_path,
             "matched": matched, "name_source": "jae_directory",
-            "identity_verified": str(jae_row.get("verdict") or "") == "命中",
+            "identity_verified": jae_row.get("verdict") == JAE_MATCHED,
             "evidence": t("harvest_social_avatars.jaePortrait", matched=matched,
                           width=inspected.width, height=inspected.height, page=page),
         })
@@ -923,10 +937,10 @@ def run(args) -> int:
                        "label": link["label"], "url": link["url"],
                        "evidence": link["evidence"]}
                 if link["gated"]:
-                    row.update(verdict="确认", reason="")
+                    row.update(verdict=LINK_CONFIRMED, reason="")
                     install_rows.append(row)
                 else:
-                    row.update(verdict="需人工确认", reason="名字闸门未过")
+                    row.update(verdict=LINK_NEEDS_REVIEW, reason=t("harvest_social_avatars.nameGateFailed"))
                     review_rows.append(row)
 
             # 先量脸再挑：赢家由脸的像素数定，画布只是没得比时的退路。

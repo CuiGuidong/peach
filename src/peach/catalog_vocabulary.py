@@ -40,8 +40,19 @@ RESOURCE_COMMENT_SOURCE = "javdb-comments"
 RESOURCE_CHINESE_SUBTITLES = CHINESE_SUBTITLES
 RESOURCE_HD = "high-definition"
 
-#: 西方身份候选 CSV 的 `verdict` 里要人看的两种取值。
-WESTERN_IDENTITY_REVIEW_VERDICTS = ("命中", "需人工确认")
+#: 西方身份候选 CSV（`babepedia-candidates.csv`）`verdict` 列的取值：命中、命中但要人看、站上确认没有档案、
+#: 被限流没查成。由 `scripts/match_babepedia_creators.py` 写，复核页与两个取图脚本读。
+WESTERN_IDENTITY_MATCHED = "matched"
+WESTERN_IDENTITY_NEEDS_REVIEW = "needs-review"
+WESTERN_IDENTITY_NO_PROFILE = "no-profile"
+WESTERN_IDENTITY_RATE_LIMITED = "rate-limited"
+#: 其中要人看的两种取值。
+WESTERN_IDENTITY_REVIEW_VERDICTS = (WESTERN_IDENTITY_MATCHED, WESTERN_IDENTITY_NEEDS_REVIEW)
+#: 旧版候选 CSV 写的中文取值，读入时先按它归一。
+LEGACY_WESTERN_IDENTITY_VERDICTS = {
+    "命中": WESTERN_IDENTITY_MATCHED, "需人工确认": WESTERN_IDENTITY_NEEDS_REVIEW,
+    "确认无档案": WESTERN_IDENTITY_NO_PROFILE, "未取得:限流": WESTERN_IDENTITY_RATE_LIMITED,
+}
 #: 封面来源候选 CSV（批量封面日志）`result` 里「已取得」的取值，读入时先经 `fetch_result` 归一。
 COVER_FETCHED = "found"
 

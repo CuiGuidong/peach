@@ -239,7 +239,7 @@ class WriteTests(unittest.TestCase):
         self.connection.close()
 
     def plan(self, link_id, new_url, verdict="ok"):
-        return {"link_id": str(link_id), "entity_id": "1", "problem": "目录页",
+        return {"link_id": str(link_id), "entity_id": "1", "problem": "directory-page",
                 "url": "http://official.nax-pro.com/model/", "new_url": new_url,
                 "verdict": verdict, "check": "标题自述该人"}
 
@@ -266,14 +266,14 @@ class WriteTests(unittest.TestCase):
         plans = [self.plan(1, "https://official.nax-pro.com/model/617")]
         tally = self.module.write_plan(self.connection, plans, "2026-09-22T10:00:00Z")
         self.assertEqual(tally, {"updated": 0, "skipped_unique": 1})
-        self.assertEqual(plans[0]["verdict"], "撞上唯一约束，整行跳过")
+        self.assertEqual(plans[0]["verdict"], "unique-clash")
         self.assertEqual(
             self.connection.execute("SELECT url FROM entity_link WHERE id=1").fetchone()[0],
             "http://official.nax-pro.com/model/")
 
     def test_only_confirmed_rows_are_written(self):
-        plans = [self.plan(1, "", verdict="未取得"),
-                 self.plan(2, "https://official.nax-pro.com/model/617", verdict="已是目标")]
+        plans = [self.plan(1, "", verdict="missed"),
+                 self.plan(2, "https://official.nax-pro.com/model/617", verdict="already-target")]
         self.assertEqual(self.module.write_plan(self.connection, plans, "2026-09-22T10:00:00Z"),
                          {"updated": 0, "skipped_unique": 0})
 
