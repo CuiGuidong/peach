@@ -459,7 +459,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         from peach import interface_text
         untouched = AssertionError('迁移期间不得打开账本')
         migration = self.app.state.ledger_migration
-        migration.state = 'running'
+        migration.begin()
+        migration.report('backup', 42)
         try:
             with (patch('peach.health.inspect_database', side_effect=untouched),
                   patch('peach.diagnostics.inspect_database', side_effect=untouched),
@@ -473,14 +474,18 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                 page = await self.client.get('/')
                 held = [await self.client.get('/api/items?t=secret'), await self.client.get('/thumb?id=1&t=secret'),
                         await self.client.post('/api/tutorial-progress?t=secret', json={})]
+                migration.report('apply', None)
+                applying = await self.client.get('/api/client-updates?t=secret')
         finally:
             migration.state = 'idle'
         self.assertEqual((health.status_code, health.json()['db'], health.json()['ledger_migration']),
-                         (200, 'migrating', {'state': 'running'}))
+                         (200, 'migrating', {'state': 'running', 'stage': 'backup', 'progress': 42}))
         self.assertEqual(health.json()['checks']['database']['reason_code'], 'labels.diagnostics.reason.databaseMigrating')
         self.assertEqual((ready.status_code, ready.json()['ready'], ready.json()['ledger_migration']['state']),
                          (503, False, 'running'))
-        self.assertEqual((updates.status_code, updates.json()['ledger_migration']), (200, {'state': 'running'}))
+        self.assertEqual((updates.status_code, updates.json()['ledger_migration']),
+                         (200, {'state': 'running', 'stage': 'backup', 'progress': 42}))
+        self.assertEqual(applying.json()['ledger_migration'], {'state': 'running', 'stage': 'apply'})
         self.assertEqual(page.status_code, 200)
         for response in held:
             self.assertEqual((response.status_code, response.json()['message_code']), (503, 'api.ledger.migrating'))

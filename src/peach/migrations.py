@@ -119,12 +119,27 @@ def needs_foreign_keys_off(sql: str) -> bool:
     return False
 
 
-def upgrade(db_path: Path, directory: Path, backup_path: Path | None = None) -> list[Migration]:
+#: 带进度的迁移前备份每步复制的页数：4 KiB 一页时每步 4 MiB。300 MB 的库在本机 SSD 上分步与整份一次复制
+#: 同样一秒多，每秒回调几十次；慢到 50 MB/s 的盘每秒仍有十来次，页面每 2 秒取一次进度总能看到在走。
+BACKUP_PAGES = 1024
+
+
+def upgrade(db_path: Path, directory: Path, backup_path: Path | None = None, *, progress=None) -> list[Migration]:
+    """执行待做的迁移；给了 `backup_path` 就先整份备份。
+
+    `progress(stage, percent)`：备份时按页报 `("backup", 0–100)`，开始执行迁移脚本时报一次 `("apply", None)`。"""
     _, pending = plan(db_path, directory)
     if not pending:
         return []
     if backup_path is not None:
-        sqlite_backup(db_path, backup_path)
+        if progress is None:
+            sqlite_backup(db_path, backup_path)
+        else:
+            progress("backup", 0)
+            sqlite_backup(db_path, backup_path, pages=BACKUP_PAGES, progress=lambda _status, remaining, total: progress(
+                "backup", (total - remaining) * 100 // total if total else 100))
+    if progress is not None:
+        progress("apply", None)
 
     connection = sqlite3.connect(db_path)
     try:

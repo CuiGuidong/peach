@@ -244,6 +244,22 @@ class MigrationTests(unittest.TestCase):
         self.assertEqual(upgrade(self.db, MIGRATIONS), [])
         self.assertEqual(plan(self.db, MIGRATIONS)[1], [])
 
+    def test_backup_reports_page_progress_before_the_scripts_run(self):
+        """带进度的升级按页复制备份、逐步报百分比，开始执行迁移脚本时再报一次 `apply`。"""
+        from unittest.mock import patch
+        with closing(sqlite3.connect(self.db)) as connection:
+            connection.execute("CREATE TABLE filler (body BLOB)")
+            connection.executemany("INSERT INTO filler VALUES (?)", ((bytes(4000),) for _ in range(40)))
+            connection.commit()
+        reports = []
+        with patch("peach.migrations.BACKUP_PAGES", 8):
+            upgrade(self.db, MIGRATIONS, self.root / "before.db", progress=lambda *report: reports.append(report))
+        backup = [percent for stage, percent in reports if stage == "backup"]
+        self.assertEqual((backup[0], backup[-1], reports[-1]), (0, 100, ("apply", None)))
+        self.assertGreater(len(backup), 4)
+        self.assertEqual(backup, sorted(backup))
+        self.assertEqual([stage for stage, _ in reports].count("apply"), 1)
+
     def test_old_schema_columns_are_reconciled(self):
         con = sqlite3.connect(self.db)
         con.executescript("""

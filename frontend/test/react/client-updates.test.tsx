@@ -1,7 +1,8 @@
 import { act } from 'react';
 import { expect, it, vi } from 'vitest';
 
-import { ClientUpdateBanner, CLIENT_UPDATES_INTERVAL, RECOVERY_DELAYS, RELEASE_UPDATES_PATH, type ClientUpdates } from '../../src/react/client-updates';
+import { ClientUpdateBanner, CLIENT_UPDATES_INTERVAL, PROGRESS_INTERVAL, RECOVERY_DELAYS, RELEASE_UPDATES_PATH,
+  type ClientUpdates } from '../../src/react/client-updates';
 import { SETTINGS_KEY } from '../../src/settings-key';
 import { buttonNamed, click, linkNamed, mountRoot, pending, settle } from './render';
 
@@ -213,39 +214,93 @@ async function advance(milliseconds: number) {
   await settle();
 }
 
+/** 横幅左侧是 Loading Dots（三颗错相的点），不是信息图标。没有确定百分比时用它。 */
+const loading = (slot: Element) => !!slot.querySelector('aside .dot-wave-0') && !slot.querySelector('aside svg use[href="#i-info"]');
+/** 有确定百分比时左侧是小环形进度，读屏值就是那个百分比；不同时出现 Loading Dots。 */
+const ring = (slot: Element) => {
+  const meter = slot.querySelector('aside [role="progressbar"]');
+  return meter && !slot.querySelector('aside .dot-wave-0') ? Number(meter.getAttribute('aria-valuenow')) : null;
+};
+
 it('启动迁移期间显示正在更新本地数据库，迁移结束后换成刷新提示', async () => {
   seedRuntime();
   const { slot, fetcher } = await render(migrating);
   expect(slot.querySelector('[data-client-update="migrating"]')?.textContent).toContain('正在更新本地数据库。');
+  expect(loading(slot)).toBe(true);
   expect(slot.textContent).not.toContain('Peach 0.9.0');
   expect(linkNamed('查看进度', slot)).toBeNull();
   fetcher.mockResolvedValue(response({ ...current, ledger_migration: { state: 'idle' } }));
-  await advance(RECOVERY_DELAYS[0]);
+  await advance(PROGRESS_INTERVAL);
   expect(slot.querySelector('[data-client-update="refresh"]')).not.toBeNull();
   expect(slot.textContent).toContain('Peach 已更新，刷新页面即可使用。');
+  expect(loading(slot)).toBe(false);
 });
 
-it('Windows 更新器迁移账本时也显示正在更新本地数据库', async () => {
+it('启动迁移按阶段显示备份百分比与正在应用迁移，每 2 秒刷新一次', async () => {
+  const { slot, fetcher } = await render({ ...current, ledger_migration: { state: 'running', stage: 'backup', progress: 0 } });
+  const banner = () => slot.querySelector('[data-client-update="migrating"] [data-copy-key]')?.textContent;
+  expect(banner()).toBe('正在更新本地数据库 · 备份 0%');
+  expect(ring(slot)).toBe(0);
+  fetcher.mockResolvedValue(response({ ...current, ledger_migration: { state: 'running', stage: 'backup', progress: 42 } }));
+  await advance(PROGRESS_INTERVAL - 1);
+  expect(banner()).toBe('正在更新本地数据库 · 备份 0%');
+  await advance(1);
+  expect(banner()).toBe('正在更新本地数据库 · 备份 42%');
+  expect(ring(slot)).toBe(42);
+  fetcher.mockResolvedValue(response({ ...current, ledger_migration: { state: 'running', stage: 'apply' } }));
+  await advance(PROGRESS_INTERVAL);
+  expect(banner()).toBe('正在更新本地数据库 · 正在应用迁移');
+  expect(ring(slot)).toBeNull();
+  expect(loading(slot)).toBe(true);
+});
+
+it('Windows 更新器迁移账本时显示更新的当前步骤与百分比', async () => {
   const { slot } = await render({ ...available(), update_job: { state: 'installing', progress: 10, version: '0.10.0',
     message: '正在更新本地数据库', message_code: 'jobMessage.standaloneUpdate.updatingDatabase' } });
-  expect(slot.querySelector('[data-client-update="migrating"]')?.textContent).toContain('正在更新本地数据库。');
+  expect(slot.querySelector('[data-client-update="migrating"] [data-copy-key]')?.textContent).toBe('正在更新 Peach 0.10.0 · 正在更新本地数据库 10%');
+  expect(ring(slot)).toBe(10);
 });
 
-it('没恢复时按 2、4、8、16、30 秒退避，恢复后回到每 2 分钟一次', async () => {
-  const { fetcher } = await render(migrating);
-  expect(fetcher).toHaveBeenCalledTimes(1);
+it('更新进行中显示当前步骤与百分比，换步骤时跟着刷新', async () => {
+  const downloading = { ...available(), update_job: { state: 'downloading', progress: 42.4, version: '0.10.0',
+    message: '正在下载', message_code: 'jobMessage.standaloneUpdate.downloading' } };
+  const { slot, fetcher } = await render(downloading);
+  const banner = () => slot.querySelector('[data-client-update="preparing"] [data-copy-key]')?.textContent;
+  expect(banner()).toBe('正在更新 Peach 0.10.0 · 正在下载 42%');
+  expect(ring(slot)).toBe(42);
+  expect(linkNamed('查看进度', slot)).not.toBeNull();
+  fetcher.mockResolvedValue(response({ ...downloading, update_job: { ...downloading.update_job, state: 'verifying', progress: 66,
+    message: '正在校验', message_code: 'jobMessage.standaloneUpdate.verifying' } }));
+  await advance(PROGRESS_INTERVAL);
+  expect(banner()).toBe('正在更新 Peach 0.10.0 · 正在校验 66%');
+  // 刚开始连接发布源时任务还没有版本号，发行版检查也没取得版本。
+  fetcher.mockResolvedValue(response({ ...current, release: { ...current.release, latest_version: '' },
+    update_job: { state: 'downloading', progress: 0, message: '正在连接发布源', message_code: 'jobMessage.standaloneUpdate.connecting' } }));
+  await advance(PROGRESS_INTERVAL);
+  expect(banner()).toBe('正在更新 Peach · 正在连接发布源 0%');
+});
+
+it('可更新与准备好时仍是信息图标，不显示加载动画', async () => {
+  const { slot, fetcher } = await render(available());
+  expect(slot.querySelector('aside svg use[href="#i-info"]')).not.toBeNull();
+  expect(slot.querySelector('aside .dot-wave-0')).toBeNull();
+  fetcher.mockResolvedValue(response({ ...available(), update_job: { state: 'ready', progress: 100, version: '0.10.0' } }));
+  await tick();
+  expect(slot.querySelector('[data-client-update="ready"] svg use[href="#i-info"]')).not.toBeNull();
+  expect(slot.textContent).toContain('Peach 0.10.0');
+});
+
+it('迁移或更新进行中每 2 秒查一次，结束后回到每 2 分钟一次', async () => {
+  const { fetcher } = await render({ ...available(), update_job: { state: 'downloading', progress: 10, version: '0.10.0' } });
   let calls = 1;
-  for (const delay of [...RECOVERY_DELAYS, 30_000]) {
-    await advance(delay - 1);
+  for (let index = 0; index < 3; index += 1) {
+    await advance(PROGRESS_INTERVAL - 1);
     expect(fetcher).toHaveBeenCalledTimes(calls);
     await advance(1);
     expect(fetcher).toHaveBeenCalledTimes(++calls);
   }
-  fetcher.mockRejectedValue(new TypeError('Failed to fetch'));
-  await advance(30_000);
-  expect(fetcher).toHaveBeenCalledTimes(++calls);
-  fetcher.mockResolvedValue(response(current));
-  await advance(30_000);
+  fetcher.mockResolvedValue(response({ ...available(), update_job: { state: 'ready', progress: 100, version: '0.10.0' } }));
+  await advance(PROGRESS_INTERVAL);
   expect(fetcher).toHaveBeenCalledTimes(++calls);
   await advance(CLIENT_UPDATES_INTERVAL - 1);
   expect(fetcher).toHaveBeenCalledTimes(calls);
@@ -253,7 +308,45 @@ it('没恢复时按 2、4、8、16、30 秒退避，恢复后回到每 2 分钟�
   expect(fetcher).toHaveBeenCalledTimes(++calls);
 });
 
-it('检查事件立即查一次，同一时刻只有一个检查在飞，退避期间的事件不插队', async () => {
+it('页面隐藏时进行中的刷新也停，恢复可见立即读取', async () => {
+  const { fetcher } = await render(migrating);
+  visible('hidden');
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
+  await advance(PROGRESS_INTERVAL * 5);
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  visible('visible');
+  await act(async () => { document.dispatchEvent(new Event('visibilitychange')); });
+  await settle();
+  expect(fetcher).toHaveBeenCalledTimes(2);
+});
+
+it('连不上服务时按 2、4、8、16、30 秒退避，恢复后迁移中按 2 秒、结束回到每 2 分钟一次', async () => {
+  const { fetcher } = await render(migrating);
+  fetcher.mockRejectedValue(new TypeError('Failed to fetch'));
+  await advance(PROGRESS_INTERVAL);
+  let calls = 2;
+  for (const delay of [...RECOVERY_DELAYS, 30_000]) {
+    await advance(delay - 1);
+    expect(fetcher).toHaveBeenCalledTimes(calls);
+    await advance(1);
+    expect(fetcher).toHaveBeenCalledTimes(++calls);
+  }
+  // 退避期间的检查事件不插队。
+  await act(async () => { document.dispatchEvent(new Event('peach:client-updates')); });
+  expect(fetcher).toHaveBeenCalledTimes(calls);
+  fetcher.mockResolvedValue(response(migrating));
+  await advance(30_000);
+  expect(fetcher).toHaveBeenCalledTimes(++calls);
+  fetcher.mockResolvedValue(response(current));
+  await advance(PROGRESS_INTERVAL);
+  expect(fetcher).toHaveBeenCalledTimes(++calls);
+  await advance(CLIENT_UPDATES_INTERVAL - 1);
+  expect(fetcher).toHaveBeenCalledTimes(calls);
+  await advance(1);
+  expect(fetcher).toHaveBeenCalledTimes(++calls);
+});
+
+it('检查事件立即查一次，同一时刻只有一个检查在飞，迁移进行中的事件不插队', async () => {
   const { fetcher } = await render();
   const late = pending<ReturnType<typeof response>>();
   fetcher.mockImplementationOnce(async () => late.answer);
@@ -263,7 +356,7 @@ it('检查事件立即查一次，同一时刻只有一个检查在飞，退避�
   await settle();
   await act(async () => { document.dispatchEvent(new Event('peach:client-updates')); });
   expect(fetcher).toHaveBeenCalledTimes(2);
-  await advance(RECOVERY_DELAYS[0]);
+  await advance(PROGRESS_INTERVAL);
   expect(fetcher).toHaveBeenCalledTimes(3);
 });
 
@@ -296,21 +389,35 @@ it('两个取数入口遇到迁移的 503 或连不上服务时派发检查事�
   }
 });
 
-it('英文界面显示英文的迁移提示', async () => {
+it('英文界面显示英文的迁移与更新进度', async () => {
   vi.resetModules();
   localStorage.setItem(SETTINGS_KEY, JSON.stringify({ interfaceLanguage: 'en' }));
   try {
     const { ClientUpdateBanner: Banner } = await import('../../src/react/client-updates');
     vi.useFakeTimers();
     visible('visible');
-    vi.stubGlobal('fetch', vi.fn(async () => response(migrating)));
+    // 先看更新进行中：页面一旦见过迁移，迁移结束后就只提示刷新。
+    const fetcher = vi.fn(async () => response({ ...available(), update_job: { state: 'extracting', progress: 70, version: '0.10.0',
+      message: '正在解压', message_code: 'jobMessage.standaloneUpdate.extracting' } }));
+    vi.stubGlobal('fetch', fetcher);
     const slot = document.createElement('div');
     slot.setAttribute('data-network-banner', '');
     document.body.append(slot);
     await mountRoot(<Banner navigate={vi.fn()} />);
     await settle();
-    expect(slot.querySelector('[data-client-update="migrating"]')?.textContent).toContain('Updating the local database.');
+    const banner = () => slot.querySelector('[data-client-update] [data-copy-key]')?.textContent;
+    expect(banner()).toBe('Updating to Peach 0.10.0 · Extracting 70%');
     expect(buttonNamed('Later', slot)).not.toBeNull();
+    const steps: [ClientUpdates, string][] = [
+      [migrating, 'Updating the local database.'],
+      [{ ...current, ledger_migration: { state: 'running', stage: 'backup', progress: 37 } }, 'Updating the local database · Backing up 37%'],
+      [{ ...current, ledger_migration: { state: 'running', stage: 'apply' } }, 'Updating the local database · Applying migrations'],
+    ];
+    for (const [snapshot, text] of steps) {
+      fetcher.mockResolvedValue(response(snapshot));
+      await advance(PROGRESS_INTERVAL);
+      expect(banner()).toBe(text);
+    }
   } finally {
     localStorage.removeItem(SETTINGS_KEY);
     vi.resetModules();

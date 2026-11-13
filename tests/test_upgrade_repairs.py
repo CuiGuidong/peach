@@ -2144,12 +2144,23 @@ class UpgradeRepairTests(unittest.TestCase):
             connection.execute("DELETE FROM schema_migration WHERE version='0048'")
         self.contract.upgrade_repairs = self.service
         settings = SimpleNamespace(db_path=self.db)
-        service = Mock()
+        service, migration, seen = Mock(), api.LedgerMigration(), []
+        report = migration.report
+
+        def record(stage, progress):
+            report(stage, progress)
+            seen.append(migration.payload())
+        migration.report = record
         with patch.object(api, '_restore_task_center'), patch('peach.web_job_recovery.restore'), patch.object(
                 config, 'MIGRATIONS_DIR', Path(__file__).resolve().parents[1] / 'migrations'):
-            self.assertTrue(api._start_ledger_services(settings, self.contract, [service]))
+            self.assertTrue(api._start_ledger_services(settings, self.contract, [service], migration))
         service.start.assert_called_once()
         self.assertEqual(len(list(self.root.glob('ledger.pre-schema-*.db'))), 1)
+        # 状态接口在备份时读到阶段与百分比，执行迁移脚本时只读到阶段；做完回到 idle。
+        self.assertEqual((seen[0], seen[-1]), ({'state': 'running', 'stage': 'backup', 'progress': 0},
+                                               {'state': 'running', 'stage': 'apply'}))
+        self.assertIn({'state': 'running', 'stage': 'backup', 'progress': 100}, seen)
+        self.assertEqual(migration.payload(), {'state': 'idle'})
 
     def test_failed_startup_migration_keeps_services_stopped_and_reports_why(self):
         from peach import api, config

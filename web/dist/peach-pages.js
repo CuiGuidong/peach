@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "5a44850b-fac1-46b1-9561-0753de79679b", e._sentryDebugIdIdentifier = "sentry-dbid-5a44850b-fac1-46b1-9561-0753de79679b");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "94002b33-a79b-450a-b47f-48554a4d4723", e._sentryDebugIdIdentifier = "sentry-dbid-94002b33-a79b-450a-b47f-48554a4d4723");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7842,10 +7842,13 @@ var He = {
 		available: "An update is available.",
 		later: "Later",
 		migrating: "Updating the local database.",
-		preparing: "Preparing update.",
+		migratingApply: "Updating the local database · Applying migrations",
+		migratingBackup: "Updating the local database · Backing up {{percent}}%",
 		refreshPage: "Refresh page",
 		refreshReady: "Peach has been updated. Refresh the page to use it.",
 		restartReady: "An update is ready. Restart to install it.",
+		updating: "Updating to Peach {{version}} · {{step}} {{percent}}%",
+		updatingUnversioned: "Updating Peach · {{step}} {{percent}}%",
 		viewProgress: "View progress",
 		viewUpdate: "View update"
 	},
@@ -14546,10 +14549,13 @@ var He = {
 		available: "有可用更新。",
 		later: "稍后",
 		migrating: "正在更新本地数据库。",
-		preparing: "正在准备更新。",
+		migratingApply: "正在更新本地数据库 · 正在应用迁移",
+		migratingBackup: "正在更新本地数据库 · 备份 {{percent}}%",
 		refreshPage: "刷新页面",
 		refreshReady: "Peach 已更新，刷新页面即可使用。",
 		restartReady: "更新已准备好，可重启安装。",
+		updating: "正在更新 Peach {{version}} · {{step}} {{percent}}%",
+		updatingUnversioned: "正在更新 Peach · {{step}} {{percent}}%",
 		viewProgress: "查看进度",
 		viewUpdate: "查看更新"
 	},
@@ -38080,4 +38086,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=5a44850b-fac1-46b1-9561-0753de79679b
+//# debugId=94002b33-a79b-450a-b47f-48554a4d4723

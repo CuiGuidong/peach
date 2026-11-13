@@ -181,23 +181,41 @@ class LedgerMigration:
     `running`：正在整份备份并迁移，需要账本的请求一律回 503（`LedgerMigrationGate`）；
     `failed`：迁移没做完，后台服务不启动，`error` 是原因（带 code 的异常写成嵌套参数）。
     其余时候是 `idle`。只读设备、未配置与安装确认期都不走这条路，状态一直是 `idle`。
+
+    进行中的 `stage`：`backup` 整份备份账本，`progress` 是已复制页数占总页数的百分比（0–100 的整数）；
+    `apply` 执行迁移脚本，不报百分比。备份线程写、请求线程读，各字段都是整体赋值。
     """
 
     def __init__(self):
         self.state = "idle"
         self.error: dict | str = ""
+        self.stage = "backup"
+        self.progress = 0
 
     @property
     def running(self) -> bool:
         return self.state == "running"
 
+    def begin(self) -> None:
+        self.stage, self.progress = "backup", 0
+        self.state = "running"
+
+    def report(self, stage: str, progress: int | None) -> None:
+        """`migrations.upgrade` 的 `progress` 回调。"""
+        if progress is not None:
+            self.progress = progress
+        self.stage = stage
+
     def fail(self, error: BaseException) -> None:
         self.state, self.error = "failed", nested_message(error)
 
     def payload(self) -> dict:
-        """`/healthz` 与 `/api/client-updates` 里的迁移状态；失败时带原因，页面按界面语言显示。"""
+        """`/healthz` 与 `/api/client-updates` 里的迁移状态；进行中带阶段与备份进度，失败时带原因，页面按界面语言显示。"""
         if self.state == "failed":
             return {"state": "failed", **message_fields("api.ledger.migrationFailed", {"error": self.error})}
+        if self.state == "running":
+            stage = self.stage
+            return {"state": "running", "stage": stage, **({"progress": self.progress} if stage == "backup" else {})}
         return {"state": self.state}
 
 
@@ -337,10 +355,10 @@ def _start_ledger_services(settings: PeachSettings, contract, services, migratio
         from .migrations import upgrade
         import time
         migration = migration or LedgerMigration()
-        migration.state = "running"
+        migration.begin()
         try:
             upgrade(settings.db_path, MIGRATIONS_DIR,
-                    settings.db_path.with_name(f'ledger.pre-schema-{time.time_ns()}.db'))
+                    settings.db_path.with_name(f'ledger.pre-schema-{time.time_ns()}.db'), progress=migration.report)
             status = inspect_database(settings.db_path)
             contract.task_runs.enabled = contract.task_runs.available()
         except Exception as exc:
@@ -452,7 +470,7 @@ class _LedgerActivation:
             self.task = asyncio.create_task(self._wait_for_installation())
             return False
         if await asyncio.to_thread(_migration_pending, self.settings, self.contract):
-            self.migration.state = "running"
+            self.migration.begin()
             self.task = asyncio.create_task(self._migrate())
             return False
         return await self.resume()
