@@ -136,10 +136,10 @@ class SeedPerformerNameTests(SeedPackCase):
             person = entity(self.target, "performer", "天使もえ")
             self.target.execute("INSERT INTO asset(id,location,path,name,medium) VALUES(1,'local','R:\\a.mp4','a','video')")
             self.target.execute("INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(1,?,'performer','test')", (person,))
-            self.target.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'演员:天使もえ','test')")
+            self.target.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'performer:天使もえ','test')")
             report = seed_pack.land(self.target, pack)
         self.assertEqual(self.target.execute("SELECT canonical_name FROM entity WHERE id=?", (person,)).fetchone()[0], "天使萌")
-        self.assertEqual(self.target.execute("SELECT tag FROM asset_tag WHERE asset_id=1").fetchone()[0], "演员:天使萌")
+        self.assertEqual(self.target.execute("SELECT tag FROM asset_tag WHERE asset_id=1").fetchone()[0], "performer:天使萌")
         self.assertEqual(report["names"], 1)
         self.assertIn("天使もえ", {r[0] for r in self.target.execute("SELECT alias FROM entity_alias WHERE entity_id=?", (person,))})
         with self.target:
@@ -150,7 +150,7 @@ class SeedPerformerNameTests(SeedPackCase):
             self.assertEqual(revert.main(["--db", target_path, "--source", "auto:seed", "--apply",
                 "--backup", str(self.root / "pre-revert.db"), "--logo-root", str(self.root / "logos")]), 0)
         self.assertEqual(self.target.execute("SELECT canonical_name FROM entity WHERE id=?", (person,)).fetchone()[0], "天使もえ")
-        self.assertEqual(self.target.execute("SELECT tag FROM asset_tag WHERE asset_id=1").fetchone()[0], "演员:天使もえ")
+        self.assertEqual(self.target.execute("SELECT tag FROM asset_tag WHERE asset_id=1").fetchone()[0], "performer:天使もえ")
 
     def test_a_user_preferred_name_is_preserved(self):
         from peach.entities import prefer_entity_name
@@ -241,6 +241,21 @@ class ImportTests(SeedPackCase):
                    "studio": entity(con, "studio", "S1 NO.1 STYLE"), "other": entity(con, "performer", "别人"),
                    "label": entity(con, "studio", "PRESTIGE PREMIUM"), "maker": entity(con, "studio", "Prestige")}
         return ids
+
+    def test_old_generic_link_labels_in_a_pack_land_as_ids(self):
+        """早先导出的种子写着「官方网站」「博客」，落库存 id；平台名照写。"""
+        pack = self.seeded_source()
+        sora = next(item for item in pack["entities"] if item["name"] == "天川そら")
+        labels = {"https://www.startup0701.net/": "官方网站", "https://x.com/amakawa_sora_": "X"}
+        for item in sora["links"]:
+            item["label"] = labels.get(item["url"], item["label"])
+        ids = self.seeded_target()
+        with self.target:
+            seed_pack.land(self.target, pack)
+        rows = self.target.execute("SELECT url,label FROM entity_link WHERE entity_id=? ORDER BY url",
+                                   (ids["her"],)).fetchall()
+        self.assertEqual([tuple(row) for row in rows],
+                         [("https://www.startup0701.net/", "official-site"), ("https://x.com/amakawa_sora_", "X")])
 
     def test_only_existing_entities_get_their_blanks_filled(self):
         pack = self.seeded_source()

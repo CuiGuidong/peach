@@ -575,7 +575,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
   有空格、括号内逗号分隔、两侧都是罗马字」。同一个字面形状在账本里还用于厂牌消歧（`AV DEBUT（本物人妻）`）、
   角色出处（`アスナ(SAO)`）、接稿状态和去重后缀，只能靠这条签名收窄。
 - `XX XX` 是来源节点文字重复，不是合法别名。person 名进入 CSV、兼容字段或 `upsert_asset_entity` 之前先收敛
-  完整重复串；清理时同时审计 `asset.creator`、`演员:` 标签和 `entity_alias`。
+  完整重复串；清理时同时审计 `asset.creator`、`performer:` 标签和 `entity_alias`。
 - 判断「账本已经有这个名字」要连罗马字一起看，不能用 `peach.entities.name_chain`。那条链按设计剔掉罗马字
   （拿罗马字去日文站查是白跑），拿它当「已有」判据会把 `entity_alias` 里明摆着的 `Rin Natsuki` 再报一遍新别名。
   要全量就直接读 `canonical_name` 加 `entity_alias`。
@@ -604,7 +604,7 @@ Instagram 的独立用户登录会话未取得，自动适配器不进正式依�
 - creator 与 performer 跨类重复不用「作品多的一侧」规则。只有两边非空作品集合完全相同，并且 performer 别名
   精确命中 creator 名、或 creator 名由 performer 本名与账号别名组成时，才自动归并。
 - `r18:performer`／`javbus:performer` 是正式发行的出演元数据，保留 performer；通用 `performer` 是压平后的兼容
-  断言，保留 creator。合并要同步 `asset.creator` 与 `演员:` 投影，否则已删的实体仍会在详情页伪造链接。
+  断言，保留 creator。合并要同步 `asset.creator` 与 `performer:` 投影，否则已删的实体仍会在详情页伪造链接。
 - `merge_entity` 的两个陷阱：sqlite 连接默认 `foreign_keys=OFF`，子表行必须在函数内显式 DELETE；计数用
   `SELECT changes()`，不用连接累计的 `total_changes`。合并不可逆，合并后 `PRAGMA foreign_key_check` 应为 0。
 

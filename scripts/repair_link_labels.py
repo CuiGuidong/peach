@@ -46,7 +46,7 @@ FIELDS = ("verdict", "entity_id", "performer", "link_id", "hostname",
           "label", "new_label", "link_kind", "new_link_kind", "agency", "note")
 
 #: 不承诺点过去会见到谁的兜底标签。它没有说错话，所以不算需要修的。
-GENERIC_LABEL = "官方网站"
+GENERIC_LABEL = "official-site"
 
 EXTRA_COUNTS = {
     "official_link": "SELECT count(*) FROM entity_link WHERE link_kind='official'",

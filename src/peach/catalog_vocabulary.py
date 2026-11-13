@@ -6,12 +6,12 @@
 """
 from __future__ import annotations
 
-#: `asset_tag` 里出演者标记的前缀：`演员:<名字>` 是出演者投影，不是内容标签。
-PERFORMER_TAG_PREFIX = "演员:"
+#: `asset_tag` 里出演者标记的前缀：`performer:<名字>` 是出演者投影，不是内容标签。
+PERFORMER_TAG_PREFIX = "performer:"
 
-#: `asset.ctx_orient` 的竖屏与横屏取值，由 `media_probe.context_fields` 写入。
-PORTRAIT = "竖屏"
-LANDSCAPE = "横屏"
+#: `asset.ctx_orient` 的竖屏与横屏取值，由 `media_probe.context_fields` 写入；界面按语言显示。
+PORTRAIT = "portrait"
+LANDSCAPE = "landscape"
 
 #: 版次 id（`catalog_rules.jav_edition_badges` 给出），界面按 `labels.catalogEdition.<id>` 显示。
 #: 没有任何版次证据的正片按有码算。
@@ -61,9 +61,9 @@ NOT_JUNK_NOTE = "用户确认不是垃圾"
 KEEP_DUPLICATES_NOTE = "用户确认这组都保留"
 
 #: 视频的时长与画质分档，顺序同 `media_probe.context_fields` 的判据：由短到长、由高到低。档名是账本
-#: `ctx_length`、`ctx_quality` 的取值；时长档的显示名由前端按取值给。
-LENGTH_BANDS = ("速食", "短", "中", "长")
-QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "低画质")
+#: `ctx_length`、`ctx_quality` 的取值；时长档与最低一档画质的显示名由前端按取值给。
+LENGTH_BANDS = ("quick", "short", "medium", "long")
+QUALITY_BANDS = ("4K", "2K", "1080P", "720P", "low")
 
 #: 素人发行的内容标签名（`asset_tag.tag` 与标签实体的规范名）。
 AMATEUR_TAG = "素人"
@@ -100,3 +100,48 @@ def resource_item(item: dict) -> dict:
     if source == item.get("source") and attributes == item.get("attributes"):
         return item
     return {**item, "source": source, "attributes": attributes}
+
+
+# ---- 旧版账本取值 ----
+# 旧版本写进账本的中文取值（ADR-0161）。迁移 `0057_stored_values_english_ids.sql` 把账本里的旧值
+# 改成上面的 id；这里的对照只给账本之外还会带着旧值进来的入口用：旧书签与历史地址里的筛选参数、
+# 随包种子里的链接名。
+
+#: 旧版 `orient` 参数与 `ctx_orient` 取值。
+LEGACY_ORIENTATIONS = {"竖屏": PORTRAIT, "横屏": LANDSCAPE}
+#: 旧版 `len` 参数与 `ctx_length` 取值。
+LEGACY_LENGTH_BANDS = dict(zip(("速食", "短", "中", "长"), LENGTH_BANDS))
+#: 旧版 `ctx_quality` 的最低一档。
+LEGACY_QUALITY_BANDS = {"低画质": QUALITY_BANDS[-1]}
+#: 旧版出演者标记前缀。
+LEGACY_PERFORMER_TAG_PREFIX = "演员:"
+#: 旧版 `entity_link.label` 的通用链接名，值是 `content_words` 里的 id（这里写字面量，免得两份内容数据互相导入）。
+LEGACY_LINK_LABELS = {"官方网站": "official-site", "官网": "official-site", "K-MIB 官网": "official-site",
+                      "博客": "blog"}
+
+
+def current_orientation(value: str) -> str:
+    """筛选参数里的画幅：旧版中文取值换成 id，其余原样。"""
+    return LEGACY_ORIENTATIONS.get(value, value)
+
+
+def current_length_band(value: str) -> str:
+    """筛选参数里的时长档：旧版中文取值换成 id，其余原样。"""
+    return LEGACY_LENGTH_BANDS.get(value, value)
+
+
+def current_tag(value: str) -> str:
+    """筛选或输入里的标签：旧版出演者前缀换成现在的前缀，其余原样。"""
+    if value.startswith(LEGACY_PERFORMER_TAG_PREFIX):
+        return PERFORMER_TAG_PREFIX + value[len(LEGACY_PERFORMER_TAG_PREFIX):]
+    return value
+
+
+def current_link_label(value: str) -> str:
+    """链接名：旧版通用链接名换成 id，其余（平台名、公司名）原样。"""
+    return LEGACY_LINK_LABELS.get(value, value)
+
+
+def is_performer_marker(value: str) -> bool:
+    """这个标签是出演者标记吗（认现在与旧版两种前缀）：输入侧据此拒收，不当内容标签加。"""
+    return current_tag(value).startswith(PERFORMER_TAG_PREFIX)

@@ -274,7 +274,7 @@ class ClassifyTests(unittest.TestCase):
         self.assertEqual(self.module.classify("https://lit.link/shaku_alice"),
                          ("social", "链接集（lit.link）"))
         self.assertEqual(self.module.classify("https://notx.com/alice"),
-                         ("official", "官方网站"))
+                         ("official", "official-site"))
 
 
 class IdentityGateTests(unittest.TestCase):

@@ -23,6 +23,7 @@ from urllib.parse import urlsplit
 
 from . import link_status
 from . import seed_corrections, seed_validation
+from .catalog_vocabulary import current_link_label
 from .entities import _ref_is_free, normalize_entity_name, prefer_entity_name, rewrite_flat_projection
 from .minnano_av import PROFILE_COLUMNS
 from .performer_profiles import read_profile, write_profile
@@ -335,7 +336,8 @@ def _land_links(connection, entity_id: int, item: dict, batch: str, stamp: str) 
         connection.execute(
             "INSERT OR IGNORE INTO entity_link(entity_id,link_kind,label,url,hostname,is_sensitive,"
             "metadata_json,created_at,updated_at) VALUES(?,?,?,?,?,0,?,?,?)",
-            (entity_id, link["kind"], str(link.get("label") or urlsplit(url).hostname or url), url,
+            # 早先导出的种子写着中文的通用链接名，落库前换成 id（ADR-0161）。
+            (entity_id, link["kind"], current_link_label(str(link.get("label") or urlsplit(url).hostname or url)), url,
              urlsplit(url).hostname or "", json.dumps({"source": SOURCE, "batch": batch}, ensure_ascii=False),
              stamp, stamp))
         written += connection.execute("SELECT changes()").fetchone()[0]

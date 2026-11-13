@@ -298,15 +298,18 @@ def owned_link(url: str, shown: str) -> tuple[str, str]:
     `takasyo.blog.jp` 都是女优博客却不在 `BLOG_HOSTS` 里。页面上那行字写着「公式ブログ」，
     这比主机名更接近事实，所以文字说是博客就按博客算。
 
-    标签照账本里现有那批写「博客」，页面另外点出博客名时（`公式ブログ「旬の果実」`）才带上
-    那个名字——`オフィシャルブログ` 这种泛称原样落进去，同一件东西在界面上会出现三种写法。
+    标签写通用链接名 `blog`（界面按语言显示「博客」），页面另外点出博客名时（`公式ブログ「旬の果実」`）
+    写成「博客 <名字>」——`オフィシャルブログ` 这种泛称原样落进去，同一件东西在界面上会出现三种写法。
+    带名字的这种是给人读的链接文字，不被代码比对。
     """
     link_kind, label = classify(url)
     if BLOG_WORD.search(shown):
-        link_kind, label = "social", "博客"
+        link_kind, label = "social", "blog"
     bracketed = BLOG_TITLE.search(shown)
     title = bracketed.group(1) if bracketed else BLOG_GENERIC.sub("", shown)
     title = title.strip(" 　:：-—─・|/")
+    if title and label == "blog":
+        return link_kind, f"博客 {title}"
     return link_kind, f"{label} {title}" if title else label
 
 

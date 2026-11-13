@@ -1453,10 +1453,10 @@ class RunTests(unittest.TestCase):
              (4, "studio", "Hon Naka"), (5, "agency", "T-POWERS")])
         connection.executemany(
             "INSERT INTO entity_link(entity_id, link_kind, label, url) VALUES(?,?,?,?)",
-            [(1, "official", "官方网站", "https://fitch-av.com/"),
-             (2, "official", "官方网站", "https://www.heyzo.com/"),
+            [(1, "official", "official-site", "https://fitch-av.com/"),
+             (2, "official", "official-site", "https://www.heyzo.com/"),
              # 有链接、一张图都没有：账本里 Hon Naka 就是这一例。
-             (4, "official", "官方网站", "https://honnaka.jp/"),
+             (4, "official", "official-site", "https://honnaka.jp/"),
              (5, "official", "T-POWERS", "https://t-powers.co.jp/")])
         connection.commit()
         connection.close()
@@ -1721,9 +1721,9 @@ class StudioLinkTests(unittest.TestCase):
              (4, "studio", "FC2-PPV"), (5, "studio", "EST")])
         self.connection.executemany(
             "INSERT INTO entity_link(entity_id, link_kind, label, url) VALUES(?,?,?,?)",
-            [(1, "official", "官方网站", "https://ideapocket.com/"),
+            [(1, "official", "official-site", "https://ideapocket.com/"),
              (1, "social", "X", "https://x.com/ideapocket"),
-             (3, "official", "官方网站", "https://example.com/"),
+             (3, "official", "official-site", "https://example.com/"),
              (4, "catalog", "FC2-PPV", "https://adult.contents.fc2.com/"),
              (5, "social", "X", "https://x.com/EST_prod")])
 

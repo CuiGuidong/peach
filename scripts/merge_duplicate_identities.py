@@ -572,7 +572,7 @@ def _variant_plan(
 def apply_rows(
     connection: sqlite3.Connection, rows: list[dict[str, object]],
 ) -> dict[str, int]:
-    """逐对合并，并同步兼容投影 `asset.creator` / `演员:` 标签。
+    """逐对合并，并同步兼容投影 `asset.creator` / `performer:` 标签。
 
     扁平字段必须跟着规范关系走（ADR-0005），否则资料页和卡片会各说各话：
 
@@ -611,7 +611,7 @@ def apply_rows(
                 counts["flat_filled"] += connection.execute("SELECT changes()").fetchone()[0]
                 connection.execute(
                     "DELETE FROM asset_tag WHERE asset_id=? AND tag=?",
-                    (asset_id, f"演员:{row['drop_name']}"))
+                    (asset_id, f"performer:{row['drop_name']}"))
                 counts["actor_tags_removed"] += connection.execute(
                     "SELECT changes()").fetchone()[0]
         elif row["keep_kind"] == "series":
@@ -624,7 +624,7 @@ def apply_rows(
             connection.execute(
                 "UPDATE asset SET creator=NULL WHERE creator=?", (row["drop_name"],))
             counts["flat_cleared"] += connection.execute("SELECT changes()").fetchone()[0]
-            old_tag, new_tag = f"演员:{row['drop_name']}", f"演员:{row['keep_name']}"
+            old_tag, new_tag = f"performer:{row['drop_name']}", f"performer:{row['keep_name']}"
             connection.execute(
                 "INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) "
                 "SELECT asset_id,?,confidence,source FROM asset_tag WHERE tag=?",
@@ -657,8 +657,8 @@ def collect_repeated_projections(
     names.update(str(row[0]) for row in connection.execute(
         "SELECT DISTINCT creator FROM asset WHERE creator IS NOT NULL AND creator<>''"
     ))
-    names.update(str(row[0])[3:] for row in connection.execute(
-        "SELECT DISTINCT tag FROM asset_tag WHERE tag LIKE '演员:%'"
+    names.update(str(row[0]).removeprefix("performer:") for row in connection.execute(
+        "SELECT DISTINCT tag FROM asset_tag WHERE tag LIKE 'performer:%'"
     ))
     names.update(str(row[0]) for row in connection.execute(
         "SELECT DISTINCT alias FROM entity_alias a JOIN entity e ON e.id=a.entity_id "
@@ -692,7 +692,7 @@ def collect_repeated_projections(
             int(row[0]) for row in connection.execute(
                 "SELECT id FROM asset WHERE creator=? UNION "
                 "SELECT asset_id FROM asset_tag WHERE tag=?",
-                (bad_name, f"演员:{bad_name}"),
+                (bad_name, f"performer:{bad_name}"),
             )
         }
         linked_target_ids = {
@@ -733,7 +733,7 @@ def collect_repeated_projections(
                 "SELECT count(*) FROM asset WHERE creator=?", (bad_name,)
             ).fetchone()[0],
             "actor_tags": connection.execute(
-                "SELECT count(*) FROM asset_tag WHERE tag=?", (f"演员:{bad_name}",)
+                "SELECT count(*) FROM asset_tag WHERE tag=?", (f"performer:{bad_name}",)
             ).fetchone()[0],
             "aliases": connection.execute(
                 "SELECT count(*) FROM entity_alias WHERE alias=?", (bad_name,)
@@ -764,9 +764,9 @@ def apply_repeated_projections(
         bad_name = str(row["bad_name"])
         connection.execute("UPDATE asset SET creator=NULL WHERE creator=?", (bad_name,))
         counts["flat_cleared"] += connection.execute("SELECT changes()").fetchone()[0]
-        old_tag = f"演员:{bad_name}"
+        old_tag = f"performer:{bad_name}"
         if row["action"] == "use-performer":
-            new_tag = f"演员:{row['target_name']}"
+            new_tag = f"performer:{row['target_name']}"
             connection.execute(
                 "INSERT OR IGNORE INTO asset_tag(asset_id,tag,confidence,source) "
                 "SELECT asset_id,?,confidence,source FROM asset_tag WHERE tag=?",

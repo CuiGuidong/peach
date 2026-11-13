@@ -192,7 +192,7 @@ export const mediumRows = (rows: MediumCount[]): BarRow[] =>
 
 /** 时长分档的显示名。分界同 `media_probe.context_fields`：300、900、2400 秒。 */
 const LENGTH_LABEL: Record<string, string> = {
-  速食: t('manage:stats.lengthUnder5'), 短: t('manage:stats.length5to15'), 中: t('manage:stats.length15to40'), 长: t('manage:stats.lengthOver40'),
+  quick: t('manage:stats.lengthUnder5'), short: t('manage:stats.length5to15'), medium: t('manage:stats.length15to40'), long: t('manage:stats.lengthOver40'),
 };
 
 /** 时长与画质分档，顺序由服务端给。时长换成分钟区间，画质带 code 的档取译文，其余原样。 */

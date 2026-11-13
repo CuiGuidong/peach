@@ -296,7 +296,7 @@ def _status(args: argparse.Namespace) -> int:
                 "GROUP BY 1 ORDER BY 2 DESC").fetchall()
             if rows:
                 print(f"    {label:<8}"
-                      + "  ".join(f"{key}={value:,}" for key, value in rows))
+                      + "  ".join(f"{_context_value(key)}={value:,}" for key, value in rows))
     finally:
         connection.close()
 
@@ -634,6 +634,19 @@ def _announce_token(config: settings_file.PeachConfig) -> None:
     _token, created = auth.ensure_token(secrets_dir)
     print(_t("token.path", path=auth.token_path(secrets_dir)) + ("" if created else _t("token.reused")))
     print(_t("token.lanHint"))
+
+
+#: 情境层取值（账本里的英文 id，ADR-0161）的显示名；表里没有的（`4K`、`1080P` 这类通用写法）原样打印。
+CONTEXT_VALUE_CODES = {
+    "portrait": "status.contextValue.portrait", "landscape": "status.contextValue.landscape",
+    "quick": "status.contextValue.quick", "short": "status.contextValue.short",
+    "medium": "status.contextValue.medium", "long": "status.contextValue.long", "low": "status.contextValue.low",
+}
+
+
+def _context_value(value: str) -> str:
+    code = CONTEXT_VALUE_CODES.get(value)
+    return _t(code) if code else value
 
 
 def _token(args: argparse.Namespace) -> int:

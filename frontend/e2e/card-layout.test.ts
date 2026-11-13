@@ -248,7 +248,7 @@ describe('混排作品的画面框',()=>{
      const [w,h]=tall?[480,876]:[480,850];
      return route.fulfill({contentType:'image/svg+xml',body:`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><rect width="${w}" height="${h}" fill="white"/></svg>`});
     });
-    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/?orient='+encodeURIComponent('竖屏'),{waitUntil:'load'});
+    await page.goto(requiredEnv('PEACH_E2E_ORIGIN')+'/?orient=portrait',{waitUntil:'load'});
     await page.evaluate(()=>{document.documentElement.dataset.theme='light';document.documentElement.classList.remove('dark')});
     const frames=page.locator('#grid [data-media-pic][data-pic-portrait]');
     await frames.first().waitFor();

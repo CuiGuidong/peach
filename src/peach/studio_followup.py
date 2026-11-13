@@ -28,6 +28,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from . import interface_text, studio_icons, studio_sites
+from .content_words import LINK_LABEL_OFFICIAL
 from .followups import Attempts, Followup, FollowupType, attempts_root, register
 from .task_outcomes import is_outcome, outcome_parts, said
 from .task_runs import item_progress, task_label
@@ -40,7 +41,7 @@ TASK_LABEL = task_label(TASK_KEY)
 SOURCE = "auto:studio-mark"
 
 #: 官网登记成哪一种链接、链接上写什么字，与人工复核装进去的那批相同。链接名写进账本，是数据。
-OFFICIAL, OFFICIAL_LABEL = "official", "官方网站"
+OFFICIAL, OFFICIAL_LABEL = "official", LINK_LABEL_OFFICIAL
 
 #: 取候选地址的间隔与超时，与命令行那一趟的缺省相同。
 SITE_INTERVAL, SITE_TIMEOUT = 1.2, 8.0

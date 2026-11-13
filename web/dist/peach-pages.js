@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "8e62202f-dd03-4e3a-8271-91bb2658702a", e._sentryDebugIdIdentifier = "sentry-dbid-8e62202f-dd03-4e3a-8271-91bb2658702a");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "db2e5bef-3c9b-4d2f-bd42-db0a30bcb59d", e._sentryDebugIdIdentifier = "sentry-dbid-db2e5bef-3c9b-4d2f-bd42-db0a30bcb59d");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -8132,6 +8132,10 @@ var He = {
 		offline: "Peach can't reach the internet. Fetching, Following updates, and online sources are unavailable; local media still works."
 	},
 	objectOrder: { save: "Save order" },
+	orientation: {
+		landscape: "Horizontal",
+		portrait: "Vertical"
+	},
 	pathLine: { reveal: "Show in folder" },
 	pendingWork: {
 		running: "Filling in: {{tasks}}",
@@ -8427,7 +8431,10 @@ var He = {
 		loadingSettings: "Loading settings",
 		loadingVideos: "Loading videos"
 	},
-	sourceLink: { officialSite: "Official site" },
+	sourceLink: {
+		blog: "Blog",
+		officialSite: "Official site"
+	},
 	sourcePicture: {
 		coverAlt: "{{code}} cover",
 		imageNotFound: "Image not found",
@@ -14841,6 +14848,10 @@ var He = {
 		offline: "Peach 连不上外网，资料采集、关注更新和在线来源暂不可用；本地媒体照常使用。"
 	},
 	objectOrder: { save: "保存顺序" },
+	orientation: {
+		landscape: "横屏",
+		portrait: "竖屏"
+	},
 	pathLine: { reveal: "在资源管理器中显示" },
 	pendingWork: {
 		running: "正在补全：{{tasks}}",
@@ -15126,7 +15137,10 @@ var He = {
 		loadingSettings: "正在读取配置",
 		loadingVideos: "正在读取作品"
 	},
-	sourceLink: { officialSite: "官方网站" },
+	sourceLink: {
+		blog: "博客",
+		officialSite: "官方网站"
+	},
 	sourcePicture: {
 		coverAlt: "{{code}} 封面",
 		imageNotFound: "图片未取得",
@@ -38122,4 +38136,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=8e62202f-dd03-4e3a-8271-91bb2658702a
+//# debugId=db2e5bef-3c9b-4d2f-bd42-db0a30bcb59d

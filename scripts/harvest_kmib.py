@@ -254,7 +254,7 @@ def _current_values(connection, code: str, assets: list[sqlite3.Row]) -> dict[st
         "ORDER BY e.canonical_name", ids)]
     tags = sorted({str(row[0]).strip() for row in connection.execute(
         f"SELECT DISTINCT tag FROM asset_tag WHERE asset_id IN ({marks}) "
-        "AND tag IS NOT NULL AND trim(tag)<>'' AND tag NOT LIKE '演员:%'", ids)})
+        "AND tag IS NOT NULL AND trim(tag)<>'' AND tag NOT LIKE 'performer:%'", ids)})
     return {"title": first("catalog_title"), "release_date": first("release_date"),
             "studio": first("studio"), "performers": "、".join(performers),
             "tags": "、".join(tags)}
@@ -579,7 +579,7 @@ def apply(args, releases: list[dict], stars: list[dict]) -> dict:
                                       star["source_url"], now)
             if studio_row is not None:
                 links += add_link(connection, int(studio_row[0]), "official",
-                                  "K-MIB 官网", ROOT + "/", now)
+                                  "official-site", ROOT + "/", now)
     finally:
         connection.close()
     report["links_added"] = links

@@ -358,7 +358,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             """INSERT INTO asset(id,location,path,name,medium,size,creator,studio,duration,
                                   width,height,ctx_orient,snapshot_path,first_seen)
                VALUES(1,'local',?,'one.mp4','video',100,
-                      'Alice','Studio A',100,1920,1080,'横屏',?,'2026-08-14')""",
+                      'Alice','Studio A',100,1920,1080,'landscape',?,'2026-08-14')""",
             (str(self.media_file), str(self.snapshot_file)),
         )
         con.execute("INSERT INTO asset_tag(asset_id,tag,source) VALUES(1,'Tag A','test')")
@@ -1966,8 +1966,12 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
     async def test_the_genre_tag_answers_to_the_same_rules_as_any_other_tag(self):
         """这里收录的名字和作品页加的标签进同一套词表，判据不能各写一套。"""
         performer = await self.client.post("/api/review/genre?t=secret",
-                                           json={"genre": "シャワー", "tag": "演员:桃子"})
+                                           json={"genre": "シャワー", "tag": "performer:桃子"})
         self.assertEqual(performer.status_code, 400, performer.text)
+        # 旧版前缀写的出演者标记同样不能当标签收。
+        legacy = await self.client.post("/api/review/genre?t=secret",
+                                        json={"genre": "シャワー", "tag": "演员:桃子"})
+        self.assertEqual(legacy.status_code, 400, legacy.text)
         long_name = await self.client.post("/api/review/genre?t=secret",
                                            json={"genre": "シャワー", "tag": "浴" * 81})
         self.assertEqual(long_name.status_code, 400, long_name.text)
@@ -2023,7 +2027,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             {"k": "local", "n": 1, "played": 0},
         ])
         self.assertEqual(scoped.json()["orientations"], [
-            {"k": "横屏", "n": 1},
+            {"k": "landscape", "n": 1},
         ])
 
     async def test_global_facets_supply_recommendations_for_an_untagged_detail(self):

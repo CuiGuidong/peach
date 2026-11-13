@@ -10,6 +10,7 @@ import { noticeFailedResponse, noticeRequestFailure } from './service-status';
 import { iconGeometry } from './icon-geometry';
 import { libraryScopedPath } from './library-scope';
 import { t } from '../i18n';
+import { linkLabel } from './stored-values';
 export { registerEntityLink, registerResponseEntities } from './entity-links';
 export { requestErrorMessage } from './request-error';
 const $=(s:string)=>document.querySelector(s);
@@ -145,11 +146,10 @@ const foldName=(s:unknown)=>String(s??'').normalize('NFKC').trim().toLocaleLower
 const ARCHIVE_HOSTS=['web.archive.org'];
 const isArchiveLink=(url:unknown)=>ARCHIVE_HOSTS.includes(linkHost(url));
 const officialLinkText=(link:{url?:string;label?:string},kind:string,names:readonly string[]=[])=>{
-  const text=siteName(link.url)||link.label||'';
+  const text=siteName(link.url)||linkLabel(link.label);
   if((kind!=='studio'&&kind!=='agency')||isArchiveLink(link.url))return text;
   const said=[text,link.label].map(foldName).filter(Boolean);
-  // i18n-exempt: 比对服务端链接 label 里的中文原值，显示走译文
-  const own=!said.length||said.includes('官方网站')||said.some(shown=>
+  const own=!said.length||said.includes('official-site')||said.some(shown=>
     bareHost(shown)===linkHost(link.url)||names.some(name=>{
       const folded=foldName(name);
       return Boolean(folded)&&(folded.includes(shown)||shown.includes(folded));

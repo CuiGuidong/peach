@@ -79,12 +79,10 @@ DMM_MINUTES = r"(\d{3,})\s*分"
 
 # ---- 账本里的取值 ----
 
-#: 资料页链接没有平台名可写时的通用标签：写进 `entity_link.label`，`social_links.host_owners`
-#: 按这个词认出「没有归属」的那些。
-LINK_LABEL_BLOG = "博客"
-LINK_LABEL_OFFICIAL = "官方网站"
-#: 欧美资料站那一行官网链接的标签。
-WESTERN_OFFICIAL_LINK = "官网"
+#: 资料页链接没有平台名可写时的通用标签：写进 `entity_link.label` 的是 id，界面按语言显示；
+#: `social_links.host_owners` 按它认出「没有归属」的那些。欧美资料站那一行官网链接也写它。
+LINK_LABEL_BLOG = "blog"
+LINK_LABEL_OFFICIAL = "official-site"
 #: 资料快照 `raw` 里名字与别名的键：与 minnano-av 快照同一种写法，读快照的地方按它取。
 RAW_NAME_KEY = "名前"
 RAW_ALIASES_KEY = "別名"
