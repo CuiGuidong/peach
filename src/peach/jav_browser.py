@@ -46,10 +46,12 @@ RECORDED_ELSEWHERE = ("owned", "ingested", "submitted")
 RECENT_SECONDS = 600
 #: 渠道级失败（额度用完、网盘空间不足）后暂停这个渠道，每隔这么久拿排在最前的番号试一次，成功就继续。
 PAUSE_PROBE_SECONDS = 600
-PAUSED_MESSAGES = {
-    "storage": "网盘空间不足，已暂停；扩容或清理后自动继续",
-    "quota": "下载额度已用完，已暂停；额度恢复后自动继续",
+#: 暂停原因与恢复说明：用户脚本的渠道提示框分两行显示，排队行的说明把两段连成一句。
+PAUSED_TEXT = {
+    "storage": ("网盘空间不足", "扩容或清理后自动继续"),
+    "quota": ("下载额度已用完", "额度恢复后自动继续"),
 }
+PAUSED_MESSAGES = {failure: f"{reason}，已暂停；{hint}" for failure, (reason, hint) in PAUSED_TEXT.items()}
 STORAGE_MESSAGE = "网盘空间不足，扩容或清理后重试"
 #: 浏览器添加的任务结束后一直留在列表里，直到用户在脚本里标为已读。键是「任务编号@结束时间」；
 #: 没有下载任务的结果（未找到资源、搜索失败）用「番号@结束时间」。
@@ -555,7 +557,8 @@ class JavBrowser:
                     waiting[row.get("provider", "")] = waiting.get(row.get("provider", ""), 0) + 1
         labels = {row["key"]: row["label"] for row in self.downloads.channel_snapshot()["providers"]}
         return [{"provider": provider, "provider_label": labels.get(provider, provider), "waiting": count,
-                 "message": PAUSED_MESSAGES[paused["failure"]], **paused}
+                 "message": PAUSED_MESSAGES[paused["failure"]], "reason": PAUSED_TEXT[paused["failure"]][0],
+                 "hint": PAUSED_TEXT[paused["failure"]][1], **paused}
                 for provider, count in waiting.items() if (paused := self._paused(provider))]
 
     def add(self, body: dict) -> dict:

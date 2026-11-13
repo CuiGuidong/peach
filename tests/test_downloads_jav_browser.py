@@ -498,7 +498,8 @@ class BrowserTests(unittest.TestCase):
         self.assertFalse(self.service.process_one())
         self.assertEqual((self.service.search.call_count, self.remote.submit.call_count), (1, 1))
         paused = self.listed()["paused"]
-        self.assertEqual([(row["provider"], row["waiting"], row["failure"]) for row in paused], [("115", 2, "storage")])
+        self.assertEqual([(row["provider"], row["waiting"], row["failure"], row["reason"], row["hint"]) for row in paused],
+                         [("115", 2, "storage", "网盘空间不足", "扩容或清理后自动继续")])
         # 到了试探时间拿排在最前的番号再交一次；网盘恢复了就解除暂停，后面的接着处理。
         self.remote.submit.side_effect = None
         start = time.time()
