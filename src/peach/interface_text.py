@@ -140,6 +140,15 @@ def cli(key: str, params: dict | None = None, /, **values) -> str:
     return text(f"cli:{key}", {**(params or {}), **values}, local_language())
 
 
+#: 仓库 `scripts/` 下开发工具的文字。只在源码检出里有，不随安装包发布。
+DEV_LOCALES = PROJECT_ROOT / "scripts" / "locales"
+
+
+def dev(key: str, params: dict | None = None, /, **values) -> str:
+    """开发工具的一句话：`scripts/locales/<语言>/dev.json`，键写成 `<脚本名>.<名字>`，按 `local_language` 选语言。"""
+    return text(f"dev:{key}", {**(params or {}), **values}, local_language(), root=DEV_LOCALES)
+
+
 def subtree(key: str, language: str = SOURCE_LANGUAGE, *, root: Path = LOCALES) -> dict:
     """`<命名空间>:<键>` 下面那一层的原始内容，键不存在时是空字典。"""
     namespace, _, name = key.partition(":")
