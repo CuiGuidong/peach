@@ -401,6 +401,51 @@ class BrowserTests(unittest.TestCase):
         self.service.process_one()
         self.assertEqual(self.service.search.call_count, 2)
 
+    def wants(self):
+        with self.service.contract.database.read_connection() as connection:
+            return [tuple(row) for row in connection.execute("SELECT code_key, origin, state FROM want_item")]
+
+    def test_no_match_adds_the_code_to_wants_unless_the_setting_is_off(self):
+        self.service.search.return_value = {"items": []}
+        self.assertIsNone(self.status().json()["want"])
+        self.add()
+        self.service.process_one()
+        self.assertEqual(self.wants(), [("ABC-123", "code", "wanted")])
+        self.assertEqual(self.status().json()["want"], {"phase": "searching"})
+        self.assertTrue(self.client.get("/api/configuration/jav-browser", headers=self.headers).json()["want_on_no_match"])
+        # 关掉之后没搜到的只留在队列里；重试同一个番号也不会补登记。
+        response = self.client.post("/api/settings", headers=self.headers, json={"javBrowserWantOnNoMatch": False})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertFalse(self.client.get("/api/configuration/jav-browser", headers=self.headers).json()["want_on_no_match"])
+        self.add("ABP-616")
+        self.service.process_one()
+        self.assertEqual(self.service.rows["ABP-616"]["state"], "no_match")
+        self.assertEqual(self.wants(), [("ABC-123", "code", "wanted")])
+
+    def test_a_failed_search_is_not_added_to_wants(self):
+        self.service.search.return_value = {"state": "unavailable", "items": [], "error": "需要配置索引器"}
+        self.add()
+        self.service.process_one()
+        self.assertEqual(self.status().json()["state"], "failed")
+        self.assertEqual(self.wants(), [])
+
+    def test_the_userscript_can_add_a_code_to_wants_directly(self):
+        # 与想要清单「按番号添加」同一入口：登记后立即起一轮取资料。
+        with patch("peach.web_wants.start_scrape") as scrape:
+            response = self.client.post("/api/jav-browser/want", headers=self.script_headers, json={"code": "abc-123"})
+            self.assertEqual(response.status_code, 200, response.text)
+            scrape.assert_called_once()
+            again = self.client.post("/api/jav-browser/want", headers=self.script_headers, json={"code": "ABC-123"})
+        body = response.json()
+        self.assertEqual((body["code"], body["state"], body["want"]), ("ABC-123", "idle", {"phase": "searching", "created": True}))
+        self.assertEqual(again.json()["want"], {"phase": "searching", "created": False})
+        self.assertEqual(self.wants(), [("ABC-123", "code", "wanted")])
+        identified = self.client.get("/api/jav-browser/identify", headers=self.script_headers,
+                                     params={"source_url": "https://video.dmm.co.jp/av/content/?id=abc00123"})
+        self.assertEqual(identified.json().get("want"), {"phase": "searching"}, identified.text)
+        refused = self.client.post("/api/jav-browser/want", headers={"Origin": "https://missav.ws"}, json={"code": "ABC-123"})
+        self.assertIn(refused.status_code, (401, 403))
+
     def test_magnet_failure_can_switch_to_the_next_magnet_until_none_are_left(self):
         other_hash = "b" * 40
         other = f"magnet:?xt=urn:btih:{other_hash}&dn=ABC-123"

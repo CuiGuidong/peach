@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "416bcd5b-335f-4634-bdb6-c35149475ee3", e._sentryDebugIdIdentifier = "sentry-dbid-416bcd5b-335f-4634-bdb6-c35149475ee3");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f83fb880-0fc1-4145-86cd-7a923122c8c1", e._sentryDebugIdIdentifier = "sentry-dbid-f83fb880-0fc1-4145-86cd-7a923122c8c1");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -5698,7 +5698,9 @@ var He = {
 		peachUrl: "Peach URL",
 		token: "Add-from-browser token",
 		tokenIssued: "Dedicated token generated",
-		turnedOff: "Add from browser turned off"
+		turnedOff: "Add from browser turned off",
+		wantOnNoMatch: "Add to Wants when nothing is found",
+		wantOnNoMatchHelp: "When adding from the browser finds no downloadable magnet, add the code to JAV Wants."
 	},
 	certificateTrust: {
 		androidSteps: "After downloading, go to Settings → Security → Encryption & credentials → Install a certificate → CA certificate and choose the downloaded file. Menu names vary by manufacturer.",
@@ -12473,7 +12475,9 @@ var He = {
 		peachUrl: "Peach 地址",
 		token: "浏览器添加专用令牌",
 		tokenIssued: "已生成专用令牌",
-		turnedOff: "已关闭浏览器添加"
+		turnedOff: "已关闭浏览器添加",
+		wantOnNoMatch: "没找到资源时加入想要",
+		wantOnNoMatchHelp: "浏览器添加没搜到可下载的磁力时，把番号加进 JAV 的「想要」。"
 	},
 	certificateTrust: {
 		androidSteps: "扫码下载后，到「设置 → 安全 → 加密与凭据 → 安装证书 → CA 证书」选择下载的文件。菜单名称因厂商而异。",
@@ -38136,4 +38140,4 @@ Dt();
 var bb = document.getElementById("peach-page"), xb = bb ? yb[bb.dataset.page ?? ""] : void 0;
 bb && xb && (0, It.createRoot)(bb).render(/* @__PURE__ */ (0, V.jsx)(vb, { children: /* @__PURE__ */ (0, V.jsx)(xb, { data: { ...bb.dataset } }) }));
 
-//# debugId=416bcd5b-335f-4634-bdb6-c35149475ee3
+//# debugId=f83fb880-0fc1-4145-86cd-7a923122c8c1
