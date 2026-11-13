@@ -23,7 +23,7 @@ from pathlib import Path, PureWindowsPath
 
 from . import interface_text
 from .catalog_rules import is_jav_code, is_uncensored_release, normalise_code_key, part_marker
-from .catalog_vocabulary import UNCENSORED
+from .content_words import UNCENSORED_FILENAME_WORD
 from .jobs import ACTIVE_ASSET_SQL
 from .task_retry import transient_delay
 from .organize_templates import MAX_PATH, TemplateError, clean_filename, example_path, render, validate_template
@@ -162,7 +162,7 @@ def placeholder_values(row, performers: Sequence[str] = ()) -> dict[str, str]:
         "cd": marker.upper() if marker else "",
         # 有码不是本机可核验的事实，所以只在有无码证据时给值；`[{mosaic}]` 于是
         # 在普通片上整段消失，而不是写上一个猜出来的「有码」。
-        "mosaic": UNCENSORED if is_uncensored_release(name, code) else "",
+        "mosaic": UNCENSORED_FILENAME_WORD if is_uncensored_release(name, code) else "",
         "definition": _definition(row["width"], row["height"]),
     }
 

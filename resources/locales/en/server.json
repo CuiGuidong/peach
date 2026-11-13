@@ -3145,6 +3145,20 @@
       "multipart": "Multi-part",
       "singleFile": "Single file"
     },
+    "catalogEdition": {
+      "censored": "Censored",
+      "chinese-subtitles": "Chinese subs",
+      "uncensored": "Uncensored",
+      "uncensored-leak": "Uncensored leak",
+      "uncensored-crack": "Decensored"
+    },
+    "catalogParts": {
+      "main": "Main",
+      "bonus": "Bonus {{number}}"
+    },
+    "photoSet": {
+      "untitled": "Untitled image set"
+    },
     "organizeTemplates": {
       "placeholder": {
         "code": "Code",

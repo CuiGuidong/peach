@@ -19,7 +19,8 @@ from functools import lru_cache
 
 from . import entities, interface_text, media_libraries, sample_images, settings_file
 
-from .catalog_vocabulary import CENSORED, EDITION_ORDER, FC2_BONUS_PREFIX, PERFORMER_TAG_PREFIX, PORTRAIT
+from .catalog_vocabulary import CENSORED, EDITION_ORDER, FC2_BONUS_PREFIX, FC2_MAIN_PART, PERFORMER_TAG_PREFIX, PORTRAIT
+from .coded_text import Said, coded
 from .catalog_rules import (
     LENGTH_TAGS,
     canonical_tag_name,
@@ -36,7 +37,7 @@ from .catalog_rules import (
     tag_cat,
 )
 from .entities import normalize_entity_name, resolve_entity, upsert_asset_entity
-from .catalog_versions import foldable_versions, partition_versions, version_labels
+from .catalog_versions import foldable_versions, label_text, partition_versions, version_label_parts
 from .field_owners import parse_owners
 from .metadata_policy import SOURCE_SPECS
 from .media_sources import cost_for
@@ -748,7 +749,7 @@ def attach_saved_follow_cards(contract: WebContract, rows):
 
 
 def _edition_label(row: dict, tags: tuple[str, ...] = (), source_names: tuple[str, ...] = ()) -> str:
-    """这一份是哪个版次。
+    """这一份是哪个版次（`catalog_vocabulary` 的版次 id）。
 
     判据只有 `jav_edition_badges` 一份。自己按文件名再写一套「像不像无码」的判断，
     会和卡片上已经显示的徽章各说各话——同一个文件，角标写着无码、分组却当它是正片。
@@ -835,10 +836,10 @@ def _derive_edition_groups(contract: WebContract) -> dict[str, list[dict]]:
         versions.sort(key=lambda version: (
             EDITION_ORDER.index(version['signature'][0])
             if version['signature'][0] in EDITION_ORDER else len(EDITION_ORDER), version['id']))
-        labels = version_labels(versions)
-        groups[code] = [dict(row, version_id=version['id'], version_label=label,
-                             version_multipart=version['multipart'])
-                        for version, label in zip(versions, labels) for row in version['items']]
+        labels = version_label_parts(versions)
+        groups[code] = [dict(row, version_id=version['id'], version_label=label_text(parts),
+                             version_label_parts=parts, version_multipart=version['multipart'])
+                        for version, parts in zip(versions, labels) for row in version['items']]
     return groups
 
 
@@ -861,13 +862,15 @@ def attach_edition_groups(contract: WebContract, rows,
             continue
         members = [item for item in group if shown(item)] if shown else group
         members = members or group
+        # 版本名按 zh-CN 渲染的原文在 `editions`，同序的 `editions_parts` 是按段的写法，界面按语言拼。
+        labels = {item['version_label']: item['version_label_parts'] for item in members}
         row["edition_group"] = {
             "key": code,
             **_group_title(code, row, "labels.webCatalog.editionGroup"),
             "count": len({item['version_id'] for item in members}),
             "seed_id": group[0]["id"],
             "item_ids": [item["id"] for item in members],
-            "editions": list(dict.fromkeys(item['version_label'] for item in members)),
+            "editions": list(labels), "editions_parts": list(labels.values()),
         }
 
 
@@ -889,11 +892,12 @@ def q_editions(contract: WebContract, args):
     items = []
     for row in group:
         item = q_item(contract, row["id"])
-        item["edition_label"] = row['version_label']
-        item['version_id'] = row['version_id']
+        # `edition_label` 是 zh-CN 原文，`edition_label_parts` 按段给界面按语言拼，`edition` 是版次 id（配色用）。
+        item.update(edition_label=row['version_label'], edition_label_parts=row['version_label_parts'],
+                    edition=row['edition'], version_id=row['version_id'])
         parts = [member for member in group if member['version_id'] == row['version_id']]
         if row['version_multipart']:
-            item['part_label'] = _part_labels(parts)[row['id']]
+            item.update(_part_labels(parts)[row['id']])
         items.append(item)
     return {"title": code or str(seed["code"]),
             "count": len({row['version_id'] for row in group}), "items": items}
@@ -1002,7 +1006,7 @@ def q_parts(contract: WebContract, args):
         if row['id'] not in live:
             continue
         item = q_item(contract, row['id'])
-        item['part_label'] = labels[row['id']]
+        item.update(labels[row['id']])
         items.append(item)
     return {"title": code or str(seed["code"]), "count": len(items), "items": items}
 
@@ -1012,7 +1016,22 @@ def _parts_by_asset(contract: WebContract) -> dict[int, tuple[str, list[dict]]]:
         int(row['id']): (key, group) for key, group in multipart_groups(contract).items() for row in group})
 
 
-def _part_labels(group: list[dict]) -> dict[int, str]:
+#: FC2 合集本篇与特典那一卷的卷标。
+FC2_MAIN_PART_CODE = 'labels.catalogParts.main'
+FC2_BONUS_PART_CODE = 'labels.catalogParts.bonus'
+
+
+def _part_label(label: str) -> dict:
+    """卷标字段 `part_label`：数字、字母卷标原样给，界面自己按语言写「第 N 卷」；FC2 的本篇与特典
+    另带 `part_label_code`，原字段是 zh-CN 原文。"""
+    if label == FC2_MAIN_PART:
+        return coded('part_label', Said(FC2_MAIN_PART_CODE))
+    if label.startswith(FC2_BONUS_PREFIX):
+        return coded('part_label', Said(FC2_BONUS_PART_CODE, number=int(label[len(FC2_BONUS_PREFIX):])))
+    return {'part_label': label}
+
+
+def _part_labels(group: list[dict]) -> dict[int, dict]:
     # 卷号后面还挂着版次或修复标记时（`PPT-018-1-uncensored.mp4`），剥掉组内共有的
     # 那段尾缀才取得到卷标；这一步和分组用的是同一个判据。卷标按整套算，进了回收站
     # 的那一卷只是不进队列，后面几卷的卷标不跟着前移。
@@ -1023,8 +1042,8 @@ def _part_labels(group: list[dict]) -> dict[int, str]:
         marker = part_marker(bare) or part_marker(str(row.get("name") or ""))
         # 裸名首卷没有标记，卷标按队列位置给；有标记时沿用文件名里的写法。
         label = fc2_collection_label(row)
-        labels[row['id']] = (label if has_bonus and label else
-                              (marker.upper() if marker.isalpha() else marker) or str(position))
+        labels[row['id']] = _part_label(label if has_bonus and label else
+                                        (marker.upper() if marker.isalpha() else marker) or str(position))
     return labels
 
 def label_makers(contract: WebContract, c, aid) -> dict[int, dict]:

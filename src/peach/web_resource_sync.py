@@ -27,7 +27,7 @@ from pathlib import Path, PureWindowsPath
 from typing import Callable, Protocol, Sequence
 
 from . import jav_poster_crop
-from .catalog_rules import dir_expr, normalise_code_key, photo_set_title
+from .catalog_rules import dir_expr, normalise_code_key
 from .config import LOCATION_ROOT_DECLARATIONS
 from .jobs import BackgroundJob
 from .media import normalized_path
@@ -36,6 +36,7 @@ from .personal_records import VANISHED, mark_vanished, record_holders
 from .platform import is_unmapped, root_online, translate_ledger_path, within_root
 from .record_rehome import reattach_vanished
 from .user_messages import UserInterruptedError, UserValueError, message_fields
+from .web_entity import photo_set_heading
 
 #: 「同步删除」回执里，记录已接到另一个版本、旧行已删的那一条。
 REATTACHED = "reattached"
@@ -884,7 +885,7 @@ def w_purge_missing(contract: ResourceSyncContract, body):
         if int(row["id"]) in gone
     ]
     if not missing:
-        return {"ok": True, "directory": photo_set_title(directory),
+        return {"ok": True, **photo_set_heading(directory, "directory"),
                 "checked": len(rows), "removed": 0, "trashed": 0, "vanished": 0,
                 "reattached": 0, "unreadable": unreadable, "items": []}
 
@@ -905,7 +906,7 @@ def w_purge_missing(contract: ResourceSyncContract, body):
         item["disposal"] = (REATTACHED if item["id"] in reattached
                             else VANISHED if item["id"] in kept else "trash")
     return {
-        "ok": True, "directory": photo_set_title(directory),
+        "ok": True, **photo_set_heading(directory, "directory"),
         "checked": len(rows), "removed": len(missing),
         "trashed": len(missing) - len(kept), "vanished": len(kept) - len(reattached),
         "reattached": len(reattached), "unreadable": unreadable, "items": missing,

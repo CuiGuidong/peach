@@ -19,7 +19,7 @@ from peach import (code_creators, data_storage, downloads, downloads_clouddrive,
                    repair_center, task_outcomes, task_runs, task_stages, taste_history, taste_preferences, web_entry,
                    web_stats)
 from peach.jobs import BackgroundJob
-from peach import interface_text
+from peach import catalog_vocabulary, interface_text
 from peach.coded_text import Said, coded, parallel
 from peach.user_messages import UserFacingError, error_fields, message_fields
 
@@ -157,6 +157,7 @@ def registered_keys() -> set[str]:
     keys |= {f"labels.feedFollowup.cover.{name}" for name in feed_followup.COVER_REASONS}
     keys |= {f"labels.codeCreators.reason.{name}" for name in code_creators.REASONS}
     keys |= {f"labels.followDiscovery.tagType.{kind}" for kind in follow_discovery.TAG_TYPES}
+    keys |= {catalog_vocabulary.EDITION_LABEL_CODE_PREFIX + edition for edition in catalog_vocabulary.EDITION_ORDER}
     if HAS_DEPS:
         from peach import routes_pages
         keys |= {f"pages.setup.question.{name}.{field}" for name, has_help in routes_pages._SETUP_COPY.values()

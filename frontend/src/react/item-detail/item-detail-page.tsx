@@ -17,6 +17,7 @@ import { confirmModal, spinnerHtml } from '@peach/legacy/ui';
 
 import { apiGet, apiSend } from '../../api';
 import { codedText } from '../../core/server-text';
+import { EDITION_TONE } from '../../core/jav-title';
 import { Button } from '@/components/base/buttons/button';
 import { RiArrowDownSLine } from '@remixicon/react';
 import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
@@ -42,9 +43,9 @@ import { CoverCrop } from '../cover-crop/cover-crop-page';
 import { queryClient } from '../query';
 import { LibraryCompletionPrompt, missingPreviewIds } from '../library-processing/library-completion';
 import {
-  CAST_SHOWN, EDITION_TONE, FEEDBACK_URL, ITEM_TAG_URL, PLAYLIST_URL, PREFERENCE_URL, QUALITY_GOAL_URL,
+  CAST_SHOWN, FEEDBACK_URL, ITEM_TAG_URL, PLAYLIST_URL, PREFERENCE_URL, QUALITY_GOAL_URL,
   RELATED_URL, WATCH_LATER_URL, chooseItem, clampRating, detailTags, feedbackReceipt, fetchItem, fetchQueue,
-  hasTag, identityGroups, isVanished, itemKey, mediaGate, movedOrder, nextPart, nextRating, partLabel, partLabelHtml, playlistQueue,
+  hasTag, identityGroups, isVanished, itemKey, mediaGate, movedOrder, nextPart, nextRating, editionLabel, partLabel, partLabelHtml, playlistQueue,
   queueCopy, queueKey, ratingStars, ratingText, realWatched, relatedKey, rememberTag, sameOrder,
   withPartLabel, withTag, withoutTag,
   type DetailEntityRef, type DetailItem, type DetailQueue, type DetailTag, type ItemDetailActions,
@@ -282,7 +283,7 @@ function Queue({ queue, itemId, helpers, actions }: {
     <MixQueue kind={queue.kind} title={copy.title} summary={copy.summary} onClose={actions.close} actions={head} listRef={listRef}>
       {queue.items.map((row) => {
         const edition = queue.kind === 'editions' && row.edition_label
-          ? <i className={`javedition ${EDITION_TONE[row.edition_label] || 'censored'}`} data-queue-edition="">{row.edition_label}</i> : null;
+          ? <i className={`javedition ${EDITION_TONE[row.edition ?? ''] || 'censored'}`} data-queue-edition="">{editionLabel(row)}</i> : null;
         // 已消失的条目照旧列在播放列表里、能移出，但文件不在盘上，这一行不能点开去播放。
         const gone = queue.kind === 'playlist' && isVanished(row);
         return (
@@ -302,7 +303,7 @@ function Queue({ queue, itemId, helpers, actions }: {
             <span data-queue-head="">{edition}<b data-middle-truncate="">{helpers.displayName(row)}</b></span>
             <span data-truncate-end="">{gone ? t('catalog:detailQueue.gone')
               : queue.kind === 'parts' || (queue.kind === 'editions' && row.part_label)
-                ? partLabel(row.part_label) : mixLabel(row, helpers.tagLabel)}</span>
+                ? partLabel(row) : mixLabel(row, helpers.tagLabel)}</span>
           </MixQueueRow>
         );
       })}

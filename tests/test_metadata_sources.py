@@ -92,7 +92,7 @@ class JavDBResourceTests(unittest.TestCase):
         file_hash = 'b' * 32
         magnet = {'id': 'magnet:' + digest, 'protocol': 'magnet', 'info_hash': digest,
                   'uri': f'magnet:?xt=urn:btih:{digest}', 'name': '演示', 'size': '4.00GB', 'files': '2',
-                  'date': '2026-10-01', 'attributes': ['中字'], 'source': 'JavDB',
+                  'date': '2026-10-01', 'attributes': ['chinese-subtitles'], 'source': 'JavDB',
                   'source_url': 'https://javdb.com/v/demo', 'origins': ['JavDB']}
         text = (f'magnet:?xt=urn:btih:{digest.upper()} ed2k://|file|another-name|123456|{file_hash}|/\n'
                 f'ed2k://|file|demo%20file.mkv|123456|{file_hash.upper()}|/\n'
@@ -101,7 +101,7 @@ class JavDBResourceTests(unittest.TestCase):
         items = merge_resources([magnet, *comments])
         self.assertEqual([item['protocol'] for item in items], ['magnet', 'ed2k', 'url'])
         self.assertEqual(items[0]['size'], '4.00GB')
-        self.assertEqual(items[0]['attributes'], ['中字'])
+        self.assertEqual(items[0]['attributes'], ['chinese-subtitles'])
         self.assertEqual(len(items[0]['origins']), 2)
         self.assertEqual(items[1]['name'], 'another-name')
         self.assertEqual(items[1]['size'], '123,456 B')

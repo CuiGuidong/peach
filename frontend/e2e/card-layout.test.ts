@@ -303,7 +303,7 @@ describe('混排作品的画面框',()=>{
   try{
    const page=await context.newPage();
    await openHome(page,'small',i=>i===0?{
-    name:'FC2-PPV-4728193 夏の終わり',code:'FC2-PPV-4728193',display_title:'夏の終わり',edition_badges:['中字','无码','无码破解'],
+    name:'FC2-PPV-4728193 夏の終わり',code:'FC2-PPV-4728193',display_title:'夏の終わり',edition_badges:['chinese-subtitles','uncensored','uncensored-crack'],
     part_group:{key:'p',seed_id:91000,count:128},
    }:{});
    const first=page.locator('#grid [data-media-grid] > [data-media-card]').first();

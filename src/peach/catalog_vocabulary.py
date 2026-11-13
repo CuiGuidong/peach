@@ -13,21 +13,32 @@ PERFORMER_TAG_PREFIX = "演员:"
 PORTRAIT = "竖屏"
 LANDSCAPE = "横屏"
 
-#: 版次标签的取值（`catalog_rules.jav_edition_badges` 给出）。没有任何版次证据的正片按有码算。
-CENSORED = "有码"
-CHINESE_SUBTITLES = "中字"
-UNCENSORED = "无码"
-UNCENSORED_LEAK = "无码流出"
-UNCENSORED_CRACK = "无码破解"
+#: 版次 id（`catalog_rules.jav_edition_badges` 给出），界面按 `labels.catalogEdition.<id>` 显示。
+#: 没有任何版次证据的正片按有码算。
+CENSORED = "censored"
+CHINESE_SUBTITLES = "chinese-subtitles"
+UNCENSORED = "uncensored"
+UNCENSORED_LEAK = "uncensored-leak"
+UNCENSORED_CRACK = "uncensored-crack"
 #: 版次的展示次序：正片在前，处理过的在后。这不是偏好排序，只是要一个稳定的锚点——卡片标题取
 #: 第一个，次序一变卡片就换名字。
 EDITION_ORDER = (CENSORED, CHINESE_SUBTITLES, UNCENSORED, UNCENSORED_LEAK, UNCENSORED_CRACK)
 
-#: FC2 合集里特典那一卷的卷标前缀（`catalog_rules.fc2_collection_label` 写作 `特典 <n>`）。
-FC2_BONUS_PREFIX = "特典 "
+#: 版次的显示名 code 前缀，后接上面的 id。
+EDITION_LABEL_CODE_PREFIX = "labels.catalogEdition."
+
+#: FC2 合集的卷 id（`catalog_rules.fc2_collection_label`）：本篇是 `main`，特典是 `bonus-<n>`，数字卷是数字本身。
+FC2_MAIN_PART = "main"
+FC2_BONUS_PREFIX = "bonus-"
 
 #: 文件名里的后期处理标记，按子串认，认到的原样当版本说明。
 PROCESSING_MARKERS = ("修复", "美颜")
+
+#: 想要清单资源（`cache/want-resources.json` 与 `/api/jav/resources`）的取值：评论区链接的 `source`，
+#: 以及 `attributes` 里的中字、高清标记。界面按 `source_code` 与属性 id 显示。中字与版次 id 同一个。
+RESOURCE_COMMENT_SOURCE = "javdb-comments"
+RESOURCE_CHINESE_SUBTITLES = CHINESE_SUBTITLES
+RESOURCE_HD = "high-definition"
 
 #: 西方身份候选 CSV 的 `verdict` 里要人看的两种取值。
 WESTERN_IDENTITY_REVIEW_VERDICTS = ("命中", "需人工确认")
@@ -57,3 +68,24 @@ def fetch_result(value: object) -> str:
     """日志 `result` 列的取值：旧中文值换成英文 id，其余原样。"""
     text = str(value or "")
     return _LEGACY_FETCH_RESULTS.get(text, text)
+
+
+#: 想要清单资源缓存里旧版写的中文取值。读缓存时经 `resource_item` 换成 id。
+_LEGACY_RESOURCE_SOURCES = {"JavDB 评论": RESOURCE_COMMENT_SOURCE}
+_LEGACY_RESOURCE_ATTRIBUTES = {"中字": RESOURCE_CHINESE_SUBTITLES, "高清": RESOURCE_HD}
+
+
+def _legacy_resource_value(table: dict[str, str], value: object) -> object:
+    return table.get(value, value) if isinstance(value, str) else value
+
+
+def resource_item(item: dict) -> dict:
+    """资源缓存里的一条：旧版的来源与属性中文值换成 id，其余原样。"""
+    attributes = item.get("attributes")
+    source = _legacy_resource_value(_LEGACY_RESOURCE_SOURCES, item.get("source"))
+    if isinstance(attributes, list):
+        attributes = list(dict.fromkeys(
+            _legacy_resource_value(_LEGACY_RESOURCE_ATTRIBUTES, value) for value in attributes))
+    if source == item.get("source") and attributes == item.get("attributes"):
+        return item
+    return {**item, "source": source, "attributes": attributes}

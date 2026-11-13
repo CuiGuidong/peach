@@ -19,7 +19,7 @@ from PIL import Image
 
 from .catalog_rules import normalise_code_key, release_identity, same_release_code
 from .coded_text import Said, parallel
-from .content_words import CHINESE_SUBTITLE_BADGE, HD_BADGE
+from .catalog_vocabulary import RESOURCE_CHINESE_SUBTITLES, RESOURCE_HD
 from .http import HttpRequest, HttpxTransport, response_text
 from .scripting import HostLimiter
 from .user_agent import JAVDB_APP_USER_AGENT
@@ -688,7 +688,8 @@ class PublicAPI:
                 continue
             if magnet.info_hash in items:
                 continue
-            attributes = [label for key, label in (("cnsub", CHINESE_SUBTITLE_BADGE), ("hd", HD_BADGE)) if row.get(key)]
+            attributes = [label for key, label in (("cnsub", RESOURCE_CHINESE_SUBTITLES), ("hd", RESOURCE_HD))
+                          if row.get(key)]
             items[magnet.info_hash] = {"id": "magnet:" + magnet.info_hash, "protocol": "magnet",
                 "info_hash": magnet.info_hash, "uri": magnet.uri, "name": row.get("name") or code,
                 "size": magnet_size(row.get("size")), "files": str(row.get("files_count") or ""),

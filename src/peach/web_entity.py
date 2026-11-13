@@ -17,6 +17,7 @@ from urllib.parse import urlsplit
 from . import (company_profiles, entry_links, feeds, interface_text, link_status, performer_header, web_feeds,
                web_follow)
 from .catalog_rules import (LENGTH_TAGS, dir_expr, photo_set_title, solo_performer_clause, tag_cat)
+from .coded_text import Said, coded
 from .entities import (USER_ALIAS_SOURCE, normalize_entity_name, prefer_entity_name, resolve_entity,
                        resolve_entity_id)
 from .social_links import ARCHIVE_HOSTS, is_archive
@@ -646,6 +647,16 @@ def entity_code_sets(contract: WebContract, c, kind: str, entity_id: int) -> lis
     return sets
 
 
+#: 取不到目录名的图集，标题用这句固定说法。
+PHOTO_SET_UNTITLED_CODE = "labels.photoSet.untitled"
+
+
+def photo_set_heading(directory: str, key: str = "title") -> dict:
+    """图集标题写成 `<key>`；取不到目录名时给固定说法，旁边带 `<key>_code` 让界面按语言显示。
+    目录名本身是内容，照原样。"""
+    return coded(key, photo_set_title(directory) or Said(PHOTO_SET_UNTITLED_CODE))
+
+
 def q_entity_photos(contract: WebContract, args):
     """实体名下的照片：本地图片分页放在 `items`；`sets` 是分组，`kind` 为 `dir` 的是本地目录图集，
     为 `code` 的是番号样张集（`entity_code_sets`）。`total` 只数本地图片，`sample_total` 数样张。"""
@@ -674,7 +685,7 @@ def q_entity_photos(contract: WebContract, args):
         sets = [{
             "id": item["id"],
             "kind": "dir",
-            "title": photo_set_title(item["dir"]),
+            **photo_set_heading(item["dir"]),
             "n": item["n"],
             "bytes": item["bytes"] or 0,
             "location": item["location"],
@@ -741,7 +752,7 @@ def q_photo_set(contract: WebContract, args):
                      (*par, limit, offset),
                  )]
         return {
-            "id": anchor["id"], "title": photo_set_title(directory),
+            "id": anchor["id"], **photo_set_heading(directory),
             "location": anchor["location"], "cost": cost_for(anchor['location'], anchor['path']),
             "total": total, "items": items, "seed": seed, "has_more": offset + len(items) < total,
         }

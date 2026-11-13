@@ -3145,6 +3145,20 @@
       "multipart": "分卷版",
       "singleFile": "完整文件"
     },
+    "catalogEdition": {
+      "censored": "有码",
+      "chinese-subtitles": "中字",
+      "uncensored": "无码",
+      "uncensored-leak": "无码流出",
+      "uncensored-crack": "无码破解"
+    },
+    "catalogParts": {
+      "main": "本篇",
+      "bonus": "特典 {{number}}"
+    },
+    "photoSet": {
+      "untitled": "未命名图集"
+    },
     "organizeTemplates": {
       "placeholder": {
         "code": "番号",
