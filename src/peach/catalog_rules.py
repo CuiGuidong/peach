@@ -15,10 +15,12 @@ from collections.abc import Iterable
 from functools import lru_cache
 from pathlib import PureWindowsPath
 
-from .catalog_vocabulary import (
-    CHINESE_SUBTITLES, FC2_BONUS_PREFIX, FC2_MAIN_PART, PERFORMER_TAG_PREFIX, UNCENSORED, UNCENSORED_CRACK,
-    UNCENSORED_LEAK,
-)
+#: 规则给出的几种取值（ADR-0161 的英文 id）。本模块是最底层纯规则、不依赖别的 Peach 模块，定义放在这里，
+#: `catalog_vocabulary` 从这里导入后对外提供，含义与用法见那边的说明。
+PERFORMER_TAG_PREFIX = "performer:"
+CHINESE_SUBTITLES = "chinese-subtitles"
+UNCENSORED, UNCENSORED_LEAK, UNCENSORED_CRACK = "uncensored", "uncensored-leak", "uncensored-crack"
+FC2_MAIN_PART, FC2_BONUS_PREFIX = "main", "bonus-"
 
 
 VIDEO_EXTENSIONS = frozenset({

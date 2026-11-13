@@ -6,20 +6,21 @@
 """
 from __future__ import annotations
 
-#: `asset_tag` 里出演者标记的前缀：`performer:<名字>` 是出演者投影，不是内容标签。
-PERFORMER_TAG_PREFIX = "performer:"
+# 下面几项由 `catalog_rules` 定义（它是最底层纯规则，不能反过来导入这里），在这里对外提供：
+# `PERFORMER_TAG_PREFIX` 是 `asset_tag` 里出演者标记的前缀，`performer:<名字>` 是出演者投影，不是内容标签；
+# 版次 id 与 FC2 卷 id 的说明见下。
+from .catalog_rules import (  # noqa: F401 —— 对外提供
+    CHINESE_SUBTITLES, FC2_BONUS_PREFIX, FC2_MAIN_PART, PERFORMER_TAG_PREFIX, UNCENSORED, UNCENSORED_CRACK,
+    UNCENSORED_LEAK,
+)
 
 #: `asset.ctx_orient` 的竖屏与横屏取值，由 `media_probe.context_fields` 写入；界面按语言显示。
 PORTRAIT = "portrait"
 LANDSCAPE = "landscape"
 
-#: 版次 id（`catalog_rules.jav_edition_badges` 给出），界面按 `labels.catalogEdition.<id>` 显示。
+#: 版次 id（`catalog_rules.jav_edition_badges` 给出，除有码外定义在那里），界面按 `labels.catalogEdition.<id>` 显示。
 #: 没有任何版次证据的正片按有码算。
 CENSORED = "censored"
-CHINESE_SUBTITLES = "chinese-subtitles"
-UNCENSORED = "uncensored"
-UNCENSORED_LEAK = "uncensored-leak"
-UNCENSORED_CRACK = "uncensored-crack"
 #: 版次的展示次序：正片在前，处理过的在后。这不是偏好排序，只是要一个稳定的锚点——卡片标题取
 #: 第一个，次序一变卡片就换名字。
 EDITION_ORDER = (CENSORED, CHINESE_SUBTITLES, UNCENSORED, UNCENSORED_LEAK, UNCENSORED_CRACK)
@@ -27,9 +28,8 @@ EDITION_ORDER = (CENSORED, CHINESE_SUBTITLES, UNCENSORED, UNCENSORED_LEAK, UNCEN
 #: 版次的显示名 code 前缀，后接上面的 id。
 EDITION_LABEL_CODE_PREFIX = "labels.catalogEdition."
 
-#: FC2 合集的卷 id（`catalog_rules.fc2_collection_label`）：本篇是 `main`，特典是 `bonus-<n>`，数字卷是数字本身。
-FC2_MAIN_PART = "main"
-FC2_BONUS_PREFIX = "bonus-"
+#: FC2 合集的卷 id（`catalog_rules.fc2_collection_label`，定义在那里）：本篇是 `FC2_MAIN_PART`（`main`），
+#: 特典是 `FC2_BONUS_PREFIX` 加序号（`bonus-<n>`），数字卷是数字本身。
 
 #: 文件名里的后期处理标记，按子串认，认到的原样当版本说明。
 PROCESSING_MARKERS = ("修复", "美颜")
