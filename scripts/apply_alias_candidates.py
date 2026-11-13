@@ -12,12 +12,12 @@ r"""把 javdb 别名候选写进账本。
 
 四种不写：
 
-1. **这条实体已经有这个写法**（规范名或别名，按归一后的形比）。记 `已有`。
+1. **这条实体已经有这个写法**（规范名或别名，按归一后的形比）。记 `held`。
 2. **这个写法挂在另一条实体名下**。要么两条该合并、要么真有两位重名，都得人判，
-   静默写下去只会给后面的合并判定多送一个假信号。记 `占用`。
+   静默写下去只会给后面的合并判定多送一个假信号。记 `taken`。
 3. **账本里这条实体的统称已经不是 CSV 里那个了**。CSV 是某一刻的快照；统称变过说明
-   这个人后来被动过，候选该重新抓一遍再看。记 `已变`。
-4. **实体不在了**，或者已经不是 performer。记 `查无此人`。
+   这个人后来被动过，候选该重新抓一遍再看。记 `stale`。
+4. **实体不在了**，或者已经不是 performer。记 `gone`。
 
 来源记 `peach.javdb.ALIAS_SOURCE@<--revision>`，与 `localize_performer_names.py` 写的那些
 同一个形状。批次号不是装饰：解析判错时，认得出批次才能按 `source` 把那一趟整批撤回，
@@ -27,7 +27,7 @@ r"""把 javdb 别名候选写进账本。
 资料页上」的记录，不给一次点击删掉。
 
 同一份复核 CSV 也收别的站给的写法（`--alias-source` 记真实来源，如 Seesaa 的 `av_name`），
-以及判定为「删除」的行：那个写法被人看过、确认不是她，从这条实体上摘掉。
+以及判定为 `remove`（旧版与手填的「删除」同样认）的行：那个写法被人看过、确认不是她，从这条实体上摘掉。
 """
 from __future__ import annotations
 
@@ -41,6 +41,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from peach import javdb   # noqa: E402
 from peach.config import GENERATED_DIR   # noqa: E402
@@ -49,13 +50,16 @@ from peach.interface_text import dev as t   # noqa: E402
 from peach.review_csv import read_rows, write_rows   # noqa: E402
 from peach.scripting import (   # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write)
+from legacy_values import ALIAS_CANDIDATE_VERDICTS   # noqa: E402
 
-WRITE, HAVE, TAKEN, STALE, GONE, BAD = "写入", "已有", "占用", "已变", "查无此人", "空名"
-#: 判定为「删除」的行把这个写法从这条实体上摘掉，不论它是哪个来源写的：javdb 与 Wiki 的
+#: 复核 CSV `action` 列：写入、已有、被别的实体占用、统称已变、查无此人、归一后是空名。
+WRITE, HAVE, TAKEN, STALE, GONE, BAD = "write", "held", "taken", "stale", "gone", "empty-name"
+#: 判定为 `remove` 的行把这个写法从这条实体上摘掉，不论它是哪个来源写的：javdb 与 Wiki 的
 #: 「別名」栏都混有共演男优名（`島修也` 挂在皆月ひかる 名下）。摘掉前的来源写进复核
-#: CSV 的 detail，要退回时照着补。
-REMOVE_VERDICT = "删除"
-REMOVE, ABSENT = "删除", "名下没有"
+#: CSV 的 detail，要退回时照着补。人手填的「删除」与旧版判定词读入时先归一（`verdict_of`）。
+REMOVE_VERDICT = "remove"
+#: `action` 列：摘掉、名下本来就没有这个写法。
+REMOVE, ABSENT = "remove", "absent"
 
 FIELDS = ("entity_id", "current_name", "alias", "origin", "verdict", "url",
           "action", "detail")
@@ -74,10 +78,17 @@ def source_for(revision: str, base: str = javdb.ALIAS_SOURCE) -> str:
     return f"{base}@{revision}"
 
 
+def verdict_of(value) -> str:
+    """候选判定词；旧版脚本写的与人手填的中文先归一成英文 id。"""
+    value = str(value or "").strip()
+    return ALIAS_CANDIDATE_VERDICTS.get(value, value)
+
+
 def accepted(rows: list[dict], verdicts: list[str]) -> list[dict]:
-    """判定词在 `--accept` 里、且真有别名可写的那些行。"""
+    """判定词在 `--accept` 里、且真有别名可写的那些行；两边的旧中文判定词都先归一。"""
+    wanted = {verdict_of(value) for value in verdicts}
     return [row for row in rows
-            if str(row.get("verdict", "")).strip() in verdicts
+            if verdict_of(row.get("verdict")) in wanted
             and str(row.get("alias", "")).strip()]
 
 
@@ -85,7 +96,7 @@ def plan(connection: sqlite3.Connection, rows: list[dict]) -> list[dict]:
     """逐行判该不该写，以及为什么。不写库。
 
     同一份 CSV 里同一个写法可能出现两次（两条实体各自抓到同一个名字）。这里不去重：
-    第二条会在第一条写完之后撞上 `占用`，那正是该让人看见的东西。
+    第二条会在第一条写完之后撞上 `taken`，那正是该让人看见的东西。
     """
     out = []
     for row in rows:
@@ -109,7 +120,7 @@ def plan(connection: sqlite3.Connection, rows: list[dict]) -> list[dict]:
             out.append({**planned, "action": STALE,
                         "detail": t("apply_alias_candidates.renamedSince", name=canonical)})
             continue
-        if str(row.get("verdict", "")).strip() == REMOVE_VERDICT:
+        if verdict_of(row.get("verdict")) == REMOVE_VERDICT:
             sources = [str(found[0]) for found in connection.execute(
                 "SELECT source FROM entity_alias WHERE entity_id=? AND normalized_alias=?",
                 (entity_id, alias_key))]

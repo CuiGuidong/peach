@@ -30,6 +30,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 SRC_DIR = PROJECT_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
+sys.path.append(str(Path(__file__).resolve().parent))
 
 from peach.config import GENERATED_DIR   # noqa: E402
 from peach.entities import normalize_entity_name, rewrite_flat_projection   # noqa: E402
@@ -39,9 +40,10 @@ from peach.review_csv import read_rows, write_rows   # noqa: E402
 from peach.scripting import (   # noqa: E402
     add_ledger_write_args, counts_of, open_for_write, verify_after_write,
 )
+from legacy_values import STUDIO_LOCALIZATION_VERDICTS   # noqa: E402
 
-#: 复核件的判词，与 `localize_studio_names.RENAME` 同一个字面值。
-RENAME_VERDICT = "改名"
+#: 复核件的判词，与 `localize_studio_names.RENAME` 同一个字面值；旧版复核件写中文，读入时先归一。
+RENAME_VERDICT = "rename"
 ALIAS_SOURCE = "javbus:studio-localization"
 FIELDS = ("entity_id", "current_name", "target_name", "action", "reason")
 
@@ -52,7 +54,8 @@ def plan(connection: sqlite3.Connection, review_rows: list[dict]) -> list[dict]:
     """逐行核对复核件与账本现状，给每条判「改」或「跳过」并写明原因。"""
     rows = []
     for review in review_rows:
-        if str(review.get("verdict") or "").strip() != RENAME_VERDICT:
+        verdict = str(review.get("verdict") or "").strip()
+        if STUDIO_LOCALIZATION_VERDICTS.get(verdict, verdict) != RENAME_VERDICT:
             continue
         entity_id = int(review["entity_id"])
         listed = str(review.get("studio") or "").strip()

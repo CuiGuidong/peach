@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from peach import avatar_cover_face, avatar_picker
 from peach.avatar_provider import AvatarCandidateCache, install_entity_avatar
+from peach.catalog_vocabulary import LEGACY_WESTERN_IDENTITY_VERDICTS, WESTERN_IDENTITY_MATCHED
 from peach.config import DATABASE_PATH, GENERATED_DIR, COVER_DIR, REVIEW_DIR
 from peach.cover_artwork import install_cover
 from peach.entities import resolve_entity_id
@@ -28,11 +29,13 @@ from peach.western_artwork import (SITES, SOURCE, artwork_key, babepedia_portrai
 
 
 def profile_urls(connection, candidates: Path, ids: list[int]) -> dict[int, str]:
-    """按当前实体身份解析候选表中判词为「命中」的 Babepedia 资料地址。"""
+    """按当前实体身份解析候选表中判词为 `matched`（旧版写「命中」）的 Babepedia 资料地址。"""
     profiles = {}
     for candidate in read_rows(candidates) if candidates.is_file() else ():
         old_id = str(candidate.get('entity_id') or '')
-        if old_id.isdigit() and candidate.get('profile_url') and candidate.get('verdict') == '命中':
+        verdict = str(candidate.get('verdict') or '')
+        if (old_id.isdigit() and candidate.get('profile_url')
+                and LEGACY_WESTERN_IDENTITY_VERDICTS.get(verdict, verdict) == WESTERN_IDENTITY_MATCHED):
             resolved = resolve_entity_id(connection, int(old_id))
             if resolved in ids:
                 profiles.setdefault(resolved, candidate['profile_url'])

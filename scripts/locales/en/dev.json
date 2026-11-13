@@ -345,7 +345,9 @@
     "rateLimited": "[{{index}}/{{total}}] rate-limited, not found: {{name}}",
     "verdicts": "Verdicts:",
     "candidateCsv": "Candidate CSV → {{path}}",
-    "notTruth": "These are candidates, not facts: matches still need review before writing the database or downloading avatars."
+    "notTruth": "These are candidates, not facts: matches still need review before writing the database or downloading avatars.",
+    "verdictMatched": "Matched",
+    "verdictNeedsReview": "Needs review"
   },
   "identify_resources": {
     "description": "Search worklist and candidate merge for videos without a code",
@@ -454,7 +456,9 @@
     "notFound": "not found",
     "checked": "checked",
     "stillThere": "still there (new address)",
-    "gone": "really gone"
+    "gone": "really gone",
+    "noJapaneseName": "No name usable on Japanese sites",
+    "noTitleMatch": "None of {{count}} candidates has a title naming this person"
   },
   "prune_ledger_backups": {
     "description": "Clean up old database backups `{{pattern}}`. Lists the plan by default; deletes only with `--apply`.",
@@ -1068,7 +1072,7 @@
   "repair_entity_links": {
     "sharedUrl": "{{count}} entities share this one URL",
     "hasDirectId": "The database has a {{provider}} ID",
-    "noDirectId": "The database has no direct ID for this site",
+    "noDirectId": "No direct id; not building an address from the name",
     "entityLeak": "The server receives parameter names prefixed with amp;, so the real parameters are lost",
     "plainHttp": "The database stores plain http",
     "emptySegment": "The path has an empty segment",
@@ -1089,7 +1093,9 @@
     "foreignKeysKey": "foreign_key_check violations",
     "toRepairKey": "to_repair",
     "requestsKey": "requests",
-    "description": "Audit `entity_link` across the whole database and turn the kinds of fixes that can be confirmed into a plan.\n\nOn an actress's profile page, the user opened an official link and landed on the agency's site-wide model list. That\nlink returned 200, had images, and really was that agency: nothing looked wrong from the backend. His request was\n\"check all of them and fix them\", so this script does not pick out single links; it runs the whole database through\nby shape.\n\n## Four kinds of problems, each handled differently\n\n- **Directory pages**: the link lands at the \"who's here\" level. The fix is to find the person's own page by name in\n  the site index.\n- **Search pages**: they leave \"who is this person over there\" to the site's search to guess. Only when the database\n  holds that site's id is the link replaced with the direct page; without an id it is marked `保留检索页` for the\n  user, and **no direct URL is assembled from the name**: an assembled URL that opens a 404 is the good case; one\n  that opens someone else is the real trouble.\n- **Plain http**: upgraded when the site offers https.\n- **Unescaped HTML entities**: `model.php?alias=x&amp;id=176` came from copying a URL out of page source along with\n  the `&amp;`, so the server receives a parameter named `amp;id`, and `id` is lost.\n\nMultiple links for the same site on the same entity are only reported, not changed: they could be two accounts of\nthe same person, or one could be someone else's; either way a human has to look, and deleting either one would be\nthe script deciding for the user.\n\n## The check every new URL must pass\n\nThe new URL must return 200, **and** the page title must identify this person. The title check cannot be skipped:\nlist pages also return 200, and without it a batch of people would be rewritten to the same list URL, every one of\nwhich \"opens fine\".\n\nWhen only switching protocol or unescaping entities, old and new are the same page, and the title may not contain\nthe person's name (blog titles are often section names). In that case the check becomes \"the new URL's title is\nexactly the same as the old one's\", which is stronger same-page evidence than a name. If neither holds, it is\nwritten as `未取得` and kept out of the plan.\n\nRate limiting follows `peach-batch-jobs`: at least `--interval` seconds between two requests to the same domain, a\n`--max-requests` cap for the whole run, and fetched pages cached for the run (dozens of links share the same index\npage).\n"
+    "description": "Audit `entity_link` across the whole database and turn the kinds of fixes that can be confirmed into a plan.\n\nOn an actress's profile page, the user opened an official link and landed on the agency's site-wide model list. That\nlink returned 200, had images, and really was that agency: nothing looked wrong from the backend. His request was\n\"check all of them and fix them\", so this script does not pick out single links; it runs the whole database through\nby shape.\n\n## Four kinds of problems, each handled differently\n\n- **Directory pages**: the link lands at the \"who's here\" level. The fix is to find the person's own page by name in\n  the site index.\n- **Search pages**: they leave \"who is this person over there\" to the site's search to guess. Only when the database\n  holds that site's id is the link replaced with the direct page; without an id it is marked `保留检索页` for the\n  user, and **no direct URL is assembled from the name**: an assembled URL that opens a 404 is the good case; one\n  that opens someone else is the real trouble.\n- **Plain http**: upgraded when the site offers https.\n- **Unescaped HTML entities**: `model.php?alias=x&amp;id=176` came from copying a URL out of page source along with\n  the `&amp;`, so the server receives a parameter named `amp;id`, and `id` is lost.\n\nMultiple links for the same site on the same entity are only reported, not changed: they could be two accounts of\nthe same person, or one could be someone else's; either way a human has to look, and deleting either one would be\nthe script deciding for the user.\n\n## The check every new URL must pass\n\nThe new URL must return 200, **and** the page title must identify this person. The title check cannot be skipped:\nlist pages also return 200, and without it a batch of people would be rewritten to the same list URL, every one of\nwhich \"opens fine\".\n\nWhen only switching protocol or unescaping entities, old and new are the same page, and the title may not contain\nthe person's name (blog titles are often section names). In that case the check becomes \"the new URL's title is\nexactly the same as the old one's\", which is stronger same-page evidence than a name. If neither holds, it is\nwritten as `未取得` and kept out of the plan.\n\nRate limiting follows `peach-batch-jobs`: at least `--interval` seconds between two requests to the same domain, a\n`--max-requests` cap for the whole run, and fetched pages cached for the run (dozens of links share the same index\npage).\n",
+    "requestBudgetUsed": "The request limit for this run is used up",
+    "uniqueClash": "; this entity already has id={{id}} pointing to this address"
   },
   "repair_fc2_sellers_and_descriptive_names": {
     "studioRow": " - label {{code}} {{studio}} → {{target}}",
@@ -1239,7 +1245,7 @@
     "installQueue": "Install queue",
     "reviewRows": "Review rows",
     "portraitCandidates": "Portrait candidates",
-    "description": "Social media fetch for directory-style sources: crawl the whole site, match names back to the\ndatabase, and check X accounts once more for liveness.\n\nThe minnano-av fetcher works by \"searching by name\". laoshi.ink (686 people) and the agency site\nbstar-pro (22 people) go the other way: their page counts are limited, so all pages are fetched once\nand cached locally, then each page's name is looked up in the database. Matching costs no network\ntraffic, the same batch of pages can be compared repeatedly, and \"several people with the same name\"\nand \"another account on the same platform\" can both be detected offline instead of silently\nattaching the wrong person.\n\nThe sources themselves may be stale (the user pointed out on 2026-09-02 that copied X / Instagram\naccounts are often already suspended, and the person has usually moved to a new account). So each\nfetched X account is checked for liveness via its signed-out page: it counts as alive only if it has\nog:title and og:image points to profile_images. Signed-out Instagram / TikTok / YouTube pages give\nno reliable signal and are marked `未验` (unverified). Only `活` (alive) and `未验` go into the install\nqueue; `疑似失效` (likely dead) goes only into the review sheet. Conflict rows are checked on both\nsides, and the evidence states whether the database's old account is dead or alive: old one dead and\nnew one alive is exactly the user's \"there's usually a new one\".\n\nVerdicts:\n    ok            unique match in the database, which has no account on this platform yet\n    已有          the same account is already in the database (twitter.com/x.com count as one host,\n                  handles are case-insensitive)\n    conflict      the database has a different account on the same platform: the \"cross-check\" the user\n                  asked for, reported only, never installed\n    需人工消歧    the page name matches more than one performer\n    未取得        the page could not be fetched, or the matched person's page has no social links\n\nTwo CSVs are written: `<output>` contains only installable ok rows and feeds install_entity_links.py\ndirectly; `<stem>-review.csv` contains every verdict and is the review file.\n\njae.tokyo is the third such source: the Japan Adult Expo directory of exhibiting actresses, one set\neach for 2014, 2015, and 2017, with materials submitted by the studios themselves; the pages list\nthe person's blog and official site (`公式ブログ`／`ツイッター`). The directory also carries a portrait, so\nthis source produces an extra `<stem>-portraits.csv`, picked up by the directory route of\nharvest_social_avatars.py: avatars and links come from the same pages and the same name match.\n\njavdb.com (specified by the user on 2026-09-04) is the fourth source, but its entry point is\nreversed. The first three sources have limited page counts and can be crawled in full; javdb has no\nbrowsable actress directory, `/actors` shows only a few dozen recommended people, and there is no\npaginated entry for all performers. So it searches `/search?f=actor` with the name chain of each\nperson in the database: the `title` column of the search results lists every spelling of that person\non the site (`三上悠亜, 三上悠亞, 鬼头桃菜`), and only a match leads on to the profile page. The profile page\ngives Twitter and Instagram buttons and a 250×250 round avatar.\n\nlaoshi.ink and bstar-pro.com are accessed directly (the handshake through the proxy fails, while the\nsites themselves are reachable); x.com, jae.tokyo, and javdb.com go through the proxy. bstar-pro's\nmodels.html has an age gate: within the same session, `POST age_check=yes` first, and only then does\nGET return the list.\n",
+    "description": "Social media fetch for directory-style sources: crawl the whole site, match names back to the\ndatabase, and check X accounts once more for liveness.\n\nThe minnano-av fetcher works by \"searching by name\". laoshi.ink (686 people) and the agency site\nbstar-pro (22 people) go the other way: their page counts are limited, so all pages are fetched once\nand cached locally, then each page's name is looked up in the database. Matching costs no network\ntraffic, the same batch of pages can be compared repeatedly, and \"several people with the same name\"\nand \"another account on the same platform\" can both be detected offline instead of silently\nattaching the wrong person.\n\nThe sources themselves may be stale (the user pointed out on 2026-09-02 that copied X / Instagram\naccounts are often already suspended, and the person has usually moved to a new account). So each\nfetched X account is checked for liveness via its signed-out page: it counts as alive only if it has\nog:title and og:image points to profile_images. Signed-out Instagram / TikTok / YouTube pages give\nno reliable signal and are marked `unverified`. Only `alive` and `unverified` go into the install\nqueue; `gone` (likely dead) goes only into the review sheet. Conflict rows are checked on both\nsides, and the evidence states whether the database's old account is dead or alive: old one dead and\nnew one alive is exactly the user's \"there's usually a new one\".\n\nVerdicts:\n    ok            unique match in the database, which has no account on this platform yet\n    held          the same account is already in the database (twitter.com/x.com count as one host,\n                  handles are case-insensitive)\n    conflict      the database has a different account on the same platform: the \"cross-check\" the user\n                  asked for, reported only, never installed\n    ambiguous     the page name matches more than one performer\n    missed        the page could not be fetched, or the matched person's page has no social links\n    fan-account   the X display name says it is a fan account; goes only into the review sheet\n\nTwo CSVs are written: `<output>` contains only installable ok rows and feeds install_entity_links.py\ndirectly; `<stem>-review.csv` contains every verdict and is the review file.\n\njae.tokyo is the third such source: the Japan Adult Expo directory of exhibiting actresses, one set\neach for 2014, 2015, and 2017, with materials submitted by the studios themselves; the pages list\nthe person's blog and official site (`公式ブログ`／`ツイッター`). The directory also carries a portrait, so\nthis source produces an extra `<stem>-portraits.csv`, picked up by the directory route of\nharvest_social_avatars.py: avatars and links come from the same pages and the same name match.\n\njavdb.com (specified by the user on 2026-09-04) is the fourth source, but its entry point is\nreversed. The first three sources have limited page counts and can be crawled in full; javdb has no\nbrowsable actress directory, `/actors` shows only a few dozen recommended people, and there is no\npaginated entry for all performers. So it searches `/search?f=actor` with the name chain of each\nperson in the database: the `title` column of the search results lists every spelling of that person\non the site (`三上悠亜, 三上悠亞, 鬼头桃菜`), and only a match leads on to the profile page. The profile page\ngives Twitter and Instagram buttons and a 250×250 round avatar.\n\nlaoshi.ink and bstar-pro.com are accessed directly (the handshake through the proxy fails, while the\nsites themselves are reachable); x.com, jae.tokyo, and javdb.com go through the proxy. bstar-pro's\nmodels.html has an age gate: within the same session, `POST age_check=yes` first, and only then does\nGET return the list.\n",
     "pageFailed": "Not found: {{error}}: {{exc}}",
     "javdbNoMatch": "Searched {{count}} spellings from the name chain; this person is not on javdb",
     "javdbLoginWall": "javdb requires a login for this page; not registering an account",
@@ -1254,7 +1260,11 @@
     "shellThrottled": "Logged-out page has no profile; neither does the control account (rate limited)",
     "xDisplayName": "; X display name \"{{display}}\"",
     "xProbe": "; X check: {{display}}",
-    "oldAccount": "; old account in the database {{url}}: {{state}}"
+    "oldAccount": "; old account in the database {{url}}: {{state}}",
+    "stateAlive": "alive",
+    "stateGone": "likely dead",
+    "stateUnverified": "unverified",
+    "stateUnknown": "not found"
   },
   "harvest_social_avatars": {
     "xNotFound": "X @{{handle}} not found (HTTP {{status}})",
@@ -1300,7 +1310,10 @@
     "incumbentLarger": ", the face in the installed photo is larger ({{incumbent}} px vs {{candidate}} px); not replaced",
     "installedAs": ", installed as {{name}}",
     "winnerUnverified": "Winner, but identity not verified; check the links before installing",
-    "runnerUp": "Not chosen (same image or smaller face); kept for reference"
+    "runnerUp": "Not chosen (same image or smaller face); kept for reference",
+    "verdictMatched": "Matched",
+    "verdictNeedsReview": "Needs review",
+    "nameGateFailed": "Name gate not passed"
   },
   "install_entity_links": {
     "byEntityId": "by entity_id",
@@ -1527,7 +1540,9 @@
     "matched": "Matched {{count}}, {{size}} GB in total",
     "level": "  {{level}}: {{count}} items  {{size}} GB",
     "hits": "\nRule breakdown: {{hits}}",
-    "output": "→ {{output}} (list only; no files deleted)"
+    "output": "→ {{output}} (list only; no files deleted)",
+    "confirmed": "Confirmed",
+    "suspect": "Suspect"
   },
   "backfill_follow_image_dims": {
     "description": "Fill in the intrinsic width and height of followed images",
@@ -1618,7 +1633,10 @@
     "linksOnSite": "The official site lists social links directly",
     "noLinksOnPage": "The page has no social links",
     "ageGates": "Age gates passed: {{count}}",
-    "reviewOwnership": "Confirm who owns this account"
+    "reviewOwnership": "Confirm who owns this account",
+    "missedHttp": "Not found: HTTP {{status}}",
+    "missedOffsite": "Not found: redirected off the official domain",
+    "missedError": "Not found: {{error}}"
   },
   "harvest_performer_links": {
     "httpFailed": "Not found: HTTP {{status}}",
@@ -2505,7 +2523,11 @@
     "description": "Read-only audit of every video with a code: checks JAV codes, title cleanup, and the version-badge projection."
   },
   "audit_performer_entry_names": {
-    "description": "Read-only audit of every performer's MISSAV entry and gaps in Chinese-name evidence."
+    "description": "Read-only audit of every performer's MISSAV entry and gaps in Chinese-name evidence.",
+    "notApplicable": "Not applicable",
+    "directoryMissed": "Not found: no directory entry; target pages not requested one by one",
+    "directoryNotUnique": "Not found: no unique match in the directory",
+    "directoryMatched": "Found: directory href; target pages not requested one by one"
   },
   "audit_related_ranker": {
     "description": "Read-only sampling of related recommendations on the real database; outputs only aggregate metrics and asset IDs."

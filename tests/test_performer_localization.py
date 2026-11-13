@@ -313,8 +313,8 @@ class PerformerLocalizationTests(unittest.TestCase):
         self.assertEqual(rows[18]["entry_name"], "飯岡かなこ")
         self.assertEqual(rows[18]["name_changed"], 1)
         self.assertIn("/dm3/cn/actresses/", rows[18]["url"])
-        self.assertEqual(rows[18]["cn_status"], "假名规范名，中文来源未取得")
-        self.assertEqual(rows[14]["cn_status"], "非发行艺人，不判中译")
+        self.assertEqual(rows[18]["cn_status"], "kana-name-no-chinese-source")
+        self.assertEqual(rows[14]["cn_status"], "not-release-performer")
         self.assertEqual(rows[14]["url"], "")
 
     def test_entry_audit_uses_the_source_glyphs_for_missav(self):
@@ -328,7 +328,7 @@ class PerformerLocalizationTests(unittest.TestCase):
                          "%E4%B8%83%E6%B2%A2%E3%81%BF%E3%81%82"}]})
         rows = {row["entity_id"]: row for row in audit_entries(self.con, directory)}
         self.assertEqual(rows[18]["entry_name"], "七沢みあ")
-        self.assertEqual(rows[18]["directory_status"], "已匹配")
+        self.assertEqual(rows[18]["directory_status"], "matched")
         self.assertEqual(rows[18]["url"], "https://missav.ws/dm3/cn/actresses/"
                          "%E4%B8%83%E6%B2%A2%E3%81%BF%E3%81%82")
 

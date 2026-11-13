@@ -51,7 +51,8 @@ from peach.scripting import add_ledger_write_args, counts_of, open_for_write, ve
 
 FIELDS = ("asset_id", "code", "source", "status", "removed", "added", "snapshot")
 #: 每组的去向；只有 `REWRITE` 会写库。
-REWRITE, SAME, NO_SNAPSHOT, NO_GENRES, EMPTY = "重写", "不受影响", "快照缺失", "无 genre", "套完为空"
+#: 依次是：重写、不受影响、快照缺失、快照里没有 genre、套完映射标签为空。
+REWRITE, SAME, NO_SNAPSHOT, NO_GENRES, EMPTY = "rewrite", "unchanged", "no-snapshot", "no-genres", "empty"
 TAXONOMY = "src/peach/genre_taxonomy.py"
 
 

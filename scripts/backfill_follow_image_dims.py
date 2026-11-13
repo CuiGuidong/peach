@@ -53,6 +53,9 @@ from peach.web_follow import _media_items as visible_media_of, _media_kind as me
 
 FIELDS = ("item_id", "provider", "external_id", "media", "mode", "result",
           "width", "height", "note")
+#: `result` 列：取到尺寸、没取到；`mode` 列：从归档读、发请求探测文件头。
+FOUND, MISSED = "found", "missed"
+FROM_ARCHIVE, FROM_PROBE = "archive", "probe"
 
 #: 同一主机两次探测的最小间隔。归档站对匿名请求限流很紧，一秒两次已经算快。
 DEFAULT_DELAY = 0.5
@@ -232,20 +235,20 @@ def run(args: argparse.Namespace, transport: HttpTransport | None = None) -> int
             row = {"item_id": item.id, "provider": item.provider,
                    "external_id": item.external_id,
                    "media": "" if index is None else index,
-                   "mode": "", "result": "未取得", "width": "", "height": "", "note": ""}
+                   "mode": "", "result": MISSED, "width": "", "height": "", "note": ""}
             dims: tuple[int, int] | None = None
             if index is None and item.provider == "rule34xxx" and archive:
                 dims = archive.get(str(item.external_id))
-                row["mode"] = "归档"
+                row["mode"] = FROM_ARCHIVE
                 if dims is None:
                     row["note"] = t("backfill_follow_image_dims.notArchived")
             if dims is None and resolver is not None:
                 dims, note = probe_target(resolver, transport, limiter, item, index, media)
-                row["mode"] = "探测"
+                row["mode"] = FROM_PROBE
                 row["note"] = note if dims is None else note
             if dims is not None:
                 found += 1
-                row["result"] = "取得"
+                row["result"] = FOUND
                 row["width"], row["height"] = dims
                 if store is not None:
                     if store.set_image_dims(item.id, *dims, media_index=index):

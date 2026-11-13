@@ -24,22 +24,26 @@ from peach.scripting import (USER_AGENT, HostLimiter, add_ledger_write_args, cou
                              open_for_write, open_readonly, verify_after_write)  # noqa: E402
 from peach.studio_sites import parked_reason, page_title  # noqa: E402
 from find_studio_socials import affirmative_link  # noqa: E402
+from legacy_values import COMPANY_PROFILE_STATUSES  # noqa: E402
 
 SOURCE = 'auto:company-profile'
 #: 限流与拒绝访问只说明那一刻没取到，续跑时要重试。
 RETRY_STATUSES = {403, 429}
+#: 输出 JSON 里每家的 `status`：取到过官网页面、一页都没取到。
+CHECKED, MISSED = 'checked', 'missed'
 
 
 def settled(item: dict) -> bool:
     """续跑时可以跳过的结论：已核查，或没有官网这种与时机无关的结论。"""
     if any(page.get('http_status') in RETRY_STATUSES for page in item.get('pages', [])):
         return False
-    return item.get('status') == '已核查' or bool(item.get('reason'))
+    status = str(item.get('status') or '')
+    return COMPANY_PROFILE_STATUSES.get(status, status) == CHECKED or bool(item.get('reason'))
 
 
 def scan(entity: dict, root: Path, limiter: HostLimiter) -> dict:
     result = {'entity_id': entity['id'], 'kind': entity['kind'], 'name': entity['canonical_name'],
-              'facts': {}, 'pages': [], 'conflicts': [], 'socials': [], 'status': '未取得'}
+              'facts': {}, 'pages': [], 'conflicts': [], 'socials': [], 'status': MISSED}
     urls = [link['url'] for link in entity['links'] if link['link_kind'] == 'official'
             and link['url'].startswith('https://') and 'web.archive.org' not in link['url']][:2]
     if not urls:
@@ -86,7 +90,7 @@ def scan(entity: dict, root: Path, limiter: HostLimiter) -> dict:
                 gate = affirmative_link(html, final)
                 if gate and gate not in visited:
                     urls.insert(0, gate)
-                result['status'] = '已核查'
+                result['status'] = CHECKED
             except Exception as error:
                 result['pages'].append({'url': url, 'reason': f'{type(error).__name__}: {str(error)[:150]}'})
         settle(result)
@@ -164,7 +168,8 @@ def main() -> int:
     args.cache.mkdir(parents=True, exist_ok=True)
     results = json.loads(args.output.read_text(encoding='utf-8'))['entities'] if args.resume and args.output.exists() else []
     done = {item['entity_id'] for item in results if settled(item)}
-    results = [item for item in results if item['entity_id'] in done]
+    results = [{**item, 'status': COMPANY_PROFILE_STATUSES.get(item.get('status'), item.get('status'))}
+               for item in results if item['entity_id'] in done]
     limiter = HostLimiter({}, default_interval=1.5)
     with ThreadPoolExecutor(max_workers=3) as workers:
         futures = {workers.submit(scan, entity, args.cache, limiter): entity for entity in entities if entity['id'] not in done}

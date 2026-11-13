@@ -85,6 +85,13 @@ class DevTextTests(unittest.TestCase):
         ])
         self.assertEqual(requested_keys(source), {"sample.plain", "sample.logged", "sample.other"})
 
+    def test_the_legacy_value_tables_are_data_only(self):
+        """旧版中文取值的对照整份不计数，所以里面只能有常量，混进输出文字或逻辑就拦不住了。"""
+        self.assertIn("legacy_values.py", checker.DEV_CONTENT_FILES)
+        tree = ast.parse((ROOT / "scripts" / "legacy_values.py").read_text(encoding="utf-8"))
+        statements = {type(node).__name__ for node in tree.body[1:]}
+        self.assertLessEqual(statements, {"ImportFrom", "Assign"})
+
     def test_no_script_has_more_chinese_strings_than_its_baseline(self):
         baseline = json.loads(checker.DEV_BASELINE.read_text(encoding="utf-8"))
         self.assertEqual(checker.raised(checker.scan_scripts(), baseline), {},
