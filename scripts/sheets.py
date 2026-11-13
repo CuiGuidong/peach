@@ -22,6 +22,7 @@ if str(SRC_DIR) not in sys.path:
 from peach import frame_capture, junk
 from peach.config import DATABASE_PATH, FFMPEG_DIR, GENERATED_DIR, LOG_DIR, STATE_DIR
 from peach.ffmpeg import FFmpegResolver
+from peach.interface_text import dev as t
 from peach.jobs import (
     ACTIVE_ASSET_SQL,
     DiskGuard,
@@ -38,7 +39,7 @@ from peach.strm import background_rows, skip_background_read
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="生成视频关键帧九宫格")
+    parser = argparse.ArgumentParser(description=t("sheets.description"))
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--location")
     parser.add_argument("--frames", type=int, default=9)
@@ -48,14 +49,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--disk-check-secs",
         type=float,
         default=20.0,
-        help="运行期复查磁盘余量的间隔；0 表示每条都查",
+        help=t("sheets.helpDiskCheckSecs"),
     )
     parser.add_argument(
         "--asset",
         type=int,
         action="append",
-        help="按 id 只抽指定资产，绕过来源与批量筛选。用于修复个别失败条目，"
-             "避免为一条重跑整个来源的待抽队列",
+        help=t("sheets.helpAsset"),
     )
     parser.add_argument("--allow-metered", action="store_true")
     parser.add_argument("--db", type=Path, default=DATABASE_PATH)
@@ -131,14 +131,14 @@ def make_sheet(ffmpeg: str, path: str, duration: float, destination: Path,
 
 def _require_previews_enabled() -> None:
     if metadata_only():
-        raise JobPolicyError("视频预览生成已关闭，请先在媒体库设置中开启")
+        raise JobPolicyError(t("sheets.previewsOff"))
 
 
 def _preview_active(stop, reasons) -> bool:
     if stop.is_set():
         return False
     if metadata_only():
-        reasons.append("视频预览生成已关闭")
+        reasons.append("previews are turned off")
         stop.set()
         return False
     return True
@@ -147,7 +147,7 @@ def _preview_active(stop, reasons) -> bool:
 def run(args: argparse.Namespace) -> int:
     _require_previews_enabled()
     if args.workers < 1 or args.frames < 2 or args.limit < 0:
-        raise SystemExit("workers 必须大于 0，frames 至少为 2，limit 不能为负数")
+        raise SystemExit(t("sheets.badArguments"))
     resolver = FFmpegResolver(FFMPEG_DIR)
     ffmpeg = resolver.ffmpeg()
     if ffmpeg is None:
@@ -169,7 +169,7 @@ def run(args: argparse.Namespace) -> int:
                 log_file.write(line + "\n")
 
         if args.allow_metered:
-            log("已显式允许计费来源")
+            log("Metered sources explicitly allowed")
         connection = sqlite3.connect(args.db)
         if args.asset:
             # 点名重抽时不套 snapshot_path IS NULL：修完时长要重抽的那条，可能已经带着
@@ -196,11 +196,11 @@ def run(args: argparse.Namespace) -> int:
         connection.close()
         checked = junk.isolate(args.db, asset_ids=[row[0] for row in tasks])
         tasks = [row for row in tasks if row[0] not in checked['ids']]
-        log(f"垃圾检查：隔离 {checked['isolated']} 个，待复核 {checked['review']} 个")
+        log(f"Junk check: {checked['isolated']} isolated, {checked['review']} awaiting review")
         total = len(tasks)
-        log(f"待处理 {total:,} 个视频 workers={args.workers} frames={args.frames} 日志={log_path}")
+        log(f"{total:,} videos to process workers={args.workers} frames={args.frames} log={log_path}")
         if not total:
-            log("没有待处理项；可能需要先运行 probe")
+            log("Nothing to process; probe may need to run first")
             return 0
 
         pending: queue.Queue = queue.Queue()
@@ -252,7 +252,7 @@ def run(args: argparse.Namespace) -> int:
                             elapsed = time.time() - started
                             rate = counters["done"] / elapsed if elapsed else 0
                             eta = (total - counters["done"]) / rate / 3600 if rate else 0
-                            log(f"{counters['done']:,}/{total:,} 失败 {counters['failed']} 已存在 {counters['existing']} 剩余 {eta:.1f} 小时")
+                            log(f"{counters['done']:,}/{total:,} failed {counters['failed']} existing {counters['existing']} remaining {eta:.1f} h")
                         try:
                             guard.check()
                         except JobPolicyError as exc:
@@ -282,14 +282,14 @@ def run(args: argparse.Namespace) -> int:
             connection.executemany("UPDATE asset SET snapshot_path=? WHERE id=?", buffer)
             connection.commit()
         elapsed = time.time() - started
-        log(f"完成 {counters['done']:,}，失败 {counters['failed']}，已存在 {counters['existing']}，耗时 {elapsed/3600:.2f} 小时")
+        log(f"Done {counters['done']:,}, failed {counters['failed']}, existing {counters['existing']}, took {elapsed/3600:.2f} h")
         if failure_reasons:
-            breakdown = "，".join(f"{reason} {count}" for reason, count in failure_reasons.most_common())
-            log(f"失败原因：{breakdown}")
+            breakdown = ", ".join(f"{reason} {count}" for reason, count in failure_reasons.most_common())
+            log(f"Failure reasons: {breakdown}")
         connection.close()
         if stop_reason:
             # 已完成的部分都已入库；磁盘闸门中止不能报成正常完成，否则续跑决策会被误导。
-            log(f"任务中止：{stop_reason[0]}")
+            log(f"Stopped: {stop_reason[0]}")
             return DiskSpaceDenied.exit_code
     return 0
 

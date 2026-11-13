@@ -10,22 +10,23 @@ import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'src'))
 
 from peach import research_archive
+from peach.interface_text import dev as t
 from peach.user_messages import message_fields
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--archive', type=Path, required=True, help='显式指定的私有研究归档目录')
+    parser = argparse.ArgumentParser(description=t('research_archive.description'))
+    parser.add_argument('--archive', type=Path, required=True, help=t('research_archive.archiveHelp'))
     commands = parser.add_subparsers(dest='command', required=True)
-    ingest = commands.add_parser('import', help='导入一份已下载的 gzip 附件')
+    ingest = commands.add_parser('import', help=t('research_archive.importHelp'))
     ingest.add_argument('source', type=Path)
-    ingest.add_argument('--received-at', required=True, help='来源事件的附件接收时间，须含时区')
-    ingest.add_argument('--research-instance', help='来自来源事件 tag 的研究实例标识')
-    commands.add_parser('summary', help='将最新快照的作品与偏好汇总写入归档目录内 summary.json')
-    removal = commands.add_parser('delete-instance', help='预演按实例删除，--apply 执行')
+    ingest.add_argument('--received-at', required=True, help=t('research_archive.receivedAtHelp'))
+    ingest.add_argument('--research-instance', help=t('research_archive.instanceHelp'))
+    commands.add_parser('summary', help=t('research_archive.summaryHelp'))
+    removal = commands.add_parser('delete-instance', help=t('research_archive.deleteInstanceHelp'))
     removal.add_argument('research_instance')
     removal.add_argument('--apply', action='store_true')
-    expiry = commands.add_parser('prune', help='预演清除到期快照，--apply 执行')
+    expiry = commands.add_parser('prune', help=t('research_archive.pruneHelp'))
     expiry.add_argument('--retention-days', type=int, default=research_archive.DEFAULT_RETENTION_DAYS)
     expiry.add_argument('--apply', action='store_true')
     args = parser.parse_args(argv)

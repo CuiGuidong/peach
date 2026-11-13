@@ -13,6 +13,7 @@ COPY web ./web
 COPY resources ./resources
 COPY tools/amane-bridge ./tools/amane-bridge
 COPY scripts/write_reporting_config.py ./scripts/
+COPY scripts/locales ./scripts/locales
 COPY scripts/build_amane_runtime.py scripts/amane_bridge.spec ./scripts/
 # vision 带上 OpenCV：镜像里随附的人脸模型要靠它才能检出与比对。
 RUN uv sync --locked --no-dev --no-editable --extra vision
