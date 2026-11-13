@@ -108,8 +108,8 @@ class LabelRepairTests(LedgerFixture):
 
     def test_applying_moves_the_agency_into_entity_metadata(self):
         done = apply_rows(self.con, collect(self.con), STAMP)
-        self.assertEqual(done["改了标签"], 2)
-        self.assertEqual(done["其中归位成 social"], 1)
+        self.assertEqual(done["relabelled"], 2)
+        self.assertEqual(done["moved_to_social"], 1)
         agency = json.loads(self.con.execute(
             "SELECT metadata_json FROM entity WHERE id=10").fetchone()[0])["agency"]
         self.assertEqual(agency["name"], "T-POWERS")

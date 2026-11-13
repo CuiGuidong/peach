@@ -1,8 +1,10 @@
 """驳回一家事务所：记在人身上，撤归属、删空了的实体，重跑安装与标签修复都不写回。"""
 import json
+import os
 import sqlite3
 import tempfile
 import unittest
+from unittest import mock
 
 from peach.entities import normalize_entity_name, rejected_agencies
 from support.ledger import fresh_ledger
@@ -66,8 +68,8 @@ class RejectTests(RejectFixture):
 
     def test_her_only_company_goes_away_with_its_links_and_numbers(self):
         _, done = self.reject("三上悠亚", "株式会社Miss")
-        self.assertEqual(done, {"驳回": 1, "归属": 1, "事务所": 1, "改挂": 0, "新建事务所": 0,
-                                "链接标签": 0})
+        self.assertEqual(done, {"rejected": 1, "memberships": 1, "agencies": 1, "relinked": 0,
+                                "created": 0, "labels": 0})
         self.assertEqual(self.count("SELECT count(*) FROM entity WHERE id=30"), 0)
         self.assertEqual(self.count("SELECT count(*) FROM entity_link WHERE entity_id=30"), 0)
         self.assertEqual(
@@ -83,14 +85,21 @@ class RejectTests(RejectFixture):
 
     def test_an_agency_with_other_members_keeps_its_entity(self):
         rows, done = self.reject("松本一香", "LIGHT")
-        self.assertEqual(done["事务所"], 0)
+        self.assertEqual(done["agencies"], 0)
         self.assertEqual(self.count("SELECT count(*) FROM entity_membership WHERE agency_id=31"), 1)
         self.assertIn("还有 1 人", str(rows[0]["note"]))
+
+    def test_the_plan_note_follows_the_local_language(self):
+        with mock.patch.dict(os.environ, {"PEACH_LANGUAGE": "en"}):
+            rows = plan(self.con, [{"performer": "松本一香", "agency": "LIGHT", "reason": "",
+                                    "replacement": "ONE'S DOUBLE"}])
+        self.assertEqual(rows[0]["note"],
+                         "Remove membership; other members left at this agency: 1, move to ONE'S DOUBLE")
 
     def test_rejecting_twice_records_it_once(self):
         self.reject("三上悠亚", "株式会社Miss")
         _, done = self.reject("三上悠亚", "株式会社Miss")
-        self.assertEqual(done["驳回"], 0)
+        self.assertEqual(done["rejected"], 0)
         self.assertEqual(len(self.metadata(11)["agency_rejected"]), 1)
 
     def test_an_unknown_performer_is_reported_not_written(self):
@@ -102,7 +111,7 @@ class RejectTests(RejectFixture):
         """改挂到 AV 时期的事务所：实体、读音别名、归属、证据四样一致，重跑安装得出同一家。"""
         _, done = self.reject("三上悠亚", "株式会社Miss",
                               replacement="ONE'S DOUBLE(ワンズダブル)")
-        self.assertEqual((done["改挂"], done["新建事务所"]), (1, 1))
+        self.assertEqual((done["relinked"], done["created"]), (1, 1))
         agency_id = self.count("SELECT agency_id FROM entity_membership WHERE member_id=11")
         self.assertEqual(self.count("SELECT canonical_name FROM entity WHERE id=?", agency_id),
                          "ONE'S DOUBLE")
@@ -127,7 +136,7 @@ class RejectTests(RejectFixture):
                               "ones-double.com")
         other = self.add_link("FALENO", "https://faleno.jp/top/actress/", "faleno.jp")
         _, done = self.reject("三上悠亚", "株式会社Miss", replacement="ONE'S DOUBLE(ワンズダブル)")
-        self.assertEqual(done["链接标签"], 1)
+        self.assertEqual(done["labels"], 1)
         self.assertEqual((self.label(wrong), self.label(other)), ("ONE'S DOUBLE", "FALENO"))
 
     def test_without_a_replacement_the_label_falls_back_to_the_generic_one(self):
