@@ -3,8 +3,7 @@ import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { createTranslator, resolveInterfaceLanguage, resources, storedInterfaceLanguage, INTERFACE_LANGUAGES, SOURCE_LANGUAGE } from '../src/i18n';
-// @ts-expect-error 检查脚本是纯 ESM，没有类型声明
-import { countLiterals, scan } from '../scripts/i18n-literals.mjs';
+import { countLiterals, scan } from '../scripts/i18n-literals.ts';
 
 const frontend = resolve(__dirname, '..');
 const locales = join(frontend, '../resources/locales');

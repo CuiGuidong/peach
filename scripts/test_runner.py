@@ -178,7 +178,7 @@ SCOPE_TEST_IDS: dict[str, tuple[str, ...]] = {
 AUTO_SCOPE_FILES: dict[str, tuple[str, ...]] = {
     "scripts/run_gitlab_runner.py": ("tooling",),
     "scripts/render_star_history.py": ("tooling",),
-    "frontend/e2e/jav-userscript-contract.mjs": ("catalog", "web"),
+    "frontend/e2e/jav-userscript-contract.ts": ("catalog", "web"),
     "web/integrations/peach-jav.user.js": ("catalog", "web"),
     "scripts/build_macos_media.py": ("tooling", "packaging"),
     "scripts/setup_macos_media_tools.py": ("tooling", "packaging"),
@@ -365,7 +365,7 @@ AUTO_SCOPE_PREFIXES: tuple[tuple[str, str | tuple[str, ...]], ...] = (
     ("scripts/sync_brand_marks.py", ("catalog", "tooling")),
     ("scripts/detect_cover_faces.py", ("web", "tooling")),
     ("scripts/demo_dataset.py", ("web", "tooling")),
-    ("scripts/vendor_web_dependencies.mjs", ("web", "tooling")),
+    ("scripts/vendor_web_dependencies.ts", ("web", "tooling")),
     ("scripts/audit_video_endcards.py", ("media", "tooling")),
     ("scripts/setup_macos_port80.sh", ("sync", "tooling")),
     # 订阅源的解析与建壳验在 `test_feeds*.py`，两份都登记在 catalog：壳的边界是

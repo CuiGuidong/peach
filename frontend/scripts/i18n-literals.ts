@@ -17,25 +17,37 @@ const EXEMPT_FILE = /\bi18n-exempt-file[:：]\s*\S/;
 /** 一个源文件里带汉字的文案节点数。
  *  不是界面文案的中文（要和服务端或内容里的中文值比对的词）在同一行或上一行写 `// i18n-exempt: 理由`，不计数。
  *  不能导入翻译入口的独立脚本（以 classic script 原样加载）在文件头的注释里写 `i18n-exempt-file: 理由`，整份不计。 */
-export function countLiterals(path, source) {
+/** oxc 的 ESTree 节点：只读到的几个字段写出类型，其余按未知处理。 */
+type AstNode = {
+  type?: string; start: number; computed?: boolean; value?: unknown;
+  callee?: { type?: string; object?: { name?: string } }; [key: string]: unknown;
+};
+
+export function countLiterals(path: string, source: string): number {
   const parsed = parseSync(path, source);
   const head = parsed.comments[0];
   if (head && head.start === source.search(/\S/) && EXEMPT_FILE.test(head.value)) return 0;
   const breaks = [...source.matchAll(/\n/g)].map((match) => match.index);
-  const lineOf = (offset) => { let low = 0, high = breaks.length; while (low < high) { const mid = (low + high) >> 1; if (breaks[mid] < offset) low = mid + 1; else high = mid; } return low + 1; };
+  const lineOf = (offset: number) => {
+    let low = 0, high = breaks.length;
+    while (low < high) { const mid = (low + high) >> 1; if (breaks[mid]! < offset) low = mid + 1; else high = mid; }
+    return low + 1;
+  };
   const exempt = new Set(parsed.comments.filter((comment) => EXEMPT.test(comment.value))
     .flatMap((comment) => { const line = lineOf(comment.end); return [line, line + 1]; }));
   let count = 0;
-  const walk = (node, parent, key) => {
-    if (!node || typeof node !== 'object') return;
-    if (Array.isArray(node)) { for (const item of node) walk(item, parent, key); return; }
+  const walk = (value: unknown, parent: AstNode | null, key: string | null): void => {
+    if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) { for (const item of value) walk(item, parent, key); return; }
+    const node = value as AstNode;
     if (node.type === 'CallExpression' && node.callee?.type === 'MemberExpression' && node.callee.object?.name === 'console') return;
     const machine = (parent?.type === 'ImportDeclaration' || parent?.type?.startsWith('Export')) && key === 'source'
       || key === 'key' && parent?.type === 'Property' && !parent.computed;
     if (!machine) {
+      const template = node.value as { cooked?: string | null; raw?: string } | undefined;
       if ((node.type === 'Literal' && typeof node.value === 'string' && HAN.test(node.value))
-        || (node.type === 'TemplateElement' && HAN.test(node.value?.cooked ?? node.value?.raw ?? ''))
-        || (node.type === 'JSXText' && HAN.test(node.value))) count += exempt.has(lineOf(node.start)) ? 0 : 1;
+        || (node.type === 'TemplateElement' && HAN.test(template?.cooked ?? template?.raw ?? ''))
+        || (node.type === 'JSXText' && HAN.test(String(node.value)))) count += exempt.has(lineOf(node.start)) ? 0 : 1;
     }
     for (const [childKey, child] of Object.entries(node)) {
       if (childKey !== 'type' && childKey !== 'start' && childKey !== 'end') walk(child, node, childKey);
@@ -45,7 +57,7 @@ export function countLiterals(path, source) {
   return count;
 }
 
-function* sources(dir) {
+function* sources(dir: string): Generator<string> {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name);
     if (entry.isDirectory()) { if (entry.name !== 'locales') yield* sources(path); continue; }
@@ -54,8 +66,8 @@ function* sources(dir) {
 }
 
 /** `src/` 下每个还有中文文案的文件 → 处数，键是相对 `frontend/` 的路径。 */
-export function scan(root = frontend) {
-  const counts = {};
+export function scan(root = frontend): Record<string, number> {
+  const counts: Record<string, number> = {};
   for (const path of sources(join(root, 'src'))) {
     const count = countLiterals(path, readFileSync(path, 'utf8'));
     if (count) counts[relative(root, path).replaceAll('\\', '/')] = count;

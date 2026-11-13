@@ -100,4 +100,4 @@ DMM / FANZA 的 `/av/content/?id=…` 与旧版数字、DVD 详情路径，以�
 
 脚本与站点规则的唯一维护源在独立仓库。Peach 的 `web/integrations/` 保存同一次发布的完整安装脚本、站点快照与 `jav-userscript-release.json` 来源记录；安装端点直接返回该脚本，服务端使用本地快照独立校验来源地址。运行时不下载远程规则或代码。
 
-更新时在用户脚本仓库构建、验证并提交，通过其 `scripts/export-peach.mjs` 导出到 Peach 隔离工作树，再按本项目测试和集成入口交付。来源记录包含上游提交、版本与 SHA256；同步方法见[独立仓库说明](https://github.com/peach-mitao/peach-userscript#发布与-peach-同步)。
+更新时在用户脚本仓库构建、验证并提交，通过其 `scripts/export-peach.ts` 导出到 Peach 隔离工作树，再按本项目测试和集成入口交付。来源记录包含上游提交、版本与 SHA256；同步方法见[独立仓库说明](https://github.com/peach-mitao/peach-userscript#发布与-peach-同步)。

@@ -1139,7 +1139,7 @@ class BrowserTests(unittest.TestCase):
         worker = threading.Thread(target=server.serve_forever, daemon=True)
         worker.start()
         try:
-            result = subprocess.run([node, str(PROJECT_ROOT / "frontend/e2e/jav-userscript-contract.mjs"),
+            result = subprocess.run([node, str(PROJECT_ROOT / "frontend/e2e/jav-userscript-contract.ts"),
                                      f"http://127.0.0.1:{server.server_port}",
                                      str(PROJECT_ROOT / "web/integrations/peach-jav.user.js"), chrome],
                                     capture_output=True, text=True, encoding="utf-8", timeout=120)
