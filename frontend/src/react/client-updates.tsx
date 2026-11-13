@@ -1,7 +1,7 @@
 /** 应用级更新提示读取本机快照；刷新由用户明确触发。 */
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { LinkButton } from '@/components/base/buttons/link-button';
+import { Button, ButtonLink } from '@/components/base/buttons/button';
 
 import { apiGet } from '../api';
 import { jobText } from '../core/server-text';
@@ -161,7 +161,7 @@ function bannerMeter(kind: BannerKind, snapshot: ClientUpdates): number | null {
   return null;
 }
 
-/** 横幅复用项目 Banner，动作使用 BoardUI；关闭只作用于当前状态。进行中有确定百分比时左侧换成小环形进度，
+/** 横幅复用项目 Banner，动作用 BoardUI 的小号描边按钮，和横幅里的文字一眼分得开；关闭只作用于当前状态。进行中有确定百分比时左侧换成小环形进度，
  *  没有百分比时换成 Loading Dots。 */
 export function ClientUpdateBanner({ navigate }: { navigate(path: string): void }) {
   const { snapshot, refresh } = useClientUpdates();
@@ -191,12 +191,15 @@ export function ClientUpdateBanner({ navigate }: { navigate(path: string): void 
           {(kind === 'ready' || kind === 'available') && version ? <span data-copy-ignore=""> Peach {version}</span> : null}</p></div>
       <div className="flex-wrap">
         {kind === 'migrating' ? null : kind === 'refresh'
-          ? <LinkButton variant="secondary" size="small" onClick={() => window.location.reload()}
-            data-copy-key="clientUpdates.refresh.action">{t('shell:clientUpdate.refreshPage')}</LinkButton>
-          : <LinkButton variant="secondary" size="small" href={RELEASE_UPDATES_PATH} onClick={openUpdates}
-            data-copy-key={`clientUpdates.${kind}.action`}>{kind === 'preparing' ? t('shell:clientUpdate.viewProgress') : t('shell:clientUpdate.viewUpdate')}</LinkButton>}
-        <LinkButton variant="secondary" size="small" onClick={() => setDismissed(identity)}
-          data-copy-key={`clientUpdates.${kind}.later`}>{t('shell:clientUpdate.later')}</LinkButton>
+          ? <Button variant="secondary" size="xs" onClick={() => window.location.reload()}
+            data-copy-key="clientUpdates.refresh.action">{t('shell:clientUpdate.refreshPage')}</Button>
+          : <ButtonLink variant="secondary" size="xs" href={RELEASE_UPDATES_PATH} onClick={openUpdates}
+            data-copy-key={`clientUpdates.${kind}.action`}>{kind === 'preparing' ? t('shell:clientUpdate.viewProgress') : t('shell:clientUpdate.viewUpdate')}</ButtonLink>}
+        {/* 迁移、更新进行中是几秒到几分钟的过程，横幅在解释页面为什么暂时不正常，不给收起；
+            其余状态是用户可以晚点再处理的事。 */}
+        {kind === 'migrating' || kind === 'preparing' ? null
+          : <Button variant="secondary" size="xs" onClick={() => setDismissed(identity)}
+            data-copy-key={`clientUpdates.${kind}.later`}>{t('shell:clientUpdate.later')}</Button>}
       </div>
     </aside>, host,
   );

@@ -192,19 +192,21 @@ it('隐藏中止在途请求，恢复后忽略迟到快照并立即读取当前�
   expect(slot.childElementCount).toBe(0);
 });
 
-it('准备更新中的稍后选择贯穿下载、校验和解压，准备好时重新提示', async () => {
+it('更新进行中与迁移中不给收起，只有查看进度；准备好后才给稍后', async () => {
   const preparing = { ...available(), update_job: { state: 'downloading', progress: 10, version: '0.10.0' } };
   const { slot, fetcher } = await render(preparing);
   expect(linkNamed('查看进度', slot)).not.toBeNull();
-  await click(buttonNamed('稍后', slot));
-  for (const state of ['verifying', 'extracting']) {
-    fetcher.mockResolvedValue(response({ ...preparing, update_job: { ...preparing.update_job, state } }));
-    await tick();
-    expect(slot.childElementCount).toBe(0);
-  }
+  expect(buttonNamed('稍后', slot)).toBeNull();
   fetcher.mockResolvedValue(response({ ...preparing, update_job: { ...preparing.update_job, state: 'ready' } }));
   await tick();
   expect(slot.textContent).toContain('可重启安装');
+  expect(buttonNamed('稍后', slot)).not.toBeNull();
+});
+
+it('迁移中不给收起', async () => {
+  const { slot } = await render({ ...current, ledger_migration: { state: 'running', stage: 'apply' } });
+  expect(slot.querySelector('[data-client-update="migrating"]')).not.toBeNull();
+  expect(buttonNamed('稍后', slot)).toBeNull();
 });
 
 const migrating: ClientUpdates = { ...current, ledger_migration: { state: 'running' } };
@@ -407,7 +409,8 @@ it('英文界面显示英文的迁移与更新进度', async () => {
     await settle();
     const banner = () => slot.querySelector('[data-client-update] [data-copy-key]')?.textContent;
     expect(banner()).toBe('Updating to Peach 0.10.0 · Extracting 70%');
-    expect(buttonNamed('Later', slot)).not.toBeNull();
+    expect(buttonNamed('Later', slot)).toBeNull();
+    expect(linkNamed('View progress', slot)).not.toBeNull();
     const steps: [ClientUpdates, string][] = [
       [migrating, 'Updating the local database.'],
       [{ ...current, ledger_migration: { state: 'running', stage: 'backup', progress: 37 } }, 'Updating the local database · Backing up 37%'],
