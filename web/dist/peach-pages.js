@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "49e9b811-9c8c-41cc-a931-87ef5dae5372", e._sentryDebugIdIdentifier = "sentry-dbid-49e9b811-9c8c-41cc-a931-87ef5dae5372");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "e7dd906d-fbab-4891-9bd9-8be42e4c6de4", e._sentryDebugIdIdentifier = "sentry-dbid-e7dd906d-fbab-4891-9bd9-8be42e4c6de4");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -6853,6 +6853,8 @@ var We = "peach.settings.v1", Ge = {
 		homePreviewOnly: "Show only videos with a preview image on Home",
 		homeShorts: "Portrait strip on Home",
 		homeTiers: "Show actress and label avatars on Home",
+		containHomeScroll: "Keep Home rows beside the sidebar",
+		containHomeScrollDescription: "On desktop, Home cards and avatars scroll to the right of the sidebar.",
 		hoverDelay: "Hover preview delay",
 		hoverDelaySfw: "No previews in SFW mode.",
 		hoverPreview: "Play previews when hovering over cards",
@@ -14344,6 +14346,8 @@ var We = "peach.settings.v1", Ge = {
 		homePreviewOnly: "首页只显示有预览图的作品",
 		homeShorts: "首页竖屏短片带",
 		homeTiers: "首页显示女优与厂牌头像",
+		containHomeScroll: "限制首页横滑范围",
+		containHomeScrollDescription: "桌面端的首页卡片和头像只在侧栏右侧滚动。",
 		hoverDelay: "悬停预览延迟",
 		hoverDelaySfw: "SFW 模式下不预览。",
 		hoverPreview: "卡片悬停时播放视频预览",
@@ -40112,4 +40116,4 @@ Nt();
 var ex = document.getElementById("peach-page"), tx = ex ? $b[ex.dataset.page ?? ""] : void 0;
 ex && tx && (0, Ht.createRoot)(ex).render(/* @__PURE__ */ (0, H.jsx)(Qb, { children: /* @__PURE__ */ (0, H.jsx)(tx, { data: { ...ex.dataset } }) }));
 
-//# debugId=49e9b811-9c8c-41cc-a931-87ef5dae5372
+//# debugId=e7dd906d-fbab-4891-9bd9-8be42e4c6de4
