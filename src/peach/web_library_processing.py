@@ -253,6 +253,23 @@ def _set_processing_speed(contract, control, previous, body):
     return q_library_processing(contract, {})
 
 
+def _resume_detached_task(contract, previous, job_id, mode):
+    from .job_recovery import read, current_job_id, current_run
+
+    recovery = read(contract.db_path, 'library-processing')
+    matching = recovery.get('job_id') == job_id and recovery.get('status') == 'active'
+    saved_request = recovery.get('request') if matching else None
+    body = ({**saved_request, 'speed_mode': mode} if isinstance(saved_request, dict)
+            else _resume_request(previous, mode))
+    identity = current_job_id.set(str(job_id))
+    run = current_run.set(recovery.get('run_id') if matching else None)
+    try:
+        return w_library_processing(contract, body, resume=True)
+    finally:
+        current_job_id.reset(identity)
+        current_run.reset(run)
+
+
 def _control_action(contract, config, body):
     action = body['action']
     if action in ('archive', 'unarchive'):
@@ -292,19 +309,7 @@ def _control_action(contract, config, body):
     live = contract.library_processing_job.snapshot()
     thread = getattr(contract.library_processing_job, 'thread', None)
     if action == 'resume' and not (live and thread is not None and thread.is_alive()) and not _writer_active(config):
-        from .job_recovery import read, current_job_id, current_run
-        recovery = read(contract.db_path, 'library-processing')
-        matching = recovery.get('job_id') == job_id and recovery.get('status') == 'active'
-        saved_request = recovery.get('request') if matching else None
-        body = ({**saved_request, 'speed_mode': control.mode} if isinstance(saved_request, dict)
-                else _resume_request(previous, control.mode))
-        identity = current_job_id.set(str(job_id))
-        run = current_run.set(recovery.get('run_id') if matching else None)
-        try:
-            return w_library_processing(contract, body, resume=True)
-        finally:
-            current_job_id.reset(identity)
-            current_run.reset(run)
+        return _resume_detached_task(contract, previous, job_id, control.mode)
     result = q_library_processing(contract, {})
     if not live and result.get('status') in ACTIVE:
         result['status'] = status
