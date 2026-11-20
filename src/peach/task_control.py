@@ -145,6 +145,11 @@ def projection(store, run, *, descendants_active=None):
         return None
     command = intent(store.database.db_path, run.id, (run.parent_run_id, run.root_run_id))
     action = command.get('action', 'resume')
+    if run.status == 'pending' and run.task_key == 'library-processing':
+        from .job_recovery import library_action, read
+        saved = read(store.database.db_path, run.task_key)
+        if saved.get('status') == 'active' and saved.get('run_id') == run.id:
+            action = library_action(store.database.db_path, saved, action)
     observed = _read(_root(store.database.db_path) / f'{run.id}.observed.json')
     if action == 'cancel':
         state, actions = 'cancelling', []
