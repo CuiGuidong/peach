@@ -41,8 +41,8 @@ from .metadata import (candidate_text_is_valid, source_text_is_valid,
                        validate_provider_code)
 from . import metadata_routes
 from . import media_identity
-from .library_processing_scope import scoped_config, scoped_assets
 from . import western_artwork
+from .library_processing_scope import directory_config, scoped_config, scoped_assets
 from . import junk
 from . import sample_followup
 from .metadata_policy import SOURCE_SPECS, preferred_tag_source
@@ -3757,7 +3757,7 @@ def _initial_processing_scope(config, db_path, selected_ids, retry_ids, incremen
     return None, None
 
 
-def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state):
+def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state, directory):
     """恢复原媒体库并校验显式选择，返回本轮可用的目录配置。"""
     library_id = (resume_state or {}).get('library_id', library_id)
     config = scoped_config(config, library_id)
@@ -3765,6 +3765,11 @@ def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, databas
     if library_id and selected_ids is not None:
         if set(scoped_assets(config, db_path, library_id, selected_ids)) != set(selected_ids):
             raise UserValueError('errors.libraryProcessing.notInLibrary')
+    if directory is not None:
+        if stage != SCAN_STAGE or asset_ids is not None:
+            raise UserValueError('api.libraryProcessing.directoryStageUnsupported')
+        config = directory_config(config, directory)
+        library_id = next(iter(config.library_catalog))
     return config, library_id, selected_ids
 
 
@@ -3773,7 +3778,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                     retry_ids=None, active=lambda: True, stage=ALL_STAGES,
                     database=None, route_overrides=None, state_file=None, asset_ids=None,
                     resume_state=None, speed_mode=None, protected_ids=(), recheck_existing=False,
-                    incremental=False, network=None, library_id=None, allow_metered=False):
+                    incremental=False, network=None, library_id=None, allow_metered=False, directory=None):
     """登记文件与确定的番号，外部资料保留为可复核候选。
 
     `retry_ids` 为 `None` 时处理整个馆藏；给定时只处理这些项目（上一任务记录的
@@ -3798,7 +3803,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
     不给就不判，命令行走这条。
     """
     config, library_id, selected_ids = _prepare_library_scope(
-        config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state)
+        config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state, directory)
     from .repository import LedgerDatabase
     judgement_database = database if database is not None else LedgerDatabase(db_path)
     routes = metadata_routes.parse_route_overrides(route_overrides)
@@ -3834,6 +3839,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                      **stage_fields('library.checkCompanions' if retrying else 'library.scanFiles'),
                      checked=0, total=0, scanned=0, scanned_bytes=0, probed=0, identified=0, candidates=0, covers=0, previews=0,
                      requested_stage=stage, asset_ids=scope_ids, incremental=incremental, allow_metered=allow_metered,
+                     directory=directory,
                      library_id=library_id, library_name=config.library_catalog.get(library_id, {}).get('name', ''),
                      issue_count=0, paused_count=0, issue_preview=[], issues_truncated=False,
                      notes={}, retryable_asset_ids=[],

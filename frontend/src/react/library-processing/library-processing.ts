@@ -136,6 +136,7 @@ export const fetchProcessingEstimate = (command: LibraryProcessingCommand, signa
 export type ProcessingSpeed = 'low' | 'standard' | 'high';
 export interface LibraryProcessingCommand {
   library_id?: string;
+  directory?: string;
   incremental?: boolean;
   scope?: 'new';
   stage?: 'scan' | 'collect' | 'previews' | 'metadata' | 'covers';
@@ -143,6 +144,19 @@ export interface LibraryProcessingCommand {
   job_id?: string;
   retry?: number[];
   speed_mode?: ProcessingSpeed;
+}
+
+export interface ScanDirectoryChoices {
+  current?: string;
+  parent?: string | null;
+  directories: { path: string; name: string; library?: string }[];
+}
+
+export function fetchScanDirectories(libraryId: string | undefined, directory: string | undefined, signal: AbortSignal) {
+  const params = new URLSearchParams({ directories: '1' });
+  if (libraryId) params.set('library_id', libraryId);
+  if (directory) params.set('directory', directory);
+  return apiGet<ScanDirectoryChoices>(`${LIBRARY_PROCESSING_URL}?${params}`, signal);
 }
 export type ProcessingControlCommand =
   | { action: 'pause' | 'resume' | 'cancel' | 'archive' | 'unarchive'; job_id: string }

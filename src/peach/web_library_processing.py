@@ -4,7 +4,7 @@ import hashlib
 import logging
 
 from . import interface_text, settings_file
-from .library_processing_scope import scoped_config, scoped_assets
+from .library_processing_scope import directory_choices, directory_config, scoped_config, scoped_assets
 from .library_processing import (ALL_STAGES, COLLECT_STAGE, COVERS_STAGE, SCAN_STAGE, STAGES,
                                 METADATA_STAGE, PREVIEWS_STAGE, _asset_selection,
                                 decorate, issues_path, process_library, snapshot)
@@ -146,6 +146,9 @@ def _estimate(contract, args):
 
 
 def q_library_processing(contract, _args):
+    if _args.get('directories') == '1':
+        return directory_choices(scoped_config(settings_file.active(), _args.get('library_id')),
+                                 _args.get('directory'))
     if _args.get('estimate') == '1':
         return _estimate(contract, _args)
     state = _current(contract)
@@ -506,7 +509,8 @@ def _resume_request(previous, speed_mode):
     return {
         'stage': previous.get('requested_stage') or ALL_STAGES,
         'library_id': previous.get('library_id'),
-        **({'incremental': True} if previous.get('incremental') else
+        **({'directory': previous['directory']} if previous.get('directory') else
+           {'incremental': True} if previous.get('incremental') else
            {'asset_ids': previous['asset_ids']} if previous.get('asset_ids') else {}),
         **({'allow_metered': True} if previous.get('allow_metered') else {}),
         **({'recheck': True} if previous.get('recheck') else {}),
@@ -603,6 +607,19 @@ def _scoped_processing_request(contract, config, previous, body, resume):
     return config, library_id, retry_ids, asset_ids, stage
 
 
+def _directory_request(config, previous, body, stage, asset_ids, retry_ids, resume):
+    """新任务验证目录；继续与重试沿用已保存的范围。"""
+    previous_path = previous.get('directory')
+    directory = (body or {}).get('directory', previous_path if resume or retry_ids is not None else None)
+    if directory is None and 'directory' not in (body or {}):
+        return config, {}
+    if (stage != SCAN_STAGE or asset_ids is not None or (body or {}).get('incremental')
+            or (resume and previous_path not in (None, directory))
+            or (retry_ids is not None and previous_path != directory)):
+        raise UserValueError('api.libraryProcessing.directoryStageUnsupported')
+    return directory_config(config, directory), {'directory': directory}
+
+
 def w_library_processing(contract, body, *, resume=False):
     config = settings_file.active()
     if (body or {}).get('action'):
@@ -615,6 +632,7 @@ def w_library_processing(contract, body, *, resume=False):
     config, library_id, retry_ids, asset_ids, stage = _scoped_processing_request(
         contract, config, previous, body, resume)
     incremental = (body or {}).get('incremental', False)
+    estimate_config, directory_scope = _directory_request(config, previous, body, stage, asset_ids, retry_ids, resume)
     allow_metered = _metered_grant(body, stage, asset_ids)
     recheck = _recheck_grant(body, stage, asset_ids)
     if (body or {}).get('scope') == 'new':
@@ -629,7 +647,7 @@ def w_library_processing(contract, body, *, resume=False):
         try:
             result = process_library(config, contract.db_path, contract.candidate_root, contract.cover_root,
                 job_id=job_id, retry_ids=retry_ids, stage=stage, asset_ids=asset_ids, incremental=incremental, library_id=library_id,
-                allow_metered=allow_metered, recheck_existing=recheck,
+                allow_metered=allow_metered, recheck_existing=recheck, **directory_scope,
                 # 自动落库与页面写的是同一个 `LedgerDatabase`：进程内写锁在实例上，
                 # 另建一个就是在同一个进程里开第二条写入路径。
                 database=contract.database,
@@ -652,15 +670,19 @@ def w_library_processing(contract, body, *, resume=False):
         from .library_processing import incremental_pending
         estimate_ids = incremental_pending(config, contract.db_path)
     estimate_ids = scoped_assets(config, contract.db_path, library_id, estimate_ids)
+    if directory_scope:
+        estimate_ids = scoped_assets(estimate_config, contract.db_path, next(iter(estimate_config.library_catalog)), estimate_ids)
     library_name = config.library_catalog.get(library_id, {}).get('name', '')
     result = contract.library_processing_job.start(
         work, restart=True, initial={**stage_fields(labels[stage]), 'requested_stage': stage,
                                     'library_id': library_id, 'library_name': library_name,
+                                    **directory_scope,
                                     **({'allow_metered': True} if allow_metered else {}),
                                     **({'recheck': True} if recheck else {}),
-                                    **initial_estimate(config, contract.db_path, stage, estimate_ids, mode,
+                                    **initial_estimate(estimate_config, contract.db_path, stage, estimate_ids, mode,
                                                        allow_metered=allow_metered)},
         recovery={'stage': stage, 'speed_mode': mode, 'incremental': incremental, 'library_id': library_id,
+                  **directory_scope,
                   **({'allow_metered': True} if allow_metered else {}),
                   **({'recheck': True} if recheck else {}),
                   **({'asset_ids': asset_ids or retry_ids}

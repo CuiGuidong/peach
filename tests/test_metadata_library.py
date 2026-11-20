@@ -3360,6 +3360,34 @@ class LibraryWatchdogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '媒体库'):
             process_library(config, db, self.root / 'generated', self.root / 'covers', library_id='missing')
 
+    def test_directory_scan_discovers_descendants_without_touching_other_folders(self):
+        from dataclasses import replace
+        from peach.library_processing_scope import directory_choices
+        from peach.web_library_processing import _resume_request
+
+        library = self.root / 'media'
+        ledger_root = PureWindowsPath(r'R:\Media')
+        chosen = library / 'chosen'
+        sibling = library / 'chosen-other'
+        (chosen / 'nested').mkdir(parents=True)
+        sibling.mkdir()
+        (chosen / 'nested' / 'ABW-204.mp4').write_bytes(b'video')
+        (sibling / 'ABW-205.mp4').write_bytes(b'video')
+        config = replace(self._config(library), locations={'local': (str(ledger_root),)},
+                         mounts={'local': (library,)})
+        db = fresh_ledger(self.root)
+        selected = str(ledger_root / 'chosen')
+        expected = str(ledger_root / 'chosen' / 'nested')
+        self.assertEqual(directory_choices(config, selected)['directories'], [{'name': 'nested', 'path': expected}])
+        with patch('peach.settings_file.active', return_value=config):
+            result = process_library(config, db, self.root / 'generated', self.root / 'covers',
+                                     stage='scan', directory=selected, provider_factory=self._provider)
+        with closing(sqlite3.connect(db)) as connection:
+            self.assertEqual(connection.execute('SELECT path FROM asset').fetchall(), [(expected + '\\ABW-204.mp4',)])
+        self.assertEqual(_resume_request(result, 'standard')['directory'], selected)
+        with self.assertRaisesRegex(ValueError, '有效目录'):
+            directory_choices(config, selected + r'\..\..')
+
     @windows_ledger_roots
     def test_western_metadata_enters_review_without_creating_a_jav_code(self):
         from peach.http import HttpResponse
