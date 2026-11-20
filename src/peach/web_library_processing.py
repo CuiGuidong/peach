@@ -36,6 +36,31 @@ def public_state(state):
     return {key: value for key, value in state.items() if key in PUBLIC_FIELDS}
 
 
+def _pending_recovery(contract, recovery):
+    if (recovery.get('status') != 'active' or not recovery.get('job_id')
+            or not isinstance(recovery.get('request'), dict) or recovery.get('run_id') is None
+            or not getattr(contract.task_runs, 'enabled', True)):
+        return None
+    run = contract.task_runs.get(recovery['run_id'])
+    if (run is not None and run.task_key == 'library-processing' and run.host == contract.task_runs.host
+            and run.status == 'pending' and run.pid == 0):
+        return run
+    return None
+
+
+def _recovered_state(contract, recovery, stored, run):
+    from .job_recovery import library_action
+
+    request = recovery['request']
+    progress = stored if stored.get('job_id') == recovery['job_id'] else {}
+    return {'requested_stage': request.get('stage'), 'library_id': request.get('library_id'),
+            **(recovery.get('checkpoint') or {}), **progress,
+            'job_id': recovery['job_id'], 'run_id': run.id,
+            'status': {'pause': 'paused', 'cancel': 'stopping', 'resume': 'running'}[
+                library_action(contract.db_path, recovery)],
+            'error': '', 'error_code': None, 'error_params': {}, 'outcome': None, 'completed_at': None}
+
+
 def _current(contract):
     live = contract.library_processing_job.snapshot()
     thread = getattr(contract.library_processing_job, 'thread', None)
@@ -43,9 +68,12 @@ def _current(contract):
         return {**live, 'status':'stopping'}
     if live and live.get('status') in ACTIVE:
         return live
-    stored = snapshot(settings_file.active())
     from .job_recovery import read
     recovery = read(contract.db_path, 'library-processing')
+    pending = _pending_recovery(contract, recovery) if recovery else None
+    stored = snapshot(settings_file.active(), recovering_job=recovery['job_id'] if pending else None)
+    if pending:
+        return _recovered_state(contract, recovery, stored, pending)
     if recovery.get('status') == 'active' and recovery.get('job_id') == stored.get('job_id'):
         stored['run_id'] = recovery.get('run_id')
     if live and live.get('job_id') == stored.get('job_id'):
@@ -266,10 +294,14 @@ def _control_action(contract, config, body):
     if action == 'resume' and not (live and thread is not None and thread.is_alive()) and not _writer_active(config):
         from .job_recovery import read, current_job_id, current_run
         recovery = read(contract.db_path, 'library-processing')
+        matching = recovery.get('job_id') == job_id and recovery.get('status') == 'active'
+        saved_request = recovery.get('request') if matching else None
+        body = ({**saved_request, 'speed_mode': control.mode} if isinstance(saved_request, dict)
+                else _resume_request(previous, control.mode))
         identity = current_job_id.set(str(job_id))
-        run = current_run.set(recovery.get('run_id'))
+        run = current_run.set(recovery.get('run_id') if matching else None)
         try:
-            return w_library_processing(contract, _resume_request(previous, control.mode), resume=True)
+            return w_library_processing(contract, body, resume=True)
         finally:
             current_job_id.reset(identity)
             current_run.reset(run)

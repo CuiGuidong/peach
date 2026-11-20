@@ -1233,17 +1233,17 @@ def _record_issue(state, log_path, record, *, diagnostics=None):
         paused.append(asset_id)
 
 
-def snapshot(config):
+def snapshot(config, *, recovering_job=None):
     try:
         state = json.loads(state_path(config).read_text(encoding='utf-8'))
     except (OSError, ValueError):
         return {'status': 'idle'}
-    if state.get('status') == 'running':
+    if state.get('status') == 'running' and (not recovering_job or state.get('job_id') != recovering_job):
         try:
             # 锁覆盖 CLI 与 HTTP；进程退出后系统会释放它。
             with FileLock(str(state_path(config)) + '.lock', timeout=0):
                 state = json.loads(state_path(config).read_text(encoding='utf-8'))
-                if state.get('status') == 'running':
+                if state.get('status') == 'running' and (not recovering_job or state.get('job_id') != recovering_job):
                     # 拿得到锁说明写入者已经不在了。结论写回文件：只改副本的话，另一个读取者
                     # 正好短暂占着锁时会读到原样的「运行中」，界面就在两种状态之间来回跳。
                     state.update(status='failed', outcome='interrupted',
