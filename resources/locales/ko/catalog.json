@@ -47,9 +47,9 @@
     "views": ""
   },
   "seedName": {
-    "save": "제안 검토 대기 중",
+    "save": "후보 제출",
     "description": "* 기호가 있는 곳은 필수 항목입니다.",
-    "chinese": "한문 이름",
+    "chinese": "중국어 이름",
     "loading": "배우 정보를 불러오는 중…"
   }
 }
