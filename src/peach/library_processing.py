@@ -42,6 +42,7 @@ from .metadata import (candidate_text_is_valid, source_text_is_valid,
 from . import metadata_routes
 from . import media_identity
 from .library_processing_scope import scoped_config, scoped_assets
+from . import western_artwork
 from . import junk
 from . import sample_followup
 from .metadata_policy import SOURCE_SPECS, preferred_tag_source
@@ -1408,9 +1409,10 @@ def _provider_code(raw):
         return ''
 
 
-def _candidate_identity(source, value):
+def _candidate_identity(source, value, scene_id=None):
     """候选的身份：来源加取值。取值变了身份就得跟着变，否则「批准的是哪一版」答不出来。"""
-    return hashlib.sha256(json.dumps([source, value], ensure_ascii=False,
+    identity = [source, value, scene_id] if scene_id else [source, value]
+    return hashlib.sha256(json.dumps(identity, ensure_ascii=False,
                                      sort_keys=True).encode()).hexdigest()
 
 
@@ -1458,7 +1460,8 @@ def _source_candidate(source, document, value, evidence_path, mode):
     local = source == 'local_nfo'
     spec = SOURCE_SPECS.get(source)
     official = bool(spec and spec.official)
-    candidate = dict(candidate_key=_candidate_identity(source, value['value']), source=source,
+    scene_id = document.get('content_id') if source == western_artwork.SCENE_SOURCE else None
+    candidate = dict(candidate_key=_candidate_identity(source, value['value'], scene_id), source=source,
                      provider=PROVIDER_NAMES.get(source, source), value=value['value'],
                      display_value=value.get('display_value', str(value['value'])), warnings=value.get('warnings', []),
                      confidence=0.9 if local else 0.75 if official else 0.5 if source.startswith('custom-') else 0.6,
@@ -1470,9 +1473,9 @@ def _source_candidate(source, document, value, evidence_path, mode):
         candidate.update(javdb_rule=document.get('javdb_rule'), source_id=document.get('source_id'))
     if source == 'public-seed':
         candidate['seed_revision'] = document['seed_revision']
-    if mode in ('review', 'identity-review'):
+    if scene_id or mode in ('review', 'identity-review'):
         candidate['requires_review'] = True
-    if mode == 'identity-review':
+    if scene_id or mode == 'identity-review':
         candidate['requires_identity_review'] = True
     if value.get('unmapped_genres'):
         candidate['unmapped_genres'] = value['unmapped_genres']
@@ -1639,6 +1642,12 @@ def _missing_fields(row, local_fields=()):
     """
     return [field for field in COLLECTED_FIELDS
             if field not in local_fields and not row.get(COLUMN_OF.get(field, field))]
+
+
+def _queue_metadata(prepared, row, code, verify_existing, fields, entries, has_nfo, local_ok):
+    """已有边车或发行识别证据的作品进入外部采集队列。"""
+    if code or has_nfo or western_artwork.scene_identity(row) is not None:
+        prepared.append((row, code, verify_existing, fields, entries, local_ok))
 
 
 def _answered_sources(groups, target_key, fields):
@@ -1963,6 +1972,9 @@ class _RemoteSession:
         已经给过候选的来源（`_answered_sources`），资料那一步不再问它们。
         """
         entries, covers = [], 0
+        western = self._western_plan(row, missing, cover_root, answered, fetch_cover)
+        if western is not None:
+            return self._western_collect(row, western, update=update, issue=issue, received=received)
         if not _scrapes_as_jav(row, code):
             return entries, covers
         chain = self._chain(code, *_studio_evidence(row))
@@ -1977,12 +1989,96 @@ class _RemoteSession:
 
     def asks(self, row, code, missing, cover_root, *, answered=(), fetch_cover=True):
         """`collect` 这一行会不会去问外部来源，判据与它逐条相同。断网时只把要问的行记成未取得。"""
+        western = self._western_plan(row, missing, cover_root, answered, fetch_cover)
+        if western is not None:
+            identity, metadata, target = western
+            source = western_artwork.SCENE_SOURCE
+            cached = self._cached_evidence((source,), identity.cache_key)
+            return bool((metadata or target) and not self._fresh_miss(source, identity.cache_key)
+                        and (not cached or (target and cached[0][1].get('image_url'))))
         if not _scrapes_as_jav(row, code):
             return False
         chain = self._chain(code, *_studio_evidence(row))
         return (self._asks_metadata(chain, code, missing, answered)
                 or bool(fetch_cover and _asks_cover(code, *_studio_evidence(row))
                         and not cover_settled(cover_root / (code + '.jpg'))))
+
+    def _western_plan(self, row, missing, cover_root, answered, fetch_cover):
+        identity = western_artwork.scene_identity(row)
+        if identity is None:
+            return None
+        metadata = bool(missing and western_artwork.SCENE_SOURCE not in answered)
+        target = None
+        if fetch_cover:
+            key = western_artwork.artwork_key(row['id'], None)
+            cover = cover_root / f'{key}.jpg'
+            companion = self._config.directory('generated') / 'posters' / f"{row['id']}_4.jpg"
+            if not cover.exists() and not measure_image_file(companion):
+                target = cover
+        return identity, metadata, target
+
+    def _western_collect(self, row, plan, *, update, issue, received):
+        from . import avatar_picker, cover_artwork
+
+        identity, metadata, target = plan
+        source = western_artwork.SCENE_SOURCE
+        key = identity.cache_key
+        if not (metadata or target):
+            return [], 0
+        action = 'querying_metadata' if metadata else 'fetching_cover'
+        entries = self._cached_evidence((source,), key)
+        if not entries and not self._fresh_miss(source, key):
+            update(**stage_fields('library.fetchMetadata'), current_action=action, current_started_at=time.time(),
+                   current_deadline_at=None, current_source={'key': source, 'label': 'Vixen Media Group'})
+            try:
+                scene = western_artwork.collect_scene(self.provider().transport, identity)
+            except Exception as error:
+                _raise_task_failure(error)
+                problem = describe_failure(error)
+                issue(row, phrase('errors.libraryProcessing.coverUnfetched' if not metadata
+                                  else 'errors.libraryProcessing.metadataUnfetched',
+                                  {'problems': problem} if metadata else {'problem': problem}),
+                      action=action, retryable=True, paused=source_paused(error),
+                      diagnostics=_source_failure_details(error, key, action, source=source))
+                return [], 0
+            if scene is not None:
+                document = dict(id=scene['scene_id'], content_id=scene['scene_id'], title=scene['title'],
+                                maker=western_artwork.PUBLISHERS[identity.site], release_date=scene['date'],
+                                actresses=scene['performers'], genres=scene['genres'],
+                                source_url=scene['source_url'], image_url=scene['image_url'])
+                entries = [self._evidence(source, key, document)]
+            else:
+                self._record_miss(source, key)
+        if not entries:
+            issue(row, MISS_MESSAGES[action], action=action, retryable=True)
+            return [], 0
+        if metadata:
+            received(entries)
+        metadata_entries = entries if metadata else []
+        document = entries[0][1]
+        if not target or not document.get('image_url'):
+            return metadata_entries, 0
+        update(**stage_fields('library.fetchCovers'), current_action='fetching_cover', current_started_at=time.time(),
+               current_deadline_at=None, current_source={'key': source, 'label': 'Vixen Media Group'})
+        try:
+            body = avatar_picker.fetch_image(self.provider().transport, document['image_url'])
+            inspected = avatar_picker.accept_image(body)
+            if target.exists():
+                return metadata_entries, 0
+            cover_artwork.install_cover(target, '', body, (inspected.width, inspected.height),
+                evidence={'provider': 'western-official', 'source': western_artwork.SOURCE,
+                          'batch': f"library-{row['id']}-{time.time_ns()}",
+                          'performers': document['actresses'], 'content_id': document['content_id'],
+                          'source_url': document['source_url'], 'image_url': document['image_url']})
+        except cover_artwork.UserCoverKept:
+            return metadata_entries, 0
+        except Exception as error:
+            _raise_task_failure(error)
+            issue(row, phrase('errors.libraryProcessing.coverUnfetched', {'problem': describe_failure(error)}),
+                  action='fetching_cover', retryable=True, paused=source_paused(error),
+                  diagnostics=_source_failure_details(error, key, 'fetching_cover', source=source))
+            return metadata_entries, 0
+        return metadata_entries, 1
 
     def _asks_metadata(self, chain, code, missing, answered):
         # 链上剩下的站都给过候选或说过没有、且至少有一家给过候选：这一行不是「没取到」，
@@ -2785,6 +2881,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
     if budget is not None and budget.skips(row, code, missing, allowed, cover_root, answered=answered):
         return found, covers
     if allowed & {'metadata', 'cover'}:
+        western_id = row['id'] if western_artwork.scene_identity(row) is not None else None
         traffic.start_metadata(code)
         try:
             with processing_item(row['id']):
@@ -2795,7 +2892,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
             remote.reset()
             issue(row, phrase('errors.libraryProcessing.itemSkipped'), action='skipped', retryable=True)
         finally:
-            traffic.finish_work('metadata', code, successful=succeeded())
+            traffic.finish_work('metadata', code, successful=succeeded(), western_asset_id=western_id)
             update(current_source=None)
     if 'people' in allowed:
         covered.append((row['id'], covers))
@@ -3916,9 +4013,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 verify_existing = bool(verify_existing or recheck_existing)
                 local_fields = _fields(payload, genre_decisions) if payload else {}
                 publish(row, code, local_fields, verify_existing, entries)
-                if code or payload:
-                    prepared.append((row, code, verify_existing, local_fields, entries,
-                                     state['issue_count'] == issues_before))
+                _queue_metadata(prepared, row, code, verify_existing, local_fields, entries, bool(payload),
+                                state['issue_count'] == issues_before)
                 update(checked=completed_count + index + 1)
             local_evidence.save(force=True)
             flush_candidates(force=True)

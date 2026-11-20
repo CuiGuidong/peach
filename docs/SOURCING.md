@@ -167,7 +167,7 @@ Wiki 与视频作品资料无关。
 | uncensored | 日期式番号、`HEYZO-1380`、Tokyo-Hot 的 `n0780` | （证据指着一本道时）1pondo → avbase → javbus → javdb → avsox | r18dev：无码番号在它上面没有 |
 | fc2 | `FC2` 开头的商品号，与没归一的 `FC-43768` 这种短写法 | javdb → fc2 → fc2cmadb → fc2ppvdb → javten → javarchive | r18dev、avbase 与 javbus 对 FC2 没有有效产出；fc2club 仍可由用户点名 |
 | kmib | `KOREAN_MIB_PREFIXES` 里的前缀 | 一家都不问 | 全部：番号与日本片同形，问回来的是别的作品 |
-| other | 有码形状，但路径带国产标记（`OTHER_SYSTEM_MARKS`：国产、网红、兔子先生、麻豆……）或文件名是欧美片站写法（`wankzvr-elena-koshka-GFE-180`） | 一家都不问，也不问封面 | 全部：Peach 没接这些体系的来源 |
+| other | 有码形状，但路径带国产标记（`OTHER_SYSTEM_MARKS`：国产、网红、兔子先生、麻豆……）或文件名是欧美片站写法（`wankzvr-elena-koshka-GFE-180`） | 跳过番号采集链 | 全部：这些来源使用不同的作品身份 |
 | unsure | 有码形状，本机证据里有字母段却没有这个号的完整写法（`UWFr85dczsVeysGg.mp4` 读成 `UWFR-085`） | avbase → javbus → javdb，一遍 | 片商站、r18dev、dmm：号多半读错了，官方档只会查空 |
 
 容易问错的几处：
@@ -179,7 +179,13 @@ Wiki 与视频作品资料无关。
 - **三家片商站只问自家番号。** Prestige、FALENO、DAHLIA 对任何番号都会发请求，所以只有番号字母前缀在
   `metadata_routes.MAKER_EVIDENCE` 里、或账本厂牌与路径写着这家时才问它；有一家认了就不再问 `makers`。
   `makers` 按 amane 自带的片商表路由，前缀不在表里时桥内零 HTTP，只花一次子进程（约 0.8 秒）。
-- **国产、欧美归 `other`，一家都不问。** 认得出的停在这里，认不出的仍按有码问。里番没有判据，不单列。
+- **国产、欧美归 `other`。** 已识别作品跳过番号采集链。欧美发行方目前有下述独立采集入口。
+
+### 欧美发行方作品
+
+扫描与采集从视频文件名读取已接入厂牌、发行日及场景文字。Vixen Media Group 的公开目录按片名或完整出演者艺名搜索，按厂牌、发行日期和本地文字筛选，唯一命中后再核对官方详情。录入全名或精确片名有助于消除同日作品的歧义。标题、厂牌、出演者、发行日及类别作为资产候选进入人工复核，来源以厂牌和场景标识保存。没有海报时仍可复核资料。已有封面和本地配套海报优先，缺图时才下载确认场景的官方海报。
+
+采集受媒体库的资料和封面选项、断网与请求预算控制。文件名识别、查询候选和身份确认分别处理，参考 [Stash 的资料采集说明](https://docs.stashapp.cc/in-app-manual/scraping/)。
 
 候选来源（未接入，等实际缺口出现再接）：sokmil、kingdom.vc、km-produce、fantia（要 Cookie）、jav321、javlibrary，
 出自 2026-10-01 对 Javinizer-Go、mdcz、AMMDS 等元数据引擎的调研（ADR-0092）。
