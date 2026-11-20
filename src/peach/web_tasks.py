@@ -43,16 +43,19 @@ def q_result_updates(contract, _args):
     任务进度，闲着时不各自轮询。
     """
     try:
-        running = running_tasks(contract)
+        running, library_revision = _task_updates(contract)
     except sqlite3.OperationalError:
-        running = []
+        running, library_revision = [], None
     busy = bool(running)
-    return {"ok": True, "result_versions": _throttled_versions(contract, busy),
+    versions = _throttled_versions(contract, busy)
+    if library_revision is not None:
+        versions = {**versions, 'library_processing': library_revision}
+    return {"ok": True, "result_versions": versions,
             "ingest_notices": NOTICES.snapshot(), "busy": busy, "running_tasks": running}
 
 
-def running_tasks(contract) -> list[dict]:
-    """在排或在跑的任务，每个 `task_key` 一项 `{task_key, run_id, status}`，按 `task_key` 排。
+def _task_updates(contract) -> tuple[list[dict], str]:
+    """返回在排在跑的任务和最近结束的扫描任务编号。
 
     有一轮在跑时 `status` 是 `running`，`run_id` 是在跑的最新一轮；只在排队时是 `pending`
     与最新排进来的那一轮。一轮派出上千条后继也只多几项，一条分组查询取齐。
@@ -62,12 +65,16 @@ def running_tasks(contract) -> list[dict]:
         rows = connection.execute(
             f"SELECT task_key, status, MAX(id) FROM task_run WHERE status IN ({marks}) "
             "GROUP BY task_key, status").fetchall()
+        terminal = ",".join("?" for _ in TERMINAL_STATUSES)
+        latest = connection.execute(
+            f"SELECT id FROM task_run WHERE task_key='library-processing' AND status IN ({terminal}) "
+            "ORDER BY id DESC LIMIT 1", TERMINAL_STATUSES).fetchone()
     tasks: dict[str, dict] = {}
     for task_key, status, run_id in rows:
         known = tasks.get(task_key)
         if known is None or (status == "running" and known["status"] != "running"):
             tasks[task_key] = {"task_key": task_key, "run_id": int(run_id), "status": status}
-    return [tasks[key] for key in sorted(tasks)]
+    return [tasks[key] for key in sorted(tasks)], str(latest[0]) if latest else '0'
 
 
 #: 有任务在跑时，结果版本最多隔这么久变一次（`_throttled_versions`）。
