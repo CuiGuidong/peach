@@ -8,6 +8,7 @@ import threading
 import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from pathlib import Path, PureWindowsPath
 from types import SimpleNamespace
 from unittest.mock import DEFAULT, Mock, patch
@@ -3567,6 +3568,19 @@ class LibraryWatchdogTests(unittest.TestCase):
                 self.assertIn('video.mp4', listing.files(folder))
         self.assertEqual(read.call_count, 10)
 
+    def test_a_video_restored_after_prefetch_is_found_in_a_fresh_listing(self):
+        root = self.root / 'media'
+        root.mkdir()
+        listing = library_processing._DirectoryIndex()
+        listing.prefetch([root])
+        video = root / 'sample.mp4'
+        replacement = root / 'replacement.mp4'
+        replacement.write_bytes(b'video')
+        replacement.replace(video)
+        self.assertTrue(listing.contains_video(video))
+        self.assertFalse(listing.contains_video(root / 'missing.mp4'))
+        self.assertIsNone(listing.fingerprint(root))
+
     def test_legacy_issue_list_projects_into_count_and_preview(self):
         legacy = [{'asset_id': index, 'message': '未识别到番号'} for index in range(1, 26)]
         state = decorate({'status': 'failed', 'job_id': 'old', 'issues': legacy})
@@ -4143,6 +4157,41 @@ class LibraryPreviewCompletionTests(unittest.TestCase):
     def make_tile(_ffmpeg, _pattern, _columns, _rows, destination, **_options):
         Image.new('RGB', (1440, 810), 'green').save(destination, format='JPEG')
         return True
+
+    def test_a_missing_video_has_one_issue_and_incremental_sync_rechecks_the_restored_path(self):
+        from peach.library_new_assets import pending
+
+        self.config = replace(self.config, locations={'local': (self.ledger_roots['local'],)})
+        (self.media / 'clip-2.mp4').unlink()
+        video = self.media / 'clip-1.mp4'
+        video.unlink()
+        with patch('peach.library_processing.FFmpegResolver', return_value=self.resolver), \
+                patch('peach.frame_capture.capture_with_retry', return_value=True), \
+                patch('peach.frame_capture.tile_frames', side_effect=self.make_tile), \
+                patch('peach.library_processing._finish_collection', return_value={}):
+            first = self.run_processing(asset_ids=[1])
+            self.assertEqual(pending(self.db), [])
+            video.write_bytes(b'replacement video')
+            retried = self.run_processing(incremental=True)
+        self.assertEqual(first['issue_count'], 1)
+        self.assertEqual(first['issue_preview'][0]['message_code'], 'errors.libraryProcessing.mediaInaccessible')
+        self.assertEqual(first['retryable_asset_ids'], [1])
+        self.assertEqual(retried['asset_ids'], [1])
+        self.assertEqual((retried['status'], retried['issue_preview'], retried['previews']), ('complete', [], 1))
+        self.assertNotEqual(first['job_id'], retried['job_id'])
+        self.assertTrue(Path(first['issues_log']).is_file())
+
+    def test_a_completed_metadata_checkpoint_keeps_an_unfinished_preview_pending(self):
+        from peach.library_new_assets import pending, remember
+
+        remember(self.db, ids=[1])
+        state = {'retryable_asset_ids': [1], 'issue_count': 1}
+        checkpoints = library_processing._LibraryCheckpoints(state, None, self.database, self.db)
+        row = {'id': 1, 'path': str(PureWindowsPath(self.ledger_roots['local']) / 'clip-1.mp4')}
+        checkpoints.queue_metadata(row, ['evidence'], issues_before=1)
+        checkpoints.commit_metadata(lambda **_args: None)
+        self.assertTrue(state['completed_metadata'])
+        self.assertEqual(pending(self.db), [1])
 
     def test_selected_completion_generates_a_snapshot_without_scanning_or_cloud_reads(self):
         reports = []

@@ -209,6 +209,7 @@ class PosixShapeTests(_ScanCase):
         from peach.file_identity import FileIdentityIndex
         from peach.library_new_assets import pending
         from peach.library_processing import _initial_processing_scope
+        from peach.settings_file import PeachConfig
 
         options = dict(declared_roots={'local': ('R:\\media',)}, mounts={'local': (self.media,)}, windows=False)
         original = FileIdentityIndex.save
@@ -225,7 +226,8 @@ class PosixShapeTests(_ScanCase):
         self.assertEqual(len(queued), 1)
         self.assertTrue(set(result.new_ids).isdisjoint(queued))
         self.assertEqual(
-            _initial_processing_scope(self.db, None, None, True, {'incremental_ids': []}),
+            _initial_processing_scope(PeachConfig(self.root, self.root / 'config.toml'),
+                                      self.db, None, None, True, {'incremental_ids': []}),
             (None, queued),
         )
 

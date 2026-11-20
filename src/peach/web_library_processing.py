@@ -612,8 +612,8 @@ def w_library_processing(contract, body, *, resume=False):
               PREVIEWS_STAGE: 'library.startPreviews'}
     estimate_ids = asset_ids if asset_ids is not None else retry_ids
     if incremental:
-        from .library_new_assets import pending
-        estimate_ids = pending(contract.db_path)
+        from .library_processing import incremental_pending
+        estimate_ids = incremental_pending(config, contract.db_path)
     estimate_ids = scoped_assets(config, contract.db_path, library_id, estimate_ids)
     library_name = config.library_catalog.get(library_id, {}).get('name', '')
     result = contract.library_processing_job.start(

@@ -1658,6 +1658,9 @@ def _answered_sources(groups, target_key, fields):
     return answered
 
 
+_MEDIA_INACCESSIBLE = 'errors.libraryProcessing.mediaInaccessible'
+
+
 class _DirectoryIndex:
     """本趟任务内每个文件夹只列一次，交错处理的目录共享同一份索引。"""
 
@@ -1665,6 +1668,7 @@ class _DirectoryIndex:
         self._cache: dict[str, dict[str, Path]] = {}
         self._errors: dict[str, OSError] = {}
         self._sidecars: dict[str, SidecarIndex] = {}
+        self._relisted: set[str] = set()
         #: 预读过的目录的指纹：每个文件的名字、大小与修改时间，见 `fingerprint`。
         self._stamps: dict[str, str] = {}
 
@@ -1730,6 +1734,17 @@ class _DirectoryIndex:
         if key not in self._sidecars:
             self._sidecars[key] = SidecarIndex(self.files(video.parent))
         return self._sidecars[key].for_video(video)
+
+    def contains_video(self, video):
+        """确认目录快照中的缺失。覆盖期间列出的目录可能暂时没有正片。"""
+        directory = video.parent
+        key, name = str(directory), video.name.casefold()
+        if name not in self.files(directory) and key not in self._relisted:
+            self._relisted.add(key)
+            self._cache.pop(key, None)
+            self._stamps.pop(key, None)
+            self._sidecars.pop(key, None)
+        return name in self.files(directory)
 
 
 #: 记忆文件的格式号。按站记、带各站接入时刻的是这一版；没有这个键的文件是按档记、
@@ -2992,8 +3007,12 @@ def _generate_preview(config, row, database, resolver, *, progress):
         raise PreviewUnavailable('errors.libraryProcessing.ffmpegMissing')
     video = translate_ledger_path(row['path'])
     import stat
-    if not stat.S_ISREG(file_stat(video, timeout=remaining(20)).st_mode):
-        raise PreviewUnavailable('errors.libraryProcessing.mediaInaccessible')
+    try:
+        info = file_stat(video, timeout=remaining(20))
+    except (FileNotFoundError, NotADirectoryError) as error:
+        raise PreviewUnavailable(_MEDIA_INACCESSIBLE) from error
+    if not stat.S_ISREG(info.st_mode):
+        raise PreviewUnavailable(_MEDIA_INACCESSIBLE)
     duration = row.get('duration') or 0
     if duration <= 0:
         probe = resolver.ffprobe()
@@ -3203,7 +3222,8 @@ class _LibraryCheckpoints:
         flush(force=True)
         if self.settles_new:
             from .library_new_assets import remember
-            remember(self.db_path, completed=completed_ids)
+            unfinished = set(self.state['retryable_asset_ids'])
+            remember(self.db_path, completed=set(completed_ids) - unfinished)
 
     def remaining_metadata(self, rows):
         return ((index, row) for index, row in enumerate(rows)
@@ -3258,14 +3278,16 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
     `code_patterns` 是用户在设置里写的番号识别规则，已编译，先于内置规则试。"""
     video = translate_ledger_path(row['path'])
     try:
-        files = listing.files(video.parent)
+        available = listing.contains_video(video)
     except InterruptedError:
         raise
+    except (FileNotFoundError, NotADirectoryError):
+        available = False
     except OSError as error:
         issue(row, said_of(error), action='reading_local', retryable=True)
         return None
-    if video.name.casefold() not in files:
-        issue(row, phrase('errors.libraryProcessing.mediaInaccessible'), action='reading_local', retryable=True)
+    if not available:
+        issue(row, phrase(_MEDIA_INACCESSIBLE), action='reading_local', retryable=True)
         return None
     code = _provider_code(row['code']) or _filename_code(row, code_patterns)
     payload = None
@@ -3574,27 +3596,58 @@ class _ProcessingIssues:
     def __init__(self, state, log_path, flush_state, report):
         self.state, self.log_path = state, log_path
         self.flush_state, self.report = flush_state, report
+        self.unavailable = {item.get('asset_id') for item in state['issue_preview']
+                            if item.get('message_code') == _MEDIA_INACCESSIBLE}
 
     def __call__(self, asset, message, *, action='', retryable=False, paused=False, diagnostics=None):
         """`message` 是 `phrase`（带 code 的一句），或没有 code 的原文（异常原文、文件名）。"""
         asset = asset or {}
         title = str(asset.get('catalog_title') or '') or Path(str(asset.get('name') or '')).name
         fields = _message_fields(message)
+        missing_media = fields.get('message_code') == _MEDIA_INACCESSIBLE and asset.get('id') is not None
+        if missing_media and asset['id'] in self.unavailable:
+            return
         severity, retryable = _issue_classification(fields, retryable, paused)
         _record_issue(self.state, self.log_path, {
             'asset_id': asset.get('id'), 'title': title, 'path': str(asset.get('path') or ''),
             **fields, 'severity': severity, 'failed_action': action, 'retryable': retryable,
             'last_failed_at': time.time()}, diagnostics=diagnostics)
+        if missing_media:
+            self.unavailable.add(asset['id'])
         self.state['last_progress_at'] = time.time()
         self.flush_state()
         self.report(dict(self.state))
 
 
-def _initial_processing_scope(db_path, selected_ids, retry_ids, incremental, resume_state):
+def _missing_media_to_recheck(config):
+    """把上次实际读不到的影片纳入新增同步，便于在原路径恢复后重新处理。"""
+    previous = snapshot(config)
+    eligible = set(previous.get('retryable_asset_ids') or ())
+    job_id = previous.get('job_id')
+    if not job_id or not eligible or previous.get('archived') or previous.get('outcome') != 'partial':
+        return set()
+    try:
+        with issues_path(config, job_id).open(encoding='utf-8') as handle:
+            items = (json.loads(line) for line in handle if line.strip())
+            return {item['asset_id'] for item in items if isinstance(item, dict)
+                    and item.get('message_code') == _MEDIA_INACCESSIBLE
+                    and isinstance(item.get('asset_id'), int) and item['asset_id'] in eligible}
+    except (OSError, ValueError):
+        return set()
+
+
+def incremental_pending(config, db_path):
+    from .library_new_assets import pending
+    return sorted(set(pending(db_path)) | _missing_media_to_recheck(config))
+
+
+def _initial_processing_scope(config, db_path, selected_ids, retry_ids, incremental, resume_state):
     """区分待发现范围与首次预估范围；增量恢复沿用已冻结的影片集合。"""
     if incremental:
         from .library_new_assets import pending
-        previous = resume_state or {}
+        if resume_state is None:
+            return None, incremental_pending(config, db_path)
+        previous = resume_state
         earlier_ids = previous.get('incremental_ids') or []
         if any(step['id'] == 'sources' and step['status'] == 'complete' for step in previous.get('steps', ())):
             return None, earlier_ids
@@ -3655,7 +3708,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
     path = Path(state_file) if state_file is not None else state_path(config)
     path.parent.mkdir(parents=True, exist_ok=True)
     retrying = retry_ids is not None
-    scope_ids, initial_ids = _initial_processing_scope(db_path, selected_ids, retry_ids, incremental, resume_state)
+    scope_ids, initial_ids = _initial_processing_scope(config, db_path, selected_ids, retry_ids, incremental,
+                                                       resume_state)
     initial_ids = scoped_assets(config, db_path, library_id, initial_ids)
     from .processing_control import execution_mode
     from .task_control import CURRENT as TASK_CONTROL

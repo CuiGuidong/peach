@@ -12,6 +12,26 @@ describe('扫描与采集控制', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
+  it('另一处任务在轮询间完成后，数据管理页更新问题清单', { timeout: 35_000 }, async () => {
+    let revision = '1';
+    const oldError = '样本影片上一轮尚未取得预览';
+    const opened = await visit(browser, '/data-cleanup#libraryProcessing', VIEWPORTS[0], async page => {
+      await page.route(url => url.pathname === '/api/library-processing', route => route.fulfill({ json: revision === '1'
+        ? { job_id: 'previous', status: 'failed', outcome: 'partial', error: oldError, issue_count: 1 }
+        : { job_id: 'current', status: 'complete', outcome: 'complete', issue_count: 0 },
+      }));
+      await page.route(url => url.pathname === '/api/result-updates', route => route.fulfill({ json: {
+        busy: false, running_tasks: [], result_versions: { library_processing: revision },
+      } }));
+    });
+    try {
+      const note = opened.page.getByText(oldError, { exact: false });
+      await note.first().waitFor();
+      revision = '2';
+      await note.first().waitFor({ state: 'hidden', timeout: 15_000 });
+    } finally { await opened.close() }
+  });
+
   for (const viewport of VIEWPORTS) it(`${viewport.name}：慢项可跳过，提示随空间同行，浮窗拖动保留`, async () => {
     let state = { status: 'running', job_id: 'skip-preview', checked: 0, total: 2,
       current_asset_id: 1, current_asset_name: '作品甲.mp4', current_action: 'querying_metadata',
