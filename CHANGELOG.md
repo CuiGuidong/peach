@@ -14,6 +14,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+## [0.61.0] - 2026-11-21
+
 ### Added / 新增
 
 - **Sourcing**: Use StashDB and ThePornDB to fill missing metadata and artwork for Western scenes and movies (#824). / **采集**：可配置 StashDB 和 ThePornDB，为其他欧美厂牌的场景与长片补全资料和封面（#824）。
@@ -1297,7 +1299,8 @@ First Windows standalone test package. Earlier development (from 2026-08-14, inc
 - **Desktop**: The standalone package writes startup logs in UTF-8. / **桌面**：独立包使用 UTF-8 启动日志。
 - **Settings**: The redirect after first-time setup uses a freshly read mDNS name. / **配置**：首次设置后的跳转目标取新鲜读到的 mDNS 名。
 
-[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.60.0...HEAD
+[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.61.0...HEAD
+[0.61.0]: https://github.com/peach-mitao/peach/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/peach-mitao/peach/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/peach-mitao/peach/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/peach-mitao/peach/compare/v0.57.0...v0.58.0
