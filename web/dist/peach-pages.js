@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "4011f73e-f319-47ce-ac34-5d276bb24953", e._sentryDebugIdIdentifier = "sentry-dbid-4011f73e-f319-47ce-ac34-5d276bb24953");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "49e9b811-9c8c-41cc-a931-87ef5dae5372", e._sentryDebugIdIdentifier = "sentry-dbid-49e9b811-9c8c-41cc-a931-87ef5dae5372");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7676,6 +7676,19 @@ var We = "peach.settings.v1", Ge = {
 				}
 			}
 		},
+		"v0-61-0": {
+			headline: "Scan a folder and fill Western metadata",
+			items: {
+				"library-folder-scan": {
+					body: "Choose a folder from the scan menu to scan that folder and its subfolders",
+					title: "Scan a folder"
+				},
+				"western-metadata-sources": {
+					body: "Configure StashDB or ThePornDB to fill metadata and covers for scenes and movies missing from publisher catalogs",
+					title: "Fill Western metadata and covers"
+				}
+			}
+		},
 		"v0-60-0": {
 			headline: "Choose which editions come first",
 			items: { "download-edition-order": {
@@ -15132,6 +15145,19 @@ var We = "peach.settings.v1", Ge = {
 				"english-interface": {
 					body: "页面、提示和任务进度都能显示英文",
 					title: "完整英文界面"
+				}
+			}
+		},
+		"v0-61-0": {
+			headline: "按文件夹扫描，补全欧美作品资料",
+			items: {
+				"library-folder-scan": {
+					body: "在扫描菜单中选择文件夹，只扫描该文件夹及其子文件夹",
+					title: "按文件夹扫描"
+				},
+				"western-metadata-sources": {
+					body: "配置 StashDB 或 ThePornDB，补全发行方官网未覆盖的场景和长片资料及封面",
+					title: "补全欧美作品资料和封面"
 				}
 			}
 		},
@@ -40086,4 +40112,4 @@ Nt();
 var ex = document.getElementById("peach-page"), tx = ex ? $b[ex.dataset.page ?? ""] : void 0;
 ex && tx && (0, Ht.createRoot)(ex).render(/* @__PURE__ */ (0, H.jsx)(Qb, { children: /* @__PURE__ */ (0, H.jsx)(tx, { data: { ...ex.dataset } }) }));
 
-//# debugId=4011f73e-f319-47ce-ac34-5d276bb24953
+//# debugId=49e9b811-9c8c-41cc-a931-87ef5dae5372
