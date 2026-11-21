@@ -1,2 +1,2 @@
 /*! Video.js | https://videojs.org/help */
-import"./player-BEwCZpEL.js";
+import"./player-CduD1gHP.js";

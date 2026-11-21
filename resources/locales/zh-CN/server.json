@@ -280,6 +280,19 @@
         }
       }
     },
+    "v0-61-0": {
+      "headline": "按文件夹扫描，补全欧美作品资料",
+      "items": {
+        "library-folder-scan": {
+          "body": "在扫描菜单中选择文件夹，只扫描该文件夹及其子文件夹",
+          "title": "按文件夹扫描"
+        },
+        "western-metadata-sources": {
+          "body": "配置 StashDB 或 ThePornDB，补全发行方官网未覆盖的场景和长片资料及封面",
+          "title": "补全欧美作品资料和封面"
+        }
+      }
+    },
     "v0-60-0": {
       "headline": "调整下载版本的优先顺序",
       "items": {
