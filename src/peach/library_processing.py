@@ -2881,7 +2881,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
     if budget is not None and budget.skips(row, code, missing, allowed, cover_root, answered=answered):
         return found, covers
     if allowed & {'metadata', 'cover'}:
-        western_id = row['id'] if western_artwork.scene_identity(row) is not None else None
+        traffic_scope = {'western_asset_id': row['id']} if western_artwork.scene_identity(row) is not None else {}
         traffic.start_metadata(code)
         try:
             with processing_item(row['id']):
@@ -2892,7 +2892,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
             remote.reset()
             issue(row, phrase('errors.libraryProcessing.itemSkipped'), action='skipped', retryable=True)
         finally:
-            traffic.finish_work('metadata', code, successful=succeeded(), western_asset_id=western_id)
+            traffic.finish_work('metadata', code, successful=succeeded(), **traffic_scope)
             update(current_source=None)
     if 'people' in allowed:
         covered.append((row['id'], covers))
