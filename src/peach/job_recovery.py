@@ -230,7 +230,9 @@ def import_legacy_library(db: Path, previous: dict) -> None:
     request = {'stage': previous.get('requested_stage') or 'all'}
     if previous.get('library_id'):
         request['library_id'] = previous['library_id']
-    if previous.get('asset_ids'):
+    if previous.get('directory'):
+        request['directory'] = previous['directory']
+    elif previous.get('asset_ids'):
         request['asset_ids'] = previous['asset_ids']
     save(db, 'library-processing', previous.get('job_id') or 'library-processing',
          request, run_id=run_id, waiting=True)

@@ -29,11 +29,15 @@ from .scripting import USER_AGENT, host_under, hostname_of
 from .fsutil import atomic_write_text
 from .metadata import RelayableError
 from .user_messages import UserValueError
+from .western_artwork import SCENE_SOURCE, SITES as WESTERN_SCENE_SITES
 
 LOGGER = logging.getLogger(__name__)
 
 
 SOURCES = {
+    SCENE_SOURCE: {"label": "Vixen Media Group",
+                   "domains": tuple(site + ".com" for site in sorted(WESTERN_SCENE_SITES)),
+                   "login": "https://www.vixen.com/"},
     "r18dev": {"label": "R18.dev", "domains": ("r18.dev",), "login": "https://r18.dev/"},
     "dmm": {"label": "DMM / FANZA", "domains": ("dmm.co.jp", "dmm.com"), "login": "https://www.dmm.co.jp/"},
     "prestige": {"label": "Prestige", "domains": ("prestige-av.com",), "login": "https://www.prestige-av.com/"},

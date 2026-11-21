@@ -14,6 +14,11 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Library**: Choose a folder from the scan menu to scan only that folder and its subfolders (#822). / **馆藏**：扫描菜单可指定一个文件夹，只扫描该文件夹及其子文件夹（#822）。
+- **Sourcing**: Scan for Vixen Media Group scenes, review verified catalog fields, and fill missing artwork (#816). / **采集**：扫描与采集支持识别 Vixen Media Group 作品，资料进复核，缺图时补官方海报（#816）。
+
 ### Fixed / 修复
 
 - **Library**: Save covers when an optional crop model cannot load, including in Windows folders with non-ASCII names (#820). / **馆藏**：Windows 的非 ASCII 目录可加载封面取景模型，模型不可用时仍保存封面（#820）。

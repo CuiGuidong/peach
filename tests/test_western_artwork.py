@@ -61,9 +61,28 @@ class WesternSourceTests(unittest.TestCase):
         self.assertIsNone(artwork.official_scene(self.http([node(), node(slug='other')]),
                                                 'tushy', 'Lena Anderson', '2019-08-14'))
 
+    def test_work_identity_rejects_a_similar_title_and_keeps_metadata_without_poster(self):
+        identity = artwork.scene_identity({'name': 'Tushy.19.08.14.Lena.Anderson.Cam.To.Me.1080p.mp4'})
+        correct = node()
+        wrong = {**node(slug='cam-to-someone'), 'title': 'Cam To Someone'}
+        detail = {**correct, 'images': {}}
+        result = artwork.collect_scene(self.http([wrong, correct], detail), identity)
+        self.assertEqual(result['scene_id'], 'tushy:cam-to-me')
+        self.assertEqual(result['performers'], ['Lena Anderson', 'Kai Taylor'])
+        self.assertEqual(result['image_url'], '')
+        self.assertIsNone(artwork.collect_scene(self.http([correct, node(slug='other')]), identity))
+        self.assertIsNone(artwork.collect_scene(self.http([correct], wrong), identity))
+
     def test_details_must_retain_the_matching_identity(self):
         self.assertIsNone(artwork.official_scene(self.http([node()], node('Someone Else')),
                                                 'tushy', 'Lena Anderson', '2019-08-14'))
+        self.assertIsNone(artwork.official_scene(self.http([node()], node(slug='different')),
+                                                'tushy', 'Lena Anderson', '2019-08-14'))
+
+    def test_one_match_in_a_capped_search_does_not_bind_a_scene(self):
+        edges = [node(), *[node('Different Person', slug=f'other-{i}') for i in range(artwork.SEARCH_LIMIT - 1)]]
+        self.assertIsNone(artwork.official_scene(self.http(edges), 'tushy', 'Lena Anderson', '2019-08-14'))
+        self.assertEqual(len(self.calls), 1)
 
     def test_an_image_from_another_host_is_not_an_official_cover(self):
         detail = node()

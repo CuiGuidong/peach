@@ -1,5 +1,6 @@
 """既有库边车识别和统一处理的隔离回归。"""
 import io
+import csv
 import json
 import os
 import sqlite3
@@ -3358,6 +3359,74 @@ class LibraryWatchdogTests(unittest.TestCase):
         self.assertEqual(collected['library_id'], library_id)
         with self.assertRaisesRegex(ValueError, '媒体库'):
             process_library(config, db, self.root / 'generated', self.root / 'covers', library_id='missing')
+
+    def test_directory_scan_discovers_descendants_without_touching_other_folders(self):
+        from dataclasses import replace
+        from peach.library_processing_scope import directory_choices
+        from peach.web_library_processing import _resume_request
+
+        library = self.root / 'media'
+        ledger_root = PureWindowsPath(r'R:\Media')
+        chosen = library / 'chosen'
+        sibling = library / 'chosen-other'
+        (chosen / 'nested').mkdir(parents=True)
+        sibling.mkdir()
+        (chosen / 'nested' / 'ABW-204.mp4').write_bytes(b'video')
+        (sibling / 'ABW-205.mp4').write_bytes(b'video')
+        config = replace(self._config(library), locations={'local': (str(ledger_root),)},
+                         mounts={'local': (library,)})
+        db = fresh_ledger(self.root)
+        selected = str(ledger_root / 'chosen')
+        expected = str(ledger_root / 'chosen' / 'nested')
+        self.assertEqual(directory_choices(config, selected)['directories'], [{'name': 'nested', 'path': expected}])
+        with patch('peach.settings_file.active', return_value=config):
+            result = process_library(config, db, self.root / 'generated', self.root / 'covers',
+                                     stage='scan', directory=selected, provider_factory=self._provider)
+        with closing(sqlite3.connect(db)) as connection:
+            self.assertEqual(connection.execute('SELECT path FROM asset').fetchall(), [(expected + '\\ABW-204.mp4',)])
+        self.assertEqual(_resume_request(result, 'standard')['directory'], selected)
+        with self.assertRaisesRegex(ValueError, '有效目录'):
+            directory_choices(config, selected + r'\..\..')
+
+    @windows_ledger_roots
+    def test_western_metadata_enters_review_without_creating_a_jav_code(self):
+        from peach.http import HttpResponse
+        from peach.repository import LedgerDatabase
+        from tests.test_western_artwork import node
+
+        media = self.root / 'media'
+        media.mkdir()
+        filename = 'Tushy.19.08.14.Lena.Anderson.Cam.To.Me.1080p.mp4'
+        (media / filename).write_bytes(b'video')
+        config = self._config(media)
+        db = fresh_ledger(self.root)
+        provider = self._provider()
+        scene = {**node(), 'images': {}}
+
+        def official(request, timeout, max_bytes):
+            variables = json.loads(request.body)['variables']
+            data = ({'searchVideos': {'edges': [{'node': scene}]}} if 'query' in variables
+                    else {'findOneVideo': scene})
+            return HttpResponse(200, {}, json.dumps({'data': data}).encode())
+
+        provider.transport = Mock(side_effect=official)
+        candidates = self.root / 'candidates'
+        covers = self.root / 'covers'
+        process_library(config, db, candidates, covers, stage='scan', provider_factory=lambda: provider)
+        result = process_library(config, db, candidates, covers, stage='metadata',
+                                 database=LedgerDatabase(db), provider_factory=lambda: provider)
+        self.assertEqual(result['status'], 'complete')
+        with closing(sqlite3.connect(db)) as connection:
+            code, title = connection.execute('SELECT code, catalog_title FROM asset WHERE name=?', (filename,)).fetchone()
+        self.assertFalse(code)
+        self.assertFalse(title)
+        with (candidates / 'library-metadata-field-candidates.csv').open(encoding='utf-8-sig', newline='') as evidence:
+            title_row = next(row for row in csv.DictReader(evidence) if row['field'] == 'title')
+        candidate, = json.loads(title_row['candidates_json'])
+        self.assertEqual(candidate['content_id'], 'tushy:cam-to-me')
+        self.assertTrue(candidate['requires_review'])
+        self.assertFalse((covers / 'ASSET-ID-1.jpg').exists())
+        provider.query.assert_not_called()
 
     @windows_ledger_roots
     def test_empty_incremental_sync_completes_without_metadata_queries(self):

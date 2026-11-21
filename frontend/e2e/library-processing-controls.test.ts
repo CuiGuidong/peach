@@ -12,6 +12,47 @@ describe('扫描与采集控制', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
+  it('目录扫描只把确认时选中的子文件夹提交给扫描任务', { timeout: 35_000 }, async () => {
+    const root = 'R:\\Media';
+    const child = root + '\\Nested';
+    const writes: Record<string, unknown>[] = [];
+    const opened = await visit(browser, '/data-cleanup', VIEWPORTS[0], async page => {
+      await page.route('**/api/library-processing{,?*}', async route => {
+        const request = route.request();
+        const params = new URL(request.url()).searchParams;
+        if (request.method() === 'POST') {
+          writes.push(request.postDataJSON());
+          await route.fulfill({ json: { status: 'running', job_id: 'folder-scan' } });
+        } else if (params.get('directories') === '1') {
+          const current = params.get('directory');
+          const result = current === root ? { current, parent: null, directories: [{ name: 'Nested', path: child }] }
+            : current === child ? { current, parent: root, directories: [] }
+            : { directories: [{ name: root, path: root, library: 'Library' }] };
+          await route.fulfill({ json: result });
+        } else {
+          await route.fulfill({ json: { status: 'idle' } });
+        }
+      });
+    });
+    const { page } = opened;
+    try {
+      await page.getByRole('button', { name: '更多同步方式', exact: true }).click();
+      await page.getByRole('dialog', { name: '同步方式' }).getByText('只扫描此目录', { exact: true }).click();
+      const picker = page.getByRole('dialog', { name: '只扫描此目录', exact: true });
+      const confirm = picker.getByRole('button', { name: '只扫描此目录', exact: true });
+      assert.equal(await confirm.isEnabled(), false);
+      await picker.getByRole('button', { name: /^R:\\Media/ }).click();
+      await picker.getByRole('button', { name: 'Nested', exact: true }).click();
+      await picker.getByText(child, { exact: true }).waitFor();
+      assert.deepEqual(writes, []);
+      await confirm.click();
+      await picker.waitFor({ state: 'hidden' });
+      assert.deepEqual(writes, [{ stage: 'scan', directory: child }]);
+    } finally {
+      await opened.close();
+    }
+  });
+
   it('另一处任务在轮询间完成后，数据管理页更新问题清单', { timeout: 35_000 }, async () => {
     let revision = '1';
     const oldError = '样本影片上一轮尚未取得预览';
@@ -198,10 +239,10 @@ describe('扫描与采集控制', () => {
         await card.getByRole('button', { name: '更多同步方式', exact: true }).click();
         const menu = page.getByRole('dialog', { name: '同步方式', exact: true });
         assert.equal(await menu.locator('svg').count(), 0);
-        assert.equal(await menu.getByRole('button').count(), 8);
-        assert.equal(await menu.getByRole('group', { name: '日常同步', exact: true }).getByRole('button').count(), 2);
+        assert.equal(await menu.getByRole('button').count(), 9);
+        assert.equal(await menu.getByRole('group', { name: '日常同步', exact: true }).getByRole('button').count(), 3);
         assert.equal(await menu.getByRole('group', { name: '全库维护', exact: true }).getByRole('button').count(), 6);
-        for (const label of ['仅发现新增文件', '补全待处理影片', '同步所有媒体库', '仅扫描文件', '补全资料与预览', '仅补全影片资料', '仅补全封面', '仅补全预览图']) {
+        for (const label of ['仅发现新增文件', '只扫描此目录', '补全待处理影片', '同步所有媒体库', '仅扫描文件', '补全资料与预览', '仅补全影片资料', '仅补全封面', '仅补全预览图']) {
           await menu.getByText(label, { exact: true }).waitFor();
         }
         await menu.getByText('为已入库的视频生成九宫格，跳过流量保护目录', { exact: true }).waitFor();
