@@ -31,6 +31,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 - **Library**: Save covers when an optional crop model cannot load, including in Windows folders with non-ASCII names (#820). / **馆藏**：Windows 的非 ASCII 目录可加载封面取景模型，模型不可用时仍保存封面（#820）。
 - **Library**: Resume or cancel a paused scan after restarting Peach, with the original selection and progress preserved (#815). / **馆藏**：重启后可继续或取消已暂停的扫描，继续时保留原来的范围和进度（#815）。
+- **Library**: Reuse the Windows directory reader during a scan and show timings for each scan stage (#817). / **馆藏**：Windows 扫描时复用目录读取进程，扫描详情显示各阶段耗时（#817）。
+- **Library**: Refresh the scan issue list to reflect the latest scan results (#818). / **馆藏**：扫描问题清单随最新扫描结果更新（#818）。
 
 ## [0.60.0] - 2026-11-20
 
