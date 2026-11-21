@@ -20,14 +20,15 @@ const uninstall = { available: true, full_available: true, message: '', data_roo
 
 function mountMaintenance(data: ConfigurationData, receipt = vi.fn(), otherRequest = fetchMock(503, {})) {
   const seedState = fetchMock(200, { enabled: false, available: false, schema: 1, last_attempt: {} });
+  const unavailable = fetchMock(503, {});
   vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
-    (url === '/api/configuration/seed-sharing' ? seedState : otherRequest)(url, init));
+    (url === '/api/configuration/seed-sharing' ? seedState : url === '/api/configuration/media-tools' ? otherRequest : unavailable)(url, init));
   return mount(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <MaintenanceSettings data={data} receipt={receipt} reopenTutorial={vi.fn()} />
+    <MaintenanceSettings data={data} receipt={receipt} reopenTutorial={vi.fn()} active />
   </QueryClientProvider>);
 }
 
-it('公共资料贡献在运行信息之前，卸载在末尾；缺依赖的运行信息带下载链接', async () => {
+it('运行信息和公共资料贡献分组，卸载在末尾，缺依赖时有下载链接', async () => {
   const data: ConfigurationData = {
     editable: true, notice: '', revision: 'r', media_dirs: [], library_count: 0, port: 9123,
     automatic_updates: automatic, updates: release, uninstall,
@@ -37,8 +38,11 @@ it('公共资料贡献在运行信息之前，卸载在末尾；缺依赖的运�
     ],
   };
   const host = await mountMaintenance(data);
-  expect([...host.firstElementChild!.children].map((node) => node.getAttribute('aria-label')))
-    .toEqual(['公共资料贡献', '运行信息', '新手教程', '卸载 Peach']);
+  expect([...host.querySelectorAll('nav a')].map(node => node.textContent))
+    .toEqual(['更新与修复', '运行与存储', '数据与隐私', '卸载 Peach']);
+  expect(section(host, '运行信息')?.closest('#maintenance-runtime')).not.toBeNull();
+  expect(section(host, '公共资料贡献')?.closest('#maintenance-privacy')).not.toBeNull();
+  expect(host.querySelector('[data-toc-content]')?.lastElementChild?.getAttribute('aria-label')).toBe('卸载 Peach');
   const facts = section(host, '运行信息')!;
   expect([...facts.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual(['版本', 'FFmpeg']);
   const link = facts.querySelector('a[href="https://ffmpeg.org/download.html"]');

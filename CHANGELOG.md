@@ -22,6 +22,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Changed / 变更
 
+- **Settings**: Jump to sections in System diagnostics and App and maintenance, and expand other source sessions when needed (#826). / **配置**：系统诊断和应用与维护可从目录直达分组，正常和未检查的来源会话按需展开（#826）。
 - **Sourcing**: Find sources by category in Sources and credentials, then expand the settings for each site (#825). / **采集**：「来源和凭证」可按分类查找来源，按需展开各站设置（#825）。
 
 ### Fixed / 修复

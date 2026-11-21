@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "83c2123c-b7bd-44b0-ab3f-375a0afedb22", e._sentryDebugIdIdentifier = "sentry-dbid-83c2123c-b7bd-44b0-ab3f-375a0afedb22");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "4011f73e-f319-47ce-ac34-5d276bb24953", e._sentryDebugIdIdentifier = "sentry-dbid-4011f73e-f319-47ce-ac34-5d276bb24953");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -4117,6 +4117,7 @@ var We = "peach.settings.v1", Ge = {
 		pausedUntil: "Access paused until",
 		reportNotFound: "Diagnostics report not found.",
 		sourceSessions: "Source sessions",
+		otherSources: "Other sources · {{count}}",
 		statusDisabled: "Not configured",
 		statusFailed: "Action needed",
 		statusOk: "OK",
@@ -6227,7 +6228,14 @@ var We = "peach.settings.v1", Ge = {
 	configurationPage: {
 		loadFailed: "Settings weren't loaded. Refresh the page to try again.",
 		loadFailedTitle: "Couldn't load settings",
-		sectionsLabel: "Settings sections"
+		sectionsLabel: "Settings sections",
+		contents: "On this page"
+	},
+	maintenanceGroups: {
+		updates: "Updates and repairs",
+		runtime: "Runtime and storage",
+		backups: "Backups and retention",
+		privacy: "Data and privacy"
 	},
 	dataSharing: {
 		reportErrors: "Send version stats and error reports (recommended)",
@@ -11701,6 +11709,7 @@ var We = "peach.settings.v1", Ge = {
 		pausedUntil: "暂停访问至",
 		reportNotFound: "诊断报告未取得。",
 		sourceSessions: "来源会话",
+		otherSources: "其他来源 · {{count}} 项",
 		statusDisabled: "未配置",
 		statusFailed: "需处理",
 		statusOk: "正常",
@@ -13706,7 +13715,14 @@ var We = "peach.settings.v1", Ge = {
 	configurationPage: {
 		loadFailed: "未取得配置，请刷新页面重试。",
 		loadFailedTitle: "配置读取失败",
-		sectionsLabel: "配置分区"
+		sectionsLabel: "配置分区",
+		contents: "本页目录"
+	},
+	maintenanceGroups: {
+		updates: "更新与修复",
+		runtime: "运行与存储",
+		backups: "备份与保留",
+		privacy: "数据与隐私"
 	},
 	dataSharing: {
 		reportErrors: "发送版本统计与错误诊断（推荐）",
@@ -40070,4 +40086,4 @@ Nt();
 var ex = document.getElementById("peach-page"), tx = ex ? $b[ex.dataset.page ?? ""] : void 0;
 ex && tx && (0, Ht.createRoot)(ex).render(/* @__PURE__ */ (0, H.jsx)(Qb, { children: /* @__PURE__ */ (0, H.jsx)(tx, { data: { ...ex.dataset } }) }));
 
-//# debugId=83c2123c-b7bd-44b0-ab3f-375a0afedb22
+//# debugId=4011f73e-f319-47ce-ac34-5d276bb24953
