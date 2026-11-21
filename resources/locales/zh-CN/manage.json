@@ -697,6 +697,15 @@
   },
   "scrapingSources": {
     "contents": "本页目录",
+    "groups": {
+      "western": "欧美影视",
+      "japanese": "日本影视",
+      "fc2": "FC2",
+      "people": "人物与社交",
+      "resources": "资源搜索",
+      "other": "其他来源",
+      "tools": "检查与工具"
+    },
     "loadFailed": "读取采集来源失败",
     "loadFailedTitle": "采集来源读取失败",
     "loading": "正在读取采集来源",
