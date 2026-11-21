@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7d1e41a5-f51b-4988-abce-afe0309eec0e", e._sentryDebugIdIdentifier = "sentry-dbid-7d1e41a5-f51b-4988-abce-afe0309eec0e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "83c2123c-b7bd-44b0-ab3f-375a0afedb22", e._sentryDebugIdIdentifier = "sentry-dbid-83c2123c-b7bd-44b0-ab3f-375a0afedb22");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -4659,6 +4659,15 @@ var We = "peach.settings.v1", Ge = {
 	},
 	scrapingSources: {
 		contents: "On this page",
+		groups: {
+			western: "Western titles",
+			japanese: "Japanese titles",
+			fc2: "FC2",
+			people: "People and social",
+			resources: "Resource search",
+			other: "Other sources",
+			tools: "Checks and tools"
+		},
 		loadFailed: "Couldn't load fetch sources.",
 		loadFailedTitle: "Couldn't load fetch sources",
 		loading: "Loading fetch sources",
@@ -12178,6 +12187,15 @@ var We = "peach.settings.v1", Ge = {
 	},
 	scrapingSources: {
 		contents: "本页目录",
+		groups: {
+			western: "欧美影视",
+			japanese: "日本影视",
+			fc2: "FC2",
+			people: "人物与社交",
+			resources: "资源搜索",
+			other: "其他来源",
+			tools: "检查与工具"
+		},
 		loadFailed: "读取采集来源失败",
 		loadFailedTitle: "采集来源读取失败",
 		loading: "正在读取采集来源",
@@ -40052,4 +40070,4 @@ Nt();
 var ex = document.getElementById("peach-page"), tx = ex ? $b[ex.dataset.page ?? ""] : void 0;
 ex && tx && (0, Ht.createRoot)(ex).render(/* @__PURE__ */ (0, H.jsx)(Qb, { children: /* @__PURE__ */ (0, H.jsx)(tx, { data: { ...ex.dataset } }) }));
 
-//# debugId=7d1e41a5-f51b-4988-abce-afe0309eec0e
+//# debugId=83c2123c-b7bd-44b0-ab3f-375a0afedb22
