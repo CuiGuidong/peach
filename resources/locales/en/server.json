@@ -1598,6 +1598,14 @@
       "noMetadata": "No source in the chain {{chain}} has metadata for this code",
       "chainTimedOut": "The source chain {{chain}} didn't respond within {{seconds}} seconds"
     },
+    "westernCatalog": {
+      "http": "{{source}} returned HTTP {{status}}",
+      "invalid": "{{source}} did not return usable metadata",
+      "invalidKey": "Enter a valid API key",
+      "keyMissing": "Configure a {{source}} API key first",
+      "keyRejected": "{{source}} did not accept this API key",
+      "redirect": "The {{source}} request redirected to a different site and was stopped"
+    },
     "westernArtwork": {
       "babepediaUrlMismatch": "Babepedia not found: the profile URL does not match",
       "babepediaHttp": "Babepedia not found: HTTP {{status}}",

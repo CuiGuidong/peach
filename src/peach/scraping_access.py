@@ -30,11 +30,17 @@ from .fsutil import atomic_write_text
 from .metadata import RelayableError
 from .user_messages import UserValueError
 from .western_artwork import SCENE_SOURCE, SITES as WESTERN_SCENE_SITES
+from . import western_catalog, western_tpdb
 
 LOGGER = logging.getLogger(__name__)
 
 
+KEY_SOURCES = {module.SOURCE: module for module in (western_catalog, western_tpdb)}
 SOURCES = {
+    "stashdb": {"label": western_catalog.LABEL, "domains": ("stashdb.org",),
+                "login": "https://stashdb.org/", "api_key": True},
+    "theporndb": {"label": western_tpdb.LABEL, "domains": ("theporndb.net", "metadataapi.net"),
+                  "login": "https://theporndb.net/", "api_key": True},
     SCENE_SOURCE: {"label": "Vixen Media Group",
                    "domains": tuple(site + ".com" for site in sorted(WESTERN_SCENE_SITES)),
                    "login": "https://www.vixen.com/"},
@@ -367,6 +373,7 @@ def save(root: Path, source: str, body: dict) -> dict:
             peach_proxy.save(root, inherited)
         values["network"] = mode
         values.pop("proxy", None)
+        _save_api_key(root, source, values, body)
         if body.get("revoke"):
             values.pop("cookie", None)
             values.pop("cookies_text", None)
@@ -389,6 +396,23 @@ def save(root: Path, source: str, body: dict) -> dict:
     return describe(root, source)
 
 
+def _save_api_key(root, source, values, body):
+    if body.get("revoke"):
+        if values.pop("api_key", None):
+            cooldown_path(root, source).unlink(missing_ok=True)
+        return
+    key = body.get("api_key")
+    if key is None or key == "":
+        return
+    if not SOURCES[source].get("api_key") or not isinstance(key, str):
+        raise UserValueError("errors.westernCatalog.invalidKey")
+    key = key.strip()
+    if not 1 <= len(key) <= 512 or any(not 33 <= ord(char) <= 126 for char in key):
+        raise UserValueError("errors.westernCatalog.invalidKey")
+    values["api_key"] = key
+    cooldown_path(root, source).unlink(missing_ok=True)
+
+
 def fix_to_browser(root: Path, source: str) -> None:
     """把登记了 `browser_fallback` 的来源固定到本机浏览器：写进来源设置，连接方式与 Cookie 原样留着。"""
     with _LOCK:
@@ -398,10 +422,12 @@ def fix_to_browser(root: Path, source: str) -> None:
 def describe(root: Path, source: str) -> dict:
     values = values_for(root, source)
     until = paused_until(root, source)
+    key_status = {"accepts_api_key": True, "api_key_saved": bool(values.get("api_key"))} if source in KEY_SOURCES else {}
     return {"source": source, **coded("label", SOURCES[source]["label"]),
             "login": SOURCES[source]["login"], "accepts_cookie": bool(SOURCES[source].get("cookie")),
             "network": "direct" if values.get("network") == "direct" else "peach",
             "cookie_saved": bool(values.get("cookie") or values.get("cookies_text")),
+            **key_status,
             "cooldown_until": until or None,
             # 这台机器上这个来源是不是由本机浏览器过验证：该走浏览器（`wants_browser`）且找得到浏览器。
             "browser": wants_browser(root, source) and browser_transport.find_browser() is not None}
@@ -547,6 +573,11 @@ class SourceTransport:
             if urlsplit(target).scheme != "https":
                 raise UserValueError("errors.scrapingAccess.redirectNotHttps")
             cross_origin = urlsplit(target).netloc != urlsplit(request.url).netloc
+            module = KEY_SOURCES.get(source_for(request.url))
+            if module is not None:
+                keyed = any(k.lower() in {"apikey", "authorization"} for k in request.headers)
+                if (keyed and cross_origin) or not module.allowed_image_url(target):
+                    raise UserValueError("errors.westernCatalog.redirect", {"source": module.LABEL})
             headers = {k: v for k, v in request.headers.items()
                        if not cross_origin or k.lower() not in {"cookie", "authorization", "host"}}
             request = HttpRequest("GET" if response.status == 303 else request.method,

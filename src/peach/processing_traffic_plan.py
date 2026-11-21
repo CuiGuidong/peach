@@ -231,22 +231,29 @@ class TrafficPlan:
 
     def _western_downloads(self, row, missing):
         from .library_processing import _processing_libraries
-        identity = western_artwork.scene_identity(row)
+        route = self.remote.western_sources(row)
+        if route is None:
+            return
+        identity, sources = route
         stages = _processing_libraries(self.config, self.stage)(row['path'])
-        source = western_artwork.SCENE_SOURCE
         metadata = self.stage != 'covers' and 'metadata' in stages and bool(missing)
         cover = 'cover' in stages
+        requests = [(source, metadata) for source in sources if metadata or cover]
         if row.get('id') is not None:
-            _, metadata, cover = self.remote._western_plan(row, missing if metadata else [], self.cover_root, (), cover)
-        if not (metadata or cover) or self.remote._fresh_miss(source, identity.cache_key):
-            return
+            plan = self.remote._western_plan(row, missing if metadata else [], self.cover_root, (), cover)
+            if plan is None:
+                return
+            identity, requests, cover = plan
         token = 'metadata:western:' + str(row.get('id') or row['path'])
-        network = self._network(source)
-        cached = self.remote._cached_evidence((source,), identity.cache_key)
-        if not cached:
-            self._add(token, network, 3 * 250 * 1024)
-        if cover and (not cached or cached[0][1].get('image_url')):
-            self._add(token, network, self.cover_bytes)
+        for source, _metadata in requests:
+            if not self.remote._western_asks(identity.cache_key, source, cover):
+                continue
+            network = self._network(source)
+            cached = self.remote._cached_evidence((source,), identity.cache_key)
+            if not cached:
+                self._add(token, network, 3 * 250 * 1024)
+            if cover and (not cached or cached[0][1].get('image_url')):
+                self._add(token, network, self.cover_bytes)
 
     def finish(self, stage, code=None, *, western_asset_id=None):
         from .library_processing import _provider_code

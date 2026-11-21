@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 from filelock import FileLock, Timeout
 from PIL import Image
 
-from .catalog_rules import (compile_code_patterns, is_jav_code, is_local_extra, normalise_code_key,
+from .catalog_rules import (JAPAN_REGION, compile_code_patterns, is_jav_code, is_local_extra, normalise_code_key,
                             release_code_from_filename, same_release_code, scrapes_as_jav)
 from .catalog_vocabulary import PERFORMER_TAG_PREFIX
 from .field_owners import SCAN_FILENAME, write_owned_fields
@@ -42,6 +42,7 @@ from .metadata import (candidate_text_is_valid, source_text_is_valid,
 from . import metadata_routes
 from . import media_identity
 from . import western_artwork
+from . import western_catalog, western_tpdb
 from .library_processing_scope import directory_config, scoped_config, scoped_assets
 from . import junk
 from . import sample_followup
@@ -1460,7 +1461,8 @@ def _source_candidate(source, document, value, evidence_path, mode):
     local = source == 'local_nfo'
     spec = SOURCE_SPECS.get(source)
     official = bool(spec and spec.official)
-    scene_id = document.get('content_id') if source == western_artwork.SCENE_SOURCE else None
+    scene_id = (document.get('content_id') if source in
+                {western_artwork.SCENE_SOURCE, western_catalog.SOURCE, western_tpdb.SOURCE} else None)
     candidate = dict(candidate_key=_candidate_identity(source, value['value'], scene_id), source=source,
                      provider=PROVIDER_NAMES.get(source, source), value=value['value'],
                      display_value=value.get('display_value', str(value['value'])), warnings=value.get('warnings', []),
@@ -1890,6 +1892,7 @@ class _RemoteSession:
         self._consult = not (retrying or recheck_existing)
         self._task_evidence = {}
         self._task_absent = set()
+        self._rejected_catalogs = set()
 
     def provider(self):
         if self._provider is None:
@@ -1991,11 +1994,9 @@ class _RemoteSession:
         """`collect` 这一行会不会去问外部来源，判据与它逐条相同。断网时只把要问的行记成未取得。"""
         western = self._western_plan(row, missing, cover_root, answered, fetch_cover)
         if western is not None:
-            identity, metadata, target = western
-            source = western_artwork.SCENE_SOURCE
-            cached = self._cached_evidence((source,), identity.cache_key)
-            return bool((metadata or target) and not self._fresh_miss(source, identity.cache_key)
-                        and (not cached or (target and cached[0][1].get('image_url'))))
+            identity, requests, target = western
+            return any(self._western_asks(identity.cache_key, source, target)
+                       for source, _metadata in requests)
         if not _scrapes_as_jav(row, code):
             return False
         chain = self._chain(code, *_studio_evidence(row))
@@ -2003,11 +2004,26 @@ class _RemoteSession:
                 or bool(fetch_cover and _asks_cover(code, *_studio_evidence(row))
                         and not cover_settled(cover_root / (code + '.jpg'))))
 
-    def _western_plan(self, row, missing, cover_root, answered, fetch_cover):
+    def western_sources(self, row):
         identity = western_artwork.scene_identity(row)
         if identity is None:
             return None
-        metadata = bool(missing and western_artwork.SCENE_SOURCE not in answered)
+        code = _provider_code(row.get('code'))
+        if row.get('region') == JAPAN_REGION or (code and _scrapes_as_jav(row, code)):
+            return None
+        from .scraping_access import KEY_SOURCES, values_for
+        movie = len(identity.release_date) == 4
+        sources = [western_artwork.SCENE_SOURCE] if not movie and identity.site in western_artwork.SITES else []
+        root = self._config.directory('secrets')
+        catalogs = (western_tpdb.SOURCE,) if movie else KEY_SOURCES
+        sources.extend(source for source in catalogs if values_for(root, source).get('api_key'))
+        return (identity, tuple(sources)) if sources else None
+
+    def _western_plan(self, row, missing, cover_root, answered, fetch_cover):
+        route = self.western_sources(row)
+        if route is None:
+            return None
+        identity, sources = route
         target = None
         if fetch_cover:
             key = western_artwork.artwork_key(row['id'], None)
@@ -2015,23 +2031,74 @@ class _RemoteSession:
             companion = self._config.directory('generated') / 'posters' / f"{row['id']}_4.jpg"
             if not cover.exists() and not measure_image_file(companion):
                 target = cover
-        return identity, metadata, target
+        requested = [(source, bool(missing and source not in answered)) for source in sources]
+        return identity, [(source, meta) for source, meta in requested if meta or target], target
+
+    def _western_asks(self, key, source, target):
+        cached = self._cached_evidence((source,), key)
+        if cached:
+            return bool(target and cached[0][1].get('image_url'))
+        return source not in self._rejected_catalogs and not self._fresh_miss(source, key)
+
+    def _western_document(self, source, identity):
+        from .scraping_access import KEY_SOURCES, values_for
+        module = KEY_SOURCES.get(source)
+        if module is not None:
+            if source in self._rejected_catalogs:
+                raise western_catalog.CredentialsRejected(module.LABEL)
+            key = values_for(self._config.directory('secrets'), source).get('api_key')
+            if not key:
+                raise UserValueError('errors.westernCatalog.keyMissing', {'source': module.LABEL})
+            try:
+                return module.collect(self.provider().transport, key, identity)
+            except western_catalog.CredentialsRejected:
+                self._rejected_catalogs.add(source)
+                raise
+        scene = western_artwork.collect_scene(self.provider().transport, identity)
+        if scene is None:
+            return None
+        return dict(id=scene['scene_id'], content_id=scene['scene_id'], title=scene['title'],
+                    maker=western_artwork.PUBLISHERS[identity.site], release_date=scene['date'],
+                    actresses=scene['performers'], genres=scene['genres'],
+                    source_url=scene['source_url'], image_url=scene['image_url'])
 
     def _western_collect(self, row, plan, *, update, issue, received):
-        from . import avatar_picker, cover_artwork
+        identity, requests, target = plan
+        selected = []
+        for source, metadata in requests:
+            metadata = metadata and not selected
+            if not metadata and not target:
+                break
+            entries = self._western_evidence(row, identity, source, metadata, update, issue)
+            if not entries:
+                continue
+            if metadata:
+                received(entries)
+                selected = entries
+            document = entries[0][1]
+            if target and document.get('image_url'):
+                from .scraping_access import SOURCES
+                current = {'key': source, 'label': SOURCES[source]['label']}
+                covers = self._western_cover(row, target, document, current, identity.cache_key, update, issue)
+                if covers:
+                    return selected, covers
+        if requests and not selected and not any(self._cached_evidence((source,), identity.cache_key) for source, _ in requests):
+            action = 'querying_metadata' if any(metadata for _, metadata in requests) else 'fetching_cover'
+            issue(row, MISS_MESSAGES[action], action=action, retryable=True)
+        return selected, 0
 
-        identity, metadata, target = plan
-        source = western_artwork.SCENE_SOURCE
+    def _western_evidence(self, row, identity, source, metadata, update, issue):
+        from .scraping_access import SOURCES
+
+        current_source = {'key': source, 'label': SOURCES[source]['label']}
         key = identity.cache_key
-        if not (metadata or target):
-            return [], 0
         action = 'querying_metadata' if metadata else 'fetching_cover'
         entries = self._cached_evidence((source,), key)
         if not entries and not self._fresh_miss(source, key):
             update(**stage_fields('library.fetchMetadata'), current_action=action, current_started_at=time.time(),
-                   current_deadline_at=None, current_source={'key': source, 'label': 'Vixen Media Group'})
+                   current_deadline_at=None, current_source=current_source)
             try:
-                scene = western_artwork.collect_scene(self.provider().transport, identity)
+                document = self._western_document(source, identity)
             except Exception as error:
                 _raise_task_failure(error)
                 problem = describe_failure(error)
@@ -2040,45 +2107,39 @@ class _RemoteSession:
                                   {'problems': problem} if metadata else {'problem': problem}),
                       action=action, retryable=True, paused=source_paused(error),
                       diagnostics=_source_failure_details(error, key, action, source=source))
-                return [], 0
-            if scene is not None:
-                document = dict(id=scene['scene_id'], content_id=scene['scene_id'], title=scene['title'],
-                                maker=western_artwork.PUBLISHERS[identity.site], release_date=scene['date'],
-                                actresses=scene['performers'], genres=scene['genres'],
-                                source_url=scene['source_url'], image_url=scene['image_url'])
+                return []
+            if document is not None:
                 entries = [self._evidence(source, key, document)]
             else:
                 self._record_miss(source, key)
-        if not entries:
-            issue(row, MISS_MESSAGES[action], action=action, retryable=True)
-            return [], 0
-        if metadata:
-            received(entries)
-        metadata_entries = entries if metadata else []
-        document = entries[0][1]
-        if not target or not document.get('image_url'):
-            return metadata_entries, 0
+        return entries
+
+    def _western_cover(self, row, target, document, current_source, key, update, issue):
+        from . import avatar_picker, cover_artwork
+
+        source = current_source['key']
         update(**stage_fields('library.fetchCovers'), current_action='fetching_cover', current_started_at=time.time(),
-               current_deadline_at=None, current_source={'key': source, 'label': 'Vixen Media Group'})
+               current_deadline_at=None, current_source=current_source)
         try:
             body = avatar_picker.fetch_image(self.provider().transport, document['image_url'])
             inspected = avatar_picker.accept_image(body)
             if target.exists():
-                return metadata_entries, 0
+                return 0
             cover_artwork.install_cover(target, '', body, (inspected.width, inspected.height),
-                evidence={'provider': 'western-official', 'source': western_artwork.SOURCE,
+                evidence={'provider': 'western-official' if source == western_artwork.SCENE_SOURCE else 'western-catalog',
+                          'source': western_artwork.SOURCE,
                           'batch': f"library-{row['id']}-{time.time_ns()}",
                           'performers': document['actresses'], 'content_id': document['content_id'],
                           'source_url': document['source_url'], 'image_url': document['image_url']})
         except cover_artwork.UserCoverKept:
-            return metadata_entries, 0
+            return 0
         except Exception as error:
             _raise_task_failure(error)
             issue(row, phrase('errors.libraryProcessing.coverUnfetched', {'problem': describe_failure(error)}),
                   action='fetching_cover', retryable=True, paused=source_paused(error),
                   diagnostics=_source_failure_details(error, key, 'fetching_cover', source=source))
-            return metadata_entries, 0
-        return metadata_entries, 1
+            return 0
+        return 1
 
     def _asks_metadata(self, chain, code, missing, answered):
         # 链上剩下的站都给过候选或说过没有、且至少有一家给过候选：这一行不是「没取到」，

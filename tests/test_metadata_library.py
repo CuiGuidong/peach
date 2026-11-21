@@ -3429,6 +3429,90 @@ class LibraryWatchdogTests(unittest.TestCase):
         provider.query.assert_not_called()
 
     @windows_ledger_roots
+    def test_stashdb_is_opt_in_and_publishes_other_publishers_to_review(self):
+        from peach.repository import LedgerDatabase
+        from peach.scraping_access import save
+
+        media = self.root / 'media'
+        media.mkdir()
+        (media / 'Aster.Studio.25.02.03.Example.Scene.mp4').write_bytes(b'video')
+        config = self._config(media)
+        db = fresh_ledger(self.root)
+        provider = self._provider()
+        scene_id = 'acda6af1-3a18-4588-9d07-4942d8d1601f'
+        scene = {'id': scene_id, 'date': '2025-02-03', 'title': 'Example Scene', 'studio': {'name': 'Aster Studio'}}
+
+        def catalog(request, timeout, max_bytes):
+            self.assertEqual(request.url, 'https://stashdb.org/graphql')
+            self.assertEqual(request.headers['ApiKey'], 'fixture-key')
+            variables = json.loads(request.body)['variables']
+            data = ({'searchScenes': {'count': 1, 'scenes': [scene]}} if 'term' in variables else {'findScene': scene})
+            return HttpResponse(200, {}, json.dumps({'data': data}).encode())
+
+        provider.transport = Mock(side_effect=catalog)
+        candidates = self.root / 'candidates'
+        covers = self.root / 'covers'
+        process_library(config, db, candidates, covers, stage='scan', provider_factory=lambda: provider)
+        process_library(config, db, candidates, covers, stage='metadata', provider_factory=lambda: provider)
+        provider.transport.assert_not_called()
+        save(config.directory('secrets'), 'stashdb', {'api_key': 'fixture-key'})
+        result = process_library(config, db, candidates, covers, stage='metadata', database=LedgerDatabase(db),
+                                 provider_factory=lambda: provider)
+        self.assertEqual(result['status'], 'complete')
+        with (candidates / 'library-metadata-field-candidates.csv').open(encoding='utf-8-sig', newline='') as evidence:
+            title = next(row for row in csv.DictReader(evidence) if row['field'] == 'title')
+        candidate, = json.loads(title['candidates_json'])
+        self.assertEqual((candidate['source'], candidate['content_id']), ('stashdb', scene_id))
+        self.assertTrue(candidate['requires_review'])
+        self.assertNotIn('fixture-key', json.dumps(candidate))
+        with closing(sqlite3.connect(db)) as connection:
+            self.assertEqual(connection.execute('SELECT COALESCE(code, \x27\x27), COALESCE(catalog_title, \x27\x27) FROM asset').fetchone(),
+                             ('', ''))
+        provider.query.assert_not_called()
+
+    @windows_ledger_roots
+    def test_cross_publisher_scan_uses_theporndb_after_stashdb_returns_no_match(self):
+        from urllib.parse import urlsplit
+        from peach.scraping_access import save
+
+        media = self.root / 'media'
+        media.mkdir()
+        (media / 'Aster.Studio.25.02.03.Example.Scene.mp4').write_bytes(b'video')
+        config = self._config(media)
+        db = fresh_ledger(self.root)
+        provider = self._provider()
+        scene_id = 'acda6af1-3a18-4588-9d07-4942d8d1601f'
+        scene = {'id': scene_id, 'date': '2025-02-03', 'title': 'Example Scene', 'site': {'name': 'Aster Studio'}}
+        save(config.directory('secrets'), 'stashdb', {'api_key': 'stash-key'})
+        save(config.directory('secrets'), 'theporndb', {'api_key': 'tpdb-key'})
+        calls = []
+
+        def catalogs(request, timeout, max_bytes):
+            url = urlsplit(request.url)
+            calls.append(url.hostname)
+            if url.hostname == 'stashdb.org':
+                self.assertEqual(request.headers['ApiKey'], 'stash-key')
+                payload = {'data': {'searchScenes': {'count': 0, 'scenes': []}}}
+            else:
+                self.assertEqual(request.headers['Authorization'], 'Bearer tpdb-key')
+                self.assertNotIn('ApiKey', request.headers)
+                data = {'/scenes': [scene], '/movies': [], f'/scenes/{scene_id}': scene}[url.path]
+                payload = {'data': data, 'links': {'next': None}}
+            return HttpResponse(200, {}, json.dumps(payload).encode())
+
+        provider.transport = Mock(side_effect=catalogs)
+        candidates, covers = self.root / 'candidates', self.root / 'covers'
+        process_library(config, db, candidates, covers, stage='scan', provider_factory=lambda: provider)
+        result = process_library(config, db, candidates, covers, stage='metadata', provider_factory=lambda: provider)
+        self.assertEqual(result['status'], 'complete')
+        self.assertEqual(calls, ['stashdb.org', 'api.theporndb.net', 'api.theporndb.net', 'api.theporndb.net'])
+        with (candidates / 'library-metadata-field-candidates.csv').open(encoding='utf-8-sig', newline='') as evidence:
+            title = next(row for row in csv.DictReader(evidence) if row['field'] == 'title')
+        candidate, = json.loads(title['candidates_json'])
+        self.assertEqual((candidate['source'], candidate['content_id']), ('theporndb', 'scenes:' + scene_id))
+        self.assertTrue(candidate['requires_review'])
+
+    @windows_ledger_roots
     def test_empty_incremental_sync_completes_without_metadata_queries(self):
         media = self.root/'media'
         media.mkdir()

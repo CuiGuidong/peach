@@ -16,6 +16,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Added / 新增
 
+- **Sourcing**: Use StashDB and ThePornDB to fill missing metadata and artwork for Western scenes and movies (#824). / **采集**：可配置 StashDB 和 ThePornDB，为其他欧美厂牌的场景与长片补全资料和封面（#824）。
 - **Library**: Choose a folder from the scan menu to scan only that folder and its subfolders (#822). / **馆藏**：扫描菜单可指定一个文件夹，只扫描该文件夹及其子文件夹（#822）。
 - **Sourcing**: Scan for Vixen Media Group scenes, review verified catalog fields, and fill missing artwork (#816). / **采集**：扫描与采集支持识别 Vixen Media Group 作品，资料进复核，缺图时补官方海报（#816）。
 

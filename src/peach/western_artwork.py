@@ -23,9 +23,11 @@ PUBLISHERS = dict(tushy='Tushy', tushyraw='Tushy Raw', vixen='Vixen', blacked='B
                   blackedraw='Blacked Raw', deeper='Deeper', slayed='Slayed', milfy='Milfy', wifey='Wifey')
 SCENE_SOURCE = 'vixen-network'
 _SCENE_FILENAME = re.compile(
-    r'^(?P<site>[a-z]+)[._ -](?P<year>20\d{2}|\d{2})[._ -](?P<month>\d{2})[._ -](?P<day>\d{2})[._ -]+(?P<scene>.+)$',
+    r'^(?P<site>[a-z0-9]+(?:[._ -][a-z0-9]+){0,4}?)[._ -]'
+    r'(?P<year>(?:19|20)\d{2}|\d{2})[._ -](?P<month>\d{2})[._ -](?P<day>\d{2})[._ -]+(?P<scene>.+)$',
     re.I,
 )
+_MOVIE_FILENAME = re.compile(r'^(?P<site>.+?)\s+-\s+(?P<title>.+?)\s+\((?P<year>(?:19|20)\d{2})\)$')
 _RELEASE_SUFFIX = re.compile(
     r'\b(?:[248]k|[1-8]\d{2,3}p|uhd|web(?:[ -]?(?:dl|rip))?|[hx][ .]?26[45]|hevc|avc|aac|hdr|sdr)\b', re.I)
 SOURCE = 'auto:western-artwork'
@@ -51,7 +53,8 @@ def artwork_cast_size(cover: Path, ledger_count: int) -> int:
         evidence = json.loads(cover.with_suffix('.scraping.json').read_text(encoding='utf8'))
     except (OSError, ValueError):
         return ledger_count
-    names = evidence.get('performers') if isinstance(evidence, dict) and evidence.get('provider') == 'western-official' else None
+    names = (evidence.get('performers') if isinstance(evidence, dict)
+             and evidence.get('provider') in ('western-official', 'western-catalog') else None)
     if not isinstance(names, list):
         return ledger_count
     return max(ledger_count, len({_name(n) for n in names if isinstance(n, str) and _name(n)}))
@@ -189,16 +192,20 @@ class WesternScene:
 
 
 def scene_identity(row) -> WesternScene | None:
-    """仅对具备已知厂牌、有效日期及场景文字的资产查询来源。"""
+    """用结构化文件名或已有厂牌、发行日期和片名识别场景。"""
     name = PureWindowsPath(str(row.get('name') or row.get('path') or '')).stem
     matched = _SCENE_FILENAME.fullmatch(name)
     if matched is None:
+        return _movie_identity(name) or _registered_identity(row)
+    site = _name(matched['site'])
+    if not 2 <= len(site) <= 48 or not any(char.isalpha() for char in site):
         return None
-    site = matched['site'].casefold()
-    if site not in SITES:
-        return None
-    released = filename_date(name, site)
-    if not released:
+    year = int(matched['year'])
+    if year < 100:
+        year += 2000 if year < 70 else 1900
+    try:
+        released = date(year, int(matched['month']), int(matched['day'])).isoformat()
+    except ValueError:
         return None
     text = _words(_RELEASE_SUFFIX.split(matched['scene'], maxsplit=1)[0])
     if len(text) < 2 or len(text) > 40:
@@ -208,6 +215,32 @@ def scene_identity(row) -> WesternScene | None:
     if len(title) < 2 or not any(text[start:start + len(title)] == title for start in range(len(text))):
         title = ()
     return WesternScene(site, released, text, title)
+
+
+def _registered_identity(row):
+    site = _name(row.get('studio') or '')
+    title = _words(row.get('original_title') or row.get('catalog_title'))
+    released = str(row.get('release_date') or '')
+    if (not re.fullmatch(r'[a-z0-9]{2,48}', site) or not any(char.isalpha() for char in site)
+            or not 2 <= len(title) <= 40 or not all(word.isascii() for word in title)):
+        return None
+    try:
+        if date.fromisoformat(released).isoformat() != released:
+            return None
+    except ValueError:
+        return None
+    return WesternScene(site, released, title, title)
+
+
+def _movie_identity(name):
+    match = _MOVIE_FILENAME.fullmatch(_RELEASE_SUFFIX.split(name, maxsplit=1)[0].strip(' ._-'))
+    if match is None:
+        return None
+    site = _name(match['site'])
+    title = _words(match['title'])
+    if not re.fullmatch(r'[a-z0-9]{2,48}', site) or not 2 <= len(title) <= 40:
+        return None
+    return WesternScene(site, match['year'], title, title)
 
 
 def _graphql(http: HttpTransport, site: str, query: str, variables: dict) -> dict:
@@ -240,25 +273,36 @@ def official_scene(http: HttpTransport, site: str, performer: str, released: str
 def collect_scene(http: HttpTransport, identity: WesternScene) -> dict | None:
     """用准确场景标题，或片名中的完整艺名加准确场景标题核对同日作品。"""
     def matches(node):
-        if str(node.get('releaseDate') or '').split('T')[0] != identity.release_date:
-            return False
-        title = _words(node.get('title'))
-        names = {_words(model.get('name')) for model in node.get('models') or []}
-        if identity.text in names:
-            return True
-        if len(title) < 2:
-            return False
-        if title == identity.title or title == identity.text:
-            return True
-        if len(title) >= len(identity.text) or identity.text[-len(title):] != title:
-            return False
-        prefix = identity.text[:-len(title)]
-        return len(prefix) >= 2 and prefix in names
+        return (str(node.get('releaseDate') or '').split('T')[0] == identity.release_date
+                and matches_scene_text(identity, node.get('title'),
+                                       (model.get('name') for model in node.get('models') or [])))
 
     query = ' '.join(identity.title or identity.text)
     artist_query = ' '.join(identity.text[:2])
     return _verified_scene(http, identity.site, identity.release_date,
                            tuple(dict.fromkeys((query, artist_query))), matches)
+
+
+def matches_scene_text(identity: WesternScene, title, performers) -> bool:
+    title_words = _words(title)
+    names = {_words(name) for name in performers}
+    if identity.text in names:
+        return True
+    if len(title_words) < 2:
+        return False
+    if title_words in (identity.title, identity.text):
+        return True
+    length = len(title_words)
+    prefix = identity.text[:-length]
+    return len(prefix) >= 2 and identity.text[-length:] == title_words and prefix in names
+
+
+def matches_publisher(identity: WesternScene, name: str) -> bool:
+    return _name(name) == identity.site
+
+
+def matches_exact_title(identity: WesternScene, title) -> bool:
+    return _words(title) == (identity.title or identity.text)
 
 
 def _verified_scene(http, site, released, queries, matches):
