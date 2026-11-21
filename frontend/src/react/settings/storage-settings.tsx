@@ -114,7 +114,7 @@ function CategoryRow(
   );
 }
 
-export function StorageSettings({ initial, receipt, active }: { initial: StorageState; receipt(message: string): void; active: boolean }) {
+export function StorageSettings({ initial, receipt, active = true }: { initial: StorageState; receipt(message: string): void; active?: boolean }) {
   const [storage, setStorage] = useState(initial);
   const [accepted, setAccepted] = useState('');
   const [picked, setPicked] = useState<Set<string>>(new Set());

@@ -89,7 +89,7 @@ export function TutorialSettings({ reopenTutorial }: ConfigurationProps) {
   );
 }
 
-function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdateState; receipt(message: string): void }) {
+export function AutomaticUpdates({ initial, receipt }: { initial: AutomaticUpdateState; receipt(message: string): void }) {
   const [mode, setMode] = useState(initial.mode);
   const [hours, setHours] = useState(initial.interval_hours);
   const action = useAction(initial.error ? codedText(initial, 'error') : initial.error);
