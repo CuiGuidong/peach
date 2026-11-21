@@ -187,6 +187,8 @@ Wiki 与视频作品资料无关。
 
 采集受媒体库的资料和封面选项、断网与请求预算控制。文件名识别、查询候选和身份确认分别处理，参考 [Stash 的资料采集说明](https://docs.stashapp.cc/in-app-manual/scraping/)。
 
+Vixen 搜索和详情必须返回完整的作品身份字段。缺字段、无效日期或损坏的结果列表报告接口失败。升级后仅释放 Vixen 来源的旧缺失缓存，下一次采集可以重新查询。已有快照、候选、人工资料和其他来源的缓存继续保留。
+
 在「来源和凭证」分别配置 StashDB 或 ThePornDB 的 API 密钥后，其他厂牌也可走资料和封面采集。来源按发行方官网、StashDB、ThePornDB 顺序查询。ThePornDB 查找场景和长片，也支持用于长片的「厂牌 - 片名（年份）」文件名。Peach 使用文件名或已登记的厂牌、发行日和原文片名。查询只发送匹配所需的名称和年份，厂牌、日期及名称须唯一匹配，详情须返回同一作品 ID。资料进入复核，已有影片可运行「仅补全影片资料」，保留账本原有字段和封面。[StashDB 连接说明](https://docs.stashapp.cc/metadata-sources/stash-box-instances/) · [ThePornDB API](https://api.theporndb.net/docs)
 
 候选来源（未接入，等实际缺口出现再接）：sokmil、kingdom.vc、km-produce、fantia（要 Cookie）、jav321、javlibrary，
