@@ -261,8 +261,8 @@ function SourceCard({ source, toast, open, onOpenChange }: {
     </form>
   );
   return (
-    <div id={`source-${source.source}`}>
-      <SettingsCard className="[&>details>summary]:pr-3">
+    <div id={`source-${source.source}`} className="[&_summary]:pr-3">
+      <SettingsCard>
         <Disclosure isOpen={open} onOpenChange={onOpenChange} trailing contentClassName="pt-0" summary={
           <span className="flex min-w-0 items-center gap-2 py-3 pr-2 text-body-medium text-text-primary">
             <SiteMark source={source.source} />
