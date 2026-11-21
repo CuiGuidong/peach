@@ -13,7 +13,9 @@ describe('首页文件夹浏览', () => {
 
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name} 播放详情里的文件浏览可点击且先于播放器关闭`, { timeout: 90_000 }, async () => {
-      const opened = await openItemPage(browser, '/', viewport);
+      const opened = await openItemPage(browser, '/', viewport, {
+        ready: `#grid [data-media-card][data-id="${ITEM.plain}"] [data-media-title]`,
+      });
       const { page } = opened;
       try {
         await page.route('**/api/reveal', route => route.fulfill({ json: { ok: true, mode: 'server', id: ITEM.plain } }));
