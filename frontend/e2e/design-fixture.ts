@@ -146,6 +146,8 @@ export async function openScraping(browser: Browser): Promise<Visit> {
     status: 200, contentType: 'image/png', body: Buffer.from(PIXEL, 'base64'),
   }));
   await opened.page.reload({ waitUntil: 'load' });
+  await opened.page.locator('#source-demoa summary').click();
+  await opened.page.locator('#source-demob summary').click();
   await opened.page.locator('form[aria-label="演示来源甲"]').waitFor({ timeout: 15_000 });
   await settle(opened.page);
   return opened;

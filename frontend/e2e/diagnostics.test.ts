@@ -55,7 +55,7 @@ describe('配置中的系统诊断', () => {
         assert.ok((await layout(page)).scrollWidth <= viewport.width);
         assert.deepEqual(opened.problems, []);
         await page.goto(new URL('/sources', page.url()).href);
-        const settingsIcon = page.locator('form[aria-label="MGStage"] img');
+        const settingsIcon = page.locator('#source-mgstage summary img');
         await settingsIcon.waitFor();
         assert.equal(await settingsIcon.evaluate(node => getComputedStyle(node).borderRadius), '0px');
       } finally { await opened.close(); }
