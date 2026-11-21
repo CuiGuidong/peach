@@ -31,12 +31,13 @@ _RELEASE_SUFFIX = re.compile(
 SOURCE = 'auto:western-artwork'
 PAGE_LIMIT = 4 * 1024 * 1024
 TIMEOUT = 20
+SEARCH_LIMIT = 30
 SEARCH_QUERY = '''query PeachSearch($query:String!,$site:Site!,$first:Int){
 searchVideos(input:{query:$query,site:$site,first:$first}){edges{node{
 title slug releaseDate models{name} }}}}'''
 SCENE_QUERY = '''query PeachScene($videoSlug:String,$site:Site){
 findOneVideo(input:{slug:$videoSlug,site:$site}){
-title releaseDate models{name} categories{name} images{poster{src width}}}}'''
+slug title releaseDate models{name} categories{name} images{poster{src width}}}}'''
 
 
 def artwork_key(asset_id: int, code: str | None) -> str:
@@ -262,21 +263,33 @@ def collect_scene(http: HttpTransport, identity: WesternScene) -> dict | None:
 
 def _verified_scene(http, site, released, queries, matches):
     hits = set()
+    complete_hits = set()
     for query in queries:
-        search = _graphql(http, site, SEARCH_QUERY, {'query': query, 'first': 30})
-        for edge in (search.get('searchVideos') or {}).get('edges') or []:
+        search = _graphql(http, site, SEARCH_QUERY, {'query': query, 'first': SEARCH_LIMIT})
+        edges = (search.get('searchVideos') or {}).get('edges') or []
+        found = set()
+        for edge in edges:
             node = edge.get('node')
             if not isinstance(node, dict) or not matches(node):
                 continue
             slug = node.get('slug')
             if isinstance(slug, str) and re.fullmatch(r'[a-zA-Z0-9][a-zA-Z0-9_-]*', slug):
-                hits.add(slug)
-    if len(hits) != 1:
+                found.add(slug)
+        hits.update(found)
+        # 接口未提供 pageInfo；顶到查询上限的结果不能单独证明唯一性。
+        if len(edges) < SEARCH_LIMIT:
+            complete_hits.update(found)
+    if len(hits) != 1 or hits != complete_hits:
         return None
     slug = next(iter(hits))
     scene = _graphql(http, site, SCENE_QUERY, {'videoSlug': slug}).get('findOneVideo')
-    if not isinstance(scene, dict) or not matches(scene):
+    if not isinstance(scene, dict) or scene.get('slug') != slug or not matches(scene):
         return None
+    return _public_scene(scene, site, slug, released)
+
+
+def _public_scene(scene, site, slug, released):
+    """提取已核对的官方字段，并限定海报地址在发行方域名下。"""
     images = [image for image in (scene.get('images') or {}).get('poster') or []
               if public_https_url(str(image.get('src') or ''))
               and (urlsplit(image['src']).hostname or '').endswith('.' + site + '.com')
