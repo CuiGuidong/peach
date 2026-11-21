@@ -207,6 +207,7 @@
     "pausedUntil": "暂停访问至",
     "reportNotFound": "诊断报告未取得。",
     "sourceSessions": "来源会话",
+    "otherSources": "其他来源 · {{count}} 项",
     "statusDisabled": "未配置",
     "statusFailed": "需处理",
     "statusOk": "正常",

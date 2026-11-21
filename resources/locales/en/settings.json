@@ -257,7 +257,14 @@
   "configurationPage": {
     "loadFailed": "Settings weren't loaded. Refresh the page to try again.",
     "loadFailedTitle": "Couldn't load settings",
-    "sectionsLabel": "Settings sections"
+    "sectionsLabel": "Settings sections",
+    "contents": "On this page"
+  },
+  "maintenanceGroups": {
+    "updates": "Updates and repairs",
+    "runtime": "Runtime and storage",
+    "backups": "Backups and retention",
+    "privacy": "Data and privacy"
   },
   "dataSharing": {
     "reportErrors": "Send version stats and error reports (recommended)",

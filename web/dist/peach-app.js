@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "43a79665-1e17-4b7e-bf62-63bf873433ab", e._sentryDebugIdIdentifier = "sentry-dbid-43a79665-1e17-4b7e-bf62-63bf873433ab");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "5e8adb33-bb57-41f1-8a6d-54dc589ad0a4", e._sentryDebugIdIdentifier = "sentry-dbid-5e8adb33-bb57-41f1-8a6d-54dc589ad0a4");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, n) => {
@@ -4128,6 +4128,7 @@ var Ge = "peach.settings.v1", Ke = {
 		pausedUntil: "Access paused until",
 		reportNotFound: "Diagnostics report not found.",
 		sourceSessions: "Source sessions",
+		otherSources: "Other sources · {{count}}",
 		statusDisabled: "Not configured",
 		statusFailed: "Action needed",
 		statusOk: "OK",
@@ -6238,7 +6239,14 @@ var Ge = "peach.settings.v1", Ke = {
 	configurationPage: {
 		loadFailed: "Settings weren't loaded. Refresh the page to try again.",
 		loadFailedTitle: "Couldn't load settings",
-		sectionsLabel: "Settings sections"
+		sectionsLabel: "Settings sections",
+		contents: "On this page"
+	},
+	maintenanceGroups: {
+		updates: "Updates and repairs",
+		runtime: "Runtime and storage",
+		backups: "Backups and retention",
+		privacy: "Data and privacy"
 	},
 	dataSharing: {
 		reportErrors: "Send version stats and error reports (recommended)",
@@ -11712,6 +11720,7 @@ var Ge = "peach.settings.v1", Ke = {
 		pausedUntil: "暂停访问至",
 		reportNotFound: "诊断报告未取得。",
 		sourceSessions: "来源会话",
+		otherSources: "其他来源 · {{count}} 项",
 		statusDisabled: "未配置",
 		statusFailed: "需处理",
 		statusOk: "正常",
@@ -13717,7 +13726,14 @@ var Ge = "peach.settings.v1", Ke = {
 	configurationPage: {
 		loadFailed: "未取得配置，请刷新页面重试。",
 		loadFailedTitle: "配置读取失败",
-		sectionsLabel: "配置分区"
+		sectionsLabel: "配置分区",
+		contents: "本页目录"
+	},
+	maintenanceGroups: {
+		updates: "更新与修复",
+		runtime: "运行与存储",
+		backups: "备份与保留",
+		privacy: "数据与隐私"
 	},
 	dataSharing: {
 		reportErrors: "发送版本统计与错误诊断（推荐）",
@@ -79658,7 +79674,7 @@ var Qke = class extends R.Component {
 		return this.state.failed ? null : this.props.children;
 	}
 }, $ke = (0, R.memo)(function({ entry: e, actions: t, go: n }) {
-	return b1e(e.path) ? (0, Cr.createPortal)(C1e(e.path, e.props, t, n), e.host, String(e.revision)) : null;
+	return x1e(e.path) ? (0, Cr.createPortal)(w1e(e.path, e.props, t, n), e.host, String(e.revision)) : null;
 });
 function eAe({ children: e }) {
 	let t = Qm();
@@ -79672,7 +79688,7 @@ function eAe({ children: e }) {
 					path: e,
 					element: t.element
 				}, e)),
-				Object.entries(u1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
+				Object.entries(d1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
 					path: e,
 					element: t.element
 				}, e)),
@@ -79688,11 +79704,11 @@ function eAe({ children: e }) {
 					path: e,
 					element: t.element
 				}, e)),
-				y1e.map((e) => /* @__PURE__ */ (0, z.jsx)(_h, {
+				b1e.map((e) => /* @__PURE__ */ (0, z.jsx)(_h, {
 					path: e,
 					element: g5["/"].element
 				}, e)),
-				Object.entries(d1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
+				Object.entries(f1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
 					path: e,
 					element: t.element
 				}, e)),
@@ -102889,25 +102905,37 @@ function nqe({ rows: e, host: t, selected: n, badges: r }) {
 	});
 }
 // src/diagnostics-skeleton.ts
-function rqe() {
+function rqe(e) {
+	return `<div class="flex min-w-0 gap-1 overflow-hidden">${e.map((e) => `<span class="shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-body-regular text-text-secondary">${e}</span>`).join("")}</div>`;
+}
+function iqe() {
 	let e = (e) => pu({
 		label: e,
 		variant: "secondary",
 		attrs: "disabled data-skeleton-action"
-	}), t = (e) => `<div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3"><div class="flex flex-col gap-4 py-4 pr-3">${e}</div></div>`, n = "<span class=\"skeleton h-5 w-1/3\"></span><span class=\"skeleton h-4 w-2/3\"></span>", r = (e, t) => `<section aria-label="${e}" class="flex w-full flex-col gap-2"><p class="w-full px-3 text-body-2-medium text-text-secondary">${e}</p>${t}</section>`;
+	}), t = (e) => `<div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3"><div class="flex flex-col gap-4 py-4 pr-3">${e}</div></div>`, n = "<span class=\"skeleton h-5 w-1/3\"></span><span class=\"skeleton h-4 w-2/3\"></span>", r = (e, t) => `<section aria-label="${e}" class="flex w-full flex-col gap-2"><p class="w-full px-3 text-body-2-medium text-text-secondary">${e}</p>${t}</section>`, i = [
+		L("manage:diagnostics.attention"),
+		L("manage:diagnostics.collectionHealth"),
+		L("manage:diagnostics.systemChecks"),
+		L("manage:diagnosticsExport.fetchLogTitle"),
+		L("manage:diagnostics.sourceSessions")
+	];
 	return `<div data-skeleton="diagnostics" aria-busy="true" aria-label="${L("manage:diagnostics.loading")}" class="flex min-w-0 flex-col gap-6"><div aria-hidden="true" inert class="flex flex-col gap-6">
     <div class="flex flex-wrap justify-end gap-2">${e(L("manage:diagnosticsExport.downloadReport"))}${e(L("manage:diagnostics.checkAgain"))}</div>
+    ${rqe(i)}
+    <div class="flex min-w-0 flex-col gap-8">
     ${r(L("manage:diagnostics.attention"), t(`<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div class="flex min-w-0 flex-1 flex-col gap-2">${n}<span class="skeleton h-4 w-1/2"></span></div>${e(L("manage:diagnostics.openRelated"))}</div>`))}
     ${r(L("manage:diagnostics.collectionHealth"), t(n))}
-    ${r(L("manage:diagnostics.sourceSessions"), `<div class="flex flex-col gap-3">${t(n)}${t(n)}</div>`)}
+    ${r(L("manage:diagnostics.sourceSessions"), "<span class=\"skeleton h-5 w-1/3\"></span>")}
+    </div>
   </div></div>`;
 }
 // src/react/settings/library-policy-copy.ts
-var iqe = L("settings:libraryPolicy.summary"), aqe = [
+var aqe = L("settings:libraryPolicy.summary"), oqe = [
 	L("settings:libraryPolicy.auto"),
 	L("settings:libraryPolicy.localOnly"),
 	L("settings:shared.custom")
-], oqe = [
+], sqe = [
 	[
 		L("settings:libraryPolicy.stepReadLocal"),
 		"✓",
@@ -102938,7 +102966,7 @@ var iqe = L("settings:libraryPolicy.summary"), aqe = [
 		"—",
 		L("settings:shared.optional")
 	]
-], sqe = L("settings:libraryPolicy.coverNote"), cqe = L("settings:libraryPolicy.directoryHelp"), lqe = L("settings:entryLinks.help"), G3 = L("settings:entryLinks.hint"), uqe = [
+], cqe = L("settings:libraryPolicy.coverNote"), lqe = L("settings:libraryPolicy.directoryHelp"), uqe = L("settings:entryLinks.help"), G3 = L("settings:entryLinks.hint"), dqe = [
 	{
 		provider: "coomer",
 		label: "Coomer",
@@ -103028,8 +103056,8 @@ var iqe = L("settings:libraryPolicy.summary"), aqe = [
 		label: "SubscribeStar",
 		requirement: "none"
 	}
-], dqe = L("settings:cloudProxy.help"), fqe = "peach.configuration.shape.v1";
-function pqe() {
+], fqe = L("settings:cloudProxy.help"), pqe = "peach.configuration.shape.v1";
+function mqe() {
 	try {
 		let e = JSON.parse(localStorage.getItem("peach.configuration.shape.v1") || "{}");
 		return e && typeof e == "object" ? e : {};
@@ -103037,31 +103065,31 @@ function pqe() {
 		return {};
 	}
 }
-function mqe(e, t) {
+function hqe(e, t) {
 	try {
-		let n = pqe();
+		let n = mqe();
 		if (JSON.stringify(n[e]) === JSON.stringify(t)) return;
-		localStorage.setItem(fqe, JSON.stringify({
+		localStorage.setItem(pqe, JSON.stringify({
 			...n,
 			[e]: t
 		}));
 	} catch {}
 }
-var K3 = (e) => pqe()[e], q3 = (e) => e === !0, J3 = (e, t) => Number.isInteger(e) && e > 0 ? Math.min(e, t) : 0, Y3 = (e, t, n) => Array.isArray(e) ? e.slice(0, t).map(n) : [], X3 = "disabled data-skeleton-action", Z3 = (e = "60%") => `<span class="skeleton skeleton-text" style="width:${e}"></span>`, Q3 = (e = "100%") => `<span class="skeleton ui-configuration-skeleton-input" style="width:${e}"></span>`, $3 = (e, t) => `<span class="skeleton shrink-0" style="width:${e};height:${t}"></span>`, e6 = (e = "3em") => $3(e, "24px"), hqe = () => $3("var(--icon-inline)", "var(--icon-inline)"), t6 = (e, t = "primary", n = "medium") => pu({
+var K3 = (e) => mqe()[e], q3 = (e) => e === !0, J3 = (e, t) => Number.isInteger(e) && e > 0 ? Math.min(e, t) : 0, Y3 = (e, t, n) => Array.isArray(e) ? e.slice(0, t).map(n) : [], X3 = "disabled data-skeleton-action", Z3 = (e = "60%") => `<span class="skeleton skeleton-text" style="width:${e}"></span>`, Q3 = (e = "100%") => `<span class="skeleton ui-configuration-skeleton-input" style="width:${e}"></span>`, $3 = (e, t) => `<span class="skeleton shrink-0" style="width:${e};height:${t}"></span>`, e6 = (e = "3em") => $3(e, "24px"), gqe = () => $3("var(--icon-inline)", "var(--icon-inline)"), t6 = (e, t = "primary", n = "medium") => pu({
 	label: e,
 	variant: t,
 	size: n,
 	attrs: X3
-}), gqe = (e, t = "") => `<div class="-ml-3 flex flex-wrap items-center justify-end gap-3 rounded-b-2xl border-t border-separator-border bg-card-footer px-3 py-3">${t ? `<div class="mr-auto min-w-0 text-body-2-regular text-text-secondary">${t}</div>` : ""}${e}</div>`, n6 = (e, t = !1) => `<div class="flex flex-col gap-4 ${t ? "border-t border-separator-border " : ""}py-4 pr-3">${e}</div>`, _qe = (e, t, n) => {
-	let r = `<p class="w-full px-3 text-body-2-medium text-text-secondary">${n ? `<span class="inline-flex items-center gap-1.5">${hqe()}${e}</span>` : e}</p>`;
+}), _qe = (e, t = "") => `<div class="-ml-3 flex flex-wrap items-center justify-end gap-3 rounded-b-2xl border-t border-separator-border bg-card-footer px-3 py-3">${t ? `<div class="mr-auto min-w-0 text-body-2-regular text-text-secondary">${t}</div>` : ""}${e}</div>`, n6 = (e, t = !1) => `<div class="flex flex-col gap-4 ${t ? "border-t border-separator-border " : ""}py-4 pr-3">${e}</div>`, vqe = (e, t, n) => {
+	let r = `<p class="w-full px-3 text-body-2-medium text-text-secondary">${n ? `<span class="inline-flex items-center gap-1.5">${gqe()}${e}</span>` : e}</p>`;
 	return t ? `<div class="flex w-full flex-wrap items-center justify-between gap-2"><div class="min-w-40 flex-1">${r}</div><div class="flex min-w-0 max-w-full">${t}</div></div>` : r;
-}, r6 = (e, t, n = "", { aside: r = "", status: i = "", mark: a = !1 } = {}) => `<section aria-label="${e}" class="flex w-full flex-col gap-2 wrap-anywhere">${_qe(e, r, a)}<div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3">${t}${n ? gqe(n, i) : ""}</div></section>`, i6 = (e, t, n, r = "") => {
+}, r6 = (e, t, n = "", { aside: r = "", status: i = "", mark: a = !1 } = {}) => `<section aria-label="${e}" class="flex w-full flex-col gap-2 wrap-anywhere">${vqe(e, r, a)}<div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3">${t}${n ? _qe(n, i) : ""}</div></section>`, i6 = (e, t, n, r = "") => {
 	let i = `<div class="flex min-w-0 flex-col"><p class="text-body-regular text-text-primary">${e}</p>${t ? `<p class="text-body-2-regular text-text-secondary">${t}</p>` : ""}</div>`;
 	return `<div class="flex min-h-[52px] w-full items-center justify-between gap-4 py-2.5 pr-2.5 border-b border-separator-border last:border-b-0">${r ? `<div class="flex min-w-0 items-center gap-3">${r}${i}</div>` : i}${n}</div>`;
-}, a6 = (e, t = "", n = "ui-configuration-skeleton-toggle") => i6(e, t, `<span class="skeleton ${n}"></span>`), o6 = (e, t = "", n = "4em") => i6(e, t, Z3(n)), s6 = (e) => `<p class="text-body-2-regular text-text-secondary">${e}</p>`, c6 = (e) => `<p class="text-body-medium text-text-primary">${e}</p>`, l6 = (e, t = "") => `<div class="flex w-full flex-col items-start gap-1"><span class="flex items-center gap-0.5 text-body-medium text-text-primary">${e}</span>${Q3()}${t ? `<span class="pt-px text-caption-1-medium text-text-secondary">${t}</span>` : ""}</div>`, vqe = (e) => `<div class="flex flex-col gap-1">${c6(e)}${hu(Z3("8em"))}</div>`, u6 = (e) => `<span class="flex items-center gap-2 text-body-regular text-text-primary">${$3("16px", "16px")}${e}</span>`, d6 = (e) => `<span class="inline-flex items-center gap-1">${hqe()}${e}</span>`, f6 = (e, t = !1) => `<span class="flex w-fit items-center gap-1 text-body-2-medium text-text-secondary">${uu("chevron-right", `size-(--icon-inline) shrink-0${t ? " rotate-90" : ""}`)}${e}</span>`, yqe = /* @__PURE__ */ new Set(["FFmpeg", "untrunc"]), p6 = (e) => `<dl class="ui-settings-facts flex flex-col">${e.map((e) => `<div class="flex min-h-11 items-center justify-between gap-4 border-b border-separator-border py-2.5 pr-3 last:border-b-0"><dt class="flex max-w-1/2 min-w-0 shrink-0 items-center gap-2 text-body-regular text-text-secondary">${e}</dt><dd class="flex min-w-0 flex-wrap items-center justify-end gap-2 text-body-regular text-text-primary">${yqe.has(e) ? Z3("100%") + Z3("80%") + Z3("6em") : Z3("6em")}</dd></div>`).join("")}</dl>`, bqe = uqe, m6 = (e, t) => yi(`labels.followSecrets.${t}.${e.provider}`, e[t] ?? "");
-function xqe(e = K3("credentials")) {
+}, a6 = (e, t = "", n = "ui-configuration-skeleton-toggle") => i6(e, t, `<span class="skeleton ${n}"></span>`), o6 = (e, t = "", n = "4em") => i6(e, t, Z3(n)), s6 = (e) => `<p class="text-body-2-regular text-text-secondary">${e}</p>`, c6 = (e) => `<p class="text-body-medium text-text-primary">${e}</p>`, l6 = (e, t = "") => `<div class="flex w-full flex-col items-start gap-1"><span class="flex items-center gap-0.5 text-body-medium text-text-primary">${e}</span>${Q3()}${t ? `<span class="pt-px text-caption-1-medium text-text-secondary">${t}</span>` : ""}</div>`, yqe = (e) => `<div class="flex flex-col gap-1">${c6(e)}${hu(Z3("8em"))}</div>`, u6 = (e) => `<span class="flex items-center gap-2 text-body-regular text-text-primary">${$3("16px", "16px")}${e}</span>`, d6 = (e) => `<span class="inline-flex items-center gap-1">${gqe()}${e}</span>`, f6 = (e, t = !1) => `<span class="flex w-fit items-center gap-1 text-body-2-medium text-text-secondary">${uu("chevron-right", `size-(--icon-inline) shrink-0${t ? " rotate-90" : ""}`)}${e}</span>`, bqe = /* @__PURE__ */ new Set(["FFmpeg", "untrunc"]), p6 = (e) => `<dl class="ui-settings-facts flex flex-col">${e.map((e) => `<div class="flex min-h-11 items-center justify-between gap-4 border-b border-separator-border py-2.5 pr-3 last:border-b-0"><dt class="flex max-w-1/2 min-w-0 shrink-0 items-center gap-2 text-body-regular text-text-secondary">${e}</dt><dd class="flex min-w-0 flex-wrap items-center justify-end gap-2 text-body-regular text-text-primary">${bqe.has(e) ? Z3("100%") + Z3("80%") + Z3("6em") : Z3("6em")}</dd></div>`).join("")}</dl>`, xqe = dqe, m6 = (e, t) => yi(`labels.followSecrets.${t}.${e.provider}`, e[t] ?? "");
+function Sqe(e = K3("credentials")) {
 	let t = new Set(Y3(e?.done, 64, String));
-	return bqe.map((e) => {
+	return xqe.map((e) => {
 		let n = t.has(e.provider);
 		return {
 			...e,
@@ -103070,52 +103098,52 @@ function xqe(e = K3("credentials")) {
 		};
 	});
 }
-function Sqe(e) {
+function Cqe(e) {
 	let t = e.fields ?? [], n = e.requirement !== "none" && e.requirement !== "blocked", r = e6() + (n && !e.done ? t.map(() => e6("4.5em")).join("") : ""), i = `<span class="flex min-w-0 flex-wrap items-center gap-2">${$3("14px", "14px")}<b class="min-w-0 text-body-medium wrap-anywhere text-text-primary">${H(e.label)}</b>${r}</span>`;
 	if (!n) return `<div class="flex flex-wrap items-center gap-3 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${i}${e.requirement === "blocked" && e.why ? s6(H(m6(e, "why"))) : ""}</div>`;
 	let a = e.open ? "<div class=\"flex flex-col gap-2 pt-3\"><div class=\"flex flex-col gap-3\">" + s6(`${H(m6(e, "why"))}${e.where ? ` ${L("follow:sourceCredentials.getCredentials")}` : ""}`) + (e.howto ? s6(H(m6(e, "howto"))) : "") + `<div class="flex w-full flex-col gap-3">${t.map((e) => l6(H(e))).join("")}</div><div class="flex flex-wrap items-center gap-2">${t6(L("settings:shared.saveSettings"))}</div>${f6(L("follow:sourceCredentials.credentialsFile"))}</div></div>` : "";
 	return `<div class="flex flex-col gap-2 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${i}<div>${f6(e.done ? L("follow:sourceCredentials.editCredentials") : L("follow:sourceCredentials.enterCredentials"), e.open)}${a}</div></div>`;
 }
-function Cqe() {
-	let e = xqe(), t = e.filter((e) => e.requirement === "required" && !e.done).length, n = [
+function wqe() {
+	let e = Sqe(), t = e.filter((e) => e.requirement === "required" && !e.done).length, n = [
 		[L("settings:sourceCredentials.groupSupported"), e.filter((e) => e.requirement !== "none" && e.requirement !== "blocked")],
 		[L("settings:sourceCredentials.groupNotNeeded"), e.filter((e) => e.requirement === "none")],
 		[L("settings:sourceCredentials.groupUnsupported"), e.filter((e) => e.requirement === "blocked")]
-	].filter(([, e]) => e.length).map(([e, t]) => `<div class="flex flex-col gap-2"><h4 class="text-body-medium text-text-secondary">${e}</h4><div class="min-w-0 border border-separator-border bg-background-primary-default rounded-surface flex flex-col overflow-hidden">${t.map(Sqe).join("")}</div></div>`).join("");
+	].filter(([, e]) => e.length).map(([e, t]) => `<div class="flex flex-col gap-2"><h4 class="text-body-medium text-text-secondary">${e}</h4><div class="min-w-0 border border-separator-border bg-background-primary-default rounded-surface flex flex-col overflow-hidden">${t.map(Cqe).join("")}</div></div>`).join("");
 	return r6(L("settings:sourceCredentials.title"), n6(`<div class="flex flex-col gap-4">${n}</div>`), "", { aside: t ? Z3("5em") : "" });
 }
-function wqe() {
+function Tqe() {
 	let e = Y3(K3("indexers")?.open, 20, q3).map((e) => `<div class="min-w-0 border-t border-separator-border pt-2"><span class="flex w-full min-w-0 items-center gap-1 text-body-2-medium">${uu("chevron-right", `size-(--icon-inline) shrink-0 text-text-secondary${e ? " rotate-90" : ""}`)}${Z3("6em")}${Z3("12em")}</span>` + (e ? `<div class="flex flex-col gap-2 pt-3"><div class="flex min-w-0 flex-col gap-4">${l6(L("settings:shared.name"))}${l6(L("settings:indexers.torznabUrl"))}${l6("API key")}<div class="flex flex-wrap items-center gap-x-6 gap-y-2">${u6(L("settings:shared.enable"))}${t6(L("settings:shared.remove"), "secondary", "small")}</div></div></div>` : "") + "</div>").join("");
 	return r6(L("settings:indexers.title"), n6(`<div class="flex min-w-0 flex-col gap-4">${f6(L("settings:indexers.connectHelp"))}${e}</div>`), t6(L("settings:indexers.add"), "secondary") + t6(L("settings:shared.saveSettings")));
 }
-function Tqe() {
+function Eqe() {
 	let e = K3("javBrowser"), t = q3(e?.enabled), n = `<div class="min-w-0 bg-background-primary-default rounded-2xl shadow-card p-5 border border-border-button-default flex flex-col gap-3"><div class="flex flex-wrap items-center justify-between gap-3"><span class="text-body-medium text-text-primary">${L("settings:userscriptStatus.title")}</span>${Z3("4em")}</div><div class="flex flex-wrap items-center justify-between gap-3"><span class="text-body-regular text-text-secondary">${L("settings:userscriptStatus.addFromBrowser")}</span>${e6()}</div><p class="text-caption-1-regular text-text-secondary">${Z3("70%")}</p><div class="flex flex-wrap items-center gap-2">${t6(L("settings:userscriptStatus.checkAgain"), "secondary")}</div></div>`;
-	return r6(L("settings:javBrowser.title"), n6(`<div class="flex min-w-0 flex-col gap-4">${n}${vqe(L("settings:browserAdd.channel"))}${q3(e?.ready) ? "" : s6(L("settings:browserAdd.needsCloudDrive"))}<div>${a6(L("settings:browserAdd.wantOnNoMatch"), L("settings:browserAdd.wantOnNoMatchHelp"))}</div>${l6(L("settings:browserAdd.peachUrl"))}</div>`), (t ? t6(L("settings:javBrowser.disable"), "secondary") : "") + t6(L(t ? "settings:javBrowser.updateChannelToken" : "settings:javBrowser.enable")));
+	return r6(L("settings:javBrowser.title"), n6(`<div class="flex min-w-0 flex-col gap-4">${n}${yqe(L("settings:browserAdd.channel"))}${q3(e?.ready) ? "" : s6(L("settings:browserAdd.needsCloudDrive"))}<div>${a6(L("settings:browserAdd.wantOnNoMatch"), L("settings:browserAdd.wantOnNoMatchHelp"))}</div>${l6(L("settings:browserAdd.peachUrl"))}</div>`), (t ? t6(L("settings:javBrowser.disable"), "secondary") : "") + t6(L(t ? "settings:javBrowser.updateChannelToken" : "settings:javBrowser.enable")));
 }
-var Eqe = (e, t) => `<div class="flex min-w-0 flex-col gap-3">${c6(e)}${hu(Z3("6em"))}` + (t ? `<div class="flex flex-wrap gap-3"><div class="min-w-40 flex-1">${l6(L("settings:cloudProxy.host", { label: e }))}</div><div class="w-full sm:w-28">${l6(L("settings:cloudProxy.port", { label: e }))}</div></div>${f6(L("settings:cloudProxy.authentication"))}` : "") + "</div>";
-function Dqe() {
-	let e = K3("cloudProxy"), t = Y3(e?.accounts, 12, (e) => Array.isArray(e) ? [q3(e[0]), q3(e[1])] : [!1, !1]), n = J3(e?.unlinked, 12), r = t.length || n ? Array.from({ length: n }, () => `<div class="flex min-w-0 flex-col gap-1">${c6(d6(Z3("6em")))}${s6(Z3("9em"))}</div>`).join("") + t.map(([e, t]) => `<div class="flex min-w-0 flex-col gap-4 border-t border-separator-border pt-4">${c6(d6(Z3("8em")))}${s6(Z3("50%"))}${Eqe(L("settings:cloudProxy.dataProxy"), e)}${Eqe(L("settings:cloudProxy.apiProxy"), t)}<div class="flex justify-end">${t6(L("settings:shared.saveSettings"))}</div></div>`).join("") : s6(Z3("60%"));
-	return r6(L("settings:cloudProxy.title"), n6(`${s6(dqe)}<div class="flex min-w-0 flex-col gap-4">${r}</div>`), t6(L("settings:shared.reload"), "secondary"));
+var Dqe = (e, t) => `<div class="flex min-w-0 flex-col gap-3">${c6(e)}${hu(Z3("6em"))}` + (t ? `<div class="flex flex-wrap gap-3"><div class="min-w-40 flex-1">${l6(L("settings:cloudProxy.host", { label: e }))}</div><div class="w-full sm:w-28">${l6(L("settings:cloudProxy.port", { label: e }))}</div></div>${f6(L("settings:cloudProxy.authentication"))}` : "") + "</div>";
+function Oqe() {
+	let e = K3("cloudProxy"), t = Y3(e?.accounts, 12, (e) => Array.isArray(e) ? [q3(e[0]), q3(e[1])] : [!1, !1]), n = J3(e?.unlinked, 12), r = t.length || n ? Array.from({ length: n }, () => `<div class="flex min-w-0 flex-col gap-1">${c6(d6(Z3("6em")))}${s6(Z3("9em"))}</div>`).join("") + t.map(([e, t]) => `<div class="flex min-w-0 flex-col gap-4 border-t border-separator-border pt-4">${c6(d6(Z3("8em")))}${s6(Z3("50%"))}${Dqe(L("settings:cloudProxy.dataProxy"), e)}${Dqe(L("settings:cloudProxy.apiProxy"), t)}<div class="flex justify-end">${t6(L("settings:shared.saveSettings"))}</div></div>`).join("") : s6(Z3("60%"));
+	return r6(L("settings:cloudProxy.title"), n6(`${s6(fqe)}<div class="flex min-w-0 flex-col gap-4">${r}</div>`), t6(L("settings:shared.reload"), "secondary"));
 }
-var h6 = (e, t, n) => `<div class="flex min-w-0 flex-col gap-1 ${n}"><span class="flex items-center gap-0.5 text-body-medium text-text-primary" aria-hidden="true">${e}</span>${t}</div>`, Oqe = (e) => `<div data-folder-row class="@container flex flex-col gap-2 rounded-2lg border border-separator-border bg-background-primary-default p-3">
+var h6 = (e, t, n) => `<div class="flex min-w-0 flex-col gap-1 ${n}"><span class="flex items-center gap-0.5 text-body-medium text-text-primary" aria-hidden="true">${e}</span>${t}</div>`, kqe = (e) => `<div data-folder-row class="@container flex flex-col gap-2 rounded-2lg border border-separator-border bg-background-primary-default p-3">
     <div class="flex items-start gap-2"><span class="min-w-0 flex-1">${Q3()}</span>${pu({
 	glyph: "folder-search",
 	variant: "secondary",
 	attrs: X3
 })}</div>
     <div class="flex flex-wrap items-end gap-2"><div class="flex w-full flex-wrap items-start gap-2">${h6(L("settings:folderRow.storage"), hu(Z3("6em")), "w-full @lg:w-60")}${h6(L("settings:folderRow.readPolicy"), hu(Z3("4em")), "w-full @lg:w-32")}${e > 1 ? h6(L("settings:mediaLibraries.moveTo"), hu(Z3("4em")), "w-full @lg:w-48") : ""}</div></div>
-  </div>`, kqe = (e, t) => `<div data-library-block class="min-w-0 bg-background-primary-default rounded-2xl shadow-card flex flex-col p-2">
+  </div>`, Aqe = (e, t) => `<div data-library-block class="min-w-0 bg-background-primary-default rounded-2xl shadow-card flex flex-col p-2">
     <div data-library-head>${pu({
 	label: L("settings:libraryIcons.auto"),
 	variant: "secondary",
 	attrs: X3
 })}${Q3()}<span class="skeleton ui-configuration-skeleton-input" style="width:136px"></span>${hu(Z3("4em"), { prefix: L("settings:libraryPolicy.mode") })}</div>
-    <div data-library-folders>${Oqe(t).repeat(e)}<div class="flex">${pu({
+    <div data-library-folders>${kqe(t).repeat(e)}<div class="flex">${pu({
 	label: L("settings:mediaLibraries.addDirectory"),
 	variant: "secondary",
 	attrs: X3
-})}</div></div></div>`, Aqe = `<div data-policy-legend class="flex flex-col gap-1"><p class="text-body-2-regular text-text-secondary">${iqe}</p><span class="flex items-center gap-1 text-body-2-medium text-text-secondary">${L("settings:libraryPolicy.compare")}</span></div>`, jqe = `<p class="text-body-2-regular text-text-secondary">${L("settings:folderRow.readPolicyHelp")}</p><div class="flex flex-col gap-3"><span class="flex items-center gap-1 text-body-2-medium text-text-secondary">${L("settings:cloudDriveGuide.title")}</span></div>`;
-function Mqe(e = K3("media")) {
+})}</div></div></div>`, jqe = `<div data-policy-legend class="flex flex-col gap-1"><p class="text-body-2-regular text-text-secondary">${aqe}</p><span class="flex items-center gap-1 text-body-2-medium text-text-secondary">${L("settings:libraryPolicy.compare")}</span></div>`, Mqe = `<p class="text-body-2-regular text-text-secondary">${L("settings:folderRow.readPolicyHelp")}</p><div class="flex flex-col gap-3"><span class="flex items-center gap-1 text-body-2-medium text-text-secondary">${L("settings:cloudDriveGuide.title")}</span></div>`;
+function Nqe(e = K3("media")) {
 	let t = Y3(e?.folders, 12, (e) => J3(e, 50)).filter(Boolean);
 	return t.length ? {
 		folders: t,
@@ -103125,7 +103153,7 @@ function Mqe(e = K3("media")) {
 		cloud: !1
 	};
 }
-function Nqe() {
+function Pqe() {
 	let e = K3("discovery"), t = q3(e?.enabled), n = t && q3(e?.cloud), r = n && q3(e?.webhook), i = `<div class="flex items-start gap-2"><span class="min-w-0 flex-1">${Q3()}</span>${hu(Z3("4em"), { prefix: L("settings:pushDiscovery.mapsTo") })}${pu({
 		glyph: "trash",
 		variant: "secondary",
@@ -103133,85 +103161,95 @@ function Nqe() {
 	})}</div>`;
 	return r6(L("settings:fileDiscovery.title"), n6(`<div class="flex flex-wrap items-center gap-2"><span class="text-body-regular text-text-secondary">${L("settings:pushDiscovery.localMonitoring")}</span>${e6()}</div>`) + a6(L("settings:fileDiscovery.autoImport"), t ? Z3("10em") : "") + a6(L("settings:fileDiscovery.monitorLocal"), t && q3(e?.watchLocal) ? Z3("12em") : "") + a6(L("settings:fileDiscovery.cloudNotify"), L("settings:fileDiscovery.cloudNotifyHelp")) + (n ? i6(L("settings:fileDiscovery.webhookConfig"), Z3("20em"), "") : "") + (r ? n6(f6(L("settings:fileDiscovery.viewConfig")), !0) : "") + (n ? n6(`<div class="flex flex-col gap-3">${c6(L("settings:pushDiscovery.cloudPrefixes"))}<div class="flex flex-col gap-3">${i.repeat(J3(e?.prefixes, 20))}</div><div>${t6(L("settings:pushDiscovery.addPrefix"), "secondary")}</div></div>`, !0) : ""), (r ? t6(L("settings:fileDiscovery.rotateSecret"), "secondary") : "") + t6(L("settings:shared.saveSettings")));
 }
-var Pqe = () => {
-	let e = Mqe();
-	return r6(L("settings:libraryFolders.title"), n6(`${Aqe}<div class="flex flex-col gap-4">${e.folders.map((t) => kqe(t, e.folders.length)).join("")}</div>
+var Fqe = () => {
+	let e = Nqe();
+	return r6(L("settings:libraryFolders.title"), n6(`${jqe}<div class="flex flex-col gap-4">${e.folders.map((t) => Aqe(t, e.folders.length)).join("")}</div>
   <div class="self-start">${t6(L("settings:mediaLibraries.addLibrary"), "secondary")}</div>
-  <p class="text-body-2-regular text-text-secondary">${cqe}</p>
-  ${e.cloud ? jqe : ""}<span class="text-body-medium text-text-primary">${Z3("15em")}</span>`), t6(L("settings:shared.saveSettings")), { status: L("settings:libraryFolders.restartNotice") }) + (e.cloud ? Dqe() : "") + Nqe() + r6(L("settings:codePatterns.title"), n6(`${Z3("90%")}${Z3("60%")}<span class="skeleton ui-configuration-skeleton-input" style="width:100%;height:88px"></span>`), t6(L("settings:shared.saveSettings"))) + r6(L("settings:videoPreviews.title"), a6(L("settings:videoPreviews.generate"), L("settings:videoPreviews.generateHelp")) + a6(L("settings:videoPreviews.timeline"), L("settings:videoPreviews.timelineHelp"), "ui-configuration-skeleton-select") + a6(L("settings:videoPreviews.decoder"), L("settings:videoPreviews.decoderHelp"), "ui-configuration-skeleton-select"));
-}, Fqe = () => `<div>${t6(L("settings:sourceSettings.sourcesLink"), "secondary")}</div>` + Cqe() + r6(L("settings:followFetch.title"), i6(L("settings:followFetch.autoCheck"), "", "<span class=\"flex items-center gap-2\"><span class=\"skeleton ui-configuration-skeleton-toggle\"></span><span class=\"skeleton ui-configuration-skeleton-input\" style=\"width:96px\"></span></span>") + o6(L("settings:followFetch.feedSchedule")) + a6(L("settings:followFetch.initialRange"), L("settings:followFetch.initialRangeHelp"), "ui-configuration-skeleton-select") + o6(L("settings:followFetch.avatarRefresh"), L("settings:followFetch.avatarRefreshHelp")) + o6(L("settings:followFetch.faviconRefresh"), L("settings:followFetch.faviconRefreshHelp"))) + r6(L("settings:scrapingBrowser.title"), a6(L("settings:scrapingBrowser.mode"), L("settings:scrapingBrowser.modeHelp"), "ui-configuration-skeleton-select")) + r6(L("settings:wantSearch.title"), a6(L("settings:wantSearch.interval"), L("settings:wantSearch.intervalHelp"), "ui-configuration-skeleton-select") + a6(L("settings:wantSearch.giveUp"), L("settings:wantSearch.giveUpHelp"), "ui-configuration-skeleton-select")) + r6(L("settings:coverFallback.title"), a6(L("settings:coverFallback.javdb"), L("settings:coverFallback.javdbHelp"))) + wqe() + r6(L("settings:entryLinks.title"), n6(`<p class="text-body-2-regular text-text-secondary">${lqe}</p>${l6(d6(L("settings:entryLinks.siteAddress", { site: "JavDB" })), G3)}${l6(d6(L("settings:entryLinks.siteAddress", { site: "MISSAV" })), G3)}`), t6(L("settings:shared.saveSettings"))), Iqe = () => {
-	let e = K3("downloads"), t = q3(e?.pikpak), n = q3(e?.pikpakRoots) ? vqe(d6(L("settings:cloudDownload.pikpakRootDirectory"))) : `<div class="flex flex-col gap-1">${c6(d6(L("settings:cloudDownload.pikpakRootDirectory")))}${s6(L("settings:cloudDownload.addPikpakMount"))}</div>`, r = q3(e?.cloud) ? r6(L("settings:cloudDownload.title"), n6(l6(L("settings:cloudDownload.cloudDriveUrl")) + l6(L("settings:cloudDownload.apiToken"), L("settings:cloudDownload.apiTokenHelp")) + (q3(e?.has115) ? l6(d6(L("settings:cloudDownload.target115")), L("settings:cloudDownload.target115Help")) : "") + (t ? l6(d6(L("settings:cloudDownload.targetPikpak")), L("settings:cloudDownload.targetPikpakHelp")) + n : "") + l6(L("settings:cloudDownload.maxWait"), Z3("14em"))), t6(L("settings:cloudDownload.testConnection"), "secondary") + t6(L("settings:shared.saveSettings"))) : "", i = q3(e?.pikpakLoggedIn);
+  <p class="text-body-2-regular text-text-secondary">${lqe}</p>
+  ${e.cloud ? Mqe : ""}<span class="text-body-medium text-text-primary">${Z3("15em")}</span>`), t6(L("settings:shared.saveSettings")), { status: L("settings:libraryFolders.restartNotice") }) + (e.cloud ? Oqe() : "") + Pqe() + r6(L("settings:codePatterns.title"), n6(`${Z3("90%")}${Z3("60%")}<span class="skeleton ui-configuration-skeleton-input" style="width:100%;height:88px"></span>`), t6(L("settings:shared.saveSettings"))) + r6(L("settings:videoPreviews.title"), a6(L("settings:videoPreviews.generate"), L("settings:videoPreviews.generateHelp")) + a6(L("settings:videoPreviews.timeline"), L("settings:videoPreviews.timelineHelp"), "ui-configuration-skeleton-select") + a6(L("settings:videoPreviews.decoder"), L("settings:videoPreviews.decoderHelp"), "ui-configuration-skeleton-select"));
+}, Iqe = () => `<div>${t6(L("settings:sourceSettings.sourcesLink"), "secondary")}</div>` + wqe() + r6(L("settings:followFetch.title"), i6(L("settings:followFetch.autoCheck"), "", "<span class=\"flex items-center gap-2\"><span class=\"skeleton ui-configuration-skeleton-toggle\"></span><span class=\"skeleton ui-configuration-skeleton-input\" style=\"width:96px\"></span></span>") + o6(L("settings:followFetch.feedSchedule")) + a6(L("settings:followFetch.initialRange"), L("settings:followFetch.initialRangeHelp"), "ui-configuration-skeleton-select") + o6(L("settings:followFetch.avatarRefresh"), L("settings:followFetch.avatarRefreshHelp")) + o6(L("settings:followFetch.faviconRefresh"), L("settings:followFetch.faviconRefreshHelp"))) + r6(L("settings:scrapingBrowser.title"), a6(L("settings:scrapingBrowser.mode"), L("settings:scrapingBrowser.modeHelp"), "ui-configuration-skeleton-select")) + r6(L("settings:wantSearch.title"), a6(L("settings:wantSearch.interval"), L("settings:wantSearch.intervalHelp"), "ui-configuration-skeleton-select") + a6(L("settings:wantSearch.giveUp"), L("settings:wantSearch.giveUpHelp"), "ui-configuration-skeleton-select")) + r6(L("settings:coverFallback.title"), a6(L("settings:coverFallback.javdb"), L("settings:coverFallback.javdbHelp"))) + Tqe() + r6(L("settings:entryLinks.title"), n6(`<p class="text-body-2-regular text-text-secondary">${uqe}</p>${l6(d6(L("settings:entryLinks.siteAddress", { site: "JavDB" })), G3)}${l6(d6(L("settings:entryLinks.siteAddress", { site: "MISSAV" })), G3)}`), t6(L("settings:shared.saveSettings"))), Lqe = () => {
+	let e = K3("downloads"), t = q3(e?.pikpak), n = q3(e?.pikpakRoots) ? yqe(d6(L("settings:cloudDownload.pikpakRootDirectory"))) : `<div class="flex flex-col gap-1">${c6(d6(L("settings:cloudDownload.pikpakRootDirectory")))}${s6(L("settings:cloudDownload.addPikpakMount"))}</div>`, r = q3(e?.cloud) ? r6(L("settings:cloudDownload.title"), n6(l6(L("settings:cloudDownload.cloudDriveUrl")) + l6(L("settings:cloudDownload.apiToken"), L("settings:cloudDownload.apiTokenHelp")) + (q3(e?.has115) ? l6(d6(L("settings:cloudDownload.target115")), L("settings:cloudDownload.target115Help")) : "") + (t ? l6(d6(L("settings:cloudDownload.targetPikpak")), L("settings:cloudDownload.targetPikpakHelp")) + n : "") + l6(L("settings:cloudDownload.maxWait"), Z3("14em"))), t6(L("settings:cloudDownload.testConnection"), "secondary") + t6(L("settings:shared.saveSettings"))) : "", i = q3(e?.pikpakLoggedIn);
 	return r + (t ? r6(L("settings:pikpakAccount.title"), i ? p6([L("settings:shared.account"), Z3("4em")]) : n6(l6(L("settings:shared.account")) + l6(L("settings:shared.password")) + u6(L("settings:pikpakAccount.rememberPassword"))), i ? t6(L("settings:shared.signOut"), "secondary") : (q3(e?.browserLogin) ? t6(L("settings:pikpakAccount.browserSignIn"), "secondary") : "") + t6(L("settings:shared.signIn")), {
 		aside: e6(),
 		mark: !0
-	}) : "") + Tqe();
-}, Lqe = {
+	}) : "") + Eqe();
+}, Rqe = {
 	legacy: L("settings:accessPassword.legacyHelp"),
 	locked: L("settings:accessPassword.lockedHelp"),
 	password: L("settings:accessPassword.passwordHelp")
-}, Rqe = {
+}, zqe = {
 	quick: L("settings:remoteAccess.quickHelp"),
 	named: L("settings:remoteAccess.namedHelp")
 }, g6 = (e) => `${e} *`;
-function zqe(e) {
+function Bqe(e) {
 	let t = e === "locked" ? "" : l6(g6(L(e === "password" ? "settings:accessPassword.new" : "settings:accessPassword.set")), L("settings:accessPassword.newHelp")) + l6(g6(L("settings:accessPassword.confirm")));
-	return (Lqe[e] ? s6(Lqe[e]) : "") + (e === "open" ? $3("100%", "64px") : "") + (e === "password" || e === "legacy" ? u6(L("settings:accessPassword.turnOff")) : "") + (e === "password" ? l6(g6(L("settings:accessPassword.current"))) : "") + t;
+	return (Rqe[e] ? s6(Rqe[e]) : "") + (e === "open" ? $3("100%", "64px") : "") + (e === "password" || e === "legacy" ? u6(L("settings:accessPassword.turnOff")) : "") + (e === "password" ? l6(g6(L("settings:accessPassword.current"))) : "") + t;
 }
-function Bqe() {
+function Vqe() {
 	let e = K3("devices"), t = Array.from({ length: Math.max(1, J3(e?.rows, 8)) }, () => i6(Z3("8em"), Z3("14em"), Z3("3em"), $3("20px", "20px"))).join("");
 	return r6(L("settings:signedInDevices.title"), t, q3(e?.manageable) ? t6(L("settings:signedInDevices.revokeOthers"), "secondary") : "", q3(e?.manageable) ? { status: L("settings:signedInDevices.passwordChangeNotice") } : {});
 }
-function Vqe() {
+function Hqe() {
 	let e = Array.from({ length: 3 }, () => i6(Z3("9em"), Z3("14em"), t6(L("settings:databaseBackups.restore"), "secondary"))).join("");
 	return r6(L("settings:databaseBackups.title"), n6(s6(L("settings:databaseBackups.help"))) + `<div class="border-t border-separator-border">${e}</div>`, t6(L("settings:databaseBackups.backUpNow")), { status: Z3("5em") });
 }
-var Hqe = () => {
-	let e = K3("network"), t = typeof e?.access == "string" && e.access ? e.access : "legacy", n = q3(e?.tunnelNamed), r = (n && q3(e?.tunnelNamedMode) ? s6(Rqe.named) + l6(L("settings:remoteAccess.hostname"), L("settings:remoteAccess.hostnameHelp")) + l6(L("settings:remoteAccess.tunnelToken"), Z3("16em")) : s6(Rqe.quick)) + (q3(e?.tunnelNote) ? $3("100%", "64px") : ""), i = J3(e?.addresses, 3), a = Array.from({ length: i }, (e, t) => `<div class="flex min-w-0 flex-wrap items-end gap-2"><div class="min-w-0 flex-1">${l6([
+var Uqe = () => {
+	let e = K3("network"), t = typeof e?.access == "string" && e.access ? e.access : "legacy", n = q3(e?.tunnelNamed), r = (n && q3(e?.tunnelNamedMode) ? s6(zqe.named) + l6(L("settings:remoteAccess.hostname"), L("settings:remoteAccess.hostnameHelp")) + l6(L("settings:remoteAccess.tunnelToken"), Z3("16em")) : s6(zqe.quick)) + (q3(e?.tunnelNote) ? $3("100%", "64px") : ""), i = J3(e?.addresses, 3), a = Array.from({ length: i }, (e, t) => `<div class="flex min-w-0 flex-wrap items-end gap-2"><div class="min-w-0 flex-1">${l6([
 		L("settings:accessAddress.localUrl"),
 		L("settings:accessAddress.phoneUrl"),
 		L("settings:accessAddress.alternateIp")
 	][t])}</div>${t6(L("settings:accessAddress.copyUrl"), "secondary")}</div>`).join("");
-	return (i || q3(e?.port) ? r6(L("settings:accessUrls.title"), n6(a + (i ? $3("100%", "40px") : "") + (q3(e?.networkEditable) ? `<div class="flex flex-col gap-1.5">${c6(L("settings:accessAddress.whoCanConnect"))}${$3("min(100%, 20em)", "36px")}</div>` + (q3(e?.lan) ? l6(L("settings:accessUrls.lanUrl")) : "") : "") + (q3(e?.port) ? l6(L("settings:accessUrls.port")) : "")), q3(e?.port) ? t6(L("settings:shared.saveSettings")) : "", q3(e?.port) ? { status: L("settings:accessUrls.restartNotice") } : {}) : "") + r6(L("settings:accessPassword.title"), n6(zqe(t)), t === "locked" ? "" : t6(L("settings:shared.saveSettings"))) + (t === "password" || t === "legacy" ? Bqe() : "") + r6(L("settings:remoteAccess.title"), n6((n ? $3("10.5em", "36px") : "") + r), t6(L("settings:remoteAccess.start"), n ? "secondary" : "primary") + (n ? t6(L("settings:shared.saveSettings")) : ""), { aside: e6() }) + r6(L("settings:peachProxy.title"), a6(L("settings:peachProxy.mode"), L("settings:peachProxy.modeHelp"), "ui-configuration-skeleton-select") + (q3(e?.proxyAddress) ? n6(l6(L("settings:peachProxy.url")), !0) : ""), t6(L("settings:shared.saveSettings")));
-}, Uqe = [
+	return (i || q3(e?.port) ? r6(L("settings:accessUrls.title"), n6(a + (i ? $3("100%", "40px") : "") + (q3(e?.networkEditable) ? `<div class="flex flex-col gap-1.5">${c6(L("settings:accessAddress.whoCanConnect"))}${$3("min(100%, 20em)", "36px")}</div>` + (q3(e?.lan) ? l6(L("settings:accessUrls.lanUrl")) : "") : "") + (q3(e?.port) ? l6(L("settings:accessUrls.port")) : "")), q3(e?.port) ? t6(L("settings:shared.saveSettings")) : "", q3(e?.port) ? { status: L("settings:accessUrls.restartNotice") } : {}) : "") + r6(L("settings:accessPassword.title"), n6(Bqe(t)), t === "locked" ? "" : t6(L("settings:shared.saveSettings"))) + (t === "password" || t === "legacy" ? Vqe() : "") + r6(L("settings:remoteAccess.title"), n6((n ? $3("10.5em", "36px") : "") + r), t6(L("settings:remoteAccess.start"), n ? "secondary" : "primary") + (n ? t6(L("settings:shared.saveSettings")) : ""), { aside: e6() }) + r6(L("settings:peachProxy.title"), a6(L("settings:peachProxy.mode"), L("settings:peachProxy.modeHelp"), "ui-configuration-skeleton-select") + (q3(e?.proxyAddress) ? n6(l6(L("settings:peachProxy.url")), !0) : ""), t6(L("settings:shared.saveSettings")));
+}, Wqe = [
 	L("settings:runtimeInfo.version"),
 	L("settings:runtimeInfo.os"),
 	L("settings:shared.dataDirectory"),
 	L("settings:runtimeInfo.settingsFile"),
 	L("settings:runtimeInfo.logDirectory")
-], Wqe = () => {
+], Gqe = () => {
 	let e = K3("maintenance"), t = [
 		L("settings:releaseUpdates.currentVersion"),
 		L("settings:releaseUpdates.installation"),
 		L("settings:releaseUpdates.channel"),
 		L("settings:releaseUpdates.latestVersion"),
 		L("settings:releaseUpdates.package")
-	].slice(0, Math.max(4, J3(e?.releaseFacts, 5))), n = J3(e?.releaseNotes, 4), r = J3(e?.storageRows, 12), i = J3(e?.storageNotes, 3), a = Y3(e?.facts, 12, (e) => H(String(e))), o = `<span class="self-start">${e6("6em")}</span>`, s = (t) => !e || q3(t), c = s(e?.reporting) ? a6(L("settings:dataSharing.reportErrors"), L("settings:dataSharing.reportErrorsHelp")) + (q3(e?.reportingIdle) ? n6(o, !0) : "") : "", l = s(e?.sharing) ? `<div class="border-t border-separator-border">${a6(L("settings:librarySharing.uploadDetails"), q3(e?.sharingNotice) ? Z3("12em") : "")}${q3(e?.sharingIdle) ? n6(o, !0) : ""}${gqe(t6(L("settings:librarySharing.preview"), "secondary"))}</div>` : "";
-	return r6(L("settings:releaseUpdates.check"), p6(t) + (n ? n6(s6(Z3("50%")).repeat(n), !0) : ""), t6(L("settings:releaseUpdates.check")), {
+	].slice(0, Math.max(4, J3(e?.releaseFacts, 5))), n = J3(e?.releaseNotes, 4), r = J3(e?.storageRows, 12), i = J3(e?.storageNotes, 3), a = Y3(e?.facts, 12, (e) => H(String(e))), o = `<span class="self-start">${e6("6em")}</span>`, s = (t) => !e || q3(t), c = e?.storage !== !1, l = s(e?.reporting) ? a6(L("settings:dataSharing.reportErrors"), L("settings:dataSharing.reportErrorsHelp")) + (q3(e?.reportingIdle) ? n6(o, !0) : "") : "", u = s(e?.sharing) ? `<div class="border-t border-separator-border">${a6(L("settings:librarySharing.uploadDetails"), q3(e?.sharingNotice) ? Z3("12em") : "")}${q3(e?.sharingIdle) ? n6(o, !0) : ""}${_qe(t6(L("settings:librarySharing.preview"), "secondary"))}</div>` : "", d = r6(L("settings:releaseUpdates.check"), p6(t) + (n ? n6(s6(Z3("50%")).repeat(n), !0) : ""), t6(L("settings:releaseUpdates.check")), {
 		aside: e6("4em"),
 		status: Z3("5em")
-	}) + r6(L("settings:autoUpdate.title"), a6(L("settings:autoUpdate.autoCheck")) + a6(L("settings:autoUpdate.autoDownload"), L("settings:autoUpdate.autoDownloadHelp")) + a6(L("settings:autoUpdate.frequency"), q3(e?.autoUpdateHelp) ? Z3("12em") : "", "ui-configuration-skeleton-select"), t6(L("settings:shared.saveSettings"))) + r6(L("settings:startup.title"), a6(L("settings:startup.launchAtStartup")) + a6(L("settings:startup.trayOnly"), L("settings:startup.trayOnlyHelp")) + a6(L("settings:startup.desktopShortcut"), q3(e?.desktopNote) ? Z3("12em") : "") + (q3(e?.startupNote) ? n6(s6(Z3("60%")), !0) : ""), t6(L("settings:shared.saveSettings"))) + r6(L("settings:transcoding.title"), a6(L("settings:transcoding.mode"), L("settings:transcoding.modeHelp"), "ui-configuration-skeleton-select") + a6(L("settings:transcoding.quality"), L("settings:transcoding.qualityHelp"), "ui-configuration-skeleton-select")) + r6(L("settings:diskUsage.title"), p6([L("settings:shared.dataDirectory"), L("settings:diskUsage.disk")]) + (r ? Array.from({ length: r }, () => i6(Z3("6em"), "", Z3("4em"))).join("") : n6(s6(L("settings:diskUsage.emptyHelp")), !0)) + (i ? n6(s6(Z3("80%")).repeat(i), !0) : ""), t6(L("settings:diskUsage.changeLocation"), "secondary") + t6(L(r ? "settings:diskUsage.measureAgain" : "settings:diskUsage.measure"))) + (c || l ? r6(L("settings:dataSharing.title"), c + l) : "") + r6(L("settings:runtimeInfo.title"), p6(a.length ? a : Uqe)) + `<section aria-label="${L("settings:tour.guidedTour")}" class="w-full"><div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3">${i6(L("settings:tour.guidedTour"), L("settings:tour.reopenDescription"), t6(L("settings:tour.reopen"), "secondary"))}</div></section>` + (s(e?.uninstall) ? r6(L("settings:uninstall.title"), (q3(e?.uninstallHelp) ? n6(s6(L("settings:uninstall.help"))) : "") + a6(L("settings:uninstall.full"), L("settings:uninstall.fullHelp")) + n6(f6(L("settings:shared.dataDirectory")), !0), t6(L("settings:uninstall.title")), { status: Z3("16em") }) : "");
+	}) + r6(L("settings:autoUpdate.title"), a6(L("settings:autoUpdate.autoCheck")) + a6(L("settings:autoUpdate.autoDownload"), L("settings:autoUpdate.autoDownloadHelp")) + a6(L("settings:autoUpdate.frequency"), q3(e?.autoUpdateHelp) ? Z3("12em") : "", "ui-configuration-skeleton-select"), t6(L("settings:shared.saveSettings"))), f = r6(L("settings:startup.title"), a6(L("settings:startup.launchAtStartup")) + a6(L("settings:startup.trayOnly"), L("settings:startup.trayOnlyHelp")) + a6(L("settings:startup.desktopShortcut"), q3(e?.desktopNote) ? Z3("12em") : "") + (q3(e?.startupNote) ? n6(s6(Z3("60%")), !0) : ""), t6(L("settings:shared.saveSettings"))) + r6(L("settings:transcoding.title"), a6(L("settings:transcoding.mode"), L("settings:transcoding.modeHelp"), "ui-configuration-skeleton-select") + a6(L("settings:transcoding.quality"), L("settings:transcoding.qualityHelp"), "ui-configuration-skeleton-select")) + (c ? r6(L("settings:diskUsage.title"), p6([L("settings:shared.dataDirectory"), L("settings:diskUsage.disk")]) + (r ? Array.from({ length: r }, () => i6(Z3("6em"), "", Z3("4em"))).join("") : n6(s6(L("settings:diskUsage.emptyHelp")), !0)) + (i ? n6(s6(Z3("80%")).repeat(i), !0) : ""), t6(L("settings:diskUsage.changeLocation"), "secondary") + t6(L(r ? "settings:diskUsage.measureAgain" : "settings:diskUsage.measure"))) : "") + r6(L("settings:runtimeInfo.title"), p6(a.length ? a : Wqe)) + `<section aria-label="${L("settings:tour.guidedTour")}" class="w-full"><div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3">${i6(L("settings:tour.guidedTour"), L("settings:tour.reopenDescription"), t6(L("settings:tour.reopen"), "secondary"))}</div></section>`, p = Hqe() + r6(L("settings:retention.title"), a6(L("settings:retention.backups"), L("settings:retention.backupsHelp"), "ui-configuration-skeleton-select") + a6(L("settings:retention.logs"), L("settings:retention.logsHelp"), "ui-configuration-skeleton-select")), m = [
+		[L("settings:maintenanceGroups.updates"), d],
+		[L("settings:maintenanceGroups.runtime"), f],
+		...c ? [[L("settings:maintenanceGroups.backups"), p]] : [],
+		[L("settings:maintenanceGroups.privacy"), l || u ? r6(L("settings:dataSharing.title"), l + u) : ""]
+	], h = s(e?.uninstall) ? r6(L("settings:uninstall.title"), (q3(e?.uninstallHelp) ? n6(s6(L("settings:uninstall.help"))) : "") + a6(L("settings:uninstall.full"), L("settings:uninstall.fullHelp")) + n6(f6(L("settings:shared.dataDirectory")), !0), t6(L("settings:uninstall.title")), { status: Z3("16em") }) : "", g = m.map(([e]) => e);
+	return h && g.push(L("settings:uninstall.title")), `<div class="flex min-w-0 flex-col gap-5">${rqe(g)}
+    <div class="flex min-w-0 flex-col gap-8">${m.map(([e, t]) => `<div class="flex min-w-0 flex-col gap-3">
+      <h3 class="px-3 text-title-3-medium text-text-primary">${e}</h3>
+      <div class="flex min-w-0 flex-col gap-6">${t}</div>
+    </div>`).join("")}${h}</div>
+  </div>`;
 };
-function Gqe(e) {
+function Kqe(e) {
 	switch (Th(e)) {
-		case "diagnostics": return rqe();
-		case "subscriptions": return Fqe();
-		case "downloads": return Iqe();
-		case "network": return Hqe();
-		case "maintenance": return Wqe();
-		default: return Pqe();
+		case "diagnostics": return iqe();
+		case "subscriptions": return Iqe();
+		case "downloads": return Lqe();
+		case "network": return Uqe();
+		case "maintenance": return Gqe();
+		default: return Fqe();
 	}
 }
-function Kqe(e = "library") {
-	return `<div class="peach-react"><div class="ui-configpage">${`<div class="ui-board-local-nav" data-section-nav data-section-items>${NP("configuration", yF().value.navigationOrders.configuration).map((e) => AP.configuration.items.find(([t]) => t === e)[1]).map((t) => `<button type="button" tabindex="-1" aria-selected="${t === Eh(e)}">${t}</button>`).join("")}</div>`}<div class="flex min-w-0 flex-col gap-6">${Gqe(e)}</div></div></div>`;
+function qqe(e = "library") {
+	return `<div class="peach-react"><div class="ui-configpage">${`<div class="ui-board-local-nav" data-section-nav data-section-items>${NP("configuration", yF().value.navigationOrders.configuration).map((e) => AP.configuration.items.find(([t]) => t === e)[1]).map((t) => `<button type="button" tabindex="-1" aria-selected="${t === Eh(e)}">${t}</button>`).join("")}</div>`}<div class="flex min-w-0 flex-col gap-6">${Kqe(e)}</div></div></div>`;
 }
 // src/management-skeletons.ts
-var _6 = "relative overflow-hidden skeleton-sheen bg-background-tertiary-default rounded-lg", v6 = (e = "60%") => `<span class="${_6} inline-block max-w-full align-middle" style="width:${e};height:1em"></span>`, y6 = "disabled data-skeleton-action", b6 = "min-w-0 rounded-2-5xl bg-background-secondary-default p-5 flex flex-col gap-4 max-sm:p-4", qqe = (e = "", t = "md", n = "") => `<span class="group inline-flex items-center select-none ${t === "sm" ? "gap-1.5" : "gap-2"} ${n}"><span class="flex shrink-0 items-center justify-center rounded-sm ${t === "sm" ? "size-3.5" : "size-4"} border bg-background-primary-default shadow-xs border-border-checkbox-default"></span>${e ? `<span class="${t === "sm" ? "text-body-2-medium" : "text-body-medium"} text-text-primary">${e}</span>` : ""}</span>`, Jqe = (e) => pu({
+var _6 = "relative overflow-hidden skeleton-sheen bg-background-tertiary-default rounded-lg", v6 = (e = "60%") => `<span class="${_6} inline-block max-w-full align-middle" style="width:${e};height:1em"></span>`, y6 = "disabled data-skeleton-action", b6 = "min-w-0 rounded-2-5xl bg-background-secondary-default p-5 flex flex-col gap-4 max-sm:p-4", Jqe = (e = "", t = "md", n = "") => `<span class="group inline-flex items-center select-none ${t === "sm" ? "gap-1.5" : "gap-2"} ${n}"><span class="flex shrink-0 items-center justify-center rounded-sm ${t === "sm" ? "size-3.5" : "size-4"} border bg-background-primary-default shadow-xs border-border-checkbox-default"></span>${e ? `<span class="${t === "sm" ? "text-body-2-medium" : "text-body-medium"} text-text-primary">${e}</span>` : ""}</span>`, Yqe = (e) => pu({
 	label: e,
 	size: "small",
 	variant: "secondary",
 	attrs: y6
 });
-function Yqe() {
+function Xqe() {
 	let e = [
 		L("manage:statsSkeleton.collection"),
 		L("manage:shared.watched"),
@@ -103251,7 +103289,7 @@ function Yqe() {
     </section>
   </div></div>`;
 }
-function Xqe() {
+function Zqe() {
 	let e = (e) => `<div class="inline-flex w-max max-w-full items-center gap-0.5 overflow-x-auto rounded-2lg bg-background-tertiary-default p-1" data-taste-segments>${e.map((e, t) => `<span class="flex min-h-7 flex-none items-center gap-1.5 rounded-md px-2.5 py-1 text-body-medium whitespace-nowrap text-text-secondary data-selected:bg-background-primary-default data-selected:text-text-primary data-selected:shadow-card dark:data-selected:bg-background-primary-hover"${t === 0 ? " data-selected=\"true\"" : ""}>${e}</span>`).join("")}</div>`, t = [
 		L("manage:tasteSkeleton.browsingHistory"),
 		L("manage:tasteSkeleton.tasteDimensions"),
@@ -103307,7 +103345,7 @@ function Xqe() {
     </div>
   </div></div>`;
 }
-function Zqe() {
+function Qqe() {
 	let e = `<div class="duplicate-row items-center gap-3 border-t border-separator-border px-5 py-4 max-compact:p-4">
     <span class="${_6} row-span-2 inline-grid aspect-16/10 w-full rounded-2lg"></span>
     <span class="text-body-regular max-duplicate-narrow:col-start-2 max-duplicate-narrow:-col-end-1">${v6("70%")}</span>
@@ -103315,7 +103353,7 @@ function Zqe() {
     <span class="col-start-2 -col-end-1 min-w-0 pt-0.5 font-mono text-caption-1-regular leading-5 max-duplicate-narrow:col-span-full">${v6("75%")}</span>
   </div>`, t = `<section class="mb-6 overflow-hidden rounded-surface bg-background-secondary-default dark:bg-background-primary-default" data-duplicate-group>
     <div class="flex flex-wrap items-center gap-3 bg-background-tertiary-default p-5 max-compact:p-4 dark:bg-background-secondary-default">
-      ${qqe()}<b class="text-title-2-medium">${v6("5em")}</b><span class="font-mono text-caption-1-regular leading-5">${v6("8em")}</span>
+      ${Jqe()}<b class="text-title-2-medium">${v6("5em")}</b><span class="font-mono text-caption-1-regular leading-5">${v6("8em")}</span>
       <span class="rounded-sm px-2 py-0.5 text-caption-1-regular leading-5">${v6("4em")}</span>
       <span class="ml-auto flex flex-wrap gap-2 max-compact:ml-0 max-compact:w-full">${pu({
 		variant: "secondary",
@@ -103343,12 +103381,12 @@ function Zqe() {
 			L("cleanup:duplicates.allKeepLargest"),
 			L("cleanup:duplicates.allKeepLongest"),
 			L("cleanup:duplicates.allKeepAll")
-		].map(Jqe).join("") + `<span class="ml-auto"></span>${Jqe(v6("4.5em"))}`
+		].map(Yqe).join("") + `<span class="ml-auto"></span>${Yqe(v6("4.5em"))}`
 	})}
     ${t.repeat(2)}
   </div></div>`;
 }
-function Qqe() {
+function $qe() {
 	return `<div class="peach-react"><div data-quality-goals class="mx-auto w-full max-w-board">
     ${gu({
 		label: L("manage:hdUpgrades.summaryLabel"),
@@ -103358,26 +103396,26 @@ function Qqe() {
     ${eX("quality-goals", "", ["w-20", "w-20"])}
   </div></div>`;
 }
-function $qe(e = 3) {
+function eJe(e = 3) {
 	return `<div class="${eWe}">${`<div class="${tWe} flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
     <div class="flex min-w-0 flex-1 flex-col gap-0.5"><span class="text-body-medium">${v6("7em")}</span><span class="text-body-2-regular">${v6("62%")}</span></div>
     <div class="flex shrink-0 items-center gap-3"><span class="text-body-2-regular">${v6("4em")}</span><span class="${_6} inline-block h-6 w-14 rounded-full"></span></div>
   </div>`.repeat(e)}</div>`;
 }
-function eJe() {
+function tJe() {
 	return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">
-    <section class="flex flex-col gap-4"><h2 class="text-title-2-medium! m-0! text-text-primary">${L("settings:repairCenter.itemsHeading")}</h2>${$qe()}</section>
+    <section class="flex flex-col gap-4"><h2 class="text-title-2-medium! m-0! text-text-primary">${L("settings:repairCenter.itemsHeading")}</h2>${eJe()}</section>
   </div></div>`;
 }
 // src/board-skeleton.ts
-var x6 = (e = "60%") => `<span class="skeleton" style="width:${e}"></span>`, tJe = () => `${x6("80%")}${x6("48%")}`, S6 = (e, t) => e.repeat(t), C6 = "disabled data-skeleton-action", w6 = (e) => `<span class="skeleton skeleton-text" style="width:${e}"></span>`, T6 = (e, t, n = !1) => `<span class="skeleton" style="width:${e}px;height:${t}px;flex:none${n ? ";border-radius:50%" : ""}"></span>`, nJe = "min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-3 px-6 py-5 max-sm:gap-2 max-sm:p-4", rJe = () => `<div class="inline-grid w-full grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">${[
+var x6 = (e = "60%") => `<span class="skeleton" style="width:${e}"></span>`, nJe = () => `${x6("80%")}${x6("48%")}`, S6 = (e, t) => e.repeat(t), C6 = "disabled data-skeleton-action", w6 = (e) => `<span class="skeleton skeleton-text" style="width:${e}"></span>`, T6 = (e, t, n = !1) => `<span class="skeleton" style="width:${e}px;height:${t}px;flex:none${n ? ";border-radius:50%" : ""}"></span>`, rJe = "min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-3 px-6 py-5 max-sm:gap-2 max-sm:p-4", iJe = () => `<div class="inline-grid w-full grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 xl:grid-cols-6">${[
 	L("follow:followOverview.creators"),
 	L("follow:followOverview.enabledSources"),
 	L("follow:followCheck.checkFailed"),
 	L("follow:followOverview.unwatchedUpdates"),
 	L("follow:feedSources.footerLabel"),
 	L("follow:followOverview.unwatchedReleases")
-].map((e) => `<div class="${nJe}"><span class="text-body-medium text-text-secondary">${e}</span><b class="text-title-1-medium tabular-nums text-text-primary">${w6("3em")}</b></div>`).join("")}</div>`, iJe = (e = "") => m4.some(([t]) => t === e) ? e : "list", aJe = (e) => `<div data-section-nav data-section-items class="flex max-w-full flex-nowrap overflow-x-auto">${m4.map(([t, n]) => `<span class="whitespace-nowrap" aria-selected="${t === e}">${n}</span>`).join("")}</div>`, E6 = (e = "") => `<span class="group inline-flex items-center select-none gap-2"><span class="flex shrink-0 items-center justify-center rounded-sm size-4 border bg-background-primary-default shadow-xs border-border-checkbox-default"></span>${e ? `<span class="text-body-medium text-text-primary">${e}</span>` : ""}</span>`, oJe = ({ table: e, sort: t, dir: n }) => {
+].map((e) => `<div class="${rJe}"><span class="text-body-medium text-text-secondary">${e}</span><b class="text-title-1-medium tabular-nums text-text-primary">${w6("3em")}</b></div>`).join("")}</div>`, aJe = (e = "") => m4.some(([t]) => t === e) ? e : "list", oJe = (e) => `<div data-section-nav data-section-items class="flex max-w-full flex-nowrap overflow-x-auto">${m4.map(([t, n]) => `<span class="whitespace-nowrap" aria-selected="${t === e}">${n}</span>`).join("")}</div>`, E6 = (e = "") => `<span class="group inline-flex items-center select-none gap-2"><span class="flex shrink-0 items-center justify-center rounded-sm size-4 border bg-background-primary-default shadow-xs border-border-checkbox-default"></span>${e ? `<span class="text-body-medium text-text-primary">${e}</span>` : ""}</span>`, sJe = ({ table: e, sort: t, dir: n }) => {
 	let r = Pa.find(([e]) => e === t)[1];
 	return `<div data-responsive-toolbar class="ui-follow-skeleton-toolbar"><span data-follow-toolbar-heading data-toolbar-heading><h3 class="text-title-2-medium text-text-primary">${L("follow:followManageNav.list")}</h3><span class="text-body-2-regular text-text-secondary">${w6("132px")}</span></span><div data-follow-toolbar-actions data-toolbar-actions>${pu({
 		glyph: "refresh-cw",
@@ -103402,7 +103440,7 @@ var x6 = (e = "60%") => `<span class="skeleton" style="width:${e}"></span>`, tJe
 		compact: !0,
 		attrs: C6
 	})}</span></div></div>`;
-}, sJe = () => `<span class="flex shrink-0 items-center gap-1">${pu({
+}, cJe = () => `<span class="flex shrink-0 items-center gap-1">${pu({
 	variant: "secondary",
 	size: "small",
 	glyph: "refresh-cw",
@@ -103412,7 +103450,7 @@ var x6 = (e = "60%") => `<span class="skeleton" style="width:${e}"></span>`, tJe
 	size: "small",
 	glyph: "trash",
 	attrs: C6
-})}</span>`, cJe = () => `<div class="flex min-h-16 flex-wrap items-center gap-3 px-2 py-3 max-sm:gap-x-2 follow-skeleton-source">${E6()}<span class="flex min-w-0 grow basis-0 flex-col gap-0.5"><span class="text-body-medium">${w6("8em")}</span></span><span class="flex shrink-0 items-center gap-1.5">${T6(14, 14)}</span>${T6(48, 24)}<span data-follow-source-controls class="flex w-max max-w-full flex-none flex-wrap items-center gap-1.5 max-sm:w-full"><span class="shrink-0 text-body-2-regular whitespace-nowrap text-text-secondary max-sm:mr-auto max-sm:text-caption-1-regular">${w6("113px")}</span>${sJe()}</span></div>`, D6 = (e) => `<section class="min-w-0 bg-background-primary-default rounded-2xl shadow-card flex flex-col overflow-hidden p-2 follow-skeleton-author"><div class="flex flex-wrap items-center gap-3 px-2 py-2.5" data-follow-author-header data-open>${T6(32, 32, !0)}<b class="min-w-0 grow text-body-medium wrap-anywhere text-text-primary max-sm:basis-0">${w6("92px")}</b><span data-follow-author-controls class="flex w-max max-w-full flex-none flex-wrap items-center gap-2 max-sm:w-full">${pu({
+})}</span>`, lJe = () => `<div class="flex min-h-16 flex-wrap items-center gap-3 px-2 py-3 max-sm:gap-x-2 follow-skeleton-source">${E6()}<span class="flex min-w-0 grow basis-0 flex-col gap-0.5"><span class="text-body-medium">${w6("8em")}</span></span><span class="flex shrink-0 items-center gap-1.5">${T6(14, 14)}</span>${T6(48, 24)}<span data-follow-source-controls class="flex w-max max-w-full flex-none flex-wrap items-center gap-1.5 max-sm:w-full"><span class="shrink-0 text-body-2-regular whitespace-nowrap text-text-secondary max-sm:mr-auto max-sm:text-caption-1-regular">${w6("113px")}</span>${cJe()}</span></div>`, D6 = (e) => `<section class="min-w-0 bg-background-primary-default rounded-2xl shadow-card flex flex-col overflow-hidden p-2 follow-skeleton-author"><div class="flex flex-wrap items-center gap-3 px-2 py-2.5" data-follow-author-header data-open>${T6(32, 32, !0)}<b class="min-w-0 grow text-body-medium wrap-anywhere text-text-primary max-sm:basis-0">${w6("92px")}</b><span data-follow-author-controls class="flex w-max max-w-full flex-none flex-wrap items-center gap-2 max-sm:w-full">${pu({
 	variant: "secondary",
 	size: "small",
 	glyph: "refresh-cw",
@@ -103429,13 +103467,13 @@ var x6 = (e = "60%") => `<span class="skeleton" style="width:${e}"></span>`, tJe
 	glyph: "chevron-up",
 	label: L("shell:shared.collapse"),
 	attrs: C6
-})}</span></span></div><div data-source-divider>${S6(cJe(), e)}</div></section>`, lJe = () => {
+})}</span></span></div><div data-source-divider>${S6(lJe(), e)}</div></section>`, uJe = () => {
 	try {
 		return Number(JSON.parse(localStorage.getItem("peach.settings.v1") || "{}").followPageSize) || 20;
 	} catch {
 		return 20;
 	}
-}, uJe = [
+}, dJe = [
 	["select", ""],
 	["author", L("shell:shared.creators")],
 	["source", L("shell:followTable.source")],
@@ -103443,57 +103481,57 @@ var x6 = (e = "60%") => `<span class="skeleton" style="width:${e}"></span>`, tJe
 	["status", L("shell:followTable.status")],
 	["checked", L("shell:followTable.lastChecked")],
 	["actions", L("follow:shared.actions")]
-], dJe = {
+], fJe = {
 	name: "author",
 	source: "source",
 	provider: "provider",
 	status: "status",
 	checked: "checked"
-}, fJe = "<svg viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M12.7071 15.2929C12.3166 15.6834 11.6834 15.6834 11.2929 15.2929L7.70711 11.7071C7.07714 11.0771 7.52331 10 8.41421 10H15.5858C16.4767 10 16.9229 11.0771 16.2929 11.7071L12.7071 15.2929Z\" fill=\"currentColor\"/></svg>", pJe = (e, { sort: t, dir: n }) => `<div data-board-data-table data-follow-table class="follow-skeleton-table"><div class="w-full overflow-x-auto"><table class="bui-table bui-table-sm"><thead><tr>${uJe.map(([e, r]) => r ? e === "actions" ? `<th>${r}</th>` : `<th><span class="flex items-center gap-0.5">${r}<span data-sort-indicator${dJe[t] === e ? ` data-direction="${n === "asc" ? "ascending" : "descending"}"` : ""}>${fJe}</span></span></th>` : "<th></th>").join("")}</tr></thead><tbody>${S6(`<tr>${[
+}, pJe = "<svg viewBox=\"0 0 24 24\" fill=\"none\" aria-hidden=\"true\"><path d=\"M12.7071 15.2929C12.3166 15.6834 11.6834 15.6834 11.2929 15.2929L7.70711 11.7071C7.07714 11.0771 7.52331 10 8.41421 10H15.5858C16.4767 10 16.9229 11.0771 16.2929 11.7071L12.7071 15.2929Z\" fill=\"currentColor\"/></svg>", mJe = (e, { sort: t, dir: n }) => `<div data-board-data-table data-follow-table class="follow-skeleton-table"><div class="w-full overflow-x-auto"><table class="bui-table bui-table-sm"><thead><tr>${dJe.map(([e, r]) => r ? e === "actions" ? `<th>${r}</th>` : `<th><span class="flex items-center gap-0.5">${r}<span data-sort-indicator${fJe[t] === e ? ` data-direction="${n === "asc" ? "ascending" : "descending"}"` : ""}>${pJe}</span></span></th>` : "<th></th>").join("")}</tr></thead><tbody>${S6(`<tr>${[
 	E6(),
 	`<span class="flex min-w-0 items-center gap-2">${T6(32, 32, !0)}${w6("5em")}</span>`,
 	w6("10em"),
 	`<span class="flex items-center gap-1.5">${T6(14, 14)}${w6("4em")}</span>`,
 	T6(48, 24),
 	w6("113px"),
-	sJe()
-].map((e) => `<td>${e}</td>`).join("")}</tr>`, e)}</tbody></table></div></div>`, mJe = (e, t) => `<div class="flex flex-wrap items-center justify-between gap-3"><span class="mr-auto text-body-2-regular text-text-secondary">${w6("111px")}</span><div data-toolbar-actions>${hu(L("shell:tablePagination.perPage", {
+	cJe()
+].map((e) => `<td>${e}</td>`).join("")}</tr>`, e)}</tbody></table></div></div>`, hJe = (e, t) => `<div class="flex flex-wrap items-center justify-between gap-3"><span class="mr-auto text-body-2-regular text-text-secondary">${w6("111px")}</span><div data-toolbar-actions>${hu(L("shell:tablePagination.perPage", {
 	count: t,
 	unit: L(e ? "follow:followOverview.itemUnit" : "follow:followOverview.creatorUnit")
-}), { size: "sm" })}${T6(204, 32)}</div></div>`, hJe = () => `<div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface"><h3 class="text-title-2-medium text-text-primary">${w6("120px")}</h3>${[
+}), { size: "sm" })}${T6(204, 32)}</div></div>`, gJe = () => `<div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface"><h3 class="text-title-2-medium text-text-primary">${w6("120px")}</h3>${[
 	"72%",
 	"56%",
 	"64%",
 	"40%"
-].map((e) => `<span class="text-body-medium">${w6(e)}</span>`).join("")}</div>`, gJe = (e) => {
-	let t = iJe(e.followTab);
-	if (t !== "list") return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${rJe()}<div class="flex flex-col gap-6">${aJe(t)}<div class="flex flex-col gap-4">${hJe()}</div></div></div></div>`;
-	let n = e.followLayout === "table", r = Ra(e.followSort, e.followDir), i = e.followPageSize || lJe(), a = n ? pJe(i, r) : `${E6(L("follow:sourceList.selectPageShort"))}<div class="flex flex-col gap-3">${D6(3)}${D6(4)}${D6(3)}</div>`;
-	return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${rJe()}<div class="flex flex-col gap-6">${aJe(t)}<div class="flex flex-col gap-4"><div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface" data-layout="${n ? "table" : "default"}">${oJe({
+].map((e) => `<span class="text-body-medium">${w6(e)}</span>`).join("")}</div>`, _Je = (e) => {
+	let t = aJe(e.followTab);
+	if (t !== "list") return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${iJe()}<div class="flex flex-col gap-6">${oJe(t)}<div class="flex flex-col gap-4">${gJe()}</div></div></div></div>`;
+	let n = e.followLayout === "table", r = Ra(e.followSort, e.followDir), i = e.followPageSize || uJe(), a = n ? mJe(i, r) : `${E6(L("follow:sourceList.selectPageShort"))}<div class="flex flex-col gap-3">${D6(3)}${D6(4)}${D6(3)}</div>`;
+	return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${iJe()}<div class="flex flex-col gap-6">${oJe(t)}<div class="flex flex-col gap-4"><div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface" data-layout="${n ? "table" : "default"}">${sJe({
 		table: n,
 		...r
-	})}${a}${mJe(n, i)}</div></div></div></div></div>`;
+	})}${a}${hJe(n, i)}</div></div></div></div></div>`;
 };
-function _Je() {
-	return `<div data-stage-grid="" aria-hidden="true"><div data-stage-media="" class="ui-skeleton-detail-media skeleton"></div><aside data-stage-side=""><div data-stage-side-content="" class="ui-skeleton-lines">${x6("85%")}${x6("65%")}${S6(tJe(), 4)}</div></aside></div>`;
+function vJe() {
+	return `<div data-stage-grid="" aria-hidden="true"><div data-stage-media="" class="ui-skeleton-detail-media skeleton"></div><aside data-stage-side=""><div data-stage-side-content="" class="ui-skeleton-lines">${x6("85%")}${x6("65%")}${S6(nJe(), 4)}</div></aside></div>`;
 }
-function vJe(e, t = {}) {
+function yJe(e, t = {}) {
 	let n = "";
-	if (e === "/stats") n = Yqe();
+	if (e === "/stats") n = Xqe();
 	else if (e === "/jav") {
 		let e = bJ(new URLSearchParams(location.search).get("tab"));
 		n = bOe(e === "library" ? "discover" : e);
-	} else if (e === "/taste") n = Xqe();
-	else if (e === "/subscriptions") n = gJe(t);
-	else if (Oh(e) && e.split("/")[2] in Sh) n = Kqe(Sh[e.split("/")[2]]);
+	} else if (e === "/taste") n = Zqe();
+	else if (e === "/subscriptions") n = _Je(t);
+	else if (Oh(e) && e.split("/")[2] in Sh) n = qqe(Sh[e.split("/")[2]]);
 	else if (e === "/tasks") n = `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${[
 		L("manage:taskCenter.inProgress"),
 		L("manage:taskCenter.skipped"),
 		L("manage:taskCenter.recentlyCompleted")
 	].map((e) => `<section class="activitysection flex min-w-0 flex-col gap-3"><h3 class="text-title-2-medium text-text-primary">${e}</h3><div class="min-w-0 rounded-2xl shadow-card bg-background-secondary-default"><div class="flex flex-col gap-1.5 px-5 pt-5 pb-4"><span class="text-title-1-medium">${w6("8em")}</span><span class="text-caption-1-regular">${w6("14em")}</span>${w6("60%")}${w6("40%")}</div><div class="border-t border-separator-border px-5 py-2.5">${w6("6em")}</div></div></section>`).join("")}</div></div>`;
-	else if (e === "/settings/maintenance/repairs") n = eJe();
-	else if (e === "/duplicates") n = Zqe();
-	else if (e === "/quality-goals") n = Qqe();
+	else if (e === "/settings/maintenance/repairs") n = tJe();
+	else if (e === "/duplicates") n = Qqe();
+	else if (e === "/quality-goals") n = $qe();
 	else if (e === "/playlists") n = `<div class="peach-react"><section class="w-full pt-1 pb-10.5"><header class="mb-4 flex items-start justify-between gap-4.5 max-board-narrow:flex-col max-board-narrow:items-stretch"><div><h2 class="mb-1 text-display-4-medium! text-text-primary">${L("catalog:shared.playlists")}</h2><p class="text-body-2-regular text-text-secondary">${L("catalog:playlistsPage.description")}</p></div><div class="flex flex-wrap items-end gap-2"><div class="min-w-50 max-w-80 flex-1 basis-50 max-board-narrow:min-w-0 max-board-narrow:max-w-none"><span class="text-body-medium">${L("catalog:playlistsPage.newPlaylistLabel")}</span><span class="skeleton ui-configuration-skeleton-input mt-1.5"></span></div>${pu({
 		label: L("catalog:playlistsPage.createButton"),
 		attrs: C6
@@ -103502,13 +103540,13 @@ function vJe(e, t = {}) {
 	return `<div class="board-page-skeleton" data-skeleton="board${e}" role="status" aria-label="${L("manage:manageSkeleton.loadingPage")}"><div aria-hidden="true" inert>${n}</div></div>`;
 }
 // src/react/follow-detail/follow-detail.ts
-var O6 = (e) => ["follow-item", e], yJe = (e) => `/api/follow?item=${encodeURIComponent(e)}`, bJe = "/api/follow/save", xJe = "/api/follow/media/hide", SJe = class extends Error {
+var O6 = (e) => ["follow-item", e], bJe = (e) => `/api/follow?item=${encodeURIComponent(e)}`, xJe = "/api/follow/save", SJe = "/api/follow/media/hide", CJe = class extends Error {
 	constructor() {
 		super(L("follow:followDetail.itemGoneError"));
 	}
 };
-async function CJe(e, t) {
-	let n = await U(yJe(e), t);
+async function wJe(e, t) {
+	let n = await U(bJe(e), t);
 	for (let t of n.groups || []) {
 		let r = Xs(t).find((t) => t.id === e);
 		if (r) return {
@@ -103518,9 +103556,9 @@ async function CJe(e, t) {
 			aliases: n.author_aliases || []
 		};
 	}
-	throw new SJe();
+	throw new CJe();
 }
-function wJe(e) {
+function TJe(e) {
 	for (let [, t] of G.getQueriesData({ queryKey: ["follow-item"] })) {
 		if (!t?.group) continue;
 		let n = Xs(t.group).find((t) => t.id === e);
@@ -103531,20 +103569,20 @@ function wJe(e) {
 	}
 	return null;
 }
-async function TJe(e, t) {
+async function EJe(e, t) {
 	let n = O6(e.id), r = Zs(e.id), i = G.getQueryData(Gs) ? null : G.fetchQuery({
 		queryKey: Gs,
 		queryFn: () => Ks(t)
 	}), a = r ? {
 		...r,
 		item: r.item
-	} : G.getQueryData(n) ?? wJe(e.id);
+	} : G.getQueryData(n) ?? TJe(e.id);
 	a ? G.setQueryData(n, a) : await G.fetchQuery({
 		queryKey: n,
-		queryFn: () => CJe(e.id, t)
+		queryFn: () => wJe(e.id, t)
 	}), await i;
 }
-function EJe(e, t, n, r) {
+function DJe(e, t, n, r) {
 	let i = e.media_items || [], a = r === "images" ? "image" : "video", o = i.find((e) => e.media_kind === a) || i[0], s = i.length ? i.find((e) => e.index === (n ?? o.index)) || o : null, c = i.filter((e) => e.media_kind === "image"), l = c.findIndex((e) => e.index === s?.index), u = c.length > 1 && l >= 0, d = i.length > 1 && !u, f = !i.length && t && ac(t).length > 1 ? t : null, p = s?.media_kind || e.media_kind || "", m = (u ? [...c, e] : [s, e]).filter((e) => !!e && (e.width || 0) > 0 && (e.height || 0) > 0);
 	return {
 		embedded: i,
@@ -103559,32 +103597,32 @@ function EJe(e, t, n, r) {
 		src: e.playable ? `/follow-stream?id=${e.id}${s ? `&media=${s.index}` : ""}` : ""
 	};
 }
-var DJe = (e) => Xs(e).find((e) => (e.media_items || []).some((e) => e.resource_group)), OJe = {
+var OJe = (e) => Xs(e).find((e) => (e.media_items || []).some((e) => e.resource_group)), kJe = {
 	"gofile.io": "Gofile",
 	"pixeldrain.com": "Pixeldrain",
 	"mega.nz": "MEGA",
 	"mega.io": "MEGA",
 	"mediafire.com": "MediaFire",
 	"drive.google.com": "Google Drive"
-}, kJe = {
+}, AJe = {
 	gofile: "Gofile",
 	pixeldrain: "Pixeldrain",
 	mega: "MEGA",
 	mediafire: "MediaFire",
 	google_drive: "Google Drive"
 };
-function AJe(e) {
+function jJe(e) {
 	try {
 		let t = new URL(e).hostname.replace(/^www\./, "");
-		return OJe[t] || t;
+		return kJe[t] || t;
 	} catch {
 		return L("follow:followDetail.externalFilePage");
 	}
 }
-function jJe(e, t) {
-	return kJe[e?.resource_provider || ""] || t.provider_label || t.provider || L("follow:followDetail.onlineImage");
+function MJe(e, t) {
+	return AJe[e?.resource_provider || ""] || t.provider_label || t.provider || L("follow:followDetail.onlineImage");
 }
-function MJe(e, t, n = "") {
+function NJe(e, t, n = "") {
 	let r = n;
 	!r && e.is_release && (r = t.variant_label || t.variant_kind || ""), r ||= t.variant_kind === "wip" ? "WIP" : t.variant_label || t.variant_kind || L("follow:shared.video");
 	let i = e.is_release ? t.summary || (t.has_media ? L("follow:followDetail.attachmentsOnly") : L("follow:followDetail.noText")) : t.title;
@@ -103596,54 +103634,54 @@ function MJe(e, t, n = "") {
 		}) : i
 	};
 }
-var NJe = (e) => String(e.name || "").trim(), PJe = (e, t) => e.tag_types?.[t] || "unknown", FJe = /* @__PURE__ */ new Set([
+var PJe = (e) => String(e.name || "").trim(), FJe = (e, t) => e.tag_types?.[t] || "unknown", IJe = /* @__PURE__ */ new Set([
 	"artist",
 	"character",
 	"copyright",
 	"metadata",
 	"unknown"
 ]);
-function IJe(e, t) {
-	let n = PJe(e, t);
-	return `r34-${FJe.has(n) ? n : "general"}`;
+function LJe(e, t) {
+	let n = FJe(e, t);
+	return `r34-${IJe.has(n) ? n : "general"}`;
 }
-var LJe = [
+var RJe = [
 	"copyright",
 	"character",
 	"artist",
 	"general",
 	"metadata"
 ];
-function RJe(e, t) {
+function zJe(e, t) {
 	let n = e.detail_tags || e.tags || [], r = (t) => {
-		let n = LJe.indexOf(PJe(e, t));
-		return n < 0 ? LJe.length : n;
+		let n = RJe.indexOf(FJe(e, t));
+		return n < 0 ? RJe.length : n;
 	};
 	return [...n].sort((e, n) => r(e) - r(n) || t(e).localeCompare(t(n)));
 }
-function zJe(e, t) {
+function BJe(e, t) {
 	let n = t.find((t) => t.id === e.source_id), r = t.filter((e) => n?.author_key && e.author_key === n.author_key);
 	return !r.length && n && r.push(n), r;
 }
-var BJe = (e, t) => ({
+var VJe = (e, t) => ({
 	sources: e.sources,
 	aliases: e.aliases,
 	credentials: t
-}), VJe = (e) => e?.size ? { size: e.size } : {};
-function HJe(e, t) {
+}), HJe = (e) => e?.size ? { size: e.size } : {};
+function UJe(e, t) {
 	let { images: n, kind: r, src: i, selected: a } = t;
 	return n.length ? n.map((t) => ({
 		src: `/follow-stream?id=${e.id}&media=${t.index}`,
 		thumb: t.thumb_url || e.thumb_url || `/follow-stream?id=${e.id}&media=${t.index}`,
 		name: t.name || e.title,
-		source: jJe(t, e),
-		...VJe(t)
+		source: MJe(t, e),
+		...HJe(t)
 	})) : r === "image" && i ? [{
 		src: i,
 		thumb: e.thumb_url || i,
 		name: e.title,
-		source: jJe(a, e),
-		...VJe(a)
+		source: MJe(a, e),
+		...HJe(a)
 	}] : e.thumb_url ? [{
 		src: e.thumb_url,
 		thumb: e.thumb_url,
@@ -103651,7 +103689,7 @@ function HJe(e, t) {
 		source: e.provider_label || e.provider || L("follow:followDetail.onlineImage")
 	}] : [];
 }
-var UJe = (e) => L(e === "seen" ? "follow:followDetail.markedSeen" : "follow:followDetail.statusUpdated"), WJe = L("cleanup:organize.description"), GJe = L("cleanup:organize.scopeHint"), KJe = L("cleanup:organize.parameterHint"), qJe = L("cleanup:resourceSync.description"), JJe = L("cleanup:orphans.description"), YJe = L("cleanup:performerDelete.description"), k6 = "disabled data-skeleton-action", A6 = (e) => `<span class="skeleton skeleton-text" style="width:${e}"></span>`, j6 = (e, t, n = !1) => `<span class="skeleton" style="width:${e}px;height:${t}px;flex:none${n ? ";border-radius:50%" : ""}"></span>`, M6 = (e, t) => `<h3 class="text-title-2-medium text-text-primary${t ? ` ${t}` : ""}">${e}</h3>`, N6 = (e, { label: t = "", className: n = "" } = {}) => `<div data-input-size="medium" class="group flex h-max w-full flex-col items-start gap-1${n ? ` ${n}` : ""}">${t ? `<span class="flex items-center gap-0.5 text-body-medium text-text-primary">${t}</span>` : ""}<div class="relative flex w-full items-center rounded-2lg bg-background-tertiary-default text-foreground-icon-tertiary ring-2 ring-inset ring-transparent p-2"><div class="flex w-full items-center gap-2 min-w-0"><div class="flex flex-1 items-center gap-0.5 min-w-0"><span class="flex min-w-0 flex-1 items-center pl-1 font-sans text-body-regular text-text-tertiary">${e}&#8203;</span></div></div></div></div>`, XJe = [
+var WJe = (e) => L(e === "seen" ? "follow:followDetail.markedSeen" : "follow:followDetail.statusUpdated"), GJe = L("cleanup:organize.description"), KJe = L("cleanup:organize.scopeHint"), qJe = L("cleanup:organize.parameterHint"), JJe = L("cleanup:resourceSync.description"), YJe = L("cleanup:orphans.description"), XJe = L("cleanup:performerDelete.description"), k6 = "disabled data-skeleton-action", A6 = (e) => `<span class="skeleton skeleton-text" style="width:${e}"></span>`, j6 = (e, t, n = !1) => `<span class="skeleton" style="width:${e}px;height:${t}px;flex:none${n ? ";border-radius:50%" : ""}"></span>`, M6 = (e, t) => `<h3 class="text-title-2-medium text-text-primary${t ? ` ${t}` : ""}">${e}</h3>`, N6 = (e, { label: t = "", className: n = "" } = {}) => `<div data-input-size="medium" class="group flex h-max w-full flex-col items-start gap-1${n ? ` ${n}` : ""}">${t ? `<span class="flex items-center gap-0.5 text-body-medium text-text-primary">${t}</span>` : ""}<div class="relative flex w-full items-center rounded-2lg bg-background-tertiary-default text-foreground-icon-tertiary ring-2 ring-inset ring-transparent p-2"><div class="flex w-full items-center gap-2 min-w-0"><div class="flex flex-1 items-center gap-0.5 min-w-0"><span class="flex min-w-0 flex-1 items-center pl-1 font-sans text-body-regular text-text-tertiary">${e}&#8203;</span></div></div></div></div>`, ZJe = [
 	"3em",
 	"5em",
 	"5em",
@@ -103661,7 +103699,7 @@ var UJe = (e) => L(e === "seen" ? "follow:followDetail.markedSeen" : "follow:fol
 	"8em",
 	"8em",
 	"10em"
-], ZJe = [
+], QJe = [
 	"5.8em",
 	"6.4em",
 	"7em",
@@ -103671,15 +103709,15 @@ var UJe = (e) => L(e === "seen" ? "follow:followDetail.markedSeen" : "follow:fol
 	"5.8em",
 	"9em",
 	"9em"
-], QJe = (e, t) => pu({
+], $Je = (e, t) => pu({
 	variant: e,
 	size: "small",
 	label: A6(t)
 });
-function $Je() {
+function eYe() {
 	return `<section class="${a3("stack")}">
     <div class="${r3.stack}">${M6(L("cleanup:organize.title"), "mb-3")}
-      <p class="text-body-regular text-text-secondary">${WJe}</p>
+      <p class="text-body-regular text-text-secondary">${GJe}</p>
       <div class="mt-3 flex flex-col gap-3">
         <div class="flex min-w-0 flex-wrap items-start gap-2">${hu(A6("3em"), {
 		prefix: L("cleanup:organize.storagePrefix"),
@@ -103688,12 +103726,12 @@ function $Je() {
 	})}
           <div class="flex min-w-0 basis-64 flex-1 items-start gap-2">${N6(L("cleanup:organize.pathPlaceholder"), { className: "min-w-0 flex-1" })}<button type="button" class="relative inline-flex shrink-0 items-center justify-center overflow-visible rounded-2lg bg-background-primary-default text-foreground-icon-primary border border-border-button-default shadow-xs size-9">${uu("folder-search", "size-5 shrink-0")}</button></div>
         </div>
-        <p class="text-caption-1-regular text-text-secondary">${GJe}</p>
+        <p class="text-caption-1-regular text-text-secondary">${KJe}</p>
         ${N6(A6("12em"), { label: L("cleanup:organize.fileTemplate") })}${N6(A6("8em"), { label: L("cleanup:organize.dirTemplate") })}
-        <div class="flex flex-col gap-2"><p class="text-caption-1-medium text-text-secondary">${L("cleanup:organize.applyPreset")}</p><div class="flex flex-wrap gap-2">${XJe.map((e) => QJe("secondary", e)).join("")}</div></div>
+        <div class="flex flex-col gap-2"><p class="text-caption-1-medium text-text-secondary">${L("cleanup:organize.applyPreset")}</p><div class="flex flex-wrap gap-2">${ZJe.map((e) => $Je("secondary", e)).join("")}</div></div>
         <p class="text-caption-1-regular text-text-secondary">${L("cleanup:organize.examplePath")}${A6("16em")}</p>
-        <div class="flex flex-col gap-2"><p class="text-caption-1-regular text-text-secondary"><strong class="text-caption-1-semibold text-text-primary">${L("cleanup:organize.insertParameter")}</strong>${L("cleanup:organize.insertTarget", { target: L("cleanup:organize.fileTemplate") })}</p><div class="flex flex-wrap gap-1">${ZJe.map((e) => QJe("ghost", e)).join("")}</div></div>
-        <p class="text-caption-1-regular leading-4.5 text-text-secondary">${KJe}</p>
+        <div class="flex flex-col gap-2"><p class="text-caption-1-regular text-text-secondary"><strong class="text-caption-1-semibold text-text-primary">${L("cleanup:organize.insertParameter")}</strong>${L("cleanup:organize.insertTarget", { target: L("cleanup:organize.fileTemplate") })}</p><div class="flex flex-wrap gap-1">${QJe.map((e) => $Je("ghost", e)).join("")}</div></div>
+        <p class="text-caption-1-regular leading-4.5 text-text-secondary">${qJe}</p>
       </div>
     </div>
     <footer class="${i3.stack}">${pu({
@@ -103702,21 +103740,21 @@ function $Je() {
 	})}</footer>
   </section>`;
 }
-var eYe = () => `<section class="flex scroll-mt-20 flex-col gap-4">
+var tYe = () => `<section class="flex scroll-mt-20 flex-col gap-4">
   <section class="${a3("split")}"><div class="${r3.split}">${M6(L("cleanup:tools.resourceSync"), "mb-2")}
-    <p class="max-w-190 text-body-2-regular leading-5 text-text-secondary">${qJe}</p></div>
+    <p class="max-w-190 text-body-2-regular leading-5 text-text-secondary">${JJe}</p></div>
     <footer class="${i3.split}">${pu({
 	glyph: "git-compare",
 	label: L("cleanup:resourceSync.checkFiles"),
 	attrs: k6
 })}</footer></section>
-</section>`, tYe = (e, t = !1) => `<div class="flex min-w-0 flex-col gap-0.5"><span class="text-caption-1-regular leading-5 text-text-secondary">${e}</span><b class="text-title-2-semibold font-bold leading-5 tabular-nums text-text-primary">${A6("3em")}</b>${t ? `<small class="text-caption-1-regular leading-5 text-text-secondary">${A6("14em")}</small>` : ""}</div>`, nYe = () => `<section class="flex scroll-mt-20 flex-col gap-4">
+</section>`, nYe = (e, t = !1) => `<div class="flex min-w-0 flex-col gap-0.5"><span class="text-caption-1-regular leading-5 text-text-secondary">${e}</span><b class="text-title-2-semibold font-bold leading-5 tabular-nums text-text-primary">${A6("3em")}</b>${t ? `<small class="text-caption-1-regular leading-5 text-text-secondary">${A6("14em")}</small>` : ""}</div>`, rYe = () => `<section class="flex scroll-mt-20 flex-col gap-4">
   <section class="${a3("stack")}"><div class="${r3.stack}">${M6(L("cleanup:tools.links"), "mb-2")}
-    <div class="link-stat-grid mt-4 gap-x-8 gap-y-3">${tYe(L("cleanup:links.totalLinks"), !0)}${[
+    <div class="link-stat-grid mt-4 gap-x-8 gap-y-3">${nYe(L("cleanup:links.totalLinks"), !0)}${[
 	0,
 	1,
 	2
-].map(() => tYe(A6("5em"))).join("")}</div>
+].map(() => nYe(A6("5em"))).join("")}</div>
     <div class="mt-4 flex min-w-0 flex-col gap-0.5"><span class="text-caption-1-regular text-text-secondary">${L("cleanup:links.topSites")}</span><div class="flex min-w-0 flex-wrap gap-x-5 gap-y-2">${[
 	"7em",
 	"10em",
@@ -103728,8 +103766,8 @@ var eYe = () => `<section class="flex scroll-mt-20 flex-col gap-4">
 	attrs: k6
 })}</footer></section>
 </section>`;
-function rYe({ title: e, description: t, search: n = "", columns: r, rows: i }) {
-	let a = r.reduce((e, { width: t }) => e + t, 48), o = `<th style="width:48px"><span class="flex items-center gap-0.5">${E6()}</span></th>${r.map(({ label: e, width: t }, n) => `<th${n ? ` style="width:${t}px"` : ""}><span class="flex items-center gap-0.5">${e}<span data-sort-indicator>${fJe}</span></span></th>`).join("")}<th data-table-space style="width:0"></th>`, s = `<tr><td>${E6()}</td>${r.map(({ cell: e }) => `<td>${e}</td>`).join("")}<td data-table-space></td></tr>`, c = n ? `<div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${fu("", "", n)}</div>` : "";
+function iYe({ title: e, description: t, search: n = "", columns: r, rows: i }) {
+	let a = r.reduce((e, { width: t }) => e + t, 48), o = `<th style="width:48px"><span class="flex items-center gap-0.5">${E6()}</span></th>${r.map(({ label: e, width: t }, n) => `<th${n ? ` style="width:${t}px"` : ""}><span class="flex items-center gap-0.5">${e}<span data-sort-indicator>${pJe}</span></span></th>`).join("")}<th data-table-space style="width:0"></th>`, s = `<tr><td>${E6()}</td>${r.map(({ cell: e }) => `<td>${e}</td>`).join("")}<td data-table-space></td></tr>`, c = n ? `<div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${fu("", "", n)}</div>` : "";
 	return `<div data-data-table-panel class="${cX({
 		padding: "none",
 		className: "flex flex-col gap-4 px-6 py-5 max-sm:px-4"
@@ -103755,26 +103793,26 @@ function rYe({ title: e, description: t, search: n = "", columns: r, rows: i }) 
 	}), { size: "sm" })}</div></div>
   </div>`;
 }
-var iYe = (e, t) => `<span class="flex min-w-0 flex-1 flex-col gap-0.5"><span class="text-body-regular">${A6(e)}</span><small class="text-caption-1-regular">${A6(t)}</small></span>`, aYe = {
+var aYe = (e, t) => `<span class="flex min-w-0 flex-1 flex-col gap-0.5"><span class="text-body-regular">${A6(e)}</span><small class="text-caption-1-regular">${A6(t)}</small></span>`, oYe = {
 	organize: {
 		label: L("cleanup:organize.loading"),
-		body: $Je
+		body: eYe
 	},
 	"resource-sync": {
 		label: L("cleanup:resourceSync.statusLoading"),
-		body: eYe
+		body: tYe
 	},
 	"orphan-records": {
 		label: L("cleanup:orphans.loading"),
-		body: () => `<section class="flex scroll-mt-20 flex-col gap-4">${rYe({
+		body: () => `<section class="flex scroll-mt-20 flex-col gap-4">${iYe({
 			title: L("cleanup:tools.orphanRecords"),
-			description: JJe,
+			description: YJe,
 			rows: 4,
 			columns: [
 				{
 					label: L("cleanup:shared.video"),
 					width: 480,
-					cell: `<span class="flex min-w-0 items-center gap-3"><span class="skeleton flex-none rounded-lg max-cleanup-tight:hidden" style="width:96px;height:60px"></span>${iYe("70%", "40%")}</span>`
+					cell: `<span class="flex min-w-0 items-center gap-3"><span class="skeleton flex-none rounded-lg max-cleanup-tight:hidden" style="width:96px;height:60px"></span>${aYe("70%", "40%")}</span>`
 				},
 				{
 					label: L("cleanup:orphans.columnActivity"),
@@ -103800,13 +103838,13 @@ var iYe = (e, t) => `<span class="flex min-w-0 flex-1 flex-col gap-0.5"><span cl
 	},
 	links: {
 		label: L("cleanup:links.loading"),
-		body: nYe
+		body: rYe
 	},
 	"batch-delete": {
 		label: L("cleanup:performerDelete.loadingLabel"),
-		body: () => `<section class="flex min-w-0 scroll-mt-20 flex-col gap-3">${rYe({
+		body: () => `<section class="flex min-w-0 scroll-mt-20 flex-col gap-3">${iYe({
 			title: L("cleanup:tools.bulkDelete"),
-			description: YJe,
+			description: XJe,
 			search: L("cleanup:performerDelete.search"),
 			rows: 12,
 			columns: [
@@ -103835,7 +103873,7 @@ var iYe = (e, t) => `<span class="flex min-w-0 flex-1 flex-col gap-0.5"><span cl
 	}
 };
 function P6(e) {
-	let { label: t, body: n } = aYe[e];
+	let { label: t, body: n } = oYe[e];
 	return `<div class="peach-react" data-skeleton="cleanup/${e}" aria-busy="true" role="status" aria-label="${t}"><div aria-hidden="true" inert class="mx-auto flex w-full max-w-board flex-col gap-8">${n()}</div></div>`;
 }
 // src/management-placeholder.ts
@@ -103847,15 +103885,15 @@ var F6 = (e, { cards: t = !1, className: n = "", variant: r = "", count: i, fill
 	...i ? { count: i } : {},
 	...a === void 0 ? {} : { fill: a },
 	...o ? { cardRatio: o } : {}
-}), oYe = () => NP("review", yF().value.navigationOrders.review).map((e) => AP.review.items.find(([t]) => t === e)[1]), sYe = (e = L("manage:reviewSkeleton.loading")) => `<div class="review review-workspace review-skeleton" data-skeleton="review" aria-busy="true" aria-label="${H(e)}">
+}), sYe = () => NP("review", yF().value.navigationOrders.review).map((e) => AP.review.items.find(([t]) => t === e)[1]), cYe = (e = L("manage:reviewSkeleton.loading")) => `<div class="review review-workspace review-skeleton" data-skeleton="review" aria-busy="true" aria-label="${H(e)}">
   <div class="reviewcontrols" data-section-nav><h2 class="review-category-title">${H(L("manage:reviewPage.categories"))}</h2>
-    <div class="reviewtabs" data-section-items>${oYe().map((e, t) => `<button type="button" disabled aria-selected="${t === 0}">${H(e)}<span class="skeleton reviewcountskeleton" aria-hidden="true"></span></button>`).join("")}</div></div>
+    <div class="reviewtabs" data-section-items>${sYe().map((e, t) => `<button type="button" disabled aria-selected="${t === 0}">${H(e)}<span class="skeleton reviewcountskeleton" aria-hidden="true"></span></button>`).join("")}</div></div>
   <div class="reviewbulkbar reviewbulktoolbar" aria-hidden="true">${"<span class=\"skeleton reviewtoolskeleton\"></span>".repeat(3)}</div>
-  <section class="reviewsection"><div class="reviewlist">${"<div class=\"skeletoncard\" aria-hidden=\"true\"><i></i><b></b><em></em></div>".repeat(6)}</div></section></div>`, cYe = {
+  <section class="reviewsection"><div class="reviewlist">${"<div class=\"skeletoncard\" aria-hidden=\"true\"><i></i><b></b><em></em></div>".repeat(6)}</div></section></div>`, lYe = {
 	"/data-cleanup": () => $Ue(),
 	...Object.fromEntries(Xh.map((e) => [e.path, () => P6(e.key)])),
 	"/resource-sync": () => P6("resource-sync"),
-	"/review": () => sYe(),
+	"/review": () => cYe(),
 	"/sources": () => `<div class="scraping-page"><p>${H(L("manage:scrapingSources.proxyHint"))}</p>
     <div data-section-page><div data-section-toc aria-hidden="true">
       ${Array.from({ length: 12 }, () => "<div class=\"skeleton\" style=\"height:36px;margin-bottom:4px;border-radius:8px\"></div>").join("")}
@@ -103867,17 +103905,17 @@ var F6 = (e, { cards: t = !1, className: n = "", variant: r = "", count: i, fill
 	})}</div></div></div>`
 };
 function I6(e, { followLayout: t, followSort: n, followDir: r }) {
-	return vJe(e, {
+	return yJe(e, {
 		followLayout: t,
 		...e === "/subscriptions" ? {
 			followSort: n,
 			followDir: r
 		} : {}
-	}) || (cYe[e] ?? (() => F6(L("manage:manageSkeleton.loadingPage"))))();
+	}) || (lYe[e] ?? (() => F6(L("manage:manageSkeleton.loadingPage"))))();
 }
-var lYe = (e) => String(e).match(/data-skeleton="([^"]*)"/)?.[1] || "";
+var uYe = (e) => String(e).match(/data-skeleton="([^"]*)"/)?.[1] || "";
 function L6(e, t) {
-	let n = e.querySelector("[data-skeleton]")?.dataset.skeleton || "", r = lYe(t);
+	let n = e.querySelector("[data-skeleton]")?.dataset.skeleton || "", r = uYe(t);
 	r && r === n || (e.innerHTML = t, ed(e));
 }
 // src/react/components/detail-failure.tsx
@@ -103897,7 +103935,7 @@ function R6({ detail: e, busy: t, onRetry: n }) {
 	});
 }
 // src/react/components/related-section.tsx
-function uYe({ children: e, wireDrag: t, busy: n, empty: r, error: i, onRetry: a, online: o = !1, ...s }) {
+function dYe({ children: e, wireDrag: t, busy: n, empty: r, error: i, onRetry: a, online: o = !1, ...s }) {
 	let c = (0, R.useCallback)((e) => {
 		e && (ed(e), t(e));
 	}, [t]);
@@ -103936,7 +103974,7 @@ function uYe({ children: e, wireDrag: t, busy: n, empty: r, error: i, onRetry: a
 	});
 }
 // src/react/components/detail-continuation.tsx
-function dYe({ queue: e, children: t, queueCards: n }) {
+function fYe({ queue: e, children: t, queueCards: n }) {
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-detail-continuation": "",
 		"data-queue-cards": n == null ? void 0 : Math.min(3, n),
@@ -104027,7 +104065,7 @@ function z6({ items: e, position: t, onSelect: n, below: r = !1, renderThumbnail
 				"data-media-thumbnails": "",
 				role: "group",
 				"aria-label": L("shell:mediaCarousel.thumbnails"),
-				children: e.map((e, r) => /* @__PURE__ */ (0, z.jsx)(fYe, {
+				children: e.map((e, r) => /* @__PURE__ */ (0, z.jsx)(pYe, {
 					item: e,
 					selected: r === t,
 					onSelect: n,
@@ -104046,7 +104084,7 @@ function z6({ items: e, position: t, onSelect: n, below: r = !1, renderThumbnail
 		]
 	});
 }
-function fYe({ item: e, selected: t, onSelect: n, render: r }) {
+function pYe({ item: e, selected: t, onSelect: n, render: r }) {
 	let i = (0, R.useRef)(null), [a, o] = (0, R.useState)(typeof IntersectionObserver > "u");
 	return (0, R.useEffect)(() => {
 		if (!i.current || a) return;
@@ -104072,7 +104110,7 @@ function fYe({ item: e, selected: t, onSelect: n, render: r }) {
 	});
 }
 // src/react/follow-detail/follow-related.ts
-var pYe = (e, t, n) => [
+var mYe = (e, t, n) => [
 	"follow-feed",
 	"related",
 	e,
@@ -104094,19 +104132,19 @@ function B6(e, t, n, r) {
 		};
 	}).sort((e, t) => Number(t.sameAuthor) - Number(e.sameAuthor) || t.common - e.common || e.order - t.order).slice(0, r).map((e) => e.group);
 }
-var mYe = /* @__PURE__ */ new Set(["metadata", "artist"]);
-function hYe(e, t, n) {
+var hYe = /* @__PURE__ */ new Set(["metadata", "artist"]);
+function gYe(e, t, n) {
 	let r = (e) => e.detail_tags || e.tags || [], i = new Set(r(t.item)), a = t.sources.find((e) => e.id === t.item.source_id)?.author_key, o = new Map(e.flatMap((e) => e.sources || []).map((e) => [e.id, e])), s = /* @__PURE__ */ new Map();
 	for (let t of e.flatMap((e) => e.groups || [])) for (let e of r(rc(t, n))) s.set(e, (s.get(e) || 0) + 1);
 	return (e) => {
-		let t = rc(e, n), c = t.source_id === void 0 ? void 0 : o.get(t.source_id), l = r(t).filter((e) => i.has(e) && !mYe.has(t.tag_types?.[e] || "")).sort((e, t) => (s.get(e) || 0) - (s.get(t) || 0) || e.localeCompare(t));
+		let t = rc(e, n), c = t.source_id === void 0 ? void 0 : o.get(t.source_id), l = r(t).filter((e) => i.has(e) && !hYe.has(t.tag_types?.[e] || "")).sort((e, t) => (s.get(e) || 0) - (s.get(t) || 0) || e.localeCompare(t));
 		return {
 			reasons: a && c?.author_key === a ? [L("follow:followDetail.sameCreator")] : [],
 			tags: l
 		};
 	};
 }
-async function gYe(e, t, n, r) {
+async function _Ye(e, t, n, r) {
 	let i = e.sources.find((t) => t.id === e.item.source_id)?.author_key || "", a = {
 		...ic(i),
 		status: "new",
@@ -104126,7 +104164,7 @@ async function gYe(e, t, n, r) {
 	};
 }
 // src/react/follow-detail/follow-tags.tsx
-function _Ye({ item: e, label: t, actions: n }) {
+function vYe({ item: e, label: t, actions: n }) {
 	let r = GK(), i = () => G.invalidateQueries({ predicate: (e) => [
 		"follow-feed",
 		"follow",
@@ -104167,9 +104205,9 @@ function _Ye({ item: e, label: t, actions: n }) {
 		"data-follow-tag-editor": "",
 		"data-follow-detail-tags": "",
 		children: [/* @__PURE__ */ (0, z.jsx)(R4, {
-			tags: RJe(e, t).map((t) => ({
+			tags: zJe(e, t).map((t) => ({
 				k: t,
-				cat: IJe(e, t)
+				cat: LJe(e, t)
 			})),
 			scope: "online",
 			adding: !!r.busy,
@@ -104195,25 +104233,25 @@ function _Ye({ item: e, label: t, actions: n }) {
 	});
 }
 // src/react/follow-detail/follow-detail-page.tsx
-var vYe = (e) => Number(e) > 0, yYe = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
+var yYe = (e) => Number(e) > 0, bYe = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 	className: "contents",
 	dangerouslySetInnerHTML: { __html: V(e) }
-}), bYe = V("external-link", "ui-externalmark");
-function xYe(e) {
+}), xYe = V("external-link", "ui-externalmark");
+function SYe(e) {
 	let { id: t, actions: n } = e, r = br({
 		queryKey: O6(t),
-		queryFn: ({ signal: e }) => CJe(t, e)
+		queryFn: ({ signal: e }) => wJe(t, e)
 	}), i = br({
 		queryKey: Gs,
 		queryFn: ({ signal: e }) => Ks(e)
 	}), a = (0, R.useMemo)(() => new Set((i.data?.providers || []).filter((e) => e.present).map((e) => e.provider)), [i.data]), [o, s] = (0, R.useState)(e.mediaIndex);
-	return r.data ? /* @__PURE__ */ (0, z.jsx)(wYe, {
+	return r.data ? /* @__PURE__ */ (0, z.jsx)(TYe, {
 		...e,
 		data: r.data,
-		context: BJe(r.data, a),
+		context: VJe(r.data, a),
 		mediaIndex: o,
 		onMedia: s
-	}) : r.isError && !SYe(r.error) ? /* @__PURE__ */ (0, z.jsx)("div", {
+	}) : r.isError && !CYe(r.error) ? /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-stage-grid": "",
 		"data-follow-detail": "",
 		children: /* @__PURE__ */ (0, z.jsxs)("div", {
@@ -104232,13 +104270,13 @@ function xYe(e) {
 			"data-follow-detail-media": "none",
 			children: [/* @__PURE__ */ (0, z.jsx)(V6, { onClose: n.close }), /* @__PURE__ */ (0, z.jsx)("div", {
 				"data-follow-detail-placeholder": "",
-				children: r.isError ? /* @__PURE__ */ (0, z.jsx)(CYe, { onBack: n.close }) : null
+				children: r.isError ? /* @__PURE__ */ (0, z.jsx)(wYe, { onBack: n.close }) : null
 			})]
 		})
 	});
 }
-var SYe = (e) => e instanceof SJe || e instanceof Aa && e.status === 404;
-function CYe({ onBack: e }) {
+var CYe = (e) => e instanceof CJe || e instanceof Aa && e.status === 404;
+function wYe({ onBack: e }) {
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-follow-detail-gone": "",
 		onClick: (t) => {
@@ -104256,8 +104294,8 @@ var V6 = ({ onClose: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	onClick: e,
 	dangerouslySetInnerHTML: { __html: V("x") }
 });
-function wYe({ data: e, context: t, mediaIndex: n, onMedia: r, mediaView: i, relatedLimit: a, helpers: o, actions: s }) {
-	let { item: c, group: l } = e, u = EJe(c, l, n, i), d = NYe(c, s, r), f = `${c.id}:${u.selected?.index ?? ""}`, [p, m] = (0, R.useState)({
+function TYe({ data: e, context: t, mediaIndex: n, onMedia: r, mediaView: i, relatedLimit: a, helpers: o, actions: s }) {
+	let { item: c, group: l } = e, u = DJe(c, l, n, i), d = PYe(c, s, r), f = `${c.id}:${u.selected?.index ?? ""}`, [p, m] = (0, R.useState)({
 		key: "",
 		kind: ""
 	}), h = {
@@ -104277,20 +104315,20 @@ function wYe({ data: e, context: t, mediaIndex: n, onMedia: r, mediaView: i, rel
 		c,
 		u.kind
 	]);
-	let g = !u.embedded.length && u.collection ? DJe(u.collection) : void 0, _ = u.embeddedQueue ? /* @__PURE__ */ (0, z.jsx)(AYe, {
+	let g = !u.embedded.length && u.collection ? OJe(u.collection) : void 0, _ = u.embeddedQueue ? /* @__PURE__ */ (0, z.jsx)(jYe, {
 		item: c,
 		current: u.selected.index,
 		helpers: o,
 		actions: s,
 		onMedia: r
-	}) : u.collection ? g ? /* @__PURE__ */ (0, z.jsx)(AYe, {
+	}) : u.collection ? g ? /* @__PURE__ */ (0, z.jsx)(jYe, {
 		item: g,
 		current: null,
 		helpers: o,
 		actions: s,
 		onMedia: r,
 		currentId: c.id
-	}) : /* @__PURE__ */ (0, z.jsx)(kYe, {
+	}) : /* @__PURE__ */ (0, z.jsx)(AYe, {
 		group: u.collection,
 		itemId: c.id,
 		helpers: o,
@@ -104300,14 +104338,14 @@ function wYe({ data: e, context: t, mediaIndex: n, onMedia: r, mediaView: i, rel
 		"data-stage-grid": "",
 		"data-with-queue": _ ? "" : void 0,
 		"data-follow-detail": "",
-		children: [/* @__PURE__ */ (0, z.jsx)(EYe, {
+		children: [/* @__PURE__ */ (0, z.jsx)(DYe, {
 			item: c,
 			media: u,
 			helpers: o,
 			actions: s,
 			onMedia: r,
 			issues: h
-		}, f), /* @__PURE__ */ (0, z.jsx)(jYe, {
+		}, f), /* @__PURE__ */ (0, z.jsx)(MYe, {
 			item: c,
 			data: e,
 			context: t,
@@ -104317,9 +104355,9 @@ function wYe({ data: e, context: t, mediaIndex: n, onMedia: r, mediaView: i, rel
 			helpers: o,
 			actions: s
 		})]
-	}), /* @__PURE__ */ (0, z.jsx)(dYe, {
+	}), /* @__PURE__ */ (0, z.jsx)(fYe, {
 		queue: _,
-		children: a > 0 ? /* @__PURE__ */ (0, z.jsx)(TYe, {
+		children: a > 0 ? /* @__PURE__ */ (0, z.jsx)(EYe, {
 			data: e,
 			media: u.kind === "image" ? "images" : u.kind === "video" ? "videos" : i,
 			limit: a,
@@ -104329,10 +104367,10 @@ function wYe({ data: e, context: t, mediaIndex: n, onMedia: r, mediaView: i, rel
 		}) : null
 	})] });
 }
-function TYe({ data: e, media: t, limit: n, context: r, helpers: i, actions: a }) {
+function EYe({ data: e, media: t, limit: n, context: r, helpers: i, actions: a }) {
 	let o = br({
-		queryKey: pYe(e.item.id, t, n),
-		queryFn: ({ signal: r }) => gYe(e, t, n, r)
+		queryKey: mYe(e.item.id, t, n),
+		queryFn: ({ signal: r }) => _Ye(e, t, n, r)
 	}), [s] = (0, R.useState)(() => F6(L("follow:followDetail.loadingRecommendations"), {
 		cards: !0,
 		className: "related-skeleton"
@@ -104340,12 +104378,12 @@ function TYe({ data: e, media: t, limit: n, context: r, helpers: i, actions: a }
 		openDetail: a.openItem,
 		openAuthor: a.openAuthor,
 		canFlip: a.canFlip
-	}), [a]), l = B6(o.data?.pages || [], e, t, n), u = hYe(o.data?.pages || [], e, t), d = o.data?.pages.at(-1)?.sources || e.sources, f = {
+	}), [a]), l = B6(o.data?.pages || [], e, t, n), u = gYe(o.data?.pages || [], e, t), d = o.data?.pages.at(-1)?.sources || e.sources, f = {
 		...r,
 		sources: d,
 		aliases: o.data?.pages.at(-1)?.author_aliases || r.aliases
 	};
-	return /* @__PURE__ */ (0, z.jsx)(uYe, {
+	return /* @__PURE__ */ (0, z.jsx)(dYe, {
 		online: !0,
 		"data-follow-related": "",
 		wireDrag: i.wireDrag,
@@ -104359,7 +104397,7 @@ function TYe({ data: e, media: t, limit: n, context: r, helpers: i, actions: a }
 			variant: "next",
 			group: e,
 			media: t,
-			authorSources: zJe(e.primary, d),
+			authorSources: BJe(e.primary, d),
 			context: f,
 			selected: !1,
 			selectMode: !1,
@@ -104373,8 +104411,8 @@ function TYe({ data: e, media: t, limit: n, context: r, helpers: i, actions: a }
 		})
 	});
 }
-function EYe({ item: e, media: t, actions: n, onMedia: r, issues: i }) {
-	let { kind: a, selected: o, src: s, images: c, position: l, carousel: u, frameRatio: d } = t, f = (0, R.useRef)(null), p = HJe(e, t), m = o?.thumb_url || e.thumb_url || "", h = e.playable && a === "video", g = e.playable && a === "image" ? s : e.thumb_url || "", _ = e.playable && a === "image" && m && m !== s ? m : "", [v, y] = (0, R.useState)(g), b = (0, R.useRef)({
+function DYe({ item: e, media: t, actions: n, onMedia: r, issues: i }) {
+	let { kind: a, selected: o, src: s, images: c, position: l, carousel: u, frameRatio: d } = t, f = (0, R.useRef)(null), p = UJe(e, t), m = o?.thumb_url || e.thumb_url || "", h = e.playable && a === "video", g = e.playable && a === "image" ? s : e.thumb_url || "", _ = e.playable && a === "image" && m && m !== s ? m : "", [v, y] = (0, R.useState)(g), b = (0, R.useRef)({
 		item: e,
 		selected: o
 	}), x = (0, R.useRef)(i.failed);
@@ -104423,7 +104461,7 @@ function EYe({ item: e, media: t, actions: n, onMedia: r, issues: i }) {
 		]
 	});
 }
-var DYe = ({ kind: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
+var OYe = ({ kind: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 	"data-follow-nothumb": "",
 	dangerouslySetInnerHTML: { __html: V(e === "image" ? "image-off" : "play") }
 });
@@ -104437,13 +104475,13 @@ function H6({ src: e }) {
 		onError: () => n(!0)
 	});
 }
-function OYe(e) {
+function kYe(e) {
 	return (0, R.useCallback)((t) => {
 		t && e.wireDrag(t);
 	}, [e]);
 }
-function kYe({ group: e, itemId: t, helpers: n, actions: r }) {
-	let i = ac(e), a = OYe(n);
+function AYe({ group: e, itemId: t, helpers: n, actions: r }) {
+	let i = ac(e), a = kYe(n);
 	return /* @__PURE__ */ (0, z.jsx)(x$, {
 		kind: "collection",
 		"data-follow-queue": "",
@@ -104455,12 +104493,12 @@ function kYe({ group: e, itemId: t, helpers: n, actions: r }) {
 			count: i.length
 		}),
 		children: i.map((n) => {
-			let i = e.duplicates.includes(n), a = MJe(e, n, i ? n.provider_label : ""), o = i ? qZ(n.provider, n.provider_label) : "";
+			let i = e.duplicates.includes(n), a = NJe(e, n, i ? n.provider_label : ""), o = i ? qZ(n.provider, n.provider_label) : "";
 			return /* @__PURE__ */ (0, z.jsxs)(S$, {
 				current: n.id === t,
 				"data-follow-queue-item": n.id,
 				onClick: () => r.openItem(n.id),
-				pic: /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [n.thumb_url ? /* @__PURE__ */ (0, z.jsx)(H6, { src: n.thumb_url }) : /* @__PURE__ */ (0, z.jsx)(DYe, { kind: "video" }), vYe(n.duration) ? /* @__PURE__ */ (0, z.jsx)("i", {
+				pic: /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [n.thumb_url ? /* @__PURE__ */ (0, z.jsx)(H6, { src: n.thumb_url }) : /* @__PURE__ */ (0, z.jsx)(OYe, { kind: "video" }), yYe(n.duration) ? /* @__PURE__ */ (0, z.jsx)("i", {
 					className: "mono",
 					"data-mix-item-duration": "",
 					children: _a(n.duration)
@@ -104485,8 +104523,8 @@ function kYe({ group: e, itemId: t, helpers: n, actions: r }) {
 		})
 	});
 }
-function AYe({ item: e, current: t, currentId: n = e.id, helpers: r, actions: i, onMedia: a }) {
-	let o = e.media_items || [], s = OYe(r), c = [];
+function jYe({ item: e, current: t, currentId: n = e.id, helpers: r, actions: i, onMedia: a }) {
+	let o = e.media_items || [], s = kYe(r), c = [];
 	o.forEach((e) => {
 		let t = e.resource_group || "ungrouped", n = c.find((e) => e.key === t);
 		n || (n = {
@@ -104515,10 +104553,10 @@ function AYe({ item: e, current: t, currentId: n = e.id, helpers: r, actions: i,
 			"data-follow-media-item": n.index,
 			"data-media-kind": n.media_kind || "",
 			onClick: () => l(n),
-			pic: n.thumb_url ? /* @__PURE__ */ (0, z.jsx)(H6, { src: n.thumb_url }) : /* @__PURE__ */ (0, z.jsx)(DYe, { kind: n.media_kind || "" }),
+			pic: n.thumb_url ? /* @__PURE__ */ (0, z.jsx)(H6, { src: n.thumb_url }) : /* @__PURE__ */ (0, z.jsx)(OYe, { kind: n.media_kind || "" }),
 			children: [/* @__PURE__ */ (0, z.jsx)("b", {
 				"data-middle-truncate": "",
-				children: NJe(n)
+				children: PJe(n)
 			}), /* @__PURE__ */ (0, z.jsx)("span", {
 				"data-truncate-end": "",
 				children: n.media_kind === "image" ? L("follow:shared.image") : L("follow:shared.video")
@@ -104526,13 +104564,13 @@ function AYe({ item: e, current: t, currentId: n = e.id, helpers: r, actions: i,
 		}, n.index))])
 	});
 }
-function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpers: o, actions: s }) {
+function MYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpers: o, actions: s }) {
 	let { kind: c, selected: l, src: u } = r, d = {
 		primary: e,
 		variants: [],
 		duplicates: [],
 		has_wip: e.variant_kind === "wip"
-	}, f = tQ(d, e), p = $Z(e, zJe(e, t.sources), n), m = p.credited ? "" : e.author && fa(e.author) !== fa(p.author) ? e.author : "", h = nQ(e, n), g = e.status === "saved", { busy: _ } = i, v = (e) => _.has(e) ? {
+	}, f = tQ(d, e), p = $Z(e, BJe(e, t.sources), n), m = p.credited ? "" : e.author && fa(e.author) !== fa(p.author) ? e.author : "", h = nQ(e, n), g = e.status === "saved", { busy: _ } = i, v = (e) => _.has(e) ? {
 		"aria-busy": !0,
 		"aria-disabled": !0
 	} : {};
@@ -104556,7 +104594,7 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 						rel: "noreferrer noopener",
 						title: L("follow:followDetail.viewOnSite"),
 						"aria-label": L("follow:followDetail.viewOnSite"),
-						dangerouslySetInnerHTML: { __html: bYe }
+						dangerouslySetInnerHTML: { __html: xYe }
 					}) : null]
 				}),
 				/* @__PURE__ */ (0, z.jsxs)("div", {
@@ -104565,7 +104603,7 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 					"data-reveal-line": "",
 					children: [
 						/* @__PURE__ */ (0, z.jsx)("span", { children: aQ(e) }),
-						vYe(e.duration) ? /* @__PURE__ */ (0, z.jsx)("span", { children: _a(e.duration) }) : null,
+						yYe(e.duration) ? /* @__PURE__ */ (0, z.jsx)("span", { children: _a(e.duration) }) : null,
 						f ? /* @__PURE__ */ (0, z.jsx)("span", {
 							"data-follow-badges": "",
 							dangerouslySetInnerHTML: { __html: f }
@@ -104622,7 +104660,7 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 						] }) : null]
 					}) : null]
 				}),
-				e.summary ? /* @__PURE__ */ (0, z.jsx)(MYe, { text: e.summary }, e.id) : null,
+				e.summary ? /* @__PURE__ */ (0, z.jsx)(NYe, { text: e.summary }, e.id) : null,
 				h ? /* @__PURE__ */ (0, z.jsx)("p", {
 					"data-follow-media-issue": "",
 					children: h
@@ -104645,9 +104683,9 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 						href: e,
 						target: "_blank",
 						rel: "noreferrer noopener",
-						children: [AJe(e), /* @__PURE__ */ (0, z.jsx)("span", {
+						children: [jJe(e), /* @__PURE__ */ (0, z.jsx)("span", {
 							className: "contents",
-							dangerouslySetInnerHTML: { __html: bYe }
+							dangerouslySetInnerHTML: { __html: xYe }
 						})]
 					}, e))
 				}) : null,
@@ -104743,7 +104781,7 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 							"aria-label": L("follow:followDetail.unhideMedia", { name: e.name || "" }),
 							...v(`restore:${e.index}`),
 							onClick: () => i.restore(e.index),
-							children: [e.thumb_url ? /* @__PURE__ */ (0, z.jsx)(H6, { src: e.thumb_url }) : /* @__PURE__ */ (0, z.jsx)(yYe, { name: "image-off" }), /* @__PURE__ */ (0, z.jsx)("i", { dangerouslySetInnerHTML: { __html: V("rotate-ccw") } })]
+							children: [e.thumb_url ? /* @__PURE__ */ (0, z.jsx)(H6, { src: e.thumb_url }) : /* @__PURE__ */ (0, z.jsx)(bYe, { name: "image-off" }), /* @__PURE__ */ (0, z.jsx)("i", { dangerouslySetInnerHTML: { __html: V("rotate-ccw") } })]
 						}, e.index))
 					})]
 				}) : null,
@@ -104752,7 +104790,7 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 					"aria-live": "polite",
 					children: i.failure
 				}),
-				/* @__PURE__ */ (0, z.jsx)(_Ye, {
+				/* @__PURE__ */ (0, z.jsx)(vYe, {
 					item: e,
 					label: o.tagLabel,
 					actions: s
@@ -104761,7 +104799,7 @@ function jYe({ item: e, data: t, context: n, media: r, write: i, issue: a, helpe
 		})
 	});
 }
-function MYe({ text: e }) {
+function NYe({ text: e }) {
 	let t = (0, R.useRef)(null), [n, r] = (0, R.useState)(!1), [i, a] = (0, R.useState)(!1);
 	return (0, R.useLayoutEffect)(() => {
 		let e = t.current;
@@ -104786,7 +104824,7 @@ function MYe({ text: e }) {
 		children: L(n ? "follow:shared.collapse" : "follow:shared.expand")
 	}) : null] });
 }
-function NYe(e, t, n) {
+function PYe(e, t, n) {
 	let r = e.id, i = O6(r), [a, o] = (0, R.useState)(() => /* @__PURE__ */ new Set()), [s, c] = (0, R.useState)(""), l = (e, t) => o((n) => {
 		let r = new Set(n);
 		return t ? r.add(e) : r.delete(e), r;
@@ -104806,7 +104844,7 @@ function NYe(e, t, n) {
 			to: e
 		}),
 		onSuccess: (e, { to: n, was: i }) => {
-			u(n), c(""), n === "ignored" && jX(), t.toast(UJe(n), { undo: i === "saved" ? void 0 : async () => {
+			u(n), c(""), n === "ignored" && jX(), t.toast(WJe(n), { undo: i === "saved" ? void 0 : async () => {
 				await W(po, {
 					item: r,
 					to: i
@@ -104816,7 +104854,7 @@ function NYe(e, t, n) {
 		onError: d,
 		onSettled: (e, t, { to: n }) => l(n, !1)
 	}), p = xr({
-		mutationFn: () => W(bJe, { item: r }),
+		mutationFn: () => W(xJe, { item: r }),
 		onSuccess: () => {
 			u("saved"), c(""), t.toast(L("follow:followDetail.savedToDatabase"));
 		},
@@ -104824,7 +104862,7 @@ function NYe(e, t, n) {
 		onSettled: () => l("save", !1)
 	}), m = xr({
 		mutationFn: async ({ index: e, hidden: t }) => {
-			await W(xJe, {
+			await W(SJe, {
 				item: r,
 				media: e,
 				hidden: t
@@ -104884,7 +104922,7 @@ function NYe(e, t, n) {
 	};
 }
 // src/react/components/user-created-mark.tsx
-function PYe({ className: e, ...t }) {
+function FYe({ className: e, ...t }) {
 	return /* @__PURE__ */ (0, z.jsx)(iY, {
 		variant: "caption",
 		color: "soft",
@@ -104895,7 +104933,7 @@ function PYe({ className: e, ...t }) {
 	});
 }
 // src/react/components/identity-cell.tsx
-function FYe({ kind: e, person: t, onOpen: n, hidden: r, overflow: i, face: a }) {
+function IYe({ kind: e, person: t, onOpen: n, hidden: r, overflow: i, face: a }) {
 	CK();
 	let o = qr(e, t.name, t.id), s = e === "performer" || e === "creator" ? /* @__PURE__ */ (0, z.jsx)("span", {
 		"data-id-face": "",
@@ -104919,7 +104957,7 @@ function FYe({ kind: e, person: t, onOpen: n, hidden: r, overflow: i, face: a })
 			decoding: "async",
 			"data-drop": "self"
 		}) : null]
-	}), c = t.user_created ? /* @__PURE__ */ (0, z.jsx)(PYe, { "data-id-badge": "" }) : null, l = /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [
+	}), c = t.user_created ? /* @__PURE__ */ (0, z.jsx)(FYe, { "data-id-badge": "" }) : null, l = /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [
 		a ?? s,
 		c,
 		/* @__PURE__ */ (0, z.jsx)("span", {
@@ -104946,7 +104984,7 @@ function FYe({ kind: e, person: t, onOpen: n, hidden: r, overflow: i, face: a })
 		children: l
 	});
 }
-function IYe({ people: e, onOpen: t }) {
+function LYe({ people: e, onOpen: t }) {
 	if (!e.length) return null;
 	let n = (e) => /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [
 		/* @__PURE__ */ (0, z.jsx)("span", {
@@ -104955,7 +104993,7 @@ function IYe({ people: e, onOpen: t }) {
 			dangerouslySetInnerHTML: { __html: V("tags") }
 		}),
 		/* @__PURE__ */ (0, z.jsx)("span", { children: e.name }),
-		e.user_created ? /* @__PURE__ */ (0, z.jsx)(PYe, { className: "ms-1.5" }) : null
+		e.user_created ? /* @__PURE__ */ (0, z.jsx)(FYe, { className: "ms-1.5" }) : null
 	] });
 	return /* @__PURE__ */ (0, z.jsxs)("section", {
 		"data-id-group": "series",
@@ -104983,7 +105021,7 @@ function IYe({ people: e, onOpen: t }) {
 	});
 }
 // src/react/components/folded-title.ts
-function LYe(e) {
+function RYe(e) {
 	let t = (0, R.useRef)(null), [n, r] = (0, R.useState)(!1), [i, a] = (0, R.useState)(!1);
 	return (0, R.useLayoutEffect)(() => {
 		let e = t.current;
@@ -105000,7 +105038,7 @@ function LYe(e) {
 	};
 }
 // src/react/item-detail/catalog-picture.tsx
-function RYe({ item: e, image: t, source: n = !1, thumbnail: r = !1 }) {
+function zYe({ item: e, image: t, source: n = !1, thumbnail: r = !1 }) {
 	let [i, a] = (0, R.useState)(""), [o, s] = (0, R.useState)(0);
 	if (n && t > 0 && e.code) return /* @__PURE__ */ (0, z.jsx)(H0, {
 		item: {
@@ -105037,19 +105075,19 @@ function RYe({ item: e, image: t, source: n = !1, thumbnail: r = !1 }) {
 	}, o);
 }
 // src/react/jav-detail/jav-detail.ts
-var U6 = (e) => ["jav-detail", e], W6 = (e, t, n = !1) => U(`/api/jav/detail?code=${encodeURIComponent(e)}${n ? "&refresh=1" : ""}`, t), zYe = (e, t, n, r = !1) => U(`/api/jav/reviews?code=${encodeURIComponent(e)}&page=${t}${r ? "&refresh=1" : ""}`, n), BYe = (e, t) => G.ensureQueryData({
+var U6 = (e) => ["jav-detail", e], W6 = (e, t, n = !1) => U(`/api/jav/detail?code=${encodeURIComponent(e)}${n ? "&refresh=1" : ""}`, t), BYe = (e, t, n, r = !1) => U(`/api/jav/reviews?code=${encodeURIComponent(e)}&page=${t}${r ? "&refresh=1" : ""}`, n), VYe = (e, t) => G.ensureQueryData({
 	queryKey: U6(e.code),
 	queryFn: () => W6(e.code, t),
 	staleTime: 216e5,
 	revalidateIfStale: !0
 });
-function VYe(e, t) {
+function HYe(e, t) {
 	if (!e.ok || !e.more) return;
 	let n = new Set(t.slice(0, -1).flatMap((e) => e.items.map((e) => e.id)));
 	return e.items.some((e) => !n.has(e.id)) ? e.page + 1 : void 0;
 }
 // src/player/external-schemes.ts
-function HYe(e = navigator.userAgent, t = navigator.maxTouchPoints || 0) {
+function UYe(e = navigator.userAgent, t = navigator.maxTouchPoints || 0) {
 	return /Android/.test(e) ? "android" : /iPhone|iPad|iPod/.test(e) || /Macintosh/.test(e) && t > 1 ? "ios" : /Macintosh|Mac OS X/.test(e) ? "mac" : /Windows NT/.test(e) ? "windows" : /Linux|X11/.test(e) ? "linux" : "other";
 }
 function G6(e, t = "") {
@@ -105060,11 +105098,11 @@ var K6 = (e) => encodeURIComponent(e), q6 = {
 	id: "vlc",
 	label: "VLC",
 	link: (e) => `vlc://${e}`
-}, UYe = {
+}, WYe = {
 	id: "infuse",
 	label: "Infuse",
 	link: (e) => `infuse://x-callback-url/play?url=${K6(e)}`
-}, WYe = {
+}, GYe = {
 	windows: [{
 		id: "potplayer",
 		label: "PotPlayer",
@@ -105077,7 +105115,7 @@ var K6 = (e) => encodeURIComponent(e), q6 = {
 			link: (e) => `iina://weblink?url=${K6(e)}`
 		},
 		q6,
-		UYe
+		WYe
 	],
 	ios: [
 		{
@@ -105085,7 +105123,7 @@ var K6 = (e) => encodeURIComponent(e), q6 = {
 			label: "VLC",
 			link: (e) => `vlc-x-callback://x-callback-url/stream?url=${K6(e)}`
 		},
-		UYe,
+		WYe,
 		{
 			id: "nplayer",
 			label: "nPlayer",
@@ -105112,20 +105150,20 @@ var K6 = (e) => encodeURIComponent(e), q6 = {
 	linux: [q6],
 	other: []
 };
-function GYe(e = HYe(), t = []) {
-	return WYe[e].filter((e) => !t.includes(e.id));
+function KYe(e = UYe(), t = []) {
+	return GYe[e].filter((e) => !t.includes(e.id));
 }
 // src/react/item-detail/external-playback.tsx
-var KYe = "peach.playback-target.v1", J6 = [["m3u", L("catalog:externalPlayback.m3uPlaylist")], ["url", L("catalog:externalPlayback.streamUrlVr")]], qYe = (e) => e.label || L("catalog:externalPlayback.androidChooser"), Y6 = (e) => GYe(void 0, (e || []).map((e) => e.id)).map((e) => [`scheme:${e.id}`, e]);
-function JYe() {
+var qYe = "peach.playback-target.v1", J6 = [["m3u", L("catalog:externalPlayback.m3uPlaylist")], ["url", L("catalog:externalPlayback.streamUrlVr")]], JYe = (e) => e.label || L("catalog:externalPlayback.androidChooser"), Y6 = (e) => KYe(void 0, (e || []).map((e) => e.id)).map((e) => [`scheme:${e.id}`, e]);
+function YYe() {
 	try {
-		return localStorage.getItem(KYe) || `local:${localStorage.getItem("peach.local-player.v1") || "default"}`;
+		return localStorage.getItem(qYe) || `local:${localStorage.getItem("peach.local-player.v1") || "default"}`;
 	} catch {
 		return "local:default";
 	}
 }
-function YYe({ id: e, onOpened: t }) {
-	let [n, r] = (0, R.useState)(null), [i, a] = (0, R.useState)(JYe), [o, s] = (0, R.useState)(null), [c, l] = (0, R.useState)(""), [u, d] = (0, R.useState)(0), f = GK();
+function XYe({ id: e, onOpened: t }) {
+	let [n, r] = (0, R.useState)(null), [i, a] = (0, R.useState)(YYe), [o, s] = (0, R.useState)(null), [c, l] = (0, R.useState)(""), [u, d] = (0, R.useState)(0), f = GK();
 	(0, R.useEffect)(() => {
 		let e = new AbortController();
 		return U("/api/local-players", e.signal).then((t) => {
@@ -105160,7 +105198,7 @@ function YYe({ id: e, onOpened: t }) {
 					label: L("catalog:externalPlayback.externalPlayer"),
 					options: [
 						...(n || []).map((e) => [`local:${e.id}`, yi(e.label_code ?? "", e.label)]),
-						...Y6(n).map(([e, t]) => [e, qYe(t)]),
+						...Y6(n).map(([e, t]) => [e, JYe(t)]),
 						...J6
 					],
 					value: i,
@@ -105169,7 +105207,7 @@ function YYe({ id: e, onOpened: t }) {
 					onPick: (e) => {
 						a(e), s(null), f.setError("");
 						try {
-							localStorage.setItem(KYe, e);
+							localStorage.setItem(qYe, e);
 						} catch {}
 					}
 				}), /* @__PURE__ */ (0, z.jsx)(Y, {
@@ -105199,7 +105237,7 @@ function YYe({ id: e, onOpened: t }) {
 	});
 }
 // src/react/boardui/components/base/switch/switch.tsx
-var XYe = sP({
+var ZYe = sP({
 	sm: {
 		track: "h-4 w-7",
 		trackRadius: {
@@ -105261,8 +105299,8 @@ var XYe = sP({
 		}
 	}
 });
-function ZYe({ state: e, size: t = "md", shape: n = "pill" }) {
-	let r = XYe[t];
+function QYe({ state: e, size: t = "md", shape: n = "pill" }) {
+	let r = ZYe[t];
 	return /* @__PURE__ */ (0, z.jsx)("span", {
 		"aria-hidden": !0,
 		className: J("relative shrink-0 transition-colors duration-200 ease", r.track, r.trackRadius[n], e.isSelected ? J("bg-linear-to-b from-accent-500 to-accent-600", r.onShadow) : "bg-background-tertiary-default", e.isDisabled && "opacity-50", e.isFocusVisible && "ring-2 ring-border-focus-ring ring-offset-2"),
@@ -105272,12 +105310,12 @@ function ZYe({ state: e, size: t = "md", shape: n = "pill" }) {
 		})
 	});
 }
-function QYe({ className: e, children: t, size: n = "md", shape: r = "pill", ref: i, ...a }) {
+function $Ye({ className: e, children: t, size: n = "md", shape: r = "pill", ref: i, ...a }) {
 	return /* @__PURE__ */ (0, z.jsx)(Yxe, {
 		ref: i,
 		...a,
 		className: (t) => J("group inline-flex items-center gap-2 select-none", t.isDisabled ? "cursor-not-allowed" : "cursor-pointer", typeof e == "function" ? e(t) : e),
-		children: (e) => /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [/* @__PURE__ */ (0, z.jsx)(ZYe, {
+		children: (e) => /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [/* @__PURE__ */ (0, z.jsx)(QYe, {
 			state: e,
 			size: n,
 			shape: r
@@ -105288,12 +105326,12 @@ function QYe({ className: e, children: t, size: n = "md", shape: r = "pill", ref
 	});
 }
 // src/react/cover-crop/cover-crop.ts
-var $Ye = "/api/cover-crop", eXe = (e, t) => W($Ye, {
+var eXe = "/api/cover-crop", tXe = (e, t) => W(eXe, {
 	code: e,
 	box: t
 });
 // src/react/cover-crop/cover-crop-page.tsx
-function tXe({ className: e }) {
+function nXe({ className: e }) {
 	return /* @__PURE__ */ (0, z.jsx)("svg", {
 		"aria-hidden": !0,
 		viewBox: "0 0 24 24",
@@ -105306,7 +105344,7 @@ function tXe({ className: e }) {
 		children: /* @__PURE__ */ (0, z.jsx)("use", { href: "#i-crop" })
 	});
 }
-function nXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
+function rXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
 	let [i, a] = (0, R.useState)(!1);
 	return /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [/* @__PURE__ */ (0, z.jsx)("button", {
 		type: "button",
@@ -105316,13 +105354,13 @@ function nXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
 		title: L("catalog:coverCrop.buttonTip"),
 		onClick: () => a(!0),
 		className: "flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary outline-none transition-colors hover:bg-background-primary-hover hover:text-foreground-icon-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-		children: /* @__PURE__ */ (0, z.jsx)(tXe, { className: "size-3.75" })
+		children: /* @__PURE__ */ (0, z.jsx)(nXe, { className: "size-3.75" })
 	}), /* @__PURE__ */ (0, z.jsx)(HK, {
 		isOpen: i,
 		onOpenChange: a,
 		width: "cover-crop",
 		label: L("catalog:coverCrop.title"),
-		children: /* @__PURE__ */ (0, z.jsx)(rXe, {
+		children: /* @__PURE__ */ (0, z.jsx)(iXe, {
 			code: e,
 			coverUrl: t,
 			box: n,
@@ -105331,9 +105369,9 @@ function nXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
 		})
 	})] });
 }
-function rXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
+function iXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
 	let [a, o] = (0, R.useState)(null), [s, c] = (0, R.useState)(null), [l, u] = (0, R.useState)(!0), d = mq(), f = xr({
-		mutationFn: (t) => eXe(e, t),
+		mutationFn: (t) => tXe(e, t),
 		onSuccess: (e) => {
 			i(), r(e.poster_box);
 		}
@@ -105353,7 +105391,7 @@ function rXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
 		/* @__PURE__ */ (0, z.jsxs)("div", {
 			className: "flex shrink-0 items-start gap-4 p-5",
 			children: [
-				/* @__PURE__ */ (0, z.jsx)(UK, { children: /* @__PURE__ */ (0, z.jsx)(tXe, { className: "size-6" }) }),
+				/* @__PURE__ */ (0, z.jsx)(UK, { children: /* @__PURE__ */ (0, z.jsx)(nXe, { className: "size-6" }) }),
 				/* @__PURE__ */ (0, z.jsxs)("div", {
 					className: "flex min-w-0 flex-1 flex-col gap-2",
 					children: [
@@ -105397,7 +105435,7 @@ function rXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
 		}),
 		/* @__PURE__ */ (0, z.jsxs)("div", {
 			className: "flex shrink-0 flex-wrap items-center gap-3 border-t border-separator-border p-5",
-			children: [/* @__PURE__ */ (0, z.jsx)(QYe, {
+			children: [/* @__PURE__ */ (0, z.jsx)($Ye, {
 				isSelected: l,
 				onChange: (e) => {
 					u(e), e && s && a && c(S4(s, a, Uc));
@@ -105434,8 +105472,8 @@ var X6 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 }), Z6 = ({ html: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 	className: "contents",
 	dangerouslySetInnerHTML: { __html: e }
-}), iXe = (e) => Number(e) > 0 ? ya(Number(e)) : L("catalog:shared.unknownSize");
-function aXe(e) {
+}), aXe = (e) => Number(e) > 0 ? ya(Number(e)) : L("catalog:shared.unknownSize");
+function oXe(e) {
 	let { queue: t, actions: n } = e, r = br({
 		queryKey: t ? iR(t) : ["item-queue", "none"],
 		queryFn: ({ signal: n }) => fR(t, e.helpers, n),
@@ -105471,7 +105509,7 @@ function aXe(e) {
 			})
 		});
 	}
-	return /* @__PURE__ */ (0, z.jsx)(oXe, {
+	return /* @__PURE__ */ (0, z.jsx)(sXe, {
 		...e,
 		item: rye(o.data, i),
 		queue: i
@@ -105486,8 +105524,8 @@ var Q6 = ({ onClose: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	onClick: e,
 	dangerouslySetInnerHTML: { __html: V("x") }
 });
-function oXe(e) {
-	let { item: t, queue: n, actions: r, helpers: i } = e, a = xXe(t, r), o = (0, R.useRef)(t);
+function sXe(e) {
+	let { item: t, queue: n, actions: r, helpers: i } = e, a = SXe(t, r), o = (0, R.useRef)(t);
 	(0, R.useLayoutEffect)(() => {
 		r.present(o.current, n);
 	}, [r]), (0, R.useEffect)(() => {
@@ -105502,7 +105540,7 @@ function oXe(e) {
 		"data-stage-grid": "",
 		"data-with-queue": n ? "" : void 0,
 		"data-item-detail": "",
-		children: [/* @__PURE__ */ (0, z.jsx)(sXe, {
+		children: [/* @__PURE__ */ (0, z.jsx)(cXe, {
 			item: t,
 			gate: s,
 			helpers: i,
@@ -105517,22 +105555,22 @@ function oXe(e) {
 					autoplay: !0
 				}, i.id));
 			}
-		}), /* @__PURE__ */ (0, z.jsx)(fXe, {
+		}), /* @__PURE__ */ (0, z.jsx)(pXe, {
 			item: t,
 			queue: n,
 			write: a,
 			helpers: i,
 			actions: r
 		})]
-	}), /* @__PURE__ */ (0, z.jsx)(dYe, {
+	}), /* @__PURE__ */ (0, z.jsx)(fYe, {
 		queueCards: n?.kind === "parts" || n?.kind === "editions" ? n.items.length : void 0,
-		queue: n ? /* @__PURE__ */ (0, z.jsx)(lXe, {
+		queue: n ? /* @__PURE__ */ (0, z.jsx)(uXe, {
 			queue: n,
 			itemId: t.id,
 			helpers: i,
 			actions: r
 		}) : null,
-		children: e.relatedLimit > 0 && (!n || n.kind === "parts" || n.kind === "editions") ? /* @__PURE__ */ (0, z.jsx)(bXe, {
+		children: e.relatedLimit > 0 && (!n || n.kind === "parts" || n.kind === "editions") ? /* @__PURE__ */ (0, z.jsx)(xXe, {
 			...e,
 			item: n ? {
 				...t,
@@ -105541,7 +105579,7 @@ function oXe(e) {
 		}) : null
 	})] });
 }
-function sXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a }) {
+function cXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a }) {
 	let [o, s] = (0, R.useState)(t ? "" : "auto"), c = (0, R.useRef)(null), [l, u] = (0, R.useState)(-2), d = (0, R.useRef)(!1), f = br({
 		queryKey: U6(e.code || ""),
 		queryFn: ({ signal: t }) => {
@@ -105608,7 +105646,7 @@ function sXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 					/* @__PURE__ */ (0, z.jsx)("span", { "data-player-net-slot": "" })
 				]
 			}),
-			h ? /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [l === -2 ? null : /* @__PURE__ */ (0, z.jsx)(RYe, {
+			h ? /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [l === -2 ? null : /* @__PURE__ */ (0, z.jsx)(zYe, {
 				item: e,
 				image: l,
 				source: p.find((e) => e.index === l)?.source
@@ -105617,7 +105655,7 @@ function sXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 				position: Math.max(0, m.findIndex((e) => e.index === l)),
 				onSelect: g,
 				below: !0,
-				renderThumbnail: (t) => /* @__PURE__ */ (0, z.jsx)(RYe, {
+				renderThumbnail: (t) => /* @__PURE__ */ (0, z.jsx)(zYe, {
 					item: e,
 					image: t.index === -2 ? m[0].index : t.index,
 					source: p.find((e) => e.index === (t.index === -2 ? m[0].index : t.index))?.source,
@@ -105642,7 +105680,7 @@ function sXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 					children: L("catalog:shared.retryNow")
 				})
 			}) : null,
-			t === "offline" ? /* @__PURE__ */ (0, z.jsx)(cXe, {
+			t === "offline" ? /* @__PURE__ */ (0, z.jsx)(lXe, {
 				item: e,
 				badge: y,
 				helpers: n,
@@ -105653,7 +105691,7 @@ function sXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 				children: [
 					/* @__PURE__ */ (0, z.jsx)("b", { children: L("catalog:detailGate.isoDisc") }),
 					/* @__PURE__ */ (0, z.jsx)("span", { children: L("catalog:detailGate.isoHint") }),
-					/* @__PURE__ */ (0, z.jsx)(YYe, {
+					/* @__PURE__ */ (0, z.jsx)(XYe, {
 						id: e.id,
 						onOpened: () => r.toast(L("catalog:detailGate.externalPlayerRequested"))
 					}, e.id)
@@ -105679,12 +105717,12 @@ function sXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 				type: "button",
 				"data-item-gate": "metered",
 				onClick: () => s("clicked"),
-				children: [/* @__PURE__ */ (0, z.jsx)(Z6, { html: y }), /* @__PURE__ */ (0, z.jsx)("span", { children: L("catalog:detailGate.startStreaming", { size: iXe(e.size) }) })]
+				children: [/* @__PURE__ */ (0, z.jsx)(Z6, { html: y }), /* @__PURE__ */ (0, z.jsx)("span", { children: L("catalog:detailGate.startStreaming", { size: aXe(e.size) }) })]
 			}) : null
 		]
 	});
 }
-function cXe({ item: e, badge: t, helpers: n, actions: r }) {
+function lXe({ item: e, badge: t, helpers: n, actions: r }) {
 	let [i, a] = (0, R.useState)(!1), [o, s] = (0, R.useState)(!1), c = String(e.root_id || e.location || ""), l = async () => {
 		a(!0);
 		let e = await r.checkSource(c).catch(() => !1);
@@ -105709,8 +105747,8 @@ function cXe({ item: e, badge: t, helpers: n, actions: r }) {
 		]
 	});
 }
-function lXe({ queue: e, itemId: t, helpers: n, actions: r }) {
-	let i = lye(e), a = (0, R.useRef)(null), o = dXe(e, t, r), s = (0, R.useRef)(o);
+function uXe({ queue: e, itemId: t, helpers: n, actions: r }) {
+	let i = lye(e), a = (0, R.useRef)(null), o = fXe(e, t, r), s = (0, R.useRef)(o);
 	s.current = o;
 	let c = (0, R.useCallback)((t) => {
 		a.current = t, t && (n.wireDrag(t), e.kind === "playlist" && n.wireDragReorder(t, {
@@ -105718,7 +105756,7 @@ function lXe({ queue: e, itemId: t, helpers: n, actions: r }) {
 			attribute: "data-queue-row",
 			onMove: (e, t, n) => s.current.move(+e, +t, n)
 		}));
-	}, [n, e.kind]), l = uXe(e, r), u = e.kind === "mix" ? /* @__PURE__ */ (0, z.jsx)("button", {
+	}, [n, e.kind]), l = dXe(e, r), u = e.kind === "mix" ? /* @__PURE__ */ (0, z.jsx)("button", {
 		type: "button",
 		"data-save-mix": "",
 		title: L("catalog:detailQueue.saveAsPlaylist"),
@@ -105804,7 +105842,7 @@ function lXe({ queue: e, itemId: t, helpers: n, actions: r }) {
 		})
 	});
 }
-function uXe(e, t) {
+function dXe(e, t) {
 	let n = xr({ mutationFn: (t) => W(aR, {
 		action: "create",
 		name: t,
@@ -105818,7 +105856,7 @@ function uXe(e, t) {
 		save: (e) => n.mutateAsync(e)
 	});
 }
-function dXe(e, t, n) {
+function fXe(e, t, n) {
 	let r = iR({
 		kind: "playlist",
 		playlistId: e.playlistId
@@ -105881,7 +105919,7 @@ function dXe(e, t, n) {
 		}
 	};
 }
-function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
+function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 	let a = e.location === "online", o = n.busyAttrs, [s, c] = (0, R.useState)(!1);
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-stage-side": "",
@@ -105889,7 +105927,7 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 		children: /* @__PURE__ */ (0, z.jsxs)("div", {
 			"data-stage-side-content": "",
 			children: [
-				/* @__PURE__ */ (0, z.jsx)(pXe, {
+				/* @__PURE__ */ (0, z.jsx)(mXe, {
 					item: e,
 					queue: t,
 					helpers: r,
@@ -105913,7 +105951,7 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 					children: n.sourceState
 				}),
 				/* @__PURE__ */ (0, z.jsx)(LLe, { work: e.pending_work }),
-				/* @__PURE__ */ (0, z.jsx)(hXe, {
+				/* @__PURE__ */ (0, z.jsx)(gXe, {
 					item: e,
 					write: n
 				}),
@@ -105932,7 +105970,7 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						}) : null,
 						/* @__PURE__ */ (0, z.jsxs)("span", {
 							"data-spec-item": "",
-							children: [/* @__PURE__ */ (0, z.jsx)(X6, { name: "hard-drive" }), /* @__PURE__ */ (0, z.jsx)("span", { children: iXe(e.size) })]
+							children: [/* @__PURE__ */ (0, z.jsx)(X6, { name: "hard-drive" }), /* @__PURE__ */ (0, z.jsx)("span", { children: aXe(e.size) })]
 						}),
 						e.release_date ? /* @__PURE__ */ (0, z.jsxs)("span", {
 							"data-spec-item": "",
@@ -105948,16 +105986,16 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						}) : null
 					]
 				}),
-				(e.medium || "video") === "video" && !a && !String(e.name || "").toLowerCase().endsWith(".iso") ? /* @__PURE__ */ (0, z.jsx)(YYe, {
+				(e.medium || "video") === "video" && !a && !String(e.name || "").toLowerCase().endsWith(".iso") ? /* @__PURE__ */ (0, z.jsx)(XYe, {
 					id: e.id,
 					onOpened: () => i.toast(L("catalog:detailGate.externalPlayerRequested"))
 				}, e.id) : null,
-				/* @__PURE__ */ (0, z.jsx)(gXe, {
+				/* @__PURE__ */ (0, z.jsx)(_Xe, {
 					item: e,
 					helpers: r,
 					actions: i
 				}),
-				/* @__PURE__ */ (0, z.jsx)(_Xe, {
+				/* @__PURE__ */ (0, z.jsx)(vXe, {
 					item: e,
 					helpers: r,
 					actions: i
@@ -105968,7 +106006,7 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						G.invalidateQueries({ queryKey: rR(e.id) });
 					}
 				}),
-				/* @__PURE__ */ (0, z.jsx)(vXe, { item: e }),
+				/* @__PURE__ */ (0, z.jsx)(yXe, { item: e }),
 				/* @__PURE__ */ (0, z.jsxs)("div", {
 					"data-stage-actions": "",
 					"data-item-feedback": "",
@@ -106051,7 +106089,7 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						})
 					]
 				}),
-				/* @__PURE__ */ (0, z.jsx)(yXe, {
+				/* @__PURE__ */ (0, z.jsx)(bXe, {
 					item: e,
 					open: s,
 					write: n
@@ -106075,8 +106113,8 @@ function fXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 		})
 	});
 }
-function pXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAction: a }) {
-	let { text: o, expanded: s, foldable: c, toggle: l } = LYe(String(e.title || e.name || "")), u = n.badgeHtml(e.location || "", e.cost || "", "srcbig") + n.titleHtml(e) + uye(e, t);
+function mXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAction: a }) {
+	let { text: o, expanded: s, foldable: c, toggle: l } = RYe(String(e.title || e.name || "")), u = n.badgeHtml(e.location || "", e.cost || "", "srcbig") + n.titleHtml(e) + uye(e, t);
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-item-title": "",
 		children: /* @__PURE__ */ (0, z.jsxs)("div", {
@@ -106107,7 +106145,7 @@ function pXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAct
 					}),
 					e.has_cover && (e.cover_key || e.code) ? /* @__PURE__ */ (0, z.jsx)("span", {
 						"data-cover-crop-host": "",
-						children: /* @__PURE__ */ (0, z.jsx)(nXe, {
+						children: /* @__PURE__ */ (0, z.jsx)(rXe, {
 							code: e.cover_key || e.code || "",
 							coverUrl: Zc(e),
 							box: e.poster_box || null,
@@ -106119,7 +106157,7 @@ function pXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAct
 							}
 						})
 					}) : null,
-					e.location === "online" ? null : /* @__PURE__ */ (0, z.jsx)(mXe, {
+					e.location === "online" ? null : /* @__PURE__ */ (0, z.jsx)(hXe, {
 						id: e.id,
 						code: e.code || "",
 						actions: r,
@@ -106138,7 +106176,7 @@ function pXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAct
 		})
 	});
 }
-function mXe({ id: e, code: t, actions: n, onStatus: r }) {
+function hXe({ id: e, code: t, actions: n, onStatus: r }) {
 	let [i, a] = (0, R.useState)(""), o = async () => {
 		if (!i) {
 			a("recollect"), r("");
@@ -106200,7 +106238,7 @@ function mXe({ id: e, code: t, actions: n, onStatus: r }) {
 		}) : null
 	] });
 }
-function hXe({ item: e, write: t }) {
+function gXe({ item: e, write: t }) {
 	let n = tR(e.rating);
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		id: "detailRating",
@@ -106226,10 +106264,10 @@ function hXe({ item: e, write: t }) {
 		})]
 	});
 }
-function gXe({ item: e, actions: t }) {
+function _Xe({ item: e, actions: t }) {
 	let n = (0, R.useMemo)(() => aye(e), [e]), [r, i] = (0, R.useState)(!1), a = Math.max(0, n.cast.length - 8), o = (e, n, i) => {
 		let a = e === "performer" && i >= 8 && !r;
-		return /* @__PURE__ */ (0, z.jsx)(FYe, {
+		return /* @__PURE__ */ (0, z.jsx)(IYe, {
 			kind: e,
 			person: n,
 			onOpen: t.openEntity,
@@ -106288,13 +106326,13 @@ function gXe({ item: e, actions: t }) {
 		children: [c.length ? /* @__PURE__ */ (0, z.jsx)("div", {
 			"data-identity-primary": "",
 			children: c
-		}) : null, /* @__PURE__ */ (0, z.jsx)(IYe, {
+		}) : null, /* @__PURE__ */ (0, z.jsx)(LYe, {
 			people: n.series,
 			onOpen: t.openEntity
 		})]
 	});
 }
-function _Xe({ item: e, helpers: t, actions: n }) {
+function vXe({ item: e, helpers: t, actions: n }) {
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-item-tags": "",
 		children: /* @__PURE__ */ (0, z.jsx)(R4, {
@@ -106306,7 +106344,7 @@ function _Xe({ item: e, helpers: t, actions: n }) {
 		}, e.id)
 	});
 }
-function vXe({ item: e }) {
+function yXe({ item: e }) {
 	let t = mye(e);
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-item-trace": e.id,
@@ -106341,7 +106379,7 @@ function vXe({ item: e }) {
 		})]
 	});
 }
-function yXe({ item: e, open: t, write: n }) {
+function bXe({ item: e, open: t, write: n }) {
 	let [r, i] = (0, R.useState)(e.like_reason || ""), a = (0, R.useRef)(null);
 	(0, R.useEffect)(() => {
 		t && a.current?.focus();
@@ -106380,12 +106418,12 @@ function yXe({ item: e, open: t, write: n }) {
 		})]
 	});
 }
-function bXe(e) {
+function xXe(e) {
 	let { item: t, relatedLimit: n, helpers: r, grid: i } = e, a = br({
 		queryKey: eye(t.id, n),
 		queryFn: async ({ signal: e }) => (await U(nye(t.id, n), e)).items || []
 	}), [o] = (0, R.useState)(() => r.relatedSkeletonHtml());
-	return /* @__PURE__ */ (0, z.jsx)(uYe, {
+	return /* @__PURE__ */ (0, z.jsx)(dYe, {
 		wireDrag: r.wireDrag,
 		busy: a.isPending,
 		empty: a.data?.length === 0,
@@ -106409,7 +106447,7 @@ function bXe(e) {
 		}) : /* @__PURE__ */ (0, z.jsx)(Z6, { html: o })
 	});
 }
-function xXe(e, t) {
+function SXe(e, t) {
 	let n = e.id, r = rR(n), [i, a] = (0, R.useState)(() => /* @__PURE__ */ new Set()), [o, s] = (0, R.useState)(""), [c, l] = (0, R.useState)(""), u = (e, t) => a((n) => {
 		let r = new Set(n);
 		return t ? r.add(e) : r.delete(e), r;
@@ -106519,11 +106557,11 @@ function xXe(e, t) {
 	};
 }
 // src/react/publication-cache.ts
-var SXe = 864e5, CXe = (e) => {
+var CXe = 864e5, wXe = (e) => {
 	let t = new Date(e);
 	return Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
 };
-function wXe(e) {
+function TXe(e) {
 	let t = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/.exec(e || "");
 	if (!t) return;
 	let n = Number(t[1]), r = Number(t[2]) - 1, i = Number(t[3]), a = new Date(Date.UTC(n, r, i));
@@ -106531,24 +106569,24 @@ function wXe(e) {
 	let o = new Date(Date.UTC(n, r + 2, 0)).getUTCDate();
 	return Date.UTC(n, r + 1, Math.min(i, o));
 }
-function TXe(e, t = Date.now()) {
-	let n = wXe(e);
-	return n !== void 0 && CXe(t) > n ? Infinity : SXe;
+function EXe(e, t = Date.now()) {
+	let n = TXe(e);
+	return n !== void 0 && wXe(t) > n ? Infinity : CXe;
 }
 function $6(e, t, n = Date.now()) {
-	return !Number.isFinite(e) || e <= 0 || e > n ? !1 : TXe(t, n) === Infinity ? CXe(e) > wXe(t) : n - e < SXe;
+	return !Number.isFinite(e) || e <= 0 || e > n ? !1 : EXe(t, n) === Infinity ? wXe(e) > TXe(t) : n - e < CXe;
 }
 // src/react/wants/resource-cache.ts
-var EXe = "peach.want-resources.v3";
+var DXe = "peach.want-resources.v3";
 function e8(e) {
 	return !e.cache_stale && (e.complete === !0 || !e.warnings?.length);
 }
-function DXe(e, t, n) {
+function OXe(e, t, n) {
 	return !!e && !e.cache_stale && (e.state === "error" || !e8(e) ? Date.now() - t < 6e4 : $6(t, n));
 }
 function t8() {
 	try {
-		let e = JSON.parse(localStorage.getItem(EXe) || "[]");
+		let e = JSON.parse(localStorage.getItem(DXe) || "[]");
 		return Array.isArray(e) ? e.filter((e) => typeof e?.code == "string" && Number.isFinite(e.saved) && e.result?.state === "ready" && Array.isArray(e.result.items) && e8(e.result) && e.result.items.every((e) => e && [
 			"magnet",
 			"ed2k",
@@ -106558,11 +106596,11 @@ function t8() {
 		return [];
 	}
 }
-function OXe(e, t) {
+function kXe(e, t) {
 	let n = t8().find((t) => t.code === e);
 	return n && $6(n.saved, t) ? n : void 0;
 }
-function kXe(e) {
+function AXe(e) {
 	let t = new Map(t8().map((e) => [e.code, e])), n = /* @__PURE__ */ new Map();
 	for (let r of e) {
 		if (!r.code) continue;
@@ -106571,10 +106609,10 @@ function kXe(e) {
 	}
 	return n;
 }
-function AXe(e, t) {
+function jXe(e, t) {
 	if (t.state === "ready" && e8(t)) try {
 		let n = t8().filter((t) => t.code !== e), r = Date.parse(t.checked_at || "");
-		localStorage.setItem(EXe, JSON.stringify([{
+		localStorage.setItem(DXe, JSON.stringify([{
 			code: e,
 			saved: Number.isFinite(r) ? r : Date.now(),
 			result: t
@@ -106582,7 +106620,7 @@ function AXe(e, t) {
 	} catch {}
 }
 // src/react/wants/want-magnets.tsx
-var jXe = qa((e) => e?.state === "busy" && 3e3), MXe = "javdb-comments", NXe = "high-definition";
+var MXe = qa((e) => e?.state === "busy" && 3e3), NXe = "javdb-comments", PXe = "high-definition";
 function n8({ icon: e, children: t, title: n }) {
 	return /* @__PURE__ */ (0, z.jsxs)("span", {
 		title: n,
@@ -106593,8 +106631,8 @@ function n8({ icon: e, children: t, title: n }) {
 		}), t]
 	});
 }
-function PXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSources: a, queryUrl: o, eager: s = !1 }) {
-	let c = (0, R.useRef)(null), [l, u] = (0, R.useState)(s || typeof IntersectionObserver > "u"), [d, f] = (0, R.useState)([]), p = GK(), m = GK(), h = Jt(), g = (0, R.useRef)(!1), _ = o ? `comment-resources:${o}:${e.code}` : `all-sources:${e.code || ""}`, v = (0, R.useMemo)(() => OXe(_, e.release_date), [_, e.release_date]);
+function FXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSources: a, queryUrl: o, eager: s = !1 }) {
+	let c = (0, R.useRef)(null), [l, u] = (0, R.useState)(s || typeof IntersectionObserver > "u"), [d, f] = (0, R.useState)([]), p = GK(), m = GK(), h = Jt(), g = (0, R.useRef)(!1), _ = o ? `comment-resources:${o}:${e.code}` : `all-sources:${e.code || ""}`, v = (0, R.useMemo)(() => kXe(_, e.release_date), [_, e.release_date]);
 	(0, R.useEffect)(() => {
 		if (!c.current || l) return;
 		let e = new IntersectionObserver((t) => {
@@ -106614,17 +106652,17 @@ function PXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSour
 		],
 		queryFn: async ({ signal: t }) => {
 			let n = g.current, r = o || `/api/wants/magnets?id=${e.id}`, i = await U(`${r}${n ? `${r.includes("?") ? "&" : "?"}refresh=1` : ""}`, t);
-			return g.current = n && i.state === "busy", AXe(_, i), i;
+			return g.current = n && i.state === "busy", jXe(_, i), i;
 		},
 		initialData: v?.result,
 		initialDataUpdatedAt: v?.saved,
 		enabled: l,
 		retry: !1,
-		staleTime: (t) => DXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) ? Infinity : 0,
+		staleTime: (t) => OXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) ? Infinity : 0,
 		gcTime: 864e5,
-		refetchOnMount: (t) => !DXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) && "always",
+		refetchOnMount: (t) => !OXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) && "always",
 		refetchOnWindowFocus: !1,
-		refetchInterval: jXe
+		refetchInterval: MXe
 	}), b = (0, R.useMemo)(() => {
 		let e = /* @__PURE__ */ new Map();
 		for (let t of y.data?.source_pages || []) {
@@ -106797,10 +106835,10 @@ function PXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSour
 									}) : null,
 									/* @__PURE__ */ (0, z.jsx)(n8, {
 										icon: CW,
-										title: e.source === MXe ? L("catalog:wantMagnets.commentDate") : L("catalog:wantMagnets.listedDate"),
+										title: e.source === NXe ? L("catalog:wantMagnets.commentDate") : L("catalog:wantMagnets.listedDate"),
 										children: e.date ? e.date.slice(0, 10) : L("catalog:wantMagnets.unknownDate")
 									}),
-									e.attributes.filter((e) => e !== NXe).map((e) => /* @__PURE__ */ (0, z.jsx)(n8, {
+									e.attributes.filter((e) => e !== PXe).map((e) => /* @__PURE__ */ (0, z.jsx)(n8, {
 										icon: QW,
 										children: WG(e)
 									}, e))
@@ -106857,10 +106895,10 @@ function PXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSour
 	});
 }
 // src/react/jav-detail/review-cache.ts
-var FXe = "peach.jav-reviews.v2";
-function IXe() {
+var IXe = "peach.jav-reviews.v2";
+function LXe() {
 	try {
-		let e = localStorage.getItem(FXe) || "[]";
+		let e = localStorage.getItem(IXe) || "[]";
 		if (e.length > 2e6) return [];
 		let t = JSON.parse(e);
 		return Array.isArray(t) ? t.filter((e) => typeof e?.code == "string" && Number.isFinite(e.saved) && e.result?.ok === !0 && !e.result.cache_stale && Number.isInteger(e.result.page) && e.result.page >= 1 && e.result.page <= 8 && Array.isArray(e.result.items) && e.result.items.length <= 10 && e.result.items.every((e) => typeof e?.id == "string" && typeof e.content == "string" && typeof e.username == "string" && typeof e.created_at == "string")) : [];
@@ -106868,18 +106906,18 @@ function IXe() {
 		return [];
 	}
 }
-function LXe(e, t) {
+function RXe(e, t) {
 	if (t.ok && !t.cache_stale) try {
 		let n = Date.parse(t.checked_at || ""), r = [{
 			code: e,
 			saved: Number.isFinite(n) ? n : Date.now(),
 			result: t
-		}, ...IXe().filter((n) => n.code !== e || n.result.page !== t.page)].slice(0, 128), i = JSON.stringify(r);
-		i.length <= 2e6 && localStorage.setItem(FXe, i);
+		}, ...LXe().filter((n) => n.code !== e || n.result.page !== t.page)].slice(0, 128), i = JSON.stringify(r);
+		i.length <= 2e6 && localStorage.setItem(IXe, i);
 	} catch {}
 }
-function RXe(e, t) {
-	let n = IXe(), r = [], i = Infinity;
+function zXe(e, t) {
+	let n = LXe(), r = [], i = Infinity;
 	for (let a = 1; a <= 8; a++) {
 		let o = n.find((t) => t.code === e && t.result.page === a);
 		if (!o || !$6(o.saved, t) || (r.push(o.result), i = Math.min(i, o.saved), !o.result.more)) break;
@@ -106890,11 +106928,11 @@ function RXe(e, t) {
 		saved: i
 	} : void 0;
 }
-function zXe(e, t, n) {
+function BXe(e, t, n) {
 	return e.length > 0 && e.every((e) => e.ok && !e.cache_stale && $6(Date.parse(e.checked_at || "") || t, n));
 }
 // src/react/jav-detail/jav-detail-page.tsx
-function BXe(e) {
+function VXe(e) {
 	let t = (0, R.useRef)(!1), n = br({
 		queryKey: U6(e.code),
 		queryFn: ({ signal: n }) => {
@@ -106909,7 +106947,7 @@ function BXe(e) {
 		"data-jav-detail": "",
 		"data-item-detail": "",
 		"data-stage-grid": "",
-		children: n.data ? /* @__PURE__ */ (0, z.jsx)(HXe, {
+		children: n.data ? /* @__PURE__ */ (0, z.jsx)(UXe, {
 			...e,
 			item: n.data,
 			retry: r,
@@ -106917,7 +106955,7 @@ function BXe(e) {
 		}, e.code) : /* @__PURE__ */ (0, z.jsxs)("div", {
 			"data-jav-failure": "",
 			"data-detail-failure": "",
-			children: [/* @__PURE__ */ (0, z.jsx)(VXe, { close: e.actions.close }), n.error ? /* @__PURE__ */ (0, z.jsx)(R6, {
+			children: [/* @__PURE__ */ (0, z.jsx)(HXe, { close: e.actions.close }), n.error ? /* @__PURE__ */ (0, z.jsx)(R6, {
 				detail: `${e.code} · ${ja(n.error)}`,
 				busy: n.isFetching,
 				onRetry: r
@@ -106925,7 +106963,7 @@ function BXe(e) {
 		})
 	});
 }
-var VXe = ({ close: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
+var HXe = ({ close: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	type: "button",
 	"data-stage-close": "",
 	id: "closeStage",
@@ -106934,7 +106972,7 @@ var VXe = ({ close: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	onClick: e,
 	dangerouslySetInnerHTML: { __html: V("x") }
 });
-function HXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a }) {
+function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a }) {
 	(0, R.useEffect)(() => {
 		n.canonicalCode?.(t.code);
 	}, [n, t.code]), (0, R.useEffect)(() => {
@@ -106969,7 +107007,7 @@ function HXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 			"data-jav-art": "",
 			"data-jav-playing": o === -2 ? "" : void 0,
 			children: [
-				/* @__PURE__ */ (0, z.jsx)(VXe, { close: n.close }),
+				/* @__PURE__ */ (0, z.jsx)(HXe, { close: n.close }),
 				t.preview_video_url ? /* @__PURE__ */ (0, z.jsxs)("button", {
 					type: "button",
 					"data-jav-preview-toggle": "",
@@ -106986,7 +107024,7 @@ function HXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 					onClick: i,
 					children: [/* @__PURE__ */ (0, z.jsx)(r8, { name: "play" }), L("catalog:javDetail.sampleVideoFailed")]
 				}) : null,
-				o === -2 && t.preview_video_url ? /* @__PURE__ */ (0, z.jsx)(KXe, { src: t.preview_video_url }, t.preview_video_url) : /* @__PURE__ */ (0, z.jsx)(H0, {
+				o === -2 && t.preview_video_url ? /* @__PURE__ */ (0, z.jsx)(qXe, { src: t.preview_video_url }, t.preview_video_url) : /* @__PURE__ */ (0, z.jsx)(H0, {
 					item: t,
 					image: o === -1 ? "cover" : String(o)
 				}, t.code),
@@ -107009,8 +107047,8 @@ function HXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 				"data-stage-side-content": "",
 				"data-jav-info": "",
 				children: [
-					/* @__PURE__ */ (0, z.jsx)(UXe, { item: t }),
-					Number(t.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(WXe, { score: Number(t.score) }) : null,
+					/* @__PURE__ */ (0, z.jsx)(WXe, { item: t }),
+					Number(t.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(GXe, { score: Number(t.score) }) : null,
 					/* @__PURE__ */ (0, z.jsxs)("div", {
 						className: "mono",
 						"data-stage-meta": "",
@@ -107025,7 +107063,7 @@ function HXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 							value: t.duration ? L("catalog:javDetail.minutes", { count: t.duration }) : void 0
 						})]
 					}),
-					/* @__PURE__ */ (0, z.jsx)(GXe, {
+					/* @__PURE__ */ (0, z.jsx)(KXe, {
 						item: t,
 						navigate: n.navigate
 					}),
@@ -107115,12 +107153,12 @@ function HXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 						tone: "error",
 						children: p.error
 					}) : null,
-					/* @__PURE__ */ (0, z.jsx)(qXe, {
+					/* @__PURE__ */ (0, z.jsx)(JXe, {
 						code: t.code,
 						count: t.comments_count,
 						released: t.release_date
 					}),
-					/* @__PURE__ */ (0, z.jsx)(JXe, {
+					/* @__PURE__ */ (0, z.jsx)(YXe, {
 						item: t,
 						actions: n,
 						readOnly: r
@@ -107144,8 +107182,8 @@ var r8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 	title: t,
 	children: [/* @__PURE__ */ (0, z.jsx)(r8, { name: e }), /* @__PURE__ */ (0, z.jsx)("span", { children: n })]
 }) : null;
-function UXe({ item: e }) {
-	let { text: t, expanded: n, foldable: r, toggle: i } = LYe(e.title), a = e.title === e.code ? "" : e.title;
+function WXe({ item: e }) {
+	let { text: t, expanded: n, foldable: r, toggle: i } = RYe(e.title), a = e.title === e.code ? "" : e.title;
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-item-title": "",
 		children: [/* @__PURE__ */ (0, z.jsx)("h1", {
@@ -107180,7 +107218,7 @@ function UXe({ item: e }) {
 		})]
 	});
 }
-function WXe({ score: e, review: t = !1 }) {
+function GXe({ score: e, review: t = !1 }) {
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-item-rating": "",
 		"data-jav-rating": "",
@@ -107196,7 +107234,7 @@ function WXe({ score: e, review: t = !1 }) {
 		})]
 	});
 }
-function GXe({ item: e, navigate: t }) {
+function KXe({ item: e, navigate: t }) {
 	let n = (e, n) => t(ra(e, n)), r = (t, r, i, a) => i.length ? /* @__PURE__ */ (0, z.jsxs)("section", {
 		"data-id-group": t,
 		"data-id-gender": a,
@@ -107205,7 +107243,7 @@ function GXe({ item: e, navigate: t }) {
 			children: r
 		}), /* @__PURE__ */ (0, z.jsx)("div", {
 			"data-id-row": "",
-			children: i.map((r) => /* @__PURE__ */ (0, z.jsx)(FYe, {
+			children: i.map((r) => /* @__PURE__ */ (0, z.jsx)(IYe, {
 				kind: t,
 				person: {
 					...r,
@@ -107229,7 +107267,7 @@ function GXe({ item: e, navigate: t }) {
 				r("performer", L("catalog:javDetail.performers"), e.performer_refs.filter((e) => !e.gender || e.gender === "unknown"), "unknown"),
 				r("studio", L("catalog:shared.label"), e.studio_refs)
 			]
-		}), /* @__PURE__ */ (0, z.jsx)(IYe, {
+		}), /* @__PURE__ */ (0, z.jsx)(LYe, {
 			people: e.series_refs.map((e) => ({
 				...e,
 				id: e.id ?? null
@@ -107238,7 +107276,7 @@ function GXe({ item: e, navigate: t }) {
 		})]
 	});
 }
-function KXe({ src: e }) {
+function qXe({ src: e }) {
 	let t = (0, R.useRef)(null), [n, r] = (0, R.useState)(!1);
 	return (0, R.useLayoutEffect)(() => {
 		if (n) return;
@@ -107261,8 +107299,8 @@ function KXe({ src: e }) {
 		}) : null
 	});
 }
-function qXe({ code: e, count: t, released: n }) {
-	let r = Jt(), [i, a] = (0, R.useState)(!1), o = (0, R.useMemo)(() => RXe(e, n), [e, n]), s = (0, R.useRef)(!1), c = Sr({
+function JXe({ code: e, count: t, released: n }) {
+	let r = Jt(), [i, a] = (0, R.useState)(!1), o = (0, R.useMemo)(() => zXe(e, n), [e, n]), s = (0, R.useRef)(!1), c = Sr({
 		queryKey: ["jav-reviews", e],
 		enabled: i,
 		initialPageParam: 1,
@@ -107271,12 +107309,12 @@ function qXe({ code: e, count: t, released: n }) {
 			pageParams: o.pageParams
 		} : void 0,
 		initialDataUpdatedAt: o?.saved,
-		staleTime: (e) => zXe(e.state.data?.pages || [], e.state.dataUpdatedAt, n) ? Infinity : 0,
+		staleTime: (e) => BXe(e.state.data?.pages || [], e.state.dataUpdatedAt, n) ? Infinity : 0,
 		gcTime: 864e5,
 		refetchOnWindowFocus: !1,
 		queryFn: async ({ signal: t, pageParam: n }) => {
-			let i = await zYe(e, n, t, s.current);
-			if (LXe(e, i), !i.ok || i.cache_stale) {
+			let i = await BYe(e, n, t, s.current);
+			if (RXe(e, i), !i.ok || i.cache_stale) {
 				let t = r.getQueryData(["jav-reviews", e])?.pages.find((e) => e.page === n);
 				if (t?.ok) return {
 					...t,
@@ -107286,7 +107324,7 @@ function qXe({ code: e, count: t, released: n }) {
 			}
 			return i;
 		},
-		getNextPageParam: VYe
+		getNextPageParam: HYe
 	});
 	(0, R.useEffect)(() => {
 		c.isFetching || (s.current = !1);
@@ -107334,7 +107372,7 @@ function qXe({ code: e, count: t, released: n }) {
 						"data-jav-review-meta": "",
 						children: [
 							/* @__PURE__ */ (0, z.jsx)("b", { children: yi(e.username_code ?? "", e.username) }),
-							Number(e.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(WXe, {
+							Number(e.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(GXe, {
 								score: Number(e.score),
 								review: !0
 							}) : null,
@@ -107389,7 +107427,7 @@ function qXe({ code: e, count: t, released: n }) {
 		})
 	});
 }
-function JXe({ item: e, actions: t, readOnly: n }) {
+function YXe({ item: e, actions: t, readOnly: n }) {
 	let [r, i] = (0, R.useState)(!1), a = br({
 		queryKey: gX,
 		enabled: r,
@@ -107403,7 +107441,7 @@ function JXe({ item: e, actions: t, readOnly: n }) {
 			onOpenChange: (e) => {
 				i(e), e && c(!0);
 			},
-			children: s ? /* @__PURE__ */ (0, z.jsx)(PXe, {
+			children: s ? /* @__PURE__ */ (0, z.jsx)(FXe, {
 				want: {
 					id: 0,
 					code: e.code,
@@ -107420,8 +107458,8 @@ function JXe({ item: e, actions: t, readOnly: n }) {
 	});
 }
 // src/react/stage/stage-player.ts
-var a8 = null, o8 = null, s8 = null, c8 = null, l8 = null, u8 = !1, d8 = 0, f8 = null, p8 = null, m8 = () => !1, YXe = (e, t, n) => `${e}:${t}:${n ?? ""}`;
-function XXe(e, t) {
+var a8 = null, o8 = null, s8 = null, c8 = null, l8 = null, u8 = !1, d8 = 0, f8 = null, p8 = null, m8 = () => !1, XXe = (e, t, n) => `${e}:${t}:${n ?? ""}`;
+function ZXe(e, t) {
 	a8 = e, m8 = () => t.isOpen(), p8 = () => t.requestClose(), T_e({
 		...e.player,
 		stage: () => document.getElementById("stage")
@@ -107429,10 +107467,10 @@ function XXe(e, t) {
 		inMiniplayer: (e) => o8?.player === e,
 		kind: (e) => o8?.player === e ? o8.kind : s8?.kind ?? c8?.kind ?? "item",
 		expand: () => w8(),
-		toMiniplayer: () => mZe()
-	}), ZXe || (ZXe = !0, addEventListener("pagehide", () => xL()));
+		toMiniplayer: () => hZe()
+	}), QXe || (QXe = !0, addEventListener("pagehide", () => xL()));
 }
-var ZXe = !1;
+var QXe = !1;
 function h8() {
 	if (!a8) throw Error(L("catalog:stagePlayer.hostMissing"));
 	return a8;
@@ -107440,10 +107478,10 @@ function h8() {
 function g8(e) {
 	c8 = e;
 }
-var QXe = () => c8;
+var $Xe = () => c8;
 function _8(e, t) {
-	let { kind: n, item: r, media: i = null } = t, a = YXe(n, r.id, i?.index ?? null);
-	if (o8 && o8.key === a) return eZe(e, o8);
+	let { kind: n, item: r, media: i = null } = t, a = XXe(n, r.id, i?.index ?? null);
+	if (o8 && o8.key === a) return tZe(e, o8);
 	o8 && C8();
 	let o = {
 		player: null,
@@ -107471,7 +107509,7 @@ function _8(e, t) {
 		s8 === o && (s8 = null), c(), e || (o.player || (s.pause(), s.removeAttribute("src"), s.load()), xL());
 	};
 }
-async function $Xe(e, t, n) {
+async function eZe(e, t, n) {
 	let r = await Ji(`/api/item?id=${e.id}`, { signal: n });
 	if (n.throwIfAborted(), !r || r.error) throw Error(r?.error || L("catalog:stagePlayer.videoNotFound"));
 	if (r.medium && r.medium !== "video") throw Error(L("catalog:stagePlayer.notPlayable"));
@@ -107492,10 +107530,10 @@ async function $Xe(e, t, n) {
 		autoplay: !0
 	}), s = !1;
 	return (e = !1) => {
-		s || (s = !0, e && c8 === a && tZe(!0), o(), c8 === a && g8(null));
+		s || (s = !0, e && c8 === a && nZe(!0), o(), c8 === a && g8(null));
 	};
 }
-function eZe(e, t) {
+function tZe(e, t) {
 	let { player: n } = t;
 	x8(t), o8 = null, S8(), n.el().classList.remove("vjs-peach-mini"), IL(e), e.append(n.el()), dI(n);
 	let r = {
@@ -107515,13 +107553,13 @@ var v8 = () => {
 	let e = s8?.player;
 	return e && !e.isDisposed() ? e : null;
 };
-function tZe(e) {
+function nZe(e) {
 	let t = u8;
 	u8 = !1, o8?.pending && C8();
 	let n = s8, r = n?.player, i = c8;
 	if (!n || !r || r.isDisposed() || !i || !l8) return;
 	let a = h8().player.settings();
-	(t || e && a.miniplayer && !r.paused() && !r.ended() && !r.error()) && pZe({
+	(t || e && a.miniplayer && !r.paused() && !r.ended() && !r.error()) && mZe({
 		player: r,
 		kind: n.kind,
 		item: n.item,
@@ -107529,20 +107567,20 @@ function tZe(e) {
 		key: n.key
 	}, i);
 }
-function nZe(e, t) {
+function rZe(e, t) {
 	u8 = !1, o8 && (o8.kind === e && o8.item.id === t ? (o8.pending = !0, S8()) : C8());
 }
-function rZe(e) {
-	l8 = e, l8 && uZe();
+function iZe(e) {
+	l8 = e, l8 && dZe();
 }
 var y8 = () => !!o8 && !o8.pending && !o8.player.isDisposed();
-function iZe() {
+function aZe() {
 	return y8() ? l8?.frame.querySelector("video") ?? null : null;
 }
-function aZe() {
-	return m8() ? document.getElementById("stage")?.querySelector("video") ?? null : v8()?.el().querySelector("video") ?? iZe();
+function oZe() {
+	return m8() ? document.getElementById("stage")?.querySelector("video") ?? null : v8()?.el().querySelector("video") ?? aZe();
 }
-function oZe(e) {
+function sZe(e) {
 	l8 && (l8.title.textContent = e.title || "", l8.sub.textContent = e.sub || "", l8.info.setAttribute("aria-label", e.title ? L("catalog:miniplayer.expandTitle", { title: e.title }) : L("catalog:miniplayer.expand")));
 }
 function b8(e = o8?.item) {
@@ -107550,25 +107588,25 @@ function b8(e = o8?.item) {
 	let t = l8.frame.querySelector("video"), n = t?.videoWidth || Number(e?.width) || 16, r = t?.videoHeight || Number(e?.height) || 9;
 	l8.frame.style.setProperty("--miniplayer-aspect", `${Math.max(n, r)}/${r}`);
 }
-function sZe() {
+function cZe() {
 	let e = o8?.player;
 	if (!e || e.isDisposed() || !l8) return;
 	let t = e.paused();
 	l8.play.setAttribute("aria-label", L(t ? "catalog:shared.play" : "catalog:shared.pause")), l8.play.querySelector("[data-icon-swap]") || (l8.play.innerHTML = Nu("player-pause", "player-play", t ? "b" : "a")), Pu(l8.play, t ? "b" : "a");
 }
-function cZe() {
+function lZe() {
 	let e = o8?.player;
 	if (!e || e.isDisposed() || !l8) return;
 	let t = ga(o8?.item.duration) || ga(e.duration());
 	l8.time.textContent = `${va(e.currentTime())} / ${t ? va(t) : "0:00"}`;
 }
-var lZe = () => Math.max(1, Number(h8().player.settings().seekSeconds) || 10);
-function uZe() {
+var uZe = () => Math.max(1, Number(h8().player.settings().seekSeconds) || 10);
+function dZe() {
 	if (!l8 || !a8) return;
-	let e = lZe();
+	let e = uZe();
 	for (let [t, n] of [[l8.back, L("catalog:stagePlayer.seekBack", { count: e })], [l8.ahead, L("catalog:stagePlayer.seekForward", { count: e })]]) t.setAttribute("aria-label", n), t.title = n;
 }
-function dZe(e) {
+function fZe(e) {
 	let t = (t, n) => {
 		e.player.on(t, n), e.off.push(() => {
 			try {
@@ -107580,16 +107618,16 @@ function dZe(e) {
 		"play",
 		"pause",
 		"ended"
-	], sZe), t([
+	], cZe), t([
 		"timeupdate",
 		"durationchange",
 		"loadedmetadata"
-	], cZe), t("loadedmetadata", () => b8()), sZe(), cZe(), b8(), uZe();
+	], lZe), t("loadedmetadata", () => b8()), cZe(), lZe(), b8(), dZe();
 }
 function x8(e) {
 	e.off.forEach((e) => e()), e.off = [];
 }
-function fZe() {
+function pZe() {
 	let e = l8?.root;
 	if (!e) return;
 	let t = e.hidden;
@@ -107610,7 +107648,7 @@ function S8() {
 		e.style.transform = "";
 	}
 }
-function pZe(e, t) {
+function mZe(e, t) {
 	if (!l8) return;
 	let n = {
 		...e,
@@ -107618,7 +107656,7 @@ function pZe(e, t) {
 		off: [],
 		pending: !1
 	};
-	o8 = n, d8++, e.player.el().classList.add("vjs-peach-mini"), l8.frame.prepend(e.player.el()), oZe(t), dZe(n), fZe(), fI(e.player);
+	o8 = n, d8++, e.player.el().classList.add("vjs-peach-mini"), l8.frame.prepend(e.player.el()), sZe(t), fZe(n), pZe(), fI(e.player);
 }
 function C8() {
 	let e = o8;
@@ -107631,29 +107669,29 @@ function w8() {
 	let { kind: e, item: t, mediaIndex: n } = o8;
 	h8().expand(e, t.id, n);
 }
-function mZe() {
+function hZe() {
 	y8() && !m8() ? w8() : m8() && v8() && p8 && (u8 = !0, p8());
 }
-function hZe() {
+function gZe() {
 	let e = o8?.player;
 	e && !e.isDisposed() && (e.paused() ? e.play()?.catch(() => {}) : e.pause());
 }
-function gZe(e) {
+function _Ze(e) {
 	let t = o8?.player;
 	if (!t || t.isDisposed()) return;
-	let n = ga(t.duration()) || ga(o8?.item.duration) || 0, r = Math.max(0, (Number(t.currentTime()) || 0) + lZe() * e);
+	let n = ga(t.duration()) || ga(o8?.item.duration) || 0, r = Math.max(0, (Number(t.currentTime()) || 0) + uZe() * e);
 	t.currentTime(n ? Math.min(n, r) : r);
 }
-function _Ze(e) {
+function vZe(e) {
 	return !(!y8() || !e || e.part_group || e.edition_group || e.medium && e.medium !== "video" || e.cost === "metered" && e.location !== "online" || e.location === "online" && !e.follow_item_id || h8().sourceOffline(String(e.root_id || e.location || "")));
 }
-async function vZe(e) {
+async function yZe(e) {
 	if (!y8() || !o8 || !l8) return;
 	let t = ++d8;
 	f8?.(), f8 = null;
 	let n = await Ji(`/api/item?id=${e}`).catch(() => null);
 	if (t !== d8 || !y8() || !o8 || !l8 || !n || n.error) return;
-	if (!_Ze(n)) {
+	if (!vZe(n)) {
 		h8().openItem(e);
 		return;
 	}
@@ -107667,7 +107705,7 @@ async function vZe(e) {
 		title: String(n.title || n.name || ""),
 		sub: String(n.performers?.[0] || n.creator || L("catalog:shared.uncredited"))
 	};
-	oZe(a), f8 = RL(i, {
+	sZe(a), f8 = RL(i, {
 		kind: "item",
 		item: n,
 		autoplay: !0,
@@ -107687,12 +107725,12 @@ async function vZe(e) {
 				kind: "item",
 				item: n,
 				mediaIndex: null,
-				key: YXe("item", n.id, null),
+				key: XXe("item", n.id, null),
 				meta: a,
 				off: [],
 				pending: !1
 			};
-			o8 = i, dZe(i);
+			o8 = i, fZe(i);
 		}
 	}), b8(n);
 }
@@ -107701,11 +107739,11 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 	viewBox: "0 0 24 24",
 	"aria-hidden": "true",
 	children: /* @__PURE__ */ (0, z.jsx)("use", { href: `#i-${e}` })
-}), yZe = { __html: "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><use href=\"#i-player-pause\"/></svg>" }, E8 = (e) => (t) => {
+}), bZe = { __html: "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><use href=\"#i-player-pause\"/></svg>" }, E8 = (e) => (t) => {
 	t.stopPropagation(), e();
-}, bZe = (0, R.memo)(function() {
+}, xZe = (0, R.memo)(function() {
 	let e = (0, R.useRef)(null), t = (0, R.useRef)(null), n = (0, R.useRef)(null), r = (0, R.useRef)(null), i = (0, R.useRef)(null), a = (0, R.useRef)(null), o = (0, R.useRef)(null), s = (0, R.useRef)(null), c = (0, R.useRef)(null), l = (0, R.useRef)(null);
-	return (0, R.useLayoutEffect)(() => (rZe({
+	return (0, R.useLayoutEffect)(() => (iZe({
 		root: e.current,
 		frame: n.current,
 		play: r.current,
@@ -107715,7 +107753,7 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 		title: s.current,
 		sub: c.current,
 		info: l.current
-	}), () => rZe(null)), []), (0, R.useEffect)(() => CZe(e.current, t.current), []), (0, R.useEffect)(() => xZe(e.current), []), /* @__PURE__ */ (0, z.jsx)("aside", {
+	}), () => iZe(null)), []), (0, R.useEffect)(() => wZe(e.current, t.current), []), (0, R.useEffect)(() => SZe(e.current), []), /* @__PURE__ */ (0, z.jsx)("aside", {
 		ref: e,
 		"data-miniplayer": "",
 		id: "miniplayer",
@@ -107755,7 +107793,7 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 							type: "button",
 							"data-miniplayer-seek": "",
 							id: "miniplayerBack",
-							onClick: E8(() => gZe(-1)),
+							onClick: E8(() => _Ze(-1)),
 							children: /* @__PURE__ */ (0, z.jsx)(T8, { name: "rotate-ccw" })
 						}),
 						/* @__PURE__ */ (0, z.jsx)("button", {
@@ -107765,15 +107803,15 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 							id: "miniplayerPlay",
 							"aria-label": L("catalog:shared.pause"),
 							"aria-keyshortcuts": "k",
-							onClick: E8(hZe),
-							dangerouslySetInnerHTML: yZe
+							onClick: E8(gZe),
+							dangerouslySetInnerHTML: bZe
 						}),
 						/* @__PURE__ */ (0, z.jsx)("button", {
 							ref: o,
 							type: "button",
 							"data-miniplayer-seek": "",
 							id: "miniplayerAhead",
-							onClick: E8(() => gZe(1)),
+							onClick: E8(() => _Ze(1)),
 							children: /* @__PURE__ */ (0, z.jsx)(T8, { name: "rotate-cw" })
 						}),
 						/* @__PURE__ */ (0, z.jsx)("span", {
@@ -107805,7 +107843,7 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 		})
 	});
 });
-function xZe(e) {
+function SZe(e) {
 	let t = () => {
 		let t = e.dataset.corner || "";
 		!e.hidden && t.startsWith("b") && (t === "br" || innerWidth <= 600) ? document.documentElement.style.setProperty("--miniplayer-space", `${Math.ceil(e.offsetHeight + 16 + 12)}px`) : document.documentElement.style.removeProperty("--miniplayer-space");
@@ -107819,7 +107857,7 @@ function xZe(e) {
 		n.disconnect(), r.disconnect(), window.removeEventListener("resize", t), document.documentElement.style.removeProperty("--miniplayer-space");
 	};
 }
-function SZe(e, t, n) {
+function CZe(e, t, n) {
 	let r = e.getBoundingClientRect(), i = (r.top + r.height / 2 < innerHeight / 2 ? "t" : "b") + (r.left + r.width / 2 < innerWidth / 2 ? "l" : "r"), a = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--topH")) || 56, o = {
 		left: r.left - t,
 		top: r.top - n
@@ -107841,7 +107879,7 @@ function SZe(e, t, n) {
 	};
 	e.addEventListener("transitionend", u), setTimeout(u, 600);
 }
-function CZe(e, t) {
+function wZe(e, t) {
 	let n = null, r = (e) => {
 		if (!(e.button !== 0 || e.target.closest("[data-miniplayer-button],[data-miniplayer-play],[data-miniplayer-seek],.vjs-control-bar"))) {
 			n = {
@@ -107867,7 +107905,7 @@ function CZe(e, t) {
 		} catch {}
 		i.moved && (e.dataset.dragged = "1", setTimeout(() => {
 			delete e.dataset.dragged;
-		}, 0), SZe(e, i.dx, i.dy));
+		}, 0), CZe(e, i.dx, i.dy));
 	}, o = (t) => {
 		e.dataset.dragged && (t.stopPropagation(), t.preventDefault());
 	}, s = (e) => {
@@ -107886,27 +107924,27 @@ function I8() {
 	if (!D8) throw Error(L("catalog:stagePlayer.stageHostMissing"));
 	return D8;
 }
-function wZe(e) {
+function TZe(e) {
 	return A8.add(e), () => {
 		A8.delete(e);
 	};
 }
-function TZe() {
+function EZe() {
 	for (let e of [...A8]) e();
 }
 function L8() {
-	(0, Cr.flushSync)(TZe);
+	(0, Cr.flushSync)(EZe);
 }
-function EZe({ view: e }) {
-	return /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [e ? /* @__PURE__ */ (0, z.jsx)(kZe, { view: e }, e.generation) : null, /* @__PURE__ */ (0, z.jsx)(bZe, {})] });
+function DZe({ view: e }) {
+	return /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [e ? /* @__PURE__ */ (0, z.jsx)(AZe, { view: e }, e.generation) : null, /* @__PURE__ */ (0, z.jsx)(xZe, {})] });
 }
-var DZe = () => /* @__PURE__ */ (0, z.jsx)("div", {
+var OZe = () => /* @__PURE__ */ (0, z.jsx)("div", {
 	"data-skeleton": "detail",
 	role: "status",
 	"aria-label": L("catalog:stagePlayer.loadingDetails"),
-	dangerouslySetInnerHTML: { __html: _Je() }
+	dangerouslySetInnerHTML: { __html: vJe() }
 });
-function OZe(e) {
+function kZe(e) {
 	let t = e.currentTarget;
 	if (e.target !== t) return !1;
 	let n = t.getBoundingClientRect();
@@ -107920,7 +107958,7 @@ function R8() {
 		cancelable: !0
 	}))) : z8();
 }
-function kZe({ view: e }) {
+function AZe({ view: e }) {
 	let t = (0, R.useRef)(null);
 	(0, R.useLayoutEffect)(() => {
 		let e = t.current, n = (t) => {
@@ -107928,7 +107966,7 @@ function kZe({ view: e }) {
 		};
 		return e.addEventListener("cancel", n), () => e.removeEventListener("cancel", n);
 	}, []);
-	let { phase: n, content: r } = e, i = r.kind === "item" ? /* @__PURE__ */ (0, z.jsx)(aXe, { ...r.props }) : r.kind === "jav" ? /* @__PURE__ */ (0, z.jsx)(BXe, { ...r.props }, r.props.code) : /* @__PURE__ */ (0, z.jsx)(xYe, { ...r.props }, r.props.id);
+	let { phase: n, content: r } = e, i = r.kind === "item" ? /* @__PURE__ */ (0, z.jsx)(oXe, { ...r.props }) : r.kind === "jav" ? /* @__PURE__ */ (0, z.jsx)(VXe, { ...r.props }, r.props.code) : /* @__PURE__ */ (0, z.jsx)(SYe, { ...r.props }, r.props.id);
 	return /* @__PURE__ */ (0, z.jsxs)("dialog", {
 		ref: t,
 		id: "stage",
@@ -107939,17 +107977,17 @@ function kZe({ view: e }) {
 			e.key !== "Escape" || e.defaultPrevented || e.currentTarget.contains(e.target) && (e.preventDefault(), R8());
 		},
 		onPointerDown: (e) => {
-			P8 = OZe(e);
+			P8 = kZe(e);
 		},
 		onClick: (e) => {
-			P8 && OZe(e) && z8();
+			P8 && kZe(e) && z8();
 		},
 		children: [
-			n === "skeleton" ? /* @__PURE__ */ (0, z.jsx)(DZe, {}, "skeleton") : null,
+			n === "skeleton" ? /* @__PURE__ */ (0, z.jsx)(OZe, {}, "skeleton") : null,
 			n === "reveal" ? /* @__PURE__ */ (0, z.jsx)("div", {
 				"data-stage-fade": "",
 				"aria-hidden": "true",
-				children: /* @__PURE__ */ (0, z.jsx)(DZe, {})
+				children: /* @__PURE__ */ (0, z.jsx)(OZe, {})
 			}, "fade") : null,
 			n === "skeleton" ? null : /* @__PURE__ */ (0, z.jsx)("div", {
 				"data-stage-scroll": "",
@@ -107967,11 +108005,11 @@ function kZe({ view: e }) {
 function z8() {
 	O8 && !N8 && (N8 = !0, O8.request.actions.close());
 }
-function AZe(e, t) {
+function jZe(e, t) {
 	let n = F8();
 	n?.toggleAttribute("data-ambient", e), n?.toggleAttribute("data-theater", t);
 }
-function jZe(e) {
+function MZe(e) {
 	if (e.kind === "jav") return {
 		kind: "jav",
 		props: {
@@ -107998,7 +108036,7 @@ function jZe(e) {
 					item: e,
 					title: String(e.title || e.name || ""),
 					sub: String(n?.[0] || e.creator || L("catalog:shared.uncredited"))
-				}), AZe(r().ambientMode, r().theaterMode), queueMicrotask(() => {
+				}), jZe(r().ambientMode, r().theaterMode), queueMicrotask(() => {
 					i() && o.present(e, t);
 				});
 			},
@@ -108027,7 +108065,7 @@ function jZe(e) {
 				item: e,
 				title: e.title || "",
 				sub: e.author || e.source_label || ""
-			}), AZe(t === "video" && r().ambientMode, t === "video" && r().theaterMode), queueMicrotask(() => {
+			}), jZe(t === "video" && r().ambientMode, t === "video" && r().theaterMode), queueMicrotask(() => {
 				i() && s.present(e, t);
 			});
 		},
@@ -108048,7 +108086,7 @@ function jZe(e) {
 		}
 	};
 }
-function MZe(e, t) {
+function NZe(e, t) {
 	let n = e.querySelector(":scope > [data-stage-fade]");
 	e.setAttribute("data-stage-reveal", ""), e.getBoundingClientRect(), e.setAttribute("data-stage-revealing", "");
 	let r = 0, i = () => {
@@ -108065,7 +108103,7 @@ function B8(e) {
 	let t = F8();
 	return !O8 || O8.content.kind !== e || N8 || !t?.open || t.hasAttribute("data-closing") ? null : t;
 }
-async function NZe(e) {
+async function PZe(e) {
 	!k8 && document.activeElement instanceof HTMLElement && document.activeElement !== document.body && (k8 = {
 		left: window.scrollX,
 		top: window.scrollY,
@@ -108073,25 +108111,25 @@ async function NZe(e) {
 	});
 	let t = B8(e.kind);
 	if (t) {
-		await FZe(e, t);
+		await IZe(e, t);
 		return;
 	}
-	O8 && LZe({ miniplayer: !1 });
+	O8 && RZe({ miniplayer: !1 });
 	let n = ++j8, r = new AbortController();
-	M8 = r, N8 = !1, P8 = !1, e.kind === "jav" ? C8() : nZe(e.kind, e.id ?? NaN);
-	let i = jZe(e);
+	M8 = r, N8 = !1, P8 = !1, e.kind === "jav" ? C8() : rZe(e.kind, e.id ?? NaN);
+	let i = MZe(e);
 	O8 = {
 		generation: n,
 		request: e,
 		content: i,
 		phase: "skeleton"
 	};
-	let a = i.kind === "item" ? _R(i.props, r.signal) : i.kind === "jav" ? BYe(i.props, r.signal) : TJe(i.props, r.signal);
+	let a = i.kind === "item" ? _R(i.props, r.signal) : i.kind === "jav" ? VYe(i.props, r.signal) : EJe(i.props, r.signal);
 	if (n !== j8 || O8?.request !== e) {
 		await a.catch(() => {});
 		return;
 	}
-	let o = PZe(i);
+	let o = FZe(i);
 	O8 = {
 		...O8,
 		phase: o ? "content" : "skeleton"
@@ -108112,11 +108150,11 @@ async function NZe(e) {
 	O8 = {
 		...O8,
 		phase: c ? "content" : "reveal"
-	}, L8(), c || MZe(s, n), Hu(s, ":scope>:not([data-stage-fade]) [data-reveal-line]");
+	}, L8(), c || NZe(s, n), Hu(s, ":scope>:not([data-stage-fade]) [data-reveal-line]");
 	let l = document.activeElement;
 	l !== s && s.contains(l) || s.querySelector("#closeStage")?.focus();
 }
-function PZe(e) {
+function FZe(e) {
 	if (e.kind === "jav") return !!G.getQueryData(U6(e.props.code));
 	if (e.kind === "follow") return !!G.getQueryData(O6(e.props.id));
 	let { queue: t, id: n } = e.props, r = t ? G.getQueryData(iR(t)) : null;
@@ -108124,19 +108162,19 @@ function PZe(e) {
 	let i = r ? hR(r, n) : n;
 	return i != null && !!G.getQueryData(rR(i));
 }
-async function FZe(e, t) {
+async function IZe(e, t) {
 	let n = ++j8;
 	M8?.abort();
 	let r = new AbortController();
 	M8 = r, P8 = !1;
-	let i = jZe(e);
+	let i = MZe(e);
 	try {
-		i.kind === "item" ? await _R(i.props, r.signal) : i.kind === "jav" ? await BYe(i.props, r.signal) : await TJe(i.props, r.signal);
+		i.kind === "item" ? await _R(i.props, r.signal) : i.kind === "jav" ? await VYe(i.props, r.signal) : await EJe(i.props, r.signal);
 	} catch {
 		if (r.signal.aborted) return;
 	}
 	if (n !== j8 || !O8 || B8(e.kind) !== t) return;
-	e.kind === "jav" ? C8() : nZe(e.kind, e.id ?? NaN), Mf(t), cI(), O8 = {
+	e.kind === "jav" ? C8() : rZe(e.kind, e.id ?? NaN), Mf(t), cI(), O8 = {
 		...O8,
 		request: e,
 		content: i,
@@ -108145,7 +108183,7 @@ async function FZe(e, t) {
 	let a = document.activeElement;
 	a !== t && t.contains(a) || (t.querySelector("[data-mix-item][aria-current=\"true\"]") || t.querySelector("#closeStage"))?.focus({ preventScroll: !0 });
 }
-function IZe() {
+function LZe() {
 	$2(null);
 	let e = F8();
 	return !e?.open || e.hasAttribute("data-closing") || matchMedia("(prefers-reduced-motion: reduce)").matches ? Promise.resolve() : (e.setAttribute("data-closing", ""), new Promise((t) => {
@@ -108157,8 +108195,8 @@ function IZe() {
 		e.addEventListener("animationend", i), n = window.setTimeout(r, 380);
 	}));
 }
-function LZe({ miniplayer: e = !0 } = {}) {
-	if (j8++, M8?.abort(), M8 = null, tZe(e), !O8) return;
+function RZe({ miniplayer: e = !0 } = {}) {
+	if (j8++, M8?.abort(), M8 = null, nZe(e), !O8) return;
 	let t = F8();
 	t && Mf(t), cI(), $2(null), t?.open && t.close(), O8 = null, N8 = !1, P8 = !1, L8(), g8(null), document.body.removeAttribute("data-detail-open");
 	let n = k8;
@@ -108172,7 +108210,7 @@ function LZe({ miniplayer: e = !0 } = {}) {
 	};
 	r(), requestAnimationFrame(r);
 }
-function RZe(e) {
+function zZe(e) {
 	O8 && (O8 = {
 		...O8,
 		content: O8.content.kind === "item" ? {
@@ -108190,62 +108228,62 @@ function RZe(e) {
 		}
 	}, L8());
 }
-function zZe() {
-	let e = QXe(), t = e?.kind === "item" ? e.item : null, n = t ? _l(t, I8().player.settings().javImage) : "";
+function BZe() {
+	let e = $Xe(), t = e?.kind === "item" ? e.item : null, n = t ? _l(t, I8().player.settings().javImage) : "";
 	if (!n) return;
 	let r = v8();
 	r ? r.poster(n) : document.getElementById("vid")?.setAttribute("poster", n);
 }
-var BZe = {
-	open: NZe,
-	update: RZe,
-	exit: IZe,
-	dispose: LZe,
+var VZe = {
+	open: PZe,
+	update: zZe,
+	exit: LZe,
+	dispose: RZe,
 	requestClose: z8,
 	requestEscape: R8,
-	repaintPoster: zZe,
+	repaintPoster: BZe,
 	isOpen: () => !!O8,
 	showing: () => O8 && B8(O8.content.kind) ? O8.content.kind : null,
-	activeVideo: () => aZe(),
-	mountWallPlayer: $Xe,
+	activeVideo: () => oZe(),
+	mountWallPlayer: eZe,
 	toggleTheater: () => {
 		O8 && GI(!I8().player.settings().theaterMode);
 	},
-	toggleMiniplayer: () => mZe(),
+	toggleMiniplayer: () => hZe(),
 	closeMiniplayer: () => C8(),
 	miniplayerActive: () => y8(),
-	miniplayerTakesCard: (e) => _Ze(e),
+	miniplayerTakesCard: (e) => vZe(e),
 	miniplayerPlay: (e) => {
-		vZe(e);
+		yZe(e);
 	}
 };
-function VZe(e) {
-	return D8 = e, XXe(e, {
+function HZe(e) {
+	return D8 = e, ZXe(e, {
 		isOpen: () => !!O8,
 		requestClose: z8
-	}), BZe;
+	}), VZe;
 }
-function HZe() {
-	let e = (0, R.useSyncExternalStore)(wZe, () => O8);
-	return D8 ? /* @__PURE__ */ (0, z.jsx)(EZe, { view: e }) : null;
+function UZe() {
+	let e = (0, R.useSyncExternalStore)(TZe, () => O8);
+	return D8 ? /* @__PURE__ */ (0, z.jsx)(DZe, { view: e }) : null;
 }
 // src/react/stats/stats.ts
-var UZe = "/api/stats", WZe = ["stats"], GZe = (e) => U(UZe, e);
-async function KZe(e) {
+var WZe = "/api/stats", GZe = ["stats"], KZe = (e) => U(WZe, e);
+async function qZe(e) {
 	await G.fetchQuery({
-		queryKey: WZe,
-		queryFn: () => GZe(e)
+		queryKey: GZe,
+		queryFn: () => KZe(e)
 	});
 }
-var V8 = (e) => e != null && Number.isFinite(e), qZe = (e) => V8(e) ? e.toLocaleString() : L("manage:shared.notFound"), JZe = (e, t) => V8(e) && V8(t) && t > 0 ? Math.min(100, Math.max(0, Math.round(e / t * 100))) : 0, YZe = (e, t) => {
-	let n = JZe(e, t);
+var V8 = (e) => e != null && Number.isFinite(e), JZe = (e) => V8(e) ? e.toLocaleString() : L("manage:shared.notFound"), YZe = (e, t) => V8(e) && V8(t) && t > 0 ? Math.min(100, Math.max(0, Math.round(e / t * 100))) : 0, XZe = (e, t) => {
+	let n = YZe(e, t);
 	return !n && V8(e) && e > 0 && V8(t) && t > 0 ? "<1%" : `${n}%`;
-}, XZe = (e) => {
+}, ZZe = (e) => {
 	if (!V8(e)) return L("manage:shared.notFound");
 	let t = Math.max(0, e);
 	return t >= 172800 ? L("manage:stats.durationDays", { count: t / 86400 }) : t >= 3600 ? L("manage:stats.durationHours", { count: t / 3600 }) : L("manage:stats.durationMinutes", { count: Math.round(t / 60) });
-}, ZZe = (e) => e.duration ? Math.min(e.play_seconds / e.duration, 1) * 100 : 0, QZe = (e) => (e.max_reached || 0) * 100, $Ze = (e) => e.kind === "online" ? L("manage:stats.watchedOnline") : ZZe(e) < QZe(e) - 25 ? L("manage:stats.skimmed") : e.o_count ? L("manage:stats.climaxNote", { count: e.o_count }) : L("manage:stats.watchedNormally"), eQe = (e) => `${e.kind === "online" ? "/posts/" : "/assets/"}${e.id}`;
-function tQe(e, t = 6) {
+}, QZe = (e) => e.duration ? Math.min(e.play_seconds / e.duration, 1) * 100 : 0, $Ze = (e) => (e.max_reached || 0) * 100, eQe = (e) => e.kind === "online" ? L("manage:stats.watchedOnline") : QZe(e) < $Ze(e) - 25 ? L("manage:stats.skimmed") : e.o_count ? L("manage:stats.climaxNote", { count: e.o_count }) : L("manage:stats.watchedNormally"), tQe = (e) => `${e.kind === "online" ? "/posts/" : "/assets/"}${e.id}`;
+function nQe(e, t = 6) {
 	let n = e.filter((e) => Number.isFinite(e.value) && e.value >= 0);
 	if (n.length <= t) return n;
 	let r = [...n].sort((e, t) => t.value - e.value), i = r.slice(t - 1);
@@ -108255,7 +108293,7 @@ function tQe(e, t = 6) {
 		bytes: i.reduce((e, t) => e + (t.bytes ?? 0), 0)
 	}];
 }
-var nQe = (e) => Math.max(1, ...e) * 1.1, rQe = (e, t) => e > 0 ? Math.max(e, t * .02) : 0, iQe = (e) => Math.max(4, Math.min(14, Math.round(90 / Math.max(1, e)))), aQe = {
+var rQe = (e) => Math.max(1, ...e) * 1.1, iQe = (e, t) => e > 0 ? Math.max(e, t * .02) : 0, aQe = (e) => Math.max(4, Math.min(14, Math.round(90 / Math.max(1, e)))), oQe = {
 	video: L("manage:processingTraffic.sourceVideos"),
 	image: L("manage:stats.mediumImage"),
 	illustration: L("manage:stats.mediumIllustration"),
@@ -108263,18 +108301,18 @@ var nQe = (e) => Math.max(1, ...e) * 1.1, rQe = (e, t) => e > 0 ? Math.max(e, t 
 	audio: L("manage:stats.mediumAudio"),
 	account: L("manage:stats.mediumAccount"),
 	other: L("manage:stats.mediumOther")
-}, oQe = (e) => e.map((e) => ({
-	name: aQe[e.k] ?? e.k,
+}, sQe = (e) => e.map((e) => ({
+	name: oQe[e.k] ?? e.k,
 	value: e.n
-})).sort((e, t) => t.value - e.value), sQe = {
+})).sort((e, t) => t.value - e.value), cQe = {
 	quick: L("manage:stats.lengthUnder5"),
 	short: L("manage:stats.length5to15"),
 	medium: L("manage:stats.length15to40"),
 	long: L("manage:stats.lengthOver40")
-}, cQe = (e, t = {}) => e.map((e) => ({
+}, lQe = (e, t = {}) => e.map((e) => ({
 	name: t[e.k] ?? yi(e.label_code ?? "", e.k),
 	value: e.n
-})), lQe = (e) => cQe(e, sQe), uQe = [
+})), uQe = (e) => lQe(e, cQe), dQe = [
 	[
 		1,
 		1,
@@ -108310,7 +108348,7 @@ var nQe = (e) => Math.max(1, ...e) * 1.1, rQe = (e, t) => e > 0 ? Math.max(e, t 
 		Infinity,
 		"≥10"
 	]
-], dQe = (e) => uQe.map(([t, n, r]) => ({
+], fQe = (e) => dQe.map(([t, n, r]) => ({
 	name: r,
 	value: e.filter((e) => e.k >= t && e.k <= n).reduce((e, t) => e + t.n, 0)
 }));
@@ -108325,7 +108363,7 @@ function H8(e, t) {
 	return n;
 }
 // node_modules/d3-array/src/min.js
-function fQe(e, t) {
+function pQe(e, t) {
 	let n;
 	if (t === void 0) for (let t of e) t != null && (n > t || n === void 0 && t >= t) && (n = t);
 	else {
@@ -108345,7 +108383,7 @@ function U8(e, t) {
 	return n;
 }
 // node_modules/d3-sankey/src/align.js
-function pQe(e, t) {
+function mQe(e, t) {
 	return e.sourceLinks.length ? e.depth : t - 1;
 }
 // node_modules/d3-sankey/src/constant.js
@@ -108355,10 +108393,10 @@ function W8(e) {
 	};
 }
 // node_modules/d3-sankey/src/sankey.js
-function mQe(e, t) {
+function hQe(e, t) {
 	return G8(e.source, t.source) || e.index - t.index;
 }
-function hQe(e, t) {
+function gQe(e, t) {
 	return G8(e.target, t.target) || e.index - t.index;
 }
 function G8(e, t) {
@@ -108367,38 +108405,38 @@ function G8(e, t) {
 function K8(e) {
 	return e.value;
 }
-function gQe(e) {
+function _Qe(e) {
 	return e.index;
 }
-function _Qe(e) {
+function vQe(e) {
 	return e.nodes;
 }
-function vQe(e) {
+function yQe(e) {
 	return e.links;
 }
-function yQe(e, t) {
+function bQe(e, t) {
 	let n = e.get(t);
 	if (!n) throw Error("missing: " + t);
 	return n;
 }
-function bQe({ nodes: e }) {
+function xQe({ nodes: e }) {
 	for (let t of e) {
 		let e = t.y0, n = e;
 		for (let n of t.sourceLinks) n.y0 = e + n.width / 2, e += n.width;
 		for (let e of t.targetLinks) e.y1 = n + e.width / 2, n += e.width;
 	}
 }
-function xQe() {
-	let e = 0, t = 0, n = 1, r = 1, i = 24, a = 8, o, s = gQe, c = pQe, l, u, d = _Qe, f = vQe, p = 6;
+function SQe() {
+	let e = 0, t = 0, n = 1, r = 1, i = 24, a = 8, o, s = _Qe, c = mQe, l, u, d = vQe, f = yQe, p = 6;
 	function m() {
 		let e = {
 			nodes: d.apply(null, arguments),
 			links: f.apply(null, arguments)
 		};
-		return h(e), g(e), _(e), v(e), x(e), bQe(e), e;
+		return h(e), g(e), _(e), v(e), x(e), xQe(e), e;
 	}
 	m.update = function(e) {
-		return bQe(e), e;
+		return xQe(e), e;
 	}, m.nodeId = function(e) {
 		return arguments.length ? (s = typeof e == "function" ? e : W8(e), m) : s;
 	}, m.nodeAlign = function(e) {
@@ -108428,7 +108466,7 @@ function xQe() {
 		for (let [e, r] of t.entries()) {
 			r.index = e;
 			let { source: t, target: i } = r;
-			typeof t != "object" && (t = r.source = yQe(n, t)), typeof i != "object" && (i = r.target = yQe(n, i)), t.sourceLinks.push(r), i.targetLinks.push(r);
+			typeof t != "object" && (t = r.source = bQe(n, t)), typeof i != "object" && (i = r.target = bQe(n, i)), t.sourceLinks.push(r), i.targetLinks.push(r);
 		}
 		if (u != null) for (let { sourceLinks: t, targetLinks: n } of e) t.sort(u), n.sort(u);
 	}
@@ -108467,7 +108505,7 @@ function xQe() {
 		return o;
 	}
 	function b(e) {
-		let n = fQe(e, (e) => (r - t - (e.length - 1) * o) / U8(e, K8));
+		let n = pQe(e, (e) => (r - t - (e.length - 1) * o) / U8(e, K8));
 		for (let i of e) {
 			let e = t;
 			for (let t of i) {
@@ -108540,12 +108578,12 @@ function xQe() {
 	}
 	function D({ sourceLinks: e, targetLinks: t }) {
 		if (u === void 0) {
-			for (let { source: { sourceLinks: e } } of t) e.sort(hQe);
-			for (let { target: { targetLinks: t } } of e) t.sort(mQe);
+			for (let { source: { sourceLinks: e } } of t) e.sort(gQe);
+			for (let { target: { targetLinks: t } } of e) t.sort(hQe);
 		}
 	}
 	function O(e) {
-		if (u === void 0) for (let { sourceLinks: t, targetLinks: n } of e) t.sort(hQe), n.sort(mQe);
+		if (u === void 0) for (let { sourceLinks: t, targetLinks: n } of e) t.sort(gQe), n.sort(hQe);
 	}
 	function k(e, t) {
 		let n = e.y0 - (e.sourceLinks.length - 1) * o / 2;
@@ -108574,14 +108612,14 @@ function xQe() {
 	return m;
 }
 // node_modules/d3-path/src/path.js
-var q8 = Math.PI, J8 = 2 * q8, Y8 = 1e-6, SQe = J8 - Y8;
+var q8 = Math.PI, J8 = 2 * q8, Y8 = 1e-6, CQe = J8 - Y8;
 function X8() {
 	this._x0 = this._y0 = this._x1 = this._y1 = null, this._ = "";
 }
-function CQe() {
+function wQe() {
 	return new X8();
 }
-X8.prototype = CQe.prototype = {
+X8.prototype = wQe.prototype = {
 	constructor: X8,
 	moveTo: function(e, t) {
 		this._ += "M" + (this._x0 = this._x1 = +e) + "," + (this._y0 = this._y1 = +t);
@@ -108615,7 +108653,7 @@ X8.prototype = CQe.prototype = {
 		e = +e, t = +t, n = +n, a = !!a;
 		var o = n * Math.cos(r), s = n * Math.sin(r), c = e + o, l = t + s, u = 1 ^ a, d = a ? r - i : i - r;
 		if (n < 0) throw Error("negative radius: " + n);
-		this._x1 === null ? this._ += "M" + c + "," + l : (Math.abs(this._x1 - c) > Y8 || Math.abs(this._y1 - l) > Y8) && (this._ += "L" + c + "," + l), n && (d < 0 && (d = d % J8 + J8), d > SQe ? this._ += "A" + n + "," + n + ",0,1," + u + "," + (e - o) + "," + (t - s) + "A" + n + "," + n + ",0,1," + u + "," + (this._x1 = c) + "," + (this._y1 = l) : d > Y8 && (this._ += "A" + n + "," + n + ",0," + +(d >= q8) + "," + u + "," + (this._x1 = e + n * Math.cos(i)) + "," + (this._y1 = t + n * Math.sin(i))));
+		this._x1 === null ? this._ += "M" + c + "," + l : (Math.abs(this._x1 - c) > Y8 || Math.abs(this._y1 - l) > Y8) && (this._ += "L" + c + "," + l), n && (d < 0 && (d = d % J8 + J8), d > CQe ? this._ += "A" + n + "," + n + ",0,1," + u + "," + (e - o) + "," + (t - s) + "A" + n + "," + n + ",0,1," + u + "," + (this._x1 = c) + "," + (this._y1 = l) : d > Y8 && (this._ += "A" + n + "," + n + ",0," + +(d >= q8) + "," + u + "," + (this._x1 = e + n * Math.cos(i)) + "," + (this._y1 = t + n * Math.sin(i))));
 	},
 	rect: function(e, t, n, r) {
 		this._ += "M" + (this._x0 = this._x1 = +e) + "," + (this._y0 = this._y1 = +t) + "h" + +n + "v" + +r + "h" + -n + "Z";
@@ -108625,102 +108663,102 @@ X8.prototype = CQe.prototype = {
 	}
 };
 // node_modules/d3-shape/src/constant.js
-function wQe(e) {
+function TQe(e) {
 	return function() {
 		return e;
 	};
 }
 // node_modules/d3-shape/src/point.js
-function TQe(e) {
+function EQe(e) {
 	return e[0];
 }
-function EQe(e) {
+function DQe(e) {
 	return e[1];
 }
 // node_modules/d3-shape/src/array.js
-var DQe = Array.prototype.slice;
+var OQe = Array.prototype.slice;
 // node_modules/d3-shape/src/link/index.js
-function OQe(e) {
+function kQe(e) {
 	return e.source;
 }
-function kQe(e) {
+function AQe(e) {
 	return e.target;
 }
-function AQe(e) {
-	var t = OQe, n = kQe, r = TQe, i = EQe, a = null;
+function jQe(e) {
+	var t = kQe, n = AQe, r = EQe, i = DQe, a = null;
 	function o() {
-		var o, s = DQe.call(arguments), c = t.apply(this, s), l = n.apply(this, s);
-		if (a ||= o = CQe(), e(a, +r.apply(this, (s[0] = c, s)), +i.apply(this, s), +r.apply(this, (s[0] = l, s)), +i.apply(this, s)), o) return a = null, o + "" || null;
+		var o, s = OQe.call(arguments), c = t.apply(this, s), l = n.apply(this, s);
+		if (a ||= o = wQe(), e(a, +r.apply(this, (s[0] = c, s)), +i.apply(this, s), +r.apply(this, (s[0] = l, s)), +i.apply(this, s)), o) return a = null, o + "" || null;
 	}
 	return o.source = function(e) {
 		return arguments.length ? (t = e, o) : t;
 	}, o.target = function(e) {
 		return arguments.length ? (n = e, o) : n;
 	}, o.x = function(e) {
-		return arguments.length ? (r = typeof e == "function" ? e : wQe(+e), o) : r;
+		return arguments.length ? (r = typeof e == "function" ? e : TQe(+e), o) : r;
 	}, o.y = function(e) {
-		return arguments.length ? (i = typeof e == "function" ? e : wQe(+e), o) : i;
+		return arguments.length ? (i = typeof e == "function" ? e : TQe(+e), o) : i;
 	}, o.context = function(e) {
 		return arguments.length ? (a = e ?? null, o) : a;
 	}, o;
 }
-function jQe(e, t, n, r, i) {
+function MQe(e, t, n, r, i) {
 	e.moveTo(t, n), e.bezierCurveTo(t = (t + r) / 2, n, t, i, r, i);
 }
-function MQe() {
-	return AQe(jQe);
+function NQe() {
+	return jQe(MQe);
 }
 // node_modules/d3-sankey/src/sankeyLinkHorizontal.js
-function NQe(e) {
+function PQe(e) {
 	return [e.source.x1, e.y0];
 }
-function PQe(e) {
+function FQe(e) {
 	return [e.target.x0, e.y1];
 }
-function FQe() {
-	return MQe().source(NQe).target(PQe);
+function IQe() {
+	return NQe().source(PQe).target(FQe);
 }
 // src/react/taste/taste.ts
-var IQe = "/api/taste", LQe = "/api/taste/refresh", RQe = "/api/taste/import", zQe = "/api/taste/source", BQe = (e) => ["taste", e], VQe = ["taste", "refresh"], HQe = [
+var LQe = "/api/taste", RQe = "/api/taste/refresh", zQe = "/api/taste/import", BQe = "/api/taste/source", VQe = (e) => ["taste", e], HQe = ["taste", "refresh"], UQe = [
 	["7d", L("manage:taste.last7Days")],
 	["30d", L("manage:taste.last30Days")],
 	["90d", L("manage:taste.last90Days")],
 	["365d", L("manage:taste.lastYear")],
 	["all", L("manage:taste.allTime")]
-], UQe = 2e3, Z8 = /* @__PURE__ */ new WeakMap();
-function WQe(e) {
+], WQe = 2e3, Z8 = /* @__PURE__ */ new WeakMap();
+function GQe(e) {
 	let t = e.state.data;
 	if (!t?.stale || t.error) return Z8.delete(e), !1;
 	let n = Ka(e);
 	if (n) return Wa(n);
 	let r = e.state.dataUpdateCount ?? 0;
-	return Z8.has(e) || Z8.set(e, r), Math.min(UQe * 2 ** (r - (Z8.get(e) ?? r)), Ua);
+	return Z8.has(e) || Z8.set(e, r), Math.min(WQe * 2 ** (r - (Z8.get(e) ?? r)), Ua);
 }
-var GQe = (e) => e ? new Date(e).toLocaleString(Ct, {
+var KQe = (e) => e ? new Date(e).toLocaleString(Ct, {
 	month: "numeric",
 	day: "numeric",
 	hour: "2-digit",
 	minute: "2-digit"
-}) : "—", KQe = (e, t) => W(zQe, {
+}) : "—", qQe = (e, t) => W(BQe, {
 	...e,
 	window: t
-}), qQe = (e, t, n = !1) => U(`${IQe}?window=${e}${n ? "&retry=1" : ""}`, t), JQe = (e) => U(LQe, e);
-async function YQe(e, t) {
+}), JQe = (e, t, n = !1) => U(`${LQe}?window=${e}${n ? "&retry=1" : ""}`, t), YQe = (e) => U(RQe, e);
+async function XQe(e, t) {
 	await G.fetchQuery({
-		queryKey: BQe(e),
-		queryFn: () => qQe(e, t)
+		queryKey: VQe(e),
+		queryFn: () => JQe(e, t)
 	});
 }
-var XQe = (e) => W(LQe, {
+var ZQe = (e) => W(RQe, {
 	window: e,
 	background: !0
-}), ZQe = (e, t) => W(zQe, {
+}), QQe = (e, t) => W(BQe, {
 	operation: "remove",
 	source_key: e,
 	window: t
 });
-async function QQe(e) {
-	let t = await fetch(RQe, {
+async function $Qe(e) {
+	let t = await fetch(zQe, {
 		method: "POST",
 		credentials: "same-origin",
 		headers: {
@@ -108738,59 +108776,59 @@ async function QQe(e) {
 	}
 	return n;
 }
-var $Qe = "taste-refresh", e$e = (e) => e ? new Date(e).toLocaleDateString(Ct) : "—";
-function t$e(e) {
+var e$e = "taste-refresh", t$e = (e) => e ? new Date(e).toLocaleDateString(Ct) : "—";
+function n$e(e) {
 	let t = L("manage:taste.sourceCount", { count: Number(e.history_sources || 0) });
 	if (!e.range_start && !e.range_end) return t;
 	let n = e.range_start?.slice(0, 4) === e.range_end?.slice(0, 4), r = (e) => e && n ? new Date(e).toLocaleDateString(Ct, {
 		month: "numeric",
 		day: "numeric"
-	}) : e$e(e);
+	}) : t$e(e);
 	return `${t} · ${r(e.range_start)}–${r(e.range_end)}`;
 }
-var n$e = XZe, r$e = (e) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
+var r$e = ZZe, i$e = (e) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
 	...e,
 	name: Ei(e, "name")
-})).sort((e, t) => Number(t.score) - Number(e.score)), i$e = (e) => Number(e.web_visits ?? e.score ?? e.visits ?? e.peach_items ?? 0);
-function a$e(e) {
+})).sort((e, t) => Number(t.score) - Number(e.score)), a$e = (e) => Number(e.web_visits ?? e.score ?? e.visits ?? e.peach_items ?? 0);
+function o$e(e) {
 	if (e.web_visits == null && !e.web_bookmarks) return Number(e.score || e.visits || 0).toLocaleString();
 	let t = [], n = Number(e.web_bookmarks || 0), r = Number(e.web_visits ?? e.visits ?? 0) - n;
 	return r > 0 && t.push(L("manage:taste.visitCount", { count: r })), n && t.push(L("manage:taste.bookmarkCount", { count: n })), e.peach_items && t.push(`Peach ${Number(e.peach_items).toLocaleString()}`), t.join(" · ");
 }
-function o$e(e) {
-	let t = e.map(i$e), n = Math.max(1, ...t);
+function s$e(e) {
+	let t = e.map(a$e), n = Math.max(1, ...t);
 	return t.map((e) => Math.max(0, Math.min(100, e / n * 100)));
 }
-var s$e = (e, t) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
+var c$e = (e, t) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
 	name: e.name,
 	value: Number(e.score)
 })).sort((e, t) => t.value - e.value).slice(0, t);
-function c$e(e) {
-	let t = s$e(e, 6);
+function l$e(e) {
+	let t = c$e(e, 6);
 	return t.length < 3 ? [] : t;
 }
-var l$e = {
+var u$e = {
 	width: 720,
 	height: 435
-}, u$e = {
+}, d$e = {
 	source: 145,
 	target: 545
-}, d$e = 30, f$e = 240;
-function p$e(e, t, n) {
+}, f$e = 30, p$e = 240;
+function m$e(e, t, n) {
 	let r = /* @__PURE__ */ new Map();
 	for (let n of e) r.set(n[t], (r.get(n[t]) ?? 0) + n.value);
 	if (r.size <= 12) return (e) => e;
 	let i = [...r].sort((e, t) => t[1] - e[1]).map(([e]) => e), a = new Set(i.slice(0, 11)), o = n(i.length - a.size);
 	return (e) => a.has(e) ? e : o;
 }
-function m$e(e = []) {
+function h$e(e = []) {
 	let t = e.filter((e) => e.source && e.target && Number.isFinite(e.value) && e.value > 0).map((e) => ({
 		source: Ei(e, "source"),
 		target: Ei(e, "target"),
 		value: e.value
 	}));
 	if (!t.length) return null;
-	let n = p$e(t, "source", (e) => L("manage:taste.otherSites", { count: e })), r = p$e(t, "target", (e) => L("manage:taste.otherCreators", { count: e })), i = /* @__PURE__ */ new Map();
+	let n = m$e(t, "source", (e) => L("manage:taste.otherSites", { count: e })), r = m$e(t, "target", (e) => L("manage:taste.otherCreators", { count: e })), i = /* @__PURE__ */ new Map();
 	for (let e of t) {
 		let t = n(e.source), a = r(e.target), o = JSON.stringify([t, a]), s = i.get(o);
 		s ? s.value += e.value : i.set(o, {
@@ -108799,7 +108837,7 @@ function m$e(e = []) {
 			value: e.value
 		});
 	}
-	let a = [...i.values()], o = [...new Set(a.map((e) => e.source))], s = [...new Set(a.map((e) => e.target))], c = Math.max(o.length, s.length), l = Math.max(404, 16 + (c - 1) * d$e + f$e), u = xQe().nodeId((e) => e.id).nodeWidth(10).nodePadding(d$e).extent([[155, 16], [535, l]])({
+	let a = [...i.values()], o = [...new Set(a.map((e) => e.source))], s = [...new Set(a.map((e) => e.target))], c = Math.max(o.length, s.length), l = Math.max(404, 16 + (c - 1) * f$e + p$e), u = SQe().nodeId((e) => e.id).nodeWidth(10).nodePadding(f$e).extent([[155, 16], [535, l]])({
 		nodes: [...o.map((e) => ({
 			id: `source:${e}`,
 			name: e,
@@ -108814,7 +108852,7 @@ function m$e(e = []) {
 			target: `target:${e.target}`,
 			value: e.value
 		}))
-	}), d = a.reduce((e, t) => e + t.value, 0), f = FQe();
+	}), d = a.reduce((e, t) => e + t.value, 0), f = IQe();
 	return {
 		nodes: u.nodes.map((e) => ({
 			id: e.id,
@@ -108842,12 +108880,12 @@ function m$e(e = []) {
 			};
 		}),
 		total: d,
-		height: l + l$e.height - 404
+		height: l + u$e.height - 404
 	};
 }
-var h$e = (e) => wa(e, 17), g$e = () => fp, _$e = () => Zf, Q8 = () => document.getElementById("index");
+var g$e = (e) => wa(e, 17), _$e = () => fp, v$e = () => Zf, Q8 = () => document.getElementById("index");
 function $8(e, t, n = {}) {
-	let r = (0, R.useSyncExternalStore)(Cp, g$e);
+	let r = (0, R.useSyncExternalStore)(Cp, _$e);
 	Qm();
 	let i = zh(Tg.navigation.location.pathname), a = (0, R.useRef)({
 		mounted: !0,
@@ -108895,7 +108933,7 @@ function $8(e, t, n = {}) {
 		i
 	]);
 }
-async function v$e(e, t, n, r) {
+async function y$e(e, t, n, r) {
 	let i = Q8();
 	if (!i) return;
 	let a = `/${t}`, o = SHe(t, n), s = xHe(yF().value.peopleLayout), c = !!i.querySelector("[data-index-page]") && !i.hidden;
@@ -108910,23 +108948,23 @@ async function v$e(e, t, n, r) {
 		reuse: c
 	}) && r() && (e.surfaceShown?.("index", a), u_(r, i));
 }
-function y$e(e) {
+function b$e(e) {
 	let t = Q8(), n = t ? ug(t) : null;
 	return !!t && !t.hidden && !!n && n.path === e && n.host.isConnected;
 }
-function b$e({ epoch: e }) {
+function x$e({ epoch: e }) {
 	let t = (0, R.useContext)(FZ), n = Qm(), r = n.pathname.split("/").filter(Boolean)[0];
 	return $8(e, (e, i) => {
-		t && v$e(t, r, n.search, i);
-	}, { shown: () => y$e(`/${r}`) }), null;
+		t && y$e(t, r, n.search, i);
+	}, { shown: () => b$e(`/${r}`) }), null;
 }
-function x$e() {
-	let e = PZ(), t = (0, R.useSyncExternalStore)(Cp, _$e), n = (0, R.useRef)(t);
+function S$e() {
+	let e = PZ(), t = (0, R.useSyncExternalStore)(Cp, v$e), n = (0, R.useRef)(t);
 	return (0, R.useEffect)(() => {
 		n.current !== t && (n.current = t, hg(Q8(), { selectMode: t }));
-	}, [t]), /* @__PURE__ */ (0, z.jsx)(b$e, { epoch: e }, e);
+	}, [t]), /* @__PURE__ */ (0, z.jsx)(x$e, { epoch: e }, e);
 }
-function S$e(e) {
+function C$e(e) {
 	let t;
 	try {
 		t = decodeURIComponent(e);
@@ -108940,9 +108978,9 @@ function S$e(e) {
 		name: a
 	} : null;
 }
-var C$e = /* @__PURE__ */ new WeakMap();
-function w$e(e) {
-	let t = C$e.get(e);
+var w$e = /* @__PURE__ */ new WeakMap();
+function T$e(e) {
+	let t = w$e.get(e);
 	return t || (t = {
 		helpers: {
 			...e.grid.helpers,
@@ -108952,13 +108990,13 @@ function w$e(e) {
 			...e.grid.actions,
 			revealSource: e.revealSource
 		}
-	}, C$e.set(e, t)), t;
+	}, w$e.set(e, t)), t;
 }
 function e5() {
 	let e = Q8(), t = e ? ug(e) : null;
 	return !!t && t.path.endsWith("/*") && t.host.isConnected;
 }
-async function T$e(e, t, n, r, i, a, o) {
+async function E$e(e, t, n, r, i, a, o) {
 	let s = Q8();
 	if (!s) return;
 	let { segment: c, kind: l, name: u } = n;
@@ -108985,7 +109023,7 @@ async function T$e(e, t, n, r, i, a, o) {
 	let _ = {
 		...g,
 		hosts: h,
-		card: w$e(e),
+		card: T$e(e),
 		resolvedEntity: o,
 		restoreNavigation: c_(),
 		actions: {
@@ -109002,7 +109040,7 @@ async function T$e(e, t, n, r, i, a, o) {
 		place: (e) => (e.replaceChildren(...p), m.firstElementChild)
 	}) && a() && e5() && (e.surfaceShown?.("entity", r), u_(a, h.filter));
 }
-function E$e({ target: e }) {
+function D$e({ target: e }) {
 	let t = (0, R.useContext)(FZ), n = PZ(), r = Qm();
 	return $8(n, (n, i) => {
 		let a = t?.entity;
@@ -109035,7 +109073,7 @@ function E$e({ target: e }) {
 				return;
 			}
 			let c = String(s.canonical_name || e.name), l = ra(e.kind, c, Number(s.id));
-			l === r.pathname ? !n && a.refresh(e.kind, c, r.search) ? u_(i, Q8()?.querySelector("[data-entity-filter]")) : T$e(t, a, {
+			l === r.pathname ? !n && a.refresh(e.kind, c, r.search) ? u_(i, Q8()?.querySelector("[data-entity-filter]")) : E$e(t, a, {
 				...e,
 				name: c
 			}, r.pathname, r.search, i, s) : Eg(l + r.search + r.hash, {
@@ -109045,13 +109083,13 @@ function E$e({ target: e }) {
 		})();
 	}, { shown: () => e5() && !Q8()?.hidden }), null;
 }
-function D$e() {
-	let e = S$e(Qm().pathname);
-	return e ? /* @__PURE__ */ (0, z.jsx)(E$e, { target: e }, JSON.stringify([e.kind, e.name])) : null;
+function O$e() {
+	let e = C$e(Qm().pathname);
+	return e ? /* @__PURE__ */ (0, z.jsx)(D$e, { target: e }, JSON.stringify([e.kind, e.name])) : null;
 }
 // src/react/router/pages/follow.tsx
-var t5 = () => document.getElementById("stats"), O$e = () => vp;
-async function k$e(e, t) {
+var t5 = () => document.getElementById("stats"), k$e = () => vp;
+async function A$e(e, t) {
 	let n = t5(), r = e.follow;
 	if (!n || !r) return;
 	let i = s_("follow"), a = r.refresh(i), o = r.props();
@@ -109067,26 +109105,26 @@ async function k$e(e, t) {
 		beforePlace: s ? () => e.surfaceChanged("follow", "/follow") : void 0
 	}), t() && u_(t, n.querySelector("[data-filter-frame]"));
 }
-function A$e() {
+function j$e() {
 	let e = t5(), t = e ? ug(e) : null;
 	return !!e && !e.hidden && !!t && t.path === "/follow" && t.host.isConnected;
 }
-function j$e() {
+function M$e() {
 	let e = (0, R.useContext)(FZ);
 	return $8(PZ(), (t, n) => {
-		e && k$e(e, n);
+		e && A$e(e, n);
 	}, {
-		shown: A$e,
+		shown: j$e,
 		onCovered: () => {
 			Tg.navigation.location.pathname.startsWith("/posts/") && e?.follow?.ground();
 		}
 	}), null;
 }
-function M$e(e) {
+function N$e(e) {
 	let t = e ? ug(e) : null;
 	return !!t && t.path === "/playlists" && t.host.isConnected;
 }
-async function N$e(e, t) {
+async function P$e(e, t) {
 	let n = t5();
 	n && (e.surfaceChanged("playlists", "/playlists"), L6(n, I6("/playlists", {
 		followLayout: "",
@@ -109097,50 +109135,50 @@ async function N$e(e, t) {
 		isCurrent: t
 	}), t() && u_(t));
 }
-function P$e() {
-	let e = (0, R.useContext)(FZ), t = (0, R.useSyncExternalStore)(Cp, O$e), n = (0, R.useRef)(t);
+function F$e() {
+	let e = (0, R.useContext)(FZ), t = (0, R.useSyncExternalStore)(Cp, k$e), n = (0, R.useRef)(t);
 	return (0, R.useEffect)(() => {
 		if (n.current === t) return;
 		n.current = t;
 		let e = t5();
-		M$e(e) && hg(e, { revision: t });
+		N$e(e) && hg(e, { revision: t });
 	}, [t]), $8(PZ(), (t, n) => {
-		e && N$e(e, n);
+		e && P$e(e, n);
 	}, { shown: () => {
 		let e = t5();
-		return M$e(e) && !e.hidden;
+		return N$e(e) && !e.hidden;
 	} }), null;
 }
 // src/react/router/pages/immerse.tsx
-function F$e() {
+function I$e() {
 	let e = new URLSearchParams(Tg.navigation.location.search).get("id");
 	return /^\d+$/.test(e || "") ? Number(e) : void 0;
 }
-function I$e() {
+function L$e() {
 	let e = (0, R.useContext)(FZ);
 	return MZ(() => {
-		e?.openImmerse(F$e());
+		e?.openImmerse(I$e());
 	}, !0), null;
 }
-function L$e() {
-	return /* @__PURE__ */ (0, z.jsx)(I$e, {}, PZ());
+function R$e() {
+	return /* @__PURE__ */ (0, z.jsx)(L$e, {}, PZ());
 }
 // src/react/router/pages/managed.tsx
-var R$e = () => fp > 0, z$e = () => (0, R.useSyncExternalStore)(Cp, R$e), B$e = () => yF().value.followLayout === "table" ? "table" : "default", n5 = () => new URLSearchParams(window.location.search);
+var z$e = () => fp > 0, B$e = () => (0, R.useSyncExternalStore)(Cp, z$e), V$e = () => yF().value.followLayout === "table" ? "table" : "default", n5 = () => new URLSearchParams(window.location.search);
 function r5(e) {
 	return Ji("/healthz", { signal: e.controller.signal }).catch((e) => {
 		if (Yi(e)) return null;
 		throw e;
 	});
 }
-function V$e(e, t) {
+function H$e(e, t) {
 	return {
 		readOnly: !!e?.ledger_read_only,
 		readOnlyMessage: yi(e?.ledger_read_only_message_code ?? "", e?.ledger_read_only_message ?? "", e?.ledger_read_only_message_params) || L("shell:managedPage.readOnly"),
 		writerUrl: e?.ledger_writer_origin ? new URL(t, e.ledger_writer_origin).href : ""
 	};
 }
-async function H$e(e, t) {
+async function U$e(e, t) {
 	if (e === "/jav") {
 		let e = await r5(t);
 		return t.live ? {
@@ -109163,7 +109201,7 @@ async function H$e(e, t) {
 		return t.live ? {
 			category: b2(e) ? e : "",
 			queue: S2(n5().get("queue")),
-			...V$e(n, "/review")
+			...H$e(n, "/review")
 		} : null;
 	}
 	if (e === "/subscriptions") {
@@ -109173,13 +109211,13 @@ async function H$e(e, t) {
 		return {
 			...e,
 			pageSize: Number(r.followPageSize) || 20,
-			layout: B$e(),
-			...V$e(n, "/subscriptions")
+			layout: V$e(),
+			...H$e(n, "/subscriptions")
 		};
 	}
 	return {};
 }
-async function U$e(e, t, n) {
+async function W$e(e, t, n) {
 	let r = Tg.navigation.seq, i = () => n.live && Tg.navigation.seq === r;
 	if (e === "/jav" && bJ(n5().get("tab")) === "library") {
 		Tg.replace(uDe(window.location.search));
@@ -109200,7 +109238,7 @@ async function U$e(e, t, n) {
 	let a = document.getElementById("stats");
 	if (!a) return;
 	t.surfaceChanged("management", e), L6(a, I6(e, {
-		followLayout: B$e(),
+		followLayout: V$e(),
 		followSort: n5().get("sort") || "",
 		followDir: n5().get("dir") || ""
 	})), u_(i, a, { pending: !0 }), e === "/taste" && (xp({ state: {
@@ -109218,7 +109256,7 @@ async function U$e(e, t, n) {
 		q: "",
 		jav: ""
 	} }), t.clearSearch());
-	let o = await H$e(e, n);
+	let o = await U$e(e, n);
 	if (!o) return;
 	let s = await mg(e, o, {
 		container: a,
@@ -109250,13 +109288,13 @@ function i5({ path: e }) {
 		a,
 		o,
 		n
-	]), /* @__PURE__ */ (0, z.jsx)(W$e, {
+	]), /* @__PURE__ */ (0, z.jsx)(G$e, {
 		path: e,
 		covered: r.current === null
 	}, a);
 }
-function W$e({ path: e, covered: t }) {
-	let n = (0, R.useContext)(FZ), r = z$e(), i = (0, R.useRef)(null);
+function G$e({ path: e, covered: t }) {
+	let n = (0, R.useContext)(FZ), r = B$e(), i = (0, R.useRef)(null);
 	return (0, R.useEffect)(() => {
 		Oh(e) && hg(document.getElementById("stats"), { section: kh(e) });
 	}, [e]), (0, R.useEffect)(() => {
@@ -109267,15 +109305,15 @@ function W$e({ path: e, covered: t }) {
 			controller: new AbortController()
 		};
 		i.current = a, queueMicrotask(() => {
-			a.live && U$e(e, n, a);
+			a.live && W$e(e, n, a);
 		});
 	}, [r]), (0, R.useEffect)(() => () => {
 		let e = i.current;
 		e && (e.live = !1, e.controller.abort());
 	}, []), null;
 }
-function G$e() {
-	let e = z$e(), t = (0, R.useRef)(!1);
+function K$e() {
+	let e = B$e(), t = (0, R.useRef)(!1);
 	return (0, R.useEffect)(() => {
 		if (!e || t.current || zh(Tg.navigation.location.pathname)) return;
 		t.current = !0;
@@ -109288,24 +109326,24 @@ function G$e() {
 	}, [e]), null;
 }
 // src/react/router/route-chunk.ts
-var K$e = [], q$e = "peach.chunkReloadAt", J$e = 3e4;
-async function Y$e() {
+var q$e = [], J$e = "peach.chunkReloadAt", Y$e = 3e4;
+async function X$e() {
 	try {
-		let e = Number(sessionStorage.getItem(q$e) || 0);
-		if (Date.now() - e < J$e || !(await fetch("/healthz", {
+		let e = Number(sessionStorage.getItem(J$e) || 0);
+		if (Date.now() - e < Y$e || !(await fetch("/healthz", {
 			cache: "no-store",
 			credentials: "same-origin"
 		})).ok) return;
-		sessionStorage.setItem(q$e, String(Date.now())), location.reload();
+		sessionStorage.setItem(J$e, String(Date.now())), location.reload();
 	} catch {}
 }
 function a5(e) {
 	let t = null, n = null, r = () => n ??= e().then((e) => (t = { module: e }, e), (e) => {
 		throw n = null, e;
 	});
-	return K$e.push(r), {
+	return q$e.push(r), {
 		preload: () => r().catch(async (e) => {
-			throw await Y$e(), e;
+			throw await X$e(), e;
 		}),
 		get: () => {
 			if (!t) throw Error(L("shell:router.chunkNotLoaded"));
@@ -109313,10 +109351,10 @@ function a5(e) {
 		}
 	};
 }
-function X$e() {
+function Z$e() {
 	let e = globalThis.requestIdleCallback;
 	if (typeof e != "function") return;
-	let t = [...K$e], n = () => {
+	let t = [...q$e], n = () => {
 		let r = t.shift();
 		r && e(() => {
 			r().catch(() => {}).finally(n);
@@ -109330,14 +109368,14 @@ async function o5(e, t) {
 	if (r.status === "rejected") throw r.reason;
 	if (n.status === "rejected") throw n.reason;
 }
-var Z$e = a5(() => import("./peach-app.jav-page-zNfkXFJn.js")), Q$e = a5(() => import("./peach-app.stats-page-B-PQu4dX.js")), $$e = a5(() => import("./peach-app.taste-page-D-wUu3ug.js")), e1e = a5(() => import("./peach-app.review-page-CWlayzX9.js")), s5 = a5(() => import("./peach-app.data-cleanup-page-C7aVEeq5.js")), t1e = a5(() => import("./peach-app.duplicates-page-Cvh-2Shl.js")), n1e = a5(() => import("./peach-app.quality-goals-page-C4WgkC9R.js")), r1e = a5(() => import("./peach-app.scraping-page-u5hQ6VqU.js")), i1e = a5(async () => {
-	let [{ ConfigurationPage: e }, { DiagnosticsPage: t }] = await Promise.all([import("./peach-app.configuration-page-CZxR-ell.js"), import("./peach-app.diagnostics-page-DwrGO-ac.js")]);
+var Q$e = a5(() => import("./peach-app.jav-page-zNfkXFJn.js")), $$e = a5(() => import("./peach-app.stats-page-B-PQu4dX.js")), e1e = a5(() => import("./peach-app.taste-page-D-wUu3ug.js")), t1e = a5(() => import("./peach-app.review-page-CWlayzX9.js")), s5 = a5(() => import("./peach-app.data-cleanup-page-C7aVEeq5.js")), n1e = a5(() => import("./peach-app.duplicates-page-Cvh-2Shl.js")), r1e = a5(() => import("./peach-app.quality-goals-page-C4WgkC9R.js")), i1e = a5(() => import("./peach-app.scraping-page-DFEzSxhD.js")), a1e = a5(async () => {
+	let [{ ConfigurationPage: e }, { DiagnosticsPage: t }] = await Promise.all([import("./peach-app.configuration-page-XXEI0OoT.js"), import("./peach-app.diagnostics-page-IWg4O9Z-.js")]);
 	return {
 		ConfigurationPage: e,
 		DiagnosticsPage: t
 	};
-}), a1e = a5(() => import("./peach-app.activity-page-DIdoJpSY.js")), o1e = a5(() => import("./peach-app.follow-manage-page-CkRmcQsr.js")), s1e = a5(() => import("./peach-app.playlists-page-C9OPeUzO.js")), c1e = a5(() => import("./peach-app.repair-center-CV575CnZ.js"));
-function l1e(e, t, n) {
+}), o1e = a5(() => import("./peach-app.activity-page-DIdoJpSY.js")), s1e = a5(() => import("./peach-app.follow-manage-page-CkRmcQsr.js")), c1e = a5(() => import("./peach-app.playlists-page-C9OPeUzO.js")), l1e = a5(() => import("./peach-app.repair-center-CV575CnZ.js"));
+function u1e(e, t, n) {
 	if (e === "duplicates") {
 		n("/duplicates");
 		return;
@@ -109347,9 +109385,9 @@ function l1e(e, t, n) {
 }
 var c5 = (e) => ({
 	element: /* @__PURE__ */ (0, z.jsx)(i5, { path: e }),
-	prefetch: (t, n) => (e === "/settings/diagnostics" && dHe(n).catch(() => {}), o5(i1e, xGe(n))),
+	prefetch: (t, n) => (e === "/settings/diagnostics" && dHe(n).catch(() => {}), o5(a1e, xGe(n))),
 	page: (t, n) => {
-		let { ConfigurationPage: r, DiagnosticsPage: i } = i1e.get();
+		let { ConfigurationPage: r, DiagnosticsPage: i } = a1e.get();
 		return /* @__PURE__ */ (0, z.jsx)(r, {
 			receipt: (e) => n.receipt(e),
 			reopenTutorial: n.reopenTutorial,
@@ -109375,9 +109413,9 @@ var c5 = (e) => ({
 	}, e), {}),
 	"/jav": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/jav" }),
-		prefetch: (e, t) => o5(Z$e, Ske(e.tab, t)),
+		prefetch: (e, t) => o5(Q$e, Ske(e.tab, t)),
 		page: (e, t) => {
-			let { JavPage: n } = Z$e.get();
+			let { JavPage: n } = Q$e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				...e,
 				navigate: t.navigate,
@@ -109387,9 +109425,9 @@ var c5 = (e) => ({
 	},
 	"/stats": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/stats" }),
-		prefetch: (e, t) => o5(Q$e, KZe(t)),
+		prefetch: (e, t) => o5($$e, qZe(t)),
 		page: (e, t) => {
-			let { StatsPage: n } = Q$e.get();
+			let { StatsPage: n } = $$e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				tagLabel: If,
 				onTag: t.openTag
@@ -109398,9 +109436,9 @@ var c5 = (e) => ({
 	},
 	"/taste": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/taste" }),
-		prefetch: (e, t) => o5($$e, YQe("all", t)),
+		prefetch: (e, t) => o5(e1e, XQe("all", t)),
 		page: (e, t, n) => {
-			let { TastePage: r } = $$e.get();
+			let { TastePage: r } = e1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(r, {
 				onSignal: t.openTasteSignal,
 				navigate: n,
@@ -109411,9 +109449,9 @@ var c5 = (e) => ({
 	},
 	"/review": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/review" }),
-		prefetch: (e, t) => o5(e1e, HFe(t)),
+		prefetch: (e, t) => o5(t1e, HFe(t)),
 		page: (e, t) => {
-			let { ReviewPage: n } = e1e.get();
+			let { ReviewPage: n } = t1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				...e,
 				route: t.routeReview,
@@ -109432,16 +109470,16 @@ var c5 = (e) => ({
 			return /* @__PURE__ */ (0, z.jsx)(r, {
 				navigate: n,
 				failure: t.failure,
-				open: (e) => l1e(e, t, n),
+				open: (e) => u1e(e, t, n),
 				toast: (e, { warning: n = !1, undo: r } = {}) => n ? t.toast({ text: e }, { sound: "warning" }) : t.receipt(e, r ? { undo: r } : {})
 			});
 		}
 	},
 	"/duplicates": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/duplicates" }),
-		prefetch: (e, t) => o5(t1e, ZPe(t)),
+		prefetch: (e, t) => o5(n1e, ZPe(t)),
 		page: (e, t) => {
-			let { DuplicatesPage: n } = t1e.get();
+			let { DuplicatesPage: n } = n1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				openItem: t.openItem,
 				failure: t.failure,
@@ -109451,9 +109489,9 @@ var c5 = (e) => ({
 	},
 	"/quality-goals": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/quality-goals" }),
-		prefetch: (e, t) => o5(n1e, cFe(t)),
+		prefetch: (e, t) => o5(r1e, cFe(t)),
 		page: (e, t) => {
-			let { QualityGoalsPage: n } = n1e.get();
+			let { QualityGoalsPage: n } = r1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				openItem: t.openItem,
 				javTitleHtml: qG,
@@ -109465,9 +109503,9 @@ var c5 = (e) => ({
 	},
 	"/sources": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/sources" }),
-		prefetch: (e, t) => o5(r1e, QWe(t)),
+		prefetch: (e, t) => o5(i1e, QWe(t)),
 		page: (e, t) => {
-			let { ScrapingPage: n } = r1e.get();
+			let { ScrapingPage: n } = i1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, { toast: (e) => t.toast(e) });
 		}
 	},
@@ -109479,25 +109517,25 @@ var c5 = (e) => ({
 	"/settings/diagnostics": c5("/settings/diagnostics"),
 	"/settings/maintenance/repairs": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/settings/maintenance/repairs" }),
-		prefetch: (e, t) => o5(c1e, sHe(t)),
+		prefetch: (e, t) => o5(l1e, sHe(t)),
 		page: () => {
-			let { RepairCenterPage: e } = c1e.get();
+			let { RepairCenterPage: e } = l1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(e, {});
 		}
 	},
 	"/tasks": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/tasks" }),
-		prefetch: (e, t) => o5(a1e, LTe(t)),
+		prefetch: (e, t) => o5(o1e, LTe(t)),
 		page: () => {
-			let { ActivityPage: e } = a1e.get();
+			let { ActivityPage: e } = o1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(e, {});
 		}
 	},
 	"/subscriptions": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/subscriptions" }),
-		prefetch: (e, t) => o5(o1e, Ts(t)),
+		prefetch: (e, t) => o5(s1e, Ts(t)),
 		page: (e, t) => {
-			let { FollowManagePage: n } = o1e.get();
+			let { FollowManagePage: n } = s1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				...e,
 				route: t.routeFollowManage,
@@ -109507,12 +109545,12 @@ var c5 = (e) => ({
 			});
 		}
 	}
-}, u5 = (e) => Object.hasOwn(l5, e), u1e = { "/resource-sync": { element: /* @__PURE__ */ (0, z.jsx)(G$e, {}) } }, d1e = { "/immerse": { element: /* @__PURE__ */ (0, z.jsx)(L$e, {}) } }, d5 = {
+}, u5 = (e) => Object.hasOwn(l5, e), d1e = { "/resource-sync": { element: /* @__PURE__ */ (0, z.jsx)(K$e, {}) } }, f1e = { "/immerse": { element: /* @__PURE__ */ (0, z.jsx)(R$e, {}) } }, d5 = {
 	"/playlists": {
-		element: /* @__PURE__ */ (0, z.jsx)(P$e, {}),
-		prefetch: (e, t) => o5(s1e, xWe(t)),
+		element: /* @__PURE__ */ (0, z.jsx)(F$e, {}),
+		prefetch: (e, t) => o5(c1e, xWe(t)),
 		page: (e, t) => {
-			let { PlaylistsPage: n } = s1e.get();
+			let { PlaylistsPage: n } = c1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				revision: e.revision,
 				openPlaylist: t.openPlaylist,
@@ -109523,12 +109561,12 @@ var c5 = (e) => ({
 		}
 	},
 	"/follow": {
-		element: /* @__PURE__ */ (0, z.jsx)(j$e, {}),
+		element: /* @__PURE__ */ (0, z.jsx)(M$e, {}),
 		prefetch: (e, t) => qs(e, t),
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(Rze, { ...e })
 	}
-}, f1e = (e) => Object.hasOwn(d5, e), f5 = {
-	element: /* @__PURE__ */ (0, z.jsx)(x$e, {}),
+}, p1e = (e) => Object.hasOwn(d5, e), f5 = {
+	element: /* @__PURE__ */ (0, z.jsx)(S$e, {}),
 	prefetch: (e, t) => fRe(e, t),
 	page: (e, t) => /* @__PURE__ */ (0, z.jsx)(eUe, {
 		...e,
@@ -109551,7 +109589,7 @@ var c5 = (e) => ({
 	"/tags": f5,
 	"/series": f5
 }, m5 = {
-	element: /* @__PURE__ */ (0, z.jsx)(D$e, {}),
+	element: /* @__PURE__ */ (0, z.jsx)(O$e, {}),
 	prefetch: (e) => GLe(e),
 	page: (e) => /* @__PURE__ */ (0, z.jsx)(ZVe, { ...e })
 }, h5 = {
@@ -109572,7 +109610,7 @@ var c5 = (e) => ({
 		prefetch: async () => {},
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(MUe, { ...e })
 	}
-}, p1e = (e) => Object.hasOwn(g5, e), m1e = (e) => e.mode === "notice" ? /* @__PURE__ */ (0, z.jsx)($Ee, { ...e }) : /* @__PURE__ */ (0, z.jsx)(vWe, { ...e }), h1e = {
+}, m1e = (e) => Object.hasOwn(g5, e), h1e = (e) => e.mode === "notice" ? /* @__PURE__ */ (0, z.jsx)($Ee, { ...e }) : /* @__PURE__ */ (0, z.jsx)(vWe, { ...e }), g1e = {
 	"catalog-filter": {
 		prefetch: async () => {},
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(kAe, { ...e })
@@ -109583,13 +109621,13 @@ var c5 = (e) => ({
 	},
 	"library-processing": {
 		prefetch: (e, t) => Tq(t),
-		page: (e) => /* @__PURE__ */ (0, z.jsx)(m1e, { ...e })
+		page: (e) => /* @__PURE__ */ (0, z.jsx)(h1e, { ...e })
 	},
 	search: {
 		prefetch: async () => {},
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(lGe, { ...e })
 	}
-}, g1e = (e) => Object.hasOwn(h1e, e), _1e = {
+}, _1e = (e) => Object.hasOwn(g1e, e), v1e = {
 	"batch-dock": {
 		prefetch: async () => {},
 		page: () => /* @__PURE__ */ (0, z.jsx)(Lge, {})
@@ -109616,9 +109654,9 @@ var c5 = (e) => ({
 	},
 	stage: {
 		prefetch: async () => {},
-		page: () => /* @__PURE__ */ (0, z.jsx)(HZe, {})
+		page: () => /* @__PURE__ */ (0, z.jsx)(UZe, {})
 	}
-}, v1e = (e) => Object.hasOwn(_1e, e), y1e = [
+}, y1e = (e) => Object.hasOwn(v1e, e), b1e = [
 	"/",
 	"/wall",
 	"/unseen",
@@ -109632,27 +109670,27 @@ var c5 = (e) => ({
 	...Object.keys(d5),
 	...Object.keys(p5),
 	...Object.keys(h5),
-	...y1e
+	...b1e
 ];
-var b1e = (e) => u5(e) || f1e(e) || Object.hasOwn(p5, e) || Object.hasOwn(h5, e) || p1e(e) || g1e(e) || v1e(e);
-function x1e(e) {
-	return u5(e) ? l5[e] : f1e(e) ? d5[e] : p1e(e) ? g5[e] : g1e(e) ? h1e[e] : v1e(e) ? _1e[e] : Object.hasOwn(p5, e) ? p5[e] : h5[e];
+var x1e = (e) => u5(e) || p1e(e) || Object.hasOwn(p5, e) || Object.hasOwn(h5, e) || m1e(e) || _1e(e) || y1e(e);
+function S1e(e) {
+	return u5(e) ? l5[e] : p1e(e) ? d5[e] : m1e(e) ? g5[e] : _1e(e) ? g1e[e] : y1e(e) ? v1e[e] : Object.hasOwn(p5, e) ? p5[e] : h5[e];
 }
-function S1e(e, t, n) {
-	return b1e(e) ? x1e(e).prefetch(t, n) : Promise.reject(Error(L("shell:router.unknownRoute", { path: e })));
+function C1e(e, t, n) {
+	return x1e(e) ? S1e(e).prefetch(t, n) : Promise.reject(Error(L("shell:router.unknownRoute", { path: e })));
 }
-function C1e(e, t, n, r) {
-	return x1e(e).page(t, n, r);
+function w1e(e, t, n, r) {
+	return S1e(e).page(t, n, r);
 }
 // src/react/application-residents.ts
 var _5 = null, v5 = null, y5 = 0, b5 = /* @__PURE__ */ new Set();
-function w1e(e) {
+function T1e(e) {
 	return _5 = e, v5 && e(v5), () => {
 		_5 === e && (_5 = null);
 	};
 }
-function T1e(e) {
-	return _5 && (v5 = e, _5(e), mee(Promise.resolve(S1e)), X$e()), Promise.resolve();
+function E1e(e) {
+	return _5 && (v5 = e, _5(e), mee(Promise.resolve(C1e)), Z$e()), Promise.resolve();
 }
 async function x5(e, t, n = (e) => e) {
 	let r = y5;
@@ -109663,7 +109701,7 @@ async function x5(e, t, n = (e) => e) {
 		place: () => n(t)
 	}) || r !== y5 || !_5) throw new DOMException(L("shell:errorReport.appUnmounted"), "AbortError");
 }
-function E1e() {
+function D1e() {
 	y5 += 1, _5 = null, v5 = null, S5 = null, C5 = null, E5 = null, D5 = null, k5 = null, A5 = null, M5 = null, N5 = null, F5 = null, I5 = null, L5 = null, R5 = null, z5 = null;
 	for (let e of b5) e.remove();
 	b5.clear(), KU();
@@ -109671,52 +109709,52 @@ function E1e() {
 var S5 = null, C5 = null;
 function w5(e) {
 	return S5 ??= (async () => {
-		let t = VZe(e), n = document.createElement("div");
+		let t = HZe(e), n = document.createElement("div");
 		return n.dataset.stageHost = "", await x5("stage", n, (e) => (document.body.append(e), e)), C5 = t, t;
 	})(), S5;
 }
 var T5 = () => C5, E5 = null, D5 = null;
-function D1e(e) {
+function O1e(e) {
 	return E5 ??= (async () => {
 		let t = rbe(e), n = document.createElement("div");
 		return n.dataset.immerseHost = "", await x5("immerse", n, (e) => (document.body.append(e), e)), D5 = t, t;
 	})(), E5;
 }
 var O5 = () => D5, k5 = null, A5 = null;
-function O1e(e) {
+function k1e(e) {
 	return k5 ??= (async () => {
 		let t = lKe(e), n = document.createElement("div");
 		return n.dataset.settingsHost = "", await x5("settings-panel", n, (e) => (document.body.append(e), e)), A5 = t, t;
 	})(), k5;
 }
 var j5 = () => A5, M5 = null, N5 = null;
-function k1e(e) {
+function A1e(e) {
 	return M5 ??= (async () => {
 		let t = UKe(e);
 		return await x5("sidebar", e.scroll, (e) => (e.replaceChildren(), e)), e.attached(), N5 = t, t;
 	})(), M5;
 }
 var P5 = () => N5, F5 = null, I5 = null;
-function A1e(e) {
+function j1e(e) {
 	return F5 ??= (async () => {
 		let t = mTe(e);
 		return await x5("manage-header", e.root, (e) => (e.replaceChildren(), e)), I5 = t, t;
 	})(), F5;
 }
-var j1e = () => I5, L5 = null, R5 = null;
-function M1e(e) {
+var M1e = () => I5, L5 = null, R5 = null;
+function N1e(e) {
 	return L5 ??= (async () => {
 		let t = Ige(e);
 		return await x5("batch-dock", e.root), R5 = t, t;
 	})(), L5;
 }
-var N1e = () => R5, z5 = null;
-function P1e(e) {
+var P1e = () => R5, z5 = null;
+function F1e(e) {
 	return z5 ??= (async () => {
 		S_e(e), await x5("glow-picker", e.root);
 	})(), z5;
 }
-function F1e(e, t, n, r) {
+function I1e(e, t, n, r) {
 	qU(e, t), JU(n, r);
 }
 // src/application/receipts.js
@@ -109729,13 +109767,13 @@ var B5 = {
 	rollSeed: void 0,
 	seededSample: void 0
 };
-function I1e() {
+function L1e() {
 	qU(B("#toasts"), {
 		success: V("check"),
 		error: V("circle-alert")
 	}), B5.toastBody = (e) => e && typeof e == "object" && "html" in e ? String(e.html) : H(e && typeof e == "object" ? e.text ?? "" : e ?? ""), B5.toastSeq = 0, B5.toast = (e, { timeout: t = 6e3, warn: n = !1, action: r = null, sound: i = null } = {}) => {
 		let a = `toast-${++B5.toastSeq}`, o = (e, t, n, r) => {
-			Bl(i || (t ? "error" : "success")), F1e(B("#toasts"), {
+			Bl(i || (t ? "error" : "success")), I1e(B("#toasts"), {
 				success: V("check"),
 				error: V("circle-alert")
 			}, a, {
@@ -109776,7 +109814,7 @@ function I1e() {
 	};
 }
 // src/react/catalog-grid/catalog-state.ts
-var L1e = [
+var R1e = [
 	"loc",
 	"creator",
 	"studio",
@@ -109796,11 +109834,11 @@ var L1e = [
 	"browse",
 	"folder",
 	"folder_recursive"
-], R1e = (e) => e.homePreviewOnly ? "1" : "0";
-function z1e(e, t, n, r = n.defaultSort) {
+], z1e = (e) => e.homePreviewOnly ? "1" : "0";
+function B1e(e, t, n, r = n.defaultSort) {
 	return WP(e, t, n.defaultSort, n.defaultSortDirection, r);
 }
-function B1e(e, t, n) {
+function V1e(e, t, n) {
 	let r = decodeURIComponent(e.pathname), i = new URLSearchParams(e.search), a = ea(r) || r === "/trash", o = (e) => a ? i.get(e) : null;
 	return {
 		loc: i.get("loc") ?? "local,115",
@@ -109816,28 +109854,28 @@ function B1e(e, t, n) {
 		region: o("region") || "",
 		year: o("year") || "",
 		state: Qi[r] || o("state") || "",
-		...z1e(o("sort"), o("dir"), t),
+		...B1e(o("sort"), o("dir"), t),
 		seed: o("seed") || n(),
 		q: o("q") || "",
 		jav: o("jav") || "",
-		thumb: o("thumb") || R1e(t),
+		thumb: o("thumb") || z1e(t),
 		browse: o("browse") === "folders" || o("folder") ? "folders" : "",
 		folder: o("folder") || "",
 		folder_recursive: o("folder_recursive") === "0" ? "0" : ""
 	};
 }
-function V1e(e, t) {
+function H1e(e, t) {
 	return e.split(",").filter(Boolean).filter((e) => t[e] !== !1).join(",") || e;
 }
-function H1e(e) {
+function U1e(e) {
 	let t = Zi[e.state ?? ""] || "/", n = new URLSearchParams();
-	for (let t of L1e) {
+	for (let t of R1e) {
 		let r = e[t];
 		!r || t === "tag_match" && r === "all" || t === "dir" && r === VP(e.sort ?? "") || n.set(t, r);
 	}
 	return !Zi[e.state ?? ""] && e.state && n.set("state", e.state), t + (n.size ? `?${n}` : "");
 }
-function U1e(e, t, n) {
+function W1e(e, t, n) {
 	return {
 		loc: e.loc ?? "",
 		creator: "",
@@ -109857,13 +109895,13 @@ function U1e(e, t, n) {
 		seed: n(),
 		q: "",
 		jav: "",
-		thumb: R1e(t),
+		thumb: z1e(t),
 		browse: "",
 		folder: "",
 		folder_recursive: ""
 	};
 }
-function W1e(e) {
+function G1e(e) {
 	return {
 		state: e,
 		barsContext: {
@@ -109873,7 +109911,7 @@ function W1e(e) {
 		detailReturnBarsContext: null
 	};
 }
-function G1e({ homeDefault: e, javOnly: t, stripAllowed: n, shortsLimit: r }) {
+function K1e({ homeDefault: e, javOnly: t, stripAllowed: n, shortsLimit: r }) {
 	let i = r > 0;
 	return {
 		excludeVertical: e && i || t,
@@ -109882,7 +109920,7 @@ function G1e({ homeDefault: e, javOnly: t, stripAllowed: n, shortsLimit: r }) {
 	};
 }
 // src/react/catalog-grid/catalog-controller.ts
-var K1e = class {
+var q1e = class {
 	currentRevision = 0;
 	currentPage = "";
 	painting = null;
@@ -109927,39 +109965,39 @@ var K1e = class {
 		let e = [...this.waiters.values()];
 		this.waiters.clear(), e.forEach((e) => e());
 	}
-}, V5 = Infinity, H5 = 0, q1e = (e, t = H5) => [
+}, V5 = Infinity, H5 = 0, J1e = (e, t = H5) => [
 	"facets",
 	e,
 	t
-], J1e = (e, t, n = H5) => [
+], Y1e = (e, t, n = H5) => [
 	"tops",
 	e,
 	t,
 	n
-], Y1e = (e, t = H5) => [
+], X1e = (e, t = H5) => [
 	"tops",
 	e,
 	t
 ];
-async function X1e(e) {
+async function Z1e(e) {
 	let t = String(e), n = await Ji(`/api/tops?${t}`), r = new URLSearchParams(t);
 	return n.performers.length || n.studios.length || !r.has("state") ? n : (r.delete("state"), await Ji(`/api/tops?${r}`));
 }
-function Z1e(e, t) {
+function Q1e(e, t) {
 	return Promise.all([G.fetchQuery({
-		queryKey: q1e(e),
+		queryKey: J1e(e),
 		queryFn: () => Ji(`/api/facets${e ? `?${e}` : ""}`),
 		staleTime: V5
 	}), G.fetchQuery({
-		queryKey: J1e(t, e),
-		queryFn: () => X1e(t),
+		queryKey: Y1e(t, e),
+		queryFn: () => Z1e(t),
 		staleTime: V5
 	})]);
 }
-function Q1e(e) {
+function $1e(e) {
 	return G.fetchQuery({
-		queryKey: Y1e(e),
-		queryFn: () => X1e(e),
+		queryKey: X1e(e),
+		queryFn: () => Z1e(e),
 		staleTime: V5
 	});
 }
@@ -109975,11 +110013,11 @@ function U5() {
 	});
 }
 // src/jav-controls.ts
-var $1e = "peach:jav-selection";
-function e0e(e, t) {
+var e0e = "peach:jav-selection";
+function t0e(e, t) {
 	return e === "/jav" && ["releases", "discover"].includes(new URLSearchParams(t).get("tab") || "");
 }
-function t0e(e, t) {
+function n0e(e, t) {
 	return e === "/jav" && [
 		"releases",
 		"discover",
@@ -109987,18 +110025,18 @@ function t0e(e, t) {
 	].includes(new URLSearchParams(t).get("tab") || "");
 }
 // src/application/initial-follow-ranges.ts
-var n0e = [
+var r0e = [
 	["0", L("shell:followRange.anyTime")],
 	["7", L("shell:followRange.last7Days")],
 	["30", L("shell:followRange.last30Days")],
 	["90", L("shell:followRange.last90Days")]
 ];
 // src/react/index/index-controller.ts
-function r0e({ kind: e, q: t, scope: n, view: r, category: i }) {
+function i0e({ kind: e, q: t, scope: n, view: r, category: i }) {
 	let a = new URLSearchParams();
 	return t && a.set("q", t), e === "tags" && (a.set("view", r), n === "online" && a.set("scope", n), i !== "all" && a.set("category", i)), e === "performers" && n === "online" && a.set("scope", n), e === "performers" && n !== "online" && i !== "all" && a.set("category", i), `/${e}` + (a.size ? `?${a}` : "");
 }
-function i0e(e, t, n) {
+function a0e(e, t, n) {
 	let r = e.entity_id || e.id, i = t === "studio" || t === "agency";
 	return {
 		html: al(e.k, r ? {
@@ -110017,15 +110055,15 @@ function W5(e) {
 	let n = (t.match(/[A-Za-z0-9]/)?.[0] || Array.from(t)[0] || "?").toUpperCase(), r = e.avatar ? `<img src="${H(e.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer" ${Oc({ fallbacks: [e.avatar_fallback || ""] })}>` : "";
 	return `<span class="ini">${H(n)}</span>${r}`;
 }
-function a0e(e) {
+function o0e(e) {
 	let t = (t) => {
 		e.adoptFollowView(t), e.hideIndex(), e.openPage(gc(t));
 	};
 	return {
 		route(t, { replace: n = !1 } = {}) {
-			e.route(r0e(t), n);
+			e.route(i0e(t), n);
 		},
-		personAvatar: i0e,
+		personAvatar: a0e,
 		authorAvatar: W5,
 		openFollowAuthor(n) {
 			t(_c(e.followView(), n));
@@ -110036,7 +110074,7 @@ function a0e(e) {
 	};
 }
 // src/application/effects.ts
-var o0e = class {
+var s0e = class {
 	cleanups = /* @__PURE__ */ new Set();
 	active = !0;
 	disposed = !1;
@@ -110117,12 +110155,12 @@ var o0e = class {
 		}
 		if (e.length) throw AggregateError(e, L("shell:errorReport.cleanupIncomplete"));
 	}
-}, G5 = new o0e();
-function s0e() {
-	return G5.dispose(), G5 = new o0e(), G5;
+}, G5 = new s0e();
+function c0e() {
+	return G5.dispose(), G5 = new s0e(), G5;
 }
 // src/application/source-action.ts
-function c0e(e) {
+function l0e(e) {
 	return async (t, n, { button: r = null } = {}) => {
 		if (r?.getAttribute("aria-busy") === "true") return;
 		let i = r?.innerHTML ?? "", a = r?.textContent?.trim() ?? "";
@@ -110139,7 +110177,7 @@ function c0e(e) {
 }
 // src/react/entity-page/entity-route.ts
 var K5 = () => Object.fromEntries(j2.map((e) => [e, e === "sort" ? "new" : e === "dir" ? "desc" : ""]));
-function l0e(e, t) {
+function u0e(e, t) {
 	let n = new URLSearchParams(e), r = K5();
 	for (let e of j2) e !== "sort" && e !== "dir" && (r[e] = n.get(e) || "");
 	return {
@@ -110147,27 +110185,27 @@ function l0e(e, t) {
 		...WP(n.get("sort"), n.get("dir"), t.sort, t.dir, "new")
 	};
 }
-function u0e(e) {
+function d0e(e) {
 	let t = new URLSearchParams();
 	for (let n of j2) !e[n] || n === "sort" && e[n] === "new" || n === "dir" && e[n] === VP(e.sort || "") || t.set(n, e[n]);
 	return t.toString();
 }
-function d0e(e) {
+function f0e(e) {
 	let t = new URLSearchParams(e), n = t.get("set") || "", r = t.get("media");
 	return {
 		media: r === "photos" || r === "online" ? r : "videos",
 		set: r === "photos" && /^\d+$/.test(n) ? Number(n) : 0
 	};
 }
-function f0e(e, t) {
-	let n = new URLSearchParams(u0e(e));
+function p0e(e, t) {
+	let n = new URLSearchParams(d0e(e));
 	return t?.media === "photos" ? (n.set("media", "photos"), t.set && n.set("set", String(t.set))) : t?.media === "online" && n.set("media", "online"), n.toString();
 }
-function p0e(e, t, n, r) {
-	let i = f0e(n, r);
+function m0e(e, t, n, r) {
+	let i = p0e(n, r);
 	return ra(e, t) + (i ? `?${i}` : "");
 }
-function m0e() {
+function h0e() {
 	let e = "";
 	return {
 		fresh(t, n) {
@@ -110176,22 +110214,22 @@ function m0e() {
 		read(t, n, r, i) {
 			let a = e === ra(t, n) && !r;
 			e = "";
-			let o = a ? K5() : { ...l0e(r, i) };
+			let o = a ? K5() : { ...u0e(r, i) };
 			return t === "creator" && (o.creator = ""), {
 				filters: o,
 				media: a ? {
 					media: "videos",
 					set: 0
-				} : d0e(r)
+				} : f0e(r)
 			};
 		}
 	};
 }
 // src/react/entity-page/photo-surface.ts
-function h0e(e, t) {
+function g0e(e, t) {
 	return e.entityWall && e.entityCurrent && e.indexVisible || e.pathname === "/follow" && e.followMedia === "images" && e.statsVisible ? !0 : t();
 }
-function g0e(e) {
+function _0e(e) {
 	let t = () => {
 		let t = e.preferences();
 		for (let n of e.walls()) n.dataset.size = t.size, n.dataset.layout = "fixed", n.dataset.imagesOnly = String(t.imagesOnly);
@@ -110213,12 +110251,12 @@ function g0e(e) {
 	};
 }
 // src/react/entity-page/entity-controller.ts
-function _0e(e, t, n) {
+function v0e(e, t, n) {
 	let r = (t, n, r, i = {
 		media: "videos",
 		set: 0
 	}, { push: a = !0 } = {}) => {
-		if (a && e.route(p0e(t, n, r, i)), e.restoreHomeContext(), !e.live(t, n)) return !1;
+		if (a && e.route(m0e(t, n, r, i)), e.restoreHomeContext(), !e.live(t, n)) return !1;
 		e.releaseBodyPreviews();
 		let o = e.state();
 		return e.push({
@@ -110297,7 +110335,7 @@ function _0e(e, t, n) {
 	};
 }
 // src/react/entity-page/entity-loading.ts
-function v0e(e) {
+function y0e(e) {
 	return async (t, n, r) => {
 		e.paintSkeleton(t, n), e.resetView(), e.shapesReady(t, n) || e.waitShapes().then(() => {
 			r() && e.syncParts(t, n);
@@ -110307,7 +110345,7 @@ function v0e(e) {
 	};
 }
 // src/react/entity-page/entity-portrait.ts
-function y0e(e, t) {
+function b0e(e, t) {
 	let n = e === "studio" || e === "agency", r = t.id ? il({
 		kind: e,
 		id: t.id,
@@ -110329,11 +110367,11 @@ function y0e(e, t) {
 	return r || (i?.avatar ? `<img src="${H(i.avatar)}" alt="${H(t.canonical_name)}" referrerpolicy="no-referrer" ${Oc({ fallbacks: [i.avatar_fallback || ""] })}>` : "");
 }
 // src/react/entity-page/entity-application.ts
-function b0e(e) {
-	let t = m0e(), n = {
+function x0e(e) {
+	let t = h0e(), n = {
 		...e.helpers,
-		portraitImg: y0e
-	}, r = _0e(e.controller, n, e.actions);
+		portraitImg: b0e
+	}, r = v0e(e.controller, n, e.actions);
 	return {
 		...r,
 		helpers: n,
@@ -110342,12 +110380,12 @@ function b0e(e) {
 			let { filters: o, media: s } = t.read(n, i, a, e.sortPreference());
 			return r.props(n, i, o, s);
 		},
-		loading: v0e(e.loading),
-		photos: g0e(e.photos)
+		loading: y0e(e.loading),
+		photos: _0e(e.photos)
 	};
 }
 // src/card-art/feed-identity.ts
-function x0e(e) {
+function S0e(e) {
 	let t = e.performer_refs || [], n = [...new Set((e.performers || "").split(/[,，、;/]/).map((e) => e.trim()).filter(Boolean))], r = t.length ? t : n.map((e) => ({ name: e })), i = r.slice(0, 3).map((t, n) => {
 		let r = e.code && t.source_actor_id && t.source_avatar && !t.has_image && !t.has_avatar, i = ` style="--media-avatar-index:${n}"` + (r ? ` data-feed-source-avatar data-code="${H(e.code)}" data-actor="${H(t.source_actor_id)}" data-name="${H(t.name)}"` : ""), a = r ? "" : al(t.name, t, null);
 		return "id" in t && t.id ? `<a class="mav"${i} href="${H(ra("performer", t.name, t.id))}" aria-label="${L("catalog:javDiscovery.openActress", { name: H(t.name) })}">${a}</a>` : `<span class="mav"${i} title="${H(t.name)}">${a}</span>`;
@@ -110371,11 +110409,11 @@ var q5 = {
 	feedNewActions: void 0,
 	HERO_WIDE_PX: void 0
 };
-function S0e(e) {
+function C0e(e) {
 	return e.has_cover ? ul(e, "big") : !e.cover_url || !e.code ? Ef(e) : ul(e, "big").replace(/ src="[^"]*"/, ` src="${H(el(e))}" data-panel-prior="1"`).replace("data-drop=\"self\"", `data-drop="initial" data-initial="${H(L("shell:artworkGap.coverNotFound"))}" data-drop-class="nopic"`);
 }
-function C0e(e) {
-	let t = [e.performers && `<span class="feednewperformers" title="${H(e.performers)}">${H(e.performers)}</span>`, e.release_date && `<time class="feednewdate" datetime="${H(e.release_date)}">${H(e.release_date)}</time>`].filter(Boolean).join(""), n = S0e(e), r = e.code || String(e.title || "").trim() || L("shell:feedNew.untitled"), i = e.code ? qG({
+function w0e(e) {
+	let t = [e.performers && `<span class="feednewperformers" title="${H(e.performers)}">${H(e.performers)}</span>`, e.release_date && `<time class="feednewdate" datetime="${H(e.release_date)}">${H(e.release_date)}</time>`].filter(Boolean).join(""), n = C0e(e), r = e.code || String(e.title || "").trim() || L("shell:feedNew.untitled"), i = e.code ? qG({
 		is_jav: !0,
 		code: e.code,
 		name: e.code,
@@ -110387,10 +110425,10 @@ function C0e(e) {
         <button type="button" data-feed-action="${e.wanted ? "unwant" : "want"}" aria-pressed="${!!e.wanted}" title="${H(e.wanted ? L("catalog:javWant.remove") : L("catalog:javWant.want"))}" aria-label="${H(L("shell:feedNew.wantNamed", { name: r }))}">${V("star")}</button>
         <button type="button" data-feed-action="ignore" title="${H(L("shell:feedNew.ignore"))}" aria-label="${H(L("shell:feedNew.ignoreNamed", { name: r }))}">${V("x")}</button>
         <button type="button" data-feed-action="read" title="${H(L("shell:feedNew.markRead"))}" aria-label="${H(L("shell:feedNew.markReadNamed", { name: r }))}">${V("check")}</button></div></div>
-    <div class="meta">${x0e(e)}<div class="mtext"><span class="t">${i}</span>
+    <div class="meta">${S0e(e)}<div class="mtext"><span class="t">${i}</span>
       <div class="s mono">${t || (e.title ? "" : L("shell:feedNew.metadataPending"))}</div></div></div></article>`;
 }
-function w0e() {
+function T0e() {
 	let e = document.getElementById("peach-entity-shape");
 	if (e) try {
 		let t = JSON.parse(e.textContent || "null");
@@ -110400,18 +110438,18 @@ function w0e() {
 }
 async function J5() {
 	let e = G5, t = await Ji("/api/entity/shapes", { signal: e.signal }).catch(() => null);
-	return e.isActive && t && !t.error && (q5.entityShapesComplete = !0, q5.entityShapes = new Map((t.entities || []).flatMap((e) => [String(e.id), ...e.names].map((t) => [`${e.kind}/${fa(t)}`, e.parts]))), typeof t.home?.feed == "boolean" && E0e(t.home.feed), X5(location.pathname) && Y5(B("#feedNew"))), q5.entityShapes;
+	return e.isActive && t && !t.error && (q5.entityShapesComplete = !0, q5.entityShapes = new Map((t.entities || []).flatMap((e) => [String(e.id), ...e.names].map((t) => [`${e.kind}/${fa(t)}`, e.parts]))), typeof t.home?.feed == "boolean" && D0e(t.home.feed), X5(location.pathname) && Y5(B("#feedNew"))), q5.entityShapes;
 }
-var T0e = "peach.home-feed.v1";
-function E0e(e) {
+var E0e = "peach.home-feed.v1";
+function D0e(e) {
 	X.homeHasFeed = e;
 	try {
-		localStorage.setItem(T0e, e ? "1" : "0");
+		localStorage.setItem(E0e, e ? "1" : "0");
 	} catch {}
 }
-function D0e() {
+function O0e() {
 	try {
-		let e = localStorage.getItem(T0e);
+		let e = localStorage.getItem(E0e);
 		return e === "1" || e !== "0" && null;
 	} catch {
 		return null;
@@ -110420,7 +110458,7 @@ function D0e() {
 function Y5(e) {
 	Z5() && e && !dg(e) && !e.querySelector("[data-feed-id]") && (e.hidden = X.homeHasFeed !== !0, X.homeHasFeed === !0 && (e.setAttribute("aria-busy", "true"), e.querySelector(".feednewskeleton") || (e.innerHTML = q5.feedNewSkeletonHtml())));
 }
-function O0e(e, t) {
+function k0e(e, t) {
 	return !(e > 0) || !t.some((e) => !e.has_cover) ? "" : yu(L("shell:feedNew.dmmUnreachable", { count: e }), {
 		variant: "warning",
 		className: "feednetwork",
@@ -110428,11 +110466,11 @@ function O0e(e, t) {
 		actionHref: "/sources"
 	});
 }
-function k0e(e, t = "") {
+function A0e(e, t = "") {
 	let n = e && !e.error && e.items || [], r = t && n.length ? `<a class="feednewall" href="${H(t)}" style="--card-ratio:${OF}"><span>${L("shell:feedNew.viewAll")}</span>${V("chevron-right")}</a>` : "";
-	return O0e(e?.cover_network, n) + `<div class="feednewrow srow">${n.map(C0e).join("")}${r}</div>`;
+	return k0e(e?.cover_network, n) + `<div class="feednewrow srow">${n.map(w0e).join("")}${r}</div>`;
 }
-function A0e(e) {
+function j0e(e) {
 	e && (g9(e), Z.appSettings.feedAutoScroll && Dd(e));
 }
 function X5(e) {
@@ -110441,7 +110479,7 @@ function X5(e) {
 function Z5() {
 	return X5(location.pathname) && K.browse !== "folders";
 }
-function j0e() {
+function M0e() {
 	if (!Z5()) {
 		Q5();
 		return;
@@ -110461,33 +110499,33 @@ function Q5() {
 	let e = B("#feedNew");
 	e.querySelectorAll(".feednewrow").forEach(Od), gg(e), e.replaceChildren(), e.removeAttribute("aria-busy"), e.hidden = !0;
 }
-function M0e(e) {
-	yF().value.feedNewRows === !1 ? Q5() : X5(location.pathname) && !e && j0e();
-}
-function N0e() {
-	q5.feedRevision += 1, hg(B("#feedNew"), { revision: q5.feedRevision }), l7({ feedRevision: q5.feedRevision });
+function N0e(e) {
+	yF().value.feedNewRows === !1 ? Q5() : X5(location.pathname) && !e && M0e();
 }
 function P0e() {
+	q5.feedRevision += 1, hg(B("#feedNew"), { revision: q5.feedRevision }), l7({ feedRevision: q5.feedRevision });
+}
+function F0e() {
 	document.querySelectorAll(".feednewrow").forEach((e) => Z.appSettings.feedAutoScroll ? Dd(e) : Od(e));
 }
 var $5 = 0;
-function F0e([e]) {
+function I0e([e]) {
 	let t = e.contentRect.width >= q5.HERO_WIDE_PX;
 	cancelAnimationFrame($5), $5 = requestAnimationFrame(() => {
 		$5 = 0, B("#index")?.toggleAttribute("data-hero-wide", t);
 	});
 }
-function I0e() {
+function L0e() {
 	q5.FEED_SKELETON_CARDS = 8, q5.feedNewSkeletonHtml = () => GBe(q5.FEED_SKELETON_CARDS), q5.entityShapes = null, q5.entityShapesComplete = !1, q5.hasEntityShape = (e, t) => q5.entityShapesComplete || !!q5.entityShapes?.has(`${e}/${fa(t)}`), q5.hasEntityPart = (e, t, n) => !!t && !!q5.entityShapes?.get(`${e}/${fa(t)}`)?.includes(n), q5.feedNewSkeletonSection = () => `<section class="feednew">${q5.feedNewSkeletonHtml()}</section>`, q5.COSTAR_SKELETON_PEOPLE = 12, q5.costarSkeletonFoot = () => `<div class="entityfoot" data-entity-foot><div class="relatedpeople" data-related-people>${"<button type=\"button\" disabled tabindex=\"-1\"><span class=\"skeleton\" data-hero-ring></span><span class=\"skeleton\" data-hero-costar-name>&#8203;</span></button>".repeat(q5.COSTAR_SKELETON_PEOPLE)}</div></div>`, q5.factsSkeleton = () => `<dl class="entityfacts" data-entity-facts>${"<dt><span class=\"skeleton\"></span></dt><dd><span class=\"skeleton\"></span></dd>".repeat(5)}</dl>`, q5.feedRevision = 0, q5.feedNewHelpers = {
-		feedRowHtml: k0e,
-		wireFeedRow: (e) => A0e(e)
-	}, q5.feedNewActions = { settled: (e) => E0e(e) }, q5.HERO_WIDE_PX = 900, G5.resize(F0e).observe(B("#index"));
+		feedRowHtml: A0e,
+		wireFeedRow: (e) => j0e(e)
+	}, q5.feedNewActions = { settled: (e) => D0e(e) }, q5.HERO_WIDE_PX = 900, G5.resize(I0e).observe(B("#index"));
 }
 // src/react/catalog-grid/selection-controller.ts
 function e7(e, t = "") {
 	return e === "/follow" || new URLSearchParams(t).get("media") === "online" ? "follow" : e === "/junk-files" ? "junk" : "catalog";
 }
-function L0e(e, t, n, r, i = !1) {
+function R0e(e, t, n, r, i = !1) {
 	return i && (e.selected.clear(), e.followSelected.clear()), {
 		selectMode: r,
 		selectSurface: r ? t.selectMode ? t.selectSurface : n : "",
@@ -110495,14 +110533,14 @@ function L0e(e, t, n, r, i = !1) {
 		followLastSelectedId: i ? null : t.followLastSelectedId
 	};
 }
-function R0e(e, t, n, r, i, a = !1) {
+function z0e(e, t, n, r, i, a = !1) {
 	let o = n === "follow", s = _2(o ? e.followSelected : e.selected, r, o ? t.followLastSelectedId : t.lastSelectedId, i, a);
 	return {
-		...L0e(e, t, n, !0),
+		...R0e(e, t, n, !0),
 		...o ? { followLastSelectedId: s } : { lastSelectedId: s }
 	};
 }
-function z0e(e, t, n, r) {
+function B0e(e, t, n, r) {
 	let i = e7(t, n);
 	return {
 		count: (i === "follow" ? e.followSelected : e.selected).size,
@@ -110530,31 +110568,31 @@ function n7() {
 	}), M9({
 		selected: new Set(Xf),
 		selectMode: Zf
-	}), t7.batchDockProps = X0e(), N1e() && (N1e().render(t7.batchDockProps), Z.syncGlassOptics());
+	}), t7.batchDockProps = Z0e(), P1e() && (P1e().render(t7.batchDockProps), Z.syncGlassOptics());
 }
 function r7(e, t = !1) {
-	xp(L0e({
+	xp(R0e({
 		selected: Yf,
 		followSelected: Xf
 	}, o7(), e7(location.pathname, location.search), !!e, t)), document.body.classList.toggle("select-mode", Zf), Zf && Mf(), B("#selectMode").setAttribute("aria-pressed", String(Zf)), n7();
 }
-function B0e() {
+function V0e() {
 	return [...x7.gridCards()].map((e) => +e.dataset.id);
 }
-function V0e(e, t = !1) {
-	xp(R0e({
+function H0e(e, t = !1) {
+	xp(z0e({
 		selected: Yf,
 		followSelected: Xf
-	}, o7(), e7(location.pathname, location.search), B0e(), e, t)), r7(!0);
+	}, o7(), e7(location.pathname, location.search), V0e(), e, t)), r7(!0);
 }
-function H0e() {
+function U0e() {
 	return [...document.querySelectorAll("[data-follow-list] > [data-follow-item]")].map((e) => +e.dataset.followItem);
 }
-function U0e(e, t = !1) {
-	xp(R0e({
+function W0e(e, t = !1) {
+	xp(z0e({
 		selected: Yf,
 		followSelected: Xf
-	}, o7(), "follow", H0e(), e, t)), r7(!0);
+	}, o7(), "follow", U0e(), e, t)), r7(!0);
 }
 function i7(e) {
 	let { context: t, junkDismissed: n } = t7.batchDockProps, r = Mge(t, e, n);
@@ -110570,7 +110608,7 @@ function a7(e, t) {
 		body: fP(e.confirm.body(t), e.reversal, e.confirm.recovery)
 	};
 }
-async function W0e(e, t) {
+async function G0e(e, t) {
 	let n = {
 		like: "shell:batchCatalog.doneLike",
 		seen: "shell:batchCatalog.doneSeen",
@@ -110642,7 +110680,7 @@ async function W0e(e, t) {
 		}
 	});
 }
-async function G0e() {
+async function K0e() {
 	let e = [...Yf];
 	if (!e.length) return;
 	let { body: t } = a7(i7("region"), e.length), n = Zd({
@@ -110677,7 +110715,7 @@ async function G0e() {
 		count: e.length
 	})));
 }
-async function K0e(e, t) {
+async function q0e(e, t) {
 	let n = [...Xf];
 	if (!n.length) return;
 	let r = {
@@ -110716,7 +110754,7 @@ async function K0e(e, t) {
 		}
 	});
 }
-async function q0e(e, t) {
+async function J0e(e, t) {
 	let n = [...Yf];
 	if (!n.length) return;
 	let r = {
@@ -110755,8 +110793,8 @@ async function q0e(e, t) {
 		}
 	});
 }
-function J0e() {
-	M1e({
+function Y0e() {
+	N1e({
 		root: B("[data-batch-dock]"),
 		run: (e, t, n) => {
 			t7.BATCH_RUNNERS[e]?.(t, n);
@@ -110765,13 +110803,13 @@ function J0e() {
 		e.render(t7.batchDockProps), Z.syncGlassOptics();
 	}).catch(() => {});
 }
-function Y0e() {
+function X0e() {
 	t7.batchDockProps = {
 		count: 0,
 		context: "catalog",
 		junkDismissed: !1
 	}, t7.trashCount = null, t7.currentSelectSurface = () => e7(location.pathname, location.search), G5.handler(B("#selectMode"), "onclick", () => {
-		t0e(location.pathname, location.search) ? window.dispatchEvent(new Event($1e)) : WHe(location.pathname) ? GHe() : r7(!Zf, !!Zf);
+		n0e(location.pathname, location.search) ? window.dispatchEvent(new Event(e0e)) : WHe(location.pathname) ? GHe() : r7(!Zf, !!Zf);
 	}), t7.REGION_CHOICES = [
 		["jp", L("shell:region.japan")],
 		["kr", L("shell:region.korea")],
@@ -110780,13 +110818,13 @@ function Y0e() {
 		["other", L("shell:region.other")],
 		["none", L("shell:region.clear")]
 	], t7.BATCH_RUNNERS = {
-		batch: W0e,
-		region: G0e,
-		follow: K0e,
-		junk: q0e,
+		batch: G0e,
+		region: K0e,
+		follow: q0e,
+		junk: J0e,
 		clear: () => r7(!1, !0)
 	}, G5.handler(B("#density"), "onclick", () => {
-		p7() ? $0e(PF() === "big" ? "small" : "big") : m_e();
+		p7() ? e2e(PF() === "big" ? "small" : "big") : m_e();
 	}), qF(), Af({
 		selecting: () => Zf,
 		censored: () => h9(),
@@ -110808,14 +110846,14 @@ function o7() {
 		followLastSelectedId: $f
 	};
 }
-function X0e() {
-	return z0e({
+function Z0e() {
+	return B0e({
 		selected: Yf,
 		followSelected: Xf
 	}, location.pathname, location.search, K.state);
 }
 // src/entity-skeleton.ts
-function Z0e(e, t, n, r = "") {
+function Q0e(e, t, n, r = "") {
 	let i = e === "studio" || e === "agency", a = new URLSearchParams(location.search), o = a.get("browse") === "folders" || a.get("folder") ? `<div class="peach-react entity-folder-workspace" data-folder-workspace data-folder-browse><aside data-folder-tree-host><div class="flex flex-col gap-3"><span class="skeleton ui-configuration-skeleton-input"></span>${"<span class=\"skeleton\" style=\"width:75%;height:32px\"></span>".repeat(8)}</div></aside><div class="min-w-0"><div data-folder-header-host><span class="skeleton" style="width:160px;height:32px"></span></div>${n}</div></div>` : n, s = L("catalog:entityPageSkeleton.loading");
 	return `<section data-skeleton="entity/${e}" role="status" aria-label="${s}">
     <span class="sr-only">${s}</span><div aria-hidden="true" inert><div class="peach-react contents">
@@ -110880,7 +110918,7 @@ function u7() {
 	return qf;
 }
 function d7(e, t, n = z7()) {
-	return X2e(n).map(([n, r]) => {
+	return Z2e(n).map(([n, r]) => {
 		let i = e === n, a = HP(n, e, t);
 		return {
 			key: n,
@@ -110898,7 +110936,7 @@ function f7(e, t, n, r = s7.EMPTY_ENTITY_MEDIA, i = {}) {
 	return s7.application.route(e, t, n, r, i);
 }
 function p7() {
-	return h0e({
+	return g0e({
 		entityWall: s7.entityPageWall,
 		entityCurrent: s7.entityPageCurrent(),
 		indexVisible: !B("#index").hidden,
@@ -110910,13 +110948,13 @@ function p7() {
 function m7() {
 	s7.photos.sync();
 }
-function Q0e() {
+function $0e() {
 	p7() ? h_e(PF()) : qF();
 }
-function $0e(e) {
+function e2e(e) {
 	s7.photos.setSize(e);
 }
-var e2e = c0e({
+var t2e = l0e({
 	request: (e) => Ji("/api/reveal", {
 		method: "POST",
 		body: JSON.stringify({ id: e })
@@ -110925,20 +110963,20 @@ var e2e = c0e({
 	complete: mIe,
 	failureText: (e) => s7.sourceHint(e instanceof Error ? e.message : String(e))
 });
-async function t2e(e) {
-	let t = { textContent: "" };
-	return await e2e(e, t), t.textContent;
-}
 async function n2e(e) {
+	let t = { textContent: "" };
+	return await t2e(e, t), t.textContent;
+}
+async function r2e(e) {
 	let t = { textContent: "" }, n = [];
-	return await r2e(e, t, (e) => {
+	return await i2e(e, t, (e) => {
 		e.items && (n = e.items.map((e) => e.id));
 	}), {
 		text: t.textContent,
 		removed: n
 	};
 }
-async function r2e(e, t, n) {
+async function i2e(e, t, n) {
 	t.textContent = L("shell:sourceTools.checking");
 	try {
 		let r = await Ji("/api/purge-missing", {
@@ -110975,17 +111013,17 @@ async function r2e(e, t, n) {
 		t.textContent = s7.sourceHint(e.message), B5.actionFailure(L("shell:sourceTools.checkAction"), e);
 	}
 }
-function i2e(e) {
+function a2e(e) {
 	return `<div class="srctools">${s7.sourceToolButtons(e)}
     <span class="srcstate" aria-live="polite"></span></div>`;
 }
-function a2e(e, t) {
+function o2e(e, t) {
 	let n = e.querySelector(".srcstate");
 	if (!n) return;
 	let r = e.querySelector("[data-reveal]"), i = e.querySelector("[data-sync]");
-	r && G5.handler(r, "onclick", () => e2e(Number(r.dataset.reveal), n, { button: r })), i && G5.handler(i, "onclick", () => r2e(Number(i.dataset.sync), n, t));
+	r && G5.handler(r, "onclick", () => t2e(Number(r.dataset.reveal), n, { button: r })), i && G5.handler(i, "onclick", () => i2e(Number(i.dataset.sync), n, t));
 }
-async function o2e(e, t) {
+async function s2e(e, t) {
 	let n = Zd({
 		title: L("shell:entityAlias.add"),
 		description: L("shell:entityAlias.hint"),
@@ -111025,13 +111063,13 @@ async function o2e(e, t) {
 		});
 	} }) : a?.conflict || B5.actionReceipt(L("shell:entityAlias.exists", { alias: a?.alias })), a;
 }
-function s2e(e, t) {
+function c2e(e, t) {
 	let n = ["performer", "studio"].includes(e) && q5.hasEntityPart(e, t, "jav"), r = `<div data-filter-row="bottom" class="flex min-w-0 items-center gap-3 px-3 py-2 min-h-12"><h3 data-entity-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-24 rounded-md align-middle skeleton-sheen"></span></h3>${du()}${e === "agency" ? "" : _Y(d7(K.sort, K.dir, n), n ? {
 		name: "jav-layout",
 		label: L("shell:cardLayout.jav"),
 		value: AF(),
 		options: TF
-	} : null)}</div>`, i = e === "agency" ? "" : `<div data-entity-media><button type="button" data-media-view="videos" aria-label="${L("catalog:shared.videos")}" aria-pressed="true" ${hY}>${V("play")}</button><button type="button" data-media-view="photos" data-media-icon="image" aria-label="${L("catalog:entityFilter.photos")}" ${hY}>${V("pics")}</button></div><span data-entity-sep></span><div data-entity-scroll><div data-entity-states>${X.catalogViews().map((e) => `<button type="button" data-entity-state="${H(e.k)}" aria-pressed="${K.state === e.k}" ${hY}>${H(e.label)}</button>`).join("")}<span data-entity-sep></span></div>`, a = Z0e(e, r, e === "agency" ? qu({
+	} : null)}</div>`, i = e === "agency" ? "" : `<div data-entity-media><button type="button" data-media-view="videos" aria-label="${L("catalog:shared.videos")}" aria-pressed="true" ${hY}>${V("play")}</button><button type="button" data-media-view="photos" data-media-icon="image" aria-label="${L("catalog:entityFilter.photos")}" ${hY}>${V("pics")}</button></div><span data-entity-sep></span><div data-entity-scroll><div data-entity-states>${X.catalogViews().map((e) => `<button type="button" data-entity-state="${H(e.k)}" aria-pressed="${K.state === e.k}" ${hY}>${H(e.label)}</button>`).join("")}<span data-entity-sep></span></div>`, a = Q0e(e, r, e === "agency" ? qu({
 		kind: "performers",
 		layout: y7.peopleIndexLayout()
 	}) : OY(L("shell:skeleton.loadingVideos"), RF(LF({
@@ -111049,7 +111087,7 @@ function h7(e, t) {
 	};
 	r(n.querySelector(".entityfoot"), e !== "agency" && q5.hasEntityPart(e, t, "costars"), () => n.querySelector(".entityhero")?.insertAdjacentHTML("beforeend", q5.costarSkeletonFoot())), r(n.querySelector(".feednew"), Z.appSettings.feedNewRows !== !1 && q5.hasEntityPart(e, t, "feed"), () => n.querySelector(".entitysection")?.insertAdjacentHTML("beforebegin", q5.feedNewSkeletonSection())), r(n.querySelector(".entityfacts"), e === "performer" && q5.hasEntityPart(e, t, "facts"), () => n.querySelector(".entityprofile")?.insertAdjacentHTML("beforeend", q5.factsSkeleton()));
 }
-var c2e = {
+var l2e = {
 	performers: "shell:entityMissing.performer",
 	creators: "shell:entityMissing.seller",
 	studios: "shell:entityMissing.studio",
@@ -111057,14 +111095,14 @@ var c2e = {
 	series: "shell:entityMissing.series",
 	tags: "shell:entityMissing.tag"
 };
-function l2e(e) {
+function u2e(e) {
 	let t = ta[e] || e, n = pHe[t], r = n ? `<a class="geist-button primary" href="/${t}">${H(L("shell:entityMissing.backToList", { title: n }))}</a>` : "";
-	B("#index").innerHTML = Z.emptyState("search-x", L(c2e[t] || "shell:entityMissing.item"), L("shell:entityMissing.hint"), { actions: r });
+	B("#index").innerHTML = Z.emptyState("search-x", L(l2e[t] || "shell:entityMissing.item"), L("shell:entityMissing.hint"), { actions: r });
 }
 function g7(e, t) {
 	D9(s7.application.fresh(e, t));
 }
-function u2e() {
+function d2e() {
 	s7.ENTITY_FILTER_KEYS = [
 		"loc",
 		"creator",
@@ -111076,10 +111114,10 @@ function u2e() {
 		"year",
 		"sort",
 		"dir"
-	], s7.emptyEntityFilters = K5, s7.parseEntityFilters = (e) => l0e(e, {
+	], s7.emptyEntityFilters = K5, s7.parseEntityFilters = (e) => u0e(e, {
 		sort: Z.appSettings.defaultSort,
 		dir: Z.appSettings.defaultSortDirection
-	}), s7.entityFilterSearch = u0e, s7.cloneBarsContext = (e) => e && e.type === "entity" ? {
+	}), s7.entityFilterSearch = d0e, s7.cloneBarsContext = (e) => e && e.type === "entity" ? {
 		...e,
 		filters: { ...e.filters }
 	} : e, s7.activeFilterState = () => {
@@ -111087,35 +111125,35 @@ function u2e() {
 		return e.type === "home" ? K : e.filters;
 	}, B("#q").value = K.q, X.rememberSearchValue();
 }
-function d2e() {
+function f2e() {
 	s7.entityPageView = "", s7.entityPageWall = !1, s7.entityPageRevision = 0, s7.entityPageCurrent = () => !!c7(), s7.entityPageLive = (e, t) => {
 		let n = c7();
 		return !!n && !B("#index").hidden && n.props.kind === e && n.props.name === t;
 	}, s7.EMPTY_ENTITY_MEDIA = {
 		media: "videos",
 		set: 0
-	}, s7.parseMediaView = d0e, s7.entityViewSearch = f0e, s7.entityBodyCanLoadMore = () => !B("#index").hidden && B("#stats").hidden, s7.entityBodySkeleton = () => u9(), s7.entityPageHelpers = {
+	}, s7.parseMediaView = f0e, s7.entityViewSearch = p0e, s7.entityBodyCanLoadMore = () => !B("#index").hidden && B("#stats").hidden, s7.entityBodySkeleton = () => u9(), s7.entityPageHelpers = {
 		wireDrag: (e) => {
 			e && g9(e);
 		},
 		wireScroller: (e) => {
 			e && _d(e);
 		},
-		wireFeedRow: (e) => A0e(e),
-		feedRowHtml: k0e,
+		wireFeedRow: (e) => j0e(e),
+		feedRowHtml: A0e,
 		receipt: (e, t) => B5.actionReceipt(e, t),
 		failure: (e, t) => B5.actionFailure(e, t),
-		aliasForm: (e, t) => o2e(e, t),
-		sourceToolsHtml: (e) => i2e(e),
-		wireSourceTools: (e, t) => a2e(e, t),
-		comboItems: (e) => k4e(e),
+		aliasForm: (e, t) => s2e(e, t),
+		sourceToolsHtml: (e) => a2e(e),
+		wireSourceTools: (e, t) => o2e(e, t),
+		comboItems: (e) => A4e(e),
 		sortKeys: (e, t, n) => d7(e, t, n)
 	}, s7.entityFollowActions = {
 		...$.followFeedActions,
 		route: () => {},
 		shuffle: () => {},
 		loaded: () => {},
-		toggleSelection: (e, t) => U0e(e, t)
+		toggleSelection: (e, t) => W0e(e, t)
 	}, s7.SOURCE_HINTS = {
 		"source offline": L("shell:sourceTools.libraryOffline"),
 		"source not mapped": L("shell:sourceTools.notMapped"),
@@ -111132,8 +111170,8 @@ function d2e() {
     <button type="button" data-sync="${e}" title="${H(L("catalog:detailSource.syncDeletionsTip"))}"
       aria-label="${H(L("catalog:detailSource.syncDeletions"))}">${V("folder-sync")}</button>`;
 }
-function f2e() {
-	s7.application = b0e({
+function p2e() {
+	s7.application = x0e({
 		controller: {
 			context: () => {
 				let e = u7();
@@ -111182,7 +111220,7 @@ function f2e() {
 			writeSeed: (e) => {
 				K.seed = e, Sp();
 			},
-			setJavLayout: Q2e,
+			setJavLayout: $2e,
 			javLayout: AF,
 			setPhotoLayout: BF,
 			syncPhotoWalls: m7,
@@ -111192,16 +111230,16 @@ function f2e() {
 				let n = e !== s7.entityPageView;
 				s7.entityPageView = e, s7.entityPageWall = t, n && G7();
 			},
-			syncDensity: Q0e,
+			syncDensity: $0e,
 			scheduleSticky: K7,
 			releasePage: () => gg(B("#index")),
-			showMissing: l2e,
+			showMissing: u2e,
 			dropBars: U5
 		},
 		loading: {
 			shapesReady: (e, t) => q5.hasEntityShape(e, t),
-			waitShapes: M2e,
-			paintSkeleton: s2e,
+			waitShapes: N2e,
+			paintSkeleton: c2e,
 			resetView: () => {
 				xp({ detailReturnBarsContext: null }), s7.entityPageView = "", s7.entityPageWall = !1;
 			},
@@ -111217,13 +111255,13 @@ function f2e() {
 			walls: () => document.querySelectorAll(".followphotowall"),
 			pushEntity: l7,
 			pushFollow: M9,
-			syncDensity: Q0e,
+			syncDensity: $0e,
 			storeSize: p_e
 		},
 		helpers: s7.entityPageHelpers,
 		actions: {
 			toggleTag: n9,
-			openFollowAuthor: O2e,
+			openFollowAuthor: k2e,
 			javContext: (e) => xp({ entityJavLayout: !!e })
 		},
 		sortPreference: () => ({
@@ -111234,7 +111272,7 @@ function f2e() {
 }
 // src/application/playlists.js
 var _7 = { playlistWrite: void 0 };
-function p2e(e, t) {
+function m2e(e, t) {
 	e === "tag" ? (xp({ state: {
 		...K,
 		tag: t,
@@ -111246,15 +111284,15 @@ function p2e(e, t) {
 		orient: ""
 	} }), X.clearSearchField(), Q.route(q7()), O7(), t9()) : g7(e, t);
 }
-function m2e(e = "") {
+function h2e(e = "") {
 	return `<label class="modalfield"><span>${L("shell:playlistDialog.nameLabel")}</span><input class="geist-input" name="name"
     maxlength="80" placeholder="${H(L("catalog:playlistsPage.enterName"))}" value="${H(e)}"></label>`;
 }
-async function h2e({ title: e, count: t, save: n }) {
+async function g2e({ title: e, count: t, save: n }) {
 	let r = Zd({
 		title: L("shell:playlistDialog.saveAsTitle"),
 		description: L("shell:playlistDialog.saveMixHint", { count: t }),
-		body: m2e(e),
+		body: h2e(e),
 		confirmLabel: L("shell:playlistDialog.saveAsTitle"),
 		onConfirm: () => {
 			let e = r.dialog.querySelector("[name=\"name\"]").value.trim();
@@ -111264,19 +111302,19 @@ async function h2e({ title: e, count: t, save: n }) {
 	});
 	r.dialog.querySelector("[name=\"name\"]").select();
 	let { confirmed: i, result: a } = await r.done;
-	i && (await l3e(a.id, a.current_asset_id, !0), B5.actionReceipt(L("shell:playlistDialog.saved"), { undo: async () => {
+	i && (await u3e(a.id, a.current_asset_id, !0), B5.actionReceipt(L("shell:playlistDialog.saved"), { undo: async () => {
 		await _7.playlistWrite({
 			action: "delete",
 			id: a.id
 		}), D9("/playlists");
 	} }));
 }
-async function g2e(e) {
+async function _2e(e) {
 	let t = ((await Ji("/api/playlists")).items || []).map((e) => `<label class="pickrow">${wu(`data-pick-playlist="${e.id}"`)}
     <span class="pickrowtext"><b>${H(e.name)}</b><small>${L("shell:mixCard.videoCount", { count: e.item_count })}</small></span></label>`).join(""), n = Zd({
 		title: L("shell:playlistDialog.addTitle"),
 		description: L("shell:playlistDialog.addHint"),
-		body: m2e() + (t ? `<div class="picklist" role="group" aria-label="${L("shell:playlistDialog.existingLists")}">${t}</div>` : yu(L("shell:playlistDialog.emptyHint"), { size: "small" })),
+		body: h2e() + (t ? `<div class="picklist" role="group" aria-label="${L("shell:playlistDialog.existingLists")}">${t}</div>` : yu(L("shell:playlistDialog.emptyHint"), { size: "small" })),
 		confirmLabel: L("shell:shared.save"),
 		confirmDisabled: !0,
 		onConfirm: async () => {
@@ -111320,15 +111358,15 @@ function v7() {
 	let e = ug(B("#stats"));
 	e?.path !== "/playlists" || !e.host.isConnected ? xp({ pageOpens: fp + 1 }) : (E7({ manage: !1 }), xp({ playlistsRevision: vp + 1 }));
 }
-function _2e(e) {
+function v2e(e) {
 	let t = new URLSearchParams(location.search);
 	for (let n of ["category", "queue"]) e[n] ? t.set(n, e[n]) : t.delete(n);
 	Q.route("/review" + (t.size ? "?" + t : ""));
 }
-function v2e(e) {
+function y2e(e) {
 	xp({ configurationRequestedSection: e }), Q.navigatePath(Nh(e));
 }
-function y2e() {
+function b2e() {
 	_7.playlistWrite = (e) => Ji("/api/playlist", {
 		method: "POST",
 		body: JSON.stringify(e)
@@ -111339,31 +111377,31 @@ var y7 = {
 	peopleIndexLayout: void 0,
 	personAvatar: void 0
 };
-function b2e() {
+function x2e() {
 	return Z.appSettings.followLayout === "table" ? "table" : "default";
 }
-function x2e() {
+function S2e() {
 	return h4(location.search);
 }
-function S2e(e) {
+function C2e(e) {
 	return Aze(e);
 }
-function C2e(e) {
-	Q.route(S2e(e));
+function w2e(e) {
+	Q.route(C2e(e));
 }
-function w2e(e = "") {
+function T2e(e = "") {
 	return jze(location.search, e);
 }
-function T2e(e) {
+function E2e(e) {
 	return W5(e);
 }
-function E2e(e) {
-	return r0e(e);
+function D2e(e) {
+	return i0e(e);
 }
 function b7() {
 	B("#stats").hidden = !0, B("#index").hidden = !1, a9(), X.hideCatalogCombo(), B("#count").textContent = "", B("#loadSentinel").hidden = !0;
 }
-function D2e(e, t) {
+function O2e(e, t) {
 	xp({ state: {
 		...K,
 		state: "",
@@ -111371,19 +111409,19 @@ function D2e(e, t) {
 		tag_match: t
 	} }), r7(!1, !1), Q.route(q7()), O7(), C9(), t9();
 }
-function O2e(e) {
+function k2e(e) {
 	y7.controller.openFollowAuthor(e);
 }
-function k2e(e) {
+function A2e(e) {
 	y7.controller.openFollowTag(e);
 }
-function A2e() {
-	$.FOLLOW_MANAGE_TABS = kze, G5.listen(document, "click", (e) => {
-		e.target.closest?.("[data-empty-settings]") && v2e("library");
-	}), y7.peopleIndexLayout = () => xHe(Z.appSettings.peopleLayout), y7.personAvatar = i0e;
-}
 function j2e() {
-	y7.controller = a0e({
+	$.FOLLOW_MANAGE_TABS = kze, G5.listen(document, "click", (e) => {
+		e.target.closest?.("[data-empty-settings]") && y2e("library");
+	}), y7.peopleIndexLayout = () => xHe(Z.appSettings.peopleLayout), y7.personAvatar = a0e;
+}
+function M2e() {
+	y7.controller = o0e({
 		route: Q.route,
 		followView: k9,
 		adoptFollowView: A9,
@@ -111410,16 +111448,16 @@ function S7(e = L("shell:skeleton.loadingVideos")) {
 	}
 	let t = B("#count"), n = decodeURIComponent(location.pathname) === "/junk-files";
 	if (t.classList.toggle("manage-static", n), t.classList.toggle("junkcount", n), n ? (t.setAttribute("aria-busy", "true"), t.setAttribute("aria-label", e), t.innerHTML = EOe(rX(location.search)), ed(t)) : (t.removeAttribute("aria-busy"), t.removeAttribute("aria-label"), t.textContent = "", K && $7({
-		count: D4e(),
+		count: O4e(),
 		...e9()
 	})), B("#loadSentinel").hidden = !0, s9()) return;
 	let r = B("#grid"), i = u9(e), a = r.querySelector(".catalog-skeleton");
-	(a?.dataset.skeleton !== lYe(i) || Number(a.querySelector("[style]")?.style.getPropertyValue("--skeleton-card-ratio")) !== d9()) && (a ? r.innerHTML = `<div class="grid">${i}</div>` : x7.setGridCards(i), ed(B("#grid")));
+	(a?.dataset.skeleton !== uYe(i) || Number(a.querySelector("[style]")?.style.getPropertyValue("--skeleton-card-ratio")) !== d9()) && (a ? r.innerHTML = `<div class="grid">${i}</div>` : x7.setGridCards(i), ed(B("#grid")));
 }
 function C7() {
 	B("#catalogFilter").style.display = "none", Q7();
 }
-function M2e() {
+function N2e() {
 	let e = new Promise((e) => {
 		let t = x7.ENTITY_SHAPES_WAIT, n = performance.now(), r = () => {
 			let i = performance.now();
@@ -111429,7 +111467,7 @@ function M2e() {
 	});
 	return Promise.race([x7.entityShapesReady ||= J5(), e]);
 }
-function N2e() {
+function P2e() {
 	let e = decodeURIComponent(location.pathname);
 	if (document.body.dataset.surface = location.pathname, e === "/wall") document.body.setAttribute("data-wall-open", ""), C7(), Ike();
 	else if (/^\/assets\/\d+$/.test(e)) C7();
@@ -111444,12 +111482,12 @@ function N2e() {
 	else if (/^\/(?:performers|creators|studios|agencies|series|tags)\//.test(e)) {
 		C7(), B("#index").hidden = !1, a9();
 		let t = na[e.split("/")[1]], n = e.split("/").slice(2).join("/");
-		(q5.hasEntityShape(t, n) ? Promise.resolve() : M2e()).then(() => {
-			B("#index").firstElementChild || decodeURIComponent(location.pathname) !== e || (s2e(t, n), ed(B("#index")));
+		(q5.hasEntityShape(t, n) ? Promise.resolve() : N2e()).then(() => {
+			B("#index").firstElementChild || decodeURIComponent(location.pathname) !== e || (c2e(t, n), ed(B("#index")));
 		});
 	} else Q.routeMeta(e) ? S7() : (a9(), B("#count").textContent = "", B("#loadSentinel").hidden = !0);
 }
-function P2e() {
+function F2e() {
 	$.followContentSkeletonHtml = (e = new URLSearchParams(location.search).get("media") === "images" ? "images" : "videos", t = L("shell:skeleton.loadingFollowing")) => F6(t, {
 		cards: !0,
 		className: "follow-content-skeleton postercard-skeleton",
@@ -111465,18 +111503,18 @@ function P2e() {
   ${$.followContentSkeletonHtml(void 0, e)}</div></div>`, B("#loadSentinel").innerHTML = Mu("linear-dots", xu), x7.setGridCards = (e) => Gu(B("#grid"), () => {
 		B("#grid").innerHTML = `<div class="grid">${e}</div>`;
 	}), x7.gridCards = () => document.querySelectorAll(":is(#grid,#index [data-entity-grid]) :is([data-media-grid] > [data-media-card][data-id],[data-catalog-row][data-id])"), x7.managementPlaceholder = (e) => I6(e, {
-		followLayout: b2e(),
+		followLayout: x2e(),
 		...(({ sort: e, dir: t, tab: n }) => ({
 			followSort: e,
 			followDir: t,
 			followTab: n
-		}))(x2e())
+		}))(S2e())
 	}), x7.wantsDiscoveryBars = () => B("#catalogFilter").style.display !== "none", x7.entityShapesReady = null, x7.ENTITY_SHAPES_WAIT = 400, x7.syncPageTitle = (e) => {
-		let t = F2e(e);
-		document.body.dataset.surface = t.pathname, h3e();
-	}, Ir(() => F2e(location.href));
+		let t = I2e(e);
+		document.body.dataset.surface = t.pathname, g3e();
+	}, Ir(() => I2e(location.href));
 }
-function F2e(e) {
+function I2e(e) {
 	let t = new URL(e, location.origin), n = decodeURIComponent(t.pathname), r = See(n, sp) || xee(n) || yee(n, t.search) || $h(n)?.title;
 	return document.title = r ? `${r} · Peach` : L("shell:documentTitle.fallback"), t;
 }
@@ -111488,7 +111526,7 @@ var w7 = (e) => e.replace(/[&<>"']/g, (e) => ({
 	"\"": "&quot;",
 	"'": "&#39;"
 })[e]);
-function I2e(e, t, n) {
+function L2e(e, t, n) {
 	let r = new Map(t.map((e) => [e[0], e])), i = e.map((e) => r.get(e)).filter((e) => e !== void 0).map(([e, t, r]) => {
 		let i = e === "" ? "<img data-sidebar-home-logo=\"\" src=\"/peach-logo-64.png\" srcset=\"/peach-logo-64.png 64w, /peach-logo-128.png 128w\" sizes=\"24px\" width=\"24\" height=\"24\" alt=\"\" decoding=\"async\">" : `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${w7(r)}"/></svg>`;
 		return `<button type="button" data-nav="${w7(e)}" aria-pressed="${n(e)}" aria-label="${w7(t)}">${i}<span>${w7(t)}</span></button>`;
@@ -111496,7 +111534,7 @@ function I2e(e, t, n) {
 	return `<div data-sidebar-head=""></div><div data-sidebar-nav="">${i.join("")}${a}</div>`;
 }
 // src/application/filter-scroll.js
-function L2e(e, t, n, r = !1) {
+function R2e(e, t, n, r = !1) {
 	if (t = Math.max(0, t), !e || !n || r || t <= 8) return {
 		y: t,
 		origin: t,
@@ -111545,10 +111583,10 @@ function D7() {
 function O7() {
 	B("#javLibraryHeader").hidden = !ea(location.pathname) || !z7(), document.body.classList.remove("entity-open", "index-open"), gg(B("#index")), B("#stats").hidden = !0, B("#index").hidden = !0, X5(location.pathname) || Q5(), B("#catalogFilter").style.display = "", Q7(), P7(), I7();
 }
-function R2e() {
+function z2e() {
 	Q.route("/"), O7();
 }
-function z2e({ tags: e = [], providers: t = [], duration: n = !1 }) {
+function B2e({ tags: e = [], providers: t = [], duration: n = !1 }) {
 	S9({
 		content: e.length || t.length || n ? {
 			kind: "follow",
@@ -111572,8 +111610,8 @@ function z2e({ tags: e = [], providers: t = [], duration: n = !1 }) {
 		filters: $.followSidebarFilters()
 	});
 }
-function B2e(e) {
-	w3e({
+function V2e(e) {
+	T3e({
 		...k9(),
 		...e
 	}), S9({ filters: $.followSidebarFilters() });
@@ -111588,7 +111626,7 @@ function A7(e) {
 function j7() {
 	k7() && A7(!1);
 }
-function V2e() {
+function H2e() {
 	up === null && (xp({ runtimeConfigurable: !1 }), Ji("/healthz").then((e) => {
 		xp({ runtimeConfigurable: !!e.configurable }), up && N7() && P7();
 	}).catch(() => {}));
@@ -111606,18 +111644,18 @@ function M7(e = "", t = !1) {
 		replace: !0,
 		state: Tg.navigation.location.state
 	});
-	return e ||= Mh(location.pathname), O1e(T7.settingsHost()).then((t) => (t.open(e), t));
-}
-function H2e() {
-	jh(location.pathname) && (Ph(Tg.navigation.location.state) ? Tg.go(-1) : Q.navigatePath("/", !0));
+	return e ||= Mh(location.pathname), k1e(T7.settingsHost()).then((t) => (t.open(e), t));
 }
 function U2e() {
+	jh(location.pathname) && (Ph(Tg.navigation.location.state) ? Tg.go(-1) : Q.navigatePath("/", !0));
+}
+function W2e() {
 	return {
 		scroll: B("#drawerScroll"),
 		store: Z.settingsStore,
 		navCatalog: T7.NAV_CATALOG,
 		navOn: W7,
-		navTo: t4e,
+		navTo: n4e,
 		navToTop: () => {
 			j7(), Tee();
 		},
@@ -111637,8 +111675,8 @@ function U2e() {
 		selectFollowTag: (e) => {
 			$.followTags = /* @__PURE__ */ new Set([e]), A7(!1), D9(O9());
 		},
-		selectFollowProvider: (e) => B2e({ provider: $.followProviders.has(e) ? "" : e }),
-		setFollowDuration: (e, t) => B2e({
+		selectFollowProvider: (e) => V2e({ provider: $.followProviders.has(e) ? "" : e }),
+		setFollowDuration: (e, t) => V2e({
 			durMin: Math.round(e * 60),
 			durMax: t === null ? 0 : Math.round(t * 60)
 		}),
@@ -111647,15 +111685,15 @@ function U2e() {
 		}
 	};
 }
-function W2e() {
+function G2e() {
 	let e = B("#drawerScroll"), t = [...e.querySelector("[data-sidebar-head]")?.children || []];
-	e.innerHTML = I2e(Z.appSettings.sidebarOrder, T7.NAV_CATALOG, W7), e.querySelector("[data-sidebar-head]").append(...t), G5.listen(e, "click", (e) => {
+	e.innerHTML = L2e(Z.appSettings.sidebarOrder, T7.NAV_CATALOG, W7), e.querySelector("[data-sidebar-head]").append(...t), G5.listen(e, "click", (e) => {
 		if (P5()) return;
 		let t = e.target.closest?.("[data-nav]");
-		t && t4e(t.dataset.nav);
-	}), k1e(U2e()).then((e) => e.render(T7.sidebarProps)).catch(() => {});
+		t && n4e(t.dataset.nav);
+	}), A1e(W2e()).then((e) => e.render(T7.sidebarProps)).catch(() => {});
 }
-async function G2e() {
+async function K2e() {
 	let e = G5, t = null;
 	try {
 		t = await Ji("/api/settings", { signal: e.signal });
@@ -111669,11 +111707,11 @@ function N7() {
 }
 function P7() {
 	let e = N7();
-	V2e(), e && C7();
+	H2e(), e && C7();
 	let t = B("#trashFilter");
 	t.hidden = e !== "trash", e === "trash" && !t.firstChild && (t.innerHTML = pOe(e9())), B("#count").classList.toggle("no-tagbar", !!e), C9(), e !== "trash" && (t7.trashCount = null), F7(e);
 }
-function K2e(e) {
+function q2e(e) {
 	return {
 		section: e,
 		path: decodeURIComponent(location.pathname),
@@ -111683,7 +111721,7 @@ function K2e(e) {
 }
 function F7(e = N7()) {
 	I7();
-	let t = K2e(e), n = j1e();
+	let t = q2e(e), n = M1e();
 	if (n) n.render(t);
 	else {
 		let e = lbe(t);
@@ -111692,17 +111730,17 @@ function F7(e = N7()) {
 	let r = Fz(t)?.title || "";
 	r !== T7.lastManagePageLabel && (T7.lastManagePageLabel = r, r && Hu(T7.manageHeaderRoot(), "[data-manage-title],[data-manage-lede]"));
 }
-function q2e() {
+function J2e() {
 	let e = T7.manageHeaderRoot();
 	G5.listen(e, "click", (e) => {
-		if (j1e()) return;
+		if (M1e()) return;
 		let t = e.target.closest?.("[data-manage]");
 		if (t) R7(t.dataset.manage);
 		else if (e.target.closest?.("[data-manage-crumb] a[href]")) {
 			if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
 			e.preventDefault(), Q.navigatePath("/data-cleanup");
 		}
-	}), A1e({
+	}), j1e({
 		root: e,
 		store: Z.settingsStore,
 		openManage: R7,
@@ -111715,9 +111753,9 @@ function I7() {
 	let t = decodeURIComponent(location.pathname), n = !N7() && ea(t) && $i[K.state] || "";
 	e.hidden = !n, n && (e.textContent = n);
 	let r = B("#catalogPageHeading");
-	r.hidden = !!N7() || !ea(t) || !!n || K.jav === "1", J2e(r, K.q);
+	r.hidden = !!N7() || !ea(t) || !!n || K.jav === "1", Y2e(r, K.q);
 }
-function J2e(e, t) {
+function Y2e(e, t) {
 	let n = e?.querySelector("[data-page-title]");
 	if (!n) return;
 	let r = String(t || "").trim(), i = r ? L("shell:searchTitle.results", { query: r }) : L("shell:shared.home");
@@ -111730,9 +111768,9 @@ function J2e(e, t) {
 		let n = document.createElement("span");
 		return n.textContent = e, t !== void 0 && (n.dataset.titleWords = t), n;
 	}, [o = "", s = ""] = L("shell:searchTitle.results", { query: "\0" }).split("\0");
-	n.replaceChildren(a(o), a(r, r), a(s)), n.title = i, L7(n), Y2e ??= new ResizeObserver((e) => e.forEach((e) => L7(e.target))), Y2e.observe(n), document.fonts?.ready.then(() => L7(n));
+	n.replaceChildren(a(o), a(r, r), a(s)), n.title = i, L7(n), X2e ??= new ResizeObserver((e) => e.forEach((e) => L7(e.target))), X2e.observe(n), document.fonts?.ready.then(() => L7(n));
 }
-var Y2e = null;
+var X2e = null;
 function L7(e) {
 	let t = e.querySelector("[data-title-words]");
 	if (!t || !e.clientWidth) return;
@@ -111753,7 +111791,7 @@ function z7() {
 	let e = decodeURIComponent(location.pathname);
 	return e === "/" ? K.jav === "1" : e.startsWith("/performers/") || e.startsWith("/studios/") ? K.jav === "1" || mp : !1;
 }
-function X2e(e = z7()) {
+function Z2e(e = z7()) {
 	let t = FP.filter(([e]) => e !== "seed");
 	return e ? [IP, ...t] : [...t, IP];
 }
@@ -111763,24 +111801,24 @@ function B7() {
 function V7() {
 	return jF(B7());
 }
-function Z2e(e) {
+function Q2e(e) {
 	d_e(e), H7(), B("#grid").hidden || f9();
 }
-function Q2e(e) {
+function $2e(e) {
 	zF(e), H7(), f9();
 }
 function H7() {
 	document.querySelectorAll("[data-video-layout]").forEach((e) => {
 		e.checked = e.value === V7();
-	}), X.catalogFilterProps && $7({ layout: b4e() });
+	}), X.catalogFilterProps && $7({ layout: x4e() });
 }
-function $2e(e) {
+function e4e(e) {
 	f_e(e), H7(), f9();
 }
 async function U7() {
-	U5(), X.mixRelatedCache.clear(), await Promise.all([e4e(), t9()]);
+	U5(), X.mixRelatedCache.clear(), await Promise.all([t4e(), t9()]);
 }
-async function e4e() {
+async function t4e() {
 	if (s7.entityPageCurrent() && !B("#index").hidden) {
 		l7({ revision: ++s7.entityPageRevision });
 		return;
@@ -111802,7 +111840,7 @@ function W7(e) {
 	}
 	return e === "jav" ? t === "/jav" || z7() : e === "shorts" ? K.orient === zi : e === "" ? t === "/" && !N7() && !K.state && !z7() && K.orient !== "portrait" : Zi[e] ? n === e && K.orient !== "portrait" : n ? n === e : t === "/" && K.state === e && K.orient !== "portrait";
 }
-function t4e(e) {
+function n4e(e) {
 	let t = wee(e);
 	if (t === location.pathname + location.search + location.hash) return;
 	if (j7(), t) {
@@ -111828,7 +111866,7 @@ function t4e(e) {
 	let n = Zi[e] ? null : Q.routePathOf("nav", e);
 	n ? Q.openRoutePath(n) : (e === "shorts" ? (K.orient = zi, K.state = "") : (K.orient = "", K.state = e), Sp(), Q.route(q7()), C9(), t9());
 }
-var n4e = /* @__PURE__ */ new Set([
+var r4e = /* @__PURE__ */ new Set([
 	"/performers",
 	"/creators",
 	"/studios",
@@ -111838,21 +111876,21 @@ var n4e = /* @__PURE__ */ new Set([
 function G7() {
 	let e = decodeURIComponent(location.pathname), t = e.split("/").filter(Boolean);
 	Zf && ep !== t7.currentSelectSurface() && r7(!1, !0);
-	let n = t.length > 1 && Object.prototype.hasOwnProperty.call(na, t[0]), r = new URLSearchParams(location.search), i = r.get("media") || "", a = n ? s7.entityPageView || (i === "photos" || i === "online" ? i : "videos") : "", o = ea(e) || e === "/trash", s = e0e(e, location.search);
+	let n = t.length > 1 && Object.prototype.hasOwnProperty.call(na, t[0]), r = new URLSearchParams(location.search), i = r.get("media") || "", a = n ? s7.entityPageView || (i === "photos" || i === "online" ? i : "videos") : "", o = ea(e) || e === "/trash", s = t0e(e, location.search);
 	(e === "/jav" || K4(e)) && Zf && r7(!1, !0);
-	let c = e === "/tags", l = n4e.has(e) && (e !== "/performers" || r.get("scope") !== "online"), u = o || [
+	let c = e === "/tags", l = r4e.has(e) && (e !== "/performers" || r.get("scope") !== "online"), u = o || [
 		"people",
 		"videos",
 		"photos",
 		"online"
-	].includes(a) || c || l || e === "/follow" || t0e(e, location.search) || K4(e), d = o || n || e === "/follow" || s;
+	].includes(a) || c || l || e === "/follow" || n0e(e, location.search) || K4(e), d = o || n || e === "/follow" || s;
 	B("#selectMode").hidden = !u, B("#density").hidden = !d, m7(), !u && Zf && r7(!1, !0);
 }
-function r4e() {
+function i4e() {
 	let e = [...document.querySelectorAll("[data-filter-frame]")], t = e.find((e) => e.offsetParent !== null);
 	(t !== T7.mobileFilterHost || location.pathname !== T7.mobileFilterPath) && (T7.mobileFilterScroll = null), T7.mobileFilterHost = t, T7.mobileFilterPath = location.pathname;
 	let n = Math.max(0, Math.min(scrollY, document.documentElement.scrollHeight - innerHeight)), r = !!t?.querySelector(":focus-visible,input:focus,select:focus,textarea:focus,[aria-expanded=\"true\"]");
-	T7.mobileFilterScroll = L2e(T7.mobileFilterScroll, n, innerWidth <= 760, r);
+	T7.mobileFilterScroll = R2e(T7.mobileFilterScroll, n, innerWidth <= 760, r);
 	for (let n of e) {
 		let e = n === t && T7.mobileFilterScroll.free;
 		if (e && n.style.setProperty("--filter-free-top", `${-n.offsetHeight - 12}px`), e === n.hasAttribute("data-filter-free")) continue;
@@ -111866,18 +111904,18 @@ function r4e() {
 		});
 	}
 }
-function i4e() {
-	r4e(), [".board-filter-frame", "#count"].forEach((e) => {
+function a4e() {
+	i4e(), [".board-filter-frame", "#count"].forEach((e) => {
 		let t = B(e), n = t && getComputedStyle(t), r = n ? parseFloat(n.top) : NaN, i = !!t && n.position === "sticky" && t.offsetParent !== null && window.scrollY > 0 && Number.isFinite(r) && t.getBoundingClientRect().top - (parseFloat(n.translate.split(" ")[1]) || 0) <= r + 1;
 		t && t.classList.toggle("is-stuck", i), t?.matches(".board-filter-frame") && t.classList.toggle("board-is-stuck", i);
 	});
 }
 function K7() {
 	T7.stickyFrame ||= G5.frame(() => {
-		T7.stickyFrame = 0, i4e();
+		T7.stickyFrame = 0, a4e();
 	});
 }
-function a4e() {
+function o4e() {
 	$.followSidebarFilters = () => ({
 		provider: [...$.followProviders][0] || "",
 		dur_min: $.followDurMin || "",
@@ -111887,22 +111925,22 @@ function a4e() {
 			replace: !0,
 			state: Tg.navigation.location.state
 		}),
-		closed: H2e,
+		closed: U2e,
 		store: Z.settingsStore,
 		changed: (e) => Z.settingsEffects[e]?.(),
 		sound: (e) => Bl(e),
 		navCatalog: T7.NAV_CATALOG,
 		themeOptions: o_e,
 		videoLayouts: TF,
-		followInitialRanges: n0e,
+		followInitialRanges: r0e,
 		videoLayout: () => V7(),
-		setVideoLayout: $2e,
+		setVideoLayout: e4e,
 		censored: h9,
-		setCensored: Y4e,
-		sfwShortcut: X4e,
-		setSfwShortcut: Z4e,
+		setCensored: X4e,
+		sfwShortcut: Z4e,
+		setSfwShortcut: Q4e,
 		highContrast: () => document.documentElement.classList.contains("board-high-contrast"),
-		setHighContrast: Q4e,
+		setHighContrast: $4e,
 		receipt: (e) => B5.actionReceipt(e),
 		failure: B5.actionFailure,
 		syncRemote: (e) => bF(e, (e) => Z.settingsEffects[e]?.()),
@@ -111953,43 +111991,43 @@ var X = {
 	junkQueueHelpers: void 0,
 	junkQueueActions: void 0
 };
-function o4e() {
-	X.initialParams.has("loc") || (K.loc = s4e(K.loc), Sp());
+function s4e() {
+	X.initialParams.has("loc") || (K.loc = c4e(K.loc), Sp());
 }
-function s4e(e) {
-	return V1e(e, Z.sourceOnline);
+function c4e(e) {
+	return H1e(e, Z.sourceOnline);
 }
 function q7(e = K) {
-	return H1e(e);
+	return U1e(e);
 }
-function c4e() {
-	xp(W1e(U1e(K, Z.appSettings, B5.rollSeed)));
+function l4e() {
+	xp(G1e(W1e(K, Z.appSettings, B5.rollSeed)));
 }
 function J7(e = null) {
-	c4e(), e && (Object.assign(K, e), Sp()), Q.route(e ? q7() : "/"), X.clearSearchField(), v9(!1), C9(), t9();
+	l4e(), e && (Object.assign(K, e), Sp()), Q.route(e ? q7() : "/"), X.clearSearchField(), v9(!1), C9(), t9();
 }
-function l4e(e, t = null) {
+function u4e(e, t = null) {
 	let n = e.id;
-	!e.medium || e.medium === "video" ? b9(n, !0, null, t) : e.medium === "image" && e.location !== "online" ? window.open("/photo?id=" + n, "_blank", "noopener") : u4e(e).catch((e) => B5.actionFailure(L("shell:receipt.genericAction"), Error(s7.sourceHint(e.message))));
+	!e.medium || e.medium === "video" ? b9(n, !0, null, t) : e.medium === "image" && e.location !== "online" ? window.open("/photo?id=" + n, "_blank", "noopener") : d4e(e).catch((e) => B5.actionFailure(L("shell:receipt.genericAction"), Error(s7.sourceHint(e.message))));
 }
-async function u4e(e) {
+async function d4e(e) {
 	await mIe(await Ji("/api/reveal", {
 		method: "POST",
 		body: JSON.stringify({ id: e.id })
 	}), () => B5.toast({ text: L("shell:sourceTools.revealed") }));
 }
-function d4e(e) {
+function f4e(e) {
 	return X.mixRelatedCache.has(e) || X.mixRelatedCache.set(e, Ji("/api/related?id=" + e + "&limit=28").then((t) => (t.items || []).filter((t) => t.id !== e)).catch((t) => {
 		throw X.mixRelatedCache.delete(e), t;
 	})), X.mixRelatedCache.get(e);
 }
-function f4e(e, t) {
-	T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : p4e(e, t);
-}
 function p4e(e, t) {
-	e.edition_group ? s3e(e.edition_group.seed_id, e.id, !0, t) : e.part_group ? c3e(e.part_group.seed_id, e.id, !0, t) : b9(e.id, !0, null, t);
+	T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : m4e(e, t);
 }
-async function m4e(e, t) {
+function m4e(e, t) {
+	e.edition_group ? c3e(e.edition_group.seed_id, e.id, !0, t) : e.part_group ? l3e(e.part_group.seed_id, e.id, !0, t) : b9(e.id, !0, null, t);
+}
+async function h4e(e, t) {
 	try {
 		let n = await Ji("/api/watch-later", {
 			method: "POST",
@@ -112006,7 +112044,7 @@ async function m4e(e, t) {
 		B5.actionFailure(L("shell:watchLater.updateAction"), e);
 	}
 }
-async function h4e(e, t) {
+async function g4e(e, t) {
 	try {
 		await Ji("/api/batch", {
 			method: "POST",
@@ -112030,7 +112068,7 @@ async function h4e(e, t) {
 		throw B5.actionFailure(L("shell:receipt.genericAction"), e), e;
 	}
 }
-async function g4e(e, t, n, r) {
+async function _4e(e, t, n, r) {
 	let i = Number(e.rating) || 0, a = nR(i, t), o = async (t, r) => {
 		let i = (await Ji("/api/feedback", {
 			method: "POST",
@@ -112050,7 +112088,7 @@ async function g4e(e, t, n, r) {
 		throw r?.aborted || B5.actionFailure(L("shell:ratingAction.label"), e), e;
 	}
 }
-async function _4e(e) {
+async function v4e(e) {
 	let t = new URLSearchParams();
 	if (z7() && t.set("jav", "1"), e.type === "entity" ? (t.set("scope_kind", e.kind), t.set("scope_name", e.name)) : e.type === "item" && t.set("id", String(e.id)), e.type === "home" && K.state && t.set("state", K.state), e.type !== "item") {
 		let e = s7.activeFilterState();
@@ -112074,14 +112112,14 @@ async function _4e(e) {
 			e[n] && t.set(n, e[n]);
 		});
 	}
-	return Z1e(t.toString(), X.topsQueryParams(e).toString());
+	return Q1e(t.toString(), X.topsQueryParams(e).toString());
 }
 function Y7(e) {
-	u7().type !== "entity" && $7({ tags: x4e(e) }), S9({ filters: { ...e } }), r9();
+	u7().type !== "entity" && $7({ tags: S4e(e) }), S9({ filters: { ...e } }), r9();
 }
 async function X7(e) {
-	let t = ++X.facetCountsSeq, [n] = await _4e(e);
-	t === X.facetCountsSeq && (e.type === "home" && (_9.facets = n), S9({ latest: K4e(n, e) }));
+	let t = ++X.facetCountsSeq, [n] = await v4e(e);
+	t === X.facetCountsSeq && (e.type === "home" && (_9.facets = n), S9({ latest: q4e(n, e) }));
 }
 function Z7(e) {
 	let t = u7();
@@ -112100,7 +112138,7 @@ function Z7(e) {
 		} }), Q.route(q7()), O7(), t9();
 	} else e(K), Sp(), Q.route(q7()), Y7(K), X7(qf);
 }
-function v4e() {
+function y4e() {
 	return {
 		tiers: null,
 		tiersPending: !1,
@@ -112119,7 +112157,7 @@ function v4e() {
 		combo: [],
 		comboHidden: !0,
 		comboHost: B("#combo"),
-		actions: y4e(),
+		actions: b4e(),
 		helpers: {
 			wireDrag: g9,
 			wireScroller: (e) => {
@@ -112138,7 +112176,7 @@ function $7(e) {
 		offscreen: n,
 		hideTiers: r
 	}, X.catalogFilterProps = {
-		...X.catalogFilterProps || v4e(),
+		...X.catalogFilterProps || y4e(),
 		...e
 	}, X.catalogFilterMounting || (dg(t) ? hg(t, e) : (!t.firstChild && !n && (t.innerHTML = fOe(X.catalogViews(), X.catalogFilterProps.state, e9(), !r), ed(t)), X.catalogFilterMounting = mg("catalog-filter", X.catalogFilterProps, {
 		container: t,
@@ -112147,7 +112185,7 @@ function $7(e) {
 		X.catalogFilterMounting = null;
 	})));
 }
-function y4e() {
+function b4e() {
 	return {
 		currentHref: () => {
 			let e = new URL(q7(), location.origin);
@@ -112168,25 +112206,25 @@ function y4e() {
 			let t = HP(e, K.sort, K.dir);
 			t && (K.sort = t.sort, K.dir = t.dir, Sp(), m9());
 		},
-		reshuffle: () => q4e(),
+		reshuffle: () => J4e(),
 		showAll: () => {
 			K.thumb = "0", Sp(), $7({ previewOnly: !1 }), m9();
 		},
 		setLayout: (e) => {
-			z7() ? Q2e(e) : Z2e(e);
+			z7() ? $2e(e) : Q2e(e);
 		},
 		moreTops: async (e) => {
 			let t = X.catalogTopsPages;
 			if (!t) return [];
-			let n = (await Q1e(X.topsQueryParams(t.context, ++t[e]).toString()))[e] || [];
-			return e === "performers" ? n.map(S4e) : n.map(C4e);
+			let n = (await $1e(X.topsQueryParams(t.context, ++t[e]).toString()))[e] || [];
+			return e === "performers" ? n.map(C4e) : n.map(w4e);
 		},
 		emptyTrash: () => {
-			O4e();
+			k4e();
 		}
 	};
 }
-function b4e() {
+function x4e() {
 	return z7() ? {
 		name: "jav-layout",
 		label: L("shell:cardLayout.jav"),
@@ -112202,19 +112240,19 @@ function b4e() {
 function e9() {
 	return {
 		sorts: d7(K.sort, K.dir),
-		layout: b4e(),
+		layout: x4e(),
 		state: K.state || "",
 		trash: K.state === "trash",
 		previewOnly: K.thumb === "1" && K.state !== "trash"
 	};
 }
-function x4e(e) {
+function S4e(e) {
 	return X.catalogTagRows.map((t) => ({
 		...t,
 		selected: X.tagPressed(e.tag, t.k)
 	}));
 }
-function S4e(e) {
+function C4e(e) {
 	return {
 		name: e.k,
 		ringHtml: `<span data-tier-initial>${H(Ca(qr("performer", e.k, e.id)))}</span>${il({
@@ -112228,14 +112266,14 @@ function S4e(e) {
 		})}`
 	};
 }
-function C4e(e) {
+function w4e(e) {
 	return {
 		name: e.k,
 		fallback: Sa(e.k, 2),
 		logo: e.has_logo ? tl(e.k, "icon", e.logo_version) : ""
 	};
 }
-function w4e(e, t) {
+function T4e(e, t) {
 	X.barsPendingSeq = t, X.catalogFilterProps?.tiers ? $7({
 		tiersPending: !0,
 		state: e.state || ""
@@ -112245,7 +112283,7 @@ function w4e(e, t) {
 		state: e.state || ""
 	}));
 }
-function T4e(e) {
+function E4e(e) {
 	X.barsPendingSeq === e && (X.barsPendingSeq = 0, $7({ tiersPending: !1 }));
 }
 async function t9() {
@@ -112258,16 +112296,16 @@ async function t9() {
 		K.seed || "",
 		z7()
 	]);
-	w4e(n, e);
+	T4e(n, e);
 	let i;
 	try {
-		i = await _4e(t);
+		i = await v4e(t);
 	} catch (t) {
-		throw T4e(e), t;
+		throw E4e(e), t;
 	}
 	let [a, o] = i;
 	if (e !== X.barsRequestSeq) {
-		T4e(e);
+		E4e(e);
 		return;
 	}
 	let s = r + "\n" + JSON.stringify([a, o]);
@@ -112295,26 +112333,26 @@ async function t9() {
 	})), X.barsPendingSeq = 0, $7({
 		tiers: {
 			key: String(X.barsRequestSeq),
-			performers: o.performers.map(S4e),
-			studios: o.studios.map(C4e)
+			performers: o.performers.map(C4e),
+			studios: o.studios.map(w4e)
 		},
 		tiersPending: !1,
 		empty: l,
-		tags: x4e(n),
+		tags: S4e(n),
 		tagFirst: f.length + m.length,
 		views: X.catalogViews(),
 		state: n.state || ""
 	}), r9(), T7.sidebarCatalog = {
 		kind: "catalog",
 		key: String(++T7.sidebarContentSeq),
-		facets: K4e(a, t)
+		facets: q4e(a, t)
 	}, S9({
 		content: T7.sidebarCatalog,
 		filters: { ...n },
 		latest: null
 	});
 }
-function E4e(e, t) {
+function D4e(e, t) {
 	_9.total = e, K.state === "trash" && (t7.trashCount = {
 		total: _9.total,
 		shown: t
@@ -112327,14 +112365,14 @@ function E4e(e, t) {
 		shown: t
 	} });
 }
-function D4e() {
+function O4e() {
 	let e = X.lastCount;
 	return e && e.at === location.pathname + location.search ? {
 		total: e.total,
 		shown: e.shown
 	} : null;
 }
-function O4e() {
+function k4e() {
 	let e = t7.trashCount?.total ?? 0;
 	return $d({
 		title: L("shell:trash.empty"),
@@ -112364,7 +112402,7 @@ function n9(e) {
 		t.tag = e ? X.withTagToggled(t.tag, e) : "";
 	});
 }
-function k4e(e) {
+function A4e(e) {
 	let t = [];
 	return e.creator && t.push({
 		kind: "clear",
@@ -112390,7 +112428,7 @@ function k4e(e) {
 }
 function r9() {
 	$7({
-		combo: k4e(K),
+		combo: A4e(K),
 		comboHidden: !X.catalogOnScreen()
 	});
 }
@@ -112402,23 +112440,23 @@ async function i9() {
 			filters: K
 		},
 		detailReturnBarsContext: null
-	}), v9(!1), K.state === "ads") return F4e(e);
+	}), v9(!1), K.state === "ads") return I4e(e);
 	X.controller.page === "/junk-files" && a9(), S7(), O7();
-	let t = j4e(e);
-	return X5(location.pathname) && K.browse !== "folders" ? j0e() : Q5(), r9(), B("#count").classList.remove("manage-static", "junkcount"), t;
+	let t = M4e(e);
+	return X5(location.pathname) && K.browse !== "folders" ? M0e() : Q5(), r9(), B("#count").classList.remove("manage-static", "junkcount"), t;
 }
-function A4e(e) {
+function j4e(e) {
 	X.controller.settle(e);
 }
 function a9() {
 	let e = B("#grid");
 	Mf(e), gg(e), X.controller.clear(), e.innerHTML = "";
 }
-function j4e(e) {
-	return N4e("/", P4e, e, { place: E3e });
-}
 function M4e(e) {
-	return N4e("/junk-files", B4e, e);
+	return P4e("/", F4e, e, { place: D3e });
+}
+function N4e(e) {
+	return P4e("/junk-files", V4e, e);
 }
 function o9() {
 	return !!ug(B("#grid"));
@@ -112429,7 +112467,7 @@ function s9() {
 function c9(e) {
 	hg(B("#grid"), e);
 }
-function N4e(e, t, n, r = {}) {
+function P4e(e, t, n, r = {}) {
 	let i = B("#grid");
 	X.controller.page && X.controller.page !== e && a9();
 	let a = X.controller.begin(e, o9()), o = t();
@@ -112468,7 +112506,7 @@ function f9() {
 		seekSeconds: Z.appSettings.seekSeconds
 	}));
 }
-function P4e() {
+function F4e() {
 	let e = decodeURIComponent(location.pathname), t = ea(e), n = K.state === "trash";
 	return {
 		mode: "catalog",
@@ -112482,12 +112520,12 @@ function P4e() {
 		seekSeconds: Z.appSettings.seekSeconds,
 		revision: X.controller.revision,
 		wireDrag: g9,
-		settled: A4e,
+		settled: j4e,
 		skeletonHtml: () => u9(),
 		filters: { ...K },
 		batchSize: Z.appSettings.batchSize,
 		groupCollapse: Z.appSettings.groupCollapse,
-		...G1e({
+		...K1e({
 			homeDefault: t && e !== "/wall" && !K.q && !K.orient && K.browse !== "folders",
 			javOnly: K.jav === "1",
 			stripAllowed: t && e !== "/wall" && !z7() && K.orient !== "portrait" && !n && K.browse !== "folders",
@@ -112495,7 +112533,7 @@ function P4e() {
 		}),
 		mix: t && e !== "/wall" && !n && K.browse !== "folders",
 		countRow: B("#count"),
-		onCount: E4e,
+		onCount: D4e,
 		onCountFailed: () => $7({ count: !1 }),
 		emptyHtml: ({ trash: e, libraryEmpty: t }) => e ? Z.emptyState("trash", L("shell:trash.emptyTitle"), L("shell:trash.emptyHint")) : k$({
 			jav: z7() && !t,
@@ -112505,12 +112543,12 @@ function P4e() {
 		canLoadMore: () => B("#stats").hidden && B("#index").hidden
 	};
 }
-function F4e(e) {
+function I4e(e) {
 	let t = B("#count");
-	return X.controller.page === "/junk-files" && o9() && !X.controller.pending && t.querySelector(":scope > .peach-react:not([data-junk-count-skeleton])") || (a9(), S7(L("shell:skeleton.loadingJunkFiles"))), O7(), r9(), t.classList.add("manage-static", "junkcount"), t.classList.remove("is-stuck"), M4e(e);
+	return X.controller.page === "/junk-files" && o9() && !X.controller.pending && t.querySelector(":scope > .peach-react:not([data-junk-count-skeleton])") || (a9(), S7(L("shell:skeleton.loadingJunkFiles"))), O7(), r9(), t.classList.add("manage-static", "junkcount"), t.classList.remove("is-stuck"), N4e(e);
 }
-var I4e = "/api/ads/dispose-all", L4e = "/api/ads/restore-all";
-function R4e(e, t, n) {
+var L4e = "/api/ads/dispose-all", R4e = "/api/ads/restore-all";
+function z4e(e, t, n) {
 	return $d({
 		title: L("shell:batchJunk.disposeAll"),
 		body: fP(L("shell:batchJunk.confirmDisposeAll", { count: t }), "undo"),
@@ -112520,7 +112558,7 @@ function R4e(e, t, n) {
 		onConfirm: async () => {
 			let r;
 			try {
-				r = await Ji(I4e, {
+				r = await Ji(L4e, {
 					method: "POST",
 					body: JSON.stringify({
 						kind: e,
@@ -112533,7 +112571,7 @@ function R4e(e, t, n) {
 				throw e?.status === 400 ? (await i9(), Error(L("shell:batchJunk.queueChanged"))) : e;
 			}
 			await i9(), B5.actionReceipt(L("shell:batchJunk.doneDispose", { count: r.changed }), { undo: async () => {
-				await Ji(L4e, {
+				await Ji(R4e, {
 					method: "POST",
 					body: JSON.stringify({ ids: r.ids })
 				}), await i9();
@@ -112541,7 +112579,7 @@ function R4e(e, t, n) {
 		}
 	});
 }
-async function z4e(e, t) {
+async function B4e(e, t) {
 	let n = [e.id], r = t === "dispose", i = t === "reconsider-junk";
 	try {
 		await Ji("/api/batch", {
@@ -112566,7 +112604,7 @@ async function z4e(e, t) {
 		throw B5.actionFailure(L("shell:receipt.genericAction"), e), e;
 	}
 }
-function B4e() {
+function V4e() {
 	return {
 		...rX(location.search),
 		helpers: X.junkQueueHelpers,
@@ -112576,13 +112614,13 @@ function B4e() {
 		selectMode: Zf,
 		selected: new Set(Yf),
 		countRow: B("#count"),
-		settled: A4e,
+		settled: j4e,
 		skeletonHtml: () => tX(L("shell:skeleton.loadingJunkFiles")),
 		canLoadMore: () => B("#stats").hidden && B("#index").hidden
 	};
 }
-function V4e() {
-	X.initialParams = new URLSearchParams(location.search), X.resolveSort = (e, t, n = Z.appSettings.defaultSort) => z1e(e, t, Z.appSettings, n), xp(W1e(B1e(location, Z.appSettings, B5.rollSeed))), X.searchValueSnapshot = {
+function H4e() {
+	X.initialParams = new URLSearchParams(location.search), X.resolveSort = (e, t, n = Z.appSettings.defaultSort) => B1e(e, t, Z.appSettings, n), xp(G1e(V1e(location, Z.appSettings, B5.rollSeed))), X.searchValueSnapshot = {
 		text: "",
 		scrollLeft: 0
 	}, X.cancelSearchDissolve = () => {}, X.rememberSearchValue = (e = B("#q")) => {
@@ -112603,16 +112641,16 @@ function V4e() {
 		};
 	};
 }
-function H4e() {
+function U4e() {
 	let e = u7(), t = {
 		...s7.activeFilterState(),
 		jav: z7() ? "1" : ""
 	};
 	return e.type === "entity" && e.kind !== "tag" && (t[e.kind] = e.name), t;
 }
-function U4e() {
+function W4e() {
 	G5.handler(B("#wallBtn"), "onclick", () => {
-		r7(!1, !0), Q.navigatePath(zje(void 0, H4e()));
+		r7(!1, !0), Q.navigatePath(zje(void 0, U4e()));
 	}), X.mixRelatedCache = /* @__PURE__ */ new Map(), X.reduceMotion = () => matchMedia("(prefers-reduced-motion:reduce)").matches, X.tagList = (e = K.tag) => String(e || "").split(",").filter(Boolean), X.tagPressed = (e, t) => X.tagList(e).includes(String(t)), X.withTagToggled = (e, t) => {
 		let n = X.tagList(e), r = n.indexOf(t);
 		return r >= 0 ? n.splice(r, 1) : n.push(t), n.join(",");
@@ -112626,12 +112664,12 @@ function U4e() {
 			let r = await w5(_9.stageHost);
 			return n.throwIfAborted(), r.mountWallPlayer(e, t, n);
 		},
-		wallDetails: p4e,
-		open: (e, t) => f4e(e, t),
-		openResource: (e, t) => T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : l4e(e, t),
+		wallDetails: m4e,
+		open: (e, t) => p4e(e, t),
+		openResource: (e, t) => T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : u4e(e, t),
 		openShort: (e) => T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : x9(e.id),
 		openShorts: () => x9(),
-		openMix: (e, t) => o3e(e, e, !0, t),
+		openMix: (e, t) => s3e(e, e, !0, t),
 		openEntity: (e, t) => g7(e, t),
 		openUnowned: () => J7({ owner: "none" }),
 		toggleTag: (e) => {
@@ -112639,11 +112677,11 @@ function U4e() {
 				t.tag = X.tagPressed(t.tag, e) ? "" : e;
 			});
 		},
-		toggleSelection: (e, t) => V0e(e, t),
-		watchLater: (e, t) => m4e(e, t),
-		rate: (e, t, n, r) => g4e(e, t, n, r),
-		resourceOperation: (e, t) => h4e(e, t),
-		mixRelated: (e) => d4e(e),
+		toggleSelection: (e, t) => H0e(e, t),
+		watchLater: (e, t) => h4e(e, t),
+		rate: (e, t, n, r) => _4e(e, t, n, r),
+		resourceOperation: (e, t) => g4e(e, t),
+		mixRelated: (e) => f4e(e),
 		canFlip: () => !Zf && !h9() && !window.__scrolling && !X.reduceMotion()
 	}, X.topsQueryParams = (e, t = 0) => {
 		let n = new URLSearchParams({
@@ -112673,7 +112711,7 @@ function U4e() {
 		href: e.k ? Zi[e.k] : "/"
 	})), X.TAGS_FIRST = 26, G5.listen(B("#catalogFilter"), "click", (e) => {
 		let t = e.target.closest?.("[data-catalog-view]");
-		t && !e.defaultPrevented && (e.preventDefault(), y4e().setView(t.dataset.catalogView));
+		t && !e.defaultPrevented && (e.preventDefault(), b4e().setView(t.dataset.catalogView));
 	}), X.catalogOnScreen = () => B("#index").hidden && B("#stats").hidden, X.COMBO_LABELS = {
 		creator: L("shell:shared.creators"),
 		studio: L("shell:shared.studios"),
@@ -112682,30 +112720,30 @@ function U4e() {
 		X.catalogFilterProps && $7({ comboHidden: !0 });
 	};
 }
-function W4e() {
+function G4e() {
 	X.junkQueueHelpers = { badgeHtml: (e, t) => Z.srcBadge(e, t) }, X.junkQueueActions = {
 		navigate: (e) => {
 			Zf && r7(!1, !0), Q.route(e);
 		},
-		toggleSelection: (e, t) => V0e(e, t),
+		toggleSelection: (e, t) => H0e(e, t),
 		selectAll: (e, t) => {
 			e.forEach((e) => t ? Yf.add(e) : Yf.delete(e)), r7(Yf.size > 0);
 		},
 		open: (e, t) => e.junk_kind === "image" ? window.open("/photo?id=" + e.id, "_blank", "noopener") : b9(e.id, !0, null, t),
 		reveal: async (e) => {
 			try {
-				return await u4e(e), "";
+				return await d4e(e), "";
 			} catch (e) {
 				return s7.sourceHint(e.message);
 			}
 		},
-		operate: (e, t) => z4e(e, t),
+		operate: (e, t) => B4e(e, t),
 		disposeAll: (e, t, n) => {
-			R4e(e, t, n);
+			z4e(e, t, n);
 		}
 	};
 }
-X.controller = new K1e();
+X.controller = new q1e();
 // src/application/preferences.js
 var Z = {
 	sourceOnline: void 0,
@@ -112739,7 +112777,7 @@ async function p9() {
 		if (!e.isActive) return Z.sourceOnline;
 		Z.sourceOnline = {}, Z.sourceProblems = {};
 	}
-	return document.body.classList.toggle("offline-source", Object.values(Z.sourceOnline).includes(!1)), o4e(), Z.sourceOnline;
+	return document.body.classList.toggle("offline-source", Object.values(Z.sourceOnline).includes(!1)), s4e(), Z.sourceOnline;
 }
 function m9() {
 	let e = Q.surfacePath();
@@ -112750,7 +112788,7 @@ function m9() {
 		state: Tg.navigation.location.state
 	}), t;
 }
-function G4e(e) {
+function K4e(e) {
 	if (e === "local") return {
 		kind: "glyph",
 		name: "hard-drive"
@@ -112771,7 +112809,7 @@ function G4e(e) {
 		cost: "free"
 	};
 }
-function K4e(e, t) {
+function q4e(e, t) {
 	let n = (e, t = (e) => Ei(e, "label") || If(e.k)) => (e || []).map((e) => ({
 		value: String(e.k),
 		label: t(e),
@@ -112782,7 +112820,7 @@ function K4e(e, t) {
 			value: e.k,
 			label: Ta[e.k] || e.k,
 			n: e.n ?? null,
-			dot: G4e(e.k),
+			dot: K4e(e.k),
 			...Z.sourceOffline(e.k) ? { offline: Z.OFFLINE_HINT } : {}
 		})),
 		regions: n(e.regions),
@@ -112795,7 +112833,7 @@ function K4e(e, t) {
 		duration: !!e.stats?.duration
 	};
 }
-async function q4e(e = !1) {
+async function J4e(e = !1) {
 	if (e && (document.hidden || !ea(decodeURIComponent(location.pathname)) || _9.stageOpen() || _9.immerseOpen() || Zf || Yf.size || document.activeElement === B("#q"))) return !1;
 	if (!B("#stats").hidden) {
 		let e = decodeURIComponent(location.pathname), t = Q.routeMeta(e)?.route.refresh;
@@ -112824,32 +112862,32 @@ async function q4e(e = !1) {
 function h9() {
 	return document.body.classList.contains("censor");
 }
-function J4e(e) {
+function Y4e(e) {
 	document.body.classList.toggle("censor", e), Z.settingsStore.notify();
 }
-function Y4e(e) {
-	localStorage.setItem(Z.CENSOR_KEY, e ? "1" : "0"), J4e(e), e && Mf();
+function X4e(e) {
+	localStorage.setItem(Z.CENSOR_KEY, e ? "1" : "0"), Y4e(e), e && Mf();
 }
-function X4e() {
+function Z4e() {
 	return LGe(localStorage.getItem("peach.sfw-shortcut")) || LGe("Shift+KeyS");
 }
-function Z4e(e) {
+function Q4e(e) {
 	e ? localStorage.setItem(MGe, RGe(e)) : localStorage.removeItem(MGe), Z.settingsStore.notify();
 }
-function Q4e(e) {
+function $4e(e) {
 	localStorage.setItem("peach.high-contrast", String(e)), document.documentElement.classList.toggle("board-high-contrast", e), Z.settingsStore.notify();
 }
 function g9(e) {
 	return _d(e, { drag: !0 });
 }
-function $4e() {
+function e3e() {
 	["#nrow", "#count"].forEach((e) => g9(B(e))), document.querySelectorAll(".tier,.srow").forEach(g9);
 }
-function e3e() {
+function t3e() {
 	let e = new URLSearchParams(location.search).get("id");
 	return /^\d+$/.test(e || "") ? Number(e) : void 0;
 }
-function t3e() {
+function n3e() {
 	Z.sourceOnline = {}, Z.sourceProblems = {}, Z.sourceOffline = (e) => Z.sourceOnline[e] === !1, Z.OFFLINE_HINT = L("shell:storageOffline.hint"), Z.OFFLINE_REASON = {
 		local: L("shell:storageOffline.localLabel"),
 		115: L("shell:storageOffline.drive115"),
@@ -112887,19 +112925,19 @@ function t3e() {
 			}), document.documentElement.style.setProperty("--hover-delay", `${Z.appSettings.hoverDelaySeconds}s`);
 		},
 		seekSeconds: () => f9(),
-		groupCollapse: () => e4e(),
-		feedAutoScroll: () => P0e(),
-		feedLimit: () => N0e(),
-		feedCompilations: () => N0e(),
+		groupCollapse: () => t4e(),
+		feedAutoScroll: () => F0e(),
+		feedLimit: () => P0e(),
+		feedCompilations: () => P0e(),
 		miniplayer: () => {
 			Z.appSettings.miniplayer || T5()?.closeMiniplayer();
 		},
 		javImage: () => {
-			Kc(document, Z.appSettings.javImage), f9(), document.querySelectorAll("img[data-jav-image].cover").forEach(nf), a3e();
+			Kc(document, Z.appSettings.javImage), f9(), document.querySelectorAll("img[data-jav-image].cover").forEach(nf), o3e();
 		},
 		searchHistoryLimit: () => hg(B("#searchMenu"), { historyLimit: Z.appSettings.searchHistoryLimit }),
 		searchRecommendations: () => hg(B("#searchMenu"), { recommend: Z.appSettings.searchRecommendations }),
-		feedNewRows: () => M0e(K.browse === "folders"),
+		feedNewRows: () => N0e(K.browse === "folders"),
 		homeShorts: () => {
 			ea(location.pathname) && i9();
 		},
@@ -112915,8 +112953,8 @@ function t3e() {
 		return `<span class="${n || "src"} ${t === "metered" ? "metered" : "free"}" title="${H(r)}" aria-label="${H(r)}">` + (Z.SRCICON[e] || "") + "</span>";
 	}, Z.emptyState = Cu;
 }
-function n3e() {
-	Z.CENSOR_KEY = "peach-censor", J4e(localStorage.getItem(Z.CENSOR_KEY) === "1");
+function r3e() {
+	Z.CENSOR_KEY = "peach-censor", Y4e(localStorage.getItem(Z.CENSOR_KEY) === "1");
 }
 // src/application/media.js
 var _9 = {
@@ -112932,14 +112970,14 @@ var _9 = {
 	immerseScope: null,
 	immerseReturn: null
 };
-function r3e() {
+function i3e() {
 	let e = Number(new URLSearchParams(location.search).get("t"));
 	return Number.isFinite(e) && e > 0 ? {
 		time: e,
 		autoplay: !1
 	} : null;
 }
-function i3e() {
+function a3e() {
 	return T5()?.exit() || Promise.resolve();
 }
 function v9(e = !1, t = !1, { miniplayer: n = !0, preserveQueueRequest: r = null } = {}) {
@@ -112953,7 +112991,7 @@ function v9(e = !1, t = !1, { miniplayer: n = !0, preserveQueueRequest: r = null
 		detailReturnNeedsRestore: !1
 	}), K7(), e && Q.route(tp || "/");
 }
-function a3e() {
+function o3e() {
 	T5()?.repaintPoster();
 }
 function y9(e, t, n, r, i = null, a = {}) {
@@ -112978,19 +113016,19 @@ function y9(e, t, n, r, i = null, a = {}) {
 		Q.requestedQueue = () => b9(n == null ? null : +n, !1, s, i, !0, e), xp({ queueOpens: pp + 1 });
 	} else return b9(n == null ? null : +n, !1, s, i, r);
 }
-function o3e(e, t = e, n = !0, r = null) {
+function s3e(e, t = e, n = !0, r = null) {
 	return y9("mix", e, t, n, r);
 }
-function s3e(e, t = e, n = !0, r = null) {
+function c3e(e, t = e, n = !0, r = null) {
 	return y9("editions", e, t, n, r);
 }
-function c3e(e, t = e, n = !0, r = null) {
+function l3e(e, t = e, n = !0, r = null) {
 	return y9("parts", e, t, n, r);
 }
-function l3e(e, t = null, n = !0) {
+function u3e(e, t = null, n = !0) {
 	return y9("playlist", e, t, n);
 }
-function u3e() {
+function d3e() {
 	return !!B("#grid").querySelector("[data-id],[data-mix-seed]") || !!document.querySelector("[data-video-wall]") || !B("#index").hidden || !B("#stats").hidden;
 }
 async function b9(e, t = !0, n = null, r = null, i = !1, a = null) {
@@ -113000,7 +113038,7 @@ async function b9(e, t = !0, n = null, r = null, i = !1, a = null) {
 		return;
 	}
 	Mf(), e = e == null ? null : +e;
-	let o = r?.isConnected ? r : np?.isConnected ? np : null, s = r?.isConnected ? r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 > window.innerHeight / 2 : rp, c = u3e(), l = ip || !t && !c, u = qf.type === "item" ? Jf : s7.cloneBarsContext(u7());
+	let o = r?.isConnected ? r : np?.isConnected ? np : null, s = r?.isConnected ? r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 > window.innerHeight / 2 : rp, c = d3e(), l = ip || !t && !c, u = qf.type === "item" ? Jf : s7.cloneBarsContext(u7());
 	t ? xp({ detailReturnPath: location.pathname + location.search }) : i || xp({ detailReturnPath: Gh() || tp }), t && Uh(), T5()?.showing() !== "item" && v9(!1, !0, {
 		miniplayer: !1,
 		preserveQueueRequest: a
@@ -113039,22 +113077,22 @@ async function b9(e, t = !0, n = null, r = null, i = !1, a = null) {
 		selectMode: Zf,
 		selected: new Set(Yf),
 		seekSeconds: Z.appSettings.seekSeconds,
-		resume: t || e == null ? null : r3e()
+		resume: t || e == null ? null : i3e()
 	}), K7();
 }
-async function d3e() {
+async function f3e() {
 	let e = s7.cloneBarsContext(Jf), t = tp || "/", n = ip;
-	await i3e(), v9(!1, !1, { miniplayer: !1 }), xp({ detailReturnBarsContext: null }), Wh(), xp({ barsContext: e || {
+	await a3e(), v9(!1, !1, { miniplayer: !1 }), xp({ detailReturnBarsContext: null }), Wh(), xp({ barsContext: e || {
 		type: "home",
 		filters: K
 	} }), n && Q.managedPagePath(new URL(t, location.href).pathname) ? Q.navigatePath(t) : (Q.route(t), n ? xp({ pageOpens: fp + 1 }) : (t9(), location.pathname === "/playlists" && v7()));
 }
-async function f3e(e, t = !0) {
+async function p3e(e, t = !0) {
 	if (t) {
-		xp({ detailReturnPath: location.pathname + location.search }), T9("/works/" + encodeURIComponent(e), "jav", () => f3e(e, !1));
+		xp({ detailReturnPath: location.pathname + location.search }), T9("/works/" + encodeURIComponent(e), "jav", () => p3e(e, !1));
 		return;
 	}
-	let n = Tg.navigation.seq, r = s7.cloneBarsContext(u7()), i = !u3e(), a = Gh() || (i ? "/jav?tab=discover" : tp) || "/jav?tab=discover";
+	let n = Tg.navigation.seq, r = s7.cloneBarsContext(u7()), i = !d3e(), a = Gh() || (i ? "/jav?tab=discover" : tp) || "/jav?tab=discover";
 	T5()?.showing() !== "jav" && v9(!1, !0, { miniplayer: !1 }), xp({
 		detailReturnPath: a,
 		detailReturnBarsContext: r,
@@ -113066,7 +113104,7 @@ async function f3e(e, t = !0) {
 		code: e,
 		readOnly: !!s.ledger_read_only,
 		actions: {
-			close: () => void d3e(),
+			close: () => void f3e(),
 			navigate: (e) => Q.navigatePath(e),
 			canonicalCode: (t) => {
 				Tg.navigation.seq === n && t && t !== e && (Eg("/works/" + encodeURIComponent(t) + location.search + location.hash, {
@@ -113082,9 +113120,9 @@ async function f3e(e, t = !0) {
 	}), K7());
 }
 async function x9(e = null, t = !0) {
-	t ? (location.pathname !== "/immerse" && (_9.immerseScope = Object.fromEntries(C$(void 0, H4e())), _9.immerseReturn = location.pathname + location.search), _9.requestedImmerseId = e, Q.route("/immerse")) : (T5()?.closeMiniplayer(), await (await D1e(_9.immerseHost)).open(e));
+	t ? (location.pathname !== "/immerse" && (_9.immerseScope = Object.fromEntries(C$(void 0, U4e())), _9.immerseReturn = location.pathname + location.search), _9.requestedImmerseId = e, Q.route("/immerse")) : (T5()?.closeMiniplayer(), await (await O1e(_9.immerseHost)).open(e));
 }
-function p3e() {
+function m3e() {
 	_9.total = 0, _9.facets = null, _9.stageHost = {
 		player: {
 			settings: () => Z.appSettings,
@@ -113100,7 +113138,7 @@ function p3e() {
 		openItem: (e) => void b9(e)
 	}, _9.stageOpen = () => !!T5()?.isOpen();
 }
-function m3e() {
+function h3e() {
 	_9.itemDetailHelpers = {
 		badgeHtml: (e, t, n) => Z.srcBadge(e, t, n),
 		titleHtml: (e) => qG(e),
@@ -113115,11 +113153,11 @@ function m3e() {
 			cards: !0,
 			className: "related-skeleton"
 		}),
-		mixRelated: (e) => d4e(e),
+		mixRelated: (e) => f4e(e),
 		wireDrag: (e) => g9(e),
 		wireDragReorder: (e, t) => qd(e, t)
 	}, _9.itemDetailActions = {
-		close: () => d3e(),
+		close: () => f3e(),
 		present: (e) => {
 			xp({ presentedItem: e });
 			let t = Jf;
@@ -113153,12 +113191,12 @@ function m3e() {
 		openTag: (e) => Z7((t) => {
 			t.tag = e;
 		}),
-		addToPlaylist: (e) => g2e(e),
-		saveMix: (e) => h2e(e),
+		addToPlaylist: (e) => _2e(e),
+		saveMix: (e) => g2e(e),
 		editPlaylist: () => D9("/playlists"),
 		openPlaylists: () => D9("/playlists"),
-		reveal: (e) => t2e(e),
-		sync: (e) => n2e(e),
+		reveal: (e) => n2e(e),
+		sync: (e) => r2e(e),
 		trashChanged: async (e, t) => {
 			K.state === "ads" && (t || e === "trash") && (t || (Wh(), v9(!0, !1, { miniplayer: !1 })), await i9());
 		},
@@ -113202,7 +113240,7 @@ var Q = {
 	queueOpenRequest: void 0,
 	initialOverlayOpened: void 0
 };
-function h3e() {
+function g3e() {
 	let e = P5();
 	e ? e.navChanged() : B("#drawerScroll")?.querySelectorAll("[data-nav]").forEach((e) => e.setAttribute("aria-pressed", String(W7(e.dataset.nav))));
 }
@@ -113218,7 +113256,7 @@ function S9(e = {}) {
 	}, P5()?.render(T7.sidebarProps);
 }
 function C9() {
-	S9(), h3e(), G7();
+	S9(), g3e(), G7();
 }
 function w9() {
 	Q.queueOpenRequest && (Q.queueOpenRequest.cancelled = !0), Q.queueOpenRequest = null, Q.requestedQueue = null, xp({ pendingQueueRoute: null });
@@ -113235,7 +113273,7 @@ function E9() {
 function D9(e) {
 	Q.route(e), xp({ pageOpens: fp + 1 });
 }
-function g3e() {
+function _3e() {
 	Q.routeMeta = (e) => {
 		let t = $h(e);
 		return t ? { route: t } : null;
@@ -113243,7 +113281,7 @@ function g3e() {
 		let t = $h(e);
 		return !!t && t.reload !== "reopen" && !Q.catalogPage(e) && !zh(e) && e !== "/immerse";
 	}, Q.openRoutePath = (e) => {
-		e === "/immerse" ? x9(e3e()) : e === "/follow" ? N9() : e === "/playlists" || Q.catalogPage(e) ? D9(e) : Q.managedPagePath(e) ? Q.navigatePath(e === "/subscriptions" ? w2e() : e) : (r7(!1, !0), D9(E2e({
+		e === "/immerse" ? x9(t3e()) : e === "/follow" ? N9() : e === "/playlists" || Q.catalogPage(e) ? D9(e) : Q.managedPagePath(e) ? Q.navigatePath(e === "/subscriptions" ? T2e() : e) : (r7(!1, !0), D9(D2e({
 			kind: e.slice(1),
 			q: "",
 			scope: "local",
@@ -113252,7 +113290,7 @@ function g3e() {
 		})));
 	};
 }
-function _3e() {
+function v3e() {
 	Q.surfaceEpoch = 0, Q.surfacePath = () => decodeURIComponent(location.pathname), Q.surfaceRequests = null, Q.surfaceToken = (e) => ({
 		epoch: Q.surfaceEpoch,
 		path: e,
@@ -113271,8 +113309,8 @@ function _3e() {
 	}, Q.requestedOverlay = null, Q.requestedQueue = null, Q.queueOpenRequest = null, Q.initialOverlayOpened = !1;
 }
 // src/jobs.ts
-var v3e = 2e3;
-async function y3e(e) {
+var y3e = 2e3;
+async function b3e(e) {
 	let t = e.pause || ((e) => Ya(e)), n = (t) => typeof e.keepWatching == "function" ? e.keepWatching(t) : !!e.keepWatching, r = 0;
 	for (; e.active();) {
 		let i;
@@ -113284,12 +113322,12 @@ async function y3e(e) {
 			continue;
 		}
 		if (!e.active() || (r = 0, e.render(i), e.once) || i.status !== "running" && !n(i)) return;
-		await t(v3e);
+		await t(y3e);
 	}
 }
-function b3e(e) {
+function x3e(e) {
 	let t = e.storageKey || "peach-follow-job", n = sessionStorage.getItem(t) || void 0, r = !1, i = !1, a = e.taskKey || "follow-check", o = () => !r && e.active(), s = () => {
-		!i && o() && (i = !0, y3e({
+		!i && o() && (i = !0, b3e({
 			read: e.read,
 			active: o,
 			render: d,
@@ -113381,7 +113419,7 @@ var $ = {
 	FOLLOW_MANAGE_TABS: void 0,
 	followSidebarFilters: void 0
 };
-function x3e(e) {
+function S3e(e) {
 	let t = (e.results || []).filter((e) => !e.ok).length;
 	B5.toast({ text: ks(e) }, {
 		warn: !!t,
@@ -113396,7 +113434,7 @@ function x3e(e) {
 function O9() {
 	return gc(k9());
 }
-function S3e() {
+function C3e() {
 	return $.controller.read();
 }
 function k9() {
@@ -113417,17 +113455,17 @@ function k9() {
 function A9(e) {
 	$.followFilter = e.status, $.followMediaView = e.media, $.followAuthors = new Set(e.author ? [e.author] : []), $.followProviders = new Set(e.provider ? [e.provider] : []), $.followWorks = new Set(e.work ? [e.work] : []), $.followTags = new Set(e.tags), $.followDurMin = e.durMin || 0, $.followDurMax = e.durMax || 0, $.followSort = e.sort, $.followDir = e.dir, $.followSeed = e.seed;
 }
-function C3e() {
+function w3e() {
 	let e = ug(B("#stats"));
 	return e && e.path === "/follow" && e.host.isConnected ? e : null;
 }
 function j9() {
-	return !!C3e();
+	return !!w3e();
 }
 function M9(e) {
 	j9() && hg(B("#stats"), e);
 }
-function w3e(e, t = {}) {
+function T3e(e, t = {}) {
 	return $.controller.route(e, t);
 }
 function N9(e = !1) {
@@ -113448,19 +113486,19 @@ async function P9(e, t = !0, n = null, r = !1) {
 		relatedLimit: Z.appSettings.relatedLimit > 0 ? +Z.appSettings.relatedLimit : 0,
 		helpers: $.followFeedHelpers,
 		actions: $.followDetailActions,
-		resume: t ? null : r3e()
+		resume: t ? null : i3e()
 	}), K7();
 }
-async function T3e() {
-	await i3e(), v9(!1, !1, { miniplayer: !1 }), Wh(), Q.route(cp || "/follow"), s7.entityPageView && s7.entityPageCurrent() && !B("#index").hidden || (location.pathname === "/follow" && j9() ? (S3e(), M9({ view: k9() })) : xp({ pageOpens: fp + 1 }));
+async function E3e() {
+	await a3e(), v9(!1, !1, { miniplayer: !1 }), Wh(), Q.route(cp || "/follow"), s7.entityPageView && s7.entityPageCurrent() && !B("#index").hidden || (location.pathname === "/follow" && j9() ? (C3e(), M9({ view: k9() })) : xp({ pageOpens: fp + 1 }));
 }
-function E3e(e) {
+function D3e(e) {
 	let t = document.createElement("div");
 	return t.className = "peach-react", Gu(e, () => {
 		e.textContent = "", e.append(t);
 	}), t;
 }
-function D3e() {
+function O3e() {
 	$.followFeedHelpers = Rf({
 		wireDrag: (e) => {
 			e && g9(e);
@@ -113469,12 +113507,12 @@ function D3e() {
 			e && _d(e);
 		},
 		listSkeletonHtml: (e) => $.followContentSkeletonHtml(e),
-		jobProgress: b3e
+		jobProgress: x3e
 	}), $.followFeedActions = {
-		loaded: (e) => z2e(e),
+		loaded: (e) => B2e(e),
 		openDetail: (e) => P9(e),
 		openAuthor: (e) => Q.navigatePath(ra("creator", e)),
-		toggleSelection: (e, t) => U0e(e, t),
+		toggleSelection: (e, t) => W0e(e, t),
 		setImagesOnly: (e) => {
 			Z.appSettings.followImagesOnly = !!e, Z.saveSettings(), m7();
 		},
@@ -113484,7 +113522,7 @@ function D3e() {
 		canFlip: () => !Zf && !h9() && !window.__scrolling && !X.reduceMotion(),
 		toast: (e, { undo: t } = {}) => B5.actionReceipt(e, { undo: t }),
 		failure: (e, t) => B5.actionFailure(e, t),
-		checkReport: (e) => x3e(e)
+		checkReport: (e) => S3e(e)
 	}, $.followFeedShell = {
 		skeleton: () => $.followSkeletonHtml(L("shell:skeleton.loadingFollowing")),
 		ground: () => {
@@ -113494,9 +113532,9 @@ function D3e() {
 		view: k9,
 		adoptView: A9,
 		rememberReturn: (e) => xp({ followDetailReturnPath: e }),
-		close: () => void T3e(),
+		close: () => void E3e(),
 		open: (e, t, n) => void P9(e, !0, t, n),
-		drawer: z2e,
+		drawer: B2e,
 		openAuthor: (e) => Q.navigatePath(ra("creator", e)),
 		presented: (e) => {
 			bee(e.id, e.title, e.author), x7.syncPageTitle(location.href);
@@ -113507,7 +113545,7 @@ function D3e() {
 		canFlip: $.followFeedActions.canFlip
 	});
 }
-function O3e() {
+function k3e() {
 	$.controller = yc({
 		location: () => location,
 		view: k9,
@@ -113551,8 +113589,8 @@ function O3e() {
 	}, $.followFeedHelpers, $.followFeedActions), $.followFeedActions = $.controller.actions, $.followFeedProps = $.controller.props, $.followFeedShell.refresh = $.controller.refresh, $.followFeedShell.props = $.controller.props;
 }
 // src/application/lifecycle.js
-function k3e() {
-	KRe(), Bd(document), El(document.documentElement, { variant: "page" }), El(B("#drawerScroll")), G5.own(Ld()), jc(document.body), X.homeHasFeed = D0e(), X.barsRequestSeq = 0, X.barsPendingSeq = 0, X.barsRendered = "", X.catalogFilterProps = null, X.catalogFilterMounting = null, X.catalogTagRows = [], X.catalogTopsPages = null, T7.sidebarProps = {
+function A3e() {
+	KRe(), Bd(document), El(document.documentElement, { variant: "page" }), El(B("#drawerScroll")), G5.own(Ld()), jc(document.body), X.homeHasFeed = O0e(), X.barsRequestSeq = 0, X.barsPendingSeq = 0, X.barsRendered = "", X.catalogFilterProps = null, X.catalogFilterMounting = null, X.catalogTagRows = [], X.catalogTopsPages = null, T7.sidebarProps = {
 		content: null,
 		filters: {},
 		latest: null
@@ -113563,10 +113601,10 @@ function k3e() {
 	], $.FOLLOW_RANDOM_SORT = "rand", $.followSort = "new", $.followDir = "desc", $.followSeed = 0, $.followDurMin = 0, $.followDurMax = 0;
 }
 // src/application/tutorial.js
-async function A3e() {
+async function j3e() {
 	PJ({ reopen: !0 });
 }
-function j3e() {
+function M3e() {
 	let e = new URL(location.href), t = e.searchParams.get("onboarding") === "1";
 	xp({ cameFromSetup: t }), G5.handler(document.getElementById("tutorialBtn"), "onclick", () => PJ()), PJ({ invitation: !0 }), t && e.searchParams.delete("onboarding");
 	let n = e.searchParams.get("agentation");
@@ -113579,7 +113617,7 @@ function j3e() {
 	}), n === "on" && import("/dev/agentation.js").catch(() => {});
 }
 // src/player/hold-speed.ts
-function M3e(e) {
+function N3e(e) {
 	let t = new AbortController(), n = null, r = (e) => e.composedPath().some((e) => e instanceof HTMLElement && (e.isContentEditable || e.matches("input,textarea,select,[role=\"textbox\"],[role=\"menu\"],.vjs-peach-settings-menu,media-volume-slider") || e.getAttribute("role") === "slider" && !e.closest("media-time-slider"))), i = (e) => {
 		e.preventDefault(), e.stopImmediatePropagation();
 	}, a = () => {
@@ -113651,7 +113689,7 @@ function M3e(e) {
 	};
 }
 // src/react/search/recommendations.ts
-var N3e = [
+var P3e = [
 	{
 		kind: "performer",
 		label: L("catalog:searchSuggest.performersReleases"),
@@ -113702,18 +113740,18 @@ var N3e = [
 		size: 5
 	}
 ];
-function P3e() {
-	return N3e.map((e) => ({
+function F3e() {
+	return P3e.map((e) => ({
 		...e,
 		items: [],
 		pending: !0
 	}));
 }
-var F3e = (e) => e.startsWith(String((/* @__PURE__ */ new Date()).getFullYear())) ? e.slice(5, 10) : e.slice(0, 10), I3e = (e, t = e.length) => t > 1 ? L("catalog:searchSuggest.byline", {
+var I3e = (e) => e.startsWith(String((/* @__PURE__ */ new Date()).getFullYear())) ? e.slice(5, 10) : e.slice(0, 10), L3e = (e, t = e.length) => t > 1 ? L("catalog:searchSuggest.byline", {
 	name: e[0],
 	count: t
 }) : e[0] || "";
-async function L3e(e) {
+async function R3e(e) {
 	let t = await e("/api/search/recommendations"), n = (e, t, n, r = "") => ({
 		value: String(e.code || e.display_title || e.title || e.name || L("catalog:catalogList.untitled")),
 		id: e.id,
@@ -113727,10 +113765,10 @@ async function L3e(e) {
 		let { kind: t, name: r, coStarred: i, refs: a, total: o } = vl(e);
 		if (!t) return n(e, void 0, "");
 		let s = t === "performer" ? a[0] : e.creator_entity, c = qr(t, r, s?.id);
-		return n(e, void 0, i ? I3e([c], o) : c, ol(r, s ?? null, t));
+		return n(e, void 0, i ? L3e([c], o) : c, ol(r, s ?? null, t));
 	}, i = (e, t) => {
 		let r = e.performer_refs || [], i = r.length ? r.map((e) => e.name) : String(e.performers || "").split(/[,，、;/]/).map((e) => e.trim()).filter(Boolean), a = i[0] ? ol(i[0], r[0] ?? null, "performer") : "";
-		return n(e, t, I3e(i), a);
+		return n(e, t, L3e(i), a);
 	}, a = {};
 	a.asset = t.items ? (t.items.items || []).map(r) : null;
 	let o = t.jav ? t.jav.items || [] : null;
@@ -113750,7 +113788,7 @@ async function L3e(e) {
 			works: [e],
 			subtitle: r ? L("catalog:searchSuggest.latestRelease", {
 				code: r.code || L("catalog:searchSuggest.noCode"),
-				date: F3e(r.release_date)
+				date: I3e(r.release_date)
 			}) : L("catalog:searchSuggest.latestNotFound")
 		});
 	}
@@ -113793,7 +113831,7 @@ async function L3e(e) {
 		avatarHtml: W5(e),
 		subtitle: e.latest ? L("catalog:searchSuggest.lastUpdated", { time: oQ({ published_at: e.latest }) }) : L("catalog:searchSuggest.updateTimeNotFound")
 	})) : null, {
-		groups: N3e.map((e) => {
+		groups: P3e.map((e) => {
 			let t = a[e.kind] ?? [];
 			return {
 				...e,
@@ -113806,7 +113844,7 @@ async function L3e(e) {
 	};
 }
 // src/application/search-morph.js
-function R3e(e, t, n, r, i, a, o) {
+function z3e(e, t, n, r, i, a, o) {
 	let s = a.startsWith("linear(") ? a.slice(7, -1).split(",").map(Number) : [0, 1];
 	return s.map((a, c) => {
 		let l = c / (s.length - 1), u = (e, t) => e + (t - e) * a, d = Math.max(8, Math.min(o - 44, u(e.left, t.left))), f = Math.max(36, Math.min(o - 8 - d, u(e.width, t.width))), p = u(e.height, t.height) + Math.sin(Math.PI * l) * t.height * .12, m = u(e.top + e.height / 2, t.top + t.height / 2);
@@ -113831,7 +113869,7 @@ var F9 = {
 function I9() {
 	F9.searchControl?.close();
 }
-function z3e(e) {
+function B3e(e) {
 	let t = e ? Hc({
 		...e,
 		is_jav: !!e.code
@@ -113850,7 +113888,7 @@ function R9(e) {
 	if (t.classList.toggle("open", e), B("#searchBtn").setAttribute("aria-expanded", String(e)), innerWidth > 760 || matchMedia("(prefers-reduced-motion:reduce)").matches) return;
 	let s = t.getBoundingClientRect(), c = getComputedStyle(t), l = parseFloat(c.paddingLeft), u = t.querySelector("svg").getBoundingClientRect().width, d = Math.max(0, (o.width - u) / 2 - parseFloat(c.borderLeftWidth)), f = r ? i : e ? o : s, p = e ? s : o, m = Ad();
 	t.classList.add("search-morphing");
-	let h = t.animate(R3e(f, p, s, r ? a : e ? d : l, e ? l : d, m.easing, innerWidth), {
+	let h = t.animate(z3e(f, p, s, r ? a : e ? d : l, e ? l : d, m.easing, innerWidth), {
 		duration: m.duration,
 		easing: "linear",
 		fill: "both"
@@ -113859,13 +113897,13 @@ function R9(e) {
 		F9.searchMorph === h && L9();
 	});
 }
-function B3e() {
+function V3e() {
 	return _9.immerseOpen() ? O5().activeVideo() : T5()?.activeVideo() || null;
 }
-function V3e(e) {
+function H3e(e) {
 	return !!e && (e.tagName === "INPUT" || e.tagName === "TEXTAREA" || e.isContentEditable);
 }
-function H3e() {
+function U3e() {
 	F9.searchControl = null, F9.searchActions = {
 		search: (e) => {
 			X.rememberSearchValue(), v9(!1), K.q = e, Sp(), Q.route(K.jav === "1" ? q7() : K.q ? "/?q=" + encodeURIComponent(K.q) : "/", !0);
@@ -113878,10 +113916,10 @@ function H3e() {
 		}
 	}, F9.searchHelpers = {
 		pool: () => Hje(K, Ji),
-		recommendations: () => L3e(Ji),
-		pendingRecommendations: P3e,
+		recommendations: () => R3e(Ji),
+		pendingRecommendations: F3e,
 		rollPlaceholder: (e, t) => zu(e, t),
-		coverHtml: (e) => `<span class="pic">${e?.thumb_url ? `<img src="${H(e.thumb_url)}" width="640" height="360" alt="" loading="lazy" referrerpolicy="no-referrer" data-drop="self">` : e?.sourceWork ? S0e(e) : z3e(e)}</span>`,
+		coverHtml: (e) => `<span class="pic">${e?.thumb_url ? `<img src="${H(e.thumb_url)}" width="640" height="360" alt="" loading="lazy" referrerpolicy="no-referrer" data-drop="self">` : e?.sourceWork ? C0e(e) : B3e(e)}</span>`,
 		present: (e) => Xl(e),
 		dismiss: (e) => Zl(e),
 		wireScroller: (e) => _d(e),
@@ -113916,9 +113954,9 @@ function H3e() {
 		e.currentTarget.value && X.rememberSearchValue(e.currentTarget);
 	});
 }
-function U3e() {
-	G5.own(M3e({
-		activeVideo: () => !G5.isActive || j5()?.isOpen() || document.querySelector("#stage[open] [data-media-carousel]:not([data-carousel-video-active])") ? null : B3e(),
+function W3e() {
+	G5.own(N3e({
+		activeVideo: () => !G5.isActive || j5()?.isOpen() || document.querySelector("#stage[open] [data-media-carousel]:not([data-carousel-video-active])") ? null : V3e(),
 		seek: (e) => BL(e, Z.appSettings.seekSeconds)
 	})), F9.searchMorph = null, F9.searchMorphViewport = innerWidth, G5.listen.bind(G5, window)("resize", () => {
 		innerWidth !== F9.searchMorphViewport && (F9.searchMorphViewport = innerWidth, L9());
@@ -113964,9 +114002,9 @@ function U3e() {
 			}
 			return;
 		}
-		if (V3e(e.target)) return;
-		if (!e.defaultPrevented && HGe(e, X4e())) {
-			e.preventDefault(), Y4e(!h9());
+		if (H3e(e.target)) return;
+		if (!e.defaultPrevented && HGe(e, Z4e())) {
+			e.preventDefault(), X4e(!h9());
 			return;
 		}
 		if (e.defaultPrevented || e.target.closest?.("select,[role=\"menu\"],.vjs-peach-settings-menu,media-volume-slider") || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -113977,7 +114015,7 @@ function U3e() {
 				return;
 			}
 		}
-		let t = B3e();
+		let t = V3e();
 		if (t) {
 			if (e.key === "t" || e.key === "T") {
 				e.preventDefault(), T5()?.toggleTheater();
@@ -114007,7 +114045,7 @@ function U3e() {
 	});
 }
 // src/history/links.ts
-function W3e(e) {
+function G3e(e) {
 	if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return null;
 	let t = e.target instanceof Element ? e.target.closest("a[href]") : null;
 	if (!t || t.hasAttribute("download") || t.target && t.target.toLowerCase() !== "_self") return null;
@@ -114030,23 +114068,23 @@ var z9 = {
 	shellActions: void 0,
 	routing: void 0
 };
-function G3e() {
+function K3e() {
 	let e = G5, t = (e) => {
-		e.kind === "item" ? b9(e.id, !1) : e.kind === "jav" ? f3e(e.code, !1) : e.kind === "follow" ? P9(e.id, !1) : y9(e.queue, e.key, e.item, !1);
+		e.kind === "item" ? b9(e.id, !1) : e.kind === "jav" ? p3e(e.code, !1) : e.kind === "follow" ? P9(e.id, !1) : y9(e.queue, e.key, e.item, !1);
 	};
-	if (w0e(), x7.entityShapesReady = J5(), N2e(), location.pathname === "/") {
+	if (T0e(), x7.entityShapesReady = J5(), P2e(), location.pathname === "/") {
 		let e = new URLSearchParams(location.search);
-		!e.has("state") && e.get("jav") !== "1" && (B("#catalogPageHeading").hidden = !1, J2e(B("#catalogPageHeading"), e.get("q")));
+		!e.has("state") && e.get("jav") !== "1" && (B("#catalogPageHeading").hidden = !1, Y2e(B("#catalogPageHeading"), e.get("q")));
 	}
-	X5(decodeURIComponent(location.pathname)) && Y5(B("#feedNew")), W2e(), z9.shellActions = {
+	X5(decodeURIComponent(location.pathname)) && Y5(B("#feedNew")), G2e(), z9.shellActions = {
 		openSettings: (e) => M7(e, !0),
 		closeSettings: () => j5()?.close(!1),
 		openItem: (e) => void b9(e),
 		openEntity: (e, t) => void g7(e, t),
 		openTag: (e) => {
-			R2e(), n9(e);
+			z2e(), n9(e);
 		},
-		openTasteSignal: p2e,
+		openTasteSignal: m2e,
 		navigate: (e) => {
 			let n = new URL(e, location.href), r = Rh(n.pathname, n.search);
 			if (r) {
@@ -114064,25 +114102,25 @@ function G3e() {
 		receipt: (e, t) => B5.actionReceipt(e, t),
 		toast: (e, t) => B5.toast(e, t),
 		failure: B5.actionFailure,
-		revealSource: t2e,
-		reopenTutorial: A3e,
-		routeReview: _2e,
-		routeFollowManage: C2e,
+		revealSource: n2e,
+		reopenTutorial: j3e,
+		routeReview: v2e,
+		routeFollowManage: w2e,
 		saveFollowPreference: (e) => {
 			e.pageSize !== void 0 && (Z.appSettings.followPageSize = e.pageSize), e.layout !== void 0 && (Z.appSettings.followLayout = e.layout), Z.saveSettings();
 		},
 		srcBadge: (e, t) => Z.srcBadge(e, t),
-		routeIndex: (e, { replace: t = !1 } = {}) => Q.route(E2e(e), t),
+		routeIndex: (e, { replace: t = !1 } = {}) => Q.route(D2e(e), t),
 		savePeopleLayout: ({ layout: e }) => {
 			Z.appSettings.peopleLayout = e, Z.saveSettings();
 		},
 		exitSelectMode: () => r7(!1, !1),
 		personAvatar: (e, t, n) => y7.personAvatar(e, t, n),
-		authorAvatar: (e) => T2e(e),
-		showIndexTags: D2e,
-		openFollowAuthor: O2e,
-		openFollowTag: k2e,
-		openPlaylist: (e, t) => void l3e(e, t, !0),
+		authorAvatar: (e) => E2e(e),
+		showIndexTags: O2e,
+		openFollowAuthor: k2e,
+		openFollowTag: A2e,
+		openPlaylist: (e, t) => void u3e(e, t, !0),
 		canFlip: () => !Zf && !h9() && !window.__scrolling && !X.reduceMotion(),
 		surfaceChanged: (e, t) => {
 			e === "entity" ? (Mf(), xp({ barsContext: {
@@ -114116,7 +114154,7 @@ function G3e() {
 		},
 		entity: {
 			missing: (e) => {
-				z9.shellActions.surfaceChanged("entity", location.pathname), l2e(e);
+				z9.shellActions.surfaceChanged("entity", location.pathname), u2e(e);
 			},
 			loading: (e, t, n) => s7.application.loading(e, t, n),
 			props: (e, t, n) => (xp({ entityJavLayout: ["performer", "studio"].includes(e) && q5.hasEntityPart(e, t, "jav") }), s7.application.addressProps(e, t, n)),
@@ -114129,32 +114167,32 @@ function G3e() {
 		},
 		follow: $.followFeedShell,
 		catalog: {
-			defaultLoc: () => s4e("local,115"),
+			defaultLoc: () => c4e("local,115"),
 			open: (e, { entering: t = !1, retitle: n = !1 } = {}) => (n && (E9(), G7(), I7()), t && U5(), e === "/trash" ? X.clearSearchField() : (B("#q").value = K.q, X.rememberSearchValue()), C9(), t9(), Z.handOff(i9())),
 			load: () => Z.handOff(i9()),
 			fill: () => {
 				if (s9() || !Dg() && !B("#grid").querySelector(".catalog-skeleton")) return;
 				let e = B("#count");
-				e.removeAttribute("aria-busy"), e.removeAttribute("aria-label"), j4e(Q.surfaceToken(Q.surfacePath()));
+				e.removeAttribute("aria-busy"), e.removeAttribute("aria-label"), M4e(Q.surfaceToken(Q.surfacePath()));
 			},
 			release: () => {
 				a9(), Q5();
 			}
 		}
 	}, z9.routing = !1, e.listen(document, "click", (e) => {
-		let t = W3e(e);
+		let t = G3e(e);
 		t && (e.preventDefault(), z9.shellActions.navigate(t));
 	}), G5.own(Tg.listen((e) => {
 		Q.queueOpenRequest && e.seq !== Q.queueOpenRequest.seq && !zh(e.location.pathname) && v9(!1), z9.routing && !e.claimed && E9();
-	})), T1e(z9.shellActions).catch((e) => console.error("客户端导航装载失败", e)), q2e(), J0e(), P7(), Promise.all([p9(), G2e()]).then(() => {
-		e.isActive && (x7.wantsDiscoveryBars() && t9().catch((e) => console.error("首页横条装载失败", e)), C9(), $4e(), z9.routing = !0, xp({ pageOpens: 1 }), E9(), K7());
+	})), E1e(z9.shellActions).catch((e) => console.error("客户端导航装载失败", e)), J2e(), Y0e(), P7(), Promise.all([p9(), K2e()]).then(() => {
+		e.isActive && (x7.wantsDiscoveryBars() && t9().catch((e) => console.error("首页横条装载失败", e)), C9(), e3e(), z9.routing = !0, xp({ pageOpens: 1 }), E9(), K7());
 	}).catch((t) => {
 		e.isActive && console.error("应用启动失败", t);
 	});
 }
 // src/theme-transition.ts
 var B9 = !1;
-async function K3e(e, t) {
+async function q3e(e, t) {
 	if (B9) return;
 	if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
 		t();
@@ -114176,7 +114214,7 @@ async function K3e(e, t) {
 	}
 }
 // src/application/chrome.js
-function q3e() {
+function J3e() {
 	(() => {
 		let e = G5, t = [
 			"#brandHome",
@@ -114259,7 +114297,7 @@ function q3e() {
 			s.className = "mark", s.setAttribute("aria-hidden", "true"), s.innerHTML = o(n.find((e) => e[0] === i)?.[2] || "database"), c.querySelector(".mark").replaceWith(s), l.innerHTML = `<p>${L("shell:shared.library")}</p><div class="board-library-rows">${n.map(([e, t, n]) => `<button type="button" data-library="${H(e)}" aria-pressed="${e === i}"><span class="board-library-avatar">${o(n)}</span><span>${H(t)}</span></button>`).join("")}</div><footer><button type="button" class="geist-button primary" data-library-manage>${L("manage:syncMenu.manageLibraries")}</button></footer>`, l.querySelectorAll("[data-library]").forEach((t) => e.handler(t, "onclick", () => {
 				sessionStorage.setItem("peach.library", t.dataset.library), sessionStorage.setItem("peach.library-label", n.find((e) => e[0] === t.dataset.library)?.[1] || L("shell:libraryPicker.allLibraries")), location.assign("/");
 			})), e.handler(l.querySelector("[data-library-manage]"), "onclick", () => {
-				u.setOpen(!1), A7(!1), v2e("library");
+				u.setOpen(!1), A7(!1), y2e("library");
 			});
 			let d = l.querySelector(".board-library-rows"), f = [...d.querySelectorAll("[data-library]")], m = yF(), h = () => {
 				nW(f, ["", ...m.value.libraryOrder], (e) => e.dataset.library).forEach((e) => d.append(e)), p(!1);
@@ -114278,14 +114316,14 @@ function q3e() {
 		(document.querySelector(".top") || m.closest("header")).prepend(h), e.own(() => h.remove());
 		let g = document.createElement("div");
 		g.className = "board-sidebar-foot", e.own(() => g.remove()), g.innerHTML = `<div class="board-theme-toggle" role="group" aria-label="${L("shell:themeToggle.group")}"><span class="board-theme-thumb" aria-hidden="true"></span><button type="button" data-board-theme="light" aria-label="${L("shell:themeToggle.light")}">${V("sun")}</button><button type="button" data-board-theme="dark" aria-label="${L("shell:themeToggle.dark")}">${V("moon")}</button></div>`, g.insertAdjacentHTML("beforeend", `<div class="board-foot-actions"><button type="button" class="board-glow-toggle" id="boardGlowBtn" aria-label="${L("settings:sidebarGlow.palette")}" aria-haspopup="dialog" aria-expanded="false" aria-controls="boardGlowMenu"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ri-palette-line"/></svg><span class="board-glow-mark" aria-hidden="true"><span class="board-glow-mark-glow"></span><span class="board-glow-mark-accent"></span></span></button></div>`), g.querySelector(".board-foot-actions").append(document.querySelector("#settingsBtn")), document.querySelector("#drawer").append(g), g.querySelectorAll("[data-board-theme]").forEach((t) => e.handler(t, "onclick", () => {
-			t.getAttribute("aria-pressed") !== "true" && K3e(t, () => {
+			t.getAttribute("aria-pressed") !== "true" && q3e(t, () => {
 				Z.appSettings.theme = t.dataset.boardTheme, Z.saveSettings(), CF();
 			});
 		})), CF();
 		let _ = document.createElement("div");
 		_.className = "popmenu board-glow-menu", _.id = "boardGlowMenu", _.hidden = !0, _.setAttribute("popover", "manual"), _.setAttribute("role", "dialog"), _.setAttribute("aria-label", L("shell:glowPicker.title")), document.body.append(_), e.own(() => _.remove());
 		let v = g.querySelector("#boardGlowBtn"), y = eu(g, v, _);
-		e.own(y.dispose), e.own(x_e(v)), P1e({
+		e.own(y.dispose), e.own(x_e(v)), F1e({
 			root: _,
 			store: Z.settingsStore,
 			openDetails: () => {
@@ -114433,8 +114471,8 @@ function q3e() {
 	})(), A7(!k7() && sessionStorage.getItem("board.sidebar") !== "closed");
 }
 // src/navigation-progress.ts
-var J3e = 200, Y3e = 400, X3e = 240;
-function Z3e() {
+var Y3e = 200, X3e = 400, Z3e = 240;
+function Q3e() {
 	let e = document.createElement("div");
 	e.className = "navprogress", e.setAttribute("aria-hidden", "true"), e.append(document.createElement("i")), document.body.append(e);
 	let t = /* @__PURE__ */ new Set(), n = 0, r = 0, i = 0, a = !1, o = () => fee() || t.size > 0, s = () => {
@@ -114445,12 +114483,12 @@ function Z3e() {
 			}
 			n ||= window.setTimeout(() => {
 				n = 0, i = performance.now(), e.dataset.state = "running";
-			}, J3e);
+			}, Y3e);
 		} else clearTimeout(n), n = 0, e.dataset.state !== "running" || r || (r = window.setTimeout(() => {
 			e.dataset.state = "done", r = window.setTimeout(() => {
 				r = 0, delete e.dataset.state;
-			}, X3e);
-		}, Math.max(0, Y3e - (performance.now() - i))));
+			}, Z3e);
+		}, Math.max(0, X3e - (performance.now() - i))));
 	}, c = () => {
 		a || (a = !0, queueMicrotask(() => {
 			a = !1, s();
@@ -114467,15 +114505,15 @@ function Z3e() {
 	};
 }
 // src/application/initialize.js
-function Q3e() {
-	k3e(), g3e(), P2e(), _3e(), t3e(), I1e(), V4e(), j3e(), u2e(), p3e(), Y0e(), U4e(), I0e(), y2e(), D3e(), A2e(), d2e(), O3e(), j2e(), f2e(), a4e(), W4e(), H3e(), m3e(), U3e(), n3e(), G3e(), q3e(), G5.own(Z3e()), G5.own(a9), G5.own(w9);
+function $3e() {
+	A3e(), _3e(), F2e(), v3e(), n3e(), L1e(), H4e(), M3e(), d2e(), m3e(), X0e(), W4e(), L0e(), b2e(), O3e(), j2e(), f2e(), k3e(), M2e(), p2e(), o4e(), G4e(), U3e(), h3e(), W3e(), r3e(), K3e(), J3e(), G5.own(Q3e()), G5.own(a9), G5.own(w9);
 }
 // src/ui-kit/middle-truncate.ts
-var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(void 0, { granularity: "grapheme" }) : null, V9 = /* @__PURE__ */ new WeakMap(), H9 = /* @__PURE__ */ new Set(), U9 = 0, W9 = /* @__PURE__ */ new WeakSet(), G9 = null, K9 = null, q9 = (e) => e6e ? [...e6e.segment(String(e ?? ""))].map((e) => e.segment) : Array.from(String(e ?? "")), J9 = (e, t) => {
+var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(void 0, { granularity: "grapheme" }) : null, V9 = /* @__PURE__ */ new WeakMap(), H9 = /* @__PURE__ */ new Set(), U9 = 0, W9 = /* @__PURE__ */ new WeakSet(), G9 = null, K9 = null, q9 = (e) => t6e ? [...t6e.segment(String(e ?? ""))].map((e) => e.segment) : Array.from(String(e ?? "")), J9 = (e, t) => {
 	if (t >= e.length) return e.join("");
 	let n = Math.ceil(t / 2), r = Math.floor(t / 2);
-	return e.slice(0, n).join("") + $3e + (r ? e.slice(-r).join("") : "");
-}, t6e = (e, t) => {
+	return e.slice(0, n).join("") + e6e + (r ? e.slice(-r).join("") : "");
+}, n6e = (e, t) => {
 	if (!e.length || t(e.join(""))) return e.length;
 	let n = 0, r = e.length - 1, i = 0;
 	for (; n <= r;) {
@@ -114483,23 +114521,23 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		t(J9(e, a)) ? (i = a, n = a + 1) : r = a - 1;
 	}
 	return i;
-}, n6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}　-〿＀-￯]/u, r6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u, i6e = /[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Nd}]/u, a6e = /[＀-￯]/u, o6e = (e) => r6e.test(e) ? 1 : i6e.test(e) && !a6e.test(e) ? 2 : 0, s6e = (e) => {
+}, r6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}　-〿＀-￯]/u, i6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u, a6e = /[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Nd}]/u, o6e = /[＀-￯]/u, s6e = (e) => i6e.test(e) ? 1 : a6e.test(e) && !o6e.test(e) ? 2 : 0, c6e = (e) => {
 	let t = 0, n = 0;
 	for (let r of e) {
-		let e = o6e(r);
+		let e = s6e(r);
 		n && e && n !== e && t++, n = e;
 	}
 	return t;
-}, c6e = null, l6e = (e, t) => {
-	let n = getComputedStyle(e), r = (c6e ||= document.createElement("canvas")).getContext("2d");
+}, l6e = null, u6e = (e, t) => {
+	let n = getComputedStyle(e), r = (l6e ||= document.createElement("canvas")).getContext("2d");
 	if (!r) return () => Infinity;
 	r.font = n.font || `${n.fontStyle} ${n.fontWeight} ${n.fontSize} ${n.fontFamily}`;
 	let i = parseFloat(n.letterSpacing), a = parseFloat(n.wordSpacing), o = n.getPropertyValue("text-autospace"), s = t && o && o !== "no-autospace" ? (parseFloat(n.fontSize) || 0) / 8 : 0;
 	return (e) => {
 		let t = r.measureText(e).width;
-		return Number.isFinite(i) && (t += Math.max(0, q9(e).length - 1) * i), Number.isFinite(a) && (t += (e.match(/\s/g) || []).length * a), s && (t += s6e(e) * s), t;
+		return Number.isFinite(i) && (t += Math.max(0, q9(e).length - 1) * i), Number.isFinite(a) && (t += (e.match(/\s/g) || []).length * a), s && (t += c6e(e) * s), t;
 	};
-}, u6e = [
+}, d6e = [
 	"font-family",
 	"font-size",
 	"font-weight",
@@ -114524,7 +114562,7 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 	"text-autospace",
 	"text-spacing-trim",
 	"white-space-collapse"
-], Y9 = null, d6e = (e) => {
+], Y9 = null, f6e = (e) => {
 	if (!Y9) {
 		let e = document.createElement("div");
 		e.setAttribute("aria-hidden", "true"), e.dataset.middleTruncateProbe = "", e.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;contain:strict", Y9 = {
@@ -114533,10 +114571,10 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		};
 	}
 	Y9.box.isConnected || document.documentElement.append(Y9.box);
-	let t = getComputedStyle(e), n = u6e.map((e) => t.getPropertyValue(e)), r = e.closest("[lang]")?.getAttribute("lang") || "", i = n.join("\n") + "\n" + r, a = Y9.groups.get(i);
-	return a || (a = document.createElement("div"), n.forEach((e, t) => a.style.setProperty(u6e[t], e)), a.lang = r, Y9.box.append(a), Y9.groups.set(i, a)), a;
-}, f6e = 8, p6e = (e) => {
-	for (let t = 0; e.length && t < f6e; t++) {
+	let t = getComputedStyle(e), n = d6e.map((e) => t.getPropertyValue(e)), r = e.closest("[lang]")?.getAttribute("lang") || "", i = n.join("\n") + "\n" + r, a = Y9.groups.get(i);
+	return a || (a = document.createElement("div"), n.forEach((e, t) => a.style.setProperty(d6e[t], e)), a.lang = r, Y9.box.append(a), Y9.groups.set(i, a)), a;
+}, p6e = 8, m6e = (e) => {
+	for (let t = 0; e.length && t < p6e; t++) {
 		let t = e.map((e) => e.tries.map((t) => {
 			let n = document.createElement("span");
 			return n.style.cssText = "display:block;width:max-content;text-wrap-mode:nowrap", n.textContent = J9(e.fit.parts, t), e.group.append(n), n;
@@ -114554,28 +114592,28 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 			])].filter((t) => t > e.fits && t < e.fails), !0;
 		});
 	}
-}, m6e = (e) => {
+}, h6e = (e) => {
 	let t = [];
 	for (let n of e) {
-		let e = n.state.full, r = n6e.test(e), i = l6e(n.element, r);
-		if (n.kept = t6e(n.parts, (e) => i(e) <= n.available), !r) continue;
+		let e = n.state.full, r = r6e.test(e), i = u6e(n.element, r);
+		if (n.kept = n6e(n.parts, (e) => i(e) <= n.available), !r) continue;
 		let a = [n.kept, n.kept + 1].filter((e) => e > 0 && e <= n.parts.length);
 		t.push({
 			fit: n,
-			group: d6e(n.element),
+			group: f6e(n.element),
 			fits: 0,
 			fails: n.parts.length + 1,
 			tries: a
 		});
 	}
-	p6e(t);
-}, h6e = (e) => {
+	m6e(t);
+}, g6e = (e) => {
 	let t = getComputedStyle(e), n = parseFloat(t.width);
 	if (!Number.isFinite(n)) return e.clientWidth;
 	let r = t.boxSizing === "border-box" ? n - (parseFloat(t.borderLeftWidth) || 0) - (parseFloat(t.borderRightWidth) || 0) : n + (parseFloat(t.paddingLeft) || 0) + (parseFloat(t.paddingRight) || 0);
 	return Math.max(e.clientWidth, r + 1 / 64);
-}, g6e = (e) => {
-	if (e.dataset.middleTruncateWithin === void 0) return h6e(e);
+}, _6e = (e) => {
+	if (e.dataset.middleTruncateWithin === void 0) return g6e(e);
 	let t = e.parentElement;
 	if (!t) return e.clientWidth;
 	let n = getComputedStyle(t), r = parseFloat(n.columnGap) || 0, i = 0, a = 0;
@@ -114584,7 +114622,7 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		n === e ? a++ : t > 0 && (i += t, a++);
 	}
 	return t.getBoundingClientRect().width - (parseFloat(n.paddingLeft) || 0) - (parseFloat(n.paddingRight) || 0) - i - r * Math.max(0, a - 1);
-}, _6e = () => {
+}, v6e = () => {
 	U9 = 0;
 	let e = [];
 	for (let t of H9) {
@@ -114592,12 +114630,12 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		n && t.isConnected && e.push({
 			element: t,
 			state: n,
-			available: g6e(t),
+			available: _6e(t),
 			parts: q9(n.full),
 			kept: 0
 		});
 	}
-	H9.clear(), m6e(e.filter((e) => e.available > 0));
+	H9.clear(), h6e(e.filter((e) => e.available > 0));
 	for (let { element: t, state: n, available: r, parts: i, kept: a } of e) {
 		let e = r > 0 ? J9(i, a) : n.full;
 		n.rendered = e, t.textContent !== e && (t.textContent = e);
@@ -114605,18 +114643,18 @@ var $3e = "…", e6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		t.classList.toggle("middle-truncated", o), t.setAttribute("aria-label", n.full), t.hasAttribute("title") && t.dataset.middleTitle !== "true" || (t.title = n.full, t.dataset.middleTitle = "true");
 	}
 };
-function v6e(e, t) {
+function y6e(e, t) {
 	let n = q9(t), r = {
 		element: e,
 		state: {
 			full: t,
 			rendered: t
 		},
-		available: g6e(e),
+		available: _6e(e),
 		parts: n,
 		kept: 0
 	};
-	if (r.available <= 0 || (m6e([r]), r.kept >= n.length)) return null;
+	if (r.available <= 0 || (h6e([r]), r.kept >= n.length)) return null;
 	let i = Math.ceil(r.kept / 2), a = Math.floor(r.kept / 2);
 	return {
 		start: n.slice(0, i).join("").length,
@@ -114624,28 +114662,28 @@ function v6e(e, t) {
 	};
 }
 var X9 = (e) => {
-	V9.has(e) && (H9.add(e), U9 ||= requestAnimationFrame(_6e));
-}, y6e = (e) => {
+	V9.has(e) && (H9.add(e), U9 ||= requestAnimationFrame(v6e));
+}, b6e = (e) => {
 	e instanceof HTMLElement && (e.hasAttribute("data-middle-truncate-managed") || (V9.has(e) || V9.set(e, {
 		full: e.textContent || "",
 		rendered: e.textContent || ""
 	}), W9.has(e) || (W9.add(e), e.dataset.middleTruncateWithin !== void 0 && e.parentElement ? G9?.observe(e.parentElement) : G9?.observe(e)), X9(e)));
-}, b6e = (e) => {
+}, x6e = (e) => {
 	if (e.nodeType !== Node.ELEMENT_NODE) return;
 	let t = e;
-	t.matches("[data-middle-truncate]") && y6e(t), t.querySelectorAll("[data-middle-truncate]").forEach(y6e);
+	t.matches("[data-middle-truncate]") && b6e(t), t.querySelectorAll("[data-middle-truncate]").forEach(b6e);
 };
-function x6e(e = document) {
+function S6e(e = document) {
 	K9?.(), W9 = /* @__PURE__ */ new WeakSet();
 	let t = !0;
 	G9 = new ResizeObserver((e) => e.forEach((e) => {
 		t && (X9(e.target), e.target.querySelectorAll?.(":scope>[data-middle-truncate-within]").forEach(X9));
 	}));
 	let n = G9;
-	b6e(e.documentElement || e);
+	x6e(e.documentElement || e);
 	let r = new MutationObserver((e) => e.forEach((e) => {
 		if (!t) return;
-		e.addedNodes.forEach(b6e);
+		e.addedNodes.forEach(x6e);
 		let n = (e.target.nodeType === Node.TEXT_NODE ? e.target.parentElement : e.target)?.closest?.("[data-middle-truncate]");
 		if (!n) return;
 		let r = V9.get(n);
@@ -114671,7 +114709,7 @@ function x6e(e = document) {
 	return K9 = a, a;
 }
 // src/react/result-updates.tsx
-var S6e = [
+var C6e = [
 	"catalog-grid",
 	"catalog-folders",
 	"item",
@@ -114696,16 +114734,16 @@ var S6e = [
 	"follow",
 	"entity",
 	"index"
-], C6e = [
+], w6e = [
 	"feed-new",
 	"jav-discoveries",
 	"jav-releases",
 	"jav-detail",
 	"wants",
 	"index"
-], w6e = {
+], T6e = {
 	catalog: [
-		...S6e,
+		...C6e,
 		...Z9,
 		"review",
 		"taste"
@@ -114715,20 +114753,20 @@ var S6e = [
 		"stats",
 		"taste"
 	],
-	discoveries: C6e,
+	discoveries: w6e,
 	review: ["review"],
 	library_processing: ["library-processing"],
 	artwork: [
-		...S6e,
-		...Z9,
 		...C6e,
+		...Z9,
+		...w6e,
 		"avatar-choices"
 	]
 };
-function T6e() {
+function E6e() {
 	let e = /* @__PURE__ */ new Set(), t = null;
 	return (n, r) => {
-		for (let t of Object.keys(r)) if (r[t] !== n[t]) for (let n of w6e[t] || []) e.add(n);
+		for (let t of Object.keys(r)) if (r[t] !== n[t]) for (let n of T6e[t] || []) e.add(n);
 		return !t && e.size && (t = (async () => {
 			for (; e.size;) {
 				let t = new Set(e);
@@ -114741,11 +114779,11 @@ function T6e() {
 		})), t || Promise.resolve();
 	};
 }
-var E6e = (e) => e.replace(/[&<>"']/g, (e) => `&#${e.charCodeAt(0)};`), D6e = 3, O6e = (e) => {
-	let t = E6e(e.label || L("shell:ingestToast.fallbackName"));
+var D6e = (e) => e.replace(/[&<>"']/g, (e) => `&#${e.charCodeAt(0)};`), O6e = 3, k6e = (e) => {
+	let t = D6e(e.label || L("shell:ingestToast.fallbackName"));
 	return e.kind === "download" ? L("shell:ingestToast.downloadDone", { name: t }) : L("shell:ingestToast.newFile", { name: t });
 };
-function k6e(e, t, n, r = !0) {
+function A6e(e, t, n, r = !0) {
 	if (!t) return e;
 	let i = t.items.reduce((e, t) => Math.max(e, t.id), 0);
 	if (!e || e.epoch !== t.epoch) return {
@@ -114753,14 +114791,14 @@ function k6e(e, t, n, r = !0) {
 		last: i
 	};
 	let a = r ? t.items.filter((t) => t.id > e.last) : [];
-	if (a.length > D6e) JU(`ingest-${t.epoch}-${i}`, {
+	if (a.length > O6e) JU(`ingest-${t.epoch}-${i}`, {
 		html: L("shell:ingestToast.burst", { count: a.length }),
 		alert: !1,
 		timeout: 8e3,
 		action: null
 	});
 	else for (let e of a) JU(`ingest-${t.epoch}-${e.id}`, {
-		html: O6e(e),
+		html: k6e(e),
 		alert: !1,
 		timeout: 8e3,
 		action: {
@@ -114773,70 +114811,70 @@ function k6e(e, t, n, r = !0) {
 		last: Math.max(e.last, i)
 	};
 }
-var A6e = qa((e) => e?.busy ? NTe : PTe);
-function j6e({ openItem: e }) {
+var j6e = qa((e) => e?.busy ? NTe : PTe);
+function M6e({ openItem: e }) {
 	let t = br({
 		queryKey: JG,
 		queryFn: ({ signal: e }) => OTe(e),
-		refetchInterval: A6e
-	}), n = (0, R.useRef)(void 0), r = (0, R.useRef)(null), [i] = (0, R.useState)(T6e), a = t.data?.result_versions, o = t.data?.ingest_notices;
+		refetchInterval: j6e
+	}), n = (0, R.useRef)(void 0), r = (0, R.useRef)(null), [i] = (0, R.useState)(E6e), a = t.data?.result_versions, o = t.data?.ingest_notices;
 	return (0, R.useEffect)(() => {
 		a && (n.current && i(n.current, a), n.current = a);
 	}, [a, i]), (0, R.useEffect)(() => {
-		r.current = k6e(r.current, o, e, yF().value.ingestNotices !== !1);
+		r.current = A6e(r.current, o, e, yF().value.ingestNotices !== !1);
 	}, [o, e]), null;
 }
 // src/react/application.tsx
 var Q9 = null;
-function M6e(e) {
+function N6e(e) {
 	Q9 !== e || e.owners || (Q9 = null, e.effects.dispose());
 }
-function N6e() {
+function P6e() {
 	if (!Q9) {
-		let e = s0e();
+		let e = c0e();
 		Q9 = {
 			effects: e,
 			owners: 0
-		}, e.own(x6e(document)), e.own(() => {
+		}, e.own(S6e(document)), e.own(() => {
 			Mf(), G.cancelQueries();
-		}), e.own(E1e), e.own(_ee), e.own(Jl);
+		}), e.own(D1e), e.own(_ee), e.own(Jl);
 	}
 	return Q9.owners += 1, Q9.effects.resume(), Q9;
 }
-function P6e() {
+function F6e() {
 	let [e, t] = (0, R.useState)(null);
 	return (0, R.useLayoutEffect)(() => {
-		let e = Q9 === null, n = N6e(), r = w1e(t);
+		let e = Q9 === null, n = P6e(), r = T1e(t);
 		if (e) try {
-			Q3e();
+			$3e();
 		} catch (e) {
 			throw r(), n.effects.dispose(), Q9 = null, e;
 		}
 		return () => {
-			r(), --n.owners, n.owners || (n.effects.pause(), queueMicrotask(() => M6e(n)));
+			r(), --n.owners, n.owners || (n.effects.pause(), queueMicrotask(() => N6e(n)));
 		};
 	}, []), /* @__PURE__ */ (0, z.jsx)(tAe, {
 		actions: e,
 		processing: !0,
-		background: e ? /* @__PURE__ */ (0, z.jsx)(j6e, { openItem: e.openItem }) : null
+		background: e ? /* @__PURE__ */ (0, z.jsx)(M6e, { openItem: e.openItem }) : null
 	});
 }
 var $9 = /* @__PURE__ */ new WeakMap();
-function F6e(e) {
+function I6e(e) {
 	let t = $9.get(e);
 	if (t) return t;
 	let n = (0, wr.createRoot)(e, nAe);
 	$9.set(e, n);
 	let r = n.unmount.bind(n);
 	return n.unmount = () => {
-		$9.get(e) === n && ($9.delete(e), r(), Q9 && M6e(Q9));
-	}, (0, Cr.flushSync)(() => n.render(/* @__PURE__ */ (0, z.jsx)(VU, { children: /* @__PURE__ */ (0, z.jsx)(P6e, {}) }))), n;
+		$9.get(e) === n && ($9.delete(e), r(), Q9 && N6e(Q9));
+	}, (0, Cr.flushSync)(() => n.render(/* @__PURE__ */ (0, z.jsx)(VU, { children: /* @__PURE__ */ (0, z.jsx)(F6e, {}) }))), n;
 }
 // src/react/bootstrap.tsx
 Ft();
-var I6e = document.getElementById("appRoot");
-if (!I6e) throw Error(L("shell:errorReport.hostMissing"));
-F6e(I6e);
-export { CB as $2ec61d1d4f780267$export$a8a3e93435678ff9, GB as $3a442827418ebe87$export$eb2fcfdbd7ba97d4, pH as $542a13ca2fa5b484$export$5b6b19405a83ff9d, SA as $72abaeab4d80592f$export$78efe591171d7d45, cU as $76d00c5a4edb230a$export$76ccd210b9029917, aU as $76d00c5a4edb230a$export$816b5d811295e6bc, dU as $76d00c5a4edb230a$export$b59bdbef9ce70de2, pU as $76d00c5a4edb230a$export$f6f0c3fe4ec306ea, iU as $76d00c5a4edb230a$export$f850895b287ef28e, RSe as $b4f18e3395fe64d7$export$3d96ec278d3efce4, LSe as $b4f18e3395fe64d7$export$3e41faf802a29e71, PSe as $b4f18e3395fe64d7$export$b2539bed5023c21c, _U as $b4f18e3395fe64d7$export$e51a686c67fdaa2d, VSe as $bd263d78e9bf3c56$export$f5c9f3c2c4054eec, eA as $ea3928288112382f$export$439d29a4e110a164, DH as $f2ff30fde7b014be$export$3ddf2d174ce01153, IH as $fe21c36db05242bb$export$a98f0dcb43a68a25, LH as $fe21c36db05242bb$export$d7b12c4107be0d61, BW as $l, tF as ACCENTS, VWe as AMANE_BRIDGE_CHECK_URL, KWe as AMANE_BRIDGE_KEY, HWe as AMANE_BRIDGE_REBUILD_URL, Wq as ActivityMotion, Gq as ActivityStatus, Aa as ApiError, mX as ArtSlot, YJe as BATCH_DELETE_TEXT, RW as BC, Y as Button, lP as ButtonLink, tG as Bx, GWe as CHECK_ALL_KEY, s3 as CLEANUP_ENTRY, o3 as CLEANUP_ENTRY_GRID, Jh as CLEANUP_HASH_REDIRECTS, Xh as CLEANUP_TOOLS, si as CLOUD_LOCATIONS, dqe as CLOUD_PROXY_HELP, Do as COLUMN_SORT, _Ge as CONFIGURATION_KEY, Sh as CONFIGURATION_SECTIONS, cIe as CONFIGURATION_URL, qWe as COOKIE_TEXT_LIMIT, WWe as COVER_JOB_KEY, Sf as COVER_STATE_TITLE, Is as CREDENTIAL_STATE, NWe as CUSTOM_SOURCES_KEY, MWe as CUSTOM_SOURCES_URL, XQ as CardTags, VQ as CatalogColumnFilterChips, HZ as CatalogViewToggle, pq as Checkbox, fq as CheckboxGlyph, DU as ChevronSortDown, iY as Chip, TX as CloudDownloadDialog, Zq as CollapseChevron, Xq as CollapseRegion, W0 as ColumnFilterAvatar, HQ as ColumnFilterChips, qwe as CommandSteps, KBe as CoverQueue, NW as Ct, hFe as DEFAULT_CATEGORY, Fa as DEFAULT_SORT, lHe as DIAGNOSTICS_KEY, OIe as DIRECTORY_TEMPLATE_ERROR, fke as DISCOVERY_METADATA_KEY, kY as DISCOVERY_SORTS, gX as DOWNLOADS_KEY, hX as DOWNLOADS_URL, i2 as DUPLICATES_KEY, pX as DataTableFooter, j0 as DataTableFrame, fX as DataTableSort, xG as Disclosure, VOe as DownloadsPanel, $Ce as E3, HG as EDITION_TONE, gFe as ENTITY_REVIEW_KINDS, lqe as ENTRY_LINKS_HELP, G3 as ENTRY_LINKS_HINT, KW as Ea, fEe as EmptyFocusButton, qK as EmptyState, vG as ErrorText, kwe as Eu, bG as ExternalLink, Co as FEEDS_KEY, i3 as FIELDSET_FOOT, u$e as FLOW_LABEL_X, l$e as FLOW_VIEWBOX, xo as FOLLOW_CHECK_KEY, YG as FOLLOW_CHECK_TASK, bo as FOLLOW_CREDENTIALS_KEY, n0e as FOLLOW_INITIAL_RANGE_OPTIONS, yo as FOLLOW_MANAGE_KEY, m4 as FOLLOW_MANAGE_NAV, So as FOLLOW_RESOLVE_KEY, Xwe as Fact, Ywe as FactList, yG as FieldLabel, iWe as Fieldset, rWe as FieldsetTitle, AK as FilterActionButton, OK as FilterGlassRows, DK as FilterIconButton, kK as FilterPill, Gwe as Footer, ZW as Gg, EW as H7, oG as HN, _G as Help, IK as HintText, iFe as IDLE_REPAIR, qQ as Icon, EK as IconButton, TQ as IndexSearch, VK as Input, BK as InputBase, oWe as IssueRow, tTe as ItemLibrary, TF as JAV_LAYOUTS, zY as JAV_RECOMMENDATION_GRID, $1e as JAV_SELECTION_EVENT, gLe as JUNK_KEY, eG as JZ, rZ as JavHeader, QPe as KEEP_LABELS, JPe as KEPT_DUPLICATES_KEY, HCe as L1, To as LAYOUTS, WZ as LEGACY_AVATAR_IMG, cqe as LIBRARY_FOLDER_HELP, gq as LIBRARY_PROCESSING_KEY, YFe as LINKS_KEY, XFe as LINK_CHECK_KEY, QFe as LINK_KINDS, ZFe as LINK_PRUNE_KEY, Ta as LOC, FK as Label, jG as LibraryLabel, vWe as LibraryProcessingCard, oq as LibraryShortcuts, gG as LinkButton, $0 as ListLibrary, lwe as Lo, AW as M6, ube as MEDIA_PROCESSING_KEY, Kz as MEDIA_PROCESSING_URL, l2 as MEDIA_REPAIR_KEY, c2 as MEDIA_REPAIR_URL, Qa as MEDIA_SOURCES_KEY, nu as MEDIA_SOURCE_ICONS, ai as MEDIA_SOURCE_OPTIONS, wU as MENU_ITEM, TU as MENU_ITEM_INTERACTIVE, SU as MENU_POPOVER_SURFACE, dwe as Ma, wG as MarkImage, XU as MenuDialog, _$ as MixCard, HK as ModalFrame, mC as MotionConfigContext, uG as NR, aWe as NameLink, FG as NavigationOrderRows, WK as Note, dG as OA, E2 as ORGANIZE_KEY, KJe as ORGANIZE_PARAMETER_HINT, GJe as ORGANIZE_SCOPE_HINT, WJe as ORGANIZE_TEXT, FIe as ORPHAN_RECORDS_KEY, JJe as ORPHAN_RECORDS_TEXT, YW as OV, KK as ObjectOrderDialog, DW as P7, lLe as PERFORMER_DELETE_KEY, ZOe as PHASES, lIe as PICK_FOLDER_URL, UUe as PLAIN_STAT_STRIP, d3 as PLAYLISTS_KEY, aqe as POLICY_COLUMNS, sqe as POLICY_COVER_NOTE, oqe as POLICY_MATRIX, iqe as POLICY_SUMMARY, lWe as PathLine, cG as Pf, tB as PillTabList, WUe as PlainStat, Rq as ProcessingMode, qq as Progress, h2 as QUALITY_GOALS_KEY, _Ue as QueueFilterChips, yUe as QueueIdentity, bUe as QueuePicture, vUe as QueueTable, sG as RB, IIe as RECORD_LABELS, IY as RELEASE_COLUMN_VISIBILITY_KEY, FY as RELEASE_COLUMN_WIDTHS_KEY, oY as RELEASE_NOTICE_EVENT, YX as RELEASE_PAGE_SIZES, AY as RELEASE_SORTS, gOe as RELEASE_SORT_COLUMNS, iHe as REPAIRS_KEY, qUe as REPAIR_CARD_TEXT, Dh as REPAIR_CENTER_PATH, u2 as REPAIR_LIBRARIES_KEY, qIe as RESOURCE_APPLY_KEY, KIe as RESOURCE_SCAN_KEY, qJe as RESOURCE_SYNC_TEXT, eWe as RESULT_PANEL, tWe as RESULT_SECTION, mFe as REVIEW_CATEGORIES, mLe as REVIEW_COUNTS_KEY, vFe as REVIEW_DECISION_LABELS, v2 as REVIEW_KEY, y2 as REVIEW_LABELS, x2 as REVIEW_QUEUES, _Fe as REVIEW_QUEUE_LABELS, rK as RUNNING_POLL_MS, xQ as RetryNote, Fwe as Rf, fG as Rk, Hwe as Rows, Yz as SCHEDULES, RWe as SCRAPING_CHECK_ALL_URL, LWe as SCRAPING_CHECK_URL, zWe as SCRAPING_COVER_URL, UWe as SCRAPING_KEY, IWe as SCRAPING_SETTINGS_URL, gJ as SEGMENT, hJ as SEGMENTED_TRACK, Hz as SETTINGS_KEY, Rz as SETTINGS_URL, Ia as SORT_DEFAULT_DIR, Pa as SORT_OPTIONS, ci as SOURCE_LABELS, WZe as STATS_KEY, BUe as STAT_STRIP, VUe as STAT_STRIP_SIX, kG as ScrapeSourceLabel, Vwe as Section, nWe as SectionHeading, Wwe as SectionSkeleton, mJ as SegmentedRadioGroup, cDe as SegmentedTabList, pQ as Segments, lX as Select, kU as Select$1, jK as SelectAllButton, x3 as SelectField, AU as SelectItem, K0 as SelectionActions, _P as SelectionDock, q0 as SelectionPopover, pG as SettingsCard, Bwe as SettingsRow, mG as SettingsSectionLabel, mQ as Shuffle, OG as SiteIcon, eTe as SiteLabel, TG as SiteMark, dX as SortDirectionIcon, UZ as SortKeys, LG as SortableBoardTabs, U0 as SourceAvatar, AG as SourceLabel, SG as SourceMark, Uwe as Stack, GUe as StatCard, aY as StatusLabel, Awe as Su, QYe as Switch, nK as TASKS_KEY, VQe as TASTE_REFRESH_KEY, $Qe as TASTE_REFRESH_TASK, HQe as TASTE_WINDOWS, Gz as THUMBNAIL_JOBS_KEY, vLe as TRASH_KEY, oK as TRIGGER_LABELS, A0 as Table, J0 as TableColumnControls, EQ as TableColumnFilter, BQ as TableColumnRange, Y0 as TableColumnResizer, Z0 as TableSelectionHeader, Jwe as TaskCenterLink, Jq as TaskProgress, RK as TextField, LK as TextFieldContext, qW as Un, Iwe as Uz, DX as WANTS_KEY, PXe as WantMagnets, oy as WithPromise, FW as Wt, GW as Xc, lG as Xf, zW as Xl, IW as Xt, LW as Yt, kW as _8, o as __commonJSMin, s as __exportAll, l as __toESM, iG as _p, Mwe as aB, Uq as activityKind, cs as addAlias, ss as addSource, kX as addWant, iw as animate, U as apiGet, W as apiSend, yF as appSettingsStore, aLe as applyConfirmText, sLe as applyLeftovers, iLe as applyPlanText, cLe as applyText, CF as applyTheme, dx as asNumber, RIe as attachOrphan, Wo as authorAvatar, Ko as authorGroups, Uo as authorInitial, Ho as authorName, Vo as authorPortrait, y1 as autoResetPageIndex, al as avatarInner, _W as b1, cQe as bandRows, kIe as baseName, rFe as batchOperate, Mve as beginPlayerGuidePreview, Ai as bodyFieldErrors, wP as boundedPreference, eFe as bulkCloudPreferences, uP as busyProps, jwe as cB, kXe as cachedMagnetStates, ey as calcGeneratorVelocity, EFe as canApprove, Ov as cancelFrame, UIe as candidateText, cX as cardClass, RF as cardRatio, EY as catalogListSkeletonCellHtml, BDe as checkClientUpdates, Ms as checkEvidenceGap, js as checkFailures, xs as checkFeeds, sIe as checkLine, ks as checkReceipt, As as checkSummary, $We as checkText, cHe as checkText$1, Ns as checkedText, P6 as cleanupToolSkeletonHtml, QQ as clickedBlank, j7 as closeDrawerAfterNav, LAe as cloudLocations, Dqe as cloudProxySkeleton, zT as clsx, mwe as cn, Ei as codedText, Hne as collectMotionValues, MX as columnRangeKinds, LX as columnValueSelected, z1 as columnVisibilityFeature, T0 as column_getCanSort, x0 as column_getSortFn, wFe as commonReviewSources, SX as composingKey, kh as configurationSection, KQe as configureTasteBrowser, $d as confirmModal, hke as controlDiscoveryMetadata, bke as controlReleaseMetadata, FTe as controlTask, t1 as copyInstancePropertiesWithoutMemos, dke as coverArrived, lke as coverFetching, wf as coverFetchingHtml, xf as coverReason, Cf as coverStateAction, Zc as coverUrl, A1 as createColumnHelper, TWe as createPlaylist, Ls as credentialDone, Cqe as credentialsSkeleton, BFe as currentReviewRow, J as cx, twe as d6, $W as dZ, IFe as decisionPayload, LFe as decisionReceipt, FFe as defaultChoice, fLe as deletePerformerVideos, DWe as deletePlaylist, Bqe as devicesSkeleton, x as diagnosticHeaders, rqe as diagnosticsSkeleton, xke as discoveryArtwork, qX as discoveryKey, sOe as discoveryScore, v9 as disposeStage, Ds as dropSources, Owe as du, tFe as duplicateVictims, UG as editionName, gK as elapsedText, Z4 as enterPageSelection, qr as entityDisplayName, il as entityFaceImg, ra as entityPath, Ur as entityWriting, Io as errorHeadline, ja as errorMessage, H as esc, Q4 as exitPageSelection, v1 as expandRowModel, gW as f1, cl as facePos, Fo as feedIntervalText, ZWe as fetchAmaneBridge, XWe as fetchCheckAllJob, es as fetchCheckJob, bGe as fetchConfiguration, YWe as fetchCoverJob, KX as fetchCoverNow, $o as fetchCredentials, PWe as fetchCustomSources, uLe as fetchDeletePerformers, dLe as fetchDeletePlan, uHe as fetchDiagnostics, JX as fetchDiscoveries, mke as fetchDiscoveryMetadata, o2 as fetchDuplicates, vs as fetchFeeds, Qo as fetchFollow, xLe as fetchJunkSummary, YPe as fetchKeptDuplicates, wq as fetchLibraryProcessing, tIe as fetchLinkCheck, rIe as fetchLinkPrune, eIe as fetchLinkStats, dbe as fetchMediaProcessing, d2 as fetchMediaRepair, $a as fetchMediaSources, xIe as fetchOrganize, bIe as fetchOrganizeExample, LIe as fetchOrphanRecords, OWe as fetchPlaylist, bWe as fetchPlaylists, g2 as fetchQualityGoals, yke as fetchReleaseColumn, nZ as fetchReleases, f2 as fetchRepairLibraries, oHe as fetchRepairs, ts as fetchResolveJob, XIe as fetchResourceApply, JIe as fetchResourceScan, RFe as fetchReview, bLe as fetchReviewCounts, qz as fetchSettings, JWe as fetchSources, GZe as fetchStats, ns as fetchSuggestions, aK as fetchTasks, qQe as fetchTaste, JQe as fetchTasteJob, mbe as fetchThumbnailJobs, SLe as fetchTrashSummary, OX as fetchWants, SFe as filterReviewRows, Ca as firstGrapheme, L$ as flexRender, m$e as flowGraph, h$e as flowLabel, qZe as fmtCount, _a as fmtDur, ya as fmtSize, jTe as foldByKind, qTe as foldRoutine, Cs as followFeedByName, ws as followFeedEntity, wo as followSuggestKey, ZTe as followupDetail, ATe as followupTally, Dv as frame, SW as g4, Nwe as gB, H1 as getDefaultPaginationState, LF as gridLayout, Go as groupByAuthor, KTe as groupFollowups, XPe as groupKey, xFe as groupReviewRows, eLe as hasChanges, QIe as hasResourceRoots, cK as hasResultProblems, t$e as historySpan, vW as i2, QQe as importTasteExport, wqe as indexersSkeleton, Ct as interfaceLanguage, Xv as interpolate, jX as invalidateWants, uK as isActive, Po as isBroken, Oo as isLayout, Tb as isMotionValue, b2 as isReviewCategory, JTe as isRoutine, Tqe as javBrowserSkeleton, VY as javContentSkeleton, AF as javLayout, BY as javTagSkeleton, Di as jobText, Dt as joinList, TLe as junkBreakdown, GPe as keepGroup, KPe as keepGroups, AWe as keepPlaylist, Cn as keepPreviousData, Yo as keepSelected, V8 as known, cwe as ks, VCe as l1, YCe as l7, oke as lastSearchNote, GTe as latestOfKind, Sa as leadingGraphemes, Vqe as ledgerBackupsSkeleton, lQe as lengthRows, qi as linkLabel, ro as localTime, aHe as localizeRepairs, gGe as localizedFact, tl as logoUrl, Ss as lookupFeedActor, TW as m7, QW as mM, Xi as mapLimit, gs as markAllPending, H8 as max, oQe as mediumRows, pke as metadataInterval, v6e as middleTruncateCut, fQe as min, GFe as mirrorText, sFe as missingToolText, s2 as mixedCloudPreferences, bK as momentText, aw as motion, vb as motionValue, Bn as notifyManager, jW as oe, MIe as organizeOutcome, Q2 as overlayHost, ko as pageSizeOf, Jo as pageWindow, xi as partsLabel, Es as patchSource, Tg as peachHistory, Tg as peachHistory$1, PFe as pendingGenres, YZe as percentText, wIe as pickOrganizeFolder, uIe as pickServerFolder, HUe as plainStatClass, jIe as planSummary, XZe as playedFor, eQe as playedItemUrl, MTe as pollInterval, Xa as pollUntil, Iu as popCount, wWe as posterUrl, RCe as previewLibraryColor, CIe as previewOrganize, lFe as previewUrl, UTe as problemDestination, yq as processingActive, mK as progressLabel, _K as progressText, DG as providerIcon, oIe as pruneText, O2 as purgeCount, zIe as purgeOrphan, nG as pv, aG as qE, G as queryClient, eX as queueContentSkeletonHtml, Ot as quoted, Swe as qx, yW as r2, c$e as radarRows, rQe as radialArc, iQe as radialBarSize, nQe as radialCeiling, tQe as radialSlices, uL as randomId, a$e as rankDetail, o$e as rankShares, QZe as reachedShare, BX as readColumnFilters, vK as readableErrorHeadline, cOe as recommendationScore, VFe as recordGenre, VIe as recordsText, jWe as recreatePlaylist, SWe as refreshPlaylists, vf as relayoutCovers, QX as releaseColumnSelection, gke as releaseColumnValues, LY as releaseColumns, vke as releaseDateQuery, XX as releaseFilters, $X as releaseKey, Os as reloadFollowManage, WFe as reloadReview, mqe as rememberShape, EIe as rememberTemplates, ls as removeAlias, bs as removeFeed, os as removeSource, ZQe as removeTasteSource, AX as removeWants, us as renameAliasGroup, EWe as renamePlaylist, kWe as reorderPlaylist, $qe as repairCenterPanelSkeleton, gn as replaceEqualDeep, dQe as replayRows, Kt as require_jsx_runtime, Lt as require_react, Bt as require_react_dom, Z$ as require_with_selector, nke as resetWants, Ra as resolveFollowSort, ry as resolveStartTime, CX as resourceSourceKey, MEe as restartEffectText, rke as restoreWants, CWe as resumeAssetId, bFe as reviewGroupingOptions, C2 as reviewQueueData, S2 as reviewQueueOf, wLe as reviewSummary, CFe as reviewWindow, MFe as rowEvidence, AFe as rowFieldName, Y1 as rowPaginationFeature, h0 as rowSelectionFeature, lje as rowSelectionOperation, O0 as rowSortingFeature, DFe as rowSubject, NFe as rowTags, jFe as rowTitle, pP as runBulkAction, hK as runError, wW as s7, ds as saveCredential, tLe as scanLine, ybe as schedulePollInterval, ake as searchNote, Eh as sectionTitle, _2 as selectRange, TFe as selectReviewRange, Xo as selectionState, uFe as selectionSummary, yi as serverLabel, Ti as serverLabelList, ji as serverText, ys as setFeedEnabled, _ke as setReleaseColumn, as as setSourceEnabled, ITe as setTaskSpeed, Nh as settingsPath, UFe as settleReviewRows, Eg as shellNavigate, F1e as showToast, JU as showToast$1, la as siteMarkUrl, Ku as skeletonHtml, l1 as skipFirstRun, sP as sortCx, jo as sortLabel, li as sourceDefaultCost, Fs as sourceIconUrl, oLe as sourceMeta, bu as spinnerHtml, Jv as spring, QU as spriteGlyph, bi as stageText, rs as startCheck, nIe as startLinkCheck, iIe as startLinkPrune, TIe as startOrganize, is as startResolve, ZIe as startResourceApply, YIe as startResourceScan, XQe as startTasteRefresh, zUe as statCardClass, zTe as statusLabel, oFe as statusLine, No as statusText, zF as storeJavLayout, zFe as submitDecision, SK as summaryItems, $Q as suppressShiftTextSelection, L as t, j1 as tableFeatures, u1 as tableMemo, qo as tableRows, HTe as taskIssues, dK as taskName, WTe as taskSubject, e$e as tasteDate, r$e as tasteDimensions, n$e as tasteHours, BQe as tasteKey, WQe as tasteRefetchInterval, GQe as tasteTime, VG as textLang, _we as th, PY as tierPlaceholdersHtml, z_ as time, awe as tl, RX as toggleColumnValue, Zo as toggleGroup, s$e as topScores, Kwe as translateWithNodes, hwe as um, _s as unmarkItems, uwe as uo, GK as useAction, bze as useBackgroundJob, pY as useCatalogView, tY as useClientUpdates, f_ as useConstant, e$ as useDense, CK as useEntityNames, $U as useHorizontalScroller, p_ as useIsomorphicLayoutEffect, wQ as useLibraryFilterOptions, hW as useLibraryTints, xr as useMutation, MG as useNavigationOrder, fWe as useOrderedLibraries, mq as useOverlayScrollbar, qHe as usePageSelection, br as useQuery, Jt as useQueryClient, EUe as useQueueSort, KC as useReducedMotion, n$ as useRowWorkContext, vbe as useRunSchedule, gbe as useSaveSchedule, Jz as useSaveSettings, bbe as useSaveThumbnailMode, k0 as useTable, gUe as useTableFilters, P0 as useTablePreferences, PK as useViewGlide, t$ as useWorkContextMenu, no as utcDate, nFe as victimBytes, owe as vl, ike as wantName, QOe as wantsInterval, $Ze as watchNote, ZZe as watchedShare, nwe as we, _d as wireHorizontalScroller, qa as withBackoff, DIe as withOrganizeJob, VX as writeColumnFilters, cke as writeJavQuery, ewe as z3 };
+var L6e = document.getElementById("appRoot");
+if (!L6e) throw Error(L("shell:errorReport.hostMissing"));
+I6e(L6e);
+export { CB as $2ec61d1d4f780267$export$a8a3e93435678ff9, GB as $3a442827418ebe87$export$eb2fcfdbd7ba97d4, pH as $542a13ca2fa5b484$export$5b6b19405a83ff9d, SA as $72abaeab4d80592f$export$78efe591171d7d45, cU as $76d00c5a4edb230a$export$76ccd210b9029917, aU as $76d00c5a4edb230a$export$816b5d811295e6bc, dU as $76d00c5a4edb230a$export$b59bdbef9ce70de2, pU as $76d00c5a4edb230a$export$f6f0c3fe4ec306ea, iU as $76d00c5a4edb230a$export$f850895b287ef28e, RSe as $b4f18e3395fe64d7$export$3d96ec278d3efce4, LSe as $b4f18e3395fe64d7$export$3e41faf802a29e71, PSe as $b4f18e3395fe64d7$export$b2539bed5023c21c, _U as $b4f18e3395fe64d7$export$e51a686c67fdaa2d, VSe as $bd263d78e9bf3c56$export$f5c9f3c2c4054eec, eA as $ea3928288112382f$export$439d29a4e110a164, DH as $f2ff30fde7b014be$export$3ddf2d174ce01153, IH as $fe21c36db05242bb$export$a98f0dcb43a68a25, LH as $fe21c36db05242bb$export$d7b12c4107be0d61, BW as $l, tF as ACCENTS, VWe as AMANE_BRIDGE_CHECK_URL, KWe as AMANE_BRIDGE_KEY, HWe as AMANE_BRIDGE_REBUILD_URL, Wq as ActivityMotion, Gq as ActivityStatus, Aa as ApiError, mX as ArtSlot, XJe as BATCH_DELETE_TEXT, RW as BC, Y as Button, lP as ButtonLink, tG as Bx, GWe as CHECK_ALL_KEY, s3 as CLEANUP_ENTRY, o3 as CLEANUP_ENTRY_GRID, Jh as CLEANUP_HASH_REDIRECTS, Xh as CLEANUP_TOOLS, si as CLOUD_LOCATIONS, fqe as CLOUD_PROXY_HELP, Do as COLUMN_SORT, _Ge as CONFIGURATION_KEY, Sh as CONFIGURATION_SECTIONS, cIe as CONFIGURATION_URL, qWe as COOKIE_TEXT_LIMIT, WWe as COVER_JOB_KEY, Sf as COVER_STATE_TITLE, Is as CREDENTIAL_STATE, NWe as CUSTOM_SOURCES_KEY, MWe as CUSTOM_SOURCES_URL, XQ as CardTags, VQ as CatalogColumnFilterChips, HZ as CatalogViewToggle, pq as Checkbox, fq as CheckboxGlyph, DU as ChevronSortDown, iY as Chip, TX as CloudDownloadDialog, Zq as CollapseChevron, Xq as CollapseRegion, W0 as ColumnFilterAvatar, HQ as ColumnFilterChips, qwe as CommandSteps, KBe as CoverQueue, NW as Ct, hFe as DEFAULT_CATEGORY, Fa as DEFAULT_SORT, lHe as DIAGNOSTICS_KEY, OIe as DIRECTORY_TEMPLATE_ERROR, fke as DISCOVERY_METADATA_KEY, kY as DISCOVERY_SORTS, gX as DOWNLOADS_KEY, hX as DOWNLOADS_URL, i2 as DUPLICATES_KEY, pX as DataTableFooter, j0 as DataTableFrame, fX as DataTableSort, xG as Disclosure, VOe as DownloadsPanel, $Ce as E3, HG as EDITION_TONE, gFe as ENTITY_REVIEW_KINDS, uqe as ENTRY_LINKS_HELP, G3 as ENTRY_LINKS_HINT, KW as Ea, fEe as EmptyFocusButton, qK as EmptyState, vG as ErrorText, kwe as Eu, bG as ExternalLink, Co as FEEDS_KEY, i3 as FIELDSET_FOOT, d$e as FLOW_LABEL_X, u$e as FLOW_VIEWBOX, xo as FOLLOW_CHECK_KEY, YG as FOLLOW_CHECK_TASK, bo as FOLLOW_CREDENTIALS_KEY, r0e as FOLLOW_INITIAL_RANGE_OPTIONS, yo as FOLLOW_MANAGE_KEY, m4 as FOLLOW_MANAGE_NAV, So as FOLLOW_RESOLVE_KEY, Xwe as Fact, Ywe as FactList, yG as FieldLabel, iWe as Fieldset, rWe as FieldsetTitle, AK as FilterActionButton, OK as FilterGlassRows, DK as FilterIconButton, kK as FilterPill, Gwe as Footer, ZW as Gg, EW as H7, oG as HN, _G as Help, IK as HintText, iFe as IDLE_REPAIR, qQ as Icon, EK as IconButton, TQ as IndexSearch, VK as Input, BK as InputBase, oWe as IssueRow, tTe as ItemLibrary, TF as JAV_LAYOUTS, zY as JAV_RECOMMENDATION_GRID, e0e as JAV_SELECTION_EVENT, gLe as JUNK_KEY, eG as JZ, rZ as JavHeader, QPe as KEEP_LABELS, JPe as KEPT_DUPLICATES_KEY, HCe as L1, To as LAYOUTS, WZ as LEGACY_AVATAR_IMG, lqe as LIBRARY_FOLDER_HELP, gq as LIBRARY_PROCESSING_KEY, YFe as LINKS_KEY, XFe as LINK_CHECK_KEY, QFe as LINK_KINDS, ZFe as LINK_PRUNE_KEY, Ta as LOC, FK as Label, jG as LibraryLabel, vWe as LibraryProcessingCard, oq as LibraryShortcuts, gG as LinkButton, $0 as ListLibrary, lwe as Lo, AW as M6, ube as MEDIA_PROCESSING_KEY, Kz as MEDIA_PROCESSING_URL, l2 as MEDIA_REPAIR_KEY, c2 as MEDIA_REPAIR_URL, Qa as MEDIA_SOURCES_KEY, nu as MEDIA_SOURCE_ICONS, ai as MEDIA_SOURCE_OPTIONS, wU as MENU_ITEM, TU as MENU_ITEM_INTERACTIVE, SU as MENU_POPOVER_SURFACE, dwe as Ma, wG as MarkImage, XU as MenuDialog, _$ as MixCard, HK as ModalFrame, mC as MotionConfigContext, uG as NR, aWe as NameLink, FG as NavigationOrderRows, WK as Note, dG as OA, E2 as ORGANIZE_KEY, qJe as ORGANIZE_PARAMETER_HINT, KJe as ORGANIZE_SCOPE_HINT, GJe as ORGANIZE_TEXT, FIe as ORPHAN_RECORDS_KEY, YJe as ORPHAN_RECORDS_TEXT, YW as OV, KK as ObjectOrderDialog, DW as P7, lLe as PERFORMER_DELETE_KEY, ZOe as PHASES, lIe as PICK_FOLDER_URL, UUe as PLAIN_STAT_STRIP, d3 as PLAYLISTS_KEY, oqe as POLICY_COLUMNS, cqe as POLICY_COVER_NOTE, sqe as POLICY_MATRIX, aqe as POLICY_SUMMARY, lWe as PathLine, cG as Pf, tB as PillTabList, WUe as PlainStat, Rq as ProcessingMode, qq as Progress, h2 as QUALITY_GOALS_KEY, _Ue as QueueFilterChips, yUe as QueueIdentity, bUe as QueuePicture, vUe as QueueTable, sG as RB, IIe as RECORD_LABELS, IY as RELEASE_COLUMN_VISIBILITY_KEY, FY as RELEASE_COLUMN_WIDTHS_KEY, oY as RELEASE_NOTICE_EVENT, YX as RELEASE_PAGE_SIZES, AY as RELEASE_SORTS, gOe as RELEASE_SORT_COLUMNS, iHe as REPAIRS_KEY, qUe as REPAIR_CARD_TEXT, Dh as REPAIR_CENTER_PATH, u2 as REPAIR_LIBRARIES_KEY, qIe as RESOURCE_APPLY_KEY, KIe as RESOURCE_SCAN_KEY, JJe as RESOURCE_SYNC_TEXT, eWe as RESULT_PANEL, tWe as RESULT_SECTION, mFe as REVIEW_CATEGORIES, mLe as REVIEW_COUNTS_KEY, vFe as REVIEW_DECISION_LABELS, v2 as REVIEW_KEY, y2 as REVIEW_LABELS, x2 as REVIEW_QUEUES, _Fe as REVIEW_QUEUE_LABELS, rK as RUNNING_POLL_MS, xQ as RetryNote, Fwe as Rf, fG as Rk, Hwe as Rows, Yz as SCHEDULES, RWe as SCRAPING_CHECK_ALL_URL, LWe as SCRAPING_CHECK_URL, zWe as SCRAPING_COVER_URL, UWe as SCRAPING_KEY, IWe as SCRAPING_SETTINGS_URL, gJ as SEGMENT, hJ as SEGMENTED_TRACK, Hz as SETTINGS_KEY, Rz as SETTINGS_URL, Ia as SORT_DEFAULT_DIR, Pa as SORT_OPTIONS, ci as SOURCE_LABELS, GZe as STATS_KEY, BUe as STAT_STRIP, VUe as STAT_STRIP_SIX, kG as ScrapeSourceLabel, Vwe as Section, nWe as SectionHeading, Wwe as SectionSkeleton, mJ as SegmentedRadioGroup, cDe as SegmentedTabList, pQ as Segments, lX as Select, kU as Select$1, jK as SelectAllButton, x3 as SelectField, AU as SelectItem, K0 as SelectionActions, _P as SelectionDock, q0 as SelectionPopover, pG as SettingsCard, Bwe as SettingsRow, mG as SettingsSectionLabel, mQ as Shuffle, OG as SiteIcon, eTe as SiteLabel, TG as SiteMark, dX as SortDirectionIcon, UZ as SortKeys, LG as SortableBoardTabs, U0 as SourceAvatar, AG as SourceLabel, SG as SourceMark, Uwe as Stack, GUe as StatCard, aY as StatusLabel, Awe as Su, $Ye as Switch, nK as TASKS_KEY, HQe as TASTE_REFRESH_KEY, e$e as TASTE_REFRESH_TASK, UQe as TASTE_WINDOWS, Gz as THUMBNAIL_JOBS_KEY, vLe as TRASH_KEY, oK as TRIGGER_LABELS, A0 as Table, J0 as TableColumnControls, EQ as TableColumnFilter, BQ as TableColumnRange, Y0 as TableColumnResizer, Z0 as TableSelectionHeader, Jwe as TaskCenterLink, Jq as TaskProgress, RK as TextField, LK as TextFieldContext, qW as Un, Iwe as Uz, DX as WANTS_KEY, FXe as WantMagnets, oy as WithPromise, FW as Wt, GW as Xc, lG as Xf, zW as Xl, IW as Xt, LW as Yt, kW as _8, o as __commonJSMin, s as __exportAll, l as __toESM, iG as _p, Mwe as aB, Uq as activityKind, cs as addAlias, ss as addSource, kX as addWant, iw as animate, U as apiGet, W as apiSend, yF as appSettingsStore, aLe as applyConfirmText, sLe as applyLeftovers, iLe as applyPlanText, cLe as applyText, CF as applyTheme, dx as asNumber, RIe as attachOrphan, Wo as authorAvatar, Ko as authorGroups, Uo as authorInitial, Ho as authorName, Vo as authorPortrait, y1 as autoResetPageIndex, al as avatarInner, _W as b1, lQe as bandRows, kIe as baseName, rFe as batchOperate, Mve as beginPlayerGuidePreview, Ai as bodyFieldErrors, wP as boundedPreference, eFe as bulkCloudPreferences, uP as busyProps, jwe as cB, AXe as cachedMagnetStates, ey as calcGeneratorVelocity, EFe as canApprove, Ov as cancelFrame, UIe as candidateText, cX as cardClass, RF as cardRatio, EY as catalogListSkeletonCellHtml, BDe as checkClientUpdates, Ms as checkEvidenceGap, js as checkFailures, xs as checkFeeds, sIe as checkLine, ks as checkReceipt, As as checkSummary, $We as checkText, cHe as checkText$1, Ns as checkedText, P6 as cleanupToolSkeletonHtml, QQ as clickedBlank, j7 as closeDrawerAfterNav, LAe as cloudLocations, Oqe as cloudProxySkeleton, zT as clsx, mwe as cn, Ei as codedText, Hne as collectMotionValues, MX as columnRangeKinds, LX as columnValueSelected, z1 as columnVisibilityFeature, T0 as column_getCanSort, x0 as column_getSortFn, wFe as commonReviewSources, SX as composingKey, kh as configurationSection, qQe as configureTasteBrowser, $d as confirmModal, hke as controlDiscoveryMetadata, bke as controlReleaseMetadata, FTe as controlTask, t1 as copyInstancePropertiesWithoutMemos, dke as coverArrived, lke as coverFetching, wf as coverFetchingHtml, xf as coverReason, Cf as coverStateAction, Zc as coverUrl, A1 as createColumnHelper, TWe as createPlaylist, Ls as credentialDone, wqe as credentialsSkeleton, BFe as currentReviewRow, J as cx, twe as d6, $W as dZ, IFe as decisionPayload, LFe as decisionReceipt, FFe as defaultChoice, fLe as deletePerformerVideos, DWe as deletePlaylist, Vqe as devicesSkeleton, x as diagnosticHeaders, iqe as diagnosticsSkeleton, xke as discoveryArtwork, qX as discoveryKey, sOe as discoveryScore, v9 as disposeStage, Ds as dropSources, Owe as du, tFe as duplicateVictims, UG as editionName, gK as elapsedText, Z4 as enterPageSelection, qr as entityDisplayName, il as entityFaceImg, ra as entityPath, Ur as entityWriting, Io as errorHeadline, ja as errorMessage, H as esc, Q4 as exitPageSelection, v1 as expandRowModel, gW as f1, cl as facePos, Fo as feedIntervalText, ZWe as fetchAmaneBridge, XWe as fetchCheckAllJob, es as fetchCheckJob, bGe as fetchConfiguration, YWe as fetchCoverJob, KX as fetchCoverNow, $o as fetchCredentials, PWe as fetchCustomSources, uLe as fetchDeletePerformers, dLe as fetchDeletePlan, uHe as fetchDiagnostics, JX as fetchDiscoveries, mke as fetchDiscoveryMetadata, o2 as fetchDuplicates, vs as fetchFeeds, Qo as fetchFollow, xLe as fetchJunkSummary, YPe as fetchKeptDuplicates, wq as fetchLibraryProcessing, tIe as fetchLinkCheck, rIe as fetchLinkPrune, eIe as fetchLinkStats, dbe as fetchMediaProcessing, d2 as fetchMediaRepair, $a as fetchMediaSources, xIe as fetchOrganize, bIe as fetchOrganizeExample, LIe as fetchOrphanRecords, OWe as fetchPlaylist, bWe as fetchPlaylists, g2 as fetchQualityGoals, yke as fetchReleaseColumn, nZ as fetchReleases, f2 as fetchRepairLibraries, oHe as fetchRepairs, ts as fetchResolveJob, XIe as fetchResourceApply, JIe as fetchResourceScan, RFe as fetchReview, bLe as fetchReviewCounts, qz as fetchSettings, JWe as fetchSources, KZe as fetchStats, ns as fetchSuggestions, aK as fetchTasks, JQe as fetchTaste, YQe as fetchTasteJob, mbe as fetchThumbnailJobs, SLe as fetchTrashSummary, OX as fetchWants, SFe as filterReviewRows, Ca as firstGrapheme, L$ as flexRender, h$e as flowGraph, g$e as flowLabel, JZe as fmtCount, _a as fmtDur, ya as fmtSize, jTe as foldByKind, qTe as foldRoutine, Cs as followFeedByName, ws as followFeedEntity, wo as followSuggestKey, ZTe as followupDetail, ATe as followupTally, Dv as frame, SW as g4, Nwe as gB, H1 as getDefaultPaginationState, LF as gridLayout, Go as groupByAuthor, KTe as groupFollowups, XPe as groupKey, xFe as groupReviewRows, eLe as hasChanges, QIe as hasResourceRoots, cK as hasResultProblems, n$e as historySpan, vW as i2, $Qe as importTasteExport, Tqe as indexersSkeleton, Ct as interfaceLanguage, Xv as interpolate, jX as invalidateWants, uK as isActive, Po as isBroken, Oo as isLayout, Tb as isMotionValue, b2 as isReviewCategory, JTe as isRoutine, Eqe as javBrowserSkeleton, VY as javContentSkeleton, AF as javLayout, BY as javTagSkeleton, Di as jobText, Dt as joinList, TLe as junkBreakdown, GPe as keepGroup, KPe as keepGroups, AWe as keepPlaylist, Cn as keepPreviousData, Yo as keepSelected, V8 as known, cwe as ks, VCe as l1, YCe as l7, oke as lastSearchNote, GTe as latestOfKind, Sa as leadingGraphemes, Hqe as ledgerBackupsSkeleton, uQe as lengthRows, qi as linkLabel, ro as localTime, aHe as localizeRepairs, gGe as localizedFact, tl as logoUrl, Ss as lookupFeedActor, TW as m7, QW as mM, Xi as mapLimit, gs as markAllPending, H8 as max, sQe as mediumRows, pke as metadataInterval, y6e as middleTruncateCut, pQe as min, GFe as mirrorText, sFe as missingToolText, s2 as mixedCloudPreferences, bK as momentText, aw as motion, vb as motionValue, Bn as notifyManager, jW as oe, MIe as organizeOutcome, Q2 as overlayHost, ko as pageSizeOf, Jo as pageWindow, xi as partsLabel, Es as patchSource, Tg as peachHistory, Tg as peachHistory$1, PFe as pendingGenres, XZe as percentText, wIe as pickOrganizeFolder, uIe as pickServerFolder, HUe as plainStatClass, jIe as planSummary, ZZe as playedFor, tQe as playedItemUrl, MTe as pollInterval, Xa as pollUntil, Iu as popCount, wWe as posterUrl, RCe as previewLibraryColor, CIe as previewOrganize, lFe as previewUrl, UTe as problemDestination, yq as processingActive, mK as progressLabel, _K as progressText, DG as providerIcon, oIe as pruneText, O2 as purgeCount, zIe as purgeOrphan, nG as pv, aG as qE, G as queryClient, eX as queueContentSkeletonHtml, Ot as quoted, Swe as qx, yW as r2, l$e as radarRows, iQe as radialArc, aQe as radialBarSize, rQe as radialCeiling, nQe as radialSlices, uL as randomId, o$e as rankDetail, s$e as rankShares, $Ze as reachedShare, BX as readColumnFilters, vK as readableErrorHeadline, cOe as recommendationScore, VFe as recordGenre, VIe as recordsText, jWe as recreatePlaylist, SWe as refreshPlaylists, vf as relayoutCovers, QX as releaseColumnSelection, gke as releaseColumnValues, LY as releaseColumns, vke as releaseDateQuery, XX as releaseFilters, $X as releaseKey, Os as reloadFollowManage, WFe as reloadReview, hqe as rememberShape, EIe as rememberTemplates, ls as removeAlias, bs as removeFeed, os as removeSource, QQe as removeTasteSource, AX as removeWants, us as renameAliasGroup, EWe as renamePlaylist, kWe as reorderPlaylist, eJe as repairCenterPanelSkeleton, gn as replaceEqualDeep, fQe as replayRows, Kt as require_jsx_runtime, Lt as require_react, Bt as require_react_dom, Z$ as require_with_selector, nke as resetWants, Ra as resolveFollowSort, ry as resolveStartTime, CX as resourceSourceKey, MEe as restartEffectText, rke as restoreWants, CWe as resumeAssetId, bFe as reviewGroupingOptions, C2 as reviewQueueData, S2 as reviewQueueOf, wLe as reviewSummary, CFe as reviewWindow, MFe as rowEvidence, AFe as rowFieldName, Y1 as rowPaginationFeature, h0 as rowSelectionFeature, lje as rowSelectionOperation, O0 as rowSortingFeature, DFe as rowSubject, NFe as rowTags, jFe as rowTitle, pP as runBulkAction, hK as runError, wW as s7, ds as saveCredential, tLe as scanLine, ybe as schedulePollInterval, ake as searchNote, Eh as sectionTitle, _2 as selectRange, TFe as selectReviewRange, Xo as selectionState, uFe as selectionSummary, yi as serverLabel, Ti as serverLabelList, ji as serverText, ys as setFeedEnabled, _ke as setReleaseColumn, as as setSourceEnabled, ITe as setTaskSpeed, Nh as settingsPath, UFe as settleReviewRows, Eg as shellNavigate, I1e as showToast, JU as showToast$1, la as siteMarkUrl, Ku as skeletonHtml, l1 as skipFirstRun, sP as sortCx, jo as sortLabel, li as sourceDefaultCost, Fs as sourceIconUrl, oLe as sourceMeta, bu as spinnerHtml, Jv as spring, QU as spriteGlyph, bi as stageText, rs as startCheck, nIe as startLinkCheck, iIe as startLinkPrune, TIe as startOrganize, is as startResolve, ZIe as startResourceApply, YIe as startResourceScan, ZQe as startTasteRefresh, zUe as statCardClass, zTe as statusLabel, oFe as statusLine, No as statusText, zF as storeJavLayout, zFe as submitDecision, SK as summaryItems, $Q as suppressShiftTextSelection, L as t, j1 as tableFeatures, u1 as tableMemo, qo as tableRows, HTe as taskIssues, dK as taskName, WTe as taskSubject, t$e as tasteDate, i$e as tasteDimensions, r$e as tasteHours, VQe as tasteKey, GQe as tasteRefetchInterval, KQe as tasteTime, VG as textLang, _we as th, PY as tierPlaceholdersHtml, z_ as time, awe as tl, RX as toggleColumnValue, Zo as toggleGroup, c$e as topScores, Kwe as translateWithNodes, hwe as um, _s as unmarkItems, uwe as uo, GK as useAction, bze as useBackgroundJob, pY as useCatalogView, tY as useClientUpdates, f_ as useConstant, e$ as useDense, CK as useEntityNames, $U as useHorizontalScroller, p_ as useIsomorphicLayoutEffect, wQ as useLibraryFilterOptions, hW as useLibraryTints, xr as useMutation, MG as useNavigationOrder, fWe as useOrderedLibraries, mq as useOverlayScrollbar, qHe as usePageSelection, br as useQuery, Jt as useQueryClient, EUe as useQueueSort, KC as useReducedMotion, n$ as useRowWorkContext, vbe as useRunSchedule, gbe as useSaveSchedule, Jz as useSaveSettings, bbe as useSaveThumbnailMode, k0 as useTable, gUe as useTableFilters, P0 as useTablePreferences, PK as useViewGlide, t$ as useWorkContextMenu, no as utcDate, nFe as victimBytes, owe as vl, ike as wantName, QOe as wantsInterval, eQe as watchNote, QZe as watchedShare, nwe as we, _d as wireHorizontalScroller, qa as withBackoff, DIe as withOrganizeJob, VX as writeColumnFilters, cke as writeJavQuery, ewe as z3 };
 
-//# debugId=43a79665-1e17-4b7e-bf62-63bf873433ab
+//# debugId=5e8adb33-bb57-41f1-8a6d-54dc589ad0a4

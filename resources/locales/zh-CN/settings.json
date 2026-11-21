@@ -255,7 +255,14 @@
   "configurationPage": {
     "loadFailed": "未取得配置，请刷新页面重试。",
     "loadFailedTitle": "配置读取失败",
-    "sectionsLabel": "配置分区"
+    "sectionsLabel": "配置分区",
+    "contents": "本页目录"
+  },
+  "maintenanceGroups": {
+    "updates": "更新与修复",
+    "runtime": "运行与存储",
+    "backups": "备份与保留",
+    "privacy": "数据与隐私"
   },
   "dataSharing": {
     "reportErrors": "发送版本统计与错误诊断（推荐）",

@@ -234,6 +234,7 @@
     "pausedUntil": "Access paused until",
     "reportNotFound": "Diagnostics report not found.",
     "sourceSessions": "Source sessions",
+    "otherSources": "Other sources · {{count}}",
     "statusDisabled": "Not configured",
     "statusFailed": "Action needed",
     "statusOk": "OK",
