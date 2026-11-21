@@ -74,6 +74,7 @@ function GitHubMark() {
 function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
   const [network, setNetwork] = useState(source.network);
   const [cookie, setCookie] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [cookieText, setCookieText] = useState('');
   const [method, setMethod] = useState<string>(COOKIE_METHODS[0][0]);
   const [fileName, setFileName] = useState('');
@@ -84,6 +85,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
      那一份。文件选择器自己也要清，否则同名文件再选一次不会触发 change。 */
   function forgetSecrets() {
     setCookie('');
+    setApiKey('');
     setCookieText('');
     setFileName('');
     setFileProblem('');
@@ -93,6 +95,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
   const save = useMutation({
     mutationFn: (revoke: boolean) => apiSend<{ saved: Source }>(SCRAPING_SETTINGS_URL, {
       source: source.source, network, cookie, cookies_text: cookieText, revoke,
+      ...(apiKey ? { api_key: apiKey } : {}),
     }),
     onSuccess: (result, revoke) => {
       // 服务端回的就是这一条的新样子，换进列表即可，不为一次保存把整页重取一遍。
@@ -102,7 +105,8 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
           (row) => (row.source === result.saved.source ? result.saved : row)),
       });
       forgetSecrets();
-      toast(revoke ? t('manage:sourceSettings.cookieRevoked') : t('manage:sourceSettings.saved'));
+      toast(revoke ? t(source.accepts_api_key ? 'manage:sourceSettings.apiKeyRemoved' : 'manage:sourceSettings.cookieRevoked')
+        : t('manage:sourceSettings.saved'));
     },
   });
   const check = useMutation({
@@ -158,7 +162,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
     || (check.error ? errorMessage(check.error) : '');
   const results = check.data?.results ?? [];
   // 这一块空着时连同它那道分隔线一起不画：直连、又不收 Cookie 的来源只有一行连接方式。
-  const detailed = network === 'peach' || source.accepts_cookie || source.browser || !!problem || results.length > 0;
+  const detailed = network === 'peach' || source.accepts_cookie || source.accepts_api_key || source.browser || !!problem || results.length > 0;
 
   return (
     <Section id={`source-${source.source}`} title={codedText(source, 'label')} onSubmit={submit} aside={
@@ -193,6 +197,17 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
               {t('manage:sourceSettings.browserVerification')}
             </p>
           : null}
+        {source.accepts_api_key ? <>
+          <span className="self-start">
+            <StatusLabel tone={source.api_key_saved ? 'success' : 'neutral'}>
+              {t(source.api_key_saved ? 'manage:sourceSettings.apiKeySaved' : 'manage:sourceSettings.apiKeyNotSet')}
+            </StatusLabel>
+          </span>
+          <p className="text-body-2-regular text-text-secondary" data-copy-key={`source-settings.${source.source}.hint`}>
+            {t(source.source === 'theporndb' ? 'manage:sourceSettings.thePornDbHint' : 'manage:sourceSettings.stashDbHint')}
+          </p>
+          <Input type="password" label={t('manage:sourceSettings.apiKey')} autoComplete="off" value={apiKey} onChange={setApiKey} />
+        </> : null}
         {source.accepts_cookie && !source.browser ? <>
           <div className="flex flex-col gap-2"><span className="self-start"><StatusLabel tone={source.cookie_saved ? 'success' : 'neutral'}>{source.cookie_saved ? t('manage:sourceSettings.cookieSaved') : t('manage:sourceSettings.cookieNotSet')}</StatusLabel></span>
             <p className="text-body-2-regular text-text-secondary">{source.cookie_saved ? t('manage:sourceSettings.signInUnverified') : t('manage:sourceSettings.provideCookieHint')}</p></div>
@@ -235,6 +250,9 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
       {/* 主体动作在最右。次级动作先出现，`保存` 是这张卡唯一的写入，放在一行的末尾；
           表单里只有它一个 `type=submit`，所以挪位置不影响回车提交。 */}
       <Footer>
+        {source.api_key_saved
+          ? <Button variant="secondary" onClick={revoke} {...busyProps(busy)}>{t('manage:sourceSettings.removeApiKey')}</Button>
+          : null}
         {source.accepts_cookie && source.cookie_saved
           ? <Button variant="secondary" onClick={revoke} {...busyProps(busy)}>{t('manage:sourceSettings.revokeCookie')}</Button>
           : null}

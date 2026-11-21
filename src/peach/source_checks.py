@@ -6,7 +6,9 @@ from PIL import Image
 from . import interface_text
 from .coded_text import Said, coded
 from .http import HttpRequest
-from .scraping_access import SOURCES, SourcePaused, SourceRefused, SourceTransport, record_source_check
+from .scraping_access import KEY_SOURCES, SOURCES, SourcePaused, SourceRefused, SourceTransport, record_source_check, values_for
+from . import western_catalog
+from .user_messages import UserValueError
 
 MOBILE_BROADBAND_HINT_CODE = "labels.sourceChecks.mobileBroadbandHint"
 #: 那句提示按 zh-CN 渲染的原文，封面比较的报错与测试按它核对。
@@ -84,24 +86,66 @@ def _image_unchecked():
             **coded("message", Said("labels.sourceChecks.noImageHost"))}
 
 
+def _check_key_source(root, source):
+    module = KEY_SOURCES[source]
+    key = values_for(root, source).get('api_key')
+    result = {**_target(PAGE), 'ok': False}
+    if not key:
+        result.update(kind='unchecked', reason='not_configured',
+                      **coded('message', Said('errors.westernCatalog.keyMissing', source=module.LABEL)))
+        return {'ok': True, 'results': [result, _image_unchecked()], 'session_verified': False}
+    transport = SourceTransport(root, max_requests=1, max_seconds=10, allow_browser=False)
+    try:
+        verified = module.authenticated(transport, key)
+    except UserValueError as error:
+        status = error.params.get('status')
+        if isinstance(error, western_catalog.CredentialsRejected):
+            result.update(kind='auth', reason='auth_required',
+                          **coded('message', Said('errors.westernCatalog.keyRejected', source=module.LABEL)))
+        elif error.code == 'errors.westernCatalog.http':
+            result.update(kind='unavailable', reason='http_error', status=status,
+                          **coded('message', Said(error.code, **error.params)))
+        else:
+            result.update(_connection_failure(error, PAGE, source))
+    except (SourcePaused, httpx.HTTPError) as error:
+        result.update(_connection_failure(error, PAGE, source))
+    else:
+        if verified:
+            result.update(ok=True, kind='ok', reason='ok')
+        else:
+            result.update(kind='auth', reason='auth_required',
+                          **coded('message', Said('errors.westernCatalog.keyRejected', source=module.LABEL)))
+    finally:
+        transport.close()
+    result['checked_at'] = time.time()
+    record_source_check(root, source, 'connection', result)
+    return {'ok': result['ok'], 'results': [result, _image_unchecked()], 'session_verified': result['ok']}
+
+
+def _check_targets(source):
+    targets = [(PAGE, SOURCES[source]["login"])]
+    if source in IMAGE_PROBES:
+        targets.append((CDN, IMAGE_PROBES[source]))
+    return targets
+
+
 def check_source(secrets_root, source, *, preflight=False):
     """复用来源连接与图片 CDN 判据；安装检查只使用有界 HTTP 请求。"""
     from .metadata import auth_wall
     if source not in SOURCES:
         raise ValueError("unknown scraping source")
+    if source in KEY_SOURCES:
+        return _check_key_source(secrets_root, source)
     if not SOURCES[source]["login"]:
         return {"ok": True, "results": [{**_target(PAGE), "ok": False, "kind": "unavailable",
                 "reason": "needs_code", **coded("message", Said("labels.sourceChecks.needsCode"))},
                 _image_unchecked()], "session_verified": False}
-    targets = [(PAGE, SOURCES[source]["login"])]
-    if source in IMAGE_PROBES:
-        targets.append((CDN, IMAGE_PROBES[source]))
     results = []
     transport = (SourceTransport(secrets_root, max_requests=12, max_bytes=12 * 65536,
                                  max_seconds=15, allow_browser=False)
                  if preflight else SourceTransport(secrets_root))
     try:
-        for target, url in targets:
+        for target, url in _check_targets(source):
             result = {**_target(target), "ok": False}
             started = time.monotonic()
             try:

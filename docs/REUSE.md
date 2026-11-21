@@ -506,6 +506,10 @@ Folia（`chthollyphile/folia-major`，AGPL-3.0，revision `9a01e788ed52d25ea01b1
 
 Babepedia 主图库和 Vixen 网络公开 GraphQL 的字段核对 [Stash CommunityScrapers](https://github.com/stashapp/CommunityScrapers/tree/d0f75013e09a0469b70365fef3294ca915edcf8c) 的 Babepedia、vixenNetwork 采集器（AGPL-3.0；2026-10-07 获取的 revision）。该项目使用 Python，可经插件在 Windows 上运行；Cloudflare 限流和上游字段变化可能导致未取得。只参考公开协议和身份字段，不复制 AGPL 实现，不恢复已关闭的 Stash 适配器，也不引入依赖。HTTP、HTML、图像检查、内容缓存、头像安装和封面边车分别复用现有 `HttpxTransport`、BeautifulSoup 4.15.0、`avatar_provider`、`avatar_picker`、`cover_artwork`。
 
+跨厂牌目录沿用 Peach 的 `SourceTransport`、本机来源凭据、请求预算和资产候选复核。StashDB 对照 [Stash-box GraphQL 公开协议](https://github.com/stashapp/stash-box/tree/master/graphql/schema)，ThePornDB 对照 [官方 Jellyfin 插件](https://github.com/ThePornDatabase/Jellyfin.Plugin.ThePornDB) 的只读 REST 请求与数据结构。搜索后按作品 ID 重新读取详情并核对厂牌、日期和作品文字；两个来源分别保存密钥。资料检索只使用作品匹配所需文字和发行年份。
+
+ThePornDB 的[上游采集器](https://github.com/ThePornDatabase/scrapers)分别维护场景、长片与演员，区分发行厂牌与上级网络。Peach 从目录 API 按实际厂牌匹配，参考 [theporndb-mcp 的响应模型](https://github.com/achenglike/theporndb-mcp/blob/001-theporndb-mcp/src/theporndb_mcp/models.py)处理厂牌内演员别名、多尺寸海报和搜索分页。先保留本地已有资料，再匹配外部资料的流程也见 [AMMDS 刮削配置](https://ammds.lifebus.top/docs/usage/module/scrapeRuleConfig/)。
+
 真实只读试验取得 Angel Smalls、Christy White、Lena Anderson、Melody Marks、Sweet Sophia 的主图库；Babepedia 的 Blaire Ivory 档案明确列出别名 Lena Anderson。Tushy 2019-08-14《Cam To Me》、Vixen 2019-04-09《I Want It All》的官方封面均已取得。搜索还返回 Lena Paul 等人的作品；Peach 用厂牌、完整名字、发行日和唯一结果筛选，并对详情再核对。没有番号的官方封面按 `ASSET-ID-<id>` 保存，资产字段保持原值。头像保留主图库候选，已有头像不自动覆盖；官方完整出演名单参与合演保护，多人封面需要框选。采集入口 `harvest_western_artwork.py` 每轮至多 16 位，默认只预览，输出来源回执；封面边车记 `auto:western-artwork@<时间>`，由 `revert_auto_landing.py` 按批撤回。
 
 ## 实体身份与职业

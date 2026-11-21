@@ -1598,6 +1598,14 @@
       "noMetadata": "来源链 {{chain}} 上都没有这个番号的资料",
       "chainTimedOut": "来源链 {{chain}} 在 {{seconds}} 秒内没有答复"
     },
+    "westernCatalog": {
+      "http": "{{source}} 返回 HTTP {{status}}",
+      "invalid": "{{source}} 未返回可用的作品资料",
+      "invalidKey": "请输入有效的 API 密钥",
+      "keyMissing": "请先配置 {{source}} API 密钥",
+      "keyRejected": "{{source}} 未接受此 API 密钥",
+      "redirect": "{{source}} 请求跳转到其他网站，连接已停止"
+    },
     "westernArtwork": {
       "babepediaUrlMismatch": "Babepedia 未取得：档案地址不一致",
       "babepediaHttp": "Babepedia 未取得：HTTP {{status}}",
