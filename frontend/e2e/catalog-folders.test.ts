@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import type { Browser } from 'playwright-core';
 import { launch, layout, settle, VIEWPORTS, visit } from './harness.ts';
+import { ITEM, openItemPage } from './item-fixture.ts';
 
 describe('首页文件夹浏览', () => {
   let browser: Browser;
@@ -11,6 +12,40 @@ describe('首页文件夹浏览', () => {
   after(async () => { await browser?.close() });
 
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name} 播放详情里的文件浏览可点击且先于播放器关闭`, { timeout: 90_000 }, async () => {
+      const opened = await openItemPage(browser, '/', viewport);
+      const { page } = opened;
+      try {
+        await page.route('**/api/reveal', route => route.fulfill({ json: { ok: true, mode: 'server', id: ITEM.plain } }));
+        await page.route('**/api/media-directory?*', route => route.fulfill({ json: {
+          roots: [{ id: 'local', name: 'Local library', mount: '/media/local', location: 'local' }],
+          root: 'local', relative: '', state: 'ready', directories: [],
+          files: [{ name: 'sample.mp4', asset_id: ITEM.plain }], next_offset: null, focus_name: 'sample.mp4',
+        } }));
+        await page.locator(`#grid [data-media-card][data-id="${ITEM.plain}"] [data-media-title]`).click();
+        const stage = page.locator('#stage[open]');
+        await stage.locator('[data-item-side]').waitFor();
+        const reveal = stage.locator('[data-reveal]').first();
+        await reveal.click();
+        const dialog = page.getByRole('dialog', { name: '浏览文件', exact: true });
+        await dialog.getByText('sample.mp4', { exact: true }).waitFor();
+        const hit = await dialog.evaluate(node => {
+          const rect = node.getBoundingClientRect();
+          return node.contains(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2));
+        });
+        assert.equal(hit, true, '文件浏览应在原生播放对话框之上并可交互');
+        await dialog.getByRole('button', { name: '返回上级目录', exact: true }).click();
+        await page.keyboard.press('Escape');
+        await dialog.waitFor({ state: 'hidden' });
+        assert.equal(await stage.isVisible(), true, '关闭文件浏览不应关闭播放详情');
+        assert.equal(await reveal.evaluate(node => node === document.activeElement), true);
+        await reveal.click();
+        await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+        await dialog.waitFor({ state: 'hidden' });
+        assert.equal(await stage.isVisible(), true);
+      } finally { await opened.close() }
+    });
+
     it(`${viewport.name} 实际文件浏览独立于馆藏导航且不改变侧栏`, { timeout: 90_000 }, async () => {
       const longName = 'a-very-long-media-filename-'.repeat(8) + '.mp4';
       const roots = [{ id: 'local', name: 'Local library', mount: '/media/local', location: 'local' }];

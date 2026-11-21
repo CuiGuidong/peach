@@ -64,7 +64,8 @@ function DirectoryBrowser({ initial }: { initial: string }) {
     <span data-media-directory-type="">{t(`shell:mediaDirectory.${kind}`)}</span>
     <span data-media-directory-status="">{status || ''}{interactive ? <RiArrowRightSLine aria-hidden className="size-4 shrink-0" /> : null}</span>
   </>;
-  return <ModalFrame isOpen onOpenChange={open => { if (!open) close() }} width="collections" label={t('shell:mediaDirectory.title')} surfaceClassName="peach-react"><div data-media-directory-dialog="">
+  return <ModalFrame isOpen onOpenChange={open => { if (!open) close() }} width="collections" label={t('shell:mediaDirectory.title')} surfaceClassName="peach-react"
+    portalContainer={document.querySelector('dialog:modal') || undefined}><div data-media-directory-dialog="">
     <div data-media-directory-header="">
       <Heading slot="title" className="text-title-2-medium">{t('shell:mediaDirectory.title')}</Heading>
       <SettingsDialogClose label={t('shell:serverPath.close')} onPress={close} />
