@@ -112,7 +112,7 @@ launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/io.github.longmeidao.pea
 
 1. 私钥在 GitHub 仓库 `release` environment 的 secret `SPARKLE_ED_PRIVATE_KEY`，该 environment 只允许 `v*` 标签部署；维护者另有离线备份。ad-hoc 签名下无法轮换，丢失后已装客户端只能手动重装。导入 Mac 钥匙串用 Sparkle 发布包的 `generate_keys -f <私钥文件>`。
 2. 同一 environment 需要 R2 的 secret `PEACH_R2_ACCESS_KEY_ID`、`PEACH_R2_SECRET_ACCESS_KEY`、`PEACH_R2_ENDPOINT` 与变量 `PEACH_R2_BUCKET`。
-3. 仓库变量 `SPARKLE_APPCAST_ENABLED` 为 `true` 时，每个版本标签在 GitHub Release 公开后运行 `sparkle-appcast` 作业：官方 `generate_appcast` 生成两个架构的 appcast，`scripts/sparkle_appcast.py` 补写迁移号并核对版本、下载地址与大小，官方 `sign_update --verify` 核对签名，最后上传到 `https://downloads.peach.video/sparkle/macos-<架构>.xml`。没有 appcast 时，Sparkle 的检查会报更新源不可用。
+3. 仓库变量 `SPARKLE_APPCAST_ENABLED` 为 `true` 时，每个版本标签在 GitHub Release 公开后运行 `sparkle-appcast` 作业。官方 `generate_appcast` 生成两个架构的 appcast，`scripts/sparkle_appcast.py` 补写迁移号，并从 `CHANGELOG.md` 写入英文和简体中文更新日志。核对版本、下载地址、大小、更新日志和签名后，上传到 `https://downloads.peach.video/sparkle/macos-<架构>.xml`。没有 appcast 时，Sparkle 的检查会报更新源不可用。
 4. 第一个带公钥的版本须手动安装一次；之后的版本才能经 Sparkle 更新。在真机按 ADR-0130「未取得的证据」逐项验收。
 
 ### Windows 应用内更新的发布签名
