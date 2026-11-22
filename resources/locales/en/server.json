@@ -4459,6 +4459,7 @@
     "downloadPostprocess": {
       "waiting": "Waiting to recognize and organize the full video",
       "noTemplate": "No organize template configured",
+      "keepTorrentFiles": "Keep qBittorrent files in place for seeding",
       "noVerifiedRename": "{{location}} has no verified rename channel",
       "nothingToOrganize": "Nothing to organize",
       "recognizing": "Recognizing the full video",

@@ -4459,6 +4459,7 @@
     "downloadPostprocess": {
       "waiting": "等待识别正片并整理",
       "noTemplate": "未配置整理模板",
+      "keepTorrentFiles": "保留 qBittorrent 文件的原路径，以便继续做种",
       "noVerifiedRename": "{{location}} 缺少官方核验改名通道",
       "nothingToOrganize": "无需整理",
       "recognizing": "正在识别正片",
