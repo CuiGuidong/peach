@@ -58,7 +58,9 @@ def _tracked_command(key: str, program: str, path: Path) -> tuple[list[str], Cal
         if key == 'iina':
             if not mac:
                 return None
-            command = [str(Path(program) / 'Contents/MacOS/iina-cli'), f'--mpv-input-ipc-server={address}']
+            # DEVNULL can be mistaken for piped media. Keep the CLI alive for the IPC tracker.
+            command = [str(Path(program) / 'Contents/MacOS/iina-cli'), f'--mpv-input-ipc-server={address}',
+                       '--no-stdin', '--keep-running']
         else:
             binary = str(Path(program) / 'Contents/MacOS/mpv') if mac else program
             command = [binary, f'--input-ipc-server={address}']

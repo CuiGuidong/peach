@@ -144,6 +144,7 @@ class ExternalPlaybackTests(unittest.TestCase):
                 command = launch.call_args.args[0]
                 self.assertEqual(Path(command[0]).as_posix(), '/Applications/IINA.app/Contents/MacOS/iina-cli')
                 self.assertRegex(command[1], r'^--mpv-input-ipc-server=.+peach-mpv-[0-9a-f]{24}\.sock$')
+                self.assertEqual(command[2:], ['--no-stdin', '--keep-running', str(media)])
                 self.assertFalse(local_playback.open_media(media, 'vlc', track=track))
                 self.assertEqual(opened.call_args.args[0], ['/usr/bin/open', '-a', '/Applications/VLC.app', str(media)])
                 self.assertEqual(track.call_count, 1)
