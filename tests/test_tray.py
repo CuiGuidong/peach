@@ -147,6 +147,30 @@ class TrayTests(unittest.TestCase):
         set_context.return_value = True
         self.assertEqual(enable_hidpi(), "per-monitor-v2")
 
+    @patch("peach.tray.ctypes.WinDLL", create=True)
+    @patch("peach.tray.sys.getwindowsversion", create=True)
+    def test_menu_theme_opts_in_without_forcing_dark(self, windows_version, load_dll):
+        from peach import tray
+
+        windows_version.return_value.build = 18362
+        with patch.object(tray.sys, "platform", "win32"):
+            tray.enable_windows_menu_theme()
+
+        load_dll.assert_called_once_with("uxtheme.dll")
+        load_dll.return_value.__getitem__.assert_called_once_with(135)
+        load_dll.return_value.__getitem__.return_value.assert_called_once_with(1)
+
+    @patch("peach.tray.ctypes.WinDLL", create=True)
+    @patch("peach.tray.sys.getwindowsversion", create=True)
+    def test_menu_theme_skips_the_legacy_ordinal(self, windows_version, load_dll):
+        from peach import tray
+
+        windows_version.return_value.build = 17763
+        with patch.object(tray.sys, "platform", "win32"):
+            tray.enable_windows_menu_theme()
+
+        load_dll.assert_not_called()
+
     def test_update_check_is_background_notification_not_modal_dialog(self):
         snapshot = VersionSnapshot("0.2.1", "master", "abc12345", False, False, None)
         completed = threading.Event()
