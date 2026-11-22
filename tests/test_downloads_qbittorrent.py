@@ -138,6 +138,22 @@ class ProviderTests(unittest.TestCase):
         request = handler.calls("/api/v2/torrents/delete")[0]
         self.assertEqual(_form(request), {"hashes": [HASH], "deleteFiles": ["false"]})
 
+    def test_full_progress_waits_for_files_to_finish_moving_or_checking(self):
+        task = DownloadTask(1, HASH, "qbittorrent", MAGNET, "ABC-123", TARGET, "remote_running")
+        for state in ("moving", "checkingUP", "checkingDL", "checkingResumeData", "unknown"):
+            with self.subTest(state=state):
+                handler = _Handler(torrents=[_torrent(state=state, progress=1)])
+                self.assertEqual(self.provider(handler).status(task).state, RUNNING)
+        handler = _Handler(torrents=[_torrent(state="stoppedUP", progress=1)])
+        self.assertEqual(self.provider(handler).status(task).state, DONE)
+
+    def test_incomplete_content_can_remain_in_the_downloaders_temporary_directory(self):
+        handler = _Handler(torrents=[_torrent(
+            content_path="/temporary/ABC-123.mp4", state="downloading", progress=0.42)])
+        task = DownloadTask(1, HASH, "qbittorrent", MAGNET, "ABC-123", TARGET, "remote_running")
+        status = self.provider(handler).status(task)
+        self.assertEqual((status.state, status.target, status.progress), (RUNNING, TARGET, 0.42))
+
     def test_a_bad_password_is_a_config_error(self):
         handler = _Handler(login="Fails.")
         with self.assertRaises(DownloadError) as caught:
@@ -155,6 +171,22 @@ class ProviderTests(unittest.TestCase):
                 DownloadTask(1, HASH, "qbittorrent", MAGNET, "ABC-123", TARGET, "submitted"))
         self.assertEqual(caught.exception.failure, "network")
         self.assertTrue(caught.exception.retryable)
+
+    def test_renamed_torrent_uses_the_actual_content_path_for_landing(self):
+        handler = _Handler(torrents=[_torrent(
+            name="My display label", content_path=TARGET + "/ABC-123.mp4",
+            state="uploading", progress=1)])
+        task = DownloadTask(1, HASH, "qbittorrent", MAGNET, "ABC-123", TARGET, "remote_running")
+        status = self.provider(handler).status(task)
+        self.assertEqual((status.name, status.target), ("ABC-123.mp4", TARGET))
+
+    def test_content_outside_the_save_directory_cannot_be_imported(self):
+        for content in (TARGET, TARGET + "/../other.mp4", "/other/file.mp4"):
+            with self.subTest(content=content):
+                handler = _Handler(torrents=[_torrent(content_path=content, state="uploading", progress=1)])
+                with self.assertRaises(DownloadError) as caught:
+                    self.provider(handler).submit(parse_magnet(MAGNET), TARGET)
+                self.assertEqual(caught.exception.failure, "mismatch")
 
     def test_an_invalid_save_path_is_refused_before_calling_qbittorrent(self):
         handler = _Handler()

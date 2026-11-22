@@ -1467,6 +1467,8 @@ class DownloadService:
         try:
             provider = self.providers(task.provider)
             status = provider.status(task)
+            if status.target and (error := self._local_target_error(task, status)):
+                raise error
             done = status.state == DONE or (status.state == MISSING and provider.landed(task))
         except DownloadError:
             done = False
@@ -1497,6 +1499,8 @@ class DownloadService:
     def _follow_remote(self, task: DownloadTask, now: float) -> None:
         provider = self.providers(task.provider)
         status = provider.status(task)
+        if status.target and (error := self._local_target_error(task, status)):
+            raise error
         if status.state == RUNNING:
             task.state = REMOTE_RUNNING
             task.progress = status.progress
@@ -1508,16 +1512,7 @@ class DownloadService:
         if status.state == ERROR:
             raise status.failure()
         if status.state == MISSING:
-            if getattr(provider, "completion_by_file", False):
-                started = parse_iso(task.submitted_at) or now
-                # 本地下载器完成并自动清理种子后列表里就没有了；只要它出现过，就把判定交给落地。
-                if never_seen(task):
-                    if now - started < UNSEEN_GRACE:
-                        self._reschedule(task, now)
-                        return
-                    raise DownloadError("not_accepted", "errors.downloads.localNotAccepted")
-                status = RemoteStatus(DONE, task.remote_id, task.remote_name, 1.0)
-            elif not provider.landed(task):
+            if not provider.landed(task):
                 started = parse_iso(task.submitted_at) or now
                 # 磁力本身失败时 115 会把任务留在列表里标为离线失败；从没出现过说明网盘没有收下，
                 # 出现过又不见了说明任务在网盘一侧被删除或清理，两种都不是换磁力能解决的。
@@ -1526,8 +1521,10 @@ class DownloadService:
                     self._reschedule(task, now)
                     return
                 if unseen:
-                    raise DownloadError("not_accepted", "errors.downloads.notAccepted")
-                raise DownloadError("removed", "errors.downloads.remoteRemoved")
+                    code = "localNotAccepted" if task.location == "local" else "notAccepted"
+                    raise DownloadError("not_accepted", f"errors.downloads.{code}")
+                code = "localRemoved" if task.location == "local" else "remoteRemoved"
+                raise DownloadError("removed", f"errors.downloads.{code}")
         self._remote_done(task, status, now)
 
     def _remote_done(self, task: DownloadTask, status, now: float) -> None:

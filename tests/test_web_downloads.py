@@ -337,6 +337,22 @@ class SettingsBlockTests(_App):
         self.assertFalse(body["ok"])
         self.assertIn("地址", " ".join(body["problems"]))
 
+    def test_qbittorrent_check_can_discover_an_unsaved_default_directory(self):
+        from peach import downloads_qbittorrent
+        self.app.state.push_discovery.declared_roots = {"local": ("R:\\media",)}
+        client = TestClient(self.app, client=("127.0.0.1", 50000), base_url="http://127.0.0.1")
+        with mock.patch.object(downloads_qbittorrent, "check", return_value={
+                "ok": True, "version": "v5.1.0", "webapi_version": "2.11.3",
+                "save_path": "/downloads", "problems": []}):
+            response = client.post("/api/configuration/downloads/qbittorrent/check", json={
+                "qbittorrent_address": "http://192.0.2.10:8085", "qbittorrent_save_path": "",
+                "qbittorrent_media_root": "R:\\media", "qbittorrent_username": "admin",
+                "qbittorrent_password": "test-only-password"})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertTrue(response.json()["ok"])
+        self.assertEqual(response.json()["save_path"], "/downloads")
+        self.assertEqual(self.service.config.qbittorrent_save_path, "")
+
     def test_invalid_service_address_is_refused_before_settings_or_token_are_saved(self):
         self.service.save_settings({"clouddrive_address": "localhost:19798", "wait_hours": 48}, self.roots())
         before = self.service.settings.path.read_bytes()

@@ -15,8 +15,8 @@ ADR-0089 把云下载定义为「把磁力交给 115 或 PikPak 离线下载」�
 1. 新增 `peach.downloads_qbittorrent`，实现现有 `OfflineProvider` 协议。沿用 `DownloadService` 的提交幂等、状态机、退避、取消与后处理，不另建下载队列。
 2. qBittorrent 是本地下载器，`download_task.provider` 记 `qbittorrent`，`DownloadTask.location` 投影为 `local`；账本仍只由 `asset` 回答作品是否存在。
 3. 提交参数显式写 `savepath`、`autoTMM=false`、`contentLayout=Original`、`tags=peach`，避免 qB 的自动种子管理或分类规则改变落地目录。添加前按 infohash 查任务，已有就接管；失败任务先删再交，不重复扣配额。
-4. 跨机路径用两项显式映射：下载器保存目录 `local_root` 与 Peach 媒体库根目录 `root`。落地时把 `保存目录/种子名` 的相对部分接到账本根目录；Peach 通过本地挂载或 SMB 读取同一个目录。第一版要求保存目录本身对应一个已声明媒体根，不做子目录猜测。
-5. qB 完成后可能自动清理种子，列表里会找不到。`QbittorrentProvider.completion_by_file=True` 让对账在「曾经出现过、后来消失」时直接进入落地判定，而不是判成远端删除；从未出现过的任务仍按宽限期判「没有收下」。
+4. 跨机路径用两项显式映射：下载器保存目录 `local_root` 与 Peach 媒体库根目录 `root`。落地时把 实际内容路径相对保存目录的部分接到账本根目录；Peach 通过本地挂载或 SMB 读取同一个目录。第一版要求保存目录本身对应一个已声明媒体根，不做子目录猜测。
+5. qB 完成后可能自动清理种子。Peach 确认完成后仍可按文件落地；确认前任务消失则按宽限期报告未接受或已删除。文件存在不能证明下载完整，不根据残留分片猜测完成。移动、校验和恢复检查期间继续等待。
 6. 地址、保存目录、媒体目录存 `state/downloads.json`；用户名与密码存本机 CredentialStore 的 `download-qbittorrent`，不声明同步字段。响应只报 `username` 与 `password_set`，不回密码。
 7. 设置页只放本机或私有网络入口，qB 地址沿用 `clean_address` 的协议/主机/端口校验。检查只登录、读版本和默认保存目录，不提交任务。
 8. 界面文字不写死在源码：错误与提示是 `resources/locales/<语言>/server.json` 的 code（`errors.downloadsQbittorrent.*`、`labels.downloadsQbittorrent.*`），设置卡文案在 `settings` 命名空间；本地任务的状态名用 `download.state.local.*`，不带「网盘」字样。
@@ -33,5 +33,5 @@ ADR-0089 把云下载定义为「把磁力交给 115 或 PikPak 离线下载」�
 
 - 资源搜索、JAV 浏览器添加、想要清单和作品详情的「搜索资源」自动复用 qBittorrent 渠道，不需要新入口。
 - 跨机部署必须先把下载目录声明为 Peach 的本地或 SMB 媒体根，并让 qB 对该目录有写权限；否则任务能提交，但落地时会报「目标目录中未找到下载文件」。
-- qB 的自动删除完成种子、自动种子管理、分类保存路径可能改变文件位置；第一版用显式参数规避，文档要求关闭自动删除或接受「任务消失后按文件落地判定」。
+- qB 的自动删除完成种子、自动种子管理、分类保存路径可能影响对账；提交时固定保存目录和目录结构，读取实际内容路径，保存目录变化时重新核对映射。种子至少保留到 Peach 确认下载完成。
 - 真实 qB 版本差异（4.6 与 5.x 的 `paused`/`stopped` 参数）由同时发送两个字段兼容；仍需在目标 NAS 上验收。

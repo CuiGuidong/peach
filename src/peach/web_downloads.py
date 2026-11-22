@@ -288,8 +288,6 @@ def check_qbittorrent(service: DownloadService, body: dict, declared_roots) -> d
         add_problem(report, Problem.of(error))
     if not report["address"]:
         add_problem(report, Problem("labels.downloadsQbittorrent.addressMissing"))
-    if not report["save_path"]:
-        add_problem(report, Problem("labels.downloadsQbittorrent.savePathMissing"))
     if not report["media_root"]:
         add_problem(report, Problem("labels.downloadsQbittorrent.mediaRootMissing"))
     if report["problems"]:
@@ -304,6 +302,9 @@ def check_qbittorrent(service: DownloadService, body: dict, declared_roots) -> d
         report["save_path"] = report["save_path"] or checked.get("save_path", "")
         for problem in checked.get("problems", ()):
             add_problem(report, problem)
+        if report["ok"] and not report["save_path"]:
+            report["ok"] = False
+            add_problem(report, Problem("labels.downloadsQbittorrent.savePathMissing"))
     except DownloadError as error:
         add_problem(report, Problem.of(error))
     return report

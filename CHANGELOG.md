@@ -14,6 +14,10 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Library**: Send magnets to qBittorrent and import completed files from a mapped local media folder, with progress and cancellation (#240). / **馆藏**：可将磁力交给 qBittorrent，跟踪进度、取消任务，并将映射目录中下载完成的文件自动入库（#240）。
+
 ## [0.61.0] - 2026-11-21
 
 ### Added / 新增

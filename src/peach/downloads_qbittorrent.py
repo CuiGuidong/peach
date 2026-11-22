@@ -9,6 +9,8 @@ Peach 与 qBittorrent 可以在不同机器。这里只负责提交与查询，�
 """
 from __future__ import annotations
 
+from pathlib import PurePosixPath
+
 import httpx
 
 from . import interface_text
@@ -20,9 +22,9 @@ from .user_messages import UserFacingError
 
 #: 单次 HTTP 调用的上限。qB 在局域网内通常几十毫秒返回。
 CALL_TIMEOUT = 15.0
-#: 完成态：文件已经下完，之后只是做种或校验。
+#: 文件已就位的做种状态；移动、校验和恢复检查仍需等待。
 COMPLETED_STATES = frozenset({
-    "uploading", "stalledUP", "queuedUP", "pausedUP", "forcedUP", "checkingUP",
+    "uploading", "stalledUP", "queuedUP", "pausedUP", "stoppedUP", "forcedUP",
 })
 #: 失败态：qB 自己报告的错误。
 FAILED_STATES = frozenset({"error", "missingFiles"})
@@ -42,25 +44,44 @@ def _add_problem(report: dict, problem: Problem) -> None:
     report.setdefault("problem_codes", []).extend(problem_codes([problem]))
 
 
+def _content_name(item: dict) -> str:
+    """按真实内容路径定位文件；qB 的显示名称可以单独改名。"""
+    target = str(item.get("save_path") or "")
+    content = str(item.get("content_path") or "")
+    if not content:
+        return str(item.get("name") or "")
+    try:
+        root = PurePosixPath(normalise_local_target(target))
+        path = PurePosixPath(normalise_local_target(content))
+        relative = path.relative_to(root)
+        if not relative.parts:
+            raise ValueError("content is the download root")
+    except ValueError:
+        raise DownloadError("mismatch", "errors.downloads.localTargetMismatch",
+                            {"target": content, "root": target}) from None
+    return str(relative)
+
+
 def _status(item: dict | None) -> RemoteStatus:
     """把 `torrents/info` 的一行翻成统一状态。"""
     if not item:
         return RemoteStatus(MISSING)
     info_hash = str(item.get("hash") or "").lower()
-    name = str(item.get("name") or "")
+    state = str(item.get("state") or "")
+    name = _content_name(item) if state in COMPLETED_STATES else str(item.get("name") or "")
+    target = str(item.get("save_path") or "")
     try:
         progress = max(0.0, min(float(item.get("progress") or 0.0), 1.0))
     except (TypeError, ValueError):
         progress = 0.0
-    state = str(item.get("state") or "")
     if state in FAILED_STATES:
         code = "errors.downloadsQbittorrent.taskFailed"
         return RemoteStatus(ERROR, info_hash, name, progress,
                             interface_text.text(f"server:{code}", {"state": state}),
                             message_code=code, message_params={"state": state})
-    if progress >= 1.0 or state in COMPLETED_STATES:
-        return RemoteStatus(DONE, info_hash, name, 1.0)
-    return RemoteStatus(RUNNING, info_hash, name, progress)
+    if state in COMPLETED_STATES:
+        return RemoteStatus(DONE, info_hash, name, 1.0, target=target)
+    return RemoteStatus(RUNNING, info_hash, name, progress, target=target)
 
 
 class QbittorrentClient:
@@ -185,8 +206,6 @@ class QbittorrentProvider:
     """`downloads.OfflineProvider` 的 qBittorrent 实现。"""
 
     key = "qbittorrent"
-    #: qB 完成并清理种子后列表里就没有了，落地判定以目标目录里的文件为准。
-    completion_by_file = True
 
     def __init__(self, address: str, username: str, password: str, *,
                  transport: httpx.BaseTransport | None = None):

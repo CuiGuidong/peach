@@ -19,7 +19,6 @@ QB_SAVE = "/vol1/media/Peach"
 
 class FakeProvider:
     key = "qbittorrent"
-    completion_by_file = True
 
     def __init__(self):
         self.submitted: list[tuple[str, str]] = []
@@ -149,18 +148,48 @@ class SubmitTests(unittest.TestCase):
                                        target="/other/Peach")
         self.assertEqual(self.provider.submitted, [])
 
-    def test_a_seen_local_task_that_disappears_waits_for_the_file_instead_of_failing(self):
+    def test_an_incomplete_local_task_that_disappears_is_not_imported(self):
         result = dl.submit_offline_download(self.service, magnet=MAGNET, provider="qbittorrent")
         task = self.service.store.get(result["task"]["id"])
         task.state, task.remote_id, task.progress = dl.REMOTE_RUNNING, HASH, 0.4
         task.next_check_at = dl.iso(self.clock.now)
         self.service.store.save(task)
         self.provider.status_result = dl.RemoteStatus(dl.MISSING)
-        self.clock.advance(1)
+        self.clock.advance(dl.MISSING_GRACE + 1)
         self.service.poll_once()
         task = self.service.store.get(result["task"]["id"])
+        self.assertEqual(task.state, dl.FAILED)
+        self.assertEqual(task.failure, "removed")
+        self.assertIsNone(task.asset_id)
+
+    def test_a_changed_remote_save_directory_stays_within_the_mapping(self):
+        for state in (dl.REMOTE_RUNNING, dl.STALLED):
+            with self.subTest(state=state):
+                result = dl.submit_offline_download(self.service, magnet=MAGNET, provider="qbittorrent")
+                task = self.service.store.get(result["task"]["id"])
+                task.state = state
+                task.finished_at = dl.iso(self.clock.now) if state == dl.STALLED else None
+                task.next_check_at = dl.iso(self.clock.now)
+                self.service.store.save(task)
+                self.provider.status_result = dl.RemoteStatus(
+                    dl.DONE, HASH, "ABC-123.mp4", 1.0, target="/other/Peach")
+                self.service.poll_once()
+                task = self.service.store.get(task.id)
+                self.assertNotEqual(task.state, dl.REMOTE_DONE)
+                self.assertIsNone(task.asset_id)
+                self.assertEqual(task.target, QB_SAVE)
+
+    def test_a_completed_task_moved_to_a_mapped_subfolder_updates_its_target(self):
+        result = dl.submit_offline_download(self.service, magnet=MAGNET, provider="qbittorrent")
+        task = self.service.store.get(result["task"]["id"])
+        task.next_check_at = dl.iso(self.clock.now)
+        self.service.store.save(task)
+        self.provider.status_result = dl.RemoteStatus(
+            dl.DONE, HASH, "ABC-123.mp4", 1.0, target=QB_SAVE + "/Finished")
+        self.service.poll_once()
+        task = self.service.store.get(task.id)
         self.assertEqual(task.state, dl.REMOTE_DONE)
-        self.assertIsNone(task.failure)
+        self.assertEqual(task.target, QB_SAVE + "/Finished")
 
     def test_a_local_task_polls_at_most_a_minute_apart(self):
         result = dl.submit_offline_download(self.service, magnet=MAGNET, provider="qbittorrent")
