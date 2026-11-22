@@ -2374,12 +2374,13 @@
     "noSignature": "本版本条目缺少 EdDSA 签名",
     "migrationMismatch": "本版本条目的迁移号缺失或不符",
     "noMinimumSystem": "本版本条目缺少最低系统版本",
+    "missingReleaseNotes": "本版本条目缺少英文或简体中文更新日志",
     "rcloneRequired": "发布需要官方 rclone",
     "badVersion": "appcast 版本号无效：{{version}}",
     "entryCount": "appcast 里版本 {{version}} 的条目有 {{count}} 个",
     "urlMismatch": "下载地址不符：{{url}}",
     "failed": "Sparkle appcast 未通过：{{error}}",
-    "description": "给官方 generate_appcast 生成的 appcast 补写迁移号，上传前核对本版本条目，再发布到 R2（ADR-0130）。\n\n签名由 generate_appcast 完成，签名是否有效由发布作业用官方 sign_update --verify 核对；这里只管\nSparkle 工具不知道的 Peach 约束：本版本是最高版本，下载地址与大小对得上实际 DMG，迁移号齐全。\n"
+    "description": "给 appcast 补写迁移号和更新日志，核对本版本条目后发布到 R2。"
   },
   "test_environment": {
     "lockMissing": "未取得测试依赖锁文件：{{path}}",
