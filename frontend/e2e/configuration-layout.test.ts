@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import type { Browser } from 'playwright-core';
-import { launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
+import { CONFIGURATION_ROUTE, launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
 
 describe('配置表单与行间距', () => {
   let browser: Browser;
@@ -13,7 +13,7 @@ describe('配置表单与行间距', () => {
       const { page } = opened;
       try {
         await page.emulateMedia({ reducedMotion: 'no-preference' });
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
           await route.fulfill({ json: { ...data, downloads: {
             ...data.downloads, media_sources: ['guangya'], token_set: false,
@@ -51,7 +51,7 @@ describe('配置表单与行间距', () => {
       const opened = await visit(browser, '/settings/library?section=' + encodeURIComponent('下载渠道'), viewport);
       const { page } = opened;
       try {
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
           await route.fulfill({ json: { ...data, downloads: { ...data.downloads, media_sources: ['guangya'], token_set: true,
             config: { ...data.downloads.config, clouddrive_address: 'http://127.0.0.1:19798' } } } });
@@ -99,7 +99,7 @@ describe('配置表单与行间距', () => {
       const opened = await visit(browser, '/settings/library?section=' + encodeURIComponent('应用与维护'), viewport);
       const { page } = opened;
       try {
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
           await route.fulfill({ json: { ...data, updates: { ...data.updates, installation: '独立测试包', installation_code: 'standalone',
             state: 'available', latest_version: '1.0.0', message: '有新版本可下载。', package_kind: 'update',
@@ -122,7 +122,7 @@ describe('配置表单与行间距', () => {
       const { page } = opened;
       try {
         await page.route('**/api/configuration/cloud-proxies', route => route.fulfill({ json: { accounts: [] } }));
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
           await route.fulfill({ json: { ...data, editable: true, windows: true, media_sources: [
             { location: 'onedrive', root: 'O:\\Movies', path: 'O:\\Movies', cost: 'metered' },
@@ -206,7 +206,7 @@ describe('配置表单与行间距', () => {
       const opened = await visit(browser, '/settings/library?section=' + encodeURIComponent('下载渠道'), viewport);
       const { page } = opened;
       try {
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
           const body = data.downloads;
           await route.fulfill({ json: { ...data, downloads: { ...body, available: true, media_sources: ['pikpak'],
@@ -229,7 +229,7 @@ describe('配置表单与行间距', () => {
       const opened = await visit(browser, '/settings/library?section=' + encodeURIComponent('应用与维护'), viewport);
       const { page } = opened;
       try {
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
           await route.fulfill({ json: { ...data, uninstall: { ...data.uninstall, available: false } } });
         });

@@ -1351,6 +1351,7 @@
     "repairCenterLink": "Repairs and migrations",
     "repairing": "Repairing",
     "retryFailed": "Retry failed",
+    "capacityReady": "The last storage check passed. Select Retry failed to check storage again and resume repairs.",
     "runningHelp": "Filling in metadata and previews in the background.",
     "title": "Auto-repair",
     "toDo": "To do",

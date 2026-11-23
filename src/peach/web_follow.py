@@ -1497,27 +1497,18 @@ def _online_tag_rows(contract, include_types: bool) -> list[dict]:
     要把全部关注条目（生产约 1.8 万条）过一遍再算筛选条，一次 3 秒上下，带类型的 4.5 秒；
     原先每次搜索、翻页、「载入更多」都重算一遍。账本相关的表与题材头像目录不变就一直用同一份。
     """
+    if not include_types:
+        facets = _browse_facets(contract, None)
+        return [{"k": tag, "n": count, "cat": "general"} for tag, count in facets["tags"]]
+
     def build():
+        from .library_favorites import online_tag_ids
         with contract.database.read_connection() as connection:
-            store = _store(contract, connection)
-            tag_policy = OnlineTagPolicy(connection)
-            source_rows = store.sources()
-            alias_map, _aliases = store.author_aliases()
-            enabled = {int(row["id"]) for row in source_rows if row["enabled"]}
-            by_source = {int(row["id"]): row for row in source_rows}
-            items = tuple(tag_policy.with_custom_tags(item) for item in store.items(limit=_ALL_ITEMS)
-                          if item.source_id in enabled and not _excluded_item(item))
-            items = _unblocked_items(store, items, tag_policy, group_authors(source_rows, alias_map))
-            if include_types:
-                from .library_favorites import online_tag_ids
-                favorites = online_tag_ids(connection)
-                return [{**row, 'favorite': row['id'] in favorites}
-                        for row in _visible_online_tag_rows(store, items, tag_policy)]
-            facets = _follow_facets(store, items, by_source, alias_map, icon_root, tag_policy)
-            return [{"k": tag, "n": count, "cat": "general"} for tag, count in facets["tags"]]
-    icon_root = work_icon_root(contract)
-    return contract.cached_until_changed(f"follow-tags:{'typed' if include_types else 'plain'}", build,
-                                         path_version(icon_root / "works"), tables=FOLLOW_GROUP_TABLES)
+            items = _browsable_items(contract, None)
+            favorites = online_tag_ids(connection)
+            return [{**row, 'favorite': row['id'] in favorites}
+                    for row in _visible_online_tag_rows(_store(contract, connection), items, OnlineTagPolicy(connection))]
+    return contract.cached_until_changed("follow-tags:typed", build, tables=FOLLOW_GROUP_TABLES)
 
 
 def _visible_online_tag_rows(store, items, policy):
@@ -1575,12 +1566,8 @@ def _follow_author_rows(contract) -> list[dict]:
         alias_map, aliases = store.author_aliases()
         canonical = {f"name:{row['canonical_key']}": str(row["canonical_name"] or "")
                      for row in aliases}
-        enabled = {int(row["id"]) for row in source_rows if row["enabled"]}
         by_source = {int(row["id"]): row for row in source_rows}
-        policy = OnlineTagPolicy(connection)
-        items = tuple(policy.with_custom_tags(item) for item in store.items(limit=_ALL_ITEMS)
-                      if item.source_id in enabled and not _excluded_item(item))
-        items = _unblocked_items(store, items, policy, group_authors(source_rows, alias_map))
+        items = _browsable_items(contract, None)
         counts: dict[str, int] = {}
         latest: dict[str, str] = {}
         for item in items:
@@ -1917,6 +1904,11 @@ def _page_facets(contract, args, scope, offset) -> dict:
     if offset:
         return {}
     source_id, summary = scope
+    facets = {} if summary else _browse_facets(contract, source_id)
+    return {"facets": facets, "author_facets": _author_facets(contract, scope, args)}
+
+
+def _browse_facets(contract, source_id) -> dict:
     # 题材圆标的有无与取景读题材图目录。图与 `.face.json` 落在 `works/` 子目录
     # （`follow_assets.cache_path`），子目录里新增文件不改上一级的修改时间，所以进键的是它。
     icon_root = work_icon_root(contract)
@@ -1926,9 +1918,8 @@ def _page_facets(contract, args, scope, offset) -> dict:
             by_own_source = {int(row["id"]): row for row in own.sources}
             return _follow_facets(own.store, _browsable_items(contract, source_id), by_own_source,
                                   own.alias_map, icon_root, own.tag_policy)
-    facets = {} if summary else contract.cached_until_changed(
+    return contract.cached_until_changed(
         f"follow-facets:{source_id}", build, path_version(icon_root / "works"), tables=FOLLOW_GROUP_TABLES)
-    return {"facets": facets, "author_facets": _author_facets(contract, scope, args)}
 
 
 def _page_groups(contract, everything, counted, by_author, *, source_id, statuses, order, window, summary, cache_key):

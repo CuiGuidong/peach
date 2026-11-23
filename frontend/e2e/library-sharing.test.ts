@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import type { Browser } from 'playwright-core';
 
-import { launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
+import { CONFIGURATION_ROUTE, launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
 
 describe('馆藏与口味分享', () => {
   let browser: Browser;
@@ -12,7 +12,7 @@ describe('馆藏与口味分享', () => {
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name}：连接圆点和文字使用对应语义色，浅色和暗色可辨识`, async () => {
       const opened = await visit(browser, '/settings/library', viewport, async page => {
-        await page.route('**/api/configuration', async route => {
+        await page.route(CONFIGURATION_ROUTE, async route => {
           const response = await route.fetch();
           await route.fulfill({ json: { ...await response.json(), editable: false,
             media_sources: [
@@ -63,7 +63,7 @@ describe('馆藏与口味分享', () => {
         notice: '匿名处理后上传馆藏与各类偏好明细。' };
       const opened = await visit(browser, '/settings/library?section=' + encodeURIComponent('应用与维护'), viewport,
         async page => {
-          await page.route('**/api/configuration', async route => {
+          await page.route(CONFIGURATION_ROUTE, async route => {
             const response = await route.fetch();
             await route.fulfill({ json: { ...await response.json(), library_sharing: state } });
           });

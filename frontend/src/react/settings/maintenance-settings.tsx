@@ -12,7 +12,7 @@ import type {
 } from '../bundle';
 import { PathLine } from '../components/path-line';
 import { SectionToc, type TocEntry } from '../components/section-toc';
-import { StartupSettings } from './general-settings';
+import { StartupSettingsSection } from './general-settings';
 import { LedgerBackupSettings } from './ledger-backup-settings';
 import { PlaybackTranscodeSettings } from './media-processing-settings';
 import { ReleaseUpdates } from './release-updates';
@@ -50,11 +50,11 @@ export function MaintenanceSettings(
     <SectionToc inline label={t('settings:configurationPage.contents')} entries={entries}>
       <MaintenanceGroup entry={updates}>
         {data.updates ? <ReleaseUpdates initial={data.updates} initialJob={data.update_job} /> : null}
-        <UpgradeRepairs />
+        <UpgradeRepairs lastCapacityCheckPassed={data.storage?.budget?.last_check?.paused === false} />
         {data.automatic_updates ? <AutomaticUpdates initial={data.automatic_updates} receipt={receipt} /> : null}
       </MaintenanceGroup>
       <MaintenanceGroup entry={runtime}>
-        {data.startup ? <StartupSettings startup={data.startup} receipt={receipt} /> : null}
+        <StartupSettingsSection active={active} initial={data.startup} receipt={receipt} />
         <PlaybackTranscodeSettings receipt={receipt} />
         {data.storage ? <StorageSettings initial={data.storage} receipt={receipt} active={active} /> : null}
         <Facts facts={data.facts} receipt={receipt} />
