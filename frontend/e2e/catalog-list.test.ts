@@ -47,7 +47,7 @@ describe('馆藏卡片与列表', () => {
       await dock.waitFor();
       const catalog = page.locator('#grid [data-media-grid] > [data-media-card][data-id]').first();
       const expected = await catalog.getAttribute('data-id');
-      await page.locator(`#grid [data-media-card][data-id="${expected}"] [data-media-pic]`).click();
+      await page.locator(`#grid [data-media-card][data-id="${expected}"] [data-media-title]`).click();
       await page.locator(`#grid [data-media-card][data-id="${expected}"][data-selected]`).waitFor();
       await dock.waitFor({ state: 'hidden' });
       assert.equal(await cover.getAttribute('data-feed-selected'), null);
@@ -61,7 +61,7 @@ describe('馆藏卡片与列表', () => {
       const cards = page.locator('#grid [data-media-grid] > [data-media-card]');
       await cards.nth(1).waitFor();
       await page.locator('#selectMode').click();
-      await cards.first().locator('[data-media-pic]').click();
+      await cards.first().locator('[data-media-pic]').click({ position: { x: 24, y: 24 } });
       await cards.first().evaluate(card => card.scrollIntoView({ block: 'center' }));
       const move = async (start: '[data-media-pic]' | '[data-media-title]') => {
         const origin = (await cards.nth(1).locator(start).boundingBox())!;
