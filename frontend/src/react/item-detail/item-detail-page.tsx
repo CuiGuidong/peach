@@ -32,9 +32,8 @@ import { RelatedSection } from '../components/related-section';
 import { DetailContinuation } from '../components/detail-continuation';
 import { DetailTags } from '../components/detail-tags';
 import { RatingStars } from '../components/rating-stars';
-import { CollapseChevron } from '../components/collapse-region';
+import { DetailTitle } from '../components/detail-title';
 import { IdentityCell, IdentitySeries } from '../components/identity-cell';
-import { useFoldedTitle } from '../components/folded-title';
 import { MediaCarousel } from '../components/media-carousel';
 import { CatalogPicture } from './catalog-picture';
 import { fetchJavDetail, javDetailKey } from '../jav-detail/jav-detail';
@@ -416,7 +415,7 @@ function Side({ item, queue, write, helpers, actions }: {
   return (
     <div data-stage-side="" data-item-side="">
       <div data-stage-side-content="">
-        <DetailTitle item={item} queue={queue} helpers={helpers} actions={actions} onStatus={write.setSourceState}
+        <ItemTitle item={item} queue={queue} helpers={helpers} actions={actions} onStatus={write.setSourceState}
           deleteAction={<button type="button" data-item-delete="" data-kind="dispose" data-fb="dispose"
             aria-label={t(item.disposal === 'trash' ? 'catalog:mediaActions.restore' : 'catalog:shared.moveToTrash')}
             title={t(item.disposal === 'trash' ? 'catalog:mediaActions.restore' : 'catalog:shared.moveToTrash')}
@@ -472,29 +471,15 @@ function Side({ item, queue, write, helpers, actions }: {
   );
 }
 
-/* 标题默认折成两行，真溢出才给展开键：折叠态下 scrollHeight 比 clientHeight 高，就是有行被裁掉了。
-   展开与收起换字形——往下多看一截是 chevron-down，收回去是 chevron-up。展开键排在那排键最前面，
-   紧挨着它管的标题。标题文字本身也接这一下：人想看全文时手本来就落在字上。选中文字那一下不算，
-   那是在复制标题。溢出不只在打开那一刻判：影院模式和普通视图之间切换时标题栏宽度差一大截。 */
-function DetailTitle({ item, queue, helpers, actions, onStatus, deleteAction }: {
+function ItemTitle({ item, queue, helpers, actions, onStatus, deleteAction }: {
   item: DetailItem; queue: DetailQueue | null; helpers: ItemDetailHelpers; actions: ItemDetailActions;
   onStatus(text: string): void;
   deleteAction: ReactNode;
 }) {
-  const { text, expanded, foldable, toggle } = useFoldedTitle(String(item.title || item.name || ''));
   const html = helpers.badgeHtml(item.location || '', item.cost || '', 'srcbig') + helpers.titleHtml(item) + partLabelHtml(item, queue);
   return (
-    <div data-item-title="">
-      <div data-stage-title="" data-title-line="" data-reveal-line="">
-        <span ref={text} data-detail-title="" data-expanded={expanded ? '' : undefined}
-          data-foldable={foldable ? '' : undefined}
-          onClick={() => { if (foldable && !String(getSelection() || '')) toggle() }}
-          dangerouslySetInnerHTML={{ __html: html }} />
-        <span data-title-tools="">
-          <button type="button" data-title-fold="" hidden={!foldable} aria-expanded={expanded}
-            aria-label={expanded ? t('catalog:titleFold.collapse') : t('catalog:titleFold.expand')} title={expanded ? t('catalog:titleFold.collapse') : t('catalog:titleFold.expandFull')} onClick={toggle}>
-            <CollapseChevron />
-          </button>
+    <DetailTitle textKey={String(item.title || item.name || '')} html={html} tools={
+        <>
           {/* 取景框存的是坐标不是图片：存完重取这一条，封面地址没变，变的是接口给的 `poster_box`。
               背后网格里同一番号的卡不重取，就地换上新框，关掉详情看到的就是框过的样子。 */}
           {item.has_cover && (item.cover_key || item.code) ? (
@@ -512,9 +497,8 @@ function DetailTitle({ item, queue, helpers, actions, onStatus, deleteAction }: 
             actions.toast(t('catalog:itemEdit.saved'));
           }} />
           {deleteAction}
-        </span>
-      </div>
-    </div>
+        </>
+    } />
   );
 }
 
