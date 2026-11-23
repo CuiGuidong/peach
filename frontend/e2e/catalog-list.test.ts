@@ -36,16 +36,19 @@ describe('馆藏卡片与列表', () => {
       await page.mouse.up();
       const dock = page.getByRole('group', { name: '所选新作操作' });
       await dock.getByRole('button', { name: '标为已看过' }).click();
-      await page.locator('dialog[open]').getByRole('button', { name: '标为已看过', exact: true }).click();
-      await page.waitForFunction(() => !document.querySelector('[data-feed-selected]'));
+      const confirmation = page.locator('dialog.ui-geist-modal');
+      await confirmation.getByRole('button', { name: '标为已看过', exact: true }).click();
+      await confirmation.waitFor({ state: 'detached' });
+      await dock.waitFor({ state: 'hidden' });
       assert.deepEqual(writes, [{ action: 'read', ids: [87102] }]);
       await cover.locator('.feednewopen').focus();
       await page.keyboard.press('Space');
+      await page.locator('#feedNew [data-feed-id="87102"][data-feed-selected]').waitFor();
       await dock.waitFor();
       const catalog = page.locator('#grid [data-media-grid] > [data-media-card][data-id]').first();
-      await catalog.locator('[data-media-pic]').click();
-      await page.waitForFunction(() => document.querySelector('#grid [data-media-grid] > [data-media-card][data-id]')
-        ?.hasAttribute('data-selected'));
+      const expected = await catalog.getAttribute('data-id');
+      await page.locator(`#grid [data-media-card][data-id="${expected}"] [data-media-pic]`).click();
+      await page.locator(`#grid [data-media-card][data-id="${expected}"][data-selected]`).waitFor();
       await dock.waitFor({ state: 'hidden' });
       assert.equal(await cover.getAttribute('data-feed-selected'), null);
     } finally { await opened.close() }
@@ -114,8 +117,7 @@ describe('馆藏卡片与列表', () => {
       await dialog.waitFor({ state: 'hidden' });
       await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === '显示列');
       const pageSize = page.getByRole('button', { name: /每页显示数量/ });
-      await pageSize.focus();
-      await page.keyboard.press('Enter');
+      await pageSize.click();
       await page.getByRole('option', { name: '每页 100 部', exact: true }).waitFor();
       await page.keyboard.press('ArrowDown');
       await page.keyboard.press('End');
