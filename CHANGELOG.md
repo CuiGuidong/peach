@@ -20,6 +20,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Fixed / 修复
 
+- **Interface**: Resize cover and avatar crops with the keyboard while player shortcuts stay inactive during cropping (#846). / **界面**：封面和头像取景手柄支持键盘调整，取景时不会触发播放器快捷键（#846）。
 - **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
 - **Updates**: Show English and Simplified Chinese release notes in the macOS update window (#833). / **更新**：macOS 更新窗口显示英文和简体中文更新日志（#833）。
 - **Library**: Restore macOS text recognition for promotional text in video screenshots (#833). / **馆藏**：恢复 macOS 上对视频截图里推广文字的识别（#833）。
