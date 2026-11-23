@@ -13,9 +13,7 @@ describe('首页文件夹浏览', () => {
 
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name} 播放详情里的文件浏览可点击且先于播放器关闭`, { timeout: 90_000 }, async () => {
-      const opened = await openItemPage(browser, '/', viewport, {
-        ready: `#grid [data-media-card][data-id="${ITEM.plain}"] [data-media-title]`,
-      });
+      const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
       const { page } = opened;
       try {
         await page.route('**/api/reveal', route => route.fulfill({ json: { ok: true, mode: 'server', id: ITEM.plain } }));
@@ -24,7 +22,6 @@ describe('首页文件夹浏览', () => {
           root: 'local', relative: '', state: 'ready', directories: [],
           files: [{ name: 'sample.mp4', asset_id: ITEM.plain }], next_offset: null, focus_name: 'sample.mp4',
         } }));
-        await page.locator(`#grid [data-media-card][data-id="${ITEM.plain}"] [data-media-title]`).click();
         const stage = page.locator('#stage[open]');
         await stage.locator('[data-item-side]').waitFor();
         const reveal = stage.locator('[data-reveal]').first();
