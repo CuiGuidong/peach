@@ -18,6 +18,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 - **Interface**: Browse mapped media directories and locate files from Storage or playback details on headless servers (#376). / **界面**：无桌面部署可从 Storage 或播放详情浏览挂载目录并定位文件（#376）。
 - **Library**: Send magnets to qBittorrent and import completed files from a mapped local media folder, with progress and cancellation (#240). / **馆藏**：可将磁力交给 qBittorrent，跟踪进度、取消任务，并将映射目录中下载完成的文件自动入库（#240）。
+- **Settings**: Optionally confine horizontal scrolling on the desktop home page to the area beside the sidebar (#736). / **配置**：可将桌面首页横向滚动限制在侧栏右侧（#736）。
 
 ### Changed / 变更
 
