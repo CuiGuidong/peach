@@ -867,7 +867,7 @@ Windows 托盘在取得单实例锁后启动独立监视器。监视器用 Win32
 ### 两台机器之间的同步
 
 - 「同步开发进度」走 GitHub，「同步数据库」走 SMB 共享，两者不能合并成一个按钮：任何一边连不上都不该拖住另一边。HTTP/HTTPS 服务只观察角色，不自动复制。
-- `replication.enabled` 开启时：建同步观察器、探测并挂载 SMB、托盘出现两个 Ledger 菜单项、追更凭据写入共享副本。关闭时这些都不发生，`/healthz` 的 `ledger_sync` 是 `disabled`，写接口全开。
+- 源码部署和 Windows、macOS 独立发行版均可在本机 `config.toml` 的 `[replication]` 中设置 `enabled = true`。重启应用后，托盘显示「同步数据库」和「由本机接管数据库写入」，同步观察器开始检查共享副本。关闭时托盘隐藏这两项，`/healthz` 的 `ledger_sync` 是 `disabled`，写接口全开。
 - 手动同步先用 `sync.resolve()` 只读判断这次会不会真的复制。`offline` 不是结论：macOS 重启后 SMB 共享不会自动挂回来，托盘按 `SHARED_SMB_HOST`／`SHARED_SMB_SHARE`／`SHARED_SMB_USER` 补挂一次再判断，真挂不上才报告。
 - 补挂用 `osascript` 的 `mount volume`，而且必须先查钥匙串：没有对应记录时 NetFS 不报错，而是弹出认证框一直等，后台操作既卡到超时，又在用户面前弹出密码框。钥匙串记录按主机名存，同一台机器的 IP 和 mDNS 名是两条不同的记录。
 - 补挂后仍是 `offline`，以及 `conflict`／`in-sync`，都直接报告，不停服务；确定要复制时才停掉自己创建的服务，用 SQLite backup API 加原子替换复制，最后恢复服务。

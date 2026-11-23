@@ -559,17 +559,21 @@ class ServiceStatusTests(unittest.TestCase):
 class ReplicationSwitchTests(unittest.TestCase):
     """ADR-0023 第 3 阶段：`replication.enabled = false` 时托盘不装配复制那一层。"""
 
-    def items(self, enabled):
-        with patch("peach.tray.REPLICATION_ENABLED", enabled):
+    def items(self, enabled, packaged):
+        with patch("peach.tray.REPLICATION_ENABLED", enabled), patch("peach.tray.standalone", return_value=packaged):
             return ledger_menu_items(
                 lambda label, action: (label, action), Mock(), Mock())
 
     def test_menu_items_disappear_when_replication_is_off(self):
-        self.assertEqual(self.items(False), [])
+        for packaged in (False, True):
+            with self.subTest(packaged=packaged):
+                self.assertEqual(self.items(False, packaged), [])
 
     def test_menu_items_are_assembled_when_replication_is_on(self):
-        labels = [label for label, _ in self.items(True)]
-        self.assertEqual(labels, ["同步数据库", "由本机接管数据库写入"])
+        for packaged in (False, True):
+            with self.subTest(packaged=packaged):
+                labels = [label for label, _ in self.items(True, packaged)]
+                self.assertEqual(labels, ["同步数据库", "由本机接管数据库写入"])
 
     def test_sync_ledger_refuses_instead_of_probing_a_share(self):
         """菜单项没了，但托盘还有别的入口；这条路径会去探一个不存在的共享。"""
