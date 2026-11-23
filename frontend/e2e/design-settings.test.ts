@@ -18,6 +18,10 @@ const homeDiscoveries = Array.from({ length: 12 }, (_, index) => ({
 async function showHomeDiscoveries(page: Page): Promise<void> {
   await page.route((url) => url.pathname === '/api/feeds/discoveries', (route) =>
     route.fulfill({ json: { items: homeDiscoveries } }));
+  await page.route((url) => url.pathname === '/api/entity/shapes', async (route) => {
+    const data = await (await route.fetch()).json();
+    await route.fulfill({ json: { ...data, home: { ...data.home, feed: true } } });
+  });
   await page.reload({ waitUntil: 'load' });
   await page.locator('#feedNew .feednewrow').waitFor({ state: 'visible', timeout: 15_000 });
 }
@@ -183,6 +187,7 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
       const closeSettings = async () => {
         await page.locator('#settingsClose').click();
         await page.waitForURL((url) => url.pathname === '/');
+        await row.waitFor({ state: 'visible', timeout: 15_000 });
         await settle(page, '#feedNew');
       };
       await assertBoundary(false);
