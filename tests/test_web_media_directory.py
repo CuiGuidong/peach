@@ -60,6 +60,16 @@ class MediaDirectoryTests(unittest.TestCase):
         self.assertNotIn('ledger_root', result['roots'][0])
         self.reader.assert_not_called()
 
+    def test_filesystem_anchor_is_not_offered_as_a_browsable_media_root(self):
+        self.libraries[0]['roots'].append({'root_id': 'filesystem', 'root': 'M:\\', 'location': 'local'})
+        with patch('peach.web_media_directory.translate_ledger_path', side_effect={
+            'R:\\Media': self.media, 'A:\\Cloud': self.root / 'offline', 'M:\\': Path(self.root.anchor),
+        }.__getitem__):
+            self.assertEqual([row['id'] for row in self.read()['roots']], ['local', 'cloud'])
+            with self.assertRaises(UserValueError):
+                self.read(root='filesystem')
+        self.reader.assert_not_called()
+
     def test_listing_only_marks_current_source_and_directory_live_assets(self):
         before = self.path.read_bytes()
         result = self.read(root='local', relative='series')

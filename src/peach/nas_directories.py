@@ -31,14 +31,18 @@ def file_position(path, ledger_path: str = '') -> dict:
     return result
 
 
+def is_browsable_root(value: str | Path) -> bool:
+    root = Path(value)
+    return root.is_absolute() and root != Path(root.anchor)
+
+
 def roots(config) -> list[str]:
     values = [value for group in config.mounts.values() for value in group]
     if os.name == 'nt':
         values.extend(value for group in config.locations.values() for value in group)
     if os.environ.get('PEACH_DISTRIBUTION') == 'docker':
         values.insert(0, '/media')
-    return list(dict.fromkeys(str(Path(value)) for value in values
-                             if Path(value).is_absolute() and Path(value) != Path(Path(value).anchor)))
+    return list(dict.fromkeys(str(Path(value)) for value in values if is_browsable_root(value)))
 
 
 def browse(config, initial: str, *, start: bool = False, offset: int = 0) -> dict:
@@ -64,8 +68,7 @@ def list_directory(path, allowed: list[str], offset: int = 0, include_files: boo
     candidate = Path(path)
     if not candidate.is_absolute():
         raise ValueError('the path must be absolute')
-    boundaries = [Path(root) for root in allowed if candidate.is_relative_to(Path(root))
-                  and Path(root) != Path(Path(root).anchor)]
+    boundaries = [Path(root) for root in allowed if is_browsable_root(root) and candidate.is_relative_to(Path(root))]
     if not boundaries:
         raise ValueError('outside the configured media roots')
     # 只访问本次路径所属的根；离线网盘不阻塞另一个本地媒体根。

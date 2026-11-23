@@ -4,6 +4,7 @@ import json
 
 from . import media_io, media_libraries, settings_file
 from .media_folders import path_predicate
+from .nas_directories import is_browsable_root
 from .platform import is_unmapped, translate_ledger_path
 from .user_messages import UserValueError
 
@@ -14,7 +15,7 @@ def q_media_directory(contract, args):
     for library in media_libraries.libraries(config):
         for root in library['roots']:
             mount = translate_ledger_path(root['root'])
-            if not is_unmapped(mount):
+            if not is_unmapped(mount) and is_browsable_root(mount):
                 roots.append({'id': root['root_id'], 'name': library['name'],
                               'location': root['location'], 'ledger_root': root['root'],
                               'mount': str(mount)})
