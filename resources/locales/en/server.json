@@ -2055,7 +2055,7 @@
     },
     "applicationPicker": {
       "busy": "A system picker is already open.",
-      "cannotOpen": "This computer could not start the system application picker.",
+      "cannotOpen": "Could not start the system application picker.",
       "failed": "Could not open the application picker.",
       "unsupportedSystem": "This system does not support choosing a local player.",
       "headless": "This deployment does not support choosing a local player."
