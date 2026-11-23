@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ef534ac2-8680-4a59-878b-bfc82dda5ca9", e._sentryDebugIdIdentifier = "sentry-dbid-ef534ac2-8680-4a59-878b-bfc82dda5ca9");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "0d61b26f-a9b6-4d08-a200-e0b87c7b728a", e._sentryDebugIdIdentifier = "sentry-dbid-0d61b26f-a9b6-4d08-a200-e0b87c7b728a");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -1650,6 +1650,12 @@ var Ge = "peach.settings.v1", Ke = {
 		videos_other: "{{count, number}} videos",
 		works_one: "{{count, number}} video",
 		works_other: "{{count, number}} videos"
+	},
+	cropFrame: {
+		dimensions: "{{width}} pixels wide, {{height}} pixels high, {{x}} pixels from the left and {{y}} from the top of the source image.",
+		moveHelp: "Use the arrow keys to move the crop frame, or plus and minus to resize it.",
+		resizeCorner: "Bottom-right resize handle",
+		resizeHelp: "Use the arrow keys to move the bottom-right corner and resize the crop frame."
 	},
 	coverCrop: {
 		buttonTip: "Crop cover to the front panel",
@@ -9515,6 +9521,12 @@ var Ge = "peach.settings.v1", Ke = {
 	countLabel: {
 		videos: "{{count, number}} 个视频",
 		works: "{{count, number}} 部"
+	},
+	cropFrame: {
+		dimensions: "宽 {{width}}、高 {{height}} 像素，距原图左侧 {{x}}、上方 {{y}} 像素。",
+		moveHelp: "按方向键移动取景框，按加号或减号缩放。",
+		resizeCorner: "右下角调整手柄",
+		resizeHelp: "按方向键移动右下角，调整取景框大小。"
 	},
 	coverCrop: {
 		buttonTip: "裁剪封面，框出正封",
@@ -40175,4 +40187,4 @@ Pt();
 var cx = document.getElementById("peach-page"), lx = cx ? sx[cx.dataset.page ?? ""] : void 0;
 cx && lx && (0, Ut.createRoot)(cx).render(/* @__PURE__ */ (0, V.jsx)(ox, { children: /* @__PURE__ */ (0, V.jsx)(lx, { data: { ...cx.dataset } }) }));
 
-//# debugId=ef534ac2-8680-4a59-878b-bfc82dda5ca9
+//# debugId=0d61b26f-a9b6-4d08-a200-e0b87c7b728a

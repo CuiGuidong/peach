@@ -65,6 +65,10 @@ export function setNarrowSearchOpen(open){
   applicationEffects.handler(motion, 'onfinish', ()=>{if(searchState.searchMorph===motion)finishSearchMorph()});
 }
 
+function cropOwnsKeyboard(){
+  return !!document.querySelector('[data-modal-kind="cover-crop"]:not([data-exiting]),[data-modal-kind="avatar-picker"]:not([data-exiting]):has([data-crop-box])');
+}
+
 export function activeVideo(){
   if(mediaState.immerseOpen())return immerseApi().activeVideo();
   return stageApi()?.activeVideo()||null;
@@ -122,7 +126,8 @@ applicationEffects.listen($('#q'), 'pointerdown', e=>{if(e.currentTarget.value)c
 
 export function installSearch22() {
 applicationEffects.own(installHoldSpeed({
-  activeVideo:()=>!applicationEffects.isActive || settingsPanelApi()?.isOpen()
+  // 右键长按在窗口捕获阶段就取当前播放器，取景框的 preventDefault 尚未执行。
+  activeVideo:()=>!applicationEffects.isActive || settingsPanelApi()?.isOpen() || cropOwnsKeyboard()
     || document.querySelector('#stage[open] [data-media-carousel]:not([data-carousel-video-active])')
     ? null : activeVideo(),
   seek:video=>seekVideoBy(video,preferencesState.appSettings.seekSeconds),
@@ -175,6 +180,7 @@ applicationEffects.listen(document, 'keydown', e=>{
   // `2304ab2`）。绑定必带修饰键，所以要在下一行放过修饰键组合之前比对。
   if(!e.defaultPrevented&&matchesShortcut(e,sfwShortcut())){e.preventDefault();setCensored(!censorOn());return}
   if(e.defaultPrevented||e.target.closest?.('select,[role="menu"],.vjs-peach-settings-menu,media-volume-slider')||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(cropOwnsKeyboard())return;
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
     const imageStep=document.querySelector(`#stage[open] [data-media-carousel]:not([data-carousel-video-active]) [data-follow-image-step="${e.key==='ArrowRight'?1:-1}"]`);
     if(imageStep){e.preventDefault();imageStep.click();return}

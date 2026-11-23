@@ -170,6 +170,12 @@
     "works_one": "{{count, number}} video",
     "works_other": "{{count, number}} videos"
   },
+  "cropFrame": {
+    "dimensions": "{{width}} pixels wide, {{height}} pixels high, {{x}} pixels from the left and {{y}} from the top of the source image.",
+    "moveHelp": "Use the arrow keys to move the crop frame, or plus and minus to resize it.",
+    "resizeCorner": "Bottom-right resize handle",
+    "resizeHelp": "Use the arrow keys to move the bottom-right corner and resize the crop frame."
+  },
   "coverCrop": {
     "buttonTip": "Crop cover to the front panel",
     "cropFor": "Crop cover for {{code}}",
