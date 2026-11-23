@@ -644,6 +644,7 @@ browser_tests = [
 tooling_workflows = [
     ".github/workflows/project-board.yml",
     ".github/workflows/docker.yml",
+    ".github/workflows/dockerhub-readme.yml",
     ".github/workflows/star-history.yml",
     ".github/workflows/issue-intake.yml",
     ".github/workflows/gitgud-mirror.yml",

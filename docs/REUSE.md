@@ -1091,6 +1091,8 @@ CloudDrive2 配置生成复用现有 TOML 模板、mDNS 公布地址和应用服
 Python、npm 与 GitHub Actions 的版本由 `.github/dependabot.yml` 每周检查；固定前端文件由
 `package-lock.json` 和 `scripts/vendor_web_dependencies.ts` 重建并核对来源、许可证与 SHA-256。
 
+Docker Hub 概览复用 [dockerhub-description](https://github.com/peter-evans/dockerhub-description/tree/1b9a80c056b620d92cedb9d9b5a223409c68ddfa)（v5.0.0，MIT，Actions 按提交固定）写入。Peach 维护概览正文，并从匿名接口核对发布结果。镜像回读复用发布作业已有的 Docker Buildx。
+
 ## 来源文字质量与生命周期修复
 
 来源文字中的 Unicode 替换字符 `U+FFFD` 表示解码时已有信息丢失。字段提取、既有候选选择和最终写入共用这一判据；含坏值的字段不参与来源优先级结算，原始快照保留。正常字段与正常中日文、重音字母不受影响，不使用启发式转码猜回原文。
