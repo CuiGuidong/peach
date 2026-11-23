@@ -14,6 +14,10 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Settings**: Optionally confine horizontal scrolling on the desktop home page to the area beside the sidebar (#736). / **配置**：可将桌面首页横向滚动限制在侧栏右侧（#736）。
+
 ### Changed / 变更
 
 - **Interface**: Filter bar and card badge corners now nest evenly, and large English headings use tighter letter spacing (#842). / **界面**：筛选浮层与卡片角标的圆角改为同心，英文大标题字距收紧（#842）。
