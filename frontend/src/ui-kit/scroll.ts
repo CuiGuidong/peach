@@ -72,13 +72,13 @@ function edgeBounce(el:HTMLElement){
 }
 /** 同一容器只绑定一次。指针在这一排上时滚轮只滚这一排，滚到头弹一下，不带着整页走。 */
 /** 会超宽的横向滚动层：两端按滚动位置渐隐，竖向滚轮转成横向，`drag` 为真时可拖。 */
-export function wireHorizontalScroller(el:any,{drag=false,fade=true,wheel=true,elastic=true,dragIgnore=''}={}):any{
+export function wireHorizontalScroller(el:any,{drag=false,fade=true,wheel=true,elastic=true,dragIgnore='',table=false}={}):any{
   if(!el)return;
   if(fade)el.dataset.scrollGesture='';
   const existing=horizontalControls.get(el);
   if(existing){existing.options.drag ||= drag;existing.options.fade ||= fade;existing.update();return existing}
   const options={drag,fade,wheel,elastic,dragIgnore},abort=new AbortController(),bounce=edgeBounce(el);
-  let start:{x:number;left:number}|null=null,moved=0,heldUntil=0,target=0,kicked=false,glide=0,glideAt=0,pos=0,pending=0;
+  let start:{x:number;left:number;origin?:readonly [number,number]}|null=null,moved=0,heldUntil=0,target=0,kicked=false,glide=0,glideAt=0,pos=0,pending=0;
   /* 值没变就不写：自动滚动每一帧都触发一次 `scroll`，同值重写属性照样让样式重算一遍。 */
   const mark=(key:string,value:string)=>{if(el.dataset[key]!==value)el.dataset[key]=value};
   /* `overflow-x` 只在尺寸观察器回调里重新读：那一刻样式和布局刚算完，读它不触发重算。
@@ -135,11 +135,21 @@ export function wireHorizontalScroller(el:any,{drag=false,fade=true,wheel=true,e
     // 排序项拥有这段指针手势，按下时停止在途滚动，让重排时容器位置保持稳定。
     if(event.target.closest?.('[data-navigation-order] > [data-tab]')){stopGlide();return}
     if(options.dragIgnore&&(event.shiftKey||event.ctrlKey||event.metaKey||event.altKey||event.target.closest?.(options.dragIgnore)))return;
-    event.stopPropagation();stopGlide();start={x:event.pageX,left:el.scrollLeft};moved=0;document.documentElement.dataset.dragScrolling='';
+    const awaitDirection=table&&!!event.target.closest?.('[data-rectangle-select] tbody');
+    event.stopPropagation();stopGlide();
+    start={x:event.pageX,left:el.scrollLeft,origin:awaitDirection?[event.clientX,event.clientY]:undefined};
+    if(!awaitDirection)document.documentElement.dataset.dragScrolling='';
   });
   listen(window,'mousemove',event=>{
     if(!start)return;
-    const dx=event.pageX-start.x,want=start.left-dx,max=el.scrollWidth-el.clientWidth;
+    if(start.origin){
+      const action=tableDragAction(event.clientX-start.origin[0],event.clientY-start.origin[1]);
+      if(!action)return;
+      if(action==='select'){start=null;return}
+      start.origin=undefined;document.documentElement.dataset.dragScrolling='';
+    }
+    const dx=event.pageX-start.x;
+    const want=start.left-dx,max=el.scrollWidth-el.clientWidth;
     moved=Math.max(moved,Math.abs(dx));el.scrollLeft=want;
     if(options.elastic)bounce.drag(want<0?want:want>max?want-max:0);
     event.preventDefault();
@@ -163,10 +173,23 @@ export function wireHorizontalScroller(el:any,{drag=false,fade=true,wheel=true,e
   return control;
 }
 
-/** 表格使用横向拖动；滚轮维持浏览器行为，控件、列宽手柄与整行表头独立处理指针（表头按偏了也不起拖）。 */
+const TABLE_PAN_IGNORE='a,button,input,select,textarea,label,[role="button"],[role="checkbox"],[role="slider"],.react-aria-ColumnResizer,thead';
+
+export function canPanTable(target:Element,event:MouseEvent):boolean{
+  if(event.shiftKey||event.ctrlKey||event.metaKey||event.altKey||target.closest(TABLE_PAN_IGNORE))return false;
+  const viewport=target.closest<HTMLElement>('.overflow-x-auto');
+  return !!viewport&&viewport.scrollWidth-viewport.clientWidth>1;
+}
+
+/** 溢出表格按起拖方向分配手势，横拖滚动，纵向或斜向拖动框选。 */
+export function tableDragAction(dx:number,dy:number):'pan'|'select'|undefined{
+  if(Math.hypot(dx,dy)<5)return;
+  return Math.abs(dx)>=Math.abs(dy)*2?'pan':'select';
+}
+
+/** 表格使用横向拖动；滚轮维持浏览器行为，控件、列宽手柄与整行表头独立处理指针。 */
 export function wireTableScroller(el:HTMLElement|null):any{
-  return wireHorizontalScroller(el,{drag:true,fade:false,wheel:false,elastic:false,
-    dragIgnore:'a,button,input,select,textarea,label,[role="button"],[role="checkbox"],[role="slider"],.react-aria-ColumnResizer,thead,[data-rectangle-select] tbody'});
+  return wireHorizontalScroller(el,{drag:true,fade:false,wheel:false,elastic:false,table:true,dragIgnore:TABLE_PAN_IGNORE});
 }
 
 /* 一排横卡自己缓缓往前走，走到头停一下再往回走。一秒 24px 是看得出在动、又不催人读的

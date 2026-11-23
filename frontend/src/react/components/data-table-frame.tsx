@@ -25,7 +25,7 @@ const markResizing = () => { document.documentElement.dataset.columnResizing = '
 /** BoardUI Table 的 Data Table 外框：主表面、完整边线、圆角与选中行反馈。 */
 export function DataTableFrame({ children, follow = false, onRowClick, onRectangle, preferences }: DataTableFrameProps) {
   const host = useRef<HTMLDivElement>(null);
-  const rectangle = useRectangleSelection(onRectangle, 'tbody [role="row"][data-key]:not([data-list-skeleton-row])', 'tbody');
+  const rectangle = useRectangleSelection(onRectangle, 'tbody [role="row"][data-key]:not([data-list-skeleton-row])', 'tbody', true);
   useEffect(() => {
     const viewport = host.current?.querySelector<HTMLElement>('.overflow-x-auto') ?? null;
     attachOverlayScrollbar(viewport);

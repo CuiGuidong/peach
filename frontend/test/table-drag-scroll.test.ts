@@ -32,6 +32,23 @@ it('拖动表格滚动并拦截拖动产生的点击，普通点击保留', () =
   expect(clicked).toHaveBeenCalledOnce();
 });
 
+it('框选开启时横拖仍会滚动，斜向起拖留给框选', () => {
+  const viewport = fixture(), cell = viewport.querySelector('td')!;
+  viewport.dataset.rectangleSelect = '';
+  mouse(cell, 'mousedown', 180, { clientY: 50 });
+  mouse(window, 'mousemove', 178, { clientY: 51 });
+  expect(viewport.scrollLeft).toBe(0);
+  mouse(window, 'mousemove', 95, { clientY: 55 });
+  mouse(window, 'mouseup', 95);
+  expect(viewport.scrollLeft).toBe(85);
+
+  mouse(cell, 'mousedown', 180, { clientY: 50 });
+  mouse(window, 'mousemove', 165, { clientY: 67 });
+  mouse(window, 'mousemove', 95, { clientY: 67 });
+  mouse(window, 'mouseup', 95);
+  expect(viewport.scrollLeft).toBe(85);
+});
+
 it('表格控件、列宽手柄和修饰键不触发拖动，滚轮维持浏览器默认行为', () => {
   const viewport = fixture();
   for (const target of viewport.querySelectorAll('button,input,a,label,.react-aria-ColumnResizer')) {

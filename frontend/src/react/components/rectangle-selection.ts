@@ -1,10 +1,12 @@
 import { useEffect, useRef, type PointerEvent } from 'react';
+import { canPanTable, tableDragAction } from '../../ui-kit/scroll';
 
 export type RectangleCommit = (keys: string[], add: boolean) => void;
 
 export function useRectangleSelection(commit: RectangleCommit | undefined,
-  items = '[data-rectangle-key]', start = items) {
+  items = '[data-rectangle-key]', start = items, table = false) {
   const drag = useRef<{ pointer: number; x: number; y: number;
+    panOrigin?: readonly [number, number];
     phase: 'pending' | 'dragging' | 'canceled'; rectangle?: HTMLDivElement; hits: HTMLElement[] } | null>(null);
   const clearVisual = () => {
     const active = drag.current;
@@ -54,6 +56,7 @@ export function useRectangleSelection(commit: RectangleCommit | undefined,
       const box = host.getBoundingClientRect();
       clear();
       drag.current = { pointer: event.pointerId, x: event.clientX - box.left, y: event.clientY - box.top, phase: 'pending', hits: [] };
+      if (table && canPanTable(target, event.nativeEvent)) drag.current.panOrigin = [event.clientX, event.clientY];
       // 保留原处的短按，跨过阈值后才由选择区接收松开。
       target.setPointerCapture(event.pointerId);
     },
@@ -63,7 +66,11 @@ export function useRectangleSelection(commit: RectangleCommit | undefined,
       if (!active || active.pointer !== event.pointerId || active.phase === 'canceled' || !(event.buttons & 1)) return;
       const box = bounds(event), width = box.right - box.left, height = box.bottom - box.top;
       if (active.phase === 'pending') {
-        if (Math.hypot(width, height) < 5) return;
+        if (active.panOrigin) {
+          const action = tableDragAction(event.clientX - active.panOrigin[0], event.clientY - active.panOrigin[1]);
+          if (!action) return;
+          if (action === 'pan') { clear(); return }
+        } else if (Math.hypot(width, height) < 5) return;
         active.phase = 'dragging';
         event.currentTarget.setPointerCapture(event.pointerId);
         const rectangle = document.createElement('div');
