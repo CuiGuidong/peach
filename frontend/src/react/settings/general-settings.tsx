@@ -31,7 +31,7 @@ export function StartupSettingsSection({ active, initial, receipt }: {
       <ErrorText>{errorMessage(query.error)}</ErrorText>
       <Button variant="secondary" onClick={() => void query.refetch()}>{t('settings:shared.reload')}</Button>
     </Stack> : <div role="status" aria-busy="true" className="px-4 py-3">
-      <span className="skeleton-block block h-4 w-36" />
+      <span className="block h-4 w-36 rounded-md bg-background-tertiary-default" />
     </div>}
   </Section>;
 }
