@@ -14,14 +14,21 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Interface**: Drag to select cards or rows, with batch actions for new releases on the home and entity pages (#855). / **界面**：卡片和列表支持拖动框选，首页与资料页横排新作支持批量操作（#855）。
+- **Playback**: See recent playback request timings in the statistics panel (#855). / **播放**：播放统计面板显示最近的播放请求耗时（#855）。
+
 ### Changed / 变更
 
+- **Library**: Render thumbnails near the viewport in long lists while keeping titles available to browser search (#855). / **馆藏**：长列表按视口挂载缩略图，浏览器仍可查找当前页的作品标题（#855）。
 - **Library**: Refresh only the changed cover entries when artwork or its metadata changes (#847). / **馆藏**：封面或附属资料更新时，只重新读取有变化的封面索引条目（#847）。
 - **Interface**: Filter bar and card badge corners now nest evenly, and large English headings use tighter letter spacing (#842). / **界面**：筛选浮层与卡片角标的圆角改为同心，英文大标题字距收紧（#842）。
 
 ### Fixed / 修复
 
 - **Desktop**: Show the database sync and writer takeover actions in standalone builds when replication is enabled, and show CLI help from the packaged executable (#844). / **桌面**：独立发行版启用复制后显示数据库同步和写入端接管，打包程序支持显示命令行帮助（#844）。
+- **Review**: Move keyboard focus to a nearby card after processing the current one (#855). / **复核**：处理当前卡片后，键盘焦点会移到相邻卡片（#855）。
 - **Interface**: Resize cover and avatar crops with the keyboard while player shortcuts stay inactive during cropping (#846). / **界面**：封面和头像取景手柄支持键盘调整，取景时不会触发播放器快捷键（#846）。
 - **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
 - **Updates**: Show English and Simplified Chinese release notes in the macOS update window (#833). / **更新**：macOS 更新窗口显示英文和简体中文更新日志（#833）。
