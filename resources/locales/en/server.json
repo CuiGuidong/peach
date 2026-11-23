@@ -2053,11 +2053,17 @@
       "entityMissing": "The selected profile no longer exists. Choose it again",
       "entityNameInvalid": "Names can't be empty or longer than 200 characters"
     },
+    "applicationPicker": {
+      "busy": "A system picker is already open.",
+      "cannotOpen": "This computer could not start the system application picker.",
+      "failed": "Could not open the application picker.",
+      "unsupportedSystem": "This system does not support choosing a local player.",
+      "headless": "This deployment does not support choosing a local player."
+    },
     "folderPicker": {
       "busy": "A folder selection window is already open",
       "cannotOpen": "The system folder dialog can't be opened on this device",
       "failed": "Couldn't open the folder dialog",
-      "noPermission": "Peach on this device doesn't have permission to show the dialog",
       "unsupportedSystem": "No folder dialog is available on this system",
       "headless": "On a server without a desktop, choose the media directory in the web page."
     },
@@ -2089,6 +2095,7 @@
       "tooLarge": "Collection and taste details exceed 100 MiB, so nothing was sent"
     },
     "localPlayback": {
+      "invalidCustomPlayer": "The selected player is unavailable. Choose another application.",
       "deploymentUnsupported": "For this deployment, use the network playback URL or an M3U playlist",
       "fileUnsupported": "For this file, use the network playback URL or an M3U playlist",
       "playerMissing": "The player isn't installed. Choose again."
@@ -3286,6 +3293,8 @@
       }
     },
     "routesMedia": {
+      "customPlayer": "Custom player…",
+      "choosePlayer": "Choose a player",
       "defaultPlayer": "System default player",
       "subtitle": {
         "outsideFolder": "Not in the video's directory",

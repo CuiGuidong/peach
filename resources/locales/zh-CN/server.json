@@ -2053,11 +2053,17 @@
       "entityMissing": "选中的档案已经不在了，请重新选择",
       "entityNameInvalid": "名称不能为空，也不能超过 200 个字"
     },
+    "applicationPicker": {
+      "busy": "已有一个系统选择窗口打开",
+      "cannotOpen": "这台电脑无法启动系统应用程序选择器",
+      "failed": "无法打开应用程序选择器",
+      "unsupportedSystem": "当前系统不支持选择本机播放器",
+      "headless": "此部署不支持选择本机播放器"
+    },
     "folderPicker": {
       "busy": "已经有一个选择文件夹的窗口开着",
       "cannotOpen": "这台电脑上打不开系统文件夹对话框",
       "failed": "没能打开文件夹对话框",
-      "noPermission": "这台电脑上的 Peach 没有弹出对话框的权限",
       "unsupportedSystem": "这个系统上没有可用的文件夹对话框",
       "headless": "无桌面部署请在网页中选择媒体挂载目录"
     },
@@ -2091,7 +2097,8 @@
     "localPlayback": {
       "deploymentUnsupported": "此部署请使用网络播放地址或 M3U 播放列表",
       "fileUnsupported": "此文件请使用网络播放地址或 M3U 播放列表",
-      "playerMissing": "播放器未安装，请重新选择"
+      "playerMissing": "播放器未安装，请重新选择",
+      "invalidCustomPlayer": "所选播放器不可用，请重新选择"
     },
     "mediaFolders": {
       "folderMissing": "目录不存在或已移出媒体库"
@@ -3287,6 +3294,8 @@
     },
     "routesMedia": {
       "defaultPlayer": "系统默认播放器",
+      "customPlayer": "自定义播放器…",
+      "choosePlayer": "选择播放器",
       "subtitle": {
         "outsideFolder": "不在正片所在目录",
         "tooLarge": "文件过大",

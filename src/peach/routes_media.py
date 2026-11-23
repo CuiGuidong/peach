@@ -281,7 +281,8 @@ def local_players(request: Request, args=Depends(require_auth)):
     players = []
     if local_playback.available() and _local_playback_client(request):
         players = [{'id': 'default', **_label('labels.routesMedia.defaultPlayer')}, *[
-            {'id': key, 'label': value[0]} for key, value in local_playback.installed().items()]]
+            {'id': key, 'label': value[0]} for key, value in local_playback.installed().items()],
+            {'id': 'custom', **_label('labels.routesMedia.customPlayer')}]
     return JSONResponse({'players': players}, headers={'Cache-Control': 'no-store'})
 
 
@@ -294,6 +295,7 @@ def _local_playback_client(request: Request) -> bool:
 @router.post('/api/local-playback')
 def local_playback(request: Request, id: int, player: str = 'default', args=Depends(require_auth)):
     from . import local_playback as launcher
+    from .folder_picker import PickerBusy, PickerUnavailable
     from .routes_auth import same_origin
     from fastapi import HTTPException
     import subprocess
@@ -303,7 +305,13 @@ def local_playback(request: Request, id: int, player: str = 'default', args=Depe
     asset = request.app.state.media_engine.asset(id)
     path = request.app.state.media_engine.filesystem.file_for(asset, thumbnail=False)
     try:
+        if player == 'custom':
+            return {'opened': launcher.open_custom_media(path)}
         launcher.open_media(path, player, track=_playback_tracker(request.app.state, id))
+    except PickerBusy as exc:
+        raise HTTPException(409, error_detail(exc)) from None
+    except PickerUnavailable as exc:
+        raise HTTPException(501, error_detail(exc)) from None
     except ValueError as exc:
         raise HTTPException(400, error_detail(exc)) from None
     except TimeoutError:

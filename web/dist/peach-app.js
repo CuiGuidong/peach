@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "0f8cb4b7-a84d-48e0-ab40-77857ec0367e", e._sentryDebugIdIdentifier = "sentry-dbid-0f8cb4b7-a84d-48e0-ab40-77857ec0367e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "57c6a11b-03f7-4578-939c-fa525451263c", e._sentryDebugIdIdentifier = "sentry-dbid-57c6a11b-03f7-4578-939c-fa525451263c");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, n) => {
@@ -8235,7 +8235,7 @@ var Ge = "peach.settings.v1", Ke = {
 		faceModelsReady: "Face models are ready"
 	},
 	api: /* @__PURE__ */ JSON.parse("{\"listening\":{\"outsideLan\":\"This address only accepts connections from the local network\"},\"auth\":{\"invalidRememberDays\":\"Choose a valid stay-signed-in duration.\",\"loginFormInvalid\":\"The sign-in form has too many fields.\",\"loginFormTooLarge\":\"The sign-in form is too large.\",\"sessionNotSaved\":\"Couldn't remember this device. Check that the data directory is writable, then try again.\",\"submitFromSettings\":\"Submit from the Settings page.\",\"tooManyAttempts\":\"Too many attempts. Try again in a minute.\",\"assetTokenRequired\":\"?t=<access token> required\"},\"configuration\":{\"accessAlreadySet\":\"Access is already set up. Refresh the page.\",\"accessChanged\":\"Access settings have changed. Refresh, then save again.\",\"accessChangedRetry\":\"Access settings have changed. Refresh, then try again.\",\"accessSaving\":\"Access settings are being saved. Try again later.\",\"accessUnreadable\":\"Can't read access settings. Check the configuration file on this device.\",\"cannotRevokeThisDevice\":\"This device can't be revoked here.\",\"categoryNotCleanable\":\"This category can't be cleaned up here.\",\"chooseDeviceToRevoke\":\"Choose a device to revoke.\",\"chooseFirstAccess\":\"Choose to set an access password or skip sign-in.\",\"chooseSetOrDisable\":\"Choose to set or turn off the password.\",\"clientErrorInvalid\":\"Invalid error report format.\",\"clientErrorMissingMessage\":\"The error report has no reason.\",\"clientErrorRateLimited\":\"Too many error reports.\",\"clientErrorTooLong\":\"The error report is too long.\",\"cloudProxiesUnconfirmed\":\"Couldn't confirm that CloudDrive2 saved it. Reload the settings and check.\",\"cloudProxiesUnreadable\":\"Can't read the CloudDrive2 proxy settings. Check the connection and token permissions.\",\"configurationChanged\":\"Settings have changed. Refresh, then save again.\",\"configurationSaveFailed\":\"Couldn't save settings: {{error}}\",\"confirmDisablePassword\":\"Check the confirmation box before turning off the access password.\",\"confirmUninstall\":\"Confirm that you want to uninstall Peach.\",\"currentPasswordWrong\":\"The current access password is incorrect.\",\"deviceGone\":\"This device is no longer in the list.\",\"dockerUpdateOnly\":\"One-click updates are only available for the Docker image.\",\"enabledNotBoolean\":\"enabled must be true or false.\",\"errorLogUnwritable\":\"Can't write the error log.\",\"fieldNotText\":\"{{field}} must be text.\",\"fileManaged\":\"This deployment manages the service through a configuration file.\",\"hostRequired\":\"Choose who can access Peach.\",\"indexersNotSaved\":\"Indexer settings weren't saved. Check permissions on the credentials directory on this device.\",\"indexersUnreadable\":\"Can't read the indexer settings.\",\"invalidCode\":\"Enter a valid code.\",\"mdnsNameRequired\":\"Enter a LAN name.\",\"needsChanges\":\"Some fields need changes.\",\"newVersionInstalled\":\"Peach has been updated. Refresh the page.\",\"noLocalCertificate\":\"This device doesn't provide a local HTTPS certificate.\",\"noUpgradeReview\":\"No upgrade review record yet.\",\"openDiagnosticsOnHost\":\"Open system diagnostics on the device running Peach.\",\"openOnHost\":\"Open Settings on the device running Peach.\",\"passwordNotText\":\"The password must be text.\",\"passwordRequired\":\"Enter an access password.\",\"portManagedByTray\":\"The access port is managed by the tray.\",\"primaryOnly\":\"Only available when this device is the primary computer.\",\"qrExpired\":\"The QR code has expired. Scan it again from Settings.\",\"relocateBusy\":\"A migration request is already being processed.\",\"relocateRejected\":\"Can't move data to this location.\",\"repairUnknown\":\"There is no repair named {{item}}.\",\"restoreConfirmRequired\":\"Restoring replaces the current database. Confirm first.\",\"retentionBusy\":\"Retention settings are being saved. Try again shortly.\",\"serverManagedByLaunch\":\"Access scope and name are managed by the service startup configuration.\",\"sessionsWriting\":\"Device records are being written. Try again later.\",\"settingsChanged\":\"Settings have changed. Refresh, then save again.\",\"settingsSaving\":\"Settings are being saved. Try again later.\",\"settingsWriteFailed\":\"Couldn't write settings: {{error}}\",\"setupRequired\":\"Finish first-time setup first.\",\"smbAccessDenied\":\"SMB sign-in failed or read access was denied. Check the account, password, and share permissions.\",\"smbCredentialsNotText\":\"The SMB account and password must be text.\",\"smbUnreadable\":\"Can't read the SMB share. Check the address, share name, and network connection.\",\"storagePolicySaveFailed\":\"Couldn't save storage limits: {{error}}\",\"submitFromAccessPage\":\"Submit from the Peach access setup page.\",\"tokenFromLaunch\":\"The token is set by the --token launch option or the PEACH_TOKEN environment variable. Change it there.\",\"tokenNotUsed\":\"This launch doesn't use an access token.\",\"uninstallTasksRunning\":\"{{tasks}} is running. Wait for it to finish or cancel it in Tasks before uninstalling.\",\"updateInstalling\":\"An update is being installed. Try again later.\"},\"javBrowser\":{\"errorReportInvalid\":\"Invalid error report format.\",\"errorReportTooLong\":\"The error report is too long.\",\"primaryOnly\":\"Browser adding is only available on devices allowed to change the database.\",\"tokenRequired\":\"Turn on browser adding in Peach download channels and set up a dedicated token.\"},\"pages\":{\"bodyNotObject\":\"The request body must be a JSON object.\",\"needsChanges\":\"Some fields need changes.\",\"openSetupLocally\":\"Open setup using this device's local address.\",\"passwordRequired\":\"Enter an access password.\",\"restoreMissingConfig\":\"This directory has no valid config.toml.\",\"restoreMissingDatabase\":\"This directory has no database. Choose the data directory that holds the original settings and database.\",\"restoreNeedsAbsolutePath\":\"Choose the absolute path of an existing data directory.\",\"restoreRejected\":\"Can't use this data directory.\",\"submitFromSetup\":\"Submit from the Peach setup page.\"},\"routes\":{\"importEmpty\":\"The export file is empty.\",\"importTooLarge\":\"The export file is larger than 1 GB.\",\"revealFailed\":\"Couldn't open the file manager. Try again.\",\"revealMissing\":\"This location no longer exists.\",\"revealOutsideDataRoot\":\"Peach doesn't manage this location. Open it yourself.\",\"revealUnreachable\":\"The drive holding this location didn't respond in time. Try again later.\",\"revealUnsupported\":\"Can't open a file manager on this device.\",\"taskAlreadyRunning\":\"{{task}} is already running. Try again after it finishes.\",\"taskCanceled\":\"Task canceled. Saved results are kept.\",\"taskChanged\":\"The task has changed. Refresh, then try again.\",\"taskOnOtherHost\":\"Do this on the primary computer running this task.\"},\"settings\":{\"choiceInvalid\":\"{{key}} only accepts {{choices}}.\",\"empty\":\"No preferences to save.\",\"interfaceLanguageInvalid\":\"interfaceLanguage only accepts {{choices}}\",\"libraryOrderInvalid\":\"Library order must use unique library IDs.\",\"navigationOrderUnknownEntry\":\"Navigation order contains invalid items.\",\"navigationOrdersInvalid\":\"Navigation order needs known groups and order arrays.\",\"performerNameLanguageInvalid\":\"performerNameLanguage only accepts zh-CN, ja, en, ja-local or local-ja.\",\"sortControlsInvalid\":\"Sort options require valid groups, order arrays and hidden option arrays.\",\"profileMissing\":\"profile {{profile}} doesn't exist.\",\"searchHistoryLimitInvalid\":\"searchHistoryLimit only accepts integers from 0 to {{max}}.\",\"switchNotBoolean\":\"{{key}} only accepts true or false.\",\"unknownKeys\":\"These preferences don't sync with the database: {{keys}}\"},\"subtitles\":{\"fileTooLarge\":\"The subtitle file is larger than 4 MiB.\",\"invalidVideo\":\"Invalid video ID.\",\"memoryTooLarge\":\"The subtitle data is too large.\",\"trackMissing\":\"The subtitle doesn't exist.\",\"videoMissing\":\"The video doesn't exist.\"},\"tasks\":{\"cursorIdInvalid\":\"before_id must be a positive integer.\",\"cursorIncomplete\":\"before_finished_at and before_id must be given together.\",\"cursorWithFilter\":\"before_finished_at/before_id only apply to the recently finished section and can't be combined with status or task_key.\",\"invalidPage\":\"Invalid task page number.\",\"noTaskTable\":\"The database is missing the task history table. Check your backups as the operations guide describes, then run peach migrate upgrade --yes.\"},\"tutorial\":{\"campaignChanged\":\"The tour has been updated. Refresh to continue.\",\"invalidIdentifier\":\"Invalid tour chapter or step ID.\",\"invalidPosition\":\"Invalid tour position.\",\"invalidSkipped\":\"Invalid tour skip state.\",\"profileMissing\":\"The current user preferences don't exist.\",\"tooManyChapters\":\"Too many tour chapters.\",\"tooManySteps\":\"Too many tour steps.\",\"unsupportedAction\":\"Unsupported tour action.\"},\"review\":{\"fieldNotInBatch\":\"The selected metadata field isn't in the current batch and can't be approved\",\"fieldNotPending\":\"Only metadata fields awaiting review can be approved\",\"candidateJsonInvalid\":\"The pending metadata has invalid JSON\",\"sourceNotPending\":\"Metadata from the selected source isn't in the current review list\",\"itemNotInBatch\":\"The selected metadata isn't in the current batch and can't be approved\",\"imageNotPassed\":\"Only candidate images that passed the quality check can be used\",\"imageChecksumMissing\":\"The selected image has no valid SHA-256 checksum\",\"imageNotCached\":\"The selected image isn't in this device's cache: {{digest}}\",\"imageContentMismatch\":\"The image content doesn't match the pending record and can't be used\",\"noLocalImage\":\"The selected metadata has no usable image on this device\",\"imageNotSaved\":\"The selected image isn't saved on this device: {{name}}\",\"labelFileNameInvalid\":\"Can't make a file name from this label name\",\"imageFormatUnsupported\":\"Unsupported image format: {{suffix}}\",\"restoreNotAllowed\":\"Only metadata marked for later or ignored can be restored; approved metadata isn't reverted\",\"restoreItemGone\":\"The selected metadata is no longer among the current candidates and wasn't restored\",\"revisionNotInteger\":\"{{field}} must be an integer\",\"sourceRequired\":\"Choose the source to use before approving a metadata field\",\"itemNotCandidate\":\"Only review items in candidate status can be approved\",\"submissionMismatch\":\"The submission doesn't match the selected metadata and wasn't saved\",\"creatorOverApproveLimit\":\"This creator has {{count}} videos, over the limit of {{limit}} per approval. Select them on the page, then approve\",\"genreEmpty\":\"The genre to add is empty\",\"tagNameInvalid\":\"Tag names must be 1 to 80 characters and can't be a performer marker\"},\"libraryProcessing\":{\"currentVideoChanged\":\"The current video changed or isn't fetching external metadata. Refresh and try again\",\"taskChanged\":\"The task changed. Refresh the page and try again\",\"archiveAfterFinish\":\"Notices can be archived only after the task finishes\",\"actionInvalid\":\"Invalid processing action\",\"taskRequired\":\"Select the running task\",\"noActiveTask\":\"No task to pause or resume\",\"waitingForStop\":\"Waiting for the task to stop. Try again shortly\",\"issuesUnavailable\":\"The full issue log wasn't found. Export a diagnostics log\",\"issuesChanged\":\"The issue log changed. Export it again\",\"originalTaskChanged\":\"The original task changed. Refresh the page and try again\",\"retryItemsInvalid\":\"Invalid retry items\",\"retryItemNotFailed\":\"A retry item isn't among the original task's failures\",\"incrementalNotBoolean\":\"The new-files scope must be on or off\",\"incrementalExclusive\":\"New-file discovery can't be combined with other processing scopes\",\"newScopeExclusive\":\"The newly imported scope can't be combined with other processing scopes\",\"noNewVideos\":\"No newly imported videos to process\",\"addMediaDirectory\":\"Add a media directory first\",\"collectionConfigMismatch\":\"The current collection doesn't match the media settings\",\"selectionInvalid\":\"Select valid videos\",\"recheckNotBoolean\":\"recheck must be true or false\",\"recheckSelectedOnly\":\"Re-collecting is only for up to {{limit}} selected videos and the metadata stage\",\"selectionRetryExclusive\":\"Selected items and retrying failures can't be used together\",\"stageInvalid\":\"Invalid processing stage\",\"incrementalStageUnsupported\":\"New-file discovery supports only scan or sync\",\"directoryOutsideLibrary\":\"Choose a valid directory within the selected library\",\"directoryUnavailable\":\"Unable to read this directory. Check its mount or permissions.\",\"directoryStageUnsupported\":\"Choose a directory only when running a scan\",\"previewsDisabled\":\"Preview generation is off. Turn it on in library settings first\",\"meteredGrantNotBoolean\":\"The data usage protection override must be on or off\",\"meteredGrantPreviewsOnly\":\"The data usage protection override applies only to filling in previews for selected videos\",\"libraryMustMatch\":\"Retry or resume must use the original task's library\",\"videoOutsideLibrary\":\"The selected videos aren't in the current library\",\"libraryNoPending\":\"The selected library has no videos to process\"},\"scraping\":{\"codeNotInCollection\":\"This code isn't in your collection\",\"sourceConnectionFailed\":\"Couldn't connect to the source. Check the source connection settings; the existing image was kept.\",\"localCoverFailed\":\"Couldn't read or save the cover on this device. Check the cover directory permissions and disk space.\",\"coverProcessingFailed\":\"Cover processing failed ({{errorType}}) and the comparison didn't finish. Check the server log.\"},\"resourceSync\":{\"addMediaDirectory\":\"Add a media directory on the Settings page first\",\"scanExpired\":\"The cleanup confirmation has expired. Run the check again.\"},\"organize\":{\"sourceMissing\":\"Unknown source: (empty)\",\"unknownSource\":\"Unknown source: {{location}}\",\"confirmRequired\":\"Organizing needs confirmation\",\"unverifiedMount\":\"Renames on the {{location}} mount can't be verified in the cloud, so only a preview is shown and nothing runs\",\"rollbackConfirmRequired\":\"Rolling back needs confirmation\",\"noBatchToRollBack\":\"No batch to roll back\"},\"autoLandings\":{\"selectionRequired\":\"Select the metadata to revert\",\"writeGone\":\"This automatic write no longer exists. Refresh and try again: {{item}}\",\"writesChanged\":\"These automatic writes have changed. Preview again\"},\"batch\":{\"quarantinePathMismatch\":\"The quarantine restore path doesn't match\",\"quarantineContentMismatch\":\"The quarantine restore content doesn't match\"},\"mediaRepair\":{\"libraryNotFound\":\"No such library\",\"repairUnavailable\":\"This server instance has no transcoding and repair components\",\"libraryRequired\":\"Select a library first\"},\"performerDelete\":{\"selectionRequired\":\"Select an actress first\",\"selectionInvalid\":\"Select a valid actress\",\"performerGone\":\"The selected actress no longer exists. Refresh the list\",\"planRequired\":\"Review the video deletion list first\",\"planChanged\":\"The video list changed. Close the confirmation and review it again\",\"nothingToDelete\":\"No videos to delete\"},\"entityBatch\":{\"previewStale\":\"Profiles or library files have changed. Close this dialog and choose the deletion scope again\",\"selectionInvalid\":\"Select valid items\",\"selectionChanged\":\"The selection changed. Refresh and try again\",\"operationInvalid\":\"This bulk action isn't supported\"},\"entityMerge\":{\"thirdParty\":\"These names also belong to another profile: {{names}}. Sort that profile out first.\"},\"media\":{\"invalidPlaybackOrigin\":\"Invalid playback address.\",\"localPlaybackUnavailable\":\"Open it on this device with the network playback address or the M3U playlist.\",\"playerLaunchFailed\":\"Couldn't open the player. Check the system file associations or choose another player.\",\"playbackLinkExpired\":\"This playback link has expired. Open it again from the video details.\",\"discNeedsExternalPlayer\":\"Open ISO disc images with an external player from the video details.\",\"coverMissing\":\"This code has no cover.\",\"coverUnreadable\":\"This cover can't be read.\",\"invalidCropBox\":\"The selected area is invalid.\",\"socialAvatarUnavailable\":\"Social media avatar not found. The source is unavailable or still waiting to retry.\",\"mediaIndexMissing\":\"This media index doesn't exist.\",\"imageSourceUnavailable\":\"The image source is unavailable.\",\"coverNotFound\":\"Cover not found.\",\"previewPlaylistTooLarge\":\"The preview playlist is too large.\",\"unrecognizedImage\":\"This isn't a recognizable image.\",\"publicHttpsRequired\":\"Only public https addresses are accepted.\",\"noImage\":\"No usable image.\",\"unrecognizedCode\":\"This code isn't recognized.\"},\"follow\":{\"itemMissing\":\"This followed item doesn't exist.\",\"itemUnavailable\":\"This followed item is no longer available.\",\"entriesNotList\":\"entries must be a list.\",\"imageDimsBatchLimit\":\"Up to {{limit}} images can be written back at once.\",\"entryNotObject\":\"Each entry must be an object.\",\"invalidImageDims\":\"width/height must be positive integers.\",\"sourceMissing\":\"This follow source doesn't exist.\",\"addedPendingCheck\":\"Added. Waiting to check for updates.\",\"addedCheckBusy\":\"Added. Another check is running, so this one will be checked later.\",\"creatorBindingIncomplete\":\"Both entity_id and key are required.\",\"aliasGroupSpansProfiles\":\"These aliases are linked to more than one creator profile. Confirm which profile they belong to first.\",\"creatorNameRequired\":\"Enter a valid creator name.\",\"nothingToResolve\":\"Nothing to look up.\",\"resolveLineLimit\":\"Up to {{limit}} lines can be looked up at once; received {{count}}.\",\"credentialsNotAccepted\":\"{{provider}} doesn't accept credentials.\",\"credentialsProviderMissing\":\"(empty) doesn't accept credentials.\",\"unknownCredentialFields\":\"{{provider}} doesn't recognize these fields: {{fields}}\"},\"feeds\":{\"javdbLoginRequired\":\"JavDB returned its sign-in page. Set a valid JavDB cookie in Sources, then try again.\",\"pageUnparsable\":\"No entries could be read from this page.\",\"publicHttpsRequired\":\"The subscription address must be an HTTPS address that resolves to the public internet.\",\"sourceHttpStatus\":\"The source returned HTTP {{status}}.\",\"scheduleDisabled\":\"Subscription fetching isn't enabled.\",\"noSourceIds\":\"This person has no ID on JavDB or DMM.\",\"performerMissing\":\"This actress can't be found.\",\"nameRequired\":\"Enter an actress name first.\",\"javdbSearchFailed\":\"JavDB search failed: {{error}}\",\"javdbHttpStatus\":\"JavDB returned HTTP {{status}}.\",\"javdbSearchLogin\":\"JavDB returned its sign-in page, so this search can't run. Try again later.\",\"nameEmpty\":\"Actress name can't be empty.\",\"cardRequired\":\"Select at least one performer card first.\",\"cardsSpanPeople\":\"These cards belong to different people in the database: {{names}}\"},\"catalog\":{\"invalidReleaseYear\":\"Release year must be a four-digit year or unknown.\",\"invalidColumnFilters\":\"Invalid column filters. Select the filters again.\",\"tagNotInVocabulary\":\"This tag isn't in the current vocabulary.\"},\"links\":{\"noCompletedCheck\":\"No completed check results.\",\"checkExpired\":\"The check results are out of date. Run the check again.\",\"nothingToRetry\":\"No links to retry.\",\"selectionRequired\":\"Select the broken links.\",\"selectionOutsideCheck\":\"The selected links aren't in this check's broken-link list.\",\"confirmRequired\":\"confirm is required.\"},\"entry\":{\"invalidDataKey\":\"Invalid data-* key name: {{key}}\"},\"downloads\":{\"disabled\":\"Cloud download isn't enabled.\",\"invalidCursor\":\"Invalid page position for download tasks.\",\"invalidPage\":\"Invalid page number for download tasks.\",\"bodyNotObject\":\"The request body must be an object.\",\"missingTaskId\":\"Missing task ID.\",\"settingsNotObject\":\"Settings must be an object.\",\"writableDeviceOnly\":\"Cloud download is only available on a device that can change the database.\",\"browserLoginDisabled\":\"Browser sign-in isn't enabled.\"},\"javDiscovery\":{\"invalidMetadataAction\":\"action must be start, refresh, or cancel.\",\"invalidReleaseMetadataAction\":\"action must be start or cancel.\"},\"libraryShortcuts\":{\"invalidFilterHref\":\"The filter URL is too long or malformed.\",\"collectionFiltersOnly\":\"Only collection filters can be saved.\",\"unsupportedFilterCondition\":\"The filter contains an unsupported condition.\",\"filtersChanged\":\"The filter list has changed. Reopen it, then reorder.\",\"invalidFavorite\":\"The favorite doesn't exist or its state is invalid.\",\"onlineTagMissing\":\"The online tag doesn't exist. Refresh and try again.\",\"favoritesLimit\":\"You can have up to 1000 favorites.\",\"filterNameLength\":\"Filter names must be 1 to 80 characters.\",\"filtersLimit\":\"You can save up to 100 filters.\",\"unsupportedAction\":\"Unsupported favorites action.\",\"profileMissing\":\"The current user's preferences don't exist.\"},\"javBrowserPerformer\":{\"invalidName\":\"Invalid actress name.\",\"invalidSourceUrl\":\"Invalid source page URL.\",\"unsupportedPage\":\"This page isn't a supported actress page.\",\"dmmLookupFailed\":\"DMM didn't return this actress: {{error}}\",\"nameMissing\":\"Couldn't read this actress's name.\",\"javdbUnconfirmed\":\"Couldn't confirm the same actress on JavDB by \\\"{{name}}\\\". Subscribe from her JavDB actor page.\",\"invalidEnabled\":\"enabled must be true or false.\",\"notInLibrary\":\"This actress isn't in Peach.\"},\"playlists\":{\"nameRequired\":\"Playlist name can't be empty.\",\"nameTooLong\":\"Playlist names can be up to 80 characters.\",\"itemsRequired\":\"A playlist needs at least one video.\",\"tooManyItems\":\"A playlist can have up to {{limit}} videos.\",\"unavailableVideo\":\"The playlist contains an unavailable video: {{assetId}}\",\"mixSeedMissing\":\"The Mix seed must be in the playlist.\",\"reorderIncomplete\":\"The new order must include every video in the playlist.\",\"progressOutsidePlaylist\":\"The resume position isn't in this playlist.\"},\"tasteSignals\":{\"chooseSubject\":\"Give either a code or a performer id, not both.\"},\"javBrowserPeople\":{\"snapshotTooLarge\":\"The local people snapshot is too large.\",\"snapshotInvalid\":\"The local people snapshot is malformed.\",\"snapshotUnavailable\":\"Local people snapshot not found.\",\"performersLimit\":\"Up to 10 performers, each up to 60 characters.\",\"codesLimit\":\"You can look up at most 50 codes at a time.\",\"performersNeedSingleCode\":\"Performers can only be looked up with a single code.\"},\"folders\":{\"folderMissing\":\"The directory doesn't exist or was removed from the library.\",\"unsupportedAction\":\"Unsupported directory rule action.\"},\"javDetail\":{\"invalidCode\":\"A valid video code is required.\",\"previewImageMissing\":\"The preview image doesn't exist.\",\"officialCoverMissing\":\"No usable official cover found.\"},\"tags\":{\"unknownScope\":\"Unknown tag vocabulary.\",\"unknownState\":\"Unknown tag state.\",\"unknownView\":\"Unknown tag view.\",\"tagsChanged\":\"Tags have changed. Preview the scope again.\"},\"wants\":{\"missingId\":\"Missing Want item ID.\"},\"resourceSearch\":{\"downloadsDisabled\":\"Cloud download service isn't enabled.\",\"invalidSizeRange\":\"The size range must be in bytes.\"},\"timelineThumbnails\":{\"invalidMode\":\"Invalid capture density.\",\"previewsDisabled\":\"Preview generation is off. Turn it on in library preferences first.\",\"ffmpegMissing\":\"ffmpeg not found, so thumbnails can't be captured.\"},\"mediaTools\":{\"installed\":\"Installed {{label}} ({{version}})\",\"alreadyInstalled\":\"{{label}} is already installed ({{version}}). No download needed.\"},\"ledger\":{\"migrating\":\"Updating the local database. Refresh the page when it's done.\",\"migrationFailed\":\"The local database couldn't be updated, so background tasks didn't start: {{error}}\"}}"),
-	errors: /* @__PURE__ */ JSON.parse("{\"seedSharing\":{\"invalidChoice\":\"Choose whether to enable public metadata contributions.\",\"previewFirst\":\"Preview the local metadata and confirm the sharing scope first.\",\"tooLarge\":\"Metadata exceeds the per-send limit. No sendable preview was created.\",\"noPerformer\":\"The performer profile was not found.\",\"noIdentity\":\"A verifiable public identity or original Japanese name is missing.\",\"invalidName\":\"Enter a valid Chinese name.\",\"invalidEvidence\":\"Use a public HTTPS link and remove any account or tracking parameters.\"},\"ledger\":{\"writeBusy\":\"The local database is busy: this write waited more than {{seconds}} s and was not saved. Try again later.\",\"writeCorrupt\":\"The local database is damaged. Restore a verified copy in Settings → App & Maintenance → Database backups.\"},\"hardwareTranscode\":{\"backendInvalid\":\"PEACH_TRANSCODE_BACKEND must be one of {{backends}}\"},\"processingInventory\":{\"previewEnded\":\"The directory pre-check has ended. Reopen the sync dialog.\"},\"gfriends\":{\"indexHttpStatus\":\"Gfriends index returned HTTP {{status}}\",\"indexTooLarge\":\"Gfriends index exceeds the size limit\"},\"researchParticipation\":{\"stateTooLarge\":\"Research participation state exceeds the size limit on this device\",\"stateInvalid\":\"Research participation state is malformed\"},\"trayDetached\":{\"venvHomeMissing\":\"The virtual environment does not name a base interpreter directory: {{path}}\",\"desktopProcessMissing\":\"Could not find the Windows desktop process for this session. Make sure you are signed in to the Windows desktop.\"},\"entities\":{\"tagAliasConflict\":\"Tag aliases conflict. Merge the duplicate tags first.\",\"mergeIntoSelf\":\"Cannot merge a profile into itself\",\"mergeTargetMissing\":\"Merge target profile {{id}} does not exist\"},\"strm\":{\"urlInvalid\":\"STRM needs an HTTP or HTTPS playback URL without an account or password\",\"fileTooLarge\":\"STRM file exceeds 64 KiB\",\"fileUnreadable\":\"STRM file could not be read or is not UTF-8 text\",\"singleUrlRequired\":\"STRM file must contain exactly one playback URL\",\"contentUnparsable\":\"Can't parse the STRM content. Check the playback URL and list format\",\"mediaUnavailable\":\"Couldn't get the STRM media. Check the playback URL or update the STRM in the tool that made it\"},\"feeds\":{\"dmmActressIdDigits\":\"DMM actress IDs must be numeric\",\"httpsRequired\":\"Subscription URL must start with https://\",\"duplicateUrl\":\"This subscription URL is already in the list\"},\"mp4recover\":{\"stagedSizeMismatch\":\"The copy written to the original directory has the wrong size\",\"noDecodableReference\":\"No reference produced a decodable cut\",\"backupExists\":\"A backup already exists in the same directory: {{name}}\"},\"javdbPublic\":{\"budgetExceeded\":\"The metadata request budget for this run is used up\",\"imageSourcePaused\":\"The image source is temporarily unavailable. Try again later.\",\"sourcePaused\":\"The metadata source is temporarily unavailable. Try again later.\",\"notFound\":\"No metadata found for this code\",\"identityAmbiguous\":\"Several videos share this code. Check the source identity: {{identities}}\",\"reviewPageOutOfRange\":\"Comment page must be between 1 and 8\",\"performerAvatarMissing\":\"Performer avatar does not exist\",\"previewImageMissing\":\"Preview image does not exist\",\"unavailable\":\"Metadata not found. Try again later\",\"unrecognizedFormat\":\"The metadata source's format wasn't recognized\",\"identityMismatch\":\"The source's video identity doesn't match\",\"imageUnavailable\":\"Image not found\"},\"storageBudget\":{\"unsupportedField\":\"Capacity settings contain an unsupported field\",\"gibOutOfRange\":\"{{key}} must be a whole number of GiB from {{minimum}} to 1048576\",\"switchRequired\":\"{{key}} must be on or off\",\"externalPathNotString\":\"External cache directory must be a path\",\"externalPathNotAbsoluteDirectory\":\"External cache directory must be an absolute directory readable on this device\",\"policyUnreadable\":\"Could not read capacity settings: {{error}}\",\"externalPathOverlaps\":\"External cache directory must be separate from Peach data and every configured directory\",\"hardLinkIdentityMissing\":\"The file system does not report hard link identity, so allocated size is unknown\",\"externalPathForeign\":\"The external cache path does not apply to this system. Update the path.\",\"externalDirectoryInaccessible\":\"External cache directory is not accessible\",\"cacheLayoutChanged\":\"Cache directories changed during the count. Count again.\",\"dataLayoutChanged\":\"Data directories changed during the count. Count again.\",\"capacityLayoutChanged\":\"Capacity directories changed during the count. Count again.\",\"externalDirectoryMoved\":\"External cache directory is not accessible. If you moved it, update the path in capacity settings.\",\"usageUnavailable\":\"Capacity usage unavailable: {{errors}}\",\"scanPaused\":\"Free disk space hit the limit during the scan, so current writes are paused. Free up space or try again: {{reasons}}\",\"cacheWritesStopped\":\"{{reasons}}. Not enough disk space, so cache writes have stopped. Free up space and try again\",\"intakeStopped\":\"{{reasons}}. Stopped picking up new items. Adjust the capacity settings or free up space and try again\",\"checkUnavailable\":\"The capacity protection check returned no result, so work is paused: {{error}}\"},\"mediaConfiguration\":{\"smbAddressRequired\":\"Enter smb://server/share/directory\",\"smbCredentialsNotText\":\"SMB account and password must be text\",\"smbOptionsInvalid\":\"SMB connection options are invalid\",\"smbRootInvalid\":\"The internal path of the SMB directory is invalid\",\"controlCharacters\":\"Paths cannot contain control characters\",\"rootMappingMissing\":\"Cannot configure the media directory automatically. Check the directory mapping in the configuration file.\",\"driveLetterRequired\":\"Media path must include a drive letter, for example B:\\\\. Map a network share to a Windows drive letter first.\",\"mappingFormatInvalid\":\"A path in [media.locations] in the configuration file is invalid. Use Windows format, for example R:\\\\media\",\"fullPathRequiredWindows\":\"Enter the full path of the media directory, for example D:\\\\Movies\",\"fullPathRequiredPosix\":\"Enter the full path of the media directory, for example /media\",\"parentSegment\":\"Media directory path cannot contain the parent directory ..\",\"rowInvalid\":\"Storage entry is malformed\",\"locationRequired\":\"Choose a storage from the list\",\"costRequired\":\"Choose a proxy data usage protection setting\",\"pathOverlaps\":\"Media path duplicates or overlaps another folder\",\"mappingOverlaps\":\"Directory mappings in the configuration file duplicate or overlap each other\",\"directoryOverlaps\":\"Media directory duplicates or overlaps another row\",\"rowCount\":\"Add 1 to 100 library directories\"},\"smbMedia\":{\"addressInvalid\":\"SMB address or port is invalid\",\"addressFormat\":\"Enter smb://server/share/directory. Enter the account and password separately.\",\"sharePathInvalid\":\"SMB address needs a share name, and the directory cannot contain parent directories or path separators\",\"rootIdentityInvalid\":\"SMB media directory identity is invalid\",\"credentialsNotText\":\"SMB account and password must be text\",\"outsideRoot\":\"Path is outside the media directory\",\"rootNotWritable\":\"Cannot write to a declared media root directory\",\"rootNotRenamable\":\"Cannot modify a declared media root directory\",\"rootNotDeletable\":\"Cannot delete a declared media root directory\",\"rootNotReplaceable\":\"Cannot create or replace a declared media root directory\",\"renameAcrossRoots\":\"SMB rename only works within the same media root directory\"},\"jobs\":{\"meteredSourceDenied\":\"Proxy data usage protection is on for {{location}} directories. Confirm the budget, then add --allow-metered.\",\"runInProgress\":\"{{task}} already has a run in progress\",\"freeSpaceUnreadable\":\"Can't read the free disk space on {{path}}\",\"freeSpaceLow\":\"{{path}} has only {{free}} GiB free (threshold {{minimum}} GiB)\",\"freeSpaceLowWhileRunning\":\"{{path}} dropped to {{free}} GiB free while running (threshold {{minimum}} GiB), so the task was stopped. Check third-party cache directories; this task's output directory may not be what is using the space\",\"alreadyRunning\":\"Another instance is already running (PID {{pid}})\",\"startFailed\":\"The task couldn't start\",\"serviceStopped\":\"The server shut down before this run finished\",\"superseded\":\"A newer run replaced this one\",\"failed\":\"The task failed\"},\"organizeTemplates\":{\"unclosedPlaceholder\":\"A placeholder `{` has no matching `}`\",\"unknownPlaceholder\":\"Unknown placeholder `{{placeholder}}`. Available: {{available}}\",\"unopenedGroup\":\"An optional group `]` has no matching `[`\",\"unclosedGroup\":\"An optional group `[` has no matching `]`\",\"tooLong\":\"Template is too long\",\"driveLetter\":\"Templates cannot include a drive letter. They describe a location relative to the storage root.\",\"leadingSeparator\":\"Templates cannot start with a separator. They describe a location relative to the storage root.\",\"separatorInFilename\":\"File name templates cannot contain directory separators. Put levels in the directory template.\",\"dotSegment\":\"Templates cannot contain `.` or `..`\",\"emptyLevel\":\"The directory template has an empty level\"},\"desktopUninstall\":{\"deleteDataChoiceRequired\":\"Choose whether to delete Peach data\",\"sourceInstall\":\"For a source install, quit the tray first, then remove the project manually. Data directories are listed below.\",\"programDirectoryUnsuitable\":\"This program directory is not suitable for automatic uninstall\",\"programDataOverlap\":\"Program and data directories overlap. Uninstall manually.\",\"externalDataDirectories\":\"Data uses external or nested directories. Keep data when uninstalling, then clean up manually using the directory list.\",\"mediaOverlap\":\"Uninstall directories overlap media directories. Check manually.\",\"sourceInstallStartup\":\"For a source install, turn off launch at startup and quit the tray first, then remove the project and data directories manually.\",\"updateRunning\":\"An update is still running. Uninstall after it finishes.\",\"configChanged\":\"Configuration changed. Confirm the uninstall again.\"},\"scrapingDiagnostics\":{\"codesInvalid\":\"Enter valid codes, up to {{limit}} at a time\"},\"tasteBrowsers\":{\"historyFormatUnsupported\":\"This browser history format is not supported. Choose a history file that contains page visits.\",\"historyExUnsupported\":\"HistoryEx has no recognizable page visits. 115 download records cannot be used as browsing history. Choose the History file.\",\"historyLocked\":\"The history file is in use. Quit the browser, then add it.\",\"historyUnreadable\":\"Could not read the browser history file. Check the profile directory.\",\"nameAndPathRequired\":\"Enter a browser name and profile directory\",\"noHistoryFiles\":\"No browser history or bookmark files found in the directory\",\"browserMissing\":\"Browser source does not exist\",\"operationInvalid\":\"Invalid browser operation\"},\"taskControl\":{\"actionInvalid\":\"Choose pause, resume, cancel, or change speed\",\"otherHost\":\"Do this on the primary computer that is running this task\",\"runFinished\":\"This task run has already finished\",\"cancelling\":\"The task is being canceled and can no longer be paused or resumed\",\"shuttingDown\":\"The service is shutting down. Saved progress will resume later\",\"runMissing\":\"Could not get the task. Refresh and try again.\"},\"tasteHistory\":{\"snapshotTimeout\":\"Could not take a browser history snapshot. Quit the browser and read it again.\",\"takeoutNoActivity\":\"Takeout has no recognizable browsing or search activity\",\"takeoutHistoryListMissing\":\"Takeout Chrome History is missing the Browser History list\",\"takeoutHistoryRowInvalid\":\"Takeout Chrome History contains an invalid record\",\"takeoutActivityUnparsed\":\"{{profile}} has activity records that could not be parsed: {{count}}\",\"historyInUse\":\"The history file is in use. Quit that browser and read it again.\",\"historyNotRead\":\"Browser history not found. Check the profile directory, or quit the browser and try again.\"},\"localPoster\":{\"unreadable\":\"Could not read the companion image\",\"tooLarge\":\"Companion image size is out of range\"},\"seedPack\":{\"duplicateField\":\"Duplicate field in seed JSON: {{key}}\",\"previousNameTaken\":\"The previous canonical name is used by another entity, so the Chinese name was not reverted\"},\"organizeClouddrive\":{\"pikpakRootInvalid\":\"The PikPak root must be a declared absolute Windows path\",\"cloudDirectoryInvalid\":\"The PikPak cloud directory format is invalid\",\"cloudPrefixIsRoot\":\"The PikPak cloud prefix cannot be the CloudDrive top-level root directory\",\"pathOutsideSource\":\"The path is outside the declared PikPak source\",\"sampleOutsideRoot\":\"The authentication sample is not under a declared PikPak root\",\"prefixNotUnique\":\"Set a single CloudDrive path prefix for this PikPak root in push discovery\",\"webdavResponseTooLarge\":\"The WebDAV response is over the size limit\",\"webdavNoResponse\":\"No network response from WebDAV\",\"webdavTreeTooLarge\":\"The WebDAV directory walk is over the limit or loops\",\"webdavTooManyFiles\":\"The WebDAV directory has too many files\",\"targetParentNotDirectory\":\"The target parent path is not a directory\",\"webdavMkcolFailed\":\"WebDAV could not create the parent directory: HTTP {{status}}\",\"crossParentRename\":\"The official API only accepts a rename in the same parent or a move that keeps the name; split a cross-directory rename into two steps\",\"moveNotExecuted\":\"The official API rejected or did not run the move; the original is confirmed to still be in place\",\"cloudPathTooDeep\":\"The official directory path is too deep\",\"cloudListingInvalid\":\"The official directory listing has out-of-bounds entries, duplicate names, or invalid sizes\",\"cloudListingTooLarge\":\"The official directory listing has too many entries\",\"moveMismatch\":\"The official move source, parent directory, or file name does not match\",\"renameOutsideParent\":\"The official rename only works within the same parent directory in a declared source\",\"refreshFailed\":\"Could not refresh the directory cache: {{status}}\",\"directLinkAuthMissing\":\"Could not get the existing CloudDrive direct-link authentication\",\"directLinkMismatch\":\"The existing direct link source or path does not match\",\"webdavAuthMissing\":\"Could not get the existing WebDAV authentication\",\"authSampleMissing\":\"Could not get an existing CloudDrive authentication sample\",\"tokenMissing\":\"Could not get the existing CloudDrive token\",\"webdavSourceMissing\":\"Could not find the existing PikPak WebDAV source\",\"tokenRootRestricted\":\"Cloud organizing needs a CloudDrive2 token whose root directory is /. This token can only access {{root}}\",\"accountRootMissing\":\"CloudDrive did not return the WebDAV account root directory\",\"prefixOutsideAccountRoot\":\"The CloudDrive path prefix is not under the returned account root directory\",\"webdavUnavailable\":\"WebDAV is temporarily unavailable: {{status}}\",\"cloudListingUnavailable\":\"Couldn't get the full official directory listing: {{status}}\",\"webdavSourceNotFound\":\"WebDAV source not found\",\"webdavTargetExists\":\"The WebDAV target already exists\",\"cloudParentMissing\":\"The official parent directory doesn't list the required directory\",\"moveUnconfirmed\":\"Couldn't confirm the move. Kept the intent receipt and stopped; nothing is repeated or written to the database\"},\"downloads\":{\"infohashInvalid\":\"The infohash in the magnet link is not 40 hex characters or 32 base32 characters\",\"magnetRequired\":\"Paste a magnet link\",\"magnetNotBittorrent\":\"The magnet link has no urn:btih; Peach only accepts BitTorrent magnet links\",\"targetIsRoot\":\"The target directory must be a specific directory in the cloud drive, not its root\",\"addressFormat\":\"Enter only the scheme, host, and port for the CloudDrive2 address, for example http://127.0.0.1:19798\",\"addressPortInvalidIpv6\":\"The CloudDrive2 port must be an integer from 1 to 65535; put IPv6 addresses in square brackets\",\"addressPortInvalid\":\"The CloudDrive2 port must be an integer from 1 to 65535\",\"notPikpakRoot\":\"{{root}} is not a declared PikPak root; known roots: {{known}}\",\"notPikpakRootNoneDeclared\":\"{{root}} is not a declared PikPak root; the settings file has no pikpak storage\",\"invalidEditionPreferences\":\"Choose distinct editions in priority order\",\"waitHoursNotNumber\":\"Enter the wait limit in hours\",\"waitHoursOutOfRange\":\"The wait limit must be between 1 and {{max}} hours\",\"writerOnly\":\"Cloud download is only available on a device that can modify the database\",\"channelUnavailable\":\"Choose a cloud download channel available in the library\",\"targetOutsideLibrary\":\"The download target directory must be inside the selected library\",\"taskNotFound\":\"This download task does not exist\",\"taskFinished\":\"This task has already finished and cannot be canceled\",\"cancelFailed\":\"The remote did not cancel the task: {{detail}}\",\"nothingToRetry\":\"This task has no failed post-processing to retry\",\"remoteRejectedNoReason\":\"The remote side rejected this task without giving a reason\",\"remoteBlocked\":\"115 blocked this resource (prohibited content, 50038), so it will not be retried: {{text}}\",\"remoteQuota\":\"Not enough cloud download quota: {{text}}\",\"remoteStorageFull\":\"Free up space on the cloud drive or upgrade it, then submit again\",\"remoteDuplicate\":\"The same task already exists on the remote side: {{text}}\",\"remoteInvalidLink\":\"The remote side does not accept this link: {{text}}\",\"remoteRejected\":\"The remote side rejected this task: {{text}}\",\"retriesExhausted\":\"{{detail}} (still not submitted after {{checks}} automatic retries)\",\"noSeeders\":\"Still not finished on the remote side after {{hours}} hours, most likely because nobody is seeding. Cancel it or try another magnet link\",\"notAccepted\":\"The cloud drive did not accept this task: it never appeared in the cloud download list after submission, and there are no files in the target directory\",\"remoteRemoved\":\"This task disappeared from the cloud drive: it is not in the cloud download list, and there are no files in the target directory\",\"targetNotMapped\":\"The target directory does not map to a library directory. Check the library mounts and the cloud path mapping\",\"notLanded\":\"Finished on the remote side, but {{path}} never appeared in the mounted directory\"},\"followStore\":{\"aliasNamesRequired\":\"Both the canonical creator name and the platform alias are required\",\"aliasSameAsName\":\"These two names are the same after normalization; no alias is needed\",\"nameRequired\":\"The unified name is required\",\"aliasGroupMissing\":\"This creator alias group no longer exists; refresh the list\",\"nameTaken\":\"This name already belongs to another creator; check whether they should be merged first\",\"aliasRequired\":\"The alias is required\",\"aliasMissing\":\"This creator alias does not exist\",\"canonicalNotRemovable\":\"The canonical name cannot be removed as an alias\",\"itemMissing\":\"Follow item doesn't exist: {{id}}\",\"itemNotFound\":\"Follow item {{id}} doesn't exist\",\"noWorkUrl\":\"This candidate has no video page URL, so it can't be saved as an online video\"},\"followCreators\":{\"holdGone\":\"This group of followed creators is no longer waiting for confirmation; refresh and check again\"},\"onlineTagManagement\":{\"nameInvalid\":\"Tag names must be 1 to 80 characters with no commas or control characters\",\"nameTaken\":\"\\\"{{name}}\\\" already belongs to the tag \\\"{{tag}}\\\"; use Merge tags instead\",\"selectionInvalid\":\"Select valid online tags, up to 2000 at a time\",\"tagsChanged\":\"The tags have changed; refresh and try again\",\"mergeSelection\":\"Select at least two tags and choose the one to keep\",\"mergeSameType\":\"Select tags of the same source type to merge\",\"previewStale\":\"The tags have changed; preview the affected items again\",\"itemTagLimit\":\"Each item can have at most 100 manual tags\"},\"tagManagement\":{\"selectionInvalid\":\"Select valid tags, up to 2000 at a time\",\"nameInvalid\":\"Tag names must be 1 to 80 characters\",\"nameTaken\":\"\\\"{{name}}\\\" already belongs to the tag \\\"{{tag}}\\\"; use Merge tags instead\",\"tagsChanged\":\"The tags have changed; refresh and try again\",\"mergeSelection\":\"Select at least two tags and choose the one to keep\",\"previewStale\":\"The tags have changed; preview the affected items again\"},\"reviewMirror\":{\"notWriter\":\"The target instance is not currently the primary computer\",\"readFailed\":\"Could not read from the primary computer: {{type}}: {{error}}\",\"readFailedWithCurl\":\"Could not read from the primary computer: {{type}}: {{error}}; system network channel: {{curl}}\",\"responseTooLarge\":\"The review response from the primary computer is over the 8 MiB limit\",\"invalidJson\":\"The primary computer did not return valid JSON\",\"notObject\":\"The primary computer did not return a JSON object\",\"curlStartFailed\":\"curl failed to start: {{type}}: {{error}}\",\"curlExit\":\"curl exited with {{code}}: {{detail}}\",\"curlExitNoDetail\":\"curl exited with {{code}}: no error details\",\"responseMissingKey\":\"The review response from the primary computer is missing {{key}}\",\"queuesMissing\":\"The primary computer did not provide review state; update Peach on the primary computer\",\"queueMissing\":\"Review state {{key}} from the primary computer was not found\",\"strictHttpsMissing\":\"No primary computer HTTPS address that can be strictly verified is set\"},\"subtitleSearch\":{\"urlUnsupported\":\"This subtitle download URL is not supported\",\"responseTooLarge\":\"The subtitle response is larger than 4 MiB\",\"unreachable\":\"Cannot reach SubtitleCat right now; try again later\",\"tooManyRedirects\":\"The subtitle download redirected too many times\",\"idInvalid\":\"The subtitle ID is invalid\",\"queryInvalid\":\"Search terms must be 3 to 200 characters; if the page position is invalid, search again\",\"searchPageMissing\":\"Could not load the SubtitleCat search page; try again later\",\"fileMissing\":\"The subtitle file does not exist\",\"fileTooLarge\":\"The subtitle file is larger than 4 MiB\",\"formatUnsupported\":\"Choose an SRT, ASS, SSA, or VTT text subtitle\",\"noTimeline\":\"The subtitle file has no playable timeline\"},\"devCopy\":{\"placeholdersChanged\":\"Keep the existing placeholders and change only the text; write literal braces as {{open}} and {{close}}\",\"placeholdersIncomplete\":\"Keep every placeholder, each exactly once\",\"textTooLong\":\"Select text of no more than 2000 characters\",\"replacementInvalid\":\"The new text must be a string of no more than 2000 characters\",\"sourceChanged\":\"The source file has changed; select the text again\",\"fileNotEditable\":\"This file cannot be edited\"},\"dockerUpdate\":{\"watchtowerMissing\":\"Watchtower was not detected; start it with the compose watchtower profile\",\"unreachable\":\"Cannot reach Watchtower ({{error}}); try again later\",\"tokenMismatch\":\"The token Watchtower read does not match Peach; run docker compose restart watchtower in the directory that contains compose.yaml, then try again\",\"busy\":\"Watchtower is running another update; try again later\",\"httpStatus\":\"Watchtower returned HTTP {{status}}\"},\"updatePackages\":{\"toolPathInvalid\":\"A path in the tool manifest is invalid\",\"toolPathEscapes\":\"A path in the tool manifest is outside the package or contains a link\",\"manifestInvalid\":\"The update package tool manifest is invalid\",\"fileListInvalid\":\"The update package tool file list is invalid\",\"requiredFileMissing\":\"The update package tool manifest is missing required files\",\"downloadInfoInvalid\":\"The update package tool download information is invalid\"},\"feedFollowup\":{\"noMetadata\":\"No source in the chain {{chain}} has metadata for this code\",\"chainTimedOut\":\"The source chain {{chain}} didn't respond within {{seconds}} seconds\"},\"westernCatalog\":{\"http\":\"{{source}} returned HTTP {{status}}\",\"invalid\":\"{{source}} did not return usable metadata\",\"invalidKey\":\"Enter a valid API key\",\"keyMissing\":\"Configure a {{source}} API key first\",\"keyRejected\":\"{{source}} did not accept this API key\",\"redirect\":\"The {{source}} request redirected to a different site and was stopped\"},\"westernArtwork\":{\"babepediaUrlMismatch\":\"Babepedia not found: the profile URL does not match\",\"babepediaHttp\":\"Babepedia not found: HTTP {{status}}\",\"babepediaIdentityMismatch\":\"Babepedia not found: the profile identity does not match\",\"babepediaHostMismatch\":\"Babepedia not found: the source domain does not match\",\"officialCoverHttp\":\"Official cover not found: HTTP {{status}}\",\"officialCoverInvalid\":\"Official cover not found: the API did not return valid metadata\"},\"peachProxy\":{\"modeRequired\":\"Choose a connection mode for the Peach proxy\",\"addressInvalid\":\"Enter an HTTP or SOCKS proxy address with a port\",\"conflict\":\"The source proxy settings differ; choose the Peach proxy in Settings first\",\"requestFailed\":\"External request failed ({{kind}})\"},\"wants\":{\"codeEmpty\":\"Cannot recognize a code: (empty)\",\"codeUnrecognized\":\"Cannot recognize a code: {{text}}\",\"alreadyInLibrary\":\"{{code}} is already in the library\",\"feedItemMissing\":\"Cannot find this new release\",\"followItemMissing\":\"Cannot find this followed item\",\"wantMissing\":\"Cannot find this want\"},\"mediaProcessingPolicy\":{\"previewStateRequired\":\"Choose whether to generate previews\",\"accelerationModeRequired\":\"Choose automatic or software-only mode\",\"choiceRequired\":\"Choose a media processing mode\",\"qualityRequired\":\"Quality limit only accepts {{choices}}\"},\"retentionSettings\":{\"choiceInvalid\":\"{{key}} only accepts {{choices}}.\",\"empty\":\"No retention settings to save.\"},\"server\":{\"databaseMissing\":\"Settings exist but the database is missing; restore the database, then start Peach\",\"migrateFailed\":\"The database upgrade failed with exit code {{code}}; the service did not start\",\"settingsMissing\":\"The database exists but the settings file is missing; restore config.toml, then start Peach\",\"initFailed\":\"Initialization failed with exit code {{code}}\"},\"entryLinks\":{\"sitesRequired\":\"Submit an address for each site\",\"siteMissing\":\"Settings for {{site}} are missing\",\"hostNotText\":\"The address for {{site}} must be text\",\"hostTooLong\":\"Keep the address for {{site}} within {{limit}} characters\",\"hostShape\":\"For {{site}}, enter only the domain name, like {{example}}\"},\"gpuLinux\":{\"clientIdMissing\":\"The GPU driver did not provide a DRM client ID for deduplication\",\"engineFormatInvalid\":\"The GPU engine time or capacity format is invalid\",\"engineTimeMissing\":\"The GPU driver did not provide DRM engine busy time\"},\"remoteMediaCache\":{\"capacityDenied\":\"{{detail}}\",\"incompleteResponse\":\"The media response length is incomplete\",\"unavailable\":\"Media not found\"},\"supportBundle\":{\"notWritable\":\"Could not write the diagnostics report to the data directory or the temporary directory\"},\"smbTransport\":{\"hostShareNotComponent\":\"SMB host and share name must each be a single path component\",\"invalidPort\":\"Invalid SMB port\",\"invalidTimeout\":\"SMB request timeout must be a finite positive number\",\"pathNotRelative\":\"SMB path must be relative to the share root\",\"invalidPathComponent\":\"SMB path contains an invalid component\",\"authenticationFailed\":\"SMB authentication failed\",\"accessDenied\":\"SMB access denied\",\"connectionUnavailable\":\"SMB connection unavailable\",\"requestTimedOut\":\"SMB request timed out\",\"transportClosed\":\"SMB transport is closed\",\"disconnected\":\"SMB connection was lost\",\"connectionClosed\":\"SMB connection is closed\",\"dfsNotAllowed\":\"SMB DFS shares can't be redirected\",\"reparsePoint\":\"SMB reparse points can't be accessed\",\"rootNotModifiable\":\"Can't modify the share root directory\",\"rootNotReplaceable\":\"Can't replace the share root directory\",\"rootNotWritable\":\"Can't write to the share root directory\",\"readNoCredits\":\"SMB read has no credits available\",\"unexpectedEnd\":\"SMB file ended before its declared end\",\"writeNoCredits\":\"SMB write has no credits available\",\"writeIncomplete\":\"SMB write didn't complete\",\"requestFailed\":\"SMB request failed\"},\"resourceSearch\":{\"invalidEndpoint\":\"Indexer address is not valid\",\"endpointFormat\":\"Enter an HTTP or HTTPS API address; enter the API key separately and leave query parameters out of the address\",\"unreadableConfig\":\"Indexer settings can't be read. Save them again in Settings → Downloads on this device\",\"tooManyIndexers\":\"You can configure at most {{max}} indexers\",\"indexerNotObject\":\"Each indexer setting must be an object\",\"invalidIndexerKey\":\"Indexer ID is empty or duplicated\",\"invalidIndexerName\":\"Indexer name must be 1 to 80 characters\",\"invalidApiKey\":\"API key is not valid\",\"invalidSizeRange\":\"Size range must be between 0 and 1 TiB, and the minimum can't exceed the maximum\",\"invalidGoal\":\"Quality goal must be HD, Chinese subtitles or uncensored\",\"responseTooLarge\":\"Indexer response is larger than 2 MiB\",\"xmlEntities\":\"Indexer XML contains unsupported entity declarations\",\"notTorznab\":\"Indexer didn't return Torznab XML\",\"invalidCode\":\"Enter a recognizable code\",\"indexerLimitExceeded\":\"Too many indexers\",\"noCodeSearch\":\"Indexer doesn't declare code search support\"},\"scrapingAccess\":{\"unknownSource\":\"Unknown fetch source\",\"cookieFileFormat\":\"Cookie file must be in Netscape text format\",\"cookieOneLine\":\"Paste a single-line Cookie header\",\"invalidCookieHeader\":\"Cookie header is not valid\",\"chooseNetwork\":\"Choose how to connect to this source\",\"cookieNotAccepted\":\"This source doesn't accept sign-in cookies\",\"cookieOneMethod\":\"Either paste cookies or import a cookie file, not both\",\"cookieTooLarge\":\"Cookie text is larger than 256 KiB\",\"noValidCookie\":\"No unexpired cookies for this source were found\",\"redirectNotHttps\":\"Fetch redirects must use HTTPS\",\"tooManyRedirects\":\"Too many fetch redirects\",\"accountSuspended\":\"{{label}} temporarily suspended the account for browsing too fast. It resumes {{time}}; the account is blocked, not the exit, so Peach pauses requests to it until then\",\"geoRestricted\":\"{{label}} isn't available in the region of your current exit. In your proxy, route it through an exit in a region it accepts; requests to it are paused for {{minutes}} minutes\",\"ipBanned\":\"{{label}} has banned your current exit IP. Requests to it are paused for a while; you can also route it through a different exit in your proxy\",\"requestBudgetSpent\":\"This run's fetch request limit is used up. Run it again to continue; existing images are kept\",\"timeBudgetSpent\":\"This run's fetch time limit is used up. Run it again to continue; existing images are kept\",\"downloadBudgetSpent\":\"This run's download limit is used up. Run it again to continue; existing images are kept\",\"coolingDown\":\"The source is cooling down. Try again later; existing images are kept\",\"challengeTimedOut\":\"The source's human verification wasn't passed in time, so requests to it are paused for a while. Next time, open the collection browser from the taskbar and click the verification; existing images are kept\",\"rateLimited\":\"The source is rate limiting requests; the cooldown has been recorded. Existing images are kept\",\"coolingDownNamed\":\"{{label}} is paused. Try again in about {{minutes}} min\",\"rateLimitedNamed\":\"{{label}} is rate limiting. Try again in about {{minutes}} min\",\"refusedNamed\":\"{{label}} refused requests from the current exit, most likely too many requests or a blocked exit. Paused for about {{minutes}} min; you can also give it another exit in the proxy\",\"refusedCookieNamed\":\"{{label}} refused the request: too many requests, a blocked exit, or the saved cookie has expired. Paused for about {{minutes}} min; try another exit or paste a fresh cookie\",\"refused\":\"The source refused access, so requests to it are paused for a while. Existing images are kept\",\"browserModeInvalid\":\"The collection browser mode must be one of {{choices}}\"},\"downloadPostprocess\":{\"noLandingPath\":\"The download task has no landing path\",\"noVideoInLanding\":\"No recognizable video in the landing directory\",\"mainBoundToOtherCode\":\"The full video is already linked to another code: {{code}}\",\"configMismatchProbe\":\"The current collection doesn't match the storage settings, so downloaded media can't be probed\",\"configMismatchCollect\":\"The current collection doesn't match the storage settings, so metadata for the download can't be fetched\",\"collectFailed\":\"Fetching metadata failed\",\"organizeIncomplete\":\"Organizing files didn't finish: {{reasons}}\",\"integrityBefore\":\"Database check failed before organizing: integrity={{integrity}}\",\"integrityAfter\":\"Database check failed after organizing: integrity={{integrity}} new_foreign_keys={{count}}\",\"notIngested\":\"The cloud download hasn't been imported yet\"},\"subtitleMemory\":{\"invalidFields\":\"Invalid playback memory fields\",\"chooseSubtitle\":\"Choose subtitles or turn them off\",\"invalidRotation\":\"Invalid rotation\",\"invalidRate\":\"Invalid playback speed\",\"invalidCaptionStyle\":\"Invalid subtitle appearance\",\"invalidSelection\":\"Invalid subtitle selection\",\"invalidVideoKey\":\"Invalid video ID\",\"invalidTrack\":\"Invalid subtitle track\",\"invalidTrackContent\":\"Invalid subtitle content or name\",\"selectionNotSaved\":\"The selected subtitles haven't been saved\"},\"entityIdentityResearch\":{\"nameMismatch\":\"The identity list doesn't match the entity name\",\"performerNeedsOccupation\":\"Moving to performers needs a fetched public occupation source\",\"planExpired\":\"The identity plan is out of date\",\"multiplePublishers\":\"The video has several publishers and needs review\",\"recordChanged\":\"The identity repair records have changed since\",\"newIdentityChanged\":\"The new identity has changed since\",\"newIdentityHasVideos\":\"The new identity has extra video links\",\"newIdentityHasData\":\"The new identity has extra metadata\"},\"updateTasks\":{\"gateBusy\":\"The task gate is busy. It will retry automatically.\",\"stateUnreadable\":\"Can't read the task protection state. Check the data directory and try again.\",\"stateInvalid\":\"The task protection state is invalid. Check the data directory and try again.\",\"preparingInstall\":\"An update is being prepared for installation, so new tasks can't start right now. Wait for the installation to finish.\",\"installInProgress\":\"An update is already being installed. Wait for it to finish.\",\"reservedBusy\":\"{{message}}\",\"pausedForInstall\":\"Task paused. It resumes automatically after the installation finishes.\",\"batchStateUnknown\":\"Couldn't confirm the state of a batch process, so the installation was canceled.\",\"reservationExpired\":\"The update installation reservation has expired. Prepare the update again.\"},\"avatarProvider\":{\"unsupportedFormat\":\"{{format}} images aren't supported yet. Use a JPEG, PNG, WebP or AVIF image\",\"unsupportedFormatUnknown\":\"This image format isn't supported yet. Use a JPEG, PNG, WebP or AVIF image\",\"imageTooLarge\":\"The image has too many pixels. Make it smaller and choose it again\",\"unrecognizedImage\":\"Can't recognize the image. The file may be damaged or in an unsupported format; export the image again\",\"incompleteImage\":\"The image data is incomplete or can't be decoded. Download or export the image again\"},\"processingControl\":{\"invalidMode\":\"Choose low, standard or high intensity mode\",\"jobChanged\":\"The task has changed. Refresh the page and try again\",\"stopped\":\"The processing task stopped\",\"userStopped\":\"Stopped by the user\"},\"avatarWatermark\":{\"modelMissing\":\"The text detection model isn't at {{path}}, and downloading isn't allowed\",\"downloadFailed\":\"Couldn't get the text detection model: {{error}}\",\"checksumMismatch\":\"The text detection model failed verification: expected {{expected}}, got {{actual}}\"},\"junkVisual\":{\"ocrUnavailable\":\"Visual promotion analysis unavailable ({{reason}})\"},\"previewCache\":{\"playlistNotFetched\":\"Playlist not found\",\"contentSteering\":\"Content Steering playlists aren't supported yet\",\"sourceUnavailable\":\"The preview source is unavailable\",\"objectMissing\":\"The preview object doesn't exist\",\"manifestNotFetched\":\"Preview manifest not found\"},\"metadataRoutes\":{\"overrideFormat\":\"Source chain overrides must be written as `type=source,source`\",\"unknownContentType\":\"Unknown content type: {{type}}\",\"unknownSources\":\"Unknown sources: {{sources}}\"},\"libraryNfo\":{\"tooLargeOrEntities\":\"The NFO file is too large or contains entity declarations\",\"notVideo\":\"The NFO isn't video or episode metadata\",\"multipleCodes\":\"The NFO contains several different codes\"},\"remoteReporting\":{\"notBoolean\":\"Telemetry and automatic error diagnostics must be true or false\",\"mustMatch\":\"Version stats and error diagnostics must be turned on or off together\"},\"studioIcons\":{\"hashMismatch\":\"The candidate file's hash doesn't match the review record, so it wasn't installed: {{name}}\",\"notSquare\":\"Couldn't make a usable square image, so it wasn't installed: {{name}}\"},\"fileIdentity\":{\"invalidCache\":\"The local file identity cache is invalid\"},\"releaseUpdates\":{\"toolPackageNotFound\":\"Couldn't get tool package details from the releases page. Check your network and the Peach proxy, then try again\"},\"sourcePreflight\":{\"unknownSource\":\"Choose a supported metadata source ID\"},\"libraryProcessingScope\":{\"libraryGone\":\"The selected library no longer exists. Choose again\",\"noDirectories\":\"The selected library has no directories to process\"},\"access\":{\"passwordMismatch\":\"The passwords don't match\",\"passwordLength\":\"The access password must be 8–256 characters\",\"invalidRememberDays\":\"Choose a valid stay-signed-in duration\"},\"downloadsPikpak\":{\"missingCredentials\":\"Enter your PikPak account and password\",\"captchaRequired\":\"PikPak requires verification first: complete it on the verification page, then come back to Settings and sign in again\",\"shapeNotJson\":\"PikPak returned an unexpected response (HTTP {{status}} is not JSON); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNotObject\":\"PikPak returned an unexpected response (the response is not an object); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeHttpStatus\":\"PikPak returned an unexpected response (HTTP {{status}}); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNoCaptchaToken\":\"PikPak returned an unexpected response (no captcha_token); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNoLoginToken\":\"PikPak returned an unexpected response (no token in the sign-in response); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeAuthAfterRefresh\":\"PikPak returned an unexpected response (still not authenticated after refreshing the token); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeFileList\":\"PikPak returned an unexpected response (file list); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNoTask\":\"PikPak returned an unexpected response (no task in the submit response); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeTaskList\":\"PikPak returned an unexpected response (task list); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeTaskPhase\":\"PikPak returned an unexpected response (task phase {{phase}}); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeTaskPhaseEmpty\":\"PikPak returned an unexpected response (empty task phase); its API may have changed. You can copy the magnet link and add it manually for now\",\"unreachable\":\"Cannot reach PikPak: {{error}}\",\"serverUnavailable\":\"PikPak is temporarily unavailable (HTTP {{status}})\",\"unknownWebClient\":\"PikPak's web client ID is {{client}}, and Peach has no signing constants for it, so it cannot submit cloud download tasks. You can copy the magnet link and add it manually for now\",\"webSignatureRejected\":\"PikPak rejected the web client's request signature: {{description}} ({{code}}). The web signing constants may have changed. You can copy the magnet link and add it manually for now\",\"notSignedIn\":\"Not signed in to PikPak yet\",\"signInExpired\":\"PikPak sign-in has expired. Sign in again in Settings: {{description}} ({{code}})\",\"webRefreshRejected\":\"PikPak refused to refresh the web sign-in token: {{description}} ({{code}}). In Settings, click Sign in with browser to sign in again\",\"folderMissing\":\"There is no {{path}} directory in PikPak\",\"targetNeedsFolder\":\"The target directory must be a specific directory in PikPak\",\"signInInvalid\":\"PikPak sign-in is no longer valid. Sign in again in Settings: {{description}} ({{code}})\",\"captchaDemanded\":\"PikPak requires verification. Sign in again in Settings: {{description}} ({{code}})\",\"quotaExceeded\":\"Not enough PikPak cloud download quota or storage space: {{description}} ({{code}})\",\"linkRejected\":\"PikPak does not accept this link: {{description}} ({{code}})\",\"taskRejected\":\"PikPak rejected this task: {{description}} ({{code}})\",\"noRemoteId\":\"This task has no PikPak task ID yet, so it cannot be canceled\",\"signInFailed\":\"PikPak sign-in failed: {{description}} ({{code}})\",\"offlineFailed\":\"The remote side rejected this task: PikPak reported that the cloud download failed\"},\"upgradeRepairs\":{\"invalidReceipt\":\"The post-update processing record is invalid\",\"noDanglingReceipt\":\"No receipt for the dangling candidate repair\",\"integrityFailed\":\"The database integrity check failed while updating existing metadata\",\"foreignKeyFailed\":\"The relationship check failed while updating existing metadata\",\"receiptNeedsPrepare\":\"The post-update processing record needs to be prepared again. Try again\",\"primaryOnly\":\"Post-update processing is only available when this device is the primary computer\",\"displayRepairNotReady\":\"Display size re-measurement isn't ready yet. Try again later\",\"mediaRepairIncomplete\":\"The video upgrade fill-in didn't finish. Check Tasks, then try again\",\"resumeAfterRestart\":\"Continues after the service restarts\",\"displayBackupNoSpace\":\"Not enough space for the backup before re-measuring display sizes, so this batch of media is paused\",\"mediaPaused\":\"{{message}}\",\"malformedPath\":\"Unrecognized video path: {{path}}\",\"malformedPathReason\":\"Unrecognized video path ({{reason}}): {{path}}\"},\"tunnel\":{\"standalonePortInvalid\":\"The standalone package's Tunnel HTTP port is invalid: {{port}}\",\"lanAddressUnknown\":\"Can't determine the LAN address of the source-checkout server\",\"lanAddressNotIp\":\"The source-checkout Tunnel's LAN address isn't an IP: {{address}}\",\"mdnsMissing\":\"The source-checkout server has no mDNS name configured\",\"caMissing\":\"The source-checkout Tunnel needs the project CA: {{path}}\",\"httpsPortInvalid\":\"The source-checkout Tunnel's HTTPS port is invalid: {{port}}\",\"accessLocked\":\"Access settings are damaged, so the public Tunnel can't start\",\"passwordRequired\":\"Set an access password before starting the public Tunnel\",\"unsupportedAccessMode\":\"Access settings aren't in a supported password mode\",\"internalTokenMissing\":\"The Peach internal access token is missing, so the public Tunnel can't start\",\"invalidMode\":\"tunnel.mode must be quick or named: {{value}}\",\"hostnameRequired\":\"A named tunnel needs a public hostname\",\"invalidHostname\":\"The public hostname isn't a valid domain: {{value}}\",\"standaloneQuickOnly\":\"The standalone package only supports temporary links\",\"tokenRequired\":\"A named tunnel needs a Cloudflare tunnel token\",\"httpsRequired\":\"The source-checkout Tunnel needs a running HTTPS server\",\"cloudflaredMissing\":\"cloudflared not found: install the official cloudflared, or set its path with tunnel.binary in the settings file or PEACH_CLOUDFLARED\",\"exitedBeforeEntry\":\"cloudflared exited before getting an address\",\"startFailed\":\"cloudflared failed to start: {{error}}\",\"noOutput\":\"cloudflared has no output channel\",\"stateFailed\":\"Couldn't record the Tunnel start state: {{error}}\",\"noEntry\":\"cloudflared didn't get an address in time\",\"notConnected\":\"cloudflared didn't connect to the Cloudflare edge in time\",\"stateWriteFailed\":\"Couldn't write the Tunnel state: {{error}}\"},\"automaticUpdates\":{\"chooseInterval\":\"Choose how often to check\",\"chooseMode\":\"Choose an automatic update mode\",\"downloadUnsupported\":\"Automatic download only works with the standalone Windows test package\",\"needsTray\":\"Automatic updates need a service managed by the tray\",\"unreadable\":\"Can't read the automatic update settings. Save them again.\"},\"certs\":{\"opensslFailed\":\"openssl {{command}} failed: {{detail}}\",\"opensslMissing\":\"OpenSSL not found. Install it, add it to PATH, then try again.\"},\"clouddriveProxy\":{\"accountChanged\":\"The cloud drive account has changed. Reload it.\",\"chooseMode\":\"Choose direct, system, HTTP, or SOCKS5\",\"chooseSettings\":\"Choose the proxy settings to save\",\"clearPasswordNotBoolean\":\"Clear password must be a boolean\",\"configChanged\":\"CloudDrive2 settings have changed. Reload them before saving.\",\"hostOnly\":\"Enter only a host name or IP for the proxy address\",\"hostUserNotText\":\"Proxy address and username must be text\",\"invalidCredentials\":\"Invalid proxy credentials format\",\"libraryChanged\":\"The library has changed. Reload it.\",\"needsModifyPermission\":\"The CloudDrive2 API token needs the “Modify cloud drives” permission\",\"needsViewPermission\":\"The CloudDrive2 API token needs the “View cloud drives” permission\",\"notConfigured\":\"Enter the CloudDrive2 address and API token in download settings first\",\"portRange\":\"Proxy port must be between 1 and 65535\",\"tokenUnreadable\":\"The CloudDrive2 API token can't be read. Enter it again in download settings.\"},\"customMetadata\":{\"chooseNetwork\":\"Choose direct connection or Peach proxy\",\"chooseSource\":\"Choose a source\",\"codeMismatch\":\"The code returned by the source doesn't match the requested code\",\"codePathRequired\":\"Enter the path of the code field in the response\",\"configNotObject\":\"Source settings must be an object\",\"connectionFailed\":\"Couldn't connect to the source\",\"contentTypeRequired\":\"Choose at least one valid content type\",\"enabledNotBoolean\":\"The enabled state must be a boolean\",\"endpointNeedsCode\":\"The endpoint URL must contain exactly one {code}\",\"endpointNotPublicHttps\":\"The endpoint must be an HTTPS URL on a fixed public domain using port 443\",\"fieldNeedsText\":\"The {{field}} field must be text or a number\",\"fieldNeedsTextArray\":\"The {{field}} field must be an array of text\",\"hostNotPublic\":\"The source domain must resolve to a public address\",\"httpStatus\":\"Source responded with HTTP {{status}}\",\"invalidCodeFormat\":\"Invalid code format\",\"invalidFieldPath\":\"Field mappings only accept dot paths made of object keys or array indexes\",\"invalidJson\":\"The source response isn't valid JSON\",\"invalidSavedConfig\":\"Custom source settings are invalid\",\"nameLength\":\"Source name must be 1–80 characters\",\"proxyConfigMissing\":\"Peach proxy settings not found\",\"responseTooLarge\":\"The source response is larger than 1 MiB\",\"sourceMissing\":\"The source doesn't exist. Refresh the page.\",\"timedOut\":\"The source query timed out\",\"tooManySources\":\"You can save up to {{max}} sources\"},\"dataStorage\":{\"backupNotCleaned\":\"Database backups weren't cleaned up: {{reason}}\",\"busy\":\"Measuring or cleaning up. Please wait.\",\"busyBeforeMigration\":\"Measuring or cleaning up. Wait for it to finish before migrating.\",\"categoryNotCleanable\":\"This category can't be cleaned up here\",\"chooseTarget\":\"Choose a new data directory\",\"copyIncomplete\":\"Copy didn't finish (code 0x{{code}})\",\"copyMismatch\":\"Copy is incomplete: the original directory has {{sourceFiles}} files ({{sourceSize}}), the new location has {{targetFiles}} files ({{targetSize}})\",\"databaseCheckFailed\":\"Database check failed\",\"driveRootNotAllowed\":\"Choose or create a dedicated directory instead of using the root of a disk\",\"fileExists\":\"A file with this name already exists at this location\",\"folderNotEmpty\":\"Choose an empty folder or create a new one\",\"fullPathRequired\":\"Enter the full path\",\"layoutChanged\":\"Storage directories changed while measuring. Measure again.\",\"localDiskRequired\":\"Choose a folder on a disk of this device, for example D:\\\\Peach\\\\peach-data\",\"measureFirst\":\"Measure storage usage first\",\"measureStopped\":\"Measuring stopped\",\"migrationCanceled\":\"Migration canceled\",\"notEnoughSpace\":\"The disk at the new location has {{free}} free; migration needs about {{needed}}\",\"notWritable\":\"The current user can't write to this location\",\"overlapsCurrent\":\"The new location can't be the current data directory, inside it, or contain it\",\"overlapsMedia\":\"The new location can't overlap a media directory\",\"overlapsProgram\":\"The new location can't overlap the program directory\",\"pathsNotRewritten\":\"Preview image paths couldn't be updated ({{error}}). They'll be added again the next time the collection is processed.\",\"sourceChanged\":\"The data directory has changed. Choose again.\",\"trayStillRunning\":\"The tray hasn't exited yet\",\"updateRunning\":\"An update is still in progress. Finish it before migrating.\"},\"desktopInstaller\":{\"cachedToolInvalid\":\"Local tool package failed verification: {{name}}. Download it again or move this file away, then try again.\",\"peachStillRunning\":\"Peach hasn't exited yet, so the installation didn't finish. Try again later.\"},\"devCopyRuntime\":{\"applying\":\"Copy changes are being applied. Edit again later.\",\"buildFailed\":\"Build failed: {{detail}}\",\"buildIncomplete\":\"Build output is incomplete. See build/copy-editor/build.log for details.\",\"nothingToRetry\":\"No apply task to retry\",\"npmMissing\":\"npm not found. Install the Node.js version the project needs.\",\"saving\":\"Other copy is being saved. Try again later.\",\"serviceNotRecovered\":\"The service hasn't recovered. Check the tray log.\"},\"entityClassification\":{\"classificationConflict\":\"Classification sources conflict. Review them first.\",\"identityLinkConflict\":\"Identity link sources conflict. Review them first.\",\"reviewedClaim\":\"Can't overwrite a reviewed claim\"},\"fieldOwners\":{\"revisionConflict\":\"The asset has changed: expected revision {{expected}}, current value in the database {{current}}\"},\"coverArtwork\":{\"userCoverKept\":\"This video uses a cover you set, so automatic collection won't replace it\"},\"itemCover\":{\"tooLarge\":\"The image is too large, 32 MB at most\",\"empty\":\"No image was received\",\"unreadable\":\"Couldn't read this image. Use a JPEG, PNG or WebP\",\"tooSmall\":\"The image is too small, at least 200 × 200\",\"nothingToRestore\":\"This video doesn't use a cover you set, so there's nothing to restore\"},\"itemEdit\":{\"assetMissing\":\"This video is no longer in the library\",\"malformed\":\"The submitted edit is malformed\",\"unknownField\":\"These fields can't be edited: {{fields}}\",\"restoreAndEdit\":\"A field can't be both edited and handed back to automatic collection: {{fields}}\",\"controlCharacters\":\"Line breaks and control characters aren't allowed\",\"tooLong\":\"Too long, 1000 characters at most\",\"releaseDateFormat\":\"Write the release date like 2025-11-04\",\"regionUnknown\":\"Unrecognized region\",\"entityMissing\":\"The selected profile no longer exists. Choose it again\",\"entityNameInvalid\":\"Names can't be empty or longer than 200 characters\"},\"folderPicker\":{\"busy\":\"A folder selection window is already open\",\"cannotOpen\":\"The system folder dialog can't be opened on this device\",\"failed\":\"Couldn't open the folder dialog\",\"noPermission\":\"Peach on this device doesn't have permission to show the dialog\",\"unsupportedSystem\":\"No folder dialog is available on this system\",\"headless\":\"On a server without a desktop, choose the media directory in the web page.\"},\"followEvidence\":{\"estimating\":\"Still counting files that can be cleaned up. Try again later.\",\"running\":\"Cleaning up. Wait for this run to finish.\"},\"javBrowser\":{\"channelNotConfigured\":\"Set up a cloud drive account and target directory in download channels first\",\"chooseAction\":\"Choose to turn on, renew the token, or turn off\",\"codeNotRecognized\":\"No video code recognized. Select the full code on the page, then add it to Peach.\",\"codeProductMismatch\":\"The code on the page doesn't match the product ID. Check the video details.\",\"codeRequired\":\"Provide a specific JAV code\",\"deviceNotAllowed\":\"Browser adding is only available on devices allowed to change the database.\",\"invalidDismiss\":\"Invalid acknowledgment parameters\",\"invalidEdition\":\"Invalid edition parameter\",\"invalidSwitch\":\"Invalid switch magnet link parameter\",\"manualRejectsSource\":\"Manual adding doesn't accept a source page URL\",\"notEnabled\":\"Turn on browser adding first\",\"nothingToRetry\":\"This code has no failed organizing to retry\",\"queueFull\":\"The adding queue is full. Wait for current tasks to finish.\",\"unsupportedPage\":\"Add from a supported JAV video detail page\",\"searchUnavailable\":\"Torrent search is unavailable right now. Check the sources in Peach and try again\"},\"librarySharing\":{\"choiceNotBoolean\":\"The collection and taste upload option must be a boolean\",\"compressedTooLarge\":\"Collection and taste details exceed 18 MiB after compression, so nothing was sent\",\"previewFirst\":\"Review the field and data preview first, then explicitly agree to upload\",\"tooLarge\":\"Collection and taste details exceed 100 MiB, so nothing was sent\"},\"localPlayback\":{\"deploymentUnsupported\":\"For this deployment, use the network playback URL or an M3U playlist\",\"fileUnsupported\":\"For this file, use the network playback URL or an M3U playlist\",\"playerMissing\":\"The player isn't installed. Choose again.\"},\"mediaFolders\":{\"folderMissing\":\"The directory doesn't exist or was moved out of the library\"},\"mediaTools\":{\"checksumFailed\":\"{{label}} tool package files failed verification\",\"digestMismatch\":\"The {{label}} tool package doesn't match the release checksum. The download was discarded. Try again.\",\"downloadFailed\":\"{{label}} tool package download failed: {{error}}\",\"installing\":\"{{label}} is being installed. Please wait.\",\"manifestMissing\":\"The {{label}} tool package is missing a valid file manifest\",\"unknownTool\":\"Unknown media tool\",\"unsupportedPlatform\":\"Releases only include the {{label}} tool package for Windows x64. Download it from the official site and add it to PATH.\"},\"metadataAutoApply\":{\"codeMismatch\":\"The source didn't return {{code}}: id={{providerId}} content_id={{contentId}}\",\"confidenceOutOfRange\":\"Candidate confidence is out of range\",\"invalidConfidence\":\"Invalid candidate confidence\",\"invalidPerformer\":\"Invalid performer candidate entry\",\"invalidReleaseDate\":\"Invalid release date candidate\",\"invalidSource\":\"Invalid candidate source\",\"invalidTitle\":\"The title candidate is empty, too long, or has control characters\",\"noMatchingAsset\":\"No matching available asset in the current database\",\"performersEmpty\":\"Performer candidate is empty\",\"performersNotArray\":\"Performer candidates must be an array\",\"r18TitleEvidenceMissing\":\"r18 original title evidence not found. Fetch the metadata again.\",\"releaseDateFormat\":\"The release date candidate must be YYYY-MM-DD\",\"tagsEmpty\":\"Tag candidate is empty\",\"tagsNotArray\":\"Tag candidates must be an array\",\"tooManyAssets\":\"{{count}} assets share this code, more than the limit of {{limit}} per approval\",\"undecodableText\":\"Source text has characters that can't be decoded. Fetch the metadata again.\",\"unmappedField\":\"This metadata field has no Peach write mapping\",\"unnormalizedName\":\"The candidate still has a duplicated or unnormalized name, so it wasn't written\"},\"metadataCreatorAttributions\":{\"assetChanged\":\"Asset {{asset}} has changed since, so the batch wasn't rolled back\",\"creatorLinkExists\":\"The creator link already exists, so the batch wasn't rolled back\",\"creatorLinksChanged\":\"Creator links have changed since, so the batch wasn't rolled back\",\"creatorWriteRefused\":\"The creator field of asset {{asset}} wasn't written\",\"labelLinksChanged\":\"Label links have changed since, so the batch wasn't rolled back\",\"multipleCreators\":\"Asset {{asset}} has several remaining creators. Review its compatibility projection.\",\"newLabelChanged\":\"The new label's metadata has changed since\",\"newLabelHasExtra\":\"The new label has additional metadata, so the batch wasn't rolled back\",\"planOutdated\":\"The audit plan doesn't match the current database. Preview again.\",\"plannedAccountMissing\":\"The planned account identity doesn't exist\",\"plannedLabelMissing\":\"The planned label identity doesn't exist\",\"profileMissing\":\"The profile no longer exists, so the batch wasn't rolled back\"},\"metadataTextRepair\":{\"entityTaken\":\"The id or name of entity {{id}} “{{name}}” is already taken, so the batch wasn't restored\"},\"recordRehome\":{\"batchMissing\":\"No batch {{batch}} to revert\",\"oldNotVanished\":\"Only a vanished row can be reconnected\",\"oldRowTaken\":\"The id or path of old row {{row}} is already taken, so it can't be reverted\",\"targetNotPresent\":\"Can only reconnect to another row that's in the collection\"},\"seedCorrections\":{\"contentChanged\":\"Seed content for this version differs from the imported history\",\"legacyVersionBack\":\"Legacy seed version can't go back\",\"revisionReused\":\"Seed revision can't go back or be reused\",\"withdrawalsMissing\":\"Seed must carry over every previous withdrawal unchanged\"},\"standaloneUpdate\":{\"checksumFailed\":\"The update package failed verification. Download it again.\",\"dataInsideProgram\":\"The data directory is inside the program directory, so it can't be replaced automatically\",\"databaseRestoreCheckFailed\":\"Database restore check failed\",\"databaseUpgradeFailed\":\"Database update failed\",\"expandedTooLarge\":\"The update package is too large when extracted\",\"inAppUnsupported\":\"This installation doesn't support in-app updates. Download the new version from the release page.\",\"invalidPath\":\"The update package contains an invalid path\",\"invalidSize\":\"{{label}} size is invalid\",\"invalidUpdateDirectory\":\"The update directory is invalid\",\"missingChecksum\":\"{{label}} is missing SHA-256 checksum information\",\"newVersionNotReady\":\"The new version didn't become ready\",\"notReady\":\"The update isn't ready yet\",\"notStandalone\":\"The update package isn't the standalone Windows version\",\"pathConflict\":\"The update package has duplicate or out-of-bounds paths\",\"recoveryPathOutside\":\"A task recovery path is outside the allowed directory\",\"secondaryCannotMigrate\":\"A secondary computer can't migrate the database\",\"secondaryNeedsPrimary\":\"This device can't migrate the database: {{reason}}. Migrate on the primary computer first, then sync.\",\"signatureFailed\":\"Release signature verification failed, so the update was stopped. Download the new version from the release page.\",\"sizeMismatch\":\"The download size doesn't match the release record\",\"stateFileMismatch\":\"The update state file doesn't match\",\"toolChecksumFailed\":\"{{tool}} tool package files failed verification\",\"toolReuseFailed\":\"Reused {{tool}} tool failed verification\",\"trayStillRunning\":\"The tray hasn't exited, so the installation was canceled\",\"unlistedToolFile\":\"The tool package contains files not in its manifest\",\"versionMismatch\":\"The package version doesn't match the release version\"},\"subtitles\":{\"encodingUnknown\":\"Encoding not recognized\",\"imageSubtitle\":\"Image-based subtitles can't be played as a text track\"},\"westernProfiles\":{\"identityChanged\":\"The performer identity has changed. Preview again.\"},\"libraryProcessing\":{\"stopped\":\"Processing task stopped.\",\"companionImageChangedOnSave\":\"The companion image changed while being saved.\",\"readOnlyDevice\":\"This device is read-only. Scan and import metadata on the primary computer.\",\"evidenceNotSaved\":\"Couldn't save metadata evidence: {{error}}\",\"invalidSelection\":\"Select valid videos.\",\"selectionGone\":\"The selected videos no longer exist or were moved to the trash. Refresh and try again.\",\"previewNotGenerated\":\"The preview image wasn't generated. Check the media file and try again.\",\"previewUnreadable\":\"Couldn't read the preview image. Try again.\",\"previewNotSaved\":\"Couldn't save the preview image: {{error}}\",\"progressNotSaved\":\"Couldn't save processing progress: {{error}}\",\"invalidStage\":\"Invalid processing stage.\",\"previewsDisabled\":\"Preview generation is turned off. Turn it on in library preferences first.\",\"selectionWithRetry\":\"Selected items and failed-item retries can't be used together.\",\"previewsNeedWriter\":\"Generating preview images requires a write connection to the shared collection.\",\"nfoCodeConflict\":\"The file name and NFO code conflict. Review it.\",\"notInLibrary\":\"The selected videos don't belong to the current library.\",\"deadlineRetryLater\":\"External metadata wasn't found within the time limit. You can try again later\",\"deadline\":\"External metadata wasn't found within the time limit\",\"noAmaneSites\":\"This code's source chain has no sites queried through the amane bridge\",\"amaneBridgeFailed\":\"amane bridge: {{error}}\",\"amaneSitesSaidNo\":\"None of the sites queried through the amane bridge have this code\",\"communitySaidNo\":\"None of the community sources have this code\",\"fc2ArchivesSaidNo\":\"Neither FC2 nor the archive sites have this item\",\"noCover\":\"Neither official nor community sources have a cover for this video\",\"ffmpegMissing\":\"FFmpeg wasn't found, so previews can't be generated. Check the tool status in Diagnostics\",\"mediaInaccessible\":\"The media file can't be accessed\",\"ffprobeMissing\":\"ffprobe wasn't found, so the video duration can't be read\",\"durationUnavailable\":\"The video duration wasn't found. Check the media file and try again\",\"sourceProblem\":\"{{source}}: {{problem}}\",\"coverNotImproved\":\"The source cover ({{width}}x{{height}}) is no better than the local cover\",\"problems\":\"{{first}}; {{rest}}\",\"sourceReturned\":\"Source returned {{status}}\",\"processingError\":\"Processing error ({{type}})\",\"missMetadata\":\"No source has metadata for this video. Won't ask again for 7 days\",\"missCover\":\"No source has a cover for this video. Won't ask again for 7 days\",\"offline\":\"Metadata not found: can't reach the internet\",\"interrupted\":\"Processing was interrupted. You can retry the unfinished items.\",\"interruptedCheckFolders\":\"Processing was interrupted. Check the library directories and try again.\",\"companionImageTimeout\":\"Reading the companion image timed out. Try again later\",\"companionImageUnreadable\":\"Couldn't read the companion image\",\"metadataPaused\":\"Metadata skipped this run: {{problems}}\",\"metadataUnfetched\":\"Metadata not found: {{problems}}\",\"javdbTagsDeadline\":\"JavDB tags not found within the time budget\",\"javdbTagsUnfetched\":\"JavDB tags not found: {{problem}}\",\"coverDeadline\":\"Cover not found within the time budget. Try again later\",\"coverPaused\":\"Cover skipped this run: {{problem}}\",\"coverUnfetched\":\"Cover not found: {{problem}}\",\"sourceRootUnreadable\":\"Couldn't read the {{source}} storage directory: {{error}}\",\"sourceRootOffline\":\"{{source}} storage is offline\",\"itemSkipped\":\"Skipped this video. You can retry it after the task finishes\",\"captureTimeout\":\"Frame extraction timed out. Try again; to report a problem, export a diagnostics report\",\"captureFfmpegFailed\":\"FFmpeg frame extraction failed. To report a problem, export a diagnostics report\",\"captureNoFrame\":\"No frame at the sample position. To report a problem, export a diagnostics report\",\"captureUnfetched\":\"Frame extraction failed. To report a problem, export a diagnostics report\",\"previewTimeout\":\"Generating the preview timed out. Try again\",\"previewFailed\":\"Couldn't generate the preview. Check FFmpeg and directory permissions, then try again\",\"toolsNotPrepared\":\"Couldn't prepare the fetch tools: {{error}}\",\"someSourcesUnfetched\":\"Got metadata from other sources; these did not answer: {{problems}}\",\"someCoverSourcesUnfetched\":\"A cover is in place; these image sources did not answer: {{problems}}\"},\"followStream\":{\"coolingDown\":\"{{provider}} is cooling down after rate limiting. Try again in {{seconds}} seconds.\",\"recentMiss\":\"The source media wasn't found just now. Try again later.\",\"noSuchMedia\":\"This media index doesn't exist.\",\"badMediaEntry\":\"The media entry has an unexpected format.\",\"gofileUntrustedUrl\":\"Gofile returned an untrusted media URL.\",\"gofileTokenMissing\":\"The Gofile API token isn't set up.\",\"fanboxUntrustedUrl\":\"FANBOX returned an untrusted image URL.\",\"f95UntrustedUrl\":\"F95 returned an untrusted image URL.\",\"f95NeedsSession\":\"F95 attachments need a signed-in session.\",\"mediaUrlUnavailable\":\"The source media URL is unavailable.\",\"unsupportedProvider\":\"This media provider isn't supported.\",\"needsSession\":\"This media needs a signed-in session for its source.\",\"rule34videoDetailUrlUnavailable\":\"The Rule34Video detail URL is unavailable.\",\"iwaraUrlUnavailable\":\"The Iwara video URL is unavailable.\",\"sourceFailed\":\"{{reason}}\",\"rule34videoDetailNotFetched\":\"Couldn't get the Rule34Video detail page.\",\"rule34videoVideoUrlNotFetched\":\"Couldn't get the Rule34Video full video URL.\"},\"mediaIdentity\":{\"libraryNameInvalid\":\"Library names must be 1 to 80 visible characters.\",\"libraryIconInvalid\":\"Choose a library icon from the list.\",\"libraryColorInvalid\":\"Choose a source color from the list.\",\"libraryPolicyInvalid\":\"Choose a processing mode from the list.\",\"stagesInvalid\":\"Invalid processing steps.\",\"rootLibraryMissing\":\"The library for this storage root directory doesn't exist.\",\"rootPathNotWindows\":\"Storage root directories must use a full Windows path.\",\"rootSourceInvalid\":\"The storage root directory has an invalid source or read policy.\",\"rootOverlap\":\"This media path duplicates or contains another directory.\",\"transportInvalid\":\"Invalid media connection type.\",\"mountNotAbsolute\":\"Mount directories must use a full path.\",\"mountOverlap\":\"This media directory duplicates or contains another row.\",\"mountOverlapsRoot\":\"The mount directory overlaps a database path. Use a separate directory.\",\"rootChanged\":\"Storage root directories have changed. Refresh the settings.\",\"rootIdentityFixed\":\"The source and database path of an existing root directory can't be changed. Add another directory instead.\",\"relocateOrAdd\":\"Choose to relocate this directory, or add another directory.\",\"rootDuplicate\":\"The same storage root directory can't be added more than once.\",\"libraryMismatch\":\"Name, icon, source color and processing mode must match within the same library.\"},\"ledgerBackups\":{\"ledgerMissing\":\"The database doesn't exist.\",\"backupIntegrityFailed\":\"The backup failed the integrity check: {{check}}\",\"chooseBackup\":\"Choose a backup from the list.\",\"backupGone\":\"This backup no longer exists. Refresh the list.\",\"thisBackupIntegrityFailed\":\"This backup failed the integrity check: {{check}}\",\"schemaMismatch\":\"This backup's schema doesn't match this version of Peach: {{error}}\",\"migratedIntegrityFailed\":\"The backup failed the integrity check after migrating to the current schema: {{check}}\",\"pageSizeMismatch\":\"This backup's page size differs from the current database, so it can't be restored while the server is running.\",\"savedCopyIntegrityFailed\":\"The saved copy of the current database failed the integrity check. Nothing was restored.\",\"restoredIntegrityFailed\":\"The restored database failed the integrity check: {{check}}\",\"restoreSettled\":\"{{message}}\",\"busy\":\"A backup or restore is in progress. Wait for it to finish.\",\"writerOnly\":\"Only the primary computer can restore the database: {{reason}}\",\"tasksRunning\":\"Background tasks are still running: {{tasks}}. Wait for them to finish or stop them, then restore.\",\"tasksRunningNotRestored\":\"Background tasks are still running: {{tasks}}. Nothing was restored.\",\"restoringBusy\":\"Restoring the database from a backup. New tasks can't start until it's done.\"},\"onboarding\":{\"dataRootEmpty\":\"The Peach data directory can't be empty.\",\"dataRootIsFile\":\"{{path}} is a file. The Peach data directory must be a directory.\",\"mediaDirEmpty\":\"The media directory can't be empty.\",\"mediaDirMissing\":\"The directory doesn't exist or isn't a directory: {{path}}. Create it first.\",\"mediaDirNotDrive\":\"{{path}} isn't a drive-letter path. Map network locations to a drive letter first.\",\"hostChoice\":\"Enter 1 (this device only) or 2 (devices on the same LAN)\",\"portInvalid\":\"The port must be a whole number from 1 to 65535.\",\"portInUse\":\"This port is already in use. Choose another port.\",\"mdnsNameInvalid\":\"Names can only use letters, digits and hyphens, and can't start or end with a hyphen.\",\"yesNo\":\"Enter y or n.\",\"tooManyAttempts\":\"No valid answer for \\\"{{prompt}}\\\" after {{attempts}} attempts.\",\"inputEnded\":\"Input ended.\",\"mediaDirDuplicate\":\"Duplicates {{other}} above\",\"mediaDirNested\":\"Already inside {{other}}; no need to add it\"},\"pushDiscovery\":{\"badSegment\":\"✗ The cloud path has an unacceptable segment: {{segment}}\",\"nothingAfterPrefix\":\"✗ The cloud path has nothing after the prefix.\",\"noCloudPath\":\"✗ The request has no cloud path.\",\"pathIsPrefix\":\"✗ The cloud path is the prefix itself, with no file.\",\"noPrefixes\":\"✗ {{path}} isn't under any configured prefix. Known: (none configured)\",\"notUnderPrefix\":\"✗ {{path}} isn't under any configured prefix. Known: {{known}}\",\"noDeclaredRoots\":\"{{root}} isn't a declared media root. Known: (none in the settings file)\",\"undeclaredRoot\":\"{{root}} isn't a declared media root. Known: {{known}}\",\"duplicatePrefix\":\"Prefix {{prefix}} is added more than once.\",\"cloudChannelOff\":\"✗ The cloud channel isn't turned on.\",\"notUnderStorage\":\"✗ {{path}} isn't under any directory configured in storage.\",\"writerOnly\":\"Push discovery is only available on devices allowed to change the database.\"},\"organize\":{\"unverifiedBatch\":\"Renames on the mounted {{locations}} can't be verified in the cloud, so the whole batch was not run. Use the official verified channel (for example organize_library_dirs.py --pikpak-webdav)\",\"scopeNotDirectory\":\"The organize path must be a directory path.\",\"scopeTraversal\":\"The organize path can't contain parent-directory jumps or null characters.\",\"scopeNotAbsolute\":\"The organize path must be an absolute directory path inside the selected location, without parent-directory jumps.\",\"scopeOutsideLocation\":\"The organize path isn't inside the selected location.\",\"unverifiedRename\":\"Renames on the mounted {{location}} can't be verified in the cloud. Use the official verified channel.\",\"smbSameRootOnly\":\"SMB organizing only works within the same media root directory.\",\"rowChanged\":\"This row has changed in the database.\"},\"desktopStartup\":{\"shortcutTimeout\":\"The Windows shortcut operation timed out (waited {{seconds}} seconds). Try again later.\",\"shortcutNotSaved\":\"Couldn't save the startup entry. Check permissions on the current user's Startup folder (PowerShell: {{reason}})\",\"desktopShortcutForeign\":\"The desktop shortcut belongs to another Peach installation.\",\"startupEntryForeign\":\"The startup entry belongs to another Peach installation.\",\"optionsNotBoolean\":\"Startup options must be on or off.\",\"desktopShortcutUnsupported\":\"This system doesn't offer desktop shortcuts.\",\"trayMissing\":\"The tray app wasn't found on this device.\",\"platformUnsupported\":\"This system doesn't offer a start-at-sign-in entry.\"},\"folderRules\":{\"settingsInvalid\":\"User settings have an invalid format.\",\"rulesInvalid\":\"Directory rules have an invalid format.\",\"choosePurpose\":\"Choose what this directory is for.\",\"scopeRequired\":\"Choose the directory scope and the setting for new files.\",\"nameTooLong\":\"Linked names can be up to 200 characters.\",\"nameRequired\":\"Enter a linked name.\",\"nameAmbiguous\":\"This name matches several identities or spellings. Use the canonical name from the profile page.\",\"settingsMissing\":\"The current user settings don't exist.\",\"planChanged\":\"The directory contents or credits have changed. Preview again.\"},\"diagnosticExports\":{\"chooseKind\":\"Choose a diagnostics report or scraping records.\",\"alreadyRunning\":\"A diagnostics export is already running. Wait for it to finish or cancel it.\",\"jobChanged\":\"The export task has changed. Refresh and try again.\",\"jobNotFound\":\"Export task not found\",\"fileNotReady\":\"The export file isn't ready. Generate it again\"},\"migrations\":{\"unsupportedMigrations\":\"The database contains migrations this version of Peach doesn't support. Use a matching version or the backup from before the upgrade.\",\"checksumChanged\":\"The checksum of applied migration {{version}} has changed.\"},\"followScheduler\":{\"autoRunOff\":\"Automatic runs aren't turned on.\",\"feedWriterOnly\":\"Fetching feeds is available only on the primary computer\"},\"tasteBookmarks\":{\"tooLarge\":\"The bookmarks file is larger than 64 MB.\",\"missingRoots\":\"The bookmarks JSON is missing Chromium roots.\",\"invalidNode\":\"The bookmarks JSON contains an invalid node.\",\"invalidFolder\":\"The bookmarks JSON contains an invalid folder.\",\"unsupportedFile\":\"Choose an HTML bookmarks file exported from a browser, or a Chromium Bookmarks file.\",\"unreadable\":\"Couldn't read the bookmarks file. Check the file format and import it again.\",\"browserBookmarksNotRead\":\"Browser bookmarks not found. Check the profile directory, or quit the browser and try again.\"},\"displayDimensionsRepair\":{\"notPrepared\":\"The display dimension re-measure record isn't ready yet.\",\"ffprobeMissing\":\"ffprobe wasn't found for re-measuring display dimensions.\",\"notMeasured\":\"Couldn't get the display dimensions. The existing measurement was kept.\",\"changedDuringRepair\":\"The video or its measurement changed while re-measuring. Try again.\"},\"fanbox\":{\"emptyPostType\":\"Unsupported FANBOX post type: empty.\",\"unsupportedPostType\":\"Unsupported FANBOX post type: {{type}}\",\"missingBody\":\"The public FANBOX post is missing its body.\"},\"storageExternalCache\":{\"remoteNeedsManualPath\":\"For a remote CloudDrive, enter a cache mapping directory that Peach can reach.\",\"tokenNeedsPermission\":\"Reading it automatically needs the “View system settings” permission on the CloudDrive API token.\",\"noCacheDirectory\":\"CloudDrive didn't return a cache directory. Enter it manually.\"},\"downloadsPikpakBrowser\":{\"browserMissing\":\"Chrome or Edge wasn't found on this device, so browser sign-in isn't available. Expand the section below to sign in with an account and password.\",\"proxyWithCredentials\":\"Browser sign-in does not support proxy addresses with credentials. Choose the system proxy or a proxy on this device that needs no authentication\"},\"taskResources\":{\"ownersUnavailable\":\"Couldn't get the resource ownership record for this task run.\",\"ownersInvalid\":\"The resource ownership record for this task run is invalid.\"},\"genreDecisions\":{\"emptyGenre\":\"The genre to add is empty.\"},\"mediaProbe\":{\"strmIsoNotProbed\":\"STRM and ISO files aren't probed.\"},\"platform\":{\"windowsDirectoryUnavailable\":\"Couldn't get the Windows system directory.\"},\"seedFollowup\":{\"digestMismatch\":\"The seed contents don't match the queued task's digest. Dispatch it again.\"},\"follow\":{\"internal\":\"{{detail}}\",\"historyEnd\":\"No more history\"},\"followSecrets\":{\"missingFields\":\"{{provider}} credentials are missing fields: {{fields}}\",\"invalidProvider\":\"Invalid provider name\",\"unreadable\":\"Couldn't parse the {{provider}} credentials file\",\"notObject\":\"The {{provider}} credentials file must be a JSON object\"},\"followGofile\":{\"notPremium\":\"The Gofile file list API requires a Premium account. The token is valid, but the current plan doesn't support this endpoint\",\"tokenRejected\":\"Gofile rejected the API token\",\"httpStatus\":\"Gofile returned HTTP {{status}}\",\"listUnavailable\":\"Gofile file list not found\",\"requestFailed\":\"Gofile request failed\",\"responseTooLarge\":\"Gofile response exceeds the size limit\"},\"followAvatar\":{\"unsupportedProfile\":\"This social profile isn't supported\",\"litlinkHttpStatus\":\"lit.link profile page returned HTTP {{status}}\",\"litlinkNoAvatar\":\"The lit.link profile page has no avatar of this person\",\"xHttpStatus\":\"X profile page returned HTTP {{status}}\",\"xNoAvatar\":\"The X profile page has no avatar of this person\",\"patreonHttpStatus\":\"Patreon profile returned HTTP {{status}}\",\"patreonCreatorMissing\":\"This creator isn't in the Patreon profile data\",\"patreonNoTrustedAvatar\":\"The Patreon profile has no trusted avatar URL\",\"unsupportedOfficialSource\":\"This official avatar source isn't supported\",\"fanboxProfileHttpStatus\":\"FANBOX official profile returned HTTP {{status}}\",\"fanboxProfileMalformed\":\"The FANBOX official profile has an unexpected format\",\"fanboxProfileNoTrustedAvatar\":\"The FANBOX official profile has no trusted avatar URL\",\"fanboxPageHttpStatus\":\"FANBOX official page returned HTTP {{status}}\",\"fanboxPageNoProfile\":\"The FANBOX official page has no usable creator profile\",\"fanboxPageNoCreatorId\":\"The FANBOX official page has no usable creator id\"},\"followDiscovery\":{\"creatorListMalformed\":\"The {{provider}} creator list has an unexpected format\",\"termRequired\":\"Enter a name or id to look up first\",\"termTooLong\":\"A name or id can be at most {{limit}} characters\",\"termForbiddenCharacters\":\"A name or id can't contain / \\\\ ? # & < > quotes or control characters\"},\"followSources\":{\"requestFailedAfterRetries\":\"{{provider}} request failed (tried {{attempts}} times): {{detail}}\",\"requestFailed\":\"{{provider}} request failed: {{detail}}\",\"responseTooLarge\":\"{{provider}} response exceeds the size limit\",\"accessDenied\":\"{{provider}} denied access (HTTP {{status}}): valid credentials are required, or the site added bot verification\",\"httpStatus\":\"{{provider}} returned HTTP {{status}}\",\"rateLimited\":\"{{provider}} returned HTTP 429: too many requests, try again later\",\"rateLimitBody\":\"{{provider}} rate limit reached: at most {{count}} requests every {{seconds}} seconds. Try again later\",\"notJson\":\"{{provider}} didn't return valid JSON\",\"notJsonWithSnippet\":\"{{provider}} didn't return valid JSON: {{snippet}}\",\"urlNotSupported\":\"{{provider}} can't be added from a link yet\",\"iwaraUrlShape\":\"For Iwara, paste the author's profile page, e.g. https://www.iwara.tv/profile/username\",\"iwaraAccessDenied\":\"Iwara denied access (HTTP {{status}}): the sign-in credentials may have expired, or the site requires browser verification. Check the feeds settings\",\"iwaraNotFound\":\"Iwara author or video not found: it may have been deleted, or it needs an account with access\",\"iwaraResponseMalformed\":\"The Iwara API response has an unexpected format\",\"iwaraContentUnavailable\":\"Iwara content not found: make sure the account has access and update the sign-in credentials\",\"iwaraRequestRejected\":\"The Iwara API rejected the request. Check the content status on the source page\",\"iwaraRefInvalid\":\"An Iwara ref must be an author username\",\"iwaraNegativePage\":\"The Iwara page number can't be less than 0\",\"iwaraProfileMalformed\":\"The Iwara author profile has an unexpected format\",\"iwaraUserIdUnavailable\":\"Iwara author ID not found\",\"iwaraVideoListMalformed\":\"The Iwara video list has an unexpected format\",\"iwaraVideoEntryNoId\":\"An Iwara video entry has no valid ID\",\"iwaraVideoIdInvalid\":\"Invalid Iwara video ID\",\"iwaraFileUrlUnavailable\":\"Iwara full video URL not found. Open the source page to check access\",\"iwaraUntrustedFileUrl\":\"Iwara returned an untrusted file API URL\",\"iwaraFileNoExpiry\":\"The Iwara file API has no valid expiry\",\"iwaraFormatListMalformed\":\"The Iwara playback format list has an unexpected format\",\"iwaraNoFormats\":\"Iwara full video formats not found\",\"kemonoUrlShape\":\"A {{host}} link must point to a creator, like https://{{host}}/fanbox/user/30917150\",\"kemonoUnknownProvider\":\"Unknown kemono-family source: {{provider}}\",\"kemonoRefInvalid\":\"A {{provider}} ref must look like `service/user_id`, got: {{ref}}\",\"postListMalformed\":\"The {{provider}} post list has an unexpected format\",\"rule34videoUrlShape\":\"A rule34video link must point to an author page, like https://rule34video.com/models/lazyprocrastinator/\",\"rule34videoRefInvalid\":\"A rule34video ref must be an author slug, got: {{ref}}\",\"rule34videoNoWorks\":\"No videos found on the rule34video creator page: the page structure may have changed, or the slug doesn't exist\",\"rule34xxxUrlShape\":\"A rule34.xxx link must include tags, like https://rule34.xxx/index.php?page=post&s=list&tags=lazyprocrastinator\",\"rule34xxxCredentialsRequired\":\"rule34xxx needs user_id and api_key. Put them in peach-data/secrets/follow/rule34xxx.json\",\"rule34xxxCredentialsRejected\":\"rule34xxx rejected the user_id/api_key\",\"rule34xxxRefInvalid\":\"A rule34xxx ref must be a single tag, got: {{ref}}\",\"rule34xxxAutocompleteMalformed\":\"The rule34xxx tag autocomplete has an unexpected format\",\"pahealUrlShape\":\"A rule34.paheal link must include a search tag, like https://rule34.paheal.net/post/view/7428820#search=InitialA\",\"pahealRefInvalid\":\"A rule34.paheal ref must be a single tag, got: {{ref}}\",\"pahealNoWorks\":\"No videos found on the rule34.paheal tag page\",\"xenforoNoToken\":\"The {{provider}} search form has no _xfToken: the cookie may have expired\",\"f95UrlShape\":\"An f95zone link must point to a thread, like https://f95zone.to/threads/xxx.50685/\",\"f95RefInvalid\":\"An f95zone ref must be a thread id, got: {{ref}}\",\"f95NoReplies\":\"No replies found on the f95zone thread page: sign-in may be required, or the page structure changed\",\"f95UnknownCategory\":\"Unknown f95zone category: {{category}}\",\"f95SearchNeedsCookie\":\"f95zone site search needs a sign-in cookie. Put it in peach-data/secrets/follow/f95zone.json\",\"f95ProfileNeedsCookie\":\"Reading the author profile links in the first f95zone post needs a sign-in cookie. Put it in peach-data/secrets/follow/f95zone.json\",\"fanboxUrlShape\":\"A FANBOX link must point to a creator page, like https://creator.fanbox.cc/\",\"fanboxRefInvalid\":\"A fanbox ref must be a creator id, got: {{ref}}\",\"fanboxPostListMalformed\":\"The post list fanbox returned has an unexpected format\",\"fanboxPageListNotModified\":\"The fanbox history page list unexpectedly returned 304\",\"fanboxPageListMalformed\":\"The fanbox history page list has an unexpected format\",\"fanboxRequestFailed\":\"fanbox request failed\",\"fanboxPostError\":\"fanbox post details returned an error: {{error}}\",\"fanboxPostMalformed\":\"fanbox post details have an unexpected format\",\"fanboxPostNotPublic\":\"This fanbox post isn't public and free\",\"subscribestarUrlShape\":\"A SubscribeStar link must point to a creator page, like https://subscribestar.adult/creator\",\"subscribestarRefInvalid\":\"A subscribestar ref must look like subscribestar.adult/creator\",\"subscribestarNoBackfill\":\"The SubscribeStar official source can't load older pages yet\",\"pageNotUtf8\":\"The page {{provider}} returned isn't UTF-8\",\"patreonUrlShape\":\"A Patreon link must point to a creator page, like https://patreon.com/cw/creator\",\"patreonRefInvalid\":\"A patreon ref must be a creator vanity name, got: {{ref}}\",\"patreonNoBackfill\":\"The Patreon official source can't load older pages yet\",\"simpcityUrlShape\":\"A simpcity link must point to a thread, like https://simpcity.cr/threads/xxx.21229/\",\"simpcityNeedsCookie\":\"simpcity needs a sign-in cookie: the site doesn't let guests read threads. After signing in, put the whole Cookie request header for simpcity.cr from your browser into the cookie field of the credentials file.\",\"simpcityAccessDenied\":\"simpcity denied access (HTTP 403): the site doesn't let guests read threads, and the cookie may have expired or be incomplete. Sign in again and update the credentials file\",\"simpcityRefInvalid\":\"A simpcity ref must be a thread id, got: {{ref}}\",\"simpcityNoPosts\":\"No posts found on the simpcity thread page: the page structure may have changed\",\"simpcityCookieNotRecognized\":\"simpcity didn't recognize this cookie (the page is still in guest mode). Sign in again and copy the whole Cookie request header\",\"urlRequired\":\"Paste a source link first\",\"urlInvalid\":\"This isn't a valid link\",\"urlSchemeUnsupported\":\"Only http(s) links are accepted\",\"urlHasCredentials\":\"Links can't contain a username or password\",\"hostUnknown\":\"{{host}} isn't recognized. Supported: {{hosts}}.\",\"unknownProvider\":\"Unknown follow source: {{provider}}\"},\"mp4repair\":{\"sttsLengthMismatch\":\"The stts length does not match its declared entry count\",\"probeIdle\":\"ffprobe produced no decoded output for {{seconds}} seconds\",\"probeIncomplete\":\"ffprobe did not finish: {{error}}\",\"probeExitCode\":\"ffprobe exited with code {{code}}\",\"duplicateDts\":\"Duplicate DTS values, so frames cannot be told apart\",\"frameWithoutTimestamp\":\"A frame has no timestamp\",\"timestampNotInStts\":\"The decoder reported a timestamp that is not in stts\",\"frameOutputTwice\":\"The same frame was output twice\",\"frameCountMismatch\":\"Decoded {{decoded}} frames, but the sample table has {{samples}}\",\"trackDurationUnknown\":\"Cannot work out the track duration\",\"zeroTimescale\":\"The media timescale is 0\",\"offsetNeedsCo64\":\"Offsets exceed 32 bits; this video needs co64 to be repaired\",\"missingMoovOrMdat\":\"The top level is missing moov or mdat\",\"needsSingleMoovAndMdat\":\"The top level must have exactly one moov and one mdat\",\"moovTooLargeOrMdatEmpty\":\"moov is too large or mdat is empty\",\"leadingIndexTooLarge\":\"The index before the media is too large\",\"boxesAfterMdat\":\"There are boxes after mdat; this layout is not supported yet\",\"trailingIndexTooLarge\":\"The index after the media is too large\",\"videoSampleTableMissing\":\"Cannot find the video track's sample table\",\"cttsPresent\":\"This video already has ctts\",\"videoSttsMissing\":\"The video track has no stts\",\"nothingToRepair\":\"Display order already matches decode order; nothing to repair\",\"editStartAmbiguous\":\"The edit start in the trailing index cannot tell pre-roll from trimming\",\"rebuiltHeaderLengthMismatch\":\"The rebuilt header length does not match\",\"legacyTimetableVersion\":\"The old sidecar's timetable version is invalid\",\"legacyTimetableLength\":\"The old sidecar's timetable length does not match\",\"legacySampleCount\":\"The old sidecar's sample count does not match\",\"legacyShiftIncomplete\":\"The old sidecar's overall shift is incomplete\",\"legacyNoMoov\":\"The old sidecar has no moov\",\"legacyNoTimetable\":\"The old sidecar is missing its repair timetable\",\"legacyEditListInvalid\":\"The old sidecar's edit list is invalid\",\"legacyHeaderLength\":\"The old sidecar's rebuilt header length does not match\",\"headerNotRepaired\":\"Could not repair the playback header\"},\"avatarOnline\":{\"notThisCreator\":\"This image candidate does not belong to this creator\",\"imageNotFound\":\"This image was not found. Try again later\",\"imageOverLimit\":\"The image exceeds the size limit\"},\"avatarPicker\":{\"coverChanged\":\"This cover was just replaced. Go back to the candidates and crop again\",\"codeUnrecognized\":\"This code is not recognized\",\"codeCoverUnrecognized\":\"The cover for this code is not a recognizable image\",\"addressUnusable\":\"No usable image found at this address: {{reason}}\",\"notCached\":\"This image is no longer in the cache on this device\",\"fetchFailed\":\"Cannot get this image: {{error}}\",\"fetchNoResponse\":\"Cannot get this image: no response\",\"fetchHttpStatus\":\"Cannot get this image: HTTP {{status}}\",\"imageOver16Mib\":\"The image is over 16 MiB. Shrink it and choose it again\",\"convertedOver16Mib\":\"The image is over 16 MiB after conversion. Shrink it and choose it again\",\"imageTooLarge\":\"The image is too large\",\"imageIncomplete\":\"The image could not be read completely. Choose the image again\",\"artworkUnavailable\":\"Video frames are not available this time\",\"choiceUnrecognized\":\"This image candidate is not recognized\",\"assetNotOwned\":\"This video is not credited to this person\",\"assetCoverNotLocal\":\"This video's cover is not on this device yet\",\"assetCellNotLocal\":\"Tile {{cell}} of this video is not on this device yet\",\"assetCoverUnreadable\":\"Cannot read this video's cover\",\"assetCellUnreadable\":\"Cannot read tile {{cell}} of this video\",\"onlineUnavailable\":\"Online avatar candidates not found\",\"codeCoverNotFetched\":\"The cover for this code has not been downloaded yet\",\"addressNotFetched\":\"The image at this address has not been downloaded yet\",\"notInIndex\":\"This image candidate is not in the current index\",\"offlineNotDownloaded\":\"This image has not been downloaded, and network access is not allowed this time\",\"invalidCropBox\":\"The selected crop area is invalid\",\"cropFailed\":\"Cannot crop this area\"},\"browserTransport\":{\"notStarted\":\"The browser did not start: {{error}}\",\"debugPortNotConnected\":\"Could not connect to the browser's debugging port: {{error}}\",\"exitedAtStart\":\"The browser exited right after starting ({{code}})\",\"debugPortMissing\":\"The browser did not report a debugging port\"},\"downloadsClouddrive\":{\"addressEmpty\":\"The CloudDrive2 address is empty\",\"noLocalAnswer\":\"No CloudDrive2 address is set, and nothing answered at {{tried}} on this device. Make sure CloudDrive2 is running, or enter its actual address\",\"unreachable\":\"Cannot reach CloudDrive2 while {{action}}: {{details}}\",\"tokenRejected\":\"CloudDrive2 rejected this API token while {{action}}: {{details}}\",\"pathNotFound\":\"Path not found in CloudDrive2 while {{action}}\",\"callFailed\":\"Failed while {{action}}: {{details}}\",\"tokenMissing\":\"No CloudDrive2 API token is set yet\",\"folderMissing\":\"There is no {{path}} directory in CloudDrive2\",\"outsideTokenRoot\":\"The CloudDrive2 token can only access {{root}}, and {{path}} is not inside it. Choose a target directory under it\",\"folderNotCreated\":\"CloudDrive2 did not create {{path}}: {{reason}}\",\"folderNotCreatedNoReason\":\"CloudDrive2 did not create {{path}} and gave no reason\",\"cancelRefused\":\"CloudDrive2 did not cancel this task: {{reason}}\",\"addressMissing\":\"No CloudDrive2 address is set yet. Use Check in Settings to detect the port on this device, then save\",\"offlineUnsupported\":\"The cloud drive that holds {{target}} does not support cloud downloads\",\"quotaUsedUp\":\"Cloud download quota used up ({{used}}/{{total}})\",\"cancelUnsupported\":\"This cloud drive does not support canceling cloud downloads from Peach. Handle it in the cloud drive\",\"offlineFailed\":\"The remote side rejected this task: 115 reported that the cloud download failed, most likely because nobody is seeding or the resource was refused\"},\"routesMedia\":{\"imageTimedOut\":\"This image was not found: the request timed out\",\"coverAddressUnusable\":\"The cover address is not usable\",\"avatarSourcesFailed\":\"{{reasons}}\",\"onlineImageNotFound\":\"Online image not found\",\"missingEntityId\":\"Missing entity ID\",\"mibNotJav\":\"Korean MIB codes do not use JAV cover sources\",\"codeCoverNotFound\":\"Official sources have no cover for this code\",\"codeCoverUnavailable\":\"Cannot get the cover for this code: {{error}}\",\"codeCoverTimedOut\":\"Could not get the cover for this code within {{seconds}} seconds. Try again later\",\"sourcePaused\":\"{{reason}}\",\"sourceConnectionFailed\":\"Could not connect to the source. Check the source connection settings\",\"avatarSourceUnavailable\":\"The avatar source is temporarily unavailable\"},\"webDownloads\":{\"credentialsUnreadable\":\"Cannot read the credentials file on this device. Enter them again in Settings: {{error}}\",\"unknownChannel\":\"Unknown cloud download channel: {{key}}\"},\"metadata\":{\"relayed\":\"{{detail}}\",\"authRequired\":\"{{source}} requires sign-in or refused access: {{reason}}\"},\"javCoverFetch\":{\"officialNoImage\":\"None of the official cover URLs returned an image\",\"officialTooSmall\":\"The official covers are only thumbnails or placeholders\",\"placeholder\":\"The source returned a \\\"coming soon\\\" placeholder image\",\"officialPlaceholderOnly\":\"The official cover URLs only return a \\\"coming soon\\\" placeholder: unreleased videos don't have official images yet, and older ones have most likely been taken down\",\"mibNotJav\":\"JAV cover sources don't apply to Korean MIB codes\",\"noCandidates\":\"No source has a candidate\",\"hostsUnreachable\":\"Can't connect to any official image host\",\"deadline\":\"The time limit for this step is used up\",\"dmmFailed\":\"DMM: {{error}}\",\"coolingDown\":\"The cover source is cooling down. Try again later; existing images are kept\",\"catalogUnfinished\":\"The official catalog lookup didn't finish, so no cover candidates were found yet\",\"allAnimated\":\"All official candidates are animated images\",\"downloadsFailed\":\"Every usable candidate failed to download in full\",\"sizeChanged\":\"Size changed: log says {{expectedWidth}}x{{expectedHeight}}, now {{width}}x{{height}}\",\"stoppedEarly\":\"Stopped early with exit code {{exitCode}}\"},\"communityCatalog\":{\"animatedOrSmall\":\"The covers from community sources are all animated or too small\",\"animatedOrSmallPartlyMissed\":\"The covers from community sources are all animated or too small; {{count}} more covers weren't downloaded\",\"downloadFailed\":\"Couldn't download the covers from community sources\",\"mismatch\":\"The covers from {{origins}} aren't the same image, so they can't confirm each other\",\"mismatchPartlyMissed\":\"The covers from {{origins}} aren't the same image, so they can't confirm each other; {{count}} more covers weren't downloaded\",\"noUnwatermarked\":\"No cover without a JavDB watermark was found\",\"noUnwatermarkedPartlyMissed\":\"No cover without a JavDB watermark was found; {{count}} more covers weren't downloaded\",\"noCovers\":\"Community sources have no cover for this video\"},\"javOfficialPreview\":{\"dmmUnavailable\":\"DMM preview not found. Try again later\",\"dmmUnrecognized\":\"DMM returned a preview address Peach doesn't recognize ({{host}}); retrying won't help\",\"javdbUnavailable\":\"JavDB preview not found. Try again later\",\"officialUnavailable\":\"Official preview not found. Try again later\"},\"avbase\":{\"unrecognized\":\"The AVBase page structure wasn't recognized; it may be showing a verification check\",\"notFound\":\"AVBase doesn't have this code\"},\"dmm\":{\"unrecognizedCode\":\"Couldn't recognize a code that can be looked up on DMM\",\"notFound\":\"DMM doesn't have this code\",\"notWorkJson\":\"DMM didn't return video JSON\",\"notListJson\":\"DMM didn't return a video list JSON\",\"refused\":\"DMM refused this query\",\"refusedWithMessage\":\"DMM refused this query: {{message}}\"},\"base\":{\"codeMismatch\":\"The code returned by the source doesn't match\",\"itemNotListed\":\"{{label}} doesn't list this item\",\"cloudflareUpdateCookie\":\"{{label}} requires Cloudflare verification. Update the cookie in fetch settings\"},\"r18dev\":{\"notWorkJson\":\"r18.dev didn't return video JSON\"},\"fc2\":{\"unrecognizedCode\":\"Couldn't recognize an FC2 item number in this code\"},\"fc2ppvdb\":{\"ageGate\":\"{{label}} redirected to the age check page, and the browser didn't get past it\"},\"javten\":{\"translatedPage\":\"{{label}} returned a translated page; only the original Japanese page is accepted\"},\"javbus\":{\"notFound\":\"JavBus doesn't have this code\",\"ageGate\":\"JavBus didn't return a video page; it's most likely the age check page. Paste the cookie from your browser for JavBus in fetch settings\"},\"javdb\":{\"notFound\":\"javdb doesn't have this code\",\"loginRequired\":\"javdb requires sign-in\",\"identityAmbiguous\":\"javdb has several videos with this code. Check the source identity: {{identities}}\",\"detailCodeMismatch\":\"The code on the javdb detail page doesn't match the search result\",\"budgetExceeded\":\"javdb metadata wasn't found within this run's limit\"},\"onepondo\":{\"unrecognizedCode\":\"This code isn't in {{label}} format\",\"notFound\":\"{{label}} doesn't have this video\",\"notWorkJson\":\"{{label}} didn't return video JSON\",\"movieIdMismatch\":\"The video ID returned by {{label}} doesn't match this code\"},\"seesaa\":{\"notInSearch\":\"No exact video table row was found in the wiki search results\",\"notInEntries\":\"No video entry with this exact code was found in the wiki search results\",\"conflictingRows\":\"The wiki has conflicting rows for this exact code; review the original page\",\"budgetStopped\":\"Wiki requests for this batch stopped or reached the limit\",\"networkFailed\":\"The wiki network request failed\",\"httpFailed\":\"The wiki HTTP request failed\",\"pageTooLarge\":\"The wiki page exceeds the read limit\",\"redirectUnverified\":\"The wiki redirect page couldn't be verified\",\"botCheckFailed\":\"The wiki bot check wasn't passed\"},\"metadataAmane\":{\"refused\":\"{{message}} ({{reason}})\",\"refusedWithStatus\":\"{{message}} ({{reason}}, HTTP {{status}})\",\"notFound\":\"{{label}} doesn't have this code ({{reason}})\",\"unavailable\":\"Metadata not found on {{label}} ({{reason}})\",\"unavailableWithStatus\":\"Metadata not found on {{label}} ({{reason}}, HTTP {{status}})\",\"unavailableDetail\":\"Metadata not found on {{label}} ({{reason}}): {{detail}}\",\"unavailableWithStatusDetail\":\"Metadata not found on {{label}} ({{reason}}, HTTP {{status}}): {{detail}}\",\"runtimeUnavailable\":\"The amane runtime isn't available\",\"packagedRuntimeProblem\":\"The fetch tool in the installer is missing or the wrong version. Reinstall Peach\",\"bridgeMissing\":\"The amane bridge isn't installed. Rebuild it on the Sources page, or place it at {{python}}\",\"bridgeScriptMissing\":\"The amane bridge script is missing: {{path}}\",\"stdioDecode\":\"amane bridge encoding error (bridge_stdio_decode, {{code}}, {{sites}}, runtime={{runtime}}, expected=utf-8, bytes={{bytes}}, offset={{start}}:{{end}}, sha256={{sha256}})\",\"bridgeTimeout\":\"The amane bridge query timed out\",\"bridgeStartFailed\":\"Couldn't start the amane bridge: {{error}}\",\"bridgeNotJson\":\"The amane bridge returned non-JSON output: {{detail}}\",\"bridgeFailed\":\"The amane bridge query failed (exit {{exitCode}})\",\"productMismatch\":\"The item returned by {{label}} isn't {{code}}: content_id={{contentId}}\",\"preparing\":\"The amane runtime is being prepared. Try again later\",\"installDirUnwritable\":\"Can't read or write the amane install directory: {{error}}\",\"bundleFileMissing\":\"The installer is missing an amane bridge file: {{path}}. Reinstall Peach to use it\",\"manifestUnreadable\":\"Can't read the amane bridge manifest: {{error}}\",\"uvMissing\":\"uv wasn't found. Install uv, then rebuild the amane bridge\",\"rebuildTimeout\":\"Rebuilding the amane bridge didn't finish within {{timeout}} seconds\",\"uvStartFailed\":\"Couldn't start uv: {{error}}\",\"uvSyncFailed\":\"uv sync failed (exit {{exitCode}}): {{detail}}\",\"installIncomplete\":\"The amane install is incomplete: the runtime has no usable package metadata\",\"selfCheckFailed\":\"The amane runtime failed its self-check. Reinstall it on the Sources page\",\"selfCheckUnfinished\":\"The amane runtime self-check didn't finish. Try again on the Sources page\"},\"performerAliasFollowup\":{\"coolingDown\":\"The source is cooling down\",\"requestsUsedUp\":\"This item's request limit is used up\",\"networkFailed\":\"Network request failed: {{type}}\",\"rateLimited\":\"The source is rate limiting requests (429)\",\"refused\":\"The source refused access or requires a bot check\",\"pageMissing\":\"The site doesn't have this page\"},\"settingsFile\":{\"locatorUnreadable\":\"Can't read the data directory location {{locator}}: {{error}}\",\"locatorInvalid\":\"The data directory location is invalid or loops back: {{locator}}\",\"locatorTooDeep\":\"The data directory location redirects more than eight times\",\"unreadable\":\"Can't read the settings file {{path}}: {{error}}\",\"notUtf8\":\"Can't read the settings file {{path}}: not UTF-8 encoded ({{error}})\",\"tomlSyntax\":\"Can't read the settings file {{path}}: TOML syntax error: {{error}}\",\"notTable\":\"Can't read the settings file {{path}}: `{{key}}` must be a table ([{{key}}])\",\"notString\":\"Can't read the settings file {{path}}: `{{key}}` must be a string\",\"notInteger\":\"Can't read the settings file {{path}}: `{{key}}` must be an integer\",\"notBoolean\":\"Can't read the settings file {{path}}: `{{key}}` must be true or false\",\"notStringOrArray\":\"Can't read the settings file {{path}}: `{{key}}` must be a string or an array of strings\",\"emptyArrayItem\":\"Can't read the settings file {{path}}: the `{{key}}` array can't contain empty strings\",\"duplicatePaths\":\"Can't read the settings file {{path}}: the `{{key}}` array has duplicate paths\",\"unknownDirectories\":\"Can't read the settings file {{path}}: unknown keys in `directories`: {{keys}}\",\"driveLetterKeys\":\"Can't read the settings file {{path}}: `[media]` no longer accepts drive letter keys: {{keys}}. Rewrite them as `[media.mounts] <location-id> = <path on this device>`, where the ID is a storage key configured in `[media.locations]` and the path is that storage's media directory on this device, for example `local = '/mnt/media'`\",\"locationsWithoutPrefix\":\"Can't read the settings file {{path}}: these storage entries in `[media.locations]` have no directory prefix: {{keys}}\",\"undeclaredMounts\":\"Can't read the settings file {{path}}: `[media.mounts]` has storage not declared in `[media.locations]`: {{keys}}\",\"mountCountMismatch\":\"Can't read the settings file {{path}}: `[media.mounts] {{key}}` lists {{mounts}} media directories, but `[media.locations] {{key}}` lists {{prefixes}} database path prefixes. They pair up in order, so either use the same count or leave the entry empty\",\"costInvalid\":\"Can't read the settings file {{path}}: `[media.costs]` only accepts free or metered\",\"identityInvalid\":\"Can't read the settings file {{path}}: invalid library identity settings: {{error}}\",\"identityInvalidOnSave\":\"Invalid library identity settings: {{error}}\",\"fileExists\":\"The settings file already exists. Add --force to overwrite it: {{path}}\"},\"scan\":{\"pathConflict\":\"Several file records share the same normalized path (records {{ids}}): {{path}}. All records were kept; please review them. Other files continue processing\",\"unknownSource\":\"✗ Undeclared storage {{location}}; known in [media.locations]: {{known}}\",\"unknownSourceNoneDeclared\":\"✗ Undeclared storage {{location}}; known in [media.locations]: (none in the settings file)\",\"rootBelongsElsewhere\":\"✗ The scan directory doesn't match the storage: the database path prefixes of {{location}} are {{prefixes}}, but the directory to scan is {{root}} (it belongs to {{actual}})\",\"rootOutsideMedia\":\"✗ The scan directory doesn't match the storage: the database path prefixes of {{location}} are {{prefixes}}, but the directory to scan is {{root}} (not under any configured media directory)\",\"noMounts\":\"✗ Storage {{location}} has no directory on this device, so the path {{path}} can't be converted. Configure the media directory in [media.mounts] first\",\"outsideMounts\":\"✗ {{path}} isn't under the mount points {{mounts}} of storage {{location}}\",\"smbNotSaved\":\"The SMB directory hasn't been saved to the library settings yet\",\"prefixWithoutMount\":\"✗ Database path prefix {{index}} of storage {{location}} has no matching directory on this device. Configure the media directories in [media.mounts] in the same order first\",\"checkpointMismatch\":\"The scan directory doesn't match the saved checkpoint. Check the mount settings\",\"rootUnreadable\":\"✗ Can't list the scan directory {{root}} ({{error}}). Nothing was scanned, and no files were counted as missing\"},\"faceDetect\":{\"faceModelMissing\":\"Face model is missing: {{path}}\",\"faceModelFetchFailed\":\"Couldn't download the face model: {{error}}\",\"faceModelChecksum\":\"Face model checksum mismatch: expected {{expected}}, got {{actual}}\",\"matchModelMissing\":\"Face matching model is missing: {{path}}\",\"matchModelFetchFailed\":\"Couldn't download the face matching model: {{error}}\",\"matchModelChecksum\":\"Face matching model checksum mismatch: expected {{expected}}, got {{actual}}\",\"detectorUnsupported\":\"This OpenCV build has no FaceDetectorYN; version 4.5.4 or later is required\"},\"faceMatch\":{\"recognizerUnsupported\":\"This OpenCV build has no FaceRecognizerSF; version 4.5.4 or later is required\"},\"taskRetry\":{\"relayed\":\"{{message}}\"},\"catalogRules\":{\"codePatternsNotList\":\"Code recognition rules must be a list of regular expressions\",\"codePatternsTooMany\":\"At most {{limit}} code recognition rules are allowed\",\"codePatternTooLong\":\"Rule {{index}} is longer than {{limit}} characters\",\"codePatternInvalid\":\"Rule {{index}} isn't a valid regular expression: {{error}}\"},\"reviewCsv\":{\"readFailed\":\"Couldn't read the review CSV {{path}} at line {{line}}: {{error}}\"},\"mediaIo\":{\"deadlinePassed\":\"The media read passed its deadline\",\"readTimedOut\":\"Reading the media directory or sidecar files timed out and was skipped. You can retry\",\"readerFailed\":\"The media reader process didn't finish\"},\"webStats\":{\"tasteNotFound\":\"Taste analysis not found\",\"tasteReadStopped\":\"Taste reading stopped\"},\"webBatch\":{\"changedDuringQuarantine\":\"The file changed while it was being backed up\",\"pathUnmapped\":\"The media path is not mapped to an accessible mount directory\",\"storageOffline\":\"The storage is not mounted or cannot be read\",\"purgingCannotRestore\":\"Items being permanently deleted can't be restored\"},\"webFeeds\":{\"checkStopped\":\"Subscription check stopped\"},\"webFollow\":{\"checkStopped\":\"Follow check stopped\",\"resolveStopped\":\"Follow source search stopped\"},\"webLibraryProcessing\":{\"recoveryFailed\":\"The task could not resume automatically: {{reason}}\",\"recoveryFailedRestart\":\"The task could not resume automatically: start it again\"},\"webLinks\":{\"checkStopped\":\"Link check stopped\",\"pruneStopped\":\"Link cleanup stopped\"},\"webMediaRepair\":{\"repairStopped\":\"Media repair stopped\",\"scanStopped\":\"Media check stopped\"},\"webOrganize\":{\"rollbackStopped\":\"Organize rollback stopped\",\"stopped\":\"Organizing stopped\"},\"webResourceSync\":{\"cacheCleanupStopped\":\"Cache cleanup stopped\",\"cleanupStopped\":\"Resource cleanup stopped\",\"scanStopped\":\"Resource check stopped\"},\"webScraping\":{\"candidateChecksFailed\":\"The candidate covers failed the checks.\",\"downloadFailed\":\"Downloading or verifying the candidate cover failed; no image could be saved.\",\"noCoverCandidates\":\"The source returned no cover candidates for this code, so it can't tell whether an HD version exists.\",\"sourceAccessDenied\":\"The source denied access (HTTP {{status}}). Check the sign-in or source verification status.\",\"sourceConnectionFailed\":\"Couldn't connect to the source, so the cover comparison didn't finish. Check the source connection settings.\",\"sourceServerError\":\"The source had a server error (HTTP 5xx). Try again later.\",\"unusableCandidate\":\"The candidate covers failed the checks: the image wasn't found, couldn't be decoded, or is narrower than 700px.\"},\"webWants\":{\"scrapeStopped\":\"Want metadata task stopped\",\"searchStopped\":\"Want resource search stopped\"},\"webFolders\":{\"rulesChanged\":\"The directory rules have changed. Open the settings again.\"},\"webTasks\":{\"runMissing\":\"Task run {{run_id}} does not exist\"},\"previews\":{\"snapshotUnavailable\":\"Preview frame files are missing\",\"snapshotChanged\":\"Preview frames changed while generating the preview. Try again\",\"avatarFailed\":\"Couldn't generate the avatar\",\"snapshotTooDark\":\"Preview frames are too dark for an avatar\",\"avatarSnapshotChanged\":\"Preview frames changed while generating the avatar. Try again\",\"emptyStudio\":\"Label name is empty\",\"logoUnavailable\":\"This label has no logo\",\"invalidEntityKind\":\"Invalid entity type\",\"entityImageUnavailable\":\"No cached profile image\",\"ffmpegUnavailable\":\"FFmpeg not found\",\"ffmpegFailed\":\"Couldn't generate preview images\",\"photoChanged\":\"The image changed while generating the thumbnail. Try again\",\"photoThumbnailFailed\":\"Couldn't generate the image thumbnail\"},\"metadataPerformerProfiles\":{\"avatarUnfetched\":\"Avatar for {{name}} not found: {{reason}}\"},\"cli\":{\"processingIncomplete\":\"Metadata processing didn't finish\"},\"jobRecovery\":{\"unreadable\":\"Can't read the task recovery record. Start the task again.\"},\"nasDirectories\":{\"invalidPurpose\":\"Choose a media directory or a data directory.\",\"invalidOffset\":\"The directory page position is invalid. Read the directory again.\",\"outsideRoots\":\"Only mounted media directories can be browsed. Type a newly mounted path into the media directory field.\",\"timedOut\":\"Reading the media directory timed out. Try again later or type the path.\",\"unreadable\":\"The media directory can't be read. Check the mount and the directory permissions.\"},\"followBackfill\":{\"credentialMissing\":\"Add your rule34.xxx API credentials in the followed sources first.\",\"running\":\"Backfilling. Wait for this run to finish.\"}}"),
+	errors: /* @__PURE__ */ JSON.parse("{\"seedSharing\":{\"invalidChoice\":\"Choose whether to enable public metadata contributions.\",\"previewFirst\":\"Preview the local metadata and confirm the sharing scope first.\",\"tooLarge\":\"Metadata exceeds the per-send limit. No sendable preview was created.\",\"noPerformer\":\"The performer profile was not found.\",\"noIdentity\":\"A verifiable public identity or original Japanese name is missing.\",\"invalidName\":\"Enter a valid Chinese name.\",\"invalidEvidence\":\"Use a public HTTPS link and remove any account or tracking parameters.\"},\"ledger\":{\"writeBusy\":\"The local database is busy: this write waited more than {{seconds}} s and was not saved. Try again later.\",\"writeCorrupt\":\"The local database is damaged. Restore a verified copy in Settings → App & Maintenance → Database backups.\"},\"hardwareTranscode\":{\"backendInvalid\":\"PEACH_TRANSCODE_BACKEND must be one of {{backends}}\"},\"processingInventory\":{\"previewEnded\":\"The directory pre-check has ended. Reopen the sync dialog.\"},\"gfriends\":{\"indexHttpStatus\":\"Gfriends index returned HTTP {{status}}\",\"indexTooLarge\":\"Gfriends index exceeds the size limit\"},\"researchParticipation\":{\"stateTooLarge\":\"Research participation state exceeds the size limit on this device\",\"stateInvalid\":\"Research participation state is malformed\"},\"trayDetached\":{\"venvHomeMissing\":\"The virtual environment does not name a base interpreter directory: {{path}}\",\"desktopProcessMissing\":\"Could not find the Windows desktop process for this session. Make sure you are signed in to the Windows desktop.\"},\"entities\":{\"tagAliasConflict\":\"Tag aliases conflict. Merge the duplicate tags first.\",\"mergeIntoSelf\":\"Cannot merge a profile into itself\",\"mergeTargetMissing\":\"Merge target profile {{id}} does not exist\"},\"strm\":{\"urlInvalid\":\"STRM needs an HTTP or HTTPS playback URL without an account or password\",\"fileTooLarge\":\"STRM file exceeds 64 KiB\",\"fileUnreadable\":\"STRM file could not be read or is not UTF-8 text\",\"singleUrlRequired\":\"STRM file must contain exactly one playback URL\",\"contentUnparsable\":\"Can't parse the STRM content. Check the playback URL and list format\",\"mediaUnavailable\":\"Couldn't get the STRM media. Check the playback URL or update the STRM in the tool that made it\"},\"feeds\":{\"dmmActressIdDigits\":\"DMM actress IDs must be numeric\",\"httpsRequired\":\"Subscription URL must start with https://\",\"duplicateUrl\":\"This subscription URL is already in the list\"},\"mp4recover\":{\"stagedSizeMismatch\":\"The copy written to the original directory has the wrong size\",\"noDecodableReference\":\"No reference produced a decodable cut\",\"backupExists\":\"A backup already exists in the same directory: {{name}}\"},\"javdbPublic\":{\"budgetExceeded\":\"The metadata request budget for this run is used up\",\"imageSourcePaused\":\"The image source is temporarily unavailable. Try again later.\",\"sourcePaused\":\"The metadata source is temporarily unavailable. Try again later.\",\"notFound\":\"No metadata found for this code\",\"identityAmbiguous\":\"Several videos share this code. Check the source identity: {{identities}}\",\"reviewPageOutOfRange\":\"Comment page must be between 1 and 8\",\"performerAvatarMissing\":\"Performer avatar does not exist\",\"previewImageMissing\":\"Preview image does not exist\",\"unavailable\":\"Metadata not found. Try again later\",\"unrecognizedFormat\":\"The metadata source's format wasn't recognized\",\"identityMismatch\":\"The source's video identity doesn't match\",\"imageUnavailable\":\"Image not found\"},\"storageBudget\":{\"unsupportedField\":\"Capacity settings contain an unsupported field\",\"gibOutOfRange\":\"{{key}} must be a whole number of GiB from {{minimum}} to 1048576\",\"switchRequired\":\"{{key}} must be on or off\",\"externalPathNotString\":\"External cache directory must be a path\",\"externalPathNotAbsoluteDirectory\":\"External cache directory must be an absolute directory readable on this device\",\"policyUnreadable\":\"Could not read capacity settings: {{error}}\",\"externalPathOverlaps\":\"External cache directory must be separate from Peach data and every configured directory\",\"hardLinkIdentityMissing\":\"The file system does not report hard link identity, so allocated size is unknown\",\"externalPathForeign\":\"The external cache path does not apply to this system. Update the path.\",\"externalDirectoryInaccessible\":\"External cache directory is not accessible\",\"cacheLayoutChanged\":\"Cache directories changed during the count. Count again.\",\"dataLayoutChanged\":\"Data directories changed during the count. Count again.\",\"capacityLayoutChanged\":\"Capacity directories changed during the count. Count again.\",\"externalDirectoryMoved\":\"External cache directory is not accessible. If you moved it, update the path in capacity settings.\",\"usageUnavailable\":\"Capacity usage unavailable: {{errors}}\",\"scanPaused\":\"Free disk space hit the limit during the scan, so current writes are paused. Free up space or try again: {{reasons}}\",\"cacheWritesStopped\":\"{{reasons}}. Not enough disk space, so cache writes have stopped. Free up space and try again\",\"intakeStopped\":\"{{reasons}}. Stopped picking up new items. Adjust the capacity settings or free up space and try again\",\"checkUnavailable\":\"The capacity protection check returned no result, so work is paused: {{error}}\"},\"mediaConfiguration\":{\"smbAddressRequired\":\"Enter smb://server/share/directory\",\"smbCredentialsNotText\":\"SMB account and password must be text\",\"smbOptionsInvalid\":\"SMB connection options are invalid\",\"smbRootInvalid\":\"The internal path of the SMB directory is invalid\",\"controlCharacters\":\"Paths cannot contain control characters\",\"rootMappingMissing\":\"Cannot configure the media directory automatically. Check the directory mapping in the configuration file.\",\"driveLetterRequired\":\"Media path must include a drive letter, for example B:\\\\. Map a network share to a Windows drive letter first.\",\"mappingFormatInvalid\":\"A path in [media.locations] in the configuration file is invalid. Use Windows format, for example R:\\\\media\",\"fullPathRequiredWindows\":\"Enter the full path of the media directory, for example D:\\\\Movies\",\"fullPathRequiredPosix\":\"Enter the full path of the media directory, for example /media\",\"parentSegment\":\"Media directory path cannot contain the parent directory ..\",\"rowInvalid\":\"Storage entry is malformed\",\"locationRequired\":\"Choose a storage from the list\",\"costRequired\":\"Choose a proxy data usage protection setting\",\"pathOverlaps\":\"Media path duplicates or overlaps another folder\",\"mappingOverlaps\":\"Directory mappings in the configuration file duplicate or overlap each other\",\"directoryOverlaps\":\"Media directory duplicates or overlaps another row\",\"rowCount\":\"Add 1 to 100 library directories\"},\"smbMedia\":{\"addressInvalid\":\"SMB address or port is invalid\",\"addressFormat\":\"Enter smb://server/share/directory. Enter the account and password separately.\",\"sharePathInvalid\":\"SMB address needs a share name, and the directory cannot contain parent directories or path separators\",\"rootIdentityInvalid\":\"SMB media directory identity is invalid\",\"credentialsNotText\":\"SMB account and password must be text\",\"outsideRoot\":\"Path is outside the media directory\",\"rootNotWritable\":\"Cannot write to a declared media root directory\",\"rootNotRenamable\":\"Cannot modify a declared media root directory\",\"rootNotDeletable\":\"Cannot delete a declared media root directory\",\"rootNotReplaceable\":\"Cannot create or replace a declared media root directory\",\"renameAcrossRoots\":\"SMB rename only works within the same media root directory\"},\"jobs\":{\"meteredSourceDenied\":\"Proxy data usage protection is on for {{location}} directories. Confirm the budget, then add --allow-metered.\",\"runInProgress\":\"{{task}} already has a run in progress\",\"freeSpaceUnreadable\":\"Can't read the free disk space on {{path}}\",\"freeSpaceLow\":\"{{path}} has only {{free}} GiB free (threshold {{minimum}} GiB)\",\"freeSpaceLowWhileRunning\":\"{{path}} dropped to {{free}} GiB free while running (threshold {{minimum}} GiB), so the task was stopped. Check third-party cache directories; this task's output directory may not be what is using the space\",\"alreadyRunning\":\"Another instance is already running (PID {{pid}})\",\"startFailed\":\"The task couldn't start\",\"serviceStopped\":\"The server shut down before this run finished\",\"superseded\":\"A newer run replaced this one\",\"failed\":\"The task failed\"},\"organizeTemplates\":{\"unclosedPlaceholder\":\"A placeholder `{` has no matching `}`\",\"unknownPlaceholder\":\"Unknown placeholder `{{placeholder}}`. Available: {{available}}\",\"unopenedGroup\":\"An optional group `]` has no matching `[`\",\"unclosedGroup\":\"An optional group `[` has no matching `]`\",\"tooLong\":\"Template is too long\",\"driveLetter\":\"Templates cannot include a drive letter. They describe a location relative to the storage root.\",\"leadingSeparator\":\"Templates cannot start with a separator. They describe a location relative to the storage root.\",\"separatorInFilename\":\"File name templates cannot contain directory separators. Put levels in the directory template.\",\"dotSegment\":\"Templates cannot contain `.` or `..`\",\"emptyLevel\":\"The directory template has an empty level\"},\"desktopUninstall\":{\"deleteDataChoiceRequired\":\"Choose whether to delete Peach data\",\"sourceInstall\":\"For a source install, quit the tray first, then remove the project manually. Data directories are listed below.\",\"programDirectoryUnsuitable\":\"This program directory is not suitable for automatic uninstall\",\"programDataOverlap\":\"Program and data directories overlap. Uninstall manually.\",\"externalDataDirectories\":\"Data uses external or nested directories. Keep data when uninstalling, then clean up manually using the directory list.\",\"mediaOverlap\":\"Uninstall directories overlap media directories. Check manually.\",\"sourceInstallStartup\":\"For a source install, turn off launch at startup and quit the tray first, then remove the project and data directories manually.\",\"updateRunning\":\"An update is still running. Uninstall after it finishes.\",\"configChanged\":\"Configuration changed. Confirm the uninstall again.\"},\"scrapingDiagnostics\":{\"codesInvalid\":\"Enter valid codes, up to {{limit}} at a time\"},\"tasteBrowsers\":{\"historyFormatUnsupported\":\"This browser history format is not supported. Choose a history file that contains page visits.\",\"historyExUnsupported\":\"HistoryEx has no recognizable page visits. 115 download records cannot be used as browsing history. Choose the History file.\",\"historyLocked\":\"The history file is in use. Quit the browser, then add it.\",\"historyUnreadable\":\"Could not read the browser history file. Check the profile directory.\",\"nameAndPathRequired\":\"Enter a browser name and profile directory\",\"noHistoryFiles\":\"No browser history or bookmark files found in the directory\",\"browserMissing\":\"Browser source does not exist\",\"operationInvalid\":\"Invalid browser operation\"},\"taskControl\":{\"actionInvalid\":\"Choose pause, resume, cancel, or change speed\",\"otherHost\":\"Do this on the primary computer that is running this task\",\"runFinished\":\"This task run has already finished\",\"cancelling\":\"The task is being canceled and can no longer be paused or resumed\",\"shuttingDown\":\"The service is shutting down. Saved progress will resume later\",\"runMissing\":\"Could not get the task. Refresh and try again.\"},\"tasteHistory\":{\"snapshotTimeout\":\"Could not take a browser history snapshot. Quit the browser and read it again.\",\"takeoutNoActivity\":\"Takeout has no recognizable browsing or search activity\",\"takeoutHistoryListMissing\":\"Takeout Chrome History is missing the Browser History list\",\"takeoutHistoryRowInvalid\":\"Takeout Chrome History contains an invalid record\",\"takeoutActivityUnparsed\":\"{{profile}} has activity records that could not be parsed: {{count}}\",\"historyInUse\":\"The history file is in use. Quit that browser and read it again.\",\"historyNotRead\":\"Browser history not found. Check the profile directory, or quit the browser and try again.\"},\"localPoster\":{\"unreadable\":\"Could not read the companion image\",\"tooLarge\":\"Companion image size is out of range\"},\"seedPack\":{\"duplicateField\":\"Duplicate field in seed JSON: {{key}}\",\"previousNameTaken\":\"The previous canonical name is used by another entity, so the Chinese name was not reverted\"},\"organizeClouddrive\":{\"pikpakRootInvalid\":\"The PikPak root must be a declared absolute Windows path\",\"cloudDirectoryInvalid\":\"The PikPak cloud directory format is invalid\",\"cloudPrefixIsRoot\":\"The PikPak cloud prefix cannot be the CloudDrive top-level root directory\",\"pathOutsideSource\":\"The path is outside the declared PikPak source\",\"sampleOutsideRoot\":\"The authentication sample is not under a declared PikPak root\",\"prefixNotUnique\":\"Set a single CloudDrive path prefix for this PikPak root in push discovery\",\"webdavResponseTooLarge\":\"The WebDAV response is over the size limit\",\"webdavNoResponse\":\"No network response from WebDAV\",\"webdavTreeTooLarge\":\"The WebDAV directory walk is over the limit or loops\",\"webdavTooManyFiles\":\"The WebDAV directory has too many files\",\"targetParentNotDirectory\":\"The target parent path is not a directory\",\"webdavMkcolFailed\":\"WebDAV could not create the parent directory: HTTP {{status}}\",\"crossParentRename\":\"The official API only accepts a rename in the same parent or a move that keeps the name; split a cross-directory rename into two steps\",\"moveNotExecuted\":\"The official API rejected or did not run the move; the original is confirmed to still be in place\",\"cloudPathTooDeep\":\"The official directory path is too deep\",\"cloudListingInvalid\":\"The official directory listing has out-of-bounds entries, duplicate names, or invalid sizes\",\"cloudListingTooLarge\":\"The official directory listing has too many entries\",\"moveMismatch\":\"The official move source, parent directory, or file name does not match\",\"renameOutsideParent\":\"The official rename only works within the same parent directory in a declared source\",\"refreshFailed\":\"Could not refresh the directory cache: {{status}}\",\"directLinkAuthMissing\":\"Could not get the existing CloudDrive direct-link authentication\",\"directLinkMismatch\":\"The existing direct link source or path does not match\",\"webdavAuthMissing\":\"Could not get the existing WebDAV authentication\",\"authSampleMissing\":\"Could not get an existing CloudDrive authentication sample\",\"tokenMissing\":\"Could not get the existing CloudDrive token\",\"webdavSourceMissing\":\"Could not find the existing PikPak WebDAV source\",\"tokenRootRestricted\":\"Cloud organizing needs a CloudDrive2 token whose root directory is /. This token can only access {{root}}\",\"accountRootMissing\":\"CloudDrive did not return the WebDAV account root directory\",\"prefixOutsideAccountRoot\":\"The CloudDrive path prefix is not under the returned account root directory\",\"webdavUnavailable\":\"WebDAV is temporarily unavailable: {{status}}\",\"cloudListingUnavailable\":\"Couldn't get the full official directory listing: {{status}}\",\"webdavSourceNotFound\":\"WebDAV source not found\",\"webdavTargetExists\":\"The WebDAV target already exists\",\"cloudParentMissing\":\"The official parent directory doesn't list the required directory\",\"moveUnconfirmed\":\"Couldn't confirm the move. Kept the intent receipt and stopped; nothing is repeated or written to the database\"},\"downloads\":{\"infohashInvalid\":\"The infohash in the magnet link is not 40 hex characters or 32 base32 characters\",\"magnetRequired\":\"Paste a magnet link\",\"magnetNotBittorrent\":\"The magnet link has no urn:btih; Peach only accepts BitTorrent magnet links\",\"targetIsRoot\":\"The target directory must be a specific directory in the cloud drive, not its root\",\"addressFormat\":\"Enter only the scheme, host, and port for the CloudDrive2 address, for example http://127.0.0.1:19798\",\"addressPortInvalidIpv6\":\"The CloudDrive2 port must be an integer from 1 to 65535; put IPv6 addresses in square brackets\",\"addressPortInvalid\":\"The CloudDrive2 port must be an integer from 1 to 65535\",\"notPikpakRoot\":\"{{root}} is not a declared PikPak root; known roots: {{known}}\",\"notPikpakRootNoneDeclared\":\"{{root}} is not a declared PikPak root; the settings file has no pikpak storage\",\"invalidEditionPreferences\":\"Choose distinct editions in priority order\",\"waitHoursNotNumber\":\"Enter the wait limit in hours\",\"waitHoursOutOfRange\":\"The wait limit must be between 1 and {{max}} hours\",\"writerOnly\":\"Cloud download is only available on a device that can modify the database\",\"channelUnavailable\":\"Choose a cloud download channel available in the library\",\"targetOutsideLibrary\":\"The download target directory must be inside the selected library\",\"taskNotFound\":\"This download task does not exist\",\"taskFinished\":\"This task has already finished and cannot be canceled\",\"cancelFailed\":\"The remote did not cancel the task: {{detail}}\",\"nothingToRetry\":\"This task has no failed post-processing to retry\",\"remoteRejectedNoReason\":\"The remote side rejected this task without giving a reason\",\"remoteBlocked\":\"115 blocked this resource (prohibited content, 50038), so it will not be retried: {{text}}\",\"remoteQuota\":\"Not enough cloud download quota: {{text}}\",\"remoteStorageFull\":\"Free up space on the cloud drive or upgrade it, then submit again\",\"remoteDuplicate\":\"The same task already exists on the remote side: {{text}}\",\"remoteInvalidLink\":\"The remote side does not accept this link: {{text}}\",\"remoteRejected\":\"The remote side rejected this task: {{text}}\",\"retriesExhausted\":\"{{detail}} (still not submitted after {{checks}} automatic retries)\",\"noSeeders\":\"Still not finished on the remote side after {{hours}} hours, most likely because nobody is seeding. Cancel it or try another magnet link\",\"notAccepted\":\"The cloud drive did not accept this task: it never appeared in the cloud download list after submission, and there are no files in the target directory\",\"remoteRemoved\":\"This task disappeared from the cloud drive: it is not in the cloud download list, and there are no files in the target directory\",\"targetNotMapped\":\"The target directory does not map to a library directory. Check the library mounts and the cloud path mapping\",\"notLanded\":\"Finished on the remote side, but {{path}} never appeared in the mounted directory\"},\"followStore\":{\"aliasNamesRequired\":\"Both the canonical creator name and the platform alias are required\",\"aliasSameAsName\":\"These two names are the same after normalization; no alias is needed\",\"nameRequired\":\"The unified name is required\",\"aliasGroupMissing\":\"This creator alias group no longer exists; refresh the list\",\"nameTaken\":\"This name already belongs to another creator; check whether they should be merged first\",\"aliasRequired\":\"The alias is required\",\"aliasMissing\":\"This creator alias does not exist\",\"canonicalNotRemovable\":\"The canonical name cannot be removed as an alias\",\"itemMissing\":\"Follow item doesn't exist: {{id}}\",\"itemNotFound\":\"Follow item {{id}} doesn't exist\",\"noWorkUrl\":\"This candidate has no video page URL, so it can't be saved as an online video\"},\"followCreators\":{\"holdGone\":\"This group of followed creators is no longer waiting for confirmation; refresh and check again\"},\"onlineTagManagement\":{\"nameInvalid\":\"Tag names must be 1 to 80 characters with no commas or control characters\",\"nameTaken\":\"\\\"{{name}}\\\" already belongs to the tag \\\"{{tag}}\\\"; use Merge tags instead\",\"selectionInvalid\":\"Select valid online tags, up to 2000 at a time\",\"tagsChanged\":\"The tags have changed; refresh and try again\",\"mergeSelection\":\"Select at least two tags and choose the one to keep\",\"mergeSameType\":\"Select tags of the same source type to merge\",\"previewStale\":\"The tags have changed; preview the affected items again\",\"itemTagLimit\":\"Each item can have at most 100 manual tags\"},\"tagManagement\":{\"selectionInvalid\":\"Select valid tags, up to 2000 at a time\",\"nameInvalid\":\"Tag names must be 1 to 80 characters\",\"nameTaken\":\"\\\"{{name}}\\\" already belongs to the tag \\\"{{tag}}\\\"; use Merge tags instead\",\"tagsChanged\":\"The tags have changed; refresh and try again\",\"mergeSelection\":\"Select at least two tags and choose the one to keep\",\"previewStale\":\"The tags have changed; preview the affected items again\"},\"reviewMirror\":{\"notWriter\":\"The target instance is not currently the primary computer\",\"readFailed\":\"Could not read from the primary computer: {{type}}: {{error}}\",\"readFailedWithCurl\":\"Could not read from the primary computer: {{type}}: {{error}}; system network channel: {{curl}}\",\"responseTooLarge\":\"The review response from the primary computer is over the 8 MiB limit\",\"invalidJson\":\"The primary computer did not return valid JSON\",\"notObject\":\"The primary computer did not return a JSON object\",\"curlStartFailed\":\"curl failed to start: {{type}}: {{error}}\",\"curlExit\":\"curl exited with {{code}}: {{detail}}\",\"curlExitNoDetail\":\"curl exited with {{code}}: no error details\",\"responseMissingKey\":\"The review response from the primary computer is missing {{key}}\",\"queuesMissing\":\"The primary computer did not provide review state; update Peach on the primary computer\",\"queueMissing\":\"Review state {{key}} from the primary computer was not found\",\"strictHttpsMissing\":\"No primary computer HTTPS address that can be strictly verified is set\"},\"subtitleSearch\":{\"urlUnsupported\":\"This subtitle download URL is not supported\",\"responseTooLarge\":\"The subtitle response is larger than 4 MiB\",\"unreachable\":\"Cannot reach SubtitleCat right now; try again later\",\"tooManyRedirects\":\"The subtitle download redirected too many times\",\"idInvalid\":\"The subtitle ID is invalid\",\"queryInvalid\":\"Search terms must be 3 to 200 characters; if the page position is invalid, search again\",\"searchPageMissing\":\"Could not load the SubtitleCat search page; try again later\",\"fileMissing\":\"The subtitle file does not exist\",\"fileTooLarge\":\"The subtitle file is larger than 4 MiB\",\"formatUnsupported\":\"Choose an SRT, ASS, SSA, or VTT text subtitle\",\"noTimeline\":\"The subtitle file has no playable timeline\"},\"devCopy\":{\"placeholdersChanged\":\"Keep the existing placeholders and change only the text; write literal braces as {{open}} and {{close}}\",\"placeholdersIncomplete\":\"Keep every placeholder, each exactly once\",\"textTooLong\":\"Select text of no more than 2000 characters\",\"replacementInvalid\":\"The new text must be a string of no more than 2000 characters\",\"sourceChanged\":\"The source file has changed; select the text again\",\"fileNotEditable\":\"This file cannot be edited\"},\"dockerUpdate\":{\"watchtowerMissing\":\"Watchtower was not detected; start it with the compose watchtower profile\",\"unreachable\":\"Cannot reach Watchtower ({{error}}); try again later\",\"tokenMismatch\":\"The token Watchtower read does not match Peach; run docker compose restart watchtower in the directory that contains compose.yaml, then try again\",\"busy\":\"Watchtower is running another update; try again later\",\"httpStatus\":\"Watchtower returned HTTP {{status}}\"},\"updatePackages\":{\"toolPathInvalid\":\"A path in the tool manifest is invalid\",\"toolPathEscapes\":\"A path in the tool manifest is outside the package or contains a link\",\"manifestInvalid\":\"The update package tool manifest is invalid\",\"fileListInvalid\":\"The update package tool file list is invalid\",\"requiredFileMissing\":\"The update package tool manifest is missing required files\",\"downloadInfoInvalid\":\"The update package tool download information is invalid\"},\"feedFollowup\":{\"noMetadata\":\"No source in the chain {{chain}} has metadata for this code\",\"chainTimedOut\":\"The source chain {{chain}} didn't respond within {{seconds}} seconds\"},\"westernCatalog\":{\"http\":\"{{source}} returned HTTP {{status}}\",\"invalid\":\"{{source}} did not return usable metadata\",\"invalidKey\":\"Enter a valid API key\",\"keyMissing\":\"Configure a {{source}} API key first\",\"keyRejected\":\"{{source}} did not accept this API key\",\"redirect\":\"The {{source}} request redirected to a different site and was stopped\"},\"westernArtwork\":{\"babepediaUrlMismatch\":\"Babepedia not found: the profile URL does not match\",\"babepediaHttp\":\"Babepedia not found: HTTP {{status}}\",\"babepediaIdentityMismatch\":\"Babepedia not found: the profile identity does not match\",\"babepediaHostMismatch\":\"Babepedia not found: the source domain does not match\",\"officialCoverHttp\":\"Official cover not found: HTTP {{status}}\",\"officialCoverInvalid\":\"Official cover not found: the API did not return valid metadata\"},\"peachProxy\":{\"modeRequired\":\"Choose a connection mode for the Peach proxy\",\"addressInvalid\":\"Enter an HTTP or SOCKS proxy address with a port\",\"conflict\":\"The source proxy settings differ; choose the Peach proxy in Settings first\",\"requestFailed\":\"External request failed ({{kind}})\"},\"wants\":{\"codeEmpty\":\"Cannot recognize a code: (empty)\",\"codeUnrecognized\":\"Cannot recognize a code: {{text}}\",\"alreadyInLibrary\":\"{{code}} is already in the library\",\"feedItemMissing\":\"Cannot find this new release\",\"followItemMissing\":\"Cannot find this followed item\",\"wantMissing\":\"Cannot find this want\"},\"mediaProcessingPolicy\":{\"previewStateRequired\":\"Choose whether to generate previews\",\"accelerationModeRequired\":\"Choose automatic or software-only mode\",\"choiceRequired\":\"Choose a media processing mode\",\"qualityRequired\":\"Quality limit only accepts {{choices}}\"},\"retentionSettings\":{\"choiceInvalid\":\"{{key}} only accepts {{choices}}.\",\"empty\":\"No retention settings to save.\"},\"server\":{\"databaseMissing\":\"Settings exist but the database is missing; restore the database, then start Peach\",\"migrateFailed\":\"The database upgrade failed with exit code {{code}}; the service did not start\",\"settingsMissing\":\"The database exists but the settings file is missing; restore config.toml, then start Peach\",\"initFailed\":\"Initialization failed with exit code {{code}}\"},\"entryLinks\":{\"sitesRequired\":\"Submit an address for each site\",\"siteMissing\":\"Settings for {{site}} are missing\",\"hostNotText\":\"The address for {{site}} must be text\",\"hostTooLong\":\"Keep the address for {{site}} within {{limit}} characters\",\"hostShape\":\"For {{site}}, enter only the domain name, like {{example}}\"},\"gpuLinux\":{\"clientIdMissing\":\"The GPU driver did not provide a DRM client ID for deduplication\",\"engineFormatInvalid\":\"The GPU engine time or capacity format is invalid\",\"engineTimeMissing\":\"The GPU driver did not provide DRM engine busy time\"},\"remoteMediaCache\":{\"capacityDenied\":\"{{detail}}\",\"incompleteResponse\":\"The media response length is incomplete\",\"unavailable\":\"Media not found\"},\"supportBundle\":{\"notWritable\":\"Could not write the diagnostics report to the data directory or the temporary directory\"},\"smbTransport\":{\"hostShareNotComponent\":\"SMB host and share name must each be a single path component\",\"invalidPort\":\"Invalid SMB port\",\"invalidTimeout\":\"SMB request timeout must be a finite positive number\",\"pathNotRelative\":\"SMB path must be relative to the share root\",\"invalidPathComponent\":\"SMB path contains an invalid component\",\"authenticationFailed\":\"SMB authentication failed\",\"accessDenied\":\"SMB access denied\",\"connectionUnavailable\":\"SMB connection unavailable\",\"requestTimedOut\":\"SMB request timed out\",\"transportClosed\":\"SMB transport is closed\",\"disconnected\":\"SMB connection was lost\",\"connectionClosed\":\"SMB connection is closed\",\"dfsNotAllowed\":\"SMB DFS shares can't be redirected\",\"reparsePoint\":\"SMB reparse points can't be accessed\",\"rootNotModifiable\":\"Can't modify the share root directory\",\"rootNotReplaceable\":\"Can't replace the share root directory\",\"rootNotWritable\":\"Can't write to the share root directory\",\"readNoCredits\":\"SMB read has no credits available\",\"unexpectedEnd\":\"SMB file ended before its declared end\",\"writeNoCredits\":\"SMB write has no credits available\",\"writeIncomplete\":\"SMB write didn't complete\",\"requestFailed\":\"SMB request failed\"},\"resourceSearch\":{\"invalidEndpoint\":\"Indexer address is not valid\",\"endpointFormat\":\"Enter an HTTP or HTTPS API address; enter the API key separately and leave query parameters out of the address\",\"unreadableConfig\":\"Indexer settings can't be read. Save them again in Settings → Downloads on this device\",\"tooManyIndexers\":\"You can configure at most {{max}} indexers\",\"indexerNotObject\":\"Each indexer setting must be an object\",\"invalidIndexerKey\":\"Indexer ID is empty or duplicated\",\"invalidIndexerName\":\"Indexer name must be 1 to 80 characters\",\"invalidApiKey\":\"API key is not valid\",\"invalidSizeRange\":\"Size range must be between 0 and 1 TiB, and the minimum can't exceed the maximum\",\"invalidGoal\":\"Quality goal must be HD, Chinese subtitles or uncensored\",\"responseTooLarge\":\"Indexer response is larger than 2 MiB\",\"xmlEntities\":\"Indexer XML contains unsupported entity declarations\",\"notTorznab\":\"Indexer didn't return Torznab XML\",\"invalidCode\":\"Enter a recognizable code\",\"indexerLimitExceeded\":\"Too many indexers\",\"noCodeSearch\":\"Indexer doesn't declare code search support\"},\"scrapingAccess\":{\"unknownSource\":\"Unknown fetch source\",\"cookieFileFormat\":\"Cookie file must be in Netscape text format\",\"cookieOneLine\":\"Paste a single-line Cookie header\",\"invalidCookieHeader\":\"Cookie header is not valid\",\"chooseNetwork\":\"Choose how to connect to this source\",\"cookieNotAccepted\":\"This source doesn't accept sign-in cookies\",\"cookieOneMethod\":\"Either paste cookies or import a cookie file, not both\",\"cookieTooLarge\":\"Cookie text is larger than 256 KiB\",\"noValidCookie\":\"No unexpired cookies for this source were found\",\"redirectNotHttps\":\"Fetch redirects must use HTTPS\",\"tooManyRedirects\":\"Too many fetch redirects\",\"accountSuspended\":\"{{label}} temporarily suspended the account for browsing too fast. It resumes {{time}}; the account is blocked, not the exit, so Peach pauses requests to it until then\",\"geoRestricted\":\"{{label}} isn't available in the region of your current exit. In your proxy, route it through an exit in a region it accepts; requests to it are paused for {{minutes}} minutes\",\"ipBanned\":\"{{label}} has banned your current exit IP. Requests to it are paused for a while; you can also route it through a different exit in your proxy\",\"requestBudgetSpent\":\"This run's fetch request limit is used up. Run it again to continue; existing images are kept\",\"timeBudgetSpent\":\"This run's fetch time limit is used up. Run it again to continue; existing images are kept\",\"downloadBudgetSpent\":\"This run's download limit is used up. Run it again to continue; existing images are kept\",\"coolingDown\":\"The source is cooling down. Try again later; existing images are kept\",\"challengeTimedOut\":\"The source's human verification wasn't passed in time, so requests to it are paused for a while. Next time, open the collection browser from the taskbar and click the verification; existing images are kept\",\"rateLimited\":\"The source is rate limiting requests; the cooldown has been recorded. Existing images are kept\",\"coolingDownNamed\":\"{{label}} is paused. Try again in about {{minutes}} min\",\"rateLimitedNamed\":\"{{label}} is rate limiting. Try again in about {{minutes}} min\",\"refusedNamed\":\"{{label}} refused requests from the current exit, most likely too many requests or a blocked exit. Paused for about {{minutes}} min; you can also give it another exit in the proxy\",\"refusedCookieNamed\":\"{{label}} refused the request: too many requests, a blocked exit, or the saved cookie has expired. Paused for about {{minutes}} min; try another exit or paste a fresh cookie\",\"refused\":\"The source refused access, so requests to it are paused for a while. Existing images are kept\",\"browserModeInvalid\":\"The collection browser mode must be one of {{choices}}\"},\"downloadPostprocess\":{\"noLandingPath\":\"The download task has no landing path\",\"noVideoInLanding\":\"No recognizable video in the landing directory\",\"mainBoundToOtherCode\":\"The full video is already linked to another code: {{code}}\",\"configMismatchProbe\":\"The current collection doesn't match the storage settings, so downloaded media can't be probed\",\"configMismatchCollect\":\"The current collection doesn't match the storage settings, so metadata for the download can't be fetched\",\"collectFailed\":\"Fetching metadata failed\",\"organizeIncomplete\":\"Organizing files didn't finish: {{reasons}}\",\"integrityBefore\":\"Database check failed before organizing: integrity={{integrity}}\",\"integrityAfter\":\"Database check failed after organizing: integrity={{integrity}} new_foreign_keys={{count}}\",\"notIngested\":\"The cloud download hasn't been imported yet\"},\"subtitleMemory\":{\"invalidFields\":\"Invalid playback memory fields\",\"chooseSubtitle\":\"Choose subtitles or turn them off\",\"invalidRotation\":\"Invalid rotation\",\"invalidRate\":\"Invalid playback speed\",\"invalidCaptionStyle\":\"Invalid subtitle appearance\",\"invalidSelection\":\"Invalid subtitle selection\",\"invalidVideoKey\":\"Invalid video ID\",\"invalidTrack\":\"Invalid subtitle track\",\"invalidTrackContent\":\"Invalid subtitle content or name\",\"selectionNotSaved\":\"The selected subtitles haven't been saved\"},\"entityIdentityResearch\":{\"nameMismatch\":\"The identity list doesn't match the entity name\",\"performerNeedsOccupation\":\"Moving to performers needs a fetched public occupation source\",\"planExpired\":\"The identity plan is out of date\",\"multiplePublishers\":\"The video has several publishers and needs review\",\"recordChanged\":\"The identity repair records have changed since\",\"newIdentityChanged\":\"The new identity has changed since\",\"newIdentityHasVideos\":\"The new identity has extra video links\",\"newIdentityHasData\":\"The new identity has extra metadata\"},\"updateTasks\":{\"gateBusy\":\"The task gate is busy. It will retry automatically.\",\"stateUnreadable\":\"Can't read the task protection state. Check the data directory and try again.\",\"stateInvalid\":\"The task protection state is invalid. Check the data directory and try again.\",\"preparingInstall\":\"An update is being prepared for installation, so new tasks can't start right now. Wait for the installation to finish.\",\"installInProgress\":\"An update is already being installed. Wait for it to finish.\",\"reservedBusy\":\"{{message}}\",\"pausedForInstall\":\"Task paused. It resumes automatically after the installation finishes.\",\"batchStateUnknown\":\"Couldn't confirm the state of a batch process, so the installation was canceled.\",\"reservationExpired\":\"The update installation reservation has expired. Prepare the update again.\"},\"avatarProvider\":{\"unsupportedFormat\":\"{{format}} images aren't supported yet. Use a JPEG, PNG, WebP or AVIF image\",\"unsupportedFormatUnknown\":\"This image format isn't supported yet. Use a JPEG, PNG, WebP or AVIF image\",\"imageTooLarge\":\"The image has too many pixels. Make it smaller and choose it again\",\"unrecognizedImage\":\"Can't recognize the image. The file may be damaged or in an unsupported format; export the image again\",\"incompleteImage\":\"The image data is incomplete or can't be decoded. Download or export the image again\"},\"processingControl\":{\"invalidMode\":\"Choose low, standard or high intensity mode\",\"jobChanged\":\"The task has changed. Refresh the page and try again\",\"stopped\":\"The processing task stopped\",\"userStopped\":\"Stopped by the user\"},\"avatarWatermark\":{\"modelMissing\":\"The text detection model isn't at {{path}}, and downloading isn't allowed\",\"downloadFailed\":\"Couldn't get the text detection model: {{error}}\",\"checksumMismatch\":\"The text detection model failed verification: expected {{expected}}, got {{actual}}\"},\"junkVisual\":{\"ocrUnavailable\":\"Visual promotion analysis unavailable ({{reason}})\"},\"previewCache\":{\"playlistNotFetched\":\"Playlist not found\",\"contentSteering\":\"Content Steering playlists aren't supported yet\",\"sourceUnavailable\":\"The preview source is unavailable\",\"objectMissing\":\"The preview object doesn't exist\",\"manifestNotFetched\":\"Preview manifest not found\"},\"metadataRoutes\":{\"overrideFormat\":\"Source chain overrides must be written as `type=source,source`\",\"unknownContentType\":\"Unknown content type: {{type}}\",\"unknownSources\":\"Unknown sources: {{sources}}\"},\"libraryNfo\":{\"tooLargeOrEntities\":\"The NFO file is too large or contains entity declarations\",\"notVideo\":\"The NFO isn't video or episode metadata\",\"multipleCodes\":\"The NFO contains several different codes\"},\"remoteReporting\":{\"notBoolean\":\"Telemetry and automatic error diagnostics must be true or false\",\"mustMatch\":\"Version stats and error diagnostics must be turned on or off together\"},\"studioIcons\":{\"hashMismatch\":\"The candidate file's hash doesn't match the review record, so it wasn't installed: {{name}}\",\"notSquare\":\"Couldn't make a usable square image, so it wasn't installed: {{name}}\"},\"fileIdentity\":{\"invalidCache\":\"The local file identity cache is invalid\"},\"releaseUpdates\":{\"toolPackageNotFound\":\"Couldn't get tool package details from the releases page. Check your network and the Peach proxy, then try again\"},\"sourcePreflight\":{\"unknownSource\":\"Choose a supported metadata source ID\"},\"libraryProcessingScope\":{\"libraryGone\":\"The selected library no longer exists. Choose again\",\"noDirectories\":\"The selected library has no directories to process\"},\"access\":{\"passwordMismatch\":\"The passwords don't match\",\"passwordLength\":\"The access password must be 8–256 characters\",\"invalidRememberDays\":\"Choose a valid stay-signed-in duration\"},\"downloadsPikpak\":{\"missingCredentials\":\"Enter your PikPak account and password\",\"captchaRequired\":\"PikPak requires verification first: complete it on the verification page, then come back to Settings and sign in again\",\"shapeNotJson\":\"PikPak returned an unexpected response (HTTP {{status}} is not JSON); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNotObject\":\"PikPak returned an unexpected response (the response is not an object); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeHttpStatus\":\"PikPak returned an unexpected response (HTTP {{status}}); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNoCaptchaToken\":\"PikPak returned an unexpected response (no captcha_token); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNoLoginToken\":\"PikPak returned an unexpected response (no token in the sign-in response); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeAuthAfterRefresh\":\"PikPak returned an unexpected response (still not authenticated after refreshing the token); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeFileList\":\"PikPak returned an unexpected response (file list); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeNoTask\":\"PikPak returned an unexpected response (no task in the submit response); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeTaskList\":\"PikPak returned an unexpected response (task list); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeTaskPhase\":\"PikPak returned an unexpected response (task phase {{phase}}); its API may have changed. You can copy the magnet link and add it manually for now\",\"shapeTaskPhaseEmpty\":\"PikPak returned an unexpected response (empty task phase); its API may have changed. You can copy the magnet link and add it manually for now\",\"unreachable\":\"Cannot reach PikPak: {{error}}\",\"serverUnavailable\":\"PikPak is temporarily unavailable (HTTP {{status}})\",\"unknownWebClient\":\"PikPak's web client ID is {{client}}, and Peach has no signing constants for it, so it cannot submit cloud download tasks. You can copy the magnet link and add it manually for now\",\"webSignatureRejected\":\"PikPak rejected the web client's request signature: {{description}} ({{code}}). The web signing constants may have changed. You can copy the magnet link and add it manually for now\",\"notSignedIn\":\"Not signed in to PikPak yet\",\"signInExpired\":\"PikPak sign-in has expired. Sign in again in Settings: {{description}} ({{code}})\",\"webRefreshRejected\":\"PikPak refused to refresh the web sign-in token: {{description}} ({{code}}). In Settings, click Sign in with browser to sign in again\",\"folderMissing\":\"There is no {{path}} directory in PikPak\",\"targetNeedsFolder\":\"The target directory must be a specific directory in PikPak\",\"signInInvalid\":\"PikPak sign-in is no longer valid. Sign in again in Settings: {{description}} ({{code}})\",\"captchaDemanded\":\"PikPak requires verification. Sign in again in Settings: {{description}} ({{code}})\",\"quotaExceeded\":\"Not enough PikPak cloud download quota or storage space: {{description}} ({{code}})\",\"linkRejected\":\"PikPak does not accept this link: {{description}} ({{code}})\",\"taskRejected\":\"PikPak rejected this task: {{description}} ({{code}})\",\"noRemoteId\":\"This task has no PikPak task ID yet, so it cannot be canceled\",\"signInFailed\":\"PikPak sign-in failed: {{description}} ({{code}})\",\"offlineFailed\":\"The remote side rejected this task: PikPak reported that the cloud download failed\"},\"upgradeRepairs\":{\"invalidReceipt\":\"The post-update processing record is invalid\",\"noDanglingReceipt\":\"No receipt for the dangling candidate repair\",\"integrityFailed\":\"The database integrity check failed while updating existing metadata\",\"foreignKeyFailed\":\"The relationship check failed while updating existing metadata\",\"receiptNeedsPrepare\":\"The post-update processing record needs to be prepared again. Try again\",\"primaryOnly\":\"Post-update processing is only available when this device is the primary computer\",\"displayRepairNotReady\":\"Display size re-measurement isn't ready yet. Try again later\",\"mediaRepairIncomplete\":\"The video upgrade fill-in didn't finish. Check Tasks, then try again\",\"resumeAfterRestart\":\"Continues after the service restarts\",\"displayBackupNoSpace\":\"Not enough space for the backup before re-measuring display sizes, so this batch of media is paused\",\"mediaPaused\":\"{{message}}\",\"malformedPath\":\"Unrecognized video path: {{path}}\",\"malformedPathReason\":\"Unrecognized video path ({{reason}}): {{path}}\"},\"tunnel\":{\"standalonePortInvalid\":\"The standalone package's Tunnel HTTP port is invalid: {{port}}\",\"lanAddressUnknown\":\"Can't determine the LAN address of the source-checkout server\",\"lanAddressNotIp\":\"The source-checkout Tunnel's LAN address isn't an IP: {{address}}\",\"mdnsMissing\":\"The source-checkout server has no mDNS name configured\",\"caMissing\":\"The source-checkout Tunnel needs the project CA: {{path}}\",\"httpsPortInvalid\":\"The source-checkout Tunnel's HTTPS port is invalid: {{port}}\",\"accessLocked\":\"Access settings are damaged, so the public Tunnel can't start\",\"passwordRequired\":\"Set an access password before starting the public Tunnel\",\"unsupportedAccessMode\":\"Access settings aren't in a supported password mode\",\"internalTokenMissing\":\"The Peach internal access token is missing, so the public Tunnel can't start\",\"invalidMode\":\"tunnel.mode must be quick or named: {{value}}\",\"hostnameRequired\":\"A named tunnel needs a public hostname\",\"invalidHostname\":\"The public hostname isn't a valid domain: {{value}}\",\"standaloneQuickOnly\":\"The standalone package only supports temporary links\",\"tokenRequired\":\"A named tunnel needs a Cloudflare tunnel token\",\"httpsRequired\":\"The source-checkout Tunnel needs a running HTTPS server\",\"cloudflaredMissing\":\"cloudflared not found: install the official cloudflared, or set its path with tunnel.binary in the settings file or PEACH_CLOUDFLARED\",\"exitedBeforeEntry\":\"cloudflared exited before getting an address\",\"startFailed\":\"cloudflared failed to start: {{error}}\",\"noOutput\":\"cloudflared has no output channel\",\"stateFailed\":\"Couldn't record the Tunnel start state: {{error}}\",\"noEntry\":\"cloudflared didn't get an address in time\",\"notConnected\":\"cloudflared didn't connect to the Cloudflare edge in time\",\"stateWriteFailed\":\"Couldn't write the Tunnel state: {{error}}\"},\"automaticUpdates\":{\"chooseInterval\":\"Choose how often to check\",\"chooseMode\":\"Choose an automatic update mode\",\"downloadUnsupported\":\"Automatic download only works with the standalone Windows test package\",\"needsTray\":\"Automatic updates need a service managed by the tray\",\"unreadable\":\"Can't read the automatic update settings. Save them again.\"},\"certs\":{\"opensslFailed\":\"openssl {{command}} failed: {{detail}}\",\"opensslMissing\":\"OpenSSL not found. Install it, add it to PATH, then try again.\"},\"clouddriveProxy\":{\"accountChanged\":\"The cloud drive account has changed. Reload it.\",\"chooseMode\":\"Choose direct, system, HTTP, or SOCKS5\",\"chooseSettings\":\"Choose the proxy settings to save\",\"clearPasswordNotBoolean\":\"Clear password must be a boolean\",\"configChanged\":\"CloudDrive2 settings have changed. Reload them before saving.\",\"hostOnly\":\"Enter only a host name or IP for the proxy address\",\"hostUserNotText\":\"Proxy address and username must be text\",\"invalidCredentials\":\"Invalid proxy credentials format\",\"libraryChanged\":\"The library has changed. Reload it.\",\"needsModifyPermission\":\"The CloudDrive2 API token needs the “Modify cloud drives” permission\",\"needsViewPermission\":\"The CloudDrive2 API token needs the “View cloud drives” permission\",\"notConfigured\":\"Enter the CloudDrive2 address and API token in download settings first\",\"portRange\":\"Proxy port must be between 1 and 65535\",\"tokenUnreadable\":\"The CloudDrive2 API token can't be read. Enter it again in download settings.\"},\"customMetadata\":{\"chooseNetwork\":\"Choose direct connection or Peach proxy\",\"chooseSource\":\"Choose a source\",\"codeMismatch\":\"The code returned by the source doesn't match the requested code\",\"codePathRequired\":\"Enter the path of the code field in the response\",\"configNotObject\":\"Source settings must be an object\",\"connectionFailed\":\"Couldn't connect to the source\",\"contentTypeRequired\":\"Choose at least one valid content type\",\"enabledNotBoolean\":\"The enabled state must be a boolean\",\"endpointNeedsCode\":\"The endpoint URL must contain exactly one {code}\",\"endpointNotPublicHttps\":\"The endpoint must be an HTTPS URL on a fixed public domain using port 443\",\"fieldNeedsText\":\"The {{field}} field must be text or a number\",\"fieldNeedsTextArray\":\"The {{field}} field must be an array of text\",\"hostNotPublic\":\"The source domain must resolve to a public address\",\"httpStatus\":\"Source responded with HTTP {{status}}\",\"invalidCodeFormat\":\"Invalid code format\",\"invalidFieldPath\":\"Field mappings only accept dot paths made of object keys or array indexes\",\"invalidJson\":\"The source response isn't valid JSON\",\"invalidSavedConfig\":\"Custom source settings are invalid\",\"nameLength\":\"Source name must be 1–80 characters\",\"proxyConfigMissing\":\"Peach proxy settings not found\",\"responseTooLarge\":\"The source response is larger than 1 MiB\",\"sourceMissing\":\"The source doesn't exist. Refresh the page.\",\"timedOut\":\"The source query timed out\",\"tooManySources\":\"You can save up to {{max}} sources\"},\"dataStorage\":{\"backupNotCleaned\":\"Database backups weren't cleaned up: {{reason}}\",\"busy\":\"Measuring or cleaning up. Please wait.\",\"busyBeforeMigration\":\"Measuring or cleaning up. Wait for it to finish before migrating.\",\"categoryNotCleanable\":\"This category can't be cleaned up here\",\"chooseTarget\":\"Choose a new data directory\",\"copyIncomplete\":\"Copy didn't finish (code 0x{{code}})\",\"copyMismatch\":\"Copy is incomplete: the original directory has {{sourceFiles}} files ({{sourceSize}}), the new location has {{targetFiles}} files ({{targetSize}})\",\"databaseCheckFailed\":\"Database check failed\",\"driveRootNotAllowed\":\"Choose or create a dedicated directory instead of using the root of a disk\",\"fileExists\":\"A file with this name already exists at this location\",\"folderNotEmpty\":\"Choose an empty folder or create a new one\",\"fullPathRequired\":\"Enter the full path\",\"layoutChanged\":\"Storage directories changed while measuring. Measure again.\",\"localDiskRequired\":\"Choose a folder on a disk of this device, for example D:\\\\Peach\\\\peach-data\",\"measureFirst\":\"Measure storage usage first\",\"measureStopped\":\"Measuring stopped\",\"migrationCanceled\":\"Migration canceled\",\"notEnoughSpace\":\"The disk at the new location has {{free}} free; migration needs about {{needed}}\",\"notWritable\":\"The current user can't write to this location\",\"overlapsCurrent\":\"The new location can't be the current data directory, inside it, or contain it\",\"overlapsMedia\":\"The new location can't overlap a media directory\",\"overlapsProgram\":\"The new location can't overlap the program directory\",\"pathsNotRewritten\":\"Preview image paths couldn't be updated ({{error}}). They'll be added again the next time the collection is processed.\",\"sourceChanged\":\"The data directory has changed. Choose again.\",\"trayStillRunning\":\"The tray hasn't exited yet\",\"updateRunning\":\"An update is still in progress. Finish it before migrating.\"},\"desktopInstaller\":{\"cachedToolInvalid\":\"Local tool package failed verification: {{name}}. Download it again or move this file away, then try again.\",\"peachStillRunning\":\"Peach hasn't exited yet, so the installation didn't finish. Try again later.\"},\"devCopyRuntime\":{\"applying\":\"Copy changes are being applied. Edit again later.\",\"buildFailed\":\"Build failed: {{detail}}\",\"buildIncomplete\":\"Build output is incomplete. See build/copy-editor/build.log for details.\",\"nothingToRetry\":\"No apply task to retry\",\"npmMissing\":\"npm not found. Install the Node.js version the project needs.\",\"saving\":\"Other copy is being saved. Try again later.\",\"serviceNotRecovered\":\"The service hasn't recovered. Check the tray log.\"},\"entityClassification\":{\"classificationConflict\":\"Classification sources conflict. Review them first.\",\"identityLinkConflict\":\"Identity link sources conflict. Review them first.\",\"reviewedClaim\":\"Can't overwrite a reviewed claim\"},\"fieldOwners\":{\"revisionConflict\":\"The asset has changed: expected revision {{expected}}, current value in the database {{current}}\"},\"coverArtwork\":{\"userCoverKept\":\"This video uses a cover you set, so automatic collection won't replace it\"},\"itemCover\":{\"tooLarge\":\"The image is too large, 32 MB at most\",\"empty\":\"No image was received\",\"unreadable\":\"Couldn't read this image. Use a JPEG, PNG or WebP\",\"tooSmall\":\"The image is too small, at least 200 × 200\",\"nothingToRestore\":\"This video doesn't use a cover you set, so there's nothing to restore\"},\"itemEdit\":{\"assetMissing\":\"This video is no longer in the library\",\"malformed\":\"The submitted edit is malformed\",\"unknownField\":\"These fields can't be edited: {{fields}}\",\"restoreAndEdit\":\"A field can't be both edited and handed back to automatic collection: {{fields}}\",\"controlCharacters\":\"Line breaks and control characters aren't allowed\",\"tooLong\":\"Too long, 1000 characters at most\",\"releaseDateFormat\":\"Write the release date like 2025-11-04\",\"regionUnknown\":\"Unrecognized region\",\"entityMissing\":\"The selected profile no longer exists. Choose it again\",\"entityNameInvalid\":\"Names can't be empty or longer than 200 characters\"},\"applicationPicker\":{\"busy\":\"A system picker is already open.\",\"cannotOpen\":\"This computer could not start the system application picker.\",\"failed\":\"Could not open the application picker.\",\"noPermission\":\"Peach does not have permission to open the application picker.\",\"unsupportedSystem\":\"This system does not support choosing a local player.\",\"headless\":\"This deployment does not support choosing a local player.\"},\"folderPicker\":{\"busy\":\"A folder selection window is already open\",\"cannotOpen\":\"The system folder dialog can't be opened on this device\",\"failed\":\"Couldn't open the folder dialog\",\"noPermission\":\"Peach on this device doesn't have permission to show the dialog\",\"unsupportedSystem\":\"No folder dialog is available on this system\",\"headless\":\"On a server without a desktop, choose the media directory in the web page.\"},\"followEvidence\":{\"estimating\":\"Still counting files that can be cleaned up. Try again later.\",\"running\":\"Cleaning up. Wait for this run to finish.\"},\"javBrowser\":{\"channelNotConfigured\":\"Set up a cloud drive account and target directory in download channels first\",\"chooseAction\":\"Choose to turn on, renew the token, or turn off\",\"codeNotRecognized\":\"No video code recognized. Select the full code on the page, then add it to Peach.\",\"codeProductMismatch\":\"The code on the page doesn't match the product ID. Check the video details.\",\"codeRequired\":\"Provide a specific JAV code\",\"deviceNotAllowed\":\"Browser adding is only available on devices allowed to change the database.\",\"invalidDismiss\":\"Invalid acknowledgment parameters\",\"invalidEdition\":\"Invalid edition parameter\",\"invalidSwitch\":\"Invalid switch magnet link parameter\",\"manualRejectsSource\":\"Manual adding doesn't accept a source page URL\",\"notEnabled\":\"Turn on browser adding first\",\"nothingToRetry\":\"This code has no failed organizing to retry\",\"queueFull\":\"The adding queue is full. Wait for current tasks to finish.\",\"unsupportedPage\":\"Add from a supported JAV video detail page\",\"searchUnavailable\":\"Torrent search is unavailable right now. Check the sources in Peach and try again\"},\"librarySharing\":{\"choiceNotBoolean\":\"The collection and taste upload option must be a boolean\",\"compressedTooLarge\":\"Collection and taste details exceed 18 MiB after compression, so nothing was sent\",\"previewFirst\":\"Review the field and data preview first, then explicitly agree to upload\",\"tooLarge\":\"Collection and taste details exceed 100 MiB, so nothing was sent\"},\"localPlayback\":{\"invalidCustomPlayer\":\"The selected player is unavailable. Choose another application.\",\"deploymentUnsupported\":\"For this deployment, use the network playback URL or an M3U playlist\",\"fileUnsupported\":\"For this file, use the network playback URL or an M3U playlist\",\"playerMissing\":\"The player isn't installed. Choose again.\"},\"mediaFolders\":{\"folderMissing\":\"The directory doesn't exist or was moved out of the library\"},\"mediaTools\":{\"checksumFailed\":\"{{label}} tool package files failed verification\",\"digestMismatch\":\"The {{label}} tool package doesn't match the release checksum. The download was discarded. Try again.\",\"downloadFailed\":\"{{label}} tool package download failed: {{error}}\",\"installing\":\"{{label}} is being installed. Please wait.\",\"manifestMissing\":\"The {{label}} tool package is missing a valid file manifest\",\"unknownTool\":\"Unknown media tool\",\"unsupportedPlatform\":\"Releases only include the {{label}} tool package for Windows x64. Download it from the official site and add it to PATH.\"},\"metadataAutoApply\":{\"codeMismatch\":\"The source didn't return {{code}}: id={{providerId}} content_id={{contentId}}\",\"confidenceOutOfRange\":\"Candidate confidence is out of range\",\"invalidConfidence\":\"Invalid candidate confidence\",\"invalidPerformer\":\"Invalid performer candidate entry\",\"invalidReleaseDate\":\"Invalid release date candidate\",\"invalidSource\":\"Invalid candidate source\",\"invalidTitle\":\"The title candidate is empty, too long, or has control characters\",\"noMatchingAsset\":\"No matching available asset in the current database\",\"performersEmpty\":\"Performer candidate is empty\",\"performersNotArray\":\"Performer candidates must be an array\",\"r18TitleEvidenceMissing\":\"r18 original title evidence not found. Fetch the metadata again.\",\"releaseDateFormat\":\"The release date candidate must be YYYY-MM-DD\",\"tagsEmpty\":\"Tag candidate is empty\",\"tagsNotArray\":\"Tag candidates must be an array\",\"tooManyAssets\":\"{{count}} assets share this code, more than the limit of {{limit}} per approval\",\"undecodableText\":\"Source text has characters that can't be decoded. Fetch the metadata again.\",\"unmappedField\":\"This metadata field has no Peach write mapping\",\"unnormalizedName\":\"The candidate still has a duplicated or unnormalized name, so it wasn't written\"},\"metadataCreatorAttributions\":{\"assetChanged\":\"Asset {{asset}} has changed since, so the batch wasn't rolled back\",\"creatorLinkExists\":\"The creator link already exists, so the batch wasn't rolled back\",\"creatorLinksChanged\":\"Creator links have changed since, so the batch wasn't rolled back\",\"creatorWriteRefused\":\"The creator field of asset {{asset}} wasn't written\",\"labelLinksChanged\":\"Label links have changed since, so the batch wasn't rolled back\",\"multipleCreators\":\"Asset {{asset}} has several remaining creators. Review its compatibility projection.\",\"newLabelChanged\":\"The new label's metadata has changed since\",\"newLabelHasExtra\":\"The new label has additional metadata, so the batch wasn't rolled back\",\"planOutdated\":\"The audit plan doesn't match the current database. Preview again.\",\"plannedAccountMissing\":\"The planned account identity doesn't exist\",\"plannedLabelMissing\":\"The planned label identity doesn't exist\",\"profileMissing\":\"The profile no longer exists, so the batch wasn't rolled back\"},\"metadataTextRepair\":{\"entityTaken\":\"The id or name of entity {{id}} “{{name}}” is already taken, so the batch wasn't restored\"},\"recordRehome\":{\"batchMissing\":\"No batch {{batch}} to revert\",\"oldNotVanished\":\"Only a vanished row can be reconnected\",\"oldRowTaken\":\"The id or path of old row {{row}} is already taken, so it can't be reverted\",\"targetNotPresent\":\"Can only reconnect to another row that's in the collection\"},\"seedCorrections\":{\"contentChanged\":\"Seed content for this version differs from the imported history\",\"legacyVersionBack\":\"Legacy seed version can't go back\",\"revisionReused\":\"Seed revision can't go back or be reused\",\"withdrawalsMissing\":\"Seed must carry over every previous withdrawal unchanged\"},\"standaloneUpdate\":{\"checksumFailed\":\"The update package failed verification. Download it again.\",\"dataInsideProgram\":\"The data directory is inside the program directory, so it can't be replaced automatically\",\"databaseRestoreCheckFailed\":\"Database restore check failed\",\"databaseUpgradeFailed\":\"Database update failed\",\"expandedTooLarge\":\"The update package is too large when extracted\",\"inAppUnsupported\":\"This installation doesn't support in-app updates. Download the new version from the release page.\",\"invalidPath\":\"The update package contains an invalid path\",\"invalidSize\":\"{{label}} size is invalid\",\"invalidUpdateDirectory\":\"The update directory is invalid\",\"missingChecksum\":\"{{label}} is missing SHA-256 checksum information\",\"newVersionNotReady\":\"The new version didn't become ready\",\"notReady\":\"The update isn't ready yet\",\"notStandalone\":\"The update package isn't the standalone Windows version\",\"pathConflict\":\"The update package has duplicate or out-of-bounds paths\",\"recoveryPathOutside\":\"A task recovery path is outside the allowed directory\",\"secondaryCannotMigrate\":\"A secondary computer can't migrate the database\",\"secondaryNeedsPrimary\":\"This device can't migrate the database: {{reason}}. Migrate on the primary computer first, then sync.\",\"signatureFailed\":\"Release signature verification failed, so the update was stopped. Download the new version from the release page.\",\"sizeMismatch\":\"The download size doesn't match the release record\",\"stateFileMismatch\":\"The update state file doesn't match\",\"toolChecksumFailed\":\"{{tool}} tool package files failed verification\",\"toolReuseFailed\":\"Reused {{tool}} tool failed verification\",\"trayStillRunning\":\"The tray hasn't exited, so the installation was canceled\",\"unlistedToolFile\":\"The tool package contains files not in its manifest\",\"versionMismatch\":\"The package version doesn't match the release version\"},\"subtitles\":{\"encodingUnknown\":\"Encoding not recognized\",\"imageSubtitle\":\"Image-based subtitles can't be played as a text track\"},\"westernProfiles\":{\"identityChanged\":\"The performer identity has changed. Preview again.\"},\"libraryProcessing\":{\"stopped\":\"Processing task stopped.\",\"companionImageChangedOnSave\":\"The companion image changed while being saved.\",\"readOnlyDevice\":\"This device is read-only. Scan and import metadata on the primary computer.\",\"evidenceNotSaved\":\"Couldn't save metadata evidence: {{error}}\",\"invalidSelection\":\"Select valid videos.\",\"selectionGone\":\"The selected videos no longer exist or were moved to the trash. Refresh and try again.\",\"previewNotGenerated\":\"The preview image wasn't generated. Check the media file and try again.\",\"previewUnreadable\":\"Couldn't read the preview image. Try again.\",\"previewNotSaved\":\"Couldn't save the preview image: {{error}}\",\"progressNotSaved\":\"Couldn't save processing progress: {{error}}\",\"invalidStage\":\"Invalid processing stage.\",\"previewsDisabled\":\"Preview generation is turned off. Turn it on in library preferences first.\",\"selectionWithRetry\":\"Selected items and failed-item retries can't be used together.\",\"previewsNeedWriter\":\"Generating preview images requires a write connection to the shared collection.\",\"nfoCodeConflict\":\"The file name and NFO code conflict. Review it.\",\"notInLibrary\":\"The selected videos don't belong to the current library.\",\"deadlineRetryLater\":\"External metadata wasn't found within the time limit. You can try again later\",\"deadline\":\"External metadata wasn't found within the time limit\",\"noAmaneSites\":\"This code's source chain has no sites queried through the amane bridge\",\"amaneBridgeFailed\":\"amane bridge: {{error}}\",\"amaneSitesSaidNo\":\"None of the sites queried through the amane bridge have this code\",\"communitySaidNo\":\"None of the community sources have this code\",\"fc2ArchivesSaidNo\":\"Neither FC2 nor the archive sites have this item\",\"noCover\":\"Neither official nor community sources have a cover for this video\",\"ffmpegMissing\":\"FFmpeg wasn't found, so previews can't be generated. Check the tool status in Diagnostics\",\"mediaInaccessible\":\"The media file can't be accessed\",\"ffprobeMissing\":\"ffprobe wasn't found, so the video duration can't be read\",\"durationUnavailable\":\"The video duration wasn't found. Check the media file and try again\",\"sourceProblem\":\"{{source}}: {{problem}}\",\"coverNotImproved\":\"The source cover ({{width}}x{{height}}) is no better than the local cover\",\"problems\":\"{{first}}; {{rest}}\",\"sourceReturned\":\"Source returned {{status}}\",\"processingError\":\"Processing error ({{type}})\",\"missMetadata\":\"No source has metadata for this video. Won't ask again for 7 days\",\"missCover\":\"No source has a cover for this video. Won't ask again for 7 days\",\"offline\":\"Metadata not found: can't reach the internet\",\"interrupted\":\"Processing was interrupted. You can retry the unfinished items.\",\"interruptedCheckFolders\":\"Processing was interrupted. Check the library directories and try again.\",\"companionImageTimeout\":\"Reading the companion image timed out. Try again later\",\"companionImageUnreadable\":\"Couldn't read the companion image\",\"metadataPaused\":\"Metadata skipped this run: {{problems}}\",\"metadataUnfetched\":\"Metadata not found: {{problems}}\",\"javdbTagsDeadline\":\"JavDB tags not found within the time budget\",\"javdbTagsUnfetched\":\"JavDB tags not found: {{problem}}\",\"coverDeadline\":\"Cover not found within the time budget. Try again later\",\"coverPaused\":\"Cover skipped this run: {{problem}}\",\"coverUnfetched\":\"Cover not found: {{problem}}\",\"sourceRootUnreadable\":\"Couldn't read the {{source}} storage directory: {{error}}\",\"sourceRootOffline\":\"{{source}} storage is offline\",\"itemSkipped\":\"Skipped this video. You can retry it after the task finishes\",\"captureTimeout\":\"Frame extraction timed out. Try again; to report a problem, export a diagnostics report\",\"captureFfmpegFailed\":\"FFmpeg frame extraction failed. To report a problem, export a diagnostics report\",\"captureNoFrame\":\"No frame at the sample position. To report a problem, export a diagnostics report\",\"captureUnfetched\":\"Frame extraction failed. To report a problem, export a diagnostics report\",\"previewTimeout\":\"Generating the preview timed out. Try again\",\"previewFailed\":\"Couldn't generate the preview. Check FFmpeg and directory permissions, then try again\",\"toolsNotPrepared\":\"Couldn't prepare the fetch tools: {{error}}\",\"someSourcesUnfetched\":\"Got metadata from other sources; these did not answer: {{problems}}\",\"someCoverSourcesUnfetched\":\"A cover is in place; these image sources did not answer: {{problems}}\"},\"followStream\":{\"coolingDown\":\"{{provider}} is cooling down after rate limiting. Try again in {{seconds}} seconds.\",\"recentMiss\":\"The source media wasn't found just now. Try again later.\",\"noSuchMedia\":\"This media index doesn't exist.\",\"badMediaEntry\":\"The media entry has an unexpected format.\",\"gofileUntrustedUrl\":\"Gofile returned an untrusted media URL.\",\"gofileTokenMissing\":\"The Gofile API token isn't set up.\",\"fanboxUntrustedUrl\":\"FANBOX returned an untrusted image URL.\",\"f95UntrustedUrl\":\"F95 returned an untrusted image URL.\",\"f95NeedsSession\":\"F95 attachments need a signed-in session.\",\"mediaUrlUnavailable\":\"The source media URL is unavailable.\",\"unsupportedProvider\":\"This media provider isn't supported.\",\"needsSession\":\"This media needs a signed-in session for its source.\",\"rule34videoDetailUrlUnavailable\":\"The Rule34Video detail URL is unavailable.\",\"iwaraUrlUnavailable\":\"The Iwara video URL is unavailable.\",\"sourceFailed\":\"{{reason}}\",\"rule34videoDetailNotFetched\":\"Couldn't get the Rule34Video detail page.\",\"rule34videoVideoUrlNotFetched\":\"Couldn't get the Rule34Video full video URL.\"},\"mediaIdentity\":{\"libraryNameInvalid\":\"Library names must be 1 to 80 visible characters.\",\"libraryIconInvalid\":\"Choose a library icon from the list.\",\"libraryColorInvalid\":\"Choose a source color from the list.\",\"libraryPolicyInvalid\":\"Choose a processing mode from the list.\",\"stagesInvalid\":\"Invalid processing steps.\",\"rootLibraryMissing\":\"The library for this storage root directory doesn't exist.\",\"rootPathNotWindows\":\"Storage root directories must use a full Windows path.\",\"rootSourceInvalid\":\"The storage root directory has an invalid source or read policy.\",\"rootOverlap\":\"This media path duplicates or contains another directory.\",\"transportInvalid\":\"Invalid media connection type.\",\"mountNotAbsolute\":\"Mount directories must use a full path.\",\"mountOverlap\":\"This media directory duplicates or contains another row.\",\"mountOverlapsRoot\":\"The mount directory overlaps a database path. Use a separate directory.\",\"rootChanged\":\"Storage root directories have changed. Refresh the settings.\",\"rootIdentityFixed\":\"The source and database path of an existing root directory can't be changed. Add another directory instead.\",\"relocateOrAdd\":\"Choose to relocate this directory, or add another directory.\",\"rootDuplicate\":\"The same storage root directory can't be added more than once.\",\"libraryMismatch\":\"Name, icon, source color and processing mode must match within the same library.\"},\"ledgerBackups\":{\"ledgerMissing\":\"The database doesn't exist.\",\"backupIntegrityFailed\":\"The backup failed the integrity check: {{check}}\",\"chooseBackup\":\"Choose a backup from the list.\",\"backupGone\":\"This backup no longer exists. Refresh the list.\",\"thisBackupIntegrityFailed\":\"This backup failed the integrity check: {{check}}\",\"schemaMismatch\":\"This backup's schema doesn't match this version of Peach: {{error}}\",\"migratedIntegrityFailed\":\"The backup failed the integrity check after migrating to the current schema: {{check}}\",\"pageSizeMismatch\":\"This backup's page size differs from the current database, so it can't be restored while the server is running.\",\"savedCopyIntegrityFailed\":\"The saved copy of the current database failed the integrity check. Nothing was restored.\",\"restoredIntegrityFailed\":\"The restored database failed the integrity check: {{check}}\",\"restoreSettled\":\"{{message}}\",\"busy\":\"A backup or restore is in progress. Wait for it to finish.\",\"writerOnly\":\"Only the primary computer can restore the database: {{reason}}\",\"tasksRunning\":\"Background tasks are still running: {{tasks}}. Wait for them to finish or stop them, then restore.\",\"tasksRunningNotRestored\":\"Background tasks are still running: {{tasks}}. Nothing was restored.\",\"restoringBusy\":\"Restoring the database from a backup. New tasks can't start until it's done.\"},\"onboarding\":{\"dataRootEmpty\":\"The Peach data directory can't be empty.\",\"dataRootIsFile\":\"{{path}} is a file. The Peach data directory must be a directory.\",\"mediaDirEmpty\":\"The media directory can't be empty.\",\"mediaDirMissing\":\"The directory doesn't exist or isn't a directory: {{path}}. Create it first.\",\"mediaDirNotDrive\":\"{{path}} isn't a drive-letter path. Map network locations to a drive letter first.\",\"hostChoice\":\"Enter 1 (this device only) or 2 (devices on the same LAN)\",\"portInvalid\":\"The port must be a whole number from 1 to 65535.\",\"portInUse\":\"This port is already in use. Choose another port.\",\"mdnsNameInvalid\":\"Names can only use letters, digits and hyphens, and can't start or end with a hyphen.\",\"yesNo\":\"Enter y or n.\",\"tooManyAttempts\":\"No valid answer for \\\"{{prompt}}\\\" after {{attempts}} attempts.\",\"inputEnded\":\"Input ended.\",\"mediaDirDuplicate\":\"Duplicates {{other}} above\",\"mediaDirNested\":\"Already inside {{other}}; no need to add it\"},\"pushDiscovery\":{\"badSegment\":\"✗ The cloud path has an unacceptable segment: {{segment}}\",\"nothingAfterPrefix\":\"✗ The cloud path has nothing after the prefix.\",\"noCloudPath\":\"✗ The request has no cloud path.\",\"pathIsPrefix\":\"✗ The cloud path is the prefix itself, with no file.\",\"noPrefixes\":\"✗ {{path}} isn't under any configured prefix. Known: (none configured)\",\"notUnderPrefix\":\"✗ {{path}} isn't under any configured prefix. Known: {{known}}\",\"noDeclaredRoots\":\"{{root}} isn't a declared media root. Known: (none in the settings file)\",\"undeclaredRoot\":\"{{root}} isn't a declared media root. Known: {{known}}\",\"duplicatePrefix\":\"Prefix {{prefix}} is added more than once.\",\"cloudChannelOff\":\"✗ The cloud channel isn't turned on.\",\"notUnderStorage\":\"✗ {{path}} isn't under any directory configured in storage.\",\"writerOnly\":\"Push discovery is only available on devices allowed to change the database.\"},\"organize\":{\"unverifiedBatch\":\"Renames on the mounted {{locations}} can't be verified in the cloud, so the whole batch was not run. Use the official verified channel (for example organize_library_dirs.py --pikpak-webdav)\",\"scopeNotDirectory\":\"The organize path must be a directory path.\",\"scopeTraversal\":\"The organize path can't contain parent-directory jumps or null characters.\",\"scopeNotAbsolute\":\"The organize path must be an absolute directory path inside the selected location, without parent-directory jumps.\",\"scopeOutsideLocation\":\"The organize path isn't inside the selected location.\",\"unverifiedRename\":\"Renames on the mounted {{location}} can't be verified in the cloud. Use the official verified channel.\",\"smbSameRootOnly\":\"SMB organizing only works within the same media root directory.\",\"rowChanged\":\"This row has changed in the database.\"},\"desktopStartup\":{\"shortcutTimeout\":\"The Windows shortcut operation timed out (waited {{seconds}} seconds). Try again later.\",\"shortcutNotSaved\":\"Couldn't save the startup entry. Check permissions on the current user's Startup folder (PowerShell: {{reason}})\",\"desktopShortcutForeign\":\"The desktop shortcut belongs to another Peach installation.\",\"startupEntryForeign\":\"The startup entry belongs to another Peach installation.\",\"optionsNotBoolean\":\"Startup options must be on or off.\",\"desktopShortcutUnsupported\":\"This system doesn't offer desktop shortcuts.\",\"trayMissing\":\"The tray app wasn't found on this device.\",\"platformUnsupported\":\"This system doesn't offer a start-at-sign-in entry.\"},\"folderRules\":{\"settingsInvalid\":\"User settings have an invalid format.\",\"rulesInvalid\":\"Directory rules have an invalid format.\",\"choosePurpose\":\"Choose what this directory is for.\",\"scopeRequired\":\"Choose the directory scope and the setting for new files.\",\"nameTooLong\":\"Linked names can be up to 200 characters.\",\"nameRequired\":\"Enter a linked name.\",\"nameAmbiguous\":\"This name matches several identities or spellings. Use the canonical name from the profile page.\",\"settingsMissing\":\"The current user settings don't exist.\",\"planChanged\":\"The directory contents or credits have changed. Preview again.\"},\"diagnosticExports\":{\"chooseKind\":\"Choose a diagnostics report or scraping records.\",\"alreadyRunning\":\"A diagnostics export is already running. Wait for it to finish or cancel it.\",\"jobChanged\":\"The export task has changed. Refresh and try again.\",\"jobNotFound\":\"Export task not found\",\"fileNotReady\":\"The export file isn't ready. Generate it again\"},\"migrations\":{\"unsupportedMigrations\":\"The database contains migrations this version of Peach doesn't support. Use a matching version or the backup from before the upgrade.\",\"checksumChanged\":\"The checksum of applied migration {{version}} has changed.\"},\"followScheduler\":{\"autoRunOff\":\"Automatic runs aren't turned on.\",\"feedWriterOnly\":\"Fetching feeds is available only on the primary computer\"},\"tasteBookmarks\":{\"tooLarge\":\"The bookmarks file is larger than 64 MB.\",\"missingRoots\":\"The bookmarks JSON is missing Chromium roots.\",\"invalidNode\":\"The bookmarks JSON contains an invalid node.\",\"invalidFolder\":\"The bookmarks JSON contains an invalid folder.\",\"unsupportedFile\":\"Choose an HTML bookmarks file exported from a browser, or a Chromium Bookmarks file.\",\"unreadable\":\"Couldn't read the bookmarks file. Check the file format and import it again.\",\"browserBookmarksNotRead\":\"Browser bookmarks not found. Check the profile directory, or quit the browser and try again.\"},\"displayDimensionsRepair\":{\"notPrepared\":\"The display dimension re-measure record isn't ready yet.\",\"ffprobeMissing\":\"ffprobe wasn't found for re-measuring display dimensions.\",\"notMeasured\":\"Couldn't get the display dimensions. The existing measurement was kept.\",\"changedDuringRepair\":\"The video or its measurement changed while re-measuring. Try again.\"},\"fanbox\":{\"emptyPostType\":\"Unsupported FANBOX post type: empty.\",\"unsupportedPostType\":\"Unsupported FANBOX post type: {{type}}\",\"missingBody\":\"The public FANBOX post is missing its body.\"},\"storageExternalCache\":{\"remoteNeedsManualPath\":\"For a remote CloudDrive, enter a cache mapping directory that Peach can reach.\",\"tokenNeedsPermission\":\"Reading it automatically needs the “View system settings” permission on the CloudDrive API token.\",\"noCacheDirectory\":\"CloudDrive didn't return a cache directory. Enter it manually.\"},\"downloadsPikpakBrowser\":{\"browserMissing\":\"Chrome or Edge wasn't found on this device, so browser sign-in isn't available. Expand the section below to sign in with an account and password.\",\"proxyWithCredentials\":\"Browser sign-in does not support proxy addresses with credentials. Choose the system proxy or a proxy on this device that needs no authentication\"},\"taskResources\":{\"ownersUnavailable\":\"Couldn't get the resource ownership record for this task run.\",\"ownersInvalid\":\"The resource ownership record for this task run is invalid.\"},\"genreDecisions\":{\"emptyGenre\":\"The genre to add is empty.\"},\"mediaProbe\":{\"strmIsoNotProbed\":\"STRM and ISO files aren't probed.\"},\"platform\":{\"windowsDirectoryUnavailable\":\"Couldn't get the Windows system directory.\"},\"seedFollowup\":{\"digestMismatch\":\"The seed contents don't match the queued task's digest. Dispatch it again.\"},\"follow\":{\"internal\":\"{{detail}}\",\"historyEnd\":\"No more history\"},\"followSecrets\":{\"missingFields\":\"{{provider}} credentials are missing fields: {{fields}}\",\"invalidProvider\":\"Invalid provider name\",\"unreadable\":\"Couldn't parse the {{provider}} credentials file\",\"notObject\":\"The {{provider}} credentials file must be a JSON object\"},\"followGofile\":{\"notPremium\":\"The Gofile file list API requires a Premium account. The token is valid, but the current plan doesn't support this endpoint\",\"tokenRejected\":\"Gofile rejected the API token\",\"httpStatus\":\"Gofile returned HTTP {{status}}\",\"listUnavailable\":\"Gofile file list not found\",\"requestFailed\":\"Gofile request failed\",\"responseTooLarge\":\"Gofile response exceeds the size limit\"},\"followAvatar\":{\"unsupportedProfile\":\"This social profile isn't supported\",\"litlinkHttpStatus\":\"lit.link profile page returned HTTP {{status}}\",\"litlinkNoAvatar\":\"The lit.link profile page has no avatar of this person\",\"xHttpStatus\":\"X profile page returned HTTP {{status}}\",\"xNoAvatar\":\"The X profile page has no avatar of this person\",\"patreonHttpStatus\":\"Patreon profile returned HTTP {{status}}\",\"patreonCreatorMissing\":\"This creator isn't in the Patreon profile data\",\"patreonNoTrustedAvatar\":\"The Patreon profile has no trusted avatar URL\",\"unsupportedOfficialSource\":\"This official avatar source isn't supported\",\"fanboxProfileHttpStatus\":\"FANBOX official profile returned HTTP {{status}}\",\"fanboxProfileMalformed\":\"The FANBOX official profile has an unexpected format\",\"fanboxProfileNoTrustedAvatar\":\"The FANBOX official profile has no trusted avatar URL\",\"fanboxPageHttpStatus\":\"FANBOX official page returned HTTP {{status}}\",\"fanboxPageNoProfile\":\"The FANBOX official page has no usable creator profile\",\"fanboxPageNoCreatorId\":\"The FANBOX official page has no usable creator id\"},\"followDiscovery\":{\"creatorListMalformed\":\"The {{provider}} creator list has an unexpected format\",\"termRequired\":\"Enter a name or id to look up first\",\"termTooLong\":\"A name or id can be at most {{limit}} characters\",\"termForbiddenCharacters\":\"A name or id can't contain / \\\\ ? # & < > quotes or control characters\"},\"followSources\":{\"requestFailedAfterRetries\":\"{{provider}} request failed (tried {{attempts}} times): {{detail}}\",\"requestFailed\":\"{{provider}} request failed: {{detail}}\",\"responseTooLarge\":\"{{provider}} response exceeds the size limit\",\"accessDenied\":\"{{provider}} denied access (HTTP {{status}}): valid credentials are required, or the site added bot verification\",\"httpStatus\":\"{{provider}} returned HTTP {{status}}\",\"rateLimited\":\"{{provider}} returned HTTP 429: too many requests, try again later\",\"rateLimitBody\":\"{{provider}} rate limit reached: at most {{count}} requests every {{seconds}} seconds. Try again later\",\"notJson\":\"{{provider}} didn't return valid JSON\",\"notJsonWithSnippet\":\"{{provider}} didn't return valid JSON: {{snippet}}\",\"urlNotSupported\":\"{{provider}} can't be added from a link yet\",\"iwaraUrlShape\":\"For Iwara, paste the author's profile page, e.g. https://www.iwara.tv/profile/username\",\"iwaraAccessDenied\":\"Iwara denied access (HTTP {{status}}): the sign-in credentials may have expired, or the site requires browser verification. Check the feeds settings\",\"iwaraNotFound\":\"Iwara author or video not found: it may have been deleted, or it needs an account with access\",\"iwaraResponseMalformed\":\"The Iwara API response has an unexpected format\",\"iwaraContentUnavailable\":\"Iwara content not found: make sure the account has access and update the sign-in credentials\",\"iwaraRequestRejected\":\"The Iwara API rejected the request. Check the content status on the source page\",\"iwaraRefInvalid\":\"An Iwara ref must be an author username\",\"iwaraNegativePage\":\"The Iwara page number can't be less than 0\",\"iwaraProfileMalformed\":\"The Iwara author profile has an unexpected format\",\"iwaraUserIdUnavailable\":\"Iwara author ID not found\",\"iwaraVideoListMalformed\":\"The Iwara video list has an unexpected format\",\"iwaraVideoEntryNoId\":\"An Iwara video entry has no valid ID\",\"iwaraVideoIdInvalid\":\"Invalid Iwara video ID\",\"iwaraFileUrlUnavailable\":\"Iwara full video URL not found. Open the source page to check access\",\"iwaraUntrustedFileUrl\":\"Iwara returned an untrusted file API URL\",\"iwaraFileNoExpiry\":\"The Iwara file API has no valid expiry\",\"iwaraFormatListMalformed\":\"The Iwara playback format list has an unexpected format\",\"iwaraNoFormats\":\"Iwara full video formats not found\",\"kemonoUrlShape\":\"A {{host}} link must point to a creator, like https://{{host}}/fanbox/user/30917150\",\"kemonoUnknownProvider\":\"Unknown kemono-family source: {{provider}}\",\"kemonoRefInvalid\":\"A {{provider}} ref must look like `service/user_id`, got: {{ref}}\",\"postListMalformed\":\"The {{provider}} post list has an unexpected format\",\"rule34videoUrlShape\":\"A rule34video link must point to an author page, like https://rule34video.com/models/lazyprocrastinator/\",\"rule34videoRefInvalid\":\"A rule34video ref must be an author slug, got: {{ref}}\",\"rule34videoNoWorks\":\"No videos found on the rule34video creator page: the page structure may have changed, or the slug doesn't exist\",\"rule34xxxUrlShape\":\"A rule34.xxx link must include tags, like https://rule34.xxx/index.php?page=post&s=list&tags=lazyprocrastinator\",\"rule34xxxCredentialsRequired\":\"rule34xxx needs user_id and api_key. Put them in peach-data/secrets/follow/rule34xxx.json\",\"rule34xxxCredentialsRejected\":\"rule34xxx rejected the user_id/api_key\",\"rule34xxxRefInvalid\":\"A rule34xxx ref must be a single tag, got: {{ref}}\",\"rule34xxxAutocompleteMalformed\":\"The rule34xxx tag autocomplete has an unexpected format\",\"pahealUrlShape\":\"A rule34.paheal link must include a search tag, like https://rule34.paheal.net/post/view/7428820#search=InitialA\",\"pahealRefInvalid\":\"A rule34.paheal ref must be a single tag, got: {{ref}}\",\"pahealNoWorks\":\"No videos found on the rule34.paheal tag page\",\"xenforoNoToken\":\"The {{provider}} search form has no _xfToken: the cookie may have expired\",\"f95UrlShape\":\"An f95zone link must point to a thread, like https://f95zone.to/threads/xxx.50685/\",\"f95RefInvalid\":\"An f95zone ref must be a thread id, got: {{ref}}\",\"f95NoReplies\":\"No replies found on the f95zone thread page: sign-in may be required, or the page structure changed\",\"f95UnknownCategory\":\"Unknown f95zone category: {{category}}\",\"f95SearchNeedsCookie\":\"f95zone site search needs a sign-in cookie. Put it in peach-data/secrets/follow/f95zone.json\",\"f95ProfileNeedsCookie\":\"Reading the author profile links in the first f95zone post needs a sign-in cookie. Put it in peach-data/secrets/follow/f95zone.json\",\"fanboxUrlShape\":\"A FANBOX link must point to a creator page, like https://creator.fanbox.cc/\",\"fanboxRefInvalid\":\"A fanbox ref must be a creator id, got: {{ref}}\",\"fanboxPostListMalformed\":\"The post list fanbox returned has an unexpected format\",\"fanboxPageListNotModified\":\"The fanbox history page list unexpectedly returned 304\",\"fanboxPageListMalformed\":\"The fanbox history page list has an unexpected format\",\"fanboxRequestFailed\":\"fanbox request failed\",\"fanboxPostError\":\"fanbox post details returned an error: {{error}}\",\"fanboxPostMalformed\":\"fanbox post details have an unexpected format\",\"fanboxPostNotPublic\":\"This fanbox post isn't public and free\",\"subscribestarUrlShape\":\"A SubscribeStar link must point to a creator page, like https://subscribestar.adult/creator\",\"subscribestarRefInvalid\":\"A subscribestar ref must look like subscribestar.adult/creator\",\"subscribestarNoBackfill\":\"The SubscribeStar official source can't load older pages yet\",\"pageNotUtf8\":\"The page {{provider}} returned isn't UTF-8\",\"patreonUrlShape\":\"A Patreon link must point to a creator page, like https://patreon.com/cw/creator\",\"patreonRefInvalid\":\"A patreon ref must be a creator vanity name, got: {{ref}}\",\"patreonNoBackfill\":\"The Patreon official source can't load older pages yet\",\"simpcityUrlShape\":\"A simpcity link must point to a thread, like https://simpcity.cr/threads/xxx.21229/\",\"simpcityNeedsCookie\":\"simpcity needs a sign-in cookie: the site doesn't let guests read threads. After signing in, put the whole Cookie request header for simpcity.cr from your browser into the cookie field of the credentials file.\",\"simpcityAccessDenied\":\"simpcity denied access (HTTP 403): the site doesn't let guests read threads, and the cookie may have expired or be incomplete. Sign in again and update the credentials file\",\"simpcityRefInvalid\":\"A simpcity ref must be a thread id, got: {{ref}}\",\"simpcityNoPosts\":\"No posts found on the simpcity thread page: the page structure may have changed\",\"simpcityCookieNotRecognized\":\"simpcity didn't recognize this cookie (the page is still in guest mode). Sign in again and copy the whole Cookie request header\",\"urlRequired\":\"Paste a source link first\",\"urlInvalid\":\"This isn't a valid link\",\"urlSchemeUnsupported\":\"Only http(s) links are accepted\",\"urlHasCredentials\":\"Links can't contain a username or password\",\"hostUnknown\":\"{{host}} isn't recognized. Supported: {{hosts}}.\",\"unknownProvider\":\"Unknown follow source: {{provider}}\"},\"mp4repair\":{\"sttsLengthMismatch\":\"The stts length does not match its declared entry count\",\"probeIdle\":\"ffprobe produced no decoded output for {{seconds}} seconds\",\"probeIncomplete\":\"ffprobe did not finish: {{error}}\",\"probeExitCode\":\"ffprobe exited with code {{code}}\",\"duplicateDts\":\"Duplicate DTS values, so frames cannot be told apart\",\"frameWithoutTimestamp\":\"A frame has no timestamp\",\"timestampNotInStts\":\"The decoder reported a timestamp that is not in stts\",\"frameOutputTwice\":\"The same frame was output twice\",\"frameCountMismatch\":\"Decoded {{decoded}} frames, but the sample table has {{samples}}\",\"trackDurationUnknown\":\"Cannot work out the track duration\",\"zeroTimescale\":\"The media timescale is 0\",\"offsetNeedsCo64\":\"Offsets exceed 32 bits; this video needs co64 to be repaired\",\"missingMoovOrMdat\":\"The top level is missing moov or mdat\",\"needsSingleMoovAndMdat\":\"The top level must have exactly one moov and one mdat\",\"moovTooLargeOrMdatEmpty\":\"moov is too large or mdat is empty\",\"leadingIndexTooLarge\":\"The index before the media is too large\",\"boxesAfterMdat\":\"There are boxes after mdat; this layout is not supported yet\",\"trailingIndexTooLarge\":\"The index after the media is too large\",\"videoSampleTableMissing\":\"Cannot find the video track's sample table\",\"cttsPresent\":\"This video already has ctts\",\"videoSttsMissing\":\"The video track has no stts\",\"nothingToRepair\":\"Display order already matches decode order; nothing to repair\",\"editStartAmbiguous\":\"The edit start in the trailing index cannot tell pre-roll from trimming\",\"rebuiltHeaderLengthMismatch\":\"The rebuilt header length does not match\",\"legacyTimetableVersion\":\"The old sidecar's timetable version is invalid\",\"legacyTimetableLength\":\"The old sidecar's timetable length does not match\",\"legacySampleCount\":\"The old sidecar's sample count does not match\",\"legacyShiftIncomplete\":\"The old sidecar's overall shift is incomplete\",\"legacyNoMoov\":\"The old sidecar has no moov\",\"legacyNoTimetable\":\"The old sidecar is missing its repair timetable\",\"legacyEditListInvalid\":\"The old sidecar's edit list is invalid\",\"legacyHeaderLength\":\"The old sidecar's rebuilt header length does not match\",\"headerNotRepaired\":\"Could not repair the playback header\"},\"avatarOnline\":{\"notThisCreator\":\"This image candidate does not belong to this creator\",\"imageNotFound\":\"This image was not found. Try again later\",\"imageOverLimit\":\"The image exceeds the size limit\"},\"avatarPicker\":{\"coverChanged\":\"This cover was just replaced. Go back to the candidates and crop again\",\"codeUnrecognized\":\"This code is not recognized\",\"codeCoverUnrecognized\":\"The cover for this code is not a recognizable image\",\"addressUnusable\":\"No usable image found at this address: {{reason}}\",\"notCached\":\"This image is no longer in the cache on this device\",\"fetchFailed\":\"Cannot get this image: {{error}}\",\"fetchNoResponse\":\"Cannot get this image: no response\",\"fetchHttpStatus\":\"Cannot get this image: HTTP {{status}}\",\"imageOver16Mib\":\"The image is over 16 MiB. Shrink it and choose it again\",\"convertedOver16Mib\":\"The image is over 16 MiB after conversion. Shrink it and choose it again\",\"imageTooLarge\":\"The image is too large\",\"imageIncomplete\":\"The image could not be read completely. Choose the image again\",\"artworkUnavailable\":\"Video frames are not available this time\",\"choiceUnrecognized\":\"This image candidate is not recognized\",\"assetNotOwned\":\"This video is not credited to this person\",\"assetCoverNotLocal\":\"This video's cover is not on this device yet\",\"assetCellNotLocal\":\"Tile {{cell}} of this video is not on this device yet\",\"assetCoverUnreadable\":\"Cannot read this video's cover\",\"assetCellUnreadable\":\"Cannot read tile {{cell}} of this video\",\"onlineUnavailable\":\"Online avatar candidates not found\",\"codeCoverNotFetched\":\"The cover for this code has not been downloaded yet\",\"addressNotFetched\":\"The image at this address has not been downloaded yet\",\"notInIndex\":\"This image candidate is not in the current index\",\"offlineNotDownloaded\":\"This image has not been downloaded, and network access is not allowed this time\",\"invalidCropBox\":\"The selected crop area is invalid\",\"cropFailed\":\"Cannot crop this area\"},\"browserTransport\":{\"notStarted\":\"The browser did not start: {{error}}\",\"debugPortNotConnected\":\"Could not connect to the browser's debugging port: {{error}}\",\"exitedAtStart\":\"The browser exited right after starting ({{code}})\",\"debugPortMissing\":\"The browser did not report a debugging port\"},\"downloadsClouddrive\":{\"addressEmpty\":\"The CloudDrive2 address is empty\",\"noLocalAnswer\":\"No CloudDrive2 address is set, and nothing answered at {{tried}} on this device. Make sure CloudDrive2 is running, or enter its actual address\",\"unreachable\":\"Cannot reach CloudDrive2 while {{action}}: {{details}}\",\"tokenRejected\":\"CloudDrive2 rejected this API token while {{action}}: {{details}}\",\"pathNotFound\":\"Path not found in CloudDrive2 while {{action}}\",\"callFailed\":\"Failed while {{action}}: {{details}}\",\"tokenMissing\":\"No CloudDrive2 API token is set yet\",\"folderMissing\":\"There is no {{path}} directory in CloudDrive2\",\"outsideTokenRoot\":\"The CloudDrive2 token can only access {{root}}, and {{path}} is not inside it. Choose a target directory under it\",\"folderNotCreated\":\"CloudDrive2 did not create {{path}}: {{reason}}\",\"folderNotCreatedNoReason\":\"CloudDrive2 did not create {{path}} and gave no reason\",\"cancelRefused\":\"CloudDrive2 did not cancel this task: {{reason}}\",\"addressMissing\":\"No CloudDrive2 address is set yet. Use Check in Settings to detect the port on this device, then save\",\"offlineUnsupported\":\"The cloud drive that holds {{target}} does not support cloud downloads\",\"quotaUsedUp\":\"Cloud download quota used up ({{used}}/{{total}})\",\"cancelUnsupported\":\"This cloud drive does not support canceling cloud downloads from Peach. Handle it in the cloud drive\",\"offlineFailed\":\"The remote side rejected this task: 115 reported that the cloud download failed, most likely because nobody is seeding or the resource was refused\"},\"routesMedia\":{\"imageTimedOut\":\"This image was not found: the request timed out\",\"coverAddressUnusable\":\"The cover address is not usable\",\"avatarSourcesFailed\":\"{{reasons}}\",\"onlineImageNotFound\":\"Online image not found\",\"missingEntityId\":\"Missing entity ID\",\"mibNotJav\":\"Korean MIB codes do not use JAV cover sources\",\"codeCoverNotFound\":\"Official sources have no cover for this code\",\"codeCoverUnavailable\":\"Cannot get the cover for this code: {{error}}\",\"codeCoverTimedOut\":\"Could not get the cover for this code within {{seconds}} seconds. Try again later\",\"sourcePaused\":\"{{reason}}\",\"sourceConnectionFailed\":\"Could not connect to the source. Check the source connection settings\",\"avatarSourceUnavailable\":\"The avatar source is temporarily unavailable\"},\"webDownloads\":{\"credentialsUnreadable\":\"Cannot read the credentials file on this device. Enter them again in Settings: {{error}}\",\"unknownChannel\":\"Unknown cloud download channel: {{key}}\"},\"metadata\":{\"relayed\":\"{{detail}}\",\"authRequired\":\"{{source}} requires sign-in or refused access: {{reason}}\"},\"javCoverFetch\":{\"officialNoImage\":\"None of the official cover URLs returned an image\",\"officialTooSmall\":\"The official covers are only thumbnails or placeholders\",\"placeholder\":\"The source returned a \\\"coming soon\\\" placeholder image\",\"officialPlaceholderOnly\":\"The official cover URLs only return a \\\"coming soon\\\" placeholder: unreleased videos don't have official images yet, and older ones have most likely been taken down\",\"mibNotJav\":\"JAV cover sources don't apply to Korean MIB codes\",\"noCandidates\":\"No source has a candidate\",\"hostsUnreachable\":\"Can't connect to any official image host\",\"deadline\":\"The time limit for this step is used up\",\"dmmFailed\":\"DMM: {{error}}\",\"coolingDown\":\"The cover source is cooling down. Try again later; existing images are kept\",\"catalogUnfinished\":\"The official catalog lookup didn't finish, so no cover candidates were found yet\",\"allAnimated\":\"All official candidates are animated images\",\"downloadsFailed\":\"Every usable candidate failed to download in full\",\"sizeChanged\":\"Size changed: log says {{expectedWidth}}x{{expectedHeight}}, now {{width}}x{{height}}\",\"stoppedEarly\":\"Stopped early with exit code {{exitCode}}\"},\"communityCatalog\":{\"animatedOrSmall\":\"The covers from community sources are all animated or too small\",\"animatedOrSmallPartlyMissed\":\"The covers from community sources are all animated or too small; {{count}} more covers weren't downloaded\",\"downloadFailed\":\"Couldn't download the covers from community sources\",\"mismatch\":\"The covers from {{origins}} aren't the same image, so they can't confirm each other\",\"mismatchPartlyMissed\":\"The covers from {{origins}} aren't the same image, so they can't confirm each other; {{count}} more covers weren't downloaded\",\"noUnwatermarked\":\"No cover without a JavDB watermark was found\",\"noUnwatermarkedPartlyMissed\":\"No cover without a JavDB watermark was found; {{count}} more covers weren't downloaded\",\"noCovers\":\"Community sources have no cover for this video\"},\"javOfficialPreview\":{\"dmmUnavailable\":\"DMM preview not found. Try again later\",\"dmmUnrecognized\":\"DMM returned a preview address Peach doesn't recognize ({{host}}); retrying won't help\",\"javdbUnavailable\":\"JavDB preview not found. Try again later\",\"officialUnavailable\":\"Official preview not found. Try again later\"},\"avbase\":{\"unrecognized\":\"The AVBase page structure wasn't recognized; it may be showing a verification check\",\"notFound\":\"AVBase doesn't have this code\"},\"dmm\":{\"unrecognizedCode\":\"Couldn't recognize a code that can be looked up on DMM\",\"notFound\":\"DMM doesn't have this code\",\"notWorkJson\":\"DMM didn't return video JSON\",\"notListJson\":\"DMM didn't return a video list JSON\",\"refused\":\"DMM refused this query\",\"refusedWithMessage\":\"DMM refused this query: {{message}}\"},\"base\":{\"codeMismatch\":\"The code returned by the source doesn't match\",\"itemNotListed\":\"{{label}} doesn't list this item\",\"cloudflareUpdateCookie\":\"{{label}} requires Cloudflare verification. Update the cookie in fetch settings\"},\"r18dev\":{\"notWorkJson\":\"r18.dev didn't return video JSON\"},\"fc2\":{\"unrecognizedCode\":\"Couldn't recognize an FC2 item number in this code\"},\"fc2ppvdb\":{\"ageGate\":\"{{label}} redirected to the age check page, and the browser didn't get past it\"},\"javten\":{\"translatedPage\":\"{{label}} returned a translated page; only the original Japanese page is accepted\"},\"javbus\":{\"notFound\":\"JavBus doesn't have this code\",\"ageGate\":\"JavBus didn't return a video page; it's most likely the age check page. Paste the cookie from your browser for JavBus in fetch settings\"},\"javdb\":{\"notFound\":\"javdb doesn't have this code\",\"loginRequired\":\"javdb requires sign-in\",\"identityAmbiguous\":\"javdb has several videos with this code. Check the source identity: {{identities}}\",\"detailCodeMismatch\":\"The code on the javdb detail page doesn't match the search result\",\"budgetExceeded\":\"javdb metadata wasn't found within this run's limit\"},\"onepondo\":{\"unrecognizedCode\":\"This code isn't in {{label}} format\",\"notFound\":\"{{label}} doesn't have this video\",\"notWorkJson\":\"{{label}} didn't return video JSON\",\"movieIdMismatch\":\"The video ID returned by {{label}} doesn't match this code\"},\"seesaa\":{\"notInSearch\":\"No exact video table row was found in the wiki search results\",\"notInEntries\":\"No video entry with this exact code was found in the wiki search results\",\"conflictingRows\":\"The wiki has conflicting rows for this exact code; review the original page\",\"budgetStopped\":\"Wiki requests for this batch stopped or reached the limit\",\"networkFailed\":\"The wiki network request failed\",\"httpFailed\":\"The wiki HTTP request failed\",\"pageTooLarge\":\"The wiki page exceeds the read limit\",\"redirectUnverified\":\"The wiki redirect page couldn't be verified\",\"botCheckFailed\":\"The wiki bot check wasn't passed\"},\"metadataAmane\":{\"refused\":\"{{message}} ({{reason}})\",\"refusedWithStatus\":\"{{message}} ({{reason}}, HTTP {{status}})\",\"notFound\":\"{{label}} doesn't have this code ({{reason}})\",\"unavailable\":\"Metadata not found on {{label}} ({{reason}})\",\"unavailableWithStatus\":\"Metadata not found on {{label}} ({{reason}}, HTTP {{status}})\",\"unavailableDetail\":\"Metadata not found on {{label}} ({{reason}}): {{detail}}\",\"unavailableWithStatusDetail\":\"Metadata not found on {{label}} ({{reason}}, HTTP {{status}}): {{detail}}\",\"runtimeUnavailable\":\"The amane runtime isn't available\",\"packagedRuntimeProblem\":\"The fetch tool in the installer is missing or the wrong version. Reinstall Peach\",\"bridgeMissing\":\"The amane bridge isn't installed. Rebuild it on the Sources page, or place it at {{python}}\",\"bridgeScriptMissing\":\"The amane bridge script is missing: {{path}}\",\"stdioDecode\":\"amane bridge encoding error (bridge_stdio_decode, {{code}}, {{sites}}, runtime={{runtime}}, expected=utf-8, bytes={{bytes}}, offset={{start}}:{{end}}, sha256={{sha256}})\",\"bridgeTimeout\":\"The amane bridge query timed out\",\"bridgeStartFailed\":\"Couldn't start the amane bridge: {{error}}\",\"bridgeNotJson\":\"The amane bridge returned non-JSON output: {{detail}}\",\"bridgeFailed\":\"The amane bridge query failed (exit {{exitCode}})\",\"productMismatch\":\"The item returned by {{label}} isn't {{code}}: content_id={{contentId}}\",\"preparing\":\"The amane runtime is being prepared. Try again later\",\"installDirUnwritable\":\"Can't read or write the amane install directory: {{error}}\",\"bundleFileMissing\":\"The installer is missing an amane bridge file: {{path}}. Reinstall Peach to use it\",\"manifestUnreadable\":\"Can't read the amane bridge manifest: {{error}}\",\"uvMissing\":\"uv wasn't found. Install uv, then rebuild the amane bridge\",\"rebuildTimeout\":\"Rebuilding the amane bridge didn't finish within {{timeout}} seconds\",\"uvStartFailed\":\"Couldn't start uv: {{error}}\",\"uvSyncFailed\":\"uv sync failed (exit {{exitCode}}): {{detail}}\",\"installIncomplete\":\"The amane install is incomplete: the runtime has no usable package metadata\",\"selfCheckFailed\":\"The amane runtime failed its self-check. Reinstall it on the Sources page\",\"selfCheckUnfinished\":\"The amane runtime self-check didn't finish. Try again on the Sources page\"},\"performerAliasFollowup\":{\"coolingDown\":\"The source is cooling down\",\"requestsUsedUp\":\"This item's request limit is used up\",\"networkFailed\":\"Network request failed: {{type}}\",\"rateLimited\":\"The source is rate limiting requests (429)\",\"refused\":\"The source refused access or requires a bot check\",\"pageMissing\":\"The site doesn't have this page\"},\"settingsFile\":{\"locatorUnreadable\":\"Can't read the data directory location {{locator}}: {{error}}\",\"locatorInvalid\":\"The data directory location is invalid or loops back: {{locator}}\",\"locatorTooDeep\":\"The data directory location redirects more than eight times\",\"unreadable\":\"Can't read the settings file {{path}}: {{error}}\",\"notUtf8\":\"Can't read the settings file {{path}}: not UTF-8 encoded ({{error}})\",\"tomlSyntax\":\"Can't read the settings file {{path}}: TOML syntax error: {{error}}\",\"notTable\":\"Can't read the settings file {{path}}: `{{key}}` must be a table ([{{key}}])\",\"notString\":\"Can't read the settings file {{path}}: `{{key}}` must be a string\",\"notInteger\":\"Can't read the settings file {{path}}: `{{key}}` must be an integer\",\"notBoolean\":\"Can't read the settings file {{path}}: `{{key}}` must be true or false\",\"notStringOrArray\":\"Can't read the settings file {{path}}: `{{key}}` must be a string or an array of strings\",\"emptyArrayItem\":\"Can't read the settings file {{path}}: the `{{key}}` array can't contain empty strings\",\"duplicatePaths\":\"Can't read the settings file {{path}}: the `{{key}}` array has duplicate paths\",\"unknownDirectories\":\"Can't read the settings file {{path}}: unknown keys in `directories`: {{keys}}\",\"driveLetterKeys\":\"Can't read the settings file {{path}}: `[media]` no longer accepts drive letter keys: {{keys}}. Rewrite them as `[media.mounts] <location-id> = <path on this device>`, where the ID is a storage key configured in `[media.locations]` and the path is that storage's media directory on this device, for example `local = '/mnt/media'`\",\"locationsWithoutPrefix\":\"Can't read the settings file {{path}}: these storage entries in `[media.locations]` have no directory prefix: {{keys}}\",\"undeclaredMounts\":\"Can't read the settings file {{path}}: `[media.mounts]` has storage not declared in `[media.locations]`: {{keys}}\",\"mountCountMismatch\":\"Can't read the settings file {{path}}: `[media.mounts] {{key}}` lists {{mounts}} media directories, but `[media.locations] {{key}}` lists {{prefixes}} database path prefixes. They pair up in order, so either use the same count or leave the entry empty\",\"costInvalid\":\"Can't read the settings file {{path}}: `[media.costs]` only accepts free or metered\",\"identityInvalid\":\"Can't read the settings file {{path}}: invalid library identity settings: {{error}}\",\"identityInvalidOnSave\":\"Invalid library identity settings: {{error}}\",\"fileExists\":\"The settings file already exists. Add --force to overwrite it: {{path}}\"},\"scan\":{\"pathConflict\":\"Several file records share the same normalized path (records {{ids}}): {{path}}. All records were kept; please review them. Other files continue processing\",\"unknownSource\":\"✗ Undeclared storage {{location}}; known in [media.locations]: {{known}}\",\"unknownSourceNoneDeclared\":\"✗ Undeclared storage {{location}}; known in [media.locations]: (none in the settings file)\",\"rootBelongsElsewhere\":\"✗ The scan directory doesn't match the storage: the database path prefixes of {{location}} are {{prefixes}}, but the directory to scan is {{root}} (it belongs to {{actual}})\",\"rootOutsideMedia\":\"✗ The scan directory doesn't match the storage: the database path prefixes of {{location}} are {{prefixes}}, but the directory to scan is {{root}} (not under any configured media directory)\",\"noMounts\":\"✗ Storage {{location}} has no directory on this device, so the path {{path}} can't be converted. Configure the media directory in [media.mounts] first\",\"outsideMounts\":\"✗ {{path}} isn't under the mount points {{mounts}} of storage {{location}}\",\"smbNotSaved\":\"The SMB directory hasn't been saved to the library settings yet\",\"prefixWithoutMount\":\"✗ Database path prefix {{index}} of storage {{location}} has no matching directory on this device. Configure the media directories in [media.mounts] in the same order first\",\"checkpointMismatch\":\"The scan directory doesn't match the saved checkpoint. Check the mount settings\",\"rootUnreadable\":\"✗ Can't list the scan directory {{root}} ({{error}}). Nothing was scanned, and no files were counted as missing\"},\"faceDetect\":{\"faceModelMissing\":\"Face model is missing: {{path}}\",\"faceModelFetchFailed\":\"Couldn't download the face model: {{error}}\",\"faceModelChecksum\":\"Face model checksum mismatch: expected {{expected}}, got {{actual}}\",\"matchModelMissing\":\"Face matching model is missing: {{path}}\",\"matchModelFetchFailed\":\"Couldn't download the face matching model: {{error}}\",\"matchModelChecksum\":\"Face matching model checksum mismatch: expected {{expected}}, got {{actual}}\",\"detectorUnsupported\":\"This OpenCV build has no FaceDetectorYN; version 4.5.4 or later is required\"},\"faceMatch\":{\"recognizerUnsupported\":\"This OpenCV build has no FaceRecognizerSF; version 4.5.4 or later is required\"},\"taskRetry\":{\"relayed\":\"{{message}}\"},\"catalogRules\":{\"codePatternsNotList\":\"Code recognition rules must be a list of regular expressions\",\"codePatternsTooMany\":\"At most {{limit}} code recognition rules are allowed\",\"codePatternTooLong\":\"Rule {{index}} is longer than {{limit}} characters\",\"codePatternInvalid\":\"Rule {{index}} isn't a valid regular expression: {{error}}\"},\"reviewCsv\":{\"readFailed\":\"Couldn't read the review CSV {{path}} at line {{line}}: {{error}}\"},\"mediaIo\":{\"deadlinePassed\":\"The media read passed its deadline\",\"readTimedOut\":\"Reading the media directory or sidecar files timed out and was skipped. You can retry\",\"readerFailed\":\"The media reader process didn't finish\"},\"webStats\":{\"tasteNotFound\":\"Taste analysis not found\",\"tasteReadStopped\":\"Taste reading stopped\"},\"webBatch\":{\"changedDuringQuarantine\":\"The file changed while it was being backed up\",\"pathUnmapped\":\"The media path is not mapped to an accessible mount directory\",\"storageOffline\":\"The storage is not mounted or cannot be read\",\"purgingCannotRestore\":\"Items being permanently deleted can't be restored\"},\"webFeeds\":{\"checkStopped\":\"Subscription check stopped\"},\"webFollow\":{\"checkStopped\":\"Follow check stopped\",\"resolveStopped\":\"Follow source search stopped\"},\"webLibraryProcessing\":{\"recoveryFailed\":\"The task could not resume automatically: {{reason}}\",\"recoveryFailedRestart\":\"The task could not resume automatically: start it again\"},\"webLinks\":{\"checkStopped\":\"Link check stopped\",\"pruneStopped\":\"Link cleanup stopped\"},\"webMediaRepair\":{\"repairStopped\":\"Media repair stopped\",\"scanStopped\":\"Media check stopped\"},\"webOrganize\":{\"rollbackStopped\":\"Organize rollback stopped\",\"stopped\":\"Organizing stopped\"},\"webResourceSync\":{\"cacheCleanupStopped\":\"Cache cleanup stopped\",\"cleanupStopped\":\"Resource cleanup stopped\",\"scanStopped\":\"Resource check stopped\"},\"webScraping\":{\"candidateChecksFailed\":\"The candidate covers failed the checks.\",\"downloadFailed\":\"Downloading or verifying the candidate cover failed; no image could be saved.\",\"noCoverCandidates\":\"The source returned no cover candidates for this code, so it can't tell whether an HD version exists.\",\"sourceAccessDenied\":\"The source denied access (HTTP {{status}}). Check the sign-in or source verification status.\",\"sourceConnectionFailed\":\"Couldn't connect to the source, so the cover comparison didn't finish. Check the source connection settings.\",\"sourceServerError\":\"The source had a server error (HTTP 5xx). Try again later.\",\"unusableCandidate\":\"The candidate covers failed the checks: the image wasn't found, couldn't be decoded, or is narrower than 700px.\"},\"webWants\":{\"scrapeStopped\":\"Want metadata task stopped\",\"searchStopped\":\"Want resource search stopped\"},\"webFolders\":{\"rulesChanged\":\"The directory rules have changed. Open the settings again.\"},\"webTasks\":{\"runMissing\":\"Task run {{run_id}} does not exist\"},\"previews\":{\"snapshotUnavailable\":\"Preview frame files are missing\",\"snapshotChanged\":\"Preview frames changed while generating the preview. Try again\",\"avatarFailed\":\"Couldn't generate the avatar\",\"snapshotTooDark\":\"Preview frames are too dark for an avatar\",\"avatarSnapshotChanged\":\"Preview frames changed while generating the avatar. Try again\",\"emptyStudio\":\"Label name is empty\",\"logoUnavailable\":\"This label has no logo\",\"invalidEntityKind\":\"Invalid entity type\",\"entityImageUnavailable\":\"No cached profile image\",\"ffmpegUnavailable\":\"FFmpeg not found\",\"ffmpegFailed\":\"Couldn't generate preview images\",\"photoChanged\":\"The image changed while generating the thumbnail. Try again\",\"photoThumbnailFailed\":\"Couldn't generate the image thumbnail\"},\"metadataPerformerProfiles\":{\"avatarUnfetched\":\"Avatar for {{name}} not found: {{reason}}\"},\"cli\":{\"processingIncomplete\":\"Metadata processing didn't finish\"},\"jobRecovery\":{\"unreadable\":\"Can't read the task recovery record. Start the task again.\"},\"nasDirectories\":{\"invalidPurpose\":\"Choose a media directory or a data directory.\",\"invalidOffset\":\"The directory page position is invalid. Read the directory again.\",\"outsideRoots\":\"Only mounted media directories can be browsed. Type a newly mounted path into the media directory field.\",\"timedOut\":\"Reading the media directory timed out. Try again later or type the path.\",\"unreadable\":\"The media directory can't be read. Check the mount and the directory permissions.\"},\"followBackfill\":{\"credentialMissing\":\"Add your rule34.xxx API credentials in the followed sources first.\",\"running\":\"Backfilling. Wait for this run to finish.\"}}"),
 	jobMessage: {
 		tasteHistory: {
 			readingProfile: "Reading browsing history: profile {{index}} of {{total}}, {{count}} entries read",
@@ -8312,7 +8312,7 @@ var Ge = "peach.settings.v1", Ke = {
 			progressKept: "Task progress is saved; it resumes after the installation finishes."
 		}
 	},
-	labels: /* @__PURE__ */ JSON.parse("{\"listSeparator\":\", \",\"resumeAt\":{\"earlyToday\":\"at {{clock}} today\",\"today\":\"at {{clock}} today\",\"tonight\":\"at {{clock}} tonight\",\"earlyTomorrow\":\"at {{clock}} tomorrow\",\"tomorrow\":\"at {{clock}} tomorrow\",\"tomorrowNight\":\"at {{clock}} tomorrow night\",\"dayAfter\":\"at {{clock}} the day after tomorrow\",\"date\":\"at {{clock}} on {{month}}/{{day}}\"},\"runtimePrepare\":{\"writer\":{\"standalone\":\"replication.enabled = false, acting as the only primary computer\",\"noDeviceId\":\"This device has no device-id, so it cannot tell whether it is the primary computer\",\"noWriter\":\"No primary computer can be verified\",\"otherWriter\":\"The primary computer is {{owner}}; this device is read-only\",\"thisDevice\":\"This device is the primary computer\"}},\"standaloneUpdate\":{\"updatePackage\":\"Update package\",\"fullPackage\":\"Full package\"},\"downloadNamed\":\"Download {{name}}\",\"onboarding\":{\"hostOption\":{\"thisDevice\":\"This device only\",\"lan\":\"Devices on the same LAN\"},\"prompt\":{\"dataRoot\":\"Data directory (holds the Peach database, cache and settings file)\",\"mediaDir\":\"Media directory (must already exist; can be on an external drive)\",\"moreMediaDir\":\"Add another media directory (press Enter to skip)\",\"host\":\"Who can connect: 1 = {{thisDevice}}, 2 = {{lan}}\",\"port\":\"Port\",\"mdnsName\":\"LAN address (<name>.local, published only when LAN access is allowed)\",\"scan\":\"Scan {{target}} now? \"},\"scanTargetCount\":\"these {{count}} folders\",\"retryReport\":\"{{reason}} ({{remaining}} attempts left)\",\"requiredMark\":\" (required)\",\"notFilled\":\"(not filled in yet)\",\"mountsExplanation\":\"The Peach database stores video paths in Windows format with the prefixes {{roots}}. The actual media directories are {{shown}}, saved in the same order under [media.mounts] local and converted automatically before files are read.\",\"answer\":{\"thisDevice\":\"local\",\"lan\":\"lan\",\"yes\":\"yes\",\"no\":\"no\"}},\"runtimeFacts\":{\"version\":\"Version\",\"os\":\"Operating system\",\"dataRoot\":\"Data directory\",\"settingsFile\":\"Settings file\",\"logs\":\"Log directory\",\"available\":\"Available\",\"ffmpegNotInstalled\":\"Not installed. MP4 files play directly; transcoding and thumbnails need FFmpeg.\",\"untruncNotInstalled\":\"Not installed. It's needed to repair MP4 files with a missing index.\",\"untruncExtractTo\":\"Not installed. It's needed to repair MP4 files with a missing index. Extract it to {{path}}.\",\"installedVersion\":\"Installed, version {{version}}\",\"installedInDataRoot\":\"Installed in the data directory\",\"ffmpegToolMissing\":\"{{tool}} not found. Transcoding, media info and thumbnails need the FFmpeg tools.\",\"ffmpegToolsMissing\":\"{{first}} and {{second}} not found. Transcoding, media info and thumbnails need the FFmpeg tools.\"},\"configuration\":{\"fileManagedNotice\":\"This deployment's service is managed by its settings file. Edit the settings file below on this device.\",\"sectionUnavailable\":\"{{section}}: not found\",\"sectionRetry\":\"Reload. If it keeps failing, export a diagnostics report.\",\"tunnelStoppedUnsaved\":\"The temporary remote link stopped, but the settings file couldn't be written. Check the settings file on this device.\",\"tunnelStopped\":\"Stopped the temporary remote link: remote access isn't kept without an access password.\",\"section\":{\"remoteReporting\":\"Diagnostics settings\",\"librarySharing\":\"Collection upload settings\",\"startup\":\"Startup settings\",\"uninstall\":\"Uninstall details\",\"storage\":\"Storage space\",\"peachProxy\":\"Peach proxy\",\"entryLinks\":\"External links\",\"updates\":\"Updates\",\"updateJob\":\"Update task\",\"access\":\"Access settings\",\"mediaSources\":\"Media directories\",\"libraryCount\":\"Library status\",\"mountDependencies\":\"Mount dependencies\",\"facts\":\"Runtime info\",\"network\":\"Access addresses\",\"apiToken\":\"Access token\",\"certificate\":\"HTTPS certificate\",\"tunnel\":\"Remote access\",\"automaticUpdates\":\"Automatic updates\",\"pushDiscovery\":\"Push discovery\",\"downloads\":\"Download settings\"}},\"coverRepair\":{\"runLabel\":\"Re-check cover layouts\",\"stoppedByUser\":\"Stopped by the user\",\"serviceStopped\":\"The service stopped; it continues on the next start\"},\"followScheduler\":{\"runtimeUnavailable\":\"Status of the last automatic check was not found\",\"sourcesFailed\":\"{{count}} sources failed to check\"},\"webAutoLandings\":{\"fieldOriginalTitle\":\"Original title\",\"fieldPerformers\":\"Performers\",\"fieldReleaseDate\":\"Release date\",\"fieldSeries\":\"Series\",\"fieldStudio\":\"Label\",\"fieldTags\":\"Content tags\",\"fieldTitle\":\"Title\",\"fieldUnionTags\":\"Tags\",\"ruleVerifiedReplace\":\"Official sources agree; replaced the old value\",\"ruleVerifiedUnion\":\"Added the extra tags from sources\"},\"webBatch\":{\"changedDuringDelete\":\"This item changed during deletion\",\"stillOnDisk\":\"The file is still on disk\"},\"webFeeds\":{\"cooling\":\"The source is cooling down; not fetched this round\",\"deferredRest\":\"The other {{count}} feeds will be fetched after the cooldown\",\"sourceCooling\":\"{{source}} is cooling down; not fetched this round\"},\"webFollow\":{\"nameContainsEvidence\":\"One normalized name contains the other; confirm manually\",\"profileLinkEvidence\":\"The first post on {{provider}} links the creator profile to {{service}}/{{handle}}\",\"sharedOfflineNote\":\"The shared drive is unavailable, so only the copy on this device was removed. Remove it again when the drive is back, or it will sync back.\",\"suggestArchive\":\"Creators on archive sites\",\"suggestFollowed\":\"Following\",\"suggestTag\":\"Rule34.xxx tags\",\"suggestTagArtist\":\"Creators on Rule34.xxx\"},\"webJavDetail\":{\"anonymousUser\":\"Anonymous\"},\"webLinks\":{\"unreachable\":\"Unreachable: {{reason}}\"},\"webReview\":{\"commentVotes\":\"Comment marks {{votes}}\",\"coverNoCandidates\":\"Not found: no source had a candidate\",\"coverUnfetched\":\"Not found: {{reason}}\",\"currentNone\":\"Current value: none\",\"currentNoneOwned\":\"Current value: none ({{owner}})\",\"currentValue\":\"Current value: {{value}}\",\"currentValueOwned\":\"Current value: {{value}} ({{owner}})\",\"durationDelta\":\"Duration differs by {{seconds}} s\",\"equivalents\":\"Same as {{codes}}\",\"evidenceInsufficient\":\"The selected metadata lacks enough evidence\",\"evidenceKinds\":\"Evidence {{kinds}}\",\"fc2Collection\":\"Compilation with {{count}} independent parts; no cover is applied, and each part falls back to its own thumbnail\",\"matchedAssets\":\"{{count}} matching files\",\"metadataSources\":\"{{count}} metadata sources\",\"sameCodeAssets\":\"{{count}} files with the same code\",\"seller\":\"Seller {{seller}}\",\"separator\":\"; \",\"sharedPerformers\":\"Shared performers {{names}}\",\"sizeDelta\":\"Size differs by {{percent}}%\",\"tokenOverlap\":\"Token overlap {{overlap}}\",\"videos\":\"{{count}} videos\",\"westernMatch\":\"{{verdict}} → {{name}}\",\"westernMatchSpelling\":\"{{verdict}} → {{name}} (spelled {{variant}})\",\"westernVerdict\":{\"matched\":\"Matched\",\"needs-review\":\"Needs review\",\"no-profile\":\"No profile\",\"rate-limited\":\"Rate limited\"}},\"webScraping\":{\"compareIncompleteMobileHint\":\", so the cover comparison didn't finish. On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.\",\"coverSaved\":\"HD cover saved\",\"diagnosticDimensionMismatch\":\" Full image size didn't match the probe: {{count}}\",\"diagnosticDownloadFailed\":\" Full downloads failed: {{count}}\",\"diagnosticInvalidImage\":\" Images that couldn't be decoded: {{count}}\",\"diagnosticPlaceholder\":\" \\\"Coming soon\\\" placeholders: {{count}}\",\"diagnosticProbeFailed\":\" Image header requests failed: {{count}}\",\"diagnosticSeparator\":\";\",\"diagnosticTooSmall\":\" Images narrower than 700px: {{count}}\",\"instagramPending\":\"Automatic Instagram avatar lookup still needs to be verified with a separate signed-in session\",\"kept\":\" The existing image was kept.\",\"keptAfterDetails\":\". The existing image was kept.\",\"keptLocalNoBetter\":\"Cover on this device is {{localWidth}} × {{localHeight}}, the best source cover is {{width}} × {{height}}; kept the cover on this device. No larger or better cover was found.\",\"keptLocalPartial\":\"Cover on this device is {{localWidth}} × {{localHeight}}, the best source cover is {{width}} × {{height}}; kept the cover on this device. Some sources couldn't be reached, so not all of them were compared.\",\"keptUserCover\":\"This video uses a cover you set, so it wasn't replaced. Restore the scraped cover in Edit details to switch back.\",\"period\":\".\",\"reusedCover\":\"Reused the cover on this device verified within 24 hours ({{width}} × {{height}}); the source wasn't asked again.\"},\"downloads\":{\"postprocessRetrying\":\"Waiting to retry automatically ({{retries}}/{{limit}})\",\"postprocessRetriesExhausted\":\"Still not finished after {{retries}} automatic retries; {{detail}}\",\"postprocessRequeued\":\"Waiting to process again\",\"reconcileUnexpected\":\"An unexpected error occurred while checking the task. Trying again later\",\"settingsUnreadable\":\"Cannot read the cloud download settings. Check the settings file or enter them again.\",\"settingsMalformed\":\"The cloud download settings have an invalid format. Check the settings file or enter them again.\",\"settingsInvalid\":\"The cloud download settings contain invalid values. Check the target directory and the wait limit.\"},\"downloadsClouddrive\":{\"permission\":{\"addOffline\":\"Submit cloud download tasks\",\"listOffline\":\"View cloud download tasks and quota\",\"modifyOffline\":\"Cancel cloud download tasks\"},\"no115Prefix\":\"No 115 target directory is set, and none of the prefixes in Push discovery ({{known}}) are on 115. Add the 115 mount root in CloudDrive2 to the Push discovery card, then check again, or enter a target directory directly\",\"noPrefixes\":\"No 115 target directory is set, and Push discovery has no cloud path prefixes. In the Push discovery card, add the 115 mount root in CloudDrive2 and its library directory, then check again, or enter a target directory directly\",\"noPikpakRootPrefix\":\"No library directory is chosen for the PikPak root, and Push discovery has no PikPak root prefix to suggest one. Choose it in the list, or add the PikPak mount root in the Push discovery card\",\"action\":{\"verifyToken\":\"checking the API token\",\"findTarget\":\"finding the target directory\",\"refreshLanding\":\"refreshing the landing directory\",\"readQuota\":\"checking the cloud download quota\",\"listOffline\":\"listing cloud download tasks\",\"createFolder\":\"creating the directory\",\"submitOffline\":\"submitting the cloud download task\",\"cancelOffline\":\"canceling the cloud download task\",\"findLandedFile\":\"looking for files in the target directory\",\"findPrefix\":\"looking up the Push discovery cloud path prefix\",\"readProxy\":\"reading the cloud drive proxy\",\"readAccounts\":\"reading cloud drive accounts\",\"saveProxy\":\"saving the cloud drive proxy\",\"readMountPoints\":\"reading mount points\",\"readLibraryMounts\":\"reading library mount points\",\"readCacheDir\":\"reading the cache directory\"}},\"downloadsChannels\":{\"clouddriveTokenUnreadable\":\"Cannot read the CloudDrive2 token. Enter it again.\",\"pikpakSignInUnreadable\":\"Cannot read the PikPak sign-in. Sign in again.\",\"tokenNeedsOffline\":\"The CloudDrive2 token needs permission to submit and view cloud download tasks.\",\"libraryCapabilityUnavailable\":\"Could not get cloud download support for {{name}}.\",\"clouddriveCapabilityUnavailable\":\"Could not get CloudDrive2 cloud download support. Check the connection and the token.\",\"libraryNotMapped\":\"{{name}} is not linked to a cloud directory yet. Check the mounts or the Push discovery settings.\"},\"downloadsPikpakBrowser\":{\"waiting\":\"The browser window is open. Sign in to PikPak there\",\"cancelled\":\"Browser sign-in canceled\",\"notOpened\":\"The browser did not open: {{error}}\",\"failed\":\"Browser sign-in failed: {{type}}\",\"windowClosed\":\"The browser window was closed before sign-in finished\",\"done\":\"Signed in to PikPak with the browser\",\"timeout\":\"Sign-in did not finish within {{minutes}} minutes, so the window was closed. Click Sign in with browser to try again\"},\"folderRules\":{\"conflict\":{\"differentOwner\":\"Already credited to someone else\",\"perItemConfirmed\":\"Already confirmed one by one\",\"differentIdentity\":\"Already linked to a different identity\",\"ownerRejected\":\"This credit was already rejected\",\"childRule\":\"Managed by a subdirectory rule\"}},\"routesMedia\":{\"defaultPlayer\":\"System default player\",\"subtitle\":{\"outsideFolder\":\"Not in the video's directory\",\"tooLarge\":\"File too large\",\"notFound\":\"File not found\",\"imageBased\":\"Image-based subtitles aren't shown in the player\",\"encodingUnknown\":\"Encoding not recognized\"}},\"avatarPicker\":{\"source\":{\"gallery\":\"Gallery\",\"expoDirectory\":\"Expo directory\",\"socialProfile\":\"Social profile\",\"onlineVideo\":\"Online video\",\"videoCover\":\"Video cover\",\"coverFace\":\"Face from cover\",\"officialSite\":\"Official site\",\"picked\":\"Picked by you\",\"fetched\":\"Previously fetched\",\"videoStill\":\"Video still\",\"codeCover\":\"Cover by code\",\"address\":\"URL\",\"thisDevice\":\"This device\"},\"sourceUnknown\":\"Source not recorded\",\"named\":\"{{name}}\",\"galleryCategory\":\"Gallery · {{category}}\",\"imageAddress\":\"Image URL · {{host}}\",\"cropped\":\"{{label}} · Cropped\",\"assetFallback\":\"Video {{id}}\",\"standIn\":\"Still from a representative video, not this person\",\"standInWithTitle\":\"Still from a representative video, not this person · {{title}}\"},\"mediaTools\":{\"unknownVersion\":\"unknown version\",\"toolPackage\":\"Tool package\"},\"taskResults\":{\"kind\":{\"check\":\"Check failed\",\"backfill\":\"Recheck failed\"},\"noResult\":\"The source returned no check result\"},\"desktopStartup\":{\"noDesktop\":\"This system doesn't provide desktop shortcuts.\",\"desktopFailed\":\"{{error}}\",\"desktopUnknown\":\"Desktop shortcut status not found\",\"noLoginItem\":\"This system doesn't provide launch at login.\",\"trayMissing\":\"The tray launcher on this device wasn't found.\",\"startupUnknown\":\"Startup item status not found\"},\"desktopUninstall\":{\"manual\":\"On this system, quit Peach first, then remove the program and data directories manually.\",\"macos\":\"Turn off launch at startup and quit Peach, then move Peach from Applications to the Trash. For a full uninstall, also delete the data directories below.\",\"accepted\":\"Uninstalling. Peach will quit. You can close this page when it's done.\"},\"backgroundIssues\":{\"pushDiscovery\":{\"title\":\"Couldn't add newly found files automatically\",\"link\":\"Open push settings\"},\"pushDiscoveryWatch\":{\"title\":\"Watching directories on this device isn't running\",\"link\":\"Open push settings\"},\"downloads\":{\"title\":\"Couldn't reconcile {{count}} cloud download tasks for now\",\"link\":\"View cloud downloads\"},\"followSchedule\":{\"title\":\"Automatic follow check failed\",\"link\":\"Open follow schedule\"},\"feedSchedule\":{\"title\":\"Automatic feed fetch failed\",\"link\":\"Open feed schedule\"},\"tunnel\":{\"title\":\"Public access connection failed\",\"link\":\"Open public access settings\"},\"librarySharing\":{\"title\":\"Library sharing upload failed\",\"link\":\"Open data upload settings\"},\"automaticUpdates\":{\"title\":\"Automatic update ran into an error\",\"link\":\"Open automatic update settings\"},\"amaneBridge\":{\"title\":\"amane bridge isn't installed\",\"link\":\"Open amane settings\"},\"network\":{\"title\":\"Network unreachable\",\"link\":\"Open Peach proxy settings\"},\"faceModels\":{\"title\":\"Face model download failed\",\"link\":\"View the failed run\"}},\"metadataAmane\":{\"rebuilt\":\"Rebuilt the amane bridge at {{revision}}\",\"bundled\":\"The scraping tools come with Peach. Nothing else to prepare.\",\"ready\":\"The amane runtime is ready.\",\"auth\":{\"ageVerification\":\"The site requires age verification\",\"loginRequired\":\"The site requires sign-in; credentials are missing or expired\",\"geoRestricted\":\"The site refused this outbound connection by region\",\"cloudflareChallenge\":\"Hit a Cloudflare challenge page\",\"cloudflareBlocked\":\"Blocked by Cloudflare\",\"ipBanned\":\"The site banned the outbound IP\",\"httpError\":\"The site refused this outbound connection\"},\"latestUnfetched\":\"Not found\",\"trafficUnmetered\":\"The standalone fetch tool doesn't report network traffic per task\",\"trafficUnobserved\":\"External fetch tool traffic isn't measured\"},\"regions\":{\"jp\":\"Japanese\",\"kr\":\"Korean\",\"cn\":\"Chinese\",\"west\":\"Western\",\"other\":\"Other\",\"none\":\"Not set\"},\"webCatalog\":{\"editionGroup\":\"Multiple editions\",\"partGroup\":\"Multi-part video\",\"unknownYear\":\"Unknown year\"},\"related\":{\"sameCreator\":\"Same creator\",\"sameSeries\":\"Same series\",\"samePerformer\":\"Same performer\",\"similarTags\":\"Similar tags\",\"sameStudio\":\"Same label\"},\"webEntity\":{\"suggestGroup\":{\"performer\":\"Actresses\",\"creator\":\"Creators\",\"studio\":\"Labels\",\"agency\":\"Agencies\",\"series\":\"Series\",\"tag\":\"Tags\",\"asset\":\"Videos\"}},\"fieldOwners\":{\"user\":\"Entered manually\",\"review\":\"Approved in review: {{identifier}}\",\"auto\":\"Auto-applied from {{identifier}}\",\"scan\":\"From file name\",\"script\":\"Maintenance script {{identifier}}\"},\"performerHeader\":{\"current\":\"Current name\",\"former\":\"Former names\",\"other\":\"Other names\"},\"catalogVersions\":{\"multipart\":\"Multi-part\",\"singleFile\":\"Single file\"},\"catalogEdition\":{\"censored\":\"Censored\",\"chinese-subtitles\":\"Chinese subs\",\"uncensored\":\"Uncensored\",\"uncensored-leak\":\"Uncensored leak\",\"uncensored-crack\":\"Decensored\"},\"catalogParts\":{\"main\":\"Main\",\"bonus\":\"Bonus {{number}}\"},\"photoSet\":{\"untitled\":\"Untitled image set\"},\"organizeTemplates\":{\"placeholder\":{\"code\":\"Code\",\"title\":\"Title\",\"studio\":\"Label\",\"series\":\"Series\",\"year\":\"Release year\",\"actors\":\"Performers\",\"cd\":\"Part number\",\"mosaic\":\"Censored or uncensored\",\"definition\":\"Quality\"},\"example\":{\"title\":\"Title\",\"studio\":\"Label\",\"series\":\"Series\",\"actors\":\"Ann, Bea\"}},\"organize\":{\"preset\":{\"codeOnly\":\"Code only\",\"codeTitle\":\"Code and title\",\"codeDefinition\":\"Code and quality\",\"codeActors\":\"Code and performers\",\"byStudio\":\"Folder per label\",\"bySeries\":\"Folder per series\",\"byActors\":\"Folder per performer\",\"byYear\":\"Folder per release year\",\"studioThenCode\":\"Code folders inside label folders\"},\"skip\":{\"offline\":\"Storage not mounted\",\"missingField\":\"Missing field\",\"outsideRoot\":\"Outside the storage root\",\"targetExists\":\"Target already exists\",\"crossVolume\":\"Different drive\",\"tooLong\":\"Path too long\"},\"failure\":{\"sourceMissing\":\"Source file not found\",\"renameFailed\":\"Rename failed: {{error}}\",\"ledgerRolledBack\":\"Database write failed; the original name was restored: {{error}}\",\"ledgerStuck\":\"Database write failed and the original name could not be restored. Fix it manually: {{error}}\",\"moveUnverified\":\"Couldn't verify the file after an interrupted move. Check both paths before retrying.\",\"assetGone\":\"No longer in the collection; not organized\"}},\"junk\":{\"installerAttachment\":\"Installer in a media directory\",\"pageArchiveAsset\":\"Script or style file from a saved web page\",\"promoPageImage\":\"Banner, logo, or navigation image from a saved promo page\",\"shortAttachmentCluster\":\"{{count}} very short clips sit next to a full-length video in this directory. Check the content\",\"shortAttachmentSpread\":\"Very short clips with the same size, duration, and resolution appear in {{count}} release directories. Check the content\",\"downloadShortVideo\":\"Short extra video in the {{code}} download; the full video runs {{minutes}} min\",\"downloadArchive\":\"Extra archive in the {{code}} download. Check the content\",\"downloadFile\":\"Extra file in the {{code}} download without the video's code in its name\",\"repeatedCopies\":\"Copies with the same name and size appear in {{count}} directories\",\"fullVersionExists\":\"A {{minutes}}-min full version has the same code\",\"underFourMinutes\":\"Under 4 minutes\",\"under120Mb\":\"Under 120 MB\",\"promoDirectory\":\"In a promo directory\",\"numberedSourceVideo\":\"A numbered video may only carry a source watermark. Check the content\",\"internetShortcut\":\"Internet shortcut\",\"pageArchive\":\"Saved web page\",\"wholeNamePromo\":\"The whole name is promo text\",\"visualPromotion\":\"Promo signals in {{matched}}/{{total}} frames, wording in {{claims}} frames\",\"mostlyPromo\":\"Promo text makes up most of the name\",\"promoNeighbours\":\"{{count}} more promo names like it in this directory\",\"promoCreator\":\"The creator field is a promo site domain\",\"promoDirectoryPack\":\"The directory is a promo pack named with a domain and a code\",\"decoratedImage\":\"Small image with decorative symbols\",\"promoBrand\":\"Promo brand name\"},\"classification\":{\"settledCode\":\"{{reason}}; only the creator projection is removed, and the code stays as is\",\"siteRelease\":\"The directory and the media file share the site release number {{site}}; official catalog {{catalog}}\",\"versionedDirectory\":\"The directory name is the release ID {{identity}} plus a quality or version suffix. It is not an account, and the codes of the files inside are not inferred from it\",\"gachincoPpv\":\"The directory and its part files use a Gachinco PPV release number with a quality suffix; not an account\",\"matchingIdentity\":\"The directory and the media file share the release ID {{identity}}; quality and version suffixes are not an account\",\"matchingProduct\":\"The directory product ID matches the media file {{product}}; the code stays as is\",\"matchingDmmProduct\":\"The directory code {{identifier}} matches the file's DMM product ID; the code stays as is\"},\"studioIcons\":{\"undecodable\":\"Cannot decode\",\"wordmarkAspect\":\"Content ratio {{aspect}}: a wordmark\",\"onlySize\":\"Only {{size}}\",\"faceFound\":\"Face detected in {{size}} ({{score}})\",\"hostIcon\":\"{{url}} is the host-wide icon of {{host}} (sha256 {{digest}})\",\"originSiteWordmark\":\"The site's own wordmark\",\"originBiggest\":\"The largest one fetched in this run\",\"originIconMark\":\"The same square mark as the icon slot\",\"bakedFrom\":\"{{origin}} ({{size}}) baked into a square\",\"allTooSmall\":\"Nothing fetched in this run reaches {{edge}}: {{items}}\",\"noLinks\":\"This label has no link in the database to fetch an image from (archive snapshots don't count)\",\"originLedgerAvatar\":\"Social avatar recorded in the database\",\"originDeclared\":\"Icon declared by the official site\",\"originHeaderImage\":\"The <img> in the site header\",\"originNamedAvatar\":\"Social avatar picked by hand\",\"originProfileAvatar\":\"Avatar of {{profile}}\",\"paddedWordmark\":\"No square mark found. Installed the wordmark: {{size}} / content ratio {{aspect}}, baked into a square\",\"sameAsIcon\":\"The same square image as the icon slot (original wordmark {{size}})\",\"triedNothing\":\"Tried {{tried}}; nothing came back\",\"tried\":\"Tried {{tried}}: {{details}}\",\"noCandidates\":\"No candidates\",\"namedLogoNothing\":\"Nothing came back from the assigned logo source\",\"namedLogoUndecodable\":\"Cannot decode the assigned logo source\",\"shortEdge\":\"Short edge {{edge}} < {{minimum}}\",\"namedLogo\":\"Logo source assigned by the user\",\"namedLogoNotSquare\":\"The assigned logo source cannot be baked into a square\",\"sameAsNamedLogo\":\"The same assigned source as the logo slot ({{size}}), baked into a square\",\"namedWordmarkNothing\":\"Nothing came back from the assigned wordmark source\",\"namedWordmarkUndecodable\":\"Cannot decode the assigned wordmark source\",\"namedWordmarkNotSquare\":\"The assigned wordmark source cannot be baked into a square\",\"namedWordmarkBaked\":\"Assigned wordmark source ({{origin}}) baked into a square\",\"namedSquareNothing\":\"Nothing came back from the assigned square mark source\",\"namedSquareUndecodable\":\"Cannot decode the assigned square mark source\",\"namedSquareNotSquare\":\"The assigned square mark source cannot be baked into a square\",\"croppedShortEdge\":\"Short edge of the cropped square mark {{edge}} < {{minimum}}\",\"namedSquareCropped\":\"Square mark cropped from the assigned source ({{size}})\",\"faceDetected\":\"{{evidence}}; face detected\"},\"studioSites\":{\"parked\":\"Parked page\",\"parkedTitle\":\"{{parked}} (the title says the domain is for sale: {{title}})\",\"parkedOrForSale\":\"{{parked}} or domain sale page\",\"parkingHost\":{\"finalUrl\":\"{{parked}} (the final URL points to {{host}})\",\"headers\":\"{{parked}} (the response headers point to {{host}})\",\"body\":\"{{parked}} (the page body points to {{host}})\"},\"certificateInvalid\":\"{{reason}}; invalid HTTPS certificate\",\"emptyShell\":\"The page is only {{bytes}} bytes, likely an empty shell\",\"forSaleTitle\":\"The title says the domain is for sale ({{title}})\",\"unavailableTitle\":\"The site says it is unavailable ({{title}})\",\"domainEcho\":\"The title only repeats the domain and names no brand ({{title}})\",\"confirmed\":\"{{confirmed}}; title seen: {{title}}\",\"none\":\"none\",\"nothingToCompare\":\"Neither the label name nor its aliases has characters to compare\",\"matchedAlias\":\" (matched the alias {{alias}})\",\"titleNamesAdult\":\"The title names the label{{matched}}, and the page is an adult site\",\"titleNamesNotAdult\":\"The title names the label, but the page doesn't look like an adult site. Check it manually ({{title}})\",\"derivedHostAdult\":\"The domain is derived from the label name, and the page is an adult site (the title writes the name in kana)\",\"bodyNames\":\"The title doesn't name the label, but the page body does. Check the screenshot manually\",\"noName\":\"Neither the title nor the body names the label (title: {{title}})\",\"noCandidates\":\"No candidate domain can be derived\",\"platform\":\"A distribution platform is not a label, so there is no label site to look up. Links are recorded per platform; only an account with an actual seller is a creator (docs/SOURCING.md)\",\"unreachable\":\"Unreachable: {{error}}\"},\"webLibraryShortcuts\":{\"representativeImage\":\"{{name}} · Featured video\"},\"libraryProcessing\":{\"issues\":\"{{count}} items need attention. You can retry the unfinished ones.\",\"issuesAllPaused\":\"{{count}} items are all held by source rate limits. Wait a while, then run again.\",\"issuesSomePaused\":\"{{count}} items need attention. {{paused}} of them are held by source rate limits, so wait a while for those; you can retry the rest now.\",\"budgetSkipped\":\"{{head}}. {{count}} videos were not looked up yet; run again to continue.\",\"budget\":{\"requests\":\"This run used up its request allowance\",\"seconds\":\"This run used up its time allowance\",\"bytes\":\"This run used up its download allowance\"},\"budgetAndIssues\":\"{{budget}} {{issues}}\",\"step\":{\"scanFiles\":\"Scan files\",\"checkFolders\":\"Check library directories\",\"checkJunk\":\"Check for junk files\",\"probeAndCheckJunk\":\"Read media info and check for junk\",\"checkCompanions\":\"Check companion files\",\"makePreviews\":\"Generate previews\",\"checkPreviewSettings\":\"Check preview settings\",\"fetchMetadataAndCovers\":\"Fetch metadata and covers\",\"fetchCovers\":\"Fetch missing covers\"},\"source\":{\"onePondo\":\"1pondo\",\"localNfo\":\"Local NFO\",\"makers\":\"Studio websites\"}},\"feedFollowup\":{\"cover\":{\"fetching\":\"Fetching the cover for this video\",\"queuedCover\":\"Queued for new release cover fetch\",\"queuedAfterScrape\":\"Queued after new release metadata fetch; the cover follows once metadata is in\",\"coverGone\":\"The fetched cover is no longer on this device. It will be fetched again at the next retry\",\"lastAttemptFailed\":\"Last attempt failed: {{reason}}\",\"ignored\":\"Marked as not wanted, so covers won't be fetched in the background\",\"scrapeFailed\":\"Metadata not found. The cover will be retried together with it\",\"nextCheck\":\"Covers will be fetched in batches at the next subscription check\",\"unfinished\":\"Cover processing didn't finish\",\"connectFailed\":\"Couldn't connect to the source\"},\"chainLink\":\"{{first}}, {{rest}}\",\"sourceAddress\":\"source URL\"},\"codeCreators\":{\"reason\":{\"urlIdentity\":\"Has a URL identity (such as a pixiv artist), so it is not a release directory\",\"notCodeShaped\":\"The name isn't shaped like a code\",\"embeddedCode\":\"The directory name contains code {{code}}, which matches the files inside\",\"noMatchingFile\":\"The name looks like a code, but no file inside has that code; it may be a real account name\",\"sitePost\":\"The directory and its files share site post ID {{identity}}\",\"matchingCode\":\"The directory and its files share code {{identity}}\"}},\"metadataCreatorAttributions\":{\"shapePrefix\":\"“{{prefix}} + number + performers”\",\"shapeCastNumberTitle\":\"“performers-number-title”\",\"labelShape\":\"File names follow the {{shape}} release pattern: {{files}} of {{total}} videos match, with {{performers}} rotating performers. Likely a label or series; check a metadata site or confirm manually\",\"sourceIdentity\":\"Keeps a creator credit from an independent source\",\"protected\":\"The compatibility field belongs to a user or review decision\",\"onlineAccount\":\"Online account identity, not judged by local directories\",\"identityConflict\":\"The entity has external identity references or user decisions; review item by item\",\"verifiedStudio\":\"A public release source confirms it is a label; videos don't belong to a personal account\",\"platform\":\"The name is a release platform; the actual seller or account is the creator\",\"repostSite\":\"The name is a repost-site watermark or a dated site directory\",\"studio\":\"The release label of the same video is {{studio}}, matching the creator name or an alias\",\"studioRelease\":\"A known label name matches the label token in the release file of the same video\",\"structural\":\"The name is a confirmed structural directory\",\"releaseTitle\":\"The name matches a scene title with label and release date\",\"catalogTitle\":\"The name exactly matches the release title of the same video\",\"performerOverlap\":\"Matches a performer name or alias, with no seller identity or same-person confirmation yet\",\"legacyProjection\":\"Only a legacy directory projection; needs an account, watermark, release source or user confirmation\",\"collectionIdentity\":\"The directory's month or quality suffix maps to an existing full account name\"},\"avatarOnline\":{\"cached\":\"Cached social avatar\",\"cachedOn\":\"Cached social avatar · {{date}}\"},\"seedFollowup\":{\"conflict\":\"The pack disagrees with this device; this record wasn't written by the seed, so the seed leaves it alone\",\"duplicate\":\"One pack entry matches two entities here, possibly a duplicate identity; merging can't be undone, so a person decides\",\"withdrawalConflict\":\"{{detail}}; {{reason}}\"},\"seedCorrections\":{\"anchorAmbiguous\":\"The identity anchor didn't match exactly one entity; the claim is kept\",\"anchorMissing\":\"The identity anchor matched nothing; no entity to revert\",\"profileDiffers\":\"The current profile doesn't exactly match the withdrawal value; the claim is kept\",\"pointerDiffers\":\"The current credit doesn't exactly match the withdrawal value; the claim is kept\",\"otherWriter\":\"The claim belongs to another writer; it is kept\"},\"westernArtwork\":{\"noSoloCovers\":\"No solo video covers to compare against; kept as a candidate only\",\"noCoverMatch\":\"No image matched a cover; kept as a candidate only\"},\"avatarProvider\":{\"missingHash\":\"Missing content hash, so it can't be a review candidate\",\"duplicateOf\":\"Identical to the avatar of {{entity}}\"},\"portraitArtwork\":{\"fullCover\":\"Full cover\",\"frame\":\"HD frame {{name}}\",\"evidence\":\"Solo video {{work}} {{label}}\"},\"compositeAliasRepair\":{\"collision\":\"Collides with entity {{entity}} ({{kind}}) {{name}}\",\"notComposite\":\"Not a composite romanized name\",\"notStageName\":\"Brackets on a {{kind}} are not a stage name\",\"canonicalNeedsReview\":\"A person must decide which canonical name to keep\"},\"entityIdentityResearch\":{\"unencodable\":\"{{wiki}} “{{key}}” (can't be encoded for the site)\",\"pageMissing\":\"{{wiki}} “{{key}}” (no such page)\",\"notListing\":\"{{wiki}} “{{key}}” (not a video listing)\",\"labelPage\":\"The {{wiki}} “{{key}}” page is a video listing: {{works}} videos, {{performers}} performers; the name points to a label or series, not a personal account\",\"labelPageWithPrefix\":\"The {{wiki}} “{{key}}” page is a video listing: {{works}} videos, {{performers}} performers, code prefix {{prefix}}; the name points to a label or series, not a personal account\",\"unresolved\":\"No public identity source found. Pages tried by name: {{queried}}. A same-name hit is not unique evidence of identity.\",\"fullCredit\":\"The release file's full credit matches a public performer identity\",\"labelCredit\":\"Full credit in the label's release file\"},\"studioFollowup\":{\"evidence\":\"{{note}}; title “{{title}}”\"},\"performerAliasFollowup\":{\"site\":{\"missed\":\"No match\",\"gone\":\"No match: the record no longer exists\",\"failed\":\"Not found: {{error}}\",\"missedBecause\":\"No match: {{note}}\",\"notInCast\":\"She isn't in the actress field\",\"hit\":\"Matched {{pages}}\",\"noSearchName\":\"No match: no name to search with\",\"nameNotOnPage\":\"The page doesn't list her name from the database\"},\"reject\":{\"empty\":\"Empty name\",\"uncertain\":\"Has an uncertainty mark\",\"romaji\":\"Romanized spelling\",\"shortSingle\":\"Short single name; would match others\",\"oneOff\":\"One-off nickname\",\"descriptive\":\"Descriptive nickname\",\"romajiSingle\":\"Single romanized name; would match others\"},\"note\":{\"manyPeople\":\"“{{key}}” matched several people\",\"searchMissed\":\"“{{key}}” had no search hit\",\"separator\":\"; \",\"unencodable\":\"“{{key}}” can't be encoded for the site\",\"manyPages\":\"“{{key}}” is listed on {{count}} people pages\",\"noPage\":\"“{{key}}” is not listed on any people page\",\"castIs\":\"The actress field of {{code}} is {{cast}}\",\"castEmpty\":\"The actress field of {{code}} is empty\",\"castMany\":\"More than one entry in the actress field lists her: {{pages}}\",\"list\":\", \"},\"detail\":{\"gone\":\"The entity is gone or is not an actress\",\"renamed\":\"This entity is now named {{name}} in the database\",\"have\":\"Already has this spelling\",\"taken\":\"{{owner}} (entity {{entity}}) already uses this spelling\",\"listed\":\"The {{site}} page lists her name from the database\",\"merged\":\"The {{sites}} name field lists both entities as the same person: merged {{absorbed}} (entity {{source}}) into {{kept}} (entity {{target}}), moving {{assets}} videos\"}},\"performerProfileFollowup\":{\"action\":{\"write\":\"write\",\"fresh\":\"still current\",\"miss\":\"no match\",\"unfetched\":\"not found\",\"taken\":\"taken\",\"bind\":\"link\",\"conflict\":\"conflict\"},\"note\":{\"separator\":\"; \",\"list\":\", \",\"comma\":\", \",\"notOnSite\":\"{{key}} is not on the site\",\"nameNotOnTalentPage\":\"The {{key}} page doesn't list her name from the database: {{names}}\",\"sameNameMany\":\"More than one person is named {{key}} on the site\",\"loginPage\":\"{{key}} returned a sign-in page\",\"notFound\":\"Searching {{key}} didn't find her\",\"noWorkCode\":\"No code to open a video page with\",\"castMany\":\"More than one person in the cast list of {{code}} matches: {{names}}\",\"castIs\":\"The cast list of {{code}} is {{cast}}\",\"castEmpty\":\"The cast list of {{code}} is empty\"},\"detail\":{\"conflict\":\"{{field}}: {{values}}; profile table unchanged\",\"fetchedRecently\":\"Metadata fetched less than 30 days ago\",\"manyPages\":\"{{count}} profile pages list her\",\"nameNotOnPage\":\"The profile page doesn't list her name from the database\",\"listed\":\"The profile page lists her name from the database\",\"handWritten\":\"This row was written by a person and is not overwritten\",\"minnanoId\":\"minnano-av ID {{id}}\",\"minnanoIdTaken\":\"minnano-av ID {{id}} already belongs to another entity\",\"boundPageFresh\":\"ID linked; the actress page was fetched less than 30 days ago\",\"talentListed\":\"Talent {{id}} lists her among its names\",\"idTakenNoWrite\":\"The ID already belongs to another entity; metadata not written\",\"backfilled\":\"No other source in the profile table; filled in from this page\",\"boundFresh\":\"ID linked; metadata fetched less than 30 days ago\",\"castMatched\":\"She matches the cast list of {{work}}\",\"refetch\":\"ID linked; actress page fetched again\",\"noActorPage\":\"{{detail}}; actress page not found, metadata left empty\",\"idTaken\":\"The ID already belongs to another entity\",\"sameNameMany\":\"More than one person on the site has this name: {{ids}}\",\"card\":\"Performer card {{id}} lists her name\",\"cardWithRecord\":\"Performer card {{id}} ({{record}}) lists her name\",\"cardTaken\":\"Performer ID {{id}} already belongs to another entity\"},\"site\":{\"failed\":\"Not found: {{error}}\",\"fresh\":\"Metadata still current\",\"noSearchName\":\"No match: no name to search with\",\"missedBecause\":\"No match: {{note}}\",\"entityChanged\":\"No match: this entity has changed in the database\",\"hit\":\"Matched {{page}}\",\"talentTaken\":\"Taken: talent {{id}} already belongs to another entity\",\"pageTaken\":\"Taken: {{page}} already belongs to another entity\",\"notJav\":\"Skipped: she isn't on JAV catalog sites\",\"bound\":\"ID already linked\",\"cardHit\":\"Matched {{id}}\",\"cardTaken\":\"Taken {{id}}\"}},\"cli\":{\"libraryProcessing\":\"Metadata processing\"},\"devCopyRuntime\":{\"trayMissing\":\"Not connected to the source tray. Start the tray, then retry\",\"interrupted\":\"Applying was interrupted; you can retry\",\"building\":\"Saved, building…\",\"waitingRestart\":\"Saved, waiting to reload the server…\",\"refreshing\":\"Saved, refreshing…\",\"built\":\"Build finished, refreshing…\",\"reloading\":\"Saved, reloading the server…\",\"reloaded\":\"Server reloaded, refreshing…\"},\"tunnel\":{\"stateUnreadable\":\"Can't read the tunnel state file\",\"stateInvalid\":\"The tunnel state file is malformed\",\"notSettled\":\"The last tunnel didn't shut down cleanly; its result is unavailable\",\"exited\":\"cloudflared exited\"},\"dockerUpdate\":{\"noImageTag\":\"The container has no image tag, so compose.yaml may be outdated. Switch to the repository's current compose.yaml and recreate the container to enable one-click updates.\",\"pinnedTag\":\"The image tag is {{tag}}, and Watchtower only pulls newer images with the same tag. Remove PEACH_VERSION from .env or set it to edge to enable one-click updates.\",\"noToken\":\"The update token hasn't been created yet. Recreate the Peach container to enable one-click updates.\",\"updating\":\"Watchtower is pulling the new image and recreating the container.\"},\"pushDiscovery\":{\"localOff\":\"The local channel is off\",\"noLocalRoots\":\"Local storage has no directories to monitor on this machine\",\"watchUnavailable\":\"File monitoring unavailable: {{error}}\",\"watchFailed\":\"File monitoring failed to start: {{error}}\"},\"supportBundle\":{\"cliDescription\":\"Save a redacted diagnostic bundle for this device without starting the Peach server\"},\"folderPicker\":{\"prompt\":\"Choose a media directory\"},\"scan\":{\"summary\":\"✓ {{location}}: {{files}} files / {{size}} TB / {{seconds}}s; {{sidecars}} companion files not added; {{gone}} gone from the list; {{subtitles}} subtitles ({{orphans}} orphaned); {{junk}} junk files moved to trash, {{junkReview}} to review; {{conflicts}} duplicate path groups to review\",\"progress\":\"  {{seconds}}s  {{files}} files  {{size}} TB\"},\"reviewCsv\":{\"moreFiles\":\"{{names}} and {{count}} files in total\"},\"upgradeRepairs\":{\"video\":\"Video {{id}}\",\"manualAliasKept\":\"Manual alias kept as is\",\"item\":{\"receipt\":\"Automatic processing after updates\",\"existing\":\"Update existing metadata\",\"background\":\"Background update progress\"},\"receiptUnreadable\":\"Can't read the post-update processing record\",\"receiptRetry\":\"Can't read the processing record. Try again\",\"mediaPaused\":\"{{error}}; automatic video fill-in is paused. Check the cache, then retry\",\"displayProbeRetired\":\"Automatic display size re-probing is retired; existing measurements and previews are kept\"},\"processingControl\":{\"scope\":{\"knownFiles\":\"This run (registered files, not counting unknown new ones)\",\"thisRun\":\"This run\",\"wholeTask\":\"Whole task\"},\"basis\":{\"registeredHistory\":\"Rough estimate from {{count}} registered videos, {{size}} GiB, and past runs of this kind on this device\",\"registeredRough\":\"Rough estimate from {{count}} registered videos, {{size}} GiB; refined while running\",\"counting\":\"Counting files and size in new directories\",\"stageRough\":\"Rough estimate from what's left in this stage; refined while running\",\"allStages\":\"Remaining time for this stage plus all stages still to run\",\"measured\":\"Refined from the time the last {{count}} videos took in this stage\"}},\"taskResources\":{\"ownersMissing\":\"This run hasn't registered which processes it owns\",\"meterMissing\":\"This run hasn't registered transfer metering\",\"cpuCounter\":\"Task CPU counter unavailable: {{error}}\",\"cpuCapacity\":\"CPU capacity on the running device unavailable: {{error}}\",\"gpuIdentity\":\"GPU process identity unavailable: {{error}}\",\"gpuShared\":\"GPU use by the shared server process can't be attributed to this run\",\"readingMissing\":\"Resource readings from the running device unavailable\",\"transferMissing\":\"Transfer readings from the running device unavailable\",\"network\":{\"cloudMount\":\"Cloud drive mount caching and read-ahead hide the real speed per task\",\"smb\":\"SMB caching and read-ahead hide the real speed per task\",\"fingerprint\":\"Data usage through the browser fingerprint transport isn't measured\"}},\"gpuUsage\":{\"noCounters\":\"This platform has no per-process GPU counters\",\"macos\":\"This version doesn't read per-process GPU counters on macOS yet, and whole-machine usage can't stand in for task usage\",\"windowsComponent\":\"Windows GPU counter component unavailable\",\"openFailed\":\"GPU counter unavailable ({{code}})\",\"collectFailed\":\"Couldn't read the GPU counter ({{code}})\",\"waiting\":\"Waiting for the next GPU sample\",\"detailMissing\":\"GPU counter details unavailable ({{code}})\",\"detailFailed\":\"Couldn't read GPU counter details ({{code}})\",\"waitingProcesses\":\"Waiting to read the task's GPU processes\",\"noDrmDevice\":\"No readable DRM GPU device found. Containers need the device mapped, and the driver must support per-process counters\",\"sharedClient\":\"Several processes share a GPU client, so usage can't be attributed\",\"taskCounter\":\"Task GPU counter unavailable: {{error}}\"},\"processingTraffic\":{\"metadata\":\"Video metadata\",\"previews\":\"Previews and covers\",\"temporary\":\"Temporary files\",\"mountUnobserved\":\"Mount caching and read-ahead aren't measured\",\"mediaReadMissing\":\"Media read amount unavailable\"},\"librarySharing\":{\"field\":{\"works\":\"Deduplicated video codes, with ratings, likes, dislikes, watched, watch later, play counts, watch progress and manually added tags from the controlled list; custom note tags aren't uploaded\",\"preferences\":\"Counts of favorites, likes, dislikes and watches, and rating distributions, grouped by performers, creators, labels, series, manual tags, decade and length (videos with codes and entries without codes counted separately), plus the names of people and labels you added to favorites\",\"counts\":\"Number of files in the collection, videos with codes and entries without codes\",\"capacity\":\"Over the last 7 and 30 days: days with observed capacity, days with playback activity, and the days those records cover; current and peak data and cache usage, observed growth, and cache cleanup (automatic and manual combined, excluding backups and logs). Unavailable values are left empty, and missing days aren't filled in\",\"instance\":\"A random research instance ID created after you agree, used to link this instance's collection, capacity and participation status; it changes when you turn sharing on again and doesn't use machine fingerprints or diagnostic IDs\",\"participation\":\"Whether sharing is on, the contact status (at most once a day), version and last contact time, plus snapshot ID, field version, raw and compressed size, and preparation and delivery status. When you turn it off, the background tries once to send a minimal off status with no snapshot details. Being offline, uninstalling and failed sends don't count as turning it off, and the number of instances isn't the number of people\",\"version\":\"Peach version, field version and UTC calendar week\"},\"notice\":\"Uploads collection, preference and capacity summaries with direct identifiers removed, and links participation status with a random research instance ID. When on, it makes contact at most once a day; when you turn it off, the background tries once to send a minimal off status and then stops. Days with playback activity don't cover all daily use; capacity and participation status contain no new paths, videos or account details.\"},\"remoteReporting\":{\"field\":{\"usage\":\"Peach version, distribution (Windows or macOS app, Docker, wheel or source), operating system type and version, CPU architecture and core count, memory tier, Python version, runtime environment and public build number; at most one activity log and one daily session summary per day. Turning it on creates a random technical instance ID, separate from the research ID, to count affected instances and upgrade paths; turning it off removes the ID from this device, and turning it on again creates a new one. Continuous running is counted per UTC day and represents running instances, not people, real sessions, or whether anyone used it that day.\",\"errors\":\"Diagnostic details: the failing step, exception chain, file names, function names and line numbers in Peach and allowlisted frameworks, structured error codes, media tool failure categories, allowlisted browser exception types and release script build mapping, client browser brand, major version and OS family, HTTP method, route template and related error ID, and how often the same failure happened with its date. Full diagnostics for the same failure in the same version are uploaded only once, at most 5 a day; all occurrences are merged into a count log every 6 hours or on exit. Environment conditions such as a drive going offline, missing or damaged media, a full disk, timeouts and a busy database only report the category, code location and count, without full diagnostics.\"},\"notice\":\"Sent to Sentry. Error text, full logs, diagnostic ZIPs, media names, paths, URLs, watch history and credentials aren't reported. The receiving service sees the connecting IP. Turning it off stops new sends; information already sent can't be withdrawn.\"},\"sync\":{\"sameFile\":\"This device uses the shared copy directly; no copying needed\",\"sharedOffline\":\"The drive with the shared copy is unreachable; local reads and writes continue\",\"bothMissing\":\"Neither side has a database\",\"sharedMissing\":\"No shared copy yet; seeding it from the local copy\",\"localMissing\":\"No local copy; pulling from the shared copy\",\"markerMissing\":\"Sync markers are missing, so it's unclear which database is newer\",\"writerMismatch\":\"The primary computer markers disagree for the same generation\",\"diverged\":\"The shared copy is at generation {{shared}}, but the local copy is still at generation {{local}} with changes not written back\",\"sharedNewer\":\"The shared copy is newer\",\"localNewer\":\"The local copy is newer\",\"localDirty\":\"Local changes are waiting to be written back\",\"inSync\":\"Both sides match\",\"otherWriter\":\"The primary computer is {{owner}}, so this device can't push\",\"thisWriter\":\"This device is the primary computer; {{reason}}\",\"writerIs\":\"The primary computer is {{owner}}; {{reason}}\",\"noWriter\":\"No verifiable primary computer\",\"takeOverNeedsSync\":\"Both sides must match before taking over; now it's {{action}}: {{reason}}\",\"tookOver\":\"This device is now the only primary computer\",\"readOnlyConflict\":\"The database is in conflict ({{detail}}), so this device is read-only for now. Run \\\"Sync database\\\" from the tray; if it still reports a conflict, resolve it by hand using the logs.\",\"readOnlyWriter\":\"{{owner}} writes to the database, so this device can only browse. Make changes on that machine, or run \\\"Make this device the primary computer\\\" from the tray (both sides must match) and try again.\",\"readOnlyOtherMachine\":\"Another machine writes to the database, so this device can only browse. Make changes on that machine, or run \\\"Make this device the primary computer\\\" from the tray (both sides must match) and try again.\"},\"dataStorage\":{\"cleaned\":\"Cleaned {{labels}}, freed {{size}}\",\"cleanedInUse\":\"Cleaned {{labels}}, freed {{size}}; {{failed}} files are in use and weren't deleted\",\"cleanedThenFailed\":\"Cleaned {{labels}}, freed {{size}}; {{error}}\",\"cleanedInUseThenFailed\":\"Cleaned {{labels}}, freed {{size}}; {{failed}} files are in use and weren't deleted; {{error}}\",\"relocation\":{\"docker\":\"The container's data directory is a volume on the host, placed by the mounts in compose.yaml, and can't be changed from inside the container. Moving it inside the container takes it off the volume and loses it when the container is recreated. Follow these steps on the host instead\",\"unmanaged\":\"Moving needs the tray or the headless service (python -m peach.server) to stop and restart Peach, but this server was started directly. Start it one of those ways and try again, or quit Peach, move the data directory yourself, and set PEACH_DATA_ROOT to the new location\",\"outsideRoot\":\"Some data is set outside the data directory. Quit Peach and move it by hand\",\"linked\":\"Some data uses directory links. Quit Peach and move it by hand\"},\"dockerStep\":{\"volume\":\"Find the volume name (it ends in _peach-data)\",\"stop\":\"Stop Peach in the directory that has compose.yaml\",\"copy\":\"Copy the volume to the new directory; UID 1000 must be able to write to it\",\"copyCommand\":\"docker run --rm -v <volume-name>:/from -v <new-directory>:/to alpine cp -a /from/. /to/\",\"edit\":\"In compose.yaml, change peach-data:/data to <new-directory>:/data and start again. Keep the old volume until everything works\"},\"relocating\":\"Moving the data directory. Peach will quit for now and reopen when it's done.\",\"relocatingHeadless\":\"Moving the data directory. The server pauses and comes back when it's done; refresh the page in a moment.\",\"startFailed\":\"Couldn't start moving: {{error}}\",\"notRelocated\":\"The data directory wasn't moved: {{error}}\",\"notMoved\":\"The data directory wasn't moved and is still in its old location: {{error}}\",\"moved\":\"Data directory moved\",\"startupNotUpdated\":\"Couldn't update start at login and the desktop icon ({{error}}); turn them on again in Settings\",\"leftovers\":\"Some files in the old location couldn't be deleted. Once everything works in the new location, you can delete them by hand: {{path}}\",\"copyTitle\":\"Moving Peach data\"},\"ledgerBackups\":{\"integrity\":{\"openFailed\":\"Can't open: {{error}}\",\"foreignKeys\":\"Foreign key check found {{count}} broken references\",\"checkFailed\":\"Check failed: {{error}}\"},\"refused\":{\"ledgerMissing\":\"The current database doesn't exist, so no backups are cleaned up\",\"integrity\":\"The current database's integrity_check isn't ok: {{check}}\"},\"settle\":{\"interrupted\":\"The last restore from backup was interrupted\",\"restoreIncomplete\":\"The restore didn't finish ({{error}})\",\"kept\":\"{{reason}}; the current database passed the integrity check and was kept\",\"completed\":\"{{reason}}; the restore was finished with the migrated backup\",\"rolledBack\":\"{{reason}}; rolled back to the database from before the restore\",\"unresolved\":\"{{reason}}; neither the current database nor the copy saved before the restore passed the integrity check. Pick another backup from the list to restore\",\"savedAs\":\"{{message}}. The database from before the restore is saved as {{name}}\"}},\"updateTasks\":{\"unnamedTask\":\"Background task\",\"stateUnknown\":\"Task status unavailable\",\"libraryProcessing\":\"Collection metadata and preview processing\"},\"storageBudget\":{\"reason\":{\"diskLow\":\"{{path}} has {{free}} GiB free, below the {{reserve}} GiB reserve\",\"afterWrite\":\"{{path}} after the expected write\",\"limitReached\":\"{{name}} is {{amount}} GiB, at the {{limit}} GiB limit\"},\"part\":{\"data\":\"Peach data\",\"cache\":\"Peach cache\",\"external\":\"External cache\"},\"reasonList\":\"{{first}}; {{rest}}\",\"statusUnreadable\":\"Capacity check record unavailable: {{error}}\",\"layoutUnreadable\":\"Capacity directories unavailable: {{error}}\"},\"diagnostics\":{\"separator\":\"; \",\"label\":{\"configuration\":\"Configuration\",\"database\":\"Database\",\"schema\":\"Database migrations\",\"tools\":\"FFmpeg/OpenSSL\",\"security\":\"Access security\",\"mediaMounts\":\"Media mounts\",\"dataRoot\":\"Data directory\",\"port\":\"Server port\",\"tasks\":\"Background tasks\",\"version\":\"Version\"},\"reason\":{\"configurationUnreadable\":\"The settings file can't be read\",\"setupIncomplete\":\"First-time setup isn't finished\",\"configurationReadable\":\"Settings are readable\",\"databaseMissing\":\"The database doesn't exist\",\"databaseEmpty\":\"The database hasn't been initialized\",\"databaseUnreadable\":\"The database can't be read\",\"databaseSchemaUnreadable\":\"The database structure can't be read\",\"databaseReadable\":\"The database is readable\",\"schemaCurrent\":\"Migrations check out\",\"schemaPending\":\"Some migrations haven't run yet\",\"schemaMismatch\":\"The migration history doesn't match this version\",\"schemaUnavailable\":\"Couldn't check migrations\",\"toolsMissing\":\"Not found: {{names}}\",\"toolsUnusable\":\"Can't run: {{names}}\",\"av1Missing\":\"FFmpeg has no AV1 software decoder\",\"toolsUsable\":\"Media tools run and the AV1 software decoder is available\",\"toolsFound\":\"Tool paths found\",\"accessUnreadable\":\"The access password settings can't be read\",\"passwordOff\":\"LAN or public access is on without an access password\",\"passwordOn\":\"Access password is on\",\"loopbackOnly\":\"Listening on this device only\",\"noLocalSources\":\"No local storage is set up\",\"sourcesReadable\":\"Storage is readable\",\"mountsChecking\":\"Mount check isn't finished\",\"dataRootDenied\":\"No permission to write to the data directory\",\"dataRootUnwritable\":\"The data directory can't be written\",\"dataRootWritable\":\"Test write and cleanup succeeded\",\"hostNotIp\":\"The listen address isn't an IP, so the port status is unavailable\",\"portInUse\":\"The port is in use\",\"portUnknown\":\"Port status unavailable\",\"portAvailable\":\"The port is available\",\"taskFailuresUnknown\":\"Task failure records unavailable\",\"noTaskFailures\":\"No task failures recorded\",\"taskFailures\":\"Some task failures were recorded\",\"versions\":\"Peach {{peach}} · Python {{python}}\",\"databaseMigrating\":\"Updating the local database\"},\"action\":{\"repairConfiguration\":\"Fix the settings file on this device\",\"completeSetup\":\"Finish first-time setup\",\"checkDatabase\":\"Check the database and backups on this device\",\"checkSchema\":\"Check database migrations and backups on this device\",\"updateTools\":\"Update media tools\",\"checkAccess\":\"Check the access password settings on this device\",\"enablePassword\":\"Turn on the access password in settings\",\"checkMounts\":\"Check media directories and mounts\",\"fixDataRootPermission\":\"Fix write permission for the data directory\",\"checkDataRoot\":\"Check the data directory and free space\",\"viewFailedTasks\":\"Review failed tasks in Tasks\"}},\"libraryDiagnostics\":{\"group\":{\"identification\":\"Identification failed\",\"metadata\":\"Metadata failed\",\"cover\":\"Missing cover\",\"duration\":\"Missing duration\"},\"source\":{\"proxy\":\"Proxy connection failed\",\"timeout\":\"The source timed out\",\"network\":\"Couldn't connect to the source\",\"authRequired\":\"The source requires sign-in or refuses the current exit\",\"challenge\":\"The source requires a human check\",\"blocked\":\"The source blocks the current exit\",\"accountSuspended\":\"The source temporarily suspended the signed-in account\",\"geoRestricted\":\"The source restricts the current region\",\"rateLimited\":\"The source is rate limiting\",\"serverError\":\"The source's service is failing\",\"parseError\":\"Couldn't parse the metadata\",\"notFound\":\"The last lookup found nothing\",\"cooling\":\"The source is cooling down\",\"failed\":\"No metadata from the source\",\"parsed\":\"Metadata parsed\",\"parsedBefore\":\"Parsed before; recent parsing needs another check\",\"connectedOnly\":\"Connection check passed; parsing status unavailable\",\"checkedBefore\":\"Checked before; parsing status needs another check\",\"unchecked\":\"Not checked or parsed yet. Check the connection in Sources\"}},\"settingsFile\":{\"comment\":{\"header\":\"Peach settings file. Priority: environment variables > this file > built-in defaults. Restart the server after editing by hand.\\nThis file lives in the Peach data directory, which is set by PEACH_DATA_ROOT or the peach-data directory next to the project.\\nDocker: this file is /data/config.toml. Keep /data on a volume and keep that volume when you recreate the container.\\nIn Docker, /media is the media directory inside the container; Compose mounts the host directory there.\\nDocker deployment guide: https://github.com/peach-mitao/peach/blob/master/docs/DOCKER.md\\nCreated by: peach init (Peach data directory: {{dataRoot}})\",\"directories\":\"Subdirectories of the Peach data directory, such as database and logs. Omitted keys use a directory of the same name.\\nAbsolute paths also work. In Docker, relative directories are under /data; other directories need their own mount to keep their data.\",\"locations\":\"Usually you only enter the real directories under Media directories on the web page; Peach keeps this table and [media.mounts] up to date when it saves.\\nThe notes below are for editing by hand. Existing videos are found through this table; a value that doesn't match makes them unreadable.\\nKeys such as local, 115 and pikpak name the storage; values are the directory prefixes of video paths in the database.\\nThe Peach database stores Windows-style paths on every system, for example R:\\\\media\\\\a.mp4.\\nSo Docker, Linux and macOS use this table too; R:\\\\media doesn't need to exist on those systems.\\nExample: this table has local = 'R:\\\\media' and [media.mounts] has local = '/media'.\\nPeach turns R:\\\\media\\\\a.mp4 from the database into /media/a.mp4 before reading the file.\\nThis table must match the paths in the database. When you move the real directory on Docker, Linux or macOS, keep this table and change [media.mounts].\\nWindows example: local = ['D:\\\\Videos', 'E:\\\\Movies'] uses the media directories on this device directly.\",\"libraries\":\"Directory prefix from [media.locations] -> library name shown in the interface. Without an entry, the directory name is used.\\nThe name and path tables mirror the identity settings for compatibility; library ownership follows library_catalog and storage_roots.\",\"libraryIcons\":\"Directory prefix from [media.locations] -> library icon. Values are icon names from peach.media_libraries.LIBRARY_ICONS;\\nunknown values are ignored: a library on one storage falls back to that storage's icon, one spanning several uses database.\",\"costs\":\"Directory prefix from [media.locations] -> proxy traffic protection. free turns it off, metered turns it on.\",\"mounts\":\"Uses the same storage keys as [media.locations]; values are the directories Peach actually reads files from.\\nIn Docker, use paths inside the container, for example local = '/media'; set the host directory in the Compose volumes.\\nLinux and macOS also use absolute paths on this device, for example /mnt/media or /Volumes/Media.\\nWhen a storage has several directories, write arrays in both tables with the same number and order of directories.\\nDocker, Linux and macOS must provide the real directory, or that storage's media files can't be read; media records are kept.\\nWindows reads the directories in [media.locations] directly and doesn't need this table.\",\"server\":\"In Docker the server always listens on 0.0.0.0:8900; Compose sets the host address and port.\\nhost and port here apply when running peach serve directly; Docker entry arguments take priority.\\nmdns_name must be unique on the LAN: two machines with the same name take it from each other.\\nreview_writer_origin is the address of the device allowed to change the database; read-only devices get items to review through it.\\nLeave it empty to not show the other device's items to review on this device.\",\"replication\":\"Database replication between two computers (ADR-0017): only one may change the database, the other is read-only.\\nSingle-machine and standalone Docker deployments keep enabled = false.\\nWhen off, the sync watcher doesn't start, SMB isn't probed, and the desktop tray hides the database menu items.\\nshared_root is where the two computers exchange database copies; empty uses peach-sync next to the Peach data directory.\\nsmb_* connects to the other computer's shared directory; leave them empty to not connect.\",\"tunnel\":\"Cloudflare Tunnel is off by default; set an access password before turning it on.\\nWith binary empty, cloudflared is looked up in the bundled package, PEACH_CLOUDFLARED, then PATH.\\nmode = \\\"quick\\\" is a temporary link with a random address; \\\"named\\\" uses your own named tunnel, only in a source\\ncheckout, and needs hostname (the public hostname bound in Cloudflare) and token (the tunnel token).\\ntoken is a credential: this file is the only place it's kept. Don't copy it elsewhere or commit it to Git.\"}},\"mountReachability\":{\"ok\":\"Readable\",\"permission_denied\":\"No permission to read\",\"missing\":\"Directory doesn't exist\",\"not_directory\":\"Target isn't a directory\",\"unavailable\":\"Couldn't read the directory\",\"unmapped\":\"No mount point set\",\"checking\":\"Checking\",\"timeout\":\"Check didn't respond\",\"sourceState\":\"{{label}}: {{state}}\"},\"followDiscovery\":{\"idExact\":\"Exact match on the site ID\",\"nameExact\":\"Exact match on the creator name\",\"namePrefix\":\"Creator name starts with this term\",\"nameContains\":\"Creator name contains this term\",\"fanboxOfficial\":\"FANBOX profile matches the archived identity\",\"authorPage\":\"Creator page exists\",\"tagHasWorks\":\"Tag {{tag}} has posts on the site\",\"tagExists\":\"Tag {{tag}} exists on the site\",\"tagCount\":\"Tag {{tag}} has {{count}} posts on the site\",\"tagPrefixCount\":\"A tag starts with this term: {{tag}} has {{count}} posts\",\"tagPrefixExists\":\"A tag starting with this term exists: {{tag}}\",\"withTagType\":\"{{evidence}}; the site files it under {{kind}}\",\"tagType\":{\"artist\":\"Creator\",\"character\":\"Character\",\"copyright\":\"Series\",\"metadata\":\"Metadata\",\"general\":\"Tag\"},\"googleSearch\":\"Keep searching F95zone on Google\",\"googleSearchReason\":\"Not in the F95zone index. Check the search results for the actual thread link\",\"threadTitle\":\"Thread {{thread}}\",\"searchTitle\":\"Site search matched the title “{{query}}”\",\"searchTitlePrefix\":\"Site search matched a title starting with “{{query}}”\",\"withForumLabels\":\"{{evidence}}; forum labels: {{labels}}\",\"threadExists\":\"Thread exists\",\"categoryHit\":\"Matched in {{category}}\",\"withVersion\":\"{{evidence}}; current version {{version}}\",\"profileHandle\":\"Handle {{handle}} from the F95 first-post profile: {{evidence}}\"},\"followSecrets\":{\"why\":{\"fanbox\":\"Public lists work without signing in. When FANBOX's verification page blocks a post, a browser session gets the text, all images, and external links.\",\"gofile\":\"Used to expand Gofile pages into their image and video lists. Gofile currently requires Premium for the contents API; without it, the page link is still kept.\",\"iwara\":\"Public videos work without signing in. Restricted videos need an account with access and valid credentials.\",\"rule34xxx\":\"The website sits behind a Cloudflare CAPTCHA. Peach doesn't bypass CAPTCHAs, so it uses the official API.\",\"f95zone\":\"Finding updates works without signing in. Only attachments and masked download links need a session.\",\"simpcity\":\"The site doesn't let guests read threads, so checking for updates needs a signed-in session. DDoS-Guard doesn't challenge a standard desktop browser identity, and Peach solves no challenges: an expired cookie is reported as is.\"},\"howto\":{\"fanbox\":\"Sign in to FANBOX, then copy the full Cookie request header from a successful api.fanbox.cc/post.info request.\",\"gofile\":\"Sign in to a Premium Gofile account and copy the API token from the profile page.\",\"iwara\":\"Sign in to Iwara, then copy the value after Bearer in the Authorization header of a successful apiq.iwara.tv/video request into access_token. Copy it again when the token expires.\",\"rule34xxx\":\"Sign in, generate an API key in account settings, and put user_id and api_key in the credentials file.\",\"f95zone\":\"Sign in, copy the full Cookie request header from the browser, and put it in the cookie field of the credentials file.\",\"simpcity\":\"Sign in, copy the full Cookie request header from the browser, and put it in the cookie field of the credentials file.\"}},\"subtitles\":{\"language\":{\"zh-Hans\":\"Simplified Chinese\",\"zh-Hant\":\"Traditional Chinese\",\"zh\":\"Chinese\",\"en\":\"English\",\"ja\":\"Japanese\",\"ko\":\"Korean\"}},\"metadata\":{\"authWall\":{\"credentialAdvice\":\"rerun with different credentials\",\"status\":\"The source returned {{status}}; {{advice}}\",\"redirect\":\"The redirect ended at {{path}}; {{advice}}\",\"loginPage\":\"{{page}}; {{advice}}\",\"javdbLoginPage\":\"javdb sign-in page\",\"ambiguous\":\"The source returned {{status}}: either the credentials expired or the outbound IP is blocked. Check whether the site asks you to sign in before deciding to change credentials or wait\"},\"warning\":{\"performerRepeated\":\"The source's performer name repeated itself and was normalized: {{original}} → {{name}}\",\"releaseDateInvalid\":\"The source's release date is invalid and was ignored: {{value}}\",\"releaseDateNormalized\":\"The source's release time was normalized to a date: {{value}} → {{normalized}}\",\"tooManyLinks\":\"The source returned {{count}} links. The candidate keeps the first {{limit}}; the full list stays in the raw snapshot\",\"valueRepeated\":\"The source value repeated itself and was normalized: {{original}} → {{name}}\"},\"evidence\":{\"runtime\":\"{{minutes}} min\",\"poster\":\"Poster ({{host}})\",\"cover\":\"Cover ({{host}})\",\"trailer\":\"Trailer ({{host}})\",\"screenshots\":\"{{count}} screenshots ({{hosts}})\",\"screenshotsMore\":\"{{count}} screenshots ({{hosts}} and more)\",\"externalSource\":\"external source\"}},\"sourceChecks\":{\"mobileBroadbandHint\":\"On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.\",\"target\":{\"page\":\"Source page\",\"cdn\":\"Image CDN\"},\"cooldown\":\"The source is cooling down. Try again later.\",\"proxy\":\"The proxy connection failed. Check the Peach proxy.\",\"timeout\":\"The connection to the source timed out. Try again later or check the connection method.\",\"cdnUnreachable\":\"Can't connect. {{hint}}\",\"unreachable\":\"Can't connect. This source may need a proxy; check its connection method.\",\"challenge\":\"The source returned a verification page. Check its verification status or switch the outbound connection.\",\"rateLimited\":\"The source is rate limiting. Try again later.\",\"notFound\":\"The check address doesn't exist on the source. Check the site address.\",\"signIn\":\"The source requires sign-in or verification. Sign in on the official site, then try again.\",\"reason\":\"{{reason}}.\",\"unavailable\":\"The source is unavailable right now. Try again later.\",\"needsCode\":\"Studio sites are picked by code. Enter a code from your collection to check the HD cover.\",\"noImageHost\":\"This source has no fixed image host, so images weren't checked.\"},\"sourcePreflight\":{\"outcome\":{\"ok\":\"Reachable\",\"auth\":\"Sign-in or verification\",\"http\":\"HTTP error\",\"cooldown\":\"Cooling down\",\"network\":\"Network failure\",\"skipped\":\"Not checked\"}},\"scrapingAccess\":{\"makers\":\"Studio sites\",\"unreachable\":\"Can't connect to the source. Check its network settings\"},\"feeds\":{\"kind\":{\"javdbActor\":\"JAV subscription\",\"dmmActress\":\"JAV subscription · DMM\"}},\"followCheck\":{\"coolingDown\":\"{{provider}} is cooling down after rate limiting. Retrying in {{seconds}} s; skipped this time\"},\"followEvidence\":{\"runLabel\":\"Delete old snapshots\",\"stoppedByUser\":\"Stopped by the user\"},\"followStore\":{\"evidenceUnwritable\":\"Evidence not saved ({{path}} isn't writable: {{error}})\"},\"timelineSheets\":{\"stoppedByUser\":\"Stopped\"},\"fc2Similarity\":{\"commentOnly\":\"Anonymous comment equivalence is only a candidate\",\"collection\":\"Involves a compilation: review the part relationship only, don't merge as a whole\",\"notInLedger\":\"One of the codes isn't in the local database yet\",\"partConflict\":\"The local files have different part markers\",\"reason\":\"{{left}} ↔ {{right}}; evidence: {{kinds}}\"},\"fc2Sellers\":{\"nameMatchesAccounts\":\"The name matches several accounts\",\"nameOtherAccount\":\"The name belongs to a different FC2 account\",\"sharedName\":\"Different FC2 accounts use the same seller name\",\"conflictingAccounts\":\"Sources of this video list different seller accounts\",\"evidence\":\"Seller of {{code}}: {{name}}; account {{account}}\",\"rejectedName\":\"Import rules don't accept this seller name\"},\"westernProfiles\":{\"conflict\":{\"officialExists\":\"An official site is already added\",\"otherAccount\":\"Another {{site}} account is already added\",\"otherPage\":\"Another {{host}} page is already added\"}},\"resourceIdentification\":{\"onlineCandidate\":\"Recognized online; check the source page\"},\"followSources\":{\"linkEvidence\":\"Named directly by the link\",\"iwaraExternalPlayer\":\"This Iwara entry uses an external player. Open the source page to watch it\",\"postTitle\":\"{{site}} post {{post}}\"},\"fanbox\":{\"cover\":\"Cover\",\"image\":\"Image {{number}}\",\"file\":\"File {{number}}\"},\"seesaa\":{\"reviewCast\":\"Cast claims from the community wiki need review; person page links don't merge stage names automatically\",\"incompleteCast\":\"The cast field has unrecognized or uncertain entries; the full cast wasn't found\"},\"resourceSearch\":{\"reject\":{\"code\":\"code mismatch\",\"size\":\"size out of range\",\"seeders\":\"no seeders\",\"hash\":\"no infohash\"},\"rejectedCount\":\"{{reason}}: {{count}}\",\"allRejected\":\"Indexers returned {{total}} results, but none passed the filters: {{counts}}\",\"noIndexer\":\"Add and enable an indexer in Settings → Downloads on this device\",\"busy\":\"A torrent search is already running. Try again later\",\"indexerFailed\":\"{{indexer}}: the request failed or the response format is wrong. Check the indexer\",\"indexerError\":\"{{indexer}}: {{error}}\",\"allFailed\":\"No indexer finished the search\"},\"javdbPublic\":{\"magnetsUnfetched\":\"JavDB magnet search incomplete: {{error}}\",\"reviewPagesQueried\":\"Checked links in the first {{pages}} pages of comments.\",\"commentsUnfetched\":\"JavDB comment search incomplete: {{error}}\"},\"javdb\":{\"commentSource\":\"JavDB comments\"},\"magnetChain\":{\"staleReused\":\"Reused the previous result: {{error}}\",\"sourceFailed\":\"{{source}}: {{error}}\",\"sourceUnfetched\":\"{{source}}: search incomplete\",\"incomplete\":\"Some source searches are incomplete. Try searching again later.\"},\"wantsMagnets\":{\"linksUnfetched\":\"Couldn't get the download links. Try again later or check the source connections.\",\"chainUnfetched\":\"The magnet link search couldn't reach its sources. Try again later or check the source connections.\"},\"javBrowser\":{\"idle\":\"Can be added to your Peach collection\",\"queued\":\"Waiting to search for magnet links\",\"searching\":\"Searching for magnet links\",\"submitted\":\"Cloud download in progress\",\"ingested\":\"Added to your Peach collection\",\"owned\":\"This code is already in your collection\",\"failed\":\"Couldn't add it. You can retry\",\"noMatch\":\"No magnet link to download automatically. You can retry\",\"noMatchSourcesPaused\":\"Not found on the other sources; {{sources}} is unreachable for now and will be checked again when it recovers\",\"searchFailedWith\":\"Resource search failed: {{error}}\",\"noOtherMagnet\":\"No other magnet link available. Pick one manually in Peach\",\"disabled\":\"Adding from the browser is turned off\",\"searchUnavailable\":\"Torrent search is unavailable right now. Check the sources in Peach, then retry\",\"retriesExhausted\":\"Still not done after {{attempts}} automatic retries. The search or cloud download submission failed; check the sources and download channels in Peach, then retry\",\"submitFailed\":\"The search or cloud download submission failed. Check the sources and download channels in Peach, then retry\",\"retryWaiting\":\"Temporarily unavailable. Waiting to retry automatically\",\"sourcesWaiting\":\"Couldn't reach {{sources}}. Waiting to retry automatically\",\"sourcesUnfetched\":\"Couldn't reach {{sources}}\",\"searchFailedWaiting\":\"Resource search failed: {{error}}. Waiting to retry automatically\",\"sourcesExhausted\":\"Still couldn't reach {{sources}} after {{attempts}} automatic retries. Check the sources in Peach, then retry\"},\"followCreators\":{\"evidence\":{\"source\":\"The {{provider}} followed source itself\",\"archived\":\"Original account archived on {{provider}}: {{account}}\",\"profileCard\":\"{{provider}} profile card: {{account}}\"},\"hold\":{\"sameKeyFiled\":\"A source with the same name key already has a profile\",\"sameKeySplit\":\"Sources with the same name key belong to different entities\",\"notAName\":\"The name is a platform, directory, or repost site\",\"nameTaken\":\"A creator with this name is already in the database\",\"namesCollide\":\"Several followed creators normalize to the same name\"},\"held\":\"{{name}} ({{reason}})\"},\"downloadPostprocess\":{\"waiting\":\"Waiting to recognize and organize the full video\",\"noTemplate\":\"No organize template configured\",\"noVerifiedRename\":\"{{location}} has no verified rename channel\",\"nothingToOrganize\":\"Nothing to organize\",\"recognizing\":\"Recognizing the full video\",\"doneSkipped\":\"Full video linked and metadata fetched; organizing skipped: {{reason}}\",\"done\":\"Full video linked, metadata fetched, and organized\",\"donePending\":\"{{summary}}. Some metadata will be fetched again when the sources recover: {{pending}}\"},\"browserTransport\":{\"trafficUnobserved\":\"Browser fetch traffic isn't measured\"},\"followBackfill\":{\"rule34-details\":\"Fill in rule34.xxx details\",\"rule34video-characters\":\"Record rule34video characters\"}}"),
+	labels: /* @__PURE__ */ JSON.parse("{\"listSeparator\":\", \",\"resumeAt\":{\"earlyToday\":\"at {{clock}} today\",\"today\":\"at {{clock}} today\",\"tonight\":\"at {{clock}} tonight\",\"earlyTomorrow\":\"at {{clock}} tomorrow\",\"tomorrow\":\"at {{clock}} tomorrow\",\"tomorrowNight\":\"at {{clock}} tomorrow night\",\"dayAfter\":\"at {{clock}} the day after tomorrow\",\"date\":\"at {{clock}} on {{month}}/{{day}}\"},\"runtimePrepare\":{\"writer\":{\"standalone\":\"replication.enabled = false, acting as the only primary computer\",\"noDeviceId\":\"This device has no device-id, so it cannot tell whether it is the primary computer\",\"noWriter\":\"No primary computer can be verified\",\"otherWriter\":\"The primary computer is {{owner}}; this device is read-only\",\"thisDevice\":\"This device is the primary computer\"}},\"standaloneUpdate\":{\"updatePackage\":\"Update package\",\"fullPackage\":\"Full package\"},\"downloadNamed\":\"Download {{name}}\",\"onboarding\":{\"hostOption\":{\"thisDevice\":\"This device only\",\"lan\":\"Devices on the same LAN\"},\"prompt\":{\"dataRoot\":\"Data directory (holds the Peach database, cache and settings file)\",\"mediaDir\":\"Media directory (must already exist; can be on an external drive)\",\"moreMediaDir\":\"Add another media directory (press Enter to skip)\",\"host\":\"Who can connect: 1 = {{thisDevice}}, 2 = {{lan}}\",\"port\":\"Port\",\"mdnsName\":\"LAN address (<name>.local, published only when LAN access is allowed)\",\"scan\":\"Scan {{target}} now? \"},\"scanTargetCount\":\"these {{count}} folders\",\"retryReport\":\"{{reason}} ({{remaining}} attempts left)\",\"requiredMark\":\" (required)\",\"notFilled\":\"(not filled in yet)\",\"mountsExplanation\":\"The Peach database stores video paths in Windows format with the prefixes {{roots}}. The actual media directories are {{shown}}, saved in the same order under [media.mounts] local and converted automatically before files are read.\",\"answer\":{\"thisDevice\":\"local\",\"lan\":\"lan\",\"yes\":\"yes\",\"no\":\"no\"}},\"runtimeFacts\":{\"version\":\"Version\",\"os\":\"Operating system\",\"dataRoot\":\"Data directory\",\"settingsFile\":\"Settings file\",\"logs\":\"Log directory\",\"available\":\"Available\",\"ffmpegNotInstalled\":\"Not installed. MP4 files play directly; transcoding and thumbnails need FFmpeg.\",\"untruncNotInstalled\":\"Not installed. It's needed to repair MP4 files with a missing index.\",\"untruncExtractTo\":\"Not installed. It's needed to repair MP4 files with a missing index. Extract it to {{path}}.\",\"installedVersion\":\"Installed, version {{version}}\",\"installedInDataRoot\":\"Installed in the data directory\",\"ffmpegToolMissing\":\"{{tool}} not found. Transcoding, media info and thumbnails need the FFmpeg tools.\",\"ffmpegToolsMissing\":\"{{first}} and {{second}} not found. Transcoding, media info and thumbnails need the FFmpeg tools.\"},\"configuration\":{\"fileManagedNotice\":\"This deployment's service is managed by its settings file. Edit the settings file below on this device.\",\"sectionUnavailable\":\"{{section}}: not found\",\"sectionRetry\":\"Reload. If it keeps failing, export a diagnostics report.\",\"tunnelStoppedUnsaved\":\"The temporary remote link stopped, but the settings file couldn't be written. Check the settings file on this device.\",\"tunnelStopped\":\"Stopped the temporary remote link: remote access isn't kept without an access password.\",\"section\":{\"remoteReporting\":\"Diagnostics settings\",\"librarySharing\":\"Collection upload settings\",\"startup\":\"Startup settings\",\"uninstall\":\"Uninstall details\",\"storage\":\"Storage space\",\"peachProxy\":\"Peach proxy\",\"entryLinks\":\"External links\",\"updates\":\"Updates\",\"updateJob\":\"Update task\",\"access\":\"Access settings\",\"mediaSources\":\"Media directories\",\"libraryCount\":\"Library status\",\"mountDependencies\":\"Mount dependencies\",\"facts\":\"Runtime info\",\"network\":\"Access addresses\",\"apiToken\":\"Access token\",\"certificate\":\"HTTPS certificate\",\"tunnel\":\"Remote access\",\"automaticUpdates\":\"Automatic updates\",\"pushDiscovery\":\"Push discovery\",\"downloads\":\"Download settings\"}},\"coverRepair\":{\"runLabel\":\"Re-check cover layouts\",\"stoppedByUser\":\"Stopped by the user\",\"serviceStopped\":\"The service stopped; it continues on the next start\"},\"followScheduler\":{\"runtimeUnavailable\":\"Status of the last automatic check was not found\",\"sourcesFailed\":\"{{count}} sources failed to check\"},\"webAutoLandings\":{\"fieldOriginalTitle\":\"Original title\",\"fieldPerformers\":\"Performers\",\"fieldReleaseDate\":\"Release date\",\"fieldSeries\":\"Series\",\"fieldStudio\":\"Label\",\"fieldTags\":\"Content tags\",\"fieldTitle\":\"Title\",\"fieldUnionTags\":\"Tags\",\"ruleVerifiedReplace\":\"Official sources agree; replaced the old value\",\"ruleVerifiedUnion\":\"Added the extra tags from sources\"},\"webBatch\":{\"changedDuringDelete\":\"This item changed during deletion\",\"stillOnDisk\":\"The file is still on disk\"},\"webFeeds\":{\"cooling\":\"The source is cooling down; not fetched this round\",\"deferredRest\":\"The other {{count}} feeds will be fetched after the cooldown\",\"sourceCooling\":\"{{source}} is cooling down; not fetched this round\"},\"webFollow\":{\"nameContainsEvidence\":\"One normalized name contains the other; confirm manually\",\"profileLinkEvidence\":\"The first post on {{provider}} links the creator profile to {{service}}/{{handle}}\",\"sharedOfflineNote\":\"The shared drive is unavailable, so only the copy on this device was removed. Remove it again when the drive is back, or it will sync back.\",\"suggestArchive\":\"Creators on archive sites\",\"suggestFollowed\":\"Following\",\"suggestTag\":\"Rule34.xxx tags\",\"suggestTagArtist\":\"Creators on Rule34.xxx\"},\"webJavDetail\":{\"anonymousUser\":\"Anonymous\"},\"webLinks\":{\"unreachable\":\"Unreachable: {{reason}}\"},\"webReview\":{\"commentVotes\":\"Comment marks {{votes}}\",\"coverNoCandidates\":\"Not found: no source had a candidate\",\"coverUnfetched\":\"Not found: {{reason}}\",\"currentNone\":\"Current value: none\",\"currentNoneOwned\":\"Current value: none ({{owner}})\",\"currentValue\":\"Current value: {{value}}\",\"currentValueOwned\":\"Current value: {{value}} ({{owner}})\",\"durationDelta\":\"Duration differs by {{seconds}} s\",\"equivalents\":\"Same as {{codes}}\",\"evidenceInsufficient\":\"The selected metadata lacks enough evidence\",\"evidenceKinds\":\"Evidence {{kinds}}\",\"fc2Collection\":\"Compilation with {{count}} independent parts; no cover is applied, and each part falls back to its own thumbnail\",\"matchedAssets\":\"{{count}} matching files\",\"metadataSources\":\"{{count}} metadata sources\",\"sameCodeAssets\":\"{{count}} files with the same code\",\"seller\":\"Seller {{seller}}\",\"separator\":\"; \",\"sharedPerformers\":\"Shared performers {{names}}\",\"sizeDelta\":\"Size differs by {{percent}}%\",\"tokenOverlap\":\"Token overlap {{overlap}}\",\"videos\":\"{{count}} videos\",\"westernMatch\":\"{{verdict}} → {{name}}\",\"westernMatchSpelling\":\"{{verdict}} → {{name}} (spelled {{variant}})\",\"westernVerdict\":{\"matched\":\"Matched\",\"needs-review\":\"Needs review\",\"no-profile\":\"No profile\",\"rate-limited\":\"Rate limited\"}},\"webScraping\":{\"compareIncompleteMobileHint\":\", so the cover comparison didn't finish. On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.\",\"coverSaved\":\"HD cover saved\",\"diagnosticDimensionMismatch\":\" Full image size didn't match the probe: {{count}}\",\"diagnosticDownloadFailed\":\" Full downloads failed: {{count}}\",\"diagnosticInvalidImage\":\" Images that couldn't be decoded: {{count}}\",\"diagnosticPlaceholder\":\" \\\"Coming soon\\\" placeholders: {{count}}\",\"diagnosticProbeFailed\":\" Image header requests failed: {{count}}\",\"diagnosticSeparator\":\";\",\"diagnosticTooSmall\":\" Images narrower than 700px: {{count}}\",\"instagramPending\":\"Automatic Instagram avatar lookup still needs to be verified with a separate signed-in session\",\"kept\":\" The existing image was kept.\",\"keptAfterDetails\":\". The existing image was kept.\",\"keptLocalNoBetter\":\"Cover on this device is {{localWidth}} × {{localHeight}}, the best source cover is {{width}} × {{height}}; kept the cover on this device. No larger or better cover was found.\",\"keptLocalPartial\":\"Cover on this device is {{localWidth}} × {{localHeight}}, the best source cover is {{width}} × {{height}}; kept the cover on this device. Some sources couldn't be reached, so not all of them were compared.\",\"keptUserCover\":\"This video uses a cover you set, so it wasn't replaced. Restore the scraped cover in Edit details to switch back.\",\"period\":\".\",\"reusedCover\":\"Reused the cover on this device verified within 24 hours ({{width}} × {{height}}); the source wasn't asked again.\"},\"downloads\":{\"postprocessRetrying\":\"Waiting to retry automatically ({{retries}}/{{limit}})\",\"postprocessRetriesExhausted\":\"Still not finished after {{retries}} automatic retries; {{detail}}\",\"postprocessRequeued\":\"Waiting to process again\",\"reconcileUnexpected\":\"An unexpected error occurred while checking the task. Trying again later\",\"settingsUnreadable\":\"Cannot read the cloud download settings. Check the settings file or enter them again.\",\"settingsMalformed\":\"The cloud download settings have an invalid format. Check the settings file or enter them again.\",\"settingsInvalid\":\"The cloud download settings contain invalid values. Check the target directory and the wait limit.\"},\"downloadsClouddrive\":{\"permission\":{\"addOffline\":\"Submit cloud download tasks\",\"listOffline\":\"View cloud download tasks and quota\",\"modifyOffline\":\"Cancel cloud download tasks\"},\"no115Prefix\":\"No 115 target directory is set, and none of the prefixes in Push discovery ({{known}}) are on 115. Add the 115 mount root in CloudDrive2 to the Push discovery card, then check again, or enter a target directory directly\",\"noPrefixes\":\"No 115 target directory is set, and Push discovery has no cloud path prefixes. In the Push discovery card, add the 115 mount root in CloudDrive2 and its library directory, then check again, or enter a target directory directly\",\"noPikpakRootPrefix\":\"No library directory is chosen for the PikPak root, and Push discovery has no PikPak root prefix to suggest one. Choose it in the list, or add the PikPak mount root in the Push discovery card\",\"action\":{\"verifyToken\":\"checking the API token\",\"findTarget\":\"finding the target directory\",\"refreshLanding\":\"refreshing the landing directory\",\"readQuota\":\"checking the cloud download quota\",\"listOffline\":\"listing cloud download tasks\",\"createFolder\":\"creating the directory\",\"submitOffline\":\"submitting the cloud download task\",\"cancelOffline\":\"canceling the cloud download task\",\"findLandedFile\":\"looking for files in the target directory\",\"findPrefix\":\"looking up the Push discovery cloud path prefix\",\"readProxy\":\"reading the cloud drive proxy\",\"readAccounts\":\"reading cloud drive accounts\",\"saveProxy\":\"saving the cloud drive proxy\",\"readMountPoints\":\"reading mount points\",\"readLibraryMounts\":\"reading library mount points\",\"readCacheDir\":\"reading the cache directory\"}},\"downloadsChannels\":{\"clouddriveTokenUnreadable\":\"Cannot read the CloudDrive2 token. Enter it again.\",\"pikpakSignInUnreadable\":\"Cannot read the PikPak sign-in. Sign in again.\",\"tokenNeedsOffline\":\"The CloudDrive2 token needs permission to submit and view cloud download tasks.\",\"libraryCapabilityUnavailable\":\"Could not get cloud download support for {{name}}.\",\"clouddriveCapabilityUnavailable\":\"Could not get CloudDrive2 cloud download support. Check the connection and the token.\",\"libraryNotMapped\":\"{{name}} is not linked to a cloud directory yet. Check the mounts or the Push discovery settings.\"},\"downloadsPikpakBrowser\":{\"waiting\":\"The browser window is open. Sign in to PikPak there\",\"cancelled\":\"Browser sign-in canceled\",\"notOpened\":\"The browser did not open: {{error}}\",\"failed\":\"Browser sign-in failed: {{type}}\",\"windowClosed\":\"The browser window was closed before sign-in finished\",\"done\":\"Signed in to PikPak with the browser\",\"timeout\":\"Sign-in did not finish within {{minutes}} minutes, so the window was closed. Click Sign in with browser to try again\"},\"folderRules\":{\"conflict\":{\"differentOwner\":\"Already credited to someone else\",\"perItemConfirmed\":\"Already confirmed one by one\",\"differentIdentity\":\"Already linked to a different identity\",\"ownerRejected\":\"This credit was already rejected\",\"childRule\":\"Managed by a subdirectory rule\"}},\"routesMedia\":{\"customPlayer\":\"Custom player…\",\"choosePlayer\":\"Choose a player\",\"defaultPlayer\":\"System default player\",\"subtitle\":{\"outsideFolder\":\"Not in the video's directory\",\"tooLarge\":\"File too large\",\"notFound\":\"File not found\",\"imageBased\":\"Image-based subtitles aren't shown in the player\",\"encodingUnknown\":\"Encoding not recognized\"}},\"avatarPicker\":{\"source\":{\"gallery\":\"Gallery\",\"expoDirectory\":\"Expo directory\",\"socialProfile\":\"Social profile\",\"onlineVideo\":\"Online video\",\"videoCover\":\"Video cover\",\"coverFace\":\"Face from cover\",\"officialSite\":\"Official site\",\"picked\":\"Picked by you\",\"fetched\":\"Previously fetched\",\"videoStill\":\"Video still\",\"codeCover\":\"Cover by code\",\"address\":\"URL\",\"thisDevice\":\"This device\"},\"sourceUnknown\":\"Source not recorded\",\"named\":\"{{name}}\",\"galleryCategory\":\"Gallery · {{category}}\",\"imageAddress\":\"Image URL · {{host}}\",\"cropped\":\"{{label}} · Cropped\",\"assetFallback\":\"Video {{id}}\",\"standIn\":\"Still from a representative video, not this person\",\"standInWithTitle\":\"Still from a representative video, not this person · {{title}}\"},\"mediaTools\":{\"unknownVersion\":\"unknown version\",\"toolPackage\":\"Tool package\"},\"taskResults\":{\"kind\":{\"check\":\"Check failed\",\"backfill\":\"Recheck failed\"},\"noResult\":\"The source returned no check result\"},\"desktopStartup\":{\"noDesktop\":\"This system doesn't provide desktop shortcuts.\",\"desktopFailed\":\"{{error}}\",\"desktopUnknown\":\"Desktop shortcut status not found\",\"noLoginItem\":\"This system doesn't provide launch at login.\",\"trayMissing\":\"The tray launcher on this device wasn't found.\",\"startupUnknown\":\"Startup item status not found\"},\"desktopUninstall\":{\"manual\":\"On this system, quit Peach first, then remove the program and data directories manually.\",\"macos\":\"Turn off launch at startup and quit Peach, then move Peach from Applications to the Trash. For a full uninstall, also delete the data directories below.\",\"accepted\":\"Uninstalling. Peach will quit. You can close this page when it's done.\"},\"backgroundIssues\":{\"pushDiscovery\":{\"title\":\"Couldn't add newly found files automatically\",\"link\":\"Open push settings\"},\"pushDiscoveryWatch\":{\"title\":\"Watching directories on this device isn't running\",\"link\":\"Open push settings\"},\"downloads\":{\"title\":\"Couldn't reconcile {{count}} cloud download tasks for now\",\"link\":\"View cloud downloads\"},\"followSchedule\":{\"title\":\"Automatic follow check failed\",\"link\":\"Open follow schedule\"},\"feedSchedule\":{\"title\":\"Automatic feed fetch failed\",\"link\":\"Open feed schedule\"},\"tunnel\":{\"title\":\"Public access connection failed\",\"link\":\"Open public access settings\"},\"librarySharing\":{\"title\":\"Library sharing upload failed\",\"link\":\"Open data upload settings\"},\"automaticUpdates\":{\"title\":\"Automatic update ran into an error\",\"link\":\"Open automatic update settings\"},\"amaneBridge\":{\"title\":\"amane bridge isn't installed\",\"link\":\"Open amane settings\"},\"network\":{\"title\":\"Network unreachable\",\"link\":\"Open Peach proxy settings\"},\"faceModels\":{\"title\":\"Face model download failed\",\"link\":\"View the failed run\"}},\"metadataAmane\":{\"rebuilt\":\"Rebuilt the amane bridge at {{revision}}\",\"bundled\":\"The scraping tools come with Peach. Nothing else to prepare.\",\"ready\":\"The amane runtime is ready.\",\"auth\":{\"ageVerification\":\"The site requires age verification\",\"loginRequired\":\"The site requires sign-in; credentials are missing or expired\",\"geoRestricted\":\"The site refused this outbound connection by region\",\"cloudflareChallenge\":\"Hit a Cloudflare challenge page\",\"cloudflareBlocked\":\"Blocked by Cloudflare\",\"ipBanned\":\"The site banned the outbound IP\",\"httpError\":\"The site refused this outbound connection\"},\"latestUnfetched\":\"Not found\",\"trafficUnmetered\":\"The standalone fetch tool doesn't report network traffic per task\",\"trafficUnobserved\":\"External fetch tool traffic isn't measured\"},\"regions\":{\"jp\":\"Japanese\",\"kr\":\"Korean\",\"cn\":\"Chinese\",\"west\":\"Western\",\"other\":\"Other\",\"none\":\"Not set\"},\"webCatalog\":{\"editionGroup\":\"Multiple editions\",\"partGroup\":\"Multi-part video\",\"unknownYear\":\"Unknown year\"},\"related\":{\"sameCreator\":\"Same creator\",\"sameSeries\":\"Same series\",\"samePerformer\":\"Same performer\",\"similarTags\":\"Similar tags\",\"sameStudio\":\"Same label\"},\"webEntity\":{\"suggestGroup\":{\"performer\":\"Actresses\",\"creator\":\"Creators\",\"studio\":\"Labels\",\"agency\":\"Agencies\",\"series\":\"Series\",\"tag\":\"Tags\",\"asset\":\"Videos\"}},\"fieldOwners\":{\"user\":\"Entered manually\",\"review\":\"Approved in review: {{identifier}}\",\"auto\":\"Auto-applied from {{identifier}}\",\"scan\":\"From file name\",\"script\":\"Maintenance script {{identifier}}\"},\"performerHeader\":{\"current\":\"Current name\",\"former\":\"Former names\",\"other\":\"Other names\"},\"catalogVersions\":{\"multipart\":\"Multi-part\",\"singleFile\":\"Single file\"},\"catalogEdition\":{\"censored\":\"Censored\",\"chinese-subtitles\":\"Chinese subs\",\"uncensored\":\"Uncensored\",\"uncensored-leak\":\"Uncensored leak\",\"uncensored-crack\":\"Decensored\"},\"catalogParts\":{\"main\":\"Main\",\"bonus\":\"Bonus {{number}}\"},\"photoSet\":{\"untitled\":\"Untitled image set\"},\"organizeTemplates\":{\"placeholder\":{\"code\":\"Code\",\"title\":\"Title\",\"studio\":\"Label\",\"series\":\"Series\",\"year\":\"Release year\",\"actors\":\"Performers\",\"cd\":\"Part number\",\"mosaic\":\"Censored or uncensored\",\"definition\":\"Quality\"},\"example\":{\"title\":\"Title\",\"studio\":\"Label\",\"series\":\"Series\",\"actors\":\"Ann, Bea\"}},\"organize\":{\"preset\":{\"codeOnly\":\"Code only\",\"codeTitle\":\"Code and title\",\"codeDefinition\":\"Code and quality\",\"codeActors\":\"Code and performers\",\"byStudio\":\"Folder per label\",\"bySeries\":\"Folder per series\",\"byActors\":\"Folder per performer\",\"byYear\":\"Folder per release year\",\"studioThenCode\":\"Code folders inside label folders\"},\"skip\":{\"offline\":\"Storage not mounted\",\"missingField\":\"Missing field\",\"outsideRoot\":\"Outside the storage root\",\"targetExists\":\"Target already exists\",\"crossVolume\":\"Different drive\",\"tooLong\":\"Path too long\"},\"failure\":{\"sourceMissing\":\"Source file not found\",\"renameFailed\":\"Rename failed: {{error}}\",\"ledgerRolledBack\":\"Database write failed; the original name was restored: {{error}}\",\"ledgerStuck\":\"Database write failed and the original name could not be restored. Fix it manually: {{error}}\",\"moveUnverified\":\"Couldn't verify the file after an interrupted move. Check both paths before retrying.\",\"assetGone\":\"No longer in the collection; not organized\"}},\"junk\":{\"installerAttachment\":\"Installer in a media directory\",\"pageArchiveAsset\":\"Script or style file from a saved web page\",\"promoPageImage\":\"Banner, logo, or navigation image from a saved promo page\",\"shortAttachmentCluster\":\"{{count}} very short clips sit next to a full-length video in this directory. Check the content\",\"shortAttachmentSpread\":\"Very short clips with the same size, duration, and resolution appear in {{count}} release directories. Check the content\",\"downloadShortVideo\":\"Short extra video in the {{code}} download; the full video runs {{minutes}} min\",\"downloadArchive\":\"Extra archive in the {{code}} download. Check the content\",\"downloadFile\":\"Extra file in the {{code}} download without the video's code in its name\",\"repeatedCopies\":\"Copies with the same name and size appear in {{count}} directories\",\"fullVersionExists\":\"A {{minutes}}-min full version has the same code\",\"underFourMinutes\":\"Under 4 minutes\",\"under120Mb\":\"Under 120 MB\",\"promoDirectory\":\"In a promo directory\",\"numberedSourceVideo\":\"A numbered video may only carry a source watermark. Check the content\",\"internetShortcut\":\"Internet shortcut\",\"pageArchive\":\"Saved web page\",\"wholeNamePromo\":\"The whole name is promo text\",\"visualPromotion\":\"Promo signals in {{matched}}/{{total}} frames, wording in {{claims}} frames\",\"mostlyPromo\":\"Promo text makes up most of the name\",\"promoNeighbours\":\"{{count}} more promo names like it in this directory\",\"promoCreator\":\"The creator field is a promo site domain\",\"promoDirectoryPack\":\"The directory is a promo pack named with a domain and a code\",\"decoratedImage\":\"Small image with decorative symbols\",\"promoBrand\":\"Promo brand name\"},\"classification\":{\"settledCode\":\"{{reason}}; only the creator projection is removed, and the code stays as is\",\"siteRelease\":\"The directory and the media file share the site release number {{site}}; official catalog {{catalog}}\",\"versionedDirectory\":\"The directory name is the release ID {{identity}} plus a quality or version suffix. It is not an account, and the codes of the files inside are not inferred from it\",\"gachincoPpv\":\"The directory and its part files use a Gachinco PPV release number with a quality suffix; not an account\",\"matchingIdentity\":\"The directory and the media file share the release ID {{identity}}; quality and version suffixes are not an account\",\"matchingProduct\":\"The directory product ID matches the media file {{product}}; the code stays as is\",\"matchingDmmProduct\":\"The directory code {{identifier}} matches the file's DMM product ID; the code stays as is\"},\"studioIcons\":{\"undecodable\":\"Cannot decode\",\"wordmarkAspect\":\"Content ratio {{aspect}}: a wordmark\",\"onlySize\":\"Only {{size}}\",\"faceFound\":\"Face detected in {{size}} ({{score}})\",\"hostIcon\":\"{{url}} is the host-wide icon of {{host}} (sha256 {{digest}})\",\"originSiteWordmark\":\"The site's own wordmark\",\"originBiggest\":\"The largest one fetched in this run\",\"originIconMark\":\"The same square mark as the icon slot\",\"bakedFrom\":\"{{origin}} ({{size}}) baked into a square\",\"allTooSmall\":\"Nothing fetched in this run reaches {{edge}}: {{items}}\",\"noLinks\":\"This label has no link in the database to fetch an image from (archive snapshots don't count)\",\"originLedgerAvatar\":\"Social avatar recorded in the database\",\"originDeclared\":\"Icon declared by the official site\",\"originHeaderImage\":\"The <img> in the site header\",\"originNamedAvatar\":\"Social avatar picked by hand\",\"originProfileAvatar\":\"Avatar of {{profile}}\",\"paddedWordmark\":\"No square mark found. Installed the wordmark: {{size}} / content ratio {{aspect}}, baked into a square\",\"sameAsIcon\":\"The same square image as the icon slot (original wordmark {{size}})\",\"triedNothing\":\"Tried {{tried}}; nothing came back\",\"tried\":\"Tried {{tried}}: {{details}}\",\"noCandidates\":\"No candidates\",\"namedLogoNothing\":\"Nothing came back from the assigned logo source\",\"namedLogoUndecodable\":\"Cannot decode the assigned logo source\",\"shortEdge\":\"Short edge {{edge}} < {{minimum}}\",\"namedLogo\":\"Logo source assigned by the user\",\"namedLogoNotSquare\":\"The assigned logo source cannot be baked into a square\",\"sameAsNamedLogo\":\"The same assigned source as the logo slot ({{size}}), baked into a square\",\"namedWordmarkNothing\":\"Nothing came back from the assigned wordmark source\",\"namedWordmarkUndecodable\":\"Cannot decode the assigned wordmark source\",\"namedWordmarkNotSquare\":\"The assigned wordmark source cannot be baked into a square\",\"namedWordmarkBaked\":\"Assigned wordmark source ({{origin}}) baked into a square\",\"namedSquareNothing\":\"Nothing came back from the assigned square mark source\",\"namedSquareUndecodable\":\"Cannot decode the assigned square mark source\",\"namedSquareNotSquare\":\"The assigned square mark source cannot be baked into a square\",\"croppedShortEdge\":\"Short edge of the cropped square mark {{edge}} < {{minimum}}\",\"namedSquareCropped\":\"Square mark cropped from the assigned source ({{size}})\",\"faceDetected\":\"{{evidence}}; face detected\"},\"studioSites\":{\"parked\":\"Parked page\",\"parkedTitle\":\"{{parked}} (the title says the domain is for sale: {{title}})\",\"parkedOrForSale\":\"{{parked}} or domain sale page\",\"parkingHost\":{\"finalUrl\":\"{{parked}} (the final URL points to {{host}})\",\"headers\":\"{{parked}} (the response headers point to {{host}})\",\"body\":\"{{parked}} (the page body points to {{host}})\"},\"certificateInvalid\":\"{{reason}}; invalid HTTPS certificate\",\"emptyShell\":\"The page is only {{bytes}} bytes, likely an empty shell\",\"forSaleTitle\":\"The title says the domain is for sale ({{title}})\",\"unavailableTitle\":\"The site says it is unavailable ({{title}})\",\"domainEcho\":\"The title only repeats the domain and names no brand ({{title}})\",\"confirmed\":\"{{confirmed}}; title seen: {{title}}\",\"none\":\"none\",\"nothingToCompare\":\"Neither the label name nor its aliases has characters to compare\",\"matchedAlias\":\" (matched the alias {{alias}})\",\"titleNamesAdult\":\"The title names the label{{matched}}, and the page is an adult site\",\"titleNamesNotAdult\":\"The title names the label, but the page doesn't look like an adult site. Check it manually ({{title}})\",\"derivedHostAdult\":\"The domain is derived from the label name, and the page is an adult site (the title writes the name in kana)\",\"bodyNames\":\"The title doesn't name the label, but the page body does. Check the screenshot manually\",\"noName\":\"Neither the title nor the body names the label (title: {{title}})\",\"noCandidates\":\"No candidate domain can be derived\",\"platform\":\"A distribution platform is not a label, so there is no label site to look up. Links are recorded per platform; only an account with an actual seller is a creator (docs/SOURCING.md)\",\"unreachable\":\"Unreachable: {{error}}\"},\"webLibraryShortcuts\":{\"representativeImage\":\"{{name}} · Featured video\"},\"libraryProcessing\":{\"issues\":\"{{count}} items need attention. You can retry the unfinished ones.\",\"issuesAllPaused\":\"{{count}} items are all held by source rate limits. Wait a while, then run again.\",\"issuesSomePaused\":\"{{count}} items need attention. {{paused}} of them are held by source rate limits, so wait a while for those; you can retry the rest now.\",\"budgetSkipped\":\"{{head}}. {{count}} videos were not looked up yet; run again to continue.\",\"budget\":{\"requests\":\"This run used up its request allowance\",\"seconds\":\"This run used up its time allowance\",\"bytes\":\"This run used up its download allowance\"},\"budgetAndIssues\":\"{{budget}} {{issues}}\",\"step\":{\"scanFiles\":\"Scan files\",\"checkFolders\":\"Check library directories\",\"checkJunk\":\"Check for junk files\",\"probeAndCheckJunk\":\"Read media info and check for junk\",\"checkCompanions\":\"Check companion files\",\"makePreviews\":\"Generate previews\",\"checkPreviewSettings\":\"Check preview settings\",\"fetchMetadataAndCovers\":\"Fetch metadata and covers\",\"fetchCovers\":\"Fetch missing covers\"},\"source\":{\"onePondo\":\"1pondo\",\"localNfo\":\"Local NFO\",\"makers\":\"Studio websites\"}},\"feedFollowup\":{\"cover\":{\"fetching\":\"Fetching the cover for this video\",\"queuedCover\":\"Queued for new release cover fetch\",\"queuedAfterScrape\":\"Queued after new release metadata fetch; the cover follows once metadata is in\",\"coverGone\":\"The fetched cover is no longer on this device. It will be fetched again at the next retry\",\"lastAttemptFailed\":\"Last attempt failed: {{reason}}\",\"ignored\":\"Marked as not wanted, so covers won't be fetched in the background\",\"scrapeFailed\":\"Metadata not found. The cover will be retried together with it\",\"nextCheck\":\"Covers will be fetched in batches at the next subscription check\",\"unfinished\":\"Cover processing didn't finish\",\"connectFailed\":\"Couldn't connect to the source\"},\"chainLink\":\"{{first}}, {{rest}}\",\"sourceAddress\":\"source URL\"},\"codeCreators\":{\"reason\":{\"urlIdentity\":\"Has a URL identity (such as a pixiv artist), so it is not a release directory\",\"notCodeShaped\":\"The name isn't shaped like a code\",\"embeddedCode\":\"The directory name contains code {{code}}, which matches the files inside\",\"noMatchingFile\":\"The name looks like a code, but no file inside has that code; it may be a real account name\",\"sitePost\":\"The directory and its files share site post ID {{identity}}\",\"matchingCode\":\"The directory and its files share code {{identity}}\"}},\"metadataCreatorAttributions\":{\"shapePrefix\":\"“{{prefix}} + number + performers”\",\"shapeCastNumberTitle\":\"“performers-number-title”\",\"labelShape\":\"File names follow the {{shape}} release pattern: {{files}} of {{total}} videos match, with {{performers}} rotating performers. Likely a label or series; check a metadata site or confirm manually\",\"sourceIdentity\":\"Keeps a creator credit from an independent source\",\"protected\":\"The compatibility field belongs to a user or review decision\",\"onlineAccount\":\"Online account identity, not judged by local directories\",\"identityConflict\":\"The entity has external identity references or user decisions; review item by item\",\"verifiedStudio\":\"A public release source confirms it is a label; videos don't belong to a personal account\",\"platform\":\"The name is a release platform; the actual seller or account is the creator\",\"repostSite\":\"The name is a repost-site watermark or a dated site directory\",\"studio\":\"The release label of the same video is {{studio}}, matching the creator name or an alias\",\"studioRelease\":\"A known label name matches the label token in the release file of the same video\",\"structural\":\"The name is a confirmed structural directory\",\"releaseTitle\":\"The name matches a scene title with label and release date\",\"catalogTitle\":\"The name exactly matches the release title of the same video\",\"performerOverlap\":\"Matches a performer name or alias, with no seller identity or same-person confirmation yet\",\"legacyProjection\":\"Only a legacy directory projection; needs an account, watermark, release source or user confirmation\",\"collectionIdentity\":\"The directory's month or quality suffix maps to an existing full account name\"},\"avatarOnline\":{\"cached\":\"Cached social avatar\",\"cachedOn\":\"Cached social avatar · {{date}}\"},\"seedFollowup\":{\"conflict\":\"The pack disagrees with this device; this record wasn't written by the seed, so the seed leaves it alone\",\"duplicate\":\"One pack entry matches two entities here, possibly a duplicate identity; merging can't be undone, so a person decides\",\"withdrawalConflict\":\"{{detail}}; {{reason}}\"},\"seedCorrections\":{\"anchorAmbiguous\":\"The identity anchor didn't match exactly one entity; the claim is kept\",\"anchorMissing\":\"The identity anchor matched nothing; no entity to revert\",\"profileDiffers\":\"The current profile doesn't exactly match the withdrawal value; the claim is kept\",\"pointerDiffers\":\"The current credit doesn't exactly match the withdrawal value; the claim is kept\",\"otherWriter\":\"The claim belongs to another writer; it is kept\"},\"westernArtwork\":{\"noSoloCovers\":\"No solo video covers to compare against; kept as a candidate only\",\"noCoverMatch\":\"No image matched a cover; kept as a candidate only\"},\"avatarProvider\":{\"missingHash\":\"Missing content hash, so it can't be a review candidate\",\"duplicateOf\":\"Identical to the avatar of {{entity}}\"},\"portraitArtwork\":{\"fullCover\":\"Full cover\",\"frame\":\"HD frame {{name}}\",\"evidence\":\"Solo video {{work}} {{label}}\"},\"compositeAliasRepair\":{\"collision\":\"Collides with entity {{entity}} ({{kind}}) {{name}}\",\"notComposite\":\"Not a composite romanized name\",\"notStageName\":\"Brackets on a {{kind}} are not a stage name\",\"canonicalNeedsReview\":\"A person must decide which canonical name to keep\"},\"entityIdentityResearch\":{\"unencodable\":\"{{wiki}} “{{key}}” (can't be encoded for the site)\",\"pageMissing\":\"{{wiki}} “{{key}}” (no such page)\",\"notListing\":\"{{wiki}} “{{key}}” (not a video listing)\",\"labelPage\":\"The {{wiki}} “{{key}}” page is a video listing: {{works}} videos, {{performers}} performers; the name points to a label or series, not a personal account\",\"labelPageWithPrefix\":\"The {{wiki}} “{{key}}” page is a video listing: {{works}} videos, {{performers}} performers, code prefix {{prefix}}; the name points to a label or series, not a personal account\",\"unresolved\":\"No public identity source found. Pages tried by name: {{queried}}. A same-name hit is not unique evidence of identity.\",\"fullCredit\":\"The release file's full credit matches a public performer identity\",\"labelCredit\":\"Full credit in the label's release file\"},\"studioFollowup\":{\"evidence\":\"{{note}}; title “{{title}}”\"},\"performerAliasFollowup\":{\"site\":{\"missed\":\"No match\",\"gone\":\"No match: the record no longer exists\",\"failed\":\"Not found: {{error}}\",\"missedBecause\":\"No match: {{note}}\",\"notInCast\":\"She isn't in the actress field\",\"hit\":\"Matched {{pages}}\",\"noSearchName\":\"No match: no name to search with\",\"nameNotOnPage\":\"The page doesn't list her name from the database\"},\"reject\":{\"empty\":\"Empty name\",\"uncertain\":\"Has an uncertainty mark\",\"romaji\":\"Romanized spelling\",\"shortSingle\":\"Short single name; would match others\",\"oneOff\":\"One-off nickname\",\"descriptive\":\"Descriptive nickname\",\"romajiSingle\":\"Single romanized name; would match others\"},\"note\":{\"manyPeople\":\"“{{key}}” matched several people\",\"searchMissed\":\"“{{key}}” had no search hit\",\"separator\":\"; \",\"unencodable\":\"“{{key}}” can't be encoded for the site\",\"manyPages\":\"“{{key}}” is listed on {{count}} people pages\",\"noPage\":\"“{{key}}” is not listed on any people page\",\"castIs\":\"The actress field of {{code}} is {{cast}}\",\"castEmpty\":\"The actress field of {{code}} is empty\",\"castMany\":\"More than one entry in the actress field lists her: {{pages}}\",\"list\":\", \"},\"detail\":{\"gone\":\"The entity is gone or is not an actress\",\"renamed\":\"This entity is now named {{name}} in the database\",\"have\":\"Already has this spelling\",\"taken\":\"{{owner}} (entity {{entity}}) already uses this spelling\",\"listed\":\"The {{site}} page lists her name from the database\",\"merged\":\"The {{sites}} name field lists both entities as the same person: merged {{absorbed}} (entity {{source}}) into {{kept}} (entity {{target}}), moving {{assets}} videos\"}},\"performerProfileFollowup\":{\"action\":{\"write\":\"write\",\"fresh\":\"still current\",\"miss\":\"no match\",\"unfetched\":\"not found\",\"taken\":\"taken\",\"bind\":\"link\",\"conflict\":\"conflict\"},\"note\":{\"separator\":\"; \",\"list\":\", \",\"comma\":\", \",\"notOnSite\":\"{{key}} is not on the site\",\"nameNotOnTalentPage\":\"The {{key}} page doesn't list her name from the database: {{names}}\",\"sameNameMany\":\"More than one person is named {{key}} on the site\",\"loginPage\":\"{{key}} returned a sign-in page\",\"notFound\":\"Searching {{key}} didn't find her\",\"noWorkCode\":\"No code to open a video page with\",\"castMany\":\"More than one person in the cast list of {{code}} matches: {{names}}\",\"castIs\":\"The cast list of {{code}} is {{cast}}\",\"castEmpty\":\"The cast list of {{code}} is empty\"},\"detail\":{\"conflict\":\"{{field}}: {{values}}; profile table unchanged\",\"fetchedRecently\":\"Metadata fetched less than 30 days ago\",\"manyPages\":\"{{count}} profile pages list her\",\"nameNotOnPage\":\"The profile page doesn't list her name from the database\",\"listed\":\"The profile page lists her name from the database\",\"handWritten\":\"This row was written by a person and is not overwritten\",\"minnanoId\":\"minnano-av ID {{id}}\",\"minnanoIdTaken\":\"minnano-av ID {{id}} already belongs to another entity\",\"boundPageFresh\":\"ID linked; the actress page was fetched less than 30 days ago\",\"talentListed\":\"Talent {{id}} lists her among its names\",\"idTakenNoWrite\":\"The ID already belongs to another entity; metadata not written\",\"backfilled\":\"No other source in the profile table; filled in from this page\",\"boundFresh\":\"ID linked; metadata fetched less than 30 days ago\",\"castMatched\":\"She matches the cast list of {{work}}\",\"refetch\":\"ID linked; actress page fetched again\",\"noActorPage\":\"{{detail}}; actress page not found, metadata left empty\",\"idTaken\":\"The ID already belongs to another entity\",\"sameNameMany\":\"More than one person on the site has this name: {{ids}}\",\"card\":\"Performer card {{id}} lists her name\",\"cardWithRecord\":\"Performer card {{id}} ({{record}}) lists her name\",\"cardTaken\":\"Performer ID {{id}} already belongs to another entity\"},\"site\":{\"failed\":\"Not found: {{error}}\",\"fresh\":\"Metadata still current\",\"noSearchName\":\"No match: no name to search with\",\"missedBecause\":\"No match: {{note}}\",\"entityChanged\":\"No match: this entity has changed in the database\",\"hit\":\"Matched {{page}}\",\"talentTaken\":\"Taken: talent {{id}} already belongs to another entity\",\"pageTaken\":\"Taken: {{page}} already belongs to another entity\",\"notJav\":\"Skipped: she isn't on JAV catalog sites\",\"bound\":\"ID already linked\",\"cardHit\":\"Matched {{id}}\",\"cardTaken\":\"Taken {{id}}\"}},\"cli\":{\"libraryProcessing\":\"Metadata processing\"},\"devCopyRuntime\":{\"trayMissing\":\"Not connected to the source tray. Start the tray, then retry\",\"interrupted\":\"Applying was interrupted; you can retry\",\"building\":\"Saved, building…\",\"waitingRestart\":\"Saved, waiting to reload the server…\",\"refreshing\":\"Saved, refreshing…\",\"built\":\"Build finished, refreshing…\",\"reloading\":\"Saved, reloading the server…\",\"reloaded\":\"Server reloaded, refreshing…\"},\"tunnel\":{\"stateUnreadable\":\"Can't read the tunnel state file\",\"stateInvalid\":\"The tunnel state file is malformed\",\"notSettled\":\"The last tunnel didn't shut down cleanly; its result is unavailable\",\"exited\":\"cloudflared exited\"},\"dockerUpdate\":{\"noImageTag\":\"The container has no image tag, so compose.yaml may be outdated. Switch to the repository's current compose.yaml and recreate the container to enable one-click updates.\",\"pinnedTag\":\"The image tag is {{tag}}, and Watchtower only pulls newer images with the same tag. Remove PEACH_VERSION from .env or set it to edge to enable one-click updates.\",\"noToken\":\"The update token hasn't been created yet. Recreate the Peach container to enable one-click updates.\",\"updating\":\"Watchtower is pulling the new image and recreating the container.\"},\"pushDiscovery\":{\"localOff\":\"The local channel is off\",\"noLocalRoots\":\"Local storage has no directories to monitor on this machine\",\"watchUnavailable\":\"File monitoring unavailable: {{error}}\",\"watchFailed\":\"File monitoring failed to start: {{error}}\"},\"supportBundle\":{\"cliDescription\":\"Save a redacted diagnostic bundle for this device without starting the Peach server\"},\"folderPicker\":{\"prompt\":\"Choose a media directory\"},\"scan\":{\"summary\":\"✓ {{location}}: {{files}} files / {{size}} TB / {{seconds}}s; {{sidecars}} companion files not added; {{gone}} gone from the list; {{subtitles}} subtitles ({{orphans}} orphaned); {{junk}} junk files moved to trash, {{junkReview}} to review; {{conflicts}} duplicate path groups to review\",\"progress\":\"  {{seconds}}s  {{files}} files  {{size}} TB\"},\"reviewCsv\":{\"moreFiles\":\"{{names}} and {{count}} files in total\"},\"upgradeRepairs\":{\"video\":\"Video {{id}}\",\"manualAliasKept\":\"Manual alias kept as is\",\"item\":{\"receipt\":\"Automatic processing after updates\",\"existing\":\"Update existing metadata\",\"background\":\"Background update progress\"},\"receiptUnreadable\":\"Can't read the post-update processing record\",\"receiptRetry\":\"Can't read the processing record. Try again\",\"mediaPaused\":\"{{error}}; automatic video fill-in is paused. Check the cache, then retry\",\"displayProbeRetired\":\"Automatic display size re-probing is retired; existing measurements and previews are kept\"},\"processingControl\":{\"scope\":{\"knownFiles\":\"This run (registered files, not counting unknown new ones)\",\"thisRun\":\"This run\",\"wholeTask\":\"Whole task\"},\"basis\":{\"registeredHistory\":\"Rough estimate from {{count}} registered videos, {{size}} GiB, and past runs of this kind on this device\",\"registeredRough\":\"Rough estimate from {{count}} registered videos, {{size}} GiB; refined while running\",\"counting\":\"Counting files and size in new directories\",\"stageRough\":\"Rough estimate from what's left in this stage; refined while running\",\"allStages\":\"Remaining time for this stage plus all stages still to run\",\"measured\":\"Refined from the time the last {{count}} videos took in this stage\"}},\"taskResources\":{\"ownersMissing\":\"This run hasn't registered which processes it owns\",\"meterMissing\":\"This run hasn't registered transfer metering\",\"cpuCounter\":\"Task CPU counter unavailable: {{error}}\",\"cpuCapacity\":\"CPU capacity on the running device unavailable: {{error}}\",\"gpuIdentity\":\"GPU process identity unavailable: {{error}}\",\"gpuShared\":\"GPU use by the shared server process can't be attributed to this run\",\"readingMissing\":\"Resource readings from the running device unavailable\",\"transferMissing\":\"Transfer readings from the running device unavailable\",\"network\":{\"cloudMount\":\"Cloud drive mount caching and read-ahead hide the real speed per task\",\"smb\":\"SMB caching and read-ahead hide the real speed per task\",\"fingerprint\":\"Data usage through the browser fingerprint transport isn't measured\"}},\"gpuUsage\":{\"noCounters\":\"This platform has no per-process GPU counters\",\"macos\":\"This version doesn't read per-process GPU counters on macOS yet, and whole-machine usage can't stand in for task usage\",\"windowsComponent\":\"Windows GPU counter component unavailable\",\"openFailed\":\"GPU counter unavailable ({{code}})\",\"collectFailed\":\"Couldn't read the GPU counter ({{code}})\",\"waiting\":\"Waiting for the next GPU sample\",\"detailMissing\":\"GPU counter details unavailable ({{code}})\",\"detailFailed\":\"Couldn't read GPU counter details ({{code}})\",\"waitingProcesses\":\"Waiting to read the task's GPU processes\",\"noDrmDevice\":\"No readable DRM GPU device found. Containers need the device mapped, and the driver must support per-process counters\",\"sharedClient\":\"Several processes share a GPU client, so usage can't be attributed\",\"taskCounter\":\"Task GPU counter unavailable: {{error}}\"},\"processingTraffic\":{\"metadata\":\"Video metadata\",\"previews\":\"Previews and covers\",\"temporary\":\"Temporary files\",\"mountUnobserved\":\"Mount caching and read-ahead aren't measured\",\"mediaReadMissing\":\"Media read amount unavailable\"},\"librarySharing\":{\"field\":{\"works\":\"Deduplicated video codes, with ratings, likes, dislikes, watched, watch later, play counts, watch progress and manually added tags from the controlled list; custom note tags aren't uploaded\",\"preferences\":\"Counts of favorites, likes, dislikes and watches, and rating distributions, grouped by performers, creators, labels, series, manual tags, decade and length (videos with codes and entries without codes counted separately), plus the names of people and labels you added to favorites\",\"counts\":\"Number of files in the collection, videos with codes and entries without codes\",\"capacity\":\"Over the last 7 and 30 days: days with observed capacity, days with playback activity, and the days those records cover; current and peak data and cache usage, observed growth, and cache cleanup (automatic and manual combined, excluding backups and logs). Unavailable values are left empty, and missing days aren't filled in\",\"instance\":\"A random research instance ID created after you agree, used to link this instance's collection, capacity and participation status; it changes when you turn sharing on again and doesn't use machine fingerprints or diagnostic IDs\",\"participation\":\"Whether sharing is on, the contact status (at most once a day), version and last contact time, plus snapshot ID, field version, raw and compressed size, and preparation and delivery status. When you turn it off, the background tries once to send a minimal off status with no snapshot details. Being offline, uninstalling and failed sends don't count as turning it off, and the number of instances isn't the number of people\",\"version\":\"Peach version, field version and UTC calendar week\"},\"notice\":\"Uploads collection, preference and capacity summaries with direct identifiers removed, and links participation status with a random research instance ID. When on, it makes contact at most once a day; when you turn it off, the background tries once to send a minimal off status and then stops. Days with playback activity don't cover all daily use; capacity and participation status contain no new paths, videos or account details.\"},\"remoteReporting\":{\"field\":{\"usage\":\"Peach version, distribution (Windows or macOS app, Docker, wheel or source), operating system type and version, CPU architecture and core count, memory tier, Python version, runtime environment and public build number; at most one activity log and one daily session summary per day. Turning it on creates a random technical instance ID, separate from the research ID, to count affected instances and upgrade paths; turning it off removes the ID from this device, and turning it on again creates a new one. Continuous running is counted per UTC day and represents running instances, not people, real sessions, or whether anyone used it that day.\",\"errors\":\"Diagnostic details: the failing step, exception chain, file names, function names and line numbers in Peach and allowlisted frameworks, structured error codes, media tool failure categories, allowlisted browser exception types and release script build mapping, client browser brand, major version and OS family, HTTP method, route template and related error ID, and how often the same failure happened with its date. Full diagnostics for the same failure in the same version are uploaded only once, at most 5 a day; all occurrences are merged into a count log every 6 hours or on exit. Environment conditions such as a drive going offline, missing or damaged media, a full disk, timeouts and a busy database only report the category, code location and count, without full diagnostics.\"},\"notice\":\"Sent to Sentry. Error text, full logs, diagnostic ZIPs, media names, paths, URLs, watch history and credentials aren't reported. The receiving service sees the connecting IP. Turning it off stops new sends; information already sent can't be withdrawn.\"},\"sync\":{\"sameFile\":\"This device uses the shared copy directly; no copying needed\",\"sharedOffline\":\"The drive with the shared copy is unreachable; local reads and writes continue\",\"bothMissing\":\"Neither side has a database\",\"sharedMissing\":\"No shared copy yet; seeding it from the local copy\",\"localMissing\":\"No local copy; pulling from the shared copy\",\"markerMissing\":\"Sync markers are missing, so it's unclear which database is newer\",\"writerMismatch\":\"The primary computer markers disagree for the same generation\",\"diverged\":\"The shared copy is at generation {{shared}}, but the local copy is still at generation {{local}} with changes not written back\",\"sharedNewer\":\"The shared copy is newer\",\"localNewer\":\"The local copy is newer\",\"localDirty\":\"Local changes are waiting to be written back\",\"inSync\":\"Both sides match\",\"otherWriter\":\"The primary computer is {{owner}}, so this device can't push\",\"thisWriter\":\"This device is the primary computer; {{reason}}\",\"writerIs\":\"The primary computer is {{owner}}; {{reason}}\",\"noWriter\":\"No verifiable primary computer\",\"takeOverNeedsSync\":\"Both sides must match before taking over; now it's {{action}}: {{reason}}\",\"tookOver\":\"This device is now the only primary computer\",\"readOnlyConflict\":\"The database is in conflict ({{detail}}), so this device is read-only for now. Run \\\"Sync database\\\" from the tray; if it still reports a conflict, resolve it by hand using the logs.\",\"readOnlyWriter\":\"{{owner}} writes to the database, so this device can only browse. Make changes on that machine, or run \\\"Make this device the primary computer\\\" from the tray (both sides must match) and try again.\",\"readOnlyOtherMachine\":\"Another machine writes to the database, so this device can only browse. Make changes on that machine, or run \\\"Make this device the primary computer\\\" from the tray (both sides must match) and try again.\"},\"dataStorage\":{\"cleaned\":\"Cleaned {{labels}}, freed {{size}}\",\"cleanedInUse\":\"Cleaned {{labels}}, freed {{size}}; {{failed}} files are in use and weren't deleted\",\"cleanedThenFailed\":\"Cleaned {{labels}}, freed {{size}}; {{error}}\",\"cleanedInUseThenFailed\":\"Cleaned {{labels}}, freed {{size}}; {{failed}} files are in use and weren't deleted; {{error}}\",\"relocation\":{\"docker\":\"The container's data directory is a volume on the host, placed by the mounts in compose.yaml, and can't be changed from inside the container. Moving it inside the container takes it off the volume and loses it when the container is recreated. Follow these steps on the host instead\",\"unmanaged\":\"Moving needs the tray or the headless service (python -m peach.server) to stop and restart Peach, but this server was started directly. Start it one of those ways and try again, or quit Peach, move the data directory yourself, and set PEACH_DATA_ROOT to the new location\",\"outsideRoot\":\"Some data is set outside the data directory. Quit Peach and move it by hand\",\"linked\":\"Some data uses directory links. Quit Peach and move it by hand\"},\"dockerStep\":{\"volume\":\"Find the volume name (it ends in _peach-data)\",\"stop\":\"Stop Peach in the directory that has compose.yaml\",\"copy\":\"Copy the volume to the new directory; UID 1000 must be able to write to it\",\"copyCommand\":\"docker run --rm -v <volume-name>:/from -v <new-directory>:/to alpine cp -a /from/. /to/\",\"edit\":\"In compose.yaml, change peach-data:/data to <new-directory>:/data and start again. Keep the old volume until everything works\"},\"relocating\":\"Moving the data directory. Peach will quit for now and reopen when it's done.\",\"relocatingHeadless\":\"Moving the data directory. The server pauses and comes back when it's done; refresh the page in a moment.\",\"startFailed\":\"Couldn't start moving: {{error}}\",\"notRelocated\":\"The data directory wasn't moved: {{error}}\",\"notMoved\":\"The data directory wasn't moved and is still in its old location: {{error}}\",\"moved\":\"Data directory moved\",\"startupNotUpdated\":\"Couldn't update start at login and the desktop icon ({{error}}); turn them on again in Settings\",\"leftovers\":\"Some files in the old location couldn't be deleted. Once everything works in the new location, you can delete them by hand: {{path}}\",\"copyTitle\":\"Moving Peach data\"},\"ledgerBackups\":{\"integrity\":{\"openFailed\":\"Can't open: {{error}}\",\"foreignKeys\":\"Foreign key check found {{count}} broken references\",\"checkFailed\":\"Check failed: {{error}}\"},\"refused\":{\"ledgerMissing\":\"The current database doesn't exist, so no backups are cleaned up\",\"integrity\":\"The current database's integrity_check isn't ok: {{check}}\"},\"settle\":{\"interrupted\":\"The last restore from backup was interrupted\",\"restoreIncomplete\":\"The restore didn't finish ({{error}})\",\"kept\":\"{{reason}}; the current database passed the integrity check and was kept\",\"completed\":\"{{reason}}; the restore was finished with the migrated backup\",\"rolledBack\":\"{{reason}}; rolled back to the database from before the restore\",\"unresolved\":\"{{reason}}; neither the current database nor the copy saved before the restore passed the integrity check. Pick another backup from the list to restore\",\"savedAs\":\"{{message}}. The database from before the restore is saved as {{name}}\"}},\"updateTasks\":{\"unnamedTask\":\"Background task\",\"stateUnknown\":\"Task status unavailable\",\"libraryProcessing\":\"Collection metadata and preview processing\"},\"storageBudget\":{\"reason\":{\"diskLow\":\"{{path}} has {{free}} GiB free, below the {{reserve}} GiB reserve\",\"afterWrite\":\"{{path}} after the expected write\",\"limitReached\":\"{{name}} is {{amount}} GiB, at the {{limit}} GiB limit\"},\"part\":{\"data\":\"Peach data\",\"cache\":\"Peach cache\",\"external\":\"External cache\"},\"reasonList\":\"{{first}}; {{rest}}\",\"statusUnreadable\":\"Capacity check record unavailable: {{error}}\",\"layoutUnreadable\":\"Capacity directories unavailable: {{error}}\"},\"diagnostics\":{\"separator\":\"; \",\"label\":{\"configuration\":\"Configuration\",\"database\":\"Database\",\"schema\":\"Database migrations\",\"tools\":\"FFmpeg/OpenSSL\",\"security\":\"Access security\",\"mediaMounts\":\"Media mounts\",\"dataRoot\":\"Data directory\",\"port\":\"Server port\",\"tasks\":\"Background tasks\",\"version\":\"Version\"},\"reason\":{\"configurationUnreadable\":\"The settings file can't be read\",\"setupIncomplete\":\"First-time setup isn't finished\",\"configurationReadable\":\"Settings are readable\",\"databaseMissing\":\"The database doesn't exist\",\"databaseEmpty\":\"The database hasn't been initialized\",\"databaseUnreadable\":\"The database can't be read\",\"databaseSchemaUnreadable\":\"The database structure can't be read\",\"databaseReadable\":\"The database is readable\",\"schemaCurrent\":\"Migrations check out\",\"schemaPending\":\"Some migrations haven't run yet\",\"schemaMismatch\":\"The migration history doesn't match this version\",\"schemaUnavailable\":\"Couldn't check migrations\",\"toolsMissing\":\"Not found: {{names}}\",\"toolsUnusable\":\"Can't run: {{names}}\",\"av1Missing\":\"FFmpeg has no AV1 software decoder\",\"toolsUsable\":\"Media tools run and the AV1 software decoder is available\",\"toolsFound\":\"Tool paths found\",\"accessUnreadable\":\"The access password settings can't be read\",\"passwordOff\":\"LAN or public access is on without an access password\",\"passwordOn\":\"Access password is on\",\"loopbackOnly\":\"Listening on this device only\",\"noLocalSources\":\"No local storage is set up\",\"sourcesReadable\":\"Storage is readable\",\"mountsChecking\":\"Mount check isn't finished\",\"dataRootDenied\":\"No permission to write to the data directory\",\"dataRootUnwritable\":\"The data directory can't be written\",\"dataRootWritable\":\"Test write and cleanup succeeded\",\"hostNotIp\":\"The listen address isn't an IP, so the port status is unavailable\",\"portInUse\":\"The port is in use\",\"portUnknown\":\"Port status unavailable\",\"portAvailable\":\"The port is available\",\"taskFailuresUnknown\":\"Task failure records unavailable\",\"noTaskFailures\":\"No task failures recorded\",\"taskFailures\":\"Some task failures were recorded\",\"versions\":\"Peach {{peach}} · Python {{python}}\",\"databaseMigrating\":\"Updating the local database\"},\"action\":{\"repairConfiguration\":\"Fix the settings file on this device\",\"completeSetup\":\"Finish first-time setup\",\"checkDatabase\":\"Check the database and backups on this device\",\"checkSchema\":\"Check database migrations and backups on this device\",\"updateTools\":\"Update media tools\",\"checkAccess\":\"Check the access password settings on this device\",\"enablePassword\":\"Turn on the access password in settings\",\"checkMounts\":\"Check media directories and mounts\",\"fixDataRootPermission\":\"Fix write permission for the data directory\",\"checkDataRoot\":\"Check the data directory and free space\",\"viewFailedTasks\":\"Review failed tasks in Tasks\"}},\"libraryDiagnostics\":{\"group\":{\"identification\":\"Identification failed\",\"metadata\":\"Metadata failed\",\"cover\":\"Missing cover\",\"duration\":\"Missing duration\"},\"source\":{\"proxy\":\"Proxy connection failed\",\"timeout\":\"The source timed out\",\"network\":\"Couldn't connect to the source\",\"authRequired\":\"The source requires sign-in or refuses the current exit\",\"challenge\":\"The source requires a human check\",\"blocked\":\"The source blocks the current exit\",\"accountSuspended\":\"The source temporarily suspended the signed-in account\",\"geoRestricted\":\"The source restricts the current region\",\"rateLimited\":\"The source is rate limiting\",\"serverError\":\"The source's service is failing\",\"parseError\":\"Couldn't parse the metadata\",\"notFound\":\"The last lookup found nothing\",\"cooling\":\"The source is cooling down\",\"failed\":\"No metadata from the source\",\"parsed\":\"Metadata parsed\",\"parsedBefore\":\"Parsed before; recent parsing needs another check\",\"connectedOnly\":\"Connection check passed; parsing status unavailable\",\"checkedBefore\":\"Checked before; parsing status needs another check\",\"unchecked\":\"Not checked or parsed yet. Check the connection in Sources\"}},\"settingsFile\":{\"comment\":{\"header\":\"Peach settings file. Priority: environment variables > this file > built-in defaults. Restart the server after editing by hand.\\nThis file lives in the Peach data directory, which is set by PEACH_DATA_ROOT or the peach-data directory next to the project.\\nDocker: this file is /data/config.toml. Keep /data on a volume and keep that volume when you recreate the container.\\nIn Docker, /media is the media directory inside the container; Compose mounts the host directory there.\\nDocker deployment guide: https://github.com/peach-mitao/peach/blob/master/docs/DOCKER.md\\nCreated by: peach init (Peach data directory: {{dataRoot}})\",\"directories\":\"Subdirectories of the Peach data directory, such as database and logs. Omitted keys use a directory of the same name.\\nAbsolute paths also work. In Docker, relative directories are under /data; other directories need their own mount to keep their data.\",\"locations\":\"Usually you only enter the real directories under Media directories on the web page; Peach keeps this table and [media.mounts] up to date when it saves.\\nThe notes below are for editing by hand. Existing videos are found through this table; a value that doesn't match makes them unreadable.\\nKeys such as local, 115 and pikpak name the storage; values are the directory prefixes of video paths in the database.\\nThe Peach database stores Windows-style paths on every system, for example R:\\\\media\\\\a.mp4.\\nSo Docker, Linux and macOS use this table too; R:\\\\media doesn't need to exist on those systems.\\nExample: this table has local = 'R:\\\\media' and [media.mounts] has local = '/media'.\\nPeach turns R:\\\\media\\\\a.mp4 from the database into /media/a.mp4 before reading the file.\\nThis table must match the paths in the database. When you move the real directory on Docker, Linux or macOS, keep this table and change [media.mounts].\\nWindows example: local = ['D:\\\\Videos', 'E:\\\\Movies'] uses the media directories on this device directly.\",\"libraries\":\"Directory prefix from [media.locations] -> library name shown in the interface. Without an entry, the directory name is used.\\nThe name and path tables mirror the identity settings for compatibility; library ownership follows library_catalog and storage_roots.\",\"libraryIcons\":\"Directory prefix from [media.locations] -> library icon. Values are icon names from peach.media_libraries.LIBRARY_ICONS;\\nunknown values are ignored: a library on one storage falls back to that storage's icon, one spanning several uses database.\",\"costs\":\"Directory prefix from [media.locations] -> proxy traffic protection. free turns it off, metered turns it on.\",\"mounts\":\"Uses the same storage keys as [media.locations]; values are the directories Peach actually reads files from.\\nIn Docker, use paths inside the container, for example local = '/media'; set the host directory in the Compose volumes.\\nLinux and macOS also use absolute paths on this device, for example /mnt/media or /Volumes/Media.\\nWhen a storage has several directories, write arrays in both tables with the same number and order of directories.\\nDocker, Linux and macOS must provide the real directory, or that storage's media files can't be read; media records are kept.\\nWindows reads the directories in [media.locations] directly and doesn't need this table.\",\"server\":\"In Docker the server always listens on 0.0.0.0:8900; Compose sets the host address and port.\\nhost and port here apply when running peach serve directly; Docker entry arguments take priority.\\nmdns_name must be unique on the LAN: two machines with the same name take it from each other.\\nreview_writer_origin is the address of the device allowed to change the database; read-only devices get items to review through it.\\nLeave it empty to not show the other device's items to review on this device.\",\"replication\":\"Database replication between two computers (ADR-0017): only one may change the database, the other is read-only.\\nSingle-machine and standalone Docker deployments keep enabled = false.\\nWhen off, the sync watcher doesn't start, SMB isn't probed, and the desktop tray hides the database menu items.\\nshared_root is where the two computers exchange database copies; empty uses peach-sync next to the Peach data directory.\\nsmb_* connects to the other computer's shared directory; leave them empty to not connect.\",\"tunnel\":\"Cloudflare Tunnel is off by default; set an access password before turning it on.\\nWith binary empty, cloudflared is looked up in the bundled package, PEACH_CLOUDFLARED, then PATH.\\nmode = \\\"quick\\\" is a temporary link with a random address; \\\"named\\\" uses your own named tunnel, only in a source\\ncheckout, and needs hostname (the public hostname bound in Cloudflare) and token (the tunnel token).\\ntoken is a credential: this file is the only place it's kept. Don't copy it elsewhere or commit it to Git.\"}},\"mountReachability\":{\"ok\":\"Readable\",\"permission_denied\":\"No permission to read\",\"missing\":\"Directory doesn't exist\",\"not_directory\":\"Target isn't a directory\",\"unavailable\":\"Couldn't read the directory\",\"unmapped\":\"No mount point set\",\"checking\":\"Checking\",\"timeout\":\"Check didn't respond\",\"sourceState\":\"{{label}}: {{state}}\"},\"followDiscovery\":{\"idExact\":\"Exact match on the site ID\",\"nameExact\":\"Exact match on the creator name\",\"namePrefix\":\"Creator name starts with this term\",\"nameContains\":\"Creator name contains this term\",\"fanboxOfficial\":\"FANBOX profile matches the archived identity\",\"authorPage\":\"Creator page exists\",\"tagHasWorks\":\"Tag {{tag}} has posts on the site\",\"tagExists\":\"Tag {{tag}} exists on the site\",\"tagCount\":\"Tag {{tag}} has {{count}} posts on the site\",\"tagPrefixCount\":\"A tag starts with this term: {{tag}} has {{count}} posts\",\"tagPrefixExists\":\"A tag starting with this term exists: {{tag}}\",\"withTagType\":\"{{evidence}}; the site files it under {{kind}}\",\"tagType\":{\"artist\":\"Creator\",\"character\":\"Character\",\"copyright\":\"Series\",\"metadata\":\"Metadata\",\"general\":\"Tag\"},\"googleSearch\":\"Keep searching F95zone on Google\",\"googleSearchReason\":\"Not in the F95zone index. Check the search results for the actual thread link\",\"threadTitle\":\"Thread {{thread}}\",\"searchTitle\":\"Site search matched the title “{{query}}”\",\"searchTitlePrefix\":\"Site search matched a title starting with “{{query}}”\",\"withForumLabels\":\"{{evidence}}; forum labels: {{labels}}\",\"threadExists\":\"Thread exists\",\"categoryHit\":\"Matched in {{category}}\",\"withVersion\":\"{{evidence}}; current version {{version}}\",\"profileHandle\":\"Handle {{handle}} from the F95 first-post profile: {{evidence}}\"},\"followSecrets\":{\"why\":{\"fanbox\":\"Public lists work without signing in. When FANBOX's verification page blocks a post, a browser session gets the text, all images, and external links.\",\"gofile\":\"Used to expand Gofile pages into their image and video lists. Gofile currently requires Premium for the contents API; without it, the page link is still kept.\",\"iwara\":\"Public videos work without signing in. Restricted videos need an account with access and valid credentials.\",\"rule34xxx\":\"The website sits behind a Cloudflare CAPTCHA. Peach doesn't bypass CAPTCHAs, so it uses the official API.\",\"f95zone\":\"Finding updates works without signing in. Only attachments and masked download links need a session.\",\"simpcity\":\"The site doesn't let guests read threads, so checking for updates needs a signed-in session. DDoS-Guard doesn't challenge a standard desktop browser identity, and Peach solves no challenges: an expired cookie is reported as is.\"},\"howto\":{\"fanbox\":\"Sign in to FANBOX, then copy the full Cookie request header from a successful api.fanbox.cc/post.info request.\",\"gofile\":\"Sign in to a Premium Gofile account and copy the API token from the profile page.\",\"iwara\":\"Sign in to Iwara, then copy the value after Bearer in the Authorization header of a successful apiq.iwara.tv/video request into access_token. Copy it again when the token expires.\",\"rule34xxx\":\"Sign in, generate an API key in account settings, and put user_id and api_key in the credentials file.\",\"f95zone\":\"Sign in, copy the full Cookie request header from the browser, and put it in the cookie field of the credentials file.\",\"simpcity\":\"Sign in, copy the full Cookie request header from the browser, and put it in the cookie field of the credentials file.\"}},\"subtitles\":{\"language\":{\"zh-Hans\":\"Simplified Chinese\",\"zh-Hant\":\"Traditional Chinese\",\"zh\":\"Chinese\",\"en\":\"English\",\"ja\":\"Japanese\",\"ko\":\"Korean\"}},\"metadata\":{\"authWall\":{\"credentialAdvice\":\"rerun with different credentials\",\"status\":\"The source returned {{status}}; {{advice}}\",\"redirect\":\"The redirect ended at {{path}}; {{advice}}\",\"loginPage\":\"{{page}}; {{advice}}\",\"javdbLoginPage\":\"javdb sign-in page\",\"ambiguous\":\"The source returned {{status}}: either the credentials expired or the outbound IP is blocked. Check whether the site asks you to sign in before deciding to change credentials or wait\"},\"warning\":{\"performerRepeated\":\"The source's performer name repeated itself and was normalized: {{original}} → {{name}}\",\"releaseDateInvalid\":\"The source's release date is invalid and was ignored: {{value}}\",\"releaseDateNormalized\":\"The source's release time was normalized to a date: {{value}} → {{normalized}}\",\"tooManyLinks\":\"The source returned {{count}} links. The candidate keeps the first {{limit}}; the full list stays in the raw snapshot\",\"valueRepeated\":\"The source value repeated itself and was normalized: {{original}} → {{name}}\"},\"evidence\":{\"runtime\":\"{{minutes}} min\",\"poster\":\"Poster ({{host}})\",\"cover\":\"Cover ({{host}})\",\"trailer\":\"Trailer ({{host}})\",\"screenshots\":\"{{count}} screenshots ({{hosts}})\",\"screenshotsMore\":\"{{count}} screenshots ({{hosts}} and more)\",\"externalSource\":\"external source\"}},\"sourceChecks\":{\"mobileBroadbandHint\":\"On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.\",\"target\":{\"page\":\"Source page\",\"cdn\":\"Image CDN\"},\"cooldown\":\"The source is cooling down. Try again later.\",\"proxy\":\"The proxy connection failed. Check the Peach proxy.\",\"timeout\":\"The connection to the source timed out. Try again later or check the connection method.\",\"cdnUnreachable\":\"Can't connect. {{hint}}\",\"unreachable\":\"Can't connect. This source may need a proxy; check its connection method.\",\"challenge\":\"The source returned a verification page. Check its verification status or switch the outbound connection.\",\"rateLimited\":\"The source is rate limiting. Try again later.\",\"notFound\":\"The check address doesn't exist on the source. Check the site address.\",\"signIn\":\"The source requires sign-in or verification. Sign in on the official site, then try again.\",\"reason\":\"{{reason}}.\",\"unavailable\":\"The source is unavailable right now. Try again later.\",\"needsCode\":\"Studio sites are picked by code. Enter a code from your collection to check the HD cover.\",\"noImageHost\":\"This source has no fixed image host, so images weren't checked.\"},\"sourcePreflight\":{\"outcome\":{\"ok\":\"Reachable\",\"auth\":\"Sign-in or verification\",\"http\":\"HTTP error\",\"cooldown\":\"Cooling down\",\"network\":\"Network failure\",\"skipped\":\"Not checked\"}},\"scrapingAccess\":{\"makers\":\"Studio sites\",\"unreachable\":\"Can't connect to the source. Check its network settings\"},\"feeds\":{\"kind\":{\"javdbActor\":\"JAV subscription\",\"dmmActress\":\"JAV subscription · DMM\"}},\"followCheck\":{\"coolingDown\":\"{{provider}} is cooling down after rate limiting. Retrying in {{seconds}} s; skipped this time\"},\"followEvidence\":{\"runLabel\":\"Delete old snapshots\",\"stoppedByUser\":\"Stopped by the user\"},\"followStore\":{\"evidenceUnwritable\":\"Evidence not saved ({{path}} isn't writable: {{error}})\"},\"timelineSheets\":{\"stoppedByUser\":\"Stopped\"},\"fc2Similarity\":{\"commentOnly\":\"Anonymous comment equivalence is only a candidate\",\"collection\":\"Involves a compilation: review the part relationship only, don't merge as a whole\",\"notInLedger\":\"One of the codes isn't in the local database yet\",\"partConflict\":\"The local files have different part markers\",\"reason\":\"{{left}} ↔ {{right}}; evidence: {{kinds}}\"},\"fc2Sellers\":{\"nameMatchesAccounts\":\"The name matches several accounts\",\"nameOtherAccount\":\"The name belongs to a different FC2 account\",\"sharedName\":\"Different FC2 accounts use the same seller name\",\"conflictingAccounts\":\"Sources of this video list different seller accounts\",\"evidence\":\"Seller of {{code}}: {{name}}; account {{account}}\",\"rejectedName\":\"Import rules don't accept this seller name\"},\"westernProfiles\":{\"conflict\":{\"officialExists\":\"An official site is already added\",\"otherAccount\":\"Another {{site}} account is already added\",\"otherPage\":\"Another {{host}} page is already added\"}},\"resourceIdentification\":{\"onlineCandidate\":\"Recognized online; check the source page\"},\"followSources\":{\"linkEvidence\":\"Named directly by the link\",\"iwaraExternalPlayer\":\"This Iwara entry uses an external player. Open the source page to watch it\",\"postTitle\":\"{{site}} post {{post}}\"},\"fanbox\":{\"cover\":\"Cover\",\"image\":\"Image {{number}}\",\"file\":\"File {{number}}\"},\"seesaa\":{\"reviewCast\":\"Cast claims from the community wiki need review; person page links don't merge stage names automatically\",\"incompleteCast\":\"The cast field has unrecognized or uncertain entries; the full cast wasn't found\"},\"resourceSearch\":{\"reject\":{\"code\":\"code mismatch\",\"size\":\"size out of range\",\"seeders\":\"no seeders\",\"hash\":\"no infohash\"},\"rejectedCount\":\"{{reason}}: {{count}}\",\"allRejected\":\"Indexers returned {{total}} results, but none passed the filters: {{counts}}\",\"noIndexer\":\"Add and enable an indexer in Settings → Downloads on this device\",\"busy\":\"A torrent search is already running. Try again later\",\"indexerFailed\":\"{{indexer}}: the request failed or the response format is wrong. Check the indexer\",\"indexerError\":\"{{indexer}}: {{error}}\",\"allFailed\":\"No indexer finished the search\"},\"javdbPublic\":{\"magnetsUnfetched\":\"JavDB magnet search incomplete: {{error}}\",\"reviewPagesQueried\":\"Checked links in the first {{pages}} pages of comments.\",\"commentsUnfetched\":\"JavDB comment search incomplete: {{error}}\"},\"javdb\":{\"commentSource\":\"JavDB comments\"},\"magnetChain\":{\"staleReused\":\"Reused the previous result: {{error}}\",\"sourceFailed\":\"{{source}}: {{error}}\",\"sourceUnfetched\":\"{{source}}: search incomplete\",\"incomplete\":\"Some source searches are incomplete. Try searching again later.\"},\"wantsMagnets\":{\"linksUnfetched\":\"Couldn't get the download links. Try again later or check the source connections.\",\"chainUnfetched\":\"The magnet link search couldn't reach its sources. Try again later or check the source connections.\"},\"javBrowser\":{\"idle\":\"Can be added to your Peach collection\",\"queued\":\"Waiting to search for magnet links\",\"searching\":\"Searching for magnet links\",\"submitted\":\"Cloud download in progress\",\"ingested\":\"Added to your Peach collection\",\"owned\":\"This code is already in your collection\",\"failed\":\"Couldn't add it. You can retry\",\"noMatch\":\"No magnet link to download automatically. You can retry\",\"noMatchSourcesPaused\":\"Not found on the other sources; {{sources}} is unreachable for now and will be checked again when it recovers\",\"searchFailedWith\":\"Resource search failed: {{error}}\",\"noOtherMagnet\":\"No other magnet link available. Pick one manually in Peach\",\"disabled\":\"Adding from the browser is turned off\",\"searchUnavailable\":\"Torrent search is unavailable right now. Check the sources in Peach, then retry\",\"retriesExhausted\":\"Still not done after {{attempts}} automatic retries. The search or cloud download submission failed; check the sources and download channels in Peach, then retry\",\"submitFailed\":\"The search or cloud download submission failed. Check the sources and download channels in Peach, then retry\",\"retryWaiting\":\"Temporarily unavailable. Waiting to retry automatically\",\"sourcesWaiting\":\"Couldn't reach {{sources}}. Waiting to retry automatically\",\"sourcesUnfetched\":\"Couldn't reach {{sources}}\",\"searchFailedWaiting\":\"Resource search failed: {{error}}. Waiting to retry automatically\",\"sourcesExhausted\":\"Still couldn't reach {{sources}} after {{attempts}} automatic retries. Check the sources in Peach, then retry\"},\"followCreators\":{\"evidence\":{\"source\":\"The {{provider}} followed source itself\",\"archived\":\"Original account archived on {{provider}}: {{account}}\",\"profileCard\":\"{{provider}} profile card: {{account}}\"},\"hold\":{\"sameKeyFiled\":\"A source with the same name key already has a profile\",\"sameKeySplit\":\"Sources with the same name key belong to different entities\",\"notAName\":\"The name is a platform, directory, or repost site\",\"nameTaken\":\"A creator with this name is already in the database\",\"namesCollide\":\"Several followed creators normalize to the same name\"},\"held\":\"{{name}} ({{reason}})\"},\"downloadPostprocess\":{\"waiting\":\"Waiting to recognize and organize the full video\",\"noTemplate\":\"No organize template configured\",\"noVerifiedRename\":\"{{location}} has no verified rename channel\",\"nothingToOrganize\":\"Nothing to organize\",\"recognizing\":\"Recognizing the full video\",\"doneSkipped\":\"Full video linked and metadata fetched; organizing skipped: {{reason}}\",\"done\":\"Full video linked, metadata fetched, and organized\",\"donePending\":\"{{summary}}. Some metadata will be fetched again when the sources recover: {{pending}}\"},\"browserTransport\":{\"trafficUnobserved\":\"Browser fetch traffic isn't measured\"},\"followBackfill\":{\"rule34-details\":\"Fill in rule34.xxx details\",\"rule34video-characters\":\"Record rule34video characters\"}}"),
 	taste: {
 		items: "{{items}}",
 		category: {
@@ -15707,7 +15707,7 @@ var Ge = "peach.settings.v1", Ke = {
 		faceModelsReady: "人脸模型已就绪"
 	},
 	api: /* @__PURE__ */ JSON.parse("{\"listening\":{\"outsideLan\":\"这个地址只接受局域网内的连接\"},\"auth\":{\"invalidRememberDays\":\"请选择有效的保持登录时间\",\"loginFormInvalid\":\"登录表单字段过多\",\"loginFormTooLarge\":\"登录表单过大\",\"sessionNotSaved\":\"登录设备未能记下，请检查数据目录能否写入后重试\",\"submitFromSettings\":\"请从 Peach 配置页提交\",\"tooManyAttempts\":\"尝试次数较多，请一分钟后重试\",\"assetTokenRequired\":\"需要 ?t=口令\"},\"configuration\":{\"accessAlreadySet\":\"访问设置已完成，请刷新页面\",\"accessChanged\":\"访问设置已变更，请刷新后再保存\",\"accessChangedRetry\":\"访问设置已变更，请刷新后再操作\",\"accessSaving\":\"访问设置正在保存，请稍后重试\",\"accessUnreadable\":\"访问设置无法读取，请在本机检查配置文件\",\"cannotRevokeThisDevice\":\"不能在这里撤销本机\",\"categoryNotCleanable\":\"这一类不能在这里清理\",\"chooseDeviceToRevoke\":\"请选择要撤销的设备\",\"chooseFirstAccess\":\"请选择设置访问密码或免登录\",\"chooseSetOrDisable\":\"请选择设置或关闭密码\",\"clientErrorInvalid\":\"错误记录格式无效\",\"clientErrorMissingMessage\":\"错误记录缺少原因\",\"clientErrorRateLimited\":\"错误记录过于频繁\",\"clientErrorTooLong\":\"错误记录过长\",\"cloudProxiesUnconfirmed\":\"未能确认 CloudDrive2 已保存，请重新读取配置后核对\",\"cloudProxiesUnreadable\":\"无法读取 CloudDrive2 代理配置，请检查连接和令牌权限\",\"configurationChanged\":\"配置已变更，请刷新后再保存\",\"configurationSaveFailed\":\"配置保存失败：{{error}}\",\"confirmDisablePassword\":\"关闭访问密码前先勾选确认\",\"confirmUninstall\":\"请确认卸载 Peach\",\"currentPasswordWrong\":\"当前访问密码不正确\",\"deviceGone\":\"这台设备已经不在列表里了\",\"dockerUpdateOnly\":\"只有 Docker 镜像有一键更新\",\"enabledNotBoolean\":\"enabled 必须是 true 或 false\",\"errorLogUnwritable\":\"错误日志无法写入\",\"fieldNotText\":\"{{field}} 必须是文字\",\"fileManaged\":\"此部署通过配置文件管理服务\",\"hostRequired\":\"请选择访问范围\",\"indexersNotSaved\":\"索引器配置没有保存，请检查本机凭据目录权限\",\"indexersUnreadable\":\"索引器配置读不出来\",\"invalidCode\":\"请填写有效番号\",\"mdnsNameRequired\":\"请填写局域网名称\",\"needsChanges\":\"有几项需要修改\",\"newVersionInstalled\":\"已更新到新版本，请刷新页面\",\"noLocalCertificate\":\"这台电脑没有提供 HTTPS 的本机证书\",\"noUpgradeReview\":\"暂无升级复核记录\",\"openDiagnosticsOnHost\":\"请在运行 Peach 的电脑上打开系统诊断\",\"openOnHost\":\"请在运行 Peach 的电脑上打开配置\",\"passwordNotText\":\"密码需要是文字\",\"passwordRequired\":\"请输入访问密码\",\"portManagedByTray\":\"访问端口由托盘管理\",\"primaryOnly\":\"只在本机写入端可用\",\"qrExpired\":\"二维码已过期，请在配置页重新扫码\",\"relocateBusy\":\"迁移请求正在处理\",\"relocateRejected\":\"无法迁移到这个位置\",\"repairUnknown\":\"没有名为 {{item}} 的修复。\",\"restoreConfirmRequired\":\"恢复会替换当前账本，请先确认\",\"retentionBusy\":\"保留期限正在保存，请稍后再试\",\"serverManagedByLaunch\":\"访问范围与名称由服务启动配置管理\",\"sessionsWriting\":\"设备记录正在写入，请稍后重试\",\"settingsChanged\":\"设置已变更，请刷新后再保存\",\"settingsSaving\":\"设置正在保存，请稍后重试\",\"settingsWriteFailed\":\"设置写入失败：{{error}}\",\"setupRequired\":\"请先完成首次设置\",\"smbAccessDenied\":\"SMB 登录失败或没有读取权限，请检查账号、密码和共享权限\",\"smbCredentialsNotText\":\"SMB 账号和密码必须是文字\",\"smbUnreadable\":\"SMB 共享无法读取，请检查地址、共享名和网络连接\",\"storagePolicySaveFailed\":\"容量设置保存失败：{{error}}\",\"submitFromAccessPage\":\"请从 Peach 访问设置页提交\",\"tokenFromLaunch\":\"口令由启动参数 --token 或环境变量 PEACH_TOKEN 指定，请在那里更换。\",\"tokenNotUsed\":\"这次启动没有使用访问口令。\",\"uninstallTasksRunning\":\"{{tasks}}正在运行，请在任务中心等它完成或取消后再卸载\",\"updateInstalling\":\"正在安装更新，请稍后重试\"},\"javBrowser\":{\"errorReportInvalid\":\"错误记录格式无效\",\"errorReportTooLong\":\"错误记录过长\",\"primaryOnly\":\"浏览器添加只在允许修改数据库的设备上可用\",\"tokenRequired\":\"请在 Peach 下载渠道启用浏览器添加并配置专用令牌\"},\"pages\":{\"bodyNotObject\":\"请求正文要是 JSON 对象\",\"needsChanges\":\"有几项需要修改\",\"openSetupLocally\":\"请使用本机地址打开设置\",\"passwordRequired\":\"请输入访问密码\",\"restoreMissingConfig\":\"此目录中没有有效的 config.toml\",\"restoreMissingDatabase\":\"此目录中没有数据库，请选择保存原配置和数据库的数据目录\",\"restoreNeedsAbsolutePath\":\"请选择已有数据目录的绝对路径\",\"restoreRejected\":\"无法使用此数据目录\",\"submitFromSetup\":\"请从 Peach 设置页提交\"},\"routes\":{\"importEmpty\":\"导出文件为空\",\"importTooLarge\":\"导出文件超过 1 GB\",\"revealFailed\":\"打开文件管理器失败，请重试\",\"revealMissing\":\"这个位置已经不在了\",\"revealOutsideDataRoot\":\"这个位置不归 Peach 管，只能自己打开\",\"revealUnreachable\":\"这个位置所在的盘没有及时响应，请稍后再试\",\"revealUnsupported\":\"这台机器上打不开文件管理器\",\"taskAlreadyRunning\":\"{{task}}已有一轮在进行，等它跑完再试\",\"taskCanceled\":\"任务已取消，已保存的结果保留\",\"taskChanged\":\"任务已变化，请刷新后重试\",\"taskOnOtherHost\":\"请在执行这轮任务的写入端操作\"},\"settings\":{\"choiceInvalid\":\"{{key}} 只收 {{choices}}\",\"empty\":\"没有要写入的设置\",\"interfaceLanguageInvalid\":\"interfaceLanguage 只收 {{choices}}\",\"libraryOrderInvalid\":\"媒体库顺序须使用不重复的媒体库 ID\",\"navigationOrderUnknownEntry\":\"导航顺序包含无效项目\",\"navigationOrdersInvalid\":\"导航排序需要已知分组与顺序数组\",\"performerNameLanguageInvalid\":\"performerNameLanguage 只收 zh-CN、ja、en、ja-local 或 local-ja\",\"sortControlsInvalid\":\"排序项设置需要有效分组、顺序和隐藏项数组\",\"profileMissing\":\"profile {{profile}} 不存在\",\"searchHistoryLimitInvalid\":\"searchHistoryLimit 只收 0 到 {{max}} 的整数\",\"switchNotBoolean\":\"{{key}} 只收 true 或 false\",\"unknownKeys\":\"这些设置不跟数据库同步：{{keys}}\"},\"subtitles\":{\"fileTooLarge\":\"字幕文件超过 4 MiB\",\"invalidVideo\":\"视频标识无效\",\"memoryTooLarge\":\"字幕内容过大\",\"trackMissing\":\"字幕不存在\",\"videoMissing\":\"视频不存在\"},\"tasks\":{\"cursorIdInvalid\":\"before_id 必须是正整数\",\"cursorIncomplete\":\"before_finished_at 与 before_id 要一起给\",\"cursorWithFilter\":\"before_finished_at／before_id 只用于最近完成那一段，不和 status、task_key 同用\",\"invalidPage\":\"任务页码无效\",\"noTaskTable\":\"数据库缺少任务记录表，请按运行文档检查备份后执行 peach migrate upgrade --yes\"},\"tutorial\":{\"campaignChanged\":\"教程已更新，请刷新后继续\",\"invalidIdentifier\":\"教程章节或步骤标识无效\",\"invalidPosition\":\"教程位置无效\",\"invalidSkipped\":\"教程跳过状态无效\",\"profileMissing\":\"当前用户设置不存在\",\"tooManyChapters\":\"教程章节数量超出范围\",\"tooManySteps\":\"教程步骤数量超出范围\",\"unsupportedAction\":\"不支持的教程操作\"},\"review\":{\"fieldNotInBatch\":\"所选字段资料不在当前批次，无法批准\",\"fieldNotPending\":\"只有待确认的资料字段可以批准\",\"candidateJsonInvalid\":\"待确认资料的 JSON 格式无效\",\"sourceNotPending\":\"所选来源的资料不在当前待确认列表中\",\"itemNotInBatch\":\"所选资料不在当前批次，无法批准\",\"imageNotPassed\":\"只有通过图片质量检查的备选图片可以使用\",\"imageChecksumMissing\":\"所选图片缺少有效的 SHA-256 校验值\",\"imageNotCached\":\"所选图片不在本机缓存：{{digest}}\",\"imageContentMismatch\":\"图片内容与待确认记录不一致，无法使用\",\"noLocalImage\":\"所选资料中没有可用的本机图片，无法使用\",\"imageNotSaved\":\"所选图片未保存在本机：{{name}}\",\"labelFileNameInvalid\":\"厂牌名无法生成存盘文件名\",\"imageFormatUnsupported\":\"不支持的图片格式：{{suffix}}\",\"restoreNotAllowed\":\"只有稍后处理或已忽略的资料可以恢复，已批准的资料不会撤回\",\"restoreItemGone\":\"所选资料已不在当前候选中，未恢复\",\"revisionNotInteger\":\"{{field}} 必须是整数\",\"sourceRequired\":\"批准资料字段时，请先选择要采用的来源\",\"itemNotCandidate\":\"只有 candidate 状态的复核项可以批准\",\"submissionMismatch\":\"提交内容与所选资料不一致，未保存\",\"creatorOverApproveLimit\":\"该创作者有 {{count}} 条作品，超过单次批准上限 {{limit}}，请在页面上显式勾选后再通过\",\"genreEmpty\":\"要收录的 genre 是空的\",\"tagNameInvalid\":\"标签名须为 1 到 80 个字符，且不能是出演者标记\"},\"libraryProcessing\":{\"currentVideoChanged\":\"当前影片已变化或不在采集外部资料，请刷新后重试\",\"taskChanged\":\"任务已变化，请刷新页面后重试\",\"archiveAfterFinish\":\"任务结束后才能归档提示\",\"actionInvalid\":\"处理动作无效\",\"taskRequired\":\"请选择正在处理的任务\",\"noActiveTask\":\"当前没有可暂停或继续的任务\",\"waitingForStop\":\"正在等待任务停止，请稍后重试\",\"issuesUnavailable\":\"未取得完整问题记录，请导出诊断日志\",\"issuesChanged\":\"问题记录已变化，请重新导出\",\"originalTaskChanged\":\"原任务已变化，请刷新页面后重试\",\"retryItemsInvalid\":\"重试项目格式无效\",\"retryItemNotFailed\":\"重试项目不属于原任务的失败集合\",\"incrementalNotBoolean\":\"新增文件范围必须为开关值\",\"incrementalExclusive\":\"新增文件发现不能与其他处理范围同时使用\",\"newScopeExclusive\":\"新入库范围不能与其他处理范围同时使用\",\"noNewVideos\":\"暂无待处理的新入库影片\",\"addMediaDirectory\":\"请先添加媒体目录\",\"collectionConfigMismatch\":\"当前馆藏与媒体配置不一致\",\"selectionInvalid\":\"请选择有效的视频项目\",\"recheckNotBoolean\":\"recheck 只能是 true 或 false\",\"recheckSelectedOnly\":\"重新采集只用于点名的至多 {{limit}} 部影片与资料阶段\",\"selectionRetryExclusive\":\"选择项目与失败重试不能同时使用\",\"stageInvalid\":\"处理阶段无效\",\"incrementalStageUnsupported\":\"新增文件发现只支持扫描或同步\",\"directoryOutsideLibrary\":\"请选择媒体库内的有效目录\",\"directoryUnavailable\":\"无法读取该目录，请检查挂载或权限\",\"directoryStageUnsupported\":\"目录范围只能用于单独扫描\",\"previewsDisabled\":\"视频预览生成已关闭，请先在媒体库设置中开启\",\"meteredGrantNotBoolean\":\"流量保护授权必须为开关值\",\"meteredGrantPreviewsOnly\":\"流量保护授权只用于指定影片的补全预览\",\"libraryMustMatch\":\"重试或恢复必须沿用原任务的媒体库\",\"videoOutsideLibrary\":\"所选影片不属于当前媒体库\",\"libraryNoPending\":\"所选媒体库暂无待处理影片\"},\"scraping\":{\"codeNotInCollection\":\"馆藏未找到这个番号\",\"sourceConnectionFailed\":\"来源连接失败，请检查来源连接设置；已有图片保留。\",\"localCoverFailed\":\"本机封面读取或保存失败，请检查封面目录权限与磁盘空间。\",\"coverProcessingFailed\":\"封面处理失败（{{errorType}}），未能完成比较；请查看服务日志。\"},\"resourceSync\":{\"addMediaDirectory\":\"请先在配置页添加媒体目录\",\"scanExpired\":\"清理确认已过期，请重新检查\"},\"organize\":{\"sourceMissing\":\"不认识的来源：(空)\",\"unknownSource\":\"不认识的来源：{{location}}\",\"confirmRequired\":\"整理需要确认\",\"unverifiedMount\":\"{{location}} 挂载上的改名无法核验云端结果，界面只出预览，不执行\",\"rollbackConfirmRequired\":\"回滚需要确认\",\"noBatchToRollBack\":\"没有可以回滚的批次\"},\"autoLandings\":{\"selectionRequired\":\"请选择要撤回的资料\",\"writeGone\":\"这条自动写入已不在，请刷新后重试：{{item}}\",\"writesChanged\":\"这几条自动写入已有变化，请重新预览\"},\"batch\":{\"quarantinePathMismatch\":\"隔离恢复路径不符\",\"quarantineContentMismatch\":\"隔离恢复内容不符\"},\"mediaRepair\":{\"libraryNotFound\":\"没有这个媒体库\",\"repairUnavailable\":\"这个服务实例没有接上转码与修复组件\",\"libraryRequired\":\"先选一个媒体库\"},\"performerDelete\":{\"selectionRequired\":\"请先选择女优\",\"selectionInvalid\":\"请选择有效的女优\",\"performerGone\":\"所选女优不存在，请刷新列表\",\"planRequired\":\"请先查看影片删除清单\",\"planChanged\":\"影片清单已变化，请关闭确认窗口后重新查看\",\"nothingToDelete\":\"没有可删除的影片\"},\"entityBatch\":{\"previewStale\":\"档案或馆藏已变化，请关闭确认框后重新选择删除范围\",\"selectionInvalid\":\"请选择有效的条目\",\"selectionChanged\":\"所选条目已变化，请刷新后重试\",\"operationInvalid\":\"不支持这项批量操作\"},\"entityMerge\":{\"thirdParty\":\"这些名字还属于另一份档案：{{names}}；请先处理那份档案\"},\"media\":{\"invalidPlaybackOrigin\":\"播放地址无效\",\"localPlaybackUnavailable\":\"请使用网络播放地址或 M3U 播放列表在此设备打开\",\"playerLaunchFailed\":\"无法打开播放器，请检查系统文件关联或选择其他播放器\",\"playbackLinkExpired\":\"播放链接已失效，请在作品详情重新打开\",\"discNeedsExternalPlayer\":\"ISO 原盘请使用作品详情中的外部播放器打开\",\"coverMissing\":\"这个番号没有封面\",\"coverUnreadable\":\"这张封面读不出来\",\"invalidCropBox\":\"框选的区域不成立\",\"socialAvatarUnavailable\":\"社媒头像未取得，来源暂不可用或仍在重试等待中\",\"mediaIndexMissing\":\"媒体序号不存在\",\"imageSourceUnavailable\":\"图片来源不可用\",\"coverNotFound\":\"封面未取得\",\"previewPlaylistTooLarge\":\"预览清单过大\",\"unrecognizedImage\":\"这不是一张能识别的图片\",\"publicHttpsRequired\":\"只接受指向公网的 https 地址\",\"noImage\":\"没有可用的图片\",\"unrecognizedCode\":\"认不出这个番号\"},\"follow\":{\"itemMissing\":\"关注内容不存在\",\"itemUnavailable\":\"关注内容已不可用\",\"entriesNotList\":\"entries 必须是列表\",\"imageDimsBatchLimit\":\"一次最多回写 {{limit}} 张\",\"entryNotObject\":\"每一项必须是对象\",\"invalidImageDims\":\"width/height 必须是正整数\",\"sourceMissing\":\"这个关注来源不存在\",\"addedPendingCheck\":\"已登记，等待检查更新\",\"addedCheckBusy\":\"已登记，另一次检查正在进行，这条稍后再查\",\"creatorBindingIncomplete\":\"entity_id 与 key 都要给\",\"aliasGroupSpansProfiles\":\"这组别名关联了多份创作者档案，请先确认档案归属\",\"creatorNameRequired\":\"请填写有效的创作者名称\",\"nothingToResolve\":\"没有可解析的内容\",\"resolveLineLimit\":\"一次最多解析 {{limit}} 行，收到 {{count}} 行\",\"credentialsNotAccepted\":\"{{provider}} 不接受凭据\",\"credentialsProviderMissing\":\"(空) 不接受凭据\",\"unknownCredentialFields\":\"{{provider}} 不认识这些字段：{{fields}}\"},\"feeds\":{\"javdbLoginRequired\":\"JavDB 返回登入页，请在「来源和凭证」为 JavDB 配置有效 Cookie 后重试\",\"pageUnparsable\":\"这一页解不出任何条目\",\"publicHttpsRequired\":\"订阅地址必须是解析到公网的 HTTPS 地址\",\"sourceHttpStatus\":\"来源回了 HTTP {{status}}\",\"scheduleDisabled\":\"订阅源拉取没有启用\",\"noSourceIds\":\"这位在 JavDB 与 DMM 上都没有编号\",\"performerMissing\":\"找不到这位女优\",\"nameRequired\":\"要先给一个女优名\",\"javdbSearchFailed\":\"JavDB 没有搜成：{{error}}\",\"javdbHttpStatus\":\"JavDB 回了 HTTP {{status}}\",\"javdbSearchLogin\":\"JavDB 回的是登入页，这一趟搜不了；稍后再试\",\"nameEmpty\":\"女优名不能为空\",\"cardRequired\":\"要先勾选至少一张演员卡\",\"cardsSpanPeople\":\"这几张卡分属数据库里不同的人：{{names}}\"},\"catalog\":{\"invalidReleaseYear\":\"发行年份须为四位年份或未知年份\",\"invalidColumnFilters\":\"列筛选格式无效，请重新选择\",\"tagNotInVocabulary\":\"该标签不在当前词表中\"},\"links\":{\"noCompletedCheck\":\"没有已完成的检查结果\",\"checkExpired\":\"检查结果已过期，请重新检查\",\"nothingToRetry\":\"没有可重试的链接\",\"selectionRequired\":\"请选择失效链接\",\"selectionOutsideCheck\":\"所选链接不在本次失效清单中\",\"confirmRequired\":\"需要 confirm\"},\"entry\":{\"invalidDataKey\":\"data-* 键名不合法：{{key}}\"},\"downloads\":{\"disabled\":\"云下载没有启用\",\"invalidCursor\":\"下载任务分页位置无效\",\"invalidPage\":\"下载任务页码无效\",\"bodyNotObject\":\"请求体必须是一个对象\",\"missingTaskId\":\"缺少任务编号\",\"settingsNotObject\":\"设置必须是一个对象\",\"writableDeviceOnly\":\"云下载只在允许修改数据库的设备上可用\",\"browserLoginDisabled\":\"浏览器登录没有启用\"},\"javDiscovery\":{\"invalidMetadataAction\":\"action 只能是 start、refresh 或 cancel\",\"invalidReleaseMetadataAction\":\"action 只能是 start 或 cancel\"},\"libraryShortcuts\":{\"invalidFilterHref\":\"筛选地址过长或格式不正确\",\"collectionFiltersOnly\":\"只能保存馆藏筛选\",\"unsupportedFilterCondition\":\"筛选包含不支持的条件\",\"filtersChanged\":\"筛选列表已变化，请重新打开后排序\",\"invalidFavorite\":\"收藏对象不存在或状态不正确\",\"onlineTagMissing\":\"在线标签不存在，请刷新后重试\",\"favoritesLimit\":\"最多收藏 1000 项\",\"filterNameLength\":\"筛选名称须为 1 到 80 个字符\",\"filtersLimit\":\"最多保存 100 个筛选\",\"unsupportedAction\":\"不支持的收藏操作\",\"profileMissing\":\"当前用户设置不存在\"},\"javBrowserPerformer\":{\"invalidName\":\"女优名无效\",\"invalidSourceUrl\":\"来源网页地址无效\",\"unsupportedPage\":\"这一页不是支持的女优页\",\"dmmLookupFailed\":\"DMM 没有取到这位女优：{{error}}\",\"nameMissing\":\"没有读到这位女优的名字\",\"javdbUnconfirmed\":\"JavDB 上按「{{name}}」没能确认是同一位女优，请到她的 JavDB 演员页订阅\",\"invalidEnabled\":\"enabled 只能是 true 或 false\",\"notInLibrary\":\"Peach 里没有这位女优\"},\"playlists\":{\"nameRequired\":\"播放列表名称不能为空\",\"nameTooLong\":\"播放列表名称最多 80 个字符\",\"itemsRequired\":\"播放列表至少需要一个视频\",\"tooManyItems\":\"播放列表最多 {{limit}} 个视频\",\"unavailableVideo\":\"播放列表含不可用视频：{{assetId}}\",\"mixSeedMissing\":\"Mix 种子必须在播放列表中\",\"reorderIncomplete\":\"排序必须完整包含当前播放列表的所有视频\",\"progressOutsidePlaylist\":\"续播位置不在这个播放列表中\"},\"tasteSignals\":{\"chooseSubject\":\"请只给番号或女优 id 其中一个\"},\"javBrowserPeople\":{\"snapshotTooLarge\":\"本地人物快照过大\",\"snapshotInvalid\":\"本地人物快照格式无效\",\"snapshotUnavailable\":\"本地人物快照未取得\",\"performersLimit\":\"出演者最多 10 位，每位不超过 60 个字符\",\"codesLimit\":\"每次最多查询 50 个番号\",\"performersNeedSingleCode\":\"出演者只能随单个番号查询\"},\"folders\":{\"folderMissing\":\"目录不存在或已移出媒体库\",\"unsupportedAction\":\"不支持的目录规则操作\"},\"javDetail\":{\"invalidCode\":\"需要有效的作品番号\",\"previewImageMissing\":\"预览图不存在\",\"officialCoverMissing\":\"没有找到可用的官方封面\"},\"tags\":{\"unknownScope\":\"未知的标签词表\",\"unknownState\":\"未知的标签状态\",\"unknownView\":\"未知的标签视图\",\"tagsChanged\":\"标签已变化，请重新预览操作范围\"},\"wants\":{\"missingId\":\"缺少想要条目编号\"},\"resourceSearch\":{\"downloadsDisabled\":\"云下载服务没有启用\",\"invalidSizeRange\":\"体积区间必须是字节数\"},\"timelineThumbnails\":{\"invalidMode\":\"采集密度无效\",\"previewsDisabled\":\"视频预览生成已关闭，请先在媒体库设置中开启\",\"ffmpegMissing\":\"未找到 ffmpeg，无法采集缩略图\"},\"mediaTools\":{\"installed\":\"已安装 {{label}}（{{version}}）\",\"alreadyInstalled\":\"{{label}} 已安装（{{version}}），无需重新下载\"},\"ledger\":{\"migrating\":\"正在更新本地数据库，完成后刷新页面即可使用。\",\"migrationFailed\":\"本地数据库更新失败，后台任务没有启动：{{error}}\"}}"),
-	errors: /* @__PURE__ */ JSON.parse("{\"seedSharing\":{\"invalidChoice\":\"请选择是否开启公共资料贡献。\",\"previewFirst\":\"请先预览本机资料并确认分享范围。\",\"tooLarge\":\"资料超过单次发送上限，未生成可发送的预览。\",\"noPerformer\":\"未找到当前女优资料。\",\"noIdentity\":\"缺少可核对的公开身份或日文原名。\",\"invalidName\":\"请填写有效的中文名。\",\"invalidEvidence\":\"请使用公开的 HTTPS 链接，移除账号或跟踪参数后再提交。\"},\"ledger\":{\"writeBusy\":\"本地数据库正忙：这次写入排队超过 {{seconds}} 秒，没有保存，请稍后重试。\",\"writeCorrupt\":\"本地数据库已损坏。请在「设置 → 应用与维护 → 账本备份」恢复经过校验的备份。\"},\"hardwareTranscode\":{\"backendInvalid\":\"PEACH_TRANSCODE_BACKEND 必须为 {{backends}}\"},\"processingInventory\":{\"previewEnded\":\"目录预检已结束，请重新打开同步弹窗\"},\"gfriends\":{\"indexHttpStatus\":\"Gfriends 索引 HTTP {{status}}\",\"indexTooLarge\":\"Gfriends 索引超过大小上限\"},\"researchParticipation\":{\"stateTooLarge\":\"研究联系状态超过本机记录上限\",\"stateInvalid\":\"研究联系状态格式无效\"},\"trayDetached\":{\"venvHomeMissing\":\"虚拟环境缺少基础解释器目录：{{path}}\",\"desktopProcessMissing\":\"未取得当前会话的 Windows 桌面进程，请确认已登录 Windows 桌面\"},\"entities\":{\"tagAliasConflict\":\"标签别名存在冲突，请先合并重复标签\",\"mergeIntoSelf\":\"不能合并到同一份档案\",\"mergeTargetMissing\":\"合并目标档案 {{id}} 不存在\"},\"strm\":{\"urlInvalid\":\"STRM 需要不含账号密码的 HTTP 或 HTTPS 播放地址\",\"fileTooLarge\":\"STRM 文件超过 64 KiB\",\"fileUnreadable\":\"STRM 文件未取得或不是 UTF-8 文本\",\"singleUrlRequired\":\"STRM 文件需要且只能包含一个播放地址\",\"contentUnparsable\":\"STRM 内容无法解析，请检查播放地址和列表格式\",\"mediaUnavailable\":\"STRM 媒体未取得，请检查播放地址或在生成工具中更新 STRM\"},\"feeds\":{\"dmmActressIdDigits\":\"DMM 女优编号只认数字\",\"httpsRequired\":\"订阅地址必须以 https:// 开头\",\"duplicateUrl\":\"这个订阅地址已经在列表里了\"},\"mp4recover\":{\"stagedSizeMismatch\":\"写到原目录的副本大小不对\",\"noDecodableReference\":\"没有一个参照切得出能解码的片子\",\"backupExists\":\"同目录已有一份留档：{{name}}\"},\"javdbPublic\":{\"budgetExceeded\":\"本轮作品资料预算已用完\",\"imageSourcePaused\":\"图片来源暂时不可用，请稍后重试\",\"sourcePaused\":\"作品资料来源暂时不可用，请稍后重试\",\"notFound\":\"未取得这个番号的作品资料\",\"identityAmbiguous\":\"同番号对应多个作品，请核对来源身份：{{identities}}\",\"reviewPageOutOfRange\":\"评论页码必须在 1 至 8 之间\",\"performerAvatarMissing\":\"出演者头像不存在\",\"previewImageMissing\":\"预览图不存在\",\"unavailable\":\"作品资料未取得，请稍后重试\",\"unrecognizedFormat\":\"作品资料来源格式未识别\",\"identityMismatch\":\"来源作品身份不匹配\",\"imageUnavailable\":\"图片未取得\"},\"storageBudget\":{\"unsupportedField\":\"容量设置包含不支持的字段\",\"gibOutOfRange\":\"{{key}} 必须是 {{minimum}} 到 1048576 之间的整数 GiB\",\"switchRequired\":\"{{key}} 必须是开关值\",\"externalPathNotString\":\"外部缓存目录必须是路径\",\"externalPathNotAbsoluteDirectory\":\"外部缓存目录必须是本机可读取的绝对目录\",\"policyUnreadable\":\"容量设置未取得：{{error}}\",\"externalPathOverlaps\":\"外部缓存目录必须独立于 Peach 数据及各配置目录\",\"hardLinkIdentityMissing\":\"文件系统未提供硬链接身份，分配量未取得\",\"externalPathForeign\":\"外部缓存路径不适用于当前系统，请更新路径\",\"externalDirectoryInaccessible\":\"外部缓存目录不可访问\",\"cacheLayoutChanged\":\"缓存目录在统计期间发生变化，请重新统计\",\"dataLayoutChanged\":\"数据目录在统计期间发生变化，请重新统计\",\"capacityLayoutChanged\":\"容量目录在统计期间发生变化，请重新统计\",\"externalDirectoryMoved\":\"外部缓存目录不可访问，迁移后请更新容量设置中的路径\",\"usageUnavailable\":\"容量统计未取得：{{errors}}\",\"scanPaused\":\"扫描期间磁盘余量触线，已暂停当前写入，请清理或重试：{{reasons}}\",\"cacheWritesStopped\":\"{{reasons}}；磁盘空间不足，已停止写入缓存，请清理后重试\",\"intakeStopped\":\"{{reasons}}；已停止领取新项，请调整容量或清理后重试\",\"checkUnavailable\":\"容量保护检查未取得，已暂停：{{error}}\"},\"mediaConfiguration\":{\"smbAddressRequired\":\"请填写 smb://服务器/共享/目录\",\"smbCredentialsNotText\":\"SMB 账号和密码必须是文字\",\"smbOptionsInvalid\":\"SMB 连接选项无效\",\"smbRootInvalid\":\"SMB 目录的内部路径无效\",\"controlCharacters\":\"路径不能包含控制字符\",\"rootMappingMissing\":\"无法自动配置媒体目录，请检查配置文件中的目录对应关系\",\"driveLetterRequired\":\"媒体路径必须包含盘符，例如 B:\\\\；网络共享请先映射为 Windows 盘符\",\"mappingFormatInvalid\":\"配置文件中 [media.locations] 的路径格式无效；请使用 Windows 格式，例如 R:\\\\media\",\"fullPathRequiredWindows\":\"请填写媒体目录的完整路径，例如 D:\\\\Movies\",\"fullPathRequiredPosix\":\"请填写媒体目录的完整路径，例如 /media\",\"parentSegment\":\"媒体目录路径不能包含上级目录 ..\",\"rowInvalid\":\"媒体来源格式不正确\",\"locationRequired\":\"请选择列表中的媒体来源\",\"costRequired\":\"请选择代理流量保护设置\",\"pathOverlaps\":\"媒体路径与另一文件夹重复或互相包含\",\"mappingOverlaps\":\"配置文件中的目录对应关系重复或互相包含\",\"directoryOverlaps\":\"媒体目录与另一行重复或互相包含\",\"rowCount\":\"请添加 1 到 100 个媒体目录\"},\"smbMedia\":{\"addressInvalid\":\"SMB 地址或端口无效\",\"addressFormat\":\"请填写 smb://服务器/共享/目录，账号和密码单独填写\",\"sharePathInvalid\":\"SMB 地址需要共享名，目录不能包含上级目录或路径分隔符\",\"rootIdentityInvalid\":\"SMB 媒体目录身份无效\",\"credentialsNotText\":\"SMB 账号和密码必须是文字\",\"outsideRoot\":\"媒体目录越界\",\"rootNotWritable\":\"不能写入声明的媒体根目录\",\"rootNotRenamable\":\"不能修改声明的媒体根目录\",\"rootNotDeletable\":\"不能删除声明的媒体根目录\",\"rootNotReplaceable\":\"不能创建或替换声明的媒体根目录\",\"renameAcrossRoots\":\"SMB 改名仅支持同一媒体根目录\"},\"jobs\":{\"meteredSourceDenied\":\"{{location}} 的目录已开启代理流量保护；确认预算后显式加 --allow-metered\",\"runInProgress\":\"{{task}} 已有一轮在进行\",\"freeSpaceUnreadable\":\"无法读取 {{path}} 的磁盘余量\",\"freeSpaceLow\":\"{{path}} 仅剩 {{free}} GiB（阈值 {{minimum}} GiB）\",\"freeSpaceLowWhileRunning\":\"运行中 {{path}} 仅剩 {{free}} GiB（阈值 {{minimum}} GiB）；已停止任务。检查第三方缓存目录，本任务的产物目录未必是消耗方\",\"alreadyRunning\":\"已有实例在跑（PID {{pid}}）\",\"startFailed\":\"任务未能启动\",\"serviceStopped\":\"服务关停，这一轮没有跑完\",\"superseded\":\"这一轮已被新的任务顶替\",\"failed\":\"任务失败\"},\"organizeTemplates\":{\"unclosedPlaceholder\":\"占位符的 `{` 没有配对的 `}`\",\"unknownPlaceholder\":\"不认识的占位符 `{{placeholder}}`；可用的是 {{available}}\",\"unopenedGroup\":\"可选分组的 `]` 没有配对的 `[`\",\"unclosedGroup\":\"可选分组的 `[` 没有配对的 `]`\",\"tooLong\":\"模板太长\",\"driveLetter\":\"模板不能带盘符；它只描述来源根下面的相对位置\",\"leadingSeparator\":\"模板不能以分隔符开头；它只描述来源根下面的相对位置\",\"separatorInFilename\":\"文件名模板不能带目录分隔符；分层写在目录模板里\",\"dotSegment\":\"模板不能包含 `.` 或 `..`\",\"emptyLevel\":\"目录模板里有空的一层\"},\"desktopUninstall\":{\"deleteDataChoiceRequired\":\"请选择是否删除 Peach 数据\",\"sourceInstall\":\"源码安装请先退出托盘，再手动移除项目；数据目录见下方\",\"programDirectoryUnsuitable\":\"程序目录不适合自动卸载\",\"programDataOverlap\":\"程序与数据目录重叠，请手动卸载\",\"externalDataDirectories\":\"数据使用了外部或嵌套目录，请保留数据卸载后按目录清单手动清理\",\"mediaOverlap\":\"卸载目录与媒体目录重叠，请手动检查\",\"sourceInstallStartup\":\"源码安装请先关闭开机自启并退出托盘，再手动移除项目与数据目录\",\"updateRunning\":\"更新任务尚未结束，请完成后卸载\",\"configChanged\":\"配置已变更，请重新确认卸载\"},\"scrapingDiagnostics\":{\"codesInvalid\":\"请填写有效番号，单次最多 {{limit}} 个\"},\"tasteBrowsers\":{\"historyFormatUnsupported\":\"浏览器历史格式不受支持，请选择包含网页访问记录的历史文件\",\"historyExUnsupported\":\"HistoryEx 未包含可识别的网页访问记录；115 下载记录不能用于浏览历史，请选择 History 文件\",\"historyLocked\":\"历史文件正在使用，请退出该浏览器后添加\",\"historyUnreadable\":\"浏览器历史文件未取得，请检查资料目录\",\"nameAndPathRequired\":\"请填写浏览器名称和资料目录\",\"noHistoryFiles\":\"目录中未找到浏览器历史或书签文件\",\"browserMissing\":\"浏览器来源不存在\",\"operationInvalid\":\"浏览器操作无效\"},\"taskControl\":{\"actionInvalid\":\"请选择暂停、继续、取消或调整速度\",\"otherHost\":\"请在执行这轮任务的写入端操作\",\"runFinished\":\"这轮任务已经结束\",\"cancelling\":\"任务正在取消，不能再暂停或继续\",\"shuttingDown\":\"服务正在关闭，已保存的进度留待恢复\",\"runMissing\":\"任务未取得，请刷新后重试\"},\"tasteHistory\":{\"snapshotTimeout\":\"浏览器历史快照未取得，请退出该浏览器后重新读取\",\"takeoutNoActivity\":\"Takeout 未包含可识别的浏览或搜索活动\",\"takeoutHistoryListMissing\":\"Takeout Chrome History 缺少 Browser History 列表\",\"takeoutHistoryRowInvalid\":\"Takeout Chrome History 含无效记录\",\"takeoutActivityUnparsed\":\"{{profile}} 含无法解析的活动记录：{{count}}\",\"historyInUse\":\"历史文件正在使用，请退出该浏览器后重新读取\",\"historyNotRead\":\"浏览器历史未取得，请检查资料目录或退出浏览器后重试\"},\"localPoster\":{\"unreadable\":\"配套图片无法读取\",\"tooLarge\":\"配套图片体积超出范围\"},\"seedPack\":{\"duplicateField\":\"种子 JSON 字段重复：{{key}}\",\"previousNameTaken\":\"原规范名已被其他实体占用，未撤回中文名\"},\"organizeClouddrive\":{\"pikpakRootInvalid\":\"PikPak 媒体根必须是已声明的 Windows 格式绝对路径\",\"cloudDirectoryInvalid\":\"PikPak 云端目录格式无效\",\"cloudPrefixIsRoot\":\"PikPak 云端前缀不能是 CloudDrive 总根目录\",\"pathOutsideSource\":\"路径越出已声明的 PikPak 来源\",\"sampleOutsideRoot\":\"认证样本不属于已声明的 PikPak 媒体根\",\"prefixNotUnique\":\"请在推送发现中为该 PikPak 媒体根配置唯一的 CloudDrive 路径前缀\",\"webdavResponseTooLarge\":\"WebDAV 响应超过预算\",\"webdavNoResponse\":\"WebDAV 网络应答未取得\",\"webdavTreeTooLarge\":\"WebDAV 目录遍历超过预算或循环\",\"webdavTooManyFiles\":\"WebDAV 文件成员超过预算\",\"targetParentNotDirectory\":\"目标父路径不是目录\",\"webdavMkcolFailed\":\"WebDAV 创建父目录失败：HTTP {{status}}\",\"crossParentRename\":\"官方接口只接受同父改名或保留名称的移动；跨父改名须先拆成两步\",\"moveNotExecuted\":\"官方接口拒绝或未执行移动，原件已确认留在原处\",\"cloudPathTooDeep\":\"官方目录路径超过层级预算\",\"cloudListingInvalid\":\"官方目录成员越界、重名或体积无效\",\"cloudListingTooLarge\":\"官方目录成员超过预算\",\"moveMismatch\":\"官方移动来源、父目录或文件名不符\",\"renameOutsideParent\":\"官方改名只支持已声明来源内的同父目录\",\"refreshFailed\":\"目录缓存刷新未取得：{{status}}\",\"directLinkAuthMissing\":\"既有 CloudDrive 直链认证未取得\",\"directLinkMismatch\":\"既有直链来源或路径不符\",\"webdavAuthMissing\":\"既有 WebDAV 认证未取得\",\"authSampleMissing\":\"既有 CloudDrive 认证样本未取得\",\"tokenMissing\":\"既有 CloudDrive 令牌未取得\",\"webdavSourceMissing\":\"既有 PikPak WebDAV 来源未取得\",\"tokenRootRestricted\":\"网盘整理要用根目录为 / 的 CloudDrive2 令牌，当前令牌只能访问 {{root}}\",\"accountRootMissing\":\"CloudDrive 未返回 WebDAV 账号根目录\",\"prefixOutsideAccountRoot\":\"CloudDrive 路径前缀不属于返回的账号根目录\",\"webdavUnavailable\":\"WebDAV 暂时不可用：{{status}}\",\"cloudListingUnavailable\":\"官方完整目录未取得：{{status}}\",\"webdavSourceNotFound\":\"WebDAV 来源未取得\",\"webdavTargetExists\":\"WebDAV 目标已存在\",\"cloudParentMissing\":\"官方父目录未列出所需目录\",\"moveUnconfirmed\":\"移动状态未确认，保留意图回执并停止；不重复操作、不写数据库\"},\"downloads\":{\"infohashInvalid\":\"磁力链接里的 infohash 不是 40 位十六进制或 32 位 base32\",\"magnetRequired\":\"请粘贴磁力链接\",\"magnetNotBittorrent\":\"磁力链接里没有 urn:btih，Peach 只接受 BitTorrent 磁力\",\"targetIsRoot\":\"目标目录要写成网盘里的一个具体文件夹，不能是网盘根目录\",\"addressFormat\":\"CloudDrive2 地址只写协议、主机和端口，例如 http://127.0.0.1:19798\",\"addressPortInvalidIpv6\":\"CloudDrive2 地址的端口必须是 1–65535 的整数，IPv6 地址须放在方括号内\",\"addressPortInvalid\":\"CloudDrive2 地址的端口必须是 1–65535 的整数\",\"notPikpakRoot\":\"{{root}} 不是已声明的 PikPak 媒体根；已知：{{known}}\",\"notPikpakRootNoneDeclared\":\"{{root}} 不是已声明的 PikPak 媒体根；已知：（设置文件里没有 pikpak 来源）\",\"invalidEditionPreferences\":\"下载版本顺序有重复或包含不支持的版本\",\"waitHoursNotNumber\":\"等待上限要写成小时数\",\"waitHoursOutOfRange\":\"等待上限在 1 到 {{max}} 小时之间\",\"writerOnly\":\"云下载只在允许修改数据库的设备上可用\",\"channelUnavailable\":\"请选择媒体库中可用的云下载渠道\",\"targetOutsideLibrary\":\"下载目标目录必须位于所选媒体库内\",\"taskNotFound\":\"没有这个下载任务\",\"taskFinished\":\"这个任务已经结束，不能取消\",\"cancelFailed\":\"远端没有取消成功：{{detail}}\",\"nothingToRetry\":\"这个任务没有失败的后处理可以重试\",\"remoteRejectedNoReason\":\"远端拒绝了这个任务：远端没有给出原因\",\"remoteBlocked\":\"115 拦截了这个资源（违规内容，50038），不会重试：{{text}}\",\"remoteQuota\":\"离线配额不够：{{text}}\",\"remoteStorageFull\":\"扩容或清理网盘空间后再提交\",\"remoteDuplicate\":\"远端已有同一个任务：{{text}}\",\"remoteInvalidLink\":\"远端不认这个链接：{{text}}\",\"remoteRejected\":\"远端拒绝了这个任务：{{text}}\",\"retriesExhausted\":\"{{detail}}（自动重试 {{checks}} 次后仍未提交）\",\"noSeeders\":\"等了 {{hours}} 小时远端还没完成，多半是没有人做种。可以取消，或换一个磁力\",\"notAccepted\":\"网盘没有收下这个任务：提交后离线列表里始终没有它，目标目录里也没有文件\",\"remoteRemoved\":\"网盘里的这个任务不见了：离线列表里找不到它，目标目录里也没有文件\",\"targetNotMapped\":\"目标目录对应不到媒体目录，请检查媒体库挂载和云端路径前缀关联\",\"notLanded\":\"远端已完成，但挂载目录里一直没有出现 {{path}}\"},\"followStore\":{\"aliasNamesRequired\":\"规范创作者名和平台别名都不能为空\",\"aliasSameAsName\":\"这两个名字归一化后相同，不需要维护别名\",\"nameRequired\":\"统一名称不能为空\",\"aliasGroupMissing\":\"这个创作者别名组不存在，请刷新列表\",\"nameTaken\":\"这个名称已属于另一位创作者，请先确认是否需要合并\",\"aliasRequired\":\"别名不能为空\",\"aliasMissing\":\"这个创作者别名不存在\",\"canonicalNotRemovable\":\"规范名不能作为别名移除\",\"itemMissing\":\"追更条目不存在：{{id}}\",\"itemNotFound\":\"追更条目 {{id}} 不存在\",\"noWorkUrl\":\"候选没有作品页 URL，无法作为在线作品保存\"},\"followCreators\":{\"holdGone\":\"这组关注作者已经不在等确认了，刷新后再看\"},\"onlineTagManagement\":{\"nameInvalid\":\"标签名须为 1 至 80 个字符，不含逗号或控制字符\",\"nameTaken\":\"「{{name}}」已属于标签「{{tag}}」，请使用合并标签\",\"selectionInvalid\":\"请选择有效的在线标签，单次最多 2000 个\",\"tagsChanged\":\"标签已变化，请刷新后重试\",\"mergeSelection\":\"请选择至少两个标签，并从中选择保留的标签\",\"mergeSameType\":\"请选择相同来源类型的标签合并\",\"previewStale\":\"标签已变化，请重新预览操作范围\",\"itemTagLimit\":\"每条内容最多添加 100 个手动标签\"},\"tagManagement\":{\"selectionInvalid\":\"请选择有效的标签，单次最多 2000 个\",\"nameInvalid\":\"标签名须为 1 至 80 个字符\",\"nameTaken\":\"「{{name}}」已属于标签「{{tag}}」，请使用合并标签\",\"tagsChanged\":\"标签已变化，请刷新后重试\",\"mergeSelection\":\"请选择至少两个标签，并从中选择保留的标签\",\"previewStale\":\"标签已变化，请重新预览操作范围\"},\"reviewMirror\":{\"notWriter\":\"目标实例当前不是 ledger writer\",\"readFailed\":\"无法读取写入端：{{type}}: {{error}}\",\"readFailedWithCurl\":\"无法读取写入端：{{type}}: {{error}}；系统网络通道：{{curl}}\",\"responseTooLarge\":\"写入端复核响应超过 8 MiB 上限\",\"invalidJson\":\"写入端返回的不是有效 JSON\",\"notObject\":\"写入端返回的不是 JSON 对象\",\"curlStartFailed\":\"curl 启动失败：{{type}}: {{error}}\",\"curlExit\":\"curl 退出 {{code}}：{{detail}}\",\"curlExitNoDetail\":\"curl 退出 {{code}}：未取得错误详情\",\"responseMissingKey\":\"写入端复核响应缺少 {{key}}\",\"queuesMissing\":\"写入端未提供复核状态，请更新写入端\",\"queueMissing\":\"写入端的复核状态 {{key}} 未取得\",\"strictHttpsMissing\":\"未配置可严格校验的写入端 HTTPS\"},\"subtitleSearch\":{\"urlUnsupported\":\"字幕下载地址不受支持\",\"responseTooLarge\":\"字幕响应超过 4 MiB\",\"unreachable\":\"SubtitleCat 暂时无法连接，请稍后重试\",\"tooManyRedirects\":\"字幕下载重定向次数过多\",\"idInvalid\":\"字幕编号无效\",\"queryInvalid\":\"搜索词需为 3–200 个字符，分页位置无效时请重新搜索\",\"searchPageMissing\":\"SubtitleCat 搜索页面未取得，请稍后重试\",\"fileMissing\":\"字幕文件不存在\",\"fileTooLarge\":\"字幕文件超过 4 MiB\",\"formatUnsupported\":\"请选择 SRT、ASS、SSA 或 VTT 文本字幕\",\"noTimeline\":\"字幕文件中没有可播放的时间轴\"},\"devCopy\":{\"placeholdersChanged\":\"请保留原有占位符，只修改文字；字面花括号写成 {{open}} 和 {{close}}\",\"placeholdersIncomplete\":\"请保留全部占位符，各出现一次\",\"textTooLong\":\"请选择不超过 2000 字的文案\",\"replacementInvalid\":\"新文案必须是文字，且不能超过 2000 字\",\"sourceChanged\":\"源文件已变化，请重新选择文字\",\"fileNotEditable\":\"不能修改这个文件\"},\"dockerUpdate\":{\"watchtowerMissing\":\"没有检测到 Watchtower，请用 compose 的 watchtower profile 启动\",\"unreachable\":\"连不上 Watchtower（{{error}}），请稍后重试\",\"tokenMismatch\":\"Watchtower 读到的令牌与 Peach 不一致；在 compose.yaml 所在目录运行 docker compose restart watchtower 后重试\",\"busy\":\"Watchtower 正在执行另一次更新，请稍后再试\",\"httpStatus\":\"Watchtower 返回 HTTP {{status}}\"},\"updatePackages\":{\"toolPathInvalid\":\"工具清单路径无效\",\"toolPathEscapes\":\"工具清单路径越界或包含链接\",\"manifestInvalid\":\"更新包工具清单无效\",\"fileListInvalid\":\"更新包工具文件清单无效\",\"requiredFileMissing\":\"更新包工具清单缺少必需文件\",\"downloadInfoInvalid\":\"更新包工具下载信息无效\"},\"feedFollowup\":{\"noMetadata\":\"来源链 {{chain}} 上都没有这个番号的资料\",\"chainTimedOut\":\"来源链 {{chain}} 在 {{seconds}} 秒内没有答复\"},\"westernCatalog\":{\"http\":\"{{source}} 返回 HTTP {{status}}\",\"invalid\":\"{{source}} 未返回可用的作品资料\",\"invalidKey\":\"请输入有效的 API 密钥\",\"keyMissing\":\"请先配置 {{source}} API 密钥\",\"keyRejected\":\"{{source}} 未接受此 API 密钥\",\"redirect\":\"{{source}} 请求跳转到其他网站，连接已停止\"},\"westernArtwork\":{\"babepediaUrlMismatch\":\"Babepedia 未取得：档案地址不一致\",\"babepediaHttp\":\"Babepedia 未取得：HTTP {{status}}\",\"babepediaIdentityMismatch\":\"Babepedia 未取得：档案身份不一致\",\"babepediaHostMismatch\":\"Babepedia 未取得：来源域名不一致\",\"officialCoverHttp\":\"官方封面未取得：HTTP {{status}}\",\"officialCoverInvalid\":\"官方封面未取得：接口没有返回有效资料\"},\"peachProxy\":{\"modeRequired\":\"请选择 Peach 代理的连接方式\",\"addressInvalid\":\"请填写带端口的 HTTP 或 SOCKS 代理地址\",\"conflict\":\"来源代理设置不同，请先在配置页选择 Peach 代理\",\"requestFailed\":\"外部请求未取得（{{kind}}）\"},\"wants\":{\"codeEmpty\":\"认不出番号：（空）\",\"codeUnrecognized\":\"认不出番号：{{text}}\",\"alreadyInLibrary\":\"{{code}} 已经在库里\",\"feedItemMissing\":\"找不到这条新作\",\"followItemMissing\":\"找不到这条关注条目\",\"wantMissing\":\"找不到这条想要\"},\"mediaProcessingPolicy\":{\"previewStateRequired\":\"请选择视频预览生成状态\",\"accelerationModeRequired\":\"请选择自动或仅软件模式\",\"choiceRequired\":\"请选择媒体处理方式\",\"qualityRequired\":\"画质上限只收 {{choices}}\"},\"retentionSettings\":{\"choiceInvalid\":\"{{key}} 只收 {{choices}}\",\"empty\":\"没有要保存的保留期限\"},\"server\":{\"databaseMissing\":\"已有配置但缺少数据库，请恢复数据库后启动\",\"migrateFailed\":\"数据库升级失败，退出码 {{code}}；服务未启动\",\"settingsMissing\":\"已有数据库但缺少配置文件，请恢复 config.toml 后启动\",\"initFailed\":\"初始化失败，退出码 {{code}}\"},\"entryLinks\":{\"sitesRequired\":\"请提交每个站点的地址\",\"siteMissing\":\"缺少 {{site}} 的设置\",\"hostNotText\":\"{{site}} 的地址必须是文字\",\"hostTooLong\":\"{{site}} 的地址请控制在 {{limit}} 个字符以内\",\"hostShape\":\"{{site}} 这里只写域名本身，像 {{example}}\"},\"gpuLinux\":{\"clientIdMissing\":\"GPU 驱动未提供可去重的 DRM 客户端编号\",\"engineFormatInvalid\":\"GPU 引擎时间或容量格式无效\",\"engineTimeMissing\":\"GPU 驱动未提供 DRM 引擎忙碌时间\"},\"remoteMediaCache\":{\"capacityDenied\":\"{{detail}}\",\"incompleteResponse\":\"媒体响应长度不完整\",\"unavailable\":\"媒体未取得\"},\"supportBundle\":{\"notWritable\":\"诊断报告无法写入数据目录或临时目录\"},\"smbTransport\":{\"hostShareNotComponent\":\"SMB 主机和共享名必须是单独的路径分量\",\"invalidPort\":\"SMB 端口无效\",\"invalidTimeout\":\"SMB 请求期限必须是有限正数\",\"pathNotRelative\":\"SMB 路径必须相对共享根\",\"invalidPathComponent\":\"SMB 路径含无效分量\",\"authenticationFailed\":\"SMB 身份验证失败\",\"accessDenied\":\"SMB 访问被拒绝\",\"connectionUnavailable\":\"SMB 连接不可用\",\"requestTimedOut\":\"SMB 请求超时\",\"transportClosed\":\"SMB 传输已关闭\",\"disconnected\":\"SMB 连接已断开\",\"connectionClosed\":\"SMB 连接已关闭\",\"dfsNotAllowed\":\"SMB DFS 共享不允许重解析\",\"reparsePoint\":\"SMB 重解析点不可访问\",\"rootNotModifiable\":\"不能修改共享根目录\",\"rootNotReplaceable\":\"不能替换共享根目录\",\"rootNotWritable\":\"不能写入共享根目录\",\"readNoCredits\":\"SMB 读取没有可用额度\",\"unexpectedEnd\":\"SMB 文件在声明的结尾之前结束\",\"writeNoCredits\":\"SMB 写入没有可用额度\",\"writeIncomplete\":\"SMB 写入未完成\",\"requestFailed\":\"SMB 请求失败\"},\"resourceSearch\":{\"invalidEndpoint\":\"索引器地址格式不正确\",\"endpointFormat\":\"填写 HTTP 或 HTTPS API 地址；API key 单独填写，地址不带查询参数\",\"unreadableConfig\":\"索引器配置读不出来，请在本机「配置 → 下载」中重新保存\",\"tooManyIndexers\":\"最多配置 {{max}} 个索引器\",\"indexerNotObject\":\"索引器配置必须是对象\",\"invalidIndexerKey\":\"索引器编号为空或重复\",\"invalidIndexerName\":\"索引器名称须为 1 到 80 个字符\",\"invalidApiKey\":\"API key 格式不正确\",\"invalidSizeRange\":\"体积区间须在 0 到 1 TiB 之间，下限不能大于上限\",\"invalidGoal\":\"质量目标只能是高清、中字或无码\",\"responseTooLarge\":\"索引器响应超过 2 MiB\",\"xmlEntities\":\"索引器 XML 含不支持的实体声明\",\"notTorznab\":\"索引器没有返回 Torznab XML\",\"invalidCode\":\"请输入可识别的作品番号\",\"indexerLimitExceeded\":\"索引器数量超过上限\",\"noCodeSearch\":\"索引器没有声明番号搜索能力\"},\"scrapingAccess\":{\"unknownSource\":\"未知采集来源\",\"cookieFileFormat\":\"Cookie 文件须为 Netscape 文本格式\",\"cookieOneLine\":\"请粘贴一行 Cookie 请求头\",\"invalidCookieHeader\":\"Cookie 请求头格式无效\",\"chooseNetwork\":\"请选择来源连接方式\",\"cookieNotAccepted\":\"此来源不接受登录 Cookie\",\"cookieOneMethod\":\"Cookie 粘贴与文件导入只选一种\",\"cookieTooLarge\":\"Cookie 文本超过 256 KiB\",\"noValidCookie\":\"未找到该来源尚未过期的 Cookie\",\"redirectNotHttps\":\"采集重定向必须使用 HTTPS\",\"tooManyRedirects\":\"采集重定向次数超过上限\",\"accountSuspended\":\"{{label}} 账号被临时停用（站方判定浏览太快），{{time}} 自动恢复；停的是账号，换出口没用，Peach 先暂停向它请求\",\"geoRestricted\":\"{{label}} 不对当前出口所在的地区开放，请在代理里给它换一个它接受的地区的出口；暂停向它请求 {{minutes}} 分钟\",\"ipBanned\":\"{{label}} 封禁了当前出口 IP，暂停向它请求一段时间，也可以在代理里给它换一个出口\",\"requestBudgetSpent\":\"本趟采集次数已用完，再跑一次接着采；已有图片保留\",\"timeBudgetSpent\":\"本趟采集时间已用完，再跑一次接着采；已有图片保留\",\"downloadBudgetSpent\":\"本趟下载量已用完，再跑一次接着采；已有图片保留\",\"coolingDown\":\"来源正在冷却，请稍后重试；已有图片保留\",\"challengeTimedOut\":\"来源的人机验证没有在限时内通过，暂停向它请求一段时间；下次可从任务栏点开采集浏览器点一下验证；已有图片保留\",\"rateLimited\":\"来源限流，已记录冷却时间；已有图片保留\",\"coolingDownNamed\":\"{{label}} 暂停中，约 {{minutes}} 分钟后再试\",\"rateLimitedNamed\":\"{{label}} 限流，约 {{minutes}} 分钟后再试\",\"refusedNamed\":\"{{label}} 拒绝了当前出口的请求，多半是请求太频繁或出口被拦；暂停约 {{minutes}} 分钟，也可以在代理里给它换一个出口\",\"refusedCookieNamed\":\"{{label}} 拒绝了请求：可能是请求太频繁、出口被拦，或贴过的 Cookie 已过期；暂停约 {{minutes}} 分钟，可以换个出口或重贴 Cookie\",\"refused\":\"来源拒绝访问，暂停向它请求一段时间；已有图片保留\",\"browserModeInvalid\":\"采集浏览器模式只收 {{choices}}\"},\"downloadPostprocess\":{\"noLandingPath\":\"下载任务没有落地路径\",\"noVideoInLanding\":\"落地目录里没有可识别的视频\",\"mainBoundToOtherCode\":\"正片已绑定其他番号：{{code}}\",\"configMismatchProbe\":\"当前馆藏与媒体配置不一致，不能探测下载媒体\",\"configMismatchCollect\":\"当前馆藏与媒体配置不一致，不能采集下载资料\",\"collectFailed\":\"资料采集失败\",\"organizeIncomplete\":\"文件整理未完成：{{reasons}}\",\"integrityBefore\":\"整理前 ledger 校验失败：integrity={{integrity}}\",\"integrityAfter\":\"整理后 ledger 校验失败：integrity={{integrity}} new_foreign_keys={{count}}\",\"notIngested\":\"云下载任务尚未入库\"},\"subtitleMemory\":{\"invalidFields\":\"播放记忆字段无效\",\"chooseSubtitle\":\"请选择字幕或关闭字幕\",\"invalidRotation\":\"旋转角度无效\",\"invalidRate\":\"播放速度无效\",\"invalidCaptionStyle\":\"字幕外观无效\",\"invalidSelection\":\"字幕选择无效\",\"invalidVideoKey\":\"视频标识无效\",\"invalidTrack\":\"字幕轨道无效\",\"invalidTrackContent\":\"字幕内容或名称无效\",\"selectionNotSaved\":\"选择的字幕尚未保存\"},\"entityIdentityResearch\":{\"nameMismatch\":\"身份清单与实体名称不一致\",\"performerNeedsOccupation\":\"出演者迁移需要已取得的公开职业来源\",\"planExpired\":\"身份计划已过期\",\"multiplePublishers\":\"作品存在多个发布者，需复核\",\"recordChanged\":\"身份修复记录已发生后续改动\",\"newIdentityChanged\":\"新身份已发生后续改动\",\"newIdentityHasVideos\":\"新身份出现额外作品关系\",\"newIdentityHasData\":\"新身份出现额外资料\"},\"updateTasks\":{\"gateBusy\":\"任务闸门正忙，稍后自动重试。\",\"stateUnreadable\":\"任务保护状态无法读取，请检查数据目录后重试。\",\"stateInvalid\":\"任务保护状态无效，请检查数据目录后重试。\",\"preparingInstall\":\"正在准备安装更新，暂时不能启动新任务。请等待安装完成。\",\"installInProgress\":\"已有更新安装正在进行，请等待完成。\",\"reservedBusy\":\"{{message}}\",\"pausedForInstall\":\"任务已暂停，安装完成后自动继续。\",\"batchStateUnknown\":\"批处理进程状态无法确认，安装已取消。\",\"reservationExpired\":\"更新安装预约已失效，请重新准备更新。\"},\"avatarProvider\":{\"unsupportedFormat\":\"暂不支持 {{format}} 图片格式，请换用 JPEG、PNG、WebP 或 AVIF 图片\",\"unsupportedFormatUnknown\":\"暂不支持 这种 图片格式，请换用 JPEG、PNG、WebP 或 AVIF 图片\",\"imageTooLarge\":\"图片像素尺寸过大，请缩小后重新选择\",\"unrecognizedImage\":\"无法识别图片内容，文件可能损坏或格式未支持，请重新导出图片\",\"incompleteImage\":\"图片数据不完整或无法解码，请重新下载或导出图片\"},\"processingControl\":{\"invalidMode\":\"请选择低占用、标准或高强度模式\",\"jobChanged\":\"任务已变化，请刷新页面后重试\",\"stopped\":\"处理任务已停止\",\"userStopped\":\"用户停止任务\"},\"avatarWatermark\":{\"modelMissing\":\"文字检测模型不在 {{path}}，且不允许下载\",\"downloadFailed\":\"取文字检测模型失败：{{error}}\",\"checksumMismatch\":\"文字检测模型校验不符：期望 {{expected}}，实际 {{actual}}\"},\"junkVisual\":{\"ocrUnavailable\":\"画面推广识别未取得结果（{{reason}}）\"},\"previewCache\":{\"playlistNotFetched\":\"播放列表未取得\",\"contentSteering\":\"暂不支持 Content Steering 播放列表\",\"sourceUnavailable\":\"预览来源不可用\",\"objectMissing\":\"预览对象不存在\",\"manifestNotFetched\":\"预览清单未取得\"},\"metadataRoutes\":{\"overrideFormat\":\"来源链覆盖要写成 `类型=来源,来源`\",\"unknownContentType\":\"未知内容类型：{{type}}\",\"unknownSources\":\"未知来源：{{sources}}\"},\"libraryNfo\":{\"tooLargeOrEntities\":\"NFO 文件过大或包含实体声明\",\"notVideo\":\"NFO 不是影片或单集资料\",\"multipleCodes\":\"NFO 包含多个不同番号\"},\"remoteReporting\":{\"notBoolean\":\"遥测和自动错误诊断必须是布尔值\",\"mustMatch\":\"版本统计与错误诊断须同时开启或关闭\"},\"studioIcons\":{\"hashMismatch\":\"候选文件与复核记录哈希不一致，拒绝安装：{{name}}\",\"notSquare\":\"无法生成可用的方形图片，未安装：{{name}}\"},\"fileIdentity\":{\"invalidCache\":\"本地文件身份缓存格式无效\"},\"releaseUpdates\":{\"toolPackageNotFound\":\"未能从发布页取得工具包信息，请检查网络与 Peach 代理后重试\"},\"sourcePreflight\":{\"unknownSource\":\"请选择已登记的资料源 ID\"},\"libraryProcessingScope\":{\"libraryGone\":\"所选媒体库已不存在，请重新选择\",\"noDirectories\":\"所选媒体库没有可处理的目录\"},\"access\":{\"passwordMismatch\":\"两次输入的密码不一致\",\"passwordLength\":\"访问密码需为 8–256 个字符\",\"invalidRememberDays\":\"请选择有效的保持登录时间\"},\"downloadsPikpak\":{\"missingCredentials\":\"请填写 PikPak 账号和密码\",\"captchaRequired\":\"PikPak 要求先完成人机验证：打开验证页完成后，回到设置页再点一次登录\",\"shapeNotJson\":\"PikPak 接口回包形状不对（HTTP {{status}} 不是 JSON），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNotObject\":\"PikPak 接口回包形状不对（回包不是对象），接口可能已经变了。可以先复制磁力手动添加\",\"shapeHttpStatus\":\"PikPak 接口回包形状不对（HTTP {{status}}），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNoCaptchaToken\":\"PikPak 接口回包形状不对（没有 captcha_token），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNoLoginToken\":\"PikPak 接口回包形状不对（登录回包里没有 token），接口可能已经变了。可以先复制磁力手动添加\",\"shapeAuthAfterRefresh\":\"PikPak 接口回包形状不对（刷新 token 之后仍未通过认证），接口可能已经变了。可以先复制磁力手动添加\",\"shapeFileList\":\"PikPak 接口回包形状不对（文件列表），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNoTask\":\"PikPak 接口回包形状不对（提交回包里没有 task），接口可能已经变了。可以先复制磁力手动添加\",\"shapeTaskList\":\"PikPak 接口回包形状不对（任务列表），接口可能已经变了。可以先复制磁力手动添加\",\"shapeTaskPhase\":\"PikPak 接口回包形状不对（任务状态 {{phase}}），接口可能已经变了。可以先复制磁力手动添加\",\"shapeTaskPhaseEmpty\":\"PikPak 接口回包形状不对（任务状态 为空），接口可能已经变了。可以先复制磁力手动添加\",\"unreachable\":\"连不上 PikPak：{{error}}\",\"serverUnavailable\":\"PikPak 暂时不可用（HTTP {{status}}）\",\"unknownWebClient\":\"PikPak 网页端的客户端标识是 {{client}}，Peach 没有它的签名常量，提交不了离线任务。可以先复制磁力手动添加\",\"webSignatureRejected\":\"PikPak 拒绝了网页端的请求签名：{{description}}（{{code}}）。网页端的签名常量可能已经更新，可以先复制磁力手动添加\",\"notSignedIn\":\"还没有登录 PikPak\",\"signInExpired\":\"PikPak 登录已过期，请在设置页重新登录：{{description}}（{{code}}）\",\"webRefreshRejected\":\"PikPak 拒绝刷新网页登录的令牌：{{description}}（{{code}}）。请在设置页点「用浏览器登录」重新登录\",\"folderMissing\":\"PikPak 里没有 {{path}} 这个文件夹\",\"targetNeedsFolder\":\"目标目录要写成 PikPak 里的一个具体文件夹\",\"signInInvalid\":\"PikPak 登录已失效，请在设置页重新登录：{{description}}（{{code}}）\",\"captchaDemanded\":\"PikPak 要求人机验证，请在设置页重新登录：{{description}}（{{code}}）\",\"quotaExceeded\":\"PikPak 离线次数或空间不够：{{description}}（{{code}}）\",\"linkRejected\":\"PikPak 不认这个链接：{{description}}（{{code}}）\",\"taskRejected\":\"PikPak 拒绝了这个任务：{{description}}（{{code}}）\",\"noRemoteId\":\"这个任务还没有 PikPak 任务号，无法取消\",\"signInFailed\":\"PikPak 登录失败：{{description}}（{{code}}）\",\"offlineFailed\":\"远端拒绝了这个任务：PikPak 报告离线失败\"},\"upgradeRepairs\":{\"invalidReceipt\":\"更新后的处理记录格式无效\",\"noDanglingReceipt\":\"没有悬空候选补修的回执\",\"integrityFailed\":\"更新已有资料时账本完整性校验失败\",\"foreignKeyFailed\":\"更新已有资料时关联校验失败\",\"receiptNeedsPrepare\":\"更新后的处理记录需要重新准备，请重试\",\"primaryOnly\":\"更新后自动处理只在本机写入端可用\",\"displayRepairNotReady\":\"显示尺寸补测还没准备好，请稍后再试\",\"mediaRepairIncomplete\":\"影片升级补全未完成，请在任务中心查看后重试\",\"resumeAfterRestart\":\"服务重启后继续\",\"displayBackupNoSpace\":\"显示尺寸补测备份空间不足，已暂停本批媒体\",\"mediaPaused\":\"{{message}}\",\"malformedPath\":\"影片路径写法无法识别：{{path}}\",\"malformedPathReason\":\"影片路径写法无法识别（{{reason}}）：{{path}}\"},\"tunnel\":{\"standalonePortInvalid\":\"独立包 Tunnel 的 HTTP 端口无效：{{port}}\",\"lanAddressUnknown\":\"无法确定源码服务的局域网地址\",\"lanAddressNotIp\":\"源码 Tunnel 的局域网地址不是 IP：{{address}}\",\"mdnsMissing\":\"源码服务没有配置 mDNS 名称\",\"caMissing\":\"源码 Tunnel 需要项目 CA：{{path}}\",\"httpsPortInvalid\":\"源码 Tunnel 的 HTTPS 端口无效：{{port}}\",\"accessLocked\":\"访问设置损坏，不能启动公网 Tunnel\",\"passwordRequired\":\"启动公网 Tunnel 前必须先设置访问密码\",\"unsupportedAccessMode\":\"访问设置不是受支持的密码模式\",\"internalTokenMissing\":\"缺少 Peach 内部访问令牌，不能启动公网 Tunnel\",\"invalidMode\":\"tunnel.mode 只能是 quick 或 named：{{value}}\",\"hostnameRequired\":\"命名隧道需要填写公开主机名\",\"invalidHostname\":\"公开主机名不是有效的域名：{{value}}\",\"standaloneQuickOnly\":\"独立包只支持临时链接\",\"tokenRequired\":\"命名隧道需要填写 Cloudflare 隧道令牌\",\"httpsRequired\":\"源码 Tunnel 需要正在运行的 HTTPS 服务\",\"cloudflaredMissing\":\"找不到 cloudflared：安装官方 cloudflared，或用设置文件的 tunnel.binary 与 PEACH_CLOUDFLARED 指定路径\",\"exitedBeforeEntry\":\"cloudflared 在取得入口前退出\",\"startFailed\":\"cloudflared 启动失败：{{error}}\",\"noOutput\":\"cloudflared 没有输出通道\",\"stateFailed\":\"Tunnel 启动状态失败：{{error}}\",\"noEntry\":\"cloudflared 未在限定时间内取得入口\",\"notConnected\":\"cloudflared 未在限定时间内连接到 Cloudflare 边缘\",\"stateWriteFailed\":\"Tunnel 状态写入失败：{{error}}\"},\"automaticUpdates\":{\"chooseInterval\":\"请选择检查频率\",\"chooseMode\":\"请选择自动更新方式\",\"downloadUnsupported\":\"自动下载仅适用于 Windows 独立测试包\",\"needsTray\":\"自动更新需要由托盘管理的服务\",\"unreadable\":\"自动更新设置无法读取，请重新保存。\"},\"certs\":{\"opensslFailed\":\"openssl {{command}} 失败：{{detail}}\",\"opensslMissing\":\"未找到 OpenSSL，请安装并加入 PATH 后重试\"},\"clouddriveProxy\":{\"accountChanged\":\"网盘账号已变化，请重新读取\",\"chooseMode\":\"请选择直连、跟随系统、HTTP 或 SOCKS5\",\"chooseSettings\":\"请选择需要保存的代理设置\",\"clearPasswordNotBoolean\":\"清除密码需要是布尔值\",\"configChanged\":\"CloudDrive2 配置已变化，请重新读取后保存\",\"hostOnly\":\"代理地址只填主机名或 IP\",\"hostUserNotText\":\"代理地址和用户名需要是文字\",\"invalidCredentials\":\"代理凭据格式无效\",\"libraryChanged\":\"媒体库已变化，请重新读取\",\"needsModifyPermission\":\"CloudDrive2 API 令牌需要“修改云盘”权限\",\"needsViewPermission\":\"CloudDrive2 API 令牌需要“查看云盘”权限\",\"notConfigured\":\"请先在下载设置中填写 CloudDrive2 地址和 API 令牌\",\"portRange\":\"代理端口需要在 1–65535 之间\",\"tokenUnreadable\":\"CloudDrive2 API 令牌无法读取，请在下载设置中重新填写\"},\"customMetadata\":{\"chooseNetwork\":\"请选择直连或 Peach 代理\",\"chooseSource\":\"请选择来源\",\"codeMismatch\":\"来源返回的番号与查询番号不一致\",\"codePathRequired\":\"请填写响应中番号字段的路径\",\"configNotObject\":\"来源配置必须是对象\",\"connectionFailed\":\"来源连接失败\",\"contentTypeRequired\":\"至少选择一种有效内容类型\",\"enabledNotBoolean\":\"启用状态必须为布尔值\",\"endpointNeedsCode\":\"接口地址需要包含一个 {code}\",\"endpointNotPublicHttps\":\"接口需要使用固定公网域名的 HTTPS 地址，端口为 443\",\"fieldNeedsText\":\"{{field}} 字段需要文本或数值\",\"fieldNeedsTextArray\":\"{{field}} 字段需要文本数组\",\"hostNotPublic\":\"来源域名必须解析到公网地址\",\"httpStatus\":\"来源响应 HTTP {{status}}\",\"invalidCodeFormat\":\"番号格式无效\",\"invalidFieldPath\":\"字段映射只接受对象键或数组下标组成的点路径\",\"invalidJson\":\"来源响应不是有效 JSON\",\"invalidSavedConfig\":\"自定义来源配置无效\",\"nameLength\":\"来源名称需要 1–80 个字符\",\"proxyConfigMissing\":\"Peach 代理配置未取得\",\"responseTooLarge\":\"来源响应超过 1 MiB\",\"sourceMissing\":\"来源不存在，请刷新\",\"timedOut\":\"来源查询已超时\",\"tooManySources\":\"最多保存 {{max}} 个来源\"},\"dataStorage\":{\"backupNotCleaned\":\"数据库备份未清理：{{reason}}\",\"busy\":\"正在统计或清理，请稍候\",\"busyBeforeMigration\":\"正在统计或清理，请完成后再迁移\",\"categoryNotCleanable\":\"这一类不能在这里清理\",\"chooseTarget\":\"请选择新的数据目录\",\"copyIncomplete\":\"复制没有完成（代码 0x{{code}}）\",\"copyMismatch\":\"复制结果不完整：原目录 {{sourceFiles}} 个文件、{{sourceSize}}，新位置 {{targetFiles}} 个文件、{{targetSize}}\",\"databaseCheckFailed\":\"数据库检查未通过\",\"driveRootNotAllowed\":\"请选择或新建一个专用文件夹，不要直接使用磁盘根目录\",\"fileExists\":\"这个位置已有同名文件\",\"folderNotEmpty\":\"请选择空文件夹，或新建一个文件夹\",\"fullPathRequired\":\"请填写完整路径\",\"layoutChanged\":\"容量目录在统计期间发生变化，请重新统计\",\"localDiskRequired\":\"请选择本机磁盘上的文件夹，例如 D:\\\\Peach\\\\peach-data\",\"measureFirst\":\"请先统计占用空间\",\"measureStopped\":\"统计已停止\",\"migrationCanceled\":\"迁移已取消\",\"notEnoughSpace\":\"新位置所在磁盘剩余 {{free}}，迁移需要约 {{needed}}\",\"notWritable\":\"当前用户无法写入这个位置\",\"overlapsCurrent\":\"新位置不能与当前数据目录相同或互相包含\",\"overlapsMedia\":\"新位置不能与媒体目录重叠\",\"overlapsProgram\":\"新位置不能与程序目录重叠\",\"pathsNotRewritten\":\"预览图路径未能改写（{{error}}），下次处理馆藏时会重新登记\",\"sourceChanged\":\"数据目录已变更，请重新选择\",\"trayStillRunning\":\"托盘尚未退出\",\"updateRunning\":\"更新任务尚未结束，请完成后再迁移\"},\"desktopInstaller\":{\"cachedToolInvalid\":\"本地工具包校验失败：{{name}}。请重新下载或移走此文件后重试。\",\"peachStillRunning\":\"Peach 尚未退出，安装未完成。请稍后重试。\"},\"devCopyRuntime\":{\"applying\":\"文案正在生效，请稍后再编辑\",\"buildFailed\":\"构建失败：{{detail}}\",\"buildIncomplete\":\"构建产物不完整，详情见 build/copy-editor/build.log\",\"nothingToRetry\":\"没有可重试的生效任务\",\"npmMissing\":\"未找到 npm，请安装项目所需的 Node.js\",\"saving\":\"正在保存其他文案，请稍后重试\",\"serviceNotRecovered\":\"服务尚未恢复，请查看托盘日志\"},\"entityClassification\":{\"classificationConflict\":\"实体分类来源冲突，需先复核\",\"identityLinkConflict\":\"身份关联来源冲突，需先复核\",\"reviewedClaim\":\"不能覆盖已复核断言\"},\"fieldOwners\":{\"revisionConflict\":\"资产已被改过：期望 revision {{expected}}，数据库现值 {{current}}\"},\"coverArtwork\":{\"userCoverKept\":\"这部片用的是你换上的封面，自动采集不替换\"},\"itemCover\":{\"tooLarge\":\"图片太大，最多 32 MB\",\"empty\":\"没有收到图片\",\"unreadable\":\"读不出这张图片，请换一张 JPEG、PNG 或 WebP\",\"tooSmall\":\"图片太小，至少要 200 × 200\",\"nothingToRestore\":\"这部片用的不是换上的封面，没有可恢复的\"},\"itemEdit\":{\"assetMissing\":\"这部影片已经不在馆藏里\",\"malformed\":\"提交的编辑内容格式不对\",\"unknownField\":\"不能编辑这些字段：{{fields}}\",\"restoreAndEdit\":\"同一个字段不能既修改又恢复自动：{{fields}}\",\"controlCharacters\":\"内容里不能有换行或控制字符\",\"tooLong\":\"内容太长，最多 1000 个字\",\"releaseDateFormat\":\"发行日期要写成 2025-11-04 这样的格式\",\"regionUnknown\":\"认不出这个产地\",\"entityMissing\":\"选中的档案已经不在了，请重新选择\",\"entityNameInvalid\":\"名称不能为空，也不能超过 200 个字\"},\"folderPicker\":{\"busy\":\"已经有一个选择文件夹的窗口开着\",\"cannotOpen\":\"这台电脑上打不开系统文件夹对话框\",\"failed\":\"没能打开文件夹对话框\",\"noPermission\":\"这台电脑上的 Peach 没有弹出对话框的权限\",\"unsupportedSystem\":\"这个系统上没有可用的文件夹对话框\",\"headless\":\"无桌面部署请在网页中选择媒体挂载目录\"},\"followEvidence\":{\"estimating\":\"还在统计能清理的文件，请稍后再试\",\"running\":\"正在清理，请等这一次做完\"},\"javBrowser\":{\"channelNotConfigured\":\"请先在下载渠道配置网盘账号和目标目录\",\"chooseAction\":\"请选择启用、更新令牌或关闭\",\"codeNotRecognized\":\"未识别到作品番号，请选中页面的完整番号后加入 Peach\",\"codeProductMismatch\":\"页面番号与商品号不一致，请核对作品详情\",\"codeRequired\":\"请提供一个明确的 JAV 番号\",\"deviceNotAllowed\":\"浏览器添加只在允许修改数据库的设备上可用\",\"invalidDismiss\":\"确认参数无效\",\"invalidEdition\":\"版本参数无效\",\"invalidSwitch\":\"换磁力参数无效\",\"manualRejectsSource\":\"手动添加不接受来源网页地址\",\"notEnabled\":\"请先启用浏览器添加\",\"nothingToRetry\":\"这个番号没有失败的整理可以重试\",\"queueFull\":\"添加队列已满，请等待当前任务结束\",\"unsupportedPage\":\"请从支持的 JAV 影片详情页添加\",\"searchUnavailable\":\"资源搜索暂不可用，请在 Peach 检查来源后重试\"},\"librarySharing\":{\"choiceNotBoolean\":\"馆藏与口味上传选项必须是布尔值\",\"compressedTooLarge\":\"馆藏与口味明细压缩后超过 18 MiB，整份未发送\",\"previewFirst\":\"请先查看字段与数据预览，再明确同意上传\",\"tooLarge\":\"馆藏与口味明细超过 100 MiB，整份未发送\"},\"localPlayback\":{\"deploymentUnsupported\":\"此部署请使用网络播放地址或 M3U 播放列表\",\"fileUnsupported\":\"此文件请使用网络播放地址或 M3U 播放列表\",\"playerMissing\":\"播放器未安装，请重新选择\"},\"mediaFolders\":{\"folderMissing\":\"目录不存在或已移出媒体库\"},\"mediaTools\":{\"checksumFailed\":\"{{label}} 工具包文件校验失败\",\"digestMismatch\":\"{{label}} 工具包与发布摘要不符，已丢弃这次下载，请重试\",\"downloadFailed\":\"{{label}} 工具包下载失败：{{error}}\",\"installing\":\"{{label}} 正在安装，请稍候\",\"manifestMissing\":\"{{label}} 工具包缺少有效的文件清单\",\"unknownTool\":\"未知的媒体工具\",\"unsupportedPlatform\":\"发布只提供 Windows x64 的 {{label}} 工具包，请从官方下载并加入 PATH\"},\"metadataAutoApply\":{\"codeMismatch\":\"来源返回的不是 {{code}}：id={{providerId}} content_id={{contentId}}\",\"confidenceOutOfRange\":\"字段候选置信度越界\",\"invalidConfidence\":\"字段候选置信度无效\",\"invalidPerformer\":\"演员候选条目无效\",\"invalidReleaseDate\":\"发行日期候选无效\",\"invalidSource\":\"字段候选来源无效\",\"invalidTitle\":\"标题候选为空、过长或含控制字符\",\"noMatchingAsset\":\"当前 ledger 已没有匹配的可用资产\",\"performersEmpty\":\"演员候选为空\",\"performersNotArray\":\"演员候选必须是数组\",\"r18TitleEvidenceMissing\":\"r18 标题原文证据未取得，请重新采集资料\",\"releaseDateFormat\":\"发行日期候选必须是 YYYY-MM-DD\",\"tagsEmpty\":\"标签候选为空\",\"tagsNotArray\":\"标签候选必须是数组\",\"tooManyAssets\":\"同番号资产 {{count}} 条，超过单次批准上限 {{limit}}\",\"undecodableText\":\"来源文字含无法解码的字符，请重新采集资料\",\"unmappedField\":\"该元数据字段没有 Peach 写入映射\",\"unnormalizedName\":\"候选仍含重复或未规范化的实体名，拒绝写入\"},\"metadataCreatorAttributions\":{\"assetChanged\":\"资产 {{asset}} 已发生后续改动，拒绝回滚整批\",\"creatorLinkExists\":\"创作者关系已存在，拒绝回滚整批\",\"creatorLinksChanged\":\"创作者关系已发生后续改动，拒绝回滚整批\",\"creatorWriteRefused\":\"资产 {{asset}} 的创作者字段拒绝写入\",\"labelLinksChanged\":\"厂牌关系已发生后续改动，拒绝回滚整批\",\"multipleCreators\":\"资产 {{asset}} 有多个存续创作者，需复核兼容投影\",\"newLabelChanged\":\"新厂牌资料已发生后续改动\",\"newLabelHasExtra\":\"新厂牌出现额外资料，拒绝回滚整批\",\"planOutdated\":\"审计计划与当前数据库不一致，请重新预览\",\"plannedAccountMissing\":\"计划中的账号身份不存在\",\"plannedLabelMissing\":\"计划中的厂牌身份不存在\",\"profileMissing\":\"档案已不存在，拒绝回滚整批\"},\"metadataTextRepair\":{\"entityTaken\":\"实体 {{id}}「{{name}}」的 id 或名字已被占用，整批拒绝还原\"},\"recordRehome\":{\"batchMissing\":\"没有可撤回的批次 {{batch}}\",\"oldNotVanished\":\"只能接回已消失的行\",\"oldRowTaken\":\"旧行 {{row}} 的 id 或路径已被占用，不能撤回\",\"targetNotPresent\":\"只能接到在库的另一行\"},\"seedCorrections\":{\"contentChanged\":\"同版本种子内容与已导入历史不同\",\"legacyVersionBack\":\"旧格式种子版本不得回退\",\"revisionReused\":\"种子 revision 不得回退或复用\",\"withdrawalsMissing\":\"种子必须原样继承全部历史撤销\"},\"standaloneUpdate\":{\"checksumFailed\":\"更新包校验失败，请重新下载\",\"dataInsideProgram\":\"数据目录位于程序目录内，不能自动替换\",\"databaseRestoreCheckFailed\":\"数据库恢复检查失败\",\"databaseUpgradeFailed\":\"数据库更新失败\",\"expandedTooLarge\":\"更新包展开体积超限\",\"inAppUnsupported\":\"此安装方式不支持应用内更新，请从发布页下载新版本\",\"invalidPath\":\"更新包含无效路径\",\"invalidSize\":\"{{label}}大小无效\",\"invalidUpdateDirectory\":\"更新目录无效\",\"missingChecksum\":\"{{label}}缺少 SHA-256 校验信息\",\"newVersionNotReady\":\"新版本未能就绪\",\"notReady\":\"更新尚未准备完成\",\"notStandalone\":\"更新包不是独立 Windows 版本\",\"pathConflict\":\"更新包路径重复或越界\",\"recoveryPathOutside\":\"任务恢复路径越界\",\"secondaryCannotMigrate\":\"读取端不能迁移账本\",\"secondaryNeedsPrimary\":\"本机不能迁移账本：{{reason}}；请先在写入端迁移并同步\",\"signatureFailed\":\"发布签名校验未通过，已停止更新；请到发布页手动下载新版本\",\"sizeMismatch\":\"下载体积与发布记录不符\",\"stateFileMismatch\":\"更新状态文件不匹配\",\"toolChecksumFailed\":\"{{tool}} 工具包文件校验失败\",\"toolReuseFailed\":\"{{tool}} 工具复用校验失败\",\"trayStillRunning\":\"托盘尚未退出，安装已取消\",\"unlistedToolFile\":\"工具包包含清单外的文件\",\"versionMismatch\":\"包内版本与发布版本不符\"},\"subtitles\":{\"encodingUnknown\":\"编码未识别\",\"imageSubtitle\":\"图形字幕不能作为文本轨播放\"},\"westernProfiles\":{\"identityChanged\":\"艺人身份已变化，请重新预览\"},\"libraryProcessing\":{\"stopped\":\"处理任务已停止\",\"companionImageChangedOnSave\":\"配套图片在保存时发生变化\",\"readOnlyDevice\":\"这台电脑是只读端，请在写入端扫描和导入资料\",\"evidenceNotSaved\":\"资料证据无法保存：{{error}}\",\"invalidSelection\":\"请选择有效的视频项目\",\"selectionGone\":\"所选视频已不存在或已移入回收站，请刷新后重试\",\"previewNotGenerated\":\"预览图未生成，请检查媒体文件后重试\",\"previewUnreadable\":\"预览图无法读取，请重试\",\"previewNotSaved\":\"预览图无法保存：{{error}}\",\"progressNotSaved\":\"处理进度无法保存：{{error}}\",\"invalidStage\":\"处理阶段无效\",\"previewsDisabled\":\"视频预览生成已关闭，请先在媒体库设置中开启\",\"selectionWithRetry\":\"选择项目与失败重试不能同时使用\",\"previewsNeedWriter\":\"生成预览图需要共享馆藏写入连接\",\"nfoCodeConflict\":\"文件名与 NFO 番号冲突，请复核\",\"notInLibrary\":\"所选影片不属于当前媒体库\",\"deadlineRetryLater\":\"外部资料在预算时间内未取得，可稍后重试\",\"deadline\":\"外部资料在预算时间内未取得\",\"noAmaneSites\":\"这个番号的链上没有经 amane 桥问的站\",\"amaneBridgeFailed\":\"amane 桥：{{error}}\",\"amaneSitesSaidNo\":\"amane 桥问的几站都没有这个番号\",\"communitySaidNo\":\"社区来源都没有这个番号\",\"fc2ArchivesSaidNo\":\"FC2 与几个存档站上都没有这个商品\",\"noCover\":\"官方与社区来源都没有这部片的封面\",\"ffmpegMissing\":\"未找到 FFmpeg，无法生成预览图，请在诊断页检查工具状态\",\"mediaInaccessible\":\"媒体文件不可访问\",\"ffprobeMissing\":\"未找到 ffprobe，无法读取视频时长\",\"durationUnavailable\":\"视频时长未取得，请检查媒体文件后重试\",\"sourceProblem\":\"{{source}}：{{problem}}\",\"coverNotImproved\":\"来源封面 {{width}}x{{height}} 不比本机封面好\",\"problems\":\"{{first}}；{{rest}}\",\"sourceReturned\":\"来源返回 {{status}}\",\"processingError\":\"处理出错（{{type}}）\",\"missMetadata\":\"外部来源没有这部片的资料，7 天内不再问\",\"missCover\":\"外部来源没有这部片的封面，7 天内不再问\",\"offline\":\"外部资料未取得：连不上外网\",\"interrupted\":\"处理被中断，可重试未完成的部分。\",\"interruptedCheckFolders\":\"处理被中断。核对媒体目录后重试。\",\"companionImageTimeout\":\"读取配套图片超时，可稍后重试\",\"companionImageUnreadable\":\"配套图片无法读取\",\"metadataPaused\":\"外部资料本趟没轮到：{{problems}}\",\"metadataUnfetched\":\"外部资料未取得：{{problems}}\",\"javdbTagsDeadline\":\"JavDB 标签在预算时间内未取得\",\"javdbTagsUnfetched\":\"JavDB 标签未取得：{{problem}}\",\"coverDeadline\":\"封面在预算时间内未取得，可稍后重试\",\"coverPaused\":\"封面本趟没轮到：{{problem}}\",\"coverUnfetched\":\"封面未取得：{{problem}}\",\"sourceRootUnreadable\":\"{{source}} 来源目录读取失败：{{error}}\",\"sourceRootOffline\":\"{{source}} 来源离线\",\"itemSkipped\":\"已跳过这部影片，可在任务结束后重试\",\"captureTimeout\":\"视频抽帧超时，可重试；反馈问题请导出诊断报告\",\"captureFfmpegFailed\":\"FFmpeg 抽帧失败，反馈问题请导出诊断报告\",\"captureNoFrame\":\"采样位置未取得画面，反馈问题请导出诊断报告\",\"captureUnfetched\":\"视频抽帧未取得，反馈问题请导出诊断报告\",\"previewTimeout\":\"生成预览图超时，请重试\",\"previewFailed\":\"生成预览图失败，请检查 FFmpeg 与目录权限后重试\",\"toolsNotPrepared\":\"采集工具准备失败：{{error}}\",\"someSourcesUnfetched\":\"已从其他来源取到资料；没答上的来源：{{problems}}\",\"someCoverSourcesUnfetched\":\"封面已有；没答上的图源：{{problems}}\"},\"followStream\":{\"coolingDown\":\"{{provider}} 限流冷却中，{{seconds}} 秒后再试\",\"recentMiss\":\"来源媒体刚刚未取得，稍后再试\",\"noSuchMedia\":\"媒体序号不存在\",\"badMediaEntry\":\"媒体条目格式不符\",\"gofileUntrustedUrl\":\"Gofile 返回了不受信任的媒体地址\",\"gofileTokenMissing\":\"Gofile API token 未配置\",\"fanboxUntrustedUrl\":\"FANBOX 返回了不受信任的图片地址\",\"f95UntrustedUrl\":\"F95 返回了不受信任的图片地址\",\"f95NeedsSession\":\"F95 附件需要登录会话\",\"mediaUrlUnavailable\":\"来源媒体地址不可用\",\"unsupportedProvider\":\"媒体来源不受支持\",\"needsSession\":\"媒体需要来源登录会话\",\"rule34videoDetailUrlUnavailable\":\"Rule34Video 详情地址不可用\",\"iwaraUrlUnavailable\":\"Iwara 视频地址不可用\",\"sourceFailed\":\"{{reason}}\",\"rule34videoDetailNotFetched\":\"Rule34Video 详情页未取得\",\"rule34videoVideoUrlNotFetched\":\"Rule34Video 正片地址未取得\"},\"mediaIdentity\":{\"libraryNameInvalid\":\"媒体库名称请使用 1 到 80 个可见字符\",\"libraryIconInvalid\":\"请选择列表中的媒体库图标\",\"libraryColorInvalid\":\"请选择列表中的来源色\",\"libraryPolicyInvalid\":\"请选择列表中的处理方式\",\"stagesInvalid\":\"处理步骤无效\",\"rootLibraryMissing\":\"存储根目录的媒体库不存在\",\"rootPathNotWindows\":\"存储根目录必须使用完整 Windows 路径\",\"rootSourceInvalid\":\"存储根目录的来源或读取策略无效\",\"rootOverlap\":\"媒体路径与另一文件夹重复或互相包含\",\"transportInvalid\":\"媒体连接方式无效\",\"mountNotAbsolute\":\"挂载目录必须使用完整路径\",\"mountOverlap\":\"媒体目录与另一行重复或互相包含\",\"mountOverlapsRoot\":\"挂载目录与账本路径重叠，请使用独立目录\",\"rootChanged\":\"存储根目录已变更，请刷新配置\",\"rootIdentityFixed\":\"已有根目录的来源和账本路径不可更换；请添加另一目录\",\"relocateOrAdd\":\"请选择重定位此目录，或添加另一目录\",\"rootDuplicate\":\"同一存储根目录不能登记多次\",\"libraryMismatch\":\"同一媒体库的名称、图标、来源色和处理方式必须一致\"},\"ledgerBackups\":{\"ledgerMissing\":\"账本不存在\",\"backupIntegrityFailed\":\"备份没有通过完整性检查：{{check}}\",\"chooseBackup\":\"请选择列表里的一份备份\",\"backupGone\":\"这份备份已经不在了，请刷新列表\",\"thisBackupIntegrityFailed\":\"这份备份没有通过完整性检查：{{check}}\",\"schemaMismatch\":\"这份备份的结构与当前程序不符：{{error}}\",\"migratedIntegrityFailed\":\"备份迁到当前结构后没有通过完整性检查：{{check}}\",\"pageSizeMismatch\":\"这份备份的页面大小与当前账本不同，不能在服务运行时恢复\",\"savedCopyIntegrityFailed\":\"当前账本另存后没有通过完整性检查，没有恢复\",\"restoredIntegrityFailed\":\"恢复后的账本没有通过完整性检查：{{check}}\",\"restoreSettled\":\"{{message}}\",\"busy\":\"备份或恢复正在进行，请等它完成\",\"writerOnly\":\"只有写入端能恢复账本：{{reason}}\",\"tasksRunning\":\"还有后台任务在运行：{{tasks}}。请等它们结束或停止后再恢复\",\"tasksRunningNotRestored\":\"还有后台任务在运行：{{tasks}}。没有恢复\",\"restoringBusy\":\"正在从备份恢复账本，暂时不能启动新任务。\"},\"onboarding\":{\"dataRootEmpty\":\"Peach 数据目录不能为空\",\"dataRootIsFile\":\"{{path}} 是一个文件，Peach 数据目录要是目录\",\"mediaDirEmpty\":\"媒体目录不能为空\",\"mediaDirMissing\":\"目录不存在，或者不是目录：{{path}}。先建好再填。\",\"mediaDirNotDrive\":\"{{path}} 不是盘符路径；网络位置先映射成盘符再来\",\"hostChoice\":\"填 1（只有这台电脑）或 2（同一局域网的设备）\",\"portInvalid\":\"端口要是 1 到 65535 之间的整数\",\"portInUse\":\"这个端口已被占用，请换一个端口\",\"mdnsNameInvalid\":\"名字只能用字母、数字和连字符，不能以连字符开头或结尾\",\"yesNo\":\"填 y 或 n\",\"tooManyAttempts\":\"「{{prompt}}」连续 {{attempts}} 次没有拿到有效值。\",\"inputEnded\":\"输入已结束。\",\"mediaDirDuplicate\":\"和上面的 {{other}} 重复了\",\"mediaDirNested\":\"已经在 {{other}} 里面，不用再加\"},\"pushDiscovery\":{\"badSegment\":\"✗ 云端路径里有不能接受的层级：{{segment}}\",\"nothingAfterPrefix\":\"✗ 云端路径在前缀之后没有内容\",\"noCloudPath\":\"✗ 请求里没有云端路径\",\"pathIsPrefix\":\"✗ 云端路径就是前缀本身，没有文件\",\"noPrefixes\":\"✗ {{path}} 不在任何已配置的前缀下；已知：（一条都没配）\",\"notUnderPrefix\":\"✗ {{path}} 不在任何已配置的前缀下；已知：{{known}}\",\"noDeclaredRoots\":\"{{root}} 不是已声明的媒体根；已知：（设置文件里一个都没有）\",\"undeclaredRoot\":\"{{root}} 不是已声明的媒体根；已知：{{known}}\",\"duplicatePrefix\":\"前缀 {{prefix}} 登记了不止一次\",\"cloudChannelOff\":\"✗ 云端通道没有打开\",\"notUnderStorage\":\"✗ {{path}} 不在任何媒体来源已配置的目录下\",\"writerOnly\":\"推送发现只在允许修改数据库的设备上可用\"},\"organize\":{\"unverifiedBatch\":\"来源 {{locations}} 的挂载改名无法核验云端结果，整批未执行；须经官方核验通道（如 organize_library_dirs.py --pikpak-webdav）\",\"scopeNotDirectory\":\"整理路径必须是目录路径\",\"scopeTraversal\":\"整理路径不能包含上级目录跳转或空字符\",\"scopeNotAbsolute\":\"整理路径须为所选来源内的绝对目录路径，不能包含上级目录跳转\",\"scopeOutsideLocation\":\"整理路径不在所选来源内\",\"unverifiedRename\":\"来源 {{location}} 的挂载改名无法核验云端结果，须经官方核验通道\",\"smbSameRootOnly\":\"SMB 整理仅支持同一媒体根目录\",\"rowChanged\":\"数据库里这一行已经变了\"},\"desktopStartup\":{\"shortcutTimeout\":\"Windows 快捷方式操作超时（等待 {{seconds}} 秒），请稍后重试。\",\"shortcutNotSaved\":\"启动项未能保存，请检查当前用户的启动文件夹权限（PowerShell：{{reason}}）\",\"desktopShortcutForeign\":\"桌面快捷方式属于另一份 Peach 安装\",\"startupEntryForeign\":\"启动项属于另一份 Peach 安装\",\"optionsNotBoolean\":\"启动选项必须为开或关\",\"desktopShortcutUnsupported\":\"此系统未提供桌面快捷方式\",\"trayMissing\":\"未找到本机托盘入口\",\"platformUnsupported\":\"此系统未提供登录自启入口\"},\"folderRules\":{\"settingsInvalid\":\"用户设置格式不正确\",\"rulesInvalid\":\"目录规则格式不正确\",\"choosePurpose\":\"请选择目录用途\",\"scopeRequired\":\"目录范围与新文件设置须明确选择\",\"nameTooLong\":\"关联名称最多 200 个字符\",\"nameRequired\":\"请输入关联名称\",\"nameAmbiguous\":\"名称存在多个身份或不同写法，请使用资料页的规范名称\",\"settingsMissing\":\"当前用户设置不存在\",\"planChanged\":\"目录内容或归属已变化，请重新预览\"},\"diagnosticExports\":{\"chooseKind\":\"请选择诊断报告或刮削记录\",\"alreadyRunning\":\"已有诊断导出正在进行，请等待完成或取消\",\"jobChanged\":\"导出任务已变化，请刷新后重试\",\"jobNotFound\":\"导出任务未取得\",\"fileNotReady\":\"导出文件尚未就绪，请重新生成\"},\"migrations\":{\"unsupportedMigrations\":\"数据库包含当前程序不支持的迁移，请使用匹配版本或升级前备份\",\"checksumChanged\":\"已应用 migration {{version}} 的 checksum 已变化\"},\"followScheduler\":{\"autoRunOff\":\"自动运行没有开启\",\"feedWriterOnly\":\"订阅源拉取只在写入端可用\"},\"tasteBookmarks\":{\"tooLarge\":\"书签文件超过 64 MB\",\"missingRoots\":\"书签 JSON 缺少 Chromium roots\",\"invalidNode\":\"书签 JSON 含无效节点\",\"invalidFolder\":\"书签 JSON 含无效文件夹\",\"unsupportedFile\":\"请选择浏览器导出的 HTML 书签文件或 Chromium Bookmarks 文件\",\"unreadable\":\"书签文件未取得，请检查文件格式后重新导入\",\"browserBookmarksNotRead\":\"浏览器书签未取得，请检查资料目录或退出浏览器后重试\"},\"displayDimensionsRepair\":{\"notPrepared\":\"显示尺寸补测记录尚未准备\",\"ffprobeMissing\":\"显示尺寸补测未取得 ffprobe\",\"notMeasured\":\"显示尺寸未取得，保留原有测量\",\"changedDuringRepair\":\"补测期间影片或测量已变化，请重试\"},\"fanbox\":{\"emptyPostType\":\"FANBOX 正文类型不受支持：空\",\"unsupportedPostType\":\"FANBOX 正文类型不受支持：{{type}}\",\"missingBody\":\"FANBOX 公开正文缺少 body\"},\"storageExternalCache\":{\"remoteNeedsManualPath\":\"远程 CloudDrive 请手动填写 Peach 可访问的缓存映射目录\",\"tokenNeedsPermission\":\"自动读取需要 CloudDrive API 令牌的“查看系统设置”权限\",\"noCacheDirectory\":\"CloudDrive 未返回缓存目录，请手动填写\"},\"downloadsPikpakBrowser\":{\"browserMissing\":\"这台电脑上没有找到 Chrome 或 Edge，用不了浏览器登录。可以展开下方用账号密码登录\",\"proxyWithCredentials\":\"浏览器登录不支持带凭据的代理地址，请选择系统代理或无需认证的本机代理\"},\"taskResources\":{\"ownersUnavailable\":\"这轮任务的资源归属记录未取得\",\"ownersInvalid\":\"这轮任务的资源归属记录无效\"},\"genreDecisions\":{\"emptyGenre\":\"要收录的 genre 是空的\"},\"mediaProbe\":{\"strmIsoNotProbed\":\"STRM 和 ISO 不执行视频探测\"},\"platform\":{\"windowsDirectoryUnavailable\":\"未取得 Windows 系统目录\"},\"seedFollowup\":{\"digestMismatch\":\"种子内容与排队任务的摘要不一致，请重新派发\"},\"follow\":{\"internal\":\"{{detail}}\",\"historyEnd\":\"没有更多历史内容\"},\"followSecrets\":{\"missingFields\":\"{{provider}} 凭据缺少字段：{{fields}}\",\"invalidProvider\":\"provider 名称非法\",\"unreadable\":\"{{provider}} 凭据文件无法解析\",\"notObject\":\"{{provider}} 凭据文件必须是 JSON 对象\"},\"followGofile\":{\"notPremium\":\"Gofile 文件列表 API 需要 Premium 账户；token 有效，但当前账户套餐不支持此接口\",\"tokenRejected\":\"Gofile 拒绝了 API token\",\"httpStatus\":\"Gofile 返回 HTTP {{status}}\",\"listUnavailable\":\"Gofile 文件列表未取得\",\"requestFailed\":\"Gofile 请求失败\",\"responseTooLarge\":\"Gofile 响应超出大小上限\"},\"followAvatar\":{\"unsupportedProfile\":\"不支持这个社交资料\",\"litlinkHttpStatus\":\"lit.link 资料页返回 HTTP {{status}}\",\"litlinkNoAvatar\":\"lit.link 资料页没有本人头像\",\"xHttpStatus\":\"X 资料页返回 HTTP {{status}}\",\"xNoAvatar\":\"X 资料页没有本人头像\",\"patreonHttpStatus\":\"Patreon 资料返回 HTTP {{status}}\",\"patreonCreatorMissing\":\"Patreon 资料里没有这个创作者\",\"patreonNoTrustedAvatar\":\"Patreon 资料没有可信的头像地址\",\"unsupportedOfficialSource\":\"不支持这个官方头像来源\",\"fanboxProfileHttpStatus\":\"FANBOX 官方资料返回 HTTP {{status}}\",\"fanboxProfileMalformed\":\"FANBOX 官方资料格式不符\",\"fanboxProfileNoTrustedAvatar\":\"FANBOX 官方资料没有可信的头像地址\",\"fanboxPageHttpStatus\":\"FANBOX 官方页面返回 HTTP {{status}}\",\"fanboxPageNoProfile\":\"FANBOX 官方页面没有可用的创作者资料\",\"fanboxPageNoCreatorId\":\"FANBOX 官方页面没有可用的创作者 id\"},\"followDiscovery\":{\"creatorListMalformed\":\"{{provider}} 的创作者清单格式不符\",\"termRequired\":\"请先输入要查找的名字或 id\",\"termTooLong\":\"名字或 id 最长 {{limit}} 个字符\",\"termForbiddenCharacters\":\"名字或 id 里不能包含 / \\\\ ? # & < > 引号或控制字符\"},\"followSources\":{\"requestFailedAfterRetries\":\"{{provider}} 请求失败（已尝试 {{attempts}} 次）：{{detail}}\",\"requestFailed\":\"{{provider}} 请求失败：{{detail}}\",\"responseTooLarge\":\"{{provider}} 响应超出大小上限\",\"accessDenied\":\"{{provider}} 拒绝访问（HTTP {{status}}）：需要有效凭据，或站点已加机器人验证\",\"httpStatus\":\"{{provider}} 返回 HTTP {{status}}\",\"rateLimited\":\"{{provider}} 返回 HTTP 429：请求过于频繁，稍后再试\",\"rateLimitBody\":\"{{provider}} 触发频率限制：每 {{seconds}} 秒最多 {{count}} 次请求，请稍后再试\",\"notJson\":\"{{provider}} 返回的不是合法 JSON\",\"notJsonWithSnippet\":\"{{provider}} 返回的不是合法 JSON：{{snippet}}\",\"urlNotSupported\":\"{{provider}} 暂不支持从链接登记\",\"iwaraUrlShape\":\"Iwara 请粘贴作者主页，例如 https://www.iwara.tv/profile/username\",\"iwaraAccessDenied\":\"Iwara 拒绝访问（HTTP {{status}}）：登录凭据可能已过期，或站点要求浏览器验证，请核对来源与订阅设置\",\"iwaraNotFound\":\"Iwara 作者或视频未取得：可能已删除或需要有访问权的账号\",\"iwaraResponseMalformed\":\"Iwara 接口响应格式不符\",\"iwaraContentUnavailable\":\"Iwara 内容未取得：请确认账号有访问权并更新登录凭据\",\"iwaraRequestRejected\":\"Iwara 接口拒绝请求，请在来源页面核对内容状态\",\"iwaraRefInvalid\":\"Iwara 的 ref 必须是作者用户名\",\"iwaraNegativePage\":\"Iwara 页码不能小于 0\",\"iwaraProfileMalformed\":\"Iwara 作者资料格式不符\",\"iwaraUserIdUnavailable\":\"Iwara 作者 ID 未取得\",\"iwaraVideoListMalformed\":\"Iwara 视频列表格式不符\",\"iwaraVideoEntryNoId\":\"Iwara 视频条目缺少有效 ID\",\"iwaraVideoIdInvalid\":\"Iwara 视频 ID 无效\",\"iwaraFileUrlUnavailable\":\"Iwara 正片地址未取得，请打开来源页面核对访问权\",\"iwaraUntrustedFileUrl\":\"Iwara 返回了不受信任的文件接口地址\",\"iwaraFileNoExpiry\":\"Iwara 文件接口缺少有效期限\",\"iwaraFormatListMalformed\":\"Iwara 播放格式清单不符\",\"iwaraNoFormats\":\"Iwara 正片格式未取得\",\"kemonoUrlShape\":\"{{host}} 的链接要指向某个创作者，形如 https://{{host}}/fanbox/user/30917150\",\"kemonoUnknownProvider\":\"未知的 kemono 系来源：{{provider}}\",\"kemonoRefInvalid\":\"{{provider}} 的 ref 必须形如 `service/user_id`，收到：{{ref}}\",\"postListMalformed\":\"{{provider}} 的帖子列表格式不符\",\"rule34videoUrlShape\":\"rule34video 的链接要指向作者页，形如 https://rule34video.com/models/lazyprocrastinator/\",\"rule34videoRefInvalid\":\"rule34video 的 ref 必须是作者 slug，收到：{{ref}}\",\"rule34videoNoWorks\":\"rule34video 创作者页没有解析出任何作品：页面结构可能已变，或该 slug 不存在\",\"rule34xxxUrlShape\":\"rule34.xxx 的链接要带标签，形如 https://rule34.xxx/index.php?page=post&s=list&tags=lazyprocrastinator\",\"rule34xxxCredentialsRequired\":\"rule34xxx 需要 user_id 与 api_key；请把它们写进 peach-data/secrets/follow/rule34xxx.json\",\"rule34xxxCredentialsRejected\":\"rule34xxx 拒绝了 user_id/api_key\",\"rule34xxxRefInvalid\":\"rule34xxx 的 ref 必须是单个标签，收到：{{ref}}\",\"rule34xxxAutocompleteMalformed\":\"rule34xxx 的标签补全格式不符\",\"pahealUrlShape\":\"rule34.paheal 的链接要带搜索标签，形如 https://rule34.paheal.net/post/view/7428820#search=InitialA\",\"pahealRefInvalid\":\"rule34.paheal 的 ref 必须是单个标签，收到：{{ref}}\",\"pahealNoWorks\":\"rule34.paheal 标签页没有解析出任何作品\",\"xenforoNoToken\":\"{{provider}} 搜索表单里没有 _xfToken：cookie 可能已失效\",\"f95UrlShape\":\"f95zone 的链接要指向一个线程，形如 https://f95zone.to/threads/xxx.50685/\",\"f95RefInvalid\":\"f95zone 的 ref 必须是线程 id，收到：{{ref}}\",\"f95NoReplies\":\"f95zone 线程页没有解析出任何回复：可能需要登录，或页面结构已变\",\"f95UnknownCategory\":\"未知的 f95zone 分类：{{category}}\",\"f95SearchNeedsCookie\":\"f95zone 站内搜索需要登录 cookie；请把它写进 peach-data/secrets/follow/f95zone.json\",\"f95ProfileNeedsCookie\":\"读 f95zone 首楼的作者主页链接需要登录 cookie；请把它写进 peach-data/secrets/follow/f95zone.json\",\"fanboxUrlShape\":\"FANBOX 的链接要指向创作者主页，形如 https://creator.fanbox.cc/\",\"fanboxRefInvalid\":\"fanbox 的 ref 必须是创作者 id，收到：{{ref}}\",\"fanboxPostListMalformed\":\"fanbox 返回的帖子列表格式不符\",\"fanboxPageListNotModified\":\"fanbox 历史页清单意外返回 304\",\"fanboxPageListMalformed\":\"fanbox 的历史页清单格式不符\",\"fanboxRequestFailed\":\"fanbox 请求失败\",\"fanboxPostError\":\"fanbox 帖子详情返回错误：{{error}}\",\"fanboxPostMalformed\":\"fanbox 帖子详情格式不符\",\"fanboxPostNotPublic\":\"fanbox 帖子详情不是公开免费正文\",\"subscribestarUrlShape\":\"SubscribeStar 的链接要指向创作者主页，形如 https://subscribestar.adult/creator\",\"subscribestarRefInvalid\":\"subscribestar 的 ref 必须形如 subscribestar.adult/creator\",\"subscribestarNoBackfill\":\"SubscribeStar 官方来源暂不支持向前翻页\",\"pageNotUtf8\":\"{{provider}} 返回的页面不是 UTF-8\",\"patreonUrlShape\":\"Patreon 的链接要指向创作者主页，形如 https://patreon.com/cw/creator\",\"patreonRefInvalid\":\"patreon 的 ref 必须是创作者短名，收到：{{ref}}\",\"patreonNoBackfill\":\"Patreon 官方来源暂不支持向前翻页\",\"simpcityUrlShape\":\"simpcity 的链接要指向一个线程，形如 https://simpcity.cr/threads/xxx.21229/\",\"simpcityNeedsCookie\":\"simpcity 需要登录 cookie：站点不让游客读帖。登录后把浏览器里 simpcity.cr 的整条 Cookie 请求头写进凭据文件的 cookie 字段。\",\"simpcityAccessDenied\":\"simpcity 拒绝访问（HTTP 403）：站点不让游客读帖，cookie 可能已过期或不完整，请重新登录后更新凭据文件\",\"simpcityRefInvalid\":\"simpcity 的 ref 必须是线程 id，收到：{{ref}}\",\"simpcityNoPosts\":\"simpcity 线程页没有解析出任何楼层：页面结构可能已变\",\"simpcityCookieNotRecognized\":\"simpcity 没有认出这份 cookie（页面仍是游客态）：请重新登录后复制整条 Cookie 请求头\",\"urlRequired\":\"请先粘贴一条来源链接\",\"urlInvalid\":\"这不是一条合法链接\",\"urlSchemeUnsupported\":\"只接受 http(s) 链接\",\"urlHasCredentials\":\"链接里不能带账号密码\",\"hostUnknown\":\"不认识 {{host}}。当前支持 {{hosts}}。\",\"unknownProvider\":\"未知的追更来源：{{provider}}\"},\"mp4repair\":{\"sttsLengthMismatch\":\"stts 长度和声明的条目数对不上\",\"probeIdle\":\"ffprobe 连续 {{seconds}} 秒没有解码输出\",\"probeIncomplete\":\"ffprobe 没跑完：{{error}}\",\"probeExitCode\":\"ffprobe 退出码 {{code}}\",\"duplicateDts\":\"dts 有重复，认不出哪一帧是哪一帧\",\"frameWithoutTimestamp\":\"有帧没有时间戳\",\"timestampNotInStts\":\"解码器报的时间戳不在 stts 里\",\"frameOutputTwice\":\"同一帧被输出了两次\",\"frameCountMismatch\":\"解码出 {{decoded}} 帧，样本表里有 {{samples}} 个\",\"trackDurationUnknown\":\"算不出轨道时长\",\"zeroTimescale\":\"媒体时间刻度是 0\",\"offsetNeedsCo64\":\"偏移超出 32 位，这个片源要 co64 才修得了\",\"missingMoovOrMdat\":\"顶层缺 moov 或 mdat\",\"needsSingleMoovAndMdat\":\"顶层必须各有一个 moov 和 mdat\",\"moovTooLargeOrMdatEmpty\":\"moov 太大或 mdat 是空的\",\"leadingIndexTooLarge\":\"媒体前的索引段太大\",\"boxesAfterMdat\":\"mdat 后面还有盒子，这个布局还没支持\",\"trailingIndexTooLarge\":\"媒体后的索引段太大\",\"videoSampleTableMissing\":\"找不到视频轨的样本表\",\"cttsPresent\":\"这个片源已经有 ctts\",\"videoSttsMissing\":\"视频轨没有 stts\",\"nothingToRepair\":\"显示顺序本来就等于解码顺序，没有要修的\",\"editStartAmbiguous\":\"尾部索引的编辑起点无法区分预卷与裁剪\",\"rebuiltHeaderLengthMismatch\":\"重建后的头长度对不上\",\"legacyTimetableVersion\":\"旧边车的时间表版本无效\",\"legacyTimetableLength\":\"旧边车的时间表长度不符\",\"legacySampleCount\":\"旧边车的样本数不符\",\"legacyShiftIncomplete\":\"旧边车的整体平移量不完整\",\"legacyNoMoov\":\"旧边车没有 moov\",\"legacyNoTimetable\":\"旧边车缺少修复时间表\",\"legacyEditListInvalid\":\"旧边车的编辑列表无效\",\"legacyHeaderLength\":\"旧边车的重建头长度不符\",\"headerNotRepaired\":\"播放文件头未能修复\"},\"avatarOnline\":{\"notThisCreator\":\"这张备选图片不属于当前创作者\",\"imageNotFound\":\"这张图未取得，请稍后重试\",\"imageOverLimit\":\"图片超过大小上限\"},\"avatarPicker\":{\"coverChanged\":\"这张封面刚换过，返回备选图片重新框一次\",\"codeUnrecognized\":\"认不出这个番号\",\"codeCoverUnrecognized\":\"这个番号的封面不是一张能识别的图片\",\"addressUnusable\":\"这个地址未取得可用图片：{{reason}}\",\"notCached\":\"这张图不在本机缓存里了\",\"fetchFailed\":\"取不到这张图：{{error}}\",\"fetchNoResponse\":\"取不到这张图：无响应\",\"fetchHttpStatus\":\"取不到这张图：HTTP {{status}}\",\"imageOver16Mib\":\"图片超过 16 MiB，请缩小后重新选择\",\"convertedOver16Mib\":\"图片转换后超过 16 MiB，请缩小后重新选择\",\"imageTooLarge\":\"图太大了\",\"imageIncomplete\":\"图片无法完整读取，请重新选择图片\",\"artworkUnavailable\":\"这一次取不到作品画面\",\"choiceUnrecognized\":\"无法识别这张备选图片\",\"assetNotOwned\":\"这部作品不在这个人名下\",\"assetCoverNotLocal\":\"这部作品的封面还没有落在本机\",\"assetCellNotLocal\":\"这部作品的第 {{cell}} 格还没有落在本机\",\"assetCoverUnreadable\":\"读不出这部作品的封面\",\"assetCellUnreadable\":\"读不出这部作品的第 {{cell}} 格\",\"onlineUnavailable\":\"未取得在线备选头像\",\"codeCoverNotFetched\":\"这个番号的封面还没有取过\",\"addressNotFetched\":\"这个地址的图还没有取过\",\"notInIndex\":\"当前索引中没有这张备选图片\",\"offlineNotDownloaded\":\"这张图还没下载过，而这一次不允许联网\",\"invalidCropBox\":\"框选的区域不成立\",\"cropFailed\":\"这一块裁不出来\"},\"browserTransport\":{\"notStarted\":\"浏览器没有启动：{{error}}\",\"debugPortNotConnected\":\"浏览器的调试口没有接上：{{error}}\",\"exitedAtStart\":\"浏览器启动后立即退出（{{code}}）\",\"debugPortMissing\":\"浏览器没有写出调试口\"},\"downloadsClouddrive\":{\"addressEmpty\":\"CloudDrive2 地址没填\",\"noLocalAnswer\":\"没有填 CloudDrive2 地址，本机 {{tried}} 都没有应答。确认 CloudDrive2 已启动，或在地址栏填上它的实际地址\",\"unreachable\":\"{{action}}时连不上 CloudDrive2：{{details}}\",\"tokenRejected\":\"CloudDrive2 拒绝了这个 API 令牌（{{action}}）：{{details}}\",\"pathNotFound\":\"{{action}}：CloudDrive2 里没有这个路径\",\"callFailed\":\"{{action}}失败：{{details}}\",\"tokenMissing\":\"还没有填 CloudDrive2 的 API 令牌\",\"folderMissing\":\"CloudDrive2 里没有 {{path}} 这个文件夹\",\"outsideTokenRoot\":\"CloudDrive2 令牌只能访问 {{root}}，{{path}} 不在里面；目标目录要放在它下面\",\"folderNotCreated\":\"CloudDrive2 没有新建 {{path}}：{{reason}}\",\"folderNotCreatedNoReason\":\"CloudDrive2 没有新建 {{path}}：没有给出原因\",\"cancelRefused\":\"CloudDrive2 没有取消这个任务：{{reason}}\",\"addressMissing\":\"还没有填 CloudDrive2 地址，先在设置页「检查」探测本机端口后保存\",\"offlineUnsupported\":\"{{target}} 所在的网盘不支持离线下载\",\"quotaUsedUp\":\"云下载配额已用完（{{used}}/{{total}}）\",\"cancelUnsupported\":\"这个网盘不支持从 Peach 取消云下载，请到网盘中处理\",\"offlineFailed\":\"远端拒绝了这个任务：115 报告离线失败，多半是资源无人做种或被拒\"},\"routesMedia\":{\"imageTimedOut\":\"这张图未取得：请求超时\",\"coverAddressUnusable\":\"封面地址不可用\",\"avatarSourcesFailed\":\"{{reasons}}\",\"onlineImageNotFound\":\"在线图片未取得\",\"missingEntityId\":\"缺少实体 id\",\"mibNotJav\":\"韩国 MIB 不适用 JAV 封面来源\",\"codeCoverNotFound\":\"官方渠道没有这个番号的封面\",\"codeCoverUnavailable\":\"取不到这个番号的封面：{{error}}\",\"codeCoverTimedOut\":\"{{seconds}} 秒内没取到这个番号的封面，稍后再试\",\"sourcePaused\":\"{{reason}}\",\"sourceConnectionFailed\":\"来源连接失败，请检查来源连接设置\",\"avatarSourceUnavailable\":\"头像来源暂不可用\"},\"webDownloads\":{\"credentialsUnreadable\":\"本机凭据文件读不出来，请在设置页重新填写：{{error}}\",\"unknownChannel\":\"不认识的云下载渠道：{{key}}\"},\"metadata\":{\"relayed\":\"{{detail}}\",\"authRequired\":\"{{source}} 需要登录或已被拒绝：{{reason}}\"},\"javCoverFetch\":{\"officialNoImage\":\"官方封面地址都没有取到图片\",\"officialTooSmall\":\"官方封面只有缩略图或占位图\",\"placeholder\":\"来源给的是「准备中」占位图\",\"officialPlaceholderOnly\":\"官方封面地址只回「准备中」占位图：未发售的新作是官方还没出图，旧作多半已从官方下架\",\"mibNotJav\":\"韩国 MIB 不适用 JAV 封面来源\",\"noCandidates\":\"所有渠道都没有候选\",\"hostsUnreachable\":\"官方图片主机都连不上\",\"deadline\":\"动作预算已用尽\",\"dmmFailed\":\"DMM：{{error}}\",\"coolingDown\":\"封面来源正在冷却，请稍后重试；已有图片保留\",\"catalogUnfinished\":\"官方目录查询未完成，尚未取得封面候选\",\"allAnimated\":\"官方候选都是动图\",\"downloadsFailed\":\"可用候选完整下载都失败\",\"sizeChanged\":\"尺寸变化：日志 {{expectedWidth}}x{{expectedHeight}}，当前 {{width}}x{{height}}\",\"stoppedEarly\":\"提前收工，退出码 {{exitCode}}\"},\"communityCatalog\":{\"animatedOrSmall\":\"社区来源给的封面都是动图或太小\",\"animatedOrSmallPartlyMissed\":\"社区来源给的封面都是动图或太小；另有 {{count}} 张封面没下载到\",\"downloadFailed\":\"社区来源的封面下载失败\",\"mismatch\":\"{{origins}} 给的封面不是同一张图，无法互相印证\",\"mismatchPartlyMissed\":\"{{origins}} 给的封面不是同一张图，无法互相印证；另有 {{count}} 张封面没下载到\",\"noUnwatermarked\":\"未取得无 JavDB 水印的封面\",\"noUnwatermarkedPartlyMissed\":\"未取得无 JavDB 水印的封面；另有 {{count}} 张封面没下载到\",\"noCovers\":\"社区来源没有这部片的封面\"},\"javOfficialPreview\":{\"dmmUnavailable\":\"DMM 视频预览未取得，请稍后重试\",\"dmmUnrecognized\":\"DMM 给出的视频预览地址无法识别（{{host}}），重试不会好转\",\"javdbUnavailable\":\"JavDB 视频预览未取得，请稍后重试\",\"officialUnavailable\":\"官方视频预览未取得，请稍后重试\"},\"avbase\":{\"unrecognized\":\"AVBase 页面结构未识别，可能在验证访问\",\"notFound\":\"AVBase 没有这个番号\"},\"dmm\":{\"unrecognizedCode\":\"认不出可以问 DMM 的番号\",\"notFound\":\"DMM 没有这个番号\",\"notWorkJson\":\"DMM 返回的不是作品 JSON\",\"notListJson\":\"DMM 返回的不是片单 JSON\",\"refused\":\"DMM 拒绝了这条查询\",\"refusedWithMessage\":\"DMM 拒绝了这条查询：{{message}}\"},\"base\":{\"codeMismatch\":\"来源返回的番号不匹配\",\"itemNotListed\":\"{{label}} 上没有这个商品\",\"cloudflareUpdateCookie\":\"{{label}} 要求 Cloudflare 验证，请在采集设置里更新 Cookie\"},\"r18dev\":{\"notWorkJson\":\"r18.dev 返回的不是作品 JSON\"},\"fc2\":{\"unrecognizedCode\":\"这个番号认不出 FC2 商品号\"},\"fc2ppvdb\":{\"ageGate\":\"{{label}} 送到了年齢確認页，浏览器没有点过去\"},\"javten\":{\"translatedPage\":\"{{label}} 回的是译文页，只收日文原页\"},\"javbus\":{\"notFound\":\"JavBus 没有这个番号\",\"ageGate\":\"JavBus 回的不是作品页，多半是年龄确认页：到采集设置给 JavBus 贴上浏览器里的 Cookie\"},\"javdb\":{\"notFound\":\"javdb 没有这个番号\",\"loginRequired\":\"javdb 要求登录\",\"identityAmbiguous\":\"javdb 同番号对应多个作品，请核对来源身份：{{identities}}\",\"detailCodeMismatch\":\"javdb 详情页的番号与搜索结果不一致\",\"budgetExceeded\":\"javdb 作品资料在本次预算内未取得\"},\"onepondo\":{\"unrecognizedCode\":\"这个番号不是{{label}}的写法\",\"notFound\":\"{{label}}站上没有这部片\",\"notWorkJson\":\"{{label}}返回的不是作品 JSON\",\"movieIdMismatch\":\"{{label}}回的作品号对不上这个番号\"},\"seesaa\":{\"notInSearch\":\"Wiki 搜索范围内未取得精确作品表格行\",\"notInEntries\":\"Wiki 搜索范围内未取得精确番号的作品条目\",\"conflictingRows\":\"Wiki 精确番号存在冲突行，需复核原页\",\"budgetStopped\":\"Wiki 本批请求已停止或达到限额\",\"networkFailed\":\"Wiki 网络请求未取得\",\"httpFailed\":\"Wiki HTTP 请求未取得\",\"pageTooLarge\":\"Wiki 页面超过读取上限\",\"redirectUnverified\":\"Wiki 重定向页面未取得身份验证\",\"botCheckFailed\":\"Wiki 机器人验证未取得\"},\"metadataAmane\":{\"refused\":\"{{message}}（{{reason}}）\",\"refusedWithStatus\":\"{{message}}（{{reason}}，HTTP {{status}}）\",\"notFound\":\"{{label}} 上没有这个番号（{{reason}}）\",\"unavailable\":\"{{label}} 未取得资料（{{reason}}）\",\"unavailableWithStatus\":\"{{label}} 未取得资料（{{reason}}，HTTP {{status}}）\",\"unavailableDetail\":\"{{label}} 未取得资料（{{reason}}）：{{detail}}\",\"unavailableWithStatusDetail\":\"{{label}} 未取得资料（{{reason}}，HTTP {{status}}）：{{detail}}\",\"runtimeUnavailable\":\"amane 运行环境未取得\",\"packagedRuntimeProblem\":\"安装包中的采集工具缺失或版本不匹配，请重新安装 Peach\",\"bridgeMissing\":\"amane 桥未安装：在「来源和凭证」页重建，或放到 {{python}}\",\"bridgeScriptMissing\":\"amane 桥脚本缺失：{{path}}\",\"stdioDecode\":\"amane 桥编码错误（bridge_stdio_decode，{{code}}，{{sites}}，runtime={{runtime}}，expected=utf-8，bytes={{bytes}}，offset={{start}}:{{end}}，sha256={{sha256}}）\",\"bridgeTimeout\":\"amane 桥查询超时\",\"bridgeStartFailed\":\"无法启动 amane 桥：{{error}}\",\"bridgeNotJson\":\"amane 桥返回了非 JSON 输出：{{detail}}\",\"bridgeFailed\":\"amane 桥查询失败（exit {{exitCode}}）\",\"productMismatch\":\"{{label}} 返回的商品不是 {{code}}：content_id={{contentId}}\",\"preparing\":\"amane 运行环境正在准备，请稍后重试\",\"installDirUnwritable\":\"amane 安装目录无法读写：{{error}}\",\"bundleFileMissing\":\"安装包里缺少 amane 桥的文件：{{path}}；重新安装 Peach 后可用\",\"manifestUnreadable\":\"amane 桥的清单读不出来：{{error}}\",\"uvMissing\":\"未找到 uv，请先安装 uv 再重建 amane 桥\",\"rebuildTimeout\":\"重建 amane 桥超过 {{timeout}} 秒未完成\",\"uvStartFailed\":\"无法启动 uv：{{error}}\",\"uvSyncFailed\":\"uv sync 失败（exit {{exitCode}}）：{{detail}}\",\"installIncomplete\":\"amane 安装未完成：运行环境中没有可用的包元数据\",\"selfCheckFailed\":\"amane 运行环境自检失败，请在来源和凭证中重新安装\",\"selfCheckUnfinished\":\"amane 运行环境自检未完成，请在来源和凭证中重试\"},\"performerAliasFollowup\":{\"coolingDown\":\"来源正在冷却\",\"requestsUsedUp\":\"这一条的请求数用完了\",\"networkFailed\":\"网络请求失败：{{type}}\",\"rateLimited\":\"来源限流（429）\",\"refused\":\"来源拒绝访问或要求机器人验证\",\"pageMissing\":\"站上没有这一页\"},\"settingsFile\":{\"locatorUnreadable\":\"无法读取数据目录位置：{{locator}}：{{error}}\",\"locatorInvalid\":\"数据目录位置无效或循环：{{locator}}\",\"locatorTooDeep\":\"数据目录位置的跳转次数超过八次\",\"unreadable\":\"设置文件读不出来：{{path}}：{{error}}\",\"notUtf8\":\"设置文件读不出来：{{path}}：不是 UTF-8 编码（{{error}}）\",\"tomlSyntax\":\"设置文件读不出来：{{path}}：TOML 语法错误：{{error}}\",\"notTable\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是一个表（[{{key}}]）\",\"notString\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是字符串\",\"notInteger\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是整数\",\"notBoolean\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是 true 或 false\",\"notStringOrArray\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是字符串，或者字符串数组\",\"emptyArrayItem\":\"设置文件读不出来：{{path}}：`{{key}}` 的数组里不能有空串\",\"duplicatePaths\":\"设置文件读不出来：{{path}}：`{{key}}` 的数组里有重复的路径\",\"unknownDirectories\":\"设置文件读不出来：{{path}}：`directories` 里有不认识的键：{{keys}}\",\"driveLetterKeys\":\"设置文件读不出来：{{path}}：`[media]` 下不再接受盘符键：{{keys}}。改写成 `[media.mounts] <location-id> = <本机路径>`，ID 取 `[media.locations]` 中已配置的来源键，路径填写该来源的本机媒体目录，例如 `local = '/mnt/media'`\",\"locationsWithoutPrefix\":\"设置文件读不出来：{{path}}：`[media.locations]` 中这些媒体来源没有配置目录前缀：{{keys}}\",\"undeclaredMounts\":\"设置文件读不出来：{{path}}：`[media.mounts]` 里有没在 `[media.locations]` 声明过的来源：{{keys}}\",\"mountCountMismatch\":\"设置文件读不出来：{{path}}：`[media.mounts] {{key}}` 配置了 {{mounts}} 个媒体目录，但 `[media.locations] {{key}}` 配置了 {{prefixes}} 个数据库路径前缀；两边按顺序一一对应，要么数目相同，要么整项留空\",\"costInvalid\":\"设置文件读不出来：{{path}}：`[media.costs]` 只接受 free 或 metered\",\"identityInvalid\":\"设置文件读不出来：{{path}}：媒体库身份配置无效：{{error}}\",\"identityInvalidOnSave\":\"媒体库身份配置无效：{{error}}\",\"fileExists\":\"设置文件已存在，加 --force 才覆盖：{{path}}\"},\"scan\":{\"pathConflict\":\"同一规范路径有多条文件记录（记录 {{ids}}）：{{path}}；已保留全部记录，请复核；其他文件继续处理\",\"unknownSource\":\"✗ 未声明的来源 {{location}}；[media.locations] 里已知：{{known}}\",\"unknownSourceNoneDeclared\":\"✗ 未声明的来源 {{location}}；[media.locations] 里已知：（设置文件里一个都没有）\",\"rootBelongsElsewhere\":\"✗ 扫描目录与媒体来源不一致：{{location}} 的数据库路径前缀是 {{prefixes}}，但要扫的是 {{root}}（该目录属于 {{actual}}）\",\"rootOutsideMedia\":\"✗ 扫描目录与媒体来源不一致：{{location}} 的数据库路径前缀是 {{prefixes}}，但要扫的是 {{root}}（不在任何已配置的媒体目录下）\",\"noMounts\":\"✗ 媒体来源 {{location}} 未配置本机目录，无法转换 {{path}} 的路径；请先在 [media.mounts] 中配置媒体目录\",\"outsideMounts\":\"✗ {{path}} 不在来源 {{location}} 的挂载点 {{mounts}} 之下\",\"smbNotSaved\":\"SMB 目录尚未保存到媒体库配置\",\"prefixWithoutMount\":\"✗ 媒体来源 {{location}} 的第 {{index}} 个数据库路径前缀没有对应的本机目录；请先在 [media.mounts] 中按相同顺序配置媒体目录\",\"checkpointMismatch\":\"扫描目录与保存的断点不一致，请核对挂载设置\",\"rootUnreadable\":\"✗ 无法列出扫描目录 {{root}}（{{error}}）；本次没有扫描，也没有文件被算作已消失\"},\"faceDetect\":{\"faceModelMissing\":\"缺少人脸模型：{{path}}\",\"faceModelFetchFailed\":\"取人脸模型失败：{{error}}\",\"faceModelChecksum\":\"人脸模型校验不符：期望 {{expected}}，实际 {{actual}}\",\"matchModelMissing\":\"缺少人脸比对模型：{{path}}\",\"matchModelFetchFailed\":\"取人脸比对模型失败：{{error}}\",\"matchModelChecksum\":\"人脸比对模型校验不符：期望 {{expected}}，实际 {{actual}}\",\"detectorUnsupported\":\"当前 OpenCV 没有 FaceDetectorYN；需要 4.5.4 以上\"},\"faceMatch\":{\"recognizerUnsupported\":\"当前 OpenCV 没有 FaceRecognizerSF；需要 4.5.4 以上\"},\"taskRetry\":{\"relayed\":\"{{message}}\"},\"catalogRules\":{\"codePatternsNotList\":\"番号识别规则要写成一组正则表达式\",\"codePatternsTooMany\":\"番号识别规则最多 {{limit}} 条\",\"codePatternTooLong\":\"第 {{index}} 条规则超过 {{limit}} 个字符\",\"codePatternInvalid\":\"第 {{index}} 条规则不是有效的正则表达式：{{error}}\"},\"reviewCsv\":{\"readFailed\":\"复核 CSV 读取失败：{{path}}，第 {{line}} 行：{{error}}\"},\"mediaIo\":{\"deadlinePassed\":\"媒体读取已超过期限\",\"readTimedOut\":\"读取媒体目录或配套文件超时，已跳过，可重试\",\"readerFailed\":\"媒体读取进程未完成\"},\"webStats\":{\"tasteNotFound\":\"口味分析未取得\",\"tasteReadStopped\":\"口味读取已停止\"},\"webBatch\":{\"changedDuringQuarantine\":\"文件在隔离备份期间发生变化\",\"pathUnmapped\":\"媒体路径未映射到可访问的挂载目录\",\"storageOffline\":\"媒体来源未挂载或不可读取\",\"purgingCannotRestore\":\"正在永久删除的条目不能还原\"},\"webFeeds\":{\"checkStopped\":\"订阅检查已停止\"},\"webFollow\":{\"checkStopped\":\"关注检查已停止\",\"resolveStopped\":\"关注来源查找已停止\"},\"webLibraryProcessing\":{\"recoveryFailed\":\"任务未能自动恢复：{{reason}}\",\"recoveryFailedRestart\":\"任务未能自动恢复：请重新发起任务\"},\"webLinks\":{\"checkStopped\":\"链接检查已停止\",\"pruneStopped\":\"链接清理已停止\"},\"webMediaRepair\":{\"repairStopped\":\"媒体修复已停止\",\"scanStopped\":\"媒体检查已停止\"},\"webOrganize\":{\"rollbackStopped\":\"整理回滚已停止\",\"stopped\":\"整理已停止\"},\"webResourceSync\":{\"cacheCleanupStopped\":\"缓存清理已停止\",\"cleanupStopped\":\"资源清理已停止\",\"scanStopped\":\"资源检查已停止\"},\"webScraping\":{\"candidateChecksFailed\":\"候选封面未通过检查。\",\"downloadFailed\":\"候选封面完整下载或图片校验失败，未取得可保存的图片。\",\"noCoverCandidates\":\"来源没有返回这个番号的封面候选，无法判断是否有高清版。\",\"sourceAccessDenied\":\"来源拒绝访问（HTTP {{status}}），请检查登录或来源验证状态。\",\"sourceConnectionFailed\":\"来源连接失败，未能完成封面比较；请检查来源连接设置。\",\"sourceServerError\":\"来源服务异常（HTTP 5xx），请稍后重试。\",\"unusableCandidate\":\"候选封面未通过检查：图片未取得、无法解码或宽度不足 700px。\"},\"webWants\":{\"scrapeStopped\":\"想要资料任务已停止\",\"searchStopped\":\"想要查找资源任务已停止\"},\"webFolders\":{\"rulesChanged\":\"目录规则已变化，请重新打开设置\"},\"webTasks\":{\"runMissing\":\"没有第 {{run_id}} 轮任务\"},\"previews\":{\"snapshotUnavailable\":\"预览帧文件缺失\",\"snapshotChanged\":\"预览帧在生成预览图时有变化，请重试\",\"avatarFailed\":\"头像生成失败\",\"snapshotTooDark\":\"预览帧太暗，生成不了头像\",\"avatarSnapshotChanged\":\"预览帧在生成头像时有变化，请重试\",\"emptyStudio\":\"厂牌名为空\",\"logoUnavailable\":\"这个厂牌没有标识图\",\"invalidEntityKind\":\"实体类型无效\",\"entityImageUnavailable\":\"没有缓存的资料图片\",\"ffmpegUnavailable\":\"没找到 FFmpeg\",\"ffmpegFailed\":\"生成预览图失败\",\"photoChanged\":\"图片在生成缩略图时有变化，请重试\",\"photoThumbnailFailed\":\"图片缩略图生成失败\"},\"metadataPerformerProfiles\":{\"avatarUnfetched\":\"{{name}} 的头像未取得：{{reason}}\"},\"cli\":{\"processingIncomplete\":\"资料处理未完成\"},\"jobRecovery\":{\"unreadable\":\"任务恢复记录无法读取，请重新发起任务。\"},\"nasDirectories\":{\"invalidPurpose\":\"请选择媒体目录或数据目录\",\"invalidOffset\":\"目录分页位置无效，请重新读取目录\",\"outsideRoots\":\"只能浏览已配置的媒体挂载目录；新挂载路径可在媒体目录输入框中填写\",\"timedOut\":\"媒体目录读取超时，请稍后重试或手动填写路径\",\"unreadable\":\"媒体目录不可读取，请检查挂载与目录权限\"},\"followBackfill\":{\"credentialMissing\":\"先在关注来源里填好 rule34.xxx 的 API 凭据\",\"running\":\"正在补填，请等这一次做完\"}}"),
+	errors: /* @__PURE__ */ JSON.parse("{\"seedSharing\":{\"invalidChoice\":\"请选择是否开启公共资料贡献。\",\"previewFirst\":\"请先预览本机资料并确认分享范围。\",\"tooLarge\":\"资料超过单次发送上限，未生成可发送的预览。\",\"noPerformer\":\"未找到当前女优资料。\",\"noIdentity\":\"缺少可核对的公开身份或日文原名。\",\"invalidName\":\"请填写有效的中文名。\",\"invalidEvidence\":\"请使用公开的 HTTPS 链接，移除账号或跟踪参数后再提交。\"},\"ledger\":{\"writeBusy\":\"本地数据库正忙：这次写入排队超过 {{seconds}} 秒，没有保存，请稍后重试。\",\"writeCorrupt\":\"本地数据库已损坏。请在「设置 → 应用与维护 → 账本备份」恢复经过校验的备份。\"},\"hardwareTranscode\":{\"backendInvalid\":\"PEACH_TRANSCODE_BACKEND 必须为 {{backends}}\"},\"processingInventory\":{\"previewEnded\":\"目录预检已结束，请重新打开同步弹窗\"},\"gfriends\":{\"indexHttpStatus\":\"Gfriends 索引 HTTP {{status}}\",\"indexTooLarge\":\"Gfriends 索引超过大小上限\"},\"researchParticipation\":{\"stateTooLarge\":\"研究联系状态超过本机记录上限\",\"stateInvalid\":\"研究联系状态格式无效\"},\"trayDetached\":{\"venvHomeMissing\":\"虚拟环境缺少基础解释器目录：{{path}}\",\"desktopProcessMissing\":\"未取得当前会话的 Windows 桌面进程，请确认已登录 Windows 桌面\"},\"entities\":{\"tagAliasConflict\":\"标签别名存在冲突，请先合并重复标签\",\"mergeIntoSelf\":\"不能合并到同一份档案\",\"mergeTargetMissing\":\"合并目标档案 {{id}} 不存在\"},\"strm\":{\"urlInvalid\":\"STRM 需要不含账号密码的 HTTP 或 HTTPS 播放地址\",\"fileTooLarge\":\"STRM 文件超过 64 KiB\",\"fileUnreadable\":\"STRM 文件未取得或不是 UTF-8 文本\",\"singleUrlRequired\":\"STRM 文件需要且只能包含一个播放地址\",\"contentUnparsable\":\"STRM 内容无法解析，请检查播放地址和列表格式\",\"mediaUnavailable\":\"STRM 媒体未取得，请检查播放地址或在生成工具中更新 STRM\"},\"feeds\":{\"dmmActressIdDigits\":\"DMM 女优编号只认数字\",\"httpsRequired\":\"订阅地址必须以 https:// 开头\",\"duplicateUrl\":\"这个订阅地址已经在列表里了\"},\"mp4recover\":{\"stagedSizeMismatch\":\"写到原目录的副本大小不对\",\"noDecodableReference\":\"没有一个参照切得出能解码的片子\",\"backupExists\":\"同目录已有一份留档：{{name}}\"},\"javdbPublic\":{\"budgetExceeded\":\"本轮作品资料预算已用完\",\"imageSourcePaused\":\"图片来源暂时不可用，请稍后重试\",\"sourcePaused\":\"作品资料来源暂时不可用，请稍后重试\",\"notFound\":\"未取得这个番号的作品资料\",\"identityAmbiguous\":\"同番号对应多个作品，请核对来源身份：{{identities}}\",\"reviewPageOutOfRange\":\"评论页码必须在 1 至 8 之间\",\"performerAvatarMissing\":\"出演者头像不存在\",\"previewImageMissing\":\"预览图不存在\",\"unavailable\":\"作品资料未取得，请稍后重试\",\"unrecognizedFormat\":\"作品资料来源格式未识别\",\"identityMismatch\":\"来源作品身份不匹配\",\"imageUnavailable\":\"图片未取得\"},\"storageBudget\":{\"unsupportedField\":\"容量设置包含不支持的字段\",\"gibOutOfRange\":\"{{key}} 必须是 {{minimum}} 到 1048576 之间的整数 GiB\",\"switchRequired\":\"{{key}} 必须是开关值\",\"externalPathNotString\":\"外部缓存目录必须是路径\",\"externalPathNotAbsoluteDirectory\":\"外部缓存目录必须是本机可读取的绝对目录\",\"policyUnreadable\":\"容量设置未取得：{{error}}\",\"externalPathOverlaps\":\"外部缓存目录必须独立于 Peach 数据及各配置目录\",\"hardLinkIdentityMissing\":\"文件系统未提供硬链接身份，分配量未取得\",\"externalPathForeign\":\"外部缓存路径不适用于当前系统，请更新路径\",\"externalDirectoryInaccessible\":\"外部缓存目录不可访问\",\"cacheLayoutChanged\":\"缓存目录在统计期间发生变化，请重新统计\",\"dataLayoutChanged\":\"数据目录在统计期间发生变化，请重新统计\",\"capacityLayoutChanged\":\"容量目录在统计期间发生变化，请重新统计\",\"externalDirectoryMoved\":\"外部缓存目录不可访问，迁移后请更新容量设置中的路径\",\"usageUnavailable\":\"容量统计未取得：{{errors}}\",\"scanPaused\":\"扫描期间磁盘余量触线，已暂停当前写入，请清理或重试：{{reasons}}\",\"cacheWritesStopped\":\"{{reasons}}；磁盘空间不足，已停止写入缓存，请清理后重试\",\"intakeStopped\":\"{{reasons}}；已停止领取新项，请调整容量或清理后重试\",\"checkUnavailable\":\"容量保护检查未取得，已暂停：{{error}}\"},\"mediaConfiguration\":{\"smbAddressRequired\":\"请填写 smb://服务器/共享/目录\",\"smbCredentialsNotText\":\"SMB 账号和密码必须是文字\",\"smbOptionsInvalid\":\"SMB 连接选项无效\",\"smbRootInvalid\":\"SMB 目录的内部路径无效\",\"controlCharacters\":\"路径不能包含控制字符\",\"rootMappingMissing\":\"无法自动配置媒体目录，请检查配置文件中的目录对应关系\",\"driveLetterRequired\":\"媒体路径必须包含盘符，例如 B:\\\\；网络共享请先映射为 Windows 盘符\",\"mappingFormatInvalid\":\"配置文件中 [media.locations] 的路径格式无效；请使用 Windows 格式，例如 R:\\\\media\",\"fullPathRequiredWindows\":\"请填写媒体目录的完整路径，例如 D:\\\\Movies\",\"fullPathRequiredPosix\":\"请填写媒体目录的完整路径，例如 /media\",\"parentSegment\":\"媒体目录路径不能包含上级目录 ..\",\"rowInvalid\":\"媒体来源格式不正确\",\"locationRequired\":\"请选择列表中的媒体来源\",\"costRequired\":\"请选择代理流量保护设置\",\"pathOverlaps\":\"媒体路径与另一文件夹重复或互相包含\",\"mappingOverlaps\":\"配置文件中的目录对应关系重复或互相包含\",\"directoryOverlaps\":\"媒体目录与另一行重复或互相包含\",\"rowCount\":\"请添加 1 到 100 个媒体目录\"},\"smbMedia\":{\"addressInvalid\":\"SMB 地址或端口无效\",\"addressFormat\":\"请填写 smb://服务器/共享/目录，账号和密码单独填写\",\"sharePathInvalid\":\"SMB 地址需要共享名，目录不能包含上级目录或路径分隔符\",\"rootIdentityInvalid\":\"SMB 媒体目录身份无效\",\"credentialsNotText\":\"SMB 账号和密码必须是文字\",\"outsideRoot\":\"媒体目录越界\",\"rootNotWritable\":\"不能写入声明的媒体根目录\",\"rootNotRenamable\":\"不能修改声明的媒体根目录\",\"rootNotDeletable\":\"不能删除声明的媒体根目录\",\"rootNotReplaceable\":\"不能创建或替换声明的媒体根目录\",\"renameAcrossRoots\":\"SMB 改名仅支持同一媒体根目录\"},\"jobs\":{\"meteredSourceDenied\":\"{{location}} 的目录已开启代理流量保护；确认预算后显式加 --allow-metered\",\"runInProgress\":\"{{task}} 已有一轮在进行\",\"freeSpaceUnreadable\":\"无法读取 {{path}} 的磁盘余量\",\"freeSpaceLow\":\"{{path}} 仅剩 {{free}} GiB（阈值 {{minimum}} GiB）\",\"freeSpaceLowWhileRunning\":\"运行中 {{path}} 仅剩 {{free}} GiB（阈值 {{minimum}} GiB）；已停止任务。检查第三方缓存目录，本任务的产物目录未必是消耗方\",\"alreadyRunning\":\"已有实例在跑（PID {{pid}}）\",\"startFailed\":\"任务未能启动\",\"serviceStopped\":\"服务关停，这一轮没有跑完\",\"superseded\":\"这一轮已被新的任务顶替\",\"failed\":\"任务失败\"},\"organizeTemplates\":{\"unclosedPlaceholder\":\"占位符的 `{` 没有配对的 `}`\",\"unknownPlaceholder\":\"不认识的占位符 `{{placeholder}}`；可用的是 {{available}}\",\"unopenedGroup\":\"可选分组的 `]` 没有配对的 `[`\",\"unclosedGroup\":\"可选分组的 `[` 没有配对的 `]`\",\"tooLong\":\"模板太长\",\"driveLetter\":\"模板不能带盘符；它只描述来源根下面的相对位置\",\"leadingSeparator\":\"模板不能以分隔符开头；它只描述来源根下面的相对位置\",\"separatorInFilename\":\"文件名模板不能带目录分隔符；分层写在目录模板里\",\"dotSegment\":\"模板不能包含 `.` 或 `..`\",\"emptyLevel\":\"目录模板里有空的一层\"},\"desktopUninstall\":{\"deleteDataChoiceRequired\":\"请选择是否删除 Peach 数据\",\"sourceInstall\":\"源码安装请先退出托盘，再手动移除项目；数据目录见下方\",\"programDirectoryUnsuitable\":\"程序目录不适合自动卸载\",\"programDataOverlap\":\"程序与数据目录重叠，请手动卸载\",\"externalDataDirectories\":\"数据使用了外部或嵌套目录，请保留数据卸载后按目录清单手动清理\",\"mediaOverlap\":\"卸载目录与媒体目录重叠，请手动检查\",\"sourceInstallStartup\":\"源码安装请先关闭开机自启并退出托盘，再手动移除项目与数据目录\",\"updateRunning\":\"更新任务尚未结束，请完成后卸载\",\"configChanged\":\"配置已变更，请重新确认卸载\"},\"scrapingDiagnostics\":{\"codesInvalid\":\"请填写有效番号，单次最多 {{limit}} 个\"},\"tasteBrowsers\":{\"historyFormatUnsupported\":\"浏览器历史格式不受支持，请选择包含网页访问记录的历史文件\",\"historyExUnsupported\":\"HistoryEx 未包含可识别的网页访问记录；115 下载记录不能用于浏览历史，请选择 History 文件\",\"historyLocked\":\"历史文件正在使用，请退出该浏览器后添加\",\"historyUnreadable\":\"浏览器历史文件未取得，请检查资料目录\",\"nameAndPathRequired\":\"请填写浏览器名称和资料目录\",\"noHistoryFiles\":\"目录中未找到浏览器历史或书签文件\",\"browserMissing\":\"浏览器来源不存在\",\"operationInvalid\":\"浏览器操作无效\"},\"taskControl\":{\"actionInvalid\":\"请选择暂停、继续、取消或调整速度\",\"otherHost\":\"请在执行这轮任务的写入端操作\",\"runFinished\":\"这轮任务已经结束\",\"cancelling\":\"任务正在取消，不能再暂停或继续\",\"shuttingDown\":\"服务正在关闭，已保存的进度留待恢复\",\"runMissing\":\"任务未取得，请刷新后重试\"},\"tasteHistory\":{\"snapshotTimeout\":\"浏览器历史快照未取得，请退出该浏览器后重新读取\",\"takeoutNoActivity\":\"Takeout 未包含可识别的浏览或搜索活动\",\"takeoutHistoryListMissing\":\"Takeout Chrome History 缺少 Browser History 列表\",\"takeoutHistoryRowInvalid\":\"Takeout Chrome History 含无效记录\",\"takeoutActivityUnparsed\":\"{{profile}} 含无法解析的活动记录：{{count}}\",\"historyInUse\":\"历史文件正在使用，请退出该浏览器后重新读取\",\"historyNotRead\":\"浏览器历史未取得，请检查资料目录或退出浏览器后重试\"},\"localPoster\":{\"unreadable\":\"配套图片无法读取\",\"tooLarge\":\"配套图片体积超出范围\"},\"seedPack\":{\"duplicateField\":\"种子 JSON 字段重复：{{key}}\",\"previousNameTaken\":\"原规范名已被其他实体占用，未撤回中文名\"},\"organizeClouddrive\":{\"pikpakRootInvalid\":\"PikPak 媒体根必须是已声明的 Windows 格式绝对路径\",\"cloudDirectoryInvalid\":\"PikPak 云端目录格式无效\",\"cloudPrefixIsRoot\":\"PikPak 云端前缀不能是 CloudDrive 总根目录\",\"pathOutsideSource\":\"路径越出已声明的 PikPak 来源\",\"sampleOutsideRoot\":\"认证样本不属于已声明的 PikPak 媒体根\",\"prefixNotUnique\":\"请在推送发现中为该 PikPak 媒体根配置唯一的 CloudDrive 路径前缀\",\"webdavResponseTooLarge\":\"WebDAV 响应超过预算\",\"webdavNoResponse\":\"WebDAV 网络应答未取得\",\"webdavTreeTooLarge\":\"WebDAV 目录遍历超过预算或循环\",\"webdavTooManyFiles\":\"WebDAV 文件成员超过预算\",\"targetParentNotDirectory\":\"目标父路径不是目录\",\"webdavMkcolFailed\":\"WebDAV 创建父目录失败：HTTP {{status}}\",\"crossParentRename\":\"官方接口只接受同父改名或保留名称的移动；跨父改名须先拆成两步\",\"moveNotExecuted\":\"官方接口拒绝或未执行移动，原件已确认留在原处\",\"cloudPathTooDeep\":\"官方目录路径超过层级预算\",\"cloudListingInvalid\":\"官方目录成员越界、重名或体积无效\",\"cloudListingTooLarge\":\"官方目录成员超过预算\",\"moveMismatch\":\"官方移动来源、父目录或文件名不符\",\"renameOutsideParent\":\"官方改名只支持已声明来源内的同父目录\",\"refreshFailed\":\"目录缓存刷新未取得：{{status}}\",\"directLinkAuthMissing\":\"既有 CloudDrive 直链认证未取得\",\"directLinkMismatch\":\"既有直链来源或路径不符\",\"webdavAuthMissing\":\"既有 WebDAV 认证未取得\",\"authSampleMissing\":\"既有 CloudDrive 认证样本未取得\",\"tokenMissing\":\"既有 CloudDrive 令牌未取得\",\"webdavSourceMissing\":\"既有 PikPak WebDAV 来源未取得\",\"tokenRootRestricted\":\"网盘整理要用根目录为 / 的 CloudDrive2 令牌，当前令牌只能访问 {{root}}\",\"accountRootMissing\":\"CloudDrive 未返回 WebDAV 账号根目录\",\"prefixOutsideAccountRoot\":\"CloudDrive 路径前缀不属于返回的账号根目录\",\"webdavUnavailable\":\"WebDAV 暂时不可用：{{status}}\",\"cloudListingUnavailable\":\"官方完整目录未取得：{{status}}\",\"webdavSourceNotFound\":\"WebDAV 来源未取得\",\"webdavTargetExists\":\"WebDAV 目标已存在\",\"cloudParentMissing\":\"官方父目录未列出所需目录\",\"moveUnconfirmed\":\"移动状态未确认，保留意图回执并停止；不重复操作、不写数据库\"},\"downloads\":{\"infohashInvalid\":\"磁力链接里的 infohash 不是 40 位十六进制或 32 位 base32\",\"magnetRequired\":\"请粘贴磁力链接\",\"magnetNotBittorrent\":\"磁力链接里没有 urn:btih，Peach 只接受 BitTorrent 磁力\",\"targetIsRoot\":\"目标目录要写成网盘里的一个具体文件夹，不能是网盘根目录\",\"addressFormat\":\"CloudDrive2 地址只写协议、主机和端口，例如 http://127.0.0.1:19798\",\"addressPortInvalidIpv6\":\"CloudDrive2 地址的端口必须是 1–65535 的整数，IPv6 地址须放在方括号内\",\"addressPortInvalid\":\"CloudDrive2 地址的端口必须是 1–65535 的整数\",\"notPikpakRoot\":\"{{root}} 不是已声明的 PikPak 媒体根；已知：{{known}}\",\"notPikpakRootNoneDeclared\":\"{{root}} 不是已声明的 PikPak 媒体根；已知：（设置文件里没有 pikpak 来源）\",\"invalidEditionPreferences\":\"下载版本顺序有重复或包含不支持的版本\",\"waitHoursNotNumber\":\"等待上限要写成小时数\",\"waitHoursOutOfRange\":\"等待上限在 1 到 {{max}} 小时之间\",\"writerOnly\":\"云下载只在允许修改数据库的设备上可用\",\"channelUnavailable\":\"请选择媒体库中可用的云下载渠道\",\"targetOutsideLibrary\":\"下载目标目录必须位于所选媒体库内\",\"taskNotFound\":\"没有这个下载任务\",\"taskFinished\":\"这个任务已经结束，不能取消\",\"cancelFailed\":\"远端没有取消成功：{{detail}}\",\"nothingToRetry\":\"这个任务没有失败的后处理可以重试\",\"remoteRejectedNoReason\":\"远端拒绝了这个任务：远端没有给出原因\",\"remoteBlocked\":\"115 拦截了这个资源（违规内容，50038），不会重试：{{text}}\",\"remoteQuota\":\"离线配额不够：{{text}}\",\"remoteStorageFull\":\"扩容或清理网盘空间后再提交\",\"remoteDuplicate\":\"远端已有同一个任务：{{text}}\",\"remoteInvalidLink\":\"远端不认这个链接：{{text}}\",\"remoteRejected\":\"远端拒绝了这个任务：{{text}}\",\"retriesExhausted\":\"{{detail}}（自动重试 {{checks}} 次后仍未提交）\",\"noSeeders\":\"等了 {{hours}} 小时远端还没完成，多半是没有人做种。可以取消，或换一个磁力\",\"notAccepted\":\"网盘没有收下这个任务：提交后离线列表里始终没有它，目标目录里也没有文件\",\"remoteRemoved\":\"网盘里的这个任务不见了：离线列表里找不到它，目标目录里也没有文件\",\"targetNotMapped\":\"目标目录对应不到媒体目录，请检查媒体库挂载和云端路径前缀关联\",\"notLanded\":\"远端已完成，但挂载目录里一直没有出现 {{path}}\"},\"followStore\":{\"aliasNamesRequired\":\"规范创作者名和平台别名都不能为空\",\"aliasSameAsName\":\"这两个名字归一化后相同，不需要维护别名\",\"nameRequired\":\"统一名称不能为空\",\"aliasGroupMissing\":\"这个创作者别名组不存在，请刷新列表\",\"nameTaken\":\"这个名称已属于另一位创作者，请先确认是否需要合并\",\"aliasRequired\":\"别名不能为空\",\"aliasMissing\":\"这个创作者别名不存在\",\"canonicalNotRemovable\":\"规范名不能作为别名移除\",\"itemMissing\":\"追更条目不存在：{{id}}\",\"itemNotFound\":\"追更条目 {{id}} 不存在\",\"noWorkUrl\":\"候选没有作品页 URL，无法作为在线作品保存\"},\"followCreators\":{\"holdGone\":\"这组关注作者已经不在等确认了，刷新后再看\"},\"onlineTagManagement\":{\"nameInvalid\":\"标签名须为 1 至 80 个字符，不含逗号或控制字符\",\"nameTaken\":\"「{{name}}」已属于标签「{{tag}}」，请使用合并标签\",\"selectionInvalid\":\"请选择有效的在线标签，单次最多 2000 个\",\"tagsChanged\":\"标签已变化，请刷新后重试\",\"mergeSelection\":\"请选择至少两个标签，并从中选择保留的标签\",\"mergeSameType\":\"请选择相同来源类型的标签合并\",\"previewStale\":\"标签已变化，请重新预览操作范围\",\"itemTagLimit\":\"每条内容最多添加 100 个手动标签\"},\"tagManagement\":{\"selectionInvalid\":\"请选择有效的标签，单次最多 2000 个\",\"nameInvalid\":\"标签名须为 1 至 80 个字符\",\"nameTaken\":\"「{{name}}」已属于标签「{{tag}}」，请使用合并标签\",\"tagsChanged\":\"标签已变化，请刷新后重试\",\"mergeSelection\":\"请选择至少两个标签，并从中选择保留的标签\",\"previewStale\":\"标签已变化，请重新预览操作范围\"},\"reviewMirror\":{\"notWriter\":\"目标实例当前不是 ledger writer\",\"readFailed\":\"无法读取写入端：{{type}}: {{error}}\",\"readFailedWithCurl\":\"无法读取写入端：{{type}}: {{error}}；系统网络通道：{{curl}}\",\"responseTooLarge\":\"写入端复核响应超过 8 MiB 上限\",\"invalidJson\":\"写入端返回的不是有效 JSON\",\"notObject\":\"写入端返回的不是 JSON 对象\",\"curlStartFailed\":\"curl 启动失败：{{type}}: {{error}}\",\"curlExit\":\"curl 退出 {{code}}：{{detail}}\",\"curlExitNoDetail\":\"curl 退出 {{code}}：未取得错误详情\",\"responseMissingKey\":\"写入端复核响应缺少 {{key}}\",\"queuesMissing\":\"写入端未提供复核状态，请更新写入端\",\"queueMissing\":\"写入端的复核状态 {{key}} 未取得\",\"strictHttpsMissing\":\"未配置可严格校验的写入端 HTTPS\"},\"subtitleSearch\":{\"urlUnsupported\":\"字幕下载地址不受支持\",\"responseTooLarge\":\"字幕响应超过 4 MiB\",\"unreachable\":\"SubtitleCat 暂时无法连接，请稍后重试\",\"tooManyRedirects\":\"字幕下载重定向次数过多\",\"idInvalid\":\"字幕编号无效\",\"queryInvalid\":\"搜索词需为 3–200 个字符，分页位置无效时请重新搜索\",\"searchPageMissing\":\"SubtitleCat 搜索页面未取得，请稍后重试\",\"fileMissing\":\"字幕文件不存在\",\"fileTooLarge\":\"字幕文件超过 4 MiB\",\"formatUnsupported\":\"请选择 SRT、ASS、SSA 或 VTT 文本字幕\",\"noTimeline\":\"字幕文件中没有可播放的时间轴\"},\"devCopy\":{\"placeholdersChanged\":\"请保留原有占位符，只修改文字；字面花括号写成 {{open}} 和 {{close}}\",\"placeholdersIncomplete\":\"请保留全部占位符，各出现一次\",\"textTooLong\":\"请选择不超过 2000 字的文案\",\"replacementInvalid\":\"新文案必须是文字，且不能超过 2000 字\",\"sourceChanged\":\"源文件已变化，请重新选择文字\",\"fileNotEditable\":\"不能修改这个文件\"},\"dockerUpdate\":{\"watchtowerMissing\":\"没有检测到 Watchtower，请用 compose 的 watchtower profile 启动\",\"unreachable\":\"连不上 Watchtower（{{error}}），请稍后重试\",\"tokenMismatch\":\"Watchtower 读到的令牌与 Peach 不一致；在 compose.yaml 所在目录运行 docker compose restart watchtower 后重试\",\"busy\":\"Watchtower 正在执行另一次更新，请稍后再试\",\"httpStatus\":\"Watchtower 返回 HTTP {{status}}\"},\"updatePackages\":{\"toolPathInvalid\":\"工具清单路径无效\",\"toolPathEscapes\":\"工具清单路径越界或包含链接\",\"manifestInvalid\":\"更新包工具清单无效\",\"fileListInvalid\":\"更新包工具文件清单无效\",\"requiredFileMissing\":\"更新包工具清单缺少必需文件\",\"downloadInfoInvalid\":\"更新包工具下载信息无效\"},\"feedFollowup\":{\"noMetadata\":\"来源链 {{chain}} 上都没有这个番号的资料\",\"chainTimedOut\":\"来源链 {{chain}} 在 {{seconds}} 秒内没有答复\"},\"westernCatalog\":{\"http\":\"{{source}} 返回 HTTP {{status}}\",\"invalid\":\"{{source}} 未返回可用的作品资料\",\"invalidKey\":\"请输入有效的 API 密钥\",\"keyMissing\":\"请先配置 {{source}} API 密钥\",\"keyRejected\":\"{{source}} 未接受此 API 密钥\",\"redirect\":\"{{source}} 请求跳转到其他网站，连接已停止\"},\"westernArtwork\":{\"babepediaUrlMismatch\":\"Babepedia 未取得：档案地址不一致\",\"babepediaHttp\":\"Babepedia 未取得：HTTP {{status}}\",\"babepediaIdentityMismatch\":\"Babepedia 未取得：档案身份不一致\",\"babepediaHostMismatch\":\"Babepedia 未取得：来源域名不一致\",\"officialCoverHttp\":\"官方封面未取得：HTTP {{status}}\",\"officialCoverInvalid\":\"官方封面未取得：接口没有返回有效资料\"},\"peachProxy\":{\"modeRequired\":\"请选择 Peach 代理的连接方式\",\"addressInvalid\":\"请填写带端口的 HTTP 或 SOCKS 代理地址\",\"conflict\":\"来源代理设置不同，请先在配置页选择 Peach 代理\",\"requestFailed\":\"外部请求未取得（{{kind}}）\"},\"wants\":{\"codeEmpty\":\"认不出番号：（空）\",\"codeUnrecognized\":\"认不出番号：{{text}}\",\"alreadyInLibrary\":\"{{code}} 已经在库里\",\"feedItemMissing\":\"找不到这条新作\",\"followItemMissing\":\"找不到这条关注条目\",\"wantMissing\":\"找不到这条想要\"},\"mediaProcessingPolicy\":{\"previewStateRequired\":\"请选择视频预览生成状态\",\"accelerationModeRequired\":\"请选择自动或仅软件模式\",\"choiceRequired\":\"请选择媒体处理方式\",\"qualityRequired\":\"画质上限只收 {{choices}}\"},\"retentionSettings\":{\"choiceInvalid\":\"{{key}} 只收 {{choices}}\",\"empty\":\"没有要保存的保留期限\"},\"server\":{\"databaseMissing\":\"已有配置但缺少数据库，请恢复数据库后启动\",\"migrateFailed\":\"数据库升级失败，退出码 {{code}}；服务未启动\",\"settingsMissing\":\"已有数据库但缺少配置文件，请恢复 config.toml 后启动\",\"initFailed\":\"初始化失败，退出码 {{code}}\"},\"entryLinks\":{\"sitesRequired\":\"请提交每个站点的地址\",\"siteMissing\":\"缺少 {{site}} 的设置\",\"hostNotText\":\"{{site}} 的地址必须是文字\",\"hostTooLong\":\"{{site}} 的地址请控制在 {{limit}} 个字符以内\",\"hostShape\":\"{{site}} 这里只写域名本身，像 {{example}}\"},\"gpuLinux\":{\"clientIdMissing\":\"GPU 驱动未提供可去重的 DRM 客户端编号\",\"engineFormatInvalid\":\"GPU 引擎时间或容量格式无效\",\"engineTimeMissing\":\"GPU 驱动未提供 DRM 引擎忙碌时间\"},\"remoteMediaCache\":{\"capacityDenied\":\"{{detail}}\",\"incompleteResponse\":\"媒体响应长度不完整\",\"unavailable\":\"媒体未取得\"},\"supportBundle\":{\"notWritable\":\"诊断报告无法写入数据目录或临时目录\"},\"smbTransport\":{\"hostShareNotComponent\":\"SMB 主机和共享名必须是单独的路径分量\",\"invalidPort\":\"SMB 端口无效\",\"invalidTimeout\":\"SMB 请求期限必须是有限正数\",\"pathNotRelative\":\"SMB 路径必须相对共享根\",\"invalidPathComponent\":\"SMB 路径含无效分量\",\"authenticationFailed\":\"SMB 身份验证失败\",\"accessDenied\":\"SMB 访问被拒绝\",\"connectionUnavailable\":\"SMB 连接不可用\",\"requestTimedOut\":\"SMB 请求超时\",\"transportClosed\":\"SMB 传输已关闭\",\"disconnected\":\"SMB 连接已断开\",\"connectionClosed\":\"SMB 连接已关闭\",\"dfsNotAllowed\":\"SMB DFS 共享不允许重解析\",\"reparsePoint\":\"SMB 重解析点不可访问\",\"rootNotModifiable\":\"不能修改共享根目录\",\"rootNotReplaceable\":\"不能替换共享根目录\",\"rootNotWritable\":\"不能写入共享根目录\",\"readNoCredits\":\"SMB 读取没有可用额度\",\"unexpectedEnd\":\"SMB 文件在声明的结尾之前结束\",\"writeNoCredits\":\"SMB 写入没有可用额度\",\"writeIncomplete\":\"SMB 写入未完成\",\"requestFailed\":\"SMB 请求失败\"},\"resourceSearch\":{\"invalidEndpoint\":\"索引器地址格式不正确\",\"endpointFormat\":\"填写 HTTP 或 HTTPS API 地址；API key 单独填写，地址不带查询参数\",\"unreadableConfig\":\"索引器配置读不出来，请在本机「配置 → 下载」中重新保存\",\"tooManyIndexers\":\"最多配置 {{max}} 个索引器\",\"indexerNotObject\":\"索引器配置必须是对象\",\"invalidIndexerKey\":\"索引器编号为空或重复\",\"invalidIndexerName\":\"索引器名称须为 1 到 80 个字符\",\"invalidApiKey\":\"API key 格式不正确\",\"invalidSizeRange\":\"体积区间须在 0 到 1 TiB 之间，下限不能大于上限\",\"invalidGoal\":\"质量目标只能是高清、中字或无码\",\"responseTooLarge\":\"索引器响应超过 2 MiB\",\"xmlEntities\":\"索引器 XML 含不支持的实体声明\",\"notTorznab\":\"索引器没有返回 Torznab XML\",\"invalidCode\":\"请输入可识别的作品番号\",\"indexerLimitExceeded\":\"索引器数量超过上限\",\"noCodeSearch\":\"索引器没有声明番号搜索能力\"},\"scrapingAccess\":{\"unknownSource\":\"未知采集来源\",\"cookieFileFormat\":\"Cookie 文件须为 Netscape 文本格式\",\"cookieOneLine\":\"请粘贴一行 Cookie 请求头\",\"invalidCookieHeader\":\"Cookie 请求头格式无效\",\"chooseNetwork\":\"请选择来源连接方式\",\"cookieNotAccepted\":\"此来源不接受登录 Cookie\",\"cookieOneMethod\":\"Cookie 粘贴与文件导入只选一种\",\"cookieTooLarge\":\"Cookie 文本超过 256 KiB\",\"noValidCookie\":\"未找到该来源尚未过期的 Cookie\",\"redirectNotHttps\":\"采集重定向必须使用 HTTPS\",\"tooManyRedirects\":\"采集重定向次数超过上限\",\"accountSuspended\":\"{{label}} 账号被临时停用（站方判定浏览太快），{{time}} 自动恢复；停的是账号，换出口没用，Peach 先暂停向它请求\",\"geoRestricted\":\"{{label}} 不对当前出口所在的地区开放，请在代理里给它换一个它接受的地区的出口；暂停向它请求 {{minutes}} 分钟\",\"ipBanned\":\"{{label}} 封禁了当前出口 IP，暂停向它请求一段时间，也可以在代理里给它换一个出口\",\"requestBudgetSpent\":\"本趟采集次数已用完，再跑一次接着采；已有图片保留\",\"timeBudgetSpent\":\"本趟采集时间已用完，再跑一次接着采；已有图片保留\",\"downloadBudgetSpent\":\"本趟下载量已用完，再跑一次接着采；已有图片保留\",\"coolingDown\":\"来源正在冷却，请稍后重试；已有图片保留\",\"challengeTimedOut\":\"来源的人机验证没有在限时内通过，暂停向它请求一段时间；下次可从任务栏点开采集浏览器点一下验证；已有图片保留\",\"rateLimited\":\"来源限流，已记录冷却时间；已有图片保留\",\"coolingDownNamed\":\"{{label}} 暂停中，约 {{minutes}} 分钟后再试\",\"rateLimitedNamed\":\"{{label}} 限流，约 {{minutes}} 分钟后再试\",\"refusedNamed\":\"{{label}} 拒绝了当前出口的请求，多半是请求太频繁或出口被拦；暂停约 {{minutes}} 分钟，也可以在代理里给它换一个出口\",\"refusedCookieNamed\":\"{{label}} 拒绝了请求：可能是请求太频繁、出口被拦，或贴过的 Cookie 已过期；暂停约 {{minutes}} 分钟，可以换个出口或重贴 Cookie\",\"refused\":\"来源拒绝访问，暂停向它请求一段时间；已有图片保留\",\"browserModeInvalid\":\"采集浏览器模式只收 {{choices}}\"},\"downloadPostprocess\":{\"noLandingPath\":\"下载任务没有落地路径\",\"noVideoInLanding\":\"落地目录里没有可识别的视频\",\"mainBoundToOtherCode\":\"正片已绑定其他番号：{{code}}\",\"configMismatchProbe\":\"当前馆藏与媒体配置不一致，不能探测下载媒体\",\"configMismatchCollect\":\"当前馆藏与媒体配置不一致，不能采集下载资料\",\"collectFailed\":\"资料采集失败\",\"organizeIncomplete\":\"文件整理未完成：{{reasons}}\",\"integrityBefore\":\"整理前 ledger 校验失败：integrity={{integrity}}\",\"integrityAfter\":\"整理后 ledger 校验失败：integrity={{integrity}} new_foreign_keys={{count}}\",\"notIngested\":\"云下载任务尚未入库\"},\"subtitleMemory\":{\"invalidFields\":\"播放记忆字段无效\",\"chooseSubtitle\":\"请选择字幕或关闭字幕\",\"invalidRotation\":\"旋转角度无效\",\"invalidRate\":\"播放速度无效\",\"invalidCaptionStyle\":\"字幕外观无效\",\"invalidSelection\":\"字幕选择无效\",\"invalidVideoKey\":\"视频标识无效\",\"invalidTrack\":\"字幕轨道无效\",\"invalidTrackContent\":\"字幕内容或名称无效\",\"selectionNotSaved\":\"选择的字幕尚未保存\"},\"entityIdentityResearch\":{\"nameMismatch\":\"身份清单与实体名称不一致\",\"performerNeedsOccupation\":\"出演者迁移需要已取得的公开职业来源\",\"planExpired\":\"身份计划已过期\",\"multiplePublishers\":\"作品存在多个发布者，需复核\",\"recordChanged\":\"身份修复记录已发生后续改动\",\"newIdentityChanged\":\"新身份已发生后续改动\",\"newIdentityHasVideos\":\"新身份出现额外作品关系\",\"newIdentityHasData\":\"新身份出现额外资料\"},\"updateTasks\":{\"gateBusy\":\"任务闸门正忙，稍后自动重试。\",\"stateUnreadable\":\"任务保护状态无法读取，请检查数据目录后重试。\",\"stateInvalid\":\"任务保护状态无效，请检查数据目录后重试。\",\"preparingInstall\":\"正在准备安装更新，暂时不能启动新任务。请等待安装完成。\",\"installInProgress\":\"已有更新安装正在进行，请等待完成。\",\"reservedBusy\":\"{{message}}\",\"pausedForInstall\":\"任务已暂停，安装完成后自动继续。\",\"batchStateUnknown\":\"批处理进程状态无法确认，安装已取消。\",\"reservationExpired\":\"更新安装预约已失效，请重新准备更新。\"},\"avatarProvider\":{\"unsupportedFormat\":\"暂不支持 {{format}} 图片格式，请换用 JPEG、PNG、WebP 或 AVIF 图片\",\"unsupportedFormatUnknown\":\"暂不支持 这种 图片格式，请换用 JPEG、PNG、WebP 或 AVIF 图片\",\"imageTooLarge\":\"图片像素尺寸过大，请缩小后重新选择\",\"unrecognizedImage\":\"无法识别图片内容，文件可能损坏或格式未支持，请重新导出图片\",\"incompleteImage\":\"图片数据不完整或无法解码，请重新下载或导出图片\"},\"processingControl\":{\"invalidMode\":\"请选择低占用、标准或高强度模式\",\"jobChanged\":\"任务已变化，请刷新页面后重试\",\"stopped\":\"处理任务已停止\",\"userStopped\":\"用户停止任务\"},\"avatarWatermark\":{\"modelMissing\":\"文字检测模型不在 {{path}}，且不允许下载\",\"downloadFailed\":\"取文字检测模型失败：{{error}}\",\"checksumMismatch\":\"文字检测模型校验不符：期望 {{expected}}，实际 {{actual}}\"},\"junkVisual\":{\"ocrUnavailable\":\"画面推广识别未取得结果（{{reason}}）\"},\"previewCache\":{\"playlistNotFetched\":\"播放列表未取得\",\"contentSteering\":\"暂不支持 Content Steering 播放列表\",\"sourceUnavailable\":\"预览来源不可用\",\"objectMissing\":\"预览对象不存在\",\"manifestNotFetched\":\"预览清单未取得\"},\"metadataRoutes\":{\"overrideFormat\":\"来源链覆盖要写成 `类型=来源,来源`\",\"unknownContentType\":\"未知内容类型：{{type}}\",\"unknownSources\":\"未知来源：{{sources}}\"},\"libraryNfo\":{\"tooLargeOrEntities\":\"NFO 文件过大或包含实体声明\",\"notVideo\":\"NFO 不是影片或单集资料\",\"multipleCodes\":\"NFO 包含多个不同番号\"},\"remoteReporting\":{\"notBoolean\":\"遥测和自动错误诊断必须是布尔值\",\"mustMatch\":\"版本统计与错误诊断须同时开启或关闭\"},\"studioIcons\":{\"hashMismatch\":\"候选文件与复核记录哈希不一致，拒绝安装：{{name}}\",\"notSquare\":\"无法生成可用的方形图片，未安装：{{name}}\"},\"fileIdentity\":{\"invalidCache\":\"本地文件身份缓存格式无效\"},\"releaseUpdates\":{\"toolPackageNotFound\":\"未能从发布页取得工具包信息，请检查网络与 Peach 代理后重试\"},\"sourcePreflight\":{\"unknownSource\":\"请选择已登记的资料源 ID\"},\"libraryProcessingScope\":{\"libraryGone\":\"所选媒体库已不存在，请重新选择\",\"noDirectories\":\"所选媒体库没有可处理的目录\"},\"access\":{\"passwordMismatch\":\"两次输入的密码不一致\",\"passwordLength\":\"访问密码需为 8–256 个字符\",\"invalidRememberDays\":\"请选择有效的保持登录时间\"},\"downloadsPikpak\":{\"missingCredentials\":\"请填写 PikPak 账号和密码\",\"captchaRequired\":\"PikPak 要求先完成人机验证：打开验证页完成后，回到设置页再点一次登录\",\"shapeNotJson\":\"PikPak 接口回包形状不对（HTTP {{status}} 不是 JSON），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNotObject\":\"PikPak 接口回包形状不对（回包不是对象），接口可能已经变了。可以先复制磁力手动添加\",\"shapeHttpStatus\":\"PikPak 接口回包形状不对（HTTP {{status}}），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNoCaptchaToken\":\"PikPak 接口回包形状不对（没有 captcha_token），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNoLoginToken\":\"PikPak 接口回包形状不对（登录回包里没有 token），接口可能已经变了。可以先复制磁力手动添加\",\"shapeAuthAfterRefresh\":\"PikPak 接口回包形状不对（刷新 token 之后仍未通过认证），接口可能已经变了。可以先复制磁力手动添加\",\"shapeFileList\":\"PikPak 接口回包形状不对（文件列表），接口可能已经变了。可以先复制磁力手动添加\",\"shapeNoTask\":\"PikPak 接口回包形状不对（提交回包里没有 task），接口可能已经变了。可以先复制磁力手动添加\",\"shapeTaskList\":\"PikPak 接口回包形状不对（任务列表），接口可能已经变了。可以先复制磁力手动添加\",\"shapeTaskPhase\":\"PikPak 接口回包形状不对（任务状态 {{phase}}），接口可能已经变了。可以先复制磁力手动添加\",\"shapeTaskPhaseEmpty\":\"PikPak 接口回包形状不对（任务状态 为空），接口可能已经变了。可以先复制磁力手动添加\",\"unreachable\":\"连不上 PikPak：{{error}}\",\"serverUnavailable\":\"PikPak 暂时不可用（HTTP {{status}}）\",\"unknownWebClient\":\"PikPak 网页端的客户端标识是 {{client}}，Peach 没有它的签名常量，提交不了离线任务。可以先复制磁力手动添加\",\"webSignatureRejected\":\"PikPak 拒绝了网页端的请求签名：{{description}}（{{code}}）。网页端的签名常量可能已经更新，可以先复制磁力手动添加\",\"notSignedIn\":\"还没有登录 PikPak\",\"signInExpired\":\"PikPak 登录已过期，请在设置页重新登录：{{description}}（{{code}}）\",\"webRefreshRejected\":\"PikPak 拒绝刷新网页登录的令牌：{{description}}（{{code}}）。请在设置页点「用浏览器登录」重新登录\",\"folderMissing\":\"PikPak 里没有 {{path}} 这个文件夹\",\"targetNeedsFolder\":\"目标目录要写成 PikPak 里的一个具体文件夹\",\"signInInvalid\":\"PikPak 登录已失效，请在设置页重新登录：{{description}}（{{code}}）\",\"captchaDemanded\":\"PikPak 要求人机验证，请在设置页重新登录：{{description}}（{{code}}）\",\"quotaExceeded\":\"PikPak 离线次数或空间不够：{{description}}（{{code}}）\",\"linkRejected\":\"PikPak 不认这个链接：{{description}}（{{code}}）\",\"taskRejected\":\"PikPak 拒绝了这个任务：{{description}}（{{code}}）\",\"noRemoteId\":\"这个任务还没有 PikPak 任务号，无法取消\",\"signInFailed\":\"PikPak 登录失败：{{description}}（{{code}}）\",\"offlineFailed\":\"远端拒绝了这个任务：PikPak 报告离线失败\"},\"upgradeRepairs\":{\"invalidReceipt\":\"更新后的处理记录格式无效\",\"noDanglingReceipt\":\"没有悬空候选补修的回执\",\"integrityFailed\":\"更新已有资料时账本完整性校验失败\",\"foreignKeyFailed\":\"更新已有资料时关联校验失败\",\"receiptNeedsPrepare\":\"更新后的处理记录需要重新准备，请重试\",\"primaryOnly\":\"更新后自动处理只在本机写入端可用\",\"displayRepairNotReady\":\"显示尺寸补测还没准备好，请稍后再试\",\"mediaRepairIncomplete\":\"影片升级补全未完成，请在任务中心查看后重试\",\"resumeAfterRestart\":\"服务重启后继续\",\"displayBackupNoSpace\":\"显示尺寸补测备份空间不足，已暂停本批媒体\",\"mediaPaused\":\"{{message}}\",\"malformedPath\":\"影片路径写法无法识别：{{path}}\",\"malformedPathReason\":\"影片路径写法无法识别（{{reason}}）：{{path}}\"},\"tunnel\":{\"standalonePortInvalid\":\"独立包 Tunnel 的 HTTP 端口无效：{{port}}\",\"lanAddressUnknown\":\"无法确定源码服务的局域网地址\",\"lanAddressNotIp\":\"源码 Tunnel 的局域网地址不是 IP：{{address}}\",\"mdnsMissing\":\"源码服务没有配置 mDNS 名称\",\"caMissing\":\"源码 Tunnel 需要项目 CA：{{path}}\",\"httpsPortInvalid\":\"源码 Tunnel 的 HTTPS 端口无效：{{port}}\",\"accessLocked\":\"访问设置损坏，不能启动公网 Tunnel\",\"passwordRequired\":\"启动公网 Tunnel 前必须先设置访问密码\",\"unsupportedAccessMode\":\"访问设置不是受支持的密码模式\",\"internalTokenMissing\":\"缺少 Peach 内部访问令牌，不能启动公网 Tunnel\",\"invalidMode\":\"tunnel.mode 只能是 quick 或 named：{{value}}\",\"hostnameRequired\":\"命名隧道需要填写公开主机名\",\"invalidHostname\":\"公开主机名不是有效的域名：{{value}}\",\"standaloneQuickOnly\":\"独立包只支持临时链接\",\"tokenRequired\":\"命名隧道需要填写 Cloudflare 隧道令牌\",\"httpsRequired\":\"源码 Tunnel 需要正在运行的 HTTPS 服务\",\"cloudflaredMissing\":\"找不到 cloudflared：安装官方 cloudflared，或用设置文件的 tunnel.binary 与 PEACH_CLOUDFLARED 指定路径\",\"exitedBeforeEntry\":\"cloudflared 在取得入口前退出\",\"startFailed\":\"cloudflared 启动失败：{{error}}\",\"noOutput\":\"cloudflared 没有输出通道\",\"stateFailed\":\"Tunnel 启动状态失败：{{error}}\",\"noEntry\":\"cloudflared 未在限定时间内取得入口\",\"notConnected\":\"cloudflared 未在限定时间内连接到 Cloudflare 边缘\",\"stateWriteFailed\":\"Tunnel 状态写入失败：{{error}}\"},\"automaticUpdates\":{\"chooseInterval\":\"请选择检查频率\",\"chooseMode\":\"请选择自动更新方式\",\"downloadUnsupported\":\"自动下载仅适用于 Windows 独立测试包\",\"needsTray\":\"自动更新需要由托盘管理的服务\",\"unreadable\":\"自动更新设置无法读取，请重新保存。\"},\"certs\":{\"opensslFailed\":\"openssl {{command}} 失败：{{detail}}\",\"opensslMissing\":\"未找到 OpenSSL，请安装并加入 PATH 后重试\"},\"clouddriveProxy\":{\"accountChanged\":\"网盘账号已变化，请重新读取\",\"chooseMode\":\"请选择直连、跟随系统、HTTP 或 SOCKS5\",\"chooseSettings\":\"请选择需要保存的代理设置\",\"clearPasswordNotBoolean\":\"清除密码需要是布尔值\",\"configChanged\":\"CloudDrive2 配置已变化，请重新读取后保存\",\"hostOnly\":\"代理地址只填主机名或 IP\",\"hostUserNotText\":\"代理地址和用户名需要是文字\",\"invalidCredentials\":\"代理凭据格式无效\",\"libraryChanged\":\"媒体库已变化，请重新读取\",\"needsModifyPermission\":\"CloudDrive2 API 令牌需要“修改云盘”权限\",\"needsViewPermission\":\"CloudDrive2 API 令牌需要“查看云盘”权限\",\"notConfigured\":\"请先在下载设置中填写 CloudDrive2 地址和 API 令牌\",\"portRange\":\"代理端口需要在 1–65535 之间\",\"tokenUnreadable\":\"CloudDrive2 API 令牌无法读取，请在下载设置中重新填写\"},\"customMetadata\":{\"chooseNetwork\":\"请选择直连或 Peach 代理\",\"chooseSource\":\"请选择来源\",\"codeMismatch\":\"来源返回的番号与查询番号不一致\",\"codePathRequired\":\"请填写响应中番号字段的路径\",\"configNotObject\":\"来源配置必须是对象\",\"connectionFailed\":\"来源连接失败\",\"contentTypeRequired\":\"至少选择一种有效内容类型\",\"enabledNotBoolean\":\"启用状态必须为布尔值\",\"endpointNeedsCode\":\"接口地址需要包含一个 {code}\",\"endpointNotPublicHttps\":\"接口需要使用固定公网域名的 HTTPS 地址，端口为 443\",\"fieldNeedsText\":\"{{field}} 字段需要文本或数值\",\"fieldNeedsTextArray\":\"{{field}} 字段需要文本数组\",\"hostNotPublic\":\"来源域名必须解析到公网地址\",\"httpStatus\":\"来源响应 HTTP {{status}}\",\"invalidCodeFormat\":\"番号格式无效\",\"invalidFieldPath\":\"字段映射只接受对象键或数组下标组成的点路径\",\"invalidJson\":\"来源响应不是有效 JSON\",\"invalidSavedConfig\":\"自定义来源配置无效\",\"nameLength\":\"来源名称需要 1–80 个字符\",\"proxyConfigMissing\":\"Peach 代理配置未取得\",\"responseTooLarge\":\"来源响应超过 1 MiB\",\"sourceMissing\":\"来源不存在，请刷新\",\"timedOut\":\"来源查询已超时\",\"tooManySources\":\"最多保存 {{max}} 个来源\"},\"dataStorage\":{\"backupNotCleaned\":\"数据库备份未清理：{{reason}}\",\"busy\":\"正在统计或清理，请稍候\",\"busyBeforeMigration\":\"正在统计或清理，请完成后再迁移\",\"categoryNotCleanable\":\"这一类不能在这里清理\",\"chooseTarget\":\"请选择新的数据目录\",\"copyIncomplete\":\"复制没有完成（代码 0x{{code}}）\",\"copyMismatch\":\"复制结果不完整：原目录 {{sourceFiles}} 个文件、{{sourceSize}}，新位置 {{targetFiles}} 个文件、{{targetSize}}\",\"databaseCheckFailed\":\"数据库检查未通过\",\"driveRootNotAllowed\":\"请选择或新建一个专用文件夹，不要直接使用磁盘根目录\",\"fileExists\":\"这个位置已有同名文件\",\"folderNotEmpty\":\"请选择空文件夹，或新建一个文件夹\",\"fullPathRequired\":\"请填写完整路径\",\"layoutChanged\":\"容量目录在统计期间发生变化，请重新统计\",\"localDiskRequired\":\"请选择本机磁盘上的文件夹，例如 D:\\\\Peach\\\\peach-data\",\"measureFirst\":\"请先统计占用空间\",\"measureStopped\":\"统计已停止\",\"migrationCanceled\":\"迁移已取消\",\"notEnoughSpace\":\"新位置所在磁盘剩余 {{free}}，迁移需要约 {{needed}}\",\"notWritable\":\"当前用户无法写入这个位置\",\"overlapsCurrent\":\"新位置不能与当前数据目录相同或互相包含\",\"overlapsMedia\":\"新位置不能与媒体目录重叠\",\"overlapsProgram\":\"新位置不能与程序目录重叠\",\"pathsNotRewritten\":\"预览图路径未能改写（{{error}}），下次处理馆藏时会重新登记\",\"sourceChanged\":\"数据目录已变更，请重新选择\",\"trayStillRunning\":\"托盘尚未退出\",\"updateRunning\":\"更新任务尚未结束，请完成后再迁移\"},\"desktopInstaller\":{\"cachedToolInvalid\":\"本地工具包校验失败：{{name}}。请重新下载或移走此文件后重试。\",\"peachStillRunning\":\"Peach 尚未退出，安装未完成。请稍后重试。\"},\"devCopyRuntime\":{\"applying\":\"文案正在生效，请稍后再编辑\",\"buildFailed\":\"构建失败：{{detail}}\",\"buildIncomplete\":\"构建产物不完整，详情见 build/copy-editor/build.log\",\"nothingToRetry\":\"没有可重试的生效任务\",\"npmMissing\":\"未找到 npm，请安装项目所需的 Node.js\",\"saving\":\"正在保存其他文案，请稍后重试\",\"serviceNotRecovered\":\"服务尚未恢复，请查看托盘日志\"},\"entityClassification\":{\"classificationConflict\":\"实体分类来源冲突，需先复核\",\"identityLinkConflict\":\"身份关联来源冲突，需先复核\",\"reviewedClaim\":\"不能覆盖已复核断言\"},\"fieldOwners\":{\"revisionConflict\":\"资产已被改过：期望 revision {{expected}}，数据库现值 {{current}}\"},\"coverArtwork\":{\"userCoverKept\":\"这部片用的是你换上的封面，自动采集不替换\"},\"itemCover\":{\"tooLarge\":\"图片太大，最多 32 MB\",\"empty\":\"没有收到图片\",\"unreadable\":\"读不出这张图片，请换一张 JPEG、PNG 或 WebP\",\"tooSmall\":\"图片太小，至少要 200 × 200\",\"nothingToRestore\":\"这部片用的不是换上的封面，没有可恢复的\"},\"itemEdit\":{\"assetMissing\":\"这部影片已经不在馆藏里\",\"malformed\":\"提交的编辑内容格式不对\",\"unknownField\":\"不能编辑这些字段：{{fields}}\",\"restoreAndEdit\":\"同一个字段不能既修改又恢复自动：{{fields}}\",\"controlCharacters\":\"内容里不能有换行或控制字符\",\"tooLong\":\"内容太长，最多 1000 个字\",\"releaseDateFormat\":\"发行日期要写成 2025-11-04 这样的格式\",\"regionUnknown\":\"认不出这个产地\",\"entityMissing\":\"选中的档案已经不在了，请重新选择\",\"entityNameInvalid\":\"名称不能为空，也不能超过 200 个字\"},\"applicationPicker\":{\"busy\":\"已有一个系统选择窗口打开\",\"cannotOpen\":\"这台电脑无法启动系统应用程序选择器\",\"failed\":\"无法打开应用程序选择器\",\"noPermission\":\"Peach 没有打开应用程序选择器的权限\",\"unsupportedSystem\":\"当前系统不支持选择本机播放器\",\"headless\":\"此部署不支持选择本机播放器\"},\"folderPicker\":{\"busy\":\"已经有一个选择文件夹的窗口开着\",\"cannotOpen\":\"这台电脑上打不开系统文件夹对话框\",\"failed\":\"没能打开文件夹对话框\",\"noPermission\":\"这台电脑上的 Peach 没有弹出对话框的权限\",\"unsupportedSystem\":\"这个系统上没有可用的文件夹对话框\",\"headless\":\"无桌面部署请在网页中选择媒体挂载目录\"},\"followEvidence\":{\"estimating\":\"还在统计能清理的文件，请稍后再试\",\"running\":\"正在清理，请等这一次做完\"},\"javBrowser\":{\"channelNotConfigured\":\"请先在下载渠道配置网盘账号和目标目录\",\"chooseAction\":\"请选择启用、更新令牌或关闭\",\"codeNotRecognized\":\"未识别到作品番号，请选中页面的完整番号后加入 Peach\",\"codeProductMismatch\":\"页面番号与商品号不一致，请核对作品详情\",\"codeRequired\":\"请提供一个明确的 JAV 番号\",\"deviceNotAllowed\":\"浏览器添加只在允许修改数据库的设备上可用\",\"invalidDismiss\":\"确认参数无效\",\"invalidEdition\":\"版本参数无效\",\"invalidSwitch\":\"换磁力参数无效\",\"manualRejectsSource\":\"手动添加不接受来源网页地址\",\"notEnabled\":\"请先启用浏览器添加\",\"nothingToRetry\":\"这个番号没有失败的整理可以重试\",\"queueFull\":\"添加队列已满，请等待当前任务结束\",\"unsupportedPage\":\"请从支持的 JAV 影片详情页添加\",\"searchUnavailable\":\"资源搜索暂不可用，请在 Peach 检查来源后重试\"},\"librarySharing\":{\"choiceNotBoolean\":\"馆藏与口味上传选项必须是布尔值\",\"compressedTooLarge\":\"馆藏与口味明细压缩后超过 18 MiB，整份未发送\",\"previewFirst\":\"请先查看字段与数据预览，再明确同意上传\",\"tooLarge\":\"馆藏与口味明细超过 100 MiB，整份未发送\"},\"localPlayback\":{\"deploymentUnsupported\":\"此部署请使用网络播放地址或 M3U 播放列表\",\"fileUnsupported\":\"此文件请使用网络播放地址或 M3U 播放列表\",\"playerMissing\":\"播放器未安装，请重新选择\",\"invalidCustomPlayer\":\"所选播放器不可用，请重新选择\"},\"mediaFolders\":{\"folderMissing\":\"目录不存在或已移出媒体库\"},\"mediaTools\":{\"checksumFailed\":\"{{label}} 工具包文件校验失败\",\"digestMismatch\":\"{{label}} 工具包与发布摘要不符，已丢弃这次下载，请重试\",\"downloadFailed\":\"{{label}} 工具包下载失败：{{error}}\",\"installing\":\"{{label}} 正在安装，请稍候\",\"manifestMissing\":\"{{label}} 工具包缺少有效的文件清单\",\"unknownTool\":\"未知的媒体工具\",\"unsupportedPlatform\":\"发布只提供 Windows x64 的 {{label}} 工具包，请从官方下载并加入 PATH\"},\"metadataAutoApply\":{\"codeMismatch\":\"来源返回的不是 {{code}}：id={{providerId}} content_id={{contentId}}\",\"confidenceOutOfRange\":\"字段候选置信度越界\",\"invalidConfidence\":\"字段候选置信度无效\",\"invalidPerformer\":\"演员候选条目无效\",\"invalidReleaseDate\":\"发行日期候选无效\",\"invalidSource\":\"字段候选来源无效\",\"invalidTitle\":\"标题候选为空、过长或含控制字符\",\"noMatchingAsset\":\"当前 ledger 已没有匹配的可用资产\",\"performersEmpty\":\"演员候选为空\",\"performersNotArray\":\"演员候选必须是数组\",\"r18TitleEvidenceMissing\":\"r18 标题原文证据未取得，请重新采集资料\",\"releaseDateFormat\":\"发行日期候选必须是 YYYY-MM-DD\",\"tagsEmpty\":\"标签候选为空\",\"tagsNotArray\":\"标签候选必须是数组\",\"tooManyAssets\":\"同番号资产 {{count}} 条，超过单次批准上限 {{limit}}\",\"undecodableText\":\"来源文字含无法解码的字符，请重新采集资料\",\"unmappedField\":\"该元数据字段没有 Peach 写入映射\",\"unnormalizedName\":\"候选仍含重复或未规范化的实体名，拒绝写入\"},\"metadataCreatorAttributions\":{\"assetChanged\":\"资产 {{asset}} 已发生后续改动，拒绝回滚整批\",\"creatorLinkExists\":\"创作者关系已存在，拒绝回滚整批\",\"creatorLinksChanged\":\"创作者关系已发生后续改动，拒绝回滚整批\",\"creatorWriteRefused\":\"资产 {{asset}} 的创作者字段拒绝写入\",\"labelLinksChanged\":\"厂牌关系已发生后续改动，拒绝回滚整批\",\"multipleCreators\":\"资产 {{asset}} 有多个存续创作者，需复核兼容投影\",\"newLabelChanged\":\"新厂牌资料已发生后续改动\",\"newLabelHasExtra\":\"新厂牌出现额外资料，拒绝回滚整批\",\"planOutdated\":\"审计计划与当前数据库不一致，请重新预览\",\"plannedAccountMissing\":\"计划中的账号身份不存在\",\"plannedLabelMissing\":\"计划中的厂牌身份不存在\",\"profileMissing\":\"档案已不存在，拒绝回滚整批\"},\"metadataTextRepair\":{\"entityTaken\":\"实体 {{id}}「{{name}}」的 id 或名字已被占用，整批拒绝还原\"},\"recordRehome\":{\"batchMissing\":\"没有可撤回的批次 {{batch}}\",\"oldNotVanished\":\"只能接回已消失的行\",\"oldRowTaken\":\"旧行 {{row}} 的 id 或路径已被占用，不能撤回\",\"targetNotPresent\":\"只能接到在库的另一行\"},\"seedCorrections\":{\"contentChanged\":\"同版本种子内容与已导入历史不同\",\"legacyVersionBack\":\"旧格式种子版本不得回退\",\"revisionReused\":\"种子 revision 不得回退或复用\",\"withdrawalsMissing\":\"种子必须原样继承全部历史撤销\"},\"standaloneUpdate\":{\"checksumFailed\":\"更新包校验失败，请重新下载\",\"dataInsideProgram\":\"数据目录位于程序目录内，不能自动替换\",\"databaseRestoreCheckFailed\":\"数据库恢复检查失败\",\"databaseUpgradeFailed\":\"数据库更新失败\",\"expandedTooLarge\":\"更新包展开体积超限\",\"inAppUnsupported\":\"此安装方式不支持应用内更新，请从发布页下载新版本\",\"invalidPath\":\"更新包含无效路径\",\"invalidSize\":\"{{label}}大小无效\",\"invalidUpdateDirectory\":\"更新目录无效\",\"missingChecksum\":\"{{label}}缺少 SHA-256 校验信息\",\"newVersionNotReady\":\"新版本未能就绪\",\"notReady\":\"更新尚未准备完成\",\"notStandalone\":\"更新包不是独立 Windows 版本\",\"pathConflict\":\"更新包路径重复或越界\",\"recoveryPathOutside\":\"任务恢复路径越界\",\"secondaryCannotMigrate\":\"读取端不能迁移账本\",\"secondaryNeedsPrimary\":\"本机不能迁移账本：{{reason}}；请先在写入端迁移并同步\",\"signatureFailed\":\"发布签名校验未通过，已停止更新；请到发布页手动下载新版本\",\"sizeMismatch\":\"下载体积与发布记录不符\",\"stateFileMismatch\":\"更新状态文件不匹配\",\"toolChecksumFailed\":\"{{tool}} 工具包文件校验失败\",\"toolReuseFailed\":\"{{tool}} 工具复用校验失败\",\"trayStillRunning\":\"托盘尚未退出，安装已取消\",\"unlistedToolFile\":\"工具包包含清单外的文件\",\"versionMismatch\":\"包内版本与发布版本不符\"},\"subtitles\":{\"encodingUnknown\":\"编码未识别\",\"imageSubtitle\":\"图形字幕不能作为文本轨播放\"},\"westernProfiles\":{\"identityChanged\":\"艺人身份已变化，请重新预览\"},\"libraryProcessing\":{\"stopped\":\"处理任务已停止\",\"companionImageChangedOnSave\":\"配套图片在保存时发生变化\",\"readOnlyDevice\":\"这台电脑是只读端，请在写入端扫描和导入资料\",\"evidenceNotSaved\":\"资料证据无法保存：{{error}}\",\"invalidSelection\":\"请选择有效的视频项目\",\"selectionGone\":\"所选视频已不存在或已移入回收站，请刷新后重试\",\"previewNotGenerated\":\"预览图未生成，请检查媒体文件后重试\",\"previewUnreadable\":\"预览图无法读取，请重试\",\"previewNotSaved\":\"预览图无法保存：{{error}}\",\"progressNotSaved\":\"处理进度无法保存：{{error}}\",\"invalidStage\":\"处理阶段无效\",\"previewsDisabled\":\"视频预览生成已关闭，请先在媒体库设置中开启\",\"selectionWithRetry\":\"选择项目与失败重试不能同时使用\",\"previewsNeedWriter\":\"生成预览图需要共享馆藏写入连接\",\"nfoCodeConflict\":\"文件名与 NFO 番号冲突，请复核\",\"notInLibrary\":\"所选影片不属于当前媒体库\",\"deadlineRetryLater\":\"外部资料在预算时间内未取得，可稍后重试\",\"deadline\":\"外部资料在预算时间内未取得\",\"noAmaneSites\":\"这个番号的链上没有经 amane 桥问的站\",\"amaneBridgeFailed\":\"amane 桥：{{error}}\",\"amaneSitesSaidNo\":\"amane 桥问的几站都没有这个番号\",\"communitySaidNo\":\"社区来源都没有这个番号\",\"fc2ArchivesSaidNo\":\"FC2 与几个存档站上都没有这个商品\",\"noCover\":\"官方与社区来源都没有这部片的封面\",\"ffmpegMissing\":\"未找到 FFmpeg，无法生成预览图，请在诊断页检查工具状态\",\"mediaInaccessible\":\"媒体文件不可访问\",\"ffprobeMissing\":\"未找到 ffprobe，无法读取视频时长\",\"durationUnavailable\":\"视频时长未取得，请检查媒体文件后重试\",\"sourceProblem\":\"{{source}}：{{problem}}\",\"coverNotImproved\":\"来源封面 {{width}}x{{height}} 不比本机封面好\",\"problems\":\"{{first}}；{{rest}}\",\"sourceReturned\":\"来源返回 {{status}}\",\"processingError\":\"处理出错（{{type}}）\",\"missMetadata\":\"外部来源没有这部片的资料，7 天内不再问\",\"missCover\":\"外部来源没有这部片的封面，7 天内不再问\",\"offline\":\"外部资料未取得：连不上外网\",\"interrupted\":\"处理被中断，可重试未完成的部分。\",\"interruptedCheckFolders\":\"处理被中断。核对媒体目录后重试。\",\"companionImageTimeout\":\"读取配套图片超时，可稍后重试\",\"companionImageUnreadable\":\"配套图片无法读取\",\"metadataPaused\":\"外部资料本趟没轮到：{{problems}}\",\"metadataUnfetched\":\"外部资料未取得：{{problems}}\",\"javdbTagsDeadline\":\"JavDB 标签在预算时间内未取得\",\"javdbTagsUnfetched\":\"JavDB 标签未取得：{{problem}}\",\"coverDeadline\":\"封面在预算时间内未取得，可稍后重试\",\"coverPaused\":\"封面本趟没轮到：{{problem}}\",\"coverUnfetched\":\"封面未取得：{{problem}}\",\"sourceRootUnreadable\":\"{{source}} 来源目录读取失败：{{error}}\",\"sourceRootOffline\":\"{{source}} 来源离线\",\"itemSkipped\":\"已跳过这部影片，可在任务结束后重试\",\"captureTimeout\":\"视频抽帧超时，可重试；反馈问题请导出诊断报告\",\"captureFfmpegFailed\":\"FFmpeg 抽帧失败，反馈问题请导出诊断报告\",\"captureNoFrame\":\"采样位置未取得画面，反馈问题请导出诊断报告\",\"captureUnfetched\":\"视频抽帧未取得，反馈问题请导出诊断报告\",\"previewTimeout\":\"生成预览图超时，请重试\",\"previewFailed\":\"生成预览图失败，请检查 FFmpeg 与目录权限后重试\",\"toolsNotPrepared\":\"采集工具准备失败：{{error}}\",\"someSourcesUnfetched\":\"已从其他来源取到资料；没答上的来源：{{problems}}\",\"someCoverSourcesUnfetched\":\"封面已有；没答上的图源：{{problems}}\"},\"followStream\":{\"coolingDown\":\"{{provider}} 限流冷却中，{{seconds}} 秒后再试\",\"recentMiss\":\"来源媒体刚刚未取得，稍后再试\",\"noSuchMedia\":\"媒体序号不存在\",\"badMediaEntry\":\"媒体条目格式不符\",\"gofileUntrustedUrl\":\"Gofile 返回了不受信任的媒体地址\",\"gofileTokenMissing\":\"Gofile API token 未配置\",\"fanboxUntrustedUrl\":\"FANBOX 返回了不受信任的图片地址\",\"f95UntrustedUrl\":\"F95 返回了不受信任的图片地址\",\"f95NeedsSession\":\"F95 附件需要登录会话\",\"mediaUrlUnavailable\":\"来源媒体地址不可用\",\"unsupportedProvider\":\"媒体来源不受支持\",\"needsSession\":\"媒体需要来源登录会话\",\"rule34videoDetailUrlUnavailable\":\"Rule34Video 详情地址不可用\",\"iwaraUrlUnavailable\":\"Iwara 视频地址不可用\",\"sourceFailed\":\"{{reason}}\",\"rule34videoDetailNotFetched\":\"Rule34Video 详情页未取得\",\"rule34videoVideoUrlNotFetched\":\"Rule34Video 正片地址未取得\"},\"mediaIdentity\":{\"libraryNameInvalid\":\"媒体库名称请使用 1 到 80 个可见字符\",\"libraryIconInvalid\":\"请选择列表中的媒体库图标\",\"libraryColorInvalid\":\"请选择列表中的来源色\",\"libraryPolicyInvalid\":\"请选择列表中的处理方式\",\"stagesInvalid\":\"处理步骤无效\",\"rootLibraryMissing\":\"存储根目录的媒体库不存在\",\"rootPathNotWindows\":\"存储根目录必须使用完整 Windows 路径\",\"rootSourceInvalid\":\"存储根目录的来源或读取策略无效\",\"rootOverlap\":\"媒体路径与另一文件夹重复或互相包含\",\"transportInvalid\":\"媒体连接方式无效\",\"mountNotAbsolute\":\"挂载目录必须使用完整路径\",\"mountOverlap\":\"媒体目录与另一行重复或互相包含\",\"mountOverlapsRoot\":\"挂载目录与账本路径重叠，请使用独立目录\",\"rootChanged\":\"存储根目录已变更，请刷新配置\",\"rootIdentityFixed\":\"已有根目录的来源和账本路径不可更换；请添加另一目录\",\"relocateOrAdd\":\"请选择重定位此目录，或添加另一目录\",\"rootDuplicate\":\"同一存储根目录不能登记多次\",\"libraryMismatch\":\"同一媒体库的名称、图标、来源色和处理方式必须一致\"},\"ledgerBackups\":{\"ledgerMissing\":\"账本不存在\",\"backupIntegrityFailed\":\"备份没有通过完整性检查：{{check}}\",\"chooseBackup\":\"请选择列表里的一份备份\",\"backupGone\":\"这份备份已经不在了，请刷新列表\",\"thisBackupIntegrityFailed\":\"这份备份没有通过完整性检查：{{check}}\",\"schemaMismatch\":\"这份备份的结构与当前程序不符：{{error}}\",\"migratedIntegrityFailed\":\"备份迁到当前结构后没有通过完整性检查：{{check}}\",\"pageSizeMismatch\":\"这份备份的页面大小与当前账本不同，不能在服务运行时恢复\",\"savedCopyIntegrityFailed\":\"当前账本另存后没有通过完整性检查，没有恢复\",\"restoredIntegrityFailed\":\"恢复后的账本没有通过完整性检查：{{check}}\",\"restoreSettled\":\"{{message}}\",\"busy\":\"备份或恢复正在进行，请等它完成\",\"writerOnly\":\"只有写入端能恢复账本：{{reason}}\",\"tasksRunning\":\"还有后台任务在运行：{{tasks}}。请等它们结束或停止后再恢复\",\"tasksRunningNotRestored\":\"还有后台任务在运行：{{tasks}}。没有恢复\",\"restoringBusy\":\"正在从备份恢复账本，暂时不能启动新任务。\"},\"onboarding\":{\"dataRootEmpty\":\"Peach 数据目录不能为空\",\"dataRootIsFile\":\"{{path}} 是一个文件，Peach 数据目录要是目录\",\"mediaDirEmpty\":\"媒体目录不能为空\",\"mediaDirMissing\":\"目录不存在，或者不是目录：{{path}}。先建好再填。\",\"mediaDirNotDrive\":\"{{path}} 不是盘符路径；网络位置先映射成盘符再来\",\"hostChoice\":\"填 1（只有这台电脑）或 2（同一局域网的设备）\",\"portInvalid\":\"端口要是 1 到 65535 之间的整数\",\"portInUse\":\"这个端口已被占用，请换一个端口\",\"mdnsNameInvalid\":\"名字只能用字母、数字和连字符，不能以连字符开头或结尾\",\"yesNo\":\"填 y 或 n\",\"tooManyAttempts\":\"「{{prompt}}」连续 {{attempts}} 次没有拿到有效值。\",\"inputEnded\":\"输入已结束。\",\"mediaDirDuplicate\":\"和上面的 {{other}} 重复了\",\"mediaDirNested\":\"已经在 {{other}} 里面，不用再加\"},\"pushDiscovery\":{\"badSegment\":\"✗ 云端路径里有不能接受的层级：{{segment}}\",\"nothingAfterPrefix\":\"✗ 云端路径在前缀之后没有内容\",\"noCloudPath\":\"✗ 请求里没有云端路径\",\"pathIsPrefix\":\"✗ 云端路径就是前缀本身，没有文件\",\"noPrefixes\":\"✗ {{path}} 不在任何已配置的前缀下；已知：（一条都没配）\",\"notUnderPrefix\":\"✗ {{path}} 不在任何已配置的前缀下；已知：{{known}}\",\"noDeclaredRoots\":\"{{root}} 不是已声明的媒体根；已知：（设置文件里一个都没有）\",\"undeclaredRoot\":\"{{root}} 不是已声明的媒体根；已知：{{known}}\",\"duplicatePrefix\":\"前缀 {{prefix}} 登记了不止一次\",\"cloudChannelOff\":\"✗ 云端通道没有打开\",\"notUnderStorage\":\"✗ {{path}} 不在任何媒体来源已配置的目录下\",\"writerOnly\":\"推送发现只在允许修改数据库的设备上可用\"},\"organize\":{\"unverifiedBatch\":\"来源 {{locations}} 的挂载改名无法核验云端结果，整批未执行；须经官方核验通道（如 organize_library_dirs.py --pikpak-webdav）\",\"scopeNotDirectory\":\"整理路径必须是目录路径\",\"scopeTraversal\":\"整理路径不能包含上级目录跳转或空字符\",\"scopeNotAbsolute\":\"整理路径须为所选来源内的绝对目录路径，不能包含上级目录跳转\",\"scopeOutsideLocation\":\"整理路径不在所选来源内\",\"unverifiedRename\":\"来源 {{location}} 的挂载改名无法核验云端结果，须经官方核验通道\",\"smbSameRootOnly\":\"SMB 整理仅支持同一媒体根目录\",\"rowChanged\":\"数据库里这一行已经变了\"},\"desktopStartup\":{\"shortcutTimeout\":\"Windows 快捷方式操作超时（等待 {{seconds}} 秒），请稍后重试。\",\"shortcutNotSaved\":\"启动项未能保存，请检查当前用户的启动文件夹权限（PowerShell：{{reason}}）\",\"desktopShortcutForeign\":\"桌面快捷方式属于另一份 Peach 安装\",\"startupEntryForeign\":\"启动项属于另一份 Peach 安装\",\"optionsNotBoolean\":\"启动选项必须为开或关\",\"desktopShortcutUnsupported\":\"此系统未提供桌面快捷方式\",\"trayMissing\":\"未找到本机托盘入口\",\"platformUnsupported\":\"此系统未提供登录自启入口\"},\"folderRules\":{\"settingsInvalid\":\"用户设置格式不正确\",\"rulesInvalid\":\"目录规则格式不正确\",\"choosePurpose\":\"请选择目录用途\",\"scopeRequired\":\"目录范围与新文件设置须明确选择\",\"nameTooLong\":\"关联名称最多 200 个字符\",\"nameRequired\":\"请输入关联名称\",\"nameAmbiguous\":\"名称存在多个身份或不同写法，请使用资料页的规范名称\",\"settingsMissing\":\"当前用户设置不存在\",\"planChanged\":\"目录内容或归属已变化，请重新预览\"},\"diagnosticExports\":{\"chooseKind\":\"请选择诊断报告或刮削记录\",\"alreadyRunning\":\"已有诊断导出正在进行，请等待完成或取消\",\"jobChanged\":\"导出任务已变化，请刷新后重试\",\"jobNotFound\":\"导出任务未取得\",\"fileNotReady\":\"导出文件尚未就绪，请重新生成\"},\"migrations\":{\"unsupportedMigrations\":\"数据库包含当前程序不支持的迁移，请使用匹配版本或升级前备份\",\"checksumChanged\":\"已应用 migration {{version}} 的 checksum 已变化\"},\"followScheduler\":{\"autoRunOff\":\"自动运行没有开启\",\"feedWriterOnly\":\"订阅源拉取只在写入端可用\"},\"tasteBookmarks\":{\"tooLarge\":\"书签文件超过 64 MB\",\"missingRoots\":\"书签 JSON 缺少 Chromium roots\",\"invalidNode\":\"书签 JSON 含无效节点\",\"invalidFolder\":\"书签 JSON 含无效文件夹\",\"unsupportedFile\":\"请选择浏览器导出的 HTML 书签文件或 Chromium Bookmarks 文件\",\"unreadable\":\"书签文件未取得，请检查文件格式后重新导入\",\"browserBookmarksNotRead\":\"浏览器书签未取得，请检查资料目录或退出浏览器后重试\"},\"displayDimensionsRepair\":{\"notPrepared\":\"显示尺寸补测记录尚未准备\",\"ffprobeMissing\":\"显示尺寸补测未取得 ffprobe\",\"notMeasured\":\"显示尺寸未取得，保留原有测量\",\"changedDuringRepair\":\"补测期间影片或测量已变化，请重试\"},\"fanbox\":{\"emptyPostType\":\"FANBOX 正文类型不受支持：空\",\"unsupportedPostType\":\"FANBOX 正文类型不受支持：{{type}}\",\"missingBody\":\"FANBOX 公开正文缺少 body\"},\"storageExternalCache\":{\"remoteNeedsManualPath\":\"远程 CloudDrive 请手动填写 Peach 可访问的缓存映射目录\",\"tokenNeedsPermission\":\"自动读取需要 CloudDrive API 令牌的“查看系统设置”权限\",\"noCacheDirectory\":\"CloudDrive 未返回缓存目录，请手动填写\"},\"downloadsPikpakBrowser\":{\"browserMissing\":\"这台电脑上没有找到 Chrome 或 Edge，用不了浏览器登录。可以展开下方用账号密码登录\",\"proxyWithCredentials\":\"浏览器登录不支持带凭据的代理地址，请选择系统代理或无需认证的本机代理\"},\"taskResources\":{\"ownersUnavailable\":\"这轮任务的资源归属记录未取得\",\"ownersInvalid\":\"这轮任务的资源归属记录无效\"},\"genreDecisions\":{\"emptyGenre\":\"要收录的 genre 是空的\"},\"mediaProbe\":{\"strmIsoNotProbed\":\"STRM 和 ISO 不执行视频探测\"},\"platform\":{\"windowsDirectoryUnavailable\":\"未取得 Windows 系统目录\"},\"seedFollowup\":{\"digestMismatch\":\"种子内容与排队任务的摘要不一致，请重新派发\"},\"follow\":{\"internal\":\"{{detail}}\",\"historyEnd\":\"没有更多历史内容\"},\"followSecrets\":{\"missingFields\":\"{{provider}} 凭据缺少字段：{{fields}}\",\"invalidProvider\":\"provider 名称非法\",\"unreadable\":\"{{provider}} 凭据文件无法解析\",\"notObject\":\"{{provider}} 凭据文件必须是 JSON 对象\"},\"followGofile\":{\"notPremium\":\"Gofile 文件列表 API 需要 Premium 账户；token 有效，但当前账户套餐不支持此接口\",\"tokenRejected\":\"Gofile 拒绝了 API token\",\"httpStatus\":\"Gofile 返回 HTTP {{status}}\",\"listUnavailable\":\"Gofile 文件列表未取得\",\"requestFailed\":\"Gofile 请求失败\",\"responseTooLarge\":\"Gofile 响应超出大小上限\"},\"followAvatar\":{\"unsupportedProfile\":\"不支持这个社交资料\",\"litlinkHttpStatus\":\"lit.link 资料页返回 HTTP {{status}}\",\"litlinkNoAvatar\":\"lit.link 资料页没有本人头像\",\"xHttpStatus\":\"X 资料页返回 HTTP {{status}}\",\"xNoAvatar\":\"X 资料页没有本人头像\",\"patreonHttpStatus\":\"Patreon 资料返回 HTTP {{status}}\",\"patreonCreatorMissing\":\"Patreon 资料里没有这个创作者\",\"patreonNoTrustedAvatar\":\"Patreon 资料没有可信的头像地址\",\"unsupportedOfficialSource\":\"不支持这个官方头像来源\",\"fanboxProfileHttpStatus\":\"FANBOX 官方资料返回 HTTP {{status}}\",\"fanboxProfileMalformed\":\"FANBOX 官方资料格式不符\",\"fanboxProfileNoTrustedAvatar\":\"FANBOX 官方资料没有可信的头像地址\",\"fanboxPageHttpStatus\":\"FANBOX 官方页面返回 HTTP {{status}}\",\"fanboxPageNoProfile\":\"FANBOX 官方页面没有可用的创作者资料\",\"fanboxPageNoCreatorId\":\"FANBOX 官方页面没有可用的创作者 id\"},\"followDiscovery\":{\"creatorListMalformed\":\"{{provider}} 的创作者清单格式不符\",\"termRequired\":\"请先输入要查找的名字或 id\",\"termTooLong\":\"名字或 id 最长 {{limit}} 个字符\",\"termForbiddenCharacters\":\"名字或 id 里不能包含 / \\\\ ? # & < > 引号或控制字符\"},\"followSources\":{\"requestFailedAfterRetries\":\"{{provider}} 请求失败（已尝试 {{attempts}} 次）：{{detail}}\",\"requestFailed\":\"{{provider}} 请求失败：{{detail}}\",\"responseTooLarge\":\"{{provider}} 响应超出大小上限\",\"accessDenied\":\"{{provider}} 拒绝访问（HTTP {{status}}）：需要有效凭据，或站点已加机器人验证\",\"httpStatus\":\"{{provider}} 返回 HTTP {{status}}\",\"rateLimited\":\"{{provider}} 返回 HTTP 429：请求过于频繁，稍后再试\",\"rateLimitBody\":\"{{provider}} 触发频率限制：每 {{seconds}} 秒最多 {{count}} 次请求，请稍后再试\",\"notJson\":\"{{provider}} 返回的不是合法 JSON\",\"notJsonWithSnippet\":\"{{provider}} 返回的不是合法 JSON：{{snippet}}\",\"urlNotSupported\":\"{{provider}} 暂不支持从链接登记\",\"iwaraUrlShape\":\"Iwara 请粘贴作者主页，例如 https://www.iwara.tv/profile/username\",\"iwaraAccessDenied\":\"Iwara 拒绝访问（HTTP {{status}}）：登录凭据可能已过期，或站点要求浏览器验证，请核对来源与订阅设置\",\"iwaraNotFound\":\"Iwara 作者或视频未取得：可能已删除或需要有访问权的账号\",\"iwaraResponseMalformed\":\"Iwara 接口响应格式不符\",\"iwaraContentUnavailable\":\"Iwara 内容未取得：请确认账号有访问权并更新登录凭据\",\"iwaraRequestRejected\":\"Iwara 接口拒绝请求，请在来源页面核对内容状态\",\"iwaraRefInvalid\":\"Iwara 的 ref 必须是作者用户名\",\"iwaraNegativePage\":\"Iwara 页码不能小于 0\",\"iwaraProfileMalformed\":\"Iwara 作者资料格式不符\",\"iwaraUserIdUnavailable\":\"Iwara 作者 ID 未取得\",\"iwaraVideoListMalformed\":\"Iwara 视频列表格式不符\",\"iwaraVideoEntryNoId\":\"Iwara 视频条目缺少有效 ID\",\"iwaraVideoIdInvalid\":\"Iwara 视频 ID 无效\",\"iwaraFileUrlUnavailable\":\"Iwara 正片地址未取得，请打开来源页面核对访问权\",\"iwaraUntrustedFileUrl\":\"Iwara 返回了不受信任的文件接口地址\",\"iwaraFileNoExpiry\":\"Iwara 文件接口缺少有效期限\",\"iwaraFormatListMalformed\":\"Iwara 播放格式清单不符\",\"iwaraNoFormats\":\"Iwara 正片格式未取得\",\"kemonoUrlShape\":\"{{host}} 的链接要指向某个创作者，形如 https://{{host}}/fanbox/user/30917150\",\"kemonoUnknownProvider\":\"未知的 kemono 系来源：{{provider}}\",\"kemonoRefInvalid\":\"{{provider}} 的 ref 必须形如 `service/user_id`，收到：{{ref}}\",\"postListMalformed\":\"{{provider}} 的帖子列表格式不符\",\"rule34videoUrlShape\":\"rule34video 的链接要指向作者页，形如 https://rule34video.com/models/lazyprocrastinator/\",\"rule34videoRefInvalid\":\"rule34video 的 ref 必须是作者 slug，收到：{{ref}}\",\"rule34videoNoWorks\":\"rule34video 创作者页没有解析出任何作品：页面结构可能已变，或该 slug 不存在\",\"rule34xxxUrlShape\":\"rule34.xxx 的链接要带标签，形如 https://rule34.xxx/index.php?page=post&s=list&tags=lazyprocrastinator\",\"rule34xxxCredentialsRequired\":\"rule34xxx 需要 user_id 与 api_key；请把它们写进 peach-data/secrets/follow/rule34xxx.json\",\"rule34xxxCredentialsRejected\":\"rule34xxx 拒绝了 user_id/api_key\",\"rule34xxxRefInvalid\":\"rule34xxx 的 ref 必须是单个标签，收到：{{ref}}\",\"rule34xxxAutocompleteMalformed\":\"rule34xxx 的标签补全格式不符\",\"pahealUrlShape\":\"rule34.paheal 的链接要带搜索标签，形如 https://rule34.paheal.net/post/view/7428820#search=InitialA\",\"pahealRefInvalid\":\"rule34.paheal 的 ref 必须是单个标签，收到：{{ref}}\",\"pahealNoWorks\":\"rule34.paheal 标签页没有解析出任何作品\",\"xenforoNoToken\":\"{{provider}} 搜索表单里没有 _xfToken：cookie 可能已失效\",\"f95UrlShape\":\"f95zone 的链接要指向一个线程，形如 https://f95zone.to/threads/xxx.50685/\",\"f95RefInvalid\":\"f95zone 的 ref 必须是线程 id，收到：{{ref}}\",\"f95NoReplies\":\"f95zone 线程页没有解析出任何回复：可能需要登录，或页面结构已变\",\"f95UnknownCategory\":\"未知的 f95zone 分类：{{category}}\",\"f95SearchNeedsCookie\":\"f95zone 站内搜索需要登录 cookie；请把它写进 peach-data/secrets/follow/f95zone.json\",\"f95ProfileNeedsCookie\":\"读 f95zone 首楼的作者主页链接需要登录 cookie；请把它写进 peach-data/secrets/follow/f95zone.json\",\"fanboxUrlShape\":\"FANBOX 的链接要指向创作者主页，形如 https://creator.fanbox.cc/\",\"fanboxRefInvalid\":\"fanbox 的 ref 必须是创作者 id，收到：{{ref}}\",\"fanboxPostListMalformed\":\"fanbox 返回的帖子列表格式不符\",\"fanboxPageListNotModified\":\"fanbox 历史页清单意外返回 304\",\"fanboxPageListMalformed\":\"fanbox 的历史页清单格式不符\",\"fanboxRequestFailed\":\"fanbox 请求失败\",\"fanboxPostError\":\"fanbox 帖子详情返回错误：{{error}}\",\"fanboxPostMalformed\":\"fanbox 帖子详情格式不符\",\"fanboxPostNotPublic\":\"fanbox 帖子详情不是公开免费正文\",\"subscribestarUrlShape\":\"SubscribeStar 的链接要指向创作者主页，形如 https://subscribestar.adult/creator\",\"subscribestarRefInvalid\":\"subscribestar 的 ref 必须形如 subscribestar.adult/creator\",\"subscribestarNoBackfill\":\"SubscribeStar 官方来源暂不支持向前翻页\",\"pageNotUtf8\":\"{{provider}} 返回的页面不是 UTF-8\",\"patreonUrlShape\":\"Patreon 的链接要指向创作者主页，形如 https://patreon.com/cw/creator\",\"patreonRefInvalid\":\"patreon 的 ref 必须是创作者短名，收到：{{ref}}\",\"patreonNoBackfill\":\"Patreon 官方来源暂不支持向前翻页\",\"simpcityUrlShape\":\"simpcity 的链接要指向一个线程，形如 https://simpcity.cr/threads/xxx.21229/\",\"simpcityNeedsCookie\":\"simpcity 需要登录 cookie：站点不让游客读帖。登录后把浏览器里 simpcity.cr 的整条 Cookie 请求头写进凭据文件的 cookie 字段。\",\"simpcityAccessDenied\":\"simpcity 拒绝访问（HTTP 403）：站点不让游客读帖，cookie 可能已过期或不完整，请重新登录后更新凭据文件\",\"simpcityRefInvalid\":\"simpcity 的 ref 必须是线程 id，收到：{{ref}}\",\"simpcityNoPosts\":\"simpcity 线程页没有解析出任何楼层：页面结构可能已变\",\"simpcityCookieNotRecognized\":\"simpcity 没有认出这份 cookie（页面仍是游客态）：请重新登录后复制整条 Cookie 请求头\",\"urlRequired\":\"请先粘贴一条来源链接\",\"urlInvalid\":\"这不是一条合法链接\",\"urlSchemeUnsupported\":\"只接受 http(s) 链接\",\"urlHasCredentials\":\"链接里不能带账号密码\",\"hostUnknown\":\"不认识 {{host}}。当前支持 {{hosts}}。\",\"unknownProvider\":\"未知的追更来源：{{provider}}\"},\"mp4repair\":{\"sttsLengthMismatch\":\"stts 长度和声明的条目数对不上\",\"probeIdle\":\"ffprobe 连续 {{seconds}} 秒没有解码输出\",\"probeIncomplete\":\"ffprobe 没跑完：{{error}}\",\"probeExitCode\":\"ffprobe 退出码 {{code}}\",\"duplicateDts\":\"dts 有重复，认不出哪一帧是哪一帧\",\"frameWithoutTimestamp\":\"有帧没有时间戳\",\"timestampNotInStts\":\"解码器报的时间戳不在 stts 里\",\"frameOutputTwice\":\"同一帧被输出了两次\",\"frameCountMismatch\":\"解码出 {{decoded}} 帧，样本表里有 {{samples}} 个\",\"trackDurationUnknown\":\"算不出轨道时长\",\"zeroTimescale\":\"媒体时间刻度是 0\",\"offsetNeedsCo64\":\"偏移超出 32 位，这个片源要 co64 才修得了\",\"missingMoovOrMdat\":\"顶层缺 moov 或 mdat\",\"needsSingleMoovAndMdat\":\"顶层必须各有一个 moov 和 mdat\",\"moovTooLargeOrMdatEmpty\":\"moov 太大或 mdat 是空的\",\"leadingIndexTooLarge\":\"媒体前的索引段太大\",\"boxesAfterMdat\":\"mdat 后面还有盒子，这个布局还没支持\",\"trailingIndexTooLarge\":\"媒体后的索引段太大\",\"videoSampleTableMissing\":\"找不到视频轨的样本表\",\"cttsPresent\":\"这个片源已经有 ctts\",\"videoSttsMissing\":\"视频轨没有 stts\",\"nothingToRepair\":\"显示顺序本来就等于解码顺序，没有要修的\",\"editStartAmbiguous\":\"尾部索引的编辑起点无法区分预卷与裁剪\",\"rebuiltHeaderLengthMismatch\":\"重建后的头长度对不上\",\"legacyTimetableVersion\":\"旧边车的时间表版本无效\",\"legacyTimetableLength\":\"旧边车的时间表长度不符\",\"legacySampleCount\":\"旧边车的样本数不符\",\"legacyShiftIncomplete\":\"旧边车的整体平移量不完整\",\"legacyNoMoov\":\"旧边车没有 moov\",\"legacyNoTimetable\":\"旧边车缺少修复时间表\",\"legacyEditListInvalid\":\"旧边车的编辑列表无效\",\"legacyHeaderLength\":\"旧边车的重建头长度不符\",\"headerNotRepaired\":\"播放文件头未能修复\"},\"avatarOnline\":{\"notThisCreator\":\"这张备选图片不属于当前创作者\",\"imageNotFound\":\"这张图未取得，请稍后重试\",\"imageOverLimit\":\"图片超过大小上限\"},\"avatarPicker\":{\"coverChanged\":\"这张封面刚换过，返回备选图片重新框一次\",\"codeUnrecognized\":\"认不出这个番号\",\"codeCoverUnrecognized\":\"这个番号的封面不是一张能识别的图片\",\"addressUnusable\":\"这个地址未取得可用图片：{{reason}}\",\"notCached\":\"这张图不在本机缓存里了\",\"fetchFailed\":\"取不到这张图：{{error}}\",\"fetchNoResponse\":\"取不到这张图：无响应\",\"fetchHttpStatus\":\"取不到这张图：HTTP {{status}}\",\"imageOver16Mib\":\"图片超过 16 MiB，请缩小后重新选择\",\"convertedOver16Mib\":\"图片转换后超过 16 MiB，请缩小后重新选择\",\"imageTooLarge\":\"图太大了\",\"imageIncomplete\":\"图片无法完整读取，请重新选择图片\",\"artworkUnavailable\":\"这一次取不到作品画面\",\"choiceUnrecognized\":\"无法识别这张备选图片\",\"assetNotOwned\":\"这部作品不在这个人名下\",\"assetCoverNotLocal\":\"这部作品的封面还没有落在本机\",\"assetCellNotLocal\":\"这部作品的第 {{cell}} 格还没有落在本机\",\"assetCoverUnreadable\":\"读不出这部作品的封面\",\"assetCellUnreadable\":\"读不出这部作品的第 {{cell}} 格\",\"onlineUnavailable\":\"未取得在线备选头像\",\"codeCoverNotFetched\":\"这个番号的封面还没有取过\",\"addressNotFetched\":\"这个地址的图还没有取过\",\"notInIndex\":\"当前索引中没有这张备选图片\",\"offlineNotDownloaded\":\"这张图还没下载过，而这一次不允许联网\",\"invalidCropBox\":\"框选的区域不成立\",\"cropFailed\":\"这一块裁不出来\"},\"browserTransport\":{\"notStarted\":\"浏览器没有启动：{{error}}\",\"debugPortNotConnected\":\"浏览器的调试口没有接上：{{error}}\",\"exitedAtStart\":\"浏览器启动后立即退出（{{code}}）\",\"debugPortMissing\":\"浏览器没有写出调试口\"},\"downloadsClouddrive\":{\"addressEmpty\":\"CloudDrive2 地址没填\",\"noLocalAnswer\":\"没有填 CloudDrive2 地址，本机 {{tried}} 都没有应答。确认 CloudDrive2 已启动，或在地址栏填上它的实际地址\",\"unreachable\":\"{{action}}时连不上 CloudDrive2：{{details}}\",\"tokenRejected\":\"CloudDrive2 拒绝了这个 API 令牌（{{action}}）：{{details}}\",\"pathNotFound\":\"{{action}}：CloudDrive2 里没有这个路径\",\"callFailed\":\"{{action}}失败：{{details}}\",\"tokenMissing\":\"还没有填 CloudDrive2 的 API 令牌\",\"folderMissing\":\"CloudDrive2 里没有 {{path}} 这个文件夹\",\"outsideTokenRoot\":\"CloudDrive2 令牌只能访问 {{root}}，{{path}} 不在里面；目标目录要放在它下面\",\"folderNotCreated\":\"CloudDrive2 没有新建 {{path}}：{{reason}}\",\"folderNotCreatedNoReason\":\"CloudDrive2 没有新建 {{path}}：没有给出原因\",\"cancelRefused\":\"CloudDrive2 没有取消这个任务：{{reason}}\",\"addressMissing\":\"还没有填 CloudDrive2 地址，先在设置页「检查」探测本机端口后保存\",\"offlineUnsupported\":\"{{target}} 所在的网盘不支持离线下载\",\"quotaUsedUp\":\"云下载配额已用完（{{used}}/{{total}}）\",\"cancelUnsupported\":\"这个网盘不支持从 Peach 取消云下载，请到网盘中处理\",\"offlineFailed\":\"远端拒绝了这个任务：115 报告离线失败，多半是资源无人做种或被拒\"},\"routesMedia\":{\"imageTimedOut\":\"这张图未取得：请求超时\",\"coverAddressUnusable\":\"封面地址不可用\",\"avatarSourcesFailed\":\"{{reasons}}\",\"onlineImageNotFound\":\"在线图片未取得\",\"missingEntityId\":\"缺少实体 id\",\"mibNotJav\":\"韩国 MIB 不适用 JAV 封面来源\",\"codeCoverNotFound\":\"官方渠道没有这个番号的封面\",\"codeCoverUnavailable\":\"取不到这个番号的封面：{{error}}\",\"codeCoverTimedOut\":\"{{seconds}} 秒内没取到这个番号的封面，稍后再试\",\"sourcePaused\":\"{{reason}}\",\"sourceConnectionFailed\":\"来源连接失败，请检查来源连接设置\",\"avatarSourceUnavailable\":\"头像来源暂不可用\"},\"webDownloads\":{\"credentialsUnreadable\":\"本机凭据文件读不出来，请在设置页重新填写：{{error}}\",\"unknownChannel\":\"不认识的云下载渠道：{{key}}\"},\"metadata\":{\"relayed\":\"{{detail}}\",\"authRequired\":\"{{source}} 需要登录或已被拒绝：{{reason}}\"},\"javCoverFetch\":{\"officialNoImage\":\"官方封面地址都没有取到图片\",\"officialTooSmall\":\"官方封面只有缩略图或占位图\",\"placeholder\":\"来源给的是「准备中」占位图\",\"officialPlaceholderOnly\":\"官方封面地址只回「准备中」占位图：未发售的新作是官方还没出图，旧作多半已从官方下架\",\"mibNotJav\":\"韩国 MIB 不适用 JAV 封面来源\",\"noCandidates\":\"所有渠道都没有候选\",\"hostsUnreachable\":\"官方图片主机都连不上\",\"deadline\":\"动作预算已用尽\",\"dmmFailed\":\"DMM：{{error}}\",\"coolingDown\":\"封面来源正在冷却，请稍后重试；已有图片保留\",\"catalogUnfinished\":\"官方目录查询未完成，尚未取得封面候选\",\"allAnimated\":\"官方候选都是动图\",\"downloadsFailed\":\"可用候选完整下载都失败\",\"sizeChanged\":\"尺寸变化：日志 {{expectedWidth}}x{{expectedHeight}}，当前 {{width}}x{{height}}\",\"stoppedEarly\":\"提前收工，退出码 {{exitCode}}\"},\"communityCatalog\":{\"animatedOrSmall\":\"社区来源给的封面都是动图或太小\",\"animatedOrSmallPartlyMissed\":\"社区来源给的封面都是动图或太小；另有 {{count}} 张封面没下载到\",\"downloadFailed\":\"社区来源的封面下载失败\",\"mismatch\":\"{{origins}} 给的封面不是同一张图，无法互相印证\",\"mismatchPartlyMissed\":\"{{origins}} 给的封面不是同一张图，无法互相印证；另有 {{count}} 张封面没下载到\",\"noUnwatermarked\":\"未取得无 JavDB 水印的封面\",\"noUnwatermarkedPartlyMissed\":\"未取得无 JavDB 水印的封面；另有 {{count}} 张封面没下载到\",\"noCovers\":\"社区来源没有这部片的封面\"},\"javOfficialPreview\":{\"dmmUnavailable\":\"DMM 视频预览未取得，请稍后重试\",\"dmmUnrecognized\":\"DMM 给出的视频预览地址无法识别（{{host}}），重试不会好转\",\"javdbUnavailable\":\"JavDB 视频预览未取得，请稍后重试\",\"officialUnavailable\":\"官方视频预览未取得，请稍后重试\"},\"avbase\":{\"unrecognized\":\"AVBase 页面结构未识别，可能在验证访问\",\"notFound\":\"AVBase 没有这个番号\"},\"dmm\":{\"unrecognizedCode\":\"认不出可以问 DMM 的番号\",\"notFound\":\"DMM 没有这个番号\",\"notWorkJson\":\"DMM 返回的不是作品 JSON\",\"notListJson\":\"DMM 返回的不是片单 JSON\",\"refused\":\"DMM 拒绝了这条查询\",\"refusedWithMessage\":\"DMM 拒绝了这条查询：{{message}}\"},\"base\":{\"codeMismatch\":\"来源返回的番号不匹配\",\"itemNotListed\":\"{{label}} 上没有这个商品\",\"cloudflareUpdateCookie\":\"{{label}} 要求 Cloudflare 验证，请在采集设置里更新 Cookie\"},\"r18dev\":{\"notWorkJson\":\"r18.dev 返回的不是作品 JSON\"},\"fc2\":{\"unrecognizedCode\":\"这个番号认不出 FC2 商品号\"},\"fc2ppvdb\":{\"ageGate\":\"{{label}} 送到了年齢確認页，浏览器没有点过去\"},\"javten\":{\"translatedPage\":\"{{label}} 回的是译文页，只收日文原页\"},\"javbus\":{\"notFound\":\"JavBus 没有这个番号\",\"ageGate\":\"JavBus 回的不是作品页，多半是年龄确认页：到采集设置给 JavBus 贴上浏览器里的 Cookie\"},\"javdb\":{\"notFound\":\"javdb 没有这个番号\",\"loginRequired\":\"javdb 要求登录\",\"identityAmbiguous\":\"javdb 同番号对应多个作品，请核对来源身份：{{identities}}\",\"detailCodeMismatch\":\"javdb 详情页的番号与搜索结果不一致\",\"budgetExceeded\":\"javdb 作品资料在本次预算内未取得\"},\"onepondo\":{\"unrecognizedCode\":\"这个番号不是{{label}}的写法\",\"notFound\":\"{{label}}站上没有这部片\",\"notWorkJson\":\"{{label}}返回的不是作品 JSON\",\"movieIdMismatch\":\"{{label}}回的作品号对不上这个番号\"},\"seesaa\":{\"notInSearch\":\"Wiki 搜索范围内未取得精确作品表格行\",\"notInEntries\":\"Wiki 搜索范围内未取得精确番号的作品条目\",\"conflictingRows\":\"Wiki 精确番号存在冲突行，需复核原页\",\"budgetStopped\":\"Wiki 本批请求已停止或达到限额\",\"networkFailed\":\"Wiki 网络请求未取得\",\"httpFailed\":\"Wiki HTTP 请求未取得\",\"pageTooLarge\":\"Wiki 页面超过读取上限\",\"redirectUnverified\":\"Wiki 重定向页面未取得身份验证\",\"botCheckFailed\":\"Wiki 机器人验证未取得\"},\"metadataAmane\":{\"refused\":\"{{message}}（{{reason}}）\",\"refusedWithStatus\":\"{{message}}（{{reason}}，HTTP {{status}}）\",\"notFound\":\"{{label}} 上没有这个番号（{{reason}}）\",\"unavailable\":\"{{label}} 未取得资料（{{reason}}）\",\"unavailableWithStatus\":\"{{label}} 未取得资料（{{reason}}，HTTP {{status}}）\",\"unavailableDetail\":\"{{label}} 未取得资料（{{reason}}）：{{detail}}\",\"unavailableWithStatusDetail\":\"{{label}} 未取得资料（{{reason}}，HTTP {{status}}）：{{detail}}\",\"runtimeUnavailable\":\"amane 运行环境未取得\",\"packagedRuntimeProblem\":\"安装包中的采集工具缺失或版本不匹配，请重新安装 Peach\",\"bridgeMissing\":\"amane 桥未安装：在「来源和凭证」页重建，或放到 {{python}}\",\"bridgeScriptMissing\":\"amane 桥脚本缺失：{{path}}\",\"stdioDecode\":\"amane 桥编码错误（bridge_stdio_decode，{{code}}，{{sites}}，runtime={{runtime}}，expected=utf-8，bytes={{bytes}}，offset={{start}}:{{end}}，sha256={{sha256}}）\",\"bridgeTimeout\":\"amane 桥查询超时\",\"bridgeStartFailed\":\"无法启动 amane 桥：{{error}}\",\"bridgeNotJson\":\"amane 桥返回了非 JSON 输出：{{detail}}\",\"bridgeFailed\":\"amane 桥查询失败（exit {{exitCode}}）\",\"productMismatch\":\"{{label}} 返回的商品不是 {{code}}：content_id={{contentId}}\",\"preparing\":\"amane 运行环境正在准备，请稍后重试\",\"installDirUnwritable\":\"amane 安装目录无法读写：{{error}}\",\"bundleFileMissing\":\"安装包里缺少 amane 桥的文件：{{path}}；重新安装 Peach 后可用\",\"manifestUnreadable\":\"amane 桥的清单读不出来：{{error}}\",\"uvMissing\":\"未找到 uv，请先安装 uv 再重建 amane 桥\",\"rebuildTimeout\":\"重建 amane 桥超过 {{timeout}} 秒未完成\",\"uvStartFailed\":\"无法启动 uv：{{error}}\",\"uvSyncFailed\":\"uv sync 失败（exit {{exitCode}}）：{{detail}}\",\"installIncomplete\":\"amane 安装未完成：运行环境中没有可用的包元数据\",\"selfCheckFailed\":\"amane 运行环境自检失败，请在来源和凭证中重新安装\",\"selfCheckUnfinished\":\"amane 运行环境自检未完成，请在来源和凭证中重试\"},\"performerAliasFollowup\":{\"coolingDown\":\"来源正在冷却\",\"requestsUsedUp\":\"这一条的请求数用完了\",\"networkFailed\":\"网络请求失败：{{type}}\",\"rateLimited\":\"来源限流（429）\",\"refused\":\"来源拒绝访问或要求机器人验证\",\"pageMissing\":\"站上没有这一页\"},\"settingsFile\":{\"locatorUnreadable\":\"无法读取数据目录位置：{{locator}}：{{error}}\",\"locatorInvalid\":\"数据目录位置无效或循环：{{locator}}\",\"locatorTooDeep\":\"数据目录位置的跳转次数超过八次\",\"unreadable\":\"设置文件读不出来：{{path}}：{{error}}\",\"notUtf8\":\"设置文件读不出来：{{path}}：不是 UTF-8 编码（{{error}}）\",\"tomlSyntax\":\"设置文件读不出来：{{path}}：TOML 语法错误：{{error}}\",\"notTable\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是一个表（[{{key}}]）\",\"notString\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是字符串\",\"notInteger\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是整数\",\"notBoolean\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是 true 或 false\",\"notStringOrArray\":\"设置文件读不出来：{{path}}：`{{key}}` 必须是字符串，或者字符串数组\",\"emptyArrayItem\":\"设置文件读不出来：{{path}}：`{{key}}` 的数组里不能有空串\",\"duplicatePaths\":\"设置文件读不出来：{{path}}：`{{key}}` 的数组里有重复的路径\",\"unknownDirectories\":\"设置文件读不出来：{{path}}：`directories` 里有不认识的键：{{keys}}\",\"driveLetterKeys\":\"设置文件读不出来：{{path}}：`[media]` 下不再接受盘符键：{{keys}}。改写成 `[media.mounts] <location-id> = <本机路径>`，ID 取 `[media.locations]` 中已配置的来源键，路径填写该来源的本机媒体目录，例如 `local = '/mnt/media'`\",\"locationsWithoutPrefix\":\"设置文件读不出来：{{path}}：`[media.locations]` 中这些媒体来源没有配置目录前缀：{{keys}}\",\"undeclaredMounts\":\"设置文件读不出来：{{path}}：`[media.mounts]` 里有没在 `[media.locations]` 声明过的来源：{{keys}}\",\"mountCountMismatch\":\"设置文件读不出来：{{path}}：`[media.mounts] {{key}}` 配置了 {{mounts}} 个媒体目录，但 `[media.locations] {{key}}` 配置了 {{prefixes}} 个数据库路径前缀；两边按顺序一一对应，要么数目相同，要么整项留空\",\"costInvalid\":\"设置文件读不出来：{{path}}：`[media.costs]` 只接受 free 或 metered\",\"identityInvalid\":\"设置文件读不出来：{{path}}：媒体库身份配置无效：{{error}}\",\"identityInvalidOnSave\":\"媒体库身份配置无效：{{error}}\",\"fileExists\":\"设置文件已存在，加 --force 才覆盖：{{path}}\"},\"scan\":{\"pathConflict\":\"同一规范路径有多条文件记录（记录 {{ids}}）：{{path}}；已保留全部记录，请复核；其他文件继续处理\",\"unknownSource\":\"✗ 未声明的来源 {{location}}；[media.locations] 里已知：{{known}}\",\"unknownSourceNoneDeclared\":\"✗ 未声明的来源 {{location}}；[media.locations] 里已知：（设置文件里一个都没有）\",\"rootBelongsElsewhere\":\"✗ 扫描目录与媒体来源不一致：{{location}} 的数据库路径前缀是 {{prefixes}}，但要扫的是 {{root}}（该目录属于 {{actual}}）\",\"rootOutsideMedia\":\"✗ 扫描目录与媒体来源不一致：{{location}} 的数据库路径前缀是 {{prefixes}}，但要扫的是 {{root}}（不在任何已配置的媒体目录下）\",\"noMounts\":\"✗ 媒体来源 {{location}} 未配置本机目录，无法转换 {{path}} 的路径；请先在 [media.mounts] 中配置媒体目录\",\"outsideMounts\":\"✗ {{path}} 不在来源 {{location}} 的挂载点 {{mounts}} 之下\",\"smbNotSaved\":\"SMB 目录尚未保存到媒体库配置\",\"prefixWithoutMount\":\"✗ 媒体来源 {{location}} 的第 {{index}} 个数据库路径前缀没有对应的本机目录；请先在 [media.mounts] 中按相同顺序配置媒体目录\",\"checkpointMismatch\":\"扫描目录与保存的断点不一致，请核对挂载设置\",\"rootUnreadable\":\"✗ 无法列出扫描目录 {{root}}（{{error}}）；本次没有扫描，也没有文件被算作已消失\"},\"faceDetect\":{\"faceModelMissing\":\"缺少人脸模型：{{path}}\",\"faceModelFetchFailed\":\"取人脸模型失败：{{error}}\",\"faceModelChecksum\":\"人脸模型校验不符：期望 {{expected}}，实际 {{actual}}\",\"matchModelMissing\":\"缺少人脸比对模型：{{path}}\",\"matchModelFetchFailed\":\"取人脸比对模型失败：{{error}}\",\"matchModelChecksum\":\"人脸比对模型校验不符：期望 {{expected}}，实际 {{actual}}\",\"detectorUnsupported\":\"当前 OpenCV 没有 FaceDetectorYN；需要 4.5.4 以上\"},\"faceMatch\":{\"recognizerUnsupported\":\"当前 OpenCV 没有 FaceRecognizerSF；需要 4.5.4 以上\"},\"taskRetry\":{\"relayed\":\"{{message}}\"},\"catalogRules\":{\"codePatternsNotList\":\"番号识别规则要写成一组正则表达式\",\"codePatternsTooMany\":\"番号识别规则最多 {{limit}} 条\",\"codePatternTooLong\":\"第 {{index}} 条规则超过 {{limit}} 个字符\",\"codePatternInvalid\":\"第 {{index}} 条规则不是有效的正则表达式：{{error}}\"},\"reviewCsv\":{\"readFailed\":\"复核 CSV 读取失败：{{path}}，第 {{line}} 行：{{error}}\"},\"mediaIo\":{\"deadlinePassed\":\"媒体读取已超过期限\",\"readTimedOut\":\"读取媒体目录或配套文件超时，已跳过，可重试\",\"readerFailed\":\"媒体读取进程未完成\"},\"webStats\":{\"tasteNotFound\":\"口味分析未取得\",\"tasteReadStopped\":\"口味读取已停止\"},\"webBatch\":{\"changedDuringQuarantine\":\"文件在隔离备份期间发生变化\",\"pathUnmapped\":\"媒体路径未映射到可访问的挂载目录\",\"storageOffline\":\"媒体来源未挂载或不可读取\",\"purgingCannotRestore\":\"正在永久删除的条目不能还原\"},\"webFeeds\":{\"checkStopped\":\"订阅检查已停止\"},\"webFollow\":{\"checkStopped\":\"关注检查已停止\",\"resolveStopped\":\"关注来源查找已停止\"},\"webLibraryProcessing\":{\"recoveryFailed\":\"任务未能自动恢复：{{reason}}\",\"recoveryFailedRestart\":\"任务未能自动恢复：请重新发起任务\"},\"webLinks\":{\"checkStopped\":\"链接检查已停止\",\"pruneStopped\":\"链接清理已停止\"},\"webMediaRepair\":{\"repairStopped\":\"媒体修复已停止\",\"scanStopped\":\"媒体检查已停止\"},\"webOrganize\":{\"rollbackStopped\":\"整理回滚已停止\",\"stopped\":\"整理已停止\"},\"webResourceSync\":{\"cacheCleanupStopped\":\"缓存清理已停止\",\"cleanupStopped\":\"资源清理已停止\",\"scanStopped\":\"资源检查已停止\"},\"webScraping\":{\"candidateChecksFailed\":\"候选封面未通过检查。\",\"downloadFailed\":\"候选封面完整下载或图片校验失败，未取得可保存的图片。\",\"noCoverCandidates\":\"来源没有返回这个番号的封面候选，无法判断是否有高清版。\",\"sourceAccessDenied\":\"来源拒绝访问（HTTP {{status}}），请检查登录或来源验证状态。\",\"sourceConnectionFailed\":\"来源连接失败，未能完成封面比较；请检查来源连接设置。\",\"sourceServerError\":\"来源服务异常（HTTP 5xx），请稍后重试。\",\"unusableCandidate\":\"候选封面未通过检查：图片未取得、无法解码或宽度不足 700px。\"},\"webWants\":{\"scrapeStopped\":\"想要资料任务已停止\",\"searchStopped\":\"想要查找资源任务已停止\"},\"webFolders\":{\"rulesChanged\":\"目录规则已变化，请重新打开设置\"},\"webTasks\":{\"runMissing\":\"没有第 {{run_id}} 轮任务\"},\"previews\":{\"snapshotUnavailable\":\"预览帧文件缺失\",\"snapshotChanged\":\"预览帧在生成预览图时有变化，请重试\",\"avatarFailed\":\"头像生成失败\",\"snapshotTooDark\":\"预览帧太暗，生成不了头像\",\"avatarSnapshotChanged\":\"预览帧在生成头像时有变化，请重试\",\"emptyStudio\":\"厂牌名为空\",\"logoUnavailable\":\"这个厂牌没有标识图\",\"invalidEntityKind\":\"实体类型无效\",\"entityImageUnavailable\":\"没有缓存的资料图片\",\"ffmpegUnavailable\":\"没找到 FFmpeg\",\"ffmpegFailed\":\"生成预览图失败\",\"photoChanged\":\"图片在生成缩略图时有变化，请重试\",\"photoThumbnailFailed\":\"图片缩略图生成失败\"},\"metadataPerformerProfiles\":{\"avatarUnfetched\":\"{{name}} 的头像未取得：{{reason}}\"},\"cli\":{\"processingIncomplete\":\"资料处理未完成\"},\"jobRecovery\":{\"unreadable\":\"任务恢复记录无法读取，请重新发起任务。\"},\"nasDirectories\":{\"invalidPurpose\":\"请选择媒体目录或数据目录\",\"invalidOffset\":\"目录分页位置无效，请重新读取目录\",\"outsideRoots\":\"只能浏览已配置的媒体挂载目录；新挂载路径可在媒体目录输入框中填写\",\"timedOut\":\"媒体目录读取超时，请稍后重试或手动填写路径\",\"unreadable\":\"媒体目录不可读取，请检查挂载与目录权限\"},\"followBackfill\":{\"credentialMissing\":\"先在关注来源里填好 rule34.xxx 的 API 凭据\",\"running\":\"正在补填，请等这一次做完\"}}"),
 	jobMessage: {
 		tasteHistory: {
 			readingProfile: "读取浏览记录：第 {{index}} / {{total}} 个浏览器资料，已读取 {{count}} 条",
@@ -15784,7 +15784,7 @@ var Ge = "peach.settings.v1", Ke = {
 			progressKept: "任务进度已保留，安装完成后自动继续。"
 		}
 	},
-	labels: /* @__PURE__ */ JSON.parse("{\"listSeparator\":\"、\",\"resumeAt\":{\"earlyToday\":\"今天凌晨 {{clock}}\",\"today\":\"今天 {{clock}}\",\"tonight\":\"今晚 {{clock}}\",\"earlyTomorrow\":\"明天凌晨 {{clock}}\",\"tomorrow\":\"明天 {{clock}}\",\"tomorrowNight\":\"明晚 {{clock}}\",\"dayAfter\":\"后天 {{clock}}\",\"date\":\"{{month}}月{{day}}日 {{clock}}\"},\"runtimePrepare\":{\"writer\":{\"standalone\":\"replication.enabled = false，按独立写者\",\"noDeviceId\":\"本机没有 device-id，判不出是不是写入端\",\"noWriter\":\"没有可验证的写入端\",\"otherWriter\":\"写入端是 {{owner}}，本机是只读端\",\"thisDevice\":\"本机是写入端\"}},\"standaloneUpdate\":{\"updatePackage\":\"更新包\",\"fullPackage\":\"完整包\"},\"downloadNamed\":\"下载 {{name}}\",\"onboarding\":{\"hostOption\":{\"thisDevice\":\"只有这台电脑\",\"lan\":\"同一局域网的设备\"},\"prompt\":{\"dataRoot\":\"数据目录（Peach 数据库、缓存和设置文件都放在这里）\",\"mediaDir\":\"媒体目录（必须已经存在，可以在外置硬盘上）\",\"moreMediaDir\":\"再加一个媒体目录（不加就直接回车）\",\"host\":\"谁可以访问：1 = {{thisDevice}}，2 = {{lan}}\",\"port\":\"端口\",\"mdnsName\":\"局域网访问地址（<名字>.local，只在允许局域网访问时发布）\",\"scan\":\"现在扫描 {{target}}？\"},\"scanTargetCount\":\"这 {{count}} 个文件夹\",\"retryReport\":\"{{reason}}（还可以再试 {{remaining}} 次）\",\"requiredMark\":\"（必填）\",\"notFilled\":\"（还没填）\",\"mountsExplanation\":\"Peach 数据库用 Windows 格式保存影片路径，前缀为 {{roots}}；实际媒体目录为 {{shown}}，按相同顺序保存在 [media.mounts] local，读取文件前自动转换。\",\"answer\":{\"thisDevice\":\"本机\",\"lan\":\"局域网\",\"yes\":\"是\",\"no\":\"否\"}},\"runtimeFacts\":{\"version\":\"版本\",\"os\":\"操作系统\",\"dataRoot\":\"数据目录\",\"settingsFile\":\"设置文件\",\"logs\":\"日志目录\",\"available\":\"可用\",\"ffmpegNotInstalled\":\"未安装；MP4 可直接播放，转码和缩略图需要安装 FFmpeg。\",\"untruncNotInstalled\":\"未安装；缺索引的 MP4 需要它才修得了。\",\"untruncExtractTo\":\"未安装；缺索引的 MP4 需要它才修得了。解压到 {{path}}。\",\"installedVersion\":\"已安装，版本 {{version}}\",\"installedInDataRoot\":\"已安装在数据目录\",\"ffmpegToolMissing\":\"未找到 {{tool}}；转码、媒体信息与缩略图需要 FFmpeg 工具包。\",\"ffmpegToolsMissing\":\"未找到 {{first}}、{{second}}；转码、媒体信息与缩略图需要 FFmpeg 工具包。\"},\"configuration\":{\"fileManagedNotice\":\"这个部署由配置文件管理服务；在本机编辑下方的设置文件。\",\"sectionUnavailable\":\"{{section}}未取得\",\"sectionRetry\":\"请重新读取；持续失败时导出诊断报告。\",\"tunnelStoppedUnsaved\":\"临时远程链接已停止；设置文件未能写入，请在本机检查设置文件。\",\"tunnelStopped\":\"已停止临时远程链接：没有访问密码时不保留公网入口。\",\"section\":{\"remoteReporting\":\"错误诊断设置\",\"librarySharing\":\"馆藏上传设置\",\"startup\":\"开机启动设置\",\"uninstall\":\"卸载信息\",\"storage\":\"存储空间\",\"peachProxy\":\"Peach 代理\",\"entryLinks\":\"外部入口\",\"updates\":\"版本更新\",\"updateJob\":\"更新任务\",\"access\":\"访问设置\",\"mediaSources\":\"媒体目录\",\"libraryCount\":\"媒体库状态\",\"mountDependencies\":\"挂载依赖\",\"facts\":\"运行信息\",\"network\":\"访问地址\",\"apiToken\":\"访问口令\",\"certificate\":\"HTTPS 证书\",\"tunnel\":\"公网入口\",\"automaticUpdates\":\"自动更新\",\"pushDiscovery\":\"推送发现\",\"downloads\":\"下载设置\"}},\"coverRepair\":{\"runLabel\":\"重判封面版式\",\"stoppedByUser\":\"用户停止任务\",\"serviceStopped\":\"服务关闭，下次启动接着做\"},\"followScheduler\":{\"runtimeUnavailable\":\"上次自动检查的运行状态未取得\",\"sourcesFailed\":\"{{count}} 个来源检查失败\"},\"webAutoLandings\":{\"fieldOriginalTitle\":\"原标题\",\"fieldPerformers\":\"演员\",\"fieldReleaseDate\":\"发行日期\",\"fieldSeries\":\"系列\",\"fieldStudio\":\"厂牌\",\"fieldTags\":\"内容标签\",\"fieldTitle\":\"标题\",\"fieldUnionTags\":\"标签\",\"ruleVerifiedReplace\":\"官方来源一致，覆盖原值\",\"ruleVerifiedUnion\":\"补上来源多给的标签\"},\"webBatch\":{\"changedDuringDelete\":\"删除期间这一条已经变了\",\"stillOnDisk\":\"文件仍在盘上\"},\"webFeeds\":{\"cooling\":\"来源 正在冷却，这一轮没有拉\",\"deferredRest\":\"其余 {{count}} 个源顺延到冷却结束后再拉\",\"sourceCooling\":\"{{source}} 正在冷却，这一轮没有拉\"},\"webFollow\":{\"nameContainsEvidence\":\"规范化名称存在包含关系，仅供人工确认\",\"profileLinkEvidence\":\"{{provider}} 首楼的创作者主页链接指向 {{service}}/{{handle}}\",\"sharedOfflineNote\":\"共享盘不在，只撤掉了本机这份。等盘回来要再撤一次，否则会被同步回来。\",\"suggestArchive\":\"归档站的创作者\",\"suggestFollowed\":\"已关注\",\"suggestTag\":\"Rule34.xxx 标签\",\"suggestTagArtist\":\"Rule34.xxx 的创作者\"},\"webJavDetail\":{\"anonymousUser\":\"匿名用户\"},\"webLinks\":{\"unreachable\":\"取不到：{{reason}}\"},\"webReview\":{\"commentVotes\":\"评论标记 {{votes}}\",\"coverNoCandidates\":\"未取得：所有渠道都没有候选\",\"coverUnfetched\":\"未取得：{{reason}}\",\"currentNone\":\"当前值：尚无\",\"currentNoneOwned\":\"当前值：尚无（{{owner}}）\",\"currentValue\":\"当前值：{{value}}\",\"currentValueOwned\":\"当前值：{{value}}（{{owner}}）\",\"durationDelta\":\"时长差 {{seconds}} 秒\",\"equivalents\":\"等同于 {{codes}}\",\"evidenceInsufficient\":\"所选资料缺少足够依据\",\"evidenceKinds\":\"证据 {{kinds}}\",\"fc2Collection\":\"合集，{{count}} 个分片各自独立；封面不下发，分片回落到自己的缩略图\",\"matchedAssets\":\"{{count}} 个匹配资产\",\"metadataSources\":\"{{count}} 个资料来源\",\"sameCodeAssets\":\"{{count}} 个同番号资产\",\"seller\":\"卖家 {{seller}}\",\"separator\":\"；\",\"sharedPerformers\":\"共同演员 {{names}}\",\"sizeDelta\":\"体积差 {{percent}}%\",\"tokenOverlap\":\"词元重合 {{overlap}}\",\"videos\":\"{{count}} 部作品\",\"westernMatch\":\"{{verdict}} → {{name}}\",\"westernMatchSpelling\":\"{{verdict}} → {{name}}（写法 {{variant}}）\",\"westernVerdict\":{\"matched\":\"命中\",\"needs-review\":\"需人工确认\",\"no-profile\":\"确认无档案\",\"rate-limited\":\"限流未取得\"}},\"webScraping\":{\"compareIncompleteMobileHint\":\"，未能完成封面比较；中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。\",\"coverSaved\":\"高清封面已保存\",\"diagnosticDimensionMismatch\":\"完整图片尺寸与探测结果不一致 {{count}} 张\",\"diagnosticDownloadFailed\":\"完整下载失败 {{count}} 张\",\"diagnosticInvalidImage\":\"图片无法解码 {{count}} 张\",\"diagnosticPlaceholder\":\"「准备中」占位图 {{count}} 张\",\"diagnosticProbeFailed\":\"图片头请求失败 {{count}} 张\",\"diagnosticSeparator\":\"；\",\"diagnosticTooSmall\":\"图片宽度不足 700px {{count}} 张\",\"instagramPending\":\"Instagram 自动头像定位尚待独立登录会话验证\",\"kept\":\"已有图片保留。\",\"keptAfterDetails\":\"。已有图片保留。\",\"keptLocalNoBetter\":\"本机封面 {{localWidth}} × {{localHeight}}，来源可用封面 {{width}} × {{height}}；保留本机封面。没有找到更大或更合适的封面。\",\"keptLocalPartial\":\"本机封面 {{localWidth}} × {{localHeight}}，来源可用封面 {{width}} × {{height}}；保留本机封面。部分来源连接失败，未能完成全部来源比较。\",\"keptUserCover\":\"这部片用的是你换上的封面，没有联网替换。要换回刮削封面，在编辑资料里恢复。\",\"period\":\"。\",\"reusedCover\":\"复用 24 小时内核验过的本机封面（{{width}} × {{height}}），没有再向来源请求。\"},\"downloads\":{\"postprocessRetrying\":\"等待自动重试（{{retries}}/{{limit}}）\",\"postprocessRetriesExhausted\":\"自动重试 {{retries}} 次后仍未完成；{{detail}}\",\"postprocessRequeued\":\"等待重新处理\",\"reconcileUnexpected\":\"对账时出现未预期的错误，稍后再试\",\"settingsUnreadable\":\"云下载设置无法读取，请检查设置文件或重新填写。\",\"settingsMalformed\":\"云下载设置格式不符，请检查设置文件或重新填写。\",\"settingsInvalid\":\"云下载设置含有无效值，请检查目标目录和等待上限。\"},\"downloadsClouddrive\":{\"permission\":{\"addOffline\":\"提交离线任务\",\"listOffline\":\"查看离线任务与配额\",\"modifyOffline\":\"取消离线任务\"},\"no115Prefix\":\"还没有填 115 目标目录，「推送发现」登记的前缀（{{known}}）里也没有 115 网盘上的。在「推送发现」卡里加上 CloudDrive2 里 115 的挂载根，再点检查；也可以直接填目标目录\",\"noPrefixes\":\"还没有填 115 目标目录，「推送发现」里也没有登记云端路径前缀。在「推送发现」卡里登记 CloudDrive2 里 115 的挂载根和它对应的媒体目录，再点检查；也可以直接填目标目录\",\"noPikpakRootPrefix\":\"还没有选 PikPak 根目录对应的媒体目录，「推送发现」里也没有 PikPak 云盘根那条前缀可以推。在下拉框里直接选，或在「推送发现」卡里登记 PikPak 的挂载根\",\"action\":{\"verifyToken\":\"核对 API 令牌\",\"findTarget\":\"查找目标目录\",\"refreshLanding\":\"刷新落地目录\",\"readQuota\":\"查离线配额\",\"listOffline\":\"查离线任务\",\"createFolder\":\"新建目录\",\"submitOffline\":\"提交离线任务\",\"cancelOffline\":\"取消离线任务\",\"findLandedFile\":\"查目标目录里的文件\",\"findPrefix\":\"查推送发现的云端路径前缀\",\"readProxy\":\"读取网盘代理\",\"readAccounts\":\"读取网盘账号\",\"saveProxy\":\"保存网盘代理\",\"readMountPoints\":\"读取挂载点\",\"readLibraryMounts\":\"读取媒体库挂载点\",\"readCacheDir\":\"读取缓存目录\"}},\"downloadsChannels\":{\"clouddriveTokenUnreadable\":\"CloudDrive2 令牌无法读取，请重新填写。\",\"pikpakSignInUnreadable\":\"PikPak 登录信息无法读取，请重新登录。\",\"tokenNeedsOffline\":\"CloudDrive2 令牌需要提交和查看离线任务权限。\",\"libraryCapabilityUnavailable\":\"{{name}}的云下载能力未取得。\",\"clouddriveCapabilityUnavailable\":\"CloudDrive2 云下载能力未取得，请检查连接与令牌。\",\"libraryNotMapped\":\"{{name}}尚未关联云端目录，请检查挂载或推送发现配置。\"},\"downloadsPikpakBrowser\":{\"waiting\":\"浏览器窗口已打开，在里面登录 PikPak\",\"cancelled\":\"已取消浏览器登录\",\"notOpened\":\"浏览器没有打开：{{error}}\",\"failed\":\"浏览器登录出错：{{type}}\",\"windowClosed\":\"浏览器窗口已关闭，登录没有完成\",\"done\":\"已用浏览器登录 PikPak\",\"timeout\":\"{{minutes}} 分钟内没有完成登录，窗口已关闭。可以再点一次「用浏览器登录」\"},\"folderRules\":{\"conflict\":{\"differentOwner\":\"已有不同的归属\",\"perItemConfirmed\":\"已有逐件确认\",\"differentIdentity\":\"已有不同的身份关系\",\"ownerRejected\":\"已有归属否定\",\"childRule\":\"由子目录规则管理\"}},\"routesMedia\":{\"defaultPlayer\":\"系统默认播放器\",\"subtitle\":{\"outsideFolder\":\"不在正片所在目录\",\"tooLarge\":\"文件过大\",\"notFound\":\"文件未找到\",\"imageBased\":\"图形字幕，播放器里不显示\",\"encodingUnknown\":\"编码未识别\"}},\"avatarPicker\":{\"source\":{\"gallery\":\"图库\",\"expoDirectory\":\"展会名录\",\"socialProfile\":\"社交主页\",\"onlineVideo\":\"在线作品\",\"videoCover\":\"作品封面\",\"coverFace\":\"封面人脸\",\"officialSite\":\"官网\",\"picked\":\"自己挑的\",\"fetched\":\"取过的图\",\"videoStill\":\"作品画面\",\"codeCover\":\"番号封面\",\"address\":\"地址\",\"thisDevice\":\"本机\"},\"sourceUnknown\":\"来源未记录\",\"named\":\"{{name}}\",\"galleryCategory\":\"图库 · {{category}}\",\"imageAddress\":\"图片地址 · {{host}}\",\"cropped\":\"{{label}} · 已裁剪\",\"assetFallback\":\"作品 {{id}}\",\"standIn\":\"代表作画面，非本人\",\"standInWithTitle\":\"代表作画面，非本人 · {{title}}\"},\"mediaTools\":{\"unknownVersion\":\"未知版本\",\"toolPackage\":\"工具包\"},\"taskResults\":{\"kind\":{\"check\":\"检查失败\",\"backfill\":\"补查失败\"},\"noResult\":\"来源未返回检查结果\"},\"desktopStartup\":{\"noDesktop\":\"此系统未提供桌面快捷方式\",\"desktopFailed\":\"{{error}}\",\"desktopUnknown\":\"桌面快捷方式状态未取得\",\"noLoginItem\":\"此系统未提供登录自启入口\",\"trayMissing\":\"未找到本机托盘入口\",\"startupUnknown\":\"启动项状态未取得\"},\"desktopUninstall\":{\"manual\":\"这个系统上先退出 Peach，再手动移除程序与数据目录\",\"macos\":\"先关闭开机自启并退出 Peach，再把「应用程序」中的 Peach 移到废纸篓；完全卸载时一并删除下列数据目录\",\"accepted\":\"正在卸载，Peach 将退出。完成后可关闭此页。\"},\"backgroundIssues\":{\"pushDiscovery\":{\"title\":\"自动发现新文件入库失败\",\"link\":\"打开推送设置\"},\"pushDiscoveryWatch\":{\"title\":\"本机文件夹监视没有运行\",\"link\":\"打开推送设置\"},\"downloads\":{\"title\":\"{{count}} 个云下载任务对账暂时失败\",\"link\":\"查看云下载\"},\"followSchedule\":{\"title\":\"关注自动检查失败\",\"link\":\"打开关注调度\"},\"feedSchedule\":{\"title\":\"订阅源自动拉取失败\",\"link\":\"打开订阅源调度\"},\"tunnel\":{\"title\":\"公网入口连接失败\",\"link\":\"打开公网入口设置\"},\"librarySharing\":{\"title\":\"馆藏分享上传失败\",\"link\":\"打开数据上传设置\"},\"automaticUpdates\":{\"title\":\"自动更新出错\",\"link\":\"打开自动更新设置\"},\"amaneBridge\":{\"title\":\"amane 桥未安装\",\"link\":\"打开 amane 设置\"},\"network\":{\"title\":\"网络不通\",\"link\":\"打开 Peach 代理设置\"},\"faceModels\":{\"title\":\"人脸模型下载失败\",\"link\":\"查看失败记录\"}},\"metadataAmane\":{\"rebuilt\":\"amane 桥已按 {{revision}} 重建\",\"bundled\":\"采集工具已随 Peach 安装，无需另行准备\",\"ready\":\"amane 运行环境已就绪\",\"auth\":{\"ageVerification\":\"站方要求年龄验证\",\"loginRequired\":\"站点要求登录，凭据缺失或已失效\",\"geoRestricted\":\"站方按地区拒绝了这个出口\",\"cloudflareChallenge\":\"撞上 Cloudflare 挑战页\",\"cloudflareBlocked\":\"被 Cloudflare 拦下\",\"ipBanned\":\"出口 IP 已被站方封禁\",\"httpError\":\"站方拒绝了这个出口\"},\"latestUnfetched\":\"未取得\",\"trafficUnmetered\":\"独立采集工具的网络传输未提供逐任务计量\",\"trafficUnobserved\":\"外部采集器流量未观测\"},\"regions\":{\"jp\":\"日本\",\"kr\":\"韩国\",\"cn\":\"国产\",\"west\":\"欧美\",\"other\":\"其他\",\"none\":\"未判定\"},\"webCatalog\":{\"editionGroup\":\"多版本作品\",\"partGroup\":\"分卷作品\",\"unknownYear\":\"未知年份\"},\"related\":{\"sameCreator\":\"同创作者\",\"sameSeries\":\"同系列\",\"samePerformer\":\"同出演者\",\"similarTags\":\"标签接近\",\"sameStudio\":\"同厂牌\"},\"webEntity\":{\"suggestGroup\":{\"performer\":\"女优\",\"creator\":\"创作者\",\"studio\":\"厂牌\",\"agency\":\"事务所\",\"series\":\"系列\",\"tag\":\"标签\",\"asset\":\"视频\"}},\"fieldOwners\":{\"user\":\"手动填写\",\"review\":\"复核批准 {{identifier}}\",\"auto\":\"{{identifier}} 免复核落库\",\"scan\":\"文件名推导\",\"script\":\"维护脚本 {{identifier}}\"},\"performerHeader\":{\"current\":\"现名\",\"former\":\"旧名义\",\"other\":\"其它\"},\"catalogVersions\":{\"multipart\":\"分卷版\",\"singleFile\":\"完整文件\"},\"catalogEdition\":{\"censored\":\"有码\",\"chinese-subtitles\":\"中字\",\"uncensored\":\"无码\",\"uncensored-leak\":\"无码流出\",\"uncensored-crack\":\"无码破解\"},\"catalogParts\":{\"main\":\"本篇\",\"bonus\":\"特典 {{number}}\"},\"photoSet\":{\"untitled\":\"未命名图集\"},\"organizeTemplates\":{\"placeholder\":{\"code\":\"番号\",\"title\":\"标题\",\"studio\":\"厂牌\",\"series\":\"系列\",\"year\":\"发行年\",\"actors\":\"出演者\",\"cd\":\"分片号\",\"mosaic\":\"有码无码\",\"definition\":\"画质\"},\"example\":{\"title\":\"标题\",\"studio\":\"厂牌\",\"series\":\"系列\",\"actors\":\"甲、乙\"}},\"organize\":{\"preset\":{\"codeOnly\":\"仅番号\",\"codeTitle\":\"番号和标题\",\"codeDefinition\":\"番号和画质\",\"codeActors\":\"番号和出演者\",\"byStudio\":\"按厂牌建文件夹\",\"bySeries\":\"按系列建文件夹\",\"byActors\":\"按出演者建文件夹\",\"byYear\":\"按发行年建文件夹\",\"studioThenCode\":\"厂牌下按番号建文件夹\"},\"skip\":{\"offline\":\"来源未挂载\",\"missingField\":\"字段缺失\",\"outsideRoot\":\"不在来源根内\",\"targetExists\":\"目标已存在\",\"crossVolume\":\"跨盘\",\"tooLong\":\"路径过长\"},\"failure\":{\"sourceMissing\":\"源文件不存在\",\"renameFailed\":\"改名失败：{{error}}\",\"ledgerRolledBack\":\"数据库写入失败，已改回原名：{{error}}\",\"ledgerStuck\":\"数据库写入失败且改不回原名，需要人工处理：{{error}}\",\"moveUnverified\":\"移动中断后无法确认文件身份，请核对两个路径再重试\",\"assetGone\":\"资产已不在馆藏，未执行整理\"}},\"junk\":{\"installerAttachment\":\"媒体目录中的安装附件\",\"pageArchiveAsset\":\"网页存档的脚本或样式附件\",\"promoPageImage\":\"推广网页存档的横幅、标志或导航图片\",\"shortAttachmentCluster\":\"同目录长正片旁有 {{count}} 条极短小附件，须核验内容\",\"shortAttachmentSpread\":\"同体积、时长与分辨率的极短附件散布在 {{count}} 个发行目录，须核验内容\",\"downloadShortVideo\":\"{{code}} 下载包里的附带短视频，正片长 {{minutes}} 分\",\"downloadArchive\":\"{{code}} 下载包里的附带压缩包，须核验内容\",\"downloadFile\":\"{{code}} 下载包里的附带文件，名字不带本片番号\",\"repeatedCopies\":\"同名同体积的副本散布在 {{count}} 个目录\",\"fullVersionExists\":\"同番号有 {{minutes}} 分完整版\",\"underFourMinutes\":\"不足 4 分钟\",\"under120Mb\":\"小于 120 MB\",\"promoDirectory\":\"住在推广目录\",\"numberedSourceVideo\":\"编号视频可能只有来源水印，须核验内容\",\"internetShortcut\":\"网址快捷方式\",\"pageArchive\":\"网页存档\",\"wholeNamePromo\":\"整个名字都是推广语\",\"visualPromotion\":\"{{total}} 帧中 {{matched}} 帧含推广线索，{{claims}} 帧含推广用语\",\"mostlyPromo\":\"推广语占了名字主体\",\"promoNeighbours\":\"同目录另有 {{count}} 个同类推广名\",\"promoCreator\":\"创作者位是推广站域名\",\"promoDirectoryPack\":\"目录是「域名+番号」的推广打包\",\"decoratedImage\":\"装饰符小图\",\"promoBrand\":\"推广品牌名\"},\"classification\":{\"settledCode\":\"{{reason}}；只移除创作者投影，番号不改写\",\"siteRelease\":\"目录与媒体文件同为站点作品号 {{site}}；官网目录 {{catalog}}\",\"versionedDirectory\":\"目录名是发行标识 {{identity}} 与画质版本后缀；不作为账号，也不推断目录内文件的番号\",\"gachincoPpv\":\"目录与分段文件使用 Gachinco PPV 作品号及画质后缀；不作为账号\",\"matchingIdentity\":\"目录与媒体文件的发行标识 {{identity}} 一致；画质与版本后缀不作为账号\",\"matchingProduct\":\"目录商品标识与媒体文件 {{product}} 一致；番号不改写\",\"matchingDmmProduct\":\"目录番号 {{identifier}} 与文件 DMM 商品标识一致；番号不改写\"},\"studioIcons\":{\"undecodable\":\"解不开\",\"wordmarkAspect\":\"内容比 {{aspect}} 是字标\",\"onlySize\":\"只有 {{size}}\",\"faceFound\":\"{{size}} 里检出一张脸（{{score}}）\",\"hostIcon\":\"{{url}} 是 {{host}} 的主机级图标（sha256 {{digest}}）\",\"originSiteWordmark\":\"站点自己的字标\",\"originBiggest\":\"这一趟取到的最大一枚\",\"originIconMark\":\"与 icon 位同一枚方标\",\"bakedFrom\":\"{{origin}}（{{size}}）烤成方图\",\"allTooSmall\":\"这一趟取到的都不到 {{edge}}：{{items}}\",\"noLinks\":\"数据库里这个厂牌没有能取图的链接（存档快照不算）\",\"originLedgerAvatar\":\"数据库里登记的社媒头像\",\"originDeclared\":\"官网声明的图标\",\"originHeaderImage\":\"站点 header 里的 <img>\",\"originNamedAvatar\":\"人指定的社媒头像\",\"originProfileAvatar\":\"{{profile}} 的头像\",\"paddedWordmark\":\"方形标识未取得，装的是字标：{{size}}／内容比 {{aspect}}，烤成方图\",\"sameAsIcon\":\"与 icon 位同一份方图（原字标 {{size}}）\",\"triedNothing\":\"试过 {{tried}}，一份字节都没取回来\",\"tried\":\"试过 {{tried}}：{{details}}\",\"noCandidates\":\"没有候选\",\"namedLogoNothing\":\"指定的 logo 来源一份字节都没取回来\",\"namedLogoUndecodable\":\"指定的 logo 来源解不开\",\"shortEdge\":\"短边 {{edge}} < {{minimum}}\",\"namedLogo\":\"用户指定的 logo 来源\",\"namedLogoNotSquare\":\"指定的 logo 来源烤不成方图\",\"sameAsNamedLogo\":\"与 logo 位同一份指定来源（{{size}}）烤成方图\",\"namedWordmarkNothing\":\"指定的字标来源一份字节都没取回来\",\"namedWordmarkUndecodable\":\"指定的字标来源解不开\",\"namedWordmarkNotSquare\":\"指定的字标来源烤不成方图\",\"namedWordmarkBaked\":\"指定的字标来源（{{origin}}）烤成方图\",\"namedSquareNothing\":\"指定的方标来源一份字节都没取回来\",\"namedSquareUndecodable\":\"指定的方标来源解不开\",\"namedSquareNotSquare\":\"指定的方标来源烤不成方图\",\"croppedShortEdge\":\"裁出来的方标短边 {{edge}} < {{minimum}}\",\"namedSquareCropped\":\"指定的方标来源（{{size}}）裁出方标\",\"faceDetected\":\"{{evidence}}；检出人脸\"},\"studioSites\":{\"parked\":\"停放页\",\"parkedTitle\":\"{{parked}}（标题自述在出售域名：{{title}}）\",\"parkedOrForSale\":\"{{parked}}或域名出售页\",\"parkingHost\":{\"finalUrl\":\"{{parked}}（最终地址指向 {{host}}）\",\"headers\":\"{{parked}}（响应头指向 {{host}}）\",\"body\":\"{{parked}}（正文指向 {{host}}）\"},\"certificateInvalid\":\"{{reason}}；HTTPS 证书无效\",\"emptyShell\":\"页面只有 {{bytes}} 字节，疑似空壳\",\"forSaleTitle\":\"标题自述在出售域名（{{title}}）\",\"unavailableTitle\":\"站点自述不可用（{{title}}）\",\"domainEcho\":\"标题只是域名回显，没有自述身份（{{title}}）\",\"confirmed\":\"{{confirmed}}；实测标题：{{title}}\",\"none\":\"无\",\"nothingToCompare\":\"厂牌名与别名里都没有可比对的字符\",\"matchedAlias\":\"（对上的是别名「{{alias}}」）\",\"titleNamesAdult\":\"标题自述厂牌名{{matched}}，且页面是成人站\",\"titleNamesNotAdult\":\"标题有厂牌名但页面不像成人站；需人工确认（{{title}}）\",\"derivedHostAdult\":\"域名由厂牌名推出，且页面是成人站（标题用假名写品牌名）\",\"bodyNames\":\"标题未自述，但正文出现厂牌名；需人工看图确认\",\"noName\":\"标题与正文都没有厂牌名（标题：{{title}}）\",\"noCandidates\":\"没有可推导的候选域名\",\"platform\":\"发行平台不是厂牌，没有「厂牌官网」可查；链接按平台登记，有实际卖主的账号才是 creator（docs/SOURCING.md）\",\"unreachable\":\"取不到：{{error}}\"},\"webLibraryShortcuts\":{\"representativeImage\":\"{{name}} · 代表作\"},\"libraryProcessing\":{\"issues\":\"{{count}} 项需要处理，可重试未完成的部分。\",\"issuesAllPaused\":\"{{count}} 项都卡在来源限流上，等一会儿再跑一次。\",\"issuesSomePaused\":\"{{count}} 项需要处理，其中 {{paused}} 项是来源限流，等一会儿再跑；其余可重试未完成的部分。\",\"budgetSkipped\":\"{{head}}，还有 {{count}} 部没问外部来源，再跑一次接着采。\",\"budget\":{\"requests\":\"本趟采集次数已用完\",\"seconds\":\"本趟采集时间已用完\",\"bytes\":\"本趟下载量已用完\"},\"budgetAndIssues\":\"{{budget}} {{issues}}\",\"step\":{\"scanFiles\":\"扫描文件\",\"checkFolders\":\"检查媒体目录\",\"checkJunk\":\"检查垃圾文件\",\"probeAndCheckJunk\":\"读取媒体属性与检查垃圾\",\"checkCompanions\":\"检查配套文件\",\"makePreviews\":\"生成视频预览\",\"checkPreviewSettings\":\"检查媒体预览设置\",\"fetchMetadataAndCovers\":\"采集外部资料与封面\",\"fetchCovers\":\"采集缺失封面\"},\"source\":{\"onePondo\":\"一本道\",\"localNfo\":\"本地 NFO\",\"makers\":\"片商官网\"}},\"feedFollowup\":{\"cover\":{\"fetching\":\"正在取这一部的封面\",\"queuedCover\":\"排在新作封面采集的队里\",\"queuedAfterScrape\":\"排在新作资料采集后面，资料取完就取封面\",\"coverGone\":\"取到过的封面已不在本机，到了重试时间再取\",\"lastAttemptFailed\":\"上次没取到：{{reason}}\",\"ignored\":\"已标为不想看，后台不再替它取图\",\"scrapeFailed\":\"资料没取到，到了重试时间连同封面再试\",\"nextCheck\":\"等下一轮订阅检查分批取图\",\"unfinished\":\"封面处理未完成\",\"connectFailed\":\"来源连接失败\"},\"chainLink\":\"{{first}}、{{rest}}\",\"sourceAddress\":\"来源地址\"},\"codeCreators\":{\"reason\":{\"urlIdentity\":\"存在 URL 身份（如 pixiv 画师），不是发行目录\",\"notCodeShaped\":\"名字不是番号形态\",\"embeddedCode\":\"目录名里嵌着番号 {{code}}，与目录内文件对得上\",\"noMatchingFile\":\"名字像番号，但目录内没有同番号文件；可能是真实账号名\",\"sitePost\":\"目录与文件同为站点作品号 {{identity}}\",\"matchingCode\":\"目录与文件同为番号 {{identity}}\"}},\"metadataCreatorAttributions\":{\"shapePrefix\":\"「{{prefix}}+编号+出演者」\",\"shapeCastNumberTitle\":\"「出演者组合-编号-标题」\",\"labelShape\":\"文件名是{{shape}}的发行命名，{{total}} 部里 {{files}} 部命中、出演者 {{performers}} 位轮换；疑似厂牌或系列，需查资料站或用户确认\",\"sourceIdentity\":\"保留独立来源的创作者关系\",\"protected\":\"兼容字段属于用户或复核判断\",\"onlineAccount\":\"在线账号身份，不参与本地目录判定\",\"identityConflict\":\"实体有外部身份引用或用户判断，需逐项复核\",\"verifiedStudio\":\"公开发行来源确认其为厂牌；作品不归属真人发布账号\",\"platform\":\"名称是发行平台；实际卖主或账号才是创作者\",\"repostSite\":\"名称是转载站水印或站点日期目录\",\"studio\":\"同作品发行厂牌为 {{studio}}，与创作者名称或其别名一致\",\"studioRelease\":\"已登记厂牌名称与同作品发行文件的厂牌 token 一致\",\"structural\":\"名称是已核定的结构目录\",\"releaseTitle\":\"名称与带厂牌、发行日期的场景标题一致\",\"catalogTitle\":\"名称与同作品的发行标题完全一致\",\"performerOverlap\":\"与出演者姓名或别名一致，尚无卖主身份或同人确认\",\"legacyProjection\":\"只有历史目录投影；需账号、水印、发行来源或用户确认\",\"collectionIdentity\":\"目录的月份或画质后缀与已存在的完整账号名对应\"},\"avatarOnline\":{\"cached\":\"已缓存的社交头像\",\"cachedOn\":\"已缓存的社交头像 · {{date}}\"},\"seedFollowup\":{\"conflict\":\"包里说的与本机不一致；本机这条不是种子写的，种子不动它\",\"duplicate\":\"包里一条对上本机两位，可能是重复身份；合并不可逆，由人决定\",\"withdrawalConflict\":\"{{detail}}；{{reason}}\"},\"seedCorrections\":{\"anchorAmbiguous\":\"身份锚点未唯一命中，保留断言\",\"anchorMissing\":\"身份锚点未命中，未取得可撤销实体\",\"profileDiffers\":\"现有资料与精确撤销值不一致，保留断言\",\"pointerDiffers\":\"现有归属与精确撤销值不一致，保留断言\",\"otherWriter\":\"断言归其他写入者所有，保留断言\"},\"westernArtwork\":{\"noSoloCovers\":\"没有单人作品封面可比，只留候选\",\"noCoverMatch\":\"没有比上封面的图，只留候选\"},\"avatarProvider\":{\"missingHash\":\"缺少内容哈希，不能进入复核候选\",\"duplicateOf\":\"与 {{entity}} 的头像内容完全相同\"},\"portraitArtwork\":{\"fullCover\":\"完整封面\",\"frame\":\"高清帧 {{name}}\",\"evidence\":\"单人作品 {{work}} {{label}}\"},\"compositeAliasRepair\":{\"collision\":\"撞 entity {{entity}}（{{kind}}）{{name}}\",\"notComposite\":\"不是罗马字复合人名\",\"notStageName\":\"{{kind}} 的括号不是艺名\",\"canonicalNeedsReview\":\"规范名要人工定留哪一个\"},\"entityIdentityResearch\":{\"unencodable\":\"{{wiki}}「{{key}}」（写不成站上编码）\",\"pageMissing\":\"{{wiki}}「{{key}}」（页不存在）\",\"notListing\":\"{{wiki}}「{{key}}」（不是作品一览）\",\"labelPage\":\"{{wiki}}「{{key}}」页是作品一览：{{works}} 部、出演者 {{performers}} 位；名称指向厂牌或系列，不是个人账号\",\"labelPageWithPrefix\":\"{{wiki}}「{{key}}」页是作品一览：{{works}} 部、出演者 {{performers}} 位，番号前缀 {{prefix}}；名称指向厂牌或系列，不是个人账号\",\"unresolved\":\"公开身份来源未取得；已按页名直取 {{queried}}。同名命中不构成唯一身份依据。\",\"fullCredit\":\"发行文件完整署名与公开出演者身份一致\",\"labelCredit\":\"厂牌发行文件完整署名\"},\"studioFollowup\":{\"evidence\":\"{{note}}；标题「{{title}}」\"},\"performerAliasFollowup\":{\"site\":{\"missed\":\"未命中\",\"gone\":\"未命中：档案已不存在\",\"failed\":\"未取得：{{error}}\",\"missedBecause\":\"未命中：{{note}}\",\"notInCast\":\"女优栏里没有她\",\"hit\":\"命中 {{pages}}\",\"noSearchName\":\"未命中：没有能拿去检索的名字\",\"nameNotOnPage\":\"页面上没有数据库里她的名字\"},\"reject\":{\"empty\":\"空名\",\"uncertain\":\"带不确定标记\",\"romaji\":\"罗马字写法\",\"shortSingle\":\"短单名，会命中别人\",\"oneOff\":\"一次性称呼\",\"descriptive\":\"描述性称呼\",\"romajiSingle\":\"罗马字单名，会命中别人\"},\"note\":{\"manyPeople\":\"「{{key}}」对上多个人\",\"searchMissed\":\"「{{key}}」检索未命中\",\"separator\":\"；\",\"unencodable\":\"「{{key}}」写不成站上的编码\",\"manyPages\":\"「{{key}}」有 {{count}} 张人物页都列着\",\"noPage\":\"「{{key}}」没有人物页列着\",\"castIs\":\"{{code}} 的女优栏是 {{cast}}\",\"castEmpty\":\"{{code}} 的女优栏是空的\",\"castMany\":\"女优栏里不止一位列着她：{{pages}}\",\"list\":\"、\"},\"detail\":{\"gone\":\"实体不在或不是女优\",\"renamed\":\"数据库里这条实体现在叫 {{name}}\",\"have\":\"已经有这个写法\",\"taken\":\"{{owner}}（实体 {{entity}}）已经用着这个写法\",\"listed\":\"{{site}} 页面列着数据库里她的名字\",\"merged\":\"{{sites}} 名字栏把两条实体列成同一个人：{{absorbed}}（实体 {{source}}）并入 {{kept}}（实体 {{target}}），迁 {{assets}} 部作品\"}},\"performerProfileFollowup\":{\"action\":{\"write\":\"写入\",\"fresh\":\"未过期\",\"miss\":\"未命中\",\"unfetched\":\"未取得\",\"taken\":\"占用\",\"bind\":\"绑定\",\"conflict\":\"冲突\"},\"note\":{\"separator\":\"；\",\"list\":\"、\",\"comma\":\"，\",\"notOnSite\":\"站上没有 {{key}}\",\"nameNotOnTalentPage\":\"{{key}} 的页上没有数据库里她的名字：{{names}}\",\"sameNameMany\":\"站上叫 {{key}} 的不止一位\",\"loginPage\":\"{{key}} 回的是登入页\",\"notFound\":\"{{key}} 搜不到她\",\"noWorkCode\":\"没有能进作品页的番号\",\"castMany\":\"{{code}} 的出演表里不止一位对得上：{{names}}\",\"castIs\":\"{{code}} 的出演表是 {{cast}}\",\"castEmpty\":\"{{code}} 的出演表是空的\"},\"detail\":{\"conflict\":\"{{field}}：{{values}}；资料表不改\",\"fetchedRecently\":\"资料取回不到 30 天\",\"manyPages\":\"{{count}} 张资料页都列着她\",\"nameNotOnPage\":\"资料页上没有数据库里她的名字\",\"listed\":\"资料页列着数据库里她的名字\",\"handWritten\":\"这一行是人写的，不覆盖\",\"minnanoId\":\"minnano-av 编号 {{id}}\",\"minnanoIdTaken\":\"minnano-av 编号 {{id}} 已属另一条实体\",\"boundPageFresh\":\"编号已绑，女优页取回不到 30 天\",\"talentListed\":\"talent {{id}} 的名义里有她\",\"idTakenNoWrite\":\"编号已属另一条实体，资料不写\",\"backfilled\":\"资料表里没有别的来源，按这页补写\",\"boundFresh\":\"编号已绑，资料取回不到 30 天\",\"castMatched\":\"{{work}} 的出演表里对得上她\",\"refetch\":\"编号已绑，重取女优页\",\"noActorPage\":\"{{detail}}；女优页未取得，资料留空\",\"idTaken\":\"编号已属另一条实体\",\"sameNameMany\":\"站上同名不止一位：{{ids}}\",\"card\":\"演员卡 {{id}} 列着她的名字\",\"cardWithRecord\":\"演员卡 {{id}}（{{record}}）列着她的名字\",\"cardTaken\":\"演员 id {{id}} 已属另一条实体\"},\"site\":{\"failed\":\"未取得：{{error}}\",\"fresh\":\"资料未过期\",\"noSearchName\":\"未命中：没有能拿去检索的名字\",\"missedBecause\":\"未命中：{{note}}\",\"entityChanged\":\"未命中：数据库里这条实体已经变了\",\"hit\":\"命中 {{page}}\",\"talentTaken\":\"占用：talent {{id}} 已属另一条实体\",\"pageTaken\":\"占用：{{page}} 已属另一条实体\",\"notJav\":\"不查：JAV 目录站里没有她\",\"bound\":\"编号已绑\",\"cardHit\":\"命中 {{id}}\",\"cardTaken\":\"占用 {{id}}\"}},\"cli\":{\"libraryProcessing\":\"资料处理\"},\"devCopyRuntime\":{\"trayMissing\":\"未连接源码托盘，启动托盘后可重试生效\",\"interrupted\":\"生效任务已中断，可以重试\",\"building\":\"已保存，正在构建…\",\"waitingRestart\":\"已保存，等待重载服务…\",\"refreshing\":\"已保存，正在刷新…\",\"built\":\"构建完成，正在刷新…\",\"reloading\":\"已保存，正在重载服务…\",\"reloaded\":\"服务已重载，正在刷新…\"},\"tunnel\":{\"stateUnreadable\":\"Tunnel 状态文件不可读\",\"stateInvalid\":\"Tunnel 状态文件格式错误\",\"notSettled\":\"上一次 Tunnel 没有正常收尾，运行结果未取得\",\"exited\":\"cloudflared 已退出\"},\"dockerUpdate\":{\"noImageTag\":\"容器里没有镜像标签，compose.yaml 可能还是旧版；换成仓库当前的 compose.yaml 并重建容器后可一键更新。\",\"pinnedTag\":\"镜像标签是 {{tag}}，Watchtower 只换同一标签的新镜像；把 .env 的 PEACH_VERSION 删掉或改成 edge 后可一键更新。\",\"noToken\":\"更新令牌还没有生成，重建 Peach 容器后可一键更新。\",\"updating\":\"Watchtower 正在拉取新镜像并重建容器。\"},\"pushDiscovery\":{\"localOff\":\"本地通道没有打开\",\"noLocalRoots\":\"本地来源在这台机器上没有可监视的目录\",\"watchUnavailable\":\"文件监视不可用：{{error}}\",\"watchFailed\":\"文件监视启动失败：{{error}}\"},\"supportBundle\":{\"cliDescription\":\"保存本机脱敏诊断包，无需启动 Peach 服务\"},\"folderPicker\":{\"prompt\":\"选择媒体目录\"},\"scan\":{\"summary\":\"✓ {{location}}: {{files}} 文件 / {{size}} TB / 耗时 {{seconds}}s；附属文件未登记 {{sidecars}} 个；清单中已消失 {{gone}} 个；字幕 {{subtitles}} 条（孤立 {{orphans}} 条）；垃圾移入回收站 {{junk}} 个，待复核 {{junkReview}} 个；路径重复待复核 {{conflicts}} 组\",\"progress\":\"  {{seconds}}s  {{files}} 文件  {{size}} TB\"},\"reviewCsv\":{\"moreFiles\":\"{{names}} 等 {{count}} 份\"},\"upgradeRepairs\":{\"video\":\"影片 {{id}}\",\"manualAliasKept\":\"人工别名保持原样\",\"item\":{\"receipt\":\"更新后自动处理\",\"existing\":\"更新已有资料\",\"background\":\"后台更新进度\"},\"receiptUnreadable\":\"更新后的处理记录无法读取\",\"receiptRetry\":\"处理记录无法读取，请重试\",\"mediaPaused\":\"{{error}}；影片自动补全已暂停，请检查缓存后显式重试\",\"displayProbeRetired\":\"已停用自动显示尺寸重探，保留已有测量和预览\"},\"processingControl\":{\"scope\":{\"knownFiles\":\"本趟处理（已登记文件，未含未知新增）\",\"thisRun\":\"本趟处理\",\"wholeTask\":\"整趟任务\"},\"basis\":{\"registeredHistory\":\"根据已登记的 {{count}} 个视频、{{size}} GiB及本机同类历史耗时粗估\",\"registeredRough\":\"根据已登记的 {{count}} 个视频、{{size}} GiB粗估，运行后校准\",\"counting\":\"正在统计新目录的文件数量和大小\",\"stageRough\":\"根据当前阶段待处理数量粗估，运行后校准\",\"allStages\":\"汇总当前阶段与所有待执行阶段的剩余耗时\",\"measured\":\"根据当前阶段最近完成的 {{count}} 个视频耗时校准\"}},\"taskResources\":{\"ownersMissing\":\"这轮任务尚未登记资源归属\",\"meterMissing\":\"这轮任务尚未登记传输计量\",\"cpuCounter\":\"任务 CPU 计数器未取得：{{error}}\",\"cpuCapacity\":\"执行端 CPU 可用容量未取得：{{error}}\",\"gpuIdentity\":\"GPU 进程身份未取得：{{error}}\",\"gpuShared\":\"共享服务进程的 GPU 使用无法准确归属到这一轮\",\"readingMissing\":\"执行端的资源读数未取得\",\"transferMissing\":\"执行端的传输读数未取得\",\"network\":{\"cloudMount\":\"网盘挂载的缓存与预读无法按任务取得实际网速\",\"smb\":\"SMB 的缓存与预读无法按任务取得实际网速\",\"fingerprint\":\"浏览器指纹传输流量未观测\"}},\"gpuUsage\":{\"noCounters\":\"当前平台未提供逐进程 GPU 计数器\",\"macos\":\"当前版本尚未接入 macOS 的逐进程 GPU 计数；不能使用整机占用代替任务占用\",\"windowsComponent\":\"Windows GPU 计数器组件未取得\",\"openFailed\":\"GPU 计数器未取得（{{code}}）\",\"collectFailed\":\"GPU 计数器读取失败（{{code}}）\",\"waiting\":\"等待下一次 GPU 采样\",\"detailMissing\":\"GPU 计数器明细未取得（{{code}}）\",\"detailFailed\":\"GPU 计数器明细读取失败（{{code}}）\",\"waitingProcesses\":\"等待读取任务的 GPU 进程\",\"noDrmDevice\":\"未发现可读取的 DRM GPU 设备；容器需映射设备，驱动需支持逐进程计数\",\"sharedClient\":\"多个进程共享 GPU 客户端，使用量无法准确归属\",\"taskCounter\":\"任务 GPU 计数器未取得：{{error}}\"},\"processingTraffic\":{\"metadata\":\"影片资料\",\"previews\":\"预览与封面\",\"temporary\":\"临时文件\",\"mountUnobserved\":\"挂载缓存与预读未观测\",\"mediaReadMissing\":\"媒体读取量未取得\"},\"librarySharing\":{\"field\":{\"works\":\"去重后的作品编号，以及评分、喜欢、不喜欢、已看、稍后看、播放次数、观看比例与手动添加的受控内容标签；自定义备注标签不上传\",\"preferences\":\"出演者、创作者、厂牌、系列、手动标签、年代与时长分组的收藏、喜欢、不喜欢、观看数量和评分分布（有编号作品与无编号条目分开），以及主动收藏的实体名称\",\"counts\":\"馆藏文件数量、有编号作品数量与无编号条目数量\",\"capacity\":\"近 7 天与 30 天已观测的容量天数、播放活跃天数及其记录覆盖天数；数据与缓存的当前占用、峰值、已观测正增长量、缓存清理量（自动与手动合计，不含备份和日志）。未取得的值为空，不补足 30 天记录\",\"instance\":\"同意后随机生成的研究实例标识，用于关联本实例的馆藏、容量和参与状态；重新开启时更换，不使用机器指纹或诊断标识\",\"participation\":\"启用及每日最多一次的联系状态、版本和最近联系时间，以及快照编号、字段版本、原始与压缩字节数和准备／投递状态；关闭时后台只尝试一次最小关闭状态，不附快照信息。离线、卸载和发送失败不视为关闭，实例数不等于人数\",\"version\":\"Peach 版本、字段版本与 UTC 自然周\"},\"notice\":\"上传移除直接身份信息的馆藏、偏好和容量聚合，并使用随机研究实例标识关联参与状态。启用后每日最多联系一次；关闭时后台仅尝试一次最小关闭状态，之后停发。播放活跃天数不代表全部日常使用；容量和参与状态不含新增路径、作品或账号信息。\"},\"remoteReporting\":{\"field\":{\"usage\":\"Peach 版本、分发方式（Windows／macOS 应用、Docker、wheel 或源码）、操作系统类型与版本、CPU 架构与核数、内存档位、Python 版本、运行环境与公开构建编号；每天最多一条活跃日志和一条日联系会话汇总。开启后自动生成随机技术实例标识，用于统计受影响实例和升级路径，与研究标识独立；关闭后移除本机标识，再开启生成新值。连续运行时按 UTC 日统计，代表运行中的实例，不代表人数、真实会话或当天有人操作。\",\"errors\":\"诊断补充：故障环节、异常链、Peach 与白名单框架的代码文件名/函数名/行号、结构化错误码、媒体工具故障类别、浏览器白名单异常类型与正式脚本构建映射、客户端浏览器品牌及主要版本与系统大类、HTTP 方法/路由模板/关联错误编号、同类故障次数与统计日期；同一版本的同类故障只上传一次完整诊断，每天最多 5 条，全部发生次数每 6 小时或退出时合并为计数日志。盘掉线、媒体缺失或损坏、磁盘满、超时与数据库忙等环境条件只统计类别、代码位置与次数，不上传完整诊断。\"},\"notice\":\"发送至 Sentry。不上报错误原文、完整日志、诊断 ZIP、媒体名称、路径、网址、观看记录或凭据。接收服务会接触连接 IP；关闭后停止新发送，已发送的信息无法撤回。\"},\"sync\":{\"sameFile\":\"本机直接使用共享副本，不需要复制\",\"sharedOffline\":\"共享副本所在的盘不可达，本地照常读写\",\"bothMissing\":\"两侧都没有数据库\",\"sharedMissing\":\"共享副本不存在，用本地副本播种\",\"localMissing\":\"本地副本不存在，从共享副本拉取\",\"markerMissing\":\"缺少同步标记，无法判断两份数据库的先后\",\"writerMismatch\":\"同一世代的写入端标记不一致\",\"diverged\":\"共享副本已到第 {{shared}} 代，本地仍是第 {{local}} 代且有未回写的改动\",\"sharedNewer\":\"共享副本更新\",\"localNewer\":\"本地副本更新\",\"localDirty\":\"本地有待回写的改动\",\"inSync\":\"两侧一致\",\"otherWriter\":\"当前写入端是 {{owner}}，本机不能推送\",\"thisWriter\":\"本机是写入端；{{reason}}\",\"writerIs\":\"写入端是 {{owner}}；{{reason}}\",\"noWriter\":\"没有可验证的写入端\",\"takeOverNeedsSync\":\"接管前必须两侧一致；当前是 {{action}}：{{reason}}\",\"tookOver\":\"本机已成为唯一写入端\",\"readOnlyConflict\":\"数据库处于冲突状态（{{detail}}），本机暂时只读。请在托盘执行「同步数据库」；若提示仍冲突，需按日志人工处理。\",\"readOnlyWriter\":\"数据库由 {{owner}} 负责写入，本机当前只能浏览。请改在该机器上操作，或在托盘执行「由本机接管数据库写入」（要求两侧数据一致）后再试。\",\"readOnlyOtherMachine\":\"数据库由 另一台机器 负责写入，本机当前只能浏览。请改在该机器上操作，或在托盘执行「由本机接管数据库写入」（要求两侧数据一致）后再试。\"},\"dataStorage\":{\"cleaned\":\"已清理{{labels}}，释放 {{size}}\",\"cleanedInUse\":\"已清理{{labels}}，释放 {{size}}；{{failed}} 个文件正在使用，未能删除\",\"cleanedThenFailed\":\"已清理{{labels}}，释放 {{size}}；{{error}}\",\"cleanedInUseThenFailed\":\"已清理{{labels}}，释放 {{size}}；{{failed}} 个文件正在使用，未能删除；{{error}}\",\"relocation\":{\"docker\":\"容器的数据目录是宿主机上的数据卷，位置由 compose.yaml 的挂载决定，容器里改不了；在容器里搬走会离开数据卷，重建容器就丢失。请在宿主机上按下面几步迁移\",\"unmanaged\":\"迁移要由托盘或无桌面服务（python -m peach.server）停止并重新启动 Peach，当前服务是直接启动的。请改用其中一种方式启动后再迁移；也可以退出 Peach，手动移动数据目录，再将 PEACH_DATA_ROOT 设为新位置\",\"outsideRoot\":\"部分数据设置在数据目录之外，请退出 Peach 后手动迁移\",\"linked\":\"部分数据使用了目录链接，请退出 Peach 后手动迁移\"},\"dockerStep\":{\"volume\":\"查出数据卷的名字（以 _peach-data 结尾）\",\"stop\":\"在 compose.yaml 所在目录停止 Peach\",\"copy\":\"把数据卷复制到新文件夹；新文件夹要让 UID 1000 可写\",\"copyCommand\":\"docker run --rm -v <数据卷名>:/from -v <新文件夹>:/to alpine cp -a /from/. /to/\",\"edit\":\"把 compose.yaml 里的 peach-data:/data 改成 <新文件夹>:/data，再启动；确认一切正常前不要删除旧数据卷\"},\"relocating\":\"正在迁移数据目录，Peach 将暂时退出，完成后自动重新打开。\",\"relocatingHeadless\":\"正在迁移数据目录，服务会暂停，完成后自动恢复，稍后刷新页面。\",\"startFailed\":\"未能开始迁移：{{error}}\",\"notRelocated\":\"数据目录未能迁移：{{error}}\",\"notMoved\":\"数据目录未迁移，仍在原位置：{{error}}\",\"moved\":\"数据目录已迁移\",\"startupNotUpdated\":\"开机自启与桌面图标未能更新（{{error}}），请在设置页重新打开\",\"leftovers\":\"原位置还有文件未能删除，确认新位置一切正常后可手动删除：{{path}}\",\"copyTitle\":\"正在迁移 Peach 数据\"},\"ledgerBackups\":{\"integrity\":{\"openFailed\":\"无法打开：{{error}}\",\"foreignKeys\":\"外键检查发现 {{count}} 条失效引用\",\"checkFailed\":\"检查失败：{{error}}\"},\"refused\":{\"ledgerMissing\":\"当前数据库不存在，不清退任何备份\",\"integrity\":\"当前数据库 integrity_check 不是 ok：{{check}}\"},\"settle\":{\"interrupted\":\"上次从备份恢复被中断\",\"restoreIncomplete\":\"恢复没有完成（{{error}}）\",\"kept\":\"{{reason}}；当前账本完整性检查通过，保持不变\",\"completed\":\"{{reason}}；已用迁好的备份完成恢复\",\"rolledBack\":\"{{reason}}；已退回恢复前的账本\",\"unresolved\":\"{{reason}}；当前账本和恢复前的另存都没有通过完整性检查，请从备份列表另选一份恢复\",\"savedAs\":\"{{message}}，恢复前的账本另存在 {{name}}\"}},\"updateTasks\":{\"unnamedTask\":\"后台任务\",\"stateUnknown\":\"任务状态未取得\",\"libraryProcessing\":\"馆藏资料与预览处理\"},\"storageBudget\":{\"reason\":{\"diskLow\":\"{{path}} 可用空间 {{free}} GiB，低于保留值 {{reserve}} GiB\",\"afterWrite\":\"{{path}} 预计写入后\",\"limitReached\":\"{{name}} {{amount}} GiB，达到上限 {{limit}} GiB\"},\"part\":{\"data\":\"Peach 数据\",\"cache\":\"Peach 缓存\",\"external\":\"外部缓存\"},\"reasonList\":\"{{first}}；{{rest}}\",\"statusUnreadable\":\"容量检查记录未取得：{{error}}\",\"layoutUnreadable\":\"容量目录未取得：{{error}}\"},\"diagnostics\":{\"separator\":\"；\",\"label\":{\"configuration\":\"配置\",\"database\":\"数据库\",\"schema\":\"数据库迁移\",\"tools\":\"FFmpeg／OpenSSL\",\"security\":\"访问安全\",\"mediaMounts\":\"媒体挂载\",\"dataRoot\":\"数据目录\",\"port\":\"服务端口\",\"tasks\":\"后台任务\",\"version\":\"版本\"},\"reason\":{\"configurationUnreadable\":\"配置文件无法读取\",\"setupIncomplete\":\"尚未完成首次配置\",\"configurationReadable\":\"配置可读取\",\"databaseMissing\":\"数据库不存在\",\"databaseEmpty\":\"数据库尚未初始化\",\"databaseUnreadable\":\"数据库无法读取\",\"databaseSchemaUnreadable\":\"数据库结构无法读取\",\"databaseReadable\":\"数据库可读取\",\"schemaCurrent\":\"迁移校验通过\",\"schemaPending\":\"存在待执行迁移\",\"schemaMismatch\":\"迁移记录与当前程序不一致\",\"schemaUnavailable\":\"迁移校验未取得\",\"toolsMissing\":\"未找到：{{names}}\",\"toolsUnusable\":\"无法执行：{{names}}\",\"av1Missing\":\"FFmpeg 缺少 AV1 软件解码器\",\"toolsUsable\":\"媒体工具可执行，AV1 软件解码器可用\",\"toolsFound\":\"工具路径已找到\",\"accessUnreadable\":\"访问密码配置无法读取\",\"passwordOff\":\"局域网或公网入口未开启访问密码\",\"passwordOn\":\"已开启访问密码\",\"loopbackOnly\":\"仅监听本机\",\"noLocalSources\":\"没有已配置的本地来源\",\"sourcesReadable\":\"来源可读取\",\"mountsChecking\":\"挂载检测尚未完成\",\"dataRootDenied\":\"没有权限写入数据目录\",\"dataRootUnwritable\":\"数据目录无法写入\",\"dataRootWritable\":\"临时写入与清理通过\",\"hostNotIp\":\"监听地址不是 IP，端口状态未取得\",\"portInUse\":\"端口正在使用\",\"portUnknown\":\"端口状态未取得\",\"portAvailable\":\"端口当前可用\",\"taskFailuresUnknown\":\"任务失败记录未取得\",\"noTaskFailures\":\"没有已记录的任务失败\",\"taskFailures\":\"存在已记录的任务失败\",\"versions\":\"Peach {{peach}} · Python {{python}}\",\"databaseMigrating\":\"正在更新本地数据库\"},\"action\":{\"repairConfiguration\":\"在本机修复配置文件\",\"completeSetup\":\"完成首次配置\",\"checkDatabase\":\"检查本机数据库与备份\",\"checkSchema\":\"在本机核对数据库迁移与备份\",\"updateTools\":\"更新媒体工具\",\"checkAccess\":\"在本机检查访问密码配置\",\"enablePassword\":\"在配置中开启访问密码\",\"checkMounts\":\"检查媒体目录与挂载状态\",\"fixDataRootPermission\":\"调整数据目录的写入权限\",\"checkDataRoot\":\"检查数据目录与可用空间\",\"viewFailedTasks\":\"在任务中心查看失败任务\"}},\"libraryDiagnostics\":{\"group\":{\"identification\":\"识别失败\",\"metadata\":\"补资料失败\",\"cover\":\"缺封面\",\"duration\":\"缺时长\"},\"source\":{\"proxy\":\"代理连接失败\",\"timeout\":\"来源连接超时\",\"network\":\"来源连接未取得\",\"authRequired\":\"来源要求登录或拒绝当前出口\",\"challenge\":\"来源要求人机验证\",\"blocked\":\"来源拦截当前出口\",\"accountSuspended\":\"来源临时停用了登录账号\",\"geoRestricted\":\"来源限制当前地区\",\"rateLimited\":\"来源正在限流\",\"serverError\":\"来源服务异常\",\"parseError\":\"资料解析失败\",\"notFound\":\"上次查询未命中\",\"cooling\":\"来源正在冷却\",\"failed\":\"来源未取得资料\",\"parsed\":\"资料解析通过\",\"parsedBefore\":\"曾解析成功，近期解析状态待复查\",\"connectedOnly\":\"连接检查通过；解析状态未取得\",\"checkedBefore\":\"已有检查记录，解析状态待复查\",\"unchecked\":\"尚无检查或解析记录，可在来源和凭证中检查连接\"}},\"settingsFile\":{\"comment\":{\"header\":\"Peach 设置文件。优先级：环境变量 > 本文件 > 程序默认值；手动修改后重启服务生效。\\n本文件保存在 Peach 数据目录中；该目录由 PEACH_DATA_ROOT 或项目旁的 peach-data 决定。\\nDocker：本文件位于 /data/config.toml；将 /data 放在数据卷中，重建容器时保留该卷。\\nDocker 中的 /media 是容器内的媒体目录，宿主机目录由 Compose 挂载到这里。\\nDocker 部署说明：https://github.com/peach-mitao/peach/blob/master/docs/DOCKER.md\\n生成入口：peach init（Peach 数据目录：{{dataRoot}}）\",\"directories\":\"Peach 数据目录下的子目录，例如 database、logs；省略时使用同名目录。\\n也可填写绝对路径。Docker 中相对目录位于 /data 下；其他目录需要单独挂载并保留数据。\",\"locations\":\"通常在网页的媒体目录中填写实际目录即可；Peach 保存时自动维护本表和 [media.mounts]。\\n以下说明供手动编辑配置参考；已有影片按本表查找文件，改成不匹配的值会使影片无法读取。\\nlocal、115、pikpak 等键表示媒体来源；值是数据库中影片路径的目录前缀。\\nPeach 数据库在所有系统上都保存 Windows 格式的路径，例如 R:\\\\media\\\\a.mp4。\\n因此 Docker / Linux / macOS 也使用本表；R:\\\\media 无需在这些系统上实际存在。\\n例：本表 local = 'R:\\\\media'，[media.mounts] local = '/media'。\\nPeach 会把数据库中的 R:\\\\media\\\\a.mp4 转换为 /media/a.mp4，再读取文件。\\n本表必须匹配数据库中的路径；Docker / Linux / macOS 搬动实际目录时保留本表，修改 [media.mounts]。\\nWindows 示例：local = ['D:\\\\Videos', 'E:\\\\Movies']，直接使用本机媒体目录。\",\"libraries\":\"[media.locations] 中的目录前缀 -> 界面显示的媒体库名称；不写时取目录名。\\n名称与路径表是身份配置的兼容投影；媒体库归属以 library_catalog 和 storage_roots 为准。\",\"libraryIcons\":\"[media.locations] 中的目录前缀 -> 媒体库图标。取值是 peach.media_libraries.LIBRARY_ICONS 里的图标名，\\n不认识的值忽略：只含一个来源的馆藏回落到该来源的图标，跨来源的用 database。\",\"costs\":\"[media.locations] 中的目录前缀 -> 代理流量保护。free 关闭，metered 开启。\",\"mounts\":\"与 [media.locations] 使用相同的媒体来源键；值是 Peach 实际读取文件的目录。\\nDocker 填容器内路径，例如 local = '/media'；宿主机目录在 Compose 的 volumes 中配置。\\nLinux / macOS 也使用本机绝对路径，例如 /mnt/media 或 /Volumes/Media。\\n一个来源有多个目录时，两表都写数组，目录数量和顺序必须相同。\\nDocker / Linux / macOS 必须提供实际目录，否则无法读取该来源的媒体文件；媒体记录仍保留。\\nWindows 直接读取 [media.locations] 中的目录，无需填写本表。\",\"server\":\"Docker 服务固定监听 0.0.0.0:8900；宿主机访问地址与端口由 Compose 配置。\\n此处 host、port 用于直接运行 peach serve；Docker 入口参数优先。\\nmdns_name 在局域网里必须唯一：两台机器同名会互相抢占。\\nreview_writer_origin 是允许修改数据库的设备的地址；只读设备通过它获取待确认资料。\\n留空表示本机不显示另一台设备的待确认资料。\",\"replication\":\"两台电脑之间的数据库复制设置（ADR-0017）；只有一台允许修改数据库，另一台只读。\\n单机与独立 Docker 部署保持 enabled = false。\\n关闭时不启动同步观察器、不探测 SMB；桌面托盘不显示 Ledger 菜单项。\\nshared_root 是两台电脑交换数据库副本的目录；留空时使用 Peach 数据目录旁的 peach-sync。\\nsmb_* 用于连接另一台电脑的共享目录；留空时不连接共享目录。\",\"tunnel\":\"Cloudflare Tunnel 默认关闭；打开前必须先设置访问密码。\\nbinary 留空时按内置包、PEACH_CLOUDFLARED 和 PATH 的顺序寻找 cloudflared。\\nmode = \\\"quick\\\" 是随机地址的临时链接；\\\"named\\\" 用自建命名隧道，只在源码开发\\n环境可用，需要 hostname（Cloudflare 后台绑定的公开主机名）和 token（隧道令牌）。\\ntoken 是凭据：这个文件是它唯一的存放处，不要复制到别处，也不要提交进 Git。\"}},\"mountReachability\":{\"ok\":\"可读取\",\"permission_denied\":\"没有权限读取\",\"missing\":\"目录不存在\",\"not_directory\":\"目标不是目录\",\"unavailable\":\"目录读取失败\",\"unmapped\":\"未配置挂载点\",\"checking\":\"正在检测\",\"timeout\":\"探测未返回\",\"sourceState\":\"{{label}}：{{state}}\"},\"followDiscovery\":{\"idExact\":\"站内 id 精确匹配\",\"nameExact\":\"创作者名精确匹配\",\"namePrefix\":\"创作者名以该词开头\",\"nameContains\":\"创作者名包含该词\",\"fanboxOfficial\":\"FANBOX 官方资料与归档身份一致\",\"authorPage\":\"作者页存在\",\"tagHasWorks\":\"站内标签 {{tag}} 下有作品\",\"tagExists\":\"站内存在标签 {{tag}}\",\"tagCount\":\"站内标签 {{tag}} 下有 {{count}} 件作品\",\"tagPrefixCount\":\"站内标签以该词开头：{{tag}} 下有 {{count}} 件作品\",\"tagPrefixExists\":\"站内存在以该词开头的标签 {{tag}}\",\"withTagType\":\"{{evidence}}，站上归为{{kind}}\",\"tagType\":{\"artist\":\"作者\",\"character\":\"角色\",\"copyright\":\"作品\",\"metadata\":\"元数据\",\"general\":\"标签\"},\"googleSearch\":\"用 Google 继续查找 F95zone\",\"googleSearchReason\":\"F95zone 站内索引未命中，请核对搜索结果里的真实线程链接\",\"threadTitle\":\"线程 {{thread}}\",\"searchTitle\":\"站内搜索按标题命中「{{query}}」\",\"searchTitlePrefix\":\"站内搜索按标题开头命中「{{query}}」\",\"withForumLabels\":\"{{evidence}}，版块标签 {{labels}}\",\"threadExists\":\"线程存在\",\"categoryHit\":\"{{category}} 分类命中\",\"withVersion\":\"{{evidence}}，当前版本 {{version}}\",\"profileHandle\":\"F95 首楼名片上的手柄 {{handle}}：{{evidence}}\"},\"followSecrets\":{\"why\":{\"fanbox\":\"公开列表不需要登录；帖子详情被 FANBOX 验证页拦住时，可用浏览器会话取得正文、多图和外部资源链接。\",\"gofile\":\"用于展开 Gofile 文件页，取得其中的图片和视频列表；Gofile 当前要求 Premium 才能读取 contents API，不配置仍会保留文件页链接。\",\"iwara\":\"公开作者视频无需登录；有访问限制的视频需要账号访问权及有效登录凭据。\",\"rule34xxx\":\"网页版挂了 Cloudflare 验证码，Peach 不绕验证码，只能走官方 API。\",\"f95zone\":\"发现更新不需要登录；只有取附件和 masked 下载链接才需要会话。\",\"simpcity\":\"站点不让游客读帖，检查更新必须带登录会话；前面的 DDoS-Guard 对标准桌面浏览器标识不出质询，Peach 也不解任何质询，cookie 失效就原样报错。\"},\"howto\":{\"fanbox\":\"登录 FANBOX 后，从一次成功的 api.fanbox.cc/post.info 请求复制整条 Cookie 请求头。\",\"gofile\":\"登录 Premium Gofile 账户后，在个人资料页复制 API token。\",\"iwara\":\"登录 Iwara 后，从成功的 apiq.iwara.tv/video 请求复制 Authorization 中 Bearer 后的值，填写 access_token。令牌过期后需重新复制。\",\"rule34xxx\":\"登录后在账号设置页生成 API key，把 user_id 和 api_key 写进凭据文件。\",\"f95zone\":\"登录后从浏览器复制整条 Cookie 请求头，写进凭据文件的 cookie 字段。\",\"simpcity\":\"登录后从浏览器复制整条 Cookie 请求头，写进凭据文件的 cookie 字段。\"}},\"subtitles\":{\"language\":{\"zh-Hans\":\"简体中文\",\"zh-Hant\":\"繁體中文\",\"zh\":\"中文\",\"en\":\"英语\",\"ja\":\"日语\",\"ko\":\"韩语\"}},\"metadata\":{\"authWall\":{\"credentialAdvice\":\"换一份凭据后重跑\",\"status\":\"来源返回 {{status}}，{{advice}}\",\"redirect\":\"重定向终点落在 {{path}}，{{advice}}\",\"loginPage\":\"{{page}}，{{advice}}\",\"javdbLoginPage\":\"javdb 登录页\",\"ambiguous\":\"来源返回 {{status}}：可能是凭据失效，也可能是出口 IP 被封，先看站点是否要求登录再决定换凭据还是等\"},\"warning\":{\"performerRepeated\":\"来源演员名含重复片段，已规范化：{{original}} → {{name}}\",\"releaseDateInvalid\":\"来源发行日期无效，已忽略：{{value}}\",\"releaseDateNormalized\":\"来源发行时间已规范化为日期：{{value}} → {{normalized}}\",\"tooManyLinks\":\"来源返回 {{count}} 个链接；候选只保留前 {{limit}} 个，完整值仍在原始快照\",\"valueRepeated\":\"来源值含重复片段，已规范化：{{original}} → {{name}}\"},\"evidence\":{\"runtime\":\"{{minutes}} 分钟\",\"poster\":\"海报（{{host}}）\",\"cover\":\"封面（{{host}}）\",\"trailer\":\"预告片（{{host}}）\",\"screenshots\":\"{{count}} 张截图（{{hosts}}）\",\"screenshotsMore\":\"{{count}} 张截图（{{hosts}} 等）\",\"externalSource\":\"外部来源\"}},\"sourceChecks\":{\"mobileBroadbandHint\":\"中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。\",\"target\":{\"page\":\"来源页面\",\"cdn\":\"图片 CDN\"},\"cooldown\":\"来源正在冷却，请稍后重试。\",\"proxy\":\"代理连接失败，请检查 Peach 代理。\",\"timeout\":\"来源连接超时，请稍后重试或检查连接方式。\",\"cdnUnreachable\":\"连接未取得；{{hint}}\",\"unreachable\":\"连接未取得；此来源可能需要代理，请检查来源连接方式。\",\"challenge\":\"来源返回人机验证页，请检查来源验证状态或更换出口。\",\"rateLimited\":\"来源正在限流，请稍后重试。\",\"notFound\":\"来源检查地址不存在，请核对站点地址。\",\"signIn\":\"来源要求登录或验证，请在官网完成登录后重试。\",\"reason\":\"{{reason}}。\",\"unavailable\":\"来源暂不可用，请稍后重试。\",\"needsCode\":\"片商官网按番号选择，请输入馆藏番号检查高清封面。\",\"noImageHost\":\"这个来源没有固定的图片主机，图片这一跳未检查。\"},\"sourcePreflight\":{\"outcome\":{\"ok\":\"可连接\",\"auth\":\"登录或人机验证\",\"http\":\"HTTP 错误\",\"cooldown\":\"冷却\",\"network\":\"网络失败\",\"skipped\":\"未检查\"}},\"scrapingAccess\":{\"makers\":\"片商官网\",\"unreachable\":\"来源连接未取得，请检查该来源的网络设置\"},\"feeds\":{\"kind\":{\"javdbActor\":\"JAV 订阅\",\"dmmActress\":\"JAV 订阅 · DMM\"}},\"followCheck\":{\"coolingDown\":\"{{provider}} 限流冷却中，{{seconds}} 秒后再试，本次跳过\"},\"followEvidence\":{\"runLabel\":\"删除旧快照\",\"stoppedByUser\":\"用户停止任务\"},\"followStore\":{\"evidenceUnwritable\":\"证据未取得（{{path}} 不可写：{{error}}）\"},\"timelineSheets\":{\"stoppedByUser\":\"已按停\"},\"fc2Similarity\":{\"commentOnly\":\"匿名评论等价标记只作候选\",\"collection\":\"涉及合集，只能复核分片关系，不能整体合并\",\"notInLedger\":\"其中一个番号尚不在本地 ledger\",\"partConflict\":\"本地文件分片标记不同\",\"reason\":\"{{left}} ↔ {{right}}；证据：{{kinds}}\"},\"fc2Sellers\":{\"nameMatchesAccounts\":\"同名命中多个账号\",\"nameOtherAccount\":\"同名对应不同 FC2 账号\",\"sharedName\":\"不同 FC2 账号使用相同卖家名称\",\"conflictingAccounts\":\"作品来源给出不同卖家账号\",\"evidence\":\"作品 {{code}} 的販売者：{{name}}；账号 {{account}}\",\"rejectedName\":\"摄取判定不收这个卖家名\"},\"westernProfiles\":{\"conflict\":{\"officialExists\":\"已有官网\",\"otherAccount\":\"{{site}} 已登记另一个账号\",\"otherPage\":\"{{host}} 已登记另一页\"}},\"resourceIdentification\":{\"onlineCandidate\":\"联网识别候选，需核对来源页\"},\"followSources\":{\"linkEvidence\":\"链接直接指明\",\"iwaraExternalPlayer\":\"Iwara 此条目使用外部播放器，请打开来源页面观看\",\"postTitle\":\"{{site}} 帖子 {{post}}\"},\"fanbox\":{\"cover\":\"封面\",\"image\":\"图片 {{number}}\",\"file\":\"文件 {{number}}\"},\"seesaa\":{\"reviewCast\":\"社区 Wiki 的出演断言需要人工复核；人物页链接不自动合并艺名\",\"incompleteCast\":\"出演栏含未识别或不确定内容，完整出演名单未取得\"},\"resourceSearch\":{\"reject\":{\"code\":\"番号不符\",\"size\":\"体积不在区间\",\"seeders\":\"没有人做种\",\"hash\":\"取不到 infohash\"},\"rejectedCount\":\"{{reason}} {{count}} 条\",\"allRejected\":\"索引器返回了 {{total}} 条结果，都没通过筛选：{{counts}}\",\"noIndexer\":\"请在本机「配置 → 下载」中添加并启用索引器\",\"busy\":\"资源搜索正在进行，请稍后重试\",\"indexerFailed\":\"{{indexer}}：请求失败或响应格式不正确，请检查索引器\",\"indexerError\":\"{{indexer}}：{{error}}\",\"allFailed\":\"所有索引器都未能完成搜索\"},\"javdbPublic\":{\"magnetsUnfetched\":\"JavDB 磁链区查询未完成：{{error}}\",\"reviewPagesQueried\":\"已查询前 {{pages}} 页评论资源。\",\"commentsUnfetched\":\"JavDB 评论区查询未完成：{{error}}\"},\"javdb\":{\"commentSource\":\"JavDB 评论\"},\"magnetChain\":{\"staleReused\":\"已沿用上次结果：{{error}}\",\"sourceFailed\":\"{{source}}：{{error}}\",\"sourceUnfetched\":\"{{source}}：查询未完成\",\"incomplete\":\"部分来源的查询未完成，请稍后重新查询。\"},\"wantsMagnets\":{\"linksUnfetched\":\"资源链接未取得，请稍后重试或检查来源连接。\",\"chainUnfetched\":\"磁力抓取链未取得，请稍后重试或检查来源连接。\"},\"javBrowser\":{\"idle\":\"可以加入 Peach 馆藏\",\"queued\":\"等待搜索磁力\",\"searching\":\"正在搜索磁力\",\"submitted\":\"云下载进行中\",\"ingested\":\"已加入 Peach 馆藏\",\"owned\":\"馆藏已有该番号影片\",\"failed\":\"添加失败，可重试\",\"noMatch\":\"未找到可自动下载的磁力，可重试\",\"noMatchSourcesPaused\":\"其余来源没找到；{{sources}} 暂时访问不了，恢复后自动补查\",\"searchFailedWith\":\"资源搜索失败：{{error}}\",\"noOtherMagnet\":\"没有其他可用磁力，可在 Peach 手动选择资源\",\"disabled\":\"浏览器添加已关闭\",\"searchUnavailable\":\"资源搜索暂不可用，请在 Peach 检查来源后重试\",\"retriesExhausted\":\"自动重试 {{attempts}} 次后仍未完成；搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试\",\"submitFailed\":\"搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试\",\"retryWaiting\":\"暂时不可用，等待自动重试\",\"sourcesWaiting\":\"{{sources}} 未取得，等待自动重试\",\"sourcesUnfetched\":\"{{sources}} 未取得\",\"searchFailedWaiting\":\"资源搜索失败：{{error}}；等待自动重试\",\"sourcesExhausted\":\"{{sources}} 自动重试 {{attempts}} 次后仍未取得，请在 Peach 检查来源后重试\"},\"followCreators\":{\"evidence\":{\"source\":\"{{provider}} 关注来源本身\",\"archived\":\"{{provider}} 归档的原站账号 {{account}}\",\"profileCard\":\"{{provider}} 名片 {{account}}\"},\"hold\":{\"sameKeyFiled\":\"同一名字键的来源已建档\",\"sameKeySplit\":\"同一名字键的来源分属几个实体\",\"notAName\":\"名字是平台、目录或转载站\",\"nameTaken\":\"数据库里已有同名创作者\",\"namesCollide\":\"几组关注作者归一成同一个名字\"},\"held\":\"{{name}}（{{reason}}）\"},\"downloadPostprocess\":{\"waiting\":\"等待识别正片并整理\",\"noTemplate\":\"未配置整理模板\",\"noVerifiedRename\":\"{{location}} 缺少官方核验改名通道\",\"nothingToOrganize\":\"无需整理\",\"recognizing\":\"正在识别正片\",\"doneSkipped\":\"正片已绑定，资料已采集；整理跳过：{{reason}}\",\"done\":\"正片已绑定，资料已采集并完成整理\",\"donePending\":\"{{summary}}；部分资料等来源恢复后重新采集：{{pending}}\"},\"browserTransport\":{\"trafficUnobserved\":\"浏览器采集流量未观测\"},\"followBackfill\":{\"rule34-details\":\"补齐 rule34.xxx 细节\",\"rule34video-characters\":\"补记 rule34video 角色\"}}"),
+	labels: /* @__PURE__ */ JSON.parse("{\"listSeparator\":\"、\",\"resumeAt\":{\"earlyToday\":\"今天凌晨 {{clock}}\",\"today\":\"今天 {{clock}}\",\"tonight\":\"今晚 {{clock}}\",\"earlyTomorrow\":\"明天凌晨 {{clock}}\",\"tomorrow\":\"明天 {{clock}}\",\"tomorrowNight\":\"明晚 {{clock}}\",\"dayAfter\":\"后天 {{clock}}\",\"date\":\"{{month}}月{{day}}日 {{clock}}\"},\"runtimePrepare\":{\"writer\":{\"standalone\":\"replication.enabled = false，按独立写者\",\"noDeviceId\":\"本机没有 device-id，判不出是不是写入端\",\"noWriter\":\"没有可验证的写入端\",\"otherWriter\":\"写入端是 {{owner}}，本机是只读端\",\"thisDevice\":\"本机是写入端\"}},\"standaloneUpdate\":{\"updatePackage\":\"更新包\",\"fullPackage\":\"完整包\"},\"downloadNamed\":\"下载 {{name}}\",\"onboarding\":{\"hostOption\":{\"thisDevice\":\"只有这台电脑\",\"lan\":\"同一局域网的设备\"},\"prompt\":{\"dataRoot\":\"数据目录（Peach 数据库、缓存和设置文件都放在这里）\",\"mediaDir\":\"媒体目录（必须已经存在，可以在外置硬盘上）\",\"moreMediaDir\":\"再加一个媒体目录（不加就直接回车）\",\"host\":\"谁可以访问：1 = {{thisDevice}}，2 = {{lan}}\",\"port\":\"端口\",\"mdnsName\":\"局域网访问地址（<名字>.local，只在允许局域网访问时发布）\",\"scan\":\"现在扫描 {{target}}？\"},\"scanTargetCount\":\"这 {{count}} 个文件夹\",\"retryReport\":\"{{reason}}（还可以再试 {{remaining}} 次）\",\"requiredMark\":\"（必填）\",\"notFilled\":\"（还没填）\",\"mountsExplanation\":\"Peach 数据库用 Windows 格式保存影片路径，前缀为 {{roots}}；实际媒体目录为 {{shown}}，按相同顺序保存在 [media.mounts] local，读取文件前自动转换。\",\"answer\":{\"thisDevice\":\"本机\",\"lan\":\"局域网\",\"yes\":\"是\",\"no\":\"否\"}},\"runtimeFacts\":{\"version\":\"版本\",\"os\":\"操作系统\",\"dataRoot\":\"数据目录\",\"settingsFile\":\"设置文件\",\"logs\":\"日志目录\",\"available\":\"可用\",\"ffmpegNotInstalled\":\"未安装；MP4 可直接播放，转码和缩略图需要安装 FFmpeg。\",\"untruncNotInstalled\":\"未安装；缺索引的 MP4 需要它才修得了。\",\"untruncExtractTo\":\"未安装；缺索引的 MP4 需要它才修得了。解压到 {{path}}。\",\"installedVersion\":\"已安装，版本 {{version}}\",\"installedInDataRoot\":\"已安装在数据目录\",\"ffmpegToolMissing\":\"未找到 {{tool}}；转码、媒体信息与缩略图需要 FFmpeg 工具包。\",\"ffmpegToolsMissing\":\"未找到 {{first}}、{{second}}；转码、媒体信息与缩略图需要 FFmpeg 工具包。\"},\"configuration\":{\"fileManagedNotice\":\"这个部署由配置文件管理服务；在本机编辑下方的设置文件。\",\"sectionUnavailable\":\"{{section}}未取得\",\"sectionRetry\":\"请重新读取；持续失败时导出诊断报告。\",\"tunnelStoppedUnsaved\":\"临时远程链接已停止；设置文件未能写入，请在本机检查设置文件。\",\"tunnelStopped\":\"已停止临时远程链接：没有访问密码时不保留公网入口。\",\"section\":{\"remoteReporting\":\"错误诊断设置\",\"librarySharing\":\"馆藏上传设置\",\"startup\":\"开机启动设置\",\"uninstall\":\"卸载信息\",\"storage\":\"存储空间\",\"peachProxy\":\"Peach 代理\",\"entryLinks\":\"外部入口\",\"updates\":\"版本更新\",\"updateJob\":\"更新任务\",\"access\":\"访问设置\",\"mediaSources\":\"媒体目录\",\"libraryCount\":\"媒体库状态\",\"mountDependencies\":\"挂载依赖\",\"facts\":\"运行信息\",\"network\":\"访问地址\",\"apiToken\":\"访问口令\",\"certificate\":\"HTTPS 证书\",\"tunnel\":\"公网入口\",\"automaticUpdates\":\"自动更新\",\"pushDiscovery\":\"推送发现\",\"downloads\":\"下载设置\"}},\"coverRepair\":{\"runLabel\":\"重判封面版式\",\"stoppedByUser\":\"用户停止任务\",\"serviceStopped\":\"服务关闭，下次启动接着做\"},\"followScheduler\":{\"runtimeUnavailable\":\"上次自动检查的运行状态未取得\",\"sourcesFailed\":\"{{count}} 个来源检查失败\"},\"webAutoLandings\":{\"fieldOriginalTitle\":\"原标题\",\"fieldPerformers\":\"演员\",\"fieldReleaseDate\":\"发行日期\",\"fieldSeries\":\"系列\",\"fieldStudio\":\"厂牌\",\"fieldTags\":\"内容标签\",\"fieldTitle\":\"标题\",\"fieldUnionTags\":\"标签\",\"ruleVerifiedReplace\":\"官方来源一致，覆盖原值\",\"ruleVerifiedUnion\":\"补上来源多给的标签\"},\"webBatch\":{\"changedDuringDelete\":\"删除期间这一条已经变了\",\"stillOnDisk\":\"文件仍在盘上\"},\"webFeeds\":{\"cooling\":\"来源 正在冷却，这一轮没有拉\",\"deferredRest\":\"其余 {{count}} 个源顺延到冷却结束后再拉\",\"sourceCooling\":\"{{source}} 正在冷却，这一轮没有拉\"},\"webFollow\":{\"nameContainsEvidence\":\"规范化名称存在包含关系，仅供人工确认\",\"profileLinkEvidence\":\"{{provider}} 首楼的创作者主页链接指向 {{service}}/{{handle}}\",\"sharedOfflineNote\":\"共享盘不在，只撤掉了本机这份。等盘回来要再撤一次，否则会被同步回来。\",\"suggestArchive\":\"归档站的创作者\",\"suggestFollowed\":\"已关注\",\"suggestTag\":\"Rule34.xxx 标签\",\"suggestTagArtist\":\"Rule34.xxx 的创作者\"},\"webJavDetail\":{\"anonymousUser\":\"匿名用户\"},\"webLinks\":{\"unreachable\":\"取不到：{{reason}}\"},\"webReview\":{\"commentVotes\":\"评论标记 {{votes}}\",\"coverNoCandidates\":\"未取得：所有渠道都没有候选\",\"coverUnfetched\":\"未取得：{{reason}}\",\"currentNone\":\"当前值：尚无\",\"currentNoneOwned\":\"当前值：尚无（{{owner}}）\",\"currentValue\":\"当前值：{{value}}\",\"currentValueOwned\":\"当前值：{{value}}（{{owner}}）\",\"durationDelta\":\"时长差 {{seconds}} 秒\",\"equivalents\":\"等同于 {{codes}}\",\"evidenceInsufficient\":\"所选资料缺少足够依据\",\"evidenceKinds\":\"证据 {{kinds}}\",\"fc2Collection\":\"合集，{{count}} 个分片各自独立；封面不下发，分片回落到自己的缩略图\",\"matchedAssets\":\"{{count}} 个匹配资产\",\"metadataSources\":\"{{count}} 个资料来源\",\"sameCodeAssets\":\"{{count}} 个同番号资产\",\"seller\":\"卖家 {{seller}}\",\"separator\":\"；\",\"sharedPerformers\":\"共同演员 {{names}}\",\"sizeDelta\":\"体积差 {{percent}}%\",\"tokenOverlap\":\"词元重合 {{overlap}}\",\"videos\":\"{{count}} 部作品\",\"westernMatch\":\"{{verdict}} → {{name}}\",\"westernMatchSpelling\":\"{{verdict}} → {{name}}（写法 {{variant}}）\",\"westernVerdict\":{\"matched\":\"命中\",\"needs-review\":\"需人工确认\",\"no-profile\":\"确认无档案\",\"rate-limited\":\"限流未取得\"}},\"webScraping\":{\"compareIncompleteMobileHint\":\"，未能完成封面比较；中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。\",\"coverSaved\":\"高清封面已保存\",\"diagnosticDimensionMismatch\":\"完整图片尺寸与探测结果不一致 {{count}} 张\",\"diagnosticDownloadFailed\":\"完整下载失败 {{count}} 张\",\"diagnosticInvalidImage\":\"图片无法解码 {{count}} 张\",\"diagnosticPlaceholder\":\"「准备中」占位图 {{count}} 张\",\"diagnosticProbeFailed\":\"图片头请求失败 {{count}} 张\",\"diagnosticSeparator\":\"；\",\"diagnosticTooSmall\":\"图片宽度不足 700px {{count}} 张\",\"instagramPending\":\"Instagram 自动头像定位尚待独立登录会话验证\",\"kept\":\"已有图片保留。\",\"keptAfterDetails\":\"。已有图片保留。\",\"keptLocalNoBetter\":\"本机封面 {{localWidth}} × {{localHeight}}，来源可用封面 {{width}} × {{height}}；保留本机封面。没有找到更大或更合适的封面。\",\"keptLocalPartial\":\"本机封面 {{localWidth}} × {{localHeight}}，来源可用封面 {{width}} × {{height}}；保留本机封面。部分来源连接失败，未能完成全部来源比较。\",\"keptUserCover\":\"这部片用的是你换上的封面，没有联网替换。要换回刮削封面，在编辑资料里恢复。\",\"period\":\"。\",\"reusedCover\":\"复用 24 小时内核验过的本机封面（{{width}} × {{height}}），没有再向来源请求。\"},\"downloads\":{\"postprocessRetrying\":\"等待自动重试（{{retries}}/{{limit}}）\",\"postprocessRetriesExhausted\":\"自动重试 {{retries}} 次后仍未完成；{{detail}}\",\"postprocessRequeued\":\"等待重新处理\",\"reconcileUnexpected\":\"对账时出现未预期的错误，稍后再试\",\"settingsUnreadable\":\"云下载设置无法读取，请检查设置文件或重新填写。\",\"settingsMalformed\":\"云下载设置格式不符，请检查设置文件或重新填写。\",\"settingsInvalid\":\"云下载设置含有无效值，请检查目标目录和等待上限。\"},\"downloadsClouddrive\":{\"permission\":{\"addOffline\":\"提交离线任务\",\"listOffline\":\"查看离线任务与配额\",\"modifyOffline\":\"取消离线任务\"},\"no115Prefix\":\"还没有填 115 目标目录，「推送发现」登记的前缀（{{known}}）里也没有 115 网盘上的。在「推送发现」卡里加上 CloudDrive2 里 115 的挂载根，再点检查；也可以直接填目标目录\",\"noPrefixes\":\"还没有填 115 目标目录，「推送发现」里也没有登记云端路径前缀。在「推送发现」卡里登记 CloudDrive2 里 115 的挂载根和它对应的媒体目录，再点检查；也可以直接填目标目录\",\"noPikpakRootPrefix\":\"还没有选 PikPak 根目录对应的媒体目录，「推送发现」里也没有 PikPak 云盘根那条前缀可以推。在下拉框里直接选，或在「推送发现」卡里登记 PikPak 的挂载根\",\"action\":{\"verifyToken\":\"核对 API 令牌\",\"findTarget\":\"查找目标目录\",\"refreshLanding\":\"刷新落地目录\",\"readQuota\":\"查离线配额\",\"listOffline\":\"查离线任务\",\"createFolder\":\"新建目录\",\"submitOffline\":\"提交离线任务\",\"cancelOffline\":\"取消离线任务\",\"findLandedFile\":\"查目标目录里的文件\",\"findPrefix\":\"查推送发现的云端路径前缀\",\"readProxy\":\"读取网盘代理\",\"readAccounts\":\"读取网盘账号\",\"saveProxy\":\"保存网盘代理\",\"readMountPoints\":\"读取挂载点\",\"readLibraryMounts\":\"读取媒体库挂载点\",\"readCacheDir\":\"读取缓存目录\"}},\"downloadsChannels\":{\"clouddriveTokenUnreadable\":\"CloudDrive2 令牌无法读取，请重新填写。\",\"pikpakSignInUnreadable\":\"PikPak 登录信息无法读取，请重新登录。\",\"tokenNeedsOffline\":\"CloudDrive2 令牌需要提交和查看离线任务权限。\",\"libraryCapabilityUnavailable\":\"{{name}}的云下载能力未取得。\",\"clouddriveCapabilityUnavailable\":\"CloudDrive2 云下载能力未取得，请检查连接与令牌。\",\"libraryNotMapped\":\"{{name}}尚未关联云端目录，请检查挂载或推送发现配置。\"},\"downloadsPikpakBrowser\":{\"waiting\":\"浏览器窗口已打开，在里面登录 PikPak\",\"cancelled\":\"已取消浏览器登录\",\"notOpened\":\"浏览器没有打开：{{error}}\",\"failed\":\"浏览器登录出错：{{type}}\",\"windowClosed\":\"浏览器窗口已关闭，登录没有完成\",\"done\":\"已用浏览器登录 PikPak\",\"timeout\":\"{{minutes}} 分钟内没有完成登录，窗口已关闭。可以再点一次「用浏览器登录」\"},\"folderRules\":{\"conflict\":{\"differentOwner\":\"已有不同的归属\",\"perItemConfirmed\":\"已有逐件确认\",\"differentIdentity\":\"已有不同的身份关系\",\"ownerRejected\":\"已有归属否定\",\"childRule\":\"由子目录规则管理\"}},\"routesMedia\":{\"defaultPlayer\":\"系统默认播放器\",\"customPlayer\":\"自定义播放器…\",\"choosePlayer\":\"选择播放器\",\"subtitle\":{\"outsideFolder\":\"不在正片所在目录\",\"tooLarge\":\"文件过大\",\"notFound\":\"文件未找到\",\"imageBased\":\"图形字幕，播放器里不显示\",\"encodingUnknown\":\"编码未识别\"}},\"avatarPicker\":{\"source\":{\"gallery\":\"图库\",\"expoDirectory\":\"展会名录\",\"socialProfile\":\"社交主页\",\"onlineVideo\":\"在线作品\",\"videoCover\":\"作品封面\",\"coverFace\":\"封面人脸\",\"officialSite\":\"官网\",\"picked\":\"自己挑的\",\"fetched\":\"取过的图\",\"videoStill\":\"作品画面\",\"codeCover\":\"番号封面\",\"address\":\"地址\",\"thisDevice\":\"本机\"},\"sourceUnknown\":\"来源未记录\",\"named\":\"{{name}}\",\"galleryCategory\":\"图库 · {{category}}\",\"imageAddress\":\"图片地址 · {{host}}\",\"cropped\":\"{{label}} · 已裁剪\",\"assetFallback\":\"作品 {{id}}\",\"standIn\":\"代表作画面，非本人\",\"standInWithTitle\":\"代表作画面，非本人 · {{title}}\"},\"mediaTools\":{\"unknownVersion\":\"未知版本\",\"toolPackage\":\"工具包\"},\"taskResults\":{\"kind\":{\"check\":\"检查失败\",\"backfill\":\"补查失败\"},\"noResult\":\"来源未返回检查结果\"},\"desktopStartup\":{\"noDesktop\":\"此系统未提供桌面快捷方式\",\"desktopFailed\":\"{{error}}\",\"desktopUnknown\":\"桌面快捷方式状态未取得\",\"noLoginItem\":\"此系统未提供登录自启入口\",\"trayMissing\":\"未找到本机托盘入口\",\"startupUnknown\":\"启动项状态未取得\"},\"desktopUninstall\":{\"manual\":\"这个系统上先退出 Peach，再手动移除程序与数据目录\",\"macos\":\"先关闭开机自启并退出 Peach，再把「应用程序」中的 Peach 移到废纸篓；完全卸载时一并删除下列数据目录\",\"accepted\":\"正在卸载，Peach 将退出。完成后可关闭此页。\"},\"backgroundIssues\":{\"pushDiscovery\":{\"title\":\"自动发现新文件入库失败\",\"link\":\"打开推送设置\"},\"pushDiscoveryWatch\":{\"title\":\"本机文件夹监视没有运行\",\"link\":\"打开推送设置\"},\"downloads\":{\"title\":\"{{count}} 个云下载任务对账暂时失败\",\"link\":\"查看云下载\"},\"followSchedule\":{\"title\":\"关注自动检查失败\",\"link\":\"打开关注调度\"},\"feedSchedule\":{\"title\":\"订阅源自动拉取失败\",\"link\":\"打开订阅源调度\"},\"tunnel\":{\"title\":\"公网入口连接失败\",\"link\":\"打开公网入口设置\"},\"librarySharing\":{\"title\":\"馆藏分享上传失败\",\"link\":\"打开数据上传设置\"},\"automaticUpdates\":{\"title\":\"自动更新出错\",\"link\":\"打开自动更新设置\"},\"amaneBridge\":{\"title\":\"amane 桥未安装\",\"link\":\"打开 amane 设置\"},\"network\":{\"title\":\"网络不通\",\"link\":\"打开 Peach 代理设置\"},\"faceModels\":{\"title\":\"人脸模型下载失败\",\"link\":\"查看失败记录\"}},\"metadataAmane\":{\"rebuilt\":\"amane 桥已按 {{revision}} 重建\",\"bundled\":\"采集工具已随 Peach 安装，无需另行准备\",\"ready\":\"amane 运行环境已就绪\",\"auth\":{\"ageVerification\":\"站方要求年龄验证\",\"loginRequired\":\"站点要求登录，凭据缺失或已失效\",\"geoRestricted\":\"站方按地区拒绝了这个出口\",\"cloudflareChallenge\":\"撞上 Cloudflare 挑战页\",\"cloudflareBlocked\":\"被 Cloudflare 拦下\",\"ipBanned\":\"出口 IP 已被站方封禁\",\"httpError\":\"站方拒绝了这个出口\"},\"latestUnfetched\":\"未取得\",\"trafficUnmetered\":\"独立采集工具的网络传输未提供逐任务计量\",\"trafficUnobserved\":\"外部采集器流量未观测\"},\"regions\":{\"jp\":\"日本\",\"kr\":\"韩国\",\"cn\":\"国产\",\"west\":\"欧美\",\"other\":\"其他\",\"none\":\"未判定\"},\"webCatalog\":{\"editionGroup\":\"多版本作品\",\"partGroup\":\"分卷作品\",\"unknownYear\":\"未知年份\"},\"related\":{\"sameCreator\":\"同创作者\",\"sameSeries\":\"同系列\",\"samePerformer\":\"同出演者\",\"similarTags\":\"标签接近\",\"sameStudio\":\"同厂牌\"},\"webEntity\":{\"suggestGroup\":{\"performer\":\"女优\",\"creator\":\"创作者\",\"studio\":\"厂牌\",\"agency\":\"事务所\",\"series\":\"系列\",\"tag\":\"标签\",\"asset\":\"视频\"}},\"fieldOwners\":{\"user\":\"手动填写\",\"review\":\"复核批准 {{identifier}}\",\"auto\":\"{{identifier}} 免复核落库\",\"scan\":\"文件名推导\",\"script\":\"维护脚本 {{identifier}}\"},\"performerHeader\":{\"current\":\"现名\",\"former\":\"旧名义\",\"other\":\"其它\"},\"catalogVersions\":{\"multipart\":\"分卷版\",\"singleFile\":\"完整文件\"},\"catalogEdition\":{\"censored\":\"有码\",\"chinese-subtitles\":\"中字\",\"uncensored\":\"无码\",\"uncensored-leak\":\"无码流出\",\"uncensored-crack\":\"无码破解\"},\"catalogParts\":{\"main\":\"本篇\",\"bonus\":\"特典 {{number}}\"},\"photoSet\":{\"untitled\":\"未命名图集\"},\"organizeTemplates\":{\"placeholder\":{\"code\":\"番号\",\"title\":\"标题\",\"studio\":\"厂牌\",\"series\":\"系列\",\"year\":\"发行年\",\"actors\":\"出演者\",\"cd\":\"分片号\",\"mosaic\":\"有码无码\",\"definition\":\"画质\"},\"example\":{\"title\":\"标题\",\"studio\":\"厂牌\",\"series\":\"系列\",\"actors\":\"甲、乙\"}},\"organize\":{\"preset\":{\"codeOnly\":\"仅番号\",\"codeTitle\":\"番号和标题\",\"codeDefinition\":\"番号和画质\",\"codeActors\":\"番号和出演者\",\"byStudio\":\"按厂牌建文件夹\",\"bySeries\":\"按系列建文件夹\",\"byActors\":\"按出演者建文件夹\",\"byYear\":\"按发行年建文件夹\",\"studioThenCode\":\"厂牌下按番号建文件夹\"},\"skip\":{\"offline\":\"来源未挂载\",\"missingField\":\"字段缺失\",\"outsideRoot\":\"不在来源根内\",\"targetExists\":\"目标已存在\",\"crossVolume\":\"跨盘\",\"tooLong\":\"路径过长\"},\"failure\":{\"sourceMissing\":\"源文件不存在\",\"renameFailed\":\"改名失败：{{error}}\",\"ledgerRolledBack\":\"数据库写入失败，已改回原名：{{error}}\",\"ledgerStuck\":\"数据库写入失败且改不回原名，需要人工处理：{{error}}\",\"moveUnverified\":\"移动中断后无法确认文件身份，请核对两个路径再重试\",\"assetGone\":\"资产已不在馆藏，未执行整理\"}},\"junk\":{\"installerAttachment\":\"媒体目录中的安装附件\",\"pageArchiveAsset\":\"网页存档的脚本或样式附件\",\"promoPageImage\":\"推广网页存档的横幅、标志或导航图片\",\"shortAttachmentCluster\":\"同目录长正片旁有 {{count}} 条极短小附件，须核验内容\",\"shortAttachmentSpread\":\"同体积、时长与分辨率的极短附件散布在 {{count}} 个发行目录，须核验内容\",\"downloadShortVideo\":\"{{code}} 下载包里的附带短视频，正片长 {{minutes}} 分\",\"downloadArchive\":\"{{code}} 下载包里的附带压缩包，须核验内容\",\"downloadFile\":\"{{code}} 下载包里的附带文件，名字不带本片番号\",\"repeatedCopies\":\"同名同体积的副本散布在 {{count}} 个目录\",\"fullVersionExists\":\"同番号有 {{minutes}} 分完整版\",\"underFourMinutes\":\"不足 4 分钟\",\"under120Mb\":\"小于 120 MB\",\"promoDirectory\":\"住在推广目录\",\"numberedSourceVideo\":\"编号视频可能只有来源水印，须核验内容\",\"internetShortcut\":\"网址快捷方式\",\"pageArchive\":\"网页存档\",\"wholeNamePromo\":\"整个名字都是推广语\",\"visualPromotion\":\"{{total}} 帧中 {{matched}} 帧含推广线索，{{claims}} 帧含推广用语\",\"mostlyPromo\":\"推广语占了名字主体\",\"promoNeighbours\":\"同目录另有 {{count}} 个同类推广名\",\"promoCreator\":\"创作者位是推广站域名\",\"promoDirectoryPack\":\"目录是「域名+番号」的推广打包\",\"decoratedImage\":\"装饰符小图\",\"promoBrand\":\"推广品牌名\"},\"classification\":{\"settledCode\":\"{{reason}}；只移除创作者投影，番号不改写\",\"siteRelease\":\"目录与媒体文件同为站点作品号 {{site}}；官网目录 {{catalog}}\",\"versionedDirectory\":\"目录名是发行标识 {{identity}} 与画质版本后缀；不作为账号，也不推断目录内文件的番号\",\"gachincoPpv\":\"目录与分段文件使用 Gachinco PPV 作品号及画质后缀；不作为账号\",\"matchingIdentity\":\"目录与媒体文件的发行标识 {{identity}} 一致；画质与版本后缀不作为账号\",\"matchingProduct\":\"目录商品标识与媒体文件 {{product}} 一致；番号不改写\",\"matchingDmmProduct\":\"目录番号 {{identifier}} 与文件 DMM 商品标识一致；番号不改写\"},\"studioIcons\":{\"undecodable\":\"解不开\",\"wordmarkAspect\":\"内容比 {{aspect}} 是字标\",\"onlySize\":\"只有 {{size}}\",\"faceFound\":\"{{size}} 里检出一张脸（{{score}}）\",\"hostIcon\":\"{{url}} 是 {{host}} 的主机级图标（sha256 {{digest}}）\",\"originSiteWordmark\":\"站点自己的字标\",\"originBiggest\":\"这一趟取到的最大一枚\",\"originIconMark\":\"与 icon 位同一枚方标\",\"bakedFrom\":\"{{origin}}（{{size}}）烤成方图\",\"allTooSmall\":\"这一趟取到的都不到 {{edge}}：{{items}}\",\"noLinks\":\"数据库里这个厂牌没有能取图的链接（存档快照不算）\",\"originLedgerAvatar\":\"数据库里登记的社媒头像\",\"originDeclared\":\"官网声明的图标\",\"originHeaderImage\":\"站点 header 里的 <img>\",\"originNamedAvatar\":\"人指定的社媒头像\",\"originProfileAvatar\":\"{{profile}} 的头像\",\"paddedWordmark\":\"方形标识未取得，装的是字标：{{size}}／内容比 {{aspect}}，烤成方图\",\"sameAsIcon\":\"与 icon 位同一份方图（原字标 {{size}}）\",\"triedNothing\":\"试过 {{tried}}，一份字节都没取回来\",\"tried\":\"试过 {{tried}}：{{details}}\",\"noCandidates\":\"没有候选\",\"namedLogoNothing\":\"指定的 logo 来源一份字节都没取回来\",\"namedLogoUndecodable\":\"指定的 logo 来源解不开\",\"shortEdge\":\"短边 {{edge}} < {{minimum}}\",\"namedLogo\":\"用户指定的 logo 来源\",\"namedLogoNotSquare\":\"指定的 logo 来源烤不成方图\",\"sameAsNamedLogo\":\"与 logo 位同一份指定来源（{{size}}）烤成方图\",\"namedWordmarkNothing\":\"指定的字标来源一份字节都没取回来\",\"namedWordmarkUndecodable\":\"指定的字标来源解不开\",\"namedWordmarkNotSquare\":\"指定的字标来源烤不成方图\",\"namedWordmarkBaked\":\"指定的字标来源（{{origin}}）烤成方图\",\"namedSquareNothing\":\"指定的方标来源一份字节都没取回来\",\"namedSquareUndecodable\":\"指定的方标来源解不开\",\"namedSquareNotSquare\":\"指定的方标来源烤不成方图\",\"croppedShortEdge\":\"裁出来的方标短边 {{edge}} < {{minimum}}\",\"namedSquareCropped\":\"指定的方标来源（{{size}}）裁出方标\",\"faceDetected\":\"{{evidence}}；检出人脸\"},\"studioSites\":{\"parked\":\"停放页\",\"parkedTitle\":\"{{parked}}（标题自述在出售域名：{{title}}）\",\"parkedOrForSale\":\"{{parked}}或域名出售页\",\"parkingHost\":{\"finalUrl\":\"{{parked}}（最终地址指向 {{host}}）\",\"headers\":\"{{parked}}（响应头指向 {{host}}）\",\"body\":\"{{parked}}（正文指向 {{host}}）\"},\"certificateInvalid\":\"{{reason}}；HTTPS 证书无效\",\"emptyShell\":\"页面只有 {{bytes}} 字节，疑似空壳\",\"forSaleTitle\":\"标题自述在出售域名（{{title}}）\",\"unavailableTitle\":\"站点自述不可用（{{title}}）\",\"domainEcho\":\"标题只是域名回显，没有自述身份（{{title}}）\",\"confirmed\":\"{{confirmed}}；实测标题：{{title}}\",\"none\":\"无\",\"nothingToCompare\":\"厂牌名与别名里都没有可比对的字符\",\"matchedAlias\":\"（对上的是别名「{{alias}}」）\",\"titleNamesAdult\":\"标题自述厂牌名{{matched}}，且页面是成人站\",\"titleNamesNotAdult\":\"标题有厂牌名但页面不像成人站；需人工确认（{{title}}）\",\"derivedHostAdult\":\"域名由厂牌名推出，且页面是成人站（标题用假名写品牌名）\",\"bodyNames\":\"标题未自述，但正文出现厂牌名；需人工看图确认\",\"noName\":\"标题与正文都没有厂牌名（标题：{{title}}）\",\"noCandidates\":\"没有可推导的候选域名\",\"platform\":\"发行平台不是厂牌，没有「厂牌官网」可查；链接按平台登记，有实际卖主的账号才是 creator（docs/SOURCING.md）\",\"unreachable\":\"取不到：{{error}}\"},\"webLibraryShortcuts\":{\"representativeImage\":\"{{name}} · 代表作\"},\"libraryProcessing\":{\"issues\":\"{{count}} 项需要处理，可重试未完成的部分。\",\"issuesAllPaused\":\"{{count}} 项都卡在来源限流上，等一会儿再跑一次。\",\"issuesSomePaused\":\"{{count}} 项需要处理，其中 {{paused}} 项是来源限流，等一会儿再跑；其余可重试未完成的部分。\",\"budgetSkipped\":\"{{head}}，还有 {{count}} 部没问外部来源，再跑一次接着采。\",\"budget\":{\"requests\":\"本趟采集次数已用完\",\"seconds\":\"本趟采集时间已用完\",\"bytes\":\"本趟下载量已用完\"},\"budgetAndIssues\":\"{{budget}} {{issues}}\",\"step\":{\"scanFiles\":\"扫描文件\",\"checkFolders\":\"检查媒体目录\",\"checkJunk\":\"检查垃圾文件\",\"probeAndCheckJunk\":\"读取媒体属性与检查垃圾\",\"checkCompanions\":\"检查配套文件\",\"makePreviews\":\"生成视频预览\",\"checkPreviewSettings\":\"检查媒体预览设置\",\"fetchMetadataAndCovers\":\"采集外部资料与封面\",\"fetchCovers\":\"采集缺失封面\"},\"source\":{\"onePondo\":\"一本道\",\"localNfo\":\"本地 NFO\",\"makers\":\"片商官网\"}},\"feedFollowup\":{\"cover\":{\"fetching\":\"正在取这一部的封面\",\"queuedCover\":\"排在新作封面采集的队里\",\"queuedAfterScrape\":\"排在新作资料采集后面，资料取完就取封面\",\"coverGone\":\"取到过的封面已不在本机，到了重试时间再取\",\"lastAttemptFailed\":\"上次没取到：{{reason}}\",\"ignored\":\"已标为不想看，后台不再替它取图\",\"scrapeFailed\":\"资料没取到，到了重试时间连同封面再试\",\"nextCheck\":\"等下一轮订阅检查分批取图\",\"unfinished\":\"封面处理未完成\",\"connectFailed\":\"来源连接失败\"},\"chainLink\":\"{{first}}、{{rest}}\",\"sourceAddress\":\"来源地址\"},\"codeCreators\":{\"reason\":{\"urlIdentity\":\"存在 URL 身份（如 pixiv 画师），不是发行目录\",\"notCodeShaped\":\"名字不是番号形态\",\"embeddedCode\":\"目录名里嵌着番号 {{code}}，与目录内文件对得上\",\"noMatchingFile\":\"名字像番号，但目录内没有同番号文件；可能是真实账号名\",\"sitePost\":\"目录与文件同为站点作品号 {{identity}}\",\"matchingCode\":\"目录与文件同为番号 {{identity}}\"}},\"metadataCreatorAttributions\":{\"shapePrefix\":\"「{{prefix}}+编号+出演者」\",\"shapeCastNumberTitle\":\"「出演者组合-编号-标题」\",\"labelShape\":\"文件名是{{shape}}的发行命名，{{total}} 部里 {{files}} 部命中、出演者 {{performers}} 位轮换；疑似厂牌或系列，需查资料站或用户确认\",\"sourceIdentity\":\"保留独立来源的创作者关系\",\"protected\":\"兼容字段属于用户或复核判断\",\"onlineAccount\":\"在线账号身份，不参与本地目录判定\",\"identityConflict\":\"实体有外部身份引用或用户判断，需逐项复核\",\"verifiedStudio\":\"公开发行来源确认其为厂牌；作品不归属真人发布账号\",\"platform\":\"名称是发行平台；实际卖主或账号才是创作者\",\"repostSite\":\"名称是转载站水印或站点日期目录\",\"studio\":\"同作品发行厂牌为 {{studio}}，与创作者名称或其别名一致\",\"studioRelease\":\"已登记厂牌名称与同作品发行文件的厂牌 token 一致\",\"structural\":\"名称是已核定的结构目录\",\"releaseTitle\":\"名称与带厂牌、发行日期的场景标题一致\",\"catalogTitle\":\"名称与同作品的发行标题完全一致\",\"performerOverlap\":\"与出演者姓名或别名一致，尚无卖主身份或同人确认\",\"legacyProjection\":\"只有历史目录投影；需账号、水印、发行来源或用户确认\",\"collectionIdentity\":\"目录的月份或画质后缀与已存在的完整账号名对应\"},\"avatarOnline\":{\"cached\":\"已缓存的社交头像\",\"cachedOn\":\"已缓存的社交头像 · {{date}}\"},\"seedFollowup\":{\"conflict\":\"包里说的与本机不一致；本机这条不是种子写的，种子不动它\",\"duplicate\":\"包里一条对上本机两位，可能是重复身份；合并不可逆，由人决定\",\"withdrawalConflict\":\"{{detail}}；{{reason}}\"},\"seedCorrections\":{\"anchorAmbiguous\":\"身份锚点未唯一命中，保留断言\",\"anchorMissing\":\"身份锚点未命中，未取得可撤销实体\",\"profileDiffers\":\"现有资料与精确撤销值不一致，保留断言\",\"pointerDiffers\":\"现有归属与精确撤销值不一致，保留断言\",\"otherWriter\":\"断言归其他写入者所有，保留断言\"},\"westernArtwork\":{\"noSoloCovers\":\"没有单人作品封面可比，只留候选\",\"noCoverMatch\":\"没有比上封面的图，只留候选\"},\"avatarProvider\":{\"missingHash\":\"缺少内容哈希，不能进入复核候选\",\"duplicateOf\":\"与 {{entity}} 的头像内容完全相同\"},\"portraitArtwork\":{\"fullCover\":\"完整封面\",\"frame\":\"高清帧 {{name}}\",\"evidence\":\"单人作品 {{work}} {{label}}\"},\"compositeAliasRepair\":{\"collision\":\"撞 entity {{entity}}（{{kind}}）{{name}}\",\"notComposite\":\"不是罗马字复合人名\",\"notStageName\":\"{{kind}} 的括号不是艺名\",\"canonicalNeedsReview\":\"规范名要人工定留哪一个\"},\"entityIdentityResearch\":{\"unencodable\":\"{{wiki}}「{{key}}」（写不成站上编码）\",\"pageMissing\":\"{{wiki}}「{{key}}」（页不存在）\",\"notListing\":\"{{wiki}}「{{key}}」（不是作品一览）\",\"labelPage\":\"{{wiki}}「{{key}}」页是作品一览：{{works}} 部、出演者 {{performers}} 位；名称指向厂牌或系列，不是个人账号\",\"labelPageWithPrefix\":\"{{wiki}}「{{key}}」页是作品一览：{{works}} 部、出演者 {{performers}} 位，番号前缀 {{prefix}}；名称指向厂牌或系列，不是个人账号\",\"unresolved\":\"公开身份来源未取得；已按页名直取 {{queried}}。同名命中不构成唯一身份依据。\",\"fullCredit\":\"发行文件完整署名与公开出演者身份一致\",\"labelCredit\":\"厂牌发行文件完整署名\"},\"studioFollowup\":{\"evidence\":\"{{note}}；标题「{{title}}」\"},\"performerAliasFollowup\":{\"site\":{\"missed\":\"未命中\",\"gone\":\"未命中：档案已不存在\",\"failed\":\"未取得：{{error}}\",\"missedBecause\":\"未命中：{{note}}\",\"notInCast\":\"女优栏里没有她\",\"hit\":\"命中 {{pages}}\",\"noSearchName\":\"未命中：没有能拿去检索的名字\",\"nameNotOnPage\":\"页面上没有数据库里她的名字\"},\"reject\":{\"empty\":\"空名\",\"uncertain\":\"带不确定标记\",\"romaji\":\"罗马字写法\",\"shortSingle\":\"短单名，会命中别人\",\"oneOff\":\"一次性称呼\",\"descriptive\":\"描述性称呼\",\"romajiSingle\":\"罗马字单名，会命中别人\"},\"note\":{\"manyPeople\":\"「{{key}}」对上多个人\",\"searchMissed\":\"「{{key}}」检索未命中\",\"separator\":\"；\",\"unencodable\":\"「{{key}}」写不成站上的编码\",\"manyPages\":\"「{{key}}」有 {{count}} 张人物页都列着\",\"noPage\":\"「{{key}}」没有人物页列着\",\"castIs\":\"{{code}} 的女优栏是 {{cast}}\",\"castEmpty\":\"{{code}} 的女优栏是空的\",\"castMany\":\"女优栏里不止一位列着她：{{pages}}\",\"list\":\"、\"},\"detail\":{\"gone\":\"实体不在或不是女优\",\"renamed\":\"数据库里这条实体现在叫 {{name}}\",\"have\":\"已经有这个写法\",\"taken\":\"{{owner}}（实体 {{entity}}）已经用着这个写法\",\"listed\":\"{{site}} 页面列着数据库里她的名字\",\"merged\":\"{{sites}} 名字栏把两条实体列成同一个人：{{absorbed}}（实体 {{source}}）并入 {{kept}}（实体 {{target}}），迁 {{assets}} 部作品\"}},\"performerProfileFollowup\":{\"action\":{\"write\":\"写入\",\"fresh\":\"未过期\",\"miss\":\"未命中\",\"unfetched\":\"未取得\",\"taken\":\"占用\",\"bind\":\"绑定\",\"conflict\":\"冲突\"},\"note\":{\"separator\":\"；\",\"list\":\"、\",\"comma\":\"，\",\"notOnSite\":\"站上没有 {{key}}\",\"nameNotOnTalentPage\":\"{{key}} 的页上没有数据库里她的名字：{{names}}\",\"sameNameMany\":\"站上叫 {{key}} 的不止一位\",\"loginPage\":\"{{key}} 回的是登入页\",\"notFound\":\"{{key}} 搜不到她\",\"noWorkCode\":\"没有能进作品页的番号\",\"castMany\":\"{{code}} 的出演表里不止一位对得上：{{names}}\",\"castIs\":\"{{code}} 的出演表是 {{cast}}\",\"castEmpty\":\"{{code}} 的出演表是空的\"},\"detail\":{\"conflict\":\"{{field}}：{{values}}；资料表不改\",\"fetchedRecently\":\"资料取回不到 30 天\",\"manyPages\":\"{{count}} 张资料页都列着她\",\"nameNotOnPage\":\"资料页上没有数据库里她的名字\",\"listed\":\"资料页列着数据库里她的名字\",\"handWritten\":\"这一行是人写的，不覆盖\",\"minnanoId\":\"minnano-av 编号 {{id}}\",\"minnanoIdTaken\":\"minnano-av 编号 {{id}} 已属另一条实体\",\"boundPageFresh\":\"编号已绑，女优页取回不到 30 天\",\"talentListed\":\"talent {{id}} 的名义里有她\",\"idTakenNoWrite\":\"编号已属另一条实体，资料不写\",\"backfilled\":\"资料表里没有别的来源，按这页补写\",\"boundFresh\":\"编号已绑，资料取回不到 30 天\",\"castMatched\":\"{{work}} 的出演表里对得上她\",\"refetch\":\"编号已绑，重取女优页\",\"noActorPage\":\"{{detail}}；女优页未取得，资料留空\",\"idTaken\":\"编号已属另一条实体\",\"sameNameMany\":\"站上同名不止一位：{{ids}}\",\"card\":\"演员卡 {{id}} 列着她的名字\",\"cardWithRecord\":\"演员卡 {{id}}（{{record}}）列着她的名字\",\"cardTaken\":\"演员 id {{id}} 已属另一条实体\"},\"site\":{\"failed\":\"未取得：{{error}}\",\"fresh\":\"资料未过期\",\"noSearchName\":\"未命中：没有能拿去检索的名字\",\"missedBecause\":\"未命中：{{note}}\",\"entityChanged\":\"未命中：数据库里这条实体已经变了\",\"hit\":\"命中 {{page}}\",\"talentTaken\":\"占用：talent {{id}} 已属另一条实体\",\"pageTaken\":\"占用：{{page}} 已属另一条实体\",\"notJav\":\"不查：JAV 目录站里没有她\",\"bound\":\"编号已绑\",\"cardHit\":\"命中 {{id}}\",\"cardTaken\":\"占用 {{id}}\"}},\"cli\":{\"libraryProcessing\":\"资料处理\"},\"devCopyRuntime\":{\"trayMissing\":\"未连接源码托盘，启动托盘后可重试生效\",\"interrupted\":\"生效任务已中断，可以重试\",\"building\":\"已保存，正在构建…\",\"waitingRestart\":\"已保存，等待重载服务…\",\"refreshing\":\"已保存，正在刷新…\",\"built\":\"构建完成，正在刷新…\",\"reloading\":\"已保存，正在重载服务…\",\"reloaded\":\"服务已重载，正在刷新…\"},\"tunnel\":{\"stateUnreadable\":\"Tunnel 状态文件不可读\",\"stateInvalid\":\"Tunnel 状态文件格式错误\",\"notSettled\":\"上一次 Tunnel 没有正常收尾，运行结果未取得\",\"exited\":\"cloudflared 已退出\"},\"dockerUpdate\":{\"noImageTag\":\"容器里没有镜像标签，compose.yaml 可能还是旧版；换成仓库当前的 compose.yaml 并重建容器后可一键更新。\",\"pinnedTag\":\"镜像标签是 {{tag}}，Watchtower 只换同一标签的新镜像；把 .env 的 PEACH_VERSION 删掉或改成 edge 后可一键更新。\",\"noToken\":\"更新令牌还没有生成，重建 Peach 容器后可一键更新。\",\"updating\":\"Watchtower 正在拉取新镜像并重建容器。\"},\"pushDiscovery\":{\"localOff\":\"本地通道没有打开\",\"noLocalRoots\":\"本地来源在这台机器上没有可监视的目录\",\"watchUnavailable\":\"文件监视不可用：{{error}}\",\"watchFailed\":\"文件监视启动失败：{{error}}\"},\"supportBundle\":{\"cliDescription\":\"保存本机脱敏诊断包，无需启动 Peach 服务\"},\"folderPicker\":{\"prompt\":\"选择媒体目录\"},\"scan\":{\"summary\":\"✓ {{location}}: {{files}} 文件 / {{size}} TB / 耗时 {{seconds}}s；附属文件未登记 {{sidecars}} 个；清单中已消失 {{gone}} 个；字幕 {{subtitles}} 条（孤立 {{orphans}} 条）；垃圾移入回收站 {{junk}} 个，待复核 {{junkReview}} 个；路径重复待复核 {{conflicts}} 组\",\"progress\":\"  {{seconds}}s  {{files}} 文件  {{size}} TB\"},\"reviewCsv\":{\"moreFiles\":\"{{names}} 等 {{count}} 份\"},\"upgradeRepairs\":{\"video\":\"影片 {{id}}\",\"manualAliasKept\":\"人工别名保持原样\",\"item\":{\"receipt\":\"更新后自动处理\",\"existing\":\"更新已有资料\",\"background\":\"后台更新进度\"},\"receiptUnreadable\":\"更新后的处理记录无法读取\",\"receiptRetry\":\"处理记录无法读取，请重试\",\"mediaPaused\":\"{{error}}；影片自动补全已暂停，请检查缓存后显式重试\",\"displayProbeRetired\":\"已停用自动显示尺寸重探，保留已有测量和预览\"},\"processingControl\":{\"scope\":{\"knownFiles\":\"本趟处理（已登记文件，未含未知新增）\",\"thisRun\":\"本趟处理\",\"wholeTask\":\"整趟任务\"},\"basis\":{\"registeredHistory\":\"根据已登记的 {{count}} 个视频、{{size}} GiB及本机同类历史耗时粗估\",\"registeredRough\":\"根据已登记的 {{count}} 个视频、{{size}} GiB粗估，运行后校准\",\"counting\":\"正在统计新目录的文件数量和大小\",\"stageRough\":\"根据当前阶段待处理数量粗估，运行后校准\",\"allStages\":\"汇总当前阶段与所有待执行阶段的剩余耗时\",\"measured\":\"根据当前阶段最近完成的 {{count}} 个视频耗时校准\"}},\"taskResources\":{\"ownersMissing\":\"这轮任务尚未登记资源归属\",\"meterMissing\":\"这轮任务尚未登记传输计量\",\"cpuCounter\":\"任务 CPU 计数器未取得：{{error}}\",\"cpuCapacity\":\"执行端 CPU 可用容量未取得：{{error}}\",\"gpuIdentity\":\"GPU 进程身份未取得：{{error}}\",\"gpuShared\":\"共享服务进程的 GPU 使用无法准确归属到这一轮\",\"readingMissing\":\"执行端的资源读数未取得\",\"transferMissing\":\"执行端的传输读数未取得\",\"network\":{\"cloudMount\":\"网盘挂载的缓存与预读无法按任务取得实际网速\",\"smb\":\"SMB 的缓存与预读无法按任务取得实际网速\",\"fingerprint\":\"浏览器指纹传输流量未观测\"}},\"gpuUsage\":{\"noCounters\":\"当前平台未提供逐进程 GPU 计数器\",\"macos\":\"当前版本尚未接入 macOS 的逐进程 GPU 计数；不能使用整机占用代替任务占用\",\"windowsComponent\":\"Windows GPU 计数器组件未取得\",\"openFailed\":\"GPU 计数器未取得（{{code}}）\",\"collectFailed\":\"GPU 计数器读取失败（{{code}}）\",\"waiting\":\"等待下一次 GPU 采样\",\"detailMissing\":\"GPU 计数器明细未取得（{{code}}）\",\"detailFailed\":\"GPU 计数器明细读取失败（{{code}}）\",\"waitingProcesses\":\"等待读取任务的 GPU 进程\",\"noDrmDevice\":\"未发现可读取的 DRM GPU 设备；容器需映射设备，驱动需支持逐进程计数\",\"sharedClient\":\"多个进程共享 GPU 客户端，使用量无法准确归属\",\"taskCounter\":\"任务 GPU 计数器未取得：{{error}}\"},\"processingTraffic\":{\"metadata\":\"影片资料\",\"previews\":\"预览与封面\",\"temporary\":\"临时文件\",\"mountUnobserved\":\"挂载缓存与预读未观测\",\"mediaReadMissing\":\"媒体读取量未取得\"},\"librarySharing\":{\"field\":{\"works\":\"去重后的作品编号，以及评分、喜欢、不喜欢、已看、稍后看、播放次数、观看比例与手动添加的受控内容标签；自定义备注标签不上传\",\"preferences\":\"出演者、创作者、厂牌、系列、手动标签、年代与时长分组的收藏、喜欢、不喜欢、观看数量和评分分布（有编号作品与无编号条目分开），以及主动收藏的实体名称\",\"counts\":\"馆藏文件数量、有编号作品数量与无编号条目数量\",\"capacity\":\"近 7 天与 30 天已观测的容量天数、播放活跃天数及其记录覆盖天数；数据与缓存的当前占用、峰值、已观测正增长量、缓存清理量（自动与手动合计，不含备份和日志）。未取得的值为空，不补足 30 天记录\",\"instance\":\"同意后随机生成的研究实例标识，用于关联本实例的馆藏、容量和参与状态；重新开启时更换，不使用机器指纹或诊断标识\",\"participation\":\"启用及每日最多一次的联系状态、版本和最近联系时间，以及快照编号、字段版本、原始与压缩字节数和准备／投递状态；关闭时后台只尝试一次最小关闭状态，不附快照信息。离线、卸载和发送失败不视为关闭，实例数不等于人数\",\"version\":\"Peach 版本、字段版本与 UTC 自然周\"},\"notice\":\"上传移除直接身份信息的馆藏、偏好和容量聚合，并使用随机研究实例标识关联参与状态。启用后每日最多联系一次；关闭时后台仅尝试一次最小关闭状态，之后停发。播放活跃天数不代表全部日常使用；容量和参与状态不含新增路径、作品或账号信息。\"},\"remoteReporting\":{\"field\":{\"usage\":\"Peach 版本、分发方式（Windows／macOS 应用、Docker、wheel 或源码）、操作系统类型与版本、CPU 架构与核数、内存档位、Python 版本、运行环境与公开构建编号；每天最多一条活跃日志和一条日联系会话汇总。开启后自动生成随机技术实例标识，用于统计受影响实例和升级路径，与研究标识独立；关闭后移除本机标识，再开启生成新值。连续运行时按 UTC 日统计，代表运行中的实例，不代表人数、真实会话或当天有人操作。\",\"errors\":\"诊断补充：故障环节、异常链、Peach 与白名单框架的代码文件名/函数名/行号、结构化错误码、媒体工具故障类别、浏览器白名单异常类型与正式脚本构建映射、客户端浏览器品牌及主要版本与系统大类、HTTP 方法/路由模板/关联错误编号、同类故障次数与统计日期；同一版本的同类故障只上传一次完整诊断，每天最多 5 条，全部发生次数每 6 小时或退出时合并为计数日志。盘掉线、媒体缺失或损坏、磁盘满、超时与数据库忙等环境条件只统计类别、代码位置与次数，不上传完整诊断。\"},\"notice\":\"发送至 Sentry。不上报错误原文、完整日志、诊断 ZIP、媒体名称、路径、网址、观看记录或凭据。接收服务会接触连接 IP；关闭后停止新发送，已发送的信息无法撤回。\"},\"sync\":{\"sameFile\":\"本机直接使用共享副本，不需要复制\",\"sharedOffline\":\"共享副本所在的盘不可达，本地照常读写\",\"bothMissing\":\"两侧都没有数据库\",\"sharedMissing\":\"共享副本不存在，用本地副本播种\",\"localMissing\":\"本地副本不存在，从共享副本拉取\",\"markerMissing\":\"缺少同步标记，无法判断两份数据库的先后\",\"writerMismatch\":\"同一世代的写入端标记不一致\",\"diverged\":\"共享副本已到第 {{shared}} 代，本地仍是第 {{local}} 代且有未回写的改动\",\"sharedNewer\":\"共享副本更新\",\"localNewer\":\"本地副本更新\",\"localDirty\":\"本地有待回写的改动\",\"inSync\":\"两侧一致\",\"otherWriter\":\"当前写入端是 {{owner}}，本机不能推送\",\"thisWriter\":\"本机是写入端；{{reason}}\",\"writerIs\":\"写入端是 {{owner}}；{{reason}}\",\"noWriter\":\"没有可验证的写入端\",\"takeOverNeedsSync\":\"接管前必须两侧一致；当前是 {{action}}：{{reason}}\",\"tookOver\":\"本机已成为唯一写入端\",\"readOnlyConflict\":\"数据库处于冲突状态（{{detail}}），本机暂时只读。请在托盘执行「同步数据库」；若提示仍冲突，需按日志人工处理。\",\"readOnlyWriter\":\"数据库由 {{owner}} 负责写入，本机当前只能浏览。请改在该机器上操作，或在托盘执行「由本机接管数据库写入」（要求两侧数据一致）后再试。\",\"readOnlyOtherMachine\":\"数据库由 另一台机器 负责写入，本机当前只能浏览。请改在该机器上操作，或在托盘执行「由本机接管数据库写入」（要求两侧数据一致）后再试。\"},\"dataStorage\":{\"cleaned\":\"已清理{{labels}}，释放 {{size}}\",\"cleanedInUse\":\"已清理{{labels}}，释放 {{size}}；{{failed}} 个文件正在使用，未能删除\",\"cleanedThenFailed\":\"已清理{{labels}}，释放 {{size}}；{{error}}\",\"cleanedInUseThenFailed\":\"已清理{{labels}}，释放 {{size}}；{{failed}} 个文件正在使用，未能删除；{{error}}\",\"relocation\":{\"docker\":\"容器的数据目录是宿主机上的数据卷，位置由 compose.yaml 的挂载决定，容器里改不了；在容器里搬走会离开数据卷，重建容器就丢失。请在宿主机上按下面几步迁移\",\"unmanaged\":\"迁移要由托盘或无桌面服务（python -m peach.server）停止并重新启动 Peach，当前服务是直接启动的。请改用其中一种方式启动后再迁移；也可以退出 Peach，手动移动数据目录，再将 PEACH_DATA_ROOT 设为新位置\",\"outsideRoot\":\"部分数据设置在数据目录之外，请退出 Peach 后手动迁移\",\"linked\":\"部分数据使用了目录链接，请退出 Peach 后手动迁移\"},\"dockerStep\":{\"volume\":\"查出数据卷的名字（以 _peach-data 结尾）\",\"stop\":\"在 compose.yaml 所在目录停止 Peach\",\"copy\":\"把数据卷复制到新文件夹；新文件夹要让 UID 1000 可写\",\"copyCommand\":\"docker run --rm -v <数据卷名>:/from -v <新文件夹>:/to alpine cp -a /from/. /to/\",\"edit\":\"把 compose.yaml 里的 peach-data:/data 改成 <新文件夹>:/data，再启动；确认一切正常前不要删除旧数据卷\"},\"relocating\":\"正在迁移数据目录，Peach 将暂时退出，完成后自动重新打开。\",\"relocatingHeadless\":\"正在迁移数据目录，服务会暂停，完成后自动恢复，稍后刷新页面。\",\"startFailed\":\"未能开始迁移：{{error}}\",\"notRelocated\":\"数据目录未能迁移：{{error}}\",\"notMoved\":\"数据目录未迁移，仍在原位置：{{error}}\",\"moved\":\"数据目录已迁移\",\"startupNotUpdated\":\"开机自启与桌面图标未能更新（{{error}}），请在设置页重新打开\",\"leftovers\":\"原位置还有文件未能删除，确认新位置一切正常后可手动删除：{{path}}\",\"copyTitle\":\"正在迁移 Peach 数据\"},\"ledgerBackups\":{\"integrity\":{\"openFailed\":\"无法打开：{{error}}\",\"foreignKeys\":\"外键检查发现 {{count}} 条失效引用\",\"checkFailed\":\"检查失败：{{error}}\"},\"refused\":{\"ledgerMissing\":\"当前数据库不存在，不清退任何备份\",\"integrity\":\"当前数据库 integrity_check 不是 ok：{{check}}\"},\"settle\":{\"interrupted\":\"上次从备份恢复被中断\",\"restoreIncomplete\":\"恢复没有完成（{{error}}）\",\"kept\":\"{{reason}}；当前账本完整性检查通过，保持不变\",\"completed\":\"{{reason}}；已用迁好的备份完成恢复\",\"rolledBack\":\"{{reason}}；已退回恢复前的账本\",\"unresolved\":\"{{reason}}；当前账本和恢复前的另存都没有通过完整性检查，请从备份列表另选一份恢复\",\"savedAs\":\"{{message}}，恢复前的账本另存在 {{name}}\"}},\"updateTasks\":{\"unnamedTask\":\"后台任务\",\"stateUnknown\":\"任务状态未取得\",\"libraryProcessing\":\"馆藏资料与预览处理\"},\"storageBudget\":{\"reason\":{\"diskLow\":\"{{path}} 可用空间 {{free}} GiB，低于保留值 {{reserve}} GiB\",\"afterWrite\":\"{{path}} 预计写入后\",\"limitReached\":\"{{name}} {{amount}} GiB，达到上限 {{limit}} GiB\"},\"part\":{\"data\":\"Peach 数据\",\"cache\":\"Peach 缓存\",\"external\":\"外部缓存\"},\"reasonList\":\"{{first}}；{{rest}}\",\"statusUnreadable\":\"容量检查记录未取得：{{error}}\",\"layoutUnreadable\":\"容量目录未取得：{{error}}\"},\"diagnostics\":{\"separator\":\"；\",\"label\":{\"configuration\":\"配置\",\"database\":\"数据库\",\"schema\":\"数据库迁移\",\"tools\":\"FFmpeg／OpenSSL\",\"security\":\"访问安全\",\"mediaMounts\":\"媒体挂载\",\"dataRoot\":\"数据目录\",\"port\":\"服务端口\",\"tasks\":\"后台任务\",\"version\":\"版本\"},\"reason\":{\"configurationUnreadable\":\"配置文件无法读取\",\"setupIncomplete\":\"尚未完成首次配置\",\"configurationReadable\":\"配置可读取\",\"databaseMissing\":\"数据库不存在\",\"databaseEmpty\":\"数据库尚未初始化\",\"databaseUnreadable\":\"数据库无法读取\",\"databaseSchemaUnreadable\":\"数据库结构无法读取\",\"databaseReadable\":\"数据库可读取\",\"schemaCurrent\":\"迁移校验通过\",\"schemaPending\":\"存在待执行迁移\",\"schemaMismatch\":\"迁移记录与当前程序不一致\",\"schemaUnavailable\":\"迁移校验未取得\",\"toolsMissing\":\"未找到：{{names}}\",\"toolsUnusable\":\"无法执行：{{names}}\",\"av1Missing\":\"FFmpeg 缺少 AV1 软件解码器\",\"toolsUsable\":\"媒体工具可执行，AV1 软件解码器可用\",\"toolsFound\":\"工具路径已找到\",\"accessUnreadable\":\"访问密码配置无法读取\",\"passwordOff\":\"局域网或公网入口未开启访问密码\",\"passwordOn\":\"已开启访问密码\",\"loopbackOnly\":\"仅监听本机\",\"noLocalSources\":\"没有已配置的本地来源\",\"sourcesReadable\":\"来源可读取\",\"mountsChecking\":\"挂载检测尚未完成\",\"dataRootDenied\":\"没有权限写入数据目录\",\"dataRootUnwritable\":\"数据目录无法写入\",\"dataRootWritable\":\"临时写入与清理通过\",\"hostNotIp\":\"监听地址不是 IP，端口状态未取得\",\"portInUse\":\"端口正在使用\",\"portUnknown\":\"端口状态未取得\",\"portAvailable\":\"端口当前可用\",\"taskFailuresUnknown\":\"任务失败记录未取得\",\"noTaskFailures\":\"没有已记录的任务失败\",\"taskFailures\":\"存在已记录的任务失败\",\"versions\":\"Peach {{peach}} · Python {{python}}\",\"databaseMigrating\":\"正在更新本地数据库\"},\"action\":{\"repairConfiguration\":\"在本机修复配置文件\",\"completeSetup\":\"完成首次配置\",\"checkDatabase\":\"检查本机数据库与备份\",\"checkSchema\":\"在本机核对数据库迁移与备份\",\"updateTools\":\"更新媒体工具\",\"checkAccess\":\"在本机检查访问密码配置\",\"enablePassword\":\"在配置中开启访问密码\",\"checkMounts\":\"检查媒体目录与挂载状态\",\"fixDataRootPermission\":\"调整数据目录的写入权限\",\"checkDataRoot\":\"检查数据目录与可用空间\",\"viewFailedTasks\":\"在任务中心查看失败任务\"}},\"libraryDiagnostics\":{\"group\":{\"identification\":\"识别失败\",\"metadata\":\"补资料失败\",\"cover\":\"缺封面\",\"duration\":\"缺时长\"},\"source\":{\"proxy\":\"代理连接失败\",\"timeout\":\"来源连接超时\",\"network\":\"来源连接未取得\",\"authRequired\":\"来源要求登录或拒绝当前出口\",\"challenge\":\"来源要求人机验证\",\"blocked\":\"来源拦截当前出口\",\"accountSuspended\":\"来源临时停用了登录账号\",\"geoRestricted\":\"来源限制当前地区\",\"rateLimited\":\"来源正在限流\",\"serverError\":\"来源服务异常\",\"parseError\":\"资料解析失败\",\"notFound\":\"上次查询未命中\",\"cooling\":\"来源正在冷却\",\"failed\":\"来源未取得资料\",\"parsed\":\"资料解析通过\",\"parsedBefore\":\"曾解析成功，近期解析状态待复查\",\"connectedOnly\":\"连接检查通过；解析状态未取得\",\"checkedBefore\":\"已有检查记录，解析状态待复查\",\"unchecked\":\"尚无检查或解析记录，可在来源和凭证中检查连接\"}},\"settingsFile\":{\"comment\":{\"header\":\"Peach 设置文件。优先级：环境变量 > 本文件 > 程序默认值；手动修改后重启服务生效。\\n本文件保存在 Peach 数据目录中；该目录由 PEACH_DATA_ROOT 或项目旁的 peach-data 决定。\\nDocker：本文件位于 /data/config.toml；将 /data 放在数据卷中，重建容器时保留该卷。\\nDocker 中的 /media 是容器内的媒体目录，宿主机目录由 Compose 挂载到这里。\\nDocker 部署说明：https://github.com/peach-mitao/peach/blob/master/docs/DOCKER.md\\n生成入口：peach init（Peach 数据目录：{{dataRoot}}）\",\"directories\":\"Peach 数据目录下的子目录，例如 database、logs；省略时使用同名目录。\\n也可填写绝对路径。Docker 中相对目录位于 /data 下；其他目录需要单独挂载并保留数据。\",\"locations\":\"通常在网页的媒体目录中填写实际目录即可；Peach 保存时自动维护本表和 [media.mounts]。\\n以下说明供手动编辑配置参考；已有影片按本表查找文件，改成不匹配的值会使影片无法读取。\\nlocal、115、pikpak 等键表示媒体来源；值是数据库中影片路径的目录前缀。\\nPeach 数据库在所有系统上都保存 Windows 格式的路径，例如 R:\\\\media\\\\a.mp4。\\n因此 Docker / Linux / macOS 也使用本表；R:\\\\media 无需在这些系统上实际存在。\\n例：本表 local = 'R:\\\\media'，[media.mounts] local = '/media'。\\nPeach 会把数据库中的 R:\\\\media\\\\a.mp4 转换为 /media/a.mp4，再读取文件。\\n本表必须匹配数据库中的路径；Docker / Linux / macOS 搬动实际目录时保留本表，修改 [media.mounts]。\\nWindows 示例：local = ['D:\\\\Videos', 'E:\\\\Movies']，直接使用本机媒体目录。\",\"libraries\":\"[media.locations] 中的目录前缀 -> 界面显示的媒体库名称；不写时取目录名。\\n名称与路径表是身份配置的兼容投影；媒体库归属以 library_catalog 和 storage_roots 为准。\",\"libraryIcons\":\"[media.locations] 中的目录前缀 -> 媒体库图标。取值是 peach.media_libraries.LIBRARY_ICONS 里的图标名，\\n不认识的值忽略：只含一个来源的馆藏回落到该来源的图标，跨来源的用 database。\",\"costs\":\"[media.locations] 中的目录前缀 -> 代理流量保护。free 关闭，metered 开启。\",\"mounts\":\"与 [media.locations] 使用相同的媒体来源键；值是 Peach 实际读取文件的目录。\\nDocker 填容器内路径，例如 local = '/media'；宿主机目录在 Compose 的 volumes 中配置。\\nLinux / macOS 也使用本机绝对路径，例如 /mnt/media 或 /Volumes/Media。\\n一个来源有多个目录时，两表都写数组，目录数量和顺序必须相同。\\nDocker / Linux / macOS 必须提供实际目录，否则无法读取该来源的媒体文件；媒体记录仍保留。\\nWindows 直接读取 [media.locations] 中的目录，无需填写本表。\",\"server\":\"Docker 服务固定监听 0.0.0.0:8900；宿主机访问地址与端口由 Compose 配置。\\n此处 host、port 用于直接运行 peach serve；Docker 入口参数优先。\\nmdns_name 在局域网里必须唯一：两台机器同名会互相抢占。\\nreview_writer_origin 是允许修改数据库的设备的地址；只读设备通过它获取待确认资料。\\n留空表示本机不显示另一台设备的待确认资料。\",\"replication\":\"两台电脑之间的数据库复制设置（ADR-0017）；只有一台允许修改数据库，另一台只读。\\n单机与独立 Docker 部署保持 enabled = false。\\n关闭时不启动同步观察器、不探测 SMB；桌面托盘不显示 Ledger 菜单项。\\nshared_root 是两台电脑交换数据库副本的目录；留空时使用 Peach 数据目录旁的 peach-sync。\\nsmb_* 用于连接另一台电脑的共享目录；留空时不连接共享目录。\",\"tunnel\":\"Cloudflare Tunnel 默认关闭；打开前必须先设置访问密码。\\nbinary 留空时按内置包、PEACH_CLOUDFLARED 和 PATH 的顺序寻找 cloudflared。\\nmode = \\\"quick\\\" 是随机地址的临时链接；\\\"named\\\" 用自建命名隧道，只在源码开发\\n环境可用，需要 hostname（Cloudflare 后台绑定的公开主机名）和 token（隧道令牌）。\\ntoken 是凭据：这个文件是它唯一的存放处，不要复制到别处，也不要提交进 Git。\"}},\"mountReachability\":{\"ok\":\"可读取\",\"permission_denied\":\"没有权限读取\",\"missing\":\"目录不存在\",\"not_directory\":\"目标不是目录\",\"unavailable\":\"目录读取失败\",\"unmapped\":\"未配置挂载点\",\"checking\":\"正在检测\",\"timeout\":\"探测未返回\",\"sourceState\":\"{{label}}：{{state}}\"},\"followDiscovery\":{\"idExact\":\"站内 id 精确匹配\",\"nameExact\":\"创作者名精确匹配\",\"namePrefix\":\"创作者名以该词开头\",\"nameContains\":\"创作者名包含该词\",\"fanboxOfficial\":\"FANBOX 官方资料与归档身份一致\",\"authorPage\":\"作者页存在\",\"tagHasWorks\":\"站内标签 {{tag}} 下有作品\",\"tagExists\":\"站内存在标签 {{tag}}\",\"tagCount\":\"站内标签 {{tag}} 下有 {{count}} 件作品\",\"tagPrefixCount\":\"站内标签以该词开头：{{tag}} 下有 {{count}} 件作品\",\"tagPrefixExists\":\"站内存在以该词开头的标签 {{tag}}\",\"withTagType\":\"{{evidence}}，站上归为{{kind}}\",\"tagType\":{\"artist\":\"作者\",\"character\":\"角色\",\"copyright\":\"作品\",\"metadata\":\"元数据\",\"general\":\"标签\"},\"googleSearch\":\"用 Google 继续查找 F95zone\",\"googleSearchReason\":\"F95zone 站内索引未命中，请核对搜索结果里的真实线程链接\",\"threadTitle\":\"线程 {{thread}}\",\"searchTitle\":\"站内搜索按标题命中「{{query}}」\",\"searchTitlePrefix\":\"站内搜索按标题开头命中「{{query}}」\",\"withForumLabels\":\"{{evidence}}，版块标签 {{labels}}\",\"threadExists\":\"线程存在\",\"categoryHit\":\"{{category}} 分类命中\",\"withVersion\":\"{{evidence}}，当前版本 {{version}}\",\"profileHandle\":\"F95 首楼名片上的手柄 {{handle}}：{{evidence}}\"},\"followSecrets\":{\"why\":{\"fanbox\":\"公开列表不需要登录；帖子详情被 FANBOX 验证页拦住时，可用浏览器会话取得正文、多图和外部资源链接。\",\"gofile\":\"用于展开 Gofile 文件页，取得其中的图片和视频列表；Gofile 当前要求 Premium 才能读取 contents API，不配置仍会保留文件页链接。\",\"iwara\":\"公开作者视频无需登录；有访问限制的视频需要账号访问权及有效登录凭据。\",\"rule34xxx\":\"网页版挂了 Cloudflare 验证码，Peach 不绕验证码，只能走官方 API。\",\"f95zone\":\"发现更新不需要登录；只有取附件和 masked 下载链接才需要会话。\",\"simpcity\":\"站点不让游客读帖，检查更新必须带登录会话；前面的 DDoS-Guard 对标准桌面浏览器标识不出质询，Peach 也不解任何质询，cookie 失效就原样报错。\"},\"howto\":{\"fanbox\":\"登录 FANBOX 后，从一次成功的 api.fanbox.cc/post.info 请求复制整条 Cookie 请求头。\",\"gofile\":\"登录 Premium Gofile 账户后，在个人资料页复制 API token。\",\"iwara\":\"登录 Iwara 后，从成功的 apiq.iwara.tv/video 请求复制 Authorization 中 Bearer 后的值，填写 access_token。令牌过期后需重新复制。\",\"rule34xxx\":\"登录后在账号设置页生成 API key，把 user_id 和 api_key 写进凭据文件。\",\"f95zone\":\"登录后从浏览器复制整条 Cookie 请求头，写进凭据文件的 cookie 字段。\",\"simpcity\":\"登录后从浏览器复制整条 Cookie 请求头，写进凭据文件的 cookie 字段。\"}},\"subtitles\":{\"language\":{\"zh-Hans\":\"简体中文\",\"zh-Hant\":\"繁體中文\",\"zh\":\"中文\",\"en\":\"英语\",\"ja\":\"日语\",\"ko\":\"韩语\"}},\"metadata\":{\"authWall\":{\"credentialAdvice\":\"换一份凭据后重跑\",\"status\":\"来源返回 {{status}}，{{advice}}\",\"redirect\":\"重定向终点落在 {{path}}，{{advice}}\",\"loginPage\":\"{{page}}，{{advice}}\",\"javdbLoginPage\":\"javdb 登录页\",\"ambiguous\":\"来源返回 {{status}}：可能是凭据失效，也可能是出口 IP 被封，先看站点是否要求登录再决定换凭据还是等\"},\"warning\":{\"performerRepeated\":\"来源演员名含重复片段，已规范化：{{original}} → {{name}}\",\"releaseDateInvalid\":\"来源发行日期无效，已忽略：{{value}}\",\"releaseDateNormalized\":\"来源发行时间已规范化为日期：{{value}} → {{normalized}}\",\"tooManyLinks\":\"来源返回 {{count}} 个链接；候选只保留前 {{limit}} 个，完整值仍在原始快照\",\"valueRepeated\":\"来源值含重复片段，已规范化：{{original}} → {{name}}\"},\"evidence\":{\"runtime\":\"{{minutes}} 分钟\",\"poster\":\"海报（{{host}}）\",\"cover\":\"封面（{{host}}）\",\"trailer\":\"预告片（{{host}}）\",\"screenshots\":\"{{count}} 张截图（{{hosts}}）\",\"screenshotsMore\":\"{{count}} 张截图（{{hosts}} 等）\",\"externalSource\":\"外部来源\"}},\"sourceChecks\":{\"mobileBroadbandHint\":\"中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。\",\"target\":{\"page\":\"来源页面\",\"cdn\":\"图片 CDN\"},\"cooldown\":\"来源正在冷却，请稍后重试。\",\"proxy\":\"代理连接失败，请检查 Peach 代理。\",\"timeout\":\"来源连接超时，请稍后重试或检查连接方式。\",\"cdnUnreachable\":\"连接未取得；{{hint}}\",\"unreachable\":\"连接未取得；此来源可能需要代理，请检查来源连接方式。\",\"challenge\":\"来源返回人机验证页，请检查来源验证状态或更换出口。\",\"rateLimited\":\"来源正在限流，请稍后重试。\",\"notFound\":\"来源检查地址不存在，请核对站点地址。\",\"signIn\":\"来源要求登录或验证，请在官网完成登录后重试。\",\"reason\":\"{{reason}}。\",\"unavailable\":\"来源暂不可用，请稍后重试。\",\"needsCode\":\"片商官网按番号选择，请输入馆藏番号检查高清封面。\",\"noImageHost\":\"这个来源没有固定的图片主机，图片这一跳未检查。\"},\"sourcePreflight\":{\"outcome\":{\"ok\":\"可连接\",\"auth\":\"登录或人机验证\",\"http\":\"HTTP 错误\",\"cooldown\":\"冷却\",\"network\":\"网络失败\",\"skipped\":\"未检查\"}},\"scrapingAccess\":{\"makers\":\"片商官网\",\"unreachable\":\"来源连接未取得，请检查该来源的网络设置\"},\"feeds\":{\"kind\":{\"javdbActor\":\"JAV 订阅\",\"dmmActress\":\"JAV 订阅 · DMM\"}},\"followCheck\":{\"coolingDown\":\"{{provider}} 限流冷却中，{{seconds}} 秒后再试，本次跳过\"},\"followEvidence\":{\"runLabel\":\"删除旧快照\",\"stoppedByUser\":\"用户停止任务\"},\"followStore\":{\"evidenceUnwritable\":\"证据未取得（{{path}} 不可写：{{error}}）\"},\"timelineSheets\":{\"stoppedByUser\":\"已按停\"},\"fc2Similarity\":{\"commentOnly\":\"匿名评论等价标记只作候选\",\"collection\":\"涉及合集，只能复核分片关系，不能整体合并\",\"notInLedger\":\"其中一个番号尚不在本地 ledger\",\"partConflict\":\"本地文件分片标记不同\",\"reason\":\"{{left}} ↔ {{right}}；证据：{{kinds}}\"},\"fc2Sellers\":{\"nameMatchesAccounts\":\"同名命中多个账号\",\"nameOtherAccount\":\"同名对应不同 FC2 账号\",\"sharedName\":\"不同 FC2 账号使用相同卖家名称\",\"conflictingAccounts\":\"作品来源给出不同卖家账号\",\"evidence\":\"作品 {{code}} 的販売者：{{name}}；账号 {{account}}\",\"rejectedName\":\"摄取判定不收这个卖家名\"},\"westernProfiles\":{\"conflict\":{\"officialExists\":\"已有官网\",\"otherAccount\":\"{{site}} 已登记另一个账号\",\"otherPage\":\"{{host}} 已登记另一页\"}},\"resourceIdentification\":{\"onlineCandidate\":\"联网识别候选，需核对来源页\"},\"followSources\":{\"linkEvidence\":\"链接直接指明\",\"iwaraExternalPlayer\":\"Iwara 此条目使用外部播放器，请打开来源页面观看\",\"postTitle\":\"{{site}} 帖子 {{post}}\"},\"fanbox\":{\"cover\":\"封面\",\"image\":\"图片 {{number}}\",\"file\":\"文件 {{number}}\"},\"seesaa\":{\"reviewCast\":\"社区 Wiki 的出演断言需要人工复核；人物页链接不自动合并艺名\",\"incompleteCast\":\"出演栏含未识别或不确定内容，完整出演名单未取得\"},\"resourceSearch\":{\"reject\":{\"code\":\"番号不符\",\"size\":\"体积不在区间\",\"seeders\":\"没有人做种\",\"hash\":\"取不到 infohash\"},\"rejectedCount\":\"{{reason}} {{count}} 条\",\"allRejected\":\"索引器返回了 {{total}} 条结果，都没通过筛选：{{counts}}\",\"noIndexer\":\"请在本机「配置 → 下载」中添加并启用索引器\",\"busy\":\"资源搜索正在进行，请稍后重试\",\"indexerFailed\":\"{{indexer}}：请求失败或响应格式不正确，请检查索引器\",\"indexerError\":\"{{indexer}}：{{error}}\",\"allFailed\":\"所有索引器都未能完成搜索\"},\"javdbPublic\":{\"magnetsUnfetched\":\"JavDB 磁链区查询未完成：{{error}}\",\"reviewPagesQueried\":\"已查询前 {{pages}} 页评论资源。\",\"commentsUnfetched\":\"JavDB 评论区查询未完成：{{error}}\"},\"javdb\":{\"commentSource\":\"JavDB 评论\"},\"magnetChain\":{\"staleReused\":\"已沿用上次结果：{{error}}\",\"sourceFailed\":\"{{source}}：{{error}}\",\"sourceUnfetched\":\"{{source}}：查询未完成\",\"incomplete\":\"部分来源的查询未完成，请稍后重新查询。\"},\"wantsMagnets\":{\"linksUnfetched\":\"资源链接未取得，请稍后重试或检查来源连接。\",\"chainUnfetched\":\"磁力抓取链未取得，请稍后重试或检查来源连接。\"},\"javBrowser\":{\"idle\":\"可以加入 Peach 馆藏\",\"queued\":\"等待搜索磁力\",\"searching\":\"正在搜索磁力\",\"submitted\":\"云下载进行中\",\"ingested\":\"已加入 Peach 馆藏\",\"owned\":\"馆藏已有该番号影片\",\"failed\":\"添加失败，可重试\",\"noMatch\":\"未找到可自动下载的磁力，可重试\",\"noMatchSourcesPaused\":\"其余来源没找到；{{sources}} 暂时访问不了，恢复后自动补查\",\"searchFailedWith\":\"资源搜索失败：{{error}}\",\"noOtherMagnet\":\"没有其他可用磁力，可在 Peach 手动选择资源\",\"disabled\":\"浏览器添加已关闭\",\"searchUnavailable\":\"资源搜索暂不可用，请在 Peach 检查来源后重试\",\"retriesExhausted\":\"自动重试 {{attempts}} 次后仍未完成；搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试\",\"submitFailed\":\"搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试\",\"retryWaiting\":\"暂时不可用，等待自动重试\",\"sourcesWaiting\":\"{{sources}} 未取得，等待自动重试\",\"sourcesUnfetched\":\"{{sources}} 未取得\",\"searchFailedWaiting\":\"资源搜索失败：{{error}}；等待自动重试\",\"sourcesExhausted\":\"{{sources}} 自动重试 {{attempts}} 次后仍未取得，请在 Peach 检查来源后重试\"},\"followCreators\":{\"evidence\":{\"source\":\"{{provider}} 关注来源本身\",\"archived\":\"{{provider}} 归档的原站账号 {{account}}\",\"profileCard\":\"{{provider}} 名片 {{account}}\"},\"hold\":{\"sameKeyFiled\":\"同一名字键的来源已建档\",\"sameKeySplit\":\"同一名字键的来源分属几个实体\",\"notAName\":\"名字是平台、目录或转载站\",\"nameTaken\":\"数据库里已有同名创作者\",\"namesCollide\":\"几组关注作者归一成同一个名字\"},\"held\":\"{{name}}（{{reason}}）\"},\"downloadPostprocess\":{\"waiting\":\"等待识别正片并整理\",\"noTemplate\":\"未配置整理模板\",\"noVerifiedRename\":\"{{location}} 缺少官方核验改名通道\",\"nothingToOrganize\":\"无需整理\",\"recognizing\":\"正在识别正片\",\"doneSkipped\":\"正片已绑定，资料已采集；整理跳过：{{reason}}\",\"done\":\"正片已绑定，资料已采集并完成整理\",\"donePending\":\"{{summary}}；部分资料等来源恢复后重新采集：{{pending}}\"},\"browserTransport\":{\"trafficUnobserved\":\"浏览器采集流量未观测\"},\"followBackfill\":{\"rule34-details\":\"补齐 rule34.xxx 细节\",\"rule34video-characters\":\"补记 rule34video 角色\"}}"),
 	taste: {
 		items: "{{items}}",
 		category: {
@@ -79700,7 +79700,7 @@ var Qke = class extends R.Component {
 		return this.state.failed ? null : this.props.children;
 	}
 }, $ke = (0, R.memo)(function({ entry: e, actions: t, go: n }) {
-	return x1e(e.path) ? (0, Cr.createPortal)(w1e(e.path, e.props, t, n), e.host, String(e.revision)) : null;
+	return S1e(e.path) ? (0, Cr.createPortal)(T1e(e.path, e.props, t, n), e.host, String(e.revision)) : null;
 });
 function eAe({ children: e }) {
 	let t = Qm();
@@ -79714,7 +79714,7 @@ function eAe({ children: e }) {
 					path: e,
 					element: t.element
 				}, e)),
-				Object.entries(d1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
+				Object.entries(f1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
 					path: e,
 					element: t.element
 				}, e)),
@@ -79730,11 +79730,11 @@ function eAe({ children: e }) {
 					path: e,
 					element: t.element
 				}, e)),
-				b1e.map((e) => /* @__PURE__ */ (0, z.jsx)(_h, {
+				x1e.map((e) => /* @__PURE__ */ (0, z.jsx)(_h, {
 					path: e,
 					element: g5["/"].element
 				}, e)),
-				Object.entries(f1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
+				Object.entries(p1e).map(([e, t]) => /* @__PURE__ */ (0, z.jsx)(_h, {
 					path: e,
 					element: t.element
 				}, e)),
@@ -105180,16 +105180,16 @@ function KYe(e = UYe(), t = []) {
 	return GYe[e].filter((e) => !t.includes(e.id));
 }
 // src/react/item-detail/external-playback.tsx
-var qYe = "peach.playback-target.v1", J6 = [["m3u", L("catalog:externalPlayback.m3uPlaylist")], ["url", L("catalog:externalPlayback.streamUrlVr")]], JYe = (e) => e.label || L("catalog:externalPlayback.androidChooser"), Y6 = (e) => KYe(void 0, (e || []).map((e) => e.id)).map((e) => [`scheme:${e.id}`, e]);
-function YYe() {
+var qYe = "peach.playback-target.v1", J6 = [["m3u", L("catalog:externalPlayback.m3uPlaylist")], ["url", L("catalog:externalPlayback.streamUrlVr")]], JYe = (e) => [`local:${e.id}`, yi(e.label_code ?? "", e.label)], YYe = (e) => e.label || L("catalog:externalPlayback.androidChooser"), Y6 = (e) => KYe(void 0, (e || []).map((e) => e.id)).map((e) => [`scheme:${e.id}`, e]);
+function XYe() {
 	try {
 		return localStorage.getItem(qYe) || `local:${localStorage.getItem("peach.local-player.v1") || "default"}`;
 	} catch {
 		return "local:default";
 	}
 }
-function XYe({ id: e, onOpened: t }) {
-	let [n, r] = (0, R.useState)(null), [i, a] = (0, R.useState)(YYe), [o, s] = (0, R.useState)(null), [c, l] = (0, R.useState)(""), [u, d] = (0, R.useState)(0), f = GK();
+function ZYe({ id: e, onOpened: t }) {
+	let [n, r] = (0, R.useState)(null), [i, a] = (0, R.useState)(XYe), [o, s] = (0, R.useState)(null), [c, l] = (0, R.useState)(""), [u, d] = (0, R.useState)(0), f = GK();
 	(0, R.useEffect)(() => {
 		let e = new AbortController();
 		return U("/api/local-players", e.signal).then((t) => {
@@ -105199,21 +105199,25 @@ function XYe({ id: e, onOpened: t }) {
 		}), () => e.abort();
 	}, [u]);
 	let p = () => void f.run("open", async (t) => {
-		if (i.startsWith("local:")) return await W(`/api/local-playback?id=${e}&player=${encodeURIComponent(i.slice(6))}`, {}, "POST", t), null;
+		if (i.startsWith("local:")) {
+			let { opened: n } = await W(`/api/local-playback?id=${e}&player=${encodeURIComponent(i.slice(6))}`, {}, "POST", t);
+			return { opened: n };
+		}
 		let n = await W(`/api/external-playback?id=${e}`, {}, "POST", t);
 		return {
 			url: new URL(n.url, location.origin).href,
 			playlist: new URL(n.playlist, location.origin).href
 		};
 	}, (e) => {
-		if (!e) {
+		if ("opened" in e) {
+			if (!e.opened) return;
 			document.querySelector("#stage video")?.pause(), t?.();
 			return;
 		}
 		if (s(e), i === "url") return;
 		let r = Y6(n).find(([e]) => e === i)?.[1], a = document.createElement("a");
 		a.href = r ? r.link(e.url) : e.playlist, a.rel = "noreferrer", document.body.append(a), a.click(), a.remove();
-	});
+	}), m = n?.find((e) => e.id === "custom");
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-local-playback": "",
 		children: [
@@ -105223,9 +105227,10 @@ function XYe({ id: e, onOpened: t }) {
 					id: `external-player-${e}`,
 					label: L("catalog:externalPlayback.externalPlayer"),
 					options: [
-						...(n || []).map((e) => [`local:${e.id}`, yi(e.label_code ?? "", e.label)]),
-						...Y6(n).map(([e, t]) => [e, JYe(t)]),
-						...J6
+						...(n || []).filter((e) => e.id !== "custom").map(JYe),
+						...Y6(n).map(([e, t]) => [e, YYe(t)]),
+						...J6,
+						...m ? [JYe(m)] : []
 					],
 					value: i,
 					disabled: n === null || !!f.busy,
@@ -105263,7 +105268,7 @@ function XYe({ id: e, onOpened: t }) {
 	});
 }
 // src/react/boardui/components/base/switch/switch.tsx
-var ZYe = sP({
+var QYe = sP({
 	sm: {
 		track: "h-4 w-7",
 		trackRadius: {
@@ -105325,8 +105330,8 @@ var ZYe = sP({
 		}
 	}
 });
-function QYe({ state: e, size: t = "md", shape: n = "pill" }) {
-	let r = ZYe[t];
+function $Ye({ state: e, size: t = "md", shape: n = "pill" }) {
+	let r = QYe[t];
 	return /* @__PURE__ */ (0, z.jsx)("span", {
 		"aria-hidden": !0,
 		className: J("relative shrink-0 transition-colors duration-200 ease", r.track, r.trackRadius[n], e.isSelected ? J("bg-linear-to-b from-accent-500 to-accent-600", r.onShadow) : "bg-background-tertiary-default", e.isDisabled && "opacity-50", e.isFocusVisible && "ring-2 ring-border-focus-ring ring-offset-2"),
@@ -105336,12 +105341,12 @@ function QYe({ state: e, size: t = "md", shape: n = "pill" }) {
 		})
 	});
 }
-function $Ye({ className: e, children: t, size: n = "md", shape: r = "pill", ref: i, ...a }) {
+function eXe({ className: e, children: t, size: n = "md", shape: r = "pill", ref: i, ...a }) {
 	return /* @__PURE__ */ (0, z.jsx)(Yxe, {
 		ref: i,
 		...a,
 		className: (t) => J("group inline-flex items-center gap-2 select-none", t.isDisabled ? "cursor-not-allowed" : "cursor-pointer", typeof e == "function" ? e(t) : e),
-		children: (e) => /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [/* @__PURE__ */ (0, z.jsx)(QYe, {
+		children: (e) => /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [/* @__PURE__ */ (0, z.jsx)($Ye, {
 			state: e,
 			size: n,
 			shape: r
@@ -105352,12 +105357,12 @@ function $Ye({ className: e, children: t, size: n = "md", shape: r = "pill", ref
 	});
 }
 // src/react/cover-crop/cover-crop.ts
-var eXe = "/api/cover-crop", tXe = (e, t) => W(eXe, {
+var tXe = "/api/cover-crop", nXe = (e, t) => W(tXe, {
 	code: e,
 	box: t
 });
 // src/react/cover-crop/cover-crop-page.tsx
-function nXe({ className: e }) {
+function rXe({ className: e }) {
 	return /* @__PURE__ */ (0, z.jsx)("svg", {
 		"aria-hidden": !0,
 		viewBox: "0 0 24 24",
@@ -105370,7 +105375,7 @@ function nXe({ className: e }) {
 		children: /* @__PURE__ */ (0, z.jsx)("use", { href: "#i-crop" })
 	});
 }
-function rXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
+function iXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
 	let [i, a] = (0, R.useState)(!1);
 	return /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [/* @__PURE__ */ (0, z.jsx)("button", {
 		type: "button",
@@ -105380,13 +105385,13 @@ function rXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
 		title: L("catalog:coverCrop.buttonTip"),
 		onClick: () => a(!0),
 		className: "flex size-7 cursor-pointer items-center justify-center rounded-lg text-foreground-icon-secondary outline-none transition-colors hover:bg-background-primary-hover hover:text-foreground-icon-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring",
-		children: /* @__PURE__ */ (0, z.jsx)(nXe, { className: "size-3.75" })
+		children: /* @__PURE__ */ (0, z.jsx)(rXe, { className: "size-3.75" })
 	}), /* @__PURE__ */ (0, z.jsx)(HK, {
 		isOpen: i,
 		onOpenChange: a,
 		width: "cover-crop",
 		label: L("catalog:coverCrop.title"),
-		children: /* @__PURE__ */ (0, z.jsx)(iXe, {
+		children: /* @__PURE__ */ (0, z.jsx)(aXe, {
 			code: e,
 			coverUrl: t,
 			box: n,
@@ -105395,9 +105400,9 @@ function rXe({ code: e, coverUrl: t, box: n, onSaved: r }) {
 		})
 	})] });
 }
-function iXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
+function aXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
 	let [a, o] = (0, R.useState)(null), [s, c] = (0, R.useState)(null), [l, u] = (0, R.useState)(!0), d = mq(), f = xr({
-		mutationFn: (t) => tXe(e, t),
+		mutationFn: (t) => nXe(e, t),
 		onSuccess: (e) => {
 			i(), r(e.poster_box);
 		}
@@ -105417,7 +105422,7 @@ function iXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
 		/* @__PURE__ */ (0, z.jsxs)("div", {
 			className: "flex shrink-0 items-start gap-4 p-5",
 			children: [
-				/* @__PURE__ */ (0, z.jsx)(UK, { children: /* @__PURE__ */ (0, z.jsx)(nXe, { className: "size-6" }) }),
+				/* @__PURE__ */ (0, z.jsx)(UK, { children: /* @__PURE__ */ (0, z.jsx)(rXe, { className: "size-6" }) }),
 				/* @__PURE__ */ (0, z.jsxs)("div", {
 					className: "flex min-w-0 flex-1 flex-col gap-2",
 					children: [
@@ -105461,7 +105466,7 @@ function iXe({ code: e, coverUrl: t, box: n, onSaved: r, close: i }) {
 		}),
 		/* @__PURE__ */ (0, z.jsxs)("div", {
 			className: "flex shrink-0 flex-wrap items-center gap-3 border-t border-separator-border p-5",
-			children: [/* @__PURE__ */ (0, z.jsx)($Ye, {
+			children: [/* @__PURE__ */ (0, z.jsx)(eXe, {
 				isSelected: l,
 				onChange: (e) => {
 					u(e), e && s && a && c(S4(s, a, Uc));
@@ -105498,8 +105503,8 @@ var X6 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 }), Z6 = ({ html: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 	className: "contents",
 	dangerouslySetInnerHTML: { __html: e }
-}), aXe = (e) => Number(e) > 0 ? ya(Number(e)) : L("catalog:shared.unknownSize");
-function oXe(e) {
+}), oXe = (e) => Number(e) > 0 ? ya(Number(e)) : L("catalog:shared.unknownSize");
+function sXe(e) {
 	let { queue: t, actions: n } = e, r = br({
 		queryKey: t ? iR(t) : ["item-queue", "none"],
 		queryFn: ({ signal: n }) => fR(t, e.helpers, n),
@@ -105535,7 +105540,7 @@ function oXe(e) {
 			})
 		});
 	}
-	return /* @__PURE__ */ (0, z.jsx)(sXe, {
+	return /* @__PURE__ */ (0, z.jsx)(cXe, {
 		...e,
 		item: rye(o.data, i),
 		queue: i
@@ -105550,8 +105555,8 @@ var Q6 = ({ onClose: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	onClick: e,
 	dangerouslySetInnerHTML: { __html: V("x") }
 });
-function sXe(e) {
-	let { item: t, queue: n, actions: r, helpers: i } = e, a = SXe(t, r), o = (0, R.useRef)(t);
+function cXe(e) {
+	let { item: t, queue: n, actions: r, helpers: i } = e, a = CXe(t, r), o = (0, R.useRef)(t);
 	(0, R.useLayoutEffect)(() => {
 		r.present(o.current, n);
 	}, [r]), (0, R.useEffect)(() => {
@@ -105566,7 +105571,7 @@ function sXe(e) {
 		"data-stage-grid": "",
 		"data-with-queue": n ? "" : void 0,
 		"data-item-detail": "",
-		children: [/* @__PURE__ */ (0, z.jsx)(cXe, {
+		children: [/* @__PURE__ */ (0, z.jsx)(lXe, {
 			item: t,
 			gate: s,
 			helpers: i,
@@ -105581,7 +105586,7 @@ function sXe(e) {
 					autoplay: !0
 				}, i.id));
 			}
-		}), /* @__PURE__ */ (0, z.jsx)(pXe, {
+		}), /* @__PURE__ */ (0, z.jsx)(mXe, {
 			item: t,
 			queue: n,
 			write: a,
@@ -105590,13 +105595,13 @@ function sXe(e) {
 		})]
 	}), /* @__PURE__ */ (0, z.jsx)(fYe, {
 		queueCards: n?.kind === "parts" || n?.kind === "editions" ? n.items.length : void 0,
-		queue: n ? /* @__PURE__ */ (0, z.jsx)(uXe, {
+		queue: n ? /* @__PURE__ */ (0, z.jsx)(dXe, {
 			queue: n,
 			itemId: t.id,
 			helpers: i,
 			actions: r
 		}) : null,
-		children: e.relatedLimit > 0 && (!n || n.kind === "parts" || n.kind === "editions") ? /* @__PURE__ */ (0, z.jsx)(xXe, {
+		children: e.relatedLimit > 0 && (!n || n.kind === "parts" || n.kind === "editions") ? /* @__PURE__ */ (0, z.jsx)(SXe, {
 			...e,
 			item: n ? {
 				...t,
@@ -105605,7 +105610,7 @@ function sXe(e) {
 		}) : null
 	})] });
 }
-function cXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a }) {
+function lXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a }) {
 	let [o, s] = (0, R.useState)(t ? "" : "auto"), c = (0, R.useRef)(null), [l, u] = (0, R.useState)(-2), d = (0, R.useRef)(!1), f = br({
 		queryKey: U6(e.code || ""),
 		queryFn: ({ signal: t }) => {
@@ -105706,7 +105711,7 @@ function cXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 					children: L("catalog:shared.retryNow")
 				})
 			}) : null,
-			t === "offline" ? /* @__PURE__ */ (0, z.jsx)(lXe, {
+			t === "offline" ? /* @__PURE__ */ (0, z.jsx)(uXe, {
 				item: e,
 				badge: y,
 				helpers: n,
@@ -105717,7 +105722,7 @@ function cXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 				children: [
 					/* @__PURE__ */ (0, z.jsx)("b", { children: L("catalog:detailGate.isoDisc") }),
 					/* @__PURE__ */ (0, z.jsx)("span", { children: L("catalog:detailGate.isoHint") }),
-					/* @__PURE__ */ (0, z.jsx)(XYe, {
+					/* @__PURE__ */ (0, z.jsx)(ZYe, {
 						id: e.id,
 						onOpened: () => r.toast(L("catalog:detailGate.externalPlayerRequested"))
 					}, e.id)
@@ -105743,12 +105748,12 @@ function cXe({ item: e, gate: t, helpers: n, actions: r, autoplay: i, onEnded: a
 				type: "button",
 				"data-item-gate": "metered",
 				onClick: () => s("clicked"),
-				children: [/* @__PURE__ */ (0, z.jsx)(Z6, { html: y }), /* @__PURE__ */ (0, z.jsx)("span", { children: L("catalog:detailGate.startStreaming", { size: aXe(e.size) }) })]
+				children: [/* @__PURE__ */ (0, z.jsx)(Z6, { html: y }), /* @__PURE__ */ (0, z.jsx)("span", { children: L("catalog:detailGate.startStreaming", { size: oXe(e.size) }) })]
 			}) : null
 		]
 	});
 }
-function lXe({ item: e, badge: t, helpers: n, actions: r }) {
+function uXe({ item: e, badge: t, helpers: n, actions: r }) {
 	let [i, a] = (0, R.useState)(!1), [o, s] = (0, R.useState)(!1), c = String(e.root_id || e.location || ""), l = async () => {
 		a(!0);
 		let e = await r.checkSource(c).catch(() => !1);
@@ -105773,8 +105778,8 @@ function lXe({ item: e, badge: t, helpers: n, actions: r }) {
 		]
 	});
 }
-function uXe({ queue: e, itemId: t, helpers: n, actions: r }) {
-	let i = lye(e), a = (0, R.useRef)(null), o = fXe(e, t, r), s = (0, R.useRef)(o);
+function dXe({ queue: e, itemId: t, helpers: n, actions: r }) {
+	let i = lye(e), a = (0, R.useRef)(null), o = pXe(e, t, r), s = (0, R.useRef)(o);
 	s.current = o;
 	let c = (0, R.useCallback)((t) => {
 		a.current = t, t && (n.wireDrag(t), e.kind === "playlist" && n.wireDragReorder(t, {
@@ -105782,7 +105787,7 @@ function uXe({ queue: e, itemId: t, helpers: n, actions: r }) {
 			attribute: "data-queue-row",
 			onMove: (e, t, n) => s.current.move(+e, +t, n)
 		}));
-	}, [n, e.kind]), l = dXe(e, r), u = e.kind === "mix" ? /* @__PURE__ */ (0, z.jsx)("button", {
+	}, [n, e.kind]), l = fXe(e, r), u = e.kind === "mix" ? /* @__PURE__ */ (0, z.jsx)("button", {
 		type: "button",
 		"data-save-mix": "",
 		title: L("catalog:detailQueue.saveAsPlaylist"),
@@ -105868,7 +105873,7 @@ function uXe({ queue: e, itemId: t, helpers: n, actions: r }) {
 		})
 	});
 }
-function dXe(e, t) {
+function fXe(e, t) {
 	let n = xr({ mutationFn: (t) => W(aR, {
 		action: "create",
 		name: t,
@@ -105882,7 +105887,7 @@ function dXe(e, t) {
 		save: (e) => n.mutateAsync(e)
 	});
 }
-function fXe(e, t, n) {
+function pXe(e, t, n) {
 	let r = iR({
 		kind: "playlist",
 		playlistId: e.playlistId
@@ -105945,7 +105950,7 @@ function fXe(e, t, n) {
 		}
 	};
 }
-function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
+function mXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 	let a = e.location === "online", o = n.busyAttrs, [s, c] = (0, R.useState)(!1);
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-stage-side": "",
@@ -105953,7 +105958,7 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 		children: /* @__PURE__ */ (0, z.jsxs)("div", {
 			"data-stage-side-content": "",
 			children: [
-				/* @__PURE__ */ (0, z.jsx)(mXe, {
+				/* @__PURE__ */ (0, z.jsx)(hXe, {
 					item: e,
 					queue: t,
 					helpers: r,
@@ -105977,7 +105982,7 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 					children: n.sourceState
 				}),
 				/* @__PURE__ */ (0, z.jsx)(LLe, { work: e.pending_work }),
-				/* @__PURE__ */ (0, z.jsx)(gXe, {
+				/* @__PURE__ */ (0, z.jsx)(_Xe, {
 					item: e,
 					write: n
 				}),
@@ -105996,7 +106001,7 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						}) : null,
 						/* @__PURE__ */ (0, z.jsxs)("span", {
 							"data-spec-item": "",
-							children: [/* @__PURE__ */ (0, z.jsx)(X6, { name: "hard-drive" }), /* @__PURE__ */ (0, z.jsx)("span", { children: aXe(e.size) })]
+							children: [/* @__PURE__ */ (0, z.jsx)(X6, { name: "hard-drive" }), /* @__PURE__ */ (0, z.jsx)("span", { children: oXe(e.size) })]
 						}),
 						e.release_date ? /* @__PURE__ */ (0, z.jsxs)("span", {
 							"data-spec-item": "",
@@ -106012,16 +106017,16 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						}) : null
 					]
 				}),
-				(e.medium || "video") === "video" && !a && !String(e.name || "").toLowerCase().endsWith(".iso") ? /* @__PURE__ */ (0, z.jsx)(XYe, {
+				(e.medium || "video") === "video" && !a && !String(e.name || "").toLowerCase().endsWith(".iso") ? /* @__PURE__ */ (0, z.jsx)(ZYe, {
 					id: e.id,
 					onOpened: () => i.toast(L("catalog:detailGate.externalPlayerRequested"))
 				}, e.id) : null,
-				/* @__PURE__ */ (0, z.jsx)(_Xe, {
+				/* @__PURE__ */ (0, z.jsx)(vXe, {
 					item: e,
 					helpers: r,
 					actions: i
 				}),
-				/* @__PURE__ */ (0, z.jsx)(vXe, {
+				/* @__PURE__ */ (0, z.jsx)(yXe, {
 					item: e,
 					helpers: r,
 					actions: i
@@ -106032,7 +106037,7 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						G.invalidateQueries({ queryKey: rR(e.id) });
 					}
 				}),
-				/* @__PURE__ */ (0, z.jsx)(yXe, { item: e }),
+				/* @__PURE__ */ (0, z.jsx)(bXe, { item: e }),
 				/* @__PURE__ */ (0, z.jsxs)("div", {
 					"data-stage-actions": "",
 					"data-item-feedback": "",
@@ -106115,7 +106120,7 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 						})
 					]
 				}),
-				/* @__PURE__ */ (0, z.jsx)(bXe, {
+				/* @__PURE__ */ (0, z.jsx)(xXe, {
 					item: e,
 					open: s,
 					write: n
@@ -106139,7 +106144,7 @@ function pXe({ item: e, queue: t, write: n, helpers: r, actions: i }) {
 		})
 	});
 }
-function mXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAction: a }) {
+function hXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAction: a }) {
 	let { text: o, expanded: s, foldable: c, toggle: l } = RYe(String(e.title || e.name || "")), u = n.badgeHtml(e.location || "", e.cost || "", "srcbig") + n.titleHtml(e) + uye(e, t);
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-item-title": "",
@@ -106171,7 +106176,7 @@ function mXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAct
 					}),
 					e.has_cover && (e.cover_key || e.code) ? /* @__PURE__ */ (0, z.jsx)("span", {
 						"data-cover-crop-host": "",
-						children: /* @__PURE__ */ (0, z.jsx)(rXe, {
+						children: /* @__PURE__ */ (0, z.jsx)(iXe, {
 							code: e.cover_key || e.code || "",
 							coverUrl: Zc(e),
 							box: e.poster_box || null,
@@ -106183,7 +106188,7 @@ function mXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAct
 							}
 						})
 					}) : null,
-					e.location === "online" ? null : /* @__PURE__ */ (0, z.jsx)(hXe, {
+					e.location === "online" ? null : /* @__PURE__ */ (0, z.jsx)(gXe, {
 						id: e.id,
 						code: e.code || "",
 						actions: r,
@@ -106202,7 +106207,7 @@ function mXe({ item: e, queue: t, helpers: n, actions: r, onStatus: i, deleteAct
 		})
 	});
 }
-function hXe({ id: e, code: t, actions: n, onStatus: r }) {
+function gXe({ id: e, code: t, actions: n, onStatus: r }) {
 	let [i, a] = (0, R.useState)(""), o = async () => {
 		if (!i) {
 			a("recollect"), r("");
@@ -106264,7 +106269,7 @@ function hXe({ id: e, code: t, actions: n, onStatus: r }) {
 		}) : null
 	] });
 }
-function gXe({ item: e, write: t }) {
+function _Xe({ item: e, write: t }) {
 	let n = tR(e.rating);
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		id: "detailRating",
@@ -106290,7 +106295,7 @@ function gXe({ item: e, write: t }) {
 		})]
 	});
 }
-function _Xe({ item: e, actions: t }) {
+function vXe({ item: e, actions: t }) {
 	let n = (0, R.useMemo)(() => aye(e), [e]), [r, i] = (0, R.useState)(!1), a = Math.max(0, n.cast.length - 8), o = (e, n, i) => {
 		let a = e === "performer" && i >= 8 && !r;
 		return /* @__PURE__ */ (0, z.jsx)(IYe, {
@@ -106358,7 +106363,7 @@ function _Xe({ item: e, actions: t }) {
 		})]
 	});
 }
-function vXe({ item: e, helpers: t, actions: n }) {
+function yXe({ item: e, helpers: t, actions: n }) {
 	return /* @__PURE__ */ (0, z.jsx)("div", {
 		"data-item-tags": "",
 		children: /* @__PURE__ */ (0, z.jsx)(R4, {
@@ -106370,7 +106375,7 @@ function vXe({ item: e, helpers: t, actions: n }) {
 		}, e.id)
 	});
 }
-function yXe({ item: e }) {
+function bXe({ item: e }) {
 	let t = mye(e);
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-item-trace": e.id,
@@ -106405,7 +106410,7 @@ function yXe({ item: e }) {
 		})]
 	});
 }
-function bXe({ item: e, open: t, write: n }) {
+function xXe({ item: e, open: t, write: n }) {
 	let [r, i] = (0, R.useState)(e.like_reason || ""), a = (0, R.useRef)(null);
 	(0, R.useEffect)(() => {
 		t && a.current?.focus();
@@ -106444,7 +106449,7 @@ function bXe({ item: e, open: t, write: n }) {
 		})]
 	});
 }
-function xXe(e) {
+function SXe(e) {
 	let { item: t, relatedLimit: n, helpers: r, grid: i } = e, a = br({
 		queryKey: eye(t.id, n),
 		queryFn: async ({ signal: e }) => (await U(nye(t.id, n), e)).items || []
@@ -106473,7 +106478,7 @@ function xXe(e) {
 		}) : /* @__PURE__ */ (0, z.jsx)(Z6, { html: o })
 	});
 }
-function SXe(e, t) {
+function CXe(e, t) {
 	let n = e.id, r = rR(n), [i, a] = (0, R.useState)(() => /* @__PURE__ */ new Set()), [o, s] = (0, R.useState)(""), [c, l] = (0, R.useState)(""), u = (e, t) => a((n) => {
 		let r = new Set(n);
 		return t ? r.add(e) : r.delete(e), r;
@@ -106583,11 +106588,11 @@ function SXe(e, t) {
 	};
 }
 // src/react/publication-cache.ts
-var CXe = 864e5, wXe = (e) => {
+var wXe = 864e5, TXe = (e) => {
 	let t = new Date(e);
 	return Date.UTC(t.getFullYear(), t.getMonth(), t.getDate());
 };
-function TXe(e) {
+function EXe(e) {
 	let t = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/.exec(e || "");
 	if (!t) return;
 	let n = Number(t[1]), r = Number(t[2]) - 1, i = Number(t[3]), a = new Date(Date.UTC(n, r, i));
@@ -106595,24 +106600,24 @@ function TXe(e) {
 	let o = new Date(Date.UTC(n, r + 2, 0)).getUTCDate();
 	return Date.UTC(n, r + 1, Math.min(i, o));
 }
-function EXe(e, t = Date.now()) {
-	let n = TXe(e);
-	return n !== void 0 && wXe(t) > n ? Infinity : CXe;
+function DXe(e, t = Date.now()) {
+	let n = EXe(e);
+	return n !== void 0 && TXe(t) > n ? Infinity : wXe;
 }
 function $6(e, t, n = Date.now()) {
-	return !Number.isFinite(e) || e <= 0 || e > n ? !1 : EXe(t, n) === Infinity ? wXe(e) > TXe(t) : n - e < CXe;
+	return !Number.isFinite(e) || e <= 0 || e > n ? !1 : DXe(t, n) === Infinity ? TXe(e) > EXe(t) : n - e < wXe;
 }
 // src/react/wants/resource-cache.ts
-var DXe = "peach.want-resources.v3";
+var OXe = "peach.want-resources.v3";
 function e8(e) {
 	return !e.cache_stale && (e.complete === !0 || !e.warnings?.length);
 }
-function OXe(e, t, n) {
+function kXe(e, t, n) {
 	return !!e && !e.cache_stale && (e.state === "error" || !e8(e) ? Date.now() - t < 6e4 : $6(t, n));
 }
 function t8() {
 	try {
-		let e = JSON.parse(localStorage.getItem(DXe) || "[]");
+		let e = JSON.parse(localStorage.getItem(OXe) || "[]");
 		return Array.isArray(e) ? e.filter((e) => typeof e?.code == "string" && Number.isFinite(e.saved) && e.result?.state === "ready" && Array.isArray(e.result.items) && e8(e.result) && e.result.items.every((e) => e && [
 			"magnet",
 			"ed2k",
@@ -106622,11 +106627,11 @@ function t8() {
 		return [];
 	}
 }
-function kXe(e, t) {
+function AXe(e, t) {
 	let n = t8().find((t) => t.code === e);
 	return n && $6(n.saved, t) ? n : void 0;
 }
-function AXe(e) {
+function jXe(e) {
 	let t = new Map(t8().map((e) => [e.code, e])), n = /* @__PURE__ */ new Map();
 	for (let r of e) {
 		if (!r.code) continue;
@@ -106635,10 +106640,10 @@ function AXe(e) {
 	}
 	return n;
 }
-function jXe(e, t) {
+function MXe(e, t) {
 	if (t.state === "ready" && e8(t)) try {
 		let n = t8().filter((t) => t.code !== e), r = Date.parse(t.checked_at || "");
-		localStorage.setItem(DXe, JSON.stringify([{
+		localStorage.setItem(OXe, JSON.stringify([{
 			code: e,
 			saved: Number.isFinite(r) ? r : Date.now(),
 			result: t
@@ -106646,7 +106651,7 @@ function jXe(e, t) {
 	} catch {}
 }
 // src/react/wants/want-magnets.tsx
-var MXe = qa((e) => e?.state === "busy" && 3e3), NXe = "javdb-comments", PXe = "high-definition";
+var NXe = qa((e) => e?.state === "busy" && 3e3), PXe = "javdb-comments", FXe = "high-definition";
 function n8({ icon: e, children: t, title: n }) {
 	return /* @__PURE__ */ (0, z.jsxs)("span", {
 		title: n,
@@ -106657,8 +106662,8 @@ function n8({ icon: e, children: t, title: n }) {
 		}), t]
 	});
 }
-function FXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSources: a, queryUrl: o, eager: s = !1 }) {
-	let c = (0, R.useRef)(null), [l, u] = (0, R.useState)(s || typeof IntersectionObserver > "u"), [d, f] = (0, R.useState)([]), p = GK(), m = GK(), h = Jt(), g = (0, R.useRef)(!1), _ = o ? `comment-resources:${o}:${e.code}` : `all-sources:${e.code || ""}`, v = (0, R.useMemo)(() => kXe(_, e.release_date), [_, e.release_date]);
+function IXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSources: a, queryUrl: o, eager: s = !1 }) {
+	let c = (0, R.useRef)(null), [l, u] = (0, R.useState)(s || typeof IntersectionObserver > "u"), [d, f] = (0, R.useState)([]), p = GK(), m = GK(), h = Jt(), g = (0, R.useRef)(!1), _ = o ? `comment-resources:${o}:${e.code}` : `all-sources:${e.code || ""}`, v = (0, R.useMemo)(() => AXe(_, e.release_date), [_, e.release_date]);
 	(0, R.useEffect)(() => {
 		if (!c.current || l) return;
 		let e = new IntersectionObserver((t) => {
@@ -106678,17 +106683,17 @@ function FXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSour
 		],
 		queryFn: async ({ signal: t }) => {
 			let n = g.current, r = o || `/api/wants/magnets?id=${e.id}`, i = await U(`${r}${n ? `${r.includes("?") ? "&" : "?"}refresh=1` : ""}`, t);
-			return g.current = n && i.state === "busy", jXe(_, i), i;
+			return g.current = n && i.state === "busy", MXe(_, i), i;
 		},
 		initialData: v?.result,
 		initialDataUpdatedAt: v?.saved,
 		enabled: l,
 		retry: !1,
-		staleTime: (t) => OXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) ? Infinity : 0,
+		staleTime: (t) => kXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) ? Infinity : 0,
 		gcTime: 864e5,
-		refetchOnMount: (t) => !OXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) && "always",
+		refetchOnMount: (t) => !kXe(t.state.data, Date.parse(t.state.data?.checked_at || "") || t.state.dataUpdatedAt, e.release_date) && "always",
 		refetchOnWindowFocus: !1,
-		refetchInterval: MXe
+		refetchInterval: NXe
 	}), b = (0, R.useMemo)(() => {
 		let e = /* @__PURE__ */ new Map();
 		for (let t of y.data?.source_pages || []) {
@@ -106861,10 +106866,10 @@ function FXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSour
 									}) : null,
 									/* @__PURE__ */ (0, z.jsx)(n8, {
 										icon: CW,
-										title: e.source === NXe ? L("catalog:wantMagnets.commentDate") : L("catalog:wantMagnets.listedDate"),
+										title: e.source === PXe ? L("catalog:wantMagnets.commentDate") : L("catalog:wantMagnets.listedDate"),
 										children: e.date ? e.date.slice(0, 10) : L("catalog:wantMagnets.unknownDate")
 									}),
-									e.attributes.filter((e) => e !== PXe).map((e) => /* @__PURE__ */ (0, z.jsx)(n8, {
+									e.attributes.filter((e) => e !== FXe).map((e) => /* @__PURE__ */ (0, z.jsx)(n8, {
 										icon: QW,
 										children: WG(e)
 									}, e))
@@ -106921,10 +106926,10 @@ function FXe({ want: e, readOnly: t, downloads: n, provider: r, toast: i, onSour
 	});
 }
 // src/react/jav-detail/review-cache.ts
-var IXe = "peach.jav-reviews.v2";
-function LXe() {
+var LXe = "peach.jav-reviews.v2";
+function RXe() {
 	try {
-		let e = localStorage.getItem(IXe) || "[]";
+		let e = localStorage.getItem(LXe) || "[]";
 		if (e.length > 2e6) return [];
 		let t = JSON.parse(e);
 		return Array.isArray(t) ? t.filter((e) => typeof e?.code == "string" && Number.isFinite(e.saved) && e.result?.ok === !0 && !e.result.cache_stale && Number.isInteger(e.result.page) && e.result.page >= 1 && e.result.page <= 8 && Array.isArray(e.result.items) && e.result.items.length <= 10 && e.result.items.every((e) => typeof e?.id == "string" && typeof e.content == "string" && typeof e.username == "string" && typeof e.created_at == "string")) : [];
@@ -106932,18 +106937,18 @@ function LXe() {
 		return [];
 	}
 }
-function RXe(e, t) {
+function zXe(e, t) {
 	if (t.ok && !t.cache_stale) try {
 		let n = Date.parse(t.checked_at || ""), r = [{
 			code: e,
 			saved: Number.isFinite(n) ? n : Date.now(),
 			result: t
-		}, ...LXe().filter((n) => n.code !== e || n.result.page !== t.page)].slice(0, 128), i = JSON.stringify(r);
-		i.length <= 2e6 && localStorage.setItem(IXe, i);
+		}, ...RXe().filter((n) => n.code !== e || n.result.page !== t.page)].slice(0, 128), i = JSON.stringify(r);
+		i.length <= 2e6 && localStorage.setItem(LXe, i);
 	} catch {}
 }
-function zXe(e, t) {
-	let n = LXe(), r = [], i = Infinity;
+function BXe(e, t) {
+	let n = RXe(), r = [], i = Infinity;
 	for (let a = 1; a <= 8; a++) {
 		let o = n.find((t) => t.code === e && t.result.page === a);
 		if (!o || !$6(o.saved, t) || (r.push(o.result), i = Math.min(i, o.saved), !o.result.more)) break;
@@ -106954,11 +106959,11 @@ function zXe(e, t) {
 		saved: i
 	} : void 0;
 }
-function BXe(e, t, n) {
+function VXe(e, t, n) {
 	return e.length > 0 && e.every((e) => e.ok && !e.cache_stale && $6(Date.parse(e.checked_at || "") || t, n));
 }
 // src/react/jav-detail/jav-detail-page.tsx
-function VXe(e) {
+function HXe(e) {
 	let t = (0, R.useRef)(!1), n = br({
 		queryKey: U6(e.code),
 		queryFn: ({ signal: n }) => {
@@ -106973,7 +106978,7 @@ function VXe(e) {
 		"data-jav-detail": "",
 		"data-item-detail": "",
 		"data-stage-grid": "",
-		children: n.data ? /* @__PURE__ */ (0, z.jsx)(UXe, {
+		children: n.data ? /* @__PURE__ */ (0, z.jsx)(WXe, {
 			...e,
 			item: n.data,
 			retry: r,
@@ -106981,7 +106986,7 @@ function VXe(e) {
 		}, e.code) : /* @__PURE__ */ (0, z.jsxs)("div", {
 			"data-jav-failure": "",
 			"data-detail-failure": "",
-			children: [/* @__PURE__ */ (0, z.jsx)(HXe, { close: e.actions.close }), n.error ? /* @__PURE__ */ (0, z.jsx)(R6, {
+			children: [/* @__PURE__ */ (0, z.jsx)(UXe, { close: e.actions.close }), n.error ? /* @__PURE__ */ (0, z.jsx)(R6, {
 				detail: `${e.code} · ${ja(n.error)}`,
 				busy: n.isFetching,
 				onRetry: r
@@ -106989,7 +106994,7 @@ function VXe(e) {
 		})
 	});
 }
-var HXe = ({ close: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
+var UXe = ({ close: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	type: "button",
 	"data-stage-close": "",
 	id: "closeStage",
@@ -106998,7 +107003,7 @@ var HXe = ({ close: e }) => /* @__PURE__ */ (0, z.jsx)("button", {
 	onClick: e,
 	dangerouslySetInnerHTML: { __html: V("x") }
 });
-function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a }) {
+function WXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a }) {
 	(0, R.useEffect)(() => {
 		n.canonicalCode?.(t.code);
 	}, [n, t.code]), (0, R.useEffect)(() => {
@@ -107033,7 +107038,7 @@ function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 			"data-jav-art": "",
 			"data-jav-playing": o === -2 ? "" : void 0,
 			children: [
-				/* @__PURE__ */ (0, z.jsx)(HXe, { close: n.close }),
+				/* @__PURE__ */ (0, z.jsx)(UXe, { close: n.close }),
 				t.preview_video_url ? /* @__PURE__ */ (0, z.jsxs)("button", {
 					type: "button",
 					"data-jav-preview-toggle": "",
@@ -107050,7 +107055,7 @@ function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 					onClick: i,
 					children: [/* @__PURE__ */ (0, z.jsx)(r8, { name: "play" }), L("catalog:javDetail.sampleVideoFailed")]
 				}) : null,
-				o === -2 && t.preview_video_url ? /* @__PURE__ */ (0, z.jsx)(qXe, { src: t.preview_video_url }, t.preview_video_url) : /* @__PURE__ */ (0, z.jsx)(H0, {
+				o === -2 && t.preview_video_url ? /* @__PURE__ */ (0, z.jsx)(JXe, { src: t.preview_video_url }, t.preview_video_url) : /* @__PURE__ */ (0, z.jsx)(H0, {
 					item: t,
 					image: o === -1 ? "cover" : String(o)
 				}, t.code),
@@ -107073,8 +107078,8 @@ function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 				"data-stage-side-content": "",
 				"data-jav-info": "",
 				children: [
-					/* @__PURE__ */ (0, z.jsx)(WXe, { item: t }),
-					Number(t.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(GXe, { score: Number(t.score) }) : null,
+					/* @__PURE__ */ (0, z.jsx)(GXe, { item: t }),
+					Number(t.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(KXe, { score: Number(t.score) }) : null,
 					/* @__PURE__ */ (0, z.jsxs)("div", {
 						className: "mono",
 						"data-stage-meta": "",
@@ -107089,7 +107094,7 @@ function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 							value: t.duration ? L("catalog:javDetail.minutes", { count: t.duration }) : void 0
 						})]
 					}),
-					/* @__PURE__ */ (0, z.jsx)(KXe, {
+					/* @__PURE__ */ (0, z.jsx)(qXe, {
 						item: t,
 						navigate: n.navigate
 					}),
@@ -107179,12 +107184,12 @@ function UXe({ code: e, item: t, actions: n, readOnly: r, retry: i, retrying: a 
 						tone: "error",
 						children: p.error
 					}) : null,
-					/* @__PURE__ */ (0, z.jsx)(JXe, {
+					/* @__PURE__ */ (0, z.jsx)(YXe, {
 						code: t.code,
 						count: t.comments_count,
 						released: t.release_date
 					}),
-					/* @__PURE__ */ (0, z.jsx)(YXe, {
+					/* @__PURE__ */ (0, z.jsx)(XXe, {
 						item: t,
 						actions: n,
 						readOnly: r
@@ -107208,7 +107213,7 @@ var r8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("span", {
 	title: t,
 	children: [/* @__PURE__ */ (0, z.jsx)(r8, { name: e }), /* @__PURE__ */ (0, z.jsx)("span", { children: n })]
 }) : null;
-function WXe({ item: e }) {
+function GXe({ item: e }) {
 	let { text: t, expanded: n, foldable: r, toggle: i } = RYe(e.title), a = e.title === e.code ? "" : e.title;
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-item-title": "",
@@ -107244,7 +107249,7 @@ function WXe({ item: e }) {
 		})]
 	});
 }
-function GXe({ score: e, review: t = !1 }) {
+function KXe({ score: e, review: t = !1 }) {
 	return /* @__PURE__ */ (0, z.jsxs)("div", {
 		"data-item-rating": "",
 		"data-jav-rating": "",
@@ -107260,7 +107265,7 @@ function GXe({ score: e, review: t = !1 }) {
 		})]
 	});
 }
-function KXe({ item: e, navigate: t }) {
+function qXe({ item: e, navigate: t }) {
 	let n = (e, n) => t(ra(e, n)), r = (t, r, i, a) => i.length ? /* @__PURE__ */ (0, z.jsxs)("section", {
 		"data-id-group": t,
 		"data-id-gender": a,
@@ -107302,7 +107307,7 @@ function KXe({ item: e, navigate: t }) {
 		})]
 	});
 }
-function qXe({ src: e }) {
+function JXe({ src: e }) {
 	let t = (0, R.useRef)(null), [n, r] = (0, R.useState)(!1);
 	return (0, R.useLayoutEffect)(() => {
 		if (n) return;
@@ -107325,8 +107330,8 @@ function qXe({ src: e }) {
 		}) : null
 	});
 }
-function JXe({ code: e, count: t, released: n }) {
-	let r = Jt(), [i, a] = (0, R.useState)(!1), o = (0, R.useMemo)(() => zXe(e, n), [e, n]), s = (0, R.useRef)(!1), c = Sr({
+function YXe({ code: e, count: t, released: n }) {
+	let r = Jt(), [i, a] = (0, R.useState)(!1), o = (0, R.useMemo)(() => BXe(e, n), [e, n]), s = (0, R.useRef)(!1), c = Sr({
 		queryKey: ["jav-reviews", e],
 		enabled: i,
 		initialPageParam: 1,
@@ -107335,12 +107340,12 @@ function JXe({ code: e, count: t, released: n }) {
 			pageParams: o.pageParams
 		} : void 0,
 		initialDataUpdatedAt: o?.saved,
-		staleTime: (e) => BXe(e.state.data?.pages || [], e.state.dataUpdatedAt, n) ? Infinity : 0,
+		staleTime: (e) => VXe(e.state.data?.pages || [], e.state.dataUpdatedAt, n) ? Infinity : 0,
 		gcTime: 864e5,
 		refetchOnWindowFocus: !1,
 		queryFn: async ({ signal: t, pageParam: n }) => {
 			let i = await BYe(e, n, t, s.current);
-			if (RXe(e, i), !i.ok || i.cache_stale) {
+			if (zXe(e, i), !i.ok || i.cache_stale) {
 				let t = r.getQueryData(["jav-reviews", e])?.pages.find((e) => e.page === n);
 				if (t?.ok) return {
 					...t,
@@ -107398,7 +107403,7 @@ function JXe({ code: e, count: t, released: n }) {
 						"data-jav-review-meta": "",
 						children: [
 							/* @__PURE__ */ (0, z.jsx)("b", { children: yi(e.username_code ?? "", e.username) }),
-							Number(e.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(GXe, {
+							Number(e.score) > 0 ? /* @__PURE__ */ (0, z.jsx)(KXe, {
 								score: Number(e.score),
 								review: !0
 							}) : null,
@@ -107453,7 +107458,7 @@ function JXe({ code: e, count: t, released: n }) {
 		})
 	});
 }
-function YXe({ item: e, actions: t, readOnly: n }) {
+function XXe({ item: e, actions: t, readOnly: n }) {
 	let [r, i] = (0, R.useState)(!1), a = br({
 		queryKey: gX,
 		enabled: r,
@@ -107467,7 +107472,7 @@ function YXe({ item: e, actions: t, readOnly: n }) {
 			onOpenChange: (e) => {
 				i(e), e && c(!0);
 			},
-			children: s ? /* @__PURE__ */ (0, z.jsx)(FXe, {
+			children: s ? /* @__PURE__ */ (0, z.jsx)(IXe, {
 				want: {
 					id: 0,
 					code: e.code,
@@ -107484,8 +107489,8 @@ function YXe({ item: e, actions: t, readOnly: n }) {
 	});
 }
 // src/react/stage/stage-player.ts
-var a8 = null, o8 = null, s8 = null, c8 = null, l8 = null, u8 = !1, d8 = 0, f8 = null, p8 = null, m8 = () => !1, XXe = (e, t, n) => `${e}:${t}:${n ?? ""}`;
-function ZXe(e, t) {
+var a8 = null, o8 = null, s8 = null, c8 = null, l8 = null, u8 = !1, d8 = 0, f8 = null, p8 = null, m8 = () => !1, ZXe = (e, t, n) => `${e}:${t}:${n ?? ""}`;
+function QXe(e, t) {
 	a8 = e, m8 = () => t.isOpen(), p8 = () => t.requestClose(), T_e({
 		...e.player,
 		stage: () => document.getElementById("stage")
@@ -107493,10 +107498,10 @@ function ZXe(e, t) {
 		inMiniplayer: (e) => o8?.player === e,
 		kind: (e) => o8?.player === e ? o8.kind : s8?.kind ?? c8?.kind ?? "item",
 		expand: () => w8(),
-		toMiniplayer: () => hZe()
-	}), QXe || (QXe = !0, addEventListener("pagehide", () => xL()));
+		toMiniplayer: () => gZe()
+	}), $Xe || ($Xe = !0, addEventListener("pagehide", () => xL()));
 }
-var QXe = !1;
+var $Xe = !1;
 function h8() {
 	if (!a8) throw Error(L("catalog:stagePlayer.hostMissing"));
 	return a8;
@@ -107504,10 +107509,10 @@ function h8() {
 function g8(e) {
 	c8 = e;
 }
-var $Xe = () => c8;
+var eZe = () => c8;
 function _8(e, t) {
-	let { kind: n, item: r, media: i = null } = t, a = XXe(n, r.id, i?.index ?? null);
-	if (o8 && o8.key === a) return tZe(e, o8);
+	let { kind: n, item: r, media: i = null } = t, a = ZXe(n, r.id, i?.index ?? null);
+	if (o8 && o8.key === a) return nZe(e, o8);
 	o8 && C8();
 	let o = {
 		player: null,
@@ -107535,7 +107540,7 @@ function _8(e, t) {
 		s8 === o && (s8 = null), c(), e || (o.player || (s.pause(), s.removeAttribute("src"), s.load()), xL());
 	};
 }
-async function eZe(e, t, n) {
+async function tZe(e, t, n) {
 	let r = await Ji(`/api/item?id=${e.id}`, { signal: n });
 	if (n.throwIfAborted(), !r || r.error) throw Error(r?.error || L("catalog:stagePlayer.videoNotFound"));
 	if (r.medium && r.medium !== "video") throw Error(L("catalog:stagePlayer.notPlayable"));
@@ -107556,10 +107561,10 @@ async function eZe(e, t, n) {
 		autoplay: !0
 	}), s = !1;
 	return (e = !1) => {
-		s || (s = !0, e && c8 === a && nZe(!0), o(), c8 === a && g8(null));
+		s || (s = !0, e && c8 === a && rZe(!0), o(), c8 === a && g8(null));
 	};
 }
-function tZe(e, t) {
+function nZe(e, t) {
 	let { player: n } = t;
 	x8(t), o8 = null, S8(), n.el().classList.remove("vjs-peach-mini"), IL(e), e.append(n.el()), dI(n);
 	let r = {
@@ -107579,13 +107584,13 @@ var v8 = () => {
 	let e = s8?.player;
 	return e && !e.isDisposed() ? e : null;
 };
-function nZe(e) {
+function rZe(e) {
 	let t = u8;
 	u8 = !1, o8?.pending && C8();
 	let n = s8, r = n?.player, i = c8;
 	if (!n || !r || r.isDisposed() || !i || !l8) return;
 	let a = h8().player.settings();
-	(t || e && a.miniplayer && !r.paused() && !r.ended() && !r.error()) && mZe({
+	(t || e && a.miniplayer && !r.paused() && !r.ended() && !r.error()) && hZe({
 		player: r,
 		kind: n.kind,
 		item: n.item,
@@ -107593,20 +107598,20 @@ function nZe(e) {
 		key: n.key
 	}, i);
 }
-function rZe(e, t) {
+function iZe(e, t) {
 	u8 = !1, o8 && (o8.kind === e && o8.item.id === t ? (o8.pending = !0, S8()) : C8());
 }
-function iZe(e) {
-	l8 = e, l8 && dZe();
+function aZe(e) {
+	l8 = e, l8 && fZe();
 }
 var y8 = () => !!o8 && !o8.pending && !o8.player.isDisposed();
-function aZe() {
+function oZe() {
 	return y8() ? l8?.frame.querySelector("video") ?? null : null;
 }
-function oZe() {
-	return m8() ? document.getElementById("stage")?.querySelector("video") ?? null : v8()?.el().querySelector("video") ?? aZe();
+function sZe() {
+	return m8() ? document.getElementById("stage")?.querySelector("video") ?? null : v8()?.el().querySelector("video") ?? oZe();
 }
-function sZe(e) {
+function cZe(e) {
 	l8 && (l8.title.textContent = e.title || "", l8.sub.textContent = e.sub || "", l8.info.setAttribute("aria-label", e.title ? L("catalog:miniplayer.expandTitle", { title: e.title }) : L("catalog:miniplayer.expand")));
 }
 function b8(e = o8?.item) {
@@ -107614,25 +107619,25 @@ function b8(e = o8?.item) {
 	let t = l8.frame.querySelector("video"), n = t?.videoWidth || Number(e?.width) || 16, r = t?.videoHeight || Number(e?.height) || 9;
 	l8.frame.style.setProperty("--miniplayer-aspect", `${Math.max(n, r)}/${r}`);
 }
-function cZe() {
+function lZe() {
 	let e = o8?.player;
 	if (!e || e.isDisposed() || !l8) return;
 	let t = e.paused();
 	l8.play.setAttribute("aria-label", L(t ? "catalog:shared.play" : "catalog:shared.pause")), l8.play.querySelector("[data-icon-swap]") || (l8.play.innerHTML = Nu("player-pause", "player-play", t ? "b" : "a")), Pu(l8.play, t ? "b" : "a");
 }
-function lZe() {
+function uZe() {
 	let e = o8?.player;
 	if (!e || e.isDisposed() || !l8) return;
 	let t = ga(o8?.item.duration) || ga(e.duration());
 	l8.time.textContent = `${va(e.currentTime())} / ${t ? va(t) : "0:00"}`;
 }
-var uZe = () => Math.max(1, Number(h8().player.settings().seekSeconds) || 10);
-function dZe() {
+var dZe = () => Math.max(1, Number(h8().player.settings().seekSeconds) || 10);
+function fZe() {
 	if (!l8 || !a8) return;
-	let e = uZe();
+	let e = dZe();
 	for (let [t, n] of [[l8.back, L("catalog:stagePlayer.seekBack", { count: e })], [l8.ahead, L("catalog:stagePlayer.seekForward", { count: e })]]) t.setAttribute("aria-label", n), t.title = n;
 }
-function fZe(e) {
+function pZe(e) {
 	let t = (t, n) => {
 		e.player.on(t, n), e.off.push(() => {
 			try {
@@ -107644,16 +107649,16 @@ function fZe(e) {
 		"play",
 		"pause",
 		"ended"
-	], cZe), t([
+	], lZe), t([
 		"timeupdate",
 		"durationchange",
 		"loadedmetadata"
-	], lZe), t("loadedmetadata", () => b8()), cZe(), lZe(), b8(), dZe();
+	], uZe), t("loadedmetadata", () => b8()), lZe(), uZe(), b8(), fZe();
 }
 function x8(e) {
 	e.off.forEach((e) => e()), e.off = [];
 }
-function pZe() {
+function mZe() {
 	let e = l8?.root;
 	if (!e) return;
 	let t = e.hidden;
@@ -107674,7 +107679,7 @@ function S8() {
 		e.style.transform = "";
 	}
 }
-function mZe(e, t) {
+function hZe(e, t) {
 	if (!l8) return;
 	let n = {
 		...e,
@@ -107682,7 +107687,7 @@ function mZe(e, t) {
 		off: [],
 		pending: !1
 	};
-	o8 = n, d8++, e.player.el().classList.add("vjs-peach-mini"), l8.frame.prepend(e.player.el()), sZe(t), fZe(n), pZe(), fI(e.player);
+	o8 = n, d8++, e.player.el().classList.add("vjs-peach-mini"), l8.frame.prepend(e.player.el()), cZe(t), pZe(n), mZe(), fI(e.player);
 }
 function C8() {
 	let e = o8;
@@ -107695,29 +107700,29 @@ function w8() {
 	let { kind: e, item: t, mediaIndex: n } = o8;
 	h8().expand(e, t.id, n);
 }
-function hZe() {
+function gZe() {
 	y8() && !m8() ? w8() : m8() && v8() && p8 && (u8 = !0, p8());
 }
-function gZe() {
+function _Ze() {
 	let e = o8?.player;
 	e && !e.isDisposed() && (e.paused() ? e.play()?.catch(() => {}) : e.pause());
 }
-function _Ze(e) {
+function vZe(e) {
 	let t = o8?.player;
 	if (!t || t.isDisposed()) return;
-	let n = ga(t.duration()) || ga(o8?.item.duration) || 0, r = Math.max(0, (Number(t.currentTime()) || 0) + uZe() * e);
+	let n = ga(t.duration()) || ga(o8?.item.duration) || 0, r = Math.max(0, (Number(t.currentTime()) || 0) + dZe() * e);
 	t.currentTime(n ? Math.min(n, r) : r);
 }
-function vZe(e) {
+function yZe(e) {
 	return !(!y8() || !e || e.part_group || e.edition_group || e.medium && e.medium !== "video" || e.cost === "metered" && e.location !== "online" || e.location === "online" && !e.follow_item_id || h8().sourceOffline(String(e.root_id || e.location || "")));
 }
-async function yZe(e) {
+async function bZe(e) {
 	if (!y8() || !o8 || !l8) return;
 	let t = ++d8;
 	f8?.(), f8 = null;
 	let n = await Ji(`/api/item?id=${e}`).catch(() => null);
 	if (t !== d8 || !y8() || !o8 || !l8 || !n || n.error) return;
-	if (!vZe(n)) {
+	if (!yZe(n)) {
 		h8().openItem(e);
 		return;
 	}
@@ -107731,7 +107736,7 @@ async function yZe(e) {
 		title: String(n.title || n.name || ""),
 		sub: String(n.performers?.[0] || n.creator || L("catalog:shared.uncredited"))
 	};
-	sZe(a), f8 = RL(i, {
+	cZe(a), f8 = RL(i, {
 		kind: "item",
 		item: n,
 		autoplay: !0,
@@ -107751,12 +107756,12 @@ async function yZe(e) {
 				kind: "item",
 				item: n,
 				mediaIndex: null,
-				key: XXe("item", n.id, null),
+				key: ZXe("item", n.id, null),
 				meta: a,
 				off: [],
 				pending: !1
 			};
-			o8 = i, fZe(i);
+			o8 = i, pZe(i);
 		}
 	}), b8(n);
 }
@@ -107765,11 +107770,11 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 	viewBox: "0 0 24 24",
 	"aria-hidden": "true",
 	children: /* @__PURE__ */ (0, z.jsx)("use", { href: `#i-${e}` })
-}), bZe = { __html: "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><use href=\"#i-player-pause\"/></svg>" }, E8 = (e) => (t) => {
+}), xZe = { __html: "<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><use href=\"#i-player-pause\"/></svg>" }, E8 = (e) => (t) => {
 	t.stopPropagation(), e();
-}, xZe = (0, R.memo)(function() {
+}, SZe = (0, R.memo)(function() {
 	let e = (0, R.useRef)(null), t = (0, R.useRef)(null), n = (0, R.useRef)(null), r = (0, R.useRef)(null), i = (0, R.useRef)(null), a = (0, R.useRef)(null), o = (0, R.useRef)(null), s = (0, R.useRef)(null), c = (0, R.useRef)(null), l = (0, R.useRef)(null);
-	return (0, R.useLayoutEffect)(() => (iZe({
+	return (0, R.useLayoutEffect)(() => (aZe({
 		root: e.current,
 		frame: n.current,
 		play: r.current,
@@ -107779,7 +107784,7 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 		title: s.current,
 		sub: c.current,
 		info: l.current
-	}), () => iZe(null)), []), (0, R.useEffect)(() => wZe(e.current, t.current), []), (0, R.useEffect)(() => SZe(e.current), []), /* @__PURE__ */ (0, z.jsx)("aside", {
+	}), () => aZe(null)), []), (0, R.useEffect)(() => TZe(e.current, t.current), []), (0, R.useEffect)(() => CZe(e.current), []), /* @__PURE__ */ (0, z.jsx)("aside", {
 		ref: e,
 		"data-miniplayer": "",
 		id: "miniplayer",
@@ -107819,7 +107824,7 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 							type: "button",
 							"data-miniplayer-seek": "",
 							id: "miniplayerBack",
-							onClick: E8(() => _Ze(-1)),
+							onClick: E8(() => vZe(-1)),
 							children: /* @__PURE__ */ (0, z.jsx)(T8, { name: "rotate-ccw" })
 						}),
 						/* @__PURE__ */ (0, z.jsx)("button", {
@@ -107829,15 +107834,15 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 							id: "miniplayerPlay",
 							"aria-label": L("catalog:shared.pause"),
 							"aria-keyshortcuts": "k",
-							onClick: E8(gZe),
-							dangerouslySetInnerHTML: bZe
+							onClick: E8(_Ze),
+							dangerouslySetInnerHTML: xZe
 						}),
 						/* @__PURE__ */ (0, z.jsx)("button", {
 							ref: o,
 							type: "button",
 							"data-miniplayer-seek": "",
 							id: "miniplayerAhead",
-							onClick: E8(() => _Ze(1)),
+							onClick: E8(() => vZe(1)),
 							children: /* @__PURE__ */ (0, z.jsx)(T8, { name: "rotate-cw" })
 						}),
 						/* @__PURE__ */ (0, z.jsx)("span", {
@@ -107869,7 +107874,7 @@ var T8 = ({ name: e }) => /* @__PURE__ */ (0, z.jsx)("svg", {
 		})
 	});
 });
-function SZe(e) {
+function CZe(e) {
 	let t = () => {
 		let t = e.dataset.corner || "";
 		!e.hidden && t.startsWith("b") && (t === "br" || innerWidth <= 600) ? document.documentElement.style.setProperty("--miniplayer-space", `${Math.ceil(e.offsetHeight + 16 + 12)}px`) : document.documentElement.style.removeProperty("--miniplayer-space");
@@ -107883,7 +107888,7 @@ function SZe(e) {
 		n.disconnect(), r.disconnect(), window.removeEventListener("resize", t), document.documentElement.style.removeProperty("--miniplayer-space");
 	};
 }
-function CZe(e, t, n) {
+function wZe(e, t, n) {
 	let r = e.getBoundingClientRect(), i = (r.top + r.height / 2 < innerHeight / 2 ? "t" : "b") + (r.left + r.width / 2 < innerWidth / 2 ? "l" : "r"), a = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--topH")) || 56, o = {
 		left: r.left - t,
 		top: r.top - n
@@ -107905,7 +107910,7 @@ function CZe(e, t, n) {
 	};
 	e.addEventListener("transitionend", u), setTimeout(u, 600);
 }
-function wZe(e, t) {
+function TZe(e, t) {
 	let n = null, r = (e) => {
 		if (!(e.button !== 0 || e.target.closest("[data-miniplayer-button],[data-miniplayer-play],[data-miniplayer-seek],.vjs-control-bar"))) {
 			n = {
@@ -107931,7 +107936,7 @@ function wZe(e, t) {
 		} catch {}
 		i.moved && (e.dataset.dragged = "1", setTimeout(() => {
 			delete e.dataset.dragged;
-		}, 0), CZe(e, i.dx, i.dy));
+		}, 0), wZe(e, i.dx, i.dy));
 	}, o = (t) => {
 		e.dataset.dragged && (t.stopPropagation(), t.preventDefault());
 	}, s = (e) => {
@@ -107950,27 +107955,27 @@ function I8() {
 	if (!D8) throw Error(L("catalog:stagePlayer.stageHostMissing"));
 	return D8;
 }
-function TZe(e) {
+function EZe(e) {
 	return A8.add(e), () => {
 		A8.delete(e);
 	};
 }
-function EZe() {
+function DZe() {
 	for (let e of [...A8]) e();
 }
 function L8() {
-	(0, Cr.flushSync)(EZe);
+	(0, Cr.flushSync)(DZe);
 }
-function DZe({ view: e }) {
-	return /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [e ? /* @__PURE__ */ (0, z.jsx)(AZe, { view: e }, e.generation) : null, /* @__PURE__ */ (0, z.jsx)(xZe, {})] });
+function OZe({ view: e }) {
+	return /* @__PURE__ */ (0, z.jsxs)(z.Fragment, { children: [e ? /* @__PURE__ */ (0, z.jsx)(jZe, { view: e }, e.generation) : null, /* @__PURE__ */ (0, z.jsx)(SZe, {})] });
 }
-var OZe = () => /* @__PURE__ */ (0, z.jsx)("div", {
+var kZe = () => /* @__PURE__ */ (0, z.jsx)("div", {
 	"data-skeleton": "detail",
 	role: "status",
 	"aria-label": L("catalog:stagePlayer.loadingDetails"),
 	dangerouslySetInnerHTML: { __html: vJe() }
 });
-function kZe(e) {
+function AZe(e) {
 	let t = e.currentTarget;
 	if (e.target !== t) return !1;
 	let n = t.getBoundingClientRect();
@@ -107984,7 +107989,7 @@ function R8() {
 		cancelable: !0
 	}))) : z8();
 }
-function AZe({ view: e }) {
+function jZe({ view: e }) {
 	let t = (0, R.useRef)(null);
 	(0, R.useLayoutEffect)(() => {
 		let e = t.current, n = (t) => {
@@ -107992,7 +107997,7 @@ function AZe({ view: e }) {
 		};
 		return e.addEventListener("cancel", n), () => e.removeEventListener("cancel", n);
 	}, []);
-	let { phase: n, content: r } = e, i = r.kind === "item" ? /* @__PURE__ */ (0, z.jsx)(oXe, { ...r.props }) : r.kind === "jav" ? /* @__PURE__ */ (0, z.jsx)(VXe, { ...r.props }, r.props.code) : /* @__PURE__ */ (0, z.jsx)(SYe, { ...r.props }, r.props.id);
+	let { phase: n, content: r } = e, i = r.kind === "item" ? /* @__PURE__ */ (0, z.jsx)(sXe, { ...r.props }) : r.kind === "jav" ? /* @__PURE__ */ (0, z.jsx)(HXe, { ...r.props }, r.props.code) : /* @__PURE__ */ (0, z.jsx)(SYe, { ...r.props }, r.props.id);
 	return /* @__PURE__ */ (0, z.jsxs)("dialog", {
 		ref: t,
 		id: "stage",
@@ -108003,17 +108008,17 @@ function AZe({ view: e }) {
 			e.key !== "Escape" || e.defaultPrevented || e.currentTarget.contains(e.target) && (e.preventDefault(), R8());
 		},
 		onPointerDown: (e) => {
-			P8 = kZe(e);
+			P8 = AZe(e);
 		},
 		onClick: (e) => {
-			P8 && kZe(e) && z8();
+			P8 && AZe(e) && z8();
 		},
 		children: [
-			n === "skeleton" ? /* @__PURE__ */ (0, z.jsx)(OZe, {}, "skeleton") : null,
+			n === "skeleton" ? /* @__PURE__ */ (0, z.jsx)(kZe, {}, "skeleton") : null,
 			n === "reveal" ? /* @__PURE__ */ (0, z.jsx)("div", {
 				"data-stage-fade": "",
 				"aria-hidden": "true",
-				children: /* @__PURE__ */ (0, z.jsx)(OZe, {})
+				children: /* @__PURE__ */ (0, z.jsx)(kZe, {})
 			}, "fade") : null,
 			n === "skeleton" ? null : /* @__PURE__ */ (0, z.jsx)("div", {
 				"data-stage-scroll": "",
@@ -108031,11 +108036,11 @@ function AZe({ view: e }) {
 function z8() {
 	O8 && !N8 && (N8 = !0, O8.request.actions.close());
 }
-function jZe(e, t) {
+function MZe(e, t) {
 	let n = F8();
 	n?.toggleAttribute("data-ambient", e), n?.toggleAttribute("data-theater", t);
 }
-function MZe(e) {
+function NZe(e) {
 	if (e.kind === "jav") return {
 		kind: "jav",
 		props: {
@@ -108062,7 +108067,7 @@ function MZe(e) {
 					item: e,
 					title: String(e.title || e.name || ""),
 					sub: String(n?.[0] || e.creator || L("catalog:shared.uncredited"))
-				}), jZe(r().ambientMode, r().theaterMode), queueMicrotask(() => {
+				}), MZe(r().ambientMode, r().theaterMode), queueMicrotask(() => {
 					i() && o.present(e, t);
 				});
 			},
@@ -108091,7 +108096,7 @@ function MZe(e) {
 				item: e,
 				title: e.title || "",
 				sub: e.author || e.source_label || ""
-			}), jZe(t === "video" && r().ambientMode, t === "video" && r().theaterMode), queueMicrotask(() => {
+			}), MZe(t === "video" && r().ambientMode, t === "video" && r().theaterMode), queueMicrotask(() => {
 				i() && s.present(e, t);
 			});
 		},
@@ -108112,7 +108117,7 @@ function MZe(e) {
 		}
 	};
 }
-function NZe(e, t) {
+function PZe(e, t) {
 	let n = e.querySelector(":scope > [data-stage-fade]");
 	e.setAttribute("data-stage-reveal", ""), e.getBoundingClientRect(), e.setAttribute("data-stage-revealing", "");
 	let r = 0, i = () => {
@@ -108129,7 +108134,7 @@ function B8(e) {
 	let t = F8();
 	return !O8 || O8.content.kind !== e || N8 || !t?.open || t.hasAttribute("data-closing") ? null : t;
 }
-async function PZe(e) {
+async function FZe(e) {
 	!k8 && document.activeElement instanceof HTMLElement && document.activeElement !== document.body && (k8 = {
 		left: window.scrollX,
 		top: window.scrollY,
@@ -108137,13 +108142,13 @@ async function PZe(e) {
 	});
 	let t = B8(e.kind);
 	if (t) {
-		await IZe(e, t);
+		await LZe(e, t);
 		return;
 	}
-	O8 && RZe({ miniplayer: !1 });
+	O8 && zZe({ miniplayer: !1 });
 	let n = ++j8, r = new AbortController();
-	M8 = r, N8 = !1, P8 = !1, e.kind === "jav" ? C8() : rZe(e.kind, e.id ?? NaN);
-	let i = MZe(e);
+	M8 = r, N8 = !1, P8 = !1, e.kind === "jav" ? C8() : iZe(e.kind, e.id ?? NaN);
+	let i = NZe(e);
 	O8 = {
 		generation: n,
 		request: e,
@@ -108155,7 +108160,7 @@ async function PZe(e) {
 		await a.catch(() => {});
 		return;
 	}
-	let o = FZe(i);
+	let o = IZe(i);
 	O8 = {
 		...O8,
 		phase: o ? "content" : "skeleton"
@@ -108176,11 +108181,11 @@ async function PZe(e) {
 	O8 = {
 		...O8,
 		phase: c ? "content" : "reveal"
-	}, L8(), c || NZe(s, n), Hu(s, ":scope>:not([data-stage-fade]) [data-reveal-line]");
+	}, L8(), c || PZe(s, n), Hu(s, ":scope>:not([data-stage-fade]) [data-reveal-line]");
 	let l = document.activeElement;
 	l !== s && s.contains(l) || s.querySelector("#closeStage")?.focus();
 }
-function FZe(e) {
+function IZe(e) {
 	if (e.kind === "jav") return !!G.getQueryData(U6(e.props.code));
 	if (e.kind === "follow") return !!G.getQueryData(O6(e.props.id));
 	let { queue: t, id: n } = e.props, r = t ? G.getQueryData(iR(t)) : null;
@@ -108188,19 +108193,19 @@ function FZe(e) {
 	let i = r ? hR(r, n) : n;
 	return i != null && !!G.getQueryData(rR(i));
 }
-async function IZe(e, t) {
+async function LZe(e, t) {
 	let n = ++j8;
 	M8?.abort();
 	let r = new AbortController();
 	M8 = r, P8 = !1;
-	let i = MZe(e);
+	let i = NZe(e);
 	try {
 		i.kind === "item" ? await _R(i.props, r.signal) : i.kind === "jav" ? await VYe(i.props, r.signal) : await EJe(i.props, r.signal);
 	} catch {
 		if (r.signal.aborted) return;
 	}
 	if (n !== j8 || !O8 || B8(e.kind) !== t) return;
-	e.kind === "jav" ? C8() : rZe(e.kind, e.id ?? NaN), Mf(t), cI(), O8 = {
+	e.kind === "jav" ? C8() : iZe(e.kind, e.id ?? NaN), Mf(t), cI(), O8 = {
 		...O8,
 		request: e,
 		content: i,
@@ -108209,7 +108214,7 @@ async function IZe(e, t) {
 	let a = document.activeElement;
 	a !== t && t.contains(a) || (t.querySelector("[data-mix-item][aria-current=\"true\"]") || t.querySelector("#closeStage"))?.focus({ preventScroll: !0 });
 }
-function LZe() {
+function RZe() {
 	$2(null);
 	let e = F8();
 	return !e?.open || e.hasAttribute("data-closing") || matchMedia("(prefers-reduced-motion: reduce)").matches ? Promise.resolve() : (e.setAttribute("data-closing", ""), new Promise((t) => {
@@ -108221,8 +108226,8 @@ function LZe() {
 		e.addEventListener("animationend", i), n = window.setTimeout(r, 380);
 	}));
 }
-function RZe({ miniplayer: e = !0 } = {}) {
-	if (j8++, M8?.abort(), M8 = null, nZe(e), !O8) return;
+function zZe({ miniplayer: e = !0 } = {}) {
+	if (j8++, M8?.abort(), M8 = null, rZe(e), !O8) return;
 	let t = F8();
 	t && Mf(t), cI(), $2(null), t?.open && t.close(), O8 = null, N8 = !1, P8 = !1, L8(), g8(null), document.body.removeAttribute("data-detail-open");
 	let n = k8;
@@ -108236,7 +108241,7 @@ function RZe({ miniplayer: e = !0 } = {}) {
 	};
 	r(), requestAnimationFrame(r);
 }
-function zZe(e) {
+function BZe(e) {
 	O8 && (O8 = {
 		...O8,
 		content: O8.content.kind === "item" ? {
@@ -108254,62 +108259,62 @@ function zZe(e) {
 		}
 	}, L8());
 }
-function BZe() {
-	let e = $Xe(), t = e?.kind === "item" ? e.item : null, n = t ? _l(t, I8().player.settings().javImage) : "";
+function VZe() {
+	let e = eZe(), t = e?.kind === "item" ? e.item : null, n = t ? _l(t, I8().player.settings().javImage) : "";
 	if (!n) return;
 	let r = v8();
 	r ? r.poster(n) : document.getElementById("vid")?.setAttribute("poster", n);
 }
-var VZe = {
-	open: PZe,
-	update: zZe,
-	exit: LZe,
-	dispose: RZe,
+var HZe = {
+	open: FZe,
+	update: BZe,
+	exit: RZe,
+	dispose: zZe,
 	requestClose: z8,
 	requestEscape: R8,
-	repaintPoster: BZe,
+	repaintPoster: VZe,
 	isOpen: () => !!O8,
 	showing: () => O8 && B8(O8.content.kind) ? O8.content.kind : null,
-	activeVideo: () => oZe(),
-	mountWallPlayer: eZe,
+	activeVideo: () => sZe(),
+	mountWallPlayer: tZe,
 	toggleTheater: () => {
 		O8 && GI(!I8().player.settings().theaterMode);
 	},
-	toggleMiniplayer: () => hZe(),
+	toggleMiniplayer: () => gZe(),
 	closeMiniplayer: () => C8(),
 	miniplayerActive: () => y8(),
-	miniplayerTakesCard: (e) => vZe(e),
+	miniplayerTakesCard: (e) => yZe(e),
 	miniplayerPlay: (e) => {
-		yZe(e);
+		bZe(e);
 	}
 };
-function HZe(e) {
-	return D8 = e, ZXe(e, {
+function UZe(e) {
+	return D8 = e, QXe(e, {
 		isOpen: () => !!O8,
 		requestClose: z8
-	}), VZe;
+	}), HZe;
 }
-function UZe() {
-	let e = (0, R.useSyncExternalStore)(TZe, () => O8);
-	return D8 ? /* @__PURE__ */ (0, z.jsx)(DZe, { view: e }) : null;
+function WZe() {
+	let e = (0, R.useSyncExternalStore)(EZe, () => O8);
+	return D8 ? /* @__PURE__ */ (0, z.jsx)(OZe, { view: e }) : null;
 }
 // src/react/stats/stats.ts
-var WZe = "/api/stats", GZe = ["stats"], KZe = (e) => U(WZe, e);
-async function qZe(e) {
+var GZe = "/api/stats", KZe = ["stats"], qZe = (e) => U(GZe, e);
+async function JZe(e) {
 	await G.fetchQuery({
-		queryKey: GZe,
-		queryFn: () => KZe(e)
+		queryKey: KZe,
+		queryFn: () => qZe(e)
 	});
 }
-var V8 = (e) => e != null && Number.isFinite(e), JZe = (e) => V8(e) ? e.toLocaleString() : L("manage:shared.notFound"), YZe = (e, t) => V8(e) && V8(t) && t > 0 ? Math.min(100, Math.max(0, Math.round(e / t * 100))) : 0, XZe = (e, t) => {
-	let n = YZe(e, t);
+var V8 = (e) => e != null && Number.isFinite(e), YZe = (e) => V8(e) ? e.toLocaleString() : L("manage:shared.notFound"), XZe = (e, t) => V8(e) && V8(t) && t > 0 ? Math.min(100, Math.max(0, Math.round(e / t * 100))) : 0, ZZe = (e, t) => {
+	let n = XZe(e, t);
 	return !n && V8(e) && e > 0 && V8(t) && t > 0 ? "<1%" : `${n}%`;
-}, ZZe = (e) => {
+}, QZe = (e) => {
 	if (!V8(e)) return L("manage:shared.notFound");
 	let t = Math.max(0, e);
 	return t >= 172800 ? L("manage:stats.durationDays", { count: t / 86400 }) : t >= 3600 ? L("manage:stats.durationHours", { count: t / 3600 }) : L("manage:stats.durationMinutes", { count: Math.round(t / 60) });
-}, QZe = (e) => e.duration ? Math.min(e.play_seconds / e.duration, 1) * 100 : 0, $Ze = (e) => (e.max_reached || 0) * 100, eQe = (e) => e.kind === "online" ? L("manage:stats.watchedOnline") : QZe(e) < $Ze(e) - 25 ? L("manage:stats.skimmed") : e.o_count ? L("manage:stats.climaxNote", { count: e.o_count }) : L("manage:stats.watchedNormally"), tQe = (e) => `${e.kind === "online" ? "/posts/" : "/assets/"}${e.id}`;
-function nQe(e, t = 6) {
+}, $Ze = (e) => e.duration ? Math.min(e.play_seconds / e.duration, 1) * 100 : 0, eQe = (e) => (e.max_reached || 0) * 100, tQe = (e) => e.kind === "online" ? L("manage:stats.watchedOnline") : $Ze(e) < eQe(e) - 25 ? L("manage:stats.skimmed") : e.o_count ? L("manage:stats.climaxNote", { count: e.o_count }) : L("manage:stats.watchedNormally"), nQe = (e) => `${e.kind === "online" ? "/posts/" : "/assets/"}${e.id}`;
+function rQe(e, t = 6) {
 	let n = e.filter((e) => Number.isFinite(e.value) && e.value >= 0);
 	if (n.length <= t) return n;
 	let r = [...n].sort((e, t) => t.value - e.value), i = r.slice(t - 1);
@@ -108319,7 +108324,7 @@ function nQe(e, t = 6) {
 		bytes: i.reduce((e, t) => e + (t.bytes ?? 0), 0)
 	}];
 }
-var rQe = (e) => Math.max(1, ...e) * 1.1, iQe = (e, t) => e > 0 ? Math.max(e, t * .02) : 0, aQe = (e) => Math.max(4, Math.min(14, Math.round(90 / Math.max(1, e)))), oQe = {
+var iQe = (e) => Math.max(1, ...e) * 1.1, aQe = (e, t) => e > 0 ? Math.max(e, t * .02) : 0, oQe = (e) => Math.max(4, Math.min(14, Math.round(90 / Math.max(1, e)))), sQe = {
 	video: L("manage:processingTraffic.sourceVideos"),
 	image: L("manage:stats.mediumImage"),
 	illustration: L("manage:stats.mediumIllustration"),
@@ -108327,18 +108332,18 @@ var rQe = (e) => Math.max(1, ...e) * 1.1, iQe = (e, t) => e > 0 ? Math.max(e, t 
 	audio: L("manage:stats.mediumAudio"),
 	account: L("manage:stats.mediumAccount"),
 	other: L("manage:stats.mediumOther")
-}, sQe = (e) => e.map((e) => ({
-	name: oQe[e.k] ?? e.k,
+}, cQe = (e) => e.map((e) => ({
+	name: sQe[e.k] ?? e.k,
 	value: e.n
-})).sort((e, t) => t.value - e.value), cQe = {
+})).sort((e, t) => t.value - e.value), lQe = {
 	quick: L("manage:stats.lengthUnder5"),
 	short: L("manage:stats.length5to15"),
 	medium: L("manage:stats.length15to40"),
 	long: L("manage:stats.lengthOver40")
-}, lQe = (e, t = {}) => e.map((e) => ({
+}, uQe = (e, t = {}) => e.map((e) => ({
 	name: t[e.k] ?? yi(e.label_code ?? "", e.k),
 	value: e.n
-})), uQe = (e) => lQe(e, cQe), dQe = [
+})), dQe = (e) => uQe(e, lQe), fQe = [
 	[
 		1,
 		1,
@@ -108374,7 +108379,7 @@ var rQe = (e) => Math.max(1, ...e) * 1.1, iQe = (e, t) => e > 0 ? Math.max(e, t 
 		Infinity,
 		"≥10"
 	]
-], fQe = (e) => dQe.map(([t, n, r]) => ({
+], pQe = (e) => fQe.map(([t, n, r]) => ({
 	name: r,
 	value: e.filter((e) => e.k >= t && e.k <= n).reduce((e, t) => e + t.n, 0)
 }));
@@ -108389,7 +108394,7 @@ function H8(e, t) {
 	return n;
 }
 // node_modules/d3-array/src/min.js
-function pQe(e, t) {
+function mQe(e, t) {
 	let n;
 	if (t === void 0) for (let t of e) t != null && (n > t || n === void 0 && t >= t) && (n = t);
 	else {
@@ -108409,7 +108414,7 @@ function U8(e, t) {
 	return n;
 }
 // node_modules/d3-sankey/src/align.js
-function mQe(e, t) {
+function hQe(e, t) {
 	return e.sourceLinks.length ? e.depth : t - 1;
 }
 // node_modules/d3-sankey/src/constant.js
@@ -108419,10 +108424,10 @@ function W8(e) {
 	};
 }
 // node_modules/d3-sankey/src/sankey.js
-function hQe(e, t) {
+function gQe(e, t) {
 	return G8(e.source, t.source) || e.index - t.index;
 }
-function gQe(e, t) {
+function _Qe(e, t) {
 	return G8(e.target, t.target) || e.index - t.index;
 }
 function G8(e, t) {
@@ -108431,38 +108436,38 @@ function G8(e, t) {
 function K8(e) {
 	return e.value;
 }
-function _Qe(e) {
+function vQe(e) {
 	return e.index;
 }
-function vQe(e) {
+function yQe(e) {
 	return e.nodes;
 }
-function yQe(e) {
+function bQe(e) {
 	return e.links;
 }
-function bQe(e, t) {
+function xQe(e, t) {
 	let n = e.get(t);
 	if (!n) throw Error("missing: " + t);
 	return n;
 }
-function xQe({ nodes: e }) {
+function SQe({ nodes: e }) {
 	for (let t of e) {
 		let e = t.y0, n = e;
 		for (let n of t.sourceLinks) n.y0 = e + n.width / 2, e += n.width;
 		for (let e of t.targetLinks) e.y1 = n + e.width / 2, n += e.width;
 	}
 }
-function SQe() {
-	let e = 0, t = 0, n = 1, r = 1, i = 24, a = 8, o, s = _Qe, c = mQe, l, u, d = vQe, f = yQe, p = 6;
+function CQe() {
+	let e = 0, t = 0, n = 1, r = 1, i = 24, a = 8, o, s = vQe, c = hQe, l, u, d = yQe, f = bQe, p = 6;
 	function m() {
 		let e = {
 			nodes: d.apply(null, arguments),
 			links: f.apply(null, arguments)
 		};
-		return h(e), g(e), _(e), v(e), x(e), xQe(e), e;
+		return h(e), g(e), _(e), v(e), x(e), SQe(e), e;
 	}
 	m.update = function(e) {
-		return xQe(e), e;
+		return SQe(e), e;
 	}, m.nodeId = function(e) {
 		return arguments.length ? (s = typeof e == "function" ? e : W8(e), m) : s;
 	}, m.nodeAlign = function(e) {
@@ -108492,7 +108497,7 @@ function SQe() {
 		for (let [e, r] of t.entries()) {
 			r.index = e;
 			let { source: t, target: i } = r;
-			typeof t != "object" && (t = r.source = bQe(n, t)), typeof i != "object" && (i = r.target = bQe(n, i)), t.sourceLinks.push(r), i.targetLinks.push(r);
+			typeof t != "object" && (t = r.source = xQe(n, t)), typeof i != "object" && (i = r.target = xQe(n, i)), t.sourceLinks.push(r), i.targetLinks.push(r);
 		}
 		if (u != null) for (let { sourceLinks: t, targetLinks: n } of e) t.sort(u), n.sort(u);
 	}
@@ -108531,7 +108536,7 @@ function SQe() {
 		return o;
 	}
 	function b(e) {
-		let n = pQe(e, (e) => (r - t - (e.length - 1) * o) / U8(e, K8));
+		let n = mQe(e, (e) => (r - t - (e.length - 1) * o) / U8(e, K8));
 		for (let i of e) {
 			let e = t;
 			for (let t of i) {
@@ -108604,12 +108609,12 @@ function SQe() {
 	}
 	function D({ sourceLinks: e, targetLinks: t }) {
 		if (u === void 0) {
-			for (let { source: { sourceLinks: e } } of t) e.sort(gQe);
-			for (let { target: { targetLinks: t } } of e) t.sort(hQe);
+			for (let { source: { sourceLinks: e } } of t) e.sort(_Qe);
+			for (let { target: { targetLinks: t } } of e) t.sort(gQe);
 		}
 	}
 	function O(e) {
-		if (u === void 0) for (let { sourceLinks: t, targetLinks: n } of e) t.sort(gQe), n.sort(hQe);
+		if (u === void 0) for (let { sourceLinks: t, targetLinks: n } of e) t.sort(_Qe), n.sort(gQe);
 	}
 	function k(e, t) {
 		let n = e.y0 - (e.sourceLinks.length - 1) * o / 2;
@@ -108638,14 +108643,14 @@ function SQe() {
 	return m;
 }
 // node_modules/d3-path/src/path.js
-var q8 = Math.PI, J8 = 2 * q8, Y8 = 1e-6, CQe = J8 - Y8;
+var q8 = Math.PI, J8 = 2 * q8, Y8 = 1e-6, wQe = J8 - Y8;
 function X8() {
 	this._x0 = this._y0 = this._x1 = this._y1 = null, this._ = "";
 }
-function wQe() {
+function TQe() {
 	return new X8();
 }
-X8.prototype = wQe.prototype = {
+X8.prototype = TQe.prototype = {
 	constructor: X8,
 	moveTo: function(e, t) {
 		this._ += "M" + (this._x0 = this._x1 = +e) + "," + (this._y0 = this._y1 = +t);
@@ -108679,7 +108684,7 @@ X8.prototype = wQe.prototype = {
 		e = +e, t = +t, n = +n, a = !!a;
 		var o = n * Math.cos(r), s = n * Math.sin(r), c = e + o, l = t + s, u = 1 ^ a, d = a ? r - i : i - r;
 		if (n < 0) throw Error("negative radius: " + n);
-		this._x1 === null ? this._ += "M" + c + "," + l : (Math.abs(this._x1 - c) > Y8 || Math.abs(this._y1 - l) > Y8) && (this._ += "L" + c + "," + l), n && (d < 0 && (d = d % J8 + J8), d > CQe ? this._ += "A" + n + "," + n + ",0,1," + u + "," + (e - o) + "," + (t - s) + "A" + n + "," + n + ",0,1," + u + "," + (this._x1 = c) + "," + (this._y1 = l) : d > Y8 && (this._ += "A" + n + "," + n + ",0," + +(d >= q8) + "," + u + "," + (this._x1 = e + n * Math.cos(i)) + "," + (this._y1 = t + n * Math.sin(i))));
+		this._x1 === null ? this._ += "M" + c + "," + l : (Math.abs(this._x1 - c) > Y8 || Math.abs(this._y1 - l) > Y8) && (this._ += "L" + c + "," + l), n && (d < 0 && (d = d % J8 + J8), d > wQe ? this._ += "A" + n + "," + n + ",0,1," + u + "," + (e - o) + "," + (t - s) + "A" + n + "," + n + ",0,1," + u + "," + (this._x1 = c) + "," + (this._y1 = l) : d > Y8 && (this._ += "A" + n + "," + n + ",0," + +(d >= q8) + "," + u + "," + (this._x1 = e + n * Math.cos(i)) + "," + (this._y1 = t + n * Math.sin(i))));
 	},
 	rect: function(e, t, n, r) {
 		this._ += "M" + (this._x0 = this._x1 = +e) + "," + (this._y0 = this._y1 = +t) + "h" + +n + "v" + +r + "h" + -n + "Z";
@@ -108689,102 +108694,102 @@ X8.prototype = wQe.prototype = {
 	}
 };
 // node_modules/d3-shape/src/constant.js
-function TQe(e) {
+function EQe(e) {
 	return function() {
 		return e;
 	};
 }
 // node_modules/d3-shape/src/point.js
-function EQe(e) {
+function DQe(e) {
 	return e[0];
 }
-function DQe(e) {
+function OQe(e) {
 	return e[1];
 }
 // node_modules/d3-shape/src/array.js
-var OQe = Array.prototype.slice;
+var kQe = Array.prototype.slice;
 // node_modules/d3-shape/src/link/index.js
-function kQe(e) {
+function AQe(e) {
 	return e.source;
 }
-function AQe(e) {
+function jQe(e) {
 	return e.target;
 }
-function jQe(e) {
-	var t = kQe, n = AQe, r = EQe, i = DQe, a = null;
+function MQe(e) {
+	var t = AQe, n = jQe, r = DQe, i = OQe, a = null;
 	function o() {
-		var o, s = OQe.call(arguments), c = t.apply(this, s), l = n.apply(this, s);
-		if (a ||= o = wQe(), e(a, +r.apply(this, (s[0] = c, s)), +i.apply(this, s), +r.apply(this, (s[0] = l, s)), +i.apply(this, s)), o) return a = null, o + "" || null;
+		var o, s = kQe.call(arguments), c = t.apply(this, s), l = n.apply(this, s);
+		if (a ||= o = TQe(), e(a, +r.apply(this, (s[0] = c, s)), +i.apply(this, s), +r.apply(this, (s[0] = l, s)), +i.apply(this, s)), o) return a = null, o + "" || null;
 	}
 	return o.source = function(e) {
 		return arguments.length ? (t = e, o) : t;
 	}, o.target = function(e) {
 		return arguments.length ? (n = e, o) : n;
 	}, o.x = function(e) {
-		return arguments.length ? (r = typeof e == "function" ? e : TQe(+e), o) : r;
+		return arguments.length ? (r = typeof e == "function" ? e : EQe(+e), o) : r;
 	}, o.y = function(e) {
-		return arguments.length ? (i = typeof e == "function" ? e : TQe(+e), o) : i;
+		return arguments.length ? (i = typeof e == "function" ? e : EQe(+e), o) : i;
 	}, o.context = function(e) {
 		return arguments.length ? (a = e ?? null, o) : a;
 	}, o;
 }
-function MQe(e, t, n, r, i) {
+function NQe(e, t, n, r, i) {
 	e.moveTo(t, n), e.bezierCurveTo(t = (t + r) / 2, n, t, i, r, i);
 }
-function NQe() {
-	return jQe(MQe);
+function PQe() {
+	return MQe(NQe);
 }
 // node_modules/d3-sankey/src/sankeyLinkHorizontal.js
-function PQe(e) {
+function FQe(e) {
 	return [e.source.x1, e.y0];
 }
-function FQe(e) {
+function IQe(e) {
 	return [e.target.x0, e.y1];
 }
-function IQe() {
-	return NQe().source(PQe).target(FQe);
+function LQe() {
+	return PQe().source(FQe).target(IQe);
 }
 // src/react/taste/taste.ts
-var LQe = "/api/taste", RQe = "/api/taste/refresh", zQe = "/api/taste/import", BQe = "/api/taste/source", VQe = (e) => ["taste", e], HQe = ["taste", "refresh"], UQe = [
+var RQe = "/api/taste", zQe = "/api/taste/refresh", BQe = "/api/taste/import", VQe = "/api/taste/source", HQe = (e) => ["taste", e], UQe = ["taste", "refresh"], WQe = [
 	["7d", L("manage:taste.last7Days")],
 	["30d", L("manage:taste.last30Days")],
 	["90d", L("manage:taste.last90Days")],
 	["365d", L("manage:taste.lastYear")],
 	["all", L("manage:taste.allTime")]
-], WQe = 2e3, Z8 = /* @__PURE__ */ new WeakMap();
-function GQe(e) {
+], GQe = 2e3, Z8 = /* @__PURE__ */ new WeakMap();
+function KQe(e) {
 	let t = e.state.data;
 	if (!t?.stale || t.error) return Z8.delete(e), !1;
 	let n = Ka(e);
 	if (n) return Wa(n);
 	let r = e.state.dataUpdateCount ?? 0;
-	return Z8.has(e) || Z8.set(e, r), Math.min(WQe * 2 ** (r - (Z8.get(e) ?? r)), Ua);
+	return Z8.has(e) || Z8.set(e, r), Math.min(GQe * 2 ** (r - (Z8.get(e) ?? r)), Ua);
 }
-var KQe = (e) => e ? new Date(e).toLocaleString(Ct, {
+var qQe = (e) => e ? new Date(e).toLocaleString(Ct, {
 	month: "numeric",
 	day: "numeric",
 	hour: "2-digit",
 	minute: "2-digit"
-}) : "—", qQe = (e, t) => W(BQe, {
+}) : "—", JQe = (e, t) => W(VQe, {
 	...e,
 	window: t
-}), JQe = (e, t, n = !1) => U(`${LQe}?window=${e}${n ? "&retry=1" : ""}`, t), YQe = (e) => U(RQe, e);
-async function XQe(e, t) {
+}), YQe = (e, t, n = !1) => U(`${RQe}?window=${e}${n ? "&retry=1" : ""}`, t), XQe = (e) => U(zQe, e);
+async function ZQe(e, t) {
 	await G.fetchQuery({
-		queryKey: VQe(e),
-		queryFn: () => JQe(e, t)
+		queryKey: HQe(e),
+		queryFn: () => YQe(e, t)
 	});
 }
-var ZQe = (e) => W(RQe, {
+var QQe = (e) => W(zQe, {
 	window: e,
 	background: !0
-}), QQe = (e, t) => W(BQe, {
+}), $Qe = (e, t) => W(VQe, {
 	operation: "remove",
 	source_key: e,
 	window: t
 });
-async function $Qe(e) {
-	let t = await fetch(zQe, {
+async function e$e(e) {
+	let t = await fetch(BQe, {
 		method: "POST",
 		credentials: "same-origin",
 		headers: {
@@ -108802,59 +108807,59 @@ async function $Qe(e) {
 	}
 	return n;
 }
-var e$e = "taste-refresh", t$e = (e) => e ? new Date(e).toLocaleDateString(Ct) : "—";
-function n$e(e) {
+var t$e = "taste-refresh", n$e = (e) => e ? new Date(e).toLocaleDateString(Ct) : "—";
+function r$e(e) {
 	let t = L("manage:taste.sourceCount", { count: Number(e.history_sources || 0) });
 	if (!e.range_start && !e.range_end) return t;
 	let n = e.range_start?.slice(0, 4) === e.range_end?.slice(0, 4), r = (e) => e && n ? new Date(e).toLocaleDateString(Ct, {
 		month: "numeric",
 		day: "numeric"
-	}) : t$e(e);
+	}) : n$e(e);
 	return `${t} · ${r(e.range_start)}–${r(e.range_end)}`;
 }
-var r$e = ZZe, i$e = (e) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
+var i$e = QZe, a$e = (e) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
 	...e,
 	name: Ei(e, "name")
-})).sort((e, t) => Number(t.score) - Number(e.score)), a$e = (e) => Number(e.web_visits ?? e.score ?? e.visits ?? e.peach_items ?? 0);
-function o$e(e) {
+})).sort((e, t) => Number(t.score) - Number(e.score)), o$e = (e) => Number(e.web_visits ?? e.score ?? e.visits ?? e.peach_items ?? 0);
+function s$e(e) {
 	if (e.web_visits == null && !e.web_bookmarks) return Number(e.score || e.visits || 0).toLocaleString();
 	let t = [], n = Number(e.web_bookmarks || 0), r = Number(e.web_visits ?? e.visits ?? 0) - n;
 	return r > 0 && t.push(L("manage:taste.visitCount", { count: r })), n && t.push(L("manage:taste.bookmarkCount", { count: n })), e.peach_items && t.push(`Peach ${Number(e.peach_items).toLocaleString()}`), t.join(" · ");
 }
-function s$e(e) {
-	let t = e.map(a$e), n = Math.max(1, ...t);
+function c$e(e) {
+	let t = e.map(o$e), n = Math.max(1, ...t);
 	return t.map((e) => Math.max(0, Math.min(100, e / n * 100)));
 }
-var c$e = (e, t) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
+var l$e = (e, t) => e.filter((e) => Number.isFinite(Number(e.score)) && Number(e.score) > 0).map((e) => ({
 	name: e.name,
 	value: Number(e.score)
 })).sort((e, t) => t.value - e.value).slice(0, t);
-function l$e(e) {
-	let t = c$e(e, 6);
+function u$e(e) {
+	let t = l$e(e, 6);
 	return t.length < 3 ? [] : t;
 }
-var u$e = {
+var d$e = {
 	width: 720,
 	height: 435
-}, d$e = {
+}, f$e = {
 	source: 145,
 	target: 545
-}, f$e = 30, p$e = 240;
-function m$e(e, t, n) {
+}, p$e = 30, m$e = 240;
+function h$e(e, t, n) {
 	let r = /* @__PURE__ */ new Map();
 	for (let n of e) r.set(n[t], (r.get(n[t]) ?? 0) + n.value);
 	if (r.size <= 12) return (e) => e;
 	let i = [...r].sort((e, t) => t[1] - e[1]).map(([e]) => e), a = new Set(i.slice(0, 11)), o = n(i.length - a.size);
 	return (e) => a.has(e) ? e : o;
 }
-function h$e(e = []) {
+function g$e(e = []) {
 	let t = e.filter((e) => e.source && e.target && Number.isFinite(e.value) && e.value > 0).map((e) => ({
 		source: Ei(e, "source"),
 		target: Ei(e, "target"),
 		value: e.value
 	}));
 	if (!t.length) return null;
-	let n = m$e(t, "source", (e) => L("manage:taste.otherSites", { count: e })), r = m$e(t, "target", (e) => L("manage:taste.otherCreators", { count: e })), i = /* @__PURE__ */ new Map();
+	let n = h$e(t, "source", (e) => L("manage:taste.otherSites", { count: e })), r = h$e(t, "target", (e) => L("manage:taste.otherCreators", { count: e })), i = /* @__PURE__ */ new Map();
 	for (let e of t) {
 		let t = n(e.source), a = r(e.target), o = JSON.stringify([t, a]), s = i.get(o);
 		s ? s.value += e.value : i.set(o, {
@@ -108863,7 +108868,7 @@ function h$e(e = []) {
 			value: e.value
 		});
 	}
-	let a = [...i.values()], o = [...new Set(a.map((e) => e.source))], s = [...new Set(a.map((e) => e.target))], c = Math.max(o.length, s.length), l = Math.max(404, 16 + (c - 1) * f$e + p$e), u = SQe().nodeId((e) => e.id).nodeWidth(10).nodePadding(f$e).extent([[155, 16], [535, l]])({
+	let a = [...i.values()], o = [...new Set(a.map((e) => e.source))], s = [...new Set(a.map((e) => e.target))], c = Math.max(o.length, s.length), l = Math.max(404, 16 + (c - 1) * p$e + m$e), u = CQe().nodeId((e) => e.id).nodeWidth(10).nodePadding(p$e).extent([[155, 16], [535, l]])({
 		nodes: [...o.map((e) => ({
 			id: `source:${e}`,
 			name: e,
@@ -108878,7 +108883,7 @@ function h$e(e = []) {
 			target: `target:${e.target}`,
 			value: e.value
 		}))
-	}), d = a.reduce((e, t) => e + t.value, 0), f = IQe();
+	}), d = a.reduce((e, t) => e + t.value, 0), f = LQe();
 	return {
 		nodes: u.nodes.map((e) => ({
 			id: e.id,
@@ -108906,12 +108911,12 @@ function h$e(e = []) {
 			};
 		}),
 		total: d,
-		height: l + u$e.height - 404
+		height: l + d$e.height - 404
 	};
 }
-var g$e = (e) => wa(e, 17), _$e = () => fp, v$e = () => Zf, Q8 = () => document.getElementById("index");
+var _$e = (e) => wa(e, 17), v$e = () => fp, y$e = () => Zf, Q8 = () => document.getElementById("index");
 function $8(e, t, n = {}) {
-	let r = (0, R.useSyncExternalStore)(Cp, _$e);
+	let r = (0, R.useSyncExternalStore)(Cp, v$e);
 	Qm();
 	let i = zh(Tg.navigation.location.pathname), a = (0, R.useRef)({
 		mounted: !0,
@@ -108959,7 +108964,7 @@ function $8(e, t, n = {}) {
 		i
 	]);
 }
-async function y$e(e, t, n, r) {
+async function b$e(e, t, n, r) {
 	let i = Q8();
 	if (!i) return;
 	let a = `/${t}`, o = SHe(t, n), s = xHe(yF().value.peopleLayout), c = !!i.querySelector("[data-index-page]") && !i.hidden;
@@ -108974,23 +108979,23 @@ async function y$e(e, t, n, r) {
 		reuse: c
 	}) && r() && (e.surfaceShown?.("index", a), u_(r, i));
 }
-function b$e(e) {
+function x$e(e) {
 	let t = Q8(), n = t ? ug(t) : null;
 	return !!t && !t.hidden && !!n && n.path === e && n.host.isConnected;
 }
-function x$e({ epoch: e }) {
+function S$e({ epoch: e }) {
 	let t = (0, R.useContext)(FZ), n = Qm(), r = n.pathname.split("/").filter(Boolean)[0];
 	return $8(e, (e, i) => {
-		t && y$e(t, r, n.search, i);
-	}, { shown: () => b$e(`/${r}`) }), null;
+		t && b$e(t, r, n.search, i);
+	}, { shown: () => x$e(`/${r}`) }), null;
 }
-function S$e() {
-	let e = PZ(), t = (0, R.useSyncExternalStore)(Cp, v$e), n = (0, R.useRef)(t);
+function C$e() {
+	let e = PZ(), t = (0, R.useSyncExternalStore)(Cp, y$e), n = (0, R.useRef)(t);
 	return (0, R.useEffect)(() => {
 		n.current !== t && (n.current = t, hg(Q8(), { selectMode: t }));
-	}, [t]), /* @__PURE__ */ (0, z.jsx)(x$e, { epoch: e }, e);
+	}, [t]), /* @__PURE__ */ (0, z.jsx)(S$e, { epoch: e }, e);
 }
-function C$e(e) {
+function w$e(e) {
 	let t;
 	try {
 		t = decodeURIComponent(e);
@@ -109004,9 +109009,9 @@ function C$e(e) {
 		name: a
 	} : null;
 }
-var w$e = /* @__PURE__ */ new WeakMap();
-function T$e(e) {
-	let t = w$e.get(e);
+var T$e = /* @__PURE__ */ new WeakMap();
+function E$e(e) {
+	let t = T$e.get(e);
 	return t || (t = {
 		helpers: {
 			...e.grid.helpers,
@@ -109016,13 +109021,13 @@ function T$e(e) {
 			...e.grid.actions,
 			revealSource: e.revealSource
 		}
-	}, w$e.set(e, t)), t;
+	}, T$e.set(e, t)), t;
 }
 function e5() {
 	let e = Q8(), t = e ? ug(e) : null;
 	return !!t && t.path.endsWith("/*") && t.host.isConnected;
 }
-async function E$e(e, t, n, r, i, a, o) {
+async function D$e(e, t, n, r, i, a, o) {
 	let s = Q8();
 	if (!s) return;
 	let { segment: c, kind: l, name: u } = n;
@@ -109049,7 +109054,7 @@ async function E$e(e, t, n, r, i, a, o) {
 	let _ = {
 		...g,
 		hosts: h,
-		card: T$e(e),
+		card: E$e(e),
 		resolvedEntity: o,
 		restoreNavigation: c_(),
 		actions: {
@@ -109066,7 +109071,7 @@ async function E$e(e, t, n, r, i, a, o) {
 		place: (e) => (e.replaceChildren(...p), m.firstElementChild)
 	}) && a() && e5() && (e.surfaceShown?.("entity", r), u_(a, h.filter));
 }
-function D$e({ target: e }) {
+function O$e({ target: e }) {
 	let t = (0, R.useContext)(FZ), n = PZ(), r = Qm();
 	return $8(n, (n, i) => {
 		let a = t?.entity;
@@ -109099,7 +109104,7 @@ function D$e({ target: e }) {
 				return;
 			}
 			let c = String(s.canonical_name || e.name), l = ra(e.kind, c, Number(s.id));
-			l === r.pathname ? !n && a.refresh(e.kind, c, r.search) ? u_(i, Q8()?.querySelector("[data-entity-filter]")) : E$e(t, a, {
+			l === r.pathname ? !n && a.refresh(e.kind, c, r.search) ? u_(i, Q8()?.querySelector("[data-entity-filter]")) : D$e(t, a, {
 				...e,
 				name: c
 			}, r.pathname, r.search, i, s) : Eg(l + r.search + r.hash, {
@@ -109109,13 +109114,13 @@ function D$e({ target: e }) {
 		})();
 	}, { shown: () => e5() && !Q8()?.hidden }), null;
 }
-function O$e() {
-	let e = C$e(Qm().pathname);
-	return e ? /* @__PURE__ */ (0, z.jsx)(D$e, { target: e }, JSON.stringify([e.kind, e.name])) : null;
+function k$e() {
+	let e = w$e(Qm().pathname);
+	return e ? /* @__PURE__ */ (0, z.jsx)(O$e, { target: e }, JSON.stringify([e.kind, e.name])) : null;
 }
 // src/react/router/pages/follow.tsx
-var t5 = () => document.getElementById("stats"), k$e = () => vp;
-async function A$e(e, t) {
+var t5 = () => document.getElementById("stats"), A$e = () => vp;
+async function j$e(e, t) {
 	let n = t5(), r = e.follow;
 	if (!n || !r) return;
 	let i = s_("follow"), a = r.refresh(i), o = r.props();
@@ -109131,26 +109136,26 @@ async function A$e(e, t) {
 		beforePlace: s ? () => e.surfaceChanged("follow", "/follow") : void 0
 	}), t() && u_(t, n.querySelector("[data-filter-frame]"));
 }
-function j$e() {
+function M$e() {
 	let e = t5(), t = e ? ug(e) : null;
 	return !!e && !e.hidden && !!t && t.path === "/follow" && t.host.isConnected;
 }
-function M$e() {
+function N$e() {
 	let e = (0, R.useContext)(FZ);
 	return $8(PZ(), (t, n) => {
-		e && A$e(e, n);
+		e && j$e(e, n);
 	}, {
-		shown: j$e,
+		shown: M$e,
 		onCovered: () => {
 			Tg.navigation.location.pathname.startsWith("/posts/") && e?.follow?.ground();
 		}
 	}), null;
 }
-function N$e(e) {
+function P$e(e) {
 	let t = e ? ug(e) : null;
 	return !!t && t.path === "/playlists" && t.host.isConnected;
 }
-async function P$e(e, t) {
+async function F$e(e, t) {
 	let n = t5();
 	n && (e.surfaceChanged("playlists", "/playlists"), L6(n, I6("/playlists", {
 		followLayout: "",
@@ -109161,50 +109166,50 @@ async function P$e(e, t) {
 		isCurrent: t
 	}), t() && u_(t));
 }
-function F$e() {
-	let e = (0, R.useContext)(FZ), t = (0, R.useSyncExternalStore)(Cp, k$e), n = (0, R.useRef)(t);
+function I$e() {
+	let e = (0, R.useContext)(FZ), t = (0, R.useSyncExternalStore)(Cp, A$e), n = (0, R.useRef)(t);
 	return (0, R.useEffect)(() => {
 		if (n.current === t) return;
 		n.current = t;
 		let e = t5();
-		N$e(e) && hg(e, { revision: t });
+		P$e(e) && hg(e, { revision: t });
 	}, [t]), $8(PZ(), (t, n) => {
-		e && P$e(e, n);
+		e && F$e(e, n);
 	}, { shown: () => {
 		let e = t5();
-		return N$e(e) && !e.hidden;
+		return P$e(e) && !e.hidden;
 	} }), null;
 }
 // src/react/router/pages/immerse.tsx
-function I$e() {
+function L$e() {
 	let e = new URLSearchParams(Tg.navigation.location.search).get("id");
 	return /^\d+$/.test(e || "") ? Number(e) : void 0;
 }
-function L$e() {
+function R$e() {
 	let e = (0, R.useContext)(FZ);
 	return MZ(() => {
-		e?.openImmerse(I$e());
+		e?.openImmerse(L$e());
 	}, !0), null;
 }
-function R$e() {
-	return /* @__PURE__ */ (0, z.jsx)(L$e, {}, PZ());
+function z$e() {
+	return /* @__PURE__ */ (0, z.jsx)(R$e, {}, PZ());
 }
 // src/react/router/pages/managed.tsx
-var z$e = () => fp > 0, B$e = () => (0, R.useSyncExternalStore)(Cp, z$e), V$e = () => yF().value.followLayout === "table" ? "table" : "default", n5 = () => new URLSearchParams(window.location.search);
+var B$e = () => fp > 0, V$e = () => (0, R.useSyncExternalStore)(Cp, B$e), H$e = () => yF().value.followLayout === "table" ? "table" : "default", n5 = () => new URLSearchParams(window.location.search);
 function r5(e) {
 	return Ji("/healthz", { signal: e.controller.signal }).catch((e) => {
 		if (Yi(e)) return null;
 		throw e;
 	});
 }
-function H$e(e, t) {
+function U$e(e, t) {
 	return {
 		readOnly: !!e?.ledger_read_only,
 		readOnlyMessage: yi(e?.ledger_read_only_message_code ?? "", e?.ledger_read_only_message ?? "", e?.ledger_read_only_message_params) || L("shell:managedPage.readOnly"),
 		writerUrl: e?.ledger_writer_origin ? new URL(t, e.ledger_writer_origin).href : ""
 	};
 }
-async function U$e(e, t) {
+async function W$e(e, t) {
 	if (e === "/jav") {
 		let e = await r5(t);
 		return t.live ? {
@@ -109227,7 +109232,7 @@ async function U$e(e, t) {
 		return t.live ? {
 			category: b2(e) ? e : "",
 			queue: S2(n5().get("queue")),
-			...H$e(n, "/review")
+			...U$e(n, "/review")
 		} : null;
 	}
 	if (e === "/subscriptions") {
@@ -109237,13 +109242,13 @@ async function U$e(e, t) {
 		return {
 			...e,
 			pageSize: Number(r.followPageSize) || 20,
-			layout: V$e(),
-			...H$e(n, "/subscriptions")
+			layout: H$e(),
+			...U$e(n, "/subscriptions")
 		};
 	}
 	return {};
 }
-async function W$e(e, t, n) {
+async function G$e(e, t, n) {
 	let r = Tg.navigation.seq, i = () => n.live && Tg.navigation.seq === r;
 	if (e === "/jav" && bJ(n5().get("tab")) === "library") {
 		Tg.replace(uDe(window.location.search));
@@ -109264,7 +109269,7 @@ async function W$e(e, t, n) {
 	let a = document.getElementById("stats");
 	if (!a) return;
 	t.surfaceChanged("management", e), L6(a, I6(e, {
-		followLayout: V$e(),
+		followLayout: H$e(),
 		followSort: n5().get("sort") || "",
 		followDir: n5().get("dir") || ""
 	})), u_(i, a, { pending: !0 }), e === "/taste" && (xp({ state: {
@@ -109282,7 +109287,7 @@ async function W$e(e, t, n) {
 		q: "",
 		jav: ""
 	} }), t.clearSearch());
-	let o = await U$e(e, n);
+	let o = await W$e(e, n);
 	if (!o) return;
 	let s = await mg(e, o, {
 		container: a,
@@ -109314,13 +109319,13 @@ function i5({ path: e }) {
 		a,
 		o,
 		n
-	]), /* @__PURE__ */ (0, z.jsx)(G$e, {
+	]), /* @__PURE__ */ (0, z.jsx)(K$e, {
 		path: e,
 		covered: r.current === null
 	}, a);
 }
-function G$e({ path: e, covered: t }) {
-	let n = (0, R.useContext)(FZ), r = B$e(), i = (0, R.useRef)(null);
+function K$e({ path: e, covered: t }) {
+	let n = (0, R.useContext)(FZ), r = V$e(), i = (0, R.useRef)(null);
 	return (0, R.useEffect)(() => {
 		Oh(e) && hg(document.getElementById("stats"), { section: kh(e) });
 	}, [e]), (0, R.useEffect)(() => {
@@ -109331,15 +109336,15 @@ function G$e({ path: e, covered: t }) {
 			controller: new AbortController()
 		};
 		i.current = a, queueMicrotask(() => {
-			a.live && W$e(e, n, a);
+			a.live && G$e(e, n, a);
 		});
 	}, [r]), (0, R.useEffect)(() => () => {
 		let e = i.current;
 		e && (e.live = !1, e.controller.abort());
 	}, []), null;
 }
-function K$e() {
-	let e = B$e(), t = (0, R.useRef)(!1);
+function q$e() {
+	let e = V$e(), t = (0, R.useRef)(!1);
 	return (0, R.useEffect)(() => {
 		if (!e || t.current || zh(Tg.navigation.location.pathname)) return;
 		t.current = !0;
@@ -109352,24 +109357,24 @@ function K$e() {
 	}, [e]), null;
 }
 // src/react/router/route-chunk.ts
-var q$e = [], J$e = "peach.chunkReloadAt", Y$e = 3e4;
-async function X$e() {
+var J$e = [], Y$e = "peach.chunkReloadAt", X$e = 3e4;
+async function Z$e() {
 	try {
-		let e = Number(sessionStorage.getItem(J$e) || 0);
-		if (Date.now() - e < Y$e || !(await fetch("/healthz", {
+		let e = Number(sessionStorage.getItem(Y$e) || 0);
+		if (Date.now() - e < X$e || !(await fetch("/healthz", {
 			cache: "no-store",
 			credentials: "same-origin"
 		})).ok) return;
-		sessionStorage.setItem(J$e, String(Date.now())), location.reload();
+		sessionStorage.setItem(Y$e, String(Date.now())), location.reload();
 	} catch {}
 }
 function a5(e) {
 	let t = null, n = null, r = () => n ??= e().then((e) => (t = { module: e }, e), (e) => {
 		throw n = null, e;
 	});
-	return q$e.push(r), {
+	return J$e.push(r), {
 		preload: () => r().catch(async (e) => {
-			throw await X$e(), e;
+			throw await Z$e(), e;
 		}),
 		get: () => {
 			if (!t) throw Error(L("shell:router.chunkNotLoaded"));
@@ -109377,10 +109382,10 @@ function a5(e) {
 		}
 	};
 }
-function Z$e() {
+function Q$e() {
 	let e = globalThis.requestIdleCallback;
 	if (typeof e != "function") return;
-	let t = [...q$e], n = () => {
+	let t = [...J$e], n = () => {
 		let r = t.shift();
 		r && e(() => {
 			r().catch(() => {}).finally(n);
@@ -109394,14 +109399,14 @@ async function o5(e, t) {
 	if (r.status === "rejected") throw r.reason;
 	if (n.status === "rejected") throw n.reason;
 }
-var Q$e = a5(() => import("./peach-app.jav-page-zNfkXFJn.js")), $$e = a5(() => import("./peach-app.stats-page-B-PQu4dX.js")), e1e = a5(() => import("./peach-app.taste-page-D-wUu3ug.js")), t1e = a5(() => import("./peach-app.review-page-CWlayzX9.js")), s5 = a5(() => import("./peach-app.data-cleanup-page-C7aVEeq5.js")), n1e = a5(() => import("./peach-app.duplicates-page-Cvh-2Shl.js")), r1e = a5(() => import("./peach-app.quality-goals-page-C4WgkC9R.js")), i1e = a5(() => import("./peach-app.scraping-page-DFEzSxhD.js")), a1e = a5(async () => {
+var $$e = a5(() => import("./peach-app.jav-page-zNfkXFJn.js")), e1e = a5(() => import("./peach-app.stats-page-B-PQu4dX.js")), t1e = a5(() => import("./peach-app.taste-page-D-wUu3ug.js")), n1e = a5(() => import("./peach-app.review-page-CWlayzX9.js")), s5 = a5(() => import("./peach-app.data-cleanup-page-C7aVEeq5.js")), r1e = a5(() => import("./peach-app.duplicates-page-Cvh-2Shl.js")), i1e = a5(() => import("./peach-app.quality-goals-page-C4WgkC9R.js")), a1e = a5(() => import("./peach-app.scraping-page-DFEzSxhD.js")), o1e = a5(async () => {
 	let [{ ConfigurationPage: e }, { DiagnosticsPage: t }] = await Promise.all([import("./peach-app.configuration-page-DUpmPfQF.js"), import("./peach-app.diagnostics-page-IWg4O9Z-.js")]);
 	return {
 		ConfigurationPage: e,
 		DiagnosticsPage: t
 	};
-}), o1e = a5(() => import("./peach-app.activity-page-DIdoJpSY.js")), s1e = a5(() => import("./peach-app.follow-manage-page-CkRmcQsr.js")), c1e = a5(() => import("./peach-app.playlists-page-C9OPeUzO.js")), l1e = a5(() => import("./peach-app.repair-center-CV575CnZ.js"));
-function u1e(e, t, n) {
+}), s1e = a5(() => import("./peach-app.activity-page-DIdoJpSY.js")), c1e = a5(() => import("./peach-app.follow-manage-page-CkRmcQsr.js")), l1e = a5(() => import("./peach-app.playlists-page-C9OPeUzO.js")), u1e = a5(() => import("./peach-app.repair-center-CV575CnZ.js"));
+function d1e(e, t, n) {
 	if (e === "duplicates") {
 		n("/duplicates");
 		return;
@@ -109411,9 +109416,9 @@ function u1e(e, t, n) {
 }
 var c5 = (e) => ({
 	element: /* @__PURE__ */ (0, z.jsx)(i5, { path: e }),
-	prefetch: (t, n) => (e === "/settings/diagnostics" && dHe(n).catch(() => {}), o5(a1e, xGe(n))),
+	prefetch: (t, n) => (e === "/settings/diagnostics" && dHe(n).catch(() => {}), o5(o1e, xGe(n))),
 	page: (t, n) => {
-		let { ConfigurationPage: r, DiagnosticsPage: i } = a1e.get();
+		let { ConfigurationPage: r, DiagnosticsPage: i } = o1e.get();
 		return /* @__PURE__ */ (0, z.jsx)(r, {
 			receipt: (e) => n.receipt(e),
 			reopenTutorial: n.reopenTutorial,
@@ -109439,9 +109444,9 @@ var c5 = (e) => ({
 	}, e), {}),
 	"/jav": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/jav" }),
-		prefetch: (e, t) => o5(Q$e, Ske(e.tab, t)),
+		prefetch: (e, t) => o5($$e, Ske(e.tab, t)),
 		page: (e, t) => {
-			let { JavPage: n } = Q$e.get();
+			let { JavPage: n } = $$e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				...e,
 				navigate: t.navigate,
@@ -109451,9 +109456,9 @@ var c5 = (e) => ({
 	},
 	"/stats": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/stats" }),
-		prefetch: (e, t) => o5($$e, qZe(t)),
+		prefetch: (e, t) => o5(e1e, JZe(t)),
 		page: (e, t) => {
-			let { StatsPage: n } = $$e.get();
+			let { StatsPage: n } = e1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				tagLabel: If,
 				onTag: t.openTag
@@ -109462,9 +109467,9 @@ var c5 = (e) => ({
 	},
 	"/taste": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/taste" }),
-		prefetch: (e, t) => o5(e1e, XQe("all", t)),
+		prefetch: (e, t) => o5(t1e, ZQe("all", t)),
 		page: (e, t, n) => {
-			let { TastePage: r } = e1e.get();
+			let { TastePage: r } = t1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(r, {
 				onSignal: t.openTasteSignal,
 				navigate: n,
@@ -109475,9 +109480,9 @@ var c5 = (e) => ({
 	},
 	"/review": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/review" }),
-		prefetch: (e, t) => o5(t1e, HFe(t)),
+		prefetch: (e, t) => o5(n1e, HFe(t)),
 		page: (e, t) => {
-			let { ReviewPage: n } = t1e.get();
+			let { ReviewPage: n } = n1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				...e,
 				route: t.routeReview,
@@ -109496,16 +109501,16 @@ var c5 = (e) => ({
 			return /* @__PURE__ */ (0, z.jsx)(r, {
 				navigate: n,
 				failure: t.failure,
-				open: (e) => u1e(e, t, n),
+				open: (e) => d1e(e, t, n),
 				toast: (e, { warning: n = !1, undo: r } = {}) => n ? t.toast({ text: e }, { sound: "warning" }) : t.receipt(e, r ? { undo: r } : {})
 			});
 		}
 	},
 	"/duplicates": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/duplicates" }),
-		prefetch: (e, t) => o5(n1e, ZPe(t)),
+		prefetch: (e, t) => o5(r1e, ZPe(t)),
 		page: (e, t) => {
-			let { DuplicatesPage: n } = n1e.get();
+			let { DuplicatesPage: n } = r1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				openItem: t.openItem,
 				failure: t.failure,
@@ -109515,9 +109520,9 @@ var c5 = (e) => ({
 	},
 	"/quality-goals": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/quality-goals" }),
-		prefetch: (e, t) => o5(r1e, cFe(t)),
+		prefetch: (e, t) => o5(i1e, cFe(t)),
 		page: (e, t) => {
-			let { QualityGoalsPage: n } = r1e.get();
+			let { QualityGoalsPage: n } = i1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				openItem: t.openItem,
 				javTitleHtml: qG,
@@ -109529,9 +109534,9 @@ var c5 = (e) => ({
 	},
 	"/sources": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/sources" }),
-		prefetch: (e, t) => o5(i1e, QWe(t)),
+		prefetch: (e, t) => o5(a1e, QWe(t)),
 		page: (e, t) => {
-			let { ScrapingPage: n } = i1e.get();
+			let { ScrapingPage: n } = a1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, { toast: (e) => t.toast(e) });
 		}
 	},
@@ -109543,25 +109548,25 @@ var c5 = (e) => ({
 	"/settings/diagnostics": c5("/settings/diagnostics"),
 	"/settings/maintenance/repairs": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/settings/maintenance/repairs" }),
-		prefetch: (e, t) => o5(l1e, sHe(t)),
+		prefetch: (e, t) => o5(u1e, sHe(t)),
 		page: () => {
-			let { RepairCenterPage: e } = l1e.get();
+			let { RepairCenterPage: e } = u1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(e, {});
 		}
 	},
 	"/tasks": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/tasks" }),
-		prefetch: (e, t) => o5(o1e, LTe(t)),
+		prefetch: (e, t) => o5(s1e, LTe(t)),
 		page: () => {
-			let { ActivityPage: e } = o1e.get();
+			let { ActivityPage: e } = s1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(e, {});
 		}
 	},
 	"/subscriptions": {
 		element: /* @__PURE__ */ (0, z.jsx)(i5, { path: "/subscriptions" }),
-		prefetch: (e, t) => o5(s1e, Ts(t)),
+		prefetch: (e, t) => o5(c1e, Ts(t)),
 		page: (e, t) => {
-			let { FollowManagePage: n } = s1e.get();
+			let { FollowManagePage: n } = c1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				...e,
 				route: t.routeFollowManage,
@@ -109571,12 +109576,12 @@ var c5 = (e) => ({
 			});
 		}
 	}
-}, u5 = (e) => Object.hasOwn(l5, e), d1e = { "/resource-sync": { element: /* @__PURE__ */ (0, z.jsx)(K$e, {}) } }, f1e = { "/immerse": { element: /* @__PURE__ */ (0, z.jsx)(R$e, {}) } }, d5 = {
+}, u5 = (e) => Object.hasOwn(l5, e), f1e = { "/resource-sync": { element: /* @__PURE__ */ (0, z.jsx)(q$e, {}) } }, p1e = { "/immerse": { element: /* @__PURE__ */ (0, z.jsx)(z$e, {}) } }, d5 = {
 	"/playlists": {
-		element: /* @__PURE__ */ (0, z.jsx)(F$e, {}),
-		prefetch: (e, t) => o5(c1e, xWe(t)),
+		element: /* @__PURE__ */ (0, z.jsx)(I$e, {}),
+		prefetch: (e, t) => o5(l1e, xWe(t)),
 		page: (e, t) => {
-			let { PlaylistsPage: n } = c1e.get();
+			let { PlaylistsPage: n } = l1e.get();
 			return /* @__PURE__ */ (0, z.jsx)(n, {
 				revision: e.revision,
 				openPlaylist: t.openPlaylist,
@@ -109587,12 +109592,12 @@ var c5 = (e) => ({
 		}
 	},
 	"/follow": {
-		element: /* @__PURE__ */ (0, z.jsx)(M$e, {}),
+		element: /* @__PURE__ */ (0, z.jsx)(N$e, {}),
 		prefetch: (e, t) => qs(e, t),
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(Rze, { ...e })
 	}
-}, p1e = (e) => Object.hasOwn(d5, e), f5 = {
-	element: /* @__PURE__ */ (0, z.jsx)(S$e, {}),
+}, m1e = (e) => Object.hasOwn(d5, e), f5 = {
+	element: /* @__PURE__ */ (0, z.jsx)(C$e, {}),
 	prefetch: (e, t) => fRe(e, t),
 	page: (e, t) => /* @__PURE__ */ (0, z.jsx)(eUe, {
 		...e,
@@ -109615,7 +109620,7 @@ var c5 = (e) => ({
 	"/tags": f5,
 	"/series": f5
 }, m5 = {
-	element: /* @__PURE__ */ (0, z.jsx)(O$e, {}),
+	element: /* @__PURE__ */ (0, z.jsx)(k$e, {}),
 	prefetch: (e) => GLe(e),
 	page: (e) => /* @__PURE__ */ (0, z.jsx)(ZVe, { ...e })
 }, h5 = {
@@ -109636,7 +109641,7 @@ var c5 = (e) => ({
 		prefetch: async () => {},
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(MUe, { ...e })
 	}
-}, m1e = (e) => Object.hasOwn(g5, e), h1e = (e) => e.mode === "notice" ? /* @__PURE__ */ (0, z.jsx)($Ee, { ...e }) : /* @__PURE__ */ (0, z.jsx)(vWe, { ...e }), g1e = {
+}, h1e = (e) => Object.hasOwn(g5, e), g1e = (e) => e.mode === "notice" ? /* @__PURE__ */ (0, z.jsx)($Ee, { ...e }) : /* @__PURE__ */ (0, z.jsx)(vWe, { ...e }), _1e = {
 	"catalog-filter": {
 		prefetch: async () => {},
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(kAe, { ...e })
@@ -109647,13 +109652,13 @@ var c5 = (e) => ({
 	},
 	"library-processing": {
 		prefetch: (e, t) => Tq(t),
-		page: (e) => /* @__PURE__ */ (0, z.jsx)(h1e, { ...e })
+		page: (e) => /* @__PURE__ */ (0, z.jsx)(g1e, { ...e })
 	},
 	search: {
 		prefetch: async () => {},
 		page: (e) => /* @__PURE__ */ (0, z.jsx)(lGe, { ...e })
 	}
-}, _1e = (e) => Object.hasOwn(g1e, e), v1e = {
+}, v1e = (e) => Object.hasOwn(_1e, e), y1e = {
 	"batch-dock": {
 		prefetch: async () => {},
 		page: () => /* @__PURE__ */ (0, z.jsx)(Lge, {})
@@ -109680,9 +109685,9 @@ var c5 = (e) => ({
 	},
 	stage: {
 		prefetch: async () => {},
-		page: () => /* @__PURE__ */ (0, z.jsx)(UZe, {})
+		page: () => /* @__PURE__ */ (0, z.jsx)(WZe, {})
 	}
-}, y1e = (e) => Object.hasOwn(v1e, e), b1e = [
+}, b1e = (e) => Object.hasOwn(y1e, e), x1e = [
 	"/",
 	"/wall",
 	"/unseen",
@@ -109696,27 +109701,27 @@ var c5 = (e) => ({
 	...Object.keys(d5),
 	...Object.keys(p5),
 	...Object.keys(h5),
-	...b1e
+	...x1e
 ];
-var x1e = (e) => u5(e) || p1e(e) || Object.hasOwn(p5, e) || Object.hasOwn(h5, e) || m1e(e) || _1e(e) || y1e(e);
-function S1e(e) {
-	return u5(e) ? l5[e] : p1e(e) ? d5[e] : m1e(e) ? g5[e] : _1e(e) ? g1e[e] : y1e(e) ? v1e[e] : Object.hasOwn(p5, e) ? p5[e] : h5[e];
+var S1e = (e) => u5(e) || m1e(e) || Object.hasOwn(p5, e) || Object.hasOwn(h5, e) || h1e(e) || v1e(e) || b1e(e);
+function C1e(e) {
+	return u5(e) ? l5[e] : m1e(e) ? d5[e] : h1e(e) ? g5[e] : v1e(e) ? _1e[e] : b1e(e) ? y1e[e] : Object.hasOwn(p5, e) ? p5[e] : h5[e];
 }
-function C1e(e, t, n) {
-	return x1e(e) ? S1e(e).prefetch(t, n) : Promise.reject(Error(L("shell:router.unknownRoute", { path: e })));
+function w1e(e, t, n) {
+	return S1e(e) ? C1e(e).prefetch(t, n) : Promise.reject(Error(L("shell:router.unknownRoute", { path: e })));
 }
-function w1e(e, t, n, r) {
-	return S1e(e).page(t, n, r);
+function T1e(e, t, n, r) {
+	return C1e(e).page(t, n, r);
 }
 // src/react/application-residents.ts
 var _5 = null, v5 = null, y5 = 0, b5 = /* @__PURE__ */ new Set();
-function T1e(e) {
+function E1e(e) {
 	return _5 = e, v5 && e(v5), () => {
 		_5 === e && (_5 = null);
 	};
 }
-function E1e(e) {
-	return _5 && (v5 = e, _5(e), mee(Promise.resolve(C1e)), Z$e()), Promise.resolve();
+function D1e(e) {
+	return _5 && (v5 = e, _5(e), mee(Promise.resolve(w1e)), Q$e()), Promise.resolve();
 }
 async function x5(e, t, n = (e) => e) {
 	let r = y5;
@@ -109727,7 +109732,7 @@ async function x5(e, t, n = (e) => e) {
 		place: () => n(t)
 	}) || r !== y5 || !_5) throw new DOMException(L("shell:errorReport.appUnmounted"), "AbortError");
 }
-function D1e() {
+function O1e() {
 	y5 += 1, _5 = null, v5 = null, S5 = null, C5 = null, E5 = null, D5 = null, k5 = null, A5 = null, M5 = null, N5 = null, F5 = null, I5 = null, L5 = null, R5 = null, z5 = null;
 	for (let e of b5) e.remove();
 	b5.clear(), KU();
@@ -109735,52 +109740,52 @@ function D1e() {
 var S5 = null, C5 = null;
 function w5(e) {
 	return S5 ??= (async () => {
-		let t = HZe(e), n = document.createElement("div");
+		let t = UZe(e), n = document.createElement("div");
 		return n.dataset.stageHost = "", await x5("stage", n, (e) => (document.body.append(e), e)), C5 = t, t;
 	})(), S5;
 }
 var T5 = () => C5, E5 = null, D5 = null;
-function O1e(e) {
+function k1e(e) {
 	return E5 ??= (async () => {
 		let t = rbe(e), n = document.createElement("div");
 		return n.dataset.immerseHost = "", await x5("immerse", n, (e) => (document.body.append(e), e)), D5 = t, t;
 	})(), E5;
 }
 var O5 = () => D5, k5 = null, A5 = null;
-function k1e(e) {
+function A1e(e) {
 	return k5 ??= (async () => {
 		let t = lKe(e), n = document.createElement("div");
 		return n.dataset.settingsHost = "", await x5("settings-panel", n, (e) => (document.body.append(e), e)), A5 = t, t;
 	})(), k5;
 }
 var j5 = () => A5, M5 = null, N5 = null;
-function A1e(e) {
+function j1e(e) {
 	return M5 ??= (async () => {
 		let t = UKe(e);
 		return await x5("sidebar", e.scroll, (e) => (e.replaceChildren(), e)), e.attached(), N5 = t, t;
 	})(), M5;
 }
 var P5 = () => N5, F5 = null, I5 = null;
-function j1e(e) {
+function M1e(e) {
 	return F5 ??= (async () => {
 		let t = mTe(e);
 		return await x5("manage-header", e.root, (e) => (e.replaceChildren(), e)), I5 = t, t;
 	})(), F5;
 }
-var M1e = () => I5, L5 = null, R5 = null;
-function N1e(e) {
+var N1e = () => I5, L5 = null, R5 = null;
+function P1e(e) {
 	return L5 ??= (async () => {
 		let t = Ige(e);
 		return await x5("batch-dock", e.root), R5 = t, t;
 	})(), L5;
 }
-var P1e = () => R5, z5 = null;
-function F1e(e) {
+var F1e = () => R5, z5 = null;
+function I1e(e) {
 	return z5 ??= (async () => {
 		S_e(e), await x5("glow-picker", e.root);
 	})(), z5;
 }
-function I1e(e, t, n, r) {
+function L1e(e, t, n, r) {
 	qU(e, t), JU(n, r);
 }
 // src/application/receipts.js
@@ -109793,13 +109798,13 @@ var B5 = {
 	rollSeed: void 0,
 	seededSample: void 0
 };
-function L1e() {
+function R1e() {
 	qU(B("#toasts"), {
 		success: V("check"),
 		error: V("circle-alert")
 	}), B5.toastBody = (e) => e && typeof e == "object" && "html" in e ? String(e.html) : H(e && typeof e == "object" ? e.text ?? "" : e ?? ""), B5.toastSeq = 0, B5.toast = (e, { timeout: t = 6e3, warn: n = !1, action: r = null, sound: i = null } = {}) => {
 		let a = `toast-${++B5.toastSeq}`, o = (e, t, n, r) => {
-			Bl(i || (t ? "error" : "success")), I1e(B("#toasts"), {
+			Bl(i || (t ? "error" : "success")), L1e(B("#toasts"), {
 				success: V("check"),
 				error: V("circle-alert")
 			}, a, {
@@ -109840,7 +109845,7 @@ function L1e() {
 	};
 }
 // src/react/catalog-grid/catalog-state.ts
-var R1e = [
+var z1e = [
 	"loc",
 	"creator",
 	"studio",
@@ -109860,11 +109865,11 @@ var R1e = [
 	"browse",
 	"folder",
 	"folder_recursive"
-], z1e = (e) => e.homePreviewOnly ? "1" : "0";
-function B1e(e, t, n, r = n.defaultSort) {
+], B1e = (e) => e.homePreviewOnly ? "1" : "0";
+function V1e(e, t, n, r = n.defaultSort) {
 	return WP(e, t, n.defaultSort, n.defaultSortDirection, r);
 }
-function V1e(e, t, n) {
+function H1e(e, t, n) {
 	let r = decodeURIComponent(e.pathname), i = new URLSearchParams(e.search), a = ea(r) || r === "/trash", o = (e) => a ? i.get(e) : null;
 	return {
 		loc: i.get("loc") ?? "local,115",
@@ -109880,28 +109885,28 @@ function V1e(e, t, n) {
 		region: o("region") || "",
 		year: o("year") || "",
 		state: Qi[r] || o("state") || "",
-		...B1e(o("sort"), o("dir"), t),
+		...V1e(o("sort"), o("dir"), t),
 		seed: o("seed") || n(),
 		q: o("q") || "",
 		jav: o("jav") || "",
-		thumb: o("thumb") || z1e(t),
+		thumb: o("thumb") || B1e(t),
 		browse: o("browse") === "folders" || o("folder") ? "folders" : "",
 		folder: o("folder") || "",
 		folder_recursive: o("folder_recursive") === "0" ? "0" : ""
 	};
 }
-function H1e(e, t) {
+function U1e(e, t) {
 	return e.split(",").filter(Boolean).filter((e) => t[e] !== !1).join(",") || e;
 }
-function U1e(e) {
+function W1e(e) {
 	let t = Zi[e.state ?? ""] || "/", n = new URLSearchParams();
-	for (let t of R1e) {
+	for (let t of z1e) {
 		let r = e[t];
 		!r || t === "tag_match" && r === "all" || t === "dir" && r === VP(e.sort ?? "") || n.set(t, r);
 	}
 	return !Zi[e.state ?? ""] && e.state && n.set("state", e.state), t + (n.size ? `?${n}` : "");
 }
-function W1e(e, t, n) {
+function G1e(e, t, n) {
 	return {
 		loc: e.loc ?? "",
 		creator: "",
@@ -109921,13 +109926,13 @@ function W1e(e, t, n) {
 		seed: n(),
 		q: "",
 		jav: "",
-		thumb: z1e(t),
+		thumb: B1e(t),
 		browse: "",
 		folder: "",
 		folder_recursive: ""
 	};
 }
-function G1e(e) {
+function K1e(e) {
 	return {
 		state: e,
 		barsContext: {
@@ -109937,7 +109942,7 @@ function G1e(e) {
 		detailReturnBarsContext: null
 	};
 }
-function K1e({ homeDefault: e, javOnly: t, stripAllowed: n, shortsLimit: r }) {
+function q1e({ homeDefault: e, javOnly: t, stripAllowed: n, shortsLimit: r }) {
 	let i = r > 0;
 	return {
 		excludeVertical: e && i || t,
@@ -109946,7 +109951,7 @@ function K1e({ homeDefault: e, javOnly: t, stripAllowed: n, shortsLimit: r }) {
 	};
 }
 // src/react/catalog-grid/catalog-controller.ts
-var q1e = class {
+var J1e = class {
 	currentRevision = 0;
 	currentPage = "";
 	painting = null;
@@ -109991,39 +109996,39 @@ var q1e = class {
 		let e = [...this.waiters.values()];
 		this.waiters.clear(), e.forEach((e) => e());
 	}
-}, V5 = Infinity, H5 = 0, J1e = (e, t = H5) => [
+}, V5 = Infinity, H5 = 0, Y1e = (e, t = H5) => [
 	"facets",
 	e,
 	t
-], Y1e = (e, t, n = H5) => [
+], X1e = (e, t, n = H5) => [
 	"tops",
 	e,
 	t,
 	n
-], X1e = (e, t = H5) => [
+], Z1e = (e, t = H5) => [
 	"tops",
 	e,
 	t
 ];
-async function Z1e(e) {
+async function Q1e(e) {
 	let t = String(e), n = await Ji(`/api/tops?${t}`), r = new URLSearchParams(t);
 	return n.performers.length || n.studios.length || !r.has("state") ? n : (r.delete("state"), await Ji(`/api/tops?${r}`));
 }
-function Q1e(e, t) {
+function $1e(e, t) {
 	return Promise.all([G.fetchQuery({
-		queryKey: J1e(e),
+		queryKey: Y1e(e),
 		queryFn: () => Ji(`/api/facets${e ? `?${e}` : ""}`),
 		staleTime: V5
 	}), G.fetchQuery({
-		queryKey: Y1e(t, e),
-		queryFn: () => Z1e(t),
+		queryKey: X1e(t, e),
+		queryFn: () => Q1e(t),
 		staleTime: V5
 	})]);
 }
-function $1e(e) {
+function e0e(e) {
 	return G.fetchQuery({
-		queryKey: X1e(e),
-		queryFn: () => Z1e(e),
+		queryKey: Z1e(e),
+		queryFn: () => Q1e(e),
 		staleTime: V5
 	});
 }
@@ -110039,11 +110044,11 @@ function U5() {
 	});
 }
 // src/jav-controls.ts
-var e0e = "peach:jav-selection";
-function t0e(e, t) {
+var t0e = "peach:jav-selection";
+function n0e(e, t) {
 	return e === "/jav" && ["releases", "discover"].includes(new URLSearchParams(t).get("tab") || "");
 }
-function n0e(e, t) {
+function r0e(e, t) {
 	return e === "/jav" && [
 		"releases",
 		"discover",
@@ -110051,18 +110056,18 @@ function n0e(e, t) {
 	].includes(new URLSearchParams(t).get("tab") || "");
 }
 // src/application/initial-follow-ranges.ts
-var r0e = [
+var i0e = [
 	["0", L("shell:followRange.anyTime")],
 	["7", L("shell:followRange.last7Days")],
 	["30", L("shell:followRange.last30Days")],
 	["90", L("shell:followRange.last90Days")]
 ];
 // src/react/index/index-controller.ts
-function i0e({ kind: e, q: t, scope: n, view: r, category: i }) {
+function a0e({ kind: e, q: t, scope: n, view: r, category: i }) {
 	let a = new URLSearchParams();
 	return t && a.set("q", t), e === "tags" && (a.set("view", r), n === "online" && a.set("scope", n), i !== "all" && a.set("category", i)), e === "performers" && n === "online" && a.set("scope", n), e === "performers" && n !== "online" && i !== "all" && a.set("category", i), `/${e}` + (a.size ? `?${a}` : "");
 }
-function a0e(e, t, n) {
+function o0e(e, t, n) {
 	let r = e.entity_id || e.id, i = t === "studio" || t === "agency";
 	return {
 		html: al(e.k, r ? {
@@ -110081,15 +110086,15 @@ function W5(e) {
 	let n = (t.match(/[A-Za-z0-9]/)?.[0] || Array.from(t)[0] || "?").toUpperCase(), r = e.avatar ? `<img src="${H(e.avatar)}" alt="" loading="lazy" referrerpolicy="no-referrer" ${Oc({ fallbacks: [e.avatar_fallback || ""] })}>` : "";
 	return `<span class="ini">${H(n)}</span>${r}`;
 }
-function o0e(e) {
+function s0e(e) {
 	let t = (t) => {
 		e.adoptFollowView(t), e.hideIndex(), e.openPage(gc(t));
 	};
 	return {
 		route(t, { replace: n = !1 } = {}) {
-			e.route(i0e(t), n);
+			e.route(a0e(t), n);
 		},
-		personAvatar: a0e,
+		personAvatar: o0e,
 		authorAvatar: W5,
 		openFollowAuthor(n) {
 			t(_c(e.followView(), n));
@@ -110100,7 +110105,7 @@ function o0e(e) {
 	};
 }
 // src/application/effects.ts
-var s0e = class {
+var c0e = class {
 	cleanups = /* @__PURE__ */ new Set();
 	active = !0;
 	disposed = !1;
@@ -110181,12 +110186,12 @@ var s0e = class {
 		}
 		if (e.length) throw AggregateError(e, L("shell:errorReport.cleanupIncomplete"));
 	}
-}, G5 = new s0e();
-function c0e() {
-	return G5.dispose(), G5 = new s0e(), G5;
+}, G5 = new c0e();
+function l0e() {
+	return G5.dispose(), G5 = new c0e(), G5;
 }
 // src/application/source-action.ts
-function l0e(e) {
+function u0e(e) {
 	return async (t, n, { button: r = null } = {}) => {
 		if (r?.getAttribute("aria-busy") === "true") return;
 		let i = r?.innerHTML ?? "", a = r?.textContent?.trim() ?? "";
@@ -110203,7 +110208,7 @@ function l0e(e) {
 }
 // src/react/entity-page/entity-route.ts
 var K5 = () => Object.fromEntries(j2.map((e) => [e, e === "sort" ? "new" : e === "dir" ? "desc" : ""]));
-function u0e(e, t) {
+function d0e(e, t) {
 	let n = new URLSearchParams(e), r = K5();
 	for (let e of j2) e !== "sort" && e !== "dir" && (r[e] = n.get(e) || "");
 	return {
@@ -110211,27 +110216,27 @@ function u0e(e, t) {
 		...WP(n.get("sort"), n.get("dir"), t.sort, t.dir, "new")
 	};
 }
-function d0e(e) {
+function f0e(e) {
 	let t = new URLSearchParams();
 	for (let n of j2) !e[n] || n === "sort" && e[n] === "new" || n === "dir" && e[n] === VP(e.sort || "") || t.set(n, e[n]);
 	return t.toString();
 }
-function f0e(e) {
+function p0e(e) {
 	let t = new URLSearchParams(e), n = t.get("set") || "", r = t.get("media");
 	return {
 		media: r === "photos" || r === "online" ? r : "videos",
 		set: r === "photos" && /^\d+$/.test(n) ? Number(n) : 0
 	};
 }
-function p0e(e, t) {
-	let n = new URLSearchParams(d0e(e));
+function m0e(e, t) {
+	let n = new URLSearchParams(f0e(e));
 	return t?.media === "photos" ? (n.set("media", "photos"), t.set && n.set("set", String(t.set))) : t?.media === "online" && n.set("media", "online"), n.toString();
 }
-function m0e(e, t, n, r) {
-	let i = p0e(n, r);
+function h0e(e, t, n, r) {
+	let i = m0e(n, r);
 	return ra(e, t) + (i ? `?${i}` : "");
 }
-function h0e() {
+function g0e() {
 	let e = "";
 	return {
 		fresh(t, n) {
@@ -110240,22 +110245,22 @@ function h0e() {
 		read(t, n, r, i) {
 			let a = e === ra(t, n) && !r;
 			e = "";
-			let o = a ? K5() : { ...u0e(r, i) };
+			let o = a ? K5() : { ...d0e(r, i) };
 			return t === "creator" && (o.creator = ""), {
 				filters: o,
 				media: a ? {
 					media: "videos",
 					set: 0
-				} : f0e(r)
+				} : p0e(r)
 			};
 		}
 	};
 }
 // src/react/entity-page/photo-surface.ts
-function g0e(e, t) {
+function _0e(e, t) {
 	return e.entityWall && e.entityCurrent && e.indexVisible || e.pathname === "/follow" && e.followMedia === "images" && e.statsVisible ? !0 : t();
 }
-function _0e(e) {
+function v0e(e) {
 	let t = () => {
 		let t = e.preferences();
 		for (let n of e.walls()) n.dataset.size = t.size, n.dataset.layout = "fixed", n.dataset.imagesOnly = String(t.imagesOnly);
@@ -110277,12 +110282,12 @@ function _0e(e) {
 	};
 }
 // src/react/entity-page/entity-controller.ts
-function v0e(e, t, n) {
+function y0e(e, t, n) {
 	let r = (t, n, r, i = {
 		media: "videos",
 		set: 0
 	}, { push: a = !0 } = {}) => {
-		if (a && e.route(m0e(t, n, r, i)), e.restoreHomeContext(), !e.live(t, n)) return !1;
+		if (a && e.route(h0e(t, n, r, i)), e.restoreHomeContext(), !e.live(t, n)) return !1;
 		e.releaseBodyPreviews();
 		let o = e.state();
 		return e.push({
@@ -110361,7 +110366,7 @@ function v0e(e, t, n) {
 	};
 }
 // src/react/entity-page/entity-loading.ts
-function y0e(e) {
+function b0e(e) {
 	return async (t, n, r) => {
 		e.paintSkeleton(t, n), e.resetView(), e.shapesReady(t, n) || e.waitShapes().then(() => {
 			r() && e.syncParts(t, n);
@@ -110371,7 +110376,7 @@ function y0e(e) {
 	};
 }
 // src/react/entity-page/entity-portrait.ts
-function b0e(e, t) {
+function x0e(e, t) {
 	let n = e === "studio" || e === "agency", r = t.id ? il({
 		kind: e,
 		id: t.id,
@@ -110393,11 +110398,11 @@ function b0e(e, t) {
 	return r || (i?.avatar ? `<img src="${H(i.avatar)}" alt="${H(t.canonical_name)}" referrerpolicy="no-referrer" ${Oc({ fallbacks: [i.avatar_fallback || ""] })}>` : "");
 }
 // src/react/entity-page/entity-application.ts
-function x0e(e) {
-	let t = h0e(), n = {
+function S0e(e) {
+	let t = g0e(), n = {
 		...e.helpers,
-		portraitImg: b0e
-	}, r = v0e(e.controller, n, e.actions);
+		portraitImg: x0e
+	}, r = y0e(e.controller, n, e.actions);
 	return {
 		...r,
 		helpers: n,
@@ -110406,12 +110411,12 @@ function x0e(e) {
 			let { filters: o, media: s } = t.read(n, i, a, e.sortPreference());
 			return r.props(n, i, o, s);
 		},
-		loading: y0e(e.loading),
-		photos: _0e(e.photos)
+		loading: b0e(e.loading),
+		photos: v0e(e.photos)
 	};
 }
 // src/card-art/feed-identity.ts
-function S0e(e) {
+function C0e(e) {
 	let t = e.performer_refs || [], n = [...new Set((e.performers || "").split(/[,，、;/]/).map((e) => e.trim()).filter(Boolean))], r = t.length ? t : n.map((e) => ({ name: e })), i = r.slice(0, 3).map((t, n) => {
 		let r = e.code && t.source_actor_id && t.source_avatar && !t.has_image && !t.has_avatar, i = ` style="--media-avatar-index:${n}"` + (r ? ` data-feed-source-avatar data-code="${H(e.code)}" data-actor="${H(t.source_actor_id)}" data-name="${H(t.name)}"` : ""), a = r ? "" : al(t.name, t, null);
 		return "id" in t && t.id ? `<a class="mav"${i} href="${H(ra("performer", t.name, t.id))}" aria-label="${L("catalog:javDiscovery.openActress", { name: H(t.name) })}">${a}</a>` : `<span class="mav"${i} title="${H(t.name)}">${a}</span>`;
@@ -110435,11 +110440,11 @@ var q5 = {
 	feedNewActions: void 0,
 	HERO_WIDE_PX: void 0
 };
-function C0e(e) {
+function w0e(e) {
 	return e.has_cover ? ul(e, "big") : !e.cover_url || !e.code ? Ef(e) : ul(e, "big").replace(/ src="[^"]*"/, ` src="${H(el(e))}" data-panel-prior="1"`).replace("data-drop=\"self\"", `data-drop="initial" data-initial="${H(L("shell:artworkGap.coverNotFound"))}" data-drop-class="nopic"`);
 }
-function w0e(e) {
-	let t = [e.performers && `<span class="feednewperformers" title="${H(e.performers)}">${H(e.performers)}</span>`, e.release_date && `<time class="feednewdate" datetime="${H(e.release_date)}">${H(e.release_date)}</time>`].filter(Boolean).join(""), n = C0e(e), r = e.code || String(e.title || "").trim() || L("shell:feedNew.untitled"), i = e.code ? qG({
+function T0e(e) {
+	let t = [e.performers && `<span class="feednewperformers" title="${H(e.performers)}">${H(e.performers)}</span>`, e.release_date && `<time class="feednewdate" datetime="${H(e.release_date)}">${H(e.release_date)}</time>`].filter(Boolean).join(""), n = w0e(e), r = e.code || String(e.title || "").trim() || L("shell:feedNew.untitled"), i = e.code ? qG({
 		is_jav: !0,
 		code: e.code,
 		name: e.code,
@@ -110451,10 +110456,10 @@ function w0e(e) {
         <button type="button" data-feed-action="${e.wanted ? "unwant" : "want"}" aria-pressed="${!!e.wanted}" title="${H(e.wanted ? L("catalog:javWant.remove") : L("catalog:javWant.want"))}" aria-label="${H(L("shell:feedNew.wantNamed", { name: r }))}">${V("star")}</button>
         <button type="button" data-feed-action="ignore" title="${H(L("shell:feedNew.ignore"))}" aria-label="${H(L("shell:feedNew.ignoreNamed", { name: r }))}">${V("x")}</button>
         <button type="button" data-feed-action="read" title="${H(L("shell:feedNew.markRead"))}" aria-label="${H(L("shell:feedNew.markReadNamed", { name: r }))}">${V("check")}</button></div></div>
-    <div class="meta">${S0e(e)}<div class="mtext"><span class="t">${i}</span>
+    <div class="meta">${C0e(e)}<div class="mtext"><span class="t">${i}</span>
       <div class="s mono">${t || (e.title ? "" : L("shell:feedNew.metadataPending"))}</div></div></div></article>`;
 }
-function T0e() {
+function E0e() {
 	let e = document.getElementById("peach-entity-shape");
 	if (e) try {
 		let t = JSON.parse(e.textContent || "null");
@@ -110464,18 +110469,18 @@ function T0e() {
 }
 async function J5() {
 	let e = G5, t = await Ji("/api/entity/shapes", { signal: e.signal }).catch(() => null);
-	return e.isActive && t && !t.error && (q5.entityShapesComplete = !0, q5.entityShapes = new Map((t.entities || []).flatMap((e) => [String(e.id), ...e.names].map((t) => [`${e.kind}/${fa(t)}`, e.parts]))), typeof t.home?.feed == "boolean" && D0e(t.home.feed), X5(location.pathname) && Y5(B("#feedNew"))), q5.entityShapes;
+	return e.isActive && t && !t.error && (q5.entityShapesComplete = !0, q5.entityShapes = new Map((t.entities || []).flatMap((e) => [String(e.id), ...e.names].map((t) => [`${e.kind}/${fa(t)}`, e.parts]))), typeof t.home?.feed == "boolean" && O0e(t.home.feed), X5(location.pathname) && Y5(B("#feedNew"))), q5.entityShapes;
 }
-var E0e = "peach.home-feed.v1";
-function D0e(e) {
+var D0e = "peach.home-feed.v1";
+function O0e(e) {
 	X.homeHasFeed = e;
 	try {
-		localStorage.setItem(E0e, e ? "1" : "0");
+		localStorage.setItem(D0e, e ? "1" : "0");
 	} catch {}
 }
-function O0e() {
+function k0e() {
 	try {
-		let e = localStorage.getItem(E0e);
+		let e = localStorage.getItem(D0e);
 		return e === "1" || e !== "0" && null;
 	} catch {
 		return null;
@@ -110484,7 +110489,7 @@ function O0e() {
 function Y5(e) {
 	Z5() && e && !dg(e) && !e.querySelector("[data-feed-id]") && (e.hidden = X.homeHasFeed !== !0, X.homeHasFeed === !0 && (e.setAttribute("aria-busy", "true"), e.querySelector(".feednewskeleton") || (e.innerHTML = q5.feedNewSkeletonHtml())));
 }
-function k0e(e, t) {
+function A0e(e, t) {
 	return !(e > 0) || !t.some((e) => !e.has_cover) ? "" : yu(L("shell:feedNew.dmmUnreachable", { count: e }), {
 		variant: "warning",
 		className: "feednetwork",
@@ -110492,11 +110497,11 @@ function k0e(e, t) {
 		actionHref: "/sources"
 	});
 }
-function A0e(e, t = "") {
+function j0e(e, t = "") {
 	let n = e && !e.error && e.items || [], r = t && n.length ? `<a class="feednewall" href="${H(t)}" style="--card-ratio:${OF}"><span>${L("shell:feedNew.viewAll")}</span>${V("chevron-right")}</a>` : "";
-	return k0e(e?.cover_network, n) + `<div class="feednewrow srow">${n.map(w0e).join("")}${r}</div>`;
+	return A0e(e?.cover_network, n) + `<div class="feednewrow srow">${n.map(T0e).join("")}${r}</div>`;
 }
-function j0e(e) {
+function M0e(e) {
 	e && (g9(e), Z.appSettings.feedAutoScroll && Dd(e));
 }
 function X5(e) {
@@ -110505,7 +110510,7 @@ function X5(e) {
 function Z5() {
 	return X5(location.pathname) && K.browse !== "folders";
 }
-function M0e() {
+function N0e() {
 	if (!Z5()) {
 		Q5();
 		return;
@@ -110525,33 +110530,33 @@ function Q5() {
 	let e = B("#feedNew");
 	e.querySelectorAll(".feednewrow").forEach(Od), gg(e), e.replaceChildren(), e.removeAttribute("aria-busy"), e.hidden = !0;
 }
-function N0e(e) {
-	yF().value.feedNewRows === !1 ? Q5() : X5(location.pathname) && !e && M0e();
-}
-function P0e() {
-	q5.feedRevision += 1, hg(B("#feedNew"), { revision: q5.feedRevision }), l7({ feedRevision: q5.feedRevision });
+function P0e(e) {
+	yF().value.feedNewRows === !1 ? Q5() : X5(location.pathname) && !e && N0e();
 }
 function F0e() {
+	q5.feedRevision += 1, hg(B("#feedNew"), { revision: q5.feedRevision }), l7({ feedRevision: q5.feedRevision });
+}
+function I0e() {
 	document.querySelectorAll(".feednewrow").forEach((e) => Z.appSettings.feedAutoScroll ? Dd(e) : Od(e));
 }
 var $5 = 0;
-function I0e([e]) {
+function L0e([e]) {
 	let t = e.contentRect.width >= q5.HERO_WIDE_PX;
 	cancelAnimationFrame($5), $5 = requestAnimationFrame(() => {
 		$5 = 0, B("#index")?.toggleAttribute("data-hero-wide", t);
 	});
 }
-function L0e() {
+function R0e() {
 	q5.FEED_SKELETON_CARDS = 8, q5.feedNewSkeletonHtml = () => GBe(q5.FEED_SKELETON_CARDS), q5.entityShapes = null, q5.entityShapesComplete = !1, q5.hasEntityShape = (e, t) => q5.entityShapesComplete || !!q5.entityShapes?.has(`${e}/${fa(t)}`), q5.hasEntityPart = (e, t, n) => !!t && !!q5.entityShapes?.get(`${e}/${fa(t)}`)?.includes(n), q5.feedNewSkeletonSection = () => `<section class="feednew">${q5.feedNewSkeletonHtml()}</section>`, q5.COSTAR_SKELETON_PEOPLE = 12, q5.costarSkeletonFoot = () => `<div class="entityfoot" data-entity-foot><div class="relatedpeople" data-related-people>${"<button type=\"button\" disabled tabindex=\"-1\"><span class=\"skeleton\" data-hero-ring></span><span class=\"skeleton\" data-hero-costar-name>&#8203;</span></button>".repeat(q5.COSTAR_SKELETON_PEOPLE)}</div></div>`, q5.factsSkeleton = () => `<dl class="entityfacts" data-entity-facts>${"<dt><span class=\"skeleton\"></span></dt><dd><span class=\"skeleton\"></span></dd>".repeat(5)}</dl>`, q5.feedRevision = 0, q5.feedNewHelpers = {
-		feedRowHtml: A0e,
-		wireFeedRow: (e) => j0e(e)
-	}, q5.feedNewActions = { settled: (e) => D0e(e) }, q5.HERO_WIDE_PX = 900, G5.resize(I0e).observe(B("#index"));
+		feedRowHtml: j0e,
+		wireFeedRow: (e) => M0e(e)
+	}, q5.feedNewActions = { settled: (e) => O0e(e) }, q5.HERO_WIDE_PX = 900, G5.resize(L0e).observe(B("#index"));
 }
 // src/react/catalog-grid/selection-controller.ts
 function e7(e, t = "") {
 	return e === "/follow" || new URLSearchParams(t).get("media") === "online" ? "follow" : e === "/junk-files" ? "junk" : "catalog";
 }
-function R0e(e, t, n, r, i = !1) {
+function z0e(e, t, n, r, i = !1) {
 	return i && (e.selected.clear(), e.followSelected.clear()), {
 		selectMode: r,
 		selectSurface: r ? t.selectMode ? t.selectSurface : n : "",
@@ -110559,14 +110564,14 @@ function R0e(e, t, n, r, i = !1) {
 		followLastSelectedId: i ? null : t.followLastSelectedId
 	};
 }
-function z0e(e, t, n, r, i, a = !1) {
+function B0e(e, t, n, r, i, a = !1) {
 	let o = n === "follow", s = _2(o ? e.followSelected : e.selected, r, o ? t.followLastSelectedId : t.lastSelectedId, i, a);
 	return {
-		...R0e(e, t, n, !0),
+		...z0e(e, t, n, !0),
 		...o ? { followLastSelectedId: s } : { lastSelectedId: s }
 	};
 }
-function B0e(e, t, n, r) {
+function V0e(e, t, n, r) {
 	let i = e7(t, n);
 	return {
 		count: (i === "follow" ? e.followSelected : e.selected).size,
@@ -110594,31 +110599,31 @@ function n7() {
 	}), M9({
 		selected: new Set(Xf),
 		selectMode: Zf
-	}), t7.batchDockProps = Z0e(), P1e() && (P1e().render(t7.batchDockProps), Z.syncGlassOptics());
+	}), t7.batchDockProps = Q0e(), F1e() && (F1e().render(t7.batchDockProps), Z.syncGlassOptics());
 }
 function r7(e, t = !1) {
-	xp(R0e({
+	xp(z0e({
 		selected: Yf,
 		followSelected: Xf
 	}, o7(), e7(location.pathname, location.search), !!e, t)), document.body.classList.toggle("select-mode", Zf), Zf && Mf(), B("#selectMode").setAttribute("aria-pressed", String(Zf)), n7();
 }
-function V0e() {
+function H0e() {
 	return [...x7.gridCards()].map((e) => +e.dataset.id);
 }
-function H0e(e, t = !1) {
-	xp(z0e({
+function U0e(e, t = !1) {
+	xp(B0e({
 		selected: Yf,
 		followSelected: Xf
-	}, o7(), e7(location.pathname, location.search), V0e(), e, t)), r7(!0);
+	}, o7(), e7(location.pathname, location.search), H0e(), e, t)), r7(!0);
 }
-function U0e() {
+function W0e() {
 	return [...document.querySelectorAll("[data-follow-list] > [data-follow-item]")].map((e) => +e.dataset.followItem);
 }
-function W0e(e, t = !1) {
-	xp(z0e({
+function G0e(e, t = !1) {
+	xp(B0e({
 		selected: Yf,
 		followSelected: Xf
-	}, o7(), "follow", U0e(), e, t)), r7(!0);
+	}, o7(), "follow", W0e(), e, t)), r7(!0);
 }
 function i7(e) {
 	let { context: t, junkDismissed: n } = t7.batchDockProps, r = Mge(t, e, n);
@@ -110634,7 +110639,7 @@ function a7(e, t) {
 		body: fP(e.confirm.body(t), e.reversal, e.confirm.recovery)
 	};
 }
-async function G0e(e, t) {
+async function K0e(e, t) {
 	let n = {
 		like: "shell:batchCatalog.doneLike",
 		seen: "shell:batchCatalog.doneSeen",
@@ -110706,7 +110711,7 @@ async function G0e(e, t) {
 		}
 	});
 }
-async function K0e() {
+async function q0e() {
 	let e = [...Yf];
 	if (!e.length) return;
 	let { body: t } = a7(i7("region"), e.length), n = Zd({
@@ -110741,7 +110746,7 @@ async function K0e() {
 		count: e.length
 	})));
 }
-async function q0e(e, t) {
+async function J0e(e, t) {
 	let n = [...Xf];
 	if (!n.length) return;
 	let r = {
@@ -110780,7 +110785,7 @@ async function q0e(e, t) {
 		}
 	});
 }
-async function J0e(e, t) {
+async function Y0e(e, t) {
 	let n = [...Yf];
 	if (!n.length) return;
 	let r = {
@@ -110819,8 +110824,8 @@ async function J0e(e, t) {
 		}
 	});
 }
-function Y0e() {
-	N1e({
+function X0e() {
+	P1e({
 		root: B("[data-batch-dock]"),
 		run: (e, t, n) => {
 			t7.BATCH_RUNNERS[e]?.(t, n);
@@ -110829,13 +110834,13 @@ function Y0e() {
 		e.render(t7.batchDockProps), Z.syncGlassOptics();
 	}).catch(() => {});
 }
-function X0e() {
+function Z0e() {
 	t7.batchDockProps = {
 		count: 0,
 		context: "catalog",
 		junkDismissed: !1
 	}, t7.trashCount = null, t7.currentSelectSurface = () => e7(location.pathname, location.search), G5.handler(B("#selectMode"), "onclick", () => {
-		n0e(location.pathname, location.search) ? window.dispatchEvent(new Event(e0e)) : WHe(location.pathname) ? GHe() : r7(!Zf, !!Zf);
+		r0e(location.pathname, location.search) ? window.dispatchEvent(new Event(t0e)) : WHe(location.pathname) ? GHe() : r7(!Zf, !!Zf);
 	}), t7.REGION_CHOICES = [
 		["jp", L("shell:region.japan")],
 		["kr", L("shell:region.korea")],
@@ -110844,13 +110849,13 @@ function X0e() {
 		["other", L("shell:region.other")],
 		["none", L("shell:region.clear")]
 	], t7.BATCH_RUNNERS = {
-		batch: G0e,
-		region: K0e,
-		follow: q0e,
-		junk: J0e,
+		batch: K0e,
+		region: q0e,
+		follow: J0e,
+		junk: Y0e,
 		clear: () => r7(!1, !0)
 	}, G5.handler(B("#density"), "onclick", () => {
-		p7() ? e2e(PF() === "big" ? "small" : "big") : m_e();
+		p7() ? t2e(PF() === "big" ? "small" : "big") : m_e();
 	}), qF(), Af({
 		selecting: () => Zf,
 		censored: () => h9(),
@@ -110872,14 +110877,14 @@ function o7() {
 		followLastSelectedId: $f
 	};
 }
-function Z0e() {
-	return B0e({
+function Q0e() {
+	return V0e({
 		selected: Yf,
 		followSelected: Xf
 	}, location.pathname, location.search, K.state);
 }
 // src/entity-skeleton.ts
-function Q0e(e, t, n, r = "") {
+function $0e(e, t, n, r = "") {
 	let i = e === "studio" || e === "agency", a = new URLSearchParams(location.search), o = a.get("browse") === "folders" || a.get("folder") ? `<div class="peach-react entity-folder-workspace" data-folder-workspace data-folder-browse><aside data-folder-tree-host><div class="flex flex-col gap-3"><span class="skeleton ui-configuration-skeleton-input"></span>${"<span class=\"skeleton\" style=\"width:75%;height:32px\"></span>".repeat(8)}</div></aside><div class="min-w-0"><div data-folder-header-host><span class="skeleton" style="width:160px;height:32px"></span></div>${n}</div></div>` : n, s = L("catalog:entityPageSkeleton.loading");
 	return `<section data-skeleton="entity/${e}" role="status" aria-label="${s}">
     <span class="sr-only">${s}</span><div aria-hidden="true" inert><div class="peach-react contents">
@@ -110944,7 +110949,7 @@ function u7() {
 	return qf;
 }
 function d7(e, t, n = z7()) {
-	return Z2e(n).map(([n, r]) => {
+	return Q2e(n).map(([n, r]) => {
 		let i = e === n, a = HP(n, e, t);
 		return {
 			key: n,
@@ -110962,7 +110967,7 @@ function f7(e, t, n, r = s7.EMPTY_ENTITY_MEDIA, i = {}) {
 	return s7.application.route(e, t, n, r, i);
 }
 function p7() {
-	return g0e({
+	return _0e({
 		entityWall: s7.entityPageWall,
 		entityCurrent: s7.entityPageCurrent(),
 		indexVisible: !B("#index").hidden,
@@ -110974,13 +110979,13 @@ function p7() {
 function m7() {
 	s7.photos.sync();
 }
-function $0e() {
+function e2e() {
 	p7() ? h_e(PF()) : qF();
 }
-function e2e(e) {
+function t2e(e) {
 	s7.photos.setSize(e);
 }
-var t2e = l0e({
+var n2e = u0e({
 	request: (e) => Ji("/api/reveal", {
 		method: "POST",
 		body: JSON.stringify({ id: e })
@@ -110989,20 +110994,20 @@ var t2e = l0e({
 	complete: mIe,
 	failureText: (e) => s7.sourceHint(e instanceof Error ? e.message : String(e))
 });
-async function n2e(e) {
-	let t = { textContent: "" };
-	return await t2e(e, t), t.textContent;
-}
 async function r2e(e) {
+	let t = { textContent: "" };
+	return await n2e(e, t), t.textContent;
+}
+async function i2e(e) {
 	let t = { textContent: "" }, n = [];
-	return await i2e(e, t, (e) => {
+	return await a2e(e, t, (e) => {
 		e.items && (n = e.items.map((e) => e.id));
 	}), {
 		text: t.textContent,
 		removed: n
 	};
 }
-async function i2e(e, t, n) {
+async function a2e(e, t, n) {
 	t.textContent = L("shell:sourceTools.checking");
 	try {
 		let r = await Ji("/api/purge-missing", {
@@ -111039,17 +111044,17 @@ async function i2e(e, t, n) {
 		t.textContent = s7.sourceHint(e.message), B5.actionFailure(L("shell:sourceTools.checkAction"), e);
 	}
 }
-function a2e(e) {
+function o2e(e) {
 	return `<div class="srctools">${s7.sourceToolButtons(e)}
     <span class="srcstate" aria-live="polite"></span></div>`;
 }
-function o2e(e, t) {
+function s2e(e, t) {
 	let n = e.querySelector(".srcstate");
 	if (!n) return;
 	let r = e.querySelector("[data-reveal]"), i = e.querySelector("[data-sync]");
-	r && G5.handler(r, "onclick", () => t2e(Number(r.dataset.reveal), n, { button: r })), i && G5.handler(i, "onclick", () => i2e(Number(i.dataset.sync), n, t));
+	r && G5.handler(r, "onclick", () => n2e(Number(r.dataset.reveal), n, { button: r })), i && G5.handler(i, "onclick", () => a2e(Number(i.dataset.sync), n, t));
 }
-async function s2e(e, t) {
+async function c2e(e, t) {
 	let n = Zd({
 		title: L("shell:entityAlias.add"),
 		description: L("shell:entityAlias.hint"),
@@ -111089,13 +111094,13 @@ async function s2e(e, t) {
 		});
 	} }) : a?.conflict || B5.actionReceipt(L("shell:entityAlias.exists", { alias: a?.alias })), a;
 }
-function c2e(e, t) {
+function l2e(e, t) {
 	let n = ["performer", "studio"].includes(e) && q5.hasEntityPart(e, t, "jav"), r = `<div data-filter-row="bottom" class="flex min-w-0 items-center gap-3 px-3 py-2 min-h-12"><h3 data-entity-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-24 rounded-md align-middle skeleton-sheen"></span></h3>${du()}${e === "agency" ? "" : _Y(d7(K.sort, K.dir, n), n ? {
 		name: "jav-layout",
 		label: L("shell:cardLayout.jav"),
 		value: AF(),
 		options: TF
-	} : null)}</div>`, i = e === "agency" ? "" : `<div data-entity-media><button type="button" data-media-view="videos" aria-label="${L("catalog:shared.videos")}" aria-pressed="true" ${hY}>${V("play")}</button><button type="button" data-media-view="photos" data-media-icon="image" aria-label="${L("catalog:entityFilter.photos")}" ${hY}>${V("pics")}</button></div><span data-entity-sep></span><div data-entity-scroll><div data-entity-states>${X.catalogViews().map((e) => `<button type="button" data-entity-state="${H(e.k)}" aria-pressed="${K.state === e.k}" ${hY}>${H(e.label)}</button>`).join("")}<span data-entity-sep></span></div>`, a = Q0e(e, r, e === "agency" ? qu({
+	} : null)}</div>`, i = e === "agency" ? "" : `<div data-entity-media><button type="button" data-media-view="videos" aria-label="${L("catalog:shared.videos")}" aria-pressed="true" ${hY}>${V("play")}</button><button type="button" data-media-view="photos" data-media-icon="image" aria-label="${L("catalog:entityFilter.photos")}" ${hY}>${V("pics")}</button></div><span data-entity-sep></span><div data-entity-scroll><div data-entity-states>${X.catalogViews().map((e) => `<button type="button" data-entity-state="${H(e.k)}" aria-pressed="${K.state === e.k}" ${hY}>${H(e.label)}</button>`).join("")}<span data-entity-sep></span></div>`, a = $0e(e, r, e === "agency" ? qu({
 		kind: "performers",
 		layout: y7.peopleIndexLayout()
 	}) : OY(L("shell:skeleton.loadingVideos"), RF(LF({
@@ -111113,7 +111118,7 @@ function h7(e, t) {
 	};
 	r(n.querySelector(".entityfoot"), e !== "agency" && q5.hasEntityPart(e, t, "costars"), () => n.querySelector(".entityhero")?.insertAdjacentHTML("beforeend", q5.costarSkeletonFoot())), r(n.querySelector(".feednew"), Z.appSettings.feedNewRows !== !1 && q5.hasEntityPart(e, t, "feed"), () => n.querySelector(".entitysection")?.insertAdjacentHTML("beforebegin", q5.feedNewSkeletonSection())), r(n.querySelector(".entityfacts"), e === "performer" && q5.hasEntityPart(e, t, "facts"), () => n.querySelector(".entityprofile")?.insertAdjacentHTML("beforeend", q5.factsSkeleton()));
 }
-var l2e = {
+var u2e = {
 	performers: "shell:entityMissing.performer",
 	creators: "shell:entityMissing.seller",
 	studios: "shell:entityMissing.studio",
@@ -111121,14 +111126,14 @@ var l2e = {
 	series: "shell:entityMissing.series",
 	tags: "shell:entityMissing.tag"
 };
-function u2e(e) {
+function d2e(e) {
 	let t = ta[e] || e, n = pHe[t], r = n ? `<a class="geist-button primary" href="/${t}">${H(L("shell:entityMissing.backToList", { title: n }))}</a>` : "";
-	B("#index").innerHTML = Z.emptyState("search-x", L(l2e[t] || "shell:entityMissing.item"), L("shell:entityMissing.hint"), { actions: r });
+	B("#index").innerHTML = Z.emptyState("search-x", L(u2e[t] || "shell:entityMissing.item"), L("shell:entityMissing.hint"), { actions: r });
 }
 function g7(e, t) {
 	D9(s7.application.fresh(e, t));
 }
-function d2e() {
+function f2e() {
 	s7.ENTITY_FILTER_KEYS = [
 		"loc",
 		"creator",
@@ -111140,10 +111145,10 @@ function d2e() {
 		"year",
 		"sort",
 		"dir"
-	], s7.emptyEntityFilters = K5, s7.parseEntityFilters = (e) => u0e(e, {
+	], s7.emptyEntityFilters = K5, s7.parseEntityFilters = (e) => d0e(e, {
 		sort: Z.appSettings.defaultSort,
 		dir: Z.appSettings.defaultSortDirection
-	}), s7.entityFilterSearch = d0e, s7.cloneBarsContext = (e) => e && e.type === "entity" ? {
+	}), s7.entityFilterSearch = f0e, s7.cloneBarsContext = (e) => e && e.type === "entity" ? {
 		...e,
 		filters: { ...e.filters }
 	} : e, s7.activeFilterState = () => {
@@ -111151,35 +111156,35 @@ function d2e() {
 		return e.type === "home" ? K : e.filters;
 	}, B("#q").value = K.q, X.rememberSearchValue();
 }
-function f2e() {
+function p2e() {
 	s7.entityPageView = "", s7.entityPageWall = !1, s7.entityPageRevision = 0, s7.entityPageCurrent = () => !!c7(), s7.entityPageLive = (e, t) => {
 		let n = c7();
 		return !!n && !B("#index").hidden && n.props.kind === e && n.props.name === t;
 	}, s7.EMPTY_ENTITY_MEDIA = {
 		media: "videos",
 		set: 0
-	}, s7.parseMediaView = f0e, s7.entityViewSearch = p0e, s7.entityBodyCanLoadMore = () => !B("#index").hidden && B("#stats").hidden, s7.entityBodySkeleton = () => u9(), s7.entityPageHelpers = {
+	}, s7.parseMediaView = p0e, s7.entityViewSearch = m0e, s7.entityBodyCanLoadMore = () => !B("#index").hidden && B("#stats").hidden, s7.entityBodySkeleton = () => u9(), s7.entityPageHelpers = {
 		wireDrag: (e) => {
 			e && g9(e);
 		},
 		wireScroller: (e) => {
 			e && _d(e);
 		},
-		wireFeedRow: (e) => j0e(e),
-		feedRowHtml: A0e,
+		wireFeedRow: (e) => M0e(e),
+		feedRowHtml: j0e,
 		receipt: (e, t) => B5.actionReceipt(e, t),
 		failure: (e, t) => B5.actionFailure(e, t),
-		aliasForm: (e, t) => s2e(e, t),
-		sourceToolsHtml: (e) => a2e(e),
-		wireSourceTools: (e, t) => o2e(e, t),
-		comboItems: (e) => A4e(e),
+		aliasForm: (e, t) => c2e(e, t),
+		sourceToolsHtml: (e) => o2e(e),
+		wireSourceTools: (e, t) => s2e(e, t),
+		comboItems: (e) => j4e(e),
 		sortKeys: (e, t, n) => d7(e, t, n)
 	}, s7.entityFollowActions = {
 		...$.followFeedActions,
 		route: () => {},
 		shuffle: () => {},
 		loaded: () => {},
-		toggleSelection: (e, t) => W0e(e, t)
+		toggleSelection: (e, t) => G0e(e, t)
 	}, s7.SOURCE_HINTS = {
 		"source offline": L("shell:sourceTools.libraryOffline"),
 		"source not mapped": L("shell:sourceTools.notMapped"),
@@ -111196,8 +111201,8 @@ function f2e() {
     <button type="button" data-sync="${e}" title="${H(L("catalog:detailSource.syncDeletionsTip"))}"
       aria-label="${H(L("catalog:detailSource.syncDeletions"))}">${V("folder-sync")}</button>`;
 }
-function p2e() {
-	s7.application = x0e({
+function m2e() {
+	s7.application = S0e({
 		controller: {
 			context: () => {
 				let e = u7();
@@ -111246,7 +111251,7 @@ function p2e() {
 			writeSeed: (e) => {
 				K.seed = e, Sp();
 			},
-			setJavLayout: $2e,
+			setJavLayout: e4e,
 			javLayout: AF,
 			setPhotoLayout: BF,
 			syncPhotoWalls: m7,
@@ -111256,16 +111261,16 @@ function p2e() {
 				let n = e !== s7.entityPageView;
 				s7.entityPageView = e, s7.entityPageWall = t, n && G7();
 			},
-			syncDensity: $0e,
+			syncDensity: e2e,
 			scheduleSticky: K7,
 			releasePage: () => gg(B("#index")),
-			showMissing: u2e,
+			showMissing: d2e,
 			dropBars: U5
 		},
 		loading: {
 			shapesReady: (e, t) => q5.hasEntityShape(e, t),
-			waitShapes: N2e,
-			paintSkeleton: c2e,
+			waitShapes: P2e,
+			paintSkeleton: l2e,
 			resetView: () => {
 				xp({ detailReturnBarsContext: null }), s7.entityPageView = "", s7.entityPageWall = !1;
 			},
@@ -111281,13 +111286,13 @@ function p2e() {
 			walls: () => document.querySelectorAll(".followphotowall"),
 			pushEntity: l7,
 			pushFollow: M9,
-			syncDensity: $0e,
+			syncDensity: e2e,
 			storeSize: p_e
 		},
 		helpers: s7.entityPageHelpers,
 		actions: {
 			toggleTag: n9,
-			openFollowAuthor: k2e,
+			openFollowAuthor: A2e,
 			javContext: (e) => xp({ entityJavLayout: !!e })
 		},
 		sortPreference: () => ({
@@ -111298,7 +111303,7 @@ function p2e() {
 }
 // src/application/playlists.js
 var _7 = { playlistWrite: void 0 };
-function m2e(e, t) {
+function h2e(e, t) {
 	e === "tag" ? (xp({ state: {
 		...K,
 		tag: t,
@@ -111310,15 +111315,15 @@ function m2e(e, t) {
 		orient: ""
 	} }), X.clearSearchField(), Q.route(q7()), O7(), t9()) : g7(e, t);
 }
-function h2e(e = "") {
+function g2e(e = "") {
 	return `<label class="modalfield"><span>${L("shell:playlistDialog.nameLabel")}</span><input class="geist-input" name="name"
     maxlength="80" placeholder="${H(L("catalog:playlistsPage.enterName"))}" value="${H(e)}"></label>`;
 }
-async function g2e({ title: e, count: t, save: n }) {
+async function _2e({ title: e, count: t, save: n }) {
 	let r = Zd({
 		title: L("shell:playlistDialog.saveAsTitle"),
 		description: L("shell:playlistDialog.saveMixHint", { count: t }),
-		body: h2e(e),
+		body: g2e(e),
 		confirmLabel: L("shell:playlistDialog.saveAsTitle"),
 		onConfirm: () => {
 			let e = r.dialog.querySelector("[name=\"name\"]").value.trim();
@@ -111328,19 +111333,19 @@ async function g2e({ title: e, count: t, save: n }) {
 	});
 	r.dialog.querySelector("[name=\"name\"]").select();
 	let { confirmed: i, result: a } = await r.done;
-	i && (await u3e(a.id, a.current_asset_id, !0), B5.actionReceipt(L("shell:playlistDialog.saved"), { undo: async () => {
+	i && (await d3e(a.id, a.current_asset_id, !0), B5.actionReceipt(L("shell:playlistDialog.saved"), { undo: async () => {
 		await _7.playlistWrite({
 			action: "delete",
 			id: a.id
 		}), D9("/playlists");
 	} }));
 }
-async function _2e(e) {
+async function v2e(e) {
 	let t = ((await Ji("/api/playlists")).items || []).map((e) => `<label class="pickrow">${wu(`data-pick-playlist="${e.id}"`)}
     <span class="pickrowtext"><b>${H(e.name)}</b><small>${L("shell:mixCard.videoCount", { count: e.item_count })}</small></span></label>`).join(""), n = Zd({
 		title: L("shell:playlistDialog.addTitle"),
 		description: L("shell:playlistDialog.addHint"),
-		body: h2e() + (t ? `<div class="picklist" role="group" aria-label="${L("shell:playlistDialog.existingLists")}">${t}</div>` : yu(L("shell:playlistDialog.emptyHint"), { size: "small" })),
+		body: g2e() + (t ? `<div class="picklist" role="group" aria-label="${L("shell:playlistDialog.existingLists")}">${t}</div>` : yu(L("shell:playlistDialog.emptyHint"), { size: "small" })),
 		confirmLabel: L("shell:shared.save"),
 		confirmDisabled: !0,
 		onConfirm: async () => {
@@ -111384,15 +111389,15 @@ function v7() {
 	let e = ug(B("#stats"));
 	e?.path !== "/playlists" || !e.host.isConnected ? xp({ pageOpens: fp + 1 }) : (E7({ manage: !1 }), xp({ playlistsRevision: vp + 1 }));
 }
-function v2e(e) {
+function y2e(e) {
 	let t = new URLSearchParams(location.search);
 	for (let n of ["category", "queue"]) e[n] ? t.set(n, e[n]) : t.delete(n);
 	Q.route("/review" + (t.size ? "?" + t : ""));
 }
-function y2e(e) {
+function b2e(e) {
 	xp({ configurationRequestedSection: e }), Q.navigatePath(Nh(e));
 }
-function b2e() {
+function x2e() {
 	_7.playlistWrite = (e) => Ji("/api/playlist", {
 		method: "POST",
 		body: JSON.stringify(e)
@@ -111403,31 +111408,31 @@ var y7 = {
 	peopleIndexLayout: void 0,
 	personAvatar: void 0
 };
-function x2e() {
+function S2e() {
 	return Z.appSettings.followLayout === "table" ? "table" : "default";
 }
-function S2e() {
+function C2e() {
 	return h4(location.search);
 }
-function C2e(e) {
+function w2e(e) {
 	return Aze(e);
 }
-function w2e(e) {
-	Q.route(C2e(e));
+function T2e(e) {
+	Q.route(w2e(e));
 }
-function T2e(e = "") {
+function E2e(e = "") {
 	return jze(location.search, e);
 }
-function E2e(e) {
+function D2e(e) {
 	return W5(e);
 }
-function D2e(e) {
-	return i0e(e);
+function O2e(e) {
+	return a0e(e);
 }
 function b7() {
 	B("#stats").hidden = !0, B("#index").hidden = !1, a9(), X.hideCatalogCombo(), B("#count").textContent = "", B("#loadSentinel").hidden = !0;
 }
-function O2e(e, t) {
+function k2e(e, t) {
 	xp({ state: {
 		...K,
 		state: "",
@@ -111435,19 +111440,19 @@ function O2e(e, t) {
 		tag_match: t
 	} }), r7(!1, !1), Q.route(q7()), O7(), C9(), t9();
 }
-function k2e(e) {
+function A2e(e) {
 	y7.controller.openFollowAuthor(e);
 }
-function A2e(e) {
+function j2e(e) {
 	y7.controller.openFollowTag(e);
 }
-function j2e() {
-	$.FOLLOW_MANAGE_TABS = kze, G5.listen(document, "click", (e) => {
-		e.target.closest?.("[data-empty-settings]") && y2e("library");
-	}), y7.peopleIndexLayout = () => xHe(Z.appSettings.peopleLayout), y7.personAvatar = a0e;
-}
 function M2e() {
-	y7.controller = o0e({
+	$.FOLLOW_MANAGE_TABS = kze, G5.listen(document, "click", (e) => {
+		e.target.closest?.("[data-empty-settings]") && b2e("library");
+	}), y7.peopleIndexLayout = () => xHe(Z.appSettings.peopleLayout), y7.personAvatar = o0e;
+}
+function N2e() {
+	y7.controller = s0e({
 		route: Q.route,
 		followView: k9,
 		adoptFollowView: A9,
@@ -111474,7 +111479,7 @@ function S7(e = L("shell:skeleton.loadingVideos")) {
 	}
 	let t = B("#count"), n = decodeURIComponent(location.pathname) === "/junk-files";
 	if (t.classList.toggle("manage-static", n), t.classList.toggle("junkcount", n), n ? (t.setAttribute("aria-busy", "true"), t.setAttribute("aria-label", e), t.innerHTML = EOe(rX(location.search)), ed(t)) : (t.removeAttribute("aria-busy"), t.removeAttribute("aria-label"), t.textContent = "", K && $7({
-		count: O4e(),
+		count: k4e(),
 		...e9()
 	})), B("#loadSentinel").hidden = !0, s9()) return;
 	let r = B("#grid"), i = u9(e), a = r.querySelector(".catalog-skeleton");
@@ -111483,7 +111488,7 @@ function S7(e = L("shell:skeleton.loadingVideos")) {
 function C7() {
 	B("#catalogFilter").style.display = "none", Q7();
 }
-function N2e() {
+function P2e() {
 	let e = new Promise((e) => {
 		let t = x7.ENTITY_SHAPES_WAIT, n = performance.now(), r = () => {
 			let i = performance.now();
@@ -111493,7 +111498,7 @@ function N2e() {
 	});
 	return Promise.race([x7.entityShapesReady ||= J5(), e]);
 }
-function P2e() {
+function F2e() {
 	let e = decodeURIComponent(location.pathname);
 	if (document.body.dataset.surface = location.pathname, e === "/wall") document.body.setAttribute("data-wall-open", ""), C7(), Ike();
 	else if (/^\/assets\/\d+$/.test(e)) C7();
@@ -111508,12 +111513,12 @@ function P2e() {
 	else if (/^\/(?:performers|creators|studios|agencies|series|tags)\//.test(e)) {
 		C7(), B("#index").hidden = !1, a9();
 		let t = na[e.split("/")[1]], n = e.split("/").slice(2).join("/");
-		(q5.hasEntityShape(t, n) ? Promise.resolve() : N2e()).then(() => {
-			B("#index").firstElementChild || decodeURIComponent(location.pathname) !== e || (c2e(t, n), ed(B("#index")));
+		(q5.hasEntityShape(t, n) ? Promise.resolve() : P2e()).then(() => {
+			B("#index").firstElementChild || decodeURIComponent(location.pathname) !== e || (l2e(t, n), ed(B("#index")));
 		});
 	} else Q.routeMeta(e) ? S7() : (a9(), B("#count").textContent = "", B("#loadSentinel").hidden = !0);
 }
-function F2e() {
+function I2e() {
 	$.followContentSkeletonHtml = (e = new URLSearchParams(location.search).get("media") === "images" ? "images" : "videos", t = L("shell:skeleton.loadingFollowing")) => F6(t, {
 		cards: !0,
 		className: "follow-content-skeleton postercard-skeleton",
@@ -111529,18 +111534,18 @@ function F2e() {
   ${$.followContentSkeletonHtml(void 0, e)}</div></div>`, B("#loadSentinel").innerHTML = Mu("linear-dots", xu), x7.setGridCards = (e) => Gu(B("#grid"), () => {
 		B("#grid").innerHTML = `<div class="grid">${e}</div>`;
 	}), x7.gridCards = () => document.querySelectorAll(":is(#grid,#index [data-entity-grid]) :is([data-media-grid] > [data-media-card][data-id],[data-catalog-row][data-id])"), x7.managementPlaceholder = (e) => I6(e, {
-		followLayout: x2e(),
+		followLayout: S2e(),
 		...(({ sort: e, dir: t, tab: n }) => ({
 			followSort: e,
 			followDir: t,
 			followTab: n
-		}))(S2e())
+		}))(C2e())
 	}), x7.wantsDiscoveryBars = () => B("#catalogFilter").style.display !== "none", x7.entityShapesReady = null, x7.ENTITY_SHAPES_WAIT = 400, x7.syncPageTitle = (e) => {
-		let t = I2e(e);
-		document.body.dataset.surface = t.pathname, g3e();
-	}, Ir(() => I2e(location.href));
+		let t = L2e(e);
+		document.body.dataset.surface = t.pathname, _3e();
+	}, Ir(() => L2e(location.href));
 }
-function I2e(e) {
+function L2e(e) {
 	let t = new URL(e, location.origin), n = decodeURIComponent(t.pathname), r = See(n, sp) || xee(n) || yee(n, t.search) || $h(n)?.title;
 	return document.title = r ? `${r} · Peach` : L("shell:documentTitle.fallback"), t;
 }
@@ -111552,7 +111557,7 @@ var w7 = (e) => e.replace(/[&<>"']/g, (e) => ({
 	"\"": "&quot;",
 	"'": "&#39;"
 })[e]);
-function L2e(e, t, n) {
+function R2e(e, t, n) {
 	let r = new Map(t.map((e) => [e[0], e])), i = e.map((e) => r.get(e)).filter((e) => e !== void 0).map(([e, t, r]) => {
 		let i = e === "" ? "<img data-sidebar-home-logo=\"\" src=\"/peach-logo-64.png\" srcset=\"/peach-logo-64.png 64w, /peach-logo-128.png 128w\" sizes=\"24px\" width=\"24\" height=\"24\" alt=\"\" decoding=\"async\">" : `<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-${w7(r)}"/></svg>`;
 		return `<button type="button" data-nav="${w7(e)}" aria-pressed="${n(e)}" aria-label="${w7(t)}">${i}<span>${w7(t)}</span></button>`;
@@ -111560,7 +111565,7 @@ function L2e(e, t, n) {
 	return `<div data-sidebar-head=""></div><div data-sidebar-nav="">${i.join("")}${a}</div>`;
 }
 // src/application/filter-scroll.js
-function R2e(e, t, n, r = !1) {
+function z2e(e, t, n, r = !1) {
 	if (t = Math.max(0, t), !e || !n || r || t <= 8) return {
 		y: t,
 		origin: t,
@@ -111609,10 +111614,10 @@ function D7() {
 function O7() {
 	B("#javLibraryHeader").hidden = !ea(location.pathname) || !z7(), document.body.classList.remove("entity-open", "index-open"), gg(B("#index")), B("#stats").hidden = !0, B("#index").hidden = !0, X5(location.pathname) || Q5(), B("#catalogFilter").style.display = "", Q7(), P7(), I7();
 }
-function z2e() {
+function B2e() {
 	Q.route("/"), O7();
 }
-function B2e({ tags: e = [], providers: t = [], duration: n = !1 }) {
+function V2e({ tags: e = [], providers: t = [], duration: n = !1 }) {
 	S9({
 		content: e.length || t.length || n ? {
 			kind: "follow",
@@ -111636,8 +111641,8 @@ function B2e({ tags: e = [], providers: t = [], duration: n = !1 }) {
 		filters: $.followSidebarFilters()
 	});
 }
-function V2e(e) {
-	T3e({
+function H2e(e) {
+	E3e({
 		...k9(),
 		...e
 	}), S9({ filters: $.followSidebarFilters() });
@@ -111652,7 +111657,7 @@ function A7(e) {
 function j7() {
 	k7() && A7(!1);
 }
-function H2e() {
+function U2e() {
 	up === null && (xp({ runtimeConfigurable: !1 }), Ji("/healthz").then((e) => {
 		xp({ runtimeConfigurable: !!e.configurable }), up && N7() && P7();
 	}).catch(() => {}));
@@ -111670,18 +111675,18 @@ function M7(e = "", t = !1) {
 		replace: !0,
 		state: Tg.navigation.location.state
 	});
-	return e ||= Mh(location.pathname), k1e(T7.settingsHost()).then((t) => (t.open(e), t));
-}
-function U2e() {
-	jh(location.pathname) && (Ph(Tg.navigation.location.state) ? Tg.go(-1) : Q.navigatePath("/", !0));
+	return e ||= Mh(location.pathname), A1e(T7.settingsHost()).then((t) => (t.open(e), t));
 }
 function W2e() {
+	jh(location.pathname) && (Ph(Tg.navigation.location.state) ? Tg.go(-1) : Q.navigatePath("/", !0));
+}
+function G2e() {
 	return {
 		scroll: B("#drawerScroll"),
 		store: Z.settingsStore,
 		navCatalog: T7.NAV_CATALOG,
 		navOn: W7,
-		navTo: n4e,
+		navTo: r4e,
 		navToTop: () => {
 			j7(), Tee();
 		},
@@ -111701,8 +111706,8 @@ function W2e() {
 		selectFollowTag: (e) => {
 			$.followTags = /* @__PURE__ */ new Set([e]), A7(!1), D9(O9());
 		},
-		selectFollowProvider: (e) => V2e({ provider: $.followProviders.has(e) ? "" : e }),
-		setFollowDuration: (e, t) => V2e({
+		selectFollowProvider: (e) => H2e({ provider: $.followProviders.has(e) ? "" : e }),
+		setFollowDuration: (e, t) => H2e({
 			durMin: Math.round(e * 60),
 			durMax: t === null ? 0 : Math.round(t * 60)
 		}),
@@ -111711,15 +111716,15 @@ function W2e() {
 		}
 	};
 }
-function G2e() {
+function K2e() {
 	let e = B("#drawerScroll"), t = [...e.querySelector("[data-sidebar-head]")?.children || []];
-	e.innerHTML = L2e(Z.appSettings.sidebarOrder, T7.NAV_CATALOG, W7), e.querySelector("[data-sidebar-head]").append(...t), G5.listen(e, "click", (e) => {
+	e.innerHTML = R2e(Z.appSettings.sidebarOrder, T7.NAV_CATALOG, W7), e.querySelector("[data-sidebar-head]").append(...t), G5.listen(e, "click", (e) => {
 		if (P5()) return;
 		let t = e.target.closest?.("[data-nav]");
-		t && n4e(t.dataset.nav);
-	}), A1e(W2e()).then((e) => e.render(T7.sidebarProps)).catch(() => {});
+		t && r4e(t.dataset.nav);
+	}), j1e(G2e()).then((e) => e.render(T7.sidebarProps)).catch(() => {});
 }
-async function K2e() {
+async function q2e() {
 	let e = G5, t = null;
 	try {
 		t = await Ji("/api/settings", { signal: e.signal });
@@ -111733,11 +111738,11 @@ function N7() {
 }
 function P7() {
 	let e = N7();
-	H2e(), e && C7();
+	U2e(), e && C7();
 	let t = B("#trashFilter");
 	t.hidden = e !== "trash", e === "trash" && !t.firstChild && (t.innerHTML = pOe(e9())), B("#count").classList.toggle("no-tagbar", !!e), C9(), e !== "trash" && (t7.trashCount = null), F7(e);
 }
-function q2e(e) {
+function J2e(e) {
 	return {
 		section: e,
 		path: decodeURIComponent(location.pathname),
@@ -111747,7 +111752,7 @@ function q2e(e) {
 }
 function F7(e = N7()) {
 	I7();
-	let t = q2e(e), n = M1e();
+	let t = J2e(e), n = N1e();
 	if (n) n.render(t);
 	else {
 		let e = lbe(t);
@@ -111756,17 +111761,17 @@ function F7(e = N7()) {
 	let r = Fz(t)?.title || "";
 	r !== T7.lastManagePageLabel && (T7.lastManagePageLabel = r, r && Hu(T7.manageHeaderRoot(), "[data-manage-title],[data-manage-lede]"));
 }
-function J2e() {
+function Y2e() {
 	let e = T7.manageHeaderRoot();
 	G5.listen(e, "click", (e) => {
-		if (M1e()) return;
+		if (N1e()) return;
 		let t = e.target.closest?.("[data-manage]");
 		if (t) R7(t.dataset.manage);
 		else if (e.target.closest?.("[data-manage-crumb] a[href]")) {
 			if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button) return;
 			e.preventDefault(), Q.navigatePath("/data-cleanup");
 		}
-	}), j1e({
+	}), M1e({
 		root: e,
 		store: Z.settingsStore,
 		openManage: R7,
@@ -111779,9 +111784,9 @@ function I7() {
 	let t = decodeURIComponent(location.pathname), n = !N7() && ea(t) && $i[K.state] || "";
 	e.hidden = !n, n && (e.textContent = n);
 	let r = B("#catalogPageHeading");
-	r.hidden = !!N7() || !ea(t) || !!n || K.jav === "1", Y2e(r, K.q);
+	r.hidden = !!N7() || !ea(t) || !!n || K.jav === "1", X2e(r, K.q);
 }
-function Y2e(e, t) {
+function X2e(e, t) {
 	let n = e?.querySelector("[data-page-title]");
 	if (!n) return;
 	let r = String(t || "").trim(), i = r ? L("shell:searchTitle.results", { query: r }) : L("shell:shared.home");
@@ -111794,9 +111799,9 @@ function Y2e(e, t) {
 		let n = document.createElement("span");
 		return n.textContent = e, t !== void 0 && (n.dataset.titleWords = t), n;
 	}, [o = "", s = ""] = L("shell:searchTitle.results", { query: "\0" }).split("\0");
-	n.replaceChildren(a(o), a(r, r), a(s)), n.title = i, L7(n), X2e ??= new ResizeObserver((e) => e.forEach((e) => L7(e.target))), X2e.observe(n), document.fonts?.ready.then(() => L7(n));
+	n.replaceChildren(a(o), a(r, r), a(s)), n.title = i, L7(n), Z2e ??= new ResizeObserver((e) => e.forEach((e) => L7(e.target))), Z2e.observe(n), document.fonts?.ready.then(() => L7(n));
 }
-var X2e = null;
+var Z2e = null;
 function L7(e) {
 	let t = e.querySelector("[data-title-words]");
 	if (!t || !e.clientWidth) return;
@@ -111817,7 +111822,7 @@ function z7() {
 	let e = decodeURIComponent(location.pathname);
 	return e === "/" ? K.jav === "1" : e.startsWith("/performers/") || e.startsWith("/studios/") ? K.jav === "1" || mp : !1;
 }
-function Z2e(e = z7()) {
+function Q2e(e = z7()) {
 	let t = FP.filter(([e]) => e !== "seed");
 	return e ? [IP, ...t] : [...t, IP];
 }
@@ -111827,24 +111832,24 @@ function B7() {
 function V7() {
 	return jF(B7());
 }
-function Q2e(e) {
+function $2e(e) {
 	d_e(e), H7(), B("#grid").hidden || f9();
 }
-function $2e(e) {
+function e4e(e) {
 	zF(e), H7(), f9();
 }
 function H7() {
 	document.querySelectorAll("[data-video-layout]").forEach((e) => {
 		e.checked = e.value === V7();
-	}), X.catalogFilterProps && $7({ layout: x4e() });
+	}), X.catalogFilterProps && $7({ layout: S4e() });
 }
-function e4e(e) {
+function t4e(e) {
 	f_e(e), H7(), f9();
 }
 async function U7() {
-	U5(), X.mixRelatedCache.clear(), await Promise.all([t4e(), t9()]);
+	U5(), X.mixRelatedCache.clear(), await Promise.all([n4e(), t9()]);
 }
-async function t4e() {
+async function n4e() {
 	if (s7.entityPageCurrent() && !B("#index").hidden) {
 		l7({ revision: ++s7.entityPageRevision });
 		return;
@@ -111866,7 +111871,7 @@ function W7(e) {
 	}
 	return e === "jav" ? t === "/jav" || z7() : e === "shorts" ? K.orient === zi : e === "" ? t === "/" && !N7() && !K.state && !z7() && K.orient !== "portrait" : Zi[e] ? n === e && K.orient !== "portrait" : n ? n === e : t === "/" && K.state === e && K.orient !== "portrait";
 }
-function n4e(e) {
+function r4e(e) {
 	let t = wee(e);
 	if (t === location.pathname + location.search + location.hash) return;
 	if (j7(), t) {
@@ -111892,7 +111897,7 @@ function n4e(e) {
 	let n = Zi[e] ? null : Q.routePathOf("nav", e);
 	n ? Q.openRoutePath(n) : (e === "shorts" ? (K.orient = zi, K.state = "") : (K.orient = "", K.state = e), Sp(), Q.route(q7()), C9(), t9());
 }
-var r4e = /* @__PURE__ */ new Set([
+var i4e = /* @__PURE__ */ new Set([
 	"/performers",
 	"/creators",
 	"/studios",
@@ -111902,21 +111907,21 @@ var r4e = /* @__PURE__ */ new Set([
 function G7() {
 	let e = decodeURIComponent(location.pathname), t = e.split("/").filter(Boolean);
 	Zf && ep !== t7.currentSelectSurface() && r7(!1, !0);
-	let n = t.length > 1 && Object.prototype.hasOwnProperty.call(na, t[0]), r = new URLSearchParams(location.search), i = r.get("media") || "", a = n ? s7.entityPageView || (i === "photos" || i === "online" ? i : "videos") : "", o = ea(e) || e === "/trash", s = t0e(e, location.search);
+	let n = t.length > 1 && Object.prototype.hasOwnProperty.call(na, t[0]), r = new URLSearchParams(location.search), i = r.get("media") || "", a = n ? s7.entityPageView || (i === "photos" || i === "online" ? i : "videos") : "", o = ea(e) || e === "/trash", s = n0e(e, location.search);
 	(e === "/jav" || K4(e)) && Zf && r7(!1, !0);
-	let c = e === "/tags", l = r4e.has(e) && (e !== "/performers" || r.get("scope") !== "online"), u = o || [
+	let c = e === "/tags", l = i4e.has(e) && (e !== "/performers" || r.get("scope") !== "online"), u = o || [
 		"people",
 		"videos",
 		"photos",
 		"online"
-	].includes(a) || c || l || e === "/follow" || n0e(e, location.search) || K4(e), d = o || n || e === "/follow" || s;
+	].includes(a) || c || l || e === "/follow" || r0e(e, location.search) || K4(e), d = o || n || e === "/follow" || s;
 	B("#selectMode").hidden = !u, B("#density").hidden = !d, m7(), !u && Zf && r7(!1, !0);
 }
-function i4e() {
+function a4e() {
 	let e = [...document.querySelectorAll("[data-filter-frame]")], t = e.find((e) => e.offsetParent !== null);
 	(t !== T7.mobileFilterHost || location.pathname !== T7.mobileFilterPath) && (T7.mobileFilterScroll = null), T7.mobileFilterHost = t, T7.mobileFilterPath = location.pathname;
 	let n = Math.max(0, Math.min(scrollY, document.documentElement.scrollHeight - innerHeight)), r = !!t?.querySelector(":focus-visible,input:focus,select:focus,textarea:focus,[aria-expanded=\"true\"]");
-	T7.mobileFilterScroll = R2e(T7.mobileFilterScroll, n, innerWidth <= 760, r);
+	T7.mobileFilterScroll = z2e(T7.mobileFilterScroll, n, innerWidth <= 760, r);
 	for (let n of e) {
 		let e = n === t && T7.mobileFilterScroll.free;
 		if (e && n.style.setProperty("--filter-free-top", `${-n.offsetHeight - 12}px`), e === n.hasAttribute("data-filter-free")) continue;
@@ -111930,18 +111935,18 @@ function i4e() {
 		});
 	}
 }
-function a4e() {
-	i4e(), [".board-filter-frame", "#count"].forEach((e) => {
+function o4e() {
+	a4e(), [".board-filter-frame", "#count"].forEach((e) => {
 		let t = B(e), n = t && getComputedStyle(t), r = n ? parseFloat(n.top) : NaN, i = !!t && n.position === "sticky" && t.offsetParent !== null && window.scrollY > 0 && Number.isFinite(r) && t.getBoundingClientRect().top - (parseFloat(n.translate.split(" ")[1]) || 0) <= r + 1;
 		t && t.classList.toggle("is-stuck", i), t?.matches(".board-filter-frame") && t.classList.toggle("board-is-stuck", i);
 	});
 }
 function K7() {
 	T7.stickyFrame ||= G5.frame(() => {
-		T7.stickyFrame = 0, a4e();
+		T7.stickyFrame = 0, o4e();
 	});
 }
-function o4e() {
+function s4e() {
 	$.followSidebarFilters = () => ({
 		provider: [...$.followProviders][0] || "",
 		dur_min: $.followDurMin || "",
@@ -111951,22 +111956,22 @@ function o4e() {
 			replace: !0,
 			state: Tg.navigation.location.state
 		}),
-		closed: U2e,
+		closed: W2e,
 		store: Z.settingsStore,
 		changed: (e) => Z.settingsEffects[e]?.(),
 		sound: (e) => Bl(e),
 		navCatalog: T7.NAV_CATALOG,
 		themeOptions: o_e,
 		videoLayouts: TF,
-		followInitialRanges: r0e,
+		followInitialRanges: i0e,
 		videoLayout: () => V7(),
-		setVideoLayout: e4e,
+		setVideoLayout: t4e,
 		censored: h9,
-		setCensored: X4e,
-		sfwShortcut: Z4e,
-		setSfwShortcut: Q4e,
+		setCensored: Z4e,
+		sfwShortcut: Q4e,
+		setSfwShortcut: $4e,
 		highContrast: () => document.documentElement.classList.contains("board-high-contrast"),
-		setHighContrast: $4e,
+		setHighContrast: e3e,
 		receipt: (e) => B5.actionReceipt(e),
 		failure: B5.actionFailure,
 		syncRemote: (e) => bF(e, (e) => Z.settingsEffects[e]?.()),
@@ -112017,43 +112022,43 @@ var X = {
 	junkQueueHelpers: void 0,
 	junkQueueActions: void 0
 };
-function s4e() {
-	X.initialParams.has("loc") || (K.loc = c4e(K.loc), Sp());
+function c4e() {
+	X.initialParams.has("loc") || (K.loc = l4e(K.loc), Sp());
 }
-function c4e(e) {
-	return H1e(e, Z.sourceOnline);
+function l4e(e) {
+	return U1e(e, Z.sourceOnline);
 }
 function q7(e = K) {
-	return U1e(e);
+	return W1e(e);
 }
-function l4e() {
-	xp(G1e(W1e(K, Z.appSettings, B5.rollSeed)));
+function u4e() {
+	xp(K1e(G1e(K, Z.appSettings, B5.rollSeed)));
 }
 function J7(e = null) {
-	l4e(), e && (Object.assign(K, e), Sp()), Q.route(e ? q7() : "/"), X.clearSearchField(), v9(!1), C9(), t9();
+	u4e(), e && (Object.assign(K, e), Sp()), Q.route(e ? q7() : "/"), X.clearSearchField(), v9(!1), C9(), t9();
 }
-function u4e(e, t = null) {
+function d4e(e, t = null) {
 	let n = e.id;
-	!e.medium || e.medium === "video" ? b9(n, !0, null, t) : e.medium === "image" && e.location !== "online" ? window.open("/photo?id=" + n, "_blank", "noopener") : d4e(e).catch((e) => B5.actionFailure(L("shell:receipt.genericAction"), Error(s7.sourceHint(e.message))));
+	!e.medium || e.medium === "video" ? b9(n, !0, null, t) : e.medium === "image" && e.location !== "online" ? window.open("/photo?id=" + n, "_blank", "noopener") : f4e(e).catch((e) => B5.actionFailure(L("shell:receipt.genericAction"), Error(s7.sourceHint(e.message))));
 }
-async function d4e(e) {
+async function f4e(e) {
 	await mIe(await Ji("/api/reveal", {
 		method: "POST",
 		body: JSON.stringify({ id: e.id })
 	}), () => B5.toast({ text: L("shell:sourceTools.revealed") }));
 }
-function f4e(e) {
+function p4e(e) {
 	return X.mixRelatedCache.has(e) || X.mixRelatedCache.set(e, Ji("/api/related?id=" + e + "&limit=28").then((t) => (t.items || []).filter((t) => t.id !== e)).catch((t) => {
 		throw X.mixRelatedCache.delete(e), t;
 	})), X.mixRelatedCache.get(e);
 }
-function p4e(e, t) {
-	T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : m4e(e, t);
-}
 function m4e(e, t) {
-	e.edition_group ? c3e(e.edition_group.seed_id, e.id, !0, t) : e.part_group ? l3e(e.part_group.seed_id, e.id, !0, t) : b9(e.id, !0, null, t);
+	T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : h4e(e, t);
 }
-async function h4e(e, t) {
+function h4e(e, t) {
+	e.edition_group ? l3e(e.edition_group.seed_id, e.id, !0, t) : e.part_group ? u3e(e.part_group.seed_id, e.id, !0, t) : b9(e.id, !0, null, t);
+}
+async function g4e(e, t) {
 	try {
 		let n = await Ji("/api/watch-later", {
 			method: "POST",
@@ -112070,7 +112075,7 @@ async function h4e(e, t) {
 		B5.actionFailure(L("shell:watchLater.updateAction"), e);
 	}
 }
-async function g4e(e, t) {
+async function _4e(e, t) {
 	try {
 		await Ji("/api/batch", {
 			method: "POST",
@@ -112094,7 +112099,7 @@ async function g4e(e, t) {
 		throw B5.actionFailure(L("shell:receipt.genericAction"), e), e;
 	}
 }
-async function _4e(e, t, n, r) {
+async function v4e(e, t, n, r) {
 	let i = Number(e.rating) || 0, a = nR(i, t), o = async (t, r) => {
 		let i = (await Ji("/api/feedback", {
 			method: "POST",
@@ -112114,7 +112119,7 @@ async function _4e(e, t, n, r) {
 		throw r?.aborted || B5.actionFailure(L("shell:ratingAction.label"), e), e;
 	}
 }
-async function v4e(e) {
+async function y4e(e) {
 	let t = new URLSearchParams();
 	if (z7() && t.set("jav", "1"), e.type === "entity" ? (t.set("scope_kind", e.kind), t.set("scope_name", e.name)) : e.type === "item" && t.set("id", String(e.id)), e.type === "home" && K.state && t.set("state", K.state), e.type !== "item") {
 		let e = s7.activeFilterState();
@@ -112138,14 +112143,14 @@ async function v4e(e) {
 			e[n] && t.set(n, e[n]);
 		});
 	}
-	return Q1e(t.toString(), X.topsQueryParams(e).toString());
+	return $1e(t.toString(), X.topsQueryParams(e).toString());
 }
 function Y7(e) {
-	u7().type !== "entity" && $7({ tags: S4e(e) }), S9({ filters: { ...e } }), r9();
+	u7().type !== "entity" && $7({ tags: C4e(e) }), S9({ filters: { ...e } }), r9();
 }
 async function X7(e) {
-	let t = ++X.facetCountsSeq, [n] = await v4e(e);
-	t === X.facetCountsSeq && (e.type === "home" && (_9.facets = n), S9({ latest: q4e(n, e) }));
+	let t = ++X.facetCountsSeq, [n] = await y4e(e);
+	t === X.facetCountsSeq && (e.type === "home" && (_9.facets = n), S9({ latest: J4e(n, e) }));
 }
 function Z7(e) {
 	let t = u7();
@@ -112164,7 +112169,7 @@ function Z7(e) {
 		} }), Q.route(q7()), O7(), t9();
 	} else e(K), Sp(), Q.route(q7()), Y7(K), X7(qf);
 }
-function y4e() {
+function b4e() {
 	return {
 		tiers: null,
 		tiersPending: !1,
@@ -112183,7 +112188,7 @@ function y4e() {
 		combo: [],
 		comboHidden: !0,
 		comboHost: B("#combo"),
-		actions: b4e(),
+		actions: x4e(),
 		helpers: {
 			wireDrag: g9,
 			wireScroller: (e) => {
@@ -112202,7 +112207,7 @@ function $7(e) {
 		offscreen: n,
 		hideTiers: r
 	}, X.catalogFilterProps = {
-		...X.catalogFilterProps || y4e(),
+		...X.catalogFilterProps || b4e(),
 		...e
 	}, X.catalogFilterMounting || (dg(t) ? hg(t, e) : (!t.firstChild && !n && (t.innerHTML = fOe(X.catalogViews(), X.catalogFilterProps.state, e9(), !r), ed(t)), X.catalogFilterMounting = mg("catalog-filter", X.catalogFilterProps, {
 		container: t,
@@ -112211,7 +112216,7 @@ function $7(e) {
 		X.catalogFilterMounting = null;
 	})));
 }
-function b4e() {
+function x4e() {
 	return {
 		currentHref: () => {
 			let e = new URL(q7(), location.origin);
@@ -112232,25 +112237,25 @@ function b4e() {
 			let t = HP(e, K.sort, K.dir);
 			t && (K.sort = t.sort, K.dir = t.dir, Sp(), m9());
 		},
-		reshuffle: () => J4e(),
+		reshuffle: () => Y4e(),
 		showAll: () => {
 			K.thumb = "0", Sp(), $7({ previewOnly: !1 }), m9();
 		},
 		setLayout: (e) => {
-			z7() ? $2e(e) : Q2e(e);
+			z7() ? e4e(e) : $2e(e);
 		},
 		moreTops: async (e) => {
 			let t = X.catalogTopsPages;
 			if (!t) return [];
-			let n = (await $1e(X.topsQueryParams(t.context, ++t[e]).toString()))[e] || [];
-			return e === "performers" ? n.map(C4e) : n.map(w4e);
+			let n = (await e0e(X.topsQueryParams(t.context, ++t[e]).toString()))[e] || [];
+			return e === "performers" ? n.map(w4e) : n.map(T4e);
 		},
 		emptyTrash: () => {
-			k4e();
+			A4e();
 		}
 	};
 }
-function x4e() {
+function S4e() {
 	return z7() ? {
 		name: "jav-layout",
 		label: L("shell:cardLayout.jav"),
@@ -112266,19 +112271,19 @@ function x4e() {
 function e9() {
 	return {
 		sorts: d7(K.sort, K.dir),
-		layout: x4e(),
+		layout: S4e(),
 		state: K.state || "",
 		trash: K.state === "trash",
 		previewOnly: K.thumb === "1" && K.state !== "trash"
 	};
 }
-function S4e(e) {
+function C4e(e) {
 	return X.catalogTagRows.map((t) => ({
 		...t,
 		selected: X.tagPressed(e.tag, t.k)
 	}));
 }
-function C4e(e) {
+function w4e(e) {
 	return {
 		name: e.k,
 		ringHtml: `<span data-tier-initial>${H(Ca(qr("performer", e.k, e.id)))}</span>${il({
@@ -112292,14 +112297,14 @@ function C4e(e) {
 		})}`
 	};
 }
-function w4e(e) {
+function T4e(e) {
 	return {
 		name: e.k,
 		fallback: Sa(e.k, 2),
 		logo: e.has_logo ? tl(e.k, "icon", e.logo_version) : ""
 	};
 }
-function T4e(e, t) {
+function E4e(e, t) {
 	X.barsPendingSeq = t, X.catalogFilterProps?.tiers ? $7({
 		tiersPending: !0,
 		state: e.state || ""
@@ -112309,7 +112314,7 @@ function T4e(e, t) {
 		state: e.state || ""
 	}));
 }
-function E4e(e) {
+function D4e(e) {
 	X.barsPendingSeq === e && (X.barsPendingSeq = 0, $7({ tiersPending: !1 }));
 }
 async function t9() {
@@ -112322,16 +112327,16 @@ async function t9() {
 		K.seed || "",
 		z7()
 	]);
-	T4e(n, e);
+	E4e(n, e);
 	let i;
 	try {
-		i = await v4e(t);
+		i = await y4e(t);
 	} catch (t) {
-		throw E4e(e), t;
+		throw D4e(e), t;
 	}
 	let [a, o] = i;
 	if (e !== X.barsRequestSeq) {
-		E4e(e);
+		D4e(e);
 		return;
 	}
 	let s = r + "\n" + JSON.stringify([a, o]);
@@ -112359,26 +112364,26 @@ async function t9() {
 	})), X.barsPendingSeq = 0, $7({
 		tiers: {
 			key: String(X.barsRequestSeq),
-			performers: o.performers.map(C4e),
-			studios: o.studios.map(w4e)
+			performers: o.performers.map(w4e),
+			studios: o.studios.map(T4e)
 		},
 		tiersPending: !1,
 		empty: l,
-		tags: S4e(n),
+		tags: C4e(n),
 		tagFirst: f.length + m.length,
 		views: X.catalogViews(),
 		state: n.state || ""
 	}), r9(), T7.sidebarCatalog = {
 		kind: "catalog",
 		key: String(++T7.sidebarContentSeq),
-		facets: q4e(a, t)
+		facets: J4e(a, t)
 	}, S9({
 		content: T7.sidebarCatalog,
 		filters: { ...n },
 		latest: null
 	});
 }
-function D4e(e, t) {
+function O4e(e, t) {
 	_9.total = e, K.state === "trash" && (t7.trashCount = {
 		total: _9.total,
 		shown: t
@@ -112391,14 +112396,14 @@ function D4e(e, t) {
 		shown: t
 	} });
 }
-function O4e() {
+function k4e() {
 	let e = X.lastCount;
 	return e && e.at === location.pathname + location.search ? {
 		total: e.total,
 		shown: e.shown
 	} : null;
 }
-function k4e() {
+function A4e() {
 	let e = t7.trashCount?.total ?? 0;
 	return $d({
 		title: L("shell:trash.empty"),
@@ -112428,7 +112433,7 @@ function n9(e) {
 		t.tag = e ? X.withTagToggled(t.tag, e) : "";
 	});
 }
-function A4e(e) {
+function j4e(e) {
 	let t = [];
 	return e.creator && t.push({
 		kind: "clear",
@@ -112454,7 +112459,7 @@ function A4e(e) {
 }
 function r9() {
 	$7({
-		combo: A4e(K),
+		combo: j4e(K),
 		comboHidden: !X.catalogOnScreen()
 	});
 }
@@ -112466,23 +112471,23 @@ async function i9() {
 			filters: K
 		},
 		detailReturnBarsContext: null
-	}), v9(!1), K.state === "ads") return I4e(e);
+	}), v9(!1), K.state === "ads") return L4e(e);
 	X.controller.page === "/junk-files" && a9(), S7(), O7();
-	let t = M4e(e);
-	return X5(location.pathname) && K.browse !== "folders" ? M0e() : Q5(), r9(), B("#count").classList.remove("manage-static", "junkcount"), t;
+	let t = N4e(e);
+	return X5(location.pathname) && K.browse !== "folders" ? N0e() : Q5(), r9(), B("#count").classList.remove("manage-static", "junkcount"), t;
 }
-function j4e(e) {
+function M4e(e) {
 	X.controller.settle(e);
 }
 function a9() {
 	let e = B("#grid");
 	Mf(e), gg(e), X.controller.clear(), e.innerHTML = "";
 }
-function M4e(e) {
-	return P4e("/", F4e, e, { place: D3e });
-}
 function N4e(e) {
-	return P4e("/junk-files", V4e, e);
+	return F4e("/", I4e, e, { place: O3e });
+}
+function P4e(e) {
+	return F4e("/junk-files", H4e, e);
 }
 function o9() {
 	return !!ug(B("#grid"));
@@ -112493,7 +112498,7 @@ function s9() {
 function c9(e) {
 	hg(B("#grid"), e);
 }
-function P4e(e, t, n, r = {}) {
+function F4e(e, t, n, r = {}) {
 	let i = B("#grid");
 	X.controller.page && X.controller.page !== e && a9();
 	let a = X.controller.begin(e, o9()), o = t();
@@ -112532,7 +112537,7 @@ function f9() {
 		seekSeconds: Z.appSettings.seekSeconds
 	}));
 }
-function F4e() {
+function I4e() {
 	let e = decodeURIComponent(location.pathname), t = ea(e), n = K.state === "trash";
 	return {
 		mode: "catalog",
@@ -112546,12 +112551,12 @@ function F4e() {
 		seekSeconds: Z.appSettings.seekSeconds,
 		revision: X.controller.revision,
 		wireDrag: g9,
-		settled: j4e,
+		settled: M4e,
 		skeletonHtml: () => u9(),
 		filters: { ...K },
 		batchSize: Z.appSettings.batchSize,
 		groupCollapse: Z.appSettings.groupCollapse,
-		...K1e({
+		...q1e({
 			homeDefault: t && e !== "/wall" && !K.q && !K.orient && K.browse !== "folders",
 			javOnly: K.jav === "1",
 			stripAllowed: t && e !== "/wall" && !z7() && K.orient !== "portrait" && !n && K.browse !== "folders",
@@ -112559,7 +112564,7 @@ function F4e() {
 		}),
 		mix: t && e !== "/wall" && !n && K.browse !== "folders",
 		countRow: B("#count"),
-		onCount: D4e,
+		onCount: O4e,
 		onCountFailed: () => $7({ count: !1 }),
 		emptyHtml: ({ trash: e, libraryEmpty: t }) => e ? Z.emptyState("trash", L("shell:trash.emptyTitle"), L("shell:trash.emptyHint")) : k$({
 			jav: z7() && !t,
@@ -112569,12 +112574,12 @@ function F4e() {
 		canLoadMore: () => B("#stats").hidden && B("#index").hidden
 	};
 }
-function I4e(e) {
+function L4e(e) {
 	let t = B("#count");
-	return X.controller.page === "/junk-files" && o9() && !X.controller.pending && t.querySelector(":scope > .peach-react:not([data-junk-count-skeleton])") || (a9(), S7(L("shell:skeleton.loadingJunkFiles"))), O7(), r9(), t.classList.add("manage-static", "junkcount"), t.classList.remove("is-stuck"), N4e(e);
+	return X.controller.page === "/junk-files" && o9() && !X.controller.pending && t.querySelector(":scope > .peach-react:not([data-junk-count-skeleton])") || (a9(), S7(L("shell:skeleton.loadingJunkFiles"))), O7(), r9(), t.classList.add("manage-static", "junkcount"), t.classList.remove("is-stuck"), P4e(e);
 }
-var L4e = "/api/ads/dispose-all", R4e = "/api/ads/restore-all";
-function z4e(e, t, n) {
+var R4e = "/api/ads/dispose-all", z4e = "/api/ads/restore-all";
+function B4e(e, t, n) {
 	return $d({
 		title: L("shell:batchJunk.disposeAll"),
 		body: fP(L("shell:batchJunk.confirmDisposeAll", { count: t }), "undo"),
@@ -112584,7 +112589,7 @@ function z4e(e, t, n) {
 		onConfirm: async () => {
 			let r;
 			try {
-				r = await Ji(L4e, {
+				r = await Ji(R4e, {
 					method: "POST",
 					body: JSON.stringify({
 						kind: e,
@@ -112597,7 +112602,7 @@ function z4e(e, t, n) {
 				throw e?.status === 400 ? (await i9(), Error(L("shell:batchJunk.queueChanged"))) : e;
 			}
 			await i9(), B5.actionReceipt(L("shell:batchJunk.doneDispose", { count: r.changed }), { undo: async () => {
-				await Ji(R4e, {
+				await Ji(z4e, {
 					method: "POST",
 					body: JSON.stringify({ ids: r.ids })
 				}), await i9();
@@ -112605,7 +112610,7 @@ function z4e(e, t, n) {
 		}
 	});
 }
-async function B4e(e, t) {
+async function V4e(e, t) {
 	let n = [e.id], r = t === "dispose", i = t === "reconsider-junk";
 	try {
 		await Ji("/api/batch", {
@@ -112630,7 +112635,7 @@ async function B4e(e, t) {
 		throw B5.actionFailure(L("shell:receipt.genericAction"), e), e;
 	}
 }
-function V4e() {
+function H4e() {
 	return {
 		...rX(location.search),
 		helpers: X.junkQueueHelpers,
@@ -112640,13 +112645,13 @@ function V4e() {
 		selectMode: Zf,
 		selected: new Set(Yf),
 		countRow: B("#count"),
-		settled: j4e,
+		settled: M4e,
 		skeletonHtml: () => tX(L("shell:skeleton.loadingJunkFiles")),
 		canLoadMore: () => B("#stats").hidden && B("#index").hidden
 	};
 }
-function H4e() {
-	X.initialParams = new URLSearchParams(location.search), X.resolveSort = (e, t, n = Z.appSettings.defaultSort) => B1e(e, t, Z.appSettings, n), xp(G1e(V1e(location, Z.appSettings, B5.rollSeed))), X.searchValueSnapshot = {
+function U4e() {
+	X.initialParams = new URLSearchParams(location.search), X.resolveSort = (e, t, n = Z.appSettings.defaultSort) => V1e(e, t, Z.appSettings, n), xp(K1e(H1e(location, Z.appSettings, B5.rollSeed))), X.searchValueSnapshot = {
 		text: "",
 		scrollLeft: 0
 	}, X.cancelSearchDissolve = () => {}, X.rememberSearchValue = (e = B("#q")) => {
@@ -112667,16 +112672,16 @@ function H4e() {
 		};
 	};
 }
-function U4e() {
+function W4e() {
 	let e = u7(), t = {
 		...s7.activeFilterState(),
 		jav: z7() ? "1" : ""
 	};
 	return e.type === "entity" && e.kind !== "tag" && (t[e.kind] = e.name), t;
 }
-function W4e() {
+function G4e() {
 	G5.handler(B("#wallBtn"), "onclick", () => {
-		r7(!1, !0), Q.navigatePath(zje(void 0, U4e()));
+		r7(!1, !0), Q.navigatePath(zje(void 0, W4e()));
 	}), X.mixRelatedCache = /* @__PURE__ */ new Map(), X.reduceMotion = () => matchMedia("(prefers-reduced-motion:reduce)").matches, X.tagList = (e = K.tag) => String(e || "").split(",").filter(Boolean), X.tagPressed = (e, t) => X.tagList(e).includes(String(t)), X.withTagToggled = (e, t) => {
 		let n = X.tagList(e), r = n.indexOf(t);
 		return r >= 0 ? n.splice(r, 1) : n.push(t), n.join(",");
@@ -112690,12 +112695,12 @@ function W4e() {
 			let r = await w5(_9.stageHost);
 			return n.throwIfAborted(), r.mountWallPlayer(e, t, n);
 		},
-		wallDetails: m4e,
-		open: (e, t) => p4e(e, t),
-		openResource: (e, t) => T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : u4e(e, t),
+		wallDetails: h4e,
+		open: (e, t) => m4e(e, t),
+		openResource: (e, t) => T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : d4e(e, t),
 		openShort: (e) => T5()?.miniplayerTakesCard(e) ? T5().miniplayerPlay(e.id) : x9(e.id),
 		openShorts: () => x9(),
-		openMix: (e, t) => s3e(e, e, !0, t),
+		openMix: (e, t) => c3e(e, e, !0, t),
 		openEntity: (e, t) => g7(e, t),
 		openUnowned: () => J7({ owner: "none" }),
 		toggleTag: (e) => {
@@ -112703,11 +112708,11 @@ function W4e() {
 				t.tag = X.tagPressed(t.tag, e) ? "" : e;
 			});
 		},
-		toggleSelection: (e, t) => H0e(e, t),
-		watchLater: (e, t) => h4e(e, t),
-		rate: (e, t, n, r) => _4e(e, t, n, r),
-		resourceOperation: (e, t) => g4e(e, t),
-		mixRelated: (e) => f4e(e),
+		toggleSelection: (e, t) => U0e(e, t),
+		watchLater: (e, t) => g4e(e, t),
+		rate: (e, t, n, r) => v4e(e, t, n, r),
+		resourceOperation: (e, t) => _4e(e, t),
+		mixRelated: (e) => p4e(e),
 		canFlip: () => !Zf && !h9() && !window.__scrolling && !X.reduceMotion()
 	}, X.topsQueryParams = (e, t = 0) => {
 		let n = new URLSearchParams({
@@ -112737,7 +112742,7 @@ function W4e() {
 		href: e.k ? Zi[e.k] : "/"
 	})), X.TAGS_FIRST = 26, G5.listen(B("#catalogFilter"), "click", (e) => {
 		let t = e.target.closest?.("[data-catalog-view]");
-		t && !e.defaultPrevented && (e.preventDefault(), b4e().setView(t.dataset.catalogView));
+		t && !e.defaultPrevented && (e.preventDefault(), x4e().setView(t.dataset.catalogView));
 	}), X.catalogOnScreen = () => B("#index").hidden && B("#stats").hidden, X.COMBO_LABELS = {
 		creator: L("shell:shared.creators"),
 		studio: L("shell:shared.studios"),
@@ -112746,30 +112751,30 @@ function W4e() {
 		X.catalogFilterProps && $7({ comboHidden: !0 });
 	};
 }
-function G4e() {
+function K4e() {
 	X.junkQueueHelpers = { badgeHtml: (e, t) => Z.srcBadge(e, t) }, X.junkQueueActions = {
 		navigate: (e) => {
 			Zf && r7(!1, !0), Q.route(e);
 		},
-		toggleSelection: (e, t) => H0e(e, t),
+		toggleSelection: (e, t) => U0e(e, t),
 		selectAll: (e, t) => {
 			e.forEach((e) => t ? Yf.add(e) : Yf.delete(e)), r7(Yf.size > 0);
 		},
 		open: (e, t) => e.junk_kind === "image" ? window.open("/photo?id=" + e.id, "_blank", "noopener") : b9(e.id, !0, null, t),
 		reveal: async (e) => {
 			try {
-				return await d4e(e), "";
+				return await f4e(e), "";
 			} catch (e) {
 				return s7.sourceHint(e.message);
 			}
 		},
-		operate: (e, t) => B4e(e, t),
+		operate: (e, t) => V4e(e, t),
 		disposeAll: (e, t, n) => {
-			z4e(e, t, n);
+			B4e(e, t, n);
 		}
 	};
 }
-X.controller = new q1e();
+X.controller = new J1e();
 // src/application/preferences.js
 var Z = {
 	sourceOnline: void 0,
@@ -112803,7 +112808,7 @@ async function p9() {
 		if (!e.isActive) return Z.sourceOnline;
 		Z.sourceOnline = {}, Z.sourceProblems = {};
 	}
-	return document.body.classList.toggle("offline-source", Object.values(Z.sourceOnline).includes(!1)), s4e(), Z.sourceOnline;
+	return document.body.classList.toggle("offline-source", Object.values(Z.sourceOnline).includes(!1)), c4e(), Z.sourceOnline;
 }
 function m9() {
 	let e = Q.surfacePath();
@@ -112814,7 +112819,7 @@ function m9() {
 		state: Tg.navigation.location.state
 	}), t;
 }
-function K4e(e) {
+function q4e(e) {
 	if (e === "local") return {
 		kind: "glyph",
 		name: "hard-drive"
@@ -112835,7 +112840,7 @@ function K4e(e) {
 		cost: "free"
 	};
 }
-function q4e(e, t) {
+function J4e(e, t) {
 	let n = (e, t = (e) => Ei(e, "label") || If(e.k)) => (e || []).map((e) => ({
 		value: String(e.k),
 		label: t(e),
@@ -112846,7 +112851,7 @@ function q4e(e, t) {
 			value: e.k,
 			label: Ta[e.k] || e.k,
 			n: e.n ?? null,
-			dot: K4e(e.k),
+			dot: q4e(e.k),
 			...Z.sourceOffline(e.k) ? { offline: Z.OFFLINE_HINT } : {}
 		})),
 		regions: n(e.regions),
@@ -112859,7 +112864,7 @@ function q4e(e, t) {
 		duration: !!e.stats?.duration
 	};
 }
-async function J4e(e = !1) {
+async function Y4e(e = !1) {
 	if (e && (document.hidden || !ea(decodeURIComponent(location.pathname)) || _9.stageOpen() || _9.immerseOpen() || Zf || Yf.size || document.activeElement === B("#q"))) return !1;
 	if (!B("#stats").hidden) {
 		let e = decodeURIComponent(location.pathname), t = Q.routeMeta(e)?.route.refresh;
@@ -112888,32 +112893,32 @@ async function J4e(e = !1) {
 function h9() {
 	return document.body.classList.contains("censor");
 }
-function Y4e(e) {
+function X4e(e) {
 	document.body.classList.toggle("censor", e), Z.settingsStore.notify();
 }
-function X4e(e) {
-	localStorage.setItem(Z.CENSOR_KEY, e ? "1" : "0"), Y4e(e), e && Mf();
+function Z4e(e) {
+	localStorage.setItem(Z.CENSOR_KEY, e ? "1" : "0"), X4e(e), e && Mf();
 }
-function Z4e() {
+function Q4e() {
 	return LGe(localStorage.getItem("peach.sfw-shortcut")) || LGe("Shift+KeyS");
 }
-function Q4e(e) {
+function $4e(e) {
 	e ? localStorage.setItem(MGe, RGe(e)) : localStorage.removeItem(MGe), Z.settingsStore.notify();
 }
-function $4e(e) {
+function e3e(e) {
 	localStorage.setItem("peach.high-contrast", String(e)), document.documentElement.classList.toggle("board-high-contrast", e), Z.settingsStore.notify();
 }
 function g9(e) {
 	return _d(e, { drag: !0 });
 }
-function e3e() {
+function t3e() {
 	["#nrow", "#count"].forEach((e) => g9(B(e))), document.querySelectorAll(".tier,.srow").forEach(g9);
 }
-function t3e() {
+function n3e() {
 	let e = new URLSearchParams(location.search).get("id");
 	return /^\d+$/.test(e || "") ? Number(e) : void 0;
 }
-function n3e() {
+function r3e() {
 	Z.sourceOnline = {}, Z.sourceProblems = {}, Z.sourceOffline = (e) => Z.sourceOnline[e] === !1, Z.OFFLINE_HINT = L("shell:storageOffline.hint"), Z.OFFLINE_REASON = {
 		local: L("shell:storageOffline.localLabel"),
 		115: L("shell:storageOffline.drive115"),
@@ -112951,19 +112956,19 @@ function n3e() {
 			}), document.documentElement.style.setProperty("--hover-delay", `${Z.appSettings.hoverDelaySeconds}s`);
 		},
 		seekSeconds: () => f9(),
-		groupCollapse: () => t4e(),
-		feedAutoScroll: () => F0e(),
-		feedLimit: () => P0e(),
-		feedCompilations: () => P0e(),
+		groupCollapse: () => n4e(),
+		feedAutoScroll: () => I0e(),
+		feedLimit: () => F0e(),
+		feedCompilations: () => F0e(),
 		miniplayer: () => {
 			Z.appSettings.miniplayer || T5()?.closeMiniplayer();
 		},
 		javImage: () => {
-			Kc(document, Z.appSettings.javImage), f9(), document.querySelectorAll("img[data-jav-image].cover").forEach(nf), o3e();
+			Kc(document, Z.appSettings.javImage), f9(), document.querySelectorAll("img[data-jav-image].cover").forEach(nf), s3e();
 		},
 		searchHistoryLimit: () => hg(B("#searchMenu"), { historyLimit: Z.appSettings.searchHistoryLimit }),
 		searchRecommendations: () => hg(B("#searchMenu"), { recommend: Z.appSettings.searchRecommendations }),
-		feedNewRows: () => N0e(K.browse === "folders"),
+		feedNewRows: () => P0e(K.browse === "folders"),
 		homeShorts: () => {
 			ea(location.pathname) && i9();
 		},
@@ -112979,8 +112984,8 @@ function n3e() {
 		return `<span class="${n || "src"} ${t === "metered" ? "metered" : "free"}" title="${H(r)}" aria-label="${H(r)}">` + (Z.SRCICON[e] || "") + "</span>";
 	}, Z.emptyState = Cu;
 }
-function r3e() {
-	Z.CENSOR_KEY = "peach-censor", Y4e(localStorage.getItem(Z.CENSOR_KEY) === "1");
+function i3e() {
+	Z.CENSOR_KEY = "peach-censor", X4e(localStorage.getItem(Z.CENSOR_KEY) === "1");
 }
 // src/application/media.js
 var _9 = {
@@ -112996,14 +113001,14 @@ var _9 = {
 	immerseScope: null,
 	immerseReturn: null
 };
-function i3e() {
+function a3e() {
 	let e = Number(new URLSearchParams(location.search).get("t"));
 	return Number.isFinite(e) && e > 0 ? {
 		time: e,
 		autoplay: !1
 	} : null;
 }
-function a3e() {
+function o3e() {
 	return T5()?.exit() || Promise.resolve();
 }
 function v9(e = !1, t = !1, { miniplayer: n = !0, preserveQueueRequest: r = null } = {}) {
@@ -113017,7 +113022,7 @@ function v9(e = !1, t = !1, { miniplayer: n = !0, preserveQueueRequest: r = null
 		detailReturnNeedsRestore: !1
 	}), K7(), e && Q.route(tp || "/");
 }
-function o3e() {
+function s3e() {
 	T5()?.repaintPoster();
 }
 function y9(e, t, n, r, i = null, a = {}) {
@@ -113042,19 +113047,19 @@ function y9(e, t, n, r, i = null, a = {}) {
 		Q.requestedQueue = () => b9(n == null ? null : +n, !1, s, i, !0, e), xp({ queueOpens: pp + 1 });
 	} else return b9(n == null ? null : +n, !1, s, i, r);
 }
-function s3e(e, t = e, n = !0, r = null) {
+function c3e(e, t = e, n = !0, r = null) {
 	return y9("mix", e, t, n, r);
 }
-function c3e(e, t = e, n = !0, r = null) {
+function l3e(e, t = e, n = !0, r = null) {
 	return y9("editions", e, t, n, r);
 }
-function l3e(e, t = e, n = !0, r = null) {
+function u3e(e, t = e, n = !0, r = null) {
 	return y9("parts", e, t, n, r);
 }
-function u3e(e, t = null, n = !0) {
+function d3e(e, t = null, n = !0) {
 	return y9("playlist", e, t, n);
 }
-function d3e() {
+function f3e() {
 	return !!B("#grid").querySelector("[data-id],[data-mix-seed]") || !!document.querySelector("[data-video-wall]") || !B("#index").hidden || !B("#stats").hidden;
 }
 async function b9(e, t = !0, n = null, r = null, i = !1, a = null) {
@@ -113064,7 +113069,7 @@ async function b9(e, t = !0, n = null, r = null, i = !1, a = null) {
 		return;
 	}
 	Mf(), e = e == null ? null : +e;
-	let o = r?.isConnected ? r : np?.isConnected ? np : null, s = r?.isConnected ? r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 > window.innerHeight / 2 : rp, c = d3e(), l = ip || !t && !c, u = qf.type === "item" ? Jf : s7.cloneBarsContext(u7());
+	let o = r?.isConnected ? r : np?.isConnected ? np : null, s = r?.isConnected ? r.getBoundingClientRect().top + r.getBoundingClientRect().height / 2 > window.innerHeight / 2 : rp, c = f3e(), l = ip || !t && !c, u = qf.type === "item" ? Jf : s7.cloneBarsContext(u7());
 	t ? xp({ detailReturnPath: location.pathname + location.search }) : i || xp({ detailReturnPath: Gh() || tp }), t && Uh(), T5()?.showing() !== "item" && v9(!1, !0, {
 		miniplayer: !1,
 		preserveQueueRequest: a
@@ -113103,22 +113108,22 @@ async function b9(e, t = !0, n = null, r = null, i = !1, a = null) {
 		selectMode: Zf,
 		selected: new Set(Yf),
 		seekSeconds: Z.appSettings.seekSeconds,
-		resume: t || e == null ? null : i3e()
+		resume: t || e == null ? null : a3e()
 	}), K7();
 }
-async function f3e() {
+async function p3e() {
 	let e = s7.cloneBarsContext(Jf), t = tp || "/", n = ip;
-	await a3e(), v9(!1, !1, { miniplayer: !1 }), xp({ detailReturnBarsContext: null }), Wh(), xp({ barsContext: e || {
+	await o3e(), v9(!1, !1, { miniplayer: !1 }), xp({ detailReturnBarsContext: null }), Wh(), xp({ barsContext: e || {
 		type: "home",
 		filters: K
 	} }), n && Q.managedPagePath(new URL(t, location.href).pathname) ? Q.navigatePath(t) : (Q.route(t), n ? xp({ pageOpens: fp + 1 }) : (t9(), location.pathname === "/playlists" && v7()));
 }
-async function p3e(e, t = !0) {
+async function m3e(e, t = !0) {
 	if (t) {
-		xp({ detailReturnPath: location.pathname + location.search }), T9("/works/" + encodeURIComponent(e), "jav", () => p3e(e, !1));
+		xp({ detailReturnPath: location.pathname + location.search }), T9("/works/" + encodeURIComponent(e), "jav", () => m3e(e, !1));
 		return;
 	}
-	let n = Tg.navigation.seq, r = s7.cloneBarsContext(u7()), i = !d3e(), a = Gh() || (i ? "/jav?tab=discover" : tp) || "/jav?tab=discover";
+	let n = Tg.navigation.seq, r = s7.cloneBarsContext(u7()), i = !f3e(), a = Gh() || (i ? "/jav?tab=discover" : tp) || "/jav?tab=discover";
 	T5()?.showing() !== "jav" && v9(!1, !0, { miniplayer: !1 }), xp({
 		detailReturnPath: a,
 		detailReturnBarsContext: r,
@@ -113130,7 +113135,7 @@ async function p3e(e, t = !0) {
 		code: e,
 		readOnly: !!s.ledger_read_only,
 		actions: {
-			close: () => void f3e(),
+			close: () => void p3e(),
 			navigate: (e) => Q.navigatePath(e),
 			canonicalCode: (t) => {
 				Tg.navigation.seq === n && t && t !== e && (Eg("/works/" + encodeURIComponent(t) + location.search + location.hash, {
@@ -113146,9 +113151,9 @@ async function p3e(e, t = !0) {
 	}), K7());
 }
 async function x9(e = null, t = !0) {
-	t ? (location.pathname !== "/immerse" && (_9.immerseScope = Object.fromEntries(C$(void 0, U4e())), _9.immerseReturn = location.pathname + location.search), _9.requestedImmerseId = e, Q.route("/immerse")) : (T5()?.closeMiniplayer(), await (await O1e(_9.immerseHost)).open(e));
+	t ? (location.pathname !== "/immerse" && (_9.immerseScope = Object.fromEntries(C$(void 0, W4e())), _9.immerseReturn = location.pathname + location.search), _9.requestedImmerseId = e, Q.route("/immerse")) : (T5()?.closeMiniplayer(), await (await k1e(_9.immerseHost)).open(e));
 }
-function m3e() {
+function h3e() {
 	_9.total = 0, _9.facets = null, _9.stageHost = {
 		player: {
 			settings: () => Z.appSettings,
@@ -113164,7 +113169,7 @@ function m3e() {
 		openItem: (e) => void b9(e)
 	}, _9.stageOpen = () => !!T5()?.isOpen();
 }
-function h3e() {
+function g3e() {
 	_9.itemDetailHelpers = {
 		badgeHtml: (e, t, n) => Z.srcBadge(e, t, n),
 		titleHtml: (e) => qG(e),
@@ -113179,11 +113184,11 @@ function h3e() {
 			cards: !0,
 			className: "related-skeleton"
 		}),
-		mixRelated: (e) => f4e(e),
+		mixRelated: (e) => p4e(e),
 		wireDrag: (e) => g9(e),
 		wireDragReorder: (e, t) => qd(e, t)
 	}, _9.itemDetailActions = {
-		close: () => f3e(),
+		close: () => p3e(),
 		present: (e) => {
 			xp({ presentedItem: e });
 			let t = Jf;
@@ -113217,12 +113222,12 @@ function h3e() {
 		openTag: (e) => Z7((t) => {
 			t.tag = e;
 		}),
-		addToPlaylist: (e) => _2e(e),
-		saveMix: (e) => g2e(e),
+		addToPlaylist: (e) => v2e(e),
+		saveMix: (e) => _2e(e),
 		editPlaylist: () => D9("/playlists"),
 		openPlaylists: () => D9("/playlists"),
-		reveal: (e) => n2e(e),
-		sync: (e) => r2e(e),
+		reveal: (e) => r2e(e),
+		sync: (e) => i2e(e),
 		trashChanged: async (e, t) => {
 			K.state === "ads" && (t || e === "trash") && (t || (Wh(), v9(!0, !1, { miniplayer: !1 })), await i9());
 		},
@@ -113266,7 +113271,7 @@ var Q = {
 	queueOpenRequest: void 0,
 	initialOverlayOpened: void 0
 };
-function g3e() {
+function _3e() {
 	let e = P5();
 	e ? e.navChanged() : B("#drawerScroll")?.querySelectorAll("[data-nav]").forEach((e) => e.setAttribute("aria-pressed", String(W7(e.dataset.nav))));
 }
@@ -113282,7 +113287,7 @@ function S9(e = {}) {
 	}, P5()?.render(T7.sidebarProps);
 }
 function C9() {
-	S9(), g3e(), G7();
+	S9(), _3e(), G7();
 }
 function w9() {
 	Q.queueOpenRequest && (Q.queueOpenRequest.cancelled = !0), Q.queueOpenRequest = null, Q.requestedQueue = null, xp({ pendingQueueRoute: null });
@@ -113299,7 +113304,7 @@ function E9() {
 function D9(e) {
 	Q.route(e), xp({ pageOpens: fp + 1 });
 }
-function _3e() {
+function v3e() {
 	Q.routeMeta = (e) => {
 		let t = $h(e);
 		return t ? { route: t } : null;
@@ -113307,7 +113312,7 @@ function _3e() {
 		let t = $h(e);
 		return !!t && t.reload !== "reopen" && !Q.catalogPage(e) && !zh(e) && e !== "/immerse";
 	}, Q.openRoutePath = (e) => {
-		e === "/immerse" ? x9(t3e()) : e === "/follow" ? N9() : e === "/playlists" || Q.catalogPage(e) ? D9(e) : Q.managedPagePath(e) ? Q.navigatePath(e === "/subscriptions" ? T2e() : e) : (r7(!1, !0), D9(D2e({
+		e === "/immerse" ? x9(n3e()) : e === "/follow" ? N9() : e === "/playlists" || Q.catalogPage(e) ? D9(e) : Q.managedPagePath(e) ? Q.navigatePath(e === "/subscriptions" ? E2e() : e) : (r7(!1, !0), D9(O2e({
 			kind: e.slice(1),
 			q: "",
 			scope: "local",
@@ -113316,7 +113321,7 @@ function _3e() {
 		})));
 	};
 }
-function v3e() {
+function y3e() {
 	Q.surfaceEpoch = 0, Q.surfacePath = () => decodeURIComponent(location.pathname), Q.surfaceRequests = null, Q.surfaceToken = (e) => ({
 		epoch: Q.surfaceEpoch,
 		path: e,
@@ -113335,8 +113340,8 @@ function v3e() {
 	}, Q.requestedOverlay = null, Q.requestedQueue = null, Q.queueOpenRequest = null, Q.initialOverlayOpened = !1;
 }
 // src/jobs.ts
-var y3e = 2e3;
-async function b3e(e) {
+var b3e = 2e3;
+async function x3e(e) {
 	let t = e.pause || ((e) => Ya(e)), n = (t) => typeof e.keepWatching == "function" ? e.keepWatching(t) : !!e.keepWatching, r = 0;
 	for (; e.active();) {
 		let i;
@@ -113348,12 +113353,12 @@ async function b3e(e) {
 			continue;
 		}
 		if (!e.active() || (r = 0, e.render(i), e.once) || i.status !== "running" && !n(i)) return;
-		await t(y3e);
+		await t(b3e);
 	}
 }
-function x3e(e) {
+function S3e(e) {
 	let t = e.storageKey || "peach-follow-job", n = sessionStorage.getItem(t) || void 0, r = !1, i = !1, a = e.taskKey || "follow-check", o = () => !r && e.active(), s = () => {
-		!i && o() && (i = !0, b3e({
+		!i && o() && (i = !0, x3e({
 			read: e.read,
 			active: o,
 			render: d,
@@ -113445,7 +113450,7 @@ var $ = {
 	FOLLOW_MANAGE_TABS: void 0,
 	followSidebarFilters: void 0
 };
-function S3e(e) {
+function C3e(e) {
 	let t = (e.results || []).filter((e) => !e.ok).length;
 	B5.toast({ text: ks(e) }, {
 		warn: !!t,
@@ -113460,7 +113465,7 @@ function S3e(e) {
 function O9() {
 	return gc(k9());
 }
-function C3e() {
+function w3e() {
 	return $.controller.read();
 }
 function k9() {
@@ -113481,17 +113486,17 @@ function k9() {
 function A9(e) {
 	$.followFilter = e.status, $.followMediaView = e.media, $.followAuthors = new Set(e.author ? [e.author] : []), $.followProviders = new Set(e.provider ? [e.provider] : []), $.followWorks = new Set(e.work ? [e.work] : []), $.followTags = new Set(e.tags), $.followDurMin = e.durMin || 0, $.followDurMax = e.durMax || 0, $.followSort = e.sort, $.followDir = e.dir, $.followSeed = e.seed;
 }
-function w3e() {
+function T3e() {
 	let e = ug(B("#stats"));
 	return e && e.path === "/follow" && e.host.isConnected ? e : null;
 }
 function j9() {
-	return !!w3e();
+	return !!T3e();
 }
 function M9(e) {
 	j9() && hg(B("#stats"), e);
 }
-function T3e(e, t = {}) {
+function E3e(e, t = {}) {
 	return $.controller.route(e, t);
 }
 function N9(e = !1) {
@@ -113512,19 +113517,19 @@ async function P9(e, t = !0, n = null, r = !1) {
 		relatedLimit: Z.appSettings.relatedLimit > 0 ? +Z.appSettings.relatedLimit : 0,
 		helpers: $.followFeedHelpers,
 		actions: $.followDetailActions,
-		resume: t ? null : i3e()
+		resume: t ? null : a3e()
 	}), K7();
 }
-async function E3e() {
-	await a3e(), v9(!1, !1, { miniplayer: !1 }), Wh(), Q.route(cp || "/follow"), s7.entityPageView && s7.entityPageCurrent() && !B("#index").hidden || (location.pathname === "/follow" && j9() ? (C3e(), M9({ view: k9() })) : xp({ pageOpens: fp + 1 }));
+async function D3e() {
+	await o3e(), v9(!1, !1, { miniplayer: !1 }), Wh(), Q.route(cp || "/follow"), s7.entityPageView && s7.entityPageCurrent() && !B("#index").hidden || (location.pathname === "/follow" && j9() ? (w3e(), M9({ view: k9() })) : xp({ pageOpens: fp + 1 }));
 }
-function D3e(e) {
+function O3e(e) {
 	let t = document.createElement("div");
 	return t.className = "peach-react", Gu(e, () => {
 		e.textContent = "", e.append(t);
 	}), t;
 }
-function O3e() {
+function k3e() {
 	$.followFeedHelpers = Rf({
 		wireDrag: (e) => {
 			e && g9(e);
@@ -113533,12 +113538,12 @@ function O3e() {
 			e && _d(e);
 		},
 		listSkeletonHtml: (e) => $.followContentSkeletonHtml(e),
-		jobProgress: x3e
+		jobProgress: S3e
 	}), $.followFeedActions = {
-		loaded: (e) => B2e(e),
+		loaded: (e) => V2e(e),
 		openDetail: (e) => P9(e),
 		openAuthor: (e) => Q.navigatePath(ra("creator", e)),
-		toggleSelection: (e, t) => W0e(e, t),
+		toggleSelection: (e, t) => G0e(e, t),
 		setImagesOnly: (e) => {
 			Z.appSettings.followImagesOnly = !!e, Z.saveSettings(), m7();
 		},
@@ -113548,7 +113553,7 @@ function O3e() {
 		canFlip: () => !Zf && !h9() && !window.__scrolling && !X.reduceMotion(),
 		toast: (e, { undo: t } = {}) => B5.actionReceipt(e, { undo: t }),
 		failure: (e, t) => B5.actionFailure(e, t),
-		checkReport: (e) => S3e(e)
+		checkReport: (e) => C3e(e)
 	}, $.followFeedShell = {
 		skeleton: () => $.followSkeletonHtml(L("shell:skeleton.loadingFollowing")),
 		ground: () => {
@@ -113558,9 +113563,9 @@ function O3e() {
 		view: k9,
 		adoptView: A9,
 		rememberReturn: (e) => xp({ followDetailReturnPath: e }),
-		close: () => void E3e(),
+		close: () => void D3e(),
 		open: (e, t, n) => void P9(e, !0, t, n),
-		drawer: B2e,
+		drawer: V2e,
 		openAuthor: (e) => Q.navigatePath(ra("creator", e)),
 		presented: (e) => {
 			bee(e.id, e.title, e.author), x7.syncPageTitle(location.href);
@@ -113571,7 +113576,7 @@ function O3e() {
 		canFlip: $.followFeedActions.canFlip
 	});
 }
-function k3e() {
+function A3e() {
 	$.controller = yc({
 		location: () => location,
 		view: k9,
@@ -113615,8 +113620,8 @@ function k3e() {
 	}, $.followFeedHelpers, $.followFeedActions), $.followFeedActions = $.controller.actions, $.followFeedProps = $.controller.props, $.followFeedShell.refresh = $.controller.refresh, $.followFeedShell.props = $.controller.props;
 }
 // src/application/lifecycle.js
-function A3e() {
-	KRe(), Bd(document), El(document.documentElement, { variant: "page" }), El(B("#drawerScroll")), G5.own(Ld()), jc(document.body), X.homeHasFeed = O0e(), X.barsRequestSeq = 0, X.barsPendingSeq = 0, X.barsRendered = "", X.catalogFilterProps = null, X.catalogFilterMounting = null, X.catalogTagRows = [], X.catalogTopsPages = null, T7.sidebarProps = {
+function j3e() {
+	KRe(), Bd(document), El(document.documentElement, { variant: "page" }), El(B("#drawerScroll")), G5.own(Ld()), jc(document.body), X.homeHasFeed = k0e(), X.barsRequestSeq = 0, X.barsPendingSeq = 0, X.barsRendered = "", X.catalogFilterProps = null, X.catalogFilterMounting = null, X.catalogTagRows = [], X.catalogTopsPages = null, T7.sidebarProps = {
 		content: null,
 		filters: {},
 		latest: null
@@ -113627,10 +113632,10 @@ function A3e() {
 	], $.FOLLOW_RANDOM_SORT = "rand", $.followSort = "new", $.followDir = "desc", $.followSeed = 0, $.followDurMin = 0, $.followDurMax = 0;
 }
 // src/application/tutorial.js
-async function j3e() {
+async function M3e() {
 	PJ({ reopen: !0 });
 }
-function M3e() {
+function N3e() {
 	let e = new URL(location.href), t = e.searchParams.get("onboarding") === "1";
 	xp({ cameFromSetup: t }), G5.handler(document.getElementById("tutorialBtn"), "onclick", () => PJ()), PJ({ invitation: !0 }), t && e.searchParams.delete("onboarding");
 	let n = e.searchParams.get("agentation");
@@ -113643,7 +113648,7 @@ function M3e() {
 	}), n === "on" && import("/dev/agentation.js").catch(() => {});
 }
 // src/player/hold-speed.ts
-function N3e(e) {
+function P3e(e) {
 	let t = new AbortController(), n = null, r = (e) => e.composedPath().some((e) => e instanceof HTMLElement && (e.isContentEditable || e.matches("input,textarea,select,[role=\"textbox\"],[role=\"menu\"],.vjs-peach-settings-menu,media-volume-slider") || e.getAttribute("role") === "slider" && !e.closest("media-time-slider"))), i = (e) => {
 		e.preventDefault(), e.stopImmediatePropagation();
 	}, a = () => {
@@ -113715,7 +113720,7 @@ function N3e(e) {
 	};
 }
 // src/react/search/recommendations.ts
-var P3e = [
+var F3e = [
 	{
 		kind: "performer",
 		label: L("catalog:searchSuggest.performersReleases"),
@@ -113766,18 +113771,18 @@ var P3e = [
 		size: 5
 	}
 ];
-function F3e() {
-	return P3e.map((e) => ({
+function I3e() {
+	return F3e.map((e) => ({
 		...e,
 		items: [],
 		pending: !0
 	}));
 }
-var I3e = (e) => e.startsWith(String((/* @__PURE__ */ new Date()).getFullYear())) ? e.slice(5, 10) : e.slice(0, 10), L3e = (e, t = e.length) => t > 1 ? L("catalog:searchSuggest.byline", {
+var L3e = (e) => e.startsWith(String((/* @__PURE__ */ new Date()).getFullYear())) ? e.slice(5, 10) : e.slice(0, 10), R3e = (e, t = e.length) => t > 1 ? L("catalog:searchSuggest.byline", {
 	name: e[0],
 	count: t
 }) : e[0] || "";
-async function R3e(e) {
+async function z3e(e) {
 	let t = await e("/api/search/recommendations"), n = (e, t, n, r = "") => ({
 		value: String(e.code || e.display_title || e.title || e.name || L("catalog:catalogList.untitled")),
 		id: e.id,
@@ -113791,10 +113796,10 @@ async function R3e(e) {
 		let { kind: t, name: r, coStarred: i, refs: a, total: o } = vl(e);
 		if (!t) return n(e, void 0, "");
 		let s = t === "performer" ? a[0] : e.creator_entity, c = qr(t, r, s?.id);
-		return n(e, void 0, i ? L3e([c], o) : c, ol(r, s ?? null, t));
+		return n(e, void 0, i ? R3e([c], o) : c, ol(r, s ?? null, t));
 	}, i = (e, t) => {
 		let r = e.performer_refs || [], i = r.length ? r.map((e) => e.name) : String(e.performers || "").split(/[,，、;/]/).map((e) => e.trim()).filter(Boolean), a = i[0] ? ol(i[0], r[0] ?? null, "performer") : "";
-		return n(e, t, L3e(i), a);
+		return n(e, t, R3e(i), a);
 	}, a = {};
 	a.asset = t.items ? (t.items.items || []).map(r) : null;
 	let o = t.jav ? t.jav.items || [] : null;
@@ -113814,7 +113819,7 @@ async function R3e(e) {
 			works: [e],
 			subtitle: r ? L("catalog:searchSuggest.latestRelease", {
 				code: r.code || L("catalog:searchSuggest.noCode"),
-				date: I3e(r.release_date)
+				date: L3e(r.release_date)
 			}) : L("catalog:searchSuggest.latestNotFound")
 		});
 	}
@@ -113857,7 +113862,7 @@ async function R3e(e) {
 		avatarHtml: W5(e),
 		subtitle: e.latest ? L("catalog:searchSuggest.lastUpdated", { time: oQ({ published_at: e.latest }) }) : L("catalog:searchSuggest.updateTimeNotFound")
 	})) : null, {
-		groups: P3e.map((e) => {
+		groups: F3e.map((e) => {
 			let t = a[e.kind] ?? [];
 			return {
 				...e,
@@ -113870,7 +113875,7 @@ async function R3e(e) {
 	};
 }
 // src/application/search-morph.js
-function z3e(e, t, n, r, i, a, o) {
+function B3e(e, t, n, r, i, a, o) {
 	let s = a.startsWith("linear(") ? a.slice(7, -1).split(",").map(Number) : [0, 1];
 	return s.map((a, c) => {
 		let l = c / (s.length - 1), u = (e, t) => e + (t - e) * a, d = Math.max(8, Math.min(o - 44, u(e.left, t.left))), f = Math.max(36, Math.min(o - 8 - d, u(e.width, t.width))), p = u(e.height, t.height) + Math.sin(Math.PI * l) * t.height * .12, m = u(e.top + e.height / 2, t.top + t.height / 2);
@@ -113895,7 +113900,7 @@ var F9 = {
 function I9() {
 	F9.searchControl?.close();
 }
-function B3e(e) {
+function V3e(e) {
 	let t = e ? Hc({
 		...e,
 		is_jav: !!e.code
@@ -113914,7 +113919,7 @@ function R9(e) {
 	if (t.classList.toggle("open", e), B("#searchBtn").setAttribute("aria-expanded", String(e)), innerWidth > 760 || matchMedia("(prefers-reduced-motion:reduce)").matches) return;
 	let s = t.getBoundingClientRect(), c = getComputedStyle(t), l = parseFloat(c.paddingLeft), u = t.querySelector("svg").getBoundingClientRect().width, d = Math.max(0, (o.width - u) / 2 - parseFloat(c.borderLeftWidth)), f = r ? i : e ? o : s, p = e ? s : o, m = Ad();
 	t.classList.add("search-morphing");
-	let h = t.animate(z3e(f, p, s, r ? a : e ? d : l, e ? l : d, m.easing, innerWidth), {
+	let h = t.animate(B3e(f, p, s, r ? a : e ? d : l, e ? l : d, m.easing, innerWidth), {
 		duration: m.duration,
 		easing: "linear",
 		fill: "both"
@@ -113923,13 +113928,13 @@ function R9(e) {
 		F9.searchMorph === h && L9();
 	});
 }
-function V3e() {
+function H3e() {
 	return _9.immerseOpen() ? O5().activeVideo() : T5()?.activeVideo() || null;
 }
-function H3e(e) {
+function U3e(e) {
 	return !!e && (e.tagName === "INPUT" || e.tagName === "TEXTAREA" || e.isContentEditable);
 }
-function U3e() {
+function W3e() {
 	F9.searchControl = null, F9.searchActions = {
 		search: (e) => {
 			X.rememberSearchValue(), v9(!1), K.q = e, Sp(), Q.route(K.jav === "1" ? q7() : K.q ? "/?q=" + encodeURIComponent(K.q) : "/", !0);
@@ -113942,10 +113947,10 @@ function U3e() {
 		}
 	}, F9.searchHelpers = {
 		pool: () => Hje(K, Ji),
-		recommendations: () => R3e(Ji),
-		pendingRecommendations: F3e,
+		recommendations: () => z3e(Ji),
+		pendingRecommendations: I3e,
 		rollPlaceholder: (e, t) => zu(e, t),
-		coverHtml: (e) => `<span class="pic">${e?.thumb_url ? `<img src="${H(e.thumb_url)}" width="640" height="360" alt="" loading="lazy" referrerpolicy="no-referrer" data-drop="self">` : e?.sourceWork ? C0e(e) : B3e(e)}</span>`,
+		coverHtml: (e) => `<span class="pic">${e?.thumb_url ? `<img src="${H(e.thumb_url)}" width="640" height="360" alt="" loading="lazy" referrerpolicy="no-referrer" data-drop="self">` : e?.sourceWork ? w0e(e) : V3e(e)}</span>`,
 		present: (e) => Xl(e),
 		dismiss: (e) => Zl(e),
 		wireScroller: (e) => _d(e),
@@ -113980,9 +113985,9 @@ function U3e() {
 		e.currentTarget.value && X.rememberSearchValue(e.currentTarget);
 	});
 }
-function W3e() {
-	G5.own(N3e({
-		activeVideo: () => !G5.isActive || j5()?.isOpen() || document.querySelector("#stage[open] [data-media-carousel]:not([data-carousel-video-active])") ? null : V3e(),
+function G3e() {
+	G5.own(P3e({
+		activeVideo: () => !G5.isActive || j5()?.isOpen() || document.querySelector("#stage[open] [data-media-carousel]:not([data-carousel-video-active])") ? null : H3e(),
 		seek: (e) => BL(e, Z.appSettings.seekSeconds)
 	})), F9.searchMorph = null, F9.searchMorphViewport = innerWidth, G5.listen.bind(G5, window)("resize", () => {
 		innerWidth !== F9.searchMorphViewport && (F9.searchMorphViewport = innerWidth, L9());
@@ -114028,9 +114033,9 @@ function W3e() {
 			}
 			return;
 		}
-		if (H3e(e.target)) return;
-		if (!e.defaultPrevented && HGe(e, Z4e())) {
-			e.preventDefault(), X4e(!h9());
+		if (U3e(e.target)) return;
+		if (!e.defaultPrevented && HGe(e, Q4e())) {
+			e.preventDefault(), Z4e(!h9());
 			return;
 		}
 		if (e.defaultPrevented || e.target.closest?.("select,[role=\"menu\"],.vjs-peach-settings-menu,media-volume-slider") || e.ctrlKey || e.metaKey || e.altKey) return;
@@ -114041,7 +114046,7 @@ function W3e() {
 				return;
 			}
 		}
-		let t = V3e();
+		let t = H3e();
 		if (t) {
 			if (e.key === "t" || e.key === "T") {
 				e.preventDefault(), T5()?.toggleTheater();
@@ -114071,7 +114076,7 @@ function W3e() {
 	});
 }
 // src/history/links.ts
-function G3e(e) {
+function K3e(e) {
 	if (e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return null;
 	let t = e.target instanceof Element ? e.target.closest("a[href]") : null;
 	if (!t || t.hasAttribute("download") || t.target && t.target.toLowerCase() !== "_self") return null;
@@ -114094,23 +114099,23 @@ var z9 = {
 	shellActions: void 0,
 	routing: void 0
 };
-function K3e() {
+function q3e() {
 	let e = G5, t = (e) => {
-		e.kind === "item" ? b9(e.id, !1) : e.kind === "jav" ? p3e(e.code, !1) : e.kind === "follow" ? P9(e.id, !1) : y9(e.queue, e.key, e.item, !1);
+		e.kind === "item" ? b9(e.id, !1) : e.kind === "jav" ? m3e(e.code, !1) : e.kind === "follow" ? P9(e.id, !1) : y9(e.queue, e.key, e.item, !1);
 	};
-	if (T0e(), x7.entityShapesReady = J5(), P2e(), location.pathname === "/") {
+	if (E0e(), x7.entityShapesReady = J5(), F2e(), location.pathname === "/") {
 		let e = new URLSearchParams(location.search);
-		!e.has("state") && e.get("jav") !== "1" && (B("#catalogPageHeading").hidden = !1, Y2e(B("#catalogPageHeading"), e.get("q")));
+		!e.has("state") && e.get("jav") !== "1" && (B("#catalogPageHeading").hidden = !1, X2e(B("#catalogPageHeading"), e.get("q")));
 	}
-	X5(decodeURIComponent(location.pathname)) && Y5(B("#feedNew")), G2e(), z9.shellActions = {
+	X5(decodeURIComponent(location.pathname)) && Y5(B("#feedNew")), K2e(), z9.shellActions = {
 		openSettings: (e) => M7(e, !0),
 		closeSettings: () => j5()?.close(!1),
 		openItem: (e) => void b9(e),
 		openEntity: (e, t) => void g7(e, t),
 		openTag: (e) => {
-			z2e(), n9(e);
+			B2e(), n9(e);
 		},
-		openTasteSignal: m2e,
+		openTasteSignal: h2e,
 		navigate: (e) => {
 			let n = new URL(e, location.href), r = Rh(n.pathname, n.search);
 			if (r) {
@@ -114128,25 +114133,25 @@ function K3e() {
 		receipt: (e, t) => B5.actionReceipt(e, t),
 		toast: (e, t) => B5.toast(e, t),
 		failure: B5.actionFailure,
-		revealSource: n2e,
-		reopenTutorial: j3e,
-		routeReview: v2e,
-		routeFollowManage: w2e,
+		revealSource: r2e,
+		reopenTutorial: M3e,
+		routeReview: y2e,
+		routeFollowManage: T2e,
 		saveFollowPreference: (e) => {
 			e.pageSize !== void 0 && (Z.appSettings.followPageSize = e.pageSize), e.layout !== void 0 && (Z.appSettings.followLayout = e.layout), Z.saveSettings();
 		},
 		srcBadge: (e, t) => Z.srcBadge(e, t),
-		routeIndex: (e, { replace: t = !1 } = {}) => Q.route(D2e(e), t),
+		routeIndex: (e, { replace: t = !1 } = {}) => Q.route(O2e(e), t),
 		savePeopleLayout: ({ layout: e }) => {
 			Z.appSettings.peopleLayout = e, Z.saveSettings();
 		},
 		exitSelectMode: () => r7(!1, !1),
 		personAvatar: (e, t, n) => y7.personAvatar(e, t, n),
-		authorAvatar: (e) => E2e(e),
-		showIndexTags: O2e,
-		openFollowAuthor: k2e,
-		openFollowTag: A2e,
-		openPlaylist: (e, t) => void u3e(e, t, !0),
+		authorAvatar: (e) => D2e(e),
+		showIndexTags: k2e,
+		openFollowAuthor: A2e,
+		openFollowTag: j2e,
+		openPlaylist: (e, t) => void d3e(e, t, !0),
 		canFlip: () => !Zf && !h9() && !window.__scrolling && !X.reduceMotion(),
 		surfaceChanged: (e, t) => {
 			e === "entity" ? (Mf(), xp({ barsContext: {
@@ -114180,7 +114185,7 @@ function K3e() {
 		},
 		entity: {
 			missing: (e) => {
-				z9.shellActions.surfaceChanged("entity", location.pathname), u2e(e);
+				z9.shellActions.surfaceChanged("entity", location.pathname), d2e(e);
 			},
 			loading: (e, t, n) => s7.application.loading(e, t, n),
 			props: (e, t, n) => (xp({ entityJavLayout: ["performer", "studio"].includes(e) && q5.hasEntityPart(e, t, "jav") }), s7.application.addressProps(e, t, n)),
@@ -114193,32 +114198,32 @@ function K3e() {
 		},
 		follow: $.followFeedShell,
 		catalog: {
-			defaultLoc: () => c4e("local,115"),
+			defaultLoc: () => l4e("local,115"),
 			open: (e, { entering: t = !1, retitle: n = !1 } = {}) => (n && (E9(), G7(), I7()), t && U5(), e === "/trash" ? X.clearSearchField() : (B("#q").value = K.q, X.rememberSearchValue()), C9(), t9(), Z.handOff(i9())),
 			load: () => Z.handOff(i9()),
 			fill: () => {
 				if (s9() || !Dg() && !B("#grid").querySelector(".catalog-skeleton")) return;
 				let e = B("#count");
-				e.removeAttribute("aria-busy"), e.removeAttribute("aria-label"), M4e(Q.surfaceToken(Q.surfacePath()));
+				e.removeAttribute("aria-busy"), e.removeAttribute("aria-label"), N4e(Q.surfaceToken(Q.surfacePath()));
 			},
 			release: () => {
 				a9(), Q5();
 			}
 		}
 	}, z9.routing = !1, e.listen(document, "click", (e) => {
-		let t = G3e(e);
+		let t = K3e(e);
 		t && (e.preventDefault(), z9.shellActions.navigate(t));
 	}), G5.own(Tg.listen((e) => {
 		Q.queueOpenRequest && e.seq !== Q.queueOpenRequest.seq && !zh(e.location.pathname) && v9(!1), z9.routing && !e.claimed && E9();
-	})), E1e(z9.shellActions).catch((e) => console.error("客户端导航装载失败", e)), J2e(), Y0e(), P7(), Promise.all([p9(), K2e()]).then(() => {
-		e.isActive && (x7.wantsDiscoveryBars() && t9().catch((e) => console.error("首页横条装载失败", e)), C9(), e3e(), z9.routing = !0, xp({ pageOpens: 1 }), E9(), K7());
+	})), D1e(z9.shellActions).catch((e) => console.error("客户端导航装载失败", e)), Y2e(), X0e(), P7(), Promise.all([p9(), q2e()]).then(() => {
+		e.isActive && (x7.wantsDiscoveryBars() && t9().catch((e) => console.error("首页横条装载失败", e)), C9(), t3e(), z9.routing = !0, xp({ pageOpens: 1 }), E9(), K7());
 	}).catch((t) => {
 		e.isActive && console.error("应用启动失败", t);
 	});
 }
 // src/theme-transition.ts
 var B9 = !1;
-async function q3e(e, t) {
+async function J3e(e, t) {
 	if (B9) return;
 	if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) {
 		t();
@@ -114240,7 +114245,7 @@ async function q3e(e, t) {
 	}
 }
 // src/application/chrome.js
-function J3e() {
+function Y3e() {
 	(() => {
 		let e = G5, t = [
 			"#brandHome",
@@ -114323,7 +114328,7 @@ function J3e() {
 			s.className = "mark", s.setAttribute("aria-hidden", "true"), s.innerHTML = o(n.find((e) => e[0] === i)?.[2] || "database"), c.querySelector(".mark").replaceWith(s), l.innerHTML = `<p>${L("shell:shared.library")}</p><div class="board-library-rows">${n.map(([e, t, n]) => `<button type="button" data-library="${H(e)}" aria-pressed="${e === i}"><span class="board-library-avatar">${o(n)}</span><span>${H(t)}</span></button>`).join("")}</div><footer><button type="button" class="geist-button primary" data-library-manage>${L("manage:syncMenu.manageLibraries")}</button></footer>`, l.querySelectorAll("[data-library]").forEach((t) => e.handler(t, "onclick", () => {
 				sessionStorage.setItem("peach.library", t.dataset.library), sessionStorage.setItem("peach.library-label", n.find((e) => e[0] === t.dataset.library)?.[1] || L("shell:libraryPicker.allLibraries")), location.assign("/");
 			})), e.handler(l.querySelector("[data-library-manage]"), "onclick", () => {
-				u.setOpen(!1), A7(!1), y2e("library");
+				u.setOpen(!1), A7(!1), b2e("library");
 			});
 			let d = l.querySelector(".board-library-rows"), f = [...d.querySelectorAll("[data-library]")], m = yF(), h = () => {
 				nW(f, ["", ...m.value.libraryOrder], (e) => e.dataset.library).forEach((e) => d.append(e)), p(!1);
@@ -114342,14 +114347,14 @@ function J3e() {
 		(document.querySelector(".top") || m.closest("header")).prepend(h), e.own(() => h.remove());
 		let g = document.createElement("div");
 		g.className = "board-sidebar-foot", e.own(() => g.remove()), g.innerHTML = `<div class="board-theme-toggle" role="group" aria-label="${L("shell:themeToggle.group")}"><span class="board-theme-thumb" aria-hidden="true"></span><button type="button" data-board-theme="light" aria-label="${L("shell:themeToggle.light")}">${V("sun")}</button><button type="button" data-board-theme="dark" aria-label="${L("shell:themeToggle.dark")}">${V("moon")}</button></div>`, g.insertAdjacentHTML("beforeend", `<div class="board-foot-actions"><button type="button" class="board-glow-toggle" id="boardGlowBtn" aria-label="${L("settings:sidebarGlow.palette")}" aria-haspopup="dialog" aria-expanded="false" aria-controls="boardGlowMenu"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#ri-palette-line"/></svg><span class="board-glow-mark" aria-hidden="true"><span class="board-glow-mark-glow"></span><span class="board-glow-mark-accent"></span></span></button></div>`), g.querySelector(".board-foot-actions").append(document.querySelector("#settingsBtn")), document.querySelector("#drawer").append(g), g.querySelectorAll("[data-board-theme]").forEach((t) => e.handler(t, "onclick", () => {
-			t.getAttribute("aria-pressed") !== "true" && q3e(t, () => {
+			t.getAttribute("aria-pressed") !== "true" && J3e(t, () => {
 				Z.appSettings.theme = t.dataset.boardTheme, Z.saveSettings(), CF();
 			});
 		})), CF();
 		let _ = document.createElement("div");
 		_.className = "popmenu board-glow-menu", _.id = "boardGlowMenu", _.hidden = !0, _.setAttribute("popover", "manual"), _.setAttribute("role", "dialog"), _.setAttribute("aria-label", L("shell:glowPicker.title")), document.body.append(_), e.own(() => _.remove());
 		let v = g.querySelector("#boardGlowBtn"), y = eu(g, v, _);
-		e.own(y.dispose), e.own(x_e(v)), F1e({
+		e.own(y.dispose), e.own(x_e(v)), I1e({
 			root: _,
 			store: Z.settingsStore,
 			openDetails: () => {
@@ -114497,8 +114502,8 @@ function J3e() {
 	})(), A7(!k7() && sessionStorage.getItem("board.sidebar") !== "closed");
 }
 // src/navigation-progress.ts
-var Y3e = 200, X3e = 400, Z3e = 240;
-function Q3e() {
+var X3e = 200, Z3e = 400, Q3e = 240;
+function $3e() {
 	let e = document.createElement("div");
 	e.className = "navprogress", e.setAttribute("aria-hidden", "true"), e.append(document.createElement("i")), document.body.append(e);
 	let t = /* @__PURE__ */ new Set(), n = 0, r = 0, i = 0, a = !1, o = () => fee() || t.size > 0, s = () => {
@@ -114509,12 +114514,12 @@ function Q3e() {
 			}
 			n ||= window.setTimeout(() => {
 				n = 0, i = performance.now(), e.dataset.state = "running";
-			}, Y3e);
+			}, X3e);
 		} else clearTimeout(n), n = 0, e.dataset.state !== "running" || r || (r = window.setTimeout(() => {
 			e.dataset.state = "done", r = window.setTimeout(() => {
 				r = 0, delete e.dataset.state;
-			}, Z3e);
-		}, Math.max(0, X3e - (performance.now() - i))));
+			}, Q3e);
+		}, Math.max(0, Z3e - (performance.now() - i))));
 	}, c = () => {
 		a || (a = !0, queueMicrotask(() => {
 			a = !1, s();
@@ -114531,15 +114536,15 @@ function Q3e() {
 	};
 }
 // src/application/initialize.js
-function $3e() {
-	A3e(), _3e(), F2e(), v3e(), n3e(), L1e(), H4e(), M3e(), d2e(), m3e(), X0e(), W4e(), L0e(), b2e(), O3e(), j2e(), f2e(), k3e(), M2e(), p2e(), o4e(), G4e(), U3e(), h3e(), W3e(), r3e(), K3e(), J3e(), G5.own(Q3e()), G5.own(a9), G5.own(w9);
+function e6e() {
+	j3e(), v3e(), I2e(), y3e(), r3e(), R1e(), U4e(), N3e(), f2e(), h3e(), Z0e(), G4e(), R0e(), x2e(), k3e(), M2e(), p2e(), A3e(), N2e(), m2e(), s4e(), K4e(), W3e(), g3e(), G3e(), i3e(), q3e(), Y3e(), G5.own($3e()), G5.own(a9), G5.own(w9);
 }
 // src/ui-kit/middle-truncate.ts
-var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(void 0, { granularity: "grapheme" }) : null, V9 = /* @__PURE__ */ new WeakMap(), H9 = /* @__PURE__ */ new Set(), U9 = 0, W9 = /* @__PURE__ */ new WeakSet(), G9 = null, K9 = null, q9 = (e) => t6e ? [...t6e.segment(String(e ?? ""))].map((e) => e.segment) : Array.from(String(e ?? "")), J9 = (e, t) => {
+var t6e = "…", n6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(void 0, { granularity: "grapheme" }) : null, V9 = /* @__PURE__ */ new WeakMap(), H9 = /* @__PURE__ */ new Set(), U9 = 0, W9 = /* @__PURE__ */ new WeakSet(), G9 = null, K9 = null, q9 = (e) => n6e ? [...n6e.segment(String(e ?? ""))].map((e) => e.segment) : Array.from(String(e ?? "")), J9 = (e, t) => {
 	if (t >= e.length) return e.join("");
 	let n = Math.ceil(t / 2), r = Math.floor(t / 2);
-	return e.slice(0, n).join("") + e6e + (r ? e.slice(-r).join("") : "");
-}, n6e = (e, t) => {
+	return e.slice(0, n).join("") + t6e + (r ? e.slice(-r).join("") : "");
+}, r6e = (e, t) => {
 	if (!e.length || t(e.join(""))) return e.length;
 	let n = 0, r = e.length - 1, i = 0;
 	for (; n <= r;) {
@@ -114547,23 +114552,23 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		t(J9(e, a)) ? (i = a, n = a + 1) : r = a - 1;
 	}
 	return i;
-}, r6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}　-〿＀-￯]/u, i6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u, a6e = /[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Nd}]/u, o6e = /[＀-￯]/u, s6e = (e) => i6e.test(e) ? 1 : a6e.test(e) && !o6e.test(e) ? 2 : 0, c6e = (e) => {
+}, i6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}　-〿＀-￯]/u, a6e = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u, o6e = /[\p{Script=Latin}\p{Script=Greek}\p{Script=Cyrillic}\p{Nd}]/u, s6e = /[＀-￯]/u, c6e = (e) => a6e.test(e) ? 1 : o6e.test(e) && !s6e.test(e) ? 2 : 0, l6e = (e) => {
 	let t = 0, n = 0;
 	for (let r of e) {
-		let e = s6e(r);
+		let e = c6e(r);
 		n && e && n !== e && t++, n = e;
 	}
 	return t;
-}, l6e = null, u6e = (e, t) => {
-	let n = getComputedStyle(e), r = (l6e ||= document.createElement("canvas")).getContext("2d");
+}, u6e = null, d6e = (e, t) => {
+	let n = getComputedStyle(e), r = (u6e ||= document.createElement("canvas")).getContext("2d");
 	if (!r) return () => Infinity;
 	r.font = n.font || `${n.fontStyle} ${n.fontWeight} ${n.fontSize} ${n.fontFamily}`;
 	let i = parseFloat(n.letterSpacing), a = parseFloat(n.wordSpacing), o = n.getPropertyValue("text-autospace"), s = t && o && o !== "no-autospace" ? (parseFloat(n.fontSize) || 0) / 8 : 0;
 	return (e) => {
 		let t = r.measureText(e).width;
-		return Number.isFinite(i) && (t += Math.max(0, q9(e).length - 1) * i), Number.isFinite(a) && (t += (e.match(/\s/g) || []).length * a), s && (t += c6e(e) * s), t;
+		return Number.isFinite(i) && (t += Math.max(0, q9(e).length - 1) * i), Number.isFinite(a) && (t += (e.match(/\s/g) || []).length * a), s && (t += l6e(e) * s), t;
 	};
-}, d6e = [
+}, f6e = [
 	"font-family",
 	"font-size",
 	"font-weight",
@@ -114588,7 +114593,7 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 	"text-autospace",
 	"text-spacing-trim",
 	"white-space-collapse"
-], Y9 = null, f6e = (e) => {
+], Y9 = null, p6e = (e) => {
 	if (!Y9) {
 		let e = document.createElement("div");
 		e.setAttribute("aria-hidden", "true"), e.dataset.middleTruncateProbe = "", e.style.cssText = "position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;contain:strict", Y9 = {
@@ -114597,10 +114602,10 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		};
 	}
 	Y9.box.isConnected || document.documentElement.append(Y9.box);
-	let t = getComputedStyle(e), n = d6e.map((e) => t.getPropertyValue(e)), r = e.closest("[lang]")?.getAttribute("lang") || "", i = n.join("\n") + "\n" + r, a = Y9.groups.get(i);
-	return a || (a = document.createElement("div"), n.forEach((e, t) => a.style.setProperty(d6e[t], e)), a.lang = r, Y9.box.append(a), Y9.groups.set(i, a)), a;
-}, p6e = 8, m6e = (e) => {
-	for (let t = 0; e.length && t < p6e; t++) {
+	let t = getComputedStyle(e), n = f6e.map((e) => t.getPropertyValue(e)), r = e.closest("[lang]")?.getAttribute("lang") || "", i = n.join("\n") + "\n" + r, a = Y9.groups.get(i);
+	return a || (a = document.createElement("div"), n.forEach((e, t) => a.style.setProperty(f6e[t], e)), a.lang = r, Y9.box.append(a), Y9.groups.set(i, a)), a;
+}, m6e = 8, h6e = (e) => {
+	for (let t = 0; e.length && t < m6e; t++) {
 		let t = e.map((e) => e.tries.map((t) => {
 			let n = document.createElement("span");
 			return n.style.cssText = "display:block;width:max-content;text-wrap-mode:nowrap", n.textContent = J9(e.fit.parts, t), e.group.append(n), n;
@@ -114618,28 +114623,28 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 			])].filter((t) => t > e.fits && t < e.fails), !0;
 		});
 	}
-}, h6e = (e) => {
+}, g6e = (e) => {
 	let t = [];
 	for (let n of e) {
-		let e = n.state.full, r = r6e.test(e), i = u6e(n.element, r);
-		if (n.kept = n6e(n.parts, (e) => i(e) <= n.available), !r) continue;
+		let e = n.state.full, r = i6e.test(e), i = d6e(n.element, r);
+		if (n.kept = r6e(n.parts, (e) => i(e) <= n.available), !r) continue;
 		let a = [n.kept, n.kept + 1].filter((e) => e > 0 && e <= n.parts.length);
 		t.push({
 			fit: n,
-			group: f6e(n.element),
+			group: p6e(n.element),
 			fits: 0,
 			fails: n.parts.length + 1,
 			tries: a
 		});
 	}
-	m6e(t);
-}, g6e = (e) => {
+	h6e(t);
+}, _6e = (e) => {
 	let t = getComputedStyle(e), n = parseFloat(t.width);
 	if (!Number.isFinite(n)) return e.clientWidth;
 	let r = t.boxSizing === "border-box" ? n - (parseFloat(t.borderLeftWidth) || 0) - (parseFloat(t.borderRightWidth) || 0) : n + (parseFloat(t.paddingLeft) || 0) + (parseFloat(t.paddingRight) || 0);
 	return Math.max(e.clientWidth, r + 1 / 64);
-}, _6e = (e) => {
-	if (e.dataset.middleTruncateWithin === void 0) return g6e(e);
+}, v6e = (e) => {
+	if (e.dataset.middleTruncateWithin === void 0) return _6e(e);
 	let t = e.parentElement;
 	if (!t) return e.clientWidth;
 	let n = getComputedStyle(t), r = parseFloat(n.columnGap) || 0, i = 0, a = 0;
@@ -114648,7 +114653,7 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		n === e ? a++ : t > 0 && (i += t, a++);
 	}
 	return t.getBoundingClientRect().width - (parseFloat(n.paddingLeft) || 0) - (parseFloat(n.paddingRight) || 0) - i - r * Math.max(0, a - 1);
-}, v6e = () => {
+}, y6e = () => {
 	U9 = 0;
 	let e = [];
 	for (let t of H9) {
@@ -114656,12 +114661,12 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		n && t.isConnected && e.push({
 			element: t,
 			state: n,
-			available: _6e(t),
+			available: v6e(t),
 			parts: q9(n.full),
 			kept: 0
 		});
 	}
-	H9.clear(), h6e(e.filter((e) => e.available > 0));
+	H9.clear(), g6e(e.filter((e) => e.available > 0));
 	for (let { element: t, state: n, available: r, parts: i, kept: a } of e) {
 		let e = r > 0 ? J9(i, a) : n.full;
 		n.rendered = e, t.textContent !== e && (t.textContent = e);
@@ -114669,18 +114674,18 @@ var e6e = "…", t6e = typeof Intl.Segmenter == "function" ? new Intl.Segmenter(
 		t.classList.toggle("middle-truncated", o), t.setAttribute("aria-label", n.full), t.hasAttribute("title") && t.dataset.middleTitle !== "true" || (t.title = n.full, t.dataset.middleTitle = "true");
 	}
 };
-function y6e(e, t) {
+function b6e(e, t) {
 	let n = q9(t), r = {
 		element: e,
 		state: {
 			full: t,
 			rendered: t
 		},
-		available: _6e(e),
+		available: v6e(e),
 		parts: n,
 		kept: 0
 	};
-	if (r.available <= 0 || (h6e([r]), r.kept >= n.length)) return null;
+	if (r.available <= 0 || (g6e([r]), r.kept >= n.length)) return null;
 	let i = Math.ceil(r.kept / 2), a = Math.floor(r.kept / 2);
 	return {
 		start: n.slice(0, i).join("").length,
@@ -114688,28 +114693,28 @@ function y6e(e, t) {
 	};
 }
 var X9 = (e) => {
-	V9.has(e) && (H9.add(e), U9 ||= requestAnimationFrame(v6e));
-}, b6e = (e) => {
+	V9.has(e) && (H9.add(e), U9 ||= requestAnimationFrame(y6e));
+}, x6e = (e) => {
 	e instanceof HTMLElement && (e.hasAttribute("data-middle-truncate-managed") || (V9.has(e) || V9.set(e, {
 		full: e.textContent || "",
 		rendered: e.textContent || ""
 	}), W9.has(e) || (W9.add(e), e.dataset.middleTruncateWithin !== void 0 && e.parentElement ? G9?.observe(e.parentElement) : G9?.observe(e)), X9(e)));
-}, x6e = (e) => {
+}, S6e = (e) => {
 	if (e.nodeType !== Node.ELEMENT_NODE) return;
 	let t = e;
-	t.matches("[data-middle-truncate]") && b6e(t), t.querySelectorAll("[data-middle-truncate]").forEach(b6e);
+	t.matches("[data-middle-truncate]") && x6e(t), t.querySelectorAll("[data-middle-truncate]").forEach(x6e);
 };
-function S6e(e = document) {
+function C6e(e = document) {
 	K9?.(), W9 = /* @__PURE__ */ new WeakSet();
 	let t = !0;
 	G9 = new ResizeObserver((e) => e.forEach((e) => {
 		t && (X9(e.target), e.target.querySelectorAll?.(":scope>[data-middle-truncate-within]").forEach(X9));
 	}));
 	let n = G9;
-	x6e(e.documentElement || e);
+	S6e(e.documentElement || e);
 	let r = new MutationObserver((e) => e.forEach((e) => {
 		if (!t) return;
-		e.addedNodes.forEach(x6e);
+		e.addedNodes.forEach(S6e);
 		let n = (e.target.nodeType === Node.TEXT_NODE ? e.target.parentElement : e.target)?.closest?.("[data-middle-truncate]");
 		if (!n) return;
 		let r = V9.get(n);
@@ -114735,7 +114740,7 @@ function S6e(e = document) {
 	return K9 = a, a;
 }
 // src/react/result-updates.tsx
-var C6e = [
+var w6e = [
 	"catalog-grid",
 	"catalog-folders",
 	"item",
@@ -114760,16 +114765,16 @@ var C6e = [
 	"follow",
 	"entity",
 	"index"
-], w6e = [
+], T6e = [
 	"feed-new",
 	"jav-discoveries",
 	"jav-releases",
 	"jav-detail",
 	"wants",
 	"index"
-], T6e = {
+], E6e = {
 	catalog: [
-		...C6e,
+		...w6e,
 		...Z9,
 		"review",
 		"taste"
@@ -114779,20 +114784,20 @@ var C6e = [
 		"stats",
 		"taste"
 	],
-	discoveries: w6e,
+	discoveries: T6e,
 	review: ["review"],
 	library_processing: ["library-processing"],
 	artwork: [
-		...C6e,
-		...Z9,
 		...w6e,
+		...Z9,
+		...T6e,
 		"avatar-choices"
 	]
 };
-function E6e() {
+function D6e() {
 	let e = /* @__PURE__ */ new Set(), t = null;
 	return (n, r) => {
-		for (let t of Object.keys(r)) if (r[t] !== n[t]) for (let n of T6e[t] || []) e.add(n);
+		for (let t of Object.keys(r)) if (r[t] !== n[t]) for (let n of E6e[t] || []) e.add(n);
 		return !t && e.size && (t = (async () => {
 			for (; e.size;) {
 				let t = new Set(e);
@@ -114805,11 +114810,11 @@ function E6e() {
 		})), t || Promise.resolve();
 	};
 }
-var D6e = (e) => e.replace(/[&<>"']/g, (e) => `&#${e.charCodeAt(0)};`), O6e = 3, k6e = (e) => {
-	let t = D6e(e.label || L("shell:ingestToast.fallbackName"));
+var O6e = (e) => e.replace(/[&<>"']/g, (e) => `&#${e.charCodeAt(0)};`), k6e = 3, A6e = (e) => {
+	let t = O6e(e.label || L("shell:ingestToast.fallbackName"));
 	return e.kind === "download" ? L("shell:ingestToast.downloadDone", { name: t }) : L("shell:ingestToast.newFile", { name: t });
 };
-function A6e(e, t, n, r = !0) {
+function j6e(e, t, n, r = !0) {
 	if (!t) return e;
 	let i = t.items.reduce((e, t) => Math.max(e, t.id), 0);
 	if (!e || e.epoch !== t.epoch) return {
@@ -114817,14 +114822,14 @@ function A6e(e, t, n, r = !0) {
 		last: i
 	};
 	let a = r ? t.items.filter((t) => t.id > e.last) : [];
-	if (a.length > O6e) JU(`ingest-${t.epoch}-${i}`, {
+	if (a.length > k6e) JU(`ingest-${t.epoch}-${i}`, {
 		html: L("shell:ingestToast.burst", { count: a.length }),
 		alert: !1,
 		timeout: 8e3,
 		action: null
 	});
 	else for (let e of a) JU(`ingest-${t.epoch}-${e.id}`, {
-		html: k6e(e),
+		html: A6e(e),
 		alert: !1,
 		timeout: 8e3,
 		action: {
@@ -114837,70 +114842,70 @@ function A6e(e, t, n, r = !0) {
 		last: Math.max(e.last, i)
 	};
 }
-var j6e = qa((e) => e?.busy ? NTe : PTe);
-function M6e({ openItem: e }) {
+var M6e = qa((e) => e?.busy ? NTe : PTe);
+function N6e({ openItem: e }) {
 	let t = br({
 		queryKey: JG,
 		queryFn: ({ signal: e }) => OTe(e),
-		refetchInterval: j6e
-	}), n = (0, R.useRef)(void 0), r = (0, R.useRef)(null), [i] = (0, R.useState)(E6e), a = t.data?.result_versions, o = t.data?.ingest_notices;
+		refetchInterval: M6e
+	}), n = (0, R.useRef)(void 0), r = (0, R.useRef)(null), [i] = (0, R.useState)(D6e), a = t.data?.result_versions, o = t.data?.ingest_notices;
 	return (0, R.useEffect)(() => {
 		a && (n.current && i(n.current, a), n.current = a);
 	}, [a, i]), (0, R.useEffect)(() => {
-		r.current = A6e(r.current, o, e, yF().value.ingestNotices !== !1);
+		r.current = j6e(r.current, o, e, yF().value.ingestNotices !== !1);
 	}, [o, e]), null;
 }
 // src/react/application.tsx
 var Q9 = null;
-function N6e(e) {
+function P6e(e) {
 	Q9 !== e || e.owners || (Q9 = null, e.effects.dispose());
 }
-function P6e() {
+function F6e() {
 	if (!Q9) {
-		let e = c0e();
+		let e = l0e();
 		Q9 = {
 			effects: e,
 			owners: 0
-		}, e.own(S6e(document)), e.own(() => {
+		}, e.own(C6e(document)), e.own(() => {
 			Mf(), G.cancelQueries();
-		}), e.own(D1e), e.own(_ee), e.own(Jl);
+		}), e.own(O1e), e.own(_ee), e.own(Jl);
 	}
 	return Q9.owners += 1, Q9.effects.resume(), Q9;
 }
-function F6e() {
+function I6e() {
 	let [e, t] = (0, R.useState)(null);
 	return (0, R.useLayoutEffect)(() => {
-		let e = Q9 === null, n = P6e(), r = T1e(t);
+		let e = Q9 === null, n = F6e(), r = E1e(t);
 		if (e) try {
-			$3e();
+			e6e();
 		} catch (e) {
 			throw r(), n.effects.dispose(), Q9 = null, e;
 		}
 		return () => {
-			r(), --n.owners, n.owners || (n.effects.pause(), queueMicrotask(() => N6e(n)));
+			r(), --n.owners, n.owners || (n.effects.pause(), queueMicrotask(() => P6e(n)));
 		};
 	}, []), /* @__PURE__ */ (0, z.jsx)(tAe, {
 		actions: e,
 		processing: !0,
-		background: e ? /* @__PURE__ */ (0, z.jsx)(M6e, { openItem: e.openItem }) : null
+		background: e ? /* @__PURE__ */ (0, z.jsx)(N6e, { openItem: e.openItem }) : null
 	});
 }
 var $9 = /* @__PURE__ */ new WeakMap();
-function I6e(e) {
+function L6e(e) {
 	let t = $9.get(e);
 	if (t) return t;
 	let n = (0, wr.createRoot)(e, nAe);
 	$9.set(e, n);
 	let r = n.unmount.bind(n);
 	return n.unmount = () => {
-		$9.get(e) === n && ($9.delete(e), r(), Q9 && N6e(Q9));
-	}, (0, Cr.flushSync)(() => n.render(/* @__PURE__ */ (0, z.jsx)(VU, { children: /* @__PURE__ */ (0, z.jsx)(F6e, {}) }))), n;
+		$9.get(e) === n && ($9.delete(e), r(), Q9 && P6e(Q9));
+	}, (0, Cr.flushSync)(() => n.render(/* @__PURE__ */ (0, z.jsx)(VU, { children: /* @__PURE__ */ (0, z.jsx)(I6e, {}) }))), n;
 }
 // src/react/bootstrap.tsx
 Ft();
-var L6e = document.getElementById("appRoot");
-if (!L6e) throw Error(L("shell:errorReport.hostMissing"));
-I6e(L6e);
-export { CB as $2ec61d1d4f780267$export$a8a3e93435678ff9, GB as $3a442827418ebe87$export$eb2fcfdbd7ba97d4, pH as $542a13ca2fa5b484$export$5b6b19405a83ff9d, SA as $72abaeab4d80592f$export$78efe591171d7d45, cU as $76d00c5a4edb230a$export$76ccd210b9029917, aU as $76d00c5a4edb230a$export$816b5d811295e6bc, dU as $76d00c5a4edb230a$export$b59bdbef9ce70de2, pU as $76d00c5a4edb230a$export$f6f0c3fe4ec306ea, iU as $76d00c5a4edb230a$export$f850895b287ef28e, RSe as $b4f18e3395fe64d7$export$3d96ec278d3efce4, LSe as $b4f18e3395fe64d7$export$3e41faf802a29e71, PSe as $b4f18e3395fe64d7$export$b2539bed5023c21c, _U as $b4f18e3395fe64d7$export$e51a686c67fdaa2d, VSe as $bd263d78e9bf3c56$export$f5c9f3c2c4054eec, eA as $ea3928288112382f$export$439d29a4e110a164, DH as $f2ff30fde7b014be$export$3ddf2d174ce01153, IH as $fe21c36db05242bb$export$a98f0dcb43a68a25, LH as $fe21c36db05242bb$export$d7b12c4107be0d61, BW as $l, tF as ACCENTS, VWe as AMANE_BRIDGE_CHECK_URL, KWe as AMANE_BRIDGE_KEY, HWe as AMANE_BRIDGE_REBUILD_URL, Wq as ActivityMotion, Gq as ActivityStatus, Aa as ApiError, mX as ArtSlot, XJe as BATCH_DELETE_TEXT, RW as BC, Y as Button, lP as ButtonLink, tG as Bx, GWe as CHECK_ALL_KEY, s3 as CLEANUP_ENTRY, o3 as CLEANUP_ENTRY_GRID, Jh as CLEANUP_HASH_REDIRECTS, Xh as CLEANUP_TOOLS, si as CLOUD_LOCATIONS, fqe as CLOUD_PROXY_HELP, Do as COLUMN_SORT, _Ge as CONFIGURATION_KEY, Sh as CONFIGURATION_SECTIONS, cIe as CONFIGURATION_URL, qWe as COOKIE_TEXT_LIMIT, WWe as COVER_JOB_KEY, Sf as COVER_STATE_TITLE, Is as CREDENTIAL_STATE, NWe as CUSTOM_SOURCES_KEY, MWe as CUSTOM_SOURCES_URL, XQ as CardTags, VQ as CatalogColumnFilterChips, HZ as CatalogViewToggle, pq as Checkbox, fq as CheckboxGlyph, DU as ChevronSortDown, iY as Chip, TX as CloudDownloadDialog, Zq as CollapseChevron, Xq as CollapseRegion, W0 as ColumnFilterAvatar, HQ as ColumnFilterChips, qwe as CommandSteps, KBe as CoverQueue, NW as Ct, hFe as DEFAULT_CATEGORY, Fa as DEFAULT_SORT, lHe as DIAGNOSTICS_KEY, OIe as DIRECTORY_TEMPLATE_ERROR, fke as DISCOVERY_METADATA_KEY, kY as DISCOVERY_SORTS, gX as DOWNLOADS_KEY, hX as DOWNLOADS_URL, i2 as DUPLICATES_KEY, pX as DataTableFooter, j0 as DataTableFrame, fX as DataTableSort, xG as Disclosure, VOe as DownloadsPanel, $Ce as E3, HG as EDITION_TONE, gFe as ENTITY_REVIEW_KINDS, uqe as ENTRY_LINKS_HELP, G3 as ENTRY_LINKS_HINT, KW as Ea, fEe as EmptyFocusButton, qK as EmptyState, vG as ErrorText, kwe as Eu, bG as ExternalLink, Co as FEEDS_KEY, i3 as FIELDSET_FOOT, d$e as FLOW_LABEL_X, u$e as FLOW_VIEWBOX, xo as FOLLOW_CHECK_KEY, YG as FOLLOW_CHECK_TASK, bo as FOLLOW_CREDENTIALS_KEY, r0e as FOLLOW_INITIAL_RANGE_OPTIONS, yo as FOLLOW_MANAGE_KEY, m4 as FOLLOW_MANAGE_NAV, So as FOLLOW_RESOLVE_KEY, Xwe as Fact, Ywe as FactList, yG as FieldLabel, iWe as Fieldset, rWe as FieldsetTitle, AK as FilterActionButton, OK as FilterGlassRows, DK as FilterIconButton, kK as FilterPill, Gwe as Footer, ZW as Gg, EW as H7, oG as HN, _G as Help, IK as HintText, iFe as IDLE_REPAIR, qQ as Icon, EK as IconButton, TQ as IndexSearch, VK as Input, BK as InputBase, oWe as IssueRow, tTe as ItemLibrary, TF as JAV_LAYOUTS, zY as JAV_RECOMMENDATION_GRID, e0e as JAV_SELECTION_EVENT, gLe as JUNK_KEY, eG as JZ, rZ as JavHeader, QPe as KEEP_LABELS, JPe as KEPT_DUPLICATES_KEY, HCe as L1, To as LAYOUTS, WZ as LEGACY_AVATAR_IMG, lqe as LIBRARY_FOLDER_HELP, gq as LIBRARY_PROCESSING_KEY, YFe as LINKS_KEY, XFe as LINK_CHECK_KEY, QFe as LINK_KINDS, ZFe as LINK_PRUNE_KEY, Ta as LOC, FK as Label, jG as LibraryLabel, vWe as LibraryProcessingCard, oq as LibraryShortcuts, gG as LinkButton, $0 as ListLibrary, lwe as Lo, AW as M6, ube as MEDIA_PROCESSING_KEY, Kz as MEDIA_PROCESSING_URL, l2 as MEDIA_REPAIR_KEY, c2 as MEDIA_REPAIR_URL, Qa as MEDIA_SOURCES_KEY, nu as MEDIA_SOURCE_ICONS, ai as MEDIA_SOURCE_OPTIONS, wU as MENU_ITEM, TU as MENU_ITEM_INTERACTIVE, SU as MENU_POPOVER_SURFACE, dwe as Ma, wG as MarkImage, XU as MenuDialog, _$ as MixCard, HK as ModalFrame, mC as MotionConfigContext, uG as NR, aWe as NameLink, FG as NavigationOrderRows, WK as Note, dG as OA, E2 as ORGANIZE_KEY, qJe as ORGANIZE_PARAMETER_HINT, KJe as ORGANIZE_SCOPE_HINT, GJe as ORGANIZE_TEXT, FIe as ORPHAN_RECORDS_KEY, YJe as ORPHAN_RECORDS_TEXT, YW as OV, KK as ObjectOrderDialog, DW as P7, lLe as PERFORMER_DELETE_KEY, ZOe as PHASES, lIe as PICK_FOLDER_URL, UUe as PLAIN_STAT_STRIP, d3 as PLAYLISTS_KEY, oqe as POLICY_COLUMNS, cqe as POLICY_COVER_NOTE, sqe as POLICY_MATRIX, aqe as POLICY_SUMMARY, lWe as PathLine, cG as Pf, tB as PillTabList, WUe as PlainStat, Rq as ProcessingMode, qq as Progress, h2 as QUALITY_GOALS_KEY, _Ue as QueueFilterChips, yUe as QueueIdentity, bUe as QueuePicture, vUe as QueueTable, sG as RB, IIe as RECORD_LABELS, IY as RELEASE_COLUMN_VISIBILITY_KEY, FY as RELEASE_COLUMN_WIDTHS_KEY, oY as RELEASE_NOTICE_EVENT, YX as RELEASE_PAGE_SIZES, AY as RELEASE_SORTS, gOe as RELEASE_SORT_COLUMNS, iHe as REPAIRS_KEY, qUe as REPAIR_CARD_TEXT, Dh as REPAIR_CENTER_PATH, u2 as REPAIR_LIBRARIES_KEY, qIe as RESOURCE_APPLY_KEY, KIe as RESOURCE_SCAN_KEY, JJe as RESOURCE_SYNC_TEXT, eWe as RESULT_PANEL, tWe as RESULT_SECTION, mFe as REVIEW_CATEGORIES, mLe as REVIEW_COUNTS_KEY, vFe as REVIEW_DECISION_LABELS, v2 as REVIEW_KEY, y2 as REVIEW_LABELS, x2 as REVIEW_QUEUES, _Fe as REVIEW_QUEUE_LABELS, rK as RUNNING_POLL_MS, xQ as RetryNote, Fwe as Rf, fG as Rk, Hwe as Rows, Yz as SCHEDULES, RWe as SCRAPING_CHECK_ALL_URL, LWe as SCRAPING_CHECK_URL, zWe as SCRAPING_COVER_URL, UWe as SCRAPING_KEY, IWe as SCRAPING_SETTINGS_URL, gJ as SEGMENT, hJ as SEGMENTED_TRACK, Hz as SETTINGS_KEY, Rz as SETTINGS_URL, Ia as SORT_DEFAULT_DIR, Pa as SORT_OPTIONS, ci as SOURCE_LABELS, GZe as STATS_KEY, BUe as STAT_STRIP, VUe as STAT_STRIP_SIX, kG as ScrapeSourceLabel, Vwe as Section, nWe as SectionHeading, Wwe as SectionSkeleton, mJ as SegmentedRadioGroup, cDe as SegmentedTabList, pQ as Segments, lX as Select, kU as Select$1, jK as SelectAllButton, x3 as SelectField, AU as SelectItem, K0 as SelectionActions, _P as SelectionDock, q0 as SelectionPopover, pG as SettingsCard, Bwe as SettingsRow, mG as SettingsSectionLabel, mQ as Shuffle, OG as SiteIcon, eTe as SiteLabel, TG as SiteMark, dX as SortDirectionIcon, UZ as SortKeys, LG as SortableBoardTabs, U0 as SourceAvatar, AG as SourceLabel, SG as SourceMark, Uwe as Stack, GUe as StatCard, aY as StatusLabel, Awe as Su, $Ye as Switch, nK as TASKS_KEY, HQe as TASTE_REFRESH_KEY, e$e as TASTE_REFRESH_TASK, UQe as TASTE_WINDOWS, Gz as THUMBNAIL_JOBS_KEY, vLe as TRASH_KEY, oK as TRIGGER_LABELS, A0 as Table, J0 as TableColumnControls, EQ as TableColumnFilter, BQ as TableColumnRange, Y0 as TableColumnResizer, Z0 as TableSelectionHeader, Jwe as TaskCenterLink, Jq as TaskProgress, RK as TextField, LK as TextFieldContext, qW as Un, Iwe as Uz, DX as WANTS_KEY, FXe as WantMagnets, oy as WithPromise, FW as Wt, GW as Xc, lG as Xf, zW as Xl, IW as Xt, LW as Yt, kW as _8, o as __commonJSMin, s as __exportAll, l as __toESM, iG as _p, Mwe as aB, Uq as activityKind, cs as addAlias, ss as addSource, kX as addWant, iw as animate, U as apiGet, W as apiSend, yF as appSettingsStore, aLe as applyConfirmText, sLe as applyLeftovers, iLe as applyPlanText, cLe as applyText, CF as applyTheme, dx as asNumber, RIe as attachOrphan, Wo as authorAvatar, Ko as authorGroups, Uo as authorInitial, Ho as authorName, Vo as authorPortrait, y1 as autoResetPageIndex, al as avatarInner, _W as b1, lQe as bandRows, kIe as baseName, rFe as batchOperate, Mve as beginPlayerGuidePreview, Ai as bodyFieldErrors, wP as boundedPreference, eFe as bulkCloudPreferences, uP as busyProps, jwe as cB, AXe as cachedMagnetStates, ey as calcGeneratorVelocity, EFe as canApprove, Ov as cancelFrame, UIe as candidateText, cX as cardClass, RF as cardRatio, EY as catalogListSkeletonCellHtml, BDe as checkClientUpdates, Ms as checkEvidenceGap, js as checkFailures, xs as checkFeeds, sIe as checkLine, ks as checkReceipt, As as checkSummary, $We as checkText, cHe as checkText$1, Ns as checkedText, P6 as cleanupToolSkeletonHtml, QQ as clickedBlank, j7 as closeDrawerAfterNav, LAe as cloudLocations, Oqe as cloudProxySkeleton, zT as clsx, mwe as cn, Ei as codedText, Hne as collectMotionValues, MX as columnRangeKinds, LX as columnValueSelected, z1 as columnVisibilityFeature, T0 as column_getCanSort, x0 as column_getSortFn, wFe as commonReviewSources, SX as composingKey, kh as configurationSection, qQe as configureTasteBrowser, $d as confirmModal, hke as controlDiscoveryMetadata, bke as controlReleaseMetadata, FTe as controlTask, t1 as copyInstancePropertiesWithoutMemos, dke as coverArrived, lke as coverFetching, wf as coverFetchingHtml, xf as coverReason, Cf as coverStateAction, Zc as coverUrl, A1 as createColumnHelper, TWe as createPlaylist, Ls as credentialDone, wqe as credentialsSkeleton, BFe as currentReviewRow, J as cx, twe as d6, $W as dZ, IFe as decisionPayload, LFe as decisionReceipt, FFe as defaultChoice, fLe as deletePerformerVideos, DWe as deletePlaylist, Vqe as devicesSkeleton, x as diagnosticHeaders, iqe as diagnosticsSkeleton, xke as discoveryArtwork, qX as discoveryKey, sOe as discoveryScore, v9 as disposeStage, Ds as dropSources, Owe as du, tFe as duplicateVictims, UG as editionName, gK as elapsedText, Z4 as enterPageSelection, qr as entityDisplayName, il as entityFaceImg, ra as entityPath, Ur as entityWriting, Io as errorHeadline, ja as errorMessage, H as esc, Q4 as exitPageSelection, v1 as expandRowModel, gW as f1, cl as facePos, Fo as feedIntervalText, ZWe as fetchAmaneBridge, XWe as fetchCheckAllJob, es as fetchCheckJob, bGe as fetchConfiguration, YWe as fetchCoverJob, KX as fetchCoverNow, $o as fetchCredentials, PWe as fetchCustomSources, uLe as fetchDeletePerformers, dLe as fetchDeletePlan, uHe as fetchDiagnostics, JX as fetchDiscoveries, mke as fetchDiscoveryMetadata, o2 as fetchDuplicates, vs as fetchFeeds, Qo as fetchFollow, xLe as fetchJunkSummary, YPe as fetchKeptDuplicates, wq as fetchLibraryProcessing, tIe as fetchLinkCheck, rIe as fetchLinkPrune, eIe as fetchLinkStats, dbe as fetchMediaProcessing, d2 as fetchMediaRepair, $a as fetchMediaSources, xIe as fetchOrganize, bIe as fetchOrganizeExample, LIe as fetchOrphanRecords, OWe as fetchPlaylist, bWe as fetchPlaylists, g2 as fetchQualityGoals, yke as fetchReleaseColumn, nZ as fetchReleases, f2 as fetchRepairLibraries, oHe as fetchRepairs, ts as fetchResolveJob, XIe as fetchResourceApply, JIe as fetchResourceScan, RFe as fetchReview, bLe as fetchReviewCounts, qz as fetchSettings, JWe as fetchSources, KZe as fetchStats, ns as fetchSuggestions, aK as fetchTasks, JQe as fetchTaste, YQe as fetchTasteJob, mbe as fetchThumbnailJobs, SLe as fetchTrashSummary, OX as fetchWants, SFe as filterReviewRows, Ca as firstGrapheme, L$ as flexRender, h$e as flowGraph, g$e as flowLabel, JZe as fmtCount, _a as fmtDur, ya as fmtSize, jTe as foldByKind, qTe as foldRoutine, Cs as followFeedByName, ws as followFeedEntity, wo as followSuggestKey, ZTe as followupDetail, ATe as followupTally, Dv as frame, SW as g4, Nwe as gB, H1 as getDefaultPaginationState, LF as gridLayout, Go as groupByAuthor, KTe as groupFollowups, XPe as groupKey, xFe as groupReviewRows, eLe as hasChanges, QIe as hasResourceRoots, cK as hasResultProblems, n$e as historySpan, vW as i2, $Qe as importTasteExport, Tqe as indexersSkeleton, Ct as interfaceLanguage, Xv as interpolate, jX as invalidateWants, uK as isActive, Po as isBroken, Oo as isLayout, Tb as isMotionValue, b2 as isReviewCategory, JTe as isRoutine, Eqe as javBrowserSkeleton, VY as javContentSkeleton, AF as javLayout, BY as javTagSkeleton, Di as jobText, Dt as joinList, TLe as junkBreakdown, GPe as keepGroup, KPe as keepGroups, AWe as keepPlaylist, Cn as keepPreviousData, Yo as keepSelected, V8 as known, cwe as ks, VCe as l1, YCe as l7, oke as lastSearchNote, GTe as latestOfKind, Sa as leadingGraphemes, Hqe as ledgerBackupsSkeleton, uQe as lengthRows, qi as linkLabel, ro as localTime, aHe as localizeRepairs, gGe as localizedFact, tl as logoUrl, Ss as lookupFeedActor, TW as m7, QW as mM, Xi as mapLimit, gs as markAllPending, H8 as max, sQe as mediumRows, pke as metadataInterval, y6e as middleTruncateCut, pQe as min, GFe as mirrorText, sFe as missingToolText, s2 as mixedCloudPreferences, bK as momentText, aw as motion, vb as motionValue, Bn as notifyManager, jW as oe, MIe as organizeOutcome, Q2 as overlayHost, ko as pageSizeOf, Jo as pageWindow, xi as partsLabel, Es as patchSource, Tg as peachHistory, Tg as peachHistory$1, PFe as pendingGenres, XZe as percentText, wIe as pickOrganizeFolder, uIe as pickServerFolder, HUe as plainStatClass, jIe as planSummary, ZZe as playedFor, tQe as playedItemUrl, MTe as pollInterval, Xa as pollUntil, Iu as popCount, wWe as posterUrl, RCe as previewLibraryColor, CIe as previewOrganize, lFe as previewUrl, UTe as problemDestination, yq as processingActive, mK as progressLabel, _K as progressText, DG as providerIcon, oIe as pruneText, O2 as purgeCount, zIe as purgeOrphan, nG as pv, aG as qE, G as queryClient, eX as queueContentSkeletonHtml, Ot as quoted, Swe as qx, yW as r2, l$e as radarRows, iQe as radialArc, aQe as radialBarSize, rQe as radialCeiling, nQe as radialSlices, uL as randomId, o$e as rankDetail, s$e as rankShares, $Ze as reachedShare, BX as readColumnFilters, vK as readableErrorHeadline, cOe as recommendationScore, VFe as recordGenre, VIe as recordsText, jWe as recreatePlaylist, SWe as refreshPlaylists, vf as relayoutCovers, QX as releaseColumnSelection, gke as releaseColumnValues, LY as releaseColumns, vke as releaseDateQuery, XX as releaseFilters, $X as releaseKey, Os as reloadFollowManage, WFe as reloadReview, hqe as rememberShape, EIe as rememberTemplates, ls as removeAlias, bs as removeFeed, os as removeSource, QQe as removeTasteSource, AX as removeWants, us as renameAliasGroup, EWe as renamePlaylist, kWe as reorderPlaylist, eJe as repairCenterPanelSkeleton, gn as replaceEqualDeep, fQe as replayRows, Kt as require_jsx_runtime, Lt as require_react, Bt as require_react_dom, Z$ as require_with_selector, nke as resetWants, Ra as resolveFollowSort, ry as resolveStartTime, CX as resourceSourceKey, MEe as restartEffectText, rke as restoreWants, CWe as resumeAssetId, bFe as reviewGroupingOptions, C2 as reviewQueueData, S2 as reviewQueueOf, wLe as reviewSummary, CFe as reviewWindow, MFe as rowEvidence, AFe as rowFieldName, Y1 as rowPaginationFeature, h0 as rowSelectionFeature, lje as rowSelectionOperation, O0 as rowSortingFeature, DFe as rowSubject, NFe as rowTags, jFe as rowTitle, pP as runBulkAction, hK as runError, wW as s7, ds as saveCredential, tLe as scanLine, ybe as schedulePollInterval, ake as searchNote, Eh as sectionTitle, _2 as selectRange, TFe as selectReviewRange, Xo as selectionState, uFe as selectionSummary, yi as serverLabel, Ti as serverLabelList, ji as serverText, ys as setFeedEnabled, _ke as setReleaseColumn, as as setSourceEnabled, ITe as setTaskSpeed, Nh as settingsPath, UFe as settleReviewRows, Eg as shellNavigate, I1e as showToast, JU as showToast$1, la as siteMarkUrl, Ku as skeletonHtml, l1 as skipFirstRun, sP as sortCx, jo as sortLabel, li as sourceDefaultCost, Fs as sourceIconUrl, oLe as sourceMeta, bu as spinnerHtml, Jv as spring, QU as spriteGlyph, bi as stageText, rs as startCheck, nIe as startLinkCheck, iIe as startLinkPrune, TIe as startOrganize, is as startResolve, ZIe as startResourceApply, YIe as startResourceScan, ZQe as startTasteRefresh, zUe as statCardClass, zTe as statusLabel, oFe as statusLine, No as statusText, zF as storeJavLayout, zFe as submitDecision, SK as summaryItems, $Q as suppressShiftTextSelection, L as t, j1 as tableFeatures, u1 as tableMemo, qo as tableRows, HTe as taskIssues, dK as taskName, WTe as taskSubject, t$e as tasteDate, i$e as tasteDimensions, r$e as tasteHours, VQe as tasteKey, GQe as tasteRefetchInterval, KQe as tasteTime, VG as textLang, _we as th, PY as tierPlaceholdersHtml, z_ as time, awe as tl, RX as toggleColumnValue, Zo as toggleGroup, c$e as topScores, Kwe as translateWithNodes, hwe as um, _s as unmarkItems, uwe as uo, GK as useAction, bze as useBackgroundJob, pY as useCatalogView, tY as useClientUpdates, f_ as useConstant, e$ as useDense, CK as useEntityNames, $U as useHorizontalScroller, p_ as useIsomorphicLayoutEffect, wQ as useLibraryFilterOptions, hW as useLibraryTints, xr as useMutation, MG as useNavigationOrder, fWe as useOrderedLibraries, mq as useOverlayScrollbar, qHe as usePageSelection, br as useQuery, Jt as useQueryClient, EUe as useQueueSort, KC as useReducedMotion, n$ as useRowWorkContext, vbe as useRunSchedule, gbe as useSaveSchedule, Jz as useSaveSettings, bbe as useSaveThumbnailMode, k0 as useTable, gUe as useTableFilters, P0 as useTablePreferences, PK as useViewGlide, t$ as useWorkContextMenu, no as utcDate, nFe as victimBytes, owe as vl, ike as wantName, QOe as wantsInterval, eQe as watchNote, QZe as watchedShare, nwe as we, _d as wireHorizontalScroller, qa as withBackoff, DIe as withOrganizeJob, VX as writeColumnFilters, cke as writeJavQuery, ewe as z3 };
+var R6e = document.getElementById("appRoot");
+if (!R6e) throw Error(L("shell:errorReport.hostMissing"));
+L6e(R6e);
+export { CB as $2ec61d1d4f780267$export$a8a3e93435678ff9, GB as $3a442827418ebe87$export$eb2fcfdbd7ba97d4, pH as $542a13ca2fa5b484$export$5b6b19405a83ff9d, SA as $72abaeab4d80592f$export$78efe591171d7d45, cU as $76d00c5a4edb230a$export$76ccd210b9029917, aU as $76d00c5a4edb230a$export$816b5d811295e6bc, dU as $76d00c5a4edb230a$export$b59bdbef9ce70de2, pU as $76d00c5a4edb230a$export$f6f0c3fe4ec306ea, iU as $76d00c5a4edb230a$export$f850895b287ef28e, RSe as $b4f18e3395fe64d7$export$3d96ec278d3efce4, LSe as $b4f18e3395fe64d7$export$3e41faf802a29e71, PSe as $b4f18e3395fe64d7$export$b2539bed5023c21c, _U as $b4f18e3395fe64d7$export$e51a686c67fdaa2d, VSe as $bd263d78e9bf3c56$export$f5c9f3c2c4054eec, eA as $ea3928288112382f$export$439d29a4e110a164, DH as $f2ff30fde7b014be$export$3ddf2d174ce01153, IH as $fe21c36db05242bb$export$a98f0dcb43a68a25, LH as $fe21c36db05242bb$export$d7b12c4107be0d61, BW as $l, tF as ACCENTS, VWe as AMANE_BRIDGE_CHECK_URL, KWe as AMANE_BRIDGE_KEY, HWe as AMANE_BRIDGE_REBUILD_URL, Wq as ActivityMotion, Gq as ActivityStatus, Aa as ApiError, mX as ArtSlot, XJe as BATCH_DELETE_TEXT, RW as BC, Y as Button, lP as ButtonLink, tG as Bx, GWe as CHECK_ALL_KEY, s3 as CLEANUP_ENTRY, o3 as CLEANUP_ENTRY_GRID, Jh as CLEANUP_HASH_REDIRECTS, Xh as CLEANUP_TOOLS, si as CLOUD_LOCATIONS, fqe as CLOUD_PROXY_HELP, Do as COLUMN_SORT, _Ge as CONFIGURATION_KEY, Sh as CONFIGURATION_SECTIONS, cIe as CONFIGURATION_URL, qWe as COOKIE_TEXT_LIMIT, WWe as COVER_JOB_KEY, Sf as COVER_STATE_TITLE, Is as CREDENTIAL_STATE, NWe as CUSTOM_SOURCES_KEY, MWe as CUSTOM_SOURCES_URL, XQ as CardTags, VQ as CatalogColumnFilterChips, HZ as CatalogViewToggle, pq as Checkbox, fq as CheckboxGlyph, DU as ChevronSortDown, iY as Chip, TX as CloudDownloadDialog, Zq as CollapseChevron, Xq as CollapseRegion, W0 as ColumnFilterAvatar, HQ as ColumnFilterChips, qwe as CommandSteps, KBe as CoverQueue, NW as Ct, hFe as DEFAULT_CATEGORY, Fa as DEFAULT_SORT, lHe as DIAGNOSTICS_KEY, OIe as DIRECTORY_TEMPLATE_ERROR, fke as DISCOVERY_METADATA_KEY, kY as DISCOVERY_SORTS, gX as DOWNLOADS_KEY, hX as DOWNLOADS_URL, i2 as DUPLICATES_KEY, pX as DataTableFooter, j0 as DataTableFrame, fX as DataTableSort, xG as Disclosure, VOe as DownloadsPanel, $Ce as E3, HG as EDITION_TONE, gFe as ENTITY_REVIEW_KINDS, uqe as ENTRY_LINKS_HELP, G3 as ENTRY_LINKS_HINT, KW as Ea, fEe as EmptyFocusButton, qK as EmptyState, vG as ErrorText, kwe as Eu, bG as ExternalLink, Co as FEEDS_KEY, i3 as FIELDSET_FOOT, f$e as FLOW_LABEL_X, d$e as FLOW_VIEWBOX, xo as FOLLOW_CHECK_KEY, YG as FOLLOW_CHECK_TASK, bo as FOLLOW_CREDENTIALS_KEY, i0e as FOLLOW_INITIAL_RANGE_OPTIONS, yo as FOLLOW_MANAGE_KEY, m4 as FOLLOW_MANAGE_NAV, So as FOLLOW_RESOLVE_KEY, Xwe as Fact, Ywe as FactList, yG as FieldLabel, iWe as Fieldset, rWe as FieldsetTitle, AK as FilterActionButton, OK as FilterGlassRows, DK as FilterIconButton, kK as FilterPill, Gwe as Footer, ZW as Gg, EW as H7, oG as HN, _G as Help, IK as HintText, iFe as IDLE_REPAIR, qQ as Icon, EK as IconButton, TQ as IndexSearch, VK as Input, BK as InputBase, oWe as IssueRow, tTe as ItemLibrary, TF as JAV_LAYOUTS, zY as JAV_RECOMMENDATION_GRID, t0e as JAV_SELECTION_EVENT, gLe as JUNK_KEY, eG as JZ, rZ as JavHeader, QPe as KEEP_LABELS, JPe as KEPT_DUPLICATES_KEY, HCe as L1, To as LAYOUTS, WZ as LEGACY_AVATAR_IMG, lqe as LIBRARY_FOLDER_HELP, gq as LIBRARY_PROCESSING_KEY, YFe as LINKS_KEY, XFe as LINK_CHECK_KEY, QFe as LINK_KINDS, ZFe as LINK_PRUNE_KEY, Ta as LOC, FK as Label, jG as LibraryLabel, vWe as LibraryProcessingCard, oq as LibraryShortcuts, gG as LinkButton, $0 as ListLibrary, lwe as Lo, AW as M6, ube as MEDIA_PROCESSING_KEY, Kz as MEDIA_PROCESSING_URL, l2 as MEDIA_REPAIR_KEY, c2 as MEDIA_REPAIR_URL, Qa as MEDIA_SOURCES_KEY, nu as MEDIA_SOURCE_ICONS, ai as MEDIA_SOURCE_OPTIONS, wU as MENU_ITEM, TU as MENU_ITEM_INTERACTIVE, SU as MENU_POPOVER_SURFACE, dwe as Ma, wG as MarkImage, XU as MenuDialog, _$ as MixCard, HK as ModalFrame, mC as MotionConfigContext, uG as NR, aWe as NameLink, FG as NavigationOrderRows, WK as Note, dG as OA, E2 as ORGANIZE_KEY, qJe as ORGANIZE_PARAMETER_HINT, KJe as ORGANIZE_SCOPE_HINT, GJe as ORGANIZE_TEXT, FIe as ORPHAN_RECORDS_KEY, YJe as ORPHAN_RECORDS_TEXT, YW as OV, KK as ObjectOrderDialog, DW as P7, lLe as PERFORMER_DELETE_KEY, ZOe as PHASES, lIe as PICK_FOLDER_URL, UUe as PLAIN_STAT_STRIP, d3 as PLAYLISTS_KEY, oqe as POLICY_COLUMNS, cqe as POLICY_COVER_NOTE, sqe as POLICY_MATRIX, aqe as POLICY_SUMMARY, lWe as PathLine, cG as Pf, tB as PillTabList, WUe as PlainStat, Rq as ProcessingMode, qq as Progress, h2 as QUALITY_GOALS_KEY, _Ue as QueueFilterChips, yUe as QueueIdentity, bUe as QueuePicture, vUe as QueueTable, sG as RB, IIe as RECORD_LABELS, IY as RELEASE_COLUMN_VISIBILITY_KEY, FY as RELEASE_COLUMN_WIDTHS_KEY, oY as RELEASE_NOTICE_EVENT, YX as RELEASE_PAGE_SIZES, AY as RELEASE_SORTS, gOe as RELEASE_SORT_COLUMNS, iHe as REPAIRS_KEY, qUe as REPAIR_CARD_TEXT, Dh as REPAIR_CENTER_PATH, u2 as REPAIR_LIBRARIES_KEY, qIe as RESOURCE_APPLY_KEY, KIe as RESOURCE_SCAN_KEY, JJe as RESOURCE_SYNC_TEXT, eWe as RESULT_PANEL, tWe as RESULT_SECTION, mFe as REVIEW_CATEGORIES, mLe as REVIEW_COUNTS_KEY, vFe as REVIEW_DECISION_LABELS, v2 as REVIEW_KEY, y2 as REVIEW_LABELS, x2 as REVIEW_QUEUES, _Fe as REVIEW_QUEUE_LABELS, rK as RUNNING_POLL_MS, xQ as RetryNote, Fwe as Rf, fG as Rk, Hwe as Rows, Yz as SCHEDULES, RWe as SCRAPING_CHECK_ALL_URL, LWe as SCRAPING_CHECK_URL, zWe as SCRAPING_COVER_URL, UWe as SCRAPING_KEY, IWe as SCRAPING_SETTINGS_URL, gJ as SEGMENT, hJ as SEGMENTED_TRACK, Hz as SETTINGS_KEY, Rz as SETTINGS_URL, Ia as SORT_DEFAULT_DIR, Pa as SORT_OPTIONS, ci as SOURCE_LABELS, KZe as STATS_KEY, BUe as STAT_STRIP, VUe as STAT_STRIP_SIX, kG as ScrapeSourceLabel, Vwe as Section, nWe as SectionHeading, Wwe as SectionSkeleton, mJ as SegmentedRadioGroup, cDe as SegmentedTabList, pQ as Segments, lX as Select, kU as Select$1, jK as SelectAllButton, x3 as SelectField, AU as SelectItem, K0 as SelectionActions, _P as SelectionDock, q0 as SelectionPopover, pG as SettingsCard, Bwe as SettingsRow, mG as SettingsSectionLabel, mQ as Shuffle, OG as SiteIcon, eTe as SiteLabel, TG as SiteMark, dX as SortDirectionIcon, UZ as SortKeys, LG as SortableBoardTabs, U0 as SourceAvatar, AG as SourceLabel, SG as SourceMark, Uwe as Stack, GUe as StatCard, aY as StatusLabel, Awe as Su, eXe as Switch, nK as TASKS_KEY, UQe as TASTE_REFRESH_KEY, t$e as TASTE_REFRESH_TASK, WQe as TASTE_WINDOWS, Gz as THUMBNAIL_JOBS_KEY, vLe as TRASH_KEY, oK as TRIGGER_LABELS, A0 as Table, J0 as TableColumnControls, EQ as TableColumnFilter, BQ as TableColumnRange, Y0 as TableColumnResizer, Z0 as TableSelectionHeader, Jwe as TaskCenterLink, Jq as TaskProgress, RK as TextField, LK as TextFieldContext, qW as Un, Iwe as Uz, DX as WANTS_KEY, IXe as WantMagnets, oy as WithPromise, FW as Wt, GW as Xc, lG as Xf, zW as Xl, IW as Xt, LW as Yt, kW as _8, o as __commonJSMin, s as __exportAll, l as __toESM, iG as _p, Mwe as aB, Uq as activityKind, cs as addAlias, ss as addSource, kX as addWant, iw as animate, U as apiGet, W as apiSend, yF as appSettingsStore, aLe as applyConfirmText, sLe as applyLeftovers, iLe as applyPlanText, cLe as applyText, CF as applyTheme, dx as asNumber, RIe as attachOrphan, Wo as authorAvatar, Ko as authorGroups, Uo as authorInitial, Ho as authorName, Vo as authorPortrait, y1 as autoResetPageIndex, al as avatarInner, _W as b1, uQe as bandRows, kIe as baseName, rFe as batchOperate, Mve as beginPlayerGuidePreview, Ai as bodyFieldErrors, wP as boundedPreference, eFe as bulkCloudPreferences, uP as busyProps, jwe as cB, jXe as cachedMagnetStates, ey as calcGeneratorVelocity, EFe as canApprove, Ov as cancelFrame, UIe as candidateText, cX as cardClass, RF as cardRatio, EY as catalogListSkeletonCellHtml, BDe as checkClientUpdates, Ms as checkEvidenceGap, js as checkFailures, xs as checkFeeds, sIe as checkLine, ks as checkReceipt, As as checkSummary, $We as checkText, cHe as checkText$1, Ns as checkedText, P6 as cleanupToolSkeletonHtml, QQ as clickedBlank, j7 as closeDrawerAfterNav, LAe as cloudLocations, Oqe as cloudProxySkeleton, zT as clsx, mwe as cn, Ei as codedText, Hne as collectMotionValues, MX as columnRangeKinds, LX as columnValueSelected, z1 as columnVisibilityFeature, T0 as column_getCanSort, x0 as column_getSortFn, wFe as commonReviewSources, SX as composingKey, kh as configurationSection, JQe as configureTasteBrowser, $d as confirmModal, hke as controlDiscoveryMetadata, bke as controlReleaseMetadata, FTe as controlTask, t1 as copyInstancePropertiesWithoutMemos, dke as coverArrived, lke as coverFetching, wf as coverFetchingHtml, xf as coverReason, Cf as coverStateAction, Zc as coverUrl, A1 as createColumnHelper, TWe as createPlaylist, Ls as credentialDone, wqe as credentialsSkeleton, BFe as currentReviewRow, J as cx, twe as d6, $W as dZ, IFe as decisionPayload, LFe as decisionReceipt, FFe as defaultChoice, fLe as deletePerformerVideos, DWe as deletePlaylist, Vqe as devicesSkeleton, x as diagnosticHeaders, iqe as diagnosticsSkeleton, xke as discoveryArtwork, qX as discoveryKey, sOe as discoveryScore, v9 as disposeStage, Ds as dropSources, Owe as du, tFe as duplicateVictims, UG as editionName, gK as elapsedText, Z4 as enterPageSelection, qr as entityDisplayName, il as entityFaceImg, ra as entityPath, Ur as entityWriting, Io as errorHeadline, ja as errorMessage, H as esc, Q4 as exitPageSelection, v1 as expandRowModel, gW as f1, cl as facePos, Fo as feedIntervalText, ZWe as fetchAmaneBridge, XWe as fetchCheckAllJob, es as fetchCheckJob, bGe as fetchConfiguration, YWe as fetchCoverJob, KX as fetchCoverNow, $o as fetchCredentials, PWe as fetchCustomSources, uLe as fetchDeletePerformers, dLe as fetchDeletePlan, uHe as fetchDiagnostics, JX as fetchDiscoveries, mke as fetchDiscoveryMetadata, o2 as fetchDuplicates, vs as fetchFeeds, Qo as fetchFollow, xLe as fetchJunkSummary, YPe as fetchKeptDuplicates, wq as fetchLibraryProcessing, tIe as fetchLinkCheck, rIe as fetchLinkPrune, eIe as fetchLinkStats, dbe as fetchMediaProcessing, d2 as fetchMediaRepair, $a as fetchMediaSources, xIe as fetchOrganize, bIe as fetchOrganizeExample, LIe as fetchOrphanRecords, OWe as fetchPlaylist, bWe as fetchPlaylists, g2 as fetchQualityGoals, yke as fetchReleaseColumn, nZ as fetchReleases, f2 as fetchRepairLibraries, oHe as fetchRepairs, ts as fetchResolveJob, XIe as fetchResourceApply, JIe as fetchResourceScan, RFe as fetchReview, bLe as fetchReviewCounts, qz as fetchSettings, JWe as fetchSources, qZe as fetchStats, ns as fetchSuggestions, aK as fetchTasks, YQe as fetchTaste, XQe as fetchTasteJob, mbe as fetchThumbnailJobs, SLe as fetchTrashSummary, OX as fetchWants, SFe as filterReviewRows, Ca as firstGrapheme, L$ as flexRender, g$e as flowGraph, _$e as flowLabel, YZe as fmtCount, _a as fmtDur, ya as fmtSize, jTe as foldByKind, qTe as foldRoutine, Cs as followFeedByName, ws as followFeedEntity, wo as followSuggestKey, ZTe as followupDetail, ATe as followupTally, Dv as frame, SW as g4, Nwe as gB, H1 as getDefaultPaginationState, LF as gridLayout, Go as groupByAuthor, KTe as groupFollowups, XPe as groupKey, xFe as groupReviewRows, eLe as hasChanges, QIe as hasResourceRoots, cK as hasResultProblems, r$e as historySpan, vW as i2, e$e as importTasteExport, Tqe as indexersSkeleton, Ct as interfaceLanguage, Xv as interpolate, jX as invalidateWants, uK as isActive, Po as isBroken, Oo as isLayout, Tb as isMotionValue, b2 as isReviewCategory, JTe as isRoutine, Eqe as javBrowserSkeleton, VY as javContentSkeleton, AF as javLayout, BY as javTagSkeleton, Di as jobText, Dt as joinList, TLe as junkBreakdown, GPe as keepGroup, KPe as keepGroups, AWe as keepPlaylist, Cn as keepPreviousData, Yo as keepSelected, V8 as known, cwe as ks, VCe as l1, YCe as l7, oke as lastSearchNote, GTe as latestOfKind, Sa as leadingGraphemes, Hqe as ledgerBackupsSkeleton, dQe as lengthRows, qi as linkLabel, ro as localTime, aHe as localizeRepairs, gGe as localizedFact, tl as logoUrl, Ss as lookupFeedActor, TW as m7, QW as mM, Xi as mapLimit, gs as markAllPending, H8 as max, cQe as mediumRows, pke as metadataInterval, b6e as middleTruncateCut, mQe as min, GFe as mirrorText, sFe as missingToolText, s2 as mixedCloudPreferences, bK as momentText, aw as motion, vb as motionValue, Bn as notifyManager, jW as oe, MIe as organizeOutcome, Q2 as overlayHost, ko as pageSizeOf, Jo as pageWindow, xi as partsLabel, Es as patchSource, Tg as peachHistory, Tg as peachHistory$1, PFe as pendingGenres, ZZe as percentText, wIe as pickOrganizeFolder, uIe as pickServerFolder, HUe as plainStatClass, jIe as planSummary, QZe as playedFor, nQe as playedItemUrl, MTe as pollInterval, Xa as pollUntil, Iu as popCount, wWe as posterUrl, RCe as previewLibraryColor, CIe as previewOrganize, lFe as previewUrl, UTe as problemDestination, yq as processingActive, mK as progressLabel, _K as progressText, DG as providerIcon, oIe as pruneText, O2 as purgeCount, zIe as purgeOrphan, nG as pv, aG as qE, G as queryClient, eX as queueContentSkeletonHtml, Ot as quoted, Swe as qx, yW as r2, u$e as radarRows, aQe as radialArc, oQe as radialBarSize, iQe as radialCeiling, rQe as radialSlices, uL as randomId, s$e as rankDetail, c$e as rankShares, eQe as reachedShare, BX as readColumnFilters, vK as readableErrorHeadline, cOe as recommendationScore, VFe as recordGenre, VIe as recordsText, jWe as recreatePlaylist, SWe as refreshPlaylists, vf as relayoutCovers, QX as releaseColumnSelection, gke as releaseColumnValues, LY as releaseColumns, vke as releaseDateQuery, XX as releaseFilters, $X as releaseKey, Os as reloadFollowManage, WFe as reloadReview, hqe as rememberShape, EIe as rememberTemplates, ls as removeAlias, bs as removeFeed, os as removeSource, $Qe as removeTasteSource, AX as removeWants, us as renameAliasGroup, EWe as renamePlaylist, kWe as reorderPlaylist, eJe as repairCenterPanelSkeleton, gn as replaceEqualDeep, pQe as replayRows, Kt as require_jsx_runtime, Lt as require_react, Bt as require_react_dom, Z$ as require_with_selector, nke as resetWants, Ra as resolveFollowSort, ry as resolveStartTime, CX as resourceSourceKey, MEe as restartEffectText, rke as restoreWants, CWe as resumeAssetId, bFe as reviewGroupingOptions, C2 as reviewQueueData, S2 as reviewQueueOf, wLe as reviewSummary, CFe as reviewWindow, MFe as rowEvidence, AFe as rowFieldName, Y1 as rowPaginationFeature, h0 as rowSelectionFeature, lje as rowSelectionOperation, O0 as rowSortingFeature, DFe as rowSubject, NFe as rowTags, jFe as rowTitle, pP as runBulkAction, hK as runError, wW as s7, ds as saveCredential, tLe as scanLine, ybe as schedulePollInterval, ake as searchNote, Eh as sectionTitle, _2 as selectRange, TFe as selectReviewRange, Xo as selectionState, uFe as selectionSummary, yi as serverLabel, Ti as serverLabelList, ji as serverText, ys as setFeedEnabled, _ke as setReleaseColumn, as as setSourceEnabled, ITe as setTaskSpeed, Nh as settingsPath, UFe as settleReviewRows, Eg as shellNavigate, L1e as showToast, JU as showToast$1, la as siteMarkUrl, Ku as skeletonHtml, l1 as skipFirstRun, sP as sortCx, jo as sortLabel, li as sourceDefaultCost, Fs as sourceIconUrl, oLe as sourceMeta, bu as spinnerHtml, Jv as spring, QU as spriteGlyph, bi as stageText, rs as startCheck, nIe as startLinkCheck, iIe as startLinkPrune, TIe as startOrganize, is as startResolve, ZIe as startResourceApply, YIe as startResourceScan, QQe as startTasteRefresh, zUe as statCardClass, zTe as statusLabel, oFe as statusLine, No as statusText, zF as storeJavLayout, zFe as submitDecision, SK as summaryItems, $Q as suppressShiftTextSelection, L as t, j1 as tableFeatures, u1 as tableMemo, qo as tableRows, HTe as taskIssues, dK as taskName, WTe as taskSubject, n$e as tasteDate, a$e as tasteDimensions, i$e as tasteHours, HQe as tasteKey, KQe as tasteRefetchInterval, qQe as tasteTime, VG as textLang, _we as th, PY as tierPlaceholdersHtml, z_ as time, awe as tl, RX as toggleColumnValue, Zo as toggleGroup, l$e as topScores, Kwe as translateWithNodes, hwe as um, _s as unmarkItems, uwe as uo, GK as useAction, bze as useBackgroundJob, pY as useCatalogView, tY as useClientUpdates, f_ as useConstant, e$ as useDense, CK as useEntityNames, $U as useHorizontalScroller, p_ as useIsomorphicLayoutEffect, wQ as useLibraryFilterOptions, hW as useLibraryTints, xr as useMutation, MG as useNavigationOrder, fWe as useOrderedLibraries, mq as useOverlayScrollbar, qHe as usePageSelection, br as useQuery, Jt as useQueryClient, EUe as useQueueSort, KC as useReducedMotion, n$ as useRowWorkContext, vbe as useRunSchedule, gbe as useSaveSchedule, Jz as useSaveSettings, bbe as useSaveThumbnailMode, k0 as useTable, gUe as useTableFilters, P0 as useTablePreferences, PK as useViewGlide, t$ as useWorkContextMenu, no as utcDate, nFe as victimBytes, owe as vl, ike as wantName, QOe as wantsInterval, tQe as watchNote, $Ze as watchedShare, nwe as we, _d as wireHorizontalScroller, qa as withBackoff, DIe as withOrganizeJob, VX as writeColumnFilters, cke as writeJavQuery, ewe as z3 };
 
-//# debugId=0f8cb4b7-a84d-48e0-ab40-77857ec0367e
+//# debugId=57c6a11b-03f7-4578-939c-fa525451263c
