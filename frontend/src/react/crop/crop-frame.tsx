@@ -11,6 +11,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import type {
   CSSProperties, PointerEvent as ReactPointerEvent, KeyboardEvent as ReactKeyboardEvent,
 } from 'react';
+import { VisuallyHidden } from 'react-aria-components';
 
 import {
   boxPercent, clampBox, handleOutside, isUsableSize, moveBox, resizeFromCorner, scaleBox, stepCropCorner, toNatural,
@@ -148,12 +149,12 @@ export function CropFrame({ src, aspect, box, size, onBox, onSize, label }: Crop
         }}
         onError={() => setFailed(true)}
         className="block max-h-crop-frame max-w-full object-contain" />
-      <span className="sr-only" role="status">{announcement}</span>
+      <VisuallyHidden role="status" aria-live="polite">{announcement}</VisuallyHidden>
       {failed || !rect || !crop ? null : (
         <>
-          <span id={descriptionId} className="sr-only">{describeCrop(crop)}</span>
-          <span id={`${descriptionId}-move`} className="sr-only">{t('catalog:cropFrame.moveHelp')}</span>
-          <span id={`${descriptionId}-resize`} className="sr-only">{t('catalog:cropFrame.resizeHelp')}</span>
+          <VisuallyHidden id={descriptionId}>{describeCrop(crop)}</VisuallyHidden>
+          <VisuallyHidden id={`${descriptionId}-move`}>{t('catalog:cropFrame.moveHelp')}</VisuallyHidden>
+          <VisuallyHidden id={`${descriptionId}-resize`}>{t('catalog:cropFrame.resizeHelp')}</VisuallyHidden>
           {/* 框外压暗。四块而不是一圈巨大的 box-shadow：后者在这一层的圆角与
               overflow 下会溢到弹层外面去。 */}
           <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-(--crop-t) bg-scrim" />
