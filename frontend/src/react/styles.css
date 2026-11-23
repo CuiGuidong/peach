@@ -331,7 +331,8 @@
  * 旧版两处都是首页 `.board-filter-frame` 那一副，几何与饱和度都一样。 */
 .peach-react :is([data-review-filter], [data-filter-glass]) {
   top: calc(var(--topH) + 8px);
-  border-radius: 22px;
+  /* 与里面的键同心：键圆角 8px、离浮层上沿 8px，浮层圆角取 8 + 8。 */
+  border-radius: 16px;
   backdrop-filter: var(--glass-optic, blur(22px)) saturate(160%) var(--glass-lume);
   -webkit-backdrop-filter: var(--glass-optic, blur(22px)) saturate(160%) var(--glass-lume);
   isolation: isolate;

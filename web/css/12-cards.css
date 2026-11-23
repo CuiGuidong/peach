@@ -6,7 +6,7 @@ main{position:relative;z-index:1;padding:14px 16px 90px}
 /* 搜索结果的标题带着搜索词，长词只占一行：词那一段由 `fitTitleWords` 截到放得下，收尾的「」」
    留在末尾；全文在悬停与搜索框里。 */
 #catalogPageHeading h2{overflow:hidden;white-space:nowrap}
-h2[data-page-title]{margin:0;font:var(--board-title);letter-spacing:0}
+h2[data-page-title]{margin:0;font:var(--board-title)}
 @media(max-width:760px){#catalogPageHeading h2,h2[data-page-title]{font:var(--board-figure)}}
 .count{position:sticky;top:calc(var(--topH) + var(--filterH));z-index:60;
   min-height:var(--sortH);color:var(--ink-2);margin:0 -16px 16px;padding:8px 16px;

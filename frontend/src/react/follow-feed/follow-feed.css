@@ -516,7 +516,6 @@ body:not([data-density="dense"]) .peach-react [data-follow-list]:not([data-follo
   white-space: nowrap;
   padding-left: 8px;
   border-left: 1px solid var(--border-15);
-  font-style: italic;
 }
 .peach-react [data-follow-badges] { display: flex; flex: none; flex-wrap: nowrap; gap: 5px; min-width: 0; overflow: hidden; }
 /* 卡片、两排与详情共用的几处字样，HTML 由 `follow-marks.ts` 拼。站点图标在角标、来源条那几格里
