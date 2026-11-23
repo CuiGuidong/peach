@@ -13,6 +13,8 @@ import { join } from 'node:path';
 
 import { chromium, type Browser, type BrowserContext, type Locator, type Page } from 'playwright-core';
 
+export const CONFIGURATION_ROUTE = /\/api\/configuration(?:\?.*)?$/;
+
 export interface Viewport {
   name: string;
   width: number;
