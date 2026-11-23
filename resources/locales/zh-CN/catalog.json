@@ -160,6 +160,12 @@
     "videos": "{{count, number}} 个视频",
     "works": "{{count, number}} 部"
   },
+  "cropFrame": {
+    "dimensions": "宽 {{width}}、高 {{height}} 像素，距原图左侧 {{x}}、上方 {{y}} 像素。",
+    "moveHelp": "按方向键移动取景框，按加号或减号缩放。",
+    "resizeCorner": "右下角调整手柄",
+    "resizeHelp": "按方向键移动右下角，调整取景框大小。"
+  },
   "coverCrop": {
     "buttonTip": "裁剪封面，框出正封",
     "cropFor": "裁剪 {{code}} 的封面",
