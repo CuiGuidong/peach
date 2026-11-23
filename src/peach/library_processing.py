@@ -24,7 +24,7 @@ from urllib.parse import urlparse
 from filelock import FileLock, Timeout
 from PIL import Image
 
-from .catalog_rules import (compile_code_patterns, is_jav_code, is_local_extra, normalise_code_key,
+from .catalog_rules import (JAPAN_REGION, compile_code_patterns, is_jav_code, is_local_extra, normalise_code_key,
                             release_code_from_filename, same_release_code, scrapes_as_jav)
 from .catalog_vocabulary import PERFORMER_TAG_PREFIX
 from .field_owners import SCAN_FILENAME, write_owned_fields
@@ -33,14 +33,17 @@ from .images import measure_image_file
 from .jav_cover_fetch import MIN_WIDTH, DeadlineExceeded, NotFound
 from .sources.base import SourceFailure
 from .library_nfo import NFO_PARSER_VERSION, sidecars, SidecarIndex
-from .media_io import directory_files, read_nfo, local_art, root_online, directory_entries, file_stat
+from .media_io import MountWorker, directory_files, read_nfo, local_art, root_online, file_stat
+from .scan_timings import ScanTimings
 from .genre_decisions import load_genre_decisions
 from .metadata import (candidate_text_is_valid, source_text_is_valid,
                        extract_catalog_evidence, extract_peach_fields, relay_args,
                        validate_provider_code)
 from . import metadata_routes
 from . import media_identity
-from .library_processing_scope import scoped_config, scoped_assets
+from . import western_artwork
+from . import western_catalog, western_tpdb
+from .library_processing_scope import directory_config, scoped_config, scoped_assets
 from . import junk
 from . import sample_followup
 from .metadata_policy import SOURCE_SPECS, preferred_tag_source
@@ -1232,17 +1235,17 @@ def _record_issue(state, log_path, record, *, diagnostics=None):
         paused.append(asset_id)
 
 
-def snapshot(config):
+def snapshot(config, *, recovering_job=None):
     try:
         state = json.loads(state_path(config).read_text(encoding='utf-8'))
     except (OSError, ValueError):
         return {'status': 'idle'}
-    if state.get('status') == 'running':
+    if state.get('status') == 'running' and (not recovering_job or state.get('job_id') != recovering_job):
         try:
             # 锁覆盖 CLI 与 HTTP；进程退出后系统会释放它。
             with FileLock(str(state_path(config)) + '.lock', timeout=0):
                 state = json.loads(state_path(config).read_text(encoding='utf-8'))
-                if state.get('status') == 'running':
+                if state.get('status') == 'running' and (not recovering_job or state.get('job_id') != recovering_job):
                     # 拿得到锁说明写入者已经不在了。结论写回文件：只改副本的话，另一个读取者
                     # 正好短暂占着锁时会读到原样的「运行中」，界面就在两种状态之间来回跳。
                     state.update(status='failed', outcome='interrupted',
@@ -1407,9 +1410,10 @@ def _provider_code(raw):
         return ''
 
 
-def _candidate_identity(source, value):
+def _candidate_identity(source, value, scene_id=None):
     """候选的身份：来源加取值。取值变了身份就得跟着变，否则「批准的是哪一版」答不出来。"""
-    return hashlib.sha256(json.dumps([source, value], ensure_ascii=False,
+    identity = [source, value, scene_id] if scene_id else [source, value]
+    return hashlib.sha256(json.dumps(identity, ensure_ascii=False,
                                      sort_keys=True).encode()).hexdigest()
 
 
@@ -1457,7 +1461,9 @@ def _source_candidate(source, document, value, evidence_path, mode):
     local = source == 'local_nfo'
     spec = SOURCE_SPECS.get(source)
     official = bool(spec and spec.official)
-    candidate = dict(candidate_key=_candidate_identity(source, value['value']), source=source,
+    scene_id = (document.get('content_id') if source in
+                {western_artwork.SCENE_SOURCE, western_catalog.SOURCE, western_tpdb.SOURCE} else None)
+    candidate = dict(candidate_key=_candidate_identity(source, value['value'], scene_id), source=source,
                      provider=PROVIDER_NAMES.get(source, source), value=value['value'],
                      display_value=value.get('display_value', str(value['value'])), warnings=value.get('warnings', []),
                      confidence=0.9 if local else 0.75 if official else 0.5 if source.startswith('custom-') else 0.6,
@@ -1469,9 +1475,9 @@ def _source_candidate(source, document, value, evidence_path, mode):
         candidate.update(javdb_rule=document.get('javdb_rule'), source_id=document.get('source_id'))
     if source == 'public-seed':
         candidate['seed_revision'] = document['seed_revision']
-    if mode in ('review', 'identity-review'):
+    if scene_id or mode in ('review', 'identity-review'):
         candidate['requires_review'] = True
-    if mode == 'identity-review':
+    if scene_id or mode == 'identity-review':
         candidate['requires_identity_review'] = True
     if value.get('unmapped_genres'):
         candidate['unmapped_genres'] = value['unmapped_genres']
@@ -1640,6 +1646,12 @@ def _missing_fields(row, local_fields=()):
             if field not in local_fields and not row.get(COLUMN_OF.get(field, field))]
 
 
+def _queue_metadata(prepared, row, code, verify_existing, fields, entries, has_nfo, local_ok):
+    """已有边车或发行识别证据的作品进入外部采集队列。"""
+    if code or has_nfo or western_artwork.scene_identity(row) is not None:
+        prepared.append((row, code, verify_existing, fields, entries, local_ok))
+
+
 def _answered_sources(groups, target_key, fields):
     """在 `fields` 里哪一个字段上已经有自己一条候选的来源；这一行不再问它们。
 
@@ -1657,6 +1669,9 @@ def _answered_sources(groups, target_key, fields):
     return answered
 
 
+_MEDIA_INACCESSIBLE = 'errors.libraryProcessing.mediaInaccessible'
+
+
 class _DirectoryIndex:
     """本趟任务内每个文件夹只列一次，交错处理的目录共享同一份索引。"""
 
@@ -1664,6 +1679,7 @@ class _DirectoryIndex:
         self._cache: dict[str, dict[str, Path]] = {}
         self._errors: dict[str, OSError] = {}
         self._sidecars: dict[str, SidecarIndex] = {}
+        self._relisted: set[str] = set()
         #: 预读过的目录的指纹：每个文件的名字、大小与修改时间，见 `fingerprint`。
         self._stamps: dict[str, str] = {}
 
@@ -1729,6 +1745,17 @@ class _DirectoryIndex:
         if key not in self._sidecars:
             self._sidecars[key] = SidecarIndex(self.files(video.parent))
         return self._sidecars[key].for_video(video)
+
+    def contains_video(self, video):
+        """确认目录快照中的缺失。覆盖期间列出的目录可能暂时没有正片。"""
+        directory = video.parent
+        key, name = str(directory), video.name.casefold()
+        if name not in self.files(directory) and key not in self._relisted:
+            self._relisted.add(key)
+            self._cache.pop(key, None)
+            self._stamps.pop(key, None)
+            self._sidecars.pop(key, None)
+        return name in self.files(directory)
 
 
 #: 记忆文件的格式号。按站记、带各站接入时刻的是这一版；没有这个键的文件是按档记、
@@ -1799,6 +1826,9 @@ class _MissCache:
                 code: stamp for code, stamp in self._entries.get('cover', {}).items()
                 if code.upper().startswith('FC2-PPV-')}
 
+        if loaded.get('western_scene_rules') != upgrade_rules.WESTERN_SCENE_MISSES:
+            self._entries.pop(western_artwork.SCENE_SOURCE, None)
+
     def fresh(self, source, code, lineup=()):
         """`source` 对 `code` 说过「没有」且还在期内。`lineup` 是这条记忆当时应当问过的几站：
         其中有一站是记下之后才接入的，这条就不作数。"""
@@ -1812,6 +1842,7 @@ class _MissCache:
         _save(self._path, {
             'format': MISS_FORMAT, 'sites': self._sites,
             'cover_catalog_rules': upgrade_rules.OFFICIAL_COVER_CATALOG_MISSES,
+            'western_scene_rules': upgrade_rules.WESTERN_SCENE_MISSES,
             'joined': {site: stamp for site, stamp in self._joined.items() if now - stamp < self._ttl},
             'misses': {name: {key: stamp for key, stamp in codes.items() if now - stamp < self._ttl}
                        for name, codes in self._entries.items()}})
@@ -1865,6 +1896,7 @@ class _RemoteSession:
         self._consult = not (retrying or recheck_existing)
         self._task_evidence = {}
         self._task_absent = set()
+        self._rejected_catalogs = set()
 
     def provider(self):
         if self._provider is None:
@@ -1947,6 +1979,9 @@ class _RemoteSession:
         已经给过候选的来源（`_answered_sources`），资料那一步不再问它们。
         """
         entries, covers = [], 0
+        western = self._western_plan(row, missing, cover_root, answered, fetch_cover)
+        if western is not None:
+            return self._western_collect(row, western, update=update, issue=issue, received=received)
         if not _scrapes_as_jav(row, code):
             return entries, covers
         chain = self._chain(code, *_studio_evidence(row))
@@ -1961,12 +1996,154 @@ class _RemoteSession:
 
     def asks(self, row, code, missing, cover_root, *, answered=(), fetch_cover=True):
         """`collect` 这一行会不会去问外部来源，判据与它逐条相同。断网时只把要问的行记成未取得。"""
+        western = self._western_plan(row, missing, cover_root, answered, fetch_cover)
+        if western is not None:
+            identity, requests, target = western
+            return any(self._western_asks(identity.cache_key, source, target)
+                       for source, _metadata in requests)
         if not _scrapes_as_jav(row, code):
             return False
         chain = self._chain(code, *_studio_evidence(row))
         return (self._asks_metadata(chain, code, missing, answered)
                 or bool(fetch_cover and _asks_cover(code, *_studio_evidence(row))
                         and not cover_settled(cover_root / (code + '.jpg'))))
+
+    def western_sources(self, row):
+        identity = western_artwork.scene_identity(row)
+        if identity is None:
+            return None
+        code = _provider_code(row.get('code'))
+        if row.get('region') == JAPAN_REGION or (code and _scrapes_as_jav(row, code)):
+            return None
+        from .scraping_access import KEY_SOURCES, values_for
+        movie = len(identity.release_date) == 4
+        sources = [western_artwork.SCENE_SOURCE] if not movie and identity.site in western_artwork.SITES else []
+        root = self._config.directory('secrets')
+        catalogs = (western_tpdb.SOURCE,) if movie else KEY_SOURCES
+        sources.extend(source for source in catalogs if values_for(root, source).get('api_key'))
+        return (identity, tuple(sources)) if sources else None
+
+    def _western_plan(self, row, missing, cover_root, answered, fetch_cover):
+        route = self.western_sources(row)
+        if route is None:
+            return None
+        identity, sources = route
+        target = None
+        if fetch_cover:
+            key = western_artwork.artwork_key(row['id'], None)
+            cover = cover_root / f'{key}.jpg'
+            companion = self._config.directory('generated') / 'posters' / f"{row['id']}_4.jpg"
+            if not cover.exists() and not measure_image_file(companion):
+                target = cover
+        requested = [(source, bool(missing and source not in answered)) for source in sources]
+        return identity, [(source, meta) for source, meta in requested if meta or target], target
+
+    def _western_asks(self, key, source, target):
+        cached = self._cached_evidence((source,), key)
+        if cached:
+            return bool(target and cached[0][1].get('image_url'))
+        return source not in self._rejected_catalogs and not self._fresh_miss(source, key)
+
+    def _western_document(self, source, identity):
+        from .scraping_access import KEY_SOURCES, values_for
+        module = KEY_SOURCES.get(source)
+        if module is not None:
+            if source in self._rejected_catalogs:
+                raise western_catalog.CredentialsRejected(module.LABEL)
+            key = values_for(self._config.directory('secrets'), source).get('api_key')
+            if not key:
+                raise UserValueError('errors.westernCatalog.keyMissing', {'source': module.LABEL})
+            try:
+                return module.collect(self.provider().transport, key, identity)
+            except western_catalog.CredentialsRejected:
+                self._rejected_catalogs.add(source)
+                raise
+        scene = western_artwork.collect_scene(self.provider().transport, identity)
+        if scene is None:
+            return None
+        return dict(id=scene['scene_id'], content_id=scene['scene_id'], title=scene['title'],
+                    maker=western_artwork.PUBLISHERS[identity.site], release_date=scene['date'],
+                    actresses=scene['performers'], genres=scene['genres'],
+                    source_url=scene['source_url'], image_url=scene['image_url'])
+
+    def _western_collect(self, row, plan, *, update, issue, received):
+        identity, requests, target = plan
+        selected = []
+        for source, metadata in requests:
+            metadata = metadata and not selected
+            if not metadata and not target:
+                break
+            entries = self._western_evidence(row, identity, source, metadata, update, issue)
+            if not entries:
+                continue
+            if metadata:
+                received(entries)
+                selected = entries
+            document = entries[0][1]
+            if target and document.get('image_url'):
+                from .scraping_access import SOURCES
+                current = {'key': source, 'label': SOURCES[source]['label']}
+                covers = self._western_cover(row, target, document, current, identity.cache_key, update, issue)
+                if covers:
+                    return selected, covers
+        if requests and not selected and not any(self._cached_evidence((source,), identity.cache_key) for source, _ in requests):
+            action = 'querying_metadata' if any(metadata for _, metadata in requests) else 'fetching_cover'
+            issue(row, MISS_MESSAGES[action], action=action, retryable=True)
+        return selected, 0
+
+    def _western_evidence(self, row, identity, source, metadata, update, issue):
+        from .scraping_access import SOURCES
+
+        current_source = {'key': source, 'label': SOURCES[source]['label']}
+        key = identity.cache_key
+        action = 'querying_metadata' if metadata else 'fetching_cover'
+        entries = self._cached_evidence((source,), key)
+        if not entries and not self._fresh_miss(source, key):
+            update(**stage_fields('library.fetchMetadata'), current_action=action, current_started_at=time.time(),
+                   current_deadline_at=None, current_source=current_source)
+            try:
+                document = self._western_document(source, identity)
+            except Exception as error:
+                _raise_task_failure(error)
+                problem = describe_failure(error)
+                issue(row, phrase('errors.libraryProcessing.coverUnfetched' if not metadata
+                                  else 'errors.libraryProcessing.metadataUnfetched',
+                                  {'problems': problem} if metadata else {'problem': problem}),
+                      action=action, retryable=True, paused=source_paused(error),
+                      diagnostics=_source_failure_details(error, key, action, source=source))
+                return []
+            if document is not None:
+                entries = [self._evidence(source, key, document)]
+            else:
+                self._record_miss(source, key)
+        return entries
+
+    def _western_cover(self, row, target, document, current_source, key, update, issue):
+        from . import avatar_picker, cover_artwork
+
+        source = current_source['key']
+        update(**stage_fields('library.fetchCovers'), current_action='fetching_cover', current_started_at=time.time(),
+               current_deadline_at=None, current_source=current_source)
+        try:
+            body = avatar_picker.fetch_image(self.provider().transport, document['image_url'])
+            inspected = avatar_picker.accept_image(body)
+            if target.exists():
+                return 0
+            cover_artwork.install_cover(target, '', body, (inspected.width, inspected.height),
+                evidence={'provider': 'western-official' if source == western_artwork.SCENE_SOURCE else 'western-catalog',
+                          'source': western_artwork.SOURCE,
+                          'batch': f"library-{row['id']}-{time.time_ns()}",
+                          'performers': document['actresses'], 'content_id': document['content_id'],
+                          'source_url': document['source_url'], 'image_url': document['image_url']})
+        except cover_artwork.UserCoverKept:
+            return 0
+        except Exception as error:
+            _raise_task_failure(error)
+            issue(row, phrase('errors.libraryProcessing.coverUnfetched', {'problem': describe_failure(error)}),
+                  action='fetching_cover', retryable=True, paused=source_paused(error),
+                  diagnostics=_source_failure_details(error, key, 'fetching_cover', source=source))
+            return 0
+        return 1
 
     def _asks_metadata(self, chain, code, missing, answered):
         # 链上剩下的站都给过候选或说过没有、且至少有一家给过候选：这一行不是「没取到」，
@@ -2554,16 +2731,20 @@ def _scan_sources(config, db_path, *, locations, asset_ids, stage, guard, update
                     scan_checkpoints[key] = value
                     save_checkpoint()
                 try:
-                    registered = scan_location(db_path, source, root, declared_roots=config.locations,
-                                               mounts=mounts, report=lambda line: None,
-                                               read_directory=partial(directory_entries, file_identity=source == 'local'),
-                                               onerror=lambda error: issue(None, said_of(error), action='scanning_files'),
-                                               resume_state=scan_checkpoints.get(key), save_checkpoint=remember,
-                                               new_only=incremental,
-                                               progress=lambda files, size: update(
-                                                   **stage_fields('library.scanFiles'), scanned=result.scanned + files,
-                                                   scanned_bytes=result.scanned_bytes + size,
-                                                   checked=0, total=0, current_action='scanning_files'))
+                    timings = ScanTimings()
+                    with MountWorker() as reader:
+                        registered = scan_location(
+                            db_path, source, root, declared_roots=config.locations,
+                            mounts=mounts, report=lambda line: None,
+                            read_directory=partial(reader.scan_directory, file_identity=source == 'local',
+                                                   timings=timings),
+                            onerror=lambda error: issue(None, said_of(error), action='scanning_files'),
+                            resume_state=scan_checkpoints.get(key), save_checkpoint=remember,
+                            new_only=incremental, timings=timings,
+                            progress=lambda files, size: update(
+                                **stage_fields('library.scanFiles'), scanned=result.scanned + files,
+                                scanned_bytes=result.scanned_bytes + size,
+                                checked=0, total=0, current_action='scanning_files'))
                 except ScanRootUnreadable as error:
                     # 在线探测之后根目录又列不出来：记成这个来源的问题，别的来源照常扫。
                     issue(None, said_of(error), action='reading_local')
@@ -2765,6 +2946,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
     if budget is not None and budget.skips(row, code, missing, allowed, cover_root, answered=answered):
         return found, covers
     if allowed & {'metadata', 'cover'}:
+        traffic_scope = {'western_asset_id': row['id']} if western_artwork.scene_identity(row) is not None else {}
         traffic.start_metadata(code)
         try:
             with processing_item(row['id']):
@@ -2775,7 +2957,7 @@ def _collect_allowed(remote, traffic, row, code, missing, allowed, cover_root, c
             remote.reset()
             issue(row, phrase('errors.libraryProcessing.itemSkipped'), action='skipped', retryable=True)
         finally:
-            traffic.finish_work('metadata', code, successful=succeeded())
+            traffic.finish_work('metadata', code, successful=succeeded(), **traffic_scope)
             update(current_source=None)
     if 'people' in allowed:
         covered.append((row['id'], covers))
@@ -2987,8 +3169,12 @@ def _generate_preview(config, row, database, resolver, *, progress):
         raise PreviewUnavailable('errors.libraryProcessing.ffmpegMissing')
     video = translate_ledger_path(row['path'])
     import stat
-    if not stat.S_ISREG(file_stat(video, timeout=remaining(20)).st_mode):
-        raise PreviewUnavailable('errors.libraryProcessing.mediaInaccessible')
+    try:
+        info = file_stat(video, timeout=remaining(20))
+    except (FileNotFoundError, NotADirectoryError) as error:
+        raise PreviewUnavailable(_MEDIA_INACCESSIBLE) from error
+    if not stat.S_ISREG(info.st_mode):
+        raise PreviewUnavailable(_MEDIA_INACCESSIBLE)
     duration = row.get('duration') or 0
     if duration <= 0:
         probe = resolver.ffprobe()
@@ -3198,7 +3384,8 @@ class _LibraryCheckpoints:
         flush(force=True)
         if self.settles_new:
             from .library_new_assets import remember
-            remember(self.db_path, completed=completed_ids)
+            unfinished = set(self.state['retryable_asset_ids'])
+            remember(self.db_path, completed=set(completed_ids) - unfinished)
 
     def remaining_metadata(self, rows):
         return ((index, row) for index, row in enumerate(rows)
@@ -3253,14 +3440,16 @@ def _read_local_metadata(config, db_path, row, cover_root, listing, state, updat
     `code_patterns` 是用户在设置里写的番号识别规则，已编译，先于内置规则试。"""
     video = translate_ledger_path(row['path'])
     try:
-        files = listing.files(video.parent)
+        available = listing.contains_video(video)
     except InterruptedError:
         raise
+    except (FileNotFoundError, NotADirectoryError):
+        available = False
     except OSError as error:
         issue(row, said_of(error), action='reading_local', retryable=True)
         return None
-    if video.name.casefold() not in files:
-        issue(row, phrase('errors.libraryProcessing.mediaInaccessible'), action='reading_local', retryable=True)
+    if not available:
+        issue(row, phrase(_MEDIA_INACCESSIBLE), action='reading_local', retryable=True)
         return None
     code = _provider_code(row['code']) or _filename_code(row, code_patterns)
     payload = None
@@ -3569,28 +3758,62 @@ class _ProcessingIssues:
     def __init__(self, state, log_path, flush_state, report):
         self.state, self.log_path = state, log_path
         self.flush_state, self.report = flush_state, report
+        self.unavailable = {item.get('asset_id') for item in state['issue_preview']
+                            if item.get('message_code') == _MEDIA_INACCESSIBLE}
 
     def __call__(self, asset, message, *, action='', retryable=False, paused=False, diagnostics=None):
         """`message` 是 `phrase`（带 code 的一句），或没有 code 的原文（异常原文、文件名）。"""
         asset = asset or {}
         title = str(asset.get('catalog_title') or '') or Path(str(asset.get('name') or '')).name
         fields = _message_fields(message)
+        missing_media = fields.get('message_code') == _MEDIA_INACCESSIBLE and asset.get('id') is not None
+        if missing_media and asset['id'] in self.unavailable:
+            return
         severity, retryable = _issue_classification(fields, retryable, paused)
         _record_issue(self.state, self.log_path, {
             'asset_id': asset.get('id'), 'title': title, 'path': str(asset.get('path') or ''),
             **fields, 'severity': severity, 'failed_action': action, 'retryable': retryable,
             'last_failed_at': time.time()}, diagnostics=diagnostics)
+        if missing_media:
+            self.unavailable.add(asset['id'])
         self.state['last_progress_at'] = time.time()
         self.flush_state()
         self.report(dict(self.state))
 
 
-def _initial_processing_scope(db_path, selected_ids, retry_ids, incremental, resume_state):
+def _missing_media_to_recheck(config):
+    """把上次实际读不到的影片纳入新增同步，便于在原路径恢复后重新处理。"""
+    previous = snapshot(config)
+    eligible = set(previous.get('retryable_asset_ids') or ())
+    job_id = previous.get('job_id')
+    if not job_id or not eligible or previous.get('archived') or previous.get('outcome') != 'partial':
+        return set()
+    try:
+        with issues_path(config, job_id).open(encoding='utf-8') as handle:
+            items = (json.loads(line) for line in handle if line.strip())
+            return {item['asset_id'] for item in items if isinstance(item, dict)
+                    and item.get('message_code') == _MEDIA_INACCESSIBLE
+                    and isinstance(item.get('asset_id'), int) and item['asset_id'] in eligible}
+    except (OSError, ValueError):
+        return set()
+
+
+def incremental_pending(config, db_path):
+    from .library_new_assets import pending
+    return sorted(set(pending(db_path)) | _missing_media_to_recheck(config))
+
+
+def _initial_processing_scope(config, db_path, selected_ids, retry_ids, incremental, resume_state):
     """区分待发现范围与首次预估范围；增量恢复沿用已冻结的影片集合。"""
     if incremental:
         from .library_new_assets import pending
-        previous = (resume_state or {}).get('incremental_ids')
-        return None, list(previous) if previous is not None else pending(db_path)
+        if resume_state is None:
+            return None, incremental_pending(config, db_path)
+        previous = resume_state
+        earlier_ids = previous.get('incremental_ids') or []
+        if any(step['id'] == 'sources' and step['status'] == 'complete' for step in previous.get('steps', ())):
+            return None, earlier_ids
+        return None, sorted(set(earlier_ids) | set(pending(db_path)))
     if selected_ids is not None:
         return selected_ids, selected_ids
     if retry_ids is not None:
@@ -3599,7 +3822,7 @@ def _initial_processing_scope(db_path, selected_ids, retry_ids, incremental, res
     return None, None
 
 
-def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state):
+def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state, directory):
     """恢复原媒体库并校验显式选择，返回本轮可用的目录配置。"""
     library_id = (resume_state or {}).get('library_id', library_id)
     config = scoped_config(config, library_id)
@@ -3607,6 +3830,11 @@ def _prepare_library_scope(config, db_path, stage, asset_ids, retry_ids, databas
     if library_id and selected_ids is not None:
         if set(scoped_assets(config, db_path, library_id, selected_ids)) != set(selected_ids):
             raise UserValueError('errors.libraryProcessing.notInLibrary')
+    if directory is not None:
+        if stage != SCAN_STAGE or asset_ids is not None:
+            raise UserValueError('api.libraryProcessing.directoryStageUnsupported')
+        config = directory_config(config, directory)
+        library_id = next(iter(config.library_catalog))
     return config, library_id, selected_ids
 
 
@@ -3615,7 +3843,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                     retry_ids=None, active=lambda: True, stage=ALL_STAGES,
                     database=None, route_overrides=None, state_file=None, asset_ids=None,
                     resume_state=None, speed_mode=None, protected_ids=(), recheck_existing=False,
-                    incremental=False, network=None, library_id=None, allow_metered=False):
+                    incremental=False, network=None, library_id=None, allow_metered=False, directory=None):
     """登记文件与确定的番号，外部资料保留为可复核候选。
 
     `retry_ids` 为 `None` 时处理整个馆藏；给定时只处理这些项目（上一任务记录的
@@ -3640,14 +3868,15 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
     不给就不判，命令行走这条。
     """
     config, library_id, selected_ids = _prepare_library_scope(
-        config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state)
+        config, db_path, stage, asset_ids, retry_ids, database, library_id, resume_state, directory)
     from .repository import LedgerDatabase
     judgement_database = database if database is not None else LedgerDatabase(db_path)
     routes = metadata_routes.parse_route_overrides(route_overrides)
     path = Path(state_file) if state_file is not None else state_path(config)
     path.parent.mkdir(parents=True, exist_ok=True)
     retrying = retry_ids is not None
-    scope_ids, initial_ids = _initial_processing_scope(db_path, selected_ids, retry_ids, incremental, resume_state)
+    scope_ids, initial_ids = _initial_processing_scope(config, db_path, selected_ids, retry_ids, incremental,
+                                                       resume_state)
     initial_ids = scoped_assets(config, db_path, library_id, initial_ids)
     from .processing_control import execution_mode
     from .task_control import CURRENT as TASK_CONTROL
@@ -3675,6 +3904,7 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                      **stage_fields('library.checkCompanions' if retrying else 'library.scanFiles'),
                      checked=0, total=0, scanned=0, scanned_bytes=0, probed=0, identified=0, candidates=0, covers=0, previews=0,
                      requested_stage=stage, asset_ids=scope_ids, incremental=incremental, allow_metered=allow_metered,
+                     directory=directory,
                      library_id=library_id, library_name=config.library_catalog.get(library_id, {}).get('name', ''),
                      issue_count=0, paused_count=0, issue_preview=[], issues_truncated=False,
                      notes={}, retryable_asset_ids=[],
@@ -3854,9 +4084,8 @@ def process_library(config, db_path, candidate_root, cover_root, *, location='co
                 verify_existing = bool(verify_existing or recheck_existing)
                 local_fields = _fields(payload, genre_decisions) if payload else {}
                 publish(row, code, local_fields, verify_existing, entries)
-                if code or payload:
-                    prepared.append((row, code, verify_existing, local_fields, entries,
-                                     state['issue_count'] == issues_before))
+                _queue_metadata(prepared, row, code, verify_existing, local_fields, entries, bool(payload),
+                                state['issue_count'] == issues_before)
                 update(checked=completed_count + index + 1)
             local_evidence.save(force=True)
             flush_candidates(force=True)

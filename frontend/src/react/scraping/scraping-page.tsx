@@ -6,13 +6,13 @@
  *   失败只在卡内留一句原因，缓存里的上一份数据不动。
  * - **后台任务走 `useBackgroundJob`**：跑起来两秒一次，停了就不问，首屏读到的旧终态不冒充
  *   新结果。轮询跟着组件走，遗留壳换页时卸根，它自己就停了。 */
-import { useRef, useState } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { ChangeEvent, FormEvent, ReactNode } from 'react';
 import { RiArrowRightLine } from '@remixicon/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Radio } from 'react-aria-components';
 
-import { SettingsRow } from '@/components/application/settings/settings-rows';
+import { SettingsCard, SettingsRow } from '@/components/application/settings/settings-rows';
 import { Button } from '@/components/base/buttons/button';
 import { LinkButton } from '@/components/base/buttons/link-button';
 import { Input } from '@/components/base/input/input';
@@ -70,10 +70,13 @@ function GitHubMark() {
   return <SiteMark source="github" />;
 }
 
-/** 一个来源一张卡：怎么连、拿什么身份连，底下三个动作。 */
-function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
+/** 收起来源时保留表单草稿和检查结果。 */
+function SourceCard({ source, toast, open, onOpenChange }: {
+  source: Source; open: boolean; onOpenChange: (open: boolean) => void;
+} & ScrapingProps) {
   const [network, setNetwork] = useState(source.network);
   const [cookie, setCookie] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [cookieText, setCookieText] = useState('');
   const [method, setMethod] = useState<string>(COOKIE_METHODS[0][0]);
   const [fileName, setFileName] = useState('');
@@ -84,6 +87,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
      那一份。文件选择器自己也要清，否则同名文件再选一次不会触发 change。 */
   function forgetSecrets() {
     setCookie('');
+    setApiKey('');
     setCookieText('');
     setFileName('');
     setFileProblem('');
@@ -93,6 +97,7 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
   const save = useMutation({
     mutationFn: (revoke: boolean) => apiSend<{ saved: Source }>(SCRAPING_SETTINGS_URL, {
       source: source.source, network, cookie, cookies_text: cookieText, revoke,
+      ...(apiKey ? { api_key: apiKey } : {}),
     }),
     onSuccess: (result, revoke) => {
       // 服务端回的就是这一条的新样子，换进列表即可，不为一次保存把整页重取一遍。
@@ -102,7 +107,8 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
           (row) => (row.source === result.saved.source ? result.saved : row)),
       });
       forgetSecrets();
-      toast(revoke ? t('manage:sourceSettings.cookieRevoked') : t('manage:sourceSettings.saved'));
+      toast(revoke ? t(source.accepts_api_key ? 'manage:sourceSettings.apiKeyRemoved' : 'manage:sourceSettings.cookieRevoked')
+        : t('manage:sourceSettings.saved'));
     },
   });
   const check = useMutation({
@@ -158,15 +164,12 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
     || (check.error ? errorMessage(check.error) : '');
   const results = check.data?.results ?? [];
   // 这一块空着时连同它那道分隔线一起不画：直连、又不收 Cookie 的来源只有一行连接方式。
-  const detailed = network === 'peach' || source.accepts_cookie || source.browser || !!problem || results.length > 0;
+  const detailed = network === 'peach' || source.accepts_cookie || source.accepts_api_key || source.browser || !!problem || results.length > 0;
 
-  return (
-    <Section id={`source-${source.source}`} title={codedText(source, 'label')} onSubmit={submit} aside={
-      <span className="flex min-w-0 items-center gap-1">
-        <SiteMark source={source.source} />
-        {source.login ? <ExternalLink href={source.login}>{linkHost(source.login)}</ExternalLink> : null}
-      </span>
-    }>
+  const title = codedText(source, 'label');
+  const settings = (
+    <form aria-label={title} noValidate onSubmit={submit} className="min-w-0 wrap-anywhere">
+      {source.login ? <div className="flex pb-2 pr-3"><ExternalLink href={source.login}>{linkHost(source.login)}</ExternalLink></div> : null}
       <Rows>
         <SettingsRow label={t('manage:sourceSettings.connectionMode')}>
           {/* 定宽：数据库里的长取值按内容撑宽会把左边的「连接方式」挤成竖排，定宽后取值在框里截断。 */}
@@ -193,6 +196,17 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
               {t('manage:sourceSettings.browserVerification')}
             </p>
           : null}
+        {source.accepts_api_key ? <>
+          <span className="self-start">
+            <StatusLabel tone={source.api_key_saved ? 'success' : 'neutral'}>
+              {t(source.api_key_saved ? 'manage:sourceSettings.apiKeySaved' : 'manage:sourceSettings.apiKeyNotSet')}
+            </StatusLabel>
+          </span>
+          <p className="text-body-2-regular text-text-secondary" data-copy-key={`source-settings.${source.source}.hint`}>
+            {t(source.source === 'theporndb' ? 'manage:sourceSettings.thePornDbHint' : 'manage:sourceSettings.stashDbHint')}
+          </p>
+          <Input type="password" label={t('manage:sourceSettings.apiKey')} autoComplete="off" value={apiKey} onChange={setApiKey} />
+        </> : null}
         {source.accepts_cookie && !source.browser ? <>
           <div className="flex flex-col gap-2"><span className="self-start"><StatusLabel tone={source.cookie_saved ? 'success' : 'neutral'}>{source.cookie_saved ? t('manage:sourceSettings.cookieSaved') : t('manage:sourceSettings.cookieNotSet')}</StatusLabel></span>
             <p className="text-body-2-regular text-text-secondary">{source.cookie_saved ? t('manage:sourceSettings.signInUnverified') : t('manage:sourceSettings.provideCookieHint')}</p></div>
@@ -235,13 +249,30 @@ function SourceCard({ source, toast }: { source: Source } & ScrapingProps) {
       {/* 主体动作在最右。次级动作先出现，`保存` 是这张卡唯一的写入，放在一行的末尾；
           表单里只有它一个 `type=submit`，所以挪位置不影响回车提交。 */}
       <Footer>
+        {source.api_key_saved
+          ? <Button variant="secondary" onClick={revoke} {...busyProps(busy)}>{t('manage:sourceSettings.removeApiKey')}</Button>
+          : null}
         {source.accepts_cookie && source.cookie_saved
           ? <Button variant="secondary" onClick={revoke} {...busyProps(busy)}>{t('manage:sourceSettings.revokeCookie')}</Button>
           : null}
         <Button variant="secondary" onClick={connect} {...busyProps(busy)}>{t('manage:sourceSettings.testConnection')}</Button>
         <Button type="submit" {...busyProps(busy)}>{t('manage:shared.save')}</Button>
       </Footer>
-    </Section>
+    </form>
+  );
+  return (
+    <div id={`source-${source.source}`} className="[&_summary]:pr-3">
+      <SettingsCard>
+        <Disclosure isOpen={open} onOpenChange={onOpenChange} trailing contentClassName="pt-0" summary={
+          <span className="flex min-w-0 items-center gap-2 py-3 pr-2 text-body-medium text-text-primary">
+            <SiteMark source={source.source} />
+            <span>{title}</span>
+          </span>
+        }>
+          {settings}
+        </Disclosure>
+      </SettingsCard>
+    </div>
   );
 }
 
@@ -464,8 +495,45 @@ function AmaneBridgeCard({ toast }: ScrapingProps) {
   );
 }
 
+const SOURCE_GROUPS = [
+  { id: 'western', sources: ['stashdb', 'theporndb', 'vixen-network'] },
+  { id: 'japanese', sources: [
+    'r18dev', 'dmm', 'prestige', 'mgstage', 'faleno', 'dahlia', 'makers', '1pondo',
+    'javdb', 'javbus', 'airav', 'avsox', 'avbase', 'freejavbt',
+  ] },
+  { id: 'fc2', sources: ['fc2', 'fc2cmadb', 'fc2ppvdb', 'fc2club', 'javten', 'javarchive'] },
+  { id: 'people', sources: ['avwikidb', 'minnano-av', 'instagram'] },
+  { id: 'resources', sources: ['manko', 'sukebei'] },
+] as const;
+
+function SourceGroup({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+  return (
+    <section id={id} aria-label={title} className="flex min-w-0 flex-col gap-3">
+      <h3 className="px-3 text-title-3-medium text-text-primary"><span>{title}</span></h3>
+      {children}
+    </section>
+  );
+}
+
 export function ScrapingPage({ toast }: ScrapingProps) {
   const sources = useQuery({ queryKey: SCRAPING_KEY, queryFn: ({ signal }) => fetchSources(signal) });
+  const [openSources, setOpenSources] = useState(() => new Set([location.hash.slice(1)]));
+  const setSourceOpen = useCallback((id: string, open: boolean) => {
+    if (!id.startsWith('source-') || id.startsWith('source-group-')) return;
+    setOpenSources(previous => {
+      if (previous.has(id) === open) return previous;
+      const next = new Set(previous);
+      if (open) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
+  useEffect(() => {
+    const openHashSource = () => setSourceOpen(location.hash.slice(1), true);
+    window.addEventListener('hashchange', openHashSource);
+    return () => window.removeEventListener('hashchange', openHashSource);
+  }, [setSourceOpen]);
+
   const data = sources.data;
   if (!data) {
     return (
@@ -476,23 +544,44 @@ export function ScrapingPage({ toast }: ScrapingProps) {
       </Page>
     );
   }
+  const sourceGroups = SOURCE_GROUPS.map(({ id, sources: ids }) => ({
+    id: `source-group-${id}`,
+    title: t(`manage:scrapingSources.groups.${id}`),
+    sources: ids.flatMap(id => {
+      const source = data.sources.find(source => source.source === id);
+      return source ? [source] : [];
+    }),
+  }));
+  const groupedSources = new Set(sourceGroups.flatMap(group => group.sources.map(source => source.source)));
+  const remainingSources = data.sources.filter(source => !groupedSources.has(source.source));
+  if (remainingSources.length) sourceGroups.push({
+    id: 'source-group-other', title: t('manage:scrapingSources.groups.other'), sources: remainingSources,
+  });
+  const groups = sourceGroups.filter(group => group.sources.length);
+  const tools = t('manage:scrapingSources.groups.tools');
+
   return (
     <Page>
       <p className="text-body-2-regular text-text-secondary">{t('manage:scrapingSources.proxyHint')}</p>
       <SectionToc label={t('manage:scrapingSources.contents')} entries={[
-        { id: 'check-all', label: t('manage:connectionCheck.title') },
-        { id: 'hd-cover', label: t('manage:hdCover.title') },
-        { id: 'custom-sources', label: t('manage:customSources.title') },
-        ...(data.sources || []).map(source => ({ id: `source-${source.source}`,
-          label: codedText(source, 'label'), icon: source.source === 'makers' ? undefined : <SiteMark source={source.source} /> })),
-        { id: 'source-amane', label: 'amane' },
+        ...groups.map(group => ({ id: group.id, label: group.title })),
+        { id: 'source-tools', label: tools },
       ]}>
-        <CheckAllCard toast={toast} />
-        <CoverCard toast={toast} />
-        <CustomSources receipt={toast} />
-        {(data.sources || []).map(
-          (source) => <SourceCard key={source.source} source={source} toast={toast} />)}
-        <div id="source-amane"><AmaneBridgeCard toast={toast} /></div>
+        {groups.map(group => <SourceGroup key={group.id} id={group.id} title={group.title}>
+          <div className="flex flex-col gap-2">
+            {group.sources.map(source => <SourceCard key={source.source} source={source} toast={toast}
+              open={openSources.has(`source-${source.source}`)}
+              onOpenChange={open => setSourceOpen(`source-${source.source}`, open)} />)}
+          </div>
+        </SourceGroup>)}
+        <SourceGroup id="source-tools" title={tools}>
+          <div className="flex min-w-0 flex-col gap-6">
+            <CheckAllCard toast={toast} />
+            <CoverCard toast={toast} />
+            <CustomSources receipt={toast} />
+            <div id="source-amane"><AmaneBridgeCard toast={toast} /></div>
+          </div>
+        </SourceGroup>
       </SectionToc>
     </Page>
   );

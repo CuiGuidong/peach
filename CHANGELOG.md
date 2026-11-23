@@ -1,6 +1,6 @@
 # Changelog / 变更日志
 
-Notable changes in each Peach release. English and Chinese describe the same behavior: every line puts English first, then ` / `, then Chinese. Release notes and the in-app update notes split each line at the first ` / `, so English is the main text and Chinese sits in a folded 简体中文 section. / 本文件记录 Peach 每个发布版本里值得使用者知道的变化，中英文说同一件事：每行英文在前，` / ` 之后是中文。Release 正文与应用内的更新说明都按第一个 ` / ` 拆开，英文是正文，中文折叠在「简体中文」段里。
+Notable changes in each Peach release. Each line puts English first, then ` / `, then Simplified Chinese. GitHub releases show English with a collapsed Chinese section. Sparkle shows the update notes in the preferred supported language. / 本文件记录 Peach 每个发布版本的主要变化。每行英文在前，` / ` 之后是简体中文。GitHub Release 正文显示英文，并附折叠的简体中文段。Sparkle 按首选语言显示英文或简体中文更新日志。
 
 The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html). Groups are `Added / 新增`, `Changed / 变更`, `Deprecated / 弃用`, `Removed / 移除`, `Fixed / 修复` and `Security / 安全`. / 格式遵循 [Keep a Changelog 1.1.0](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [Semantic Versioning 2.0.0](https://semver.org/lang/zh-CN/spec/v2.0.0.html)；分组标题见上。
 
@@ -14,10 +14,55 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Fixed / 修复
+
+- **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
+- **Updates**: Show English and Simplified Chinese release notes in the macOS update window (#833). / **更新**：macOS 更新窗口显示英文和简体中文更新日志（#833）。
+- **Library**: Restore macOS text recognition for promotional text in video screenshots (#833). / **馆藏**：恢复 macOS 上对视频截图里推广文字的识别（#833）。
+
+## [0.61.0] - 2026-11-21
+
+### Added / 新增
+
+- **Sourcing**: Use StashDB and ThePornDB to fill missing metadata and artwork for Western scenes and movies (#824). / **采集**：可配置 StashDB 和 ThePornDB，为其他欧美厂牌的场景与长片补全资料和封面（#824）。
+- **Library**: Choose a folder from the scan menu to scan only that folder and its subfolders (#822). / **馆藏**：扫描菜单可指定一个文件夹，只扫描该文件夹及其子文件夹（#822）。
+- **Sourcing**: Scan for Vixen Media Group scenes, review verified catalog fields, and fill missing artwork (#816). / **采集**：扫描与采集支持识别 Vixen Media Group 作品，资料进复核，缺图时补官方海报（#816）。
+
+### Changed / 变更
+
+- **Settings**: Jump to sections in System diagnostics and App and maintenance, and expand other source sessions when needed (#826). / **配置**：系统诊断和应用与维护可从目录直达分组，正常和未检查的来源会话按需展开（#826）。
+- **Sourcing**: Find sources by category in Sources and credentials, then expand the settings for each site (#825). / **采集**：「来源和凭证」可按分类查找来源，按需展开各站设置（#825）。
+
+### Fixed / 修复
+
+- **Sourcing**: Retry malformed Vixen responses without waiting for the missing-scene cache to expire (#816). / **采集**：Vixen 接口坏响应不再缓存为没有作品，升级后可重新采集受影响影片（#816）。
+
+- **Library**: Save covers when an optional crop model cannot load, including in Windows folders with non-ASCII names (#820). / **馆藏**：Windows 的非 ASCII 目录可加载封面取景模型，模型不可用时仍保存封面（#820）。
+- **Library**: Resume or cancel a paused scan after restarting Peach, with the original selection and progress preserved (#815). / **馆藏**：重启后可继续或取消已暂停的扫描，继续时保留原来的范围和进度（#815）。
+- **Library**: Reuse the Windows directory reader during a scan and show timings for each scan stage (#817). / **馆藏**：Windows 扫描时复用目录读取进程，扫描详情显示各阶段耗时（#817）。
+- **Library**: Refresh the scan issue list to reflect the latest scan results (#818). / **馆藏**：扫描问题清单随最新扫描结果更新（#818）。
+
+## [0.60.0] - 2026-11-20
+
 ### Added / 新增
 
 - **Interface**: Browse mapped media directories from Storage and locate a file in the browser on headless servers (#376). / **界面**：可从 Storage 浏览已挂载的媒体目录，无桌面部署可在网页中定位文件（#376）。
 - **Interface**: Right-click cards and table rows for item actions, use the Library action column, or delete from the icon group under a work's title (#773). / **界面**：卡片与表格行可右键操作，馆藏列表新增操作栏，作品详情的删除入口放在标题下方的按钮组（#773）。
+- **Settings**: Set an edition preference order for one-click adding and Want list resource results (#800). / **配置**：可为一键入库和「想要」资源设置版本优先顺序（#800）。
+
+### Fixed / 修复
+
+- **Ledger**: Start Docker ledger upgrades without loading media playback modules into the migration process (#805). / **账本**：Docker 的账本升级不再因提前加载媒体播放模块而中断（#805）。
+- **Ledger**: Detect SQLite damage in use, halt writes, and keep backup restore available if the task table is damaged (#806). / **账本**：发现 SQLite 损坏后停止写入，任务表损坏时仍可从备份恢复（#806）。
+- **Desktop**: Run the bundled Windows OCR helper with its own PowerShell process policy (#807). / **桌面**：随包的 Windows OCR 助手使用独立的 PowerShell 进程执行策略（#807）。
+
+- **Settings**: Retry explicitly rate-limited diagnostic counts and show their delivery separately from error events (#802). / **配置**：明确被限流的故障计数会退避后补传，计数与错误事件分别记录回执（#802）。
+- **Ledger**: Follow-up workers keep claiming tasks after temporary database lock contention (#802). / **账本**：数据库写锁释放后，后继任务继续领取待执行项目（#802）。
+- **Sourcing**: Preview generation can finish when a frame cannot be checked for QR codes (#794). / **采集**：个别画面无法识别二维码时，仍可完成预览生成（#794）。
+- **Sourcing**: Look up CDRP releases with two-digit serial numbers (#788). / **采集**：按两位序号查找 CDRP 作品（#788）。
+- **Sourcing**: Recognize S2MBD release codes during collection (#789). / **采集**：采集时可识别 S2MBD 番号（#789）。
+- **Review**: Approve selected is highlighted as the primary action in manual review (#797). / **复核**：「通过所选」在人工复核的批量操作中恢复主按钮高亮（#797）。
+- **Settings**: Upgrades convert verified CloudDrive2 download paths for folder-scoped tokens and resume matching remote tasks without resubmitting (#211). / **配置**：升级会自动转换已核实的 CloudDrive2 受限令牌下载路径，并续接匹配的远端任务，避免重复提交（#211）。
 
 ## [0.59.0] - 2026-11-18
 
@@ -1261,7 +1306,9 @@ First Windows standalone test package. Earlier development (from 2026-08-14, inc
 - **Desktop**: The standalone package writes startup logs in UTF-8. / **桌面**：独立包使用 UTF-8 启动日志。
 - **Settings**: The redirect after first-time setup uses a freshly read mDNS name. / **配置**：首次设置后的跳转目标取新鲜读到的 mDNS 名。
 
-[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.59.0...HEAD
+[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.61.0...HEAD
+[0.61.0]: https://github.com/peach-mitao/peach/compare/v0.60.0...v0.61.0
+[0.60.0]: https://github.com/peach-mitao/peach/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/peach-mitao/peach/compare/v0.58.0...v0.59.0
 [0.58.0]: https://github.com/peach-mitao/peach/compare/v0.57.0...v0.58.0
 [0.57.0]: https://github.com/peach-mitao/peach/compare/v0.56.0...v0.57.0

@@ -13,10 +13,12 @@ import io
 import json
 import os
 import sqlite3
+import subprocess
 import tempfile
 import unittest
 from contextlib import closing, redirect_stdout
 from pathlib import Path, PureWindowsPath
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from peach import catalog_rules, scan
@@ -53,6 +55,30 @@ class _ScanCase(unittest.TestCase):
 @unittest.skipUnless(os.name == "nt", "本用例需要真实存在的 Windows 盘符目录")
 class WindowsShapeTests(_ScanCase):
     """Windows：配置的路径前缀就是真实目录，路径原样保存到数据库。"""
+
+    def test_library_scan_reuses_the_reader_and_saves_operation_timings(self):
+        from peach import library_processing, media_io
+
+        locations = {'local': (str(self.media),)}
+        config = SimpleNamespace(locations=locations, mounts={})
+        checkpoints = {}
+        with patch.object(media_io.subprocess, 'Popen', wraps=subprocess.Popen) as popen:
+            result = library_processing._scan_sources(
+                config, self.db, locations=locations, asset_ids=None, stage=library_processing.ALL_STAGES,
+                guard=SimpleNamespace(check=lambda: None), update=lambda **_values: None,
+                issue=lambda *_args, **_kwargs: self.fail('unexpected scan issue'),
+                scan_checkpoints=checkpoints, incremental=True)
+
+        readers = [call.args[0] for call in popen.call_args_list if call.args[0][-2:] == ['serve', '-']]
+        self.assertEqual(len(readers), 1)
+        self.assertEqual(result.scanned, 3)
+        checkpoint = next(iter(checkpoints.values()))['result']
+        timings = checkpoint['timings']
+        self.assertEqual(timings['directory_read']['count'], 3)
+        self.assertEqual(timings['file_identity']['count'], 3)
+        self.assertEqual(timings['checkpoint_write']['count'], 3)
+        self.assertGreaterEqual(timings['directory_read']['seconds'], timings['file_identity']['seconds'])
+        self.assertNotIn(str(self.media), json.dumps(timings))
 
     def test_rows_are_written_under_the_declared_root(self):
         declared = {"local": (str(self.media),)}
@@ -178,6 +204,32 @@ class PosixShapeTests(_ScanCase):
             remember(self.db, completed=queued)
             self._scan('R:\\media', **options)
             self.assertEqual(pending(self.db), [])
+
+    def test_committed_scan_batch_is_pending_when_the_next_checkpoint_is_interrupted(self):
+        from peach.file_identity import FileIdentityIndex
+        from peach.library_new_assets import pending
+        from peach.library_processing import _initial_processing_scope
+        from peach.settings_file import PeachConfig
+
+        options = dict(declared_roots={'local': ('R:\\media',)}, mounts={'local': (self.media,)}, windows=False)
+        original = FileIdentityIndex.save
+
+        def stop_after_video_commit(index):
+            if 'video' in self._paths().values():
+                raise SystemExit()
+            return original(index)
+
+        with patch.object(FileIdentityIndex, 'save', stop_after_video_commit), self.assertRaises(SystemExit):
+            self._scan('R:\\media', **options)
+        result, _ = self._scan('R:\\media', **options, new_only=True)
+        queued = pending(self.db)
+        self.assertEqual(len(queued), 1)
+        self.assertTrue(set(result.new_ids).isdisjoint(queued))
+        self.assertEqual(
+            _initial_processing_scope(PeachConfig(self.root, self.root / 'config.toml'),
+                                      self.db, None, None, True, {'incremental_ids': []}),
+            (None, queued),
+        )
 
     def test_windows_mount_mapping_has_the_same_ledger_path_contract(self):
         options = dict(declared_roots={'local': ('R:\\media',)}, mounts={'local': (self.media,)}, windows=True)
@@ -692,11 +744,12 @@ class LedgerReopenTests(_ScanCase):
         real = scan._upsert_records
         calls = []
 
-        def flaky(connection, *args):
+        def flaky(connection, *args, **kwargs):
             calls.append(connection)
+            inserted = real(connection, *args, **kwargs)
             if len(calls) == 1:
                 raise sqlite3.OperationalError("unable to open database file")
-            return real(connection, *args)
+            return inserted
 
         with patch.object(scan, '_upsert_records', flaky), patch.object(scan.time, 'sleep') as slept, \
                 self.assertLogs('peach.scan', level='WARNING') as logs:

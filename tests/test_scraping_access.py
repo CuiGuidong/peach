@@ -21,6 +21,31 @@ from peach import peach_proxy
 
 
 class ScrapingAccessTests(unittest.TestCase):
+    def test_stashdb_key_is_write_only_on_source_settings(self):
+        from peach.scraping_access import describe, save, values_for
+        from peach.source_checks import check_source
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            unchecked = check_source(root, 'stashdb')
+            self.assertEqual(unchecked['results'][0]['reason'], 'not_configured')
+            metadata = save(root, 'stashdb', {'api_key': 'fixture-key'})
+            self.assertTrue(metadata['api_key_saved'])
+            self.assertNotIn('fixture-key', str(describe(root, 'stashdb')))
+            self.assertEqual(values_for(root, 'stashdb')['api_key'], 'fixture-key')
+            self.assertFalse(save(root, 'stashdb', {'revoke': True})['api_key_saved'])
+
+    def test_stashdb_redirect_does_not_forward_key_or_scene_query(self):
+        from peach.http import HttpRequest, HttpResponse
+        from peach.scraping_access import SourceTransport
+
+        transport = SourceTransport(Path('unused'))
+        with patch.object(transport, '_request',
+                          return_value=HttpResponse(307, {'location': 'https://other.invalid/graphql'}, b'')) as request:
+            with self.assertRaisesRegex(ValueError, 'StashDB'):
+                transport(HttpRequest('POST', 'https://stashdb.org/graphql', {'ApiKey': 'fixture-key'}, b'query'), 5, 4096)
+            self.assertEqual(request.call_count, 1)
+
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)

@@ -198,6 +198,36 @@ class VisualEvidenceTests(TestCase):
         checked.assert_not_called()
         self.assertTrue(issue.call_args.kwargs['retryable'])
 
+    def test_qr_failure_preserves_preview_and_retries_incomplete_evidence(self):
+        import cv2
+
+        detector = Mock()
+        detector.detectAndDecode.side_effect = [
+            cv2.error('empty image'), *[('', None, None)] * 8,
+        ]
+        config = PeachConfig(self.root, self.root / 'config.toml', present=True)
+        checked, issue = Mock(), Mock()
+        with (
+            patch.object(cv2, 'QRCodeDetector', return_value=detector),
+            patch.object(library_processing, '_library_stages', return_value=lambda _: {'preview'}),
+            patch.object(library_processing, 'metadata_only', return_value=False),
+            patch.object(library_processing, '_generate_preview', return_value=True),
+            patch.object(ImageReader, 'read', return_value=[PROMO] * 9),
+        ):
+            made = library_processing._generate_previews(config, [self.row()], self.database,
+                update=Mock(), issue=issue, guard=Mock(), checkpoint=checked)
+        self.assertEqual(made, 1)
+        checked.assert_called_once()
+        issue.assert_not_called()
+        result = junk_visual.read(self.database, 1)[1]
+        self.assertEqual(result['verdict'], 'incomplete')
+        self.assertEqual([frame['index'] for frame in result['frames']], list(range(1, 9)))
+        self.assertTrue(all(call.args[0].size > 0 for call in detector.detectAndDecode.call_args_list))
+
+        entry, reader = self.analyse([PROMO] * 9)
+        reader.read.assert_called_once()
+        self.assertEqual(entry['verdict'], 'candidate')
+
     def test_invalid_saved_evidence_is_reported_as_unavailable(self):
         self.analyse([PROMO] * 9)
         with closing(sqlite3.connect(junk_visual.cache_path(self.database))) as connection:
@@ -281,6 +311,16 @@ class ImageReaderTests(TestCase):
             self.assertEqual(ImageReader(Path('.'), platform='win32').read(paths), [PROMO] * 2)
         request = json.loads(run.call_args.kwargs['input'])
         self.assertEqual(request['paths'], [str(path) for path in paths])
+        command = run.call_args.args[0]
+        self.assertEqual(command[command.index('-ExecutionPolicy') + 1], 'Bypass')
+
+    def test_windows_shell_rejection_stays_readable_before_the_script_sets_utf8(self):
+        response = subprocess.CompletedProcess([], 1, b'', '禁止运行脚本'.encode('cp936'))
+        with patch('peach.image_ocr.shutil.which', return_value='powershell.exe'), \
+                patch('peach.image_ocr.locale.getencoding', return_value='cp936'), \
+                patch('peach.task_control.run', return_value=response):
+            with self.assertRaisesRegex(OcrUnavailable, '禁止运行脚本'):
+                ImageReader(Path('.'), platform='win32').read([Path('first.png').resolve()])
 
     def test_windows_engine_error_and_incomplete_responses_are_failures(self):
         path = Path('first.png').resolve()

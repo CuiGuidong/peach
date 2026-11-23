@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import type { Browser, Page } from 'playwright-core';
 import { DETAIL, openFollowFeed } from './follow-fixture.ts';
 import { settle, visit, VIEWPORTS, type Viewport, type Visit } from './harness.ts';
-import { muteVideos, openImmerse, pickClips, pinQueue, settledClip } from './immerse-fixture.ts';
+import { assertLandscapeActions, muteVideos, openImmerse, pickClips, pinQueue, settledClip } from './immerse-fixture.ts';
 import { ITEM, openItemPage } from './item-fixture.ts';
 import { DESKTOP, MOBILE, tokenColor, installDesignBrowser } from './design-fixture.ts';
 
@@ -725,7 +725,7 @@ describe('设计决定：关注详情、作品详情、播放器与侧栏', () =
     bar: '[data-immerse-bar]', close: '[data-immerse-close]',
   };
 
-  it('沉浸模式桌面照 Shorts 三段：9:16 舞台居中、动作列贴舞台右侧 12px、作者标题在左下；横片换成 16:9，动作列收进框里；浅色主题下仍是深色层', { timeout: 90_000 }, async () => {
+  it('桌面沉浸的横竖舞台居中，右侧留 12px 给动作列，横片的动作列垂直居中，浅色主题下仍是深色层', { timeout: 90_000 }, async () => {
     const opened = await visit(browser, '/', DESKTOP);
     try {
       const { page } = opened;
@@ -807,7 +807,7 @@ describe('设计决定：关注详情、作品详情、播放器与侧栏', () =
       await settledClip(page);
       const landscape = await rectsOf(page, IMMERSE);
       assert.deepEqual(landscape.stage, { left: 230.4, top: 169.6, right: 1049.6, bottom: 630.4, width: 819.2, height: 460.8 });
-      assert.deepEqual([landscape.actions.right, landscape.actions.bottom], [1037.6, 612.4]);
+      await assertLandscapeActions(page);
       assert.equal(landscape.ui.width, 404.8);
 
       await page.evaluate(() => { document.documentElement.dataset.theme = 'light' });

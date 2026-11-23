@@ -11,8 +11,8 @@ export interface TocEntry {
 }
 
 /** 单页目录沿用管理页的导航外观，链接和滚动位置指向仍挂载的正文分区。 */
-export function SectionToc({ label, entries, children }: {
-  label: string; entries: readonly TocEntry[]; children: ReactNode;
+export function SectionToc({ label, entries, children, inline = false }: {
+  label: string; entries: readonly TocEntry[]; children: ReactNode; inline?: boolean;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const scrollRef = useHorizontalScroller<HTMLElement>();
@@ -67,7 +67,7 @@ export function SectionToc({ label, entries, children }: {
     }
   }, [active]);
 
-  return <div ref={root} data-section-page="">
+  return <div ref={root} data-section-page={inline ? 'inline' : ''}>
     <nav ref={scrollRef} aria-label={label} data-section-toc="">
       <PillTabList data-section-toc-items="" data-pill-nav="">
         {entries.map(entry => <a key={entry.id} href={`#${entry.id}`}

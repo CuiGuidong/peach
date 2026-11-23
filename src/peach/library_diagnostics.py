@@ -11,7 +11,8 @@ from datetime import datetime, timezone
 from urllib.parse import urlsplit
 
 from . import interface_text
-from .catalog_rules import normalise_code_key, release_code_from_text
+from .catalog_rules import release_code_from_text
+from .western_artwork import artwork_key
 from .metadata_policy import MAKER_SOURCES
 from .metadata_routes import AMANE_STAGE, ROUTES
 from .scraping_access import SOURCES, cooldown_state, source_checks
@@ -144,8 +145,8 @@ def library(settings, config, filters=None):
     covers, posters = inventory(settings.cover_root), inventory(settings.poster_root)
     if covers is not None and posters is not None:
         missing = [assets[row[0]] for row in rows
-                   if (normalise_code_key(row[1]).casefold() not in covers if row[1]
-                       else f"{row[0]}_4" not in posters)]
+                   if artwork_key(row[0], row[1]).casefold() not in covers
+                   and (row[1] or f"{row[0]}_4" not in posters)]
         groups["cover"] = grouped("cover", missing)
     failed, issue_at = failures(config)
     if failed is not None:

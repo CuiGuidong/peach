@@ -501,6 +501,16 @@ class PollingTests(_Deployment):
         with self.assertRaisesRegex(ValueError, "已经结束"):
             self.service.cancel(task_id)
 
+    def test_cancellation_wins_over_a_queued_reconciliation_snapshot(self):
+        task_id = self.submit()["task"]["id"]
+        due = self.service.store.get(task_id)
+        self.service.cancel(task_id)
+        with patch.object(self.provider, 'status') as status, patch.object(self.service.landing, 'ingest') as ingest:
+            self.service.advance(due)
+        status.assert_not_called()
+        ingest.assert_not_called()
+        self.assertEqual(self.service.store.get(task_id).state, dl.CANCELLED)
+
 
 class LandingTests(_Deployment):
     def test_metadata_subtrees_and_files_do_not_consume_the_landing_limit(self):
@@ -759,6 +769,25 @@ class SettingsTests(_Deployment):
         for bad in ("http://u:p@127.0.0.1:19798", "http://127.0.0.1:19798/api", "ftp://x"):
             with self.subTest(bad=bad), self.assertRaises(ValueError):
                 self.service.save_settings({"clouddrive_address": bad}, self.declared)
+
+    def test_edition_preferences_preserve_legacy_settings_and_legacy_saves(self):
+        path = self.service.settings.path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        previous = {"targets": {"115": "/115/Movies"}, "wait_hours": 36}
+        path.write_text(json.dumps(previous), encoding="utf-8")
+        self.assertEqual(self.service.settings.load().edition_preferences, ())
+
+        order = ["uncensored-crack", "chinese-subtitles"]
+        self.service.settings.save({**previous, "edition_preferences": order}, self.declared)
+        updated = self.service.settings.save({**previous, "wait_hours": 48}, self.declared)
+        self.assertEqual(updated.payload()["edition_preferences"], order)
+        self.assertEqual((updated.wait_hours, updated.targets), (48, previous["targets"]))
+        for invalid in ("uncensored", ["uncensored", "uncensored"], ["unknown"], [None]):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                self.service.settings.save({**previous, "edition_preferences": invalid}, self.declared)
+        self.assertEqual(self.service.settings.load(), updated)
+        cleared = self.service.settings.save({**previous, "edition_preferences": []}, self.declared)
+        self.assertEqual(cleared.edition_preferences, ())
 
     def test_the_snapshot_reports_which_providers_are_ready(self):
         self.service.save_settings({"clouddrive_address": "127.0.0.1"}, self.declared)

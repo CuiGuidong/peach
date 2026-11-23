@@ -430,7 +430,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.tmp.cleanup()
 
     async def test_health_is_side_effect_free(self):
-        response = await self.client.get("/healthz")
+        response = await self.client.get("http://127.0.0.1/healthz")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["version"], __version__)
         # 采集浏览器等人点验证的站列在这里，供排查（ADR-0065）；平时是空表。
@@ -441,6 +441,24 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(all({"status", "reason"} <= set(check) <= {"status", "reason", "reason_code", "reason_params",
                                                                   "reason_parts"} for check in checks.values()))
         self.assertNotIn(str(self.media_root), json.dumps(checks))
+
+    async def test_health_reports_ledger_corruption_found_during_normal_queries(self):
+        from support.ledger import damage_task_pages
+
+        database = fresh_ledger(self.root, "damaged.db")
+        app = create_app(replace(self.settings, db_path=database))
+        damage_task_pages(database)
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://127.0.0.1") as client:
+            self.assertEqual((await client.get('/healthz?ready=1')).status_code, 200)
+            with self.assertRaises(sqlite3.DatabaseError), app.state.database.read_connection() as connection:
+                connection.execute("SELECT id FROM task_run").fetchall()
+            probe = await client.get('/healthz')
+            self.assertEqual(probe.status_code, 200)
+            self.assertEqual(probe.json()['db'], 'corrupt')
+            self.assertEqual(probe.json()['checks']['database']['status'], 'failed')
+            ready = await client.get('/healthz?ready=1')
+            self.assertEqual(ready.status_code, 503)
+            self.assertFalse(ready.json()['checks']['database'])
 
     async def test_client_update_snapshot_is_authenticated_and_never_fetches_releases(self):
         before = self.db.read_bytes()
@@ -467,8 +485,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
                   patch('peach.diagnostics.inspect_database', side_effect=untouched),
                   patch('peach.web_tutorial.q_tutorial_progress', side_effect=untouched),
                   patch.object(self.app.state.upgrade_repairs, 'snapshot', side_effect=untouched)):
-                health = await self.client.get('/healthz')
-                ready = await self.client.get('/healthz?ready=1')
+                health = await self.client.get('http://127.0.0.1/healthz')
+                ready = await self.client.get('http://127.0.0.1/healthz?ready=1')
                 updates = await self.client.get('/api/client-updates?t=secret')
                 await self.client.post('/login', content='token=secret&next=%2F',
                                        headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -547,7 +565,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             accepted = await self.client.get("/api/diagnostics?t=secret")
             self.assertEqual(accepted.status_code, 200)
             self.assertEqual(accepted.json(), report)
-            shared.assert_called_once_with(self.settings, self.app.state.mount_reachability.summary())
+            shared.assert_called_once_with(self.settings, self.app.state.mount_reachability.summary(),
+                                           known_corruption=False)
             async with httpx.AsyncClient(transport=httpx.ASGITransport(app=self.app, client=("192.0.2.10", 1234)),
                                          base_url="http://test") as remote:
                 denied = await remote.get("/api/diagnostics?t=secret")
@@ -556,13 +575,13 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
 
     async def test_health_reports_the_build_commit_the_deploy_check_needs(self):
         """换生产托盘的脚本按这个字段确认跑起来的正是它刚打出的包。源码运行时是 null。"""
-        payload = (await self.client.get("/healthz")).json()
+        payload = (await self.client.get("http://127.0.0.1/healthz")).json()
         self.assertIn("build_commit", payload)
         self.assertIsNone(payload["build_commit"])
         from peach.buildinfo import BuildInfo
         with patch.object(api_module, "BUILD",
                           BuildInfo("c0ffee1234", __version__, "2026-09-07T00:00:00")):
-            served = (await self.client.get("/healthz")).json()
+            served = (await self.client.get("http://127.0.0.1/healthz")).json()
         self.assertEqual(served["build_commit"], "c0ffee1234")
 
     async def test_background_issues_reads_app_and_contract_services_behind_auth(self):
@@ -610,7 +629,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(sources.status_code, 200)
         self.assertEqual(sources.json()["offline"], [])
         self.assertIsNone(sources.json()["sources"][0]["online"])
-        health = (await self.client.get("/healthz")).json()["media_mounts"]
+        health = (await self.client.get("http://127.0.0.1/healthz")).json()["media_mounts"]
         self.assertEqual(health["state"], "checking")
         self.assertNotIn("R:/private", json.dumps(health))
         self.assertNotIn(str(self.media_root), json.dumps(health))
@@ -625,7 +644,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         sources = (await self.client.get("/api/sources?t=secret")).json()
         self.assertEqual(sources["offline"], ["local"])
         self.assertEqual(sources["sources"][0]["message"], "本地磁盘：没有权限读取")
-        payload = (await self.client.get("/healthz")).json()
+        payload = (await self.client.get("http://127.0.0.1/healthz")).json()
         self.assertTrue(payload["ok"])
         self.assertEqual(payload["media_mounts"]["warnings"], ["本地磁盘：没有权限读取"])
 
@@ -656,13 +675,16 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://test",
         ) as client:
-            health = await client.get("/healthz")
+            health = await client.get("http://127.0.0.1/healthz")
             self.assertEqual(health.json()["ledger_sync"], "reader")
             self.assertTrue(health.json()["ledger_read_only"])
             self.assertIn("只能浏览", health.json()["ledger_read_only_message"])
             # 同一句另带 code 与参数，页面按界面语言显示。
             self.assertEqual((health.json()["ledger_read_only_message_code"], health.json()["ledger_read_only_message_params"]),
                              ("labels.sync.readOnlyWriter", {"owner": "mac"}))
+            anonymous = (await client.get("/healthz")).json()
+            self.assertEqual(anonymous["ledger_read_only_message_code"], "labels.sync.readOnlyOtherMachine")
+            self.assertEqual(anonymous["ledger_read_only_message_params"], {})
             reviewed = await client.get("/api/review?t=secret")
             self.assertEqual(reviewed.status_code, 200)
             self.assertEqual(reviewed.json()["mirror"]["state"], "live")
@@ -695,7 +717,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://test",
         ) as client:
-            health = (await client.get("/healthz")).json()
+            health = (await client.get("http://127.0.0.1/healthz")).json()
             self.assertEqual(health["ledger_sync"], "disabled")
             self.assertFalse(health["ledger_read_only"])
             allowed = await client.post(
@@ -1379,13 +1401,41 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         from unittest.mock import patch
         from peach import routes_pages
         with patch.object(routes_pages.sys, "frozen", True, create=True):
-            refused = await self.client.get('/dev/copy-editor.js?t=secret')
+            refused = await self.client.get('http://127.0.0.1/dev/copy-editor.js?t=secret')
             self.assertEqual(refused.status_code, 404)
             page = await self.client.get('/?edit&t=secret', follow_redirects=True)
             self.assertNotIn('data-peach-copy-mode', page.text)
-        refused = await self.client.post('/dev/copy-save?t=secret', json={},
+        refused = await self.client.post('http://127.0.0.1/dev/copy-save?t=secret', json={},
                                          headers={'Origin': 'https://another.example'})
         self.assertEqual(refused.status_code, 403)
+
+    async def test_lan_credentials_do_not_grant_source_editor_access(self):
+        transport = httpx.ASGITransport(app=self.app, client=("192.0.2.10", 1234))
+        async with httpx.AsyncClient(transport=transport, base_url=str(self.client.base_url)) as remote:
+            page = await remote.get('/?edit&t=secret', follow_redirects=True)
+            self.assertEqual(page.status_code, 200)
+            self.assertNotIn('data-peach-copy-mode', page.text)
+            self.assertEqual(page.headers['content-security-policy'], "frame-ancestors 'self'")
+            self.assertEqual((await remote.get('/dev/copy-candidates?text=example')).status_code, 403)
+            response = await remote.post('/dev/copy-save', json={}, headers={'Origin': str(remote.base_url).rstrip('/')})
+            self.assertEqual(response.status_code, 403)
+
+    async def test_health_redacts_network_details_until_the_remote_device_signs_in(self):
+        transport = httpx.ASGITransport(app=self.app, client=("192.0.2.10", 1234))
+        async with httpx.AsyncClient(transport=transport, base_url=str(self.client.base_url)) as remote:
+            health = (await remote.get('/healthz')).json()
+            self.assertTrue(health['ok'])
+            for key in ('media_mounts', 'mdns_address', 'mdns_service_host', 'ledger_writer_origin', 'attention'):
+                self.assertNotIn(key, health)
+            self.assertTrue(all(set(check) == {'status'} for check in health['checks'].values()))
+            self.assertIn('ready', (await remote.get('/healthz?ready=1')).json())
+            self.assertIn('media_mounts', (await remote.get('/healthz', headers={'X-Token': 'secret'})).json())
+
+    async def test_login_redirect_only_keeps_plain_same_site_paths(self):
+        self.assertEqual(routes_auth.safe_next('/detail?id=1#poster'), '/detail?id=1#poster')
+        self.assertEqual(routes_auth.safe_next(None), '/')
+        for character in ('\\', '\t', '\r', '\n'):
+            self.assertEqual(routes_auth.safe_next(f'/library{character}section'), '/')
 
     async def test_copy_editor_exposes_saved_application_state_and_protects_retries(self):
         from unittest.mock import patch
@@ -1400,26 +1450,26 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             path = root / 'web/index.html'
             path.write_text('<p>说明</p>', encoding='utf-8')
             with patch.object(routes_pages, 'PROJECT_ROOT', root):
-                core = await self.client.get('/dev/copy-editor-core.js?t=secret')
+                core = await self.client.get('http://127.0.0.1/dev/copy-editor-core.js?t=secret')
                 self.assertEqual(core.status_code, 200)
                 self.assertEqual(core.text, '/* 核心 */')
-                self.assertEqual((await self.client.get('/dev/copy-editor-core.js')).status_code, 401)
-                candidate, = (await self.client.get('/dev/copy-candidates?t=secret&text=说明')).json()
-                saved = await self.client.post('/dev/copy-save?t=secret',
-                    headers={'Origin': str(self.client.base_url).rstrip('/')},
+                self.assertEqual((await self.client.get('http://127.0.0.1/dev/copy-editor-core.js')).status_code, 401)
+                candidate, = (await self.client.get('http://127.0.0.1/dev/copy-candidates?t=secret&text=说明')).json()
+                saved = await self.client.post('http://127.0.0.1/dev/copy-save?t=secret',
+                    headers={'Origin': 'http://127.0.0.1'},
                     json={'original': '说明', 'replacement': '新说明', 'candidate': candidate})
                 self.assertEqual(saved.status_code, 200)
-                state = await self.client.get('/dev/copy-apply?t=secret')
+                state = await self.client.get('http://127.0.0.1/dev/copy-apply?t=secret')
                 self.assertEqual(state.headers['cache-control'], 'no-store')
                 self.assertEqual(state.json()['state'], 'ready')
                 self.assertEqual(state.json()['id'], saved.json()['apply']['id'])
                 self.assertEqual(path.read_text(encoding='utf-8'), '<p>新说明</p>')
-                self.assertEqual((await self.client.get('/dev/copy-apply')).status_code, 401)
-                refused = await self.client.post('/dev/copy-apply?t=secret', json={}, headers={'Origin': 'https://another.example'})
+                self.assertEqual((await self.client.get('http://127.0.0.1/dev/copy-apply')).status_code, 401)
+                refused = await self.client.post('http://127.0.0.1/dev/copy-apply?t=secret', json={}, headers={'Origin': 'https://another.example'})
                 self.assertEqual(refused.status_code, 403)
                 with patch.object(routes_pages.sys, 'frozen', True, create=True):
-                    self.assertEqual((await self.client.get('/dev/copy-apply?t=secret')).status_code, 404)
-                    self.assertEqual((await self.client.get('/dev/copy-editor-core.js?t=secret')).status_code, 404)
+                    self.assertEqual((await self.client.get('http://127.0.0.1/dev/copy-apply?t=secret')).status_code, 404)
+                    self.assertEqual((await self.client.get('http://127.0.0.1/dev/copy-editor-core.js?t=secret')).status_code, 404)
 
     async def test_bundled_site_icons_require_auth_and_validate_names(self):
         from peach.config import PROJECT_ROOT
@@ -2479,7 +2529,7 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         for _ in range(10):
             wrong = await self.client.post("/login", content="token=wrong&next=%2Fstats", headers=form)
             self.assertEqual(wrong.status_code, 401)
-        limited = await self.client.post("/login", content="token=wrong&next=%2Fstats", headers=page)
+        limited = await self.client.post("/login?next=%2Fstats", content="token=wrong&next=%2Fstats", headers=page)
         self.assertEqual(limited.status_code, 429)
         self.assertEqual(limited.headers["retry-after"], "60")
         self.assertTrue(limited.headers["content-type"].startswith("text/html"))
@@ -2488,6 +2538,22 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         limited = await self.client.post("/login", content="token=secret&next=%2Fstats", headers=form)
         self.assertEqual(limited.status_code, 429)
         self.assertEqual(limited.json(),{"error": "尝试次数较多，请一分钟后重试", "message_code": "api.auth.tooManyAttempts", "message_params": {}})
+
+    async def test_login_bounds_streaming_form_and_field_count(self):
+        routes_auth._ATTEMPTS.clear()
+        self.addCleanup(routes_auth._ATTEMPTS.clear)
+
+        async def chunks():
+            yield b"token=" + b"x" * (routes_auth._LOGIN_FORM_LIMIT - len(b"token="))
+            yield b"x"
+
+        form = {"Content-Type": "application/x-www-form-urlencoded"}
+        large = await self.client.post("/login", content=chunks(), headers=form)
+        self.assertEqual(large.status_code, 413)
+        self.assertEqual(large.json()["message_code"], "api.auth.loginFormTooLarge")
+        crowded = await self.client.post("/login", content="k=v&" * routes_auth._LOGIN_FORM_FIELDS + "k=v", headers=form)
+        self.assertEqual(crowded.status_code, 400)
+        self.assertEqual(crowded.json()["message_code"], "api.auth.loginFormInvalid")
 
     async def test_index_directory_urls_keep_query_and_use_canonical_path(self):
         await self.client.post('/login', content='token=secret&next=%2F',
@@ -3482,11 +3548,14 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         with patch.object(local_playback, 'available', return_value=True), \
                 patch.object(local_playback, 'installed', return_value={'vlc': ('VLC', '/private/vlc')}), \
                 patch('peach.web_local_access.local_client', return_value=True), \
-                patch.object(local_playback, 'open_media') as launch:
+                patch.object(local_playback, 'open_media') as launch, \
+                patch.object(local_playback, 'open_custom_media', return_value=False) as custom:
             options = await self.client.get('/api/local-players', headers=headers)
             self.assertEqual(options.json(), {'players': [
                 {'id': 'default', 'label': '系统默认播放器', 'label_code': 'labels.routesMedia.defaultPlayer'},
-                {'id': 'vlc', 'label': 'VLC'}]})
+                {'id': 'vlc', 'label': 'VLC'},
+                {'id': 'custom', 'label': '自定义播放器…', 'label_code': 'labels.routesMedia.customPlayer'},
+            ]})
             result = await self.client.post('/api/local-playback?id=1&player=vlc', json={}, headers=headers)
             self.assertEqual(result.status_code, 200, result.text)
             self.assertEqual(launch.call_args.args[1], 'vlc')
@@ -3494,11 +3563,20 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             missing = await self.client.post('/api/local-playback?id=999999', json={}, headers=headers)
             self.assertEqual(missing.status_code, 404)
             launch.assert_not_called()
+            cancelled = await self.client.post('/api/local-playback?id=1&player=custom', json={}, headers=headers)
+            self.assertEqual(cancelled.status_code, 200, cancelled.text)
+            self.assertEqual(cancelled.json(), {'opened': False})
+            custom.assert_called_once()
+            custom.reset_mock()
             forwarded = {**headers, 'X-Forwarded-For': '192.0.2.1'}
             self.assertEqual((await self.client.get('/api/local-players', headers=forwarded)).json(), {'players': []})
             self.assertEqual((await self.client.post('/api/local-playback?id=1', json={}, headers=forwarded)).status_code, 403)
             remote = {**headers, 'Origin': 'https://attacker.example'}
             self.assertEqual((await self.client.post('/api/local-playback?id=1', json={}, headers=remote)).status_code, 403)
+            for denied in (forwarded, remote):
+                rejected = await self.client.post('/api/local-playback?id=1&player=custom', json={}, headers=denied)
+                self.assertEqual(rejected.status_code, 403)
+            custom.assert_not_called()
             launch.assert_not_called()
             with patch.object(local_playback, 'available', return_value=False):
                 self.assertEqual((await self.client.get('/api/local-players', headers=headers)).json(), {'players': []})
@@ -4440,7 +4518,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         self.addAsyncCleanup(self.client.aclose)
 
     async def test_health_reports_the_unconfigured_state_instead_of_failing(self):
-        response = await self.client.get("/healthz")
+        response = await self.client.get("http://127.0.0.1/healthz")
         self.assertEqual(response.status_code, 200)
         body = response.json()
         self.assertTrue(body["ok"])
@@ -4452,7 +4530,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNone(self.app.state.web_contract.downloads._thread)
             self.assertFalse(self.app.state.follow_scheduler._started)
             self.assertFalse(self.app.state.web_contract.feed_scheduler._started)
-            response = await self.client.get("/healthz")
+            response = await self.client.get("http://127.0.0.1/healthz")
             self.assertEqual(response.status_code, 200)
             self.assertFalse(response.json()["configured"])
             self.assertFalse(self.settings.db_path.exists())
@@ -4466,8 +4544,10 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
                            page_path=ROOT / "web/index.html", secrets_root=database.parent / "secrets",
                            tunnel_state_root=database.parent / "tunnel-state",
                            tunnel_log_root=database.parent / "logs")
+        # 生命周期用例验证启动与退出。实际种子导入由后继测试使用临时种子包验证。
         with patch("peach.settings_file.load_config", return_value=config), \
                 patch("peach.routes_configuration.managed_configuration", return_value=False), \
+                patch("peach.seed_followup.plan", return_value=[]), \
                 self.assertNoLogs("peach", level="ERROR"):
             app = create_app(settings)
             async with app.router.lifespan_context(app), httpx.AsyncClient(
@@ -4499,8 +4579,8 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
                         self.assertIsNone(app.state.web_contract.downloads._thread)
                         self.assertFalse(app.state.follow_scheduler._started)
                         self.assertFalse(app.state.web_contract.feed_scheduler._started)
-                        self.assertEqual((await client.get("/healthz")).status_code, 200)
-                        ready = await client.get("/healthz?ready=1")
+                        self.assertEqual((await client.get("http://127.0.0.1/healthz")).status_code, 200)
+                        ready = await client.get("http://127.0.0.1/healthz?ready=1")
                         self.assertEqual(ready.status_code, 503)
                         self.assertFalse(ready.json()["ready"])
                         for path in ('/', '/settings/library'):
@@ -4520,7 +4600,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
             self.assertIsNotNone(app.state.web_contract.downloads._thread)
             self.assertTrue(app.state.follow_scheduler._started)
             self.assertTrue(app.state.web_contract.feed_scheduler._started)
-            ready = await client.get('/healthz?ready=1')
+            ready = await client.get('http://127.0.0.1/healthz?ready=1')
             self.assertEqual(ready.status_code, 200)
             self.assertTrue(ready.json()['ready'])
         self.assertIsNone(app.state.web_contract.downloads._thread)
@@ -4537,7 +4617,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
             async with self.ledger_client(database) as (app, client):
                 self.assertTrue(app.state.ledger_background_deferred)
                 self.assertIsNone(app.state.web_contract.downloads._thread)
-                ready = await client.get('/healthz?ready=1')
+                ready = await client.get('http://127.0.0.1/healthz?ready=1')
                 self.assertEqual(ready.status_code, 200)
                 self.assertTrue(ready.json()['background_deferred'])
                 update_tasks.release(database, token)
@@ -4570,8 +4650,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
             invoked.set()
             return {'status': 'complete'}
         with patch('peach.settings_file.active', return_value=config), patch(
-                'peach.web_library_processing.process_library', side_effect=process), patch(
-                'peach.seed_followup.plan', return_value=[]):
+                'peach.web_library_processing.process_library', side_effect=process):
             async with self.ledger_client(database) as (app, _client):
                 self.assertTrue(await asyncio.to_thread(invoked.wait, 5))
                 thread = app.state.web_contract.library_processing_job.thread
@@ -4626,11 +4705,11 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         async with self.ledger_client(database) as (app, client):
             self.assertIsNone(app.state.web_contract.downloads._thread)
             fresh_ledger(parent)
-            response = await client.get("/healthz?ready=1")
+            response = await client.get("http://127.0.0.1/healthz?ready=1")
             self.assertEqual(response.status_code, 503)
             self.assertFalse(response.json()["checks"]["background"])
         async with self.ledger_client(database) as (app, client):
-            response = await client.get("/healthz?ready=1")
+            response = await client.get("http://127.0.0.1/healthz?ready=1")
             self.assertEqual(response.status_code, 200)
             self.assertTrue(response.json()["checks"]["background"])
             self.assertIsNotNone(app.state.web_contract.downloads._thread)
@@ -4714,7 +4793,7 @@ class UnconfiguredMachineTests(unittest.IsolatedAsyncioTestCase):
         async with httpx.AsyncClient(
             transport=httpx.ASGITransport(app=app), base_url="http://test",
         ) as client:
-            self.assertTrue((await client.get("/healthz")).json()["configured"])
+            self.assertTrue((await client.get("http://127.0.0.1/healthz")).json()["configured"])
 
 
 #: 不挂鉴权依赖的路由，以及每一条为什么必须公开。每一项都逐条核实过，新加的路由

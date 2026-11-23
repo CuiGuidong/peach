@@ -1,5 +1,6 @@
 """既有库边车识别和统一处理的隔离回归。"""
 import io
+import csv
 import json
 import os
 import sqlite3
@@ -8,6 +9,7 @@ import threading
 import time
 import unittest
 from concurrent.futures import ThreadPoolExecutor
+from dataclasses import replace
 from pathlib import Path, PureWindowsPath
 from types import SimpleNamespace
 from unittest.mock import DEFAULT, Mock, patch
@@ -3358,6 +3360,158 @@ class LibraryWatchdogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, '媒体库'):
             process_library(config, db, self.root / 'generated', self.root / 'covers', library_id='missing')
 
+    def test_directory_scan_discovers_descendants_without_touching_other_folders(self):
+        from dataclasses import replace
+        from peach.library_processing_scope import directory_choices
+        from peach.web_library_processing import _resume_request
+
+        library = self.root / 'media'
+        ledger_root = PureWindowsPath(r'R:\Media')
+        chosen = library / 'chosen'
+        sibling = library / 'chosen-other'
+        (chosen / 'nested').mkdir(parents=True)
+        sibling.mkdir()
+        (chosen / 'nested' / 'ABW-204.mp4').write_bytes(b'video')
+        (sibling / 'ABW-205.mp4').write_bytes(b'video')
+        config = replace(self._config(library), locations={'local': (str(ledger_root),)},
+                         mounts={'local': (library,)})
+        db = fresh_ledger(self.root)
+        selected = str(ledger_root / 'chosen')
+        expected = str(ledger_root / 'chosen' / 'nested')
+        self.assertEqual(directory_choices(config, selected)['directories'], [{'name': 'nested', 'path': expected}])
+        with patch('peach.settings_file.active', return_value=config):
+            result = process_library(config, db, self.root / 'generated', self.root / 'covers',
+                                     stage='scan', directory=selected, provider_factory=self._provider)
+        with closing(sqlite3.connect(db)) as connection:
+            self.assertEqual(connection.execute('SELECT path FROM asset').fetchall(), [(expected + '\\ABW-204.mp4',)])
+        self.assertEqual(_resume_request(result, 'standard')['directory'], selected)
+        with self.assertRaisesRegex(ValueError, '有效目录'):
+            directory_choices(config, selected + r'\..\..')
+
+    @windows_ledger_roots
+    def test_western_metadata_enters_review_without_creating_a_jav_code(self):
+        from peach.http import HttpResponse
+        from peach.repository import LedgerDatabase
+        from tests.test_western_artwork import node
+
+        media = self.root / 'media'
+        media.mkdir()
+        filename = 'Tushy.19.08.14.Lena.Anderson.Cam.To.Me.1080p.mp4'
+        (media / filename).write_bytes(b'video')
+        config = self._config(media)
+        db = fresh_ledger(self.root)
+        provider = self._provider()
+        scene = {**node(), 'images': {}}
+
+        def official(request, timeout, max_bytes):
+            variables = json.loads(request.body)['variables']
+            data = ({'searchVideos': {'edges': [{'node': scene}]}} if 'query' in variables
+                    else {'findOneVideo': scene})
+            return HttpResponse(200, {}, json.dumps({'data': data}).encode())
+
+        provider.transport = Mock(side_effect=official)
+        candidates = self.root / 'candidates'
+        covers = self.root / 'covers'
+        process_library(config, db, candidates, covers, stage='scan', provider_factory=lambda: provider)
+        result = process_library(config, db, candidates, covers, stage='metadata',
+                                 database=LedgerDatabase(db), provider_factory=lambda: provider)
+        self.assertEqual(result['status'], 'complete')
+        with closing(sqlite3.connect(db)) as connection:
+            code, title = connection.execute('SELECT code, catalog_title FROM asset WHERE name=?', (filename,)).fetchone()
+        self.assertFalse(code)
+        self.assertFalse(title)
+        with (candidates / 'library-metadata-field-candidates.csv').open(encoding='utf-8-sig', newline='') as evidence:
+            title_row = next(row for row in csv.DictReader(evidence) if row['field'] == 'title')
+        candidate, = json.loads(title_row['candidates_json'])
+        self.assertEqual(candidate['content_id'], 'tushy:cam-to-me')
+        self.assertTrue(candidate['requires_review'])
+        self.assertFalse((covers / 'ASSET-ID-1.jpg').exists())
+        provider.query.assert_not_called()
+
+    @windows_ledger_roots
+    def test_stashdb_is_opt_in_and_publishes_other_publishers_to_review(self):
+        from peach.repository import LedgerDatabase
+        from peach.scraping_access import save
+
+        media = self.root / 'media'
+        media.mkdir()
+        (media / 'Aster.Studio.25.02.03.Example.Scene.mp4').write_bytes(b'video')
+        config = self._config(media)
+        db = fresh_ledger(self.root)
+        provider = self._provider()
+        scene_id = 'acda6af1-3a18-4588-9d07-4942d8d1601f'
+        scene = {'id': scene_id, 'date': '2025-02-03', 'title': 'Example Scene', 'studio': {'name': 'Aster Studio'}}
+
+        def catalog(request, timeout, max_bytes):
+            self.assertEqual(request.url, 'https://stashdb.org/graphql')
+            self.assertEqual(request.headers['ApiKey'], 'fixture-key')
+            variables = json.loads(request.body)['variables']
+            data = ({'searchScenes': {'count': 1, 'scenes': [scene]}} if 'term' in variables else {'findScene': scene})
+            return HttpResponse(200, {}, json.dumps({'data': data}).encode())
+
+        provider.transport = Mock(side_effect=catalog)
+        candidates = self.root / 'candidates'
+        covers = self.root / 'covers'
+        process_library(config, db, candidates, covers, stage='scan', provider_factory=lambda: provider)
+        process_library(config, db, candidates, covers, stage='metadata', provider_factory=lambda: provider)
+        provider.transport.assert_not_called()
+        save(config.directory('secrets'), 'stashdb', {'api_key': 'fixture-key'})
+        result = process_library(config, db, candidates, covers, stage='metadata', database=LedgerDatabase(db),
+                                 provider_factory=lambda: provider)
+        self.assertEqual(result['status'], 'complete')
+        with (candidates / 'library-metadata-field-candidates.csv').open(encoding='utf-8-sig', newline='') as evidence:
+            title = next(row for row in csv.DictReader(evidence) if row['field'] == 'title')
+        candidate, = json.loads(title['candidates_json'])
+        self.assertEqual((candidate['source'], candidate['content_id']), ('stashdb', scene_id))
+        self.assertTrue(candidate['requires_review'])
+        self.assertNotIn('fixture-key', json.dumps(candidate))
+        with closing(sqlite3.connect(db)) as connection:
+            self.assertEqual(connection.execute('SELECT COALESCE(code, \x27\x27), COALESCE(catalog_title, \x27\x27) FROM asset').fetchone(),
+                             ('', ''))
+        provider.query.assert_not_called()
+
+    @windows_ledger_roots
+    def test_cross_publisher_scan_uses_theporndb_after_stashdb_returns_no_match(self):
+        from urllib.parse import urlsplit
+        from peach.scraping_access import save
+
+        media = self.root / 'media'
+        media.mkdir()
+        (media / 'Aster.Studio.25.02.03.Example.Scene.mp4').write_bytes(b'video')
+        config = self._config(media)
+        db = fresh_ledger(self.root)
+        provider = self._provider()
+        scene_id = 'acda6af1-3a18-4588-9d07-4942d8d1601f'
+        scene = {'id': scene_id, 'date': '2025-02-03', 'title': 'Example Scene', 'site': {'name': 'Aster Studio'}}
+        save(config.directory('secrets'), 'stashdb', {'api_key': 'stash-key'})
+        save(config.directory('secrets'), 'theporndb', {'api_key': 'tpdb-key'})
+        calls = []
+
+        def catalogs(request, timeout, max_bytes):
+            url = urlsplit(request.url)
+            calls.append(url.hostname)
+            if url.hostname == 'stashdb.org':
+                self.assertEqual(request.headers['ApiKey'], 'stash-key')
+                payload = {'data': {'searchScenes': {'count': 0, 'scenes': []}}}
+            else:
+                self.assertEqual(request.headers['Authorization'], 'Bearer tpdb-key')
+                self.assertNotIn('ApiKey', request.headers)
+                data = {'/scenes': [scene], '/movies': [], f'/scenes/{scene_id}': scene}[url.path]
+                payload = {'data': data, 'links': {'next': None}}
+            return HttpResponse(200, {}, json.dumps(payload).encode())
+
+        provider.transport = Mock(side_effect=catalogs)
+        candidates, covers = self.root / 'candidates', self.root / 'covers'
+        process_library(config, db, candidates, covers, stage='scan', provider_factory=lambda: provider)
+        result = process_library(config, db, candidates, covers, stage='metadata', provider_factory=lambda: provider)
+        self.assertEqual(result['status'], 'complete')
+        self.assertEqual(calls, ['stashdb.org', 'api.theporndb.net', 'api.theporndb.net', 'api.theporndb.net'])
+        with (candidates / 'library-metadata-field-candidates.csv').open(encoding='utf-8-sig', newline='') as evidence:
+            title = next(row for row in csv.DictReader(evidence) if row['field'] == 'title')
+        candidate, = json.loads(title['candidates_json'])
+        self.assertEqual((candidate['source'], candidate['content_id']), ('theporndb', 'scenes:' + scene_id))
+        self.assertTrue(candidate['requires_review'])
+
     @windows_ledger_roots
     def test_empty_incremental_sync_completes_without_metadata_queries(self):
         media = self.root/'media'
@@ -3566,6 +3720,19 @@ class LibraryWatchdogTests(unittest.TestCase):
             for folder in folders + folders:
                 self.assertIn('video.mp4', listing.files(folder))
         self.assertEqual(read.call_count, 10)
+
+    def test_a_video_restored_after_prefetch_is_found_in_a_fresh_listing(self):
+        root = self.root / 'media'
+        root.mkdir()
+        listing = library_processing._DirectoryIndex()
+        listing.prefetch([root])
+        video = root / 'sample.mp4'
+        replacement = root / 'replacement.mp4'
+        replacement.write_bytes(b'video')
+        replacement.replace(video)
+        self.assertTrue(listing.contains_video(video))
+        self.assertFalse(listing.contains_video(root / 'missing.mp4'))
+        self.assertIsNone(listing.fingerprint(root))
 
     def test_legacy_issue_list_projects_into_count_and_preview(self):
         legacy = [{'asset_id': index, 'message': '未识别到番号'} for index in range(1, 26)]
@@ -4143,6 +4310,41 @@ class LibraryPreviewCompletionTests(unittest.TestCase):
     def make_tile(_ffmpeg, _pattern, _columns, _rows, destination, **_options):
         Image.new('RGB', (1440, 810), 'green').save(destination, format='JPEG')
         return True
+
+    def test_a_missing_video_has_one_issue_and_incremental_sync_rechecks_the_restored_path(self):
+        from peach.library_new_assets import pending
+
+        self.config = replace(self.config, locations={'local': (self.ledger_roots['local'],)})
+        (self.media / 'clip-2.mp4').unlink()
+        video = self.media / 'clip-1.mp4'
+        video.unlink()
+        with patch('peach.library_processing.FFmpegResolver', return_value=self.resolver), \
+                patch('peach.frame_capture.capture_with_retry', return_value=True), \
+                patch('peach.frame_capture.tile_frames', side_effect=self.make_tile), \
+                patch('peach.library_processing._finish_collection', return_value={}):
+            first = self.run_processing(asset_ids=[1])
+            self.assertEqual(pending(self.db), [])
+            video.write_bytes(b'replacement video')
+            retried = self.run_processing(incremental=True)
+        self.assertEqual(first['issue_count'], 1)
+        self.assertEqual(first['issue_preview'][0]['message_code'], 'errors.libraryProcessing.mediaInaccessible')
+        self.assertEqual(first['retryable_asset_ids'], [1])
+        self.assertEqual(retried['asset_ids'], [1])
+        self.assertEqual((retried['status'], retried['issue_preview'], retried['previews']), ('complete', [], 1))
+        self.assertNotEqual(first['job_id'], retried['job_id'])
+        self.assertTrue(Path(first['issues_log']).is_file())
+
+    def test_a_completed_metadata_checkpoint_keeps_an_unfinished_preview_pending(self):
+        from peach.library_new_assets import pending, remember
+
+        remember(self.db, ids=[1])
+        state = {'retryable_asset_ids': [1], 'issue_count': 1}
+        checkpoints = library_processing._LibraryCheckpoints(state, None, self.database, self.db)
+        row = {'id': 1, 'path': str(PureWindowsPath(self.ledger_roots['local']) / 'clip-1.mp4')}
+        checkpoints.queue_metadata(row, ['evidence'], issues_before=1)
+        checkpoints.commit_metadata(lambda **_args: None)
+        self.assertTrue(state['completed_metadata'])
+        self.assertEqual(pending(self.db), [1])
 
     def test_selected_completion_generates_a_snapshot_without_scanning_or_cloud_reads(self):
         reports = []

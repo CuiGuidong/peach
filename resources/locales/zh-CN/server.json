@@ -280,6 +280,28 @@
         }
       }
     },
+    "v0-61-0": {
+      "headline": "按文件夹扫描，补全欧美作品资料",
+      "items": {
+        "library-folder-scan": {
+          "body": "在扫描菜单中选择文件夹，只扫描该文件夹及其子文件夹",
+          "title": "按文件夹扫描"
+        },
+        "western-metadata-sources": {
+          "body": "配置 StashDB 或 ThePornDB，补全发行方官网未覆盖的场景和长片资料及封面",
+          "title": "补全欧美作品资料和封面"
+        }
+      }
+    },
+    "v0-60-0": {
+      "headline": "调整下载版本的优先顺序",
+      "items": {
+        "download-edition-order": {
+          "body": "在下载设置里拖动版本并保存，一键入库和「想要」都会按这个顺序优先匹配资源",
+          "title": "优先下载的版本"
+        }
+      }
+    },
     "v0-59-0": {
       "headline": "筛选馆藏、编辑作品资料",
       "items": {
@@ -821,6 +843,8 @@
     },
     "auth": {
       "invalidRememberDays": "请选择有效的保持登录时间",
+      "loginFormInvalid": "登录表单字段过多",
+      "loginFormTooLarge": "登录表单过大",
       "sessionNotSaved": "登录设备未能记下，请检查数据目录能否写入后重试",
       "submitFromSettings": "请从 Peach 配置页提交",
       "tooManyAttempts": "尝试次数较多，请一分钟后重试",
@@ -1008,6 +1032,9 @@
       "selectionRetryExclusive": "选择项目与失败重试不能同时使用",
       "stageInvalid": "处理阶段无效",
       "incrementalStageUnsupported": "新增文件发现只支持扫描或同步",
+      "directoryOutsideLibrary": "请选择媒体库内的有效目录",
+      "directoryUnavailable": "无法读取该目录，请检查挂载或权限",
+      "directoryStageUnsupported": "目录范围只能用于单独扫描",
       "previewsDisabled": "视频预览生成已关闭，请先在媒体库设置中开启",
       "meteredGrantNotBoolean": "流量保护授权必须为开关值",
       "meteredGrantPreviewsOnly": "流量保护授权只用于指定影片的补全预览",
@@ -1022,7 +1049,8 @@
       "coverProcessingFailed": "封面处理失败（{{errorType}}），未能完成比较；请查看服务日志。"
     },
     "resourceSync": {
-      "addMediaDirectory": "请先在配置页添加媒体目录"
+      "addMediaDirectory": "请先在配置页添加媒体目录",
+      "scanExpired": "清理确认已过期，请重新检查"
     },
     "organize": {
       "sourceMissing": "不认识的来源：(空)",
@@ -1238,7 +1266,8 @@
       "invalidEvidence": "请使用公开的 HTTPS 链接，移除账号或跟踪参数后再提交。"
     },
     "ledger": {
-      "writeBusy": "本地数据库正忙：这次写入排队超过 {{seconds}} 秒，没有保存，请稍后重试。"
+      "writeBusy": "本地数据库正忙：这次写入排队超过 {{seconds}} 秒，没有保存，请稍后重试。",
+      "writeCorrupt": "本地数据库已损坏。请在「设置 → 应用与维护 → 账本备份」恢复经过校验的备份。"
     },
     "hardwareTranscode": {
       "backendInvalid": "PEACH_TRANSCODE_BACKEND 必须为 {{backends}}"
@@ -1469,6 +1498,7 @@
       "addressPortInvalid": "CloudDrive2 地址的端口必须是 1–65535 的整数",
       "notPikpakRoot": "{{root}} 不是已声明的 PikPak 媒体根；已知：{{known}}",
       "notPikpakRootNoneDeclared": "{{root}} 不是已声明的 PikPak 媒体根；已知：（设置文件里没有 pikpak 来源）",
+      "invalidEditionPreferences": "下载版本顺序有重复或包含不支持的版本",
       "waitHoursNotNumber": "等待上限要写成小时数",
       "waitHoursOutOfRange": "等待上限在 1 到 {{max}} 小时之间",
       "writerOnly": "云下载只在允许修改数据库的设备上可用",
@@ -1580,6 +1610,14 @@
     "feedFollowup": {
       "noMetadata": "来源链 {{chain}} 上都没有这个番号的资料",
       "chainTimedOut": "来源链 {{chain}} 在 {{seconds}} 秒内没有答复"
+    },
+    "westernCatalog": {
+      "http": "{{source}} 返回 HTTP {{status}}",
+      "invalid": "{{source}} 未返回可用的作品资料",
+      "invalidKey": "请输入有效的 API 密钥",
+      "keyMissing": "请先配置 {{source}} API 密钥",
+      "keyRejected": "{{source}} 未接受此 API 密钥",
+      "redirect": "{{source}} 请求跳转到其他网站，连接已停止"
     },
     "westernArtwork": {
       "babepediaUrlMismatch": "Babepedia 未取得：档案地址不一致",
@@ -2015,11 +2053,17 @@
       "entityMissing": "选中的档案已经不在了，请重新选择",
       "entityNameInvalid": "名称不能为空，也不能超过 200 个字"
     },
+    "applicationPicker": {
+      "busy": "已有一个系统选择窗口打开",
+      "cannotOpen": "这台电脑无法启动系统应用程序选择器",
+      "failed": "无法打开应用程序选择器",
+      "unsupportedSystem": "当前系统不支持选择本机播放器",
+      "headless": "此部署不支持选择本机播放器"
+    },
     "folderPicker": {
       "busy": "已经有一个选择文件夹的窗口开着",
       "cannotOpen": "这台电脑上打不开系统文件夹对话框",
       "failed": "没能打开文件夹对话框",
-      "noPermission": "这台电脑上的 Peach 没有弹出对话框的权限",
       "unsupportedSystem": "这个系统上没有可用的文件夹对话框",
       "headless": "无桌面部署请在网页中选择媒体挂载目录"
     },
@@ -2053,7 +2097,8 @@
     "localPlayback": {
       "deploymentUnsupported": "此部署请使用网络播放地址或 M3U 播放列表",
       "fileUnsupported": "此文件请使用网络播放地址或 M3U 播放列表",
-      "playerMissing": "播放器未安装，请重新选择"
+      "playerMissing": "播放器未安装，请重新选择",
+      "invalidCustomPlayer": "所选播放器不可用，请重新选择"
     },
     "mediaFolders": {
       "folderMissing": "目录不存在或已移出媒体库"
@@ -3249,6 +3294,8 @@
     },
     "routesMedia": {
       "defaultPlayer": "系统默认播放器",
+      "customPlayer": "自定义播放器…",
+      "choosePlayer": "选择播放器",
       "subtitle": {
         "outsideFolder": "不在正片所在目录",
         "tooLarge": "文件过大",
@@ -3474,6 +3521,7 @@
         "renameFailed": "改名失败：{{error}}",
         "ledgerRolledBack": "数据库写入失败，已改回原名：{{error}}",
         "ledgerStuck": "数据库写入失败且改不回原名，需要人工处理：{{error}}",
+        "moveUnverified": "移动中断后无法确认文件身份，请核对两个路径再重试",
         "assetGone": "资产已不在馆藏，未执行整理"
       }
     },

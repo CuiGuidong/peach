@@ -152,6 +152,9 @@
     "detectedAddress": "探测到 {{address}}，保存配置后生效",
     "directoryCreated": "已新建目录",
     "directoryMissing": "这个目录不存在。",
+    "editionPreferences": "优先下载的版本",
+    "editionPreferencesDefault": "默认按画质和做种数等条件排序。拖动版本并保存，可为一键入库和「想要」设置优先顺序。",
+    "editionPreferencesHelp": "保存后，一键入库优先选用排在前面的版本，「想要」按同一顺序显示资源。没有匹配时，按画质和做种数等条件排序。",
     "filledPending": "根据媒体库目录填入 {{path}}，保存配置后生效",
     "filledSaved": "已根据媒体库目录填入 {{path}}",
     "maxWait": "等待上限（小时）",
@@ -162,6 +165,7 @@
     "offlineUnsupported": "{{path}} 不支持离线下载",
     "pathMissing": "{{path}} 不存在",
     "permissionsComplete": "齐全",
+    "resetEditionPreferences": "恢复默认排序",
     "pikpakPathPlaceholder": "以 / 开头的网盘路径",
     "pikpakRoot": "PikPak 根目录",
     "pikpakRootDirectory": "PikPak 根目录对应的媒体目录",
@@ -251,7 +255,14 @@
   "configurationPage": {
     "loadFailed": "未取得配置，请刷新页面重试。",
     "loadFailedTitle": "配置读取失败",
-    "sectionsLabel": "配置分区"
+    "sectionsLabel": "配置分区",
+    "contents": "本页目录"
+  },
+  "maintenanceGroups": {
+    "updates": "更新与修复",
+    "runtime": "运行与存储",
+    "backups": "备份与保留",
+    "privacy": "数据与隐私"
   },
   "dataSharing": {
     "reportErrors": "发送版本统计与错误诊断（推荐）",
