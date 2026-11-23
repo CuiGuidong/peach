@@ -14,6 +14,10 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Interface**: Browse mapped media directories and locate files from Storage or playback details on headless servers (#376). / **界面**：无桌面部署可从 Storage 或播放详情浏览挂载目录并定位文件（#376）。
+
 ### Fixed / 修复
 
 - **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
@@ -46,7 +50,6 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Added / 新增
 
-- **Interface**: Browse mapped media directories from Storage and locate a file in the browser on headless servers (#376). / **界面**：可从 Storage 浏览已挂载的媒体目录，无桌面部署可在网页中定位文件（#376）。
 - **Interface**: Right-click cards and table rows for item actions, use the Library action column, or delete from the icon group under a work's title (#773). / **界面**：卡片与表格行可右键操作，馆藏列表新增操作栏，作品详情的删除入口放在标题下方的按钮组（#773）。
 - **Settings**: Set an edition preference order for one-click adding and Want list resource results (#800). / **配置**：可为一键入库和「想要」资源设置版本优先顺序（#800）。
 

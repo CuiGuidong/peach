@@ -8,6 +8,7 @@ import { Breadcrumb, BreadcrumbItem } from '@/components/base/breadcrumb/breadcr
 import { apiGet, errorMessage } from '../../api';
 import { t } from '../../i18n';
 import { ModalFrame } from '../components/modal-frame';
+import { overlayHost } from '../components/overlay-host';
 import { EmptyState } from '../components/empty-state';
 import { Note } from '../components/note';
 import { SettingsDialogClose } from '../components/settings-dialog-close';
@@ -65,7 +66,7 @@ function DirectoryBrowser({ initial }: { initial: string }) {
     <span data-media-directory-status="">{status || ''}{interactive ? <RiArrowRightSLine aria-hidden className="size-4 shrink-0" /> : null}</span>
   </>;
   return <ModalFrame isOpen onOpenChange={open => { if (!open) close() }} width="collections" label={t('shell:mediaDirectory.title')} surfaceClassName="peach-react"
-    portalContainer={document.querySelector('dialog:modal') || undefined}><div data-media-directory-dialog="">
+    portalContainer={overlayHost(document.querySelector('dialog:modal'))}><div data-media-directory-dialog="">
     <div data-media-directory-header="">
       <Heading slot="title" className="text-title-2-medium">{t('shell:mediaDirectory.title')}</Heading>
       <SettingsDialogClose label={t('shell:serverPath.close')} onPress={close} />
