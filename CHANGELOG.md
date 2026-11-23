@@ -14,6 +14,12 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Interface**: Browse mapped media directories and locate files from Storage or playback details on headless servers (#376). / **界面**：无桌面部署可从 Storage 或播放详情浏览挂载目录并定位文件（#376）。
+- **Library**: Send magnets to qBittorrent and import completed files from a mapped local media folder, with progress and cancellation (#240). / **馆藏**：可将磁力交给 qBittorrent，跟踪进度、取消任务，并将映射目录中下载完成的文件自动入库（#240）。
+- **Settings**: Optionally confine horizontal scrolling on the desktop home page to the area beside the sidebar (#736). / **配置**：可将桌面首页横向滚动限制在侧栏右侧（#736）。
+
 ### Changed / 变更
 
 - **Library**: Refresh only the changed cover entries when artwork or its metadata changes (#847). / **馆藏**：封面或附属资料更新时，只重新读取有变化的封面索引条目（#847）。
@@ -22,6 +28,7 @@ Entries are written for users to scan: one sentence each, saying where something
 ### Fixed / 修复
 
 - **Desktop**: Show the database sync and writer takeover actions in standalone builds when replication is enabled, and show CLI help from the packaged executable (#844). / **桌面**：独立发行版启用复制后显示数据库同步和写入端接管，打包程序支持显示命令行帮助（#844）。
+- **Interface**: Pause glass drift after the home page has been idle for six seconds and resume it on interaction (#840). / **界面**：首页静置六秒后暂停玻璃光晕漂移，继续操作时恢复（#840）。
 - **Interface**: Resize cover and avatar crops with the keyboard while player shortcuts stay inactive during cropping (#846). / **界面**：封面和头像取景手柄支持键盘调整，取景时不会触发播放器快捷键（#846）。
 - **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
 - **Updates**: Show English and Simplified Chinese release notes in the macOS update window (#833). / **更新**：macOS 更新窗口显示英文和简体中文更新日志（#833）。

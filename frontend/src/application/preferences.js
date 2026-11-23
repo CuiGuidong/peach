@@ -7,7 +7,7 @@ import { entityDisplayName, setNameLanguage, setNameLocale } from '../core/entit
 import { orientLabel } from '../core/stored-values';
 import { playUiSound, setUiSoundsEnabled, wireUiSounds } from '../ui-kit/sounds';
 import { applyTheme, watchSystemTheme } from './../appearance/theme';
-import { applyAccent, applyGlassFaces, applyHomeGlow, paintHomeGlowNow } from './../appearance/glow';
+import { applyAccent, applyGlassFaces, applyHomeGlow, paintHomeGlowNow, wireHomeGlowIdle } from './../appearance/glow';
 import { navigationState } from './navigation.js';
 import { $, LOC, esc, icon, isCatalogPath } from '../core';
 import { peachHistory, shellNavigate } from './../history/index';
@@ -174,6 +174,7 @@ applyTheme();
 watchSystemTheme();
 paintHomeGlowNow();
 applyGlassFaces();
+applicationEffects.own(peachHistory.listen(wireHomeGlowIdle(() => location.pathname === '/', applicationEffects.signal)));
 applyAccent();
 preferencesState.catalogLoadWaiters = [];
 preferencesState.nextCatalogLoad = ()=>new Promise(resolve=>preferencesState.catalogLoadWaiters.push(resolve));
@@ -237,7 +238,9 @@ preferencesState.settingsEffects = {
     state.thumb=preferencesState.appSettings.homePreviewOnly?'1':'0';notifyShell();
     paintCatalogFilter({previewOnly:state.thumb==='1'});replaceCatalogAddress();
   },
+  containHomeScroll:()=>document.documentElement.toggleAttribute('data-contain-home-scroll',preferencesState.appSettings.containHomeScroll),
 };
+preferencesState.settingsEffects.containHomeScroll();
 preferencesState.syncGlassOptics = ()=>{};
 preferencesState.placeSidebarHead = ()=>{};
 preferencesState.SRCICON = {
