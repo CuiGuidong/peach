@@ -95,7 +95,7 @@
   background-size:200% 200%,200% 200%,auto;background-repeat:no-repeat,no-repeat,repeat;
   background-position:50% 20%,80% 70%,0 0;
   animation:glassdriftx calc(41s * var(--glow-drift-scale)) linear infinite,glassdrifty calc(67s * var(--glow-drift-scale)) linear infinite;
-  animation-play-state:var(--glow-drift-play);
+  animation-play-state:var(--glow-idle-play,var(--glow-drift-play));
   backdrop-filter:var(--glass-optic,blur(22px)) saturate(160%) var(--glass-lume);-webkit-backdrop-filter:var(--glass-optic,blur(22px)) saturate(160%) var(--glass-lume);
   border:0;box-shadow:inset 0 1px 0 var(--glass-rim),inset 1px 0 0 var(--glass-low),inset -1px 0 0 var(--glass-low),inset 0 -1px 0 var(--glass-low),var(--glass-shadow);
 }
@@ -121,9 +121,9 @@
 :is(.board-filter-frame,.entitycollectionhead,.top .search,.top>.ib,[data-glass-pane])>[data-glass-drift]{
   display:block;position:absolute;inset:0;z-index:-3;overflow:hidden;border-radius:inherit;pointer-events:none}
 [data-glass-drift]>span{position:absolute;left:0;top:0;width:200%;height:200%;
-  animation:calc(41s * var(--glow-drift-scale)) linear infinite;animation-play-state:var(--glow-drift-play)}
+  animation:calc(41s * var(--glow-drift-scale)) linear infinite;animation-play-state:var(--glow-idle-play,var(--glow-drift-play))}
 [data-glass-drift]>span>span{position:absolute;inset:0;
-  animation:calc(67s * var(--glow-drift-scale)) linear infinite;animation-play-state:var(--glow-drift-play)}
+  animation:calc(67s * var(--glow-drift-scale)) linear infinite;animation-play-state:var(--glow-idle-play,var(--glow-drift-play))}
 /* 静止位置就是原来的 `background-position:50% 20%,80% 70%`：减少动效时动画撤掉，停在这里。 */
 [data-glass-drift]>[data-drift="a"]{transform:translateX(-25%);animation-name:drift-k1-x}
 [data-glass-drift]>[data-drift="a"]>span{transform:translateY(-10%);animation-name:drift-k3-y;background:var(--glass-drift-a)}
@@ -735,7 +735,7 @@ body [data-follow-status=seen],body [data-follow-status=ignored]{background:colo
 /* 玻璃面这一层料只有一份：漂移的两团、那道斜光、底色、内嵌的四条边和落影。认 `data-glass-pane`
    的元素全都拿它，各块自己只留几何、`backdrop-filter` 的饱和度和文字色——那三样本来就一块一个数。
    高对比与 `prefers-reduced-transparency` 的回退在下面同一个属性选择器上，不必各自再写一遍。 */
-[data-glass-pane]{border:0;background:var(--glass-drift-a),var(--glass-drift-b),linear-gradient(125deg,var(--glass-sheen),transparent 42%,var(--glass-low)),var(--glass-fill);background-size:200% 200%,200% 200%,auto;background-repeat:no-repeat,no-repeat,repeat;background-position:50% 20%,80% 70%,0 0;animation:glassdriftx calc(41s * var(--glow-drift-scale)) linear infinite,glassdrifty calc(67s * var(--glow-drift-scale)) linear infinite;animation-play-state:var(--glow-drift-play);box-shadow:inset 0 1px 0 var(--glass-rim),inset 1px 0 0 var(--glass-low),inset -1px 0 0 var(--glass-low),inset 0 -1px 0 var(--glass-low),var(--glass-shadow)}
+[data-glass-pane]{border:0;background:var(--glass-drift-a),var(--glass-drift-b),linear-gradient(125deg,var(--glass-sheen),transparent 42%,var(--glass-low)),var(--glass-fill);background-size:200% 200%,200% 200%,auto;background-repeat:no-repeat,no-repeat,repeat;background-position:50% 20%,80% 70%,0 0;animation:glassdriftx calc(41s * var(--glow-drift-scale)) linear infinite,glassdrifty calc(67s * var(--glow-drift-scale)) linear infinite;animation-play-state:var(--glow-idle-play,var(--glow-drift-play));box-shadow:inset 0 1px 0 var(--glass-rim),inset 1px 0 0 var(--glass-low),inset -1px 0 0 var(--glass-low),inset 0 -1px 0 var(--glass-low),var(--glass-shadow)}
 /* React 产物会按构建目标把标准属性折成 `-webkit-backdrop-filter`，当前 Chromium 不认后者。
    标准属性留在不经转换的共享样式表里，数值逐项对齐首页上下两块玻璃。 */
 body .peach-react :is([data-review-filter],[data-filter-glass]){backdrop-filter:var(--glass-optic,blur(22px)) saturate(160%) var(--glass-lume)}
