@@ -1,7 +1,6 @@
 /* 设置完成：扫描是否已排队、进入 Peach 的入口，运行信息默认折叠。口令不出现在页面上。
  *
- * 独立包的服务端在 `redirect` 里给入口地址，过 `RESTART_REDIRECT_MS` 自己跳过去，与配置页保存后
- * 等托盘换进程的时长是同一个数。 */
+ * 独立包和容器换成常规服务后自动进入同源入口。改端口时沿用跨源跳转等待。 */
 import { useEffect, useRef } from 'react';
 
 import { ButtonLink } from '@/components/base/buttons/button';
@@ -11,6 +10,10 @@ import { Disclosure, ExternalLink, Fact, FactList } from '../../settings/section
 import type { SetupDone } from './setup-api';
 import { SetupShell } from './setup-scene';
 import { t } from '../../../i18n';
+import { pollUntil } from '../../../polling';
+
+const READY_POLL_MS = 500;
+const READY_WAIT_MS = 30_000;
 
 export function SetupDoneView({ done }: { done: SetupDone }) {
   const entry = useRef<HTMLAnchorElement>(null);
@@ -23,8 +26,34 @@ export function SetupDoneView({ done }: { done: SetupDone }) {
   useEffect(() => {
     const target = done.redirect;
     if (!target) return undefined;
-    const timer = setTimeout(() => location.assign(target), RESTART_REDIRECT_MS);
-    return () => clearTimeout(timer);
+    const destination = new URL(target, location.href);
+    if (destination.origin !== location.origin) {
+      const timer = setTimeout(() => location.assign(target), RESTART_REDIRECT_MS);
+      return () => clearTimeout(timer);
+    }
+    const controller = new AbortController();
+    void pollUntil({
+      read: async signal => {
+        try {
+          const response = await fetch('/healthz', {
+            cache: 'no-store',
+            signal: AbortSignal.any([signal, AbortSignal.timeout(2000)]),
+          });
+          if (!response.ok) return false;
+          const health = await response.json();
+          return health.service === 'peach-api' && health.configured === true && health.db === 'available';
+        } catch {
+          // 托盘切换时原端口会短暂离线，仍按同一节律确认就绪。
+          return false;
+        }
+      },
+      apply: ready => { if (ready) location.assign(target) },
+      done: ready => ready,
+      signal: controller.signal,
+      everyMs: READY_POLL_MS,
+      limitMs: READY_WAIT_MS,
+    });
+    return () => controller.abort();
   }, [done.redirect]);
 
   return (

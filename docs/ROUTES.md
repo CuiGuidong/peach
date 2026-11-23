@@ -48,6 +48,8 @@
 
 `GET /api/configuration` 的可选区域独立读取。区域失败时省略该字段，在 `section_errors[区域键]` 提供 `title`、`message`、`error_id`；其余成功字段继续返回。页面按分区显示提示并支持重新读取，依赖未取得媒体来源的配置表单暂停显示。`downloads.problems` 列出地址、凭据及渠道探测的问题，`downloads.config` 保留可修正的已保存地址及有效偏好；下载配置写入对地址严格校验，非法端口返回 400，并保留设置文件与凭据。
 
+设置页用 `GET /api/configuration?include_startup=0` 略过系统快捷方式读取。打开「应用与维护」时，从 `GET /api/configuration/startup` 单独读取同一份状态。两条接口均限本机管理，原配置接口默认仍包含 `startup`。
+
 | 地址 | 用途 |
 | --- | --- |
 | `/` | 全部馆藏，含本地硬盘与已挂载网盘；新作行使用作品详情地址 |

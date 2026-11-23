@@ -270,7 +270,7 @@ def _read_section(result: dict, key: str, reader) -> None:
                               message=f"configuration section {key} could not be read", section=key, error_id=error_id)
 
 
-def snapshot(config, reachability=None) -> dict[str, Any]:
+def snapshot(config, reachability=None, *, include_startup: bool = True) -> dict[str, Any]:
     """配置页首屏要的一切：当前值、修订号、可写与否，以及这台机器的运行信息。
 
     所有设置页都等这一份。媒体目录的在线状态读 `reachability`（`MountReachability`）的快照，
@@ -312,6 +312,8 @@ def snapshot(config, reachability=None) -> dict[str, Any]:
         ("facts", lambda: runtime_fact_entries(config)),
     )
     for key, reader in readers:
+        if key == "startup" and not include_startup:
+            continue
         _read_section(result, key, reader)
     return result
 
@@ -391,12 +393,13 @@ def network_payload(request: Request, config) -> dict[str, Any]:
 
 
 @router.get("/api/configuration")
-def read_configuration(request: Request, _args=Depends(require_auth)):
+def read_configuration(request: Request, include_startup: bool = True, _args=Depends(require_auth)):
     local_only(request)
     config = settings_file.load_config()
     if not config.present:
         raise HTTPException(409, message_fields("api.configuration.setupRequired"))
-    result = snapshot(config, getattr(request.app.state, "mount_reachability", None))
+    result = snapshot(config, getattr(request.app.state, "mount_reachability", None),
+                      include_startup=include_startup)
     _read_section(result, 'network', lambda: network_payload(request, config))
     sync = getattr(request.app.state, "sync", None)
     result["ledger_read_only"] = bool(sync is not None and sync.read_only)
@@ -728,6 +731,15 @@ def logout_pikpak(request: Request, _args=Depends(require_auth)):
     same_origin(request)
     service, roots = _downloads(request)
     return web_downloads.pikpak_logout(service, roots)
+
+
+@router.get("/api/configuration/startup")
+def read_startup(request: Request, _args=Depends(require_auth)):
+    local_only(request)
+    config = settings_file.load_config()
+    if not config.present:
+        raise HTTPException(409, message_fields("api.configuration.setupRequired"))
+    return desktop_startup.snapshot(config)
 
 
 @router.post("/api/configuration/startup")
