@@ -253,15 +253,20 @@
     "expand": "展开更多排名"
   },
   "feedNew": {
+    "applyToSelected": "对所选 {{count}} 部新作执行「{{action}}」。",
+    "batchDone": "已处理 {{count}} 部新作",
     "configureConnection": "配置连接方式",
     "dmmUnreachable": "{{count, number}} 部新作的封面连不上 DMM 图片主机。把 DMM / FANZA 的连接方式设成 Peach 代理，下一轮会自动重取。",
     "ignore": "不想看",
     "ignoreNamed": "不想看 {{name}}",
+    "ignoreSelectedConfirm": "忽略所选 {{count}} 部新作，并移除其中已有的想要标记。",
     "markRead": "标为已看过",
     "markReadNamed": "标为已看过 {{name}}",
     "metadataPending": "资料还没取到",
     "openDetails": "打开 {{name}} 的作品详情",
     "sectionLabel": "未入库的新作",
+    "selectNamed": "选择 {{name}}",
+    "selectionActions": "所选新作操作",
     "untitled": "未命名新作",
     "viewAll": "查看全部新作",
     "wantNamed": "想要 {{name}}"

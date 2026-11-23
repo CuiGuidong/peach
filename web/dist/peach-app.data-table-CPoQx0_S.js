@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "8111fe38-88b5-4d80-bcad-4cc16c15b945", e._sentryDebugIdIdentifier = "sentry-dbid-8111fe38-88b5-4d80-bcad-4cc16c15b945");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d4398afe-6b09-4675-9143-78c820debfa9", e._sentryDebugIdIdentifier = "sentry-dbid-d4398afe-6b09-4675-9143-78c820debfa9");
 	} catch {}
 })();
 import { $76d00c5a4edb230a$export$76ccd210b9029917 as e, $76d00c5a4edb230a$export$816b5d811295e6bc as t, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as n, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as r, $76d00c5a4edb230a$export$f850895b287ef28e as i, ActivityStatus as a, Button as ee, Checkbox as o, ChevronSortDown as te, DataTableFooter as s, DataTableFrame as c, DataTableSort as ne, SelectionDock as l, Table as u, TableColumnControls as d, TableColumnResizer as re, TableSelectionHeader as ie, __toESM as f, cardClass as ae, columnVisibilityFeature as p, createColumnHelper as oe, enterPageSelection as se, exitPageSelection as m, flexRender as h, require_jsx_runtime as g, require_react as _, rowPaginationFeature as v, rowSelectionFeature as y, rowSelectionOperation as b, rowSortingFeature as x, runBulkAction as S, t as C, tableFeatures as w, usePageSelection as T, useRowWorkContext as ce, useTable as le, useTableFilters as ue, useTablePreferences as de } from "./peach-app.js";
@@ -35,11 +35,11 @@ function j({ label: f, items: p, columns: g, rowId: _, rowLabel: v, selected: y,
 	}), G = ue(p, Object.fromEntries(g.filter((e) => e.filter).map((e) => [e.id, e.filter])), () => W((e) => ({
 		...e,
 		pageIndex: 0
-	})), L), [K, me] = (0, O.useState)([]), q = new Map((L ? [...K, ...p] : p).map((e) => [_(e), e])), J = fe(() => x([]));
-	T(() => x([])), (0, O.useEffect)(() => {
+	})), L), [K, me] = (0, O.useState)([]), q = new Map((L ? [...K, ...p] : p).map((e) => [_(e), e])), J = fe(() => x([])), he = T(() => x([]));
+	(0, O.useEffect)(() => {
 		y.length && se();
 	}, [y.length]);
-	let he = Math.max(1, Math.ceil(G.items.length / U.pageSize)), Y = Math.min(U.pageIndex, he - 1), X = Object.fromEntries(y.map((e) => [e, !0])), ge = (0, O.useMemo)(() => {
+	let ge = Math.max(1, Math.ceil(G.items.length / U.pageSize)), Y = Math.min(U.pageIndex, ge - 1), X = Object.fromEntries(y.map((e) => [e, !0])), _e = (0, O.useMemo)(() => {
 		let e = oe();
 		return e.columns([e.display({
 			id: "select",
@@ -72,7 +72,7 @@ function j({ label: f, items: p, columns: g, rowId: _, rowLabel: v, selected: y,
 	]), Z = le({
 		features: A,
 		data: G.items,
-		columns: ge,
+		columns: _e,
 		getRowId: _,
 		state: {
 			sorting: B,
@@ -191,6 +191,10 @@ function j({ label: f, items: p, columns: g, rowId: _, rowLabel: v, selected: y,
 				follow: !0,
 				preferences: H,
 				onRowClick: (e) => Z.getRow(e)?.toggleSelected(),
+				onRectangle: he && !R ? (e, t) => Z.setRowSelection({
+					...t ? X : {},
+					...Object.fromEntries(e.map((e) => [e, !0]))
+				}) : void 0,
 				children: /* @__PURE__ */ (0, k.jsxs)(u, {
 					"aria-label": f,
 					size: "sm",
@@ -256,4 +260,4 @@ function j({ label: f, items: p, columns: g, rowId: _, rowLabel: v, selected: y,
 }
 export { j as DataTable };
 
-//# debugId=8111fe38-88b5-4d80-bcad-4cc16c15b945
+//# debugId=d4398afe-6b09-4675-9143-78c820debfa9

@@ -1,5 +1,5 @@
 /* layout 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
-import { javCardPage, javSelectPage } from '../jav-controls';
+import { javCardPage, javSelectPage, syncJavSelection } from '../jav-controls';
 import { pageSelectPath } from '../react/components/page-selection';
 import { DIRECT_MANAGE_NAV, MANAGE_MENU_SECTIONS, MANAGE_SECTIONS, NAV_CATALOG, OPTIONAL_SIDEBAR_ITEMS, SIDEBAR_ITEMS, getManageMenuSections } from './navigation-items';
 import { FOLLOW_INITIAL_RANGE_OPTIONS } from './initial-follow-ranges';
@@ -410,6 +410,7 @@ export function syncHeaderActions(){
   const entityView=entity?(entityState.entityPageView||(media==='photos'||media==='online'?media:'videos')):'';
   const catalog=isCatalogPath(path)||path==='/trash';
   const javCards=javCardPage(path,location.search);
+  syncJavSelection(path,location.search);
   if((path==='/jav'||pageSelectPath(path))&&selectMode)setSelectMode(false,true);
   /* 标签页两种范围都能多选：本地拼目录筛选，在线做隐藏与屏蔽。本地名册做批量动作，艺人页的在线那档不在内。 */
   const tagsSelectable=path==='/tags';

@@ -62,6 +62,7 @@ export interface ShellActions {
   savePeopleLayout(patch: { layout: PeopleLayout }): void;
   /** 退出顶栏的选择模式：键归壳。 */
   exitSelectMode(): void;
+  clearMediaSelection?(): void;
   /** 本地名册一格的头像（圆框里那段 HTML 与人脸取景），回落链在壳里只有一份。 */
   personAvatar(item: IndexPerson, entityKind: string, big: boolean): PersonAvatar;
   /** 在线创作者一格的头像 HTML：主页头像优先、归档兜底，都取不到落回首字母。 */

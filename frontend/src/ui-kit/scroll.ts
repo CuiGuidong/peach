@@ -166,7 +166,7 @@ export function wireHorizontalScroller(el:any,{drag=false,fade=true,wheel=true,e
 /** 表格使用横向拖动；滚轮维持浏览器行为，控件、列宽手柄与整行表头独立处理指针（表头按偏了也不起拖）。 */
 export function wireTableScroller(el:HTMLElement|null):any{
   return wireHorizontalScroller(el,{drag:true,fade:false,wheel:false,elastic:false,
-    dragIgnore:'a,button,input,select,textarea,label,[role="button"],[role="checkbox"],[role="slider"],.react-aria-ColumnResizer,thead'});
+    dragIgnore:'a,button,input,select,textarea,label,[role="button"],[role="checkbox"],[role="slider"],.react-aria-ColumnResizer,thead,[data-rectangle-select] tbody'});
 }
 
 /* 一排横卡自己缓缓往前走，走到头停一下再往回走。一秒 24px 是看得出在动、又不催人读的

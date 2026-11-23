@@ -1,13 +1,13 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "828d7783-2016-4d0a-a42d-63c8a1ce6ef2", e._sentryDebugIdIdentifier = "sentry-dbid-828d7783-2016-4d0a-a42d-63c8a1ce6ef2");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "18d5a1b5-ed9b-4098-b03e-8172bcb6daa5", e._sentryDebugIdIdentifier = "sentry-dbid-18d5a1b5-ed9b-4098-b03e-8172bcb6daa5");
 	} catch {}
 })();
 import { ApiError as e, BC as t, Button as n, ButtonLink as r, Chip as i, DIAGNOSTICS_KEY as a, Disclosure as o, EmptyState as s, Fact as c, FactList as l, Fieldset as u, FieldsetTitle as d, Gg as f, Input as p, ItemLibrary as m, LOC as ee, LinkButton as h, Note as g, Section as _, SettingsCard as v, SettingsSectionLabel as y, SiteMark as b, Stack as x, TaskProgress as S, __toESM as C, activityKind as w, apiGet as T, apiSend as E, busyProps as D, checkText$1 as O, codedText as k, configurationSection as te, cx as A, diagnosticHeaders as j, diagnosticsSkeleton as M, errorMessage as N, fetchDiagnostics as ne, fmtDur as re, fmtSize as ie, interfaceLanguage as ae, queryClient as oe, require_jsx_runtime as se, require_react as ce, settingsPath as le, stageText as P, t as F, tl as ue, useAction as I, useLibraryFilterOptions as de, useLibraryTints as L, useQuery as R, withBackoff as z } from "./peach-app.js";
 import { ErrorExcerpt as B } from "./peach-app.error-excerpt-Ugft6I5o.js";
 import { SectionToc as V } from "./peach-app.section-toc-DMaTjdd5.js";
-import { DataTable as fe } from "./peach-app.data-table-CYTfz3fV.js";
+import { DataTable as fe } from "./peach-app.data-table-CPoQx0_S.js";
 // src/react/diagnostics/health-list.tsx
 var H = /* @__PURE__ */ C(ce(), 1), U = se(), W = (e) => e.title || e.name || e.code || F("manage:healthList.videoFallback", { id: e.id }), pe = (e, t) => [[
 	F("manage:shared.video"),
@@ -610,4 +610,4 @@ function xe(e) {
 }
 export { xe as DiagnosticsPage };
 
-//# debugId=828d7783-2016-4d0a-a42d-63c8a1ce6ef2
+//# debugId=18d5a1b5-ed9b-4098-b03e-8172bcb6daa5

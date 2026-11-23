@@ -1,5 +1,5 @@
 import { selectionSurface, selectionDock, setSelectionMode, toggleSelection as toggleSelected } from '../react/catalog-grid/selection-controller';
-import { JAV_SELECTION_EVENT, javSelectPage } from '../jav-controls';
+import { javSelectPage, requestJavSelection } from '../jav-controls';
 import { pageSelectionActive, togglePageSelection } from '../react/components/page-selection';
 import { selectSurface } from '../shell';
 /* selection 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
@@ -49,6 +49,17 @@ export function toggleSelection(id,range=false) {
     writeShell(toggleSelected({selected,followSelected},selectionSnapshot(),selectionSurface(location.pathname,location.search),visibleCardIds(),id,range));
     setSelectMode(true);
   }
+
+export function selectCardRectangle(ids,add) {
+  if(!selectMode)return;
+  const follow=selectionSurface(location.pathname,location.search)==='follow';
+  const picks=follow?followSelected:selected;
+  if(!add)picks.clear();
+  for(const id of ids)picks.add(id);
+  const anchor=ids.at(-1)??null;
+  writeShell(follow?{followLastSelectedId:anchor}:{lastSelectedId:anchor});
+  paintSelection();
+}
 
 export function visibleFollowIds(){return [...document.querySelectorAll('[data-follow-list] > [data-follow-item]')]
   .map(card=>+card.dataset.followItem)}
@@ -183,10 +194,11 @@ selectionState.batchDockProps = {count:0,context:'catalog',junkDismissed:false};
 selectionState.trashCount = null;
 selectionState.currentSelectSurface = ()=>selectionSurface(location.pathname,location.search);
 applicationEffects.handler($('#selectMode'), 'onclick', ()=>{
-  if(javSelectPage(location.pathname,location.search)){window.dispatchEvent(new Event(JAV_SELECTION_EVENT));return}
+  if(javSelectPage(location.pathname,location.search)){requestJavSelection(location.search);return}
   if(pageSelectionActive(location.pathname)){togglePageSelection();return}
   setSelectMode(!selectMode,!selectMode?false:true)
 });
+$('#selectMode').disabled=false;
 selectionState.REGION_CHOICES = [['jp',t('shell:region.japan')],['kr',t('shell:region.korea')],['cn',t('shell:region.china')],['west',t('shell:region.western')],
   ['other',t('shell:region.other')],['none',t('shell:region.clear')]];
 selectionState.BATCH_RUNNERS = {batch:runCatalogBatch,region:pickBatchRegion,follow:runFollowBatch,junk:runJunkBatch,

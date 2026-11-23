@@ -13,6 +13,15 @@
  * 目录列表是一叠：连续的一段视频合成一格网格，竖屏带插进来时从行边界剪开，上下两半各是
  * 一段。列距 16px 是给悬停面留的：卡片悬停时底色往盒外多铺 8px，列距再窄就顶到邻卡。 */
 .peach-react [data-media-sections] { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+[data-rectangle-select] { position: relative; user-select: none; }
+[data-card-selection-rectangle] {
+  position: absolute; z-index: 3; pointer-events: none;
+  border: 1px solid var(--color-border-focus-ring, var(--tungsten));
+  background: color-mix(in oklab, var(--color-border-focus-ring, var(--tungsten)) 14%, transparent);
+}
+[data-rectangle-hit] {
+  outline: 2px solid var(--color-border-focus-ring, var(--tungsten)); outline-offset: -2px;
+}
 .peach-react [data-media-grid] {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--tile)), 1fr));

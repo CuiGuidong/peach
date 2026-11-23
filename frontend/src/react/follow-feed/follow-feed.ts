@@ -478,6 +478,7 @@ export interface FollowFeedActions {
   openAuthor(name: string): void;
   /** 多选里的一张：`range` 是 Shift 连选。 */
   toggleSelection(id: number, range: boolean): void;
+  selectRectangle?(ids: number[], add: boolean): void;
   /** 照片墙「仅显示图片」与图片布局两样偏好，壳存起来再推回。 */
   setImagesOnly(on: boolean): void;
   setPhotoLayout(layout: FollowPhotoLayout): void;

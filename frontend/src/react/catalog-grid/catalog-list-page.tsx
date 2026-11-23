@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useState, type CSSProperties, type MouseEvent } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   createColumnHelper, flexRender, rowPaginationFeature, rowSelectionFeature, rowSortingFeature,
@@ -86,6 +86,8 @@ export function CatalogListPage(props: CatalogGridProps & {
     },
   });
   const items = result.data?.items || [];
+  const watchArtwork = useCatalogArtworkWindow();
+  const artworkWindow = items.length >= 50 && typeof IntersectionObserver !== 'undefined' ? watchArtwork : undefined;
   const total = Number(result.data?.total || 0);
   const missing = props.filters?.state === 'trash' ? [] : missingPreviewIds(items, props.layout.javImage);
   const metered = props.filters?.state === 'trash' ? [] : meteredPreviewIds(items, props.layout.javImage);
@@ -117,7 +119,7 @@ export function CatalogListPage(props: CatalogGridProps & {
         isDisabled={result.isPlaceholderData}
         isSelected={row.getIsSelected()} onChange={on => row.toggleSelected(on)} /> }),
       helper.accessor(item => item.name || '', { id: 'name', header: t('catalog:shared.video'), enableSorting: true,
-        cell: ({ row }) => <ListIdentity item={row.original} props={props} disabled={result.isPlaceholderData} /> }),
+        cell: ({ row }) => <ListIdentity item={row.original} props={props} disabled={result.isPlaceholderData} watchArtwork={artworkWindow} /> }),
       helper.display({ id: 'library', header: t('catalog:shared.library'), cell: ({ row }) => <ListLibrary item={row.original} /> }),
       helper.display({ id: 'actions', header: t('catalog:mediaActions.label'), cell: ({ row }) =>
         <MediaRowActions {...contextProps(row.original)} disabled={result.isPlaceholderData} /> }),
@@ -158,7 +160,7 @@ export function CatalogListPage(props: CatalogGridProps & {
       helper.accessor(item => item.release_date, { id: 'release', header: t('catalog:catalogList.releaseDate'), enableSorting: true,
         cell: ({ row }) => row.original.release_date || '—' }),
     ]).sort((a, b) => COLUMN_ORDER.indexOf(a.id!) - COLUMN_ORDER.indexOf(b.id!));
-  }, [props.helpers, props.actions, props.layout, props.selectMode, props.filters?.state, props.selected, result.isPlaceholderData]);
+  }, [props.helpers, props.actions, props.layout, props.selectMode, props.filters?.state, props.selected, result.isPlaceholderData, artworkWindow]);
   const table = useTable({
     features, columns, data: items, getRowId: item => String(item.id),
     manualSorting: true, manualPagination: true, rowCount: total,
@@ -204,7 +206,9 @@ export function CatalogListPage(props: CatalogGridProps & {
       ? completionReserved ? <i data-completion-skeleton="" aria-hidden="true" className="skeleton-sheen" /> : null
       : <LibraryCompletionPrompt className="" assetIds={missing} meteredIds={metered} />}
     {result.isError ? <RetryNote message={requestErrorMessage(result.error)} onRetry={() => void result.refetch()} /> : null}
-    <DataTableFrame follow preferences={preferences} onRowClick={props.selectMode ? id => { if (!result.isPlaceholderData) props.actions.toggleSelection(Number(id), false) } : undefined}>
+    <DataTableFrame follow preferences={preferences} onRowClick={props.selectMode ? id => { if (!result.isPlaceholderData) props.actions.toggleSelection(Number(id), false) } : undefined}
+      onRectangle={props.selectMode && !result.isPlaceholderData && props.actions.selectCardRectangle
+        ? (keys, add) => props.actions.selectCardRectangle?.(keys.map(Number), add) : undefined}>
       <Table aria-label={t('catalog:catalogList.listLabel')} size="sm"
         sortDescriptor={sort ? { column: sort.id, direction: sort.desc ? 'descending' : 'ascending' } : undefined}
         onSortChange={next => table.setSorting([{ id: String(next.column), desc: next.direction === 'descending' }])}>
@@ -252,8 +256,32 @@ export function CatalogListPage(props: CatalogGridProps & {
   </div>;
 }
 
-function ListIdentity({ item, props, disabled }: { item: MediaItem; props: CatalogGridProps; disabled: boolean }) {
-  const artwork = cardArtwork(item, 'small', false, props.layout.javImage);
+type WatchArtwork = (node: HTMLElement, onChange: (visible: boolean) => void) => () => void;
+
+/** 表格保留文字和按键位置，只有视口附近的行挂载封面。Ctrl+F 与方向键使用原来的行。 */
+function useCatalogArtworkWindow(): WatchArtwork {
+  const callbacks = useRef(new WeakMap<Element, (visible: boolean) => void>());
+  const observer = useRef<IntersectionObserver | null>(null);
+  return useCallback((node, onChange) => {
+    const watching = observer.current ??= new IntersectionObserver(entries => {
+      for (const entry of entries) callbacks.current.get(entry.target)?.(entry.isIntersecting);
+    }, { rootMargin: '480px 0px' });
+    callbacks.current.set(node, onChange);
+    watching.observe(node);
+    return () => { callbacks.current.delete(node); watching.unobserve(node) };
+  }, []);
+}
+
+function ListIdentity({ item, props, disabled, watchArtwork }: {
+  item: MediaItem; props: CatalogGridProps; disabled: boolean; watchArtwork?: WatchArtwork | undefined;
+}) {
+  const picture = useRef<HTMLSpanElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    if (picture.current && watchArtwork) return watchArtwork(picture.current, setNear);
+  }, [watchArtwork]);
+  const showArtwork = !watchArtwork || near;
+  const artwork = showArtwork ? cardArtwork(item, 'small', false, props.layout.javImage) : null;
   /* 与卡片同一判据：按画幅筛时组里只剩这一卷或这一个版本，就按单个文件写。 */
   const parts = Number(item.part_group?.count) > 1 ? item.part_group || null : null;
   const editions = Number(item.edition_group?.count) > 1 ? item.edition_group || null : null;
@@ -274,8 +302,9 @@ function ListIdentity({ item, props, disabled }: { item: MediaItem; props: Catal
   };
   return <div data-list-identity="">
     <button type="button" data-list-open="" disabled={disabled} tabIndex={-1} aria-hidden="true" onClick={open}>
-      <span data-list-picture="">{artwork.html
-        ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} /> : <span>{t('catalog:catalogList.noPreview')}</span>}
+      <span ref={picture} data-list-picture="">{artwork?.html
+        ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} />
+        : showArtwork ? <span>{t('catalog:catalogList.noPreview')}</span> : null}
         {parts && !editions ? <span data-media-group="">{t('catalog:catalogList.partCount', { count: Number(parts.count) })}</span> : null}
         {editions ? <span data-media-group="" title={editionNames(editions)}>{t('catalog:catalogList.editionCount', { count: Number(editions.count) })}</span> : null}
         {watched > 0

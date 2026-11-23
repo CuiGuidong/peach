@@ -280,6 +280,11 @@ body[data-density="dense"] .card:not(.feednewcard) .meta .size{flex:none;white-s
 .feednewall svg{width:var(--icon-inline);height:var(--icon-inline);stroke:currentColor;fill:none;stroke-width:2}
 /* 已看过的不移走，只退到背景里：已读是标记，不是关掉。 */
 .feednewcard.isread{opacity:.55}
+[data-feed-selection][data-rectangle-select]{display:block}
+[data-feed-selection][data-rectangle-select] .feednewtools{visibility:hidden}
+.feednewcard[data-feed-selected]{outline:2px solid var(--tungsten);outline-offset:-2px}
+.feednewcard[data-feed-selected] .feednewopen::after{content:"✓";position:absolute;top:8px;right:8px;
+  display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--tungsten);color:var(--ground)}
 /* 通向作品页的点击区，铺满整张卡，是一条外链。
    资产卡的 `.pic` 与 `.meta` 压在点击区上面（z-index 2），那边的点击由卡片自己的脚本
    接；这张卡只有这条外链，所以两块放行指针，落到下面的链接上，悬浮键自己再收回来。 */

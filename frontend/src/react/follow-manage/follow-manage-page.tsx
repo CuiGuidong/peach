@@ -59,7 +59,7 @@ export function FollowManagePage(props: FollowManageProps) {
   const [selected, setSelected] = useState<ReadonlySet<number>>(new Set<number>());
   const [feedSelected, setFeedSelected] = useState<ReadonlySet<number>>(new Set<number>());
   /* 关注列表与订阅源的勾选接右上角多选开关：勾了就进入多选，点开关退出时两份都清空。 */
-  usePageSelection(() => { setSelected(new Set<number>()); setFeedSelected(new Set<number>()) });
+  const selecting = usePageSelection(() => { setSelected(new Set<number>()); setFeedSelected(new Set<number>()) });
   useEffect(() => { if (selected.size || feedSelected.size) enterPageSelection() }, [selected, feedSelected]);
 
   const follow = useQuery({ queryKey: FOLLOW_MANAGE_KEY, queryFn: ({ signal }) => fetchFollow(signal) });
@@ -135,11 +135,11 @@ export function FollowManagePage(props: FollowManageProps) {
         </div>
 
         {tab === 'list' ? <div role="tabpanel" id="follow-panel-list" aria-labelledby="follow-tab-list" className="flex flex-col gap-4">
-          <FeedSources readOnly={readOnly} toast={toast}
+          <FeedSources readOnly={readOnly} toast={toast} selecting={selecting}
             onAdd={() => { setTab('add'); go({ tab: 'add' }) }}
             selection={{ ids: feedSelected, onChange: setFeedSelected, onActivate: () => setSelected(new Set()) }} />
           {follow.data ? <SourceList data={data} sort={sort} dir={dir} page={page} layout={layout}
-            pageSize={pageSize} selected={selected} readOnly={readOnly} toast={toast}
+            pageSize={pageSize} selected={selected} selecting={selecting} readOnly={readOnly} toast={toast}
             openFollow={openFollow}
             onAdd={() => { setTab('add'); go({ tab: 'add' }) }}
             onSort={(nextSort, nextDir) => {

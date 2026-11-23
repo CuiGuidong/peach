@@ -13,7 +13,7 @@ import { confirmModal, dissolveValue, fitSkeleton, wireHorizontalScroller } from
 import { navigationState, paintSidebar, syncNavigation } from './navigation.js';
 import { disposeStage, mediaState, openEditions, openItem, openMix, openParts, openTok } from './media.js';
 import { cardLayout, homeLayoutActive, javActive, layoutState, setHomeLayout, setJavLayout, showHomeSurfaces } from './layout.js';
-import { selectionState, setSelectMode, toggleSelection } from './selection.js';
+import { selectCardRectangle, selectionState, setSelectMode, toggleSelection } from './selection.js';
 import { javDisplayName, javTitleHtml } from '../core/jav-title';
 import { tagLabel } from '../core/tags';
 import { PORTRAIT } from '../core/stored-values';
@@ -646,6 +646,7 @@ catalogState.gridActions = {
     commitContextFilter(filters=>{filters.tag=catalogState.tagPressed(filters.tag,tag)?'':tag});
   },
   toggleSelection:(id,range)=>toggleSelection(id,range),
+  selectCardRectangle,
   watchLater:(it,onChange)=>toggleWatchLater(it,onChange),
   rate:(it,star,onChange,signal)=>rateCatalogItem(it,star,onChange,signal),
   resourceOperation:(it,operation)=>runResourceOperation(it,operation),
@@ -678,6 +679,7 @@ catalogState.hideCatalogCombo = ()=>{if(catalogState.catalogFilterProps)paintCat
 export function installCatalog19() {
 catalogState.junkQueueHelpers = {badgeHtml:(location,cost)=>preferencesState.srcBadge(location,cost)};
 catalogState.junkQueueActions = {
+  selectRectangle:selectCardRectangle,
   /* 换分类、换视图：先收起多选，再改地址，由目录元素重读。 */
   navigate:path=>{if(selectMode)setSelectMode(false,true);navigationState.route(path)},
   toggleSelection:(id,range)=>toggleSelection(id,range),

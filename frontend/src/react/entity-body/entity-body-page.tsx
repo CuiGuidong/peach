@@ -15,6 +15,7 @@ import type {
   EntityBodyProps, EntityCodeSet, EntityPhotos, EntityRoster, EntitySamplePhoto, EntityWallPhoto,
 } from './entity-body';
 import { t } from '../../i18n';
+import { useRectangleSelection } from '../components/rectangle-selection';
 
 export function EntityBodyPage(props: EntityBodyProps) {
   if (props.view === 'people' && props.roster) return <Roster roster={props.roster} props={props} />;
@@ -116,6 +117,8 @@ function PhotoSection({ photos, props }: { photos: EntityPhotos; props: EntityBo
   }, [actions, wall]);
   /* 多选：本地图片是馆藏条目，和作品卡同一份选择集与批量键；样张不是条目，不能选。 */
   const { selectMode, selected } = props;
+  const rectangle = useRectangleSelection(selectMode && actions.selectCardRectangle
+    ? (keys, add) => actions.selectCardRectangle?.(keys.map(Number), add) : undefined);
   const pick = useCallback((id: number, range: boolean) => actions.toggleSelection(id, range), [actions]);
   const cell = (item: EntityWallPhoto, index: number) => (
     <PhotoCell key={index} item={item} index={index} lost={lost.has(index)} onLose={lose} onOpen={open}
@@ -140,7 +143,7 @@ function PhotoSection({ photos, props }: { photos: EntityPhotos; props: EntityBo
         </Fragment>
       ))}
       {groups.length && photos.total ? <GroupHead label={t('catalog:entityPhotos.localImages')} meta={t('catalog:entityPhotos.imageCount', { count: photos.total })} /> : null}
-      <div {...wallAttrs} data-local-wall="">
+      <div {...wallAttrs} data-local-wall="" {...rectangle}>
         {photos.items.map((item, i) => (lost.has(localStart + i) ? null : cell(item, localStart + i)))}
       </div>
       {photos.hasMore ? (
@@ -179,7 +182,7 @@ function PhotoCell({ item, index, lost, onLose, onOpen, selectMode, selected, on
     onOpen(index);
   };
   return (
-    <button type="button" data-photo-cell="" data-photo-index={index} title={name} onClick={click}
+    <button type="button" data-photo-cell="" data-photo-index={index} data-rectangle-key={isSample(item) ? undefined : item.id} title={name} onClick={click}
       data-selected={selected ? '' : undefined} aria-pressed={selectMode && selectable ? selected : undefined}>
       {lost ? null : (
         <img src={thumbSrc(item)} alt={name} loading="lazy" decoding="async" fetchPriority="low"

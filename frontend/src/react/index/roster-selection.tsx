@@ -16,6 +16,7 @@ const personId = (item: IndexPerson) => item.entity_id ?? item.id ?? 0;
 export interface RosterPicks {
   picked: ReadonlySet<number>;
   toggle(id: number): void;
+  rectangle(keys: string[], add: boolean): void;
 }
 
 export function useRosterSelection(selectMode: boolean, items: readonly IndexPerson[]) {
@@ -23,6 +24,7 @@ export function useRosterSelection(selectMode: boolean, items: readonly IndexPer
   useEffect(() => { if (!selectMode) setPicked(new Set()) }, [selectMode]);
   const picks = useMemo<RosterPicks | undefined>(() => selectMode ? {
     picked,
+    rectangle: (keys, add) => setPicked(current => new Set([...(add ? current : []), ...keys.map(Number)])),
     toggle: (id) => setPicked((current) => {
       const next = new Set(current);
       if (!next.delete(id)) next.add(id);

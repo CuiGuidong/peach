@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "0d61b26f-a9b6-4d08-a200-e0b87c7b728a", e._sentryDebugIdIdentifier = "sentry-dbid-0d61b26f-a9b6-4d08-a200-e0b87c7b728a");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "81c28720-4729-4c87-ba4b-4adc195c238f", e._sentryDebugIdIdentifier = "sentry-dbid-81c28720-4729-4c87-ba4b-4adc195c238f");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -2315,6 +2315,9 @@ var Ge = "peach.settings.v1", Ke = {
 		networkValue_one: "{{size}} · {{count, number}} request",
 		networkValue_other: "{{size}} · {{count, number}} requests",
 		noData: "No data",
+		requestWaterfall: "Recent playback requests",
+		requestTiming: "+{{start}} ms · {{duration}} ms",
+		noCompletedRequests: "No completed request timings for this playback.",
 		playbackTime: "Playback time",
 		resolution: "Current / optimal resolution",
 		seconds: "{{seconds}} s",
@@ -8734,16 +8737,24 @@ var Ge = "peach.settings.v1", Ke = {
 		expand: "Expand ranking"
 	},
 	feedNew: {
+		applyToSelected_one: "Apply “{{action}}” to {{count}} selected new release.",
+		applyToSelected_other: "Apply “{{action}}” to {{count}} selected new releases.",
+		batchDone_one: "Updated {{count}} new release",
+		batchDone_other: "Updated {{count}} new releases",
 		configureConnection: "Configure connection",
 		dmmUnreachable_one: "The cover for {{count, number}} new release can't reach the DMM image host. Set DMM / FANZA to use the Peach proxy and it'll be fetched again next round.",
 		dmmUnreachable_other: "Covers for {{count, number}} new releases can't reach the DMM image host. Set DMM / FANZA to use the Peach proxy and they'll be fetched again next round.",
 		ignore: "Not interested",
 		ignoreNamed: "Not interested in {{name}}",
+		ignoreSelectedConfirm_one: "Hide {{count}} selected new release and remove its Want mark.",
+		ignoreSelectedConfirm_other: "Hide {{count}} selected new releases and remove their Want marks.",
 		markRead: "Mark as seen",
 		markReadNamed: "Mark {{name}} as seen",
 		metadataPending: "No metadata yet",
 		openDetails: "Open details for {{name}}",
 		sectionLabel: "New releases not in your collection",
+		selectNamed: "Select {{name}}",
+		selectionActions: "Selected new release actions",
 		untitled: "Untitled release",
 		viewAll: "View all new releases",
 		wantNamed: "Want {{name}}"
@@ -10147,6 +10158,9 @@ var Ge = "peach.settings.v1", Ke = {
 		networkLastSecond: "最近一秒网络活动 {{size}}",
 		networkValue: "{{size}} · {{count, number}} 请求",
 		noData: "暂无数据",
+		requestWaterfall: "最近的播放请求",
+		requestTiming: "+{{start}} 毫秒 · {{duration}} 毫秒",
+		noCompletedRequests: "本次播放暂无已完成请求的计时。",
 		playbackTime: "播放时间",
 		resolution: "当前 / 最佳分辨率",
 		seconds: "{{seconds}} 秒",
@@ -16179,15 +16193,20 @@ var Ge = "peach.settings.v1", Ke = {
 		expand: "展开更多排名"
 	},
 	feedNew: {
+		applyToSelected: "对所选 {{count}} 部新作执行「{{action}}」。",
+		batchDone: "已处理 {{count}} 部新作",
 		configureConnection: "配置连接方式",
 		dmmUnreachable: "{{count, number}} 部新作的封面连不上 DMM 图片主机。把 DMM / FANZA 的连接方式设成 Peach 代理，下一轮会自动重取。",
 		ignore: "不想看",
 		ignoreNamed: "不想看 {{name}}",
+		ignoreSelectedConfirm: "忽略所选 {{count}} 部新作，并移除其中已有的想要标记。",
 		markRead: "标为已看过",
 		markReadNamed: "标为已看过 {{name}}",
 		metadataPending: "资料还没取到",
 		openDetails: "打开 {{name}} 的作品详情",
 		sectionLabel: "未入库的新作",
+		selectNamed: "选择 {{name}}",
+		selectionActions: "所选新作操作",
 		untitled: "未命名新作",
 		viewAll: "查看全部新作",
 		wantNamed: "想要 {{name}}"
@@ -40187,4 +40206,4 @@ Pt();
 var cx = document.getElementById("peach-page"), lx = cx ? sx[cx.dataset.page ?? ""] : void 0;
 cx && lx && (0, Ut.createRoot)(cx).render(/* @__PURE__ */ (0, V.jsx)(ox, { children: /* @__PURE__ */ (0, V.jsx)(lx, { data: { ...cx.dataset } }) }));
 
-//# debugId=0d61b26f-a9b6-4d08-a200-e0b87c7b728a
+//# debugId=81c28720-4729-4c87-ba4b-4adc195c238f
