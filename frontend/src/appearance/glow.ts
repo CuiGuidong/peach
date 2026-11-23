@@ -40,7 +40,7 @@ export function applyGlassFaces(store: GlowStore = appSettingsStore()): void {
 }
 
 /** 首页静置后停在当前光斑位置，滚动或操作时从原位置继续。 */
-export function wireHomeGlowIdle(isHome: () => boolean): () => void {
+export function wireHomeGlowIdle(isHome: () => boolean, signal: AbortSignal): () => void {
   const root = document.documentElement;
   const idleAttribute = 'data-home-glow-idle';
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -50,8 +50,12 @@ export function wireHomeGlowIdle(isHome: () => boolean): () => void {
     if (isHome()) timer = setTimeout(() => root.setAttribute(idleAttribute, ''), 6000);
   };
   for (const event of ['pointerdown', 'keydown', 'wheel', 'touchmove']) {
-    document.addEventListener(event, resume, { capture: true, passive: true });
+    document.addEventListener(event, resume, { capture: true, passive: true, signal });
   }
+  signal.addEventListener('abort', () => {
+    clearTimeout(timer);
+    root.removeAttribute(idleAttribute);
+  }, { once: true });
   resume();
   return resume;
 }

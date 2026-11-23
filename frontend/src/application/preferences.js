@@ -174,7 +174,7 @@ applyTheme();
 watchSystemTheme();
 paintHomeGlowNow();
 applyGlassFaces();
-peachHistory.listen(wireHomeGlowIdle(() => location.pathname === '/'));
+applicationEffects.own(peachHistory.listen(wireHomeGlowIdle(() => location.pathname === '/', applicationEffects.signal)));
 applyAccent();
 preferencesState.catalogLoadWaiters = [];
 preferencesState.nextCatalogLoad = ()=>new Promise(resolve=>preferencesState.catalogLoadWaiters.push(resolve));
