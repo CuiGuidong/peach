@@ -44,8 +44,11 @@ if(location.pathname==='/'){
     $('#catalogPageHeading').hidden=false;paintCatalogPageTitle($('#catalogPageHeading'),query.get('q'));
   }
 }
-/* 新作那一行按本机记着的结论随首屏一起铺骨架，卡片与列表两种显示方式都一样。 */
-if(isFeedNewPath(decodeURIComponent(location.pathname)))prepareHomeFeed($('#feedNew'));
+/* 没有上次的布局记录时，提前确认新作那一行是否需要留位。 */
+if(isFeedNewPath(decodeURIComponent(location.pathname))){
+  if(catalogState.homeHasFeed===null)loadingState.entityShapesReady=loadEntityShapes();
+  prepareHomeFeed($('#feedNew'));
+}
 mountSidebar();
 compositionState.shellActions = {
   openSettings:section=>openSettings(section,true),
@@ -174,10 +177,15 @@ compositionState.shellActions = {
       const loading=loadCatalog();
       if(bootEntry()){
         const seq=peachHistory.navigation.seq;
+        // 目录路由先发首批请求。筛选与榜单继续独立加载，目录慢时仍可先使用筛选。
+        queueMicrotask(()=>{
+          if(effects.isActive&&peachHistory.navigation.seq===seq){
+            void buildBars().catch(error=>console.error('首页横条装载失败',error));
+          }
+        });
         void loading.then(()=>{
           if(effects.isActive&&peachHistory.navigation.seq===seq){
             loadingState.entityShapesReady??=loadEntityShapes();
-            void buildBars().catch(error=>console.error('首页横条装载失败',error));
           }
         });
       }else void buildBars().catch(error=>console.error('目录横条装载失败',error));
