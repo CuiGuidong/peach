@@ -7,7 +7,7 @@ import { entityDisplayName, setNameLanguage, setNameLocale } from '../core/entit
 import { orientLabel } from '../core/stored-values';
 import { playUiSound, setUiSoundsEnabled, wireUiSounds } from '../ui-kit/sounds';
 import { applyTheme, watchSystemTheme } from './../appearance/theme';
-import { applyAccent, applyGlassFaces, applyHomeGlow, paintHomeGlowNow } from './../appearance/glow';
+import { applyAccent, applyGlassFaces, applyHomeGlow, paintHomeGlowNow, wireHomeGlowIdle } from './../appearance/glow';
 import { navigationState } from './navigation.js';
 import { $, LOC, esc, icon, isCatalogPath } from '../core';
 import { peachHistory, shellNavigate } from './../history/index';
@@ -174,6 +174,7 @@ applyTheme();
 watchSystemTheme();
 paintHomeGlowNow();
 applyGlassFaces();
+peachHistory.listen(wireHomeGlowIdle(() => location.pathname === '/'));
 applyAccent();
 preferencesState.catalogLoadWaiters = [];
 preferencesState.nextCatalogLoad = ()=>new Promise(resolve=>preferencesState.catalogLoadWaiters.push(resolve));

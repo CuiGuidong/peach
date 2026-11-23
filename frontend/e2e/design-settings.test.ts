@@ -14,6 +14,26 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
   let browser: Browser;
   installDesignBrowser((next) => { browser = next; });
 
+  it('首页静置后暂停玻璃漂移，键盘操作恢复', { timeout: 45_000 }, async () => {
+    const opened = await openHome(browser);
+    try {
+      const page = opened.page;
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      const drifting = (state: AnimationPlayState) => {
+        const animations = document.getAnimations().filter(animation =>
+          animation instanceof CSSAnimation && /drift/i.test(animation.animationName));
+        return animations.length > 0 && animations.every(animation => animation.playState === state);
+      };
+      await page.keyboard.press('Tab');
+      await page.waitForFunction(drifting, 'running');
+      await page.waitForFunction(drifting, 'paused', { timeout: 12_000 });
+      await page.keyboard.press('Tab');
+      await page.waitForFunction(drifting, 'running');
+    } finally {
+      await opened.close();
+    }
+  });
+
   it('使用空间按字节量级的真实容量画出已用那一段，每个卷一行、不越出卡片', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/stats', DESKTOP);
     try {
