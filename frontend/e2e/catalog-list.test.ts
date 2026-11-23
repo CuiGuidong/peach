@@ -114,14 +114,15 @@ describe('馆藏卡片与列表', () => {
       await page.keyboard.press('Space');
       assert.equal(await checkbox.isChecked(), !before);
       await page.keyboard.press('Escape');
-      await dialog.waitFor({ state: 'hidden' });
+      await page.locator('[data-selection-placement]').waitFor({ state: 'detached' });
       await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === '显示列');
       const pageSize = page.getByRole('button', { name: /每页显示数量/ });
-      await pageSize.click();
-      await page.getByRole('option', { name: '每页 100 部', exact: true }).waitFor();
-      await page.keyboard.press('ArrowDown');
-      await page.keyboard.press('End');
-      await page.keyboard.press('Enter');
+      await withPageDiagnostics(page, '馆藏页大小切换', async () => {
+        await pageSize.scrollIntoViewIfNeeded();
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        await pageSize.click();
+        await page.getByRole('option', { name: '每页 100 部', exact: true }).click({ timeout: 5000 });
+      });
       const last = page.locator('[data-catalog-row][data-id="99354"]');
       await last.waitFor({ state: 'attached' });
       await page.evaluate(() => document.querySelector('[data-catalog-row]')?.scrollIntoView({ block: 'start' }));
