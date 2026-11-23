@@ -21,6 +21,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Fixed / 修复
 
+- **Desktop**: Show the database sync and writer takeover actions in standalone builds when replication is enabled, and show CLI help from the packaged executable (#844). / **桌面**：独立发行版启用复制后显示数据库同步和写入端接管，打包程序支持显示命令行帮助（#844）。
 - **Interface**: Resize cover and avatar crops with the keyboard while player shortcuts stay inactive during cropping (#846). / **界面**：封面和头像取景手柄支持键盘调整，取景时不会触发播放器快捷键（#846）。
 - **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
 - **Updates**: Show English and Simplified Chinese release notes in the macOS update window (#833). / **更新**：macOS 更新窗口显示英文和简体中文更新日志（#833）。
