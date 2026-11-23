@@ -16,7 +16,7 @@ export interface ClientUpdates {
   release: ReleaseState;
   update_job: UpdateJob;
   userscript: { version: string; minimum_version: string; install_url: string };
-  repairs: { state: string; available?: boolean; message?: string; items: {
+  repairs: { state: string; available?: boolean; message?: string; message_code?: string; items: {
     id: string; label: string; state: string; changed?: Record<string, number>;
     pending?: number; failed?: number; deferred?: number; queued?: number; review_count?: number;
   }[] };

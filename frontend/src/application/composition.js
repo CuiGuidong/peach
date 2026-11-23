@@ -36,7 +36,6 @@ const openOverlayTarget=target=>{
   else void openQueue(target.queue,target.key,target.item,false);
 };
 installEntityShapeBootstrap();
-loadingState.entityShapesReady=loadEntityShapes();
 renderInitialSurfaceLoading();
 /* 首页标题随首屏骨架一起出现：等路由打开目录后再显示，会把骨架整页往下推一跳。其余状态页的标题仍由 `paintListTitle` 定。 */
 if(location.pathname==='/'){
@@ -45,8 +44,11 @@ if(location.pathname==='/'){
     $('#catalogPageHeading').hidden=false;paintCatalogPageTitle($('#catalogPageHeading'),query.get('q'));
   }
 }
-/* 新作那一行按本机记着的结论随首屏一起铺骨架，卡片与列表两种显示方式都一样。 */
-if(isFeedNewPath(decodeURIComponent(location.pathname)))prepareHomeFeed($('#feedNew'));
+/* 没有上次的布局记录时，提前确认新作那一行是否需要留位。 */
+if(isFeedNewPath(decodeURIComponent(location.pathname))){
+  if(catalogState.homeHasFeed===null)loadingState.entityShapesReady=loadEntityShapes();
+  prepareHomeFeed($('#feedNew'));
+}
 mountSidebar();
 compositionState.shellActions = {
   openSettings:section=>openSettings(section,true),
@@ -171,7 +173,23 @@ compositionState.shellActions = {
       if(entering)dropBars();
       if(path==='/trash'){catalogState.clearSearchField()}
       else{$('#q').value=state.q;catalogState.rememberSearchValue()}
-      syncNavigation();buildBars();return preferencesState.handOff(loadCatalog());
+      syncNavigation();
+      const loading=loadCatalog();
+      if(bootEntry()){
+        const seq=peachHistory.navigation.seq;
+        // 目录路由先发首批请求。筛选与榜单继续独立加载，目录慢时仍可先使用筛选。
+        queueMicrotask(()=>{
+          if(effects.isActive&&peachHistory.navigation.seq===seq){
+            void buildBars().catch(error=>console.error('首页横条装载失败',error));
+          }
+        });
+        void loading.then(()=>{
+          if(effects.isActive&&peachHistory.navigation.seq===seq){
+            loadingState.entityShapesReady??=loadEntityShapes();
+          }
+        });
+      }else void buildBars().catch(error=>console.error('目录横条装载失败',error));
+      return preferencesState.handOff(loading);
     },
     /* 壳认领写了地址、筛选已在 `state` 里：只重取。 */
     load:()=>preferencesState.handOff(loadCatalog()),
@@ -207,8 +225,6 @@ buildManageBar();
 Promise.all([loadSourceStatus(),loadSyncedSettings()])
   .then(()=>{
     if(!effects.isActive)return;
-    /* 顶部两排与筛选栏的两个聚合自带骨架、取回后自己落位，页面打开不等它们：作品列表与它们同时去取。 */
-    if(loadingState.wantsDiscoveryBars())buildBars().catch(error=>console.error('首页横条装载失败',error));
     syncNavigation();wireAllDrag();
     // 路由树里按匹配打开的页面等这一下才开始打开：壳的状态到这时才齐。
     compositionState.routing=true;writeShell({pageOpens:1});syncRouteChrome();

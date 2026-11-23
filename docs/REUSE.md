@@ -1014,7 +1014,7 @@ A 盘垃圾隔离使用短名称 `peach-purge-<32 位 UUID>.peach-quarantine`，
 
 | 能力 | 复用实现 | Peach 负责 |
 |---|---|---|
-| 本机文件夹对话框 | Windows 自带 `powershell.exe` 经 `Add-Type` 调 Shell 的 `IFileOpenDialog`（带地址栏），STA 线程里 `SetThreadDpiAwarenessContext` 设 Per-Monitor V2；macOS `osascript` 的 `choose folder` | `src/peach/folder_picker.py` 只拼命令、区分取消与失败、一次只开一个，用完恢复原 DPI 上下文（托盘的进程 DPI 不传给子进程）；不引 tkinter 或 GUI 框架。证书子进程用 `CREATE_NO_WINDOW`，保留 OpenSSL 退出码与错误输出 |
+| 本机文件与目录选择器 | Windows 自带 `powershell.exe` 经 `Add-Type` 调 Shell 的 `IFileOpenDialog`，STA 线程使用 Per-Monitor V2 DPI。macOS 从有本地化声明的应用包打开 AppKit 的 `NSOpenPanel` | `src/peach/folder_picker.py` 共用播放器与媒体目录选择，区分取消与失败，每次仅打开一个窗口。证书子进程用 `CREATE_NO_WINDOW`，保留 OpenSSL 退出码与错误输出 |
 | 跨磁盘迁移数据目录 | Windows Shell 的 `SHFileOperationW`（`FO_COPY`，ctypes 直调）：资源管理器自带的复制进度、剩余时间与取消；其他系统用标准库 `shutil.copytree` | `src/peach/data_storage.py` 负责目标校验、复制前后核对文件数与字节、失败删掉已复制部分、改写账本里的数据目录路径与位置记录；同卷只用 `os.rename` |
 | HTTP | 全项目共用的 `httpx.Client`/transport；FANBOX 公开 `post.info` 用 `curl_cffi`；对外 UA 统一取 `peach.user_agent.USER_AGENT`（与本机 Chrome 同大版本，ADR-0060），HTTPX、来源连接器、FFmpeg 抽帧与脚本共用 | 来源策略、DTO、脱敏、站点限定、大小上限；不求解机器人质询，标准 UA 不保证放行 |
 | 追更来源接口 | FANBOX 公开帖子 API（详情只用用户的可选 Cookie 与 curl_cffi `chrome150`）、kemono 系公开 JSON API（`Accept: text/css`，站点自述的抓取路径）、rule34.xxx 官方 dapi（需 API key）与公开 tag 补全、Paheal 标签/详情页、Gofile contents API（需 Premium token）、f95zone `latest_data.php`、站内搜索（需登录 cookie）、线程页与 masked XHR、simpcity 线程页与站内搜索（需登录 cookie；只请求规范地址，不解 DDoS-Guard 质询） | 连接器边界、凭据隔离、多媒体顺序、文件站目标校验、变体与跨站重复判定、候选复核与批准后的 online asset 投影 |
@@ -1092,6 +1092,8 @@ CloudDrive2 配置生成复用现有 TOML 模板、mDNS 公布地址和应用服
 `opencc==1.4.2`（naming 组，`harvest_javdb_cn_names` 繁转简与字形表复核）、`psutil`（开发依赖，`agent_worktree.py processes`）。前端每个包的用途见 [前端岛层](FRONTEND.md#依赖清单)，引入时机按 ADR-0031「前端基础库」。
 Python、npm 与 GitHub Actions 的版本由 `.github/dependabot.yml` 每周检查；固定前端文件由
 `package-lock.json` 和 `scripts/vendor_web_dependencies.ts` 重建并核对来源、许可证与 SHA-256。
+
+Docker Hub 概览复用 [dockerhub-description](https://github.com/peter-evans/dockerhub-description/tree/1b9a80c056b620d92cedb9d9b5a223409c68ddfa)（v5.0.0，MIT，Actions 按提交固定）写入。Peach 维护概览正文，并从匿名接口核对发布结果。镜像回读复用发布作业已有的 Docker Buildx。
 
 ## 来源文字质量与生命周期修复
 

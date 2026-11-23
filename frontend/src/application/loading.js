@@ -19,7 +19,7 @@ import { routeMetaOf } from './../history/route-meta';
 import { javTab } from '../react/jav/jav-navigation';
 import { paintWallBootSkeleton } from '../react/video-wall/wall-boot';
 import { t } from '../i18n';
-export const loadingState = { setGridCards: undefined, gridCards: undefined, managementPlaceholder: undefined, wantsDiscoveryBars: undefined, entityShapesReady: undefined, ENTITY_SHAPES_WAIT: undefined, syncPageTitle: undefined };
+export const loadingState = { setGridCards: undefined, gridCards: undefined, managementPlaceholder: undefined, entityShapesReady: undefined, ENTITY_SHAPES_WAIT: undefined, syncPageTitle: undefined };
 
 export function renderCatalogLoading(label=t('shell:skeleton.loadingVideos')){
   if(location.pathname==='/wall'){$('#loadSentinel').hidden=true;return}
@@ -150,7 +150,6 @@ loadingState.gridCards = ()=>document.querySelectorAll(
     ':is(#grid,#index [data-entity-grid]) :is([data-media-grid] > [data-media-card][data-id],[data-catalog-row][data-id])');
 loadingState.managementPlaceholder = path=>managementSkeletonHtml(path,{followLayout:followListLayout(),
   ...(({sort,dir,tab})=>({followSort:sort,followDir:dir,followTab:tab}))(followManageParams())});
-loadingState.wantsDiscoveryBars = ()=>$('#catalogFilter').style.display!=='none';
 loadingState.entityShapesReady = null;
 loadingState.ENTITY_SHAPES_WAIT = 400;
 loadingState.syncPageTitle = path=>{

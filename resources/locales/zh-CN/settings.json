@@ -1345,6 +1345,7 @@
     "repairCenterLink": "修复与迁移",
     "repairing": "正在修复",
     "retryFailed": "重试失败项",
+    "capacityReady": "最近一次容量检查已通过。点击「重试失败项」再次检查容量并继续补修。",
     "runningHelp": "资料与预览正在后台补全。",
     "title": "自动修复",
     "toDo": "待完成",

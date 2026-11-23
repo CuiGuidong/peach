@@ -109,6 +109,19 @@ class ConfigurationIsolationTests(unittest.TestCase):
                 for key in {"tunnel", "automatic_updates", "push_discovery", "downloads"} - {failed}:
                     self.assertIn(key, result)
 
+    def test_settings_can_read_startup_separately_without_probing_it_in_the_main_snapshot(self):
+        from peach import routes_configuration as routes
+
+        startup = {"available": True, "enabled": False, "silent": True}
+        with (patch.object(routes.desktop_startup, "snapshot", return_value=startup) as probe,
+              patch.object(routes.settings_file, "load_config", return_value=self.config),
+              patch.object(routes, "local_only")):
+            lightweight = routes.snapshot(self.config, include_startup=False)
+            self.assertNotIn("startup", lightweight)
+            probe.assert_not_called()
+            self.assertEqual(routes.read_startup(object()), startup)
+            probe.assert_called_once_with(self.config)
+
     def test_generated_push_discovery_origins_support_ipv6_and_actual_ports(self):
         from peach import routes_configuration as routes
 

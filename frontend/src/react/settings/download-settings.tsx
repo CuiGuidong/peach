@@ -11,7 +11,7 @@
  * 令牌与密码只往本机凭据文件写，读接口只回「存没存过」，所以令牌框保存后清空、提示改成
  * 「已保存，留空不改」。PikPak 要人机验证时服务端回一个验证页地址，这里给出链接让用户在浏览器
  * 里完成，Peach 不替他过验证。 */
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 
 import { Button } from '@/components/base/buttons/button';
 import { Chip } from '@/components/base/badges/chip';
@@ -73,14 +73,15 @@ export function DownloadGroup({ initial, receipt, panel, issues }: {
   return (
     <div {...groupRoot(panel)}>
       {issues}
-      {initial ? <DownloadSettings initial={initial} receipt={receipt} /> : null}
+      {initial ? <DownloadSettings initial={initial} receipt={receipt} active={panel?.active} /> : null}
     </div>
   );
 }
 
-export function DownloadSettings({ initial, receipt }: {
+export function DownloadSettings({ initial, receipt, active = true }: {
   initial: DownloadSettingsState;
   receipt(message: string): void;
+  active?: boolean;
 }) {
   const [state, setState] = useState(initial);
   // 账号框放在上面这一层：云下载卡要知道用户有没有在用 PikPak，没在用就不报 PikPak 根的提示。
@@ -94,7 +95,7 @@ export function DownloadSettings({ initial, receipt }: {
   const pikpakAccount = hasPikPak && (state.pikpak.logged_in || Boolean(username.trim()));
   return (
     <>
-      {hasCloud ? <DownloadForm state={state} settle={setState} receipt={receipt} pikpakAccount={pikpakAccount} /> : null}
+      {hasCloud ? <DownloadForm state={state} settle={setState} receipt={receipt} pikpakAccount={pikpakAccount} active={active} /> : null}
       {hasPikPak ? <PikPakAccount state={state} settle={setState} receipt={receipt} username={username} setUsername={setUsername} /> : null}
       <LocalDownloadSettings state={state} settle={setState} receipt={receipt} />
       <JavBrowserSettings receipt={receipt} refreshKey={JSON.stringify([
@@ -111,7 +112,7 @@ interface CardProps {
   receipt(message: string): void;
 }
 
-function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { pikpakAccount: boolean }) {
+function DownloadForm({ state, settle, receipt, pikpakAccount, active }: CardProps & { pikpakAccount: boolean; active: boolean }) {
   const [config, setConfig] = useState<DownloadConfig>(state.config);
   const [token, setToken] = useState('');
   const [hours, setHours] = useState(String(state.config.wait_hours));
@@ -121,6 +122,7 @@ function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { p
   const [failure, setFailure] = useState('');
   const [saveBlocked, setSaveBlocked] = useState(false);
   const action = useAction();
+  const autoChecked = useRef(false);
   const sources = state.media_sources ?? [];
   const has115 = sources.includes('115');
   const hasPikPak = sources.includes('pikpak');
@@ -149,14 +151,16 @@ function DownloadForm({ state, settle, receipt, pikpakAccount }: CardProps & { p
     setFailure('');
   };
 
-  // 地址和令牌都已保存时，卡片一打开就按已保存的配置查一遍；令牌只在服务端取，不经页面。
+  // 下载分区首次可见时按已保存的配置检查。其它分区仍保留表单，但不触发云端连接。
   useEffect(() => {
+    if (!active || autoChecked.current) return;
+    autoChecked.current = true;
     if (!state.available || !state.config.clouddrive_address || !state.token_set) return;
     const blank = { address: false, target: !state.config.targets['115'], root: !state.config.pikpak_root };
     void action.run('auto', (signal) => apiGet<DownloadCheckReport>(CHECK_URL, signal),
       (next) => show(next, blank), (cause) => setFailure(errorMessage(cause)));
-    // 只在挂载时查这一次，之后由「保存配置」与「检查」接手。
-  }, []);
+    // 每轮打开设置只查一次，之后由「保存配置」与「检查」接手。
+  }, [active]);
 
   // 保存的响应里带着按已保存配置做的检查报告，直接渲染；115 目标目录留空时服务端已按推送发现填上。
   const submit = (event: FormEvent<HTMLFormElement>) => {

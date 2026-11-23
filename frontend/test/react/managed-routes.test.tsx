@@ -9,6 +9,7 @@ import { act, type ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { NavigateFunction } from 'react-router';
 import { afterEach, beforeAll, expect, it, vi } from 'vitest';
+import { CONFIGURATION_URL } from '../../src/configuration-endpoints';
 
 import type {
   ConfigurationProps, DataCleanupProps, DuplicatesProps, FollowManageProps, QualityGoalsProps, ReviewProps,
@@ -320,7 +321,7 @@ it('配置页打开返回的那一刻，页签条已经在容器里，选中的�
   await mount(r);
   r.connectManagedRoutes(Promise.resolve(r.prefetchManagedRoute));
   vi.stubGlobal('fetch', vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => {
-    if (url === '/api/configuration') return configuration;
+    if (url.split('?')[0] === CONFIGURATION_URL) return configuration;
     if (url === '/api/configuration/indexers') return { indexers: [], max_indexers: 4 };
     if (url === '/api/follow/credentials') return { root: '', providers: [] };
     if (url === '/api/follow/schedule') return { enabled: false, available: true, interval_minutes: 60 };

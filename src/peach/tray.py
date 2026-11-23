@@ -174,6 +174,20 @@ def enable_hidpi() -> str:
     return "unavailable"
 
 
+def enable_windows_menu_theme() -> None:
+    """Let Windows draw native popup menus in the user's app color mode."""
+    if sys.platform != "win32" or sys.getwindowsversion().build < 18362:
+        return
+    try:
+        # Windows 10 1903 changed uxtheme ordinal 135 to SetPreferredAppMode.
+        set_preferred_app_mode = ctypes.WinDLL("uxtheme.dll")[135]
+    except (AttributeError, OSError):
+        return
+    set_preferred_app_mode.argtypes = [ctypes.c_int]
+    set_preferred_app_mode.restype = ctypes.c_int
+    set_preferred_app_mode(1)  # AllowDark
+
+
 @dataclass(frozen=True)
 class ServiceSpec:
     name: str
@@ -1196,6 +1210,7 @@ class PeachTray:
         self._build_checked_at = time.monotonic()
         self._build_attempted_head: str | None = None
         self._pending_startup: tuple[list, bool, str | None] | None = None
+        enable_windows_menu_theme()
         version_menu = pystray.Menu(
             pystray.MenuItem(lambda _item: f"Peach {self.version.package_version}", None, enabled=False),
             pystray.MenuItem(lambda _item: self.version.build_label, None, enabled=False),

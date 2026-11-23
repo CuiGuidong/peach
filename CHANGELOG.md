@@ -1,6 +1,6 @@
 # Changelog / 变更日志
 
-Notable changes in each Peach release. English and Chinese describe the same behavior: every line puts English first, then ` / `, then Chinese. Release notes and the in-app update notes split each line at the first ` / `, so English is the main text and Chinese sits in a folded 简体中文 section. / 本文件记录 Peach 每个发布版本里值得使用者知道的变化，中英文说同一件事：每行英文在前，` / ` 之后是中文。Release 正文与应用内的更新说明都按第一个 ` / ` 拆开，英文是正文，中文折叠在「简体中文」段里。
+Notable changes in each Peach release. Each line puts English first, then ` / `, then Simplified Chinese. GitHub releases show English with a collapsed Chinese section. Sparkle shows the update notes in the preferred supported language. / 本文件记录 Peach 每个发布版本的主要变化。每行英文在前，` / ` 之后是简体中文。GitHub Release 正文显示英文，并附折叠的简体中文段。Sparkle 按首选语言显示英文或简体中文更新日志。
 
 The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html). Groups are `Added / 新增`, `Changed / 变更`, `Deprecated / 弃用`, `Removed / 移除`, `Fixed / 修复` and `Security / 安全`. / 格式遵循 [Keep a Changelog 1.1.0](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [Semantic Versioning 2.0.0](https://semver.org/lang/zh-CN/spec/v2.0.0.html)；分组标题见上。
 
@@ -17,6 +17,11 @@ Entries are written for users to scan: one sentence each, saying where something
 ### Added / 新增
 
 - **Library**: Send magnets to qBittorrent and import completed files from a mapped local media folder, with progress and cancellation (#240). / **馆藏**：可将磁力交给 qBittorrent，跟踪进度、取消任务，并将映射目录中下载完成的文件自动入库（#240）。
+### Fixed / 修复
+
+- **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。
+- **Updates**: Show English and Simplified Chinese release notes in the macOS update window (#833). / **更新**：macOS 更新窗口显示英文和简体中文更新日志（#833）。
+- **Library**: Restore macOS text recognition for promotional text in video screenshots (#833). / **馆藏**：恢复 macOS 上对视频截图里推广文字的识别（#833）。
 
 ## [0.61.0] - 2026-11-21
 

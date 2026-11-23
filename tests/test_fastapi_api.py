@@ -3548,11 +3548,14 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         with patch.object(local_playback, 'available', return_value=True), \
                 patch.object(local_playback, 'installed', return_value={'vlc': ('VLC', '/private/vlc')}), \
                 patch('peach.web_local_access.local_client', return_value=True), \
-                patch.object(local_playback, 'open_media') as launch:
+                patch.object(local_playback, 'open_media') as launch, \
+                patch.object(local_playback, 'open_custom_media', return_value=False) as custom:
             options = await self.client.get('/api/local-players', headers=headers)
             self.assertEqual(options.json(), {'players': [
                 {'id': 'default', 'label': '系统默认播放器', 'label_code': 'labels.routesMedia.defaultPlayer'},
-                {'id': 'vlc', 'label': 'VLC'}]})
+                {'id': 'vlc', 'label': 'VLC'},
+                {'id': 'custom', 'label': '自定义播放器…', 'label_code': 'labels.routesMedia.customPlayer'},
+            ]})
             result = await self.client.post('/api/local-playback?id=1&player=vlc', json={}, headers=headers)
             self.assertEqual(result.status_code, 200, result.text)
             self.assertEqual(launch.call_args.args[1], 'vlc')
@@ -3560,11 +3563,20 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             missing = await self.client.post('/api/local-playback?id=999999', json={}, headers=headers)
             self.assertEqual(missing.status_code, 404)
             launch.assert_not_called()
+            cancelled = await self.client.post('/api/local-playback?id=1&player=custom', json={}, headers=headers)
+            self.assertEqual(cancelled.status_code, 200, cancelled.text)
+            self.assertEqual(cancelled.json(), {'opened': False})
+            custom.assert_called_once()
+            custom.reset_mock()
             forwarded = {**headers, 'X-Forwarded-For': '192.0.2.1'}
             self.assertEqual((await self.client.get('/api/local-players', headers=forwarded)).json(), {'players': []})
             self.assertEqual((await self.client.post('/api/local-playback?id=1', json={}, headers=forwarded)).status_code, 403)
             remote = {**headers, 'Origin': 'https://attacker.example'}
             self.assertEqual((await self.client.post('/api/local-playback?id=1', json={}, headers=remote)).status_code, 403)
+            for denied in (forwarded, remote):
+                rejected = await self.client.post('/api/local-playback?id=1&player=custom', json={}, headers=denied)
+                self.assertEqual(rejected.status_code, 403)
+            custom.assert_not_called()
             launch.assert_not_called()
             with patch.object(local_playback, 'available', return_value=False):
                 self.assertEqual((await self.client.get('/api/local-players', headers=headers)).json(), {'players': []})

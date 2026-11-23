@@ -25,15 +25,17 @@ const downloads: DownloadSettingsState = {
   qbittorrent: { address: '', save_path: '', media_root: '', username: '', password_set: false },
   providers: [{ key: '115', label: '115' }, { key: 'pikpak', label: 'PikPak' }], max_wait_hours: 1440,
 };
-const full = () => data({ downloads, startup: {
+const startup = {
   available: true, enabled: false, silent: true, desktop: false, desktop_message: '', message: '',
-}, peach_proxy: { mode: 'environment', proxy_saved: false, needs_selection: false },
+};
+const full = () => data({ downloads, startup, peach_proxy: { mode: 'environment', proxy_saved: false, needs_selection: false },
   entry_links: { sites: [{ key: 'javdb', label: 'JavDB', host: '', default_host: 'javdb.com' }] },
 });
 const names = ['媒体库与入库', '来源与订阅', '下载渠道', '网络与访问', '应用与维护', '系统诊断'];
 function serve(config: ConfigurationData, credentials: CredentialData = { root: '', providers: [] }) {
   const fetcher = vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => {
-    if (url === CONFIGURATION_URL) return config;
+    if (url.split('?')[0] === CONFIGURATION_URL) return config;
+    if (url === '/api/configuration/startup') return startup;
     if (url === '/api/configuration/seed-sharing') return { enabled: false, available: false, schema: 1, last_attempt: {} };
     if (url === '/api/configuration/indexers') return { indexers: [], max_indexers: 4 };
     if (url === '/api/configuration/jav-browser') return { enabled: false, provider: '115', available: true,
@@ -57,6 +59,21 @@ const tabs = (host: ParentNode) => [...host.querySelectorAll<HTMLButtonElement>(
 const chosen = (host: ParentNode) => tabs(host).find(tab => tab.getAttribute('aria-selected') === 'true')!;
 const press = (target: Element, key: string) => act(async () => {
   target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+});
+
+it('打开维护分区才读取开机自启状态', async () => {
+  const fetcher = serve({ ...full(), startup: undefined });
+  await prefetchConfiguration(new AbortController().signal);
+  const host = await mount(<QueryClientProvider client={queryClient}>
+    <ConfigurationPage receipt={vi.fn()} reopenTutorial={vi.fn()} />
+  </QueryClientProvider>);
+  const startupReads = () => fetcher.mock.calls.filter(([url]) => url === '/api/configuration/startup').length;
+  expect(fetcher.mock.calls[0]?.[0]).toBe(`${CONFIGURATION_URL}?include_startup=0`);
+  expect(startupReads()).toBe(0);
+  await click(tabs(host).find(tab => tab.textContent === '应用与维护')!);
+  await settle();
+  expect(startupReads()).toBe(1);
+  expect(section(host, '开机自启')?.querySelector('[role="switch"]')).toBeInstanceOf(HTMLElement);
 });
 
 it('Peach 配置按用途分类，媒体库与入库默认打开，各分类关联独立面板', async () => {

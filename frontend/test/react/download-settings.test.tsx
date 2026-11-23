@@ -3,7 +3,7 @@ import { expect, it, vi } from 'vitest';
 
 import { DownloadSettings } from '../../src/react/settings/download-settings';
 import type { DownloadCheckReport, DownloadSettingsState } from '../../src/react/bundle';
-import { actionOrder, buttonNamed, click, fetchMock, mount, pending, section, sentBody, settle, submit, type } from './render';
+import { actionOrder, buttonNamed, click, fetchMock, mount, mountRoot, pending, section, sentBody, settle, submit, type } from './render';
 
 vi.mock('../../src/react/settings/jav-browser-settings', () => ({ JavBrowserSettings: () => null }));
 
@@ -26,6 +26,22 @@ const state = (patch: Partial<DownloadSettingsState> = {}): DownloadSettingsStat
 const report = (patch: Partial<DownloadCheckReport> = {}): DownloadCheckReport => ({
   ok: true, address: 'http://127.0.0.1:19798', permissions: [], missing: [], root: '/', folder: null,
   quota: null, suggested_target: null, suggested_pikpak_root: '', problems: [], ...patch,
+});
+
+it('下载分区首次可见时才发出连接检查', async () => {
+  const fetcher = fetchMock(200, report());
+  vi.stubGlobal('fetch', fetcher);
+  const initial = state({ token_set: true });
+  const receipt = vi.fn();
+  const view = (active: boolean) => <DownloadSettings initial={initial} receipt={receipt} active={active} />;
+  const root = await mountRoot(view(false));
+  expect(fetcher).not.toHaveBeenCalled();
+  await root.rerender(view(true));
+  await settle();
+  expect(fetcher.mock.calls.map(call => call[0])).toEqual(['/api/configuration/downloads/check']);
+  await root.rerender(view(false));
+  await root.rerender(view(true));
+  expect(fetcher).toHaveBeenCalledTimes(1);
 });
 
 it('无效的已保存地址保留在表单中，修正保存后清除配置提示', async () => {
