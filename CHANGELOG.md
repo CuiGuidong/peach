@@ -14,6 +14,10 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Interface**: Browse mapped media directories and locate files from Storage or playback details on headless servers (#376). / **界面**：无桌面部署可从 Storage 或播放详情浏览挂载目录并定位文件（#376）。
+
 ### Changed / 变更
 
 - **Interface**: Filter bar and card badge corners now nest evenly, and large English headings use tighter letter spacing (#842). / **界面**：筛选浮层与卡片角标的圆角改为同心，英文大标题字距收紧（#842）。
