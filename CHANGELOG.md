@@ -16,6 +16,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Changed / 变更
 
+- **Library**: Refresh only the changed cover entries when artwork or its metadata changes (#847). / **馆藏**：封面或附属资料更新时，只重新读取有变化的封面索引条目（#847）。
 - **Interface**: Filter bar and card badge corners now nest evenly, and large English headings use tighter letter spacing (#842). / **界面**：筛选浮层与卡片角标的圆角改为同心，英文大标题字距收紧（#842）。
 
 ### Fixed / 修复
