@@ -260,7 +260,7 @@ body{background:var(--page);color:var(--ink);
    的人要的正是「别再动了」。停在当前那一帧，光还在，只是不动——整层关掉等于换了个配色。 */
 @media (prefers-reduced-motion:reduce){.glowlayer::before{animation:ambient-in .8s ease .5s both}}
 .disp{font-family:Bahnschrift,"Segoe UI Variable Display","Microsoft YaHei UI",sans-serif;
-  font-weight:600;letter-spacing:.02em}
+  font-weight:600}
 .mono{font-family:"Cascadia Mono",Consolas,ui-monospace,"Microsoft YaHei UI","PingFang SC",monospace;
   font-variant-numeric:tabular-nums;font-size:var(--fs-xs)}
 button,input,textarea{font:inherit;color:inherit}

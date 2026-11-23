@@ -14,6 +14,10 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Changed / 变更
+
+- **Interface**: Filter bar and card badge corners now nest evenly, and large English headings use tighter letter spacing (#842). / **界面**：筛选浮层与卡片角标的圆角改为同心，英文大标题字距收紧（#842）。
+
 ### Fixed / 修复
 
 - **Desktop**: Follow the preferred macOS language in the menu bar and Software Update window (#833). / **桌面**：macOS 菜单栏和更新窗口跟随系统首选语言（#833）。

@@ -516,7 +516,6 @@ body:not([data-density="dense"]) .peach-react [data-follow-list]:not([data-follo
   white-space: nowrap;
   padding-left: 8px;
   border-left: 1px solid var(--border-15);
-  font-style: italic;
 }
 .peach-react [data-follow-badges] { display: flex; flex: none; flex-wrap: nowrap; gap: 5px; min-width: 0; overflow: hidden; }
 /* 卡片、两排与详情共用的几处字样，HTML 由 `follow-marks.ts` 拼。站点图标在角标、来源条那几格里
@@ -553,7 +552,7 @@ body:not([data-density="dense"]) .peach-react [data-follow-list]:not([data-follo
 }
 .peach-react [data-follow-seealso] [data-follow-site-icon] { margin: 0; }
 .peach-react [data-follow-sources] [data-follow-seealso] {
-  min-height: 24px; padding: 4px; border: 0; border-radius: var(--control-radius);
+  min-height: 24px; padding: 4px; border: 0; border-radius: var(--pic-inner-radius, 8px);
   background: var(--glass-fill); box-shadow: inset 0 1px 0 var(--glass-rim), var(--glass-shadow);
   backdrop-filter: blur(16px) saturate(145%); color: var(--color-text-secondary); font: var(--board-caption);
   pointer-events: auto;

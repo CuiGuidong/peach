@@ -167,6 +167,8 @@ body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] 
  * 一圈灰黑边。光有 `clip-path` 不够，没有蒙版时 Chrome 照样逐层切。 */
 .peach-react :is([data-media-pic], [data-mix-cover]) {
   --pic-radius: var(--surface-radius);
+  /* 左上角标、右上分卷徽标与右下时长离格边 6px，圆角与格子同心。 */
+  --pic-inner-radius: calc(var(--pic-radius) - 6px);
   clip-path: inset(0 round var(--pic-radius));
   mask-image: linear-gradient(#000 0 0);
 }
@@ -265,7 +267,7 @@ body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] 
   gap: 4px;
   min-height: 24px;
   padding: 4px;
-  border-radius: 10px;
+  border-radius: var(--pic-inner-radius, 8px);
   background: var(--glass-fill);
   box-shadow: inset 0 1px 0 var(--glass-rim), var(--glass-shadow);
   backdrop-filter: blur(16px) saturate(145%);
@@ -284,7 +286,7 @@ body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] 
   bottom: 6px;
   z-index: 2;
   padding: 2px 6px;
-  border-radius: var(--badge-radius);
+  border-radius: var(--pic-inner-radius, 8px);
   background: color-mix(in srgb, #000 70%, transparent);
   color: #f2eadf;
   font-family: "Cascadia Mono", Consolas, ui-monospace, "Microsoft YaHei UI", "PingFang SC", monospace;
@@ -308,12 +310,12 @@ body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] 
 }
 .peach-react [data-media-group] {
   position: absolute;
-  top: 9px;
-  right: 9px;
+  top: 6px;
+  right: 6px;
   z-index: 6;
   min-height: 27px;
   padding: 5px 9px;
-  border-radius: var(--control-radius);
+  border-radius: var(--pic-inner-radius, 8px);
   background: rgb(12 8 8 / .72);
   color: #fff;
   font-size: var(--fs-xs);

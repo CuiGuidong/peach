@@ -145,8 +145,8 @@ html[data-theme-snapshot] :is(.board-filter-frame,.entitycollectionhead,.search,
    路上的颜色就会闪，所以上面那条规则自己把过渡关掉。 */
 .board-filter-frame.board-filter-frame,.entitycollectionhead.entitycollectionhead,.board-library-menu.board-library-menu,.board-glow-menu.board-glow-menu{
   transition:background-color .28s ease,backdrop-filter .28s ease,-webkit-backdrop-filter .28s ease}
-.board-filter-frame.board-filter-frame{border-radius:22px;isolation:isolate;color:var(--glass-text);overflow:visible}
-.entitycollectionhead.entitycollectionhead.entitycollectionhead{border-radius:22px;color:var(--glass-text)}
+.board-filter-frame.board-filter-frame{border-radius:16px;isolation:isolate;color:var(--glass-text);overflow:visible}
+.entitycollectionhead.entitycollectionhead.entitycollectionhead{border-radius:16px;color:var(--glass-text)}
 /* 浮层材质与吸顶归外框，槽位只负责排列内容。 */
 .board-filter-frame.board-filter-frame.board-filter-frame.board-filter-frame>[data-filter-row]{position:relative;top:auto;left:auto;
   width:auto;margin:0;min-width:0;z-index:auto;border:0;box-shadow:none;background:none;
@@ -162,8 +162,8 @@ html[data-theme-snapshot] :is(.board-filter-frame,.entitycollectionhead,.search,
 .board-filter-frame.board-filter-frame .iconswitch>label:hover,
 .board-filter-frame.board-filter-frame .iconswitch>label:has(input:checked){color:var(--glass-text)}
 .board-filter-frame.board-is-stuck::before,.board-filter-frame.board-is-stuck::after{display:none}
-.board-filter-frame.board-filter-frame .tagbar{border-radius:22px 22px 0 0}
-.board-filter-frame.board-filter-frame .count{border-radius:0 0 22px 22px}
+.board-filter-frame.board-filter-frame .tagbar{border-radius:16px 16px 0 0}
+.board-filter-frame.board-filter-frame .count{border-radius:0 0 16px 16px}
 .board-filter-frame.board-filter-frame .pill{color:var(--glass-text)}
 .board-filter-frame.board-filter-frame .tagbar .pill:is([data-tag],[data-follow-tag],[data-follow-provider]):not([aria-pressed="true"]){border-color:var(--glass-low)}
 /* 四枚视图之间只有一块玻璃在移动，不是四块各自亮灭：Apple 把同一层里的玻璃先合成
@@ -325,7 +325,7 @@ body #stats [data-section-items]>[aria-selected]:focus-visible{outline:2px solid
    上面这 22px 改不动（两处都是别的页面共用的），所以自己不再加，下面照同一个数写。 */
 .board-filter-frame{position:sticky;top:calc(var(--topH) + 8px);z-index:60;border:0;border-radius:16px;background:var(--ground);margin:0 0 22px;box-shadow:0 2px 14px light-dark(#00000014,#00000066)}
 @media(max-width:760px){.board-filter-frame.board-filter-frame[data-filter-free]{top:var(--filter-free-top)}}
-/* 首页那块住在 `body` 底下，两侧没有任何东西给它留白，22px 的圆角直接切在屏幕边沿上；
+/* 首页那块住在 `body` 底下，两侧没有任何东西给它留白，圆角直接切在屏幕边沿上；
    资料页那块在 `#index` 里，`main` 的 16px 已经把它让开了。这里补的就是那 16px，取的
    也是 `main` 自己的那个数，所以两页的浮层和底下的网格对在同一条竖线上。 */
 body>.board-filter-frame{margin-inline:16px}
@@ -584,8 +584,8 @@ button,input,select,textarea{font-family:inherit}
    套到一枚三十像素高的标签上，圆角会吃掉两端的字。改这一个 token 就够了——卡片、详情
    面板、筛选条、交集条和标签骨架都从它取值，一处改完五处一起走。 */
 :root{--tag-radius:8px}
-body,.disp{font-family:var(--board-font);letter-spacing:0}body{font:var(--board-body)}button,input,textarea,select{font-family:var(--board-font)}
-.listtitle,.index .ihead h2,.indexheading{font:var(--board-title);letter-spacing:0}.configfieldset h2,.configfieldset h3,.cleanupfieldset h3{font:var(--board-heading);letter-spacing:0}.board-library-rows button{font:var(--board-body)}
+body,.disp{font-family:var(--board-font)}body{letter-spacing:0}body{font:var(--board-body)}button,input,textarea,select{font-family:var(--board-font)}
+.listtitle,.index .ihead h2,.indexheading{font:var(--board-title)}.configfieldset h2,.configfieldset h3,.cleanupfieldset h3{font:var(--board-heading);letter-spacing:0}.board-library-rows button{font:var(--board-body)}
 .geist-button{background-color:var(--color-background-primary-default);border-color:var(--color-border-button-default);color:var(--color-text-primary);transition:background-color .15s ease,border-color .15s ease,color .15s ease}
 /* 悬停只抬填充，那圈线一步不动：按钮静止态已经带一圈 1px，悬停再把它加深，
    鼠标扫过一排次级键就是一排边框忽明忽暗，而键本身并没有变化。 */
