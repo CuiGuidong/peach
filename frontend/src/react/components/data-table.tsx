@@ -82,7 +82,7 @@ export function DataTable<T extends RowData>({ label, items, columns, rowId, row
   const available = new Map((filters ? [...retained, ...items] : items).map(item => [rowId(item), item]));
   const activateSelection = useTableSelection(() => onSelected([]));
   /* 处理队列页的右上角多选开关与这里的勾选是同一份状态：勾了就进入多选，退出时清空。 */
-  usePageSelection(() => onSelected([]));
+  const selecting = usePageSelection(() => onSelected([]));
   useEffect(() => { if (selected.length) enterPageSelection() }, [selected.length]);
   const pages = Math.max(1, Math.ceil(filtered.items.length / pagination.pageSize));
   const pageIndex = Math.min(pagination.pageIndex, pages - 1);
@@ -162,7 +162,10 @@ export function DataTable<T extends RowData>({ label, items, columns, rowId, row
         {controls?.(chosen, () => onSelected([]))}
         <Button variant="ghost" size="small" onClick={() => { onSelected([]); exitPageSelection() }}>{t('shell:dataTable.clearSelection')}</Button>
       </SelectionDock>
-      <DataTableFrame follow preferences={preferences} onRowClick={(id) => table.getRow(id)?.toggleSelected()}>
+      <DataTableFrame follow preferences={preferences} onRowClick={(id) => table.getRow(id)?.toggleSelected()}
+        onRectangle={selecting && !busy ? (keys, add) => table.setRowSelection({
+          ...(add ? rowSelection : {}), ...Object.fromEntries(keys.map(key => [key, true])),
+        }) : undefined}>
         <Table aria-label={label} size="sm"
           sortDescriptor={sorting[0] ? { column: sorting[0].id, direction: sorting[0].desc ? 'descending' : 'ascending' } : undefined}
           onSortChange={(sort) => table.getColumn(String(sort.column))?.toggleSorting(sort.direction === 'descending')}>

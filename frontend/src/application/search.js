@@ -166,7 +166,7 @@ applicationEffects.listen(document, 'keydown', e=>{
        菜单）先收掉的会 `preventDefault`，那一下只关弹层。焦点落在浮窗外（body）时在这里转给舞台。 */
     /* 详情上面又开了一层挂在 body 的模态框（编辑资料、确认框）：这一下由浏览器关那一层，舞台留着。 */
     const modal=e.target instanceof Element?e.target.closest('dialog[open]'):null;
-    if(modal&&modal.id!=='stage'&&mediaState.stageOpen())return;
+    if(modal&&modal.id!=='stage')return;
     if(mediaState.stageOpen()){if(!e.defaultPrevented){e.preventDefault();stageApi().requestEscape()}return}
     /* 这一下已经被浮窗或弹层用掉了：舞台可能在冒泡到这里之前就关完，不能再顺手收侧栏或退出多选。 */
     if(e.defaultPrevented)return;
@@ -179,7 +179,7 @@ applicationEffects.listen(document, 'keydown', e=>{
   // SFW 开关键（默认 Shift+S，可在设置里改）：有人走近时不必先打开设置（同 javm 的老板键
   // `2304ab2`）。绑定必带修饰键，所以要在下一行放过修饰键组合之前比对。
   if(!e.defaultPrevented&&matchesShortcut(e,sfwShortcut())){e.preventDefault();setCensored(!censorOn());return}
-  if(e.defaultPrevented||e.target.closest?.('select,[role="menu"],.vjs-peach-settings-menu,media-volume-slider')||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.defaultPrevented||e.target.closest?.('select,[role="menu"],.vjs-peach-settings-menu,media-volume-slider,[data-player-stats]')||e.ctrlKey||e.metaKey||e.altKey)return;
   if(cropOwnsKeyboard())return;
   if(e.key==='ArrowLeft'||e.key==='ArrowRight'){
     const imageStep=document.querySelector(`#stage[open] [data-media-carousel]:not([data-carousel-video-active]) [data-follow-image-step="${e.key==='ArrowRight'?1:-1}"]`);

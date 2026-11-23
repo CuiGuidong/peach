@@ -22,7 +22,7 @@ import { detailPlayer, setDetailPlayer } from './registry';
 import { playbackKey, playbackPosition, stopPlaybackPosition, trackPlaybackPosition } from './progress';
 import {
   averageBitrate, bufferedAhead, createBufferMeter, fmtLoadRate, fmtSpeed, PLAYER_PANEL_EVENT,
-  playerSpeedBits, playerStatsOverlayHtml, playerStatsPlot, pushPlayerStat, streamEntries,
+  playerRequestWaterfall, playerSpeedBits, playerStatsOverlayHtml, playerStatsPlot, pushPlayerStat, streamEntries,
 } from './stats';
 import { watchDecoding } from './decode-support';
 import {
@@ -146,6 +146,9 @@ export async function mountDetailPlayer(
     }
   };
   const segmentedNow = () => String(player.currentSource()?.type || '').includes('mpegurl');
+  const requestStart = performance.now();
+  let previousWaterfall = '';
+  let previousPanel: HTMLElement | null = null;
   const session: PlayerSession = { chrome: null, ready: false, updateStats: () => {} };
   sessions.set(player, session);
   session.updateStats = () => {
@@ -192,8 +195,17 @@ export async function mountDetailPlayer(
       [t('catalog:playerStats.playbackTime'), `${fmtClock(video.currentTime)} / ${fmtClock(expected || player.duration())}`],
       [t('catalog:playerStats.date'), new Date().toLocaleString(interfaceLanguage)],
     ];
-    statsPanel.innerHTML = `<dl>${rows.map(([key, value, plot]) =>
+    statsPanel.querySelector('[data-player-stats-values]')!.innerHTML = `<dl>${rows.map(([key, value, plot]) =>
       `<dt>${esc(key)}</dt><dd${plot ? ' data-player-stats-metric=""' : ''}>${plot || ''}<span>${esc(value)}</span></dd>`).join('')}</dl>`;
+    const currentSource = player.currentSrc();
+    const source = currentSource ? new URL(currentSource, location.href) : null;
+    const timings = segmented && !options.source ? resources : source?.origin === location.origin
+      ? performance.getEntriesByName(source.href, 'resource') as PerformanceResourceTiming[] : [];
+    const waterfall = playerRequestWaterfall(timings.filter(entry => entry.startTime >= requestStart));
+    if (waterfall !== previousWaterfall || statsPanel !== previousPanel) {
+      statsPanel.querySelector('[data-player-waterfall-rows]')!.innerHTML = waterfall;
+      previousWaterfall = waterfall; previousPanel = statsPanel;
+    }
   };
   player.on(['loadstart', 'loadedmetadata', 'durationchange', 'error'], enforceDuration);
   let takeFallback: (error: unknown, failed: PlayerSource) => Promise<PlayerSource | null> = async () => null;
@@ -331,8 +343,18 @@ export function attachPlayerChrome(player: VjsPlayer, frame: HTMLElement): () =>
       statsTimer = setInterval(session.updateStats, 1000);
     };
     const closeStatsForOtherPanel = (event: Event) => { if ((event as CustomEvent<string>).detail !== 'stats') closeStats() };
+    const closeStatsOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      closeStats();
+      statsButton.focus();
+    };
+    statsPanel.addEventListener('keydown', closeStatsOnEscape);
     document.addEventListener(PLAYER_PANEL_EVENT, closeStatsForOtherPanel);
-    offPanels = () => document.removeEventListener(PLAYER_PANEL_EVENT, closeStatsForOtherPanel);
+    offPanels = () => {
+      statsPanel.removeEventListener('keydown', closeStatsOnEscape);
+      document.removeEventListener(PLAYER_PANEL_EVENT, closeStatsForOtherPanel);
+    };
   }
   const tech = player.el().querySelector('video');
   const stopAmbient = tech ? mountPlayerAmbient(tech) : () => {};

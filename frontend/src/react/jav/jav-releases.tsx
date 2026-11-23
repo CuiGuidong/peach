@@ -38,7 +38,7 @@ import { ReleaseTable, type ReleaseRangeKey } from './jav-release-table';
 import { releaseColumns } from './release-table-columns';
 import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
 import { useCatalogView } from '../catalog-grid/catalog-view';
-import { useVisibleJavWorks } from './jav-selection';
+import { useJavRectangle, useVisibleJavWorks } from './jav-selection';
 import { t } from '../../i18n';
 import { columnValueSelected, readColumnFilters, toggleColumnValue, writeColumnFilters, type ColumnRange, type ColumnSelection } from '../../column-filters';
 
@@ -178,6 +178,7 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
   const data = releases.data;
   useVisibleJavWorks(data?.items || []);
   const waiting = releases.isPending;
+  const rectangle = useJavRectangle(!waiting && !releases.isPlaceholderData);
   const filtered = !!(filters.performer || filters.studio || filters.tag || filters.column_filters || filters.q);
   const pages = Math.max(1, Math.ceil((data?.total || 0) / filters.size));
   useEffect(() => {
@@ -241,11 +242,12 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
     </EmptyState> : null}
     {action.error ? <Note tone="error">{action.error}</Note> : null}
     {view === 'list' ? waiting || data?.items.length || filtered ? <ReleaseTable items={data?.items || []} waiting={waiting} filters={filters}
+      selecting={!releases.isPlaceholderData}
       studios={data?.facets.studios || []} javImage={settings.value.javImage} readOnly={readOnly} navigate={navigate}
       facets={data?.facets} onFilter={chooseValues} onRange={chooseRange}
       onTag={value => choose('tag', value)} onSort={setSort} wanting={item => action.busy === String(item.id)}
       onWant={want} onResource={item => resource(resourcePrefill(item))} /> : null
-    : <div data-media-grid="" className={JAV_RECOMMENDATION_GRID} style={{ '--card-ratio': ratio } as CSSProperties}>
+    : <div data-media-grid="" className={JAV_RECOMMENDATION_GRID} style={{ '--card-ratio': ratio } as CSSProperties} {...rectangle}>
       {(data?.items || []).map(item => <DiscoveryCard key={item.id} item={item} layout={layout} javImage={settings.value.javImage}
         readOnly={readOnly} navigate={navigate} tag={releaseColumnValues(filters, 'tag')} onTag={value => choose('tag', value)}
         wanting={action.busy === String(item.id)} onWant={() => want(item)}

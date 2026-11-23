@@ -10,8 +10,8 @@ import { state } from '../shell/index';
 import { feedNewSkeletonHtml } from '../feed-new-skeleton';
 import { managedTaken, openManagedRoute, releaseManagedRoute, updateManagedRoute } from './../history/managed';
 import { appSettingsStore } from './../appearance/settings';
-import { noteHtml, stopAutoScroll, wireAutoScroll } from '../ui-kit';
-import { preferencesState, wireDrag } from './preferences.js';
+import { noteHtml, stopAutoScroll, wireAutoScroll, wireHorizontalScroller } from '../ui-kit';
+import { preferencesState } from './preferences.js';
 import { pushEntityPage } from './entity.js';
 import { applicationEffects } from './effects';
 import { t } from '../i18n';
@@ -112,7 +112,7 @@ export function feedRowHtml(data,allHref=''){
 
 export function wireFeedNewRow(row){
   if(!row)return;
-  wireDrag(row);
+  wireHorizontalScroller(row,{drag:true,dragIgnore:'[data-rectangle-select] .feednewrow'});
   if(preferencesState.appSettings.feedAutoScroll)wireAutoScroll(row);
 }
 

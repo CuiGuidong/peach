@@ -180,7 +180,7 @@ function FollowCardView(props: FollowCardProps) {
   const act = (event: MouseEvent, run: () => void) => { event.stopPropagation(); run() };
 
   return (
-    <article ref={attach} data-media-card="" data-variant={props.variant || 'grid'} data-follow-item={item.id} data-status={item.status}
+    <article ref={attach} data-media-card="" data-variant={props.variant || 'grid'} data-follow-item={item.id} data-rectangle-key={item.id} data-status={item.status}
       data-follow-image={imageView ? '' : undefined} data-collection={stack.isMix ? '' : undefined}
       data-selected={selected ? '' : undefined} onClick={click} onMouseDown={suppressShiftTextSelection}
       onContextMenu={event => menu.onContextMenu(event, menuContext)} onKeyDown={event => menu.onKeyDown(event, menuContext)}

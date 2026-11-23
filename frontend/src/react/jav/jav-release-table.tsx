@@ -64,7 +64,8 @@ function ReleaseColumnFilter({ column, label, filters, onChange }: {
 
 export type ReleaseRangeKey = 'release' | 'dur' | 'score';
 
-export function ReleaseTable({ items, waiting, filters, studios, facets, javImage, readOnly, navigate, onTag, onFilter, onRange, onSort, wanting, onWant, onResource }: {
+export function ReleaseTable({ items, waiting, filters, studios, facets, javImage, readOnly, navigate, onTag, onFilter, onRange, onSort, wanting, onWant, onResource, selecting = true }: {
+  selecting?: boolean;
   items: Discovery[]; waiting: boolean; filters: ReleaseFilters; studios: ReleaseFacetStudio[]; javImage: unknown; readOnly: boolean;
   facets?: ReleaseResult['facets']; onFilter?(facet: 'performer' | 'studio' | 'tag', values: ColumnSelection | undefined): void;
   onRange?(column: ReleaseRangeKey, value: ColumnRange | undefined): void;
@@ -138,7 +139,11 @@ export function ReleaseTable({ items, waiting, filters, studios, facets, javImag
     <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={t('catalog:javReleases.toolbar')}>
       <div data-toolbar-actions=""><TableColumnControls preferences={preferences} label={t('catalog:javReleases.list')} /></div>
     </div>
-    <DataTableFrame follow preferences={preferences}>
+    <DataTableFrame follow preferences={preferences} onRectangle={selecting && !waiting && selection?.mode ? selection.selectRectangle : undefined}
+      onRowClick={selecting && !waiting && selection?.mode ? key => {
+        const item = items.find(row => String(row.id) === key);
+        if (item) selection.toggle(item);
+      } : undefined}>
       <Table aria-label={t('catalog:javReleases.list')} size="sm"
         sortDescriptor={active ? { column: active, direction: filters.dir === 'asc' ? 'ascending' : 'descending' } : undefined}
         onSortChange={next => { const key = RELEASE_SORT_COLUMNS[String(next.column)]; if (key) onSort(key, next.direction === 'ascending' ? 'asc' : 'desc') }}>
@@ -169,6 +174,7 @@ export function ReleaseTable({ items, waiting, filters, studios, facets, javImag
             {shown.map(column => <TableCell key={column.id}><span dangerouslySetInnerHTML={{ __html: catalogListSkeletonCellHtml(column.id) }} /></TableCell>)}
             <TableCell data-table-space="" />
           </TableRow>) : items.map(item => <TableRow key={item.id} id={String(item.id)} data-catalog-row="" data-release-row="" data-release-id={item.id}
+            data-rectangle-key={item.code} data-board-selected={selection?.selected.has(item.code) || undefined}
             onContextMenu={event => context.onContextMenu(event, menuContext(item))}>
             {selection?.mode ? <TableCell><Checkbox slot={null} aria-label={t('catalog:javDiscovery.select', { code: item.code })}
               isSelected={selection.selected.has(item.code)} onChange={() => selection.toggle(item)} /></TableCell> : null}

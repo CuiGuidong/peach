@@ -9,7 +9,7 @@
  * - 分组、筛选、页码是组件状态。复核队列是消耗性的：判一条它就少一条，第 3 页指的是
  *   哪二十行随每一次判定而变，写进地址栏分享出去只会指向另一批东西。换分类、换分组、
  *   换筛选都回第 1 页，也正说明页码依附于此刻这一屏的看法，不是这一页的身份。 */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { RiCheckboxCircleLine } from '@remixicon/react';
 
@@ -38,6 +38,7 @@ import {
   reviewWindow, selectReviewRange, settleReviewRows, submitDecision,
 } from './review';
 import { t } from '../../i18n';
+import { useRectangleSelection } from '../components/rectangle-selection';
 
 // 与配置页共用 BoardUI gray PillTab 样式；保留 tabpanel 与复核队列计数。
 const TAB_CLASS = 'flex cursor-pointer items-center justify-between gap-2';
@@ -66,7 +67,7 @@ export function ReviewPage(props: ReviewProps) {
   /* 勾选、选中的来源值、勾上的作品样本、失败原因，身份都是 `item_key`：翻页、换分组
      之后手里还是同一批东西。它们不进地址栏——那是这一刻手里的一批，不是这一页的身份。 */
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set<string>());
-  usePageSelection(() => setSelected(new Set<string>()));
+  const selecting = usePageSelection(() => setSelected(new Set<string>()));
   // 直接勾某一项等于进入多选（右上角开关同一份状态）。
   useEffect(() => { if (selected.size) enterPageSelection() }, [selected]);
   const [choices, setChoices] = useState<ReadonlyMap<string, RowChoice>>(new Map());
@@ -125,6 +126,20 @@ export function ReviewPage(props: ReviewProps) {
   const pageGroups = groups
     .map((group) => ({ ...group, rows: group.rows.filter((row) => onPage.has(row.item_key)) }))
     .filter((group) => group.rows.length);
+  const panel = useRef<HTMLDivElement>(null);
+  const pendingFocus = useRef<{ card: HTMLElement; following: string[] } | null>(null);
+  const rectangle = useRectangleSelection(selecting && !locked
+    ? (keys, add) => setSelected(current => new Set([...(add ? current : []), ...keys])) : undefined,
+    '[data-review-key]', '.review-grid');
+  useLayoutEffect(() => {
+    const pending = pendingFocus.current;
+    if (!pending || pending.card.isConnected) return;
+    pendingFocus.current = null;
+    if (document.activeElement !== document.body) return;
+    const rows = [...(panel.current?.querySelectorAll<HTMLElement>('[data-review-key]') ?? [])];
+    const next = pending.following.map(key => rows.find(row => row.dataset.reviewKey === key)).find(Boolean);
+    (next ?? rows[0] ?? panel.current)?.focus();
+  });
 
   const choiceOf = (row: ReviewRow): RowChoice => choices.get(row.item_key) || defaultChoice(row);
   const selectedRows = useMemo(() => queue.filter((row) => selected.has(row.item_key)), [queue, selected]);
@@ -141,6 +156,7 @@ export function ReviewPage(props: ReviewProps) {
   /* 换分类就是换一条队列：上一条队列里的勾选、选中的来源和失败原因都不再有对应的行，
      留着只会让工具条报一个算不出来的数。 */
   const resetView = () => {
+    pendingFocus.current = null;
     setGroupBy('candidates');
     setFilter('');
     setFieldFilter('');
@@ -167,6 +183,14 @@ export function ReviewPage(props: ReviewProps) {
       submitDecision(decisionPayload(target, currentReviewRow(target, row), status, choiceOf(row))),
     onSuccess: (result, { row, status, category: target }) => {
       if (!result.ok) { fail(row.item_key, result.error || t('manage:reviewPage.decisionRejected')); return }
+      const card = document.activeElement?.closest<HTMLElement>('[data-review-key]');
+      if (card?.dataset.reviewKey === row.item_key && panel.current?.contains(card)) {
+        const rows = [...panel.current.querySelectorAll<HTMLElement>('[data-review-key]')];
+        const index = rows.indexOf(card);
+        const following = [...rows.slice(index + 1), ...rows.slice(0, index).reverse()]
+          .map(row => row.dataset.reviewKey!);
+        pendingFocus.current = { card, following };
+      }
       settleReviewRows(target, [row.item_key], status);
       forget([row.item_key]);
       toast(decisionReceipt(status));
@@ -308,7 +332,7 @@ export function ReviewPage(props: ReviewProps) {
             })} />
         </div>
 
-        <div role="tabpanel" id={`review-panel-${category}`} aria-labelledby={`review-tab-${category}`}
+        <div ref={panel} role="tabpanel" id={`review-panel-${category}`} aria-labelledby={`review-tab-${category}`} tabIndex={-1} {...rectangle}
           className="flex min-w-0 flex-1 flex-col gap-5">
             <BulkToolbar queueView={queueView} queueCounts={queueCounts} onQueueChange={goQueue} locked={locked}
               fields={fields} fieldFilter={activeField}

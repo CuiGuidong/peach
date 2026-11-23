@@ -9,6 +9,134 @@ describe('馆藏卡片与列表', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
+  it('首页新作框选使用新作 ID，馆藏勾选后收起新作浮条', async () => {
+    const releases = [87101, 87102].map(id => ({
+      id, code: `DEMO-${id}`, title: `新作 ${id}`, has_cover: false, read: false, wanted: false,
+    }));
+    const writes: unknown[] = [];
+    const opened = await visit(browser, '/', VIEWPORTS[0]!, async page => {
+      await page.route('**/api/feeds/discoveries?*', route => route.fulfill({ json: { items: releases } }));
+      await page.route('**/api/feeds/discovery', route => {
+        writes.push(route.request().postDataJSON());
+        return route.fulfill({ json: { ok: true, affected: 1 } });
+      });
+    });
+    const { page } = opened;
+    try {
+      const cover = page.locator('#feedNew [data-feed-id="87102"]');
+      await cover.waitFor();
+      await page.locator('#selectMode').click();
+      await cover.evaluate(card => card.scrollIntoView({ block: 'center', inline: 'center' }));
+      const box = (await cover.boundingBox())!;
+      await page.mouse.move(box.x + 30, box.y + 30);
+      await page.mouse.down();
+      await page.mouse.move(box.x + 75, box.y + 65);
+      await page.locator('#feedNew [data-feed-id="87102"][data-rectangle-hit]').waitFor();
+      assert.equal(await cover.getAttribute('data-feed-selected'), null);
+      await page.mouse.up();
+      const dock = page.getByRole('group', { name: '所选新作操作' });
+      await dock.getByRole('button', { name: '标为已看过' }).click();
+      const confirmation = page.locator('dialog.ui-geist-modal');
+      await confirmation.getByRole('button', { name: '标为已看过', exact: true }).click();
+      await confirmation.waitFor({ state: 'detached' });
+      await dock.waitFor({ state: 'hidden' });
+      assert.deepEqual(writes, [{ action: 'read', ids: [87102] }]);
+      await cover.locator('.feednewopen').focus();
+      await page.keyboard.press('Space');
+      await page.locator('#feedNew [data-feed-id="87102"][data-feed-selected]').waitFor();
+      await dock.waitFor();
+      const catalog = page.locator('#grid [data-media-grid] > [data-media-card][data-id]').first();
+      const expected = await catalog.getAttribute('data-id');
+      await page.locator(`#grid [data-media-card][data-id="${expected}"] [data-media-title]`).click();
+      await page.locator(`#grid [data-media-card][data-id="${expected}"][data-selected]`).waitFor();
+      await dock.waitFor({ state: 'hidden' });
+      assert.equal(await cover.getAttribute('data-feed-selected'), null);
+    } finally { await opened.close() }
+  });
+
+  it('封面和标题都能开始框选，短按勾选单张，Escape 取消，Shift 追加', async () => {
+    const opened = await visit(browser, '/', VIEWPORTS[0]!);
+    const { page } = opened;
+    try {
+      const cards = page.locator('#grid [data-media-grid] > [data-media-card]');
+      await cards.nth(1).waitFor();
+      await page.locator('#selectMode').click();
+      await cards.first().locator('[data-media-pic]').click({ position: { x: 24, y: 24 } });
+      await cards.first().evaluate(card => card.scrollIntoView({ block: 'center' }));
+      const move = async (start: '[data-media-pic]' | '[data-media-title]') => {
+        const origin = (await cards.nth(1).locator(start).boundingBox())!;
+        const x = origin.x + origin.width / 2, y = origin.y + origin.height / 2;
+        await page.mouse.move(x, y);
+        await page.mouse.down();
+        await page.mouse.move(x + 24, y + 12, { steps: 4 });
+        await page.locator('[data-card-selection-rectangle]').waitFor();
+      };
+      const selected = page.locator('#grid [data-media-card][data-selected]');
+      await move('[data-media-pic]');
+      assert.equal(await selected.count(), 1);
+      await page.keyboard.press('Escape');
+      await page.mouse.up();
+      assert.equal(await page.locator('[data-card-selection-rectangle]').count(), 0);
+      assert.equal(await selected.count(), 1);
+      await page.keyboard.down('Shift');
+      await move('[data-media-pic]');
+      await page.mouse.up();
+      await page.keyboard.up('Shift');
+      await page.waitForFunction(() => document.querySelectorAll('#grid [data-media-card][data-selected]').length === 2);
+      await move('[data-media-title]');
+      await page.mouse.up();
+      await page.waitForFunction(() => document.querySelectorAll('#grid [data-media-card][data-selected]').length === 1);
+      assert.equal(await selected.first().getAttribute('data-id'), await cards.nth(1).getAttribute('data-id'));
+    } finally { await opened.close() }
+  });
+
+  it('长列表的离屏标题仍可查找，键盘切换列并关闭弹层后回到触发按钮', async () => {
+    const videos = Array.from({ length: 55 }, (_, index) => ({
+      id: 99300 + index, name: `Catalog lookup ${index + 1}`, medium: 'video', duration: 90, has_thumb: true,
+    }));
+    const opened = await visit(browser, '/', VIEWPORTS[0]!, async page => {
+      await page.addInitScript(() => localStorage.setItem('peach.catalog-view.v1', 'list'));
+      await page.route('**/api/items?*', route => {
+        const limit = Number(new URL(route.request().url()).searchParams.get('limit')) || 20;
+        return route.fulfill({ json: { items: videos.slice(0, limit), total: videos.length } });
+      });
+    });
+    const { page } = opened;
+    try {
+      const columns = page.getByRole('button', { name: '显示列', exact: true });
+      await columns.focus();
+      await page.keyboard.press('Enter');
+      const dialog = page.getByRole('dialog', { name: '表格显示列' });
+      await dialog.waitFor();
+      const checkbox = dialog.getByRole('checkbox', { name: '媒体库', exact: true });
+      await checkbox.focus();
+      const before = await checkbox.isChecked();
+      await page.keyboard.press('Space');
+      assert.equal(await checkbox.isChecked(), !before);
+      await page.keyboard.press('Escape');
+      await page.locator('[data-selection-placement]').waitFor({ state: 'detached' });
+      await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === '显示列');
+      const pageSize = page.getByRole('button', { name: /每页显示数量/ });
+      await withPageDiagnostics(page, '馆藏页大小切换', async () => {
+        await pageSize.scrollIntoViewIfNeeded();
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        await pageSize.click();
+        await page.getByRole('option', { name: '每页 100 部', exact: true }).click({ timeout: 5000 });
+      });
+      const last = page.locator('[data-catalog-row][data-id="99354"]');
+      await last.waitFor({ state: 'attached' });
+      await page.evaluate(() => document.querySelector('[data-catalog-row]')?.scrollIntoView({ block: 'start' }));
+      await page.locator('[data-catalog-row] [data-media-art]').first().waitFor({ state: 'attached' });
+      assert.equal(await last.locator('[data-media-art]').count(), 0);
+      const found = await page.evaluate(() => {
+        const find = (window as Window & { find(value: string): boolean }).find;
+        return find.call(window, 'Catalog lookup 55');
+      });
+      assert.equal(found, true);
+      await last.locator('[data-media-art]').waitFor({ state: 'attached' });
+    } finally { await opened.close() }
+  });
+
   it('列筛选随视图切换，卡片可单独清除一项', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/', VIEWPORTS[0]!);
     const { page } = opened;

@@ -42,7 +42,7 @@ export function QueueFilterChips({ table, filters, onChange, valueLabel }: {
 }
 
 export function QueueTable<T extends { id: number; library_id?: unknown }>({
-  table, label, items, cells, selected, selecting, sort, rowLabel, onPick, onPickAll, filters, filterColumns = {}, busy = false, contextOperations,
+  table, label, items, cells, selected, selecting, sort, rowLabel, onPick, onPickAll, onRectangle, filters, filterColumns = {}, busy = false, contextOperations,
 }: {
   table: QueueTablePage;
   /** 每一列的单元格，键是 `QUEUE_COLUMNS` 里那一列的 id。 */
@@ -50,6 +50,7 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
   label: string; items: readonly T[]; selected: ReadonlySet<number>; selecting: boolean;
   sort: { options: { id: string; label: string }[]; sorting: SortingState; onChange(next: SortingState): void };
   rowLabel(item: T): string; onPick(item: T, on: boolean): void; onPickAll(on: boolean): void;
+  onRectangle?(ids: number[], add: boolean): void;
   filters?: RemoteTableFilters;
   filterColumns?: Record<string, TableFilter<T>>;
   busy?: boolean;
@@ -90,6 +91,7 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
         </div>
       </div>
       <DataTableFrame preferences={preferences}
+        onRectangle={selecting && !busy && onRectangle ? (keys, add) => onRectangle(keys.map(Number), add) : undefined}
         onRowClick={selecting ? (key) => { const item = byId(key); if (item) onPick(item, !selected.has(item.id)) } : undefined}>
         <Table aria-label={label} size="sm"
           sortDescriptor={current ? { column: current.id, direction: current.desc ? 'descending' : 'ascending' } : undefined}

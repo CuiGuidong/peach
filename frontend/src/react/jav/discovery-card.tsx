@@ -63,7 +63,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag,
   const performers = item.performer_refs?.length ? joinList(item.performer_refs.map(person => person.name)) : item.performers;
   const artwork = discoveryArtwork(item, layout, javImage);
   const href = item.asset_id ? `/assets/${item.asset_id}` : `/works/${encodeURIComponent(item.code)}`;
-  return <article data-media-card="" data-jav-card="" data-selected={selected ? '' : undefined} onMouseDown={suppressShiftTextSelection}
+  return <article data-media-card="" data-jav-card="" data-rectangle-key={item.code} data-selected={selected ? '' : undefined} onMouseDown={suppressShiftTextSelection}
     onContextMenu={event => context.onContextMenu(event, menuContext)} onKeyDown={event => context.onKeyDown(event, menuContext)}
     onClickCapture={event => {
       if ((event.target as Element).closest('[data-work-context-menu]')) return;

@@ -13,7 +13,7 @@ import { reopenPostSetupTutorial } from './tutorial.js';
 import { runtimeConfigurable, selectMode, state, writeShell } from './../shell/index';
 import { indexPath, indexState, onlineAuthorRingHtml, openFollowAuthorFromIndex, openFollowTagFromIndex, routeFollowManage, showIndexContainer, showIndexTags } from './index.js';
 import { censorOn, loadSourceStatus, preferencesState, wireAllDrag } from './preferences.js';
-import { mountBatchDock, setSelectMode } from './selection.js';
+import { mountBatchDock, selectCardRectangle, setSelectMode } from './selection.js';
 import { releaseHoverPreviews } from './../card-art/hover';
 import { bootEntry, peachHistory } from './../history/index';
 import { $ } from '../core';
@@ -89,6 +89,7 @@ compositionState.shellActions = {
   routeIndex:(next,{replace=false}={})=>navigationState.route(indexPath(next),replace),
   savePeopleLayout:({layout})=>{preferencesState.appSettings.peopleLayout=layout;preferencesState.saveSettings()},
   exitSelectMode:()=>setSelectMode(false,false),
+  clearMediaSelection:()=>selectCardRectangle([],false),
   personAvatar:(item,entityKind,big)=>indexState.personAvatar(item,entityKind,big),
   authorAvatar:author=>onlineAuthorRingHtml(author),
   showIndexTags,

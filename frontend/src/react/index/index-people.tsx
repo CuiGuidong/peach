@@ -41,6 +41,8 @@ function Ring({ html, face, company, big }: { html: string; face?: string; compa
   );
 }
 
+import { useRectangleSelection } from '../components/rectangle-selection';
+
 const CELL = 'relative flex cursor-pointer flex-col gap-2 p-3 text-inherit';
 const Rss = spriteGlyph('rss');
 
@@ -80,12 +82,14 @@ export function PeopleGrid(
   },
 ) {
   const company = isCompany(kind) || kind === 'series';
+  const rectangle = useRectangleSelection(picks?.rectangle);
   const menu = useWorkContextMenu();
   useEntityNames();
   const big = layout === 'big';
   return (
     <div data-index-grid="" data-layout={layout} data-cells={company ? 'company' : 'people'}
       data-select-mode={picks ? '' : undefined}
+      {...rectangle}
       className={`${company ? 'index-grid-company' : 'index-grid-person'} gap-3`}>
       {menu.menu}
       {items.map((item) => {
@@ -120,6 +124,7 @@ export function PeopleGrid(
         ].join(' · ');
         return (
           <Cell key={`${entityKind}:${item.entity_id || item.k}`} data-k={item.k} data-kind={entityKind} name={entityDisplayName(entityKind, item.k, item.entity_id)} readout={readout}
+            {...(id ? { 'data-rectangle-key': String(id) } : {})}
             {...(item.user_created ? { 'data-user-created': '' } : {})}
             big={big} following={item.following} selected={picks ? picks.picked.has(item.entity_id ?? item.id ?? 0) : undefined}
             onPress={() => picks ? picks.toggle(id ?? 0) : open()}
