@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import type { Browser } from 'playwright-core';
 import { launch, layout, settle, VIEWPORTS, visit, withPageDiagnostics } from './harness.ts';
+import { stubHomeDiscoveries } from './home-discoveries-fixture.ts';
 
 describe('馆藏卡片与列表', () => {
   let browser: Browser;
@@ -15,7 +16,7 @@ describe('馆藏卡片与列表', () => {
     }));
     const writes: unknown[] = [];
     const opened = await visit(browser, '/', VIEWPORTS[0]!, async page => {
-      await page.route('**/api/feeds/discoveries?*', route => route.fulfill({ json: { items: releases } }));
+      await stubHomeDiscoveries(page, releases);
       await page.route('**/api/feeds/discovery', route => {
         writes.push(route.request().postDataJSON());
         return route.fulfill({ json: { ok: true, affected: 1 } });
@@ -97,8 +98,12 @@ describe('馆藏卡片与列表', () => {
     const opened = await visit(browser, '/', VIEWPORTS[0]!, async page => {
       await page.addInitScript(() => localStorage.setItem('peach.catalog-view.v1', 'list'));
       await page.route('**/api/items?*', route => {
-        const limit = Number(new URL(route.request().url()).searchParams.get('limit')) || 20;
-        return route.fulfill({ json: { items: videos.slice(0, limit), total: videos.length } });
+        const params = new URL(route.request().url()).searchParams;
+        const limit = Number(params.get('limit')) || 20;
+        const offset = Number(params.get('offset') || 0);
+        return route.fulfill({ json: {
+          items: videos.slice(offset, offset + limit), total: videos.length, has_more: offset + limit < videos.length,
+        } });
       });
     });
     const { page } = opened;

@@ -6,7 +6,7 @@ import { expectBody, settle } from './harness.ts';
 import { ITEM, openItemPage } from './item-fixture.ts';
 import {
   DESKTOP, MOBILE, tokenColor, openAccess, settledRun, openActivity, qualityGoal, openQualityGoals,
-  openScraping, openProcessing, openCatalog, openCatalogBars, openCatalogFixture, RUNNING_JOB, FAILED_JOB,
+  openScraping, openProcessing, openCatalog, openCatalogBars, openCatalogFixture, catalogVideo, RUNNING_JOB, FAILED_JOB,
   installDesignBrowser, openReview, openJunkWith, junkItem,
 } from './design-fixture.ts';
 
@@ -607,8 +607,9 @@ describe('设计决定：控件、状态与首页顶部', () => {
   });
 
   it('数字首写静态、变值弹入；筛选读数原位淡入淡出并保留控件', { timeout: 60_000 }, async () => {
-    const opened = await openCatalogFixture(browser, (payload, url) => {
-      payload.total = url.searchParams.has('q') ? 34 : 12;
+    const results = Array.from({ length: 34 }, (_, index) => catalogVideo(91_100 + index));
+    const opened = await openCatalogFixture(browser, {
+      items: results.slice(0, 12), search: results,
     });
     try {
       await opened.page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -667,13 +668,11 @@ describe('设计决定：控件、状态与首页顶部', () => {
 
   it('五枚叠放头像浮于文字上展开，左缘与标题列不动', { timeout: 60_000 }, async () => {
     const names = Array.from({ length: 7 }, (_, index) => `演示演员 ${index + 1}`);
-    const opened = await openCatalogFixture(browser, (payload) => {
-      const item = payload.items[0];
-      if (!item) throw new Error('演示目录没有可替换的卡片');
-      item.creator = '';
-      item.performers = names;
-      item.performer_total = names.length;
-      item.performer_entities = names.map((name, index) => ({ id: 90_000 + index, name, has_image: false }));
+    const opened = await openCatalogFixture(browser, {
+      items: [catalogVideo(91_100, {
+        creator: '', performers: names, performer_total: names.length,
+        performer_entities: names.map((_, index) => ({ id: 90_000 + index, has_image: false })),
+      })],
     });
     try {
       await opened.page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -908,8 +907,9 @@ describe('设计决定：控件、状态与首页顶部', () => {
 
   it('首页版式默认小图，大图统一作品画面框，选择单独记住', { timeout: 60_000 }, async () => {
     /* 首张卡使用番号封面，第二张使用普通预览图。 */
-    const opened = await openCatalogFixture(browser, (payload) => {
-      Object.assign(payload.items[0], { is_jav: true, code: 'ABC-123', display_code: 'ABC-123', has_cover: true });
+    const opened = await openCatalogFixture(browser, {
+      items: [catalogVideo(91_100, { is_jav: true, code: 'ABC-123', display_code: 'ABC-123', has_cover: true }),
+        catalogVideo(91_101)],
     });
     const { page } = opened;
     const ratio = (index: number) => page.locator('#grid [data-media-grid] > [data-media-card][data-id]').nth(index).locator('[data-media-pic]')

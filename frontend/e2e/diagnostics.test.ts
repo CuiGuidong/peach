@@ -161,23 +161,22 @@ describe('配置中的系统诊断', () => {
         await other.click();
         await folded.waitFor();
         const row = page.locator('[data-diagnostic-check="media_mounts"]');
-        if (await row.count()) {
-          const shown = await row.evaluate(element => {
-            const title = element.querySelector('h3')!;
-            const reason = element.querySelector('[data-check-reason]')!;
-            const button = element.querySelector('a[href]')!;
-            const box = element.getBoundingClientRect();
-            const action = button.getBoundingClientRect();
-            return { titleWeight: getComputedStyle(title).fontWeight, reasonWeight: getComputedStyle(reason).fontWeight,
-              titleSize: getComputedStyle(title).fontSize, reasonSize: getComputedStyle(reason).fontSize,
-              middle: Math.abs((box.top + box.bottom - action.top - action.bottom) / 2),
-              right: box.right - action.right };
-          });
-          assert.ok(shown.titleWeight !== shown.reasonWeight || shown.titleSize !== shown.reasonSize);
-          if (!viewport.mobile) {
-            assert.ok(shown.middle <= 2, JSON.stringify(shown));
-            assert.ok(shown.right <= 24, JSON.stringify(shown));
-          }
+        await row.waitFor();
+        const shown = await row.evaluate(element => {
+          const title = element.querySelector('h3')!;
+          const reason = element.querySelector('[data-check-reason]')!;
+          const button = element.querySelector('a[href]')!;
+          const box = element.getBoundingClientRect();
+          const action = button.getBoundingClientRect();
+          return { titleWeight: getComputedStyle(title).fontWeight, reasonWeight: getComputedStyle(reason).fontWeight,
+            titleSize: getComputedStyle(title).fontSize, reasonSize: getComputedStyle(reason).fontSize,
+            middle: Math.abs((box.top + box.bottom - action.top - action.bottom) / 2),
+            right: box.right - action.right };
+        });
+        assert.ok(shown.titleWeight !== shown.reasonWeight || shown.titleSize !== shown.reasonSize);
+        if (!viewport.mobile) {
+          assert.ok(shown.middle <= 2, JSON.stringify(shown));
+          assert.ok(shown.right <= 24, JSON.stringify(shown));
         }
         assert.ok((await layout(page)).scrollWidth <= viewport.width);
         await page.locator('summary').filter({ hasText: /其他检查 ·/ }).click();

@@ -4,10 +4,14 @@ import { describe, it } from 'node:test';
 import type { Browser } from 'playwright-core';
 import { expectBody, layout, requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
 import {
-  DESKTOP, MOBILE, tokenColor, PIXEL, TASTE_FACE, WIDE, openCatalog, openCatalogFixture, openFollowManage,
+  DESKTOP, MOBILE, tokenColor, PIXEL, TASTE_FACE, WIDE, openCatalog, openCatalogFixture, catalogVideo, openFollowManage,
   openPerformer, openPhotoWall, photoWallFaces, PROFILED, openProfiledPerformer, popmenuShadow, SUGGEST,
   stubSuggest, installDesignBrowser,
 } from './design-fixture.ts';
+
+const performerCard = catalogVideo(91_100, {
+  creator: '', performers: ['演示演员'], performer_total: 1, performer_entities: [{ id: 90_000, has_image: false }],
+});
 
 describe('设计决定：人物与厂牌资料页', () => {
   let browser: Browser;
@@ -911,9 +915,8 @@ describe('设计决定：人物与厂牌资料页', () => {
   });
 
   it('相邻两张稍后看卡的底色之间隔着整段列距', { timeout: 60_000 }, async () => {
-    const opened = await openCatalogFixture(browser, (payload) => {
-      if (payload.items.length < 2) throw new Error('演示目录不足两张卡');
-      for (const item of payload.items.slice(0, 2)) item.watch_later = true;
+    const opened = await openCatalogFixture(browser, {
+      items: [catalogVideo(91_100, { watch_later: true }), catalogVideo(91_101, { watch_later: true })],
     });
     try {
       await opened.page.mouse.move(0, 0);
@@ -935,15 +938,7 @@ describe('设计决定：人物与厂牌资料页', () => {
   });
 
   it('跳过渲染的元信息区不裁掉贴着边的头像悬停描边和焦点环', { timeout: 60_000 }, async () => {
-    /* 演示库的作品都未归属，头像是不可聚焦的 `<span>`；首张卡归给一位女优，头像才是按钮。 */
-    const opened = await openCatalogFixture(browser, (payload) => {
-      const item = payload.items[0];
-      if (!item) throw new Error('演示目录没有可替换的卡片');
-      item.creator = '';
-      item.performers = ['演示演员'];
-      item.performer_total = 1;
-      item.performer_entities = [{ id: 90_000, name: '演示演员', has_image: false }];
-    });
+    const opened = await openCatalogFixture(browser, { items: [performerCard] });
     try {
       /* 视口外跳过渲染连带 paint containment，元信息区里画出 padding box 的像素一律裁掉；
          几何照算，所以这里比的是描边外沿与 padding box，不是与内容盒。头像贴着内容盒的
@@ -985,16 +980,7 @@ describe('设计决定：人物与厂牌资料页', () => {
   });
 
   it('头像圆框里的图按人脸框写进的内联尺寸不被岛里的预检夹回框宽', { timeout: 60_000 }, async () => {
-    /* 演示库没有实体图，往首张卡的头像框里塞一张按人脸框放大的图：宽超过框宽时图就该那么宽，
-       由圆框的 overflow 裁；被夹回框宽的话脸偏到左边，右侧露出底下的首字母。 */
-    const opened = await openCatalogFixture(browser, (payload) => {
-      const item = payload.items[0];
-      if (!item) throw new Error('演示目录没有可替换的卡片');
-      item.creator = '';
-      item.performers = ['演示演员'];
-      item.performer_total = 1;
-      item.performer_entities = [{ id: 90_000, name: '演示演员', has_image: false }];
-    });
+    const opened = await openCatalogFixture(browser, { items: [performerCard] });
     try {
       const avatar = opened.page.locator('#grid [data-media-grid] > [data-media-card] [data-media-meta] > button[data-media-avatar]').first();
       const framed = await avatar.evaluate((element) => {
