@@ -207,6 +207,8 @@ class TestPlanningTests(unittest.TestCase):
         self.assertIn('test_metadata_seesaa.py', fallback)
         self.assertIn('test_tray.py', fallback)
         self.assertEqual(runner.selected_files('test_tray.py'), (runner.TESTS / 'test_tray.py',))
+        self.assertEqual(runner.scopes_for_changes([path], contents={path: (before, before)},
+                                                   kinds={path: 'unsafe'})[0], ('full',))
 
     def test_checks_ci_omits_runtime_tool_installation_and_keeps_platforms(self):
         for path in ("README.md", "CONTRIBUTING.md", ".github/PULL_REQUEST_TEMPLATE.md", "docs/TESTING.md"):

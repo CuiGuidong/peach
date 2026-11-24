@@ -203,28 +203,7 @@ def script_consumers(root: Path = ROOT) -> dict[str, frozenset[str]]:
     return {stem: frozenset(names) for stem, names in found.items()}
 
 
-_LOCALE_FILE = re.compile(r"resources/locales/[^/]+/(?:server|cli)\.json")
 _PLACEHOLDER = re.compile(r"\{\{[^}]*\}\}")
-
-
-def locale_file(path: str) -> bool:
-    """后端语言资源：经 `interface_text` 渲染给 API、托盘与命令行的文字。"""
-    return bool(_LOCALE_FILE.fullmatch(path))
-
-
-def _flat_texts(source: str | None) -> dict[str, str]:
-    try:
-        data = json.loads(source) if source else {}
-    except ValueError:
-        return {}
-    found, todo = {}, [("", data)]
-    while todo:
-        prefix, node = todo.pop()
-        if isinstance(node, dict):
-            todo.extend((f"{prefix}{key}.", value) for key, value in node.items())
-        elif isinstance(node, str):
-            found[prefix[:-1]] = node
-    return found
 
 
 @lru_cache(maxsize=None)
@@ -257,8 +236,9 @@ def locale_readers(root: Path, before: str | None, after: str | None) -> frozens
     """改动的语言条目的读者：源码里写了条目键，或在断言里写了旧原文片段的测试文件。
 
     没有前后内容时按整份文件的全部条目算，宁多勿漏。"""
-    old, new = _flat_texts(before), _flat_texts(after)
-    keys = {key for key in old.keys() | new.keys() if old.get(key) != new.get(key)} if before and after         else set(old) | set(new)
+    old = change_impact.locale_texts(before) or {}
+    new = change_impact.locale_texts(after) or {}
+    keys = {key for key in old.keys() | new.keys() if old.get(key) != new.get(key)}
     needles = {key for key in keys if len(key) >= 6}
     short = {key for key in keys if len(key) < 6}
     for key in keys:
@@ -277,11 +257,11 @@ def file_consumers(path: str, kind: str, contents: dict | None, root: Path) -> f
         return frozenset()
     if path.startswith("scripts/") and path.endswith(".py") and "/" not in path.removeprefix("scripts/"):
         return script_consumers(root).get(path.removeprefix("scripts/").removesuffix(".py"), frozenset())
-    if locale_file(path):
-        before, after = (contents or {}).get(path, (None, None))
-        if before is None and after is None and (root / path).is_file():
-            after = (root / path).read_text(encoding="utf-8")
-        return locale_readers(root, before, after)
+    if change_impact.locale_file(path):
+        if contents and path in contents:
+            return locale_readers(root, *contents[path])
+        if (root / path).is_file():
+            return locale_readers(root, None, (root / path).read_text(encoding="utf-8"))
     return frozenset()
 
 
@@ -325,7 +305,7 @@ def changed_contents(root: Path, base: str, paths: Iterable[str]) -> dict:
     result = {}
     for path in paths:
         if not (path.endswith(".py") or path in {*change_impact.PACKAGE_FILES, "pyproject.toml", change_impact.REGISTRY}
-                or locale_file(path)):
+                or change_impact.locale_file(path)):
             continue
         try:
             raw = "\n".join((
@@ -404,9 +384,10 @@ def scopes_for_changes(paths: Iterable[str], *, contents: dict | None = None,
         path = raw.replace("\\", "/").strip("/")
         if not path:
             continue
-        kind = (kinds or {}).get(path, "logic")
-        if contents and path in contents:
-            kind = change_impact.kind(path, *contents[path])
+        if kinds and path in kinds:
+            kind = kinds[path]
+        else:
+            kind = change_impact.kind(path, *contents[path]) if contents and path in contents else "logic"
         scopes = special_scopes(path, kind)
         if scopes is None:
             scopes = mapped_scopes(path, root=root)
