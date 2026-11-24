@@ -75,18 +75,54 @@ function Install-PeachBinary([string]$Source, [string]$RelativeDirectory, [strin
     $Copies += @(Get-ChildItem -LiteralPath $SourceDirectory -Filter '*.dll' -File -ErrorAction SilentlyContinue)
     New-Item -ItemType Directory -Path $TargetDirectory -Force | Out-Null
     $BackupDirectory = Join-Path $DataRoot ('tools\import-backup-' + [guid]::NewGuid().ToString('N'))
-    foreach ($File in $Copies) {
+    $Changes = @(foreach ($File in $Copies) {
         $Target = Join-Path $TargetDirectory $File.Name
         if ([IO.Path]::GetFullPath($File.FullName) -eq [IO.Path]::GetFullPath($Target)) { continue }
+        $Expected = (Get-FileHash -LiteralPath $File.FullName).Hash
+        $Previous = $null
         if (Test-Path -LiteralPath $Target -PathType Leaf) {
-            if ((Get-FileHash -LiteralPath $Target).Hash -eq (Get-FileHash -LiteralPath $File.FullName).Hash) { continue }
-            New-Item -ItemType Directory -Path $BackupDirectory -Force | Out-Null
-            Copy-Item -LiteralPath $Target -Destination (Join-Path $BackupDirectory $File.Name)
+            $Previous = (Get-FileHash -LiteralPath $Target).Hash
+            if ($Previous -eq $Expected) { continue }
+            $Writable = [IO.File]::Open($Target, [IO.FileMode]::Open, [IO.FileAccess]::Write, [IO.FileShare]::ReadWrite)
+            $Writable.Dispose()
         }
-        Copy-Item -LiteralPath $File.FullName -Destination $Target -Force
-        if ((Get-FileHash -LiteralPath $Target).Hash -ne (Get-FileHash -LiteralPath $File.FullName).Hash) {
-            throw "File copy verification failed: $Target"
+        [pscustomobject]@{
+            Source = $File.FullName
+            Target = $Target
+            Expected = $Expected
+            Previous = $Previous
+            Backup = Join-Path $BackupDirectory $File.Name
         }
+    })
+    foreach ($Change in $Changes | Where-Object Previous) {
+        New-Item -ItemType Directory -Path $BackupDirectory -Force | Out-Null
+        Copy-Item -LiteralPath $Change.Target -Destination $Change.Backup
+    }
+    $Started = [Collections.Generic.List[object]]::new()
+    try {
+        foreach ($Change in $Changes) {
+            $Started.Add($Change)
+            Copy-Item -LiteralPath $Change.Source -Destination $Change.Target -Force
+            if ((Get-FileHash -LiteralPath $Change.Target).Hash -ne $Change.Expected) {
+                throw "File copy verification failed: $($Change.Target)"
+            }
+        }
+    } catch {
+        for ($Index = $Started.Count - 1; $Index -ge 0; $Index--) {
+            $Change = $Started[$Index]
+            try {
+                if ($Change.Previous) {
+                    if ((Get-FileHash -LiteralPath $Change.Target -ErrorAction SilentlyContinue).Hash -ne $Change.Previous) {
+                        Copy-Item -LiteralPath $Change.Backup -Destination $Change.Target -Force
+                    }
+                } elseif (Test-Path -LiteralPath $Change.Target -PathType Leaf) {
+                    Remove-Item -LiteralPath $Change.Target -Force
+                }
+            } catch {
+                Write-Warning "Could not restore $($Change.Target): $($_.Exception.Message)"
+            }
+        }
+        throw
     }
     Write-Output "READY: $TargetDirectory"
 }
