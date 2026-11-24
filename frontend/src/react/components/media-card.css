@@ -21,6 +21,10 @@
   margin: -16px;
   padding: 16px;
 }
+.peach-react [data-media-sections][data-rectangle-area] {
+  margin-block-start: 0;
+  padding-block-start: 0;
+}
 .peach-react [data-media-grid][data-rectangle-area] { width: auto; }
 [data-card-selection-rectangle] {
   position: absolute; z-index: 3; pointer-events: none;
