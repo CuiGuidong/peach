@@ -262,6 +262,8 @@ Vixen 搜索和详情必须返回完整的作品身份字段。缺字段、无�
 - **社区档 `amane`**：avsox，以及只能由覆盖点名的 fc2club、freejavbt、airav。链上合成一档，一次子进程并发
   问完。上游报的 `rate_limited` 按 429 那一档、`cloudflare_*` 与 `ip_banned` 按 403 那一档写进同一份冷却记录；
   正在冷却的站不带进子进程。
+  AVSOX 与 FreeJavBT 的日期式番号必须连分隔符一起匹配。AVSOX 的下划线日期号还需本机厂牌证据与来源厂牌一致。
+  证据不足时记录身份未确认。旧快照按同一判据检查，未经确认的旧候选仍可人工复核，也允许重新采集。
 - **官方档 `amane_official`**（ADR-0048，每个站只有一个归属）：`makers`（amane 的 `official`，二十九家片商
   官网）、`prestige`、`faleno`、`dahlia`、`mgstage`，是有码与素人链官方档的第一家。分级是 official，结算上
   片商站排在 dmm 与 r18.dev 之前。

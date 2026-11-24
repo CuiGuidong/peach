@@ -2820,6 +2820,7 @@
       "bridgeStartFailed": "Couldn't start the amane bridge: {{error}}",
       "bridgeNotJson": "The amane bridge returned non-JSON output: {{detail}}",
       "bridgeFailed": "The amane bridge query failed (exit {{exitCode}})",
+      "dateIdentityUnconfirmed": "Could not confirm that date-based code {{code}} from {{label}} matches the local video. Check the release code and studio.",
       "productMismatch": "The item returned by {{label}} isn't {{code}}: content_id={{contentId}}",
       "preparing": "The amane runtime is being prepared. Try again later",
       "installDirUnwritable": "Can't read or write the amane install directory: {{error}}",

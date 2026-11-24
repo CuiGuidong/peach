@@ -33,6 +33,7 @@ from typing import Callable, Mapping, Sequence
 from filelock import FileLock, Timeout
 
 from . import interface_text
+from .catalog_rules import code_release_date, release_identity
 from .coded_text import Said, coded
 from .metadata import MetadataProviderError, identifies_code, relay_args, relayed, validate_provider_code
 from .sources.base import (COOLDOWN_ACTIONS, REASON_KINDS, FailureReason, SiteConfig, SiteRecord,
@@ -725,7 +726,35 @@ def to_payload(site: str, code: str, metadata: Mapping[str, object]) -> dict:
     return to_record(site, metadata).payload()
 
 
-def split_report(code: str, report: Mapping[str, object]) -> tuple[list[tuple[str, dict]], dict[str, MetadataProviderError]]:
+def needs_date_identity(site: str, code: str) -> bool:
+    return site in ('avsox', 'freejavbt') and code_release_date(code) is not None
+
+
+def current_date_candidate(code: str, candidate: Mapping[str, object]) -> bool:
+    return (not needs_date_identity(str(candidate.get('source') or ''), code)
+            or candidate.get('date_identity_checked') is True)
+
+
+def date_identity_confirmed(site: str, code: str, payload: Mapping[str, object], studio: str | None) -> bool:
+    if not needs_date_identity(site, code):
+        return True
+    returned = str(payload.get('content_id') or '')
+    if release_identity(code) != release_identity(returned):
+        return False
+    if site != 'avsox' or '_' not in code:
+        return True
+    # AVSOX 对同一完整日期号只返回首条，必须用本机厂牌证据辨别。
+    from .source_page_words import ONEPONDO_MARKS
+    from .studio_sites import normalise
+    maker = normalise(str(payload.get('maker') or ''))
+    expected = normalise(studio or '')
+    return bool(expected and maker and (expected == maker
+                or (expected in ONEPONDO_MARKS and maker in ONEPONDO_MARKS)))
+
+
+def split_report(
+    code: str, report: Mapping[str, object], *, studio: str | None = None,
+) -> tuple[list[tuple[str, dict]], dict[str, MetadataProviderError]]:
     """桥的报告拆成两份：取到的 `[(站, payload)]`，与每站的失败。
 
     取回的商品必须认得出这个番号（`identifies_code`），否则按 `not_found` 记：站内搜索首条
@@ -741,8 +770,13 @@ def split_report(code: str, report: Mapping[str, object]) -> tuple[list[tuple[st
             payload = to_payload(site, code, record["metadata"])
             if record.get('collection_diagnostics'):
                 payload['collection_diagnostics'] = dict(record['collection_diagnostics'])
-            if identifies_code(code, payload):
+            if identifies_code(code, payload) and date_identity_confirmed(site, code, payload, studio):
                 found.append((site, payload))
+                continue
+            if needs_date_identity(site, code):
+                failures[site] = MetadataProviderError(
+                    "errors.metadataAmane.dateIdentityUnconfirmed",
+                    {"label": _label_param(site), "code": code}, kind="unavailable", detail="identity_ambiguous")
                 continue
             failures[site] = MetadataProviderError(
                 "errors.metadataAmane.productMismatch",

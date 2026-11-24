@@ -178,12 +178,13 @@ class TrafficPlan:
             self._add('media:' + path, key, min(size, 9 * self.history.average(key + ':frame', 8 * MIB)))
 
     def _downloads(self, code, title):
-        from .library_processing import _studio_evidence
+        from .library_processing import _dated_studio, _studio_evidence
         from .metadata_routes import stage_name
-        chain = self.remote._chain(code, *_studio_evidence(title['row']))
+        evidence = _studio_evidence(title['row'])
+        chain = self.remote._chain(code, *evidence)
         askable = self.remote._askable(chain, code)
         names = [source for source in askable if f'{code}-{source}.json'.casefold() in self.evidence_names]
-        cached = {source for source, _, _ in self.remote._cached_evidence(names, code)}
+        cached = {source for source, _, _ in self.remote._cached_evidence(names, code, studio=_dated_studio(evidence))}
         pending = [source for source in askable if source not in cached]
         token = 'metadata:' + code
         wants_cover = (not self._ready(code) and chain
