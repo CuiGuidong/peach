@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f69639a8-d1df-4272-9dba-080418adf227", e._sentryDebugIdIdentifier = "sentry-dbid-f69639a8-d1df-4272-9dba-080418adf227");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "40ffae43-3569-4513-8d06-0c4406b62e10", e._sentryDebugIdIdentifier = "sentry-dbid-40ffae43-3569-4513-8d06-0c4406b62e10");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7731,6 +7731,23 @@ var We = "peach.settings.v1", Ge = {
 				}
 			}
 		},
+		"v0-62-0": {
+			headline: "Import downloads, browse server media, and drag to select",
+			items: {
+				"qbittorrent-intake": {
+					body: "Connect qBittorrent and map its download directory to track progress in Peach and import completed files automatically",
+					title: "Import completed qBittorrent downloads"
+				},
+				"server-media-browse": {
+					body: "On a NAS or other headless server, open Storage or playback details to browse mounted directories and locate files",
+					title: "Browse server media in the web app"
+				},
+				"drag-to-select": {
+					body: "Drag to select cards or list rows, and take batch actions on new releases from the home or entity page",
+					title: "Drag to select multiple works"
+				}
+			}
+		},
 		"v0-61-0": {
 			headline: "Scan a folder and fill Western metadata",
 			items: {
@@ -15274,6 +15291,23 @@ var We = "peach.settings.v1", Ge = {
 				"english-interface": {
 					body: "页面、提示和任务进度都能显示英文",
 					title: "完整英文界面"
+				}
+			}
+		},
+		"v0-62-0": {
+			headline: "下载自动入库，远程浏览媒体目录，拖动框选",
+			items: {
+				"qbittorrent-intake": {
+					body: "配置 qBittorrent 和目录映射后，可在 Peach 跟踪下载进度，下载完成后自动入库",
+					title: "用 qBittorrent 下载并自动入库"
+				},
+				"server-media-browse": {
+					body: "在 NAS 等无桌面部署中，从存储空间或播放详情浏览已挂载目录并定位文件",
+					title: "从网页浏览服务器上的媒体"
+				},
+				"drag-to-select": {
+					body: "拖动框选卡片或列表行，在首页和资料页批量操作新作",
+					title: "拖动框选多个作品"
 				}
 			}
 		},
@@ -40359,4 +40393,4 @@ Nt();
 var dx = document.getElementById("peach-page"), fx = dx ? ux[dx.dataset.page ?? ""] : void 0;
 dx && fx && (0, Ht.createRoot)(dx).render(/* @__PURE__ */ (0, U.jsx)(lx, { children: /* @__PURE__ */ (0, U.jsx)(fx, { data: { ...dx.dataset } }) }));
 
-//# debugId=f69639a8-d1df-4272-9dba-080418adf227
+//# debugId=40ffae43-3569-4513-8d06-0c4406b62e10
