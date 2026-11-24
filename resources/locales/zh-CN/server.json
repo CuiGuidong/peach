@@ -2820,6 +2820,7 @@
       "bridgeStartFailed": "无法启动 amane 桥：{{error}}",
       "bridgeNotJson": "amane 桥返回了非 JSON 输出：{{detail}}",
       "bridgeFailed": "amane 桥查询失败（exit {{exitCode}}）",
+      "dateIdentityUnconfirmed": "无法确认 {{label}} 返回的日期式番号 {{code}} 与本地作品相同。请核对番号和厂牌。",
       "productMismatch": "{{label}} 返回的商品不是 {{code}}：content_id={{contentId}}",
       "preparing": "amane 运行环境正在准备，请稍后重试",
       "installDirUnwritable": "amane 安装目录无法读写：{{error}}",
