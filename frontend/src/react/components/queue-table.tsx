@@ -91,7 +91,7 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
         </div>
       </div>
       <DataTableFrame preferences={preferences}
-        onRectangle={selecting && !busy && onRectangle ? (keys, add) => onRectangle(keys.map(Number), add) : undefined}
+        rectangleSelecting={selecting} onRectangle={!busy && onRectangle ? (keys, add) => onRectangle(keys.map(Number), add) : undefined}
         onRowClick={selecting ? (key) => { const item = byId(key); if (item) onPick(item, !selected.has(item.id)) } : undefined}>
         <Table aria-label={label} size="sm"
           sortDescriptor={current ? { column: current.id, direction: current.desc ? 'descending' : 'ascending' } : undefined}
@@ -138,11 +138,11 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
 export function QueueIdentity({ picture, name, title, onOpen }: { picture: ReactNode; name: string; title?: string; onOpen?(): void }) {
   return (
     <div data-list-identity="">
-      <button type="button" data-list-open="" tabIndex={-1} aria-hidden="true" onClick={onOpen}>
+      <button type="button" data-list-open="" data-rectangle-trigger="" tabIndex={-1} aria-hidden="true" onClick={onOpen}>
         <span data-list-picture="">{picture}</span>
       </button>
       <span data-list-text="">
-        <button type="button" data-list-name="" title={title ?? name} onClick={onOpen}>{name}</button>
+        <button type="button" data-list-name="" data-rectangle-trigger="" title={title ?? name} onClick={onOpen}>{name}</button>
       </span>
     </div>
   );

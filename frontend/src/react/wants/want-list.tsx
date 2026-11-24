@@ -133,10 +133,9 @@ function WantRow({ want, readOnly, busy, onReset, onRemove, onCloudDownload, dow
 }
 
 /** 一段（待找、未发售……）：标题带总数，各段独立保存页码与每页数量。 */
-function WantPhase({ phase, label, rows, row, onRectangle }: {
-  phase: string; label: string; rows: Want[]; row(want: Want): ReactNode; onRectangle?: RectangleCommit | undefined;
+function WantPhase({ phase, label, rows, row, onRectangle, selecting }: {
+  phase: string; label: string; rows: Want[]; row(want: Want): ReactNode; onRectangle?: RectangleCommit | undefined; selecting: boolean;
 }) {
-  const rectangle = useRectangleSelection(onRectangle);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(WANT_PAGE_SIZE);
   const [magnetFilter, setMagnetFilter] = useState('all');
@@ -145,6 +144,7 @@ function WantPhase({ phase, label, rows, row, onRectangle }: {
   const available = rows.filter(hasMagnet);
   const filtered = phase !== 'searching' || magnetFilter === 'all' ? rows
     : rows.filter(want => hasMagnet(want) === (magnetFilter === 'available'));
+  const rectangle = useRectangleSelection(filtered.length ? onRectangle : undefined, { selecting, start: '[data-want-items]' });
   const win = pageWindow(filtered.length, pageSize, page);
   return (
     <section aria-label={label} data-want-phase={phase} className="flex flex-col gap-4">
@@ -164,7 +164,9 @@ function WantPhase({ phase, label, rows, row, onRectangle }: {
       </div>
       {!filtered.length ? <EmptyState size="compact" icon={RiStarLine} title={t('catalog:wants.noFilterMatches')}
         actions={<Button size="small" onClick={() => { setMagnetFilter('all'); setPage(1) }}>{t('catalog:shared.viewAll')}</Button>}>{null}</EmptyState> : null}
-      <div {...rectangle}><ul className="flex flex-col gap-4">{filtered.slice(win.start, win.end).map(row)}</ul></div>
+      <div data-rectangle-gutter="" {...rectangle}>
+        <ul data-want-items="" className="flex flex-col gap-4">{filtered.slice(win.start, win.end).map(row)}</ul>
+      </div>
       <div data-want-pager="">
         <DataTableFooter label={label} total={win.total} pagination={{ pageIndex: win.page - 1, pageSize }}
           onChange={next => { setPageSize(next.pageSize); setPage(next.pageIndex + 1) }} unit={t('catalog:wants.itemUnit')} />
@@ -291,8 +293,8 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
         const rows = items.filter((want) => want.phase === phase);
         if (!rows.length) return null;
         return (
-          <WantPhase key={phase} phase={phase} label={label} rows={rows}
-            onRectangle={selecting && !action.busy ? (keys, add) =>
+          <WantPhase key={phase} phase={phase} label={label} rows={rows} selecting={selecting}
+            onRectangle={selection && !action.busy ? (keys, add) =>
               setPicked(current => new Set([...(add ? current : []), ...keys.map(Number)])) : undefined} row={(want) => (
             <WantRow key={want.id} want={want} readOnly={readOnly} busy={action.busy}
               downloads={downloads.data} provider={selected} toast={toast}

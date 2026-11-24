@@ -1,12 +1,12 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "95a3f2ac-f8b2-419f-b4f7-f3dd2f100482", e._sentryDebugIdIdentifier = "sentry-dbid-95a3f2ac-f8b2-419f-b4f7-f3dd2f100482");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7f92f231-430e-4e5f-9e8f-e01efd2ffcad", e._sentryDebugIdIdentifier = "sentry-dbid-7f92f231-430e-4e5f-9e8f-e01efd2ffcad");
 	} catch {}
 })();
 import { $ea3928288112382f$export$439d29a4e110a164 as e, $fe21c36db05242bb$export$a98f0dcb43a68a25 as t, $fe21c36db05242bb$export$d7b12c4107be0d61 as n, Button as r, ButtonLink as i, Checkbox as a, CheckboxGlyph as o, Chip as s, CollapseChevron as c, CollapseRegion as l, DEFAULT_CATEGORY as u, DataTableFooter as d, ENTITY_REVIEW_KINDS as ee, Ea as te, EmptyState as f, ExternalLink as ne, FIELDSET_FOOT as re, FilterGlassRows as p, Gg as ie, InputBase as m, LEGACY_AVATAR_IMG as h, LinkButton as ae, Note as g, REVIEW_CATEGORIES as _, REVIEW_DECISION_LABELS as oe, REVIEW_KEY as se, REVIEW_LABELS as v, REVIEW_QUEUES as y, REVIEW_QUEUE_LABELS as b, Select as x, SelectItem as S, SelectionActions as C, SelectionDock as ce, SortableBoardTabs as w, TextField as T, Wt as E, Xf as le, Yt as D, __toESM as O, apiGet as k, apiSend as ue, avatarInner as A, b1 as de, busyProps as j, canApprove as fe, cardClass as pe, codedText as M, commonReviewSources as me, composingKey as he, currentReviewRow as N, cx as P, decisionPayload as ge, decisionReceipt as _e, defaultChoice as ve, enterPageSelection as ye, errorMessage as F, exitPageSelection as be, fetchReview as xe, filterReviewRows as Se, gB as Ce, groupReviewRows as we, isReviewCategory as Te, joinList as Ee, l7 as I, localTime as De, m7 as Oe, mirrorText as ke, pendingGenres as Ae, queryClient as je, quoted as Me, recordGenre as L, reloadReview as R, require_jsx_runtime as z, require_react as Ne, reviewGroupingOptions as Pe, reviewQueueData as Fe, reviewQueueOf as Ie, reviewWindow as Le, rowEvidence as Re, rowFieldName as B, rowSelectionOperation as ze, rowSubject as V, rowTags as Be, rowTitle as Ve, s7 as H, selectReviewRange as He, serverLabel as Ue, serverLabelList as We, settleReviewRows as Ge, submitDecision as Ke, t as U, useMutation as qe, useNavigationOrder as Je, useOverlayScrollbar as Ye, usePageSelection as Xe, useQuery as Ze, useRectangleSelection as Qe, useViewGlide as $e, useWorkContextMenu as W } from "./peach-app.js";
 import { Page as et } from "./peach-app.page-QAncjzM1.js";
-import { DataTable as tt } from "./peach-app.data-table-CPoQx0_S.js";
+import { DataTable as tt } from "./peach-app.data-table-Dpm5jEso.js";
 import { ComparisonText as nt } from "./peach-app.comparison-text-d2N41j2E.js";
 // src/react/review/auto-landings.ts
 var G = /* @__PURE__ */ O(Ne(), 1), K = "/api/review/auto-landings", rt = "/api/review/auto-landings/revert", it = ["review", "auto-landings"], q = (e) => Ue(e.field_code ?? "", e.field), J = (e) => Ue(e.label_code ?? "", e.label), at = (e) => k(K, e), ot = (e) => k(`${K}?items=${encodeURIComponent(e.join("\n"))}`), Y = (e, t) => ue(rt, {
@@ -1283,7 +1283,11 @@ function Wt(e) {
 	]), We = Ue.rows.map((e) => e.item_key), Ye = new Set(We), $e = Be.map((e) => ({
 		...e,
 		rows: e.rows.filter((e) => Ye.has(e.item_key))
-	})).filter((e) => e.rows.length), W = (0, G.useRef)(null), tt = (0, G.useRef)(null), nt = Qe(k && !z ? (e, t) => O((n) => /* @__PURE__ */ new Set([...t ? n : [], ...e])) : void 0, "[data-review-key]", ".review-grid");
+	})).filter((e) => e.rows.length), W = (0, G.useRef)(null), tt = (0, G.useRef)(null), nt = Qe(z ? void 0 : (e, t) => O((n) => /* @__PURE__ */ new Set([...t ? n : [], ...e])), {
+		selecting: k,
+		items: "[data-review-key]",
+		start: ".review-grid"
+	});
 	(0, G.useLayoutEffect)(() => {
 		let e = tt.current;
 		if (!e || e.card.isConnected || (tt.current = null, document.activeElement !== document.body)) return;
@@ -1485,7 +1489,6 @@ function Wt(e) {
 					id: `review-panel-${p}`,
 					"aria-labelledby": `review-tab-${p}`,
 					tabIndex: -1,
-					...nt,
 					className: "flex min-w-0 flex-1 flex-col gap-5",
 					children: [
 						/* @__PURE__ */ (0, $.jsx)(gt, {
@@ -1519,51 +1522,57 @@ function Wt(e) {
 							onUnifySource: ut,
 							actions: lt
 						}),
-						Ue.rows.length ? $e.map((e) => /* @__PURE__ */ (0, $.jsxs)("section", {
-							className: "flex flex-col gap-3",
-							children: [$e.length > 1 || V !== "candidates" ? /* @__PURE__ */ (0, $.jsxs)("div", {
-								className: "flex flex-wrap items-center gap-2",
-								children: [/* @__PURE__ */ (0, $.jsx)("h3", {
-									className: "text-body-medium text-text-primary",
-									children: `${e.title} · ${e.rows.length}`
-								}), z ? null : /* @__PURE__ */ (0, $.jsx)(r, {
-									variant: "ghost",
-									size: "small",
-									onClick: () => {
-										let t = e.rows.map((e) => e.item_key), n = t.every((e) => D.has(e)), r = new Set(D);
-										for (let e of t) n ? r.delete(e) : r.add(e);
-										O(r);
-									},
-									children: e.rows.every((e) => D.has(e.item_key)) ? U("manage:reviewPage.clearGroup") : U("manage:reviewPage.selectGroup")
+						Ue.rows.length ? /* @__PURE__ */ (0, $.jsx)("div", {
+							"data-rectangle-gutter": "",
+							...nt,
+							className: "flex flex-col gap-5",
+							children: $e.map((e) => /* @__PURE__ */ (0, $.jsxs)("section", {
+								"data-rectangle-gap": "",
+								className: "flex flex-col gap-3",
+								children: [$e.length > 1 || V !== "candidates" ? /* @__PURE__ */ (0, $.jsxs)("div", {
+									className: "flex flex-wrap items-center gap-2",
+									children: [/* @__PURE__ */ (0, $.jsx)("h3", {
+										className: "text-body-medium text-text-primary",
+										children: `${e.title} · ${e.rows.length}`
+									}), z ? null : /* @__PURE__ */ (0, $.jsx)(r, {
+										variant: "ghost",
+										size: "small",
+										onClick: () => {
+											let t = e.rows.map((e) => e.item_key), n = t.every((e) => D.has(e)), r = new Set(D);
+											for (let e of t) n ? r.delete(e) : r.add(e);
+											O(r);
+										},
+										children: e.rows.every((e) => D.has(e.item_key)) ? U("manage:reviewPage.clearGroup") : U("manage:reviewPage.selectGroup")
+									})]
+								}) : null, /* @__PURE__ */ (0, $.jsx)("div", {
+									className: "review-grid gap-5",
+									children: e.rows.map((e) => /* @__PURE__ */ (0, $.jsx)(Ht, {
+										category: p,
+										row: e,
+										queueView: m,
+										choice: K(e),
+										onChoice: (t) => A((n) => new Map(n).set(e.item_key, t)),
+										selected: D.has(e.item_key),
+										onSelect: (t, n) => O((r) => {
+											let i = new Set(r);
+											return me.current = He(i, We, me.current, e.item_key, t, n), i;
+										}),
+										locked: z,
+										busy: X.isPending || Y.isPending && Y.variables?.row.item_key === e.item_key,
+										problem: de.get(e.item_key) || "",
+										genreTags: pt,
+										onDecide: (t) => {
+											Y.isPending || X.isPending || (j((t) => new Map([...t].filter(([t]) => t !== e.item_key))), Y.mutate({
+												row: e,
+												status: t,
+												category: p
+											}));
+										},
+										handlers: mt
+									}, e.item_key))
 								})]
-							}) : null, /* @__PURE__ */ (0, $.jsx)("div", {
-								className: "review-grid gap-5",
-								children: e.rows.map((e) => /* @__PURE__ */ (0, $.jsx)(Ht, {
-									category: p,
-									row: e,
-									queueView: m,
-									choice: K(e),
-									onChoice: (t) => A((n) => new Map(n).set(e.item_key, t)),
-									selected: D.has(e.item_key),
-									onSelect: (t, n) => O((r) => {
-										let i = new Set(r);
-										return me.current = He(i, We, me.current, e.item_key, t, n), i;
-									}),
-									locked: z,
-									busy: X.isPending || Y.isPending && Y.variables?.row.item_key === e.item_key,
-									problem: de.get(e.item_key) || "",
-									genreTags: pt,
-									onDecide: (t) => {
-										Y.isPending || X.isPending || (j((t) => new Map([...t].filter(([t]) => t !== e.item_key))), Y.mutate({
-											row: e,
-											status: t,
-											category: p
-										}));
-									},
-									handlers: mt
-								}, e.item_key))
-							})]
-						}, e.key)) : I.isError && !I.data ? /* @__PURE__ */ (0, $.jsx)(g, {
+							}, e.key))
+						}) : I.isError && !I.data ? /* @__PURE__ */ (0, $.jsx)(g, {
 							tone: "error",
 							title: U("manage:reviewPage.queueLoadFailed"),
 							action: /* @__PURE__ */ (0, $.jsx)(r, {
@@ -1615,4 +1624,4 @@ function Wt(e) {
 }
 export { Wt as ReviewPage };
 
-//# debugId=95a3f2ac-f8b2-419f-b4f7-f3dd2f100482
+//# debugId=7f92f231-430e-4e5f-9e8f-e01efd2ffcad

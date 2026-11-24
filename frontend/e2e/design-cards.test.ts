@@ -819,6 +819,23 @@ describe('设计决定：作品卡、管理页与复核', () => {
     }
   });
 
+  it('复核卡可以从卡片区外侧起拖', async () => {
+    const opened = await openReview(browser);
+    try {
+      const { page } = opened;
+      const card = page.locator('section[data-review-key]').first();
+      await page.locator('#selectMode').click();
+      await card.evaluate(node => node.scrollIntoView({ block: 'center' }));
+      const box = (await card.boundingBox())!;
+      await page.mouse.move(box.x - 15, box.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(box.x + 40, box.y + 72, { steps: 4 });
+      await page.locator('section[data-review-key][data-rectangle-hit]').waitFor();
+      await page.mouse.up();
+      assert.equal(await card.getByRole('checkbox').first().isChecked(), true);
+    } finally { await opened.close(); }
+  });
+
   it('复核卡的勾选框和标题共用一条中线', { timeout: 60_000 }, async () => {
     const opened = await openReview(browser);
     try {

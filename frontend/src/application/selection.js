@@ -1,6 +1,7 @@
 import { selectionSurface, selectionDock, setSelectionMode, toggleSelection as toggleSelected } from '../react/catalog-grid/selection-controller';
 import { javSelectPage, requestJavSelection } from '../jav-controls';
-import { pageSelectionActive, togglePageSelection } from '../react/components/page-selection';
+import { enterPageSelection, pageSelectionActive, togglePageSelection } from '../react/components/page-selection';
+import { ENTER_SELECTION_EVENT } from '../selection';
 import { selectSurface } from '../shell';
 /* selection 域控制器：本域状态与动作，启动由 Application 的生命周期统一安装。 */
 import { loadCatalog, pushGridPage } from './catalog.js';
@@ -197,6 +198,11 @@ applicationEffects.handler($('#selectMode'), 'onclick', ()=>{
   if(javSelectPage(location.pathname,location.search)){requestJavSelection(location.search);return}
   if(pageSelectionActive(location.pathname)){togglePageSelection();return}
   setSelectMode(!selectMode,!selectMode?false:true)
+});
+applicationEffects.listen(window, ENTER_SELECTION_EVENT, ()=>{
+  if(javSelectPage(location.pathname,location.search)){requestJavSelection(location.search,true);return}
+  if(pageSelectionActive(location.pathname)){enterPageSelection();return}
+  if(!selectMode)setSelectMode(true);
 });
 $('#selectMode').disabled=false;
 selectionState.REGION_CHOICES = [['jp',t('shell:region.japan')],['kr',t('shell:region.korea')],['cn',t('shell:region.china')],['west',t('shell:region.western')],

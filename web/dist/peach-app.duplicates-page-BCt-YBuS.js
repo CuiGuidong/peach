@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7abfbe72-4ff1-4193-95e6-49a493cc67ab", e._sentryDebugIdIdentifier = "sentry-dbid-7abfbe72-4ff1-4193-95e6-49a493cc67ab");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "6cdc2a77-ea79-411a-89ff-b770f9b0a83d", e._sentryDebugIdIdentifier = "sentry-dbid-6cdc2a77-ea79-411a-89ff-b770f9b0a83d");
 	} catch {}
 })();
 import { Button as e, Checkbox as t, DUPLICATES_KEY as n, EmptyState as r, FilterActionButton as i, FilterGlassRows as a, Gg as o, H7 as ee, JZ as te, KEEP_LABELS as s, KEPT_DUPLICATES_KEY as c, LOC as l, M6 as ne, MEDIA_SOURCES_KEY as u, MEDIA_SOURCE_ICONS as d, Note as f, SelectAllButton as p, SelectionDock as m, SortKeys as h, SourceLabel as re, SourceMark as g, TRASH_KEY as _, __toESM as v, batchOperate as y, bulkCloudPreferences as ie, busyProps as ae, cardClass as oe, cloudLocations as se, confirmModal as ce, coverUrl as b, duplicateVictims as x, enterPageSelection as S, errorMessage as le, exitPageSelection as ue, fetchDuplicates as de, fetchKeptDuplicates as fe, fetchMediaSources as pe, fmtDur as C, fmtSize as w, groupKey as T, keepGroup as me, keepGroups as E, middleTruncateCut as D, mixedCloudPreferences as he, queryClient as O, qx as ge, require_jsx_runtime as k, require_react as A, runBulkAction as _e, spriteGlyph as j, t as M, useMutation as ve, usePageSelection as ye, useQuery as N, useQueueSort as be, useRectangleSelection as xe, useWorkContextMenu as Se, victimBytes as P } from "./peach-app.js";
@@ -227,10 +227,13 @@ function ke({ file: e, reference: n, openItem: r, selected: i, onSelect: a, onTr
 		]
 	});
 }
-function Ae({ children: e, commit: t }) {
-	let n = xe(t, "[data-duplicate-file][data-rectangle-key]");
+function Ae({ children: e, commit: t, selecting: n }) {
+	let r = xe(t, {
+		selecting: n,
+		items: "[data-duplicate-file][data-rectangle-key]"
+	});
 	return /* @__PURE__ */ (0, L.jsx)("div", {
-		...n,
+		...r,
 		children: e
 	});
 }
@@ -247,7 +250,10 @@ function G({ openItem: o, toast: d, failure: g }) {
 		queryFn: ({ signal: e }) => pe(e)
 	}), [D, O] = (0, I.useState)(""), [k, A] = (0, I.useState)(/* @__PURE__ */ new Set()), [j, F] = (0, I.useState)(/* @__PURE__ */ new Set()), R = ye(() => {
 		A(/* @__PURE__ */ new Set()), F(/* @__PURE__ */ new Set());
-	}), Ce = xe(R && !D ? (e, t) => A((n) => /* @__PURE__ */ new Set([...t ? n : [], ...e])) : void 0, "[data-duplicate-group-tools][data-rectangle-key]"), z = {
+	}), Ce = xe(D ? void 0 : (e, t) => A((n) => /* @__PURE__ */ new Set([...t ? n : [], ...e])), {
+		selecting: R,
+		items: "[data-duplicate-group-tools][data-rectangle-key]"
+	}), z = {
 		receipt: d,
 		failure: (e) => g(M("cleanup:duplicates.bulkFailed"), e)
 	}, V = ve({
@@ -352,7 +358,6 @@ function G({ openItem: o, toast: d, failure: g }) {
 	];
 	return /* @__PURE__ */ (0, L.jsxs)("div", {
 		className: "mx-auto w-full max-w-board pb-10.5",
-		...Ce,
 		children: [
 			_.menu,
 			/* @__PURE__ */ (0, L.jsx)(a, {
@@ -456,171 +461,177 @@ function G({ openItem: o, toast: d, failure: g }) {
 					children: le(V.error)
 				})
 			}) : null,
-			J.length ? J.map((n, r) => {
-				let i = [n], a = (e) => `${r}:${e}`, s = k.has(T(n)), c = () => {
-					let e = [{
-						id: "select",
-						label: s ? M("catalog:mediaActions.deselect") : M("cleanup:duplicates.selectGroup", { code: n.code }),
-						icon: ee,
-						run: () => Pe(n, !s)
-					}, {
-						id: "keep",
-						label: M(K ? "cleanup:duplicates.unkeep" : "cleanup:duplicates.keepAll"),
-						icon: K ? te : ge,
-						disabled: !!D,
-						run: () => Le(n, a("keep"), !K)
-					}];
-					if (!K) {
-						let t = [
-							["largest", M("cleanup:duplicates.keepLargest")],
-							["longest", M("cleanup:duplicates.keepLongest")],
-							...he(n.files, Y).map((e) => [e, M("cleanup:duplicates.keepStorage", { storage: l[e] || e })]),
-							["all", M("cleanup:duplicates.trashGroup")]
-						];
-						for (let [n, r] of t) e.push({
-							id: n,
-							label: r,
-							icon: n === "all" ? ne : ge,
-							danger: n === "all",
+			J.length ? /* @__PURE__ */ (0, L.jsx)("div", {
+				"data-rectangle-gutter": "",
+				className: "flow-root",
+				...Ce,
+				children: J.map((n, r) => {
+					let i = [n], a = (e) => `${r}:${e}`, s = k.has(T(n)), c = () => {
+						let e = [{
+							id: "select",
+							label: s ? M("catalog:mediaActions.deselect") : M("cleanup:duplicates.selectGroup", { code: n.code }),
+							icon: ee,
+							run: () => Pe(n, !s)
+						}, {
+							id: "keep",
+							label: M(K ? "cleanup:duplicates.unkeep" : "cleanup:duplicates.keepAll"),
+							icon: K ? te : ge,
 							disabled: !!D,
-							run: () => Q({
-								groups: i,
-								keep: n,
-								key: a(n)
-							})
-						});
-					}
-					return {
-						key: T(n),
-						operations: e
-					};
-				};
-				return /* @__PURE__ */ (0, L.jsxs)("section", {
-					"aria-label": n.code,
-					className: Te,
-					"data-board-selected": k.has(T(n)) || void 0,
-					children: [/* @__PURE__ */ (0, L.jsxs)("div", {
-						"data-duplicate-group-tools": "",
-						"data-rectangle-key": T(n),
-						className: "flex flex-wrap items-center gap-3 bg-background-tertiary-default p-5 max-compact:p-4 dark:bg-background-secondary-default",
-						onContextMenu: (e) => _.onContextMenu(e, c()),
-						onKeyDown: (e) => {
-							(e.key === "ContextMenu" || e.shiftKey && e.key === "F10") && _.onKeyDown(e, c());
-						},
-						children: [
-							/* @__PURE__ */ (0, L.jsx)(t, {
-								slot: null,
-								"aria-label": M("cleanup:duplicates.selectGroup", { code: n.code }),
-								isSelected: k.has(T(n)),
-								onChange: (e) => Pe(n, e)
-							}),
-							/* @__PURE__ */ (0, L.jsx)("b", {
-								className: "text-title-2-medium text-text-primary",
-								children: n.code
-							}),
-							/* @__PURE__ */ (0, L.jsx)("span", {
-								className: "font-mono text-caption-1-regular leading-5 text-text-primary",
-								children: M("cleanup:duplicates.groupDetail", {
-									count: Number(n.count || 0),
-									size: w(n.reclaimable)
+							run: () => Le(n, a("keep"), !K)
+						}];
+						if (!K) {
+							let t = [
+								["largest", M("cleanup:duplicates.keepLargest")],
+								["longest", M("cleanup:duplicates.keepLongest")],
+								...he(n.files, Y).map((e) => [e, M("cleanup:duplicates.keepStorage", { storage: l[e] || e })]),
+								["all", M("cleanup:duplicates.trashGroup")]
+							];
+							for (let [n, r] of t) e.push({
+								id: n,
+								label: r,
+								icon: n === "all" ? ne : ge,
+								danger: n === "all",
+								disabled: !!D,
+								run: () => Q({
+									groups: i,
+									keep: n,
+									key: a(n)
 								})
-							}),
-							Oe(n),
-							n.new_files ? /* @__PURE__ */ (0, L.jsx)("span", {
-								className: `${B} text-text-primary`,
-								children: M("cleanup:duplicates.newFiles", { count: n.new_files })
-							}) : null,
-							n.cross_drive ? /* @__PURE__ */ (0, L.jsx)("span", {
-								className: `${B} text-text-secondary`,
-								children: M("cleanup:duplicates.crossDrive", { drives: n.drives.join(" ") })
-							}) : null,
-							/* @__PURE__ */ (0, L.jsx)("span", {
-								className: "ml-auto flex flex-wrap gap-2 max-compact:ml-0 max-compact:w-full",
-								children: K ? /* @__PURE__ */ (0, L.jsx)(e, {
-									variant: "secondary",
-									size: "small",
-									...$(a("unkeep")),
-									onClick: () => Le(n, a("unkeep"), !1),
-									children: M("cleanup:duplicates.unkeep")
-								}) : /* @__PURE__ */ (0, L.jsxs)(L.Fragment, { children: [
-									/* @__PURE__ */ (0, L.jsx)(e, {
-										variant: "danger",
-										size: "small",
-										...$(a("files")),
-										disabled: D !== "" || !n.files.some((e) => j.has(e.id)),
-										onClick: () => Ie(n, a("files")),
-										children: M("cleanup:duplicates.trashSelectedFiles", { count: n.files.filter((e) => j.has(e.id)).length })
-									}),
-									/* @__PURE__ */ (0, L.jsx)(e, {
-										variant: "secondary",
-										size: "small",
-										...$(a("largest")),
-										onClick: () => Q({
-											groups: i,
-											keep: "largest",
-											key: a("largest")
-										}),
-										children: M("cleanup:duplicates.keepLargest")
-									}),
-									/* @__PURE__ */ (0, L.jsx)(e, {
-										variant: "secondary",
-										size: "small",
-										...$(a("longest")),
-										onClick: () => Q({
-											groups: i,
-											keep: "longest",
-											key: a("longest")
-										}),
-										children: M("cleanup:duplicates.keepLongest")
-									}),
-									he(n.files, Y).map((t) => /* @__PURE__ */ (0, L.jsx)(e, {
-										variant: "secondary",
-										size: "small",
-										...$(a(t)),
-										onClick: () => Q({
-											groups: i,
-											keep: t,
-											key: a(t)
-										}),
-										children: /* @__PURE__ */ (0, L.jsx)(re, {
-											source: t,
-											label: M("cleanup:duplicates.keepStorage", { storage: l[t] || t })
-										})
-									}, t)),
-									/* @__PURE__ */ (0, L.jsx)(e, {
-										variant: "secondary",
-										size: "small",
-										...$(a("keep")),
-										onClick: () => Le(n, a("keep"), !0),
-										children: M("cleanup:duplicates.keepAll")
-									}),
-									/* @__PURE__ */ (0, L.jsx)(e, {
-										variant: "danger",
-										size: "small",
-										...$(a("all")),
-										onClick: () => Q({
-											groups: i,
-											keep: "all",
-											key: a("all")
-										}),
-										children: M("cleanup:duplicates.trashGroup")
+							});
+						}
+						return {
+							key: T(n),
+							operations: e
+						};
+					};
+					return /* @__PURE__ */ (0, L.jsxs)("section", {
+						"aria-label": n.code,
+						className: Te,
+						"data-board-selected": k.has(T(n)) || void 0,
+						children: [/* @__PURE__ */ (0, L.jsxs)("div", {
+							"data-duplicate-group-tools": "",
+							"data-rectangle-key": T(n),
+							className: "flex flex-wrap items-center gap-3 bg-background-tertiary-default p-5 max-compact:p-4 dark:bg-background-secondary-default",
+							onContextMenu: (e) => _.onContextMenu(e, c()),
+							onKeyDown: (e) => {
+								(e.key === "ContextMenu" || e.shiftKey && e.key === "F10") && _.onKeyDown(e, c());
+							},
+							children: [
+								/* @__PURE__ */ (0, L.jsx)(t, {
+									slot: null,
+									"aria-label": M("cleanup:duplicates.selectGroup", { code: n.code }),
+									isSelected: k.has(T(n)),
+									onChange: (e) => Pe(n, e)
+								}),
+								/* @__PURE__ */ (0, L.jsx)("b", {
+									className: "text-title-2-medium text-text-primary",
+									children: n.code
+								}),
+								/* @__PURE__ */ (0, L.jsx)("span", {
+									className: "font-mono text-caption-1-regular leading-5 text-text-primary",
+									children: M("cleanup:duplicates.groupDetail", {
+										count: Number(n.count || 0),
+										size: w(n.reclaimable)
 									})
-								] })
-							})
-						]
-					}), /* @__PURE__ */ (0, L.jsx)(Ae, {
-						commit: R && !D && !K ? (e, t) => F((n) => /* @__PURE__ */ new Set([...t ? n : [], ...e.map(Number)])) : void 0,
-						children: n.files.map((e) => /* @__PURE__ */ (0, L.jsx)(ke, {
-							file: e,
-							reference: n.files.find((t) => t.id !== e.id),
-							openItem: o,
-							selected: j.has(e.id),
-							onSelect: K ? void 0 : (t) => Fe(e.id, t),
-							busy: !!D,
-							onTrash: K ? void 0 : () => Ie(n, a("files"), /* @__PURE__ */ new Set([e.id]))
-						}, e.id))
-					})]
-				}, T(n));
+								}),
+								Oe(n),
+								n.new_files ? /* @__PURE__ */ (0, L.jsx)("span", {
+									className: `${B} text-text-primary`,
+									children: M("cleanup:duplicates.newFiles", { count: n.new_files })
+								}) : null,
+								n.cross_drive ? /* @__PURE__ */ (0, L.jsx)("span", {
+									className: `${B} text-text-secondary`,
+									children: M("cleanup:duplicates.crossDrive", { drives: n.drives.join(" ") })
+								}) : null,
+								/* @__PURE__ */ (0, L.jsx)("span", {
+									className: "ml-auto flex flex-wrap gap-2 max-compact:ml-0 max-compact:w-full",
+									children: K ? /* @__PURE__ */ (0, L.jsx)(e, {
+										variant: "secondary",
+										size: "small",
+										...$(a("unkeep")),
+										onClick: () => Le(n, a("unkeep"), !1),
+										children: M("cleanup:duplicates.unkeep")
+									}) : /* @__PURE__ */ (0, L.jsxs)(L.Fragment, { children: [
+										/* @__PURE__ */ (0, L.jsx)(e, {
+											variant: "danger",
+											size: "small",
+											...$(a("files")),
+											disabled: D !== "" || !n.files.some((e) => j.has(e.id)),
+											onClick: () => Ie(n, a("files")),
+											children: M("cleanup:duplicates.trashSelectedFiles", { count: n.files.filter((e) => j.has(e.id)).length })
+										}),
+										/* @__PURE__ */ (0, L.jsx)(e, {
+											variant: "secondary",
+											size: "small",
+											...$(a("largest")),
+											onClick: () => Q({
+												groups: i,
+												keep: "largest",
+												key: a("largest")
+											}),
+											children: M("cleanup:duplicates.keepLargest")
+										}),
+										/* @__PURE__ */ (0, L.jsx)(e, {
+											variant: "secondary",
+											size: "small",
+											...$(a("longest")),
+											onClick: () => Q({
+												groups: i,
+												keep: "longest",
+												key: a("longest")
+											}),
+											children: M("cleanup:duplicates.keepLongest")
+										}),
+										he(n.files, Y).map((t) => /* @__PURE__ */ (0, L.jsx)(e, {
+											variant: "secondary",
+											size: "small",
+											...$(a(t)),
+											onClick: () => Q({
+												groups: i,
+												keep: t,
+												key: a(t)
+											}),
+											children: /* @__PURE__ */ (0, L.jsx)(re, {
+												source: t,
+												label: M("cleanup:duplicates.keepStorage", { storage: l[t] || t })
+											})
+										}, t)),
+										/* @__PURE__ */ (0, L.jsx)(e, {
+											variant: "secondary",
+											size: "small",
+											...$(a("keep")),
+											onClick: () => Le(n, a("keep"), !0),
+											children: M("cleanup:duplicates.keepAll")
+										}),
+										/* @__PURE__ */ (0, L.jsx)(e, {
+											variant: "danger",
+											size: "small",
+											...$(a("all")),
+											onClick: () => Q({
+												groups: i,
+												keep: "all",
+												key: a("all")
+											}),
+											children: M("cleanup:duplicates.trashGroup")
+										})
+									] })
+								})
+							]
+						}), /* @__PURE__ */ (0, L.jsx)(Ae, {
+							selecting: R,
+							commit: !D && !K ? (e, t) => F((n) => /* @__PURE__ */ new Set([...t ? n : [], ...e.map(Number)])) : void 0,
+							children: n.files.map((e) => /* @__PURE__ */ (0, L.jsx)(ke, {
+								file: e,
+								reference: n.files.find((t) => t.id !== e.id),
+								openItem: o,
+								selected: j.has(e.id),
+								onSelect: K ? void 0 : (t) => Fe(e.id, t),
+								busy: !!D,
+								onTrash: K ? void 0 : () => Ie(n, a("files"), /* @__PURE__ */ new Set([e.id]))
+							}, e.id))
+						})]
+					}, T(n));
+				})
 			}) : K ? /* @__PURE__ */ (0, L.jsx)(r, {
 				icon: we,
 				title: M("cleanup:duplicates.keptEmptyTitle"),
@@ -642,4 +653,4 @@ function G({ openItem: o, toast: d, failure: g }) {
 }
 export { G as DuplicatesPage };
 
-//# debugId=7abfbe72-4ff1-4193-95e6-49a493cc67ab
+//# debugId=6cdc2a77-ea79-411a-89ff-b770f9b0a83d

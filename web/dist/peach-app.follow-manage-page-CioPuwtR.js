@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "6996e4b8-94bf-433e-ab2d-b1c91dda432b", e._sentryDebugIdIdentifier = "sentry-dbid-6996e4b8-94bf-433e-ab2d-b1c91dda432b");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "acb6cbd0-6558-415d-b3e6-c4a9324a9a0b", e._sentryDebugIdIdentifier = "sentry-dbid-acb6cbd0-6558-415d-b3e6-c4a9324a9a0b");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $542a13ca2fa5b484$export$5b6b19405a83ff9d as t, $76d00c5a4edb230a$export$76ccd210b9029917 as n, $76d00c5a4edb230a$export$816b5d811295e6bc as r, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as i, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as a, $76d00c5a4edb230a$export$f850895b287ef28e as o, $ea3928288112382f$export$439d29a4e110a164 as s, $l as c, ActivityStatus as l, Button as u, ButtonLink as d, Bx as f, COLUMN_SORT as p, Checkbox as m, ChevronSortDown as h, Chip as g, CollapseChevron as _, CollapseRegion as v, ColumnFilterAvatar as y, ColumnFilterChips as b, Ct as x, DataTableFooter as S, DataTableFrame as C, DataTableSort as w, EmptyFocusButton as T, EmptyState as E, ErrorText as ee, ExternalLink as D, FEEDS_KEY as te, FOLLOW_CHECK_KEY as O, FOLLOW_CHECK_TASK as k, FOLLOW_CREDENTIALS_KEY as ne, FOLLOW_MANAGE_KEY as re, FOLLOW_MANAGE_NAV as A, FOLLOW_RESOLVE_KEY as ie, FieldLabel as j, Gg as M, H7 as N, Help as P, Input as F, LAYOUTS as I, LEGACY_AVATAR_IMG as L, M6 as ae, MENU_ITEM as oe, MENU_ITEM_INTERACTIVE as R, MENU_POPOVER_SURFACE as z, ModalFrame as B, Note as V, OV as se, P7 as H, SORT_DEFAULT_DIR as ce, SORT_OPTIONS as le, STAT_STRIP_SIX as U, Select as ue, SelectItem as de, SelectionDock as fe, SelectionPopover as W, SiteIcon as pe, SiteLabel as me, SortDirectionIcon as he, SortableBoardTabs as ge, Switch as G, Table as _e, TableColumnControls as ve, TableColumnResizer as ye, TableSelectionHeader as be, TaskProgress as xe, Un as Se, Wt as K, Xf as Ce, __toESM as we, activityKind as Te, addAlias as Ee, addSource as De, authorGroups as Oe, authorName as ke, avatarInner as Ae, busyProps as q, cardClass as je, checkEvidenceGap as Me, checkFailures as Ne, checkFeeds as Pe, checkReceipt as Fe, checkSummary as Ie, checkedText as Le, clickedBlank as Re, codedText as ze, columnVisibilityFeature as Be, composingKey as Ve, confirmModal as He, createColumnHelper as Ue, credentialDone as We, cx as Ge, dZ as Ke, dropSources as qe, du as Je, enterPageSelection as Ye, errorHeadline as Xe, errorMessage as J, exitPageSelection as Ze, feedIntervalText as Qe, fetchCheckJob as $e, fetchCredentials as et, fetchFeeds as tt, fetchFollow as nt, fetchResolveJob as rt, fetchSuggestions as it, flexRender as at, followFeedByName as ot, followFeedEntity as st, followSuggestKey as ct, groupByAuthor as lt, isBroken as ut, isLayout as dt, jobText as ft, joinList as pt, keepSelected as mt, l7 as ht, localTime as gt, lookupFeedActor as _t, mapLimit as vt, markAllPending as yt, pageSizeOf as bt, pageWindow as xt, patchSource as St, pv as Ct, queryClient as wt, quoted as Tt, reloadFollowManage as Et, removeAlias as Dt, removeFeed as Ot, removeSource as kt, renameAliasGroup as At, require_jsx_runtime as jt, require_react as Mt, resolveFollowSort as Nt, rowPaginationFeature as Pt, rowSelectionFeature as Ft, rowSelectionOperation as It, rowSortingFeature as Lt, runBulkAction as Rt, selectionState as zt, serverLabel as Bt, setFeedEnabled as Vt, setSourceEnabled as Ht, skeletonHtml as Ut, sortLabel as Wt, startCheck as Gt, startResolve as Kt, statusText as qt, t as Y, tableFeatures as Jt, tableRows as Yt, th as Xt, toggleGroup as Zt, unmarkItems as Qt, useAction as $t, useBackgroundJob as en, useMutation as tn, usePageSelection as nn, useQuery as rn, useRectangleSelection as an, useRowWorkContext as on, useTable as sn, useTableFilters as cn, useTablePreferences as ln, useWorkContextMenu as un, utcDate as dn } from "./peach-app.js";
@@ -1191,10 +1191,11 @@ function Xn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 						follow: !0,
 						preferences: d,
 						onRowClick: (e) => K.getRow(e)?.toggleSelected(),
-						onRectangle: D ? (e, t) => K.setRowSelection({
+						rectangleSelecting: D,
+						onRectangle: (e, t) => K.setRowSelection({
 							...t ? _ : {},
 							...Object.fromEntries(e.map((e) => [e, !0]))
-						}) : void 0,
+						}),
 						children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 							"aria-label": Y("follow:creatorAliases.pendingTable"),
 							size: "sm",
@@ -1307,10 +1308,11 @@ function Xn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 						follow: !0,
 						preferences: f,
 						onRowClick: (e) => we.getRow(e)?.toggleSelected(),
-						onRectangle: D ? (e, t) => we.setRowSelection({
+						rectangleSelecting: D,
+						onRectangle: (e, t) => we.setRowSelection({
 							...t ? y : {},
 							...Object.fromEntries(e.map((e) => [e, !0]))
-						}) : void 0,
+						}),
 						children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 							"aria-label": Y("follow:creatorAliases.saved"),
 							size: "sm",
@@ -1876,10 +1878,11 @@ function cr({ readOnly: e, toast: t, onAdd: s, selection: c, selecting: l }) {
 					follow: !0,
 					preferences: g,
 					onRowClick: (e) => U(Number(e)),
-					onRectangle: l ? (e, t) => ce.setRowSelection({
+					rectangleSelecting: l,
+					onRectangle: (e, t) => ce.setRowSelection({
 						...t ? H : {},
 						...Object.fromEntries(e.map((e) => [e, !0]))
-					}) : void 0,
+					}),
 					children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 						"aria-label": Y("follow:feedSources.title"),
 						size: "sm",
@@ -2217,7 +2220,10 @@ function yr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 	});
 }
 function br(e) {
-	let { data: t, sort: s, dir: c, page: l, layout: d, pageSize: g, selected: v, readOnly: y, onSort: x, onPage: w, onLayout: T, onPageSize: ee, onSelected: D, toast: te, openFollow: ne, onAdd: re } = e, A = e.selecting ? (e, t) => D(/* @__PURE__ */ new Set([...t ? v : [], ...e.map(Number)])) : void 0, ie = an(A), j = t.sources, M = (0, X.useMemo)(() => t.author_aliases || [], [t.author_aliases]), N = t.counts || {}, [P, F] = (0, X.useState)(/* @__PURE__ */ new Set()), [L, oe] = fr(), [R, z] = (0, X.useState)(""), B = (0, X.useMemo)(() => Oe(j, s, c, M), [
+	let { data: t, sort: s, dir: c, page: l, layout: d, pageSize: g, selected: v, readOnly: y, onSort: x, onPage: w, onLayout: T, onPageSize: ee, onSelected: D, toast: te, openFollow: ne, onAdd: re } = e, A = (e, t) => D(/* @__PURE__ */ new Set([...t ? v : [], ...e.map(Number)])), ie = an(A, {
+		selecting: e.selecting,
+		start: "[data-source-divider]"
+	}), j = t.sources, M = (0, X.useMemo)(() => t.author_aliases || [], [t.author_aliases]), N = t.counts || {}, [P, F] = (0, X.useState)(/* @__PURE__ */ new Set()), [L, oe] = fr(), [R, z] = (0, X.useState)(""), B = (0, X.useMemo)(() => Oe(j, s, c, M), [
 		j,
 		s,
 		c,
@@ -2723,6 +2729,7 @@ function br(e) {
 				follow: !0,
 				preferences: st,
 				onRowClick: (e) => Ce(Number(e), !v.has(Number(e))),
+				rectangleSelecting: e.selecting,
 				onRectangle: A,
 				children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 					"aria-label": Y("follow:sourceList.tableLabel"),
@@ -2791,6 +2798,7 @@ function br(e) {
 					children: null
 				}),
 				/* @__PURE__ */ (0, Z.jsx)("div", {
+					"data-rectangle-gutter": U.length ? "" : void 0,
 					className: "flex flex-col gap-3",
 					...ie,
 					children: U.slice(ct.start, ct.end).map(({ key: e, name: t, sources: n }) => /* @__PURE__ */ (0, Z.jsx)(yr, {
@@ -4674,4 +4682,4 @@ function mc(e) {
 }
 export { mc as FollowManagePage };
 
-//# debugId=6996e4b8-94bf-433e-ab2d-b1c91dda432b
+//# debugId=acb6cbd0-6558-415d-b3e6-c4a9324a9a0b

@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f0fd84a1-a8e7-4f77-99fa-437b29c9d377", e._sentryDebugIdIdentifier = "sentry-dbid-f0fd84a1-a8e7-4f77-99fa-437b29c9d377");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "159e5ad8-ecdc-49c9-bb1f-3b63026d0523", e._sentryDebugIdIdentifier = "sentry-dbid-159e5ad8-ecdc-49c9-bb1f-3b63026d0523");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -38325,7 +38325,7 @@ function $y(e) {
 		}
 	};
 }
-function eb(e, { drag: t = !1, fade: n = !0, wheel: r = !0, elastic: i = !0, dragIgnore: a = "", table: o = !1 } = {}) {
+function eb(e, { drag: t = !1, fade: n = !0, wheel: r = !0, elastic: i = !0, dragIgnore: a = "", selectionScope: o = "" } = {}) {
 	if (!e) return;
 	n && (e.dataset.scrollGesture = "");
 	let s = Wy.get(e);
@@ -38335,8 +38335,11 @@ function eb(e, { drag: t = !1, fade: n = !0, wheel: r = !0, elastic: i = !0, dra
 		fade: n,
 		wheel: r,
 		elastic: i,
-		dragIgnore: a
-	}, l = new AbortController(), u = $y(e), d = null, f = 0, p = 0, m = 0, h = !1, g = 0, _ = 0, v = 0, y = 0, b = (t, n) => {
+		dragIgnore: a,
+		selectionScope: o
+	}, l = new AbortController(), u = $y(e);
+	o && (e.dataset.rectanglePan = "");
+	let d = null, f = 0, p = 0, m = 0, h = !1, g = 0, _ = 0, v = 0, y = 0, b = (t, n) => {
 		e.dataset[t] !== n && (e.dataset[t] = n);
 	}, x = "", S = () => (x ||= getComputedStyle(e).overflowX, [
 		"auto",
@@ -38386,7 +38389,7 @@ function eb(e, { drag: t = !1, fade: n = !0, wheel: r = !0, elastic: i = !0, dra
 			return;
 		}
 		if (c.dragIgnore && (t.shiftKey || t.ctrlKey || t.metaKey || t.altKey || t.target.closest?.(c.dragIgnore))) return;
-		let n = o && !!t.target.closest?.("[data-rectangle-select] tbody");
+		let n = c.selectionScope && !!t.target.closest?.(c.selectionScope);
 		t.stopPropagation(), O(), d = {
 			x: t.pageX,
 			left: e.scrollLeft,
@@ -38409,7 +38412,9 @@ function eb(e, { drag: t = !1, fade: n = !0, wheel: r = !0, elastic: i = !0, dra
 	let A = () => {
 		d && c.elastic && u.release(), d && delete document.documentElement.dataset.dragScrolling, d = null;
 	};
-	E(window, "mouseup", A), E(window, "blur", A), E(e, "keydown", () => {
+	E(window, "mouseup", A), E(window, "blur", A), E(e, "dragstart", (e) => {
+		d && e.preventDefault();
+	}), E(e, "keydown", () => {
 		f = 0;
 	}), E(e, "click", (e) => {
 		f > 6 && (e.stopPropagation(), e.preventDefault(), f = 0);
@@ -38433,7 +38438,7 @@ function eb(e, { drag: t = !1, fade: n = !0, wheel: r = !0, elastic: i = !0, dra
 			x = "", C();
 		},
 		destroy() {
-			l.abort(), O(), cancelAnimationFrame(w), w = 0, j.disconnect(), ee.disconnect(), Wy.delete(e), delete e.dataset.scrollGesture, d && delete document.documentElement.dataset.dragScrolling, Wy.size || (Gy?.disconnect(), Gy = null);
+			l.abort(), O(), cancelAnimationFrame(w), w = 0, j.disconnect(), ee.disconnect(), Wy.delete(e), delete e.dataset.scrollGesture, delete e.dataset.rectanglePan, d && delete document.documentElement.dataset.dragScrolling, Wy.size || (Gy?.disconnect(), Gy = null);
 		}
 	};
 	return Wy.set(e, N), Gy || (Gy = new MutationObserver(() => {
@@ -40395,4 +40400,4 @@ Nt();
 var dx = document.getElementById("peach-page"), fx = dx ? ux[dx.dataset.page ?? ""] : void 0;
 dx && fx && (0, Ht.createRoot)(dx).render(/* @__PURE__ */ (0, U.jsx)(lx, { children: /* @__PURE__ */ (0, U.jsx)(fx, { data: { ...dx.dataset } }) }));
 
-//# debugId=f0fd84a1-a8e7-4f77-99fa-437b29c9d377
+//# debugId=159e5ad8-ecdc-49c9-bb1f-3b63026d0523

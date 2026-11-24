@@ -27,7 +27,7 @@ export const useJavSelection = () => useContext(Context);
 
 export function useJavRectangle(enabled: boolean) {
   const selection = useJavSelection();
-  return useRectangleSelection(enabled && selection?.mode ? selection.selectRectangle : undefined);
+  return useRectangleSelection(enabled ? selection?.selectRectangle : undefined, { selecting: Boolean(selection?.mode) });
 }
 
 /** 当前页提供展示顺序；跨页选择保留作品本身，不能把来源 ID 当馆藏 ID。 */
@@ -73,9 +73,10 @@ export function JavSelectionProvider({ children, readOnly, receipt, dock = true 
   };
   useEffect(() => {
     const toggle = (event: Event) => {
-      if (event instanceof CustomEvent && event.detail !== owner.current) return;
+      const detail = event instanceof CustomEvent ? event.detail : undefined;
+      if (detail && detail.tab !== owner.current) return;
       event.preventDefault();
-      if (mode) close(); else setMode(true);
+      if (mode && !detail?.enter) close(); else setMode(true);
     };
     window.addEventListener(JAV_SELECTION_EVENT, toggle);
     return () => window.removeEventListener(JAV_SELECTION_EVENT, toggle);

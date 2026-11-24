@@ -68,8 +68,8 @@ export function EntityOnline(props: EntityOnlineProps) {
 function Cards({ view, media, data, visible, context, photoSize, photoLayout, imagesOnly, actions, clearFilters, selectMode = false, selected }:
   EntityOnlineProps & { data: FollowPage }) {
   const write = useFollowWrite({ view, revision: 0, actions });
-  const rectangle = useRectangleSelection(selectMode && actions.selectRectangle
-    ? (keys, add) => actions.selectRectangle?.(keys.map(Number), add) : undefined);
+  const rectangle = useRectangleSelection(visible.length && actions.selectRectangle
+    ? (keys, add) => actions.selectRectangle?.(keys.map(Number), add) : undefined, { selecting: selectMode });
   const sources = useMemo(() => {
     const byId = new Map((data.sources || []).map((source) => [source.id, source]));
     const byAuthor = new Map<string, FollowSource[]>();

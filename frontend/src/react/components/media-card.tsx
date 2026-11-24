@@ -19,6 +19,7 @@
  * 点击的分流：多选与修饰键优先，然后是打开、实体链接、未归属、
  * 标签，其余落到整张卡上就是打开。 */
 import { memo, useCallback, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { hasSelectionModifier } from '../../selection';
 import { cardRatio as layoutRatio } from '@peach/appearance';
 import {
   cardArtwork, cardIdentity, entityAvatar, frameArtwork, relayoutCovers, releaseHover, wireHover,
@@ -274,7 +275,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
     if (target.closest('[data-media-reason-dialog]')) return;
     const el = card.current;
     if (!el) return;
-    if (selectMode || event.shiftKey || event.ctrlKey || event.metaKey) {
+    if (selectMode || hasSelectionModifier(event)) {
       event.preventDefault();
       actions.toggleSelection(item.id, event.shiftKey);
       return;
@@ -396,7 +397,7 @@ function ResourceCard({ item, selected, selectMode, helpers, actions, onOpen }: 
   const glyph = image ? 'pics' : shortcut ? 'globe' : 'hard-drive';
   const click = (event: MouseEvent<HTMLElement>) => {
     if (!card.current) return;
-    if (selectMode || event.shiftKey || event.ctrlKey || event.metaKey) {
+    if (selectMode || hasSelectionModifier(event)) {
       event.preventDefault();
       actions.toggleSelection(item.id, event.shiftKey);
       return;

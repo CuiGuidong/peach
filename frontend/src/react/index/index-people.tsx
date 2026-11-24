@@ -41,7 +41,7 @@ function Ring({ html, face, company, big }: { html: string; face?: string; compa
   );
 }
 
-import { useRectangleSelection } from '../components/rectangle-selection';
+import { useRectangleSelection, type RectangleCommit } from '../components/rectangle-selection';
 
 const CELL = 'relative flex cursor-pointer flex-col gap-2 p-3 text-inherit';
 const Rss = spriteGlyph('rss');
@@ -72,17 +72,18 @@ function Cell(
 
 /** 本地名册。资料页的名册（事务所旗下艺人、片商旗下厂牌）摆的也是这一格，只借取图与去处两样。 */
 export function PeopleGrid(
-  { kind, items, layout, props, picks, hiddenView = false }:
+  { kind, items, layout, props, picks, onRectangle, hiddenView = false }:
   {
     kind: Exclude<IndexKind, 'tags'>; items: IndexPerson[]; layout: PeopleLayout;
     props: Pick<IndexProps, 'personAvatar' | 'openEntity'>;
     /** 多选模式下才有：点一格切换选中，不进资料页。 */
     picks?: RosterPicks;
+    onRectangle?: RectangleCommit | undefined;
     hiddenView?: boolean;
   },
 ) {
   const company = isCompany(kind) || kind === 'series';
-  const rectangle = useRectangleSelection(picks?.rectangle);
+  const rectangle = useRectangleSelection(onRectangle, { selecting: Boolean(picks) });
   const menu = useWorkContextMenu();
   useEntityNames();
   const big = layout === 'big';

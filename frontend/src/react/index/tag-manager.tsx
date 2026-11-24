@@ -63,12 +63,12 @@ export function TagManager({ search, category = 'all', view = 'cloud', onCategor
     return confirmTagOperation(scoped, plan, signal);
   }, changed => { if (changed) setPicked(new Map()) }) };
   const ids = selected.map(managedTagId);
-  const actions = { online, favorites: online, picked,
+  const actions = { online, favorites: online, picked, selecting,
     edit: (key: string) => { const row = rows.find(row => row.k === key); if (row) { setPicked(new Map([[key, row]])); setEditing('rename') } },
-    rectangle: selecting ? (keys: string[], add: boolean) => setPicked(current => {
+    rectangle: (keys: string[], add: boolean) => setPicked(current => {
       const hits = new Set(keys);
       return new Map([...(add ? current : []), ...visible.filter(row => hits.has(row.k)).map(row => [row.k, row] as const)]);
-    }) : undefined,
+    }),
     press: (key: string) => setPicked(current => {
       const next = new Map(current); const row = rows.find(row => row.k === key); if (!next.delete(key) && row) next.set(key, row); return next;
     }) };

@@ -576,8 +576,8 @@ function Cards({ facets, data, context, props, images, retryKey, checkAction }: 
   retryKey: number; checkAction: ReactNode;
 }) {
   const { view, actions } = props;
-  const rectangle = useRectangleSelection(props.selectMode && actions.selectRectangle
-    ? (keys, add) => actions.selectRectangle?.(keys.map(Number), add) : undefined);
+  const rectangle = useRectangleSelection(facets.visible.length && actions.selectRectangle
+    ? (keys, add) => actions.selectRectangle?.(keys.map(Number), add) : undefined, { selecting: props.selectMode });
   const write = useFollowWrite(props);
   const wall = images ? { 'data-size': props.photoSize, 'data-layout': props.photoLayout, 'data-images-only': String(props.imagesOnly) } : {};
   const wallRef = useMasonryGrid(images && props.photoLayout === 'masonry',

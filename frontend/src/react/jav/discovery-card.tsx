@@ -1,4 +1,5 @@
 import { useState, useSyncExternalStore, type ReactNode } from 'react';
+import { hasSelectionModifier } from '../../selection';
 import { entityPath } from '@peach/legacy/core';
 import { RiExternalLinkLine } from '@remixicon/react';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
@@ -67,7 +68,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag,
     onContextMenu={event => context.onContextMenu(event, menuContext)} onKeyDown={event => context.onKeyDown(event, menuContext)}
     onClickCapture={event => {
       if ((event.target as Element).closest('[data-work-context-menu]')) return;
-      if (selection && (selection.mode || event.shiftKey || event.ctrlKey || event.metaKey)) {
+      if (selection && (selection.mode || hasSelectionModifier(event))) {
         event.preventDefault(); event.stopPropagation(); selection.toggle(item, event.shiftKey);
       }
     }} onClick={event => {

@@ -115,8 +115,9 @@ function JunkBody({ props, data, pending, error, retry, order, filters, busy }: 
   const [segments, setSegments] = useState(1);
   const items = order.sort(data?.items || []);
   const groups = groupJunkCopies(items);
-  const rectangle = useRectangleSelection(props.selectMode && !busy && props.actions.selectRectangle
-    ? (keys, add) => props.actions.selectRectangle?.(keys.map(Number), add) : undefined, '[data-junk-card][data-id]');
+  const rectangle = useRectangleSelection(!busy && props.actions.selectRectangle
+    ? (keys, add) => props.actions.selectRectangle?.(keys.map(Number), add) : undefined,
+    { selecting: props.selectMode, items: '[data-junk-card][data-id]' });
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(new Set());
   const toggleCopies = (id: number) => setExpanded((current) => {
     const next = new Set(current);
