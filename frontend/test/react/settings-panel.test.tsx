@@ -440,8 +440,9 @@ describe('设置面板与壳的接缝', () => {
     const current = await setup();
     const panel = await open(current);
     const contrast = panel.querySelector<HTMLInputElement>('#glassContrastSetting')!;
-    expect([contrast.getAttribute('role'), panel.querySelector('label[for="glassContrastSetting"] b')?.textContent])
-      .toEqual(['switch', '增加对比度']);
+    expect([contrast.getAttribute('role'), contrast.getAttribute('aria-label')]).toEqual(['switch', '增加对比度']);
+    expect(contrast.labels?.[0]?.querySelector('b')?.textContent).toBe('增加对比度');
+    expect(panel.querySelector(`#${contrast.getAttribute('aria-describedby')}`)?.textContent).toBeTruthy();
     await click(contrast);
     expect(current.setHighContrast.mock.calls).toEqual([[true]]);
     await close(current);
