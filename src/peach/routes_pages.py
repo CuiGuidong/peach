@@ -591,7 +591,7 @@ async def setup_submit_json(request: Request):
         body = None
     if not isinstance(body, dict):
         raise HTTPException(status_code=400, detail=message_fields("api.pages.bodyNotObject"))
-    from . import library_sharing, remote_reporting
+    from . import remote_reporting
     try:
         reporting = remote_reporting.parse_choices(body.get("remote_reporting", {}), partial=True)
     except ValueError as exc:
@@ -617,13 +617,7 @@ async def setup_submit_json(request: Request):
     except ValueError as exc:
         errors["access_password"] = exc
     languages = _setup_languages(body, errors)
-    sharing = body.get("library_sharing")
-    if "library_sharing" in body and (
-        not isinstance(sharing, dict) or sharing.get("consent") is not True
-        or type(sharing.get("consent_schema")) is not int
-        or sharing["consent_schema"] != library_sharing.CONSENT_SCHEMA
-    ):
-        errors["library_sharing"] = UserValueError("api.pages.librarySharingReview")
+    sharing = _setup_library_sharing_choice(body, errors)
     standalone = distribution.standalone()
     from . import peach_proxy
     proxy_values = None
@@ -655,13 +649,7 @@ async def setup_submit_json(request: Request):
             errors = {"data_root": exc}
     if errors:
         raise HTTPException(status_code=400, detail={**message_fields("api.pages.needsChanges"), **field_errors(errors)})
-    sharing_save_failed = False
-    if sharing and not library_sharing.consent(applied.config):
-        try:
-            library_sharing.save_choice(applied.config, True)
-        except OSError:
-            logging.getLogger(__name__).exception("Could not save library sharing consent during setup")
-            sharing_save_failed = not library_sharing.consent(applied.config)
+    sharing_save_failed = _setup_library_sharing_save_failed(applied.config, sharing)
     remote_reporting.save(reporting, applied.config)
     # 已有账本里的界面语言是那套馆藏自己的选择，首启页不改它。
     if languages and not applied.tree.ledger_existed:
@@ -672,6 +660,35 @@ async def setup_submit_json(request: Request):
         onboarding.request_first_scan(applied.config, "configured" if answers.media_sources is not None else "local")
     return _setup_done(applied.config, scan_now=scan_now, history_guide=history_guide,
                        skip_media=submitted["skip_media"], sharing_save_failed=sharing_save_failed)
+
+
+def _setup_library_sharing_choice(body: dict, errors: dict) -> bool:
+    if "library_sharing" not in body:
+        return False
+    from . import library_sharing
+
+    sharing = body["library_sharing"]
+    if (isinstance(sharing, dict) and sharing.get("consent") is True
+            and type(sharing.get("consent_schema")) is int
+            and sharing["consent_schema"] == library_sharing.CONSENT_SCHEMA):
+        return True
+    errors["library_sharing"] = UserValueError("api.pages.librarySharingReview")
+    return False
+
+
+def _setup_library_sharing_save_failed(config, accepted: bool) -> bool:
+    if not accepted:
+        return False
+    from . import library_sharing
+
+    if library_sharing.consent(config):
+        return False
+    try:
+        library_sharing.save_choice(config, True)
+    except OSError:
+        logging.getLogger(__name__).exception("Could not save library sharing consent during setup")
+        return not library_sharing.consent(config)
+    return False
 
 
 def _setup_languages(body: dict, errors: dict) -> dict[str, str]:
