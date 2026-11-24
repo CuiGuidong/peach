@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from itertools import chain
 from pathlib import Path
 import re
 
@@ -55,9 +56,15 @@ def _issue_targets(state):
     current = _json(state / 'library-processing.json')
     stopped = (f"library-processing-{current.get('job_id')}.issues.jsonl"
                if current.get('status') == 'cancelled' else '')
-    for path in state.glob('library-processing-*.issues.jsonl'):
+    logs = chain(state.glob('library-processing-*.issues.jsonl'),
+                 (state / 'upgrade-repairs').glob('*.issues.jsonl'))
+    for path in logs:
         if path.name == stopped:
             continue
+        if path.parent != state:
+            checkpoint = path.with_name(path.name.removesuffix('.issues.jsonl') + '.json')
+            if _json(checkpoint).get('status') == 'cancelled':
+                continue
         with path.open(encoding='utf-8') as handle:
             for line in handle:
                 try:

@@ -54,11 +54,13 @@ class UpgradeRepairTests(unittest.TestCase):
                       'message_params': {'reason': 'OpenCV checkQRInputImage failed'}}
         state = self.service.config.directory('state')
         logs = library_processing.issues_path(self.service.config, 'legacy')
-        issues = [(1, model_failure), (2, model_failure), (3, ambiguous), (7, qr_failure),
+        issues = [(1, model_failure), (2, model_failure), (7, qr_failure),
                   (11, {'failed_action': 'fetching_cover',
                         'message_code': 'errors.libraryProcessing.coverDeadline'})]
         logs.write_text(''.join(json.dumps({'asset_id': asset_id, 'path': rf'R:\media\{asset_id}.mp4', **issue})
                                 + '\n' for asset_id, issue in issues), encoding='utf-8')
+        (self.service.root / '3.issues.jsonl').write_text(
+            json.dumps({'asset_id': 3, 'path': r'R:\media\3.mp4', **ambiguous}) + '\n', encoding='utf-8')
         self.contract.cover_root.mkdir()
         Image.new('RGB', (16, 16)).save(self.contract.cover_root / 'SSIS-102.jpg')
         previews = self.contract.snapshot_root
