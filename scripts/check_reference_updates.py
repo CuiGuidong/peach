@@ -170,7 +170,7 @@ def inspect_source(
         if locked_revision and url.startswith("https://github.com/"):
             live_url = url.replace(f"/blob/{locked_revision}/", f"/blob/{live_revision}/", 1)
         live = snapshot
-        live_sha = source["sha256"]
+        live_sha = sha256_bytes(snapshot)
         changed = revision_moved
     else:
         if locked_revision and live_revision and url.startswith("https://raw.githubusercontent.com/"):

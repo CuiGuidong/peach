@@ -239,7 +239,7 @@ class ReferenceUpdateTests(unittest.TestCase):
             self.assertTrue(any("快照校验失败" in problem for problem in problems))
 
     def _git_source(self, root: Path, **extra) -> dict:
-        (root / "snapshot.md").write_text("same\n", encoding="utf-8")
+        (root / "snapshot.md").write_bytes(b"same\n")
         return {
             "id": "example",
             "url": "https://example.invalid/reference.md",
