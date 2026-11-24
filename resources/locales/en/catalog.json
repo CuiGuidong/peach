@@ -170,6 +170,12 @@
     "works_one": "{{count, number}} video",
     "works_other": "{{count, number}} videos"
   },
+  "cropFrame": {
+    "dimensions": "{{width}} pixels wide, {{height}} pixels high, {{x}} pixels from the left and {{y}} from the top of the source image.",
+    "moveHelp": "Use the arrow keys to move the crop frame, or plus and minus to resize it.",
+    "resizeCorner": "Bottom-right resize handle",
+    "resizeHelp": "Use the arrow keys to move the bottom-right corner and resize the crop frame."
+  },
   "coverCrop": {
     "buttonTip": "Crop cover to the front panel",
     "cropFor": "Crop cover for {{code}}",
@@ -832,6 +838,9 @@
     "networkValue_one": "{{size}} · {{count, number}} request",
     "networkValue_other": "{{size}} · {{count, number}} requests",
     "noData": "No data",
+    "requestWaterfall": "Recent playback requests",
+    "requestTiming": "+{{start}} ms · {{duration}} ms",
+    "noCompletedRequests": "No completed request timings for this playback.",
     "playbackTime": "Playback time",
     "resolution": "Current / optimal resolution",
     "seconds": "{{seconds}} s",
@@ -1246,7 +1255,7 @@
     "added": "Added to Wants: {{name}}",
     "alreadyAdded": "{{name}} is already in Wants",
     "backToSearching": "{{name}} moved back to Searching",
-    "cloudPrimaryOnly": "Cloud download is only available on the primary computer.",
+    "cloudPrimaryOnly": "Downloads are only available on the primary computer.",
     "codePlaceholder": "Enter a code, e.g. SSIS-950",
     "dockLabel": "Actions for selected wants",
     "downloadSettingsFailed": "Couldn't load download settings",

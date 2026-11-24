@@ -160,6 +160,12 @@
     "videos": "{{count, number}} 个视频",
     "works": "{{count, number}} 部"
   },
+  "cropFrame": {
+    "dimensions": "宽 {{width}}、高 {{height}} 像素，距原图左侧 {{x}}、上方 {{y}} 像素。",
+    "moveHelp": "按方向键移动取景框，按加号或减号缩放。",
+    "resizeCorner": "右下角调整手柄",
+    "resizeHelp": "按方向键移动右下角，调整取景框大小。"
+  },
   "coverCrop": {
     "buttonTip": "裁剪封面，框出正封",
     "cropFor": "裁剪 {{code}} 的封面",
@@ -783,6 +789,9 @@
     "networkLastSecond": "最近一秒网络活动 {{size}}",
     "networkValue": "{{size}} · {{count, number}} 请求",
     "noData": "暂无数据",
+    "requestWaterfall": "最近的播放请求",
+    "requestTiming": "+{{start}} 毫秒 · {{duration}} 毫秒",
+    "noCompletedRequests": "本次播放暂无已完成请求的计时。",
     "playbackTime": "播放时间",
     "resolution": "当前 / 最佳分辨率",
     "seconds": "{{seconds}} 秒",
@@ -1180,7 +1189,7 @@
     "added": "已加入想要：{{name}}",
     "alreadyAdded": "{{name}} 已经在想要里",
     "backToSearching": "{{name}} 回到待找",
-    "cloudPrimaryOnly": "云下载只在写入端可用。",
+    "cloudPrimaryOnly": "下载只在写入端可用。",
     "codePlaceholder": "输入番号，例如 SSIS-950",
     "dockLabel": "所选想要的操作",
     "downloadSettingsFailed": "下载配置未取得",

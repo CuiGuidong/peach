@@ -16,7 +16,7 @@ import { censorOn, preferencesState, wireDrag } from './preferences.js';
 import { revealSkeleton, wireHorizontalScroller } from '../ui-kit';
 import { followJobProgress } from './../jobs';
 import { enterManagementSurface, renderFollowDrawer, scheduleStickySurfaces, showManagementBody } from './layout.js';
-import { toggleFollowSelection } from './selection.js';
+import { selectCardRectangle, toggleFollowSelection } from './selection.js';
 import { photoLayout, photoSize, storePhotoLayout } from './../appearance/layout';
 import { catalogState } from './catalog.js';
 import { releaseHoverPreviews } from './../card-art/hover';
@@ -120,6 +120,7 @@ followState.followFeedActions = {
   openDetail:id=>openFollowDetail(id),
   openAuthor:name=>navigationState.navigatePath(entityPath('creator',name)),
   toggleSelection:(id,range)=>toggleFollowSelection(id,range),
+  selectRectangle:selectCardRectangle,
   setImagesOnly:on=>{preferencesState.appSettings.followImagesOnly=!!on;preferencesState.saveSettings();syncPhotoWalls()},
   setPhotoLayout:layout=>{storePhotoLayout(layout);syncPhotoWalls()},
   canFlip:()=>!selectMode&&!censorOn()&&!window.__scrolling&&!catalogState.reduceMotion(),

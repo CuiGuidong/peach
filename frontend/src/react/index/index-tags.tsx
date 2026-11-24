@@ -24,6 +24,7 @@ import type { Favorite } from '../library-shortcuts/library-shortcuts';
 import { tagColorKey, type IndexTag, type TagView } from './index-data';
 import { t } from '../../i18n';
 import { useWorkContextMenu, type WorkContextOperation } from '../components/work-context-menu';
+import { useRectangleSelection, type RectangleCommit } from '../components/rectangle-selection';
 
 export interface TagEntry extends IndexTag {
   label: string;
@@ -36,6 +37,7 @@ export interface TagActions {
   edit?(tag: string): void;
   picked: ReadonlySet<string>;
   press(tag: string): void;
+  rectangle?: RectangleCommit | undefined;
 }
 
 const Dot = () => <span aria-hidden data-tag-dot="" className="size-1.75 flex-none rounded-full" />;
@@ -70,7 +72,7 @@ function AlphaTag({ tag, actions }: { tag: TagEntry; actions: TagActions }) {
   const context = useTagContext();
   const pressed = actions.picked.has(tag.k);
   return (
-    <div className="flex min-w-0 items-center gap-1" {...context.events(tag, actions)}>
+    <div data-rectangle-key={tag.k} className="flex min-w-0 items-center gap-1" {...context.events(tag, actions)}>
     {context.menu}
     <button type="button" data-alpha-tag="" data-k={tag.k} data-tag-cat={tagColorKey(actions.online, tag.cat)}
       aria-pressed={pressed} title={tag.label} onClick={() => actions.press(tag.k)}
@@ -88,8 +90,9 @@ function AlphaTag({ tag, actions }: { tag: TagEntry; actions: TagActions }) {
 /** 字母表：每个首字一张卡，字头是卡的标题，右边挂这一组有几个。`data-alpha-group` 是浮层
  *  下排那排跳转键的落点，卡顶给吸顶的浮层让出位置。 */
 export function TagAlphabet({ groups, actions }: { groups: [string, TagEntry[]][]; actions: TagActions }) {
+  const rectangle = useRectangleSelection(actions.rectangle, '[data-rectangle-key]', '[data-alpha-group]');
   return (
-    <div data-alphabet="" className="flex flex-col gap-4">
+    <div data-alphabet="" className="flex flex-col gap-4" {...rectangle}>
       {groups.map(([letter, tags], at) => (
         <section key={letter} data-alpha-group={at}
           className={cardClass({ radius: 'plain', padding: 'none', className: 'px-5 pt-4 pb-3' })}>
@@ -112,11 +115,12 @@ const NBSP = String.fromCharCode(0xa0);
  *  所以用不断行的那一个。 */
 export function TagCloud({ tags, actions }: { tags: TagEntry[]; actions: TagActions }) {
   const context = useTagContext();
+  const rectangle = useRectangleSelection(actions.rectangle);
   return (
-    <div data-tag-cloud="" className="flex flex-wrap gap-1.75">
+    <div data-tag-cloud="" className="flex flex-wrap gap-1.75" {...rectangle}>
       {context.menu}
       {tags.map((tag) => (
-        <span key={tag.k} data-tag-token="" data-tag-cat={tagColorKey(actions.online, tag.cat)} {...context.events(tag, actions)}
+        <span key={tag.k} data-tag-token="" data-rectangle-key={tag.k} data-tag-cat={tagColorKey(actions.online, tag.cat)} {...context.events(tag, actions)}
           className="inline-flex max-w-full min-w-0 items-center gap-1 rounded-lg border p-1">
         <button type="button" data-tag-chip="" data-k={tag.k}
           data-tag-cat={tagColorKey(actions.online, tag.cat)} aria-pressed={actions.picked.has(tag.k)}

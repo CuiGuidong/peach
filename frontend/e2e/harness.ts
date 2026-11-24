@@ -59,13 +59,48 @@ export async function launch(): Promise<Browser> {
     args.push(`--log-net-log=${join(networkLogs, filename)}`, '--net-log-capture-mode=HeavilyRedacted');
     console.info(`浏览器网络事件日志：${filename}`);
   }
-  return chromium.launch({
+  const browser = await chromium.launch({
     headless: true,
     executablePath: requiredEnv('PEACH_E2E_CHROME'),
     args,
     // Windows 首次加载浏览器与系统组件使用独立的启动预算，页面等待由各用例限定。
     timeout: 60_000,
   });
+  /* 用例大多自己建上下文、自己关。关上下文时 Playwright 不再分派拦截，这期间页面新发的请求
+   * 被浏览器放行到真实服务，`/jav-image` 这类来源接口就去连外网。所以经这里建的上下文，
+   * 以及 `browser.close()` 时还开着的上下文，关闭前一律先 `quiesce`。 */
+  const newContext = browser.newContext.bind(browser);
+  browser.newContext = async (options) => {
+    const context = await newContext(options);
+    const close = context.close.bind(context);
+    context.close = async (closing) => {
+      await quiesce(context);
+      await close(closing);
+    };
+    return context;
+  };
+  const closeBrowser = browser.close.bind(browser);
+  browser.close = async (closing) => {
+    await Promise.all(browser.contexts().map(quiesce));
+    await closeBrowser(closing);
+  };
+  return browser;
+}
+
+/** 关上下文之前让它的页面停下来，不再向服务发任何请求。
+ *
+ *  先在上下文装中止规则，再用 `ignoreErrors` 撤掉页面桩：桩回调里的 `route.fetch`、
+ *  `route.continue` 在关闭时可能还没返回，之后会以「Request context disposed」失败，
+ *  `ignoreErrors` 让这类错误静默返回。撤桩之后的新请求由中止规则接住。最后把页面导航到
+ *  `about:blank`：在途请求随导航取消，页面也不再发新请求，关闭期间就没有请求可漏。 */
+export async function quiesce(context: BrowserContext): Promise<void> {
+  const pages = context.pages().filter((page) => !page.isClosed());
+  if (!pages.length) return;
+  await context.route('**/*', (route) => route.abort().catch(() => {})).catch(() => {});
+  await Promise.all(pages.map(async (page) => {
+    await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => {});
+    await page.goto('about:blank', { timeout: 5_000 }).catch(() => {});
+  }));
 }
 
 /** 失败时保留焦点、输入和弹层现场；成功路径不额外查询页面。 */
@@ -186,17 +221,8 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
       problems.push(`failed ${request.url().slice(origin.length)} ${reason}`);
     }
   });
-  /* 桩回调里的 `route.fetch`、`route.continue` 可能在关上下文时还没返回，之后会以
-   * 「Request context disposed」失败；没人等它，就成了整个文件的 unhandledRejection。
-   * 先在上下文安装中止规则，再用 `ignoreErrors` 撤掉页面桩，让在途回调的关闭错误静默返回。
-   * 上下文规则覆盖撤桩到关闭之间的新请求，避免来源接口落到真实服务上。 */
-  const close = async () => {
-    if (!page.isClosed()) {
-      await context.route('**/*', (route) => route.abort().catch(() => {}));
-      await page.unrouteAll({ behavior: 'ignoreErrors' });
-    }
-    await context.close();
-  };
+  // 关闭前的撤桩与停页由 `launch` 包好的 `context.close` 完成，见 `quiesce`。
+  const close = () => context.close();
   // 只打开到 load：等哪块主体、何时 settle 由用例决定，见 `settle` 的说明。
   try {
     await prepare?.(page);

@@ -47,6 +47,7 @@ import {
   fetchQualityGoals, previewUrl, QUALITY_GOALS_KEY, type QualityGoal,
 } from './quality-goals';
 import { t } from '../../i18n';
+import { useRectangleSelection } from '../components/rectangle-selection';
 import type { TableFilters } from '../components/use-table-filters';
 import { useWorkContextMenu, type WorkContextOperation } from '../components/work-context-menu';
 
@@ -82,7 +83,7 @@ function GoalCard({ item, openItem, searchResources, javTitleHtml, javDisplayNam
   const library = item.library_id && tints.get(item.library_id)?.color ? item.library_id : undefined;
   return (
     /* 多选模式与修饰键优先：点在卡上任何地方都是切换选中，同探索卡；平时点封面与标题打开。 */
-    <article data-media-card="" data-jav-card="" data-queue-card="" data-goal-id={item.id} data-library={library}
+    <article data-media-card="" data-jav-card="" data-queue-card="" data-goal-id={item.id} data-rectangle-key={item.id} data-library={library}
       data-selected={picked ? '' : undefined}
       onContextMenu={event => menu.onContextMenu(event, context)}
       onKeyDown={event => menu.onKeyDown(event, context)}
@@ -139,6 +140,14 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
     size: (item) => Number(item.size || 0), dur: (item) => Number(item.duration || 0), new: (item) => item.id,
   });
   const data = goals.data;
+  const items = order.sort(data?.items || []);
+  const selectRectangle = (ids: number[], add: boolean) => {
+    const keys = new Set(ids);
+    setPicked(current => new Map([...(add ? current : []), ...items
+      .filter(item => keys.has(item.id)).map(item => [item.id, item] as const)]));
+  };
+  const rectangle = useRectangleSelection(selecting && !goals.isFetching && !goals.isError
+    ? (keys, add) => selectRectangle(keys.map(Number), add) : undefined);
   if (goals.isPending) return <Page><div dangerouslySetInnerHTML={{
     __html: queueContentSkeletonHtml('quality-goals', t('shell:spinner.loading'), ['w-20', 'w-24']),
   }} /></Page>;
@@ -149,7 +158,6 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
       </Page>
     );
   }
-  const items = order.sort(data.items || []);
   if (!items.length && view !== 'list' && !filtered) {
     return (
       <Page>
@@ -207,6 +215,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
             rowLabel={(item) => t('manage:hdUpgrades.selectVideo', { title: props.javDisplayName(item) })}
             onPick={(item, on) => pick(item.id, on)}
             onPickAll={pickAll}
+            onRectangle={selectRectangle}
             cells={{
               name: (item) => <QueueIdentity name={props.javDisplayName(item)}
                 onOpen={() => props.openItem(item.id)} picture={<QueuePicture src={previewUrl(item)} glyph="film" />} />,
@@ -224,7 +233,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
               </span>,
             }} />
         : !items.length ? <EmptyState icon={RiSparklingLine} title={t('shell:dataTable.empty')}>{null}</EmptyState>
-        : <div data-media-grid="" data-select-mode={selecting ? '' : undefined}>
+        : <div data-media-grid="" data-select-mode={selecting ? '' : undefined} {...rectangle}>
             {items.map((item) => <GoalCard key={item.id} item={item} {...props} searchResources={setDownload}
               picked={picked.has(item.id)} onPick={(on) => pick(item.id, on)} selecting={selecting} />)}
           </div>}

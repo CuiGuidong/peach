@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mountPlayerMediaSession, mountPlayerQualityControl, mountPlayerSubtitles } from '../src/player/controls';
 import { FIRST_FRAME_MS } from '../src/player/decode-support';
 import { configurePlayer, type PlayerHost } from '../src/player/host';
-import { averageBitrate, bufferedAhead, fmtLoadRate, pushPlayerStat } from '../src/player/stats';
+import { averageBitrate, bufferedAhead, fmtLoadRate, playerRequestWaterfall, pushPlayerStat } from '../src/player/stats';
 import {
   cancelDetailStream, detailStreamSource, detailStreamSession, directStreamSource, playableStreamSource, streamFallbackChain,
 } from '../src/player/stream';
@@ -18,6 +18,21 @@ import { mountPlayerPipControl } from '../src/player/pip';
 import { createV10Player } from '../src/player/v10-player';
 
 type FetchCall = { url: string; init: RequestInit | undefined };
+
+it('播放请求按同一时间尺度画出交叠，只显示同源路由与已取得的状态', () => {
+  const entry = (name: string, startTime: number, duration: number, responseStatus: number) =>
+    ({ name, startTime, duration, responseStatus }) as PerformanceResourceTiming;
+  const panel = document.createElement('div');
+  panel.innerHTML = playerRequestWaterfall([
+    entry(`${location.origin}/stream/hls/7/2.ts?session=private`, 125, 75, 206),
+    entry('https://unrelated.invalid/hidden.ts', 110, 200, 200),
+    entry(`${location.origin}/stream/hls/7/1.ts?session=private`, 100, 50, 0),
+  ]);
+  const bars = [...panel.querySelectorAll<HTMLElement>('li i')];
+  expect(bars.map(bar => [bar.style.insetInlineStart, bar.style.width])).toEqual([['0%', '50%'], ['25%', '75%']]);
+  expect([...panel.querySelectorAll('li > span:first-child')].map(cell => cell.textContent)).toEqual(['1.ts', '2.ts · HTTP 206']);
+  expect(panel.innerHTML).not.toContain('private');
+});
 
 function stubFetch(reply: (url: string) => unknown): FetchCall[] {
   const calls: FetchCall[] = [];

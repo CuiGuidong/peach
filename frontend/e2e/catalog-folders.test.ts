@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { after, before, describe, it } from 'node:test';
 import type { Browser } from 'playwright-core';
 import { launch, layout, settle, VIEWPORTS, visit } from './harness.ts';
+import { ITEM, openItemPage } from './item-fixture.ts';
 
 describe('首页文件夹浏览', () => {
   let browser: Browser;
@@ -11,6 +12,89 @@ describe('首页文件夹浏览', () => {
   after(async () => { await browser?.close() });
 
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name} 播放详情里的文件浏览可点击且先于播放器关闭`, { timeout: 90_000 }, async () => {
+      const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
+      const { page } = opened;
+      try {
+        await page.route('**/api/reveal', route => route.fulfill({ json: { ok: true, mode: 'server', id: ITEM.plain } }));
+        await page.route('**/api/media-directory?*', route => route.fulfill({ json: {
+          roots: [{ id: 'local', name: 'Local library', mount: '/media/local', location: 'local' }],
+          root: 'local', relative: '', state: 'ready', directories: [],
+          files: [{ name: 'sample.mp4', asset_id: ITEM.plain }], next_offset: null, focus_name: 'sample.mp4',
+        } }));
+        const stage = page.locator('#stage[open]');
+        await stage.locator('[data-item-side]').waitFor();
+        const reveal = stage.locator('[data-reveal]').first();
+        await reveal.click();
+        const dialog = page.getByRole('dialog', { name: '浏览文件', exact: true });
+        await dialog.getByText('sample.mp4', { exact: true }).waitFor();
+        const hit = await dialog.evaluate(node => {
+          const rect = node.getBoundingClientRect();
+          return node.contains(document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2));
+        });
+        assert.equal(hit, true, '文件浏览应在原生播放对话框之上并可交互');
+        await dialog.getByRole('button', { name: '返回上级目录', exact: true }).click();
+        await page.keyboard.press('Escape');
+        await dialog.waitFor({ state: 'hidden' });
+        assert.equal(await stage.isVisible(), true, '关闭文件浏览不应关闭播放详情');
+        assert.equal(await reveal.evaluate(node => node === document.activeElement), true);
+        await reveal.click();
+        await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+        await dialog.waitFor({ state: 'hidden' });
+        assert.equal(await stage.isVisible(), true);
+      } finally { await opened.close() }
+    });
+
+    it(`${viewport.name} 实际文件浏览独立于馆藏导航且不改变侧栏`, { timeout: 90_000 }, async () => {
+      const longName = 'a-very-long-media-filename-'.repeat(8) + '.mp4';
+      const roots = [{ id: 'local', name: 'Local library', mount: '/media/local', location: 'local' }];
+      let itemReads = 0;
+      const opened = await visit(browser, '/', viewport, async page => {
+        page.on('request', request => { if (new URL(request.url()).pathname === '/api/items') itemReads++ });
+        await page.route('**/api/media-directory?*', route => {
+          const root = new URL(route.request().url()).searchParams.get('root');
+          return route.fulfill({ json: { roots, root, relative: '', state: root ? 'ready' : 'roots',
+            directories: [], files: root ? [{ name: longName, asset_id: null }] : [],
+            path: root ? '/media/local' : undefined, next_offset: null, read_only: true } });
+        });
+      });
+      const { page } = opened;
+      try {
+        await page.locator('#grid [data-media-card]').first().waitFor();
+        await settle(page);
+        if (await page.locator('#filterBtn').getAttribute('aria-expanded') !== 'true') await page.locator('#filterBtn').click();
+        const toggle = page.locator('[data-sidebar-kind="src"] > [data-sidebar-toggle]');
+        if (await toggle.getAttribute('aria-expanded') === 'true') await toggle.click();
+        const before = await page.evaluate(() => ({ url: location.href,
+          sidebar: document.querySelector('#drawer')!.getBoundingClientRect().width,
+          card: document.querySelector('#grid [data-media-card]')!.textContent }));
+        const reads = itemReads;
+        await page.getByRole('button', { name: '浏览文件', exact: true }).click();
+        const dialog = page.getByRole('dialog', { name: '浏览文件', exact: true });
+        await dialog.getByRole('button', { name: 'local', exact: true }).click();
+        await dialog.getByText(longName, { exact: true }).waitFor();
+        const geometry = await dialog.evaluate(node => ({
+          width: node.getBoundingClientRect().width, scroll: node.scrollWidth,
+          left: node.getBoundingClientRect().left, right: node.getBoundingClientRect().right,
+          top: node.getBoundingClientRect().top, bottom: node.getBoundingClientRect().bottom,
+          viewport: innerWidth, height: innerHeight,
+        }));
+        assert.ok(geometry.scroll <= geometry.width + 1, JSON.stringify(geometry));
+        assert.ok(geometry.left >= 0 && geometry.right <= geometry.viewport && geometry.top >= 0 && geometry.bottom <= geometry.height, JSON.stringify(geometry));
+        await dialog.getByRole('button', { name: '返回上级目录', exact: true }).click();
+        await dialog.getByRole('button', { name: 'local', exact: true }).waitFor();
+        await dialog.getByRole('button', { name: '关闭', exact: true }).click();
+        await dialog.waitFor({ state: 'hidden' });
+        assert.equal(page.url(), before.url);
+        assert.equal(itemReads, reads, '文件浏览不应重新请求馆藏');
+        assert.equal(await page.locator('#filterBtn').getAttribute('aria-expanded'), 'true');
+        assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+        assert.equal(await page.locator('#drawer').evaluate(node => node.getBoundingClientRect().width), before.sidebar);
+        assert.equal(await page.locator('#grid [data-media-card]').first().textContent(), before.card);
+        assert.deepEqual(opened.problems.filter(line => !line.includes('VIDEOJS')), []);
+      } finally { await opened.close() }
+    });
+
     it(`${viewport.name} 目录范围、首页控件、用途预览和返回导航共用馆藏`, { timeout: 90_000 }, async () => {
       const opened = await visit(browser, '/?browse=folders&loc=local', viewport);
       const { page } = opened;

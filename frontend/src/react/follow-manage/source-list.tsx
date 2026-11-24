@@ -38,6 +38,7 @@ import { useBackgroundJob } from '../background-job';
 import { cardClass } from '../components/card';
 import { ColumnFilterChips } from '../components/column-filter-chips';
 import { DataTableFrame } from '../components/data-table-frame';
+import { useRectangleSelection } from '../components/rectangle-selection';
 import { useTablePreferences } from '../components/table-column-preferences';
 import { TableColumnControls, TableColumnResizer } from '../components/table-column-controls';
 import { CollapseChevron, CollapseRegion } from '../components/collapse-region';
@@ -157,6 +158,7 @@ export interface SourceListProps {
   layout: Layout;
   pageSize: number;
   selected: ReadonlySet<number>;
+  selecting?: boolean;
   readOnly: boolean;
   onSort(sort: SortKey, dir: SortDir): void;
   onPage(page: number): void;
@@ -179,7 +181,7 @@ function SourceRow(
      第一行是勾选、站标与名字、状态，宽屏时上次检查、开关与动作键也在这一行；报错单独占一整行，
      左边让出勾选框与站标的宽度，和名字对齐。窄屏依次是第一行、报错、操作行。 */
   return (
-    <div data-selected={selected || undefined} data-follow-source-row=""
+    <div data-selected={selected || undefined} data-follow-source-row="" data-rectangle-key={source.id}
       className="flex min-h-16 flex-wrap items-center gap-3 px-2 py-3 last:rounded-b-lg max-sm:gap-x-2"
       onContextMenu={event => menu.onContextMenu(event, context())}
       onKeyDown={event => { if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) menu.onKeyDown(event, context()) }}
@@ -294,6 +296,9 @@ export function SourceList(props: SourceListProps) {
     data, sort, dir, page, layout, pageSize, selected, readOnly,
     onSort, onPage, onLayout, onPageSize, onSelected, toast, openFollow, onAdd,
   } = props;
+  const commitRectangle = props.selecting
+    ? (keys: string[], add: boolean) => onSelected(new Set([...(add ? selected : []), ...keys.map(Number)])) : undefined;
+  const rectangle = useRectangleSelection(commitRectangle);
   const sources = data.sources;
   const aliases = useMemo(() => data.author_aliases || [], [data.author_aliases]);
   const counts = data.counts || {};
@@ -702,7 +707,8 @@ export function SourceList(props: SourceListProps) {
         </SelectionDock>
 
       {asTable ? (
-        <DataTableFrame follow preferences={preferences} onRowClick={(key) => toggleOne(Number(key), !selected.has(Number(key)))}>
+        <DataTableFrame follow preferences={preferences} onRowClick={(key) => toggleOne(Number(key), !selected.has(Number(key)))}
+          onRectangle={commitRectangle}>
           <Table aria-label={t('follow:sourceList.tableLabel')} size="sm"
             sortDescriptor={sorting[0]
               ? { column: sorting[0].id, direction: sorting[0].desc ? 'descending' : 'ascending' }
@@ -753,7 +759,7 @@ export function SourceList(props: SourceListProps) {
           {pageIds.length ? <Checkbox isSelected={pageState.all} isIndeterminate={pageState.some}
             onChange={(on) => toggleMany(pageIds, on)} aria-label={t('follow:sourceList.selectPage')}>{t('follow:sourceList.selectPageShort')}</Checkbox> : null}
           {!cardGroups.length ? <EmptyState icon={RiRssLine} title={t('follow:sourceList.pageEmpty')}>{null}</EmptyState> : null}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3" {...rectangle}>
             {cardGroups.slice(win.start, win.end).map(({ key, name, sources: group }) => {
               return (
                 <AuthorCard key={key} group={group} name={name}

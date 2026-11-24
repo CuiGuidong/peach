@@ -674,7 +674,7 @@ OneJAV、Free JAV Torrent 只给种子链接。这类条目经索引器同源的
 - 灰色页签与管理导航使用 `frontend/src/react/components/pill-tabs.tsx`，共用从 BoardUI `PillTabList` 适配的测量与过渡；React Aria 集合通过 Portal 承载装饰层。路由、键盘、纵横布局和选中项仍由调用方维护；减少动态效果时关闭位移过渡。来源与适配边界见 `reference-snapshots/boardui-settings-tabs.md`。
 - React 设置分区用 `frontend/src/react/settings/section.tsx`：`Section` 给标题、卡片与表单外壳，`Footer`、`Note`、`ErrorText`、`FactList`、`Progress`、`Disclosure` 补齐 BoardUI 注册表没有的部分。`Rows` 与 `FactList` 标记共享行组，分隔线由行与相邻组边界共同绘制，左侧内缩、右侧通到卡片边缘；设置弹层遵循同一规则，底部操作栏使用通栏线。`service-preferences.tsx` 组合缩略图与订阅采集参数，继续使用已有设置、关注计划和缩略图 API。`use-action.ts` 的 `useAction` 管提交互斥、卸载取消与原位错误，`busy-props.ts` 的 `busyProps` 写忙态；媒体目录行（`folder-rows.tsx`）与密码加确认两格（`password-pair.tsx`）由配置页与首启页共用；密码校验与服务端回执归各分区，不自动重试写入。口味读取、封面采集、amane 桥重建、关注检查与查找共用 `frontend/src/react/background-job.ts` 的 `useBackgroundJob`。
 - 增量列表用 `catalog-grid/catalog-grid-page.tsx` 的 `LoadMore`：请求互斥、失败留原位重试、卸载即停；目录、资料页照片墙与关注页注入读取和可用条件。首页页码在读取成功后推进，照片沿用随机种子，关注合并分组；显式页码用 `pagination.ts`。
-- 在图上框一块由 `frontend/src/crop-geometry.ts`（纯算术）加 `react/crop/crop-frame.tsx`（四块压暗、一个可拖可缩的框）承担，换头像与裁封面共用；坐标一律是源图像素、右下开区间。不引 `react-image-crop`：换到的只有把手样式，代价是一条依赖和它自己的坐标约定。裁封面通过 Application 的媒体域动作连接 React 裁剪组件（ADR-0031）。
+- 换头像与裁封面共用 `crop-geometry.ts` 的源图像素运算和 `CropFrame`。取景框接收方向键移动及加减号缩放，右下角手柄可单独聚焦，按方向键调整大小。两处共享当前宽高与位置说明，键盘操作通过状态区域播报坐标。界面行为参考 [UI SDK 裁剪示例](https://ui-sdk.dev/docs/react/components/image-cropper)，无新增依赖。保存坐标沿用右下开区间，裁封面通过 Application 的媒体域动作连接 React 裁剪组件（ADR-0031）。
 - 后台任务用 `watchJob` 跟进状态；进度提示全站一套 `TaskProgress`（说明 + 横条或语义动画 + 失败时 `Note`），关注页的 `followJobProgress` 只给出要画的内容，由页面用同一组件画；业务保留启动、终态回执和结果面板，不新增轮询循环。任务本体是 `jobs.BackgroundJob`，不加队列或调度依赖；浏览器由 `frontend/src/jobs.ts` 跟进，刷新后经读接口恢复。可恢复的采集任务由本机恢复记录重放，其他任务只保留终态；`BackgroundJob.update(job_id)` 报阶段与计数，查询不重新执行任务。
 - 遗留层反馈控件 `noteHtml`、`activityStatusHtml` 与 `wireContextCard` 集中在共享 UI 模块；信息卡片用原生 Popover 与现有锚定菜单定位，不加浮层依赖。证据见 `reference-snapshots/vercel-geist-note-progress-switch-analytics.md`。
 - 资源核对复用 `web_resource_sync` 的目录枚举、离线跳过、写前逐条复验与 BackgroundJob，覆盖 local、115、PikPak；失效记录的永久删除复用 `web_batch.purge_assets`，文件仍在盘上的行进 `blocked`。确认弹层复用 Fieldset、Note、Toast 与 confirmModal：失败留在弹层，危险动作初始聚焦取消，忙态阻止重入与关闭；不引入另一套对话框库。
@@ -1082,6 +1082,8 @@ A 盘垃圾隔离使用短名称 `peach-purge-<32 位 UUID>.peach-quarantine`，
 CloudDrive2 配置生成复用现有 TOML 模板、mDNS 公布地址和应用服务设置，origin 由现有 `httpx.URL` 处理 IPv6 方括号及端口。HTTP 与 HTTPS 按各自默认端口生成 origin，非默认端口完整保留；配置读取、保存与更换密钥共用生成函数。该差异属于 Peach 部署配置，无需引入协议库或新增依赖；模板沿用现有 CloudDrive2 结构。回归用临时服务验证 HTTP 通知接收、密钥和来源校验，真实 ledger 与生产监听设置不参与验证。
 
 云下载服务地址统一通过 `downloads.clean_address` 校验协议、主机、端口及凭据隔离；设置保存、gRPC 目标与本机自动发现共用该入口，解析失败转成 `DownloadError`。已保存的无效地址按原值呈现在配置表单，其余有效偏好保留，读取不写文件；修正保存后清除提示。渠道发现分别处理 CloudDrive2 与 PikPak 凭据错误，健康渠道继续提供。
+
+本地下载复用 qBittorrent Web API v2（2026-10-29 对 fnOS 应用中心的 qBittorrent 4.6.4 / WebAPI 2.9.3 只读核对登录、版本与偏好）：登录、`torrents/info`、`torrents/add`、`torrents/delete` 由 `peach.downloads_qbittorrent` 直接调用，不引入 `qbittorrent-api` 等第三方 SDK，沿用现有 `httpx`。跨机路径由 `local_root` 与 `root` 两项显式映射，落地读取复用扫描层 `scan._walk` 与本地、SMB 或 WebDAV 媒体根；不新增依赖或迁移。
 
 配置读取复用 `_read_section` 隔离可选区域，以 `section_errors` 返回区域名称、操作提示和诊断编号；异常交给现有 `error_reporting.event` 留痕。页面复用 TanStack Query 重新读取和 BoardUI Note、Button，在对应分区提供重试；未知媒体来源或计数时隐藏依赖它们的媒体表单。鉴权、本机访问检查及核心设置校验仍由配置入口执行。无新增依赖、ledger 迁移或后台重试。
 

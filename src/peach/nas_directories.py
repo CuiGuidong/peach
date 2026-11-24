@@ -31,14 +31,18 @@ def file_position(path, ledger_path: str = '') -> dict:
     return result
 
 
+def is_browsable_root(value: str | Path) -> bool:
+    root = Path(value)
+    return root.is_absolute() and root != Path(root.anchor)
+
+
 def roots(config) -> list[str]:
     values = [value for group in config.mounts.values() for value in group]
     if os.name == 'nt':
         values.extend(value for group in config.locations.values() for value in group)
     if os.environ.get('PEACH_DISTRIBUTION') == 'docker':
         values.insert(0, '/media')
-    return list(dict.fromkeys(str(Path(value)) for value in values
-                             if Path(value).is_absolute() and Path(value) != Path(Path(value).anchor)))
+    return list(dict.fromkeys(str(Path(value)) for value in values if is_browsable_root(value)))
 
 
 def browse(config, initial: str, *, start: bool = False, offset: int = 0) -> dict:
@@ -59,13 +63,12 @@ def browse(config, initial: str, *, start: bool = False, offset: int = 0) -> dic
         raise NasDirectoryError('errors.nasDirectories.outsideRoots') from exc
 
 
-def list_directory(path, allowed: list[str], offset: int = 0) -> dict:
+def list_directory(path, allowed: list[str], offset: int = 0, include_files: bool = False, focus_name: str = '') -> dict:
     """由可终止的媒体读取子进程调用；不跟随列表中的符号链接。"""
     candidate = Path(path)
     if not candidate.is_absolute():
         raise ValueError('the path must be absolute')
-    boundaries = [Path(root) for root in allowed if candidate.is_relative_to(Path(root))
-                  and Path(root) != Path(Path(root).anchor)]
+    boundaries = [Path(root) for root in allowed if is_browsable_root(root) and candidate.is_relative_to(Path(root))]
     if not boundaries:
         raise ValueError('outside the configured media roots')
     # 只访问本次路径所属的根；离线网盘不阻塞另一个本地媒体根。
@@ -74,12 +77,38 @@ def list_directory(path, allowed: list[str], offset: int = 0) -> dict:
     if not target.is_relative_to(boundary) or boundary == Path(boundary.anchor):
         raise ValueError('outside the configured media roots')
     directories = []
+    files = []
     with os.scandir(target) as entries:
-        limited = list(islice(entries, offset, offset + 501))
+        if focus_name:
+            # 定位只枚举当前目录，保留命中文件所在的一页，不读取文件内容。
+            limited = []
+            first_page = []
+            found = False
+            offset = 0
+            for entry in entries:
+                if len(first_page) < 501:
+                    first_page.append(entry)
+                limited.append(entry)
+                if entry.name == focus_name:
+                    found = True
+                    limited.extend(islice(entries, 501 - len(limited)))
+                    break
+                if len(limited) == 500:
+                    limited = []
+                    offset += 500
+            if not found:
+                limited, offset = first_page, 0
+        else:
+            limited = list(islice(entries, offset, offset + 501))
         for entry in limited[:500]:
             if entry.is_dir(follow_symlinks=False):
                 directories.append({'name': entry.name, 'path': str(target / entry.name)})
+            elif include_files and entry.is_file(follow_symlinks=False):
+                files.append({'name': entry.name})
     return {'mode': 'server', 'path': str(target),
             'parent': str(target.parent) if target != boundary else None,
             'roots': allowed, 'directories': sorted(directories, key=lambda item: item['name'].casefold()),
-            'next_offset': offset + 500 if len(limited) > 500 else None}
+            'next_offset': offset + 500 if len(limited) > 500 else None,
+            **({'files': sorted(files, key=lambda item: item['name'].casefold()),
+                'offset': offset,
+                'read_only': bool(os.statvfs(target).f_flag & os.ST_RDONLY) if hasattr(os, 'statvfs') else None} if include_files else {})}

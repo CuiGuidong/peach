@@ -48,6 +48,7 @@ import {
   type FollowJobState, type FollowView, type FollowWorkRow,
 } from './follow-feed';
 import { t } from '../../i18n';
+import { useRectangleSelection } from '../components/rectangle-selection';
 
 const Sep = () => <span data-entity-sep="" aria-hidden="true" />;
 const SETTINGS = spriteGlyph('settings');
@@ -575,6 +576,8 @@ function Cards({ facets, data, context, props, images, retryKey, checkAction }: 
   retryKey: number; checkAction: ReactNode;
 }) {
   const { view, actions } = props;
+  const rectangle = useRectangleSelection(props.selectMode && actions.selectRectangle
+    ? (keys, add) => actions.selectRectangle?.(keys.map(Number), add) : undefined);
   const write = useFollowWrite(props);
   const wall = images ? { 'data-size': props.photoSize, 'data-layout': props.photoLayout, 'data-images-only': String(props.imagesOnly) } : {};
   const wallRef = useMasonryGrid(images && props.photoLayout === 'masonry',
@@ -598,7 +601,7 @@ function Cards({ facets, data, context, props, images, retryKey, checkAction }: 
         media: data.groups.length ? (data.groups.some(group => groupMediaKinds(group).has('video')) ? 'videos' : 'images') : view.media })} />;
   }
   return (
-    <div ref={wallRef} data-follow-list="" data-follow-wall={images ? '' : undefined} {...wall}>
+    <div ref={wallRef} data-follow-list="" data-follow-wall={images ? '' : undefined} {...wall} {...rectangle}>
       {body}
     </div>
   );

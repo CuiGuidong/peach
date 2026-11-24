@@ -1,16 +1,16 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "648b152f-801d-4a50-8d98-66219538f118", e._sentryDebugIdIdentifier = "sentry-dbid-648b152f-801d-4a50-8d98-66219538f118");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "6996e4b8-94bf-433e-ab2d-b1c91dda432b", e._sentryDebugIdIdentifier = "sentry-dbid-6996e4b8-94bf-433e-ab2d-b1c91dda432b");
 	} catch {}
 })();
-import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $542a13ca2fa5b484$export$5b6b19405a83ff9d as t, $76d00c5a4edb230a$export$76ccd210b9029917 as n, $76d00c5a4edb230a$export$816b5d811295e6bc as r, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as i, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as a, $76d00c5a4edb230a$export$f850895b287ef28e as o, $ea3928288112382f$export$439d29a4e110a164 as s, $l as c, ActivityStatus as l, Button as u, ButtonLink as d, Bx as f, COLUMN_SORT as p, Checkbox as m, ChevronSortDown as h, Chip as g, CollapseChevron as _, CollapseRegion as v, ColumnFilterAvatar as y, ColumnFilterChips as b, Ct as x, DataTableFooter as S, DataTableFrame as C, DataTableSort as w, EmptyFocusButton as T, EmptyState as E, ErrorText as D, ExternalLink as O, FEEDS_KEY as ee, FOLLOW_CHECK_KEY as k, FOLLOW_CHECK_TASK as A, FOLLOW_CREDENTIALS_KEY as te, FOLLOW_MANAGE_KEY as ne, FOLLOW_MANAGE_NAV as j, FOLLOW_RESOLVE_KEY as M, FieldLabel as N, Gg as re, H7 as P, Help as F, Input as ie, LAYOUTS as I, LEGACY_AVATAR_IMG as ae, M6 as oe, MENU_ITEM as L, MENU_ITEM_INTERACTIVE as R, MENU_POPOVER_SURFACE as z, ModalFrame as B, Note as V, OV as H, P7 as U, SORT_DEFAULT_DIR as se, SORT_OPTIONS as ce, STAT_STRIP_SIX as le, Select as W, SelectItem as ue, SelectionDock as de, SelectionPopover as fe, SiteIcon as pe, SiteLabel as me, SortDirectionIcon as he, SortableBoardTabs as G, Switch as ge, Table as _e, TableColumnControls as ve, TableColumnResizer as ye, TableSelectionHeader as be, TaskProgress as xe, Un as Se, Wt as Ce, Xf as we, __toESM as Te, activityKind as Ee, addAlias as De, addSource as Oe, authorGroups as ke, authorName as Ae, avatarInner as je, busyProps as K, cardClass as Me, checkEvidenceGap as Ne, checkFailures as Pe, checkFeeds as Fe, checkReceipt as Ie, checkSummary as Le, checkedText as Re, clickedBlank as ze, codedText as Be, columnVisibilityFeature as Ve, composingKey as He, confirmModal as Ue, createColumnHelper as We, credentialDone as Ge, cx as Ke, dZ as qe, dropSources as Je, du as Ye, enterPageSelection as q, errorHeadline as Xe, errorMessage as J, exitPageSelection as Ze, feedIntervalText as Qe, fetchCheckJob as $e, fetchCredentials as et, fetchFeeds as tt, fetchFollow as nt, fetchResolveJob as rt, fetchSuggestions as it, flexRender as at, followFeedByName as ot, followFeedEntity as st, followSuggestKey as ct, groupByAuthor as lt, isBroken as ut, isLayout as dt, jobText as ft, joinList as pt, keepSelected as mt, l7 as ht, localTime as gt, lookupFeedActor as _t, mapLimit as vt, markAllPending as yt, pageSizeOf as bt, pageWindow as xt, patchSource as St, pv as Ct, queryClient as wt, quoted as Tt, reloadFollowManage as Et, removeAlias as Dt, removeFeed as Ot, removeSource as kt, renameAliasGroup as At, require_jsx_runtime as jt, require_react as Mt, resolveFollowSort as Nt, rowPaginationFeature as Pt, rowSelectionFeature as Ft, rowSelectionOperation as It, rowSortingFeature as Lt, runBulkAction as Rt, selectionState as zt, serverLabel as Bt, setFeedEnabled as Vt, setSourceEnabled as Ht, skeletonHtml as Ut, sortLabel as Wt, startCheck as Gt, startResolve as Kt, statusText as qt, t as Y, tableFeatures as Jt, tableRows as Yt, th as Xt, toggleGroup as Zt, unmarkItems as Qt, useAction as $t, useBackgroundJob as en, useMutation as tn, usePageSelection as nn, useQuery as rn, useRowWorkContext as an, useTable as on, useTableFilters as sn, useTablePreferences as cn, useWorkContextMenu as ln, utcDate as un } from "./peach-app.js";
-import { Page as dn } from "./peach-app.page-QAncjzM1.js";
-import { AuthorAvatar as fn, ErrorLine as pn, SourceIcon as mn, SourceLink as hn, StatusBadge as gn } from "./peach-app.source-view-CDbKpFus.js";
-import { createPaginatedRowModel as _n, createSortedRowModel as vn, useTableSelection as yn } from "./peach-app.use-table-selection-CnuGRvGn.js";
+import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $542a13ca2fa5b484$export$5b6b19405a83ff9d as t, $76d00c5a4edb230a$export$76ccd210b9029917 as n, $76d00c5a4edb230a$export$816b5d811295e6bc as r, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as i, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as a, $76d00c5a4edb230a$export$f850895b287ef28e as o, $ea3928288112382f$export$439d29a4e110a164 as s, $l as c, ActivityStatus as l, Button as u, ButtonLink as d, Bx as f, COLUMN_SORT as p, Checkbox as m, ChevronSortDown as h, Chip as g, CollapseChevron as _, CollapseRegion as v, ColumnFilterAvatar as y, ColumnFilterChips as b, Ct as x, DataTableFooter as S, DataTableFrame as C, DataTableSort as w, EmptyFocusButton as T, EmptyState as E, ErrorText as ee, ExternalLink as D, FEEDS_KEY as te, FOLLOW_CHECK_KEY as O, FOLLOW_CHECK_TASK as k, FOLLOW_CREDENTIALS_KEY as ne, FOLLOW_MANAGE_KEY as re, FOLLOW_MANAGE_NAV as A, FOLLOW_RESOLVE_KEY as ie, FieldLabel as j, Gg as M, H7 as N, Help as P, Input as F, LAYOUTS as I, LEGACY_AVATAR_IMG as L, M6 as ae, MENU_ITEM as oe, MENU_ITEM_INTERACTIVE as R, MENU_POPOVER_SURFACE as z, ModalFrame as B, Note as V, OV as se, P7 as H, SORT_DEFAULT_DIR as ce, SORT_OPTIONS as le, STAT_STRIP_SIX as U, Select as ue, SelectItem as de, SelectionDock as fe, SelectionPopover as W, SiteIcon as pe, SiteLabel as me, SortDirectionIcon as he, SortableBoardTabs as ge, Switch as G, Table as _e, TableColumnControls as ve, TableColumnResizer as ye, TableSelectionHeader as be, TaskProgress as xe, Un as Se, Wt as K, Xf as Ce, __toESM as we, activityKind as Te, addAlias as Ee, addSource as De, authorGroups as Oe, authorName as ke, avatarInner as Ae, busyProps as q, cardClass as je, checkEvidenceGap as Me, checkFailures as Ne, checkFeeds as Pe, checkReceipt as Fe, checkSummary as Ie, checkedText as Le, clickedBlank as Re, codedText as ze, columnVisibilityFeature as Be, composingKey as Ve, confirmModal as He, createColumnHelper as Ue, credentialDone as We, cx as Ge, dZ as Ke, dropSources as qe, du as Je, enterPageSelection as Ye, errorHeadline as Xe, errorMessage as J, exitPageSelection as Ze, feedIntervalText as Qe, fetchCheckJob as $e, fetchCredentials as et, fetchFeeds as tt, fetchFollow as nt, fetchResolveJob as rt, fetchSuggestions as it, flexRender as at, followFeedByName as ot, followFeedEntity as st, followSuggestKey as ct, groupByAuthor as lt, isBroken as ut, isLayout as dt, jobText as ft, joinList as pt, keepSelected as mt, l7 as ht, localTime as gt, lookupFeedActor as _t, mapLimit as vt, markAllPending as yt, pageSizeOf as bt, pageWindow as xt, patchSource as St, pv as Ct, queryClient as wt, quoted as Tt, reloadFollowManage as Et, removeAlias as Dt, removeFeed as Ot, removeSource as kt, renameAliasGroup as At, require_jsx_runtime as jt, require_react as Mt, resolveFollowSort as Nt, rowPaginationFeature as Pt, rowSelectionFeature as Ft, rowSelectionOperation as It, rowSortingFeature as Lt, runBulkAction as Rt, selectionState as zt, serverLabel as Bt, setFeedEnabled as Vt, setSourceEnabled as Ht, skeletonHtml as Ut, sortLabel as Wt, startCheck as Gt, startResolve as Kt, statusText as qt, t as Y, tableFeatures as Jt, tableRows as Yt, th as Xt, toggleGroup as Zt, unmarkItems as Qt, useAction as $t, useBackgroundJob as en, useMutation as tn, usePageSelection as nn, useQuery as rn, useRectangleSelection as an, useRowWorkContext as on, useTable as sn, useTableFilters as cn, useTablePreferences as ln, useWorkContextMenu as un, utcDate as dn } from "./peach-app.js";
+import { Page as fn } from "./peach-app.page-QAncjzM1.js";
+import { AuthorAvatar as pn, ErrorLine as mn, SourceIcon as hn, SourceLink as gn, StatusBadge as _n } from "./peach-app.source-view-CDbKpFus.js";
+import { createPaginatedRowModel as vn, createSortedRowModel as yn, useTableSelection as bn } from "./peach-app.use-table-selection-CnuGRvGn.js";
 // src/react/follow-manage/add-source.tsx
-var X = /* @__PURE__ */ Te(Mt(), 1), Z = jt(), bn = Ke(L, R, "text-body-2-medium"), xn = Y("follow:addCreatorSource.placeholder"), Sn = Y("follow:addCreatorSource.title"), Cn = Y("follow:addCreatorSource.searchingByName"), wn = Y("follow:addCreatorSource.recognizing"), Tn = Y("follow:addCreatorSource.noSourceFound"), En = "/settings/subscriptions", Dn = (e, t) => `${e}:${t.url}`;
-function On({ field: e, menu: n, options: r, active: i, busy: a, onPick: o, onClose: s }) {
+var X = /* @__PURE__ */ we(Mt(), 1), Z = jt(), xn = Ge(oe, R, "text-body-2-medium"), Sn = Y("follow:addCreatorSource.placeholder"), Cn = Y("follow:addCreatorSource.title"), wn = Y("follow:addCreatorSource.searchingByName"), Tn = Y("follow:addCreatorSource.recognizing"), En = Y("follow:addCreatorSource.noSourceFound"), Dn = "/settings/subscriptions", On = (e, t) => `${e}:${t.url}`;
+function kn({ field: e, menu: n, options: r, active: i, busy: a, onPick: o, onClose: s }) {
 	return (0, X.useEffect)(() => {
 		n.current?.querySelector("[aria-current=\"true\"]")?.scrollIntoView({ block: "nearest" });
 	}, [n, i]), /* @__PURE__ */ (0, Z.jsxs)(t, {
@@ -25,7 +25,7 @@ function On({ field: e, menu: n, options: r, active: i, busy: a, onPick: o, onCl
 		placement: "bottom start",
 		offset: 4,
 		"aria-label": Y("follow:addCreatorSource.suggestions"),
-		className: Ke(z, "flex w-(--trigger-width) flex-col gap-1 overscroll-contain"),
+		className: Ge(z, "flex w-(--trigger-width) flex-col gap-1 overscroll-contain"),
 		children: [a && !r.length ? /* @__PURE__ */ (0, Z.jsx)("div", {
 			className: "px-2 py-1.5",
 			children: /* @__PURE__ */ (0, Z.jsx)(l, {
@@ -38,7 +38,7 @@ function On({ field: e, menu: n, options: r, active: i, busy: a, onPick: o, onCl
 		}), /* @__PURE__ */ (0, Z.jsxs)("button", {
 			type: "button",
 			"aria-current": t === i ? "true" : void 0,
-			className: t === i ? Ke(bn, "bg-background-secondary-default") : bn,
+			className: t === i ? Ge(xn, "bg-background-secondary-default") : xn,
 			onMouseDown: (e) => e.preventDefault(),
 			onClick: () => o(e.value),
 			children: [
@@ -58,12 +58,12 @@ function On({ field: e, menu: n, options: r, active: i, busy: a, onPick: o, onCl
 		})] }, `${e.group}-${e.value}`))]
 	});
 }
-function kn({ credentials: e, hidden: t, onHidden: n }) {
+function An({ credentials: e, hidden: t, onHidden: n }) {
 	let r = (e.providers || []).filter((e) => e.followable), i = r.filter((e) => !t.has(e.provider_label)).length, a = i === r.length ? Y("follow:addCreatorSource.allSources") : Y("follow:addCreatorSource.shownSources", {
 		shown: i,
 		count: r.length
 	});
-	return /* @__PURE__ */ (0, Z.jsx)(fe, {
+	return /* @__PURE__ */ (0, Z.jsx)(W, {
 		label: Y("follow:addCreatorSource.sourceFilter"),
 		triggerLabel: a,
 		leadingIcon: c,
@@ -73,7 +73,7 @@ function kn({ credentials: e, hidden: t, onHidden: n }) {
 			selected: !t.has(e.provider_label),
 			label: /* @__PURE__ */ (0, Z.jsxs)("span", {
 				className: "flex min-w-0 items-center gap-1.5",
-				children: [/* @__PURE__ */ (0, Z.jsx)(mn, { provider: e.provider }), e.provider_label]
+				children: [/* @__PURE__ */ (0, Z.jsx)(hn, { provider: e.provider }), e.provider_label]
 			})
 		})),
 		onChange: (e, r) => {
@@ -93,12 +93,12 @@ function kn({ credentials: e, hidden: t, onHidden: n }) {
 			},
 			{
 				label: Y("follow:addCreatorSource.credentialSettings"),
-				href: En
+				href: Dn
 			}
 		]
 	});
 }
-function An({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
+function jn({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
 	if (e.kind === "error") return /* @__PURE__ */ (0, Z.jsx)(V, {
 		tone: "error",
 		title: e.line,
@@ -106,7 +106,7 @@ function An({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
 	});
 	let a = (e.candidates || []).filter((e) => !n.has(e.provider_label || "")), o = Object.entries(e.failures || {});
 	return /* @__PURE__ */ (0, Z.jsxs)("div", {
-		className: Me({
+		className: je({
 			variant: "outlined",
 			padding: "none",
 			className: "flex flex-col gap-2 p-4"
@@ -117,7 +117,7 @@ function An({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
 				children: e.line
 			}),
 			a.length ? a.map((e) => {
-				let n = Dn(t, e);
+				let n = On(t, e);
 				return /* @__PURE__ */ (0, Z.jsx)(m, {
 					isSelected: !e.known && !r.has(n),
 					isDisabled: e.known,
@@ -125,45 +125,45 @@ function An({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
 					children: /* @__PURE__ */ (0, Z.jsxs)("span", {
 						className: "flex min-w-0 flex-wrap items-center gap-1.5",
 						children: [
-							/* @__PURE__ */ (0, Z.jsx)(mn, { provider: e.provider }),
+							/* @__PURE__ */ (0, Z.jsx)(hn, { provider: e.provider }),
 							/* @__PURE__ */ (0, Z.jsx)("b", {
 								className: "text-body-medium",
 								children: e.provider_label
 							}),
 							/* @__PURE__ */ (0, Z.jsx)("span", {
 								className: "min-w-0 break-words",
-								children: Be(e, "label")
+								children: ze(e, "label")
 							}),
 							/* @__PURE__ */ (0, Z.jsx)("small", {
 								className: "text-caption-1-regular text-text-secondary",
-								children: e.known ? Y("follow:addCreatorSource.alreadyFollowing") : Be(e, "evidence")
+								children: e.known ? Y("follow:addCreatorSource.alreadyFollowing") : ze(e, "evidence")
 							})
 						]
 					})
 				}, n);
-			}) : /* @__PURE__ */ (0, Z.jsx)(F, { children: Tn }),
+			}) : /* @__PURE__ */ (0, Z.jsx)(P, { children: En }),
 			(e.external_searches || []).map((e) => /* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-wrap items-center gap-2",
 				children: [/* @__PURE__ */ (0, Z.jsx)("small", {
 					className: "text-caption-1-regular text-text-secondary",
-					children: Be(e, "evidence")
-				}), /* @__PURE__ */ (0, Z.jsx)(O, {
+					children: ze(e, "evidence")
+				}), /* @__PURE__ */ (0, Z.jsx)(D, {
 					href: e.url,
 					children: Y("follow:shared.labeled", {
-						label: Be(e, "label"),
+						label: ze(e, "label"),
 						value: e.query
 					})
 				})]
 			}, e.url)),
-			o.length ? /* @__PURE__ */ (0, Z.jsx)(F, { children: pt(o.map(([t, n]) => Y("follow:shared.labeled", {
+			o.length ? /* @__PURE__ */ (0, Z.jsx)(P, { children: pt(o.map(([t, n]) => Y("follow:shared.labeled", {
 				label: t,
 				value: Bt(e.failure_codes?.[t]?.code ?? "", n, e.failure_codes?.[t]?.params)
 			}))) }) : null
 		]
 	});
 }
-function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
-	let [i, a] = (0, X.useState)(""), [o, s] = (0, X.useState)(!1), [c, l] = (0, X.useState)(""), [d, f] = (0, X.useState)(""), [p, m] = (0, X.useState)(!1), [h, g] = (0, X.useState)(null), [_, v] = (0, X.useState)(-1), y = (0, X.useRef)(null), b = (0, X.useRef)(null), [x, S] = (0, X.useState)(/* @__PURE__ */ new Set()), [C, w] = (0, X.useState)(/* @__PURE__ */ new Set()), [T, E] = (0, X.useState)(""), [D, O] = (0, X.useState)(0);
+function Mn({ data: e, credentials: t, readOnly: n, toast: r }) {
+	let [i, a] = (0, X.useState)(""), [o, s] = (0, X.useState)(!1), [c, l] = (0, X.useState)(""), [d, f] = (0, X.useState)(""), [p, m] = (0, X.useState)(!1), [h, g] = (0, X.useState)(null), [_, v] = (0, X.useState)(-1), y = (0, X.useRef)(null), b = (0, X.useRef)(null), [x, S] = (0, X.useState)(/* @__PURE__ */ new Set()), [C, w] = (0, X.useState)(/* @__PURE__ */ new Set()), [T, E] = (0, X.useState)(""), [ee, D] = (0, X.useState)(0);
 	(0, X.useEffect)(() => {
 		let e = i.trim();
 		if (o || !e || e.includes("/")) {
@@ -173,17 +173,17 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 		let t = setTimeout(() => f(e), 250);
 		return () => clearTimeout(t);
 	}, [i, o]);
-	let ee = rn({
+	let te = rn({
 		queryKey: ct(d),
 		queryFn: ({ signal: e }) => it(d, e),
 		enabled: d.length > 0 && p && !o && h !== i
-	}), k = (0, X.useMemo)(() => (ee.data?.groups || []).flatMap((e) => e.items.map((t) => ({
+	}), O = (0, X.useMemo)(() => (te.data?.groups || []).flatMap((e) => e.items.map((t) => ({
 		value: t.value,
 		matched: Bt(t.matched_code ?? "", t.matched || ""),
 		n: t.n || 0,
 		group: Bt(e.label_code ?? "", e.label)
-	}))), [ee.data]), { job: A, running: te, outcome: ne, start: j, dismiss: re } = en({
-		queryKey: M,
+	}))), [te.data]), { job: k, running: ne, outcome: re, start: A, dismiss: M } = en({
+		queryKey: ie,
 		queryFn: ({ signal: e }) => rt(e),
 		start: (e) => Kt([e]),
 		onStarted: () => w(/* @__PURE__ */ new Set()),
@@ -191,16 +191,16 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 		onFinish: (e) => {
 			e.status === "failed" && E(ft(e, "error") || Y("follow:addCreatorSource.searchFailed"));
 		}
-	}), P = (e) => {
+	}), N = (e) => {
 		let t = e.trim();
-		!t || n || o || te || j.isPending || (E(""), v(-1), l(t), a(t), f(""), g(t), j.mutate(t));
-	}, F = ee.isFetching, I = p && !o && h !== i && (k.length > 0 || F), ae = () => {
+		!t || n || o || ne || A.isPending || (E(""), v(-1), l(t), a(t), f(""), g(t), A.mutate(t));
+	}, P = te.isFetching, I = p && !o && h !== i && (O.length > 0 || P), L = () => {
 		v(-1), g(i);
-	}, oe = (e) => {
-		if (!(o || He(e.nativeEvent))) {
-			if (e.key === "Escape" && I) ae();
+	}, ae = (e) => {
+		if (!(o || Ve(e.nativeEvent))) {
+			if (e.key === "Escape" && I) L();
 			else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-				if (!k.length) return;
+				if (!O.length) return;
 				if (e.preventDefault(), !I) {
 					g(null);
 					return;
@@ -208,20 +208,20 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 				let t = e.key === "ArrowDown" ? 1 : -1;
 				v((e) => {
 					let n = e + t;
-					return n < 0 ? k.length - 1 : n >= k.length ? 0 : n;
+					return n < 0 ? O.length - 1 : n >= O.length ? 0 : n;
 				});
-			} else e.key === "Enter" && (e.preventDefault(), P(k[_]?.value || i));
+			} else e.key === "Enter" && (e.preventDefault(), N(O[_]?.value || i));
 		}
-	}, L = ne?.results || [], R = L.flatMap((e, t) => (e.candidates || []).filter((e) => !e.known && !x.has(e.provider_label || "")).map((e) => ({
+	}, oe = re?.results || [], R = oe.flatMap((e, t) => (e.candidates || []).filter((e) => !e.known && !x.has(e.provider_label || "")).map((e) => ({
 		candidate: e,
-		key: Dn(t, e)
+		key: On(t, e)
 	})).filter((e) => !C.has(e.key))), z = tn({
 		mutationFn: async (e) => {
 			let t = [], n = [];
-			O(0);
+			D(0);
 			for (let r of e) {
 				try {
-					let e = await Oe(r.candidate);
+					let e = await De(r.candidate);
 					n.push(e.source);
 				} catch (e) {
 					t.push(Y("follow:shared.labeled", {
@@ -229,7 +229,7 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 						value: J(e)
 					}));
 				}
-				O((e) => e + 1);
+				D((e) => e + 1);
 			}
 			if (n.length) try {
 				await Gt(n);
@@ -242,20 +242,20 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 			};
 		},
 		onSuccess: (e) => {
-			Et(), e.failures.length ? E(pt(e.failures)) : (E(""), re(), r(Y("follow:addCreatorSource.sourcesAdded", { count: e.sources.length })));
+			Et(), e.failures.length ? E(pt(e.failures)) : (E(""), M(), r(Y("follow:addCreatorSource.sourcesAdded", { count: e.sources.length })));
 		},
 		onError: (e) => E(J(e))
-	}), B = e.suggestions || [], H = !c.includes("/");
+	}), B = e.suggestions || [], se = !c.includes("/");
 	return /* @__PURE__ */ (0, Z.jsxs)("section", {
-		"aria-label": Sn,
-		className: Me({
+		"aria-label": Cn,
+		className: je({
 			padding: "none",
 			className: "flex flex-col gap-4 px-6 py-5 max-sm:px-4"
 		}),
 		children: [
 			/* @__PURE__ */ (0, Z.jsx)("h3", {
 				className: "text-title-2-medium text-text-primary",
-				children: Sn
+				children: Cn
 			}),
 			/* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-wrap items-end gap-2",
@@ -268,9 +268,9 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 							let t = e.relatedTarget;
 							!e.currentTarget.contains(t) && !b.current?.contains(t) && m(!1);
 						},
-						children: [/* @__PURE__ */ (0, Z.jsx)(ie, {
+						children: [/* @__PURE__ */ (0, Z.jsx)(F, {
 							"aria-label": Y("follow:addCreatorSource.inputLabel"),
-							placeholder: xn,
+							placeholder: Sn,
 							value: i,
 							leadingIcon: Ct,
 							enterKeyHint: "search",
@@ -282,18 +282,18 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 							onCompositionEnd: (e) => {
 								s(!1), a(e.currentTarget.value);
 							},
-							onKeyDown: oe
-						}), I ? /* @__PURE__ */ (0, Z.jsx)(On, {
+							onKeyDown: ae
+						}), I ? /* @__PURE__ */ (0, Z.jsx)(kn, {
 							field: y,
 							menu: b,
-							options: k,
+							options: O,
 							active: _,
-							busy: F,
-							onPick: P,
-							onClose: ae
+							busy: P,
+							onPick: N,
+							onClose: L
 						}) : null]
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(kn, {
+					/* @__PURE__ */ (0, Z.jsx)(An, {
 						credentials: t,
 						hidden: x,
 						onHidden: S
@@ -301,8 +301,8 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 					/* @__PURE__ */ (0, Z.jsx)(u, {
 						variant: "primary",
 						disabled: n || !i.trim(),
-						...K(te || j.isPending),
-						onClick: () => P(i),
+						...q(ne || A.isPending),
+						onClick: () => N(i),
 						children: Y("follow:shared.search")
 					})
 				]
@@ -310,26 +310,26 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 			/* @__PURE__ */ (0, Z.jsxs)("div", {
 				"aria-live": "polite",
 				className: "flex flex-col gap-3 empty:hidden",
-				children: [te || j.isPending ? /* @__PURE__ */ (0, Z.jsx)(xe, {
+				children: [ne || A.isPending ? /* @__PURE__ */ (0, Z.jsx)(xe, {
 					embedded: !0,
-					kind: Ee("follow-resolve"),
-					label: ft(A) || (A?.total ? Y("follow:addCreatorSource.searchProgress", {
-						checked: A.checked || 0,
-						count: A.total
-					}) : H ? Cn : wn),
-					value: A?.checked,
-					total: A?.total
+					kind: Te("follow-resolve"),
+					label: ft(k) || (k?.total ? Y("follow:addCreatorSource.searchProgress", {
+						checked: k.checked || 0,
+						count: k.total
+					}) : se ? wn : Tn),
+					value: k?.checked,
+					total: k?.total
 				}) : null, T ? /* @__PURE__ */ (0, Z.jsx)(V, {
 					tone: "error",
 					title: Y("follow:addJavFeed.notCompleted"),
 					children: T
 				}) : null]
 			}),
-			L.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
+			oe.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-col gap-3",
 				children: [
-					/* @__PURE__ */ (0, Z.jsx)(N, { children: Y("follow:addCreatorSource.results") }),
-					L.map((e, t) => /* @__PURE__ */ (0, Z.jsx)(An, {
+					/* @__PURE__ */ (0, Z.jsx)(j, { children: Y("follow:addCreatorSource.results") }),
+					oe.map((e, t) => /* @__PURE__ */ (0, Z.jsx)(jn, {
 						row: e,
 						at: t,
 						hidden: x,
@@ -345,14 +345,14 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 							/* @__PURE__ */ (0, Z.jsx)(u, {
 								variant: "secondary",
 								size: "small",
-								onClick: () => re(),
+								onClick: () => M(),
 								children: Y("follow:shared.close")
 							}),
 							/* @__PURE__ */ (0, Z.jsx)(u, {
 								variant: "primary",
 								size: "small",
 								disabled: n || !R.length,
-								...K(z.isPending),
+								...q(z.isPending),
 								onClick: () => z.mutate(R),
 								children: Y("follow:addCreatorSource.addSelected", { count: R.length })
 							}),
@@ -360,7 +360,7 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 								role: "status",
 								className: "text-body-2-regular text-text-secondary",
 								children: Y("follow:addCreatorSource.addingProgress", {
-									added: D,
+									added: ee,
 									count: R.length
 								})
 							}) : null
@@ -381,7 +381,7 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 						count: e.visits,
 						origin: e.origin
 					}) : Y("follow:addCreatorSource.historyVisits", { count: e.visits }),
-					onClick: () => P(e.name),
+					onClick: () => N(e.name),
 					children: e.name
 				}, e.name))]
 			}) : null
@@ -389,8 +389,8 @@ function jn({ data: e, credentials: t, readOnly: n, toast: r }) {
 	});
 }
 // src/react/follow-manage/add-feed.tsx
-var Mn = Y("follow:addJavFeed.placeholder"), Nn = Y("follow:addJavFeed.title");
-function Pn(e, t) {
+var Nn = Y("follow:addJavFeed.placeholder"), Pn = Y("follow:addJavFeed.title");
+function Fn(e, t) {
 	let n = /* @__PURE__ */ new Map();
 	for (let r of e.candidates) t.has(r.id) && r.held_by && n.set(r.held_by.id, r.held_by.name);
 	if (n.size > 1) return {
@@ -409,7 +409,7 @@ function Pn(e, t) {
 		blocked: !1
 	};
 }
-function Fn({ card: e, picked: t, onPick: n }) {
+function In({ card: e, picked: t, onPick: n }) {
 	return /* @__PURE__ */ (0, Z.jsxs)("div", {
 		className: "flex flex-wrap items-center gap-2",
 		children: [/* @__PURE__ */ (0, Z.jsx)(m, {
@@ -433,20 +433,20 @@ function Fn({ card: e, picked: t, onPick: n }) {
 					}) : null
 				]
 			})
-		}), /* @__PURE__ */ (0, Z.jsx)(O, {
+		}), /* @__PURE__ */ (0, Z.jsx)(D, {
 			href: e.url,
 			children: e.id
 		})]
 	});
 }
-function In({ readOnly: e, toast: t, onAdded: n }) {
+function Ln({ readOnly: e, toast: t, onAdded: n }) {
 	let [r, i] = (0, X.useState)(""), [a, o] = (0, X.useState)(null), [s, c] = (0, X.useState)(/* @__PURE__ */ new Set()), l = $t(), d = () => {
 		let t = r.trim();
 		t && !e && l.run("lookup", (e) => _t(t, e), (e) => {
 			o(e), c(new Set(e.suggested));
 		});
 	}, f = (e) => {
-		e.key === "Enter" && !He(e.nativeEvent) && (e.preventDefault(), d());
+		e.key === "Enter" && !Ve(e.nativeEvent) && (e.preventDefault(), d());
 	}, p = () => {
 		o(null), c(/* @__PURE__ */ new Set()), l.setError("");
 	}, m = () => {
@@ -458,25 +458,25 @@ function In({ readOnly: e, toast: t, onAdded: n }) {
 		e && l.run("known", (t) => st(e.id, t), () => {
 			t(Y("follow:addJavFeed.subscribed", { name: e.name })), i(""), p(), n();
 		});
-	}, g = a ? Pn(a, s) : null, _ = a && !a.candidates.length && a.known?.subscribable ? a.known : null;
+	}, g = a ? Fn(a, s) : null, _ = a && !a.candidates.length && a.known?.subscribable ? a.known : null;
 	return /* @__PURE__ */ (0, Z.jsxs)("section", {
-		"aria-label": Nn,
-		className: Me({
+		"aria-label": Pn,
+		className: je({
 			padding: "none",
 			className: "flex flex-col gap-4 px-6 py-5 max-sm:px-4"
 		}),
 		children: [
 			/* @__PURE__ */ (0, Z.jsx)("h3", {
 				className: "text-title-2-medium text-text-primary",
-				children: Nn
+				children: Pn
 			}),
 			/* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-wrap items-end gap-2",
 				children: [/* @__PURE__ */ (0, Z.jsx)("div", {
 					className: "min-w-64 grow",
-					children: /* @__PURE__ */ (0, Z.jsx)(ie, {
+					children: /* @__PURE__ */ (0, Z.jsx)(F, {
 						"aria-label": Y("follow:addJavFeed.actressName"),
-						placeholder: Mn,
+						placeholder: Nn,
 						value: r,
 						leadingIcon: Ct,
 						enterKeyHint: "search",
@@ -487,7 +487,7 @@ function In({ readOnly: e, toast: t, onAdded: n }) {
 				}), /* @__PURE__ */ (0, Z.jsx)(u, {
 					variant: "primary",
 					disabled: e || !r.trim(),
-					...K(l.busy === "lookup"),
+					...q(l.busy === "lookup"),
 					onClick: d,
 					children: Y("follow:shared.search")
 				})]
@@ -505,20 +505,20 @@ function In({ readOnly: e, toast: t, onAdded: n }) {
 						title: Y("follow:addJavFeed.javdbSearchFailed"),
 						children: Bt(a.unavailable_code ?? "", a.unavailable, a.unavailable_params)
 					}) : null,
-					/* @__PURE__ */ (0, Z.jsx)(N, { children: Y("follow:addJavFeed.javdbCards") }),
-					a.candidates.length ? a.candidates.map((e) => /* @__PURE__ */ (0, Z.jsx)(Fn, {
+					/* @__PURE__ */ (0, Z.jsx)(j, { children: Y("follow:addJavFeed.javdbCards") }),
+					a.candidates.length ? a.candidates.map((e) => /* @__PURE__ */ (0, Z.jsx)(In, {
 						card: e,
 						picked: s.has(e.id),
 						onPick: (t) => c((n) => {
 							let r = new Set(n);
 							return t ? r.add(e.id) : r.delete(e.id), r;
 						})
-					}, e.id)) : /* @__PURE__ */ (0, Z.jsx)(F, { children: a.unavailable ? Y("follow:addJavFeed.noCardsThisTime") : Y("follow:addJavFeed.noJavdbMatch") }),
-					a.candidates.length ? /* @__PURE__ */ (0, Z.jsx)(F, {
+					}, e.id)) : /* @__PURE__ */ (0, Z.jsx)(P, { children: a.unavailable ? Y("follow:addJavFeed.noCardsThisTime") : Y("follow:addJavFeed.noJavdbMatch") }),
+					a.candidates.length ? /* @__PURE__ */ (0, Z.jsx)(P, {
 						role: "status",
 						children: s.size ? g.text : Y("follow:addJavFeed.pickCardsHint")
 					}) : null,
-					_ ? /* @__PURE__ */ (0, Z.jsx)(F, {
+					_ ? /* @__PURE__ */ (0, Z.jsx)(P, {
 						role: "status",
 						children: _.following ? Y("follow:addJavFeed.alreadySubscribed", { name: _.name }) : Y("follow:addJavFeed.canSubscribeDirectly", { name: _.name })
 					}) : null,
@@ -535,7 +535,7 @@ function In({ readOnly: e, toast: t, onAdded: n }) {
 								variant: "primary",
 								size: "small",
 								disabled: e || !s.size || g.blocked,
-								...K(l.busy === "follow"),
+								...q(l.busy === "follow"),
 								onClick: m,
 								children: Y("follow:addJavFeed.subscribePicked", { count: s.size })
 							}) : null,
@@ -543,7 +543,7 @@ function In({ readOnly: e, toast: t, onAdded: n }) {
 								variant: "primary",
 								size: "small",
 								disabled: e,
-								...K(l.busy === "known"),
+								...q(l.busy === "known"),
 								onClick: h,
 								children: Y("follow:addJavFeed.subscribeTo", { name: _.name })
 							}) : null
@@ -555,7 +555,7 @@ function In({ readOnly: e, toast: t, onAdded: n }) {
 	});
 }
 // src/react/follow-manage/alias-rename-dialog.tsx
-function Ln({ group: e, close: t, receipt: n }) {
+function Rn({ group: e, close: t, receipt: n }) {
 	return /* @__PURE__ */ (0, Z.jsx)(B, {
 		isOpen: !!e,
 		onOpenChange: (e) => {
@@ -563,14 +563,14 @@ function Ln({ group: e, close: t, receipt: n }) {
 		},
 		width: "form",
 		label: Y("follow:creatorAliases.rename"),
-		children: e ? /* @__PURE__ */ (0, Z.jsx)(Rn, {
+		children: e ? /* @__PURE__ */ (0, Z.jsx)(zn, {
 			group: e,
 			close: t,
 			receipt: n
 		}, e.canonical_key) : null
 	});
 }
-function Rn({ group: t, close: n, receipt: r }) {
+function zn({ group: t, close: n, receipt: r }) {
 	let [i, a] = (0, X.useState)(t.canonical_name), o = $t();
 	return /* @__PURE__ */ (0, Z.jsxs)("form", {
 		onSubmit: (e) => {
@@ -589,7 +589,7 @@ function Rn({ group: t, close: n, receipt: r }) {
 				className: "text-body-2-regular wrap-anywhere text-text-secondary",
 				children: [Y("follow:creatorAliases.currentName"), t.canonical_name]
 			}),
-			/* @__PURE__ */ (0, Z.jsx)(ie, {
+			/* @__PURE__ */ (0, Z.jsx)(F, {
 				"aria-label": Y("follow:creatorAliases.displayName"),
 				autoFocus: !0,
 				value: i,
@@ -597,7 +597,7 @@ function Rn({ group: t, close: n, receipt: r }) {
 			}),
 			/* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-col gap-2",
-				children: [/* @__PURE__ */ (0, Z.jsx)(N, { children: Y("follow:creatorAliases.chooseExisting") }), /* @__PURE__ */ (0, Z.jsx)("div", {
+				children: [/* @__PURE__ */ (0, Z.jsx)(j, { children: Y("follow:creatorAliases.chooseExisting") }), /* @__PURE__ */ (0, Z.jsx)("div", {
 					className: "flex flex-wrap gap-2",
 					children: t.aliases.map((e) => /* @__PURE__ */ (0, Z.jsx)(u, {
 						variant: "secondary",
@@ -625,7 +625,7 @@ function Rn({ group: t, close: n, receipt: r }) {
 					type: "submit",
 					variant: "primary",
 					disabled: !i.trim() || i.trim() === t.canonical_name,
-					...K(!!o.busy),
+					...q(!!o.busy),
 					children: Y("follow:creatorAliases.rename")
 				})]
 			})
@@ -633,30 +633,30 @@ function Rn({ group: t, close: n, receipt: r }) {
 	});
 }
 // src/react/follow-manage/alias-manager.tsx
-var zn = (e) => Y("follow:creatorAliases.removeBody", { alias: e }), Bn = Jt({
+var Bn = (e) => Y("follow:creatorAliases.removeBody", { alias: e }), Vn = Jt({
 	rowSelectionFeature: Ft,
 	rowSortingFeature: Lt,
 	rowPaginationFeature: Pt,
-	columnVisibilityFeature: Ve,
-	sortedRowModel: vn(),
-	paginatedRowModel: _n()
-}), Vn = Bn, Hn = {
+	columnVisibilityFeature: Be,
+	sortedRowModel: yn(),
+	paginatedRowModel: vn()
+}), Hn = Vn, Un = {
 	id: "select",
 	label: Y("follow:shared.select"),
 	width: 48,
 	min: 48,
 	max: 48,
 	required: !0
-}, Un = {
+}, Wn = {
 	id: "canonical",
 	label: Y("follow:creatorAliases.displayName"),
 	width: 280,
 	min: 240,
 	required: !0,
 	flex: !0
-}, Wn = [
-	Hn,
+}, Gn = [
 	Un,
+	Wn,
 	{
 		id: "alias",
 		label: Y("follow:creatorAliases.platformAlias"),
@@ -672,9 +672,9 @@ var zn = (e) => Y("follow:creatorAliases.removeBody", { alias: e }), Bn = Jt({
 		label: Y("follow:shared.actions"),
 		width: 112
 	}
-], Gn = [
-	Hn,
+], Kn = [
 	Un,
+	Wn,
 	{
 		id: "aliases",
 		label: Y("follow:creatorAliases.platformAlias"),
@@ -686,16 +686,16 @@ var zn = (e) => Y("follow:creatorAliases.removeBody", { alias: e }), Bn = Jt({
 		width: 184,
 		min: 168
 	}
-], Kn = (e) => e.alias;
-function qn(e, t, n) {
+], qn = (e) => e.alias;
+function Jn(e, t, n) {
 	let r = n ? `name:${n}` : "", i = r && e.find((e) => e.author_key === r) || e.find((e) => e.author_name === t || e.entity_name === t);
 	return i ? e.filter((e) => e.author_key === i.author_key) : [];
 }
-function Jn({ sources: e, name: t, canonicalKey: n }) {
+function Yn({ sources: e, name: t, canonicalKey: n }) {
 	return /* @__PURE__ */ (0, Z.jsxs)("span", {
 		className: "flex items-center gap-2",
-		children: [/* @__PURE__ */ (0, Z.jsx)(fn, {
-			group: qn(e, t, n),
+		children: [/* @__PURE__ */ (0, Z.jsx)(pn, {
+			group: Jn(e, t, n),
 			name: t
 		}), /* @__PURE__ */ (0, Z.jsx)("b", {
 			className: "text-body-medium",
@@ -703,32 +703,32 @@ function Jn({ sources: e, name: t, canonicalKey: n }) {
 		})]
 	});
 }
-function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l }) {
-	let d = cn("alias-suggestions", Wn), f = cn("alias-saved", Gn), [p, g] = (0, X.useState)(null), [_, v] = (0, X.useState)({}), [y, b] = (0, X.useState)({});
-	nn(() => {
+function Xn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l }) {
+	let d = ln("alias-suggestions", Gn), f = ln("alias-saved", Kn), [p, g] = (0, X.useState)(null), [_, v] = (0, X.useState)({}), [y, b] = (0, X.useState)({}), D = nn(() => {
 		v({}), b({});
-	}), (0, X.useEffect)(() => {
-		(Object.values(_).some(Boolean) || Object.values(y).some(Boolean)) && q();
+	});
+	(0, X.useEffect)(() => {
+		(Object.values(_).some(Boolean) || Object.values(y).some(Boolean)) && Ye();
 	}, [_, y]);
-	let O = yn(() => v({})), ee = yn(() => b({})), [k, A] = (0, X.useState)([]), [te, ne] = (0, X.useState)([]), [j, M] = (0, X.useState)({
+	let te = bn(() => v({})), O = bn(() => b({})), [k, ne] = (0, X.useState)([]), [re, A] = (0, X.useState)([]), [ie, M] = (0, X.useState)({
 		pageIndex: 0,
 		pageSize: 20
-	}), [re, P] = (0, X.useState)({
+	}), [N, P] = (0, X.useState)({
 		pageIndex: 0,
 		pageSize: 20
-	}), F = sn(t, {
+	}), I = cn(t, {
 		canonical: {
 			values: (e) => e.canonical,
-			option: (e) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(fn, {
-				group: qn(s, e),
+			option: (e) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(pn, {
+				group: Jn(s, e),
 				name: e,
 				small: !0
 			}) })
 		},
 		alias: {
 			values: (e) => e.alias,
-			option: (e, t) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(fn, {
-				group: qn(s, t?.canonical ?? e),
+			option: (e, t) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(pn, {
+				group: Jn(s, t?.canonical ?? e),
 				name: e,
 				small: !0
 			}) })
@@ -737,19 +737,19 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 	}, () => M((e) => ({
 		...e,
 		pageIndex: 0
-	}))), I = sn(e, {
+	}))), L = cn(e, {
 		canonical: {
 			values: (e) => e.canonical_name,
-			option: (e, t) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(fn, {
-				group: qn(s, e, t?.canonical_key),
+			option: (e, t) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(pn, {
+				group: Jn(s, e, t?.canonical_key),
 				name: e,
 				small: !0
 			}) })
 		},
 		aliases: {
 			values: (e) => e.aliases.map((e) => e.name),
-			option: (e, t) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(fn, {
-				group: qn(s, t?.canonical_name ?? e, t?.canonical_key),
+			option: (e, t) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(pn, {
+				group: Jn(s, t?.canonical_name ?? e, t?.canonical_key),
 				name: e,
 				small: !0
 			}) })
@@ -757,18 +757,18 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 	}, () => P((e) => ({
 		...e,
 		pageIndex: 0
-	}))), ae = {
-		...j,
-		pageIndex: Math.min(j.pageIndex, Math.max(0, Math.ceil(F.items.length / j.pageSize) - 1))
-	}, L = {
-		...re,
-		pageIndex: Math.min(re.pageIndex, Math.max(0, Math.ceil(I.items.length / re.pageSize) - 1))
-	}, [R, z] = (0, X.useState)(""), [B, V] = (0, X.useState)(""), [H, se] = (0, X.useState)(""), ce = tn({
+	}))), oe = {
+		...ie,
+		pageIndex: Math.min(ie.pageIndex, Math.max(0, Math.ceil(I.items.length / ie.pageSize) - 1))
+	}, R = {
+		...N,
+		pageIndex: Math.min(N.pageIndex, Math.max(0, Math.ceil(L.items.length / N.pageSize) - 1))
+	}, [z, B] = (0, X.useState)(""), [V, se] = (0, X.useState)(""), [ce, le] = (0, X.useState)(""), U = tn({
 		mutationFn: async (e) => {
 			let t = 0;
 			for (let n of e) {
 				try {
-					await De(n.canonical, n.alias);
+					await Ee(n.canonical, n.alias);
 				} catch (n) {
 					throw t && Et(), Error(Y("follow:creatorAliases.mergePartialError", {
 						error: J(n),
@@ -783,16 +783,16 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			};
 		},
 		onSuccess: () => {
-			z(""), v({}), Et();
+			B(""), v({}), Et();
 		},
-		onError: (e) => z(J(e))
-	}), le = tn({
-		mutationFn: (e) => De(e.canonical, e.alias),
+		onError: (e) => B(J(e))
+	}), ue = tn({
+		mutationFn: (e) => Ee(e.canonical, e.alias),
 		onSuccess: () => {
-			z(""), V(""), se(""), Et(), l(Y("follow:creatorAliases.saved"));
+			B(""), se(""), le(""), Et(), l(Y("follow:creatorAliases.saved"));
 		},
-		onError: (e) => z(J(e))
-	}), W = tn({
+		onError: (e) => B(J(e))
+	}), de = tn({
 		mutationFn: async (e) => {
 			let t = typeof e == "string" ? [e] : e, n = 0;
 			try {
@@ -808,13 +808,13 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			}
 		},
 		onSuccess: (e, t) => {
-			z(""), b({}), typeof t == "string" && l(Y("follow:creatorAliases.removed"));
+			B(""), b({}), typeof t == "string" && l(Y("follow:creatorAliases.removed"));
 		},
-		onError: (e) => z(J(e))
-	}), ue = {
+		onError: (e) => B(J(e))
+	}), W = {
 		receipt: l,
-		failure: (e) => z(J(e))
-	}, fe = (e, t) => ({
+		failure: (e) => B(J(e))
+	}, pe = (e, t) => ({
 		key: e ? "merge-all" : "merge",
 		reversal: "undo",
 		label: Y(e ? "follow:creatorAliases.mergeAllCount" : "follow:creatorAliases.mergeSelectedCount", { count: t }),
@@ -830,16 +830,16 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			confirmLabel: Y(e ? "follow:creatorAliases.mergeAllConfirm" : "follow:creatorAliases.mergeSelectedConfirm")
 		}),
 		run: async (e) => {
-			let { done: t } = await ce.mutateAsync([...e]);
+			let { done: t } = await U.mutateAsync([...e]);
 			return async () => {
 				for (let n of e.slice(0, t)) await Dt(n.alias);
 				await Et();
 			};
 		},
 		receipt: (e) => Y("follow:creatorAliases.merged", { count: e.length })
-	}), pe = (e, t) => {
-		e.length && Rt(fe(t, e.length), e, ue).catch(ue.failure);
-	}, me = {
+	}), me = (e, t) => {
+		e.length && Rt(pe(t, e.length), e, W).catch(W.failure);
+	}, he = {
 		key: "remove",
 		reversal: "undo",
 		label: Y("follow:creatorAliases.removeSelectedCount", { count: 0 }),
@@ -849,36 +849,36 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			items: e.map((e) => e.name),
 			confirmLabel: Y("follow:creatorAliases.removeSelectedConfirm")
 		}),
-		run: async (e) => (await W.mutateAsync(e.map((e) => e.name)), async () => {
-			for (let t of e) await De(t.canonical, t.name);
+		run: async (e) => (await de.mutateAsync(e.map((e) => e.name)), async () => {
+			for (let t of e) await Ee(t.canonical, t.name);
 			await Et();
 		}),
 		receipt: () => Y("follow:creatorAliases.removed")
-	}, he = (e) => void Ue({
+	}, ge = (e) => void He({
 		title: Y("follow:creatorAliases.removeTitle"),
-		body: zn(e),
+		body: Bn(e),
 		confirmLabel: Y("follow:creatorAliases.removeTitle"),
-		onConfirm: () => W.mutateAsync(e)
+		onConfirm: () => de.mutateAsync(e)
 	}), G = (0, X.useRef)({
 		sources: s,
 		readOnly: c,
-		merging: ce.isPending,
-		removing: W.isPending,
-		merge: pe,
-		remove: he,
+		merging: U.isPending,
+		removing: de.isPending,
+		merge: me,
+		remove: ge,
 		rename: g
 	});
 	G.current = {
 		sources: s,
 		readOnly: c,
-		merging: ce.isPending,
-		removing: W.isPending,
-		merge: pe,
-		remove: he,
+		merging: U.isPending,
+		removing: de.isPending,
+		merge: me,
+		remove: ge,
 		rename: g
 	};
-	let ge = (0, X.useMemo)(() => {
-		let e = We();
+	let xe = (0, X.useMemo)(() => {
+		let e = Ue();
 		return e.columns([
 			e.display({
 				id: "select",
@@ -898,7 +898,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			}),
 			e.accessor("canonical", {
 				header: Y("follow:creatorAliases.displayName"),
-				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(Jn, {
+				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(Yn, {
 					sources: G.current.sources,
 					name: e.getValue()
 				})
@@ -922,14 +922,14 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 					variant: "secondary",
 					size: "small",
 					disabled: G.current.readOnly,
-					...K(G.current.merging),
+					...q(G.current.merging),
 					onClick: () => G.current.merge([e.row.original], !1),
 					children: Y("follow:shared.merge")
 				})
 			})
 		]);
-	}, []), xe = (0, X.useMemo)(() => {
-		let e = We();
+	}, []), Se = (0, X.useMemo)(() => {
+		let e = Ue();
 		return e.columns([
 			e.display({
 				id: "select",
@@ -947,7 +947,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			e.accessor("canonical_name", {
 				id: "canonical",
 				header: Y("follow:creatorAliases.displayName"),
-				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(Jn, {
+				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(Yn, {
 					sources: G.current.sources,
 					name: e.getValue(),
 					canonicalKey: e.row.original.canonical_key
@@ -964,10 +964,10 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 							variant: "ghost",
 							size: "xs",
 							iconOnly: !0,
-							leadingIcon: U,
+							leadingIcon: H,
 							"aria-label": Y("follow:creatorAliases.removeAliasNamed", { name: e.name }),
 							disabled: G.current.readOnly,
-							...K(G.current.removing),
+							...q(G.current.removing),
 							onClick: () => G.current.remove(e.name)
 						})]
 					}, e.key))
@@ -986,66 +986,66 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 				})
 			})
 		]);
-	}, []), Se = on({
-		features: Bn,
-		data: F.items,
-		columns: ge,
-		getRowId: Kn,
+	}, []), K = sn({
+		features: Vn,
+		data: I.items,
+		columns: xe,
+		getRowId: qn,
 		state: {
 			rowSelection: _,
 			sorting: k,
-			pagination: ae,
+			pagination: oe,
 			columnVisibility: d.visibility
 		},
 		onColumnVisibilityChange: d.change,
 		onRowSelectionChange: (e) => {
-			O(), v(e);
+			te(), v(e);
 		},
 		onSortingChange: (e) => {
-			A(e), M((e) => ({
+			ne(e), M((e) => ({
 				...e,
 				pageIndex: 0
 			}));
 		},
 		onPaginationChange: M,
 		enableRowSelection: !0
-	}), Ce = on({
-		features: Vn,
-		data: I.items,
-		columns: xe,
+	}), we = sn({
+		features: Hn,
+		data: L.items,
+		columns: Se,
 		getRowId: (e) => e.canonical_key,
 		state: {
 			rowSelection: y,
-			sorting: te,
-			pagination: L,
+			sorting: re,
+			pagination: R,
 			columnVisibility: f.visibility
 		},
 		onColumnVisibilityChange: f.change,
 		onRowSelectionChange: (e) => {
-			ee(), b(e);
+			O(), b(e);
 		},
 		enableRowSelection: !0,
 		onSortingChange: (e) => {
-			ne(e), P((e) => ({
+			A(e), P((e) => ({
 				...e,
 				pageIndex: 0
 			}));
 		},
 		onPaginationChange: P
-	}), Te = t.filter((e) => _[Kn(e)]), Ee = e.filter((e) => y[e.canonical_key]).flatMap((e) => e.aliases.map((t) => ({
+	}), Te = t.filter((e) => _[qn(e)]), De = e.filter((e) => y[e.canonical_key]).flatMap((e) => e.aliases.map((t) => ({
 		name: t.name,
 		canonical: e.canonical_name
-	}))), Oe = an((e) => t.find((t) => Kn(t) === e), (e) => {
-		let t = Se.getRow(Kn(e));
+	}))), Oe = on((e) => t.find((t) => qn(t) === e), (e) => {
+		let t = K.getRow(qn(e));
 		return [It(t.getIsSelected(), () => t.toggleSelected()), {
 			id: "merge",
 			label: Y("follow:shared.merge"),
 			icon: Xt,
-			disabled: c || ce.isPending,
-			run: () => pe([e], !1)
+			disabled: c || U.isPending,
+			run: () => me([e], !1)
 		}];
-	}), ke = an((t) => e.find((e) => e.canonical_key === t), (e) => {
-		let t = Ce.getRow(e.canonical_key), n = e.aliases.map((t) => ({
+	}), ke = on((t) => e.find((e) => e.canonical_key === t), (e) => {
+		let t = we.getRow(e.canonical_key), n = e.aliases.map((t) => ({
 			name: t.name,
 			canonical: e.canonical_name
 		}));
@@ -1061,17 +1061,17 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			{
 				id: "remove",
 				label: Y("follow:creatorAliases.removeRowAliases", { count: n.length }),
-				icon: oe,
+				icon: ae,
 				danger: !0,
-				disabled: c || W.isPending || !n.length,
+				disabled: c || de.isPending || !n.length,
 				run: async () => {
-					await Rt(me, n, ue);
+					await Rt(he, n, W);
 				}
 			}
 		];
-	}), Ae = K(ce.isPending);
+	}), Ae = q(U.isPending);
 	return /* @__PURE__ */ (0, Z.jsxs)("div", {
-		className: Me({
+		className: je({
 			padding: "none",
 			className: "flex flex-col gap-4 px-6 py-5 max-sm:px-4"
 		}),
@@ -1082,39 +1082,39 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 			}),
 			/* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-col gap-2",
-				children: [/* @__PURE__ */ (0, Z.jsx)(N, { children: Y("follow:creatorAliases.addManually") }), /* @__PURE__ */ (0, Z.jsxs)("div", {
+				children: [/* @__PURE__ */ (0, Z.jsx)(j, { children: Y("follow:creatorAliases.addManually") }), /* @__PURE__ */ (0, Z.jsxs)("div", {
 					className: "flex flex-wrap items-end gap-2",
 					children: [
-						/* @__PURE__ */ (0, Z.jsx)(ie, {
+						/* @__PURE__ */ (0, Z.jsx)(F, {
 							"aria-label": Y("follow:creatorAliases.displayName"),
 							placeholder: Y("follow:creatorAliases.displayNamePlaceholder"),
-							value: B,
-							onChange: V,
+							value: V,
+							onChange: se,
 							isDisabled: c,
 							className: "w-56"
 						}),
-						/* @__PURE__ */ (0, Z.jsx)(ie, {
+						/* @__PURE__ */ (0, Z.jsx)(F, {
 							"aria-label": Y("follow:creatorAliases.platformAlias"),
 							placeholder: Y("follow:creatorAliases.platformAlias"),
-							value: H,
-							onChange: se,
+							value: ce,
+							onChange: le,
 							isDisabled: c,
 							className: "w-56"
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "primary",
-							disabled: c || !B.trim() || !H.trim(),
-							...K(le.isPending),
-							onClick: () => le.mutate({
-								canonical: B.trim(),
-								alias: H.trim()
+							disabled: c || !V.trim() || !ce.trim(),
+							...q(ue.isPending),
+							onClick: () => ue.mutate({
+								canonical: V.trim(),
+								alias: ce.trim()
 							}),
 							children: Y("follow:creatorAliases.saveAlias")
 						})
 					]
 				})]
 			}),
-			R ? /* @__PURE__ */ (0, Z.jsx)(D, { children: R }) : null,
+			z ? /* @__PURE__ */ (0, Z.jsx)(ee, { children: z }) : null,
 			t.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-col gap-2",
 				onKeyDown: Oe.onKeyDown,
@@ -1124,9 +1124,9 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 						"data-responsive-toolbar": "",
 						children: [/* @__PURE__ */ (0, Z.jsxs)("div", {
 							"data-toolbar-heading": "",
-							children: [/* @__PURE__ */ (0, Z.jsx)(N, { children: Y("follow:creatorAliases.pending") }), /* @__PURE__ */ (0, Z.jsx)("span", {
+							children: [/* @__PURE__ */ (0, Z.jsx)(j, { children: Y("follow:creatorAliases.pending") }), /* @__PURE__ */ (0, Z.jsx)("span", {
 								className: "text-body-2-regular text-text-secondary",
-								children: Y("follow:creatorAliases.groupCount", { count: F.items.length })
+								children: Y("follow:creatorAliases.groupCount", { count: I.items.length })
 							})]
 						}), /* @__PURE__ */ (0, Z.jsxs)("div", {
 							"data-toolbar-actions": "",
@@ -1136,8 +1136,8 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 									size: "small",
 									disabled: c,
 									...Ae,
-									onClick: () => pe(F.items, !0),
-									children: Y("follow:creatorAliases.mergeAllCount", { count: F.items.length })
+									onClick: () => me(I.items, !0),
+									children: Y("follow:creatorAliases.mergeAllCount", { count: I.items.length })
 								}),
 								/* @__PURE__ */ (0, Z.jsx)(w, {
 									label: Y("follow:creatorAliases.pendingTable"),
@@ -1157,7 +1157,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 										}
 									],
 									onChange: (e) => {
-										A(e), M((e) => ({
+										ne(e), M((e) => ({
 											...e,
 											pageIndex: 0
 										}));
@@ -1170,15 +1170,15 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 							]
 						})]
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(de, {
+					/* @__PURE__ */ (0, Z.jsx)(fe, {
 						label: Y("follow:creatorAliases.pendingBulkActions"),
 						visible: Te.length > 0,
 						count: Y("follow:creatorAliases.groupsSelected", { count: Te.length }),
 						actions: [{
-							action: fe(!1, Te.length),
+							action: pe(!1, Te.length),
 							items: Te,
-							host: ue,
-							disabled: c || ce.isPending
+							host: W,
+							disabled: c || U.isPending
 						}],
 						children: /* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "ghost",
@@ -1190,7 +1190,11 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 					/* @__PURE__ */ (0, Z.jsx)(C, {
 						follow: !0,
 						preferences: d,
-						onRowClick: (e) => Se.getRow(e)?.toggleSelected(),
+						onRowClick: (e) => K.getRow(e)?.toggleSelected(),
+						onRectangle: D ? (e, t) => K.setRowSelection({
+							...t ? _ : {},
+							...Object.fromEntries(e.map((e) => [e, !0]))
+						}) : void 0,
 						children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 							"aria-label": Y("follow:creatorAliases.pendingTable"),
 							size: "sm",
@@ -1198,15 +1202,15 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 								column: k[0].id,
 								direction: k[0].desc ? "descending" : "ascending"
 							} : void 0,
-							onSortChange: (e) => Se.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
-							children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [Se.getHeaderGroups()[0].headers.map((e) => /* @__PURE__ */ (0, Z.jsx)(r, {
+							onSortChange: (e) => K.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
+							children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [K.getHeaderGroups()[0].headers.map((e) => /* @__PURE__ */ (0, Z.jsx)(r, {
 								id: e.id,
 								isRowHeader: e.column.id === "canonical",
 								allowsSorting: e.column.getCanSort(),
 								...d.columnProps(e.id),
 								children: ({ sortDirection: t }) => /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [/* @__PURE__ */ (0, Z.jsxs)("span", {
 									className: "flex items-center gap-0.5",
-									children: [F.header(e.id, String(e.column.columnDef.header)) ?? at(e.column.columnDef.header, e.getContext()), e.column.getCanSort() ? /* @__PURE__ */ (0, Z.jsx)("span", {
+									children: [I.header(e.id, String(e.column.columnDef.header)) ?? at(e.column.columnDef.header, e.getContext()), e.column.getCanSort() ? /* @__PURE__ */ (0, Z.jsx)("span", {
 										"data-sort-indicator": !0,
 										"data-direction": t || void 0,
 										children: /* @__PURE__ */ (0, Z.jsx)(h, {})
@@ -1223,7 +1227,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 								minWidth: 0
 							})] }), /* @__PURE__ */ (0, Z.jsx)(n, {
 								renderEmptyState: () => Y("shell:dataTable.empty"),
-								children: Se.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
+								children: K.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
 									id: e.id,
 									"data-board-selected": e.getIsSelected() || void 0,
 									"data-work-context-row": e.id,
@@ -1236,8 +1240,8 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 					/* @__PURE__ */ (0, Z.jsx)(S, {
 						label: Y("follow:creatorAliases.pendingTable"),
 						unit: Y("follow:creatorAliases.groupUnit"),
-						total: F.items.length,
-						pagination: ae,
+						total: I.items.length,
+						pagination: oe,
 						onChange: M
 					})
 				]
@@ -1251,15 +1255,15 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 						"data-responsive-toolbar": "",
 						children: [/* @__PURE__ */ (0, Z.jsxs)("div", {
 							"data-toolbar-heading": "",
-							children: [/* @__PURE__ */ (0, Z.jsx)(N, { children: Y("follow:creatorAliases.savedAliases") }), /* @__PURE__ */ (0, Z.jsx)("span", {
+							children: [/* @__PURE__ */ (0, Z.jsx)(j, { children: Y("follow:creatorAliases.savedAliases") }), /* @__PURE__ */ (0, Z.jsx)("span", {
 								className: "text-body-2-regular text-text-secondary",
-								children: Y("follow:creatorAliases.groupCount", { count: I.items.length })
+								children: Y("follow:creatorAliases.groupCount", { count: L.items.length })
 							})]
 						}), /* @__PURE__ */ (0, Z.jsxs)("div", {
 							"data-toolbar-actions": "",
 							children: [/* @__PURE__ */ (0, Z.jsx)(w, {
 								label: Y("follow:creatorAliases.saved"),
-								sorting: te,
+								sorting: re,
 								options: [{
 									id: "canonical",
 									label: Y("follow:creatorAliases.displayName")
@@ -1268,7 +1272,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 									label: Y("follow:creatorAliases.platformAlias")
 								}],
 								onChange: (e) => {
-									ne(e), P((e) => ({
+									A(e), P((e) => ({
 										...e,
 										pageIndex: 0
 									}));
@@ -1279,18 +1283,18 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 							})]
 						})]
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(de, {
+					/* @__PURE__ */ (0, Z.jsx)(fe, {
 						label: Y("follow:creatorAliases.savedBulkActions"),
-						visible: Ee.length > 0,
-						count: Y("follow:creatorAliases.aliasesSelected", { count: Ee.length }),
+						visible: De.length > 0,
+						count: Y("follow:creatorAliases.aliasesSelected", { count: De.length }),
 						actions: [{
 							action: {
-								...me,
-								label: Y("follow:creatorAliases.removeSelectedCount", { count: Ee.length })
+								...he,
+								label: Y("follow:creatorAliases.removeSelectedCount", { count: De.length })
 							},
-							items: Ee,
-							host: ue,
-							disabled: c || W.isPending
+							items: De,
+							host: W,
+							disabled: c || de.isPending
 						}],
 						children: /* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "ghost",
@@ -1302,23 +1306,27 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 					e.length ? /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [/* @__PURE__ */ (0, Z.jsx)(C, {
 						follow: !0,
 						preferences: f,
-						onRowClick: (e) => Ce.getRow(e)?.toggleSelected(),
+						onRowClick: (e) => we.getRow(e)?.toggleSelected(),
+						onRectangle: D ? (e, t) => we.setRowSelection({
+							...t ? y : {},
+							...Object.fromEntries(e.map((e) => [e, !0]))
+						}) : void 0,
 						children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 							"aria-label": Y("follow:creatorAliases.saved"),
 							size: "sm",
-							sortDescriptor: te[0] ? {
-								column: te[0].id,
-								direction: te[0].desc ? "descending" : "ascending"
+							sortDescriptor: re[0] ? {
+								column: re[0].id,
+								direction: re[0].desc ? "descending" : "ascending"
 							} : void 0,
-							onSortChange: (e) => Ce.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
-							children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [Ce.getHeaderGroups()[0].headers.map((e) => /* @__PURE__ */ (0, Z.jsx)(r, {
+							onSortChange: (e) => we.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
+							children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [we.getHeaderGroups()[0].headers.map((e) => /* @__PURE__ */ (0, Z.jsx)(r, {
 								id: e.id,
 								isRowHeader: e.column.id === "canonical",
 								allowsSorting: e.column.getCanSort(),
 								...f.columnProps(e.id),
 								children: ({ sortDirection: t }) => /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [/* @__PURE__ */ (0, Z.jsxs)("span", {
 									className: "flex items-center gap-0.5",
-									children: [I.header(e.id, String(e.column.columnDef.header)) ?? at(e.column.columnDef.header, e.getContext()), e.column.getCanSort() ? /* @__PURE__ */ (0, Z.jsx)("span", {
+									children: [L.header(e.id, String(e.column.columnDef.header)) ?? at(e.column.columnDef.header, e.getContext()), e.column.getCanSort() ? /* @__PURE__ */ (0, Z.jsx)("span", {
 										"data-sort-indicator": !0,
 										"data-direction": t || void 0,
 										children: /* @__PURE__ */ (0, Z.jsx)(h, {})
@@ -1335,7 +1343,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 								minWidth: 0
 							})] }), /* @__PURE__ */ (0, Z.jsx)(n, {
 								renderEmptyState: () => Y("shell:dataTable.empty"),
-								children: Ce.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
+								children: we.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
 									id: e.id,
 									"data-board-selected": e.getIsSelected() || void 0,
 									"data-work-context-row": e.id,
@@ -1347,12 +1355,12 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 					}), /* @__PURE__ */ (0, Z.jsx)(S, {
 						label: Y("follow:creatorAliases.saved"),
 						unit: Y("follow:creatorAliases.groupUnit"),
-						total: I.items.length,
-						pagination: L,
+						total: L.items.length,
+						pagination: R,
 						onChange: P
 					})] }) : /* @__PURE__ */ (0, Z.jsx)(E, {
 						size: "compact",
-						icon: we,
+						icon: Ce,
 						title: Y("follow:creatorAliases.emptyTitle"),
 						actions: c ? void 0 : /* @__PURE__ */ (0, Z.jsx)(T, {
 							target: `input[aria-label="${Y("follow:creatorAliases.displayName")}"]`,
@@ -1362,7 +1370,7 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 					})
 				]
 			}),
-			/* @__PURE__ */ (0, Z.jsx)(Ln, {
+			/* @__PURE__ */ (0, Z.jsx)(Rn, {
 				group: p,
 				close: () => g(null),
 				receipt: l
@@ -1371,14 +1379,14 @@ function Yn({ groups: e, suggestions: t, sources: s = [], readOnly: c, toast: l 
 	});
 }
 // src/react/follow-manage/feed-sources.tsx
-var Xn = Jt({
+var Zn = Jt({
 	rowPaginationFeature: Pt,
 	rowSelectionFeature: Ft,
 	rowSortingFeature: Lt,
-	columnVisibilityFeature: Ve,
-	sortedRowModel: vn(),
-	paginatedRowModel: _n()
-}), Zn = {
+	columnVisibilityFeature: Be,
+	sortedRowModel: yn(),
+	paginatedRowModel: vn()
+}), Qn = {
 	select: Y("follow:shared.select"),
 	name: Y("follow:shared.name"),
 	kind: Y("follow:shared.type"),
@@ -1388,7 +1396,7 @@ var Xn = Jt({
 	fetched: Y("follow:feedSources.colLastFetched"),
 	fresh: Y("follow:feedSources.colLastAdded"),
 	actions: Y("follow:shared.actions")
-}, Qn = Object.entries(Zn).map(([e, t]) => ({
+}, $n = Object.entries(Qn).map(([e, t]) => ({
 	id: e,
 	label: t,
 	width: e === "select" ? 48 : e === "name" ? 300 : e === "actions" ? 208 : e === "fetched" ? 200 : e === "origin" ? 184 : 160,
@@ -1396,18 +1404,18 @@ var Xn = Jt({
 	max: e === "select" ? 48 : e === "name" ? 2e3 : 800,
 	flex: e === "name",
 	required: e === "select" || e === "name"
-})), $n = () => wt.invalidateQueries({
-	queryKey: ee,
+})), er = () => wt.invalidateQueries({
+	queryKey: te,
 	exact: !0
-}), Q = (e) => e.name || e.url, er = (e) => e.kind.startsWith("javdb") ? "javdb" : e.kind.startsWith("dmm") ? "dmm" : tr(e.url);
-function tr(e) {
+}), Q = (e) => e.name || e.url, tr = (e) => e.kind.startsWith("javdb") ? "javdb" : e.kind.startsWith("dmm") ? "dmm" : nr(e.url);
+function nr(e) {
 	try {
 		return new URL(e).hostname.replace(/^www\./, "");
 	} catch {
 		return e;
 	}
 }
-function nr({ source: e }) {
+function rr({ source: e }) {
 	return e.enabled ? e.last_error ? /* @__PURE__ */ (0, Z.jsx)(g, {
 		variant: "caption",
 		color: "rose",
@@ -1426,7 +1434,7 @@ function nr({ source: e }) {
 		children: Y("follow:shared.paused")
 	});
 }
-function rr({ source: e }) {
+function ir({ source: e }) {
 	let t = e.entity_id ? {
 		id: e.entity_id,
 		has_image: !!e.has_image,
@@ -1435,19 +1443,19 @@ function rr({ source: e }) {
 	} : null;
 	return /* @__PURE__ */ (0, Z.jsx)("span", {
 		"aria-hidden": !0,
-		className: `relative inline-grid size-8 shrink-0 place-items-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-semibold text-text-secondary ${ae}`,
-		dangerouslySetInnerHTML: { __html: je(Q(e), t, null, "performer") }
+		className: `relative inline-grid size-8 shrink-0 place-items-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-semibold text-text-secondary ${L}`,
+		dangerouslySetInnerHTML: { __html: Ae(Q(e), t, null, "performer") }
 	});
 }
-var ir = (e, t) => e.entity_id !== null && t.has(e.entity_id) && e.page_name && e.page_name !== e.name ? e.page_name : "";
-function ar(e) {
+var ar = (e, t) => e.entity_id !== null && t.has(e.entity_id) && e.page_name && e.page_name !== e.name ? e.page_name : "";
+function or(e) {
 	let t = /* @__PURE__ */ new Set(), n = /* @__PURE__ */ new Set();
 	for (let { entity_id: r } of e) r !== null && (t.has(r) ? n.add(r) : t.add(r));
 	return n;
 }
-function or(e, t) {
+function sr(e, t) {
 	let n = e.length === 1 ? e[0] : null;
-	return Ue({
+	return He({
 		title: n ? Y("follow:feedSources.removeOne") : Y("follow:feedSources.removeMany", { count: e.length }),
 		body: n ? Y("follow:feedSources.removeOneBody", { name: Q(n) }) : Y("follow:feedSources.removeManyBody"),
 		confirmLabel: Y(n ? "follow:feedSources.removeOne" : "follow:feedSources.removeSelected"),
@@ -1456,11 +1464,11 @@ function or(e, t) {
 		onConfirm: t
 	});
 }
-function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
-	let l = rn({
-		queryKey: ee,
+function cr({ readOnly: e, toast: t, onAdd: s, selection: c, selecting: l }) {
+	let d = rn({
+		queryKey: te,
 		queryFn: ({ signal: e }) => tt(e)
-	}), d = $t(), p = cn("jav-feeds", Qn), g = l.data, _ = (0, X.useMemo)(() => g?.sources ?? [], [g]), [v, b] = (0, X.useState)(/* @__PURE__ */ new Set()), x = c?.ids ?? v, T = c?.onChange ?? b, [O, k] = (0, X.useState)(1), [A, te] = (0, X.useState)(20), [ne, j] = (0, X.useState)([]), M = sn(_, {
+	}), p = $t(), g = ln("jav-feeds", $n), _ = d.data, v = (0, X.useMemo)(() => _?.sources ?? [], [_]), [b, x] = (0, X.useState)(/* @__PURE__ */ new Set()), T = c?.ids ?? b, D = c?.onChange ?? x, [O, k] = (0, X.useState)(1), [ne, re] = (0, X.useState)(20), [A, ie] = (0, X.useState)([]), j = cn(v, {
 		name: {
 			values: Q,
 			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(y, { person: {
@@ -1470,32 +1478,32 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 			} }) })
 		},
 		kind: {
-			values: (e) => Be(e, "kind_label"),
-			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(pe, { site: er(t) }) })
+			values: (e) => ze(e, "kind_label"),
+			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(pe, { site: tr(t) }) })
 		},
 		origin: {
-			values: (e) => tr(e.url),
-			option: (e, t) => ({ leading: /* @__PURE__ */ (0, Z.jsx)(pe, { site: t ? er(t) : e }) })
+			values: (e) => nr(e.url),
+			option: (e, t) => ({ leading: /* @__PURE__ */ (0, Z.jsx)(pe, { site: t ? tr(t) : e }) })
 		},
 		status: { values: (e) => e.enabled ? e.last_error ? Y("follow:feedSources.fetchFailed") : e.last_fetched_at ? Y("follow:shared.ok") : Y("follow:feedSources.notChecked") : Y("follow:shared.paused") },
 		interval: { values: (e) => Qe(e.interval_minutes) },
 		fetched: {
 			range: "timestamp",
-			value: (e) => e.last_fetched_at ? un(e.last_fetched_at).getTime() / 1e3 : null
+			value: (e) => e.last_fetched_at ? dn(e.last_fetched_at).getTime() / 1e3 : null
 		},
 		fresh: {
 			range: "count",
 			value: (e) => e.last_new_count
 		}
-	}, () => k(1)), N = xt(M.items.length, A, O);
+	}, () => k(1)), P = xt(j.items.length, ne, O);
 	(0, X.useEffect)(() => {
-		k((e) => Math.min(e, N.pages));
-	}, [N.pages]), (0, X.useEffect)(() => {
-		T((e) => {
-			let t = new Set(_.map((e) => e.id)), n = new Set([...e].filter((e) => t.has(e)));
+		k((e) => Math.min(e, P.pages));
+	}, [P.pages]), (0, X.useEffect)(() => {
+		D((e) => {
+			let t = new Set(v.map((e) => e.id)), n = new Set([...e].filter((e) => t.has(e)));
 			return n.size === e.size ? e : n;
 		});
-	}, [_, T]);
+	}, [v, D]);
 	let F = tn({
 		mutationFn: async (e) => {
 			let t = await vt(e.ids, 4, async (t) => {
@@ -1508,19 +1516,19 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 		},
 		onSuccess: (e) => {
 			let t = e.results.filter((e) => !e.ok);
-			if (T(/* @__PURE__ */ new Set()), $n(), t.length) {
+			if (D(/* @__PURE__ */ new Set()), er(), t.length) {
 				let e = t[0];
-				d.setError(Y("follow:feedSources.writeFailed", {
+				p.setError(Y("follow:feedSources.writeFailed", {
 					count: t.length,
 					error: e.ok ? "" : J(e.error)
 				}));
 			}
 		},
-		onError: (e) => d.setError(J(e))
-	}), ie = {
+		onError: (e) => p.setError(J(e))
+	}), I = {
 		receipt: t,
-		failure: (e) => d.setError(J(e))
-	}, I = (e) => ({
+		failure: (e) => p.setError(J(e))
+	}, L = (e) => ({
 		key: e ? "enable" : "pause",
 		label: Y(e ? "follow:shared.enable" : "follow:shared.pause"),
 		reversal: "undo",
@@ -1534,11 +1542,11 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 				action: e ? "enabled" : "paused"
 			}), i = n.filter((e, t) => r[t]?.ok);
 			return async () => {
-				await vt(i.map((e) => e.id), 4, (t) => Vt(t, !e)), await $n();
+				await vt(i.map((e) => e.id), 4, (t) => Vt(t, !e)), await er();
 			};
 		},
 		receipt: (t) => Y(e ? "follow:feedSources.enabledMany" : "follow:feedSources.pausedMany", { count: t.length })
-	}), ae = {
+	}), oe = {
 		key: "remove",
 		label: Y("follow:shared.remove"),
 		reversal: "irreversible",
@@ -1557,26 +1565,26 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 			});
 		},
 		receipt: (e) => Y("follow:feedSources.removedMany", { count: e.length })
-	}, L = (0, X.useMemo)(() => ar(_), [_]), R = (0, X.useRef)({
+	}, R = (0, X.useMemo)(() => or(v), [v]), z = (0, X.useRef)({
 		readOnly: e,
-		shared: L,
+		shared: R,
 		busy: null,
 		toggle: () => {},
 		fetch: () => {},
 		remove: () => {}
 	});
-	R.current = {
+	z.current = {
 		readOnly: e,
-		shared: L,
-		busy: d.busy,
-		toggle: (e, t) => void d.run(`enabled-${e.id}`, (n) => Vt(e.id, t, n), () => void $n()),
-		fetch: (e) => void d.run(`check-${e.id}`, (t) => Fe(t, [e.id]), () => void $n()),
-		remove: (e) => void or([e], async () => {
-			await Ot(e.id), t(Y("follow:feedSources.removedOne", { name: Q(e) })), $n();
+		shared: R,
+		busy: p.busy,
+		toggle: (e, t) => void p.run(`enabled-${e.id}`, (n) => Vt(e.id, t, n), () => void er()),
+		fetch: (e) => void p.run(`check-${e.id}`, (t) => Pe(t, [e.id]), () => void er()),
+		remove: (e) => void sr([e], async () => {
+			await Ot(e.id), t(Y("follow:feedSources.removedOne", { name: Q(e) })), er();
 		})
 	};
-	let z = (0, X.useMemo)(() => {
-		let e = We(), t = (e) => () => Zn[e] || e;
+	let B = (0, X.useMemo)(() => {
+		let e = Ue(), t = (e) => () => Qn[e] || e;
 		return e.columns([
 			e.display({
 				id: "select",
@@ -1596,11 +1604,11 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 				id: "name",
 				header: t("name"),
 				cell: (e) => {
-					let t = ir(e.row.original, R.current.shared);
+					let t = ar(e.row.original, z.current.shared);
 					return /* @__PURE__ */ (0, Z.jsxs)("span", {
 						className: "flex items-center gap-2 whitespace-nowrap text-body-medium text-text-primary",
 						children: [
-							/* @__PURE__ */ (0, Z.jsx)(rr, { source: e.row.original }),
+							/* @__PURE__ */ (0, Z.jsx)(ir, { source: e.row.original }),
 							e.getValue(),
 							t ? /* @__PURE__ */ (0, Z.jsx)("span", {
 								className: "text-body-2-regular text-text-secondary",
@@ -1611,7 +1619,7 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 					});
 				}
 			}),
-			e.accessor((e) => Be(e, "kind_label"), {
+			e.accessor((e) => ze(e, "kind_label"), {
 				id: "kind",
 				header: t("kind"),
 				cell: (e) => /* @__PURE__ */ (0, Z.jsx)("span", {
@@ -1629,9 +1637,9 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 					title: Y("follow:followDetail.viewOnSite"),
 					className: "max-w-full text-text-primary underline-offset-2 hover:underline",
 					children: [/* @__PURE__ */ (0, Z.jsx)(me, {
-						site: er(e.row.original),
-						label: tr(e.getValue())
-					}), /* @__PURE__ */ (0, Z.jsx)(Ce, {
+						site: tr(e.row.original),
+						label: nr(e.getValue())
+					}), /* @__PURE__ */ (0, Z.jsx)(K, {
 						"aria-hidden": !0,
 						className: "size-(--icon-inline) shrink-0"
 					})]
@@ -1640,7 +1648,7 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 			e.accessor((e) => e.last_error ? Y("follow:feedSources.fetchFailed") : e.enabled ? Y("follow:shared.enabled") : Y("follow:shared.paused"), {
 				id: "status",
 				header: t("status"),
-				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(nr, { source: e.row.original })
+				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(rr, { source: e.row.original })
 			}),
 			e.accessor((e) => e.interval_minutes, {
 				id: "interval",
@@ -1672,109 +1680,109 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 				cell: (e) => /* @__PURE__ */ (0, Z.jsxs)("span", {
 					className: "flex items-center gap-1",
 					children: [
-						/* @__PURE__ */ (0, Z.jsx)(ge, {
+						/* @__PURE__ */ (0, Z.jsx)(G, {
 							"aria-label": Y("follow:shared.enableNamed", { name: Q(e.row.original) }),
 							isSelected: e.row.original.enabled,
-							isDisabled: R.current.readOnly,
-							onChange: (t) => R.current.toggle(e.row.original, t)
+							isDisabled: z.current.readOnly,
+							onChange: (t) => z.current.toggle(e.row.original, t)
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							size: "small",
 							iconOnly: !0,
-							leadingIcon: qe,
+							leadingIcon: Ke,
 							"aria-label": Y("follow:feedSources.fetchNamed", { name: Q(e.row.original) }),
-							disabled: R.current.readOnly,
-							...K(R.current.busy === `check-${e.row.original.id}`),
-							onClick: () => R.current.fetch(e.row.original)
+							disabled: z.current.readOnly,
+							...q(z.current.busy === `check-${e.row.original.id}`),
+							onClick: () => z.current.fetch(e.row.original)
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							size: "small",
 							iconOnly: !0,
-							leadingIcon: oe,
+							leadingIcon: ae,
 							"aria-label": Y("follow:shared.removeNamed", { name: Q(e.row.original) }),
-							disabled: R.current.readOnly,
-							onClick: () => R.current.remove(e.row.original)
+							disabled: z.current.readOnly,
+							onClick: () => z.current.remove(e.row.original)
 						})
 					]
 				})
 			})
 		]);
-	}, []), B = (0, X.useMemo)(() => Object.fromEntries([...x].map((e) => [String(e), !0])), [x]), U = on({
-		features: Xn,
-		data: M.items,
-		columns: z,
+	}, []), H = (0, X.useMemo)(() => Object.fromEntries([...T].map((e) => [String(e), !0])), [T]), ce = sn({
+		features: Zn,
+		data: j.items,
+		columns: B,
 		getRowId: (e) => String(e.id),
 		state: {
-			rowSelection: B,
-			sorting: ne,
+			rowSelection: H,
+			sorting: A,
 			pagination: {
-				pageIndex: N.page - 1,
-				pageSize: A
+				pageIndex: P.page - 1,
+				pageSize: ne
 			},
-			columnVisibility: p.visibility
+			columnVisibility: g.visibility
 		},
-		onColumnVisibilityChange: p.change,
+		onColumnVisibilityChange: g.change,
 		onSortingChange: (e) => {
-			j(e), k(1);
+			ie(e), k(1);
 		},
 		enableRowSelection: !0,
 		onRowSelectionChange: (e) => {
 			c?.onActivate();
-			let t = typeof e == "function" ? e(B) : e;
-			T(new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e))));
+			let t = typeof e == "function" ? e(H) : e;
+			D(new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e))));
 		}
-	}), se = () => void d.run("check", (e) => Fe(e), () => void $n()), ce = (e) => {
-		c?.onActivate(), T((t) => {
+	}), le = () => void p.run("check", (e) => Pe(e), () => void er()), U = (e) => {
+		c?.onActivate(), D((t) => {
 			let n = new Set(t);
 			return n.has(e) ? n.delete(e) : n.add(e), n;
 		});
-	}, le = _.filter((e) => x.has(e.id)), W = _.filter((e) => e.last_error), ue = an((e) => _.find((t) => String(t.id) === e), (t) => {
+	}, ue = v.filter((e) => T.has(e.id)), de = v.filter((e) => e.last_error), W = on((e) => v.find((t) => String(t.id) === e), (t) => {
 		let n = [{
 			id: "select",
-			label: Y(x.has(t.id) ? "follow:shared.clearSelection" : "follow:shared.selectNamed", { name: Q(t) }),
-			icon: P,
-			run: () => ce(t.id)
+			label: Y(T.has(t.id) ? "follow:shared.clearSelection" : "follow:shared.selectNamed", { name: Q(t) }),
+			icon: N,
+			run: () => U(t.id)
 		}];
 		return t.url && n.unshift({
 			id: "open",
 			label: Y("follow:sourceView.openSource"),
-			icon: Ce,
+			icon: K,
 			run: () => {
 				window.open(t.url, "_blank", "noopener,noreferrer");
 			}
 		}), e || n.push({
 			id: "fetch",
 			label: Y("follow:feedSources.fetchNamed", { name: Q(t) }),
-			icon: qe,
-			disabled: !!d.busy,
-			run: () => R.current.fetch(t)
+			icon: Ke,
+			disabled: !!p.busy,
+			run: () => z.current.fetch(t)
 		}, {
 			id: "enabled",
 			label: Y(t.enabled ? "follow:shared.pause" : "follow:shared.enable"),
-			icon: t.enabled ? H : re,
-			disabled: !!d.busy,
-			run: () => R.current.toggle(t, !t.enabled)
+			icon: t.enabled ? se : M,
+			disabled: !!p.busy,
+			run: () => z.current.toggle(t, !t.enabled)
 		}, {
 			id: "remove",
 			label: Y("follow:shared.removeNamed", { name: Q(t) }),
-			icon: oe,
+			icon: ae,
 			danger: !0,
-			run: () => R.current.remove(t)
+			run: () => z.current.remove(t)
 		}), n;
 	});
-	return g ? /* @__PURE__ */ (0, Z.jsx)("div", {
+	return _ ? /* @__PURE__ */ (0, Z.jsx)("div", {
 		className: "flex flex-col gap-3",
 		children: /* @__PURE__ */ (0, Z.jsxs)("section", {
 			"aria-label": Y("follow:feedSources.listLabel"),
-			className: Me({
+			className: je({
 				padding: "none",
 				className: "flex flex-col gap-4 px-6 py-5 max-sm:px-4"
 			}),
-			onKeyDown: ue.onKeyDown,
+			onKeyDown: W.onKeyDown,
 			children: [
-				ue.menu,
+				W.menu,
 				/* @__PURE__ */ (0, Z.jsxs)("div", {
 					"data-responsive-toolbar": "",
 					children: [/* @__PURE__ */ (0, Z.jsxs)("div", {
@@ -1785,28 +1793,28 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 						}), /* @__PURE__ */ (0, Z.jsx)("span", {
 							className: "text-body-2-regular text-text-secondary",
 							children: Y("follow:feedSources.summary", {
-								count: _.length,
-								unread: Number(g.unread) || 0
+								count: v.length,
+								unread: Number(_.unread) || 0
 							})
 						})]
 					}), /* @__PURE__ */ (0, Z.jsxs)("div", {
 						"data-toolbar-actions": "",
 						children: [
 							/* @__PURE__ */ (0, Z.jsx)(u, {
-								onClick: se,
+								onClick: le,
 								disabled: e,
-								...K(d.busy === "check"),
+								...q(p.busy === "check"),
 								children: Y("follow:feedSources.fetchNow")
 							}),
 							/* @__PURE__ */ (0, Z.jsx)(ve, {
-								preferences: p,
+								preferences: g,
 								label: Y("follow:feedSources.title")
 							}),
 							/* @__PURE__ */ (0, Z.jsx)(w, {
 								label: Y("follow:feedSources.title"),
-								sorting: ne,
+								sorting: A,
 								onChange: (e) => {
-									j(e), k(1);
+									ie(e), k(1);
 								},
 								options: [
 									"name",
@@ -1818,43 +1826,43 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 									"fresh"
 								].map((e) => ({
 									id: e,
-									label: Zn[e]
+									label: Qn[e]
 								}))
 							})
 						]
 					})]
 				}),
-				W.length || d.error ? /* @__PURE__ */ (0, Z.jsxs)("div", {
+				de.length || p.error ? /* @__PURE__ */ (0, Z.jsxs)("div", {
 					className: "flex flex-col gap-3",
-					children: [W.length ? /* @__PURE__ */ (0, Z.jsx)(V, {
+					children: [de.length ? /* @__PURE__ */ (0, Z.jsx)(V, {
 						tone: "error",
-						title: Y("follow:feedSources.failedTitle", { count: W.length }),
+						title: Y("follow:feedSources.failedTitle", { count: de.length }),
 						extra: /* @__PURE__ */ (0, Z.jsx)("ul", {
 							className: "flex flex-col gap-0.5 text-body-2-regular",
-							children: W.map((e) => /* @__PURE__ */ (0, Z.jsx)("li", {
+							children: de.map((e) => /* @__PURE__ */ (0, Z.jsx)("li", {
 								className: "min-w-0 truncate",
-								title: Be(e, "last_error"),
+								title: ze(e, "last_error"),
 								children: Y("follow:shared.labeled", {
 									label: Q(e),
-									value: Xe(Be(e, "last_error")) || Y("follow:shared.noReason")
+									value: Xe(ze(e, "last_error")) || Y("follow:shared.noReason")
 								})
 							}, e.id))
 						}),
 						children: Y("follow:feedSources.failedBody")
-					}) : null, d.error ? /* @__PURE__ */ (0, Z.jsx)(D, { children: d.error }) : null]
+					}) : null, p.error ? /* @__PURE__ */ (0, Z.jsx)(ee, { children: p.error }) : null]
 				}) : null,
-				/* @__PURE__ */ (0, Z.jsx)(de, {
-					visible: le.length > 0,
+				/* @__PURE__ */ (0, Z.jsx)(fe, {
+					visible: ue.length > 0,
 					label: Y("follow:feedSources.bulkActions"),
-					count: Y("follow:feedSources.selectedCount", { count: le.length }),
+					count: Y("follow:feedSources.selectedCount", { count: ue.length }),
 					actions: [
-						I(!0),
-						I(!1),
-						ae
+						L(!0),
+						L(!1),
+						oe
 					].map((t) => ({
 						action: t,
-						items: le,
-						host: ie,
+						items: ue,
+						host: I,
 						disabled: e || F.isPending
 					})),
 					children: /* @__PURE__ */ (0, Z.jsx)(u, {
@@ -1864,34 +1872,38 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 						children: Y("follow:shared.clearSelection")
 					})
 				}),
-				_.length ? /* @__PURE__ */ (0, Z.jsx)(C, {
+				v.length ? /* @__PURE__ */ (0, Z.jsx)(C, {
 					follow: !0,
-					preferences: p,
-					onRowClick: (e) => ce(Number(e)),
+					preferences: g,
+					onRowClick: (e) => U(Number(e)),
+					onRectangle: l ? (e, t) => ce.setRowSelection({
+						...t ? H : {},
+						...Object.fromEntries(e.map((e) => [e, !0]))
+					}) : void 0,
 					children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 						"aria-label": Y("follow:feedSources.title"),
 						size: "sm",
-						sortDescriptor: ne[0] ? {
-							column: ne[0].id,
-							direction: ne[0].desc ? "descending" : "ascending"
+						sortDescriptor: A[0] ? {
+							column: A[0].id,
+							direction: A[0].desc ? "descending" : "ascending"
 						} : void 0,
-						onSortChange: (e) => U.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
-						children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [U.getHeaderGroups()[0].headers.map((e) => {
+						onSortChange: (e) => ce.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
+						children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [ce.getHeaderGroups()[0].headers.map((e) => {
 							let t = at(e.column.columnDef.header, e.getContext());
 							return /* @__PURE__ */ (0, Z.jsx)(r, {
 								id: e.id,
 								isRowHeader: e.column.id === "name",
 								allowsSorting: e.column.getCanSort(),
-								...p.columnProps(e.id),
+								...g.columnProps(e.id),
 								children: ({ sortDirection: n }) => /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [/* @__PURE__ */ (0, Z.jsxs)("span", {
 									className: "flex items-center gap-0.5",
-									children: [M.header(e.id, Zn[e.id] || e.id) ?? t, e.column.getCanSort() ? /* @__PURE__ */ (0, Z.jsx)("span", {
+									children: [j.header(e.id, Qn[e.id] || e.id) ?? t, e.column.getCanSort() ? /* @__PURE__ */ (0, Z.jsx)("span", {
 										"data-sort-indicator": !0,
 										"data-direction": n || void 0,
 										children: /* @__PURE__ */ (0, Z.jsx)(h, {})
 									}) : null]
 								}), /* @__PURE__ */ (0, Z.jsx)(ye, {
-									preferences: p,
+									preferences: g,
 									id: e.id
 								})] })
 							}, e.id);
@@ -1899,15 +1911,15 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 							id: "remaining-space",
 							"aria-label": Y("follow:shared.rowSpacer"),
 							"data-table-space": "",
-							width: p.spaceWidth,
+							width: g.spaceWidth,
 							minWidth: 0
 						})] }), /* @__PURE__ */ (0, Z.jsx)(n, {
 							renderEmptyState: () => Y("shell:dataTable.empty"),
-							children: U.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
+							children: ce.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
 								id: e.id,
 								"data-follow-selected": e.getIsSelected() || void 0,
 								"data-work-context-row": e.id,
-								onContextMenu: (t) => ue.onContextMenu?.(t, e.original, e.id),
+								onContextMenu: (t) => W.onContextMenu?.(t, e.original, e.id),
 								children: [e.getVisibleCells().map((e) => /* @__PURE__ */ (0, Z.jsx)(a, { children: at(e.column.columnDef.cell, e.getContext()) }, e.id)), /* @__PURE__ */ (0, Z.jsx)(a, { "data-table-space": "" })]
 							}, e.id))
 						})]
@@ -1923,16 +1935,16 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 					}),
 					children: Y("follow:feedSources.emptyHint")
 				}),
-				_.length ? /* @__PURE__ */ (0, Z.jsx)(S, {
+				v.length ? /* @__PURE__ */ (0, Z.jsx)(S, {
 					label: Y("follow:feedSources.footerLabel"),
-					total: N.total,
+					total: P.total,
 					unit: Y("follow:feedSources.unit"),
 					pagination: {
-						pageIndex: N.page - 1,
-						pageSize: A
+						pageIndex: P.page - 1,
+						pageSize: ne
 					},
 					onChange: (e) => {
-						te(e.pageSize), k(e.pageIndex + 1);
+						re(e.pageSize), k(e.pageIndex + 1);
 					}
 				}) : null,
 				/* @__PURE__ */ (0, Z.jsx)("footer", {
@@ -1941,40 +1953,40 @@ function sr({ readOnly: e, toast: t, onAdd: s, selection: c }) {
 						role: "status",
 						className: "mr-auto text-body-2-regular text-text-secondary",
 						children: Y("follow:feedSources.footerSummary", {
-							unread: Number(g.unread) || 0,
-							enabled: _.filter((e) => e.enabled).length,
-							total: _.length
+							unread: Number(_.unread) || 0,
+							enabled: v.filter((e) => e.enabled).length,
+							total: v.length
 						})
 					})
 				})
 			]
 		})
-	}) : l.error ? /* @__PURE__ */ (0, Z.jsx)(V, {
+	}) : d.error ? /* @__PURE__ */ (0, Z.jsx)(V, {
 		tone: "error",
 		title: Y("follow:feedSources.loadFailed"),
-		children: J(l.error)
+		children: J(d.error)
 	}) : /* @__PURE__ */ (0, Z.jsx)("div", { dangerouslySetInnerHTML: { __html: Ut(Y("follow:feedSources.loading"), { fill: !1 }) } });
 }
 // src/react/follow-manage/source-list.tsx
-var cr = Jt({
+var lr = Jt({
 	rowPaginationFeature: Pt,
 	rowSelectionFeature: Ft,
 	rowSortingFeature: Lt,
-	columnVisibilityFeature: Ve,
-	paginatedRowModel: _n()
-}), lr = Object.fromEntries(Object.entries(p).map(([e, t]) => [t, e])), ur = 740;
-function dr() {
+	columnVisibilityFeature: Be,
+	paginatedRowModel: vn()
+}), ur = Object.fromEntries(Object.entries(p).map(([e, t]) => [t, e])), dr = 740;
+function fr() {
 	let [e, t] = (0, X.useState)(!1), n = (0, X.useRef)(null), r = (0, X.useCallback)((e) => {
 		if (n.current?.disconnect(), !e) {
 			n.current = null;
 			return;
 		}
-		let r = new ResizeObserver(() => t(e.clientWidth < ur));
-		r.observe(e), n.current = r, t(e.clientWidth < ur);
+		let r = new ResizeObserver(() => t(e.clientWidth < dr));
+		r.observe(e), n.current = r, t(e.clientWidth < dr);
 	}, []);
 	return (0, X.useEffect)(() => () => n.current?.disconnect(), []), [r, e];
 }
-var fr = {
+var pr = {
 	select: Y("follow:shared.select"),
 	author: Y("follow:shared.creator"),
 	source: Y("follow:followFeed.filterKindSource"),
@@ -1982,7 +1994,7 @@ var fr = {
 	status: Y("follow:shared.status"),
 	checked: Y("follow:sourceList.colLastChecked"),
 	actions: Y("follow:shared.actions")
-}, pr = Object.entries(fr).map(([e, t]) => ({
+}, mr = Object.entries(pr).map(([e, t]) => ({
 	id: e,
 	label: t,
 	width: e === "select" ? 48 : e === "source" ? 320 : e === "author" ? 240 : e === "actions" ? 208 : 184,
@@ -1990,12 +2002,12 @@ var fr = {
 	max: e === "select" ? 48 : e === "source" ? 2e3 : 800,
 	flex: e === "source",
 	required: e === "select" || e === "source"
-})), mr = "timestamp", hr = Object.entries(fr).map(([e, t]) => ({
+})), hr = "timestamp", gr = Object.entries(pr).map(([e, t]) => ({
 	id: e,
 	label: t,
-	range: e === "checked" ? mr : void 0
+	range: e === "checked" ? hr : void 0
 }));
-function gr(e, t, n, r) {
+function _r(e, t, n, r) {
 	let i = [{
 		id: "select",
 		label: Y(t ? "follow:shared.clearSelection" : "follow:shared.selectNamed", { name: e.label }),
@@ -2005,44 +2017,45 @@ function gr(e, t, n, r) {
 	return e.url && i.unshift({
 		id: "open",
 		label: Y("follow:sourceView.openSource"),
-		icon: Ce,
+		icon: K,
 		run: () => {
 			window.open(e.url, "_blank", "noopener,noreferrer");
 		}
 	}), r.readOnly || i.push({
 		id: "check",
 		label: Y("follow:sourceList.checkNamed", { name: e.label }),
-		icon: qe,
+		icon: Ke,
 		disabled: !e.enabled || r.busy,
 		run: () => r.check([e.id])
 	}, {
 		id: "enabled",
 		label: Y(e.enabled ? "follow:shared.pause" : "follow:shared.enable"),
-		icon: e.enabled ? H : re,
+		icon: e.enabled ? se : M,
 		run: () => r.toggle(e, !e.enabled)
 	}, {
 		id: "remove",
 		label: Y("follow:sourceList.unfollow"),
-		icon: oe,
+		icon: ae,
 		danger: !0,
 		run: () => r.remove(e)
 	}), i;
 }
-function _r({ source: e, selected: t, onToggle: n, handlers: r }) {
-	let i = ln(), a = () => ({
+function vr({ source: e, selected: t, onToggle: n, handlers: r }) {
+	let i = un(), a = () => ({
 		key: e.id,
-		operations: gr(e, t, n, r)
+		operations: _r(e, t, n, r)
 	});
 	return /* @__PURE__ */ (0, Z.jsxs)("div", {
 		"data-selected": t || void 0,
 		"data-follow-source-row": "",
+		"data-rectangle-key": e.id,
 		className: "flex min-h-16 flex-wrap items-center gap-3 px-2 py-3 last:rounded-b-lg max-sm:gap-x-2",
 		onContextMenu: (e) => i.onContextMenu(e, a()),
 		onKeyDown: (e) => {
 			(e.key === "ContextMenu" || e.shiftKey && e.key === "F10") && i.onKeyDown(e, a());
 		},
 		onClick: (e) => {
-			ze(e, e.currentTarget) && n(!t);
+			Re(e, e.currentTarget) && n(!t);
 		},
 		children: [
 			i.menu,
@@ -2056,11 +2069,11 @@ function _r({ source: e, selected: t, onToggle: n, handlers: r }) {
 				children: [/* @__PURE__ */ (0, Z.jsx)("span", {
 					"data-follow-source-site": "",
 					className: "flex shrink-0 items-center text-body-medium",
-					children: /* @__PURE__ */ (0, Z.jsx)(mn, { provider: e.provider })
-				}), /* @__PURE__ */ (0, Z.jsx)(hn, { source: e })]
+					children: /* @__PURE__ */ (0, Z.jsx)(hn, { provider: e.provider })
+				}), /* @__PURE__ */ (0, Z.jsx)(gn, { source: e })]
 			}),
 			/* @__PURE__ */ (0, Z.jsx)(s, { children: e.provider_label }),
-			/* @__PURE__ */ (0, Z.jsx)(gn, { source: e }),
+			/* @__PURE__ */ (0, Z.jsx)(_n, { source: e }),
 			e.last_error ? /* @__PURE__ */ (0, Z.jsxs)("span", {
 				"data-follow-source-error": "",
 				className: "flex min-w-0 basis-full gap-3 max-sm:gap-x-2 sm:order-last",
@@ -2074,7 +2087,7 @@ function _r({ source: e, selected: t, onToggle: n, handlers: r }) {
 						className: "w-(--icon-inline) shrink-0 text-body-medium"
 					}), /* @__PURE__ */ (0, Z.jsx)("span", {
 						className: "min-w-0 grow",
-						children: /* @__PURE__ */ (0, Z.jsx)(pn, { text: Be(e, "last_error") })
+						children: /* @__PURE__ */ (0, Z.jsx)(mn, { text: ze(e, "last_error") })
 					})]
 				})]
 			}) : null,
@@ -2084,9 +2097,9 @@ function _r({ source: e, selected: t, onToggle: n, handlers: r }) {
 				children: [
 					/* @__PURE__ */ (0, Z.jsx)("span", {
 						className: "shrink-0 text-body-2-regular whitespace-nowrap text-text-secondary max-sm:mr-auto max-sm:text-caption-1-regular",
-						children: Re(e)
+						children: Le(e)
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(ge, {
+					/* @__PURE__ */ (0, Z.jsx)(G, {
 						"aria-label": Y("follow:shared.enableNamed", { name: e.label }),
 						isSelected: e.enabled,
 						isDisabled: r.readOnly,
@@ -2098,16 +2111,16 @@ function _r({ source: e, selected: t, onToggle: n, handlers: r }) {
 							variant: "secondary",
 							size: "small",
 							iconOnly: !0,
-							leadingIcon: qe,
+							leadingIcon: Ke,
 							"aria-label": Y("follow:sourceList.checkNamed", { name: e.label }),
 							disabled: !e.enabled || r.readOnly,
-							...K(r.busy),
+							...q(r.busy),
 							onClick: () => r.check([e.id])
 						}), /* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							size: "small",
 							iconOnly: !0,
-							leadingIcon: oe,
+							leadingIcon: ae,
 							"aria-label": Y("follow:shared.removeNamed", { name: e.label }),
 							disabled: r.readOnly,
 							onClick: () => r.remove(e)
@@ -2118,11 +2131,11 @@ function _r({ source: e, selected: t, onToggle: n, handlers: r }) {
 		]
 	});
 }
-function vr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, onToggleGroup: o, onToggle: c }) {
+function yr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, onToggleGroup: o, onToggle: c }) {
 	let l = e.map((e) => e.id), d = e.filter((e) => e.enabled).map((e) => e.id), f = e.filter(ut).length, p = pt([...new Set(e.map((e) => e.provider_label || e.provider))]), m = `follow-author-${e[0].id}`, h = zt(r, l);
 	return /* @__PURE__ */ (0, Z.jsxs)("section", {
 		"aria-label": Y("follow:sourceList.groupLabel", { name: t }),
-		className: Me({
+		className: je({
 			variant: "raised",
 			padding: "none",
 			className: "flex flex-col overflow-hidden p-2"
@@ -2132,7 +2145,7 @@ function vr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 			"data-open": n || void 0,
 			className: "flex flex-wrap items-center gap-3 px-2 py-2.5",
 			children: [
-				/* @__PURE__ */ (0, Z.jsx)(fn, {
+				/* @__PURE__ */ (0, Z.jsx)(pn, {
 					group: e,
 					name: t
 				}),
@@ -2146,7 +2159,7 @@ function vr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 						className: "flex min-w-0 flex-wrap items-center gap-1 text-body-2-regular",
 						title: p,
 						children: [
-							e.map((e) => /* @__PURE__ */ (0, Z.jsx)(mn, { provider: e.provider }, e.id)),
+							e.map((e) => /* @__PURE__ */ (0, Z.jsx)(hn, { provider: e.provider }, e.id)),
 							/* @__PURE__ */ (0, Z.jsx)(s, { children: Y("follow:sourceList.providers", { providers: p }) }),
 							f ? /* @__PURE__ */ (0, Z.jsx)("span", {
 								className: "ml-1 shrink-0 text-text-error-primary",
@@ -2162,10 +2175,10 @@ function vr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 						variant: "secondary",
 						size: "small",
 						iconOnly: !0,
-						leadingIcon: qe,
+						leadingIcon: Ke,
 						"aria-label": Y("follow:sourceList.checkGroup", { name: t }),
 						disabled: !d.length || i.readOnly,
-						...K(i.busy),
+						...q(i.busy),
 						onClick: () => i.check(d)
 					}), /* @__PURE__ */ (0, Z.jsxs)("span", {
 						className: "flex flex-none items-center gap-2",
@@ -2194,7 +2207,7 @@ function vr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 			id: m,
 			open: n,
 			"data-source-divider": !0,
-			children: e.map((e) => /* @__PURE__ */ (0, Z.jsx)(_r, {
+			children: e.map((e) => /* @__PURE__ */ (0, Z.jsx)(vr, {
 				source: e,
 				handlers: i,
 				selected: r.has(e.id),
@@ -2203,21 +2216,21 @@ function vr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 		})]
 	});
 }
-function yr(e) {
-	let { data: t, sort: s, dir: c, page: l, layout: d, pageSize: g, selected: v, readOnly: y, onSort: x, onPage: w, onLayout: T, onPageSize: D, onSelected: O, toast: ee, openFollow: te, onAdd: ne } = e, j = t.sources, M = (0, X.useMemo)(() => t.author_aliases || [], [t.author_aliases]), N = t.counts || {}, [re, P] = (0, X.useState)(/* @__PURE__ */ new Set()), [F, ie] = dr(), [ae, L] = (0, X.useState)(""), R = (0, X.useMemo)(() => ke(j, s, c, M), [
+function br(e) {
+	let { data: t, sort: s, dir: c, page: l, layout: d, pageSize: g, selected: v, readOnly: y, onSort: x, onPage: w, onLayout: T, onPageSize: ee, onSelected: D, toast: te, openFollow: ne, onAdd: re } = e, A = e.selecting ? (e, t) => D(/* @__PURE__ */ new Set([...t ? v : [], ...e.map(Number)])) : void 0, ie = an(A), j = t.sources, M = (0, X.useMemo)(() => t.author_aliases || [], [t.author_aliases]), N = t.counts || {}, [P, F] = (0, X.useState)(/* @__PURE__ */ new Set()), [L, oe] = fr(), [R, z] = (0, X.useState)(""), B = (0, X.useMemo)(() => Oe(j, s, c, M), [
 		j,
 		s,
 		c,
 		M
-	]), z = (0, X.useMemo)(() => Yt(R, s, c, M), [
-		R,
+	]), se = (0, X.useMemo)(() => Yt(B, s, c, M), [
+		B,
 		s,
 		c,
 		M
-	]), B = sn(z, {
+	]), H = cn(se, {
 		author: {
 			values: (e) => e.author,
-			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(fn, {
+			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(pn, {
 				group: t.group,
 				name: e,
 				small: !0
@@ -2225,62 +2238,62 @@ function yr(e) {
 		},
 		source: {
 			values: (e) => e.source.label,
-			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(mn, { provider: t.source.provider }) })
+			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(hn, { provider: t.source.provider }) })
 		},
 		provider: {
 			values: (e) => e.source.provider_label,
-			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(mn, { provider: t.source.provider }) })
+			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(hn, { provider: t.source.provider }) })
 		},
 		status: { values: (e) => qt(e.source) },
 		checked: {
-			range: mr,
-			value: (e) => e.source.last_checked_at ? un(e.source.last_checked_at).getTime() / 1e3 : null
+			range: hr,
+			value: (e) => e.source.last_checked_at ? dn(e.source.last_checked_at).getTime() / 1e3 : null
 		}
-	}, () => w(1)), H = (0, X.useMemo)(() => {
-		let e = new Set(B.items.map((e) => e.source.id));
-		return R.flatMap((t) => {
+	}, () => w(1)), U = (0, X.useMemo)(() => {
+		let e = new Set(H.items.map((e) => e.source.id));
+		return B.flatMap((t) => {
 			let n = t.filter((t) => e.has(t.id));
 			return n.length ? [{
 				key: String(t[0].author_key || t[0].id),
-				name: Ae(t, M),
+				name: ke(t, M),
 				sources: n
 			}] : [];
 		});
 	}, [
 		M,
-		B.items,
-		R
-	]), { job: U, running: le, outcome: fe, start: pe } = en({
-		queryKey: k,
-		taskKey: A,
+		H.items,
+		B
+	]), { job: W, running: pe, outcome: me, start: ge } = en({
+		queryKey: O,
+		taskKey: k,
 		queryFn: ({ signal: e }) => $e(e),
 		start: (e) => Gt(e),
-		onError: (e) => L(J(e)),
+		onError: (e) => z(J(e)),
 		onFinish: (e) => {
-			Et(), ee(e.status === "failed" ? ft(e, "error") || Y("follow:followCheck.checkFailed") : Ie(e));
+			Et(), te(e.status === "failed" ? ft(e, "error") || Y("follow:followCheck.checkFailed") : Fe(e));
 		}
-	}), me = (e) => {
-		le || pe.isPending || (L(""), pe.mutate(e));
-	}, G = (e, t) => O(Zt(v, [e], t)), Ce = (e, t) => O(Zt(v, e, t)), we = tn({
+	}), K = (e) => {
+		pe || ge.isPending || (z(""), ge.mutate(e));
+	}, Ce = (e, t) => D(Zt(v, [e], t)), we = (e, t) => D(Zt(v, e, t)), Ee = tn({
 		mutationFn: (e) => kt(e),
 		onSuccess: (e, t) => {
-			Je([t]), O(Zt(v, [t], !1)), ee(Y("follow:sourceList.unfollowed"));
+			qe([t]), D(Zt(v, [t], !1)), te(Y("follow:sourceList.unfollowed"));
 		},
-		onError: (e) => L(J(e))
-	}), Te = tn({
+		onError: (e) => z(J(e))
+	}), De = tn({
 		mutationFn: (e) => Ht(e.id, e.enabled),
 		onSuccess: (e, t) => {
-			St(t.id, { enabled: t.enabled }), L("");
+			St(t.id, { enabled: t.enabled }), z("");
 		},
-		onError: (e) => L(J(e))
-	}), De = (e) => void Ue({
+		onError: (e) => z(J(e))
+	}), Ae = (e) => void He({
 		title: Y("follow:sourceList.unfollow"),
 		body: Y("follow:sourceList.unfollowBody"),
 		confirmLabel: Y("follow:sourceList.unfollow"),
 		danger: !0,
 		holdToConfirm: !0,
-		onConfirm: () => we.mutateAsync(e.id)
-	}), Oe = tn({
+		onConfirm: () => Ee.mutateAsync(e.id)
+	}), Pe = tn({
 		mutationFn: async (e) => {
 			let t = await vt(e.ids, 4, async (t) => {
 				e.action === "remove" ? await kt(t) : await Ht(t, e.action === "enabled");
@@ -2292,31 +2305,31 @@ function yr(e) {
 			};
 		},
 		onSuccess: (e) => {
-			if (e.action === "remove") Je(e.done);
+			if (e.action === "remove") qe(e.done);
 			else for (let t of e.done) St(t, { enabled: e.action === "enabled" });
-			O(Zt(v, e.done, !1));
+			D(Zt(v, e.done, !1));
 			let t = e.results.filter((e) => !e.ok);
-			t.length ? L(Y("follow:sourceList.bulkPartialFail", {
+			t.length ? z(Y("follow:sourceList.bulkPartialFail", {
 				failed: t.length,
 				total: e.ids.length,
 				error: J(t[0]?.error)
-			})) : L("");
+			})) : z("");
 		},
-		onError: (e) => L(J(e))
-	}), je = tn({
+		onError: (e) => z(J(e))
+	}), Re = tn({
 		mutationFn: yt,
 		onSuccess: (e) => {
-			Et(), e.failed ? L(Y("follow:sourceList.bulkMarkFailed", {
+			Et(), e.failed ? z(Y("follow:sourceList.bulkMarkFailed", {
 				failed: e.failed,
 				total: e.total,
 				error: J(e.error)
-			})) : L("");
+			})) : z("");
 		},
-		onError: (e) => L(J(e))
-	}), Fe = {
-		receipt: ee,
-		failure: (e) => L(J(e))
-	}, ze = (e) => ({
+		onError: (e) => z(J(e))
+	}), Be = {
+		receipt: te,
+		failure: (e) => z(J(e))
+	}, Ve = (e) => ({
 		key: e ? "enable" : "pause",
 		label: Y(e ? "follow:shared.enable" : "follow:shared.pause"),
 		reversal: "undo",
@@ -2325,7 +2338,7 @@ function yr(e) {
 			body: Y(e ? "follow:sourceList.enableManyBody" : "follow:sourceList.pauseManyBody", { count: t.length })
 		}),
 		run: async (t) => {
-			let n = t.filter((t) => j.find((e) => e.id === t)?.enabled !== e), { done: r } = await Oe.mutateAsync({
+			let n = t.filter((t) => j.find((e) => e.id === t)?.enabled !== e), { done: r } = await Pe.mutateAsync({
 				ids: n,
 				action: e ? "enabled" : "paused"
 			});
@@ -2335,7 +2348,7 @@ function yr(e) {
 			};
 		},
 		receipt: (t) => Y(e ? "follow:sourceList.bulkEnabled" : "follow:sourceList.bulkPaused", { count: t.length })
-	}), Ve = {
+	}), We = {
 		key: "delete",
 		label: Y("follow:shared.delete"),
 		reversal: "irreversible",
@@ -2348,13 +2361,13 @@ function yr(e) {
 			confirmLabel: Y("follow:sourceList.deleteSelected")
 		}),
 		run: async (e) => {
-			await Oe.mutateAsync({
+			await Pe.mutateAsync({
 				ids: [...e],
 				action: "remove"
 			});
 		},
 		receipt: (e) => Y("follow:sourceList.bulkDeleted", { count: e.length })
-	}, He = (e) => {
+	}, Ge = (e) => {
 		let t = [];
 		return {
 			key: `mark-${e}`,
@@ -2368,30 +2381,30 @@ function yr(e) {
 				body: Y("follow:sourceList.markIgnoredBody", { count: t }),
 				recovery: Y("shell:batchFollow.ignoreRecovery")
 			},
-			run: async () => (t = (await je.mutateAsync(e)).marked, async () => {
+			run: async () => (t = (await Re.mutateAsync(e)).marked, async () => {
 				await Qt(t), await Et();
 			}),
 			receipt: () => Y("follow:sourceList.bulkMarked", { count: t.length })
 		};
-	}, Ge = (e, t) => Te.mutate({
+	}, Ye = (e, t) => De.mutate({
 		id: e.id,
 		enabled: t
-	}), Ke = (0, X.useRef)({
-		check: me,
-		toggle: Ge,
-		remove: De,
+	}), Qe = (0, X.useRef)({
+		check: K,
+		toggle: Ye,
+		remove: Ae,
 		busy: !1,
 		readOnly: y
 	});
-	Ke.current = {
-		check: me,
-		toggle: Ge,
-		remove: De,
-		busy: le || pe.isPending,
+	Qe.current = {
+		check: K,
+		toggle: Ye,
+		remove: Ae,
+		busy: pe || ge.isPending,
 		readOnly: y
 	};
-	let q = Ke.current, Qe = an((e) => j.find((t) => String(t.id) === e), (e) => gr(e, v.has(e.id), (t) => G(e.id, t), q)), et = (0, X.useMemo)(() => {
-		let e = We(), t = (e) => () => fr[e] || e;
+	let et = Qe.current, tt = on((e) => j.find((t) => String(t.id) === e), (e) => _r(e, v.has(e.id), (t) => Ce(e.id, t), et)), nt = (0, X.useMemo)(() => {
+		let e = Ue(), t = (e) => () => pr[e] || e;
 		return e.columns([
 			e.display({
 				id: "select",
@@ -2412,7 +2425,7 @@ function yr(e) {
 				header: t("author"),
 				cell: (e) => /* @__PURE__ */ (0, Z.jsxs)("span", {
 					className: "flex min-w-0 items-center gap-2",
-					children: [/* @__PURE__ */ (0, Z.jsx)(fn, {
+					children: [/* @__PURE__ */ (0, Z.jsx)(pn, {
 						group: e.row.original.group,
 						name: e.row.original.author
 					}), /* @__PURE__ */ (0, Z.jsx)("span", {
@@ -2426,7 +2439,7 @@ function yr(e) {
 				header: t("source"),
 				cell: (e) => /* @__PURE__ */ (0, Z.jsxs)("span", {
 					className: "flex min-w-0 flex-col gap-0.5",
-					children: [/* @__PURE__ */ (0, Z.jsx)(hn, { source: e.row.original.source }), e.row.original.source.last_error ? /* @__PURE__ */ (0, Z.jsx)(pn, { text: Be(e.row.original.source, "last_error") }) : null]
+					children: [/* @__PURE__ */ (0, Z.jsx)(gn, { source: e.row.original.source }), e.row.original.source.last_error ? /* @__PURE__ */ (0, Z.jsx)(mn, { text: ze(e.row.original.source, "last_error") }) : null]
 				})
 			}),
 			e.accessor((e) => e.source.provider_label, {
@@ -2434,18 +2447,18 @@ function yr(e) {
 				header: t("provider"),
 				cell: (e) => /* @__PURE__ */ (0, Z.jsxs)("span", {
 					className: "flex items-center gap-1.5",
-					children: [/* @__PURE__ */ (0, Z.jsx)(mn, { provider: e.row.original.source.provider }), e.row.original.source.provider_label]
+					children: [/* @__PURE__ */ (0, Z.jsx)(hn, { provider: e.row.original.source.provider }), e.row.original.source.provider_label]
 				})
 			}),
 			e.display({
 				id: "status",
 				header: t("status"),
-				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(gn, { source: e.row.original.source })
+				cell: (e) => /* @__PURE__ */ (0, Z.jsx)(_n, { source: e.row.original.source })
 			}),
 			e.accessor((e) => e.source.last_checked_at || "", {
 				id: "checked",
 				header: t("checked"),
-				cell: (e) => Re(e.row.original.source)
+				cell: (e) => Le(e.row.original.source)
 			}),
 			e.display({
 				id: "actions",
@@ -2453,86 +2466,86 @@ function yr(e) {
 				cell: (e) => /* @__PURE__ */ (0, Z.jsxs)("span", {
 					className: "flex items-center gap-1",
 					children: [
-						/* @__PURE__ */ (0, Z.jsx)(ge, {
+						/* @__PURE__ */ (0, Z.jsx)(G, {
 							"aria-label": Y("follow:shared.enableNamed", { name: e.row.original.source.label }),
 							isSelected: e.row.original.source.enabled,
-							isDisabled: q.readOnly,
-							onChange: (t) => Ke.current.toggle(e.row.original.source, t)
+							isDisabled: et.readOnly,
+							onChange: (t) => Qe.current.toggle(e.row.original.source, t)
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							size: "small",
 							iconOnly: !0,
-							leadingIcon: qe,
+							leadingIcon: Ke,
 							"aria-label": Y("follow:sourceList.checkNamed", { name: e.row.original.source.label }),
-							disabled: !e.row.original.source.enabled || q.readOnly,
-							...K(q.busy),
-							onClick: () => Ke.current.check([e.row.original.source.id])
+							disabled: !e.row.original.source.enabled || et.readOnly,
+							...q(et.busy),
+							onClick: () => Qe.current.check([e.row.original.source.id])
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							size: "small",
 							iconOnly: !0,
-							leadingIcon: oe,
+							leadingIcon: ae,
 							"aria-label": Y("follow:shared.removeNamed", { name: e.row.original.source.label }),
-							disabled: q.readOnly,
-							onClick: () => Ke.current.remove(e.row.original.source)
+							disabled: et.readOnly,
+							onClick: () => Qe.current.remove(e.row.original.source)
 						})
 					]
 				})
 			})
 		]);
-	}, [q]), tt = (0, X.useMemo)(() => {
-		let e = lr[s];
+	}, [et]), rt = (0, X.useMemo)(() => {
+		let e = ur[s];
 		return e ? [{
 			id: e,
 			desc: c === "desc"
 		}] : [];
-	}, [s, c]), nt = (0, X.useMemo)(() => Object.fromEntries([...v].map((e) => [String(e), !0])), [v]), rt = d === "table", it = cn("follow-sources", pr), ot = xt(rt ? B.items.length : H.length, g, l), st = on({
-		features: cr,
-		data: B.items,
-		columns: et,
+	}, [s, c]), it = (0, X.useMemo)(() => Object.fromEntries([...v].map((e) => [String(e), !0])), [v]), ot = d === "table", st = ln("follow-sources", mr), ct = xt(ot ? H.items.length : U.length, g, l), lt = sn({
+		features: lr,
+		data: H.items,
+		columns: nt,
 		getRowId: (e) => String(e.source.id),
 		state: {
-			sorting: tt,
-			rowSelection: nt,
+			sorting: rt,
+			rowSelection: it,
 			pagination: {
-				pageIndex: ot.page - 1,
+				pageIndex: ct.page - 1,
 				pageSize: g
 			},
-			columnVisibility: it.visibility
+			columnVisibility: st.visibility
 		},
-		onColumnVisibilityChange: it.change,
+		onColumnVisibilityChange: st.change,
 		manualSorting: !0,
 		enableRowSelection: !0,
 		onSortingChange: (e) => {
-			let t = (typeof e == "function" ? e(tt) : e)[0];
+			let t = (typeof e == "function" ? e(rt) : e)[0];
 			if (!t) return;
 			let n = p[t.id];
 			n && x(n, t.desc ? "desc" : "asc");
 		},
 		onRowSelectionChange: (e) => {
-			let t = typeof e == "function" ? e(nt) : e;
-			O(new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e))));
+			let t = typeof e == "function" ? e(it) : e;
+			D(new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e))));
 		},
 		onPaginationChange: (e) => {
 			let t = {
-				pageIndex: ot.page - 1,
+				pageIndex: ct.page - 1,
 				pageSize: g
 			}, n = typeof e == "function" ? e(t) : e;
-			n.pageSize === g ? n.pageIndex !== t.pageIndex && w(n.pageIndex + 1) : D(n.pageSize);
+			n.pageSize === g ? n.pageIndex !== t.pageIndex && w(n.pageIndex + 1) : ee(n.pageSize);
 		}
-	}), ct = st.getRowModel().rows, lt = rt ? ct.map((e) => e.original.source.id) : H.slice(ot.start, ot.end).flatMap(({ sources: e }) => e.map((e) => e.id)), ut = zt(v, lt), dt = [...v], pt = Pe(fe), mt = j.filter((e) => e.enabled && (e.last_status === "error" || e.last_status === "unauthorized")).map((e) => e.id), ht = Ne(fe), gt = H.length > 0 && H.every(({ key: e }) => re.has(e));
+	}), ut = lt.getRowModel().rows, dt = ot ? ut.map((e) => e.original.source.id) : U.slice(ct.start, ct.end).flatMap(({ sources: e }) => e.map((e) => e.id)), pt = zt(v, dt), mt = [...v], ht = Ne(me), gt = j.filter((e) => e.enabled && (e.last_status === "error" || e.last_status === "unauthorized")).map((e) => e.id), _t = Me(me), bt = U.length > 0 && U.every(({ key: e }) => P.has(e));
 	return j.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
-		className: Me({
+		className: je({
 			padding: "none",
 			className: "flex flex-col gap-4 px-6 py-5 max-sm:px-4"
 		}),
-		onKeyDown: Qe.onKeyDown,
+		onKeyDown: tt.onKeyDown,
 		children: [
-			Qe.menu,
+			tt.menu,
 			/* @__PURE__ */ (0, Z.jsxs)("div", {
-				ref: F,
+				ref: L,
 				"data-follow-toolbar": "",
 				"data-responsive-toolbar": "",
 				children: [/* @__PURE__ */ (0, Z.jsxs)("span", {
@@ -2552,21 +2565,21 @@ function yr(e) {
 					"data-follow-toolbar-actions": "",
 					"data-toolbar-actions": "",
 					children: [
-						mt.length ? /* @__PURE__ */ (0, Z.jsx)(u, {
+						gt.length ? /* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							disabled: y,
-							...K(q.busy),
-							onClick: () => me(mt),
+							...q(et.busy),
+							onClick: () => K(gt),
 							children: Y("follow:sourceList.checkFailed")
 						}) : null,
 						/* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "primary",
-							leadingIcon: qe,
+							leadingIcon: Ke,
 							disabled: y,
 							"aria-label": Y("follow:sourceList.checkAll"),
-							iconOnly: ie,
-							...K(q.busy),
-							onClick: () => me([]),
+							iconOnly: oe,
+							...q(et.busy),
+							onClick: () => K([]),
 							children: Y("follow:sourceList.checkAll")
 						}),
 						/* @__PURE__ */ (0, Z.jsxs)("span", {
@@ -2582,33 +2595,33 @@ function yr(e) {
 										iconOnly: !0,
 										leadingIcon: Se,
 										"aria-label": I[0][1],
-										"aria-pressed": !rt,
+										"aria-pressed": !ot,
 										onClick: () => T("default")
 									}), /* @__PURE__ */ (0, Z.jsx)(u, {
 										variant: "ghost",
 										iconOnly: !0,
-										leadingIcon: Ye,
+										leadingIcon: Je,
 										"aria-label": I[1][1],
-										"aria-pressed": rt,
+										"aria-pressed": ot,
 										onClick: () => T("table")
 									})]
 								}),
-								rt ? /* @__PURE__ */ (0, Z.jsx)(ve, {
-									preferences: it,
+								ot ? /* @__PURE__ */ (0, Z.jsx)(ve, {
+									preferences: st,
 									label: Y("follow:sourceList.tableLabel")
 								}) : null,
 								/* @__PURE__ */ (0, Z.jsxs)("span", {
 									className: "flex flex-none items-center gap-2",
-									children: [/* @__PURE__ */ (0, Z.jsx)(W, {
+									children: [/* @__PURE__ */ (0, Z.jsx)(ue, {
 										"aria-label": Y("follow:sourceList.sortLabel"),
 										prefix: Y("follow:shared.sort"),
 										selectedKey: s,
 										onSelectionChange: (e) => {
 											if (e === null) return;
 											let t = String(e);
-											x(t, se[t]);
+											x(t, ce[t]);
 										},
-										children: ce.map(([e, t]) => /* @__PURE__ */ (0, Z.jsx)(ue, {
+										children: le.map(([e, t]) => /* @__PURE__ */ (0, Z.jsx)(de, {
 											id: e,
 											children: t
 										}, e))
@@ -2621,14 +2634,14 @@ function yr(e) {
 										onClick: () => x(s, c === "asc" ? "desc" : "asc")
 									})]
 								}),
-								rt ? null : /* @__PURE__ */ (0, Z.jsx)(u, {
+								ot ? null : /* @__PURE__ */ (0, Z.jsx)(u, {
 									variant: "secondary",
-									iconOnly: ie,
+									iconOnly: oe,
 									leadingIcon: _,
-									"aria-expanded": !gt,
-									"aria-label": Y(gt ? "follow:shared.expandAll" : "follow:shared.collapseAll"),
-									onClick: () => P(gt ? /* @__PURE__ */ new Set() : new Set(H.map(({ key: e }) => e))),
-									children: Y(gt ? "follow:shared.expandAll" : "follow:shared.collapseAll")
+									"aria-expanded": !bt,
+									"aria-label": Y(bt ? "follow:shared.expandAll" : "follow:shared.collapseAll"),
+									onClick: () => F(bt ? /* @__PURE__ */ new Set() : new Set(U.map(({ key: e }) => e))),
+									children: Y(bt ? "follow:shared.expandAll" : "follow:shared.collapseAll")
 								})
 							]
 						})
@@ -2639,64 +2652,64 @@ function yr(e) {
 				"aria-live": "polite",
 				className: "flex flex-col gap-3 empty:hidden",
 				children: [
-					le ? /* @__PURE__ */ (0, Z.jsx)(xe, {
+					pe ? /* @__PURE__ */ (0, Z.jsx)(xe, {
 						embedded: !0,
-						kind: U?.older ? Ee("feed-scrape") : Ee("follow-check"),
-						label: ft(U) || (U?.total ? Y(U.older ? "follow:sourceList.backfillProgress" : "follow:sourceList.checkProgress", {
-							checked: U.checked || 0,
-							count: U.total
+						kind: W?.older ? Te("feed-scrape") : Te("follow-check"),
+						label: ft(W) || (W?.total ? Y(W.older ? "follow:sourceList.backfillProgress" : "follow:sourceList.checkProgress", {
+							checked: W.checked || 0,
+							count: W.total
 						}) : Y("follow:sourceList.preparingCheck")),
-						value: U?.checked,
-						total: U?.total
+						value: W?.checked,
+						total: W?.total
 					}) : null,
-					ae ? /* @__PURE__ */ (0, Z.jsx)(V, {
+					R ? /* @__PURE__ */ (0, Z.jsx)(V, {
 						tone: "error",
 						title: Y("follow:shared.actionFailed"),
-						children: ae
+						children: R
 					}) : null,
-					!le && fe?.results?.length ? /* @__PURE__ */ (0, Z.jsx)(V, {
+					!pe && me?.results?.length ? /* @__PURE__ */ (0, Z.jsx)(V, {
 						tone: "neutral",
 						title: Y("follow:followFeed.checkResults"),
-						children: Le(fe)
+						children: Ie(me)
 					}) : null,
-					pt.length ? /* @__PURE__ */ (0, Z.jsx)(V, {
+					ht.length ? /* @__PURE__ */ (0, Z.jsx)(V, {
 						tone: "error",
-						title: Y("follow:sourceList.failedTitle", { count: pt.length }),
+						title: Y("follow:sourceList.failedTitle", { count: ht.length }),
 						extra: /* @__PURE__ */ (0, Z.jsx)("ul", {
 							className: "flex flex-col gap-0.5 text-body-2-regular",
-							children: pt.map((e, t) => /* @__PURE__ */ (0, Z.jsx)("li", { children: Y("follow:shared.labeled", {
+							children: ht.map((e, t) => /* @__PURE__ */ (0, Z.jsx)("li", { children: Y("follow:shared.labeled", {
 								label: `${e.provider_label || e.provider || ""} ${e.author || e.label || e.ref || ""}`.trim(),
 								value: Xe(e.error || "") || Y("follow:shared.noReason")
 							}) }, `${e.provider || ""}-${e.ref || t}`))
 						}),
 						children: Y("follow:sourceList.failedBody")
 					}) : null,
-					ht ? /* @__PURE__ */ (0, Z.jsx)(V, {
+					_t ? /* @__PURE__ */ (0, Z.jsx)(V, {
 						tone: "warning",
-						children: Y("follow:sourceList.evidenceGap", { error: ht })
+						children: Y("follow:sourceList.evidenceGap", { error: _t })
 					}) : null
 				]
 			}),
-			/* @__PURE__ */ (0, Z.jsx)(de, {
+			/* @__PURE__ */ (0, Z.jsx)(fe, {
 				label: Y("follow:sourceList.bulkActions"),
-				visible: dt.length > 0,
-				count: Y("follow:sourceList.selectedCount", { count: dt.length }),
+				visible: mt.length > 0,
+				count: Y("follow:sourceList.selectedCount", { count: mt.length }),
 				actions: [
-					ze(!0),
-					ze(!1),
-					Ve
+					Ve(!0),
+					Ve(!1),
+					We
 				].map((e) => ({
 					action: e,
-					items: dt,
-					host: Fe,
-					disabled: y || Oe.isPending
+					items: mt,
+					host: Be,
+					disabled: y || Pe.isPending
 				})),
 				leading: /* @__PURE__ */ (0, Z.jsx)(u, {
 					variant: "secondary",
 					size: "small",
 					disabled: y,
-					...K(q.busy),
-					onClick: () => me(dt),
+					...q(et.busy),
+					onClick: () => K(mt),
 					children: Y("follow:sourceList.checkSelected")
 				}),
 				children: /* @__PURE__ */ (0, Z.jsx)(u, {
@@ -2706,37 +2719,38 @@ function yr(e) {
 					children: Y("follow:shared.clearSelection")
 				})
 			}),
-			rt ? /* @__PURE__ */ (0, Z.jsx)(C, {
+			ot ? /* @__PURE__ */ (0, Z.jsx)(C, {
 				follow: !0,
-				preferences: it,
-				onRowClick: (e) => G(Number(e), !v.has(Number(e))),
+				preferences: st,
+				onRowClick: (e) => Ce(Number(e), !v.has(Number(e))),
+				onRectangle: A,
 				children: /* @__PURE__ */ (0, Z.jsxs)(_e, {
 					"aria-label": Y("follow:sourceList.tableLabel"),
 					size: "sm",
-					sortDescriptor: tt[0] ? {
-						column: tt[0].id,
-						direction: tt[0].desc ? "descending" : "ascending"
+					sortDescriptor: rt[0] ? {
+						column: rt[0].id,
+						direction: rt[0].desc ? "descending" : "ascending"
 					} : void 0,
-					onSortChange: (e) => st.setSorting([{
+					onSortChange: (e) => lt.setSorting([{
 						id: String(e.column),
 						desc: e.direction === "descending"
 					}]),
-					children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [st.getHeaderGroups()[0].headers.map((e) => {
+					children: [/* @__PURE__ */ (0, Z.jsxs)(o, { children: [lt.getHeaderGroups()[0].headers.map((e) => {
 						let t = e.column.id in p, n = at(e.column.columnDef.header, e.getContext());
 						return /* @__PURE__ */ (0, Z.jsx)(r, {
 							id: e.id,
 							allowsSorting: t,
 							isRowHeader: e.column.id === "source",
-							...it.columnProps(e.id),
+							...st.columnProps(e.id),
 							children: ({ sortDirection: r }) => /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [e.id === "select" ? n : t ? /* @__PURE__ */ (0, Z.jsxs)("span", {
 								className: "flex items-center gap-0.5",
-								children: [B.header(e.id, fr[e.id] || e.id) ?? n, /* @__PURE__ */ (0, Z.jsx)("span", {
+								children: [H.header(e.id, pr[e.id] || e.id) ?? n, /* @__PURE__ */ (0, Z.jsx)("span", {
 									"data-sort-indicator": !0,
 									"data-direction": r || void 0,
 									children: /* @__PURE__ */ (0, Z.jsx)(h, {})
 								})]
-							}) : B.header(e.id, fr[e.id] || e.id) ?? n, /* @__PURE__ */ (0, Z.jsx)(ye, {
-								preferences: it,
+							}) : H.header(e.id, pr[e.id] || e.id) ?? n, /* @__PURE__ */ (0, Z.jsx)(ye, {
+								preferences: st,
 								id: e.id
 							})] })
 						}, e.id);
@@ -2744,66 +2758,67 @@ function yr(e) {
 						id: "remaining-space",
 						"aria-label": Y("follow:shared.rowSpacer"),
 						"data-table-space": "",
-						width: it.spaceWidth,
+						width: st.spaceWidth,
 						minWidth: 0
 					})] }), /* @__PURE__ */ (0, Z.jsx)(n, {
 						renderEmptyState: () => Y("follow:sourceList.pageEmpty"),
-						children: ct.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
+						children: ut.map((e) => /* @__PURE__ */ (0, Z.jsxs)(i, {
 							id: e.id,
 							"data-follow-selected": e.getIsSelected() || void 0,
 							"data-work-context-row": e.original.source.id,
-							onContextMenu: (t) => Qe.onContextMenu?.(t, e.original.source, String(e.original.source.id)),
+							onContextMenu: (t) => tt.onContextMenu?.(t, e.original.source, String(e.original.source.id)),
 							children: [e.getVisibleCells().map((e) => /* @__PURE__ */ (0, Z.jsx)(a, { children: at(e.column.columnDef.cell, e.getContext()) }, e.id)), /* @__PURE__ */ (0, Z.jsx)(a, { "data-table-space": "" })]
 						}, e.id))
 					})]
 				})
 			}) : /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [
 				/* @__PURE__ */ (0, Z.jsx)(b, {
-					filters: B.values,
-					columns: hr,
-					onRemove: B.clear,
+					filters: H.values,
+					columns: gr,
+					onRemove: H.clear,
 					valueLabel: (e, t) => t || Y("cleanup:shared.none")
 				}),
-				lt.length ? /* @__PURE__ */ (0, Z.jsx)(m, {
-					isSelected: ut.all,
-					isIndeterminate: ut.some,
-					onChange: (e) => Ce(lt, e),
+				dt.length ? /* @__PURE__ */ (0, Z.jsx)(m, {
+					isSelected: pt.all,
+					isIndeterminate: pt.some,
+					onChange: (e) => we(dt, e),
 					"aria-label": Y("follow:sourceList.selectPage"),
 					children: Y("follow:sourceList.selectPageShort")
 				}) : null,
-				H.length ? null : /* @__PURE__ */ (0, Z.jsx)(E, {
+				U.length ? null : /* @__PURE__ */ (0, Z.jsx)(E, {
 					icon: f,
 					title: Y("follow:sourceList.pageEmpty"),
 					children: null
 				}),
 				/* @__PURE__ */ (0, Z.jsx)("div", {
 					className: "flex flex-col gap-3",
-					children: H.slice(ot.start, ot.end).map(({ key: e, name: t, sources: n }) => /* @__PURE__ */ (0, Z.jsx)(vr, {
+					...ie,
+					children: U.slice(ct.start, ct.end).map(({ key: e, name: t, sources: n }) => /* @__PURE__ */ (0, Z.jsx)(yr, {
 						group: n,
 						name: t,
-						handlers: q,
+						handlers: et,
 						selected: v,
-						open: !re.has(e),
+						open: !P.has(e),
 						onOpen: (t) => {
-							let n = new Set(re);
-							t ? n.delete(e) : n.add(e), P(n);
+							let n = new Set(P);
+							t ? n.delete(e) : n.add(e), F(n);
 						},
-						onToggleGroup: (e) => Ce(n.map((e) => e.id), e),
-						onToggle: G
+						onToggleGroup: (e) => we(n.map((e) => e.id), e),
+						onToggle: Ce
 					}, e))
 				})
 			] }),
 			/* @__PURE__ */ (0, Z.jsx)(S, {
 				label: Y("follow:followManageNav.list"),
-				total: ot.total,
+				total: ct.total,
 				pagination: {
-					pageIndex: ot.page - 1,
+					pageIndex: ct.page - 1,
 					pageSize: g
 				},
-				unit: Y(rt ? "follow:followOverview.sourceUnit" : "follow:sourceList.creatorUnit"),
-				pageUnit: Y(rt ? "follow:followOverview.itemUnit" : "follow:followOverview.creatorUnit"),
+				unit: Y(ot ? "follow:followOverview.sourceUnit" : "follow:sourceList.creatorUnit"),
+				pageUnit: Y(ot ? "follow:followOverview.itemUnit" : "follow:followOverview.creatorUnit"),
 				onChange: (e) => {
-					e.pageSize === g ? st.setPageIndex(e.pageIndex) : st.setPageSize(e.pageSize);
+					e.pageSize === g ? lt.setPageIndex(e.pageIndex) : lt.setPageSize(e.pageSize);
 				}
 			}),
 			N.new ? /* @__PURE__ */ (0, Z.jsxs)("div", {
@@ -2821,17 +2836,17 @@ function yr(e) {
 					/* @__PURE__ */ (0, Z.jsx)(u, {
 						variant: "secondary",
 						size: "small",
-						onClick: te,
+						onClick: ne,
 						children: Y("follow:sourceList.seeUpdates")
 					}),
 					["seen", "ignored"].map((e) => {
-						let t = He(e);
+						let t = Ge(e);
 						return /* @__PURE__ */ (0, Z.jsx)(u, {
 							variant: "secondary",
 							size: "small",
 							disabled: y,
-							...K(je.isPending),
-							onClick: () => void Rt(t, [Number(N.new) || 0], Fe).catch(Fe.failure),
+							...q(Re.isPending),
+							onClick: () => void Rt(t, [Number(N.new) || 0], Be).catch(Be.failure),
 							children: t.label
 						}, e);
 					})
@@ -2844,14 +2859,14 @@ function yr(e) {
 		actions: /* @__PURE__ */ (0, Z.jsx)(u, {
 			variant: "primary",
 			size: "small",
-			onClick: ne,
+			onClick: re,
 			children: Y("follow:followFeed.addFollow")
 		}),
 		children: Y("follow:sourceList.emptyHint")
 	});
 }
 // node_modules/skullet/dist/index.mjs
-var br = "skullet-reveal", xr = "skullet-pane", Sr = "skullet-loading", Cr = "skullet-ghost", wr = "skullet-snapshot", Tr = "skullet-layer", Er = "skullet-rect", Dr = "skullet-bar", Or = "skullet-inactive", kr = "skullet-exiting", Ar = "skullet-covered", jr = "skullet-own", Mr = "skullet-block", Nr = Symbol.for("skullet.ghost"), Pr = Symbol.for("skullet.uncover"), Fr = "skullet-status", Ir = "skullet-xray", Lr = "var(--skullet-base, rgb(128 128 128 / 0.2))", Rr = "var(--skullet-highlight, rgb(255 255 255 / 0.12))", zr = 280, Br = 1e4, Vr = {
+var xr = "skullet-reveal", Sr = "skullet-pane", Cr = "skullet-loading", wr = "skullet-ghost", Tr = "skullet-snapshot", Er = "skullet-layer", Dr = "skullet-rect", Or = "skullet-bar", kr = "skullet-inactive", Ar = "skullet-exiting", jr = "skullet-covered", Mr = "skullet-own", Nr = "skullet-block", Pr = Symbol.for("skullet.ghost"), Fr = Symbol.for("skullet.uncover"), Ir = "skullet-status", Lr = "skullet-xray", Rr = "var(--skullet-base, rgb(128 128 128 / 0.2))", zr = "var(--skullet-highlight, rgb(255 255 255 / 0.12))", Br = 280, Vr = 1e4, Hr = {
 	shimmer: {
 		slow: 4e3,
 		fast: 2e3
@@ -2860,7 +2875,7 @@ var br = "skullet-reveal", xr = "skullet-pane", Sr = "skullet-loading", Cr = "sk
 		slow: 2400,
 		fast: 1200
 	}
-}, Hr = [
+}, Ur = [
 	"a",
 	"b",
 	"code",
@@ -2883,7 +2898,7 @@ var br = "skullet-reveal", xr = "skullet-pane", Sr = "skullet-loading", Cr = "sk
 	"td",
 	"th",
 	"time"
-], Ur = [
+], Wr = [
 	"audio",
 	"canvas",
 	"embed",
@@ -2896,8 +2911,8 @@ var br = "skullet-reveal", xr = "skullet-pane", Sr = "skullet-loading", Cr = "sk
 	"svg",
 	"textarea",
 	"video"
-], Wr = Ur.join(", "), Gr = `
-[${br}] {
+], Gr = Wr.join(", "), Kr = `
+[${xr}] {
   position: relative;
 }
 
@@ -2909,35 +2924,35 @@ skullet-reveal[loading]:not(:defined) {
   visibility: hidden;
 }
 
-[${xr}] {
+[${Sr}] {
   display: block;
 }
 
-[${Sr}] {
+[${Cr}] {
   position: relative;
   -webkit-user-select: none;
   user-select: none;
   pointer-events: none;
 }
 
-[${Or}] {
+[${kr}] {
   display: none !important;
 }
 
-[${Tr}] {
+[${Er}] {
   position: absolute;
   inset: 0;
   overflow: visible;
 }
 
-[${Dr}] {
+[${Or}] {
   display: block;
-  background-color: ${Lr};
+  background-color: ${Rr};
   background-repeat: no-repeat;
 }
 
 /* Containers keep their surface; what they hold is drawn by bones, measured before the first paint */
-@scope ([${Sr}]) to ([${jr}], [${Tr}]) {
+@scope ([${Cr}]) to ([${Mr}], [${Er}]) {
   :scope,
   :scope * {
     color: transparent !important;
@@ -2951,12 +2966,12 @@ skullet-reveal[loading]:not(:defined) {
   }
 
   /* A line to measure in empty text; content only, never a size, or a dot-sized span would grow round it */
-  :scope :is(${Hr.join(", ")}):empty:not(svg *)::before {
+  :scope :is(${Ur.join(", ")}):empty:not(svg *)::before {
     content: "000000";
   }
 
   /* Leaves are drawn by bones, so their own paint never shows; visibility, as measuring reads it */
-  :scope :is(:not(:has(*)), ${Wr}, [${Ar}], [${Mr}]):not(svg *) {
+  :scope :is(:not(:has(*)), ${Gr}, [${jr}], [${Nr}]):not(svg *) {
     visibility: hidden !important;
   }
 
@@ -2968,14 +2983,14 @@ skullet-reveal[loading]:not(:defined) {
 
     :scope,
     :scope * {
-      text-decoration: line-through ${Lr} !important;
+      text-decoration: line-through ${Rr} !important;
       text-decoration-thickness: 0.72em !important;
       text-decoration-skip-ink: none !important;
     }
 
-    :scope :is(${Wr}, [${Mr}]):not(svg *) {
+    :scope :is(${Gr}, [${Nr}]):not(svg *) {
       visibility: visible !important;
-      background: ${Lr} !important;
+      background: ${Rr} !important;
     }
 
     :scope svg * {
@@ -2990,7 +3005,7 @@ skullet-reveal[loading]:not(:defined) {
 }
 
 /* Read by screen readers in the skeleton's place, never seen */
-[${Fr}] {
+[${Ir}] {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -3001,8 +3016,8 @@ skullet-reveal[loading]:not(:defined) {
 }
 
 /* Debug x-ray: the ghost shown through its bones, to see what was measured */
-[${Ir}] [${Sr}] [${Cr}],
-[${Ir}] [${Sr}] [${Cr}] *:not(svg *) {
+[${Lr}] [${Cr}] [${wr}],
+[${Lr}] [${Cr}] [${wr}] *:not(svg *) {
   visibility: visible !important;
   color: rgb(255 0 80 / 0.7) !important;
   -webkit-text-fill-color: rgb(255 0 80 / 0.7) !important;
@@ -3011,14 +3026,14 @@ skullet-reveal[loading]:not(:defined) {
 /* Lets addStyles see a stylesheet already on the page, from styles.css or a server render */
 :root {
   --skullet: 1;
-}`, Kr = null, qr = 0, Jr;
-function Yr() {
-	qr++, !Kr && (Jr ??= !!getComputedStyle(document.documentElement).getPropertyValue("--skullet"), !Jr && (Kr = document.createElement("style"), Kr.dataset.skullet = "true", Kr.textContent = Gr, document.head.appendChild(Kr)));
-}
+}`, qr = null, Jr = 0, Yr;
 function Xr() {
-	qr--, !(qr > 0 || !Kr) && (Kr.remove(), Kr = null);
+	Jr++, !qr && (Yr ??= !!getComputedStyle(document.documentElement).getPropertyValue("--skullet"), !Yr && (qr = document.createElement("style"), qr.dataset.skullet = "true", qr.textContent = Kr, document.head.appendChild(qr)));
 }
-var Zr = "\"use strict\";(()=>{var B=\"skullet-ghost\";var D=\"skullet-layer\",L=\"skullet-rect\";var R=\"skullet-covered\",$=\"skullet-own\",v=\"skullet-ignore\",H=\"skullet-block\",I=Symbol.for(\"skullet.ghost\"),G=Symbol.for(\"skullet.uncover\"),P=\"skullet.boot\";var W=\"var(--skullet-base, rgb(128 128 128 / 0.2))\",z=\"var(--skullet-highlight, rgb(255 255 255 / 0.12))\";var F={shimmer:{slow:4e3,fast:2e3},pulse:{slow:2400,fast:1200}},X=[\"a\",\"b\",\"code\",\"dd\",\"dt\",\"em\",\"h1\",\"h2\",\"h3\",\"h4\",\"h5\",\"h6\",\"i\",\"label\",\"li\",\"p\",\"small\",\"span\",\"strong\",\"td\",\"th\",\"time\"],U=[\"audio\",\"canvas\",\"embed\",\"iframe\",\"img\",\"input\",\"object\",\"picture\",\"select\",\"svg\",\"textarea\",\"video\"];var gt,V=()=>gt??(gt=/jsdom/.test(navigator.userAgent)?null:document.createElement(\"canvas\").getContext(\"2d\"));var J=(t,n)=>t?{left:Math.max(t.left,n.left),right:Math.min(t.right,n.right),top:Math.max(t.top,n.top),bottom:Math.min(t.bottom,n.bottom)}:n,A=t=>[[t.left,t.top],[t.right,t.top],[t.right,t.bottom],[t.left,t.bottom]],k=(t,n)=>Math.abs(t[0]-n[0])<1&&Math.abs(t[1]-n[1])<1;function Q(t,n){let e=Math.min(n.right-n.left,n.bottom-n.top),o=r=>r.endsWith(\"%\")?parseFloat(r)/100*e:parseFloat(r)||0;return[o(t.borderTopLeftRadius),o(t.borderTopRightRadius),o(t.borderBottomRightRadius),o(t.borderBottomLeftRadius)]}function bt(t,n,e){let o=J(t,n),r=Q(e,n),c=t?A(t):[],a=A(n),l=A(o).map((f,T)=>k(f,a[T])?r[T]:t&&k(f,c[T])?t.corners[T]:0),{left:s,right:i,top:u,bottom:h}=o;return{left:s,right:i,top:u,bottom:h,corners:l}}function Tt(t,n,e,o){if(!t)return e;let r=A(t),c=A(n).map((l,s)=>t.corners[s]>0&&k(l,r[s]));if(!c.some(Boolean))return e;let a=Q(o,n);return c.map((l,s)=>l?Math.max(a[s],t.corners[s]):a[s]).map(l=>`${l}px`).join(\" \")}var j=(t,n)=>{let e=J(n,t);return e.right-e.left>=2&&e.bottom-e.top>=2?e:null},q={top:\"ascender\",bottom:\"descender\"},C=new Map,tt=t=>[...t.getClientRects?.()??[]];function St(t){let n=`${t.fontStyle} ${t.fontWeight} ${t.fontSize} ${t.fontFamily}`;if(C.has(n))return C.get(n);let e=V(),o=null;if(e){e.font=n;let r=e.measureText(\"H\"),c=a=>e.measureText(a).actualBoundingBoxAscent;o={ascent:r.fontBoundingBoxAscent,descent:r.fontBoundingBoxDescent,ascender:c(\"bdfhkl\"),capHeight:r.actualBoundingBoxAscent,xHeight:c(\"xz\"),descender:e.measureText(\"gjpqy\").actualBoundingBoxDescent}}return C.set(n,o),o}var Y={ascender:\"ascender\",\"cap-height\":\"capHeight\",\"x-height\":\"xHeight\"},K=(t,n,e,o)=>{let r=t.getPropertyValue(n).trim();return e.includes(r)?r:o};function xt(t,n,e){let o=St(n);if(!o){let s=Math.min(e*.72,t.bottom-t.top),i=(t.top+t.bottom)/2;return{barTop:i-s/2,barBottom:i+s/2}}let r=K(n,\"--skullet-text-top\",Object.keys(Y),q.top),c=K(n,\"--skullet-text-bottom\",[\"baseline\",\"descender\"],q.bottom),a=o.ascent+o.descent,l=t.top+(t.bottom-t.top-a)/2+o.ascent;return{barTop:l-o[Y[r]],barBottom:l+(c===\"descender\"?o.descender:0)}}var Et=new Set(U),Rt=new Set(X),et=.4,At=/[,/]\\s*0\\)$/,y=(t,n)=>t!==\"\"&&t!==n,yt=[\"Top\",\"Right\",\"Bottom\",\"Left\"],Mt=t=>yt.every(n=>y(t[`border${n}Style`],\"none\")&&y(t[`border${n}Width`],\"0px\")),Ct=t=>{let[n=0,e=0,o=0,r=0]=(t.replace(/rgba?\\([^)]*\\)|#\\w+/g,\"\").match(/-?[\\d.]+px/g)??[]).map(parseFloat);return t.includes(\"inset\")&&!o&&!r&&n===0!=(e===0)&&Math.abs(n+e)<=2},kt=t=>y(t,\"none\")&&!t.split(/,(?![^(]*\\))/).every(Ct),Ot=t=>y(t.backgroundColor,\"transparent\")&&!At.test(t.backgroundColor)||y(t.backgroundImage,\"none\")||kt(t.boxShadow)||Mt(t),ot=t=>Et.has(t.localName),nt=t=>Rt.has(t.localName)&&!t.firstElementChild&&!t.textContent?.trim(),wt=t=>{let n=document.createTreeWalker(t,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT),e=document.createRange(),o=[],r=0;for(;n.nextNode();){let i=n.currentNode;if(i.nodeType===Node.TEXT_NODE){let u=i.parentElement;if(!i.textContent?.trim()||!u)continue;r++;let h=u.getBoundingClientRect();if(h.width<=1||h.height<=1)continue;e.selectNodeContents(i),o.push(tt(e).filter(f=>f.width||f.height))}else nt(i)&&(r++,o.push([...i.getClientRects()]))}if(!o.some(i=>i.length))return r;let c=(parseFloat(getComputedStyle(t).fontSize)||16)*et,a=(i,u)=>Math.min(i.bottom,u.bottom)-Math.max(i.top,u.top)>=Math.min(i.height,u.height)/2&&Math.max(i.left,u.left)-Math.min(i.right,u.right)<=c,l=o.map((i,u)=>u),s=i=>l[i]===i?i:l[i]=s(l[i]);for(let i=0;i<o.length;i++)for(let u=i+1;u<o.length;u++)o[i].some(h=>o[u].some(f=>a(h,f)))&&(l[s(u)]=s(i));return new Set(o.map((i,u)=>s(u))).size},Nt=(t,n)=>t.hasAttribute(H)||ot(t)||Ot(n)&&wt(t)<=1;function _t(t,n){if(parseFloat(n.borderRadius)||!t.parentElement)return n.borderRadius||\"0px\";let e=t.parentElement,o=getComputedStyle(e),r=t.getBoundingClientRect(),c=e.getBoundingClientRect();return Math.abs(r.width-c.width)<1&&Math.abs(r.height-c.height)<1&&o.overflow!==\"visible\"?o.borderRadius:n.borderRadius||\"0px\"}function Z(t){t.sort((e,o)=>e.left-o.left);let n=[];for(let e of t){let o=n.find(r=>{let c=Math.min(r.bottom,e.bottom)-Math.max(r.top,e.top),a=Math.min(r.bottom-r.top,e.bottom-e.top),l=e.left-r.right;return c>=a/2&&l<=Math.max(r.fontSize,e.fontSize)*et});o?(o.left=Math.min(o.left,e.left),o.right=Math.max(o.right,e.right),o.top=Math.min(o.top,e.top),o.bottom=Math.max(o.bottom,e.bottom),o.fontSize=Math.max(o.fontSize,e.fontSize),o.barTop=Math.min(o.barTop,e.barTop),o.barBottom=Math.max(o.barBottom,e.barBottom)):n.push({...e})}return n.map(e=>{let o=e.barBottom-e.barTop;return{x:e.left,y:e.barTop,width:e.right-e.left,height:o,radius:e.radius||`${Math.round(o/3)}px`}})}function rt(t,n,{mark:e=!0,onCovered:o}={}){let r=n.getBoundingClientRect(),c=n.offsetWidth?r.width/n.offsetWidth:1,a=n.offsetHeight?r.height/n.offsetHeight:1,l=m=>({left:(m.left-r.left)/c,right:(m.right-r.left)/c,top:(m.top-r.top)/a,bottom:(m.bottom-r.top)/a}),s=[],i=[],u=new Set,h=document.createRange(),f=(m,g,b)=>{let d=j(m,b);if(!d)return;let p=parseFloat(g.fontSize)||16,M=l(d);i.push({...M,fontSize:p,...xt(M,g,p),radius:g.getPropertyValue(\"--skullet-radius\").trim()})},T=(m,g)=>{let b=m.data.search(/\\S/);if(b<0||!m.parentElement)return;h.setStart(m,b),h.setEnd(m,m.data.trimEnd().length);let d=getComputedStyle(m.parentElement);for(let p of tt(h))f(p,d,g)},_=(m,g)=>{for(let b of m.childNodes){if(b.nodeType===Node.TEXT_NODE){T(b,g);continue}if(b.nodeType!==Node.ELEMENT_NODE)continue;let d=b;if(d.hasAttribute(v)||d.hasAttribute($))continue;let p=getComputedStyle(d);if(p.display===\"none\")continue;if(Nt(d,p)){let E=j(d.getBoundingClientRect(),g);if(E){let S=l(E);s.push({x:S.left,y:S.top,width:S.right-S.left,height:S.bottom-S.top,radius:Tt(g,E,_t(d,p),p)})}ot(d)||u.add(d);continue}if(nt(d)){for(let E of d.getClientRects())f(E,p,g);continue}let M=p.overflowX!==\"visible\"||p.overflowY!==\"visible\";_(d,M?bt(g,d.getBoundingClientRect(),p):g)}};if(_(t,null),o?.(u),!e)return[...s,...Z(i)];for(let m of t.querySelectorAll(`[${R}]`))u.has(m)||m.removeAttribute(R);for(let m of u)m.hasAttribute(R)||m.setAttribute(R,\"\");return[...s,...Z(i)]}var Bt=t=>typeof matchMedia<\"u\"&&matchMedia(t).matches,Dt=()=>typeof Element<\"u\"&&typeof Element.prototype.animate==\"function\",st=()=>!Dt()||Bt(\"(prefers-reduced-motion: reduce)\");var it=t=>t.getAnimations?.()??[];var Lt=.7,$t=1280,at=320,vt=2.5,Ht=.45,It=[\"shimmer\",\"group-shimmer\",\"pulse\",\"none\"];function lt(t){let n=getComputedStyle(t),e=(c,a,l)=>{let s=n.getPropertyValue(c).trim();return a.includes(s)?s:l},o=e(\"--skullet-animation\",It,\"shimmer\"),r=e(\"--skullet-speed\",[\"slow\",\"fast\"],\"slow\");return{animation:o,duration:F[o===\"pulse\"?\"pulse\":\"shimmer\"][r]}}var w=20,Gt=Math.sin(w*Math.PI/180),ut=Math.cos(w*Math.PI/180),Pt=Gt/ut;var Wt=`${90+w}deg`,O=.85,x=12,ct=t=>(1-Math.cos(Math.PI*t))/2;function zt(t){let n=t*vt,e=(r,c)=>`color-mix(in srgb, ${z} ${(c*100).toFixed(1)}%, transparent) ${(r*t).toFixed(2)}px`,o=[];for(let r=0;r<=x;r++)o.push(e(r/x*O,ct(r/x)));for(let r=1;r<=x;r++)o.push(e(O+r/x*(1-O),ct(1-r/x)));return{width:n/ut,image:`repeating-linear-gradient(${Wt}, ${o.join(\", \")}, transparent ${n.toFixed(2)}px)`}}function Ft(t,n,e=lt(t)){for(let f of it(t))f.cancel();if(t.style.backgroundImage=\"\",t.style.backgroundRepeat=\"\",st()||typeof t.animate!=\"function\"||e.animation===\"none\")return;let o={duration:e.duration,iterations:1/0};if(e.animation===\"pulse\"){t.animate([{opacity:1,easing:\"ease-in-out\"},{opacity:Ht,easing:\"ease-in-out\"},{opacity:1}],o).startTime=0;return}let r=t.getBoundingClientRect(),c=r.left+scrollX,a=e.animation===\"group-shimmer\"?n??{left:c,top:r.top,width:r.width,height:r.height}:{left:0,top:0,width:document.documentElement.clientWidth||innerWidth,height:innerHeight},l=Math.min(Math.max(a.width*.4,80),at),{width:s,image:i}=zt(l),u=c-a.left+(r.top-a.top)*Pt,h=e.duration*Lt/($t+at);t.style.backgroundImage=i,t.style.backgroundSize=`${s}px 100%`,t.style.backgroundRepeat=\"repeat-x\",t.animate([{backgroundPosition:`${-u}px 0`},{backgroundPosition:`${s-u}px 0`}],{duration:s*h,iterations:1/0}).startTime=0}var Xt=t=>t.shadowRoot??t.attachShadow({mode:\"open\"});function mt(t,n){let e=Xt(t),o=t.getBoundingClientRect(),r={left:o.left+scrollX,top:o.top,width:o.width,height:o.height},c=lt(t);for(n.forEach((a,l)=>{let s=e.children[l];s||(s=document.createElement(\"div\"),s.setAttribute(L,\"\"),s.style.cssText=`position:absolute;display:block;pointer-events:none;background-color:${W};background-repeat:no-repeat`,e.append(s)),Object.assign(s.style,{left:`${a.x}px`,top:`${a.y}px`,width:`${a.width}px`,height:`${a.height}px`,borderRadius:a.radius});let i=`${Math.round(r.left+a.x)}|${Math.round(a.y)}|${Math.round(a.height)}|${Math.round(r.left)}|${Math.round(r.width)}|${Math.round(r.height)}|${document.documentElement.clientWidth}|${c.animation}|${c.duration}`;s.dataset.motion!==i&&(s.dataset.motion=i,Ft(s,r,c))});e.children.length>n.length;)e.lastElementChild.remove()}var pt=t=>t.parentElement?`${pt(t.parentElement)} > :nth-child(${[...t.parentElement.children].indexOf(t)+1})`:\":root\";function N(t){let n=t?.previousElementSibling,e=n?.querySelector(`:scope > [${B}]`),o=n?.querySelector(`:scope > [${D}]`);if(!n||!e||!o)return;let r=typeof CSSStyleSheet==\"function\"&&\"replaceSync\"in CSSStyleSheet.prototype?new CSSStyleSheet:null;r&&(document.adoptedStyleSheets=[...document.adoptedStyleSheets,r],n[G]=()=>{document.adoptedStyleSheets=document.adoptedStyleSheets.filter(s=>s!==r)});let c=s=>r?.replaceSync(s.size?`${[...s].map(pt).join(\", \")} { visibility: hidden !important; }`:\"\"),a=()=>{if(!o.isConnected||n[I])return l.disconnect();e.getClientRects().length&&mt(o,rt(e,o,{mark:!1,onCovered:c}))},l=new ResizeObserver(a);l.observe(n),document.fonts?.ready.then(a)}var ht=self,ft=Symbol.for(P),dt=ht[ft];ht[ft]=N;Array.isArray(dt)&&dt.forEach(N);N(document.currentScript);})();", Qr = {
+function Zr() {
+	Jr--, !(Jr > 0 || !qr) && (qr.remove(), qr = null);
+}
+var Qr = "\"use strict\";(()=>{var B=\"skullet-ghost\";var D=\"skullet-layer\",L=\"skullet-rect\";var R=\"skullet-covered\",$=\"skullet-own\",v=\"skullet-ignore\",H=\"skullet-block\",I=Symbol.for(\"skullet.ghost\"),G=Symbol.for(\"skullet.uncover\"),P=\"skullet.boot\";var W=\"var(--skullet-base, rgb(128 128 128 / 0.2))\",z=\"var(--skullet-highlight, rgb(255 255 255 / 0.12))\";var F={shimmer:{slow:4e3,fast:2e3},pulse:{slow:2400,fast:1200}},X=[\"a\",\"b\",\"code\",\"dd\",\"dt\",\"em\",\"h1\",\"h2\",\"h3\",\"h4\",\"h5\",\"h6\",\"i\",\"label\",\"li\",\"p\",\"small\",\"span\",\"strong\",\"td\",\"th\",\"time\"],U=[\"audio\",\"canvas\",\"embed\",\"iframe\",\"img\",\"input\",\"object\",\"picture\",\"select\",\"svg\",\"textarea\",\"video\"];var gt,V=()=>gt??(gt=/jsdom/.test(navigator.userAgent)?null:document.createElement(\"canvas\").getContext(\"2d\"));var J=(t,n)=>t?{left:Math.max(t.left,n.left),right:Math.min(t.right,n.right),top:Math.max(t.top,n.top),bottom:Math.min(t.bottom,n.bottom)}:n,A=t=>[[t.left,t.top],[t.right,t.top],[t.right,t.bottom],[t.left,t.bottom]],k=(t,n)=>Math.abs(t[0]-n[0])<1&&Math.abs(t[1]-n[1])<1;function Q(t,n){let e=Math.min(n.right-n.left,n.bottom-n.top),o=r=>r.endsWith(\"%\")?parseFloat(r)/100*e:parseFloat(r)||0;return[o(t.borderTopLeftRadius),o(t.borderTopRightRadius),o(t.borderBottomRightRadius),o(t.borderBottomLeftRadius)]}function bt(t,n,e){let o=J(t,n),r=Q(e,n),c=t?A(t):[],a=A(n),l=A(o).map((f,T)=>k(f,a[T])?r[T]:t&&k(f,c[T])?t.corners[T]:0),{left:s,right:i,top:u,bottom:h}=o;return{left:s,right:i,top:u,bottom:h,corners:l}}function Tt(t,n,e,o){if(!t)return e;let r=A(t),c=A(n).map((l,s)=>t.corners[s]>0&&k(l,r[s]));if(!c.some(Boolean))return e;let a=Q(o,n);return c.map((l,s)=>l?Math.max(a[s],t.corners[s]):a[s]).map(l=>`${l}px`).join(\" \")}var j=(t,n)=>{let e=J(n,t);return e.right-e.left>=2&&e.bottom-e.top>=2?e:null},q={top:\"ascender\",bottom:\"descender\"},C=new Map,tt=t=>[...t.getClientRects?.()??[]];function St(t){let n=`${t.fontStyle} ${t.fontWeight} ${t.fontSize} ${t.fontFamily}`;if(C.has(n))return C.get(n);let e=V(),o=null;if(e){e.font=n;let r=e.measureText(\"H\"),c=a=>e.measureText(a).actualBoundingBoxAscent;o={ascent:r.fontBoundingBoxAscent,descent:r.fontBoundingBoxDescent,ascender:c(\"bdfhkl\"),capHeight:r.actualBoundingBoxAscent,xHeight:c(\"xz\"),descender:e.measureText(\"gjpqy\").actualBoundingBoxDescent}}return C.set(n,o),o}var Y={ascender:\"ascender\",\"cap-height\":\"capHeight\",\"x-height\":\"xHeight\"},K=(t,n,e,o)=>{let r=t.getPropertyValue(n).trim();return e.includes(r)?r:o};function xt(t,n,e){let o=St(n);if(!o){let s=Math.min(e*.72,t.bottom-t.top),i=(t.top+t.bottom)/2;return{barTop:i-s/2,barBottom:i+s/2}}let r=K(n,\"--skullet-text-top\",Object.keys(Y),q.top),c=K(n,\"--skullet-text-bottom\",[\"baseline\",\"descender\"],q.bottom),a=o.ascent+o.descent,l=t.top+(t.bottom-t.top-a)/2+o.ascent;return{barTop:l-o[Y[r]],barBottom:l+(c===\"descender\"?o.descender:0)}}var Et=new Set(U),Rt=new Set(X),et=.4,At=/[,/]\\s*0\\)$/,y=(t,n)=>t!==\"\"&&t!==n,yt=[\"Top\",\"Right\",\"Bottom\",\"Left\"],Mt=t=>yt.every(n=>y(t[`border${n}Style`],\"none\")&&y(t[`border${n}Width`],\"0px\")),Ct=t=>{let[n=0,e=0,o=0,r=0]=(t.replace(/rgba?\\([^)]*\\)|#\\w+/g,\"\").match(/-?[\\d.]+px/g)??[]).map(parseFloat);return t.includes(\"inset\")&&!o&&!r&&n===0!=(e===0)&&Math.abs(n+e)<=2},kt=t=>y(t,\"none\")&&!t.split(/,(?![^(]*\\))/).every(Ct),Ot=t=>y(t.backgroundColor,\"transparent\")&&!At.test(t.backgroundColor)||y(t.backgroundImage,\"none\")||kt(t.boxShadow)||Mt(t),ot=t=>Et.has(t.localName),nt=t=>Rt.has(t.localName)&&!t.firstElementChild&&!t.textContent?.trim(),wt=t=>{let n=document.createTreeWalker(t,NodeFilter.SHOW_TEXT|NodeFilter.SHOW_ELEMENT),e=document.createRange(),o=[],r=0;for(;n.nextNode();){let i=n.currentNode;if(i.nodeType===Node.TEXT_NODE){let u=i.parentElement;if(!i.textContent?.trim()||!u)continue;r++;let h=u.getBoundingClientRect();if(h.width<=1||h.height<=1)continue;e.selectNodeContents(i),o.push(tt(e).filter(f=>f.width||f.height))}else nt(i)&&(r++,o.push([...i.getClientRects()]))}if(!o.some(i=>i.length))return r;let c=(parseFloat(getComputedStyle(t).fontSize)||16)*et,a=(i,u)=>Math.min(i.bottom,u.bottom)-Math.max(i.top,u.top)>=Math.min(i.height,u.height)/2&&Math.max(i.left,u.left)-Math.min(i.right,u.right)<=c,l=o.map((i,u)=>u),s=i=>l[i]===i?i:l[i]=s(l[i]);for(let i=0;i<o.length;i++)for(let u=i+1;u<o.length;u++)o[i].some(h=>o[u].some(f=>a(h,f)))&&(l[s(u)]=s(i));return new Set(o.map((i,u)=>s(u))).size},Nt=(t,n)=>t.hasAttribute(H)||ot(t)||Ot(n)&&wt(t)<=1;function _t(t,n){if(parseFloat(n.borderRadius)||!t.parentElement)return n.borderRadius||\"0px\";let e=t.parentElement,o=getComputedStyle(e),r=t.getBoundingClientRect(),c=e.getBoundingClientRect();return Math.abs(r.width-c.width)<1&&Math.abs(r.height-c.height)<1&&o.overflow!==\"visible\"?o.borderRadius:n.borderRadius||\"0px\"}function Z(t){t.sort((e,o)=>e.left-o.left);let n=[];for(let e of t){let o=n.find(r=>{let c=Math.min(r.bottom,e.bottom)-Math.max(r.top,e.top),a=Math.min(r.bottom-r.top,e.bottom-e.top),l=e.left-r.right;return c>=a/2&&l<=Math.max(r.fontSize,e.fontSize)*et});o?(o.left=Math.min(o.left,e.left),o.right=Math.max(o.right,e.right),o.top=Math.min(o.top,e.top),o.bottom=Math.max(o.bottom,e.bottom),o.fontSize=Math.max(o.fontSize,e.fontSize),o.barTop=Math.min(o.barTop,e.barTop),o.barBottom=Math.max(o.barBottom,e.barBottom)):n.push({...e})}return n.map(e=>{let o=e.barBottom-e.barTop;return{x:e.left,y:e.barTop,width:e.right-e.left,height:o,radius:e.radius||`${Math.round(o/3)}px`}})}function rt(t,n,{mark:e=!0,onCovered:o}={}){let r=n.getBoundingClientRect(),c=n.offsetWidth?r.width/n.offsetWidth:1,a=n.offsetHeight?r.height/n.offsetHeight:1,l=m=>({left:(m.left-r.left)/c,right:(m.right-r.left)/c,top:(m.top-r.top)/a,bottom:(m.bottom-r.top)/a}),s=[],i=[],u=new Set,h=document.createRange(),f=(m,g,b)=>{let d=j(m,b);if(!d)return;let p=parseFloat(g.fontSize)||16,M=l(d);i.push({...M,fontSize:p,...xt(M,g,p),radius:g.getPropertyValue(\"--skullet-radius\").trim()})},T=(m,g)=>{let b=m.data.search(/\\S/);if(b<0||!m.parentElement)return;h.setStart(m,b),h.setEnd(m,m.data.trimEnd().length);let d=getComputedStyle(m.parentElement);for(let p of tt(h))f(p,d,g)},_=(m,g)=>{for(let b of m.childNodes){if(b.nodeType===Node.TEXT_NODE){T(b,g);continue}if(b.nodeType!==Node.ELEMENT_NODE)continue;let d=b;if(d.hasAttribute(v)||d.hasAttribute($))continue;let p=getComputedStyle(d);if(p.display===\"none\")continue;if(Nt(d,p)){let E=j(d.getBoundingClientRect(),g);if(E){let S=l(E);s.push({x:S.left,y:S.top,width:S.right-S.left,height:S.bottom-S.top,radius:Tt(g,E,_t(d,p),p)})}ot(d)||u.add(d);continue}if(nt(d)){for(let E of d.getClientRects())f(E,p,g);continue}let M=p.overflowX!==\"visible\"||p.overflowY!==\"visible\";_(d,M?bt(g,d.getBoundingClientRect(),p):g)}};if(_(t,null),o?.(u),!e)return[...s,...Z(i)];for(let m of t.querySelectorAll(`[${R}]`))u.has(m)||m.removeAttribute(R);for(let m of u)m.hasAttribute(R)||m.setAttribute(R,\"\");return[...s,...Z(i)]}var Bt=t=>typeof matchMedia<\"u\"&&matchMedia(t).matches,Dt=()=>typeof Element<\"u\"&&typeof Element.prototype.animate==\"function\",st=()=>!Dt()||Bt(\"(prefers-reduced-motion: reduce)\");var it=t=>t.getAnimations?.()??[];var Lt=.7,$t=1280,at=320,vt=2.5,Ht=.45,It=[\"shimmer\",\"group-shimmer\",\"pulse\",\"none\"];function lt(t){let n=getComputedStyle(t),e=(c,a,l)=>{let s=n.getPropertyValue(c).trim();return a.includes(s)?s:l},o=e(\"--skullet-animation\",It,\"shimmer\"),r=e(\"--skullet-speed\",[\"slow\",\"fast\"],\"slow\");return{animation:o,duration:F[o===\"pulse\"?\"pulse\":\"shimmer\"][r]}}var w=20,Gt=Math.sin(w*Math.PI/180),ut=Math.cos(w*Math.PI/180),Pt=Gt/ut;var Wt=`${90+w}deg`,O=.85,x=12,ct=t=>(1-Math.cos(Math.PI*t))/2;function zt(t){let n=t*vt,e=(r,c)=>`color-mix(in srgb, ${z} ${(c*100).toFixed(1)}%, transparent) ${(r*t).toFixed(2)}px`,o=[];for(let r=0;r<=x;r++)o.push(e(r/x*O,ct(r/x)));for(let r=1;r<=x;r++)o.push(e(O+r/x*(1-O),ct(1-r/x)));return{width:n/ut,image:`repeating-linear-gradient(${Wt}, ${o.join(\", \")}, transparent ${n.toFixed(2)}px)`}}function Ft(t,n,e=lt(t)){for(let f of it(t))f.cancel();if(t.style.backgroundImage=\"\",t.style.backgroundRepeat=\"\",st()||typeof t.animate!=\"function\"||e.animation===\"none\")return;let o={duration:e.duration,iterations:1/0};if(e.animation===\"pulse\"){t.animate([{opacity:1,easing:\"ease-in-out\"},{opacity:Ht,easing:\"ease-in-out\"},{opacity:1}],o).startTime=0;return}let r=t.getBoundingClientRect(),c=r.left+scrollX,a=e.animation===\"group-shimmer\"?n??{left:c,top:r.top,width:r.width,height:r.height}:{left:0,top:0,width:document.documentElement.clientWidth||innerWidth,height:innerHeight},l=Math.min(Math.max(a.width*.4,80),at),{width:s,image:i}=zt(l),u=c-a.left+(r.top-a.top)*Pt,h=e.duration*Lt/($t+at);t.style.backgroundImage=i,t.style.backgroundSize=`${s}px 100%`,t.style.backgroundRepeat=\"repeat-x\",t.animate([{backgroundPosition:`${-u}px 0`},{backgroundPosition:`${s-u}px 0`}],{duration:s*h,iterations:1/0}).startTime=0}var Xt=t=>t.shadowRoot??t.attachShadow({mode:\"open\"});function mt(t,n){let e=Xt(t),o=t.getBoundingClientRect(),r={left:o.left+scrollX,top:o.top,width:o.width,height:o.height},c=lt(t);for(n.forEach((a,l)=>{let s=e.children[l];s||(s=document.createElement(\"div\"),s.setAttribute(L,\"\"),s.style.cssText=`position:absolute;display:block;pointer-events:none;background-color:${W};background-repeat:no-repeat`,e.append(s)),Object.assign(s.style,{left:`${a.x}px`,top:`${a.y}px`,width:`${a.width}px`,height:`${a.height}px`,borderRadius:a.radius});let i=`${Math.round(r.left+a.x)}|${Math.round(a.y)}|${Math.round(a.height)}|${Math.round(r.left)}|${Math.round(r.width)}|${Math.round(r.height)}|${document.documentElement.clientWidth}|${c.animation}|${c.duration}`;s.dataset.motion!==i&&(s.dataset.motion=i,Ft(s,r,c))});e.children.length>n.length;)e.lastElementChild.remove()}var pt=t=>t.parentElement?`${pt(t.parentElement)} > :nth-child(${[...t.parentElement.children].indexOf(t)+1})`:\":root\";function N(t){let n=t?.previousElementSibling,e=n?.querySelector(`:scope > [${B}]`),o=n?.querySelector(`:scope > [${D}]`);if(!n||!e||!o)return;let r=typeof CSSStyleSheet==\"function\"&&\"replaceSync\"in CSSStyleSheet.prototype?new CSSStyleSheet:null;r&&(document.adoptedStyleSheets=[...document.adoptedStyleSheets,r],n[G]=()=>{document.adoptedStyleSheets=document.adoptedStyleSheets.filter(s=>s!==r)});let c=s=>r?.replaceSync(s.size?`${[...s].map(pt).join(\", \")} { visibility: hidden !important; }`:\"\"),a=()=>{if(!o.isConnected||n[I])return l.disconnect();e.getClientRects().length&&mt(o,rt(e,o,{mark:!1,onCovered:c}))},l=new ResizeObserver(a);l.observe(n),document.fonts?.ready.then(a)}var ht=self,ft=Symbol.for(P),dt=ht[ft];ht[ft]=N;Array.isArray(dt)&&dt.forEach(N);N(document.currentScript);})();", $r = {
 	light: {
 		base: "rgb(0 0 0 / 0.07)",
 		highlight: "rgb(255 255 255 / 0.6)"
@@ -3028,75 +3043,75 @@ var Zr = "\"use strict\";(()=>{var B=\"skullet-ghost\";var D=\"skullet-layer\",L
 		highlight: "rgb(255 255 255 / 0.1)"
 	}
 };
-({ ...Qr });
-function $r(e = {}, t = null) {
-	let n = {}, r = t && (e[t] ?? Qr[t]);
+({ ...$r });
+function ei(e = {}, t = null) {
+	let n = {}, r = t && (e[t] ?? $r[t]);
 	return r && (n["--skullet-base"] = r.base, n["--skullet-highlight"] = r.highlight), e.radius && (n["--skullet-radius"] = e.radius), e.animation && (n["--skullet-animation"] = e.animation), e.speed && (n["--skullet-speed"] = e.speed), e.text?.top && (n["--skullet-text-top"] = e.text.top), e.text?.bottom && (n["--skullet-text-bottom"] = e.text.bottom), n;
 }
-var ei = (e) => Object.entries(e).map(([e, t]) => `${e}: ${t};`).join(" ");
-function ti({ theme: e = {}, mode: t, text: n, selector: r = ":root" }) {
+var ti = (e) => Object.entries(e).map(([e, t]) => `${e}: ${t};`).join(" ");
+function ni({ theme: e = {}, mode: t, text: n, selector: r = ":root" }) {
 	let i = {
 		...e,
 		text: {
 			...e.text,
 			...n
 		}
-	}, a = t ?? (e.light || e.dark ? "system" : null), o = $r(i, a === "dark" ? "dark" : a ? "light" : null), s = [];
-	if (Object.keys(o).length && s.push(`${r} { ${ei(o)} }`), a === "system") {
-		let t = $r({ dark: e.dark }, "dark");
-		s.push(`@media (prefers-color-scheme: dark) { ${r} { ${ei(t)} } }`);
+	}, a = t ?? (e.light || e.dark ? "system" : null), o = ei(i, a === "dark" ? "dark" : a ? "light" : null), s = [];
+	if (Object.keys(o).length && s.push(`${r} { ${ti(o)} }`), a === "system") {
+		let t = ei({ dark: e.dark }, "dark");
+		s.push(`@media (prefers-color-scheme: dark) { ${r} { ${ti(t)} } }`);
 	}
 	return s.join("\n");
 }
-var ni = /* @__PURE__ */ new Map(), ri, ii = null, ai = 0;
-function oi() {
+var ri = /* @__PURE__ */ new Map(), ii, ai = null, oi = 0;
+function si() {
 	try {
 		return new URLSearchParams(location.search).has("skullet-debug") || localStorage.getItem("skullet:debug") === "1";
 	} catch {
 		return !1;
 	}
 }
-var si = () => ri ??= typeof window < "u" && oi(), ci = (e) => si() || !!e?.closest("[skullet-debug]");
-function li(e) {
-	ri = e, e ? mi() : hi();
-}
-function ui(e, t) {
-	!e || !ci(e) || (ni.set(e, {
-		state: "loading",
-		source: t
-	}), fi());
+var ci = () => ii ??= typeof window < "u" && si(), li = (e) => ci() || !!e?.closest("[skullet-debug]");
+function ui(e) {
+	ii = e, e ? hi() : gi();
 }
 function di(e, t) {
-	!e || !ci(e) || (ni.set(e, {
-		...ni.get(e),
+	!e || !li(e) || (ri.set(e, {
+		state: "loading",
+		source: t
+	}), pi());
+}
+function fi(e, t) {
+	!e || !li(e) || (ri.set(e, {
+		...ri.get(e),
 		state: "shown",
 		moved: t
-	}), fi());
+	}), pi());
 }
-function fi() {
-	mi(), cancelAnimationFrame(ai), _i();
+function pi() {
+	hi(), cancelAnimationFrame(oi), vi();
 }
-var pi = "\n:host { all: initial; }\n.box { position: fixed; box-sizing: border-box; border: 1px dashed; border-radius: 4px; }\n.label {\n  position: absolute; left: -1px; bottom: 100%; margin-bottom: 2px;\n  padding: 1px 6px; border-radius: 4px; white-space: nowrap;\n  font: 500 11px/16px ui-monospace, SFMono-Regular, Menlo, monospace; color: #fff;\n}\n.loading { border-color: #3b82f6; } .loading .label { background: #3b82f6; }\n.still { border-color: #22c55e; } .still .label { background: #16a34a; }\n.moved { border-color: #ef4444; border-style: solid; } .moved .label { background: #dc2626; }\n.panel {\n  position: fixed; right: 12px; bottom: 12px; display: flex; gap: 8px; align-items: center;\n  padding: 6px 10px; border-radius: 8px; background: #111; color: #fff; pointer-events: auto;\n  font: 500 12px/16px ui-sans-serif, system-ui, sans-serif; box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);\n}\n.panel label { display: flex; gap: 4px; align-items: center; cursor: pointer; }\n";
-function mi() {
+var mi = "\n:host { all: initial; }\n.box { position: fixed; box-sizing: border-box; border: 1px dashed; border-radius: 4px; }\n.label {\n  position: absolute; left: -1px; bottom: 100%; margin-bottom: 2px;\n  padding: 1px 6px; border-radius: 4px; white-space: nowrap;\n  font: 500 11px/16px ui-monospace, SFMono-Regular, Menlo, monospace; color: #fff;\n}\n.loading { border-color: #3b82f6; } .loading .label { background: #3b82f6; }\n.still { border-color: #22c55e; } .still .label { background: #16a34a; }\n.moved { border-color: #ef4444; border-style: solid; } .moved .label { background: #dc2626; }\n.panel {\n  position: fixed; right: 12px; bottom: 12px; display: flex; gap: 8px; align-items: center;\n  padding: 6px 10px; border-radius: 8px; background: #111; color: #fff; pointer-events: auto;\n  font: 500 12px/16px ui-sans-serif, system-ui, sans-serif; box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);\n}\n.panel label { display: flex; gap: 4px; align-items: center; cursor: pointer; }\n";
+function hi() {
 	if (typeof document > "u") return;
-	if (!ii?.isConnected) {
-		ii = document.createElement("div"), ii.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:2147483647";
-		let e = ii.attachShadow({ mode: "open" });
-		e.innerHTML = `<style>${pi}</style><div class="boxes"></div>`, document.body.append(ii);
+	if (!ai?.isConnected) {
+		ai = document.createElement("div"), ai.style.cssText = "position:fixed;inset:0;pointer-events:none;z-index:2147483647";
+		let e = ai.attachShadow({ mode: "open" });
+		e.innerHTML = `<style>${mi}</style><div class="boxes"></div>`, document.body.append(ai);
 	}
-	let e = ii.shadowRoot;
-	if (ri && !e.querySelector(".panel")) {
+	let e = ai.shadowRoot;
+	if (ii && !e.querySelector(".panel")) {
 		let t = document.createElement("div");
 		t.className = "panel", t.innerHTML = "skullet debug <label><input type=\"checkbox\" class=\"xray\"> x-ray</label>", t.querySelector(".xray").addEventListener("change", (e) => {
-			document.documentElement.toggleAttribute(Ir, e.target.checked);
+			document.documentElement.toggleAttribute(Lr, e.target.checked);
 		}), e.append(t);
 	}
-	ai ||= requestAnimationFrame(_i);
+	oi ||= requestAnimationFrame(vi);
 }
-function hi() {
-	ii?.shadowRoot?.querySelector(".panel")?.remove(), document.documentElement.removeAttribute(Ir), ![...ni.keys()].some((e) => ci(e)) && (cancelAnimationFrame(ai), ai = 0, ii?.remove(), ii = null);
+function gi() {
+	ai?.shadowRoot?.querySelector(".panel")?.remove(), document.documentElement.removeAttribute(Lr), ![...ri.keys()].some((e) => li(e)) && (cancelAnimationFrame(oi), oi = 0, ai?.remove(), ai = null);
 }
-var gi = ({ state: e, source: t, moved: n }) => {
+var _i = ({ state: e, source: t, moved: n }) => {
 	let r = t ? ` \xB7 ${t}` : "";
 	return e === "loading" ? {
 		kind: "loading",
@@ -3109,36 +3124,36 @@ var gi = ({ state: e, source: t, moved: n }) => {
 		text: `\u2717 moved ${n.width}\xD7${n.height}px${r}`
 	};
 };
-function _i() {
-	if (ai = 0, !ii?.shadowRoot) return;
-	let e = ii.shadowRoot.querySelector(".boxes");
-	for (let e of ni.keys()) e.isConnected && ci(e) || ni.delete(e);
-	let t = [...ni];
+function vi() {
+	if (oi = 0, !ai?.shadowRoot) return;
+	let e = ai.shadowRoot.querySelector(".boxes");
+	for (let e of ri.keys()) e.isConnected && li(e) || ri.delete(e);
+	let t = [...ri];
 	for (; e.children.length > t.length;) e.lastElementChild.remove();
 	t.forEach(([t, n], r) => {
 		let i = e.children[r];
 		i || (i = e.appendChild(document.createElement("div")), i.innerHTML = "<span class=\"label\"></span>");
-		let a = t.getBoundingClientRect(), { kind: o, text: s } = gi(n);
+		let a = t.getBoundingClientRect(), { kind: o, text: s } = _i(n);
 		i.className = `box ${o}`, Object.assign(i.style, {
 			left: `${a.left - 2}px`,
 			top: `${a.top - 2}px`,
 			width: `${a.width + 4}px`,
 			height: `${a.height + 4}px`
 		}), i.firstElementChild.textContent = s;
-	}), (ri || ni.size) && (ai = requestAnimationFrame(_i));
+	}), (ii || ri.size) && (oi = requestAnimationFrame(vi));
 }
-var vi, yi = () => vi ??= /jsdom/.test(navigator.userAgent) ? null : document.createElement("canvas").getContext("2d"), bi = (e, t) => e ? {
+var yi, bi = () => yi ??= /jsdom/.test(navigator.userAgent) ? null : document.createElement("canvas").getContext("2d"), xi = (e, t) => e ? {
 	left: Math.max(e.left, t.left),
 	right: Math.min(e.right, t.right),
 	top: Math.max(e.top, t.top),
 	bottom: Math.min(e.bottom, t.bottom)
-} : t, xi = (e) => [
+} : t, Si = (e) => [
 	[e.left, e.top],
 	[e.right, e.top],
 	[e.right, e.bottom],
 	[e.left, e.bottom]
-], Si = (e, t) => Math.abs(e[0] - t[0]) < 1 && Math.abs(e[1] - t[1]) < 1;
-function Ci(e, t) {
+], Ci = (e, t) => Math.abs(e[0] - t[0]) < 1 && Math.abs(e[1] - t[1]) < 1;
+function wi(e, t) {
 	let n = Math.min(t.right - t.left, t.bottom - t.top), r = (e) => e.endsWith("%") ? parseFloat(e) / 100 * n : parseFloat(e) || 0;
 	return [
 		r(e.borderTopLeftRadius),
@@ -3147,8 +3162,8 @@ function Ci(e, t) {
 		r(e.borderBottomLeftRadius)
 	];
 }
-function wi(e, t, n) {
-	let r = bi(e, t), i = Ci(n, t), a = e ? xi(e) : [], o = xi(t), s = xi(r).map((t, n) => Si(t, o[n]) ? i[n] : e && Si(t, a[n]) ? e.corners[n] : 0), { left: c, right: l, top: u, bottom: d } = r;
+function Ti(e, t, n) {
+	let r = xi(e, t), i = wi(n, t), a = e ? Si(e) : [], o = Si(t), s = Si(r).map((t, n) => Ci(t, o[n]) ? i[n] : e && Ci(t, a[n]) ? e.corners[n] : 0), { left: c, right: l, top: u, bottom: d } = r;
 	return {
 		left: c,
 		right: l,
@@ -3157,24 +3172,24 @@ function wi(e, t, n) {
 		corners: s
 	};
 }
-function Ti(e, t, n, r) {
+function Ei(e, t, n, r) {
 	if (!e) return n;
-	let i = xi(e), a = xi(t).map((t, n) => e.corners[n] > 0 && Si(t, i[n]));
+	let i = Si(e), a = Si(t).map((t, n) => e.corners[n] > 0 && Ci(t, i[n]));
 	if (!a.some(Boolean)) return n;
-	let o = Ci(r, t);
+	let o = wi(r, t);
 	return a.map((t, n) => t ? Math.max(o[n], e.corners[n]) : o[n]).map((e) => `${e}px`).join(" ");
 }
-var Ei = (e, t) => {
-	let n = bi(t, e);
+var Di = (e, t) => {
+	let n = xi(t, e);
 	return n.right - n.left >= 2 && n.bottom - n.top >= 2 ? n : null;
-}, Di = {
+}, Oi = {
 	top: "ascender",
 	bottom: "descender"
-}, Oi = /* @__PURE__ */ new Map(), ki = (e) => [...e.getClientRects?.() ?? []];
-function Ai(e) {
+}, ki = /* @__PURE__ */ new Map(), Ai = (e) => [...e.getClientRects?.() ?? []];
+function ji(e) {
 	let t = `${e.fontStyle} ${e.fontWeight} ${e.fontSize} ${e.fontFamily}`;
-	if (Oi.has(t)) return Oi.get(t);
-	let n = yi(), r = null;
+	if (ki.has(t)) return ki.get(t);
+	let n = bi(), r = null;
 	if (n) {
 		n.font = t;
 		let e = n.measureText("H"), i = (e) => n.measureText(e).actualBoundingBoxAscent;
@@ -3187,18 +3202,18 @@ function Ai(e) {
 			descender: n.measureText("gjpqy").actualBoundingBoxDescent
 		};
 	}
-	return Oi.set(t, r), r;
+	return ki.set(t, r), r;
 }
-var ji = {
+var Mi = {
 	ascender: "ascender",
 	"cap-height": "capHeight",
 	"x-height": "xHeight"
-}, Mi = (e, t, n, r) => {
+}, Ni = (e, t, n, r) => {
 	let i = e.getPropertyValue(t).trim();
 	return n.includes(i) ? i : r;
 };
-function Ni(e, t, n) {
-	let r = Ai(t);
+function Pi(e, t, n) {
+	let r = ji(t);
 	if (!r) {
 		let t = Math.min(n * .72, e.bottom - e.top), r = (e.top + e.bottom) / 2;
 		return {
@@ -3206,21 +3221,21 @@ function Ni(e, t, n) {
 			barBottom: r + t / 2
 		};
 	}
-	let i = Mi(t, "--skullet-text-top", Object.keys(ji), Di.top), a = Mi(t, "--skullet-text-bottom", ["baseline", "descender"], Di.bottom), o = r.ascent + r.descent, s = e.top + (e.bottom - e.top - o) / 2 + r.ascent;
+	let i = Ni(t, "--skullet-text-top", Object.keys(Mi), Oi.top), a = Ni(t, "--skullet-text-bottom", ["baseline", "descender"], Oi.bottom), o = r.ascent + r.descent, s = e.top + (e.bottom - e.top - o) / 2 + r.ascent;
 	return {
-		barTop: s - r[ji[i]],
+		barTop: s - r[Mi[i]],
 		barBottom: s + (a === "descender" ? r.descender : 0)
 	};
 }
-var Pi = new Set(Ur), Fi = new Set(Hr), Ii = .4, Li = /[,/]\s*0\)$/, Ri = (e, t) => e !== "" && e !== t, zi = [
+var Fi = new Set(Wr), Ii = new Set(Ur), Li = .4, Ri = /[,/]\s*0\)$/, zi = (e, t) => e !== "" && e !== t, Bi = [
 	"Top",
 	"Right",
 	"Bottom",
 	"Left"
-], Bi = (e) => zi.every((t) => Ri(e[`border${t}Style`], "none") && Ri(e[`border${t}Width`], "0px")), Vi = (e) => {
+], Vi = (e) => Bi.every((t) => zi(e[`border${t}Style`], "none") && zi(e[`border${t}Width`], "0px")), Hi = (e) => {
 	let [t = 0, n = 0, r = 0, i = 0] = (e.replace(/rgba?\([^)]*\)|#\w+/g, "").match(/-?[\d.]+px/g) ?? []).map(parseFloat);
 	return e.includes("inset") && !r && !i && t === 0 != (n === 0) && Math.abs(t + n) <= 2;
-}, Hi = (e) => Ri(e, "none") && !e.split(/,(?![^(]*\))/).every(Vi), Ui = (e) => Ri(e.backgroundColor, "transparent") && !Li.test(e.backgroundColor) || Ri(e.backgroundImage, "none") || Hi(e.boxShadow) || Bi(e), Wi = (e) => Pi.has(e.localName), Gi = (e) => Fi.has(e.localName) && !e.firstElementChild && !e.textContent?.trim(), Ki = (e) => {
+}, Ui = (e) => zi(e, "none") && !e.split(/,(?![^(]*\))/).every(Hi), Wi = (e) => zi(e.backgroundColor, "transparent") && !Ri.test(e.backgroundColor) || zi(e.backgroundImage, "none") || Ui(e.boxShadow) || Vi(e), Gi = (e) => Fi.has(e.localName), Ki = (e) => Ii.has(e.localName) && !e.firstElementChild && !e.textContent?.trim(), qi = (e) => {
 	let t = document.createTreeWalker(e, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT), n = document.createRange(), r = [], i = 0;
 	for (; t.nextNode();) {
 		let e = t.currentNode;
@@ -3230,26 +3245,26 @@ var Pi = new Set(Ur), Fi = new Set(Hr), Ii = .4, Li = /[,/]\s*0\)$/, Ri = (e, t)
 			i++;
 			let a = t.getBoundingClientRect();
 			if (a.width <= 1 || a.height <= 1) continue;
-			n.selectNodeContents(e), r.push(ki(n).filter((e) => e.width || e.height));
-		} else Gi(e) && (i++, r.push([...e.getClientRects()]));
+			n.selectNodeContents(e), r.push(Ai(n).filter((e) => e.width || e.height));
+		} else Ki(e) && (i++, r.push([...e.getClientRects()]));
 	}
 	if (!r.some((e) => e.length)) return i;
-	let a = (parseFloat(getComputedStyle(e).fontSize) || 16) * Ii, o = (e, t) => Math.min(e.bottom, t.bottom) - Math.max(e.top, t.top) >= Math.min(e.height, t.height) / 2 && Math.max(e.left, t.left) - Math.min(e.right, t.right) <= a, s = r.map((e, t) => t), c = (e) => s[e] === e ? e : s[e] = c(s[e]);
+	let a = (parseFloat(getComputedStyle(e).fontSize) || 16) * Li, o = (e, t) => Math.min(e.bottom, t.bottom) - Math.max(e.top, t.top) >= Math.min(e.height, t.height) / 2 && Math.max(e.left, t.left) - Math.min(e.right, t.right) <= a, s = r.map((e, t) => t), c = (e) => s[e] === e ? e : s[e] = c(s[e]);
 	for (let e = 0; e < r.length; e++) for (let t = e + 1; t < r.length; t++) r[e].some((e) => r[t].some((t) => o(e, t))) && (s[c(t)] = c(e));
 	return new Set(r.map((e, t) => c(t))).size;
-}, qi = (e, t) => e.hasAttribute("skullet-block") || Wi(e) || Ui(t) && Ki(e) <= 1;
-function Ji(e, t) {
+}, Ji = (e, t) => e.hasAttribute("skullet-block") || Gi(e) || Wi(t) && qi(e) <= 1;
+function Yi(e, t) {
 	if (parseFloat(t.borderRadius) || !e.parentElement) return t.borderRadius || "0px";
 	let n = e.parentElement, r = getComputedStyle(n), i = e.getBoundingClientRect(), a = n.getBoundingClientRect();
 	return Math.abs(i.width - a.width) < 1 && Math.abs(i.height - a.height) < 1 && r.overflow !== "visible" ? r.borderRadius : t.borderRadius || "0px";
 }
-function Yi(e) {
+function Xi(e) {
 	e.sort((e, t) => e.left - t.left);
 	let t = [];
 	for (let n of e) {
 		let e = t.find((e) => {
 			let t = Math.min(e.bottom, n.bottom) - Math.max(e.top, n.top), r = Math.min(e.bottom - e.top, n.bottom - n.top), i = n.left - e.right;
-			return t >= r / 2 && i <= Math.max(e.fontSize, n.fontSize) * Ii;
+			return t >= r / 2 && i <= Math.max(e.fontSize, n.fontSize) * Li;
 		});
 		e ? (e.left = Math.min(e.left, n.left), e.right = Math.max(e.right, n.right), e.top = Math.min(e.top, n.top), e.bottom = Math.max(e.bottom, n.bottom), e.fontSize = Math.max(e.fontSize, n.fontSize), e.barTop = Math.min(e.barTop, n.barTop), e.barBottom = Math.max(e.barBottom, n.barBottom)) : t.push({ ...n });
 	}
@@ -3264,20 +3279,20 @@ function Yi(e) {
 		};
 	});
 }
-function Xi(e, t, { mark: n = !0, onCovered: r } = {}) {
+function Zi(e, t, { mark: n = !0, onCovered: r } = {}) {
 	let i = t.getBoundingClientRect(), a = t.offsetWidth ? i.width / t.offsetWidth : 1, o = t.offsetHeight ? i.height / t.offsetHeight : 1, s = (e) => ({
 		left: (e.left - i.left) / a,
 		right: (e.right - i.left) / a,
 		top: (e.top - i.top) / o,
 		bottom: (e.bottom - i.top) / o
 	}), c = [], l = [], u = /* @__PURE__ */ new Set(), d = document.createRange(), f = (e, t, n) => {
-		let r = Ei(e, n);
+		let r = Di(e, n);
 		if (!r) return;
 		let i = parseFloat(t.fontSize) || 16, a = s(r);
 		l.push({
 			...a,
 			fontSize: i,
-			...Ni(a, t, i),
+			...Pi(a, t, i),
 			radius: t.getPropertyValue("--skullet-radius").trim()
 		});
 	}, p = (e, t) => {
@@ -3285,7 +3300,7 @@ function Xi(e, t, { mark: n = !0, onCovered: r } = {}) {
 		if (n < 0 || !e.parentElement) return;
 		d.setStart(e, n), d.setEnd(e, e.data.trimEnd().length);
 		let r = getComputedStyle(e.parentElement);
-		for (let e of ki(d)) f(e, r, t);
+		for (let e of Ai(d)) f(e, r, t);
 	}, m = (e, t) => {
 		for (let n of e.childNodes) {
 			if (n.nodeType === Node.TEXT_NODE) {
@@ -3297,8 +3312,8 @@ function Xi(e, t, { mark: n = !0, onCovered: r } = {}) {
 			if (e.hasAttribute("skullet-ignore") || e.hasAttribute("skullet-own")) continue;
 			let r = getComputedStyle(e);
 			if (r.display === "none") continue;
-			if (qi(e, r)) {
-				let n = Ei(e.getBoundingClientRect(), t);
+			if (Ji(e, r)) {
+				let n = Di(e.getBoundingClientRect(), t);
 				if (n) {
 					let i = s(n);
 					c.push({
@@ -3306,54 +3321,54 @@ function Xi(e, t, { mark: n = !0, onCovered: r } = {}) {
 						y: i.top,
 						width: i.right - i.left,
 						height: i.bottom - i.top,
-						radius: Ti(t, n, Ji(e, r), r)
+						radius: Ei(t, n, Yi(e, r), r)
 					});
 				}
-				Wi(e) || u.add(e);
+				Gi(e) || u.add(e);
 				continue;
 			}
-			if (Gi(e)) {
+			if (Ki(e)) {
 				for (let n of e.getClientRects()) f(n, r, t);
 				continue;
 			}
 			let i = r.overflowX !== "visible" || r.overflowY !== "visible";
-			m(e, i ? wi(t, e.getBoundingClientRect(), r) : t);
+			m(e, i ? Ti(t, e.getBoundingClientRect(), r) : t);
 		}
 	};
-	if (m(e, null), r?.(u), !n) return [...c, ...Yi(l)];
-	for (let t of e.querySelectorAll(`[${Ar}]`)) u.has(t) || t.removeAttribute(Ar);
-	for (let e of u) e.hasAttribute(Ar) || e.setAttribute(Ar, "");
-	return [...c, ...Yi(l)];
+	if (m(e, null), r?.(u), !n) return [...c, ...Xi(l)];
+	for (let t of e.querySelectorAll(`[${jr}]`)) u.has(t) || t.removeAttribute(jr);
+	for (let e of u) e.hasAttribute(jr) || e.setAttribute(jr, "");
+	return [...c, ...Xi(l)];
 }
-var Zi = (e) => typeof matchMedia < "u" && matchMedia(e).matches, Qi = () => typeof Element < "u" && typeof Element.prototype.animate == "function", $i = () => !Qi() || Zi("(prefers-reduced-motion: reduce)"), ea = () => Zi("(prefers-reduced-transparency: reduce)"), ta = (e) => e.getAnimations?.() ?? [], na = .7, ra = 1280, ia = 320, aa = 2.5, oa = .45, sa = [
+var Qi = (e) => typeof matchMedia < "u" && matchMedia(e).matches, $i = () => typeof Element < "u" && typeof Element.prototype.animate == "function", ea = () => !$i() || Qi("(prefers-reduced-motion: reduce)"), ta = () => Qi("(prefers-reduced-transparency: reduce)"), na = (e) => e.getAnimations?.() ?? [], ra = .7, ia = 1280, aa = 320, oa = 2.5, sa = .45, ca = [
 	"shimmer",
 	"group-shimmer",
 	"pulse",
 	"none"
 ];
-function ca(e) {
+function la(e) {
 	let t = getComputedStyle(e), n = (e, n, r) => {
 		let i = t.getPropertyValue(e).trim();
 		return n.includes(i) ? i : r;
-	}, r = n("--skullet-animation", sa, "shimmer"), i = n("--skullet-speed", ["slow", "fast"], "slow");
+	}, r = n("--skullet-animation", ca, "shimmer"), i = n("--skullet-speed", ["slow", "fast"], "slow");
 	return {
 		animation: r,
-		duration: Vr[r === "pulse" ? "pulse" : "shimmer"][i]
+		duration: Hr[r === "pulse" ? "pulse" : "shimmer"][i]
 	};
 }
-var la = 20, ua = Math.sin(la * Math.PI / 180), da = Math.cos(la * Math.PI / 180), fa = ua / da, pa = da, ma = `${90 + la}deg`, ha = .85, $ = 12, ga = (e) => (1 - Math.cos(Math.PI * e)) / 2;
-function _a(e) {
-	let t = e * aa, n = (t, n) => `color-mix(in srgb, ${Rr} ${(n * 100).toFixed(1)}%, transparent) ${(t * e).toFixed(2)}px`, r = [];
-	for (let e = 0; e <= $; e++) r.push(n(e / $ * ha, ga(e / $)));
-	for (let e = 1; e <= $; e++) r.push(n(ha + e / $ * (1 - ha), ga(1 - e / $)));
+var ua = 20, da = Math.sin(ua * Math.PI / 180), fa = Math.cos(ua * Math.PI / 180), pa = da / fa, ma = fa, ha = `${90 + ua}deg`, ga = .85, $ = 12, _a = (e) => (1 - Math.cos(Math.PI * e)) / 2;
+function va(e) {
+	let t = e * oa, n = (t, n) => `color-mix(in srgb, ${zr} ${(n * 100).toFixed(1)}%, transparent) ${(t * e).toFixed(2)}px`, r = [];
+	for (let e = 0; e <= $; e++) r.push(n(e / $ * ga, _a(e / $)));
+	for (let e = 1; e <= $; e++) r.push(n(ga + e / $ * (1 - ga), _a(1 - e / $)));
 	return {
-		width: t / da,
-		image: `repeating-linear-gradient(${ma}, ${r.join(", ")}, transparent ${t.toFixed(2)}px)`
+		width: t / fa,
+		image: `repeating-linear-gradient(${ha}, ${r.join(", ")}, transparent ${t.toFixed(2)}px)`
 	};
 }
-function va(e, t, n = ca(e)) {
-	for (let t of ta(e)) t.cancel();
-	if (e.style.backgroundImage = "", e.style.backgroundRepeat = "", $i() || typeof e.animate != "function" || n.animation === "none") return;
+function ya(e, t, n = la(e)) {
+	for (let t of na(e)) t.cancel();
+	if (e.style.backgroundImage = "", e.style.backgroundRepeat = "", ea() || typeof e.animate != "function" || n.animation === "none") return;
 	let r = {
 		duration: n.duration,
 		iterations: 1 / 0
@@ -3365,7 +3380,7 @@ function va(e, t, n = ca(e)) {
 				easing: "ease-in-out"
 			},
 			{
-				opacity: oa,
+				opacity: sa,
 				easing: "ease-in-out"
 			},
 			{ opacity: 1 }
@@ -3381,28 +3396,28 @@ function va(e, t, n = ca(e)) {
 		left: 0,
 		top: 0,
 		width: document.documentElement.clientWidth || innerWidth
-	}, { width: s, image: c } = _a(Math.min(Math.max(o.width * .4, 80), ia)), l = a - o.left + (i.top - o.top) * fa, u = n.duration * na / (ra + ia);
+	}, { width: s, image: c } = va(Math.min(Math.max(o.width * .4, 80), aa)), l = a - o.left + (i.top - o.top) * pa, u = n.duration * ra / (ia + aa);
 	e.style.backgroundImage = c, e.style.backgroundSize = `${s}px 100%`, e.style.backgroundRepeat = "repeat-x", e.animate([{ backgroundPosition: `${-l}px 0` }, { backgroundPosition: `${s - l}px 0` }], {
 		duration: s * u,
 		iterations: 1 / 0
 	}).startTime = 0;
 }
-function ya(e) {
-	if ($i()) return null;
-	let t = ca(e);
-	return t.animation !== "shimmer" && t.animation !== "group-shimmer" ? null : t.duration * na / (ra + ia);
+function ba(e) {
+	if (ea()) return null;
+	let t = la(e);
+	return t.animation !== "shimmer" && t.animation !== "group-shimmer" ? null : t.duration * ra / (ia + aa);
 }
-var ba = (e) => e.shadowRoot ?? e.attachShadow({ mode: "open" }), xa = (e) => e.shadowRoot ? [...e.shadowRoot.children] : [];
-function Sa(e, t) {
-	let n = ba(e), r = e.getBoundingClientRect(), i = {
+var xa = (e) => e.shadowRoot ?? e.attachShadow({ mode: "open" }), Sa = (e) => e.shadowRoot ? [...e.shadowRoot.children] : [];
+function Ca(e, t) {
+	let n = xa(e), r = e.getBoundingClientRect(), i = {
 		left: r.left + scrollX,
 		top: r.top,
 		width: r.width,
 		height: r.height
-	}, a = ca(e);
+	}, a = la(e);
 	for (t.forEach((e, t) => {
 		let r = n.children[t];
-		r || (r = document.createElement("div"), r.setAttribute("skullet-rect", ""), r.style.cssText = `position:absolute;display:block;pointer-events:none;background-color:${Lr};background-repeat:no-repeat`, n.append(r)), Object.assign(r.style, {
+		r || (r = document.createElement("div"), r.setAttribute("skullet-rect", ""), r.style.cssText = `position:absolute;display:block;pointer-events:none;background-color:${Rr};background-repeat:no-repeat`, n.append(r)), Object.assign(r.style, {
 			left: `${e.x}px`,
 			top: `${e.y}px`,
 			width: `${e.width}px`,
@@ -3410,10 +3425,10 @@ function Sa(e, t) {
 			borderRadius: e.radius
 		});
 		let o = `${Math.round(i.left + e.x)}|${Math.round(e.y)}|${Math.round(e.height)}|${Math.round(i.left)}|${Math.round(i.width)}|${Math.round(i.height)}|${document.documentElement.clientWidth}|${a.animation}|${a.duration}`;
-		r.dataset.motion !== o && (r.dataset.motion = o, va(r, i, a));
+		r.dataset.motion !== o && (r.dataset.motion = o, ya(r, i, a));
 	}); n.children.length > t.length;) n.lastElementChild.remove();
 }
-var Ca = 120, wa = 72, Ta = 3, Ea = 60, Da = 150, Oa = 400, ka = 1.5, Aa = 1e3, ja = 1e3, Ma = /* @__PURE__ */ new Set([
+var wa = 120, Ta = 72, Ea = 3, Da = 60, Oa = 150, ka = 400, Aa = 1.5, ja = 1e3, Ma = 1e3, Na = /* @__PURE__ */ new Set([
 	"filter",
 	"transform",
 	"translate",
@@ -3422,30 +3437,30 @@ var Ca = 120, wa = 72, Ta = 3, Ea = 60, Da = 150, Oa = 400, ka = 1.5, Aa = 1e3, 
 	"clipPath",
 	"easing",
 	"composite"
-]), Na = -1 / 0, Pa = !1;
-function Fa() {
-	if (!(Pa || typeof addEventListener > "u")) {
-		Pa = !0;
+]), Pa = -1 / 0, Fa = !1;
+function Ia() {
+	if (!(Fa || typeof addEventListener > "u")) {
+		Fa = !0;
 		for (let e of [
 			"wheel",
 			"touchmove",
 			"keydown"
-		]) addEventListener(e, () => Na = performance.now(), {
+		]) addEventListener(e, () => Pa = performance.now(), {
 			passive: !0,
 			capture: !0
 		});
 	}
 }
-var Ia = /* @__PURE__ */ new WeakMap();
-function La(e, { served: t, refetch: n }) {
-	Fa();
-	let r = Ia.get(e)?.since ?? performance.now();
-	Ia.set(e, {
+var La = /* @__PURE__ */ new WeakMap();
+function Ra(e, { served: t, refetch: n }) {
+	Ia();
+	let r = La.get(e)?.since ?? performance.now();
+	La.set(e, {
 		since: t ? -1 / 0 : r,
 		refetch: n
 	});
 }
-function Ra(e) {
+function za(e) {
 	let t = [], n = (e) => {
 		for (let r of e.children) {
 			let e = [...r.childNodes].some((e) => e.nodeType === Node.TEXT_NODE && e.textContent?.trim());
@@ -3454,7 +3469,7 @@ function Ra(e) {
 	};
 	return n(e), t;
 }
-function za(e, t) {
+function Ba(e, t) {
 	for (let n = e; n && n !== t; n = n.parentElement) {
 		let e = n.parentElement;
 		if (!e) break;
@@ -3462,25 +3477,25 @@ function za(e, t) {
 	}
 	return e;
 }
-var Ba = (e, t) => {
+var Va = (e, t) => {
 	let n = t.left + t.width / 2, r = t.top + t.height / 2;
 	return n >= e.left && n <= e.right && r >= e.top && r <= e.bottom;
 };
-function Va(e) {
+function Ha(e) {
 	let { left: t, top: n, right: r, bottom: i } = e.getBoundingClientRect();
-	for (let a of e.querySelectorAll(`:scope > [${kr}]`)) {
+	for (let a of e.querySelectorAll(`:scope > [${Ar}]`)) {
 		let e = a.getBoundingClientRect();
 		t = Math.min(t, e.left), n = Math.min(n, e.top), r = Math.max(r, e.right), i = Math.max(i, e.bottom);
 	}
 	return new DOMRect(t, n, r - t, i - n);
 }
-var Ha = (e, t) => Math.min(Math.max(e, 0), t), Ua = -1 / 0;
-function Wa(e, t, n, r, i) {
+var Ua = (e, t) => Math.min(Math.max(e, 0), t), Wa = -1 / 0;
+function Ga(e, t, n, r, i) {
 	let a = performance.now();
-	a - Ua > Da && (Ua = a);
-	let o = a - Ua, s = t.getBoundingClientRect(), c = /* @__PURE__ */ new Map(), l = /* @__PURE__ */ new Map(), u = (e) => parseFloat(getComputedStyle(e).fontSize) || 16;
-	for (let t of Ra(e)) {
-		let n = za(t, e), r = c.get(n);
+	a - Wa > Oa && (Wa = a);
+	let o = a - Wa, s = t.getBoundingClientRect(), c = /* @__PURE__ */ new Map(), l = /* @__PURE__ */ new Map(), u = (e) => parseFloat(getComputedStyle(e).fontSize) || 16;
+	for (let t of za(e)) {
+		let n = Ba(t, e), r = c.get(n);
 		r || (r = {
 			rect: n.getBoundingClientRect(),
 			size: 0
@@ -3493,7 +3508,7 @@ function Wa(e, t, n, r, i) {
 	}
 	let d = (e) => {
 		let t = n(e);
-		return t === null ? null : Ha(t, Aa) + Math.max(r.delay ?? 0, 0);
+		return t === null ? null : Ua(t, ja) + Math.max(r.delay ?? 0, 0);
 	};
 	return {
 		kind: "sequence",
@@ -3510,7 +3525,7 @@ function Wa(e, t, n, r, i) {
 			}) : null;
 		},
 		boneDelay: (e) => {
-			let t = [...c.values()].find((t) => Ba(t.rect, e));
+			let t = [...c.values()].find((t) => Va(t.rect, e));
 			return d({
 				rect: e,
 				unit: t?.rect ?? null,
@@ -3521,15 +3536,15 @@ function Wa(e, t, n, r, i) {
 		}
 	};
 }
-function Ga(e, t) {
+function Ka(e, t) {
 	if (!e) return;
 	let n = {};
-	for (let [r, i] of Object.entries(e)) Ma.has(r) ? n[r] = i : r !== "opacity" && t(r);
+	for (let [r, i] of Object.entries(e)) Na.has(r) ? n[r] = i : r !== "opacity" && t(r);
 	return n;
 }
-function Ka(e, t, n, r = () => {}) {
-	let i = Ia.get(t);
-	Ia.delete(t);
+function qa(e, t, n, r = () => {}) {
+	let i = La.get(t);
+	La.delete(t);
 	let a = n;
 	for (; a.choose;) {
 		let { choose: n, ...r } = a;
@@ -3539,22 +3554,22 @@ function Ka(e, t, n, r = () => {}) {
 				content: e,
 				reveal: t,
 				waited: i ? performance.now() - i.since : 1 / 0,
-				input: performance.now() - Na < Oa,
+				input: performance.now() - Pa < ka,
 				refetch: !!i?.refetch,
 				height: e.getBoundingClientRect().height,
-				pieces: Ra(e).length
+				pieces: za(e).length
 			})
 		};
 	}
-	let o = Ha(a.duration ?? 200, ja);
+	let o = Ua(a.duration ?? 200, Ma);
 	if (a = {
 		...a,
-		delay: Math.min(a.delay ?? 0, Aa)
+		delay: Math.min(a.delay ?? 0, ja)
 	}, !o) return { kind: "instant" };
-	let s = Ga(a.enter, r);
+	let s = Ka(a.enter, r);
 	if (a.wipe) {
-		let e = Va(t);
-		if (e.width * e.height <= innerWidth * innerHeight * ka) return {
+		let e = Ha(t);
+		if (e.width * e.height <= innerWidth * innerHeight * Aa) return {
 			kind: "wipe",
 			wipe: a.wipe,
 			start: performance.now() + (a.delay ?? 0),
@@ -3562,7 +3577,7 @@ function Ka(e, t, n, r = () => {}) {
 			reveal: e,
 			enter: s
 		};
-	} else if (typeof a.order == "function") return Wa(e, t, a.order, {
+	} else if (typeof a.order == "function") return Ga(e, t, a.order, {
 		...a,
 		enter: s
 	}, o);
@@ -3573,25 +3588,25 @@ function Ka(e, t, n, r = () => {}) {
 		enter: s
 	};
 }
-var qa = ({ rect: e, reveal: t }) => {
+var Ja = ({ rect: e, reveal: t }) => {
 	let n = (e.top - t.top) / Math.max(t.height, 1), r = (e.left - t.left) / Math.max(t.width, 1);
-	return Ha(n * .8 + r * .2, 1) * 320;
-}, Ja = (e) => e.bottom > 0 && e.top < innerHeight, Ya = ({ rect: e, unit: t, secondary: n, late: r }) => {
-	if (!t) return Ja(e) ? 0 : null;
-	if (!Ja(t)) return null;
-	let i = Ha(t.top / innerHeight, 1) * 320;
-	return Math.max(i - r, 0) + (n ? Ea : 0);
-}, Xa = { duration: 0 }, Za = { order: "together" }, Qa = { order: qa }, $a = (e) => e.input || e.waited < 150 ? Xa : e.refetch ? {
+	return Ua(n * .8 + r * .2, 1) * 320;
+}, Ya = (e) => e.bottom > 0 && e.top < innerHeight, Xa = ({ rect: e, unit: t, secondary: n, late: r }) => {
+	if (!t) return Ya(e) ? 0 : null;
+	if (!Ya(t)) return null;
+	let i = Ua(t.top / innerHeight, 1) * 320;
+	return Math.max(i - r, 0) + (n ? Da : 0);
+}, Za = { duration: 0 }, Qa = { order: "together" }, $a = { order: Ja }, eo = (e) => e.input || e.waited < 150 ? Za : e.refetch ? {
 	order: "together",
-	duration: Ca
-} : null, eo = (e) => e.height < wa || e.pieces <= Ta ? Za : { order: Ya }, to = {
+	duration: wa
+} : null, to = (e) => e.height < Ta || e.pieces <= Ea ? Qa : { order: Xa }, no = {
 	hold: 150,
-	choose: (e) => $a(e) ?? eo(e)
-}, no = new Set(Ur), ro = "script, noscript, template, base, meta, link", io = /* @__PURE__ */ new Set([
+	choose: (e) => eo(e) ?? to(e)
+}, ro = new Set(Wr), io = "script, noscript, template, base, meta, link", ao = /* @__PURE__ */ new Set([
 	"iframe",
 	"object",
 	"embed"
-]), ao = /* @__PURE__ */ new Set([
+]), oo = /* @__PURE__ */ new Set([
 	"src",
 	"srcset",
 	"sizes",
@@ -3602,12 +3617,12 @@ var qa = ({ rect: e, reveal: t }) => {
 	"formaction",
 	"value",
 	"alt",
-	Ar
-]), oo = (e) => e.replace(/[A-Z]/g, "X").replace(/[a-z]/g, "x").replace(/\d/g, "0");
-function so(e, t) {
-	let n = oo(t.data);
+	jr
+]), so = (e) => e.replace(/[A-Z]/g, "X").replace(/[a-z]/g, "x").replace(/\d/g, "0");
+function co(e, t) {
+	let n = so(t.data);
 	t.data = n;
-	let r = e.parentElement, i = yi();
+	let r = e.parentElement, i = bi();
 	if (!r || !i || !n.trim()) return;
 	let a = getComputedStyle(r);
 	i.font = `${a.fontStyle} ${a.fontWeight} ${a.fontSize} ${a.fontFamily}`;
@@ -3619,122 +3634,122 @@ function so(e, t) {
 	let c = document.createElement("span");
 	c.style.letterSpacing = `${(parseFloat(a.letterSpacing) || 0) + s}px`, t.replaceWith(c), c.append(t);
 }
-function co(e) {
-	for (let t of e.querySelectorAll(ro)) t.remove();
-	for (let t of e.querySelectorAll("*")) if (io.has(t.localName)) {
+function lo(e) {
+	for (let t of e.querySelectorAll(io)) t.remove();
+	for (let t of e.querySelectorAll("*")) if (ao.has(t.localName)) {
 		let e = document.createElement("span");
 		e.style.cssText = t.getAttribute("style") ?? "", e.style.display ||= "inline-block", t.replaceWith(e);
 	} else {
 		for (let { name: e, value: n } of [...t.attributes]) {
 			let r = e.toLowerCase();
-			(r.startsWith("on") || ao.has(r) || r.endsWith("href") && /^\s*javascript:/i.test(n)) && t.removeAttribute(e);
+			(r.startsWith("on") || oo.has(r) || r.endsWith("href") && /^\s*javascript:/i.test(n)) && t.removeAttribute(e);
 		}
 		t.localName === "img" && t.setAttribute("alt", "");
 	}
 	for (let t of e.querySelectorAll("video source, picture source")) t.remove();
 }
-function lo(e, t) {
+function uo(e, t) {
 	let n = e.cloneNode(!0), r = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, i = document.createTreeWalker(e, r), a = document.createTreeWalker(n, r), o = [], s = [];
 	for (; i.nextNode() && a.nextNode();) {
 		let e = i.currentNode, n = a.currentNode;
-		e.nodeType === Node.TEXT_NODE ? t && o.push([e, n]) : (no.has(e.localName) || io.has(e.localName)) && s.push([e, n]);
+		e.nodeType === Node.TEXT_NODE ? t && o.push([e, n]) : (ro.has(e.localName) || ao.has(e.localName)) && s.push([e, n]);
 	}
 	for (let [e, t] of s) {
 		let n = e.getBoundingClientRect();
 		t.style.boxSizing = "border-box", t.style.width = `${n.width}px`, n.width && n.height ? (t.style.maxWidth = "100%", t.style.height = "auto", t.style.aspectRatio = `${n.width} / ${n.height}`) : t.style.height = `${n.height}px`;
 	}
-	for (let [e, t] of o) so(e, t);
-	return co(n), n.innerHTML;
+	for (let [e, t] of o) co(e, t);
+	return lo(n), n.innerHTML;
 }
-function uo(e) {
+function fo(e) {
 	let t = document.createElement("template");
-	return t.innerHTML = e, co(t.content), t.content;
+	return t.innerHTML = e, lo(t.content), t.content;
 }
-var fo = (e, t) => [...e.children].map((e) => {
-	let n = [...e.classList].sort().join("."), r = t > 1 && e.firstElementChild ? `(${fo(e, t - 1)})` : "";
+var po = (e, t) => [...e.children].map((e) => {
+	let n = [...e.classList].sort().join("."), r = t > 1 && e.firstElementChild ? `(${po(e, t - 1)})` : "";
 	return `${e.localName}${n ? `.${n}` : ""}${r}`;
-}).join(","), po = (e) => {
+}).join(","), mo = (e) => {
 	let t = 5381;
 	for (let n = 0; n < e.length; n++) t = t * 33 ^ e.charCodeAt(n);
 	return (t >>> 0).toString(36);
 };
-function mo(e) {
-	let t = fo(e, 2);
-	return t ? `${location.pathname}|${po(t)}` : null;
+function ho(e) {
+	let t = po(e, 2);
+	return t ? `${location.pathname}|${mo(t)}` : null;
 }
-var ho = !1;
+var go = !1;
 try {
-	ho = !1;
+	go = !1;
 } catch {
-	ho = !1;
+	go = !1;
 }
-var go = ho, _o = /* @__PURE__ */ new Set();
-function vo(e, t) {
-	!go || _o.has(e) || (_o.add(e), console.warn(`[skullet] ${t}`));
+var _o = go, vo = /* @__PURE__ */ new Set();
+function yo(e, t) {
+	!_o || vo.has(e) || (vo.add(e), console.warn(`[skullet] ${t}`));
 }
-var yo = /^(https?:|\/|data:|blob:)/;
-function bo(e) {
-	return typeof e == "string" ? yo.test(e) ? "" : oo(e) : Array.isArray(e) ? e.map(bo) : e instanceof Date ? e : e && typeof e == "object" ? Object.fromEntries(Object.entries(e).map(([e, t]) => [e, bo(t)])) : e;
+var bo = /^(https?:|\/|data:|blob:)/;
+function xo(e) {
+	return typeof e == "string" ? bo.test(e) ? "" : so(e) : Array.isArray(e) ? e.map(xo) : e instanceof Date ? e : e && typeof e == "object" ? Object.fromEntries(Object.entries(e).map(([e, t]) => [e, xo(t)])) : e;
 }
-var xo = "skullet:shapes", So = 2, Co = 50, wo = 2e4, To = /* @__PURE__ */ new Map(), Eo = /* @__PURE__ */ new Map();
-function Do(e, t) {
-	return Eo.has(e) || Eo.set(e, /* @__PURE__ */ new Set()), Eo.get(e).add(t), () => Eo.get(e)?.delete(t);
+var So = "skullet:shapes", Co = 2, wo = 50, To = 2e4, Eo = /* @__PURE__ */ new Map(), Do = /* @__PURE__ */ new Map();
+function Oo(e, t) {
+	return Do.has(e) || Do.set(e, /* @__PURE__ */ new Set()), Do.get(e).add(t), () => Do.get(e)?.delete(t);
 }
-function Oo(e) {
-	for (let t of Eo.get(e) ?? []) t();
+function ko(e) {
+	for (let t of Do.get(e) ?? []) t();
 }
-function ko() {
+function Ao() {
 	try {
-		let e = JSON.parse(localStorage.getItem(xo) ?? "null");
-		return e?.v === So ? e.shapes : {};
+		let e = JSON.parse(localStorage.getItem(So) ?? "null");
+		return e?.v === Co ? e.shapes : {};
 	} catch {
 		return {};
 	}
 }
-function Ao(e) {
+function jo(e) {
 	try {
-		localStorage.setItem(xo, JSON.stringify({
-			v: So,
+		localStorage.setItem(So, JSON.stringify({
+			v: Co,
 			shapes: e
 		}));
 	} catch {}
 }
-function jo(e, t) {
-	To.set(e, lo(t, !1));
-	let n = lo(t, !0);
-	if (n.length > wo) return;
-	let r = ko();
+function Mo(e, t) {
+	Eo.set(e, uo(t, !1));
+	let n = uo(t, !0);
+	if (n.length > To) return;
+	let r = Ao();
 	delete r[e], r[e] = n;
 	let i = Object.keys(r);
-	for (let e of i.slice(0, i.length - Co)) delete r[e];
-	Ao(r);
+	for (let e of i.slice(0, i.length - wo)) delete r[e];
+	jo(r);
 }
-function Mo(e) {
-	return To.get(e) ?? ko()[e] ?? null;
+function No(e) {
+	return Eo.get(e) ?? Ao()[e] ?? null;
 }
-var No = [
+var Po = [
 	100,
 	90,
 	60
-].map((e) => `<div ${Mr} style="width:${e}%;height:0.75em;margin:0.5em 0;border-radius:0.25em"></div>`).join(""), Po = new WeakSet(typeof document > "u" ? [] : document.querySelectorAll(`[${Sr}]`)), Fo = /* @__PURE__ */ new WeakMap();
-function Io(e) {
+].map((e) => `<div ${Nr} style="width:${e}%;height:0.75em;margin:0.5em 0;border-radius:0.25em"></div>`).join(""), Fo = new WeakSet(typeof document > "u" ? [] : document.querySelectorAll(`[${Cr}]`)), Io = /* @__PURE__ */ new WeakMap();
+function Lo(e) {
 	if (!e) return;
-	let t = Fo.get(e);
-	return Fo.delete(e), t;
+	let t = Io.get(e);
+	return Io.delete(e), t;
 }
-function Lo(e, t) {
+function Ro(e, t) {
 	for (let n of e.children) if (n.hasAttribute(t)) return n;
 	let n = document.createElement("div");
 	return n.setAttribute(t, ""), e.append(n), n;
 }
-var Ro = (e) => !!e.firstElementChild || !!e.textContent?.trim(), zo = class {
+var zo = (e) => !!e.firstElementChild || !!e.textContent?.trim(), Bo = class {
 	constructor(e, t = {}) {
-		this.root = e, this.options = t, Yr(), e[Nr] = !0, e.setAttribute(Sr, ""), e.setAttribute("aria-hidden", "true"), e.inert = !0, this.ghost = Lo(e, Cr), this.snapshot = Lo(e, wr), this.layer = Lo(e, Tr), this.hadContent = Ro(this.ghost);
-		let n = e.closest(`[${br}]`);
-		n && La(n, {
-			served: Po.has(e),
+		this.root = e, this.options = t, Xr(), e[Pr] = !0, e.setAttribute(Cr, ""), e.setAttribute("aria-hidden", "true"), e.inert = !0, this.ghost = Ro(e, wr), this.snapshot = Ro(e, Tr), this.layer = Ro(e, Er), this.hadContent = zo(this.ghost);
+		let n = e.closest(`[${xr}]`);
+		n && Ra(n, {
+			served: Fo.has(e),
 			refetch: !!t.refetch && this.hadContent
-		}), this.choose(), this.measure(), e[Pr]?.(), this.mutations = new MutationObserver(this.schedule), this.mutations.observe(this.ghost, {
+		}), this.choose(), this.measure(), e[Fr]?.(), this.mutations = new MutationObserver(this.schedule), this.mutations.observe(this.ghost, {
 			childList: !0,
 			subtree: !0,
 			characterData: !0,
@@ -3752,25 +3767,25 @@ var Ro = (e) => !!e.firstElementChild || !!e.textContent?.trim(), zo = class {
 	mutations;
 	resize;
 	schedule = () => {
-		this.root.closest(`[${kr}]`) || (cancelAnimationFrame(this.frame), this.frame = requestAnimationFrame(() => {
-			let e = Ro(this.ghost);
+		this.root.closest(`[${Ar}]`) || (cancelAnimationFrame(this.frame), this.frame = requestAnimationFrame(() => {
+			let e = zo(this.ghost);
 			e !== this.hadContent && (this.hadContent = e, this.choose()), this.measure();
 		}));
 	};
 	choose() {
-		let e = "fallback", t = null, n = this.options.exact || Po.has(this.root), r = !!this.ghost.querySelector(`[${jr}]`);
+		let e = "fallback", t = null, n = this.options.exact || Fo.has(this.root), r = !!this.ghost.querySelector(`[${Mr}]`);
 		if ((n || r) && this.hadContent) e = "ghost";
 		else {
-			let n = this.options.id ?? mo(this.ghost);
-			n && (Oo(n), t = Mo(n)), t ? e = "recall" : this.hadContent && (e = "ghost");
+			let n = this.options.id ?? ho(this.ghost);
+			n && (ko(n), t = No(n)), t ? e = "recall" : this.hadContent && (e = "ghost");
 		}
-		e !== this.source && (e === "recall" && t ? this.snapshot.replaceChildren(uo(t)) : e === "fallback" ? (this.snapshot.innerHTML = No, vo(`fallback:${this.options.id}`, `Nothing to draw a skeleton from${this.options.id ? ` for "${this.options.id}"` : ""}. Pass \`sample\` data, or an \`id\` so its shape is remembered after the first load. For a lone placeholder box, use \`SkeletonBox\`.`)) : this.snapshot.replaceChildren()), this.ghost.toggleAttribute(Or, e !== "ghost"), this.snapshot.toggleAttribute(Or, e === "ghost"), this.source = e, ui(this.root.closest(`[${br}]`), e === "recall" ? "remembered shape" : e === "fallback" ? "fallback" : this.options.exact ? "data" : Po.has(this.root) ? "server render" : "sample");
+		e !== this.source && (e === "recall" && t ? this.snapshot.replaceChildren(fo(t)) : e === "fallback" ? (this.snapshot.innerHTML = Po, yo(`fallback:${this.options.id}`, `Nothing to draw a skeleton from${this.options.id ? ` for "${this.options.id}"` : ""}. Pass \`sample\` data, or an \`id\` so its shape is remembered after the first load. For a lone placeholder box, use \`SkeletonBox\`.`)) : this.snapshot.replaceChildren()), this.ghost.toggleAttribute(kr, e !== "ghost"), this.snapshot.toggleAttribute(kr, e === "ghost"), this.source = e, di(this.root.closest(`[${xr}]`), e === "recall" ? "remembered shape" : e === "fallback" ? "fallback" : this.options.exact ? "data" : Fo.has(this.root) ? "server render" : "sample");
 	}
 	measure() {
 		let e = this.source === "ghost" ? this.ghost : this.snapshot;
-		Sa(this.layer, Xi(e, this.layer));
-		let t = this.root.closest(`[${br}]`);
-		t && Fo.set(t, {
+		Ca(this.layer, Zi(e, this.layer));
+		let t = this.root.closest(`[${xr}]`);
+		t && Io.set(t, {
 			width: this.root.offsetWidth,
 			height: this.root.offsetHeight,
 			guessed: !(this.options.exact && this.source === "ghost"),
@@ -3778,11 +3793,11 @@ var Ro = (e) => !!e.firstElementChild || !!e.textContent?.trim(), zo = class {
 		});
 	}
 	destroy() {
-		cancelAnimationFrame(this.frame), this.mutations.disconnect(), this.resize?.disconnect(), this.root.removeEventListener("load", this.schedule, !0), removeEventListener("resize", this.schedule), Xr();
+		cancelAnimationFrame(this.frame), this.mutations.disconnect(), this.resize?.disconnect(), this.root.removeEventListener("load", this.schedule, !0), removeEventListener("resize", this.schedule), Zr();
 	}
-}, Bo = 250, Vo = class {
+}, Vo = 250, Ho = class {
 	constructor(e, t = {}) {
-		this.element = e, this.options = t, this.key = t.id ?? mo(e), this.untrack = this.key ? Do(this.key, () => this.save()) : () => {}, (go || ci(e)) && this.check(), this.save(), this.mutations = new MutationObserver(this.schedule), this.mutations.observe(e, {
+		this.element = e, this.options = t, this.key = t.id ?? ho(e), this.untrack = this.key ? Oo(this.key, () => this.save()) : () => {}, (_o || li(e)) && this.check(), this.save(), this.mutations = new MutationObserver(this.schedule), this.mutations.observe(e, {
 			childList: !0,
 			subtree: !0,
 			characterData: !0
@@ -3796,102 +3811,102 @@ var Ro = (e) => !!e.firstElementChild || !!e.textContent?.trim(), zo = class {
 	resize;
 	untrack;
 	schedule = () => {
-		clearTimeout(this.timer), this.timer = setTimeout(() => this.save(), Bo);
+		clearTimeout(this.timer), this.timer = setTimeout(() => this.save(), Vo);
 	};
 	save() {
-		clearTimeout(this.timer), this.key && this.element.isConnected && this.element.offsetHeight && jo(this.key, this.element);
+		clearTimeout(this.timer), this.key && this.element.isConnected && this.element.offsetHeight && Mo(this.key, this.element);
 	}
 	check() {
-		let { data: e, id: t, rendered: n, sample: r } = this.options, i = t ? `<Skeleton id="${t}">` : "<Skeleton>", a = this.element.closest(`[${br}]`), o = Io(a);
+		let { data: e, id: t, rendered: n, sample: r } = this.options, i = t ? `<Skeleton id="${t}">` : "<Skeleton>", a = this.element.closest(`[${xr}]`), o = Lo(a);
 		if (!o) return;
-		o.guessed && n && !r && e != null && vo(`sample:${this.key}`, `${i} has no \`sample\`, so a first load guesses its shape${t ? "" : " and it can't be remembered"}. Pass this to make it exact:
-  sample={${JSON.stringify(bo(e))}}`);
+		o.guessed && n && !r && e != null && yo(`sample:${this.key}`, `${i} has no \`sample\`, so a first load guesses its shape${t ? "" : " and it can't be remembered"}. Pass this to make it exact:
+  sample={${JSON.stringify(xo(e))}}`);
 		let s = [...this.element.querySelectorAll("img")].filter((e) => !e.complete);
 		Promise.all(s.map((e) => new Promise((t) => {
 			e.addEventListener("load", t, { once: !0 }), e.addEventListener("error", t, { once: !0 });
 		}))).then(() => {
 			if (!this.element.isConnected) return;
 			let e = this.element.offsetWidth, t = this.element.offsetHeight;
-			if (di(a, {
+			if (fi(a, {
 				width: e - o.width,
 				height: t - o.height
 			}), Math.abs(e - o.width) <= 1 && Math.abs(t - o.height) <= 1) return;
 			let r = [...this.element.querySelectorAll("img")].filter((e, t) => (o.images[t] ?? 0) < 1 && e.getBoundingClientRect().height >= 1).map((e) => e.currentSrc.split("/").pop() || "an image");
-			r.length ? vo(`unsized:${this.key}`, `${i}'s skeleton had no room for ${r.length === 1 ? "an image" : `${r.length} images`} (${r.slice(0, 3).join(", ")}${r.length > 3 ? ", …" : ""}), so the layout jumped when they loaded. Give each \`width\` and \`height\` attributes, or an \`aspect-ratio\`, so its space is known before it loads.`) : vo(`jump:${this.key}`, o.guessed ? `${i}'s skeleton was ${o.width}\xD7${o.height}px but its content is ${e}\xD7${t}px, so the layout jumped on reveal. ${n ? "Pass `sample` data shaped like the real thing" : "Pass an `id` so its shape is remembered"}, and give images a size.` : `${i}'s skeleton was drawn from the data on screen (${o.width}\xD7${o.height}px), but the new data is ${e}\xD7${t}px, so the layout jumped on reveal. When new data adds to what's shown \u2014 another page of a list \u2014 give the addition a reveal of its own.`);
+			r.length ? yo(`unsized:${this.key}`, `${i}'s skeleton had no room for ${r.length === 1 ? "an image" : `${r.length} images`} (${r.slice(0, 3).join(", ")}${r.length > 3 ? ", …" : ""}), so the layout jumped when they loaded. Give each \`width\` and \`height\` attributes, or an \`aspect-ratio\`, so its space is known before it loads.`) : yo(`jump:${this.key}`, o.guessed ? `${i}'s skeleton was ${o.width}\xD7${o.height}px but its content is ${e}\xD7${t}px, so the layout jumped on reveal. ${n ? "Pass `sample` data shaped like the real thing" : "Pass an `id` so its shape is remembered"}, and give images a size.` : `${i}'s skeleton was drawn from the data on screen (${o.width}\xD7${o.height}px), but the new data is ${e}\xD7${t}px, so the layout jumped on reveal. When new data adds to what's shown \u2014 another page of a list \u2014 give the addition a reveal of its own.`);
 		});
 	}
 	destroy() {
 		this.save(), clearTimeout(this.timer), this.mutations.disconnect(), this.resize?.disconnect(), this.element.removeEventListener("load", this.schedule, !0), this.untrack();
 	}
-}, Ho = () => {}, Uo = (e) => {
+}, Uo = () => {}, Wo = (e) => {
 	if (e.loading !== "lazy") return !1;
 	let t = e.getBoundingClientRect();
 	return t.bottom < -innerHeight || t.top > innerHeight * 2;
-}, Wo = (e) => [...e.querySelectorAll("img")].filter((e) => !e.complete && !Uo(e));
-function Go(e) {
+}, Go = (e) => [...e.querySelectorAll("img")].filter((e) => !e.complete && !Wo(e));
+function Ko(e) {
 	let t = e.complete ? Promise.resolve() : new Promise((t) => {
 		e.addEventListener("load", () => t(), { once: !0 }), e.addEventListener("error", () => t(), { once: !0 });
 	});
-	return Promise.race([t.then(() => e.decode?.()).then(Ho, Ho), new Promise((e) => setTimeout(e, Br))]);
+	return Promise.race([t.then(() => e.decode?.()).then(Uo, Uo), new Promise((e) => setTimeout(e, Vr))]);
 }
-var Ko = 360, qo = 2, Jo = 600, Yo = 40, Xo = Yo / pa, Zo = 320, Qo = 120, $o = .45, es = (e) => e.left + e.top * fa, ts = (e) => e.width + e.height * fa, ns = (e, t) => es(t) - Xo + (ts(t) + 2 * Xo) * e, rs = {
+var qo = 360, Jo = 2, Yo = 600, Xo = 40, Zo = Xo / ma, Qo = 320, $o = 120, es = .45, ts = (e) => e.left + e.top * pa, ns = (e) => e.width + e.height * pa, rs = (e, t) => ts(t) - Zo + (ns(t) + 2 * Zo) * e, is = {
 	start: -1 / 0,
 	origin: 0,
 	speed: 1
 };
-function is(e) {
-	let t = e.querySelector(`:scope > [${kr}] [${Tr}]`), n = t && ya(t);
+function as(e) {
+	let t = e.querySelector(`:scope > [${Ar}] [${Er}]`), n = t && ba(t);
 	if (!n) return null;
-	let r = Va(e);
-	if (r.width * r.height > innerWidth * innerHeight * ka) return null;
-	let i = es(r), a = i + ts(r), o = performance.now(), s = o - rs.start;
-	s <= Da && (i - rs.origin) / rs.speed >= s && (a - rs.origin) / rs.speed - s <= Jo || (rs = {
+	let r = Ha(e);
+	if (r.width * r.height > innerWidth * innerHeight * Aa) return null;
+	let i = ts(r), a = i + ns(r), o = performance.now(), s = o - is.start;
+	s <= Oa && (i - is.origin) / is.speed >= s && (a - is.origin) / is.speed - s <= Yo || (is = {
 		start: o,
 		origin: i,
-		speed: Math.max(qo / n, (a - i) / Ko)
+		speed: Math.max(Jo / n, (a - i) / qo)
 	});
-	let { start: c, origin: l, speed: u } = rs;
+	let { start: c, origin: l, speed: u } = is;
 	return {
-		delay: (i - Xo - l) / u - (o - c),
-		duration: (a - i + 2 * Xo) / u
+		delay: (i - Zo - l) / u - (o - c),
+		duration: (a - i + 2 * Zo) / u
 	};
 }
-var as = (e) => (t, { rect: n, reveal: r }) => {
-	let i = (ns(t, r) - es(n)) * pa;
-	return `linear-gradient(${ma}, ${Array.from({ length: $ + 1 }, (t, n) => {
-		let r = e ? 1 - ga(n / $) : ga(n / $), a = -Yo + 2 * Yo * n / $;
+var os = (e) => (t, { rect: n, reveal: r }) => {
+	let i = (rs(t, r) - ts(n)) * ma;
+	return `linear-gradient(${ha}, ${Array.from({ length: $ + 1 }, (t, n) => {
+		let r = e ? 1 - _a(n / $) : _a(n / $), a = -Xo + 2 * Xo * n / $;
 		return `rgb(0 0 0 / ${r.toFixed(3)}) ${(i + a).toFixed(2)}px`;
 	}).join(", ")})`;
-}, os = "http://www.w3.org/2000/svg", ss = null, cs = 0;
-function ls() {
-	return ss?.isConnected || (ss = document.createElementNS(os, "svg"), ss.setAttribute("aria-hidden", "true"), ss.style.cssText = "position:absolute;width:0;height:0;overflow:hidden", document.body.append(ss)), ss;
+}, ss = "http://www.w3.org/2000/svg", cs = null, ls = 0;
+function us() {
+	return cs?.isConnected || (cs = document.createElementNS(ss, "svg"), cs.setAttribute("aria-hidden", "true"), cs.style.cssText = "position:absolute;width:0;height:0;overflow:hidden", document.body.append(cs)), cs;
 }
-var us = (e, t) => {
-	let n = document.createElementNS(os, e);
+var ds = (e, t) => {
+	let n = document.createElementNS(ss, e);
 	for (let [e, r] of Object.entries(t)) n.setAttribute(e, String(r));
 	return n;
-}, ds = {
-	mask: as(!0),
-	out: as(!1),
+}, fs = {
+	mask: os(!0),
+	out: os(!1),
 	effect: (e, { rect: t, reveal: n, progress: r }) => {
-		if (ea()) return;
-		let i = es(t), a = ts(t), o = Zo / 2 / pa, s = () => ns(r(), n) - i - Qo / pa;
+		if (ta()) return;
+		let i = ts(t), a = ns(t), o = Qo / 2 / ma, s = () => rs(r(), n) - i - $o / ma;
 		if (s() - o > a) return;
-		let c = 2 * o + t.height * fa, l = c / 2, u = t.height / 2, d = Zo / 2 * pa, f = Zo / 2 * fa * pa, p = document.createElement("canvas");
+		let c = 2 * o + t.height * pa, l = c / 2, u = t.height / 2, d = Qo / 2 * ma, f = Qo / 2 * pa * ma, p = document.createElement("canvas");
 		p.width = Math.ceil(c), p.height = Math.ceil(t.height);
 		let m = p.getContext("2d");
 		if (!m) return;
 		let h = m.createLinearGradient(l - d, u - f, l + d, u + f);
 		for (let e = 0; e <= $; e++) {
 			let t = e / $;
-			h.addColorStop(t, `rgb(255 255 255 / ${ga(1 - Math.abs(t * 2 - 1)).toFixed(3)})`);
+			h.addColorStop(t, `rgb(255 255 255 / ${_a(1 - Math.abs(t * 2 - 1)).toFixed(3)})`);
 		}
 		m.fillStyle = h, m.fillRect(0, 0, p.width, p.height);
-		let g = `skullet-gloss-${++cs}`, _ = us("filter", {
+		let g = `skullet-gloss-${++ls}`, _ = ds("filter", {
 			id: g,
 			"color-interpolation-filters": "sRGB",
 			primitiveUnits: "objectBoundingBox"
-		}), v = us("feComponentTransfer", {
+		}), v = ds("feComponentTransfer", {
 			in: "SourceGraphic",
 			result: "lit"
 		});
@@ -3899,12 +3914,12 @@ var us = (e, t) => {
 			"R",
 			"G",
 			"B"
-		]) v.append(us(`feFunc${e}`, {
+		]) v.append(ds(`feFunc${e}`, {
 			type: "linear",
-			slope: 1 - $o,
-			intercept: $o
+			slope: 1 - es,
+			intercept: es
 		}));
-		let y = us("feImage", {
+		let y = ds("feImage", {
 			href: p.toDataURL(),
 			y: 0,
 			width: c / t.width,
@@ -3912,41 +3927,41 @@ var us = (e, t) => {
 			preserveAspectRatio: "none",
 			result: "band"
 		});
-		_.append(v, y, us("feComposite", {
+		_.append(v, y, ds("feComposite", {
 			in: "lit",
 			in2: "band",
 			operator: "in",
 			result: "shine"
-		}), us("feComposite", {
+		}), ds("feComposite", {
 			in: "shine",
 			in2: "SourceGraphic",
 			operator: "over"
-		})), ls().append(_), e.style.filter = `url(#${g})`;
+		})), us().append(_), e.style.filter = `url(#${g})`;
 		let b = () => {
 			let n = s();
-			n - o > a || !e.isConnected ? (e.style.filter.includes(g) && (e.style.filter = ""), _.remove()) : (y.setAttribute("x", ((n - l - u * fa) / t.width).toFixed(4)), requestAnimationFrame(b));
+			n - o > a || !e.isConnected ? (e.style.filter.includes(g) && (e.style.filter = ""), _.remove()) : (y.setAttribute("x", ((n - l - u * pa) / t.width).toFixed(4)), requestAnimationFrame(b));
 		};
 		b();
 	}
-}, fs = {
-	together: Za,
-	sequence: Qa,
-	smart: to,
+}, ps = {
+	together: Qa,
+	sequence: $a,
+	smart: no,
 	sweep: {
 		hold: 150,
 		choose: (e) => {
-			let t = $a(e);
+			let t = eo(e);
 			if (t) return t;
-			let n = is(e.reveal);
+			let n = as(e.reveal);
 			return n ? {
-				wipe: ds,
+				wipe: fs,
 				...n
-			} : eo(e);
+			} : to(e);
 		}
 	}
-}, ps = (e = "smart") => typeof e == "string" ? fs[e] : e, ms = () => {}, hs = (e) => e.finished.then(ms, ms), gs = /* @__PURE__ */ new WeakMap();
-function _s(e, t = 0, n = 200, r = 0, i) {
-	return $i() ? Promise.resolve() : hs(e.animate([{
+}, ms = (e = "smart") => typeof e == "string" ? ps[e] : e, hs = () => {}, gs = (e) => e.finished.then(hs, hs), _s = /* @__PURE__ */ new WeakMap();
+function vs(e, t = 0, n = 200, r = 0, i) {
+	return ea() ? Promise.resolve() : gs(e.animate([{
 		...i,
 		opacity: r
 	}, { opacity: 1 }], {
@@ -3956,35 +3971,35 @@ function _s(e, t = 0, n = 200, r = 0, i) {
 		fill: "backwards"
 	}));
 }
-var vs = (e) => !!e.querySelector(`[${Tr}], [${Cr}], :scope > [${jr}]`), ys = (e, t) => Math.abs(e.left - t.left) < 2 && Math.abs(e.top - t.top) < 2 && Math.abs(e.width - t.width) < 2 && Math.abs(e.height - t.height) < 2, bs = /* @__PURE__ */ new WeakMap();
-function xs(e) {
-	for (let t of bs.get(e) ?? []) t.remove();
-	bs.delete(e);
+var ys = (e) => !!e.querySelector(`[${Er}], [${wr}], :scope > [${Mr}]`), bs = (e, t) => Math.abs(e.left - t.left) < 2 && Math.abs(e.top - t.top) < 2 && Math.abs(e.width - t.width) < 2 && Math.abs(e.height - t.height) < 2, xs = /* @__PURE__ */ new WeakMap();
+function Ss(e) {
+	for (let t of xs.get(e) ?? []) t.remove();
+	xs.delete(e);
 }
-function Ss(e, t) {
-	let n = Wo(e), r = [...t.children].some((t) => t !== e && t.hasAttribute("skullet-pane") && vs(t));
+function Cs(e, t) {
+	let n = Go(e), r = [...t.children].some((t) => t !== e && t.hasAttribute("skullet-pane") && ys(t));
 	if (n.length && r) {
 		for (let e of n) e.style.opacity = "0";
 		queueMicrotask(() => {
 			if (!e.isConnected) return;
-			let r = t.getBoundingClientRect(), i = [...t.querySelectorAll(`:scope > [${kr}] [${Tr}]`)].flatMap(xa), a = bs.get(t) ?? /* @__PURE__ */ new Set();
-			bs.set(t, a);
+			let r = t.getBoundingClientRect(), i = [...t.querySelectorAll(`:scope > [${Ar}] [${Er}]`)].flatMap(Sa), a = xs.get(t) ?? /* @__PURE__ */ new Set();
+			xs.set(t, a);
 			for (let e of n) {
-				let n = e.getBoundingClientRect(), o = i.find((e) => ys(e.getBoundingClientRect(), n)), s = o?.getBoundingClientRect() ?? n, c = document.createElement("div");
-				c.setAttribute(Er, ""), Object.assign(c.style, {
+				let n = e.getBoundingClientRect(), o = i.find((e) => bs(e.getBoundingClientRect(), n)), s = o?.getBoundingClientRect() ?? n, c = document.createElement("div");
+				c.setAttribute(Dr, ""), Object.assign(c.style, {
 					position: "absolute",
 					left: `${s.left - r.left - t.clientLeft}px`,
 					top: `${s.top - r.top - t.clientTop}px`,
 					width: `${s.width}px`,
 					height: `${s.height}px`,
 					borderRadius: o?.style.borderRadius || getComputedStyle(e).borderRadius,
-					backgroundColor: Lr,
+					backgroundColor: Rr,
 					backgroundRepeat: "no-repeat",
 					pointerEvents: "none"
-				}), t.append(c), a.add(c), o && (o.style.visibility = "hidden"), va(c), Go(e).then(() => {
+				}), t.append(c), a.add(c), o && (o.style.visibility = "hidden"), ya(c), Ko(e).then(() => {
 					if (a.has(c)) {
-						if (a.delete(c), e.style.opacity = "", _s(e), $i()) return c.remove();
-						hs(c.animate([{ opacity: 1 }, { opacity: 0 }], {
+						if (a.delete(c), e.style.opacity = "", vs(e), ea()) return c.remove();
+						gs(c.animate([{ opacity: 1 }, { opacity: 0 }], {
 							duration: 200,
 							easing: "ease",
 							fill: "forwards"
@@ -3995,57 +4010,57 @@ function Ss(e, t) {
 		});
 	}
 }
-function Cs(e, t) {
-	return $i() ? Promise.resolve() : Promise.all(Ra(e).map((e) => {
+function ws(e, t) {
+	return ea() ? Promise.resolve() : Promise.all(za(e).map((e) => {
 		let n = t.pieceDelay(e);
-		if (n !== null) return _s(e, n, t.duration, 0, t.enter);
-	})).then(ms);
+		if (n !== null) return vs(e, n, t.duration, 0, t.enter);
+	})).then(hs);
 }
-function ws(e) {
-	for (let t of e.querySelectorAll(`:scope > [${kr}]`)) {
-		for (let e of ta(t)) e.finish();
+function Ts(e) {
+	for (let t of e.querySelectorAll(`:scope > [${Ar}]`)) {
+		for (let e of na(t)) e.finish();
 		t.style.opacity = "0";
 	}
 }
-function Ts(e) {
+function Es(e) {
 	let t = 0;
-	for (let n of e.querySelectorAll(`:scope > [${kr}]`)) if (!vs(n)) {
+	for (let n of e.querySelectorAll(`:scope > [${Ar}]`)) if (!ys(n)) {
 		t = Math.max(t, parseFloat(getComputedStyle(n).opacity) || 0);
-		for (let e of ta(n)) e.finish();
+		for (let e of na(n)) e.finish();
 		n.style.opacity = "0";
 	}
 	return t;
 }
-function Es(e, t = "smart", { initial: n = !1 } = {}) {
-	let r = Ds.get(e);
-	return r || (r = Os(e, t, n), Ds.set(e, r)), r;
+function Ds(e, t = "smart", { initial: n = !1 } = {}) {
+	let r = Os.get(e);
+	return r || (r = ks(e, t, n), Os.set(e, r)), r;
 }
-var Ds = /* @__PURE__ */ new WeakMap();
-function Os(e, t, n) {
-	let r = e.parentElement, i = ps(t);
-	if (vs(e)) {
-		r && xs(r);
+var Os = /* @__PURE__ */ new WeakMap();
+function ks(e, t, n) {
+	let r = e.parentElement, i = ms(t);
+	if (ys(e)) {
+		r && Ss(r);
 		let t = Math.max(i.hold ?? 0, 0);
-		return t ? (r && gs.set(r, {
+		return t ? (r && _s.set(r, {
 			kind: "skeleton",
 			hold: t
-		}), n ? Promise.resolve() : _s(e, t)) : (r && gs.delete(r), n ? Promise.resolve() : _s(e));
+		}), n ? Promise.resolve() : vs(e, t)) : (r && _s.delete(r), n ? Promise.resolve() : vs(e));
 	}
 	if (n || !r) return Promise.resolve();
-	let a = Ts(r);
+	let a = Es(r);
 	if (a > .01) {
 		let t = 200 * (1 - a);
-		return gs.set(r, {
+		return _s.set(r, {
 			kind: "together",
 			delay: 0,
 			duration: t
-		}), _s(e, 0, t, a);
+		}), vs(e, 0, t, a);
 	}
-	Ss(e, r);
-	let o = Ka(e, r, i, (e) => vo(`enter:${e}`, `\`enter\` can't set \`${e}\`: only properties that change nothing's layout animate, so the reveal never moves the page.`));
-	return gs.set(r, o), o.kind === "instant" ? (ws(r), Promise.resolve()) : o.kind === "sequence" ? Cs(e, o) : o.kind === "wipe" ? Vs(e, o, !0) : _s(e, o.delay, o.duration, 0, o.enter);
+	Cs(e, r);
+	let o = qa(e, r, i, (e) => yo(`enter:${e}`, `\`enter\` can't set \`${e}\`: only properties that change nothing's layout animate, so the reveal never moves the page.`));
+	return _s.set(r, o), o.kind === "instant" ? (Ts(r), Promise.resolve()) : o.kind === "sequence" ? ws(e, o) : o.kind === "wipe" ? Hs(e, o, !0) : vs(e, o.delay, o.duration, 0, o.enter);
 }
-function ks(e) {
+function As(e) {
 	let t = e.getBoundingClientRect(), n = e.offsetParent ?? document.documentElement, r = n.getBoundingClientRect();
 	return {
 		top: t.top - r.top - n.clientTop,
@@ -4054,7 +4069,7 @@ function ks(e) {
 		height: t.height
 	};
 }
-function As(e, t = ks(e)) {
+function js(e, t = As(e)) {
 	return Object.assign(e.style, {
 		position: "absolute",
 		top: `${t.top}px`,
@@ -4064,17 +4079,17 @@ function As(e, t = ks(e)) {
 		margin: "0",
 		boxSizing: "border-box",
 		pointerEvents: "none"
-	}), e.inert = !0, e.setAttribute(kr, ""), t;
+	}), e.inert = !0, e.setAttribute(Ar, ""), t;
 }
-var js = /* @__PURE__ */ new WeakMap();
-function Ms(e, t) {
-	let n = e.querySelector(`:scope > [${xr}]:not([${kr}])`);
+var Ms = /* @__PURE__ */ new WeakMap();
+function Ns(e, t) {
+	let n = e.querySelector(`:scope > [${Sr}]:not([${Ar}])`);
 	if (!n) return;
-	let r = js.get(e), i = e.getBoundingClientRect().height;
+	let r = Ms.get(e), i = e.getBoundingClientRect().height;
 	r?.animation.cancel();
 	let a = e.getBoundingClientRect().height, o = r ? i : a - n.getBoundingClientRect().height + t.height;
 	if (Math.abs(o - a) < .5) {
-		r && Ns(e, r);
+		r && Ps(e, r);
 		return;
 	}
 	let { overflow: s, boxSizing: c } = r ?? e.style;
@@ -4083,49 +4098,49 @@ function Ms(e, t) {
 		boxSizing: "border-box"
 	});
 	let l = e.animate([{ height: `${o}px` }, { height: `${a}px` }], {
-		duration: zr,
+		duration: Br,
 		easing: "cubic-bezier(0.2, 0, 0, 1)"
 	}), u = {
 		animation: l,
 		overflow: s,
 		boxSizing: c
 	};
-	js.set(e, u), hs(l).then(() => {
-		js.get(e) === u && Ns(e, u);
+	Ms.set(e, u), gs(l).then(() => {
+		Ms.get(e) === u && Ps(e, u);
 	});
 }
-function Ns(e, { overflow: t, boxSizing: n }) {
-	js.delete(e), Object.assign(e.style, {
+function Ps(e, { overflow: t, boxSizing: n }) {
+	Ms.delete(e), Object.assign(e.style, {
 		overflow: t,
 		boxSizing: n
 	});
 }
-function Ps(e, t) {
+function Fs(e, t) {
 	let n = parseFloat(getComputedStyle(e).opacity), r = Number.isNaN(n) ? 1 : n;
-	for (let t of ta(e)) t.cancel();
-	Bs(e), e.style.filter = "";
+	for (let t of na(e)) t.cancel();
+	Vs(e), e.style.filter = "";
 	let i = e.parentElement;
-	i && !vs(e) && xs(i);
-	let a = As(e, t), o = (t, n) => Qi() ? hs(e.animate([{ opacity: r }, { opacity: 0 }], {
+	i && !ys(e) && Ss(i);
+	let a = js(e, t), o = (t, n) => $i() ? gs(e.animate([{ opacity: r }, { opacity: 0 }], {
 		duration: n * r,
 		delay: t,
 		easing: "ease",
 		fill: "forwards"
 	})) : (e.style.opacity = "0", Promise.resolve());
 	return Promise.resolve().then(() => {
-		let t = i && gs.get(i), n = $i() || t?.kind === "instant";
-		if (i && !n && Ms(i, a), t?.kind === "skeleton") return o(t.hold, 200);
+		let t = i && _s.get(i), n = ea() || t?.kind === "instant";
+		if (i && !n && Ns(i, a), t?.kind === "skeleton") return o(t.hold, 200);
 		if (n) e.style.opacity = "0";
-		else return t?.kind === "sequence" && vs(e) ? Fs(e, t) : t?.kind === "wipe" && vs(e) ? Vs(e, t, !1) : t?.kind === "together" ? o(t.delay, t.duration) : o(0, 200);
+		else return t?.kind === "sequence" && ys(e) ? Is(e, t) : t?.kind === "wipe" && ys(e) ? Hs(e, t, !1) : t?.kind === "together" ? o(t.delay, t.duration) : o(0, 200);
 	});
 }
-function Fs(e, t) {
-	for (let t of e.querySelectorAll(`[${Cr}], [${wr}]`)) t.style.visibility = "hidden";
-	let n = [...e.querySelectorAll(`[${Cr}] [${jr}]`)].filter((e) => !e.parentElement?.closest(`[${jr}]`));
+function Is(e, t) {
+	for (let t of e.querySelectorAll(`[${wr}], [${Tr}]`)) t.style.visibility = "hidden";
+	let n = [...e.querySelectorAll(`[${wr}] [${Mr}]`)].filter((e) => !e.parentElement?.closest(`[${Mr}]`));
 	for (let e of n) e.style.visibility = "visible";
-	let r = [...[...e.querySelectorAll(`[${Tr}]`)].flatMap(xa), ...n];
+	let r = [...[...e.querySelectorAll(`[${Er}]`)].flatMap(Sa), ...n];
 	return Promise.all(r.map((e) => {
-		let n = e.getBoundingClientRect(), r = (n) => hs(e.animate([{ opacity: 1 }, { opacity: 0 }], {
+		let n = e.getBoundingClientRect(), r = (n) => gs(e.animate([{ opacity: 1 }, { opacity: 0 }], {
 			duration: t.duration,
 			delay: n,
 			easing: "ease",
@@ -4133,17 +4148,17 @@ function Fs(e, t) {
 		})), i = t.boneDelay(n);
 		if (i === null) e.style.opacity = "0";
 		else return r(i);
-	})).then(ms);
+	})).then(hs);
 }
-var Is = 100, Ls = /* @__PURE__ */ new WeakMap();
-function Rs(e, t) {
+var Ls = 100, Rs = /* @__PURE__ */ new WeakMap();
+function zs(e, t) {
 	e.style.setProperty("mask-image", t), e.style.setProperty("-webkit-mask-image", t);
 }
-function zs(e, t) {
-	Rs(e, `linear-gradient(#000 0 0), ${t}`), e.style.setProperty("-webkit-mask-composite", "xor"), e.style.setProperty("mask-composite", "exclude");
+function Bs(e, t) {
+	zs(e, `linear-gradient(#000 0 0), ${t}`), e.style.setProperty("-webkit-mask-composite", "xor"), e.style.setProperty("mask-composite", "exclude");
 }
-function Bs(e) {
-	Ls.get(e)?.();
+function Vs(e) {
+	Rs.get(e)?.();
 	for (let t of [
 		"mask-image",
 		"-webkit-mask-image",
@@ -4151,12 +4166,12 @@ function Bs(e) {
 		"-webkit-mask-composite"
 	]) e.style.removeProperty(t);
 }
-function Vs(e, t, n) {
+function Hs(e, t, n) {
 	let r = {
 		rect: e.getBoundingClientRect(),
 		reveal: t.reveal
 	}, { mask: i, out: a } = t.wipe, o = (t) => {
-		n ? Rs(e, i(t, r)) : a ? Rs(e, a(t, r)) : zs(e, i(t, r));
+		n ? zs(e, i(t, r)) : a ? zs(e, a(t, r)) : Bs(e, i(t, r));
 	}, s = () => (performance.now() - t.start) / t.duration;
 	return s() >= 1 ? (n || (e.style.opacity = "0"), Promise.resolve()) : (n && (t.wipe.effect?.(e, {
 		...r,
@@ -4169,19 +4184,19 @@ function Vs(e, t, n) {
 	})), new Promise((n) => {
 		let r = 0, i = performance.now(), a = 0, c = () => {
 			let e = performance.now();
-			if (e - i > Is && (t.stalled = !0), i = e, t.stalled) return l(a);
+			if (e - i > Ls && (t.stalled = !0), i = e, t.stalled) return l(a);
 			a = Math.min(Math.max(s(), 0), 1), o(a), a < 1 ? r = requestAnimationFrame(c) : l(null);
 		}, l = (t = null) => {
-			cancelAnimationFrame(r), clearTimeout(u), Ls.delete(e), n(t);
-		}, u = setTimeout(() => l(null), Math.max(t.start + t.duration - performance.now(), 0) + Is);
-		Ls.set(e, l), c();
+			cancelAnimationFrame(r), clearTimeout(u), Rs.delete(e), n(t);
+		}, u = setTimeout(() => l(null), Math.max(t.start + t.duration - performance.now(), 0) + Ls);
+		Rs.set(e, l), c();
 	}).then((t) => {
-		if (Bs(e), t === null) {
+		if (Vs(e), t === null) {
 			n || (e.style.opacity = "0");
 			return;
 		}
 		let r = 200 * (1 - t);
-		return n ? _s(e, 0, r, t) : hs(e.animate([{ opacity: 1 - t }, { opacity: 0 }], {
+		return n ? vs(e, 0, r, t) : gs(e.animate([{ opacity: 1 - t }, { opacity: 0 }], {
 			duration: r,
 			easing: "ease",
 			fill: "forwards"
@@ -4191,18 +4206,18 @@ function Vs(e, t, n) {
 	}));
 }
 // node_modules/skullet/dist/react/index.mjs
-var Hs = X.createContext({}), Us = X.createContext(null), Ws = () => X.useContext(Hs), Gs = () => X.useContext(Us), Ks = () => Ws().reveal;
-function qs({ children: e, ...t }) {
-	let { debug: n, theme: r, mode: i, text: a, nonce: o } = t, s = ti({
+var Us = X.createContext({}), Ws = X.createContext(null), Gs = () => X.useContext(Us), Ks = () => X.useContext(Ws), qs = () => Gs().reveal;
+function Js({ children: e, ...t }) {
+	let { debug: n, theme: r, mode: i, text: a, nonce: o } = t, s = ni({
 		theme: r,
 		mode: i,
 		text: a
 	}), [c] = X.useState(() => ({ sent: !1 }));
 	return X.useEffect(() => {
-		n !== void 0 && li(n);
-	}, [n]), (0, Z.jsx)(Hs.Provider, {
+		n !== void 0 && ui(n);
+	}, [n]), (0, Z.jsx)(Us.Provider, {
 		value: t,
-		children: (0, Z.jsxs)(Us.Provider, {
+		children: (0, Z.jsxs)(Ws.Provider, {
 			value: c,
 			children: [s && (0, Z.jsx)("style", {
 				nonce: o,
@@ -4211,26 +4226,26 @@ function qs({ children: e, ...t }) {
 		})
 	});
 }
-var Js = typeof window > "u" ? X.useEffect : X.useLayoutEffect, Ys = () => X.useInsertionEffect(() => (Yr(), Xr), []), Xs = Number("19.3.1".split(".")[0]) >= 19, Zs = () => {
-	let { nonce: e } = Ws();
-	return Xs ? (0, Z.jsx)("style", {
+var Ys = typeof window > "u" ? X.useEffect : X.useLayoutEffect, Xs = () => X.useInsertionEffect(() => (Xr(), Zr), []), Zs = Number("19.3.1".split(".")[0]) >= 19, Qs = () => {
+	let { nonce: e } = Gs();
+	return Zs ? (0, Z.jsx)("style", {
 		href: "skullet",
 		precedence: "medium",
 		nonce: e,
-		children: Gr
+		children: Kr
 	}) : null;
-}, Qs = Xs ? { inert: !0 } : { inert: "" }, $s = (e) => X.Children.map(e, (e) => {
+}, $s = Zs ? { inert: !0 } : { inert: "" }, ec = (e) => X.Children.map(e, (e) => {
 	if (!X.isValidElement(e)) return e;
 	let t = e.type.Skeleton;
 	return t ? (0, Z.jsx)("span", {
-		[jr]: "",
+		[Mr]: "",
 		children: (0, Z.jsx)(t, { ...e.props })
-	}) : e.props.children && typeof e.props.children != "function" ? X.cloneElement(e, void 0, $s(e.props.children)) : e;
-}), ec = () => () => {}, tc = () => X.useSyncExternalStore(ec, () => !1, () => !0), nc = ({ children: e, id: t, exact: n, refetch: r, label: i }) => {
-	let a = X.useRef(null), { nonce: o } = Ws(), s = Gs(), c = tc(), l = Zr;
-	return c && s && (s.sent && (l = "(s=>{let k=Symbol.for(\"skullet.boot\"),b=self[k];typeof b==\"function\"?b(s):(self[k]=b||[]).push(s)})(document.currentScript)"), s.sent = !0), Js(() => {
+	}) : e.props.children && typeof e.props.children != "function" ? X.cloneElement(e, void 0, ec(e.props.children)) : e;
+}), tc = () => () => {}, nc = () => X.useSyncExternalStore(tc, () => !1, () => !0), rc = ({ children: e, id: t, exact: n, refetch: r, label: i }) => {
+	let a = X.useRef(null), { nonce: o } = Gs(), s = Ks(), c = nc(), l = Qr;
+	return c && s && (s.sent && (l = "(s=>{let k=Symbol.for(\"skullet.boot\"),b=self[k];typeof b==\"function\"?b(s):(self[k]=b||[]).push(s)})(document.currentScript)"), s.sent = !0), Ys(() => {
 		if (!a.current) return;
-		let e = new zo(a.current, {
+		let e = new Bo(a.current, {
 			id: t,
 			exact: n,
 			refetch: r
@@ -4247,16 +4262,16 @@ var Js = typeof window > "u" ? X.useEffect : X.useLayoutEffect, Ys = () => X.use
 		}),
 		(0, Z.jsxs)("div", {
 			ref: a,
-			[Sr]: "",
+			[Cr]: "",
 			"aria-hidden": !0,
-			...Qs,
+			...$s,
 			children: [
 				(0, Z.jsx)("div", {
-					[Cr]: "",
-					children: $s(e)
+					[wr]: "",
+					children: ec(e)
 				}),
-				(0, Z.jsx)("div", { [wr]: "" }),
-				(0, Z.jsx)("div", { [Tr]: "" })
+				(0, Z.jsx)("div", { [Tr]: "" }),
+				(0, Z.jsx)("div", { [Er]: "" })
 			]
 		}),
 		c && (0, Z.jsx)("script", {
@@ -4265,30 +4280,30 @@ var Js = typeof window > "u" ? X.useEffect : X.useLayoutEffect, Ys = () => X.use
 			dangerouslySetInnerHTML: { __html: l }
 		})
 	] });
-}, rc = ({ children: e, id: t, registry: n, enter: r, exiting: i, onExited: a, memory: o, onEntered: s }) => {
-	let c = X.useRef(null), l = Ks();
-	return Js(() => {
+}, ic = ({ children: e, id: t, registry: n, enter: r, exiting: i, onExited: a, memory: o, onEntered: s }) => {
+	let c = X.useRef(null), l = qs();
+	return Ys(() => {
 		if (!c.current) return;
 		let e = {
 			element: c.current,
 			memory: null
 		};
-		return n.set(t, e), Es(c.current, l, { initial: !r }).then(s), o && (e.memory = new Vo(c.current, o)), () => {
+		return n.set(t, e), Ds(c.current, l, { initial: !r }).then(s), o && (e.memory = new Ho(c.current, o)), () => {
 			e.memory?.destroy(), n.delete(t);
 		};
-	}, []), Js(() => {
-		!i || !c.current || Ps(c.current, n.get(t)?.box).then(a);
+	}, []), Ys(() => {
+		!i || !c.current || Fs(c.current, n.get(t)?.box).then(a);
 	}, [i]), (0, Z.jsx)("div", {
 		ref: c,
-		[xr]: "",
+		[Sr]: "",
 		children: e
 	});
-}, ic = class extends X.Component {
+}, ac = class extends X.Component {
 	getSnapshotBeforeUpdate(e) {
 		for (let t of this.props.exiting) {
 			if (e.exiting.includes(t)) continue;
 			let n = this.props.registry.get(t);
-			n && (n.memory?.save(), n.box = ks(n.element));
+			n && (n.memory?.save(), n.box = As(n.element));
 		}
 		return null;
 	}
@@ -4297,11 +4312,11 @@ var Js = typeof window > "u" ? X.useEffect : X.useLayoutEffect, Ys = () => X.use
 		return this.props.children;
 	}
 };
-function ac(e) {
+function oc(e) {
 	let { id: t, label: n, skeleton: r, empty: i, emptyMessage: a, error: o, className: s, style: c } = e;
-	Ys();
+	Xs();
 	let l = typeof e.children == "function" ? e.children : null, u = l ? e.data : void 0, d = l ? e.sample : void 0, f = l ? null : e.children, p = X.useRef(null);
-	Js(() => {
+	Ys(() => {
 		u != null && (p.current = {
 			id: t,
 			data: u
@@ -4311,10 +4326,10 @@ function ac(e) {
 	if (h) {
 		let e = p.current, i = u ?? (e && e.id === t ? e.data : null);
 		g = "skeleton", _ = r ? (0, Z.jsx)("div", {
-			[jr]: "",
+			[Mr]: "",
 			"aria-hidden": !0,
 			children: r
-		}) : (0, Z.jsx)(nc, {
+		}) : (0, Z.jsx)(rc, {
 			id: t,
 			exact: i != null,
 			refetch: u != null,
@@ -4331,7 +4346,7 @@ function ac(e) {
 		id: 0,
 		key: g
 	}), [x, S] = X.useState([]), C = X.useRef(/* @__PURE__ */ new Map()).current, w = X.useRef(_);
-	if (Js(() => {
+	if (Ys(() => {
 		w.current = _;
 	}), y.key !== g) {
 		let e = {
@@ -4345,17 +4360,17 @@ function ac(e) {
 		});
 	}
 	let T = X.useRef(e.onReveal);
-	Js(() => {
+	Ys(() => {
 		T.current = e.onReveal;
 	});
-	let E = y.key === "content" && y.from === "skeleton" ? () => T.current?.() : void 0, D = (e) => S((t) => t.filter((t) => t.id !== e)), O = [...x.map((e) => (0, Z.jsx)(rc, {
+	let E = y.key === "content" && y.from === "skeleton" ? () => T.current?.() : void 0, ee = (e) => S((t) => t.filter((t) => t.id !== e)), D = [...x.map((e) => (0, Z.jsx)(ic, {
 		id: e.id,
 		registry: C,
 		enter: !1,
 		exiting: !0,
-		onExited: () => D(e.id),
+		onExited: () => ee(e.id),
 		children: e.node
-	}, e.id)), (0, Z.jsx)(rc, {
+	}, e.id)), (0, Z.jsx)(ic, {
 		id: y.id,
 		registry: C,
 		enter: y.id > 0,
@@ -4366,34 +4381,34 @@ function ac(e) {
 		children: _
 	}, y.id)];
 	return (0, Z.jsxs)("div", {
-		[br]: "",
+		[xr]: "",
 		"aria-busy": g === "skeleton" || void 0,
 		className: s,
 		style: c,
-		children: [(0, Z.jsx)(Zs, {}), (0, Z.jsx)(ic, {
+		children: [(0, Z.jsx)(Qs, {}), (0, Z.jsx)(ac, {
 			exiting: x.map((e) => e.id),
 			registry: C,
-			children: O
+			children: D
 		})]
 	});
 }
 // src/react/follow-manage/measured-reading.tsx
-var oc = {
+var sc = {
 	creators: [Y("follow:followOverview.creators"), Y("follow:followOverview.creatorUnit")],
 	enabled: [Y("follow:followOverview.enabledSources"), ""],
 	failed: [Y("follow:followCheck.checkFailed"), Y("follow:followOverview.sourceUnit")],
 	updates: [Y("follow:followOverview.unwatchedUpdates"), Y("follow:followOverview.itemUnit")],
 	subscriptions: [Y("follow:feedSources.footerLabel"), Y("follow:followOverview.actressUnit")],
 	releases: [Y("follow:followOverview.unwatchedReleases"), Y("follow:followOverview.itemUnit")]
-}, sc = {
+}, cc = {
 	duration: 0,
 	delay: 0,
 	hold: 150
-}, cc;
-function lc() {
-	return cc || (cc = new CSSStyleSheet(), cc.replaceSync("\n      @keyframes peach-skeleton-sweep { to { transform: translateX(-50%); } }\n      [skullet-rect] { overflow: hidden; }\n      [skullet-rect]::after {\n        content: ''; position: absolute; inset: 0; right: -200%; border-radius: inherit;\n        background: linear-gradient(to right, var(--skullet-base), var(--skullet-highlight) 50%, var(--skullet-base));\n        background-size: 50% 100%; animation: peach-skeleton-sweep 1.5s ease-in-out infinite reverse;\n      }\n      @media (prefers-reduced-motion: reduce) { [skullet-rect]::after { animation: none; } }\n    ")), cc;
+}, lc;
+function uc() {
+	return lc || (lc = new CSSStyleSheet(), lc.replaceSync("\n      @keyframes peach-skeleton-sweep { to { transform: translateX(-50%); } }\n      [skullet-rect] { overflow: hidden; }\n      [skullet-rect]::after {\n        content: ''; position: absolute; inset: 0; right: -200%; border-radius: inherit;\n        background: linear-gradient(to right, var(--skullet-base), var(--skullet-highlight) 50%, var(--skullet-base));\n        background-size: 50% 100%; animation: peach-skeleton-sweep 1.5s ease-in-out infinite reverse;\n      }\n      @media (prefers-reduced-motion: reduce) { [skullet-rect]::after { animation: none; } }\n    ")), lc;
 }
-function uc({ figure: e, unit: t }) {
+function dc({ figure: e, unit: t }) {
 	return /* @__PURE__ */ (0, Z.jsxs)("b", {
 		"data-follow-reading": "",
 		className: `flex min-w-0 flex-wrap items-baseline gap-x-1 tabular-nums text-text-primary ${e >= 1e6 ? "text-headline-medium" : e >= 1e5 ? "text-title-3-medium" : "text-title-1-medium"}`,
@@ -4403,12 +4418,12 @@ function uc({ figure: e, unit: t }) {
 		})]
 	});
 }
-function dc({ field: e, figure: t, total: n, failed: r = !1 }) {
-	let [i, a] = oc[e], o = (0, X.useRef)(null);
+function fc({ field: e, figure: t, total: n, failed: r = !1 }) {
+	let [i, a] = sc[e], o = (0, X.useRef)(null);
 	return (0, X.useLayoutEffect)(() => {
 		let e = [...o.current.querySelectorAll("[skullet-layer]")].map((e) => e.shadowRoot).filter((e) => !!e);
 		if (!e.length) return;
-		let t = lc();
+		let t = uc();
 		for (let n of e) n.adoptedStyleSheets = [...n.adoptedStyleSheets, t];
 		return () => {
 			for (let n of e) n.adoptedStyleSheets = n.adoptedStyleSheets.filter((e) => e !== t);
@@ -4416,7 +4431,7 @@ function dc({ field: e, figure: t, total: n, failed: r = !1 }) {
 	}, [t, r]), /* @__PURE__ */ (0, Z.jsxs)("div", {
 		ref: o,
 		"data-measured-reading": e,
-		className: Me({
+		className: je({
 			padding: "none",
 			className: "flex flex-col justify-between gap-3 px-6 py-5 max-sm:gap-2 max-sm:p-4"
 		}),
@@ -4427,14 +4442,14 @@ function dc({ field: e, figure: t, total: n, failed: r = !1 }) {
 			"data-follow-reading": "",
 			className: "text-title-1-medium text-text-primary",
 			children: Y("follow:shared.notFound")
-		}) : /* @__PURE__ */ (0, Z.jsx)(qs, {
-			reveal: sc,
-			children: /* @__PURE__ */ (0, Z.jsx)(ac, {
+		}) : /* @__PURE__ */ (0, Z.jsx)(Js, {
+			reveal: cc,
+			children: /* @__PURE__ */ (0, Z.jsx)(oc, {
 				id: `peach:follow-reading:v1:${e}`,
 				data: t,
 				sample: 12345,
 				label: Y("follow:followOverview.loading", { term: i }),
-				children: (t) => /* @__PURE__ */ (0, Z.jsx)(uc, {
+				children: (t) => /* @__PURE__ */ (0, Z.jsx)(dc, {
 					figure: t,
 					unit: e === "enabled" ? `/ ${n ?? 0}` : a
 				})
@@ -4443,49 +4458,49 @@ function dc({ field: e, figure: t, total: n, failed: r = !1 }) {
 	});
 }
 // src/react/follow-manage/follow-manage-page.tsx
-var fc = (e) => j.some(([t]) => t === e);
-function pc(e) {
-	let { route: t, savePreference: n, toast: r, openFollow: i, readOnly: a, readOnlyMessage: o, writerUrl: s } = e, [c, l] = (0, X.useState)(fc(e.tab) ? e.tab : "list"), [u, f] = (0, X.useState)(Math.max(1, Math.floor(e.page) || 1)), [p, m] = (0, X.useState)(() => Nt(e.sort, e.dir).sort), [h, g] = (0, X.useState)(() => Nt(e.sort, e.dir).dir), [_, v] = (0, X.useState)(dt(e.layout) ? e.layout : "default"), [y, b] = (0, X.useState)(bt(e.pageSize)), [x, S] = (0, X.useState)(/* @__PURE__ */ new Set()), [C, w] = (0, X.useState)(/* @__PURE__ */ new Set());
-	nn(() => {
+var pc = (e) => A.some(([t]) => t === e);
+function mc(e) {
+	let { route: t, savePreference: n, toast: r, openFollow: i, readOnly: a, readOnlyMessage: o, writerUrl: s } = e, [c, l] = (0, X.useState)(pc(e.tab) ? e.tab : "list"), [u, f] = (0, X.useState)(Math.max(1, Math.floor(e.page) || 1)), [p, m] = (0, X.useState)(() => Nt(e.sort, e.dir).sort), [h, g] = (0, X.useState)(() => Nt(e.sort, e.dir).dir), [_, v] = (0, X.useState)(dt(e.layout) ? e.layout : "default"), [y, b] = (0, X.useState)(bt(e.pageSize)), [x, S] = (0, X.useState)(/* @__PURE__ */ new Set()), [C, w] = (0, X.useState)(/* @__PURE__ */ new Set()), T = nn(() => {
 		S(/* @__PURE__ */ new Set()), w(/* @__PURE__ */ new Set());
-	}), (0, X.useEffect)(() => {
-		(x.size || C.size) && q();
+	});
+	(0, X.useEffect)(() => {
+		(x.size || C.size) && Ye();
 	}, [x, C]);
-	let T = rn({
-		queryKey: ne,
+	let E = rn({
+		queryKey: re,
 		queryFn: ({ signal: e }) => nt(e)
-	}), E = rn({
-		queryKey: te,
+	}), ee = rn({
+		queryKey: ne,
 		queryFn: ({ signal: e }) => et(e)
-	}), D = rn({
-		queryKey: ee,
+	}), O = rn({
+		queryKey: te,
 		queryFn: ({ signal: e }) => tt(e)
-	}), k = T.data || { sources: [] }, A = E.data || {
+	}), k = E.data || { sources: [] }, ie = ee.data || {
 		root: "",
 		providers: []
-	}, M = k.sources;
+	}, j = k.sources;
 	(0, X.useEffect)(() => {
 		S((e) => {
-			let t = mt(e, M);
+			let t = mt(e, j);
 			return t.size === e.size ? e : t;
 		});
-	}, [M]);
-	let N = (e) => {
+	}, [j]);
+	let M = (e) => {
 		let n = e.sort ?? p, r = e.dir ?? h;
 		t({
 			tab: e.tab ?? c,
 			page: e.page ?? u,
 			sort: n === "checked" ? "" : n,
-			dir: r === se[n] ? "" : r
+			dir: r === ce[n] ? "" : r
 		});
-	}, re = lt(M), P = M.filter(ut).length, F = M.filter((e) => e.enabled).length, ie = (A.providers || []).filter((e) => e.requirement === "required" && !Ge(e)).length, I = new Set((D.data?.sources || []).map((e) => e.entity_id ?? `source-${e.id}`)).size;
-	return /* @__PURE__ */ (0, Z.jsxs)(dn, { children: [
+	}, N = lt(j), P = j.filter(ut).length, F = j.filter((e) => e.enabled).length, I = (ie.providers || []).filter((e) => e.requirement === "required" && !We(e)).length, L = new Set((O.data?.sources || []).map((e) => e.entity_id ?? `source-${e.id}`)).size;
+	return /* @__PURE__ */ (0, Z.jsxs)(fn, { children: [
 		a ? /* @__PURE__ */ (0, Z.jsx)(V, {
 			tone: "warning",
 			title: Y("follow:followManagePage.readOnly"),
 			extra: s ? /* @__PURE__ */ (0, Z.jsx)("p", {
 				className: "text-body-2-regular",
-				children: /* @__PURE__ */ (0, Z.jsx)(O, {
+				children: /* @__PURE__ */ (0, Z.jsx)(D, {
 					href: s,
 					children: Y("follow:followManagePage.goToPrimary")
 				})
@@ -4493,39 +4508,39 @@ function pc(e) {
 			children: o
 		}) : null,
 		/* @__PURE__ */ (0, Z.jsxs)("div", {
-			className: le,
+			className: U,
 			"aria-label": Y("follow:followManagePage.overview"),
 			children: [
-				/* @__PURE__ */ (0, Z.jsx)(dc, {
+				/* @__PURE__ */ (0, Z.jsx)(fc, {
 					field: "creators",
-					figure: T.data ? re.length : void 0,
-					failed: T.isError
+					figure: E.data ? N.length : void 0,
+					failed: E.isError
 				}),
-				/* @__PURE__ */ (0, Z.jsx)(dc, {
+				/* @__PURE__ */ (0, Z.jsx)(fc, {
 					field: "enabled",
-					figure: T.data ? F : void 0,
-					total: M.length,
-					failed: T.isError
+					figure: E.data ? F : void 0,
+					total: j.length,
+					failed: E.isError
 				}),
-				/* @__PURE__ */ (0, Z.jsx)(dc, {
+				/* @__PURE__ */ (0, Z.jsx)(fc, {
 					field: "failed",
-					figure: T.data ? P : void 0,
-					failed: T.isError
+					figure: E.data ? P : void 0,
+					failed: E.isError
 				}),
-				/* @__PURE__ */ (0, Z.jsx)(dc, {
+				/* @__PURE__ */ (0, Z.jsx)(fc, {
 					field: "updates",
-					figure: T.data ? k.counts?.new || 0 : void 0,
-					failed: T.isError
+					figure: E.data ? k.counts?.new || 0 : void 0,
+					failed: E.isError
 				}),
-				/* @__PURE__ */ (0, Z.jsx)(dc, {
+				/* @__PURE__ */ (0, Z.jsx)(fc, {
 					field: "subscriptions",
-					figure: D.data ? I : void 0,
-					failed: D.isError
+					figure: O.data ? L : void 0,
+					failed: O.isError
 				}),
-				/* @__PURE__ */ (0, Z.jsx)(dc, {
+				/* @__PURE__ */ (0, Z.jsx)(fc, {
 					field: "releases",
-					figure: D.data ? D.data.unread || 0 : void 0,
-					failed: D.isError
+					figure: O.data ? O.data.unread || 0 : void 0,
+					failed: O.isError
 				})
 			]
 		}),
@@ -4534,20 +4549,20 @@ function pc(e) {
 			children: [
 				/* @__PURE__ */ (0, Z.jsx)("div", {
 					"data-section-nav": !0,
-					children: /* @__PURE__ */ (0, Z.jsx)(G, {
+					children: /* @__PURE__ */ (0, Z.jsx)(ge, {
 						group: "follow",
 						label: Y("follow:followManagePage.sectionTabs"),
 						value: c,
 						panelPrefix: "follow",
 						sectionItems: !0,
-						tabs: j.map(([e, t]) => ({
+						tabs: A.map(([e, t]) => ({
 							value: e,
 							label: t
 						})),
 						className: "",
 						itemClassName: "cursor-pointer whitespace-nowrap",
 						onChange: (e) => {
-							S(/* @__PURE__ */ new Set()), w(/* @__PURE__ */ new Set()), l(e), N({ tab: e });
+							S(/* @__PURE__ */ new Set()), w(/* @__PURE__ */ new Set()), l(e), M({ tab: e });
 						}
 					})
 				}),
@@ -4556,18 +4571,19 @@ function pc(e) {
 					id: "follow-panel-list",
 					"aria-labelledby": "follow-tab-list",
 					className: "flex flex-col gap-4",
-					children: [/* @__PURE__ */ (0, Z.jsx)(sr, {
+					children: [/* @__PURE__ */ (0, Z.jsx)(cr, {
 						readOnly: a,
 						toast: r,
+						selecting: T,
 						onAdd: () => {
-							l("add"), N({ tab: "add" });
+							l("add"), M({ tab: "add" });
 						},
 						selection: {
 							ids: C,
 							onChange: w,
 							onActivate: () => S(/* @__PURE__ */ new Set())
 						}
-					}), T.data ? /* @__PURE__ */ (0, Z.jsx)(yr, {
+					}), E.data ? /* @__PURE__ */ (0, Z.jsx)(br, {
 						data: k,
 						sort: p,
 						dir: h,
@@ -4575,32 +4591,33 @@ function pc(e) {
 						layout: _,
 						pageSize: y,
 						selected: x,
+						selecting: T,
 						readOnly: a,
 						toast: r,
 						openFollow: i,
 						onAdd: () => {
-							l("add"), N({ tab: "add" });
+							l("add"), M({ tab: "add" });
 						},
 						onSort: (e, t) => {
-							m(e), g(t), f(1), N({
+							m(e), g(t), f(1), M({
 								sort: e,
 								dir: t,
 								page: 1
 							});
 						},
 						onPage: (e) => {
-							f(e), N({ page: e });
+							f(e), M({ page: e });
 						},
 						onSelected: (e) => {
 							S(e), w(/* @__PURE__ */ new Set());
 						},
 						onLayout: (e) => {
-							v(e), f(1), n({ layout: e }), N({ page: 1 });
+							v(e), f(1), n({ layout: e }), M({ page: 1 });
 						},
 						onPageSize: (e) => {
-							b(e), f(1), n({ pageSize: e }), N({ page: 1 });
+							b(e), f(1), n({ pageSize: e }), M({ page: 1 });
 						}
-					}) : T.isError ? /* @__PURE__ */ (0, Z.jsx)(V, {
+					}) : E.isError ? /* @__PURE__ */ (0, Z.jsx)(V, {
 						tone: "error",
 						children: Y("follow:followManagePage.listFailed")
 					}) : /* @__PURE__ */ (0, Z.jsx)("div", {
@@ -4616,12 +4633,12 @@ function pc(e) {
 					"aria-labelledby": "follow-tab-add",
 					className: "flex flex-col gap-8",
 					children: [
-						E.data && T.data ? /* @__PURE__ */ (0, Z.jsx)(jn, {
+						ee.data && E.data ? /* @__PURE__ */ (0, Z.jsx)(Mn, {
 							data: k,
-							credentials: A,
+							credentials: ie,
 							readOnly: a,
 							toast: r
-						}) : E.isError || T.isError ? /* @__PURE__ */ (0, Z.jsx)(V, {
+						}) : ee.isError || E.isError ? /* @__PURE__ */ (0, Z.jsx)(V, {
 							tone: "error",
 							children: Y("follow:followManagePage.credentialsFailed")
 						}) : /* @__PURE__ */ (0, Z.jsx)("div", {
@@ -4630,14 +4647,14 @@ function pc(e) {
 							"data-skeleton": "",
 							className: "skeleton-sheen h-32 rounded-lg"
 						}),
-						/* @__PURE__ */ (0, Z.jsx)(In, {
+						/* @__PURE__ */ (0, Z.jsx)(Ln, {
 							readOnly: a,
 							toast: r,
 							onAdded: () => {
-								D.refetch(), l("list"), N({ tab: "list" });
+								O.refetch(), l("list"), M({ tab: "list" });
 							}
 						}),
-						T.data ? /* @__PURE__ */ (0, Z.jsx)(Yn, {
+						E.data ? /* @__PURE__ */ (0, Z.jsx)(Xn, {
 							groups: k.author_aliases || [],
 							readOnly: a,
 							toast: r,
@@ -4651,10 +4668,10 @@ function pc(e) {
 		/* @__PURE__ */ (0, Z.jsx)("div", { children: /* @__PURE__ */ (0, Z.jsx)(d, {
 			variant: "secondary",
 			href: "/settings/subscriptions",
-			children: ie ? Y("follow:followManagePage.feedSettingsPending", { count: ie }) : Y("follow:followManagePage.feedSettings")
+			children: I ? Y("follow:followManagePage.feedSettingsPending", { count: I }) : Y("follow:followManagePage.feedSettings")
 		}) })
 	] });
 }
-export { pc as FollowManagePage };
+export { mc as FollowManagePage };
 
-//# debugId=648b152f-801d-4a50-8d98-66219538f118
+//# debugId=6996e4b8-94bf-433e-ab2d-b1c91dda432b

@@ -34,6 +34,7 @@ import {
 } from './section';
 import { busyProps, useAction } from './use-action';
 import { JavBrowserSettings } from './jav-browser-settings';
+import { LocalDownloadSettings } from './local-download-settings';
 import { CLOUD_LOCATIONS } from '../../core/media-sources';
 import { EDITION_TONE, editionName } from '../../core/jav-title';
 import { jobText, serverLabel } from '../../core/server-text';
@@ -96,8 +97,10 @@ export function DownloadSettings({ initial, receipt, active = true }: {
     <>
       {hasCloud ? <DownloadForm state={state} settle={setState} receipt={receipt} pikpakAccount={pikpakAccount} active={active} /> : null}
       {hasPikPak ? <PikPakAccount state={state} settle={setState} receipt={receipt} username={username} setUsername={setUsername} /> : null}
+      <LocalDownloadSettings state={state} settle={setState} receipt={receipt} />
       <JavBrowserSettings receipt={receipt} refreshKey={JSON.stringify([
         state.media_sources, state.config, state.token_set, state.pikpak.logged_in,
+        state.qbittorrent, state.local_roots,
       ])} />
     </>
   );

@@ -46,7 +46,7 @@ export function TagManager({ search, category = 'all', view = 'cloud', onCategor
   const [selection, setPicked] = useState<ReadonlyMap<string, ManagedTag>>(new Map());
   useEffect(() => { setPicked(new Map()) }, [filter]);
   /* 管理模式的勾选接右上角多选开关：勾了就进入多选，点开关退出时清空。 */
-  usePageSelection(() => setPicked(new Map()), { topbar: true });
+  const selecting = usePageSelection(() => setPicked(new Map()), { topbar: true });
   useEffect(() => { if (selection.size) enterPageSelection() }, [selection]);
   const picked = new Set(selection.keys());
   const [editing, setEditing] = useState<EditorOperation | null>(null);
@@ -65,6 +65,10 @@ export function TagManager({ search, category = 'all', view = 'cloud', onCategor
   const ids = selected.map(managedTagId);
   const actions = { online, favorites: online, picked,
     edit: (key: string) => { const row = rows.find(row => row.k === key); if (row) { setPicked(new Map([[key, row]])); setEditing('rename') } },
+    rectangle: selecting ? (keys: string[], add: boolean) => setPicked(current => {
+      const hits = new Set(keys);
+      return new Map([...(add ? current : []), ...visible.filter(row => hits.has(row.k)).map(row => [row.k, row] as const)]);
+    }) : undefined,
     press: (key: string) => setPicked(current => {
       const next = new Map(current); const row = rows.find(row => row.k === key); if (!next.delete(key) && row) next.set(key, row); return next;
     }) };

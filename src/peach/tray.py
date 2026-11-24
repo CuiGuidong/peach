@@ -89,7 +89,7 @@ def ledger_menu_items(make_item, sync_ledger, take_ownership) -> list:
     然后回一句「盘不可达」——那不是状态，是这台机器根本不做复制（ADR-0023 第 3 阶段）。
     标签在两个平台上共用这一处定义，`make_item` 负责套上各自的菜单项类型。
     """
-    if not REPLICATION_ENABLED or standalone():
+    if not REPLICATION_ENABLED:
         return []
     return [
         make_item(tray_text("tray.menu.syncLedger"), sync_ledger),

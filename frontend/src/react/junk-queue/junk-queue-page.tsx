@@ -28,6 +28,7 @@ import { useQueueSort } from '../components/queue-sort';
 import { JunkCount } from './junk-count';
 import { fetchJunkPage, groupJunkCopies, junkQueryKey, type JunkItem, type JunkPage, type JunkQueueProps, type JunkRoute } from './junk-queue';
 import { t } from '../../i18n';
+import { useRectangleSelection } from '../components/rectangle-selection';
 import type { TableFilters, RemoteTableFilters } from '../components/use-table-filters';
 
 const CheckGlyph = spriteGlyph('check');
@@ -114,6 +115,8 @@ function JunkBody({ props, data, pending, error, retry, order, filters, busy }: 
   const [segments, setSegments] = useState(1);
   const items = order.sort(data?.items || []);
   const groups = groupJunkCopies(items);
+  const rectangle = useRectangleSelection(props.selectMode && !busy && props.actions.selectRectangle
+    ? (keys, add) => props.actions.selectRectangle?.(keys.map(Number), add) : undefined, '[data-junk-card][data-id]');
   const [expanded, setExpanded] = useState<ReadonlySet<number>>(new Set());
   const toggleCopies = (id: number) => setExpanded((current) => {
     const next = new Set(current);
@@ -155,7 +158,7 @@ function JunkBody({ props, data, pending, error, retry, order, filters, busy }: 
     </>;
     return (
       <>
-        <div data-media-grid="" data-junk-grid="" data-select-mode={props.selectMode ? '' : undefined}>
+        <div data-media-grid="" data-junk-grid="" data-select-mode={props.selectMode ? '' : undefined} {...rectangle}>
           {shown.map((item) => (
             <JunkCard key={item.id} item={item} view={props.view} selected={props.selected.has(item.id)}
               selectMode={props.selectMode} helpers={props.helpers} actions={props.actions} copies={copyInfo(item)} />
