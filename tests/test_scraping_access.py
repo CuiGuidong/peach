@@ -552,7 +552,7 @@ class ScrapingAccessTests(unittest.TestCase):
         transport.transports["fc2ppvdb"] = unsolved
         with self.assertRaises(SourcePaused) as caught:
             transport(request, 1, 100)
-        self.assertIn("点一下验证", str(caught.exception))
+        self.assertIn("在运行 Peach 的电脑上切换到采集浏览器", str(caught.exception))
         self.assertTrue(cooldown.exists())
         cooldown.unlink()
 
