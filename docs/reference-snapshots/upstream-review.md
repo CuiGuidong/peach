@@ -2,6 +2,12 @@
 
 各节分别记录复核日期（Asia/Taipei）。本文件是人工复核笔记，不登记为可覆盖的上游快照；原文字节、哈希与 revision 见 [来源登记](../reference-sources.json)。
 
+## 2026-11-25 稳定依赖与参考复核
+
+- 更新 grpcio、PyObjC 的 Cocoa 与 Vision，以及 lucide-static、i18next、Sentry Vite 插件和 Oxc 工具。Sentry 插件已声明 glob 14，前端移除旧覆盖。
+- FFmpeg 的源码、Windows 导入和 CI 验证对齐 9.1。untrunc 使用独立源码锁。
+- 复核并更新 18 份原文，包含 Open Claude UI 手册迁至 `docs/v1/`。FANBOX 与 OpenAver 两项复核分支提交并保留人工笔记。参考用于后续产品判断，本批仅同步证据。
+
 ## amane 桥
 
 ### 采用稳定版 v0.29.0

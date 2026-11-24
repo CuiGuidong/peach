@@ -33,7 +33,7 @@
     "d3-sankey": "0.12.3",
     "diff": "9.0.0",
     "driver.js": "1.14.0",
-    "i18next": "27.2.6",
+    "i18next": "27.2.7",
     "motion": "14.14.0",
     "react": "19.3.1",
     "react-aria": "3.53.1",
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@sentry/cli": "3.8.2",
-    "@sentry/vite-plugin": "11.16.0",
+    "@sentry/vite-plugin": "11.17.0",
     "@shadcn/lint": "0.2.5",
     "@tailwindcss/vite": "4.3.5",
     "@types/d3-sankey": "0.12.5",
@@ -55,17 +55,12 @@
     "@types/react-dom": "19.3.0",
     "agentation": "3.1.2",
     "happy-dom": "21.0.4",
-    "oxc-parser": "0.159.0",
-    "oxlint": "1.94.0",
+    "oxc-parser": "0.160.0",
+    "oxlint": "1.95.0",
     "playwright-core": "1.65.1",
     "tailwindcss": "4.3.5",
     "typescript": "7.0.2",
     "vite": "8.3.8",
     "vitest": "5.1.1"
-  },
-  "overrides": {
-    "@sentry/bundler-plugins": {
-      "glob": "14.0.3"
-    }
   }
 }

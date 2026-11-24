@@ -178,7 +178,7 @@ jobs:
         uses: ./.github/actions/setup-ffmpeg
         if: runner.os == 'Windows' && matrix.runtime_tools
         with:
-          ffmpeg-version: "9.0.1"
+          ffmpeg-version: "9.1"
       - name: 安装 macOS FFmpeg
         if: runner.os == 'macOS' && matrix.runtime_tools
         run: brew install ffmpeg
@@ -293,7 +293,7 @@ jobs:
       - name: 安装固定版本 FFmpeg
         uses: ./.github/actions/setup-ffmpeg
         with:
-          ffmpeg-version: "9.0.1"
+          ffmpeg-version: "9.1"
       - name: 指定 e2e 用的 Chrome
         shell: pwsh
         run: |
