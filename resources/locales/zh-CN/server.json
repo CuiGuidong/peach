@@ -284,6 +284,23 @@
         }
       }
     },
+    "v0-62-0": {
+      "headline": "下载自动入库，远程浏览媒体目录，拖动框选",
+      "items": {
+        "qbittorrent-intake": {
+          "body": "配置 qBittorrent 和目录映射后，可在 Peach 跟踪下载进度，下载完成后自动入库",
+          "title": "用 qBittorrent 下载并自动入库"
+        },
+        "server-media-browse": {
+          "body": "在 NAS 等无桌面部署中，从存储空间或播放详情浏览已挂载目录并定位文件",
+          "title": "从网页浏览服务器上的媒体"
+        },
+        "drag-to-select": {
+          "body": "拖动框选卡片或列表行，在首页和资料页批量操作新作",
+          "title": "拖动框选多个作品"
+        }
+      }
+    },
     "v0-61-0": {
       "headline": "按文件夹扫描，补全欧美作品资料",
       "items": {

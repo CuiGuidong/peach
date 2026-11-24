@@ -57,6 +57,15 @@ ICON_MEANINGS = {
 GENERIC_ICONS = frozenset({"sparkle"})
 
 NOTICES: dict[str, dict] = {
+    "0.62.0": {
+        "level": "notice",
+        "features": [
+            {"id": "qbittorrent-intake", "refs": ["#240"], "icon": "download",
+             "route": "/settings/downloads"},
+            {"id": "server-media-browse", "refs": ["#376"], "icon": "server"},
+            {"id": "drag-to-select", "refs": ["#855"], "icon": "select", "route": "/"},
+        ],
+    },
     "0.61.0": {
         "level": "notice",
         "features": [

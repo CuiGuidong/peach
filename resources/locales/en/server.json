@@ -284,6 +284,23 @@
         }
       }
     },
+    "v0-62-0": {
+      "headline": "Import downloads, browse server media, and drag to select",
+      "items": {
+        "qbittorrent-intake": {
+          "body": "Connect qBittorrent and map its download folder to track progress in Peach and import completed files automatically",
+          "title": "Import completed qBittorrent downloads"
+        },
+        "server-media-browse": {
+          "body": "On a NAS or other headless server, open Storage or playback details to browse mounted folders and locate files",
+          "title": "Browse server media in the web app"
+        },
+        "drag-to-select": {
+          "body": "Drag to select cards or list rows, and take batch actions on new releases from the home or entity page",
+          "title": "Drag to select multiple works"
+        }
+      }
+    },
     "v0-61-0": {
       "headline": "Scan a folder and fill Western metadata",
       "items": {
