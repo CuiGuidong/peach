@@ -535,7 +535,7 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
         await openPanel(opened.page);
         for (const section of ['外观与导航', '浏览与播放', 'JAV 与新作', '搜索与推荐', '内容显示']) {
           await opened.page.locator(PANEL).getByRole('tab', { name: section, exact: true }).click();
-          const subheadings = ({ '浏览与播放': ['作品列表', '播放'], 'JAV 与新作': ['作品显示', '新作显示'] } as
+          const subheadings = ({ '浏览与播放': ['作品列表', '首页', '播放'], 'JAV 与新作': ['作品显示', '新作显示'] } as
             Record<string, string[] | undefined>)[section];
           if (subheadings) {
             const headings = await opened.page.locator(`${PANEL} [data-setting-group]:not([hidden]) [data-settings-subheading]`)

@@ -163,7 +163,7 @@ export function DataTable<T extends RowData>({ label, items, columns, rowId, row
         <Button variant="ghost" size="small" onClick={() => { onSelected([]); exitPageSelection() }}>{t('shell:dataTable.clearSelection')}</Button>
       </SelectionDock>
       <DataTableFrame follow preferences={preferences} onRowClick={(id) => table.getRow(id)?.toggleSelected()}
-        onRectangle={selecting && !busy ? (keys, add) => table.setRowSelection({
+        rectangleSelecting={selecting} onRectangle={!busy ? (keys, add) => table.setRowSelection({
           ...(add ? rowSelection : {}), ...Object.fromEntries(keys.map(key => [key, true])),
         }) : undefined}>
         <Table aria-label={label} size="sm"

@@ -207,7 +207,7 @@ export function CatalogListPage(props: CatalogGridProps & {
       : <LibraryCompletionPrompt className="" assetIds={missing} meteredIds={metered} />}
     {result.isError ? <RetryNote message={requestErrorMessage(result.error)} onRetry={() => void result.refetch()} /> : null}
     <DataTableFrame follow preferences={preferences} onRowClick={props.selectMode ? id => { if (!result.isPlaceholderData) props.actions.toggleSelection(Number(id), false) } : undefined}
-      onRectangle={props.selectMode && !result.isPlaceholderData && props.actions.selectCardRectangle
+      rectangleSelecting={props.selectMode} onRectangle={!result.isPlaceholderData && props.actions.selectCardRectangle
         ? (keys, add) => props.actions.selectCardRectangle?.(keys.map(Number), add) : undefined}>
       <Table aria-label={t('catalog:catalogList.listLabel')} size="sm"
         sortDescriptor={sort ? { column: sort.id, direction: sort.desc ? 'descending' : 'ascending' } : undefined}
@@ -301,7 +301,7 @@ function ListIdentity({ item, props, disabled, watchArtwork }: {
     opener(item, event.currentTarget);
   };
   return <div data-list-identity="">
-    <button type="button" data-list-open="" disabled={disabled} tabIndex={-1} aria-hidden="true" onClick={open}>
+    <button type="button" data-list-open="" data-rectangle-trigger="" disabled={disabled} tabIndex={-1} aria-hidden="true" onClick={open}>
       <span ref={picture} data-list-picture="">{artwork?.html
         ? <ArtSlot artwork={artwork} relayout={root => relayoutCovers(root, 'small')} />
         : showArtwork ? <span>{t('catalog:catalogList.noPreview')}</span> : null}
@@ -322,7 +322,7 @@ function ListIdentity({ item, props, disabled, watchArtwork }: {
           : null}</span>
     </button>
     <span data-list-text="">
-      <button type="button" data-list-name="" disabled={disabled} title={name} aria-label={t('catalog:catalogList.openItem', { name })} onClick={open}
+      <button type="button" data-list-name="" data-rectangle-trigger="" disabled={disabled} title={name} aria-label={t('catalog:catalogList.openItem', { name })} onClick={open}
         dangerouslySetInnerHTML={{ __html: titleHtml }} />
     </span>
   </div>;

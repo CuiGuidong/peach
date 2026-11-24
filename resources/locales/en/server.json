@@ -546,6 +546,11 @@
         "label": "Covers & web data",
         "note": "They'll be downloaded again. Sources that were taken down can't be fetched again"
       },
+      "follow_snapshots": {
+        "description": "Original responses saved when Peach checks followed sources",
+        "label": "Follow source snapshots",
+        "note": "Cleanup keeps the 3 latest snapshots per source and any snapshots still referenced by items"
+      },
       "logs": {
         "description": "Runtime logs and crash reports",
         "label": "Logs",
@@ -566,15 +571,25 @@
         "label": "Previews",
         "note": "Rebuilding reads each whole video again and downloads cloud drive videos again, so they aren't cleaned here"
       },
+      "project_archives": {
+        "description": "Locally archived project files such as builds, verification artifacts, and operations backups",
+        "label": "Local project archives",
+        "note": "Review these files individually before archiving or deleting them"
+      },
       "records": {
         "description": "Resume points, auto-repair receipts, review lists, and archives",
         "label": "Task & review records",
         "note": "Task progress and unfinished review decisions are lost"
       },
+      "source_snapshots": {
+        "description": "Original pages, responses, and files saved while fetching metadata",
+        "label": "Metadata source snapshots",
+        "note": "Peach reuses these files and may need to fetch them again if they're deleted"
+      },
       "sources": {
-        "description": "Metadata and raw records imported from other apps",
-        "label": "Imported data",
-        "note": "Peach can't rebuild these. You'll need to import them again"
+        "description": "Data imported from other apps and browsing history saved locally",
+        "label": "Imported data & browsing history",
+        "note": "Peach can't recreate these original records"
       },
       "thumbnails": {
         "description": "Small copies of covers and avatars shown in lists and grids",
@@ -944,6 +959,7 @@
     },
     "pages": {
       "bodyNotObject": "The request body must be a JSON object.",
+      "librarySharingReview": "Refresh the page and review the current sharing rules before opting in.",
       "needsChanges": "Some fields need changes.",
       "openSetupLocally": "Open setup using this device's local address.",
       "passwordRequired": "Enter an access password.",

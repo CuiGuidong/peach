@@ -386,9 +386,9 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
             <Button variant="ghost" size="small" onClick={exitPageSelection}>{t('follow:shared.clearSelection')}</Button>
           </SelectionDock>
           <DataTableFrame follow preferences={suggestionView} onRowClick={id => suggestionTable.getRow(id)?.toggleSelected()}
-            onRectangle={selecting ? (keys, add) => suggestionTable.setRowSelection({
+            rectangleSelecting={selecting} onRectangle={(keys, add) => suggestionTable.setRowSelection({
               ...(add ? rowSelection : {}), ...Object.fromEntries(keys.map(key => [key, true])),
-            }) : undefined}>
+            })}>
             <Table aria-label={t('follow:creatorAliases.pendingTable')} size="sm"
               sortDescriptor={sorting[0] ? { column: sorting[0].id, direction: sorting[0].desc ? 'descending' : 'ascending' } : undefined}
               onSortChange={(sort) => suggestionTable.getColumn(String(sort.column))?.toggleSorting(sort.direction === 'descending')}>
@@ -442,9 +442,9 @@ export function AliasManager({ groups, suggestions, sources = [], readOnly, toas
         {groups.length ? (
           <>
           <DataTableFrame follow preferences={savedView} onRowClick={id => savedTable.getRow(id)?.toggleSelected()}
-            onRectangle={selecting ? (keys, add) => savedTable.setRowSelection({
+            rectangleSelecting={selecting} onRectangle={(keys, add) => savedTable.setRowSelection({
               ...(add ? savedSelection : {}), ...Object.fromEntries(keys.map(key => [key, true])),
-            }) : undefined}>
+            })}>
             <Table aria-label={t('follow:creatorAliases.saved')} size="sm"
               sortDescriptor={savedSorting[0] ? { column: savedSorting[0].id, direction: savedSorting[0].desc ? 'descending' : 'ascending' } : undefined}
               onSortChange={(sort) => savedTable.getColumn(String(sort.column))?.toggleSorting(sort.direction === 'descending')}>

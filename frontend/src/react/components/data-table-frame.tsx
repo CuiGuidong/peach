@@ -16,6 +16,7 @@ export interface DataTableFrameProps extends PropsWithChildren {
    *  行 id）回调；点在行里的勾、键、链接上不算。 */
   onRowClick?(key: string): void;
   onRectangle?: RectangleCommit | undefined;
+  rectangleSelecting?: boolean;
 }
 
 /* 拖宽期间在根元素上做标记，整页锁成左右箭头光标且不选字；不用 `html:has(…)` 判断，那样每次
@@ -23,9 +24,11 @@ export interface DataTableFrameProps extends PropsWithChildren {
 const markResizing = () => { document.documentElement.dataset.columnResizing = '' };
 
 /** BoardUI Table 的 Data Table 外框：主表面、完整边线、圆角与选中行反馈。 */
-export function DataTableFrame({ children, follow = false, onRowClick, onRectangle, preferences }: DataTableFrameProps) {
+export function DataTableFrame({ children, follow = false, onRowClick, onRectangle, rectangleSelecting = false, preferences }: DataTableFrameProps) {
   const host = useRef<HTMLDivElement>(null);
-  const rectangle = useRectangleSelection(onRectangle, 'tbody [role="row"][data-key]:not([data-list-skeleton-row])', 'tbody', true);
+  const rectangle = useRectangleSelection(onRectangle, {
+    selecting: rectangleSelecting, items: 'tbody [role="row"][data-key]:not([data-list-skeleton-row])', start: 'tbody',
+  });
   useEffect(() => {
     const viewport = host.current?.querySelector<HTMLElement>('.overflow-x-auto') ?? null;
     attachOverlayScrollbar(viewport);

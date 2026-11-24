@@ -13,6 +13,12 @@ describe('Video.js 10 播放链', () => {
   let browser: Browser;
   let fixture: string;
   let files: Map<string, Buffer>;
+  const openPlayback = (viewport: (typeof VIEWPORTS)[number]) =>
+    visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport, async page => {
+      await page.route('**/api/jav/detail?*', route => route.fulfill({ json: {
+        code: new URL(route.request().url()).searchParams.get('code'), state: 'ready', preview_count: 0,
+      } }));
+    });
   before(async () => {
     fixture = realpathSync(mkdtempSync(join(tmpdir(), 'peach-v10-hls-')));
     execFileSync(requiredEnv('PEACH_E2E_FFMPEG'), ['-hide_banner', '-loglevel', 'error', '-f', 'lavfi',
@@ -28,7 +34,7 @@ describe('Video.js 10 播放链', () => {
   after(async () => { await browser?.close(); if (fixture) rmSync(fixture, { recursive: true, force: true }) });
 
   it('详情自动播放请求读取 MP4 并解码', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, VIEWPORTS[0]!);
+    const opened = await openPlayback(VIEWPORTS[0]!);
     const { page, problems } = opened;
     try {
       await page.addInitScript(() => {
@@ -48,7 +54,7 @@ describe('Video.js 10 播放链', () => {
   });
 
   it('媒体解码失败保存本机浏览器上下文与原生错误', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, VIEWPORTS[0]!);
+    const opened = await openPlayback(VIEWPORTS[0]!);
     const { page } = opened;
     try {
       await page.route('**/stream?**', route => route.fulfill({ body: 'invalid video', contentType: 'video/mp4' }));
@@ -110,7 +116,7 @@ describe('Video.js 10 播放链', () => {
 
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name}：播放、暂停、倍速、进度、字幕与卸载`, { timeout: 60_000 }, async () => {
-      const opened = await visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport);
+      const opened = await openPlayback(viewport);
       const { page, problems } = opened;
       try {
         await page.locator('#stage .video-js .vjs-peach-bezel').waitFor({ state: 'attached' });

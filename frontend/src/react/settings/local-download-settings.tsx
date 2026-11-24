@@ -21,6 +21,7 @@ import {
   ErrorText, Fact, FactList, FieldLabel, Footer, Help, Section, Stack,
 } from './section';
 import { busyProps, useAction } from './use-action';
+import { useCheckReceipt } from './use-check-receipt';
 
 const CHECK_URL = '/api/configuration/downloads/qbittorrent/check';
 
@@ -42,6 +43,8 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
   settle(next: DownloadSettingsState): void;
   receipt(message: string): void;
 }) {
+  const { checked, checkFailed } = useCheckReceipt();
+  const connection = t('settings:connectionCheck.action', { service: 'qBittorrent' });
   const saved = state.qbittorrent ?? {
     address: '', save_path: '', media_root: '', username: '', password_set: false,
   };
@@ -79,7 +82,13 @@ export function LocalDownloadSettings({ state, settle, receipt }: {
       setReport(next);
       if (!savePath.trim() && next.save_path) setSavePath(next.save_path);
       setFailure('');
-    }, (cause) => setFailure(errorMessage(cause)));
+      if (next.ok) checked(t('settings:connectionCheck.passed', { service: 'qBittorrent' }));
+      else checkFailed(connection, reportProblems(next)[0] || t('settings:connectionCheck.details'));
+    }, (cause) => {
+      const message = errorMessage(cause);
+      setFailure(message);
+      checkFailed(connection, message);
+    });
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {

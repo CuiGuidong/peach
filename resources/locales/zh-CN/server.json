@@ -546,6 +546,11 @@
         "label": "封面与网络资料",
         "note": "删除后要重新联网下载，已下架的来源再也取不回来"
       },
+      "follow_snapshots": {
+        "description": "关注来源检查时保存的原始响应",
+        "label": "关注抓取快照",
+        "note": "清理时保留每个来源最近 3 份及条目仍引用的快照"
+      },
       "logs": {
         "description": "运行日志与崩溃记录",
         "label": "日志",
@@ -566,15 +571,25 @@
         "label": "预览图",
         "note": "重建要重新读取整部影片，网盘里的影片会重新下载，所以不在这里清理"
       },
+      "project_archives": {
+        "description": "另行保存的项目资料，如构建产物、验收材料和运维备份",
+        "label": "本机项目归档",
+        "note": "请按项目需要逐项核对，再手动归档或清理"
+      },
       "records": {
         "description": "断点续跑、自动修复回执、待复核清单与归档",
         "label": "任务与复核记录",
         "note": "删除会丢失任务进度和尚未处理的复核结论"
       },
+      "source_snapshots": {
+        "description": "采集作品资料时保留的原始网页、响应和附带文件",
+        "label": "资料采集快照",
+        "note": "后续采集会复用这些文件，删除后可能需要联网重取"
+      },
       "sources": {
-        "description": "从其他软件导入的资料与原始记录",
-        "label": "导入资料",
-        "note": "Peach 无法重新生成，删除后只能重新导入"
+        "description": "从其他软件导入的资料和本机保存的浏览记录",
+        "label": "导入资料与浏览记录",
+        "note": "Peach 无法重新生成这些原始记录"
       },
       "thumbnails": {
         "description": "封面与头像的小尺寸副本，列表和网格里显示的就是它",
@@ -944,6 +959,7 @@
     },
     "pages": {
       "bodyNotObject": "请求正文要是 JSON 对象",
+      "librarySharingReview": "请刷新页面，查看当前发送规则后再同意上传。",
       "needsChanges": "有几项需要修改",
       "openSetupLocally": "请使用本机地址打开设置",
       "passwordRequired": "请输入访问密码",
@@ -1278,7 +1294,7 @@
   },
   "errors": {
     "seedSharing": {
-      "invalidChoice": "请选择是否开启公共资料贡献。",
+      "invalidChoice": "请选择是否参与公开资料共建。",
       "previewFirst": "请先预览本机资料并确认分享范围。",
       "tooLarge": "资料超过单次发送上限，未生成可发送的预览。",
       "noPerformer": "未找到当前女优资料。",
@@ -3423,7 +3439,7 @@
       },
       "librarySharing": {
         "title": "馆藏分享上传失败",
-        "link": "打开数据上传设置"
+        "link": "打开 Peach 共建计划设置"
       },
       "automaticUpdates": {
         "title": "自动更新出错",

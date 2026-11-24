@@ -473,6 +473,27 @@ def save_seed_sharing(request: Request, body: dict = Body(...), _args=Depends(re
     return request.app.state.seed_sharing.save(body)
 
 
+@router.get('/api/configuration/community-sharing')
+def read_community_sharing(request: Request, _args=Depends(require_auth)):
+    local_only(request)
+    from . import community_sharing
+    state = request.app.state
+    return JSONResponse(community_sharing.snapshot(state.library_sharing, state.seed_sharing),
+                        headers={'Cache-Control': 'no-store'})
+
+
+@router.post('/api/configuration/community-sharing')
+def save_community_sharing(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
+    local_only(request)
+    same_origin(request)
+    from . import community_sharing
+    state = request.app.state
+    try:
+        return community_sharing.save(state.library_sharing, state.seed_sharing, body)
+    except ValueError as error:
+        raise HTTPException(400, error_detail(error)) from error
+
+
 @router.get('/api/configuration/seed-sharing/name')
 def seed_name_plan(request: Request, entity_id: int, _args=Depends(require_auth)):
     local_only(request)

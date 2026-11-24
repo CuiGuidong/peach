@@ -1,6 +1,7 @@
 /* JAV 新作分区的列表模式。表格骨架、列偏好、显示列与拖宽手柄同馆藏作品列表那一套，格子沿用它的
  * 名称格、艺人格与媒体库格标记（`catalog-list.css`）。分页与排序在分区里：表头点得开的四列对应新作接口的排序键。 */
 import { useState, type MouseEvent } from 'react';
+import { hasSelectionModifier } from '../../selection';
 import { Button } from '@/components/base/buttons/button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { useJavSelection } from './jav-selection';
@@ -83,7 +84,7 @@ export function ReleaseTable({ items, waiting, filters, studios, facets, javImag
   const logos = new Map(studios.map(studio => [studio.name, studio]));
   const open = (item: Discovery) => (event: MouseEvent) => {
     event.preventDefault();
-    if (selection?.mode || event.shiftKey || event.ctrlKey || event.metaKey) selection?.toggle(item, event.shiftKey);
+    if (selection?.mode || hasSelectionModifier(event)) selection?.toggle(item, event.shiftKey);
     else navigate(`/works/${encodeURIComponent(item.code)}`);
   };
   const cell = (id: string, item: Discovery) => {
@@ -139,7 +140,8 @@ export function ReleaseTable({ items, waiting, filters, studios, facets, javImag
     <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={t('catalog:javReleases.toolbar')}>
       <div data-toolbar-actions=""><TableColumnControls preferences={preferences} label={t('catalog:javReleases.list')} /></div>
     </div>
-    <DataTableFrame follow preferences={preferences} onRectangle={selecting && !waiting && selection?.mode ? selection.selectRectangle : undefined}
+    <DataTableFrame follow preferences={preferences} rectangleSelecting={Boolean(selection?.mode)}
+      onRectangle={selecting && !waiting ? selection?.selectRectangle : undefined}
       onRowClick={selecting && !waiting && selection?.mode ? key => {
         const item = items.find(row => String(row.id) === key);
         if (item) selection.toggle(item);

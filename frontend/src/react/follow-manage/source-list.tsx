@@ -296,9 +296,8 @@ export function SourceList(props: SourceListProps) {
     data, sort, dir, page, layout, pageSize, selected, readOnly,
     onSort, onPage, onLayout, onPageSize, onSelected, toast, openFollow, onAdd,
   } = props;
-  const commitRectangle = props.selecting
-    ? (keys: string[], add: boolean) => onSelected(new Set([...(add ? selected : []), ...keys.map(Number)])) : undefined;
-  const rectangle = useRectangleSelection(commitRectangle);
+  const commitRectangle = (keys: string[], add: boolean) => onSelected(new Set([...(add ? selected : []), ...keys.map(Number)]));
+  const rectangle = useRectangleSelection(commitRectangle, { selecting: props.selecting, start: '[data-source-divider]' });
   const sources = data.sources;
   const aliases = useMemo(() => data.author_aliases || [], [data.author_aliases]);
   const counts = data.counts || {};
@@ -708,7 +707,7 @@ export function SourceList(props: SourceListProps) {
 
       {asTable ? (
         <DataTableFrame follow preferences={preferences} onRowClick={(key) => toggleOne(Number(key), !selected.has(Number(key)))}
-          onRectangle={commitRectangle}>
+          rectangleSelecting={props.selecting} onRectangle={commitRectangle}>
           <Table aria-label={t('follow:sourceList.tableLabel')} size="sm"
             sortDescriptor={sorting[0]
               ? { column: sorting[0].id, direction: sorting[0].desc ? 'descending' : 'ascending' }
@@ -759,7 +758,7 @@ export function SourceList(props: SourceListProps) {
           {pageIds.length ? <Checkbox isSelected={pageState.all} isIndeterminate={pageState.some}
             onChange={(on) => toggleMany(pageIds, on)} aria-label={t('follow:sourceList.selectPage')}>{t('follow:sourceList.selectPageShort')}</Checkbox> : null}
           {!cardGroups.length ? <EmptyState icon={RiRssLine} title={t('follow:sourceList.pageEmpty')}>{null}</EmptyState> : null}
-          <div className="flex flex-col gap-3" {...rectangle}>
+          <div data-rectangle-gutter={cardGroups.length ? '' : undefined} className="flex flex-col gap-3" {...rectangle}>
             {cardGroups.slice(win.start, win.end).map(({ key, name, sources: group }) => {
               return (
                 <AuthorCard key={key} group={group} name={name}

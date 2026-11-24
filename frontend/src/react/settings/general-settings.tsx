@@ -57,7 +57,7 @@ export function StartupSettings({ startup, receipt }: { startup: StartupState; r
   return (
     <Section guide="startup" title={t('settings:startup.title')} onSubmit={submit}>
       <Rows>
-        <SettingsRow label={t('settings:startup.launchAtStartup')}>
+        <SettingsRow label={t('settings:startup.launchAtStartup')} description={t('settings:startup.launchAtStartupHelp')}>
           <Switch aria-label={t('settings:startup.launchAtStartup')} isSelected={enabled} isDisabled={!startup.available} onChange={setEnabled} />
         </SettingsRow>
         <SettingsRow label={t('settings:startup.trayOnly')} description={t('settings:startup.trayOnlyHelp')}>

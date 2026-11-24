@@ -58,7 +58,7 @@ describe('随配置变化的分区按上次记录的结构画', () => {
     rememberShape('media', { folders: [3, 1], cloud: true });
     const root = draw('媒体库与入库');
     expect([...card(root, '媒体库与目录').querySelectorAll('[data-library-block]')].map(block => block.querySelectorAll('[data-folder-row]').length)).toEqual([3, 1]);
-    expect(sections(root)).toEqual(['媒体库与目录', 'CloudDrive 代理', '自动发现新文件', '番号识别规则', '视频预览']);
+    expect(sections(root)).toEqual(['媒体库与目录', 'CloudDrive 代理', '自动发现新文件', '番号识别规则', '视频预览', '视频播放']);
   });
 
   it('下载渠道：没有记录时只有浏览器添加，有记录时按网盘画出云下载与 PikPak', () => {

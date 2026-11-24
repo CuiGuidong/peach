@@ -176,8 +176,8 @@ function FileRow({ file, reference, openItem, selected, onSelect, onTrash, busy 
   );
 }
 
-function DuplicateFileSelection({ children, commit }: { children: ReactNode; commit?: RectangleCommit | undefined }) {
-  const rectangle = useRectangleSelection(commit, '[data-duplicate-file][data-rectangle-key]');
+function DuplicateFileSelection({ children, commit, selecting }: { children: ReactNode; commit?: RectangleCommit | undefined; selecting: boolean }) {
+  const rectangle = useRectangleSelection(commit, { selecting, items: '[data-duplicate-file][data-rectangle-key]' });
   return <div {...rectangle}>{children}</div>;
 }
 
@@ -191,9 +191,9 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
   const [pickedFiles, setPickedFiles] = useState<ReadonlySet<number>>(new Set());
   const selecting = usePageSelection(() => { setPicked(new Set()); setPickedFiles(new Set()) });
-  const groupRectangle = useRectangleSelection(selecting && !pending
+  const groupRectangle = useRectangleSelection(!pending
     ? (keys, add) => setPicked(current => new Set([...(add ? current : []), ...keys])) : undefined,
-    '[data-duplicate-group-tools][data-rectangle-key]');
+    { selecting, items: '[data-duplicate-group-tools][data-rectangle-key]' });
   const host: BulkHost = { receipt: toast, failure: (cause) => failure(t('cleanup:duplicates.bulkFailed'), cause) };
   const dispose = useMutation({
     mutationFn: (ids: readonly number[]) => batchOperate(ids, 'dispose'),
@@ -322,7 +322,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
       ];
 
   return (
-    <div className="mx-auto w-full max-w-board pb-10.5" {...groupRectangle}>
+    <div className="mx-auto w-full max-w-board pb-10.5">
       {menu.menu}
       {/* 首页那副两排玻璃浮层：上排批量动作与换视图，下排读数加「全选本页」。 */}
       <FilterGlassRows label={keptView ? t('cleanup:duplicates.keptLabel') : t('cleanup:duplicates.bulkKeep')}
@@ -377,7 +377,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
         ? <div className="mb-5"><Note tone="error" title={t('cleanup:duplicates.trashFailed')}>{errorMessage(dispose.error)}</Note></div>
         : null}
       {groups.length
-        ? groups.map((group, index) => {
+        ? <div data-rectangle-gutter="" className="flow-root" {...groupRectangle}>{groups.map((group, index) => {
             const one = [group];
             const key = (rule: string) => `${index}:${rule}`;
             const groupSelected = picked.has(groupKey(group));
@@ -447,7 +447,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
                         </>}
                   </span>
                 </div>
-                <DuplicateFileSelection commit={selecting && !pending && !keptView
+                <DuplicateFileSelection selecting={selecting} commit={!pending && !keptView
                   ? (keys, add) => setPickedFiles(current => new Set([...(add ? current : []), ...keys.map(Number)])) : undefined}>
                   {group.files.map((file) => <FileRow key={file.id} file={file}
                   reference={group.files.find(other => other.id !== file.id)} openItem={openItem}
@@ -456,7 +456,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
                 </DuplicateFileSelection>
               </section>
             );
-          })
+          })}</div>
         : keptView
           ? <EmptyState icon={STACK} title={t('cleanup:duplicates.keptEmptyTitle')}>{t('cleanup:duplicates.keptEmptyBody')}</EmptyState>
           : <EmptyState icon={STACK} title={t('cleanup:duplicates.emptyTitle')}>{t('cleanup:duplicates.emptyBody')}</EmptyState>}

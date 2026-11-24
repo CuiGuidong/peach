@@ -773,7 +773,8 @@ describe('设计决定：作品卡、管理页与复核', () => {
         await dialog.getByRole('searchbox', { name: '搜索教程' }).fill('媒体库');
         await dialog.getByRole('button', { name: /媒体库与入库 媒体库/ }).click();
         await guide.waitFor();
-        for (let step = 0; step < 8; step += 1) await guide.getByRole('button', { name: '下一步', exact: true }).click();
+        for (let step = 0; step < 9; step += 1) await guide.getByRole('button', { name: '下一步', exact: true }).click();
+        await page.locator('[data-guide-target="transcode"].driver-active-element').waitFor();
         await guide.getByRole('button', { name: '完成本章', exact: true }).click();
         await dialog.waitFor();
         assert.equal(new URL(page.url()).pathname, '/', '页面导览完成后未返回开始前的页面');
@@ -817,6 +818,23 @@ describe('设计决定：作品卡、管理页与复核', () => {
     } finally {
       await opened.close();
     }
+  });
+
+  it('复核卡可以从卡片区外侧起拖', async () => {
+    const opened = await openReview(browser);
+    try {
+      const { page } = opened;
+      const card = page.locator('section[data-review-key]').first();
+      await page.locator('#selectMode').click();
+      await card.evaluate(node => node.scrollIntoView({ block: 'center' }));
+      const box = (await card.boundingBox())!;
+      await page.mouse.move(box.x - 15, box.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(box.x + 40, box.y + 72, { steps: 4 });
+      await page.locator('section[data-review-key][data-rectangle-hit]').waitFor();
+      await page.mouse.up();
+      assert.equal(await card.getByRole('checkbox').first().isChecked(), true);
+    } finally { await opened.close(); }
   });
 
   it('复核卡的勾选框和标题共用一条中线', { timeout: 60_000 }, async () => {

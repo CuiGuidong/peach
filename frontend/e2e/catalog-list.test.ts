@@ -10,12 +10,13 @@ describe('馆藏卡片与列表', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
-  it('首页新作框选使用新作 ID，馆藏勾选后收起新作浮条', async () => {
+  it('从首页新作上下方框选，勾与外框盖过封面，浮条不撑高横排', async () => {
     const releases = [87101, 87102].map(id => ({
       id, code: `DEMO-${id}`, title: `新作 ${id}`, has_cover: false, read: false, wanted: false,
     }));
     const writes: unknown[] = [];
     const opened = await visit(browser, '/', VIEWPORTS[0]!, async page => {
+      await page.emulateMedia({ colorScheme: 'light' });
       await stubHomeDiscoveries(page, releases);
       await page.route('**/api/feeds/discovery', route => {
         writes.push(route.request().postDataJSON());
@@ -26,16 +27,53 @@ describe('馆藏卡片与列表', () => {
     try {
       const cover = page.locator('#feedNew [data-feed-id="87102"]');
       await cover.waitFor();
-      await page.locator('#selectMode').click();
+      await page.locator('#grid [data-media-card][data-id]').first().waitFor();
+      const nextContentGap = () => page.locator('#feedNew .feednewrow').evaluate(row =>
+        document.querySelector('#grid')!.getBoundingClientRect().top - row.getBoundingClientRect().bottom);
+      const initialGap = await nextContentGap();
+      const mode = page.locator('#selectMode');
+      await cover.locator('.feednewopen').click({ position: { x: 40, y: 40 }, modifiers: ['ControlOrMeta'] });
+      await page.locator('#feedNew [data-feed-id="87102"][data-feed-selected]').waitFor();
+      assert.equal(await mode.getAttribute('aria-pressed'), 'true');
+      await mode.click();
+      await page.locator('#feedNew [data-feed-selected]').waitFor({ state: 'detached' });
+      await mode.click();
       await cover.evaluate(card => card.scrollIntoView({ block: 'center', inline: 'center' }));
       const box = (await cover.boundingBox())!;
-      await page.mouse.move(box.x + 30, box.y + 30);
-      await page.mouse.down();
-      await page.mouse.move(box.x + 75, box.y + 65);
-      await page.locator('#feedNew [data-feed-id="87102"][data-rectangle-hit]').waitFor();
+      const hit = page.locator('#feedNew [data-feed-id="87102"][data-rectangle-hit]');
+      const dragFrom = async (y: number) => {
+        await page.mouse.move(box.x + 30, y);
+        await page.mouse.down();
+        await page.mouse.move(box.x + 75, box.y + 65);
+        await hit.waitFor();
+      };
+      await dragFrom(box.y - 30);
+      await page.keyboard.press('Escape');
+      await page.mouse.up();
+      await hit.waitFor({ state: 'detached' });
+      assert.equal(await cover.getAttribute('data-feed-selected'), null);
+      await dragFrom(box.y + box.height + 14);
       assert.equal(await cover.getAttribute('data-feed-selected'), null);
       await page.mouse.up();
       const dock = page.getByRole('group', { name: '所选新作操作' });
+      await dock.waitFor();
+      assert.equal(await nextContentGap(), initialGap);
+      const visuals = await cover.evaluate(card => {
+        const check = getComputedStyle(card.querySelector('[data-media-check]')!);
+        const ring = getComputedStyle(card, '::after');
+        const coverLayer = Number(getComputedStyle(card.querySelector('.pic')!).zIndex);
+        const probe = document.createElement('span');
+        probe.style.color = 'var(--ink)';
+        card.append(probe);
+        const ink = getComputedStyle(probe).color;
+        probe.remove();
+        return {
+          checkVisible: check.display === 'grid' && Number(check.zIndex) > coverLayer,
+          ringOutside: parseFloat(ring.top) < 0 && parseFloat(ring.borderTopWidth) > 0 && Number(ring.zIndex) > coverLayer,
+          followsTheme: ring.borderTopColor === ink && check.backgroundColor === ink && check.color !== ink,
+        };
+      });
+      assert.deepEqual(visuals, { checkVisible: true, ringOutside: true, followsTheme: true });
       await dock.getByRole('button', { name: '标为已看过' }).click();
       const confirmation = page.locator('dialog.ui-geist-modal');
       await confirmation.getByRole('button', { name: '标为已看过', exact: true }).click();
@@ -55,7 +93,7 @@ describe('馆藏卡片与列表', () => {
     } finally { await opened.close() }
   });
 
-  it('封面和标题都能开始框选，短按勾选单张，Escape 取消，Shift 追加', async () => {
+  it('封面、标题和网格旁都能开始框选，短按勾选单张，Escape 取消，Shift 追加', async () => {
     const opened = await visit(browser, '/', VIEWPORTS[0]!);
     const { page } = opened;
     try {
@@ -75,6 +113,23 @@ describe('馆藏卡片与列表', () => {
       const selected = page.locator('#grid [data-media-card][data-selected]');
       await move('[data-media-pic]');
       assert.equal(await selected.count(), 1);
+      const appearance = await cards.nth(1).evaluate(card => {
+        const ring = getComputedStyle(card, '::after');
+        const picture = getComputedStyle(card.querySelector('[data-media-pic]')!);
+        const check = getComputedStyle(card.querySelector('[data-media-check]')!);
+        const overlay = getComputedStyle(card.closest('[data-rectangle-area]')!.querySelector('[data-card-selection-rectangle]')!);
+        const foreground = document.createElement('span');
+        foreground.style.color = 'var(--color-accent-500)';
+        card.append(foreground);
+        const accent = getComputedStyle(foreground).color;
+        foreground.remove();
+        return {
+          accent: overlay.borderTopColor === accent && ring.borderTopColor === accent,
+          overPicture: Number(ring.zIndex) > Number(picture.zIndex) && parseFloat(ring.top) < 0 && ring.borderTopWidth === '2px',
+          checkVisible: check.display === 'grid',
+        };
+      });
+      assert.deepEqual(appearance, { accent: true, overPicture: true, checkVisible: true });
       await page.keyboard.press('Escape');
       await page.mouse.up();
       assert.equal(await page.locator('[data-card-selection-rectangle]').count(), 0);
@@ -88,6 +143,17 @@ describe('馆藏卡片与列表', () => {
       await page.mouse.up();
       await page.waitForFunction(() => document.querySelectorAll('#grid [data-media-card][data-selected]').length === 1);
       assert.equal(await selected.first().getAttribute('data-id'), await cards.nth(1).getAttribute('data-id'));
+      const first = (await cards.first().boundingBox())!;
+      await page.mouse.move(first.x - 15, first.y + 24);
+      await page.mouse.down();
+      await page.mouse.move(first.x + 24, first.y + 48);
+      await page.locator('[data-card-selection-rectangle]').waitFor();
+      await page.mouse.up();
+      await page.waitForFunction(() => {
+        const card = document.querySelector('#grid [data-media-grid] > [data-media-card]');
+        return card?.hasAttribute('data-selected');
+      });
+      assert.equal(await selected.count(), 1);
     } finally { await opened.close() }
   });
 

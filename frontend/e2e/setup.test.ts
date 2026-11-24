@@ -86,6 +86,9 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
       await page.getByRole('button', { name: '选择数据目录' }).waitFor({ state: 'visible' });
       assert.deepEqual((await layout(page)).offenders, []);
 
+      await page.getByRole('button', { name: '继续', exact: true }).click();
+      await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === '媒体目录 1');
+      assert.equal(await folder.getAttribute('aria-invalid'), 'true');
       await folder.fill(join(media, 'missing'));
       const selectedData = join(dataRoot, 'custom-data');
       await page.locator('#f-data_root').fill(selectedData);
@@ -98,18 +101,22 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
       await page.getByRole('option', { name: '自定义', exact: true }).waitFor();
       await page.getByRole('option', { name: '自定义', exact: true }).click();
       await page.locator('[data-trigger="Select"]').waitFor({ state: 'detached' });
-      const proxy = page.getByLabel('代理地址', { exact: true });
+      const proxy = page.locator('#setupProxyAddress');
+      assert.equal(await proxy.getAttribute('aria-required'), 'true');
+      // React Aria 的原生 input 隐藏在开关内部，按状态设值。
+      await page.getByRole('switch', { name: '访问密码' }).setChecked(false, { force: true });
+      await page.getByRole('button', { name: '继续', exact: true }).click();
+      await page.waitForFunction(() => document.activeElement?.id === 'setupProxyAddress');
+      assert.equal(await proxy.getAttribute('aria-invalid'), 'true');
       await proxy.fill('http://proxy.invalid');
+      await page.locator('[role="listbox"]').waitFor({ state: 'detached' });
       const mobileForm = VIEWPORTS.find((candidate) => candidate.name === 'mobile')!;
       await page.setViewportSize({ width: mobileForm.width, height: mobileForm.height });
       assert.deepEqual((await layout(page)).offenders, []);
       await page.setViewportSize({ width: viewport.width, height: viewport.height });
 
-      // React Aria 的原生 input 是视觉隐藏的，点击落在外面那层画出来的开关上，所以按状态设值。
-
       // 填错：目录不存在、端口越界。
       const missing = join(media, 'missing');
-      await page.getByRole('switch', { name: '访问密码' }).setChecked(false, { force: true });
       await page.getByText('高级设置', { exact: true }).click();
       const port = page.locator('#f-port');
       await port.waitFor({ state: 'visible' });
@@ -154,6 +161,7 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
       assert.equal(acceptedResponse.status(), 200, await acceptedResponse.text());
       const answers = acceptedResponse.request().postDataJSON() as Record<string, unknown>;
       assert.equal(answers.interface_language, 'auto');
+      assert.equal('library_sharing' in answers, false);
       assert.deepEqual(JSON.parse(await readFile(join(selectedData, 'secrets/follow/peach-proxy.json'), 'utf8')), {
         mode: 'proxy', proxy: 'socks5h://user:private-proxy@127.0.0.1:17890',
       });

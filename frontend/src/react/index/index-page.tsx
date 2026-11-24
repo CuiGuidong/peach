@@ -249,9 +249,10 @@ export function IndexPage(props: IndexProps) {
     if (!items.length) return <IndexEmpty kind={kind} filtered={!!q || category !== 'all'}
       online={onlineTags || onlineAuthors} onClear={() => go({ q: '', category: 'all' })} />;
     if (onlineAuthors) return <OnlineAuthors items={items as OnlineAuthor[]} layout={layout} props={props} />;
-    if (isPeople(kind)) return <PeopleGrid kind={kind} items={items as IndexPerson[]} layout={layout} props={props} picks={roster.picks} hiddenView={hiddenView} />;
-    const actions = { online: onlineTags, picked, press: pressTag, rectangle: props.selectMode
-      ? (keys: string[], add: boolean) => setPicked(current => new Set([...(add ? current : []), ...keys])) : undefined };
+    if (isPeople(kind)) return <PeopleGrid kind={kind} items={items as IndexPerson[]} layout={layout} props={props}
+      picks={roster.picks} onRectangle={roster.rectangle} hiddenView={hiddenView} />;
+    const actions = { online: onlineTags, picked, press: pressTag, selecting: props.selectMode,
+      rectangle: (keys: string[], add: boolean) => setPicked(current => new Set([...(add ? current : []), ...keys])) };
     return view === 'alphabet' ? <TagAlphabet groups={groups} actions={actions} /> : <TagCloud tags={tags} actions={actions} />;
   };
 

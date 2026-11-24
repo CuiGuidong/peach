@@ -18,6 +18,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import logging
 import os
 import sqlite3
 import sys
@@ -487,7 +488,7 @@ def setup_questions(request: Request):
     只是不看 Origin：配置完成后这里 404，运行事实不再对外。
     """
     _setup_guard(request, submit=False)
-    from . import access, peach_proxy, remote_reporting
+    from . import access, library_sharing, peach_proxy, remote_reporting
     windows = os.name == "nt"
     docker = distribution.docker()
     asked = _asked(onboarding.questions(settings_file.active(), windows=windows), docker=docker)
@@ -538,6 +539,8 @@ def setup_questions(request: Request):
         # 容器启动时已按 `PEACH_ACCESS_PASSWORD` 写下访问密码，页面不再出这一题。
         "access_preset": access.load(settings_file.active().directory("secrets") / "access.json")["mode"] == "password",
         "remote_reporting": remote_reporting.snapshot(),
+        "library_sharing": {"consent_schema": library_sharing.CONSENT_SCHEMA,
+                            "available": bool(library_sharing.target()), **library_sharing.sharing_scope()},
     })
 
 
@@ -614,6 +617,7 @@ async def setup_submit_json(request: Request):
     except ValueError as exc:
         errors["access_password"] = exc
     languages = _setup_languages(body, errors)
+    sharing = _setup_library_sharing_choice(body, errors)
     standalone = distribution.standalone()
     from . import peach_proxy
     proxy_values = None
@@ -645,6 +649,7 @@ async def setup_submit_json(request: Request):
             errors = {"data_root": exc}
     if errors:
         raise HTTPException(status_code=400, detail={**message_fields("api.pages.needsChanges"), **field_errors(errors)})
+    sharing_save_failed = _setup_library_sharing_save_failed(applied.config, sharing)
     remote_reporting.save(reporting, applied.config)
     # 已有账本里的界面语言是那套馆藏自己的选择，首启页不改它。
     if languages and not applied.tree.ledger_existed:
@@ -654,7 +659,36 @@ async def setup_submit_json(request: Request):
     if scan_now:
         onboarding.request_first_scan(applied.config, "configured" if answers.media_sources is not None else "local")
     return _setup_done(applied.config, scan_now=scan_now, history_guide=history_guide,
-                       skip_media=submitted["skip_media"])
+                       skip_media=submitted["skip_media"], sharing_save_failed=sharing_save_failed)
+
+
+def _setup_library_sharing_choice(body: dict, errors: dict) -> bool:
+    if "library_sharing" not in body:
+        return False
+    from . import library_sharing
+
+    sharing = body["library_sharing"]
+    if (isinstance(sharing, dict) and sharing.get("consent") is True
+            and type(sharing.get("consent_schema")) is int
+            and sharing["consent_schema"] == library_sharing.CONSENT_SCHEMA):
+        return True
+    errors["library_sharing"] = UserValueError("api.pages.librarySharingReview")
+    return False
+
+
+def _setup_library_sharing_save_failed(config, accepted: bool) -> bool:
+    if not accepted:
+        return False
+    from . import library_sharing
+
+    if library_sharing.consent(config):
+        return False
+    try:
+        library_sharing.save_choice(config, True)
+    except OSError:
+        logging.getLogger(__name__).exception("Could not save library sharing consent during setup")
+        return not library_sharing.consent(config)
+    return False
 
 
 def _setup_languages(body: dict, errors: dict) -> dict[str, str]:
@@ -671,12 +705,13 @@ def _setup_languages(body: dict, errors: dict) -> dict[str, str]:
 
 
 def _setup_done(config, *, scan_now: bool = False, history_guide: bool = False, restored: bool = False,
-                skip_media: bool = False):
+                skip_media: bool = False, sharing_save_failed: bool = False):
     destination = _normal_url(config) if restored else _setup_destination(config, history_guide=history_guide)
     return JSONResponse({
         "url": destination,
         "scan_requested": scan_now,
         "skip_media": skip_media,
+        **({"sharing_save_failed": True} if sharing_save_failed else {}),
         "history_guide": history_guide,
         "restored": restored,
         "standalone": distribution.standalone(),

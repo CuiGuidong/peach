@@ -47,6 +47,8 @@ describe('CloudDrive 代理设置', () => {
         account = { ...account, revision: '3', data: { ...account.data, mode: 'system' } };
         await page.evaluate(() => window.dispatchEvent(new Event('focus')));
         await page.waitForFunction(() => document.querySelector('[aria-label="数据代理"]')?.textContent?.includes('跟随系统'));
+        await dataSelect().scrollIntoViewIfNeeded();
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
         await dataSelect().click();
         await page.getByRole('option', { name: '直连', exact: true }).click();
         const before = reads;

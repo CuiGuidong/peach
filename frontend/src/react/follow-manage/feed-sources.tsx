@@ -480,9 +480,9 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
 
       {sources.length ? (
         <DataTableFrame follow preferences={preferences} onRowClick={(key) => toggleRow(Number(key))}
-          onRectangle={selecting ? (keys, add) => table.setRowSelection({
+          rectangleSelecting={selecting} onRectangle={(keys, add) => table.setRowSelection({
             ...(add ? rowSelection : {}), ...Object.fromEntries(keys.map(key => [key, true])),
-          }) : undefined}>
+          })}>
           <Table aria-label={t('follow:feedSources.title')} size="sm"
             sortDescriptor={sorting[0] ? { column: sorting[0].id, direction: sorting[0].desc ? 'descending' : 'ascending' } : undefined}
             onSortChange={(sort) => table.getColumn(String(sort.column))?.toggleSorting(sort.direction === 'descending')}>

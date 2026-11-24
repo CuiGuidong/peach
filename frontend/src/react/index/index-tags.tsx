@@ -37,6 +37,7 @@ export interface TagActions {
   edit?(tag: string): void;
   picked: ReadonlySet<string>;
   press(tag: string): void;
+  selecting?: boolean;
   rectangle?: RectangleCommit | undefined;
 }
 
@@ -74,7 +75,7 @@ function AlphaTag({ tag, actions }: { tag: TagEntry; actions: TagActions }) {
   return (
     <div data-rectangle-key={tag.k} className="flex min-w-0 items-center gap-1" {...context.events(tag, actions)}>
     {context.menu}
-    <button type="button" data-alpha-tag="" data-k={tag.k} data-tag-cat={tagColorKey(actions.online, tag.cat)}
+    <button type="button" data-alpha-tag="" data-rectangle-trigger="" data-k={tag.k} data-tag-cat={tagColorKey(actions.online, tag.cat)}
       aria-pressed={pressed} title={tag.label} onClick={() => actions.press(tag.k)}
       className="flex h-9 min-w-0 flex-1 cursor-pointer items-center gap-2.25 rounded-lg px-2.5 text-left text-body-regular text-text-secondary outline-none hover:text-text-primary focus-visible:ring-2 focus-visible:ring-border-focus-ring">
       <Dot />
@@ -90,7 +91,7 @@ function AlphaTag({ tag, actions }: { tag: TagEntry; actions: TagActions }) {
 /** 字母表：每个首字一张卡，字头是卡的标题，右边挂这一组有几个。`data-alpha-group` 是浮层
  *  下排那排跳转键的落点，卡顶给吸顶的浮层让出位置。 */
 export function TagAlphabet({ groups, actions }: { groups: [string, TagEntry[]][]; actions: TagActions }) {
-  const rectangle = useRectangleSelection(actions.rectangle, '[data-rectangle-key]', '[data-alpha-group]');
+  const rectangle = useRectangleSelection(actions.rectangle, { selecting: Boolean(actions.selecting), start: '[data-alpha-group]' });
   return (
     <div data-alphabet="" className="flex flex-col gap-4" {...rectangle}>
       {groups.map(([letter, tags], at) => (
@@ -115,14 +116,14 @@ const NBSP = String.fromCharCode(0xa0);
  *  所以用不断行的那一个。 */
 export function TagCloud({ tags, actions }: { tags: TagEntry[]; actions: TagActions }) {
   const context = useTagContext();
-  const rectangle = useRectangleSelection(actions.rectangle);
+  const rectangle = useRectangleSelection(actions.rectangle, { selecting: Boolean(actions.selecting) });
   return (
     <div data-tag-cloud="" className="flex flex-wrap gap-1.75" {...rectangle}>
       {context.menu}
       {tags.map((tag) => (
         <span key={tag.k} data-tag-token="" data-rectangle-key={tag.k} data-tag-cat={tagColorKey(actions.online, tag.cat)} {...context.events(tag, actions)}
           className="inline-flex max-w-full min-w-0 items-center gap-1 rounded-lg border p-1">
-        <button type="button" data-tag-chip="" data-k={tag.k}
+        <button type="button" data-tag-chip="" data-rectangle-trigger="" data-k={tag.k}
           data-tag-cat={tagColorKey(actions.online, tag.cat)} aria-pressed={actions.picked.has(tag.k)}
           onClick={() => actions.press(tag.k)}
           className="inline-flex max-w-full min-w-0 cursor-pointer items-center rounded-lg px-2 py-0.5 text-body-2-regular text-text-secondary outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring">

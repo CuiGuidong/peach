@@ -227,9 +227,9 @@ function GridBody(props: CatalogGridProps & { filterBar?: ReactNode }) {
         helpers={helpers} actions={actions} onOpen={trash ? openResource : open} />
     );
 
-  const rectangle = useRectangleSelection(props.selectMode && !result.isPlaceholderData && actions.selectCardRectangle
+  const rectangle = useRectangleSelection(!result.isPlaceholderData && actions.selectCardRectangle
     ? (keys, add) => actions.selectCardRectangle?.(keys.map(Number), add) : undefined,
-    ':scope > [data-media-grid] > [data-media-card][data-id]', '[data-media-grid]');
+    { selecting: props.selectMode, items: ':scope > [data-media-grid] > [data-media-card][data-id]', start: '[data-media-grid]' });
   const content = () => {
     if (wallAvailable && props.wall) return <VideoWall
       key={finiteWall ? 'finite' : 'explore'}

@@ -8,6 +8,58 @@ describe('配置表单与行间距', () => {
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name}：六个配置分区都能用横向目录定位正文`, async () => {
+      const opened = await visit(browser, '/settings/library', viewport);
+      const { page } = opened;
+      try {
+        for (const section of ['媒体库与入库', '来源与订阅', '下载渠道', '网络与访问', '应用与维护', '系统诊断']) {
+          await page.getByRole('tab', { name: section, exact: true }).click();
+          const toc = page.getByRole('navigation', { name: '本页目录', exact: true });
+          const last = toc.getByRole('link').last();
+          await last.waitFor();
+          assert.equal(await toc.locator('[data-section-toc-items]').evaluate(node => getComputedStyle(node).flexDirection), 'row');
+          const href = await last.getAttribute('href');
+          assert.ok(href?.startsWith('#'));
+          const target = page.locator(href);
+          await last.click();
+          await page.waitForURL(url => url.hash === href);
+          await toc.locator(`[href="${href}"][aria-current=location]`).waitFor();
+          await page.waitForFunction(hash => {
+            const top = document.getElementById(hash.slice(1))?.getBoundingClientRect().top;
+            return top !== undefined && top < innerHeight;
+          }, href);
+          const [nav, content] = await Promise.all([toc.boundingBox(), target.boundingBox()]);
+          assert.ok(nav && content && content.y >= nav.y + nav.height - 1 && content.y < viewport.height, section);
+          assert.ok((await layout(page)).scrollWidth <= viewport.width + 1, section);
+        }
+        assert.deepEqual(opened.problems, []);
+      } finally { await opened.close() }
+    });
+    it(`${viewport.name}：手动检查更新同时更新卡片并反馈成功或失败`, async () => {
+      let result = { state: 'current', message: '已是最新版本。' };
+      const opened = await visit(browser, '/settings/maintenance', viewport, async page => {
+        await page.route('**/api/configuration/updates', route => route.fulfill({ json: {
+          current_version: '1.0.0', latest_version: '1.0.0', installation: '源码运行', installation_code: 'source',
+          channel: '测试版', release_url: '', ...result,
+        } }));
+      });
+      const { page } = opened;
+      try {
+        const card = page.getByRole('region', { name: '检查更新', exact: true });
+        const check = card.getByRole('button', { name: '检查更新', exact: true });
+        const toast = page.locator('#toasts [data-sonner-toast]');
+        await check.waitFor();
+        assert.equal(await toast.filter({ hasText: result.message }).count(), 0);
+        await check.click();
+        await card.getByText(result.message, { exact: true }).waitFor();
+        await toast.and(page.locator('[data-type=success]')).filter({ hasText: result.message }).waitFor();
+        result = { state: 'error', message: '未取得发布信息。' };
+        await check.click();
+        await card.getByText(result.message, { exact: true }).waitFor();
+        await toast.and(page.locator('[data-type=error]')).filter({ hasText: result.message }).waitFor();
+        assert.deepEqual(opened.problems, []);
+      } finally { await opened.close() }
+    });
     it(`${viewport.name}：拖动下载版本不会产生横向滚动`, async () => {
       const opened = await visit(browser, '/settings/downloads', viewport);
       const { page } = opened;
@@ -53,7 +105,7 @@ describe('配置表单与行间距', () => {
       try {
         await page.route(CONFIGURATION_ROUTE, async route => {
           const data = await (await route.fetch()).json();
-          await route.fulfill({ json: { ...data, downloads: { ...data.downloads, media_sources: ['guangya'], token_set: true,
+          await route.fulfill({ json: { ...data, downloads: { ...data.downloads, media_sources: ['guangya'], token_set: false,
             config: { ...data.downloads.config, clouddrive_address: 'http://127.0.0.1:19798' } } } });
         });
         await page.route('**/api/configuration/downloads/check', route => route.fulfill({ json: {
@@ -63,6 +115,7 @@ describe('配置表单与行间距', () => {
         await page.reload();
         const form = page.getByRole('form', { name: '云下载', exact: true });
         await form.getByRole('button', { name: '检查连接', exact: true }).click();
+        await page.locator('#toasts [data-sonner-toast][data-type=success]').filter({ hasText: 'CloudDrive2 连接检查通过' }).waitFor();
         await settle(page);
         assert.equal(await form.locator('dl').count(), 0);
         assert.equal(await form.locator('.border-t').count(), 1);

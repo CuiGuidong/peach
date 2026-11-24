@@ -3,10 +3,10 @@ export const JAV_SELECTION_EVENT = 'peach:jav-selection';
 let pendingTab = '';
 const tabOf = (search: string) => new URLSearchParams(search).get('tab') || '';
 
-export function requestJavSelection(search: string) {
+export function requestJavSelection(search: string, enter = false) {
   const tab = tabOf(search);
-  if (window.dispatchEvent(new CustomEvent(JAV_SELECTION_EVENT, { cancelable: true, detail: tab }))) {
-    pendingTab = pendingTab === tab ? '' : tab;
+  if (window.dispatchEvent(new CustomEvent(JAV_SELECTION_EVENT, { cancelable: true, detail: { tab, enter } }))) {
+    pendingTab = !enter && pendingTab === tab ? '' : tab;
   }
 }
 

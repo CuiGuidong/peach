@@ -128,9 +128,9 @@ export function ReviewPage(props: ReviewProps) {
     .filter((group) => group.rows.length);
   const panel = useRef<HTMLDivElement>(null);
   const pendingFocus = useRef<{ card: HTMLElement; following: string[] } | null>(null);
-  const rectangle = useRectangleSelection(selecting && !locked
+  const rectangle = useRectangleSelection(!locked
     ? (keys, add) => setSelected(current => new Set([...(add ? current : []), ...keys])) : undefined,
-    '[data-review-key]', '.review-grid');
+    { selecting, items: '[data-review-key]', start: '.review-grid' });
   useLayoutEffect(() => {
     const pending = pendingFocus.current;
     if (!pending || pending.card.isConnected) return;
@@ -332,7 +332,7 @@ export function ReviewPage(props: ReviewProps) {
             })} />
         </div>
 
-        <div ref={panel} role="tabpanel" id={`review-panel-${category}`} aria-labelledby={`review-tab-${category}`} tabIndex={-1} {...rectangle}
+        <div ref={panel} role="tabpanel" id={`review-panel-${category}`} aria-labelledby={`review-tab-${category}`} tabIndex={-1}
           className="flex min-w-0 flex-1 flex-col gap-5">
             <BulkToolbar queueView={queueView} queueCounts={queueCounts} onQueueChange={goQueue} locked={locked}
               fields={fields} fieldFilter={activeField}
@@ -346,8 +346,8 @@ export function ReviewPage(props: ReviewProps) {
               busy={bulk.isPending || decide.isPending} feedback={feedback}
               onUnifySource={unifySource} actions={bulkActions} />
 
-          {win.rows.length ? pageGroups.map((group) => (
-            <section key={group.key} className="flex flex-col gap-3">
+          {win.rows.length ? <div data-rectangle-gutter="" {...rectangle} className="flex flex-col gap-5">{pageGroups.map((group) => (
+            <section key={group.key} data-rectangle-gap="" className="flex flex-col gap-3">
               {pageGroups.length > 1 || activeGroupBy !== 'candidates' ? (
                 <div className="flex flex-wrap items-center gap-2">
                   <h3 className="text-body-medium text-text-primary">
@@ -391,7 +391,7 @@ export function ReviewPage(props: ReviewProps) {
                 ))}
               </div>
             </section>
-          )) : review.isError && !review.data ? (
+          ))}</div> : review.isError && !review.data ? (
             /* 读不到队列和队列是空的不是一回事：说清楚是读取失败，给一颗重试键。 */
             <Note tone="error" title={t('manage:reviewPage.queueLoadFailed')} action={
               <Button variant="secondary" size="small" disabled={review.isFetching} onClick={() => void review.refetch()}>{t('manage:shared.retryNow')}</Button>

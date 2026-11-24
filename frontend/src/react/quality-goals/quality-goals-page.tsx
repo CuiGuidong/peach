@@ -14,6 +14,7 @@
  * JAV 探索卡（`../jav/discovery-card.tsx`）：封面、头像那一格放勾选框、两行标题、来源与体积，
  * 判定原因落在标签行，底部一排动作键。 */
 import { useState, type CSSProperties } from 'react';
+import { hasSelectionModifier } from '../../selection';
 import { RiCheckboxLine, RiPlayLine, RiSearchLine, RiSparklingLine } from '@remixicon/react';
 import { useQuery } from '@tanstack/react-query';
 
@@ -89,7 +90,7 @@ function GoalCard({ item, openItem, searchResources, javTitleHtml, javDisplayNam
       onKeyDown={event => menu.onKeyDown(event, context)}
       onClickCapture={(event) => {
         if ((event.target as Element).closest('[data-work-context-menu]')) return;
-        if (!selecting && !event.shiftKey && !event.ctrlKey && !event.metaKey) return;
+        if (!selecting && !hasSelectionModifier(event)) return;
         event.preventDefault(); event.stopPropagation(); onPick(!picked);
       }}>
       {menu.menu}
@@ -146,8 +147,8 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
     setPicked(current => new Map([...(add ? current : []), ...items
       .filter(item => keys.has(item.id)).map(item => [item.id, item] as const)]));
   };
-  const rectangle = useRectangleSelection(selecting && !goals.isFetching && !goals.isError
-    ? (keys, add) => selectRectangle(keys.map(Number), add) : undefined);
+  const rectangle = useRectangleSelection(!goals.isFetching && !goals.isError
+    ? (keys, add) => selectRectangle(keys.map(Number), add) : undefined, { selecting });
   if (goals.isPending) return <Page><div dangerouslySetInnerHTML={{
     __html: queueContentSkeletonHtml('quality-goals', t('shell:spinner.loading'), ['w-20', 'w-24']),
   }} /></Page>;

@@ -66,10 +66,10 @@ export function FeedNewRow({ feedNew, host, wire, act, settled, error, retry }: 
   useEffect(() => {
     if (!selecting || mediaCount) setPicked(current => current.size ? new Set() : current);
   }, [selecting, mediaCount]);
-  const rectangle = useRectangleSelection(selecting && html ? (keys, add) => {
+  const rectangle = useRectangleSelection(html ? (keys, add) => {
     if (keys.length) actions?.clearMediaSelection?.();
     setPicked(current => new Set([...(add ? current : []), ...keys.map(Number)]));
-  } : undefined, '[data-feed-id][data-rectangle-key]', '.feednewrow');
+  } : undefined, { selecting, items: '[data-feed-id][data-rectangle-key]', start: '.feednewrow' });
   useLayoutEffect(() => {
     for (const card of box.current?.querySelectorAll<HTMLElement>('[data-feed-id]') ?? []) {
       card.dataset.rectangleKey = card.dataset.feedId!;
@@ -119,8 +119,10 @@ export function FeedNewRow({ feedNew, host, wire, act, settled, error, retry }: 
   }, [host, html, feedNew, settled, reserve, error]);
   useEffect(() => {
     if (html) wire(box.current?.querySelector('.feednewrow') ?? null);
+  }, [wire, html, selecting]);
+  useEffect(() => {
     setSourceFaces([...box.current?.querySelectorAll<HTMLElement>('[data-feed-source-avatar]') ?? []]);
-  }, [wire, html]);
+  }, [html]);
   const click = async (event: MouseEvent<HTMLDivElement>) => {
     const selectedCard = (event.target as Element).closest<HTMLElement>('[data-feed-id]');
     if (selecting && selectedCard) {
@@ -211,7 +213,8 @@ export function FeedNewRow({ feedNew, host, wire, act, settled, error, retry }: 
   return html ? <><div className="peach-react" data-feed-cover-queue><CoverQueue scope={t('follow:newReleasesRow.coverQueueScope')} codes={queued} fetchOne={cover} /></div>
     {menu.menu}<div ref={box} data-feed-selection="" className="contents" {...rectangle}
     onClick={(event) => { void click(event) }} onContextMenu={context} onKeyDown={context} dangerouslySetInnerHTML={{ __html: html }} />
-    {actions ? <div className="peach-react"><SelectionDock visible={selecting && !mediaCount && !!pickedCards.length}
+    {/* 浮条留在新作横排的样式范围内，由浏览器顶层定位。 */}
+    {actions ? <div className="peach-react contents"><SelectionDock visible={selecting && !mediaCount && !!pickedCards.length}
       label={t('shell:feedNew.selectionActions')} count={t('catalog:javSelection.selectedCount', { count: pickedCards.length })}
       actions={bulk.map(({ action, cards }) => ({ action, items: cards.map(card => Number(card.dataset.feedId)),
         host: { receipt: actions.receipt, failure: error => actions.failure(action.label, error) }, done: () => setPicked(new Set()) }))}>

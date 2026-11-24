@@ -29,6 +29,8 @@ import { NavigationOrderRows } from '../components/navigation-order';
 import { Note } from '../components/note';
 import { SourceLabel, providerIcon } from '../components/source-label';
 import { groupRoot } from './configuration-panel';
+import { ConfigurationContents } from './configuration-contents';
+import { useCheckReceipt } from './use-check-receipt';
 import {
   ErrorText, ExternalLink, Fact, FactList, FieldLabel, Footer, Help, Section, Stack,
 } from './section';
@@ -94,15 +96,17 @@ export function DownloadSettings({ initial, receipt, active = true }: {
   const hasCloud = sources.some(source => CLOUD_LOCATIONS.includes(source));
   const pikpakAccount = hasPikPak && (state.pikpak.logged_in || Boolean(username.trim()));
   return (
-    <>
-      {hasCloud ? <DownloadForm state={state} settle={setState} receipt={receipt} pikpakAccount={pikpakAccount} active={active} /> : null}
-      {hasPikPak ? <PikPakAccount state={state} settle={setState} receipt={receipt} username={username} setUsername={setUsername} /> : null}
-      <LocalDownloadSettings state={state} settle={setState} receipt={receipt} />
-      <JavBrowserSettings receipt={receipt} refreshKey={JSON.stringify([
+    <ConfigurationContents entries={[
+      hasCloud && { id: 'downloads-cloud', label: t('settings:cloudDownload.title'),
+        content: <DownloadForm state={state} settle={setState} receipt={receipt} pikpakAccount={pikpakAccount} active={active} /> },
+      hasPikPak && { id: 'downloads-pikpak', label: t('settings:pikpakAccount.title'),
+        content: <PikPakAccount state={state} settle={setState} receipt={receipt} username={username} setUsername={setUsername} /> },
+      { id: 'downloads-local', label: t('settings:localDownload.title'), content: <LocalDownloadSettings state={state} settle={setState} receipt={receipt} /> },
+      { id: 'downloads-browser', label: t('settings:javBrowser.title'), content: <JavBrowserSettings receipt={receipt} refreshKey={JSON.stringify([
         state.media_sources, state.config, state.token_set, state.pikpak.logged_in,
         state.qbittorrent, state.local_roots,
-      ])} />
-    </>
+      ])} /> },
+    ]} />
   );
 }
 
@@ -113,6 +117,8 @@ interface CardProps {
 }
 
 function DownloadForm({ state, settle, receipt, pikpakAccount, active }: CardProps & { pikpakAccount: boolean; active: boolean }) {
+  const { checked, checkFailed } = useCheckReceipt();
+  const connection = t('settings:connectionCheck.action', { service: 'CloudDrive2' });
   const [config, setConfig] = useState<DownloadConfig>(state.config);
   const [token, setToken] = useState('');
   const [hours, setHours] = useState(String(state.config.wait_hours));
@@ -199,7 +205,15 @@ function DownloadForm({ state, settle, receipt, pikpakAccount, active }: CardPro
     const body = { clouddrive_address: config.clouddrive_address, token, target: target('115'),
       pikpak_root: config.pikpak_root, pikpak_account: pikpakAccount };
     void action.run('check', (signal) => apiSend<DownloadCheckReport>(CHECK_URL, body, 'POST', signal),
-      (next) => show(next, blank), (cause) => setFailure(errorMessage(cause)));
+      (next) => {
+        show(next, blank);
+        if (next.ok) checked(t('settings:connectionCheck.passed', { service: 'CloudDrive2' }));
+        else checkFailed(connection, problemTexts(next)[0] || t('settings:connectionCheck.details'));
+      }, (cause) => {
+        const message = errorMessage(cause);
+        setFailure(message);
+        checkFailed(connection, message);
+      });
   };
 
   // 只在用户点了「新建这个目录」时调 CloudDrive2 建目录，建好后服务端按这个目录再检查一遍。
@@ -221,7 +235,7 @@ function DownloadForm({ state, settle, receipt, pikpakAccount, active }: CardPro
       {state.problems?.length ? <Stack><Note tone="error" title={t('settings:cloudDownload.needsAttention')}>{problemTexts(state).join('\n')}</Note></Stack> : null}
       <Stack>
         <Input label={t('settings:cloudDownload.cloudDriveUrl')} placeholder={t('settings:cloudDownload.addressPlaceholder')} autoComplete="off" maxLength={200}
-          value={config.clouddrive_address} isDisabled={!state.available}
+          hint={t('settings:cloudDownload.cloudDriveUrlHelp')} value={config.clouddrive_address} isDisabled={!state.available}
           onChange={(value) => setConfig({ ...config, clouddrive_address: value })} />
         <Input label={t('settings:cloudDownload.apiToken')} type="password" autoComplete="off" maxLength={400}
           placeholder={state.token_set ? t('settings:shared.savedLeaveBlank') : t('settings:cloudDownload.tokenPlaceholder')}
@@ -239,11 +253,14 @@ function DownloadForm({ state, settle, receipt, pikpakAccount, active }: CardPro
           {state.pikpak_roots.length ? (
             /* 根目录只给登录后的 PikPak 直连与 PikPak 任务落地用：没登录、也没填账号时变灰。
                上面的目标目录经 CloudDrive 转存时也要用，不跟着变灰。 */
-            <Select aria-label={t('settings:cloudDownload.pikpakRootDirectory')} selectedKey={config.pikpak_root || null}
-              isDisabled={!state.available || !pikpakAccount} placeholder={t('settings:cloudDownload.rootPlaceholder')}
-              onSelectionChange={(key) => setConfig({ ...config, pikpak_root: key === null ? '' : String(key) })}>
-              {state.pikpak_roots.map((root) => <SelectItem key={root} id={root}>{root}</SelectItem>)}
-            </Select>
+            <>
+              <Select aria-label={t('settings:cloudDownload.pikpakRootDirectory')} selectedKey={config.pikpak_root || null}
+                isDisabled={!state.available || !pikpakAccount} placeholder={t('settings:cloudDownload.rootPlaceholder')}
+                onSelectionChange={(key) => setConfig({ ...config, pikpak_root: key === null ? '' : String(key) })}>
+                {state.pikpak_roots.map((root) => <SelectItem key={root} id={root}>{root}</SelectItem>)}
+              </Select>
+              <Help>{t('settings:cloudDownload.pikpakRootDirectoryHelp')}</Help>
+            </>
           ) : (
             <Help>{t('settings:cloudDownload.addPikpakMount')}</Help>
           )}

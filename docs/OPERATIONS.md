@@ -463,7 +463,9 @@ Peach 配置页地址是 `/configuration`。从管理菜单或设置弹窗的「
 | 缩略图 | `generated/cover-thumbs/` 与 `generated/avatar-thumbs/` | 浏览时重新生成 |
 | 日志 | `logs/` 里已归档的 `*.until-*.log` 与 `crash-*.log` | 正在写入的日志保留 |
 
-缩略图是封面与头像的小尺寸副本，由本机已有的原图缩小而来；预览图是从视频抽帧生成的九宫格、海报与进度条预览，重建要重新读取整部影片，网盘里的影片会重新下载，所以只统计不清理。封面与网络资料要重新联网下载，导入资料、任务与复核记录、媒体工具和登录状态都无法由 Peach 重建，同样只统计不清理。
+缩略图由本机的封面与头像缩小而来。预览图包括视频抽帧生成的九宫格、海报与进度条预览，重建时需重新读取媒体，所以只统计占用。资料采集快照单独统计，Peach 会在后续采集中复用。导入资料与浏览记录、任务与复核记录、媒体工具和登录状态也只统计占用。本机项目归档单独显示，存放构建产物、验收材料或运维备份的项目由其维护者管理。
+
+关注抓取快照单独显示占用。点「查看可清理的快照」进入「修复与迁移」，查看预计可释放的空间并确认。清理会保留每个来源最近 3 份快照以及仍被关注条目引用的快照。
 
 「更改位置」把整个数据目录迁到别的文件夹。安装版、从托盘启动的源码运行（Windows、macOS）和无桌面服务（`python -m peach.server`）都支持：
 
@@ -664,11 +666,11 @@ untrunc 按相同顺序查找，对应目录为 `tools/untrunc`。独立程序�
 - 浏览器不支持的 AVI、MKV 等格式，Peach 会转成兼容的 MP4 缓存起来再播放，**不会改动原始文件**。第一次播放前会先探测文件，最长 20 秒。
 - `.ts`、`.m2ts`、`.mts` 起播前先探测编码：视频是 H.264（`yuv420p`／`yuvj420p`），或浏览器报了能力的 HEVC，就整片换封装成 MP4（视频复制，音轨不是 AAC 时转 AAC），产物和其他换封装缓存一样文件名带 `-copy`，换一次后命中缓存，受容量保护清理；解不了的编码仍走 HLS 转码分片。换封装要等整个文件复制完才开始播放。
 - 能保留的码流尽量保留：H.264（`yuv420p`／`yuvj420p`）视频不重新编码，AAC 音频直接复制，其他音频转成 AAC。需要重新编码视频时，自动模式依次尝试硬解加硬编、软解加硬编、全软件；Windows 使用 NVIDIA（`scale_cuda` + NVENC），Linux 使用可用 VAAPI 节点，macOS 使用 VideoToolbox。macOS 硬件编码通过实际合成帧探测，并禁止系统软件编码冒充硬件；H.264 输出采用 6 Mbit/s。AV1 硬解显式使用 FFmpeg 原生 `av1` 解码器，设备不支持时回退 dav1d 软件解码。
-- 「应用与维护 → 视频播放」的「画质上限」默认原画，可选 1080p、720p、480p，按短边计（竖屏片子的 720p 是宽 720）。只管重新编码的整片与 HLS 分片：短边超过上限才缩小，同时把峰值码率压到 8、4、2 Mbit/s；直接播放和只换封装的片子保持原画。帧在显存里的 CUDA、VAAPI、QSV 全硬件链分别用 `scale_cuda`、`scale_vaapi`、`vpp_qsv`，其余用软件 `scale`；AMF、QSV、VAAPI 改用带峰值的 VBR。档位存在 `media-processing.json` 的 `playback_max_height`（`0/1080/720/480`），换档后新缓存的文件名带档位，原画沿用原来的缓存。
+- 「媒体库与入库 → 视频播放」的「画质上限」默认原画，可选 1080p、720p、480p，按短边计（竖屏片子的 720p 是宽 720）。只管重新编码的整片与 HLS 分片：短边超过上限才缩小，同时把峰值码率压到 8、4、2 Mbit/s；直接播放和只换封装的片子保持原画。帧在显存里的 CUDA、VAAPI、QSV 全硬件链分别用 `scale_cuda`、`scale_vaapi`、`vpp_qsv`，其余用软件 `scale`；AMF、QSV、VAAPI 改用带峰值的 VBR。档位存在 `media-processing.json` 的 `playback_max_height`（`0/1080/720/480`），换档后新缓存的文件名带档位，原画沿用原来的缓存。
 - 同时最多进行 2 个转码或探测，单次最长 1 小时，关掉播放页会取消对应的任务。
 - 网盘来源（115、PikPak、光鸭云盘、OneDrive 与其他已挂载网盘）的视频通过媒体库配置中声明的挂载目录播放，哪些来源按网盘处理以 `resources/media-sources.json` 登记的 `cloud` 为准。能不能播，以在 Peach 里实际打开一个已知视频为准。
 
-Peach 配置「媒体库与入库 → 视频预览」中的「抽帧解码方式」与「应用与维护 → 视频播放」中的「转码方式」分别保存为运行 Peach 那台电脑的偏好，两者互不影响，均可选择「自动（硬件优先）」或软件。抽帧设置控制封面、九宫格与时间轴；扫描、读 NFO 和时长探测不依赖 GPU。播放设置只控制 Peach 服务端的整片与 HLS 转码，浏览器直接播放时自行选择解码方式。保存无需重启，对新任务生效；已生成的有效缓存继续使用，运行中的 FFmpeg 不被强行中断。macOS 抽帧在同一超时预算内尝试 VideoToolbox，Windows 抽帧对 H.264、HEVC、VP9、AV1 尝试 D3D11VA，Linux 对同一范围尝试第一个可用 VAAPI 渲染节点，失败后都回退软件；视频编码格式探测按文件大小和修改时间缓存。Windows 播放的自动档依次探测 NVENC、AMF、QSV 编码，三者都不可用时用 D3D11VA 解码再交给 libx264；AMF 只接受 AMD 显卡上的 D3D11 设备，Peach 按显卡序号逐个探测；QSV 优先让解码、缩放和编码都留在 Intel 显卡上，以 Windows 服务方式运行时建不出这条链，改为 D3D11VA 解码后交给 QSV 编码。偏好通过 `/api/media-processing` 的 GET/POST 读写，`preview_acceleration` 和 `playback_acceleration` 分别接受 `auto/software`，`playback_max_height` 接受 `0/1080/720/480`；省略的字段保持现值。这个接口与时间轴缩略图的 `/api/thumbnail-jobs` 和 `/api/configuration/*` 一样只接受运行 Peach 的电脑发来的请求，其他设备即使已登录或处于开放访问也返回 403。`PEACH_TRANSCODE_BACKEND` 可用于管理员诊断，支持 `auto/software/nvenc/amf/qsv/vaapi/videotoolbox`，显式 `software` 会保持禁用硬件。
+Peach 配置「媒体库与入库 → 视频预览」中的「抽帧解码方式」与「媒体库与入库 → 视频播放」中的「转码方式」分别保存为运行 Peach 那台电脑的偏好，两者互不影响，均可选择「自动（硬件优先）」或软件。抽帧设置控制封面、九宫格与时间轴；扫描、读 NFO 和时长探测不依赖 GPU。播放设置只控制 Peach 服务端的整片与 HLS 转码，浏览器直接播放时自行选择解码方式。保存无需重启，对新任务生效；已生成的有效缓存继续使用，运行中的 FFmpeg 不被强行中断。macOS 抽帧在同一超时预算内尝试 VideoToolbox，Windows 抽帧对 H.264、HEVC、VP9、AV1 尝试 D3D11VA，Linux 对同一范围尝试第一个可用 VAAPI 渲染节点，失败后都回退软件；视频编码格式探测按文件大小和修改时间缓存。Windows 播放的自动档依次探测 NVENC、AMF、QSV 编码，三者都不可用时用 D3D11VA 解码再交给 libx264；AMF 只接受 AMD 显卡上的 D3D11 设备，Peach 按显卡序号逐个探测；QSV 优先让解码、缩放和编码都留在 Intel 显卡上，以 Windows 服务方式运行时建不出这条链，改为 D3D11VA 解码后交给 QSV 编码。偏好通过 `/api/media-processing` 的 GET/POST 读写，`preview_acceleration` 和 `playback_acceleration` 分别接受 `auto/software`，`playback_max_height` 接受 `0/1080/720/480`；省略的字段保持现值。这个接口与时间轴缩略图的 `/api/thumbnail-jobs` 和 `/api/configuration/*` 一样只接受运行 Peach 的电脑发来的请求，其他设备即使已登录或处于开放访问也返回 403。`PEACH_TRANSCODE_BACKEND` 可用于管理员诊断，支持 `auto/software/nvenc/amf/qsv/vaapi/videotoolbox`，显式 `software` 会保持禁用硬件。
 
 卡片悬停预览请求的 `/stream` 不带流会话，取消不了，也看不到浏览器断开。片源需要整片转码且没有现成缓存时，这条请求直接回 415，不启动 FFmpeg；详情与沉浸模式带会话播放，关闭时按会话结束转码。
 
@@ -768,6 +770,7 @@ Windows 使用已安装的中文系统 OCR，macOS 使用 Vision，Linux 使用�
 - 两条接口共用守卫（`routes_pages._setup_guard`）：已配置 404，非回环来源 403，独立包地址栏主机名不是回环写法 403；提交另查 Origin（403）与设置文件已存在（409）。两条都在 `/api/` 下，错误一律回 JSON。
   - `GET /api/setup/questions` 给出画表单要的数据：`questions` 按 `onboarding.questions()` 的顺序列出每题的 `key`、`label`、`help`（说明行列表）、`default`、`required`、`advanced`（是否折进「高级设置」）、`input`（`text`、`number`、`choice`、`folders`）、`prefix`、`suffix`，`host` 另带按页面顺序排好的 `options`，`mdns_name` 另带 `visible_when: {"host": "2"}`；另有 `media_sources`、`media_source_default`、`media_root`（非 Windows 的对应路径格，Windows 为 `null`）、`cloud`（提示、帮助链接与缺失的挂载软件 `dependencies`）、`windows`、`standalone`，以及三个开关的初始值 `access_enabled`（host 默认是局域网就开）、`scan_now`、`history_guide`。
   - `POST /api/setup` 收同名字段：`media_dir` 是 `{path, location, root}` 行列表（`location` 缺省为 `local`），`access_enabled`、`scan_now`、`history_guide` 是布尔，选了「只有这台电脑」可不传 `mdns_name`。第一步的 `interface_language`（`auto` 或已登记的界面语言）在新建账本时写进同步设置，接到已有账本时不改。400 回 `{"error", "errors"}`：`errors` 按题目 key，访问密码在 `access_password`，`media_dir` 与提交的行一一对应、没错的行是空串；整表不成立（超过 100 行）时只有一句，长度与行数不等。`apply` 失败回 400，错误在 `data_root`。200 回 `url`、`scan_requested`、`history_guide`、`standalone`、`redirect`（独立包为入口地址，其余为 `null`，跳转时长由前端定）与运行信息 `facts`（同 `/api/configuration` 的 `facts`）。
+- 网页在进入下一步前检查当前步骤必填项，服务端在提交时校验路径、端口及其余配置。确认页的「参与馆藏与偏好研究」默认关闭。读题接口的 `library_sharing` 提供发送范围和 `consent_schema`。主动开启时提交 `library_sharing: {consent: true, consent_schema}`，当前版本校验通过后，授权写入所选数据目录。省略时沿用该目录已有选择，新目录默认关闭。
 - 建目录（`database`、`generated`、`sources`、`state`、`secrets`、`logs`、`tools`、`review`）、迁移数据库、生成 CA 与口令、写设置文件，都由 `onboarding.apply()` 完成；CLI 和设置页调用同一个函数，只是输出方式不同。问答的题目、默认值和写文件逻辑在 `src/peach/onboarding.py`。
 - 网页不展示数据库路径输入，`media_root` 为 `null`。`media_dir` 行中的 `root` 可省略或留空，服务端按媒体目录补齐；已有行提交原 `root` 时保留它。媒体目录与已有配置唯一匹配时复用原前缀，新目录自动生成前缀，并用目录名作为媒体库名称。
 - Windows 上 `peach init` 写出的 `[media.locations] local` 直接是那些目录，`[media.mounts]` 为空；macOS 上配置的目录是 `R:\media`（第二个起 `R:\media2`……），本机目录按同样顺序写进 `[media.mounts] local`。复制、writer 镜像、SMB 一律不问，保持关闭或留空。

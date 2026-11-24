@@ -255,7 +255,7 @@ describe('设置面板与壳的接缝', () => {
       .toEqual(['settings-group-1', 'settings-group-1', 'settings-group-2']);
     const headings = (index: number) => [...panel.querySelectorAll(`#settings-group-${index} [data-settings-subheading]`)]
       .map((node) => node.textContent);
-    expect([headings(1), headings(2)]).toEqual([['作品列表', '播放'], ['作品显示', '新作显示']]);
+    expect([headings(1), headings(2)]).toEqual([['作品列表', '首页', '播放'], ['作品显示', '新作显示']]);
     /* 转码方式是运行 Peach 那台电脑的服务配置，在 Peach 配置里，弹窗里没有这一行（ADR-0103）。 */
     expect(panel.querySelector('#playbackAccelerationSetting')).toBeNull();
     const entry = panel.querySelector<HTMLButtonElement>('[data-settings-service] button')!;
@@ -440,8 +440,9 @@ describe('设置面板与壳的接缝', () => {
     const current = await setup();
     const panel = await open(current);
     const contrast = panel.querySelector<HTMLInputElement>('#glassContrastSetting')!;
-    expect([contrast.getAttribute('role'), panel.querySelector('label[for="glassContrastSetting"] b')?.textContent])
-      .toEqual(['switch', '增加对比度']);
+    expect([contrast.getAttribute('role'), contrast.getAttribute('aria-label')]).toEqual(['switch', '增加对比度']);
+    expect(contrast.labels?.[0]?.querySelector('b')?.textContent).toBe('增加对比度');
+    expect(panel.querySelector(`#${contrast.getAttribute('aria-describedby')}`)?.textContent).toBeTruthy();
     await click(contrast);
     expect(current.setHighContrast.mock.calls).toEqual([[true]]);
     await close(current);
