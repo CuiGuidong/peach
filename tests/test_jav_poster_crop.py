@@ -941,6 +941,16 @@ class BatchScriptTests(unittest.TestCase):
         self.assertEqual(self.run_script(), 0)
         self.assertFalse(jav_poster_crop.sidecar_path(self.cover).exists())
 
+    @unittest.skipUnless(opencv_available(), "缺 vision 依赖组")
+    def test_a_cover_in_a_unicode_directory_keeps_its_gradient(self):
+        directory = self.root / "中文封面"
+        directory.mkdir()
+        cover = directory / "取景.jpg"
+        cover.write_bytes(self.before)
+        expected = jav_poster_crop.file_gradient(self.cover)()
+        self.assertIsNotNone(expected)
+        self.assertEqual(jav_poster_crop.file_gradient(cover)(), expected)
+
     def test_online_upgrade_checks_official_sources_without_local_snapshots(self):
         from peach.jav_cover_fetch import Candidate
         script = batch_script('upgrade_audited_covers')

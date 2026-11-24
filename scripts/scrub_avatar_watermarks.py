@@ -167,11 +167,11 @@ def annotate(image, marks, result, target: Path) -> None:
     tall = max(panel.shape[0] for panel in panels)
     pair = np.hstack([np.pad(panel, ((0, tall - panel.shape[0]), (0, 0), (0, 0)))
                       for panel in panels])
-    ok, buffer = cv2.imencode(".png", pair)
-    if not ok:
-        raise ValueError("头像预览图编码失败")
+    data = encode(pair, "image/png")
+    if data is None:
+        raise ValueError("Cannot encode the avatar preview as PNG")
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(buffer.tobytes())
+    target.write_bytes(data)
 
 
 def plan_of(info: dict) -> str:

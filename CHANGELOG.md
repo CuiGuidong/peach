@@ -30,6 +30,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Fixed / 修复
 
+- **Library**: Read avatars and covers and write watermark review previews under Windows paths containing Chinese characters (#428). / **馆藏**：Windows 中文路径下可读取头像和封面，并写出水印复核对照图（#428）。
 - **Desktop**: Show the database sync and writer takeover actions in standalone builds when replication is enabled, and show CLI help from the packaged executable (#844). / **桌面**：独立发行版启用复制后显示数据库同步和写入端接管，打包程序支持显示命令行帮助（#844）。
 - **Review**: Move keyboard focus to a nearby card after processing the current one (#855). / **复核**：处理当前卡片后，键盘焦点会移到相邻卡片（#855）。
 - **Interface**: Pause glass drift after the home page has been idle for six seconds and resume it on interaction (#840). / **界面**：首页静置六秒后暂停玻璃光晕漂移，继续操作时恢复（#840）。
