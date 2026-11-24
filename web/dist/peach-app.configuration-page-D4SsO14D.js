@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a05f7a59-f3a5-4cfe-a28e-c5ec05fb4746", e._sentryDebugIdIdentifier = "sentry-dbid-a05f7a59-f3a5-4cfe-a28e-c5ec05fb4746");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f956200c-6b06-463d-862e-09c7b4c29999", e._sentryDebugIdIdentifier = "sentry-dbid-f956200c-6b06-463d-862e-09c7b4c29999");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $3a442827418ebe87$export$eb2fcfdbd7ba97d4 as t, $542a13ca2fa5b484$export$5b6b19405a83ff9d as n, $72abaeab4d80592f$export$78efe591171d7d45 as r, $bd263d78e9bf3c56$export$f5c9f3c2c4054eec as i, $ea3928288112382f$export$439d29a4e110a164 as a, $f2ff30fde7b014be$export$3ddf2d174ce01153 as o, $fe21c36db05242bb$export$a98f0dcb43a68a25 as s, $fe21c36db05242bb$export$d7b12c4107be0d61 as c, ACCENTS as l, ActivityStatus as u, ApiError as d, Button as f, ButtonLink as p, CLOUD_LOCATIONS as m, CLOUD_PROXY_HELP as h, CONFIGURATION_KEY as g, CONFIGURATION_SECTIONS as _, CONFIGURATION_URL as v, CREDENTIAL_STATE as y, Checkbox as b, Chip as x, CommandSteps as S, Disclosure as C, EDITION_TONE as w, ENTRY_LINKS_HELP as T, ENTRY_LINKS_HINT as E, EmptyState as ee, ErrorText as D, Eu as O, ExternalLink as k, FOLLOW_CREDENTIALS_KEY as te, FOLLOW_INITIAL_RANGE_OPTIONS as A, Fact as j, FactList as M, FieldLabel as ne, Footer as N, Help as P, HintText as re, Input as F, L1 as ie, LIBRARY_FOLDER_HELP as ae, LIBRARY_PROCESSING_KEY as oe, Label as se, LinkButton as ce, M6 as le, MEDIA_PROCESSING_KEY as ue, MEDIA_PROCESSING_URL as de, MEDIA_SOURCE_ICONS as fe, MENU_POPOVER_SURFACE as pe, NavigationOrderRows as me, Note as I, PICK_FOLDER_URL as he, POLICY_COLUMNS as ge, POLICY_COVER_NOTE as _e, POLICY_MATRIX as ve, POLICY_SUMMARY as ye, PathLine as be, ProcessingMode as xe, Progress as Se, RELEASE_NOTICE_EVENT as Ce, REPAIR_CENTER_PATH as we, Rows as L, SCHEDULES as Te, SCRAPING_KEY as Ee, SCRAPING_SETTINGS_URL as De, SEGMENT as Oe, SEGMENTED_TRACK as ke, SETTINGS_KEY as Ae, SETTINGS_URL as je, Section as R, SectionSkeleton as Me, SegmentedRadioGroup as Ne, Select as Pe, Select$1 as z, SelectItem as B, SettingsCard as Fe, SettingsRow as V, SiteLabel as Ie, SortableBoardTabs as Le, SourceLabel as Re, SourceMark as ze, Stack as H, StatusLabel as Be, Switch as Ve, THUMBNAIL_JOBS_KEY as He, TaskCenterLink as Ue, TaskProgress as We, TextField as Ge, TextFieldContext as Ke, Uz as qe, __toESM as Je, _p as Ye, activityKind as Xe, animate as Ze, apiGet as U, apiSend as W, appSettingsStore as Qe, bodyFieldErrors as $e, boundedPreference as et, busyProps as G, cardClass as tt, checkClientUpdates as nt, cloudProxySkeleton as rt, clsx as it, cn as at, codedText as K, confirmModal as ot, credentialDone as st, credentialsSkeleton as ct, cx as lt, d6 as ut, devicesSkeleton as dt, editionName as ft, errorMessage as q, fetchConfiguration as pt, fetchCredentials as mt, fetchLibraryProcessing as ht, fetchMediaProcessing as gt, fetchSettings as _t, fetchSources as vt, fetchThumbnailJobs as yt, fmtSize as bt, i2 as xt, indexersSkeleton as St, interfaceLanguage as Ct, javBrowserSkeleton as wt, jobText as Tt, joinList as Et, l1 as Dt, ledgerBackupsSkeleton as Ot, localizedFact as kt, momentText as At, motion as jt, overlayHost as Mt, peachHistory$1 as Nt, pickServerFolder as Pt, pollUntil as Ft, previewLibraryColor as It, processingActive as Lt, providerIcon as Rt, queryClient as zt, randomId as Bt, rememberShape as Vt, require_jsx_runtime as Ht, require_react as Ut, restartEffectText as Wt, saveCredential as Gt, schedulePollInterval as Kt, sectionTitle as qt, serverLabel as Jt, serverLabelList as Yt, serverText as Xt, settingsPath as Zt, shellNavigate as Qt, sortCx as $t, sourceDefaultCost as en, stageText as tn, t as J, translateWithNodes as nn, useAction as Y, useClientUpdates as rn, useLibraryTints as an, useMutation as on, useOrderedLibraries as sn, useQuery as X, useQueryClient as cn, useReducedMotion as ln, useRunSchedule as un, useSaveSchedule as dn, useSaveSettings as fn, useSaveThumbnailMode as pn, we as mn, z3 as hn } from "./peach-app.js";
@@ -5039,7 +5039,22 @@ function Tc({ id: e, name: t, value: i, onChange: a }) {
 }
 // src/react/settings/push-discovery-settings.tsx
 var Ec = "/api/configuration/push-discovery", Dc = "/api/configuration/push-discovery/secret";
-function Oc({ initial: e, receipt: t }) {
+function Oc({ label: e, help: t, status: n, children: r }) {
+	return /* @__PURE__ */ (0, Q.jsxs)("div", {
+		className: "flex min-h-[52px] w-full items-center justify-between gap-4 border-b border-separator-border py-2.5 pr-2.5 last:border-b-0",
+		children: [/* @__PURE__ */ (0, Q.jsxs)("div", {
+			className: "flex min-w-0 flex-col",
+			children: [/* @__PURE__ */ (0, Q.jsx)("p", {
+				className: "text-body-regular text-text-primary",
+				children: e
+			}), /* @__PURE__ */ (0, Q.jsxs)(P, { children: [/* @__PURE__ */ (0, Q.jsx)("span", { children: t }), n ? /* @__PURE__ */ (0, Q.jsx)("span", {
+				className: "block",
+				children: n
+			}) : null] })]
+		}), r]
+	});
+}
+function kc({ initial: e, receipt: t }) {
 	let [n, r] = (0, Z.useState)(e), [i, a] = (0, Z.useState)(e.prefixes), [o, s] = (0, Z.useState)(""), c = Y(), l = n.media_roots, [u, d] = (0, Z.useState)(e), p = (e, n) => {
 		r(e), d(e), a(e.prefixes), s(""), t(n);
 	}, m = (e, t) => a((n) => n.map((n, r) => r === e ? {
@@ -5078,12 +5093,10 @@ function Oc({ initial: e, receipt: t }) {
 				})]
 			}) }),
 			/* @__PURE__ */ (0, Q.jsxs)(L, { children: [
-				/* @__PURE__ */ (0, Q.jsx)(V, {
+				/* @__PURE__ */ (0, Q.jsx)(Oc, {
 					label: J("settings:fileDiscovery.autoImport"),
-					description: /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)("span", { children: J("settings:fileDiscovery.autoImportHelp") }), u.enabled ? /* @__PURE__ */ (0, Q.jsx)("span", {
-						className: "block",
-						children: _
-					}) : null] }),
+					help: J("settings:fileDiscovery.autoImportHelp"),
+					status: u.enabled ? _ : void 0,
 					children: /* @__PURE__ */ (0, Q.jsx)(Ve, {
 						"aria-label": J("settings:fileDiscovery.autoImport"),
 						isSelected: n.enabled,
@@ -5094,12 +5107,10 @@ function Oc({ initial: e, receipt: t }) {
 						})
 					})
 				}),
-				/* @__PURE__ */ (0, Q.jsx)(V, {
+				/* @__PURE__ */ (0, Q.jsx)(Oc, {
 					label: J("settings:fileDiscovery.monitorLocal"),
-					description: /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)("span", { children: J("settings:fileDiscovery.monitorLocalHelp") }), u.enabled && u.watch_local ? /* @__PURE__ */ (0, Q.jsx)("span", {
-						className: "block",
-						children: v
-					}) : null] }),
+					help: J("settings:fileDiscovery.monitorLocalHelp"),
+					status: u.enabled && u.watch_local ? v : void 0,
 					children: /* @__PURE__ */ (0, Q.jsx)(Ve, {
 						"aria-label": J("settings:fileDiscovery.monitorLocal"),
 						isSelected: n.watch_local,
@@ -5229,7 +5240,7 @@ function Oc({ initial: e, receipt: t }) {
 	});
 }
 // src/react/settings/media-settings.tsx
-async function kc(e) {
+async function Ac(e) {
 	let t;
 	try {
 		t = await ht();
@@ -5244,14 +5255,14 @@ async function kc(e) {
 	});
 	return n;
 }
-var Ac = (e) => $r.find(([t]) => t === e)?.[1] ?? e, jc = [...$r, ["smb", J("settings:mediaLibraries.smbShare")]], Mc = (e) => e.library_icon || gc(e.transport === "smb" ? "smb" : e.location)[0], Nc = async (e) => Pt(e, (e) => W(he, e)), Pc = (e) => ({
+var jc = (e) => $r.find(([t]) => t === e)?.[1] ?? e, Mc = [...$r, ["smb", J("settings:mediaLibraries.smbShare")]], Nc = (e) => e.library_icon || gc(e.transport === "smb" ? "smb" : e.location)[0], Pc = async (e) => Pt(e, (e) => W(he, e)), Fc = (e) => ({
 	library_id: e.library_id,
 	library: e.library,
 	library_icon: e.library_icon,
 	library_color: e.library_color,
 	library_policy: e.library_policy,
 	library_stages: e.library_stages
-}), Fc = (e) => e.library_stages ? bc.filter((t) => e.library_stages.split(",").includes(t)) : [], Ic = (e = "") => ({
+}), Ic = (e) => e.library_stages ? bc.filter((t) => e.library_stages.split(",").includes(t)) : [], Lc = (e = "") => ({
 	path: e,
 	transport: e.startsWith("smb://") ? "smb" : "filesystem",
 	location: "local",
@@ -5264,7 +5275,7 @@ var Ac = (e) => $r.find(([t]) => t === e)?.[1] ?? e, jc = [...$r, ["smb", J("set
 	library_stages: "",
 	cost: "free"
 });
-function Lc(e) {
+function Rc(e) {
 	let t = e.media_sources?.filter((e) => $r.some(([t]) => t === e.location));
 	return t?.length ? t.map((e) => ({
 		transport: e.transport === "smb" || e.path.startsWith("smb://") ? "smb" : "filesystem",
@@ -5283,15 +5294,15 @@ function Lc(e) {
 		root_id: e.root_id,
 		library_id: e.library_id || Bt(),
 		cost: e.cost ?? en(e.location)
-	})) : (e.media_dirs.length ? e.media_dirs : [""]).map((e) => Ic(e));
+	})) : (e.media_dirs.length ? e.media_dirs : [""]).map((e) => Lc(e));
 }
-var Rc = (e) => !(e instanceof d) || e.status !== 400 ? null : $e(e.body) ?? null;
-function zc({ data: e, receipt: t }) {
+var zc = (e) => !(e instanceof d) || e.status !== 400 ? null : $e(e.body) ?? null;
+function Bc({ data: e, receipt: t }) {
 	let n = !e.section_errors?.media_sources && !e.section_errors?.library_count, r = !!e.media_sources?.some((e) => ri(e.location));
 	return (0, Z.useEffect)(() => {
 		if (n && e.editable) {
 			let t = /* @__PURE__ */ new Map();
-			for (let n of Lc(e)) t.set(n.library_id, (t.get(n.library_id) ?? 0) + 1);
+			for (let n of Rc(e)) t.set(n.library_id, (t.get(n.library_id) ?? 0) + 1);
 			Vt("media", {
 				folders: [...t.values()],
 				cloud: r
@@ -5313,7 +5324,7 @@ function zc({ data: e, receipt: t }) {
 		n && {
 			id: "library-folders",
 			label: J("settings:libraryFolders.title"),
-			content: e.editable ? /* @__PURE__ */ (0, Q.jsx)(Bc, {
+			content: e.editable ? /* @__PURE__ */ (0, Q.jsx)(Vc, {
 				data: e,
 				receipt: t
 			}) : /* @__PURE__ */ (0, Q.jsx)(I, {
@@ -5325,7 +5336,7 @@ function zc({ data: e, receipt: t }) {
 		n && !e.editable && !!e.media_sources && {
 			id: "library-mounts",
 			label: J("settings:mountStatus.title"),
-			content: /* @__PURE__ */ (0, Q.jsx)(Hc, { data: e })
+			content: /* @__PURE__ */ (0, Q.jsx)(Uc, { data: e })
 		},
 		n && r && {
 			id: "library-cloud-proxy",
@@ -5335,7 +5346,7 @@ function zc({ data: e, receipt: t }) {
 		n && e.push_discovery && {
 			id: "library-discovery",
 			label: J("settings:fileDiscovery.title"),
-			content: /* @__PURE__ */ (0, Q.jsx)(Oc, {
+			content: /* @__PURE__ */ (0, Q.jsx)(kc, {
 				initial: e.push_discovery,
 				receipt: t
 			})
@@ -5362,11 +5373,11 @@ function zc({ data: e, receipt: t }) {
 		}
 	] });
 }
-function Bc({ data: e, receipt: t }) {
+function Vc({ data: e, receipt: t }) {
 	let { checked: n, checkFailed: r } = _n(), { rows: i, edit: a, add: o, remove: s, errors: c, setErrors: l, picking: u, pick: d, inputRef: p } = ai({
-		initial: () => Lc(e),
-		blank: () => Ic(),
-		pickFolder: Nc,
+		initial: () => Rc(e),
+		blank: () => Lc(),
+		pickFolder: Pc,
 		describe: q
 	}), [m, h] = (0, Z.useState)(!1), g = X({
 		queryKey: ue,
@@ -5386,7 +5397,7 @@ function Bc({ data: e, receipt: t }) {
 	let ne = (e, t) => {
 		let n = i.find((e) => e.library_id === t);
 		if (n) {
-			a(e, Pc(n));
+			a(e, Fc(n));
 			return;
 		}
 		let r = Bt();
@@ -5411,7 +5422,7 @@ function Bc({ data: e, receipt: t }) {
 			y(!0);
 			let n = e.currentTarget;
 			requestAnimationFrame(() => n.querySelector(`[data-media-read-policy="${t}"] button`)?.focus());
-		} else O.busy || D.current || (S(""), D.current = !0, kc(m).then((e) => {
+		} else O.busy || D.current || (S(""), D.current = !0, Ac(m).then((e) => {
 			D.current = !1, e && ie();
 		}));
 	}, ie = () => {
@@ -5424,7 +5435,7 @@ function Bc({ data: e, receipt: t }) {
 		}, "POST", t), (e) => {
 			ee.current = e.revision, l([]), t(J("settings:shared.settingsSaved")), E(e);
 		}, (e) => {
-			let t = Rc(e);
+			let t = zc(e);
 			l(t?.media_dirs ?? []), (!t || t.port) && S(t?.port || q(e));
 		});
 	};
@@ -5506,7 +5517,7 @@ function Bc({ data: e, receipt: t }) {
 							}),
 							m === "custom" ? /* @__PURE__ */ (0, Q.jsx)(wc, {
 								name: h,
-								value: Fc(e),
+								value: Ic(e),
 								previewsOff: g,
 								onChange: (e) => te(t, { library_stages: bc.filter((t) => e.includes(t)).join(",") })
 							}) : null,
@@ -5526,12 +5537,12 @@ function Bc({ data: e, receipt: t }) {
 									picking: u === o,
 									onPick: () => void d(o),
 									onRemove: i.length > 1 ? () => s(o) : void 0,
-									status: oe(t) ? /* @__PURE__ */ (0, Q.jsx)(Vc, { online: oe(t)?.online }) : null,
+									status: oe(t) ? /* @__PURE__ */ (0, Q.jsx)(Hc, { online: oe(t)?.online }) : null,
 									children: [/* @__PURE__ */ (0, Q.jsxs)(Zr, { children: [
 										/* @__PURE__ */ (0, Q.jsx)(ni, {
 											index: o,
 											value: t.transport === "smb" ? "smb" : t.location,
-											options: jc,
+											options: Mc,
 											onChange: (e) => {
 												let n = e === "smb";
 												a(o, {
@@ -5584,7 +5595,7 @@ function Bc({ data: e, receipt: t }) {
 												selectedKey: t.library_id,
 												renderValue: /* @__PURE__ */ (0, Q.jsxs)("span", {
 													className: "flex min-w-0 items-center gap-2",
-													children: [/* @__PURE__ */ (0, Q.jsx)(ze, { mark: Mc(e) }), /* @__PURE__ */ (0, Q.jsx)("span", {
+													children: [/* @__PURE__ */ (0, Q.jsx)(ze, { mark: Nc(e) }), /* @__PURE__ */ (0, Q.jsx)("span", {
 														className: "truncate",
 														children: h
 													})]
@@ -5597,7 +5608,7 @@ function Bc({ data: e, receipt: t }) {
 													textValue: e.library || J("settings:mediaLibraries.untitled"),
 													children: /* @__PURE__ */ (0, Q.jsxs)("span", {
 														className: "flex min-w-0 items-center gap-2",
-														children: [/* @__PURE__ */ (0, Q.jsx)(ze, { mark: Mc(e) }), /* @__PURE__ */ (0, Q.jsx)("span", {
+														children: [/* @__PURE__ */ (0, Q.jsx)(ze, { mark: Nc(e) }), /* @__PURE__ */ (0, Q.jsx)("span", {
 															className: "truncate",
 															children: e.library || J("settings:mediaLibraries.untitled")
 														})]
@@ -5703,7 +5714,7 @@ function Bc({ data: e, receipt: t }) {
 										"aria-label": J("settings:mediaLibraries.addDirectoryLabel", { name: h }),
 										onClick: () => {
 											o(), a(i.length, {
-												...Pc(e),
+												...Fc(e),
 												location: e.location,
 												cost: e.cost
 											});
@@ -5756,18 +5767,18 @@ function Bc({ data: e, receipt: t }) {
 		})]
 	});
 }
-function Vc({ online: e }) {
+function Hc({ online: e }) {
 	return /* @__PURE__ */ (0, Q.jsx)(vn, { online: e });
 }
-function Hc({ data: e }) {
+function Uc({ data: e }) {
 	let t = e.media_sources, n = Y(), { checked: r, checkFailed: i } = _n();
 	return t ? /* @__PURE__ */ (0, Q.jsxs)(R, {
 		guide: "mounts",
 		title: J("settings:mountStatus.title"),
 		children: [
 			/* @__PURE__ */ (0, Q.jsx)(M, { children: t.map((e, t) => /* @__PURE__ */ (0, Q.jsxs)(j, {
-				term: /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(ze, { mark: ii(e.location) }), Ac(e.location)] }),
-				children: [e.path || J("settings:mountStatus.notConfigured"), /* @__PURE__ */ (0, Q.jsx)(Vc, { online: e.online })]
+				term: /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(ze, { mark: ii(e.location) }), jc(e.location)] }),
+				children: [e.path || J("settings:mountStatus.notConfigured"), /* @__PURE__ */ (0, Q.jsx)(Hc, { online: e.online })]
 			}, t)) }),
 			n.error ? /* @__PURE__ */ (0, Q.jsx)(H, {
 				divided: !0,
@@ -5788,7 +5799,7 @@ function Hc({ data: e }) {
 	}) : null;
 }
 // src/react/settings/password-pair.tsx
-function Uc({ label: e, password: t, confirmation: n, onPassword: r, onConfirmation: i, disabled: a = !1, passwordError: o, passwordHint: s, confirmationError: c, confirmationInvalid: l = !1 }) {
+function Wc({ label: e, password: t, confirmation: n, onPassword: r, onConfirmation: i, disabled: a = !1, passwordError: o, passwordHint: s, confirmationError: c, confirmationInvalid: l = !1 }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(F, {
 		id: "access-password",
 		type: "password",
@@ -5818,12 +5829,12 @@ function Uc({ label: e, password: t, confirmation: n, onPassword: r, onConfirmat
 	})] });
 }
 // src/react/settings/access-settings.tsx
-var Wc = {
+var Gc = {
 	legacy: J("settings:accessPassword.legacyHelp"),
 	locked: J("settings:accessPassword.lockedHelp"),
 	password: J("settings:accessPassword.passwordHelp")
 };
-function Gc({ initial: e, receipt: t, devices: n, after: r, onSaved: i }) {
+function Kc({ initial: e, receipt: t, devices: n, after: r, onSaved: i }) {
 	let [a, o] = (0, Z.useState)(e), [s, c] = (0, Z.useState)(""), [l, u] = (0, Z.useState)(""), [p, m] = (0, Z.useState)(""), [h, g] = (0, Z.useState)(!1), [_, v] = (0, Z.useState)({}), y = (0, Z.useRef)(null), x = Y(), S = (e) => {
 		e.preventDefault();
 		let n = {};
@@ -5840,7 +5851,7 @@ function Gc({ initial: e, receipt: t, devices: n, after: r, onSaved: i }) {
 			let t = e instanceof d ? e.body : null, n = $e(t) || $e(t?.detail);
 			n ? v(n) : x.setError(q(e));
 		});
-	}, C = Wc[a.mode], w = a.mode !== "locked";
+	}, C = Gc[a.mode], w = a.mode !== "locked";
 	return /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
 		/* @__PURE__ */ (0, Q.jsxs)(R, {
 			guide: "access",
@@ -5873,7 +5884,7 @@ function Gc({ initial: e, receipt: t, devices: n, after: r, onSaved: i }) {
 						isInvalid: !!_.current_password,
 						hint: _.current_password
 					}) : null,
-					w && !h ? /* @__PURE__ */ (0, Q.jsx)(Uc, {
+					w && !h ? /* @__PURE__ */ (0, Q.jsx)(Wc, {
 						label: a.mode === "password" ? J("settings:accessPassword.new") : J("settings:accessPassword.set"),
 						password: l,
 						confirmation: p,
@@ -5901,12 +5912,12 @@ function Gc({ initial: e, receipt: t, devices: n, after: r, onSaved: i }) {
 	] });
 }
 // src/react/settings/api-token-settings.tsx
-var Kc = "/api/configuration/access/token/rotate";
-function qc(e, t) {
+var qc = "/api/configuration/access/token/rotate";
+function Jc(e, t) {
 	let n = J("settings:accessToken.scriptsInvalidated"), r = J(e === "legacy" ? "settings:accessToken.rotateEffectLegacy" : e === "open" ? "settings:accessToken.rotateEffectOpen" : "settings:accessToken.rotateEffectPassword", { scripts: n });
 	return t ? J("settings:accessToken.rotateEffectPaired", { sentence: r }) : r;
 }
-function Jc({ initial: e, mode: t, receipt: n }) {
+function Yc({ initial: e, mode: t, receipt: n }) {
 	let [r, i] = (0, Z.useState)(e), [a, o] = (0, Z.useState)(null), s = Y(), c = cn();
 	return /* @__PURE__ */ (0, Q.jsxs)(R, {
 		title: J("settings:accessToken.title"),
@@ -5953,10 +5964,10 @@ function Jc({ initial: e, mode: t, receipt: n }) {
 				variant: "secondary",
 				onClick: () => void ot({
 					title: J("settings:accessToken.rotateTitle"),
-					body: qc(t, r.paired),
+					body: Jc(t, r.paired),
 					confirmLabel: J("settings:accessToken.rotate"),
 					onConfirm: async () => {
-						let e = await W(Kc, {});
+						let e = await W(qc, {});
 						i(e), o(e), e.mode === "legacy" && c.invalidateQueries({ queryKey: ["access-sessions"] }), n(e.signed_out ? J("settings:accessToken.rotatedSignedOut", { count: e.signed_out }) : J("settings:accessToken.rotated"));
 					}
 				}),
@@ -5966,7 +5977,7 @@ function Jc({ initial: e, mode: t, receipt: n }) {
 	});
 }
 // src/react/settings/certificate-trust.tsx
-function Yc({ rows: e, label: t }) {
+function Xc({ rows: e, label: t }) {
 	let n = e.length + 8, r = e.flatMap((e, t) => [...e].flatMap((e, n) => e === "1" ? [`M${n + 4} ${t + 4}h1v1h-1z`] : [])).join("");
 	return /* @__PURE__ */ (0, Q.jsx)("svg", {
 		role: "img",
@@ -5980,12 +5991,12 @@ function Yc({ rows: e, label: t }) {
 		})
 	});
 }
-var Xc = [
+var Zc = [
 	[J("settings:certificateTrust.iosDevices"), J("settings:certificateTrust.iosSteps")],
 	["Android", J("settings:certificateTrust.androidSteps")],
 	[J("settings:certificateTrust.computer"), J("settings:certificateTrust.computerSteps")]
 ];
-function Zc({ initial: e }) {
+function Qc({ initial: e }) {
 	let t = X({
 		queryKey: ["ca-certificate"],
 		initialData: e,
@@ -6003,7 +6014,7 @@ function Zc({ initial: e }) {
 		children: [
 			/* @__PURE__ */ (0, Q.jsxs)(H, { children: [/* @__PURE__ */ (0, Q.jsx)(P, { children: J("settings:certificateTrust.help") }), /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex min-w-0 flex-wrap items-start gap-4",
-				children: [/* @__PURE__ */ (0, Q.jsx)(Yc, {
+				children: [/* @__PURE__ */ (0, Q.jsx)(Xc, {
 					rows: t.qr,
 					label: J("settings:certificateTrust.qrLabel")
 				}), /* @__PURE__ */ (0, Q.jsxs)("div", {
@@ -6023,7 +6034,7 @@ function Zc({ initial: e }) {
 					})] }), /* @__PURE__ */ (0, Q.jsx)(P, { children: J("settings:certificateTrust.qrHelp") })]
 				})]
 			})] }),
-			/* @__PURE__ */ (0, Q.jsx)(L, { children: Xc.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(V, {
+			/* @__PURE__ */ (0, Q.jsx)(L, { children: Zc.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(V, {
 				label: e,
 				description: t
 			}, e)) }),
@@ -6041,27 +6052,27 @@ function Zc({ initial: e }) {
 	});
 }
 // src/react/settings/device-sessions.tsx
-var Qc = "/api/configuration/access/sessions", $c = (e) => e.device || J("settings:deviceSessions.unknownBrowser"), el = {
+var $c = "/api/configuration/access/sessions", el = (e) => e.device || J("settings:deviceSessions.unknownBrowser"), tl = {
 	glyph: ie,
 	brand: "apple"
-}, tl = {
+}, nl = {
 	glyph: Dt,
 	brand: "android"
-}, nl = {
+}, rl = {
 	iPhone: {
-		platform: el,
+		platform: tl,
 		terminal: Ye
 	},
 	iPad: {
-		platform: el,
+		platform: tl,
 		terminal: O
 	},
 	Android: {
-		platform: tl,
+		platform: nl,
 		terminal: Ye
 	},
 	"Android tablet": {
-		platform: tl,
+		platform: nl,
 		terminal: O,
 		label: () => J("settings:deviceSessions.androidTablet")
 	},
@@ -6077,73 +6088,73 @@ var Qc = "/api/configuration/access/sessions", $c = (e) => e.device || J("settin
 		terminal: hn
 	},
 	macOS: {
-		platform: el,
+		platform: tl,
 		terminal: hn
 	},
 	Linux: { terminal: hn }
-}, rl = "inline size-4 -mt-0.5 mr-1 align-middle";
-function il({ platform: e }) {
+}, il = "inline size-4 -mt-0.5 mr-1 align-middle";
+function al({ platform: e }) {
 	if ("browser" in e) return /* @__PURE__ */ (0, Q.jsx)(oi, {
 		name: e.browser,
-		className: rl
+		className: il
 	});
 	let { glyph: t, brand: n } = e;
 	return /* @__PURE__ */ (0, Q.jsx)(t, {
 		"aria-hidden": !0,
 		"data-platform-mark": n,
-		className: rl
+		className: il
 	});
 }
-function al({ row: e }) {
-	if (!e.device) return $c(e);
-	let t = e.device.split(" · "), n = nl[t.at(-1) ?? ""] ? t.pop() : "", r = t.join(" · "), i = n ? nl[n].platform : void 0;
+function ol({ row: e }) {
+	if (!e.device) return el(e);
+	let t = e.device.split(" · "), n = rl[t.at(-1) ?? ""] ? t.pop() : "", r = t.join(" · "), i = n ? rl[n].platform : void 0;
 	return /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
 		r ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [si(r) ? /* @__PURE__ */ (0, Q.jsx)(oi, {
 			name: r,
-			className: rl
+			className: il
 		}) : null, r] }) : null,
 		r && n ? " · " : null,
-		n ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [i ? /* @__PURE__ */ (0, Q.jsx)(il, { platform: i }) : null, nl[n].label?.() ?? n] }) : null
+		n ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [i ? /* @__PURE__ */ (0, Q.jsx)(al, { platform: i }) : null, rl[n].label?.() ?? n] }) : null
 	] });
 }
-function ol({ row: e }) {
-	let t = nl[e.device.split(" · ").at(-1) ?? ""]?.terminal ?? ut;
+function sl({ row: e }) {
+	let t = rl[e.device.split(" · ").at(-1) ?? ""]?.terminal ?? ut;
 	return /* @__PURE__ */ (0, Q.jsx)(t, {
 		"aria-hidden": !0,
 		className: "size-5 shrink-0 text-foreground-icon-secondary"
 	});
 }
-function sl({ row: e, children: t }) {
+function cl({ row: e, children: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex min-h-13 w-full items-center justify-between gap-4 border-b border-separator-border py-2.5 pr-2.5 last:border-b-0",
 		children: [/* @__PURE__ */ (0, Q.jsxs)("div", {
 			className: "flex min-w-0 items-center gap-3",
-			children: [/* @__PURE__ */ (0, Q.jsx)(ol, { row: e }), /* @__PURE__ */ (0, Q.jsxs)("div", {
+			children: [/* @__PURE__ */ (0, Q.jsx)(sl, { row: e }), /* @__PURE__ */ (0, Q.jsxs)("div", {
 				className: "flex min-w-0 flex-col",
 				children: [/* @__PURE__ */ (0, Q.jsx)("p", {
 					className: "text-body-regular text-text-primary",
-					children: /* @__PURE__ */ (0, Q.jsx)(al, { row: e })
+					children: /* @__PURE__ */ (0, Q.jsx)(ol, { row: e })
 				}), /* @__PURE__ */ (0, Q.jsx)("p", {
 					className: "text-body-2-regular text-text-secondary",
-					children: ul(e)
+					children: dl(e)
 				})]
 			})]
 		}), t]
 	});
 }
-function cl(e, t = Date.now() / 1e3) {
+function ll(e, t = Date.now() / 1e3) {
 	let n = Math.max(0, t - e);
 	return n < 60 ? J("settings:deviceSessions.justNow") : n < 3600 ? J("settings:deviceSessions.minutesAgo", { count: Math.floor(n / 60) }) : n < 86400 ? J("settings:deviceSessions.hoursAgo", { count: Math.floor(n / 3600) }) : n < 2592e3 ? J("settings:deviceSessions.daysAgo", { count: Math.floor(n / 86400) }) : (/* @__PURE__ */ new Date(e * 1e3)).toLocaleDateString(Ct);
 }
-function ll(e) {
+function ul(e) {
 	return e.network === "loopback" ? J("settings:deviceSessions.loopback") : e.network ? e.remote ? J("settings:deviceSessions.viaRemoteAccess", { network: e.network }) : e.network : "";
 }
-var ul = (e) => [J("settings:deviceSessions.lastActive", { time: cl(e.last_seen) }), ll(e)].filter(Boolean).join(" · ");
-function dl({ revision: e, receipt: t }) {
+var dl = (e) => [J("settings:deviceSessions.lastActive", { time: ll(e.last_seen) }), ul(e)].filter(Boolean).join(" · ");
+function fl({ revision: e, receipt: t }) {
 	let n = X({
 		queryKey: ["access-sessions", e],
 		refetchOnMount: "always",
-		queryFn: ({ signal: e }) => U(Qc, e)
+		queryFn: ({ signal: e }) => U($c, e)
 	});
 	return n.error ? /* @__PURE__ */ (0, Q.jsx)(R, {
 		title: J("settings:signedInDevices.title"),
@@ -6151,12 +6162,12 @@ function dl({ revision: e, receipt: t }) {
 	}) : n.isFetching || !n.data ? /* @__PURE__ */ (0, Q.jsx)(Me, {
 		label: J("settings:deviceSessions.loading"),
 		html: dt
-	}) : /* @__PURE__ */ (0, Q.jsx)(fl, {
+	}) : /* @__PURE__ */ (0, Q.jsx)(pl, {
 		initial: n.data,
 		receipt: t
 	});
 }
-function fl({ initial: e, receipt: t }) {
+function pl({ initial: e, receipt: t }) {
 	let [n, r] = (0, Z.useState)(e);
 	(0, Z.useEffect)(() => r(e), [e]);
 	let i = n.sessions.filter((e) => !e.current);
@@ -6169,12 +6180,12 @@ function fl({ initial: e, receipt: t }) {
 	let a = (e) => void ot({
 		title: J("settings:deviceSessions.revokeTitle"),
 		body: J("settings:deviceSessions.revokeBody", {
-			device: $c(e),
-			details: ul(e)
+			device: el(e),
+			details: dl(e)
 		}),
 		confirmLabel: J("settings:deviceSessions.revokeConfirm"),
 		onConfirm: async () => {
-			r(await W(`${Qc}/revoke`, {
+			r(await W(`${$c}/revoke`, {
 				revision: n.revision,
 				id: e.id
 			})), t(J("settings:deviceSessions.revoked"));
@@ -6183,7 +6194,7 @@ function fl({ initial: e, receipt: t }) {
 	return /* @__PURE__ */ (0, Q.jsxs)(R, {
 		title: J("settings:signedInDevices.title"),
 		children: [
-			n.sessions.length ? /* @__PURE__ */ (0, Q.jsx)(L, { children: n.sessions.map((e) => /* @__PURE__ */ (0, Q.jsx)(sl, {
+			n.sessions.length ? /* @__PURE__ */ (0, Q.jsx)(L, { children: n.sessions.map((e) => /* @__PURE__ */ (0, Q.jsx)(cl, {
 				row: e,
 				children: e.current ? /* @__PURE__ */ (0, Q.jsx)(x, {
 					color: "blue",
@@ -6192,7 +6203,7 @@ function fl({ initial: e, receipt: t }) {
 				}) : n.manageable ? /* @__PURE__ */ (0, Q.jsx)(f, {
 					size: "small",
 					variant: "secondary",
-					"aria-label": J("settings:deviceSessions.revokeDevice", { device: $c(e) }),
+					"aria-label": J("settings:deviceSessions.revokeDevice", { device: el(e) }),
 					onClick: () => a(e),
 					children: J("settings:deviceSessions.revoke")
 				}) : null
@@ -6210,7 +6221,7 @@ function fl({ initial: e, receipt: t }) {
 						body: J("settings:deviceSessions.revokeOthersBody", { count: i.length }),
 						confirmLabel: J("settings:deviceSessions.revokeConfirm"),
 						onConfirm: async () => {
-							let e = await W(`${Qc}/revoke`, {
+							let e = await W(`${$c}/revoke`, {
 								revision: n.revision,
 								scope: "others"
 							});
@@ -6224,14 +6235,14 @@ function fl({ initial: e, receipt: t }) {
 	});
 }
 // src/react/settings/port-settings.tsx
-var pl = [{
+var ml = [{
 	value: "0.0.0.0",
 	label: J("settings:accessAddress.lanDevices")
 }, {
 	value: "127.0.0.1",
 	label: J("settings:accessAddress.thisComputerOnly")
 }];
-function ml({ data: e, receipt: t }) {
+function hl({ data: e, receipt: t }) {
 	let n = e.network, r = n ? n.editable : e.editable && e.port_editable !== !1, [i, a] = (0, Z.useState)(n?.host ?? "127.0.0.1"), [o, s] = (0, Z.useState)(n?.mdns_name ?? "peach"), [c, l] = (0, Z.useState)(String(e.port)), [u, p] = (0, Z.useState)({}), [m, h] = (0, Z.useState)(null), g = Y();
 	return (0, Z.useEffect)(() => {
 		if (!m) return;
@@ -6271,17 +6282,17 @@ function ml({ data: e, receipt: t }) {
 			});
 		} : void 0,
 		children: [/* @__PURE__ */ (0, Q.jsxs)(H, { children: [
-			n ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(hl, {
+			n ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(gl, {
 				label: J("settings:accessAddress.localUrl"),
 				value: n.local_url,
 				receipt: t
 			}), n.lan_url || n.ip_url ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [
-				/* @__PURE__ */ (0, Q.jsx)(hl, {
+				/* @__PURE__ */ (0, Q.jsx)(gl, {
 					label: J("settings:accessAddress.phoneUrl"),
 					value: n.lan_url || n.ip_url,
 					receipt: t
 				}),
-				n.lan_url && n.ip_url ? /* @__PURE__ */ (0, Q.jsx)(hl, {
+				n.lan_url && n.ip_url ? /* @__PURE__ */ (0, Q.jsx)(gl, {
 					label: J("settings:accessAddress.alternateIp"),
 					value: n.ip_url,
 					receipt: t
@@ -6293,7 +6304,7 @@ function ml({ data: e, receipt: t }) {
 				label: J("settings:accessAddress.whoCanConnect"),
 				value: i,
 				onChange: a,
-				options: pl,
+				options: ml,
 				isDisabled: !!g.busy,
 				isInvalid: !!u.host,
 				children: u.host ? /* @__PURE__ */ (0, Q.jsx)(D, { children: u.host }) : null
@@ -6339,7 +6350,7 @@ function ml({ data: e, receipt: t }) {
 		}) : null]
 	});
 }
-function hl({ label: e, value: t, receipt: n }) {
+function gl({ label: e, value: t, receipt: n }) {
 	let r = Y();
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
 		className: "flex min-w-0 flex-col gap-2",
@@ -6364,12 +6375,12 @@ function hl({ label: e, value: t, receipt: n }) {
 	});
 }
 // src/react/settings/peach-proxy-fields.tsx
-var gl = [
+var _l = [
 	["environment", J("settings:peachProxy.environment")],
 	["direct", J("settings:cloudProxy.direct")],
 	["proxy", J("settings:shared.custom")]
 ];
-function _l({ mode: e, onChange: t, labelledBy: n }) {
+function vl({ mode: e, onChange: t, labelledBy: n }) {
 	return /* @__PURE__ */ (0, Q.jsx)(z, {
 		"aria-label": n ? void 0 : J("settings:peachProxy.mode"),
 		"aria-labelledby": n,
@@ -6377,13 +6388,13 @@ function _l({ mode: e, onChange: t, labelledBy: n }) {
 		onSelectionChange: (e) => {
 			e !== null && t(String(e));
 		},
-		children: gl.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(B, {
+		children: _l.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(B, {
 			id: e,
 			children: t
 		}, e))
 	});
 }
-function vl({ id: e, value: t, onChange: n, saved: r = !1, required: i, error: a }) {
+function yl({ id: e, value: t, onChange: n, saved: r = !1, required: i, error: a }) {
 	return /* @__PURE__ */ (0, Q.jsx)(F, {
 		id: e,
 		type: "password",
@@ -6400,11 +6411,11 @@ function vl({ id: e, value: t, onChange: n, saved: r = !1, required: i, error: a
 	});
 }
 // src/react/settings/tunnel-settings.tsx
-var yl = 2e3, bl = 3e5, xl = [["quick", J("settings:cloudflareTunnel.quick")], ["named", J("settings:cloudflareTunnel.named")]], Sl = {
+var bl = 2e3, xl = 3e5, Sl = [["quick", J("settings:cloudflareTunnel.quick")], ["named", J("settings:cloudflareTunnel.named")]], Cl = {
 	quick: J("settings:remoteAccess.quickHelp"),
 	named: J("settings:remoteAccess.namedHelp")
 };
-function Cl({ revision: e, initial: t, receipt: n, blocked: r = !1 }) {
+function wl({ revision: e, initial: t, receipt: n, blocked: r = !1 }) {
 	let [i, a] = (0, Z.useState)(t);
 	(0, Z.useEffect)(() => {
 		r && a((e) => e.state === "stopped" ? e : {
@@ -6420,8 +6431,8 @@ function Cl({ revision: e, initial: t, receipt: n, blocked: r = !1 }) {
 		let e = new AbortController();
 		return Ft({
 			signal: e.signal,
-			everyMs: yl,
-			limitMs: bl,
+			everyMs: bl,
+			limitMs: xl,
 			read: (e) => pt(e),
 			apply: (e) => {
 				e.tunnel && (zt.setQueryData(g, e), a(e.tunnel), s(e.revision));
@@ -6461,13 +6472,13 @@ function Cl({ revision: e, initial: t, receipt: n, blocked: r = !1 }) {
 				isDisabled: x || r,
 				onChange: (e) => u(e),
 				className: ke,
-				children: xl.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(c, {
+				children: Sl.map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(c, {
 					value: e,
 					className: Oe,
 					children: t
 				}, e))
 			}) : null,
-			/* @__PURE__ */ (0, Q.jsx)(P, { children: Sl[S ? "named" : "quick"] }),
+			/* @__PURE__ */ (0, Q.jsx)(P, { children: Cl[S ? "named" : "quick"] }),
 			S ? /* @__PURE__ */ (0, Q.jsxs)(Q.Fragment, { children: [/* @__PURE__ */ (0, Q.jsx)(F, {
 				id: "tunnel-hostname",
 				label: J("settings:remoteAccess.hostname"),
@@ -6525,7 +6536,7 @@ function Cl({ revision: e, initial: t, receipt: n, blocked: r = !1 }) {
 	});
 }
 // src/react/settings/network-settings.tsx
-function wl({ data: e, receipt: t, panel: n, issues: r }) {
+function Tl({ data: e, receipt: t, panel: n, issues: r }) {
 	let [i, a] = (0, Z.useState)(e.access?.mode), o = i === "open" || i === "locked";
 	return /* @__PURE__ */ (0, Q.jsxs)("div", {
 		...ui(n),
@@ -6533,7 +6544,7 @@ function wl({ data: e, receipt: t, panel: n, issues: r }) {
 			(!!e.network || e.editable && e.port_editable !== !1 && !e.section_errors?.media_sources) && {
 				id: "network-addresses",
 				label: J("settings:accessUrls.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(ml, {
+				content: /* @__PURE__ */ (0, Q.jsx)(hl, {
 					data: e,
 					receipt: t
 				})
@@ -6541,15 +6552,15 @@ function wl({ data: e, receipt: t, panel: n, issues: r }) {
 			e.access && {
 				id: "network-access",
 				label: J("settings:accessPassword.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Gc, {
+				content: /* @__PURE__ */ (0, Q.jsx)(Kc, {
 					initial: e.access,
 					receipt: t,
 					onSaved: (e) => a(e.mode),
-					devices: (e) => /* @__PURE__ */ (0, Q.jsx)(dl, {
+					devices: (e) => /* @__PURE__ */ (0, Q.jsx)(fl, {
 						revision: e.revision,
 						receipt: t
 					}),
-					after: e.api_token ? (n) => /* @__PURE__ */ (0, Q.jsx)(Jc, {
+					after: e.api_token ? (n) => /* @__PURE__ */ (0, Q.jsx)(Yc, {
 						initial: e.api_token,
 						mode: n.mode,
 						receipt: t
@@ -6559,12 +6570,12 @@ function wl({ data: e, receipt: t, panel: n, issues: r }) {
 			e.certificate && {
 				id: "network-certificate",
 				label: J("settings:certificateTrust.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Zc, { initial: e.certificate })
+				content: /* @__PURE__ */ (0, Q.jsx)(Qc, { initial: e.certificate })
 			},
 			e.tunnel && {
 				id: "network-tunnel",
 				label: J("settings:remoteAccess.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Cl, {
+				content: /* @__PURE__ */ (0, Q.jsx)(wl, {
 					revision: e.revision,
 					initial: e.tunnel,
 					receipt: t,
@@ -6574,7 +6585,7 @@ function wl({ data: e, receipt: t, panel: n, issues: r }) {
 			e.peach_proxy && {
 				id: "peachProxy",
 				label: J("settings:peachProxy.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Tl, {
+				content: /* @__PURE__ */ (0, Q.jsx)(El, {
 					initial: e.peach_proxy,
 					receipt: t
 				})
@@ -6582,7 +6593,7 @@ function wl({ data: e, receipt: t, panel: n, issues: r }) {
 		] })]
 	});
 }
-function Tl({ initial: e, receipt: t }) {
+function El({ initial: e, receipt: t }) {
 	let [n, r] = (0, Z.useState)(e), [i, a] = (0, Z.useState)(e.mode), [o, s] = (0, Z.useState)(""), c = Y();
 	return /* @__PURE__ */ (0, Q.jsxs)(R, {
 		guide: "proxy",
@@ -6599,7 +6610,7 @@ function Tl({ initial: e, receipt: t }) {
 			/* @__PURE__ */ (0, Q.jsx)(L, { children: /* @__PURE__ */ (0, Q.jsx)(V, {
 				label: J("settings:peachProxy.mode"),
 				description: J("settings:peachProxy.modeHelp"),
-				children: /* @__PURE__ */ (0, Q.jsx)(_l, {
+				children: /* @__PURE__ */ (0, Q.jsx)(vl, {
 					mode: i,
 					onChange: a
 				})
@@ -6607,7 +6618,7 @@ function Tl({ initial: e, receipt: t }) {
 			i === "proxy" || n.needs_selection || c.error ? /* @__PURE__ */ (0, Q.jsxs)(H, {
 				divided: !0,
 				children: [
-					i === "proxy" ? /* @__PURE__ */ (0, Q.jsx)(vl, {
+					i === "proxy" ? /* @__PURE__ */ (0, Q.jsx)(yl, {
 						id: "peachProxyAddress",
 						value: o,
 						onChange: s,
@@ -6630,11 +6641,11 @@ function Tl({ initial: e, receipt: t }) {
 	});
 }
 // src/react/follow-manage/credentials.tsx
-var El = J("follow:sourceCredentials.clearBody"), Dl = J("follow:sourceCredentials.worldReadable");
-function Ol(e, t) {
+var Dl = J("follow:sourceCredentials.clearBody"), Ol = J("follow:sourceCredentials.worldReadable");
+function kl(e, t) {
 	return (e.shared_fields || []).includes(t) ? J("follow:sourceCredentials.fromSharedHint") : e.fields.includes(t) ? J("follow:sourceCredentials.savedHint") : J("follow:sourceCredentials.notSet");
 }
-function kl({ row: e }) {
+function Al({ row: e }) {
 	if (st(e)) return /* @__PURE__ */ (0, Q.jsx)(x, {
 		variant: "caption",
 		color: "lime",
@@ -6647,7 +6658,7 @@ function kl({ row: e }) {
 		children: y[e.requirement] || ""
 	});
 }
-function Al({ row: e, readOnly: t, toast: n }) {
+function jl({ row: e, readOnly: t, toast: n }) {
 	let [r, i] = (0, Z.useState)({}), [a, o] = (0, Z.useState)(""), s = st(e), c = on({
 		mutationFn: (t) => Gt(e.provider, t),
 		onSuccess: (e, t) => {
@@ -6674,7 +6685,7 @@ function Al({ row: e, readOnly: t, toast: n }) {
 				children: (e.needs || []).map((n) => /* @__PURE__ */ (0, Q.jsx)(F, {
 					type: "password",
 					label: n,
-					placeholder: Ol(e, n),
+					placeholder: kl(e, n),
 					autoComplete: "off",
 					spellCheck: "false",
 					isDisabled: t,
@@ -6694,7 +6705,7 @@ function Al({ row: e, readOnly: t, toast: n }) {
 					...G(c.isPending),
 					onClick: () => void ot({
 						title: J("follow:sourceCredentials.clearTitle"),
-						body: El,
+						body: Dl,
 						confirmLabel: J("follow:sourceCredentials.clearTitle"),
 						danger: !0,
 						holdToConfirm: !0,
@@ -6725,7 +6736,7 @@ function Al({ row: e, readOnly: t, toast: n }) {
 		]
 	});
 }
-function jl({ row: e, readOnly: t, toast: n }) {
+function Ml({ row: e, readOnly: t, toast: n }) {
 	let r = /* @__PURE__ */ (0, Q.jsxs)("span", {
 		className: "flex min-w-0 flex-wrap items-center gap-2",
 		children: [
@@ -6737,7 +6748,7 @@ function jl({ row: e, readOnly: t, toast: n }) {
 				className: "min-w-0 text-body-medium wrap-anywhere text-text-primary",
 				children: e.provider_label
 			}),
-			/* @__PURE__ */ (0, Q.jsx)(kl, { row: e }),
+			/* @__PURE__ */ (0, Q.jsx)(Al, { row: e }),
 			e.missing.map((e) => /* @__PURE__ */ (0, Q.jsx)(x, {
 				variant: "caption",
 				color: "rose",
@@ -6755,7 +6766,7 @@ function jl({ row: e, readOnly: t, toast: n }) {
 			/* @__PURE__ */ (0, Q.jsx)(C, {
 				summary: st(e) ? J("follow:sourceCredentials.editCredentials") : J("follow:sourceCredentials.enterCredentials"),
 				defaultOpen: e.requirement === "required" && !st(e),
-				children: /* @__PURE__ */ (0, Q.jsx)(Al, {
+				children: /* @__PURE__ */ (0, Q.jsx)(jl, {
 					row: e,
 					readOnly: t,
 					toast: n
@@ -6764,12 +6775,12 @@ function jl({ row: e, readOnly: t, toast: n }) {
 			e.world_readable ? /* @__PURE__ */ (0, Q.jsx)(I, {
 				tone: "error",
 				title: J("follow:sourceCredentials.permissionsTooOpen"),
-				children: Dl
+				children: Ol
 			}) : null
 		]
 	});
 }
-function Ml({ data: e, readOnly: t, toast: n, embedded: r = !1 }) {
+function Nl({ data: e, readOnly: t, toast: n, embedded: r = !1 }) {
 	let i = e.providers || [], a = i.filter((e) => e.requirement === "required" && !st(e));
 	if ((0, Z.useEffect)(() => {
 		Vt("credentials", { done: i.filter(st).map((e) => e.provider) });
@@ -6807,7 +6818,7 @@ function Ml({ data: e, readOnly: t, toast: n, embedded: r = !1 }) {
 				padding: "none",
 				className: "flex flex-col overflow-hidden"
 			}),
-			children: e.rows.map((e) => /* @__PURE__ */ (0, Q.jsx)(jl, {
+			children: e.rows.map((e) => /* @__PURE__ */ (0, Q.jsx)(Ml, {
 				row: e,
 				readOnly: t,
 				toast: n
@@ -6837,7 +6848,7 @@ function Ml({ data: e, readOnly: t, toast: n, embedded: r = !1 }) {
 	});
 }
 // src/react/settings/entry-links-settings.tsx
-function Nl({ initial: e, receipt: t }) {
+function Pl({ initial: e, receipt: t }) {
 	let [n, r] = (0, Z.useState)(e.sites), i = Y(), a = (e, t) => r((n) => n.map((n) => n.key === e ? {
 		...n,
 		host: t
@@ -6877,31 +6888,31 @@ function Nl({ initial: e, receipt: t }) {
 	});
 }
 // src/react/settings/indexer-settings.tsx
-var Pl = "/api/configuration/indexers";
-function Fl({ receipt: e }) {
+var Fl = "/api/configuration/indexers";
+function Il({ receipt: e }) {
 	let t = X({
 		queryKey: ["indexers"],
-		queryFn: ({ signal: e }) => U(Pl, e),
+		queryFn: ({ signal: e }) => U(Fl, e),
 		refetchOnMount: "always"
 	});
 	return t.error ? /* @__PURE__ */ (0, Q.jsx)(D, { children: q(t.error) }) : t.isFetching ? /* @__PURE__ */ (0, Q.jsx)(Me, {
 		label: J("settings:indexers.loading"),
 		html: St
-	}) : t.data ? /* @__PURE__ */ (0, Q.jsx)(Rl, {
+	}) : t.data ? /* @__PURE__ */ (0, Q.jsx)(zl, {
 		initial: t.data,
 		receipt: e
 	}) : null;
 }
-function Il(e) {
+function Ll(e) {
 	try {
 		return new globalThis.URL(e).host;
 	} catch {
 		return e;
 	}
 }
-function Ll({ row: e, index: t }) {
+function Rl({ row: e, index: t }) {
 	let n = [
-		e.url ? Il(e.url) : J("settings:indexers.noUrl"),
+		e.url ? Ll(e.url) : J("settings:indexers.noUrl"),
 		e.enabled ? J("settings:shared.enabled") : J("settings:shared.disabled"),
 		e.api_key_set && !e.clear_api_key ? J("settings:indexers.apiKeySaved") : e.api_key ? J("settings:indexers.apiKeyUnsaved") : J("settings:indexers.noApiKey")
 	];
@@ -6916,7 +6927,7 @@ function Ll({ row: e, index: t }) {
 		})]
 	});
 }
-function Rl({ initial: e, receipt: t }) {
+function zl({ initial: e, receipt: t }) {
 	let [n, r] = (0, Z.useState)(e.indexers), i = Y();
 	(0, Z.useEffect)(() => {
 		Vt("indexers", { open: e.indexers.map((e) => !e.url) });
@@ -6929,7 +6940,7 @@ function Rl({ initial: e, receipt: t }) {
 		guide: "indexers",
 		title: J("settings:indexers.title"),
 		onSubmit: (e) => {
-			e.preventDefault(), i.run("save", (e) => W(Pl, { indexers: n }, "POST", e), (e) => {
+			e.preventDefault(), i.run("save", (e) => W(Fl, { indexers: n }, "POST", e), (e) => {
 				r(e.indexers), t(J("settings:indexers.saved"));
 			});
 		},
@@ -6949,7 +6960,7 @@ function Rl({ initial: e, receipt: t }) {
 				className: "min-w-0 border-t border-separator-border pt-2",
 				children: /* @__PURE__ */ (0, Q.jsx)(C, {
 					defaultOpen: !e.url,
-					summary: /* @__PURE__ */ (0, Q.jsx)(Ll, {
+					summary: /* @__PURE__ */ (0, Q.jsx)(Rl, {
 						row: e,
 						index: t
 					}),
@@ -7034,8 +7045,8 @@ function Rl({ initial: e, receipt: t }) {
 	});
 }
 // src/react/settings/scraping-browser-settings.tsx
-var zl = ["window", "headless"], Bl = (e) => J(e === "headless" ? "settings:scrapingBrowser.headless" : "settings:scrapingBrowser.window");
-function Vl({ receipt: e }) {
+var Bl = ["window", "headless"], Vl = (e) => J(e === "headless" ? "settings:scrapingBrowser.headless" : "settings:scrapingBrowser.window");
+function Hl({ receipt: e }) {
 	let t = X({
 		queryKey: Ee,
 		queryFn: ({ signal: e }) => vt(e),
@@ -7064,9 +7075,9 @@ function Vl({ receipt: e }) {
 					onSelectionChange: (e) => {
 						e !== null && n.mutate(String(e));
 					},
-					children: zl.map((e) => /* @__PURE__ */ (0, Q.jsx)(B, {
+					children: Bl.map((e) => /* @__PURE__ */ (0, Q.jsx)(B, {
 						id: e,
-						children: Bl(e)
+						children: Vl(e)
 					}, e))
 				})
 			})
@@ -7077,20 +7088,20 @@ function Vl({ receipt: e }) {
 	});
 }
 // src/react/settings/want-search-settings.tsx
-var Hl = [
+var Ul = [
 	1,
 	3,
 	7,
 	14,
 	30
-], Ul = [
+], Wl = [
 	1,
 	3,
 	5,
 	10,
 	0
-], Wl = (e) => e === 1 ? J("settings:wantSearch.daily") : J("settings:wantSearch.everyDays", { count: e }), Gl = (e) => e === 0 ? J("settings:wantSearch.never") : J("settings:wantSearch.attempts", { count: e });
-function Kl({ receipt: e }) {
+], Gl = (e) => e === 1 ? J("settings:wantSearch.daily") : J("settings:wantSearch.everyDays", { count: e }), Kl = (e) => e === 0 ? J("settings:wantSearch.never") : J("settings:wantSearch.attempts", { count: e });
+function ql({ receipt: e }) {
 	let t = X({
 		queryKey: Ae,
 		queryFn: ({ signal: e }) => _t(e),
@@ -7111,9 +7122,9 @@ function Kl({ receipt: e }) {
 					onSelectionChange: (e) => {
 						e !== null && i({ wantStaleSearchDays: Number(e) });
 					},
-					children: Hl.map((e) => /* @__PURE__ */ (0, Q.jsx)(B, {
+					children: Ul.map((e) => /* @__PURE__ */ (0, Q.jsx)(B, {
 						id: String(e),
-						children: Wl(e)
+						children: Gl(e)
 					}, e))
 				})
 			})
@@ -7130,9 +7141,9 @@ function Kl({ receipt: e }) {
 					onSelectionChange: (e) => {
 						e !== null && i({ wantStaleAttemptLimit: Number(e) });
 					},
-					children: Ul.map((e) => /* @__PURE__ */ (0, Q.jsx)(B, {
+					children: Wl.map((e) => /* @__PURE__ */ (0, Q.jsx)(B, {
 						id: String(e),
-						children: Gl(e)
+						children: Kl(e)
 					}, e))
 				})
 			})
@@ -7143,7 +7154,7 @@ function Kl({ receipt: e }) {
 	});
 }
 // src/react/settings/cover-fallback-settings.tsx
-function ql({ receipt: e }) {
+function Jl({ receipt: e }) {
 	let t = X({
 		queryKey: Ae,
 		queryFn: ({ signal: e }) => _t(e),
@@ -7167,7 +7178,7 @@ function ql({ receipt: e }) {
 	});
 }
 // src/react/settings/source-settings.tsx
-function Jl({ data: e, receipt: t, panel: n, issues: r }) {
+function Yl({ data: e, receipt: t, panel: n, issues: r }) {
 	let i = X({
 		queryKey: te,
 		queryFn: ({ signal: e }) => mt(e),
@@ -7187,7 +7198,7 @@ function Jl({ data: e, receipt: t, panel: n, issues: r }) {
 						variant: "secondary",
 						children: J("settings:sourceSettings.sourcesLink")
 					})
-				}), i.data ? /* @__PURE__ */ (0, Q.jsx)(Ml, {
+				}), i.data ? /* @__PURE__ */ (0, Q.jsx)(Nl, {
 					data: i.data,
 					readOnly: !!e.ledger_read_only,
 					toast: t,
@@ -7209,17 +7220,17 @@ function Jl({ data: e, receipt: t, panel: n, issues: r }) {
 			{
 				id: "sources-scraping-browser",
 				label: J("settings:scrapingBrowser.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Vl, { receipt: t })
+				content: /* @__PURE__ */ (0, Q.jsx)(Hl, { receipt: t })
 			},
 			{
 				id: "sources-covers",
 				label: J("settings:coverFallback.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(ql, { receipt: t })
+				content: /* @__PURE__ */ (0, Q.jsx)(Jl, { receipt: t })
 			},
 			e.entry_links && {
 				id: "sources-entry-links",
 				label: J("settings:entryLinks.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Nl, {
+				content: /* @__PURE__ */ (0, Q.jsx)(Pl, {
 					initial: e.entry_links,
 					receipt: t
 				})
@@ -7227,18 +7238,18 @@ function Jl({ data: e, receipt: t, panel: n, issues: r }) {
 			{
 				id: "sources-indexers",
 				label: J("settings:indexers.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Fl, { receipt: t })
+				content: /* @__PURE__ */ (0, Q.jsx)(Il, { receipt: t })
 			},
 			{
 				id: "sources-want-search",
 				label: J("settings:wantSearch.title"),
-				content: /* @__PURE__ */ (0, Q.jsx)(Kl, { receipt: t })
+				content: /* @__PURE__ */ (0, Q.jsx)(ql, { receipt: t })
 			}
 		] })]
 	});
 }
 // src/react/settings/configuration-shape.ts
-function Yl(e) {
+function Xl(e) {
 	let t = e.downloads;
 	if (!t) return null;
 	let n = t.media_sources ?? [];
@@ -7252,7 +7263,7 @@ function Yl(e) {
 		localDownload: !0
 	};
 }
-function Xl(e) {
+function Zl(e) {
 	let t = e.tunnel;
 	return {
 		port: !!(e.editable && e.port_editable !== !1),
@@ -7266,7 +7277,7 @@ function Xl(e) {
 		tunnelNote: !!(t && (!t.available || t.state === "starting" || t.state === "running" && t.url))
 	};
 }
-function Zl(e) {
+function Ql(e) {
 	let t = e.updates, n = e.update_job?.state ?? "idle", r = !t || t.state === "unchecked" && !t.checked_at && n === "idle", i = +!!t?.package_kind + (r ? 0 : +!!t?.checked_at + (t?.state === "unchecked" ? 0 : 1) + (n === "idle" ? 0 : 1)), a = e.automatic_updates, o = e.storage;
 	return {
 		releaseFacts: t?.package_kind ? 5 : 4,
@@ -7286,12 +7297,12 @@ function Zl(e) {
 	};
 }
 // src/react/settings/configuration-page.tsx
-function Ql({ receipt: e, reopenTutorial: t, section: n = "", diagnostics: r }) {
+function $l({ receipt: e, reopenTutorial: t, section: n = "", diagnostics: r }) {
 	let i = X({
 		queryKey: g,
 		queryFn: ({ signal: e }) => pt(e)
 	}), a = i.data;
-	return a ? /* @__PURE__ */ (0, Q.jsx)(tu, {
+	return a ? /* @__PURE__ */ (0, Q.jsx)(nu, {
 		data: a,
 		receipt: e,
 		reopenTutorial: t,
@@ -7310,7 +7321,7 @@ function Ql({ receipt: e, reopenTutorial: t, section: n = "", diagnostics: r }) 
 		})
 	});
 }
-function $l({ data: e, sections: t, reload: n, refreshing: r }) {
+function eu({ data: e, sections: t, reload: n, refreshing: r }) {
 	return /* @__PURE__ */ (0, Q.jsx)(Q.Fragment, { children: t.map((t) => {
 		let i = e.section_errors?.[t];
 		return i ? /* @__PURE__ */ (0, Q.jsx)(I, {
@@ -7327,14 +7338,14 @@ function $l({ data: e, sections: t, reload: n, refreshing: r }) {
 		}, t) : null;
 	}) });
 }
-var eu = 0;
-function tu({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i, reload: a, refreshing: o }) {
-	let [s] = (0, Z.useState)(() => `board-tabs-${++eu}`), [c, l] = (0, Z.useState)(r), u = (0, Z.useRef)(null), d = (0, Z.useRef)(null), f = (0, Z.useRef)(c);
+var tu = 0;
+function nu({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i, reload: a, refreshing: o }) {
+	let [s] = (0, Z.useState)(() => `board-tabs-${++tu}`), [c, l] = (0, Z.useState)(r), u = (0, Z.useRef)(null), d = (0, Z.useRef)(null), f = (0, Z.useRef)(c);
 	(0, Z.useEffect)(() => {
 		l(r);
 	}, [r]), (0, Z.useEffect)(() => {
-		let t = Yl(e);
-		t && Vt("downloads", t), Vt("network", Xl(e)), Vt("maintenance", Zl(e));
+		let t = Xl(e);
+		t && Vt("downloads", t), Vt("network", Zl(e)), Vt("maintenance", Ql(e));
 	}, [e]), (0, Z.useLayoutEffect)(() => {
 		let e = d.current, t = u.current, n = () => t.style.setProperty("--settings-nav-height", `${e.offsetHeight}px`);
 		n();
@@ -7363,7 +7374,7 @@ function tu({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 	let g = {
 		data: e,
 		receipt: t
-	}, v = (t) => /* @__PURE__ */ (0, Q.jsx)($l, {
+	}, v = (t) => /* @__PURE__ */ (0, Q.jsx)(eu, {
 		data: e,
 		sections: t,
 		reload: a,
@@ -7384,13 +7395,13 @@ function tu({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 					"media_sources",
 					"library_count",
 					"mount_dependencies"
-				]), /* @__PURE__ */ (0, Q.jsx)(zc, { ...g })]
+				]), /* @__PURE__ */ (0, Q.jsx)(Bc, { ...g })]
 			})
 		},
 		{
 			id: "sources",
 			title: _.subscriptions,
-			body: (e) => /* @__PURE__ */ (0, Q.jsx)(Jl, {
+			body: (e) => /* @__PURE__ */ (0, Q.jsx)(Yl, {
 				...g,
 				panel: e,
 				issues: v(["entry_links"])
@@ -7409,7 +7420,7 @@ function tu({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 		...b ? [{
 			id: "network",
 			title: _.network,
-			body: (e) => /* @__PURE__ */ (0, Q.jsx)(wl, {
+			body: (e) => /* @__PURE__ */ (0, Q.jsx)(Tl, {
 				...g,
 				panel: e,
 				issues: v(y)
@@ -7478,6 +7489,6 @@ function tu({ data: e, receipt: t, reopenTutorial: n, section: r, diagnostics: i
 		})] }, t))]
 	});
 }
-export { Ql as ConfigurationPage };
+export { $l as ConfigurationPage };
 
-//# debugId=a05f7a59-f3a5-4cfe-a28e-c5ec05fb4746
+//# debugId=f956200c-6b06-463d-862e-09c7b4c29999
