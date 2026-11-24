@@ -31,6 +31,7 @@ Entries are written for users to scan: one sentence each, saying where something
 ### Fixed / 修复
 
 - **Sourcing**: Verify both JavDB pages and collect the regular edition when the same code also has a FANZA photo-bonus edition (#431). / **采集**：JavDB 网页采集遇到同番号的 FANZA 生写真特典版和通常版时，核对两份详情后采集通常版（#431）。
+- **Settings**: Show Windows Firewall help only during Windows setup and explain where to verify scraping requests in each browser mode (#811). / **配置**：仅在 Windows 首次设置显示防火墙提示，采集浏览器按当前模式说明手动验证条件（#811）。
 - **Library**: Sync and restore use the intended ledger when its path contains a hash sign or a percent escape (#859). / **馆藏**：账本路径含井号或百分号转义字样时，同步与恢复读取原路径对应的账本（#859）。
 - **Library**: Repair cover faces, spine recognition, and crop text checks under Windows paths with non-ASCII characters (#859). / **馆藏**：Windows 非 ASCII 封面路径下可补做人脸、识别书脊和检查取景切线文字（#859）。
 - **Library**: Read avatars and covers and write watermark review previews under Windows paths containing Chinese characters (#428). / **馆藏**：Windows 中文路径下可读取头像和封面，并写出水印复核对照图（#428）。

@@ -4,6 +4,12 @@
 
 ## amane 桥
 
+### 采用稳定版 v0.29.0
+
+2026-11-24 复核官方 [v0.29.0](https://github.com/sqzw-x/amane/releases/tag/v0.29.0) 和 [15 个提交的差集](https://github.com/sqzw-x/amane/compare/391af4fdc9fec4c7eb279ce8de53fbf693f09d5a...888dff820194fce4449f1cc6e1540a17e4e6b417)，固定到发布提交 `888dff820194fce4449f1cc6e1540a17e4e6b417`。Prestige 查询 SKU 索引以查到带前缀的同捆版本。AVSOX 的后备匹配保留番号的短横线位置。桥继续独立核对结果番号。
+
+升级后重新判断 Prestige 的旧缺失记忆和对应的聚合封面缺失，保留其他来源的记忆和已有资料。新增的官网爬虫未进入 Peach 的来源链。仅自检使用的 IQQTV 不改动线上调用路径。
+
 ### 采用稳定版 v0.28.0
 
 2026-11-18 复核官方 [v0.28.0](https://github.com/sqzw-x/amane/releases/tag/v0.28.0)，固定到标签提交 `391af4fdc9fec4c7eb279ce8de53fbf693f09d5a`。[相对现有 v0.27.1 的差集](https://github.com/sqzw-x/amane/compare/ffaedbcdfa170c158bf457128f534f5b59365ec7...391af4fdc9fec4c7eb279ce8de53fbf693f09d5a)共 9 个提交。

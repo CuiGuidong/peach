@@ -58,7 +58,7 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: python3 scripts/check_pr_identity.py --base "$BASE_SHA" --head "$HEAD_SHA"
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -101,7 +101,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.14'
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -159,7 +159,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
           check-latest: true
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
@@ -280,7 +280,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.14'
-      - uses: astral-sh/setup-uv@v10.3.3
+      - uses: astral-sh/setup-uv@v10.4.0
         with:
           enable-cache: true
           cache-dependency-glob: uv.lock
