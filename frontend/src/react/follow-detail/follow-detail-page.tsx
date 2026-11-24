@@ -347,10 +347,6 @@ function Side({ item, data, context, media, write, issue, helpers, actions }: {
             <a data-title-tool-link="" data-button-link="" data-follow-origin="" href={item.url} target="_blank" rel="noreferrer noopener"
               title={t('follow:followDetail.viewOnSite')} aria-label={t('follow:followDetail.viewOnSite')}><Glyph name="external-link" /></a>
           ) : null}
-          {src ? (
-            <a data-title-tool-link="" data-follow-download="" href={`${src}${src.includes('?') ? '&' : '?'}download=1`} download=""
-              aria-label={t('follow:followDetail.download')} title={t('follow:followDetail.download')}><Glyph name="download" /></a>
-          ) : null}
           <button type="button" data-follow-tags-edit="" aria-label={t('follow:followDetail.editTags')}
             title={t(editingTags ? 'follow:followDetail.tagsDone' : 'follow:followDetail.editTags')}
             aria-pressed={editingTags} aria-controls={tagsId} onClick={() => setEditingTagsFor(editingTags ? null : item.id)}>
@@ -427,6 +423,10 @@ function Side({ item, data, context, media, write, issue, helpers, actions }: {
             <button type="button" data-follow-detail-status="new" aria-label={t('follow:followDetail.markUnseen')} title={t('follow:followDetail.markUnseen')}
               {...busyAttrs('new')} onClick={() => write.status('new')}
               dangerouslySetInnerHTML={{ __html: icon('rotate-ccw') }} />
+          ) : null}
+          {src ? (
+            <a data-stage-action-link="" data-follow-download="" href={`${src}${src.includes('?') ? '&' : '?'}download=1`} download=""
+              aria-label={t('follow:followDetail.download')} title={t('follow:followDetail.download')}><Glyph name="download" /></a>
           ) : null}
         </div>
         <span data-follow-state="" aria-live="polite">{write.failure}</span>

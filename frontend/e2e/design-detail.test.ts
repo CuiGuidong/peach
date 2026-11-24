@@ -123,7 +123,6 @@ describe('设计决定：关注详情、作品详情、播放器与侧栏', () =
         assert.equal(expected.belowTitle, true);
         assert.equal(expected.clamp, '2');
         assert.deepEqual(await read(opened.page, '[data-follow-origin]'), expected);
-        assert.deepEqual(await read(opened.page, '[data-follow-download]'), expected);
         assert.deepEqual(await read(opened.page, '[data-follow-tags-edit]'), expected);
         assert.deepEqual(await read(opened.page, '[data-follow-media-hide]'), expected);
       } finally {

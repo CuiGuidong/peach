@@ -261,7 +261,7 @@ describe('侧栏', () => {
     expect([...host.querySelectorAll('[data-follow-resources] a')].map((link) => link.textContent))
       .toEqual(['Gofile', 'MEGA', 'files.example.org']);
     const download = host.querySelector('[data-follow-download]')!;
-    expect(download.closest('[data-title-tools]')).not.toBeNull();
+    expect(download.closest('[data-follow-detail-actions]')).not.toBeNull();
     expect(download.hasAttribute('download')).toBe(true);
     expect(download.getAttribute('href')).toBe('/follow-stream?id=2&download=1');
     expect(host.querySelector('[data-follow-detail-identity] [data-id-name]')?.textContent).toBe('作者');
