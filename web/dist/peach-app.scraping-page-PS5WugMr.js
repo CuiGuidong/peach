@@ -1,13 +1,13 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "436f35dd-d1f9-4df2-a6ff-bf12ff48fe31", e._sentryDebugIdIdentifier = "sentry-dbid-436f35dd-d1f9-4df2-a6ff-bf12ff48fe31");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "0dc0ad9c-c1a4-4104-a53b-c5d6a80b24f5", e._sentryDebugIdIdentifier = "sentry-dbid-0dc0ad9c-c1a4-4104-a53b-c5d6a80b24f5");
 	} catch {}
 })();
 import { $fe21c36db05242bb$export$d7b12c4107be0d61 as e, AMANE_BRIDGE_CHECK_URL as t, AMANE_BRIDGE_KEY as n, AMANE_BRIDGE_REBUILD_URL as r, Button as i, CHECK_ALL_KEY as a, COVER_JOB_KEY as o, CUSTOM_SOURCES_KEY as s, CUSTOM_SOURCES_URL as c, Checkbox as l, Disclosure as u, ErrorText as d, ExternalLink as f, Fact as p, FactList as m, FieldLabel as h, Footer as g, Help as _, Input as v, IssueRow as y, LinkButton as ee, Note as b, Rows as te, SCRAPING_CHECK_ALL_URL as x, SCRAPING_CHECK_URL as ne, SCRAPING_COVER_URL as re, SCRAPING_KEY as S, SCRAPING_SETTINGS_URL as ie, SEGMENT as ae, SEGMENTED_TRACK as oe, Section as C, SegmentedRadioGroup as se, Select$1 as ce, SelectField as w, SelectItem as le, SettingsCard as ue, SettingsRow as de, SiteMark as T, Stack as E, StatusLabel as D, TaskProgress as O, __toESM as k, activityKind as A, apiSend as j, busyProps as M, checkText as fe, codedText as N, composingKey as P, confirmModal as F, errorMessage as I, esc as L, fetchAmaneBridge as R, fetchCheckAllJob as pe, fetchCoverJob as z, fetchCustomSources as B, fetchSources as V, i2 as me, interfaceLanguage as he, jobText as H, joinList as U, momentText as ge, partsLabel as W, queryClient as G, require_jsx_runtime as _e, require_react as ve, serverLabel as ye, spinnerHtml as be, t as K, useAction as xe, useBackgroundJob as q, useMutation as J, useQuery as Se } from "./peach-app.js";
 import { ConnectionStatus as Ce } from "./peach-app.connection-status-BrXhLGSm.js";
 import { Page as we } from "./peach-app.page-QAncjzM1.js";
-import { SectionToc as Te } from "./peach-app.section-toc-DMaTjdd5.js";
+import { SectionToc as Te } from "./peach-app.section-toc-hXoSYkI6.js";
 import { CodeBlock as Ee } from "./peach-app.code-block-CXu10nIP.js";
 // src/react/scraping/custom-sources.tsx
 var Y = /* @__PURE__ */ k(ve(), 1), X = _e(), De = [
@@ -904,4 +904,4 @@ function Ge({ toast: e }) {
 }
 export { Ge as ScrapingPage, Ne as linkHost, Me as networkOptions };
 
-//# debugId=436f35dd-d1f9-4df2-a6ff-bf12ff48fe31
+//# debugId=0dc0ad9c-c1a4-4104-a53b-c5d6a80b24f5

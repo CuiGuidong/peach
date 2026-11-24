@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "da7ef82d-97c8-4b97-8a6d-24dfeda3c8c0", e._sentryDebugIdIdentifier = "sentry-dbid-da7ef82d-97c8-4b97-8a6d-24dfeda3c8c0");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3a418600-2cf2-432f-8668-c2f4ffac46ac", e._sentryDebugIdIdentifier = "sentry-dbid-3a418600-2cf2-432f-8668-c2f4ffac46ac");
 	} catch {}
 })();
 import { Button as e, LinkButton as t, Note as n, Progress as r, REPAIRS_KEY as i, RESULT_PANEL as a, RESULT_SECTION as o, SectionHeading as s, StatusLabel as c, apiSend as l, confirmModal as u, fetchRepairs as d, fmtSize as f, i2 as p, interfaceLanguage as m, localizeRepairs as h, queryClient as g, quoted as _, repairCenterPanelSkeleton as v, require_jsx_runtime as y, t as b, useAction as x, useQuery as S, withBackoff as C } from "./peach-app.js";
@@ -63,28 +63,29 @@ function L(e) {
 function R(e) {
 	return e.estimating ? b("settings:repairCenter.estimating") : e.state === "failed" && e.error ? e.error : e.files ? b("settings:repairCenter.reclaimable", { size: f(e.bytes || 0) }) : e.state === "pending" && e.online ? b("settings:repairCenter.pendingChecks", { count: e.pending || 0 }) : e.state === "waiting" && e.backed_up ? b("settings:repairCenter.pendingFixes", { count: e.pending || 0 }) : e.covers ? b("settings:repairCenter.pendingCovers", { count: e.covers }) : e.state === "waiting" ? e.pending ? b("settings:repairCenter.pendingRecheck", { count: e.pending }) : "" : M(e) ? "" : e.total ? `${k(e.done)} / ${k(e.total)}` : e.changed ? b("settings:repairCenter.changedCount", { count: e.changed }) : "";
 }
-function z({ title: e, description: t, progress: n, children: r }) {
+function z({ id: e, title: t, description: n, progress: r, children: i }) {
 	return /* @__PURE__ */ (0, T.jsxs)("div", {
+		id: e,
 		className: `${o} flex flex-wrap items-center justify-between gap-x-4 gap-y-2`,
 		children: [/* @__PURE__ */ (0, T.jsxs)("div", {
 			className: "flex min-w-0 flex-1 flex-col gap-0.5",
 			children: [
 				/* @__PURE__ */ (0, T.jsx)("span", {
 					className: "text-body-medium text-text-primary",
-					children: e
+					children: t
 				}),
 				/* @__PURE__ */ (0, T.jsx)("span", {
 					className: "text-body-2-regular text-text-secondary",
-					children: t
-				}),
-				n ? /* @__PURE__ */ (0, T.jsx)("div", {
-					className: "pt-2",
 					children: n
+				}),
+				r ? /* @__PURE__ */ (0, T.jsx)("div", {
+					className: "pt-2",
+					children: r
 				}) : null
 			]
 		}), /* @__PURE__ */ (0, T.jsx)("div", {
 			className: "flex shrink-0 items-center gap-3",
-			children: r
+			children: i
 		})]
 	});
 }
@@ -188,6 +189,7 @@ function H() {
 				children: n.map((t) => {
 					let [n, r] = E[t.state] || E.none, i = R(t);
 					return /* @__PURE__ */ (0, T.jsxs)(z, {
+						id: `repair-item-${t.id}`,
 						title: t.title,
 						description: t.summary,
 						progress: V(t),
@@ -242,4 +244,4 @@ function H() {
 }
 export { H as RepairCenterPage, P as repairsInterval };
 
-//# debugId=da7ef82d-97c8-4b97-8a6d-24dfeda3c8c0
+//# debugId=3a418600-2cf2-432f-8668-c2f4ffac46ac

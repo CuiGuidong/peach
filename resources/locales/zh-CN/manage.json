@@ -185,6 +185,7 @@
     "attention": "需要关注",
     "attentionTitle": "需要关注 · {{count, number}} 项",
     "checkAgain": "重新检查",
+    "reportRefreshed": "已刷新系统诊断",
     "checkDuration": " · {{seconds}} 秒",
     "collectionHealth": "库健康",
     "groupConfig": "配置与访问",
@@ -219,6 +220,7 @@
     "viewTasks": "查看任务"
   },
   "diagnosticsExport": {
+    "reportTitle": "诊断报告",
     "cancelExport": "取消导出",
     "canceled": "导出已取消",
     "candidateCount": "{{count, number}} 条候选",

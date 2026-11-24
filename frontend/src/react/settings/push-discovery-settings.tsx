@@ -88,11 +88,17 @@ export function PushDiscoveryForm({ initial, receipt }: {
           <StatusLabel tone={!live.enabled || !live.watch_local ? 'neutral' : live.local_running ? 'progress' : 'warning'}>{!live.enabled || !live.watch_local ? t('settings:shared.notEnabled') : live.local_running ? t('settings:shared.running') : t('settings:pushDiscovery.notRunning')}</StatusLabel></div>
       </Stack>
       <Rows>
-        <SettingsRow label={t('settings:fileDiscovery.autoImport')} description={live.enabled ? ingested : undefined}>
+        <SettingsRow label={t('settings:fileDiscovery.autoImport')} description={<>
+          <span>{t('settings:fileDiscovery.autoImportHelp')}</span>
+          {live.enabled ? <span className="block">{ingested}</span> : null}
+        </>}>
           <Switch aria-label={t('settings:fileDiscovery.autoImport')} isSelected={state.enabled} isDisabled={!state.available}
             onChange={(enabled) => setState({ ...state, enabled })} />
         </SettingsRow>
-        <SettingsRow label={t('settings:fileDiscovery.monitorLocal')} description={live.enabled && live.watch_local ? watching : undefined}>
+        <SettingsRow label={t('settings:fileDiscovery.monitorLocal')} description={<>
+          <span>{t('settings:fileDiscovery.monitorLocalHelp')}</span>
+          {live.enabled && live.watch_local ? <span className="block">{watching}</span> : null}
+        </>}>
           <Switch aria-label={t('settings:fileDiscovery.monitorLocal')} isSelected={state.watch_local}
             isDisabled={!state.available || !state.enabled}
             onChange={(watchLocal) => setState({ ...state, watch_local: watchLocal })} />

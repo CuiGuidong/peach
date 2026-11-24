@@ -18,9 +18,6 @@ import { CONFIGURATION_KEY, fetchConfiguration } from './configuration';
 import { DownloadGroup } from './download-settings';
 import { MaintenanceSettings } from './maintenance-settings';
 import { MediaSettings } from './media-settings';
-import { MediaProcessingSettings } from './media-processing-settings';
-import { TaskSpeedSettings } from './service-preferences';
-import { CodePatternSettings } from './code-pattern-settings';
 import { NetworkSettings } from './network-settings';
 import { SourceSettings } from './source-settings';
 import { groupRoot } from './configuration-panel';
@@ -123,10 +120,7 @@ function ConfigurationGroups(
   const groups: Group[] = [
     { id: 'library', title: CONFIGURATION_SECTIONS.library, body: (panel) => <div {...groupRoot(panel)}>
       {issues(['media_sources', 'library_count', 'mount_dependencies'])}
-      {!data.section_errors?.media_sources && !data.section_errors?.library_count ? <MediaSettings {...group} /> : null}
-      <CodePatternSettings receipt={receipt} />
-      <MediaProcessingSettings receipt={receipt} />
-      <TaskSpeedSettings receipt={receipt} />
+      <MediaSettings {...group} />
     </div> },
     { id: 'sources', title: CONFIGURATION_SECTIONS.subscriptions, body: (panel) => <SourceSettings {...group} panel={panel} issues={issues(['entry_links'])} /> },
     ...(downloads || data.section_errors?.downloads ? [{

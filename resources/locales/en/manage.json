@@ -210,6 +210,7 @@
     "attentionTitle_one": "Needs attention · {{count, number}}",
     "attentionTitle_other": "Needs attention · {{count, number}}",
     "checkAgain": "Check again",
+    "reportRefreshed": "System diagnostics refreshed",
     "checkDuration": " · {{seconds}} s",
     "collectionHealth": "Collection health",
     "groupConfig": "Configuration & access",
@@ -246,6 +247,7 @@
     "viewTasks": "View tasks"
   },
   "diagnosticsExport": {
+    "reportTitle": "Diagnostic report",
     "cancelExport": "Cancel export",
     "canceled": "Export canceled",
     "candidateCount_one": "{{count, number}} candidate",

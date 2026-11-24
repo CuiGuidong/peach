@@ -13,6 +13,7 @@ import { SectionToc } from '../components/section-toc';
 import { SiteMark } from '../components/site-mark';
 import { Disclosure, Fact, FactList, Section, Stack } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
+import { useCheckReceipt } from '../settings/use-check-receipt';
 import { codedText } from '../../core/server-text';
 import { checkText, DIAGNOSTICS_KEY, fetchDiagnostics, type DiagnosticCheck, type DiagnosticReport } from './diagnostics';
 import { HealthList } from './health-list';
@@ -42,10 +43,6 @@ function DiagnosticStatus({ status }: { status: string }) {
 export interface DiagnosticsProps {
   openItem(id: number): void;
   receipt(message: string): void;
-}
-
-function DownloadReport() {
-  return <DiagnosticExportAction kind="support" />;
 }
 
 function Check({ name, check, compact = false }: {
@@ -104,32 +101,49 @@ function SourceSessions({ sources }: { sources: DiagnosticReport['sources'] }) {
 export function DiagnosticsPage(props: DiagnosticsProps) {
   const query = useQuery({ queryKey: DIAGNOSTICS_KEY, queryFn: ({ signal }) => fetchDiagnostics(signal), staleTime: 10_000 });
   const action = useAction();
+  const { checked, checkFailed } = useCheckReceipt();
   const [refreshError, setRefreshError] = useState('');
   const refresh = () => void action.run('refresh', async () => {
     const response = await query.refetch();
     if (response.error) throw response.error;
-    return response.data;
-  }, () => setRefreshError(''), cause => setRefreshError(errorMessage(cause)));
+  }, () => {
+    setRefreshError('');
+    checked(t('manage:diagnostics.reportRefreshed'));
+  }, cause => {
+    const message = errorMessage(cause);
+    setRefreshError(message);
+    checkFailed(t('manage:diagnostics.checkAgain'), message);
+  });
+  const report = <div id="diagnostics-report" data-guide-target="report">
+    <DiagnosticExportAction kind="support">
+      <Button variant="secondary" onClick={refresh} {...busyProps(action.busy === 'refresh')}>{t('manage:diagnostics.checkAgain')}</Button>
+    </DiagnosticExportAction>
+  </div>;
+  const reportEntry = { id: 'diagnostics-report', label: t('manage:diagnosticsExport.reportTitle') };
+  const scrapingEntry = { id: 'diagnostics-scraping', label: t('manage:diagnosticsExport.fetchLogTitle') };
+  const scraping = <div id={scrapingEntry.id}><ScrapingExport /></div>;
   const data = query.data;
   if (!data && query.isPending) return <div role="status" aria-label={t('manage:diagnostics.loading')} dangerouslySetInnerHTML={{ __html: diagnosticsSkeleton() }} />;
-  if (!data) return <div className="ui-configpage"><DownloadReport /><Note tone="error" title={t('manage:diagnostics.loadFailed')}
-    action={<Button variant="secondary" onClick={refresh} {...busyProps(action.busy === 'refresh')}>{t('manage:diagnostics.checkAgain')}</Button>}>
-    {query.error ? errorMessage(query.error) : t('manage:diagnostics.reportNotFound')}
-  </Note><ScrapingExport /></div>;
+  if (!data) return <SectionToc inline label={t('settings:configurationPage.contents')} entries={[reportEntry, scrapingEntry]}>
+    {report}
+    <Note tone="error" title={t('manage:diagnostics.loadFailed')}>
+      {refreshError || (query.error ? errorMessage(query.error) : t('manage:diagnostics.reportNotFound'))}
+    </Note>
+    {scraping}
+  </SectionToc>;
   const attention = Object.entries(data.checks).filter(([, check]) => ATTENTION_STATUSES.has(check.status));
   const other = Object.entries(data.checks).filter(([, check]) => !ATTENTION_STATUSES.has(check.status));
   const entries = [
+    reportEntry,
     ...(attention.length ? [{ id: 'diagnostics-attention', label: t('manage:diagnostics.attention') }] : []),
     { id: 'diagnostics-health', label: t('manage:diagnostics.collectionHealth') },
     ...(other.length ? [{ id: 'diagnostics-checks', label: t('manage:diagnostics.systemChecks') }] : []),
-    { id: 'diagnostics-scraping', label: t('manage:diagnosticsExport.fetchLogTitle') },
+    scrapingEntry,
     { id: 'diagnostics-sessions', label: t('manage:diagnostics.sourceSessions') },
   ];
-  return <div className="flex min-w-0 flex-col gap-6">
-    <div data-guide-target="report"><DiagnosticExportAction kind="support">
-      <Button variant="secondary" onClick={refresh} {...busyProps(action.busy === 'refresh')}>{t('manage:diagnostics.checkAgain')}</Button></DiagnosticExportAction></div>
-    {refreshError ? <Note tone="error">{refreshError}</Note> : null}
-    <SectionToc inline label={t('settings:configurationPage.contents')} entries={entries}>
+  return <SectionToc inline label={t('settings:configurationPage.contents')} entries={entries}>
+      {report}
+      {refreshError ? <Note tone="error">{refreshError}</Note> : null}
       {attention.length ? <Section id="diagnostics-attention" guide="attention" title={t('manage:diagnostics.attentionTitle', { count: attention.length })}>
         {attention.map(([key, check]) => <Check key={key} name={key} check={check} />)}
       </Section> : null}
@@ -150,8 +164,7 @@ export function DiagnosticsPage(props: DiagnosticsProps) {
           })}
         </Disclosure>
       </section> : null}
-      <div id="diagnostics-scraping"><ScrapingExport /></div>
+      {scraping}
       <SourceSessions sources={data.sources} />
-    </SectionToc>
-  </div>;
+  </SectionToc>;
 }

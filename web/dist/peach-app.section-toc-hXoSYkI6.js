@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "244feddb-c16c-4894-b4aa-b44532e034c1", e._sentryDebugIdIdentifier = "sentry-dbid-244feddb-c16c-4894-b4aa-b44532e034c1");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7b8d97df-ee98-47b8-a71c-ba92501c4b3d", e._sentryDebugIdIdentifier = "sentry-dbid-7b8d97df-ee98-47b8-a71c-ba92501c4b3d");
 	} catch {}
 })();
 import { PillTabList as e, __toESM as t, cx as n, require_jsx_runtime as r, require_react as i, useHorizontalScroller as a } from "./peach-app.js";
@@ -10,21 +10,21 @@ var o = /* @__PURE__ */ t(i(), 1), s = r();
 function c({ label: t, entries: r, children: i, inline: c = !1 }) {
 	let l = (0, o.useRef)(null), u = a(), [d, f] = (0, o.useState)(r[0]?.id ?? ""), p = JSON.stringify(r.map((e) => e.id));
 	return (0, o.useEffect)(() => {
-		let e = 0, t = JSON.parse(p).map((e) => document.getElementById(e)).filter((e) => !!e), n = () => {
-			e = 0;
-			let n = t[0]?.id ?? "";
-			for (let e of t) {
-				let t = parseFloat(getComputedStyle(e).scrollMarginTop) + parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
-				e.getBoundingClientRect().top <= t + 1 && (n = e.id);
+		let e = l.current, t = 0, n = JSON.parse(p).map((e) => document.getElementById(e)).filter((t) => t !== null && e.contains(t)), r = () => {
+			if (t = 0, !e.getClientRects().length) return;
+			let r = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0, i = document.documentElement.scrollHeight - window.innerHeight, a = location.hash.slice(1), o = n[0]?.id ?? "", s = "";
+			for (let e of n) {
+				let t = (parseFloat(getComputedStyle(e).scrollMarginTop) || 0) + r, n = e.getBoundingClientRect().top;
+				n <= t + 1 && (o = e.id), e.id === a && n > t && n < window.innerHeight && window.scrollY + n - t > i && (s = e.id);
 			}
-			window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2 && (n = t.at(-1)?.id ?? n), f(n);
-		}, r = () => {
-			e ||= requestAnimationFrame(n);
-		}, i = document.getElementById(location.hash.slice(1));
-		i && l.current?.contains(i) && i.scrollIntoView({ block: "start" }), n(), window.addEventListener("scroll", r, { passive: !0 }), window.addEventListener("resize", r);
-		let a = new ResizeObserver(r);
-		return a.observe(l.current), () => {
-			window.removeEventListener("scroll", r), window.removeEventListener("resize", r), a.disconnect(), cancelAnimationFrame(e);
+			s ? o = s : window.scrollY > 0 && window.scrollY >= i - 2 && (o = n.at(-1)?.id ?? o), f(o);
+		}, i = () => {
+			t ||= requestAnimationFrame(r);
+		}, a = document.getElementById(location.hash.slice(1));
+		a && e.contains(a) && e.getClientRects().length && a.scrollIntoView({ block: "start" }), r(), window.addEventListener("scroll", i, { passive: !0 }), window.addEventListener("resize", i);
+		let o = new ResizeObserver(i);
+		return o.observe(e), () => {
+			window.removeEventListener("scroll", i), window.removeEventListener("resize", i), o.disconnect(), cancelAnimationFrame(t);
 		};
 	}, [p]), (0, o.useEffect)(() => {
 		let e = l.current?.querySelector("nav"), t = e?.querySelector("[aria-current]");
@@ -41,6 +41,10 @@ function c({ label: t, entries: r, children: i, inline: c = !1 }) {
 				"data-pill-nav": "",
 				children: r.map((e) => /* @__PURE__ */ (0, s.jsxs)("a", {
 					href: `#${e.id}`,
+					"data-copy-interact": "",
+					onClick: (t) => {
+						t.defaultPrevented || t.altKey || t.ctrlKey || t.metaKey || t.shiftKey || f(e.id);
+					},
 					"aria-current": d === e.id ? "location" : void 0,
 					"data-pill-selected": d === e.id ? "" : void 0,
 					"data-pill-variant": "gray",
@@ -57,4 +61,4 @@ function c({ label: t, entries: r, children: i, inline: c = !1 }) {
 }
 export { c as SectionToc };
 
-//# debugId=244feddb-c16c-4894-b4aa-b44532e034c1
+//# debugId=7b8d97df-ee98-47b8-a71c-ba92501c4b3d

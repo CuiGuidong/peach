@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 
 import { ButtonLink } from '@/components/base/buttons/button';
 
+import { Note } from '../../components/note';
 import { RESTART_REDIRECT_MS } from '../../restart-redirect';
 import { Disclosure, ExternalLink, Fact, FactList } from '../../settings/section';
 import type { SetupDone } from './setup-api';
@@ -25,7 +26,7 @@ export function SetupDoneView({ done }: { done: SetupDone }) {
 
   useEffect(() => {
     const target = done.redirect;
-    if (!target) return undefined;
+    if (!target || done.sharing_save_failed) return undefined;
     const destination = new URL(target, location.href);
     if (destination.origin !== location.origin) {
       const timer = setTimeout(() => location.assign(target), RESTART_REDIRECT_MS);
@@ -54,7 +55,7 @@ export function SetupDoneView({ done }: { done: SetupDone }) {
       limitMs: READY_WAIT_MS,
     });
     return () => controller.abort();
-  }, [done.redirect]);
+  }, [done.redirect, done.sharing_save_failed]);
 
   return (
     <SetupShell step="done">
@@ -72,6 +73,7 @@ export function SetupDoneView({ done }: { done: SetupDone }) {
           ? t('shell:setupDone.scanQueued')
           : t('shell:setupDone.scanLater')}
       </p>
+      {done.sharing_save_failed ? <Note tone="warning">{t('shell:setupDone.librarySharingSaveFailed')}</Note> : null}
       <Disclosure summary={t('shell:setupDone.runtime')}>
         <FactList>
           {done.facts.map((fact) => (

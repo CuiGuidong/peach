@@ -48,7 +48,7 @@ export function SettingsRow({
   children,
 }: {
   label: string;
-  description?: string;
+  description?: ReactNode;
   children?: ReactNode;
 }) {
   return (

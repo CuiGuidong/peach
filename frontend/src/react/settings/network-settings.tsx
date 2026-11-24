@@ -11,6 +11,7 @@ import { AccessSettings } from './access-settings';
 import { ApiTokenSettings } from './api-token-settings';
 import { CertificateTrust } from './certificate-trust';
 import { groupRoot } from './configuration-panel';
+import { ConfigurationContents } from './configuration-contents';
 import { DeviceSessions } from './device-sessions';
 import { PortSettings } from './port-settings';
 import { ProxyAddressField, ProxyModeSelect } from './peach-proxy-fields';
@@ -26,18 +27,20 @@ export function NetworkSettings({ data, receipt, panel, issues }: ConfigurationG
   return (
     <div {...groupRoot(panel)}>
       {issues}
-      {data.network || (data.editable && data.port_editable !== false && !data.section_errors?.media_sources)
-        ? <PortSettings data={data} receipt={receipt} /> : null}
-      {data.access
-        ? <AccessSettings initial={data.access} receipt={receipt} onSaved={(state) => setAccessMode(state.mode)}
+      <ConfigurationContents entries={[
+        (Boolean(data.network) || (data.editable && data.port_editable !== false && !data.section_errors?.media_sources))
+          && { id: 'network-addresses', label: t('settings:accessUrls.title'), content: <PortSettings data={data} receipt={receipt} /> },
+        data.access && { id: 'network-access', label: t('settings:accessPassword.title'),
+          content: <AccessSettings initial={data.access} receipt={receipt} onSaved={(state) => setAccessMode(state.mode)}
             devices={(state) => <DeviceSessions revision={state.revision} receipt={receipt} />}
             after={data.api_token
               ? (state) => <ApiTokenSettings initial={data.api_token!} mode={state.mode} receipt={receipt} />
-              : undefined} />
-        : null}
-      {data.certificate ? <CertificateTrust initial={data.certificate} /> : null}
-      {data.tunnel ? <TunnelSettings revision={data.revision} initial={data.tunnel} receipt={receipt} blocked={tunnelBlocked} /> : null}
-      {data.peach_proxy ? <PeachProxy initial={data.peach_proxy} receipt={receipt} /> : null}
+              : undefined} /> },
+        data.certificate && { id: 'network-certificate', label: t('settings:certificateTrust.title'), content: <CertificateTrust initial={data.certificate} /> },
+        data.tunnel && { id: 'network-tunnel', label: t('settings:remoteAccess.title'),
+          content: <TunnelSettings revision={data.revision} initial={data.tunnel} receipt={receipt} blocked={tunnelBlocked} /> },
+        data.peach_proxy && { id: 'peachProxy', label: t('settings:peachProxy.title'), content: <PeachProxy initial={data.peach_proxy} receipt={receipt} /> },
+      ]} />
     </div>
   );
 }
@@ -55,7 +58,7 @@ export function PeachProxy({ initial, receipt }: { initial: PeachProxyState; rec
   };
 
   return (
-    <Section id="peachProxy" guide="proxy" title={t('settings:peachProxy.title')} onSubmit={submit}>
+    <Section guide="proxy" title={t('settings:peachProxy.title')} onSubmit={submit}>
       <Rows>
         <SettingsRow label={t('settings:peachProxy.mode')} description={t('settings:peachProxy.modeHelp')}>
           <ProxyModeSelect mode={mode} onChange={setMode} />

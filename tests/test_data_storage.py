@@ -62,10 +62,15 @@ class DataStorageTests(unittest.TestCase):
         write(self.data / "generated" / "covers" / "ABC-001.jpg", 60)
         write(self.data / "generated" / "review.csv", 3)
         write(self.data / "sources" / "taste-history" / "history.sqlite", 9)
+        write(self.data / "sources" / "follow" / "provider" / "entry" / "snapshot.raw", 16)
+        write(self.data / "sources" / "library-metadata" / "snapshot.json", 17)
+        write(self.data / "sources" / "metadata" / "javinizer-go" / "snapshot.json", 4)
+        write(self.data / "sources" / "k-mib" / "snapshot.json", 6)
         write(self.data / "logs" / "tray.log", 4)
         write(self.data / "logs" / "tray.until-20260101.log", 6)
         write(self.data / "logs" / "crash-123.log", 2)
         write(self.data / "state" / "job-recovery" / "scan.json", 11)
+        write(self.data / "state" / "project-context" / "release" / "artifact.zip", 18)
         write(self.data / "review" / "names.csv", 12)
         write(self.data / "archive" / "old.csv", 13)
         write(self.data / "tools" / "ffmpeg" / "ffmpeg.exe", 14)
@@ -77,6 +82,9 @@ class DataStorageTests(unittest.TestCase):
         groups = usage["categories"]
 
         self.assertEqual(groups["records"], {"bytes": 36, "files": 3, "reclaimable": 0})
+        self.assertEqual(groups["project_archives"], {"bytes": 18, "files": 1, "reclaimable": 0})
+        self.assertEqual(groups["follow_snapshots"], {"bytes": 16, "files": 1, "reclaimable": 0})
+        self.assertEqual(groups["source_snapshots"], {"bytes": 27, "files": 3, "reclaimable": 0})
         self.assertEqual(groups["tools"]["bytes"], 14)
         self.assertEqual(groups["accounts"]["bytes"], 15)
         self.assertTrue(reports)
@@ -95,6 +103,20 @@ class DataStorageTests(unittest.TestCase):
         self.assertEqual(groups["downloads"]["reclaimable"], 0)
         self.assertEqual(usage["total_files"], sum(item["files"] for item in groups.values()))
         self.assertEqual(usage["root"], str(self.data))
+        self.assertEqual(usage["total_bytes"], sum(item["bytes"] for item in groups.values()))
+
+    def test_usage_from_before_the_category_split_is_not_relabelled(self):
+        config = self.config()
+        write(self.data / "sources" / "follow" / "snapshot.raw", 20)
+        usage = data_storage.measure(config)
+        usage_file = config.directory("state") / data_storage.USAGE_NAME
+        usage_file.write_text(json.dumps(usage), encoding="utf-8")
+        self.assertEqual(data_storage.read_usage(config), usage)
+
+        del usage["category_version"]
+        usage["categories"]["sources"] = usage["categories"].pop("follow_snapshots")
+        usage_file.write_text(json.dumps(usage), encoding="utf-8")
+        self.assertIsNone(data_storage.snapshot(config)["usage"])
 
     def test_cleaning_removes_only_rebuildable_files(self):
         config = self.config()

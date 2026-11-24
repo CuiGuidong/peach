@@ -36,8 +36,8 @@ export interface NetworkShape { port: boolean; addresses?: number; networkEditab
 export interface DevicesShape { rows: number; manageable: boolean }
 export interface MaintenanceShape {
   releaseFacts: number; releaseNotes: number; autoUpdateHelp: boolean; startupNote: boolean; desktopNote: boolean;
-  storage: boolean; storageRows: number; storageNotes: number; reporting: boolean; reportingIdle: boolean; sharing: boolean;
-  sharingNotice: boolean; sharingIdle: boolean; facts: string[]; uninstall: boolean; uninstallHelp: boolean;
+  storage: boolean; storageRows: number; storageNotes: number; reporting: boolean; reportingIdle: boolean;
+  sharingIdle: boolean; facts: string[]; uninstall: boolean; uninstallHelp: boolean;
 }
 export interface ConfigurationShape {
   media: MediaShape; discovery: DiscoveryShape; credentials: CredentialsShape; indexers: IndexersShape;
@@ -101,7 +101,7 @@ const valueRow = (label: string, description = '', width = '4em') => controlRow(
 const help = (content: string) => `<p class="text-body-2-regular text-text-secondary">${content}</p>`;
 const fieldLabel = (label: string) => `<p class="text-body-medium text-text-primary">${label}</p>`;
 const inputField = (label: string, hint = '') => `<div class="flex w-full flex-col items-start gap-1"><span class="flex items-center gap-0.5 text-body-medium text-text-primary">${label}</span>${input()}${hint ? `<span class="pt-px text-caption-1-medium text-text-secondary">${hint}</span>` : ''}</div>`;
-const selectField = (label: string) => `<div class="flex flex-col gap-1">${fieldLabel(label)}${islandSelect(text('8em'))}</div>`;
+const selectField = (label: string, description = '') => `<div class="flex flex-col gap-1">${fieldLabel(label)}${islandSelect(text('8em'))}${description ? help(description) : ''}</div>`;
 const check = (label: string) => `<span class="flex items-center gap-2 text-body-regular text-text-primary">${block('16px', '16px')}${label}</span>`;
 const marked = (label: string) => `<span class="inline-flex items-center gap-1">${icon()}${label}</span>`;
 /** 折叠行（`Disclosure` 的 summary）：箭头与名字；展开时箭头转下。 */
@@ -234,7 +234,8 @@ export function discoverySkeleton(): string {
   const webhook = cloud && on(shape?.webhook);
   const prefixRow = `<div class="flex items-start gap-2"><span class="min-w-0 flex-1">${input()}</span>${islandSelect(text('4em'), { prefix: t('settings:pushDiscovery.mapsTo') })}${islandButton({ glyph: 'trash', variant: 'secondary', attrs: wait })}</div>`;
   return section(t('settings:fileDiscovery.title'), stack(`<div class="flex flex-wrap items-center gap-2"><span class="text-body-regular text-text-secondary">${t('settings:pushDiscovery.localMonitoring')}</span>${chip()}</div>`)
-    + row(t('settings:fileDiscovery.autoImport'), enabled ? text('10em') : '') + row(t('settings:fileDiscovery.monitorLocal'), enabled && on(shape?.watchLocal) ? text('12em') : '')
+    + row(t('settings:fileDiscovery.autoImport'), t('settings:fileDiscovery.autoImportHelp') + (enabled ? `<br>${text('10em')}` : ''))
+    + row(t('settings:fileDiscovery.monitorLocal'), t('settings:fileDiscovery.monitorLocalHelp') + (enabled && on(shape?.watchLocal) ? `<br>${text('12em')}` : ''))
     + row(t('settings:fileDiscovery.cloudNotify'), t('settings:fileDiscovery.cloudNotifyHelp')) +(cloud ? controlRow(t('settings:fileDiscovery.webhookConfig'), text('20em'), '') : '')
     + (webhook ? stack(summary(t('settings:fileDiscovery.viewConfig')), true) : '')
     + (cloud ? stack(`<div class="flex flex-col gap-3">${fieldLabel(t('settings:pushDiscovery.cloudPrefixes'))}<div class="flex flex-col gap-3">${prefixRow.repeat(count(shape?.prefixes, 20))}</div><div>${button(t('settings:pushDiscovery.addPrefix'), 'secondary')}</div></div>`, true) : ''),
@@ -242,43 +243,55 @@ export function discoverySkeleton(): string {
 }
 
 /** 媒体库与目录：图例、每个媒体库的标题行、文件夹行与它自己的添加键，最下面添加媒体库与底部动作。 */
+function configurationGroupsSkeleton(groups: [string, string][]) {
+  return `<div class="flex min-w-0 flex-col gap-5">${configurationContentsSkeleton(groups.map(([label]) => label))}
+    <div class="flex min-w-0 flex-col gap-8">${groups.map(([, content]) => content).join('')}</div>
+  </div>`;
+}
+
 const media = () => {
   const shape = mediaSkeletonShape();
-  return section(t('settings:libraryFolders.title'), stack(`${legend}<div class="flex flex-col gap-4">${shape.folders.map(folders => libraryBlock(folders, shape.folders.length)).join('')}</div>
+  const folders = section(t('settings:libraryFolders.title'), stack(`${legend}<div class="flex flex-col gap-4">${shape.folders.map(folders => libraryBlock(folders, shape.folders.length)).join('')}</div>
   <div class="self-start">${button(t('settings:mediaLibraries.addLibrary'), 'secondary')}</div>
   <p class="text-body-2-regular text-text-secondary">${LIBRARY_FOLDER_HELP}</p>
   ${shape.cloud ? cloudHelp : ''}<span class="text-body-medium text-text-primary">${text('15em')}</span>`),
-  button(t('settings:shared.saveSettings')), { status: t('settings:libraryFolders.restartNotice') })
-  + (shape.cloud ? cloudProxySkeleton() : '')
-  + discoverySkeleton()
-  + section(t('settings:codePatterns.title'), stack(`${text('90%')}${text('60%')}<span class="skeleton ui-configuration-skeleton-input" style="width:100%;height:88px"></span>`), button(t('settings:shared.saveSettings')))
-  + section(t('settings:videoPreviews.title'), row(t('settings:videoPreviews.generate'), t('settings:videoPreviews.generateHelp'))
+  button(t('settings:shared.saveSettings')), { status: t('settings:libraryFolders.restartNotice') });
+  const patterns = section(t('settings:codePatterns.title'), stack(`${text('90%')}${text('60%')}<span class="skeleton ui-configuration-skeleton-input" style="width:100%;height:88px"></span>`), button(t('settings:shared.saveSettings')));
+  const previews = section(t('settings:videoPreviews.title'), row(t('settings:videoPreviews.generate'), t('settings:videoPreviews.generateHelp'))
     + row(t('settings:videoPreviews.timeline'), t('settings:videoPreviews.timelineHelp'), 'ui-configuration-skeleton-select')
     + row(t('settings:videoPreviews.decoder'), t('settings:videoPreviews.decoderHelp'), 'ui-configuration-skeleton-select'));
+  const transcode = section(t('settings:transcoding.title'), row(t('settings:transcoding.mode'), t('settings:transcoding.modeHelp'), 'ui-configuration-skeleton-select')
+    + row(t('settings:transcoding.quality'), t('settings:transcoding.qualityHelp'), 'ui-configuration-skeleton-select'));
+  const groups: [string, string][] = [[t('settings:libraryFolders.title'), folders]];
+  if (shape.cloud) groups.push([t('settings:cloudProxy.title'), cloudProxySkeleton()]);
+  groups.push([t('settings:fileDiscovery.title'), discoverySkeleton()], [t('settings:codePatterns.title'), patterns],
+    [t('settings:videoPreviews.title'), previews], [t('settings:transcoding.title'), transcode], [t('settings:taskSpeed.title'), '']);
+  return configurationGroupsSkeleton(groups);
 };
 
 /* ---------- 来源与订阅 ---------- */
 
-const subscriptions = () => `<div>${button(t('settings:sourceSettings.sourcesLink'), 'secondary')}</div>`
-  + credentialsSkeleton()
-  + section(t('settings:followFetch.title'), controlRow(t('settings:followFetch.autoCheck'), '', `<span class="flex items-center gap-2"><span class="skeleton ui-configuration-skeleton-toggle"></span><span class="skeleton ui-configuration-skeleton-input" style="width:96px"></span></span>`)
+const subscriptions = () => configurationGroupsSkeleton([
+  [t('follow:sourceCredentials.sectionTitle'), `<div class="flex min-w-0 flex-col gap-6"><div>${button(t('settings:sourceSettings.sourcesLink'), 'secondary')}</div>${credentialsSkeleton()}</div>`],
+  [t('settings:followFetch.title'), section(t('settings:followFetch.title'), controlRow(t('settings:followFetch.autoCheck'), '', `<span class="flex items-center gap-2"><span class="skeleton ui-configuration-skeleton-toggle"></span><span class="skeleton ui-configuration-skeleton-input" style="width:96px"></span></span>`)
     + valueRow(t('settings:followFetch.feedSchedule')) + row(t('settings:followFetch.initialRange'), t('settings:followFetch.initialRangeHelp'), 'ui-configuration-skeleton-select')
-    + valueRow(t('settings:followFetch.avatarRefresh'), t('settings:followFetch.avatarRefreshHelp')) + valueRow(t('settings:followFetch.faviconRefresh'), t('settings:followFetch.faviconRefreshHelp')))
-  + section(t('settings:scrapingBrowser.title'), row(t('settings:scrapingBrowser.mode'), t('settings:scrapingBrowser.modeHelp'), 'ui-configuration-skeleton-select'))
-  + section(t('settings:wantSearch.title'), row(t('settings:wantSearch.interval'), t('settings:wantSearch.intervalHelp'), 'ui-configuration-skeleton-select')
-    + row(t('settings:wantSearch.giveUp'), t('settings:wantSearch.giveUpHelp'), 'ui-configuration-skeleton-select'))
-  + section(t('settings:coverFallback.title'), row(t('settings:coverFallback.javdb'), t('settings:coverFallback.javdbHelp')))
-  + indexersSkeleton()
-  + section(t('settings:entryLinks.title'), stack(`<p class="text-body-2-regular text-text-secondary">${ENTRY_LINKS_HELP}</p>${inputField(marked(t('settings:entryLinks.siteAddress', { site: 'JavDB' })), ENTRY_LINKS_HINT)}${inputField(marked(t('settings:entryLinks.siteAddress', { site: 'MISSAV' })), ENTRY_LINKS_HINT)}`), button(t('settings:shared.saveSettings')));
+    + valueRow(t('settings:followFetch.avatarRefresh'), t('settings:followFetch.avatarRefreshHelp')) + valueRow(t('settings:followFetch.faviconRefresh'), t('settings:followFetch.faviconRefreshHelp')))],
+  [t('settings:scrapingBrowser.title'), section(t('settings:scrapingBrowser.title'), row(t('settings:scrapingBrowser.mode'), t('settings:scrapingBrowser.modeHelp'), 'ui-configuration-skeleton-select'))],
+  [t('settings:coverFallback.title'), section(t('settings:coverFallback.title'), row(t('settings:coverFallback.javdb'), t('settings:coverFallback.javdbHelp')))],
+  [t('settings:entryLinks.title'), section(t('settings:entryLinks.title'), stack(`<p class="text-body-2-regular text-text-secondary">${ENTRY_LINKS_HELP}</p>${inputField(marked(t('settings:entryLinks.siteAddress', { site: 'JavDB' })), ENTRY_LINKS_HINT)}${inputField(marked(t('settings:entryLinks.siteAddress', { site: 'MISSAV' })), ENTRY_LINKS_HINT)}`), button(t('settings:shared.saveSettings')))],
+  [t('settings:indexers.title'), indexersSkeleton()],
+  [t('settings:wantSearch.title'), section(t('settings:wantSearch.title'), row(t('settings:wantSearch.interval'), t('settings:wantSearch.intervalHelp'), 'ui-configuration-skeleton-select')
+    + row(t('settings:wantSearch.giveUp'), t('settings:wantSearch.giveUpHelp'), 'ui-configuration-skeleton-select'))],
+]);
 
 /* ---------- 下载渠道：云下载与 PikPak 两块随媒体库里的网盘出现 ---------- */
 
 const downloads = () => {
   const shape = rememberedShape('downloads');
   const pikpak = on(shape?.pikpak);
-  const roots = on(shape?.pikpakRoots) ? selectField(marked(t('settings:cloudDownload.pikpakRootDirectory')))
+  const roots = on(shape?.pikpakRoots) ? selectField(marked(t('settings:cloudDownload.pikpakRootDirectory')), t('settings:cloudDownload.pikpakRootDirectoryHelp'))
     : `<div class="flex flex-col gap-1">${fieldLabel(marked(t('settings:cloudDownload.pikpakRootDirectory')))}${help(t('settings:cloudDownload.addPikpakMount'))}</div>`;
-  const cloud = on(shape?.cloud) ? section(t('settings:cloudDownload.title'), stack(inputField(t('settings:cloudDownload.cloudDriveUrl')) + inputField(t('settings:cloudDownload.apiToken'), t('settings:cloudDownload.apiTokenHelp'))
+  const cloud = on(shape?.cloud) ? section(t('settings:cloudDownload.title'), stack(inputField(t('settings:cloudDownload.cloudDriveUrl'), t('settings:cloudDownload.cloudDriveUrlHelp')) + inputField(t('settings:cloudDownload.apiToken'), t('settings:cloudDownload.apiTokenHelp'))
     + (on(shape?.has115) ? inputField(marked(t('settings:cloudDownload.target115')), t('settings:cloudDownload.target115Help')) : '')
     + (pikpak ? inputField(marked(t('settings:cloudDownload.targetPikpak')), t('settings:cloudDownload.targetPikpakHelp')) + roots : '')
     + inputField(t('settings:cloudDownload.maxWait'), text('14em'))), button(t('settings:cloudDownload.testConnection'), 'secondary') + button(t('settings:shared.saveSettings'))) : '';
@@ -290,7 +303,11 @@ const downloads = () => {
     + inputField(t('settings:localDownload.address')) + inputField(t('settings:localDownload.username')) + inputField(t('settings:localDownload.password'))
     + inputField(t('settings:localDownload.savePath')) + selectField(marked(t('settings:localDownload.mediaRoot')))),
   button(t('settings:cloudDownload.testConnection'), 'secondary') + button(t('settings:shared.saveSettings'))) : '';
-  return cloud + account + local + javBrowserSkeleton();
+  const groups: [string, string][] = [];
+  if (cloud) groups.push([t('settings:cloudDownload.title'), cloud]);
+  if (account) groups.push([t('settings:pikpakAccount.title'), account]);
+  groups.push([t('settings:localDownload.title'), local], [t('settings:javBrowser.title'), javBrowserSkeleton()]);
+  return configurationGroupsSkeleton(groups);
 };
 
 /* ---------- 网络与访问 ---------- */
@@ -341,15 +358,20 @@ const network = () => {
     : help(TUNNEL_HELP.quick)) + (on(shape?.tunnelNote) ? block('100%', '64px') : '');
   const addresses = count(shape?.addresses, 3);
   const addressFields = Array.from({ length: addresses }, (_, i) => `<div class="flex min-w-0 flex-wrap items-end gap-2"><div class="min-w-0 flex-1">${inputField([t('settings:accessAddress.localUrl'), t('settings:accessAddress.phoneUrl'), t('settings:accessAddress.alternateIp')][i]!)}</div>${button(t('settings:accessAddress.copyUrl'), 'secondary')}</div>`).join('');
-  return (addresses || on(shape?.port) ? section(t('settings:accessUrls.title'), stack(addressFields + (addresses ? block('100%', '40px') : '')
+  const accessUrls = addresses || on(shape?.port) ? section(t('settings:accessUrls.title'), stack(addressFields + (addresses ? block('100%', '40px') : '')
       + (on(shape?.networkEditable) ? `<div class="flex flex-col gap-1.5">${fieldLabel(t('settings:accessAddress.whoCanConnect'))}${block('min(100%, 20em)', '36px')}</div>` + (on(shape?.lan) ? inputField(t('settings:accessUrls.lanUrl')) : '') : '')
       + (on(shape?.port) ? inputField(t('settings:accessUrls.port')) : '')), on(shape?.port) ? button(t('settings:shared.saveSettings')) : '',
-      on(shape?.port) ? { status: t('settings:accessUrls.restartNotice') } : {}) : '')
-    + section(t('settings:accessPassword.title'), stack(accessBody(mode)), mode === 'locked' ? '' : button(t('settings:shared.saveSettings')))
-    + (mode === 'password' || mode === 'legacy' ? devicesSkeleton() : '')
-    + section(t('settings:remoteAccess.title'), stack((named ? block('10.5em', '36px') : '') + tunnel),
-      button(t('settings:remoteAccess.start'), named ? 'secondary' : 'primary') + (named ? button(t('settings:shared.saveSettings')) : ''), { aside: chip() })
-    + section(t('settings:peachProxy.title'), row(t('settings:peachProxy.mode'), t('settings:peachProxy.modeHelp'), 'ui-configuration-skeleton-select') + (on(shape?.proxyAddress) ? stack(inputField(t('settings:peachProxy.url')), true) : ''), button(t('settings:shared.saveSettings')));
+      on(shape?.port) ? { status: t('settings:accessUrls.restartNotice') } : {}) : '';
+  const access = section(t('settings:accessPassword.title'), stack(accessBody(mode)), mode === 'locked' ? '' : button(t('settings:shared.saveSettings')));
+  const devices = mode === 'password' || mode === 'legacy' ? devicesSkeleton() : '';
+  const remote = section(t('settings:remoteAccess.title'), stack((named ? block('10.5em', '36px') : '') + tunnel),
+      button(t('settings:remoteAccess.start'), named ? 'secondary' : 'primary') + (named ? button(t('settings:shared.saveSettings')) : ''), { aside: chip() });
+  const proxy = section(t('settings:peachProxy.title'), row(t('settings:peachProxy.mode'), t('settings:peachProxy.modeHelp'), 'ui-configuration-skeleton-select') + (on(shape?.proxyAddress) ? stack(inputField(t('settings:peachProxy.url')), true) : ''), button(t('settings:shared.saveSettings')));
+  const groups: [string, string][] = [];
+  if (accessUrls) groups.push([t('settings:accessUrls.title'), accessUrls]);
+  groups.push([t('settings:accessPassword.title'), `<div class="flex min-w-0 flex-col gap-6">${access}${devices}</div>`],
+    [t('settings:certificateTrust.title'), ''], [t('settings:remoteAccess.title'), remote], [t('settings:peachProxy.title'), proxy]);
+  return configurationGroupsSkeleton(groups);
 };
 
 /* ---------- 应用与维护 ---------- */
@@ -365,18 +387,18 @@ const maintenance = () => {
   const storageNotes = count(shape?.storageNotes, 3);
   const runtime = list(shape?.facts, 12, entry => esc(String(entry)));
   const idle = `<span class="self-start">${chip('6em')}</span>`;
-  /* 数据上传与卸载两块服务端总会给；没有记录时也画上，只是不画随状态出现的提示。 */
+  /* 无配置页读数时先画常见分区。 */
   const given = (value: unknown) => shape ? on(value) : true;
   const storage = shape?.storage !== false;
   const reporting = given(shape?.reporting) ? row(t('settings:dataSharing.reportErrors'), t('settings:dataSharing.reportErrorsHelp')) + (on(shape?.reportingIdle) ? stack(idle, true) : '') : '';
-  const sharing = given(shape?.sharing) ? `<div class="border-t border-separator-border">${row(t('settings:librarySharing.uploadDetails'), on(shape?.sharingNotice) ? text('12em') : '')}${on(shape?.sharingIdle) ? stack(idle, true) : ''}${footer(button(t('settings:librarySharing.preview'), 'secondary'))}</div>` : '';
+  const sharing = row(t('settings:communitySharing.enable'), t('settings:communitySharing.description'))
+    + (on(shape?.sharingIdle) ? stack(idle, true) : '')
+    + footer(button(t('settings:communitySharing.preview'), 'secondary'), chip('5em'));
   const updates = section(t('settings:releaseUpdates.check'), facts(releaseFacts) + (releaseNotes ? stack(help(text('50%')).repeat(releaseNotes), true) : ''),
     button(t('settings:releaseUpdates.check')), { aside: chip('4em'), status: text('5em') })
-    + section(t('settings:autoUpdate.title'), row(t('settings:autoUpdate.autoCheck')) + row(t('settings:autoUpdate.autoDownload'), t('settings:autoUpdate.autoDownloadHelp')) +row(t('settings:autoUpdate.frequency'), on(shape?.autoUpdateHelp) ? text('12em') : '', 'ui-configuration-skeleton-select'), button(t('settings:shared.saveSettings')));
-  const runtimeCards = section(t('settings:startup.title'), row(t('settings:startup.launchAtStartup')) + row(t('settings:startup.trayOnly'), t('settings:startup.trayOnlyHelp')) +row(t('settings:startup.desktopShortcut'), on(shape?.desktopNote) ? text('12em') : '')
+    + section(t('settings:autoUpdate.title'), row(t('settings:autoUpdate.autoCheck'), t('settings:autoUpdate.autoCheckHelp')) + row(t('settings:autoUpdate.autoDownload'), t('settings:autoUpdate.autoDownloadHelp')) +row(t('settings:autoUpdate.frequency'), on(shape?.autoUpdateHelp) ? text('12em') : '', 'ui-configuration-skeleton-select'), button(t('settings:shared.saveSettings')));
+  const runtimeCards = section(t('settings:startup.title'), row(t('settings:startup.launchAtStartup'), t('settings:startup.launchAtStartupHelp')) + row(t('settings:startup.trayOnly'), t('settings:startup.trayOnlyHelp')) +row(t('settings:startup.desktopShortcut'), on(shape?.desktopNote) ? text('12em') : '')
       + (on(shape?.startupNote) ? stack(help(text('60%')), true) : ''), button(t('settings:shared.saveSettings')))
-    + section(t('settings:transcoding.title'), row(t('settings:transcoding.mode'), t('settings:transcoding.modeHelp'), 'ui-configuration-skeleton-select')
-      + row(t('settings:transcoding.quality'), t('settings:transcoding.qualityHelp'), 'ui-configuration-skeleton-select'))
     + (storage ? section(t('settings:diskUsage.title'), facts([t('settings:shared.dataDirectory'), t('settings:diskUsage.disk')])
       + (storageRows ? Array.from({ length: storageRows }, () => controlRow(text('6em'), '', text('4em'))).join('') : stack(help(t('settings:diskUsage.emptyHelp')), true))
       + (storageNotes ? stack(help(text('80%')).repeat(storageNotes), true) : ''),
@@ -390,7 +412,9 @@ const maintenance = () => {
     [t('settings:maintenanceGroups.updates'), updates],
     [t('settings:maintenanceGroups.runtime'), runtimeCards],
     ...(storage ? [[t('settings:maintenanceGroups.backups'), backupCards] as [string, string]] : []),
-    [t('settings:maintenanceGroups.privacy'), reporting || sharing ? section(t('settings:dataSharing.title'), reporting + sharing) : ''],
+    [t('settings:maintenanceGroups.privacy'),
+      (reporting ? section(t('settings:dataSharing.diagnosticsTitle'), reporting) : '')
+      + section(t('settings:dataSharing.communityTitle'), sharing)],
   ];
   const uninstall = given(shape?.uninstall) ? section(t('settings:uninstall.title'), (on(shape?.uninstallHelp) ? stack(help(t('settings:uninstall.help'))) : '')
       + row(t('settings:uninstall.full'), t('settings:uninstall.fullHelp')) + stack(summary(t('settings:shared.dataDirectory')), true), button(t('settings:uninstall.title')), { status: text('16em') }) : '';
