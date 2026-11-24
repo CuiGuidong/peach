@@ -1748,7 +1748,7 @@
       "timeBudgetSpent": "本趟采集时间已用完，再跑一次接着采；已有图片保留",
       "downloadBudgetSpent": "本趟下载量已用完，再跑一次接着采；已有图片保留",
       "coolingDown": "来源正在冷却，请稍后重试；已有图片保留",
-      "challengeTimedOut": "来源的人机验证没有在限时内通过，暂停向它请求一段时间；下次可从任务栏点开采集浏览器点一下验证；已有图片保留",
+      "challengeTimedOut": "来源的人机验证超时，已有图片保留。等来源恢复后再试。若需手动验证，请先选「保留窗口」，再在运行 Peach 的电脑上切换到采集浏览器",
       "rateLimited": "来源限流，已记录冷却时间；已有图片保留",
       "coolingDownNamed": "{{label}} 暂停中，约 {{minutes}} 分钟后再试",
       "rateLimitedNamed": "{{label}} 限流，约 {{minutes}} 分钟后再试",
@@ -4867,7 +4867,8 @@
         "mdnsName": {
           "label": "局域网访问地址",
           "help": "选了「同一局域网的设备」之后，其他设备在浏览器里输入这个地址就能打开 Peach。",
-          "standaloneHelp": "其他设备打开这个地址时要加上上面的端口，例如 http://peach.local:8900。首次连接请允许 Windows 专用网络访问。"
+          "standaloneHelp": "其他设备打开这个地址时要加上上面的端口，例如 http://peach.local:8900。",
+          "standaloneWindowsHelp": "其他设备打开这个地址时要加上上面的端口，例如 http://peach.local:8900。如果 Windows 防火墙弹出提示，请允许 Peach 在专用网络上通信。"
         }
       },
       "posixMediaNote": "填写这台设备实际读取媒体的文件夹；Docker 部署填写容器内目录，例如 /media。",
