@@ -38,7 +38,7 @@ function DiscoveryStatusRow({ label, help, status, children }: {
   label: string; help: string; status?: string; children: ReactNode;
 }) {
   return (
-    <div className="flex min-h-[52px] w-full items-center justify-between gap-4 border-b border-separator-border py-2.5 pr-2.5 last:border-b-0">
+    <div className="flex min-h-13 w-full items-center justify-between gap-4 border-b border-separator-border py-2.5 pr-2.5 last:border-b-0">
       <div className="flex min-w-0 flex-col">
         <p className="text-body-regular text-text-primary">{label}</p>
         <Help><span>{help}</span>{status ? <span className="block">{status}</span> : null}</Help>
