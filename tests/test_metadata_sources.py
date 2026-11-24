@@ -103,7 +103,7 @@ class JavDBResourceTests(unittest.TestCase):
                       '/v/Special': detail(special_title),
                       '/v/Regular': detail(**{'title': title, **(overrides or {})})}
 
-            def transport(request, timeout, max_bytes):
+            def transport(request, timeout, max_bytes, *, paths=paths, bodies=bodies):
                 path = urlsplit(request.url).path
                 paths.append(path)
                 return HttpResponse(200, {}, bodies[path])
