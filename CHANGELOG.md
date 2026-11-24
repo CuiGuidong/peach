@@ -14,6 +14,11 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Fixed / 修复
+
+- **Library**: Upgrading retries known cover-install failures and rechecks failed QR analysis using saved previews (#820, #794). / **馆藏**：升级后自动补试已知的封面安装失败，并用已有九宫格重查失败的二维码分析（#820、#794）。
+- **Sourcing**: Upgrading reprocesses affected release codes, source failures and old NFO evidence (#788, #789, #431, #816, #725). / **采集**：升级后定向重查受影响的番号、来源失败及旧 NFO 资料（#788、#789、#431、#816、#725）。
+
 ## [0.62.0] - 2026-11-24
 
 ### Added / 新增

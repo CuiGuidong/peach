@@ -3312,20 +3312,22 @@ def _checkpoint_key(row):
 
 
 def _newly_coded_assets(database, db_path) -> set[str]:
-    """按现行内置规则才有了番号的影片 id，处理时补上番号再采资料。
+    """按现行番号判据需要重新采集的影片 id。
 
     两类：账本里没番号、现在能从文件名认出的；番号带登记尾字母的（`IBW-483Z`）。后者是升级补修
     刚从旧版截掉尾字母的写法改回来的（`upgrade_repairs.truncated_suffix_codes`），按旧写法采集时
-    来源返回都被身份闸拒掉，得按现番号再采一次。
+    来源返回都被身份闸拒掉，得按现番号再采一次。旧 CDRP 序号按现行位数重问。
     """
     from .catalog_rules import without_label_suffix
     from .repository import LedgerDatabase
+    from .upgrade_stock_repair import needs_filename_code
     ledger = database if database is not None else LedgerDatabase(db_path)
     with ledger.read_connection() as connection:
         rows = connection.execute(
-            "SELECT id,name,code FROM asset WHERE medium='video'").fetchall()
+            "SELECT id,name,code,field_owners FROM asset WHERE medium='video'").fetchall()
     return {str(row[0]) for row in rows
-            if (release_code_from_filename(row[1] or '') if not row[2] else without_label_suffix(row[2]))}
+            if (release_code_from_filename(row[1] or '') if not row[2]
+                else without_label_suffix(row[2]) or needs_filename_code(row))}
 
 
 class _LibraryCheckpoints:
@@ -3668,6 +3670,13 @@ class _LocalEvidenceCache:
         return hashlib.sha256(json.dumps([directory, video.name, str(ledger_code or '')],
                                          ensure_ascii=False).encode('utf-8')).hexdigest()
 
+    def _current_parser(self, row, cached, has_nfo):
+        from .upgrade_stock_repair import needs_filename_code
+        if has_nfo and cached.get('nfo_parser') != NFO_PARSER_VERSION:
+            return False
+        return (cached.get('filename_code_rule') == upgrade_rules.FILENAME_CODES
+                or not needs_filename_code(row, self.code_patterns))
+
     def _reuse(self, row, issue, poster_jobs):
         """跨任务复用：指纹对得上就返回上次读出的本地证据，海报按当下重排；对不上返回 None。"""
         key = _checkpoint_key(row)
@@ -3684,7 +3693,7 @@ class _LocalEvidenceCache:
             code, verify, payload, entries = cached['local']
         except (OSError, ValueError, KeyError, TypeError):
             return None
-        if verify and cached.get('nfo_parser') != NFO_PARSER_VERSION:
+        if not self._current_parser(row, cached, verify):
             return None
         entries = [(source, document, translate_ledger_path(path)) for source, document, path in entries]
         if not all(Path(path).is_file() for _, _, path in entries):
@@ -3705,8 +3714,7 @@ class _LocalEvidenceCache:
             cached = json.loads(Path(cached_path).read_text(encoding='utf-8')) if cached_path else None
         except (OSError, ValueError):
             cached = None
-        if cached is not None and (not cached['local'][1]
-                                   or cached.get('nfo_parser') == NFO_PARSER_VERSION):
+        if cached is not None and self._current_parser(row, cached, cached['local'][1]):
             code, verify, payload, entries = cached['local']
             poster_jobs.extend((row, translate_ledger_path(source), name, Path(target))
                                for source, name, target in cached['posters'])
@@ -3719,7 +3727,7 @@ class _LocalEvidenceCache:
                                      self.state, update, issue, poster_jobs, self.code_patterns)
         if local is not None and self.state['issue_count'] == issues_before:
             code, verify, payload, entries = local
-            record = dict(nfo_parser=NFO_PARSER_VERSION,
+            record = dict(nfo_parser=NFO_PARSER_VERSION, filename_code_rule=upgrade_rules.FILENAME_CODES,
                           local=[code, verify, payload, [(source, document, str(path)) for source, document, path in entries]],
                           posters=[(str(source), name, str(target)) for _, source, name, target in poster_jobs[offset:]])
             encoded = json.dumps(record, ensure_ascii=False)
