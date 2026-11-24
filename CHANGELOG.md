@@ -14,6 +14,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+## [0.62.0] - 2026-11-24
+
 ### Added / 新增
 
 - **Interface**: Drag to select cards or rows, with batch actions for new releases on the home and entity pages (#855). / **界面**：卡片和列表支持拖动框选，首页与资料页横排新作支持批量操作（#855）。
@@ -1328,7 +1330,8 @@ First Windows standalone test package. Earlier development (from 2026-08-14, inc
 - **Desktop**: The standalone package writes startup logs in UTF-8. / **桌面**：独立包使用 UTF-8 启动日志。
 - **Settings**: The redirect after first-time setup uses a freshly read mDNS name. / **配置**：首次设置后的跳转目标取新鲜读到的 mDNS 名。
 
-[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.61.0...HEAD
+[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.62.0...HEAD
+[0.62.0]: https://github.com/peach-mitao/peach/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/peach-mitao/peach/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/peach-mitao/peach/compare/v0.59.0...v0.60.0
 [0.59.0]: https://github.com/peach-mitao/peach/compare/v0.58.0...v0.59.0
