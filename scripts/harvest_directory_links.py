@@ -57,7 +57,7 @@ from peach.interface_text import dev as t   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
 from peach.page_cache import HttpStatusError, Site   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
-from peach.scripting import SharedSlot, shared_slot_path   # noqa: E402
+from peach.scripting import SharedSlot, readonly_uri, shared_slot_path   # noqa: E402
 from peach.social_links import (   # noqa: E402
     canonical_url, classify, handle, load_performers, name_key, platform, under,
     x_profile_state,
@@ -873,7 +873,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run(args) -> int:
-    connection = sqlite3.connect(f"file:{args.database}?mode=ro", uri=True)
+    connection = sqlite3.connect(readonly_uri(args.database), uri=True)
     try:
         performers = load_performers(connection, args.min_assets)
         existing_handles, existing_urls = load_existing(connection)

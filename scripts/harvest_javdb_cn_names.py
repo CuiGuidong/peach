@@ -66,6 +66,7 @@ from peach.config import STATE_DIR   # noqa: E402
 from peach.interface_text import dev as t   # noqa: E402
 from peach.kanji import fold_glyphs   # noqa: E402
 from peach.jobs import job_main   # noqa: E402
+from peach.migrations import readonly_uri   # noqa: E402
 from peach.review_csv import write_rows   # noqa: E402
 from peach.social_links import name_key   # noqa: E402
 
@@ -431,7 +432,7 @@ def run(args: argparse.Namespace) -> int:
             if part.strip()]
     site = Site(args.cache_dir / "javdb", max(args.interval, 5.0), args.timeout,
                 refresh=args.refresh, via_proxy=True)
-    connection = sqlite3.connect(f"file:{args.db}?mode=ro", uri=True)
+    connection = sqlite3.connect(readonly_uri(args.db), uri=True)
     try:
         rows, alias_rows = harvest(connection, site, args.limit, args.scope, only)
         rows = localize(rows)
