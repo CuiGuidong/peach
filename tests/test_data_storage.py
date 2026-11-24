@@ -383,7 +383,6 @@ class DataStorageTests(unittest.TestCase):
         self.assertFalse(request.exists())
 
     def test_request_needs_a_measurement_and_room_on_the_target_disk(self):
-        from peach.storage_budget import layout
         config = self.config()
         target = self.base / "new" / "peach-data"
         with patch.object(data_storage, "blocked", return_value=""), \
@@ -392,8 +391,7 @@ class DataStorageTests(unittest.TestCase):
                 data_storage.request(config, str(target))
             (self.data / "state").mkdir(exist_ok=True)
             (self.data / "state" / data_storage.USAGE_NAME).write_text(json.dumps(
-                {"root": str(self.data), "total_bytes": 1 << 50,
-                 "layout": layout(config)}), encoding="utf-8")
+                {**data_storage.measure(config), "total_bytes": 1 << 50}), encoding="utf-8")
             with patch.object(data_storage, "_same_volume", return_value=False), \
                     self.assertRaisesRegex(ValueError, "剩余"):
                 data_storage.request(config, str(target))
