@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "cf7e647e-d722-44df-a3fd-eda4ea78bddb", e._sentryDebugIdIdentifier = "sentry-dbid-cf7e647e-d722-44df-a3fd-eda4ea78bddb");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "5e722c12-e067-4e95-9589-5b6139e4a01e", e._sentryDebugIdIdentifier = "sentry-dbid-5e722c12-e067-4e95-9589-5b6139e4a01e");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -169,7 +169,7 @@ var b = (e) => typeof e == "string", x = () => {
 	e.forEach((e) => {
 		t[e] && (n[e] = t[e]);
 	});
-}, E = /###/g, D = (e) => e && e.includes("###") ? e.replace(E, ".") : e, O = (e) => !e || b(e), k = (e, t, n) => {
+}, E = /###/g, D = (e) => e && e.includes("###") ? e.replace(E, ".") : e, O = (e) => !e || typeof e != "object" && typeof e != "function", k = (e, t, n) => {
 	let r = b(t) ? t.split(".") : t, i = 0;
 	for (; i < r.length - 1;) {
 		if (O(e)) return {};
@@ -182,7 +182,7 @@ var b = (e) => typeof e == "string", x = () => {
 	};
 }, A = (e, t, n) => {
 	let { obj: r, k: i } = k(e, t, Object);
-	if (r !== void 0 || t.length === 1) {
+	if (r !== void 0 && !(Array.isArray(r) && i === "length") || t.length === 1) {
 		r[i] = n;
 		return;
 	}
@@ -40605,4 +40605,4 @@ Nt();
 var px = document.getElementById("peach-page"), mx = px ? fx[px.dataset.page ?? ""] : void 0;
 px && mx && (0, Ht.createRoot)(px).render(/* @__PURE__ */ (0, U.jsx)(dx, { children: /* @__PURE__ */ (0, U.jsx)(mx, { data: { ...px.dataset } }) }));
 
-//# debugId=cf7e647e-d722-44df-a3fd-eda4ea78bddb
+//# debugId=5e722c12-e067-4e95-9589-5b6139e4a01e

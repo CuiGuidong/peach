@@ -100,14 +100,14 @@ try {
             $ArchiveFolders = @($SearchRoots)
             if ($ArchiveFolders.Count -eq 0) { $ArchiveFolders = @("$env:USERPROFILE\Downloads", $PSScriptRoot, (Split-Path -Parent $PSScriptRoot)) }
             foreach ($Folder in $ArchiveFolders) {
-                $CandidateArchive = Join-Path $Folder 'ffmpeg-9.0.2-essentials_build.zip'
+                $CandidateArchive = Join-Path $Folder 'ffmpeg-9.1-essentials_build.zip'
                 if (Test-Path -LiteralPath $CandidateArchive -PathType Leaf) { $ArchivePath = $CandidateArchive; break }
             }
         }
         if ($ArchivePath) {
-            $ExpectedHash = '60f467265b1e312373dbcd92200c2618a74850f98d3d078e94296bb3fa2047ba'
+            $ExpectedHash = 'b9bbbb3acece000cbeec994f856649354e52c773807841e78908374b24d658fd'
             if ((Get-FileHash -LiteralPath $ArchivePath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $ExpectedHash) {
-                throw 'The FFmpeg ZIP does not match the verified Gyan 9.0.2 essentials download. Download the exact linked file again.'
+                throw 'The FFmpeg ZIP does not match the verified Gyan 9.1 essentials download. Download the exact linked file again.'
             }
             $ExtractionRoot = Join-Path ([IO.Path]::GetTempPath()) ('peach-ffmpeg-import-' + [guid]::NewGuid().ToString('N'))
             Expand-Archive -LiteralPath $ArchivePath -DestinationPath $ExtractionRoot
@@ -118,7 +118,7 @@ try {
         Write-Output "Found FFmpeg: $FFmpeg"
         Install-PeachBinary $FFmpeg 'ffmpeg\bin' @('ffmpeg.exe', 'ffprobe.exe')
     } else {
-        Write-Output 'NOT FOUND: ffmpeg.exe. Put ffmpeg-9.0.2-essentials_build.zip in Downloads, then run this script again.'
+        Write-Output 'NOT FOUND: ffmpeg.exe. Put ffmpeg-9.1-essentials_build.zip in Downloads, then run this script again.'
     }
     $Untrunc = Find-PeachBinary 'untrunc.exe' $Roots
     if ($Untrunc) {

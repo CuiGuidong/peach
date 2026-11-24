@@ -64,7 +64,7 @@ Windows 第一次询问防火墙权限时，只勾选「专用网络」。
 
 源码运行可在配置页「运行信息」点「安装」，把发布的 FFmpeg、untrunc 工具包装进数据目录的 `tools\ffmpeg`、`tools\untrunc`；也可将 FFmpeg、ffprobe 加入 PATH，或自行放在数据目录的 `tools\ffmpeg\bin`。显式指定的 `PEACH_FFMPEG`、`PEACH_FFPROBE` 优先；独立包随后使用随包工具，再查数据目录和 PATH。
 
-已在系统安装媒体工具时，可运行 [`import_windows_media_tools.cmd`](../scripts/import_windows_media_tools.cmd)，它调用同目录 PowerShell 脚本检测 WinGet、Scoop、Chocolatey、PATH 和下载目录，将工具及同目录 DLL 放入 Peach 的数据目录，替换文件时保留备份。没有检测到已解压工具时，可识别下载目录中的 Gyan `ffmpeg-9.0.2-essentials_build.zip`，校验固定 SHA-256 后解压接入。脚本不修改系统 PATH 或馆藏账本；完成后刷新配置页。
+已在系统安装媒体工具时，可运行 [`import_windows_media_tools.cmd`](../scripts/import_windows_media_tools.cmd)，它调用同目录 PowerShell 脚本检测 WinGet、Scoop、Chocolatey、PATH 和下载目录，将工具及同目录 DLL 放入 Peach 的数据目录，替换文件时保留备份。没有检测到已解压工具时，可识别下载目录中的 Gyan `ffmpeg-9.1-essentials_build.zip`，校验固定 SHA-256 后解压接入。脚本不修改系统 PATH 或馆藏账本；完成后刷新配置页。
 
 ## 从外网临时访问
 
