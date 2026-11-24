@@ -4,6 +4,7 @@ import { describe, it } from 'node:test';
 import type { Browser, Page } from 'playwright-core';
 import { openFollowFeed } from './follow-fixture.ts';
 import { requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
+import { stubHomeDiscoveries } from './home-discoveries-fixture.ts';
 import { openHome, openPanel, ORDER, PANEL, stubServer } from './settings-fixture.ts';
 import {
   DESKTOP, MOBILE, tokenColor, settledRun, openActivity, TASTE_CATEGORIES, TASTE_FACE, openTaste, openIndexPage,
@@ -14,17 +15,6 @@ const homeDiscoveries = Array.from({ length: 12 }, (_, index) => ({
   id: index + 1, code: `DEMO-${String(index + 1).padStart(3, '0')}`, title: `演示新作 ${index + 1}`,
   studio: '演示厂牌', release_date: '2026-09-01', has_cover: false, cover_url: '', link: '', read: false,
 }));
-
-async function showHomeDiscoveries(page: Page): Promise<void> {
-  await page.route((url) => url.pathname === '/api/feeds/discoveries', (route) =>
-    route.fulfill({ json: { items: homeDiscoveries } }));
-  await page.route((url) => url.pathname === '/api/entity/shapes', async (route) => {
-    const data = await (await route.fetch()).json();
-    await route.fulfill({ json: { ...data, home: { ...data.home, feed: true } } });
-  });
-  await page.reload({ waitUntil: 'load' });
-  await page.locator('#feedNew .feednewrow').waitFor({ state: 'visible', timeout: 15_000 });
-}
 
 describe('设计决定：设置、口味、统计与筛选玻璃', () => {
   let browser: Browser;
@@ -182,17 +172,19 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
 
   it('桌面首页的横滑边界由浏览偏好即时切换，刷新后仍按该偏好裁切', { timeout: 60_000 }, async () => {
     // visit() 每次加载时会重置本机偏好，这里由页面保存和恢复。
-    const page = await browser.newPage({ viewport: DESKTOP, locale: 'zh-CN', reducedMotion: 'reduce' });
+    const context = await browser.newContext({ viewport: DESKTOP, locale: 'zh-CN', reducedMotion: 'reduce' });
     try {
+      const page = await context.newPage();
       await page.addInitScript(() => {
         if (!localStorage.getItem('peach.settings.v1')) {
           localStorage.setItem('peach.settings.v1', JSON.stringify({ detailAutoplay: false }));
         }
       });
+      await stubHomeDiscoveries(page, homeDiscoveries);
       await page.goto(requiredEnv('PEACH_E2E_ORIGIN'));
-      await showHomeDiscoveries(page);
-      await settle(page);
       const row = page.locator('#feedNew .feednewrow');
+      await row.waitFor({ state: 'visible', timeout: 15_000 });
+      await settle(page);
       const edges = () => row.evaluate((element) => ({
         row: element.getBoundingClientRect().left,
         sidebar: document.querySelector('#drawer')!.getBoundingClientRect().right,
@@ -231,8 +223,7 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
       await closeSettings();
       await assertBoundary(false);
     } finally {
-      await page.unrouteAll({ behavior: 'ignoreErrors' });
-      await page.close();
+      await context.close();
     }
   });
 
@@ -241,10 +232,10 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
      画出来（字段以 `src/peach/web_feeds.py` 为准）。夹具关了动效，自动滚动不起步，
      所以这里亲手滚它，发出的是同一种 scroll。 */
   it('390px 下侧栏两枚弹层不随别处那一排横滚收起，整页滚动才收', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, '/', MOBILE);
+    const opened = await visit(browser, '/', MOBILE, page => stubHomeDiscoveries(page, homeDiscoveries));
     try {
-      await showHomeDiscoveries(opened.page);
       const row = opened.page.locator('#feedNew .feednewrow');
+      await row.waitFor({ state: 'visible', timeout: 15_000 });
       await settle(opened.page);
       assert.ok(await row.evaluate((element) => element.scrollWidth > element.clientWidth + 120),
         '新作那一排在 390px 下没有可横滚的余量，这条用例量不到东西');

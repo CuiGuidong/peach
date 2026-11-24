@@ -136,7 +136,7 @@ describe('播放墙的浏览与详情', () => {
         await page.getByRole('button', { name:'退出播放墙',exact:true }).click();
         await page.waitForURL(url => url.pathname === path);
       }
-    } finally { await page.unrouteAll({ behavior:'wait' }); await opened.close() }
+    } finally { await opened.close() }
   });
   for (const viewport of VIEWPORTS) it(`${viewport.name}：四向浏览自动续页，磁贴位置稳定且优先展示未出现作品`, async () => {
     const opened = await openItemPage(browser, '/', viewport, { ready:'[data-media-card]' });
@@ -577,7 +577,7 @@ describe('播放墙的浏览与详情', () => {
       await page.locator('#stage video[data-wall-instance="same"]').waitFor();
       await page.keyboard.press('Escape');
       await page.locator('#stage[open]').waitFor({ state: 'hidden' });
-    } finally { await page.unrouteAll({ behavior:'wait' }); await opened.close() }
+    } finally { await opened.close() }
   });
   it('搜索无结果时保留返回和工具，清空搜索可继续浏览', async () => {
     const opened = await visit(browser, '/wall?q=不会匹配的查询', VIEWPORTS[0]!);
@@ -593,7 +593,7 @@ describe('播放墙的浏览与详情', () => {
       await page.getByRole('searchbox', { name:'搜索播放墙' }).press('Enter');
       await page.locator('[data-wall-tile]').first().waitFor();
       assert.deepEqual(opened.problems, []);
-    } finally { await page.unrouteAll({ behavior:'wait' }); await opened.close() }
+    } finally { await opened.close() }
   });
   it('读取失败留在墙内并可原地重试', async () => {
     const opened = await visit(browser, '/', VIEWPORTS[0]!);
