@@ -6,16 +6,12 @@ import type { MediaItem } from '../src/react/catalog-grid/types.ts';
 import { expectBody, settle, visit } from './harness.ts';
 import {
   DESKTOP, MOBILE, tokenColor, openReview, REVIEW_ROW, lightness, WIDE, JUNK_COUNT, openJunk, junkItem, openJunkWith,
-  openCatalog, openCatalogBars, openCatalogFixture, openFollowManage, stubFollowManage, holdApi, controlFaces, disabledTokens,
+  openCatalog, openCatalogBars, openCatalogFixture, catalogVideo, openFollowManage, stubFollowManage, holdApi, controlFaces, disabledTokens,
   waitingActionFaces, assertDisabledFace, installDesignBrowser,
 } from './design-fixture.ts';
 
 function catalogVideos(count: number, firstId = 91_100): MediaItem[] {
-  return Array.from({ length: count }, (_, index) => ({
-    id: firstId + index, name: `演示作品 ${index + 1}.mp4`, medium: 'video',
-    creator: '演示创作者', location: 'local', width: 1600, height: 900, duration: 600,
-    has_thumb: true,
-  }));
+  return Array.from({ length: count }, (_, index) => catalogVideo(firstId + index));
 }
 
 function catalogParts() {

@@ -389,18 +389,31 @@ export async function openCatalogBars(browser: Browser, viewport: Viewport = DES
   }
 }
 
-/** 设计用例自己提供馆藏、竖屏作品和回收站数据，让三组查询各自分页。 */
+/** 目录用例用的普通视频，按场景补字段。 */
+export function catalogVideo(id: number, fields: Partial<MediaItem> = {}): MediaItem {
+  return {
+    id, name: `演示作品 ${id}.mp4`, medium: 'video', creator: '演示创作者',
+    location: 'local', width: 1600, height: 900, duration: 600, has_thumb: true, ...fields,
+  };
+}
+
+/** 设计用例自己提供馆藏、竖屏作品、搜索和回收站数据，让各组查询独立分页。 */
 export async function openCatalogFixture(
   browser: Browser,
-  { items, portrait = [], trash = [] }: {
-    items: MediaItem[]; portrait?: MediaItem[]; trash?: MediaItem[];
+  { items, portrait = [], trash = [], search = items }: {
+    items: MediaItem[]; portrait?: MediaItem[]; trash?: MediaItem[]; search?: MediaItem[];
   },
 ): Promise<Visit> {
-  const ids = new Set([...items, ...portrait, ...trash].map(item => String(item.id)));
+  const all = [...items, ...portrait, ...trash, ...search];
+  const ids = new Set(all.map(item => String(item.id)));
+  const codes = new Set(all.map(item => item.cover_key || item.code).filter(Boolean));
   const opened = await visit(browser, '/', DESKTOP, async page => {
     await page.route((url) => url.pathname === '/api/items', (route) => {
       const params = new URL(route.request().url()).searchParams;
-      const rows = params.get('state') === 'trash' ? trash : params.get('orient') === 'portrait' ? portrait : items;
+      let rows = items;
+      if (params.get('state') === 'trash') rows = trash;
+      else if (params.get('orient') === 'portrait') rows = portrait;
+      else if (params.has('q')) rows = search;
       const total = rows.length;
       if (params.get('summary_only') === '1') {
         return route.fulfill({ json: { items: [], total, work_total: total } });
@@ -412,7 +425,8 @@ export async function openCatalogFixture(
         ...(params.get('count') === '0' ? {} : { total, work_total: total }),
       } });
     });
-    await page.route((url) => url.pathname === '/poster' && ids.has(url.searchParams.get('id') ?? ''),
+    await page.route((url) => (url.pathname === '/poster' && ids.has(url.searchParams.get('id') ?? ''))
+      || (url.pathname === '/cover' && codes.has(url.searchParams.get('code') ?? '')),
       (route) => route.fulfill({ contentType: 'image/png', body: Buffer.from(PIXEL, 'base64') }));
   });
   try {
