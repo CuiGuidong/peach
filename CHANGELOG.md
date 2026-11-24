@@ -30,6 +30,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Fixed / 修复
 
+- **Library**: Sync and restore use the intended ledger when its path contains a hash sign or a percent escape (#859). / **馆藏**：账本路径含井号或百分号转义字样时，同步与恢复读取原路径对应的账本（#859）。
+- **Library**: Repair cover faces, spine recognition, and crop text checks under Windows paths with non-ASCII characters (#859). / **馆藏**：Windows 非 ASCII 封面路径下可补做人脸、识别书脊和检查取景切线文字（#859）。
 - **Library**: Read avatars and covers and write watermark review previews under Windows paths containing Chinese characters (#428). / **馆藏**：Windows 中文路径下可读取头像和封面，并写出水印复核对照图（#428）。
 - **Desktop**: Show the database sync and writer takeover actions in standalone builds when replication is enabled, and show CLI help from the packaged executable (#844). / **桌面**：独立发行版启用复制后显示数据库同步和写入端接管，打包程序支持显示命令行帮助（#844）。
 - **Review**: Move keyboard focus to a nearby card after processing the current one (#855). / **复核**：处理当前卡片后，键盘焦点会移到相邻卡片（#855）。
