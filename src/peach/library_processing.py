@@ -423,23 +423,25 @@ def source_budget_settings(settings):
             else SOURCE_BUDGET_DEFAULTS[key] for key, choices in SOURCE_BUDGET_CHOICES.items()}
 
 
-def source_budget(database):
-    """按账本设置算出本趟的采集预算；`database` 是 `LedgerDatabase` 或账本路径。"""
+def _processing_settings(database):
     if database is None:
-        return SourceBudget()
+        return {}
     try:
         if hasattr(database, 'read_connection'):
             with database.read_connection() as connection:
-                settings = read_settings(connection)
-        elif Path(database).is_file():
+                return read_settings(connection)
+        if Path(database).is_file():
             with closing(sqlite3.connect(database, timeout=30)) as connection:
-                settings = read_settings(connection)
-        else:
-            settings = {}
+                return read_settings(connection)
     except sqlite3.Error:
-        # 读不出设置只是按默认档跑，不让整趟任务因此失败。
-        settings = {}
-    chosen = source_budget_settings(settings)
+        # 账本设置暂不可读时使用默认值，保留任务的独立错误检查。
+        pass
+    return {}
+
+
+def source_budget(database):
+    """按账本设置算出本趟的采集预算；`database` 是 `LedgerDatabase` 或账本路径。"""
+    chosen = source_budget_settings(_processing_settings(database))
     return SourceBudget(requests=chosen['sourceBudgetRequests'], bytes=chosen['sourceBudgetGigabytes'] * 1024 ** 3,
                         seconds=chosen['sourceBudgetHours'] * 3600)
 
@@ -1616,6 +1618,14 @@ def _scrapes_as_jav(row, code):
     """
     return scrapes_as_jav(code, row.get('studio'), row.get('creator'), row.get('release_date'),
                           ('performer',) if row.get('performers') else (), row.get('region'))
+
+
+def _configured_code_patterns(raw):
+    try:
+        return compile_code_patterns(raw)
+    except ValueError:
+        # 设置保存前已校验，手工改坏的规则退回内置识别。
+        return ()
 
 
 def _filename_code(row, patterns=()):
@@ -3637,11 +3647,7 @@ class _LocalEvidenceCache:
         prune_local_evidence(path, state.get('local_metadata'))
         with closing(sqlite3.connect(db_path, timeout=30)) as connection:
             stored = read_settings(connection).get('codePatterns')
-        try:
-            self.code_patterns = compile_code_patterns(stored)
-        except ValueError:
-            # 保存时已经校验过；被手改坏的规则当没设置过，不让整轮处理失败。
-            self.code_patterns = ()
+        self.code_patterns = _configured_code_patterns(stored)
         self.items_root = path.parent / (path.stem + '-items')
         self.index_path = self.items_root / 'index.json'
         # 番号识别规则或处理规则变了，旧的读法可能认出别的番号：整份不用。
