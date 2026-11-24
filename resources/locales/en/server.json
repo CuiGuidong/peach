@@ -1765,7 +1765,7 @@
       "timeBudgetSpent": "This run's fetch time limit is used up. Run it again to continue; existing images are kept",
       "downloadBudgetSpent": "This run's download limit is used up. Run it again to continue; existing images are kept",
       "coolingDown": "The source is cooling down. Try again later; existing images are kept",
-      "challengeTimedOut": "The source's human verification wasn't passed in time, so requests to it are paused for a while. Next time, open the collection browser from the taskbar and click the verification; existing images are kept",
+      "challengeTimedOut": "Verification timed out. Existing images are kept. Retry after the source recovers. For manual verification, select Keep window and switch to the scraping browser on the computer running Peach",
       "rateLimited": "The source is rate limiting requests; the cooldown has been recorded. Existing images are kept",
       "coolingDownNamed": "{{label}} is paused. Try again in about {{minutes}} min",
       "rateLimitedNamed": "{{label}} is rate limiting. Try again in about {{minutes}} min",
@@ -4884,7 +4884,8 @@
         "mdnsName": {
           "label": "LAN address",
           "help": "After you choose \"Devices on the same LAN\", other devices can open Peach by entering this address in a browser.",
-          "standaloneHelp": "Other devices need to add the port above when opening this address, for example http://peach.local:8900. On the first connection, allow access on Windows private networks."
+          "standaloneHelp": "Other devices need to add the port above when opening this address, for example http://peach.local:8900.",
+          "standaloneWindowsHelp": "Other devices need to add the port above when opening this address, for example http://peach.local:8900. If Windows Firewall prompts you, allow Peach on private networks."
         }
       },
       "posixMediaNote": "Enter the directory this device actually reads media from. For Docker deployments, enter the directory inside the container, for example /media.",

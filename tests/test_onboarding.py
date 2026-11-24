@@ -927,6 +927,17 @@ class SetupJsonContractTests(_SetupHttpCase):
         self.assertEqual(mdns["prefix"], "http://")
         self.assertIn("http://peach.local:8900", mdns["help"][0])
 
+    def test_the_firewall_help_only_appears_for_windows_standalone_setup(self):
+        from types import SimpleNamespace
+        from peach.routes_pages import _question_view
+
+        question = SimpleNamespace(key="mdns_name")
+        with mock.patch.object(distribution, "standalone", return_value=True):
+            windows = _question_view(question, windows=True)
+            macos = _question_view(question, windows=False)
+        self.assertEqual(windows["help"], "pages.setup.question.mdnsName.standaloneWindowsHelp")
+        self.assertEqual(macos["help"], "pages.setup.question.mdnsName.standaloneHelp")
+
     def test_the_questions_are_guarded_like_the_submission_but_ignore_the_origin(self):
         cases = (
             ("已配置", {"configured": True}, 404, "not found"),

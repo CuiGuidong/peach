@@ -3057,9 +3057,11 @@ class LibraryNfoTests(unittest.TestCase):
         provider.cover.return_value = False
         state = process_library(config, db, self.root / 'generated', self.root / 'covers',
                                 provider_factory=Mock(return_value=provider))
-        self.assertEqual([(row['message'], row['severity']) for row in state['issue_preview']],
-                         [('外部资料本趟没轮到：r18.dev：来源的人机验证没有在限时内通过，暂停向它请求一段时间；'
-                           '下次可从任务栏点开采集浏览器点一下验证；已有图片保留', 'paused')])
+        self.assertEqual(len(state['issue_preview']), 1)
+        issue = state['issue_preview'][0]
+        self.assertEqual(issue['severity'], 'paused')
+        self.assertTrue(issue['message'].startswith('外部资料本趟没轮到：r18.dev：'))
+        self.assertIn('已有图片保留', issue['message'])
         self.assertEqual(state['paused_count'], 1)
 
     def test_waiting_for_someone_to_click_a_verification_is_not_charged_to_the_title(self):

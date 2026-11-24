@@ -554,7 +554,7 @@ class BrowserTransport:
         placed = False
 
         def wait_for_click(reason: str) -> float:
-            _set_attention(host, f"{host} verification needs a click; open the browser window from the taskbar")
+            _set_attention(host, f"{host} is waiting for manual verification in the scraping browser on the computer running Peach")
             LOGGER.warning("%s verification page %s; waiting for the user to click", host, reason)
             return self._clock()
 

@@ -41,7 +41,7 @@ describe('外部播放器', () => {
         await waitForChevron(true);
         await page.keyboard.press('Escape');
         await waitForChevron(false);
-        assert.equal(await chooser.evaluate(button => button === document.activeElement), true);
+        await page.waitForFunction(selector => document.activeElement?.matches(selector), PLAYER_SELECT);
         assert.match(await chooser.ariaSnapshot(), /外部播放器/);
 
         await page.keyboard.press('Enter');
