@@ -433,14 +433,21 @@ def _refresh_worker(main: Path, worker_branch: str, target_branch: str, *,
     old_base = _git(worker, "merge-base", target_branch, "HEAD").stdout.strip()
     moved = set(_lines(_git(worker, "diff", "--name-only", old_base, target_branch)))
     overlap = sorted(moved & set(_lines(_git(worker, "diff", "--name-only", old_base, "HEAD"))))
-    if overlap:
-        # 两边改了同一个文件要人看过再合，不能让 rebase 把重叠悄悄抹平。
-        raise WorkspaceError("same-file review required: " + ", ".join(overlap))
-    if _git(worker, "rebase", target_branch, check=False).returncode:
+    bundle = [path for path in overlap if path.startswith(BUNDLE)]
+    review = [path for path in overlap if path not in bundle and not _merges_by_union(worker, path)]
+    if review:
+        # 两边改了同一个文件要人看过再合，不能让 rebase 把重叠悄悄抹平。按并集合并的变更日志
+        # 和由源码构建出来的前端产物不在此列：前者两边的行都留下，后者 rebase 之后照源码重建。
+        raise WorkspaceError("same-file review required: " + ", ".join(review))
+    # 产物冲突先取工作者一侧让 rebase 走完，内容随后整份重建；源码没有重叠，这个选项碰不到别的文件。
+    if _git(worker, "rebase", *(("-X", "theirs") if bundle else ()), target_branch, check=False).returncode:
         _git(worker, "rebase", "--abort", check=False)
         raise WorkspaceError(t("agent_worktree.rebaseConflict"))
+    relocked = "frontend/package-lock.json" in moved
+    if bundle:
+        _rebuild_bundle(worker, before, install=relocked)
     print(t("agent_worktree.rebasedReverifying", branch=target_branch), file=sys.stderr, flush=True)
-    _verify_worker(main, worker, frontend="frontend/package-lock.json" in moved)
+    _verify_worker(main, worker, frontend=relocked and not bundle)
     after = _git(worker, "rev-parse", "HEAD").stdout.strip()
     pushed = _git(worker, "push", f"--force-with-lease={worker_branch}:{before}", "origin",
                   f"{worker_branch}:{worker_branch}", check=False)
@@ -448,6 +455,44 @@ def _refresh_worker(main: Path, worker_branch: str, target_branch: str, *,
         raise WorkspaceError(t("agent_worktree.rebasedPushFailed", error=(pushed.stderr or pushed.stdout).strip()))
     _await_pull_request_head(worker, worker_branch, after)
     return {"from": before, "to": after}
+
+
+#: 提交进仓库的前端构建产物（ADR-0022）。两个改前端的分支必然都改到它。
+BUNDLE = "web/dist/"
+
+
+def bundle_subject() -> str:
+    """重建提交的主题。提交历史用源语言写，不跟本机界面语言走。"""
+    from peach import interface_text
+    return interface_text.text("dev:agent_worktree.bundleSubject", {}, interface_text.SOURCE_LANGUAGE,
+                               root=interface_text.DEV_LOCALES)
+
+
+def _merges_by_union(repo: Path, path: str) -> bool:
+    return _git(repo, "check-attr", "merge", "--", path).stdout.strip().endswith(": union")
+
+
+def _rebuild_bundle(worker: Path, before: str, *, install: bool) -> None:
+    """rebase 之后照合并后的源码重建前端产物，有变化就补一个提交，署名沿用分支头。
+
+    产物是源码的函数：两边各自构建的文件逐行合并没有意义，重建一次才是合并后的那一份。
+    依赖没装或锁文件随主线变了先 `npm ci`。构建失败时分支留在 rebase 之后的状态，不推送。
+    """
+    npm = shutil.which("npm") or "npm"
+    steps = [[npm, "--prefix", "frontend", "run", "build", "--silent"]]
+    if install or not (worker / "frontend" / "node_modules").is_dir():
+        steps.insert(0, [npm, "--prefix", "frontend", "ci"])
+    log = worker / "build" / "integrate-rebuild.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    with log.open("w", encoding="utf-8") as stream:
+        for command in steps:
+            if subprocess.run(command, cwd=worker, stdout=stream, stderr=subprocess.STDOUT, check=False).returncode:
+                raise WorkspaceError(t("agent_worktree.rebuildFailed", log=log))
+    if not _git(worker, "status", "--porcelain", "--", BUNDLE).stdout.strip():
+        return
+    authors = "\n".join(f"Co-Authored-By: {value}" for value in co_author.values(worker, before))
+    _git(worker, "add", "--all", "--", BUNDLE)
+    _git(worker, "commit", "-m", bundle_subject(), *(("-m", authors) if authors else ()))
 
 
 def _venv_python(root: Path) -> Path:
@@ -464,7 +509,8 @@ def _verify_worker(main: Path, worker: Path, *, frontend: bool) -> None:
     starter = _venv_python(worker) if _venv_python(worker).is_file() else _venv_python(main)
     steps = [[str(starter), "-X", "utf8", "scripts/test_environment.py", str(worker), str(main)]]
     if frontend:
-        steps.append([shutil.which("npm") or "npm", "--prefix", "frontend", "ci"])
+        # 先装再让环境准备核对：锁文件随主线变了，旧的 node_modules 会被它当成对不上而拦下。
+        steps.insert(0, [shutil.which("npm") or "npm", "--prefix", "frontend", "ci"])
     steps.append([str(_venv_python(worker)), "scripts/test_runner.py", "--scope", "auto",
                   "--jobs", "auto", "--full-lock-held"])
     log = worker / "build" / "integrate-verify.log"
@@ -515,7 +561,8 @@ def _integrate_locked(repo: Path, worker_branch: str,
     base = _git(main, "merge-base", target_branch, worker_branch).stdout.strip()
     worker_files = set(_lines(_git(main, "diff", "--name-only", f"{base}..{worker_branch}")))
     target_files = set(_lines(_git(main, "diff", "--name-only", f"{base}..{target_branch}")))
-    overlap = sorted(worker_files & target_files)
+    # 按并集合并的文件两边的行都留下，不算需要复核的重叠。
+    overlap = sorted(path for path in worker_files & target_files if not _merges_by_union(main, path))
     if overlap:
         raise WorkspaceError("same-file review required: " + ", ".join(overlap))
     workers = [Path(item["path"]) for item in _worktree_entries(main)

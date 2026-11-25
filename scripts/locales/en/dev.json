@@ -1903,6 +1903,8 @@
     "integrationBusy": "Another task is integrating or running the full suite ({{holder}}); the branch was not modified. Wait and try again",
     "workerWorktreeRequired": "The worker must have exactly one clean, registered worktree",
     "rebaseConflict": "The target branch moved on and the automatic rebase hit conflicts, so it was rolled back; resolve them in the worktree and verify again",
+    "bundleSubject": "build(web): rebuild the frontend bundle on the mainline",
+    "rebuildFailed": "Rebuilding the frontend bundle after the rebase failed; the branch is rebased but not pushed. Log: {{log}}",
     "rebasedReverifying": "The target branch moved on: the worker branch was rebased onto {{branch}}; reverifying while holding the lock.",
     "rebasedPushFailed": "Pushing the rebased worker branch failed: {{error}}",
     "reverifyFailed": "Reverification after the rebase failed; the branch is rebased but not pushed. Log: {{log}}",

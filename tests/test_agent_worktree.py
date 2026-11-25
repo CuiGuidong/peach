@@ -331,6 +331,78 @@ class QueuedRebaseTests(_WorktreeCase):
         self.assertIsNone(integrate(self.repo, docs)["refreshed"], "文档集成不持全量锁，不在锁内补验")
         self.verify.assert_not_called()
 
+    def on_main(self, path: str, text: str, message: str) -> None:
+        (self.repo / path).parent.mkdir(parents=True, exist_ok=True)
+        (self.repo / path).write_text(text, encoding="utf-8")
+        _git(self.repo, "add", path)
+        _git(self.repo, "commit", "-m", message)
+
+    def test_bundles_built_on_both_sides_are_rebuilt_from_the_merged_sources(self):
+        """两边都改了前端产物：rebase 后照合并的源码重建一次并补提交，不再交人逐行合并。"""
+        self.on_main("web/dist/app.js", "base\n", "build(web): 产物")
+        worker, branch = self.worker("bundle", "web/dist/app.js", "worker build\n")
+        (worker / "frontend").mkdir()
+        (worker / "frontend/page.ts").write_text("worker\n", encoding="utf-8")
+        _git(worker, "add", "frontend/page.ts")
+        _git(worker, "commit", "-m", "fix(web): 工作者源码", "-m", AUTHOR)
+        _git(worker, "push", "-q", "origin", branch)
+        self.on_main("web/dist/app.js", "main build\n", "build(web): 主线产物")
+        run = subprocess.run
+        built = []
+
+        def build(command, *args, **kwargs):
+            if command[1:3] != ["--prefix", "frontend"]:
+                return run(command, *args, **kwargs)
+            built.append(command[3:])
+            if command[3] == "run":
+                (worker / "web/dist/app.js").write_text("merged build\n", encoding="utf-8")
+                (worker / "web/dist/chunk.js").write_text("new chunk\n", encoding="utf-8")
+            return subprocess.CompletedProcess(command, 0)
+        with mock.patch.object(agent_worktree.subprocess, "run", side_effect=build):
+            report = integrate(self.repo, branch)
+        self.assertEqual(built, [["ci"], ["run", "build", "--silent"]])
+        self.assertEqual((self.repo / "web/dist/app.js").read_text(encoding="utf-8"), "merged build\n")
+        self.assertTrue((self.repo / "web/dist/chunk.js").is_file())
+        rebuilt = _git(worker, "log", "-1", "--format=%s%n%(trailers:key=Co-Authored-By,valueonly)").stdout
+        self.assertEqual(rebuilt.split(), ["build(web):", "按主线重建前端产物", *AUTHOR.split()[1:]])
+        self.assertEqual(report["refreshed"]["to"], _git(worker, "rev-parse", "HEAD").stdout.strip())
+        self.verify.assert_called_once_with(self.repo, worker, frontend=False)
+
+    def test_a_failed_rebuild_and_overlapping_sources_merge_nothing(self):
+        self.on_main("web/dist/app.js", "base\n", "build(web): 产物")
+        worker, branch = self.worker("broken-bundle", "web/dist/app.js", "worker build\n")
+        self.on_main("web/dist/app.js", "main build\n", "build(web): 主线产物")
+        master = _git(self.repo, "rev-parse", "HEAD").stdout.strip()
+        run = subprocess.run
+        with mock.patch.object(agent_worktree.subprocess, "run", side_effect=lambda command, *args, **kwargs:
+                               subprocess.CompletedProcess(command, 1) if command[1:3] == ["--prefix", "frontend"]
+                               else run(command, *args, **kwargs)), \
+                self.assertRaisesRegex(WorkspaceError, "integrate-rebuild.log"):
+            integrate(self.repo, branch)
+        self.assertEqual(_git(self.repo, "rev-parse", "HEAD").stdout.strip(), master)
+        self.verify.assert_not_called()
+        _, sources = self.worker("same-source", "tracked.txt", "worker\n")
+        (self.repo / "tracked.txt").write_text("main moved\n", encoding="utf-8")
+        commit(self.repo, "main moved")
+        with self.assertRaisesRegex(WorkspaceError, "same-file review required: tracked.txt"):
+            integrate(self.repo, sources)
+
+    def test_a_changelog_merged_by_union_keeps_both_entries_without_review(self):
+        head = "## [Unreleased]\n\n### Fixed / 修复\n\n"
+        self.on_main(".gitattributes", "CHANGELOG.md merge=union\n", "chore: 合并方式")
+        self.on_main("CHANGELOG.md", head, "docs: 变更日志")
+        worker, branch = self.worker("entry", "CHANGELOG.md", head + "- worker entry\n")
+        (worker / "worker.txt").write_text("worker\n", encoding="utf-8")
+        _git(worker, "add", "worker.txt")
+        _git(worker, "commit", "-m", "fix(tooling): 工作者代码")
+        _git(worker, "push", "-q", "origin", branch)
+        self.on_main("CHANGELOG.md", head + "- main entry\n", "docs(changelog): 主线条目")
+        self.assertIsNotNone(integrate(self.repo, branch)["refreshed"], "代码分支在锁内 rebase，变更日志不挡")
+        merged = (self.repo / "CHANGELOG.md").read_text(encoding="utf-8")
+        self.assertIn("- worker entry\n", merged)
+        self.assertIn("- main entry\n", merged)
+        self.assertNotIn("<<<<<<<", merged)
+
     def test_reverification_follows_the_test_entry_and_keeps_the_full_lock(self):
         self.verifier.stop()
         worker = self.root / "worker"
@@ -340,8 +412,9 @@ class QueuedRebaseTests(_WorktreeCase):
                                or subprocess.CompletedProcess(command, 0)):
             agent_worktree._verify_worker(self.repo, worker, frontend=True)
         commands = [command for command, _ in calls]
-        self.assertIn("scripts/test_environment.py", commands[0])
-        self.assertEqual(commands[1][-3:], ["--prefix", "frontend", "ci"])
+        # 先装前端依赖：环境准备会把与新锁文件对不上的旧 node_modules 拦下。
+        self.assertEqual(commands[0][-3:], ["--prefix", "frontend", "ci"])
+        self.assertIn("scripts/test_environment.py", commands[1])
         self.assertEqual(commands[2][1:], ["scripts/test_runner.py", "--scope", "auto", "--jobs", "auto",
                                            "--full-lock-held"])
         self.assertTrue(all(kwargs["cwd"] == worker for _, kwargs in calls))

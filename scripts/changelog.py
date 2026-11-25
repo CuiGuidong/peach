@@ -263,14 +263,19 @@ def section_of(document: str, version: str) -> str:
 
 #: 条目句末带来源编号：issue 或 PR，跨仓库写 `owner/repo#编号`。
 REFERENCE = re.compile(r"(?:^|[\s(,（、，])(?:[\w.-]+/[\w.-]+)?#\d+(?!\w)")
-#: 0.58.0 及更早的版本不补编号；之后每一版与「未发布」段的条目都要带。
+#: 0.58.0 及更早的版本不补编号；之后每一版的条目都要带。「未发布」段可以先不写：PR 编号
+#: 开了 PR 才有，为它再推一次会打断正在跑的 CI，定版时按引入条目的合并提交补上。
 REFERENCES_SINCE = (0, 58, 0)
 
 
 def needs_references(version: str) -> bool:
     if version == UNRELEASED:
-        return True
+        return False
     return tuple(int(part) for part in version.split(".")) > REFERENCES_SINCE
+
+
+def cited(text: str) -> set[str]:
+    return {found.strip(" (,（、，") for found in REFERENCE.findall(text)}
 
 
 #: 一条条目：`- **英文标签**: 英文 / **中文标签**：中文`。
@@ -310,13 +315,11 @@ def require_labeled_entries(document: str, version: str) -> None:
             + [line for line in paragraphs if SEPARATOR not in line]
             + [line for line, found in matched if found["english"].strip() in ("", "TODO")],
             width=60, version=version)
-    if needs_references(version):
-        def cited(text: str) -> set[str]:
-            return {found.strip(" (,（、，") for found in REFERENCE.findall(text)}
-        _refuse("changelog.entriesWithoutReference",
-                [line for line, found in matched
-                 if not cited(found["english"]) or cited(found["english"]) != cited(found["chinese"])],
-                width=40, version=version)
+    required = needs_references(version)
+    _refuse("changelog.entriesWithoutReference",
+            [line for line, found in matched
+             if (required and not cited(found["english"])) or cited(found["english"]) != cited(found["chinese"])],
+            width=40, version=version)
     _refuse("changelog.entriesTooLong", _long_entries(document), limit=ENTRY_LIMIT, english_limit=ENGLISH_LIMIT)
 
 
@@ -408,11 +411,79 @@ def notes(document: str, version: str, downloads: tuple[str, str] | None = None)
     return f"{english}\n\n{fold(CHINESE_SUMMARY, chinese)}\n\n[Full Changelog]({link[1]})\n"
 
 
+def regroup(body: str) -> str:
+    """同一分组标题出现多次时并成一组，按 `GROUP_ORDER` 排；没有重复时原样返回。
+
+    几个分支各自往未发布节加同一个分组，合并后标题会重复（`CHANGELOG.md` 按并集合并，
+    两边的行都留下）。条目保持出现的先后，分组外的段落留在最前面。
+    """
+    lines = body.splitlines()
+    headings = [line for line in lines if line.startswith("### ")]
+    if len(headings) == len(set(headings)):
+        return body
+    order = {f"### {name}{SEPARATOR}{chinese}": index for index, (name, chinese) in enumerate(GROUPS.items())}
+    lead: list[str] = []
+    groups: dict[str, list[str]] = {}
+    current = lead
+    for line in lines:
+        if line.startswith("### "):
+            current = groups.setdefault(line, [])
+        elif line.strip():
+            current.append(line)
+    parts = list(lead) + ([""] if lead else [])
+    for heading in sorted(groups, key=lambda item: order.get(item, len(order))):
+        parts.extend((heading, "", *groups[heading], ""))
+    return "\n".join(parts).rstrip("\n")
+
+
+def with_reference(line: str, number: str) -> str:
+    """给一条没有来源编号的条目两半句末补上 `#编号`，放在句号之前。"""
+    found = ENTRY.match(line)
+    if found is None:
+        return line
+    english, chinese = found["english"].rstrip(), found["chinese"].rstrip()
+    english = f"{english[:-1]} (#{number})." if english.endswith(".") else f"{english} (#{number})"
+    chinese = f"{chinese[:-1]}（#{number}）。" if chinese.endswith("。") else f"{chinese}（#{number}）"
+    return f"- **{found['english_area']}**: {english}{SEPARATOR}**{found['area']}**：{chinese}"
+
+
+def merged_reference(root: Path, line: str) -> str | None:
+    """引入这条条目的主线合并提交带的 PR 编号；找不到时返回 None。
+
+    集成把 PR 编号写进合并提交主题（`Merge branch '…' (#编号)`）。沿主线第一父链找最早让
+    这行文字出现的提交：条目随哪个 PR 合入，编号就是哪个。
+    """
+    subjects = version_bump.git(root, "log", "--first-parent", "--format=%s", f"-S{line}", "--", CHANGELOG)
+    for subject in reversed(subjects.splitlines()):
+        found = re.search(r"\(#(\d+)\)\s*$", subject)
+        if found:
+            return found[1]
+    return None
+
+
+def cite_entries(body: str, reference) -> str:
+    """定版时给没写来源编号的条目补编号；补不出的拒收，交人写。"""
+    lines = body.splitlines()
+    missing = []
+    for index, line in enumerate(lines):
+        found = ENTRY.match(line)
+        if found is None or cited(found["english"]) or cited(found["chinese"]):
+            continue
+        number = reference(line) if reference else None
+        if number is None:
+            missing.append(line)
+        else:
+            lines[index] = with_reference(line, number)
+    _refuse("changelog.entriesWithoutReference", missing, width=40, version=UNRELEASED)
+    return "\n".join(lines)
+
+
 def promote(document: str, version: str, *, date: str, repo: str, previous: str | None,
-            fallback: str = "") -> str:
+            fallback: str = "", reference=None) -> str:
     """把未发布节定版成 `version` 一节，并在它上面留一个空的未发布节。
 
     人在未发布节里润色过的措辞整段搬下去；那一节没有条目时才用 `fallback` 兜底。
+    重复的分组标题并成一组；需要来源编号的版本里，没写编号的条目由 `reference` 给出。
     """
     if has_section(document, version):
         raise version_bump.VersionError(t("changelog.sectionExists", file=CHANGELOG, version=version))
@@ -424,6 +495,9 @@ def promote(document: str, version: str, *, date: str, repo: str, previous: str 
         body = fallback.strip("\n")
     if not body.strip():
         raise version_bump.VersionError(t("changelog.unreleasedEmpty", unreleased=UNRELEASED))
+    body = regroup(body)
+    if needs_references(version):
+        body = cite_entries(body, reference)
     block = f"## [{UNRELEASED}]\n\n## [{version}] - {date}\n\n{body}\n\n"
     updated = document[:match.start()] + block + document[match.end():]
     return _relink(updated, repo=repo, version=version, previous=previous)
@@ -445,7 +519,8 @@ def release(root: Path, version: str, *, repo: str, spec: str, today: str | None
     previous = spec.split("..")[0] if ".." in spec else version_bump.last_tag(root)
     updated = promote(path.read_text(encoding="utf-8"), version,
                       date=today or dt.date.today().isoformat(), repo=repo,
-                      previous=previous, fallback=draft(root, spec))
+                      previous=previous, fallback=draft(root, spec),
+                      reference=lambda line: merged_reference(root, line))
     path.write_bytes(updated.encode("utf-8"))
 
 
