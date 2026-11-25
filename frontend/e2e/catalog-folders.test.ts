@@ -118,7 +118,7 @@ describe('首页文件夹浏览', () => {
         await layoutButton.click();
         const rootOrder = page.getByRole('dialog', { name: '媒体目录的列布局', exact: true });
         await rootOrder.getByRole('button', { name: '上移 挂载路径', exact: true }).click();
-        assert.equal(await library.locator('td').first().textContent(), '/media/local');
+        await library.locator('td').first().filter({ hasText: /^\/media\/local$/ }).waitFor();
         await rootOrder.getByRole('button', { name: '重置列顺序', exact: true }).click();
         await page.keyboard.press('Escape');
         await rootOrder.waitFor({ state: 'hidden' });
@@ -135,6 +135,7 @@ describe('首页文件夹浏览', () => {
         await dialog.locator('th[data-key="created"]').waitFor();
         const nameHeader = dialog.locator('th[data-key="name"]');
         const typeHeader = dialog.locator('th[data-key="type"]');
+        const firstColumn = dialog.locator('[data-media-directory-entries] thead th:not([data-key="select"])').first();
         if (!viewport.mobile) await page.emulateMedia({ reducedMotion: 'no-preference' });
         const nameBox = (await nameHeader.boundingBox())!;
         const typeBox = (await typeHeader.boundingBox())!;
@@ -142,7 +143,7 @@ describe('首页文件夹浏览', () => {
         await page.mouse.down();
         await page.mouse.move(nameBox.x + 12, nameBox.y + 3, { steps: 8 });
         if (!viewport.mobile) {
-          assert.equal(await dialog.locator('thead th:not([data-key="select"])').first().getAttribute('data-key'), 'name');
+          assert.equal(await firstColumn.getAttribute('data-key'), 'name');
           await page.waitForFunction(({ left, width }) => {
             const header = document.querySelector('[data-media-directory-entries] th[data-key="name"]')!;
             return Math.abs(header.getBoundingClientRect().left - left - width) < 1;
@@ -150,14 +151,22 @@ describe('首页文件夹浏览', () => {
         }
         await page.mouse.up();
         if (!viewport.mobile) await page.emulateMedia({ reducedMotion: 'reduce' });
-        assert.equal(await dialog.locator('thead th:not([data-key="select"])').first().getAttribute('data-key'), 'type');
+        await firstColumn.and(typeHeader).waitFor();
         assert.equal(await dialog.locator('tbody tr').first().locator('td').first().textContent(), 'MP4');
         await layoutButton.click();
         const order = page.getByRole('dialog', { name: '实际目录内容的列布局', exact: true });
-        await order.getByRole('button', { name: '重置列顺序', exact: true }).click();
+        const [resetReceipt] = await Promise.all([
+          page.waitForResponse(response => {
+            const request = response.request();
+            return new URL(response.url()).pathname === '/api/settings' && request.method() === 'POST'
+              && request.postDataJSON()?.tableLayouts?.['media-directory']?.order?.length === 0;
+          }),
+          order.getByRole('button', { name: '重置列顺序', exact: true }).click(),
+        ]);
+        assert.ok(resetReceipt.ok(), '返回默认列顺序的保存请求应成功');
         await page.keyboard.press('Escape');
         await order.waitFor({ state: 'hidden' });
-        assert.equal(await dialog.locator('thead th:not([data-key="select"])').first().getAttribute('data-key'), 'name');
+        await firstColumn.and(nameHeader).waitFor();
         await dialog.locator('th[data-key="created"]').waitFor();
         if (!viewport.mobile) {
           const name = dialog.locator('th[data-key="name"]');
@@ -169,7 +178,8 @@ describe('首页文件夹浏览', () => {
           await page.mouse.down();
           await page.mouse.move(x + 55, y, { steps: 8 });
           await page.mouse.up();
-          assert.ok(await name.evaluate(node => node.getBoundingClientRect().width) > width);
+          await page.waitForFunction(({ column, width }) => column!.getBoundingClientRect().width > width,
+            { column: await name.elementHandle(), width });
           const typeHandle = (await typeHeader.locator('.react-aria-ColumnResizer').boundingBox())!;
           const typeX = typeHandle.x + typeHandle.width / 2;
           const typeY = typeHandle.y + typeHandle.height / 2;
@@ -177,6 +187,10 @@ describe('首页文件夹浏览', () => {
           await page.mouse.down();
           await page.mouse.move(typeX - 100, typeY, { steps: 8 });
           await page.mouse.up();
+          await page.waitForFunction(column => {
+            const minimum = Number(column!.querySelector('.react-aria-ColumnResizer input')!.getAttribute('min'));
+            return Math.abs(column!.getBoundingClientRect().width - minimum) <= 1;
+          }, await typeHeader.elementHandle());
           const typeAtMinimum = await typeHeader.evaluate(node => {
             const filter = node.querySelector('[data-table-column-filter]')!;
             const label = filter.querySelector<HTMLElement>('.truncate')!;
@@ -201,7 +215,9 @@ describe('首页文件夹浏览', () => {
           await layoutButton.click();
           await order.getByRole('button', { name: '重置列宽', exact: true }).click();
           await page.keyboard.press('Escape');
-          assert.ok(Math.abs(await name.evaluate(node => node.getBoundingClientRect().width) - width) <= 1);
+          await order.waitFor({ state: 'hidden' });
+          await page.waitForFunction(({ column, width }) => Math.abs(column!.getBoundingClientRect().width - width) <= 1,
+            { column: await name.elementHandle(), width });
         }
         const geometry = await dialog.evaluate(node => ({
           width: node.getBoundingClientRect().width, scroll: node.scrollWidth,
