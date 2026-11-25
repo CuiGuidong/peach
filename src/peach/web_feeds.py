@@ -845,16 +845,7 @@ def _dmm_offered_ids(name: str, token) -> set[str]:
     return set(numbers) if query == name else set()
 
 
-def _follow_by_name(contract, body, *, selected_only: bool = False) -> dict:
-    """订阅源页签「添加 JAV 订阅」：勾选的演员卡登记到这位名下，再订上她的演员页（ADR-0083）。
-
-    这位是谁按这个顺序定：卡上的 id 已经在账本里谁名下就是谁；都没主时按名字认账本里
-    的正名或唯一别名；还认不出就新建一位。几张卡分属不同的人时拒绝，让用户先去合并。
-    新建的实体与绑上的 id 都记 `FOLLOW_SOURCE`；卡上的其他写法不写进别名，那是资料后继的事。
-    """
-    name = entities.canonicalize_entity_name("performer", str(body.get("name") or ""))
-    if not name:
-        raise UserValueError("api.feeds.nameEmpty")
+def _selected_follow_ids(body, selected_only):
     raw = body.get("ids")
     if selected_only and (not isinstance(raw, list) or any(
             not isinstance(value, str) or not ACTOR_ID.fullmatch(value) for value in raw)):
@@ -867,6 +858,33 @@ def _follow_by_name(contract, body, *, selected_only: bool = False) -> dict:
         raise UserValueError("errors.feeds.dmmActressIdDigits")
     if not ids and not dmm_ids:
         raise UserValueError("api.feeds.cardRequired")
+    return ids, dmm_ids
+
+
+def _selected_dmm_holders(connection, name, numbers, offered):
+    known = entities.resolve_entity(connection, "performer", name)
+    linked = set(feeds.dmm_actress_ids(connection, int(known["id"]))) if known is not None else set()
+    urls = {number: feeds.dmm_actress_url(number) for number in numbers}
+    subscriptions = _subscription_rows(connection, list(urls.values()))
+    holders = {}
+    for number, url in urls.items():
+        if number not in linked and number not in offered:
+            raise UserValueError("api.feeds.dmmPagesNotLinked")
+        holders.update(_dmm_holders(connection, number, subscriptions.get(url)))
+    return holders
+
+
+def _follow_by_name(contract, body, *, selected_only: bool = False) -> dict:
+    """订阅源页签「添加 JAV 订阅」：勾选的演员卡登记到这位名下，再订上她的演员页（ADR-0083）。
+
+    这位是谁按这个顺序定：卡上的 id 已经在账本里谁名下就是谁；都没主时按名字认账本里
+    的正名或唯一别名；还认不出就新建一位。几张卡分属不同的人时拒绝，让用户先去合并。
+    新建的实体与绑上的 id 都记 `FOLLOW_SOURCE`；卡上的其他写法不写进别名，那是资料后继的事。
+    """
+    name = entities.canonicalize_entity_name("performer", str(body.get("name") or ""))
+    if not name:
+        raise UserValueError("api.feeds.nameEmpty")
+    ids, dmm_ids = _selected_follow_ids(body, selected_only)
     offered = _dmm_offered_ids(name, body.get("dmm_selection")) if dmm_ids else set()
     with contract.database.write_transaction() as connection:
         holders: dict[int, str] = {}
@@ -878,14 +896,7 @@ def _follow_by_name(contract, body, *, selected_only: bool = False) -> dict:
             if held is not None:
                 holders[int(held[0])] = str(held[1])
         if dmm_ids:
-            known = entities.resolve_entity(connection, "performer", name)
-            linked = set(feeds.dmm_actress_ids(connection, int(known["id"]))) if known is not None else set()
-            dmm_urls = {number: feeds.dmm_actress_url(number) for number in dmm_ids}
-            subscriptions = _subscription_rows(connection, list(dmm_urls.values()))
-            for number, url in dmm_urls.items():
-                if number not in linked and number not in offered:
-                    raise UserValueError("api.feeds.dmmPagesNotLinked")
-                holders.update(_dmm_holders(connection, number, subscriptions.get(url)))
+            holders.update(_selected_dmm_holders(connection, name, dmm_ids, offered))
         if len(holders) > 1:
             raise UserValueError("api.feeds.cardsSpanPeople", {"names": "、".join(holders.values())})
         created = False

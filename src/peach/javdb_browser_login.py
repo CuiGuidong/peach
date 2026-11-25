@@ -8,7 +8,7 @@ from pathlib import Path
 from . import peach_proxy
 from .attended_browser_login import AttendedBrowserLogin, netscape_cookie_file, private_browser, temporary_profile
 from .browser_transport import BrowserUnavailable, _Browser
-from .javdb import BASE, SIGNED_IN_SELECTOR
+from .javdb import BASE, PROFILE_PATH, SIGNED_IN_SELECTOR
 from .scraping_access import JAVDB_WEB_HOSTS, save_captured_scraping_session, scraping_settings_revision, values_for
 
 LOGGER = logging.getLogger(__name__)
@@ -49,7 +49,7 @@ class JavDBBrowserLogin(AttendedBrowserLogin):
             return None
         assert browser.socket is not None
         # CDP 能读 HttpOnly；只取这轮专用窗口中会随 JavDB 页面发送的 Cookie。
-        response = browser.socket.call("Network.getCookies", 5, urls=[f"{origin}/users/profile"])
+        response = browser.socket.call("Network.getCookies", 5, urls=[origin + PROFILE_PATH])
         text = netscape_cookie_file(response.get("cookies", []), JAVDB_WEB_HOSTS)
         return {"cookies_text": text} if text else None
 

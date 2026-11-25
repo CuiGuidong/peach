@@ -155,6 +155,7 @@ class ReferenceUpdateTests(unittest.TestCase):
              "vercel-geist-tabs-secondary",
              "vercel-geist-switch-segmented",
              "boardui-input",
+             "boardui-modal",
              "boardui-theme",
              "boardui-auth-card",
              "fluid-springs", "fluid-tabs",

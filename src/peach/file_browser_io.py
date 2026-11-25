@@ -4,7 +4,6 @@ from __future__ import annotations
 import ctypes
 import errno
 import os
-from pathlib import Path
 import stat
 import sys
 

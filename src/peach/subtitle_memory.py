@@ -27,6 +27,26 @@ MAX_OFFSET_MS = 60_000
 PREFERENCES = {"rotation", "rate", "caption_style", "position", "subtitle_offsets", "quality_pixels"}
 
 
+def _validate_resume_position(position) -> None:
+    if (not isinstance(position, dict) or set(position) != {"seconds", "updated_at"}
+            or type(position["seconds"]) not in (int, float) or not 0 <= position["seconds"] <= 604800
+            or type(position["updated_at"]) is not int
+            or not 0 < position["updated_at"] <= int(time.time() * 1000) + 600_000):
+        raise UserValueError("errors.subtitleMemory.invalidPosition")
+
+
+def _track_details(track):
+    if not isinstance(track, dict):
+        raise UserValueError("errors.subtitleMemory.invalidTrack")
+    key, name, text = (track.get(field) for field in ("key", "name", "text"))
+    if (not isinstance(key, str) or not key or len(key) > 1024
+            or not isinstance(name, str) or not name or len(name) > 512
+            or not isinstance(text, str) or not text.startswith("WEBVTT")
+            or len(text.encode("utf-8")) > MAX_BYTES):
+        raise UserValueError("errors.subtitleMemory.invalidTrackContent")
+    return key, name, text
+
+
 def _validate_patch(patch: dict) -> None:
     """校验补丁字段与播放设置取值，字幕内容单独检查。"""
     if not isinstance(patch, dict) or not patch or patch.keys() - (PREFERENCES | {"selected", "track"}):
@@ -46,12 +66,7 @@ def _validate_patch(patch: dict) -> None:
                 for key, value in style.items()):
             raise UserValueError("errors.subtitleMemory.invalidCaptionStyle")
     if "position" in patch:
-        position = patch["position"]
-        if (not isinstance(position, dict) or set(position) != {"seconds", "updated_at"}
-                or type(position["seconds"]) not in (int, float) or not 0 <= position["seconds"] <= 604800
-                or type(position["updated_at"]) is not int
-                or not 0 < position["updated_at"] <= int(time.time() * 1000) + 600_000):
-            raise UserValueError("errors.subtitleMemory.invalidPosition")
+        _validate_resume_position(patch["position"])
     if "subtitle_offsets" in patch:
         offsets = patch["subtitle_offsets"]
         if not isinstance(offsets, dict) or any(
@@ -89,15 +104,7 @@ class SubtitleMemory:
     def patch(self, patch: dict) -> dict:
         _validate_patch(patch)
         selected, track = patch.get("selected"), patch.get("track")
-        if track is not None:
-            if not isinstance(track, dict):
-                raise UserValueError("errors.subtitleMemory.invalidTrack")
-            key, name, text = (track.get(field) for field in ("key", "name", "text"))
-            if (not isinstance(key, str) or not key or len(key) > 1024
-                    or not isinstance(name, str) or not name or len(name) > 512
-                    or not isinstance(text, str) or not text.startswith("WEBVTT")
-                    or len(text.encode("utf-8")) > MAX_BYTES):
-                raise UserValueError("errors.subtitleMemory.invalidTrackContent")
+        details = _track_details(track) if track is not None else None
         self.root.mkdir(parents=True, exist_ok=True)
         with FileLock(str(self.manifest) + ".lock"):
             value = self.read()
@@ -107,10 +114,11 @@ class SubtitleMemory:
                 if not patch:
                     return value
             if selected is not None and not selected.startswith("native:") and not re.fullmatch(r"sidecar:(?:[1-9][0-9]*|local:[a-f0-9]{64})", selected) and not (
-                    track is not None and selected == key) and not any(
+                    details is not None and selected == details[0]) and not any(
                     row["key"] == selected for row in value["tracks"]):
                 raise UserValueError("errors.subtitleMemory.selectionNotSaved")
-            if track is not None:
+            if details is not None:
+                key, name, text = details
                 filename = hashlib.sha256(key.encode()).hexdigest() + ".vtt"
                 atomic_write_bytes(self.root / filename, text.encode("utf-8"))
                 value["tracks"] = [row for row in value["tracks"] if row["key"] != key]

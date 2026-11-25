@@ -220,6 +220,17 @@ def _entry_error(error):
     return error_fields(UserOSError(f'api.fileBrowser.{code}', {'error': str(error)}))
 
 
+def _make_directory(root, roots, parent, name):
+    target = (*parent, _leaf(name))
+    _protect_nested(root, roots, target)
+    try:
+        with _writer(root, parent) as changed:
+            changed('mkdir', (), target, True)
+    except (OSError, UserFacingError) as error:
+        return {'name': target[-1], 'ok': False, **_entry_error(error)}
+    return {'name': target[-1], 'ok': True}
+
+
 def w_file_browser(contract, body):
     if not isinstance(body, dict) or body.get('operation') not in ('mkdir', 'rename', 'move', 'trash', 'restore'):
         raise UserValueError('api.fileBrowser.invalidRequest')
@@ -231,14 +242,7 @@ def w_file_browser(contract, body):
     folder.mkdir(parents=True, exist_ok=True)
     with FileLock(str(folder / '.lock')):
         if operation == 'mkdir':
-            target = (*parent, _leaf(body.get('name')))
-            _protect_nested(root, roots, target)
-            try:
-                with _writer(root, parent) as changed:
-                    changed('mkdir', (), target, True)
-            except (OSError, UserFacingError) as error:
-                return {'items': [{'name': target[-1], 'ok': False, **_entry_error(error)}]}
-            return {'items': [{'name': target[-1], 'ok': True}]}
+            return {'items': [_make_directory(root, roots, parent, body.get('name'))]}
         if operation == 'restore':
             return {'items': _restore_items(contract, root, roots, folder, body.get('ids'))}
         entries = body.get('entries')

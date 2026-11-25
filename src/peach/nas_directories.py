@@ -180,6 +180,18 @@ def _natural_name(name):
     return tuple(int(part) if index % 2 else part for index, part in enumerate(re.split(r'([0-9]+)', name.casefold())))
 
 
+def _directory_row(entry, folder, metadata, metrics):
+    duration, width, height = metrics.get(entry.name, (None, None, None)) if not folder else (None, None, None)
+    fields = {key: getattr(metadata, attr, None) for key, attr in _STAT_FIELDS.items()}
+    if folder:
+        fields['size'] = None
+    fields.update(duration=duration if duration and duration > 0 else None,
+                  type='folder' if folder else (Path(entry.name).suffix[1:].upper() or 'file'),
+                  resolution=f'{width}×{height}' if width and height else 'none')
+    return {'entry': entry, 'folder': folder, 'name': (_natural_name(entry.name), entry.name),
+            'metadata': metadata, 'pixels': width * height if width and height else None, **fields}
+
+
 def _ordered_page(target, offset, focus_name, *, sort, descending, term, limit, metrics, selected=None):
     rows = []
     selected = selected or {}
@@ -192,15 +204,7 @@ def _ordered_page(target, offset, focus_name, *, sort, descending, term, limit, 
             if not folder and not entry.is_file(follow_symlinks=False):
                 continue
             metadata = _entry_metadata(entry) if read_metadata else None
-            duration, width, height = metrics.get(entry.name, (None, None, None)) if not folder else (None, None, None)
-            fields = {key: getattr(metadata, attr, None) for key, attr in _STAT_FIELDS.items()}
-            if folder:
-                fields['size'] = None
-            fields.update(duration=duration if duration and duration > 0 else None,
-                          type='folder' if folder else (Path(entry.name).suffix[1:].upper() or 'file'),
-                          resolution=f'{width}×{height}' if width and height else 'none')
-            rows.append({'entry': entry, 'folder': folder, 'name': (_natural_name(entry.name), entry.name),
-                         'metadata': metadata, 'pixels': width * height if width and height else None, **fields})
+            rows.append(_directory_row(entry, folder, metadata, metrics))
     included, facets = filter_selected_rows(
         rows, selected, {key: (lambda row, key=key: (row[key],)) for key in DIRECTORY_CHOICES},
         ranges={key: (lambda row, key=key: row[key]) for key in DIRECTORY_RANGES}, range_kinds=DIRECTORY_RANGES)

@@ -720,6 +720,10 @@ class SourceTransport:
                 cooldown.unlink(missing_ok=True)
                 response, via, blocks = verified, VIA_BROWSER, 0
         self.bytes += len(response.body)
+        self._record_response(source, request, response, cooldown, blocks, via)
+        return response
+
+    def _record_response(self, source, request, response, cooldown, blocks, via):
         if response.status == 429:
             until = _rate_limit_until(response.headers.get("retry-after", ""), time.time())
             _pause(cooldown, until, blocks, via)
@@ -739,7 +743,6 @@ class SourceTransport:
         if blocks and response.status < 400:
             # 这一趟通了，封已经解除：清掉记录，下次撞上从最短的一档重新起算。
             cooldown.unlink(missing_ok=True)
-        return response
 
     @staticmethod
     def _refuse(source: str | None, url: str, response, cooldown: Path, blocks: int, via: str) -> None:

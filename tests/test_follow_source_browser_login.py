@@ -102,8 +102,8 @@ class SourceBrowserLoginTests(unittest.TestCase):
                 self.assertFalse(profile.exists())
                 seen = []
 
-                def transport(request, *_, fixture_source=source):
-                    seen.append(request)
+                def transport(request, *_, fixture_source=source, requests=seen):
+                    requests.append(request)
                     if fixture_source == "f95zone":
                         return HttpResponse(200, {}, F95_HTML)
                     html = SIMPCITY_LAST_HTML if "/page-" in request.url else SIMPCITY_FIRST_HTML

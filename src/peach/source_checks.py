@@ -7,7 +7,7 @@ from PIL import Image
 from . import interface_text
 from .coded_text import Said, coded
 from .http import HttpRequest, body_text
-from .javdb import BASE as JAVDB_BASE, profile_signed_in
+from .javdb import PROFILE_PATH, PROFILE_URL, profile_signed_in
 from .catalog_rules import same_release_code
 from .jav_cover_fetch import DeadlineExceeded
 from .scraping_access import (
@@ -180,7 +180,7 @@ def _javdb_profile_verdict(response):
     reason = auth_wall(status_code=response.status, final_url=response.url, body=text)
     if reason_blames_credentials(reason):
         return "auth", "auth_required", Said("labels.sourceChecks.sessionRejected")
-    if response.status == 200 and url.path.rstrip("/") == "/users/profile" and profile_signed_in(text):
+    if response.status == 200 and url.path.rstrip("/") == PROFILE_PATH and profile_signed_in(text):
         return "ok", "ok", Said("labels.sourceChecks.sessionVerified")
     return "unavailable", "unexpected_page", Said("labels.sourceChecks.sessionUnconfirmed")
 
@@ -200,7 +200,7 @@ def check_javdb_session(root):
                                 max_seconds=10, allow_browser=False, redirect_hosts=JAVDB_WEB_HOSTS)
     try:
         with with_account():
-            response = transport(HttpRequest("GET", JAVDB_BASE + "users/profile", {}), 10, page_limit)
+            response = transport(HttpRequest("GET", PROFILE_URL, {}), 10, page_limit)
         kind, reason, message = _javdb_profile_verdict(response)
         result.update(ok=kind == "ok", kind=kind, reason=reason, status=response.status, **coded("message", message))
     except SourceRefused as error:
@@ -218,9 +218,41 @@ def check_javdb_session(root):
     return {"ok": True, "results": [result], "session_verified": result["ok"]}
 
 
+def _source_response(result, response, url, target):
+    from .browser_transport import CHALLENGE_MARKS
+    from .metadata import auth_wall
+
+    # 鉴权失败与「站点挂了」是两件事，页面上要分得开：前者要人去官网登录
+    # 或换一份 Cookie，后者只要等。判据和元数据来源共用一份；重定向终点
+    # 只在真的跳转过时才算数，否则配置里本身就指向登录页的来源会自判失败。
+    reason = auth_wall(
+        status_code=response.status, body=response.body,
+        final_url=response.url if response.url and response.url != url else "")
+    result.update(status=response.status, bytes=len(response.body),
+                  ok=response.status in {200, 206} and not reason,
+                  kind="ok" if response.status in {200, 206} and not reason
+                  else "auth" if reason else "unavailable")
+    challenge = any(mark.lower() in response.body.decode("utf-8", errors="replace").lower()
+                    for mark in CHALLENGE_MARKS)
+    detail = ("cloudflare_challenge" if challenge else "auth_required" if reason
+              else "ok" if result["ok"] else "rate_limited" if response.status == 429
+              else "server_error" if response.status >= 500
+              else "not_found" if response.status == 404 else "http_error")
+    result["reason"] = detail
+    if challenge:
+        result.update(ok=False, kind="auth")
+    if target == CDN and result["ok"]:
+        with Image.open(io.BytesIO(response.body)) as image:
+            result["width"], result["height"] = image.size
+    if not result["ok"]:
+        # 成因锁死在凭据上才让人去登录。只剩状态码可看的 403 直接把
+        # `auth_wall_reason` 那句原样给用户：出口 IP 被封时登录是白做，
+        # 页面上再手写一份「请去登录」等于把人引去做错事。
+        result.update(coded("message", _connection_message(detail, reason)))
+
+
 def check_source(secrets_root, source, *, preflight=False, lookup=False):
     """复用来源连接与图片 CDN 判据；安装检查只使用有界 HTTP 请求。"""
-    from .metadata import auth_wall
     if source not in SOURCES:
         raise ValueError("unknown scraping source")
     if source in KEY_SOURCES:
@@ -242,34 +274,7 @@ def check_source(secrets_root, source, *, preflight=False, lookup=False):
                 request = probe() if probe else HttpRequest("GET", url, {"Range": "bytes=0-65535"})
                 url = request.url
                 response = transport(request, 10, 65536)
-                # 鉴权失败与「站点挂了」是两件事，页面上要分得开：前者要人去官网登录
-                # 或换一份 Cookie，后者只要等。判据和元数据来源共用一份；重定向终点
-                # 只在真的跳转过时才算数，否则配置里本身就指向登录页的来源会自判失败。
-                reason = auth_wall(
-                    status_code=response.status, body=response.body,
-                    final_url=response.url if response.url and response.url != url else "")
-                result.update(status=response.status, bytes=len(response.body),
-                              ok=response.status in {200, 206} and not reason,
-                              kind="ok" if response.status in {200, 206} and not reason
-                              else "auth" if reason else "unavailable")
-                from .browser_transport import CHALLENGE_MARKS
-                challenge = any(mark.lower() in response.body.decode("utf-8", errors="replace").lower()
-                                for mark in CHALLENGE_MARKS)
-                detail = ("cloudflare_challenge" if challenge else "auth_required" if reason
-                          else "ok" if result["ok"] else "rate_limited" if response.status == 429
-                          else "server_error" if response.status >= 500
-                          else "not_found" if response.status == 404 else "http_error")
-                result["reason"] = detail
-                if challenge:
-                    result.update(ok=False, kind="auth")
-                if target == CDN and result["ok"]:
-                    with Image.open(io.BytesIO(response.body)) as image:
-                        result["width"], result["height"] = image.size
-                if not result["ok"]:
-                    # 成因锁死在凭据上才让人去登录。只剩状态码可看的 403 直接把
-                    # `auth_wall_reason` 那句原样给用户：出口 IP 被封时登录是白做，
-                    # 页面上再手写一份「请去登录」等于把人引去做错事。
-                    result.update(coded("message", _connection_message(detail, reason)))
+                _source_response(result, response, url, target)
             except Exception as exc:
                 result.update(_connection_failure(exc, target, source))
             result.update(checked_at=time.time(), elapsed_s=round(time.monotonic() - started, 2))

@@ -26,13 +26,13 @@ from urllib.parse import urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 
-from bs4 import BeautifulSoup
-
 from .social_links import name_key
 from .source_page_words import JAVDB_COUNT, JAVDB_LOGIN, JAVDB_RECORD_KIND, JAVDB_UNCENSORED
 
 BASE = "https://javdb.com/"
 SEARCH = BASE + "search?f=actor&q={}"
+PROFILE_URL = BASE + "users/profile"
+PROFILE_PATH = urlsplit(PROFILE_URL).path
 
 #: 从资料页取来的名字写进 `entity_alias` 时记的来源。两个脚本都往这里写
 #: （`localize_performer_names.py` 写降级下来的旧规范名，`apply_alias_candidates.py`

@@ -2,6 +2,8 @@
 
 本页记录人工取证。参考仓库在 2026-11-21 核对，源码固定于提交 `b35cb2a9788b01c8d6db6229e734015ea78a0872`。[参考网站](https://records.charliegleason.com/) · [源码版本](https://github.com/superhighfives/records.charliegleason.com/tree/b35cb2a9788b01c8d6db6229e734015ea78a0872)
 
+页面由多份源码和人工交互记录整理，无法从单一 URL 获取同一份内容，因此无需登记到 `reference-sources.json` 的自动重抓清单。
+
 ## 证据
 
 - 实测：公开首页返回 HTTP 200。画布开场结束后，首页以浅色背景、中央说明和留有间距的唱片封套构成墙面，左下角显示年代筛选。首次截图因导航超时，改用 Chromium 取得画面。
