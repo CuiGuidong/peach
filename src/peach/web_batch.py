@@ -30,6 +30,7 @@ from . import interface_text, junk, settings_file
 from .catalog_rules import duration_clusters, is_jav_code, normalise_code_key
 from .catalog_vocabulary import KEEP_DUPLICATES_NOTE, NOT_JUNK_NOTE
 from .config import GENERATED_DIR, LOCATION_ROOT_DECLARATIONS
+from .discovery_rules import file_browser_trash_path
 from .field_owners import USER_MANUAL, write_owned_fields
 from .media_sources import SCANNABLE_LOCATIONS
 from .personal_records import VANISHED, being_purged, delete_asset_rows, purging
@@ -863,9 +864,9 @@ def w_empty_trash(contract: WebContract):
     """永久清空回收站：只处理 disposal='trash' 的资产，其余一律不碰。"""
     contract.cache_bust()
     with contract.read_connection() as connection:
-        rows = connection.execute(
+        rows = [row for row in connection.execute(
             "SELECT id,location,path,snapshot_path FROM asset WHERE disposal='trash'",
-        ).fetchall()
+        ) if not file_browser_trash_path(row['path'])]
     # 这期间被还原出回收站的，事务里复核时留下，文件放回原处。
     outcome = _purge_outside_lock(contract, rows, eligible=lambda row: row["disposal"] == "trash")
     return _purge_receipt(contract, outcome, operation="empty-trash")
@@ -893,6 +894,8 @@ def _reject_ineligible_targets(operation: str, rows) -> None:
     """选中集合与操作对不上就拒绝整批，不做部分生效。"""
     if operation in {"restore", "delete"} and any(row["disposal"] not in DISPOSED for row in rows):
         raise ValueError("restore/delete is only allowed for recycle-bin or vanished assets")
+    if operation in {"restore", "delete"} and any(file_browser_trash_path(row['path']) for row in rows):
+        raise UserValueError('api.fileBrowser.restoreInBrowser')
     # 正在永久删除的那几部文件可能已经删了，还原只会留下空行。
     if operation == "restore" and being_purged(row["id"] for row in rows):
         raise UserValueError("errors.webBatch.purgingCannotRestore")

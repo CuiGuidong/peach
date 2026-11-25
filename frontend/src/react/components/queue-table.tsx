@@ -1,5 +1,5 @@
 /* 处理队列页（垃圾文件、高清版）的列表版式：首页列表那一副（`../catalog-grid/catalog-list-page.tsx`）——
- * 上方工具条的「显示列」「重置列宽」与排序下拉，可拖宽的列、可点的排序列头、外框与「缩略图＋名字」那一格，
+ * 上方工具条的「显示列」「列布局」与排序下拉，可拖动和调整宽度的表头、外框与「缩略图＋名字」那一格，
  * 有哪几列在 `../../queue-columns.ts`（壳的首屏骨架读同一份），各页只给单元格；列宽与显示哪几列按页记在本机。
  *
  * 队列一次取齐，不分页、不在服务端排序：排序下拉、列头与浮层上的排序键是同一份（`./queue-sort.ts`），
@@ -15,8 +15,10 @@ import { DataTableFrame } from './data-table-frame';
 import { ColumnFilterChips } from './column-filter-chips';
 import { DataTableSort } from './table-controls';
 import { TableColumnControls, TableColumnResizer } from './table-column-controls';
+import { TableToolbar } from './table-toolbar';
 import { useTablePreferences, type TableColumnSpec } from './table-column-preferences';
 import { QUEUE_COLUMNS, queueTableKeys, type QueueTablePage } from '../../queue-columns';
+import { orderTableColumns } from '../../table-column-order';
 import { useLibraryTints } from './library-tint';
 import { t } from '../../i18n';
 import { useTableFilters, type TableFilter, type RemoteTableFilters } from './use-table-filters';
@@ -71,7 +73,7 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
   ], [columns]);
   const preferences = useTablePreferences(`queue-${table}`, specs, queueTableKeys(table));
   const tints = useLibraryTints();
-  const shown = columns.filter((column) => preferences.visibility[column.id] !== false);
+  const shown = orderTableColumns(columns, preferences.columnOrder).filter(column => preferences.visibility[column.id] !== false);
   const picked = items.filter((item) => selected.has(item.id)).length;
   const current = sort.sorting[0];
   const library = (item: T) => {
@@ -84,14 +86,14 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
     <div data-catalog-view-mode="list" data-catalog-table="" data-queue-table="" aria-busy={busy || undefined} className="flex min-w-0 flex-col gap-4"
       onKeyDown={context.onKeyDown}>
       {context.menu}
-      <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={label}>
+      <TableToolbar className="flex flex-wrap justify-end gap-2" label={label}>
         <div data-toolbar-actions="">
           <TableColumnControls preferences={preferences} label={label} />
           <DataTableSort label={label} options={sort.options} sorting={sort.sorting} onChange={sort.onChange} />
         </div>
-      </div>
+      </TableToolbar>
       <DataTableFrame preferences={preferences}
-        rectangleSelecting={selecting} onRectangle={!busy && onRectangle ? (keys, add) => onRectangle(keys.map(Number), add) : undefined}
+        rectangleSelecting={selecting} onRectangle={!busy && items.length && onRectangle ? (keys, add) => onRectangle(keys.map(Number), add) : undefined}
         onRowClick={selecting ? (key) => { const item = byId(key); if (item) onPick(item, !selected.has(item.id)) } : undefined}>
         <Table aria-label={label} size="sm"
           sortDescriptor={current ? { column: current.id, direction: current.desc ? 'descending' : 'ascending' } : undefined}
@@ -101,8 +103,8 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
               <Checkbox slot={null} aria-label={label} isSelected={picked > 0 && picked === items.length}
                 isDisabled={busy} isIndeterminate={picked > 0 && picked < items.length} onChange={onPickAll} />
             </TableColumn> : null}
-            {shown.map((column, index) => (
-              <TableColumn key={column.id} id={column.id} isRowHeader={index === 0} allowsSorting={!!column.sortable}
+            {shown.map((column) => (
+              <TableColumn key={column.id} id={column.id} isRowHeader={column.id === 'name'} allowsSorting={!!column.sortable}
                 {...preferences.columnProps(column.id)}>
                 {({ sortDirection }) => <>
                   <span className="flex items-center gap-0.5">
@@ -119,6 +121,7 @@ export function QueueTable<T extends { id: number; library_id?: unknown }>({
             {(busy ? [] : filtered.items).map((item) => (
               <TableRow key={item.id} id={String(item.id)} data-id={item.id} data-catalog-row="" data-library={library(item)}
                 data-board-selected={selected.has(item.id) || undefined} data-work-context-row={contextOperations ? item.id : undefined}
+                {...(selecting ? undefined : context.touchProps)}
                 onContextMenu={context.onContextMenu ? event => context.onContextMenu?.(event, item, String(item.id)) : undefined}>
                 {selecting ? <TableCell><Checkbox slot={null} aria-label={rowLabel(item)} isSelected={selected.has(item.id)}
                   onChange={(on) => onPick(item, on)} /></TableCell> : null}

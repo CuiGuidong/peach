@@ -411,6 +411,9 @@
     "tag": "Tag"
   },
   "favoritesPanel": {
+    "filterActions": "Actions",
+    "playFilter": "Play",
+    "playFilterLabel": "Play filter “{{name}}”",
     "agencies": "Agencies",
     "browseCollection": "Browse collection",
     "clearSearch": "Clear search",
@@ -846,10 +849,10 @@
   },
   "peachProxy": {
     "chooseMode": "Choose a connection mode",
-    "environment": "Environment",
+    "environment": "Follow system",
     "mode": "Connection mode",
     "modeConflict": "Your sources use different proxy addresses. Choose one shared connection mode.",
-    "modeHelp": "Used when Peach accesses the internet and fetches from sources.",
+    "modeHelp": "With Follow system, the browser uses the system proxy on the device running Peach. Background requests check proxy environment variables first.",
     "savedPlaceholder": "Saved. Leave blank to keep",
     "title": "Peach proxy",
     "url": "Proxy URL"
@@ -980,6 +983,9 @@
     "sidebarGlow": "Sidebar glow",
     "tasteAndHistory": "Taste and history",
     "theme": "Theme",
+    "localAppearance": "Customize appearance on this browser",
+    "localAppearanceHelp": "Theme, accent color and glow apply only to this browser. Turn this off to restore the instance appearance.",
+    "instanceSaveFailed": "Could not save preferences to this instance ({{error}})",
     "videoCardSize": "Video card size",
     "videoDisplay": "Video display",
     "videoList": "Video list"

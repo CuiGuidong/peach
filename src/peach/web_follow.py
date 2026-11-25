@@ -40,6 +40,7 @@ from .follow_identity import (
 from .follow_secrets import (
     CREDENTIAL_GUIDE, CredentialError, CredentialStore, credential_store_for,
 )
+from .fsutil import atomic_write_text
 from .follow_stream import proxyable
 from .follow_sources import (
     CONNECTORS, KemonoConnector, Rule34VideoConnector, build_connector,
@@ -49,6 +50,7 @@ from .follow_sources import (
 from .follow_store import (
     FollowStore, ReleaseGroup, normalized_author_name,
 )
+from .source_browser_login import FOLLOW_BROWSER_LOGIN_SOURCES, cancel_source_browser_login
 from .entities import canonicalize_entity_name, normalize_entity_name, prefer_entity_name
 from .taste_history import read_creator_candidates
 from .web_state import path_version
@@ -1771,14 +1773,24 @@ def q_follow_suggest(contract, q: str, limit: int = MAX_SUGGESTIONS,
     with contract.database.read_connection() as connection:
         store = _store(contract, connection)
         _alias_map, alias_groups = store.author_aliases()
-        known = _followed_names(store.sources(), alias_groups)
+        sources = store.sources()
+        known = _followed_names(sources, alias_groups)
+        avatars = {}
+        for row in sources:
+            url = official_avatar_url(row) or _avatar_url(row["provider"], row["ref"])
+            if url:
+                for name in (row["entity_name"], author_display_name(row)):
+                    if name:
+                        avatars.setdefault(name.casefold(), url)
     followed = [text for key, text in sorted(
         ((key, text) for key, text in known.items() if folded in key),
         key=lambda pair: (not pair[0].startswith(folded), len(pair[1]), pair[0]),
     )][:per_group]
     buckets = {
-        "followed": [{"value": text, "n": 0, "matched": ""} for text in followed],
-        "archive": [{"value": row.value, "n": 0, "matched": row.matched}
+        "followed": [{"value": text, "n": 0, "matched": "", "avatar_url": avatars.get(text.casefold())}
+                     for text in followed],
+        "archive": [{"value": row.value, "n": 0, "matched": row.matched,
+                     "avatar_url": _avatar_url(row.provider, row.ref)}
                     for row in archive_suggestions(
                         query, state_root=contract.follow_state_root, limit=per_group)
                     # 已经关注的人不在这一组里再出现一次。
@@ -2812,9 +2824,12 @@ def _phrase_fields(key: str, text: object, phrase: dict | None) -> dict:
 
 
 def _candidate_payload(candidate, *, author: str = "") -> dict:
+    ref = canonical_source_ref(candidate.provider, candidate.ref)
+    avatar = _avatar_url(candidate.provider, ref)
     return {"provider": candidate.provider,
             "provider_label": PROVIDER_LABELS.get(candidate.provider, candidate.provider),
-            "ref": canonical_source_ref(candidate.provider, candidate.ref),
+            "ref": ref,
+            **({"avatar_url": avatar} if avatar else {}),
             "url": candidate.url, **_phrase_fields("label", candidate.label, getattr(candidate, "label_phrase", None)),
             "author": author, "aliases": list(getattr(candidate, "aliases", ())),
             "semantics": candidate.semantics,
@@ -2963,7 +2978,7 @@ def w_follow_credential(contract, body) -> dict:
     cleaned = {name: str(values[name]).strip() for name in guide["fields"]
                if str(values.get(name) or "").strip()}
     store = _credential_store(contract)
-    path = store.path_for(provider)
+    cancel_source_browser_login(contract, provider)
     if not cleaned:
         # 全部留空 = 撤掉这份凭据。**本机和共享副本一起撤**：只删本机的话，
         # `load()` 会从共享副本把 key 重新拼回来，而共享副本还会跟着 peach-sync
@@ -2974,7 +2989,7 @@ def w_follow_credential(contract, body) -> dict:
                 "shared_cleared": outcome["shared"],
                 "note": interface_text.text(f"server:{note}") if note else "", "note_code": note or "",
                 "saved": store.describe(provider)}
-    _write_secret(path, cleaned)
+    store.save(provider, cleaned)
     shared_written = _write_shared(store, provider, cleaned)
     # 返回的是 describe()，只有字段名，没有值。
     return {"ok": True, "provider": provider, "cleared": False,
@@ -2989,16 +3004,6 @@ def w_follow_credential(contract, body) -> dict:
 CLEAR_NOTES = {
     "offline": "labels.webFollow.sharedOfflineNote",
 }
-
-
-def _write_secret(path, values: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(path.name + ".tmp")
-    temporary.write_text(json.dumps(values, ensure_ascii=False, indent=2) + "\n",
-                         encoding="utf-8")
-    if os.name != "nt":
-        os.chmod(temporary, 0o600)
-    temporary.replace(path)
 
 
 def _write_shared(store, provider: str, values: dict) -> bool:
@@ -3018,7 +3023,7 @@ def _write_shared(store, provider: str, values: dict) -> bool:
     try:
         if not store.shared_online():
             return False
-        _write_secret(shared, payload)
+        atomic_write_text(shared, json.dumps(payload, ensure_ascii=False, indent=2) + "\n", mode=0o600)
     except OSError:
         return False
     return True
@@ -3041,6 +3046,7 @@ def q_follow_credentials(contract, _args) -> dict:
             **described,
             "provider_label": PROVIDER_LABELS.get(provider, provider),
             "followable": provider in CONNECTORS,
+            "browser_login": provider in FOLLOW_BROWSER_LOGIN_SOURCES,
             "requirement": guide["requirement"],
             "needs": fields,
             "missing": [name for name in fields if name not in described["fields"]],

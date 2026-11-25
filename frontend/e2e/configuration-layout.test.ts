@@ -7,6 +7,35 @@ describe('配置表单与行间距', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
+  it('来源登录完成后从服务端刷新凭据状态', async () => {
+    let started = false;
+    let connected = false;
+    const opened = await visit(browser, '/settings/subscriptions', VIEWPORTS[0]!, async page => {
+      await page.route('**/api/follow/credentials', async route => {
+        const report = await (await route.fetch()).json();
+        const row = report.providers.find((provider: { provider: string }) => provider.provider === 'simpcity');
+        Object.assign(row, { browser_login: true, present: connected,
+          fields: connected ? ['cookie'] : [], missing: connected ? [] : ['cookie'] });
+        await route.fulfill({ json: report });
+      });
+      await page.route('**/api/source-browser-login/simpcity', async route => {
+        if (route.request().method() === 'POST') started = true;
+        await route.fulfill({ json: { available: true, state: connected ? 'done' : started ? 'waiting' : 'idle' } });
+      });
+    });
+    try {
+      const row = opened.page.locator('[data-credential-provider="simpcity"]');
+      const details = row.locator('details').first();
+      if (!await details.evaluate(node => (node as HTMLDetailsElement).open)) {
+        await details.locator(':scope > summary').click();
+      }
+      await row.locator('a[href^="https://simpcity.cr/"]').waitFor();
+      await row.getByRole('button', { name: '在浏览器登录并连接' }).click();
+      await row.getByRole('button', { name: '取消', exact: true }).waitFor();
+      connected = true;
+      await row.getByText('已配置', { exact: true }).waitFor();
+    } finally { await opened.close() }
+  });
   for (const viewport of VIEWPORTS) {
     it(`${viewport.name}：六个配置分区都能用横向目录定位正文`, async () => {
       const opened = await visit(browser, '/settings/library', viewport);

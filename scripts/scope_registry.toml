@@ -48,6 +48,7 @@ sync = [
 ]
 metadata = [
     "test_junk_visual.py", "test_custom_metadata.py", "test_scraping_access.py", "test_browser_transport.py", "test_metadata*.py",
+    "test_follow_source_browser_login.py",
     "test_genre_taxonomy.py", "test_processing_control.py", "test_processing_traffic.py",
     "test_processing_inventory.py", "test_fc2*.py", "test_local_poster.py", "test_media_io.py",
     "test_community_catalog.py", "test_babepedia_match.py", "test_western_artwork.py",
@@ -154,6 +155,9 @@ follow = [
 # 一个文件可以落到多个域：读它的测试登记在哪个域，改它就得跑到哪个域。
 # `tests/test_test_planning.py` 按测试源码里真实读到的路径反查这两张表，漏一条本地就红。
 [auto_scope_files]
+"src/peach/attended_browser_login.py" = ["catalog", "follow", "metadata"]
+"src/peach/browser_transport.py" = ["catalog", "follow", "metadata"]
+"src/peach/source_browser_login.py" = ["follow", "metadata"]
 "scripts/run_gitlab_runner.py" = ["tooling"]
 "scripts/render_star_history.py" = ["tooling"]
 "frontend/e2e/jav-userscript-contract.ts" = ["catalog", "web"]

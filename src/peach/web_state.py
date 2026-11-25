@@ -528,6 +528,10 @@ class WebContract:
         self.media_repair_job.stop()
         self.amane_bridge_job.stop()
         self.source_check_job.stop()
+        if hasattr(self, "javdb_browser_login"):
+            self.javdb_browser_login.close()
+        for login in getattr(self, "source_browser_logins", {}).values():
+            login.close()
         self.face_models_job.stop()
         if hasattr(self, 'task_resource_monitor'):
             self.task_resource_monitor.close()

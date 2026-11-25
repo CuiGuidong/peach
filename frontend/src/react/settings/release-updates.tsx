@@ -13,6 +13,7 @@ import { checkClientUpdates, useClientUpdates } from '../client-updates';
 import { codedText, jobText, serverLabel, serverText } from '../../core/server-text';
 import type { ReleaseNotes, ReleaseState, UpdateJob } from '../bundle';
 import { Note } from '../components/note';
+import { AnimatedNumber } from '../components/animated-number';
 import { Progress } from '../components/progress';
 import { StatusLabel } from '../components/status-label';
 import { DockerUpdateProgress, useDockerUpdate } from './docker-update';
@@ -197,7 +198,7 @@ export function ReleaseUpdates({ initial, initialJob }: { initial: ReleaseState;
           <div aria-live="polite" className="flex flex-col gap-2">
             <Progress label={t('settings:releaseUpdates.progressLabel')} value={job.progress} stops={STOPS} />
             <Help>{t('settings:releaseUpdates.progressSteps')} {jobText(job)}</Help>
-            <Help>{reading}</Help>
+            <Help><AnimatedNumber value={reading} /></Help>
           </div>
         ) : null}
       </Stack>}

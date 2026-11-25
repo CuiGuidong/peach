@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import time
 from pathlib import Path
 
 from filelock import FileLock
@@ -22,7 +23,8 @@ CAPTION_VALUES = {
     "window": COLORS, "windowOpacity": {"0", "25", "50", "75", "100"},
     "edge": {"none", "raised", "depressed", "outline", "shadow"},
 }
-PREFERENCES = {"rotation", "rate", "caption_style"}
+MAX_OFFSET_MS = 60_000
+PREFERENCES = {"rotation", "rate", "caption_style", "position", "subtitle_offsets", "quality_pixels"}
 
 
 def _validate_patch(patch: dict) -> None:
@@ -35,12 +37,30 @@ def _validate_patch(patch: dict) -> None:
         raise UserValueError("errors.subtitleMemory.invalidRotation")
     if "rate" in patch and (type(patch["rate"]) not in (int, float) or not .25 <= patch["rate"] <= 3):
         raise UserValueError("errors.subtitleMemory.invalidRate")
+    if "quality_pixels" in patch and (type(patch["quality_pixels"]) is not int or not 0 <= patch["quality_pixels"] <= 16384):
+        raise UserValueError("errors.subtitleMemory.invalidQuality")
     if "caption_style" in patch:
         style = patch["caption_style"]
         if not isinstance(style, dict) or any(
                 key not in CAPTION_VALUES or not isinstance(value, str) or value not in CAPTION_VALUES[key]
                 for key, value in style.items()):
             raise UserValueError("errors.subtitleMemory.invalidCaptionStyle")
+    if "position" in patch:
+        position = patch["position"]
+        if (not isinstance(position, dict) or set(position) != {"seconds", "updated_at"}
+                or type(position["seconds"]) not in (int, float) or not 0 <= position["seconds"] <= 604800
+                or type(position["updated_at"]) is not int
+                or not 0 < position["updated_at"] <= int(time.time() * 1000) + 600_000):
+            raise UserValueError("errors.subtitleMemory.invalidPosition")
+    if "subtitle_offsets" in patch:
+        offsets = patch["subtitle_offsets"]
+        if not isinstance(offsets, dict) or any(
+            not isinstance(key, str) or not 0 < len(key) <= 1024
+            or not key.startswith(("native:", "sidecar:", "file:", "subtitlecat:"))
+            or type(offset) is not int or abs(offset) > MAX_OFFSET_MS
+            for key, offset in offsets.items()
+        ):
+            raise UserValueError("errors.subtitleMemory.invalidOffsets")
     selected = patch.get("selected")
     if selected is not None and (not isinstance(selected, str) or len(selected) > 1024):
         raise UserValueError("errors.subtitleMemory.invalidSelection")
@@ -81,6 +101,11 @@ class SubtitleMemory:
         self.root.mkdir(parents=True, exist_ok=True)
         with FileLock(str(self.manifest) + ".lock"):
             value = self.read()
+            if ("position" in patch and
+                    patch["position"]["updated_at"] <= value.get("position", {}).get("updated_at", 0)):
+                patch = {key: entry for key, entry in patch.items() if key != "position"}
+                if not patch:
+                    return value
             if selected is not None and not selected.startswith("native:") and not re.fullmatch(r"sidecar:(?:[1-9][0-9]*|local:[a-f0-9]{64})", selected) and not (
                     track is not None and selected == key) and not any(
                     row["key"] == selected for row in value["tracks"]):
@@ -96,6 +121,9 @@ class SubtitleMemory:
             for field in PREFERENCES & patch.keys():
                 if field == "caption_style":
                     value[field] = {**value.get(field, {}), **patch[field]}
+                elif field == "subtitle_offsets":
+                    offsets = {**value.get(field, {}), **patch[field]}
+                    value[field] = {key: offset for key, offset in offsets.items() if offset}
                 else:
                     value[field] = patch[field]
             atomic_write_text(self.manifest, json.dumps(value, ensure_ascii=False))

@@ -239,6 +239,9 @@
     "viewImages": "查看图片"
   },
   "detailQueue": {
+    "filter": "筛选播放",
+    "filterEmpty": "没有符合此筛选的馆藏视频",
+    "firstFilterMatches": "前 {{count}} 个匹配视频",
     "editPlaylist": "编辑播放列表",
     "editionCount": "{{count, number}} 个版本",
     "editions": "版本",
@@ -315,6 +318,8 @@
     "searchOrCreate": "搜索或新建",
     "createNamed": "新建「{{name}}」",
     "searching": "正在搜索",
+    "entityNoMatches": "没有匹配的档案",
+    "entitySearchFailed": "无法搜索档案，请重试",
     "removeNamed": "移除 {{name}}",
     "clearNamed": "清空 {{field}}",
     "userCreated": "自建"
@@ -581,6 +586,24 @@
     "taste": "口味 {{score}}",
     "worthALook": "值得看看"
   },
+  "javOnline": {
+    "coveredCount": "本页 {{shown, number}} 部 · DMM 共 {{total, number}} 部",
+    "coverUnverified": "部分作品的封面暂时无法核验",
+    "facetScope": "选项与部数来自本页。选中后查找整个 DMM 目录。",
+    "failed": "在线目录未取得",
+    "filterPerformer": "筛选「{{name}}」",
+    "loading": "正在查找 DMM 作品",
+    "localSort": "本页排序",
+    "noCoveredWorks": "本页暂无已发布封面的作品",
+    "noPageMatches": "本页没有符合条件的作品",
+    "pageFilters": "本页筛选",
+    "noMatches": "DMM 目录没有匹配的作品",
+    "pageLimit": "DMM 最多允许浏览前 {{count, number}} 页",
+    "pageStatus": "本页状态筛选",
+    "performerPage": "DMM 艺名页",
+    "preOrder": "预购",
+    "released": "已发行"
+  },
   "javSearch": {
     "filterRecommended": "筛选推荐",
     "filterReleases": "筛选新作",
@@ -611,6 +634,7 @@
     "discover": "发现",
     "label": "JAV 分区",
     "newReleases": "新作",
+    "online": "在线目录",
     "wants": "想要"
   },
   "javWant": {
@@ -1023,6 +1047,11 @@
     "providedBy": "中文字幕由 SubtitleCat 提供，可能包含机翻",
     "readingFiles": "正在读取字幕文件",
     "resetStyle": "重置",
+    "timing": "字幕时间校准",
+    "timingEarlier": "提前 0.5 秒",
+    "timingLater": "延后 0.5 秒",
+    "timingReset": "偏移归零",
+    "timingValue": "{{seconds}} 秒",
     "searchFailed": "字幕搜索失败",
     "searchOnline": "搜索中文字幕",
     "searching": "正在搜索字幕",
@@ -1030,10 +1059,10 @@
     "turnOn": "开启字幕"
   },
   "sortControls": {
-    "customize": "自定义排序项",
-    "reset": "恢复默认排序项",
+    "customize": "自定义筛选与排序",
+    "reset": "恢复默认顺序",
     "syncFailed": "已在本机保存，同步未完成。{{error}}",
-    "title": "排序项"
+    "title": "筛选与排序项"
   },
   "tagCategories": {
     "appearance": "外貌身材",
@@ -1125,7 +1154,7 @@
     "expandItem": "展开 {{title}}",
     "filteredOnly": "当前仅显示筛选结果",
     "loading": "正在读取播放墙",
-    "nowPlaying": "正在播放 · {{number}}",
+    "nowPlaying": "正在播放",
     "openSearch": "打开搜索",
     "searchLabel": "搜索播放墙",
     "searchPlaceholder": "搜索作品",

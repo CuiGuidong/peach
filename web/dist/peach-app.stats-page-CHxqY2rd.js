@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "88992c0b-0c19-4ce7-b28a-3f21daeb59b1", e._sentryDebugIdIdentifier = "sentry-dbid-88992c0b-0c19-4ce7-b28a-3f21daeb59b1");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "540952eb-4471-43ee-bc06-185f8a3040a9", e._sentryDebugIdIdentifier = "sentry-dbid-540952eb-4471-43ee-bc06-185f8a3040a9");
 	} catch {}
 })();
 import { $b4f18e3395fe64d7$export$3d96ec278d3efce4 as e, $b4f18e3395fe64d7$export$3e41faf802a29e71 as t, $b4f18e3395fe64d7$export$b2539bed5023c21c as n, $b4f18e3395fe64d7$export$e51a686c67fdaa2d as r, ButtonLink as i, EmptyState as a, LOC as o, MEDIA_SOURCE_ICONS as s, NR as c, Note as l, Progress as u, SEGMENT as d, SEGMENTED_TRACK as f, STATS_KEY as p, STAT_STRIP as m, SegmentedTabList as h, SourceMark as g, StatCard as _, StatusLabel as v, Xc as y, Xt as b, _8 as x, __toESM as S, bandRows as C, cardClass as w, clsx as T, codedText as E, errorMessage as D, fetchStats as ee, fmtCount as O, fmtSize as k, known as A, lengthRows as j, mM as M, mediumRows as te, percentText as ne, playedFor as re, playedItemUrl as ie, radialArc as ae, radialBarSize as oe, radialCeiling as se, radialSlices as ce, reachedShare as le, replayRows as ue, require_jsx_runtime as de, require_react as fe, settingsPath as pe, statCardClass as me, t as N, uo as he, useQuery as ge, watchNote as _e, watchedShare as ve } from "./peach-app.js";
@@ -1353,7 +1353,7 @@ function li(i) {
 		title: N("manage:stats.loadFailedTitle"),
 		children: a.error ? D(a.error) : N("manage:stats.loadFailedHint")
 	}) });
-	let s = o.consumption, c = o.storage_summary, u = o.by_loc.reduce((e, t) => e + t.videos, 0), g = o.by_loc.reduce((e, t) => e + t.bytes, 0), _ = A(o.tag_cov) ? ne(o.tag_cov, o.attribution.videos) : N("manage:shared.notFound"), v = `${O(o.tag_cov)} / ${o.attribution.videos.toLocaleString()}`;
+	let s = o.consumption, c = o.storage_summary, u = o.by_loc.reduce((e, t) => e + t.videos, 0), g = o.by_loc.reduce((e, t) => e + t.bytes, 0), _ = A(o.tag_cov) ? ne(o.tag_cov, o.attribution.videos) : N("manage:shared.notFound"), v = `${O(o.tag_cov)} / ${o.attribution.videos.toLocaleString()}`, S = u > 0 || o.top_tags.length > 0 || o.recent.length > 0 || o.tag_source.length > 0;
 	return /* @__PURE__ */ (0, J.jsxs)(dn, { children: [/* @__PURE__ */ (0, J.jsxs)(n, {
 		defaultSelectedKey: "inventory",
 		className: "flex flex-col gap-4",
@@ -1477,7 +1477,7 @@ function li(i) {
 				})
 			})
 		]
-	}), /* @__PURE__ */ (0, J.jsxs)(n, {
+	}), S ? /* @__PURE__ */ (0, J.jsxs)(n, {
 		defaultSelectedKey: "tags",
 		className: `${w({ padding: "none" })} flex flex-col`,
 		children: [
@@ -1531,8 +1531,8 @@ function li(i) {
 				})
 			})
 		]
-	})] });
+	}) : null] });
 }
 export { li as StatsPage };
 
-//# debugId=88992c0b-0c19-4ce7-b28a-3f21daeb59b1
+//# debugId=540952eb-4471-43ee-bc06-185f8a3040a9

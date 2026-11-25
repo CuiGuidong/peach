@@ -157,6 +157,33 @@ describe('馆藏卡片与列表', () => {
     } finally { await opened.close() }
   });
 
+  it('触屏长按打开作品菜单，松手留在列表，滑动不打开菜单', async () => {
+    const opened = await visit(browser, '/', VIEWPORTS.find(viewport => viewport.mobile)!);
+    const { page } = opened;
+    try {
+      const card = page.locator('#grid [data-media-grid] > [data-media-card] [data-media-pic]').first();
+      await card.scrollIntoViewIfNeeded();
+      const box = (await card.boundingBox())!;
+      const x = box.x + box.width / 2, y = box.y + box.height / 2;
+      const session = await page.context().newCDPSession(page);
+      const touch = (type: 'touchStart' | 'touchMove' | 'touchEnd', top = y) => session.send('Input.dispatchTouchEvent', {
+        type, touchPoints: type === 'touchEnd' ? [] : [{ x, y: top }],
+      });
+      const menu = page.locator('[data-work-context-menu]');
+      await touch('touchStart');
+      await menu.waitFor();
+      await touch('touchEnd');
+      assert.equal(new URL(page.url()).pathname, '/');
+      await page.keyboard.press('Escape');
+      await menu.waitFor({ state: 'hidden' });
+      await touch('touchStart');
+      await touch('touchMove', y - 28);
+      await page.waitForTimeout(550);
+      await touch('touchEnd');
+      assert.equal(await menu.count(), 0);
+    } finally { await opened.close() }
+  });
+
   it('长列表的离屏标题仍可查找，键盘切换列并关闭弹层后回到触发按钮', async () => {
     const videos = Array.from({ length: 55 }, (_, index) => ({
       id: 99300 + index, name: `Catalog lookup ${index + 1}`, medium: 'video', duration: 90, has_thumb: true,
@@ -175,7 +202,40 @@ describe('馆藏卡片与列表', () => {
     const { page } = opened;
     try {
       const columns = page.getByRole('button', { name: '显示列', exact: true });
+      const operations = page.getByRole('columnheader', { name: '作品操作' });
+      const divider = operations.locator('[data-table-column-divider]');
+      await divider.waitFor();
+      const line = await divider.evaluate(node => {
+        const parent = node.closest('th')!;
+        const rect = node.getBoundingClientRect();
+        const header = parent.getBoundingClientRect();
+        const handle = parent.previousElementSibling!.querySelector('.react-aria-ColumnResizer')!;
+        return { width: rect.width, edge: header.right - rect.right,
+          sameColor: getComputedStyle(node).backgroundColor === getComputedStyle(handle, '::after').backgroundColor };
+      });
+      assert.deepEqual(line, { width: 1, edge: 0, sameColor: true });
+      const first = page.locator('[data-catalog-table] [data-catalog-row]').first();
+      await first.evaluate(row => row.scrollIntoView({ block: 'center' }));
+      const second = page.locator('[data-catalog-table] [data-catalog-row]').nth(1);
+      const [start, end] = await Promise.all([first.boundingBox(), second.boundingBox()]);
+      assert.ok(start && end);
+      const mode = page.locator('#selectMode');
+      assert.equal(await mode.getAttribute('aria-pressed'), 'false');
+      await page.mouse.move(start.x + 20, start.y + 20);
+      await page.mouse.down();
+      await page.mouse.move(start.x + 38, end.y + 25, { steps: 4 });
+      await page.locator('[data-card-selection-rectangle]').waitFor();
+      await page.mouse.up();
+      await page.waitForFunction(() => document.querySelector('#selectMode')?.getAttribute('aria-pressed') === 'true');
+      assert.equal(await page.locator('[data-catalog-row][data-board-selected]').count(), 2);
+      await page.keyboard.press('Escape');
+      await page.waitForFunction(() => document.querySelector('#selectMode')?.getAttribute('aria-pressed') === 'false');
+      assert.equal(await page.locator('[data-catalog-row][data-board-selected]').count(), 0);
       await columns.focus();
+      await page.keyboard.press('ArrowRight');
+      assert.equal(await page.getByRole('button', { name: '重置列宽', exact: true }).evaluate(node => node === document.activeElement), true);
+      await page.keyboard.press('ArrowLeft');
+      assert.equal(await columns.evaluate(node => node === document.activeElement), true);
       await page.keyboard.press('Enter');
       const dialog = page.getByRole('dialog', { name: '表格显示列' });
       await dialog.waitFor();
@@ -213,7 +273,7 @@ describe('馆藏卡片与列表', () => {
     const { page } = opened;
     try {
       const videos = [1, 8].map((plays, index) => ({
-        id: 99100 + index, name: `Sample ${index + 1}.mp4`, medium: 'video', duration: 60, play_count: plays,
+        id: 99100 + index, name: `Sample ${index + 1}.mp4`, medium: 'video', duration: (index + 1) * 60, play_count: plays,
       }));
       await page.route('**/api/items?*', route => {
         const params = new URL(route.request().url()).searchParams;
@@ -229,6 +289,7 @@ describe('馆藏卡片与列表', () => {
       const limit = async (name: string, value: string) => {
         await page.getByRole('button', { name, exact: true }).click();
         const dialog = page.getByRole('dialog', { name, exact: true });
+        assert.equal(await dialog.getByRole('slider', { name: '最大值', exact: true }).getAttribute('aria-valuetext'), '不限');
         await dialog.getByRole('textbox', { name: /^最大值/ }).fill(value);
         await dialog.getByRole('button', { name: '应用范围', exact: true }).click();
       };
@@ -251,6 +312,15 @@ describe('馆藏卡片与列表', () => {
       await page.waitForFunction(() => document.querySelectorAll('#grid [data-media-card]').length === 2);
       assert.equal(await removePlays.count(), 0);
       assert.equal(await chips.getByRole('button', { name: /时长/ }).count(), 1);
+      await limit('时长', '1');
+      const duration = page.locator('[data-sort-controls="catalog"] [data-entity-sort="dur"]');
+      await duration.click();
+      await page.getByRole('dialog', { name: '时长', exact: true }).getByRole('button', { name: '升序', exact: true }).click();
+      await page.waitForURL(url => url.searchParams.get('sort') === 'dur' && url.searchParams.get('dir') === 'asc');
+      await chooseView('列表');
+      await page.locator('[data-table-column-filter="dur"][data-filter-active]').waitFor();
+      await page.waitForFunction(() => document.querySelectorAll('#grid [data-catalog-row]').length === 1);
+      assert.equal(await rows.first().getAttribute('data-id'), '99100');
     } finally { await opened.close() }
   });
   for (const viewport of VIEWPORTS) it(`${viewport.name}：多选隐藏卡片悬浮操作，退出后恢复`, { timeout: 60000 }, async () => {
@@ -372,6 +442,14 @@ describe('馆藏卡片与列表', () => {
         assert.equal(requests.at(-1)!.get('limit'), '20');
         assert.equal(requests.at(-1)!.get('loc'), 'local');
         assert.equal(requests.at(-1)!.get('browse'), 'folders');
+        const expectTableTop = () => page.waitForFunction(() => {
+          const header = document.querySelector('#grid [data-board-data-table] thead')?.getBoundingClientRect();
+          const filter = document.querySelector('#catalogFilter [data-filter-frame]')?.getBoundingClientRect();
+          const topBar = document.querySelector('header.top')?.getBoundingClientRect();
+          return !!header && !!filter && !!topBar
+            && header.top >= Math.max(topBar.bottom, filter.bottom) - 1
+            && header.top <= topBar.bottom + filter.height + 32;
+        });
         const first = page.locator('[data-catalog-row]').first();
         const firstId = await first.getAttribute('data-id');
         await page.locator('#selectMode').click();
@@ -380,9 +458,14 @@ describe('馆藏卡片与列表', () => {
         await page.getByRole('button', { name: '下一页', exact: true }).click();
         await page.locator('[data-catalog-row][data-id="9024"]').waitFor();
         assert.equal(requests.at(-1)!.get('offset'), '20');
+        await expectTableTop();
         await page.locator('[data-catalog-row]').first().locator('label').click();
         await page.getByRole('button', { name: '上一页', exact: true }).click();
         await page.locator(`[data-catalog-row][data-id="${firstId}"][data-board-selected]`).waitFor();
+        await expectTableTop();
+        await page.getByRole('button', { name: '第 2 页', exact: true }).click();
+        await page.locator('[data-catalog-row][data-id="9024"][data-board-selected]').waitFor();
+        await expectTableTop();
         const sortButton = page.getByRole('button', { name: /作品列表排序/ });
         await sortButton.scrollIntoViewIfNeeded();
         await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
@@ -432,6 +515,7 @@ describe('馆藏卡片与列表', () => {
           return url.pathname === '/api/items' && url.searchParams.get('sort') === 'dur' && url.searchParams.get('dir') === 'desc';
         });
         await durationSort.click();
+        await page.locator('[data-sort-direction-menu] [data-filter-option="desc"]').click();
         await durationResponse;
         await page.waitForFunction(() => document.querySelector('[data-catalog-row]')?.getAttribute('data-id') === '9000');
         assert.equal(await durationSort.getAttribute('aria-pressed'), 'true');

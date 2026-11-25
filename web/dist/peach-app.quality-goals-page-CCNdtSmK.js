@@ -1,14 +1,14 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d7c5acf0-ab1b-4769-badc-9c9982b7d3b1", e._sentryDebugIdIdentifier = "sentry-dbid-d7c5acf0-ab1b-4769-badc-9c9982b7d3b1");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "59e075e8-d22a-4d39-aad3-c94e162fa702", e._sentryDebugIdIdentifier = "sentry-dbid-59e075e8-d22a-4d39-aad3-c94e162fa702");
 	} catch {}
 })();
-import { Button as e, CardTags as t, CatalogViewToggle as n, CloudDownloadDialog as r, EmptyState as i, FilterGlassRows as a, Gg as o, H7 as s, Icon as c, LOC as l, ListLibrary as u, Note as d, OA as f, QUALITY_GOALS_KEY as p, QueueFilterChips as m, QueueIdentity as h, QueuePicture as g, QueueTable as _, SelectAllButton as v, SelectionDock as y, SortKeys as b, __toESM as x, enterPageSelection as S, errorMessage as C, exitPageSelection as ee, fetchQualityGoals as te, fmtDur as w, fmtSize as T, hasSelectionModifier as E, previewUrl as D, providerIcon as ne, pv as O, queueContentSkeletonHtml as re, require_jsx_runtime as k, require_react as A, t as j, useCatalogView as ie, useDense as M, useLibraryTints as N, usePageSelection as ae, useQuery as oe, useQueueSort as P, useRectangleSelection as F, useWorkContextMenu as I } from "./peach-app.js";
-import { Page as L } from "./peach-app.page-QAncjzM1.js";
-import { JavBatchResources as se } from "./peach-app.jav-batch-resources-B1BkGgyg.js";
+import { Button as e, CardTags as t, CatalogViewToggle as n, CloudDownloadDialog as r, EmptyState as i, FilterGlassRows as a, Gg as o, H7 as s, Icon as c, LOC as l, ListLibrary as u, Note as d, OA as f, QUALITY_GOALS_KEY as p, QueueFilterChips as m, QueueIdentity as h, QueuePicture as g, QueueTable as _, SelectAllButton as v, SelectionDock as y, SortKeys as b, __toESM as x, enterPageSelection as S, errorMessage as C, exitPageSelection as ee, fetchQualityGoals as te, fmtDur as w, fmtSize as T, hasSelectionModifier as E, previewUrl as D, providerIcon as O, pv as k, queueContentSkeletonHtml as ne, require_jsx_runtime as A, require_react as j, t as M, useCatalogView as re, useDense as N, useLibraryTints as P, usePageSelection as ie, useQuery as ae, useQueueSort as oe, useRectangleSelection as se, useWorkContextMenu as F } from "./peach-app.js";
+import { Page as I } from "./peach-app.page-QAncjzM1.js";
+import { JavBatchResources as L } from "./peach-app.jav-batch-resources-B1BkGgyg.js";
 // src/react/quality-goals/quality-goals-page.tsx
-var R = /* @__PURE__ */ x(A(), 1), z = k(), B = (e) => (e || "").split(/\s*\/\s*/).map((e) => e.trim()).filter(Boolean);
+var R = /* @__PURE__ */ x(j(), 1), z = A(), B = (e) => (e || "").split(/\s*\/\s*/).map((e) => e.trim()).filter(Boolean);
 function V(e, t) {
 	return {
 		code: e.code,
@@ -22,27 +22,27 @@ function V(e, t) {
 function H(e, t, n, r, i) {
 	let a = [{
 		id: "open",
-		label: j("manage:hdUpgrades.viewEditions"),
+		label: M("manage:hdUpgrades.viewEditions"),
 		icon: o,
 		run: n
 	}, {
 		id: "select",
-		label: j(t ? "catalog:mediaActions.deselect" : "catalog:mediaActions.select"),
+		label: M(t ? "catalog:mediaActions.deselect" : "catalog:mediaActions.select"),
 		icon: s,
 		run: i
 	}];
 	return e.code && a.splice(1, 0, {
 		id: "search",
-		label: j("manage:resourceSearch.searchTorrents"),
-		icon: O,
+		label: M("manage:resourceSearch.searchTorrents"),
+		icon: k,
 		run: r
 	}), a;
 }
 function ce({ item: n, openItem: r, searchResources: i, javTitleHtml: a, javDisplayName: o, srcBadge: s, picked: d, onPick: f, selecting: p }) {
-	let m = I(), h = M(), [g, _] = (0, R.useState)(!1), v = () => r(n.id), y = o(n), b = () => i(V(n, y)), x = {
+	let m = F(), h = N(), [g, _] = (0, R.useState)(!1), v = () => r(n.id), y = o(n), b = () => i(V(n, y)), x = {
 		key: n.id,
 		operations: H(n, d, v, b, () => f(!d))
-	}, S = N(), C = n.library_id && S.get(n.library_id)?.color ? n.library_id : void 0;
+	}, S = P(), C = n.library_id && S.get(n.library_id)?.color ? n.library_id : void 0;
 	return /* @__PURE__ */ (0, z.jsxs)("article", {
 		"data-media-card": "",
 		"data-jav-card": "",
@@ -62,12 +62,12 @@ function ce({ item: n, openItem: r, searchResources: i, javTitleHtml: a, javDisp
 				type: "button",
 				"data-media-pic": "",
 				onClick: v,
-				"aria-label": j("manage:hdUpgrades.openVideo", { title: y }),
+				"aria-label": M("manage:hdUpgrades.openVideo", { title: y }),
 				style: { "--card-ratio": "1.7777777777777777" },
 				children: [
 					g ? /* @__PURE__ */ (0, z.jsx)("span", {
 						"data-media-nopic": "",
-						children: j("manage:hdUpgrades.noPreview")
+						children: M("manage:hdUpgrades.noPreview")
 					}) : /* @__PURE__ */ (0, z.jsx)("span", {
 						"data-media-art": "thumb",
 						children: /* @__PURE__ */ (0, z.jsx)("img", {
@@ -114,7 +114,7 @@ function ce({ item: n, openItem: r, searchResources: i, javTitleHtml: a, javDisp
 								"data-media-facts": "",
 								children: /* @__PURE__ */ (0, z.jsxs)("span", {
 									"data-media-size": "",
-									children: [/* @__PURE__ */ (0, z.jsx)(c, { name: "hard-drive" }), Number(n.size) > 0 ? T(Number(n.size)) : j("manage:hdUpgrades.unknownSize")]
+									children: [/* @__PURE__ */ (0, z.jsx)(c, { name: "hard-drive" }), Number(n.size) > 0 ? T(Number(n.size)) : M("manage:hdUpgrades.unknownSize")]
 								})
 							})]
 						}),
@@ -134,40 +134,41 @@ function ce({ item: n, openItem: r, searchResources: i, javTitleHtml: a, javDisp
 					variant: "secondary",
 					size: h ? "small" : "medium",
 					onClick: b,
-					children: j("manage:resourceSearch.searchTorrents")
+					children: M("manage:resourceSearch.searchTorrents")
 				}) : null, /* @__PURE__ */ (0, z.jsx)(e, {
 					variant: "secondary",
 					size: h ? "small" : "medium",
 					onClick: v,
-					children: j("manage:hdUpgrades.viewEditions")
+					children: M("manage:hdUpgrades.viewEditions")
 				})]
 			})
 		]
 	});
 }
 function U({ toast: t, ...o }) {
-	let [s, c] = (0, R.useState)(null), [x, E] = (0, R.useState)(/* @__PURE__ */ new Map()), O = ae(() => E(/* @__PURE__ */ new Map())), [k, A] = (0, R.useState)(null), M = ie(), [N, I] = (0, R.useState)({}), U = JSON.stringify(N), W = U !== "{}", G = oe({
+	let [s, c] = (0, R.useState)(null), [x, E] = (0, R.useState)(/* @__PURE__ */ new Map()), k = ie(() => E(/* @__PURE__ */ new Map())), [A, j] = (0, R.useState)(null), N = re(), [P, F] = (0, R.useState)({}), U = JSON.stringify(P), W = U !== "{}", G = ae({
 		queryKey: W ? [...p, U] : p,
-		queryFn: ({ signal: e }) => te(e, W ? N : void 0),
+		queryFn: ({ signal: e }) => te(e, W ? P : void 0),
 		placeholderData: (e) => e
-	}), K = P("quality-goals", {
+	}), K = oe("quality-goals", {
 		size: (e) => Number(e.size || 0),
 		dur: (e) => Number(e.duration || 0),
 		new: (e) => e.id
 	}), q = G.data, J = K.sort(q?.items || []), Y = (e, t) => {
+		e.length && S();
 		let n = new Set(e);
 		E((e) => new Map([...t ? e : [], ...J.filter((e) => n.has(e.id)).map((e) => [e.id, e])]));
-	}, le = F(!G.isFetching && !G.isError ? (e, t) => Y(e.map(Number), t) : void 0, { selecting: O });
-	if (G.isPending) return /* @__PURE__ */ (0, z.jsx)(L, { children: /* @__PURE__ */ (0, z.jsx)("div", { dangerouslySetInnerHTML: { __html: re("quality-goals", j("shell:spinner.loading"), ["w-20", "w-24"]) } }) });
-	if (!q) return /* @__PURE__ */ (0, z.jsx)(L, { children: /* @__PURE__ */ (0, z.jsx)(d, {
+	}, le = se(!G.isFetching && !G.isError ? (e, t) => Y(e.map(Number), t) : void 0, { selecting: k });
+	if (G.isPending) return /* @__PURE__ */ (0, z.jsx)(I, { children: /* @__PURE__ */ (0, z.jsx)("div", { dangerouslySetInnerHTML: { __html: ne("quality-goals", M("shell:spinner.loading"), ["w-20", "w-24"]) } }) });
+	if (!q) return /* @__PURE__ */ (0, z.jsx)(I, { children: /* @__PURE__ */ (0, z.jsx)(d, {
 		tone: "error",
-		title: j("manage:hdUpgrades.loadFailed"),
-		children: G.error ? C(G.error) : j("manage:hdUpgrades.notFound")
+		title: M("manage:hdUpgrades.loadFailed"),
+		children: G.error ? C(G.error) : M("manage:hdUpgrades.notFound")
 	}) });
-	if (!J.length && M !== "list" && !W) return /* @__PURE__ */ (0, z.jsx)(L, { children: /* @__PURE__ */ (0, z.jsx)(i, {
+	if (!J.length && N !== "list" && !W) return /* @__PURE__ */ (0, z.jsx)(I, { children: /* @__PURE__ */ (0, z.jsx)(i, {
 		icon: f,
-		title: j("manage:hdUpgrades.emptyTitle"),
-		children: j("manage:hdUpgrades.emptyBody")
+		title: M("manage:hdUpgrades.emptyTitle"),
+		children: M("manage:hdUpgrades.emptyBody")
 	}) });
 	let X = [...x.values()], Z = X.filter((e) => e.code), Q = (e) => {
 		G.isFetching || G.isError || (e && S(), E((t) => {
@@ -186,8 +187,8 @@ function U({ toast: t, ...o }) {
 		className: "mx-auto w-full max-w-board",
 		children: [
 			/* @__PURE__ */ (0, z.jsx)(a, {
-				label: j("manage:hdUpgrades.summaryLabel"),
-				topLabel: j("manage:hdUpgrades.summaryLabel"),
+				label: M("manage:hdUpgrades.summaryLabel"),
+				topLabel: M("manage:hdUpgrades.summaryLabel"),
 				top: null,
 				attrs: {
 					"data-catalog-frame": "",
@@ -200,12 +201,12 @@ function U({ toast: t, ...o }) {
 						"data-catalog-readout": "",
 						role: "status",
 						children: [
-							j("manage:hdUpgrades.summaryLabel"),
+							M("manage:hdUpgrades.summaryLabel"),
 							" · ",
-							j("manage:hdUpgrades.videoCount", { count: Number(q.total || 0) })
+							M("manage:hdUpgrades.videoCount", { count: Number(q.total || 0) })
 						]
 					}), /* @__PURE__ */ (0, z.jsx)(v, {
-						label: j("manage:hdUpgrades.selectAll"),
+						label: M("manage:hdUpgrades.selectAll"),
 						picked: J.filter((e) => x.has(e.id)).length,
 						total: J.length,
 						onChange: Q
@@ -218,27 +219,27 @@ function U({ toast: t, ...o }) {
 					})]
 				})] })
 			}),
-			M === "cards" && W ? /* @__PURE__ */ (0, z.jsx)("div", {
+			N === "cards" && W ? /* @__PURE__ */ (0, z.jsx)("div", {
 				className: "mb-4",
 				children: /* @__PURE__ */ (0, z.jsx)(m, {
 					table: "quality-goals",
-					filters: N,
-					onChange: I,
+					filters: P,
+					onChange: F,
 					valueLabel: (e, t) => e === "source" ? l[t] ?? t : t
 				})
 			}) : null,
-			M === "list" ? /* @__PURE__ */ (0, z.jsx)(_, {
+			N === "list" ? /* @__PURE__ */ (0, z.jsx)(_, {
 				table: "quality-goals",
-				label: j("manage:hdUpgrades.summaryLabel"),
+				label: M("manage:hdUpgrades.summaryLabel"),
 				items: J,
 				selected: new Set(x.keys()),
-				selecting: O,
+				selecting: k,
 				contextOperations: (e) => H(e, x.has(e.id), () => o.openItem(e.id), () => c(V(e, o.javDisplayName(e))), () => $(e.id, !x.has(e.id))),
 				busy: G.isFetching,
 				filters: {
-					values: N,
+					values: P,
 					facets: q.column_facets ?? {},
-					onChange: I
+					onChange: F
 				},
 				filterColumns: {
 					size: {
@@ -252,7 +253,7 @@ function U({ toast: t, ...o }) {
 					source: {
 						values: (e) => e.location,
 						option: (e) => {
-							let t = ne(e);
+							let t = O(e);
 							return {
 								label: l[e] || e,
 								leading: /* @__PURE__ */ (0, z.jsx)(t, {})
@@ -261,7 +262,7 @@ function U({ toast: t, ...o }) {
 					},
 					reason: {
 						values: (e) => B(e.reason),
-						option: (e) => ({ label: e === "none" ? j("cleanup:shared.none") : e })
+						option: (e) => ({ label: e === "none" ? M("cleanup:shared.none") : e })
 					}
 				},
 				sort: {
@@ -272,7 +273,7 @@ function U({ toast: t, ...o }) {
 					sorting: K.sorting,
 					onChange: K.setSorting
 				},
-				rowLabel: (e) => j("manage:hdUpgrades.selectVideo", { title: o.javDisplayName(e) }),
+				rowLabel: (e) => M("manage:hdUpgrades.selectVideo", { title: o.javDisplayName(e) }),
 				onPick: (e, t) => $(e.id, t),
 				onPickAll: Q,
 				onRectangle: Y,
@@ -302,18 +303,18 @@ function U({ toast: t, ...o }) {
 							variant: "secondary",
 							size: "small",
 							onClick: () => c(V(t, o.javDisplayName(t))),
-							children: j("manage:resourceSearch.searchTorrents")
+							children: M("manage:resourceSearch.searchTorrents")
 						}) : null, /* @__PURE__ */ (0, z.jsx)(e, {
 							variant: "secondary",
 							size: "small",
 							onClick: () => o.openItem(t.id),
-							children: j("manage:hdUpgrades.viewEditions")
+							children: M("manage:hdUpgrades.viewEditions")
 						})]
 					})
 				}
 			}) : J.length ? /* @__PURE__ */ (0, z.jsx)("div", {
 				"data-media-grid": "",
-				"data-select-mode": O ? "" : void 0,
+				"data-select-mode": k ? "" : void 0,
 				...le,
 				children: J.map((e) => /* @__PURE__ */ (0, z.jsx)(ce, {
 					item: e,
@@ -321,39 +322,39 @@ function U({ toast: t, ...o }) {
 					searchResources: c,
 					picked: x.has(e.id),
 					onPick: (t) => $(e.id, t),
-					selecting: O
+					selecting: k
 				}, e.id))
 			}) : /* @__PURE__ */ (0, z.jsx)(i, {
 				icon: f,
-				title: j("shell:dataTable.empty"),
+				title: M("shell:dataTable.empty"),
 				children: null
 			}),
 			/* @__PURE__ */ (0, z.jsxs)(y, {
 				visible: X.length > 0,
-				label: j("manage:hdUpgrades.dockLabel"),
-				count: j("manage:hdUpgrades.selectedCount", { count: X.length }),
+				label: M("manage:hdUpgrades.dockLabel"),
+				count: M("manage:hdUpgrades.selectedCount", { count: X.length }),
 				actions: [],
 				children: [/* @__PURE__ */ (0, z.jsx)(e, {
 					size: "small",
 					variant: "secondary",
 					disabled: !Z.length,
-					onClick: () => A(Z.map((e) => ({
+					onClick: () => j(Z.map((e) => ({
 						id: e.id,
 						code: e.code,
 						title: o.javDisplayName(e),
 						release_date: void 0
 					}))),
-					children: j("manage:resourceSearch.searchTorrents")
+					children: M("manage:resourceSearch.searchTorrents")
 				}), /* @__PURE__ */ (0, z.jsx)(e, {
 					size: "small",
 					variant: "ghost",
 					onClick: ee,
-					children: j("manage:hdUpgrades.clearSelection")
+					children: M("manage:hdUpgrades.clearSelection")
 				})]
 			}),
-			/* @__PURE__ */ (0, z.jsx)(se, {
-				items: k,
-				close: () => A(null),
+			/* @__PURE__ */ (0, z.jsx)(L, {
+				items: A,
+				close: () => j(null),
 				readOnly: !1,
 				receipt: t
 			}),
@@ -363,7 +364,7 @@ function U({ toast: t, ...o }) {
 			}) : null,
 			Number(q.total || 0) > J.length ? /* @__PURE__ */ (0, z.jsx)("p", {
 				className: "mt-6 text-center text-caption-1-regular text-text-secondary",
-				children: j("manage:hdUpgrades.showingFirst", {
+				children: M("manage:hdUpgrades.showingFirst", {
 					shown: J.length.toLocaleString(),
 					count: Number(q.total)
 				})
@@ -378,4 +379,4 @@ function U({ toast: t, ...o }) {
 }
 export { U as QualityGoalsPage };
 
-//# debugId=d7c5acf0-ab1b-4769-badc-9c9982b7d3b1
+//# debugId=59e075e8-d22a-4d39-aad3-c94e162fa702

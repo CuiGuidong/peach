@@ -12,11 +12,11 @@ import { mount, mountRoot, pending, settle } from './render';
 
 function props(patch: Partial<CatalogFilterProps> = {}): CatalogFilterProps {
   return {
-    tiers: { key: 'k', performers: [], studios: [] }, tiersPending: false, empty: false, tags: [], tagFirst: 0,
+    tiers: { key: 'k', performers: [], studios: [] }, tiersPending: false, empty: false, tags: [],
     views: [{ k: '', label: '全部', href: '/' }], state: '', count: { total: 0, shown: 0 }, trash: false, trashHost: null,
     sorts: [], layout: null, refreshing: false, offscreen: false, combo: [], comboHidden: true, comboHost: null,
     actions: {
-      openEntity: vi.fn(), setView: vi.fn(), toggleTag: vi.fn(), clearFilter: vi.fn(), clearAll: vi.fn(),
+      openEntity: vi.fn(), setView: vi.fn(), toggleTag: vi.fn(), chooseFacet: vi.fn(), clearFilter: vi.fn(), clearAll: vi.fn(),
       setSort: vi.fn(), reshuffle: vi.fn(async () => {}), setLayout: vi.fn(), moreTops: vi.fn(async () => []),
       emptyTrash: vi.fn(),
     },

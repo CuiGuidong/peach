@@ -7,8 +7,9 @@
  *
  * 写操作（评分、标签、反馈、稍后看、高清目标、偏好、播放列表排序与移出）都在岛里发，成功后
  * 把服务端回的那几个字段换进 `['item', id]`，目录网格缓存里的同一张卡一起换，不重读列表。 */
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { VisuallyHidden } from 'react-aria-components';
 import { fmtDur, fmtSize, icon, requestErrorMessage } from '@peach/legacy/core';
 import { appSettingsStore } from '@peach/appearance';
 import {
@@ -28,6 +29,9 @@ import type { MediaItem } from '../catalog-grid/types';
 import { DetailFailure } from '../components/detail-failure';
 import { PendingWork, pendingRefetch, usePendingWorkRefetch } from '../components/pending-work';
 import { MixQueue, MixQueueRow } from '../components/mix-queue';
+import { NavigationDropLine } from '../components/navigation-order';
+import { ObjectOrderDialog } from '../components/object-order-dialog';
+import { useSidebarReorder } from '../sidebar/use-sidebar-reorder';
 import { RelatedSection } from '../components/related-section';
 import { DetailContinuation } from '../components/detail-continuation';
 import { DetailTags } from '../components/detail-tags';
@@ -47,7 +51,7 @@ import { LibraryCompletionPrompt, missingPreviewIds } from '../library-processin
 import {
   CAST_SHOWN, FEEDBACK_URL, PLAYLIST_URL, PREFERENCE_URL, QUALITY_GOAL_URL,
   RELATED_URL, WATCH_LATER_URL, chooseItem, clampRating, detailTags, feedbackReceipt, fetchItem, fetchQueue,
-  identityGroups, isVanished, itemKey, mediaGate, movedOrder, nextRating, editionLabel, partLabel, partLabelHtml, playlistQueue,
+  identityGroups, isVanished, itemKey, mediaGate, nextRating, editionLabel, partLabel, partLabelHtml, playlistQueue,
   queueCopy, queueKey, queueNext, ratingStars, ratingText, realWatched, relatedKey, sameOrder,
   withPartLabel,
   type DetailEntityRef, type DetailItem, type DetailQueue, type ItemDetailActions,
@@ -133,7 +137,7 @@ function Detail(props: ItemDetailProps & { item: DetailItem; queue: DetailQueue 
       if (video) { video.currentTime = 0; void video.play()?.catch(() => {}) }
       return;
     }
-    actions.openQueueItem({ kind: queue.kind, seedId: queue.seedId, playlistId: queue.playlistId, autoplay: true }, next.id);
+    actions.openQueueItem({ kind: queue.kind, seedId: queue.seedId, playlistId: queue.playlistId, filterId: queue.filterId, autoplay: true }, next.id);
   };
   return (
     <>
@@ -276,34 +280,37 @@ function Queue({ queue, itemId, helpers, actions }: {
   queue: DetailQueue; itemId: number; helpers: ItemDetailHelpers; actions: ItemDetailActions;
 }) {
   const copy = queueCopy(queue);
+  const [sorting, setSorting] = useState(false);
+  const sortButton = useRef<HTMLButtonElement>(null);
+  const closeSorting = () => {
+    setSorting(false);
+    requestAnimationFrame(() => sortButton.current?.focus({ preventScroll: true }));
+  };
   const list = useRef<HTMLDivElement | null>(null);
   const reorder = usePlaylistReorder(queue, itemId, actions);
-  const reorderRef = useRef(reorder);
-  reorderRef.current = reorder;
+  const playlist = queue.kind === 'playlist';
+  const drag = useSidebarReorder(list, queue.items.map(row => String(row.id)),
+    keys => { void reorder.save(keys.map(Number)).catch(() => {}) }, () => {}, 'x', 'tab', [], 'row');
   const listRef = useCallback((node: HTMLDivElement | null) => {
     list.current = node;
-    if (!node) return;
-    helpers.wireDrag(node);
-    /* 顺序直接拖：一列十几条，靠上移下移把最后一条挪到第二位要按十几次，而每一次都是一趟写库
-       加一次重绘。拖动中的行态由 `wireDragReorder` 挂在行上，行是按 id 复用的，重排之后监听还在。 */
-    if (queue.kind === 'playlist') {
-      helpers.wireDragReorder(node, {
-        selector: '[data-queue-row]', attribute: 'data-queue-row',
-        onMove: (from, target, after) => reorderRef.current.move(+from, +target, after),
-      });
-    }
-  }, [helpers, queue.kind]);
+    if (node) helpers.wireDrag(node);
+  }, [helpers]);
   const saveMix = useSaveMix(queue, actions);
   const head = queue.kind === 'mix'
     ? <button type="button" data-save-mix="" title={t('catalog:detailQueue.saveAsPlaylist')} aria-label={t('catalog:detailQueue.saveAsPlaylist')} onClick={saveMix}
       dangerouslySetInnerHTML={{ __html: icon('playlist') }} />
     : queue.kind === 'playlist'
-      ? <button type="button" data-edit-playlist="" title={t('catalog:detailQueue.editPlaylist')} aria-label={t('catalog:detailQueue.editPlaylist')} onClick={actions.editPlaylist}
+      ? <button ref={sortButton} type="button" data-edit-playlist="" title={t('catalog:detailQueue.editPlaylist')} aria-label={t('catalog:detailQueue.editPlaylist')}
+        onClick={() => setSorting(true)}
         dangerouslySetInnerHTML={{ __html: icon('playlist') }} />
       : null;
-  const ref = { kind: queue.kind, seedId: queue.seedId, playlistId: queue.playlistId };
+  const ref = { kind: queue.kind, seedId: queue.seedId, playlistId: queue.playlistId, filterId: queue.filterId };
   return (
-    <MixQueue kind={queue.kind} title={copy.title} summary={copy.summary} onClose={actions.close} actions={head} listRef={listRef}>
+    <MixQueue kind={queue.kind} title={copy.title} summary={copy.summary} onClose={actions.close} actions={head} listRef={listRef}
+      listProps={playlist ? {
+        'data-navigation-order': 'playlist-queue', 'data-navigation-axis': 'x', 'data-drop-on-row': '',
+        'data-reordering': drag.picked ? '' : undefined, onClickCapture: drag.clickCapture,
+      } : undefined}>
       {queue.items.map((row) => {
         const edition = queue.kind === 'editions' && row.edition_label
           ? <i className={`javedition ${EDITION_TONE[row.edition ?? ''] || 'censored'}`} data-queue-edition="">{editionLabel(row)}</i> : null;
@@ -315,8 +322,21 @@ function Queue({ queue, itemId, helpers, actions }: {
         if (!gone) operations.push({ id: 'open', label: t('catalog:mediaActions.open'), icon: RiPlayLine, run: open });
         if (queue.kind === 'playlist') operations.push({ id: 'remove', label: t('catalog:detailQueue.removeFromPlaylist'),
           icon: RiSubtractLine, run: remove });
+        const key = String(row.id);
+        const bindings = drag.bindings(key, '[data-mix-item]');
+        const nudge = drag.nudge(key);
         return (
-          <MixQueueRow key={row.id} current={row.id === itemId} data-queue-item={row.id} row={{ 'data-queue-row': row.id }}
+          <MixQueueRow key={row.id} current={row.id === itemId} data-queue-item={row.id}
+            aria-keyshortcuts={playlist ? 'Alt+ArrowLeft Alt+ArrowRight' : undefined}
+            row={playlist ? {
+              'data-queue-row': row.id, 'data-tab': key, 'aria-label': helpers.displayName(row),
+              'data-dragging': drag.picked?.key === key ? '' : undefined,
+              style: { '--sidebar-nudge': `${nudge.distance}px`, '--sidebar-delay': `${nudge.delay}ms` } as CSSProperties,
+              ...bindings,
+              onPointerDown: event => {
+                if (event.pointerType === 'mouse' || (event.target as Element).closest('[data-queue-grip]')) bindings.onPointerDown(event);
+              },
+            } : { 'data-queue-row': row.id }}
             disabled={gone} title={gone ? t('catalog:detailQueue.fileGone') : undefined}
             {...(gone ? { 'data-queue-vanished': '' } : {})}
             onClick={gone ? undefined : open} contextOperations={operations}
@@ -336,6 +356,11 @@ function Queue({ queue, itemId, helpers, actions }: {
           </MixQueueRow>
         );
       })}
+      {playlist ? <><NavigationDropLine reorder={drag} /><VisuallyHidden role="status" aria-live="polite">{drag.announcement}</VisuallyHidden></> : null}
+      {sorting && queue.kind === 'playlist' ? <ObjectOrderDialog dropOnRow
+        title={t('catalog:playlistOrder.dialogTitle', { name: queue.title })}
+        items={queue.items.map(row => ({ id: String(row.id), name: helpers.displayName(row) }))}
+        save={keys => reorder.save(keys.map(Number))} close={closeSorting} /> : null}
     </MixQueue>
   );
 }
@@ -367,15 +392,13 @@ function usePlaylistReorder(queue: DetailQueue, itemId: number, actions: ItemDet
     onError: (error) => actions.failure(t('catalog:playlistOrder.reorder'), error),
   });
   const ids = queue.items.map((row) => row.id);
+  const save = async (next: number[]) => {
+    if (sameOrder(next, ids)) return;
+    await reorder.mutateAsync(next);
+    actions.toast(t('catalog:playlistOrder.reordered'), { undo: async () => { apply(await write({ action: 'reorder', asset_ids: ids })) } });
+  };
   return {
-    move: async (from: number, target: number, after: boolean) => {
-      if (queue.kind !== 'playlist') return;
-      const next = movedOrder(ids, from, target, after);
-      if (sameOrder(next, ids)) return;
-      const before = ids;
-      await reorder.mutateAsync(next);
-      actions.toast(t('catalog:playlistOrder.reordered'), { undo: async () => { apply(await write({ action: 'reorder', asset_ids: before })) } });
-    },
+    save,
     remove: (assetId: number) => {
       const before = ids;
       void confirmModal({

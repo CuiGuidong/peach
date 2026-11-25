@@ -347,11 +347,20 @@ describe('舞台岛', () => {
 
       const info = await page.locator('#miniplayerInfo').boundingBox();
       assert.ok(info);
+      await page.evaluate(() => {
+        const notice = document.createElement('div');
+        notice.id = 'miniplayer-layer-probe';
+        Object.assign(notice.style, { position: 'fixed', left: '100px', top: '140px', width: '40px', height: '40px',
+          zIndex: 'var(--layer-popover)', background: 'var(--surface)' });
+        document.body.append(notice);
+      });
       await page.mouse.move(info.x + info.width / 2, info.y + info.height / 2);
       await page.mouse.down();
       await page.mouse.move(info.x - 200, info.y - 200, { steps: 6 });
       await page.mouse.move(120, 160, { steps: 6 });
+      assert.equal(await page.evaluate(() => document.elementFromPoint(120, 160)?.closest('#miniplayer')?.id), 'miniplayer');
       await page.mouse.up();
+      await page.locator('#miniplayer-layer-probe').evaluate(node => node.remove());
       await page.waitForFunction(() => document.getElementById('miniplayer')?.dataset.corner === 'tl', null, { timeout: 5_000 });
       assert.equal(await page.locator('#miniplayer').evaluate((node) => (node as HTMLElement).style.transform), '');
       await pathIs(page, '/');

@@ -397,6 +397,9 @@ function SettingsPanel({ host: current, view: shown }: { host: SettingsPanelHost
                 attr="data-theme-choice" variant="themeswitch" epoch={epoch}
                 onChoose={(choice) => { settings.theme = choice; save(); current.changed('theme') }} />
             </Row>
+            <ToggleRow id="localAppearanceSetting" title={t('settings:preferencesPanel.localAppearance')}
+              description={t('settings:preferencesPanel.localAppearanceHelp')} checked={settings.localAppearance}
+              onToggle={on => { settings.localAppearance = on; save() }} />
             <InterfaceLanguageSetting host={current} epoch={epoch} />
             <ToggleRow id="glassContrastSetting" title={t('settings:preferencesPanel.increaseContrast')}
               description={t('settings:preferencesPanel.increaseContrastHelp')} checked={current.highContrast()}

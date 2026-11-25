@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "bd0b03ea-421f-4824-b8e0-2ee0713e21f8", e._sentryDebugIdIdentifier = "sentry-dbid-bd0b03ea-421f-4824-b8e0-2ee0713e21f8");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3377c241-5ffa-4791-9251-cd612331ee1e", e._sentryDebugIdIdentifier = "sentry-dbid-3377c241-5ffa-4791-9251-cd612331ee1e");
 	} catch {}
 })();
 import { Button as e, Chip as t, ColumnFilterAvatar as n, MarkImage as r, Wt as i, __toESM as a, authorAvatar as o, authorInitial as s, authorPortrait as c, errorHeadline as l, isBroken as u, require_jsx_runtime as d, require_react as f, sourceIconUrl as p, statusText as m, t as h } from "./peach-app.js";
@@ -10,7 +10,14 @@ var g = /* @__PURE__ */ a(f(), 1), _ = d();
 function v({ provider: e }) {
 	return /* @__PURE__ */ (0, _.jsx)(r, { src: p(e) });
 }
-function y({ group: e, name: t, small: r = !1 }) {
+function y({ name: e }) {
+	return /* @__PURE__ */ (0, _.jsx)("span", {
+		className: "text-body-2-regular wrap-anywhere text-text-secondary",
+		title: h("follow:feedSources.aliasTitle", { alias: e }),
+		children: e
+	});
+}
+function b({ group: e, name: t, small: r = !1 }) {
 	let { src: i, fallback: a } = o(e), [l, u] = (0, g.useState)(0), d = c(e);
 	if (d) return /* @__PURE__ */ (0, _.jsx)(n, {
 		person: d,
@@ -33,7 +40,7 @@ function y({ group: e, name: t, small: r = !1 }) {
 		children: s(t)
 	});
 }
-function b({ source: e }) {
+function x({ source: e }) {
 	let n = !e.enabled || e.history_exhausted ? "gray" : u(e) ? "rose" : e.enabled && e.last_status === "ok" ? "lime" : e.enabled ? "yellow" : "gray";
 	return /* @__PURE__ */ (0, _.jsx)(t, {
 		variant: "caption",
@@ -41,7 +48,7 @@ function b({ source: e }) {
 		children: m(e)
 	});
 }
-function x({ source: e }) {
+function S({ source: e }) {
 	return /* @__PURE__ */ (0, _.jsxs)("a", {
 		href: e.url,
 		target: "_blank",
@@ -54,7 +61,7 @@ function x({ source: e }) {
 		})]
 	});
 }
-function S({ text: t, prefix: n = "", tone: r = "error" }) {
+function C({ text: t, prefix: n = "", tone: r = "error" }) {
 	let i = (0, g.useRef)(null), [a, o] = (0, g.useState)(!1), [s, c] = (0, g.useState)(!1), u = l(t);
 	(0, g.useLayoutEffect)(() => {
 		let e = i.current;
@@ -84,6 +91,6 @@ function S({ text: t, prefix: n = "", tone: r = "error" }) {
 		}) : null]
 	});
 }
-export { y as AuthorAvatar, S as ErrorLine, v as SourceIcon, x as SourceLink, b as StatusBadge };
+export { b as AuthorAvatar, C as ErrorLine, y as FeedPageAlias, v as SourceIcon, S as SourceLink, x as StatusBadge };
 
-//# debugId=bd0b03ea-421f-4824-b8e0-2ee0713e21f8
+//# debugId=3377c241-5ffa-4791-9251-cd612331ee1e

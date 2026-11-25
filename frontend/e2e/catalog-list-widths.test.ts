@@ -112,7 +112,9 @@ describe('馆藏表格列宽与占位图', () => {
         return { left: node.scrollLeft, extra: node.scrollWidth - node.clientWidth };
       });
       assert.ok(scrolled.extra > 0 && scrolled.left > 0, JSON.stringify(scrolled));
-      await page.getByRole('button', { name: '重置列宽', exact: true }).click();
+      await page.getByRole('button', { name: '列布局', exact: true }).click();
+      await page.getByRole('dialog', { name: '表格的列布局', exact: true }).getByRole('button', { name: '重置列宽', exact: true }).click();
+      await page.keyboard.press('Escape');
       await page.waitForFunction(width => Math.abs(document.querySelector('[data-catalog-table] th[data-key="name"]')!.getBoundingClientRect().width - width) <= 1, initialWidth);
       await scroll.evaluate(node => { node.scrollLeft = 0 });
       await page.getByRole('button', { name: '显示列', exact: true }).click();

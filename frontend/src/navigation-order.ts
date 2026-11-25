@@ -14,7 +14,7 @@ export const NAVIGATION_GROUPS = {
     ['all', t('navigation:shared.all')], ['filters', t('navigation:favoritesTabs.savedFilters')], ['performer', t('navigation:sidebar.performers')], ['creator', t('navigation:favoritesTabs.creators')],
     ['tag', t('navigation:sidebar.tags')], ['series', t('navigation:favoritesTabs.series')], ['studio', t('navigation:favoritesTabs.studios')], ['agency', t('navigation:favoritesTabs.agencies')],
   ] },
-  jav: { label: t('navigation:navigationGroups.jav'), items: [['library', t('navigation:javTabs.collection')], ['wants', t('navigation:javTabs.wanted')], ['releases', t('navigation:javTabs.newReleases')], ['discover', t('navigation:javTabs.discover')]] },
+  jav: { label: t('navigation:navigationGroups.jav'), items: [['library', t('navigation:javTabs.collection')], ['wants', t('navigation:javTabs.wanted')], ['releases', t('navigation:javTabs.newReleases')], ['discover', t('navigation:javTabs.discover')], ['online', t('navigation:javTabs.online')]] },
   follow: { label: t('navigation:manage.subscriptions'), items: [['list', t('navigation:followTabs.follows')], ['add', t('navigation:followTabs.newFollow')]] },
   tags: { label: t('navigation:navigationGroups.tagVocabulary'), items: [['local', t('navigation:tagTabs.localLabel')], ['online', t('navigation:tagTabs.online')]] },
   preferences: { label: t('navigation:navigationGroups.preferences'), items: [

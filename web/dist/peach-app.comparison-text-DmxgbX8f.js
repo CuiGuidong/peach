@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "9c9d5d76-fa6a-437d-a893-d97d0b53a67d", e._sentryDebugIdIdentifier = "sentry-dbid-9c9d5d76-fa6a-437d-a893-d97d0b53a67d");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "dfed50ba-e3b7-498a-ace7-f64e1bbb79fe", e._sentryDebugIdIdentifier = "sentry-dbid-dfed50ba-e3b7-498a-ace7-f64e1bbb79fe");
 	} catch {}
 })();
 import { __toESM as e, require_jsx_runtime as t, require_react as n } from "./peach-app.js";
@@ -367,39 +367,17 @@ new class extends i {
 }();
 // src/react/review/comparison-text.tsx
 var T = t();
-function E(e, t) {
-	if (!t) return e;
-	let n = [], r = [], i = 0;
-	for (let a of e) {
-		let e = a.value.slice(0, Math.max(0, t.start - i)), o = a.value.slice(Math.max(0, t.end - i));
-		e && n.push({
-			...a,
-			value: e
-		}), o && r.push({
-			...a,
-			value: o
-		}), i += a.value.length;
-	}
-	return [
-		...n,
-		{
-			value: "…",
-			added: !1
-		},
-		...r
-	];
-}
-function D({ value: e, reference: t, cut: n }) {
-	let i = (0, r.useMemo)(() => t ? o(t, e).filter((e) => !e.removed) : [{
+function E({ value: e, reference: t }) {
+	let n = (0, r.useMemo)(() => t ? o(t, e).filter((e) => !e.removed) : [{
 		value: e,
 		added: !1
 	}], [e, t]);
-	return /* @__PURE__ */ (0, T.jsx)(T.Fragment, { children: E(i, n).map((e, t) => e.added ? /* @__PURE__ */ (0, T.jsx)("mark", {
+	return /* @__PURE__ */ (0, T.jsx)(T.Fragment, { children: n.map((e, t) => e.added ? /* @__PURE__ */ (0, T.jsx)("mark", {
 		"data-review-difference": "",
 		className: "rounded-sm bg-status-yellow-background text-status-yellow-text",
 		children: e.value
 	}, t) : /* @__PURE__ */ (0, T.jsx)("span", { children: e.value }, t)) });
 }
-export { D as ComparisonText };
+export { E as ComparisonText };
 
-//# debugId=9c9d5d76-fa6a-437d-a893-d97d0b53a67d
+//# debugId=dfed50ba-e3b7-498a-ace7-f64e1bbb79fe

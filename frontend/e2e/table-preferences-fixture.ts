@@ -86,6 +86,19 @@ export async function verifyTablePreferences(page: Page, table: Locator, label: 
     assert.ok(await scroll.evaluate(node => node.scrollLeft) >= Math.min(80, range) - 2, label);
     assert.equal(await table.locator('tbody input[type="checkbox"]:checked:not([role="switch"])').count(), 0, label);
   }
+  const headerKeys = () => table.locator('thead th[data-key]:not([data-table-space])')
+    .evaluateAll(headers => headers.map(node => node.getAttribute('data-key')));
+  const defaultOrder = await headerKeys();
+  const changedOrder = [...defaultOrder];
+  const columnIndex = changedOrder.indexOf(optional.id);
+  assert.ok(columnIndex > 1, label);
+  changedOrder.splice(columnIndex - 1, 0, changedOrder.splice(columnIndex, 1)[0]!);
+  const layoutMenu = page.getByRole('dialog', { name: `${label}的列布局`, exact: true });
+  const layoutButton = controls.getByRole('button', { name: '列布局', exact: true });
+  await layoutButton.click();
+  await layoutMenu.locator(`[data-tab="${optional.id}"]`).press('Alt+ArrowUp');
+  assert.deepEqual(await headerKeys(), changedOrder);
+  await page.keyboard.press('Escape');
   await controls.getByRole('button', { name: '显示列', exact: true }).click();
   const menu = page.getByRole('dialog', { name: `${label}显示列`, exact: true });
   const actionLayout = await menu.evaluate(element => {
@@ -123,12 +136,18 @@ export async function verifyTablePreferences(page: Page, table: Locator, label: 
   await restoreView?.();
   await table.waitFor();
   assert.ok(Math.abs(await width() - resized) <= 1, label);
-  assert.equal(await table.locator(`th[data-key="${optional.id}"]`).count(), 0);
+  assert.deepEqual(await headerKeys(), changedOrder.filter(id => id !== optional.id));
   await controls.getByRole('button', { name: '显示列', exact: true }).click();
   await menu.getByRole('button', { name: '恢复默认显示', exact: true }).click();
   await page.keyboard.press('Escape');
   await table.locator(`th[data-key="${optional.id}"]`).waitFor();
-  await controls.getByRole('button', { name: '重置列宽', exact: true }).click();
+  assert.deepEqual(await headerKeys(), changedOrder);
+  await layoutButton.click();
+  await layoutMenu.getByRole('button', { name: '重置列顺序', exact: true }).click();
+  assert.deepEqual(await headerKeys(), defaultOrder);
+  assert.ok(Math.abs(await width() - resized) <= 1, label);
+  await layoutMenu.getByRole('button', { name: '重置列宽', exact: true }).click();
+  await page.keyboard.press('Escape');
   await page.waitForFunction(({ node, initial }) => node && Math.abs(node.getBoundingClientRect().width - initial) <= 1,
     { node: await header.elementHandle(), initial }, { timeout: 5000 });
   assert.ok(Math.abs(await width() - initial) <= 1, label);

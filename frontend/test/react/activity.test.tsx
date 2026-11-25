@@ -10,6 +10,7 @@ import { ActivityPage } from '../../src/react/activity/activity-page';
 import { BACKGROUND_ISSUES_URL, type BackgroundIssue } from '../../src/react/activity/background-issues';
 import { DOWNLOADS_URL } from '../../src/react/activity/downloads-panel';
 import { ErrorExcerpt } from '../../src/react/activity/error-excerpt';
+import { AnimatedNumber } from '../../src/react/components/animated-number';
 import {
   elapsedText, errorHeadline, followupDetail, hasResultProblems, isRoutine, prefetchTasks, progressLabel, progressText, summaryItems, summaryText, TASKS_URL,
 } from '../../src/react/activity/tasks';
@@ -121,6 +122,18 @@ const page = () => <QueryClientProvider client={queryClient}><ActivityPage /></Q
 const controlButton = (name: string, root: ParentNode = document) =>
   root.querySelector<HTMLButtonElement>(`button[aria-label="${name}"]`);
 const confirmTaskCancellation = () => click(document.querySelector('[data-modal-confirm]'));
+
+it('实时读数立即使用新值，只给相同格式中变化的数字加过渡', async () => {
+  const { host, rerender } = await mountRoot(<AnimatedNumber value="12,340 / 20,000" />);
+  const changed = () => [...host.querySelectorAll('[aria-hidden][data-digit]')].map(node => node.getAttribute('data-digit'));
+  expect(changed()).toEqual([]);
+  await rerender(<AnimatedNumber value="12,380 / 20,000" />);
+  expect(host.textContent).toBe('12,380 / 20,000');
+  expect(changed()).toEqual(['4']);
+  await rerender(<AnimatedNumber value="102,380 / 200,000" />);
+  expect(host.textContent).toBe('102,380 / 200,000');
+  expect(changed()).toEqual([]);
+});
 
 it('扫描各阶段已结束且留有问题时显示部分结果状态', async () => {
   serve(payload({ finished: [run({ task_key: 'library-processing', task_label: '扫描与采集',

@@ -251,7 +251,7 @@ npm 安装沿用 Node.js 24 LTS 附带的官方 [`npm ci`](https://docs.npmjs.co
 
 列头展开时才查询 `/api/facets` 或 `/api/jav/releases` 的 `column` 选项，每批 24 项，向下滚动或点击加载更多时读取下一页。搜索复用 `IndexSearch` 的 300ms 防抖与输入法处理，服务端复用搜索补全的规范名、别名与检索词判据。馆藏选项在 SQL 中分页后附加头像和别名，后端缓存使用有界 LRU；前端查询缓存闲置一分钟后回收，关闭菜单取消未完成请求。新作顶部各组只返回前 24 项，列头提供完整选项分页。媒体库沿用已有清单和 `SourceMark` 图标。艺人头像复用 `entity_ref`、`avatarInner` 和 `SourceAvatar`，图片延迟加载。选项滚动区铺满菜单，覆盖式滚动条贴右缘，搜索框保持固定。筛选为空时保留列头以便恢复。
 
-关注管理使用「关注列表」「添加关注」两个页签。列表复用 `FeedSources` 管理 JAV 订阅，添加页复用 `AddFeed` 的演员卡查询、用户点选与 `follow-name` 写入契约；共享 `FEEDS_KEY` 缓存，开关、移除及拉取各走原接口。来源筛选顶部统一提供凭据设置链接。JavDB 登入页判据复用 `javdb.LOGIN`，主页面与单体作品补拉共用解析入口。脚本检测在桥接文档加载后等待同源回报，加载与回报均有时限；权限指引依据 [Tampermonkey 官方 FAQ](https://www.tampermonkey.net/faq.php#Q209)。没有新增依赖。
+关注管理使用「关注列表」「添加关注」两个页签。列表复用 `FeedSources` 管理 JAV 订阅，添加页复用 `AddFeed` 的演员卡查询、用户点选与 `follow-name` 写入契约；共享 `FEEDS_KEY` 缓存，开关、移除及拉取各走原接口。来源筛选顶部统一提供凭据设置链接。JavDB 登录页判据复用 `javdb.login_page`，主页面与单体作品补拉共用解析入口。脚本检测在桥接文档加载后等待同源回报，加载与回报均有时限；权限指引依据 [Tampermonkey 官方 FAQ](https://www.tampermonkey.net/faq.php#Q209)。没有新增依赖。
 
 连接状态复用 BoardUI `StatusDot` 与 `ConnectionStatus`，圆点和文字保持同一色系；成功为绿、检测中为蓝、离线或待配对为黄、失败为红、未知为灰。稳定任务结果和配置状态复用 `Chip`，由 `StatusLabel` 统一成功、进行、警告、失败和中性状态。暂停状态优先于历史错误；未经检查的来源保持未检查。用户脚本检测与功能启用分开呈现，仍由同源桥接协议核对版本、nonce 和配对回报。HTTP 状态颜色仅表示本次访问结果，删除仍以服务端确认失效的清单为准。
 
@@ -468,13 +468,15 @@ SiteRecord 与候选结算；[外部播放](EXTERNAL_PLAYERS.md)复用既有媒�
 
 ## 二维播放墙
 
-Folia（`chthollyphile/folia-major`，AGPL-3.0，revision `9a01e788ed52d25ea01b1f0d37934e5e371ae82b`）提供矩形块模板、镜头／世界坐标、视口裁剪、循环／有限墙及视觉样式；原文保存在 [矩形块模板](reference-snapshots/upstream/folia-block-templates.ts)、[让位表](reference-snapshots/upstream/folia-block-reflows.ts)、[动效参数](reference-snapshots/upstream/folia-wall-reflow-motion.ts) 和 [墙面样式](reference-snapshots/upstream/folia-wall.css)。`frontend/src/react/video-wall/` 在独立 `/wall` 页面使用四套模板及镜像、6×6 原位展开和暗色直角拼贴。封面复用 `ArtSlot`、`cardArtwork` 与人脸／正封取景；全封和正封按磁贴比例选择，只接收有封面的视频。Query、BoardUI、Motion、详情入口、舞台播放器和小窗均使用项目已有能力，不增加依赖。
+Folia（`chthollyphile/folia-major`，AGPL-3.0，revision `9a01e788ed52d25ea01b1f0d37934e5e371ae82b`）提供矩形块模板、镜头／世界坐标、视口裁剪、循环／有限墙及视觉样式。独立 `/wall` 页面以矩形块标识作品位置，浏览时按封面的宽高比排布。封面复用 `ArtSlot` 和 `cardArtwork`，入墙资格要求有封面的视频。Query、BoardUI、Motion、详情入口、舞台播放器和小窗沿用项目已有能力。[矩形块模板](reference-snapshots/upstream/folia-block-templates.ts) · [Folia 取证](reference-snapshots/folia-video-wall.md)
 
-墙内分卷和版本使用 `item-detail` 的 `queueKey`、`fetchQueue`、`chooseItem`、`nextPart`，列表行复用 `MixQueue`；上一部、下一部和进度控制监听同一 video。换批入口复用首页 `Shuffle` 和原有等待动效。展开卡的封面铺满，标题叠在中下部，播放时封面背景模糊、标题移到上方。
+墙内分卷和版本使用 `item-detail` 的 `queueKey`、`fetchQueue`、`chooseItem`、`nextPart`，列表行复用 `MixQueue`。上一部、下一部和进度控制监听同一 video。换批入口复用首页 `Shuffle` 和原有等待动效。详情展开时左侧从封套抽出光盘，右侧显示作品资料和播放控制，墙面保留原位置并转为灰度。手机把详情放在封套下方。
+
+浏览墙借鉴 Records 唱片墙的曲面透视、指针反馈和封套抬升。Peach 用 DOM 与 CSS 投影横竖封面，拖动和缩放时将屏幕落点反算到已有镜头坐标。触屏点按可原位展开作品。[Records 唱片墙取证](reference-snapshots/records-wall.md)
 
 上游当前仓库仍在维护，技术栈为 React 19、TypeScript 7 与 Vite 8。模板与坐标算法没有 Python 或平台依赖，正式消费者是浏览器构建。Three.js、Pixi、歌词和音乐账号体系不适用于视频墙，未引入。探索墙复用现有 Query 分页，按进入视口的实例键分配作品，保留已看位置；未展示作品不足时自动续页，无封面页继续跳过，全范围耗尽后才循环。筛选及实体作品墙使用固定三列与手动续页。几何测试覆盖 80,000 项、负坐标、续页位置稳定和耗尽状态，播放器测试覆盖同一实例交接、取消与来源门槛；见 [播放墙取证](reference-snapshots/folia-video-wall.md)。
 
-高亮复用 Folia 当前播放标记的内侧描边与发光，Peach 同时应用于选中和播放。队列滚轮交给现有 `MixQueue` 的滚动区，墙面不接管；手动换批使用独立等待态，Query 就绪后移动到新区域并恢复墙面。全局入口与沉浸模式一样常驻，非作品页面保留来源与 JAV 语境及返回地址，馆藏和实体作品页继承当前筛选。
+队列滚轮交给现有 `MixQueue` 的滚动区。手动换批使用独立等待态，Query 就绪后移动到新区域。全局入口与沉浸模式一样常驻，非作品页面保留来源与 JAV 语境及返回地址，馆藏和实体作品页继承当前筛选。
 
 ## 脚本目录与参数
 
@@ -679,6 +681,7 @@ OneJAV、Free JAV Torrent 只给种子链接。这类条目经索引器同源的
 - 遗留层反馈控件 `noteHtml`、`activityStatusHtml` 与 `wireContextCard` 集中在共享 UI 模块；信息卡片用原生 Popover 与现有锚定菜单定位，不加浮层依赖。证据见 `reference-snapshots/vercel-geist-note-progress-switch-analytics.md`。
 - 资源核对复用 `web_resource_sync` 的目录枚举、离线跳过、写前逐条复验与 BackgroundJob，覆盖 local、115、PikPak；失效记录的永久删除复用 `web_batch.purge_assets`，文件仍在盘上的行进 `blocked`。确认弹层复用 Fieldset、Note、Toast 与 confirmModal：失败留在弹层，危险动作初始聚焦取消，忙态阻止重入与关闭；不引入另一套对话框库。
 - React 选择字段统一复用 [BoardUI Select](BOARD_UI.md)。覆盖式滚动条 `attachOverlayScrollbar`、Collapse 的 `wireCollapse`／`setCollapseOpen`、来源站标 `MEDIA_SOURCE_ICONS`、骨架与确认框等共用控件在 `frontend/src/ui-kit/` 维护。Application 与 React 页面共享源码，随 `/dist/peach-app.js` 发出一份。独立页面包只引入用到的控件。覆盖式滚动条与提供两端渐隐的 `.ui-geist-scroller` 可叠加。整页异步重绘复用导航代际隔离。
+- 表格工具条复用 React Aria `useToolbar`，文本输入保留光标方向键，展开的弹层处理自己的按键。共享提示允许指针从触发器移入提示。馆藏卡片、馆藏列表、通用数据表和队列表在普通模式下通过触屏长按打开现有作品菜单。目录树浮层复用 React Aria 的可见视口尺寸。诊断已加载内容和任务详情交给原生 `details` 参与浏览器查找。交互参考 [Base UI 文档](https://base-ui.com/react/overview/quick-start)。
 - 局部等待复用 `skeleton-sheen`：绝对定位的微光由占位元素自己的 `relative` 或 `absolute` 定位，并在该元素内裁切。JAV 评论占位在折叠正文内预留结构，首次展开按占位高度测量；请求仍按展开触发，收起时不标记等待态。
 - 图标按钮统一清除浏览器内边距并居中 SVG，不覆盖业务显隐。Remix Icon 由 `vendor_web_dependencies.ts` 生成设置导航 symbol；随机按钮保留原有双路径动画。
 - 宽字形的比例统一取自 `core/icon-geometry.ts`；遗留模板、React 控件、设置和实体页共用。控件按位置决定高度，Aa 等字形按比例定宽，同级图标以实际轮廓核验。

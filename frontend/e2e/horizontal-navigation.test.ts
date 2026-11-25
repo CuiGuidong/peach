@@ -66,6 +66,17 @@ describe('横向导航提示', () => {
         return selected.left >= host.left - 1 && selected.right <= host.right + 1;
       });
       assert.ok(geometry, '键盘选中的分类没有进入可见范围');
+      const tabs = row.getByRole('tab');
+      await opened.page.keyboard.press('ArrowUp');
+      assert.equal(await tabs.last().getAttribute('aria-selected'), 'true');
+      await opened.page.keyboard.press('ArrowLeft');
+      assert.equal(await tabs.nth(-2).getAttribute('aria-selected'), 'true');
+      await opened.page.setViewportSize({ width: 1280, height: 844 });
+      await tabs.nth(-2).focus();
+      await opened.page.keyboard.press('ArrowRight');
+      assert.equal(await tabs.nth(-2).getAttribute('aria-selected'), 'true');
+      await opened.page.keyboard.press('ArrowDown');
+      assert.equal(await tabs.last().getAttribute('aria-selected'), 'true');
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }
   });

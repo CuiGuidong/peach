@@ -4,6 +4,7 @@ import { QueryClientProvider, notifyManager } from '@tanstack/react-query';
 import { queryClient } from '../../src/react/query';
 import { JavPage } from '../../src/react/jav/jav-page';
 import { JavHeader } from '../../src/react/jav/jav-header';
+import { catalogView, setCatalogView } from '../../src/react/catalog-grid/catalog-view';
 import { discoveryKey, prefetchJav } from '../../src/react/jav/jav';
 import { WANTS_KEY } from '../../src/react/wants/wants';
 import { actionOrder, buttonNamed, choose, click, mount, settle, type } from './render';
@@ -187,7 +188,8 @@ it('空新作列表保留每页数量控件，越界页自动返回首页', asyn
 it('新作分区切到列表：作品、艺人、厂牌各占一列，表头点时长按时长排序', async () => {
   const before = location.pathname + location.search;
   history.replaceState(null, '', '/jav?tab=releases');
-  localStorage.setItem('peach.catalog-view.v1', 'list');
+  const view = catalogView();
+  setCatalogView('list');
   const fetcher = vi.fn(async (_url: string) => ({ ok: true, status: 200, json: async () => ({
     items: [{ id: 1, code: 'ABC-001', title: '示例作品', performers: '女优甲', studio: '厂牌甲', has_cover: false, release_date: '2026-11-10',
       wanted: false, tags: ['中出内射'], duration: 7200, source_score: 4.5, performer_refs: [{ id: 7, name: '女优甲', has_image: false }] }],
@@ -211,7 +213,7 @@ it('新作分区切到列表：作品、艺人、厂牌各占一列，表头点�
     await click(row.querySelector('[data-list-name]'));
     expect(navigate).toHaveBeenLastCalledWith('/works/ABC-001');
   } finally {
-    localStorage.removeItem('peach.catalog-view.v1');
+    setCatalogView(view);
     history.replaceState(null, '', before);
     vi.unstubAllGlobals();
   }
@@ -246,7 +248,7 @@ it('馆藏范围没有推荐时空态的查看口味在左，主入口在右', a
   vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ items: [] }) })));
   const host = await mount(<QueryClientProvider client={queryClient}><JavPage tab="discover" readOnly navigate={vi.fn()} receipt={vi.fn()} /></QueryClientProvider>);
   await settle();
-  await click(host.querySelector('[data-entity-tag="library"]'));
+  await click(host.querySelector('[data-catalog-view="library"]'));
   await settle();
   expect(actionOrder(host.querySelector('[data-empty-state]'))).toEqual(['查看口味', '浏览馆藏']);
   const main = [...host.querySelectorAll('[data-empty-state] a')].find((link) => link.textContent === '浏览馆藏');

@@ -403,6 +403,9 @@
     "tag": "标签"
   },
   "favoritesPanel": {
+    "filterActions": "操作",
+    "playFilter": "播放",
+    "playFilterLabel": "播放筛选「{{name}}」",
     "agencies": "事务所",
     "browseCollection": "浏览馆藏",
     "clearSearch": "清除搜索",
@@ -835,10 +838,10 @@
   },
   "peachProxy": {
     "chooseMode": "需要选择连接方式",
-    "environment": "跟随环境",
+    "environment": "跟随系统",
     "mode": "连接方式",
     "modeConflict": "已有来源的代理地址不同，请选择公共连接方式。",
-    "modeHelp": "Peach 访问外网和采集来源时使用。",
+    "modeHelp": "选择「跟随系统」时，浏览器使用 Peach 所在设备的系统代理，后台采集优先读取进程的代理环境变量。",
     "savedPlaceholder": "已保存，留空保留",
     "title": "Peach 代理",
     "url": "代理地址"
@@ -969,6 +972,9 @@
     "sidebarGlow": "侧栏光晕",
     "tasteAndHistory": "口味与记录",
     "theme": "主题",
+    "localAppearance": "仅在此浏览器调整外观",
+    "localAppearanceHelp": "启用后，主题、强调色和光晕只应用于此浏览器。关闭后恢复实例外观。",
+    "instanceSaveFailed": "未能把偏好保存到实例（{{error}}）",
     "videoCardSize": "视频卡片大小",
     "videoDisplay": "作品显示",
     "videoList": "作品列表"

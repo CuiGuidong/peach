@@ -377,8 +377,9 @@ export async function openCatalogBars(browser: Browser, viewport: Viewport = DES
     });
   });
   try {
+    await opened.page.reload({ waitUntil: 'load' });
     await expectBody(opened.page, '/', [
-      opened.page.locator('[data-catalog-filter] [data-catalog-tag]').first(),
+      opened.page.locator('[data-catalog-filter] [data-table-column-filter="home-tags"]').first(),
       opened.page.locator('[data-catalog-filter] [data-tier-studio]').first(),
     ], opened.problems);
     await settle(opened.page);

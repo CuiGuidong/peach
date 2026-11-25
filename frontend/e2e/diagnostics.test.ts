@@ -25,7 +25,7 @@ describe('配置中的系统诊断', () => {
       });
       try {
         const { page } = opened;
-        await page.locator('#diagnostics-sessions summary').click();
+        await page.locator('#diagnostics-sessions > details > summary').click();
         const icon = page.locator('[data-diagnostic-source="minnano-av"] img');
         await icon.waitFor();
         assert.equal(await icon.evaluate(node => getComputedStyle(node).borderRadius), '0px');
@@ -36,6 +36,10 @@ describe('配置中的系统诊断', () => {
         const table = page.getByRole('grid', { name: '缺封面', exact: true });
         await table.waitFor();
         assert.equal(await table.getByRole('row').count(), 21);
+        const actionsColumn = table.getByRole('columnheader', { name: '操作', exact: true });
+        const actionsIndex = await actionsColumn.evaluate(node => (node as HTMLTableCellElement).cellIndex);
+        await table.locator('tbody tr').first().locator('td, th').nth(actionsIndex)
+          .getByRole('button', { name: '忽略「演示条目 1」的问题', exact: true }).waitFor();
         assert.ok((await table.innerText()).includes('演示文件 1.mp4'));
         assert.ok((await table.innerText()).includes('R:\\Media\\演示文件 1.mp4'));
         await verifyColumnContentWidth(table, 'path', '[data-middle-truncate]');
@@ -146,6 +150,12 @@ describe('配置中的系统诊断', () => {
         const source = sessions.locator(':scope > article').first();
         assert.equal(await sessions.locator(':scope > article').count(), 2);
         assert.equal(await source.getAttribute('data-diagnostic-source'), 'minnano-av');
+        await sessions.getByRole('link', { name: '打开来源和凭证' }).waitFor();
+        const sessionDetails = source.locator('summary').filter({ hasText: '会话详情' });
+        assert.equal(await sessionDetails.getAttribute('aria-expanded'), 'false');
+        await sessionDetails.focus();
+        await sessionDetails.press('Enter');
+        assert.equal(await sessionDetails.getAttribute('aria-expanded'), 'true');
         const other = sessions.locator('summary').filter({ hasText: /其他来源 ·/ });
         const folded = sessions.locator('details > div article').first();
         assert.equal(await other.getAttribute('aria-expanded'), 'false');

@@ -101,7 +101,7 @@ export interface EntityPageActions {
   clearFilter(key: string): void;
   clearAll(): void;
   /** 排序键：点未选中项换列，点选中项翻方向，判据同首页那一排。 */
-  setSort(key: string): void;
+  setSort(key: string, dir: 'asc' | 'desc'): void;
   /** 作品视图的换一批：种子是全站那一粒（`state.seed`），壳换好、写好地址再推回来；回的是新种子，
    *  页面据此先把那一页取到手，键上的转圈等的就是这一趟。 */
   reshuffleVideos(): string;

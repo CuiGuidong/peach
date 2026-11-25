@@ -23,6 +23,8 @@ import { THEME_OPTIONS } from './../appearance/theme';
 import { JAV_LAYOUTS, cardLayoutFor, storeHomeLayout, storeJavLayout, storeVideoLayout } from './../appearance/layout';
 import { receiptsState } from './receipts.js';
 import { applySyncedSettings } from './../appearance/settings';
+import { queryClient } from '@peach/query';
+import { PROFILE_SETTINGS_KEY } from '../table-column-order';
 import { loadManageHeader, loadSettingsPanel, loadSidebar, manageHeaderApi, sidebarApi } from '../react/application-residents';
 import { sidebarSkeletonHtml } from './../sidebar-skeleton';
 import { trashFilterSkeletonHtml } from './../catalog-filter-skeleton';
@@ -164,9 +166,9 @@ export function mountSidebar(){
 export async function loadSyncedSettings(){
   const effects=applicationEffects;
   let remote=null;
-  try{remote=await api('/api/settings',{signal:effects.signal})}catch{return}
+  try{remote=await queryClient.fetchQuery({queryKey:PROFILE_SETTINGS_KEY,queryFn:({signal})=>api('/api/settings',{signal})})}catch{return}
   if(!effects.isActive)return;
-  applySyncedSettings(remote,effect=>preferencesState.settingsEffects[effect]?.());
+  applySyncedSettings(remote,(effect,keys)=>preferencesState.settingsEffects[effect]?.(keys));
 }
 
 export function manageSection(){
@@ -490,7 +492,7 @@ layoutState.settingsHost = ()=>({
   highContrast:()=>document.documentElement.classList.contains('board-high-contrast'),setHighContrast,
   receipt:message=>receiptsState.actionReceipt(message),
   failure:receiptsState.actionFailure,
-  syncRemote:remote=>applySyncedSettings(remote,effect=>preferencesState.settingsEffects[effect]?.()),
+  syncRemote:remote=>applySyncedSettings(remote,(effect,keys)=>preferencesState.settingsEffects[effect]?.(keys)),
   openConfiguration:()=>navigationState.navigatePath('/settings/library'),
   attached:()=>preferencesState.syncGlassOptics(),
   /* 「这台电脑」那一格的判据：服务由托盘管、已完成配置、请求来自本机三条同时成立。 */

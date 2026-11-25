@@ -167,7 +167,6 @@ JAVDB_AVATAR = re.compile(r'class="avatar" style="background-image: url\(([^)]+)
 #: 社媒按钮只在这一块里。页面别处的站外链接是广告、姊妹站和 RTA 标签，每页都有一份。
 JAVDB_ADDITION = re.compile(r'class="column section-addition">(.*?)<div class="toolbar"', re.S)
 #: 资料页要登录才给时不注册账号，记一行未取得。判据在 `peach.javdb`。
-JAVDB_LOGIN = javdb.LOGIN
 
 
 X_PROFILE = "https://x.com/{}"
@@ -584,7 +583,7 @@ def collect_javdb(site: Site, limit: int, performers: list[dict]) -> tuple[list[
                 if stop:
                     break
                 continue
-            if JAVDB_LOGIN.search(html):
+            if javdb.login_page(html):
                 pages.append(page_record("javdb", detail, record["chain"], [],
                                          note=t("harvest_directory_links.javdbLoginWall")))
                 continue

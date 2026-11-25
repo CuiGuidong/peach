@@ -13,10 +13,10 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   createColumnHelper, createPaginatedRowModel, createSortedRowModel, flexRender, rowPaginationFeature,
-  rowSelectionFeature, rowSortingFeature, columnVisibilityFeature, tableFeatures, useTable,
+  rowSelectionFeature, rowSortingFeature, columnOrderingFeature, columnVisibilityFeature, tableFeatures, useTable,
   type RowSelectionState, type SortingState,
 } from '@tanstack/react-table';
-import { RiCheckboxLine, RiDeleteBinLine, RiExternalLinkLine, RiPauseLine, RiPlayLine, RiRefreshLine, RiRssLine } from '@remixicon/react';
+import { RiCheckboxLine, RiDeleteBinLine, RiExternalLinkLine, RiPauseLine, RiPlayLine, RiRefreshLine } from '@remixicon/react';
 
 import { avatarInner } from '@peach/card-art';
 import { mapLimit } from '@peach/legacy/core';
@@ -35,11 +35,11 @@ import { errorMessage } from '../../api';
 import { skeletonHtml } from '../../ui-kit/skeleton';
 import { DataTableFrame } from '../components/data-table-frame';
 import { useTablePreferences } from '../components/table-column-preferences';
+import { useRememberedPageSize } from '../components/page-size-preferences';
 import { TableColumnControls, TableColumnResizer } from '../components/table-column-controls';
 import { TableSelectionHeader } from '../components/table-selection-header';
 import { DataTableFooter, DataTableSort } from '../components/table-controls';
 import { cardClass } from '../components/card';
-import { EmptyState } from '../components/empty-state';
 import { LEGACY_AVATAR_IMG } from '../components/legacy-avatar';
 import { SiteIcon, SiteLabel } from '../components/source-label';
 import { ColumnFilterAvatar } from '../components/column-filter-avatar';
@@ -59,12 +59,14 @@ import { codedText } from '../../core/server-text';
 import { t } from '../../i18n';
 import { useTableFilters } from '../components/use-table-filters';
 import { useRowWorkContext, type WorkContextOperation } from '../components/work-context-menu';
+import { FeedPageAlias } from './source-view';
 
 const feedTableFeatures = tableFeatures({
   rowPaginationFeature,
   rowSelectionFeature,
   rowSortingFeature,
   columnVisibilityFeature,
+  columnOrderingFeature,
   sortedRowModel: createSortedRowModel(),
   paginatedRowModel: createPaginatedRowModel(),
 });
@@ -173,9 +175,8 @@ function confirmRemove(sources: FeedSource[], write: () => Promise<unknown>) {
   });
 }
 
-export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
-  selecting?: boolean;
-  readOnly: boolean; toast: Receipt; onAdd(): void;
+export function FeedSources({ readOnly, toast, selection }: {
+  readOnly: boolean; toast: Receipt;
   selection?: {
     ids: ReadonlySet<number>;
     onChange: Dispatch<SetStateAction<ReadonlySet<number>>>;
@@ -191,7 +192,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
   const selected = selection?.ids ?? ownSelected;
   const setSelected = selection?.onChange ?? setOwnSelected;
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  const [pageSize, setPageSize] = useRememberedPageSize('jav-feeds');
   const [sorting, setSorting] = useState<SortingState>([]);
   const filtered = useTableFilters(sources, {
     name: { values: feedName, option: (name, source) => ({ leading: source && <ColumnFilterAvatar
@@ -266,6 +267,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
 
   /* 列定义只建一次，行里的控件到点击那一刻再从这里取最新的处理器与只读态。 */
   const shared = useMemo(() => sharedEntities(sources), [sources]);
+  const tableTop = useRef<HTMLDivElement>(null);
   const handlers = useRef<RowHandlers>({
     readOnly, shared, busy: null, toggle: () => {}, fetch: () => {}, remove: () => {},
   });
@@ -312,9 +314,7 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
               <FeedAvatar source={context.row.original} />
               {context.getValue()}
               {alias ? (
-                <span className="text-body-2-regular text-text-secondary" title={t('follow:feedSources.aliasTitle', { alias })}>
-                  {alias}
-                </span>
+                <FeedPageAlias name={alias} />
               ) : null}
             </span>
           );
@@ -389,14 +389,16 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
     data: filtered.items,
     columns,
     getRowId: (row) => String(row.id),
-    state: { rowSelection, sorting, pagination: { pageIndex: win.page - 1, pageSize }, columnVisibility: preferences.visibility },
+    state: { rowSelection, sorting, pagination: { pageIndex: win.page - 1, pageSize },
+      columnOrder: preferences.columnOrder, columnVisibility: preferences.visibility },
     onColumnVisibilityChange: preferences.change,
     onSortingChange: (next) => { setSorting(next); setPage(1); },
     enableRowSelection: true,
     onRowSelectionChange: (updater) => {
-      selection?.onActivate();
       const next = typeof updater === 'function' ? updater(rowSelection) : updater;
-      setSelected(new Set(Object.entries(next).filter(([, on]) => on).map(([id]) => Number(id))));
+      const picked = new Set(Object.entries(next).filter(([, on]) => on).map(([id]) => Number(id)));
+      if (picked.size) selection?.onActivate();
+      setSelected(picked);
     },
   });
 
@@ -479,10 +481,10 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
         </SelectionDock>
 
       {sources.length ? (
-        <DataTableFrame follow preferences={preferences} onRowClick={(key) => toggleRow(Number(key))}
-          rectangleSelecting={selecting} onRectangle={(keys, add) => table.setRowSelection({
+        <DataTableFrame ref={tableTop} follow preferences={preferences} onRowClick={(key) => toggleRow(Number(key))}
+          rectangleSelecting={selected.size > 0} onRectangle={!bulk.isPending ? (keys, add) => table.setRowSelection({
             ...(add ? rowSelection : {}), ...Object.fromEntries(keys.map(key => [key, true])),
-          })}>
+          }) : undefined}>
           <Table aria-label={t('follow:feedSources.title')} size="sm"
             sortDescriptor={sorting[0] ? { column: sorting[0].id, direction: sorting[0].desc ? 'descending' : 'ascending' } : undefined}
             onSortChange={(sort) => table.getColumn(String(sort.column))?.toggleSorting(sort.direction === 'descending')}>
@@ -514,15 +516,10 @@ export function FeedSources({ readOnly, toast, onAdd, selection, selecting }: {
             </TableBody>
           </Table>
         </DataTableFrame>
-      ) : (
-        <EmptyState icon={RiRssLine} title={t('follow:feedSources.empty')} size="compact"
-          actions={!readOnly ? <Button variant="secondary" onClick={onAdd}>{t('follow:feedSources.add')}</Button> : undefined}>
-          {t('follow:feedSources.emptyHint')}
-        </EmptyState>
-      )}
+      ) : null}
       {sources.length ? (
         <DataTableFooter label={t('follow:feedSources.footerLabel')} total={win.total} unit={t('follow:feedSources.unit')}
-          pagination={{ pageIndex: win.page - 1, pageSize }}
+          pagination={{ pageIndex: win.page - 1, pageSize }} scrollTarget={tableTop}
           onChange={(next) => { setPageSize(next.pageSize); setPage(next.pageIndex + 1); }} />
       ) : null}
       <footer className="-mx-6 -mb-5 flex flex-wrap items-center gap-2 border-t border-separator-border rounded-b-2xl bg-card-footer px-6 py-4 max-sm:-mx-4 max-sm:px-4">

@@ -24,6 +24,7 @@ export interface ShellActions {
   closeSettings?(): void;
   /** 打开作品详情（舞台）。 */
   openItem(id: number): void;
+  catalogFileAction?(operation: 'like' | 'seen' | 'later', ids: number[], button: HTMLElement): Promise<unknown>;
   /** 打开实体资料页。`kind` 是 `creator`／`performer` 等。 */
   openEntity(kind: string, name: string): void;
   /** 回目录并按这个标签筛选。 */
@@ -74,6 +75,7 @@ export interface ShellActions {
   openFollowTag(tag: string): void;
   /** 打开一份播放列表的播放队列（舞台），从 `resumeAssetId` 那一个接着播。 */
   openPlaylist(id: number, resumeAssetId: number): void;
+  playSavedFilter(id: string): void;
   /** 此刻能不能悬停翻页：壳的多选、遮挡、减少动效与滚动中都回 false。 */
   canFlip(): boolean;
   /** 页面组换了一页：路由树里的页面元素挂上、开始取数之前报一次。壳收起上一页留下的面（悬停预览、在途读请求、

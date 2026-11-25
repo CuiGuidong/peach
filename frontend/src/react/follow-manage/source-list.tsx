@@ -15,7 +15,7 @@ import {
 import { useMutation } from '@tanstack/react-query';
 import {
   createColumnHelper, createPaginatedRowModel, flexRender, rowPaginationFeature,
-  rowSelectionFeature, rowSortingFeature, columnVisibilityFeature, tableFeatures, useTable,
+  rowSelectionFeature, rowSortingFeature, columnOrderingFeature, columnVisibilityFeature, tableFeatures, useTable,
   type RowSelectionState, type SortingState,
 } from '@tanstack/react-table';
 import { VisuallyHidden } from 'react-aria-components';
@@ -77,6 +77,7 @@ const sourceTableFeatures = tableFeatures({
   rowSelectionFeature,
   rowSortingFeature,
   columnVisibilityFeature,
+  columnOrderingFeature,
   paginatedRowModel: createPaginatedRowModel(),
 });
 
@@ -167,7 +168,6 @@ export interface SourceListProps {
   onSelected(next: Set<number>): void;
   toast: Receipt;
   openFollow(): void;
-  onAdd(): void;
 }
 
 /** 一条来源在创作者卡里的那一行：勾选、站标与名字、状态、上次检查、动作。 */
@@ -294,7 +294,7 @@ function AuthorCard(
 export function SourceList(props: SourceListProps) {
   const {
     data, sort, dir, page, layout, pageSize, selected, readOnly,
-    onSort, onPage, onLayout, onPageSize, onSelected, toast, openFollow, onAdd,
+    onSort, onPage, onLayout, onPageSize, onSelected, toast, openFollow,
   } = props;
   const commitRectangle = (keys: string[], add: boolean) => onSelected(new Set([...(add ? selected : []), ...keys.map(Number)]));
   const rectangle = useRectangleSelection(commitRectangle, { selecting: props.selecting, start: '[data-source-divider]' });
@@ -302,6 +302,7 @@ export function SourceList(props: SourceListProps) {
   const aliases = useMemo(() => data.author_aliases || [], [data.author_aliases]);
   const counts = data.counts || {};
   const [collapsed, setCollapsed] = useState<ReadonlySet<string>>(new Set<string>());
+  const tableTop = useRef<HTMLDivElement>(null);
   const [toolbar, compact] = useCompactToolbar();
   const [problem, setProblem] = useState('');
 
@@ -567,7 +568,8 @@ export function SourceList(props: SourceListProps) {
     /* 行的身份是来源 ID，不是它在这一页里的下标：换页、换排序之后 `rowSelection` 里记着的
        仍是同一批来源，卡片视图读的也是同一组数。 */
     getRowId: (row) => String(row.source.id),
-    state: { sorting, rowSelection, pagination: { pageIndex: win.page - 1, pageSize }, columnVisibility: preferences.visibility },
+    state: { sorting, rowSelection, pagination: { pageIndex: win.page - 1, pageSize },
+      columnOrder: preferences.columnOrder, columnVisibility: preferences.visibility },
     onColumnVisibilityChange: preferences.change,
     /* 排序由共用的比较器算好再交进来：表格自己再排一遍的话，卡片视图与表格视图会各有一套
        顺序，同一份数据在两个视图里的先后就不一样了。 */
@@ -603,14 +605,6 @@ export function SourceList(props: SourceListProps) {
     && (source.last_status === 'error' || source.last_status === 'unauthorized')).map((source) => source.id);
   const evidence = checkEvidenceGap(outcome);
   const allCollapsed = cardGroups.length > 0 && cardGroups.every(({ key }) => collapsed.has(key));
-
-  if (!sources.length) {
-    return (
-      <EmptyState icon={RiRssLine} title={t('follow:sourceList.empty')} actions={
-        <Button variant="primary" size="small" onClick={onAdd}>{t('follow:followFeed.addFollow')}</Button>
-      }>{t('follow:sourceList.emptyHint')}</EmptyState>
-    );
-  }
 
   return (
     /* 旧 `.followmanage .fmain>.fsec`：整块关注列表是一张填充卡，标题、工具条、创作者分组
@@ -706,7 +700,7 @@ export function SourceList(props: SourceListProps) {
         </SelectionDock>
 
       {asTable ? (
-        <DataTableFrame follow preferences={preferences} onRowClick={(key) => toggleOne(Number(key), !selected.has(Number(key)))}
+        <DataTableFrame ref={tableTop} follow preferences={preferences} onRowClick={(key) => toggleOne(Number(key), !selected.has(Number(key)))}
           rectangleSelecting={props.selecting} onRectangle={commitRectangle}>
           <Table aria-label={t('follow:sourceList.tableLabel')} size="sm"
             sortDescriptor={sorting[0]
@@ -777,6 +771,7 @@ export function SourceList(props: SourceListProps) {
       )}
 
       <DataTableFooter label={t('follow:followManageNav.list')} total={win.total} pagination={{ pageIndex: win.page - 1, pageSize }}
+        scrollTarget={asTable ? tableTop : undefined}
         unit={asTable ? t('follow:followOverview.sourceUnit') : t('follow:sourceList.creatorUnit')} pageUnit={asTable ? t('follow:followOverview.itemUnit') : t('follow:followOverview.creatorUnit')}
         onChange={(next) => { if (next.pageSize !== pageSize) table.setPageSize(next.pageSize); else table.setPageIndex(next.pageIndex); }} />
 

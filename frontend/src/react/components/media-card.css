@@ -14,7 +14,8 @@
  * 一段。列距 16px 是给悬停面留的：卡片悬停时底色往盒外多铺 8px，列距再窄就顶到邻卡。 */
 .peach-react [data-media-sections] { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 [data-rectangle-area] { position: relative; }
-[data-rectangle-select] { user-select: none; }
+[data-rectangle-select]:not([data-board-data-table]),
+[data-board-data-table]:has(> [data-card-selection-rectangle]) { user-select: none; }
 /* 外侧留白可起拖，四边等量抵消，保留内容区域的落点和宽度。 */
 .peach-react :is([data-media-sections], [data-media-grid], [data-follow-list], [data-local-wall],
   [data-index-grid], [data-alphabet], [data-tag-cloud], [data-rectangle-gutter])[data-rectangle-area] {

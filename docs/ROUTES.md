@@ -14,13 +14,17 @@
 
 ## 详情对象
 
-Storage 分组标题的「浏览文件」打开独立模态弹窗，浏览和关闭不修改当前馆藏路由或筛选。
+Storage 分组标题的「浏览文件」打开文件管理弹窗。全屏与弹窗共用目录、排序、分页和选择状态；浏览和关闭不修改当前馆藏路由或筛选。
+从文件表打开已收录的作品后，关闭作品详情回到原目录、页码和滚动位置。
 `GET /api/media-directory` 沿用站内认证；无参数列出已配置并映射的媒体根，不探测挂载。
+Windows 下已配置为网盘来源的盘符根可直接浏览。系统盘根由浏览入口排除。
 `root` 为持久根 ID，`relative` 为根内相对目录，`offset` 为分页位置；`asset` 可按服务端账本定位父目录及文件，优先于调用方目录。
-回执包含 `roots`、`root`、`relative`、`directories`、`files`（名称与可空 `asset_id`）、`next_offset`、`offset` 和可空 `read_only`。
+回执包含 `roots`（含媒体库 `icon`）、`root`、`relative`、`directories`、`files`、`next_offset`、`offset` 和可空 `read_only`。目录和文件条目带名称和可空的 `modified_at`、`created_at`（Unix 秒），文件另带可空的 `size`（字节）和 `asset_id`。匹配账本的文件同时返回账本登记的 `duration`、`width`、`height`。
 `state` 区分 `roots`、`ready`、`unmapped`、`denied`、`missing`、`timeout`、`unreachable`；定位时附 `focus_name`，无映射时保留 `last_path`。
-每页最多枚举 500 个条目，文件夹在本页内排序在前；定位仅枚举当前目录，返回目标所在页。
+带 `sort` 时按整个目录排序后分页，文件夹在前。排序键为 `name`、`type`、`size`、`modified`、`created`、`duration` 和 `resolution`；`dir` 指定方向，`q` 按名称筛选，`column_filters` 接收列筛选，`limit` 为每页条数（最多 500），返回 `total` 和列分面计数。定位只枚举当前目录，返回目标所在页。
 目录读取不打开媒体内容、不写账本或文件；绝对路径、父级越界和越界符号链接均拒绝。
+`POST /api/media-directory` 沿用站内认证、同源检查和账本只读限制。支持在同一已配置媒体根内新建目录、重命名、移动和移入文件回收站，不覆盖目标。移动已收录文件会更新现有资产的账本路径，保留资产 ID。
+文件回收站在原媒体根上隔离文件，并保留原位置。`GET /api/media-directory/trash` 汇总所有媒体根的文件记录和馆藏回收站标记，已隔离的文件只显示一次。文件由 `POST /api/media-directory` 按原媒体根和记录 ID 还原，馆藏标记经 `POST /api/batch` 还原。批量返回各项结果，未完成的项目保留可重试状态。
 无桌面环境的 `POST /api/reveal` 返回服务端位置与资产 ID，由此弹窗呈现目录状态；桌面环境继续调用本机文件管理器。
 
 | 对象 | 规范地址 | 身份 |
@@ -64,7 +68,7 @@ Storage 分组标题的「浏览文件」打开独立模态弹窗，浏览和关
 | `/` | 全部馆藏，含本地硬盘与已挂载网盘；新作行使用作品详情地址 |
 | `/?browse=folders` | 按原目录浏览；`folder` 指定目录，`folder_recursive=0` 只看当前层 |
 | `/?jav=1` | JAV 馆藏 |
-| `/jav?tab=discover` | JAV 探索；`scope=library` 看馆藏，`scope=external` 看外部发现 |
+| `/jav?tab=discover` | JAV 探索；`scope=library` 看馆藏，`scope=external` 看外部发现。`performer`、`studio`、`tag`、`code` 和 `column_filters` 筛选当前推荐结果 |
 | `/jav?tab=wants` | 想要的作品 |
 | `/follow` | 关注更新；作者、来源、标签和观看状态使用查询参数 |
 | `/wall` | 视频播放墙 |
@@ -84,7 +88,13 @@ Storage 分组标题的「浏览文件」打开独立模态弹窗，浏览和关
 
 探索页将搜索词 `q`、标签 `tag`、排序 `sort`、方向 `dir` 与范围 `scope` 保存在地址中。点开详情和退出沿用原列表、滚动与筛选状态。
 
+JAV 在线目录 `/jav?tab=online` 从 DMM 配信目录取作品。`performer` 按艺名查找，命中多个 DMM 艺名页时可以切换。`actress`、`maker`、`genre` 分别使用 DMM 艺人、厂牌和类别编号。`genre` 接受逗号分隔的多个编号，按交集查询。`date` 按日本时间的配信日筛选。筛选选项和部数来自当前页，DMM 按选中条件查询整个目录。分页以 DMM 允许的最大起始位置为限，越界链接落到可浏览的尾页。默认沿用 DMM 时间顺序，指定 `sort` 和 `dir` 时可在本页按时间、时长或番号重排。目录查询不登记作品或订阅。
+
 馆藏支持 `year=2024,2023` 多选发行年份，`year=none` 筛选未知年份。年份按发行日期而非入库日期计算，与来源、实体、观看状态等条件共同生效；地址、保存筛选和侧栏使用同一口径。侧栏年份数量遵循其余筛选范围，保留其它年份以便继续多选。
+
+JAV 新作的 `code` 独立匹配番号，`column_filters.taste.range` 按 0–1 的口味分在分页前筛选。发现页也使用这两个键筛选当前推荐结果。
+
+在线目录的 `code` 筛选当前页的番号。`status=released` 或 `status=preOrder` 筛选当前页的已发行或预购作品。`column_filters` 保存当前页的发行日期范围和时长范围。起止日期相同则通过 `date` 查询 DMM 的单日目录。
 
 ## 播放上下文
 

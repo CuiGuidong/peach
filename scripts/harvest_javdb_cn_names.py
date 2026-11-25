@@ -375,7 +375,7 @@ def harvest(connection: sqlite3.Connection, site, limit: int,
             except Exception as exc:   # noqa: BLE001
                 note(record, url, FAILED, f"{type(exc).__name__}: {exc}")
                 continue
-            if javdb.LOGIN.search(html):
+            if javdb.login_page(html):
                 note(record, url, LOGIN, t("harvest_javdb_cn_names.loginWall"))
                 continue
             if KANA.search(record["name"]):

@@ -283,13 +283,12 @@ it('文件名的不同规格用复核高亮显示，原文完整保留', async (
   }
 });
 
-it('中间截断保留可见差异高亮，恢复完整宽度后原文与高亮一起恢复', async () => {
+it('对照名称保留原文并高亮首部和中段差异', async () => {
   const value = '甲ABC-123 [1080p] 演示文件.mp4';
   const reference = '乙ABC-123 [720p] 演示文件.mp4';
-  const host = await mount(<ComparisonText value={value} reference={reference} cut={{ start: 3, end: value.length - 4 }} />);
-  expect(host.textContent).toBe('甲AB….mp4');
-  expect(host.querySelector('mark')?.textContent).toBe('甲');
-  const full = await mount(<ComparisonText value={value} reference={reference} />);
-  expect(full.textContent).toBe(value);
-  expect(full.querySelector('mark')?.textContent).toBe('甲');
+  const host = await mount(<ComparisonText value={value} reference={reference} />);
+  expect(host.textContent).toBe(value);
+  const differences = [...host.querySelectorAll('mark')].map(mark => mark.textContent);
+  expect(differences[0]).toBe('甲');
+  expect(differences.slice(1).join('')).toMatch(/10|8/);
 });

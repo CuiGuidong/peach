@@ -410,10 +410,10 @@ class SourceBudget:
     bytes: int = MAX_SOURCE_BYTES
     seconds: float = MAX_SOURCE_SECONDS
 
-    def transport(self, secrets_root):
+    def transport(self, secrets_root, *, javdb_account_fallback=False):
         from .scraping_access import SourceTransport
         return SourceTransport(secrets_root, max_requests=self.requests, max_bytes=self.bytes,
-                               max_seconds=self.seconds)
+                               max_seconds=self.seconds, javdb_account_fallback=javdb_account_fallback)
 
 
 def source_budget_settings(settings):
@@ -566,7 +566,7 @@ class LibraryMetadataProvider:
         self.wiki_root = (Path(wiki_root) if wiki_root is not None
                           else self.secrets_root.parent / 'sources' / 'library-metadata' / 'seesaa-pages')
         #: 本趟采集预算（`SourceBudget`）；不给按默认档。
-        self.transport = HostLimitedTransport((budget or SourceBudget()).transport(secrets_root),
+        self.transport = HostLimitedTransport((budget or SourceBudget()).transport(secrets_root, javdb_account_fallback=True),
                                               2.0, limiter=SOURCE_LIMITER)
 
     #: 匿名 JavDB 资料的快照目录；没有时只在进程内存里复用。
