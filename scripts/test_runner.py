@@ -1063,6 +1063,28 @@ def drop_injected_git_config(environ=None) -> list[str]:
     return names
 
 
+def prepare_run(parser, args) -> None:
+    """参数组合与外层环境的开跑前处理。"""
+    if args.gate and (args.focus or args.fresh or args.resume or args.shard_count > 1 or args.shard_plan is not None):
+        parser.error(t("test_runner.gateAlone"))
+    dropped = drop_injected_git_config()
+    if dropped and args.shard_plan is None:
+        print(t("test_runner.gitConfigDropped", names=", ".join(dropped)), flush=True)
+
+
+def run_without_record(parser, args, requested, scopes, files) -> int | None:
+    """不签发本机记录的两种运行；其余情况返回 None，由正式路径接手。"""
+    if args.gate:
+        # 推送前的快速一轮：本次范围里的快速门槛与前端构建、单测，按定向调试执行。
+        args.focus = sorted(path.stem for path in files
+                            if path.stem in GATE_TESTS or path.stem == "test_frontend_build")
+        return run_focus(parser, args)
+    if args.shard_count > 1 or args.shard_plan is not None:
+        # CI 的每片独立 runner，或父进程派出的分片（含只有一片的快速门槛）；分片绝不签发本机记录。
+        return run_shard_child(args, requested, scopes, files)
+    return None
+
+
 def scope_name(value: str) -> str:
     """`--scope` 的取值：`full`、`auto`、登记的域，或 `auto` 按文件补选的测试文件名。"""
     if value in ("full", "auto", *SCOPES) or change_impact.EXACT_TEST.fullmatch(value) and (TESTS / value).is_file():
@@ -1107,11 +1129,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(t("test_runner.resumePlanParentOnly"))
     if args.rerun_failures and not args.focus:
         parser.error(t("test_runner.rerunFailuresFocusOnly"))
-    if args.gate and (args.focus or args.fresh or args.resume or args.shard_count > 1 or args.shard_plan is not None):
-        parser.error(t("test_runner.gateAlone"))
-    dropped = drop_injected_git_config()
-    if dropped and args.shard_plan is None:
-        print(t("test_runner.gitConfigDropped", names=", ".join(dropped)), flush=True)
+    prepare_run(parser, args)
     try:
         test_slots.slot_count()
     except ValueError as error:
@@ -1134,13 +1152,9 @@ def main(argv: list[str] | None = None) -> int:
     environment_preflight(scopes, args.timings, shard_count=args.shard_count)
     files = {path for scope in scopes for path in selected_files(scope)}
     print(f"Peach test scope: {' '.join(scopes)} ({len(files)} files)", flush=True)
-    if args.gate:
-        # 推送前的快速一轮：本次范围里的快速门槛与前端构建、单测，按定向调试执行，不签发记录。
-        args.focus = sorted(path.stem for path in files if path.stem in GATE_TESTS or path.stem == "test_frontend_build")
-        return run_focus(parser, args)
-    if args.shard_count > 1 or args.shard_plan is not None:
-        # CI 的每片独立 runner，或父进程派出的分片（含只有一片的快速门槛）；分片绝不签发本机记录。
-        return run_shard_child(args, requested, scopes, files)
+    partial = run_without_record(parser, args, requested, scopes, files)
+    if partial is not None:
+        return partial
     if ci_frontend_delegated():
         print(t("test_runner.ciFrontendDelegated"), flush=True)
         success, count, _ = run_local_suite(scopes, args.jobs, f"{' '.join(requested)}:{' '.join(scopes)}")
