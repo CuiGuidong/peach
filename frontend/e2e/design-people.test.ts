@@ -1179,10 +1179,10 @@ describe('设计决定：人物与厂牌资料页', () => {
           }),
         }));
         await tabs.getByRole('tab', { name: '添加关注', exact: true }).click();
-        await page.getByRole('textbox', { name: '来源链接、名字或 id' }).fill('主题测试来源');
+        await page.getByRole('combobox', { name: '来源链接、名字或 id' }).fill('主题测试来源');
         await page.getByRole('region', { name: '添加创作者关注', exact: true }).getByRole('button', { name: '查找', exact: true }).click();
         const actor = page.getByRole('region', { name: '添加 JAV 订阅' });
-        await actor.getByRole('textbox', { name: '女优名' }).fill('示例演员');
+        await actor.getByRole('combobox', { name: '女优名' }).fill('示例演员');
         await actor.getByRole('button', { name: '查找', exact: true }).click();
         const tables = ['查找结果', 'JAV 订阅查找结果'].map(name => page.getByRole('grid', { name, exact: true }));
         const aliases = page.getByRole('grid', { name: '已保存创作者别名' });

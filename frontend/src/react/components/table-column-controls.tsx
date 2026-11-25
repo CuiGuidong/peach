@@ -16,6 +16,7 @@ export function TableColumnLayout({ preferences, label, resizable = true, size }
   const [open, setOpen] = useState(false);
   const keys = preferences.columnOrder.filter(id => id !== 'select');
   const defaults = preferences.defaultOrder.filter(id => id !== 'select');
+  const atDefaultOrder = keys.every((id, index) => id === defaults[index]);
   const title = t('shell:tableColumns.layout');
   return <>
     <Button ref={trigger} variant="secondary" size={size} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
@@ -31,8 +32,10 @@ export function TableColumnLayout({ preferences, label, resizable = true, size }
         <div className="flex flex-wrap justify-end gap-2">
           {resizable ? <Button variant="secondary" size="small"
             onClick={preferences.reset}><span data-copy-key="tableColumns.resetWidths">{t('shell:tableColumns.resetWidths')}</span></Button> : null}
-          <Button variant="secondary" size="small" disabled={keys.every((id, index) => id === defaults[index])}
-            onClick={preferences.resetOrder}><span data-copy-key="tableColumns.resetOrder">{t('shell:tableColumns.resetOrder')}</span></Button>
+          <Button variant="secondary" size="small" aria-disabled={atDefaultOrder}
+            onClick={atDefaultOrder ? undefined : preferences.resetOrder}>
+            <span data-copy-key="tableColumns.resetOrder">{t('shell:tableColumns.resetOrder')}</span>
+          </Button>
         </div>
       </MenuDialog>
     </Popover>

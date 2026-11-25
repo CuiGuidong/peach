@@ -47,6 +47,11 @@ describe('重复文件逐份回收', () => {
       assert.ok(mobile.scrollWidth <= mobile.viewportWidth);
       await page.setViewportSize({ width: 320, height: 844 });
       await settle(page);
+      const drawerToggle = page.locator('#filterBtn');
+      if (await drawerToggle.getAttribute('aria-expanded') === 'true') {
+        await drawerToggle.click();
+        await page.locator('#drawer.open').waitFor({ state: 'detached' });
+      }
       const bulk = page.locator('[data-duplicates-frame] > [data-filter-row="top"]');
       const toolbar = await bulk.evaluate(row => ({
         range: row.scrollWidth - row.clientWidth,

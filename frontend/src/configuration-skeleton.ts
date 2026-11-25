@@ -112,7 +112,7 @@ const facts = (terms: string[]) => `<dl class="ui-settings-facts flex flex-col">
 
 /* ---------- 来源凭据：站点清单是静态登记 ---------- */
 
-interface CredentialProvider { provider: string; label: string; requirement: string; fields?: string[]; why?: string; where?: string; howto?: string }
+interface CredentialProvider { provider: string; label: string; requirement: string; fields?: string[]; why?: string; where?: string; howto?: string; browser_login?: boolean }
 /** 与 `/api/follow/credentials` 的静态部分一致，由 `tests/test_follow_web.py` 对照接口核对。 */
 export const CREDENTIAL_PROVIDERS: readonly CredentialProvider[] = CREDENTIAL_REGISTRY;
 
@@ -142,7 +142,9 @@ function credentialRow(row: CredentialSkeletonRow): string {
     return `<div class="flex flex-wrap items-center gap-3 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${head}${row.requirement === 'blocked' && row.why ? help(esc(guide(row, 'why'))) : ''}</div>`;
   }
   const form = row.open ? '<div class="flex flex-col gap-2 pt-3"><div class="flex flex-col gap-3">'
-    + help(`${esc(guide(row, 'why'))}${row.where ? ` ${t('follow:sourceCredentials.getCredentials')}` : ''}`) + (row.howto ? help(esc(guide(row, 'howto'))) : '')
+    + help(`${esc(guide(row, 'why'))}${row.where ? ` ${t('follow:sourceCredentials.getCredentials')}` : ''}`)
+    + (row.browser_login ? `<div class="self-start">${button(t('manage:sourceSettings.browserSignIn'), 'secondary')}</div>` : '')
+    + (row.howto ? help(esc(guide(row, 'howto'))) : '')
     + `<div class="flex w-full flex-col gap-3">${fields.map(name => inputField(esc(name))).join('')}</div>`
     + `<div class="flex flex-wrap items-center gap-2">${button(t('settings:shared.saveSettings'))}</div>${summary(t('follow:sourceCredentials.credentialsFile'))}</div></div>` : '';
   return `<div class="flex flex-col gap-2 border-b border-separator-border px-6 py-5 last:border-b-0 max-sm:px-4">${head}<div>${summary(row.done ? t('follow:sourceCredentials.editCredentials') : t('follow:sourceCredentials.enterCredentials'), row.open)}${form}</div></div>`;

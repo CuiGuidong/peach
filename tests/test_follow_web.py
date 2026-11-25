@@ -2456,6 +2456,8 @@ class FollowContractTests(unittest.TestCase):
         expected = []
         for row in self._get("/api/follow/credentials")["providers"]:
             entry = {"provider": row["provider"], "label": row["provider_label"], "requirement": row["requirement"]}
+            if row["browser_login"]:
+                entry["browser_login"] = True
             if row["needs"]:
                 entry.update(fields=row["needs"], why=row["why"], where=row["where"], howto=row["howto"])
             elif row["requirement"] == "blocked":

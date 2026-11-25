@@ -180,6 +180,12 @@ export async function verifyTablePreferences(page: Page, table: Locator, label: 
 
 /** 内容的可用宽度跟随列变化，文字完整保留在 DOM 中。 */
 export async function verifyColumnContentWidth(table: Locator, id: string, selector: string) {
+  const page = table.page();
+  const viewport = page.viewportSize()!;
+  if (viewport.width <= 600) {
+    await page.setViewportSize({ ...viewport, width: 760 });
+    await settle(page);
+  }
   const header = table.locator(`th[data-key="${id}"]`);
   const index = await header.evaluate(node => [...node.parentElement!.children].indexOf(node));
   const cell = table.locator('tbody tr').first().locator('td').nth(index);
@@ -193,7 +199,7 @@ export async function verifyColumnContentWidth(table: Locator, id: string, selec
   // 滚到视口中间，避开右下角弹出的提示。
   await resizer.evaluate(node => node.scrollIntoView({ block: 'center', inline: 'nearest' }));
   const box = (await resizer.boundingBox())!;
-  const page = content.page(), x = box.x + box.width / 2, y = box.y + box.height / 2;
+  const x = box.x + box.width / 2, y = box.y + box.height / 2;
   await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 100, y, { steps: 10 }); await page.mouse.up();
   await page.waitForFunction(({ node, initial }) => node && node.closest('td')!.getBoundingClientRect().width > initial + 70,
     { node: await content.elementHandle(), initial: initial.cell }, { timeout: 5000 }).catch(() => undefined);
@@ -205,4 +211,8 @@ export async function verifyColumnContentWidth(table: Locator, id: string, selec
   const geometry = await content.evaluate(node => ({ content: node.getBoundingClientRect().right,
     cell: node.closest('td')!.getBoundingClientRect().right }));
   assert.ok(geometry.content <= geometry.cell, JSON.stringify(geometry));
+  if (viewport.width <= 600) {
+    await page.setViewportSize(viewport);
+    await settle(page);
+  }
 }

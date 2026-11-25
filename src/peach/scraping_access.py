@@ -847,7 +847,10 @@ class SourceTransport:
         else:
             client = httpx.Client(**peach_proxy.client_options(self.root), follow_redirects=False,
                                   headers={"User-Agent": USER_AGENT})
-        return HttpxTransport(client, owns_client=True)
+        # 登录检查与自动账号重试需要在发出下一跳前核对主机。
+        check_redirect = self.redirect_hosts is not None or (
+            source == "javdb" and self.javdb_account_fallback and sends_cookie(source))
+        return HttpxTransport(client, owns_client=True, follow_redirects=not check_redirect)
 
     def renew(self):
         self.close()

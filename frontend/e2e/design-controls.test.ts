@@ -935,7 +935,7 @@ describe('设计决定：控件、状态与首页顶部', () => {
   });
 
   it('首页筛选与排序对齐，浮窗边界与选项各留间距', { timeout: 60_000 }, async () => {
-    const opened = await openCatalogBars(browser);
+    const opened = await openCatalogBars(browser, DESKTOP, 24);
     try {
       const { page } = opened;
       const trigger = page.locator('[data-catalog-filter] [data-table-column-filter="home-tags"]');

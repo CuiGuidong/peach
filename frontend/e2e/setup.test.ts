@@ -70,10 +70,12 @@ describe('首次运行页', { skip: origin && media && dataRoot ? false : '只�
       await folder.waitFor({ state: 'visible', timeout: 15_000 });
       assert.equal(await folder.inputValue(), '', '媒体目录由用户填写');
       await page.getByRole('button', { name: '我的媒体库 来源色：无颜色', exact: true }).click();
-      const paints = await page.locator('[data-library-colors] [data-accent-ball]').evaluateAll(elements =>
+      const palette = page.locator('[data-library-colors]');
+      const paints = await palette.locator('[data-accent-ball]').evaluateAll(elements =>
         elements.map(element => getComputedStyle(element).backgroundImage));
       assert.equal(new Set(paints).size, 12, '来源色板显示十二种独立颜色');
-      await page.keyboard.press('Escape');
+      await palette.getByRole('button', { name: '无颜色', exact: true }).click();
+      await palette.waitFor({ state: 'detached' });
       assert.equal(await page.getByRole('textbox', { name: '数据库中的路径前缀' }).count(), 0,
         '普通首次设置不需要填写内部路径');
       await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), undefined, { timeout: 15_000 });

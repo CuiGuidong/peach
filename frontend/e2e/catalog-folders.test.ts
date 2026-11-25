@@ -121,6 +121,7 @@ describe('首页文件夹浏览', () => {
         assert.equal(await library.locator('td').first().textContent(), '/media/local');
         await rootOrder.getByRole('button', { name: '重置列顺序', exact: true }).click();
         await page.keyboard.press('Escape');
+        await rootOrder.waitFor({ state: 'hidden' });
         await library.click();
         await dialog.getByText(longName, { exact: true }).waitFor();
         await dialog.locator('th[data-key="modified"]').waitFor();
@@ -130,6 +131,7 @@ describe('首页文件夹浏览', () => {
         const columns = page.getByRole('dialog', { name: '实际目录内容显示列', exact: true });
         await columns.getByText('创建时间', { exact: true }).click();
         await page.keyboard.press('Escape');
+        await columns.waitFor({ state: 'hidden' });
         await dialog.locator('th[data-key="created"]').waitFor();
         const nameHeader = dialog.locator('th[data-key="name"]');
         const typeHeader = dialog.locator('th[data-key="type"]');
@@ -154,6 +156,7 @@ describe('首页文件夹浏览', () => {
         const order = page.getByRole('dialog', { name: '实际目录内容的列布局', exact: true });
         await order.getByRole('button', { name: '重置列顺序', exact: true }).click();
         await page.keyboard.press('Escape');
+        await order.waitFor({ state: 'hidden' });
         assert.equal(await dialog.locator('thead th:not([data-key="select"])').first().getAttribute('data-key'), 'name');
         await dialog.locator('th[data-key="created"]').waitFor();
         if (!viewport.mobile) {

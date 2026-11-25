@@ -50,7 +50,7 @@ describe('任务页云下载布局', () => {
             const [label, reading] = node.firstElementChild!.children;
             return reading!.getBoundingClientRect().left - label!.getBoundingClientRect().right;
           });
-          assert.ok(Math.abs(gap - 4) <= PIXEL, `${metric} 标签与读数留出 4px 间距`);
+          assert.ok(Math.abs(gap - 4) <= 1, `${metric} 标签与读数间距为 ${gap}px，预期 4px`);
         }
         backgrounds.push(highBackground);
       }

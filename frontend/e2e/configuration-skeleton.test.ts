@@ -63,7 +63,7 @@ describe('配置页等待态', () => {
         await input.fill('example.invalid');
         const general = nav.getByRole('tab', { name: '媒体库与入库', exact: true });
         await general.click();
-        await page.keyboard.press('ArrowRight');
+        await page.keyboard.press(viewport.mobile ? 'ArrowRight' : 'ArrowDown');
         assert.equal(await nav.getByRole('tab', { name: '来源与订阅', exact: true }).getAttribute('aria-selected'), 'true');
         await page.keyboard.press('End');
         assert.equal(await nav.getByRole('tab', { name: '系统诊断' }).getAttribute('aria-selected'), 'true');

@@ -814,6 +814,7 @@ describe('作品详情岛', () => {
     const opened = await openItemPage(browser, `/assets/11?playlist=${PLAYLIST.id}`, DESKTOP, { playlistItems });
     try {
       const { page } = opened;
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
       const queue = page.locator('#stage [data-navigation-order="playlist-queue"]');
       const item = (id: number) => queue.locator(`[data-queue-row="${id}"] [data-mix-item]`);
       const original = playlistItems.map(row => row.id);

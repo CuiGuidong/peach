@@ -36,7 +36,7 @@ describe('配置中的系统诊断', () => {
         const table = page.getByRole('grid', { name: '缺封面', exact: true });
         await table.waitFor();
         assert.equal(await table.getByRole('row').count(), 21);
-        const actionsColumn = table.getByRole('columnheader', { name: '操作', exact: true });
+        const actionsColumn = table.getByRole('columnheader', { name: /^操作(?: |$)/ });
         const actionsIndex = await actionsColumn.evaluate(node => (node as HTMLTableCellElement).cellIndex);
         await table.locator('tbody tr').first().locator('td, th').nth(actionsIndex)
           .getByRole('button', { name: '忽略「演示条目 1」的问题', exact: true }).waitFor();

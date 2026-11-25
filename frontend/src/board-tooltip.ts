@@ -119,7 +119,7 @@ export function initBoardTooltip() {
     show(event.target, 400);
   });
   document.addEventListener('pointerout', event => {
-    if (!target || editingTip()) return;
+    if (!target || editingTip() || unmoved(event)) return;
     const left = event.target as Node, entered = event.relatedTarget as Node | null;
     if (!target.contains(left) && !tip.contains(left)) return;
     if (target.contains(entered) || tip.contains(entered)) return;

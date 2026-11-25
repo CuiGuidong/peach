@@ -228,13 +228,14 @@ class ScrapingAccessTests(unittest.TestCase):
     def test_manual_lookup_checks_the_returned_work_identity_and_title(self):
         from peach.source_checks import LOOKUP_PROBES
         from peach.sources.base import FailureReason, SiteRecord, SourceFailure
+        from peach.sources.dmm import MISSING
 
         contract = SimpleNamespace(follow_secrets_root=self.root)
         parser, code = LOOKUP_PROBES['dmm']
         matched = SiteRecord('dmm', 'dmm-page', code, 'https://fixture.invalid', title='Fixture')
         cases = ((matched, 'ok'), (replace(matched, code='OTHER-01'), 'parse_error'),
                  (replace(matched, title=''), 'parse_error'),
-                 (SourceFailure(FailureReason.NOT_FOUND, 'errors.dmm.missing'), 'not_found'))
+                 (SourceFailure(FailureReason.NOT_FOUND, MISSING), 'not_found'))
         for output, reason in cases:
             with self.subTest(reason=reason), patch('peach.source_checks.SourceTransport') as transport, \
                     patch.object(parser, 'query') as query:
@@ -627,7 +628,9 @@ class ScrapingAccessTests(unittest.TestCase):
         """`cf_clearance` 绑着解题那台浏览器的 UA：整站 UA 与用户的 Chrome 一致，Cookie 由用户贴，卡上不另收 UA。"""
         from peach.user_agent import USER_AGENT
         shown = save(self.root, "fc2ppvdb", {"cookie": "cf_clearance=abc"})
-        self.assertEqual(set(shown), {"source", "label", "login", "accepts_cookie", "network", "cookie_saved", "browser", "cooldown_until"})
+        self.assertEqual(set(shown), {"source", "label", "login", "accepts_cookie", "network", "cookie_saved",
+                                      "browser", "browser_login", "cooldown_until"})
+        self.assertFalse(shown["browser_login"])
         self.assertTrue(shown["cookie_saved"])
         self.assertFalse(shown["browser"], "没有浏览器的机器上这张卡照旧收 Cookie")
         for name in ("fc2ppvdb", "javten"):

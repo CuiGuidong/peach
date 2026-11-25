@@ -81,7 +81,7 @@ describe('横向导航提示', () => {
     } finally { await opened.close() }
   });
 
-  it('标签类型和首字导航都显示左右提示，放宽后取消首字提示', { timeout: 60_000 }, async () => {
+  it('标签类型通过下拉菜单筛选，首字导航按宽度显示横滚提示', { timeout: 60_000 }, async () => {
     const opened = await visit(browser, '/tags', MOBILE, async page => {
       await page.route('**/api/index?**', route => route.fulfill({ json: {
         items: Array.from('ABCDEFGHIJKLMNOPQRSTUVWXYZ', (letter, at) => ({ k: `${letter}标签`, n: at + 1, cat: 'general' })),
@@ -91,10 +91,14 @@ describe('横向导航提示', () => {
     });
     try {
       const page = opened.page;
-      const row = page.getByRole('group', { name: '标签类型' });
-      await row.waitFor();
+      const category = page.locator('[data-table-column-filter="index-tag-category"]');
+      await category.waitFor();
       await settle(page);
-      await scrollPositions(row);
+      await category.click();
+      const categories = page.getByRole('dialog', { name: '标签类型' });
+      await categories.locator('[data-filter-option="general"]').waitFor();
+      await page.keyboard.press('Escape');
+      await categories.waitFor({ state: 'hidden' });
       const alphabet = page.getByRole('navigation', { name: '按首字跳转' });
       await scrollPositions(alphabet);
       await page.setViewportSize({ width: 1600, height: 900 });

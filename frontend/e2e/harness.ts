@@ -195,10 +195,11 @@ export function configurationBody(page: Page): Locator[] {
 }
 
 /** 同一个临时服务承载多个用例。浏览和表格偏好在当前上下文中跨刷新保留。 */
-async function isolateBrowseSettings(context: BrowserContext) {
-  const browse: Record<string, unknown> = {};
+export async function isolateBrowseSettings(page: Page, initial: Record<string, unknown> = {}) {
+  const context = page.context();
+  const browse = { ...initial };
   const tables: Record<string, TableLayout> = {};
-  await context.route(url => url.pathname === '/api/settings', async route => {
+  await page.route(url => url.pathname === '/api/settings', async route => {
     const request = route.request();
     const { browsePreferences, tableLayouts, ...shared } = (request.postDataJSON() ?? {}) as {
       browsePreferences?: Record<string, unknown> & { legacy?: Record<string, unknown> };
@@ -259,7 +260,7 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   const close = () => context.close();
   // 只打开到 load：等哪块主体、何时 settle 由用例决定，见 `settle` 的说明。
   try {
-    await isolateBrowseSettings(context);
+    await isolateBrowseSettings(page);
     await prepare?.(page);
     await page.goto(origin + path, { waitUntil: 'load' });
   } catch (error) {
