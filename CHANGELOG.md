@@ -18,6 +18,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Fixed / 修复
 
+- **Library**: Repair, organize and scan no longer skip the healthy file after a stalled one when the file reader is slow to start. / **馆藏**：读盘进程启动慢时，修复、整理与扫描不再把挂死文件之后的正常文件一并跳过。
 - **Interface**: Browse and manage media folders in a full-screen file browser with sorting, search, multi-selection, and a restorable file recycle bin. The browser returns to the same folder after closing video details (#376). / **界面**：浏览文件支持全屏、排序、搜索和多选，可新建目录、重命名、移动及从文件回收站还原。关闭视频详情后返回原目录（#376）。
 - **Library**: Upgrading retries known cover-install failures and rechecks failed QR analysis using saved previews (#820, #794). / **馆藏**：升级后自动补试已知的封面安装失败，并用已有九宫格重查失败的二维码分析（#820、#794）。
 - **Sourcing**: Upgrading reprocesses affected release codes, source failures and old NFO evidence (#788, #789, #431, #816, #725). / **采集**：升级后定向重查受影响的番号、来源失败及旧 NFO 资料（#788、#789、#431、#816、#725）。
