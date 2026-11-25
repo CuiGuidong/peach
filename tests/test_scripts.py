@@ -6062,11 +6062,13 @@ class ReleaseTagTests(unittest.TestCase):
         planned = dict(sha="abc", tag="v1.2.3", repo="owner/repo")
         with mock.patch.object(self.release, "plan", return_value=planned), \
                 mock.patch.object(self.release, "api", return_value={"object": {"sha": "abc"}}), \
+                mock.patch.object(self.release, "finish_release", return_value=0) as finish, \
                 mock.patch.object(self.release, "command") as command, redirect_stdout(io.StringIO()):
             self.assertEqual(self.release.main(["--repo", "owner/repo", "--apply"]), 0)
             self.assertEqual(command.call_args_list[-1], mock.call(
                 "git", "push", "https://github.com/owner/repo.git", "refs/tags/v1.2.3"))
             self.assertNotIn("--force", str(command.call_args_list))
+            self.assertEqual(finish.call_args.args[1]["tag"], "v1.2.3")
 
     def test_unmerged_commit_cannot_pass_release_verification(self):
         with mock.patch.object(self.release, "api", return_value={"status": "ahead"}), \
@@ -6282,10 +6284,12 @@ class PinnedReleaseTests(unittest.TestCase):
     def test_apply_rechecks_the_selected_commit_and_pushes_only_its_annotated_tag(self):
         with self._shell() as command, self._api(), \
                 mock.patch.object(self.release, "plan_commit", wraps=self.release.plan_commit) as plan, \
+                mock.patch.object(self.release, "finish_release", return_value=0) as finish, \
                 redirect_stdout(io.StringIO()):
             self.assertEqual(self.release.main([
                 "--repo", "owner/repo", "--release-sha", self.SHA, "--apply"]), 0)
         self.assertEqual(plan.call_args_list, [mock.call("owner/repo", self.SHA)] * 2)
+        self.assertEqual(finish.call_args.args[1]["tag"], "v0.37.0")
         self.assertEqual(ShipTests._writes(command), [
             ("git", "tag", "-a", "v0.37.0", self.SHA, "-m", "Peach v0.37.0 Windows 测试版"),
             ("git", "push", "https://github.com/owner/repo.git", "refs/tags/v0.37.0"),
@@ -6297,6 +6301,62 @@ class PinnedReleaseTests(unittest.TestCase):
                 mock.patch.object(self.release, "command") as command, redirect_stdout(io.StringIO()):
             self.assertEqual(self.release.main(["--release-sha", self.SHA, "--apply"]), 1)
         command.assert_not_called()
+
+
+class ReleaseAnnouncementTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.release = load_script("release_tag")
+
+    def test_main_calls_the_announcement_after_release_and_readme_recovery(self):
+        for mode, method in (("--ship", "ship"), ("--point-readme", "point_readme")):
+            with self.subTest(mode=mode), \
+                    mock.patch.object(self.release, method, return_value={"applied": True, "tag": "v0.8.0"}), \
+                    mock.patch.object(self.release, "finish_release", return_value=0) as finish:
+                self.assertEqual(self.release.main([mode, "--apply", "--timeout", "60"]), 0)
+                finish.assert_called_once_with("peach-mitao/peach", {"applied": True, "tag": "v0.8.0"}, timeout=60)
+
+    def test_dry_run_keeps_the_release_plan_without_running_the_announcement(self):
+        result = {"applied": False, "tag": "v0.8.0"}
+        with mock.patch.object(self.release, "command") as command, redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(self.release.finish_release("owner/repo", result, timeout=60), 0)
+        command.assert_not_called()
+        self.assertEqual(json.loads(output.getvalue()), result)
+
+    def test_absent_local_configuration_leaves_the_result_as_is(self):
+        result = {"applied": True, "tag": "v0.8.0"}
+        missing = subprocess.CalledProcessError(1, "git config", stderr="")
+        with mock.patch.object(self.release, "command", side_effect=missing), redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(self.release.finish_release("owner/repo", result, timeout=60), 0)
+        self.assertEqual(json.loads(output.getvalue()), result)
+
+    def test_recovery_uses_the_given_tag_and_requires_a_configured_announcement(self):
+        missing = subprocess.CalledProcessError(1, "git config", stderr="")
+        with mock.patch.object(self.release, "command", side_effect=missing) as command, \
+                redirect_stdout(io.StringIO()) as output:
+            self.assertEqual(self.release.main(["--announce-tag", "v0.8.0", "--apply"]), 1)
+        command.assert_called_once_with("git", "config", "--local", "--get", self.release.ANNOUNCEMENT_SCRIPT)
+        result = json.loads(output.getvalue())
+        self.assertEqual(result["tag"], "v0.8.0")
+        self.assertIn(self.release.ANNOUNCEMENT_SCRIPT, result["announcement_error"])
+
+    def test_configured_announcement_receipt_and_failure_keep_the_exact_release_tag(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            script = Path(tmp).resolve() / "publish.py"
+            script.touch()
+            failure = subprocess.CalledProcessError(1, "publish", stderr="频道发送失败")
+            for response, code in (('{"message_id": 7}', 0), (failure, 1)):
+                with self.subTest(code=code), \
+                        mock.patch.object(self.release, "command", side_effect=[str(script), response]) as command, \
+                        redirect_stdout(io.StringIO()) as output:
+                    result = {"applied": True, "tag": "v0.8.0", "release": "release-url"}
+                    self.assertEqual(self.release.finish_release("owner/repo", result, timeout=60), code)
+                    command.assert_called_with(sys.executable, "-X", "utf8", str(script),
+                                               "--repo", "owner/repo", "--tag", "v0.8.0", "--timeout", "60")
+                reported = json.loads(output.getvalue())
+                self.assertEqual(reported["release"], "release-url")
+                self.assertEqual(reported["announcement_error"] if code else reported["announcement"]["message_id"],
+                                 failure.stderr if code else 7)
 
 
 class ShipTests(unittest.TestCase):
@@ -6355,7 +6415,13 @@ class ShipTests(unittest.TestCase):
         return mock.patch.object(self.release.version_bump, "read_version", return_value="0.8.0")
 
     def _document(self, text="## [0.8.0] - 2026-09-07\n\n### Added / 新增\n\n- **Interface**: That thing. / **界面**：那件事\n"):
-        return mock.patch.object(Path, "read_text", return_value=text)
+        read_text = Path.read_text
+        changelog_path = self.release.ROOT / self.release.changelog.CHANGELOG
+
+        def read(path, *args, **kwargs):
+            return text if path == changelog_path else read_text(path, *args, **kwargs)
+
+        return mock.patch.object(Path, "read_text", autospec=True, side_effect=read)
 
     @staticmethod
     def _writes(command):
