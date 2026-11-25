@@ -2032,15 +2032,18 @@ class OperationalScriptTests(unittest.TestCase):
         marker = 'EXTRA=("${@:2}")\n'
         prologue, separator, tail = source.partition(marker)
         self.assertEqual(separator, marker)
-        exec_line = next(line for line in tail.splitlines() if line.startswith("exec "))
-        stub_line = exec_line.replace('"$PYTHON" scripts/test_runner.py',
-                                      '"$PEACH_PY" "$PEACH_STUB"', 1)
-        self.assertNotEqual(stub_line, exec_line)
+        # 从调用运行器那一行到脚本末尾原样保留：退出码要原值返回，并在最后一行回显。
+        runner_call = '"$PYTHON" scripts/test_runner.py'
+        lines = tail.splitlines()
+        start = next(index for index, line in enumerate(lines) if line.startswith(runner_call))
+        stub_line = "\n".join(lines[start - 1:]).replace(runner_call, '"$PEACH_PY" "$PEACH_STUB"', 1)
+        self.assertEqual(lines[start - 1], "STATUS=0")
 
         directory = Path(tempfile.mkdtemp()).resolve()
         self.addCleanup(shutil.rmtree, directory, True)
         stub = directory / "argv_stub.py"
-        stub.write_text("import json, sys\nprint(json.dumps(sys.argv[1:]))\n", encoding="utf-8")
+        stub.write_text("import json, os, sys\nprint(json.dumps(sys.argv[1:]))\n"
+                        "sys.exit(int(os.environ.get('PEACH_STUB_EXIT', '0')))\n", encoding="utf-8")
         entrypoint = directory / "prologue.sh"
         # 两个路径都写成正斜杠：Windows 的 `C:\Users\…` 落进 shell 脚本后反斜杠会被当成转义符
         # 吃掉，exec 拿到的是一个粘在一起的名字。解释器也显式写出来，不靠 `#!`——Git Bash
@@ -2080,7 +2083,17 @@ class OperationalScriptTests(unittest.TestCase):
                         [shell, str(entrypoint), *argv],
                         capture_output=True, text=True, encoding="utf-8", check=False)
                     self.assertEqual(done.returncode, 0, done.stderr)
-                    self.assertEqual(json.loads(done.stdout), expected)
+                    printed = done.stdout.splitlines()
+                    self.assertEqual(json.loads(printed[0]), expected)
+                    self.assertEqual(printed[-1], "Peach test exit: 0")
+            # 运行器的退出码原值返回，最后一行回显同一个数：输出经管道截断后仍读得到成败。
+            for code in (1, 4):
+                with self.subTest(shell=shell, code=code):
+                    done = subprocess.run([shell, str(entrypoint), "auto"], capture_output=True, text=True,
+                                          encoding="utf-8", check=False,
+                                          env={**os.environ, "PEACH_STUB_EXIT": str(code)})
+                    self.assertEqual(done.returncode, code, done.stderr)
+                    self.assertEqual(done.stdout.splitlines()[-1], f"Peach test exit: {code}")
 
     def test_python_floor_matches_runtime_and_ci(self):
         """正式运行版本与 CI 共同覆盖声明的 Python 下限。"""

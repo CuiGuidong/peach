@@ -62,7 +62,9 @@ class MediaToolImportTests(unittest.TestCase):
             result = subprocess.run(
                 [PWSH, "-NoProfile", "-File", str(harness), str(target / "ffprobe.exe"),
                  str(ROOT / "scripts/import_windows_media_tools.ps1"), str(data), str(source)],
-                capture_output=True, text=True, encoding="utf-8", timeout=30,
+                # 文件被占用的系统报错按本机语言的 ANSI 代码页输出，中文系统上不是 UTF-8；
+                # 断言只看退出码与 stdout 里的标记，解不出的字节换成占位符。
+                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30,
             )
             self.assertNotEqual(result.returncode, 0, result.stdout)
             self.assertNotIn("READY:", result.stdout)
