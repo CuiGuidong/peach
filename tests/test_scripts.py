@@ -6416,9 +6416,10 @@ class ShipTests(unittest.TestCase):
 
     def _document(self, text="## [0.8.0] - 2026-09-07\n\n### Added / 新增\n\n- **Interface**: That thing. / **界面**：那件事\n"):
         read_text = Path.read_text
+        changelog_path = self.release.ROOT / self.release.changelog.CHANGELOG
 
         def read(path, *args, **kwargs):
-            return text if path == ROOT / "CHANGELOG.md" else read_text(path, *args, **kwargs)
+            return text if path == changelog_path else read_text(path, *args, **kwargs)
 
         return mock.patch.object(Path, "read_text", autospec=True, side_effect=read)
 
