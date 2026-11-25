@@ -14,7 +14,8 @@ import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { AsyncText } from '../components/async-text';
 import { TabCount } from '../components/board-tabs';
 import { cardClass } from '../components/card';
-import { FilterGlassRows, FilterPill } from '../components/filter-glass';
+import { FilterGlassRows, FilterPill, FilterToolbarControls } from '../components/filter-glass';
+import { FilterDropdown } from '../components/filter-dropdown';
 import { SEGMENTED_GLASS_TRACK, SEGMENT_GLASS } from '../components/segmented';
 import { SelectionDock } from '../components/selection-dock';
 import { spriteGlyph } from '../components/sprite-glyph';
@@ -173,9 +174,8 @@ export function TagFilters(
 ) {
   const alphaScroll = useHorizontalScroller<HTMLElement>();
   return (
-    <FilterGlassRows label={t('catalog:tagFilters.label')} topLabel={t('catalog:tagFilters.tagType')}
-      top={<>
-        {status ? <div role="group" aria-label={t('catalog:tagFilters.tagStatus')} className="flex flex-none items-center gap-1.75 border-r border-(--glass-low) pr-3">
+    <FilterGlassRows label={t('catalog:tagFilters.label')} topLabel={t('catalog:tagFilters.tagStatus')}
+      top={status ? <div className="flex flex-none items-center gap-1.75">
           {([[false, t('catalog:tagFilters.inUse')], [true, statusLabel(t('catalog:tagFilters.hidden'), status.hiddenCount,
             (count) => t('catalog:tagFilters.hiddenCount', { count }))]] as const).map(([hidden, label]) => <FilterPill key={String(hidden)}
             data-tag-pill="" data-tag-cat="all" pressed={!status.blocked && status.hidden === hidden} onPress={() => status.onChange(Boolean(hidden))}>{label}</FilterPill>)}
@@ -183,12 +183,6 @@ export function TagFilters(
             onPress={status.onBlocked}>{statusLabel(t('catalog:tagFilters.blockedContent'), status.blockedCount,
               (count) => t('catalog:tagFilters.blockedCount', { count }))}</FilterPill> : null}
         </div> : null}
-        {categories.map(([key, label]) => (
-        <FilterPill key={key} data-tag-pill="" data-tag-cat={key === 'all' ? 'all' : tagColorKey(online, key)}
-          pressed={category === key} onPress={() => onCategory(key)}>
-          <Dot />{label}
-        </FilterPill>
-      ))}</>}
       bottom={<>
         <span data-index-readout="" className="flex-none text-caption-1-regular leading-5 whitespace-nowrap text-text-secondary tabular-nums">
           <AsyncText text={readout} busy={readout === undefined}
@@ -206,8 +200,8 @@ export function TagFilters(
             ))}
           </nav>
         ) : null}
-        <RadioGroup aria-label={t('catalog:tagFilters.tagView')} orientation="horizontal" value={view}
-          onChange={(next) => onView(next as TagView)} className={`ml-auto ${SEGMENTED_GLASS_TRACK}`}>
+        <FilterToolbarControls tools={<RadioGroup aria-label={t('catalog:tagFilters.tagView')} orientation="horizontal" value={view}
+          onChange={(next) => onView(next as TagView)} className={SEGMENTED_GLASS_TRACK}>
           {VIEWS.map(([value, label, symbol]) => {
             const Glyph = spriteGlyph(symbol);
             return (
@@ -216,7 +210,11 @@ export function TagFilters(
               </Radio>
             );
           })}
-        </RadioGroup>
+        </RadioGroup>} fields={<FilterDropdown id="index-tag-category" label={t('catalog:tagFilters.tagType')}
+          active={category !== 'all'} searchable={false}
+          choices={categories.map(([id, label]) => ({ id, label, selected: category === id,
+            leading: <span className="flex shrink-0 items-center" data-tag-cat={id === 'all' ? 'all' : tagColorKey(online, id)}><Dot /></span> }))}
+          onSelect={onCategory} onClear={category === 'all' ? undefined : () => onCategory('all')} />} sorts={null} />
       </>}
     />
   );

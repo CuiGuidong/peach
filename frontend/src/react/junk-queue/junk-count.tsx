@@ -37,7 +37,7 @@ export interface JunkPickAll { loaded: number[]; picked: number; onChange(on: bo
 
 export function JunkCount({ route, page, failed, pickAll, sorts, onSort, onNavigate, onDisposeAll }: {
   route: JunkRoute; page: JunkPage | undefined; failed: boolean; pickAll: JunkPickAll | null;
-  sorts: readonly EntitySortKey[]; onSort(key: string): void; onNavigate(path: string): void;
+  sorts: readonly EntitySortKey[]; onSort(key: string, dir: 'asc' | 'desc'): void; onNavigate(path: string): void;
   /** 「全部移入回收站」：只在待判断视图、这一类有条目时给。 */
   onDisposeAll?(): void;
 }) {

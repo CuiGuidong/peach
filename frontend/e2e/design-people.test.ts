@@ -1129,7 +1129,7 @@ describe('设计决定：人物与厂牌资料页', () => {
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close(); }
     });
-    it(`关注分类使用 Pills，添加关注结果带描边（${viewport.name}）`, { timeout: 60_000 }, async () => {
+    it(`关注分类使用 Pills，两种搜索结果沿用别名表外观（${viewport.name}）`, { timeout: 60_000 }, async () => {
       const opened = await openFollowManage(browser, viewport);
       try {
         const page = opened.page;
@@ -1163,30 +1163,60 @@ describe('设计决定：人物与厂牌资料页', () => {
           const dimensions = await layout(page);
           assert.ok(dimensions.scrollWidth <= dimensions.viewportWidth + 1, JSON.stringify(dimensions));
         }
+        const creatorUrl = 'https://example.com/creator/a-long-address-that-must-stay-on-one-line';
         await page.route('**/api/follow/resolve', (route) => route.fulfill({
           status: 200, contentType: 'application/json', body: JSON.stringify({
             status: 'done', results: [{ line: '主题测试来源', candidates: [{
-              provider: 'kemono', provider_label: 'Kemono', label: '主题测试候选', url: 'https://example.com/creator',
+              provider: 'kemono', provider_label: 'Kemono', label: '主题测试候选', url: creatorUrl,
             }] }],
           }),
         }));
+        const actorUrl = 'https://javdb.com/actors/LongActorId';
+        await page.route(/\/api\/feeds\/lookup\?/, (route) => route.fulfill({
+          status: 200, contentType: 'application/json', body: JSON.stringify({
+            q: '示例演员', candidates: [{ id: 'LongActorId', names: ['示例演员'], url: actorUrl, subscription: 'missing' }],
+            suggested: ['LongActorId'], known: null,
+          }),
+        }));
         await tabs.getByRole('tab', { name: '添加关注', exact: true }).click();
-        await page.getByRole('textbox', { name: '来源链接、名字或 id' }).fill('主题测试来源');
+        await page.getByRole('combobox', { name: '来源链接、名字或 id' }).fill('主题测试来源');
         await page.getByRole('region', { name: '添加创作者关注', exact: true }).getByRole('button', { name: '查找', exact: true }).click();
-        const result = page.getByText('主题测试来源', { exact: true }).locator('..');
-        await result.waitFor();
+        const actor = page.getByRole('region', { name: '添加 JAV 订阅' });
+        await actor.getByRole('combobox', { name: '女优名' }).fill('示例演员');
+        await actor.getByRole('button', { name: '查找', exact: true }).click();
+        const tables = ['查找结果', 'JAV 订阅查找结果'].map(name => page.getByRole('grid', { name, exact: true }));
+        const aliases = page.getByRole('grid', { name: '已保存创作者别名' });
+        for (const table of [...tables, aliases]) await table.waitFor();
         for (const theme of ['light', 'dark']) {
           await page.evaluate((value) => {
             document.documentElement.dataset.theme = value;
             document.documentElement.classList.toggle('dark', value === 'dark');
           }, theme);
-          const surface = await result.evaluate((element) => {
-            const s = getComputedStyle(element);
-            return { shadow: s.boxShadow, width: s.borderTopWidth, border: s.borderTopColor, bg: s.backgroundColor };
-          });
-          assert.equal(surface.shadow, 'none');
-          assert.equal(surface.width, '1px');
-          assert.notEqual(surface.border, surface.bg, '结果分组必须有可辨认边界');
+          const surface = (element: Element) => {
+            const s = getComputedStyle(element.closest('[data-board-data-table]') || element);
+            const header = getComputedStyle(element.querySelector('thead th')!);
+            return { shadow: s.boxShadow, width: s.borderTopWidth, border: s.borderTopColor,
+              bg: s.backgroundColor, radius: s.borderTopLeftRadius, header: header.backgroundColor };
+          };
+          const expected = await aliases.evaluate(surface);
+          assert.equal(expected.width, '1px');
+          assert.notEqual(expected.border, expected.bg);
+          for (const [index, table] of tables.entries()) {
+            assert.deepEqual(await table.evaluate(surface), expected);
+            const url = [creatorUrl, actorUrl][index]!;
+            const link = table.locator(`a[href="${url}"]`);
+            const address = await link.evaluate(node => {
+              const text = node.querySelector('span')!;
+              return { height: text.getBoundingClientRect().height,
+                lineHeight: parseFloat(getComputedStyle(text).lineHeight), title: node.getAttribute('title'),
+                overflow: node.scrollWidth - node.clientWidth };
+            });
+            assert.ok(Math.abs(address.height - address.lineHeight) <= 1, '源地址保留一行');
+            assert.ok(address.overflow <= 1, '源地址和外链图标都在列内');
+            assert.equal(address.title, url);
+          }
+          const dimensions = await layout(page);
+          assert.ok(dimensions.scrollWidth <= dimensions.viewportWidth + 1, JSON.stringify(dimensions));
         }
         assert.deepEqual(opened.problems, []);
       } finally { await opened.close(); }

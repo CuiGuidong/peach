@@ -874,6 +874,22 @@
     "faceModelsReady": "人脸模型已就绪"
   },
   "api": {
+    "fileBrowser": {
+      "invalidRequest": "文件操作参数无效。",
+      "invalidName": "请使用有效的文件名或文件夹名。",
+      "invalidTarget": "请选择同一媒体目录中不同的目标文件夹。",
+      "configuredRoot": "所选路径涉及已配置的媒体目录，请从对应的媒体目录进入，或在设置中调整挂载。",
+      "catalogConflict": "目标路径已存在馆藏记录。",
+      "changed": "文件或馆藏记录已变化，请刷新目录后再试。",
+      "catalogRolledBack": "馆藏路径更新失败，文件已移回原处。{{error}}",
+      "rollbackFailed": "馆藏路径更新失败，文件未能移回原处。请核对源路径和目标路径。{{error}}",
+      "targetExists": "目标位置已存在同名项。",
+      "sourceMissing": "文件或目标目录已不存在，请刷新后再试。",
+      "unverified": "未能确认存储端的操作结果，请刷新目录核对。",
+      "operationFailed": "文件操作失败。{{error}}",
+      "trashMissing": "文件回收站中没有这条记录。",
+      "restoreInBrowser": "此文件在文件回收站中，请从浏览文件打开文件回收站并还原。"
+    },
     "listening": {
       "outsideLan": "这个地址只接受局域网内的连接"
     },
@@ -888,6 +904,7 @@
     },
     "configuration": {
       "accessAlreadySet": "访问设置已完成，请刷新页面",
+      "invalidLibraryHealthSelection": "馆藏问题选择无效，请刷新后重试",
       "accessChanged": "访问设置已变更，请刷新后再保存",
       "accessChangedRetry": "访问设置已变更，请刷新后再操作",
       "accessSaving": "访问设置正在保存，请稍后重试",
@@ -991,6 +1008,8 @@
       "navigationOrdersInvalid": "导航排序需要已知分组与顺序数组",
       "performerNameLanguageInvalid": "performerNameLanguage 只收 zh-CN、ja、en、ja-local 或 local-ja",
       "sortControlsInvalid": "排序项设置需要有效分组、顺序和隐藏项数组",
+      "tableLayoutsInvalid": "表格列布局设置无效",
+      "browsePreferencesInvalid": "浏览或外观偏好无效",
       "profileMissing": "profile {{profile}} 不存在",
       "searchHistoryLimitInvalid": "searchHistoryLimit 只收 0 到 {{max}} 的整数",
       "switchNotBoolean": "{{key}} 只收 true 或 false",
@@ -1179,8 +1198,15 @@
       "javdbHttpStatus": "JavDB 回了 HTTP {{status}}",
       "javdbSearchLogin": "JavDB 回的是登入页，这一趟搜不了；稍后再试",
       "nameEmpty": "女优名不能为空",
-      "cardRequired": "要先勾选至少一张演员卡",
-      "cardsSpanPeople": "这几张卡分属数据库里不同的人：{{names}}"
+      "cardRequired": "请至少勾选一个来源页",
+      "cardsSpanPeople": "所选页面分属数据库里不同的人：{{names}}",
+      "dmmPagesNotLinked": "所选 DMM 页面未关联到这位艺人，请重新搜索后选择",
+      "dmmSearchFailed": "DMM 搜索请求失败（{{error}}）",
+      "catalogDateInvalid": "请选择有效的发行日期",
+      "catalogFacetInvalid": "请选择有效的厂牌或标签",
+      "catalogUnavailable": "DMM 目录请求失败（{{error}}）",
+      "invalidActorId": "所选 JavDB 页面编号无效",
+      "pageLinkedElsewhere": "所选页面已订阅到其他艺人名下"
     },
     "catalog": {
       "invalidReleaseYear": "发行年份须为四位年份或未知年份",
@@ -1213,6 +1239,7 @@
       "invalidReleaseMetadataAction": "action 只能是 start 或 cancel"
     },
     "libraryShortcuts": {
+      "filterMissing": "此筛选已不存在，请从已保存的筛选重新选择",
       "invalidFilterHref": "筛选地址过长或格式不正确",
       "collectionFiltersOnly": "只能保存馆藏筛选",
       "unsupportedFilterCondition": "筛选包含不支持的条件",
@@ -1773,6 +1800,7 @@
       "cookieTooLarge": "Cookie 文本超过 256 KiB",
       "noValidCookie": "未找到该来源尚未过期的 Cookie",
       "redirectNotHttps": "采集重定向必须使用 HTTPS",
+      "redirectOutsideSource": "来源请求重定向到了其他站点",
       "tooManyRedirects": "采集重定向次数超过上限",
       "accountSuspended": "{{label}} 账号被临时停用（站方判定浏览太快），{{time}} 自动恢复；停的是账号，换出口没用，Peach 先暂停向它请求",
       "geoRestricted": "{{label}} 不对当前出口所在的地区开放，请在代理里给它换一个它接受的地区的出口；暂停向它请求 {{minutes}} 分钟",
@@ -1808,6 +1836,9 @@
       "invalidRotation": "旋转角度无效",
       "invalidRate": "播放速度无效",
       "invalidCaptionStyle": "字幕外观无效",
+      "invalidPosition": "续播位置无效",
+      "invalidOffsets": "字幕时间偏移无效",
+      "invalidQuality": "播放清晰度无效",
       "invalidSelection": "字幕选择无效",
       "invalidVideoKey": "视频标识无效",
       "invalidTrack": "字幕轨道无效",
@@ -2990,6 +3021,7 @@
       "unreadable": "任务恢复记录无法读取，请重新发起任务。"
     },
     "nasDirectories": {
+      "invalidOrder": "目录排序、搜索或每页条数无效。",
       "invalidPurpose": "请选择媒体目录或数据目录",
       "invalidOffset": "目录分页位置无效，请重新读取目录",
       "outsideRoots": "只能浏览已配置的媒体挂载目录；新挂载路径可在媒体目录输入框中填写",
@@ -4337,10 +4369,35 @@
         "externalSource": "外部来源"
       }
     },
+    "javdbBrowserLogin": {
+      "waiting": "请在打开的浏览器窗口中登录 JavDB。登录后会自动保存会话。",
+      "done": "已连接 JavDB，登录会话已保存。",
+      "cancelled": "已取消 JavDB 登录。",
+      "windowClosed": "JavDB 登录窗口已关闭。",
+      "timeout": "在 {{minutes}} 分钟内未完成 JavDB 登录，请重新打开登录窗口。",
+      "failed": "未能保存 JavDB 登录会话。请重新连接或手动导入 Cookie。",
+      "browserMissing": "未找到可用的本机浏览器，请手动导入 JavDB Cookie。",
+      "proxyWithCredentials": "浏览器无法使用带认证的来源代理。请检查连接方式或手动导入 JavDB Cookie。"
+    },
+    "sourceBrowserLogin": {
+      "waiting": "请在打开的浏览器窗口中登录。确认会话后会自动保存。",
+      "done": "已连接，登录会话已保存。",
+      "cancelled": "已取消登录。",
+      "windowClosed": "登录窗口已关闭。",
+      "timeout": "在 {{minutes}} 分钟内未确认登录会话。请重新打开登录窗口。",
+      "failed": "未能保存登录会话。请重新连接或手动配置凭据。",
+      "browserMissing": "未找到可用的本机浏览器，请手动配置凭据。",
+      "proxyWithCredentials": "浏览器无法使用带认证的代理。请检查连接方式或手动配置凭据。"
+    },
     "sourceChecks": {
+      "sampleMatched": "已查询并核对样本 {{code}}。",
+      "sampleMissing": "未找到样本 {{code}}，请检查来源查询是否可用。",
+      "sampleIncomplete": "样本 {{code}} 的身份或标题未能核对。",
       "mobileBroadbandHint": "中国移动宽带直连 DMM 图片主机常在握手后被断开，请把 DMM / FANZA 的连接方式设成 Peach 代理。",
       "target": {
         "page": "来源页面",
+        "lookup": "作品样本查询",
+        "session": "登录会话",
         "cdn": "图片 CDN"
       },
       "cooldown": "来源正在冷却，请稍后重试。",
@@ -4352,6 +4409,10 @@
       "rateLimited": "来源正在限流，请稍后重试。",
       "notFound": "来源检查地址不存在，请核对站点地址。",
       "signIn": "来源要求登录或验证，请在官网完成登录后重试。",
+      "sessionMissing": "请先保存 JavDB Cookie。",
+      "sessionRejected": "JavDB 要求重新登录。请在官网登录后更新 Cookie。",
+      "sessionVerified": "JavDB 登录会话有效。",
+      "sessionUnconfirmed": "未能确认 JavDB 登录状态。请查看官网个人资料页是否能打开。",
       "reason": "{{reason}}。",
       "unavailable": "来源暂不可用，请稍后重试。",
       "needsCode": "片商官网按番号选择，请输入馆藏番号检查高清封面。",

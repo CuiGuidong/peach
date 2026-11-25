@@ -99,7 +99,9 @@ class MediaIoTests(unittest.TestCase):
             (self.root / 'linked.mp4').symlink_to(video)
         with patch.object(Path, 'open', side_effect=AssertionError('browsing must not read file contents')):
             page = list_directory(self.root, [str(self.root)], include_files=True)
-        self.assertEqual(page['files'], [{'name': 'movie.mp4'}])
+        metadata = video.stat()
+        self.assertEqual(page['files'], [{'name': 'movie.mp4', 'size': 17, 'modified_at': metadata.st_mtime,
+                                         'created_at': getattr(metadata, 'st_birthtime', None)}])
         self.assertEqual([row['name'] for row in page['directories']], ['folder'])
         self.assertEqual(page['offset'], 0)
         self.assertIsNone(page['next_offset'])
@@ -108,8 +110,9 @@ class MediaIoTests(unittest.TestCase):
 
     def test_file_browser_locates_the_exact_file_beyond_the_first_page(self):
         from peach.nas_directories import list_directory
+        metadata = Mock(side_effect=FileNotFoundError)
         entries = [SimpleNamespace(name=f'{i}.mp4', is_dir=lambda **kw: False,
-                                   is_file=lambda **kw: True) for i in range(1002)]
+                                   is_file=lambda **kw: True, stat=metadata) for i in range(1002)]
         manager = Mock()
         manager.__enter__ = Mock(side_effect=lambda: iter(entries))
         manager.__exit__ = Mock(return_value=False)
@@ -118,7 +121,7 @@ class MediaIoTests(unittest.TestCase):
                 with self.subTest(focus=focus):
                     page = list_directory(self.root, [str(self.root)], include_files=True, focus_name=focus)
                     self.assertEqual(page['offset'], expected_offset)
-                    self.assertIn({'name': focus}, page['files'])
+                    self.assertIn({'name': focus, 'size': None, 'modified_at': None, 'created_at': None}, page['files'])
                     self.assertLessEqual(len(page['files']), 500)
                     self.assertEqual(page['next_offset'], expected_offset + 500 if expected_offset < 1000 else None)
             missing = list_directory(self.root, [str(self.root)], include_files=True, focus_name='gone.mp4')

@@ -594,6 +594,20 @@
       ]
     },
     {
+      "id": "boardui-modal",
+      "cadence": "weekly",
+      "name": "BoardUI Modal 组件源",
+      "url": "https://www.boardui.com/r/modal.json",
+      "snapshot": "docs/reference-snapshots/upstream/boardui-modal.json",
+      "checked_on": "2026-11-25",
+      "sha256": "bf2d1d7aeb04d244df4c95fb415949b7f205145e584b5a7b3420648ae3a95c47",
+      "role": "共用 ModalFrame 的遮罩与面板进出过渡、减少动态效果策略。",
+      "consumers": [
+        "frontend/src/react/components/modal-frame.tsx",
+        "frontend/src/react/components/surface-motion.css"
+      ]
+    },
+    {
       "id": "boardui-theme",
       "cadence": "weekly",
       "name": "BoardUI 主题 token 源",

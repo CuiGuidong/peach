@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, typ
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   createColumnHelper, flexRender, rowPaginationFeature, rowSelectionFeature, rowSortingFeature,
-  columnVisibilityFeature, tableFeatures, useTable, type RowSelectionState,
+  columnOrderingFeature, columnVisibilityFeature, tableFeatures, useTable, type RowSelectionState,
 } from '@tanstack/react-table';
 import { cardArtwork, relayoutCovers } from '@peach/card-art';
 import { fmtDur, fmtSize, requestErrorMessage } from '@peach/legacy/core';
@@ -33,13 +33,14 @@ import { CatalogRating, catalogTableDate } from './catalog-table-controls';
 import { CatalogColumnFilter, CatalogColumnRangeFilter } from './catalog-column-filter';
 import { isColumnRangeKey } from '../../column-filters';
 import { TableColumnControls, TableColumnResizer } from '../components/table-column-controls';
+import { TableToolbar } from '../components/table-toolbar';
 import { TableSelectionHeader } from '../components/table-selection-header';
 import { joinList, t } from '../../i18n';
 import { codedText } from '../../core/server-text';
 import { MediaRowActions, useMediaContextMenu } from '../components/media-actions';
 import './catalog-list.css';
 
-const features = tableFeatures({ rowSortingFeature, rowSelectionFeature, rowPaginationFeature, columnVisibilityFeature });
+const features = tableFeatures({ rowSortingFeature, rowSelectionFeature, rowPaginationFeature, columnVisibilityFeature, columnOrderingFeature });
 const COLUMN_ORDER = catalogColumns.map(column => column.id);
 const sortOptions = [
   { id: 'name', label: t('catalog:catalogList.sortName') }, { id: 'dur', label: t('catalog:catalogList.duration') }, { id: 'size', label: t('catalog:catalogList.size') },
@@ -56,6 +57,8 @@ export function CatalogListPage(props: CatalogGridProps & {
   const contextProps = (item: MediaItem) => ({ item, actions: props.actions, selected: props.selected.has(item.id),
     onOpen: props.filters?.state === 'trash' ? props.actions.openResource : props.actions.open });
   const preferences = useCatalogTablePreferences();
+  const tableTop = useRef<HTMLDivElement>(null);
+  const filterHost = props.mode === 'entity' ? '#index' : props.filters?.state === 'trash' ? '#trashFilter' : '#catalogFilter';
   const tints = useLibraryTints();
   const params = catalogParams(props.filters || {}, false);
   const scope = catalogListScope(props);
@@ -164,7 +167,8 @@ export function CatalogListPage(props: CatalogGridProps & {
   const table = useTable({
     features, columns, data: items, getRowId: item => String(item.id),
     manualSorting: true, manualPagination: true, rowCount: total,
-    state: { sorting, pagination, rowSelection, columnVisibility: { ...preferences.visibility, select: props.selectMode } },
+    state: { sorting, pagination, rowSelection, columnOrder: preferences.columnOrder,
+      columnVisibility: { ...preferences.visibility, select: props.selectMode } },
     onColumnVisibilityChange: preferences.change,
     onSortingChange: updater => setState(now => ({
       ...now,
@@ -195,19 +199,19 @@ export function CatalogListPage(props: CatalogGridProps & {
       if (item && !result.isPlaceholderData) context.onKeyDown(event, contextProps(item), row);
     }}>
     {context.menu}
-    <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={t('catalog:catalogList.toolbar')}>
+    <TableToolbar className="flex flex-wrap justify-end gap-2" label={t('catalog:catalogList.toolbar')}>
       <div data-toolbar-actions="">
       <TableColumnControls preferences={preferences} />
       <DataTableSort label={t('catalog:catalogList.listLabel')} options={sortOptions} sorting={sorting}
         onChange={next => table.setSorting(next)} />
       </div>
-    </div>
+    </TableToolbar>
     {result.isPending
       ? completionReserved ? <i data-completion-skeleton="" aria-hidden="true" className="skeleton-sheen" /> : null
       : <LibraryCompletionPrompt className="" assetIds={missing} meteredIds={metered} />}
     {result.isError ? <RetryNote message={requestErrorMessage(result.error)} onRetry={() => void result.refetch()} /> : null}
-    <DataTableFrame follow preferences={preferences} onRowClick={props.selectMode ? id => { if (!result.isPlaceholderData) props.actions.toggleSelection(Number(id), false) } : undefined}
-      rectangleSelecting={props.selectMode} onRectangle={!result.isPlaceholderData && props.actions.selectCardRectangle
+    <DataTableFrame ref={tableTop} follow preferences={preferences} onRowClick={props.selectMode ? id => { if (!result.isPlaceholderData) props.actions.toggleSelection(Number(id), false) } : undefined}
+      rectangleSelecting={props.selectMode} onRectangle={!result.isPlaceholderData && items.length > 0 && props.actions.selectCardRectangle
         ? (keys, add) => props.actions.selectCardRectangle?.(keys.map(Number), add) : undefined}>
       <Table aria-label={t('catalog:catalogList.listLabel')} size="sm"
         sortDescriptor={sort ? { column: sort.id, direction: sort.desc ? 'descending' : 'ascending' } : undefined}
@@ -227,7 +231,7 @@ export function CatalogListPage(props: CatalogGridProps & {
                 : flexRender(header.column.columnDef.header, header.getContext())}
               {header.column.getCanSort() ? <span data-sort-indicator data-direction={sortDirection || undefined}><ChevronSortDown /></span> : null}
             </span>
-            <TableColumnResizer preferences={preferences} id={header.id} />
+            <TableColumnResizer preferences={preferences} id={header.id} fixedDivider={header.id === 'actions'} />
             </>}
           </TableColumn>)}
           <TableColumn id="remaining-space" aria-label={t('catalog:catalogList.rowSpacer')} data-table-space="" width={preferences.spaceWidth} minWidth={0} />
@@ -244,6 +248,7 @@ export function CatalogListPage(props: CatalogGridProps & {
             data-guide-video={(!row.original.medium || row.original.medium === 'video') && row.original.location !== 'online' && !String(row.original.name || '').toLowerCase().endsWith('.iso') ? '' : undefined}
             data-library={tints.get(row.original.library_id || '')?.color ? row.original.library_id : undefined}
             data-board-selected={row.getIsSelected() || undefined}
+            {...(props.selectMode || result.isPlaceholderData ? undefined : context.touchProps)}
             onContextMenu={event => { if (!result.isPlaceholderData) context.onContextMenu(event, contextProps(row.original)) }}>
             {row.getVisibleCells().map(cell => <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>)}
             <TableCell data-table-space="" />
@@ -252,6 +257,7 @@ export function CatalogListPage(props: CatalogGridProps & {
       </Table>
     </DataTableFrame>
     {result.data ? <DataTableFooter label={t('catalog:catalogList.listLabel')} total={total} pagination={pagination}
+      scrollTarget={tableTop} stickyHeader={() => document.querySelector<HTMLElement>(`${filterHost} [data-filter-frame]`)}
       onChange={next => table.setPagination(next)} unit={t('catalog:catalogList.footerUnit')} pageUnit={t('catalog:catalogList.footerPageUnit')} /> : null}
   </div>;
 }

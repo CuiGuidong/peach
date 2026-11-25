@@ -351,7 +351,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
       data-jav-item={item.is_jav ? '' : undefined}
       data-part-seed={parts ? parts.seed_id : undefined} data-stacked={stacked ? '' : undefined}
       data-pending-delete={trash ? '' : undefined} data-jav-card={trash ? '' : undefined} data-selected={selected ? '' : undefined}
-      onClick={click} onMouseDown={suppressShiftTextSelection}
+      {...(selectMode ? undefined : context.touchProps)} onClick={click} onMouseDown={suppressShiftTextSelection}
       onContextMenu={event => context.onContextMenu(event, contextProps)} onKeyDown={event => context.onKeyDown(event, contextProps)}>
       {context.menu}
       <button type="button" data-media-open="" data-open=""
@@ -407,7 +407,7 @@ function ResourceCard({ item, selected, selectMode, helpers, actions, onOpen }: 
   return (
     <article ref={card} data-media-card="" data-id={item.id} data-variant="resource" data-medium={item.medium || 'other'}
       data-pending-delete={trash ? '' : undefined} data-jav-card={trash ? '' : undefined} data-selected={selected ? '' : undefined}
-      onClick={click} onMouseDown={suppressShiftTextSelection}
+      {...(selectMode ? undefined : context.touchProps)} onClick={click} onMouseDown={suppressShiftTextSelection}
       onContextMenu={event => context.onContextMenu(event, contextProps)} onKeyDown={event => context.onKeyDown(event, contextProps)}>
       {context.menu}
       <div data-media-pic="" style={{ '--card-ratio': String(16 / 9) } as CSSProperties}>

@@ -143,6 +143,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
   const data = goals.data;
   const items = order.sort(data?.items || []);
   const selectRectangle = (ids: number[], add: boolean) => {
+    if (ids.length) enterPageSelection();
     const keys = new Set(ids);
     setPicked(current => new Map([...(add ? current : []), ...items
       .filter(item => keys.has(item.id)).map(item => [item.id, item] as const)]));

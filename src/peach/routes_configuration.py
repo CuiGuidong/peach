@@ -37,12 +37,13 @@ from .routes_auth import (FIRST_ACCESS_DENIED_CODE, login_mode, origin_allowed, 
                           set_auth_cookie, sessions as access_sessions)
 from .web_entry import field_errors, runtime_fact_entries
 from .user_messages import UserFacingError, UserOSError, UserTimeoutError, UserValueError, error_detail, message_fields
-from .web_local_access import local_client, managed_configuration
+from .web_local_access import local_client, loopback_client, managed_configuration
 from . import (interface_text, release_updates, standalone_update, peach_proxy, desktop_startup, desktop_uninstall,
                docker_update, media_tools, listening)
 
 router = APIRouter()
 _SAVE_LOCK = threading.Lock()
+_BROWSER_LOGIN_LOCK = threading.Lock()
 RELOAD_NAME = onboarding.RELOAD_NAME
 #: 直接由 CLI 管理的服务使用设置文件：配置页不能编辑时给的那句话。
 FILE_MANAGED_NOTICE = "labels.configuration.fileManagedNotice"
@@ -91,8 +92,18 @@ def library_diagnostic_rows(request: Request, args: dict[str, str] = Depends(req
     if key not in library_diagnostics.GROUP_CODES:
         raise UserValueError("api.catalog.invalidColumnFilters")
     data = library_diagnostics.library(request.app.state.settings, settings_file.active(),
-                                       {key: args.get("column_filters")})
+                                       {key: args.get("column_filters")}, show_ignored=args.get("view") == "ignored")
     return data["groups"][key]
+
+
+@router.post("/api/diagnostics/library/ignored")
+def library_diagnostic_ignored(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
+    from . import library_diagnostics
+    local_only(request)
+    same_origin(request)
+    library_diagnostics.change_ignored(settings_file.active(), body.get("group", ""),
+                                       body.get("ids"), body.get("ignore"))
+    return {"ok": True}
 
 
 @router.get("/api/diagnostics/bundle")
@@ -775,6 +786,91 @@ def logout_pikpak(request: Request, _args=Depends(require_auth)):
     same_origin(request)
     service, roots = _downloads(request)
     return web_downloads.pikpak_logout(service, roots)
+
+
+def _javdb_browser_login(request: Request):
+    from .javdb_browser_login import JavDBBrowserLogin
+
+    contract = request.app.state.web_contract
+    with _BROWSER_LOGIN_LOCK:
+        if not hasattr(contract, "javdb_browser_login"):
+            contract.javdb_browser_login = JavDBBrowserLogin(contract.follow_secrets_root)
+        return contract.javdb_browser_login
+
+
+@router.get("/api/scraping/javdb-browser-login")
+def javdb_browser_login_status(request: Request, _args=Depends(require_auth)):
+    if not loopback_client(request):
+        return {"available": False, "state": "idle", "message": ""}
+    login = _javdb_browser_login(request)
+    return {"available": login.available(), **login.status()}
+
+
+@router.post("/api/scraping/javdb-browser-login")
+def start_javdb_browser_login(request: Request, _args=Depends(require_auth)):
+    if not loopback_client(request):
+        raise HTTPException(403, message_fields("api.configuration.openOnHost"))
+    same_origin(request)
+    login = _javdb_browser_login(request)
+    return {"available": login.available(), **login.start()}
+
+
+@router.post("/api/scraping/javdb-browser-login/cancel")
+def cancel_javdb_browser_login(request: Request, _args=Depends(require_auth)):
+    if not loopback_client(request):
+        raise HTTPException(403, message_fields("api.configuration.openOnHost"))
+    same_origin(request)
+    login = _javdb_browser_login(request)
+    return {"available": login.available(), **login.cancel()}
+
+
+def _check_browser_login_source(source: str) -> None:
+    from .source_browser_login import SOURCE_BROWSER_LOGIN_SOURCES
+
+    if source not in SOURCE_BROWSER_LOGIN_SOURCES:
+        raise HTTPException(404)
+
+
+def _source_browser_login(request: Request, source: str):
+    from .source_browser_login import SourceBrowserLogin
+
+    contract = request.app.state.web_contract
+    with _BROWSER_LOGIN_LOCK:
+        if not hasattr(contract, "source_browser_logins"):
+            contract.source_browser_logins = {}
+        logins = contract.source_browser_logins
+        if source not in logins:
+            logins[source] = SourceBrowserLogin(contract.follow_secrets_root, source)
+        return logins[source]
+
+
+@router.get("/api/source-browser-login/{source}")
+def source_browser_login_status(request: Request, source: str, _args=Depends(require_auth)):
+    _check_browser_login_source(source)
+    if not loopback_client(request):
+        return {"available": False, "state": "idle", "message": ""}
+    login = _source_browser_login(request, source)
+    return {"available": login.available(), **login.status()}
+
+
+@router.post("/api/source-browser-login/{source}")
+def start_source_browser_login(request: Request, source: str, _args=Depends(require_auth)):
+    _check_browser_login_source(source)
+    if not loopback_client(request):
+        raise HTTPException(403, message_fields("api.configuration.openOnHost"))
+    same_origin(request)
+    login = _source_browser_login(request, source)
+    return {"available": login.available(), **login.start()}
+
+
+@router.post("/api/source-browser-login/{source}/cancel")
+def cancel_source_browser_login(request: Request, source: str, _args=Depends(require_auth)):
+    _check_browser_login_source(source)
+    if not loopback_client(request):
+        raise HTTPException(403, message_fields("api.configuration.openOnHost"))
+    same_origin(request)
+    login = _source_browser_login(request, source)
+    return {"available": login.available(), **login.cancel()}
 
 
 @router.get("/api/configuration/startup")

@@ -4,7 +4,7 @@
  * 几何、饱和度与文字色在 `../styles.css` 的 `[data-filter-glass]`，高对比与减少透明度的回退
  * 也在那一条上。吸到顶栏下沿那一刻由 `use-stuck.ts` 标 `data-stuck`，影换成抬起来那一档。
  * 文字操作共用 BoardUI 的 32px 小号按钮，筛选项使用类型对应的选中面。 */
-import { useRef, type ReactNode, type RefObject } from 'react';
+import { cloneElement, useRef, type ComponentProps, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { cx } from '@/utils/cx';
 import { IconButton, type IconButtonProps } from '@/components/base/buttons/icon-button';
 import { Button } from '@/components/base/buttons/button';
@@ -13,8 +13,11 @@ import { spinnerHtml } from '@peach/legacy/ui';
 import { GlassDrift } from './glass-drift';
 import { useStuck } from './use-stuck';
 import { useHorizontalScroller } from './use-horizontal-scroller';
+import { useViewGlide } from './use-view-glide';
 import { t } from '../../i18n';
 import './filter-glass.css';
+
+export const FILTER_TOOLBAR_POPOVER_OFFSET = 12;
 
 const BusyIcon = ({ className }: { className?: string }) => <span aria-hidden className={className}
   dangerouslySetInnerHTML={{ __html: spinnerHtml(t('shell:shared.processing')) }} />;
@@ -22,7 +25,8 @@ const BusyIcon = ({ className }: { className?: string }) => <span aria-hidden cl
 /** 筛选栏动作使用紧凑档（`size="small"`，32px）和蓝色动作表面。 */
 export function FilterIconButton({ label, icon, busy = false, busyStyle = 'spinner', onPress, ...props }:
   Omit<IconButtonProps, 'aria-label' | 'size' | 'onClick'> & { label: string; busy?: boolean; busyStyle?: 'spinner' | 'strand'; onPress(): void }) {
-  return <IconButton {...props} data-filter-action="" size="small" icon={busy && busyStyle === 'spinner' ? BusyIcon : icon}
+  return <IconButton {...props} className={cx('shrink-0', props.className)} data-filter-action="" size="small"
+    icon={busy && busyStyle === 'spinner' ? BusyIcon : icon}
     aria-label={label} title={props.title || label} aria-busy={busy || undefined} aria-disabled={busy || undefined}
     onClick={() => { if (!busy) onPress() }} />;
 }
@@ -89,6 +93,49 @@ export function FilterGlassRows(
   );
 }
 
+interface FilterScopeChoice<Key extends string> {
+  key: Key;
+  label: string;
+  href?: string;
+  attrs?: Record<`data-${string}`, string>;
+}
+
+/** 首页与在线目录的口径切换共用同一块滑动玻璃和按键。 */
+export function useFilterScope<Key extends string>(active: Key, rowRef?: RefObject<HTMLDivElement | null>) {
+  const localRow = useRef<HTMLDivElement>(null);
+  const row = rowRef ?? localRow;
+  const pane = useRef<HTMLSpanElement>(null);
+  const glide = useViewGlide(pane, row, '[data-catalog-view][aria-pressed="true"]', active);
+  return {
+    pane: <span ref={pane} data-view-glide="" aria-hidden="true" />,
+    choices: (label: string, items: readonly FilterScopeChoice<Key>[], select: (key: Key) => void) =>
+      <div ref={row} role="group" aria-label={label} data-catalog-views="" onPointerLeave={glide.leave}>
+        {items.map(({ key, label, href, attrs }) => {
+          const common = { ...attrs, 'data-catalog-view': key, 'data-entity-press': '',
+            'aria-pressed': active === key, onPointerEnter: glide.hover };
+          return href
+            ? <a key={key} href={href} {...common} onClick={event => { event.preventDefault(); select(key) }}>{label}</a>
+            : <button key={key} type="button" {...common} onClick={() => select(key)}>{label}</button>;
+        })}
+        <span data-entity-sep="" aria-hidden="true" />
+      </div>,
+  };
+}
+
+/** 下排工具按图标、筛选字段、排序排列。 */
+export function FilterToolbarControls({ tools, fields, fieldGroup, sorts }: {
+  tools: ReactNode;
+  fields?: ReactNode;
+  fieldGroup?: ComponentProps<'span'>;
+  sorts: ReactElement<{ fields?: ReactNode; fieldGroup?: ComponentProps<'span'> }> | null;
+}) {
+  return <span data-entity-sorts="">
+    {tools}
+    {tools ? <span data-entity-sep="" aria-hidden="true" /> : null}
+    {sorts ? cloneElement(sorts, { fields, fieldGroup }) : fields ? <span {...fieldGroup} data-filter-fields="">{fields}</span> : null}
+  </span>;
+}
+
 /* 浮层上的筛选药丸：8px 圆角、13px 字，未选中是一圈虚线 `--glass-low`，悬停转实线；选中的
  * 线与填充归调用方（标签类型药丸取自己的类型色，见 `../styles.css` 的 `[data-tag-pill]`）。 */
 const FILTER_PILL = 'flex h-8 flex-none cursor-pointer items-center gap-1.75 rounded-lg border border-dashed'
@@ -107,13 +154,29 @@ export function FilterPill(
   );
 }
 
+/** 快捷标签与下拉共用同一份选项和选择动作。 */
+export function FilterTagStrip({ choices, onSelect }: {
+  choices: readonly { id: string; label: string; count?: number | null; selected?: boolean }[];
+  onSelect(id: string): void;
+}) {
+  const scroll = useHorizontalScroller<HTMLDivElement>();
+  if (!choices.length) return null;
+  const shown = [...choices.slice(48).filter(choice => choice.selected), ...choices.slice(0, 48)];
+  return <div ref={scroll} data-filter-tag-strip="">
+    {shown.map(choice => <FilterPill key={choice.id} data-filter-tag={choice.id} pressed={!!choice.selected}
+      className="aria-pressed:border-solid aria-pressed:bg-(--picked)" onPress={() => onSelect(choice.id)}>
+      {choice.label}{choice.count != null ? <span data-count-badge="" className="text-caption-1-regular tabular-nums text-text-tertiary">{choice.count.toLocaleString()}</span> : null}
+    </FilterPill>)}
+  </div>;
+}
+
 /** 筛选浮窗的文字操作统一使用 BoardUI 小号按钮，选中态使用主动作表面。 */
 export function FilterActionButton(
   { children, onPress, busy = false, pressed, ...data }:
   { children: ReactNode; onPress(): void; busy?: boolean; pressed?: boolean | 'mixed' } & Record<`data-${string}`, string>,
 ) {
   return (
-    <Button {...data} size="small" variant={pressed ? 'primary' : 'secondary'}
+    <Button {...data} className="shrink-0" size="small" variant={pressed ? 'primary' : 'secondary'}
       aria-pressed={pressed} aria-busy={busy || undefined} disabled={busy} onClick={onPress}>
       {children}
     </Button>

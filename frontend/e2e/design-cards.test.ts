@@ -814,6 +814,15 @@ describe('设计决定：作品卡、管理页与复核', () => {
       assert.ok(heights.length >= 2, `筛选条上只量到 ${heights.length} 颗控件`);
       assert.deepEqual([...new Set(heights)], [heights[0]],
         `筛选条上的控件高度不齐：${heights.join(' / ')}`);
+      await opened.page.setViewportSize({ width: 320, height: 844 });
+      const bottom = opened.page.locator('[data-review-filter] [data-filter-row="bottom"]');
+      const mobile = await bottom.evaluate((row) => {
+        const buttons = [...row.querySelectorAll('button')].map(button => button.getBoundingClientRect());
+        return { aligned: buttons.every(button => Math.abs(button.top - buttons[0]!.top) < 1),
+          overflow: document.documentElement.scrollWidth > innerWidth };
+      });
+      assert.equal(mobile.aligned, true, '窄屏下分组和批量按钮保留同一滚动行');
+      assert.equal(mobile.overflow, false);
       assert.deepEqual(opened.problems, []);
     } finally {
       await opened.close();

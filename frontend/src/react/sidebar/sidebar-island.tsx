@@ -187,8 +187,7 @@ function Groups({ host: at, content, filters, latest }: {
     : `follow:${content.selected.join(',')}:${content.tags.map((row) => row.value).join(',')}`
       + `:${(content.providers || []).map((row) => row.value).join(',')}:${filters.provider ?? ''}`
       + `:${content.duration ? 1 : 0}:${filters.dur_min ?? ''}:${filters.dur_max ?? ''}`;
-  /* 计数徽标弹不弹由 `popBadges` 按上一次见到的值判断，不按节点是不是新建的判断：每来一份新聚合
-     问一次，换一条筛选时整列计数才不会一起弹。 */
+  /* 每份聚合只淡入比上一次变了的徽标。 */
   useLayoutEffect(() => { if (content.kind === 'catalog') popBadges(at.scroll, 'drawer') }, [at, key, content.kind]);
   const groups = content.kind === 'catalog'
     ? catalogGroups(at, content.facets, filters, latest, key)

@@ -86,7 +86,7 @@ export function BulkToolbar(props: BulkToolbarProps) {
     <>
       <FilterGlassRows label={t('manage:reviewToolbar.filters')} topLabel={t('manage:reviewToolbar.processingStatus')} attrs={{ 'data-review-filter': '' }}
         className="mb-0 flex-row flex-wrap" topClassName="max-w-full flex-none"
-        bottomClassName={pageKeys.length ? 'min-h-12 max-w-full flex-none flex-wrap' : 'hidden'}
+        bottomClassName={pageKeys.length ? 'min-h-12 max-w-full flex-none [&>*]:shrink-0' : 'hidden'}
         bottomRef={controlRow}
         panes={<span ref={statePane} data-view-glide="" aria-hidden="true" />}
         top={<div ref={stateRow} role="group" aria-label={t('manage:reviewToolbar.reviewStatus')} data-entity-states=""

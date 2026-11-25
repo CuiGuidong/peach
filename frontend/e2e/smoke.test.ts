@@ -87,7 +87,7 @@ const ROUTES: readonly Route[] = [
     // 订阅管理链接进入统一关注列表。
     path: '/subscriptions?tab=feeds',
     body: (page) => [page.locator('#stats').getByRole('tab', { name: '关注列表', exact: true, selected: true }),
-      page.locator('#stats').getByRole('button', { name: '立即拉取', exact: true })],
+      heading(page, '#stats', '还没有关注来源')],
   },
   {
     path: '/subscriptions?tab=add',

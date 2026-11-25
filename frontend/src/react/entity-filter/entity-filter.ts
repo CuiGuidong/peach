@@ -32,6 +32,7 @@ export interface EntityFilterTag {
 export interface EntityComboItem {
   kind: 'clear' | 'untag';
   key: string;
+  value?: string;
   label: string;
 }
 
@@ -92,7 +93,7 @@ export interface EntityFilterActions {
   clearFilter(key: string): void;
   /** 交集条末尾的「全部清除」。 */
   clearAll(): void;
-  setSort(key: string): void;
+  setSort(key: string, dir: 'asc' | 'desc'): void;
   /** 换一批。视频视图由读数骨架说「在等」，照片视图的键自己转圈，等到这个 Promise 落定。 */
   reshuffle(): Promise<void>;
   setJavLayout(layout: string): void;
@@ -106,7 +107,7 @@ export interface EntityFilterActions {
   onlineStatus(status: string): void;
   onlineProvider(provider: string): void;
   onlineTag(tag: string): void;
-  onlineSort(key: string): void;
+  onlineSort(key: string, dir: 'asc' | 'desc'): void;
 }
 
 /** 仍由遗留层给的接线与 HTML。 */

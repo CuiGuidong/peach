@@ -360,12 +360,12 @@ export async function openCatalog(browser: Browser): Promise<Visit> {
 }
 
 /** 打开目录，两排头像与标签条用桩数据铺满：演示库那十几部作品凑不出一排标签。 */
-export async function openCatalogBars(browser: Browser, viewport: Viewport = DESKTOP): Promise<Visit> {
+export async function openCatalogBars(browser: Browser, viewport: Viewport = DESKTOP, tagCount = 8): Promise<Visit> {
   const performers = Array.from({ length: 6 }, (_, at) => ({
     id: 96_000 + at, k: `演示女优${at + 1}`, n: 30 - at, has_image: false, has_avatar: false, avatar_focus: null, rep: null,
   }));
   const studios = Array.from({ length: 3 }, (_, at) => ({ k: `演示厂牌${at + 1}`, n: 20 - at, has_logo: false }));
-  const tags = Array.from({ length: 8 }, (_, at) => ({ k: `演示标签${at + 1}`, n: 90 - at }));
+  const tags = Array.from({ length: tagCount }, (_, at) => ({ k: `演示标签${at + 1}`, n: 90 - at }));
   const opened = await visit(browser, '/', viewport, async page => {
     await page.route((url) => url.pathname === '/api/tops', (route) =>
       route.fulfill({ json: Number(new URL(route.request().url()).searchParams.get('page') || 0)
@@ -377,8 +377,9 @@ export async function openCatalogBars(browser: Browser, viewport: Viewport = DES
     });
   });
   try {
+    await opened.page.reload({ waitUntil: 'load' });
     await expectBody(opened.page, '/', [
-      opened.page.locator('[data-catalog-filter] [data-catalog-tag]').first(),
+      opened.page.locator('[data-catalog-filter] [data-table-column-filter="home-tags"]').first(),
       opened.page.locator('[data-catalog-filter] [data-tier-studio]').first(),
     ], opened.problems);
     await settle(opened.page);
@@ -470,12 +471,15 @@ export const followCredential = (provider: string, requirement: string, present:
 /** 关注管理页按一份造好的来源与凭据打开：演示库没有关注来源，也凑不齐四种凭据处境。
  *  站标同 `openScraping`：造出来的来源取不到图标，给一张能加载完的图。 */
 export async function openFollowManage(browser: Browser, viewport = DESKTOP, data: FollowManageData = {}): Promise<Visit> {
-  const opened = await visit(browser, '/subscriptions', viewport);
-  await stubFollowManage(opened.page, data);
-  await opened.page.reload({ waitUntil: 'load' });
-  await opened.page.locator('section[aria-label="kou 的关注来源"]').waitFor({ timeout: 15_000 });
-  await settle(opened.page);
-  return opened;
+  const opened = await visit(browser, '/subscriptions', viewport, page => stubFollowManage(page, data));
+  try {
+    await expectBody(opened.page, '关注来源', [opened.page.getByRole('region', { name: 'kou 的关注来源' })], opened.problems);
+    await settle(opened.page);
+    return opened;
+  } catch (error) {
+    await opened.close();
+    throw error;
+  }
 }
 
 /** 换掉计数、在三条来源之后再加几条：量极端内容时用。 */

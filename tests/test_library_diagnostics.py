@@ -73,6 +73,22 @@ class LibraryDiagnosticsTests(unittest.TestCase):
         self.assertEqual(row['size'], 1048576)
         self.assertEqual(before, self.db.read_bytes())
 
+    def test_ignored_issues_are_scoped_to_one_group_and_restorable(self):
+        before = self.db.read_bytes()
+        diagnostics.change_ignored(self.config, 'duration', [2], True)
+        active = diagnostics.library(self.settings, self.config)['groups']
+        ignored = diagnostics.library(self.settings, self.config, show_ignored=True)['groups']
+        self.assertEqual(active['duration']['ignored_count'], 1)
+        self.assertEqual([item['id'] for item in active['duration']['items']], [3])
+        self.assertEqual([item['id'] for item in ignored['duration']['items']], [2])
+        self.assertEqual(ignored['cover']['count'], 0)
+        self.assertIn(2, [item['id'] for item in active['cover']['items']])
+        diagnostics.change_ignored(self.config, 'duration', [2], False)
+        restored = diagnostics.library(self.settings, self.config)['groups']['duration']
+        self.assertEqual([item['id'] for item in restored['items']], [2, 3])
+        self.assertEqual(restored['ignored_count'], 0)
+        self.assertEqual(self.db.read_bytes(), before)
+
     def test_library_items_carry_the_same_library_id_as_the_catalog(self):
         from peach import media_identity, settings_file
         (self.root / 'config.toml').write_text("[media.locations]\nlocal = ['R:\\Media']\n"

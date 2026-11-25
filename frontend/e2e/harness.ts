@@ -12,6 +12,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { chromium, type Browser, type BrowserContext, type Locator, type Page } from 'playwright-core';
+import type { TableLayout, TableLayoutChange } from '../src/table-column-order.ts';
 
 export const CONFIGURATION_ROUTE = /\/api\/configuration(?:\?.*)?$/;
 
@@ -33,6 +34,8 @@ export interface Visit {
   problems: string[];
   close(): Promise<void>;
 }
+
+const problemsByPage = new WeakMap<Page, string[]>();
 
 export interface Layout {
   viewportWidth: number;
@@ -103,7 +106,7 @@ export async function quiesce(context: BrowserContext): Promise<void> {
   }));
 }
 
-/** 失败时保留焦点、输入和弹层现场；成功路径不额外查询页面。 */
+/** 失败时保留运行期错误、焦点、输入和弹层现场。 */
 export async function withPageDiagnostics<T>(page: Page, where: string | (() => string), action: () => Promise<T>): Promise<T> {
   try {
     return await action();
@@ -122,7 +125,8 @@ export async function withPageDiagnostics<T>(page: Page, where: string | (() => 
         .slice(0, 12).map(node => ({ tag: node.tagName, id: node.id, label: node.getAttribute('aria-label') })),
     })).catch(() => '未取得');
     const tree = await page.locator('body').ariaSnapshot({ timeout: 2000 }).catch(() => '未取得');
-    throw new Error(`${typeof where === 'function' ? where() : where}：${String(error)}\n页面现场：${JSON.stringify(state)}\n无障碍树：\n${tree.slice(0, 4000)}`,
+    const problems = problemsByPage.get(page)?.slice(-12) ?? [];
+    throw new Error(`${typeof where === 'function' ? where() : where}：${String(error)}\n运行期问题：${JSON.stringify(problems)}\n页面现场：${JSON.stringify(state)}\n无障碍树：\n${tree.slice(0, 4000)}`,
       { cause: error });
   }
 }
@@ -190,6 +194,36 @@ export function configurationBody(page: Page): Locator[] {
   ];
 }
 
+/** 同一个临时服务承载多个用例。浏览和表格偏好在当前上下文中跨刷新保留。 */
+export async function isolateBrowseSettings(page: Page, initial: Record<string, unknown> = {}) {
+  const context = page.context();
+  const browse = { ...initial };
+  const tables: Record<string, TableLayout> = {};
+  await page.route(url => url.pathname === '/api/settings', async route => {
+    const request = route.request();
+    const { browsePreferences, tableLayouts, ...shared } = (request.postDataJSON() ?? {}) as {
+      browsePreferences?: Record<string, unknown> & { legacy?: Record<string, unknown> };
+      tableLayouts?: Record<string, TableLayoutChange>;
+    };
+    const isolated = browsePreferences !== undefined || tableLayouts !== undefined;
+    const response = isolated && !Object.keys(shared).length
+      ? await context.request.get(request.url())
+      : await route.fetch(isolated ? { postData: shared } : {});
+    if (!response.ok()) return route.fulfill({ response });
+    if (browsePreferences) {
+      const { legacy, ...patch } = browsePreferences;
+      Object.assign(browse, { ...legacy, ...browse, ...patch }, Object.fromEntries(
+        ['pageSizes', 'queueSort'].filter(key => key in patch || key in (legacy ?? {}))
+          .map(key => [key, { ...Object(legacy?.[key]), ...Object(browse[key]), ...Object(patch[key]) }]),
+      ));
+    }
+    for (const [table, { legacy, ...patch }] of Object.entries(tableLayouts ?? {})) {
+      tables[table] = { ...legacy, ...tables[table], ...patch };
+    }
+    return route.fulfill({ response, json: { ...await response.json(), browsePreferences: browse, tableLayouts: tables } });
+  });
+}
+
 export async function visit(browser: Browser, path: string, viewport: Viewport,
   prepare?: (page: Page) => Promise<void>): Promise<Visit> {
   const origin = requiredEnv('PEACH_E2E_ORIGIN');
@@ -206,6 +240,7 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   });
   const page = await context.newPage();
   const problems: string[] = [];
+  problemsByPage.set(page, problems);
   page.on('pageerror', (error) => problems.push(`pageerror ${error.message}`));
   page.on('console', (message) => {
     if (message.type() === 'error') problems.push(`console ${message.text()}`);
@@ -225,6 +260,7 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   const close = () => context.close();
   // 只打开到 load：等哪块主体、何时 settle 由用例决定，见 `settle` 的说明。
   try {
+    await isolateBrowseSettings(page);
     await prepare?.(page);
     await page.goto(origin + path, { waitUntil: 'load' });
   } catch (error) {

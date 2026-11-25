@@ -31,6 +31,7 @@ import { rereadPlaylists } from './playlists.js';
 import { receiptsState } from './receipts.js';
 import { dropBars } from './../catalog-bars';
 import { applicationEffects } from './effects';
+import { syncPhotoWalls } from './entity.js';
 export const preferencesState = { sourceOnline: undefined, sourceProblems: undefined, sourceOffline: undefined, OFFLINE_HINT: undefined, OFFLINE_REASON: undefined, offlineReason: undefined, settingsStore: undefined, appSettings: undefined, saveSettings: undefined, catalogLoadWaiters: undefined, nextCatalogLoad: undefined, handOff: undefined, settingsEffects: undefined, syncGlassOptics: undefined, placeSidebarHead: undefined, SRCICON: undefined, srcBadge: undefined, emptyState: undefined, CENSOR_KEY: undefined };
 
 export async function loadSourceStatus(){
@@ -167,6 +168,7 @@ wireGestureSettings(preferencesState.settingsStore);
 setNameLocale(interfaceLanguage);
 setNameLanguage(preferencesState.appSettings.performerNameLanguage);
 preferencesState.saveSettings = ()=>preferencesState.settingsStore.save();
+applicationEffects.listen(window,'peach:preferences-save-failed',event=>receiptsState.toast(event.detail,{warn:true}));
 document.documentElement.style.setProperty('--hover-delay',`${preferencesState.appSettings.hoverDelaySeconds}s`);
 setUiSoundsEnabled(preferencesState.appSettings.uiSounds);
 wireUiSounds();
@@ -180,6 +182,21 @@ preferencesState.catalogLoadWaiters = [];
 preferencesState.nextCatalogLoad = ()=>new Promise(resolve=>preferencesState.catalogLoadWaiters.push(resolve));
 preferencesState.handOff = loading=>{preferencesState.catalogLoadWaiters.splice(0).forEach(resolve=>resolve(loading));return loading};
 preferencesState.settingsEffects = {
+  browsePreferences:keys=>{
+    const has=key=>keys.includes(key);
+    if(has('theme'))applyTheme();
+    if(has('accent'))applyAccent();
+    if(has('homeGlow')){applyHomeGlow();applyGlassFaces()}
+    if(has('photoLayout'))syncPhotoWalls();
+    if(has('homeTiers'))syncCatalogFilterScreen();
+    if(has('feedNewRows'))syncHomeFeedSetting(state.browse==='folders');
+    else if(has('feedLimit'))refreshFeedRows();
+    if(has('homePreviewOnly'))preferencesState.settingsEffects.homePreviewOnly();
+    if((has('defaultSort')||has('defaultSortDirection'))&&!new URLSearchParams(location.search).has('sort')&&location.pathname==='/'){
+      preferencesState.settingsEffects.defaultSort();
+    }else if((has('homeShortsLimit')||has('batchSize'))&&isCatalogPath(location.pathname))loadCatalog();
+    if(has('followLayout')||has('followPageSize')||has('queueSort'))notifyShell();
+  },
   performerNameLanguage:()=>{
     setNameLanguage(preferencesState.appSettings.performerNameLanguage);
     loadingState.syncPageTitle(location.href);

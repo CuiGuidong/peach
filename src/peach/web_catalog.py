@@ -572,8 +572,10 @@ def _catalog_order(args):
     return order
 
 
-def q_items(contract: WebContract, args):
+def q_items(contract: WebContract, args, *, playback_queue=False):
     where, par = catalog_filter(contract, args)
+    if playback_queue:
+        where.append("a.medium='video' AND a.disposal IS NULL AND a.location<>'online'")
     if args.get('summary_only') == '1':
         count, size, works = _catalog_totals(contract, where, par, args)
         return {'total': count, 'bytes': size, 'work_total': works}

@@ -143,14 +143,6 @@
   outline: 2px solid var(--tungsten);
   outline-offset: 2px;
 }
-/* 图片视图的下排多出布局与「仅显示图片」几枚键，窄屏放不下时整排横滚，同遗留层 `.followcount`，
-   不把页面撑宽。 */
-.peach-react [data-follow-filter-glass] > [data-filter-row="bottom"] {
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scrollbar-width: none;
-}
-.peach-react [data-follow-filter-glass] > [data-filter-row="bottom"]::-webkit-scrollbar { display: none; }
 /* 窄屏里横滚的是整排，排序键那格不再裁落影，左边那 2px 留边收掉，换一批键贴着读数排。 */
 @media (max-width: 760px) {
   .peach-react [data-follow-filter-glass] [data-entity-sorts] { padding-left: 0; }

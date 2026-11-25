@@ -874,6 +874,22 @@
     "faceModelsReady": "Face models are ready"
   },
   "api": {
+    "fileBrowser": {
+      "invalidRequest": "The file operation request is invalid.",
+      "invalidName": "Enter a valid file or folder name.",
+      "invalidTarget": "Choose a different destination within the same media directory.",
+      "configuredRoot": "This path overlaps a configured media directory. Open that directory directly or change the mount in Settings.",
+      "catalogConflict": "A catalog record already uses the destination path.",
+      "changed": "The file or catalog record changed. Refresh the directory and try again.",
+      "catalogRolledBack": "The catalog update failed. The file was moved back. {{error}}",
+      "rollbackFailed": "The catalog update and move back both failed. Check the source and destination paths. {{error}}",
+      "targetExists": "An item with the same name already exists at the destination.",
+      "sourceMissing": "The file or destination directory no longer exists. Refresh and try again.",
+      "unverified": "The storage result could not be verified. Refresh the directory to check what changed.",
+      "operationFailed": "The file operation failed. {{error}}",
+      "trashMissing": "This entry is missing from the file trash.",
+      "restoreInBrowser": "This file is in the file trash. Open it from Browse files to restore the item."
+    },
     "listening": {
       "outsideLan": "This address only accepts connections from the local network"
     },
@@ -888,6 +904,7 @@
     },
     "configuration": {
       "accessAlreadySet": "Access is already set up. Refresh the page.",
+      "invalidLibraryHealthSelection": "Invalid library issue selection. Refresh and try again.",
       "accessChanged": "Access settings have changed. Refresh, then save again.",
       "accessChangedRetry": "Access settings have changed. Refresh, then try again.",
       "accessSaving": "Access settings are being saved. Try again later.",
@@ -991,6 +1008,8 @@
       "navigationOrdersInvalid": "Navigation order needs known groups and order arrays.",
       "performerNameLanguageInvalid": "performerNameLanguage only accepts zh-CN, ja, en, ja-local or local-ja.",
       "sortControlsInvalid": "Sort options require valid groups, order arrays and hidden option arrays.",
+      "tableLayoutsInvalid": "Invalid table column layout settings.",
+      "browsePreferencesInvalid": "Invalid browsing or appearance preferences.",
       "profileMissing": "profile {{profile}} doesn't exist.",
       "searchHistoryLimitInvalid": "searchHistoryLimit only accepts integers from 0 to {{max}}.",
       "switchNotBoolean": "{{key}} only accepts true or false.",
@@ -1179,8 +1198,15 @@
       "javdbHttpStatus": "JavDB returned HTTP {{status}}.",
       "javdbSearchLogin": "JavDB returned its sign-in page, so this search can't run. Try again later.",
       "nameEmpty": "Actress name can't be empty.",
-      "cardRequired": "Select at least one performer card first.",
-      "cardsSpanPeople": "These cards belong to different people in the database: {{names}}"
+      "cardRequired": "Select at least one source page.",
+      "cardsSpanPeople": "These pages belong to different people in the database: {{names}}",
+      "dmmPagesNotLinked": "The selected DMM pages aren't linked to this performer. Search again and select the pages from the results.",
+      "dmmSearchFailed": "DMM search request failed ({{error}})",
+      "catalogDateInvalid": "Choose a valid release date",
+      "catalogFacetInvalid": "Choose a valid studio or tag",
+      "catalogUnavailable": "DMM catalog request failed ({{error}})",
+      "invalidActorId": "A selected JavDB page has an invalid ID.",
+      "pageLinkedElsewhere": "A selected page is already subscribed under another performer."
     },
     "catalog": {
       "invalidReleaseYear": "Release year must be a four-digit year or unknown.",
@@ -1213,6 +1239,7 @@
       "invalidReleaseMetadataAction": "action must be start or cancel."
     },
     "libraryShortcuts": {
+      "filterMissing": "This filter no longer exists. Choose another saved filter.",
       "invalidFilterHref": "The filter URL is too long or malformed.",
       "collectionFiltersOnly": "Only collection filters can be saved.",
       "unsupportedFilterCondition": "The filter contains an unsupported condition.",
@@ -1773,6 +1800,7 @@
       "cookieTooLarge": "Cookie text is larger than 256 KiB",
       "noValidCookie": "No unexpired cookies for this source were found",
       "redirectNotHttps": "Fetch redirects must use HTTPS",
+      "redirectOutsideSource": "The source request redirected to another site",
       "tooManyRedirects": "Too many fetch redirects",
       "accountSuspended": "{{label}} temporarily suspended the account for browsing too fast. It resumes {{time}}; the account is blocked, not the exit, so Peach pauses requests to it until then",
       "geoRestricted": "{{label}} isn't available in the region of your current exit. In your proxy, route it through an exit in a region it accepts; requests to it are paused for {{minutes}} minutes",
@@ -1808,6 +1836,9 @@
       "invalidRotation": "Invalid rotation",
       "invalidRate": "Invalid playback speed",
       "invalidCaptionStyle": "Invalid subtitle appearance",
+      "invalidPosition": "Invalid playback position",
+      "invalidOffsets": "Invalid subtitle timing offsets.",
+      "invalidQuality": "Invalid playback quality.",
       "invalidSelection": "Invalid subtitle selection",
       "invalidVideoKey": "Invalid video ID",
       "invalidTrack": "Invalid subtitle track",
@@ -2990,6 +3021,7 @@
       "unreadable": "Can't read the task recovery record. Start the task again."
     },
     "nasDirectories": {
+      "invalidOrder": "The directory sort, search, or page size is invalid.",
       "invalidPurpose": "Choose a media directory or a data directory.",
       "invalidOffset": "The directory page position is invalid. Read the directory again.",
       "outsideRoots": "Only mounted media directories can be browsed. Type a newly mounted path into the media directory field.",
@@ -4337,10 +4369,35 @@
         "externalSource": "external source"
       }
     },
+    "javdbBrowserLogin": {
+      "waiting": "Sign in to JavDB in the browser window. Your session will be saved automatically.",
+      "done": "Connected to JavDB and saved the sign-in session.",
+      "cancelled": "JavDB sign-in was canceled.",
+      "windowClosed": "The JavDB sign-in window was closed.",
+      "timeout": "JavDB sign-in did not finish within {{minutes}} minutes. Open a new sign-in window.",
+      "failed": "Could not save the JavDB sign-in session. Reconnect or import the cookie manually.",
+      "browserMissing": "No supported local browser was found. Import the JavDB cookie manually.",
+      "proxyWithCredentials": "The browser cannot use a source proxy that requires authentication. Check the connection settings or import the JavDB cookie manually."
+    },
+    "sourceBrowserLogin": {
+      "waiting": "Sign in in the browser window. The session is saved once confirmed.",
+      "done": "Connected and saved the sign-in session.",
+      "cancelled": "Sign-in was canceled.",
+      "windowClosed": "The sign-in window was closed.",
+      "timeout": "The session could not be confirmed within {{minutes}} minutes. Open a new sign-in window.",
+      "failed": "Could not save the sign-in session. Reconnect or configure credentials manually.",
+      "browserMissing": "No supported local browser was found. Configure credentials manually.",
+      "proxyWithCredentials": "The browser cannot use a proxy that requires authentication. Check the connection settings or configure credentials manually."
+    },
     "sourceChecks": {
+      "sampleMatched": "Sample {{code}} was retrieved and matched.",
+      "sampleMissing": "Sample {{code}} was not found. Check whether lookup is available for this source.",
+      "sampleIncomplete": "The identity or title of sample {{code}} could not be verified.",
       "mobileBroadbandHint": "On China Mobile broadband, direct connections to DMM image hosts are often dropped after the handshake; set the DMM / FANZA connection to the Peach proxy.",
       "target": {
         "page": "Source page",
+        "lookup": "Work lookup sample",
+        "session": "Sign-in session",
         "cdn": "Image CDN"
       },
       "cooldown": "The source is cooling down. Try again later.",
@@ -4352,6 +4409,10 @@
       "rateLimited": "The source is rate limiting. Try again later.",
       "notFound": "The check address doesn't exist on the source. Check the site address.",
       "signIn": "The source requires sign-in or verification. Sign in on the official site, then try again.",
+      "sessionMissing": "Save a JavDB cookie first.",
+      "sessionRejected": "JavDB requires you to sign in again. Sign in on JavDB and update the saved cookie.",
+      "sessionVerified": "The JavDB sign-in session is valid.",
+      "sessionUnconfirmed": "Could not confirm the JavDB sign-in status. Check whether your profile opens on JavDB.",
       "reason": "{{reason}}.",
       "unavailable": "The source is unavailable right now. Try again later.",
       "needsCode": "Studio sites are picked by code. Enter a code from your collection to check the HD cover.",

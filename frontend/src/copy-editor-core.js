@@ -328,11 +328,17 @@
           box.value = ed.core;
           const style = getComputedStyle(node.parentElement);
           Object.assign(box.style, { position: 'fixed', boxSizing: 'border-box', font: style.font, letterSpacing: style.letterSpacing });
-          const host = node.parentElement.closest('dialog[open]') || document.body;
+          const host = node.parentElement.closest('dialog[open], [role="dialog"]') || document.body;
+          const layered = host.matches('[role="dialog"]:not(dialog)');
+          if (layered) {
+            box.popover = 'manual';
+            Object.assign(box.style, { inset: 'auto', margin: '0' });
+          }
           ed.placeholder = document.createElement('span'); ed.placeholder.dataset.copyEditor = '';
           ed.placeholder.style.visibility = 'hidden';
           node.replaceWith(ed.placeholder); ed.placeholder.append(node);
           host.append(box);
+          if (layered) box.showPopover();
         } else {
           box.dataset.copyInline = '';
           if (options.inlineClass) box.className = options.inlineClass;

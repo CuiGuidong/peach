@@ -201,6 +201,12 @@ def source_performer_refs(contract, connection, actors):
             continue
         ref['gender'] = gender
         actor_id = str(actor.get('id') or '')
+        dmm_id = str(actor.get('dmm_id') or '')
+        if re.fullmatch(r'[0-9]{1,10}', dmm_id):
+            from .feeds import dmm_actress_url
+            ref['source_url'] = dmm_actress_url(dmm_id)
+        elif re.fullmatch(r'[A-Za-z0-9]{1,16}', actor_id):
+            ref['source_url'] = 'https://javdb.com/actors/' + actor_id
         if re.fullmatch(r'[A-Za-z0-9]{1,64}', actor_id):
             ref['source_actor_id'] = actor_id
             ref['source_avatar'] = (bool(actor['has_avatar']) if 'has_avatar' in actor

@@ -898,6 +898,8 @@ def move(source, target, case_only=False, rename=True):
 #: `MountWorker` 能执行的操作：名字 → (模块, 函数)，在子进程里用到时才导入。
 #: 带 `progress` 参数的操作中途报进度，父进程据此重新计时。
 SERVED = {
+    'browse_directory': ('peach.nas_directories', 'browse_directory'),
+    'change_directory': ('peach.file_browser_io', 'change_directory'),
     'scan_directory': ('peach.media_io', '_scan_directory'),
     'stat': ('peach.media_io', 'stat_of'),
     'probe': ('peach.media_io', 'probe'),

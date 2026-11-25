@@ -66,6 +66,8 @@ export function JavSelectionProvider({ children, readOnly, receipt, dock = true 
     return next;
   });
   const selectRectangle = (keys: string[], add: boolean) => {
+    if (!mode && !keys.length) return;
+    if (!mode) setMode(true);
     const codes = new Set(keys);
     anchor.current = keys.at(-1) ?? null;
     setPicked(current => new Map([...(add ? current : []), ...page
@@ -92,7 +94,7 @@ export function JavSelectionProvider({ children, readOnly, receipt, dock = true 
   useEffect(() => {
     if (!mode) return;
     const keydown = (event: KeyboardEvent) => {
-      if ((event.target as HTMLElement).closest('input,textarea,[contenteditable]:not([contenteditable="false"]),dialog,[role="dialog"]')) return;
+      if ((event.target as HTMLElement).closest('input:not([type="checkbox"],[type="radio"]),textarea,[contenteditable]:not([contenteditable="false"]),dialog,[role="dialog"]')) return;
       if (event.key === 'Escape') { event.preventDefault(); close() }
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
         event.preventDefault();

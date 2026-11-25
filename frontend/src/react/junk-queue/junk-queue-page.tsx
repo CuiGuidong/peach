@@ -59,7 +59,7 @@ export function JunkQueuePage(props: JunkQueueProps) {
     if (waiting) row.setAttribute('aria-busy', 'true');
     else row.removeAttribute('aria-busy');
   }, [props.countRow, waiting]);
-  /* 判过一批之后各类的计数变了，弹的是变了的那几枚，没动的原地不动（遗留层 `popBadges`）。 */
+  /* 判过一批之后，变化的分类计数淡入。 */
   useLayoutEffect(() => {
     if (host && query.data) popBadges(host, 'junk');
   }, [host, query.data]);

@@ -84,7 +84,7 @@ function TagPicker({ tags, candidates, label, onAdd, adding, scope, onOpen, load
     const [button, menu] = [plus.current, picker.current];
     if (!button || !menu) return undefined;
     if ('showPopover' in menu) menu.setAttribute('popover', 'manual');
-    const control = wireAnchoredMenu(button.parentElement!, button, menu);
+    const control = wireAnchoredMenu(button.parentElement!, button, menu, { fitVisualViewport: true });
     floating.current = control;
     const opened = () => {
       const current = latest.current;

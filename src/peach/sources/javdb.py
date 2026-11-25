@@ -8,7 +8,7 @@
 MGS 的 5/23、标题带 MGS 附注、演员里有男优，各字段按 Peach 的来源策略结算。
 有隐藏 `origin-title` 时用作原标题，`current-title` 单独保存为显示标题；两者不互相改写。
 
-一部分页面要登录才给，回的是登入页而不是 401/403（`peach.javdb.LOGIN`），搜索页与详情页都要认。
+搜索页与详情页共用 `peach.javdb.login_page` 识别整页登录面板。
 
 刮削先走 `JavDBPublicSource` 的匿名接口（ADR-0144）：不带 Cookie，不占 javdb.com
 的出口配额，字段投影成与详情页同形的记录。接口冷却或未取得时退回详情页（ADR-0160）；详情页解析也供视频预览。
@@ -24,7 +24,7 @@ import urllib.parse
 from bs4 import BeautifulSoup
 
 from ..catalog_rules import same_release_code
-from ..javdb import LOGIN, clean
+from ..javdb import clean, login_page
 from ..javdb_genres import page_genres
 from ..javdb_identity import RULE, fanza_regular_id
 from ..javdb_public import actor_gender, public_image_url, verified_fanza_regular
@@ -162,15 +162,15 @@ def page_movie(text: str, movie_id: str) -> dict:
 
 
 @contextlib.contextmanager
-def page_reader(secrets_root, *, seconds: float = 30.0):
-    """库外详情与磁链读 javdb.com 网页的入口：带用户在「来源和凭证」里贴的 Cookie，与资料处理和视频预览
-    共用 `SOURCE_LIMITER` 的主机间隔，撞登录页、验证页或封禁时按 `javdb` 这一站的来源冷却停下。"""
+def page_reader(secrets_root, *, seconds: float = 30.0, javdb_account_fallback: bool = False):
+    """库外详情与磁链共用 javdb.com 读取、主机间隔和来源冷却。"""
     from ..jav_cover_fetch import HostLimitedTransport
     from ..library_processing import SOURCE_LIMITER
     from ..scraping_access import SourceTransport
 
     transport = HostLimitedTransport(SourceTransport(secrets_root, max_requests=6, max_bytes=6 * 1024 * 1024,
-                                                     max_seconds=seconds), JAVDB.interval, limiter=SOURCE_LIMITER)
+                                                     max_seconds=seconds, javdb_account_fallback=javdb_account_fallback),
+                                     JAVDB.interval, limiter=SOURCE_LIMITER)
     session = Session(transport, deadline=time.monotonic() + seconds)
     source = JavDBSource(JAVDB)
     pages = {}
@@ -198,7 +198,7 @@ class JavDBSource(SiteSource):
         if urllib.parse.urlsplit(url).path == "/search":
             SEARCH_LIMITER.wait(url)
         page = session.get(url, config=self.config)
-        if LOGIN.search(page.text):
+        if login_page(page.text):
             raise SourceFailure(FailureReason.AUTH_REQUIRED, "errors.javdb.loginRequired")
         return page
 

@@ -50,22 +50,26 @@ class ParallelShardTests(unittest.TestCase):
         for _, plan, jobs in batches[1:-1]:
             self.assertEqual((len(plan), len(plan[0]), jobs), (1, 1, 1))
 
-    def test_failed_gate_stops_serial_and_parallel_behavior_tests(self):
-        names = [Path('test_frontend_preflight.py'), Path('test_web_e2e.py')]
+    def test_failed_gate_still_reports_frontend_failures_before_stopping_later_tests(self):
+        names = [Path('test_frontend_preflight.py'), Path('test_frontend_build.py'),
+                 Path('test_web_e2e.py'), Path('test_web_ui.py')]
+        expected = [['test_frontend_preflight.py'], ['test_frontend_build.py']]
         for jobs in (1, 4):
+            results = [(False, 2, []), (False, 3, [])]
             with self.subTest(jobs=jobs), mock.patch.object(runner, 'selected_files', return_value=names), \
-                    mock.patch.object(runner, 'run_shards', return_value=(False, 2, [])) as execute, \
-                    mock.patch.object(runner, 'run_serial_suite', return_value=(False, 2, [])) as serial, \
-                    mock.patch.object(runner, 'save_file_seconds'), mock.patch.object(runner.test_history, 'append'), \
+                    mock.patch.object(runner, 'run_shards', side_effect=results) as execute, \
+                    mock.patch.object(runner, 'run_serial_suite', side_effect=results) as serial, \
+                    mock.patch.object(runner, 'save_file_seconds'), \
+                    mock.patch.object(runner.test_history, 'append') as history, \
                     redirect_stdout(io.StringIO()):
-                self.assertEqual(runner.run_local_suite(('web',), jobs), (False, 2, []))
+                self.assertEqual(runner.run_local_suite(('web',), jobs), (False, 5, []))
+            self.assertEqual(history.call_args.kwargs['files'], ['test_frontend_build', 'test_frontend_preflight'])
             if jobs == 1:
-                serial.assert_called_once()
-                self.assertEqual(serial.call_args.args[1], {Path('test_frontend_preflight.py')})
+                self.assertEqual([call.args[1] for call in serial.call_args_list],
+                                 [{Path(file) for file in stage} for stage in expected])
                 execute.assert_not_called()
             else:
-                execute.assert_called_once()
-                self.assertEqual(execute.call_args.kwargs['plan'], [['test_frontend_preflight.py']])
+                self.assertEqual([call.kwargs['plan'][0] for call in execute.call_args_list], expected)
 
     def test_phase_timings_include_failed_work(self):
         timings = {}

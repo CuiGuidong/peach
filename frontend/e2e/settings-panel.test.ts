@@ -311,10 +311,20 @@ describe('设置面板', () => {
       const initial = await keys();
       assert.deepEqual(initial, ORDER, '面板里的顺序不是数据库那一份');
       const from = (await rows.nth(1).boundingBox())!, to = (await rows.nth(3).boundingBox())!;
-      await page.mouse.move(from.x + 30, from.y + from.height / 2);
-      await page.mouse.down();
-      await page.mouse.move(from.x + 34, from.y + from.height / 2 + 6, { steps: 4 });
-      await page.mouse.move(to.x + 40, to.y + to.height * 0.75, { steps: 8 });
+      const drag = async () => {
+        await page.mouse.move(from.x + 30, from.y + from.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(from.x + 34, from.y + from.height / 2 + 6, { steps: 4 });
+        await page.mouse.move(to.x + 40, to.y + to.height * 0.75, { steps: 8 });
+      };
+      await drag();
+      await page.keyboard.press('Escape');
+      await page.mouse.up();
+      await settle(page);
+      assert.equal(await list.isVisible(), true);
+      assert.deepEqual(await keys(), initial);
+      assert.equal(server.posts.some(post => post.path === '/api/settings' && 'sidebarOrder' in post.body), false);
+      await drag();
       assert.equal(await rows.nth(1).getAttribute('data-dragging'), '', '拖动中的那一行没有标出来');
       await page.mouse.up();
       const moved = [initial[0], initial[2], initial[3], initial[1], ...initial.slice(4)];

@@ -168,7 +168,7 @@ it.each([
   ['仅发现新增文件', '发现新增文件', '尚未登记的新增文件', {stage:'scan',incremental:true}, {stage:'scan',incremental:'1'}],
   ['补全待处理影片', '补全待处理影片', '已登记的待补全影片', {stage:'collect',scope:'new'}, {stage:'collect',scope:'new'}],
   ['同步所有媒体库', '同步所有媒体库', '全部文件与影片', {}, {stage:'all'}],
-  ['仅扫描文件', '扫描全部文件', '全部文件与影片', {stage:'scan'}, {stage:'scan'}],
+  ['扫描全部文件', '扫描全部文件', '全部文件与影片', {stage:'scan'}, {stage:'scan'}],
   ['补全资料与预览', '补全已入库影片', '全部文件与影片', {stage:'collect'}, {stage:'collect'}],
   ['仅补全影片资料', '仅补全影片资料', '全部文件与影片', {stage:'metadata'}, {stage:'metadata'}],
   ['仅补全预览图', '仅补全预览图', '已入库的视频（跳过流量保护目录）', {stage:'previews'}, {stage:'previews'}],
@@ -242,10 +242,10 @@ it('扫描与补全方式共用一颗主键加一个下拉，各自交自己的�
 
   await startFrom(buttonNamed('同步新增文件', host));
   await click(host.querySelector('[data-split-button] [aria-haspopup="dialog"]'));
-  expect(document.querySelector('[role="group"][aria-label="全库维护"]')).not.toBeNull();
+  expect(document.querySelector('[role="group"][aria-label="媒体库维护"]')).not.toBeNull();
   await startFrom(menuItem('同步所有媒体库'));
   await click(host.querySelector('[data-split-button] [aria-haspopup="dialog"]'));
-  await startFrom(menuItem('仅扫描文件'));
+  await startFrom(menuItem('扫描全部文件'));
   await click(host.querySelector('[data-split-button] [aria-haspopup="dialog"]'));
   await startFrom(menuItem('补全资料与预览'));
   await click(host.querySelector('[data-split-button] [aria-haspopup="dialog"]'));
@@ -702,9 +702,9 @@ it('处理较慢时各任务面显示等待进展，不沿用旧估时', async (
 });
 
 it('扫描总量未知时显示已发现文件数，已知阶段显示完成数', () => {
-  expect(processingLine({ status: 'running', stage: '扫描文件', stage_code: 'library.scanFiles', scanned: 12345 }))
+  expect(processingLine({ status: 'running', stage: '扫描文件', stage_code: 'library.scanFiles', scanned: 12345 }).label)
     .toBe('扫描文件 · 已发现 12,345 个文件');
-  expect(processingLine({ status: 'paused', checked: 38, total: 100 })).toBe('已暂停 · 38 / 100 项');
+  expect(processingLine({ status: 'paused', checked: 38, total: 100 }).label).toBe('已暂停 · 38 / 100 项');
 });
 
 it('启动失败时提示弹窗保留模式选择和重试入口', async () => {

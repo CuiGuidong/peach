@@ -389,7 +389,8 @@ it('快进扫过和正常看完是两回事，一行里分得出来', async () =
 });
 
 it('空馆藏提供添加媒体入口，链到媒体库设置', async () => {
-  const { host } = await open(payload({ by_loc: [], by_library: [] }));
+  const { host } = await open(payload({ by_loc: [], by_library: [], top_tags: [], recent: [], tag_source: [] }));
+  expect(host.querySelectorAll('[data-empty-state]')).toHaveLength(1);
   expect(host.querySelector('h3')?.textContent).toBe('还没有视频');
   expect(radialCharts(host)).toEqual([]);
   expect(host.querySelector('[role=tabpanel] section[aria-label]')).toBeNull();

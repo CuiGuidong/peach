@@ -7,6 +7,7 @@ import { duplicatesSkeleton, qualityGoalsSkeleton, repairCenterSkeleton, statsSk
 import { CONFIGURATION_SECTIONS, isSettingsSectionPath } from './history/settings-route';
 import { FOLLOW_MANAGE_NAV as FOLLOW_TABS } from './react/follow-manage/manage-route';
 import { t } from './i18n';
+import { orderTableColumns, tableLayoutSnapshot } from './table-column-order';
 
 /** 等待态复用页面容器，只有异步内容使用占位。 */
 const line = (width = '60%') => `<span class="skeleton" style="width:${width}"></span>`;
@@ -54,17 +55,26 @@ const followPageSize = (): number => {
 };
 /* 表格的列、列名与排序指示照 React 那张 Board UI `Table`：选择列由勾选框提供名称，
    当前排序落在哪一列，那一列的指示就朝哪头。 */
-const TABLE_COLUMNS = [['select', ''], ['author', t('shell:shared.creators')], ['source', t('shell:followTable.source')], ['provider', t('shell:followTable.site')], ['status', t('shell:followTable.status')], ['checked', t('shell:followTable.lastChecked')], ['actions', t('follow:shared.actions')]] as const;
+const TABLE_COLUMNS = ([['select', ''], ['author', t('shell:shared.creators')], ['source', t('shell:followTable.source')], ['provider', t('shell:followTable.site')], ['status', t('shell:followTable.status')], ['checked', t('shell:followTable.lastChecked')], ['actions', t('follow:shared.actions')]] as const)
+  .map(([id, name]) => ({ id, name }));
 const COLUMN_OF: Partial<Record<SortKey, string>> = { name: 'author', source: 'source', provider: 'provider', status: 'status', checked: 'checked' };
 export const SORT_MARK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12.7071 15.2929C12.3166 15.6834 11.6834 15.6834 11.2929 15.2929L7.70711 11.7071C7.07714 11.0771 7.52331 10 8.41421 10H15.5858C16.4767 10 16.9229 11.0771 16.2929 11.7071L12.7071 15.2929Z" fill="currentColor"/></svg>';
 const followTable = (rows: number, { sort, dir }: { sort: SortKey; dir: SortDir }) => {
-  const head = TABLE_COLUMNS.map(([id, name]) => {
+  const { order, visibility = {} } = tableLayoutSnapshot('follow-sources');
+  const columns = orderTableColumns(TABLE_COLUMNS, order)
+    .filter(({ id }) => id === 'select' || id === 'source' || visibility[id] !== false);
+  const head = columns.map(({ id, name }) => {
     if (!name) return '<th></th>';
     if (id === 'actions') return `<th>${name}</th>`;
     const direction = COLUMN_OF[sort] === id ? ` data-direction="${dir === 'asc' ? 'ascending' : 'descending'}"` : '';
     return `<th><span class="flex items-center gap-0.5">${name}<span data-sort-indicator${direction}>${SORT_MARK}</span></span></th>`;
   }).join('');
-  const row = `<tr>${[followCheck(), `<span class="flex min-w-0 items-center gap-2">${block(32, 32, true)}${text('5em')}</span>`, text('10em'), `<span class="flex items-center gap-1.5">${block(14, 14)}${text('4em')}</span>`, block(48, 24), text('113px'), followRowActions()].map(cell => `<td>${cell}</td>`).join('')}</tr>`;
+  const cells = {
+    select: followCheck(), author: `<span class="flex min-w-0 items-center gap-2">${block(32, 32, true)}${text('5em')}</span>`,
+    source: text('10em'), provider: `<span class="flex items-center gap-1.5">${block(14, 14)}${text('4em')}</span>`,
+    status: block(48, 24), checked: text('113px'), actions: followRowActions(),
+  };
+  const row = `<tr>${columns.map(({ id }) => `<td>${cells[id]}</td>`).join('')}</tr>`;
   return `<div data-board-data-table data-follow-table class="follow-skeleton-table"><div class="w-full overflow-x-auto"><table class="bui-table bui-table-sm"><thead><tr>${head}</tr></thead><tbody>${repeat(row, rows)}</tbody></table></div></div>`;
 };
 /** 分页行：条数与页码要等数据，每页几条是这台浏览器的偏好，照最终的字样写出来。 */

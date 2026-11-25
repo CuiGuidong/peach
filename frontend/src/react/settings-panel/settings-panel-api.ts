@@ -16,6 +16,7 @@ import type { SyncedSettings } from './settings-data';
 /** 面板读写的那几项；对象本身还有别的字段，面板不碰。 */
 export interface PanelSettings {
   theme: string;
+  localAppearance: boolean;
   uiSounds: boolean;
   homeGlow: HomeGlow;
   /** 预设格选一档时连强调色一起换（`@peach/appearance` 的 `chooseGlowPreset`）。 */

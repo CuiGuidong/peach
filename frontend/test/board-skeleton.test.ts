@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { boardPageSkeleton, detailSkeletonBody } from '../src/board-skeleton';
 import { wireBoardSegments } from '../src/board-controls';
+import { catalogView, setCatalogView } from '../src/react/catalog-grid/catalog-view';
 
 vi.mock('@peach/legacy/core', async importOriginal => ({
   ...await importOriginal<object>(),
@@ -29,10 +30,11 @@ describe('Board 页面骨架', () => {
   it('JAV 新作分区在列表模式下画新作自己的表格骨架，下排有卡片／列表开关、没有文件夹开关', () => {
     const before = location.pathname + location.search;
     history.replaceState(null, '', '/jav?tab=releases');
-    localStorage.setItem('peach.catalog-view.v1', 'list');
+    const view = catalogView();
+    setCatalogView('list');
     const root = document.createElement('div');
     root.innerHTML = boardPageSkeleton('/jav');
-    localStorage.removeItem('peach.catalog-view.v1');
+    setCatalogView(view);
     history.replaceState(null, '', before);
     expect([...root.querySelectorAll('[data-catalog-table] th')].map(node => node.textContent).filter(Boolean))
       .toEqual(['作品', '艺人', '厂牌', '标签', '发行时间', '时长', '来源评分', '操作']);

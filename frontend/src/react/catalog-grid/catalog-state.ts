@@ -15,7 +15,7 @@ export interface CatalogAddress { pathname: string; search: string }
 
 /** 目录请求的完整口径；随机种子留在内存，地址只表达可分享的筛选。 */
 export interface CatalogState extends CatalogFilters {
-  loc: string; creator: string; studio: string; owner: string;
+  loc: string; creator: string; performer: string; studio: string; owner: string;
   tag: string; tag_match: string; len: string; dur_min: string; dur_max: string;
   orient: string; region: string; state: string; sort: string; dir: string;
   seed: string; q: string; jav: string; thumb: string;
@@ -23,7 +23,7 @@ export interface CatalogState extends CatalogFilters {
 }
 
 const HOME_QUERY_KEYS = [
-  'loc', 'creator', 'studio', 'owner', 'tag', 'tag_match', 'len', 'dur_min', 'dur_max',
+  'loc', 'creator', 'performer', 'studio', 'owner', 'tag', 'tag_match', 'len', 'dur_min', 'dur_max',
   'orient', 'region', 'year', 'sort', 'dir', 'q', 'jav',
   'browse', 'folder', 'folder_recursive',
 ] as const;
@@ -44,7 +44,7 @@ export function initialCatalogFilters(address: CatalogAddress, preferences: Cata
   const catalog = isCatalogPath(pathname) || pathname === '/trash';
   const read = (key: string) => catalog ? params.get(key) : null;
   return {
-    loc: params.get('loc') ?? 'local,115', creator: read('creator') || '', studio: read('studio') || '',
+    loc: params.get('loc') ?? 'local,115', creator: read('creator') || '', performer: read('performer') || '', studio: read('studio') || '',
     owner: read('owner') === 'none' ? 'none' : '', tag: cleanTagFilter(read('tag')),
     tag_match: read('tag_match') === 'any' ? 'any' : 'all', len: lengthParam(read('len')),
     dur_min: read('dur_min') || '', dur_max: read('dur_max') || '', orient: orientParam(read('orient')),
@@ -83,7 +83,7 @@ export function homePath(filters: Readonly<CatalogFilters>): string {
 export function resetCatalogFilters(previous: Readonly<CatalogFilters>, preferences: CatalogPreferences,
   seed: () => string): CatalogState {
   return {
-    loc: previous.loc ?? '', creator: '', studio: '', owner: '', tag: '', tag_match: 'all',
+    loc: previous.loc ?? '', creator: '', performer: '', studio: '', owner: '', tag: '', tag_match: 'all',
     len: '', dur_min: '', dur_max: '', orient: '', region: '', year: '', state: '',
     sort: preferences.defaultSort,
     dir: preferredDirection(preferences.defaultSort, preferences.defaultSort, preferences.defaultSortDirection),

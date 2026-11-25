@@ -843,7 +843,7 @@ def environment_preflight(scopes: tuple[str, ...], timings: Path | None = None,
 
 
 #: 分片之前单独先跑的秒级检查（合计约 1 分钟）：仓库策略、ADR 编号、复杂度与依赖清单。
-#: 这几类问题以前要等 20 分钟的全量才报出来；有一项不过就不再起其余分片。
+#: 先收齐这组检查与所选的前端构建和单测，再据快速门槛结果决定是否启动其余分片。
 GATE_TESTS = frozenset({
     "test_script_policy", "test_subprocess_encoding", "test_copy_final_state", "test_context_budget",
     "test_source_assertion_ratchet", "test_complexity_ratchet", "test_python_lint",
@@ -949,7 +949,12 @@ def run_local_suite(scopes: tuple[str, ...], jobs: int, label: str | None = None
         measured: dict[str, float] = {}
         rows: list[dict] = []
         passed, count, timings = True, 0, []
+        gate_failed = False
+        attempted: list[str] = []
         for stage, plan, concurrency in local_batches([path.name for path in chosen], jobs):
+            if gate_failed and stage != 'test_frontend_build':
+                break
+            attempted.extend(name.removesuffix(".py") for group in plan for name in group)
             print(t("test_runner.stageStart", stage=phase_label(stage), shards=len(plan),
                     processes=min(concurrency, len(plan))), flush=True)
             with test_run_progress.phase(progress.phases if progress is not None else {}, stage):
@@ -960,18 +965,16 @@ def run_local_suite(scopes: tuple[str, ...], jobs: int, label: str | None = None
                     ok, more, slow = run_shards(scopes, jobs=concurrency, shard_count=len(plan), measured=measured,
                                                 plan=plan, outcomes=rows, **progress_args)
             passed, count, timings = passed and ok, count + more, [*timings, *slow]
-            if not ok and stage == '快速门槛':
-                print(t("test_runner.gatesFailed"), flush=True)
-                save_file_seconds(measured)
-                test_history.append(ROOT, scope=label or " ".join(scopes), rows=rows,
-                                    files=[name.removesuffix(".py") for name in plan[0]])
-                return False, count, timings
+            if stage == '快速门槛':
+                gate_failed = not ok
             if progress is not None:
                 progress_args['resume_plan'] = progress.child_plan(scopes)
+        if gate_failed:
+            print(t("test_runner.gatesFailed"), flush=True)
         save_file_seconds(measured)
         test_history.append(ROOT, scope=label or " ".join(scopes), rows=rows,
-                            files=[path.stem for path in sorted(chosen)])
-        if not passed and rows:
+                            files=sorted(attempted))
+        if not gate_failed and not passed and rows:
             passed = rerun_failures(rows)
         return passed, count, timings
     return run_serial_suite(scopes, chosen, original, progress, label)

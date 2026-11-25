@@ -10,8 +10,8 @@ const itemKey = (item: HTMLElement) => item.dataset.rectangleKey ?? item.dataset
 const editable = 'input,select,textarea,[contenteditable]:not([contenteditable="false"]),[data-work-context-menu],.react-aria-ColumnResizer';
 
 export function useRectangleSelection(commit: RectangleCommit | undefined, {
-  items = '[data-rectangle-key]', start = items, selecting = false,
-}: { items?: string; start?: string; selecting?: boolean } = {}) {
+  items = '[data-rectangle-key]', start = items, selecting = false, onEnter = enterSelection, table = false,
+}: { items?: string; start?: string; selecting?: boolean; onEnter?(): void; table?: boolean } = {}) {
   const drag = useRef<{ pointer: number; x: number; y: number;
     add: boolean;
     panOrigin?: readonly [number, number];
@@ -68,11 +68,11 @@ export function useRectangleSelection(commit: RectangleCommit | undefined, {
       if (!key || item.closest('[inert]') || (!clickedBlank(event, item) && !target.closest('[data-rectangle-trigger]'))) return;
       event.preventDefault();
       event.stopPropagation();
-      enterSelection();
+      onEnter();
       commit([key], true);
     },
     onPointerDown(event: PointerEvent<HTMLElement>) {
-      if (!enabled || event.pointerType !== 'mouse' || event.button !== 0) return;
+      if (!enabled || event.pointerType !== 'mouse' || event.button !== 0 || (table && event.altKey)) return;
       const add = hasSelectionModifier(event);
       if (!add && (event.ctrlKey || event.metaKey || event.altKey)) return;
       const host = event.currentTarget, target = event.target;
@@ -98,7 +98,8 @@ export function useRectangleSelection(commit: RectangleCommit | undefined, {
         } else if (Math.hypot(width, height) < 5) return;
         active.phase = 'dragging';
         event.currentTarget.setPointerCapture(event.pointerId);
-        if (!selecting) enterSelection();
+        if (table) getSelection()?.removeAllRanges();
+        if (!selecting) onEnter();
         const rectangle = document.createElement('div');
         rectangle.dataset.cardSelectionRectangle = '';
         rectangle.setAttribute('aria-hidden', 'true');

@@ -150,17 +150,19 @@ function FileRow({ file, reference, openItem, selected, onSelect, onTrash, busy 
           data-drop="self" data-fallbacks={file.has_cover ? thumbnail : undefined}
           className="absolute inset-0 size-full object-contain" />
       </button>
-      <span className="flex min-w-0 items-center gap-2 max-duplicate-narrow:col-start-2 max-duplicate-narrow:-col-end-1">
+      <span className="flex min-w-0 items-start gap-2 max-duplicate-narrow:col-start-2 max-duplicate-narrow:-col-end-1">
         {onSelect ? <Checkbox slot={null} aria-label={t('cleanup:duplicates.selectFile', { name: file.name })}
           isSelected={selected} onChange={onSelect} /> : null}
-        <FilenameComparison value={file.name} reference={reference?.name} onOpen={open} />
-        {file.is_largest || file.is_longest || file.is_new
-          ? <span className="flex flex-none gap-1">
-              {file.is_new ? <i className={`${MARK} not-italic bg-background-primary-hover text-text-primary`}>{t('cleanup:duplicates.newCopy')}</i> : null}
-              {file.is_largest ? <i className={`${MARK} not-italic bg-background-primary-hover text-text-secondary`}>{t('cleanup:duplicates.largest')}</i> : null}
-              {file.is_longest ? <i className={`${MARK} not-italic bg-(--keep)/22 text-(--keep)`}>{t('cleanup:duplicates.longest')}</i> : null}
-            </span>
-          : null}
+        <span className="flex min-w-0 flex-1 flex-wrap items-start gap-x-2 gap-y-1">
+          <FilenameComparison value={file.name} reference={reference?.name} onOpen={open} />
+          {file.is_largest || file.is_longest || file.is_new
+            ? <span className="flex max-w-full flex-wrap gap-1">
+                {file.is_new ? <i className={`${MARK} not-italic bg-background-primary-hover text-text-primary`}>{t('cleanup:duplicates.newCopy')}</i> : null}
+                {file.is_largest ? <i className={`${MARK} not-italic bg-background-primary-hover text-text-secondary`}>{t('cleanup:duplicates.largest')}</i> : null}
+                {file.is_longest ? <i className={`${MARK} not-italic bg-(--keep)/22 text-(--keep)`}>{t('cleanup:duplicates.longest')}</i> : null}
+              </span>
+            : null}
+        </span>
       </span>
       <span className={`${MONO} flex min-w-0 items-center gap-1.5`}>
         <SourceMark mark={MEDIA_SOURCE_ICONS[file.location] || 'database'} />
@@ -327,7 +329,8 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
       {/* 首页那副两排玻璃浮层：上排批量动作与换视图，下排读数加「全选本页」。 */}
       <FilterGlassRows label={keptView ? t('cleanup:duplicates.keptLabel') : t('cleanup:duplicates.bulkKeep')}
         topLabel={keptView ? t('cleanup:duplicates.keptLabel') : t('cleanup:duplicates.bulkKeep')}
-        attrs={{ 'data-catalog-frame': '', 'data-filter-frame': '', 'data-duplicates-frame': '' }} bottomClassName="min-h-12"
+        attrs={{ 'data-catalog-frame': '', 'data-filter-frame': '', 'data-duplicates-frame': '' }}
+        bottomClassName="min-h-12"
         top={keptView
           ? <>
               {groups.length
