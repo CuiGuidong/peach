@@ -1881,6 +1881,8 @@
     "branchChangedVerification": "The worker branch changed during the verification check; try again",
     "worktreeMustBeClean": "The worktree under verification must be clean",
     "targetAdvanced": "The target branch has moved on; rebase in the worktree, then verify with auto",
+    "behindTarget": "{{count}} commits behind {{branch}}; integrate rebases, reverifies and pushes once it holds the lock, so there is no need to rebase and verify again yourself",
+    "pullRequestTestFailed": "This commit's Test run on the pull request failed: {{url}}; fix it first, or rerun only the failed jobs if it was flaky",
     "worktreeChangedMetadata": "The worktree changed during the metadata check; try again",
     "ciProofInvalid": "CI test proof missing or invalid: {{error}}",
     "noTestRecord": "No valid test record; run auto through the unified test entry, or pass a successful Test run with ready --ci-run",

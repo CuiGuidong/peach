@@ -98,6 +98,12 @@ class _WorktreeCase(unittest.TestCase):
         self.verification = mock.patch.object(agent_worktree, "require_verified")
         self.verification.start()
         self.addCleanup(self.verification.stop)
+        # 两处向 GitHub 取数的核对各有专门用例；其余用例不联网。
+        self.failed_test = mock.patch.object(agent_worktree, "require_test_not_failed")
+        self.published = mock.patch.object(agent_worktree, "_published_text", return_value="not_found")
+        for patcher in (self.failed_test, self.published):
+            patcher.start()
+            self.addCleanup(patcher.stop)
         if self.mock_pull_request:
             pull_request = mock.patch.object(agent_worktree, "require_pull_request", side_effect=
                 lambda worker, branch, target, head: {"url": "https://github.com/example/peach/pull/1",
@@ -503,6 +509,33 @@ class PullRequestIntegrationTests(_WorktreeCase):
         self.assertIn("isCrossRepository", query.call_args.args[0][-1])
         self.assertEqual((self.repo / "worker.txt").read_text(encoding="utf-8"), "worker\n")
 
+    def test_a_pull_request_head_whose_latest_test_run_failed_is_not_merged(self):
+        """PR 头上最近一次 Test 已失败时拒收；通过、仍在跑、被取消、没有运行或取不到时照常合入。"""
+        self.failed_test.stop()
+        self.addCleanup(self.failed_test.start)
+        from scripts import ci_test_evidence
+
+        def runs(*rows):
+            return {"workflow_runs": [
+                {"id": index, "created_at": f"2026-11-25T0{index}:00:00Z", "status": status,
+                 "conclusion": conclusion, "html_url": f"https://github.com/example/peach/actions/runs/{index}"}
+                for index, (status, conclusion) in enumerate(rows, 1)]}
+        with mock.patch.object(ci_test_evidence, "repository", return_value="example/peach"), \
+                mock.patch.object(ci_test_evidence, "api") as api:
+            api.return_value = runs(("completed", "success"), ("completed", "failure"))
+            with self.github():
+                self.assert_refused("runs/2")
+            self.assertIn(f"head_sha={self.head}", api.call_args.args[1])
+            for allowed in (runs(("completed", "failure"), ("completed", "success")),
+                            runs(("completed", "failure"), ("in_progress", None)),
+                            runs(("completed", "cancelled")), runs()):
+                api.return_value = allowed
+                agent_worktree.require_test_not_failed(self.worker, self.head)
+            api.side_effect = subprocess.CalledProcessError(1, ["gh"])
+            with self.github():
+                integrate(self.repo, self.branch)
+        self.assertEqual((self.repo / "worker.txt").read_text(encoding="utf-8"), "worker\n")
+
     def test_insider_terms_in_the_pr_body_are_refused_but_commit_messages_may_name_the_tooling(self):
         with mock.patch.object(check_public_text, "load_library", return_value=None):
             self.assertRaisesRegex(WorkspaceError, "内部用语.*合批", agent_worktree.require_public_text,
@@ -603,10 +636,48 @@ class PreflightTests(_WorktreeCase):
         with self.assertRaisesRegex(WorkspaceError, "dirty"):
             agent_worktree.preflight(worker)
         path.write_text("VALUE = 1\n", encoding="utf-8")
+        self.assertEqual(agent_worktree.preflight(worker)["behind"], 0)
+
+    def test_a_newer_target_is_reported_and_left_for_integration_to_rebase(self):
+        """落后目标分支不挡预检与 ready，回执写明落后几个提交；合入前的核验仍要求已纳入。"""
+        worker = self.worker()
         (self.repo / "tracked.txt").write_text("parallel\n", encoding="utf-8")
         commit(self.repo, "docs(tooling): 并行变更")
+        for report in (agent_worktree.preflight(worker), ready(worker)):
+            self.assertEqual((report["ok"], report["behind"]), (True, 1))
+            self.assertIn("integrate", report["note"])
+            self.assertEqual(report["files"], ["src/peach/module.py"])
+        self.assertTrue(agent_worktree.require_verified.call_args.kwargs["allow_behind"])
         with self.assertRaisesRegex(WorkspaceError, "已前进"):
-            agent_worktree.preflight(worker)
+            agent_worktree.require_metadata(worker, "master")
+        self.assertEqual(agent_worktree.require_metadata(worker, "master", allow_behind=True),
+                         _git(worker, "rev-parse", "HEAD").stdout.strip())
+
+    def test_ready_checks_the_published_pull_request_body_before_integration_does(self):
+        worker = self.worker()
+        self.published.stop()
+        body = "合批验证：两处反馈修复。"
+        answers = iter([subprocess.CompletedProcess(["gh"], 0, body, ""),
+                        subprocess.CompletedProcess(["gh"], 1, "", "no pull requests found for branch"),
+                        OSError("gh 不在 PATH")])
+        run = subprocess.run
+
+        def call(command, *args, **kwargs):
+            if command[0] != "gh":
+                return run(command, *args, **kwargs)
+            answer = next(answers)
+            if isinstance(answer, Exception):
+                raise answer
+            return answer
+        try:
+            with mock.patch.object(agent_worktree.subprocess, "run", side_effect=call), \
+                    mock.patch.object(check_public_text, "load_library", return_value=None):
+                with self.assertRaisesRegex(WorkspaceError, "内部用语"):
+                    ready(worker)
+                self.assertEqual(ready(worker)["pull_request"], "not_found")
+                self.assertEqual(ready(worker)["pull_request"], "unavailable")
+        finally:
+            self.published.start()
 
 
 class MasterCommitGuardTests(_WorktreeCase):

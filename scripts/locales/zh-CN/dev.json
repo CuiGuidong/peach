@@ -1881,6 +1881,8 @@
     "branchChangedVerification": "验证检查期间工作者分支改变，请重试",
     "worktreeMustBeClean": "验证工作树必须干净",
     "targetAdvanced": "目标分支已前进；请在工作树 rebase 后运行 auto 验证",
+    "behindTarget": "落后 {{branch}} {{count}} 个提交；integrate 取得锁后会 rebase、补验并推送，不必自己 rebase 后重验",
+    "pullRequestTestFailed": "这个提交在 PR 上的 Test 未通过：{{url}}；先修复，偶发失败只重跑失败作业",
     "worktreeChangedMetadata": "元数据检查期间工作树改变，请重试",
     "ciProofInvalid": "CI 测试证明未取得或无效：{{error}}",
     "noTestRecord": "缺少有效测试记录；请运行统一测试入口 auto，或 ready --ci-run 指定成功 Test",

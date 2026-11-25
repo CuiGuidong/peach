@@ -188,6 +188,7 @@ def _worker_delivery(repo: Path, target_branch: str) -> dict[str, object]:
         raise WorkspaceError("branch has no commits")
     worker_files = set(_lines(_git(repo, "diff", "--name-only", f"{base}..HEAD")))
     target_files = set(_lines(_git(repo, "diff", "--name-only", f"{base}..{target_branch}")))
+    behind = len(_lines(_git(repo, "rev-list", f"HEAD..{target_branch}")))
     return {
         "branch": branch,
         "base": base,
@@ -195,13 +196,17 @@ def _worker_delivery(repo: Path, target_branch: str) -> dict[str, object]:
         "commits": commits,
         "files": sorted(worker_files),
         "same_file_changes": sorted(worker_files & target_files),
+        # 落后目标分支不挡预检与 ready：`integrate` 取得锁后 rebase、补验并推送，
+        # 在锁外自己 rebase 再验证，常被后到先合的任务挤掉重来。
+        "behind": behind,
+        **({"note": t("agent_worktree.behindTarget", count=behind, branch=target_branch)} if behind else {}),
     }
 
 
 def preflight(repo: Path, target_branch: str = "master") -> dict[str, object]:
     """快速核对当前交付提交；不读取或签发测试证明，也不查询 PR。"""
     report = _worker_delivery(repo, target_branch)
-    if require_metadata(repo, target_branch) != report["head"]:
+    if require_metadata(repo, target_branch, allow_behind=True) != report["head"]:
         raise WorkspaceError(t("agent_worktree.branchChangedPreflight"))
     return {"ok": True, "action": "preflight", **report,
             "metadata": "passed", "tests": "not_checked", "pull_request": "not_checked"}
@@ -209,18 +214,21 @@ def preflight(repo: Path, target_branch: str = "master") -> dict[str, object]:
 
 def ready(repo: Path, target_branch: str = "master", *, ci_run: int | None = None) -> dict[str, object]:
     report = _worker_delivery(repo, target_branch)
-    proof = require_verified(repo, target_branch, set(report["files"]), ci_run=ci_run)
+    proof = require_verified(repo, target_branch, set(report["files"]), ci_run=ci_run, allow_behind=True)
     if _git(repo, "rev-parse", "HEAD").stdout.strip() != report["head"]:
         raise WorkspaceError(t("agent_worktree.branchChangedVerification"))
-    return {"ok": True, "action": "ready", **report, "verification": proof}
+    return {"ok": True, "action": "ready", **report, "verification": proof,
+            "pull_request": _published_text(repo, str(report["branch"]), str(report["base"]))}
 
 
-def require_metadata(worker: Path, target_branch: str) -> str:
-    """干净交付内容、目标祖先与提交声明的共用判据。"""
+def require_metadata(worker: Path, target_branch: str, *, allow_behind: bool = False) -> str:
+    """干净交付内容、目标祖先与提交声明的共用判据。合入前必须已纳入目标分支；
+    预检与 ready 允许落后，由 `integrate` 在锁内 rebase 并补验。"""
     head = _git(worker, "rev-parse", "HEAD").stdout.strip()
     if _git(worker, "status", "--porcelain").stdout.strip():
         raise WorkspaceError(t("agent_worktree.worktreeMustBeClean"))
-    if _git(worker, "merge-base", "--is-ancestor", target_branch, "HEAD", check=False).returncode:
+    if not allow_behind and _git(worker, "merge-base", "--is-ancestor", target_branch, "HEAD",
+                                 check=False).returncode:
         raise WorkspaceError(t("agent_worktree.targetAdvanced"))
     problems = (co_author.check(worker, target_branch)
                 + commit_subject.check(worker, target_branch))
@@ -233,16 +241,18 @@ def require_metadata(worker: Path, target_branch: str) -> str:
 
 
 def require_verified(worker: Path, target_branch: str, paths: Iterable[str], *,
-                     ci_run: int | None = None) -> dict:
-    head = require_metadata(worker, target_branch)
-    scopes, _ = test_runner.scopes_for_changes(paths, contents=test_runner.changed_contents(worker, target_branch, paths),
+                     ci_run: int | None = None, allow_behind: bool = False) -> dict:
+    head = require_metadata(worker, target_branch, allow_behind=allow_behind)
+    # 内容差异与协议改动都只算分支自己的那一段；已纳入目标分支时共同祖先就是目标分支。
+    base = _git(worker, "merge-base", target_branch, "HEAD").stdout.strip()
+    scopes, _ = test_runner.scopes_for_changes(paths, contents=test_runner.changed_contents(worker, base, paths),
                                               root=worker)
     from . import ci_test_evidence
     proof, ci_error = None, None
     try:
         run_id = ci_run if ci_run is not None else ci_test_evidence.remembered(worker)
         if run_id is not None:
-            proof = ci_test_evidence.verify(worker, run_id, scopes, target_branch)
+            proof = ci_test_evidence.verify(worker, run_id, scopes, base)
     except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError) as error:
         ci_error = error
     if proof is None and ci_run is None:
@@ -327,6 +337,51 @@ def require_public_text(repo: Path, texts: dict[str, str]) -> None:
         raise WorkspaceError(t("agent_worktree.prBodyInsiderTerms",
                                terms=t("common.clauseSeparator").join(insider),
                                hint=check_public_text.insider_hint()))
+
+
+def _commit_texts(repo: Path, base: str, head: str) -> dict[str, str]:
+    commits = _git(repo, "log", "--format=%h%x00%B%x1e", f"{base}..{head}").stdout
+    return {t("agent_worktree.commitLabel", sha=sha): message for sha, _, message in
+            (entry.strip().partition("\0") for entry in commits.split("\x1e") if entry.strip())}
+
+
+def _published_text(worker: Path, branch: str, base: str) -> str:
+    """`ready` 顺带核对已公开的文字：PR 开了就查正文，提交说明总是查。
+
+    `integrate` 用同一判据拦截；放到这里是为了在等合入之前就改掉，不必到最后一步才被拒。
+    PR 还没开或 GitHub 一时取不到时只查提交说明，返回值写明 PR 正文有没有查到。
+    """
+    texts = _commit_texts(worker, base, "HEAD")
+    state = "not_found"
+    try:
+        result = subprocess.run(["gh", "pr", "view", branch, "--json", "body", "--jq", ".body"], cwd=worker,
+                                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60)
+        if result.returncode == 0:
+            texts[t("agent_worktree.prBodyLabel")] = result.stdout
+            state = "checked"
+    except (OSError, subprocess.TimeoutExpired):
+        state = "unavailable"
+    require_public_text(worker, texts)
+    return state
+
+
+def require_test_not_failed(worker: Path, head: str) -> None:
+    """PR 头上最近一次 Test 已经失败时不合入。
+
+    本机记录只覆盖本机这一个平台；别的平台在 PR 上已经红了还合进去，主线跟着红，之后每个
+    PR 都连带失败。仍在运行、被取消或还没有运行的不拦：证明由本机记录或 `--ci-run` 给出，
+    这里只挡已经摆在眼前的失败。GitHub 取不到时同样不拦。偶发失败只重跑失败作业即可放行。
+    """
+    from . import ci_test_evidence
+    try:
+        repo = ci_test_evidence.repository(worker)
+        listing = ci_test_evidence.api(worker, f"repos/{repo}/actions/workflows/test.yml/runs"
+                                               f"?head_sha={head}&event=pull_request&per_page=20")
+        runs = sorted(listing["workflow_runs"], key=lambda run: (run["created_at"], run["id"]))
+    except (OSError, ValueError, KeyError, TypeError, subprocess.SubprocessError):
+        return
+    if runs and runs[-1].get("status") == "completed" and runs[-1].get("conclusion") == "failure":
+        raise WorkspaceError(t("agent_worktree.pullRequestTestFailed", url=runs[-1].get("html_url", "")))
 
 
 def merge_message(branch: str, pull_request: dict[str, object]) -> str:
@@ -470,10 +525,9 @@ def _integrate_locked(repo: Path, worker_branch: str,
     worker_head = _git(main, "rev-parse", worker_branch).stdout.strip()
     require_verified(workers[0], target_branch, worker_files)
     pull_request = require_pull_request(workers[0], worker_branch, target_branch, worker_head)
-    commits = _git(main, "log", "--format=%h%x00%B%x1e", f"{base}..{worker_head}").stdout
-    require_public_text(main, {t("agent_worktree.prBodyLabel"): str(pull_request.get("body") or ""), **{
-        t("agent_worktree.commitLabel", sha=sha): message for sha, _, message in
-        (entry.strip().partition("\0") for entry in commits.split("\x1e") if entry.strip())}})
+    require_public_text(main, {t("agent_worktree.prBodyLabel"): str(pull_request.get("body") or ""),
+                               **_commit_texts(main, base, worker_head)})
+    require_test_not_failed(workers[0], worker_head)
     if _git(main, "rev-parse", worker_branch).stdout.strip() != worker_head or \
             _git(workers[0], "rev-parse", "HEAD").stdout.strip() != worker_head:
         raise WorkspaceError(t("agent_worktree.branchChangedVerification"))
