@@ -366,7 +366,7 @@ it('活动任务按服务端给出的动作暂停、继续和取消，并重新�
   ]);
 });
 
-it('主任务和后继使用带准确名称、提示和编辑键的图标控制', async () => {
+it('主任务和后继的操作同时显示图标和可编辑的文字', async () => {
   const child = followup(1, { status: 'running', finished_at: null,
     control: { state: 'paused', actions: ['resume', 'cancel'] } });
   const { host } = await open(payload({ running: [run({ control: { state: 'running', actions: ['pause', 'cancel'] } }), child] }));
@@ -375,11 +375,10 @@ it('主任务和后继使用带准确名称、提示和编辑键的图标控制'
     for (const label of labels) {
       const button = controlButton(label, controls)!;
       expect(button).not.toBeNull();
-      expect(button.textContent).toBe('');
+      expect(button.textContent).toBe(label);
       expect(button.querySelector('svg')).not.toBeNull();
       expect(button.getAttribute('title')).toBe(label);
-      expect(button.getAttribute('data-tooltip-copy-key')).toMatch(/^tasks\.control\.action\./);
-      expect(button.hasAttribute('data-copy-key')).toBe(false);
+      expect(button.querySelector('[data-copy-key]')?.getAttribute('data-copy-key')).toMatch(/^tasks\.control\.action\./);
     }
   }
 });

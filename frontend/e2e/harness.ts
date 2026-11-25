@@ -12,6 +12,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { chromium, type Browser, type BrowserContext, type Locator, type Page } from 'playwright-core';
+import type { TableLayout, TableLayoutChange } from '../src/table-column-order.ts';
 
 export const CONFIGURATION_ROUTE = /\/api\/configuration(?:\?.*)?$/;
 
@@ -190,6 +191,35 @@ export function configurationBody(page: Page): Locator[] {
   ];
 }
 
+/** 同一个临时服务承载多个用例。浏览和表格偏好在当前上下文中跨刷新保留。 */
+async function isolateBrowseSettings(context: BrowserContext) {
+  const browse: Record<string, unknown> = {};
+  const tables: Record<string, TableLayout> = {};
+  await context.route(url => url.pathname === '/api/settings', async route => {
+    const request = route.request();
+    const { browsePreferences, tableLayouts, ...shared } = (request.postDataJSON() ?? {}) as {
+      browsePreferences?: Record<string, unknown> & { legacy?: Record<string, unknown> };
+      tableLayouts?: Record<string, TableLayoutChange>;
+    };
+    const isolated = browsePreferences !== undefined || tableLayouts !== undefined;
+    const response = isolated && !Object.keys(shared).length
+      ? await context.request.get(request.url())
+      : await route.fetch(isolated ? { postData: shared } : {});
+    if (!response.ok()) return route.fulfill({ response });
+    if (browsePreferences) {
+      const { legacy, ...patch } = browsePreferences;
+      Object.assign(browse, { ...legacy, ...browse, ...patch }, Object.fromEntries(
+        ['pageSizes', 'queueSort'].filter(key => key in patch || key in (legacy ?? {}))
+          .map(key => [key, { ...Object(legacy?.[key]), ...Object(browse[key]), ...Object(patch[key]) }]),
+      ));
+    }
+    for (const [table, { legacy, ...patch }] of Object.entries(tableLayouts ?? {})) {
+      tables[table] = { ...legacy, ...tables[table], ...patch };
+    }
+    return route.fulfill({ response, json: { ...await response.json(), browsePreferences: browse, tableLayouts: tables } });
+  });
+}
+
 export async function visit(browser: Browser, path: string, viewport: Viewport,
   prepare?: (page: Page) => Promise<void>): Promise<Visit> {
   const origin = requiredEnv('PEACH_E2E_ORIGIN');
@@ -225,6 +255,7 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   const close = () => context.close();
   // 只打开到 load：等哪块主体、何时 settle 由用例决定，见 `settle` 的说明。
   try {
+    await isolateBrowseSettings(context);
     await prepare?.(page);
     await page.goto(origin + path, { waitUntil: 'load' });
   } catch (error) {

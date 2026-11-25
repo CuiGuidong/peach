@@ -173,9 +173,13 @@ async function stub(page: Page, catalogIds: readonly number[] = CATALOG, playlis
     (route) => route.fulfill({ json: { subtitles: [] } }));
   await page.route((url) => ['/api/play', '/api/activity', '/api/stream-cancel'].includes(url.pathname),
     (route) => route.fulfill({ json: { ok: true } }));
-  // 设置读真服务，写就地接住：`settings` 里的本地值会被推上去，改掉并发文件读到的同一份设置。
-  await page.route((url) => url.pathname === '/api/settings',
-    (route) => route.request().method() === 'GET' ? route.fallback() : route.fulfill({ json: { ok: true } }));
+  // 详情夹具有独立的界面设置，浏览和表格偏好由上下文内的设置桩处理。
+  await page.route((url) => url.pathname === '/api/settings', (route) => {
+    const request = route.request();
+    const sent = request.postDataJSON();
+    return request.method() === 'GET' || sent?.browsePreferences || sent?.tableLayouts
+      ? route.fallback() : route.fulfill({ json: { ok: true } });
+  });
   await page.route((url) => url.pathname === '/api/stream-plan',(route) => route.fulfill({ json: { protocol: 'direct' } }));
   await page.route((url) => url.pathname === '/stream', (route) => route.fulfill({ status: 204, body: '' }));
   await page.route((url) => url.pathname === '/api/diagnostics/client-error', (route) => {

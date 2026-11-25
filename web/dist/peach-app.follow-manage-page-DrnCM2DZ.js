@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "1b170e98-9395-480f-bdad-6a7daa68ccc2", e._sentryDebugIdIdentifier = "sentry-dbid-1b170e98-9395-480f-bdad-6a7daa68ccc2");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "20331691-f87c-42ba-a1f5-110bd4406ad5", e._sentryDebugIdIdentifier = "sentry-dbid-20331691-f87c-42ba-a1f5-110bd4406ad5");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $542a13ca2fa5b484$export$5b6b19405a83ff9d as t, $76d00c5a4edb230a$export$76ccd210b9029917 as n, $76d00c5a4edb230a$export$816b5d811295e6bc as r, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as i, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as a, $76d00c5a4edb230a$export$f850895b287ef28e as o, $ea3928288112382f$export$439d29a4e110a164 as s, $l as c, ActivityStatus as l, Button as u, ButtonLink as d, Bx as f, COLUMN_SORT as p, Checkbox as m, ChevronSortDown as h, Chip as g, CollapseChevron as _, CollapseRegion as v, ColumnFilterAvatar as y, ColumnFilterChips as b, Ct as x, DataTableFooter as ee, DataTableFrame as S, DataTableSort as C, EmptyFocusButton as w, EmptyState as T, ErrorText as te, ExternalLink as E, FEEDS_KEY as D, FOLLOW_CHECK_KEY as ne, FOLLOW_CHECK_TASK as O, FOLLOW_CREDENTIALS_KEY$1 as re, FOLLOW_MANAGE_KEY as k, FOLLOW_MANAGE_NAV as A, FOLLOW_RESOLVE_KEY as j, FieldLabel as M, Gg as N, H7 as ie, Help as P, Input as F, InputBase as ae, LAYOUTS as I, LEGACY_AVATAR_IMG as L, LinkButton as R, M6 as oe, MENU_ITEM as z, MENU_ITEM_INTERACTIVE as se, MENU_POPOVER_SURFACE as ce, ModalFrame as B, Note as V, OV as H, P7 as U, SORT_DEFAULT_DIR as le, SORT_OPTIONS as ue, STAT_STRIP_SIX as W, Select as de, SelectItem as fe, SelectionDock as pe, SelectionPopover as me, SiteIcon as he, SiteLabel as ge, SortDirectionIcon as _e, SortableBoardTabs as ve, Switch as G, Table as ye, TableColumnControls as be, TableColumnResizer as xe, TableSelectionHeader as Se, TaskProgress as Ce, Un as we, Wt as K, Xf as Te, __toESM as Ee, activityKind as De, addAlias as Oe, addSource as ke, apiGet as Ae, authorGroups as je, authorName as Me, avatarInner as Ne, busyProps as q, cardClass as Pe, checkEvidenceGap as Fe, checkFailures as Ie, checkFeeds as Le, checkReceipt as Re, checkSummary as ze, checkedText as Be, clickedBlank as Ve, codedText as He, columnOrderingFeature as Ue, columnVisibilityFeature as We, composingKey as Ge, confirmModal as Ke, createColumnHelper as qe, createPaginatedRowModel as J, createSortedRowModel as Je, credentialDone as Ye, cx as Xe, dZ as Ze, dropSources as Qe, du as $e, enterPageSelection as et, errorHeadline as tt, errorMessage as Y, exitPageSelection as nt, feedIntervalText as rt, fetchCheckJob as it, fetchCredentials as at, fetchFeeds as ot, fetchFollow as st, fetchResolveJob as ct, fetchSuggestions as lt, flexRender as ut, followFeedPages as dt, groupByAuthor as ft, isBroken as pt, isLayout as mt, jobText as ht, joinList as gt, keepSelected as _t, l7 as vt, localTime as yt, lookupFeedActor as bt, mapLimit as xt, markAllPending as St, pageSizeOf as Ct, pageWindow as wt, patchSource as Tt, pv as Et, queryClient as Dt, quoted as Ot, reloadFollowManage as kt, removeAlias as At, removeFeed as jt, removeSource as Mt, renameAliasGroup as Nt, require_jsx_runtime as Pt, require_react as Ft, resolveFollowSort as It, rowPaginationFeature as Lt, rowSelectionFeature as Rt, rowSelectionOperation as zt, rowSortingFeature as Bt, runBulkAction as Vt, selectionState as Ht, serverLabel as Ut, setFeedEnabled as Wt, setSourceEnabled as Gt, skeletonHtml as Kt, sortLabel as qt, startCheck as Jt, startResolve as Yt, statusText as Xt, suggestFeedActors as Zt, t as X, tableFeatures as Qt, tableRows as $t, th as en, toggleGroup as tn, unmarkItems as nn, useAction as rn, useBackgroundJob as an, useMutation as on, usePageSelection as sn, useQuery as cn, useRectangleSelection as ln, useRememberedPageSize as un, useRememberedPagination as dn, useRowWorkContext as fn, useTable as pn, useTableFilters as mn, useTablePreferences as hn, useTableSelection as gn, useWorkContextMenu as _n, utcDate as vn } from "./peach-app.js";
@@ -10,12 +10,56 @@ import { AuthorAvatar as bn, ErrorLine as xn, FeedPageAlias as Sn, SourceIcon as
 // src/react/follow-manage/follow-search.tsx
 var Z = /* @__PURE__ */ Ee(Ft(), 1), Q = Pt(), En = Xe(z, se, "text-body-2-medium"), Dn = (e, t) => `${e}-${encodeURIComponent(JSON.stringify([t.group, t.value]))}`;
 function On({ field: e, menu: n, id: r, options: i, active: a, busy: o, failed: s, label: c, kind: u, onPick: d, onClose: f }) {
-	return (0, Z.useEffect)(() => {
+	(0, Z.useEffect)(() => {
 		let e = n.current, t = a && document.getElementById(a);
 		if (!e || !t) return;
 		let r = e.getBoundingClientRect(), i = t.getBoundingClientRect();
 		i.top < r.top ? e.scrollTop += i.top - r.top : i.bottom > r.bottom && (e.scrollTop += i.bottom - r.bottom);
-	}, [n, a]), /* @__PURE__ */ (0, Q.jsxs)(t, {
+	}, [n, a]);
+	let p = [];
+	for (let e of i) {
+		let t = p.at(-1);
+		t && t.label === e.group ? t.options.push(e) : p.push({
+			label: e.group,
+			options: [e]
+		});
+	}
+	let m = (e) => {
+		let t = Dn(r, e);
+		return /* @__PURE__ */ (0, Q.jsxs)("button", {
+			type: "button",
+			id: t,
+			role: "option",
+			tabIndex: -1,
+			"data-copy-interact": "",
+			"aria-selected": t === a,
+			className: t === a ? Xe(En, "bg-background-secondary-default") : En,
+			onMouseDown: (e) => e.preventDefault(),
+			onClick: () => d(e.value),
+			children: [
+				e.portrait ? /* @__PURE__ */ (0, Q.jsx)(y, {
+					kind: u,
+					person: {
+						...e.portrait,
+						name: e.value
+					}
+				}) : null,
+				/* @__PURE__ */ (0, Q.jsx)("span", {
+					className: "min-w-0 grow truncate text-left",
+					children: e.value
+				}),
+				e.matched ? /* @__PURE__ */ (0, Q.jsx)("span", {
+					className: "shrink-0 text-caption-1-regular text-text-tertiary",
+					children: e.matched
+				}) : null,
+				e.n ? /* @__PURE__ */ (0, Q.jsx)("span", {
+					className: "shrink-0 text-caption-1-regular tabular-nums text-text-tertiary",
+					children: e.n.toLocaleString()
+				}) : null
+			]
+		}, t);
+	};
+	return /* @__PURE__ */ (0, Q.jsxs)(t, {
 		ref: n,
 		triggerRef: e,
 		isOpen: !0,
@@ -47,42 +91,19 @@ function On({ field: e, menu: n, id: r, options: i, active: a, busy: o, failed: 
 			"aria-label": c,
 			"aria-busy": o || void 0,
 			className: "flex flex-col gap-1",
-			children: i.map((e, t) => /* @__PURE__ */ (0, Q.jsxs)(Z.Fragment, { children: [e.group && e.group !== i[t - 1]?.group ? /* @__PURE__ */ (0, Q.jsx)("div", {
-				role: "presentation",
-				className: "px-2 pt-1 text-caption-1-regular text-text-tertiary",
-				children: e.group
-			}) : null, /* @__PURE__ */ (0, Q.jsxs)("button", {
-				type: "button",
-				id: Dn(r, e),
-				role: "option",
-				tabIndex: -1,
-				"data-copy-interact": "",
-				"aria-selected": Dn(r, e) === a,
-				className: Dn(r, e) === a ? Xe(En, "bg-background-secondary-default") : En,
-				onMouseDown: (e) => e.preventDefault(),
-				onClick: () => d(e.value),
-				children: [
-					e.portrait ? /* @__PURE__ */ (0, Q.jsx)(y, {
-						kind: u,
-						person: {
-							...e.portrait,
-							name: e.value
-						}
-					}) : null,
-					/* @__PURE__ */ (0, Q.jsx)("span", {
-						className: "min-w-0 grow truncate text-left",
-						children: e.value
-					}),
-					e.matched ? /* @__PURE__ */ (0, Q.jsx)("span", {
-						className: "shrink-0 text-caption-1-regular text-text-tertiary",
-						children: e.matched
-					}) : null,
-					e.n ? /* @__PURE__ */ (0, Q.jsx)("span", {
-						className: "shrink-0 text-caption-1-regular tabular-nums text-text-tertiary",
-						children: e.n.toLocaleString()
-					}) : null
-				]
-			})] }, Dn(r, e)))
+			children: p.map((e, t) => {
+				let n = `${r}-group-${t}`, i = e.options.map(m);
+				return e.label ? /* @__PURE__ */ (0, Q.jsxs)("div", {
+					role: "group",
+					"aria-labelledby": n,
+					className: "flex flex-col gap-1",
+					children: [/* @__PURE__ */ (0, Q.jsx)("div", {
+						id: n,
+						className: "px-2 pt-1 text-caption-1-regular text-text-tertiary",
+						children: e.label
+					}), i]
+				}, n) : /* @__PURE__ */ (0, Q.jsx)(Z.Fragment, { children: i }, n);
+			})
 		})]
 	});
 }
@@ -4916,4 +4937,4 @@ function Ac(e) {
 }
 export { Ac as FollowManagePage };
 
-//# debugId=1b170e98-9395-480f-bdad-6a7daa68ccc2
+//# debugId=20331691-f87c-42ba-a1f5-110bd4406ad5

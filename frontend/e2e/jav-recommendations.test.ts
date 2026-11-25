@@ -9,7 +9,7 @@ describe('JAV 推荐与加载结构', () => {
   before(async () => { browser = await launch(); });
   after(async () => { await browser?.close(); });
   it('在线目录核验封面，列表显示完整番号及对应艺人', { timeout: 60_000 }, async () => {
-    const opened = await visit(browser, '/jav?tab=online');
+    const opened = await visit(browser, '/', VIEWPORTS[0]!);
     const { page } = opened;
     const catalog = Promise.withResolvers<void>();
     try {
@@ -38,7 +38,7 @@ describe('JAV 推荐与加载结构', () => {
         return id === 'missing' ? route.fulfill({ status: 404 }) : route.fulfill({ status: 200, contentType: 'image/jpeg' });
       });
       const mode = (value: 'cards' | 'list') => page.locator(`[data-filter-row="bottom"] label:has(input[value="${value}"])`);
-      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.goto(new URL('/jav?tab=online', page.url()).href, { waitUntil: 'domcontentloaded' });
       await page.locator('[data-online-status="all"]').waitFor();
       if (!(await mode('cards').locator('input').isChecked())) await mode('cards').click();
       const skeletonCard = page.locator('[data-skeleton="jav-online-cards"] [data-jav-skeleton-card]').first();
@@ -63,8 +63,10 @@ describe('JAV 推荐与加载结构', () => {
       const release = page.locator('[data-filter-row="bottom"]').getByRole('button', { name: '发行时间', exact: true });
       assert.equal(await release.count(), 1);
       await release.click();
-      await page.locator('[data-sort-direction-menu] button[aria-haspopup="dialog"]').waitFor();
-      await page.locator('[data-sort-direction-menu] [data-filter-option="asc"]').waitFor();
+      const dateMenu = page.locator('[data-sort-direction-menu]');
+      await dateMenu.getByRole('button', { name: '开始日期', exact: true }).waitFor();
+      await dateMenu.getByRole('button', { name: '结束日期', exact: true }).waitFor();
+      await dateMenu.locator('[data-filter-option="asc"]').waitFor();
       await page.keyboard.press('Escape');
       assert.deepEqual(probes.sort(), ['available', 'issued', 'missing']);
       assert.equal(await page.getByText('missing', { exact: true }).count(), 0);

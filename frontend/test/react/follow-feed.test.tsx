@@ -16,7 +16,7 @@ import { FollowFeedPage } from '../../src/react/follow-feed/follow-feed-page';
 import { FollowCard } from '../../src/react/follow-feed/follow-card';
 import { learnFollowDims } from '../../src/react/follow-feed/follow-marks';
 import { queryClient } from '../../src/react/query';
-import { click, mount, mountRoot, settle } from './render';
+import { chooseFilter, click, mount, mountRoot, settle } from './render';
 
 /* 回写尺寸那一批由 `follow-marks.test.ts` 量；这里只看卡片在什么时候报。 */
 vi.mock(import('../../src/react/follow-feed/follow-marks'), async (importOriginal) => ({
@@ -334,13 +334,13 @@ describe('页面', () => {
     const route = given.actions.route as ReturnType<typeof vi.fn>;
     await click(host.querySelector('button[data-follow-author="name:mira"]'));
     expect(route).toHaveBeenLastCalledWith({ ...given.view, author: 'name:mira' });
-    await click(host.querySelector('button[data-follow-tag="3d"]'));
+    await click(host.querySelector('button[data-filter-tag="3d"]'));
     expect(route).toHaveBeenLastCalledWith({ ...given.view, tags: ['loop', '3d'] });
-    await click(host.querySelector('button[data-follow-tag="loop"]'));
+    await click(host.querySelector('button[data-filter-tag="loop"]'));
     expect(route).toHaveBeenLastCalledWith({ ...given.view, tags: [] });
     await click(host.querySelector('[data-follow-filter="saved"]'));
     expect(route).toHaveBeenLastCalledWith({ ...given.view, status: 'saved' });
-    await click(host.querySelector('[data-follow-sort="new"]'));
+    await chooseFilter(host.querySelector('[data-follow-sort="new"]'), 'asc');
     expect(route).toHaveBeenLastCalledWith({ ...given.view, dir: 'asc' });
     await click(host.querySelector('[data-media-view="images"]'));
     expect(route).toHaveBeenLastCalledWith({ ...given.view, media: 'images' });

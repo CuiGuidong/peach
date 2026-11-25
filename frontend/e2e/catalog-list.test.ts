@@ -174,7 +174,7 @@ describe('馆藏卡片与列表', () => {
       await menu.waitFor();
       await touch('touchEnd');
       assert.equal(new URL(page.url()).pathname, '/');
-      await page.keyboard.press('Escape');
+      await page.touchscreen.tap(8, 48);
       await menu.waitFor({ state: 'hidden' });
       await touch('touchStart');
       await touch('touchMove', y - 28);
@@ -228,12 +228,12 @@ describe('馆藏卡片与列表', () => {
       await page.mouse.up();
       await page.waitForFunction(() => document.querySelector('#selectMode')?.getAttribute('aria-pressed') === 'true');
       assert.equal(await page.locator('[data-catalog-row][data-board-selected]').count(), 2);
-      await page.keyboard.press('Escape');
+      await mode.click();
       await page.waitForFunction(() => document.querySelector('#selectMode')?.getAttribute('aria-pressed') === 'false');
       assert.equal(await page.locator('[data-catalog-row][data-board-selected]').count(), 0);
       await columns.focus();
       await page.keyboard.press('ArrowRight');
-      assert.equal(await page.getByRole('button', { name: '重置列宽', exact: true }).evaluate(node => node === document.activeElement), true);
+      assert.equal(await page.getByRole('button', { name: '列布局', exact: true }).evaluate(node => node === document.activeElement), true);
       await page.keyboard.press('ArrowLeft');
       assert.equal(await columns.evaluate(node => node === document.activeElement), true);
       await page.keyboard.press('Enter');
@@ -282,16 +282,32 @@ describe('馆藏卡片与列表', () => {
         const maxDuration = filters.dur?.range?.max;
         const items = videos.filter(video => (maxPlays == null || video.play_count <= maxPlays)
           && (maxDuration == null || video.duration <= maxDuration));
+        if (params.get('sort') === 'plays' && params.get('limit') === '1') {
+          return route.fulfill({ json: { items: items.sort((left, right) => right.play_count - left.play_count).slice(0, 1) } });
+        }
         return route.fulfill({ json: { items, total: items.length, has_more: false } });
       });
       const chooseView = (name: string) => page.getByRole('radiogroup', { name: '馆藏显示方式' })
         .locator('label').filter({ has: page.getByRole('radio', { name, exact: true }) }).click();
-      const limit = async (name: string, value: string) => {
-        await page.getByRole('button', { name, exact: true }).click();
-        const dialog = page.getByRole('dialog', { name, exact: true });
-        assert.equal(await dialog.getByRole('slider', { name: '最大值', exact: true }).getAttribute('aria-valuetext'), '不限');
-        await dialog.getByRole('textbox', { name: /^最大值/ }).fill(value);
-        await dialog.getByRole('button', { name: '应用范围', exact: true }).click();
+      const duration = page.locator('[data-sort-controls="catalog"] [data-entity-sort="dur"]');
+      const limit = async (name: string, value: string, header = true) => {
+        await withPageDiagnostics(page, `输入范围筛选 ${name}`, async () => {
+          const trigger = header ? page.getByRole('button', { name, exact: true }) : duration;
+          if (header) {
+            const rows = page.getByRole('grid', { name: '作品列表' }).locator('tbody');
+            await rows.locator('tr').first().focus();
+            await rows.locator('tr[data-focused]').first().waitFor({ timeout: 5000 });
+          }
+          await trigger.scrollIntoViewIfNeeded();
+          await settle(page);
+          await trigger.focus();
+          assert.equal(await trigger.evaluate(node => node === document.activeElement), true);
+          await trigger.press('Space');
+          const dialog = page.getByRole('dialog', { name, exact: true });
+          await dialog.locator('input[type="range"][aria-valuetext="不限"]').waitFor({ state: 'attached', timeout: 5000 });
+          await dialog.getByRole('textbox', { name: /^最大值/ }).fill(value);
+          await dialog.getByRole('button', { name: '应用范围', exact: true }).click();
+        });
       };
       await chooseView('列表');
       await limit('筛选观看次数', '3');
@@ -312,8 +328,7 @@ describe('馆藏卡片与列表', () => {
       await page.waitForFunction(() => document.querySelectorAll('#grid [data-media-card]').length === 2);
       assert.equal(await removePlays.count(), 0);
       assert.equal(await chips.getByRole('button', { name: /时长/ }).count(), 1);
-      await limit('时长', '1');
-      const duration = page.locator('[data-sort-controls="catalog"] [data-entity-sort="dur"]');
+      await limit('时长', '1', false);
       await duration.click();
       await page.getByRole('dialog', { name: '时长', exact: true }).getByRole('button', { name: '升序', exact: true }).click();
       await page.waitForURL(url => url.searchParams.get('sort') === 'dur' && url.searchParams.get('dir') === 'asc');
@@ -469,17 +484,16 @@ describe('馆藏卡片与列表', () => {
         const sortButton = page.getByRole('button', { name: /作品列表排序/ });
         await sortButton.scrollIntoViewIfNeeded();
         await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-        await sortButton.click();
-        const sortedResponse = page.waitForResponse(response => {
-          const url = new URL(response.url());
-          return url.pathname === '/api/items' && url.searchParams.get('sort') === 'dur' && url.searchParams.get('dir') === 'asc';
-        });
-        try { await page.getByRole('option', { name: '时长', exact: true }).click({ timeout: 5000 }) }
-        catch (error) {
-          console.info('排序菜单', await sortButton.getAttribute('aria-expanded'), await page.locator('[role="option"]').allTextContents());
-          throw error;
-        }
-        await sortedResponse;
+         await withPageDiagnostics(page, '馆藏列表选择时长排序', async () => {
+           await sortButton.press('ArrowDown');
+           await Promise.all([
+             page.waitForResponse(response => {
+               const url = new URL(response.url());
+               return url.pathname === '/api/items' && url.searchParams.get('sort') === 'dur' && url.searchParams.get('dir') === 'asc';
+             }),
+             page.getByRole('option', { name: '时长', exact: true }).click({ timeout: 5000 }),
+           ]);
+         });
         await page.locator('[data-catalog-row][data-id="9044"]').waitFor();
         await page.waitForFunction(() => document.querySelector('[data-catalog-row]')?.getAttribute('data-id') === '9044');
         assert.equal(requests.at(-1)!.get('sort'), 'dur');

@@ -93,12 +93,13 @@ describe('片源判据', () => {
     vi.spyOn(videojsLoader, 'ensureVideojs').mockRejectedValueOnce(new Error('播放器未加载'));
     let deliver!: (response: Response) => void;
     const plan = new Promise<Response>((resolve) => { deliver = resolve });
-    const fetcher = vi.fn(() => plan);
+    const fetcher = vi.fn((input: unknown) => String(input).startsWith('/api/player/memory')
+      ? Promise.resolve(new Response('{"selected":null,"tracks":[]}'))
+      : plan);
     vi.stubGlobal('fetch', fetcher);
     const video = document.createElement('video');
     const release = mountPlayer(video, { kind: 'item', item: { id: 3 }, chrome: false });
-    await flush(); await flush();
-    expect(fetcher).toHaveBeenCalledWith(expect.stringContaining('/api/stream-plan?id=3'), expect.anything());
+    await vi.waitFor(() => expect(fetcher).toHaveBeenCalledWith(expect.stringContaining('/api/stream-plan?id=3'), expect.anything()));
     release();
     deliver(new Response(JSON.stringify({ src: '/stream?id=3', protocol: 'range' }), {
       headers: { 'Content-Type': 'application/json' },

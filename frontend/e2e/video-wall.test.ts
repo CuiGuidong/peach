@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import type { Browser, Page } from 'playwright-core';
+import { wallDepthAnchor } from '../src/react/video-wall/wall-depth.ts';
 import { layout, launch, requiredEnv, settle, VIEWPORTS, visit } from './harness.ts';
 import { openItemPage } from './item-fixture.ts';
 
@@ -406,10 +407,11 @@ describe('播放墙的浏览与详情', () => {
         assert.notDeepEqual(await camera(page), initial);
         assert.equal(await page.locator('[data-wall-focus]').count(), 0, '拖动不展开作品');
         const anchor = { x: box.x + box.width * .6, y: box.y + box.height * .4 };
+        const projected = wallDepthAnchor(anchor.x - box.x, anchor.y - box.y, box);
         const under = () => region.evaluate((node, point) => {
           const view = (node as HTMLElement).dataset, scale = Number(view.cameraScale);
           return { scale, x: (point.x - Number(view.cameraX)) / scale, y: (point.y - Number(view.cameraY)) / scale };
-        }, { x: anchor.x - box.x, y: anchor.y - box.y });
+        }, projected);
         const before = await under();
         await page.mouse.move(anchor.x, anchor.y); await page.mouse.wheel(0, -300);
         // 缓动走完、世界层摘掉 `will-change` 才算停稳。
@@ -511,19 +513,23 @@ describe('播放墙的浏览与详情', () => {
     } finally { await opened.close() }
   });
   it('换到下一批后进出详情仍保留该批次和镜头', async () => {
-    const opened = await openItemPage(browser, '/', VIEWPORTS[0]!, { ready: '[data-media-card]' });
+    const opened = await openItemPage(browser, '/', VIEWPORTS[0]!, {
+      ready: '[data-media-card]', settings: { batchSize: 180 },
+    });
     const { page } = opened;
     try {
-      const first = Array.from({ length: 60 }, (_, index) => ({ id: 1000 + index, name: `作品 ${index}`, medium: 'video', location: 'local', has_cover:true, cover_key:'NON-JAV' }));
+      const first = Array.from({ length: 180 }, (_, index) => ({ id: 1000 + index, name: `作品 ${index}`, medium: 'video', location: 'local', has_cover:true, cover_key:'NON-JAV' }));
       const next = [11,17,18].map(id => ({ id, name: `作品 ${id}`, medium: 'video', location: 'local', has_cover:true, cover_key:'NON-JAV' }));
+      const works = [...first, ...next];
       await page.route(url => url.pathname === '/api/items', route => {
         const params = new URL(route.request().url()).searchParams;
         if (params.has('orient')) return route.fulfill({ json: { items: [], total: 0 } });
         const offset = Number(params.get('offset') || 0);
-        return route.fulfill({ json: { items: offset ? next : first, total: 63, has_more: !offset } });
+        const end = offset + Number(params.get('limit') || first.length);
+        return route.fulfill({ json: { items: works.slice(offset, end), total: works.length, has_more: end < works.length } });
       });
-      await page.reload(); await page.locator('[data-media-card]').first().waitFor();
-      await enter(page);
+      await page.goto(new URL('/wall?returnTo=%2F', page.url()).href);
+      await page.locator('[data-wall-tile]').first().waitFor();
       for (const viewport of VIEWPORTS) {
         await page.setViewportSize({ width:viewport.width, height:viewport.height });
         const controls = await page.locator('[data-video-wall]').evaluate(root => {
@@ -562,7 +568,7 @@ describe('播放墙的浏览与详情', () => {
       assert.deepEqual(await camera(page), position);
     } finally { await opened.close() }
   });
-  it('真实演示短片在墙内播放，拖动不卸载播放器，详情认领同一实例', async () => {
+  it('真实演示短片在墙内播放，展开后固定镜头，详情认领同一实例', async () => {
     const opened = await visit(browser, '/', VIEWPORTS[0]!);
     const { page } = opened;
     try {
@@ -590,7 +596,12 @@ describe('播放墙的浏览与详情', () => {
         const video = document.querySelector('[data-wall-player] video')!;
         video.setAttribute('data-wall-instance', 'same');
       });
-      await page.locator('[data-wall-viewport]').focus(); await page.keyboard.press('ArrowLeft');
+      const position = await camera(page);
+      const viewport = (await page.locator('[data-wall-viewport]').boundingBox())!;
+      await page.mouse.move(viewport.x + 8, viewport.y + viewport.height / 2);
+      await page.mouse.wheel(0, -300);
+      await settle(page);
+      assert.deepEqual(await camera(page), position);
       assert.equal(await page.locator('[data-wall-player] video[data-wall-instance="same"]').count(), 1);
       await page.getByRole('button', { name: '详情', exact: true }).click();
       await page.locator('#stage video[data-wall-instance="same"]').waitFor();

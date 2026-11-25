@@ -133,10 +133,12 @@ it('首屏用 prefetch 缓存画出来源与任务，挂载时不重复请求', 
 });
 
 it('JavDB 的网站外链和浏览器连接并排保留', async () => {
-  const { host } = await open({
+  const { host, calls } = await open({
     ...quiet({ source: 'javdb', label: 'JavDB', login: 'https://javdb.com/' }),
     'GET /api/scraping/javdb-browser-login': () => ({ body: { available: true, state: 'idle' } }),
   });
+  expect(calls.some(call => call.path === '/api/scraping/javdb-browser-login')).toBe(false);
+  await click(host.querySelector('#source-javdb summary'));
   await settle();
   const link = host.querySelector<HTMLAnchorElement>('a[href="https://javdb.com/login"]');
   expect(link?.textContent?.trim()).toBe('在 JavDB 登录');

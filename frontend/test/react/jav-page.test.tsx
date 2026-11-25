@@ -7,7 +7,7 @@ import { JavHeader } from '../../src/react/jav/jav-header';
 import { catalogView, setCatalogView } from '../../src/react/catalog-grid/catalog-view';
 import { discoveryKey, prefetchJav } from '../../src/react/jav/jav';
 import { WANTS_KEY } from '../../src/react/wants/wants';
-import { actionOrder, buttonNamed, choose, click, mount, settle, type } from './render';
+import { actionOrder, buttonNamed, choose, chooseFilter, click, mount, settle, type } from './render';
 
 notifyManager.setScheduler(notify => notify());
 afterEach(() => queryClient.clear());
@@ -47,11 +47,11 @@ it('想要已有清单立即返回，陈旧数据在后台更新', async () => {
   expect(fetcher).toHaveBeenCalledOnce();
 });
 
-it('JAV 分区导航依次显示馆藏、想要、新作、发现，馆藏使用目录搜索', async () => {
+it('JAV 分区导航依次显示馆藏、想要、新作、发现、在线目录，馆藏使用目录搜索', async () => {
   const navigate = vi.fn(), find = vi.fn();
   const host = await mount(<JavHeader tab="library" navigate={navigate} find={find} />);
   const tabs = [...host.querySelectorAll('[role="tab"]')];
-  expect(tabs.map(tab => tab.textContent?.trim())).toEqual(['馆藏', '想要', '新作', '发现']);
+  expect(tabs.map(tab => tab.textContent?.trim())).toEqual(['馆藏', '想要', '新作', '发现', '在线目录']);
   expect(tabs[0]?.getAttribute('aria-selected')).toBe('true');
   expect(host.querySelector('input')).toBeNull();
   await click(tabs[1]);
@@ -122,7 +122,7 @@ it('新作分区的女优、厂牌、标签只列接口给的订阅新作筛选�
   expect(asked().get('page')).toBe('2');
   expect([...host.querySelectorAll('[data-tier-performer]')].map(node => node.textContent)).toEqual(['女女优甲']);
   expect([...host.querySelectorAll('[data-tier-studio]')].map(node => node.textContent)).toEqual(['厂牌厂牌甲1']);
-  expect([...host.querySelectorAll('[data-catalog-tag]')].map(node => node.textContent)).toEqual(['中出内射1']);
+  expect([...host.querySelectorAll('[data-filter-tag]')].map(node => node.textContent)).toEqual(['中出内射1']);
   expect(host.querySelector('nav[aria-label="新作分页"] [aria-current="page"]')?.textContent).toBe('2');
   await click(host.querySelector('[data-tier-performer]'));
   await settle();
@@ -219,7 +219,7 @@ it('新作分区切到列表：作品、艺人、厂牌各占一列，表头点�
   }
 });
 
-it('新作分区默认按发行时间倒序，排序键再点翻方向，换一批按新种子重排且不按下排序键', async () => {
+it('新作分区默认按发行时间倒序，可选排序方向，换一批按新种子重排且不按下排序键', async () => {
   const before = location.pathname + location.search;
   history.replaceState(null, '', '/jav?tab=releases');
   const fetcher = vi.fn(async (_url: string) => ({ ok: true, status: 200, json: async () => ({ items: [], total: 0, candidate_total: 0, page: 1, size: 24,
@@ -230,10 +230,10 @@ it('新作分区默认按发行时间倒序，排序键再点翻方向，换一�
   const asked = () => new URL(String(fetcher.mock.calls.at(-1)?.[0]), location.origin).searchParams;
   expect([...host.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['发行时间', '来源评分', '时长', '番号', '口味']);
   expect([asked().get('sort'), asked().get('direction')]).toEqual(['release_date', 'desc']);
-  await click(host.querySelector('[data-entity-sort="source_score"]'));
+  await chooseFilter(host.querySelector('[data-entity-sort="source_score"]'), 'desc');
   await settle();
   expect([asked().get('sort'), asked().get('direction')]).toEqual(['source_score', 'desc']);
-  await click(host.querySelector('[data-entity-sort="source_score"]'));
+  await chooseFilter(host.querySelector('[data-entity-sort="source_score"]'), 'asc');
   await settle();
   expect([asked().get('sort'), asked().get('direction')]).toEqual(['source_score', 'asc']);
   await click(host.querySelector('[data-entity-batch]'));

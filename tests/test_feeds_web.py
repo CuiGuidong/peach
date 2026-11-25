@@ -1796,7 +1796,7 @@ class FeedFollowByNameTest(FeedFollowByNameFixture):
         cover = "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/aaa00001/aaa00001pl.jpg"
         def answer(request):
             payload = json.loads(request.body)
-            if "PeachCatalog" in payload["query"]:
+            if "query PeachCatalog(" in payload["query"]:
                 self.assertEqual(payload["variables"], {"limit": 24, "offset": 0, "filter": {
                     "actressIds": {"ids": [{"id": "1099472"}]}, "deliveryStartDate": date,
                     "makerIds": {"ids": [{"id": "3152"}]}, "genreIds": {"ids": [{"id": "5016"}, {"id": "4106"}]},

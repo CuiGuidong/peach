@@ -47,7 +47,7 @@ describe('二维播放墙', () => {
   });
   it('探索作品按四向浏览顺序分配，返回已有位置和续页均保持身份与几何', () => {
     const pool = new WallExploration(), positions = new Map<string, number>();
-    for (const point of [{ x:0,y:0 },{ x:3000,y:0 },{ x:3000,y:3000 },{ x:-3000,y:3000 },{ x:-3000,y:-3000 }]) {
+    for (const point of [camera, { x:3000,y:0 },{ x:3000,y:3000 },{ x:-3000,y:3000 },{ x:-3000,y:-3000 }]) {
       const visible = visibleWallTiles(12, false, { ...camera,x:point.x,y:point.y }, view);
       for (const tile of pool.assign(visible, 200, true)) {
         if (positions.has(tile.key)) expect(tile.index).toBe(positions.get(tile.key));

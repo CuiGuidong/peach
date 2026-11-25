@@ -104,11 +104,11 @@ describe('数据库那一份落进本地缓存', () => {
     const { store, changed } = stage({ theme: 'dark', localAppearance: true });
     applySyncedSettings({ browsePreferences: { theme: 'light', catalogView: 'list' } }, changed, store);
     expect(store.value).toMatchObject({ theme: 'dark', catalogView: 'list' });
-    expect(changed.mock.calls).toEqual([['catalogView']]);
+    expect(changed.mock.calls).toEqual([['browsePreferences', ['catalogView']]]);
     store.value.localAppearance = false;
     store.save();
     expect(store.value.theme).toBe('light');
-    expect(changed.mock.calls).toEqual([['catalogView'], ['theme']]);
+    expect(changed.mock.calls).toEqual([['browsePreferences', ['catalogView']], ['browsePreferences', ['theme']]]);
   });
 
   it('读取旧的馆藏视图后优先采用实例已保存的值', () => {

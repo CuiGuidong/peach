@@ -49,6 +49,30 @@ function SuggestMenu(
     if (item.top < frame.top) panel.scrollTop += item.top - frame.top;
     else if (item.bottom > frame.bottom) panel.scrollTop += item.bottom - frame.bottom;
   }, [menu, active]);
+  const groups: { label?: string; options: SuggestOption[] }[] = [];
+  for (const option of options) {
+    const last = groups.at(-1);
+    if (last && last.label === option.group) last.options.push(option);
+    else groups.push({ label: option.group, options: [option] });
+  }
+  const renderOption = (option: SuggestOption) => {
+    const key = optionId(id, option);
+    return (
+      <button key={key} type="button" id={key} role="option" tabIndex={-1} data-copy-interact=""
+        aria-selected={key === active} className={key === active ? cx(MENU_ROW, 'bg-background-secondary-default') : MENU_ROW}
+        onMouseDown={(event) => event.preventDefault()}
+        onClick={() => onPick(option.value)}>
+        {option.portrait ? <ColumnFilterAvatar kind={kind} person={{ ...option.portrait, name: option.value }} /> : null}
+        <span className="min-w-0 grow truncate text-left">{option.value}</span>
+        {option.matched ? (
+          <span className="shrink-0 text-caption-1-regular text-text-tertiary">{option.matched}</span>
+        ) : null}
+        {option.n ? (
+          <span className="shrink-0 text-caption-1-regular tabular-nums text-text-tertiary">{option.n.toLocaleString()}</span>
+        ) : null}
+      </button>
+    );
+  };
   return (
     <Popover ref={menu} triggerRef={field} isOpen isNonModal shouldFlip={false} data-follow-suggest-popover=""
       onOpenChange={(open) => { if (!open) onClose() }}
@@ -64,30 +88,16 @@ function SuggestMenu(
           {failed ? t('follow:addCreatorSource.suggestionsFailed') : t('follow:addCreatorSource.noSuggestions')}
         </p>}
       <div id={id} role="listbox" aria-label={label} aria-busy={busy || undefined} className="flex flex-col gap-1">
-      {options.map((option, at) => (
-        <Fragment key={optionId(id, option)}>
-          {option.group && option.group !== options[at - 1]?.group ? (
-            <div role="presentation" className="px-2 pt-1 text-caption-1-regular text-text-tertiary">{option.group}</div>
-          ) : null}
-          <button type="button" id={optionId(id, option)} role="option" tabIndex={-1} data-copy-interact=""
-            aria-selected={optionId(id, option) === active}
-            className={optionId(id, option) === active ? cx(MENU_ROW, 'bg-background-secondary-default') : MENU_ROW}
-            // 按下就 preventDefault：让下拉把焦点从输入框抢走的话，敲到一半的词就断在那里。
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => onPick(option.value)}>
-            {option.portrait ? <ColumnFilterAvatar kind={kind} person={{ ...option.portrait, name: option.value }} /> : null}
-            <span className="min-w-0 grow truncate text-left">{option.value}</span>
-            {option.matched ? (
-              <span className="shrink-0 text-caption-1-regular text-text-tertiary">{option.matched}</span>
-            ) : null}
-            {option.n ? (
-              <span className="shrink-0 text-caption-1-regular tabular-nums text-text-tertiary">
-                {option.n.toLocaleString()}
-              </span>
-            ) : null}
-          </button>
-        </Fragment>
-      ))}
+        {groups.map((group, index) => {
+          const heading = `${id}-group-${index}`;
+          const rows = group.options.map(renderOption);
+          return group.label
+            ? <div key={heading} role="group" aria-labelledby={heading} className="flex flex-col gap-1">
+                <div id={heading} className="px-2 pt-1 text-caption-1-regular text-text-tertiary">{group.label}</div>
+                {rows}
+              </div>
+            : <Fragment key={heading}>{rows}</Fragment>;
+        })}
       </div>
     </Popover>
   );

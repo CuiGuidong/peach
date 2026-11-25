@@ -471,12 +471,15 @@ export const followCredential = (provider: string, requirement: string, present:
 /** 关注管理页按一份造好的来源与凭据打开：演示库没有关注来源，也凑不齐四种凭据处境。
  *  站标同 `openScraping`：造出来的来源取不到图标，给一张能加载完的图。 */
 export async function openFollowManage(browser: Browser, viewport = DESKTOP, data: FollowManageData = {}): Promise<Visit> {
-  const opened = await visit(browser, '/subscriptions', viewport);
-  await stubFollowManage(opened.page, data);
-  await opened.page.reload({ waitUntil: 'load' });
-  await opened.page.locator('section[aria-label="kou 的关注来源"]').waitFor({ timeout: 15_000 });
-  await settle(opened.page);
-  return opened;
+  const opened = await visit(browser, '/subscriptions', viewport, page => stubFollowManage(page, data));
+  try {
+    await expectBody(opened.page, '关注来源', [opened.page.getByRole('region', { name: 'kou 的关注来源' })], opened.problems);
+    await settle(opened.page);
+    return opened;
+  } catch (error) {
+    await opened.close();
+    throw error;
+  }
 }
 
 /** 换掉计数、在三条来源之后再加几条：量极端内容时用。 */

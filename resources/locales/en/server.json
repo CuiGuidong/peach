@@ -877,18 +877,18 @@
     "fileBrowser": {
       "invalidRequest": "The file operation request is invalid.",
       "invalidName": "Enter a valid file or folder name.",
-      "invalidTarget": "Choose a different folder within the same media directory.",
+      "invalidTarget": "Choose a different destination within the same media directory.",
       "configuredRoot": "This path overlaps a configured media directory. Open that directory directly or change the mount in Settings.",
       "catalogConflict": "A catalog record already uses the destination path.",
-      "changed": "The file or catalog record changed. Refresh the folder and try again.",
+      "changed": "The file or catalog record changed. Refresh the directory and try again.",
       "catalogRolledBack": "The catalog update failed. The file was moved back. {{error}}",
       "rollbackFailed": "The catalog update and move back both failed. Check the source and destination paths. {{error}}",
       "targetExists": "An item with the same name already exists at the destination.",
-      "sourceMissing": "The file or destination folder no longer exists. Refresh and try again.",
-      "unverified": "The storage result could not be verified. Refresh the folder to check what changed.",
+      "sourceMissing": "The file or destination directory no longer exists. Refresh and try again.",
+      "unverified": "The storage result could not be verified. Refresh the directory to check what changed.",
       "operationFailed": "The file operation failed. {{error}}",
-      "trashMissing": "This entry is missing from the file recycle bin.",
-      "restoreInBrowser": "This file is in the file recycle bin. Open it from Browse files to restore the item."
+      "trashMissing": "This entry is missing from the file trash.",
+      "restoreInBrowser": "This file is in the file trash. Open it from Browse files to restore the item."
     },
     "listening": {
       "outsideLan": "This address only accepts connections from the local network"
@@ -3021,7 +3021,7 @@
       "unreadable": "Can't read the task recovery record. Start the task again."
     },
     "nasDirectories": {
-      "invalidOrder": "The folder sort, search, or page size is invalid.",
+      "invalidOrder": "The directory sort, search, or page size is invalid.",
       "invalidPurpose": "Choose a media directory or a data directory.",
       "invalidOffset": "The directory page position is invalid. Read the directory again.",
       "outsideRoots": "Only mounted media directories can be browsed. Type a newly mounted path into the media directory field.",
@@ -4372,7 +4372,7 @@
     "javdbBrowserLogin": {
       "waiting": "Sign in to JavDB in the browser window. Your session will be saved automatically.",
       "done": "Connected to JavDB and saved the sign-in session.",
-      "cancelled": "JavDB sign-in was cancelled.",
+      "cancelled": "JavDB sign-in was canceled.",
       "windowClosed": "The JavDB sign-in window was closed.",
       "timeout": "JavDB sign-in did not finish within {{minutes}} minutes. Open a new sign-in window.",
       "failed": "Could not save the JavDB sign-in session. Reconnect or import the cookie manually.",
@@ -4382,7 +4382,7 @@
     "sourceBrowserLogin": {
       "waiting": "Sign in in the browser window. The session is saved once confirmed.",
       "done": "Connected and saved the sign-in session.",
-      "cancelled": "Sign-in was cancelled.",
+      "cancelled": "Sign-in was canceled.",
       "windowClosed": "The sign-in window was closed.",
       "timeout": "The session could not be confirmed within {{minutes}} minutes. Open a new sign-in window.",
       "failed": "Could not save the sign-in session. Reconnect or configure credentials manually.",

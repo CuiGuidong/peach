@@ -90,7 +90,7 @@ it('键盘调整导航保存稳定 ID，选中分区保留，重置后可撤销'
   expect(commit).toHaveBeenLastCalledWith(navigationDefaults('jav'));
   const options = vi.mocked(showToast).mock.calls.at(-1)![1];
   options.action?.run(document.createElement('button'));
-  expect(commit).toHaveBeenLastCalledWith(['wants', 'library', 'releases', 'discover']);
+  expect(commit).toHaveBeenLastCalledWith(['wants', 'library', 'releases', 'discover', 'online']);
 });
 
 it('对象顺序先在弹层调整，保存失败保留顺序和错误，重试成功才关闭', async () => {

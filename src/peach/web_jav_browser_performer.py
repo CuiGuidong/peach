@@ -137,12 +137,17 @@ def _follow_dmm(contract, page: dict) -> None:
 def _follow_by_search(contract, page: dict, found) -> None:
     """只有名字的页：按名字到 JavDB 搜，名字对得上、又能确认是同一个人的卡才登记并订。"""
     names = list(dict.fromkeys([*([str(found["canonical_name"])] if found else []), *page["names"]]))
+    unavailable = None
     for name in names:
         result = web_feeds.q_feed_lookup(contract, {"q": name})
         if result["suggested"]:
             web_feeds.w_feed_source(contract, {"action": "follow-name", "ids": result["suggested"],
                                                "name": str(found["canonical_name"]) if found else name})
             return
+        if unavailable is None and result.get("unavailable_code"):
+            unavailable = UserValueError(result["unavailable_code"], result.get("unavailable_params"))
+    if unavailable is not None:
+        raise unavailable
     raise UserValueError("api.javBrowserPerformer.javdbUnconfirmed", {"name": names[0]})
 
 

@@ -5,11 +5,12 @@
  * `getComputedStyle` 断言；这里只看结构、文字与请求。 */
 import { act } from 'react';
 import { notifyManager, QueryClientProvider } from '@tanstack/react-query';
-import { afterEach, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import * as legacyUi from '@peach/legacy/ui';
 
 import { JOB_RUNNING_POLL_MS } from '../../src/react/background-job';
 import { queryClient } from '../../src/react/query';
+import { rememberPageSize } from '../../src/react/components/page-size-preferences';
 import {
   authorAvatar, authorGroups, authorInitial, authorName, checkReceipt, checkSummary, errorHeadline, feedIntervalText, FEEDS_CHECK_URL, FEED_SOURCE_URL,
   FEEDS_LOOKUP_URL, FEEDS_URL, FOLLOW_CHECK_URL, FOLLOW_MANAGE_KEY,
@@ -27,6 +28,7 @@ import { actionOrder, buttonNamed, choose, click, linkNamed, mountRoot, pending,
 
 // 客户端是模块级的单例（所有 React 根共用一个），用例之间不清就互相喂数据。
 afterEach(() => queryClient.clear());
+beforeEach(() => rememberPageSize('jav-feeds', 20));
 
 /* Query 派发更新用的是它自己抓住的那个真 `setTimeout(0)`，假时钟推不动它：推完时钟
    断言到的还是上一帧的 DOM。用例里改成当场派发。 */
@@ -1006,7 +1008,7 @@ it('有创作者关注时直接显示列表，无需占一张空的 JAV 订阅�
   const { host } = await open({}, { tab: 'list' });
   expect(host.querySelector('section[aria-label="JAV 订阅列表"]')).toBeNull();
   expect(host.querySelectorAll('[data-empty-state]')).toHaveLength(0);
-  expect(buttonNamed('检查全部', host)).not.toBeNull();
+  expect(buttonLabelled(host, '检查全部')).not.toBeNull();
 });
 
 // ── 添加 JAV 订阅：按名字搜演员卡、勾选、登记 ─────────────────────────────
@@ -1589,7 +1591,7 @@ it('建议按服务端给的分组和次序列出，上下键选中再回车就�
   await press(input, 'ArrowDown');
   await press(input, 'ArrowDown');
   const active = document.getElementById(input.getAttribute('aria-activedescendant')!);
-  expect(active?.textContent).toBe('Mr_Strauzkemono');
+  expect(active).toBe(list.querySelectorAll('[role="option"]')[1]);
   expect(active?.getAttribute('aria-selected')).toBe('true');
   expect(document.activeElement).toBe(input);
   await press(input, 'Enter');

@@ -198,7 +198,6 @@ describe('实体页筛选浮层', () => {
       const { page, stubs } = opened;
       stubs.hold();
       await page.locator('[data-entity-sort="rating"]').click();
-      await page.locator('[data-sort-direction-menu] [data-filter-option="asc"]').click();
       await page.locator('[data-sort-direction-menu] [data-filter-option="desc"]').click();
       assert.equal(await page.locator('[data-entity-sort="rating"]').getAttribute('aria-pressed'), 'true');
       assert.equal(await page.locator('[data-entity-sort="new"]').getAttribute('aria-pressed'), 'false');
@@ -209,6 +208,7 @@ describe('实体页筛选浮层', () => {
       await page.locator('[data-entity-readout]', { hasText: '视频 · 24' }).waitFor({ timeout: 15_000 });
       assert.equal(await page.locator('[data-entity-sort="rating"]').getAttribute('aria-label'), '按评分从低到高排序');
       await page.locator('[data-entity-sort="rating"]').click();
+      await page.locator('[data-sort-direction-menu] [data-filter-option="asc"]').click();
       await page.locator('[data-entity-readout]', { hasText: '视频 · 24' }).waitFor({ timeout: 15_000 });
       assert.match(page.url(), /[?&]dir=asc/);
       const before = stubs.itemQueries.length;
@@ -261,7 +261,7 @@ describe('实体页筛选浮层', () => {
       const photos = await page.evaluate(() => ({
         pressed: document.querySelector('[data-media-view="photos"]')?.getAttribute('aria-pressed'),
         states: (document.querySelector('[data-entity-states]') as HTMLElement | null)?.hidden,
-        tags: document.querySelectorAll('[data-entity-tag]').length,
+        tags: document.querySelectorAll('[data-filter-tag]').length,
         combo: (document.querySelector('[data-entity-combo]') as HTMLElement | null)?.hidden,
         sorts: document.querySelectorAll('[data-entity-sort]').length,
         batch: document.querySelectorAll('[data-entity-batch]').length,
@@ -275,7 +275,7 @@ describe('实体页筛选浮层', () => {
       await segment(page, '图片布局', 'masonry').click();
       await page.locator('[data-media-view="videos"]').click();
       await page.locator('[data-entity-readout]', { hasText: '视频 · 24 · 已选 1 个标签' }).waitFor({ timeout: 15_000 });
-      assert.equal(await page.locator('[data-entity-tag]').count(), TAGS.length);
+      assert.equal(await page.locator('[data-filter-tag]').count(), TAGS.length);
       assert.equal(await page.locator('[data-entity-combo] [data-combo-chip]').count(), 1);
       assert.deepEqual(unexpected(opened), []);
     } finally {
@@ -314,13 +314,13 @@ describe('实体页筛选浮层', () => {
         pressed: document.querySelector('[data-media-view][aria-pressed="true"]')?.getAttribute('data-media-view'),
         views: [...document.querySelectorAll('[data-media-view]')].map((node) => node.getAttribute('data-media-view')),
         sorts: document.querySelectorAll('[data-entity-sort]').length,
-        tags: document.querySelectorAll('[data-entity-tag]').length,
+        tags: document.querySelectorAll('[data-filter-tag]').length,
         cards: document.querySelectorAll('#index [data-entity-body] [data-index-grid] > [data-index-cell]').length,
       }));
       assert.deepEqual(roster, { readout: '艺人 · 3', pressed: 'people', views: ['people', 'videos'], sorts: 0, tags: 0, cards: 3 });
       await page.locator('[data-media-view="videos"]').click();
       await page.locator('[data-entity-readout]', { hasText: '视频 · 24' }).waitFor({ timeout: 15_000 });
-      assert.equal(await page.locator('[data-entity-tag]').count(), AGENCY.tags.length);
+      assert.equal(await page.locator('[data-filter-tag]').count(), AGENCY.tags.length);
       assert.ok(await page.locator('[data-entity-sort]').count() > 0);
       assert.equal(await page.locator('[data-entity-layout][aria-label="JAV 卡片版式"]').count(), 0);
       assertCovers(await glideOver(page, '[data-view-glide="round"]', '[data-media-view="videos"]'), '视频键');
