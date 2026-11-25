@@ -2102,6 +2102,8 @@
     "jobsFailed": "Verification jobs failed: {{jobs}}",
     "noPlan": "No verification plan was generated; upstream jobs failed: {{jobs}}",
     "noVerifiedBase": "No verified baseline found; using the full suite: {{error}}",
+    "reuseUnavailable": "No test proof found for the same content on the pull request; running as usual: {{error}}",
+    "reusedSummary": "This merge commit's content tree already passed on the pull request; reusing that run's test proof: {{url}}",
     "description": "Build the CI matrix from the verified baseline and the commit's impact; unknown scope and manual runs use the full suite."
   },
   "ci_r2_artifacts": {

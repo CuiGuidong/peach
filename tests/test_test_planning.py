@@ -507,6 +507,49 @@ class TestPlanningTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             ci_plan.validate_results(passed, [])
 
+    def test_returned_translations_skip_browser_jobs_while_bundled_languages_keep_them(self):
+        returned = ['resources/locales/ko/navigation.json', 'resources/locales/glossary/ko.tbx',
+                    'scripts/locales/ko/dev.json']
+        planned = ci_plan.plan('pull_request', returned)
+        self.assertFalse(planned['browser'])
+        self.assertNotIn('web-e2e', planned['required_jobs'])
+        for language in sorted(ci_plan.BUNDLED_LOCALES):
+            with self.subTest(language=language):
+                self.assertTrue(ci_plan.plan('pull_request', [f'resources/locales/{language}/navigation.json'])['browser'])
+        self.assertTrue(ci_plan.plan('pull_request', [*returned, 'frontend/src/i18n/index.ts'])['browser'])
+        # 前端静态导入哪些语言，哪些语言的改动就要过浏览器回归。
+        index = (runner.ROOT / 'frontend/src/i18n/index.ts').read_text(encoding='utf-8')
+        imported = {line.split('resources/locales/', 1)[1].split('/', 1)[0]
+                    for line in index.splitlines() if line.startswith('import ') and 'resources/locales/' in line}
+        self.assertEqual(imported, set(ci_plan.BUNDLED_LOCALES))
+
+    def test_a_reused_mainline_run_needs_no_test_jobs_but_still_rejects_failures(self):
+        results = {name: {'result': 'success'} for name in ci_plan.REUSED_JOBS}
+        results |= {name: {'result': 'skipped'} for name in ('python', 'web-e2e', 'web-bundle')}
+        ci_plan.validate_results(results, ci_plan.REUSED_JOBS, reused=True)
+        with self.assertRaises(ValueError):
+            ci_plan.validate_results(results, ci_plan.REUSED_JOBS)
+        with self.assertRaises(ValueError):
+            ci_plan.validate_results(results | {'python': {'result': 'failure'}}, ci_plan.REUSED_JOBS, reused=True)
+
+    def test_a_mainline_plan_records_the_reused_run_and_only_then_drops_the_test_jobs(self):
+        url = 'https://github.com/example/peach/actions/runs/123'
+        for reused in (url, ''):
+            with self.subTest(reused=bool(reused)), tempfile.TemporaryDirectory() as folder:
+                output = Path(folder) / 'output'
+                with patch.object(sys, 'argv', ['ci_plan.py', '--event', 'push', '--base', 'unused']), \
+                        patch.dict(ci_plan.os.environ, {'GITHUB_OUTPUT': str(output)}), \
+                        patch.object(ci_plan, 'github_verified_base', return_value='master'), \
+                        patch.object(runner, 'changed_files', return_value=['docs/TESTING.md']), \
+                        patch.object(runner, 'changed_contents', return_value={}), \
+                        patch.object(ci_plan, 'reused_run', return_value=reused) as lookup, \
+                        contextlib.redirect_stdout(io.StringIO()):
+                    ci_plan.main()
+                written = dict(line.split('=', 1) for line in output.read_text(encoding='utf-8').splitlines())
+                self.assertEqual(lookup.call_args.args[3], ('checks',))
+                self.assertEqual(written['reused'], reused)
+                self.assertEqual('python' in json.loads(written['required_jobs']), not reused)
+
     def test_result_gate_names_the_failed_upstream_when_no_plan_was_produced(self):
         results = {'workflow-lint': {'result': 'failure'}, 'plan': {'result': 'skipped'}}
         with patch.object(sys, 'argv', ['ci_plan.py', '--verify-results']), \
@@ -640,8 +683,10 @@ class TestPlanningTests(unittest.TestCase):
             self.assertEqual(values['base'], base)
             self.assertEqual(git('diff', '--name-only', values['base'] + '...HEAD'), 'README.md')
             result = json.loads(output.getvalue())
-            for key in result.keys() - {'base'}:
+            for key in result.keys() - {'base', 'reused'}:
                 self.assertEqual(json.loads(values[key]), result[key])
+            # 直接提交没有可沿用的 PR 运行；空值让各测试任务照常执行。
+            self.assertEqual((values['reused'], result['reused']), ('', ''))
 
     def test_venv_interpreter_path_keeps_environment_identity(self):
         with tempfile.TemporaryDirectory() as directory:

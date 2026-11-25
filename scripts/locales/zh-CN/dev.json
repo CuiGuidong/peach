@@ -2102,6 +2102,8 @@
     "jobsFailed": "验证任务未通过：{{jobs}}",
     "noPlan": "验证计划未生成，上游任务未通过：{{jobs}}",
     "noVerifiedBase": "已验证基线未取得，使用全量：{{error}}",
+    "reuseUnavailable": "同内容的 PR 测试证明未取得，照常执行：{{error}}",
+    "reusedSummary": "本次合并提交的内容树已在 PR 上通过验证，沿用该运行的测试证明：{{url}}",
     "description": "按已验证基线与提交影响生成 CI 矩阵，未知范围与手动验证使用全量。"
   },
   "ci_r2_artifacts": {
