@@ -35,6 +35,8 @@ export interface Visit {
   close(): Promise<void>;
 }
 
+const problemsByPage = new WeakMap<Page, string[]>();
+
 export interface Layout {
   viewportWidth: number;
   scrollWidth: number;
@@ -104,7 +106,7 @@ export async function quiesce(context: BrowserContext): Promise<void> {
   }));
 }
 
-/** 失败时保留焦点、输入和弹层现场；成功路径不额外查询页面。 */
+/** 失败时保留运行期错误、焦点、输入和弹层现场。 */
 export async function withPageDiagnostics<T>(page: Page, where: string | (() => string), action: () => Promise<T>): Promise<T> {
   try {
     return await action();
@@ -123,7 +125,8 @@ export async function withPageDiagnostics<T>(page: Page, where: string | (() => 
         .slice(0, 12).map(node => ({ tag: node.tagName, id: node.id, label: node.getAttribute('aria-label') })),
     })).catch(() => '未取得');
     const tree = await page.locator('body').ariaSnapshot({ timeout: 2000 }).catch(() => '未取得');
-    throw new Error(`${typeof where === 'function' ? where() : where}：${String(error)}\n页面现场：${JSON.stringify(state)}\n无障碍树：\n${tree.slice(0, 4000)}`,
+    const problems = problemsByPage.get(page)?.slice(-12) ?? [];
+    throw new Error(`${typeof where === 'function' ? where() : where}：${String(error)}\n运行期问题：${JSON.stringify(problems)}\n页面现场：${JSON.stringify(state)}\n无障碍树：\n${tree.slice(0, 4000)}`,
       { cause: error });
   }
 }
@@ -236,6 +239,7 @@ export async function visit(browser: Browser, path: string, viewport: Viewport,
   });
   const page = await context.newPage();
   const problems: string[] = [];
+  problemsByPage.set(page, problems);
   page.on('pageerror', (error) => problems.push(`pageerror ${error.message}`));
   page.on('console', (message) => {
     if (message.type() === 'error') problems.push(`console ${message.text()}`);

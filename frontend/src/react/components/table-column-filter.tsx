@@ -63,6 +63,13 @@ export function ColumnFilterPopover({ id, label, copyKey, active, view, toolbar,
       data-entity-press={inToolbar ? '' : undefined} onPointerEnter={view?.onPointerEnter}
       className={inToolbar ? undefined : 'min-w-0 max-w-full justify-start [&>span]:min-w-0'}
       aria-label={t('catalog:columnFilter.label', { column: label })} aria-haspopup="dialog" aria-expanded={open}
+      onKeyDown={inToolbar ? drag?.onKeyDown : event => {
+        if (event.altKey || (event.key !== 'Enter' && event.key !== ' ')) return;
+        // 表头的导航会处理 Enter 与空格。焦点在筛选键上时由筛选键打开自己的菜单。
+        event.preventDefault();
+        event.stopPropagation();
+        changeOpen(true);
+      }}
       onClick={event => { if (event.altKey) return; event.stopPropagation(); changeOpen(true) }}>
       <span className="truncate" data-copy-key={copyKey}>{label}</span>
     </Trigger>

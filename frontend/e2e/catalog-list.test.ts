@@ -243,7 +243,8 @@ describe('馆藏卡片与列表', () => {
       await checkbox.focus();
       const before = await checkbox.isChecked();
       await page.keyboard.press('Space');
-      assert.equal(await checkbox.isChecked(), !before);
+      await page.waitForFunction(({ input, checked }) => input instanceof HTMLInputElement
+        && input.checked === checked, { input: await checkbox.elementHandle(), checked: !before }, { timeout: 5000 });
       await page.keyboard.press('Escape');
       await page.locator('[data-selection-placement]').waitFor({ state: 'detached' });
       await page.waitForFunction(() => document.activeElement?.getAttribute('aria-label') === '显示列');
@@ -303,8 +304,10 @@ describe('馆藏卡片与列表', () => {
           await trigger.focus();
           assert.equal(await trigger.evaluate(node => node === document.activeElement), true);
           await trigger.press('Space');
-          const dialog = page.getByRole('dialog', { name, exact: true });
-          await dialog.locator('input[type="range"][aria-valuetext="不限"]').waitFor({ state: 'attached', timeout: 5000 });
+          const dialog = header ? page.getByRole('dialog', { name, exact: true }) : page.locator('[data-sort-direction-menu]');
+          if (name === '筛选观看次数') {
+            await dialog.locator('input[type="range"][aria-valuetext="不限"]').waitFor({ state: 'attached', timeout: 5000 });
+          }
           await dialog.getByRole('textbox', { name: /^最大值/ }).fill(value);
           await dialog.getByRole('button', { name: '应用范围', exact: true }).click();
         });

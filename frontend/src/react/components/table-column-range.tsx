@@ -179,13 +179,13 @@ export function TableRangeFields({ label, kind, value, rangeValues, rangeQuery, 
   const sliderRef = useRef<HTMLDivElement>(null);
   const readNumber = (number: number) => units ? `${number.toLocaleString()} ${units}` : number.toLocaleString();
   const lowerText = readNumber(lower);
-  const upperText = kind !== 'score' && upper === sliderEnd ? noLimit : readNumber(upper);
+  const upperText = !fixedScale && upper === sliderEnd ? noLimit : readNumber(upper);
   useLayoutEffect(() => {
-    // BoardUI 的 RangeSlider 封装了 React Aria 的两个原生滑块，业务读数由这一层补充。
+    // 计数范围载入后 React Aria 会更新滑块数值，即使读屏文字仍是「不限」。
     const thumbs = sliderRef.current?.querySelectorAll('input[type="range"]');
     thumbs?.[0]?.setAttribute('aria-valuetext', lowerText);
     thumbs?.[1]?.setAttribute('aria-valuetext', upperText);
-  }, [lowerText, upperText]);
+  }, [lowerText, upperText, sliderEnd]);
   const changeBound = (text: string, upperBound: boolean) => {
     (upperBound ? setMax : setMin)(text);
     if (!slider?.extension) return;
