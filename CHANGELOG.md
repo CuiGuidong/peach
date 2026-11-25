@@ -1,5 +1,7 @@
 # Changelog / 变更日志
 
+[Telegram channel / Telegram 频道](https://t.me/peach_mitao)
+
 Notable changes in each Peach release. Each line puts English first, then ` / `, then Simplified Chinese. GitHub releases show English with a collapsed Chinese section. Sparkle shows the update notes in the preferred supported language. / 本文件记录 Peach 每个发布版本的主要变化。每行英文在前，` / ` 之后是简体中文。GitHub Release 正文显示英文，并附折叠的简体中文段。Sparkle 按首选语言显示英文或简体中文更新日志。
 
 The format follows [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) and versions follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html). Groups are `Added / 新增`, `Changed / 变更`, `Deprecated / 弃用`, `Removed / 移除`, `Fixed / 修复` and `Security / 安全`. / 格式遵循 [Keep a Changelog 1.1.0](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [Semantic Versioning 2.0.0](https://semver.org/lang/zh-CN/spec/v2.0.0.html)；分组标题见上。
