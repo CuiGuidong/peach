@@ -106,7 +106,7 @@ class JavDBBrowserLoginRouteTests(unittest.TestCase):
         self.app.state.web_contract = SimpleNamespace(javdb_browser_login=self.login)
 
     def test_remote_status_is_idle_and_launch_or_cancel_is_local_only(self):
-        client = TestClient(self.app, base_url="http://127.0.0.1", client=("192.168.1.125", 4321))
+        client = TestClient(self.app, base_url="http://127.0.0.1", client=("192.0.2.125", 4321))
         self.assertEqual(client.get(self.URL).json(), {"available": False, "state": "idle", "message": ""})
         self.assertEqual(client.post(self.URL).status_code, 403)
         self.assertEqual(client.post(f"{self.URL}/cancel").status_code, 403)

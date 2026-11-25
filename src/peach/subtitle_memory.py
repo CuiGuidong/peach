@@ -47,6 +47,16 @@ def _track_details(track):
     return key, name, text
 
 
+def _validate_subtitle_offsets(offsets) -> None:
+    if not isinstance(offsets, dict) or any(
+        not isinstance(key, str) or not 0 < len(key) <= 1024
+        or not key.startswith(("native:", "sidecar:", "file:", "subtitlecat:"))
+        or type(offset) is not int or abs(offset) > MAX_OFFSET_MS
+        for key, offset in offsets.items()
+    ):
+        raise UserValueError("errors.subtitleMemory.invalidOffsets")
+
+
 def _validate_patch(patch: dict) -> None:
     """校验补丁字段与播放设置取值，字幕内容单独检查。"""
     if not isinstance(patch, dict) or not patch or patch.keys() - (PREFERENCES | {"selected", "track"}):
@@ -68,14 +78,7 @@ def _validate_patch(patch: dict) -> None:
     if "position" in patch:
         _validate_resume_position(patch["position"])
     if "subtitle_offsets" in patch:
-        offsets = patch["subtitle_offsets"]
-        if not isinstance(offsets, dict) or any(
-            not isinstance(key, str) or not 0 < len(key) <= 1024
-            or not key.startswith(("native:", "sidecar:", "file:", "subtitlecat:"))
-            or type(offset) is not int or abs(offset) > MAX_OFFSET_MS
-            for key, offset in offsets.items()
-        ):
-            raise UserValueError("errors.subtitleMemory.invalidOffsets")
+        _validate_subtitle_offsets(patch["subtitle_offsets"])
     selected = patch.get("selected")
     if selected is not None and (not isinstance(selected, str) or len(selected) > 1024):
         raise UserValueError("errors.subtitleMemory.invalidSelection")

@@ -252,7 +252,7 @@ class SourceBrowserLoginRouteTests(unittest.TestCase):
         self.login.cancel.return_value = {"message": "", "state": "cancelled"}
         app.state.web_contract = SimpleNamespace(source_browser_logins={"f95zone": self.login})
         self.local = TestClient(app, base_url="http://127.0.0.1", client=("127.0.0.1", 4321))
-        self.remote = TestClient(app, base_url="http://127.0.0.1", client=("192.168.1.125", 4321))
+        self.remote = TestClient(app, base_url="http://127.0.0.1", client=("192.0.2.125", 4321))
 
     def test_remote_and_cross_origin_requests_cannot_launch_or_cancel(self):
         self.assertEqual(self.remote.get(self.URL).json(), {"available": False, "state": "idle", "message": ""})
