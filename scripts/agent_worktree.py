@@ -27,8 +27,7 @@ from .release_tag import MASTER_WRITER
 WORKTREE_ROOT = "peach-worktrees"
 
 #: Claude Code 内置工作树的落点。分支集成后它自己不收：目录留在主检出里，成了一份看不出
-#: 区别的旧副本（见 CLAUDE.md）。`tests/test_repo_hygiene.py` 拦得住，但拦住之后没有任何
-#: 入口能清掉已经在那儿的，只能让人手删——`prune --apply` 顺带扫掉这块。
+#: 区别的旧副本（见 CLAUDE.md）。`create` 开工时报出未登记的目录，`prune --apply` 扫掉空的。
 BUILTIN_WORKTREES = Path(".claude") / "worktrees"
 
 #: `create` 加锁写的原因。锁只在 `integrate` 合入该分支时解开；批量集成、GitHub 上合入、
@@ -121,9 +120,37 @@ def create(repo: Path, agent: str, task: str, root: Path | None = None) -> dict[
         "branch": branch,
         "base": _git(target, "rev-parse", "HEAD").stdout.strip(),
         "main_dirty": bool(_git(main, "status", "--porcelain").stdout.strip()),
+        "unregistered": unregistered_directories(main),
         "orphan_processes": found if isinstance(found, str) else
                             [row for row in found if row["orphan"]],
     }
+
+
+def unregistered_directories(main: Path) -> list[str]:
+    """两个工作树落点里未登记的目录，开工时随 `create` 报出。
+
+    工作树被回收后目录可能留在原地，成了一份看不出区别的旧副本：在里面跑 git 全部作用于
+    主检出的 master。这是本机的目录状态，不是某次改动的内容，所以在开工入口提醒、由 `prune`
+    处理，不放进每次交付都要过的测试。同一落点里别的仓库登记的工作树不算。
+    """
+    registered = {Path(item["path"]).resolve() for item in _worktree_entries(main)}
+    found: list[str] = []
+    for root in _worktree_roots(main):
+        if not root.is_dir():
+            continue
+        for path in sorted(root.iterdir()):
+            if path.is_dir() and path.resolve() not in registered and not _registered_in_own_repository(path):
+                found.append(str(path))
+    return found
+
+
+def _registered_in_own_repository(path: Path) -> bool:
+    if not (path / ".git").exists():
+        return False
+    try:
+        return path.resolve() in {Path(item["path"]).resolve() for item in _worktree_entries(path)}
+    except WorkspaceError:
+        return False
 
 
 def _scheduled_prune(main: Path) -> dict[str, object] | None:

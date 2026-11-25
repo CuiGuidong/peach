@@ -842,13 +842,15 @@ def environment_preflight(scopes: tuple[str, ...], timings: Path | None = None,
     raise SystemExit(3)
 
 
-#: 分片之前单独先跑的秒级检查（合计约 1 分钟）：仓库策略、ADR 编号、复杂度与依赖清单。
+#: 分片之前单独先跑的秒级检查（合计约 1.5 分钟）：仓库策略、ADR 编号、复杂度、依赖清单，
+#: 以及只读源码就能判定的文案基线、模块分层、开发文案与更新日志格式。
 #: 先收齐这组检查与所选的前端构建和单测，再据快速门槛结果决定是否启动其余分片。
 GATE_TESTS = frozenset({
     "test_script_policy", "test_subprocess_encoding", "test_copy_final_state", "test_context_budget",
     "test_source_assertion_ratchet", "test_complexity_ratchet", "test_python_lint",
     "test_outbound_proxy_policy", "test_repo_hygiene", "test_dependency_policy",
     "test_reference_updates", "test_frontend_preflight",
+    "test_user_messages", "test_module_layering", "test_dev_text", "test_changelog",
 })
 #: 失败后单独重跑的文件数上限。失败面更大多半是真回归，重跑只会再白等一轮。
 RERUN_LIMIT = 6
@@ -1046,6 +1048,21 @@ def run_shard_child(args, requested, scopes, files) -> int:
     return 0 if success else 1
 
 
+def drop_injected_git_config(environ=None) -> list[str]:
+    """去掉外层工具经环境变量注入的 Git 命令行配置，返回去掉的变量名。
+
+    `GIT_CONFIG_COUNT` 与成对的 `GIT_CONFIG_KEY_n`、`GIT_CONFIG_VALUE_n` 只要缺一个，git 的每条
+    命令都以「missing config value」退出：依赖 git 的用例整组失败或跳过，与被验证的改动无关。
+    测试用到的 Git 配置由夹具和调用处自己给出，不依赖外层会话。
+    """
+    environ = os.environ if environ is None else environ
+    names = sorted(name for name in environ
+                   if name == "GIT_CONFIG_COUNT" or name.startswith(("GIT_CONFIG_KEY_", "GIT_CONFIG_VALUE_")))
+    for name in names:
+        del environ[name]
+    return names
+
+
 def scope_name(value: str) -> str:
     """`--scope` 的取值：`full`、`auto`、登记的域，或 `auto` 按文件补选的测试文件名。"""
     if value in ("full", "auto", *SCOPES) or change_impact.EXACT_TEST.fullmatch(value) and (TESTS / value).is_file():
@@ -1063,6 +1080,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--focus", action="append", default=[], help=t("test_runner.helpFocus"))
     parser.add_argument("--rerun-failures", action="store_true",
                         help=t("test_runner.helpRerunFailures"))
+    parser.add_argument("--gate", action="store_true", help=t("test_runner.helpGate"))
     parser.add_argument("--full-lock-held", action="store_true", help=argparse.SUPPRESS)
     parser.add_argument("--lock-timeout", type=float, default=math.inf,
                         help=t("test_runner.helpLockTimeout"))
@@ -1089,6 +1107,11 @@ def main(argv: list[str] | None = None) -> int:
         parser.error(t("test_runner.resumePlanParentOnly"))
     if args.rerun_failures and not args.focus:
         parser.error(t("test_runner.rerunFailuresFocusOnly"))
+    if args.gate and (args.focus or args.fresh or args.resume or args.shard_count > 1 or args.shard_plan is not None):
+        parser.error(t("test_runner.gateAlone"))
+    dropped = drop_injected_git_config()
+    if dropped and args.shard_plan is None:
+        print(t("test_runner.gitConfigDropped", names=", ".join(dropped)), flush=True)
     try:
         test_slots.slot_count()
     except ValueError as error:
@@ -1111,6 +1134,10 @@ def main(argv: list[str] | None = None) -> int:
     environment_preflight(scopes, args.timings, shard_count=args.shard_count)
     files = {path for scope in scopes for path in selected_files(scope)}
     print(f"Peach test scope: {' '.join(scopes)} ({len(files)} files)", flush=True)
+    if args.gate:
+        # 推送前的快速一轮：本次范围里的快速门槛与前端构建、单测，按定向调试执行，不签发记录。
+        args.focus = sorted(path.stem for path in files if path.stem in GATE_TESTS or path.stem == "test_frontend_build")
+        return run_focus(parser, args)
     if args.shard_count > 1 or args.shard_plan is not None:
         # CI 的每片独立 runner，或父进程派出的分片（含只有一片的快速门槛）；分片绝不签发本机记录。
         return run_shard_child(args, requested, scopes, files)

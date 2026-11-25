@@ -189,6 +189,17 @@ class TestPlanningTests(unittest.TestCase):
                 self.assertNotIn('full', scopes)
         self.assertNotIn('delivery', runner.scopes_for_changes(['docs/TESTING.md', 'scripts/render_star_history.py'])[0])
 
+    def test_rule_versions_and_the_document_linter_rules_select_their_readers_without_full(self):
+        for path in ('src/peach/upgrade_rules.py', 'src/peach/artifact_rules.py'):
+            with self.subTest(path=path):
+                scopes, why = runner.scopes_for_changes([path])
+                self.assertNotIn('full', scopes, why)
+                selected = {file.name for scope in scopes for file in runner.selected_files(scope)}
+                self.assertLessEqual({'test_upgrade_repairs.py', 'test_jav_covers.py', 'test_local_poster.py',
+                                      'test_metadata_library.py', 'test_processing_traffic.py'}, selected)
+        self.assertEqual(runner.scopes_for_changes(['seiso.toml'])[0], ('checks',))
+        self.assertIn('test_copy_final_state.py', {file.name for file in runner.selected_files('checks')})
+
     def test_changed_language_entries_select_their_readers(self):
         path = 'resources/locales/zh-CN/server.json'
         before = (runner.ROOT / path).read_text(encoding='utf-8')
@@ -1125,6 +1136,52 @@ class GateAndFlakyRerunTests(unittest.TestCase):
                 patch.object(test_focus, 'run', return_value=0) as focused:
             self.assertEqual(runner.main(['--focus', 'frontend/e2e/design-people.test.ts']), 0)
         self.assertEqual(focused.call_count, 1)
+
+    def test_the_gate_run_takes_the_quick_checks_and_frontend_container_of_the_selected_scope(self):
+        from scripts import test_focus
+        captured = {}
+
+        def focused(_runner, args):
+            captured['focus'] = list(args.focus)
+            return 0
+        with patch.object(runner.test_evidence, 'held', side_effect=AssertionError('推送前自查不取得共享锁')), \
+                patch.object(runner, 'environment_preflight'), \
+                patch.object(test_focus, 'run', side_effect=focused), contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(runner.main(['--scope', 'web', '--gate']), 0)
+        selected = {path.stem for path in runner.selected_files('web')}
+        self.assertEqual(set(captured['focus']), selected & (runner.GATE_TESTS | {'test_frontend_build'}))
+        self.assertLessEqual({'test_frontend_build', 'test_user_messages', 'test_complexity_ratchet'},
+                             set(captured['focus']))
+        self.assertNotIn('test_web_e2e', captured['focus'])
+        for extra in (['--focus', 'test_media'], ['--fresh'], ['--resume']):
+            with self.subTest(extra=extra), self.assertRaises(SystemExit), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                runner.main(['--scope', 'web', '--gate', *extra])
+
+    def test_git_configuration_injected_by_the_outer_session_is_dropped_before_tests_use_git(self):
+        """外层会话留下的半套 `GIT_CONFIG_*` 会让每条 git 命令失败；运行器开跑前去掉它们。"""
+        environ = {**os.environ, 'GIT_CONFIG_COUNT': '1', 'GIT_CONFIG_KEY_0': 'credential.helper'}
+        environ.pop('GIT_CONFIG_VALUE_0', None)
+        command = ['git', '-C', str(runner.ROOT), 'rev-parse', '--git-dir']
+        broken = subprocess.run(command, env=environ, capture_output=True, text=True, encoding='utf-8', check=False)
+        self.assertNotEqual(broken.returncode, 0)
+        self.assertIn('GIT_CONFIG_VALUE_0', broken.stderr)
+        environ['GIT_CONFIG_GLOBAL'] = os.devnull
+        self.assertEqual(runner.drop_injected_git_config(environ), ['GIT_CONFIG_COUNT', 'GIT_CONFIG_KEY_0'])
+        self.assertEqual(environ['GIT_CONFIG_GLOBAL'], os.devnull)
+        subprocess.run(command, env=environ, capture_output=True, check=True)
+
+    def test_focus_accepts_dotted_and_path_spellings_of_the_same_module(self):
+        from scripts import test_focus, test_slots
+        def ids(selector):
+            return sorted(CIFrontendOwnershipTests.ids(test_focus.selection(runner.ROOT, [selector])[0]))
+        expected = ids('test_dev_text')
+        for spelling in ('tests.test_dev_text', 'tests/test_dev_text.py'):
+            with self.subTest(spelling=spelling):
+                self.assertEqual(ids(spelling), expected)
+        self.assertTrue(expected)
+        spellings = [f'tests.test_{index}' for index in range(test_slots.FOCUS_FREE_FILES)]
+        self.assertFalse(test_slots.focus_needs_slot([*spellings, 'tests/test_0.py', 'test_0']))
 
     def test_named_modules_include_their_direct_behavior_consumers(self):
         for module, consumers in (

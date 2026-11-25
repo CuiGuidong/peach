@@ -155,6 +155,12 @@ follow = [
 # 一个文件可以落到多个域：读它的测试登记在哪个域，改它就得跑到哪个域。
 # `tests/test_test_planning.py` 按测试源码里真实读到的路径反查这两张表，漏一条本地就红。
 [auto_scope_files]
+# 升级补修与派生产物的规则版本：没有同名测试，消费者互相导入，按名字和导入者都推不出域。
+# 取直接读它们的测试与补修模块所在的域。
+"src/peach/upgrade_rules.py" = ["catalog", "media", "metadata", "tooling", "web"]
+"src/peach/artifact_rules.py" = ["catalog", "media", "metadata", "tooling", "web"]
+# 文档检查器的规则，只由 checks 里的文案终态检查读取。
+"seiso.toml" = ["checks"]
 "src/peach/attended_browser_login.py" = ["catalog", "follow", "metadata"]
 "src/peach/browser_transport.py" = ["catalog", "follow", "metadata"]
 "src/peach/source_browser_login.py" = ["follow", "metadata"]

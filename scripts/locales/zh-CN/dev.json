@@ -2397,6 +2397,8 @@
     "syncing": "按 uv.lock 同步测试环境：{{path}}",
     "syncFailed": "测试依赖同步失败（退出码 {{code}}）；未启动测试。",
     "frontendDrift": "前端依赖与 frontend/package-lock.json 不一致（{{package}}）；未启动测试。先执行：{{command}}",
+    "installingFrontend": "按锁文件安装前端依赖：{{path}}",
+    "frontendInstallFailed": "前端依赖安装失败（退出码 {{code}}）；未启动测试。排除原因后执行：{{command}}",
     "description": "正式测试入口的依赖准备，只在隔离工作树自动同步环境。"
   },
   "test_evidence": {
@@ -2492,6 +2494,9 @@
     "shardRange": "分片总数必须为正数，编号从 0 开始且小于总数",
     "resumePlanParentOnly": "恢复计划仅供正式父运行的分片使用",
     "rerunFailuresFocusOnly": "--rerun-failures 只用于定向运行；正式入口本来就会单独重跑失败文件",
+    "helpGate": "只跑本次范围里的快速门槛与前端构建、单测，用于推送前自查；不签发记录",
+    "gateAlone": "--gate 不与 --focus、--fresh、--resume 或分片参数同用",
+    "gitConfigDropped": "已忽略外层会话注入的 Git 配置：{{names}}",
     "focusEnvironment": "定向调试环境不能签发正式记录；请清除 PEACH_TEST_FOCUS、PEACH_E2E_FILES 与 PEACH_VITEST_FILES",
     "autoAlone": "auto 不能与别的域同时指定",
     "ciFrontendDelegated": "CI 前端工具检查由 web-bundle 验证；本次不签发本机测试记录。",

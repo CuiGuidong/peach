@@ -231,6 +231,19 @@ class AgentWorktreeTests(_WorktreeCase):
         self.assertIn("worker.txt", merged["files"])
         self.assertEqual((self.repo / "worker.txt").read_text(encoding="utf-8"), "worker\n")
 
+    def test_create_reports_unregistered_directories_left_in_the_worktree_root(self):
+        """回收后留在落点里的旧目录在开工时报出；登记过的工作树和别的仓库的工作树不算。"""
+        landing = self.root / "peach-worktrees"
+        stale = landing / "stale-copy"
+        stale.mkdir(parents=True)
+        (stale / "notes.txt").write_text("left behind\n", encoding="utf-8")
+        other = seed_repository(self.root / "other", {"tracked.txt": "base\n"}, "base")
+        _git(other, "worktree", "add", "-b", "side", str(landing / "other-side"), "HEAD")
+        first = create(self.repo, "Claude", "first task")
+        second = create(self.repo, "Claude", "second task")
+        self.assertEqual(Path(first["path"]).parent, landing)
+        self.assertEqual(second["unregistered"], [str(stale)])
+
     def test_ready_rejects_dirty_worker(self):
         result = create(self.repo, "Codex", "dirty task", self.root / "worktrees")
         worker = Path(result["path"])
