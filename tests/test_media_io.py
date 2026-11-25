@@ -204,6 +204,30 @@ class MediaIoTests(unittest.TestCase):
             process = worker._process
         self.assertIsNotNone(process.poll())
 
+    def test_a_slow_starting_worker_does_not_spend_the_first_call_deadline(self):
+        """解释器启动、导入不碰挂载：卡住的那条换了新子进程之后，下一条健康文件不因起进程慢判超时。"""
+        source = self.root / 'a.mp4'
+        source.write_bytes(b'x')
+        script = ('import sys, time\n'
+                  f'sys.path[:0] = {sys.path!r}\n'
+                  'time.sleep(1.0)\n'
+                  'import peach.media_io as m\n'
+                  'sys.exit(m.main(sys.argv[1:]))\n')
+        children, original_popen = [], subprocess.Popen
+
+        def slow_start(command, **options):
+            if command[-2:] == ['serve', '-']:
+                command = [sys._base_executable, '-c', script, 'serve', '-']
+            child = original_popen(command, **options)
+            children.append(child)
+            return child
+        with patch.object(media_io, 'TIMEOUT_SECONDS', 0.3), \
+                patch.object(media_io.subprocess, 'Popen', side_effect=slow_start), \
+                media_io.MountWorker() as worker:
+            self.assertEqual(worker.call('stat', str(source)).st_size, 1)
+            self.assertEqual(worker.call('stat', str(source)).st_size, 1)
+        self.assertEqual(len(children), 1)
+
     def test_scan_directory_timeout_restarts_the_worker_for_the_next_directory(self):
         from peach.scan_timings import ScanTimings
 

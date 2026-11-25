@@ -47,6 +47,21 @@ def setUpModule():
     unittest.addModuleCleanup(reader.stop)
 
 
+#: 只防工作线程卡死的上限，不是判据：负载高时一轮处理要几十秒，判据是线程自己的状态。
+HUNG_THREAD_SECONDS = 180.0
+
+
+def wait_while_running(done, *threads, until=None):
+    """等 `done()` 成立，或 `threads` 全部结束（再等也不会成立了），返回 `done()`。
+
+    `until` 是单调时钟上的卡死上限，默认从现在起 `HUNG_THREAD_SECONDS`。
+    """
+    until = time.monotonic() + HUNG_THREAD_SECONDS if until is None else until
+    while not done() and any(thread.is_alive() for thread in threads) and time.monotonic() < until:
+        time.sleep(0.01)
+    return done()
+
+
 def stub_provider():
     """只关心 r18.dev 那一档的用例用它：DMM 兜底与综合索引那两档按「没有」桩掉。
 
@@ -664,8 +679,10 @@ class LibraryNfoTests(unittest.TestCase):
                       return_value={'aliases': 0, 'avatars': 0, 'conflicts': 0, 'failed': 0}):
             thread = threading.Thread(target=run)
             thread.start()
+            # 负载高时单条处理也要好几秒：等到停在暂停点，或这一轮没暂停就跑完了。
+            until = time.monotonic() + HUNG_THREAD_SECONDS
             try:
-                self.assertTrue(paused.wait(5), errors)
+                self.assertTrue(wait_while_running(paused.is_set, thread, until=until), (errors, results))
                 with closing(sqlite3.connect(db)) as connection:
                     self.assertEqual(connection.execute('SELECT catalog_title FROM asset').fetchone()[0], '已确认资料')
                 self.assertTrue(read_rows(self.root / 'generated/library-metadata-field-candidates.csv'))
@@ -674,7 +691,7 @@ class LibraryNfoTests(unittest.TestCase):
                 with pause_lock:
                     requested.set()
                     control.request('resume', 'one')
-                thread.join(5)
+                thread.join(max(0.0, until - time.monotonic()))
         self.assertFalse(thread.is_alive())
         self.assertEqual(errors, [])
         self.assertEqual((results[0]['job_id'], results[0]['status']), ('one', 'complete'))
@@ -4941,18 +4958,17 @@ class ProcessingLockTests(unittest.TestCase):
         with patch('peach.library_processing.LOCK_RETRY_SECONDS', 0.01):
             thread = threading.Thread(target=user_run)
             thread.start()
+            until = time.monotonic() + HUNG_THREAD_SECONDS
             try:
-                deadline = time.monotonic() + 10
-                while not library_processing._foreground_waiting() and time.monotonic() < deadline:
-                    time.sleep(0.01)
-                self.assertTrue(library_processing._foreground_waiting())
+                self.assertTrue(wait_while_running(library_processing._foreground_waiting, thread, until=until),
+                                errors)
                 stopped.set()
-                thread.join(10)
+                thread.join(max(0.0, until - time.monotonic()))
                 self.assertFalse(thread.is_alive())
             finally:
                 stopped.set()
                 holder.release()
-                thread.join(10)
+                thread.join(max(0.0, until - time.monotonic()))
         self.assertEqual(len(errors), 1)
         self.assertIsInstance(errors[0], InterruptedError)
         self.assertFalse(library_processing._foreground_waiting())
@@ -4996,18 +5012,18 @@ class ProcessingLockTests(unittest.TestCase):
                       return_value={'aliases': 0, 'avatars': 0, 'conflicts': 0, 'failed': 0}):
             thread = threading.Thread(target=user_run)
             thread.start()
+            until = time.monotonic() + HUNG_THREAD_SECONDS
             try:
-                deadline = time.monotonic() + 10
-                while not library_processing._foreground_waiting() and time.monotonic() < deadline:
-                    time.sleep(0.01)
-                self.assertTrue(library_processing._foreground_waiting())
+                self.assertTrue(wait_while_running(library_processing._foreground_waiting, thread, until=until),
+                                (errors, results))
                 with self.assertRaises(ProcessingBusy):
                     process_library(config, db, self.root / 'generated', self.root / 'covers', asset_ids=[1],
                                     stage='collect', state_file=self.root / 'state/upgrade-repairs/1.json',
                                     provider_factory=lambda: provider, database=database)
             finally:
                 holder.release()
-                thread.join(30)
+                thread.join(max(0.0, until - time.monotonic()))
+        self.assertFalse(thread.is_alive())
         self.assertEqual(errors, [])
         self.assertNotEqual(results[0].get('outcome'), 'interrupted')
         self.assertEqual(sorted({call.args[0] for call in provider.query.call_args_list}), ['ABW-358', 'ABW-359'])
@@ -5048,18 +5064,18 @@ class ProcessingLockTests(unittest.TestCase):
                 asset_ids=[1, 2], stage='collect', state_file=self.root / 'state/upgrade-repairs/1.json'))
             threads = [first]
             first.start()
+            until = time.monotonic() + HUNG_THREAD_SECONDS
             try:
-                self.assertTrue(entered.wait(10), f'后台处理尚未取得锁，实际结果：{background!r}')
+                self.assertTrue(wait_while_running(entered.is_set, first, until=until),
+                                f'后台处理尚未取得锁，实际结果：{background!r}')
                 second = threading.Thread(target=run, args=(user,))
                 second.start()
                 threads.append(second)
-                deadline = time.monotonic() + 10
-                while not library_processing._foreground_waiting() and time.monotonic() < deadline:
-                    time.sleep(0.01)
-                self.assertTrue(library_processing._foreground_waiting())
+                self.assertTrue(wait_while_running(library_processing._foreground_waiting, second, until=until),
+                                f'用户处理没有排上等锁，实际结果：{user!r}')
                 proceed.set()
                 for thread in threads:
-                    thread.join(30)
+                    thread.join(max(0.0, until - time.monotonic()))
                     self.assertFalse(thread.is_alive())
             finally:
                 stopping.set()
