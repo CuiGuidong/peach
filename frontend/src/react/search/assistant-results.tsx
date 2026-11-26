@@ -72,7 +72,7 @@ export function WorkSuggestion({ item }: { item: SearchWork }) {
   const image = artwork(item, 'library', true);
   const cast = peopleOf(item).slice(0, 2);
   return <>
-    <span className="relative grid aspect-4/3 w-12 shrink-0 place-items-center overflow-hidden rounded-md bg-background-tertiary-default text-foreground-icon-tertiary">
+    <span className="relative inline-grid aspect-4/3 w-12 shrink-0 place-items-center overflow-hidden rounded-md bg-background-tertiary-default text-foreground-icon-tertiary">
       <RiImageLine className="size-4" aria-hidden />
       {image ? <img src={image} alt="" className="absolute inset-0 size-full object-cover"
         onError={event => { event.currentTarget.hidden = true; }} /> : null}
@@ -100,9 +100,9 @@ function WorkCard({ item, source, localOnly, actions }: { item: SearchWork; sour
   return <article data-ai-search-work="" className="rounded-2xl border border-separator-border bg-background-primary-default">
     <a href={href} aria-label={title}
       target={item.demoSource ? '_blank' : undefined} rel={item.demoSource ? 'noreferrer' : undefined}
-      className="cardlink group flex min-w-0 items-start gap-3 rounded-2xl p-3 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus-ring sm:gap-4">
-      <span className={cx('relative grid shrink-0 place-items-center overflow-hidden rounded-lg bg-background-tertiary-default text-foreground-icon-tertiary',
-        item.demoCover ? 'aspect-[3/4] w-14 sm:w-20' : 'aspect-4/3 w-20 sm:w-28')}>
+      data-work-card-link="" className="group flex min-w-0 items-start gap-3 rounded-2xl p-3 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus-ring sm:gap-4">
+      <span className={cx('relative inline-grid shrink-0 place-items-center overflow-hidden rounded-lg bg-background-tertiary-default text-foreground-icon-tertiary',
+        item.demoCover ? 'aspect-3/4 w-14 sm:w-20' : 'aspect-4/3 w-20 sm:w-28')}>
         <RiImageLine aria-hidden="true" className="size-5" />
         {image ? <img src={image} loading={localOnly ? 'eager' : 'lazy'} decoding="async" alt={t('catalog:libraryAssistant.cover', { title })}
           className="absolute inset-0 size-full object-cover"
@@ -115,7 +115,7 @@ function WorkCard({ item, source, localOnly, actions }: { item: SearchWork; sour
           {item.studio ? <span className="max-w-full truncate">{item.studio}</span> : null}
         </div>
         <span className="flex min-w-0 items-start gap-2 text-body-medium text-text-primary">
-          <span className="line-clamp-2 flex-1 wrap-anywhere group-hover:underline group-focus-visible:underline" title={title}>{title}</span>
+          <span data-ai-search-work-title="" className="line-clamp-2 flex-1 wrap-anywhere group-hover:underline group-focus-visible:underline" title={title}>{title}</span>
           <RiArrowRightUpLine aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-foreground-icon-secondary" />
         </span>
         {shown.length ? <ul className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
@@ -152,7 +152,7 @@ export function SearchWorks({ result, source, localOnly = false, historical = fa
       : !result.items.length ? <Help>{copy(localOnly && source === 'external' ? 'cachedExternalEmpty' : 'empty')}</Help>
       : <ul className="flex min-w-0 flex-col gap-2.5">
         {result.items.map((item, index) => <li key={item.id ?? item.code} data-ai-search-reveal=""
-          className={index === 1 ? 'ai-search-reveal-second' : index === 2 ? 'ai-search-reveal-third' : undefined}>
+          data-ai-search-reveal-order={index === 1 ? 'second' : index === 2 ? 'third' : undefined}>
           <WorkCard item={item} source={source} localOnly={localOnly} actions={actions?.(item)} />
         </li>)}
       </ul>}
@@ -162,10 +162,10 @@ export function SearchWorks({ result, source, localOnly = false, historical = fa
 export function SearchResultSkeleton({ source }: { source: SearchSource }) {
   return <div aria-hidden="true" data-ai-search-results-loading={source} data-ai-search-source={source} data-ai-search-reveal=""
     className="flex min-w-0 items-start gap-3 rounded-2xl border border-separator-border bg-background-primary-default p-3">
-    <span className="skeleton aspect-4/3 w-20 shrink-0 rounded-lg sm:w-28" />
+    <span className="skeleton-sheen aspect-4/3 w-20 shrink-0 rounded-lg sm:w-28" />
     <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <span className="skeleton h-3 w-16 rounded-md" /><span className="skeleton h-5 w-3/4 rounded-md" />
-      <span className="skeleton h-4 w-2/5 rounded-md" />
+      <span className="skeleton-sheen h-3 w-16 rounded-md" /><span className="skeleton-sheen h-5 w-3/4 rounded-md" />
+      <span className="skeleton-sheen h-4 w-2/5 rounded-md" />
     </div>
   </div>;
 }

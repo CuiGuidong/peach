@@ -64,14 +64,14 @@ export function SearchDemoCases({ choose, children, visible, toggle }: {
   return <div className="flex w-full flex-col items-center gap-2">
     <div className="flex items-center gap-1">
       <p className="text-caption-1-medium text-text-secondary" data-copy-key="catalog.libraryAssistant.demoCases">{copy('demoCases')}</p>
-      <Button type="button" size="xs" variant="ghost" iconOnly leadingIcon={RiEyeOffLine} className="rounded-full"
+      <Button type="button" size="xs" variant="ghost" iconOnly leadingIcon={RiEyeOffLine} data-ai-button="round"
         onClick={toggle} aria-label={copy('hideDemoCases')} title={copy('hideDemoCases')} />
     </div>
     <div role="group" aria-label={copy('demoCases')} className="flex w-full flex-wrap justify-center gap-2">
       {(Object.keys(DEMOS) as SearchDemoId[]).map(id => {
         const key = 'demos.' + id + '.prompt';
         return <Button key={id} size="small" variant="secondary" data-copy-interact=""
-          className="h-auto min-w-0 max-w-full rounded-full px-3 py-2 text-left [&>span]:min-w-0 [&>span]:shrink"
+          data-ai-button="example" className="min-w-0 max-w-full text-left [&>span]:min-w-0 [&>span]:shrink"
           onClick={event => { if (!event.altKey) choose(id); }}>
           <span className="whitespace-normal wrap-anywhere" data-copy-key={'catalog.libraryAssistant.' + key}>{copy(key)}</span>
         </Button>;
@@ -118,7 +118,7 @@ export function SearchDemo({ id, simulation }: { id: SearchDemoId; simulation: R
   const { phase, results } = simulation;
   const promptKey = 'demos.' + id + '.prompt';
   return <>
-    <p className="ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-background-primary-default px-4 py-2.5 text-body-regular text-text-primary"
+    <p className="ml-auto assistant-message-width rounded-2xl rounded-br-md bg-background-primary-default px-4 py-2.5 text-body-regular text-text-primary"
       data-copy-key={'catalog.libraryAssistant.' + promptKey} data-ai-search-reveal="">{copy(promptKey)}</p>
     <p className="text-caption-1-regular text-text-secondary"
       data-copy-key="catalog.libraryAssistant.demoCatalogueStatus">{copy('demoCatalogueStatus')}</p>

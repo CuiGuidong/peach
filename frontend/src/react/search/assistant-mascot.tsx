@@ -161,20 +161,20 @@ export function AssistantMascot({ label }: { label: string }) {
     ], { delay: 130, duration: 390, easing: EASE_OUT });
   }
 
-  return <button ref={surface} type="button" className="ai-assistant-mascot" aria-label={label} data-copy-interact="" onClick={play}>
-    <svg className="ai-assistant-mascot-ripple" viewBox="0 0 64 64" aria-hidden="true">
+  return <button ref={surface} type="button" data-ai-assistant-mascot="" aria-label={label} data-copy-interact="" onClick={play}>
+    <svg data-ai-assistant-mascot-ripple="" viewBox="0 0 64 64" aria-hidden="true">
       <circle ref={ripple} cx="32" cy="34" r="25" />
     </svg>
-    <svg ref={body} className="ai-assistant-mascot-body" viewBox="0 0 64 64" aria-hidden="true">
+    <svg ref={body} data-ai-assistant-mascot-body="" viewBox="0 0 64 64" aria-hidden="true">
       <defs>
         <radialGradient id={shading} cx="34%" cy="22%" r="77%">
-          <stop className="ai-assistant-mascot-light" />
-          <stop className="ai-assistant-mascot-shade" offset="100%" />
+          <stop data-ai-assistant-mascot-light="" />
+          <stop data-ai-assistant-mascot-shade="" offset="100%" />
         </radialGradient>
       </defs>
-      <circle className="ai-assistant-mascot-shell" cx="32" cy="32" r="25" fill={`url(#${shading})`} />
-      <g ref={eyes} className="ai-assistant-mascot-gaze">
-        <g ref={lids} className="ai-assistant-mascot-lids"><path d="M24 29v6m16-6v6" /></g>
+      <circle data-ai-assistant-mascot-shell="" cx="32" cy="32" r="25" fill={`url(#${shading})`} />
+      <g ref={eyes} data-ai-assistant-mascot-gaze="">
+        <g ref={lids} data-ai-assistant-mascot-lids=""><path d="M24 29v6m16-6v6" /></g>
       </g>
     </svg>
   </button>;

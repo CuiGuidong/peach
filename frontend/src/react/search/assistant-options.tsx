@@ -1,4 +1,4 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Label, Popover, Radio, RadioGroup, Slider, SliderThumb, SliderTrack } from 'react-aria-components';
 import { RiAddLine, RiBuilding4Line, RiCalendarLine, RiCloseLine, RiEyeLine, RiPriceTag3Line, RiRestartLine, RiSortDesc, RiTranslate2, RiUser3Line } from '@remixicon/react';
@@ -23,7 +23,6 @@ import { ErrorText, Help } from '../settings/section';
 import { aiModelLabel, aiSearchModelsKey, type AIEffort, type AIModel } from '../settings/use-ai-models';
 import { assistantCopy as copy } from './assistant-workspace';
 import { AssistantSuggestInput } from './assistant-suggest';
-import './assistant-options.css';
 
 export const SEARCH_SCOPES = ['library', 'external', 'both'] as const;
 const LIBRARY_FILTERS = ['q', 'performer', 'studio', 'tag', 'year', 'period', 'state', 'sort', 'translation_missing'] as const;
@@ -41,7 +40,7 @@ const FIELD_OPTIONS = {
 export type SearchScope = typeof SEARCH_SCOPES[number];
 export type SearchField = typeof SEARCH_FIELDS[number];
 export type SearchFilters = Partial<Record<SearchField, string>>;
-const MENU_RADIO = 'ai-search-menu-row flex w-full min-w-0 cursor-pointer items-center gap-2 px-2 text-text-primary outline-none transition-colors';
+const MENU_RADIO = 'flex w-full min-w-0 cursor-pointer items-center gap-2 px-2 text-text-primary outline-none transition-colors';
 
 function ComposerPopover({ label, title, mark, count, side, disabled, children, expanded, onExpanded }: {
   label: string; title: string; count?: number; side: 'start' | 'end'; disabled: boolean;
@@ -56,14 +55,14 @@ function ComposerPopover({ label, title, mark, count, side, disabled, children, 
     <Button ref={trigger} type="button" size="small" variant="ghost"
       leadingIcon={start ? (open ? RiCloseLine : RiAddLine) : undefined} trailingIcon={start ? undefined : MenuChevron}
       iconOnly={start} data-ai-composer-trigger={side} data-has-filters={start && Boolean(count) || undefined}
-      className="shrink-0 rounded-full"
+      className="shrink-0"
       aria-label={label} title={title} disabled={disabled}
       aria-haspopup="dialog" aria-expanded={open && !disabled} onClick={() => setOpen(!open)}>
       <span className="flex min-w-0 items-center gap-1.5">{mark}<span className="truncate">{title}</span></span>
     </Button>
     <Popover triggerRef={trigger} isOpen={open && !disabled} onOpenChange={setOpen} placement={start ? 'top start' : 'top end'}
       shouldCloseOnInteractOutside={start ? outsideTableDateBound : undefined}
-      offset={8} data-ai-composer-menu={side} className={cx(MENU_POPOVER_SURFACE, 'ai-search-menu overscroll-contain')}>
+      offset={8} data-ai-composer-menu={side} className={cx(MENU_POPOVER_SURFACE, 'overscroll-contain')}>
       <MenuDialog aria-label={label} data-copy-choice-host="" className="flex min-w-0 flex-col outline-none">{children}</MenuDialog>
     </Popover>
   </>;
@@ -124,7 +123,7 @@ export function SearchConditionPicker({ scope, filters, disabled, onScope, onCha
 }
 
 function MenuHeading({ copyKey, children }: { copyKey: string; children: ReactNode }) {
-  return <p className="ai-search-menu-heading min-w-0 text-body-2-medium text-text-secondary">
+  return <p data-ai-search-menu-heading="" className="min-w-0 text-body-2-medium text-text-secondary">
     <span data-copy-key={copyKey}>{children}</span>
   </p>;
 }
@@ -139,13 +138,13 @@ function ConditionRows({ scope, filters, onChange }: { scope: SearchScope; filte
       const value = field === 'period' ? [filters.releaseFrom, filters.releaseTo].filter(Boolean).join(' – ') : filters[field] || '';
       return <div key={field}>
         <Button type="button" variant="ghost" size="small" leadingIcon={Icon} trailingIcon={MenuChevron}
-          className="ai-search-menu-row ai-search-filter-row w-full justify-start text-left"
+          data-ai-search-menu-row="" data-ai-search-filter-row="" className="w-full justify-start text-left"
           aria-expanded={open} onClick={() => setExpanded(open ? undefined : field)}>
           <span data-copy-key={'catalog.libraryAssistant.fields.' + field}>{copy('fields.' + field)}</span>
           {value ? <span className="ml-2 truncate text-caption-1-regular text-text-secondary">{field === 'period' ? value : filterValueLabel(field, value)}</span> : null}
         </Button>
         {open ? <div className="px-2 py-2">
-          {field === 'period' ? <div className="grid grid-cols-2 gap-2">
+          {field === 'period' ? <div className="inline-grid w-full grid-cols-2 gap-2">
             {(['releaseFrom', 'releaseTo'] as const).map(bound => <TableDateBound key={bound} label={copy('fields.' + bound)}
               value={filters[bound] || ''} years={years} latest="" loading={false} onChange={next => onChange(bound, next)} />)}
           </div> : <SearchFieldInput field={field} value={value} onChange={next => onChange(field, next)} />}
@@ -259,8 +258,9 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
       {visible.map(model => <ComposerRadio key={model.id} id={model.id} label={aiModelLabel(model.id, model.label)} />)}
     </RadioGroup>
     {!catalog.isPending && !catalog.error && !visible.length ? <Help>{copy('noModelsFound')}</Help> : null}
-    {catalog.isPending ? <AgentThinking variant="spin" showTimer={false}
-      label={t('settings:aiLibrary.modelsLoading')} className="px-2 py-1.5" /> : null}
+    {catalog.isPending ? <div className="px-2 py-1.5">
+      <AgentThinking variant="spin" showTimer={false} label={t('settings:aiLibrary.modelsLoading')} />
+    </div> : null}
     {catalog.error ? <div className="flex flex-wrap items-center gap-1">
       <ErrorText>{errorMessage(catalog.error)}</ErrorText>
       <Button type="button" size="small" variant="ghost" onClick={() => { void catalog.refetch(); }}>{copy('retryModels')}</Button>
@@ -272,7 +272,7 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
 }
 
 function ComposerRadio({ id, label }: { id: string; label: string }) {
-  return <Radio value={id} className={MENU_RADIO}>
+  return <Radio value={id} data-ai-search-menu-row="" className={MENU_RADIO}>
     {({ isSelected }) => <>
       <span className="min-w-0 flex-1 wrap-anywhere text-body-medium">{label}</span>
       <RadioDot selected={isSelected} />
@@ -285,7 +285,7 @@ function SearchEffort({ efforts, value, onChange }: { efforts: AIEffort[]; value
   const index = Math.max(0, efforts.indexOf(value));
   const highest = index === efforts.length - 1;
   const stopPosition = (stop: number) => `${stop / (efforts.length - 1) * 100}%`;
-  return <Slider className="ai-search-effort" value={index} minValue={0} maxValue={efforts.length - 1}
+  return <Slider data-ai-search-effort="" value={index} minValue={0} maxValue={efforts.length - 1}
     onChange={next => onChange(efforts[next])}>
     <Label className="text-body-medium text-text-primary">
       <span data-copy-key="settings.aiLibrary.effort" className="text-text-secondary">{title}</span>{' '}{effortLabel(value)}
@@ -294,15 +294,15 @@ function SearchEffort({ efforts, value, onChange }: { efforts: AIEffort[]; value
       <span data-copy-key="catalog.libraryAssistant.effortFaster">{copy('effortFaster')}</span>
       <span data-copy-key="catalog.libraryAssistant.effortDeeper">{copy('effortDeeper')}</span>
     </div>
-    <div className="ai-search-effort-surface">
+    <div data-ai-search-effort-surface="">
       {highest ? <EffortFlow /> : null}
-      <SliderTrack className="ai-search-effort-track">
+      <SliderTrack data-ai-search-effort-track="">
         {!highest ? <>
-          <span className="ai-search-effort-fill" style={{ width: `calc(${stopPosition(index)} + var(--effort-thumb-inset))` }} aria-hidden />
-          <span className="ai-search-effort-stops" aria-hidden>{efforts.map((stop, position) =>
-            <i key={stop} data-filled={position < index || undefined} style={{ left: stopPosition(position) }} />)}</span>
+          <span data-ai-search-effort-fill="" style={{ '--effort-fill-position': stopPosition(index) } as CSSProperties} aria-hidden />
+          <span data-ai-search-effort-stops="" aria-hidden>{efforts.map((stop, position) =>
+            <i key={stop} data-filled={position < index || undefined} style={{ '--effort-stop-position': stopPosition(position) } as CSSProperties} />)}</span>
         </> : null}
-        <SliderThumb aria-label={title} className="ai-search-effort-thumb" />
+        <SliderThumb aria-label={title} data-ai-search-effort-thumb="" />
       </SliderTrack>
     </div>
   </Slider>;

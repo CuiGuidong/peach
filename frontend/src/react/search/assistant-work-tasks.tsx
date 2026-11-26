@@ -19,7 +19,6 @@ import { busyProps, useAction } from '../settings/use-action';
 import { AI_ASSET_TASKS } from '../settings/use-ai-models';
 import { MenuChevron } from '../components/menu-chevron';
 import { DUPLICATES_KEY, DUPLICATES_URL, type DuplicatesData } from '../duplicates/duplicates';
-import { FOOTER_ACTION } from './assistant-footer';
 import { SearchResultSkeleton, SearchWorks, uniqueLibraryWorks, workTitle, type SearchResult, type SearchWork } from './assistant-results';
 import { AssistantSuggestInput } from './assistant-suggest';
 import { assistantCopy as copy } from './assistant-workspace';
@@ -31,7 +30,7 @@ export type WorkTaskPlan = { kind: WorkTask; target: string; language?: Translat
 export function WorkTaskButtons({ choose }: { choose(task: WorkTask): void }) {
   return <>
       {WORK_TASKS.map(task => <Button key={task} size="small" variant="secondary" data-copy-interact=""
-        className="h-auto min-w-0 max-w-full rounded-full px-3 py-2 [&>span]:min-w-0 [&>span]:shrink"
+        data-ai-button="example" className="min-w-0 max-w-full [&>span]:min-w-0 [&>span]:shrink"
         onClick={event => { if (!event.altKey) choose(task); }}>
         <span className="whitespace-normal wrap-anywhere" data-copy-key={'catalog.libraryAssistant.workTask.' + task}>
           {copy('workTask.' + task)}
@@ -49,7 +48,7 @@ export function WorkTaskMenu({ choose, chooseFixed, fixedTasks, selected, disabl
   const [open, setOpen] = useState(false);
   const label = copy('workTools');
   return <>
-    <Button ref={trigger} size="xs" variant="ghost" leadingIcon={RiToolsLine} trailingIcon={MenuChevron} className={FOOTER_ACTION}
+    <Button ref={trigger} size="xs" variant="ghost" leadingIcon={RiToolsLine} trailingIcon={MenuChevron} data-ai-button="footer"
       disabled={disabled} aria-haspopup="menu" aria-expanded={open}
       onClick={event => { if (!event.altKey) setOpen(!open); }}>
       <span data-copy-key="catalog.libraryAssistant.workTools">{label}</span>
@@ -101,7 +100,7 @@ export function WorkTaskWorkspace({ task, library, children }: {
   task: WorkTask; library: string; children?: ReactNode;
 }) {
   return <section data-ai-search-current="" className="flex min-w-0 flex-col gap-4">
-    <p className="ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-background-primary-default px-4 py-2.5 text-body-regular text-text-primary"
+    <p className="ml-auto assistant-message-width rounded-2xl rounded-br-md bg-background-primary-default px-4 py-2.5 text-body-regular text-text-primary"
       data-copy-key={'catalog.libraryAssistant.workTask.' + task}>{copy('workTask.' + task)}</p>
     {children ?? <AssistantWorkTask plan={{ kind: task, target: '' }} library={library} />}
   </section>;
@@ -182,7 +181,7 @@ function OrganizeLibrary() {
   });
   const groups = duplicates.data?.groups?.slice(0, 3) ?? [];
   return <div className="flex flex-col gap-2">
-    {duplicates.isPending ? <span className="skeleton h-4 w-40" /> : null}
+    {duplicates.isPending ? <span className="skeleton-sheen h-4 w-40" /> : null}
     {duplicates.error ? <ErrorText>{errorMessage(duplicates.error)}</ErrorText> : null}
     {duplicates.data ? <Help>{t('catalog:libraryAssistant.duplicateCount', { count: duplicates.data.total })}</Help> : null}
     {groups.length ? <ul className="flex flex-col gap-2">

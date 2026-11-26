@@ -80,7 +80,7 @@ function DemoWorkIdentity({ work, preview = false, children }: {
     <div className="flex min-w-0 flex-col gap-1">
       <p className="text-caption-1-medium text-text-secondary">{work.code} · {work.release_date} · {work.studio}</p>
       <a href={work.demoSource} target="_blank" rel="noreferrer"
-        className="cardlink group flex min-w-0 items-start gap-1.5 text-body-2-medium text-text-primary">
+        data-work-card-link="" className="group flex min-w-0 items-start gap-1.5 text-body-2-medium text-text-primary">
         <span lang="ja" className="group-hover:underline group-focus-visible:underline">{work.title}</span>
         <RiArrowRightUpLine className="mt-0.5 size-4 shrink-0 text-foreground-icon-secondary" aria-hidden />
       </a>

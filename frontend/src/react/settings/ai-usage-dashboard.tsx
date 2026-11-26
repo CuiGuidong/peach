@@ -98,7 +98,7 @@ export function AIUsageDashboard({ active, providers }: { active: boolean; provi
         </Select>
       </div>
       {query.isError ? <ErrorText>{errorMessage(query.error)}</ErrorText> : !usage ? <Help role="status">{copy('loading')}</Help> : <>
-        <dl className="grid-cols-2 gap-2 [display:grid] @min-[34rem]:grid-cols-3">
+        <dl className="inline-grid w-full grid-cols-2 gap-2 @min-[34rem]:grid-cols-3">
           <UsageStat label="peach" value={total.requests && !total.measured ? copy('unreported') : tokens(total.input + total.output)} />
           <UsageStat label="requestSeries" value={number.format(total.requests)} />
           <UsageStat label="meteredRequests" value={number.format(total.measured) + ' / ' + number.format(total.requests)} />
@@ -139,7 +139,7 @@ export function AIUsageDashboard({ active, providers }: { active: boolean; provi
     </Stack>
     {selected.length ? <Rows>{selected.map(row => <SettingsRow key={JSON.stringify([row.provider, row.model, row.task])}
       label={t('catalog:aiLibrary.' + row.task)} description={(byProvider.get(row.provider) ?? row.provider) + ' · ' + aiModelLabel(row.model)}>
-      <div className="max-w-[48%] text-right text-body-2-regular text-text-secondary tabular-nums">
+      <div className="max-w-1/2 text-right text-body-2-regular text-text-secondary tabular-nums">
         <p className="text-text-primary">{row.measured ? tokens((row.input_tokens ?? 0) + (row.output_tokens ?? 0)) : copy('unreported')}</p>
         <p>{copy('requests', { count: number.format(row.requests) })}</p>
       </div>
@@ -165,7 +165,7 @@ function AccountComparison({ provider, days, active, usage }: {
     organization: { label: copy('organizationUsed'), colors: tone(CHART_COLORS[1]) } };
   const accountLabel = provider === 'deepseek' ? 'balance' : provider === 'openai-oauth' ? 'subscription' : 'organizationUsed';
   return <div className="flex min-w-0 flex-col gap-3" data-ai-account-usage="">
-    <dl className="grid-cols-2 gap-2 [display:grid]">
+    <dl className="inline-grid w-full grid-cols-2 gap-2">
       <UsageStat label="peach" value={known ? tokens(peach) : copy('unreported')} />
       <UsageStat label={accountLabel} value={organization !== null ? tokens(organization) : balance || copy('accountUnknown')} />
     </dl>

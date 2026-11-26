@@ -113,18 +113,18 @@ export function boardPageSkeleton(
   if (path === '/stats') {
     body = statsSkeleton();
   } else if (path === '/ai') {
-    body = `<div data-ai-search-workspace="" class="peach-react @container"><div class="ai-search-layout">
-      <div class="ai-search-pane">
+    body = `<div data-ai-search-workspace="" class="peach-react @container"><div data-ai-search-layout="">
+      <div data-ai-search-pane="">
         <div class="flex min-h-14 items-center justify-between px-4 py-2.5 text-headline-medium text-text-primary sm:px-5">${t('catalog:libraryAssistant.title')}<span class="skeleton size-8 rounded-full @min-[52rem]:hidden"></span></div>
-        <div class="ai-search-scroll"><div class="ai-search-content flex min-h-full flex-col items-center justify-center gap-4 py-4">
+        <div data-ai-search-scroll=""><div data-ai-search-content="" class="flex min-h-full flex-col items-center justify-center gap-4 py-4">
           <span class="skeleton size-12 rounded-2xl"></span>
           <div class="flex max-w-full flex-col items-center gap-2">${text('12em')}${text('17em')}</div>
           <div class="flex w-full max-w-2xl flex-wrap justify-center gap-2">${[246,214,188,250,148,170,155,145,197].map(width =>
             `<span class="skeleton h-9 max-w-full rounded-full" style="width:${width}px"></span>`).join('')}</div>
         </div></div>
-        <div class="ai-search-content ai-search-compose flex flex-col gap-1.5"><div class="flex h-12 items-center gap-2 rounded-full bg-background-primary-default px-1.5 shadow-xs"><span class="skeleton size-9 shrink-0 rounded-full"></span>${text('8em')}<span class="skeleton ml-auto w-12"></span><span class="skeleton size-9 shrink-0 rounded-full"></span></div><div class="flex h-7 items-center justify-between px-2">${text('4em')}${text('3em')}</div></div>
+        <div data-ai-search-content="" data-ai-search-compose="" class="flex flex-col gap-1.5"><div class="flex h-12 items-center gap-2 rounded-full bg-background-primary-default px-1.5 shadow-xs"><span class="skeleton size-9 shrink-0 rounded-full"></span>${text('8em')}<span class="skeleton ml-auto w-12"></span><span class="skeleton size-9 shrink-0 rounded-full"></span></div><div class="flex h-7 items-center justify-between px-2">${text('4em')}${text('3em')}</div></div>
       </div>
-      <div class="ai-search-rail"><div class="flex flex-col gap-3">${text('8em')}${text('4em')}</div></div>
+      <div data-ai-search-rail=""><div class="flex flex-col gap-3">${text('8em')}${text('4em')}</div></div>
     </div></div>`;
   } else if (path === '/jav') {
     const tab = javTab(new URLSearchParams(location.search).get('tab'));

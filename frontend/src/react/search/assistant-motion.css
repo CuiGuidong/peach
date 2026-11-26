@@ -5,8 +5,8 @@
 
 @media (prefers-reduced-motion: no-preference) {
   [data-ai-search-reveal] { animation: peach-ai-search-reveal 230ms cubic-bezier(.22, 1, .36, 1) both; }
-  [data-ai-search-reveal].ai-search-reveal-second { animation-delay: 55ms; }
-  [data-ai-search-reveal].ai-search-reveal-third { animation-delay: 110ms; }
+  [data-ai-search-reveal][data-ai-search-reveal-order="second"] { animation-delay: 55ms; }
+  [data-ai-search-reveal][data-ai-search-reveal-order="third"] { animation-delay: 110ms; }
 }
 
 [data-ai-search-composer-motion="idle"] .bui-composer-loader-rect { animation-play-state: paused !important; }

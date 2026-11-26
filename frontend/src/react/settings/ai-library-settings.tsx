@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { RiAddLine } from '@remixicon/react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Tab, TabPanel, Tabs } from 'react-aria-components';
+import { Tab, TabPanel, Tabs, VisuallyHidden } from 'react-aria-components';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { Textarea } from '@/components/base/textarea/textarea';
@@ -404,7 +404,7 @@ function ModelPicker({ catalog, selected, onChange, disabled, enabled, hint, sav
         </SelectItem>;
       })}
     </Select>
-    {enabled && catalog.loading ? <span className="sr-only" role="status">{placeholder}</span> : null}
+    {enabled && catalog.loading ? <VisuallyHidden role="status">{placeholder}</VisuallyHidden> : null}
     {enabled && !catalog.loading && !catalog.models.length ? <div className="flex flex-wrap items-center gap-x-2">
       {catalog.error ? <ErrorText>{catalog.error}</ErrorText> : <Help role="status">{t('settings:aiLibrary.modelsEmpty')}</Help>}
       {!action ? <Button variant="ghost" size="small" type="button" onClick={catalog.retry} disabled={disabled}>

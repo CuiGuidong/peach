@@ -13,7 +13,7 @@ import { Disclosure, ErrorText, Help } from '../settings/section';
 import { useAction } from '../settings/use-action';
 import { preferredAIConnection } from '../settings/use-ai-models';
 import { AssistantFooter, AssistantWorkspace, SearchComposer, SearchWelcome, assistantCopy as copy } from './assistant-workspace';
-import { ConversationUsagePopover, DemoReplayButton, DemoStatus, EMPTY_USAGE, FOOTER_ACTION, SearchLibraryPicker, type ConversationUsage, type TokenUsage } from './assistant-footer';
+import { ConversationUsagePopover, DemoReplayButton, DemoStatus, EMPTY_USAGE, SearchLibraryPicker, type ConversationUsage, type TokenUsage } from './assistant-footer';
 import { SearchDemo, SearchDemoCases, SearchTrace, useSearchDemo, type SearchDemoId, type SearchStep } from './assistant-progress';
 import { SearchWorks, snapshotSearchResult, type SearchResult, type SearchSource } from './assistant-results';
 import { RecordedTaskDemo, useRecordedTaskDemo } from './assistant-recorded-demo';
@@ -327,7 +327,7 @@ export function LibraryAssistant() {
     query={demo ? '' : query} setQuery={setQuery} busy={busy} submit={submitQuery} stop={stop} demo={demo}
     loading={demo ? !simulation.stopped && simulation.phase !== 'done' : planning || searching} canSubmit={canSubmit}
     conditions={fixed && !demo ? <Button type="button" size="xs" variant="secondary" trailingIcon={RiCloseLine}
-      className="min-w-0 max-w-[40%] rounded-full [&>span]:min-w-0"
+      data-ai-button="round" className="min-w-0 max-w-2/5 [&>span]:min-w-0"
       aria-label={copy('clearFixedTask')} title={fixed.name} disabled={busy} onClick={() => setFixedId('')}>
       <span className="block truncate">{fixed.name}</span>
     </Button> : <SearchConditionPicker scope={demo ? 'both' : scope} filters={demo ? {} : panelFilters} disabled={busy || demo}
@@ -360,7 +360,7 @@ export function LibraryAssistant() {
       <div className="ml-auto flex flex-wrap items-center gap-1">
         {simulation.phase === 'done' || simulation.stopped ? <DemoReplayButton onReplay={simulation.restart} /> : null}
         <Button type="button" size="xs" variant="ghost" leadingIcon={RiArrowGoBackLine}
-          className={FOOTER_ACTION} onClick={() => setDemoId(null)}>
+          data-ai-button="footer" onClick={() => setDemoId(null)}>
           <span data-copy-key="catalog.libraryAssistant.exitDemo">{copy('exitDemo')}</span>
         </Button>
         <ConversationUsagePopover usage={simulation.phase === 'interpret' ? { ...EMPTY_USAGE, requests: 1 } : DEMO_USAGE}
@@ -437,7 +437,7 @@ export function LibraryAssistant() {
 }
 
 function SearchMessage({ text, task }: { text: string; task?: string }) {
-  return <div data-ai-chat-message="" className="ml-auto max-w-[88%] rounded-2xl rounded-br-md bg-background-primary-default px-4 py-2.5 text-body-regular wrap-anywhere text-text-primary">
+  return <div data-ai-chat-message="" className="ml-auto assistant-message-width rounded-2xl rounded-br-md bg-background-primary-default px-4 py-2.5 text-body-regular wrap-anywhere text-text-primary">
     {task && task !== text ? <p className="text-caption-1-medium text-text-secondary">{task}</p> : null}
     <p>{text}</p>
   </div>;

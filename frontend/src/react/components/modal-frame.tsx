@@ -71,7 +71,7 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
       <div aria-hidden="true" data-modal-backdrop="" className="pointer-events-none absolute inset-0 bg-scrim" />
       <Modal {...surfaceData} data-modal-surface="" data-modal-width={fullScreen ? 'fullscreen' : width}
         className={cx('relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full',
-          fullScreen ? 'h-dvh' : side ? 'max-w-[min(20rem,calc(100vw_-_2rem))] rounded-l-3xl shadow-dropdown'
+          fullScreen ? 'h-dvh' : side ? 'modal-drawer-width rounded-l-3xl shadow-dropdown'
             : ['rounded-2-5xl border border-separator-border shadow-dropdown', WIDTH[width]], surfaceClassName)}>
         {/* 调用方自己的正文滚动区收得下时这一层不滚；矮视口里连页头加按钮都放不下，就整块滚，
             关闭键总够得着。 */}

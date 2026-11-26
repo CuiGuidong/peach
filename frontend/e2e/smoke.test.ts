@@ -160,7 +160,7 @@ const ROUTES: readonly Route[] = [
   { path: '/agencies/不存在的事务所', body: (page) => [heading(page, '#index', '找不到这个事务所')] },
   { path: '/settings/library', body: configurationBody },
   { path: '/settings/ai', body: page => [page.getByRole('tab', { name: 'AI 接入', selected: true }),
-    page.getByRole('navigation', { name: '本页目录', exact: true }).getByRole('link', { name: '可用功能', exact: true })
+    page.getByRole('navigation', { name: '本页目录', exact: true }).getByRole('link', { name: '任务与提示词', exact: true })
       .or(page.getByRole('button', { name: '本页目录', exact: true })),
     page.getByRole('form', { name: 'Claude', exact: true }), page.locator('#ai-usage').getByText('已计量请求', { exact: true })] },
   { path: '/diagnostics', body: page => [page.getByRole('tab', { name: '系统诊断', selected: true }), page.locator('#stats section[aria-label="库健康"]')] },
@@ -266,7 +266,7 @@ describe('路由冒烟', () => {
       await setup.getByRole('link', { name: '配置 AI 服务', exact: true }).waitFor({ state: 'visible' });
       await providers.getByText('DeepSeek', { exact: true }).click();
       await choices.getByText('DeepSeek Flash', { exact: true }).waitFor({ state: 'visible' });
-      await providers.getByRole('radio', { name: 'OpenAI · API Key', exact: true }).click();
+      await providers.getByText('OpenAI · API Key', { exact: true }).click();
       await choices.getByText('GPT-6.2-Sol', { exact: true }).click();
       const effort = choices.getByRole('slider', { name: '思考强度' });
       await effort.press('End');
@@ -332,7 +332,7 @@ describe('路由冒烟', () => {
       await link.hover();
       const style = await link.evaluate(node => {
         const image = node.querySelector('img')!;
-        const title = node.querySelector('span[title]')!;
+        const title = node.querySelector('[data-ai-search-work-title]')!;
         return {
           leftPadding: parseFloat(getComputedStyle(node).paddingInlineStart),
           decoration: getComputedStyle(node).textDecorationLine,

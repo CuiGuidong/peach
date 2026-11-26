@@ -135,7 +135,7 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
         <Select aria-label={t('catalog:aiLibrary.image')} selectedKey={image} isDisabled={busy}
           onSelectionChange={key => { setImage(String(key)); clear(); }}>
           <SelectItem id="timeline">{t('catalog:aiLibrary.timeline')}</SelectItem>
-          {Boolean(source.data.official_samples) ? <SelectItem id="official">{t('catalog:aiLibrary.official')}</SelectItem> : null}
+          {source.data.official_samples ? <SelectItem id="official">{t('catalog:aiLibrary.official')}</SelectItem> : null}
           <SelectItem id="cover">{t('catalog:aiLibrary.cover')}</SelectItem>
           {Array.from({ length: 9 }, (_, cell) => <SelectItem key={cell} id={String(cell)}>
             {t('catalog:aiLibrary.frame', { number: cell + 1 })}

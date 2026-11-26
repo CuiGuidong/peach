@@ -75,21 +75,20 @@ export function AssistantSuggestInput({ value, onChange, label, placeholder, kin
     }
   };
   const Field = composer ? 'input' : InputBase;
-  return <div className={cx('ai-search-suggest', composer && 'ai-search-suggest-composer', rich && 'relative')}>
+  return <div data-ai-search-suggest="" data-ai-search-suggest-composer={composer || undefined} className={cx(rich && 'relative')}>
     <Field type="text" {...(suggestions && {
       role: 'combobox', 'aria-autocomplete': 'list', 'aria-expanded': open,
       'aria-controls': open ? id : undefined, 'aria-activedescendant': open && active !== null ? id + '-' + active : undefined,
     } as const)}
       aria-label={label} placeholder={placeholder} data-ai-search-input={composer ? '' : undefined}
-      {...(composer ? { className: 'ai-search-suggest-input text-body-regular text-text-primary' }
-        : { fieldClassName: cx('ai-search-suggest-field', rich && 'h-9') })}
+      {...(composer ? { 'data-ai-search-suggest-input': '', className: 'text-body-regular text-text-primary' }
+        : { fieldClassName: rich ? 'h-9' : undefined })}
       value={value} readOnly={disabled} autoComplete="off" maxLength={composer ? 500 : kind === 'tag' ? 180 : 100}
       onFocus={() => { setFocused(true); setDismissed(false); }}
       onBlur={() => { setFocused(false); setActive(null); }}
       onCompositionStart={() => setComposing(true)} onCompositionEnd={() => setComposing(false)}
       onKeyDown={keyDown} onChange={event => { onChange(event.currentTarget.value); setActive(null); setDismissed(false); }} />
-    {open ? <ul ref={listRef} id={id} role="listbox" aria-label={label} className={cx('ai-search-suggestions',
-      rich && 'absolute inset-x-0 top-full z-20 mt-1 max-h-60 overflow-auto rounded-xl border border-border-button-default bg-background-primary-default p-1 shadow-dropdown')}>
+    {open ? <ul ref={listRef} id={id} role="listbox" aria-label={label} data-ai-search-suggestions="" className={cx(rich && 'absolute inset-x-0 top-full z-20 mt-1 max-h-60 overflow-auto rounded-xl border border-border-button-default bg-background-primary-default p-1 shadow-dropdown')}>
       {rich ? workOptions.map((item, index) => <li key={item.id} id={id + '-' + index} role="option" aria-selected={active === index}
         className="flex min-w-0 cursor-pointer items-center gap-2 rounded-lg p-2 text-body-2-medium text-text-primary hover:bg-dropdown-item-hover-background aria-selected:bg-dropdown-item-hover-background"
         onMouseDown={event => event.preventDefault()} onClick={() => pick(index)}><WorkSuggestion item={item} /></li>)

@@ -203,7 +203,7 @@ export function SearchPage(props: SearchProps) {
   return (
     <div ref={root} data-search-root="" data-search-recommendations={!s.query && s.recommendations.length ? '' : undefined} data-history-limit={limit}>
       {aiMount ? createPortal(
-        <ButtonLink variant="secondary" size="small" leadingIcon={RiSparkling2Line} className="rounded-full px-2.5"
+        <ButtonLink variant="secondary" size="small" leadingIcon={RiSparkling2Line} data-ai-button="entry"
           href={aiPath(s.query)} onMouseDown={keep} onClick={event => {
             if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
             event.preventDefault(); op.openPath(aiPath(props.input.value));

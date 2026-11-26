@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "150ed1dc-b0a1-47f8-ad69-49a7d0d2f717", e._sentryDebugIdIdentifier = "sentry-dbid-150ed1dc-b0a1-47f8-ad69-49a7d0d2f717");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "6713978f-b57a-4e8b-805c-1fe6a016c622", e._sentryDebugIdIdentifier = "sentry-dbid-6713978f-b57a-4e8b-805c-1fe6a016c622");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t, n) => () => {
@@ -40810,7 +40810,7 @@ function Ob({ isOpen: e, onOpenChange: t, width: n, label: r, children: i, surfa
 			...o,
 			"data-modal-surface": "",
 			"data-modal-width": c ? "fullscreen" : n,
-			className: G("relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full", c ? "h-dvh" : d ? "max-w-[min(20rem,calc(100vw_-_2rem))] rounded-l-3xl shadow-dropdown" : ["rounded-2-5xl border border-separator-border shadow-dropdown", Db[n]], a),
+			className: G("relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full", c ? "h-dvh" : d ? "modal-drawer-width rounded-l-3xl shadow-dropdown" : ["rounded-2-5xl border border-separator-border shadow-dropdown", Db[n]], a),
 			children: /* @__PURE__ */ (0, K.jsx)(Ch, {
 				"aria-label": r,
 				className: G("flex min-h-0 flex-col overflow-y-auto overscroll-contain outline-none", (c || d) && "flex-1"),
@@ -60000,4 +60000,4 @@ jt(), JW();
 var XW = document.getElementById("peach-page"), ZW = XW ? YW[XW.dataset.page ?? ""] : void 0;
 XW && ZW && (0, Bt.createRoot)(XW).render(/* @__PURE__ */ (0, K.jsx)(uw, { children: /* @__PURE__ */ (0, K.jsx)(ZW, { data: { ...XW.dataset } }) }));
 
-//# debugId=150ed1dc-b0a1-47f8-ad69-49a7d0d2f717
+//# debugId=6713978f-b57a-4e8b-805c-1fe6a016c622

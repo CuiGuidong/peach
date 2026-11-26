@@ -58,27 +58,27 @@ export function AssistantWorkspace({ focusKey, resultKey, active, compose, histo
   }, [resultKey, scroll]);
 
   return <div ref={workspace} className="@container w-full min-w-0" data-ai-search-workspace="">
-    <div className="ai-search-layout">
-      <section className="ai-search-pane">
+    <div data-ai-search-layout="">
+      <section data-ai-search-pane="">
         <header className="flex min-h-14 min-w-0 shrink-0 items-center justify-between gap-3 px-4 py-2.5 sm:px-5">
           <div className="flex min-w-0 items-center gap-2">
-            {onBack ? <IconButton icon={RiArrowLeftLine} size="small" className="rounded-full"
+            {onBack ? <IconButton icon={RiArrowLeftLine} size="small" data-ai-button="round"
               aria-label={assistantCopy('backToAssistant')} title={assistantCopy('backToAssistant')} onClick={onBack} /> : null}
             <h1 className="text-headline-medium text-text-primary" data-copy-key="catalog.libraryAssistant.title">{assistantCopy('title')}</h1>
           </div>
           <Button ref={historyTrigger} size="small" variant="secondary" iconOnly leadingIcon={RiExpandLeftRightLine}
-            className="rounded-full @min-[52rem]:hidden" aria-haspopup="dialog" aria-expanded={historyOpen}
+            data-ai-button="round" className="@min-[52rem]:hidden" aria-haspopup="dialog" aria-expanded={historyOpen}
             aria-label={assistantCopy('openHistory')} title={assistantCopy('openHistory')} onClick={() => setHistoryOpen(true)} />
         </header>
-        <div ref={scroll} className="ai-search-scroll" data-ai-search-transcript="">
-          <div className={cx('ai-search-content flex flex-col gap-4 py-4',
+        <div ref={scroll} data-ai-search-scroll="" data-ai-search-transcript="">
+          <div data-ai-search-content="" className={cx('flex flex-col gap-4 py-4',
             !active && 'min-h-full justify-center')}>
             {children}
           </div>
         </div>
-        {compose ? <div className="ai-search-content ai-search-compose">{compose}</div> : null}
+        {compose ? <div data-ai-search-content="" data-ai-search-compose="">{compose}</div> : null}
       </section>
-      <aside ref={rail} aria-label={assistantCopy('history')} className="ai-search-rail">
+      <aside ref={rail} aria-label={assistantCopy('history')} data-ai-search-rail="">
         {history()}
       </aside>
     </div>
@@ -103,7 +103,7 @@ export function SearchComposer({ query, setQuery, busy, stop, submit, conditions
   return <div className="flex min-w-0 flex-col gap-1.5">
     <div data-ai-search-composer-motion={loading ? 'active' : 'idle'}>
       <ComposerLoader active={loading}>
-        <form aria-busy={loading} className="ai-search-composer flex min-w-0 items-center gap-2 rounded-full border border-transparent focus-within:border-border-focus-ring"
+        <form aria-busy={loading} data-ai-search-composer="" className="flex min-w-0 items-center gap-2 rounded-full border border-transparent focus-within:border-border-focus-ring"
           onSubmit={event => { event.preventDefault(); if (!busy && !demo && canSubmit) submit(); }}>
           {conditions}
           <AssistantSuggestInput label={assistantCopy(fixedTask ? 'fixedTaskInput' : 'prompt')}
@@ -112,9 +112,9 @@ export function SearchComposer({ query, setQuery, busy, stop, submit, conditions
           {model}
           {busy || loading
             ? <Button type="button" iconOnly variant="secondary" leadingIcon={RiStopFill} data-ai-composer-send="" data-ai-composer-stop=""
-              className="shrink-0 rounded-full" aria-label={assistantCopy('stop')} title={assistantCopy('stop')} onClick={stop} />
+              className="shrink-0" aria-label={assistantCopy('stop')} title={assistantCopy('stop')} onClick={stop} />
             : <Button type="submit" iconOnly leadingIcon={RiArrowUpLine} data-ai-composer-send="" disabled={demo || !canSubmit}
-                className="shrink-0 rounded-full" aria-label={sendLabel} title={sendLabel} />}
+                className="shrink-0" aria-label={sendLabel} title={sendLabel} />}
         </form>
       </ComposerLoader>
     </div>
