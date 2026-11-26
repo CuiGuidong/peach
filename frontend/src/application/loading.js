@@ -93,7 +93,11 @@ export function renderInitialSurfaceLoading(){
     renderCatalogLoading(t('shell:skeleton.loadingJunkFiles'));
     return;
   }
-  if(path==='/jav'&&javTab(new URLSearchParams(location.search).get('tab'))==='library'){
+  /* JAV 五个分区共用常驻页头，路由树在这之前已经把它画进宿主：冷启动落在 JAV 上就和正文骨架同一帧亮出来，
+     标题和页签一开始就在最终位置上。 */
+  const params=new URLSearchParams(location.search);
+  if(path==='/jav'||(path==='/'&&params.get('jav')==='1'))$('#javLibraryHeader').hidden=false;
+  if(path==='/jav'&&javTab(params.get('tab'))==='library'){
     renderCatalogLoading(t('shell:skeleton.loadingCollection'));return;
   }
   /* 管理区、播放列表页与关注页的占位由各页面接手。 */
@@ -106,7 +110,7 @@ export function renderInitialSurfaceLoading(){
     fitSkeleton(stats);
     return;
   }
-  if(/^\/(performers|creators|studios|agencies|tags)$/.test(path)){
+  if(/^\/(performers|creators|studios|agencies|series|tags)$/.test(path)){
     hideDiscoveryBars();showIndexContainer();
     paintIndexSkeleton($('#index'),indexParams(path.slice(1),location.search),indexState.peopleIndexLayout());
     return;

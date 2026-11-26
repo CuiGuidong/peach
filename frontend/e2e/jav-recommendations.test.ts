@@ -135,7 +135,7 @@ describe('JAV 推荐与加载结构', () => {
       });
       await page.goto(new URL('/jav?tab=discover', page.url()).href);
       const section = page.getByRole('region', { name: '为你推荐', exact: true });
-      const search = page.getByRole('searchbox', { name: '筛选推荐', exact: true });
+      const search = page.getByRole('combobox', { name: '筛选推荐', exact: true });
       await section.locator('[data-jav-card]').first().waitFor();
       const top = section.locator('[data-filter-row="top"]');
       const bottom = section.locator('[data-filter-row="bottom"]');
@@ -270,7 +270,6 @@ describe('JAV 推荐与加载结构', () => {
       assert.ok(cover && Math.abs(cover.width / cover.height - 0.75) < 0.02, '大图封面占位应与馆藏正封同一比例');
       const skeletonWidth = await page.locator('[data-skeleton="jav-discover"]').first().boundingBox();
       const skeletonCard = await page.locator('[data-jav-skeleton-card]').first().boundingBox();
-      const searchBox = await page.locator('[data-index-search]').boundingBox();
       const main = await page.locator('#main').boundingBox();
       assert.ok(skeletonWidth && main && skeletonWidth.width >= main.width - 40);
       const pendingFilter = await page.locator('[data-jav-filter]').boundingBox();
@@ -295,7 +294,7 @@ describe('JAV 推荐与加载结构', () => {
       await page.screenshot({ path: `../build/jav-discover-pending-${viewport.name}.png` });
       release();
       await page.getByRole('heading', { name: 'DEMO-777 演示新作', exact: true }).waitFor();
-      const search = page.getByRole('searchbox', { name: '筛选推荐', exact: true });
+      const search = page.getByRole('combobox', { name: '筛选推荐', exact: true });
       const cards = page.getByRole('region', { name: '为你推荐', exact: true }).locator('article');
       assert.equal(await cards.count(), 3);
       assert.equal(await cards.first().locator('[data-media-who]').textContent(), '规范姓名');
@@ -357,7 +356,8 @@ describe('JAV 推荐与加载结构', () => {
       } else {
         assert.ok(skeletonCard && Math.abs(skeletonCard.height - heights[0]!) <= 2, JSON.stringify({ skeletonCard, heights }));
       }
-      assert.deepEqual(await page.locator('[data-index-search]').boundingBox(), searchBox, '页头筛选框骨架与接管后同一位置');
+      assert.equal(await page.locator('[data-jav-filter] [data-filter-search]').count(), 1, '发现分区的查找在筛选浮层里');
+      assert.equal(await page.locator('#javLibraryHeader [data-index-search]').count(), 0, '有浮层的分区页头不再另摆筛选框');
       assert.equal(await cards.nth(1).locator('h3').evaluate(node => getComputedStyle(node).webkitLineClamp), '2');
       const lookup = page.getByRole('button', { name: '查找资源', exact: true }).first();
       assert.notEqual(await lookup.evaluate(node => getComputedStyle(node).backgroundColor),
@@ -419,4 +419,51 @@ describe('JAV 推荐与加载结构', () => {
       await page.screenshot({ path: `../build/jav-discover-${viewport.name}.png` });
     } finally { release(); await opened.close(); }
   });
+
+  for (const viewport of VIEWPORTS) {
+    it(`换分区时页头是同一棵：页签底板滑过去，标题与页签原地不动（${viewport.name}）`, { timeout: 60_000 }, async () => {
+      const opened = await visit(browser, '/jav', viewport, async page => {
+        await page.route('**/api/jav/releases?*', route => route.fulfill({ json: {
+          items: [], total: 0, candidate_total: 0, page: 1, size: 24, facets: { performers: [], studios: [], tags: [] } } }));
+      });
+      const { page } = opened;
+      try {
+        const header = page.locator('#javLibraryHeader');
+        const selected = (name: string) => header.getByRole('tab', { name, exact: true, selected: true });
+        await selected('馆藏').waitFor();
+        await settle(page);
+        // 冒烟默认减少动态效果；底板的过渡要在正常设置下读。
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        await page.evaluate(() => {
+          const list = document.querySelector('#javLibraryHeader [role="tablist"]')!;
+          list.setAttribute('data-kept', '');
+          list.querySelector('[data-pill-thumb]')!.setAttribute('data-kept', '');
+        });
+        const read = () => page.evaluate(() => {
+          const shown = (node: Element) => node.getClientRects().length > 0;
+          const titles = [...document.querySelectorAll('h2[data-page-title]')].filter(node => shown(node) && node.textContent === 'JAV');
+          const list = [...document.querySelectorAll('[role="tablist"][aria-label="JAV 分区"]')].filter(shown);
+          const thumb = list[0]?.querySelector<HTMLElement>(':scope > [data-pill-thumb]');
+          return {
+            titles: titles.length, title: Math.round(titles[0]?.getBoundingClientRect().top ?? -1),
+            lists: list.length, tabs: Math.round(list[0]?.getBoundingClientRect().top ?? -1),
+            kept: !!list[0]?.hasAttribute('data-kept') && !!thumb?.hasAttribute('data-kept'),
+            glides: !!thumb && parseFloat(getComputedStyle(thumb).transitionDuration) > 0,
+          };
+        });
+        const home = await read();
+        assert.deepEqual({ titles: home.titles, lists: home.lists, kept: home.kept, glides: home.glides },
+          { titles: 1, lists: 1, kept: true, glides: true });
+        for (const [name, path] of [['新作', '/jav?tab=releases'], ['发现', '/jav?tab=discover'], ['想要', '/jav?tab=wants'], ['馆藏', '/?jav=1']] as const) {
+          await header.getByRole('tab', { name, exact: true }).click();
+          await page.waitForURL(url => url.pathname + url.search === path);
+          await selected(name).waitFor();
+          assert.deepEqual(await read(), home, `点了「${name}」就该是同一排页签、同一个位置，不等正文`);
+          await page.waitForFunction(() => !document.querySelector('#stats [data-skeleton^="board"]') && scrollY === 0);
+          assert.deepEqual(await read(), home, `「${name}」正文落地后页头不动`);
+          assert.equal(await header.locator('[data-index-search]').count(), name === '想要' ? 1 : 0, `「${name}」页头的筛选框：只有没有筛选浮层的分区留在页头`);
+        }
+      } finally { await opened.close(); }
+    });
+  }
 });

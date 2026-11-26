@@ -77,7 +77,7 @@
 .peach-react [data-photo-wall][data-layout="masonry"] > [data-photo-cell] img { height: auto; aspect-ratio: auto 1; }
 /* 样张取不到时摘掉的只是 <img>，格子留着。瀑布流里格高来自图，空格会塌成 0，所以按官方样张
  * 最常见的横幅比例撑住那块占位底。 */
-.peach-react [data-photo-wall][data-layout="masonry"] > [data-photo-cell]:not(:has(img)) { aspect-ratio: 3 / 2; }
+.peach-react [data-photo-wall][data-layout="masonry"] > [data-photo-cell]:not(:has(img:not([hidden]))) { aspect-ratio: 3 / 2; }
 
 /* ── 段头 ──
  * 番号、标题、右端「来源 样张 · 发行日 · 张数」一行排开，标题过长省略，右端不让。每段上方留出

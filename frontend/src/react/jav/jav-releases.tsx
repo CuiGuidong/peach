@@ -41,6 +41,7 @@ import { releaseColumns } from './release-table-columns';
 import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
 import { useCatalogView } from '../catalog-grid/catalog-view';
 import { useJavRectangle, useVisibleJavWorks } from './jav-selection';
+import { JavGlassSearch } from './jav-header';
 import { t } from '../../i18n';
 import { rememberPageSize, rememberedPageSize } from '../components/page-size-preferences';
 import { columnRangeKinds, columnValueSelected, readColumnFilters, toggleColumnValue, writeColumnFilters, type ColumnRange, type ColumnSelection } from '../../column-filters';
@@ -215,6 +216,7 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
       </div>} bottom={<>
         <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" />
           : filtered ? t('catalog:javReleases.matchedCount', { matched: data?.total || 0, count: data?.candidate_total || 0 }) : t('catalog:countLabel.works', { count: data?.total || 0 })}</span>
+        <JavGlassSearch tab="releases" />
         {filtered ? <FilterActionButton onPress={clear}>{t('catalog:shared.clearFilters')}</FilterActionButton> : null}
         <FilterToolbarControls tools={<>
           <Shuffle onPress={reshuffle} busy={filters.sort === 'random' && releases.isFetching} />

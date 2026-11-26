@@ -31,6 +31,7 @@ import { AddFeed } from './add-feed';
 import { AliasManager } from './alias-manager';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { FeedSources } from './feed-sources';
+import { followListSurfaceSkeleton } from '../../board-skeleton';
 import {
   credentialDone, DEFAULT_SORT, FEEDS_KEY, fetchCredentials, fetchFeeds, fetchFollow, FOLLOW_CREDENTIALS_KEY,
   FOLLOW_MANAGE_KEY, groupByAuthor, isBroken, isLayout, keepSelected, pageSizeOf,
@@ -144,7 +145,8 @@ export function FollowManagePage(props: FollowManageProps) {
             }}>{t('follow:followFeed.addFollow')}</Button> : undefined}>
             {t('follow:followManagePage.emptyBody')}
           </EmptyState> : null}
-          {!empty && (!feeds.data || subscribed > 0) ? <FeedSources readOnly={readOnly} toast={toast}
+          {/* 列表还没到时只画与整页骨架同一张的列表占位，订阅源那张卡等列表到了再出：同一次进入只有一段等待。 */}
+          {!empty && follow.data && (!feeds.data || subscribed > 0) ? <FeedSources readOnly={readOnly} toast={toast}
             selection={{ ids: feedSelected, onChange: setFeedSelected, onActivate: () => setSelected(new Set()) }} /> : null}
           {follow.data ? sources.length > 0 && <SourceList data={data} sort={sort} dir={dir} page={page} layout={layout}
             pageSize={pageSize} selected={selected} selecting={selecting} readOnly={readOnly} toast={toast}
@@ -169,7 +171,9 @@ export function FollowManagePage(props: FollowManageProps) {
               savePreference({ pageSize: next });
               go({ page: 1 });
             }} /> : follow.isError ? <Note tone="error">{t('follow:followManagePage.listFailed')}</Note>
-            : <div role="status" aria-label={t('follow:followManagePage.listLoading')} data-skeleton="" className="skeleton-sheen h-32 rounded-lg" />}
+            : <div role="status" aria-label={t('follow:followManagePage.listLoading')} data-skeleton="">
+              <div aria-hidden="true" inert dangerouslySetInnerHTML={{ __html: followListSurfaceSkeleton({ followLayout: layout, followSort: sort, followDir: dir, followPageSize: pageSize }) }} />
+            </div>}
         </div> : null}
 
         {tab === 'add' ? <div role="tabpanel" id="follow-panel-add" aria-labelledby="follow-tab-add" className="flex flex-col gap-8">

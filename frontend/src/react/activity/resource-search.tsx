@@ -13,6 +13,10 @@ import type { MediaPage } from '../catalog-grid/types';
 import type { DownloadPrefill } from './cloud-download-dialog';
 import { sameWorkCode } from './work-code';
 import { composingKey } from '../components/ime';
+import { useDatalistSuggest } from '../search/datalist-suggest';
+import { librarySuggest } from '../search/library-suggest';
+
+const CODE_SUGGEST = librarySuggest(['asset']);
 import { codedText, serverLabelList } from '../../core/server-text';
 import { joinList, t } from '../../i18n';
 import { ScrapeSourceLabel } from '../components/source-label';
@@ -45,6 +49,8 @@ export function ResourceSearch({ initialCode, reason, choose, onSearch, onWork }
   onSearch?(code: string): void; onWork?(work: DownloadPrefill | null): void;
 }) {
   const [code, setCode] = useState(initialCode);
+  // 敲番号时给馆藏里已有的作品候选：补高清、补字幕多半是找库里已有的那一部。
+  const suggestions = useDatalistSuggest('resource-code', code, CODE_SUGGEST);
   const [goal, setGoal] = useState(() => preferredGoal(reason));
   const [min, setMin] = useState('');
   const [max, setMax] = useState('');
@@ -84,10 +90,11 @@ export function ResourceSearch({ initialCode, reason, choose, onSearch, onWork }
     <section aria-label={t('manage:resourceSearch.searchTorrents')} aria-busy={Boolean(action.busy)} className="flex min-w-0 flex-col gap-4">
       {reason ? <Help>{t('manage:resourceSearch.goal', { reason })}</Help> : null}
       <Input label={t('manage:resourceSearch.byCode')} value={code} maxLength={80} placeholder={t('manage:resourceSearch.placeholder')} enterKeyHint="search"
-        leadingIcon={action.busy ? SearchSpinner : RiSearchLine}
+        leadingIcon={action.busy ? SearchSpinner : RiSearchLine} ref={suggestions.bind}
         isReadOnly={Boolean(action.busy)} aria-busy={Boolean(action.busy)} onChange={setCode} onKeyDown={(event) => {
           if (event.key === 'Enter' && !composingKey(event.nativeEvent)) { event.preventDefault(); search() }
         }} />
+      {suggestions.list}
       <div className="flex flex-col gap-1">
         <FieldLabel>{t('manage:resourceSearch.prefer')}</FieldLabel>
         <Select aria-label={t('manage:resourceSearch.prefer')} selectedKey={goal} isDisabled={Boolean(action.busy)}

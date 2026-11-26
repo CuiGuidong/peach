@@ -477,8 +477,8 @@ describe('播放墙的浏览与详情', () => {
         const url = new URL(request.url());
         return url.pathname === '/api/items' && url.searchParams.get('q') === '新的关键词';
       });
-      await page.getByRole('searchbox', { name:'搜索播放墙' }).fill('新的关键词');
-      await page.getByRole('searchbox', { name:'搜索播放墙' }).press('Enter');
+      await page.getByRole('combobox', { name:'搜索播放墙' }).fill('新的关键词');
+      await page.getByRole('combobox', { name:'搜索播放墙' }).press('Enter');
       await searched;
       await page.locator('[data-wall-tile]').first().waitFor();
       const returned = page.waitForRequest(request => {
@@ -619,8 +619,8 @@ describe('播放墙的浏览与详情', () => {
       assert.equal(await page.getByRole('button', { name:'退出播放墙' }).isVisible(), true);
       assert.equal(await page.getByRole('button', { name:'清除筛选', exact:true }).isVisible(), true);
       await page.getByRole('button', { name:'打开搜索', exact:true }).click();
-      await page.getByRole('searchbox', { name:'搜索播放墙' }).fill('');
-      await page.getByRole('searchbox', { name:'搜索播放墙' }).press('Enter');
+      await page.getByRole('combobox', { name:'搜索播放墙' }).fill('');
+      await page.getByRole('combobox', { name:'搜索播放墙' }).press('Enter');
       await page.locator('[data-wall-tile]').first().waitFor();
       assert.deepEqual(opened.problems, []);
     } finally { await opened.close() }

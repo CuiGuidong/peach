@@ -11,7 +11,7 @@ import { useEffect, useRef, useState, type ReactNode, type RefObject } from 'rea
 import { Radio } from 'react-aria-components';
 import { icon } from '@peach/legacy/core';
 
-import { FilterGlassRows, FilterIconButton, FilterTagStrip, FilterToolbarControls } from '../components/filter-glass';
+import { FilterGlassRows, FilterIconButton, FilterSearch, FilterTagStrip, FilterToolbarControls } from '../components/filter-glass';
 import { FilterDropdown } from '../components/filter-dropdown';
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
 import { AsyncText } from '../components/async-text';
@@ -222,6 +222,11 @@ function Head(props: EntityFilterProps & { fields: ReactNode }) {
       ) : null}
       <Readout text={readout} busy={busy} />
       <LibraryShortcuts currentHref={() => location.pathname + location.search} />
+      {/* 查找框不跟着排序键走：筛到一部不剩时那一排收起，框还得留着改词。 */}
+      {view === 'videos' ? (
+        <FilterSearch label={t('catalog:entityFilter.search')} value={props.query}
+          onQuery={(q) => { if (q !== props.query) actions.setQuery(q) }} />
+      ) : null}
       {view === 'videos' && video ? <VideoControls head={video} actions={actions} fields={props.fields} /> : null}
       {view === 'photos' && photo ? <PhotoControls head={photo} actions={actions} helpers={helpers} /> : null}
       {view === 'online' && props.online ? <OnlineControls head={props.online} actions={actions} fields={props.fields} /> : null}

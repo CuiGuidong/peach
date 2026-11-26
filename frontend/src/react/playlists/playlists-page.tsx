@@ -30,6 +30,7 @@ import { ModalFrame } from '../components/modal-frame';
 import { ObjectOrderDialog } from '../components/object-order-dialog';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { busyProps } from '../settings/use-action';
+import { IndexSearch } from '../index/index-search';
 import {
   createPlaylist, deletePlaylist, fetchPlaylists, keepPlaylist, PLAYLISTS_KEY, posterUrl, recreatePlaylist,
   refreshPlaylists, renamePlaylist, resumeAssetId, fetchPlaylist, reorderPlaylist, type PlaylistRow,
@@ -182,6 +183,9 @@ export function PlaylistsPage({ openPlaylist, openEntity, canFlip, toast, revisi
 
   const data = playlists.data;
   const items = data?.items ?? [];
+  /* 名字筛选在本页做：清单一次取全。 */
+  const [query, setQuery] = useState('');
+  const shown = query ? items.filter(row => row.name.toLocaleLowerCase().includes(query.toLocaleLowerCase())) : items;
 
   const remove = (row: PlaylistRow) => {
     void confirmModal({
@@ -214,9 +218,12 @@ export function PlaylistsPage({ openPlaylist, openEntity, canFlip, toast, revisi
           ? <RetryNote message={errorMessage(playlists.error) || t('catalog:playlistsPage.loadFailed')} onRetry={() => void playlists.refetch()} />
           : null)
         : items.length
-        ? (
+        ? (<>
+          <div className="mb-4 flex"><IndexSearch label={t('catalog:playlistsPage.search')} value={query} onQuery={setQuery} /></div>
+          {shown.length ? null : <EmptyState size="compact" icon={PLAYLIST} title={t('catalog:playlistsPage.noMatches')}
+            actions={<Button size="small" onClick={() => setQuery('')}>{t('catalog:shared.clearFilters')}</Button>}>{null}</EmptyState>}
           <div data-playlist-grid="" className="card-grid-cover gap-4.5">
-            {items.map((row) => {
+            {shown.map((row) => {
               const resume = resumeAssetId(row);
               const name = row.name.trim() || t('catalog:playlistsPage.untitled');
               const onRename = () => setRenaming(row);
@@ -243,7 +250,7 @@ export function PlaylistsPage({ openPlaylist, openEntity, canFlip, toast, revisi
               );
             })}
           </div>
-        )
+        </>)
         : (
           <EmptyState icon={PLAYLIST} title={t('catalog:playlistsPage.emptyTitle')}
             actions={<EmptyFocusButton target='[data-playlist-create] input'>{t('catalog:playlistsPage.create')}</EmptyFocusButton>}>

@@ -56,7 +56,8 @@ export function showManagementBody({manage=true,placeholder=''}={}){
 }
 
 export function enterManagementSurface(){
-  $('#javLibraryHeader').hidden=true;
+  // JAV 的想要、新作、发现、在线目录画在管理区，页头与馆藏共用常驻的那一棵，留着不藏。
+  $('#javLibraryHeader').hidden=location.pathname!=='/jav';
   catalogState.hideCatalogCombo();
   hideDiscoveryBars();
   document.body.classList.remove('entity-open','index-open');
@@ -142,7 +143,7 @@ export function sidebarHost(){
       filters.len='';filters.dur_min=lo?String(Math.round(lo*60)):'';filters.dur_max=hi===null?'':String(Math.round(hi*60))}),
     openFollowTag:tag=>{
       followState.followAuthors=new Set();followState.followProviders=new Set();followState.followMediaView='videos';followState.followFilter='saved';
-      followState.followDurMin=followState.followDurMax=0;followState.followTags=new Set([tag]);openDrawer(false);openRoutedPage(followViewPath())},
+      followState.followDurMin=followState.followDurMax=0;followState.followQuery='';followState.followTags=new Set([tag]);openDrawer(false);openRoutedPage(followViewPath())},
     selectFollowTag:tag=>{followState.followTags=new Set([tag]);openDrawer(false);openRoutedPage(followViewPath())},
     selectFollowProvider:provider=>routeFollowFromSidebar({provider:followState.followProviders.has(provider)?'':provider}),
     setFollowDuration:(lo,hi)=>routeFollowFromSidebar({durMin:Math.round(lo*60),durMax:hi===null?0:Math.round(hi*60)}),

@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f1473652-d7fe-4715-b3f2-41bd53fcdeb6", e._sentryDebugIdIdentifier = "sentry-dbid-f1473652-d7fe-4715-b3f2-41bd53fcdeb6");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7d97b819-6da0-4e15-91f1-7e7bf3c9f93b", e._sentryDebugIdIdentifier = "sentry-dbid-7d97b819-6da0-4e15-91f1-7e7bf3c9f93b");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -1581,6 +1581,7 @@ var We = "peach.settings.v1", Ge = {
 		filterAndSort: "Filter and sort",
 		readout_one: "{{count, number}} match · showing {{shown, number}}",
 		readout_other: "{{count, number}} matches · showing {{shown, number}}",
+		search: "Find on this page",
 		showAll: "Show all",
 		views: "Views",
 		viewsAndTags: "Views and tags"
@@ -1869,6 +1870,7 @@ var We = "peach.settings.v1", Ge = {
 		onlineMediaType: "Online media type",
 		photos: "Photos",
 		removeChip: "Remove {{label}}",
+		search: "Find in these videos",
 		shuffle: "Shuffle",
 		sourceName: "Source: {{source}}",
 		watchStatus: "Watch status"
@@ -2138,6 +2140,7 @@ var We = "peach.settings.v1", Ge = {
 		released: "Released"
 	},
 	javSearch: {
+		filterOnlinePage: "Filter this page",
 		filterRecommended: "Filter recommendations",
 		filterReleases: "Filter new releases",
 		filterWants: "Filter wants"
@@ -2393,10 +2396,12 @@ var We = "peach.settings.v1", Ge = {
 		moreActions: "More actions",
 		nameRequired: "Enter a playlist name.",
 		newPlaylistLabel: "New playlist",
+		noMatches: "No matching playlists",
 		open: "Open playlist {{name}}",
 		renamed: "Playlist renamed",
 		saveName: "Save name",
 		savedFromMix: "Saved from Mix",
+		search: "Filter playlists",
 		untitled: "Untitled playlist"
 	},
 	rangeFilter: {
@@ -2454,6 +2459,7 @@ var We = "peach.settings.v1", Ge = {
 		recommendedVideos: "Recommended videos",
 		removeHistory: "Remove “{{query}}” from history",
 		shuffleGroup: "Shuffle {{group}}",
+		suggestionsFor: "Suggestions for {{label}}",
 		tabsLabel: "Suggestions by type",
 		updateTimeNotFound: "Update time not found",
 		viewAllVideos_one: "View {{count, number}} video",
@@ -2942,8 +2948,10 @@ var We = "peach.settings.v1", Ge = {
 		newCopy: "New",
 		newFiles_one: "{{count, number}} new copy",
 		newFiles_other: "{{count, number}} new copies",
+		noMatches: "No matching duplicate groups",
 		previewFile: "Preview {{name}}",
 		sameCodeShorter: "Same code, shorter",
+		search: "Find by code or file name",
 		selectGroup: "Select {{code}}",
 		selectPage: "Select page",
 		selectedGroups_one: "{{count, number}} group selected",
@@ -2995,6 +3003,7 @@ var We = "peach.settings.v1", Ge = {
 		reconsider: "Reconsider",
 		reveal: "Show location",
 		revealTitle: "Show file location",
+		search: "Find by file name",
 		selectAll: "Select all ({{count, number}})",
 		selectFile: "Select {{name}}",
 		truncated_one: "Showing the first {{shown}} of {{count, number}} item.",
@@ -3601,6 +3610,7 @@ var We = "peach.settings.v1", Ge = {
 		removedMany_one: "Removed {{count, number}} subscription",
 		removedMany_other: "Removed {{count, number}} subscriptions",
 		removedOne: "Removed subscription “{{name}}”",
+		search: "Filter subscriptions",
 		selectPage: "Select all subscriptions on this page",
 		selectedCount_one: "{{count, number}} subscription selected",
 		selectedCount_other: "{{count, number}} subscriptions selected",
@@ -3709,6 +3719,7 @@ var We = "peach.settings.v1", Ge = {
 		noSourcesYet: "Not following any sources yet",
 		noUpdatesYet: "No updates yet",
 		removeFilterChip: "Remove {{filter}}",
+		search: "Find updates",
 		sortBy: {
 			durationLongest: "Sort by duration, longest first",
 			durationShortest: "Sort by duration, shortest first",
@@ -3928,6 +3939,7 @@ var We = "peach.settings.v1", Ge = {
 		pauseManyBody_other: "Pauses the {{count, number}} selected sources. Fetched items are kept.",
 		preparingCheck: "Preparing check",
 		providers: "Sources: {{providers}}",
+		search: "Filter follow sources",
 		seeUpdates: "See updates",
 		selectGroup: "Select all sources for {{name}}",
 		selectPage: "Select all sources on this page",
@@ -4239,6 +4251,7 @@ var We = "peach.settings.v1", Ge = {
 		expandTitle: "Expand title",
 		magnetCopied: "Magnet link copied",
 		magnetHash: "Magnet {{hash}}",
+		noMatches: "No matching downloads",
 		openActress: "Open actress page: {{name}}",
 		openVideo: "Open video details: {{title}}",
 		performerTotal: " ({{total, number}} in all)",
@@ -4246,6 +4259,7 @@ var We = "peach.settings.v1", Ge = {
 		resubmit: "Resubmit",
 		retryLater: "Will retry automatically · {{detail}}",
 		retryPostprocess: "Retry organizing after import",
+		search: "Find by code or file name",
 		title: "Cloud downloads"
 	},
 	duration: {
@@ -4280,6 +4294,7 @@ var We = "peach.settings.v1", Ge = {
 		noPreview: "No preview",
 		notFound: "HD upgrade targets not found. Refresh the page to try again.",
 		openVideo: "Open {{title}}",
+		search: "Find by code or file name",
 		selectAll: "Select all",
 		selectVideo: "Select {{title}}",
 		selectedCount_one: "{{count, number}} video selected",
@@ -4575,6 +4590,7 @@ var We = "peach.settings.v1", Ge = {
 		processingProgress: "Processing {{current}} of {{total}}",
 		queueLoadFailed: "Couldn't load the review queue",
 		readOnly: "This device is read-only",
+		search: "Filter review items",
 		selectGroup: "Select group",
 		sourceChosen: "Selected {{source}}. Click Approve selected to apply it.",
 		switchCategoryHint: "Switch categories to see other pending metadata.",
@@ -5040,6 +5056,7 @@ var We = "peach.settings.v1", Ge = {
 		lastRuns_other: "Last {{count, number}} runs",
 		loadFailed: "Couldn't load tasks.",
 		noIssueDetails: "Per-item details for this run aren't available. Check results in the source list.",
+		noMatches: "No matching tasks",
 		noneRunning: "No tasks running.",
 		processedProgress: "Processed {{progress}} items",
 		processedTotal_one: "Processed {{count, number}} item",
@@ -5047,6 +5064,7 @@ var We = "peach.settings.v1", Ge = {
 		progressItems: "{{progress}} items",
 		recentlyCompleted: "Recently completed",
 		runningFor: "Running for {{elapsed}}",
+		search: "Find by task, item, or error",
 		showingCount_one: "Showing {{count, number}} item",
 		showingCount_other: "Showing {{count, number}} items",
 		skipped: "Skipped",
@@ -9362,11 +9380,13 @@ var We = "peach.settings.v1", Ge = {
 		all: "All",
 		back: "Back",
 		cancel: "Cancel",
+		clearFind: "Clear search",
 		close: "Close",
 		collapse: "Collapse",
 		completed: "Completed",
 		copied: "Copied",
 		creators: "Creators",
+		find: "Find",
 		home: "Home",
 		library: "Library",
 		moveToTrash: "Move to trash",
@@ -9708,6 +9728,7 @@ var We = "peach.settings.v1", Ge = {
 	catalogFilter: {
 		filterAndSort: "筛选与排序",
 		readout: "{{count, number}} 个符合 · 显示 {{shown, number}}",
+		search: "在这一页里查找",
 		showAll: "显示全部",
 		views: "视图",
 		viewsAndTags: "视图与标签"
@@ -9986,6 +10007,7 @@ var We = "peach.settings.v1", Ge = {
 		onlineMediaType: "在线媒体类型",
 		photos: "照片",
 		removeChip: "撤掉 {{label}}",
+		search: "在名下作品里查找",
 		shuffle: "换一批",
 		sourceName: "来源：{{source}}",
 		watchStatus: "观看状态"
@@ -10231,6 +10253,7 @@ var We = "peach.settings.v1", Ge = {
 		released: "已发行"
 	},
 	javSearch: {
+		filterOnlinePage: "筛选本页",
 		filterRecommended: "筛选推荐",
 		filterReleases: "筛选新作",
 		filterWants: "筛选想要"
@@ -10475,10 +10498,12 @@ var We = "peach.settings.v1", Ge = {
 		moreActions: "更多操作",
 		nameRequired: "播放列表名称不能为空",
 		newPlaylistLabel: "新播放列表",
+		noMatches: "没有匹配的播放列表",
 		open: "打开播放列表 {{name}}",
 		renamed: "已重命名播放列表",
 		saveName: "保存名称",
 		savedFromMix: "由 Mix 保存",
+		search: "筛选播放列表",
 		untitled: "未命名播放列表"
 	},
 	rangeFilter: {
@@ -10535,6 +10560,7 @@ var We = "peach.settings.v1", Ge = {
 		recommendedVideos: "作品推荐",
 		removeHistory: "删除历史 {{query}}",
 		shuffleGroup: "{{group}}换一批",
+		suggestionsFor: "{{label}}的建议",
 		tabsLabel: "按种类看补全",
 		updateTimeNotFound: "更新时间未取得",
 		viewAllVideos: "查看全部 {{count, number}} 个视频",
@@ -10973,8 +10999,10 @@ var We = "peach.settings.v1", Ge = {
 		movedToTrash: "已把 {{count, number}} 项移入回收站",
 		newCopy: "新出现",
 		newFiles: "新增 {{count, number}} 份",
+		noMatches: "没有匹配的重复组",
 		previewFile: "预览 {{name}}",
 		sameCodeShorter: "同番号短版本",
+		search: "按番号或文件名查找",
 		selectGroup: "选择 {{code}}",
 		selectPage: "全选本页",
 		selectedGroups: "已选 {{count, number}} 组",
@@ -11019,6 +11047,7 @@ var We = "peach.settings.v1", Ge = {
 		reconsider: "重新判断",
 		reveal: "查看位置",
 		revealTitle: "查看文件位置",
+		search: "按文件名查找",
 		selectAll: "全选（{{count, number}} 个）",
 		selectFile: "选择 {{name}}",
 		truncated: "显示前 {{shown}} 条，共 {{count, number}} 条",
@@ -11520,6 +11549,7 @@ var We = "peach.settings.v1", Ge = {
 		removeSelected: "移除所选订阅源",
 		removedMany: "已移除 {{count, number}} 条订阅源",
 		removedOne: "已移除订阅源「{{name}}」",
+		search: "筛选订阅源",
 		selectPage: "全选本页订阅源",
 		selectedCount: "已选 {{count, number}} 条订阅源",
 		summary: "{{count, number}} 个订阅源 · {{unread, number}} 条未看",
@@ -11619,6 +11649,7 @@ var We = "peach.settings.v1", Ge = {
 		noSourcesYet: "还没有关注任何来源",
 		noUpdatesYet: "还没有更新",
 		removeFilterChip: "撤掉 {{filter}}",
+		search: "查找更新",
 		sortBy: {
 			durationLongest: "按时长从长到短排序",
 			durationShortest: "按时长从短到长排序",
@@ -11820,6 +11851,7 @@ var We = "peach.settings.v1", Ge = {
 		pauseManyBody: "将暂停选中的 {{count, number}} 个关注来源，已抓取的条目保留。",
 		preparingCheck: "正在准备检查任务",
 		providers: "来源：{{providers}}",
+		search: "筛选关注来源",
 		seeUpdates: "去看更新",
 		selectGroup: "全选 {{name}} 的来源",
 		selectPage: "全选本页来源",
@@ -12098,6 +12130,7 @@ var We = "peach.settings.v1", Ge = {
 		expandTitle: "展开标题",
 		magnetCopied: "已复制磁力",
 		magnetHash: "磁力 {{hash}}",
+		noMatches: "没有匹配的下载任务",
 		openActress: "打开女优页：{{name}}",
 		openVideo: "打开作品详情：{{title}}",
 		performerTotal: " 等 {{total, number}} 人",
@@ -12105,6 +12138,7 @@ var We = "peach.settings.v1", Ge = {
 		resubmit: "重新提交",
 		retryLater: "稍后自动重试 · {{detail}}",
 		retryPostprocess: "重试入库后整理",
+		search: "按番号或文件名查找",
 		title: "云下载"
 	},
 	duration: {
@@ -12138,6 +12172,7 @@ var We = "peach.settings.v1", Ge = {
 		noPreview: "暂无预览",
 		notFound: "未取得高清版目标，请刷新页面重试。",
 		openVideo: "打开 {{title}}",
+		search: "按番号或文件名查找",
 		selectAll: "全选",
 		selectVideo: "选择 {{title}}",
 		selectedCount: "已选 {{count, number}} 部",
@@ -12402,6 +12437,7 @@ var We = "peach.settings.v1", Ge = {
 		processingProgress: "正在处理 {{current}} / {{total}}",
 		queueLoadFailed: "复核队列读取失败",
 		readOnly: "本机只能浏览",
+		search: "筛选待复核项目",
 		selectGroup: "全选本组",
 		sourceChosen: "已选择 {{source}}，点击通过所选采用。",
 		switchCategoryHint: "可切换分类查看其他待确认资料。",
@@ -12827,12 +12863,14 @@ var We = "peach.settings.v1", Ge = {
 		lastRuns: "近 {{count, number}} 轮",
 		loadFailed: "读取任务中心失败",
 		noIssueDetails: "未取得本轮逐项详情，可到来源列表查看检查结果。",
+		noMatches: "没有匹配的任务",
 		noneRunning: "没有任务在跑。",
 		processedProgress: "已处理 {{progress}} 项",
 		processedTotal: "共处理 {{count, number}} 项",
 		progressItems: "{{progress}} 项",
 		recentlyCompleted: "最近完成",
 		runningFor: "已跑 {{elapsed}}",
+		search: "按任务名、条目或报错查找",
 		showingCount: "列出其中 {{count, number}} 项",
 		skipped: "本次未执行",
 		someFollowupsCanceled: "部分后续任务已取消",
@@ -17034,11 +17072,13 @@ var We = "peach.settings.v1", Ge = {
 		all: "全部",
 		back: "返回",
 		cancel: "取消",
+		clearFind: "清除查找词",
 		close: "关闭",
 		collapse: "收起",
 		completed: "已完成",
 		copied: "已复制",
 		creators: "创作者",
+		find: "查找",
 		home: "首页",
 		library: "媒体库",
 		moveToTrash: "移入回收站",
@@ -40824,4 +40864,4 @@ Nt();
 var px = document.getElementById("peach-page"), mx = px ? fx[px.dataset.page ?? ""] : void 0;
 px && mx && (0, Ht.createRoot)(px).render(/* @__PURE__ */ (0, U.jsx)(dx, { children: /* @__PURE__ */ (0, U.jsx)(mx, { data: { ...px.dataset } }) }));
 
-//# debugId=f1473652-d7fe-4715-b3f2-41bd53fcdeb6
+//# debugId=7d97b819-6da0-4e15-91f1-7e7bf3c9f93b

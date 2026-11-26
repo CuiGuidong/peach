@@ -71,7 +71,8 @@ const open = (given: IndexProps) =>
   mount(<QueryClientProvider client={queryClient}><Shell {...given} /></QueryClientProvider>);
 
 const cells = (host: ParentNode) => [...host.querySelectorAll('[data-index-cell]')];
-const search = (host: ParentNode) => host.querySelector<HTMLInputElement>('[data-index-search] input')!;
+/** 名册的筛选框在页头；标签页有筛选浮层，查找在浮层下排。 */
+const search = (host: ParentNode) => host.querySelector<HTMLInputElement>('[data-index-search] input, [data-filter-search] input')!;
 const tab = (host: ParentNode, value: string) => host.querySelector(`[role="tab"][data-tab="${value}"]`);
 const alphaTag = (host: ParentNode, k: string) => host.querySelector(`[data-alpha-tag][data-k="${k}"]`);
 

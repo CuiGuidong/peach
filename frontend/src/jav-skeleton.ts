@@ -1,5 +1,5 @@
-import { islandButton, islandGlyph, islandSearchInput, islandShortcutsEntry } from './island-skeleton';
-import { JAV_TABS } from './react/jav/jav-navigation';
+import { islandButton, islandGlyph, islandShortcutsEntry } from './island-skeleton';
+import { cardClass } from './react/components/card';
 import { cardRatio, gridLayout, javLayout, JAV_LAYOUTS } from './appearance';
 import { DISCOVERY_SORTS, RELEASE_SORTS } from './react/jav/discovery-sorts';
 import { tierPlaceholdersHtml } from './catalog-filter-skeleton';
@@ -14,10 +14,16 @@ import { ONLINE_SORTS, ONLINE_STATUS, onlineSorting, onlineStatus, onlineTableSn
 const text = (width: string) => `<span data-jav-skeleton-text class="skeleton block rounded-md" style="width:${width}" aria-hidden="true"></span>`;
 const cover = (classes: string) => `<span data-jav-skeleton-cover class="skeleton ${classes}"></span>`;
 export const JAV_RECOMMENDATION_GRID = 'w-full min-w-0';
+/** 分区正文的容器，页面与骨架同一串。上提的 14px 抵掉 `main` 的顶部内边距：正文第一行落在馆藏分区
+ *  筛选条的同一高度，换分区时页头下面那条线不跳。 */
+export const JAV_PAGE_BODY = '-mt-3.5 flex w-full flex-col gap-6';
 
-/** 占位复用推荐卡与想要行的宽度、封面比例和列数。 */
+/** 想要清单一行的卡面，同 `WantRow`。 */
+const WANT_ROW = cardClass({ className: 'flex flex-col gap-4 max-sm:p-4' });
+
+/** 占位复用推荐卡与想要行的宽度、封面比例和列数。想要照 `WantSection` 排：一行分组标题，下面是卡面的行。 */
 export function javContentSkeleton(tab: string, layout = javLayout()): string {
-  if (tab === 'wants') return `<div class="flex w-full flex-col gap-8" data-skeleton="jav-wants">${text('5em')}${Array.from({ length: 3 }, () => `<div class="flex min-w-0 gap-4 rounded-2lg bg-background-secondary-default p-6">${cover('block w-card-cover shrink-0 aspect-card-cover rounded-2lg max-sm:w-24')}<div class="flex min-w-0 flex-1 flex-col gap-3">${text('80%')}${text('60%')}${text('40%')}</div></div>`).join('')}</div>`;
+  if (tab === 'wants') return `<div class="flex w-full flex-col gap-4" data-skeleton="jav-wants"><div class="flex flex-wrap items-center justify-between gap-3"><h3 class="flex min-h-lh items-center text-title-2-medium">${text('5em')}</h3></div><ul class="flex flex-col gap-4">${Array.from({ length: 3 }, () => `<li class="${WANT_ROW}"><div class="flex min-w-0 items-start gap-4 max-sm:gap-3">${cover('block w-card-cover shrink-0 aspect-card-cover rounded-2lg max-sm:w-24')}<div class="flex min-w-0 flex-1 flex-col gap-3">${text('80%')}${text('60%')}${text('40%')}</div></div></li>`).join('')}</ul></div>`;
   const ratio = cardRatio({ ...gridLayout({ active: true, home: false, portrait: false }), size: layout });
   return `<div data-media-grid class="${JAV_RECOMMENDATION_GRID}" data-skeleton="jav-discover">${discoveryCardSkeleton(ratio).repeat(6)}</div>`;
 }
@@ -91,21 +97,16 @@ function onlineCatalogPageSkeleton(): string {
   </section>`;
 }
 
-const SEARCH_LABELS: Record<string, string> = { releases: t('catalog:javSearch.filterReleases'), discover: t('catalog:javSearch.filterRecommended'), wants: t('catalog:javSearch.filterWants') };
-
-/** 照 `JavPage` 的静止态画：页头一行是标题、靠右的筛选框（同名册页的 `IndexSearch` 骨架）与查找资源，
- *  分区按地址栏里的那一个按下，下面按分区画各自的筛选条与卡片占位。 */
+/** 分区正文等数据时的样子：按分区画各自的筛选条与卡片占位。标题、页签与筛选框在常驻页头
+ *  （`JavPageHeader`）里，它随路由树先于这一张画上，不在这里重画。 */
 export function javPageSkeleton(tab: string): string {
-  const q = new URLSearchParams(location.search).get('q') || '';
-  const body = tab === 'wants' ? `<div class="rounded-2lg bg-background-secondary-default px-6 py-5"><h3 class="mb-4 text-title-2-medium text-text-primary">${t('catalog:wants.addByCode')}</h3>${text('100%')}</div>${javContentSkeleton(tab)}`
+  /* 想要照 `WantList` 的静止态排：「按番号添加」那张卡不等数据，输入框与添加键原样在位，下面才是清单占位。 */
+  const body = tab === 'wants' ? `<div class="flex flex-col gap-8"><div class="${cardClass({ padding: 'none', className: 'flex flex-col gap-4 px-6 py-5 max-sm:px-4' })}"><h3 class="text-title-2-medium text-text-primary">${t('catalog:wants.addByCode')}</h3><div class="flex flex-wrap items-end gap-2"><div class="min-w-64 grow max-sm:min-w-0"><span class="skeleton ui-configuration-skeleton-input"></span></div>${islandButton({ variant: 'primary', label: t('catalog:shared.add'), attrs: 'disabled data-skeleton-action' })}</div></div>${javContentSkeleton(tab)}</div>`
     : tab === 'releases' ? `<section class="flex min-w-0 flex-col gap-4">${releasesFilterSkeleton()}${catalogView() === 'list'
       ? `<div data-catalog-table>${listTableSkeletonHtml(releaseTableSnapshot())}</div>` : javContentSkeleton(tab)}</section>`
     : tab === 'online' ? onlineCatalogPageSkeleton()
     : `<section class="flex min-w-0 flex-col gap-4">${javFilterSkeleton()}${javContentSkeleton(tab)}</section>`;
-  return `<div class="peach-react"><div class="flex w-full flex-col gap-6">
-    <div class="flex w-full flex-col gap-4"><div class="flex min-w-0 flex-wrap items-center gap-3 max-board-narrow:gap-x-2"><h2 data-page-title class="text-display-4-medium text-text-primary max-board-narrow:text-title-1-medium">JAV</h2>${tab === 'online' ? '<span class="ml-auto"></span>' : `<div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput('', q, SEARCH_LABELS[tab] || t('catalog:javDiscover.filter'))}</div>`}${islandButton({ variant: 'primary', label: t('catalog:shared.searchTorrents'), attrs: 'disabled data-skeleton-action' })}</div>
-    <div class="relative flex flex-none gap-1 overflow-x-auto max-board-narrow:gap-0">${JAV_TABS.map(([key, label]) => `<span class="relative flex flex-none items-center whitespace-nowrap rounded-md px-3 py-2 text-body-regular max-board-narrow:px-2.25 max-board-narrow:text-body-2-regular ${key === tab ? 'bg-background-tertiary-default text-text-primary' : 'text-text-secondary'}">${label}</span>`).join('')}</div></div>
-    ${body}</div></div>`;
+  return `<div class="peach-react"><div class="${JAV_PAGE_BODY}">${body}</div></div>`;
 }
 
 /** 新作分区等数据时的两排头像与筛选条：头像、厂牌、标签用馆藏同一份占位，下排是换一批、卡片版式、卡片／列表与

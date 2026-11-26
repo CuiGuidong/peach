@@ -9,6 +9,7 @@
  * 违规的不给（服务端也会拒）。每张卡都能复制磁力：接口失效时退回手动添加。 */
 import { useId, useState, type CSSProperties } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { IndexSearch } from '../index/index-search';
 import { showToast } from '../toaster';
 
 import { Chip } from '@/components/base/badges/chip';
@@ -82,9 +83,11 @@ export function DownloadsPanel() {
   const id = useId();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  /* 按番号、标题或文件名找一次提交：服务端在全部任务里筛，翻页也在结果里翻。 */
+  const [search, setSearch] = useState('');
   const query = useQuery({
-    queryKey: [...DOWNLOADS_KEY, 'page', page, pageSize],
-    queryFn: ({ signal }) => apiGet<DownloadsSnapshot>(`${DOWNLOADS_URL}?limit=${pageSize}&page=${page}`, signal),
+    queryKey: [...DOWNLOADS_KEY, 'page', page, pageSize, search],
+    queryFn: ({ signal }) => apiGet<DownloadsSnapshot>(`${DOWNLOADS_URL}?limit=${pageSize}&page=${page}${search ? `&q=${encodeURIComponent(search)}` : ''}`, signal),
     refetchInterval: downloadsInterval,
     placeholderData: (previous) => previous,
   });
@@ -92,10 +95,13 @@ export function DownloadsPanel() {
   if (query.data && query.data !== lastData) setLastData(query.data);
   const data = query.data || lastData;
   const tasks = data?.tasks || [];
-  if (!tasks.length && !query.error) return null;
+  if (!tasks.length && !query.error && !search) return null;
   return (
     <section id="cloudDownloads" aria-labelledby={id} className="flex min-w-0 flex-col gap-3">
-      <h3 id={id} className="text-title-2-medium text-text-primary">{t('manage:downloadsPanel.title')}</h3>
+      <div className="flex min-w-0 flex-wrap items-center gap-3">
+        <h3 id={id} className="text-title-2-medium text-text-primary">{t('manage:downloadsPanel.title')}</h3>
+        <IndexSearch label={t('manage:downloadsPanel.search')} value={search} onQuery={value => { setSearch(value); setPage(1) }} />
+      </div>
       {query.error ? <Note tone="error">{errorMessage(query.error)}</Note> : null}
       {(data?.channel_alerts || []).map((alert) => (
         // 配置失效与连不上要用户动手，按错误显示；空间与额度等着腾出来，按提醒显示。
@@ -110,7 +116,7 @@ export function DownloadsPanel() {
         ? <ul aria-live="polite" className="flex min-w-0 flex-col gap-3">
             {tasks.map((task) => <TaskCard key={task.id} task={task} writable={data?.available ?? false} />)}
           </ul>
-        : null}
+        : search && !query.isFetching ? <p role="status" className="text-body-2-regular text-text-secondary">{t('manage:downloadsPanel.noMatches')}</p> : null}
       <DataTableFooter label={t('manage:downloadsPanel.title')} total={data?.total ?? tasks.length}
         pagination={{ pageIndex: (data?.page || page) - 1, pageSize }}
         onChange={(next) => {

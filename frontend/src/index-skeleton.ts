@@ -64,7 +64,7 @@ const tabs = (items: Choices, active: string, label: string) => boardTabsHtml(
 /* 标签页的两排筛选条：上排是状态切换，下排是读数、字母跳转、版式和类型下拉。 */
 const tagFilterSkeletonHtml = (view: string) => `<div class="peach-react contents"><div data-filter-glass data-glass-pane class="sticky top-topbar z-10 mb-5.5 flex flex-col">
     <div class="flex h-12 min-w-0 items-center gap-1.75 overflow-x-auto overscroll-x-contain px-3 py-2" data-filter-row="top" data-skeleton-tier="filter-pill" aria-label="${t('catalog:tagFilters.tagStatus')}"></div>
-    <div class="flex min-h-11.5 min-w-0 items-center gap-3 px-3 py-2" data-filter-row="bottom"><span class="countskeleton"></span>
+    <div class="flex min-h-11.5 min-w-0 items-center gap-3 px-3 py-2" data-filter-row="bottom"><span class="countskeleton"></span><span data-filter-search aria-hidden="true"></span>
       <span data-entity-sorts>${iconSwitchHtml('tag-view', t('catalog:tagFilters.tagView'), TAG_VIEWS, view, { className:'tag-skeleton-view' })}
         <span data-entity-sep aria-hidden="true"></span><span data-filter-fields>${filterDropdownSkeletonHtml('index-tag-category', t('catalog:tagFilters.tagType'))}</span>
       </span></div></div></div>`;
@@ -79,7 +79,7 @@ export function indexPlaceholderHtml({ kind, q, scope, view, category }: IndexPa
       ${people ? '<span class="mono" id="indexCount"><span class="countskeleton"></span></span>' : ''}${switcher}
       ${islandShortcutsEntry('default')}
       ${kind === 'tags' ? islandButton({variant: 'ghost', glyph: 'pencil', attrs: `data-tag-mode data-skeleton-action disabled tabindex="-1" aria-label="${t('catalog:peopleIndex.manageTags')}"` }) : ''}
-      <div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput('', q, t('catalog:peopleIndex.filterTitle', { title: noun }))}</div>
+      ${people ? `<div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput('', q, t('catalog:peopleIndex.filterTitle', { title: noun }))}</div>` : ''}
     </div>
     ${kind === 'tags' ? tabs(INDEX_SCOPES, scope, t('catalog:peopleIndex.tagScope')) : kind === 'performers' || kind === 'creators'
       ? tabs(PEOPLE_INDEX_TABS, kind === 'performers' && scope === 'online' ? 'online' : kind, t('catalog:peopleIndex.roster'))

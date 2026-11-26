@@ -241,6 +241,12 @@ export function catalogFilterActions(){
       navigationState.route(homePath());buildBars();
     },
     toggleTag:tag=>toggleTag(tag),
+    /* 同顶栏搜索的落点（`searchActions.search`）：换词、写地址，目录照新词重取。 */
+    search:query=>{
+      catalogState.rememberSearchValue();disposeStage(false);
+      state.q=query;notifyShell();paintCatalogFilter({query});
+      navigationState.route(state.jav==='1'?homePath():state.q?'/?q='+encodeURIComponent(state.q):'/',true);
+    },
     chooseFacet:(kind,name)=>commitContextFilter(filters=>{filters[kind]=filters[kind]===name?'':name}),
     clearFilter:key=>commitContextFilter(filters=>{filters[key]=''}),
     clearAll:()=>commitContextFilter(filters=>{filters.tag='';filters.creator='';filters.performer='';filters.studio='';filters.owner=''}),
@@ -270,7 +276,7 @@ export function catalogLayoutProp(){
 
 export function catalogHeadProps(){
   return {sorts:sortKeys(state.sort,state.dir),layout:catalogLayoutProp(),
-    state:state.state||'',trash:state.state==='trash',previewOnly:state.thumb==='1'&&state.state!=='trash'};
+    state:state.state||'',query:state.q||'',trash:state.state==='trash',previewOnly:state.thumb==='1'&&state.state!=='trash'};
 }
 
 export function catalogTags(filters){

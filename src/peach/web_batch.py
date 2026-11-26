@@ -163,8 +163,21 @@ def q_ads(contract: WebContract, limit=200, offset=0, kind="", status="pending",
 
 def _junk_table_rows(pool, kind, raw):
     from .table_filters import MEDIA_RANGE_READERS, filter_rows
+    # 搜索词与列筛选走同一份条件（`column_filters` 里的 `q`）：读取与「全部移入回收站」都经这里，
+    # 页面上看到的是搜索结果，整批处置动的也只能是这些。
+    needle = ""
+    try:
+        parsed = json.loads(raw) if isinstance(raw, str) and raw.strip() else raw
+    except ValueError:
+        parsed = None  # 格式不对的留给下面的列筛选解析报错。
+    if isinstance(parsed, dict) and "q" in parsed:
+        rest = {key: value for key, value in parsed.items() if key != "q"}
+        needle = str(parsed["q"] or "").strip().casefold()
+        # 列筛选解析认的是 JSON 文本：拆掉搜索词后原样交回去。
+        raw = json.dumps(rest, ensure_ascii=False) if rest else None
     # 评分缓存只读，媒体库归属与筛选字段属于这次请求。
-    rows = [dict(item) for item in pool if not kind or item["junk_kind"] == kind]
+    rows = [dict(item) for item in pool if (not kind or item["junk_kind"] == kind)
+            and (not needle or needle in f"{item.get('code') or ''} {item.get('name') or ''}".casefold())]
     _attach_library(rows)
     return filter_rows(rows, raw, {
         "library": lambda row: [row.get("library_id") or "none"],
@@ -1237,7 +1250,12 @@ def q_duplicates(contract: WebContract, args):
     pending, kept = contract.cached_until_changed(
         "duplicate-groups", lambda: _duplicate_listing(contract), tables=DUPLICATE_TABLES)
     groups = kept if args.get("view") == "kept" else pending
-    window = [{**group, 'files': [dict(item) for item in group['files']]}
+    # 按番号或文件名找一组：任一份文件命中，整组留下；读数跟着筛选后的结果算。
+    needle = str(args.get("q") or "").strip().casefold()
+    if needle:
+        groups = [group for group in groups if any(
+            needle in f"{item.get('code') or ''}\n{item.get('name') or ''}".casefold() for item in group["files"])]
+    window =[{**group, 'files': [dict(item) for item in group['files']]}
               for group in groups[offset:offset + limit]]
     for group in window:
         for item in group['files']:

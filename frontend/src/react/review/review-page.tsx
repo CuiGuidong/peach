@@ -108,10 +108,17 @@ export function ReviewPage(props: ReviewProps) {
     });
   }, [queue]);
 
-  const fields = useMemo(() => metadata ? groupReviewRows(queue, 'field') : [], [queue, metadata]);
+  /* 按番号、片名、人名找一条：这一类已经整份在本机，就在本页筛；行上凡是文字的栏都算。 */
+  const [search, setSearch] = useState('');
+  const searched = useMemo(() => {
+    const needle = search.toLocaleLowerCase();
+    return needle ? queue.filter(row => Object.values(row).some(value =>
+      typeof value === 'string' && value.toLocaleLowerCase().includes(needle))) : queue;
+  }, [queue, search]);
+  const fields = useMemo(() => metadata ? groupReviewRows(searched, 'field') : [], [searched, metadata]);
   const activeField = fields.some(field => field.key === fieldFilter) ? fieldFilter : '';
-  const fieldQueue = useMemo(() => metadata ? filterReviewRows(queue, 'field', activeField) : queue,
-    [queue, metadata, activeField]);
+  const fieldQueue = useMemo(() => metadata ? filterReviewRows(searched, 'field', activeField) : searched,
+    [searched, metadata, activeField]);
   const groupOptions = useMemo(() => reviewGroupingOptions(fieldQueue, metadata), [fieldQueue, metadata]);
   const activeGroupBy: ReviewGrouping =
     groupOptions.some(([key]) => key === groupBy) ? groupBy : 'candidates';
@@ -334,7 +341,8 @@ export function ReviewPage(props: ReviewProps) {
 
         <div ref={panel} role="tabpanel" id={`review-panel-${category}`} aria-labelledby={`review-tab-${category}`} tabIndex={-1}
           className="flex min-w-0 flex-1 flex-col gap-5">
-            <BulkToolbar queueView={queueView} queueCounts={queueCounts} onQueueChange={goQueue} locked={locked}
+            <BulkToolbar search={search} onSearch={value => { setSearch(value); setFilter(''); setPage(1) }}
+              queueView={queueView} queueCounts={queueCounts} onQueueChange={goQueue} locked={locked}
               fields={fields} fieldFilter={activeField}
               onFieldFilter={(next) => { setFieldFilter(next); setFilter(''); setPage(1) }}
               groupOptions={groupOptions} groupBy={activeGroupBy}

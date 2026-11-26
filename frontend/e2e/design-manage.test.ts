@@ -256,7 +256,7 @@ describe('设计决定：数据管理、索引页与资料页头', () => {
       assert.equal(hovered, lifted, '名册格悬停不是格底掺 6% 主文字色');
       const head = await page.evaluate(() => {
         const input = document.querySelector('#index [data-index-search] input')!;
-        const shell = input.closest('[role="presentation"]')!;
+        const shell = input.closest('[data-rac]:not(input)')!;
         const toggle = document.querySelector('#index [data-index-layout]')!;
         return { search: getComputedStyle(shell).height, toggle: getComputedStyle(toggle).height,
           width: getComputedStyle(toggle).width };

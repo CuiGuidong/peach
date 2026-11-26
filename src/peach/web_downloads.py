@@ -94,7 +94,7 @@ def q_downloads(contract, args) -> dict:
     page = int(args.get('page') or 1)
     if page < 1 or (before_id is not None and page != 1):
         raise UserValueError("api.downloads.invalidPage")
-    snapshot = _service(contract).snapshot(limit, before_id=before_id, page=page)
+    snapshot = _service(contract).snapshot(limit, before_id=before_id, page=page, q=str(args.get("q") or ""))
     _attach_library_artwork(contract, snapshot["tasks"])
     return snapshot
 

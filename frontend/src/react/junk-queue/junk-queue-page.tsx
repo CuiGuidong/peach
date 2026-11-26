@@ -38,10 +38,13 @@ const sameRoute = (key: readonly unknown[], route: JunkRoute) => key[1] === rout
 export function JunkQueuePage(props: JunkQueueProps) {
   const route: JunkRoute = { kind: props.kind, view: props.view };
   const [filters, setFilters] = useState<TableFilters>({});
-  const encoded = JSON.stringify(filters);
+  /* 搜索词并进发给服务端的那一份筛选（键 `q`）：读取与「全部移入回收站」带的是同一串，处置范围就是看到的范围。 */
+  const [search, setSearch] = useState('');
+  const sent = search ? { ...filters, q: search } as unknown as TableFilters : filters;
+  const encoded = JSON.stringify(sent);
   const query = useQuery<JunkPage, Error>({
     queryKey: encoded === '{}' ? junkQueryKey(route, props.revision) : [...junkQueryKey(route, props.revision), encoded],
-    queryFn: ({ signal }) => fetchJunkPage(route, signal, encoded === '{}' ? undefined : filters),
+    queryFn: ({ signal }) => fetchJunkPage(route, signal, encoded === '{}' ? undefined : sent),
     placeholderData: (previous, previousQuery) =>
       (previousQuery && sameRoute(previousQuery.queryKey, route) ? previous : undefined),
   });
@@ -72,7 +75,7 @@ export function JunkQueuePage(props: JunkQueueProps) {
     onChange: (on: boolean) => selectAll(loaded, on) } : null;
   const count = host
     ? createPortal(<JunkCount route={route} page={query.data} failed={query.isError && !query.data} pickAll={pickAll}
-      sorts={order.sorts} onSort={order.onSort} onNavigate={navigate}
+      sorts={order.sorts} onSort={order.onSort} onNavigate={navigate} search={search} onSearch={setSearch}
       onDisposeAll={!query.isFetching && !query.isError && route.view === 'pending' && Number(query.data?.total || 0) > 0
         ? () => encoded === '{}' ? props.actions.disposeAll(route.kind, Number(query.data!.total))
           : props.actions.disposeAll(route.kind, Number(query.data!.total), encoded) : undefined} />, host)
@@ -80,7 +83,7 @@ export function JunkQueuePage(props: JunkQueueProps) {
   return (
     <>
       {count}
-      <JunkBody key={`${route.view}:${route.kind}`} props={props} data={query.data} pending={waiting}
+      <JunkBody key={`${route.view}:${route.kind}`} props={props} data={query.data} pending={waiting} searching={!!search}
         filters={{ values: filters, facets: query.data?.column_facets ?? {}, onChange: setFilters }}
         error={query.error} busy={query.isFetching || query.isError} retry={() => void query.refetch()} order={order} />
     </>
@@ -102,14 +105,15 @@ function useCountHost(row: HTMLElement | null): HTMLElement | null {
 }
 
 /** 一个分类、一个视图的网格：骨架、卡片、往下露的下一段与空态。 */
-function JunkBody({ props, data, pending, error, retry, order, filters, busy }: {
+function JunkBody({ props, data, pending, error, retry, order, filters, busy, searching }: {
   props: JunkQueueProps; data: JunkPage | undefined; pending: boolean; error: Error | null; retry(): void;
   order: ReturnType<typeof useQueueSort<JunkItem>>;
   filters: RemoteTableFilters;
   busy: boolean;
+  searching: boolean;
 }) {
   const view = useCatalogView();
-  const filtered = Object.values(filters.values).some(value => value !== undefined);
+  const filtered = searching || Object.values(filters.values).some(value => value !== undefined);
   const reveal = useSkeletonReveal(pending, props.skeletonHtml);
   const batch = Math.max(1, props.batchSize || 60);
   const [segments, setSegments] = useState(1);

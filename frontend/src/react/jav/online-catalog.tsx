@@ -16,6 +16,7 @@ import { textLang } from '../../core/text-lang';
 import { JAV_RECOMMENDATION_GRID, onlineCatalogCardsHtml, onlineCatalogTagPlaceholdersHtml, onlineCatalogTiersHtml } from '../../jav-skeleton';
 import { catalogListSkeletonCellHtml } from '../../catalog-content-skeleton';
 import { entityDisplayName } from '../../core/entity-names';
+import { JavGlassSearch } from './jav-header';
 import { t } from '../../i18n';
 import { columnRangeKinds, readColumnFilters, withinColumnRange, writeColumnFilters, type ColumnRange } from '../../column-filters';
 import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
@@ -46,6 +47,10 @@ import { useJavRectangle, useJavSelection, useVisibleJavWorks } from './jav-sele
 import { ONLINE_COLUMNS, ONLINE_SORTS, ONLINE_STATUS, ONLINE_TABLE_WIDTH,
   onlineSorting, onlineStatus, type OnlineSortKey, type OnlineStatus } from './online-catalog-layout';
 import { discoveryArtwork, writeJavQuery, type Discovery, type ReleaseFacetStudio } from './jav';
+import { useDatalistSuggest } from '../search/datalist-suggest';
+import { librarySuggest } from '../search/library-suggest';
+
+const PERFORMER_SUGGEST = librarySuggest(['performer']);
 
 interface CatalogTag { id: string; name: string; source_name: string }
 type CatalogStudio = CatalogTag & Omit<ReleaseFacetStudio, 'count'>;
@@ -119,6 +124,8 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
   filters: Filters; data?: CatalogPage; people: Facet<CatalogPerson>[]; selected: string; go(next: Filters): void; close(): void;
 }) {
   const [name, setName] = useState(filters.performer);
+  // 敲名字时给馆藏里的女优候选（名字与别名都认），提交方式不变。
+  const suggestions = useDatalistSuggest('online-performer', name, PERFORMER_SUGGEST);
   const choose = (performer: string, actress: string) => {
     go({ ...filters, performer, actress, page: 1 });
     close();
@@ -129,7 +136,8 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
       const performer = name.trim();
       choose(performer, performer === filters.performer ? filters.actress : '');
     }} data-copy-interact="">
-      <Input size="small" label={t('follow:addJavFeed.actressName')} value={name} onChange={setName} maxLength={120} />
+      <Input size="small" label={t('follow:addJavFeed.actressName')} value={name} onChange={setName} maxLength={120} ref={suggestions.bind} />
+      {suggestions.list}
       {data && data.performer_options.length > 1 ? <Select size="sm" aria-label={t('catalog:javOnline.performerPage')}
         prefix={t('catalog:javOnline.performerPage')} selectedKey={data.selected_actress}
         onSelectionChange={key => { if (key !== null) choose(filters.performer, String(key)) }}>
@@ -247,7 +255,7 @@ function OnlineCatalogTable({ items, waiting, javImage, filters, sorting, onSort
   </div>;
 }
 
-export function OnlineCatalog({ navigate }: { navigate(path: string): void }) {
+export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path: string): void; query?: string }) {
   useEntityNames();
   const [filters, setFilters] = useState(catalogFilters);
   const [sorting, setSorting] = useState(onlineSorting);
@@ -314,7 +322,13 @@ export function OnlineCatalog({ navigate }: { navigate(path: string): void }) {
     onOpenChange: (open: boolean) => setOpenFacet(current => open ? id : current === id ? '' : current),
   });
   const actress = filters.actress || (waiting ? '' : query.data?.selected_actress || '');
-  const works = query.data?.items ?? EMPTY_WORKS;
+  /* 目录站自己不认关键词：页头那个框只在取回的这一页里按番号、片名、女优、厂牌与标签筛。 */
+  const fetched = query.data?.items ?? EMPTY_WORKS;
+  const works = useMemo(() => {
+    const needle = keyword.toLocaleLowerCase();
+    return needle ? fetched.filter(work => [work.code, work.title, work.studio?.name ?? '', ...work.people.map(person => person.name),
+      ...work.tags.map(tag => tag.name)].join(' ').toLocaleLowerCase().includes(needle)) : fetched;
+  }, [fetched, keyword]);
   const genres = genresFromAddress(filters.genre);
   const people = countJavFacets(works, work => work.people, person => person.dmm_id, [actress]);
   const studios = countJavFacets(works, work => work.studio ? [work.studio] : [], studio => studio.id, [filters.maker]);
@@ -421,6 +435,7 @@ export function OnlineCatalog({ navigate }: { navigate(path: string): void }) {
           : t('catalog:countLabel.works', { count: query.data?.total || 0 })}</span>
         {localOrder ? <span className="whitespace-nowrap text-caption-1-regular text-text-secondary">{t('catalog:javOnline.localSort')}</span> : null}
         {pageFiltered ? <span className="whitespace-nowrap text-caption-1-regular text-text-secondary">{t('catalog:javOnline.pageFilters')}</span> : null}
+        <JavGlassSearch tab="online" />
         </span>
         <FilterToolbarControls tools={<>
           {view === 'cards' ? <Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} /> : null}

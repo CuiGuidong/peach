@@ -522,7 +522,7 @@ it('冷启动深链索引页：壳画的骨架留到首屏取齐，换成整页�
   await act(async () => { expect(await opened).toBe(true) });
   expect(fetch.indexCalls()).toBe(1);
   expect(batches[0], '骨架撤下的那一批变化里整页已经画好').toEqual({ skeleton: false, painted: true });
-  expect(index.querySelector(':scope > .peach-react [data-index-search]')).not.toBeNull();
+  expect(index.querySelector(':scope > .peach-react [data-filter-search]')).not.toBeNull();
 });
 
 /* 壳那枚选择键关掉时经 `updateManagedRoute` 把新值推进画着的那一页：只合并这一项，其余 props 照旧，
@@ -537,13 +537,14 @@ it('就地更新：合并进画着的那一页，不重挂、不重取，代次�
   await act(async () => { await r.openManagedRoute('/tags', tagsOpen(true), { container: index, isCurrent: () => true }) });
   const revision = r.managedEntry(index)?.revision;
   const calls = fetch.fetched.mock.calls.length;
-  const input = index.querySelector('[data-index-search] input');
+  const input = index.querySelector('[data-filter-search] input');
+  expect(input, '标签页的查找在筛选浮层里').not.toBeNull();
   const tag = () => index.querySelector<HTMLElement>('[data-alpha-tag][data-k="痴女"]')!;
   await act(async () => { tag().click() });
   expect(tag().getAttribute('aria-pressed')).toBe('true');
   await act(async () => { r.updateManagedRoute(index, { selectMode: false }) });
   expect(tag().getAttribute('aria-pressed'), '关掉选择键时所选要跟着清空').toBe('false');
-  expect(index.querySelector('[data-index-search] input'), '推新值不许重挂').toBe(input);
+  expect(index.querySelector('[data-filter-search] input'), '推新值不许重挂').toBe(input);
   expect(r.managedEntry(index)?.revision).toBe(revision);
   expect(r.managedEntry(index)?.props).toMatchObject({ kind: 'tags', selectMode: false, layout: 'big' });
   expect(fetch.fetched.mock.calls.length, '推新值不许重取').toBe(calls);

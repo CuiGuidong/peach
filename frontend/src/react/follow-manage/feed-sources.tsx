@@ -58,6 +58,7 @@ import {
 import { codedText } from '../../core/server-text';
 import { t } from '../../i18n';
 import { useTableFilters } from '../components/use-table-filters';
+import { IndexSearch } from '../index/index-search';
 import { useRowWorkContext, type WorkContextOperation } from '../components/work-context-menu';
 import { FeedPageAlias } from './source-view';
 
@@ -194,7 +195,14 @@ export function FeedSources({ readOnly, toast, selection }: {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useRememberedPageSize('jav-feeds');
   const [sorting, setSorting] = useState<SortingState>([]);
-  const filtered = useTableFilters(sources, {
+  /* 名字筛选在本页做：订阅名、站上挂的名字、人物名与来源地址都算，换词回到第 1 页。 */
+  const [query, setQuery] = useState('');
+  const searched = useMemo(() => {
+    const needle = query.toLocaleLowerCase();
+    return needle ? sources.filter(source => [feedName(source), source.name, source.page_name || '', source.entity_name || '', source.url]
+      .join(' ').toLocaleLowerCase().includes(needle)) : sources;
+  }, [sources, query]);
+  const filtered = useTableFilters(searched, {
     name: { values: feedName, option: (name, source) => ({ leading: source && <ColumnFilterAvatar
       person={{ ...source, id: source.entity_id, name }} /> }) },
     kind: { values: source => codedText(source, 'kind_label'), option: (_, source) => ({
@@ -447,6 +455,7 @@ export function FeedSources({ readOnly, toast, selection }: {
         <span className="text-body-2-regular text-text-secondary">{t('follow:feedSources.summary', { count: sources.length, unread: Number(data.unread) || 0 })}</span>
         </div>
         <div data-toolbar-actions="">
+        <IndexSearch label={t('follow:feedSources.search')} value={query} onQuery={value => { setQuery(value); setPage(1) }} />
         <Button onClick={check} disabled={readOnly} {...busyProps(action.busy === 'check')}>{t('follow:feedSources.fetchNow')}</Button>
         <TableColumnControls preferences={preferences} label={t('follow:feedSources.title')} />
         <DataTableSort label={t('follow:feedSources.title')} sorting={sorting} onChange={(next) => { setSorting(next); setPage(1); }}

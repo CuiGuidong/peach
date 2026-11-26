@@ -412,9 +412,12 @@ describe('首页筛选条', () => {
       if (viewport.mobile) await page.locator('#searchBack').click();
       await page.getByRole('tab', { name: '发现', exact: true }).click();
       await page.getByRole('tab', { name: '发现', exact: true, selected: true }).waitFor();
-      assert.equal(await page.locator('#javLibraryHeader').isVisible(), false);
+      assert.equal(await page.locator('#javLibraryHeader').isVisible(), true, '换分区后页头仍是常驻的那一棵');
+      // 页签在常驻页头里立刻选中，分区正文随后才挂上：等正文到了再换下一个分区。
+      await settle(page);
       await page.getByRole('tab', { name: '想要', exact: true }).click();
       await page.getByRole('tab', { name: '想要', exact: true, selected: true }).waitFor();
+      await settle(page);
       await page.getByRole('tab', { name: '馆藏', exact: true }).click();
       await page.getByRole('tab', { name: '馆藏', exact: true, selected: true }).waitFor();
       await page.locator('#grid [data-media-card]').first().waitFor();
