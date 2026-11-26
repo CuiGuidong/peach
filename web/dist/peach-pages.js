@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "08663769-f00a-47f5-a23e-9605865e980e", e._sentryDebugIdIdentifier = "sentry-dbid-08663769-f00a-47f5-a23e-9605865e980e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "05f17104-58a3-4dc1-a766-80f3105863aa", e._sentryDebugIdIdentifier = "sentry-dbid-05f17104-58a3-4dc1-a766-80f3105863aa");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t, n) => () => {
@@ -40783,36 +40783,37 @@ var Ob = {
 	collections: "max-w-4xl",
 	tutorial: "max-w-2xl"
 };
-function kb({ isOpen: e, onOpenChange: t, width: n, label: r, children: i, surfaceClassName: a = "", surfaceData: o, portalContainer: s, fullScreen: c = !1, fitVisualViewport: l = !1, onExited: u, side: d }) {
-	let { isFocusVisible: f } = Ya(), p = (0, H.useRef)(null), m = (0, H.useRef)(u);
+function kb({ isOpen: e, onOpenChange: t, width: n, label: r, children: i, surfaceClassName: a = "", surfaceData: o, portalContainer: s, shouldCloseOnInteractOutside: c, fullScreen: l = !1, fitVisualViewport: u = !1, onExited: d, side: f }) {
+	let { isFocusVisible: p } = Ya(), m = (0, H.useRef)(null), h = (0, H.useRef)(d);
 	(0, H.useLayoutEffect)(() => {
-		m.current = u;
-	}, [u]);
-	let h = (0, H.useCallback)((e) => {
-		let t = p.current;
-		p.current = e, !e && t && queueMicrotask(() => {
-			p.current || m.current?.();
+		h.current = d;
+	}, [d]);
+	let g = (0, H.useCallback)((e) => {
+		let t = m.current;
+		m.current = e, !e && t && queueMicrotask(() => {
+			m.current || h.current?.();
 		});
 	}, []);
 	return (0, H.useLayoutEffect)(() => {
-		let t = p.current, n = window.visualViewport;
-		if (!e || !l || !t || !n) return;
+		let t = m.current, n = window.visualViewport;
+		if (!e || !u || !t || !n) return;
 		let r = () => t.style.setProperty("--modal-viewport-top", `${n.offsetTop}px`);
 		return r(), n.addEventListener("scroll", r), n.addEventListener("resize", r), () => {
 			n.removeEventListener("scroll", r), n.removeEventListener("resize", r);
 		};
-	}, [l, e]), /* @__PURE__ */ (0, K.jsxs)(n_, {
-		ref: h,
+	}, [u, e]), /* @__PURE__ */ (0, K.jsxs)(n_, {
+		ref: g,
 		isOpen: e,
 		onOpenChange: t,
 		isDismissable: !0,
 		UNSTABLE_portalContainer: s,
+		shouldCloseOnInteractOutside: c,
 		"data-modal-motion": "",
 		"data-modal-kind": n,
-		"data-modal-side": d,
-		"data-motion-instant": !d && f || void 0,
-		"data-fit-visual-viewport": l || void 0,
-		className: G("fixed inset-0 z-dialog flex", d ? "items-stretch justify-end" : "items-center justify-center", !c && !d && "p-4", l && "h-(--visual-viewport-height)"),
+		"data-modal-side": f,
+		"data-motion-instant": !f && p || void 0,
+		"data-fit-visual-viewport": u || void 0,
+		className: G("fixed inset-0 z-dialog flex", f ? "items-stretch justify-end" : "items-center justify-center", !l && !f && "p-4", u && "h-(--visual-viewport-height)"),
 		children: [/* @__PURE__ */ (0, K.jsx)("div", {
 			"aria-hidden": "true",
 			"data-modal-backdrop": "",
@@ -40820,11 +40821,11 @@ function kb({ isOpen: e, onOpenChange: t, width: n, label: r, children: i, surfa
 		}), /* @__PURE__ */ (0, K.jsx)(e_, {
 			...o,
 			"data-modal-surface": "",
-			"data-modal-width": c ? "fullscreen" : n,
-			className: G("relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full", c ? "h-dvh" : d ? "modal-drawer-width rounded-l-3xl shadow-dropdown" : ["rounded-2-5xl border border-separator-border shadow-dropdown", Ob[n]], a),
+			"data-modal-width": l ? "fullscreen" : n,
+			className: G("relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full", l ? "h-dvh" : f ? "modal-drawer-width rounded-l-3xl shadow-dropdown" : ["rounded-2-5xl border border-separator-border shadow-dropdown", Ob[n]], a),
 			children: /* @__PURE__ */ (0, K.jsx)(Ch, {
 				"aria-label": r,
-				className: G("flex min-h-0 flex-col overflow-y-auto overscroll-contain outline-none", (c || d) && "flex-1"),
+				className: G("flex min-h-0 flex-col overflow-y-auto overscroll-contain outline-none", (l || f) && "flex-1"),
 				children: i
 			})
 		})]
@@ -60043,4 +60044,4 @@ jt(), XW();
 var QW = document.getElementById("peach-page"), $W = QW ? ZW[QW.dataset.page ?? ""] : void 0;
 QW && $W && (0, Bt.createRoot)(QW).render(/* @__PURE__ */ (0, K.jsx)(dw, { children: /* @__PURE__ */ (0, K.jsx)($W, { data: { ...QW.dataset } }) }));
 
-//# debugId=08663769-f00a-47f5-a23e-9605865e980e
+//# debugId=05f17104-58a3-4dc1-a766-80f3105863aa

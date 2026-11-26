@@ -74,6 +74,7 @@ export function AIModelVisibilityButton({ connection, disabled }: { connection: 
       <span data-copy-key="settings.aiLibrary.visibility.title">{copy('title')}</span>
     </Button>
     <ModalFrame isOpen={open} onOpenChange={setOpen} width="form" fitVisualViewport
+      shouldCloseOnInteractOutside={element => !element.closest('[data-trigger="Select"]')}
       surfaceClassName="peach-react">
       <header className="flex items-start justify-between gap-4 border-b border-separator-border px-5 py-4">
         <div className="flex min-w-0 flex-col gap-1">

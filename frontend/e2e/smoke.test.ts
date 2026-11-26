@@ -344,12 +344,20 @@ describe('路由冒烟', () => {
       await editor.getByText('显示 2 / 4 个模型', { exact: true }).waitFor();
       await editor.getByRole('button', { name: '选择要添加的模型' }).click();
       await page.getByRole('option', { name: 'Extra fixture', exact: true }).click();
+      await page.locator('[data-trigger="Select"]').waitFor({ state: 'detached' });
       await editor.getByRole('button', { name: '添加', exact: true }).click();
-      const from = (await editor.getByRole('group', { name: 'Extra fixture', exact: true }).boundingBox())!;
-      const to = (await editor.getByRole('group', { name: 'Other fixture', exact: true }).boundingBox())!;
-      await page.mouse.move(from.x + 16, from.y + from.height / 2);
+      const source = editor.getByRole('group', { name: 'Extra fixture', exact: true });
+      const grip = source.locator('[data-sidebar-grip]');
+      await grip.hover();
+      const handle = (await grip.boundingBox())!;
       await page.mouse.down();
-      await page.mouse.move(to.x + 16, to.y + to.height * .25, { steps: 8 });
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 - 10);
+      await source.and(page.locator('[data-dragging]')).waitFor();
+      const target = await editor.getByRole('group', { name: 'Other fixture', exact: true }).evaluate((element: HTMLElement) => {
+        const list = element.parentElement!.getBoundingClientRect();
+        return { x: list.left + 40, y: list.top + element.offsetTop + element.offsetHeight * .25 };
+      });
+      await page.mouse.move(target.x, target.y, { steps: 8 });
       await editor.locator('[data-navigation-drag-preview]:popover-open').waitFor();
       await editor.locator('[data-navigation-drop-line]').waitFor();
       await page.mouse.up();

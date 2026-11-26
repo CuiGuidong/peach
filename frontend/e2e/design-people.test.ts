@@ -51,7 +51,11 @@ describe('设计决定：人物与厂牌资料页', () => {
       const opened = await visit(browser, '/', viewport);
       try {
         const page = opened.page;
-        const kinds = await stubSuggest(page);
+        await stubSuggest(page);
+        await page.route(url => url.pathname === '/api/suggest' && url.searchParams.get('kind') === 'performer', route =>
+          route.fulfill({ json: {
+            q: SUGGEST.q, groups: [{ ...SUGGEST.groups[0], label: '女优补全结果' }],
+          } }));
         await expectBody(page, '/', [page.locator('#grid [data-media-card][data-id]').first()]);
         await settle(page);
         if (viewport.mobile) await page.locator('#searchBtn').click();
@@ -119,13 +123,14 @@ describe('设计决定：人物与厂牌资料页', () => {
         assert.ok(page_.scrollWidth <= page_.viewportWidth, `下拉把页面撑出了横向滚动：${page_.offenders.join('，')}`);
 
         await menu.getByRole('tab', { name: /^女优/ }).click();
+        await menu.getByRole('heading', { name: '女优补全结果', exact: true }).waitFor({ state: 'visible' });
         await page.waitForFunction(() => document.querySelectorAll('#searchMenu [data-search-group][data-kind]').length === 1);
         assert.equal(await menu.isVisible(), true, '点页签把下拉栏收掉了');
-        assert.ok(kinds.includes('performer'), '选了一类没有按这一类去拉满');
         assert.equal(await menu.getByRole('tab', { name: /^女优/ }).getAttribute('aria-selected'), 'true');
 
         // 人名那一行点开的是资料页，不是按名字再搜一遍。
         await page.keyboard.press('ArrowDown');
+        await menu.locator('[data-search-option="person"][data-active]').waitFor({ state: 'visible' });
         await page.keyboard.press('Enter');
         await page.waitForURL('**/performers/90301');
         assert.deepEqual(opened.problems, []);
