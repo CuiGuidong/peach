@@ -58,6 +58,7 @@ ENVIRONMENT_FIELDS = (
     ("environmentPython", 32, False),
     ("environmentHealth", 500, False),
 )
+DIAGNOSTIC_FIELDS = {"environmentHealth", "logs"}
 _budget_lock = threading.Lock()
 
 
@@ -164,7 +165,26 @@ def _prepare_images(data: dict, publish_github: bool) -> tuple[list[tuple[str, b
     return [_image(value) for value in images], github_images
 
 
-def _prepare(body: bytearray) -> tuple[str, str, list[tuple[str, bytes]], str | None, bool, list[int]]:
+def _prepare_descriptions(data: dict, category: str | None, title: str, publish_github: bool) -> tuple[str, str | None]:
+    if "fields" not in data:
+        if publish_github or "privateDiagnostics" in data or not isinstance(data.get("description"), str):
+            raise ValueError
+        return data["description"].strip(), None
+    if not title or category not in ISSUE_SECTIONS:
+        raise ValueError
+    fields = data["fields"]
+    description = _issue_description(category, fields)
+    if "privateDiagnostics" not in data:
+        return description, description if publish_github else None
+
+    private = data["privateDiagnostics"]
+    if (not publish_github or category != "bug" or not isinstance(private, dict)
+            or private.keys() - DIAGNOSTIC_FIELDS or private.keys() & fields.keys()):
+        raise ValueError
+    return _issue_description(category, {**fields, **private}), description
+
+
+def _prepare(body: bytearray) -> tuple[str, str, str | None, list[tuple[str, bytes]], str | None, list[int]]:
     data = json.loads(body)
     if not isinstance(data, dict):
         raise ValueError
@@ -178,20 +198,13 @@ def _prepare(body: bytearray) -> tuple[str, str, list[tuple[str, bytes]], str | 
         raise ValueError
     if category is not None and category not in CATEGORIES:
         raise ValueError
-    if "fields" in data:
-        if not title or category not in ISSUE_SECTIONS:
-            raise ValueError
-        description = _issue_description(category, data["fields"])
-    elif not publish_github and isinstance(data.get("description"), str):
-        description = data["description"].strip()
-    else:
-        raise ValueError
+    description, github_description = _prepare_descriptions(data, category, title, publish_github)
     if not description or len(description) > MAX_DESCRIPTION:
         raise ValueError
     if title and len(title) + 2 + len(description) > MAX_DESCRIPTION:
         raise ValueError
     images, github_images = _prepare_images(data, publish_github)
-    return title, description, images, category, publish_github, github_images
+    return title, description, github_description, images, category, github_images
 
 
 def _send(target: str, description: str, images: list[tuple[str, bytes]], category: str | None) -> tuple[str, str]:
@@ -283,7 +296,7 @@ async def feedback(request: Request):
             raise _reject(413, "tooLarge")
         body.extend(part)
     try:
-        title, description, images, category, publish_github, github_images = await run_in_threadpool(_prepare, body)
+        title, description, github_description, images, category, github_images = await run_in_threadpool(_prepare, body)
     except (ValueError, OSError, SyntaxError, Image.DecompressionBombError):
         raise _reject(400, "invalid") from None
     private_description = title + "\n\n" + description if title else description
@@ -295,8 +308,8 @@ async def feedback(request: Request):
         status = await run_in_threadpool(feedback_r2.store, backup, identity, private_description, images, category)
     if status != "accepted":
         raise _reject(502, "unknown" if status == "unknown" else "sendFailed")
-    if publish_github:
-        github = await run_in_threadpool(feedback_github.publish, title, description, GITHUB_ISSUE_TYPES[category],
+    if github_description is not None:
+        github = await run_in_threadpool(feedback_github.publish, title, github_description, GITHUB_ISSUE_TYPES[category],
                                         [images[index] for index in github_images])
         return {"id": identity, "github": github}
     return {"id": identity}

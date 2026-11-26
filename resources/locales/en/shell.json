@@ -351,8 +351,8 @@
     "additionalContextPlaceholder": "Current workarounds, error messages, or reference links",
     "tabWaitingPermission": "Confirm sharing this tab in your browser…",
     "tabCapturing": "Capturing this tab…",
-    "githubPublish": "Also submit to GitHub",
-    "githubPublic": "Peach posts a public issue for you, without a GitHub sign-in. Only images you select for publication are shared.",
+    "githubPublish": "Also publish as a GitHub issue",
+    "githubPublic": "Peach posts a public issue for you without a GitHub sign-in.",
     "githubView": "View GitHub issue",
     "githubUnconfirmed": "Feedback was received. GitHub publication is unconfirmed.",
     "githubUnavailable": "Feedback was received. GitHub sync is disabled on this instance.",
@@ -370,7 +370,7 @@
     "diagnosticsUnavailable": "Couldn’t read diagnostics. You can fill them in.",
     "diagnosticsLogsUnavailable": "Recent errors are unavailable. You can add relevant logs.",
     "diagnosticsNoErrors": "No errors recorded in the last 30 minutes.",
-    "diagnosticsPublic": "Diagnostics will appear in the public GitHub issue.",
+    "diagnosticsPublic": "Publish diagnostics in the GitHub issue",
     "distribution": {
       "windows-app": "Windows desktop package",
       "macos-app": "macOS desktop package",
@@ -379,7 +379,7 @@
       "wheel": "Python package",
       "source": "Source checkout"
     },
-    "githubPublishImage": "Public",
+    "githubPublishImage": "Share to GitHub",
     "githubPublishImageLabel": "Publish image: {{label}}",
     "githubPublicMedia": "Use demo material without explicit imagery in public images and cover private information.",
     "githubImagesAttached": "The selected images were attached to the GitHub issue.",

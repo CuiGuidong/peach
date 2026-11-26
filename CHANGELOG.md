@@ -19,6 +19,7 @@ Entries are written for users to scan: one sentence each, saying where something
 ### Added / 新增
 
 - **Interface**: Send feedback with a screenshot, image annotations and optional diagnostics, and choose whether to create a GitHub issue. / **界面**：反馈支持截取和标注图片、附上诊断信息，并可选择同步到 GitHub。
+- **Interface**: Choose which feedback images and diagnostics to publish on GitHub. The feedback button fades when idle. / **界面**：可分别选择公开哪些反馈图片和诊断信息，反馈按钮闲置时半透明。
 - **Desktop**: Open Peach from the Windows tray or macOS menu bar in a native window that supports feedback screenshots. / **桌面**：Windows 托盘和 macOS 菜单栏可打开支持反馈截图的原生窗口。
 
 - **Interface**: Find items by name or code in follow sources, JAV subscriptions, playlists, HD upgrades, duplicates, review, junk files and downloads. / **界面**：关注来源、JAV 订阅源、播放列表、高清版、重复文件、复核、垃圾文件与下载任务可按名字或番号查找。

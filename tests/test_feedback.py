@@ -248,6 +248,20 @@ class FeedbackTests(unittest.TestCase):
                     else:
                         self.assertTrue(body.endswith(fields["additionalContext"]))
 
+    def test_private_diagnostics_are_only_sent_to_private_feedback(self):
+        with mock.patch.object(routes_feedback, "dsn", return_value=DSN), \
+                mock.patch.object(routes_feedback, "_send", return_value=("feedback-id", "accepted")) as private, \
+                mock.patch.object(feedback_github, "publish", return_value={"status": "published", "number": 42}) as publish:
+            response = self.post({
+                "title": "Example", "fields": BUG_FIELDS, "category": "bug", "publishGithub": True,
+                "privateDiagnostics": {"environmentHealth": '{"ready": true}', "logs": "Private diagnostic example"},
+            })
+        self.assertEqual(response.status_code, 200, response.text)
+        for value in ('{"ready": true}', "Private diagnostic example"):
+            self.assertIn(value, private.call_args.args[1])
+            self.assertNotIn(value, publish.call_args.args[1])
+        self.assertIn(BUG_FIELDS["bugDescription"], publish.call_args.args[1])
+
     def test_incomplete_issues_are_rejected_before_delivery(self):
         with mock.patch.object(routes_feedback, "dsn", return_value=DSN), \
                 mock.patch.object(routes_feedback, "_send") as private, \
@@ -257,6 +271,7 @@ class FeedbackTests(unittest.TestCase):
                 ("bug", {"fields": {**BUG_FIELDS, "environmentInstall": ""}}),
                 ("feature", {"fields": {"useCase": "Shortcuts"}}),
                 ("bug", {"description": "Unstructured Markdown"}),
+                ("bug", {"fields": BUG_FIELDS, "privateDiagnostics": {"reproduction": "Invalid override"}}),
             ):
                 with self.subTest(category=category, values=values):
                     response = self.post({"title": "Example", "category": category, "publishGithub": True, **values})

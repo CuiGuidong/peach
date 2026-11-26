@@ -12,6 +12,7 @@ import { ApiError, apiGet, apiSend } from '../../api';
 import { appSettingsStore } from '../../appearance/settings';
 import { t } from '../../i18n';
 import { pageRuntime } from '../client-updates';
+import { CollapseRegion } from '../components/collapse-region';
 import { ModalFrame } from '../components/modal-frame';
 import { overlayHost } from '../components/overlay-host';
 import { InterfaceLocale } from '../interface-locale';
@@ -97,12 +98,12 @@ function attachmentLabel(item: Attachment, number: number): string {
   return t('shell:feedback.imageNumber', { number });
 }
 
-function AttachmentTile({ item, label, disabled, show, remove, selectPublic }: {
+function AttachmentTile({ item, label, disabled, publishGithub, show, remove, selectPublic }: {
   item: Attachment; label: string; disabled: boolean; show(button: HTMLButtonElement): void; remove(): void;
-  selectPublic?(selected: boolean): void;
+  publishGithub: boolean; selectPublic(selected: boolean): void;
 }) {
   const url = useImageUrl(item.blob);
-  return <li className="flex w-24 min-w-0 shrink-0 flex-col gap-1" data-feedback-screenshot={item.screenshot}>
+  return <li className="flex w-28 min-w-0 shrink-0 flex-col gap-1" data-feedback-screenshot={item.screenshot}>
     <div className="relative h-14 overflow-hidden rounded-xl">
       <Button type="button" variant="secondary" data-feedback-action="" className="absolute inset-0 h-full w-full"
         aria-label={t('shell:feedback.viewImage', { label })} title={label} onClick={event => show(event.currentTarget)}>
@@ -113,12 +114,18 @@ function AttachmentTile({ item, label, disabled, show, remove, selectPublic }: {
           disabled={disabled} onClick={remove} aria-label={t('shell:feedback.removeImage', { label })} />
       </div>
     </div>
-    <span title={label} className="line-clamp-2 break-words text-center text-caption-2-regular text-text-primary">{label}</span>
-    <div className="text-center"><ImageSize image={item} /></div>
-    {selectPublic && <Checkbox size="sm" isDisabled={disabled} isSelected={!!item.publicGithub}
-      aria-label={t('shell:feedback.githubPublishImageLabel', { label })} onChange={selectPublic}>
-      {copy('githubPublishImage')}
-    </Checkbox>}
+    <span title={label} className="truncate text-center text-caption-2-regular text-text-primary">{label}</span>
+    <div className="text-center">
+      <ImageSize image={item} />
+      <CollapseRegion open={publishGithub}>
+        <div className="pt-1">
+          <Checkbox size="sm" className="whitespace-nowrap" isDisabled={disabled} isSelected={!!item.publicGithub}
+            aria-label={t('shell:feedback.githubPublishImageLabel', { label })} onChange={selectPublic}>
+            {copy('githubPublishImage')}
+          </Checkbox>
+        </div>
+      </CollapseRegion>
+    </div>
   </li>;
 }
 
@@ -141,7 +148,8 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
   const [environmentStatus, setEnvironmentStatus] = useState<'loading' | 'ready' | 'failed'>('loading');
   const [category, setCategory] = useState<Category>('bug');
   const [diagnostics, setDiagnostics] = useState<FeedbackDiagnostics | null>();
-  const [includeDiagnostics, setIncludeDiagnostics] = useState(false);
+  const [includeDiagnostics, setIncludeDiagnostics] = useState(true);
+  const [publishDiagnostics, setPublishDiagnostics] = useState(false);
   const [publishGithub, setPublishGithub] = useState(false);
   const [github, setGithub] = useState<Publication>();
   const [githubFiles, setGithubFiles] = useState<Attachment[]>([]);
@@ -353,16 +361,18 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
     if (!formReady || sending || processingImages.current || tabAttempt.current || editing || capture === 'pending') return;
     const issueTitle = title.trim();
     const keys: IssueField[] = ISSUE_FIELDS[category].map(([key]) => key);
-    if (category === 'bug') {
-      keys.push(...ENVIRONMENT_FIELDS.map(([key]) => key));
-      if (includeDiagnostics) keys.push('environmentHealth', 'logs');
-    }
+    if (category === 'bug') keys.push(...ENVIRONMENT_FIELDS.map(([key]) => key));
     const issueFields = Object.fromEntries(keys.map(key => [key, fieldValue(key).trim()]));
+    const diagnosticFields = category === 'bug' && includeDiagnostics
+      ? { environmentHealth: fieldValue('environmentHealth').trim(), logs: fieldValue('logs').trim() }
+      : undefined;
+    const privateDiagnostics = publishGithub && !publishDiagnostics ? diagnosticFields : undefined;
     setSending(true);
     setSubmitError('');
     try {
       const githubImages = publishGithub ? images.flatMap((image, index) => image.publicGithub ? [index] : []) : [];
-      const payload = { title: issueTitle, fields: issueFields, category, publishGithub, githubImages,
+      const payload = { title: issueTitle, fields: { ...issueFields, ...(privateDiagnostics ? undefined : diagnosticFields) },
+        category, publishGithub, githubImages, privateDiagnostics,
         images: await Promise.all(images.map(item => encodeImage(item.blob))) };
       const receipt = await apiSend<{ id?: string; github?: Publication }>('/api/app-feedback', payload);
       if (!receipt?.id) throw new Error();
@@ -460,9 +470,6 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
             <Checkbox isSelected={includeDiagnostics} onChange={setIncludeDiagnostics} isDisabled={sending}>
               {copy('includeDiagnostics')}
             </Checkbox>
-            {includeDiagnostics && publishGithub && <p className="text-caption-1-regular text-text-secondary">
-              {copy('diagnosticsPublic')}
-            </p>}
             <Textarea label={copy('environmentHealth')} rows={2} autoResize maxRows={5} resize="none" maxLength={500}
               isDisabled={sending} value={fieldValue('environmentHealth')}
               hint={diagnostics === undefined ? <span role="status">{copy('diagnosticsLoading')}</span> :
@@ -474,6 +481,20 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
               isDisabled={sending} value={fieldValue('logs')} onChange={value => updateField('logs', value)} />
           </fieldset>
         </>}
+        <div>
+          <div className="flex flex-col gap-1">
+            <Checkbox isSelected={publishGithub} onChange={setPublishGithub} isDisabled={sending}
+              aria-describedby="feedback-github-public">{copy('githubPublish')}</Checkbox>
+            <p id="feedback-github-public" className="text-caption-1-regular text-text-secondary">{copy('githubPublic')}</p>
+          </div>
+          <CollapseRegion open={publishGithub && category === 'bug' && includeDiagnostics}>
+            <div className="pt-1">
+              <Checkbox isSelected={publishDiagnostics} onChange={setPublishDiagnostics} isDisabled={sending}>
+                {copy('diagnosticsPublic')}
+              </Checkbox>
+            </div>
+          </CollapseRegion>
+        </div>
         <div className="flex flex-col gap-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-body-medium text-text-primary">{copy('images')}</span>
@@ -485,11 +506,11 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
           </div>
           {images.length > 0 && <ul className="m-0 flex list-none flex-wrap gap-x-2 gap-y-3 p-0" aria-label={message('images')}>
             {images.map((item, index) => <AttachmentTile key={item.screenshot ? 'screenshot' : index} item={item}
-              label={labels[index]} disabled={sending}
+              label={labels[index]} disabled={sending} publishGithub={publishGithub}
               show={button => { void showImage(index, button) }}
-              selectPublic={publishGithub ? selected => setImages(current =>
+              selectPublic={selected => setImages(current =>
                 current.map(candidate => candidate === item ? { ...item, publicGithub: selected } : candidate)
-              ) : undefined}
+              )}
               remove={() => setImages(current => current.filter(candidate => candidate !== item))} />)}
           </ul>}
           {remaining > 0 && <DropZone aria-label={message('pasteImages')} isDisabled={adding || sending}
@@ -523,14 +544,12 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
             {copy(capturingTab === 'permission' ? 'tabWaitingPermission' : 'tabCapturing')}
           </p>}
           {imageError && <p role="status" className="text-caption-1-regular text-text-secondary">{copy(imageError)}</p>}
-          {images.length > 0 && <p className="text-caption-1-regular text-text-secondary">{copy('imagePrivacy')}</p>}
-        </div>
-        <div className="flex flex-col gap-1">
-          <Checkbox isSelected={publishGithub} onChange={setPublishGithub} isDisabled={sending}
-            aria-describedby="feedback-github-public">{copy('githubPublish')}</Checkbox>
-          <p id="feedback-github-public" className="text-caption-1-regular text-text-secondary">{copy('githubPublic')}</p>
-          {publishGithub && images.some(image => image.publicGithub) &&
-            <p className="text-caption-1-regular text-text-secondary">{copy('githubPublicMedia')}</p>}
+          {images.length > 0 && <div>
+            <p className="text-caption-1-regular text-text-secondary">{copy('imagePrivacy')}</p>
+            <CollapseRegion open={publishGithub && images.some(image => image.publicGithub)}>
+              <p className="pt-2 text-caption-1-regular text-text-secondary">{copy('githubPublicMedia')}</p>
+            </CollapseRegion>
+          </div>}
         </div>
         {submitError && <p role="alert" className="text-body-regular text-text-error-primary">{submitError}</p>}
         <footer className="flex flex-wrap justify-end gap-2">
