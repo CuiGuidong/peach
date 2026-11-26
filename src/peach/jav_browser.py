@@ -61,8 +61,6 @@ LONG_SOURCE_PAUSE = 3600.0
 #: 会让浏览器添加暂停的原因。`search` 是资源搜索暂不可用，暂停的是整条队列而不是某个渠道。
 #: 原因与恢复说明在 `server:javBrowser.paused.<原因>`：用户脚本的提示框分两行显示，排队行的说明连成一句。
 PAUSED_FAILURES = frozenset({"storage", "quota", "config", "network", "search"})
-#: 提示框的语气：要用户动手修的用 error，等着就会恢复或只需腾空间的用 warning。
-PAUSED_TONES = {"config": "error", "network": "error"}
 SEARCH_PAUSE = "search"
 
 
@@ -492,7 +490,8 @@ class JavBrowser:
         selected = preferred if any(row["key"] == preferred for row in providers) else (
             providers[0]["key"] if providers else "")
         return {"enabled": bool(config.get("token_hash")), "provider": selected,
-                "active_provider": preferred, "available": self.downloads.available, **catalog,
+                "active_provider": preferred, "available": self.downloads.available,
+                "providers": providers, "problems": catalog["problems"],
                 "want_on_no_match": self.want_on_no_match(),
                 "userscript": {"version": release["version"],
                                "minimum_version": release.get("bridge_min_version", release["version"]),
@@ -508,7 +507,10 @@ class JavBrowser:
             raise UserValueError("errors.javBrowser.deviceNotAllowed")
         provider = str(body.get("provider") or "")
         if action != "disable":
-            self._ready(provider)
+            try:
+                self._ready(provider)
+            except DownloadError as error:
+                raise UserValueError(error.code, error.params) from error
         token = None
         with self._lock:
             if action == "disable":
@@ -538,7 +540,15 @@ class JavBrowser:
         if not self.downloads.available:
             raise UserValueError("errors.javBrowser.deviceNotAllowed")
         if remote:
-            state = next((row for row in self.downloads.channel_snapshot()["providers"] if row["key"] == provider), None)
+            catalog = self.downloads.channel_snapshot()
+            state = next((row for row in catalog["providers"] if row["key"] == provider), None)
+            if state is None:
+                errors = catalog.get("channel_errors", {})
+                error = errors.get(provider)
+                if error is None and (provider == "115" or provider.startswith("clouddrive:")):
+                    error = errors.get("clouddrive")
+                if error is not None:
+                    raise error
         elif provider in {"115", "pikpak"}:
             state = self.downloads._provider_state(provider)
         else:
@@ -590,18 +600,28 @@ class JavBrowser:
                 row.update(_postprocess_retry_status(task))
             state = row.get("state", "idle")
             if state == "queued" and (paused := self._paused(row.get("provider", ""))):
-                detail["paused"] = paused
-                row["message"] = paused_text(paused["failure"], paused.get("reason"))["message"]
+                detail["paused"] = {**paused, **paused_text(paused["failure"], paused.get("reason"))}
+                row.update(_message(detail["paused"]["message"]))
             return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
                     **(_message_of(row) if row.get("message") else _state_message(state))}
 
     def _channel_pause(self, provider: str) -> dict | None:
-        """渠道级失败后这个渠道处于暂停：失败类别、开始时间与下一次试探时间。成功提交一次就解除。"""
+        """渠道级失败后这个渠道处于暂停，显示最近失败与下次试探时间。"""
         alert = self.downloads.channel_alert(provider) if provider else None
         if not alert or alert["failure"] not in PAUSED_FAILURES:
             return None
-        return {"failure": alert["failure"], "since": alert["since"],
+        from .error_reporting import redact
+        reason = redact(alert["message"])
+        if alert["message_code"] == "errors.downloads.remoteStorageFull":
+            reason = interface_text.text("server:javBrowser.paused.storage.reason")
+        elif alert["message_code"] == "errors.downloadsClouddrive.unreachable":
+            details = str(alert["message_params"].get("details", "")).casefold()
+            if "connection refused" in details:
+                reason = interface_text.text("server:javBrowser.paused.network.connectionRefused")
+            elif "deadline exceeded" in details:
+                reason = interface_text.text("server:javBrowser.paused.network.timeout")
+        return {"failure": alert["failure"], "since": alert["since"], "reason": reason,
                 "retry_at": iso(parse_iso(alert["since"]) + PAUSE_PROBE_SECONDS)}
 
     def _active_search_pause(self) -> dict | None:
@@ -759,7 +779,7 @@ class JavBrowser:
         def entry(provider, label, count, paused):
             failure = paused["failure"]
             return {"provider": provider, "provider_label": label, "waiting": count, **paused,
-                    **paused_text(failure, paused.get("reason")), "tone": PAUSED_TONES.get(failure, "warning")}
+                    **paused_text(failure, paused.get("reason")), "tone": "warning"}
 
         channels = [entry(provider, labels.get(provider, provider), count, paused)
                     for provider, count in waiting.items() if (paused := self._channel_pause(provider))]
@@ -902,9 +922,13 @@ class JavBrowser:
             if row["state"] == "searching":
                 row["state"] = "queued"
                 self._save()
-        reason = (DownloadError("config", error.code, error.params) if isinstance(error, UserFacingError)
-                  else DownloadError("config", "errors.javBrowser.channelNotConfigured"))
-        self.downloads.note_channel(provider, reason, self.downloads.clock())
+        if isinstance(error, DownloadError) and error.failure in PAUSED_FAILURES:
+            reason = error
+        elif isinstance(error, UserFacingError):
+            reason = DownloadError("config", error.code, error.params)
+        else:
+            reason = DownloadError("config", "errors.javBrowser.channelNotConfigured")
+        self.downloads.note_channel(provider, reason, self.downloads.clock(), probe=True)
 
     @staticmethod
     def _settle_submission(row: dict, submitted: dict) -> None:
@@ -941,6 +965,7 @@ class JavBrowser:
         except Exception as error:
             self._hold_for_channel(row, provider, error)
             return True
+        self.downloads.note_channel(provider, None, self.downloads.clock(), probe=True)
         try:
             skip = list(row.get("skip", ()))
             result = self.search(self.contract, {"code": code, "goal": "quality", **({"skip": skip} if skip else {})})

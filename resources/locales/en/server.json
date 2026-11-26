@@ -89,11 +89,13 @@
     "paused": {
       "config": {
         "hint": "Resumes once the download settings are fixed",
-        "reason": "Cloud drive settings or sign-in problem"
+        "reason": "Download channel is temporarily unavailable"
       },
       "message": "{{reason}}, paused; {{hint}}",
       "network": {
-        "hint": "Resumes once CloudDrive2 is back",
+        "connectionRefused": "CloudDrive2 refused the connection",
+        "hint": "Resumes once the download service is back",
+        "timeout": "Connection to CloudDrive2 timed out",
         "reason": "Can't reach CloudDrive2"
       },
       "quota": {

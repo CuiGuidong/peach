@@ -921,7 +921,9 @@ class BrowserTests(unittest.TestCase):
         waiting = self.status().json()
         self.assertEqual((waiting["state"], waiting["paused"]["failure"]), ("queued", "config"))
         paused = self.listed()["paused"]
-        self.assertEqual([(row["reason"], row["tone"]) for row in paused], [("网盘配置或登录有问题", "error")])
+        self.assertEqual([(row["reason"], row["tone"]) for row in paused],
+                         [("还没有填 CloudDrive2 的 API 令牌", "warning")])
+        self.assertEqual(waiting["message"], paused[0]["message"])
         self.assertFalse(self.service.process_one())
         # 令牌补上后，到了试探时间拿同一个磁力再交一次。
         self.remote.submit.side_effect = None
@@ -930,6 +932,30 @@ class BrowserTests(unittest.TestCase):
         self.service.process_one()
         self.assertEqual(self.status().json()["state"], "submitted")
         self.assertEqual(self.remote.submit.call_count, 2)
+
+    def test_cloud_probe_connection_failure_is_visible_until_the_channel_is_reachable(self):
+        catalog = self.downloads.channel_snapshot()
+        unavailable = dl.DownloadError("network", "errors.downloadsClouddrive.unreachable", {
+            "action": {"code": "labels.downloadsClouddrive.action.verifyToken"}, "details": "Connection refused"})
+        self.downloads.channel_catalog = lambda: {
+            "providers": [], "problems": [], "channel_errors": {"clouddrive": unavailable}}
+        self.add()
+        self.assertTrue(self.service.process_one())
+        waiting = self.status().json()
+        paused = self.listed()["paused"][0]
+        self.assertEqual((waiting["state"], paused["failure"], paused["tone"]), ("queued", "network", "warning"))
+        self.assertEqual(paused["reason"], "CloudDrive2 拒绝连接")
+        self.assertEqual(waiting["paused"]["message"], paused["message"])
+        self.service.search.assert_not_called()
+
+        self.downloads.channel_catalog = lambda: catalog
+        self.service.search.return_value = {"items": []}
+        start = self.downloads.clock()
+        self.downloads.clock = lambda: start + 601
+        self.assertTrue(self.service.process_one())
+        self.assertEqual(self.status().json()["state"], "no_match")
+        self.assertEqual(self.listed()["paused"], [])
+        self.remote.submit.assert_not_called()
 
     def test_an_unavailable_search_source_pauses_the_whole_queue(self):
         self.service.search.return_value = {"items": [], "state": "unavailable", "retry_after": 300}
