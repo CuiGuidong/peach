@@ -1971,7 +1971,21 @@ def _duration_arg(raw) -> float:
 
 
 #: `_follow_matcher` 读的筛选参数。带了任一个，列表就是全库的一个子集。
-FOLLOW_FILTER_ARGS = ("author", "provider", "tag", "work", "dur_min", "dur_max")
+FOLLOW_FILTER_ARGS = ("author", "provider", "tag", "work", "dur_min", "dur_max", "q")
+
+
+def _word_matcher(q):
+    """查找词落到一条条目上：按空白拆开，每个词都要出现在标题、来源名或来源标签里，不分大小写。
+    没有词时每一条都算命中。"""
+    words = str(q or "").casefold().split()
+
+    def has_words(item) -> bool:
+        if not words:
+            return True
+        text = " ".join((item.title or "", item.source_label or "", *_item_all_tags(item))).casefold()
+        return all(word in text for word in words)
+
+    return has_words
 
 
 def _follow_matcher(args, by_source, alias_map, tag_policy=None):
@@ -1979,7 +1993,8 @@ def _follow_matcher(args, by_source, alias_map, tag_policy=None):
 
     作者、来源、标签、题材都接受逗号分隔的多个值。作者、来源在同一维度内是「任一」：
     选两个作者就看两个人的更新；标签是「同时具备」。时长两端是秒，同首页的
-    `dur_min`／`dur_max`，缺省或 0 是这一端不限。
+    `dur_min`／`dur_max`，缺省或 0 是这一端不限。`q` 是浮层查找框的词，
+    判据见 `_word_matcher`。
     """
     authors = frozenset(_csv_values(args.get("author")))
     providers = frozenset(_csv_values(args.get("provider")))
@@ -1989,6 +2004,7 @@ def _follow_matcher(args, by_source, alias_map, tag_policy=None):
     # 点第二枚就清空列表。
     wanted_works = frozenset(_work_root(value) for value in _csv_values(args.get("work")))
     dur_min, dur_max = _duration_arg(args.get("dur_min")), _duration_arg(args.get("dur_max"))
+    has_words = _word_matcher(args.get("q"))
 
     def _in_duration(item) -> bool:
         # 任一端生效时，没有时长读数的条目（图片、外链帖）不算落在区间里。
@@ -1996,6 +2012,8 @@ def _follow_matcher(args, by_source, alias_map, tag_policy=None):
         return seconds > 0 and seconds >= dur_min and not (dur_max and seconds > dur_max)
 
     def _matches(item) -> bool:
+        if not has_words(item):
+            return False
         row = by_source.get(item.source_id)
         if authors and (row is None or author_key(row, alias_map) not in authors):
             return False
