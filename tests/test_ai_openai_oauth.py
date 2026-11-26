@@ -259,7 +259,7 @@ class OpenAiOAuthTests(unittest.TestCase):
             ({"type": "response.output_text.delta", "delta": "{}"}, "invalid_output"),
         ]:
             with self.subTest(expected=expected):
-                state = self.state(lambda _request: sse(event))
+                state = self.state(lambda _request, event=event: sse(event))
                 oauth._protected_store(store_for(state), session())
                 with self.assertRaises(InferenceError) as caught:
                     oauth.infer_oauth(state, system="System", text="Sample")

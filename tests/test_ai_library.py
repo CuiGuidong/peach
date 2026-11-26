@@ -333,11 +333,11 @@ class AILibraryTests(unittest.TestCase):
         with patch.object(routes_api, "authenticated_client", return_value=True):
             for public in public_requests:
                 for call in (
-                    lambda: routes_api.ai_connections(public, Response()),
-                    lambda: routes_api.ai_account_usage(public, "deepseek", 30),
-                    lambda: routes_api.ai_search_models(public, "openai"),
-                    lambda: routes_api.ai_search_plan(public, {"query": "sample", "scope": "library"}),
-                    lambda: routes_api.ai_asset_suggest(public, 1, {"task": "translate"}),
+                    lambda public=public: routes_api.ai_connections(public, Response()),
+                    lambda public=public: routes_api.ai_account_usage(public, "deepseek", 30),
+                    lambda public=public: routes_api.ai_search_models(public, "openai"),
+                    lambda public=public: routes_api.ai_search_plan(public, {"query": "sample", "scope": "library"}),
+                    lambda public=public: routes_api.ai_asset_suggest(public, 1, {"task": "translate"}),
                 ):
                     with self.assertRaises(HTTPException) as denied:
                         call()

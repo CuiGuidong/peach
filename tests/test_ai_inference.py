@@ -88,15 +88,16 @@ class InferenceTests(unittest.TestCase):
         for provider, usage, expected in cases:
             with self.subTest(provider=provider, usage=usage):
                 reported = []
-                self.infer(provider, lambda _: httpx.Response(200, json={**reply(provider, "{}"), "usage": usage}),
-                           on_usage=lambda model, counts: reported.append((model, counts)))
+                response = {**reply(provider, "{}"), "usage": usage}
+                self.infer(provider, lambda _, response=response: httpx.Response(200, json=response),
+                           on_usage=lambda model, counts, reported=reported: reported.append((model, counts)))
                 self.assertEqual(reported, [("served-model", expected)])
 
     def test_verification_looks_up_models_without_sending_metadata(self):
         for provider, path in (("anthropic", "/v1/models/configured-model"),
                                ("openai", "/v1/models/configured-model"), ("deepseek", "/models")):
             with self.subTest(provider=provider):
-                def handler(request):
+                def handler(request, path=path, provider=provider):
                     self.assertEqual(request.method, "GET")
                     self.assertEqual(request.url.path, path)
                     self.assertEqual(request.content, b"")
@@ -121,7 +122,7 @@ class InferenceTests(unittest.TestCase):
             with self.subTest(provider=provider):
                 cursors = []
 
-                def handler(request):
+                def handler(request, path=path, provider=provider, cursors=cursors):
                     self.assertEqual(request.method, "GET")
                     self.assertEqual(request.url.path, path)
                     self.assertEqual(request.content, b"")
@@ -155,7 +156,7 @@ class InferenceTests(unittest.TestCase):
         }
         for provider, endpoint in endpoints.items():
             with self.subTest(provider=provider):
-                def handler(request):
+                def handler(request, endpoint=endpoint, provider=provider):
                     self.assertEqual(request.method, "POST")
                     self.assertEqual(str(request.url), endpoint)
                     self.assertEqual(request.headers["authorization"], "Bearer " + KEY)
@@ -183,7 +184,7 @@ class InferenceTests(unittest.TestCase):
     def test_sends_the_jpeg_in_the_vendor_message(self):
         for provider in ai_inference.PROVIDERS:
             with self.subTest(provider=provider):
-                def handler(request):
+                def handler(request, provider=provider):
                     body = json.loads(request.content)
                     image = body["messages"][-1]["content"][-1]
                     if provider == "anthropic":
@@ -204,7 +205,7 @@ class InferenceTests(unittest.TestCase):
                   "required": ["title"], "additionalProperties": False}
         for provider in ai_inference.PROVIDERS:
             with self.subTest(provider=provider):
-                def handler(request):
+                def handler(request, provider=provider):
                     body = json.loads(request.content)
                     if provider == "anthropic":
                         self.assertEqual(body["output_config"], {
@@ -227,7 +228,7 @@ class InferenceTests(unittest.TestCase):
                                 ("openai", "gpt-6.1-terra"),
                                 ("deepseek", "deepseek-flash")):
             with self.subTest(provider=provider):
-                def handler(request):
+                def handler(request, provider=provider):
                     body = json.loads(request.content)
                     if provider == "anthropic":
                         self.assertEqual(body["output_config"]["effort"], "low")
@@ -251,7 +252,7 @@ class InferenceTests(unittest.TestCase):
         ]
         for status, upstream_code, code in cases:
             with self.subTest(status=status, upstream_code=upstream_code):
-                def handler(_request):
+                def handler(_request, status=status, upstream_code=upstream_code):
                     return httpx.Response(status, json={"error": {"code": upstream_code, "message": KEY}})
 
                 with self.assertRaises(ai_inference.InferenceError) as context:
@@ -280,9 +281,9 @@ class InferenceTests(unittest.TestCase):
         ]
         for provider, reason, content, code in cases:
             with self.subTest(provider=provider, reason=reason, content=content):
+                response = reply(provider, content, reason=reason)
                 with self.assertRaises(ai_inference.InferenceError) as context:
-                    self.infer(provider, lambda _request: httpx.Response(
-                        200, json=reply(provider, content, reason=reason)))
+                    self.infer(provider, lambda _, response=response: httpx.Response(200, json=response))
                 self.assertEqual(context.exception.code, code)
 
     def test_does_not_forward_request_on_redirect(self):
