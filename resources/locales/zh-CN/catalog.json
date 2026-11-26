@@ -187,6 +187,8 @@
     "retryModels": "重新读取模型",
     "filterModels": "筛选模型",
     "noModelsFound": "没有匹配的模型。",
+    "noVisibleModels": "此连接没有可见模型。可在 AI 接入中调整",
+    "currentModelHidden": "当前模型已隐藏，仍用于此对话",
     "adjust": "调整查询条件",
     "invalidPeriod": "起始日期须早于或等于结束日期。",
     "any": "不限",

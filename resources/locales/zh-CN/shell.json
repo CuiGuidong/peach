@@ -317,8 +317,8 @@
     "additionalContextPlaceholder": "已有替代方案、报错或参考链接",
     "tabWaitingPermission": "请在浏览器中确认共享当前标签页…",
     "tabCapturing": "正在读取标签页画面…",
-    "githubPublish": "同时提交到 GitHub",
-    "githubPublic": "Peach 会代发公开 Issue，无需登录 GitHub。只有勾选公开的图片会同步。",
+    "githubPublish": "同时发布为 GitHub Issue",
+    "githubPublic": "Peach 会代发公开 Issue，无需登录 GitHub。",
     "githubView": "查看 GitHub Issue",
     "githubUnconfirmed": "反馈已收到，GitHub 是否发布成功尚未确认。",
     "githubUnavailable": "反馈已收到。此实例未启用 GitHub 同步。",
@@ -336,7 +336,7 @@
     "diagnosticsUnavailable": "未能读取诊断信息，可以手动补充。",
     "diagnosticsLogsUnavailable": "未能读取近期错误，可以手动补充。",
     "diagnosticsNoErrors": "最近 30 分钟无错误记录。",
-    "diagnosticsPublic": "诊断信息会写入公开的 GitHub Issue。",
+    "diagnosticsPublic": "在 GitHub Issue 中公开诊断信息",
     "distribution": {
       "windows-app": "Windows 桌面包",
       "macos-app": "macOS 桌面包",
@@ -345,7 +345,7 @@
       "wheel": "Python 包",
       "source": "源码运行"
     },
-    "githubPublishImage": "公开",
+    "githubPublishImage": "公开到 GitHub",
     "githubPublishImageLabel": "公开图片：{{label}}",
     "githubPublicMedia": "公开图片请使用不含露骨画面的演示资料，并遮盖隐私信息。",
     "githubImagesAttached": "所选图片已同步到 GitHub Issue。",

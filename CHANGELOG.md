@@ -19,12 +19,14 @@ Entries are written for users to scan: one sentence each, saying where something
 ### Added / 新增
 
 - **Interface**: Send feedback with a screenshot, image annotations and optional diagnostics, and choose whether to create a GitHub issue. / **界面**：反馈支持截取和标注图片、附上诊断信息，并可选择同步到 GitHub。
+- **Interface**: Choose which feedback images and diagnostics to publish on GitHub. The feedback button fades when idle. / **界面**：可分别选择公开哪些反馈图片和诊断信息，反馈按钮闲置时半透明。
 - **Desktop**: Open Peach from the Windows tray or macOS menu bar in a native window that supports feedback screenshots. / **桌面**：Windows 托盘和 macOS 菜单栏可打开支持反馈截图的原生窗口。
 
 - **Interface**: Find items by name or code in follow sources, JAV subscriptions, playlists, HD upgrades, duplicates, review, junk files and downloads. / **界面**：关注来源、JAV 订阅源、播放列表、高清版、重复文件、复核、垃圾文件与下载任务可按名字或番号查找。
 - **Interface**: Search the follow feed, a person or studio's videos, and past runs in the task center. / **界面**：关注动态、人物与厂牌名下的作品、任务中心的历史记录可以查找。
 - **Interface**: Filter boxes on the roster pages and the JAV sections suggest matching names, labels, tags and codes as you type; the video wall, online catalog and resource search suggest library matches. / **界面**：名册各页与 JAV 分区的筛选框输入时给出人名、厂牌、标签和番号候选；播放墙、在线目录和资源查找给出馆藏候选。
 - **Library**: Use your own AI connection to translate titles and synopses, review text or image tag suggestions, search with the AI assistant, and run reusable custom tasks (#393). / **馆藏**：连接自己的 AI 服务翻译标题和简介、复核文本或画面标签，在 AI 助手中搜索和运行自定义任务（#393）。
+- **Settings**: Choose and reorder the models shown in the AI assistant for each service (#393). / **配置**：可为每个 AI 服务选择和排序助手菜单中的可见模型（#393）。
 
 ### Fixed / 修复
 

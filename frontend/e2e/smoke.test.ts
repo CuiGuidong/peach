@@ -316,6 +316,87 @@ describe('路由冒烟', () => {
     }
   });
 
+  it('模型显隐随连接保存，助手仍可使用隐藏的默认模型', { timeout: 45_000 }, async () => {
+    const efforts = ['default', 'low'];
+    const default_efforts = { search: 'low' };
+    const models = [
+      { id: 'fixture-default', label: 'Default fixture', efforts, default_efforts },
+      { id: 'fixture-other', label: 'Other fixture', efforts, default_efforts },
+      { id: 'fixture-third', label: 'Third fixture', efforts, default_efforts },
+      { id: 'fixture-extra', label: 'Extra fixture', efforts, default_efforts },
+    ];
+    const opened = await visit(browser, '/settings/ai', DESKTOP, async page => {
+      await page.emulateMedia({ reducedMotion: 'no-preference' });
+      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { providers: [
+        { id: 'openai', label: 'OpenAI', model: 'fixture-default', configured: true, efforts, default_efforts },
+        { id: 'deepseek', label: 'DeepSeek', model: 'fixture-default', configured: true, efforts, default_efforts },
+      ] } }));
+      await page.route('**/api/ai-library/search-models?provider=*', route => route.fulfill({ json: { models } }));
+    });
+    try {
+      const { page } = opened;
+      const manage = page.getByRole('region', { name: 'OpenAI', exact: true })
+        .getByRole('button', { name: '管理可见模型', exact: true });
+      await manage.click();
+      const editor = page.getByRole('dialog', { name: '管理可见模型', exact: true });
+      await editor.getByRole('button', { name: '隐藏 Default fixture', exact: true }).click();
+      await editor.getByRole('button', { name: '隐藏 Extra fixture', exact: true }).click();
+      await editor.getByText('显示 2 / 4 个模型', { exact: true }).waitFor();
+      await editor.getByRole('button', { name: '选择要添加的模型' }).click();
+      await page.getByRole('option', { name: 'Extra fixture', exact: true }).click();
+      await page.locator('[data-trigger="Select"]').waitFor({ state: 'detached' });
+      await editor.getByRole('button', { name: '添加', exact: true }).click();
+      const source = editor.getByRole('group', { name: 'Extra fixture', exact: true });
+      const grip = source.locator('[data-sidebar-grip]');
+      await grip.hover();
+      const handle = (await grip.boundingBox())!;
+      await page.mouse.down();
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 - 10);
+      await source.and(page.locator('[data-dragging]')).waitFor();
+      const target = await editor.getByRole('group', { name: 'Other fixture', exact: true }).evaluate((element: HTMLElement) => {
+        const list = element.parentElement!.getBoundingClientRect();
+        return { x: list.left + 40, y: list.top + element.offsetTop + element.offsetHeight * .25 };
+      });
+      await page.mouse.move(target.x, target.y, { steps: 8 });
+      await editor.locator('[data-navigation-drag-preview]:popover-open').waitFor();
+      await editor.locator('[data-navigation-drop-line]').waitFor();
+      await page.mouse.up();
+      await editor.getByRole('button', { name: '保存配置', exact: true }).click();
+      await editor.waitFor({ state: 'hidden' });
+      await page.locator('#drawer [data-sidebar-nav] [data-nav="ai"]').click();
+      await page.locator('[data-ai-composer-trigger="end"]').click();
+      const menu = page.getByRole('dialog', { name: '模型', exact: true });
+      await menu.getByText('Other fixture', { exact: true }).waitFor();
+      await menu.getByText('当前模型已隐藏，仍用于此对话', { exact: true }).waitFor();
+      assert.equal(await menu.getByRole('radio', { name: 'Default fixture', exact: true }).count(), 0);
+      assert.deepEqual(await menu.getByRole('radiogroup', { name: '模型', exact: true })
+        .getByRole('radio').evaluateAll(rows => rows.map(row => (row as HTMLInputElement).value)),
+      ['fixture-extra', 'fixture-other', 'fixture-third']);
+      await menu.getByText('DeepSeek', { exact: true }).click();
+      await menu.getByRole('radio', { name: 'Default fixture', exact: true }).waitFor();
+    } finally {
+      await opened.close();
+    }
+  });
+
+  it('AI 助手无可用服务时在欢迎区显示配置主按钮', { timeout: 30_000 }, async () => {
+    for (const status of [200, 403]) {
+      const opened = await visit(browser, '/ai', DESKTOP, async page => {
+        await page.route('**/api/ai-library/connections', route => route.fulfill({ status, json: status === 200
+          ? { providers: [{ id: 'openai', label: 'OpenAI', configured: false }] }
+          : { detail: { message: 'AI connection access denied' } } }));
+      });
+      try {
+        const configure = opened.page.getByRole('link', { name: '配置 AI 服务', exact: true });
+        await configure.waitFor({ state: 'visible' });
+        assert.equal(await configure.getAttribute('href'), '/settings/ai');
+        assert.ok(await configure.evaluate(node => node.classList.contains('bg-button-primary')));
+      } finally {
+        await opened.close();
+      }
+    }
+  });
+
   it('AI 演示作品卡保留内边距，悬停只给标题加下划线', { timeout: 25_000 }, async () => {
     const opened = await visit(browser, '/ai', DESKTOP);
     try {

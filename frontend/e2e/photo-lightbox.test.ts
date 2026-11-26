@@ -119,11 +119,36 @@ describe('图片灯箱', () => {
     try {
       await page.getByRole('button', { name: '反馈', exact: true }).click();
       const form = page.locator('form[data-peach-feedback]');
-      await form.locator('input[type="file"]').setInputFiles({
-        name: 'lightbox.png', mimeType: 'image/png',
+      await form.locator('input[type="file"]').setInputFiles(['lightbox.png', 'Peach 配置与反馈诊断记录 · Peach.png'].map(name => ({
+        name, mimeType: 'image/png',
         buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/AFsAAAAASUVORK5CYII=', 'base64'),
-      });
-      await form.getByRole('button', { name: '查看lightbox.png', exact: true }).click();
+      })));
+      const preview = form.getByRole('button', { name: '查看lightbox.png', exact: true });
+      await preview.waitFor();
+      const sharing = form.getByText('同时发布为 GitHub Issue', { exact: true });
+      const imageOptions = form.getByRole('checkbox', { name: /^公开图片：/ });
+      assert.equal(await imageOptions.count(), 0);
+      await sharing.click();
+      await imageOptions.nth(1).waitFor();
+      const attachments = form.locator('li').filter({ has: page.locator('[data-copy-key="feedback.githubPublishImage"]') });
+      await attachments.nth(1).waitFor();
+      const rows = await attachments.evaluateAll(tiles => tiles.map(tile => {
+        const name = tile.querySelector(':scope > span[title]')!;
+        const choice = tile.querySelector('[data-copy-key="feedback.githubPublishImage"]')!;
+        const text = document.createRange();
+        text.selectNodeContents(choice);
+        return {
+          fileNameHeight: name.getBoundingClientRect().height,
+          choiceTop: choice.getBoundingClientRect().top - tile.getBoundingClientRect().top,
+          choiceLines: text.getClientRects().length,
+        };
+      }));
+      assert.deepEqual(rows[0], rows[1]);
+      assert.equal(rows[0].choiceLines, 1);
+      await sharing.click();
+      await imageOptions.first().waitFor({ state: 'hidden' });
+      assert.equal(await imageOptions.count(), 0);
+      await preview.click();
       const box = lightbox(page);
       const controls = await box.evaluate((dialog) => {
         const glyphs = [...dialog.querySelectorAll<SVGUseElement>(

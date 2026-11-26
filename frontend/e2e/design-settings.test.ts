@@ -603,14 +603,15 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
         const primary = document.createElement('button');
         primary.className = 'geist-button primary';
         document.body.append(primary);
+        const gradient = (style: CSSStyleDeclaration) => style.backgroundImage.replace(/ 0%(?=,)| 100%(?=\)$)/g, '');
         const want = getComputedStyle(primary);
-        const expected = [want.backgroundColor, want.backgroundImage, want.color];
+        const expected = [want.backgroundColor, gradient(want), want.color];
         primary.remove();
         const trigger = node.querySelector('button[aria-haspopup="listbox"]')!, add = node.querySelector('[data-sidebar-add]')!;
         const face = getComputedStyle(add);
         return {
           height, trigger: getComputedStyle(trigger).height, add: face.height,
-          face: [face.backgroundColor, face.backgroundImage, face.color], expected,
+          face: [face.backgroundColor, gradient(face), face.color], expected,
           cursor: getComputedStyle(trigger).cursor,
         };
       });

@@ -21,7 +21,7 @@ const WIDTH = {
   tutorial: 'max-w-2xl',
 } as const;
 
-export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfaceClassName = '', surfaceData, portalContainer,
+export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfaceClassName = '', surfaceData, portalContainer, shouldCloseOnInteractOutside,
   fullScreen = false, fitVisualViewport = false, onExited, side }: {
   isOpen: boolean;
   onOpenChange(open: boolean): void;
@@ -32,6 +32,7 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
   surfaceData?: Record<`data-${string}`, string | undefined>;
   /** 从原生 dialog 内打开的子弹层留在其 top layer 中。 */
   portalContainer?: Element;
+  shouldCloseOnInteractOutside?(element: Element): boolean;
   fullScreen?: boolean;
   /** 含搜索输入的移动端目录浮层随软键盘后的可见视口定位。 */
   fitVisualViewport?: boolean;
@@ -63,6 +64,7 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
   }, [fitVisualViewport, isOpen]);
   return (
     <ModalOverlay ref={setOverlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable UNSTABLE_portalContainer={portalContainer}
+      shouldCloseOnInteractOutside={shouldCloseOnInteractOutside}
       data-modal-motion="" data-modal-kind={width} data-modal-side={side} data-motion-instant={!side && isFocusVisible || undefined}
       data-fit-visual-viewport={fitVisualViewport || undefined}
       className={cx('fixed inset-0 z-dialog flex', side ? 'items-stretch justify-end' : 'items-center justify-center',

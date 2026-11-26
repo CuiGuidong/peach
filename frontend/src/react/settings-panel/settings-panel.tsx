@@ -418,7 +418,9 @@ function SettingsPanel({ host: current, view: shown }: { host: SettingsPanelHost
             </div>
             <GlowSettings host={current} />
             <section data-setting-block="" aria-labelledby="sidebarOrderTitle">
-              <h4 data-settings-subheading="" id="sidebarOrderTitle">{t('settings:preferencesPanel.navigationOrder')}</h4>
+              <h4 data-settings-subheading="" id="sidebarOrderTitle" data-copy-key="settings.preferencesPanel.navigationOrder">
+                {t('settings:preferencesPanel.navigationOrder')}
+              </h4>
               <div data-setting-card="">
                 <section data-sidebar-setting=""><SidebarOrder host={current} /></section>
               </div>

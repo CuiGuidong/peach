@@ -9,7 +9,7 @@ import { Select, SelectItem } from '@/components/base/select/select';
 import { apiGet, apiSend, errorMessage } from '../../api';
 import { aiConnectionsSkeleton } from '../../configuration-skeleton';
 import { t } from '../../i18n';
-import { AIProviderLogo } from '../components/ai-provider-logo';
+import { AIProviderLabel, AIProviderLogo } from '../components/ai-provider-logo';
 import { SectionToc } from '../components/section-toc';
 import { SEGMENT, SEGMENTED_TRACK, SegmentedTabList } from '../components/segmented';
 import { StatusLabel, type StatusTone } from '../components/status-label';
@@ -17,6 +17,7 @@ import { ErrorText, ExternalLink, Footer, Help, Section, SectionSkeleton, Stack 
 import { busyProps, useAction } from './use-action';
 import { AIPromptEditor, AI_PROMPT_SCOPES, promptCopy, useAIPromptSettings, type AIPromptScope } from './ai-prompt-settings';
 import { AIUsageDashboard } from './ai-usage-dashboard';
+import { AIModelVisibilityButton } from './ai-model-visibility';
 import { CUSTOM_TASKS_KEY, CUSTOM_TASKS_URL, customTaskCopy, useCustomTasks, type FixedTask } from './ai-custom-tasks';
 import { aiModelLabel, aiSearchModelsKey, preferredAIConnection, useAIModels, type AIEffort, type AITask, type ModelChoices } from './use-ai-models';
 
@@ -52,7 +53,7 @@ const OAUTH_TONES: Record<OAuthStatus, StatusTone> = {
   disconnected: 'neutral', pending: 'progress', connected: 'success', permission_required: 'warning', error: 'error',
 };
 
-export function aiConnectionLabel(row: AIConnection) {
+export function aiConnectionLabel(row: Pick<AIConnection, 'id' | 'label'>) {
   if (row.id === 'openai') return t('settings:aiLibrary.openaiKeyLabel');
   if (row.id === 'openai-oauth') return t('settings:aiLibrary.openaiOAuthLabel');
   return row.label;
@@ -216,7 +217,12 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
       {!options.length ? <Help>{t('settings:aiLibrary.taskConnectFirst')}</Help> : null}
       <Select aria-label={t('catalog:aiLibrary.provider')} selectedKey={connection?.id ?? null} isDisabled={busy || !options.length}
         onSelectionChange={next => { if (next) editModel({ provider: String(next), model: undefined, effort: undefined }); }}>
-        {options.map(row => <SelectItem key={row.id} id={row.id}>{aiConnectionLabel(row)}</SelectItem>)}
+        {options.map(row => {
+          const label = aiConnectionLabel(row);
+          return <SelectItem key={row.id} id={row.id} textValue={label}>
+            <AIProviderLabel provider={row.id} label={label} />
+          </SelectItem>;
+        })}
       </Select>
       <ModelPicker catalog={eligibleCatalog} selected={selected} onChange={next => editModel({ model: next, effort: undefined })}
         enabled={Boolean(connection)} disabled={busy} hint={t('settings:aiLibrary.taskConnectFirst')} savedModel={prior} />
@@ -322,7 +328,12 @@ function FixedTaskEditor({ task, providers, active, choose, busyChanged, receipt
         }}>
         <SelectItem id="*">{customTaskCopy('automatic')}</SelectItem>
         {provider && !connection ? <SelectItem id={provider}>{t('settings:aiLibrary.taskConnectionMissing')}</SelectItem> : null}
-        {providers.map(row => <SelectItem key={row.id} id={row.id}>{aiConnectionLabel(row)}</SelectItem>)}
+        {providers.map(row => {
+          const label = aiConnectionLabel(row);
+          return <SelectItem key={row.id} id={row.id} textValue={label}>
+            <AIProviderLabel provider={row.id} label={label} />
+          </SelectItem>;
+        })}
       </Select>
       {connection ? <>
         <ModelPicker catalog={catalog} selected={selectedModel} onChange={value => { setModel(value); setEffort(undefined); }}
@@ -458,6 +469,7 @@ function OAuthForm({ value, active, saved, refresh }: {
       {revocationUnconfirmed ? <Help role="status">{t('settings:aiLibrary.oauthRevocationUnconfirmed')}</Help> : null}
     </Stack>
     <Footer>
+      {value.configured ? <AIModelVisibilityButton connection={{ ...value, label: aiConnectionLabel(value) }} disabled={busy} /> : null}
       {status !== 'disconnected' ? <Button size="small" variant="secondary" disabled={busy}
         onClick={() => command(true)} {...busyProps(action.busy === 'remove')}>{t('settings:aiLibrary.oauthDisconnect')}</Button> : null}
       {value.configured ? <Button size="small" disabled={busy || !selected || selected === value.model}
@@ -634,6 +646,7 @@ function ProviderForm({ value, active, saved, cancel }: {
       {cancel ? <Button type="button" variant="secondary" size="small" disabled={busy} onClick={cancel}>
         {t('settings:aiLibrary.cancelProvider')}
       </Button> : null}
+      {value.configured ? <AIModelVisibilityButton connection={{ ...value, label: aiConnectionLabel(value) }} disabled={busy} /> : null}
       {value.configured ? <Button variant="secondary" type="button" size="small" disabled={busy}
         onClick={() => update(true)} {...busyProps(action.busy === 'remove')}>
         {t(value.custom ? 'settings:aiLibrary.removeProvider' : 'settings:aiLibrary.disconnect')}

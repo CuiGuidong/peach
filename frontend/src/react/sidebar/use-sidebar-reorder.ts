@@ -194,7 +194,7 @@ export function useSidebarReorder(column: RefObject<HTMLElement | null>, order: 
     const dragX = reduced ? 0 : dx + (axis === 'y' ? 18 : 0);
     const dragY = reduced ? 0 : dy + (axis === 'x' ? 18 : 0);
     if (active.preview) {
-      active.preview.style.transform = `translate3d(${dragX}px,${dragY}px,0) scale(.9)`;
+      active.preview.style.transform = `translate3d(${dragX}px,${dragY}px,0) scale(var(--navigation-pick-scale,.9))`;
     } else {
       active.node.style.setProperty('--sidebar-drag-x', `${dragX}px`);
       active.node.style.setProperty('--sidebar-drag-y', `${dragY}px`);

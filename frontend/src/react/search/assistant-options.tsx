@@ -1,5 +1,5 @@
 import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Label, Popover, Radio, RadioGroup, Slider, SliderThumb, SliderTrack } from 'react-aria-components';
 import { RiAddLine, RiBuilding4Line, RiCalendarLine, RiCloseLine, RiEyeLine, RiPriceTag3Line, RiRestartLine, RiSortDesc, RiTranslate2, RiUser3Line } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
@@ -10,7 +10,7 @@ import { Input } from '@/components/base/input/input';
 import { RadioDot } from '@/components/base/radio/radio';
 import { Select, SelectItem } from '@/components/base/select/select';
 import { cx } from '@/utils/cx';
-import { apiGet, errorMessage } from '../../api';
+import { errorMessage } from '../../api';
 import { t } from '../../i18n';
 import { AIProviderLabel, AIProviderLogo } from '../components/ai-provider-logo';
 import { EffortFlow } from '../components/effort-flow';
@@ -19,8 +19,9 @@ import { MenuDialog } from '../components/menu-dialog';
 import { TableDateBound } from '../components/table-date-bound';
 import { outsideTableDateBound } from '../components/table-column-range';
 import { aiConnectionLabel, type AIConnection, type TaskProfile } from '../settings/ai-library-settings';
+import { modelIsVisible, useAIModelVisibility, visibleAIModels } from '../settings/ai-model-visibility';
 import { ErrorText, Help } from '../settings/section';
-import { aiModelLabel, aiSearchModelsKey, type AIEffort, type AIModel } from '../settings/use-ai-models';
+import { aiModelLabel, aiSearchModelsKey, matchesAIModel, useAIConnectionModels, type AIEffort, type AIModel } from '../settings/use-ai-models';
 import { assistantCopy as copy } from './assistant-workspace';
 import { AssistantSuggestInput } from './assistant-suggest';
 
@@ -217,18 +218,14 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
   const [browsing, setBrowsing] = useState<string>();
   const [modelQuery, setModelQuery] = useState('');
   const connection = connections.find(row => row.id === (browsing ?? value?.provider ?? fallback?.provider)) ?? connections[0];
-  const catalog = useQuery({
-    queryKey: aiSearchModelsKey(connection.id),
-    queryFn: ({ signal }) => apiGet<{ models: AIModel[] }>(
-      '/api/ai-library/search-models?' + new URLSearchParams({ provider: connection.id }), signal),
-    staleTime: 300_000,
-  });
+  const catalog = useAIConnectionModels(connection.id);
+  const visibility = useAIModelVisibility(connection);
   const saved: AIModel = { id: connection.model, label: connection.model, efforts: connection.efforts,
     default_efforts: connection.default_efforts, effort_reported: connection.effort_reported };
   const remoteModels = catalog.data?.models ?? [];
   const models = saved.id && !remoteModels.some(row => row.id === saved.id) ? [saved, ...remoteModels] : remoteModels;
-  const needle = modelQuery.trim().toLowerCase();
-  const visible = models.filter(model => !needle || (model.label + ' ' + model.id).toLowerCase().includes(needle));
+  const offered = visibleAIModels(models, visibility);
+  const visible = offered.filter(model => matchesAIModel(model, modelQuery));
   const current = value ?? fallback;
   const currentModel = current?.provider === connection.id ? models.find(model => model.id === current.model) : undefined;
   const efforts = currentModel?.efforts ?? [];
@@ -247,7 +244,7 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
           onClick={() => { onChange(null); setBrowsing(undefined); setModelQuery(''); }} /> : null}
       </div>
     </div>
-    {models.length > 10 ? <div className="px-2 pb-2"><Input aria-label={copy('filterModels')} placeholder={copy('filterModels')}
+    {offered.length > 10 || modelQuery ? <div className="px-2 pb-2"><Input aria-label={copy('filterModels')} placeholder={copy('filterModels')}
       value={modelQuery} onChange={setModelQuery} /></div> : null}
     <RadioGroup aria-label={copy('modelPicker')} value={current?.provider === connection.id ? current.model : ''}
       className="flex max-h-48 flex-col gap-0.5 overflow-y-auto"
@@ -257,7 +254,10 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
       }}>
       {visible.map(model => <ComposerRadio key={model.id} id={model.id} label={aiModelLabel(model.id, model.label)} />)}
     </RadioGroup>
-    {!catalog.isPending && !catalog.error && !visible.length ? <Help>{copy('noModelsFound')}</Help> : null}
+    {!catalog.isPending && !catalog.error && !visible.length ? <Help>
+      {copy(models.length && !offered.length ? 'noVisibleModels' : 'noModelsFound')}
+    </Help> : null}
+    {currentModel && !modelIsVisible(visibility, currentModel.id) ? <Help>{copy('currentModelHidden')}</Help> : null}
     {catalog.isPending ? <div className="px-2 py-1.5">
       <AgentThinking variant="spin" showTimer={false} label={t('settings:aiLibrary.modelsLoading')} />
     </div> : null}

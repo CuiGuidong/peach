@@ -10,7 +10,6 @@
  * Escape 先关下拉再清字、空输入回车用占位里那个推荐词。 */
 import { useLayoutEffect, useReducer, useRef, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { RiSparkling2Line } from '@remixicon/react';
 import { ButtonLink } from '@/components/base/buttons/button';
 import { avatarInner } from '@peach/card-art';
 
@@ -20,12 +19,15 @@ import { useEntityNames } from '../use-entity-names';
 import { TabCount } from '../components/board-tabs';
 import { PillTabList } from '../components/pill-tabs';
 import { composingKey } from '../components/ime';
+import { spriteGlyph } from '../components/sprite-glyph';
 import {
   menuModel, nextPage, shufflePicks, SUGGEST_DEBOUNCE, SUGGEST_EACH, SUGGEST_ONE_KIND, SUGGEST_PROFILE_KINDS, SUGGEST_RIGHT_KINDS, fold,
   type MenuModel, type MenuSection, type SearchApi, type SearchOption, type SearchProps, type SuggestCard,
   type Recommendations, type SuggestGroup, type SuggestItem, type SuggestResponse, type SuggestTab,
 } from './search';
 import { t as tr } from '../../i18n';
+
+const AssistantIcon = spriteGlyph('bot-orb');
 
 interface Store {
   dismissed: boolean;
@@ -203,7 +205,7 @@ export function SearchPage(props: SearchProps) {
   return (
     <div ref={root} data-search-root="" data-search-recommendations={!s.query && s.recommendations.length ? '' : undefined} data-history-limit={limit}>
       {aiMount ? createPortal(
-        <ButtonLink variant="secondary" size="small" leadingIcon={RiSparkling2Line} data-ai-button="entry"
+        <ButtonLink variant="secondary" size="small" leadingIcon={AssistantIcon} data-ai-button="entry"
           href={aiPath(s.query)} onMouseDown={keep} onClick={event => {
             if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
             event.preventDefault(); op.openPath(aiPath(props.input.value));
