@@ -37,13 +37,20 @@ describe('配置表单与行间距', () => {
     } finally { await opened.close() }
   });
   for (const viewport of VIEWPORTS) {
-    it(`${viewport.name}：六个配置分区都能用横向目录定位正文`, async () => {
+    it(`${viewport.name}：配置分区显示页头并可用本页目录定位正文`, async () => {
       const opened = await visit(browser, '/settings/library', viewport);
       const { page } = opened;
       try {
-        for (const section of ['媒体库与入库', '来源与订阅', '下载渠道', '网络与访问', '应用与维护', '系统诊断']) {
+        for (const section of ['媒体库与入库', '来源与订阅', 'AI 接入', '下载渠道', '网络与访问', '应用与维护', '系统诊断']) {
           await page.getByRole('tab', { name: section, exact: true }).click();
+          await page.getByRole('heading', { name: section, exact: true, level: 2 }).waitFor();
           const toc = page.getByRole('navigation', { name: '本页目录', exact: true });
+          const toggle = toc.getByRole('button', { name: '本页目录', exact: true });
+          if (viewport.mobile) {
+            await toggle.waitFor();
+            assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+            await toggle.click();
+          }
           const last = toc.getByRole('link').last();
           await last.waitFor();
           assert.equal(await toc.locator('[data-section-toc-items]').evaluate(node => getComputedStyle(node).flexDirection), 'row');
@@ -52,12 +59,14 @@ describe('配置表单与行间距', () => {
           const target = page.locator(href);
           await last.click();
           await page.waitForURL(url => url.hash === href);
-          await toc.locator(`[href="${href}"][aria-current=location]`).waitFor();
+          await toc.locator(`[href="${href}"][aria-current=location]`).waitFor({ state: 'attached' });
           await page.waitForFunction(hash => {
             const top = document.getElementById(hash.slice(1))?.getBoundingClientRect().top;
             return top !== undefined && top < innerHeight;
           }, href);
-          const [nav, content] = await Promise.all([toc.boundingBox(), target.boundingBox()]);
+          if (viewport.mobile) assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+          const anchorBoundary = viewport.mobile ? page.getByRole('tablist', { name: '配置分区' }) : toc;
+          const [nav, content] = await Promise.all([anchorBoundary.boundingBox(), target.boundingBox()]);
           assert.ok(nav && content && content.y >= nav.y + nav.height - 1 && content.y < viewport.height, section);
           assert.ok((await layout(page)).scrollWidth <= viewport.width + 1, section);
         }

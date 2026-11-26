@@ -16,6 +16,15 @@ const card = (root: ParentNode, name: string) => root.querySelector(`section[ari
 
 afterEach(() => localStorage.clear());
 
+it('AI 接入加载时三张服务卡各有一个文字标题和可访问名称', () => {
+  const root = draw('AI 接入');
+  const names = ['Claude', 'OpenAI', 'DeepSeek'];
+  expect(sections(root)).toEqual([...names, '任务模型', '可用功能']);
+  for (const name of names) {
+    expect(card(root, name).firstElementChild?.textContent).toBe(name);
+  }
+});
+
 describe('来源凭据骨架', () => {
   it('站点行取自静态登记，名字写真名；没有记录时按都没配，必填的展开', () => {
     const credentials = card(draw('来源与订阅'), '来源凭据');

@@ -40,7 +40,7 @@ from fastapi.responses import (
     Response,
 )
 
-from . import distribution, interface_text, listening, onboarding, settings_file
+from . import ai_openai_oauth, distribution, interface_text, listening, onboarding, settings_file
 from .config import PROJECT_ROOT
 from .diagnostic_browser import BUNDLE_CHUNK_NAME
 from .entities import resolve_entity, resolve_entity_id
@@ -1030,11 +1030,26 @@ def management_route_redirect(request: Request, args: dict[str, str] = Depends(r
     return _page_redirect(request, paths[request.url.path])
 
 
+@router.api_route(ai_openai_oauth.RESULT_PATH, methods=["GET", "HEAD"])
+def ai_authorization_result(request: Request, _args=Depends(require_page_auth)):
+    if not loopback_client(request):
+        raise HTTPException(404, "not found")
+    status = ai_openai_oauth.status(request.app.state)
+    outcome = "permission_required" if status.get("error") == "permission_required" else status["status"]
+    editor = "edit" in request.query_params and _copy_editor_available()
+    language = interface_text.request_language(request.headers.get("accept-language"))
+    html = page_shell("Peach", "ai-authorization", {"status": outcome, "editing": str(editor).lower()},
+                      language=language)
+    if editor:
+        html = _with_copy_editor(html)
+    return HTMLResponse(html, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+
+
 @router.api_route("/settings/{section}", methods=["GET", "HEAD"])
 def settings_section_route(request: Request, section: str,
                            args: dict[str, str] = Depends(require_page_auth)):
     if section not in {"appearance", "playback", "jav", "search", "content", "library",
-                       "subscriptions", "downloads", "network", "maintenance", "diagnostics"}:
+                       "subscriptions", "ai", "downloads", "network", "maintenance", "diagnostics"}:
         raise HTTPException(404, "not found")
     return index(request, args)
 
@@ -1089,6 +1104,7 @@ def entity_route(request: Request, name: str,
 @router.api_route("/series", methods=["GET", "HEAD"])
 @router.api_route("/tags", methods=["GET", "HEAD"])
 @router.api_route("/jav", methods=["GET", "HEAD"])
+@router.api_route("/ai", methods=["GET", "HEAD"])
 @router.api_route("/unseen", methods=["GET", "HEAD"])
 @router.api_route("/watch-later", methods=["GET", "HEAD"])
 @router.api_route("/flagged", methods=["GET", "HEAD"])

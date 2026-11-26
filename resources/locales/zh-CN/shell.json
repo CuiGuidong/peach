@@ -233,6 +233,15 @@
   "entitySort": {
     "ariaLabel": "按{{label}}{{direction}}排序"
   },
+  "aiAuthorization": {
+    "connectedTitle": "已连接 ChatGPT 订阅",
+    "connectedHelp": "即将返回 AI 接入，你可以在那里选择模型。",
+    "permissionTitle": "未授予订阅用量权限",
+    "permissionHelp": "即将返回 AI 接入，你可以重新授权。",
+    "errorTitle": "ChatGPT 授权未完成",
+    "errorHelp": "即将返回 AI 接入，你可以重试。",
+    "return": "返回 Peach"
+  },
   "errorPage": {
     "conflict": "现在不能这样做",
     "forbidden": "这里不能打开",

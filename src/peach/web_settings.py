@@ -30,9 +30,11 @@ from .user_messages import UserValueError
 
 from .profiles import DEFAULT_PROFILE_ID
 
-#: 默认就在侧栏里的入口，顺序即默认顺序。首页之后是关注（每天有新东西的那一屏），
-#: 再是主库最常用的浏览模式 JAV，然后三个索引，回头找的已标记，管理垫底。
+#: 默认侧栏顺序。首页和 AI 助手是跨馆藏入口。
 DEFAULT_SIDEBAR_ORDER = (
+    "", "ai", "follow", "jav", "performers", "tags", "studios", "flagged", "manage",
+)
+_SIDEBAR_ORDER_BEFORE_AI = (
     "", "follow", "jav", "performers", "tags", "studios", "flagged", "manage",
 )
 #: 可以加进侧栏、但默认不在的入口。播放列表和沉浸模式都是从一条作品或一个索引里
@@ -95,7 +97,7 @@ DEFAULT_MANAGE_ORDER = ('stats', 'taste', 'cleanup', 'follow', 'activity', 'conf
 NAVIGATION_ORDERS = {
     'review': ('metadata_fields', 'creator_tags', 'code_creators', 'western_identity', 'performer_avatars',
                'studio_logos', 'fc2_markings', 'fc2_similarity', 'video_endcards'),
-    'configuration': ('library', 'sources', 'downloads', 'network', 'maintenance', 'diagnostics'),
+    'configuration': ('library', 'sources', 'ai', 'downloads', 'network', 'maintenance', 'diagnostics'),
     'favorites': ('all', 'filters', 'performer', 'creator', 'tag', 'series', 'studio', 'agency'),
     'jav': ('library', 'wants', 'releases', 'discover', 'online'),
     'follow': ('list', 'add', 'tags'),
@@ -360,9 +362,12 @@ def q_settings(contract: SettingsContract, _args=None) -> dict:
     """读取跟人走的那部分设置。缺省时返回默认值，不返回空。"""
     from .library_processing import source_budget_settings
     payload = _stored(contract)
+    sidebar_order = payload.get("sidebarOrder")
+    if sidebar_order == list(_SIDEBAR_ORDER_BEFORE_AI) and payload.get("sidebarAiHidden") is not True:
+        sidebar_order = None
     cadence = wants.cadence_from(payload)
     return {
-        "sidebarOrder": normalise_sidebar_order(payload.get("sidebarOrder")),
+        "sidebarOrder": normalise_sidebar_order(sidebar_order),
         **({"manageOrder": normalise_manage_order(payload["manageOrder"])} if "manageOrder" in payload else {}),
         **({"navigationOrders": normalise_navigation_orders(payload["navigationOrders"])} if "navigationOrders" in payload else {}),
         **({"sortControls": normalise_sort_controls(payload["sortControls"])} if "sortControls" in payload else {}),
@@ -489,7 +494,11 @@ def w_settings(contract: SettingsContract, body) -> dict:
             if not isinstance(body[key], bool):
                 raise UserValueError("api.settings.switchNotBoolean", {"key": key})
             merged[key] = body[key]
-    _write_settings(contract, {key: merged[key] for key in body})
+    patch = {key: merged[key] for key in body}
+    if patch.get("sidebarOrder") == list(_SIDEBAR_ORDER_BEFORE_AI):
+        # 用户在新版明确保存了相同的布局，后续读取应保留这一选择。
+        patch["sidebarAiHidden"] = True
+    _write_settings(contract, patch)
     return {"ok": True, **q_settings(contract)}
 
 

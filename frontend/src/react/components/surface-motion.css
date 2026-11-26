@@ -46,6 +46,16 @@
   .peach-react [data-modal-surface]:is([data-entering], [data-exiting]) { scale: .85; filter: blur(4px); }
 }
 .peach-react [data-modal-motion][data-motion-instant] :is([data-modal-surface], [data-modal-backdrop]) { transition: none; }
+.peach-react [data-modal-side="right"] [data-modal-surface] { transition-property: translate; }
+.peach-react [data-modal-side="right"] [data-modal-surface]:is([data-entering], [data-exiting]) {
+  opacity: 1;
+  scale: none;
+  filter: none;
+  translate: 100% 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .peach-react [data-modal-side="right"] [data-modal-surface] { transition: none; }
+}
 [data-progress-animated] { transition: transform var(--motion-content); }
 .task-stage-change { animation: task-stage-in var(--motion-content) backwards; }
 @keyframes task-stage-in { from { opacity: .65; } to { opacity: 1; } }

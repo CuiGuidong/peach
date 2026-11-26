@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { RiArrowDownSLine } from '@remixicon/react';
 import { cx } from '@/utils/cx';
 import { PillTabList } from './pill-tabs';
 import { useHorizontalScroller } from './use-horizontal-scroller';
@@ -17,6 +18,8 @@ export function SectionToc({ label, entries, children, inline = false }: {
   const root = useRef<HTMLDivElement>(null);
   const scrollRef = useHorizontalScroller<HTMLElement>();
   const [active, setActive] = useState(entries[0]?.id ?? '');
+  const [expanded, setExpanded] = useState(false);
+  const linksId = useId();
   const ids = JSON.stringify(entries.map(entry => entry.id));
 
   useEffect(() => {
@@ -79,10 +82,19 @@ export function SectionToc({ label, entries, children, inline = false }: {
 
   return <div ref={root} data-section-page={inline ? 'inline' : ''}>
     <nav ref={scrollRef} aria-label={label} data-section-toc="">
-      <PillTabList data-section-toc-items="" data-pill-nav="">
+      {inline ? <button type="button" data-inline-toc-toggle="" aria-controls={linksId} aria-expanded={expanded}
+        onClick={() => setExpanded(value => !value)}>
+        <span>{label}</span><RiArrowDownSLine className="size-4" aria-hidden="true" />
+      </button> : null}
+      <PillTabList id={linksId} data-section-toc-items="" data-pill-nav="" data-inline-toc-expanded={expanded ? '' : undefined}>
         {entries.map(entry => <a key={entry.id} href={`#${entry.id}`} data-copy-interact=""
           onClick={event => {
-            if (!event.defaultPrevented && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) setActive(entry.id);
+            if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+            setActive(entry.id);
+            if (expanded) {
+              setExpanded(false);
+              requestAnimationFrame(() => document.getElementById(entry.id)?.scrollIntoView({ block: 'start' }));
+            }
           }}
           aria-current={active === entry.id ? 'location' : undefined}
           data-pill-selected={active === entry.id ? '' : undefined} data-pill-variant="gray"

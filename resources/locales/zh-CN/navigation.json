@@ -1,5 +1,6 @@
 {
   "configurationSections": {
+    "ai": "AI 接入",
     "diagnostics": "系统诊断",
     "downloads": "下载渠道",
     "feeds": "来源与订阅",

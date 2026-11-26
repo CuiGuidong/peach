@@ -15,7 +15,7 @@ import { LIBRARY_FOLDER_HELP, POLICY_SUMMARY } from './react/settings/library-po
 import { ENTRY_LINKS_HELP, ENTRY_LINKS_HINT } from './configuration-copy';
 import { serverLabel } from './core/server-text';
 import { t } from './i18n';
-import { sectionId, sectionTitle } from './history/settings-route';
+import { configurationDescriptionKey, sectionId, sectionTitle } from './history/settings-route';
 import CREDENTIAL_REGISTRY from './react/follow-manage/credential-providers.json' with { type: 'json' };
 
 export const CLOUD_PROXY_HELP = t('settings:cloudProxy.help');
@@ -88,8 +88,10 @@ const heading = (name: string, aside: string, mark: boolean) => {
   const label = `<p class="w-full px-3 text-body-2-medium text-text-secondary">${mark ? `<span class="inline-flex items-center gap-1.5">${icon()}${name}</span>` : name}</p>`;
   return aside ? `<div class="flex w-full flex-wrap items-center justify-between gap-2"><div class="min-w-40 flex-1">${label}</div><div class="flex min-w-0 max-w-full">${aside}</div></div>` : label;
 };
-const section = (name: string, content: string, actions = '', { aside = '', status = '', mark = false } = {}) =>
-  `<section aria-label="${name}" class="flex w-full flex-col gap-2 wrap-anywhere">${heading(name, aside, mark)}<div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3">${content}${actions ? footer(actions, status) : ''}</div></section>`;
+const section = (name: string, content: string, actions = '', { aside = '', status = '', mark = false } = {}) => {
+  const label = esc(name);
+  return `<section aria-label="${label}" class="flex w-full flex-col gap-2 wrap-anywhere">${heading(label, aside, mark)}<div class="flex w-full flex-col rounded-2xl bg-background-secondary-default pl-3">${content}${actions ? footer(actions, status) : ''}</div></section>`;
+};
 /** 同 BoardUI `SettingsRow`；`lead` 是行首图标的占位。 */
 const controlRow = (label: string, description: string, control: string, lead = '') => {
   const body = `<div class="flex min-w-0 flex-col"><p class="text-body-regular text-text-primary">${label}</p>${description ? `<p class="text-body-2-regular text-text-secondary">${description}</p>` : ''}</div>`;
@@ -430,11 +432,37 @@ const maintenance = () => {
   </div>`;
 };
 
+export function aiConnectionsSkeleton(): string {
+  const api = ['Claude', 'OpenAI', 'DeepSeek'].map(label => section(label,
+    (label === 'OpenAI' ? `<div class="mt-3">${block('12em', '36px')}</div>` : '') +
+    stack(help(text('12em')) + selectField(t('settings:aiLibrary.endpointMode'))
+      + inputField('API Key') + selectField(t('settings:aiLibrary.model'))),
+    button(t('settings:aiLibrary.verify'), 'secondary', 'small') + button(t('settings:shared.saveSettings'), 'primary', 'small'),
+    { mark: true }));
+  const prompts = t('settings:aiLibrary.prompts.title');
+  const usage = t('settings:aiLibrary.usage.title');
+  return `<div class="@container flex min-w-0 flex-col gap-5">
+    <div class="flex min-w-0 flex-col gap-5">
+      ${configurationContentsSkeleton([t('settings:aiLibrary.servicesTitle'), prompts, usage])}
+      <div class="flex min-w-0 flex-col gap-8">
+        <div class="flex min-w-0 flex-col gap-5">${api.join('')}</div>
+        ${section(prompts,
+          stack(selectField(t('settings:aiLibrary.prompts.scope')))
+          + stack(selectField(t('catalog:aiLibrary.provider')) + selectField(t('settings:aiLibrary.model')) + selectField(t('settings:aiLibrary.effort')))
+          + stack(help(text('16em')) + block('100%', '168px')),
+          button(t('settings:aiLibrary.saveTaskSettings'), 'primary', 'small'))}
+        ${section(usage, stack(help(text('16em'))))}
+      </div>
+    </div>
+  </div>`;
+}
+
 /** 各分区复用正式表单的 Section、Stack 与 SettingsRow 几何。 */
 export function configurationContentSkeleton(chosen: string): string {
   switch (sectionId(chosen)) {
     case 'diagnostics': return diagnosticsSkeleton();
     case 'subscriptions': return subscriptions();
+    case 'ai': return aiConnectionsSkeleton();
     case 'downloads': return downloads();
     case 'network': return network();
     case 'maintenance': return maintenance();
@@ -445,6 +473,9 @@ export function configurationContentSkeleton(chosen: string): string {
 export function configurationSkeleton(chosen = 'library'): string {
   const titles = normalizeNavigationOrder('configuration', appSettingsStore().value.navigationOrders.configuration)
     .map(key => NAVIGATION_GROUPS.configuration.items.find(([id]) => id === key)![1]);
-  const nav = `<div class="ui-board-local-nav" data-section-nav data-section-items>${titles.map(title => `<button type="button" tabindex="-1" aria-selected="${title === sectionTitle(chosen)}">${title}</button>`).join('')}</div>`;
-  return `<div class="peach-react"><div class="ui-configpage">${nav}<div class="flex min-w-0 flex-col gap-6">${configurationContentSkeleton(chosen)}</div></div></div>`;
+  const title = sectionTitle(chosen);
+  const nav = `<div class="ui-board-local-nav" data-section-nav data-section-items>${titles.map(label => `<button type="button" tabindex="-1" aria-selected="${label === title}">${esc(label)}</button>`).join('')}</div>`;
+  const description = t('settings:' + configurationDescriptionKey(sectionId(chosen) || 'library'));
+  const heading = `<div class="flex min-w-0 flex-col gap-1"><span class="text-title-2-medium text-text-primary">${esc(title)}</span>${help(esc(description))}</div>`;
+  return `<div class="peach-react"><div class="ui-configpage">${nav}<div class="flex min-w-0 flex-col gap-6">${heading}${configurationContentSkeleton(chosen)}</div></div></div>`;
 }

@@ -217,7 +217,9 @@
       }
       for (const [root, style] of localStyles) if (!root.host.isConnected) { style.remove(); localStyles.delete(root); }
       let moved = false;
-      for (const node of [highlight, host, choice?.node]) if (node && node.parentElement !== parent) { parent.append(node); moved = true; }
+      for (const node of [highlight, host]) if (node.parentElement !== parent) { parent.append(node); moved = true; }
+      if (choice?.scope && !choice.scope.isConnected) choice.cancel();
+      if (choice && !choice.scope && choice.node.parentElement !== parent) parent.append(choice.node);
       // 保持模态框内的可交互资格，工具条本身在顶层按整个视口定位，不受弹窗裁切。
       if (!bar.matches(':popover-open')) bar.showPopover();
       const nextFooter = parent.matches('dialog') ? parent.querySelector('footer,.footer') : null;
@@ -236,18 +238,24 @@
           recovery.remove(); recovery = null; action();
         });
       },
-      choose(items, rect, { label = '选项', message = '' } = {}) {
+      choose(items, rect, { label = '选项', message = '', scope = null } = {}) {
         choice?.cancel();
         const select = document.createElement('select'); select.dataset.copyEditor = ''; select.dataset.copyChoice = '';
         select.setAttribute('aria-label', label); select.add(new Option(`请选择${label}`, ''));
         items.forEach((item, index) => select.add(new Option(item.label, String(index))));
         Object.assign(select.style, { left: Math.max(16, Math.min(rect.left, innerWidth - 300)) + 'px',
           top: Math.max(16, Math.min(rect.bottom + 8, innerHeight - 60)) + 'px' });
-        modalHost().append(select); select.focus(); if (message) say(message);
+        if (scope) {
+          select.popover = 'manual';
+          Object.assign(select.style, { right: 'auto', bottom: 'auto', margin: '0' });
+        }
+        (scope || modalHost()).append(select);
+        if (scope) select.showPopover();
+        select.focus(); if (message) say(message);
         return new Promise(resolve => {
           const finish = value => { select.remove(); document.removeEventListener('keydown', cancel, true); choice = null; resolve(value); };
           const cancel = event => { if (event.key === 'Escape') { event.preventDefault(); event.stopImmediatePropagation(); finish(null); } };
-          choice = { node: select, cancel: () => finish(null) };
+          choice = { node: select, scope, cancel: () => finish(null) };
           select.onchange = () => { if (select.value !== '') finish(items[Number(select.value)].value); };
           document.addEventListener('keydown', cancel, true);
         });

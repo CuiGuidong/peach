@@ -114,6 +114,7 @@ delivery = [
 # 所以本域也要登记它们：改了 `web/app.js` 却漏跑读它的测试，`test_test_planning.py`
 # 的域映射门槛会在本地就红。
 web = [
+    "test_ai_inference.py", "test_ai_library.py", "test_ai_openai_oauth.py",
     "test_web_media_directory.py",
     "test_frontend_build.py", "test_frontend_preflight.py", "test_web_ui.py", "test_web_js.py",
     "test_web_e2e.py", "test_tag_management.py", "test_subtitle_search.py", "test_subtitle_memory.py",
@@ -269,6 +270,15 @@ follow = [
 # `test_metadata_verification.py`，路由登记在 `test_rm_web.py`。
 "src/peach/auto_landing_revert.py" = ["catalog", "metadata", "tooling"]
 "src/peach/web_auto_landings.py" = ["catalog", "metadata", "web"]
+"src/peach/ai_custom_tasks.py" = ["catalog", "web"]
+"src/peach/ai_library.py" = ["catalog", "web"]
+"src/peach/ai_inference.py" = ["web"]
+"src/peach/ai_endpoints.py" = ["web"]
+"src/peach/ai_usage.py" = ["web"]
+"src/peach/ai_timeline.py" = ["catalog", "web"]
+"src/peach/ai_search.py" = ["catalog", "web"]
+"src/peach/ai_credentials.py" = ["web"]
+"src/peach/ai_openai_oauth.py" = ["web"]
 # 实体事实种子包（ADR-0073）：导出导入的逻辑与命令行，测试都在 `test_seed_pack.py`；
 # 扫描结算后自动导入的后继（ADR-0075）在 `test_seed_followup.py`。
 "src/peach/seed_pack.py" = ["metadata", "tooling"]

@@ -1,18 +1,17 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "bd5cb2ec-366f-4026-a1a4-98b80923077b", e._sentryDebugIdIdentifier = "sentry-dbid-bd5cb2ec-366f-4026-a1a4-98b80923077b");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7484438e-f704-42b7-bf25-db40d4a48d36", e._sentryDebugIdIdentifier = "sentry-dbid-7484438e-f704-42b7-bf25-db40d4a48d36");
 	} catch {}
 })();
-import { $fe21c36db05242bb$export$d7b12c4107be0d61 as e, AMANE_BRIDGE_CHECK_URL as t, AMANE_BRIDGE_KEY as n, AMANE_BRIDGE_REBUILD_URL as r, Button as i, CHECK_ALL_KEY as a, COVER_JOB_KEY as o, CUSTOM_SOURCES_KEY as s, CUSTOM_SOURCES_URL as c, Checkbox as l, Disclosure as u, ErrorText as d, ExternalLink as f, Fact as p, FactList as m, FieldLabel as h, Footer as g, Help as _, Input as v, IssueRow as y, JAVDB_BROWSER_LOGIN_URL as ee, LinkButton as te, Note as b, Rows as ne, SCRAPING_CHECK_ALL_URL as re, SCRAPING_CHECK_URL as ie, SCRAPING_COVER_URL as x, SCRAPING_KEY as S, SCRAPING_SETTINGS_URL as ae, SEGMENT as oe, SEGMENTED_TRACK as se, Section as C, SegmentedRadioGroup as ce, Select$1 as le, SelectField as w, SelectItem as ue, SettingsCard as de, SettingsRow as fe, SiteMark as T, Stack as E, StatusLabel as D, TaskProgress as O, __toESM as k, activityKind as A, apiSend as j, busyProps as M, checkText as pe, codedText as N, composingKey as P, confirmModal as F, errorMessage as I, esc as L, fetchAmaneBridge as R, fetchCheckAllJob as z, fetchCoverJob as B, fetchCustomSources as V, fetchSources as H, i2 as me, interfaceLanguage as he, jobText as U, joinList as W, momentText as ge, partsLabel as _e, queryClient as ve, require_jsx_runtime as G, require_react as ye, serverLabel as K, spinnerHtml as be, t as q, useAction as J, useBackgroundJob as Y, useMutation as X, useQuery as xe } from "./peach-app.js";
-import { ActionSpinner as Se } from "./peach-app.action-spinner-DMcPV-3U.js";
-import { ConnectionStatus as Ce } from "./peach-app.connection-status-BrXhLGSm.js";
-import { Page as we } from "./peach-app.page-QAncjzM1.js";
-import { SectionToc as Te } from "./peach-app.section-toc-hXoSYkI6.js";
+import { $fe21c36db05242bb$export$d7b12c4107be0d61 as e, AMANE_BRIDGE_CHECK_URL as t, AMANE_BRIDGE_KEY as n, AMANE_BRIDGE_REBUILD_URL as r, Button as i, CHECK_ALL_KEY as a, COVER_JOB_KEY as o, CUSTOM_SOURCES_KEY as s, CUSTOM_SOURCES_URL as c, Checkbox as l, Disclosure as u, ErrorText as d, ExternalLink as f, Fact as p, FactList as m, FieldLabel as h, Footer as g, Help as _, Input as v, IssueRow as y, JAVDB_BROWSER_LOGIN_URL as ee, LinkButton as te, Note as b, Rows as ne, SCRAPING_CHECK_ALL_URL as re, SCRAPING_CHECK_URL as ie, SCRAPING_COVER_URL as x, SCRAPING_KEY as S, SCRAPING_SETTINGS_URL as ae, SEGMENT as oe, SEGMENTED_TRACK as se, Section as C, SectionToc as ce, SegmentedRadioGroup as le, Select$1 as ue, SelectField as w, SelectItem as de, SettingsCard as fe, SettingsRow as pe, SiteMark as T, Stack as E, StatusLabel as D, TaskProgress as O, __toESM as me, activityKind as k, apiSend as A, busyProps as j, checkText as he, codedText as M, composingKey as N, confirmModal as P, errorMessage as F, esc as I, fetchAmaneBridge as L, fetchCheckAllJob as R, fetchCoverJob as z, fetchCustomSources as B, fetchSources as ge, i2 as _e, interfaceLanguage as ve, jobText as V, joinList as ye, momentText as be, partsLabel as H, queryClient as U, require_jsx_runtime as W, require_react as G, serverLabel as xe, spinnerHtml as K, t as q, useAction as J, useBackgroundJob as Y, useMutation as X, useQuery as Se } from "./peach-app.js";
+import { ActionSpinner as Ce } from "./peach-app.action-spinner-DMcPV-3U.js";
+import { ConnectionStatus as we } from "./peach-app.connection-status-BrXhLGSm.js";
+import { Page as Te } from "./peach-app.page-QAncjzM1.js";
 import { SourceBrowserLoginButton as Ee, SourceBrowserLoginStatus as De, sourceBrowserLoginUrl as Oe, useSourceBrowserLogin as ke } from "./peach-app.source-browser-login-x7L-xBDi.js";
 import { CodeBlock as Ae } from "./peach-app.code-block-BdQewVJ0.js";
 // src/react/scraping/custom-sources.tsx
-var Z = /* @__PURE__ */ k(ye(), 1), Q = G(), je = [
+var Z = /* @__PURE__ */ me(G(), 1), Q = W(), je = [
 	["code", q("manage:shared.code")],
 	["title", q("manage:shared.title")],
 	["studio", q("manage:customSources.fieldStudio")],
@@ -40,10 +39,10 @@ var Z = /* @__PURE__ */ k(ye(), 1), Q = G(), je = [
 	content_types: ["censored"]
 });
 function Pe({ receipt: e }) {
-	let [t, n] = (0, Z.useState)(null), r = xe({
+	let [t, n] = (0, Z.useState)(null), r = Se({
 		queryKey: s,
-		queryFn: ({ signal: e }) => V(e)
-	}), a = J(), o = (e) => ve.setQueryData(s, e), l = !!(r.isPending || r.error || r.data?.items.length || a.error), u = /* @__PURE__ */ (0, Q.jsx)(i, {
+		queryFn: ({ signal: e }) => B(e)
+	}), a = J(), o = (e) => U.setQueryData(s, e), l = !!(r.isPending || r.error || r.data?.items.length || a.error), u = /* @__PURE__ */ (0, Q.jsx)(i, {
 		variant: "secondary",
 		onClick: () => n(Ne()),
 		children: q("manage:customSources.addSource")
@@ -58,7 +57,7 @@ function Pe({ receipt: e }) {
 					"data-skeleton": "",
 					"aria-label": q("manage:customSources.loading")
 				}) : null,
-				r.error ? /* @__PURE__ */ (0, Q.jsx)(d, { children: I(r.error) }) : null,
+				r.error ? /* @__PURE__ */ (0, Q.jsx)(d, { children: F(r.error) }) : null,
 				r.data?.items.map((t) => /* @__PURE__ */ (0, Q.jsxs)("div", {
 					className: "flex flex-wrap items-center gap-3",
 					children: [
@@ -77,8 +76,8 @@ function Pe({ receipt: e }) {
 						}),
 						/* @__PURE__ */ (0, Q.jsx)(i, {
 							variant: "secondary",
-							...M(a.busy === t.id),
-							onClick: () => void a.run(t.id, (e) => j(c, {
+							...j(a.busy === t.id),
+							onClick: () => void a.run(t.id, (e) => A(c, {
 								...t,
 								enabled: !t.enabled
 							}, "POST", e), (n) => {
@@ -88,14 +87,14 @@ function Pe({ receipt: e }) {
 						}),
 						/* @__PURE__ */ (0, Q.jsx)(i, {
 							variant: "danger",
-							onClick: () => F({
+							onClick: () => P({
 								title: q("manage:customSources.deleteTitle"),
-								body: q("manage:customSources.deleteBody", { name: L(t.name) }),
+								body: q("manage:customSources.deleteBody", { name: I(t.name) }),
 								confirmLabel: q("manage:customSources.deleteConfirm"),
 								danger: !0,
 								holdToConfirm: !0,
 								onConfirm: async () => {
-									o(await j(c, {
+									o(await A(c, {
 										action: "delete",
 										id: t.id
 									})), n(null), e(q("manage:customSources.deleted"));
@@ -132,7 +131,7 @@ function Fe({ initial: e, cancel: t, saved: n }) {
 		"aria-label": q("manage:customSources.formLabel"),
 		"aria-busy": m.busy === "preview",
 		onSubmit: (e) => {
-			e.preventDefault(), m.run("save", (e) => j(c, r, "POST", e), n);
+			e.preventDefault(), m.run("save", (e) => A(c, r, "POST", e), n);
 		},
 		children: [/* @__PURE__ */ (0, Q.jsxs)(E, { children: [
 			/* @__PURE__ */ (0, Q.jsx)(v, {
@@ -206,23 +205,23 @@ function Fe({ initial: e, cancel: t, saved: n }) {
 					p.current++, s(e), f("");
 				},
 				onKeyDown: (e) => {
-					if (e.key !== "Enter" || P(e.nativeEvent)) return;
+					if (e.key !== "Enter" || N(e.nativeEvent)) return;
 					e.preventDefault();
 					let t = p.current;
-					m.run("preview", (e) => j(c, {
+					m.run("preview", (e) => A(c, {
 						...r,
 						code: o,
 						action: "preview"
 					}, "POST", e), (e) => {
 						t === p.current && f(JSON.stringify(e.record, null, 2));
 					}, (e) => {
-						t === p.current && m.setError(I(e));
+						t === p.current && m.setError(F(e));
 					});
 				}
 			}),
 			m.busy === "preview" ? /* @__PURE__ */ (0, Q.jsxs)(_, {
 				role: "status",
-				children: [/* @__PURE__ */ (0, Q.jsx)("span", { dangerouslySetInnerHTML: { __html: be(q("manage:customSources.testing")) } }), q("manage:customSources.testing")]
+				children: [/* @__PURE__ */ (0, Q.jsx)("span", { dangerouslySetInnerHTML: { __html: K(q("manage:customSources.testing")) } }), q("manage:customSources.testing")]
 			}) : null,
 			u ? /* @__PURE__ */ (0, Q.jsx)(Ae, {
 				code: u,
@@ -237,7 +236,7 @@ function Fe({ initial: e, cancel: t, saved: n }) {
 			children: q("manage:shared.cancel")
 		}), /* @__PURE__ */ (0, Q.jsx)(i, {
 			type: "submit",
-			...M(m.busy === "save"),
+			...j(m.busy === "save"),
 			children: q("manage:customSources.saveSource")
 		})] })]
 	});
@@ -259,12 +258,12 @@ function Ve() {
 	return /* @__PURE__ */ (0, Q.jsx)(T, { source: "github" });
 }
 function He({ source: t, toast: n, open: r, onOpenChange: a }) {
-	let o = t.source === "javdb", s = o || t.browser_login === !0, [c, l] = (0, Z.useState)(t.network), [p, m] = (0, Z.useState)(""), [_, y] = (0, Z.useState)(""), [re, x] = (0, Z.useState)(""), [C, w] = (0, Z.useState)(ze[0][0]), [O, k] = (0, Z.useState)(""), [A, P] = (0, Z.useState)(""), F = (0, Z.useRef)(null);
-	function L() {
-		m(""), y(""), x(""), k(""), P(""), F.current && (F.current.value = "");
+	let o = t.source === "javdb", s = o || t.browser_login === !0, [c, l] = (0, Z.useState)(t.network), [p, m] = (0, Z.useState)(""), [_, y] = (0, Z.useState)(""), [re, x] = (0, Z.useState)(""), [C, ce] = (0, Z.useState)(ze[0][0]), [w, O] = (0, Z.useState)(""), [me, k] = (0, Z.useState)(""), N = (0, Z.useRef)(null);
+	function P() {
+		m(""), y(""), x(""), O(""), k(""), N.current && (N.current.value = "");
 	}
-	let R = X({
-		mutationFn: (e) => j(ae, {
+	let I = X({
+		mutationFn: (e) => A(ae, {
 			source: t.source,
 			network: c,
 			cookie: p,
@@ -273,39 +272,39 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 			..._ ? { api_key: _ } : {}
 		}),
 		onSuccess: (e, r) => {
-			ve.setQueryData(S, (t) => t && {
+			U.setQueryData(S, (t) => t && {
 				...t,
 				sources: t.sources.map((t) => t.source === e.saved.source ? e.saved : t)
-			}), L(), n(q(r ? t.accepts_api_key ? "manage:sourceSettings.apiKeyRemoved" : "manage:sourceSettings.cookieRevoked" : "manage:sourceSettings.saved"));
+			}), P(), n(q(r ? t.accepts_api_key ? "manage:sourceSettings.apiKeyRemoved" : "manage:sourceSettings.cookieRevoked" : "manage:sourceSettings.saved"));
 		}
-	}), z = X({ mutationFn: () => j(ie, {
+	}), L = X({ mutationFn: () => A(ie, {
 		source: t.source,
 		lookup: !0
-	}) }), B = X({ mutationFn: () => j(ie, {
+	}) }), R = X({ mutationFn: () => A(ie, {
 		source: t.source,
 		verify_session: !0
-	}) }), V = ke(o ? ee : Oe(t.source), s && r, Be), H = R.isPending || z.isPending || B.isPending || V.busy, U = (e) => {
-		e.preventDefault(), H || (z.reset(), B.reset(), R.mutate(!1));
-	}, W = () => {
-		H || (z.reset(), B.reset(), R.mutate(!0));
-	}, ge = () => {
-		H || (R.reset(), z.mutate());
+	}) }), z = ke(o ? ee : Oe(t.source), s && r, Be), B = I.isPending || L.isPending || R.isPending || z.busy, ge = (e) => {
+		e.preventDefault(), B || (L.reset(), R.reset(), I.mutate(!1));
+	}, V = () => {
+		B || (L.reset(), R.reset(), I.mutate(!0));
+	}, ye = () => {
+		B || (I.reset(), L.mutate());
 	};
-	async function _e(e) {
+	async function be(e) {
 		let t = e.currentTarget, n = t.files?.[0];
-		if (x(""), P(""), !n) k("");
-		else if (n.size > 262144) t.value = "", k(""), P(q("manage:sourceSettings.cookieTooLarge"));
+		if (x(""), k(""), !n) O("");
+		else if (n.size > 262144) t.value = "", O(""), k(q("manage:sourceSettings.cookieTooLarge"));
 		else try {
 			let e = await n.text();
-			x(e), k(n.name);
+			x(e), O(n.name);
 		} catch {
-			P(q("manage:sourceSettings.cookieFileUnread"));
+			k(q("manage:sourceSettings.cookieFileUnread"));
 		}
 	}
-	let G = A || (R.error ? I(R.error) : "") || (z.error ? I(z.error) : "") || (B.error ? I(B.error) : "") || V.error, ye = z.data?.results ?? [], K = B.data?.results[0], be = c === "peach" || t.accepts_cookie || t.accepts_api_key || t.browser || !!G || ye.length > 0, J = N(t, "label"), Y = /* @__PURE__ */ (0, Q.jsxs)("form", {
-		"aria-label": J,
+	let H = me || (I.error ? F(I.error) : "") || (L.error ? F(L.error) : "") || (R.error ? F(R.error) : "") || z.error, W = L.data?.results ?? [], G = R.data?.results[0], xe = c === "peach" || t.accepts_cookie || t.accepts_api_key || t.browser || !!H || W.length > 0, K = M(t, "label"), J = /* @__PURE__ */ (0, Q.jsxs)("form", {
+		"aria-label": K,
 		noValidate: !0,
-		onSubmit: U,
+		onSubmit: ge,
 		className: "min-w-0 wrap-anywhere",
 		children: [
 			t.login ? /* @__PURE__ */ (0, Q.jsx)("div", {
@@ -315,16 +314,16 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 					children: o ? q("manage:sourceSettings.javdbSignIn") : Re(t.login)
 				})
 			}) : null,
-			/* @__PURE__ */ (0, Q.jsx)(ne, { children: /* @__PURE__ */ (0, Q.jsx)(fe, {
+			/* @__PURE__ */ (0, Q.jsx)(ne, { children: /* @__PURE__ */ (0, Q.jsx)(pe, {
 				label: q("manage:sourceSettings.connectionMode"),
-				children: /* @__PURE__ */ (0, Q.jsx)(le, {
+				children: /* @__PURE__ */ (0, Q.jsx)(ue, {
 					"aria-label": q("manage:sourceSettings.connectionMode"),
 					className: "w-44 min-w-0",
 					selectedKey: c,
 					onSelectionChange: (e) => {
 						e !== null && l(String(e));
 					},
-					children: Le(c).map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(ue, {
+					children: Le(c).map(([e, t]) => /* @__PURE__ */ (0, Q.jsx)(de, {
 						id: e,
 						children: t
 					}, e))
@@ -337,10 +336,10 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 					children: [/* @__PURE__ */ (0, Q.jsx)(D, {
 						tone: "warning",
 						children: q("manage:sourceSettings.coolingDown")
-					}), /* @__PURE__ */ (0, Q.jsx)("span", { children: q("manage:sourceSettings.retryAfter", { time: (/* @__PURE__ */ new Date(t.cooldown_until * 1e3)).toLocaleString(he) }) })]
+					}), /* @__PURE__ */ (0, Q.jsx)("span", { children: q("manage:sourceSettings.retryAfter", { time: (/* @__PURE__ */ new Date(t.cooldown_until * 1e3)).toLocaleString(ve) }) })]
 				})
 			}) : null,
-			be ? /* @__PURE__ */ (0, Q.jsxs)(E, {
+			xe ? /* @__PURE__ */ (0, Q.jsxs)(E, {
 				divided: !0,
 				children: [
 					c === "peach" ? /* @__PURE__ */ (0, Q.jsx)("span", {
@@ -348,7 +347,7 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 						children: /* @__PURE__ */ (0, Q.jsx)(te, {
 							href: "/settings/network#peachProxy",
 							size: "small",
-							trailingIcon: me,
+							trailingIcon: _e,
 							children: q("manage:sourceSettings.setUpProxy")
 						})
 					}) : null,
@@ -395,33 +394,33 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 								s ? /* @__PURE__ */ (0, Q.jsxs)("div", {
 									className: "flex flex-wrap gap-2",
 									children: [/* @__PURE__ */ (0, Q.jsx)(Ee, {
-										login: V,
-										disabled: H,
-										onStart: B.reset
+										login: z,
+										disabled: B,
+										onStart: R.reset
 									}), o ? /* @__PURE__ */ (0, Q.jsx)(i, {
 										variant: "secondary",
-										...M(H),
+										...j(B),
 										onClick: () => {
-											H || (R.reset(), B.mutate());
+											B || (I.reset(), R.mutate());
 										},
 										children: q("manage:sourceSettings.testJavdbSession")
 									}) : null]
 								}) : null,
 								/* @__PURE__ */ (0, Q.jsx)(De, {
-									login: V,
+									login: z,
 									saved: t.cookie_saved
 								}),
-								K ? /* @__PURE__ */ (0, Q.jsx)(b, {
-									tone: K.ok ? "success" : K.kind === "unchecked" ? "neutral" : "warning",
-									children: pe(K, J)
+								G ? /* @__PURE__ */ (0, Q.jsx)(b, {
+									tone: G.ok ? "success" : G.kind === "unchecked" ? "neutral" : "warning",
+									children: he(G, K)
 								}) : null
 							]
 						}),
-						/* @__PURE__ */ (0, Q.jsx)(ce, {
+						/* @__PURE__ */ (0, Q.jsx)(le, {
 							"aria-label": q("manage:sourceSettings.cookieMethod"),
 							value: C,
 							onChange: (e) => {
-								w(e), L();
+								ce(e), P();
 							},
 							className: se,
 							children: ze.map(([t, n]) => /* @__PURE__ */ (0, Q.jsx)(e, {
@@ -444,38 +443,38 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 									className: "flex flex-wrap items-center gap-3",
 									children: [/* @__PURE__ */ (0, Q.jsx)(i, {
 										variant: "secondary",
-										onClick: () => F.current?.click(),
+										onClick: () => N.current?.click(),
 										children: q("manage:sourceSettings.chooseFile")
 									}), /* @__PURE__ */ (0, Q.jsx)("span", {
 										className: "min-w-0 text-body-2-regular break-all text-text-secondary",
-										children: O || q("manage:sourceSettings.noFileChosen")
+										children: w || q("manage:sourceSettings.noFileChosen")
 									})]
 								}),
 								/* @__PURE__ */ (0, Q.jsx)("input", {
-									ref: F,
+									ref: N,
 									type: "file",
 									accept: ".txt",
 									tabIndex: -1,
 									"aria-hidden": !0,
 									className: "hidden",
 									onChange: (e) => {
-										_e(e);
+										be(e);
 									}
 								})
 							]
 						})
 					] }) : null,
-					G ? /* @__PURE__ */ (0, Q.jsx)(d, { children: G }) : null,
-					ye.map((e) => {
+					H ? /* @__PURE__ */ (0, Q.jsx)(d, { children: H }) : null,
+					W.map((e) => {
 						let n = e.kind === "unchecked" ? "neutral" : e.ok ? "success" : "error", r = e.target === "lookup" ? q(e.ok ? "manage:sourceSettings.sampleMatched" : "manage:sourceSettings.sampleFailed") : e.kind === "unchecked" ? q("manage:sourceSettings.unchecked") : e.ok ? q("manage:sourceSettings.reachable") : q("manage:sourceSettings.connectionFailed");
 						return /* @__PURE__ */ (0, Q.jsx)(b, {
 							tone: n,
 							children: /* @__PURE__ */ (0, Q.jsxs)("span", {
 								className: "flex flex-col items-start gap-1",
-								children: [/* @__PURE__ */ (0, Q.jsx)(Ce, {
+								children: [/* @__PURE__ */ (0, Q.jsx)(we, {
 									tone: n,
 									children: r
-								}), /* @__PURE__ */ (0, Q.jsx)("span", { children: pe(e, N(t, "label")) })]
+								}), /* @__PURE__ */ (0, Q.jsx)("span", { children: he(e, M(t, "label")) })]
 							})
 						}, e.label);
 					})
@@ -484,25 +483,25 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 			/* @__PURE__ */ (0, Q.jsxs)(g, { children: [
 				t.api_key_saved ? /* @__PURE__ */ (0, Q.jsx)(i, {
 					variant: "secondary",
-					onClick: W,
-					...M(H),
+					onClick: V,
+					...j(B),
 					children: q("manage:sourceSettings.removeApiKey")
 				}) : null,
 				t.accepts_cookie && t.cookie_saved ? /* @__PURE__ */ (0, Q.jsx)(i, {
 					variant: "secondary",
-					onClick: W,
-					...M(H),
+					onClick: V,
+					...j(B),
 					children: q("manage:sourceSettings.revokeCookie")
 				}) : null,
 				/* @__PURE__ */ (0, Q.jsx)(i, {
 					variant: "secondary",
-					onClick: ge,
-					...M(H),
+					onClick: ye,
+					...j(B),
 					children: q("manage:sourceSettings.testConnection")
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(i, {
 					type: "submit",
-					...M(H),
+					...j(B),
 					children: q("manage:shared.save")
 				})
 			] })
@@ -511,16 +510,16 @@ function He({ source: t, toast: n, open: r, onOpenChange: a }) {
 	return /* @__PURE__ */ (0, Q.jsx)("div", {
 		id: `source-${t.source}`,
 		className: "[&_summary]:pr-3",
-		children: /* @__PURE__ */ (0, Q.jsx)(de, { children: /* @__PURE__ */ (0, Q.jsx)(u, {
+		children: /* @__PURE__ */ (0, Q.jsx)(fe, { children: /* @__PURE__ */ (0, Q.jsx)(u, {
 			isOpen: r,
 			onOpenChange: a,
 			trailing: !0,
 			contentClassName: "pt-0",
 			summary: /* @__PURE__ */ (0, Q.jsxs)("span", {
 				className: "flex min-w-0 items-center gap-2 py-3 pr-2 text-body-medium text-text-primary",
-				children: [/* @__PURE__ */ (0, Q.jsx)(T, { source: t.source }), /* @__PURE__ */ (0, Q.jsx)("span", { children: J })]
+				children: [/* @__PURE__ */ (0, Q.jsx)(T, { source: t.source }), /* @__PURE__ */ (0, Q.jsx)("span", { children: K })]
 			}),
-			children: Y
+			children: J
 		}) })
 	});
 }
@@ -540,16 +539,16 @@ var Ue = {
 	"skipped"
 ];
 function We(e, t) {
-	let n = N(e, "label");
+	let n = M(e, "label");
 	return t.target === "cdn" ? q("manage:connectionCheck.hdImages", { source: n }) : n;
 }
 function Ge({ toast: e }) {
 	let { job: t, running: n, start: r, query: o } = Y({
 		queryKey: a,
-		queryFn: ({ signal: e }) => z(e),
-		start: () => j(re, {}),
+		queryFn: ({ signal: e }) => R(e),
+		start: () => A(re, {}),
 		onFinish: (t) => {
-			ve.invalidateQueries({
+			U.invalidateQueries({
 				queryKey: S,
 				exact: !0
 			}), t.status === "complete" && e(t.failed ? q("manage:connectionCheck.doneWithFailures", { count: t.failed }) : q("manage:connectionCheck.doneAllReachable"));
@@ -563,7 +562,7 @@ function Ge({ toast: e }) {
 	}))), l = (e, t) => /* @__PURE__ */ (0, Q.jsxs)("span", {
 		className: "inline-flex min-w-0 items-center gap-1.5",
 		children: [/* @__PURE__ */ (0, Q.jsx)(T, { source: e }), t]
-	}), d = c.filter(({ check: e }) => e.outcome === "ok"), f = c.filter(({ check: e }) => e.outcome !== "ok").sort((e, t) => $.indexOf(e.check.outcome) - $.indexOf(t.check.outcome)), h = r.error ? I(r.error) : o.error ? I(o.error) : t?.status === "failed" ? U(t, "error") || q("manage:connectionCheck.notFinished") : "", v = t?.status === "complete" && t.completed_at ? [ge((/* @__PURE__ */ new Date(t.completed_at * 1e3)).toISOString()), t.elapsed_s === void 0 ? "" : q("manage:connectionCheck.elapsed", { seconds: t.elapsed_s.toFixed(1) })].filter(Boolean).join(" · ") : "";
+	}), d = c.filter(({ check: e }) => e.outcome === "ok"), f = c.filter(({ check: e }) => e.outcome !== "ok").sort((e, t) => $.indexOf(e.check.outcome) - $.indexOf(t.check.outcome)), h = r.error ? F(r.error) : o.error ? F(o.error) : t?.status === "failed" ? V(t, "error") || q("manage:connectionCheck.notFinished") : "", v = t?.status === "complete" && t.completed_at ? [be((/* @__PURE__ */ new Date(t.completed_at * 1e3)).toISOString()), t.elapsed_s === void 0 ? "" : q("manage:connectionCheck.elapsed", { seconds: t.elapsed_s.toFixed(1) })].filter(Boolean).join(" · ") : "";
 	return /* @__PURE__ */ (0, Q.jsxs)(C, {
 		id: "check-all",
 		title: q("manage:connectionCheck.title"),
@@ -597,7 +596,7 @@ function Ge({ toast: e }) {
 					return t ? /* @__PURE__ */ (0, Q.jsxs)(D, {
 						tone: Ue[e],
 						children: [
-							N(c.find(({ check: t }) => t.outcome === e)?.check, "outcome_label"),
+							M(c.find(({ check: t }) => t.outcome === e)?.check, "outcome_label"),
 							" ",
 							t
 						]
@@ -612,10 +611,10 @@ function Ge({ toast: e }) {
 						className: "flex flex-wrap items-center gap-2",
 						children: [/* @__PURE__ */ (0, Q.jsx)(D, {
 							tone: Ue[n.outcome],
-							children: N(n, "outcome_label")
+							children: M(n, "outcome_label")
 						}), n.message ? /* @__PURE__ */ (0, Q.jsx)("span", {
 							className: "text-body-2-regular text-text-secondary",
-							children: N(n, "message")
+							children: M(n, "message")
 						}) : null]
 					})
 				}, t))
@@ -632,24 +631,24 @@ function Ge({ toast: e }) {
 			children: /* @__PURE__ */ (0, Q.jsx)(i, {
 				type: "submit",
 				disabled: !o.data,
-				...M(n || r.isPending),
+				...j(n || r.isPending),
 				children: q("manage:connectionCheck.checkAll")
 			})
 		})]
 	});
 }
-var Ke = (e) => K(e.result_code ?? "", e.result ?? "", e.result_params), qe = (e) => _e(e.error_parts, U(e, "error"));
+var Ke = (e) => xe(e.result_code ?? "", e.result ?? "", e.result_params), qe = (e) => H(e.error_parts, V(e, "error"));
 function Je({ toast: e }) {
 	let [t, n] = (0, Z.useState)(""), { running: r, outcome: a, start: s, query: c } = Y({
 		queryKey: o,
-		queryFn: ({ signal: e }) => B(e),
-		start: () => j(x, { code: t }),
+		queryFn: ({ signal: e }) => z(e),
+		start: () => A(x, { code: t }),
 		onFinish: (t) => {
 			t.status === "complete" && e(Ke(t) || q("manage:hdCover.fetched"));
 		}
 	}), l = (e) => {
 		e.preventDefault(), c.data && !r && !s.isPending && t.trim() && s.mutate();
-	}, u = s.isPending || s.isError ? null : a, d = s.error ? I(s.error) : c.error ? I(c.error) : u?.status === "failed" ? qe(u) || q("manage:hdCover.notFound") : "";
+	}, u = s.isPending || s.isError ? null : a, d = s.error ? F(s.error) : c.error ? F(c.error) : u?.status === "failed" ? qe(u) || q("manage:hdCover.notFound") : "";
 	return /* @__PURE__ */ (0, Q.jsx)(C, {
 		id: "hd-cover",
 		title: q("manage:hdCover.title"),
@@ -676,14 +675,14 @@ function Je({ toast: e }) {
 				}), /* @__PURE__ */ (0, Q.jsx)(i, {
 					type: "submit",
 					disabled: !c.data || !t.trim(),
-					leadingIcon: s.isPending ? Se : void 0,
-					...M(r || s.isPending),
+					leadingIcon: s.isPending ? Ce : void 0,
+					...j(r || s.isPending),
 					children: q("manage:hdCover.fetchCover")
 				})]
 			}),
 			r ? /* @__PURE__ */ (0, Q.jsx)(O, {
 				embedded: !0,
-				kind: A("scraping-cover"),
+				kind: k("scraping-cover"),
 				label: q("manage:hdCover.fetching")
 			}) : null,
 			d ? /* @__PURE__ */ (0, Q.jsx)(b, {
@@ -700,26 +699,26 @@ function Je({ toast: e }) {
 function Ye({ toast: e }) {
 	let { query: a, running: o, outcome: s, start: c } = Y({
 		queryKey: n,
-		queryFn: ({ signal: e }) => R(e),
-		start: () => j(r, {}),
+		queryFn: ({ signal: e }) => L(e),
+		start: () => A(r, {}),
 		jobOf: (e) => e.job,
 		withJob: (e, t) => e && {
 			...e,
 			job: t
 		},
 		onFinish: (t) => {
-			t.status === "complete" && e(N(t, "result") || q("manage:amaneRuntime.rebuilt"));
+			t.status === "complete" && e(M(t, "result") || q("manage:amaneRuntime.rebuilt"));
 		}
-	}), l = X({ mutationFn: () => j(t, {}) }), d = a.data;
+	}), l = X({ mutationFn: () => A(t, {}) }), d = a.data;
 	if (!d) return a.error ? /* @__PURE__ */ (0, Q.jsx)(C, {
 		id: "amane",
 		title: "amane",
 		children: /* @__PURE__ */ (0, Q.jsx)(E, { children: /* @__PURE__ */ (0, Q.jsx)(b, {
 			tone: "error",
-			children: I(a.error)
+			children: F(a.error)
 		}) })
 	}) : null;
-	let h = o || c.isPending || l.isPending, v = c.isPending || c.isError ? null : s, y = c.error ? I(c.error) : l.error ? I(l.error) : v?.status === "failed" ? U(v, "error") || q("manage:amaneRuntime.rebuildNotFinished") : "";
+	let h = o || c.isPending || l.isPending, v = c.isPending || c.isError ? null : s, y = c.error ? F(c.error) : l.error ? F(l.error) : v?.status === "failed" ? V(v, "error") || q("manage:amaneRuntime.rebuildNotFinished") : "";
 	return /* @__PURE__ */ (0, Q.jsxs)(C, {
 		id: "amane",
 		title: "amane",
@@ -736,7 +735,7 @@ function Ye({ toast: e }) {
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(p, {
 					term: q("manage:amaneRuntime.latestVersion"),
-					children: l.data ? N(l.data, "latest") : q("manage:amaneRuntime.notChecked")
+					children: l.data ? M(l.data, "latest") : q("manage:amaneRuntime.notChecked")
 				}),
 				/* @__PURE__ */ (0, Q.jsx)(p, {
 					term: q("manage:amaneRuntime.runtime"),
@@ -754,7 +753,7 @@ function Ye({ toast: e }) {
 						summary: q("manage:amaneRuntime.showSites"),
 						children: /* @__PURE__ */ (0, Q.jsx)("p", {
 							className: "text-body-2-regular text-text-secondary",
-							children: W(d.sites.map((e) => N(e, "label")))
+							children: ye(d.sites.map((e) => M(e, "label")))
 						})
 					}) : null,
 					d.problem ? /* @__PURE__ */ (0, Q.jsx)(b, {
@@ -766,7 +765,7 @@ function Ye({ toast: e }) {
 					}) }),
 					o ? /* @__PURE__ */ (0, Q.jsx)(O, {
 						embedded: !0,
-						kind: A("amane-bridge"),
+						kind: k("amane-bridge"),
 						label: q("manage:amaneRuntime.rebuilding")
 					}) : null,
 					y ? /* @__PURE__ */ (0, Q.jsx)(b, {
@@ -775,7 +774,7 @@ function Ye({ toast: e }) {
 					}) : null,
 					v?.status === "complete" ? /* @__PURE__ */ (0, Q.jsx)(b, {
 						tone: "success",
-						children: N(v, "result") || q("manage:amaneRuntime.rebuilt")
+						children: M(v, "result") || q("manage:amaneRuntime.rebuilt")
 					}) : null
 				]
 			}),
@@ -784,15 +783,15 @@ function Ye({ toast: e }) {
 				onClick: () => {
 					h || l.mutate();
 				},
-				...M(l.isPending),
+				...j(l.isPending),
 				children: q("manage:amaneRuntime.checkUpstream")
 			}), /* @__PURE__ */ (0, Q.jsx)(i, {
 				disabled: !!d.problem,
 				onClick: () => {
 					h || c.mutate();
 				},
-				leadingIcon: c.isPending ? Se : void 0,
-				...M(o || c.isPending),
+				leadingIcon: c.isPending ? Ce : void 0,
+				...j(o || c.isPending),
 				children: d.installed ? q("manage:amaneRuntime.reinstall") : q("manage:amaneRuntime.install")
 			})] })
 		]
@@ -862,9 +861,9 @@ function Ze({ id: e, title: t, children: n }) {
 	});
 }
 function Qe({ toast: e }) {
-	let t = xe({
+	let t = Se({
 		queryKey: S,
-		queryFn: ({ signal: e }) => H(e)
+		queryFn: ({ signal: e }) => ge(e)
 	}), [n, r] = (0, Z.useState)(() => /* @__PURE__ */ new Set([location.hash.slice(1)])), i = (0, Z.useCallback)((e, t) => {
 		e.startsWith("source-") && !e.startsWith("source-group-") && r((n) => {
 			if (n.has(e) === t) return n;
@@ -877,10 +876,10 @@ function Qe({ toast: e }) {
 		return window.addEventListener("hashchange", e), () => window.removeEventListener("hashchange", e);
 	}, [i]);
 	let a = t.data;
-	if (!a) return /* @__PURE__ */ (0, Q.jsx)(we, { children: /* @__PURE__ */ (0, Q.jsx)(b, {
+	if (!a) return /* @__PURE__ */ (0, Q.jsx)(Te, { children: /* @__PURE__ */ (0, Q.jsx)(b, {
 		tone: "error",
 		title: q("manage:scrapingSources.loadFailedTitle"),
-		children: t.error ? I(t.error) : q("manage:scrapingSources.loadFailed")
+		children: t.error ? F(t.error) : q("manage:scrapingSources.loadFailed")
 	}) });
 	let o = Xe.map(({ id: e, sources: t }) => ({
 		id: `source-group-${e}`,
@@ -896,10 +895,10 @@ function Qe({ toast: e }) {
 		sources: c
 	});
 	let l = o.filter((e) => e.sources.length), u = q("manage:scrapingSources.groups.tools");
-	return /* @__PURE__ */ (0, Q.jsxs)(we, { children: [/* @__PURE__ */ (0, Q.jsx)("p", {
+	return /* @__PURE__ */ (0, Q.jsxs)(Te, { children: [/* @__PURE__ */ (0, Q.jsx)("p", {
 		className: "text-body-2-regular text-text-secondary",
 		children: q("manage:scrapingSources.proxyHint")
-	}), /* @__PURE__ */ (0, Q.jsxs)(Te, {
+	}), /* @__PURE__ */ (0, Q.jsxs)(ce, {
 		label: q("manage:scrapingSources.contents"),
 		entries: [...l.map((e) => ({
 			id: e.id,
@@ -940,4 +939,4 @@ function Qe({ toast: e }) {
 }
 export { Qe as ScrapingPage, Re as linkHost, Le as networkOptions };
 
-//# debugId=bd5cb2ec-366f-4026-a1a4-98b80923077b
+//# debugId=7484438e-f704-42b7-bf25-db40d4a48d36

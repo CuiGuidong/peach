@@ -145,7 +145,7 @@ function Navigation({ host: at, epoch, version }: { host: SidebarHost; epoch: nu
             {key === '' ? <img data-sidebar-home-logo="" src="/peach-logo-64.png"
               srcSet="/peach-logo-64.png 64w, /peach-logo-128.png 128w" sizes="24px" width={24} height={24} alt=""
               decoding="async" draggable={false} /> : <Icon name={glyph} />}
-            <span>{label}</span>
+            <span data-copy-key={key === 'ai' ? 'catalog.libraryAssistant.title' : undefined}>{label}</span>
           </button>
         )})}
         {reorder.hint ? <span data-sidebar-drop-line="" aria-hidden="true"
