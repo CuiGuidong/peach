@@ -16,11 +16,19 @@ from .media_sources import SOURCES
 from .clouddrive_proxy import media_remote_path
 from .push_discovery import normalise_prefix
 from .follow_secrets import CredentialError
-from .error_reporting import local_event
+from .error_reporting import local_event, redact
 
 
 def root_key(value):
     return str(PureWindowsPath(value)).rstrip("\\").casefold()
+
+
+def _probe_failure(error: DownloadError, token: str) -> DownloadError:
+    """保存探测原因前先清理远端返回的细节，令牌仅用于 RPC。"""
+    params = dict(error.params)
+    if isinstance(details := params.get("details"), str):
+        params["details"] = redact(details.replace(token, "<credential>"))
+    return DownloadError(error.failure, error.code, params, channel_down=error.channel_down)
 
 
 class LibraryChannels:
@@ -121,7 +129,7 @@ class LibraryChannels:
                                     channel_errors[key] = DownloadError(
                                         "config", "errors.downloadsClouddrive.offlineUnsupported", {"target": target})
                             except DownloadError as error:
-                                channel_errors[key] = error
+                                channel_errors[key] = _probe_failure(error, token)
                                 local_event('download-channel-probe', error, operation='folder_capabilities',
                                             source=source, failure=error.failure)
                                 name = names.get(root_key(root)) or SOURCES[source].name
@@ -134,7 +142,7 @@ class LibraryChannels:
                                 local_event('download-channel-probe', error, operation='upgrade_targets',
                                             source='clouddrive')
             except DownloadError as error:
-                channel_errors["clouddrive"] = error
+                channel_errors["clouddrive"] = _probe_failure(error, token)
                 local_event('download-channel-probe', error, operation=phase,
                             source='clouddrive', failure=error.failure)
                 problems.append(Problem("labels.downloadsChannels.clouddriveCapabilityUnavailable"))
