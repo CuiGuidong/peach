@@ -143,7 +143,14 @@ describe('配置中的系统诊断', () => {
         await settle(page);
         assert.equal(new URL(page.url()).pathname, '/settings/diagnostics');
         const toc = page.getByRole('navigation', { name: '本页目录', exact: true });
+        const toggle = toc.getByRole('button', { name: '本页目录', exact: true });
+        if (viewport.mobile) {
+          assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
+          await toggle.click();
+          assert.equal(await toggle.getAttribute('aria-expanded'), 'true');
+        }
         await toc.getByRole('link', { name: '来源会话', exact: true }).click();
+        if (viewport.mobile) assert.equal(await toggle.getAttribute('aria-expanded'), 'false');
         assert.equal(new URL(page.url()).hash, '#diagnostics-sessions');
         await settle(page);
         const sessions = page.locator('#diagnostics-sessions');

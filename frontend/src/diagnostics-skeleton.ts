@@ -3,7 +3,7 @@ import { t } from './i18n';
 
 export function configurationContentsSkeleton(labels: string[]): string {
   return `<div data-configuration-toc-skeleton>
-    <span data-configuration-toc-compact class="py-1 text-body-2-regular text-text-secondary">${t('settings:configurationPage.contents')}</span>
+    <div data-configuration-toc-compact><button type="button" disabled data-inline-toc-toggle>${t('settings:configurationPage.contents')}</button></div>
     <div data-configuration-toc-wide class="flex min-w-0 gap-1 overflow-hidden">${labels.map(label =>
       `<span class="shrink-0 whitespace-nowrap rounded-md px-3 py-2 text-body-regular text-text-secondary">${label}</span>`).join('')}</div>
   </div>`;

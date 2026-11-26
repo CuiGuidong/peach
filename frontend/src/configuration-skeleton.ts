@@ -476,6 +476,6 @@ export function configurationSkeleton(chosen = 'library'): string {
   const title = sectionTitle(chosen);
   const nav = `<div class="ui-board-local-nav" data-section-nav data-section-items>${titles.map(label => `<button type="button" tabindex="-1" aria-selected="${label === title}">${esc(label)}</button>`).join('')}</div>`;
   const description = t('settings:' + configurationDescriptionKey(sectionId(chosen) || 'library'));
-  const heading = `<div class="flex min-w-0 flex-col gap-1"><span class="text-title-2-medium text-text-primary">${esc(title)}</span>${help(esc(description))}</div>`;
+  const heading = `<header class="flex min-w-0 flex-col gap-1"><h2 class="text-title-2-medium text-text-primary">${esc(title)}</h2>${help(esc(description))}</header>`;
   return `<div class="peach-react"><div class="ui-configpage">${nav}<div class="flex min-w-0 flex-col gap-6">${heading}${configurationContentSkeleton(chosen)}</div></div></div>`;
 }
