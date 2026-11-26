@@ -120,8 +120,9 @@ export const pollInterval = (data: ActivityData | undefined): number =>
 export const RESULT_BUSY_POLL_MS = 5000;
 export const RESULT_IDLE_POLL_MS = SETTLED_POLL_MS;
 
-export const fetchTasks = (signal?: AbortSignal, page = 1, limit = 20) =>
-  apiGet<ActivityData>(page === 1 && limit === 20 ? TASKS_URL : `${TASKS_URL}?page=${page}&limit=${limit}`, signal);
+export const fetchTasks = (signal?: AbortSignal, page = 1, limit = 20, q = '') =>
+  apiGet<ActivityData>(page === 1 && limit === 20 && !q ? TASKS_URL
+    : `${TASKS_URL}?page=${page}&limit=${limit}${q ? `&q=${encodeURIComponent(q)}` : ''}`, signal);
 
 /** 每个页面常驻轮询的那一小份：结果版本、入库通知与在排在跑的任务（`running_tasks`）。完整任务列表只给任务中心。 */
 export { fetchResultUpdates, RESULT_UPDATES_KEY, type ResultUpdatesPayload as ResultUpdatesData } from '../../running-tasks';

@@ -21,8 +21,9 @@ import type { IndexPerson, PeopleLayout } from '../index/index-data';
 import { queryClient } from '../query';
 import { pendingRefetch } from '../components/pending-work';
 
-/** 地址栏上这一页的筛选，键同壳的 `ENTITY_FILTER_KEYS`。 */
-export const ENTITY_FILTER_KEYS = ['loc', 'creator', 'tag', 'state', 'dur_min', 'dur_max', 'orient', 'year', 'sort', 'dir', 'browse', 'folder', 'folder_recursive'] as const;
+/** 地址栏上这一页的筛选，键同壳的 `ENTITY_FILTER_KEYS`。`q` 是作品视图那枚查找框的词，随作品请求交给
+ *  `/api/items`，口径同首页搜索。 */
+export const ENTITY_FILTER_KEYS = ['loc', 'creator', 'tag', 'state', 'dur_min', 'dur_max', 'orient', 'year', 'q', 'sort', 'dir', 'browse', 'folder', 'folder_recursive'] as const;
 export type EntityFilters = Readonly<Record<string, string>>;
 
 /** 地址栏上的媒体视图：`media=photos`、`media=online` 与目录图集 `set=<id>`。名册不进地址栏，见 `rosterView`。 */

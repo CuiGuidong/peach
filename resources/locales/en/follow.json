@@ -228,6 +228,7 @@
     "removedMany_one": "Removed {{count, number}} subscription",
     "removedMany_other": "Removed {{count, number}} subscriptions",
     "removedOne": "Removed subscription “{{name}}”",
+    "search": "Filter subscriptions",
     "selectPage": "Select all subscriptions on this page",
     "selectedCount_one": "{{count, number}} subscription selected",
     "selectedCount_other": "{{count, number}} subscriptions selected",
@@ -336,6 +337,7 @@
     "noSourcesYet": "Not following any sources yet",
     "noUpdatesYet": "No updates yet",
     "removeFilterChip": "Remove {{filter}}",
+    "search": "Find updates",
     "sortBy": {
       "durationLongest": "Sort by duration, longest first",
       "durationShortest": "Sort by duration, shortest first",
@@ -555,6 +557,7 @@
     "pauseManyBody_other": "Pauses the {{count, number}} selected sources. Fetched items are kept.",
     "preparingCheck": "Preparing check",
     "providers": "Sources: {{providers}}",
+    "search": "Filter follow sources",
     "seeUpdates": "See updates",
     "selectGroup": "Select all sources for {{name}}",
     "selectPage": "Select all sources on this page",

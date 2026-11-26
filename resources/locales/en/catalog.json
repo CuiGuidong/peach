@@ -82,6 +82,7 @@
     "filterAndSort": "Filter and sort",
     "readout_one": "{{count, number}} match · showing {{shown, number}}",
     "readout_other": "{{count, number}} matches · showing {{shown, number}}",
+    "search": "Find on this page",
     "showAll": "Show all",
     "views": "Views",
     "viewsAndTags": "Views and tags"
@@ -372,6 +373,7 @@
     "onlineMediaType": "Online media type",
     "photos": "Photos",
     "removeChip": "Remove {{label}}",
+    "search": "Find in these videos",
     "shuffle": "Shuffle",
     "sourceName": "Source: {{source}}",
     "watchStatus": "Watch status"
@@ -643,6 +645,7 @@
     "released": "Released"
   },
   "javSearch": {
+    "filterOnlinePage": "Filter this page",
     "filterRecommended": "Filter recommendations",
     "filterReleases": "Filter new releases",
     "filterWants": "Filter wants"
@@ -898,10 +901,12 @@
     "moreActions": "More actions",
     "nameRequired": "Enter a playlist name.",
     "newPlaylistLabel": "New playlist",
+    "noMatches": "No matching playlists",
     "open": "Open playlist {{name}}",
     "renamed": "Playlist renamed",
     "saveName": "Save name",
     "savedFromMix": "Saved from Mix",
+    "search": "Filter playlists",
     "untitled": "Untitled playlist"
   },
   "rangeFilter": {
@@ -959,6 +964,7 @@
     "recommendedVideos": "Recommended videos",
     "removeHistory": "Remove “{{query}}” from history",
     "shuffleGroup": "Shuffle {{group}}",
+    "suggestionsFor": "Suggestions for {{label}}",
     "tabsLabel": "Suggestions by type",
     "updateTimeNotFound": "Update time not found",
     "viewAllVideos_one": "View {{count, number}} video",

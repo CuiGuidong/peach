@@ -21,7 +21,7 @@ import type { DuplicatesProps } from '../bundle';
 import { runBulkAction, type BulkAction, type BulkHost } from '../components/bulk-action';
 import { cardClass } from '../components/card';
 import { EmptyState } from '../components/empty-state';
-import { FilterGlassRows, FilterActionButton, SelectAllButton } from '../components/filter-glass';
+import { FilterGlassRows, FilterActionButton, FilterSearch, SelectAllButton } from '../components/filter-glass';
 import { useQueueSort } from '../components/queue-sort';
 import { SortKeys } from '../entity-filter/entity-filter-page';
 import { Note } from '../components/note';
@@ -33,6 +33,7 @@ import { ComparisonText } from '../review/comparison-text';
 import { SourceLabel } from '../components/source-label';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { TRASH_KEY } from '../data-cleanup/data-cleanup';
+import { duplicatesSkeleton } from '../../management-skeletons';
 import { cloudLocations, fetchMediaSources, MEDIA_SOURCES_KEY } from '../media-sources';
 import { queryClient } from '../query';
 import { SourceMark } from '../settings/section';
@@ -186,8 +187,12 @@ function DuplicateFileSelection({ children, commit, selecting }: { children: Rea
 export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
   const menu = useWorkContextMenu();
   const [view, setView] = useState<'pending' | 'kept'>('pending');
-  const duplicates = useQuery({ queryKey: DUPLICATES_KEY, queryFn: ({ signal }) => fetchDuplicates(signal) });
-  const kept = useQuery({ queryKey: KEPT_DUPLICATES_KEY, queryFn: ({ signal }) => fetchKeptDuplicates(signal), enabled: view === 'kept' });
+  /* 搜索词进查询键：带词的那一份另存，清空就回到首屏预取的那一份；换词时先留着上一份结果，不闪空。 */
+  const [query, setQuery] = useState('');
+  const duplicates = useQuery({ queryKey: query ? [...DUPLICATES_KEY, query] : DUPLICATES_KEY,
+    queryFn: ({ signal }) => fetchDuplicates(signal, query), placeholderData: previous => previous });
+  const kept = useQuery({ queryKey: query ? [...KEPT_DUPLICATES_KEY, query] : KEPT_DUPLICATES_KEY,
+    queryFn: ({ signal }) => fetchKeptDuplicates(signal, query), enabled: view === 'kept', placeholderData: previous => previous });
   const sources = useQuery({ queryKey: MEDIA_SOURCES_KEY, queryFn: ({ signal }) => fetchMediaSources(signal) });
   const [pending, setPending] = useState('');
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set());
@@ -243,7 +248,10 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
   const data = keptView ? kept.data : duplicates.data;
   const failed = keptView ? kept.error : duplicates.error;
   if (!data) {
-    if (keptView && kept.isPending) return <div className="mx-auto w-full max-w-board" />;
+    /* 第一次切到「已保留」要读一趟：沿用整页那张骨架，不让浮层连同下面的分组一起空掉。 */
+    if (keptView && kept.isPending) return <div role="status" aria-label={t('shell:spinner.loading')} aria-busy="true">
+      <div aria-hidden="true" inert dangerouslySetInnerHTML={{ __html: duplicatesSkeleton() }} />
+    </div>;
     return (
       <div className="mx-auto w-full max-w-board">
         <Note tone="error" title={t('cleanup:duplicates.loadFailed')}>{failed ? errorMessage(failed) : t('cleanup:duplicates.listUnavailable')}</Note>
@@ -368,6 +376,8 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
             {' · '}{keptView ? t('cleanup:duplicates.keptDetail', { count: Number(data.files || 0) })
               : t('cleanup:duplicates.summaryDetail', { count: Number(data.files || 0), size: fmtSize(data.reclaimable) })}
           </span>
+          <FilterSearch label={t('cleanup:duplicates.search')} value={query}
+            onQuery={value => { setQuery(value); setPicked(new Set()); setPickedFiles(new Set()) }} />
           {groups.length ? selectPage : null}
         </span>
         <span data-entity-sorts=""><SortKeys sorts={order.sorts} onSort={order.onSort} /></span></>} />
@@ -460,6 +470,9 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
               </section>
             );
           })}</div>
+        : query
+          ? <EmptyState icon={STACK} title={t('cleanup:duplicates.noMatches')}
+              actions={<Button size="small" onClick={() => setQuery('')}>{t('catalog:shared.clearFilters')}</Button>}>{null}</EmptyState>
         : keptView
           ? <EmptyState icon={STACK} title={t('cleanup:duplicates.keptEmptyTitle')}>{t('cleanup:duplicates.keptEmptyBody')}</EmptyState>
           : <EmptyState icon={STACK} title={t('cleanup:duplicates.emptyTitle')}>{t('cleanup:duplicates.emptyBody')}</EmptyState>}

@@ -14,7 +14,7 @@ import { useEntityNames } from '../use-entity-names';
 import { AsyncText } from '../components/async-text';
 import { Button } from '@/components/base/buttons/button';
 
-import { FilterGlassRows, FilterActionButton, FilterTagStrip, FilterToolbarControls, useFilterScope } from '../components/filter-glass';
+import { FilterGlassRows, FilterActionButton, FilterSearch, FilterTagStrip, FilterToolbarControls, useFilterScope } from '../components/filter-glass';
 import { ColumnFilterAvatar, ColumnFilterStudioAvatar } from '../components/column-filter-avatar';
 import { FilterDropdown } from '../components/filter-dropdown';
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
@@ -193,7 +193,7 @@ function Placeholders({ kind }: { kind: 'performer' | 'studio' }) {
 }
 
 /** 下排：读数、换一批、版式与排序。回收站的下排是 `TrashHead`。 */
-function Head({ count, refreshing, layout, sorts, previewOnly, actions, filters, tableContext }: CatalogFilterProps & { filters: ReactNode }) {
+function Head({ count, refreshing, layout, sorts, previewOnly, actions, filters, tableContext, query }: CatalogFilterProps & { filters: ReactNode }) {
   const view = useCatalogView();
   const [shuffling, setShuffling] = useState(false);
   const scope = tableContext?.filters || {};
@@ -225,6 +225,8 @@ function Head({ count, refreshing, layout, sorts, previewOnly, actions, filters,
   return (
     <>
       <span data-catalog-summary=""><Readout count={count} /><LibraryShortcuts currentHref={actions.currentHref} />
+        {actions.search ? <FilterSearch compact label={t('catalog:catalogFilter.search')} value={query || ''}
+          onQuery={(q) => { if (q !== (query || '')) actions.search!(q) }} /> : null}
         {/* 只显示有预览图时（设置或地址），这一次看全部的入口；回首页、刷新后按设置重新生效。 */}
         {previewOnly && actions.showAll ? <FilterActionButton onPress={actions.showAll}>{t('catalog:catalogFilter.showAll')}</FilterActionButton> : null}</span>
       <FilterToolbarControls tools={<>

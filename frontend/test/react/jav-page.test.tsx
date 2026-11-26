@@ -3,7 +3,7 @@ import { afterEach, expect, it, vi } from 'vitest';
 import { QueryClientProvider, notifyManager } from '@tanstack/react-query';
 import { queryClient } from '../../src/react/query';
 import { JavPage } from '../../src/react/jav/jav-page';
-import { JavHeader } from '../../src/react/jav/jav-header';
+import { JavHeader, JavPageHeader } from '../../src/react/jav/jav-header';
 import { catalogView, setCatalogView } from '../../src/react/catalog-grid/catalog-view';
 import { discoveryKey, prefetchJav } from '../../src/react/jav/jav';
 import { WANTS_KEY } from '../../src/react/wants/wants';
@@ -12,9 +12,9 @@ import { actionOrder, buttonNamed, choose, chooseFilter, click, mount, settle, t
 notifyManager.setScheduler(notify => notify());
 afterEach(() => queryClient.clear());
 
-/** 页头筛选框是名册页那个 `IndexSearch`：停手 300 毫秒才交出文字。 */
+/** 发现分区的查找在筛选浮层里（`FilterSearch`）：停手 300 毫秒才交出文字。 */
 async function search(host: ParentNode, text: string) {
-  await type(host.querySelector('[data-index-search] input'), text);
+  await type(host.querySelector('[data-filter-search] input'), text);
   await act(() => new Promise(resolve => { setTimeout(resolve, 320) }));
 }
 
@@ -82,8 +82,16 @@ it('发现按范围读取，清除文字和标签恢复列表，卡片打开对�
         { ...common, id: 2, code: 'ABC-002', score: 2, tags: ['剧情'] }],
   }) }));
   vi.stubGlobal('fetch', fetcher);
-  const host = await mount(<QueryClientProvider client={queryClient}><JavPage tab="discover" readOnly navigate={navigate} receipt={vi.fn()} /></QueryClientProvider>);
+  // 查找在正文的筛选浮层里，词写进地址里的 `q`；常驻页头一起挂，地址停在发现分区。
+  const before = location.pathname + location.search;
+  history.replaceState(null, '', '/jav?tab=discover');
+  const host = await mount(<QueryClientProvider client={queryClient}>
+    <JavPageHeader navigate={navigate} receipt={vi.fn()} />
+    <JavPage tab="discover" readOnly navigate={navigate} receipt={vi.fn()} />
+  </QueryClientProvider>);
   await settle();
+  expect(host.querySelector('[role="tab"][aria-selected="true"]')?.textContent?.trim()).toBe('发现');
+  expect(host.querySelectorAll('h2[data-page-title]')).toHaveLength(1);
   expect(host.querySelectorAll('[data-jav-card]')).toHaveLength(2);
   expect(actionOrder(host.querySelector('[data-jav-card] [data-jav-actions]'))).toEqual(['作品来源', '想要', '查找资源']);
   expect(host.querySelector('[data-jav-card] h3')?.textContent).toContain('ABC-001');
@@ -103,6 +111,7 @@ it('发现按范围读取，清除文字和标签恢复列表，卡片打开对�
   await click(host.querySelector('[data-jav-card] h3'));
   expect(navigate).toHaveBeenLastCalledWith('/assets/22');
   expect(buttonNamed('已入库', host)?.disabled).toBe(true);
+  history.replaceState(null, '', before);
 });
 
 it('新作分区的女优、厂牌、标签只列接口给的订阅新作筛选项，点了在本分区里筛并回到第 1 页', async () => {

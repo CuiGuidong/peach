@@ -75,7 +75,8 @@ it('重复副本优先显示已有封面，加载失败后依次回退抽帧和�
   expect(advanceImageFallback(images[0])).toBe('retry');
   expect(images[0]!.getAttribute('src')).toBe('/thumb?id=1&c=4');
   expect(advanceImageFallback(images[0])).toBe('drop');
-  expect(host.querySelectorAll('.duplicate-row img')).toHaveLength(1);
+  // React 画的图不从它手里摘节点（卸载时会找不到子节点），只藏起来。
+  expect([...host.querySelectorAll<HTMLImageElement>('.duplicate-row img')].filter(image => image.style.display !== 'none')).toHaveLength(1);
   expect(host.querySelector('button[aria-label="预览 ABC-1.mp4"]')).not.toBeNull();
 });
 

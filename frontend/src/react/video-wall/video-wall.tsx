@@ -1,5 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { useDatalistSuggest } from '../search/datalist-suggest';
+import { librarySuggest } from '../search/library-suggest';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence, motion, useIsPresent, useReducedMotion } from 'motion/react';
 import { FocusScope } from 'react-aria/FocusScope';
@@ -77,6 +79,8 @@ const WallArtwork = memo(function WallArtwork({ item, image, big = false, ratio 
   </span>;
 });
 
+const WALL_SUGGEST = librarySuggest(['performer', 'creator', 'studio', 'series', 'tag', 'asset']);
+
 function WallFocusDialog({ children, itemId, playing, covered, direction }: {
   children: ReactNode; itemId: number; playing: boolean; covered: boolean; direction: WallPageDirection | null;
 }) {
@@ -144,6 +148,9 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
   const [laterBusy, setLaterBusy] = useState(false);
   const [later, setLater] = useState<{ id: number; on: boolean } | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
+  // 墙上的搜索与顶栏搜的是同一批作品，候选也取同一个补全接口：人、厂牌、系列、标签与作品番号。
+  const [searchText, setSearchText] = useState('');
+  const searchSuggestions = useDatalistSuggest('wall', searchText, WALL_SUGGEST, searchOpen);
   const searchButton = useRef<HTMLButtonElement>(null);
   const [portal] = useState(() => {
     const node = document.createElement('div'); node.className = 'peach-react'; return node;
@@ -511,7 +518,9 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
           onClick={event => { if (!searchOpen) { event.preventDefault(); setSearchOpen(true) } }}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search" /></svg>
         </button>
+        {searchOpen ? searchSuggestions.list : null}
         {searchOpen ? <input type="search" name="q" aria-label={t('catalog:videoWall.searchLabel')} placeholder={t('catalog:videoWall.searchPlaceholder')} autoFocus
+          ref={searchSuggestions.bind} autoComplete="off" onInput={event => setSearchText(event.currentTarget.value)}
           defaultValue={new URLSearchParams(location.search).get('q') || ''}
           onBlur={event => { if (!event.currentTarget.value.trim() && !event.currentTarget.form?.contains(event.relatedTarget as Node | null)) setSearchOpen(false) }} /> : null}
       </form>

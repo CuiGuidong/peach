@@ -34,6 +34,7 @@ import { DataTableFooter } from '../components/table-controls';
 import { Disclosure } from '../settings/section';
 import { BackgroundIssues } from './background-issues';
 import { DownloadsPanel } from './downloads-panel';
+import { IndexSearch } from '../index/index-search';
 import { ErrorDetails, ErrorExcerpt } from './error-excerpt';
 import { TaskControlFeedback, TaskControls } from './task-controls';
 import { TaskIcon } from './task-icon';
@@ -339,11 +340,16 @@ function WorkingRun(
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   const id = useId();
   return (
     <section aria-labelledby={id} className="flex min-w-0 flex-col gap-3">
-      <h3 id={id} className="text-title-2-medium text-text-primary">{title}</h3>
+      {action
+        ? <div className="flex min-w-0 flex-wrap items-center gap-3">
+            <h3 id={id} className="text-title-2-medium text-text-primary">{title}</h3>
+            {action}
+          </div>
+        : <h3 id={id} className="text-title-2-medium text-text-primary">{title}</h3>}
       {children}
     </section>
   );
@@ -366,9 +372,11 @@ function RunList({ live = false, paginate = true, children }: { live?: boolean; 
 export function ActivityPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+  // 查找只收窄「最近完成」：服务端在全部历史里找，命中的那几轮连同后继一起回来。
+  const [search, setSearch] = useState('');
   const tasks = useQuery({
-    queryKey: page === 1 && pageSize === 20 ? TASKS_KEY : [...TASKS_KEY, 'page', page, pageSize],
-    queryFn: ({ signal }) => fetchTasks(signal, page, pageSize),
+    queryKey: page === 1 && pageSize === 20 && !search ? TASKS_KEY : [...TASKS_KEY, 'page', page, pageSize, search],
+    queryFn: ({ signal }) => fetchTasks(signal, page, pageSize, search),
     refetchInterval: tasksInterval,
     placeholderData: (previous) => previous,
   });
@@ -415,7 +423,7 @@ export function ActivityPage() {
   const workingGroups = foldByKind(working, (run) => run.control?.state || '')
     .sort((left, right) => right.run.id - left.run.id);
   const newest = latestOfKind(allRuns);
-  const quiet = !running.length && !working.length && !skipped.length && !finished.length;
+  const quiet = !running.length && !working.length && !skipped.length && !finished.length && !search;
   return (
     <Page>
       {problem ? <Note tone="error">{problem}</Note> : null}
@@ -449,8 +457,11 @@ export function ActivityPage() {
                     <SettledRun key={run.id} run={run} latest={newest.has(run.id)} followups={byParent.get(run.id)} />))}</RunList>
                 </Section>
               : null}
-            {finished.length || Boolean(data.finished_total)
-              ? <Section title={t('manage:taskCenter.recentlyCompleted')}>
+            {finished.length || Boolean(data.finished_total) || search
+              ? <Section title={t('manage:taskCenter.recentlyCompleted')}
+                  action={<IndexSearch label={t('manage:taskCenter.search')} value={search}
+                    onQuery={(value) => { setSearch(value); setPage(1) }} />}>
+                  {search && !data.finished_total ? <Note tone="neutral">{t('manage:taskCenter.noMatches')}</Note> : null}
                   {finished.length
                     ? <RunList paginate={false}>{folds.map(({ run, runs }) => {
                         const tally = followupTally(counts, runs);

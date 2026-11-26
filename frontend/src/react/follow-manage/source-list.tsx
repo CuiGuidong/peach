@@ -8,6 +8,7 @@
  * 选择跨页也跨视图：换页、换排序、从卡片切到表格，选中的仍是同一批来源，底部那条批量
  * 操作发出去的也是整个 ID 集合，而不是屏幕上这一页。 */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { IndexSearch } from '../index/index-search';
 import {
   RiCheckDoubleLine,
   RiDeleteBinLine, RiExternalLinkLine, RiLayoutGridLine, RiPauseLine, RiPlayLine, RiRefreshLine, RiRssLine, RiTableLine,
@@ -308,7 +309,14 @@ export function SourceList(props: SourceListProps) {
 
   const groups = useMemo(() => authorGroups(sources, sort, dir, aliases), [sources, sort, dir, aliases]);
   const rows = useMemo(() => tableRows(groups, sort, dir, aliases), [groups, sort, dir, aliases]);
-  const filtered = useTableFilters(rows, {
+  /* 名字筛选在本页做：创作者名、别名归并后的显示名、来源名与站点都算，换词回到第 1 页。 */
+  const [query, setQuery] = useState('');
+  const searched = useMemo(() => {
+    const needle = query.toLocaleLowerCase();
+    return needle ? rows.filter(row => [row.author, row.source.label, row.source.provider_label, row.source.url || '']
+      .join(' ').toLocaleLowerCase().includes(needle)) : rows;
+  }, [rows, query]);
+  const filtered = useTableFilters(searched, {
     author: { values: row => row.author, option: (name, row) => ({
       leading: row && <AuthorAvatar group={row.group} name={name} small /> }) },
     source: { values: row => row.source.label, option: (_, row) => ({
@@ -623,6 +631,7 @@ export function SourceList(props: SourceListProps) {
           </span>
         </span>
         <div data-follow-toolbar-actions="" data-toolbar-actions="">
+        <IndexSearch label={t('follow:sourceList.search')} value={query} onQuery={value => { setQuery(value); onPage(1) }} />
         {failedSourceIds.length ? <Button variant="secondary" disabled={readOnly}
           {...busyProps(rowHandlers.busy)} onClick={() => startChecking(failedSourceIds)}>{t('follow:sourceList.checkFailed')}</Button> : null}
         <Button variant="primary" leadingIcon={RiRefreshLine} disabled={readOnly}

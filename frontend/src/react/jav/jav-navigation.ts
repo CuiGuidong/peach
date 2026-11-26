@@ -7,3 +7,5 @@ export function javLibraryPath(search: string) {
   params.delete('tab'); params.set('jav', '1');
   return '/?' + params;
 }
+/** 页头筛选框的名称；馆藏用顶栏搜索，没有。在线目录的框只筛取回的这一页。 */
+export const JAV_SEARCH_LABELS: Record<string, string> = { releases: t('catalog:javSearch.filterReleases'), discover: t('catalog:javSearch.filterRecommended'), wants: t('catalog:javSearch.filterWants'), online: t('catalog:javSearch.filterOnlinePage') };

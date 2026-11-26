@@ -28,7 +28,7 @@ import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-dow
 import type { QualityGoalsProps } from '../bundle';
 import { CardTags, Icon } from '../components/card-meta';
 import { EmptyState } from '../components/empty-state';
-import { FilterGlassRows, SelectAllButton } from '../components/filter-glass';
+import { FilterGlassRows, FilterSearch, SelectAllButton } from '../components/filter-glass';
 import { QueueFilterChips, QueueIdentity, QueuePicture, QueueTable } from '../components/queue-table';
 import { useQueueSort } from '../components/queue-sort';
 import { useCatalogView } from '../catalog-grid/catalog-view';
@@ -135,8 +135,9 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
   const [filters, setFilters] = useState<TableFilters>({});
   const encoded = JSON.stringify(filters);
   const filtered = encoded !== '{}';
-  const goals = useQuery({ queryKey: filtered ? [...QUALITY_GOALS_KEY, encoded] : QUALITY_GOALS_KEY,
-    queryFn: ({ signal }) => fetchQualityGoals(signal, filtered ? filters : undefined), placeholderData: previous => previous });
+  const [query, setQuery] = useState('');
+  const goals = useQuery({ queryKey: filtered || query ? [...QUALITY_GOALS_KEY, encoded, query] : QUALITY_GOALS_KEY,
+    queryFn: ({ signal }) => fetchQualityGoals(signal, filtered ? filters : undefined, query), placeholderData: previous => previous });
   const order = useQueueSort<QualityGoal>('quality-goals', {
     size: (item) => Number(item.size || 0), dur: (item) => Number(item.duration || 0), new: (item) => item.id,
   });
@@ -160,7 +161,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
       </Page>
     );
   }
-  if (!items.length && view !== 'list' && !filtered) {
+  if (!items.length && view !== 'list' && !filtered && !query) {
     return (
       <Page>
         <EmptyState icon={RiSparklingLine} title={t('manage:hdUpgrades.emptyTitle')}>
@@ -191,6 +192,8 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
         attrs={{ 'data-catalog-frame': '', 'data-filter-frame': '' }} bottomClassName="min-h-12" bottom={<><span data-catalog-summary="">
           <span data-catalog-readout="" role="status">
             {t('manage:hdUpgrades.summaryLabel')} · {t('manage:hdUpgrades.videoCount', { count: Number(data.total || 0) })}</span>
+          <FilterSearch label={t('manage:hdUpgrades.search')} value={query}
+            onQuery={value => { setQuery(value); setPicked(new Map()) }} />
           <SelectAllButton label={t('manage:hdUpgrades.selectAll')} picked={items.filter(item => picked.has(item.id)).length} total={items.length} onChange={pickAll} />
         </span>
         <span data-entity-sorts=""><CatalogViewToggle /><SortKeys sorts={order.sorts} onSort={order.onSort} /></span></>} />

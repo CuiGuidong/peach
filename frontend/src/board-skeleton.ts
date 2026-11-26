@@ -1,5 +1,5 @@
 import { resolveFollowSort, SORT_OPTIONS, type SortDir, type SortKey } from './follow-sort';
-import { islandButton, islandSelect } from './island-skeleton';
+import { islandButton, islandSearchInput, islandSelect } from './island-skeleton';
 import { configurationSkeleton } from './configuration-skeleton';
 import { javPageSkeleton } from './jav-skeleton';
 import { javTab } from './react/jav/jav-navigation';
@@ -85,14 +85,20 @@ type FollowSkeletonOptions = { followLayout?: string; followPageSize?: number; f
 const followList = (options: FollowSkeletonOptions) => {
   const tab = followTabKey(options.followTab);
   if (tab !== 'list') return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${followReadings()}<div class="flex flex-col gap-6">${followTabs(tab)}<div class="flex flex-col gap-4">${followPanel()}</div></div></div></div>`;
+  return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${followReadings()}<div class="flex flex-col gap-6">${followTabs(tab)}<div class="flex flex-col gap-4">${followListSurfaceSkeleton(options)}</div></div></div></div>`;
+};
+
+/** 关注列表那张填充卡的占位：工具行、创作者卡或表格、分页行。整页骨架与页面里等列表的那一段画的是同一张，
+ *  页面接手时版面不翻。 */
+export function followListSurfaceSkeleton(options: FollowSkeletonOptions = {}): string {
   const table = options.followLayout === 'table';
   const order = resolveFollowSort(options.followSort, options.followDir);
   const size = options.followPageSize || followPageSize();
   const content = table
     ? followTable(size, order)
     : `${followCheck(t('follow:sourceList.selectPageShort'))}<div class="flex flex-col gap-3">${followAuthor(3)}${followAuthor(4)}${followAuthor(3)}</div>`;
-  return `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${followReadings()}<div class="flex flex-col gap-6">${followTabs(tab)}<div class="flex flex-col gap-4"><div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface" data-layout="${table ? 'table' : 'default'}">${followToolbar({ table, ...order })}${content}${followPager(table, size)}</div></div></div></div></div>`;
-};
+  return `<div class="min-w-0 bg-background-secondary-default rounded-2xl shadow-card flex flex-col gap-4 px-6 py-5 max-sm:px-4 ui-follow-skeleton-surface" data-layout="${table ? 'table' : 'default'}">${followToolbar({ table, ...order })}${content}${followPager(table, size)}</div>`;
+}
 
 /** 详情骨架外层 `[data-skeleton="detail"]` 里面那一格：舞台岛自己画外层，里面照这一份写。格子与详情栏
  *  的几何是舞台的（`react/stage/stage.css`），骨架的底色与行距是壳的 `skeleton` 一族。 */
@@ -116,7 +122,8 @@ export function boardPageSkeleton(
   } else if (isSettingsSectionPath(path) && path.split('/')[2]! in CONFIGURATION_SECTIONS) {
     body = configurationSkeleton(CONFIGURATION_SECTIONS[path.split('/')[2] as keyof typeof CONFIGURATION_SECTIONS]);
   } else if (path === '/tasks') {
-    body = `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${[t('manage:taskCenter.inProgress'), t('manage:taskCenter.skipped'), t('manage:taskCenter.recentlyCompleted')].map(title => `<section class="activitysection flex min-w-0 flex-col gap-3"><h3 class="text-title-2-medium text-text-primary">${title}</h3><div class="min-w-0 rounded-2xl shadow-card bg-background-secondary-default"><div class="flex flex-col gap-1.5 px-5 pt-5 pb-4"><span class="text-title-1-medium">${text('8em')}</span><span class="text-caption-1-regular">${text('14em')}</span>${text('60%')}${text('40%')}</div><div class="border-t border-separator-border px-5 py-2.5">${text('6em')}</div></div></section>`).join('')}</div></div>`;
+    // 「已跳过」只在有被跳过的那一轮时才有，不预留：画上它，没有时「最近完成」会整段往上跳。
+    body = `<div class="peach-react"><div class="mx-auto flex w-full max-w-board flex-col gap-8">${[t('manage:taskCenter.inProgress'), t('manage:taskCenter.recentlyCompleted')].map(title => `<section class="activitysection flex min-w-0 flex-col gap-3"><h3 class="text-title-2-medium text-text-primary">${title}</h3><div class="min-w-0 rounded-2xl shadow-card bg-background-secondary-default"><div class="flex flex-col gap-1.5 px-5 pt-5 pb-4"><span class="text-title-1-medium">${text('8em')}</span><span class="text-caption-1-regular">${text('14em')}</span>${text('60%')}${text('40%')}</div><div class="border-t border-separator-border px-5 py-2.5">${text('6em')}</div></div></section>`).join('')}</div></div>`;
   } else if (path === '/settings/maintenance/repairs') {
     body = repairCenterSkeleton();
   } else if (path === '/duplicates') {
@@ -124,7 +131,7 @@ export function boardPageSkeleton(
   } else if (path === '/quality-goals') {
     body = qualityGoalsSkeleton();
   } else if (path === '/playlists') {
-    body = `<div class="peach-react"><section class="w-full pt-1 pb-10.5"><header class="mb-4 flex items-start justify-between gap-4.5 max-board-narrow:flex-col max-board-narrow:items-stretch"><div><h2 class="mb-1 text-display-4-medium! text-text-primary">${t('catalog:shared.playlists')}</h2><p class="text-body-2-regular text-text-secondary">${t('catalog:playlistsPage.description')}</p></div><div class="flex flex-wrap items-end gap-2"><div class="min-w-50 max-w-80 flex-1 basis-50 max-board-narrow:min-w-0 max-board-narrow:max-w-none"><span class="text-body-medium">${t('catalog:playlistsPage.newPlaylistLabel')}</span><span class="skeleton ui-configuration-skeleton-input mt-1.5"></span></div>${islandButton({ label: t('catalog:playlistsPage.createButton'), attrs: WAITING })}</div></header><div class="mx-auto w-full max-w-board"><div class="ui-playlistcards card-grid-cover gap-4.5">${repeat(`<article class="playlistcard skeletoncard"><i></i><b></b><em></em></article>`, 6)}</div></div></section></div>`;
+    body = `<div class="peach-react"><section class="w-full pt-1 pb-10.5"><header class="mb-4 flex items-start justify-between gap-4.5 max-board-narrow:flex-col max-board-narrow:items-stretch"><div><h2 class="mb-1 text-display-4-medium! text-text-primary">${t('catalog:shared.playlists')}</h2><p class="text-body-2-regular text-text-secondary">${t('catalog:playlistsPage.description')}</p></div><div class="flex flex-wrap items-end gap-2"><div class="min-w-50 max-w-80 flex-1 basis-50 max-board-narrow:min-w-0 max-board-narrow:max-w-none"><span class="text-body-medium">${t('catalog:playlistsPage.newPlaylistLabel')}</span><span class="skeleton ui-configuration-skeleton-input mt-1.5"></span></div>${islandButton({ label: t('catalog:playlistsPage.createButton'), attrs: WAITING })}</div></header><div class="mx-auto w-full max-w-board"><div class="mb-4 flex"><div data-index-search class="ml-auto min-w-0 max-w-80 flex-1">${islandSearchInput('', '', t('catalog:playlistsPage.search'))}</div></div><div class="ui-playlistcards card-grid-cover gap-4.5">${repeat(`<article class="playlistcard skeletoncard"><i></i><b></b><em></em></article>`, 6)}</div></div></section></div>`;
   } else return '';
   return `<div class="board-page-skeleton" data-skeleton="board${path}" role="status" aria-label="${t('manage:manageSkeleton.loadingPage')}"><div aria-hidden="true" inert>${body}</div></div>`;
 }

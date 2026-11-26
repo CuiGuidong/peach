@@ -5,7 +5,7 @@ import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Chip } from '@/components/base/badges/chip';
 import { appSettingsStore, javLayout, storeJavLayout, JAV_LAYOUTS, cardRatio, gridLayout } from '@peach/appearance';
 import { wireHorizontalScroller } from '../../ui-kit/scroll';
-import { javContentSkeleton, JAV_RECOMMENDATION_GRID } from '../../jav-skeleton';
+import { javContentSkeleton, JAV_PAGE_BODY, JAV_RECOMMENDATION_GRID } from '../../jav-skeleton';
 import { errorMessage } from '../../api';
 import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-download-dialog';
 import { Note } from '../components/note';
@@ -14,15 +14,13 @@ import { WantList } from '../wants/want-list';
 import { JavSelectionProvider, useJavRectangle, useVisibleJavWorks } from './jav-selection';
 import { addWant, invalidateWants } from '../wants/wants';
 import { busyProps, useAction } from '../settings/use-action';
-import { controlDiscoveryMetadata, DISCOVERY_METADATA_KEY, discoveryKey, fetchDiscoveries, fetchDiscoveryMetadata, metadataInterval, writeJavQuery,
+import { controlDiscoveryMetadata, DISCOVERY_METADATA_KEY, discoveryKey, fetchDiscoveries, fetchDiscoveryMetadata, javTab, metadataInterval, useJavAddress, writeJavQuery,
   type Discovery, type DiscoveryMetadataJob, type DiscoveryScope } from './jav';
 import { queryClient } from '../query';
 import { DiscoveryCard, resourcePrefill } from './discovery-card';
 import type { DiscoveryPerson } from './discovery-faces';
 import { Releases } from './jav-releases';
-import { JavHeader } from './jav-header';
 import { OnlineCatalog } from './online-catalog';
-import { IndexSearch } from '../index/index-search';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { FilterGlassRows, FilterIconButton, FilterActionButton, FilterTagStrip, FilterToolbarControls } from '../components/filter-glass';
 import { ColumnFilterAvatar, ColumnFilterStudioAvatar } from '../components/column-filter-avatar';
@@ -35,6 +33,7 @@ import { TaskProgress } from '../components/task-progress';
 import { activityKind } from '../../activity-kinds';
 import { DISCOVERY_SORTS, discoveryScore, recommendationScore, type DiscoverySort } from './discovery-sorts';
 import { jobText, serverLabelList } from '../../core/server-text';
+import { JavGlassSearch } from './jav-header';
 import { t } from '../../i18n';
 import { entityDisplayName } from '../../core/entity-names';
 import { columnRangeKinds, readColumnFilters, withinColumnRange, writeColumnFilters, type ColumnRange, type ColumnFilters } from '../../column-filters';
@@ -44,22 +43,24 @@ import type { Receipt } from '../components/bulk-action';
 
 const MetadataStopGlyph = spriteGlyph('x');
 const MetadataRefreshGlyph = spriteGlyph('refresh-cw');
-const SEARCH_LABELS: Record<string, string> = { releases: t('catalog:javSearch.filterReleases'), discover: t('catalog:javSearch.filterRecommended'), wants: t('catalog:javSearch.filterWants') };
-
+/** 分区正文。标题、页签与筛选框在常驻页头（`JavPageHeader`）里，筛选词经地址里的 `q` 传到这里。
+ *  地址已经换到别的分区或别的页、这一页还没撤下时，沿用最后一次属于它的词，不拿别人的地址重查。 */
 export function JavPage({ tab, readOnly, navigate, receipt }: {
   tab: string; readOnly: boolean; navigate(path: string): void; receipt: Receipt;
 }) {
   const [download, setDownload] = useState<DownloadPrefill | null>(null);
-  const [text, changeText] = useState(() => new URLSearchParams(location.search).get('q') || '');
-  const setText = (value: string) => { changeText(value); writeJavQuery({ q: value }) };
-  return <JavSelectionProvider key={tab} readOnly={readOnly} receipt={receipt} dock={tab !== 'wants'}><div className="flex w-full flex-col gap-6">
-    <JavHeader tab={tab} navigate={navigate} find={() => setDownload({})}
-      search={tab === 'online' ? undefined : <IndexSearch label={SEARCH_LABELS[tab] || t('catalog:javDiscover.filter')} value={text} onQuery={setText} />} />
+  const shown = useJavAddress();
+  const params = new URLSearchParams(shown.search);
+  const own = useRef('');
+  if (shown.pathname === '/jav' && javTab(params.get('tab')) === tab) own.current = params.get('q') || '';
+  const text = own.current;
+  const setText = (value: string) => writeJavQuery({ q: value });
+  return <JavSelectionProvider key={tab} readOnly={readOnly} receipt={receipt} dock={tab !== 'wants'}><div className={JAV_PAGE_BODY}>
     {tab === 'releases'
       ? <Releases readOnly={readOnly} receipt={receipt} resource={setDownload} query={text.trim()} navigate={navigate} clearText={() => setText('')} />
       : tab === 'discover'
       ? <Discover readOnly={readOnly} receipt={receipt} resource={setDownload} query={text.trim()} navigate={navigate} clearText={() => setText('')} />
-      : tab === 'online' ? <OnlineCatalog navigate={navigate} />
+      : tab === 'online' ? <OnlineCatalog navigate={navigate} query={text.trim()} />
       : <WantList readOnly={readOnly} toast={receipt} query={text.trim()} clearQuery={() => setText('')} />}
     <CloudDownloadDialog prefill={download} close={() => setDownload(null)} receipt={receipt} />
   </div></JavSelectionProvider>;
@@ -216,6 +217,7 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
       </div>} bottom={<>
         <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" /> : t('catalog:countLabel.works', { count: items.length })}</span>
         <LibraryShortcuts currentHref={() => location.pathname + location.search} />
+        <JavGlassSearch tab="discover" />
         {filtered ? <FilterActionButton onPress={clearFilters}>{t('catalog:shared.clearFilters')}</FilterActionButton> : null}
         <FilterToolbarControls tools={<>
         {scope === 'external' ? <FilterIconButton data-entity-batch="" data-jav-metadata-update=""

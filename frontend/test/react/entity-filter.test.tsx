@@ -17,7 +17,7 @@ const LAYOUTS = [['big', '大图', 'maximize'], ['small', '小图', 'layout-grid
 
 function actions(patch: Partial<EntityFilterActions> = {}): EntityFilterActions {
   return {
-    setView: vi.fn(), setState: vi.fn(), toggleTag: vi.fn(), clearFilter: vi.fn(), clearAll: vi.fn(),
+    setView: vi.fn(), setState: vi.fn(), toggleTag: vi.fn(), setQuery: vi.fn(), clearFilter: vi.fn(), clearAll: vi.fn(),
     setSort: vi.fn(), reshuffle: vi.fn(async () => {}), setJavLayout: vi.fn(), setPhotoLayout: vi.fn(),
     photoBack: vi.fn(), onlineMedia: vi.fn(), onlineShuffle: vi.fn(), onlineImagesOnly: vi.fn(), onlineStatus: vi.fn(),
     onlineProvider: vi.fn(), onlineTag: vi.fn(), onlineSort: vi.fn(), ...patch,
@@ -32,7 +32,7 @@ function props(patch: Partial<EntityFilterProps> = {}): EntityFilterProps {
   return {
     kind: 'performer', name: '篠田ゆう', view: 'videos',
     views: { label: '媒体类型', people: null, videos: { count: 24 }, photos: { count: 18 }, online: null },
-    state: '', states: STATES,
+    state: '', states: STATES, query: '',
     tags: [{ k: '巨乳', label: '巨乳', n: 1200, selected: false }, { k: '中出', label: '中出', n: 36, selected: true }],
     combo: [{ kind: 'untag', key: '中出', label: '中出' }, { kind: 'clear', key: 'studio', label: '厂牌 S1' }],
     readout: '视频 · 24 · 中出', busy: false,

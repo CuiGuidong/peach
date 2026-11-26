@@ -14,7 +14,8 @@ import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { AsyncText } from '../components/async-text';
 import { TabCount } from '../components/board-tabs';
 import { cardClass } from '../components/card';
-import { FilterGlassRows, FilterPill, FilterToolbarControls } from '../components/filter-glass';
+import { FilterGlassRows, FilterPill, FilterSearch, FilterToolbarControls } from '../components/filter-glass';
+import { SUGGEST_KIND_OF, librarySuggest } from '../search/library-suggest';
 import { FilterDropdown } from '../components/filter-dropdown';
 import { SEGMENTED_GLASS_TRACK, SEGMENT_GLASS } from '../components/segmented';
 import { SelectionDock } from '../components/selection-dock';
@@ -152,9 +153,13 @@ function statusLabel(name: string, count: number | null | undefined, counted: (c
   return counted(count);
 }
 
-/** 筛选浮层：上排类型药丸，下排读数、按首字跳转与视图切换。只摆数得到的那几类。 */
+const TAG_SUGGEST = { key: 'tags', load: librarySuggest([SUGGEST_KIND_OF.tags!]) };
+
+/** 筛选浮层：上排类型药丸，下排读数、查找、按首字跳转与视图切换。只摆数得到的那几类。 */
 export function TagFilters(
-  { categories, category, online, readout, letters, view, onCategory, onJump, onView, status, actions }: {
+  { categories, category, online, readout, letters, view, onCategory, onJump, onView, status, actions, search }: {
+    /** 下排的查找：标签名里含这个词的才留下。 */
+    search?: { value: string; onQuery(q: string): void };
     categories: readonly (readonly [string, string])[];
     category: string;
     online: boolean;
@@ -188,6 +193,8 @@ export function TagFilters(
           <AsyncText text={readout} busy={readout === undefined}
             placeholder={<span aria-hidden className="skeleton-sheen inline-block h-3.5 w-20 rounded-md" />} />
         </span>
+        {search ? <FilterSearch label={t('catalog:tagManager.filterTags')} value={search.value} onQuery={search.onQuery}
+          suggest={online ? undefined : TAG_SUGGEST} /> : null}
         {actions}
         {letters.length > 1 ? (
           <nav ref={alphaScroll} aria-label={t('catalog:tagFilters.jumpToLetter')} data-alpha-jump=""

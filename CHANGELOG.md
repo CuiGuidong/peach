@@ -16,9 +16,18 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+### Added / 新增
+
+- **Interface**: Find items by name or code in follow sources, JAV subscriptions, playlists, HD upgrades, duplicates, review, junk files and downloads. / **界面**：关注来源、JAV 订阅源、播放列表、高清版、重复文件、复核、垃圾文件与下载任务可按名字或番号查找。
+- **Interface**: Search the follow feed, a person or studio's videos, and past runs in the task center. / **界面**：关注动态、人物与厂牌名下的作品、任务中心的历史记录可以查找。
+- **Interface**: Filter boxes on the roster pages and the JAV sections suggest matching names, labels, tags and codes as you type; the video wall, online catalog and resource search suggest library matches. / **界面**：名册各页与 JAV 分区的筛选框输入时给出人名、厂牌、标签和番号候选；播放墙、在线目录和资源查找给出馆藏候选。
+
 ### Fixed / 修复
 
 - **Library**: Repair, organize and scan no longer skip the healthy file after a stalled one when the file reader is slow to start. / **馆藏**：读盘进程启动慢时，修复、整理与扫描不再把挂死文件之后的正常文件一并跳过。
+- **Interface**: Switching JAV sections keeps the title and tabs in place and slides the selected tab; loading placeholders on Wants, Follow management, Taste, Tasks, Sources and Series match the loaded pages. / **界面**：切换 JAV 分区时标题和页签原地不动、选中底板滑动；想要、关注管理、口味、任务中心、来源和系列页的加载占位与加载后的页面一致。
+- **Interface**: A failed avatar image no longer blanks the page when you leave the JAV library section. / **界面**：头像加载失败后离开 JAV 馆藏分区不再出现页面空白。
+
 - **Interface**: Browse and manage media folders in a full-screen file browser with sorting, search, multi-selection, and a restorable file recycle bin. The browser returns to the same folder after closing video details (#376). / **界面**：浏览文件支持全屏、排序、搜索和多选，可新建目录、重命名、移动及从文件回收站还原。关闭视频详情后返回原目录（#376）。
 - **Library**: Upgrading retries known cover-install failures and rechecks failed QR analysis using saved previews (#820, #794). / **馆藏**：升级后自动补试已知的封面安装失败，并用已有九宫格重查失败的二维码分析（#820、#794）。
 - **Sourcing**: Upgrading reprocesses affected release codes, source failures and old NFO evidence (#788, #789, #431, #816, #725). / **采集**：升级后定向重查受影响的番号、来源失败及旧 NFO 资料（#788、#789、#431、#816、#725）。

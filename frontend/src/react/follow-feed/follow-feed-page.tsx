@@ -19,7 +19,7 @@ import { EmptyState } from '../components/empty-state';
 
 import { apiGet, apiSend } from '../../api';
 import { LoadMore } from '../catalog-grid/catalog-grid-page';
-import { FilterGlassRows, FilterTagStrip, FilterToolbarControls } from '../components/filter-glass';
+import { FilterGlassRows, FilterSearch, FilterTagStrip, FilterToolbarControls } from '../components/filter-glass';
 import { FilterDropdown } from '../components/filter-dropdown';
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
 import { AsyncText } from '../components/async-text';
@@ -203,7 +203,7 @@ export function FollowFeedPage(props: FollowFeedProps) {
           onPick={(key) => route({ work: view.work === key ? '' : key })} />
         <Glass facets={facets} view={view} total={total} busy={listPending} props={props} route={route} />
         <Combo conditions={conditions} onDrop={(row) => actions.route(dropCondition(view, row))}
-          onClear={() => route({ author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0 })} />
+          onClear={() => route({ author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0, q: '' })} />
         {facets.broken.length ? <BrokenNote count={facets.broken.length} /> : null}
         <List retryKey={result.dataUpdatedAt} pending={listPending} facets={facets} data={data} context={context}
           props={props} checkAction={<Button size="small" variant="secondary" aria-label={t('follow:followFeed.checkAllSources')} aria-busy={job.busy || undefined}
@@ -474,6 +474,8 @@ function Glass({ facets, view, total, busy, props, route }: {
           <AsyncText text={t('follow:followFeed.updatesReadout', { count: total, shown: facets.visible.length })} busy={busy} />
         </h3>
         <LibraryShortcuts currentHref={() => location.pathname + location.search} kind="creator" />
+        <FilterSearch label={t('follow:followFeed.search')} value={view.q || ''}
+          onQuery={(q) => { if (q !== (view.q || '')) route({ q }) }} />
         <FilterToolbarControls tools={<>
           <Shuffle onPress={actions.shuffle} />
           {images ? (
@@ -588,8 +590,8 @@ function Cards({ facets, data, context, props, images, retryKey, checkAction }: 
       );
     });
   } else {
-    body = <Empty data={data} filtered={!!(view.status || facets.author || facets.provider || view.work || view.tags.length || view.durMin || view.durMax)}
-      checkAction={checkAction} clear={() => actions.route({ ...view, status: '', author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0,
+    body = <Empty data={data} filtered={!!(view.status || facets.author || facets.provider || view.work || view.tags.length || view.durMin || view.durMax || view.q)}
+      checkAction={checkAction} clear={() => actions.route({ ...view, status: '', author: '', provider: '', work: '', tags: [], durMin: 0, durMax: 0, q: '',
         media: data.groups.length ? (data.groups.some(group => groupMediaKinds(group).has('video')) ? 'videos' : 'images') : view.media })} />;
   }
   return (

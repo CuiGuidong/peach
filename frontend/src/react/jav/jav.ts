@@ -5,7 +5,8 @@ import { fetchWants, WANTS_KEY } from '../wants/wants';
 import type { CoverState, FaceRef, CoverItem } from '@peach/card-art';
 import { coverImage, javArtwork, remoteCoverUrl } from '@peach/card-art';
 import { esc } from '@peach/legacy/core';
-import { peachHistory, shellNavigate } from '@peach/history';
+import { useSyncExternalStore } from 'react';
+import { navigationBackground, peachHistory, shellNavigate } from '@peach/history';
 import { RELEASE_SORTS, type DiscoveryDirection, type DiscoverySort, type ReleaseSort } from './discovery-sorts';
 import { t } from '../../i18n';
 import { rememberedPageSize } from '../components/page-size-preferences';
@@ -18,6 +19,13 @@ export function writeJavQuery(patch: Record<string, string>): void {
   const params = new URLSearchParams(location.search);
   for (const [key, value] of Object.entries(patch)) { if (value) params.set(key, value); else params.delete(key) }
   shellNavigate(location.pathname + (params.size ? `?${params}` : ''), { replace: true, state: peachHistory.navigation.location.state });
+}
+
+const navigationSeq = () => peachHistory.navigation.seq;
+/** JAV 页此刻对应的地址，随每一次历史变化重读；详情压在上面时是它下面那一页的。 */
+export function useJavAddress(): { pathname: string; search: string } {
+  useSyncExternalStore(peachHistory.listen, navigationSeq);
+  return navigationBackground() ?? { pathname: location.pathname, search: location.search };
 }
 
 export interface Discovery extends CoverItem {

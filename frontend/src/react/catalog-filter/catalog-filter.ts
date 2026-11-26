@@ -69,6 +69,8 @@ export interface CatalogFilterActions {
   /** 四枚视图里的一枚。 */
   setView(view: string): void;
   toggleTag(tag: string): void;
+  /** 浮层下排的查找：同顶栏搜索，改的是这一页的搜索词。 */
+  search?(q: string): void;
   chooseFacet(kind: 'performer' | 'studio', name: string): void;
   /** 撤掉交集条上的一颗创作者／厂牌／归属。 */
   clearFilter(key: string): void;
@@ -117,6 +119,8 @@ export interface CatalogFilterProps {
   layout: CatalogLayout | null;
   /** 正只显示有预览图的作品（设置或地址上的 `thumb=1`）：读数旁给「显示全部」。 */
   previewOnly?: boolean;
+  /** 这一页的搜索词（壳的 `state.q`），浮层下排的查找框显示它。 */
+  query?: string;
   /** 换一批这一趟：三层与标签铺一层微光，换批键转圈。 */
   refreshing: boolean;
   /** 筛选条被收起（资料页、索引页与管理页）：浮层两排不画，只留两排头像。 */

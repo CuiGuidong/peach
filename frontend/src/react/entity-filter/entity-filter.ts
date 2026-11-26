@@ -89,6 +89,8 @@ export interface EntityFilterActions {
   /** 四枚观看状态里的一枚。 */
   setState(state: string): void;
   toggleTag(tag: string): void;
+  /** 作品视图的查找框：在这一位名下按番号、标题找。 */
+  setQuery(q: string): void;
   /** 撤掉交集条上的一颗创作者／厂牌／归属。 */
   clearFilter(key: string): void;
   /** 交集条末尾的「全部清除」。 */
@@ -130,6 +132,8 @@ export interface EntityFilterProps {
   /** 当前观看状态：''、fresh、later、flagged。 */
   state: string;
   states: readonly { k: string; label: string }[];
+  /** 作品视图查找框里的词（地址上的 `q`）。 */
+  query: string;
   tags: EntityFilterTag[];
   combo: EntityComboItem[];
   /** 表头左边那一句；`busy` 时换成骨架。 */

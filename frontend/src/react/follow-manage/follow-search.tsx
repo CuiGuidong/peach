@@ -17,8 +17,10 @@ import { SUGGEST_DEBOUNCE_MS } from './follow-manage';
 
 const MENU_ROW = cx(MENU_ITEM, MENU_ITEM_INTERACTIVE, 'text-body-2-medium');
 
+/** 候选行前那枚头像按哪一类实体画。 */
+export type SuggestKind = 'creator' | 'performer' | 'studio' | 'agency' | 'series' | 'tag';
 export interface SuggestOption { value: string; matched?: string; n?: number; group?: string; portrait?: FaceRef }
-const optionId = (menuId: string, option: SuggestOption) =>
+export const optionId = (menuId: string, option: SuggestOption) =>
   `${menuId}-${encodeURIComponent(JSON.stringify([option.group, option.value]))}`;
 
 /** 敲字建议的下拉。只在输入框有焦点时开着，键盘上下键在里面走。
@@ -32,11 +34,11 @@ const optionId = (menuId: string, option: SuggestOption) =>
  * 定位和来源筛选同一个 react-aria `Popover`：它把高度压到字段下方真正剩下的空间，
  * 装不下就在菜单里滚。不翻到上方：每敲一个字建议条数都在变，翻来翻去读不成一张表。
  * 非模态是为了焦点留在输入框；页面一滚走字段它就收起，菜单自己的滚动不收。 */
-function SuggestMenu(
+export function SuggestMenu(
   { field, menu, id, options, active, busy, failed, label, kind, onPick, onClose }:
   {
     field: RefObject<HTMLDivElement | null>; menu: RefObject<HTMLElement | null>;
-    id: string; options: SuggestOption[]; active?: string; busy: boolean; failed: boolean; label: string; kind: 'creator' | 'performer';
+    id: string; options: SuggestOption[]; active?: string; busy: boolean; failed: boolean; label: string; kind: SuggestKind;
     onPick(value: string): void; onClose(): void;
   },
 ) {

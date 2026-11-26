@@ -16,6 +16,7 @@ import { indexSkeletonHtml, spinnerHtml } from '@peach/legacy/ui';
 
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { IndexSearch } from './index-search';
+import { librarySuggest, SUGGEST_KIND_OF } from '../search/library-suggest';
 import { DataTableFooter } from '../components/table-controls';
 import { tagSkeletonHtml, TAG_PAGE_SIZE, TAG_PAGE_SIZES } from '../../tag-skeleton';
 import { INDEX_NOUNS } from '../../index-skeleton';
@@ -274,7 +275,9 @@ export function IndexPage(props: IndexProps) {
         {kind === 'tags' ? <Button variant={managing ? 'primary' : 'ghost'} iconOnly className="flex-none" data-tag-mode=""
           leadingIcon={spriteGlyph('pencil')} aria-label={managing ? t('catalog:peopleIndex.backToTags') : t('catalog:peopleIndex.manageTags')} title={managing ? t('catalog:peopleIndex.backToTags') : t('catalog:peopleIndex.manageTags')} aria-pressed={managing}
           onClick={() => { props.exitSelectMode(); setPicked(new Set()); setManagerState('active'); setManaging(!managing) }} /> : null}
-        <IndexSearch label={t('catalog:peopleIndex.filterTitle', { title: noun })} value={q} onQuery={(next) => { if (next !== q) go({ q: next }, !!next) }} />
+        {/* 标签页有筛选浮层，查找在浮层下排（`TagFilters`）；其余名册没有浮层，留在页头。 */}
+        {kind === 'tags' ? null : <IndexSearch label={t('catalog:peopleIndex.filterTitle', { title: noun })} value={q} onQuery={(next) => { if (next !== q) go({ q: next }, !!next) }}
+          suggest={{ key: kind, kind: SUGGEST_KIND_OF[kind], load: librarySuggest([SUGGEST_KIND_OF[kind]!]) }} />}
       </div>
       {kind === 'performers' || kind === 'creators' ? (
         <BoardTabs tabs={PEOPLE_TABS} value={onlineAuthors ? 'online' : kind} label={t('catalog:peopleIndex.roster')}
@@ -285,7 +288,8 @@ export function IndexPage(props: IndexProps) {
           }} />
       ) : null}
       {tabs}
-      {managing && kind === 'tags' ? <TagManager key={`${scope}:${managerState}`} scope={scope} state={managerState} search={q} category={category} view={view}
+      {managing && kind === 'tags' ? <TagManager key={`${scope}:${managerState}`} scope={scope} state={managerState} search={q}
+        onSearch={(next) => { if (next !== q) go({ q: next }, !!next) }} category={category} view={view}
         onCategory={next => go({ category: next })} onView={next => go({ view: next })}
         onJump={at => root.current?.querySelector(`[data-alpha-group="${at}"]`)?.scrollIntoView({ block: 'start', behavior: 'smooth' })} /> : <>
       {kind === 'performers' && scope === 'local' ? (
@@ -307,6 +311,7 @@ export function IndexPage(props: IndexProps) {
         <TagFilters categories={categories} category={category} online={onlineTags}
           actions={onlineTags ? <FilterActionButton onPress={() => setAddingBlockedTag(true)}>{t('catalog:tagManager.blockByName')}</FilterActionButton> : undefined}
           readout={result.isPending ? undefined : readout}
+          search={{ value: q, onQuery: (next) => { if (next !== q) go({ q: next }, !!next) } }}
           status={{ hidden: false, blocked: false, ...tagCounts, onChange: (hidden) => { if (hidden) openManager('hidden') },
             ...(onlineTags ? { onBlocked: () => openManager('blocked') } : {}) }}
           letters={groups.map(([letter]) => letter)} view={view}

@@ -187,6 +187,7 @@
     "removeSelected": "移除所选订阅源",
     "removedMany": "已移除 {{count, number}} 条订阅源",
     "removedOne": "已移除订阅源「{{name}}」",
+    "search": "筛选订阅源",
     "selectPage": "全选本页订阅源",
     "selectedCount": "已选 {{count, number}} 条订阅源",
     "summary": "{{count, number}} 个订阅源 · {{unread, number}} 条未看",
@@ -286,6 +287,7 @@
     "noSourcesYet": "还没有关注任何来源",
     "noUpdatesYet": "还没有更新",
     "removeFilterChip": "撤掉 {{filter}}",
+    "search": "查找更新",
     "sortBy": {
       "durationLongest": "按时长从长到短排序",
       "durationShortest": "按时长从短到长排序",
@@ -487,6 +489,7 @@
     "pauseManyBody": "将暂停选中的 {{count, number}} 个关注来源，已抓取的条目保留。",
     "preparingCheck": "正在准备检查任务",
     "providers": "来源：{{providers}}",
+    "search": "筛选关注来源",
     "seeUpdates": "去看更新",
     "selectGroup": "全选 {{name}} 的来源",
     "selectPage": "全选本页来源",
