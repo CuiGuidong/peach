@@ -920,7 +920,7 @@
       "invalid_output": "The model returned no usable result. Try again or choose another model.",
       "usageUnavailable": "Could not read AI usage. Refresh to try again.",
       "permission_required": "Allow plan usage on the ChatGPT authorization page.",
-      "expired": "The connection or suggestion expired. Generate it again or reconnect.",
+      "expired": "The connection or candidate expired. Generate it again or reconnect.",
       "unavailable": "This model or plan cannot complete the request.",
       "alreadySaved": "This source text already has a translation in that language.",
       "provider": "This AI service is unavailable.",

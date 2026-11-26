@@ -9,6 +9,7 @@ import { interfaceLanguage, t } from '../../i18n';
 import { onLibraries, publishedLibraries } from '../../library-catalog';
 import { AI_CONNECTIONS_KEY, AI_CONNECTIONS_URL, type AIConnections, type TaskProfile } from '../settings/ai-library-settings';
 import { CUSTOM_TASKS_URL, useCustomTasks } from '../settings/ai-custom-tasks';
+import { cardClass } from '../components/card';
 import { Disclosure, ErrorText, Help } from '../settings/section';
 import { useAction } from '../settings/use-action';
 import { preferredAIConnection } from '../settings/use-ai-models';
@@ -424,7 +425,7 @@ export function LibraryAssistant() {
       {answer ? <FixedTaskAnswer answer={answer} /> : null}
       {plannedWork ? <AssistantWorkTask key={turn.id} plan={plannedWork} library={turn.library ?? ''} /> : null}
     </div> : null}
-    {action.error ? <div className="rounded-xl border border-separator-border bg-background-primary-default p-3">
+    {action.error ? <div className={cardClass({ variant: 'outlined', padding: 'none', className: 'p-3' })}>
       <ErrorText>{action.error}</ErrorText>
     </div> : null}
     {stopped ? <Help role="status"><span data-copy-key="catalog.libraryAssistant.stopped">{copy('stopped')}</span></Help> : null}

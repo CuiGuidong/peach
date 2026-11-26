@@ -264,7 +264,7 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
           () => receipt(promptCopy('resetDone'))); }}
         {...busyProps(action.busy === 'reset-prompt')}>{promptCopy('reset')}</Button> : null}
       <Button type="submit" size="small" disabled={busy || (!modelDirty && !prompt.dirty)} {...busyProps(action.busy === 'save')}>
-        <span data-copy-key="settings.aiLibrary.saveTaskSettings">{t('settings:aiLibrary.saveTaskSettings')}</span>
+        <span data-copy-key="settings.shared.saveSettings">{t('settings:shared.saveSettings')}</span>
       </Button>
     </Footer>
   </form>}
@@ -344,7 +344,7 @@ function FixedTaskEditor({ task, providers, active, choose, busyChanged, receipt
       {!task || confirmRemove ? <Button type="button" size="small" variant="ghost" disabled={busy} onClick={() =>
         confirmRemove ? setConfirmRemove(false) : choose('translate')}>{customTaskCopy('cancel')}</Button> : null}
       {!confirmRemove ? <Button type="submit" size="small" disabled={busy || !valid} {...busyProps(action.busy === 'save')}>
-        {t('settings:aiLibrary.saveTaskSettings')}
+        {t('settings:shared.saveSettings')}
       </Button> : null}
     </Footer>
   </form>;
@@ -461,7 +461,7 @@ function OAuthForm({ value, active, saved, refresh }: {
       {status !== 'disconnected' ? <Button size="small" variant="secondary" disabled={busy}
         onClick={() => command(true)} {...busyProps(action.busy === 'remove')}>{t('settings:aiLibrary.oauthDisconnect')}</Button> : null}
       {value.configured ? <Button size="small" disabled={busy || !selected || selected === value.model}
-        onClick={saveModel} {...busyProps(action.busy === 'model')}>{t('settings:aiLibrary.saveModel')}</Button>
+        onClick={saveModel} {...busyProps(action.busy === 'model')}>{t('settings:shared.saveSettings')}</Button>
         : pending && url ? <ButtonLink data-button-link="" size="small" href={url} target="_blank" rel="noopener noreferrer">
           <span data-copy-key="settings.aiLibrary.oauthContinue">{t('settings:aiLibrary.oauthContinue')}</span>
         </ButtonLink> : <Button size="small" disabled={busy}

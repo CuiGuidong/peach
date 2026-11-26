@@ -114,7 +114,6 @@
       "cancel": "取消"
     },
     "taskConnectionMissing": "此任务配置的服务未连接。",
-    "saveTaskSettings": "保存设置",
     "resetTaskProfile": "恢复默认模型设置",
     "taskModelReset": "已恢复默认模型设置",
     "taskSettingsSaved": "已保存设置",
@@ -170,7 +169,6 @@
     "modelsEmpty": "此连接未返回可用模型。",
     "retryModels": "重新读取模型",
     "savedModel": "已保存模型 {{model}}",
-    "saveModel": "保存模型",
     "keySaved": "已保存 API Key",
     "keyMissing": "未配置",
     "getKey": "获取 API Key",

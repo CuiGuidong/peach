@@ -450,7 +450,7 @@ export function aiConnectionsSkeleton(): string {
           stack(selectField(t('settings:aiLibrary.prompts.scope')))
           + stack(selectField(t('catalog:aiLibrary.provider')) + selectField(t('settings:aiLibrary.model')) + selectField(t('settings:aiLibrary.effort')))
           + stack(help(text('16em')) + block('100%', '168px')),
-          button(t('settings:aiLibrary.saveTaskSettings'), 'primary', 'small'))}
+          button(t('settings:shared.saveSettings'), 'primary', 'small'))}
         ${section(usage, stack(help(text('16em'))))}
       </div>
     </div>

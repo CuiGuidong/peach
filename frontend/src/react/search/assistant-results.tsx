@@ -1,6 +1,7 @@
 import { RiArrowRightUpLine, RiImageLine } from '@remixicon/react';
 import type { ReactNode } from 'react';
 import { cx } from '@/utils/cx';
+import { cardClass } from '../components/card';
 import { coverUrl, detailPosterUrl, remoteCoverUrl, type FaceRef } from '@peach/card-art';
 import { entityDisplayName } from '../../core/entity-names';
 import { t } from '../../i18n';
@@ -97,7 +98,7 @@ function WorkCard({ item, source, localOnly, actions }: { item: SearchWork; sour
   const people = peopleOf(item);
   const shown = people.slice(0, 3);
   const extra = Math.max(people.length, item.performer_total || 0) - shown.length;
-  return <article data-ai-search-work="" className="rounded-2xl border border-separator-border bg-background-primary-default">
+  return <article data-ai-search-work="" className={cardClass({ variant: 'outlined', radius: 'plain', padding: 'none' })}>
     <a href={href} aria-label={title}
       target={item.demoSource ? '_blank' : undefined} rel={item.demoSource ? 'noreferrer' : undefined}
       data-work-card-link="" className="group flex min-w-0 items-start gap-3 rounded-2xl p-3 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-border-focus-ring sm:gap-4">
@@ -161,7 +162,7 @@ export function SearchWorks({ result, source, localOnly = false, historical = fa
 
 export function SearchResultSkeleton({ source }: { source: SearchSource }) {
   return <div aria-hidden="true" data-ai-search-results-loading={source} data-ai-search-source={source} data-ai-search-reveal=""
-    className="flex min-w-0 items-start gap-3 rounded-2xl border border-separator-border bg-background-primary-default p-3">
+    className={cardClass({ variant: 'outlined', radius: 'plain', padding: 'none', className: 'flex items-start gap-3 p-3' })}>
     <span className="skeleton-sheen aspect-4/3 w-20 shrink-0 rounded-lg sm:w-28" />
     <div className="flex min-w-0 flex-1 flex-col gap-2">
       <span className="skeleton-sheen h-3 w-16 rounded-md" /><span className="skeleton-sheen h-5 w-3/4 rounded-md" />

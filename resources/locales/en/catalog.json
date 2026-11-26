@@ -62,6 +62,7 @@
     "clearFixedTask": "Clear selected task",
     "showDemoCases": "Show demo examples",
     "hideDemoCases": "Hide demo examples",
+    "demoDebutTag": "Debut",
     "demoCases": "Demo examples",
     "workTools": "Library tools",
     "demoSource": "What the AI read",
@@ -132,7 +133,7 @@
         "prompt": "Find unwatched works, newest additions first"
       },
       "marked": {
-        "prompt": "Show my marked works, newest additions first"
+        "prompt": "Show my flagged works, newest additions first"
       },
       "translation": {
         "prompt": "Find works missing English translations, newest releases first"
@@ -173,7 +174,7 @@
     "scope": "Search scope",
     "scopes": {
       "library": "Library Collection",
-      "external": "Explore Outside the Library",
+      "external": "Discover Outside the Library",
       "both": "All"
     },
     "sendSearch": "Search",
@@ -195,7 +196,7 @@
     "options": {
       "fresh": "Unwatched",
       "played": "Watched",
-      "flagged": "Marked",
+      "flagged": "Flagged",
       "later": "Watch Later",
       "new": "Recently added",
       "release": "Release date",

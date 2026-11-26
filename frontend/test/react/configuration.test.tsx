@@ -31,7 +31,7 @@ const startup = {
 const full = () => data({ downloads, startup, peach_proxy: { mode: 'environment', proxy_saved: false, needs_selection: false },
   entry_links: { sites: [{ key: 'javdb', label: 'JavDB', host: '', default_host: 'javdb.com' }] },
 });
-const names = ['媒体库与入库', '来源与订阅', '下载渠道', '网络与访问', '应用与维护', '系统诊断'];
+const names = ['媒体库与入库', '来源与订阅', 'AI 接入', '下载渠道', '网络与访问', '应用与维护', '系统诊断'];
 function serve(config: ConfigurationData, credentials: CredentialData = { root: '', providers: [] }) {
   const fetcher = vi.fn(async (url: string) => ({ ok: true, status: 200, json: async () => {
     if (url.split('?')[0] === CONFIGURATION_URL) return config;
@@ -86,11 +86,14 @@ it('Peach 配置按用途分类，媒体库与入库默认打开，各分类关�
     expect(panel.getAttribute('aria-labelledby')).toBe(tab.id);
   }
   expect(host.querySelector('#configPort')?.closest('[role="tabpanel"]')?.getAttribute('aria-labelledby'))
-    .toBe(tabs(host)[3]!.id);
+    .toBe(tabs(host).find(tab => tab.textContent === '网络与访问')!.id);
   expect(host.querySelector('#entry-link-javdb')?.closest('[role="tabpanel"]')?.getAttribute('aria-labelledby'))
     .toBe(tabs(host)[1]!.id);
 });
-it('方向键首尾循环，Home 与 End 选择两端并同步焦点', async () => {
+it('桌面分区的方向键首尾循环，Home 与 End 选择两端并同步焦点', async () => {
+  vi.stubGlobal('matchMedia', (media: string) => ({
+    media, matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn(),
+  }));
   const host = await open();
   chosen(host).focus();
   await press(chosen(host), 'ArrowUp');
@@ -102,7 +105,7 @@ it('方向键首尾循环，Home 与 End 选择两端并同步焦点', async () 
   expect(chosen(host).textContent).toBe('系统诊断');
   await press(chosen(host), 'Home');
   expect(chosen(host).textContent).toBe('媒体库与入库');
-  expect(tabs(host).map(tab => tab.tabIndex)).toEqual([0, -1, -1, -1, -1, -1]);
+  expect(tabs(host).map(tab => tab.tabIndex)).toEqual([0, -1, -1, -1, -1, -1, -1]);
 });
 it('分区深链打开来源与订阅，切换分类保留未保存字段', async () => {
   const host = await open(full(), '来源与订阅');
@@ -125,7 +128,7 @@ it.each([false, true])('来源凭据依据数据库只读状态 %s 控制写入'
 });
 it('未知分区回到媒体库，未提供下载渠道时省略对应分类', async () => {
   const host = await open(data({ editable: false }), '不存在');
-  expect(tabs(host).map(tab => tab.textContent)).toEqual(['媒体库与入库', '来源与订阅', '应用与维护', '系统诊断']);
+  expect(tabs(host).map(tab => tab.textContent)).toEqual(['媒体库与入库', '来源与订阅', 'AI 接入', '应用与维护', '系统诊断']);
   expect(chosen(host).textContent).toBe('媒体库与入库');
 });
 it('配置读取失败显示服务端原因', async () => {

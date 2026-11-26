@@ -19,7 +19,7 @@ afterEach(() => localStorage.clear());
 it('AI 接入加载时三张服务卡各有一个文字标题和可访问名称', () => {
   const root = draw('AI 接入');
   const names = ['Claude', 'OpenAI', 'DeepSeek'];
-  expect(sections(root)).toEqual([...names, '任务模型', '可用功能']);
+  expect(sections(root)).toEqual([...names, '任务与提示词', 'AI 用量']);
   for (const name of names) {
     expect(card(root, name).firstElementChild?.textContent).toBe(name);
   }
