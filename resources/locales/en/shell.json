@@ -267,6 +267,15 @@
   "entitySort": {
     "ariaLabel": "Sort by {{label}} {{direction}}"
   },
+  "aiAuthorization": {
+    "connectedTitle": "ChatGPT plan connected",
+    "connectedHelp": "Returning to AI Connections, where you can choose a model.",
+    "permissionTitle": "ChatGPT plan usage permission needed",
+    "permissionHelp": "Returning to AI Connections, where you can grant permission.",
+    "errorTitle": "ChatGPT authorization incomplete",
+    "errorHelp": "Returning to AI Connections, where you can try again.",
+    "return": "Back to AI Connections"
+  },
   "errorPage": {
     "conflict": "Can't do that right now",
     "forbidden": "Can't open this page",

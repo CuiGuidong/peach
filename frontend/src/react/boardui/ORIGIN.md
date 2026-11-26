@@ -16,6 +16,10 @@
 
 | 条目 | 注册表 JSON 的 SHA-256 | 复制的文件 |
 | --- | --- | --- |
+| `agent-thinking`（2026-11-26） | `b75cb4fc1830b64afdd0198ad8a47efb4cb715e5b59096cacc42029d016d4991` | `components/application/agent-thinking/agent-thinking.tsx` |
+| `composer-loader`（2026-11-26） | `304c856a9b3fbeda0a74b55c71d5ff77fc1d47558be4f7c0519ba9babcd46e52` | `components/application/composer-loader/composer-loader.tsx` |
+| `agent-log`（2026-11-26） | `be74e01e367f095d7ea4a479d8e4fc2e34513df5d2fbd8bbebea7b790a805de9` | `components/application/agent-log/agent-log.tsx` |
+| `template-copy`（2026-11-26） | `f5cdaffde20871106c9db2066a3bcf993f785014248b94502256b498346a77bf` | `components/foundations/template-copy/template-copy.tsx` |
 | `date-picker`（2026-11-18） | `36e77d0293daaead84fd939a1104e456904f4be49122185f41a738203cead3bf` | `components/base/date-picker/shared.tsx` |
 | `slider`（2026-11-18） | `43e3cff77c2471a6f544f297702151f4ae571e058716584f627a574ce4c09d39` | `components/base/slider/slider.tsx` |
 | `kbd`（2026-11-04） | `6a9e105249ff7e1e4abb38625b23d0195546158226b6a071a9965003651b188f` | `components/base/kbd/kbd.tsx` |

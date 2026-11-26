@@ -40,6 +40,7 @@ import { DetailTitle } from '../components/detail-title';
 import { IdentityCell, IdentitySeries } from '../components/identity-cell';
 import { MediaCarousel } from '../components/media-carousel';
 import { CatalogPicture } from './catalog-picture';
+import { LibraryAIPanel } from './library-ai-panel';
 import { fetchJavDetail, javDetailKey } from '../jav-detail/jav-detail';
 import { busyProps } from '../settings/use-action';
 import { LIBRARY_PROCESSING_URL } from '../library-processing/library-processing';
@@ -519,6 +520,8 @@ function ItemTitle({ item, queue, helpers, actions, onStatus, deleteAction }: {
             applySavedItem(saved);
             actions.toast(t('catalog:itemEdit.saved'));
           }} />
+          {!item.disposal && (item.medium || 'video') === 'video' ? <LibraryAIPanel key={item.id} id={item.id} code={item.code}
+            cover={coverUrl(item, 2)} onSaved={() => { void queryClient.invalidateQueries({ queryKey: itemKey(item.id) }); }} /> : null}
           {deleteAction}
         </>
     } />

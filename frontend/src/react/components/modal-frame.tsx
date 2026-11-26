@@ -22,7 +22,7 @@ const WIDTH = {
 } as const;
 
 export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfaceClassName = '', surfaceData, portalContainer,
-  fullScreen = false, fitVisualViewport = false, onExited }: {
+  fullScreen = false, fitVisualViewport = false, onExited, side }: {
   isOpen: boolean;
   onOpenChange(open: boolean): void;
   width: keyof typeof WIDTH;
@@ -35,6 +35,7 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
   fullScreen?: boolean;
   /** 含搜索输入的移动端目录浮层随软键盘后的可见视口定位。 */
   fitVisualViewport?: boolean;
+  side?: 'right';
   onExited?(): void;
   children: ReactNode;
 }) {
@@ -62,17 +63,19 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
   }, [fitVisualViewport, isOpen]);
   return (
     <ModalOverlay ref={setOverlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable UNSTABLE_portalContainer={portalContainer}
-      data-modal-motion="" data-modal-kind={width} data-motion-instant={isFocusVisible || undefined}
+      data-modal-motion="" data-modal-kind={width} data-modal-side={side} data-motion-instant={!side && isFocusVisible || undefined}
       data-fit-visual-viewport={fitVisualViewport || undefined}
-      className={cx('fixed inset-0 z-dialog flex items-center justify-center', !fullScreen && 'p-4',
+      className={cx('fixed inset-0 z-dialog flex', side ? 'items-stretch justify-end' : 'items-center justify-center',
+        !fullScreen && !side && 'p-4',
         fitVisualViewport && 'h-(--visual-viewport-height)')}>
       <div aria-hidden="true" data-modal-backdrop="" className="pointer-events-none absolute inset-0 bg-scrim" />
       <Modal {...surfaceData} data-modal-surface="" data-modal-width={fullScreen ? 'fullscreen' : width}
         className={cx('relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full',
-          fullScreen ? 'h-dvh' : ['rounded-2-5xl border border-separator-border shadow-dropdown', WIDTH[width]], surfaceClassName)}>
+          fullScreen ? 'h-dvh' : side ? 'modal-drawer-width rounded-l-3xl shadow-dropdown'
+            : ['rounded-2-5xl border border-separator-border shadow-dropdown', WIDTH[width]], surfaceClassName)}>
         {/* 调用方自己的正文滚动区收得下时这一层不滚；矮视口里连页头加按钮都放不下，就整块滚，
             关闭键总够得着。 */}
-        <Dialog aria-label={label} className={cx('flex min-h-0 flex-col overflow-y-auto overscroll-contain outline-none', fullScreen && 'flex-1')}>{children}</Dialog>
+        <Dialog aria-label={label} className={cx('flex min-h-0 flex-col overflow-y-auto overscroll-contain outline-none', (fullScreen || side) && 'flex-1')}>{children}</Dialog>
       </Modal>
     </ModalOverlay>
   );

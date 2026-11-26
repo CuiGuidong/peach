@@ -130,14 +130,23 @@ export function ItemEditButton({ item, helpers, onSaved }: {
 
 type FormDialog = ReturnType<typeof formModal>;
 
-function ItemEditDialog({ item, helpers, close, onSaved }: {
-  item: DetailItem; helpers: ItemDetailHelpers; close(): void; onSaved(item: DetailItem): void;
+type EditTagHelpers = Pick<ItemDetailHelpers, 'tagLabel' | 'isDurationTag' | 'tagCandidates'>;
+export type MetadataSuggestion = Partial<Pick<Draft['text'], 'title' | 'original_title' | 'release_date'> & { studio: string }>;
+
+export function ItemEditDialog({ item, helpers, close, onSaved, suggestion }: {
+  item: DetailItem; helpers: EditTagHelpers; close(): void; onSaved(item: DetailItem): void; suggestion?: MetadataSuggestion;
 }) {
   /* 打开那一刻的这一部与草稿起点只取一次：开着的时候详情在后台重取（补全进度、播放上报），
      不能因此重建弹层、丢掉正在填的那一份。 */
   const given = useRef({ item, close, onSaved, before: initialDraft(item, helpers) });
   const before = given.current.before;
-  const draft = useRef(before);
+  const [initial] = useState(() => {
+    if (!suggestion) return before;
+    const { studio, ...text } = suggestion;
+    return { ...before, text: { ...before.text, ...text },
+      studio: studio && !sameChoice(before.studio, { name: studio, id: null }) ? { name: studio, id: null } : before.studio };
+  });
+  const draft = useRef(initial);
   const [view, setView] = useState<{ host: Element; dialog: FormDialog } | null>(null);
   useEffect(() => {
     const { item: opened, close: done, onSaved: saved, before: start } = given.current;
@@ -173,13 +182,13 @@ function ItemEditDialog({ item, helpers, close, onSaved }: {
   /* 下拉、提示这些弹层挂进编辑框自己的 dialog：经 portal 挂过来的子树仍继承舞台那一层的容器，
      弹层会落进舞台，被压在这个后开的模态框底下，看起来就是一个空下拉。 */
   return view ? createPortal(<UNSAFE_PortalProvider getContainer={() => overlayHost(view.dialog.dialog)}>
-    <EditFields item={given.current.item} helpers={helpers} initial={before}
+    <EditFields item={given.current.item} helpers={helpers} initial={initial}
       update={value => { draft.current = value }} />
   </UNSAFE_PortalProvider>, view.host) : null;
 }
 
 function EditFields({ item, helpers, initial, update }: {
-  item: DetailItem; helpers: ItemDetailHelpers; initial: Draft; update(value: Draft): void;
+  item: DetailItem; helpers: EditTagHelpers; initial: Draft; update(value: Draft): void;
 }) {
   const [draft, setDraft] = useState(initial);
   useEffect(() => { update(draft) }, [draft, update]);

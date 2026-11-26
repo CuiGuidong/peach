@@ -7,7 +7,8 @@ export const NAVIGATION_GROUPS = {
     ['fc2_markings', t('navigation:reviewCategories.fc2CommentFlags')], ['fc2_similarity', t('navigation:reviewCategories.fc2SimilarCodes')], ['video_endcards', t('navigation:reviewCategories.endCardEvidence')],
   ] },
   configuration: { label: t('navigation:manage.configuration'), items: [
-    ['library', t('navigation:configurationSections.library')], ['sources', t('navigation:configurationSections.feeds')], ['downloads', t('navigation:configurationSections.downloads')],
+    ['library', t('navigation:configurationSections.library')], ['sources', t('navigation:configurationSections.feeds')],
+    ['ai', t('navigation:configurationSections.ai')], ['downloads', t('navigation:configurationSections.downloads')],
     ['network', t('navigation:configurationSections.network')], ['maintenance', t('navigation:configurationSections.maintenance')], ['diagnostics', t('navigation:configurationSections.diagnostics')],
   ] },
   favorites: { label: t('navigation:navigationGroups.favorites'), items: [

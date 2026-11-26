@@ -145,7 +145,7 @@ export async function getBarsData(context){
   if(context.type==='home'&&state.state)facetParams.set('state',state.state);
   if(context.type!=='item'){
     const filters=entityState.activeFilterState();
-    ['loc','creator','performer','studio','tag','tag_match','len','dur_min','dur_max','orient','region','year','q','thumb','folder','folder_recursive'].forEach(key=>{
+    ['loc','creator','performer','studio','tag','tag_match','len','dur_min','dur_max','orient','region','year','q','thumb','folder','folder_recursive','translation_missing'].forEach(key=>{
       if(filters[key])facetParams.set(key,filters[key]);
     });
   }

@@ -22,13 +22,12 @@ import { Select, SelectItem } from '@/components/base/select/select';
 
 import { apiGet, apiSend, errorMessage } from '../../api';
 import type {
-  ConfigurationPanel, DownloadCheckReport, DownloadConfig, DownloadSaveResult, DownloadSettingsState, PikPakLoginResult,
+  DownloadCheckReport, DownloadConfig, DownloadSaveResult, DownloadSettingsState, PikPakLoginResult,
 } from '../bundle';
 import { ActivityStatus } from '../components/activity-motion';
 import { NavigationOrderRows } from '../components/navigation-order';
 import { Note } from '../components/note';
 import { SourceLabel, providerIcon } from '../components/source-label';
-import { groupRoot } from './configuration-panel';
 import { ConfigurationContents } from './configuration-contents';
 import { useCheckReceipt } from './use-check-receipt';
 import {
@@ -66,17 +65,17 @@ const missingTexts = (report: DownloadCheckReport): string[] =>
   report.missing.map((label, index) => serverLabel(report.missing_codes?.[index] ?? '', label));
 
 /** 「下载渠道」分组：CloudDrive2 与 PikPak 账号。 */
-export function DownloadGroup({ initial, receipt, panel, issues }: {
+export function DownloadGroup({ initial, receipt, active, issues }: {
   initial?: DownloadSettingsState;
   receipt(message: string): void;
-  panel?: ConfigurationPanel;
+  active: boolean;
   issues?: ReactNode;
 }) {
   return (
-    <div {...groupRoot(panel)}>
+    <>
       {issues}
-      {initial ? <DownloadSettings initial={initial} receipt={receipt} active={panel?.active} /> : null}
-    </div>
+      {initial ? <DownloadSettings initial={initial} receipt={receipt} active={active} /> : null}
+    </>
   );
 }
 

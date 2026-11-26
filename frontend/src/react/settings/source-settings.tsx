@@ -7,7 +7,6 @@ import { fetchCredentials, FOLLOW_CREDENTIALS_KEY } from '../follow-manage/follo
 import { Note } from '../components/note';
 import { errorMessage } from '../../api';
 import { credentialsSkeleton } from '../../configuration-skeleton';
-import { groupRoot } from './configuration-panel';
 import { ConfigurationContents } from './configuration-contents';
 import { EntryLinksForm } from './entry-links-settings';
 import { IndexerSettings } from './indexer-settings';
@@ -18,10 +17,10 @@ import { WantSearchSettings } from './want-search-settings';
 import { CoverFallbackSettings } from './cover-fallback-settings';
 import { t } from '../../i18n';
 
-export function SourceSettings({ data, receipt, panel, issues }: ConfigurationGroupProps) {
+export function SourceSettings({ data, receipt, active, issues }: ConfigurationGroupProps & { active: boolean }) {
   const credentials = useQuery({ queryKey: FOLLOW_CREDENTIALS_KEY,
-    queryFn: ({ signal }) => fetchCredentials(signal), enabled: panel?.active !== false, refetchOnMount: 'always' });
-  return <div {...groupRoot(panel)}>
+    queryFn: ({ signal }) => fetchCredentials(signal), enabled: active, refetchOnMount: 'always' });
+  return <>
     {issues}
     <ConfigurationContents entries={[
       { id: 'sources-credentials', label: t('follow:sourceCredentials.sectionTitle'), content: <>
@@ -30,7 +29,7 @@ export function SourceSettings({ data, receipt, panel, issues }: ConfigurationGr
           ? <Credentials data={credentials.data} readOnly={Boolean(data.ledger_read_only)} toast={receipt} embedded />
           : credentials.error
             ? <Note tone="error" title={t('settings:sourceSettings.credentialsFailed')}>{errorMessage(credentials.error)}</Note>
-            : panel?.active !== false ? <SectionSkeleton label={t('settings:sourceSettings.loadingCredentials')} html={credentialsSkeleton} /> : null}
+            : active ? <SectionSkeleton label={t('settings:sourceSettings.loadingCredentials')} html={credentialsSkeleton} /> : null}
       </> },
       { id: 'sources-follow-fetch', label: t('settings:followFetch.title'), content: <FollowPreferenceRows receipt={receipt} /> },
       { id: 'sources-scraping-browser', label: t('settings:scrapingBrowser.title'), content: <ScrapingBrowserSettings receipt={receipt} /> },
@@ -40,5 +39,5 @@ export function SourceSettings({ data, receipt, panel, issues }: ConfigurationGr
       { id: 'sources-indexers', label: t('settings:indexers.title'), content: <IndexerSettings receipt={receipt} /> },
       { id: 'sources-want-search', label: t('settings:wantSearch.title'), content: <WantSearchSettings receipt={receipt} /> },
     ]} />
-  </div>;
+  </>;
 }

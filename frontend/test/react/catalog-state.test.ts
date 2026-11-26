@@ -78,7 +78,7 @@ describe('目录地址与默认范围', () => {
       loc: 'pikpak', creator: '', performer: '', studio: '', owner: '', tag: '', tag_match: 'all', len: '',
       dur_min: '', dur_max: '', orient: '', region: '', year: '', state: '', sort: 'new', dir: 'asc',
       seed: 'fresh-seed', q: '', jav: '', thumb: '0',
-      browse: '', folder: '', folder_recursive: '',
+      browse: '', folder: '', folder_recursive: '', translation_missing: '',
     });
     const patch = homeCatalogState(state);
     expect(patch.state).toBe(state);

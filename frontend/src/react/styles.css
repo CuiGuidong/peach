@@ -26,6 +26,7 @@
 @import "./catalog-filter/catalog-filter.css";
 @import "./catalog-folders/catalog-folders.css";
 @import "./search/search.css";
+@import "./search/assistant-options.css";
 @import "./entity-body/entity-body.css";
 @import "./follow-feed/follow-feed.css";
 @import "./jav/jav.css";
@@ -846,4 +847,14 @@ html:has([data-selection-dock]) { scroll-padding-bottom: var(--selection-dock-sp
 .bui-table.bui-table-sm th,
 .bui-table.bui-table-sm td {
   @apply px-2.5 py-1.5 text-body-2-medium;
+}
+
+@utility modal-drawer-width {
+  max-width: min(20rem, calc(100vw - 2rem));
+}
+@utility assistant-message-width {
+  max-width: 88%;
+}
+@utility assistant-library-width {
+  max-width: 55%;
 }

@@ -355,6 +355,9 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         # 删除与清空回收站后的缓存清理按想要清单认封面的主人；整份 0042 迁移还要连带
         # 修订号与账户表，这里只建清理读的两列。
         con.execute("CREATE TABLE want_item(code_key TEXT, state TEXT NOT NULL)")
+        # 批量删除与目录筛选只读取译文的作品、语言两列；完整迁移与修订触发器由迁移测试验证。
+        con.execute("CREATE TABLE asset_content_translation(asset_id INTEGER NOT NULL, language TEXT NOT NULL, "
+                    "PRIMARY KEY(asset_id, language))")
         con.execute(
             """INSERT INTO asset(id,location,path,name,medium,size,creator,studio,duration,
                                   width,height,ctx_orient,snapshot_path,first_seen)

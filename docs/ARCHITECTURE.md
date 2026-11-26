@@ -36,7 +36,7 @@ AI/外部元数据 -> 经复核的候选 -> ledger
 
 - 微服务、消息总线、PostgreSQL
 - 一次性整站重写前端（只按 ADR-0031 逐页迁移）
-- 抓取或保存 ChatGPT/Claude OAuth token
+- 从 ChatGPT、Codex 或 Claude 的现有会话提取 OAuth 凭据。Peach 自己发起的 ChatGPT 订阅授权见 [ADR-0180](adr/0180-ai-library-tasks-and-official-connections.md)。
 - 把 Stash 私有目录或 GPL 构建当作 Peach 的稳定打包依赖
 
 Stash 遗留的数据缺陷与许可证边界见 [docs/STASH.md](STASH.md)；复用与自研的边界、旧脚本的继任关系见 [docs/REUSE.md](REUSE.md)。

@@ -332,10 +332,10 @@ it('配置页打开返回的那一刻，页签条已经在容器里，选中的�
     const open = { section: '网络与访问' };
     expect(await r.openManagedRoute('/settings/library', open, { container: stats, isCurrent: () => true })).toBe(true);
     const tabs = [...stats.querySelectorAll('.ui-configpage [role="tablist"] > [role="tab"]')];
-    expect(tabs.map((tab) => tab.textContent)).toEqual(['媒体库与入库', '来源与订阅', '网络与访问', '应用与维护', '系统诊断']);
-    expect(tabs.map((tab) => tab.getAttribute('aria-selected'))).toEqual(['false', 'false', 'true', 'false', 'false']);
+    expect(tabs.map((tab) => tab.textContent)).toEqual(['媒体库与入库', '来源与订阅', 'AI 接入', '网络与访问', '应用与维护', '系统诊断']);
+    expect(tabs.map((tab) => tab.getAttribute('aria-selected'))).toEqual(['false', 'false', 'false', 'true', 'false', 'false']);
     const active = stats.querySelector('.ui-board-group-active');
-    expect(active?.id).toBe(tabs[2].getAttribute('aria-controls'));
+    expect(active?.id).toBe(tabs.find(tab => tab.textContent === '网络与访问')?.getAttribute('aria-controls'));
     expect(stats.querySelector('.ui-configpage')?.parentElement?.classList.contains('peach-react')).toBe(true);
   });
 });

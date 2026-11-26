@@ -592,10 +592,15 @@ class PublicAPI:
                 self.failures.pop(removed, None)
         return snapshot
 
+    def search_movies(self, query: str) -> list[dict]:
+        from .sources.javdb import page_search_rows
+        return self._login_walled(
+            lambda: self._rows("/v2/search", "movies", {"q": query, "type": "movie", "page": 1}),
+            "/search?" + urlencode({"q": query, "f": "all"}), page_search_rows)
+
     def movie(self, code: str, *, refresh=False, source_id=None) -> dict:
         """番号对应的来源作品。来源去掉 MGS 的数字前缀（`259LUXU-891` 记作 `LUXU-891`），
         搜索词与身份核对都按 `release_identity` 认同一部作品。"""
-        from .sources.javdb import page_search_rows
         canonical = normalise_code_key(code)
         matches = []
 
@@ -603,9 +608,7 @@ class PublicAPI:
             nonlocal matches
             product = re.fullmatch(r'FC2-PPV-(\d+)', canonical)
             query = product[1] if product else release_identity(canonical) or canonical
-            rows = self._login_walled(
-                lambda: self._rows("/v2/search", "movies", {"q": query, "type": "movie", "page": 1}),
-                "/search?" + urlencode({"q": query, "f": "all"}), page_search_rows)
+            rows = self.search_movies(query)
             matches = [row for row in rows if isinstance(row, dict)
                        and same_release_code(canonical, row.get("number"))]
             if not matches:

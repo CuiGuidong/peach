@@ -355,6 +355,19 @@ class SettingsRoundTripTests(unittest.TestCase):
         self.assertEqual(q_settings(self.contract)["sidebarOrder"], order)
         self.assertEqual(self._stored_json()["sidebarOrder"], order)
 
+    def test_ai_sidebar_entry_upgrades_the_old_default_and_can_be_hidden(self):
+        previous = ["", "follow", "jav", "performers", "tags", "studios", "flagged", "manage"]
+        web_settings._write_settings(self.contract, {"sidebarOrder": previous})
+        self.assertEqual(q_settings(self.contract)["sidebarOrder"], list(DEFAULT_SIDEBAR_ORDER))
+        self.assertEqual(w_settings(self.contract, {"sidebarOrder": previous})["sidebarOrder"], previous)
+        self.assertEqual(q_settings(self.contract)["sidebarOrder"], previous)
+
+    def test_ai_sidebar_entry_preserves_an_existing_custom_order(self):
+        custom = ["jav", "", "follow"]
+        web_settings._write_settings(self.contract, {"sidebarOrder": custom})
+        self.assertEqual(q_settings(self.contract)["sidebarOrder"], custom)
+        self.assertEqual(w_settings(self.contract, {"sidebarOrder": [*custom, "ai"]})["sidebarOrder"], [*custom, "ai"])
+
     def test_browse_preferences_import_and_merge_without_replacing_other_devices_choices(self):
         w_settings(self.contract, {"browsePreferences": {
             "catalogView": "list", "theme": "light", "pageSizes": {"library": 30},
@@ -468,11 +481,10 @@ class ContractRegistrationTests(unittest.TestCase):
             return tuple(item.strip().strip("'") for item in raw.split(","))
 
         self.assertEqual(js_list("DEFAULT_SIDEBAR_ORDER"), DEFAULT_SIDEBAR_ORDER)
-        # 默认那一份是首页、关注、JAV、三个索引、已标记、管理；播放列表和沉浸模式
-        # 是从别处发起的动作，只在可加清单里。
+        # AI 助手紧接首页。播放列表和沉浸模式可按需添加。
         self.assertEqual(
             DEFAULT_SIDEBAR_ORDER,
-            ("", "follow", "jav", "performers", "tags", "studios", "flagged", "manage"))
+            ("", "ai", "follow", "jav", "performers", "tags", "studios", "flagged", "manage"))
         self.assertNotIn("playlists", DEFAULT_SIDEBAR_ORDER)
         self.assertIn("playlists", web_settings.OPTIONAL_SIDEBAR_KEYS)
         self.assertIn("immerse", web_settings.OPTIONAL_SIDEBAR_KEYS)

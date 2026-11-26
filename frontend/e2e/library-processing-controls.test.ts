@@ -518,14 +518,14 @@ describe('扫描与采集控制', () => {
         assert.ok(writes.some(body => body.action === 'set_speed' && body.speed_mode === 'high'));
         assert.match(await speed.innerText(), /最慢[\s\S]*最快[\s\S]*占用少[\s\S]*占用多/);
         await page.locator('[data-effort-flow]').waitFor();
-        const flow = page.locator('.processing-flow-outer');
-        const blue = await flow.evaluate(el => getComputedStyle(el).fill);
+        const flow = speed.locator('[data-effort-flow] linearGradient').first().locator('stop').last();
+        const blue = await flow.evaluate(el => getComputedStyle(el).stopColor);
         const highColor = await highSpeed.evaluate(el => getComputedStyle(el).color);
         assert.equal(await scale.locator(':scope > span[data-selected]').evaluate(el => getComputedStyle(el).color), highColor);
         const readFeedback = () => page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--feedback-success').trim());
         const feedbackBlue = await readFeedback();
         await page.evaluate(() => { document.documentElement.dataset.accent = 'emerald' });
-        const emerald = await flow.evaluate(el => getComputedStyle(el).fill);
+        const emerald = await flow.evaluate(el => getComputedStyle(el).stopColor);
         assert.notEqual(emerald, blue, '最高档流光跟随站点强调色');
         assert.notEqual(await highSpeed.evaluate(el => getComputedStyle(el).color), highColor, '全速入口跟随站点强调色');
         assert.equal(await scale.locator(':scope > span[data-selected]').evaluate(el => getComputedStyle(el).color),

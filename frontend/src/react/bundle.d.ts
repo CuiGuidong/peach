@@ -462,11 +462,9 @@ export interface ConfigurationPanel {
   active: boolean;
 }
 
-/** Peach 配置的分组：媒体库与入库、来源与订阅、下载渠道、网络与访问、应用与维护。
- *  `panel` 只在配置页里给，单独挂一组时没有。 */
+/** Peach 配置的分组共享配置快照和操作回执。 */
 export interface ConfigurationGroupProps extends Pick<ConfigurationProps, 'receipt'> {
   data: ConfigurationData;
-  panel?: ConfigurationPanel;
   issues?: import('react').ReactNode;
 }
 

@@ -58,20 +58,25 @@ describe('作品详情岛', () => {
     await browser.close();
   });
 
-  it('删除与编辑属于同一排工具按钮，桌面和手机保持相同尺寸与间距', { timeout: 60_000 }, async () => {
+  it('编辑、AI 助手与删除在桌面和手机使用同一排工具按钮', { timeout: 60_000 }, async () => {
     for (const viewport of [DESKTOP, MOBILE]) {
       const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
       try {
         const geometry = await opened.page.locator('[data-title-tools]').evaluate(node => {
-          const edit = node.querySelector('[aria-label="编辑资料"]')!.getBoundingClientRect();
-          const remove = node.querySelector('[data-item-delete]')!.getBoundingClientRect();
-          return { edit: { y: edit.y, width: edit.width, height: edit.height },
-            remove: { y: remove.y, width: remove.width, height: remove.height }, gap: remove.left - edit.right };
+          const buttons = ['[aria-label="编辑资料"]', '[aria-label="AI 助手"]', '[data-item-delete]']
+            .map(selector => {
+              const { x, y, width, height } = node.querySelector(selector)!.getBoundingClientRect();
+              return { x, y, width, height };
+            });
+          return { buttons, gaps: buttons.slice(1).map((button, i) => button.x - buttons[i].x - buttons[i].width) };
         });
-        assert.ok(Math.abs(geometry.edit.y - geometry.remove.y) <= 1, JSON.stringify(geometry));
-        assert.equal(geometry.edit.width, geometry.remove.width);
-        assert.equal(geometry.edit.height, geometry.remove.height);
-        assert.ok(geometry.gap >= 0 && geometry.gap <= 12, JSON.stringify(geometry));
+        const [edit, ...neighbors] = geometry.buttons;
+        for (const button of neighbors) {
+          assert.ok(Math.abs(edit.y - button.y) <= 1, JSON.stringify(geometry));
+          assert.equal(edit.width, button.width);
+          assert.equal(edit.height, button.height);
+        }
+        assert.ok(geometry.gaps.every(gap => gap >= 0 && gap <= 12), JSON.stringify(geometry));
       } finally { await opened.close() }
     }
   });

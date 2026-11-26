@@ -69,6 +69,7 @@ Windows 下已配置为网盘来源的盘符根可直接浏览。系统盘根由
 | `/?browse=folders` | 按原目录浏览；`folder` 指定目录，`folder_recursive=0` 只看当前层 |
 | `/?jav=1` | JAV 馆藏 |
 | `/jav?tab=discover` | JAV 探索；`scope=library` 看馆藏，`scope=external` 看外部发现。`performer`、`studio`、`tag`、`code` 和 `column_filters` 筛选当前推荐结果 |
+| `/ai` | 从左侧导航或全局搜索进入的 AI 助手。可接着上一轮查询调整条件，也可输入作品和处理要求，打开翻译、标签候选、元数据草稿或整理复核。查询条件和模型在输入框两侧，本对话用量可在输入框下展开，关键词可通过 `ask` 带入 |
 | `/jav?tab=wants` | 想要的作品 |
 | `/follow` | 关注更新；作者、来源、标签和观看状态使用查询参数 |
 | `/wall` | 视频播放墙 |
@@ -118,6 +119,8 @@ JAV 新作的 `code` 独立匹配番号，`column_filters.taste.range` 按 0–1
 | `/settings/content` | 内容显示 |
 | `/settings/library` | 媒体库与入库 |
 | `/settings/subscriptions` | 来源与订阅参数 |
+| `/settings/ai` | AI 模型服务、API Key、ChatGPT 授权、任务提示词和用量统计 |
+| `/settings/ai/authorization` | 本机 ChatGPT 授权结果，自动返回 AI 接入 |
 | `/settings/downloads` | 下载渠道 |
 | `/settings/network` | 网络与访问 |
 | `/settings/maintenance` | 应用与维护 |
@@ -140,6 +143,10 @@ JAV 新作的 `code` 独立匹配番号，`column_filters.taste.range` 按 0–1
 | `/login` | 登录 |
 
 设置分区可直接打开、刷新和用浏览器前进后退。偏好面板从当前页面打开时保留背景；配置分区复用配置页及其权限检查。配置分类导航停在搜索栏下方，切换分类时显示所选分区的开头。
+
+「AI 用量」按日期和服务显示 Peach 已记录的请求与 Token。组织用量由服务端使用
+`OPENAI_ADMIN_KEY` 或 `ANTHROPIC_ADMIN_KEY` 读取。DeepSeek 使用已连接的 API Key 读取当前余额。
+ChatGPT 共享订阅额度在官方用量页查看。
 
 `GET /api/configuration/community-sharing` 返回馆藏研究 `library` 和公开资料 `metadata` 的实际状态。两份本机数据分别由原预览端点生成。开启时向同一路径 POST `{enabled: true, consent: true, library: {token, schema}, metadata: {token, schema}}`，两份凭据均有效才保存。关闭只需 `{enabled: false}`。响应返回两类状态及 `failed` 列表，保存失败时可核对哪一类仍在参与。配置接口要求本机管理权限，写入还要求同源。
 

@@ -168,6 +168,7 @@ export type SurfaceKind = 'management' | 'index' | 'entity' | 'catalog' | 'follo
 export interface ManagedOpenProps extends Record<ConfigurationPath, { section?: string }>,
   Record<import('../../cleanup-tools').CleanupToolPath, Record<string, never>> {
   '/jav': { tab: string; readOnly: boolean };
+  '/ai': Record<string, never>;
   '/stats': Record<string, never>;
   '/taste': { onboarding: boolean };
   '/review': { category: string; queue?: string; readOnly: boolean; readOnlyMessage: string; writerUrl: string };
