@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "8bc884f9-6f99-4d08-8c53-f6a54d9f16d6", e._sentryDebugIdIdentifier = "sentry-dbid-8bc884f9-6f99-4d08-8c53-f6a54d9f16d6");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ffdc5752-f33f-43e5-8a2b-17ae559e875b", e._sentryDebugIdIdentifier = "sentry-dbid-ffdc5752-f33f-43e5-8a2b-17ae559e875b");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t, n) => () => {
@@ -39648,25 +39648,39 @@ function Ny(e) {
 	let a = sessionStorage.getItem("peach.library");
 	return a ? `${n}${i < 0 ? "?" : n.endsWith("?") || n.endsWith("&") ? "" : "&"}library=${encodeURIComponent(a)}${r}` : e;
 }
+// src/core/index.ts
+var Py = (e, t = "") => {
+	let { wide: n, viewBox: r } = My(e), i = [n ? "iconwide" : "", t].filter(Boolean).join(" ");
+	return `<svg${i ? ` class="${i}"` : ""} viewBox="${r}" aria-hidden="true"><use href="#i-${e}"/></svg>`;
+};
 Object.fromEntries(Object.entries({
 	fresh: "/unseen",
 	later: "/watch-later",
 	flagged: "/flagged",
 	ads: "/junk-files"
 }).map(([e, t]) => [t, e])), B("shell:catalogView.unwatched"), B("shell:catalogView.watchLater"), B("shell:catalogView.flagged"), B("shell:catalogView.junkFiles");
-var Py = (e) => String(e ?? "").replace(/[&<>"']/g, (e) => ({
+var Fy = (e) => String(e ?? "").replace(/[&<>"']/g, (e) => ({
 	"&": "&amp;",
 	"<": "&lt;",
 	">": "&gt;",
 	"\"": "&quot;",
 	"'": "&#39;"
-})[e]);
-typeof Intl < "u" && typeof Intl.Segmenter == "function" && new Intl.Segmenter(void 0, { granularity: "grapheme" }), { ...uy }, B("shell:storageLabel.localLabel"), B("shell:storageLabel.online");
+})[e]), Iy = (e) => {
+	if (e == null || e === "") return B("shell:fileSize.unknown");
+	let t = Number(e);
+	return !Number.isFinite(t) || t < 0 ? B("shell:fileSize.unknown") : t === 0 ? "0 B" : t < 1048576 ? `${Math.max(1, Math.round(t / 1024))} KB` : t >= 0x4000000000000 ? (t / 0x4000000000000).toFixed(2) + " PB" : t >= 1099511627776 ? (t / 1099511627776).toFixed(2) + " TB" : t >= 1073741824 ? (t / 1073741824).toFixed(1) + " GB" : Math.floor(t / 1048576) + " MB";
+};
+typeof Intl < "u" && typeof Intl.Segmenter == "function" && new Intl.Segmenter(void 0, { granularity: "grapheme" });
+var Ly = {
+	...uy,
+	local: B("shell:storageLabel.localLabel"),
+	online: B("shell:storageLabel.online")
+};
 // src/ui-kit/controls.ts
-function Fy(e, t = !0) {
+function Ry(e, t = !0) {
 	e && (t ? (e.setAttribute("aria-busy", "true"), e.setAttribute("aria-disabled", "true")) : (e.removeAttribute("aria-busy"), e.removeAttribute("aria-disabled")));
 }
-function Iy(e, t, n) {
+function zy(e, t, n) {
 	n.classList.add("context-card"), n.setAttribute("popover", "manual"), n.setAttribute("role", "dialog"), n.tabIndex = -1, t.setAttribute("aria-haspopup", "dialog"), t.setAttribute("aria-controls", n.id);
 	let r = Lv(e, t, n), i, a = () => {
 		clearTimeout(i), r.setOpen(!1);
@@ -39688,28 +39702,6 @@ function Iy(e, t, n) {
 		hide: a
 	};
 }
-// src/core/index.ts
-var Ly = (e, t = "") => {
-	let { wide: n, viewBox: r } = My(e), i = [n ? "iconwide" : "", t].filter(Boolean).join(" ");
-	return `<svg${i ? ` class="${i}"` : ""} viewBox="${r}" aria-hidden="true"><use href="#i-${e}"/></svg>`;
-};
-Object.fromEntries(Object.entries({
-	fresh: "/unseen",
-	later: "/watch-later",
-	flagged: "/flagged",
-	ads: "/junk-files"
-}).map(([e, t]) => [t, e])), B("shell:catalogView.unwatched"), B("shell:catalogView.watchLater"), B("shell:catalogView.flagged"), B("shell:catalogView.junkFiles");
-var Ry = (e) => {
-	if (e == null || e === "") return B("shell:fileSize.unknown");
-	let t = Number(e);
-	return !Number.isFinite(t) || t < 0 ? B("shell:fileSize.unknown") : t === 0 ? "0 B" : t < 1048576 ? `${Math.max(1, Math.round(t / 1024))} KB` : t >= 0x4000000000000 ? (t / 0x4000000000000).toFixed(2) + " PB" : t >= 1099511627776 ? (t / 1099511627776).toFixed(2) + " TB" : t >= 1073741824 ? (t / 1073741824).toFixed(1) + " GB" : Math.floor(t / 1048576) + " MB";
-};
-typeof Intl < "u" && typeof Intl.Segmenter == "function" && new Intl.Segmenter(void 0, { granularity: "grapheme" });
-var zy = {
-	...uy,
-	local: B("shell:storageLabel.localLabel"),
-	online: B("shell:storageLabel.online")
-};
 ({
 	medium: "h-9 rounded-2lg p-2 text-body-medium",
 	small: "h-8 rounded-lg px-2 py-1.5 text-body-medium"
@@ -39717,7 +39709,7 @@ var zy = {
 // src/ui-kit/markup.ts
 function By(e = B("shell:spinner.loading")) {
 	let t = Array.from({ length: 10 }, (e, t) => `<i aria-hidden="true" style="--spinner-angle:${t * 36}deg;--spinner-delay:${t * 100 - 900}ms"></i>`).join("");
-	return `<span class="ui-geist-spinner" role="status" aria-label="${Py(e)}">${t}</span>`;
+	return `<span class="ui-geist-spinner" role="status" aria-label="${Fy(e)}">${t}</span>`;
 }
 B("shell:spinner.loadingMore");
 // src/ui-kit/media-source-icons.ts
@@ -45829,11 +45821,11 @@ function DE(e, t, n, r = !1) {
 }
 var OE = (e) => {
 	let t = Number(e) || 0;
-	return t ? (t < 1048576 ? `${Math.max(1, Math.round(t / 1024))} KB` : Ry(t)).replace(" ", "\xA0") : B("catalog:shared.unknownSize");
+	return t ? (t < 1048576 ? `${Math.max(1, Math.round(t / 1024))} KB` : Iy(t)).replace(" ", "\xA0") : B("catalog:shared.unknownSize");
 }, kE = (e) => e.asset?.name || e.name || B("catalog:photoLightbox.untitled");
 function AE(e, t) {
 	let n = e.asset;
-	if (n) return [zy[n.location ?? ""] || n.location || B("catalog:photoLightbox.unknownStorage"), OE(n.size)].join(" · ");
+	if (n) return [Ly[n.location ?? ""] || n.location || B("catalog:photoLightbox.unknownStorage"), OE(n.size)].join(" · ");
 	let r = t?.[0] && t[1] ? `${t[0]} × ${t[1]}` : "";
 	return [
 		e.source || B("catalog:photoLightbox.onlineImage"),
@@ -45892,7 +45884,7 @@ function jE({ slides: e, index: t, Swiper: n, host: r, onClose: i, devicePixels:
 			} }
 		});
 		i(t, 0), y.current = DE(e, o, w, a);
-		let s = Iy(e, g.current, _.current), c = (e = !1) => {
+		let s = zy(e, g.current, _.current), c = (e = !1) => {
 			s.hide(), g.current?.setAttribute("aria-expanded", "false"), e && g.current && document.contains(g.current) && g.current.focus();
 		};
 		b.current = {
@@ -45922,7 +45914,7 @@ function jE({ slides: e, index: t, Swiper: n, host: r, onClose: i, devicePixels:
 	let F = e[x], I = F.asset ?? null, te = async (e) => {
 		if (!I || !r || e.getAttribute("aria-busy") === "true") return;
 		let t = x;
-		Fy(e), M(!0), P({
+		Ry(e), M(!0), P({
 			at: t,
 			text: ""
 		});
@@ -45932,7 +45924,7 @@ function jE({ slides: e, index: t, Swiper: n, host: r, onClose: i, devicePixels:
 				text: await r.revealSource(I.id)
 			});
 		} finally {
-			Fy(e, !1), M(!1);
+			Ry(e, !1), M(!1);
 		}
 	}, L = (e, t) => {
 		t.naturalWidth && t.naturalHeight && !T[e] && E((n) => ({
@@ -46122,7 +46114,7 @@ function jE({ slides: e, index: t, Swiper: n, host: r, onClose: i, devicePixels:
 						"data-photo-reveal": "",
 						hidden: !I || !r,
 						onClick: (e) => void te(e.currentTarget),
-						dangerouslySetInnerHTML: { __html: (j ? By(B("catalog:detailSource.locating")) : Ly("folder-open")) + ie }
+						dangerouslySetInnerHTML: { __html: (j ? By(B("catalog:detailSource.locating")) : Py("folder-open")) + ie }
 					}),
 					/* @__PURE__ */ (0, G.jsx)("span", {
 						"data-photo-status": "",
@@ -59508,4 +59500,4 @@ Mt(), HW();
 var WW = document.getElementById("peach-page"), GW = WW ? UW[WW.dataset.page ?? ""] : void 0;
 WW && GW && (0, Vt.createRoot)(WW).render(/* @__PURE__ */ (0, G.jsx)(uw, { children: /* @__PURE__ */ (0, G.jsx)(GW, { data: { ...WW.dataset } }) }));
 
-//# debugId=8bc884f9-6f99-4d08-8c53-f6a54d9f16d6
+//# debugId=ffdc5752-f33f-43e5-8a2b-17ae559e875b

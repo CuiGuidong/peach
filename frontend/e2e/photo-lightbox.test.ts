@@ -112,7 +112,9 @@ describe('图片灯箱', () => {
   after(async () => { await browser?.close(); });
 
   it('错误页反馈的图片灯箱可见关闭、详情和缩放控件', { timeout: 45_000 }, async () => {
-    const opened = await visit(browser, '/feedback-lightbox-missing-page', DESKTOP);
+    const opened = await visit(browser, '/feedback-lightbox-missing-page', DESKTOP, page => page.addInitScript(() => {
+      navigator.mediaDevices.getDisplayMedia = () => Promise.reject(new DOMException('Cancelled', 'NotAllowedError'));
+    }));
     const { page } = opened;
     try {
       await page.getByRole('button', { name: '反馈', exact: true }).click();
@@ -124,8 +126,8 @@ describe('图片灯箱', () => {
       await form.getByRole('button', { name: '查看lightbox.png', exact: true }).click();
       const box = lightbox(page);
       const controls = await box.evaluate((dialog) => {
-        const glyphs = [...dialog.querySelectorAll<SVGUseElement>(
-          '[data-photo-close] use, [data-photo-detail-toggle] use, [data-zoom-step] use, [data-photo-scale="fit"] use')];
+        const glyphs = [...dialog.querySelectorAll<SVGPathElement>(
+          '[data-photo-close] svg path, [data-photo-detail-toggle] svg path, [data-zoom-step] svg path, [data-photo-scale="fit"] svg path')];
         return { icons: glyphs.map(glyph => glyph.getBBox().width),
           trackColor: getComputedStyle(dialog).getPropertyValue('--inset').trim(),
           zoomRadius: getComputedStyle(dialog.querySelector('[data-photo-zoom]')!).borderRadius };
