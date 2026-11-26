@@ -68,7 +68,7 @@ if HAS_DEPS:
     from fastapi.routing import APIRoute
     from starlette.routing import Mount
     from peach import api as api_module
-    from peach import routes_auth
+    from peach import routes_auth, routes_feedback
     from peach import routes_jav_browser
     from peach.api import create_app
     from peach.follow_secrets import credential_store_for
@@ -4889,6 +4889,9 @@ class RouteAuthContractTests(unittest.TestCase):
             follow_state_root=root / "state"))
         cls.guards = {getattr(routes_auth, name) for name in cls.GUARD_NAMES}
         cls.special_guards = {
+            ("GET", routes_feedback.ENVIRONMENT_PATH): routes_feedback.require_feedback_environment,
+            ("GET", routes_feedback.DIAGNOSTICS_PATH): routes_feedback.require_feedback_diagnostics,
+            ("POST", routes_feedback.PATH): routes_feedback.require_feedback_submission,
             ("GET", "/api/jav-browser"): routes_jav_browser.browser_client,
             ("GET", "/api/jav-browser/active"): routes_jav_browser.browser_client,
             ("GET", "/api/jav-browser/identify"): routes_jav_browser.browser_client,
@@ -4925,7 +4928,7 @@ class RouteAuthContractTests(unittest.TestCase):
                          "新路由没挂 routes_auth 的 require_* 依赖；确实该公开就写进 "
                          "PUBLIC_ROUTES 并注明理由")
 
-    def test_browser_addition_requires_its_scoped_bearer_dependency(self):
+    def test_special_routes_require_their_scoped_auth_dependency(self):
         for key, guard in self.special_guards.items():
             with self.subTest(route=key):
                 self.assertIn(guard, self.routes[key])

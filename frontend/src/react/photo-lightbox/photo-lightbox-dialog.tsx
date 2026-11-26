@@ -4,9 +4,6 @@
  * （`key` 每次加一，Swiper 从头建），关掉时只把内容渲染成空，根和容器留着给下一次。不进
  * 路由树：那一套是给壳的页面容器用的，容器归壳、换页就被整块重写；灯箱浮在所有页面
  * 之上，哪一页都能打开，跟哪个页面容器都不同生共死。 */
-import {
-  RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiFullscreenLine, RiInformationLine, RiZoomInLine, RiZoomOutLine,
-} from '@remixicon/react';
 import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useFocusVisible } from 'react-aria';
 import { Button } from '@/components/base/buttons/button';
@@ -23,7 +20,15 @@ import {
 } from './photo-lightbox';
 import { t } from '../../i18n';
 import { InterfaceLocale } from '../interface-locale';
+import { SpriteIcon } from '../settings/section';
 import './photo-lightbox.css';
+
+const CloseIcon = () => <SpriteIcon name="x" />;
+const ChevronIcon = () => <SpriteIcon name="chevron-left" />;
+const DetailsIcon = () => <SpriteIcon name="info" />;
+const ZoomOutIcon = () => <SpriteIcon name="zoom-out" />;
+const ZoomInIcon = () => <SpriteIcon name="zoom-in" />;
+const FitIcon = () => <SpriteIcon name="maximize" />;
 
 let host: HTMLElement | null = null;
 let root: Root | null = null;
@@ -232,7 +237,7 @@ export function PhotoLightbox({ slides, index, Swiper, host: actions, onClose, d
         if (detail.current?.dismissOutside(target)) return;
         if (target === box.current || target.classList.contains('swiper-zoom-container')) dismissLightbox();
       }}>
-      <Button data-photo-close="" variant="ghost" iconOnly leadingIcon={RiCloseLine}
+      <Button data-photo-close="" variant="ghost" iconOnly leadingIcon={CloseIcon}
         aria-label={t('catalog:shared.close')} onClick={() => dismissLightbox()} />
       {imageAction && <div className="absolute start-3 top-3 z-5">{imageAction(active, dismissLightbox)}</div>}
       <div ref={mainEl} className="swiper" data-photo-main="" role="region" aria-roledescription={t('catalog:photoLightbox.carousel')}
@@ -250,13 +255,13 @@ export function PhotoLightbox({ slides, index, Swiper, host: actions, onClose, d
             </div>
           ))}
         </div>
-        <Button ref={back} data-photo-nav="back" variant="secondary" iconOnly leadingIcon={RiArrowLeftSLine}
+        <Button ref={back} data-photo-nav="back" variant="secondary" iconOnly leadingIcon={ChevronIcon}
           aria-label={t('catalog:photoLightbox.previous')} />
-        <Button ref={fwd} data-photo-nav="fwd" variant="secondary" iconOnly leadingIcon={RiArrowRightSLine}
+        <Button ref={fwd} data-photo-nav="fwd" variant="secondary" iconOnly leadingIcon={ChevronIcon}
           aria-label={t('catalog:photoLightbox.next')} />
       </div>
       <div data-photo-bar="">
-        <Button ref={toggle} data-photo-detail-toggle="" variant="ghost" iconOnly leadingIcon={RiInformationLine}
+        <Button ref={toggle} data-photo-detail-toggle="" variant="ghost" iconOnly leadingIcon={DetailsIcon}
           aria-expanded="false" aria-controls={detailId} aria-haspopup="dialog"
           aria-label={t('catalog:photoLightbox.details')} title={t('catalog:photoLightbox.details')} />
         <div>
@@ -264,14 +269,14 @@ export function PhotoLightbox({ slides, index, Swiper, host: actions, onClose, d
           {many ? <div ref={pagination} data-photo-pagination="" aria-label={t('catalog:photoLightbox.choose')} /> : null}
         </div>
         <div data-photo-zoom="">
-          <Button data-zoom-step="-1" size="xs" variant="ghost" iconOnly leadingIcon={RiZoomOutLine}
+          <Button data-zoom-step="-1" size="xs" variant="ghost" iconOnly leadingIcon={ZoomOutIcon}
             aria-label={t('catalog:photoLightbox.zoomOut')} onClick={() => apply(percent - PHOTO_ZOOM_STEP)} />
           <input ref={range} type="range" min={PHOTO_ZOOM_MIN} max={PHOTO_ZOOM_MAX} step="1" value={percent}
             aria-label={t('catalog:photoLightbox.zoom')} onChange={(event) => apply(Number(event.currentTarget.value))} />
-          <Button data-zoom-step="1" size="xs" variant="ghost" iconOnly leadingIcon={RiZoomInLine}
+          <Button data-zoom-step="1" size="xs" variant="ghost" iconOnly leadingIcon={ZoomInIcon}
             aria-label={t('catalog:photoLightbox.zoomIn')} onClick={() => apply(percent + PHOTO_ZOOM_STEP)} />
           <b data-photo-zoom-readout="">{`${percent}%`}</b>
-          <Button data-photo-scale="fit" size="xs" variant="ghost" iconOnly leadingIcon={RiFullscreenLine}
+          <Button data-photo-scale="fit" size="xs" variant="ghost" iconOnly leadingIcon={FitIcon}
             aria-label={t('catalog:photoLightbox.fit')} title={t('catalog:photoLightbox.fit')} onClick={() => apply('fit')} />
           <Button data-photo-scale="original" size="xs" variant="ghost" aria-label={t('catalog:photoLightbox.actualSize')}
             title={t('catalog:photoLightbox.actualSize')} onClick={() => apply(100)}>1:1</Button>

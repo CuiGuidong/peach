@@ -126,8 +126,8 @@ describe('图片灯箱', () => {
       await form.getByRole('button', { name: '查看lightbox.png', exact: true }).click();
       const box = lightbox(page);
       const controls = await box.evaluate((dialog) => {
-        const glyphs = [...dialog.querySelectorAll<SVGPathElement>(
-          '[data-photo-close] svg path, [data-photo-detail-toggle] svg path, [data-zoom-step] svg path, [data-photo-scale="fit"] svg path')];
+        const glyphs = [...dialog.querySelectorAll<SVGUseElement>(
+          '[data-photo-close] use, [data-photo-detail-toggle] use, [data-zoom-step] use, [data-photo-scale="fit"] use')];
         return { icons: glyphs.map(glyph => glyph.getBBox().width),
           trackColor: getComputedStyle(dialog).getPropertyValue('--inset').trim(),
           zoomRadius: getComputedStyle(dialog.querySelector('[data-photo-zoom]')!).borderRadius };

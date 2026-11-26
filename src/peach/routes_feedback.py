@@ -10,8 +10,9 @@ import time
 import uuid
 from collections import deque
 from datetime import datetime, timezone
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
 from PIL import Image, ImageOps
 from starlette.concurrency import run_in_threadpool
@@ -223,10 +224,27 @@ def _send(target: str, description: str, images: list[tuple[str, bytes]], catego
     return identity, outcomes[0]["status"] if outcomes else "unknown"
 
 
-@router.get(ENVIRONMENT_PATH)
-def feedback_environment(request: Request):
+def require_feedback_environment(request: Request) -> None:
     if not local_client(request) and not authenticated_client(request):
         raise HTTPException(401, "unauthorized")
+
+
+def require_feedback_diagnostics(request: Request) -> bool:
+    can_read_logs = loopback_client(request) or authenticated_client(request)
+    if not can_read_logs and not local_client(request):
+        raise HTTPException(401, "unauthorized")
+    return can_read_logs
+
+
+def require_feedback_submission(request: Request) -> None:
+    if local_client(request):
+        same_origin(request)
+    else:
+        require_authenticated_client(request)
+
+
+@router.get(ENVIRONMENT_PATH, dependencies=[Depends(require_feedback_environment)])
+def feedback_environment():
     system = platform.system()
     release = (platform.mac_ver()[0] if system == "Darwin"
                else platform.version() if system == "Windows" else platform.release())
@@ -242,11 +260,7 @@ def feedback_environment(request: Request):
 
 
 @router.get(DIAGNOSTICS_PATH)
-def feedback_diagnostics(request: Request):
-    local = loopback_client(request)
-    can_read_logs = local or authenticated_client(request)
-    if not can_read_logs and not local_client(request):
-        raise HTTPException(401, "unauthorized")
+def feedback_diagnostics(request: Request, can_read_logs: Annotated[bool, Depends(require_feedback_diagnostics)]):
     from .health import app_readiness
     from .settings_file import active
     from .support_bundle import feedback_error_summary
@@ -256,12 +270,8 @@ def feedback_diagnostics(request: Request):
     return JSONResponse({"health": health, "logs": logs}, headers={"Cache-Control": "no-store"})
 
 
-@router.post(PATH)
+@router.post(PATH, dependencies=[Depends(require_feedback_submission)])
 async def feedback(request: Request):
-    if local_client(request):
-        same_origin(request)
-    else:
-        require_authenticated_client(request)
     sentry = dsn()
     backup = feedback_r2.destination()
     if not (sentry or backup):

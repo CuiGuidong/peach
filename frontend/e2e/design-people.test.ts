@@ -1013,7 +1013,7 @@ describe('设计决定：人物与厂牌资料页', () => {
         await opened.page.mouse.move(0, 0);
         const dimensions = await opened.page.evaluate(() => {
           const holder = document.createElement('div');
-          holder.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:10000';
+          holder.style.cssText = 'position:fixed;left:16px;bottom:16px;z-index:10000';
           const button = document.createElement('button');
           button.className = 'geist-button';
           button.dataset.buttonProbe = '';

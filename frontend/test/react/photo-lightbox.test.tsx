@@ -258,7 +258,7 @@ describe('缩放条', () => {
     const box = await open(0, WALL);
     for (const name of ['缩小', '放大', '适应窗口']) {
       const button = labelled(box, name);
-      expect(button.querySelector('svg[aria-hidden="true"] path')).not.toBeNull();
+      expect(button.querySelector('svg[aria-hidden="true"] use')).not.toBeNull();
       expect(button.textContent).toBe('');
     }
     expect(labelled(box, '原大小').textContent).toBe('1:1');

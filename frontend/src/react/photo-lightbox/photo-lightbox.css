@@ -170,6 +170,9 @@
 .peach-react [data-photo-nav="fwd"] {
   right: 14px;
 }
+.peach-react [data-photo-nav="fwd"] svg {
+  transform: rotate(180deg);
+}
 /* 到头的那一枚整个让开：留一枚半透明的键在那儿，点下去什么都不发生。 */
 .peach-react [data-photo-nav].swiper-button-disabled {
   visibility: hidden;
@@ -270,6 +273,13 @@
 .peach-react [data-photo-detail-toggle]:is(:hover, [aria-expanded="true"]) {
   background: rgba(0, 0, 0, .78);
   color: #fff;
+}
+.peach-react [data-photo-lightbox] :is([data-photo-close], [data-photo-nav], [data-photo-detail-toggle], [data-photo-zoom]) svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .peach-react [data-photo-detail-toggle] svg {
   display: block;

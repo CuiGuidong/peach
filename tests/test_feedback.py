@@ -22,6 +22,7 @@ from sentry_sdk.envelope import Envelope
 from sentry_sdk.transport import brotli
 
 from peach import feedback_github, feedback_r2, routes_feedback, support_bundle
+from peach.config import PeachSettings
 
 
 DSN = "https://public@o123.ingest.us.sentry.io/123"
@@ -50,6 +51,7 @@ def image_data(color, size=(8, 6)):
 class FeedbackTests(unittest.TestCase):
     def setUp(self):
         self.app = FastAPI()
+        self.app.state.settings = PeachSettings()
         self.destination_loader = feedback_r2.destination
         default_destination = mock.patch.object(feedback_r2, "destination", return_value=None)
         default_destination.start()
@@ -62,6 +64,28 @@ class FeedbackTests(unittest.TestCase):
             async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
                 return await client.post(routes_feedback.PATH, json=payload, headers={"Origin": origin})
         return asyncio.run(send())
+
+    def test_anonymous_diagnostics_preserve_the_local_log_boundary(self):
+        async def check():
+            for docker, address, status, logs in (
+                ("0", "10.18.0.9", 401, None),
+                ("1", "10.18.0.9", 200, None),
+                ("0", "127.0.0.1", 200, "Safe error summary"),
+            ):
+                with self.subTest(docker=docker, address=address), \
+                        mock.patch.dict(os.environ, {"PEACH_HEADLESS_MANAGED": docker, "PEACH_TRAY_MANAGED": "0"}):
+                    transport = httpx.ASGITransport(app=self.app, client=(address, 1234))
+                    async with httpx.AsyncClient(transport=transport, base_url="http://127.0.0.1") as client:
+                        received = await client.get(routes_feedback.DIAGNOSTICS_PATH)
+                    self.assertEqual(received.status_code, status, received.text)
+                    if status == 200:
+                        self.assertEqual(received.json(), {"health": {"ready": True}, "logs": logs})
+                        self.assertEqual(received.headers["Cache-Control"], "no-store")
+
+        with mock.patch("peach.health.app_readiness", return_value={"ready": True}), \
+                mock.patch.object(support_bundle, "feedback_error_summary", return_value="Safe error summary") as summarize:
+            asyncio.run(check())
+        self.assertEqual(summarize.call_count, 1)
 
     def test_feedback_and_images_share_one_sentry_envelope(self):
         envelopes = []
