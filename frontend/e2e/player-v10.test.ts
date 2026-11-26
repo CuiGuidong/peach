@@ -15,10 +15,15 @@ describe('Video.js 10 播放链', () => {
   let files: Map<string, Buffer>;
   const openPlayback = (viewport: (typeof VIEWPORTS)[number]) =>
     visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport, async page => {
-      // Playwright clears page routes while closing the test page. Keep the offline response on the context.
-      await page.context().route(url => url.pathname === '/api/jav/detail', route => route.fulfill({ json: {
+      // 关闭播放器时仍可能读取旁边的作品图，离线样本覆盖详情和图片。
+      const context = page.context();
+      await context.route(url => url.pathname === '/api/jav/detail', route => route.fulfill({ json: {
         code: new URL(route.request().url()).searchParams.get('code'), state: 'ready', preview_count: 0,
       } }));
+      await context.route(url => url.pathname === '/jav-image', route => route.fulfill({
+        contentType: 'image/svg+xml',
+        body: '<svg xmlns="http://www.w3.org/2000/svg" width="320" height="180"><rect width="320" height="180" fill="#777"/></svg>',
+      }));
     });
   before(async () => {
     fixture = realpathSync(mkdtempSync(join(tmpdir(), 'peach-v10-hls-')));
