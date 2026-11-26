@@ -68,8 +68,8 @@ class FeedbackTests(unittest.TestCase):
     def test_anonymous_diagnostics_preserve_the_local_log_boundary(self):
         async def check():
             for docker, address, status, logs in (
-                ("0", "10.18.0.9", 401, None),
-                ("1", "10.18.0.9", 200, None),
+                ("0", "192.0.2.9", 401, None),
+                ("1", "192.0.2.9", 200, None),
                 ("0", "127.0.0.1", 200, "Safe error summary"),
             ):
                 with self.subTest(docker=docker, address=address), \
