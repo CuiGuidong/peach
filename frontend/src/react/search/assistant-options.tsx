@@ -202,7 +202,7 @@ function SearchProviderChoices({ connections, value, onChange }: {
     <MenuHeading copyKey="catalog.aiLibrary.provider">{t('catalog:aiLibrary.provider')}</MenuHeading>
     <RadioGroup aria-label={t('catalog:aiLibrary.provider')} value={value} onChange={onChange}
       className="flex flex-col gap-0.5 px-1">
-      {connections.map(row => <Radio key={row.id} value={row.id}
+      {connections.map(row => <Radio key={row.id} value={row.id} data-ai-search-menu-row=""
         aria-label={aiConnectionLabel(row)}
         className={cx(MENU_RADIO, 'py-1 text-body-2-medium')}>
         <AIProviderLabel provider={row.id} label={aiConnectionLabel(row)} />

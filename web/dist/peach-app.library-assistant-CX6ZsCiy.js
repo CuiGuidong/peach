@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b3bd52f2-a2e2-4d4b-9d1e-b5b139a83a1e", e._sentryDebugIdIdentifier = "sentry-dbid-b3bd52f2-a2e2-4d4b-9d1e-b5b139a83a1e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a4b1b753-1720-4427-aa58-07e98885691a", e._sentryDebugIdIdentifier = "sentry-dbid-a4b1b753-1720-4427-aa58-07e98885691a");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $43a3b93638fe5db9$export$b04be29aa201d4f5 as t, $49319ee1285aa241$export$2ce376c2cc3355c8 as n, $49319ee1285aa241$export$4b1545b4f2016d26 as r, $49319ee1285aa241$export$d9b273488cd8ce6f as i, $53e61d82d8b8611d$export$8b251419efc915eb as a, $542a13ca2fa5b484$export$5b6b19405a83ff9d as o, $806e559d0c2c64a0$export$105594979f116971 as s, $806e559d0c2c64a0$export$2c1b491743890dec as c, $806e559d0c2c64a0$export$472062a354075cee as l, $e28ab3efe3e87743$export$1ff3c3f08ae963c0 as u, $fe21c36db05242bb$export$a98f0dcb43a68a25 as d, $fe21c36db05242bb$export$d7b12c4107be0d61 as f, ACCOUNT_DASHBOARDS as p, AIProviderLabel as m, AIProviderLogo as h, AI_ASSET_TASKS as g, AI_CONNECTIONS_KEY as _, AI_CONNECTIONS_URL as v, ApiError as y, Button as b, ButtonLink as x, CUSTOM_TASKS_URL as ee, CUSTOM_TASK_EDITOR_URL as S, Checkbox as C, ColumnFilterAvatar as te, DUPLICATES_KEY as ne, DUPLICATES_URL as w, DURATION_TAGS as T, Disclosure as E, ES as re, Ea as D, EffortFlow as O, ErrorText as k, ExternalLink as ie, HN as A, Help as j, IconButton as M, Input as ae, InputBase as oe, ItemEditDialog as se, JZ as N, K1 as P, LibraryAIPanel as F, LibraryLabel as I, LinkButton as ce, M6 as le, MEDIA_SOURCE_ICONS as ue, MENU_ITEM as L, MENU_ITEMS_CONTAINER as R, MENU_ITEM_INTERACTIVE as z, MENU_POPOVER_SURFACE as de, MENU_POPOVER_WIDTH as fe, MenuChevron as pe, MenuDialog as me, ModalFrame as he, Ov as ge, P7 as _e, Pf as ve, R5 as ye, RB as be, RadioDot as xe, Rt as B, Select$1 as V, SelectItem as H, SourceMark as Se, TableDateBound as Ce, Textarea as we, UB as Te, Xt as Ee, Yt as De, __toESM as Oe, aiConnectionLabel as U, aiModelLabel as ke, aiSearchModelsKey as Ae, apiGet as je, apiSend as Me, appSettingsStore as Ne, applySavedItem as Pe, b1 as Fe, busyProps as Ie, composingKey as Le, coverUrl as W, cx as G, detailPosterUrl as Re, e0 as ze, entityDisplayName as Be, errorMessage as Ve, fetchItem as He, h2 as K, hN as Ue, iE as We, interfaceLanguage as Ge, itemKey as Ke, l5 as qe, mM as Je, motion as Ye, o2 as Xe, onLibraries as Ze, outsideTableDateBound as Qe, p as $e, preferredAIConnection as et, publishedLibraries as tt, remoteCoverUrl as nt, require_jsx_runtime as rt, require_react as it, s7 as at, t as q, tagLabel as ot, uo as st, useAccountUsage as ct, useAction as lt, useCustomTasks as ut, useEntityNames as dt, useOverlayScrollbar as ft, useQuery as pt, useQueryClient as mt, useReducedMotion as ht, validRange as gt, writeColumnFilters as _t } from "./peach-app.js";
@@ -2816,6 +2816,7 @@ function Wr({ connections: e, value: t, onChange: n }) {
 			className: "flex flex-col gap-0.5 px-1",
 			children: e.map((e) => /* @__PURE__ */ (0, Y.jsx)(f, {
 				value: e.id,
+				"data-ai-search-menu-row": "",
 				"aria-label": U(e),
 				className: G(Fr, "py-1 text-body-2-medium"),
 				children: /* @__PURE__ */ (0, Y.jsx)(m, {
@@ -3608,4 +3609,4 @@ function si({ recent: e, historyEnabled: t, active: n, busy: r, create: i, openR
 }
 export { ii as LibraryAssistant };
 
-//# debugId=b3bd52f2-a2e2-4d4b-9d1e-b5b139a83a1e
+//# debugId=a4b1b753-1720-4427-aa58-07e98885691a
