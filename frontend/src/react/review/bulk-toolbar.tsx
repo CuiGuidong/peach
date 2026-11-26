@@ -107,7 +107,7 @@ export function BulkToolbar(props: BulkToolbarProps) {
           <span data-entity-sep="" aria-hidden="true" className={joinedRows ? undefined : 'invisible'} />
         </div>}
         bottom={showControls ? <>
-        {onSearch ? <FilterSearch label={t('manage:reviewPage.search')} value={search} onQuery={onSearch} /> : null}
+        {onSearch ? <FilterSearch compact label={t('manage:reviewPage.search')} value={search} onQuery={onSearch} /> : null}
         {pageKeys.length ? <>
         {metadata && fields.length ? <Select aria-label={t('manage:reviewToolbar.filterField')} size="sm"
           prefix={<span data-copy-key="review.filter.field" className="pointer-events-auto">{t('manage:reviewToolbar.field')}</span>}

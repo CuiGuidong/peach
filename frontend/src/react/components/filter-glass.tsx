@@ -4,7 +4,7 @@
  * 几何、饱和度与文字色在 `../styles.css` 的 `[data-filter-glass]`，高对比与减少透明度的回退
  * 也在那一条上。吸到顶栏下沿那一刻由 `use-stuck.ts` 标 `data-stuck`，影换成抬起来那一档。
  * 文字操作共用 BoardUI 的 32px 小号按钮，筛选项使用类型对应的选中面。 */
-import { cloneElement, useEffect, useRef, type ComponentProps, type ReactElement, type ReactNode, type RefObject } from 'react';
+import { cloneElement, useEffect, useRef, useState, type ComponentProps, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { cx } from '@/utils/cx';
 import { IconButton, type IconButtonProps } from '@/components/base/buttons/icon-button';
 import { Button } from '@/components/base/buttons/button';
@@ -59,9 +59,15 @@ export function FilterSearch({ label, value, onQuery, placeholder = t('shell:sha
 }) {
   const search = useSearchText(value, onQuery);
   const input = useRef<HTMLInputElement>(null);
+  // 展开的那一档比失焦晚一点收（样式里说了为什么）。
+  const [open, setOpen] = useState(false);
+  const closing = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(closing.current), []);
   return (
     <label data-filter-search="" data-compact={compact ? '' : undefined} data-filled={search.text ? '' : undefined}
-      title={compact ? label : undefined} {...search.composition}>
+      data-open={open ? '' : undefined} title={compact ? label : undefined} {...search.composition}
+      onFocus={() => { clearTimeout(closing.current); setOpen(true) }}
+      onBlur={() => { clearTimeout(closing.current); closing.current = setTimeout(() => setOpen(false), 200) }}>
       <SearchGlyph aria-hidden className="size-4 shrink-0" />
       <input ref={input} type="search" aria-label={label} value={search.text} placeholder={placeholder} spellCheck={false}
         autoComplete="off" enterKeyHint="search" onChange={(event) => search.change(event.target.value)}

@@ -43,8 +43,9 @@
   transition: background-color .12s ease, box-shadow .12s ease, flex-basis .26s cubic-bezier(.22, 1, .36, 1),
     min-width .26s cubic-bezier(.22, 1, .36, 1), padding .26s cubic-bezier(.22, 1, .36, 1);
 }
-/* 点进去变长：聚焦时放到 248px，下排挤的时候也至少撑到 176px，离开且没词再收回去。 */
-.peach-react [data-filter-search]:focus-within { flex-basis: 248px; min-width: 176px; }
+/* 点进去变长：聚焦时放到 248px，下排挤的时候也至少撑到 176px，离开且没词再收回去。`data-open` 比失焦晚
+   0.2s 摘掉：点旁边的键时框在按下那一刻就失焦，立刻收会把那枚键从指针下挪走，这一下点空。 */
+.peach-react [data-filter-search]:is(:focus-within, [data-open]) { flex-basis: 248px; min-width: 176px; }
 .peach-react [data-filter-search]:hover { background: color-mix(in srgb, var(--glass-pick-fill) 70%, transparent); }
 .peach-react [data-filter-search]:is(:focus-within, [data-filled]) {
   background: linear-gradient(180deg, var(--glass-sheen), transparent 62%), var(--glass-pick-fill);
@@ -65,7 +66,7 @@
   line-height: 20px;
 }
 /* 收起的那一档：只剩放大镜，框本身不占地方但仍可聚焦，点这枚键或 Tab 到它就展开。 */
-.peach-react [data-filter-search][data-compact]:not(:focus-within, [data-filled]) {
+.peach-react [data-filter-search][data-compact]:not(:focus-within, [data-open], [data-filled]) {
   flex-basis: 32px;
   justify-content: center;
   gap: 0;
@@ -73,7 +74,7 @@
   padding: 0;
   cursor: pointer;
 }
-.peach-react [data-filter-search][data-compact]:not(:focus-within, [data-filled]) > input { flex: 0 0 0; width: 0; opacity: 0; }
+.peach-react [data-filter-search][data-compact]:not(:focus-within, [data-open], [data-filled]) > input { flex: 0 0 0; width: 0; opacity: 0; }
 .peach-react [data-filter-search] > input::placeholder { color: var(--ink-2); opacity: 1; }
 .peach-react [data-filter-search] > input::-webkit-search-cancel-button { display: none; }
 .peach-react [data-filter-search-clear] {
@@ -93,7 +94,7 @@
 @media (width < 761px) {
   /* 小于 16px 的输入框聚焦时手机浏览器会把整页放大。 */
   .peach-react [data-filter-search] { flex-basis: 148px; }
-  .peach-react [data-filter-search]:focus-within { flex-basis: 200px; min-width: 148px; }
+  .peach-react [data-filter-search]:is(:focus-within, [data-open]) { flex-basis: 200px; min-width: 148px; }
   .peach-react [data-filter-search] > input { font-size: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .peach-react [data-filter-search] { transition: none; } }

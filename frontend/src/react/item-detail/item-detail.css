@@ -274,7 +274,7 @@
   font-size: var(--fs-md);
 }
 /* 没有图的头像（BoardUI avatar 的首字盘）：底照上面那块占位底，首字用次文字色。 */
-.peach-react :is([data-item-detail], [data-follow-detail]) [data-id-face]:not(:has(img)) {
+.peach-react :is([data-item-detail], [data-follow-detail]) [data-id-face]:not(:has(img:not([hidden]))) {
   color: var(--color-text-secondary);
 }
 /* 厂牌标识文件是自带边距的不透明方图，图片那条 cover 铺满整格，不再另给 logo 格加 padding 和
