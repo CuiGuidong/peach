@@ -13,7 +13,7 @@ from urllib.parse import urlsplit
 from itsdangerous import BadData, URLSafeTimedSerializer
 from PIL import Image, ImageOps
 
-from . import (ai_credentials, ai_openai_oauth, ai_prompts, ai_timeline, ai_usage, catalog_rules, cover_artwork, genre_decisions,
+from . import (ai_credentials, ai_openai_oauth, ai_prompts, web_ai_timeline, ai_usage, catalog_rules, cover_artwork, genre_decisions,
                genre_taxonomy, sample_images, web_catalog)
 from .ai_endpoints import normalize_base
 from .ai_inference import (
@@ -438,31 +438,39 @@ def _image(state, item, asset_id, image):
         raise UserValueError("api.aiLibrary.noImage") from None
 
 
+def _default_provider(state, store, allow_oauth):
+    configured = {name: record.values for name in PROVIDERS if (record := store.load(name))
+                  and ai_credentials.is_configured(record.values)}
+    official = next((name for name, values in configured.items() if not values.get("base_url")), None)
+    if official:
+        return official
+    if allow_oauth and ai_openai_oauth.status(state)["configured"]:
+        return "openai-oauth"
+    if configured:
+        return next(iter(configured))
+    return next((record.provider for record in _custom_connections(store)
+                 if ai_credentials.is_configured(record.values)), None)
+
+
+def _task_selection(selection):
+    if not isinstance(selection, dict):
+        raise UserValueError("api.aiLibrary.invalid")
+    provider, model, effort = (selection.get(name) for name in ("provider", "model", "effort"))
+    if (not _known_provider(provider)
+            or not isinstance(model, str) or not valid_model(model)
+            or not isinstance(effort, str)):
+        raise UserValueError("api.aiLibrary.invalid")
+    return provider, model, effort
+
+
 def task_request(state, task, provider=None, *, allow_oauth=True, selection=None, on_usage=None, prompt_scope=None,
                  prompt_language="zh-CN", selection_target=None):
     if selection is not None:
-        if not isinstance(selection, dict):
-            raise UserValueError("api.aiLibrary.invalid")
-        provider, model, effort = (selection.get(name) for name in ("provider", "model", "effort"))
-        if (not _known_provider(provider)
-                or not isinstance(model, str) or not valid_model(model)
-                or not isinstance(effort, str)):
-            raise UserValueError("api.aiLibrary.invalid")
+        provider, model, effort = _task_selection(selection)
     store = ai_credentials.store_for(state)
     profile = _task_profile(store, task) if task in TASKS else {}
     if provider is None:
-        provider = profile.get("provider")
-        if not provider:
-            configured = {name: record.values for name in PROVIDERS if (record := store.load(name))
-                          and ai_credentials.is_configured(record.values)}
-            provider = next((name for name, values in configured.items() if not values.get("base_url")), None)
-            if not provider and allow_oauth and ai_openai_oauth.status(state)["configured"]:
-                provider = "openai-oauth"
-            if not provider and configured:
-                provider = next(iter(configured))
-            if not provider:
-                provider = next((record.provider for record in _custom_connections(store)
-                                 if ai_credentials.is_configured(record.values)), None)
+        provider = profile.get("provider") or _default_provider(state, store, allow_oauth)
     if provider is None:
         raise UserValueError("api.aiLibrary.unconfigured")
     if not _known_provider(provider):
@@ -521,6 +529,43 @@ def task_request(state, task, provider=None, *, allow_oauth=True, selection=None
     return provider, request
 
 
+def _suggest_timeline(state, item, source, excluded, asset_id, mode, provider, request):
+    contract = state.web_contract
+    timeline = (web_ai_timeline.official_samples(contract, state.sample_cache, item["code"]) if mode == "official"
+                else web_ai_timeline.read(contract, item, asset_id))
+    if not timeline.frames:
+        raise UserValueError("api.aiLibrary.noOfficialImages" if mode == "official" else "api.aiLibrary.noImage")
+    excluded = {tag.casefold() for tag in excluded}
+    allowed = {tag for tag in web_ai_timeline.allowed_tags() if tag.casefold() not in excluded}
+    try:
+        served, values = web_ai_timeline.analyze(timeline, allowed, request)
+    except InferenceError as exc:
+        raise UserValueError("api.aiLibrary." + exc.code, status_code=502) from None
+    review = {"id": asset_id, "task": "vision", "source_digest": _digest(source), "language": None,
+              "image": timeline.source, "provider": provider, "model": served,
+              "revision": item["mutation_revision"], "tags": values["tags"]}
+    return {**review, **values, "token": _CANDIDATES.dumps(review)}
+
+
+def _tag_suggestions(result, task, source, allowed):
+    values, seen = {"tags": []}, set()
+    tags = result.data.get("tags")
+    if not isinstance(tags, list):
+        raise UserValueError("api.aiLibrary.invalid_output", status_code=502)
+    for row in tags[:8]:
+        if not isinstance(row, dict):
+            continue
+        tag, evidence = row.get("tag"), row.get("evidence")
+        if (not isinstance(tag, str) or tag not in allowed or tag in seen
+                or not isinstance(evidence, str) or not 1 <= len(evidence.strip()) <= 240):
+            continue
+        if task == "tags" and not any(evidence in text for text in (source["title"], source["summary"], *source["genres"])):
+            continue
+        values["tags"].append({"tag": tag, "evidence": evidence})
+        seen.add(tag)
+    return values
+
+
 def suggest(state, asset_id, body, *, allow_oauth=True, prompt_language="zh-CN"):
     task = body.get("task")
     if task not in ASSET_TASKS:
@@ -533,20 +578,7 @@ def suggest(state, asset_id, body, *, allow_oauth=True, prompt_language="zh-CN")
     item, source, excluded = _source(contract, asset_id)
 
     if task == "vision" and mode in ("timeline", "official"):
-        timeline = (ai_timeline.official_samples(contract, state.sample_cache, item["code"]) if mode == "official"
-                    else ai_timeline.read(contract, item, asset_id))
-        if not timeline.frames:
-            raise UserValueError("api.aiLibrary.noOfficialImages" if mode == "official" else "api.aiLibrary.noImage")
-        excluded = {tag.casefold() for tag in excluded}
-        allowed = {tag for tag in ai_timeline.allowed_tags() if tag.casefold() not in excluded}
-        try:
-            served, values = ai_timeline.analyze(timeline, allowed, request)
-        except InferenceError as exc:
-            raise UserValueError("api.aiLibrary." + exc.code, status_code=502) from None
-        review = {"id": asset_id, "task": task, "source_digest": _digest(source), "language": None,
-                  "image": timeline.source, "provider": provider, "model": served,
-                  "revision": item["mutation_revision"], "tags": values["tags"]}
-        return {**review, **values, "token": _CANDIDATES.dumps(review)}
+        return _suggest_timeline(state, item, source, excluded, asset_id, mode, provider, request)
 
     image, language, allowed = None, None, set()
     if task == "translate":
@@ -580,26 +612,33 @@ def suggest(state, asset_id, body, *, allow_oauth=True, prompt_language="zh-CN")
         if any(not isinstance(v, str) or len(v) > 10000 or (source[k] and not v.strip()) for k, v in values.items()):
             raise UserValueError("api.aiLibrary.invalid_output", status_code=502)
     else:
-        values, seen = {"tags": []}, set()
-        tags = result.data.get("tags")
-        if not isinstance(tags, list):
-            raise UserValueError("api.aiLibrary.invalid_output", status_code=502)
-        for row in tags[:8]:
-            if not isinstance(row, dict):
-                continue
-            tag, evidence = row.get("tag"), row.get("evidence")
-            if (not isinstance(tag, str) or tag not in allowed or tag in seen
-                    or not isinstance(evidence, str) or not 1 <= len(evidence.strip()) <= 240):
-                continue
-            if task == "tags" and not any(evidence in text for text in (source["title"], source["summary"], *source["genres"])):
-                continue
-            values["tags"].append({"tag": tag, "evidence": evidence})
-            seen.add(tag)
+        values = _tag_suggestions(result, task, source, allowed)
     evidence_image = body.get("image") if task == "vision" else None
     review = {"id": asset_id, "task": task, "source_digest": _digest(source), "language": language,
               "image": evidence_image,
               "provider": provider, "model": result.model, "revision": item["mutation_revision"], **values}
     return {**review, "token": _CANDIDATES.dumps(review)}
+
+
+def _save_translation(conn, asset_id, review, source, edited):
+    original = {field: review[field] for field in ("title", "summary")}
+    values = edited if edited is not None else original
+    if (not isinstance(values, dict) or set(values) != set(original)
+            or any(not isinstance(v, str) or len(v) > 10000
+                   or bool(v.strip()) != bool(source[k]) for k, v in values.items())):
+        raise UserValueError("api.aiLibrary.invalid")
+    quality = "human" if values != original else "machine"
+    result = conn.execute(
+        "INSERT INTO asset_content_translation(asset_id,language,title,summary,source_digest,provider,model,quality) "
+        "VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(asset_id,language) DO UPDATE SET "
+        "title=excluded.title,summary=excluded.summary,source_digest=excluded.source_digest,"
+        "provider=excluded.provider,model=excluded.model,quality=excluded.quality,updated_at=CURRENT_TIMESTAMP "
+        "WHERE asset_content_translation.source_digest<>excluded.source_digest",
+        (asset_id, review["language"], values["title"], values["summary"],
+         review["source_digest"], review["provider"], review["model"], quality),
+    )
+    if not result.rowcount:
+        raise UserValueError("api.aiLibrary.alreadySaved", status_code=409)
 
 
 def approve(contract, asset_id, body):
@@ -618,25 +657,7 @@ def approve(contract, asset_id, body):
         if row is None or row[0] != review["revision"]:
             raise UserValueError("api.aiLibrary.changed", status_code=409)
         if review["task"] == "translate":
-            edited = body.get("translation")
-            original = {field: review[field] for field in ("title", "summary")}
-            values = edited if edited is not None else original
-            if (not isinstance(values, dict) or set(values) != set(original)
-                    or any(not isinstance(v, str) or len(v) > 10000
-                           or bool(v.strip()) != bool(source[k]) for k, v in values.items())):
-                raise UserValueError("api.aiLibrary.invalid")
-            quality = "human" if values != original else "machine"
-            result = conn.execute(
-                "INSERT INTO asset_content_translation(asset_id,language,title,summary,source_digest,provider,model,quality) "
-                "VALUES(?,?,?,?,?,?,?,?) ON CONFLICT(asset_id,language) DO UPDATE SET "
-                "title=excluded.title,summary=excluded.summary,source_digest=excluded.source_digest,"
-                "provider=excluded.provider,model=excluded.model,quality=excluded.quality,updated_at=CURRENT_TIMESTAMP "
-                "WHERE asset_content_translation.source_digest<>excluded.source_digest",
-                (asset_id, review["language"], values["title"], values["summary"],
-                 review["source_digest"], review["provider"], review["model"], quality),
-            )
-            if not result.rowcount:
-                raise UserValueError("api.aiLibrary.alreadySaved", status_code=409)
+            _save_translation(conn, asset_id, review, source, body.get('translation'))
         else:
             selected, candidates = body.get("tags"), {v["tag"]: v for v in review["tags"]}
             if (not isinstance(selected, list) or not selected

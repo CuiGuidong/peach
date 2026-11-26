@@ -11,6 +11,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from . import catalog_rules, sample_images, timeline_sheets, web_timeline_thumbnails
 from .ai_inference import InferenceError
+from .catalog_vocabulary import NON_VISUAL_APPEARANCE, VISION_SETTINGS, VISION_SINGLE_FRAME_TAGS
 from .follow_faces import Signature
 
 INITIAL_FRAMES = 18
@@ -20,11 +21,7 @@ _BATCH = 6
 _SCAN_LIMIT = 720
 _EXTERNAL_LIMIT = 120
 _INTERACTION_WINDOW = 45
-_CAMERA_TAGS = {"主观视角", "局部特写", "射精特写"}
-_SINGLE_FRAME_TAGS = _CAMERA_TAGS | {"多人", "多女出镜", "性玩具", "M字开腿"}
-_TEMPORAL_TAGS = catalog_rules.POSITION_TAGS - _SINGLE_FRAME_TAGS
-_SETTINGS = {"浴室", "户外", "车内", "厨房客厅", "办公室", "教室学校", "公共场所", "温泉"}
-_NON_VISUAL_APPEARANCE = {"恋足", "混血", "动漫音", "娃娃音", "敏感体质", "隆胸", "明星脸", "洛丽塔"}
+_TEMPORAL_TAGS = catalog_rules.POSITION_TAGS - VISION_SINGLE_FRAME_TAGS
 _STRING = {"type": "string"}
 _FRAME_LIST = {"type": "array", "items": {"type": "integer"}}
 
@@ -58,7 +55,7 @@ class Timeline:
 
 
 def allowed_tags():
-    return (catalog_rules.APPEARANCE_TAGS - _NON_VISUAL_APPEARANCE) | catalog_rules.POSITION_TAGS | _SETTINGS
+    return (catalog_rules.APPEARANCE_TAGS - NON_VISUAL_APPEARANCE) | catalog_rules.POSITION_TAGS | VISION_SETTINGS
 
 
 def _indices(total, limit):
@@ -256,6 +253,38 @@ def _text(value):
     return value.strip()[:240] if isinstance(value, str) else ""
 
 
+def _record_poses(rows, by_number, poses):
+    for row in rows[:_BATCH]:
+        if not isinstance(row, dict) or type(number := row.get("frame")) is not int or number not in by_number:
+            continue
+        posture, camera = _text(row.get("posture")), _text(row.get("camera"))
+        if posture or camera:
+            poses[number] = {**_evidence(by_number[number]), "posture": posture, "camera": camera}
+
+
+def _record_tags(rows, allowed, by_number, scopes, tags, anchors):
+    for row in rows[:8]:
+        if not isinstance(row, dict) or not isinstance(tag := row.get("tag"), str) or tag not in allowed:
+            continue
+        evidence, numbers = _text(row.get("evidence")), row.get("frames")
+        if not evidence or not isinstance(numbers, list):
+            continue
+        numbers = list(dict.fromkeys(n for n in numbers[:_BATCH] if type(n) is int and n in by_number))
+        if not numbers:
+            continue
+        if tag in _TEMPORAL_TAGS:
+            relevant = [sorted((by_number[n] for n in numbers if n in group and by_number[n].seconds is not None),
+                               key=lambda frame: frame.seconds) for group in scopes]
+            pair = next(((a.number, b.number) for group in relevant for a, b in zip(group, group[1:])
+                         if b.seconds - a.seconds <= _INTERACTION_WINDOW), None)
+            if pair is None:
+                anchors.extend(numbers[:1])
+                continue
+            numbers = list(pair)
+        if tag not in tags or (len(numbers) > len(tags[tag]["frames"])):
+            tags[tag] = {"tag": tag, "evidence": evidence, "frames": [_evidence(by_number[n]) for n in numbers[:3]]}
+
+
 def analyze(timeline, allowed, request):
     """Analyze diverse thumbnails, then spend any additional calls on nearby evidence."""
     initial = select(timeline.frames)
@@ -299,32 +328,8 @@ def analyze(timeline, allowed, request):
         analyzed.update(by_number)
         anchors.extend(number for number in result.data["needs_context"][:_BATCH]
                        if type(number) is int and number in by_number)
-        for row in result.data["poses"][:_BATCH]:
-            if not isinstance(row, dict) or type(number := row.get("frame")) is not int or number not in by_number:
-                continue
-            posture, camera = _text(row.get("posture")), _text(row.get("camera"))
-            if posture or camera:
-                poses[number] = {**_evidence(by_number[number]), "posture": posture, "camera": camera}
-        for row in result.data["tags"][:8]:
-            if not isinstance(row, dict) or not isinstance(tag := row.get("tag"), str) or tag not in allowed:
-                continue
-            evidence, numbers = _text(row.get("evidence")), row.get("frames")
-            if not evidence or not isinstance(numbers, list):
-                continue
-            numbers = list(dict.fromkeys(n for n in numbers[:_BATCH] if type(n) is int and n in by_number))
-            if not numbers:
-                continue
-            if tag in _TEMPORAL_TAGS:
-                relevant = [sorted((by_number[n] for n in numbers if n in group and by_number[n].seconds is not None),
-                                   key=lambda frame: frame.seconds) for group in scopes]
-                pair = next(((a.number, b.number) for group in relevant for a, b in zip(group, group[1:])
-                             if b.seconds - a.seconds <= _INTERACTION_WINDOW), None)
-                if pair is None:
-                    anchors.extend(numbers[:1])
-                    continue
-                numbers = list(pair)
-            if tag not in tags or (len(numbers) > len(tags[tag]["frames"])):
-                tags[tag] = {"tag": tag, "evidence": evidence, "frames": [_evidence(by_number[n]) for n in numbers[:3]]}
+        _record_poses(result.data["poses"], by_number, poses)
+        _record_tags(result.data["tags"], allowed, by_number, scopes, tags, anchors)
 
     try:
         for groups in batches:

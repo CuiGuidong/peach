@@ -1,6 +1,6 @@
 # AI 接入参考
 
-核对日期为 2026-11-26。本记录是参考取证笔记，未登记为上游原文快照。
+核对日期为 2026-11-26。本记录是参考取证笔记，汇集多个来源与界面实测，无法用单一上游文档重抓，因此未登记进 docs/reference-sources.json。
 
 AI Chat 公开预览读取到样式资源 `0o8mi3708b7l1.css`、`1tlrftqureo1z.css` 和 `435hwkkns-skq.css`。搜索页取自公开 `globals` 注册表的动效规则，JSON SHA-256 为 `c751eda008e5180257a80b23625296323c7a0e3d2b8f25f6a425fdab60ee59c0`。组件源码对应的摘要登记在 `frontend/src/react/boardui/ORIGIN.md`。
 

@@ -59,7 +59,7 @@ export function AssistantWorkspace({ focusKey, resultKey, active, compose, histo
 
   return <div ref={workspace} className="@container w-full min-w-0" data-ai-search-workspace="">
     <div data-ai-search-layout="">
-      <section data-ai-search-pane="">
+      <section data-ai-search-pane="" className="rounded-3xl">
         <header className="flex min-h-14 min-w-0 shrink-0 items-center justify-between gap-3 px-4 py-2.5 sm:px-5">
           <div className="flex min-w-0 items-center gap-2">
             {onBack ? <IconButton icon={RiArrowLeftLine} size="small" data-ai-button="round"
@@ -78,7 +78,7 @@ export function AssistantWorkspace({ focusKey, resultKey, active, compose, histo
         </div>
         {compose ? <div data-ai-search-content="" data-ai-search-compose="">{compose}</div> : null}
       </section>
-      <aside ref={rail} aria-label={assistantCopy('history')} data-ai-search-rail="">
+      <aside ref={rail} aria-label={assistantCopy('history')} data-ai-search-rail="" className="rounded-3xl">
         {history()}
       </aside>
     </div>

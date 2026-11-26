@@ -346,7 +346,8 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
             (self.root / "dist" / name).write_text(".peach-react{}", encoding="utf-8")
         con = sqlite3.connect(self.db)
         con.executescript(BASE_SCHEMA)
-        for migration in ("0018_online_follow.sql", "0034_feed_discovery.sql"):
+        con.execute('CREATE TABLE ledger_revision(tbl TEXT PRIMARY KEY, n INTEGER NOT NULL)')
+        for migration in ("0018_online_follow.sql", "0034_feed_discovery.sql", "0060_asset_content_translation.sql"):
             con.executescript((ROOT / "migrations" / migration).read_text(encoding="utf-8"))
         # 0056 给这两张表加的失败原因 code 列；整份 0056 还要下载任务表，这里只加这两张表的。
         for table in ("follow_source", "feed_source"):

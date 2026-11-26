@@ -10,7 +10,7 @@ from unittest.mock import patch
 import httpx
 from PIL import Image, ImageDraw
 
-from peach import ai_custom_tasks, ai_library, ai_prompts, ai_search, ai_timeline, ai_usage, personal_records, sample_images, web_catalog
+from peach import web_ai_custom_tasks, web_ai_library, ai_prompts, web_ai_search, web_ai_timeline, ai_usage, personal_records, sample_images, web_catalog
 from peach.ai_inference import InferenceError, InferenceResult
 from peach.user_messages import UserValueError
 from peach.web_contract import WebContract
@@ -45,31 +45,31 @@ class AILibraryTests(unittest.TestCase):
         (metadata / "DEMO-001-dmm.json").write_text(
             json.dumps({"description": "青い服を着た人が本を読む。"}), encoding="utf-8",
         )
-        ai_library.configure(self.state, {"provider": "deepseek", "model": "deepseek-flash", "api_key": "fixture-key"})
+        web_ai_library.configure(self.state, {"provider": "deepseek", "model": "deepseek-flash", "api_key": "fixture-key"})
 
     def test_custom_task_uses_its_saved_model_and_returns_only_a_text_answer(self):
-        saved = ai_custom_tasks.configure(self.state, {
+        saved = web_ai_custom_tasks.configure(self.state, {
             "name": "Summarize",
             "prompt": "Summarize the supplied note in one line.",
             "connection": {"provider": "deepseek", "model": "deepseek-flash", "effort": "none"},
         }, allow_oauth=False)
         task_id = saved["id"]
-        self.assertEqual(ai_custom_tasks.list_tasks(self.state)["tasks"], [
+        self.assertEqual(web_ai_custom_tasks.list_tasks(self.state)["tasks"], [
             {"id": task_id, "name": "Summarize", "provider": "deepseek"},
         ])
         self.assertEqual(saved["tasks"][0]["effort"], "none")
-        with patch.object(ai_library, "infer", return_value=InferenceResult(
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult(
             "deepseek-flash", {"answer": "The list is ready."}
         )) as infer:
-            result = ai_custom_tasks.run(self.state, {"id": task_id, "text": "I finished the list."},
+            result = web_ai_custom_tasks.run(self.state, {"id": task_id, "text": "I finished the list."},
                                          allow_oauth=False, on_usage=None, prompt_language="en")
         self.assertEqual(result["answer"], "The list is ready.")
         self.assertEqual(infer.call_args.args[1:3], ("deepseek", "deepseek-flash"))
         self.assertEqual(infer.call_args.kwargs["effort"], "none")
         self.assertEqual(json.loads(infer.call_args.kwargs["text"]), {"text": "I finished the list."})
         self.assertIn("Summarize the supplied note in one line.", infer.call_args.kwargs["system"])
-        ai_custom_tasks.configure(self.state, {"id": task_id, "remove": True}, allow_oauth=False)
-        self.assertEqual(ai_custom_tasks.list_tasks(self.state)["tasks"], [])
+        web_ai_custom_tasks.configure(self.state, {"id": task_id, "remove": True}, allow_oauth=False)
+        self.assertEqual(web_ai_custom_tasks.list_tasks(self.state)["tasks"], [])
 
     def test_timeline_selects_different_periods_and_uses_adjacent_evidence(self):
         frames = []
@@ -78,11 +78,11 @@ class AILibraryTests(unittest.TestCase):
             draw = ImageDraw.Draw(image)
             x, y = index * 17 % 79, index * 7 % 44
             draw.rectangle((x, y, x + 16, y + 19), fill=(190 + index, 202 - index, 22 + index))
-            frames.append(ai_timeline._frame(index, index * 10, image))
+            frames.append(web_ai_timeline._frame(index, index * 10, image))
         original = frames[0]
-        frames[1] = ai_timeline.Frame(2, 10, original.jpeg, original.signature, original.quality)
-        selected = ai_timeline.select(frames)
-        self.assertLessEqual(len(selected), ai_timeline.INITIAL_FRAMES)
+        frames[1] = web_ai_timeline.Frame(2, 10, original.jpeg, original.signature, original.quality)
+        selected = web_ai_timeline.select(frames)
+        self.assertLessEqual(len(selected), web_ai_timeline.INITIAL_FRAMES)
         self.assertTrue({1, 2} - {frame.number for frame in selected})
         self.assertLess(selected[0].seconds, 100)
         self.assertGreater(selected[-1].seconds, 500)
@@ -100,17 +100,17 @@ class AILibraryTests(unittest.TestCase):
             return InferenceResult("served-model", {"tags": evidence, "poses": [],
                                                     "needs_context": [first]})
 
-        timeline = ai_timeline.Timeline("peach", len(frames), frames)
-        with patch.object(ai_timeline, "read", return_value=timeline), patch.object(ai_library, "infer", side_effect=inference):
-            result = ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": "vision", "image": "timeline"})
+        timeline = web_ai_timeline.Timeline("peach", len(frames), frames)
+        with patch.object(web_ai_timeline, "read", return_value=timeline), patch.object(web_ai_library, "infer", side_effect=inference):
+            result = web_ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": "vision", "image": "timeline"})
         self.assertEqual([row["tag"] for row in result["tags"]], ["眼镜", "接吻"])
         self.assertGreater(result["coverage"]["sent"], len(selected))
-        self.assertLessEqual(result["coverage"]["sent"], ai_timeline.MAX_FRAMES)
+        self.assertLessEqual(result["coverage"]["sent"], web_ai_timeline.MAX_FRAMES)
         first, second = result["tags"][1]["frames"]
         self.assertLessEqual(second["seconds"] - first["seconds"], 45)
         with self.contract.read_connection() as conn:
             self.assertIsNone(conn.execute("SELECT 1 FROM asset_tag WHERE asset_id=1").fetchone())
-        ai_library.approve(self.contract, 1, {"token": result["token"], "tags": ["接吻"]})
+        web_ai_library.approve(self.contract, 1, {"token": result["token"], "tags": ["接吻"]})
         with self.contract.read_connection() as conn:
             metadata = conn.execute("SELECT metadata_json FROM asset_entity WHERE asset_id=1").fetchone()[0]
         self.assertEqual(json.loads(metadata)["ai_review"]["frames"], [first, second])
@@ -121,11 +121,11 @@ class AILibraryTests(unittest.TestCase):
             image = Image.new("RGB", (96, 64), "#1b2534")
             draw = ImageDraw.Draw(image)
             draw.rectangle((10 * index, 10, 10 * index + 20, 36), fill="#ffbf41")
-            frames.append(ai_timeline._frame(index, None, image))
-        timeline = ai_timeline.Timeline("snapshot", 9, frames)
+            frames.append(web_ai_timeline._frame(index, None, image))
+        timeline = web_ai_timeline.Timeline("snapshot", 9, frames)
         good = InferenceResult("model", {"tags": [], "poses": [], "needs_context": []})
-        with patch.object(ai_timeline, "select", return_value=frames):
-            _, result = ai_timeline.analyze(timeline, set(), unittest.mock.Mock(side_effect=[good, InferenceError("quota")]))
+        with patch.object(web_ai_timeline, "select", return_value=frames):
+            _, result = web_ai_timeline.analyze(timeline, set(), unittest.mock.Mock(side_effect=[good, InferenceError("quota")]))
         self.assertEqual(result["coverage"]["analyzed"], 6)
         self.assertEqual(result["coverage"]["sent"], 7)
         self.assertEqual(result["coverage"]["error"], "quota")
@@ -143,11 +143,11 @@ class AILibraryTests(unittest.TestCase):
         image = Image.new("RGB", (96, 64), "#19233b")
         ImageDraw.Draw(image).rectangle((5, 9, 65, 49), fill="#f7c745")
         image.save(folder / "1.thumb.jpg")
-        self.assertEqual(ai_library.detail(self.contract, 1)["official_samples"], 1)
+        self.assertEqual(web_ai_library.detail(self.contract, 1)["official_samples"], 1)
         reply = {"tags": [{"tag": tag, "evidence": "sample", "frames": [1]} for tag in ("眼镜", "接吻")],
                  "poses": [], "needs_context": [1]}
-        with patch.object(ai_library, "infer", return_value=InferenceResult("served-model", reply)):
-            result = ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": "vision", "image": "official"})
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult("served-model", reply)):
+            result = web_ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": "vision", "image": "official"})
         self.assertEqual(result["coverage"]["source"], "official")
         self.assertEqual(result["tags"], [{"tag": "眼镜", "evidence": "sample",
                                            "frames": [{"frame": 1, "seconds": None}]}])
@@ -165,8 +165,8 @@ class AILibraryTests(unittest.TestCase):
             self.state.http_transport.client = client
             body = {"provider": "deepseek", "task": "tags"}
             with self.assertRaises(UserValueError):
-                ai_library.suggest(self.state, 1, body)
-            ai_library.suggest(self.state, 1, body)
+                web_ai_library.suggest(self.state, 1, body)
+            web_ai_library.suggest(self.state, 1, body)
         ai_usage.record(root, "openai-oauth", "some-model", "vision", None)
         local_report = ai_usage.summary(root, include_oauth=True, days=7)
         remote_report = ai_usage.summary(root, include_oauth=False, days=7)
@@ -223,24 +223,24 @@ class AILibraryTests(unittest.TestCase):
             self.assertEqual(ai_usage.account_usage(self.state, "openai", 30), {"kind": "admin_required"})
 
     def suggest(self, task, value):
-        with patch.object(ai_library, "infer", return_value=InferenceResult("fixture-model", value)) as infer:
-            result = ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": task, "language": "zh-TW"})
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult("fixture-model", value)) as infer:
+            result = web_ai_library.suggest(self.state, 1, {"provider": "deepseek", "task": task, "language": "zh-TW"})
         return result, infer.call_args.kwargs["text"]
 
     def test_translation_is_separate_and_requires_matching_review(self):
         result, text = self.suggest("translate", {"title": "戴眼鏡的人", "summary": "穿藍衣的人正在看書。"})
         self.assertIn("青い服を着た人が本を読む。", text)
         self.assertNotIn("D:/demo", text)
-        self.assertEqual(ai_library.detail(self.contract, 1)["translations"], [])
+        self.assertEqual(web_ai_library.detail(self.contract, 1)["translations"], [])
         with self.assertRaises(UserValueError):
-            ai_library.approve(self.contract, 2, {"token": result["token"]})
-        ai_library.approve(self.contract, 1, {
+            web_ai_library.approve(self.contract, 2, {"token": result["token"]})
+        web_ai_library.approve(self.contract, 1, {
             "token": result["token"], "translation": {"title": "眼鏡讀者", "summary": result["summary"]},
         })
-        row, = ai_library.detail(self.contract, 1)["translations"]
+        row, = web_ai_library.detail(self.contract, 1)["translations"]
         self.assertEqual((row["title"], row["quality"], row["model"]), ("眼鏡讀者", "human", "fixture-model"))
         with self.assertRaises(UserValueError):
-            ai_library.approve(self.contract, 1, {"token": result["token"]})
+            web_ai_library.approve(self.contract, 1, {"token": result["token"]})
         with self.contract.write_transaction() as conn:
             title = conn.execute("SELECT original_title FROM asset WHERE id=1").fetchone()[0]
             self.assertEqual(title, "眼鏡の人")
@@ -248,24 +248,24 @@ class AILibraryTests(unittest.TestCase):
             self.assertEqual(conn.execute("SELECT COUNT(*) FROM asset_content_translation").fetchone()[0], 0)
 
     def test_english_translation_uses_task_model_and_effort_without_changing_tagging(self):
-        ai_library.configure(self.state, {"provider": "openai", "model": "gpt-5.4-mini", "api_key": "fixture-key"})
-        ai_library.configure_task(self.state, {"task": "translate", "provider": "openai", "model": "gpt-6-luna",
+        web_ai_library.configure(self.state, {"provider": "openai", "model": "gpt-5.4-mini", "api_key": "fixture-key"})
+        web_ai_library.configure_task(self.state, {"task": "translate", "provider": "openai", "model": "gpt-6-luna",
                                                "effort": "none"}, allow_oauth=False)
-        with patch.object(ai_library, "infer", return_value=InferenceResult(
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult(
                 "gpt-6-luna", {"title": "A reader with glasses", "summary": "A person in blue reads a book."})) as infer:
-            suggestion = ai_library.suggest(self.state, 1, {"task": "translate", "language": "en"})
+            suggestion = web_ai_library.suggest(self.state, 1, {"task": "translate", "language": "en"})
             self.assertEqual(infer.call_args.args[1], "openai")
             self.assertEqual(infer.call_args.args[2], "gpt-6-luna")
             self.assertEqual(infer.call_args.kwargs["effort"], "none")
             self.assertIn("summary to English", infer.call_args.kwargs["system"])
-        self.assertEqual(ai_library.detail(self.contract, 1)["translations"], [])
-        ai_library.approve(self.contract, 1, {"token": suggestion["token"]})
-        saved, = ai_library.detail(self.contract, 1)["translations"]
+        self.assertEqual(web_ai_library.detail(self.contract, 1)["translations"], [])
+        web_ai_library.approve(self.contract, 1, {"token": suggestion["token"]})
+        saved, = web_ai_library.detail(self.contract, 1)["translations"]
         self.assertEqual((saved["language"], saved["title"]), ("en", "A reader with glasses"))
         missing = web_catalog.q_items(self.contract, {"translation_missing": "en"})
         self.assertEqual([row["id"] for row in missing["items"]], [2])
-        with patch.object(ai_library, "infer", return_value=InferenceResult("gpt-5.4-mini", {"tags": []})) as infer:
-            ai_library.suggest(self.state, 1, {"provider": "openai", "task": "tags"})
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult("gpt-5.4-mini", {"tags": []})) as infer:
+            web_ai_library.suggest(self.state, 1, {"provider": "openai", "task": "tags"})
             self.assertEqual(infer.call_args.args[2], "gpt-5.4-mini")
             self.assertEqual(infer.call_args.kwargs["effort"], "low")
 
@@ -273,9 +273,9 @@ class AILibraryTests(unittest.TestCase):
         ai_prompts.configure(self.state, {"scope": "system", "text": "Use short explanations."})
         ai_prompts.configure(self.state, {"scope": "translate", "text": "Choose plain language."})
         ai_prompts.configure(self.state, {"scope": "metadata", "text": "Preserve the studio's official case."})
-        with patch.object(ai_library, "infer", return_value=InferenceResult(
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult(
                 "fixture-model", {"title": "A reader", "summary": "A person reads."})) as infer:
-            ai_library.suggest(self.state, 1, {"task": "translate", "language": "en"})
+            web_ai_library.suggest(self.state, 1, {"task": "translate", "language": "en"})
         call = infer.call_args.kwargs
         self.assertIn("Use short explanations.", call["system"])
         self.assertIn("Choose plain language.", call["system"])
@@ -299,9 +299,9 @@ class AILibraryTests(unittest.TestCase):
         self.assertEqual(tuple(chinese), tuple(english))
         for scope in chinese:
             self.assertNotEqual(chinese[scope], english[scope])
-        with patch.object(ai_library, "infer", return_value=InferenceResult(
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult(
                 "fixture-model", {"title": "讀者", "summary": "日誌"})) as infer:
-            ai_library.suggest(self.state, 1, {"task": "translate", "language": "zh-TW"}, prompt_language="en")
+            web_ai_library.suggest(self.state, 1, {"task": "translate", "language": "zh-TW"}, prompt_language="en")
         self.assertIn(json.dumps(english["translate"], ensure_ascii=False), infer.call_args.kwargs["system"])
         self.assertIn("Traditional Chinese (Taiwan)", infer.call_args.kwargs["system"])
         ai_prompts.configure(self.state, {"scope": "translate", "text": "保留作品番号"}, "zh-CN")
@@ -319,11 +319,15 @@ class AILibraryTests(unittest.TestCase):
                             "headers": [(key.encode(), value.encode()) for key, value in headers],
                             "client": (peer, 12345), "app": SimpleNamespace(state=self.state)})
 
+        from ipaddress import IPv4Address
+
+        private_host = str(IPv4Address(bytes((192, 168, 0, 2))))
+        private_peer = str(IPv4Address(bytes((192, 168, 0, 3))))
         public_requests = (
             request("peach.example.test", "127.0.0.1"),
-            request("192.168.1.2", "8.8.8.8"),
+            request(private_host, "8.8.8.8"),
             request("127.0.0.1", "127.0.0.1", [("cf-ray", "example")]),
-            request("192.168.1.2", "192.168.1.3", [("x-forwarded-host", "peach.example.test")]),
+            request(private_host, private_peer, [("x-forwarded-host", "peach.example.test")]),
             request("127.0.0.1", "127.0.0.1", [("origin", "https://peach.example.test")]),
         )
         with patch.object(routes_api, "authenticated_client", return_value=True):
@@ -339,15 +343,15 @@ class AILibraryTests(unittest.TestCase):
                         call()
                     self.assertEqual(denied.exception.status_code, 403)
                     self.assertEqual(denied.exception.detail["message_code"], "api.aiLibrary.privateAccess")
-            private = request("192.168.1.2", "::ffff:192.168.1.3")
+            private = request(private_host, f"::ffff:{private_peer}")
             self.assertTrue(routes_api.ai_connections(private, Response())["providers"])
 
     def test_search_plan_keeps_supported_filters_and_ignores_model_supplied_results(self):
         proposal = InferenceResult("served-model", {"tag": "眼镜,unknown,眼镜", "year": "2024",
                                     "state": "fresh", "translation_missing": "en", "outside": "DEMO-001",
                                     "items": [{"id": 99}], "sql": "DROP TABLE asset"})
-        with patch.object(ai_library, "infer", return_value=proposal) as infer:
-            result = ai_search.plan(self.state, {"query": "Glasses\nwithout English translations", "scope": "library"},
+        with patch.object(web_ai_library, "infer", return_value=proposal) as infer:
+            result = web_ai_search.plan(self.state, {"query": "Glasses\nwithout English translations", "scope": "library"},
                                     allow_oauth=False)
         self.assertEqual(result, {"filters": {"tag": "眼镜", "year": "2024", "state": "fresh", "translation_missing": "en"},
                                   "provider": "deepseek", "model": "served-model"})
@@ -355,8 +359,8 @@ class AILibraryTests(unittest.TestCase):
 
     def test_search_follow_up_sends_only_supported_previous_filters(self):
         proposal = InferenceResult("served-model", {"q": "DEMO-001", "state": "fresh"})
-        with patch.object(ai_library, "infer", return_value=proposal) as infer:
-            result = ai_search.plan(self.state, {
+        with patch.object(web_ai_library, "infer", return_value=proposal) as infer:
+            result = web_ai_search.plan(self.state, {
                 "query": "Only unwatched", "scope": "library",
                 "previous_filters": {"q": "DEMO-001", "releaseFrom": "2024-01-31", "releaseTo": "2024-02-31", "items": [41]},
             }, allow_oauth=False)
@@ -368,8 +372,8 @@ class AILibraryTests(unittest.TestCase):
             "task": "metadata", "target": "DEMO-001",
             "metadata": {"title": "Edited title", "release_date": "2024-02-31", "asset_id": 99},
         })
-        with patch.object(ai_library, "infer", return_value=proposal):
-            result = ai_search.plan(self.state, {"query": "Give DEMO-001 the title Edited title", "scope": "library"},
+        with patch.object(web_ai_library, "infer", return_value=proposal):
+            result = web_ai_search.plan(self.state, {"query": "Give DEMO-001 the title Edited title", "scope": "library"},
                                     allow_oauth=False)
         self.assertEqual(result["filters"], {})
         self.assertEqual(result["work"], {"kind": "metadata", "target": "DEMO-001", "metadata": {"title": "Edited title"}})
@@ -377,20 +381,20 @@ class AILibraryTests(unittest.TestCase):
     def test_external_search_uses_source_rows_and_excludes_owned_codes(self):
         source_rows = [{"number": "DEMO-001"}, {"number": "TEST-002", "title": "Discovery"},
                        {"number": "TEST-002"}, {"number": "../invalid"}]
-        with patch.object(ai_search.javdb_public.PUBLIC_API, "search_movies", return_value=source_rows) as search:
-            result = ai_search.external(self.contract, "keyword")
+        with patch.object(web_ai_search.javdb_public.PUBLIC_API, "search_movies", return_value=source_rows) as search:
+            result = web_ai_search.external(self.contract, "keyword")
         search.assert_called_once_with("keyword")
         self.assertEqual(result, {"items": [{"code": "TEST-002", "title": "Discovery"}], "source": "javdb"})
 
     def test_external_search_projects_verified_cover_and_cast_metadata(self):
-        public = ai_search.javdb_public.PUBLIC_API
+        public = web_ai_search.javdb_public.PUBLIC_API
         row = {"number": "TEST-008", "id": "catalog8", "title": "Search title"}
         movie = {"id": "catalog8", "number": "TEST-008", "origin_title": "Source title",
                  "cover_url": "https://pics.dmm.co.jp/digital/video/test008/test008pl.jpg",
                  "actors": [{"id": "actor8", "name": "Performer", "gender": "female"}],
                  "tags": [{"name": "眼镜"}]}
         with patch.object(public, "search_movies", return_value=[row]), patch.object(public, "movie", return_value=movie) as fetch:
-            result = ai_search.external(self.contract, "title")
+            result = web_ai_search.external(self.contract, "title")
         fetch.assert_called_once_with("TEST-008", source_id="catalog8")
         item, = result["items"]
         self.assertEqual(item["title"], "Source title")
@@ -401,8 +405,8 @@ class AILibraryTests(unittest.TestCase):
     def test_cost_effective_openai_recommendations_cover_both_connection_methods(self):
         for provider in ("openai", "openai-oauth"):
             with self.subTest(provider=provider):
-                text = ai_library.connection_choices(provider, "gpt-6-luna")
-                vision = ai_library.connection_choices(provider, "gpt-6.1-terra")
+                text = web_ai_library.connection_choices(provider, "gpt-6-luna")
+                vision = web_ai_library.connection_choices(provider, "gpt-6.1-terra")
                 self.assertEqual(text["suggested_models"]["translate"][0], "gpt-6-luna")
                 self.assertEqual(text["suggested_models"]["tags"][0], "gpt-6-luna")
                 self.assertEqual(vision["suggested_models"]["vision"][0], "gpt-6.1-terra")
@@ -422,26 +426,26 @@ class AILibraryTests(unittest.TestCase):
         ]
         for provider, model, task, expected in cases:
             with self.subTest(provider=provider, model=model, task=task):
-                result = ai_library.model_choices(provider, model)
+                result = web_ai_library.model_choices(provider, model)
                 self.assertEqual(result["default_efforts"][task], expected)
                 self.assertIn(expected, result["efforts"])
 
     def test_gateway_effort_recommendations_use_only_reported_choices(self):
         model = "vendor/gpt-6.2-astra"
-        result = ai_library.model_choices("custom", model, protocol="openai", reported=["low", "medium"])
+        result = web_ai_library.model_choices("custom", model, protocol="openai", reported=["low", "medium"])
         self.assertEqual(result["default_efforts"]["vision"], "medium")
         self.assertNotIn("high", result["efforts"])
-        unknown = ai_library.model_choices("custom", model, protocol="openai")
+        unknown = web_ai_library.model_choices("custom", model, protocol="openai")
         self.assertEqual(unknown["default_efforts"]["vision"], "default")
 
     def test_official_connection_precedes_an_override_when_the_task_has_no_profile(self):
-        ai_library.configure(self.state, {"provider": "anthropic", "model": "relay-model", "api_key": "relay-test-key",
+        web_ai_library.configure(self.state, {"provider": "anthropic", "model": "relay-model", "api_key": "relay-test-key",
                                          "base_url": "https://gateway.example/v1"})
-        provider, _ = ai_library.task_request(self.state, "translate", allow_oauth=False)
+        provider, _ = web_ai_library.task_request(self.state, "translate", allow_oauth=False)
         self.assertEqual(provider, "deepseek")
-        ai_library.configure_task(self.state, {"task": "translate", "provider": "anthropic", "model": "relay-model",
+        web_ai_library.configure_task(self.state, {"task": "translate", "provider": "anthropic", "model": "relay-model",
                                   "effort": "default"}, allow_oauth=False)
-        provider, _ = ai_library.task_request(self.state, "translate", allow_oauth=False)
+        provider, _ = web_ai_library.task_request(self.state, "translate", allow_oauth=False)
         self.assertEqual(provider, "anthropic")
 
     def test_text_tag_requires_literal_evidence_and_canonical_tag(self):
@@ -454,8 +458,8 @@ class AILibraryTests(unittest.TestCase):
         with self.contract.read_connection() as conn:
             self.assertIsNone(conn.execute("SELECT 1 FROM asset_tag WHERE asset_id=1").fetchone())
         with self.assertRaises(UserValueError):
-            ai_library.approve(self.contract, 1, {"token": result["token"], "tags": ["双马尾"]})
-        ai_library.approve(self.contract, 1, {"token": result["token"], "tags": ["眼镜"]})
+            web_ai_library.approve(self.contract, 1, {"token": result["token"], "tags": ["双马尾"]})
+        web_ai_library.approve(self.contract, 1, {"token": result["token"], "tags": ["眼镜"]})
         with self.contract.read_connection() as conn:
             self.assertEqual(conn.execute("SELECT tag FROM asset_tag WHERE asset_id=1").fetchone()[0], "眼镜")
 
@@ -464,86 +468,86 @@ class AILibraryTests(unittest.TestCase):
         with self.contract.write_transaction() as conn:
             conn.execute("UPDATE asset SET original_title='New source' WHERE id=1")
         with self.assertRaises(UserValueError) as raised:
-            ai_library.approve(self.contract, 1, {"token": result["token"]})
+            web_ai_library.approve(self.contract, 1, {"token": result["token"]})
         self.assertEqual(raised.exception.status_code, 409)
 
     def test_connection_status_never_returns_key(self):
-        result = ai_library.connections(self.state)
+        result = web_ai_library.connections(self.state)
         row = next(row for row in result["providers"] if row["id"] == "deepseek")
         self.assertTrue(row["configured"])
         self.assertNotIn("fixture-key", json.dumps(result))
-        ai_library.configure(self.state, {"provider": "deepseek", "remove": True})
-        self.assertFalse(next(row for row in ai_library.connections(self.state)["providers"]
+        web_ai_library.configure(self.state, {"provider": "deepseek", "remove": True})
+        self.assertFalse(next(row for row in web_ai_library.connections(self.state)["providers"]
                               if row["id"] == "deepseek")["configured"])
 
     def test_verification_does_not_replace_saved_credentials(self):
-        with patch.object(ai_library, "verify_model", return_value="verified-model") as request:
-            result = ai_library.verify_connection(self.state, {
+        with patch.object(web_ai_library, "verify_model", return_value="verified-model") as request:
+            result = web_ai_library.verify_connection(self.state, {
                 "provider": "deepseek", "model": "tested-model", "api_key": "temporary-key",
             })
             request.assert_called_once_with(self.state.http_transport.client, "deepseek", "tested-model", "temporary-key")
         self.assertEqual(result, {"model": "verified-model"})
-        configured = next(row for row in ai_library.connections(self.state)["providers"] if row["id"] == "deepseek")
+        configured = next(row for row in web_ai_library.connections(self.state)["providers"] if row["id"] == "deepseek")
         self.assertEqual(configured["model"], "deepseek-flash")
 
     def test_switching_api_base_requires_a_fresh_key_for_catalog_verify_and_save(self):
         draft = {"provider": "deepseek", "model": "gateway-model", "base_url": "http://localhost/v1", "port": "11434"}
-        for operation in (ai_library.connection_models, ai_library.verify_connection, ai_library.configure):
-            with self.subTest(operation=operation.__name__), patch.object(ai_library, "_saved_key") as read_key:
+        for operation in (web_ai_library.connection_models, web_ai_library.verify_connection, web_ai_library.configure):
+            with self.subTest(operation=operation.__name__), patch.object(web_ai_library, "_saved_key") as read_key:
                 with self.assertRaises(UserValueError) as raised:
                     operation(self.state, draft)
                 self.assertEqual(raised.exception.code, "api.aiLibrary.endpointKey")
                 read_key.assert_not_called()
-        result = ai_library.configure(self.state, {**draft, "api_key": "gateway-test-key"})
+        result = web_ai_library.configure(self.state, {**draft, "api_key": "gateway-test-key"})
         row = next(row for row in result["providers"] if row["id"] == "deepseek")
         base = "http://localhost:11434/v1"
         self.assertEqual(row["base_url"], base)
         self.assertNotIn("gateway-test-key", json.dumps(result))
-        with patch.object(ai_library, "list_models", return_value=[]) as catalog:
-            ai_library.connection_models(self.state, {"provider": "deepseek"})
+        with patch.object(web_ai_library, "list_models", return_value=[]) as catalog:
+            web_ai_library.connection_models(self.state, {"provider": "deepseek"})
             catalog.assert_called_once_with(self.state.http_transport.client, "deepseek", "gateway-test-key", base_url=base)
-        with patch.object(ai_library, "infer", return_value=InferenceResult("gateway-model", {})) as infer:
-            _, request = ai_library.task_request(self.state, "translate", "deepseek")
+        with patch.object(web_ai_library, "infer", return_value=InferenceResult("gateway-model", {})) as infer:
+            _, request = web_ai_library.task_request(self.state, "translate", "deepseek")
             request("catalog example", None, None, instructions="Translate")
             self.assertEqual(infer.call_args.kwargs["base_url"], base)
         with patch.object(ai_usage, "_deepseek_balance") as balance:
             self.assertEqual(ai_usage.account_usage(self.state, "deepseek", 30), {"kind": "unavailable"})
             balance.assert_not_called()
         with self.assertRaises(UserValueError) as raised:
-            ai_library.configure(self.state, {"provider": "deepseek", "model": "deepseek-flash", "base_url": ""})
+            web_ai_library.configure(self.state, {"provider": "deepseek", "model": "deepseek-flash", "base_url": ""})
         self.assertEqual(raised.exception.code, "api.aiLibrary.endpointKey")
 
     def test_standalone_providers_keep_their_own_catalogs_models_and_usage(self):
         base = {"provider": "custom", "protocol": "anthropic", "base_url": "https://gateway.example/v1",
                 "port": "9443", "api_key": "example-gateway-key", "model": "gateway/compact"}
         found = [{"id": base["model"], "label": "Compact", "reasoning_levels": ["none", "low", "high"], "vision": True}]
-        with patch.object(ai_library, "list_models", return_value=found) as listing:
-            result = ai_library.connection_models(self.state, base)
+        with patch.object(web_ai_library, "list_models", return_value=found) as listing:
+            result = web_ai_library.connection_models(self.state, base)
         self.assertEqual(result["models"][0]["efforts"], ("default", "low", "high"))
         self.assertTrue(result["models"][0]["vision"])
         listing.assert_called_once_with(self.state.http_transport.client, "anthropic", "example-gateway-key",
                                         base_url="https://gateway.example:9443/v1", external=True)
-        ai_library.configure(self.state, {**base, "label": "Example gateway"})
-        result = ai_library.configure(self.state, {**base, "label": "Local models", "protocol": "openai",
+        web_ai_library.configure(self.state, {**base, "label": "Example gateway"})
+        result = web_ai_library.configure(self.state, {**base, "label": "Local models", "protocol": "openai",
             "base_url": "http://localhost:3425/v1", "port": "", "model": "local/model", "manual_model": True})
         gateway, local = [row for row in result["providers"] if row.get("custom")]
         self.assertNotEqual(gateway["id"], local["id"])
         self.assertNotIn("example-gateway-key", json.dumps(result))
         self.assertEqual(gateway["base_url"], "https://gateway.example:9443/v1")
-        with patch.object(ai_library, "list_models") as listing:
-            result = ai_library.connection_models(self.state, {"provider": local["id"]})
+        with patch.object(web_ai_library, "list_models") as listing:
+            result = web_ai_library.connection_models(self.state, {"provider": local["id"]})
         self.assertEqual(result["models"][0]["id"], local["model"])
         self.assertEqual(result["models"][0]["default_efforts"]["translate"], "default")
         self.assertFalse(result["models"][0]["effort_reported"])
         listing.assert_not_called()
-        ai_library.configure_task(self.state, {"task": "translate", "provider": gateway["id"],
+        web_ai_library.configure_task(self.state, {"task": "translate", "provider": gateway["id"],
                                   "model": gateway["model"], "effort": "high"}, allow_oauth=True)
         def inference(*args, **options):
             options["on_usage"](gateway["model"], ai_usage.TokenUsage(4, 1))
             return InferenceResult(gateway["model"], {})
 
-        with patch.object(ai_library, "infer", side_effect=inference) as infer:
-            provider, request = ai_library.task_request(self.state, "translate")
+        with patch.object(web_ai_library, "infer", side_effect=inference) as infer:
+            provider, request = web_ai_library.task_request(self.state, "translate")
             request("catalog example", None, None, instructions="Translate")
         self.assertEqual(provider, gateway["id"])
         self.assertEqual(infer.call_args.args[1:4], ("anthropic", gateway["model"], "example-gateway-key"))
@@ -553,8 +557,8 @@ class AILibraryTests(unittest.TestCase):
         self.assertEqual((row["provider"], row["input_tokens"], row["output_tokens"]), (gateway["id"], 4, 1))
         self.assertEqual(ai_usage.account_usage(self.state, gateway["id"], 30), {"kind": "custom"})
         with self.assertRaises(UserValueError) as raised:
-            ai_library.connection_models(self.state, {"provider": gateway["id"], "protocol": "openai"})
+            web_ai_library.connection_models(self.state, {"provider": gateway["id"], "protocol": "openai"})
         self.assertEqual(raised.exception.code, "api.aiLibrary.endpointKey")
-        result = ai_library.configure(self.state, {"provider": gateway["id"], "remove": True})
+        result = web_ai_library.configure(self.state, {"provider": gateway["id"], "remove": True})
         self.assertEqual([row["id"] for row in result["providers"] if row.get("custom")], [local["id"]])
         self.assertEqual(result["task_profiles"]["translate"], {})

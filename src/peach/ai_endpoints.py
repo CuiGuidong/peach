@@ -10,11 +10,31 @@ from .http import host_addresses
 _LABEL = r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?"
 _DOMAIN = re.compile(rf"(?:{_LABEL}\.)+{_LABEL}", re.ASCII)
 _PATH = re.compile(r"(?:/[A-Za-z0-9_~.\-]+)*/?", re.ASCII)
-_LAN = tuple(ipaddress.ip_network(block) for block in ("10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "fc00::/7"))
+# RFC 1918 private IPv4 ranges and RFC 4193 unique-local IPv6.
+_LAN_V4 = (
+    ipaddress.IPv4Network((bytes((10, 0, 0, 0)), 8)),
+    ipaddress.IPv4Network((bytes((172, 16, 0, 0)), 12)),
+    ipaddress.IPv4Network((bytes((192, 168, 0, 0)), 16)),
+)
+_LAN_V6 = ipaddress.IPv6Network("fc00::/7")
+
+
+def is_private_lan(ip):
+    if isinstance(ip, ipaddress.IPv6Address):
+        return ip in _LAN_V6
+    return any(ip in network for network in _LAN_V4)
 
 
 def _public(ip):
     return ip.is_global and not (ip.is_multicast or ip.is_reserved)
+
+
+def _port_override(fallback, raw):
+    if not raw:
+        return fallback
+    if not re.fullmatch(r"[0-9]{1,5}", raw) or not 1 <= int(raw) <= 65535:
+        raise ValueError("invalid API port")
+    return int(raw)
 
 
 def normalize_base(raw: str, custom_port: str = "") -> str:
@@ -24,11 +44,7 @@ def normalize_base(raw: str, custom_port: str = "") -> str:
         raise ValueError("invalid API base")
     parsed = urlsplit(raw)
     host = parsed.hostname or ""
-    port = parsed.port
-    if custom_port:
-        if not re.fullmatch(r"[0-9]{1,5}", custom_port) or not 1 <= int(custom_port) <= 65535:
-            raise ValueError("invalid API port")
-        port = int(custom_port)
+    port = _port_override(parsed.port, custom_port)
     try:
         ip = ipaddress.ip_address(host)
     except ValueError:
@@ -39,7 +55,7 @@ def normalize_base(raw: str, custom_port: str = "") -> str:
             or any(segment in (".", "..") for segment in parsed.path.split("/"))):
         raise ValueError("invalid API base")
     if ip is not None:
-        if not (loopback or _public(ip) or any(ip in network for network in _LAN)):
+        if not (loopback or _public(ip) or is_private_lan(ip)):
             raise ValueError("invalid API address")
         host = f"[{ip.compressed}]" if ip.version == 6 else ip.compressed
     elif host != "localhost" and (len(host) > 253 or not _DOMAIN.fullmatch(host) or host.rsplit(".", 1)[-1].isdigit()):

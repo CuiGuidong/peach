@@ -11,6 +11,7 @@ from urllib.parse import quote, urlencode
 import httpx
 from curl_cffi.requests.exceptions import CurlError
 
+from .user_agent import AI_USER_AGENT
 from .ai_endpoints import pinned_target
 from .ai_usage import TokenUsage, response_usage
 from .public_http import address_session
@@ -248,7 +249,7 @@ def _custom_request(endpoint: str, headers: dict, body: dict | None = None) -> d
         raise InferenceError("endpoint") from None
     try:
         with address_session(*target) as client:
-            with client.stream("GET" if lookup else "POST", endpoint, headers={"User-Agent": "Peach", **headers}, json=body,
+            with client.stream("GET" if lookup else "POST", endpoint, headers={"User-Agent": AI_USER_AGENT, **headers}, json=body,
                                timeout=(5, 10) if lookup else (10, 90), allow_redirects=False) as response:
                 status = response.status_code
                 if lookup and status == 404:

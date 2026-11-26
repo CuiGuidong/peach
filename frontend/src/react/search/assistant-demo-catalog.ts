@@ -1,7 +1,7 @@
 import { t } from '../../i18n';
-import idpc032 from './assistant-demo-covers/idpc032.webp?inline';
-import ipzz690 from './assistant-demo-covers/ipzz690.webp?inline';
-import ipzz893 from './assistant-demo-covers/ipzz893.webp?inline';
+import idpc032 from '../../../../resources/assistant-demo-covers/idpc032.webp?inline';
+import ipzz690 from '../../../../resources/assistant-demo-covers/ipzz690.webp?inline';
+import ipzz893 from '../../../../resources/assistant-demo-covers/ipzz893.webp?inline';
 import type { SearchWork } from './assistant-results';
 
 const publisher = 'IDEA POCKET';

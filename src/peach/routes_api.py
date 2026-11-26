@@ -21,7 +21,7 @@ import sqlite3
 import uuid
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 from urllib.parse import unquote
 
 from browserexport.common import BrowserexportError
@@ -29,7 +29,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Res
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
-from . import ai_custom_tasks, ai_library, ai_openai_oauth, ai_prompts, ai_search, ai_usage, interface_text, push_discovery, web_contract, web_tasks
+from . import web_ai_custom_tasks, web_ai_library, ai_openai_oauth, ai_prompts, web_ai_search, ai_usage, interface_text, push_discovery, web_contract, web_tasks
 from .field_owners import RevisionConflict
 from .folder_rules import FolderRuleConflict
 from .interaction import reveal_path
@@ -94,13 +94,13 @@ def _ai_language(request: Request, preferred=None) -> str:
 def ai_connections(request: Request, response: Response, _args=Depends(require_auth)):
     _ai_access(request)
     response.headers["Cache-Control"] = "no-store"
-    result = ai_library.connections(request.app.state)
+    result = web_ai_library.connections(request.app.state)
     if loopback_client(request):
         oauth = ai_openai_oauth.status(request.app.state)
         providers = result["providers"]
         first_custom = next((index for index, provider in enumerate(providers) if provider.get("custom")), len(providers))
         providers.insert(first_custom, {"id": "openai-oauth", "label": "ChatGPT", **oauth,
-                                       **ai_library.connection_choices("openai-oauth", oauth["model"])})
+                                       **web_ai_library.connection_choices("openai-oauth", oauth["model"])})
     return result
 
 
@@ -108,7 +108,7 @@ def ai_connections(request: Request, response: Response, _args=Depends(require_a
 def ai_configure(request: Request, response: Response, body: Any = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     response.headers["Cache-Control"] = "no-store"
-    return ai_library.configure(request.app.state, _ai_key_payload(request, body))
+    return web_ai_library.configure(request.app.state, _ai_key_payload(request, body))
 
 
 @router.get("/api/ai-library/prompts")
@@ -132,14 +132,14 @@ def ai_fixed_tasks(request: Request, response: Response, edit: bool = False, _ar
     else:
         _ai_access(request)
     response.headers["Cache-Control"] = "no-store"
-    return ai_custom_tasks.list_tasks(request.app.state, edit=edit, allow_oauth=loopback_client(request))
+    return web_ai_custom_tasks.list_tasks(request.app.state, edit=edit, allow_oauth=loopback_client(request))
 
 
 @router.post("/api/ai-library/custom-tasks")
 def ai_configure_fixed_task(request: Request, response: Response, body: Any = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     response.headers["Cache-Control"] = "no-store"
-    return ai_custom_tasks.configure(request.app.state, _ai_payload(body), allow_oauth=loopback_client(request))
+    return web_ai_custom_tasks.configure(request.app.state, _ai_payload(body), allow_oauth=loopback_client(request))
 
 
 @router.post("/api/ai-library/custom-tasks/run")
@@ -154,7 +154,7 @@ def ai_run_fixed_task(request: Request, response: Response, body: Any = Body(...
         usage = asdict(tokens) if tokens is not None else None
 
     try:
-        result = ai_custom_tasks.run(
+        result = web_ai_custom_tasks.run(
             request.app.state, payload, allow_oauth=loopback_client(request), on_usage=receive_usage,
             prompt_language=_ai_language(request, payload.get("prompt_language")),
         )
@@ -191,7 +191,7 @@ def ai_search_plan(request: Request, body: dict = Body(...), _args=Depends(requi
         usage = asdict(tokens) if tokens is not None else None
 
     try:
-        plan = ai_search.plan(request.app.state, body, allow_oauth=loopback_client(request), on_usage=receive_usage,
+        plan = web_ai_search.plan(request.app.state, body, allow_oauth=loopback_client(request), on_usage=receive_usage,
                               prompt_language=_ai_language(request, body.get("prompt_language")))
         return {**plan, "usage": usage}
     except UserFacingError as exc:
@@ -202,7 +202,7 @@ def ai_search_plan(request: Request, body: dict = Body(...), _args=Depends(requi
 def ai_external_search(request: Request, q: str, _args=Depends(require_auth)):
     _ai_access(request)
     try:
-        return ai_search.external(request.app.state.web_contract, q)
+        return web_ai_search.external(request.app.state.web_contract, q)
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
 
@@ -212,13 +212,13 @@ def ai_search_models(request: Request, provider: str, _args=Depends(require_auth
     _ai_access(request)
     try:
         if provider != "openai-oauth":
-            return ai_library.connection_models(request.app.state, {"provider": provider})
+            return web_ai_library.connection_models(request.app.state, {"provider": provider})
         if not loopback_client(request):
             raise HTTPException(403, message_fields("api.configuration.openOnHost"))
-        return ai_library.oauth_model_catalog(request.app.state)
+        return web_ai_library.oauth_model_catalog(request.app.state)
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
-    except ai_library.InferenceError as exc:
+    except web_ai_library.InferenceError as exc:
         return JSONResponse(message_fields("api.aiLibrary." + exc.code, key="error"), status_code=502)
 
 
@@ -226,7 +226,7 @@ def ai_search_models(request: Request, provider: str, _args=Depends(require_auth
 def ai_verify_connection(request: Request, body: Any = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     try:
-        return ai_library.verify_connection(request.app.state, _ai_key_payload(request, body))
+        return web_ai_library.verify_connection(request.app.state, _ai_key_payload(request, body))
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
 
@@ -235,7 +235,7 @@ def ai_verify_connection(request: Request, body: Any = Body(...), _args=Depends(
 def ai_task_profile(request: Request, body: dict = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     try:
-        return ai_library.configure_task(request.app.state, body, allow_oauth=loopback_client(request))
+        return web_ai_library.configure_task(request.app.state, body, allow_oauth=loopback_client(request))
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
 
@@ -244,7 +244,7 @@ def ai_task_profile(request: Request, body: dict = Body(...), _args=Depends(requ
 def ai_connection_models(request: Request, body: Any = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     try:
-        return ai_library.connection_models(request.app.state, _ai_key_payload(request, body))
+        return web_ai_library.connection_models(request.app.state, _ai_key_payload(request, body))
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
 
@@ -259,12 +259,12 @@ def ai_openai_sign_in(request: Request, body: dict = Body(...), _args=Depends(re
             return ai_openai_oauth.disconnect(request.app.state)
         model = body.get("model", ai_openai_oauth.DEFAULT_MODEL)
         if not isinstance(model, str):
-            raise ai_library.InferenceError("provider")
+            raise web_ai_library.InferenceError("provider")
         if body.get("set_model") is True:
             return ai_openai_oauth.set_model(request.app.state, model)
         result_url = str(request.base_url.replace(path=ai_openai_oauth.RESULT_PATH))
         return ai_openai_oauth.start(request.app.state, model, result_url=result_url)
-    except ai_library.InferenceError as exc:
+    except web_ai_library.InferenceError as exc:
         return JSONResponse(message_fields("api.aiLibrary." + exc.code, key="error"), status_code=400)
 
 
@@ -274,15 +274,15 @@ def ai_openai_models(request: Request, _args=Depends(require_auth)):
     if not loopback_client(request):
         raise HTTPException(403, message_fields("api.configuration.openOnHost"))
     try:
-        return ai_library.oauth_model_catalog(request.app.state)
-    except ai_library.InferenceError as exc:
+        return web_ai_library.oauth_model_catalog(request.app.state)
+    except web_ai_library.InferenceError as exc:
         return JSONResponse(message_fields("api.aiLibrary." + exc.code, key="error"), status_code=502)
 
 
 @router.get("/api/ai-library/assets/{asset_id}")
 def ai_asset_detail(request: Request, asset_id: int, _args=Depends(require_auth)):
     _ai_access(request)
-    return ai_library.detail(request.app.state.web_contract, asset_id)
+    return web_ai_library.detail(request.app.state.web_contract, asset_id)
 
 
 @router.post("/api/ai-library/assets/{asset_id}")
@@ -291,7 +291,7 @@ def ai_asset_suggest(request: Request, asset_id: int, body: dict = Body(...), _a
     if body.get("provider") == "openai-oauth" and not loopback_client(request):
         raise HTTPException(403, message_fields("api.configuration.openOnHost"))
     try:
-        return ai_library.suggest(request.app.state, asset_id, body, allow_oauth=loopback_client(request),
+        return web_ai_library.suggest(request.app.state, asset_id, body, allow_oauth=loopback_client(request),
                                   prompt_language=_ai_language(request, body.get("prompt_language")))
     except UserFacingError as exc:
         return JSONResponse(error_fields(exc), status_code=response_status(exc))
@@ -300,7 +300,7 @@ def ai_asset_suggest(request: Request, asset_id: int, body: dict = Body(...), _a
 @router.post("/api/ai-library/assets/{asset_id}/approve")
 def ai_asset_approve(request: Request, asset_id: int, body: dict = Body(...), _args=Depends(require_auth)):
     _ai_access(request)
-    return ai_library.approve(request.app.state.web_contract, asset_id, body)
+    return web_ai_library.approve(request.app.state.web_contract, asset_id, body)
 
 
 @router.get("/api/sources")

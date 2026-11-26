@@ -5,7 +5,7 @@ import json
 import re
 from secrets import token_hex
 
-from . import ai_library, ai_prompts
+from . import web_ai_library, ai_prompts
 from .ai_inference import InferenceError
 from .follow_secrets import CredentialStore
 from .user_messages import UserValueError
@@ -74,7 +74,7 @@ def configure(state, body, *, allow_oauth):
         if body.get("connection") is not None:
             if not isinstance(body["connection"], dict):
                 raise UserValueError("api.aiLibrary.invalidCustomTask")
-            values.update(ai_library.validate_task_selection(state, body["connection"], allow_oauth=allow_oauth))
+            values.update(web_ai_library.validate_task_selection(state, body["connection"], allow_oauth=allow_oauth))
         if not store.save_if_unchanged(task_id, values, revision):
             raise UserValueError("api.aiLibrary.customTaskChanged", status_code=409)
     return {"id": task_id, **list_tasks(state, edit=True, allow_oauth=allow_oauth)}
@@ -84,7 +84,7 @@ def run(state, body, *, allow_oauth, on_usage, prompt_language):
     item = _task(_store(state), body.get("id"))
     text = _text(body.get("text", ""), 500, required=False)
     selection = {field: item[field] for field in ("provider", "model", "effort")} if item.get("provider") else None
-    provider, request = ai_library.task_request(
+    provider, request = web_ai_library.task_request(
         state, "custom", selection=selection, selection_target=item if selection else None,
         allow_oauth=allow_oauth, on_usage=on_usage, prompt_scope="system", prompt_language=prompt_language,
     )

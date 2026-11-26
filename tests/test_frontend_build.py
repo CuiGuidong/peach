@@ -87,7 +87,7 @@ class MainBundleTests(unittest.TestCase):
             text = path.read_text(encoding="utf-8")
             imported = [a or b for a, b in STATIC_IMPORTS.findall(text)] + DYNAMIC_IMPORTS.findall(text)
             referenced |= {name[2:] for name in imported if name.startswith("./") and name != "./peach-app.js"}
-        self.assertEqual(sorted(referenced), [path.name for path in CHUNKS])
+        self.assertEqual(sorted(referenced), sorted(path.name for path in CHUNKS))
 
     def test_the_main_document_loads_one_module_entry(self):
         assets = PageAssets((ROOT / "web" / "index.html").read_text(encoding="utf-8"))

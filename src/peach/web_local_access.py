@@ -9,10 +9,7 @@ from fastapi import Request
 
 from . import distribution, listening, tunnel
 
-
-_AI_LAN_NETWORKS = tuple(map(ipaddress.ip_network, (
-    "10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "169.254.0.0/16", "fc00::/7", "fe80::/10",
-)))
+from .ai_endpoints import is_private_lan
 
 
 def managed_configuration() -> bool:
@@ -47,7 +44,7 @@ def _ai_local_address(host: str) -> bool:
         return False
     if isinstance(address, ipaddress.IPv6Address) and address.ipv4_mapped:
         address = address.ipv4_mapped
-    return address.is_loopback or any(address in network for network in _AI_LAN_NETWORKS)
+    return address.is_loopback or address.is_link_local or is_private_lan(address)
 
 
 def private_ai_client(request: Request) -> bool:

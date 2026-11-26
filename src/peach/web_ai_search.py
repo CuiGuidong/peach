@@ -5,7 +5,7 @@ import json
 import re
 from datetime import date
 
-from . import ai_library, catalog_rules, entities, javdb_public, web_jav_detail
+from . import web_ai_library, catalog_rules, entities, javdb_public, web_jav_detail
 from .ai_inference import InferenceError
 from .genre_decisions import load_genre_decisions
 from .jav_discovery_metadata import discovery_metadata
@@ -21,7 +21,7 @@ _FIELDS = {
     "q": _TEXT, "performer": _TEXT, "studio": _TEXT, "tag": _TEXT, "year": _TEXT,
     "state": {"type": "string", "enum": ["", "fresh", "played", "flagged", "later"]},
     "sort": {"type": "string", "enum": ["", "new", "release", "rating", "dur"]},
-    "translation_missing": {"type": "string", "enum": ["", *ai_library.LANGUAGES]},
+    "translation_missing": {"type": "string", "enum": ["", *web_ai_library.LANGUAGES]},
     "releaseFrom": _TEXT, "releaseTo": _TEXT,
     "outside": _TEXT,
 }
@@ -29,7 +29,7 @@ _PLAN_FIELDS = {
     **_FIELDS,
     "task": {"type": "string", "enum": ["search", *_WORK_TASKS]},
     "target": _TEXT,
-    "language": {"type": "string", "enum": ["", *ai_library.LANGUAGES]},
+    "language": {"type": "string", "enum": ["", *web_ai_library.LANGUAGES]},
     "metadata": {"type": "object", "properties": dict.fromkeys(_EDIT_FIELDS, _TEXT),
                  "required": list(_EDIT_FIELDS), "additionalProperties": False},
 }
@@ -58,7 +58,7 @@ def clean(data, scope):
             if value := _plain(data.get(key), 100):
                 result[key] = value
         if tags := _plain(data.get("tag"), 180):
-            known = list(dict.fromkeys(tag.strip() for tag in tags.split(",") if tag.strip() in ai_library.TEXT_TAGS))
+            known = list(dict.fromkeys(tag.strip() for tag in tags.split(",") if tag.strip() in web_ai_library.TEXT_TAGS))
             if known:
                 result["tag"] = ",".join(known[:5])
         if (year := _plain(data.get("year"), 4)) and re.fullmatch(r"(?:19|20)\d{2}", year):
@@ -85,7 +85,7 @@ def plan(state, body, *, allow_oauth, on_usage=None, prompt_language="zh-CN"):
         raise UserValueError("api.aiLibrary.invalidSearch")
     previous = body.get("previous_filters")
     previous = clean(previous, scope) if isinstance(previous, dict) else {}
-    provider, request = ai_library.task_request(state, "search", allow_oauth=allow_oauth,
+    provider, request = web_ai_library.task_request(state, "search", allow_oauth=allow_oauth,
                                                selection=body.get("connection"), on_usage=on_usage,
                                                prompt_language=prompt_language)
     prompt = (
@@ -105,7 +105,7 @@ def plan(state, body, *, allow_oauth, on_usage=None, prompt_language="zh-CN"):
         "outside is one short JavDB movie-search keyword or a literal work code, preferably the known Japanese "
         "title or name when provided. Do not copy personal watch history conditions into outside. "
     )
-    payload = (f"Scope: {scope}. Allowed tags: {json.dumps(sorted(ai_library.TEXT_TAGS), ensure_ascii=False)}. "
+    payload = (f"Scope: {scope}. Allowed tags: {json.dumps(sorted(web_ai_library.TEXT_TAGS), ensure_ascii=False)}. "
                f"Previous filters: {json.dumps(previous, ensure_ascii=False)}. User request: {json.dumps(text, ensure_ascii=False)}.")
     try:
         result = request(payload, None, _SCHEMA, instructions=prompt)
@@ -116,7 +116,7 @@ def plan(state, body, *, allow_oauth, on_usage=None, prompt_language="zh-CN"):
         target = _plain(result.data.get("target"), 100)
         language = result.data.get("language")
         work = {"kind": task, "target": target}
-        if task == "translate" and isinstance(language, str) and language in ai_library.LANGUAGES:
+        if task == "translate" and isinstance(language, str) and language in web_ai_library.LANGUAGES:
             work["language"] = language
         fields = result.data.get("metadata")
         if task == "metadata" and isinstance(fields, dict):

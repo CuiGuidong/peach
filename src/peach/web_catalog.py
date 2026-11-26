@@ -385,6 +385,15 @@ def _catalog_entity_filters(contract, args):
     return where, parameters
 
 
+def _translation_filter(language, trash):
+    if trash or language not in ("zh-TW", "zh-CN", "en"):
+        return [], []
+    return [
+        "a.medium='video'",
+        "NOT EXISTS (SELECT 1 FROM asset_content_translation tr WHERE tr.asset_id=a.id AND tr.language=?)",
+    ], [language]
+
+
 def catalog_filter(contract: WebContract, args):
     """视频列表与侧栏使用同一组筛选条件。"""
     trash = args.get("state") == "trash"
@@ -457,10 +466,9 @@ def catalog_filter(contract: WebContract, args):
     if not trash and args.get("jav") == "1":
         # 只有番号形态还不够：JI-103 这类 creator clip 没有任何发行证据。
         where.append(JAV_ASSET_PREDICATE)
-    if not trash and args.get("translation_missing") in ("zh-TW", "zh-CN", "en"):
-        where.append("a.medium='video'")
-        where.append("NOT EXISTS (SELECT 1 FROM asset_content_translation tr WHERE tr.asset_id=a.id AND tr.language=?)")
-        par.append(args["translation_missing"])
+    translation_where, translation_par = _translation_filter(args.get("translation_missing"), trash)
+    where += translation_where
+    par += translation_par
     if args.get("q"):
         query = args["q"].strip()
         if len(query) >= 3 and contract.has_fts():
