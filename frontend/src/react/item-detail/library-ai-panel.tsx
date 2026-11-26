@@ -18,7 +18,7 @@ import { ModalFrame } from '../components/modal-frame';
 import { spriteGlyph } from '../components/sprite-glyph';
 
 const LANGUAGES = ['zh-TW', 'zh-CN', 'en'] as const;
-const Sparkles = spriteGlyph('sparkles');
+const AssistantIcon = spriteGlyph('bot-orb');
 export type TranslationLanguage = typeof LANGUAGES[number];
 type Language = TranslationLanguage;
 type AssetTask = typeof AI_ASSET_TASKS[number];
@@ -197,7 +197,7 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
   return <>
     <button type="button" aria-haspopup="dialog" aria-expanded={open}
       aria-label={t('catalog:aiLibrary.title')} title={t('catalog:aiLibrary.openTranslation')} onClick={openAssistant}>
-      <Sparkles aria-hidden="true" />
+      <AssistantIcon />
     </button>
     <ModalFrame isOpen={open} onOpenChange={setOpen} width="form" fitVisualViewport>
       <header className="sticky top-0 z-1 flex items-center justify-between gap-3 border-b border-separator-border bg-background-full px-5 py-3">

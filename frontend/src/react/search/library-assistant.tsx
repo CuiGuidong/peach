@@ -13,7 +13,7 @@ import { cardClass } from '../components/card';
 import { Disclosure, ErrorText, Help } from '../settings/section';
 import { useAction } from '../settings/use-action';
 import { preferredAIConnection } from '../settings/use-ai-models';
-import { AssistantFooter, AssistantWorkspace, SearchComposer, SearchWelcome, assistantCopy as copy } from './assistant-workspace';
+import { AssistantFooter, AssistantWorkspace, ConfigureAIButton, SearchComposer, SearchWelcome, assistantCopy as copy } from './assistant-workspace';
 import { ConversationUsagePopover, DemoReplayButton, DemoStatus, EMPTY_USAGE, SearchLibraryPicker, type ConversationUsage, type TokenUsage } from './assistant-footer';
 import { SearchDemo, SearchDemoCases, SearchTrace, useSearchDemo, type SearchDemoId, type SearchStep } from './assistant-progress';
 import { SearchWorks, snapshotSearchResult, type SearchResult, type SearchSource } from './assistant-results';
@@ -130,7 +130,13 @@ export function LibraryAssistant() {
   const fallback = provider && { provider: provider.id, model: searchProfile?.model || provider.model,
     effort: searchProfile?.effort ?? provider.default_efforts?.search ?? 'default' };
   const selection = modelChoice && connections.some(row => row.id === modelChoice.provider) ? modelChoice : null;
-  const needsConnection = Boolean(setup.data && !connections.length);
+  const setupAction = !setup.isPending && !connections.length ? <div className="flex flex-col items-center gap-2">
+    {setup.error ? <p role="status" className="text-body-regular text-text-secondary"
+      data-copy-key={setup.error instanceof ApiError && setup.error.status === 403 ? 'api.aiLibrary.privateAccess' : undefined}>
+      {errorMessage(setup.error)}
+    </p> : null}
+    <ConfigureAIButton />
+  </div> : null;
   const hasPlanner = Boolean(selection || fallback);
   const seeds = Object.fromEntries(Object.entries(conditions).filter(([, value]) => value?.trim()));
   const seedTargets = searchTargets(scope, seeds, library);
@@ -375,6 +381,7 @@ export function LibraryAssistant() {
           chooseFixed={id => { setFixedId(id); setOptionsOpen(false); action.setError(''); }} />
         <ConversationUsagePopover usage={usage} pending={planning} provider={fixed ? fixedConnection?.id : (selection ?? fallback)?.provider} />
       </div>
+      {turn && setupAction ? <div className="basis-full px-1.5">{setupAction}</div> : null}
       {fixed && !fixedConnection ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary">
         {t('settings:aiLibrary.taskConnectionMissing')}
       </p> : !fixed && hasPlanner ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary"
@@ -404,8 +411,7 @@ export function LibraryAssistant() {
       {workTaskDemo ? <RecordedTaskDemo task={workTask} phase={taskPlayback.phase} run={taskPlayback.run} /> : null}
     </WorkTaskWorkspace>
       : demoId ? <SearchDemo key={simulation.run} id={demoId} simulation={simulation} /> : <>
-    {!turn ? <SearchWelcome needsConnection={needsConnection}
-      connectionError={setup.error instanceof ApiError && setup.error.status === 403 ? errorMessage(setup.error) : undefined}
+    {!turn ? <SearchWelcome setupAction={setupAction}
       demoCases={<SearchDemoCases choose={playDemo} visible={showDemos} toggle={toggleDemos}>
       <WorkTaskButtons choose={task => openWorkTask(task, true)} />
     </SearchDemoCases>} /> : null}

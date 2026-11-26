@@ -126,8 +126,14 @@ export function AssistantFooter({ children }: { children: ReactNode }) {
   return <footer className="flex min-w-0 flex-wrap items-center justify-between gap-x-3 gap-y-1 px-2">{children}</footer>;
 }
 
-export function SearchWelcome({ demoCases, needsConnection, connectionError }: {
-  demoCases: ReactNode; needsConnection: boolean; connectionError?: string;
+export function ConfigureAIButton() {
+  return <ButtonLink href="/settings/ai" variant="primary" size="small" leadingIcon={RiSettings3Line}>
+    <span data-copy-key="catalog.aiLibrary.configure">{t('catalog:aiLibrary.configure')}</span>
+  </ButtonLink>;
+}
+
+export function SearchWelcome({ demoCases, setupAction }: {
+  demoCases: ReactNode; setupAction: ReactNode;
 }) {
   return <div className="flex min-w-0 flex-col items-center gap-4 text-center">
     <AssistantMascot label={assistantCopy('playMascot')} />
@@ -136,10 +142,6 @@ export function SearchWelcome({ demoCases, needsConnection, connectionError }: {
       <p className="text-body-regular text-text-secondary" data-copy-key="catalog.libraryAssistant.description">{assistantCopy('description')}</p>
     </div>
     {demoCases}
-    {connectionError ? <p role="status" className="text-body-regular text-text-secondary"
-      data-copy-key="api.aiLibrary.privateAccess">{connectionError}</p> : null}
-    {needsConnection ? <ButtonLink href="/settings/ai" variant="primary" size="small" leadingIcon={RiSettings3Line}>
-      <span data-copy-key="catalog.aiLibrary.configure">{t('catalog:aiLibrary.configure')}</span>
-    </ButtonLink> : null}
+    {setupAction}
   </div>;
 }

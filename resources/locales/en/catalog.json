@@ -190,6 +190,8 @@
     "retryModels": "Reload models",
     "filterModels": "Filter models",
     "noModelsFound": "No matching models.",
+    "noVisibleModels": "No models are visible for this connection. Manage visibility in AI Connections",
+    "currentModelHidden": "The current model is hidden and remains active in this conversation",
     "adjust": "Refine search filters",
     "invalidPeriod": "The start date must be on or before the end date.",
     "any": "Any",
