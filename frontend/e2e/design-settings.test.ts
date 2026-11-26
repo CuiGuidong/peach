@@ -365,13 +365,16 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
       const scrim = await tokenColor(page, 'body', '--scrim');
       const shown = await page.locator(PANEL).evaluate((panel) => {
         const style = getComputedStyle(panel);
-        const card = getComputedStyle(panel.querySelector('[data-settings-card]')!);
+        const cardElement = panel.querySelector('[data-settings-card]')!;
+        const card = getComputedStyle(cardElement);
+        const launcher = panel.querySelector('[data-feedback-launcher]')!;
         return {
           position: style.position, z: style.zIndex, inset: [style.top, style.right, style.bottom, style.left],
           layer: getComputedStyle(document.documentElement).getPropertyValue('--layer-dialog').trim(),
           face: style.backgroundColor, blur: [style.backdropFilter, card.backdropFilter],
           backdrop: [style.animationName, style.animationFillMode], card: [card.animationName, card.animationFillMode],
           padding: [style.paddingTop, style.paddingBottom],
+          feedbackGap: launcher.getBoundingClientRect().top - cardElement.getBoundingClientRect().bottom,
         };
       });
       assert.equal(shown.position, 'fixed');
@@ -382,8 +385,9 @@ describe('设计决定：设置、口味、统计与筛选玻璃', () => {
       assert.deepEqual(shown.backdrop, ['settings-backdrop-in', 'both']);
       // 进场填 `backwards`：终点帧留下的 filter 会另起一个 backdrop root，左栏玻璃就只采样得到卡片自己。
       assert.deepEqual(shown.card, ['board-dialog-in', 'backwards']);
-      /* 安全区内边距让开刘海与 Home 指示条；桌面上没有安全区，两端都是 18px 的底。 */
-      assert.deepEqual(shown.padding, ['18px', '18px']);
+      assert.equal(shown.padding[0], '18px');
+      assert.ok(Number.parseFloat(shown.padding[1]!) >= 18);
+      assert.ok(shown.feedbackGap >= 0, `反馈按钮与设置卡片重叠 ${-shown.feedbackGap}px`);
 
       const leaving = await page.locator(PANEL).evaluate((panel) => {
         (panel.querySelector('#settingsClose') as HTMLButtonElement).click();

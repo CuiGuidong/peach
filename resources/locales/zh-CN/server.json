@@ -876,6 +876,28 @@
     "faceModelsReady": "人脸模型已就绪"
   },
   "api": {
+    "feedback": {
+      "issueTemplate": {
+        "bugDescription": "问题描述",
+        "reproduction": "复现步骤",
+        "logs": "日志与截图（可选）",
+        "useCase": "使用场景",
+        "desiredBehavior": "期望的行为",
+        "additionalContext": "补充（可选）",
+        "environmentPeach": "Peach 版本或构建",
+        "environmentSystem": "系统版本及架构",
+        "environmentInstall": "安装方式",
+        "environmentPython": "Python 版本（源码部署，可选）",
+        "environmentHealth": "`/healthz` 返回（可选）",
+        "environment": "运行环境"
+      },
+      "rateLimited": "发送反馈过于频繁，请稍后再试。",
+      "unavailable": "此 Peach 实例未配置反馈接收服务。",
+      "tooLarge": "反馈附件过大。请移除部分图片后重试。",
+      "invalid": "反馈内容无效。请填写问题描述并重新添加图片。",
+      "unknown": "未能确认反馈已收到。请稍后再试。",
+      "sendFailed": "反馈发送失败。请稍后再试。"
+    },
     "fileBrowser": {
       "invalidRequest": "文件操作参数无效。",
       "invalidName": "请使用有效的文件名或文件夹名。",

@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d3639b7a-240c-4e8f-916e-847f7a9a1e0a", e._sentryDebugIdIdentifier = "sentry-dbid-d3639b7a-240c-4e8f-916e-847f7a9a1e0a");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "4e3a6951-01e2-41b1-bf00-2631df1c523e", e._sentryDebugIdIdentifier = "sentry-dbid-4e3a6951-01e2-41b1-bf00-2631df1c523e");
 	} catch {}
 })();
 import { beginPlayerGuidePreview as e, closeDrawerAfterNav as t, disposeStage as n, peachHistory$1 as r } from "./peach-app.js";
@@ -1704,7 +1704,7 @@ function Kr(i) {
 			}
 		}
 	}, g = (e) => {
-		if (e.target instanceof Element && e.target.closest("[data-copy-inline], [data-copy-input]")) return;
+		if (e.target instanceof Element && e.target.closest("[data-copy-inline], [data-copy-input]") || document.querySelector("form[data-peach-feedback]")) return;
 		if (e.key === "Escape") {
 			e.preventDefault(), e.stopImmediatePropagation(), i.close();
 			return;
@@ -1755,6 +1755,7 @@ function Kr(i) {
 				smoothScroll: !1,
 				disableActiveInteraction: !i.invitation,
 				allowKeyboardControl: !1,
+				allowedElements: "[data-feedback-launcher]:not([hidden]), [data-feedback-surface]:not([data-feedback-capturing-tab], [data-feedback-awaiting-frame])",
 				allowClose: !0,
 				overlayClickBehavior: () => i.close(),
 				stagePadding: 6,
@@ -1765,9 +1766,9 @@ function Kr(i) {
 					l?.();
 					let t = document.querySelector("#stage[open]");
 					if (n.surface && t) {
-						t.append(e.wrapper);
+						t.contains(e.wrapper) || t.append(e.wrapper);
 						let n = document.querySelector(".driver-overlay");
-						n && t.append(n);
+						n && !t.contains(n) && t.append(n);
 					}
 					e.wrapper.setAttribute("role", "dialog"), e.wrapper.setAttribute("aria-modal", "true"), l = i.mountPopover(e.wrapper, e.arrow, {
 						step: n,
@@ -1794,7 +1795,7 @@ function Kr(i) {
 			let x = "", S = () => {
 				if (c || m.signal.aborted) return;
 				let e = n.surface ? document.querySelector("#stage[open]") : null, t = document.querySelector(".driver-overlay");
-				e && t && t.parentElement !== e && e.append(t);
+				e && t && !e.contains(t) && e.append(t);
 				let r = Wr(n.target);
 				r !== _ && (_ = r, y = !r, b(), x = "");
 				let i = _?.getBoundingClientRect(), o = window.visualViewport, s = `${i?.x}:${i?.y}:${i?.width}:${i?.height}:${innerWidth}:${innerHeight}:${o?.height}:${o?.offsetTop}`;
@@ -1811,4 +1812,4 @@ function Kr(i) {
 }
 export { Kr as createGuideSession };
 
-//# debugId=d3639b7a-240c-4e8f-916e-847f7a9a1e0a
+//# debugId=4e3a6951-01e2-41b1-bf00-2631df1c523e

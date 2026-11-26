@@ -876,6 +876,28 @@
     "faceModelsReady": "Face models are ready"
   },
   "api": {
+    "feedback": {
+      "issueTemplate": {
+        "bugDescription": "What happened",
+        "reproduction": "Steps to reproduce",
+        "logs": "Logs and screenshots (optional)",
+        "useCase": "Use case",
+        "desiredBehavior": "Desired behavior",
+        "additionalContext": "Additional context (optional)",
+        "environmentPeach": "Peach version or build",
+        "environmentSystem": "OS version and architecture",
+        "environmentInstall": "Installation",
+        "environmentPython": "Python version (source installs, optional)",
+        "environmentHealth": "`/healthz` response (optional)",
+        "environment": "Environment"
+      },
+      "rateLimited": "Too many feedback submissions. Try again later.",
+      "unavailable": "Feedback delivery isn't configured for this Peach instance.",
+      "tooLarge": "These attachments are too large. Remove some images and try again.",
+      "invalid": "This report is invalid. Enter a description and add the images again.",
+      "unknown": "Couldn't confirm your feedback was received. Try again later.",
+      "sendFailed": "Couldn't send your feedback. Try again later."
+    },
     "fileBrowser": {
       "invalidRequest": "The file operation request is invalid.",
       "invalidName": "Enter a valid file or folder name.",

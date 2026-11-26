@@ -8,7 +8,7 @@
  * `ui-kit/modal.css` 里 `.ui-geist-modal` 的 540px。
  *
  * 页头左边那枚 56px 图标方块也在这里（`ModalGlyph`）：它是弹层页头的一部分，不是卡。 */
-import { useLayoutEffect, useRef, type ReactNode } from 'react';
+import { useCallback, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { useFocusVisible } from 'react-aria';
 import { Dialog, Modal, ModalOverlay } from 'react-aria-components';
 import { cx } from '@/utils/cx';
@@ -21,23 +21,32 @@ const WIDTH = {
   tutorial: 'max-w-2xl',
 } as const;
 
-export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfaceClassName = '', portalContainer,
-  fullScreen = false, fitVisualViewport = false }: {
+export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfaceClassName = '', surfaceData, portalContainer,
+  fullScreen = false, fitVisualViewport = false, onExited }: {
   isOpen: boolean;
   onOpenChange(open: boolean): void;
   width: keyof typeof WIDTH;
   /** 弹层没有 `Heading slot="title"` 时的无障碍名称。 */
   label?: string;
   surfaceClassName?: string;
+  surfaceData?: Record<`data-${string}`, string | undefined>;
   /** 从原生 dialog 内打开的子弹层留在其 top layer 中。 */
   portalContainer?: Element;
   fullScreen?: boolean;
   /** 含搜索输入的移动端目录浮层随软键盘后的可见视口定位。 */
   fitVisualViewport?: boolean;
+  onExited?(): void;
   children: ReactNode;
 }) {
   const { isFocusVisible } = useFocusVisible();
   const overlay = useRef<HTMLDivElement>(null);
+  const exited = useRef(onExited);
+  useLayoutEffect(() => { exited.current = onExited }, [onExited]);
+  const setOverlay = useCallback((element: HTMLDivElement | null) => {
+    const previous = overlay.current;
+    overlay.current = element;
+    if (!element && previous) queueMicrotask(() => { if (!overlay.current) exited.current?.() });
+  }, []);
   useLayoutEffect(() => {
     const element = overlay.current;
     const viewport = window.visualViewport;
@@ -52,13 +61,13 @@ export function ModalFrame({ isOpen, onOpenChange, width, label, children, surfa
     };
   }, [fitVisualViewport, isOpen]);
   return (
-    <ModalOverlay ref={overlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable UNSTABLE_portalContainer={portalContainer}
+    <ModalOverlay ref={setOverlay} isOpen={isOpen} onOpenChange={onOpenChange} isDismissable UNSTABLE_portalContainer={portalContainer}
       data-modal-motion="" data-modal-kind={width} data-motion-instant={isFocusVisible || undefined}
       data-fit-visual-viewport={fitVisualViewport || undefined}
       className={cx('fixed inset-0 z-dialog flex items-center justify-center', !fullScreen && 'p-4',
         fitVisualViewport && 'h-(--visual-viewport-height)')}>
       <div aria-hidden="true" data-modal-backdrop="" className="pointer-events-none absolute inset-0 bg-scrim" />
-      <Modal data-modal-surface="" data-modal-width={fullScreen ? 'fullscreen' : width}
+      <Modal {...surfaceData} data-modal-surface="" data-modal-width={fullScreen ? 'fullscreen' : width}
         className={cx('relative flex max-h-full w-full transform-gpu flex-col overflow-hidden bg-background-full',
           fullScreen ? 'h-dvh' : ['rounded-2-5xl border border-separator-border shadow-dropdown', WIDTH[width]], surfaceClassName)}>
         {/* 调用方自己的正文滚动区收得下时这一层不滚；矮视口里连页头加按钮都放不下，就整块滚，

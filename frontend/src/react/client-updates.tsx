@@ -50,7 +50,7 @@ const CONNECTING = 'jobMessage.standaloneUpdate.connecting';
 const jobPercent = (job: UpdateJob): number | null => typeof job.progress !== 'number' || WAITING.has(job.state)
   || job.message_code === CONNECTING ? null : percent(job.progress);
 
-function pageRuntime(): ClientUpdates['runtime'] | null {
+export function pageRuntime(): ClientUpdates['runtime'] | null {
   try {
     const value = JSON.parse(document.getElementById('peach-client-runtime')?.textContent || 'null');
     return typeof value?.version === 'string' && typeof value?.build_id === 'string'

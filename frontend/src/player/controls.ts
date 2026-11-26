@@ -381,7 +381,10 @@ export function mountPlayerQualityControl(
     if (speed) speed.textContent = rememberRate.current() === 1 ? t('catalog:playerQuality.normalSpeed') : `${rememberRate.current()}×`;
   };
   toggle.onclick = (event) => { event.stopPropagation(); const open = !isOpen(); if (open) showMain(); setOpen(open) };
-  const outside = (event: Event) => { if (!root.contains(event.target as Node)) close() };
+  const outside = (event: Event) => {
+    const target = event.target;
+    if (target instanceof Element && !target.closest('[data-peach-feedback]') && !root.contains(target)) close();
+  };
   document.addEventListener('pointerdown', outside);
   root.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isOpen()) { event.preventDefault(); event.stopPropagation(); close(); toggle.focus() }

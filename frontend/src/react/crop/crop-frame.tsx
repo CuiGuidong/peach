@@ -14,13 +14,14 @@ import type {
 import { VisuallyHidden } from 'react-aria-components';
 
 import {
-  boxPercent, clampBox, handleOutside, isUsableSize, moveBox, resizeFromCorner, scaleBox, stepCropCorner, toNatural,
+  boxPercent, centeredBox, clampBox, handleOutside, isUsableSize, moveBox, resizeFromCorner, scaleBox, stepCropCorner, toNatural,
   type CropBox, type CropSize,
 } from '../../crop-geometry';
 import { t } from '../../i18n';
 
 export interface CropFrameProps {
   src: string;
+  drawSelection?: boolean;
   /** 宽/高。给了就锁比例，拖动只改位置和大小、不改形状。 */
   aspect: number | null;
   box: CropBox | null;
@@ -43,10 +44,11 @@ function describeCrop(box: CropBox) {
   });
 }
 
-export function CropFrame({ src, aspect, box, size, onBox, onSize, label }: CropFrameProps) {
+export function CropFrame({ src, aspect, box, size, onBox, onSize, label, drawSelection = false }: CropFrameProps) {
   const descriptionId = useId();
   const image = useRef<HTMLImageElement>(null);
   const drag = useRef<{ mode: 'move' | 'resize'; x: number; y: number; box: CropBox } | null>(null);
+  const selection = useRef<{ x: number; y: number } | null>(null);
   const [failed, setFailed] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   /* 图当前的显示尺寸，只用来判断框在屏幕上够不够大、角柄放框里还是框外。 */
@@ -102,6 +104,32 @@ export function CropFrame({ src, aspect, box, size, onBox, onSize, label }: Crop
     }
   }
 
+  function imagePoint(event: ReactPointerEvent<HTMLImageElement>, source: CropSize) {
+    const { left, top, width, height } = event.currentTarget.getBoundingClientRect();
+    return {
+      x: toNatural(Math.min(width, Math.max(0, event.clientX - left)), width, source.width),
+      y: toNatural(Math.min(height, Math.max(0, event.clientY - top)), height, source.height),
+    };
+  }
+
+  function selectArea(event: ReactPointerEvent<HTMLImageElement>) {
+    if (!drawSelection || !size || event.button !== 0 || !event.isPrimary) return;
+    event.preventDefault();
+    selection.current = imagePoint(event, size);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function resizeSelection(event: ReactPointerEvent<HTMLImageElement>) {
+    const start = selection.current;
+    if (!start || !size || !event.currentTarget.hasPointerCapture(event.pointerId)) return;
+    const point = imagePoint(event, size);
+    if (Math.abs(point.x - start.x) < 2 || Math.abs(point.y - start.y) < 2) return;
+    onBox(clampBox({
+      x0: Math.min(start.x, point.x), y0: Math.min(start.y, point.y),
+      x1: Math.max(start.x, point.x), y1: Math.max(start.y, point.y),
+    }, size, aspect));
+  }
+
   const crop = box && size ? clampBox(box, size, aspect) : null;
 
   function keys(mode: 'move' | 'resize') {
@@ -141,6 +169,18 @@ export function CropFrame({ src, aspect, box, size, onBox, onSize, label }: Crop
   return (
     <div className="relative inline-block max-w-full select-none" style={frame}>
       <img ref={image} src={src} alt="" draggable={false}
+        data-draw-crop={drawSelection || undefined}
+        tabIndex={drawSelection && !box ? 0 : undefined}
+        aria-label={drawSelection && !box ? label : undefined}
+        onKeyDown={drawSelection && !box ? event => {
+          if (!size || (event.key !== 'Enter' && event.key !== ' ')) return;
+          event.preventDefault();
+          onBox(scaleBox(centeredBox(size, aspect), 0.8, size, aspect));
+          window.requestAnimationFrame(() => image.current?.parentElement?.querySelector<HTMLElement>('[data-crop-box]')?.focus());
+        } : undefined}
+        onPointerDown={drawSelection ? selectArea : undefined}
+        onPointerMove={drawSelection ? resizeSelection : undefined}
+        onLostPointerCapture={drawSelection ? () => { selection.current = null } : undefined}
         onLoad={(event) => {
           const node = event.currentTarget;
           if (isUsableSize({ width: node.naturalWidth, height: node.naturalHeight })) {

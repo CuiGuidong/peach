@@ -47,4 +47,5 @@ app = BUNDLE(collection, name="Peach.app", icon=str(root / "resources" / "peach.
                          "CFBundleDevelopmentRegion": "en",
                          "CFBundleLocalizations": ["en", "zh-Hans"],
                          "CFBundleAllowMixedLocalizations": True,
+                         "NSAppTransportSecurity": {"NSAllowsLocalNetworking": True},
                          "LSUIElement": True, "NSHighResolutionCapable": True})

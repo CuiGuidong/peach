@@ -118,7 +118,7 @@ const settings = (): PanelSettings => ({
   feedHideExcerpts: true, hoverDelaySeconds: 5, hoverPreview: true, touchGestures: true, holdRate: 2, swipeMinutes: 20, doubleTapPercent: 35, autoFullscreen: false, detailAutoplay: false, autoChineseSubtitles: false, afterPlayback: 'next', resumeRestartPercent: 5, miniplayer: true, seekSeconds: 10,
   relatedLimit: 24, searchHistoryLimit: 10, followInitialDays: 30, avatarRefreshDays: 90, faviconRefreshDays: 365,
   feedNewRows: true, homeShortsLimit: 18, homeTiers: true, homePreviewOnly: false, containHomeScroll: false,
-  completionPrompt: true, searchRecommendations: true, ingestNotices: true,
+  completionPrompt: true, searchRecommendations: true, ingestNotices: true, showFeedbackButton: true,
 });
 
 /** 壳 `settingsHost()` 交进来的那一份。 */

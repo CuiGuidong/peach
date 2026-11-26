@@ -956,6 +956,8 @@
     "increaseContrastHelp": "Makes translucent backgrounds more opaque so text is easier to read.",
     "ingestNotices": "Import notifications",
     "ingestNoticesHelp": "Shows a notification in Peach after a download or new file is added to the library.",
+    "showFeedbackButton": "Show feedback button",
+    "showFeedbackButtonHelp": "Applies only to this browser.",
     "interfaceSounds": "Interface sounds",
     "miniPlayer": "Mini player after leaving details",
     "navCaption": "Preferences",

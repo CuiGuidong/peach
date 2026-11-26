@@ -632,7 +632,12 @@ describe('设计决定：作品卡、管理页与复核', () => {
 
   for (const [label, viewport] of [['390px', MOBILE], ['宽屏', DESKTOP]] as const) {
     it(`${label} 下教程中心可阅读、关闭与重开，不提交业务写入`, { timeout: 60_000 }, async () => {
-      const opened = await visit(browser, '/', viewport, freshTutorial);
+      const opened = await visit(browser, '/', viewport, async page => {
+        await freshTutorial(page);
+        await page.addInitScript(() => {
+          navigator.mediaDevices.getDisplayMedia = () => Promise.reject(new DOMException('Cancelled', 'NotAllowedError'));
+        });
+      });
       try {
         const page = opened.page;
         await expectBody(page, '/', [page.locator('#grid')]);
@@ -647,8 +652,18 @@ describe('设计决定：作品卡、管理页与复核', () => {
           }
         });
         const opener = page.locator('#tutorialBtn');
-        await page.locator('.peach-guide-popover').getByRole('heading', { name: '从这里打开新手教程' }).waitFor();
+        const invitation = page.locator('.peach-guide-popover').getByRole('heading', { name: '从这里打开新手教程' });
+        await invitation.waitFor();
         assert.ok(await opener.evaluate(node => node.classList.contains('driver-active-element')));
+        await page.getByRole('button', { name: '反馈', exact: true }).click();
+        const feedback = page.getByRole('dialog', { name: '发送反馈' });
+        const title = feedback.getByRole('textbox', { name: '标题' });
+        await title.click();
+        await title.pressSequentially('Keyboard input');
+        assert.equal(await title.inputValue(), 'Keyboard input');
+        await page.keyboard.press('Escape');
+        await feedback.waitFor({ state: 'hidden' });
+        await invitation.waitFor();
         await opener.click();
         const dialog = page.getByRole('dialog', { name: '新手教程', exact: true });
         await dialog.waitFor();
@@ -723,7 +738,7 @@ describe('设计决定：作品卡、管理页与复核', () => {
         assert.equal(await page.locator('#stage .vjs-peach-settings-toggle').getAttribute('aria-expanded'), 'true', '点击说明关闭了正在讲解的菜单');
         await page.waitForFunction(() => {
           const panel = document.querySelector('.peach-guide-popover')?.getBoundingClientRect();
-          return document.querySelector('.driver-overlay')?.parentElement?.id === 'stage'
+          return document.querySelector('.driver-overlay')?.closest('#stage[open]')
             && panel && panel.left >= 0 && panel.right <= innerWidth && panel.top >= 0 && panel.bottom <= innerHeight;
         });
         await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();

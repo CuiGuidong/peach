@@ -99,6 +99,7 @@ export interface AppSettings extends BrowsePreferences {
   searchRecommendations: boolean;
   /** 新文件入库、下载完成时的 toast。 */
   ingestNotices: boolean;
+  showFeedbackButton: boolean;
   feedHideGroupCompilations: boolean;
   feedHideSoloCompilations: boolean;
   feedHideExcerpts: boolean;
@@ -178,6 +179,7 @@ export function normalizeAppSettings(raw: unknown): { settings: AppSettings; mig
   settings.completionPrompt = settings.completionPrompt !== false;
   settings.searchRecommendations = settings.searchRecommendations !== false;
   settings.ingestNotices = settings.ingestNotices !== false;
+  settings.showFeedbackButton = settings.showFeedbackButton !== false;
   settings.feedHideGroupCompilations = settings.feedHideGroupCompilations !== false;
   settings.feedHideSoloCompilations = settings.feedHideSoloCompilations === true;
   settings.feedHideExcerpts = settings.feedHideExcerpts !== false;

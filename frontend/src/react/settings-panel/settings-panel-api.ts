@@ -39,6 +39,7 @@ export interface PanelSettings {
   completionPrompt: boolean;
   searchRecommendations: boolean;
   ingestNotices: boolean;
+  showFeedbackButton: boolean;
   feedLimit: number;
   feedHideGroupCompilations: boolean;
   feedHideSoloCompilations: boolean;

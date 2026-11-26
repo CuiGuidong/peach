@@ -155,6 +155,7 @@
     document.head.append(css);
     const highlight = document.createElement('div'); highlight.dataset.copyEditor = ''; highlight.dataset.copyHighlight = '';
     const host = document.createElement('div'); host.className = 'peach-react'; host.dataset.copyEditor = ''; host.dataset.batchScope = '';
+    if (options.reactModalHost) host.dataset.reactAriaTopLayer = '';
     for (const type of ['pointerdown', 'click']) host.addEventListener(type, event => event.stopPropagation());
     const bar = document.createElement('div'); bar.dataset.copyEditor = ''; bar.dataset.copyBar = '';
     bar.popover = 'manual'; bar.tabIndex = 0;
@@ -191,7 +192,10 @@
       toolbarDrag.reposition();
     };
     const layout = new ResizeObserver(measureTools); layout.observe(bar);
-    const modalHost = () => [...document.querySelectorAll('dialog:modal'), ...[...document.querySelectorAll('aside')].flatMap(node => [...node.shadowRoot?.querySelectorAll('dialog:modal') || []])].at(-1) || document.body;
+    const modalHost = () => {
+      const nativeHost = [...document.querySelectorAll('dialog:modal'), ...[...document.querySelectorAll('aside')].flatMap(node => [...node.shadowRoot?.querySelectorAll('dialog:modal') || []])].at(-1) || document.body;
+      return options.reactModalHost?.(nativeHost) || nativeHost;
+    };
     function placeTools() {
       for (const aside of document.querySelectorAll('aside')) {
         const root = aside.shadowRoot;
