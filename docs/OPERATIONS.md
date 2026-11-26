@@ -21,6 +21,8 @@ macOS 安装依赖：`uv sync --locked --python 3.14 --extra macos`。完成后�
 
 ## macOS 独立测试包
 
+首次设置完成后，从菜单栏打开 Peach 会打开或复用原生窗口。点击「反馈」会附上当前 WebKit 视口的截图，原生截图失败时使用 SnapDOM。通过支持标签页捕获的浏览器访问时，反馈入口会请求共享当前标签页。
+
 在 macOS 的项目目录安装构建依赖：
 
 ```sh
@@ -518,6 +520,31 @@ Windows 测试包在 Peach 配置「应用与维护 → 卸载 Peach」里卸载
 源码部署的托盘（Windows，以及配置了 TLS 的 macOS）同时运行一个 HTTP 服务和一个 HTTPS 服务。HTTP 那个只负责把浏览器引到 HTTPS 地址，所以 HTTP 口的 `/healthz` 正常只能说明它自己活着。
 
 托盘菜单的状态行会逐个列出每个服务，例如 `HTTP 正常 · HTTPS 异常（状态码 503）`，异常时附上最近一次失败的原因。
+
+### 反馈接收配置
+
+应用内反馈优先使用 [Sentry 配置](DIAGNOSTICS.md#可选远程诊断)。自托管部署可以为运行 Peach 的进程设置以下环境变量，启用 Cloudflare R2 备份。
+
+| 变量 | 用途 |
+| --- | --- |
+| `PEACH_FEEDBACK_R2_ENDPOINT` | Cloudflare R2 的 S3 API HTTPS 地址 |
+| `PEACH_FEEDBACK_R2_BUCKET` | 私有反馈桶的名称 |
+| `PEACH_FEEDBACK_R2_ACCESS_KEY_ID` | 专用 R2 API Access Key ID |
+| `PEACH_FEEDBACK_R2_SECRET_ACCESS_KEY` | 对应的 Secret Access Key |
+
+使用仅限反馈桶的 [R2 对象读写凭据](https://developers.cloudflare.com/r2/api/tokens/)。凭据由部署方在服务端注入。四项配置齐全时，Sentry 未配置或明确拒收的反馈以 `feedback/<反馈编号>.zip` 保存在桶里，可从 Cloudflare 控制台下载。ZIP 包括 `feedback.json` 和图片。接收结果未知时，Peach 返回未确认状态，避免自动向两个目的地重复投递。
+
+如需由 Peach 代发公开 Issue，将 GitHub App 安装到 `peach-mitao/peach`，授予 Issues 写入权限。如果要同步图片，还需授予 Contents 写入权限。在服务端配置以下环境变量。
+
+| 环境变量 | 用途 |
+| --- | --- |
+| `PEACH_FEEDBACK_GITHUB_APP_ID` | GitHub App 的数字 ID |
+| `PEACH_FEEDBACK_GITHUB_INSTALLATION_ID` | 此仓库对应的 App 安装 ID |
+| `PEACH_FEEDBACK_GITHUB_PRIVATE_KEY_FILE` | 服务端可读的 PEM 私钥文件路径 |
+
+Peach 用私钥换取限于目标仓库的短期安装令牌。GitHub App 以自己的身份创建 Issue，用户无需登录 GitHub。旧部署也可继续使用 `PEACH_FEEDBACK_GITHUB_TOKEN`，需要同样的仓库权限。
+
+仅单独勾选公开的图片会写入独立的 `peach-feedback-screenshots` 分支，随后以 Issue 评论内的图片显示。首次上传时会创建独立分支。源代码、构建和部署工作流应只接收指定的代码分支。公开图片会进入 Git 历史，勾选前应核对内容。未配置代发或发布失败时，回执显示未同步。Issue 已创建但图片同步未确认时，回执保留 Issue 链接和图片下载入口。
 
 ### 本机诊断
 

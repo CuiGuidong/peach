@@ -68,6 +68,17 @@ describe('舞台岛', () => {
       await page.locator(card(ITEM.plain)).first().click();
       await page.locator(ITEM_READY).waitFor();
       assert.deepEqual(await stageShape(page), { host: true, modal: true, stages: 1, hosts: 1 });
+      const feedback = page.locator('#stage [data-feedback-launcher] button');
+      await feedback.waitFor();
+      await page.waitForFunction(() => {
+        const trigger = document.querySelector('#stage [data-feedback-launcher] button');
+        if (!trigger) return false;
+        const box = trigger.getBoundingClientRect();
+        const middle = box.left + box.width / 2;
+        return box.top > innerHeight / 2 && box.bottom <= innerHeight &&
+          trigger.contains(document.elementFromPoint(middle, box.top + 2)) &&
+          trigger.contains(document.elementFromPoint(middle, box.bottom - 2));
+      });
       await page.evaluate(() => { (window as unknown as { stageHost: Element }).stageHost = document.querySelector('[data-stage-host]')! });
       await page.locator('#closeStage').click();
       await pathIs(page, '/');

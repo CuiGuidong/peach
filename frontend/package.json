@@ -29,6 +29,7 @@
     "@tanstack/query-core": "5.108.4",
     "@tanstack/react-query": "5.108.4",
     "@tanstack/react-table": "9.3.1",
+    "@zumer/snapdom": "3.8.3",
     "clsx": "2.1.1",
     "d3-sankey": "0.12.3",
     "diff": "9.0.0",

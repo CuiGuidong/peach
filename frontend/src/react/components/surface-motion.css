@@ -34,12 +34,11 @@
 }
 
 /* BoardUI Modal 独立过渡遮罩与面板，参数见锁定的注册表条目。 */
+.peach-react { --modal-surface-motion: 300ms cubic-bezier(.32, .72, 0, 1); }
 [data-fit-visual-viewport] { top: var(--modal-viewport-top, 0px); }
 .peach-react [data-modal-backdrop] { transition: opacity 300ms ease-out; }
 .peach-react [data-modal-surface] {
-  transition-property: opacity, scale, filter;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(.32, .72, 0, 1);
+  transition: opacity var(--modal-surface-motion), scale var(--modal-surface-motion), filter var(--modal-surface-motion);
 }
 .peach-react [data-modal-motion]:is([data-entering], [data-exiting]) > [data-modal-backdrop],
 .peach-react [data-modal-surface]:is([data-entering], [data-exiting]) { opacity: 0; }

@@ -945,6 +945,8 @@
     "increaseContrastHelp": "减少半透明背景，让文字更易读。",
     "ingestNotices": "入库通知",
     "ingestNoticesHelp": "下载或新文件入库后，在 Peach 内弹出通知。",
+    "showFeedbackButton": "显示反馈按钮",
+    "showFeedbackButtonHelp": "仅影响当前浏览器。",
     "interfaceSounds": "界面音效",
     "miniPlayer": "离开详情后小窗播放",
     "navCaption": "设置",

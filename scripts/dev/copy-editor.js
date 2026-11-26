@@ -6,6 +6,10 @@
   try { edits = JSON.parse(localStorage.getItem(key) || '{}'); } catch {}
   const originals = new WeakMap();
   const tools = core.createTools({
+    reactModalHost(nativeHost) {
+      return [...nativeHost.querySelectorAll('.peach-feedback-surface [role="dialog"]')].reverse()
+        .find(dialog => dialog.getClientRects().length && !dialog.closest('[inert], [aria-hidden="true"]'));
+    },
     onToggle(value) { editor.commit(); active = value; editor.hideHighlight(); },
     onExport() {
       const url = URL.createObjectURL(new Blob([JSON.stringify(edits, null, 2)], { type: 'application/json' }));

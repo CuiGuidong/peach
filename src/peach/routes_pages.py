@@ -59,10 +59,6 @@ router = APIRouter()
 ROBOTS_TAG = "noindex, nofollow, noarchive"
 ROBOTS_TXT = "User-agent: *\nDisallow: /\n"
 
-#: 首启页共用的文件夹与媒体库图标。
-_SETUP_SYMBOLS = re.compile(r'<symbol id="i-(?:' + '|'.join(sorted({"folder-search", *LIBRARY_ICONS}))
-                           + r')"[^>]*>.*?</symbol>')
-
 #: 键 -> 页面上的题目与一句说明的 code（`pages.setup.question.<名字>.label`／`.help`）。顺序、默认值与校验仍然
 #: 来自 `onboarding.questions()`，这里只决定同一道题在浏览器里怎么称呼：命令行那份题面要把可选值写进去，页面用控件表达。
 _SETUP_COPY = {
@@ -82,9 +78,8 @@ def setup_shell(language: str = interface_text.SOURCE_LANGUAGE) -> str:
 
     字形从 `web/index.html` 的雪碧图里按名字摘。标题与 `<html lang>` 按请求的语言。
     """
-    index = (PROJECT_ROOT / "web/index.html").read_text(encoding="utf-8")
     return page_shell(interface_text.text("server:pages.setup.title", None, language), "setup",
-                      symbols="".join(_SETUP_SYMBOLS.findall(index)), language=language)
+                      icons=("folder-search", *LIBRARY_ICONS), language=language)
 
 
 def error_page(status: int, message: str, *, language: str = interface_text.SOURCE_LANGUAGE) -> str:

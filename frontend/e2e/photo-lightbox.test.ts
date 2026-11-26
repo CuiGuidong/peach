@@ -111,6 +111,34 @@ describe('图片灯箱', () => {
   before(async () => { browser = await launch(); });
   after(async () => { await browser?.close(); });
 
+  it('错误页反馈的图片灯箱可见关闭、详情和缩放控件', { timeout: 45_000 }, async () => {
+    const opened = await visit(browser, '/feedback-lightbox-missing-page', DESKTOP);
+    const { page } = opened;
+    try {
+      await page.getByRole('button', { name: '反馈', exact: true }).click();
+      const form = page.locator('form[data-peach-feedback]');
+      await form.locator('input[type="file"]').setInputFiles({
+        name: 'lightbox.png', mimeType: 'image/png',
+        buffer: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/AFsAAAAASUVORK5CYII=', 'base64'),
+      });
+      await form.getByRole('button', { name: '查看lightbox.png', exact: true }).click();
+      const box = lightbox(page);
+      const controls = await box.evaluate((dialog) => {
+        const glyphs = [...dialog.querySelectorAll<SVGUseElement>(
+          '[data-photo-close] use, [data-photo-detail-toggle] use, [data-zoom-step] use, [data-photo-scale="fit"] use')];
+        return { icons: glyphs.map(glyph => glyph.getBBox().width),
+          trackColor: getComputedStyle(dialog).getPropertyValue('--inset').trim(),
+          zoomRadius: getComputedStyle(dialog.querySelector('[data-photo-zoom]')!).borderRadius };
+      });
+      assert.equal(controls.icons.length, 5);
+      assert.ok(controls.icons.every(width => width > 0), JSON.stringify(controls));
+      assert.ok(controls.trackColor);
+      assert.ok(Number.parseFloat(controls.zoomRadius) >= 24);
+      await box.locator('[data-photo-close]').click();
+      await form.getByRole('button', { name: '查看lightbox.png', exact: true }).waitFor();
+    } finally { await opened.close() }
+  });
+
   it('资料页照片墙点第 3 格：从这一张开始，页码 3 / 5，翻页时页码与缩略图条一起跟上', { timeout: 60_000 }, async () => {
     const opened = await openWall(browser);
     const { page } = opened;

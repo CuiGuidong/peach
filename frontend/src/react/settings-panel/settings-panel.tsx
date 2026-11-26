@@ -305,12 +305,13 @@ function Group({ index, tab, children, cards = false }: { index: number; tab: nu
 }
 
 /** 一行开关：整行是 label，点哪儿都切。说明那一句的 id 默认取开关 id 去掉 `Setting` 再接 `Description`。 */
-function ToggleRow({ id, title, description, describedBy = `${id.replace(/Setting$/, '')}Description`, checked, onToggle }: {
-  id: string; title: string; description?: string; describedBy?: string; checked: boolean; onToggle(on: boolean): void;
+function ToggleRow({ id, title, description, describedBy = `${id.replace(/Setting$/, '')}Description`, copyKey, checked, onToggle }: {
+  id: string; title: string; description?: string; describedBy?: string; copyKey?: string; checked: boolean; onToggle(on: boolean): void;
 }) {
   return (
     <label data-setting-row="">
-      <span><b>{title}</b>{description ? <small id={describedBy}>{description}</small> : null}</span>
+      <span><b data-copy-key={copyKey}>{title}</b>{description ?
+        <small id={describedBy} data-copy-key={copyKey ? `${copyKey}Help` : undefined}>{description}</small> : null}</span>
       <input data-toggle="" type="checkbox" id={id} role="switch" aria-label={title}
         aria-describedby={description ? describedBy : undefined}
         checked={checked} onChange={(event) => onToggle(event.target.checked)} />
@@ -409,6 +410,9 @@ function SettingsPanel({ host: current, view: shown }: { host: SettingsPanelHost
             <ToggleRow id="ingestNoticesSetting" title={t('settings:preferencesPanel.ingestNotices')}
               description={t('settings:preferencesPanel.ingestNoticesHelp')} checked={settings.ingestNotices}
               onToggle={(on) => { settings.ingestNotices = on; save() }} />
+            <ToggleRow id="showFeedbackButtonSetting" title={t('settings:preferencesPanel.showFeedbackButton')}
+              description={t('settings:preferencesPanel.showFeedbackButtonHelp')} copyKey="preferencesPanel.showFeedbackButton"
+              checked={settings.showFeedbackButton} onToggle={(on) => { settings.showFeedbackButton = on; save() }} />
             <ToggleRow id="homeGlowSetting" title={t('settings:preferencesPanel.sidebarGlow')} checked={settings.homeGlow.on}
               onToggle={(on) => { settings.homeGlow.on = on; save(); current.changed('glow') }} />
             </div>

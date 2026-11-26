@@ -273,6 +273,16 @@ npm 安装沿用 Node.js 24 LTS 附带的官方 [`npm ci`](https://docs.npmjs.co
 
 `frontend/scripts/sentry-build.ts` 只保留 Peach 的公开／私有目录边界与产物匹配检查。官方插件禁用遥测、自动上传与 release 注入，普通构建不需要凭据；私有目录保存 JS/CSS/maps，公开目录只复制四个正式 JS/CSS。显式上传复用官方 CLI，先核对分发字节和 map 身份。没有实现自定义 source map 编解码器或上传协议，也没有为此引入浏览器 SDK、页面回放或性能采集。
 
+应用内反馈在浏览器不支持标签页捕获或原生截图失败时，用 [SnapDOM 3.8.3](https://github.com/zumerlab/snapdom/releases/tag/v3.8.3)（MIT）重绘当前视口，覆盖桌面浏览器回退和 Docker 客户端。视口裁切、滚动容器和图像栅格化由 SnapDOM 处理，Peach 传入设备像素比并排除输入框、播放器内容与反馈控件。主界面按点击加载截图模块，首启、登录与错误页由独立包内联。图片复用馆藏照片灯箱与附件限制。服务端复用 Pillow、Sentry SDK 的 Envelope 和 Attachment，以及 Peach 的 Sentry HTTP 状态回执，按 [Sentry Envelope 约束](https://develop.sentry.dev/sdk/foundations/envelopes/envelope-items/) 把反馈和图片放在同一个信封里。R2 备份复用同一批图片字节、Python 标准库的 `ZipFile`、现有 `curl_cffi` 的 [SigV4 签名](https://curl.se/libcurl/c/CURLOPT_AWS_SIGV4.html)和 Peach 的代理设置，一次 PUT 写入整份反馈。
+
+GitHub 同步参考 [BugDrop 的代发与图片分支](https://github.com/bugdrophq/bugdrop#how-it-works)，复用既有 `cryptography` 完成 [GitHub App 的 RS256 签名](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app)，经 `curl_cffi` 调用 [GitHub Contents REST API](https://docs.github.com/en/rest/repos/contents#create-or-update-file-contents)。Peach 先创建 Issue，随后通过评论嵌入已上传图片，以便图片失败时保留 Issue 编号。所有写入集中在 Peach 服务端。
+
+Windows 托盘「打开 Peach」复用 [Microsoft WebView2 SDK 1.0.4370.26](https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.4370.26)（BSD-3-Clause）和已安装的 Evergreen Runtime。构建入口 `scripts/build_windows_webview.ps1` 校验 NuGet 包的 SHA-256，发行包携带窗口程序、SDK DLL 与许可。主窗口只载入配置给出的本机 Peach 来源，先用 [`CapturePreviewAsync`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.capturepreviewasync) 获取当前视口，再打开反馈表单。首次设置继续用默认浏览器，原生入口或系统运行时未取得时也打开默认浏览器。取舍见 [ADR-0179](adr/0179-native-peach-windows-with-browser-fallback.md)。
+
+macOS 菜单栏复用 AppKit 的窗口生命周期和系统 WebKit。`pyobjc-framework-WebKit 13.0`（MIT，CPython 3.14 通用架构 wheel 约 50 KiB）与已用的 Cocoa 绑定同版，下载地址和摘要由 `uv.lock` 固定。窗口用 [`WKWebView.takeSnapshot`](https://developer.apple.com/documentation/webkit/wkwebview/takesnapshot(with:completionhandler:)) 取当前视口，再走共用的截图附件和灯箱。用户主动添加图片时复用 AppKit 的 `NSOpenPanel`。
+
+反馈附件参考 [BoardUI Composer Attachments 的公开示例](reference-snapshots/boardui-composer-attachments.md)，使用 Peach 已有的 BoardUI Button 和 ModalFrame 实现缩略图条、移除按钮与大图预览。
+
 回归使用真实 Vite 构建与官方 CLI 本地解析 source map，验证源码文件和行号；相同输入两次构建的文件字节一致，Debug ID 与 map 对应，映射源只使用相对路径。构建体积由 Vite 输出，source maps 只增加私有构建产物，不增加页面分发体积。字段与发布配置见[诊断核验](DIAGNOSTICS.md#可选远程诊断)；真实接收端符号化独立验收。
 ## 索引标题栏
 

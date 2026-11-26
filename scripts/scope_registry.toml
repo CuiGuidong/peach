@@ -72,7 +72,7 @@ metadata = [
 ]
 tooling = [
     "test_scripts.py", "test_trash_junk.py", "test_auth.py", "test_access.py", "test_cli.py",
-    "test_server.py", "test_diagnostics.py", "test_error_reporting.py", "test_remote_reporting.py",
+    "test_server.py", "test_diagnostics.py", "test_error_reporting.py", "test_remote_reporting.py", "test_feedback.py",
     "test_reporting_*.py", "test_library_sharing.py", "test_research_archive.py",
     "test_library_diagnostics.py", "test_script_policy.py", "test_scan.py", "test_record_rehome.py",
     "test_wants.py", "test_push_discovery.py", "test_media_probe.py", "test_subtitles.py",
@@ -194,9 +194,16 @@ follow = [
 "scripts/dev/copy-editor.js" = ["web"]
 # 路由页面同时被目录、工具与前端三个域的测试读源码。
 "src/peach/routes_pages.py" = ["catalog", "tooling", "web"]
+"src/peach/routes_feedback.py" = ["catalog", "tooling"]
+"src/peach/feedback_r2.py" = ["tooling"]
+"src/peach/feedback_github.py" = ["tooling"]
 # 托盘既是 sync 域的服务编排，也被版本与桌面设置那些 tooling 测试读源码。
 "src/peach/tray.py" = ["sync", "tooling"]
+"src/peach/windows_webview.py" = ["sync", "tooling", "packaging"]
+"scripts/build_windows_webview.ps1" = ["tooling", "packaging"]
+"scripts/windows_webview.cs" = ["tooling", "packaging"]
 "src/peach/menubar.py" = ["sync", "tooling"]
+"src/peach/macos_webview.py" = ["sync", "tooling", "packaging"]
 # Sparkle 更新器由菜单栏持有，打包与发布门槛的测试也直接导入它。
 "src/peach/sparkle_update.py" = ["sync", "tooling", "packaging"]
 # 托盘子服务与隧道的 cloudflared 共用这份 Job Object；两边的测试都要跑到。
