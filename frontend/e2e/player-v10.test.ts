@@ -15,7 +15,8 @@ describe('Video.js 10 播放链', () => {
   let files: Map<string, Buffer>;
   const openPlayback = (viewport: (typeof VIEWPORTS)[number]) =>
     visit(browser, `/assets/${requiredEnv('PEACH_E2E_ITEM')}`, viewport, async page => {
-      await page.route('**/api/jav/detail?*', route => route.fulfill({ json: {
+      // Playwright clears page routes while closing the test page. Keep the offline response on the context.
+      await page.context().route(url => url.pathname === '/api/jav/detail', route => route.fulfill({ json: {
         code: new URL(route.request().url()).searchParams.get('code'), state: 'ready', preview_count: 0,
       } }));
     });
