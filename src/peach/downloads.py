@@ -1293,7 +1293,8 @@ class DownloadService:
                 payload["cancellable"] = False
         return {
             "available": self.available,
-            **catalog,
+            "providers": catalog["providers"],
+            "problems": catalog["problems"],
             "tasks": payloads,
             "has_more": has_more,
             "total": total,
@@ -1303,15 +1304,16 @@ class DownloadService:
                                for alert in self.channel_alerts()],
         }
 
-    def note_channel(self, provider: str, error: DownloadError | None, now: float) -> None:
-        """按一次提交的结果更新渠道告警：渠道级失败记下，提交成功撤掉，其他失败不动。"""
+    def note_channel(self, provider: str, error: DownloadError | None, now: float, *, probe=False) -> None:
+        """提交成功清除告警，渠道探测成功只清除探测产生的告警。"""
         if error is None:
-            self._channel_alerts.pop(provider, None)
-        elif error.channel_wide:
+            if not probe or self._channel_alerts.get(provider, {}).get("_probe"):
+                self._channel_alerts.pop(provider, None)
+        elif probe or error.channel_wide:
             self._channel_alerts[provider] = {
                 "provider": provider, "failure": "network" if error.channel_down else error.failure,
                 "message": error.detail, "message_code": error.code, "message_params": dict(error.params),
-                "since": iso(now)}
+                "since": iso(now), "_probe": probe}
 
     def channel_alert(self, provider: str) -> dict | None:
         """这个渠道最近一次渠道级失败；之后成功提交过就是 None。"""
@@ -1319,7 +1321,8 @@ class DownloadService:
         return dict(alert) if alert else None
 
     def channel_alerts(self) -> list[dict]:
-        return [dict(alert) for alert in list(self._channel_alerts.values())]
+        return [{key: value for key, value in alert.items() if key != "_probe"}
+                for alert in list(self._channel_alerts.values())]
 
     def channel_snapshot(self) -> dict:
         if self.channel_catalog is not None:

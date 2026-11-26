@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7d97b819-6da0-4e15-91f1-7e7bf3c9f93b", e._sentryDebugIdIdentifier = "sentry-dbid-7d97b819-6da0-4e15-91f1-7e7bf3c9f93b");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "04abfd0a-a77e-4fb0-97c3-039b363aabf6", e._sentryDebugIdIdentifier = "sentry-dbid-04abfd0a-a77e-4fb0-97c3-039b363aabf6");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t) => () => (t || (e((t = { exports: {} }).exports, t, t.exports), e = null), t.exports), s = (e, i, o, s) => {
@@ -7678,11 +7678,13 @@ var We = "peach.settings.v1", Ge = {
 		paused: {
 			config: {
 				hint: "Resumes once the download settings are fixed",
-				reason: "Cloud drive settings or sign-in problem"
+				reason: "Download channel is temporarily unavailable"
 			},
 			message: "{{reason}}, paused; {{hint}}",
 			network: {
-				hint: "Resumes once CloudDrive2 is back",
+				connectionRefused: "CloudDrive2 refused the connection",
+				hint: "Resumes once the download service is back",
+				timeout: "Connection to CloudDrive2 timed out",
 				reason: "Can't reach CloudDrive2"
 			},
 			quota: {
@@ -15427,11 +15429,13 @@ var We = "peach.settings.v1", Ge = {
 		paused: {
 			config: {
 				hint: "修好下载设置后自动继续",
-				reason: "网盘配置或登录有问题"
+				reason: "下载渠道暂不可用"
 			},
 			message: "{{reason}}，已暂停；{{hint}}",
 			network: {
-				hint: "CloudDrive2 恢复后自动继续",
+				connectionRefused: "CloudDrive2 拒绝连接",
+				hint: "下载服务恢复后自动继续",
+				timeout: "连接 CloudDrive2 超时",
 				reason: "连不上 CloudDrive2"
 			},
 			quota: {
@@ -40864,4 +40868,4 @@ Nt();
 var px = document.getElementById("peach-page"), mx = px ? fx[px.dataset.page ?? ""] : void 0;
 px && mx && (0, Ht.createRoot)(px).render(/* @__PURE__ */ (0, U.jsx)(dx, { children: /* @__PURE__ */ (0, U.jsx)(mx, { data: { ...px.dataset } }) }));
 
-//# debugId=7d97b819-6da0-4e15-91f1-7e7bf3c9f93b
+//# debugId=04abfd0a-a77e-4fb0-97c3-039b363aabf6

@@ -89,11 +89,13 @@
     "paused": {
       "config": {
         "hint": "修好下载设置后自动继续",
-        "reason": "网盘配置或登录有问题"
+        "reason": "下载渠道暂不可用"
       },
       "message": "{{reason}}，已暂停；{{hint}}",
       "network": {
-        "hint": "CloudDrive2 恢复后自动继续",
+        "connectionRefused": "CloudDrive2 拒绝连接",
+        "hint": "下载服务恢复后自动继续",
+        "timeout": "连接 CloudDrive2 超时",
         "reason": "连不上 CloudDrive2"
       },
       "quota": {
