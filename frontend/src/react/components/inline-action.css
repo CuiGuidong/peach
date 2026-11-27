@@ -1,0 +1,32 @@
+:is(.peach-react, .ui-project-banner, [data-immerse-author]) :is([data-inline-action], [data-inline-popover-trigger]) {
+  position: relative;
+  isolation: isolate;
+  text-decoration: none;
+}
+:is([data-inline-action], [data-inline-popover-trigger])::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: var(--radius-sm);
+  background-color: var(--inline-action-fill, transparent);
+  box-shadow: 0 0 0 2px var(--inline-action-fill, transparent);
+  pointer-events: none;
+}
+:is([data-inline-action], [data-inline-popover-trigger]):not(:disabled, [aria-disabled="true"]):is(:hover, :focus-visible)::before {
+  --inline-action-fill: color-mix(in srgb, var(--inline-action-ink, var(--color-text-primary)) 12%, transparent);
+}
+:is([data-inline-action], [data-inline-popover-trigger]):not(:disabled, [aria-disabled="true"]):is(:active, [aria-expanded="true"])::before {
+  --inline-action-fill: color-mix(in srgb, var(--inline-action-ink, var(--color-text-primary)) 18%, transparent);
+}
+[data-inline-action=""]:focus-visible {
+  outline: 2px solid var(--color-border-focus-ring);
+  outline-offset: 2px;
+}
+
+/* 标注内层文字，避免站标或地址的 flex 容器截断外层链接的下划线。 */
+.peach-react a.underline-offset-3[href]:is(:hover, :focus-visible) > span:not(:has([data-external-link-label])),
+.peach-react a[href][target="_blank"]:is(:hover, :focus-visible) [data-external-link-label] {
+  text-decoration-line: underline;
+  text-underline-offset: .18em;
+}

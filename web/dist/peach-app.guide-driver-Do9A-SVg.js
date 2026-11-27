@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "4e3a6951-01e2-41b1-bf00-2631df1c523e", e._sentryDebugIdIdentifier = "sentry-dbid-4e3a6951-01e2-41b1-bf00-2631df1c523e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "f0e76a75-8902-40db-a6c9-f7158334efce", e._sentryDebugIdIdentifier = "sentry-dbid-f0e76a75-8902-40db-a6c9-f7158334efce");
 	} catch {}
 })();
 import { beginPlayerGuidePreview as e, closeDrawerAfterNav as t, disposeStage as n, peachHistory$1 as r } from "./peach-app.js";
@@ -1694,9 +1694,9 @@ function Kr(i) {
 	let a = null, o = null, s = !1, c = !1, l, u = 0, d, f, p = () => {
 		f &&= (n(!1, !1, { miniplayer: !1 }), f(), void 0);
 	}, m = document.activeElement, h = (e) => {
-		let t = new URL(e, location.origin);
-		if (location.pathname !== t.pathname || t.search && location.search !== t.search || t.hash && location.hash !== t.hash) {
-			new URLSearchParams(location.search).has("edit") && t.searchParams.set("edit", ""), s = !0;
+		let t = new URL(e, location.origin), n = new URL(location.href), r = n.searchParams.has("edit");
+		if (r && n.searchParams.delete("edit"), n.pathname !== t.pathname || n.search !== t.search || n.hash !== t.hash) {
+			r && t.searchParams.set("edit", ""), s = !0;
 			try {
 				i.navigate(`${t.pathname}${t.search}${t.hash}`);
 			} finally {
@@ -1812,4 +1812,4 @@ function Kr(i) {
 }
 export { Kr as createGuideSession };
 
-//# debugId=4e3a6951-01e2-41b1-bf00-2631df1c523e
+//# debugId=f0e76a75-8902-40db-a6c9-f7158334efce

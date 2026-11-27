@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { emptyProgress, guideChapterComplete, guideResumePosition, listenGuide, openGuide, readGuideProgress, recordGuideStep, saveGuideProgress } from '../src/onboarding/guide-state';
 import { createGuideSession, findGuideTarget, resolveGuideTarget } from '../src/onboarding/guide-driver';
-import { GUIDE_CHAPTERS, GUIDE_TOPICS } from '../src/onboarding/guide-catalog';
+import { contextualChapter, GUIDE_CHAPTERS, GUIDE_TOPICS } from '../src/onboarding/guide-catalog';
 import { guideEntry } from '../src/onboarding/guide-entry';
 import { isPlayerGuidePreview } from '../src/player/guide-preview';
 
@@ -54,6 +54,26 @@ describe('章节进度', () => {
       expect(new Set(covered).size).toBe(covered.length);
       expect([...covered].sort()).toEqual(GUIDE_CHAPTERS.filter(chapter => chapter.kind === kind && chapter.id !== 'basics').map(chapter => chapter.id).sort());
     }
+  });
+  it('从目录与 JAV 页面找到相应的导览，章内各步骤直达实际入口', () => {
+    const jav = contextualChapter('/jav?tab=releases&page=2');
+    expect(jav.id).toBe('jav');
+    expect(jav.steps.filter(step => step.route?.startsWith('/jav?')).map(step => step.route)).toEqual([
+      '/jav?tab=releases', '/jav?tab=wants', '/jav?tab=discover', '/jav?tab=online',
+    ]);
+    expect(contextualChapter('/?jav=1').id).toBe(jav.id);
+    const browsing = contextualChapter('/?browse=folders&q=sample');
+    expect(browsing.id).toBe('find-play');
+    expect(guideEntry(browsing.steps.find(step => step.id === 'folders')!)?.path.at(-1)).toBe('文件夹模式');
+    expect(contextualChapter('/?q=sample').id).toBe('basics');
+  });
+  it('AI 助手章节依次打开接入页、搜索框和馆藏工具', () => {
+    const chapter = contextualChapter('/ai?ask=sample');
+    expect(chapter.id).toBe('ai');
+    expect(contextualChapter('/settings/ai').id).toBe(chapter.id);
+    expect(chapter.steps.map(step => [step.route, guideEntry(step)?.path.at(-1)])).toEqual([
+      ['/settings/ai', 'AI 接入'], ['/ai', '输入框'], ['/ai', '馆藏工具'],
+    ]);
   });
   it('未开始时没有章节完成记录', () => {
     expect(emptyProgress()).toEqual({ version: 1, campaign: '', invited: false, completed: false, chapters: {} });

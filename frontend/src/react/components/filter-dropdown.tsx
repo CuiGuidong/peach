@@ -63,10 +63,10 @@ function FilterChoiceMenu({ label, choices, onSelect, hint, searchable = true, o
   </MenuDialog>;
 }
 
-export function FilterDropdown({ id, active, view, orderKey, ...menu }: ChoiceMenuProps & {
-  id: string; active?: boolean; orderKey?: string; view?: Parameters<typeof ColumnFilterPopover>[0]['view'];
+export function FilterDropdown({ id, active, view, orderKey, toolbar = true, ...menu }: ChoiceMenuProps & {
+  id: string; active?: boolean; orderKey?: string; toolbar?: boolean; view?: Parameters<typeof ColumnFilterPopover>[0]['view'];
 }) {
-  return <ColumnFilterPopover id={id} orderKey={orderKey} label={menu.label} active={active ?? menu.choices.some(choice => choice.selected)} toolbar view={view}>
+  return <ColumnFilterPopover id={id} orderKey={orderKey} label={menu.label} active={active ?? menu.choices.some(choice => choice.selected)} toolbar={toolbar} view={view}>
     {close => <FilterChoiceMenu {...menu}
       onSelect={id => { menu.onSelect(id); close() }}
       onClear={menu.onClear ? () => { menu.onClear?.(); close() } : undefined} />}

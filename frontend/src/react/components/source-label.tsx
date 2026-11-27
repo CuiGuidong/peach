@@ -23,7 +23,7 @@ export function SiteIcon({ site }: { site: string }) {
 export function SiteLabel({ site, label }: { site: string; label: string }) {
   return <span className="inline-flex min-w-0 items-center gap-1.5">
     <SiteIcon site={site} />
-    <span className="min-w-0 truncate">{label}</span>
+    <span data-external-link-label="" className="min-w-0 truncate">{label}</span>
   </span>;
 }
 
@@ -31,7 +31,7 @@ export function SiteLabel({ site, label }: { site: string; label: string }) {
 export function ScrapeSourceLabel({ source, label }: { source: string; label: string }) {
   return <span className="inline-flex min-w-0 items-center gap-1.5">
     <SiteMark source={source} />
-    <span className="min-w-0 truncate">{label}</span>
+    <span data-external-link-label="" className="min-w-0 truncate">{label}</span>
   </span>;
 }
 

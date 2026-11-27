@@ -1,28 +1,19 @@
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type MouseEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query';
 import { VisuallyHidden } from 'react-aria-components';
-import { RiCompassLine, RiExternalLinkLine } from '@remixicon/react';
-import { fmtDur } from '@peach/legacy/core';
+import { RiCompassLine } from '@remixicon/react';
 import { appSettingsStore, cardRatio, gridLayout, javLayout, JAV_LAYOUTS, storeJavLayout } from '@peach/appearance';
 import { Chip } from '@/components/base/badges/chip';
 import { Button } from '@/components/base/buttons/button';
-import { Checkbox } from '@/components/base/checkbox/checkbox';
-import { LinkButton } from '@/components/base/buttons/link-button';
 import { Input } from '@/components/base/input/input';
-import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@/components/base/table/table';
 import { apiGet, errorMessage } from '../../api';
-import { relayoutCovers } from '../../card-art/framing';
-import { textLang } from '../../core/text-lang';
 import { JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID, javTagPlaceholdersHtml, onlineCatalogCardsHtml, onlineCatalogTiersHtml } from '../../jav-skeleton';
-import { catalogListSkeletonCellHtml } from '../../catalog-content-skeleton';
-import { entityDisplayName } from '../../core/entity-names';
 import { JavGlassSearch } from './jav-header';
+import { castPersonName, dmmPerformerName } from '../components/cast-popover';
 import { t } from '../../i18n';
 import { columnRangeKinds, readColumnFilters, withinColumnRange, writeColumnFilters, type ColumnRange } from '../../column-filters';
-import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
+import { CatalogDisplayControls } from '../catalog-grid/catalog-view-toggle';
 import { useCatalogView } from '../catalog-grid/catalog-view';
-import { ArtSlot } from '../components/art-slot';
-import { DataTableFrame } from '../components/data-table-frame';
 import { EmptyState } from '../components/empty-state';
 import { ColumnFilterAvatar, ColumnFilterStudioAvatar } from '../components/column-filter-avatar';
 import { FilterChoiceList, FilterDropdown } from '../components/filter-dropdown';
@@ -30,9 +21,8 @@ import { FilterGlassRows, FilterTagStrip, FilterToolbarControls, useFilterScope 
 import { MenuDialog } from '../components/menu-dialog';
 import { Note } from '../components/note';
 import { Select, SelectItem } from '../components/select';
-import { SiteLabel } from '../components/source-label';
 import { ColumnFilterPopover } from '../components/table-column-filter';
-import { columnRangeSummary, outsideTableDateBound, TableRangeFields } from '../components/table-column-range';
+import { columnRangeSummary, outsideTableDateBound, TableColumnRange, TableRangeFields } from '../components/table-column-range';
 import { Pagination } from '../components/table-pagination';
 import { useHorizontalScroller } from '../components/use-horizontal-scroller';
 import { useViewGlide } from '../components/use-view-glide';
@@ -40,13 +30,14 @@ import { Combo, Segments, SortKeys } from '../entity-filter/entity-filter-page';
 import type { EntityComboItem } from '../entity-filter/entity-filter';
 import { useEntityNames } from '../use-entity-names';
 import { DiscoveryCard } from './discovery-card';
-import { DiscoveryCastMore, DiscoveryFaces, DiscoveryPerformerName, type DiscoveryPerson } from './discovery-faces';
-import { countJavFacets, PerformerFacet, StudioFacet, StudioListLabel } from './jav-facets';
+import { type DiscoveryPerson } from './discovery-faces';
+import { countJavFacets, PerformerFacet, StudioFacet } from './jav-facets';
 import { JavCodeFilter, matchesJavCode } from './jav-code-filter';
-import { useJavRectangle, useJavSelection, useVisibleJavWorks } from './jav-selection';
-import { ONLINE_COLUMNS, ONLINE_SORTS, ONLINE_STATUS, ONLINE_TABLE_WIDTH,
+import { useJavRectangle, useVisibleJavWorks } from './jav-selection';
+import { ONLINE_SORTS, ONLINE_STATUS,
   onlineSorting, onlineStatus, type OnlineSortKey, type OnlineStatus } from './online-catalog-layout';
-import { discoveryArtwork, writeJavQuery, type Discovery, type ReleaseFacetStudio } from './jav';
+import { writeJavQuery, type Discovery, type ReleaseFacetStudio } from './jav';
+import { OnlineCatalogTable } from './online-catalog-table';
 import { useDatalistSuggest } from '../search/datalist-suggest';
 import { librarySuggest } from '../search/library-suggest';
 
@@ -95,7 +86,7 @@ function catalogFilters() {
 }
 
 type Filters = ReturnType<typeof catalogFilters>;
-type CatalogItem = Discovery & { catalogId: string; preOrder: boolean; studioOption: CatalogStudio | null; tagOptions: CatalogTag[] };
+export type CatalogItem = Discovery & { catalogId: string; preOrder: boolean; studioOption: CatalogStudio | null; tagOptions: CatalogTag[] };
 
 const RANGE_FIELDS = ['release', 'dur'] as const;
 type RangeKey = typeof RANGE_FIELDS[number];
@@ -141,7 +132,7 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
       {data && data.performer_options.length > 1 ? <Select size="sm" aria-label={t('catalog:javOnline.performerPage')}
         prefix={t('catalog:javOnline.performerPage')} selectedKey={data.selected_actress}
         onSelectionChange={key => { if (key !== null) choose(filters.performer, String(key)) }}>
-        {data.performer_options.map(option => <SelectItem key={option.id} id={option.id}>{option.name}</SelectItem>)}
+        {data.performer_options.map(option => <SelectItem key={option.id} id={option.id}>{dmmPerformerName(option.name)}</SelectItem>)}
       </Select> : null}
       <div className="flex justify-end gap-2">
         {filters.performer || filters.actress ? <Button size="small" variant="ghost" type="button"
@@ -152,7 +143,7 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
     {people.length ? <div className="mt-2">
       <p className="mb-1 px-3 text-caption-1-regular text-text-secondary">{t('catalog:javOnline.facetScope')}</p>
       <FilterChoiceList choices={people.map(({ id, value, count }) => ({
-        id, count, label: entityDisplayName('performer', value.name, value.id), selected: id === selected,
+        id, count, label: castPersonName(value), searchTerms: [value.name], selected: id === selected,
         leading: <ColumnFilterAvatar person={value} />,
       }))} onSelect={id => {
         const person = people.find(option => option.id === id)?.value;
@@ -160,99 +151,6 @@ function CatalogPerformerFilter({ filters, data, people, selected, go, close }: 
       }} />
     </div> : null}
   </MenuDialog>;
-}
-
-function OnlineCatalogTable({ items, waiting, javImage, filters, sorting, onSort, onFilter, onStudio, onTag }: {
-  items: CatalogItem[]; waiting: boolean; javImage: unknown; filters: Filters; onFilter(person: DiscoveryPerson): void;
-  onStudio(id: string): void; onTag(id: string): void;
-  sorting: SortState; onSort(key: OnlineSortKey): void;
-}) {
-  const genres = genresFromAddress(filters.genre);
-  const selection = useJavSelection();
-  const selectable = !waiting && items.some(item => item.code);
-  return <div data-catalog-table="" data-release-table="" className="min-w-0">
-    <DataTableFrame follow onRectangle={selectable ? selection?.selectRectangle : undefined}
-      onRowClick={selectable && selection?.mode ? key => {
-        const item = items.find(row => row.catalogId === key);
-        if (item?.code) selection.toggle(item);
-      } : undefined}>
-      <Table size="sm" aria-label={t('catalog:javTabs.online')} className="min-w-(--online-table-width) table-fixed"
-        style={{ '--online-table-width': `${ONLINE_TABLE_WIDTH + (selection?.mode ? 44 : 0)}px` } as CSSProperties}
-        sortDescriptor={sorting.sort === 'code' ? undefined : { column: sorting.sort, direction: sorting.dir === 'asc' ? 'ascending' : 'descending' }}
-        onSortChange={next => onSort(next.column === 'dur' ? 'dur' : 'release')}>
-        <TableHeader>
-          {selection?.mode ? <TableColumn id="selection" className="w-11" aria-label={t('catalog:javReleases.selectVideos')}>
-            <Checkbox slot={null} aria-label={t('catalog:catalogList.selectAllOnPage')} isSelected={selection.all}
-              isIndeterminate={selection.mixed} isDisabled={!selectable} onChange={selection.selectPage} />
-          </TableColumn> : null}
-          {ONLINE_COLUMNS.map(([id, label, width]) => <TableColumn key={id} id={id}
-            className="w-(--online-column-width)" style={{ '--online-column-width': `${width}px` } as CSSProperties}
-            isRowHeader={id === 'name'} allowsSorting={id === 'release' || id === 'dur'}>{t(label)}</TableColumn>)}
-        </TableHeader>
-        <TableBody>
-          {waiting ? Array.from({ length: 6 }, (_, index) => <TableRow key={`skeleton-${index}`} id={`skeleton-${index}`} data-list-skeleton-row="" aria-hidden="true">
-            {selection?.mode ? <TableCell /> : null}
-            {ONLINE_COLUMNS.map(([id]) => <TableCell key={id}><span dangerouslySetInnerHTML={{ __html: catalogListSkeletonCellHtml(id, true) }} /></TableCell>)}
-          </TableRow>) : items.map(item => {
-            const artwork = discoveryArtwork(item, 'small', javImage);
-            const people = item.performer_refs || [];
-            const lead = people[0];
-            const leadName = lead ? entityDisplayName('performer', lead.name, lead.id) : '';
-            const href = item.code ? `/works/${encodeURIComponent(item.code)}` : item.link;
-            const target = item.code ? {} : { target: '_blank', rel: 'noopener noreferrer' };
-            const picked = !!item.code && selection?.selected.has(item.code);
-            const pickLink = (event: MouseEvent<HTMLAnchorElement>) => {
-              if (!item.code || !selection?.mode) return;
-              event.preventDefault();
-              selection.toggle(item, event.shiftKey);
-            };
-            return <TableRow key={item.catalogId} id={item.catalogId} data-catalog-row="" data-release-row=""
-              data-rectangle-key={item.code || undefined} data-rectangle-disabled={!item.code || undefined}
-              data-board-selected={picked || undefined}>
-              {selection?.mode ? <TableCell>{item.code ? <Checkbox slot={null} aria-label={t('catalog:javDiscovery.select', { code: item.code })}
-                isSelected={!!picked} onChange={() => selection.toggle(item)} /> : null}</TableCell> : null}
-              <TableCell><div data-list-identity="">
-                <a data-list-open="" href={href} onClick={pickLink} tabIndex={-1} aria-hidden {...target}>
-                  <span data-list-picture="">{artwork
-                    ? <ArtSlot artwork={{ kind: 'cover', html: artwork }} relayout={node => relayoutCovers(node, 'small')} />
-                    : <span>{t('catalog:shared.noCover')}</span>}</span>
-                </a>
-                <span data-list-text=""><a data-list-work-link="" href={href} onClick={pickLink}
-                  title={item.code ? `${item.code} · ${item.title}` : item.title} {...target}>
-                  {item.code ? <span data-list-code="" className="text-body-2-regular text-text-primary">{item.code}</span> : null}
-                  <span data-list-name="" lang={textLang(item.title)}>{item.title}</span>
-                </a></span>
-              </div></TableCell>
-              <TableCell>{lead ? <div data-list-people="">
-                <DiscoveryFaces item={item} limit={1} />
-                <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
-                  <div data-list-person-line="" className="flex w-full min-w-0 items-center gap-2">
-                    <DiscoveryPerformerName person={lead} name={leadName} title={leadName} onFilter={onFilter} />
-                  </div>
-                  <DiscoveryCastMore people={people} onFilter={onFilter} />
-                </div>
-              </div> : '—'}</TableCell>
-              <TableCell>{item.studioOption ? <button type="button" className="max-w-full cursor-pointer hover:underline"
-                aria-pressed={filters.maker === item.studioOption.id} onClick={() => onStudio(item.studioOption!.id)}>
-                <StudioListLabel name={item.studio} studio={item.studioOption} />
-              </button> : '—'}</TableCell>
-              <TableCell>{item.tagOptions.length ? <div data-media-tags="" data-list-tags="">
-                {item.tagOptions.map(tag => <button type="button" key={tag.id} data-media-tag=""
-                  aria-pressed={genres.includes(tag.id)} onClick={() => onTag(tag.id)}>{tag.source_name}</button>)}
-              </div> : '—'}</TableCell>
-              <TableCell><div className="flex flex-col gap-1">
-                {item.release_date ? <time dateTime={item.release_date}>{item.release_date}</time> : '—'}
-                {item.preOrder ? <span className="text-caption-1-regular text-text-secondary">{t('catalog:javOnline.preOrder')}</span> : null}
-              </div></TableCell>
-              <TableCell>{fmtDur(item.duration)}</TableCell>
-              <TableCell><LinkButton href={item.link} target="_blank" rel="noopener noreferrer" title={item.link}
-                size="small" trailingIcon={RiExternalLinkLine}><SiteLabel site="dmm" label="DMM" /></LinkButton></TableCell>
-            </TableRow>;
-          })}
-        </TableBody>
-      </Table>
-    </DataTableFrame>
-  </div>;
 }
 
 export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path: string): void; query?: string }) {
@@ -336,8 +234,8 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
   const tagChoices = tags.map(({ id, value, count }) => ({ id, label: value.source_name, searchTerms: [value.name],
     count, selected: genres.includes(id) }));
   const activePerson = people.find(option => option.id === actress)?.value;
-  const personLabel = activePerson ? entityDisplayName('performer', activePerson.name, activePerson.id)
-    : query.data?.performer_options.find(option => option.id === actress)?.name || filters.performer || actress;
+  const personLabel = activePerson ? castPersonName(activePerson)
+    : dmmPerformerName(query.data?.performer_options.find(option => option.id === actress)?.name || filters.performer || actress);
   const studioName = studios.find(option => option.id === filters.maker)?.value.name
     || conditionNames[`studio:${filters.maker}`] || filters.maker;
   const genreName = (id: string) =>
@@ -370,6 +268,19 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
       key === 'release' && exactDate !== filters.date ? { ...filters, date: exactDate, page: 1 } : undefined);
   };
   const changeCode = (value: string) => { setCode(value); writeJavQuery({ code: value }) };
+  const performerFilter = (id: string, toolbar: boolean) => <ColumnFilterPopover id={id} orderKey="performer"
+    label={performerLabel} active={hasPerformer} toolbar={toolbar} view={toolbar ? viewTrigger(id) : undefined}>
+    {close => <CatalogPerformerFilter filters={filters} data={query.data} people={people} selected={actress} go={go} close={close} />}
+  </ColumnFilterPopover>;
+  const studioFilter = (id: string, toolbar: boolean) => <FilterDropdown id={id} orderKey="studio" toolbar={toolbar}
+    view={toolbar ? viewTrigger(id) : undefined} label={studioLabel} active={!!filters.maker}
+    hint={t('catalog:javOnline.facetScope')} onSelect={chooseStudio} onClear={filters.maker ? () => chooseStudio('') : undefined}
+    choices={studios.map(({ id, value, count }) => ({ id, label: value.name, searchTerms: [value.source_name],
+      count, selected: id === filters.maker, leading: <ColumnFilterStudioAvatar studio={value} /> }))} />;
+  const tagsFilter = (id: string, toolbar: boolean) => <FilterDropdown id={id} orderKey="tags" toolbar={toolbar}
+    view={toolbar ? viewTrigger(id) : undefined} label={tagsLabel} active={!!filters.genre}
+    hint={t('catalog:javOnline.facetScope')} onSelect={chooseTag} onClear={genres.length ? () => chooseTag('') : undefined}
+    choices={tagChoices} />;
   const clearFilter = (key: string) => {
     if (key === 'performer') go({ ...filters, performer: '', actress: '', page: 1 });
     else if (key === 'maker') go({ ...filters, maker: '', page: 1 });
@@ -405,6 +316,15 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
   useVisibleJavWorks(selectable);
   const rectangle = useJavRectangle(!waiting && selectable.length > 0);
   const localOrder = sorting.sort !== 'release' || sorting.dir === 'asc';
+  const showTable = view === 'list' && (waiting || Boolean(query.data));
+  const empty = query.data && !waiting && !items.length && !query.error && !query.data.coverUnverified
+    ? <EmptyState icon={RiCompassLine}
+        title={t(works.length ? 'catalog:javOnline.noPageMatches'
+          : query.data.total ? 'catalog:javOnline.noCoveredWorks' : 'catalog:javOnline.noMatches')}
+        actions={works.length ? <Button size="small" onClick={() => {
+          setStatus('all'); setCode(''); setRanges({ release: undefined, dur: undefined });
+          writeJavQuery({ status: '', code: '', column_filters: '' });
+        }}>{t('catalog:shared.clearFilters')}</Button> : null}>{null}</EmptyState> : null;
   return <section aria-label={label} aria-busy={waiting} className="flex min-w-0 flex-col gap-4">
     {initialLoading ? <div className="contents" dangerouslySetInnerHTML={{ __html: onlineCatalogTiersHtml() }} />
       : people.length || studios.length ? <div data-catalog-tiers="" className={JAV_CATALOG_TIERS}>
@@ -438,20 +358,12 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
         <JavGlassSearch tab="online" />
         </span>
         <FilterToolbarControls tools={<>
-          {view === 'cards' ? <Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} /> : null}
-          <CatalogViewToggle />
+          <CatalogDisplayControls cardLayout={<Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} />} />
         </>} fieldGroup={{ ref: viewRow, role: 'group', 'aria-label': t('catalog:javDiscover.filtersLabel'), onPointerLeave: glide.leave }}
           fields={<>
-            <ColumnFilterPopover id="online-performer" orderKey="performer" view={viewTrigger('online-performer')} label={performerLabel} active={hasPerformer}>
-              {close => <CatalogPerformerFilter filters={filters} data={query.data} people={people} selected={actress} go={go} close={close} />}
-            </ColumnFilterPopover>
-            <FilterDropdown id="online-studio" orderKey="studio" view={viewTrigger('online-studio')} label={studioLabel} active={!!filters.maker}
-              hint={t('catalog:javOnline.facetScope')} onSelect={chooseStudio} onClear={filters.maker ? () => chooseStudio('') : undefined}
-              choices={studios.map(({ id, value, count }) => ({ id, label: value.name, searchTerms: [value.source_name],
-                count, selected: id === filters.maker, leading: <ColumnFilterStudioAvatar studio={value} /> }))} />
-            <FilterDropdown id="online-tags" orderKey="tags" view={viewTrigger('online-tags')} label={tagsLabel} active={!!filters.genre}
-              hint={t('catalog:javOnline.facetScope')} onSelect={chooseTag} onClear={genres.length ? () => chooseTag('') : undefined}
-              choices={tagChoices} />
+            {performerFilter('online-performer', true)}
+            {studioFilter('online-studio', true)}
+            {tagsFilter('online-tags', true)}
           </>} sorts={<SortKeys group="javOnline" sorts={ONLINE_SORTS.map(([key, label]) => ({
             key, label: t(label), ariaLabel: t(label), pressed: sorting.sort === key, dir: sorting.dir,
           }))} onSort={(key, dir) => sortBy(key as OnlineSortKey, dir)}
@@ -483,14 +395,21 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
       action={<Button variant="secondary" onClick={() => void query.refetch()}>{t('catalog:shared.retryNow')}</Button>}>
       {t('catalog:javOnline.coverUnverified')}
     </Note> : null}
-    {query.data && !waiting && !items.length && !query.error && !query.data.coverUnverified ? <EmptyState icon={RiCompassLine}
-      title={t(works.length ? 'catalog:javOnline.noPageMatches'
-        : query.data.total ? 'catalog:javOnline.noCoveredWorks' : 'catalog:javOnline.noMatches')}
-      actions={works.length ? <Button size="small" onClick={() => { setStatus('all'); setCode(''); setRanges({ release: undefined, dur: undefined }); writeJavQuery({ status: '', code: '', column_filters: '' }) }}>
-        {t('catalog:shared.clearFilters')}</Button> : null}>{null}</EmptyState> : null}
-    {view === 'list' && (waiting || items.length > 0) ? <OnlineCatalogTable items={items} waiting={waiting} javImage={settings.value.javImage}
-      filters={filters} sorting={sorting} onSort={key => sortBy(key, key === sorting.sort && sorting.dir === 'desc' ? 'asc' : 'desc')}
-      onFilter={choosePerson} onStudio={chooseStudio} onTag={chooseTag} /> : null}
+    {showTable ? <OnlineCatalogTable items={items} waiting={waiting} javImage={settings.value.javImage} empty={empty}
+      maker={filters.maker} genres={genres} sorting={sorting} onSort={sortBy}
+      headers={{
+        people: performerFilter('online-column-performer', false),
+        studio: studioFilter('online-column-studio', false),
+        tags: tagsFilter('online-column-tags', false),
+        release: <TableColumnRange id="online-column-release" label={dateLabel} kind="date" value={dateRange}
+          rangeValues={works.map(work => work.date)} onChange={value => changeRange('release', value)} />,
+        dur: <TableColumnRange id="online-column-duration" label={t('catalog:catalogList.duration')} kind="duration"
+          value={ranges.dur} onChange={value => changeRange('dur', value)} />,
+        code: <ColumnFilterPopover id="online-column-code" label={t('catalog:shared.code')} active={!!code}>
+          {close => <JavCodeFilter value={code} onChange={value => { changeCode(value); close() }} />}
+        </ColumnFilterPopover>,
+      }}
+      onFilter={choosePerson} onStudio={chooseStudio} onTag={chooseTag} /> : empty}
     {view === 'cards' && waiting ? <div className="contents" dangerouslySetInnerHTML={{ __html: onlineCatalogCardsHtml(ratio) }} /> : null}
     {view === 'cards' && items.length > 0 ? <div data-media-grid="" className={JAV_RECOMMENDATION_GRID} style={{ '--card-ratio': ratio } as CSSProperties} {...rectangle}>
         {items.map(item => <DiscoveryCard key={item.catalogId} item={item} layout={layout} javImage={settings.value.javImage}

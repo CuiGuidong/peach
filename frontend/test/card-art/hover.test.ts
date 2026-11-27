@@ -13,7 +13,8 @@ function card(): HTMLElement {
   return el;
 }
 
-const enter = (el: HTMLElement) => el.dispatchEvent(new MouseEvent('mouseenter'));
+const enter = (el: Element, relatedTarget: Element | null = null) =>
+  el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, relatedTarget }));
 const leave = (el: HTMLElement) => el.dispatchEvent(new MouseEvent('mouseleave'));
 
 beforeEach(() => {
@@ -52,6 +53,20 @@ describe('悬停放大设置', () => {
     leave(el);
     expect(el.hasAttribute('data-previewing')).toBe(false);
     expect(el.hasAttribute('data-longhover')).toBe(false);
+  });
+
+  it('移入署名时收起作品预览，回到封面时重新开始', () => {
+    const el = card();
+    el.insertAdjacentHTML('beforeend', '<div data-media-meta><button data-media-who>艺人</button></div>');
+    const picture = el.querySelector('[data-media-pic]')!;
+    const artist = el.querySelector('[data-media-who]')!;
+    wireHover(el, { id: 7, location: 'pikpak', has_thumb: true });
+    enter(artist);
+    expect(el.querySelector('img.ui-hvframes')).toBeNull();
+    enter(picture, artist);
+    expect(el.querySelector('img.ui-hvframes')).not.toBeNull();
+    enter(artist, picture);
+    expect(el.querySelector('img.ui-hvframes')).toBeNull();
   });
 
   it('计时中关闭后不进入放大状态：延时到点时再读一次设置', () => {

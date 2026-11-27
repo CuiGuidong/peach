@@ -1,6 +1,5 @@
-/* JAV 新作分区的列表模式。表格骨架、列偏好、显示列与拖宽手柄同馆藏作品列表那一套，格子沿用它的
- * 名称格、艺人格与媒体库格标记（`catalog-list.css`）。分页与排序在分区里：表头点得开的四列对应新作接口的排序键。 */
-import type { MouseEvent, RefObject } from 'react';
+/* 新作与发现共用作品行、列设置、排序反馈和批量选择。筛选条件及排序由各分区管理。 */
+import type { MouseEvent, ReactNode, RefObject } from 'react';
 import { hasSelectionModifier } from '../../selection';
 import { Button } from '@/components/base/buttons/button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
@@ -19,20 +18,23 @@ import { TableColumnControls, TableColumnResizer } from '../components/table-col
 import { TableColumnFilter, type ColumnFilterPage } from '../components/table-column-filter';
 import { TableColumnRange } from '../components/table-column-range';
 import { ColumnFilterAvatar } from '../components/column-filter-avatar';
+import { CastPopover, castPersonName, discoveryCast } from '../components/cast-popover';
+import { ListCredits } from '../components/list-credits';
 import { busyProps } from '../settings/use-action';
 import { DiscoveryFaces, DiscoveryPerformerName } from './discovery-faces';
 import { StudioListLabel } from './jav-facets';
-import type { DiscoveryDirection, ReleaseSort } from './discovery-sorts';
+import { discoveryScore, type DiscoveryDirection, type DiscoverySort, type ReleaseSort } from './discovery-sorts';
 import { discoveryArtwork, fetchReleaseColumn, releaseDateQuery, setReleaseColumn, releaseColumnValues, releaseColumnSelection, type Discovery, type ReleaseFacetPerformer, type ReleaseFacetStudio, type ReleaseFilters, type ReleaseResult } from './jav';
 import { columnRangeKinds, readColumnFilters, type ColumnRange, type ColumnSelection } from '../../column-filters';
 import { entityWriting } from '../../core/entity-names';
-import { RELEASE_COLUMN_VISIBILITY_KEY, RELEASE_COLUMN_WIDTHS_KEY, RELEASE_SORT_COLUMNS, releaseColumns } from './release-table-columns';
+import { DISCOVERY_TABLE_ID, DISCOVERY_TABLE_KEYS, discoveryColumns, RELEASE_COLUMN_VISIBILITY_KEY, RELEASE_COLUMN_WIDTHS_KEY, RELEASE_SORT_COLUMNS, releaseColumns } from './release-table-columns';
 import { t } from '../../i18n';
 import { useWorkContextMenu } from '../components/work-context-menu';
 import { discoveryContext } from './discovery-context';
 import '../catalog-grid/catalog-list.css';
 
 const KEYS = { widths: RELEASE_COLUMN_WIDTHS_KEY, visibility: RELEASE_COLUMN_VISIBILITY_KEY };
+const DISCOVERY_SORT_COLUMNS: Record<string, ReleaseSort> = { ...RELEASE_SORT_COLUMNS, taste: 'taste' };
 
 function ReleaseColumnFilter({ column, label, filters, onChange }: {
   column: 'people' | 'studio' | 'tags'; label: string; filters: ReleaseFilters;
@@ -57,31 +59,37 @@ function ReleaseColumnFilter({ column, label, filters, onChange }: {
 
 export type ReleaseRangeKey = 'release' | 'dur' | 'score' | 'taste';
 
-export function ReleaseTable({ items, waiting, filters, studios, facets, javImage, readOnly, navigate, onTag, onFilter, onRange, onSort, wanting, onWant, onResource, selecting = true, tableTop }: {
+export function ReleaseTable({ items, waiting, filters, discovery, studios = [], facets, javImage, readOnly, navigate, onTag, onFilter, onRange, onSort, wanting, onWant, onResource, selecting = true, tableTop }: {
   selecting?: boolean;
-  tableTop: RefObject<HTMLDivElement | null>;
-  items: Discovery[]; waiting: boolean; filters: ReleaseFilters; studios: ReleaseFacetStudio[]; javImage: unknown; readOnly: boolean;
+  tableTop?: RefObject<HTMLDivElement | null>;
+  items: Discovery[]; waiting: boolean; studios?: ReleaseFacetStudio[]; javImage: unknown; readOnly: boolean;
   facets?: ReleaseResult['facets']; onFilter?(facet: 'performer' | 'studio' | 'tag', values: ColumnSelection | undefined): void;
   onRange?(column: ReleaseRangeKey, value: ColumnRange | undefined): void;
   navigate(path: string): void; onTag(tag: string): void; onSort(key: ReleaseSort, dir: DiscoveryDirection): void;
   wanting(item: Discovery): boolean; onWant(item: Discovery): void; onResource(item: Discovery): void;
-}) {
+} & ({ filters: ReleaseFilters; discovery?: never } | { filters?: never; discovery: {
+  sort: DiscoverySort; dir: DiscoveryDirection; tag: string; headers: Record<string, ReactNode>;
+} })) {
   const selection = useJavSelection();
   const context = useWorkContextMenu();
   const menuContext = (item: Discovery) => discoveryContext(item, { selection, readOnly, wanting: wanting(item), navigate,
     onWant: () => onWant(item), onResource: () => onResource(item) });
-  const preferences = useTablePreferences('jav-releases', releaseColumns, KEYS);
+  const preferences = useTablePreferences(discovery ? DISCOVERY_TABLE_ID : 'jav-releases',
+    discovery ? discoveryColumns : releaseColumns, discovery ? DISCOVERY_TABLE_KEYS : KEYS);
   const shown = preferences.columns.filter(column => column.required || preferences.visibility[column.id] !== false);
-  const active = Object.entries(RELEASE_SORT_COLUMNS).find(([, key]) => key === filters.sort)?.[0];
-  const columnFilters = readColumnFilters(filters.column_filters);
+  const sortColumns = discovery ? DISCOVERY_SORT_COLUMNS : RELEASE_SORT_COLUMNS;
+  const active = Object.entries(sortColumns).find(([, key]) => key === (discovery?.sort ?? filters?.sort))?.[0];
+  const direction = discovery?.dir ?? filters?.dir;
+  const columnFilters = readColumnFilters(filters?.column_filters);
+  const selectedTags = filters ? releaseColumnValues(filters, 'tag') : discovery?.tag ? [discovery.tag] : [];
+  const label = t(discovery ? 'catalog:javTabs.discover' : 'catalog:javReleases.list');
   const logos = new Map(studios.map(studio => [studio.name, studio]));
   const open = (item: Discovery) => (event: MouseEvent) => {
     event.preventDefault();
     if (selection?.mode || hasSelectionModifier(event)) selection?.toggle(item, event.shiftKey);
-    else navigate(`/works/${encodeURIComponent(item.code)}`);
+    else navigate(item.asset_id ? `/assets/${item.asset_id}` : `/works/${encodeURIComponent(item.code)}`);
   };
   const cell = (id: string, item: Discovery) => {
-    const name = item.performer_refs?.[0]?.name || item.performers.split(/[,，、;/]/)[0] || '';
     switch (id) {
       case 'name': {
         const artwork = discoveryArtwork(item, 'small', javImage);
@@ -98,39 +106,44 @@ export function ReleaseTable({ items, waiting, filters, studios, facets, javImag
           </span>
         </div>;
       }
-      case 'people':
-        return name ? <div data-list-people=""><DiscoveryFaces item={item} />
-          <DiscoveryPerformerName person={item.performer_refs?.[0]} name={name} />
-          {(item.performer_refs?.length || 0) > 1 ? <span data-media-who-more="">{t('catalog:javDiscovery.morePeople', { count: item.performer_refs!.length - 1, total: item.performer_refs!.length })}</span> : null}
-        </div> : '—';
+      case 'people': {
+        const people = discoveryCast(item.performer_refs, item.performers);
+        const lead = people[0];
+        return lead ? <ListCredits avatar={<DiscoveryFaces item={item} />}
+          cast={<CastPopover people={people} total={item.performer_total} assetId={item.asset_id ?? undefined} code={item.code} subscribe />}>
+          <DiscoveryPerformerName person={lead} name={castPersonName(lead)} title={lead.name} />
+        </ListCredits> : '—';
+      }
       case 'studio':
         return item.studio ? <StudioListLabel name={item.studio} studio={item.studio_ref || logos.get(item.studio)} /> : '—';
       case 'tags':
         return item.tags?.length ? <div data-media-tags="" data-list-tags="">
-          {item.tags.map(tag => <button key={tag} type="button" data-media-tag="" aria-pressed={releaseColumnValues(filters, 'tag').includes(tag)}
+          {item.tags.map(tag => <button key={tag} type="button" data-media-tag="" aria-pressed={selectedTags.includes(tag)}
             onClick={() => onTag(tag)}>{tag}</button>)}
         </div> : '—';
       case 'code': return item.code;
       case 'dur': return fmtDur(item.duration) || '—';
       case 'score': return item.source_score != null ? `${item.source_score.toFixed(2)} / 5` : '—';
+      case 'taste': return discoveryScore(item.taste_score ?? item.score);
       case 'release': return item.release_date || '—';
       default:
         /* 行里只放两个动作；作品来源链接在详情页。 */
         return <div data-release-actions="" className="flex gap-2">
           <Button size="small" variant="ghost" disabled={readOnly || item.wanted || !!item.asset_id} {...busyProps(wanting(item))}
-            onClick={() => onWant(item)}>{item.wanted ? t('catalog:javWant.wanted') : t('catalog:javWant.want')}</Button>
+            onClick={() => onWant(item)}>{item.asset_id ? t('catalog:javWant.imported') : item.wanted ? t('catalog:javWant.wanted') : t('catalog:javWant.want')}</Button>
           <Button size="small" variant="secondary" onClick={() => onResource(item)}>{t('catalog:shared.searchTorrents')}</Button>
         </div>;
     }
   };
-  return <div data-catalog-table="" data-release-table="" className="flex min-w-0 flex-col gap-4" onKeyDown={event => {
+  return <div data-catalog-table="" data-catalog-view-mode="list" data-release-table="" data-discover-table={discovery ? '' : undefined}
+    className="flex min-w-0 flex-col gap-4" onKeyDown={event => {
     const row = (event.target as HTMLElement).closest<HTMLElement>('[data-release-row]');
     const item = row && items.find(item => String(item.id) === row.dataset.releaseId);
     if (item && !waiting) context.onKeyDown(event, menuContext(item), row);
   }}>
     {context.menu}
-    <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={t('catalog:javReleases.toolbar')}>
-      <div data-toolbar-actions=""><TableColumnControls preferences={preferences} label={t('catalog:javReleases.list')} /></div>
+    <div className="flex flex-wrap justify-end gap-2" role="toolbar" aria-label={discovery ? label : t('catalog:javReleases.toolbar')}>
+      <div data-toolbar-actions=""><TableColumnControls preferences={preferences} label={label} /></div>
     </div>
     <DataTableFrame ref={tableTop} follow preferences={preferences} rectangleSelecting={Boolean(selection?.mode)}
       onRectangle={selecting && !waiting && items.length ? selection?.selectRectangle : undefined}
@@ -138,24 +151,24 @@ export function ReleaseTable({ items, waiting, filters, studios, facets, javImag
         const item = items.find(row => String(row.id) === key);
         if (item) selection.toggle(item);
       } : undefined}>
-      <Table aria-label={t('catalog:javReleases.list')} size="sm"
-        sortDescriptor={active ? { column: active, direction: filters.dir === 'asc' ? 'ascending' : 'descending' } : undefined}
-        onSortChange={next => { const key = RELEASE_SORT_COLUMNS[String(next.column)]; if (key) onSort(key, next.direction === 'ascending' ? 'asc' : 'desc') }}>
+      <Table aria-label={label} size="sm"
+        sortDescriptor={active ? { column: active, direction: direction === 'asc' ? 'ascending' : 'descending' } : undefined}
+        onSortChange={next => { const key = sortColumns[String(next.column)]; if (key) onSort(key, next.direction === 'ascending' ? 'asc' : 'desc') }}>
         <TableHeader>{selection?.mode ? <TableColumn id="selection" width={44} aria-label={t('catalog:javReleases.selectVideos')}>
           <Checkbox slot={null} aria-label={t('catalog:catalogList.selectAllOnPage')} isSelected={selection.all} isIndeterminate={selection.mixed}
             isDisabled={waiting || !items.length} onChange={selection.selectPage} />
         </TableColumn> : null}{shown.map(column => <TableColumn key={column.id} id={column.id} isRowHeader={column.id === 'name'}
-          allowsSorting={column.id in RELEASE_SORT_COLUMNS} {...preferences.columnProps(column.id)}>
+          allowsSorting={column.id in sortColumns} {...preferences.columnProps(column.id)}>
           {({ sortDirection }) => <>
-            <span className="flex items-center gap-0.5">{onRange && (column.id === 'release' || column.id === 'dur' || column.id === 'score')
+            <span className="flex items-center gap-0.5">{discovery?.headers[column.id] ?? (filters && onRange && (column.id === 'release' || column.id === 'dur' || column.id === 'score')
               ? <TableColumnRange id={column.id} label={column.label} kind={columnRangeKinds[column.id]} value={columnFilters[column.id]}
                   rangeQuery={column.id === 'release' ? releaseDateQuery(filters) : undefined}
                   onChange={value => onRange(column.id as ReleaseRangeKey, value)} />
-              : facets && onFilter && ['people', 'studio', 'tags'].includes(column.id)
+              : filters && facets && onFilter && ['people', 'studio', 'tags'].includes(column.id)
               ? <ReleaseColumnFilter column={column.id as 'people' | 'studio' | 'tags'} label={column.label}
                   filters={filters} onChange={onFilter} />
-              : column.label}
-              {column.id in RELEASE_SORT_COLUMNS ? <span data-sort-indicator data-direction={sortDirection || undefined}><ChevronSortDown /></span> : null}</span>
+              : column.label)}
+              {column.id in sortColumns ? <span data-sort-indicator data-direction={sortDirection || undefined}><ChevronSortDown /></span> : null}</span>
             <TableColumnResizer preferences={preferences} id={column.id} />
           </>}
         </TableColumn>)}

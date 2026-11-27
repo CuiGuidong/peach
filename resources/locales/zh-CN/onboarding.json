@@ -92,6 +92,14 @@
     "usageBody": "查看资料、缓存与备份占用的空间。",
     "usageTitle": "占用统计"
   },
+  "guideAi": {
+    "askBody": "用一句话描述要找的内容，例如「找出最近入库、还没看过的视频」。发送前可以选择搜索范围和模型。展开搜索条件可以修改后重搜。",
+    "askTitle": "用自然语言搜索",
+    "connectBody": "选择服务并保存连接。支持使用 API Key，也可以授权 ChatGPT 订阅。接入前可以回到 AI 助手查看内置演示。",
+    "input": "输入框",
+    "summary": "接入 AI、用自然语言找片、复核馆藏工具的结果。",
+    "toolsBody": "在输入框下方打开馆藏工具，选择翻译、标签建议、元数据或整理任务。需要修改馆藏时，先核对草稿，再确认应用。"
+  },
   "guideAppearance": {
     "contrastBody": "需要更清楚区分文字与背景时开启。",
     "contrastTitle": "增加对比度",
@@ -255,15 +263,16 @@
     "externalBody": "在这里选择本地播放器、M3U 播放列表或网络播放地址，再点打开。另一台设备需要能访问当前 Peach 地址。",
     "filterBody": "多个筛选条件会共同缩小结果。找不到内容时先检查媒体库和筛选条件。",
     "filterTitle": "筛选与清除",
+    "foldersBody": "打开筛选栏右侧的文件夹模式，按媒体目录和子文件夹浏览。再点一次返回作品视图。",
+    "layoutBody": "用筛选栏右侧的显示方式切换卡片或列表。在列表中可以拖动表头边缘调整列宽。",
+    "layoutTitle": "切换卡片和列表",
     "libraryBody": "导航顶部可以切换全部媒体库或某个媒体库；手机上先展开侧栏。媒体库把不同目录组织成一组。",
     "libraryTitle": "选择媒体库",
     "playerBody": "底部控制条提供播放、进度、音量和全屏。右侧齿轮打开播放速度、字幕、画面旋转和清晰度等选项。",
     "playerTitle": "播放器控件",
-    "searchBody": "输入作品、番号或人物名称，结合筛选与排序定位内容。搜索记录数量可在搜索与推荐中设置。",
-    "searchTitle": "按关键词找内容",
     "subtitlesBody": "从播放器齿轮菜单进入字幕，可以选择已有字幕、加载本地字幕文件或搜索字幕；播放速度和清晰度也在这个菜单中。",
     "subtitlesTitle": "字幕与播放选项",
-    "summary": "搜索、筛选、详情、版本、字幕和播放器。",
+    "summary": "媒体库、筛选、文件夹、作品详情和播放器。",
     "title": "找到并播放"
   },
   "guideFollow": {
@@ -291,11 +300,13 @@
     "libraryTitle": "JAV 馆藏",
     "newBody": "发现页按口味推荐作品。在这里切换馆藏或外部内容，并按标签筛选。",
     "newTitle": "发现推荐",
+    "onlineBody": "在线目录可按发行日期、艺人、厂牌和标签查找作品。切到列表后，可以通过表头筛选和调整列宽。点「等 X 人」展开出演名单。",
     "qualityBody": "待升级卡片列出当前版本信息和判定原因，可以查看版本或查找资源；没有目标时这里显示空状态。",
     "qualityTitle": "高清版",
-    "summary": "馆藏、新作、想要清单与高清版。",
+    "releasesBody": "查看订阅发现的未入库新作。可以按艺人、厂牌或标签筛选，也可以在卡片和列表之间切换。",
+    "summary": "馆藏、新作、想要、推荐、在线目录和高清版。",
     "title": "JAV 与追新",
-    "wantsBody": "喜欢的外部作品可以加入想要清单；在这里切换馆藏、发现与想要。",
+    "wantsBody": "在新作或发现中加入想要的作品，再到这里跟进资源查找和入库状态。",
     "wantsTitle": "查看想要清单"
   },
   "guideJavSettings": {
@@ -514,7 +525,7 @@
     "torznabUrlTitle": "Torznab 地址"
   },
   "guideTopics": {
-    "browseSummary": "搜索播放、人物标签、JAV 追新",
+    "browseSummary": "搜索播放、AI 助手、人物标签、JAV 追新",
     "browseTitle": "查找与发现",
     "collectSummary": "标记列表、创作者更新、口味统计",
     "collectTitle": "收藏与关注",
@@ -567,6 +578,7 @@
     "closeDialogFirst": "请先关闭当前详情或对话框，再开始导览。",
     "closeMiniPlayer": "请先关闭正在播放的小窗，再开始播放器导览。",
     "completionNotSaved": "导览已结束，但完成状态未保存。请重新读取教程状态后再试。",
+    "finish": "结束教程",
     "getStarted": "开始使用",
     "interfaceTour": "界面导览",
     "inviteBody": "点击这个指南针，先用 {{count, number}} 步认识 Peach。其他功能用到时再看。",
@@ -577,6 +589,7 @@
     "quickTourDone": "快速导览已完成，所有设备都会收起教程入口。需要时到设置 → Peach 配置 → 应用与维护 → 新手教程重新打开。",
     "reload": "重新读取",
     "reloadFirst": "请先重新读取教程状态，再开始导览。",
+    "reopenHint": "结束后收起指南针，可在应用与维护中重新打开。",
     "saveError": "教程进度未保存，其他设备不会同步。重新读取后继续。",
     "settingsTour": "设置导览",
     "title": "新手教程",

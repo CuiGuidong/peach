@@ -401,7 +401,7 @@ function Side({ item, data, context, media, write, issue, helpers, actions }: {
           <div data-follow-resources="">
             {item.resource_urls.map((url) => (
               <a key={url} href={url} target="_blank" rel="noreferrer noopener">
-                {resourceLabel(url)}<span className="contents" dangerouslySetInnerHTML={{ __html: EXTERNAL_MARK }} />
+                <span data-external-link-label="">{resourceLabel(url)}</span><span className="contents" dangerouslySetInnerHTML={{ __html: EXTERNAL_MARK }} />
               </a>
             ))}
           </div>

@@ -4,6 +4,7 @@ import type { Browser } from 'playwright-core';
 import type { ReleaseResult } from '../src/react/jav/jav.ts';
 import { launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
 import { ITEM, openItemPage } from './item-fixture.ts';
+import { mediaFramesIn } from './media-frames.ts';
 
 describe('JAV 推荐与加载结构', () => {
   let browser: Browser;
@@ -16,9 +17,9 @@ describe('JAV 推荐与加载结构', () => {
     try {
       const code = 'SAMPLE-012345';
       const cast = Array.from({ length: 80 }, (_, index) => ({
-        name: index ? `演员 ${index + 1}` : '首位演员', dmm_id: String(index + 100),
+        name: index ? `演员 ${index + 1}` : '首位演员（旧名、来源别名）', dmm_id: String(index + 100),
         source_url: `https://www.dmm.co.jp/digital/videoa/-/list/=/article=actress/id=${index + 100}/`,
-        source_avatar_url: `/img/cast-${index}.png`,
+        source_avatar_url: index === 1 ? undefined : `/img/cast-${index}.png`,
       }));
       const works = ['unpublished', 'missing', 'available', 'issued'].map(id => ({
         id, code: id === 'available' ? code : id.toUpperCase(), title: id, date: '2026-12-01', pre_order: id !== 'issued',
@@ -49,12 +50,33 @@ describe('JAV 推荐与加载结构', () => {
       const skeletonRow = page.locator('[data-catalog-table] [data-list-skeleton-row]').first();
       await skeletonRow.waitFor();
       const columnWidths = () => page.locator('[data-catalog-table] th').evaluateAll(
-        cols => cols.map(col => Math.round(col.getBoundingClientRect().width)));
+        cols => cols.filter(col => !col.hasAttribute('data-table-space')).map(col => Math.round(col.getBoundingClientRect().width)));
       const waitingWidths = await columnWidths();
       assert.equal(waitingWidths.length, 7);
       catalog.resolve();
       await page.locator('[data-catalog-table] [data-release-row]').first().waitFor();
       assert.deepEqual(await columnWidths(), waitingWidths);
+      const onlineTable = page.locator('[data-online-catalog-table]');
+      assert.equal(await onlineTable.locator('thead .react-aria-ColumnResizer').count(), 7);
+      const columnKeys = () => onlineTable.locator('thead th[data-key]:not([data-table-space])').evaluateAll(
+        headers => headers.map(header => header.getAttribute('data-key')));
+      await onlineTable.getByRole('button', { name: '显示列', exact: true }).click();
+      const columnMenu = page.getByRole('dialog', { name: '在线目录显示列' });
+      await columnMenu.getByRole('checkbox', { name: '番号', exact: true }).press('Space');
+      await page.keyboard.press('Escape');
+      await onlineTable.locator('th[data-key="code"]').waitFor();
+      assert.equal((await columnKeys()).at(-1), 'code');
+      const codeFilter = onlineTable.locator('[data-table-column-filter="online-column-code"]');
+      await codeFilter.hover();
+      const headerCue = await codeFilter.evaluate(node => ({
+        decoration: getComputedStyle(node).textDecorationLine,
+        fill: getComputedStyle(node, '::before').backgroundColor,
+      }));
+      assert.equal(headerCue.decoration, 'none');
+      assert.notEqual(headerCue.fill, 'rgba(0, 0, 0, 0)');
+      await codeFilter.click();
+      await page.getByRole('textbox', { name: '搜索番号', exact: true }).waitFor();
+      await page.keyboard.press('Escape');
       await mode('cards').click();
       await page.getByText('available', { exact: true }).first().waitFor();
       for (const filter of ['online-performer', 'online-studio', 'online-tags']) {
@@ -82,28 +104,130 @@ describe('JAV 推荐与加载结构', () => {
       await mode('list').click();
       const row = page.locator('[data-release-row]').filter({ has: page.getByText(code, { exact: true }) });
       await row.waitFor();
+      const sourceLabel = row.getByRole('link', { name: 'DMM', exact: true }).locator('[data-external-link-label]');
+      await page.mouse.move(0, 0);
+      assert.equal(await sourceLabel.evaluate(node => getComputedStyle(node).textDecorationLine), 'none');
+      await sourceLabel.hover();
+      assert.equal(await sourceLabel.evaluate(node => getComputedStyle(node).textDecorationLine), 'underline');
       const geometry = await row.evaluate(el => {
         const code = el.querySelector<HTMLElement>('[data-list-code]')!;
         const person = el.querySelector<HTMLElement>('[data-media-who]')!;
-        const avatars = [...el.querySelectorAll('[data-media-avatar]')];
+        const avatars = [...el.querySelectorAll('[data-media-avatar]')].filter(face => face.getBoundingClientRect().width > 0);
         return { fullCode: code.scrollWidth <= code.clientWidth + 1,
           oneLine: code.getBoundingClientRect().height <= parseFloat(getComputedStyle(code).lineHeight) + 1,
-          separate: avatars[0]!.getBoundingClientRect().right <= person.getBoundingClientRect().left,
+          separate: avatars.at(-1)!.getBoundingClientRect().right <= person.getBoundingClientRect().left,
+          overlapping: avatars[1]!.getBoundingClientRect().left < avatars[0]!.getBoundingClientRect().right,
           count: avatars.length, photo: avatars[0]!.querySelector('img')?.getAttribute('src'), person: person.textContent };
       });
-      assert.deepEqual(geometry, { fullCode: true, oneLine: true, separate: true, count: 1, photo: '/img/cast-0.png', person: '首位演员' });
-      await row.getByRole('button', { name: /等 80 人/ }).click();
+      assert.ok(geometry.count >= 2 && geometry.count <= 5, JSON.stringify(geometry));
+      const { count, ...alignment } = geometry;
+      assert.deepEqual(alignment, { fullCode: true, oneLine: true, separate: true, overlapping: true, photo: '/img/cast-0.png', person: '首位演员' });
+      const avatars = row.locator('[data-media-avatars]');
+      await avatars.hover();
+      const hovered = await avatars.evaluate(el => {
+        const fallback = el.children[1]!;
+        return { fill: getComputedStyle(fallback).backgroundColor, shape: getComputedStyle(fallback).borderRadius,
+          separate: el.lastElementChild!.getBoundingClientRect().right <= el.parentElement!.querySelector('[data-media-who]')!.getBoundingClientRect().left };
+      });
+      assert.equal(hovered.shape, '50%');
+      assert.doesNotMatch(hovered.fill, /rgba|\/|transparent/);
+      assert.equal(hovered.separate, true);
+      assert.equal(await row.locator('[data-media-who]').getAttribute('title'), cast[0]!.name);
+      const people = row.locator('[data-list-people]');
+      for (const dark of [false, true]) {
+        await page.evaluate(dark => {
+          document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+          document.documentElement.classList.toggle('dark', dark);
+          for (const animation of document.getAnimations()) {
+            if (animation.effect?.getComputedTiming().endTime !== Infinity) animation.finish();
+          }
+        }, dark);
+        const frames = (await mediaFramesIn(people)).filter(frame => !frame.skipped);
+        assert.equal(frames.length, count);
+        assert.ok(frames.every(frame => frame.delta >= 4), JSON.stringify({ dark, frames }));
+        const ratios = await people.evaluate(cell => {
+          const context = document.createElement('canvas').getContext('2d', { willReadFrequently: true })!;
+          const read = (backgrounds: string[]) => {
+            context.clearRect(0, 0, 1, 1);
+            for (const color of backgrounds) {
+              context.fillStyle = color;
+              context.fillRect(0, 0, 1, 1);
+            }
+            const [r, g, b] = [...context.getImageData(0, 0, 1, 1).data].map(value => {
+              const channel = value / 255;
+              return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+            });
+            return r! * 0.2126 + g! * 0.7152 + b! * 0.0722;
+          };
+          const table = cell.closest('[data-board-data-table]')!;
+          return [...cell.querySelectorAll('[data-media-avatar]:not(:has(img)) > span, [data-media-who], [data-media-credit-action], [data-cast-trigger] > button')]
+            .map(node => {
+              const layers = ['#fff'];
+              for (let parent: Element | null = node; parent && parent !== table.parentElement; parent = parent.parentElement) {
+                layers.splice(1, 0, getComputedStyle(parent).backgroundColor);
+              }
+              const background = read(layers);
+              const foreground = read([...layers, getComputedStyle(node).color]);
+              return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05);
+            });
+        });
+        assert.ok(ratios.length >= 4 && ratios.every(ratio => ratio >= 4.5), JSON.stringify({ dark, ratios }));
+      }
+      const castTrigger = row.getByRole('button', { name: /等 80 人/ });
+      const actor = people.locator('[data-media-who]');
+      await actor.hover();
+      const artistCue = await actor.evaluate(node => {
+        const style = getComputedStyle(node, '::before');
+        return { fill: style.backgroundColor, decoration: getComputedStyle(node).textDecorationLine,
+          radius: parseFloat(style.borderRadius), overflow: getComputedStyle(node).overflow };
+      });
+      assert.ok(artistCue.radius > 0);
+      assert.equal(artistCue.overflow, 'visible');
+      await castTrigger.hover();
+      const hoverCue = await castTrigger.evaluate(node => ({
+        decoration: getComputedStyle(node).textDecorationLine,
+        fill: getComputedStyle(node, '::before').backgroundColor,
+      }));
+      assert.equal(hoverCue.decoration, 'none');
+      assert.notEqual(hoverCue.fill, 'rgba(0, 0, 0, 0)');
+      assert.equal(artistCue.fill, hoverCue.fill);
+      assert.equal(artistCue.decoration, hoverCue.decoration);
+      const narrow = await people.evaluate(cell => {
+        const width = cell.getBoundingClientRect().width;
+        (cell as HTMLElement).style.width = `${Math.min(112, width)}px`;
+        const name = cell.querySelector('[data-media-who] > span')!;
+        const label = cell.querySelector('[data-cast-trigger] > button')!;
+        const nameText = document.createRange();
+        nameText.selectNodeContents(name);
+        const right = cell.getBoundingClientRect().right + 1;
+        const result = { faces: [...cell.querySelectorAll('[data-media-avatar]')].filter(face => face.getBoundingClientRect().width > 0).length,
+          nameFits: [...nameText.getClientRects()].every(rect => rect.right <= right), countFits: label.getBoundingClientRect().right <= right };
+        (cell as HTMLElement).style.removeProperty('width');
+        return result;
+      });
+      assert.ok(narrow.faces < count && narrow.nameFits && narrow.countFits, JSON.stringify(narrow));
+      await castTrigger.click();
       const names = page.getByRole('dialog', { name: '艺人', exact: true }).locator('li');
       assert.equal(await names.count(), 80);
+      assert.equal(await castTrigger.getAttribute('aria-expanded'), 'true');
+      assert.notEqual(await castTrigger.evaluate(node => getComputedStyle(node, '::before').backgroundColor), hoverCue.fill);
       assert.match(await names.last().innerText(), /演员 80/);
+      assert.deepEqual(await names.first().locator('button, a').evaluateAll(controls =>
+        controls.map(control => control.getAttribute('aria-label'))),
+      ['筛选「首位演员」', '订阅新作 · 首位演员', '打开女优页：首位演员']);
       await page.keyboard.press('Escape');
       await names.first().waitFor({ state: 'hidden' });
-      await row.evaluate(element => element.scrollIntoView({ block: 'center' }));
-      const bounds = await row.boundingBox();
-      assert.ok(bounds);
-      await page.mouse.move(bounds.x + 20, bounds.y + 16);
+      const nameCell = row.getByRole('rowheader');
+      await nameCell.scrollIntoViewIfNeeded();
+      const start = await nameCell.evaluate(cell => {
+        const { left, top } = cell.getBoundingClientRect();
+        const x = left + 24, y = top + 8;
+        return { x, y, hit: cell.contains(document.elementFromPoint(x, y)) };
+      });
+      assert.ok(start.hit, '框选从视口内的作品列开始');
+      await page.mouse.move(start.x, start.y);
       await page.mouse.down();
-      await page.mouse.move(bounds.x + 40, bounds.y + 46, { steps: 4 });
+      await page.mouse.move(start.x + 8, start.y + 38, { steps: 4 });
       await page.locator('[data-card-selection-rectangle]').waitFor();
       await page.mouse.up();
       const checked = row.getByRole('checkbox', { name: new RegExp(code) });
@@ -162,6 +286,17 @@ describe('JAV 推荐与加载结构', () => {
       });
       await page.waitForFunction(() => new URLSearchParams(location.search).get('q') === 'PCH');
       await released();
+      const display = (value: 'list' | 'cards') => bottom.locator(
+        `[data-entity-sorts] label:has(input[value="${value}"])`);
+      assert.equal(await bottom.locator('[data-catalog-summary] input[value="list"]').count(), 0);
+      await display('list').click();
+      const discoverTable = section.locator('[data-discover-table]');
+      await discoverTable.locator('tbody [data-list-name]').first().waitFor();
+      assert.equal(await discoverTable.locator('[data-release-row]').count(), 20);
+      assert.equal(await discoverTable.locator('thead [data-table-column-filter="discover-column-tags"]').count(), 1);
+      assert.equal(new URL(page.url()).searchParams.get('tag'), '恋足');
+      await display('cards').click();
+      await section.locator('[data-jav-card]').first().waitFor();
       for (const exit of ['close', 'escape', 'back']) {
         const link = section.locator('[data-jav-card]').nth(8).locator('[data-jav-cover-box]');
         await link.scrollIntoViewIfNeeded();
@@ -275,7 +410,7 @@ describe('JAV 推荐与加载结构', () => {
       assert.ok(skeletonWidth && main && skeletonWidth.width >= main.width - 40);
       const pendingFilter = await page.locator('[data-jav-filter]').boundingBox();
       const pendingBottom = await page.locator('[data-jav-filter] [data-filter-row="bottom"]').boundingBox();
-      const pendingSize = await page.locator('[data-jav-filter] [data-entity-layout]').boundingBox();
+      const pendingSize = await page.locator('[data-jav-filter] [data-entity-layout]:not([aria-label="馆藏显示方式"])').boundingBox();
       const pendingShortcut = await page.locator('[data-jav-filter] [data-shortcuts-trigger]').boundingBox();
       assert.ok(pendingShortcut && pendingShortcut.width === 32 && pendingShortcut.height === 32, JSON.stringify(pendingShortcut));
       const filterTrigger = page.locator('[data-jav-filter] [data-table-column-filter="jav-discover-tags"]');
@@ -341,7 +476,7 @@ describe('JAV 推荐与加载结构', () => {
       }
       const liveFilter = await page.locator('[data-jav-filter]').boundingBox();
       const liveBottom = await page.locator('[data-jav-filter] [data-filter-row="bottom"]').boundingBox();
-      const liveSize = await page.locator('[data-jav-filter] [data-entity-layout]').boundingBox();
+      const liveSize = await page.locator('[data-jav-filter] [data-entity-layout]:not([aria-label="馆藏显示方式"])').boundingBox();
       const liveShortcut = await page.locator('[data-jav-filter] [data-shortcuts-trigger]').boundingBox();
       for (const [pending, live] of [[pendingFilter, liveFilter], [pendingBottom, liveBottom], [pendingSize, liveSize], [pendingShortcut, liveShortcut]]) {
         assert.ok(pending && live && Math.abs(pending.y - live.y) <= 1 && Math.abs(pending.height - live.height) <= 1, JSON.stringify({ pending, live, pendingBottom, liveBottom, pendingSize, liveSize, pendingShortcut, liveShortcut }));

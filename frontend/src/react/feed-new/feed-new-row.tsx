@@ -7,6 +7,9 @@ import { RiEyeLine, RiEyeOffLine, RiPlayLine, RiStarLine } from '@remixicon/reac
 import { createPortal } from 'react-dom';
 import { ShellActionsContext } from '../router/router';
 import { SourceAvatar } from '../components/source-avatar';
+import { CastPopover, castPersonName, discoveryCast } from '../components/cast-popover';
+import { PerformerCredit, performerProfileHref } from '../components/performer-credit';
+import { useEntityNames } from '../use-entity-names';
 import { coverImage, coverStateHtml } from '@peach/card-art';
 import { fitSkeleton } from '@peach/legacy/ui';
 import { feedNewSkeletonHtml } from '../../feed-new-skeleton';
@@ -56,9 +59,11 @@ export function FeedNewRow({ feedNew, host, wire, act, settled, error, retry }: 
   settled?(hasItems: boolean): void;
 }) {
   const actions = useContext(ShellActionsContext);
+  useEntityNames();
   const menu = useWorkContextMenu();
   const box = useRef<HTMLDivElement>(null);
   const [sourceFaces, setSourceFaces] = useState<HTMLElement[]>([]);
+  const [creditSlots, setCreditSlots] = useState<HTMLElement[]>([]);
   const html = feedNew?.items.length ? feedNew.html : '';
   const selecting = useSyncExternalStore(subscribeShell, readSelectMode);
   const mediaCount = useSyncExternalStore(subscribeShell, mediaSelectionCount);
@@ -120,8 +125,9 @@ export function FeedNewRow({ feedNew, host, wire, act, settled, error, retry }: 
   useEffect(() => {
     if (html) wire(box.current?.querySelector('.feednewrow') ?? null);
   }, [wire, html, selecting]);
-  useEffect(() => {
+  useLayoutEffect(() => {
     setSourceFaces([...box.current?.querySelectorAll<HTMLElement>('[data-feed-source-avatar]') ?? []]);
+    setCreditSlots([...box.current?.querySelectorAll<HTMLElement>('[data-feed-credits]') ?? []]);
   }, [html]);
   const click = async (event: MouseEvent<HTMLDivElement>) => {
     const selectedCard = (event.target as Element).closest<HTMLElement>('[data-feed-id]');
@@ -222,5 +228,19 @@ export function FeedNewRow({ feedNew, host, wire, act, settled, error, retry }: 
     </SelectionDock></div> : null}
     {sourceFaces.map((face, index) => createPortal(
       <SourceAvatar code={face.dataset.code!} person={{ name: face.dataset.name!, source_actor_id: face.dataset.actor! }} />,
-      face, `${html.length}:${index}`))}</> : null;
+      face, `${html.length}:${index}`))}
+    {creditSlots.map(slot => {
+      const id = Number(slot.closest<HTMLElement>('[data-feed-id]')?.dataset.feedId);
+      const item = feedNew?.items.find(candidate => candidate.id === id);
+      if (!item) return null;
+      const cast = discoveryCast(item.performer_refs, item.performers || '');
+      const lead = cast[0];
+      if (!lead) return null;
+      const href = selecting ? undefined : performerProfileHref(lead);
+      return createPortal(<>
+        <span data-feed-performer-credit=""><PerformerCredit name={castPersonName(lead)} title={item.performers || lead.name}
+          href={href} external={!!href && !lead.id} /></span>
+        {selecting ? null : <CastPopover people={cast} code={item.code} subscribe />}
+      </>, slot, id);
+    })}</> : null;
 }

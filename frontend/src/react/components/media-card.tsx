@@ -28,6 +28,7 @@ import { esc, fmtDur, fmtSize } from '@peach/legacy/core';
 import { Button } from '@/components/base/buttons/button';
 import { Chip } from '@/components/base/badges/chip';
 import { entityDisplayName } from '../../core/entity-names';
+import { CastPopover } from './cast-popover';
 import { useEntityNames } from '../use-entity-names';
 
 import type { MediaCardActions, MediaCardHelpers, MediaCardLayout, MediaItem } from '../catalog-grid/types';
@@ -129,9 +130,8 @@ export interface MediaCardProps {
 export const editionNames = (group: NonNullable<MediaItem['edition_group']>) =>
   group.editions.map((label, index) => partsLabel(group.editions_parts?.[index], label)).join(' · ');
 
-export function identityParts(item: MediaItem): { avatar: ReactNode; who: ReactNode } {
+export function identityParts(item: MediaItem, openEntity?: (kind: string, name: string) => void): { avatar: ReactNode; who: ReactNode; cast: ReactNode } {
   const { kind, name, coStarred, performers, refs, total } = cardIdentity(item);
-  const performer = performers[0] || '';
   const avatar = coStarred
     ? (
       <div data-media-avatars="" style={{ '--media-avatar-count': Math.min(5, performers.length) } as CSSProperties}>
@@ -152,18 +152,12 @@ export function identityParts(item: MediaItem): { avatar: ReactNode; who: ReactN
           }} />
       )
       : <span data-media-avatar="" dangerouslySetInnerHTML={{ __html: entityAvatar(name, null, '') }} />;
-  const who = coStarred
-    ? (
-      <>
-        <button type="button" data-media-who="" data-entity-kind="performer" data-entity-name={performer} title={entityDisplayName('performer', performer)}><WhoLabel name={entityDisplayName('performer', performer)} /></button>
-        <span data-media-who-more="">{t('shell:mediaCard.performerTotal', { count: total })}</span>
-      </>
-    )
-    : kind
-      ? <button type="button" data-media-who="" data-entity-kind={kind} data-entity-name={name} title={entityDisplayName(kind, name)}><WhoLabel name={entityDisplayName(kind, name)} /></button>
-      /* 没有署名人的那批是馆藏里的一类，点得开，和女优名、厂牌名一样。 */
-      : <button type="button" data-media-who="" data-open-unowned=""><WhoLabel name={name} /></button>;
-  return { avatar, who };
+  const who = kind
+    ? <button type="button" data-media-who="" data-inline-action="" data-entity-kind={kind} data-entity-name={name} title={entityDisplayName(kind, name)}><WhoLabel name={entityDisplayName(kind, name)} /></button>
+    : <button type="button" data-media-who="" data-inline-action="" data-open-unowned=""><WhoLabel name={name} /></button>;
+  const cast = coStarred ? <CastPopover people={performers.map((name, index) => ({ ...refs[index], name }))} total={total} assetId={item.id}
+    subscribe={item.is_jav} onOpenPerson={openEntity ? person => openEntity('performer', person.name) : undefined} /> : null;
+  return { avatar, who, cast };
 }
 
 /** 悬停时右上角那一圈倒计时，走完就放大；点它直接打开。 */
@@ -266,13 +260,13 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
   const shownDuration = parts?.total_duration ?? item.duration;
   const watched = !parts && Number(item.play_seconds) > 0 && Number(item.duration) > 0
     ? Math.min(Number(item.play_seconds) / Number(item.duration), 1) : 0;
-  const { avatar, who } = identityParts(item);
+  const { avatar, who, cast } = identityParts(item, actions.openEntity);
   const tags = (item.follow_tags || item.tags || []).slice(0, 3);
   const trash = item.disposal === 'trash';
 
   const click = (event: MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
-    if (target.closest('[data-media-reason-dialog]')) return;
+    if (target.closest('[data-media-reason-dialog], [data-cast-popover], [data-cast-trigger]')) return;
     const el = card.current;
     if (!el) return;
     if (selectMode || hasSelectionModifier(event)) {
@@ -366,7 +360,7 @@ function VideoCard({ item, variant, layout, selected, selectMode, seekSeconds, h
             {trash ? <span data-media-title-text="" dangerouslySetInnerHTML={{ __html: titleHtml }} /> : null}
           </button>
           <div data-media-byline="">
-            {who}
+            {who}{cast}
             {why && variant !== 'next' ? <span data-media-why="" title={why}>{why}</span> : null}
             <span data-media-facts="">
               {item.is_jav && item.release_date ? <CardDate value={item.release_date} label={item.release_date} /> : null}

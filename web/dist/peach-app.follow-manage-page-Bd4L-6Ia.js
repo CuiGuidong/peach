@@ -1,12 +1,12 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "915c9081-9c54-4d62-9869-27f9f1d9a0ad", e._sentryDebugIdIdentifier = "sentry-dbid-915c9081-9c54-4d62-9869-27f9f1d9a0ad");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "97cecc53-ce21-40af-ab0e-53a0a7f04298", e._sentryDebugIdIdentifier = "sentry-dbid-97cecc53-ce21-40af-ab0e-53a0a7f04298");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $76d00c5a4edb230a$export$76ccd210b9029917 as t, $76d00c5a4edb230a$export$816b5d811295e6bc as n, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as r, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as i, $76d00c5a4edb230a$export$f850895b287ef28e as a, $ea3928288112382f$export$439d29a4e110a164 as o, $l as s, Button as c, ButtonLink as l, Bx as u, COLUMN_SORT as d, Checkbox as f, ChevronSortDown as p, Chip as m, CollapseChevron as h, CollapseRegion as g, ColumnFilterAvatar as _, ColumnFilterChips as v, Ct as y, DataTableFooter as b, DataTableFrame as ee, DataTableSort as x, EmptyFocusButton as S, EmptyState as te, ErrorText as C, ExternalLink as w, FEEDS_KEY as ne, FOLLOW_CHECK_KEY as re, FOLLOW_CHECK_TASK as ie, FOLLOW_CREDENTIALS_KEY$1 as T, FOLLOW_MANAGE_KEY as E, FOLLOW_MANAGE_NAV as ae, FOLLOW_RESOLVE_KEY as oe, FieldLabel as D, FollowSearch as O, Gg as k, H7 as A, Help as j, IndexSearch as M, Input as N, LAYOUTS as se, LEGACY_AVATAR_IMG as ce, LinkButton as P, M6 as le, ModalFrame as F, Note as I, OV as ue, P7 as L, SORT_DEFAULT_DIR as R, SORT_OPTIONS as de, STAT_STRIP_SIX as z, Select as fe, SelectItem as pe, SelectionDock as me, SelectionPopover as he, SiteIcon as B, SiteLabel as ge, SortDirectionIcon as _e, SortableBoardTabs as ve, Switch as ye, Table as be, TableColumnControls as xe, TableColumnResizer as Se, TableSelectionHeader as Ce, TaskProgress as we, Un as Te, Wt as V, Xf as Ee, __toESM as H, activityKind as De, addAlias as Oe, addSource as ke, apiGet as Ae, authorGroups as je, authorName as Me, avatarInner as Ne, busyProps as U, cardClass as Pe, checkEvidenceGap as Fe, checkFailures as Ie, checkFeeds as Le, checkReceipt as Re, checkSummary as ze, checkedText as Be, clickedBlank as Ve, codedText as He, columnOrderingFeature as Ue, columnVisibilityFeature as We, confirmModal as Ge, createColumnHelper as Ke, createPaginatedRowModel as qe, createSortedRowModel as Je, credentialDone as Ye, dZ as Xe, dropSources as Ze, du as Qe, enterPageSelection as $e, errorHeadline as et, errorMessage as W, exitPageSelection as tt, feedIntervalText as nt, fetchCheckJob as rt, fetchCredentials as it, fetchFeeds as at, fetchFollow as ot, fetchResolveJob as st, fetchSuggestions as G, flexRender as ct, followFeedPages as lt, followListSurfaceSkeleton as ut, groupByAuthor as dt, isBroken as ft, isLayout as K, jobText as pt, joinList as q, keepSelected as mt, l7 as ht, localTime as gt, lookupFeedActor as _t, mapLimit as vt, markAllPending as yt, pageSizeOf as bt, pageWindow as xt, patchSource as St, queryClient as Ct, quoted as wt, reloadFollowManage as J, removeAlias as Tt, removeFeed as Et, removeSource as Dt, renameAliasGroup as Ot, require_jsx_runtime as kt, require_react as At, resolveFollowSort as jt, rowPaginationFeature as Mt, rowSelectionFeature as Nt, rowSelectionOperation as Pt, rowSortingFeature as Ft, runBulkAction as It, selectionState as Lt, serverLabel as Rt, setFeedEnabled as zt, setSourceEnabled as Bt, skeletonHtml as Vt, sortLabel as Ht, startCheck as Ut, startResolve as Wt, statusText as Gt, suggestFeedActors as Kt, t as Y, tableFeatures as qt, tableRows as Jt, th as Yt, toggleGroup as Xt, unmarkItems as Zt, useAction as Qt, useBackgroundJob as $t, useMutation as en, usePageSelection as tn, useQuery as nn, useRectangleSelection as rn, useRememberedPageSize as an, useRememberedPagination as on, useRowWorkContext as sn, useTable as cn, useTableFilters as ln, useTablePreferences as un, useTableSelection as dn, useWorkContextMenu as fn, utcDate as pn } from "./peach-app.js";
 import { Page as mn } from "./peach-app.page-QAncjzM1.js";
-import { AuthorAvatar as hn, ErrorLine as gn, FeedPageAlias as _n, SourceIcon as vn, SourceLink as yn, StatusBadge as bn } from "./peach-app.source-view-D-Xir163.js";
+import { AuthorAvatar as hn, ErrorLine as gn, FeedPageAlias as _n, SourceIcon as vn, SourceLink as yn, StatusBadge as bn } from "./peach-app.source-view-CqeSCcU2.js";
 // src/react/follow-manage/search-results.tsx
 var X = /* @__PURE__ */ H(At(), 1), Z = kt(), xn = qt({ rowSelectionFeature: Nt }), Sn = Ke(), Cn = Sn.columns([
 	Sn.display({
@@ -65,6 +65,7 @@ var X = /* @__PURE__ */ H(At(), 1), Z = kt(), xn = qt({ rowSelectionFeature: Nt 
 			className: "min-w-0 justify-start [&>span]:min-w-0",
 			children: /* @__PURE__ */ (0, Z.jsx)("span", {
 				"data-middle-truncate": "",
+				"data-external-link-label": "",
 				className: "block truncate",
 				children: e.replace(/^https?:\/\//, "")
 			})
@@ -4791,4 +4792,4 @@ function wc(e) {
 }
 export { wc as FollowManagePage };
 
-//# debugId=915c9081-9c54-4d62-9869-27f9f1d9a0ad
+//# debugId=97cecc53-ce21-40af-ab0e-53a0a7f04298

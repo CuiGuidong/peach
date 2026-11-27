@@ -66,7 +66,7 @@ export function SourceLink({ source }: { source: FollowSource }) {
   return (
     <a href={source.url} target="_blank" rel="noopener noreferrer" title={t('follow:sourceView.openSource')}
       className="max-w-full min-w-0 self-start text-body-medium wrap-anywhere text-text-primary underline-offset-2 hover:underline">
-      {source.label}
+      <span data-external-link-label="">{source.label}</span>
       <RiExternalLinkLine aria-hidden className="size-(--icon-inline) shrink-0" />
     </a>
   );

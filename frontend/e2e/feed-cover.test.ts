@@ -140,14 +140,23 @@ describe('新作封面显示时机',()=>{
     assert.equal(await card.locator('.mav img').count(),1);
     assert.equal(await avatar.getAttribute('href'),'/performers/42');
     assert.equal(await avatar.evaluate(el=>getComputedStyle(el).pointerEvents),'auto');
-    const names=await card.locator('.feednewperformers').boundingBox();
+    const credit=card.getByRole('link',{name,exact:true});
+    assert.equal(await credit.getAttribute('href'),await avatar.getAttribute('href'));
+    const names=await credit.boundingBox();
     const date=await card.locator('.feednewdate').boundingBox();
     assert.ok(names&&date&&names.width>=30&&date.y>=names.y+names.height-1,'姓名和完整日期各有可见的一行');
     assert.equal(await page.locator('#feedNew [data-feed-id="2"] .mav .ini').textContent(),'未');
     const geometry=await layout(page);
     assert.ok(geometry.scrollWidth<=geometry.viewportWidth+1);
     await page.screenshot({path:`../build/feed-avatars-${viewport.name}.png`});
-    await avatar.click();
+    await credit.hover();
+    const feedback=await credit.evaluate(link=>({
+     credit:getComputedStyle(link,'::before').backgroundColor,
+     card:getComputedStyle(link.closest('[data-feed-id]')!).boxShadow,
+    }));
+    assert.notEqual(feedback.credit,'rgba(0, 0, 0, 0)');
+    assert.equal(feedback.card,'none');
+    await credit.click();
     await page.waitForURL('**/performers/42');
    }finally{await context.close()}
   });

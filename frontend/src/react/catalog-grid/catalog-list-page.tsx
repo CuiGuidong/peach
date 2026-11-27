@@ -16,6 +16,7 @@ import { ArtSlot } from '../components/art-slot';
 import { useLibraryTints } from '../components/library-tint';
 import { catalogListSkeletonCellHtml } from '../../catalog-content-skeleton';
 import { editionNames, identityParts } from '../components/media-card';
+import { ListCredits } from '../components/list-credits';
 import { useEntityNames } from '../use-entity-names';
 import { SourceMark } from '../settings/section';
 import { DataTableFrame } from '../components/data-table-frame';
@@ -345,7 +346,7 @@ export function ListLibrary({ item }: { item: { library_id?: unknown } }) {
  *  打开「未归属」；选择模式下不跳。 */
 function ListPeople({ item, props }: { item: MediaItem; props: CatalogGridProps }) {
   useEntityNames();
-  const { avatar, who } = identityParts(item);
+  const { avatar, who, cast } = identityParts(item, props.actions.openEntity);
   const openOwner = (event: MouseEvent<HTMLElement>) => {
     if (props.selectMode) return;
     const target = event.target as HTMLElement;
@@ -353,5 +354,5 @@ function ListPeople({ item, props }: { item: MediaItem; props: CatalogGridProps 
     if (entity) { props.actions.openEntity(entity.dataset.entityKind || '', entity.dataset.entityName || ''); return }
     if (target.closest('[data-open-unowned]')) props.actions.openUnowned();
   };
-  return <div data-list-people="" onClick={openOwner}>{avatar}{who}</div>;
+  return <ListCredits avatar={avatar} cast={cast} onClick={openOwner}>{who}</ListCredits>;
 }

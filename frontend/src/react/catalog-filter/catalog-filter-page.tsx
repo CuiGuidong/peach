@@ -21,8 +21,7 @@ import { ColumnFilterAvatar, ColumnFilterStudioAvatar } from '../components/colu
 import { FilterDropdown } from '../components/filter-dropdown';
 import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
 import { FolderBrowseToggle } from '../catalog-folders/catalog-folders-page';
-import { useCatalogView } from '../catalog-grid/catalog-view';
-import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
+import { CatalogDisplayControls } from '../catalog-grid/catalog-view-toggle';
 import { catalogListScope } from '../catalog-grid/catalog-grid';
 import { useCatalogListPosition } from '../catalog-grid/catalog-list-position';
 import { CatalogColumnFilter, CatalogColumnRangeFilter } from '../catalog-grid/catalog-column-filter';
@@ -202,7 +201,6 @@ function Placeholders({ kind }: { kind: 'performer' | 'studio' }) {
 
 /** 下排：读数、换一批、版式与排序。回收站的下排是 `TrashHead`。 */
 function Head({ count, refreshing, layout, sorts, previewOnly, actions, filters, tableContext, query }: CatalogFilterProps & { filters: ReactNode }) {
-  const view = useCatalogView();
   const [shuffling, setShuffling] = useState(false);
   const scope = tableContext?.filters || {};
   const [position, setPosition] = useCatalogListPosition(catalogListScope({ mode: 'catalog', filters: scope }));
@@ -240,10 +238,8 @@ function Head({ count, refreshing, layout, sorts, previewOnly, actions, filters,
       <FilterToolbarControls tools={<>
         <Shuffle onPress={shuffle} busy={shuffling || refreshing} />
         {/* 按名字换键：JAV 与首页各一组，React Aria 的单选组挂上之后不改 `name`。 */}
-        {layout && view === 'cards' ? <Segments key={layout.name} name={layout.name} label={layout.label} value={layout.value} options={layout.options}
-          onChange={actions.setLayout} /> : null}
-        <CatalogViewToggle />
-        <FolderBrowseToggle />
+        <CatalogDisplayControls cardLayout={layout ? <Segments key={layout.name} name={layout.name} label={layout.label}
+          value={layout.value} options={layout.options} onChange={actions.setLayout} /> : null} folders={<FolderBrowseToggle />} />
         </>} fields={filters} fieldGroup={{ role: 'group', 'aria-label': t('catalog:catalogFilter.filterAndSort') }} sorts={<SortKeys group={layout?.name === 'jav-layout' ? 'jav' : 'catalog'} sorts={sorts} filters={fieldFilters}
           onSort={(key, dir) => {
             if (position.sorting.length || position.pagination.pageIndex) setPosition(current => ({
@@ -259,7 +255,6 @@ function Head({ count, refreshing, layout, sorts, previewOnly, actions, filters,
 /** 回收站的下排：读数后面跟「清空回收站」（空了就不出），右边版式、卡片／列表与排序。
  *  没有换一批：回收站是待清理的队列，不打散；也不按文件夹看。 */
 function TrashHead({ count, layout, sorts, actions }: CatalogFilterProps) {
-  const view = useCatalogView();
   return (
     <>
       <span data-catalog-summary="">
@@ -268,9 +263,8 @@ function TrashHead({ count, layout, sorts, actions }: CatalogFilterProps) {
           title={t('manage:manageHeader.emptyTrashTitle')} onClick={actions.emptyTrash}>{t('manage:shared.emptyTrash')}</Button> : null}
       </span>
       <span data-entity-sorts="">
-        {layout && view === 'cards' ? <Segments key={layout.name} name={layout.name} label={layout.label} value={layout.value}
-          options={layout.options} onChange={actions.setLayout} /> : null}
-        <CatalogViewToggle />
+        <CatalogDisplayControls cardLayout={layout ? <Segments key={layout.name} name={layout.name} label={layout.label} value={layout.value}
+          options={layout.options} onChange={actions.setLayout} /> : null} />
         <SortKeys sorts={sorts} onSort={actions.setSort} />
       </span>
     </>

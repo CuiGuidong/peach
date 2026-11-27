@@ -8,6 +8,7 @@ import type { GuideStep } from './guide-catalog';
 export interface GuidePopoverProps {
   step: GuideStep; position: number; total: number; missing: boolean;
   invitation?: boolean;
+  finish?: () => void;
   next(skipped?: boolean): void; previous(): void; close(): void;
 }
 
@@ -54,6 +55,7 @@ export function createGuideSession(options: {
   mountPopover(wrapper: HTMLElement, arrow: HTMLElement, props: GuidePopoverProps): () => void;
   navigate(path: string): void; next(skipped?: boolean): void; previous(): void; close(): void; leave?(): void;
   invitation?: boolean;
+  finish?: () => void;
 }): GuideSession {
   let active: Driver | null = null;
   let controller: AbortController | null = null;
@@ -71,10 +73,11 @@ export function createGuideSession(options: {
   const origin = document.activeElement as HTMLElement | null;
   const navigate = (route: string) => {
     const target = new URL(route, location.origin);
-    const changed = location.pathname !== target.pathname
-      || (Boolean(target.search) && location.search !== target.search) || (Boolean(target.hash) && location.hash !== target.hash);
-    if (!changed) return;
-    if (new URLSearchParams(location.search).has('edit')) target.searchParams.set('edit', '');
+    const current = new URL(location.href);
+    const editing = current.searchParams.has('edit');
+    if (editing) current.searchParams.delete('edit');
+    if (current.pathname === target.pathname && current.search === target.search && current.hash === target.hash) return;
+    if (editing) target.searchParams.set('edit', '');
     navigating = true;
     try { options.navigate(`${target.pathname}${target.search}${target.hash}`) }
     finally { navigating = false }

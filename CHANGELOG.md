@@ -18,6 +18,14 @@ Entries are written for users to scan: one sentence each, saying where something
 
 - **Interface**: Align the JAV New Releases avatar rows with Home and move the card and list switch to the lower filter row (#891). / **界面**：JAV 新作的艺人与厂牌横排和首页对齐，卡片与列表切换移回筛选栏下排（#891）。
 - **Playback**: Repair missing MP4 timestamp tables when only a few frames cannot be decoded (#176). / **播放**：MP4 只有极少数帧无法解码时仍可修复缺失的时间戳表（#176）。
+### Added / 新增
+
+- **Interface**: Learn AI Assistant, folder mode, and JAV views in the tutorial, or finish the tutorial directly (#563). / **界面**：新手教程加入 AI 助手、文件夹模式和 JAV 视图导览，并支持直接结束整套教程（#563）。
+
+### Changed / 变更
+
+- **Interface**: Switch JAV Discover between cards and list, use shared controls in Online Catalog, and open performer profiles directly from the new releases row (#891). / **界面**：JAV 发现支持卡片和列表，在线目录复用列表控件，新作横排的署名可直接打开艺人资料页（#891）。
+
 ### Fixed / 修复
 
 - **Desktop**: Open Peach from the Windows tray in your default browser (#896). / **桌面**：点击 Windows 托盘时，在系统默认浏览器中打开 Peach（#896）。

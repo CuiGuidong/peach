@@ -4,6 +4,7 @@
  * 选一个文件接过去，记录搬到那个文件上、旧行删掉，整批可按批次号撤回；彻底删除连记录一起
  * 删，过危险档确认弹层。没有已消失的作品时整块不出现。 */
 import { useState } from 'react';
+import { ImageWithFallback } from '../components/image-with-fallback';
 import { RiDeleteBinLine, RiFolderTransferLine } from '@remixicon/react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { confirmModal } from '@peach/legacy/ui';
@@ -100,8 +101,7 @@ function OrphanIdentity({ item }: { item: OrphanRecord }) {
           <span className="relative inline-grid aspect-16/10 w-24 flex-none place-items-center max-cleanup-tight:hidden overflow-hidden rounded-lg border border-separator-border bg-media-placeholder text-text-tertiary">
             <PLAY aria-hidden className="size-5" />
             {item.has_thumb
-              ? <img src={`/thumb?id=${item.id}&c=4`} alt="" loading="lazy"
-                  onError={(event) => event.currentTarget.remove()}
+              ? <ImageWithFallback src={`/thumb?id=${item.id}&c=4`} alt="" loading="lazy"
                   className="absolute inset-0 size-full object-contain" />
               : null}
           </span>

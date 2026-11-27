@@ -518,15 +518,14 @@ describe('作品详情岛', () => {
   }
 
   for (const viewport of [DESKTOP, MOBILE]) {
-  it(`${viewport.name}：出演超过 8 位先收起，点「还有 N 位」全部展开`, { timeout: 60_000 }, async () => {
+  it(`${viewport.name}：出演超过 8 位时从「还有 N 位」打开完整名单`, { timeout: 60_000 }, async () => {
     const opened = await openItemPage(browser, `/assets/${ITEM.cast}`, viewport);
     try {
       const page = opened.page;
       const shown = () => page.locator('#stage [data-item-identity] [data-entity-kind="performer"]:visible').count();
       assert.equal(await shown(), 8);
-      assert.equal((await page.locator('#castMore').innerText()).trim(), `还有 ${NAMES.length - 8} 位`);
-      const button = page.getByRole('button', { name: `还有 ${NAMES.length - 8} 位` });
-      const appearance = await button.evaluate((node) => {
+      const button = page.locator('[data-item-identity]').getByRole('button', { name: new RegExp(`还有 ${NAMES.length - 8} 位`) });
+      const appearance = await button.evaluate(node => {
         const style = getComputedStyle(node);
         return { border: style.borderTopStyle, width: parseFloat(style.borderTopWidth),
           background: style.backgroundColor, icon: !!node.querySelector('svg'), height: node.getBoundingClientRect().height };
@@ -538,7 +537,7 @@ describe('作品详情岛', () => {
       assert.ok(appearance.height >= 32);
       const centers = await button.evaluate((node) => {
         const own = node.getBoundingClientRect();
-        const siblings = [...node.parentElement!.querySelectorAll<HTMLElement>('[data-id-cell]:not([hidden])')]
+        const siblings = [...node.closest('[data-id-row]')!.querySelectorAll<HTMLElement>('[data-id-cell]')]
           .map((cell) => cell.getBoundingClientRect()).filter((cell) => cell.top < own.bottom && cell.bottom > own.top);
         return { margin: getComputedStyle(node).marginTop,
           delta: siblings.map((cell) => own.top + own.height / 2 - cell.top - cell.height / 2) };
@@ -547,8 +546,14 @@ describe('作品详情岛', () => {
       assert.ok(centers.delta.every((delta) => Math.abs(delta) < 1), JSON.stringify(centers));
       await button.focus();
       await page.keyboard.press('Enter');
-      assert.equal(await shown(), NAMES.length);
-      assert.equal(await page.locator('#castMore').count(), 0);
+      const cast = page.getByRole('dialog', { name: '艺人', exact: true }).locator('li');
+      await cast.first().waitFor();
+      assert.equal(await cast.count(), NAMES.length);
+      assert.ok((await cast.last().innerText()).includes(NAMES.at(-1)!));
+      assert.equal(await shown(), 8);
+      await page.keyboard.press('Escape');
+      await cast.first().waitFor({ state: 'hidden' });
+      assert.equal(await button.getAttribute('aria-expanded'), 'false');
       assert.deepEqual(withoutPlayer(opened.problems), []);
     } finally {
       await opened.close();

@@ -95,6 +95,14 @@
     "usageBody": "See how much space metadata, cache, and backups take up.",
     "usageTitle": "Usage breakdown"
   },
+  "guideAi": {
+    "askBody": "Describe what you want to find, such as “Find recently added videos I haven’t watched.” Choose the search scope and model before sending. Open the search criteria to edit them and search again.",
+    "askTitle": "Search in natural language",
+    "connectBody": "Choose a provider and save the connection. Use an API key or authorize a ChatGPT subscription. You can return to the AI Assistant to view its built-in demo before connecting.",
+    "input": "Message box",
+    "summary": "Connect AI, search in natural language, and review results from Library tools.",
+    "toolsBody": "Open Library tools below the message box to translate, suggest tags, edit metadata, or organize your collection. Review any draft changes before applying them."
+  },
   "guideAppearance": {
     "contrastBody": "Turn on for clearer separation between text and background.",
     "contrastTitle": "Increase contrast",
@@ -261,15 +269,16 @@
     "externalBody": "Choose a local player, an M3U playlist, or a stream URL here, then click Open. Another device must be able to reach the current Peach address.",
     "filterBody": "Filters combine to narrow the results. If you can't find something, check the selected library and filters first.",
     "filterTitle": "Filter and clear",
+    "foldersBody": "Use the directory icon on the right of the filter bar to browse media directories and subdirectories. Select it again to return to your video view.",
+    "layoutBody": "Use the view control on the right of the filter bar to switch between cards and the list. In the list, drag a column header edge to resize it.",
+    "layoutTitle": "Switch between cards and the list",
     "libraryBody": "Switch between all libraries or a single library at the top of the navigation; on a phone, open the sidebar first. A library groups several directories together.",
     "libraryTitle": "Choose a library",
     "playerBody": "The bottom control bar has play, progress, volume, and full screen. The gear on the right opens playback speed, subtitles, rotation, quality, and more.",
     "playerTitle": "Player controls",
-    "searchBody": "Enter a title, code, or name, then narrow the results with filters and sorting. Set how many searches to keep in Preferences > Search.",
-    "searchTitle": "Search by keyword",
     "subtitlesBody": "Open Subtitles from the player's gear menu to pick an existing subtitle, load a local subtitle file, or search for subtitles. Playback speed and quality are in the same menu.",
     "subtitlesTitle": "Subtitles and playback options",
-    "summary": "Search, filters, details, editions, subtitles, and the player.",
+    "summary": "Libraries, filters, folders, video details, and the player.",
     "title": "Find and play"
   },
   "guideFollow": {
@@ -297,11 +306,13 @@
     "libraryTitle": "JAV collection",
     "newBody": "Discover recommends videos based on your taste. Switch between your collection and external videos here, and filter by tag.",
     "newTitle": "Discover recommendations",
+    "onlineBody": "Find videos by release date, performer, label, or tag. In list view, use the headers to filter and resize columns. Select the performer count to see everyone in the video.",
     "qualityBody": "Upgrade cards list the current edition's details and why it was flagged; you can view editions or search torrents. With no targets, this shows an empty state.",
     "qualityTitle": "HD upgrades",
-    "summary": "Collection, new releases, want list, and HD upgrades.",
+    "releasesBody": "See new releases found through your subscriptions that are still outside the collection. Filter by performer, label, or tag, and choose cards or the list.",
+    "summary": "Collection, new releases, want list, recommendations, online catalog, and HD upgrades.",
     "title": "JAV and new releases",
-    "wantsBody": "Add external videos you like to your want list; switch between Collection, Discover, and Want here.",
+    "wantsBody": "Add videos from New releases or Discover. Track the search for sources and the import status here.",
     "wantsTitle": "View your want list"
   },
   "guideJavSettings": {
@@ -520,7 +531,7 @@
     "torznabUrlTitle": "Torznab URL"
   },
   "guideTopics": {
-    "browseSummary": "Search and play, people and tags, JAV new releases",
+    "browseSummary": "Search and play, AI Assistant, people and tags, JAV new releases",
     "browseTitle": "Find and discover",
     "collectSummary": "Marks and playlists, creator updates, taste and stats",
     "collectTitle": "Save and follow",
@@ -573,6 +584,7 @@
     "closeDialogFirst": "Close the open details or dialog before starting a tour.",
     "closeMiniPlayer": "Close the mini player before starting the player tour.",
     "completionNotSaved": "Tour ended, but completion wasn't saved. Reload tour progress and try again.",
+    "finish": "Finish tour",
     "getStarted": "Get started",
     "interfaceTour": "Interface tour",
     "inviteBody": "Click the compass for a {{count, number}}-step intro to Peach. Explore the rest when you need it.",
@@ -583,6 +595,7 @@
     "quickTourDone": "Quick tour complete. The tour button is now hidden on all devices; reopen it from Preferences → Settings → Maintenance → Guided tour.",
     "reload": "Reload",
     "reloadFirst": "Reload tour progress before starting a tour.",
+    "reopenHint": "Finishing hides the compass. Reopen the tour in App and maintenance.",
     "saveError": "Couldn't save tour progress, so other devices won't see it. Reload to continue.",
     "settingsTour": "Settings tour",
     "title": "Guided tour",

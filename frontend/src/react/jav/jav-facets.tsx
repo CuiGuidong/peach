@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { leadingGraphemes } from '@peach/legacy/core';
 import { logoUrl } from '@peach/card-art';
 import { avatarInner } from '../../card-art/markup';
-import { entityDisplayName } from '../../core/entity-names';
+import { castPersonName } from '../components/cast-popover';
 import { t } from '../../i18n';
 import { CatalogPerformerTile, CatalogStudioTile } from '../catalog-filter/catalog-tiles';
 import { ColumnFilterStudioAvatar } from '../components/column-filter-avatar';
@@ -29,7 +29,7 @@ type FacetAction = { count: number; pressed: boolean; onClick(): void };
 
 export function PerformerFacet({ person, count, pressed, onClick }: FacetAction & { person: DiscoveryPerson }) {
   useEntityNames();
-  const name = entityDisplayName('performer', person.name, person.id);
+  const name = castPersonName(person);
   return <CatalogPerformerTile name={name} pressed={pressed} onClick={onClick} ringHtml={avatarInner(person.name, person, null)}
     title={t('catalog:javReleases.facetCount', { name, count })} />;
 }

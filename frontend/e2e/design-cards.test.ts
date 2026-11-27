@@ -99,6 +99,16 @@ describe('设计决定：作品卡、管理页与复核', () => {
         /0px 0px 0px 8px/, '悬停底色没有在卡片四周向外多铺 8px');
       assert.equal(await card.locator('[data-media-later]').evaluate(
         (element) => getComputedStyle(element).opacity), '1', '移除描边后没有保留悬停反馈');
+      const who = card.locator('[data-media-who]');
+      await who.hover();
+      const credit = await card.evaluate(element => ({
+        shadow: getComputedStyle(element).boxShadow,
+        fill: getComputedStyle(element.querySelector('[data-media-who]')!, '::before').backgroundColor,
+        previewing: element.hasAttribute('data-previewing'),
+      }));
+      assert.doesNotMatch(credit.shadow, /0px 0px 0px 8px/);
+      assert.notEqual(credit.fill, 'rgba(0, 0, 0, 0)');
+      assert.equal(credit.previewing, false);
     } finally {
       await opened.close();
     }
@@ -729,7 +739,14 @@ describe('设计决定：作品卡、管理页与复核', () => {
         await page.locator('.peach-guide-popover').waitFor();
         assert.equal(await dialog.isVisible(), false, '章节点击后仍停留在中间介绍页');
         const playbackGuide = page.locator('.peach-guide-popover');
-        for (let step = 0; step < 4; step += 1) await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();
+        const nextPlaybackStep = playbackGuide.getByRole('button', { name: '下一步', exact: true });
+        for (let step = 0; step < 3; step += 1) await nextPlaybackStep.click();
+        await page.waitForURL(url => url.searchParams.get('browse') === 'folders');
+        await page.locator('[data-folder-mode-toggle].driver-active-element').waitFor();
+        await nextPlaybackStep.click();
+        await page.locator('#stage [data-item-title].driver-active-element').waitFor();
+        assert.equal(new URL(page.url()).searchParams.has('browse'), false);
+        await nextPlaybackStep.click();
         await page.locator('#stage .vjs-control-bar.driver-active-element').waitFor();
         assert.deepEqual(await page.locator('#stage video.vjs-tech').evaluate(video => ({ paused: (video as HTMLVideoElement).paused, src: (video as HTMLVideoElement).currentSrc })), { paused: true, src: '' });
         await playbackGuide.getByRole('button', { name: '下一步', exact: true }).click();
@@ -816,6 +833,37 @@ describe('设计决定：作品卡、管理页与复核', () => {
       } finally { await opened.close() }
     });
   }
+
+  it('结束整套教程可从邀请直接操作，重开后仍可在教程中心结束', { timeout: 60_000 }, async () => {
+    const opened = await visit(browser, '/', MOBILE, freshTutorial);
+    try {
+      const { page } = opened;
+      const opener = page.locator('#tutorialBtn');
+      const invitation = page.locator('.peach-guide-popover');
+      const dialog = page.getByRole('dialog', { name: '新手教程', exact: true });
+      const endFrom = async (surface: Locator) => {
+        const saved = page.waitForResponse(response => new URL(response.url()).pathname === '/api/tutorial-progress'
+          && response.request().method() === 'POST' && response.request().postDataJSON().action === 'complete');
+        await surface.getByRole('button', { name: '结束教程', exact: true }).click();
+        const progress = await (await saved).json();
+        assert.equal(progress.completed, true);
+        assert.deepEqual(progress.chapters, {}, '结束教程不应把未读章节记成已读');
+        await surface.waitFor({ state: 'hidden' });
+        await opener.waitFor({ state: 'hidden' });
+      };
+      await endFrom(invitation);
+      await page.waitForFunction(() => document.activeElement === document.getElementById('filterBtn'));
+      await page.goto(new URL('/settings/maintenance', page.url()).href);
+      await page.getByRole('region', { name: '新手教程', exact: true }).getByRole('button', { name: '重新打开', exact: true }).click();
+      await dialog.getByRole('button', { name: '开始快速导览', exact: true }).waitFor();
+      await endFrom(dialog);
+      await page.goto(new URL('/', page.url()).href);
+      await page.locator('#grid').waitFor();
+      await opener.waitFor({ state: 'hidden' });
+      assert.equal(await invitation.isVisible(), false);
+      assert.deepEqual(opened.problems, []);
+    } finally { await opened.close() }
+  });
 
   it('复核筛选条上的下拉和按钮一样高', { timeout: 60_000 }, async () => {
     const opened = await openReview(browser);

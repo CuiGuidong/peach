@@ -10,6 +10,7 @@ export interface GuideStep { id: string; title: string; body: string; route?: Gu
 export interface GuideChapter { id: string; title: string; summary: string; kind: 'interface' | 'settings'; steps: GuideStep[] }
 /** 教程定位的目标用目标控件自己的无障碍名称，取同一个键，换语言也对得上。 */
 const byLabel = (key: string, tag = ''): string => `${tag}[aria-label="${t(key)}"]`;
+const catalogView = byLabel('catalog:catalogList.viewMode', '[role="radiogroup"]');
 const step = (id: string, title: string, body: string, route?: GuideRoute, target?: string, scope?: string): GuideStep => ({ id, title, body, route, target, scope });
 const page = (id: string, title: string, body: string, route: GuideRoute, target?: string) => step(id, title, body, route, target);
 
@@ -22,12 +23,18 @@ export const INTERFACE_CHAPTERS: GuideChapter[] = [
   ] },
   { id: 'find-play', kind: 'interface', title: t('onboarding:guideFindPlay.title'), summary: t('onboarding:guideFindPlay.summary'), steps: [
     page('library', t('onboarding:guideFindPlay.libraryTitle'), t('onboarding:guideFindPlay.libraryBody'), '/', '#brandHome, #filterBtn'),
-    page('search', t('onboarding:guideFindPlay.searchTitle'), t('onboarding:guideFindPlay.searchBody'), '/', '#q, #searchBtn'),
     page('filter', t('onboarding:guideFindPlay.filterTitle'), t('onboarding:guideFindPlay.filterBody'), '/', '[data-catalog-frame]'),
+    page('layout', t('onboarding:guideFindPlay.layoutTitle'), t('onboarding:guideFindPlay.layoutBody'), '/', catalogView),
+    page('folders', t('catalog:catalogFolders.folderMode'), t('onboarding:guideFindPlay.foldersBody'), '/?browse=folders', '[data-folder-mode-toggle]:not(:disabled)'),
     { ...step('detail', t('onboarding:shared.videoDetails'), t('onboarding:guideFindPlay.detailBody'), '/', '[data-item-title]'), surface: 'detail' },
     { ...step('player', t('onboarding:guideFindPlay.playerTitle'), t('onboarding:guideFindPlay.playerBody'), '/', '#stage .vjs-control-bar'), surface: 'player' },
     { ...step('subtitles', t('onboarding:guideFindPlay.subtitlesTitle'), t('onboarding:guideFindPlay.subtitlesBody'), '/', '#stage [data-player-subtitles]'), surface: 'subtitles' },
     { ...step('external', t('onboarding:shared.externalPlayer'), t('onboarding:guideFindPlay.externalBody'), '/', '#stage [data-local-playback-row]'), surface: 'detail' },
+  ] },
+  { id: 'ai', kind: 'interface', title: t('catalog:libraryAssistant.title'), summary: t('onboarding:guideAi.summary'), steps: [
+    page('connect', t('navigation:configurationSections.ai'), t('onboarding:guideAi.connectBody'), '/settings/ai', '#ai-services section[aria-label] > :first-child'),
+    page('ask', t('onboarding:guideAi.askTitle'), t('onboarding:guideAi.askBody'), '/ai', '[data-ai-search-composer]'),
+    page('tools', t('catalog:libraryAssistant.workTools'), t('onboarding:guideAi.toolsBody'), '/ai', 'button:has([data-copy-key="catalog.libraryAssistant.workTools"])'),
   ] },
   { id: 'save', kind: 'interface', title: t('onboarding:guideSave.title'), summary: t('onboarding:guideSave.summary'), steps: [
     { ...page('marks', t('onboarding:shared.rating'), t('onboarding:guideSave.marksBody'), '/', '#stage [data-item-rating]'), surface: 'detail' },
@@ -43,8 +50,10 @@ export const INTERFACE_CHAPTERS: GuideChapter[] = [
   ] },
   { id: 'jav', kind: 'interface', title: t('onboarding:guideJav.title'), summary: t('onboarding:guideJav.summary'), steps: [
     page('library', t('onboarding:guideJav.libraryTitle'), t('onboarding:guideJav.libraryBody'), javPath('library') as GuideRoute, '[data-catalog-frame]'),
+    page('releases', t('catalog:javTabs.newReleases'), t('onboarding:guideJav.releasesBody'), javPath('releases') as GuideRoute, catalogView),
+    page('wants', t('onboarding:guideJav.wantsTitle'), t('onboarding:guideJav.wantsBody'), javPath('wants') as GuideRoute, byLabel('catalog:javTabs.wants', '[role="tab"]')),
     page('new', t('onboarding:guideJav.newTitle'), t('onboarding:guideJav.newBody'), javPath('discover') as GuideRoute, '[data-jav-filter] [data-catalog-views]'),
-    page('wants', t('onboarding:guideJav.wantsTitle'), t('onboarding:guideJav.wantsBody'), javPath('discover') as GuideRoute, byLabel('catalog:javTabs.label')),
+    page('online', t('catalog:javTabs.online'), t('onboarding:guideJav.onlineBody'), javPath('online') as GuideRoute, catalogView),
     page('quality', t('onboarding:guideJav.qualityTitle'), t('onboarding:guideJav.qualityBody'), '/quality-goals', '[data-goal-id], #main [data-empty-state]'),
   ] },
   { id: 'follow', kind: 'interface', title: t('onboarding:shared.followCreators'), summary: t('onboarding:guideFollow.summary'), steps: [
@@ -288,7 +297,7 @@ export const GUIDE_CHAPTERS = [...INTERFACE_CHAPTERS, ...SETTING_CHAPTERS];
 export interface GuideTopic { id: string; kind: GuideChapter['kind']; title: string; summary: string; chapters: string[] }
 /** 目录按使用意图组织；小章节可单独阅读，设置步骤对应实际设置分区。 */
 export const GUIDE_TOPICS: GuideTopic[] = [
-  { id: 'browse', kind: 'interface', title: t('onboarding:guideTopics.browseTitle'), summary: t('onboarding:guideTopics.browseSummary'), chapters: ['find-play', 'entities', 'jav'] },
+  { id: 'browse', kind: 'interface', title: t('onboarding:guideTopics.browseTitle'), summary: t('onboarding:guideTopics.browseSummary'), chapters: ['find-play', 'ai', 'entities', 'jav'] },
   { id: 'collect', kind: 'interface', title: t('onboarding:guideTopics.collectTitle'), summary: t('onboarding:guideTopics.collectSummary'), chapters: ['save', 'follow', 'insights'] },
   { id: 'watch', kind: 'interface', title: t('onboarding:guideTopics.watchTitle'), summary: t('onboarding:guideTopics.watchSummary'), chapters: ['viewing', 'devices'] },
   { id: 'manage', kind: 'interface', title: t('onboarding:guideTopics.manageTitle'), summary: t('onboarding:guideTopics.manageSummary'), chapters: ['external', 'maintenance'] },
@@ -298,8 +307,14 @@ export const GUIDE_TOPICS: GuideTopic[] = [
   { id: 'system', kind: 'settings', title: t('onboarding:guideTopics.systemTitle'), summary: t('onboarding:guideTopics.systemSummary'), chapters: ['network', 'app-maintenance', 'diagnostics'] },
 ];
 export function contextualChapter(path: string): GuideChapter {
-  if (path === '/') return INTERFACE_CHAPTERS[0]!;
-  return SETTING_CHAPTERS.find(chapter => chapter.steps[0]?.route === path)
-    || INTERFACE_CHAPTERS.find(chapter => chapter.id !== 'basics' && chapter.steps.some(item => item.route === path))
+  const [pathname, query = ''] = path.split('?');
+  const params = new URLSearchParams(query);
+  if (pathname === '/jav' || (pathname === '/' && params.get('jav') === '1')) {
+    return INTERFACE_CHAPTERS.find(chapter => chapter.id === 'jav')!;
+  }
+  const route = pathname === '/' && (params.get('browse') === 'folders' || params.has('folder')) ? '/?browse=folders' : pathname;
+  if (route === '/') return INTERFACE_CHAPTERS[0]!;
+  return SETTING_CHAPTERS.find(chapter => chapter.steps[0]?.route === route)
+    || INTERFACE_CHAPTERS.find(chapter => chapter.id !== 'basics' && chapter.steps.some(item => item.route === route))
     || INTERFACE_CHAPTERS[0]!;
 }

@@ -101,8 +101,8 @@ export function EntityHeroPage({ kind, name, entity, feedNew, feedHost, feedErro
                   const name = entityDisplayName(identity.kind, identity.canonical_name, identity.id);
                   const text = identity.relation === 'same_person' ? t('catalog:entityHero.samePersonIdentity', { name }) : t('catalog:entityHero.linkedAccount', { name });
                   return (
-                    <button type="button" key={identity.id} title={text}
-                      className="min-w-0 max-w-full text-text-primary underline wrap-anywhere"
+                    <button type="button" key={identity.id} title={text} data-inline-action=""
+                      className="min-w-0 max-w-full cursor-pointer text-text-primary wrap-anywhere"
                       onClick={() => actions.openEntity(identity.kind, identity.canonical_name)}>
                       {text}
                     </button>
@@ -382,7 +382,7 @@ function HeroLinkView({ link }: { link: LinkView }) {
     default:
       return (
         <a data-link="url" href={link.url} target="_blank" rel="noopener noreferrer" title={link.title}>
-          <LinkIcon mark={link.mark} /><span data-link-label="">{link.text}</span>
+          <LinkIcon mark={link.mark} /><span data-link-label="" data-external-link-label="">{link.text}</span>
           <svg className="ui-externalmark" viewBox="0 0 24 24" aria-hidden="true"><use href="#i-external-link" /></svg>
         </a>
       );
