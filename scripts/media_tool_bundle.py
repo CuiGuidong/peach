@@ -42,7 +42,8 @@ def checked_file(root: Path, name: str, expected: str) -> Path:
     return target
 
 
-def validate(root: Path, tool: str = "ffmpeg", *, architecture: str | None = None) -> tuple[dict, Path]:
+def validate(root: Path, tool: str = "ffmpeg", *, architecture: str | None = None,
+             archive_root: Path | None = None) -> tuple[dict, Path]:
     """构建和制品验收共用；哈希不匹配时不复制任何文件。"""
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
     required, source_names, license_name = POLICIES[tool]
@@ -72,7 +73,7 @@ def validate(root: Path, tool: str = "ffmpeg", *, architecture: str | None = Non
     archive = manifest["source_archive"]
     if archive["name"] != archive_name:
         raise ValueError(t("media_tool_bundle.archiveNameMismatch"))
-    source_path = checked_file(root.parent, archive["name"], archive["sha256"])
+    source_path = checked_file(root.parent if archive_root is None else archive_root, archive["name"], archive["sha256"])
     return manifest, source_path
 
 

@@ -54,6 +54,19 @@ class MacMediaBundleTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "SHA-256"):
                     media_tool_bundle.validate(root, tool, architecture="arm64")
 
+    def test_downloaded_sources_are_checked_against_the_installed_tool_manifest(self):
+        root, archive = self.fixture("ffmpeg")
+        downloads = self.root / "downloads"
+        downloads.mkdir()
+        downloaded = archive.rename(downloads / archive.name)
+        with self.assertRaisesRegex(ValueError, "文件"):
+            media_tool_bundle.validate(root, architecture="arm64")
+        _, source = media_tool_bundle.validate(root, architecture="arm64", archive_root=downloads)
+        self.assertEqual(source, downloaded)
+        downloaded.write_bytes(b"modified")
+        with self.assertRaisesRegex(ValueError, "SHA-256"):
+            media_tool_bundle.validate(root, architecture="arm64", archive_root=downloads)
+
     def test_binary_audit_rejects_non_system_libraries(self):
         with patch.object(sys, "path", [str(SCRIPTS), *sys.path]):
             from scripts import build_macos_media

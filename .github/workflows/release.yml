@@ -352,6 +352,7 @@ jobs:
           retention-days: 7
           path: |
             release/*.dmg
+            release/*-corresponding-source.zip
             scripts/smoke_macos.py
             scripts/smoke_desktop.py
 
@@ -403,7 +404,7 @@ jobs:
           test -f "$mount/Peach.app/Contents/Frameworks/Sparkle.framework/Versions/B/Sparkle"
           test ! -e "$mount/Peach.app/Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices"
           lipo "$mount/Peach.app/Contents/MacOS/Peach" -verify_arch '${{ matrix.arch }}'
-          python scripts/smoke_macos.py "$mount/Peach.app"
+          python scripts/smoke_macos.py "$mount/Peach.app" --source-archives release
 
   release:
     name: GitHub 预发布
@@ -437,7 +438,7 @@ jobs:
         run: |
           set -euo pipefail
           uv sync --locked --python python
-          cp macos-candidates/release/*.dmg release/
+          cp macos-candidates/release/*.dmg macos-candidates/release/*-corresponding-source.zip release/
           (cd release && sha256sum ./*.zip ./*-setup.exe ./*.dmg > SHA256SUMS.txt)
           # 源码没有发布公钥且没配私钥时跳过；公钥已随源码发出却缺私钥时失败，不发布未签名的版本。
           printf '%s' "$PEACH_RELEASE_SIGNING_KEY" | .venv/bin/python scripts/sign_release.py --sums release/SHA256SUMS.txt
