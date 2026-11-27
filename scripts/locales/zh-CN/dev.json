@@ -1921,6 +1921,13 @@
     "activeLock": "工作树被活动任务锁定",
     "notMerged": "分支未并入 {{branch}}",
     "uncommittedChanges": "工作区有未提交改动",
+    "worktreeStatusUnknown": "工作树状态未取得（{{reason}}）",
+    "worktreeLocationMismatch": "Git 返回的工作树或仓库路径不一致",
+    "pruneBusy": "已有工作树回收正在运行",
+    "pruneBranchNotUnique": "分支 {{branch}} 须对应唯一已登记的工作树",
+    "pruneCurrentWorktree": "请先切到其他检出目录，再回收该工作树",
+    "pruneLinkedArchive": "构建目录或归档目录指向预期路径之外",
+    "helpPruneBranch": "只检查此分支的工作树，执行回收时归档会话文件",
     "helpCiRun": "复用同一提交的受信 GitHub Test 运行",
     "helpApply": "真的回收；不给这个参数就只报告",
     "helpProcesses": "列出两个工作树落点下还活着的进程，只报告不结束"
