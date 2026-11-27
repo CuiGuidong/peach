@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import type { Browser } from 'playwright-core';
+import type { ReleaseResult } from '../src/react/jav/jav.ts';
 import { launch, layout, settle, visit, VIEWPORTS } from './harness.ts';
 import { ITEM, openItemPage } from './item-fixture.ts';
 
@@ -421,6 +422,52 @@ describe('JAV 推荐与加载结构', () => {
   });
 
   for (const viewport of VIEWPORTS) {
+    it(`新作的显示方式在下排，加载前后两排头像贴齐浮层（${viewport.name}）`, { timeout: 60_000 }, async () => {
+      let release!: () => void;
+      const held = new Promise<void>(resolve => { release = resolve; });
+      const opened = await visit(browser, '/jav?tab=releases', viewport, async page => {
+        await page.route('**/api/jav/releases?*', async route => {
+          await held;
+          const data: ReleaseResult = {
+            items: [{
+              id: 777, code: 'DEMO-777', title: '演示新作', performers: '样本艺人', studio: '样本厂牌',
+              release_date: '2026-01-01', link: '', cover_url: '', has_cover: false, wanted: false, tags: ['样本标签'],
+            }],
+            total: 1, candidate_total: 1, page: 1, size: 24,
+            facets: { performers: [{ name: '样本艺人', count: 1 }], studios: [{ name: '样本厂牌', count: 1, has_logo: false }],
+              tags: [{ name: '样本标签', count: 1 }] },
+          };
+          await route.fulfill({ json: data });
+        });
+      });
+      const { page } = opened;
+      try {
+        const frame = page.locator('[data-jav-filter]:visible').last();
+        const bottom = frame.locator('[data-filter-row="bottom"]');
+        const mode = bottom.locator('[role="radiogroup"][aria-label="馆藏显示方式"]');
+        const geometry = () => frame.evaluate(node => {
+          const filter = node.getBoundingClientRect();
+          const tiers = node.previousElementSibling!.getBoundingClientRect();
+          return { gutter: Math.round(filter.left - tiers.left), gap: Math.round(filter.top - tiers.bottom) };
+        });
+        await mode.waitFor();
+        assert.deepEqual(await geometry(), { gutter: 16, gap: 0 });
+        release();
+        await frame.locator('[data-filter-row="top"]').getByRole('button', { name: /样本标签/ }).waitFor();
+        await settle(page);
+        await mode.waitFor();
+        assert.deepEqual(await geometry(), { gutter: 16, gap: 0 });
+        assert.equal(await frame.getByRole('radiogroup', { name: '馆藏显示方式' }).count(), 1);
+        const list = mode.locator('label:has(input[value="list"])');
+        await list.click();
+        await page.locator('[data-release-table]').waitFor();
+        assert.equal(await list.locator('input').isChecked(), true);
+      } finally {
+        release();
+        await opened.close();
+      }
+    });
+
     it(`换分区时页头是同一棵：页签底板滑过去，标题与页签原地不动（${viewport.name}）`, { timeout: 60_000 }, async () => {
       const opened = await visit(browser, '/jav', viewport, async page => {
         await page.route('**/api/jav/releases?*', route => route.fulfill({ json: {

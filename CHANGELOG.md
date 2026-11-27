@@ -16,6 +16,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+- Align the JAV New Releases avatar rows with Home and move the card and list switch to the lower filter row. / JAV 新作的艺人与厂牌横排和首页对齐，卡片与列表切换移回筛选栏下排。
+
 ## [0.63.0] - 2026-11-27
 
 ### Added / 新增

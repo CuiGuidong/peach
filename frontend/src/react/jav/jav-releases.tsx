@@ -7,7 +7,7 @@ import { RiRssLine } from '@remixicon/react';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { appSettingsStore, javLayout, storeJavLayout, JAV_LAYOUTS, cardRatio, gridLayout } from '@peach/appearance';
 import { wireHorizontalScroller } from '../../ui-kit/scroll';
-import { javContentSkeleton, JAV_RECOMMENDATION_GRID } from '../../jav-skeleton';
+import { javContentSkeleton, javTagPlaceholdersHtml, JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID } from '../../jav-skeleton';
 import { tierPlaceholdersHtml } from '../../catalog-filter-skeleton';
 import { errorMessage } from '../../api';
 import type { DownloadPrefill } from '../activity/cloud-download-dialog';
@@ -197,8 +197,8 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
     writeJavQuery({ page: pages > 1 ? String(pages) : '' });
   }, [data, releases.isPlaceholderData, filters.page, pages]);
   return <section ref={section} aria-label={t('catalog:entityHero.subscribeNewReleases')} aria-busy={waiting || releases.isFetching} className="flex min-w-0 scroll-mt-24 flex-col gap-4">
-    {waiting ? <div data-catalog-tiers="" aria-busy="true" dangerouslySetInnerHTML={{ __html: TIER_PLACEHOLDERS }} /> : null}
-    {data && (data.facets.performers.length || data.facets.studios.length) ? <div data-catalog-tiers="" data-release-tiers="">
+    {waiting ? <div data-catalog-tiers="" className={JAV_CATALOG_TIERS} aria-busy="true" dangerouslySetInnerHTML={{ __html: TIER_PLACEHOLDERS }} /> : null}
+    {data && (data.facets.performers.length || data.facets.studios.length) ? <div data-catalog-tiers="" data-release-tiers="" className={JAV_CATALOG_TIERS}>
       {data.facets.performers.length ? <div data-catalog-tier="performers" role="group" aria-label={t('catalog:javReleases.filterByActress')}>
         {data.facets.performers.map(person => <PerformerFacet key={person.name} person={person} count={person.count}
           pressed={releaseColumnValues(filters, 'performer').includes(person.name)} onClick={() => choose('performer', person.name)} />)}
@@ -209,11 +209,12 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
       </div> : null}
     </div> : null}
     <FilterGlassRows label={t('catalog:javReleases.filtersLabel')} topLabel={t('catalog:catalogFilter.viewsAndTags')} attrs={{ 'data-filter-frame': '', 'data-jav-filter': '', 'data-catalog-frame': '' }}
-      busy={waiting} topClassName="gap-1.5 overflow-visible" bottomClassName="min-h-12" top={<div data-catalog-scroll="">
-        <CatalogViewToggle />
-        {tagChoices.length ? <span data-entity-sep="" aria-hidden="true" /> : null}
-        <FilterTagStrip choices={tagChoices} onSelect={name => choose('tag', name)} />
-      </div>} bottom={<>
+      busy={waiting} topClassName="gap-1.5 overflow-visible" bottomClassName="min-h-12"
+      top={waiting || tagChoices.length ? <div data-catalog-scroll="">
+        {waiting ? <div data-filter-tag-strip="" data-loading="" aria-hidden
+          dangerouslySetInnerHTML={{ __html: javTagPlaceholdersHtml() }} />
+          : <FilterTagStrip choices={tagChoices} onSelect={name => choose('tag', name)} />}
+      </div> : null} bottom={<>
         <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" />
           : filtered ? t('catalog:javReleases.matchedCount', { matched: data?.total || 0, count: data?.candidate_total || 0 }) : t('catalog:countLabel.works', { count: data?.total || 0 })}</span>
         <JavGlassSearch tab="releases" />
@@ -221,6 +222,7 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
         <FilterToolbarControls tools={<>
           <Shuffle onPress={reshuffle} busy={filters.sort === 'random' && releases.isFetching} />
           {view === 'cards' ? <Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} /> : null}
+          <CatalogViewToggle />
         </>} fields={<>
           <FilterDropdown id="jav-release-performers" orderKey="performer" label={t('catalog:shared.performers')}
             choices={(data?.facets.performers || []).map(person => ({ id: person.name, label: person.name, count: person.count,
