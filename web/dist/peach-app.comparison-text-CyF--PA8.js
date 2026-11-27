@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "dfed50ba-e3b7-498a-ace7-f64e1bbb79fe", e._sentryDebugIdIdentifier = "sentry-dbid-dfed50ba-e3b7-498a-ace7-f64e1bbb79fe");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "38bcd5f2-e032-4c63-85a0-4d920b37497e", e._sentryDebugIdIdentifier = "sentry-dbid-38bcd5f2-e032-4c63-85a0-4d920b37497e");
 	} catch {}
 })();
 import { __toESM as e, require_jsx_runtime as t, require_react as n } from "./peach-app.js";
@@ -21,12 +21,12 @@ var r = /* @__PURE__ */ e(n(), 1), i = class {
 			else return e;
 		}, a = t.length, o = e.length, s = 1, c = a + o;
 		n.maxEditLength != null && (c = Math.min(c, n.maxEditLength));
-		let l = n.timeout ?? Infinity, u = Date.now() + l, d = [{
+		let l = n.timeout ?? 1e400, u = Date.now() + l, d = [{
 			oldPos: -1,
 			lastComponent: void 0
 		}], f = this.extractCommon(d[0], t, e, 0, n);
 		if (d[0].oldPos + 1 >= o && f + 1 >= a) return i(this.buildValues(d[0].lastComponent, t, e));
-		let p = -Infinity, m = Infinity, h = () => {
+		let p = -1e400, m = 1e400, h = () => {
 			for (let r = Math.max(p, -s); r <= Math.min(m, s); r += 2) {
 				let s, c = d[r - 1], l = d[r + 1];
 				c && (d[r - 1] = void 0);
@@ -380,4 +380,4 @@ function E({ value: e, reference: t }) {
 }
 export { E as ComparisonText };
 
-//# debugId=dfed50ba-e3b7-498a-ace7-f64e1bbb79fe
+//# debugId=38bcd5f2-e032-4c63-85a0-4d920b37497e

@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "be8342bc-6b57-4611-9910-52263a6fc1aa", e._sentryDebugIdIdentifier = "sentry-dbid-be8342bc-6b57-4611-9910-52263a6fc1aa");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "e36ba388-e926-494a-a4dc-fea192dc6332", e._sentryDebugIdIdentifier = "sentry-dbid-e36ba388-e926-494a-a4dc-fea192dc6332");
 	} catch {}
 })();
 var e = Object.defineProperty, t = (e, t, n) => () => {
@@ -1879,11 +1879,11 @@ function hr(e, t) {
 	if (s) {
 		let e = s[1].split(",").map((e) => parseFloat(e.trim()));
 		if (e.length === 16 && e.every(Number.isFinite)) {
-			let n = e[0], r = e[1], o = e[4], s = e[5], c = i(n, r, o, s);
+			let n = i(e[0], e[1], e[4], e[5]);
 			try {
-				t.style.transform = `matrix(${c.a}, ${c.b}, ${c.c}, ${c.d}, 0, 0)`;
+				t.style.transform = `matrix(${n.a}, ${n.b}, ${n.c}, ${n.d}, 0, 0)`;
 			} catch {}
-			return a(c);
+			return a(n);
 		}
 	}
 	try {
@@ -3211,12 +3211,12 @@ function wa(e, t = /* @__PURE__ */ new Uint8Array()) {
 	r.setUint32(0, t.length);
 	for (let t = 0; t < 4; t++) n[t + 4] = e.charCodeAt(t);
 	n.set(t, 8);
-	let i = 4294967295;
+	let i = 0xffffffff;
 	for (let e = 4; e < n.length - 4; e++) i = Ea[(i ^ n[e]) & 255] ^ i >>> 8;
-	return r.setUint32(n.length - 4, (i ^ 4294967295) >>> 0), n;
+	return r.setUint32(n.length - 4, (i ^ 0xffffffff) >>> 0), n;
 }
 async function Ta(e, t, n) {
-	if (![e, t].every((e) => Number.isInteger(e) && e > 0 && e <= 2147483647)) throw RangeError("[SnapDOM] PNG dimensions must be integers from 1 to 2147483647");
+	if (![e, t].every((e) => Number.isInteger(e) && e > 0 && e <= 0x7fffffff)) throw RangeError("[SnapDOM] PNG dimensions must be integers from 1 to 2147483647");
 	let r = /* @__PURE__ */ new Uint8Array(13), i = new DataView(r.buffer);
 	i.setUint32(0, e), i.setUint32(4, t), r[8] = 8, r[9] = 6;
 	let a = [
@@ -3276,7 +3276,7 @@ var Ea, Da = t(() => {
 	Ea = /* @__PURE__ */ new Uint32Array(256);
 	for (let e = 0; e < 256; e++) {
 		let t = e;
-		for (let e = 0; e < 8; e++) t = t & 1 ? 3988292384 ^ t >>> 1 : t >>> 1;
+		for (let e = 0; e < 8; e++) t = t & 1 ? 0xedb88320 ^ t >>> 1 : t >>> 1;
 		Ea[e] = t;
 	}
 }), Oa = {};
@@ -8795,8 +8795,8 @@ function Ff(e) {
 function If(e, t, n, r, i, a, o, s, c) {
 	let l = Array.from(e || []).sort().join("|"), u = 0, d = 0;
 	for (let e of o || []) {
-		let t = Math.imul(e, 2654435761);
-		t ^= t >>> 15, t = Math.imul(t, 2246822507), t ^= t >>> 13, u = u + t | 0, d++;
+		let t = Math.imul(e, 0x9e3779b1);
+		t ^= t >>> 15, t = Math.imul(t, 0x85ebca6b), t ^= t >>> 13, u = u + t | 0, d++;
 	}
 	let f = t ? JSON.stringify({
 		families: (t.families || []).map((e) => String(e).toLowerCase()).sort(),
@@ -10829,9 +10829,9 @@ async function Qm(e, t, n, r) {
 	let a = e.ownerDocument || document, o = Qa(e);
 	if (!o || Xa(a)) return null;
 	let s = [];
-	t: for (let n of t.dirtyRoots) {
+	e: for (let n of t.dirtyRoots) {
 		if (!n.isConnected || n === e || !e.contains(n)) return null;
-		for (let r of t.dirtyRoots) if (r !== n && r !== e && r.contains(n)) continue t;
+		for (let r of t.dirtyRoots) if (r !== n && r !== e && r.contains(n)) continue e;
 		s.push(n);
 	}
 	if (!s.length) return null;
@@ -11908,4 +11908,4 @@ $.toRaw = (e, t) => $(e, t).then((e) => e.toRaw()), $.toImg = (e, t) => $(e, t).
 }).then((e) => e.toWebp()), $.download = (e, t) => $(e, t).then((e) => e.download());
 export { rp as DEFAULT_STAGE, tp as STAGES, op as assertNeeds, mp as clearPlugins, vp as getGlobalPlugins, lp as normalizePlugin, up as registerPlugins, $ as snapdom };
 
-//# debugId=be8342bc-6b57-4611-9910-52263a6fc1aa
+//# debugId=e36ba388-e926-494a-a4dc-fea192dc6332

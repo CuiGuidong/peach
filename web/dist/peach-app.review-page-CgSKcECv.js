@@ -1,12 +1,12 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "a69637a3-b70d-4686-9dd4-d56d546ec118", e._sentryDebugIdIdentifier = "sentry-dbid-a69637a3-b70d-4686-9dd4-d56d546ec118");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "7a50a210-480c-465c-9767-46d4df835193", e._sentryDebugIdIdentifier = "sentry-dbid-7a50a210-480c-465c-9767-46d4df835193");
 	} catch {}
 })();
 import { $ea3928288112382f$export$439d29a4e110a164 as e, $fe21c36db05242bb$export$d7b12c4107be0d61 as t, Button as n, ButtonLink as r, Checkbox as i, CheckboxGlyph as a, Chip as o, CollapseChevron as s, CollapseRegion as c, DEFAULT_CATEGORY as l, DataTable as u, DataTableFooter as d, ENTITY_REVIEW_KINDS as ee, Ea as te, EmptyState as f, ExternalLink as ne, FIELDSET_FOOT as re, FilterGlassRows as p, FilterSearch as m, Gg as h, InputBase as g, LEGACY_AVATAR_IMG as _, LinkButton as ie, Note as v, REVIEW_CATEGORIES as ae, REVIEW_DECISION_LABELS as oe, REVIEW_KEY as y, REVIEW_LABELS as b, REVIEW_QUEUES as x, REVIEW_QUEUE_LABELS as S, RadioDot as C, RadioGroup as w, Select as T, SelectItem as E, SelectionActions as D, SelectionDock as se, SortableBoardTabs as O, TextField as k, Wt as A, Xf as ce, Yt as le, __toESM as j, apiGet as M, apiSend as N, avatarInner as ue, b1 as P, busyProps as F, canApprove as de, cardClass as fe, codedText as I, commonReviewSources as pe, composingKey as me, currentReviewRow as he, cx as L, decisionPayload as ge, decisionReceipt as _e, defaultChoice as ve, enterPageSelection as ye, errorMessage as R, exitPageSelection as z, fetchReview as be, filterReviewRows as xe, gB as Se, groupReviewRows as Ce, isReviewCategory as we, joinList as Te, l7 as Ee, localTime as B, m7 as De, mirrorText as Oe, pendingGenres as V, queryClient as ke, quoted as H, recordGenre as Ae, reloadReview as je, require_jsx_runtime as Me, require_react as Ne, reviewGroupingOptions as Pe, reviewQueueData as Fe, reviewQueueOf as Ie, reviewWindow as Le, rowEvidence as Re, rowFieldName as U, rowSelectionOperation as ze, rowSubject as W, rowTags as Be, rowTitle as Ve, s7 as He, selectReviewRange as Ue, serverLabel as We, serverLabelList as Ge, settleReviewRows as Ke, submitDecision as qe, t as G, useMutation as Je, useNavigationOrder as Ye, useOverlayScrollbar as Xe, usePageSelection as Ze, useQuery as Qe, useRectangleSelection as $e, useViewGlide as et, useWorkContextMenu as tt } from "./peach-app.js";
 import { Page as nt } from "./peach-app.page-QAncjzM1.js";
-import { ComparisonText as K } from "./peach-app.comparison-text-DmxgbX8f.js";
+import { ComparisonText as K } from "./peach-app.comparison-text-CyF--PA8.js";
 // src/react/review/auto-landings.ts
 var q = /* @__PURE__ */ j(Ne(), 1), rt = "/api/review/auto-landings", J = "/api/review/auto-landings/revert", it = ["review", "auto-landings"], Y = (e) => We(e.field_code ?? "", e.field), X = (e) => We(e.label_code ?? "", e.label), at = (e) => M(rt, e), ot = (e) => M(`${rt}?items=${encodeURIComponent(e.join("\n"))}`), st = (e, t) => N(J, {
 	items: e,
@@ -1597,4 +1597,4 @@ function Ut(e) {
 }
 export { Ut as ReviewPage };
 
-//# debugId=a69637a3-b70d-4686-9dd4-d56d546ec118
+//# debugId=7a50a210-480c-465c-9767-46d4df835193
