@@ -152,7 +152,7 @@ describe('库外 JAV 作品详情', () => {
         assert.ok(spacing.before >= 16 && Math.abs(spacing.before - spacing.after) < 1, JSON.stringify(spacing));
         await page.locator('[data-jav-preview-toggle]').click();
         const preview = page.locator('[data-jav-video]');
-        const failure = preview.getByRole('note');
+        const failure = preview.getByRole('alert');
         await failure.waitFor();
         assert.equal(await preview.locator('.video-js, video').count(), 0, '失败后移除播放器及其加载状态');
         const bounds = await failure.evaluate(node => {

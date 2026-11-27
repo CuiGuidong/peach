@@ -312,7 +312,7 @@ describe('顶栏搜索', () => {
         ['ArrowUp', '七海の夏']] as const) {
         await page.keyboard.press(key);
         assert.deepEqual(await active(page), [want], `${key} 之后选中的不对`);
-        assert.equal(await page.locator(`${MENU} [role="status"].sr-only`).textContent(), want);
+        assert.equal(await page.locator(`${MENU} [role="status"][aria-atomic="true"]`).textContent(), want);
       }
       assert.equal(await page.locator('#q').inputValue(), SUGGEST.q, '上下键不该改输入框里的字');
       await page.keyboard.press('Enter');

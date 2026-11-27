@@ -372,7 +372,9 @@
 .peach-react:has([data-selection-dock]) {
   padding-bottom: var(--selection-dock-space, 96px);
 }
-html:has([data-selection-dock]) { scroll-padding-bottom: var(--selection-dock-space, 96px); }
+html:has([data-selection-dock]) {
+  scroll-padding-bottom: max(var(--selection-dock-space, 96px), var(--feedback-toast-floor, 0px));
+}
 
 /* 岛里的危险键（批量条的「移入回收站」「彻底删除」、回收站说明行的「清空回收站」）挂 `data-danger`，
  * 红色只在这里定义一份，与壳的 `button.danger`（`web/board.css`）读同一组 `--board-red` 三档渐变：

@@ -77,7 +77,7 @@ describe('发现资料与排序', () => {
         await Promise.all([page.locator(`[data-sort-direction-menu] [data-filter-option="${direction}"]`).click(),
           page.waitForResponse(response => { const params = new URL(response.url()).searchParams;
             return response.url().includes('/api/jav/discoveries?') && params.get('sort') === sort && params.get('direction') === direction })]);
-        assert.equal(await trigger.getAttribute('aria-pressed'), 'true');
+        assert.equal(await trigger.getAttribute('data-sort-current'), 'true');
         await page.waitForFunction(expected => document.querySelector('[data-jav-card] h3')?.textContent?.startsWith(expected),
           direction === 'asc' ? 'DEMO-778' : 'DEMO-777');
       }

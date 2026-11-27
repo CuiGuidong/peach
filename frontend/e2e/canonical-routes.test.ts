@@ -39,7 +39,7 @@ describe('规范路由与设置历史', () => {
           === document.querySelector('[aria-label="关注概览"]')), true, '页签切换保留页面宿主');
         await page.getByRole('tab', { name: '关注列表', exact: true }).click();
         await add.waitFor();
-        await page.getByRole('button', { name: '统计', exact: true }).click();
+        await page.getByRole('link', { name: '统计', exact: true }).click();
         await page.getByRole('link', { name: '添加关注', exact: true }).click();
         await page.getByRole('combobox', { name: '来源链接、名字或 id', exact: true }).waitFor();
         await page.goBack();

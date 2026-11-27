@@ -410,7 +410,7 @@ describe('首页筛选条', () => {
       const before = counts.items.length;
       const homeIds = await page.locator('#grid [data-media-card]').evaluateAll(nodes => nodes.map(node => node.getAttribute('data-id')));
       if (viewport.mobile) await page.locator('#filterBtn').click();
-      await page.locator('button[data-nav="jav"]:visible').first().click();
+      await page.locator('a[data-nav="jav"]:visible').first().click();
       await page.waitForFunction(() => location.pathname === '/' && new URLSearchParams(location.search).get('jav') === '1');
       await page.getByRole('tab', { name: '馆藏', exact: true, selected: true }).waitFor();
       await page.locator('#grid [data-media-card]').first().waitFor();
@@ -461,7 +461,7 @@ describe('首页筛选条', () => {
       await settle(page);
       const beforeHome = counts.items.length;
       if (viewport.mobile) await page.locator('#filterBtn').click();
-      await page.locator('button[data-nav=""]:visible').first().click();
+      await page.locator('a[data-nav=""]:visible').first().click();
       await page.waitForFunction(() => location.pathname === '/' && !new URLSearchParams(location.search).has('jav'));
       await page.locator(`${FILTER} input[name="home-layout"]`).first().waitFor({ state: 'attached' });
       await page.locator(READOUT, { hasText: '个符合' }).waitFor();

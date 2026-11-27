@@ -22,6 +22,10 @@
 /* 浮条出来时，作品详情那一层（`<dialog data-stage>`）的底部让出它的高度。开关是岛写在 `<body>` 上的
    属性，不用 `body:has(...)`：那种写法让每批插进页面的节点都把整棵 body 子树的样式重算一遍。 */
 body[data-batch-dock-open] :is(#grid,[data-stage]){padding-bottom:var(--selection-dock-space,180px)}
+/* 窄屏馆藏的页码也贴右，由反馈按钮的占位决定末行还能向上滚多少。 */
+@media(max-width:760px){
+  body[data-batch-dock-open] #grid{padding-bottom:max(var(--selection-dock-space,180px),var(--feedback-toast-floor,0px))}
+}
 
 /* 窄屏垃圾文件：三颗键一行等分、计数单占一行居中，横跨整行贴底。浮条的水平居中靠 SelectionDock 自己
    内联的 `translate(-50%)`，所以这里用「宽 = 视口减两边 12px」配 `left: 50%`，落点与贴边写法一样。 */
