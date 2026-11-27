@@ -311,9 +311,16 @@ class ReviewTests(unittest.TestCase):
                 changelog.require_review(self.root, self.document, "0.28.0")
 
     def test_finalizing_the_release_keeps_the_review_candidate(self):
-        with mock.patch.object(changelog.version_bump, "git", side_effect=['__version__ = "0.28.0"', "first"]) as git:
+        responses = ['__version__ = "0.28.0"', "CHANGELOG.md\nsrc/peach/__init__.py", "first"]
+        with mock.patch.object(changelog.version_bump, "git", side_effect=responses) as git:
             self.assertEqual(changelog.review_candidate(self.root, "0.28.0", "release"), "first")
         self.assertEqual(git.call_args.args, (self.root, "rev-parse", "release^^{commit}"))
+
+    def test_fix_after_finalizing_becomes_the_review_candidate(self):
+        responses = ['__version__ = "0.28.0"', ".github/workflows/release.yml", "fixed"]
+        with mock.patch.object(changelog.version_bump, "git", side_effect=responses) as git:
+            self.assertEqual(changelog.review_candidate(self.root, "0.28.0", "fixed"), "fixed")
+        self.assertEqual(git.call_args.args, (self.root, "rev-parse", "fixed^{commit}"))
 
 
 class NotesTests(unittest.TestCase):

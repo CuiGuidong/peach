@@ -294,7 +294,23 @@ jobs:
           cache-dependency-glob: uv.lock
       - name: 创建原生架构构建环境
         run: |
-          uv sync --locked --all-extras --python python
+          sync_args=(--locked --all-extras --python python)
+          if [[ "${{ matrix.arch }}" == "x86_64" ]]; then
+            # Intel 没有 cryptography 官方 wheel。静态链接避免 PyInstaller 合并 Python 与
+            # cryptography 各自使用的同名 OpenSSL dylib。
+            OPENSSL_DIR="$(brew --prefix openssl@3)"
+            export OPENSSL_DIR OPENSSL_STATIC=1
+            sync_args+=(--no-cache --no-binary-package cryptography)
+          fi
+          uv sync "${sync_args[@]}"
+          if [[ "${{ matrix.arch }}" == "x86_64" ]]; then
+            binding="$(.venv/bin/python -c 'from cryptography.hazmat.bindings import _rust; print(_rust.__file__)')"
+            dependencies="$(otool -L "$binding")"
+            if grep -Eq '/lib(ssl|crypto)(\.[0-9]+)*\.dylib' <<< "$dependencies"; then
+              echo "Intel cryptography 必须静态链接 OpenSSL" >&2
+              exit 1
+            fi
+          fi
           uv pip check --python .venv/bin/python
           npm ci --prefix frontend
       - name: 安装固定版本的媒体编译工具

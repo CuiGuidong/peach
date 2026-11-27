@@ -350,8 +350,12 @@ def review_candidate(root: Path, version: str, revision: str = "HEAD") -> str:
     if match is None:
         raise version_bump.VersionError(t("release_tag.noVersion"))
     committed = ".".join(match.group(index) for index in (2, 3, 4))
-    source = f"{revision}^" if committed == version else revision
-    return version_bump.git(root, "rev-parse", f"{source}^{{commit}}")
+    if committed == version:
+        parent = f"{revision}^"
+        changed = version_bump.git(root, "diff", "--name-only", parent, revision).splitlines()
+        if set(changed) == {version_bump.VERSION_FILE, CHANGELOG}:
+            revision = parent
+    return version_bump.git(root, "rev-parse", f"{revision}^{{commit}}")
 
 
 def review_key(document: str, version: str, candidate: str) -> dict:
