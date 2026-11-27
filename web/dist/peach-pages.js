@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "effb84f5-b020-4d90-8a39-8a91521cc337", e._sentryDebugIdIdentifier = "sentry-dbid-effb84f5-b020-4d90-8a39-8a91521cc337");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "bb7aa3d7-f6ee-4a1b-8f7d-31ac1a3dda37", e._sentryDebugIdIdentifier = "sentry-dbid-bb7aa3d7-f6ee-4a1b-8f7d-31ac1a3dda37");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t, n) => () => {
@@ -8139,7 +8139,7 @@ var We = "peach.settings.v1", Ge = {
 					title: "Search and organize your library with AI"
 				},
 				"file-management": {
-					body: "Open Browse files in the sidebar to search, select, and move files in full screen, or restore them from the file recycle bin",
+					body: "Open Browse files in the sidebar to search, select, and move files in full screen, or restore them from Trash",
 					title: "Browse and manage media files"
 				},
 				"in-app-feedback": {
@@ -60043,4 +60043,4 @@ Nt(), ZP();
 var $P = document.getElementById("peach-page"), eF = $P ? QP[$P.dataset.page ?? ""] : void 0;
 $P && eF && (0, Ht.createRoot)($P).render(/* @__PURE__ */ (0, G.jsx)(f3, { children: /* @__PURE__ */ (0, G.jsx)(eF, { data: { ...$P.dataset } }) }));
 
-//# debugId=effb84f5-b020-4d90-8a39-8a91521cc337
+//# debugId=bb7aa3d7-f6ee-4a1b-8f7d-31ac1a3dda37
