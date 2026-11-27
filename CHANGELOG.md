@@ -16,6 +16,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
+## [0.63.0] - 2026-11-27
+
 ### Added / 新增
 
 - **Library**: Connect your AI service for library search, translations, tag suggestions and reusable tasks, and choose which models appear and in what order (#393). / **馆藏**：连接自己的 AI 服务搜索馆藏、翻译标题和简介、复核文本或画面标签建议、运行自定义任务，并可选择和排序助手模型（#393）。
@@ -1353,7 +1355,8 @@ First Windows standalone test package. Earlier development (from 2026-08-14, inc
 - **Desktop**: The standalone package writes startup logs in UTF-8. / **桌面**：独立包使用 UTF-8 启动日志。
 - **Settings**: The redirect after first-time setup uses a freshly read mDNS name. / **配置**：首次设置后的跳转目标取新鲜读到的 mDNS 名。
 
-[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.62.0...HEAD
+[Unreleased]: https://github.com/peach-mitao/peach/compare/v0.63.0...HEAD
+[0.63.0]: https://github.com/peach-mitao/peach/compare/v0.62.0...v0.63.0
 [0.62.0]: https://github.com/peach-mitao/peach/compare/v0.61.0...v0.62.0
 [0.61.0]: https://github.com/peach-mitao/peach/compare/v0.60.0...v0.61.0
 [0.60.0]: https://github.com/peach-mitao/peach/compare/v0.59.0...v0.60.0
