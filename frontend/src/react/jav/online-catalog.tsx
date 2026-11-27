@@ -13,7 +13,7 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from 
 import { apiGet, errorMessage } from '../../api';
 import { relayoutCovers } from '../../card-art/framing';
 import { textLang } from '../../core/text-lang';
-import { JAV_RECOMMENDATION_GRID, onlineCatalogCardsHtml, onlineCatalogTagPlaceholdersHtml, onlineCatalogTiersHtml } from '../../jav-skeleton';
+import { JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID, javTagPlaceholdersHtml, onlineCatalogCardsHtml, onlineCatalogTiersHtml } from '../../jav-skeleton';
 import { catalogListSkeletonCellHtml } from '../../catalog-content-skeleton';
 import { entityDisplayName } from '../../core/entity-names';
 import { JavGlassSearch } from './jav-header';
@@ -407,7 +407,7 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
   const localOrder = sorting.sort !== 'release' || sorting.dir === 'asc';
   return <section aria-label={label} aria-busy={waiting} className="flex min-w-0 flex-col gap-4">
     {initialLoading ? <div className="contents" dangerouslySetInnerHTML={{ __html: onlineCatalogTiersHtml() }} />
-      : people.length || studios.length ? <div data-catalog-tiers="" className="-mx-4 -mb-4">
+      : people.length || studios.length ? <div data-catalog-tiers="" className={JAV_CATALOG_TIERS}>
       {people.length ? <div ref={peopleRef} data-catalog-tier="performers" role="group" aria-label={t('catalog:javReleases.filterByActress')}>
         {people.map(({ id, value, count }) => <PerformerFacet key={id} person={value} count={count}
           pressed={id === actress} onClick={() => choosePerson(value)} />)}
@@ -426,7 +426,7 @@ export function OnlineCatalog({ navigate, query: keyword = '' }: { navigate(path
         {scope.choices(t('catalog:javOnline.pageStatus'), ONLINE_STATUS.map(([key, label]) =>
           ({ key, label: t(label), attrs: { 'data-online-status': key } })), chooseStatus)}
         {initialLoading ? <div data-filter-tag-strip="" data-loading="" aria-hidden
-          dangerouslySetInnerHTML={{ __html: onlineCatalogTagPlaceholdersHtml() }} />
+          dangerouslySetInnerHTML={{ __html: javTagPlaceholdersHtml() }} />
           : <FilterTagStrip choices={tagChoices} onSelect={chooseTag} />}
       </div>} bottom={<>
         <span data-catalog-summary=""><span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden

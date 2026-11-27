@@ -3,7 +3,7 @@ import { cardClass } from './react/components/card';
 import { cardRatio, gridLayout, javLayout, JAV_LAYOUTS } from './appearance';
 import { DISCOVERY_SORTS, RELEASE_SORTS } from './react/jav/discovery-sorts';
 import { tierPlaceholdersHtml } from './catalog-filter-skeleton';
-import { FILTER_WAITING, catalogViewSkeletonHtml, facetFilterSkeletonFields, filterControlsSkeletonHtml, sortKeysSkeletonHtml } from './filter-controls-skeleton';
+import { FILTER_WAITING, facetFilterSkeletonFields, filterControlsSkeletonHtml, sortKeysSkeletonHtml } from './filter-controls-skeleton';
 import { listTableSkeletonHtml } from './catalog-content-skeleton';
 import { catalogView } from './react/catalog-grid/catalog-view';
 import { releaseTableSnapshot } from './react/jav/release-table-columns';
@@ -51,13 +51,16 @@ export function discoveryCardSkeleton(ratio: number | string,
   </div>`;
 }
 
+// 抵消 JAV 正文的两侧内边距和分区间距，让头像排与首页的筛选浮层对齐。
+export const JAV_CATALOG_TIERS = '-mx-4 -mb-4';
+
 export const onlineCatalogTiersHtml = () =>
-  `<div data-catalog-tiers="" data-loading="" class="-mx-4 -mb-4" aria-hidden="true">
+  `<div data-catalog-tiers="" data-loading="" class="${JAV_CATALOG_TIERS}" aria-hidden="true">
     <div data-catalog-tier="performers">${tierPlaceholdersHtml('performer')}</div>
     <div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div>
   </div>`;
 
-export const onlineCatalogTagPlaceholdersHtml = () =>
+export const javTagPlaceholdersHtml = () =>
   `<span data-catalog-placeholder="tag">${'<span></span>'.repeat(8)}</span>`;
 
 export function onlineCatalogCardsHtml(ratio: number): string {
@@ -86,7 +89,7 @@ function onlineCatalogPageSkeleton(): string {
         <div data-catalog-scroll><div data-catalog-views role="group" aria-label="${esc(t('catalog:javOnline.pageStatus'))}">
           ${ONLINE_STATUS.map(([key, label]) => `<button type="button" data-catalog-view="${key}" data-entity-tag="${key}" aria-pressed="${key === status}" ${FILTER_WAITING}>${esc(t(label))}</button>`).join('')}
           <span data-entity-sep="" aria-hidden="true"></span>
-        </div><div data-filter-tag-strip data-loading aria-hidden="true">${onlineCatalogTagPlaceholdersHtml()}</div></div>
+        </div><div data-filter-tag-strip data-loading aria-hidden="true">${javTagPlaceholdersHtml()}</div></div>
       </div>
       <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
         <span data-catalog-summary><span data-catalog-readout><span data-skeleton="count" class="skeleton-sheen inline-block h-3.5 w-28 rounded-md"></span></span></span>
@@ -117,14 +120,14 @@ export function releasesFilterSkeleton(): string {
   const dir: 'asc' | 'desc' = params.get('dir') === 'asc' ? 'asc' : 'desc';
   const sorts = RELEASE_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel, pressed: key === sort,
     dir: key === sort ? dir : '' as const }));
-  return `<div data-catalog-tiers="" aria-busy="true"><div data-catalog-tier="performers" data-skeleton="tiers">${tierPlaceholdersHtml('performer')}</div><div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div></div>
+  return `<div data-catalog-tiers="" class="${JAV_CATALOG_TIERS}" aria-busy="true"><div data-catalog-tier="performers" data-skeleton="tiers">${tierPlaceholdersHtml('performer')}</div><div data-catalog-tier="studios">${tierPlaceholdersHtml('studio')}</div></div>
   <div data-filter-glass data-glass-pane data-filter-frame data-jav-filter data-catalog-frame class="sticky top-topbar z-10 mb-5.5 flex flex-col">
     <div data-filter-row="top" class="flex h-12 min-w-0 items-center overscroll-x-contain px-3 py-2 gap-1.5 overflow-visible">
-      <div data-catalog-scroll>${catalogViewSkeletonHtml()}</div>
+      <div data-catalog-scroll><div data-filter-tag-strip data-loading aria-hidden="true">${javTagPlaceholdersHtml()}</div></div>
     </div>
     <div data-filter-row="bottom" aria-busy="true" class="flex min-h-12 min-w-0 items-center gap-3 px-3 py-2">
       <span data-catalog-readout><span data-skeleton="count" class="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen"></span></span>
-      ${filterControlsSkeletonHtml(sorts, { name: 'jav-layout', label: t('catalog:entityFilter.javCardLayout'), value: javLayout(), options: JAV_LAYOUTS }, { folders: false, views: false, fields: facetFilterSkeletonFields('jav-release'), group: 'releases' })}
+      ${filterControlsSkeletonHtml(sorts, { name: 'jav-layout', label: t('catalog:entityFilter.javCardLayout'), value: javLayout(), options: JAV_LAYOUTS }, { folders: false, fields: facetFilterSkeletonFields('jav-release'), group: 'releases' })}
     </div>
   </div>`;
 }
