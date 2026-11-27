@@ -1921,6 +1921,13 @@
     "activeLock": "The worktree is locked by an active task",
     "notMerged": "Branch not merged into {{branch}}",
     "uncommittedChanges": "The working tree has uncommitted changes",
+    "worktreeStatusUnknown": "Could not verify worktree status ({{reason}})",
+    "worktreeLocationMismatch": "Git reported a different checkout or repository",
+    "pruneBusy": "Another worktree cleanup is running",
+    "pruneBranchNotUnique": "Branch {{branch}} must identify exactly one registered worktree",
+    "pruneCurrentWorktree": "Switch to another checkout before cleaning up this worktree",
+    "pruneLinkedArchive": "The build or archive path points outside its expected directory",
+    "helpPruneBranch": "Only check the worktree on this branch and archive its session files when applying",
     "helpCiRun": "Reuse a trusted GitHub Test run of the same commit",
     "helpApply": "Actually reclaim; without this flag it only reports",
     "helpProcesses": "List processes still alive under the two worktree roots; report only, do not stop them"

@@ -41,14 +41,12 @@ IDLE_DAYS = 7
 #: 不挡回收。2026-11-12 实测单个工作树里它能到 2–5 GB。
 TEST_OUTPUT = Path("build") / "agent-verification"
 
-#: 闲置工作树里能随时重装的依赖。`.venv` 不在这里：uv 把它硬链接到缓存，删了不省空间。
-REBUILDABLE = (Path("frontend") / "node_modules",)
-
 #: 回收闲置工作树时，`build/` 里会话留下的过程文件移到这里，不删。
 BUILD_ARCHIVE = Path("attic") / "evidence" / "worktree-build"
 
 #: `create` 顺带回收的间隔，记在 git common dir 里。
 PRUNE_STAMP = "peach-prune-stamp"
+PRUNE_LOCK = "peach-prune.lock"
 PRUNE_INTERVAL_SECONDS = 24 * 3600
 
 
@@ -163,13 +161,13 @@ def _scheduled_prune(main: Path) -> dict[str, object] | None:
     common = Path(_git(main, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip())
     stamp = common / PRUNE_STAMP
     try:
-        if time.time() - stamp.stat().st_mtime < PRUNE_INTERVAL_SECONDS:
-            return None
-    except OSError:
-        pass
-    stamp.touch()
-    try:
-        report = prune(main, apply=True)
+        with test_evidence.held(common / PRUNE_LOCK, scope="prune", root=str(main)):
+            if stamp.exists() and time.time() - stamp.stat().st_mtime < PRUNE_INTERVAL_SECONDS:
+                return None
+            report = _prune(main, main.resolve(), common, "master", apply=True)
+            stamp.touch()
+    except test_evidence.Timeout:
+        return None
     except Exception as error:  # noqa: BLE001 — 回收失败不挡开工，原样报出来
         return {"ok": False, "error": str(error)}
     return {key: len(value) for key, value in report.items() if isinstance(value, list)}
@@ -751,7 +749,17 @@ def _reflog_time(log: Path) -> float | None:
         return None
 
 
-def _idle(path: Path) -> bool:
+def _worktree_status(path: Path, common: Path) -> tuple[Path, list[str]]:
+    location = _lines(_git(path, "rev-parse", "--path-format=absolute",
+                           "--show-toplevel", "--git-dir", "--git-common-dir"))
+    if len(location) != 3 or Path(location[0]).resolve() != path.resolve() or \
+            Path(location[2]).resolve() != common.resolve():
+        raise WorkspaceError(t("agent_worktree.worktreeLocationMismatch"))
+    changes = _lines(_git(path, "status", "--porcelain", "--untracked-files=all"))
+    return Path(location[1]), changes
+
+
+def _idle(path: Path, admin: Path, changes: list[str]) -> bool:
     """最近 `IDLE_DAYS` 天里没有提交、切换分支、改动文件，也没往 `build/` 写东西。
 
     不看 index 的 mtime：`git status` 会顺手刷新 index，一次只读检查就能把它刷成今天。
@@ -762,8 +770,7 @@ def _idle(path: Path) -> bool:
     清空那一刻。
     """
     stamps: list[float] = []
-    admin = _git(path, "rev-parse", "--path-format=absolute", "--git-dir", check=False).stdout.strip()
-    moved = _reflog_time(Path(admin) / "logs" / "HEAD") if admin else None
+    moved = _reflog_time(admin / "logs" / "HEAD")
     if moved is None:
         committed = _git(path, "log", "-1", "--format=%ct", "HEAD", check=False).stdout.strip()
         moved = float(committed) if committed.isdigit() else None
@@ -772,7 +779,7 @@ def _idle(path: Path) -> bool:
     candidates: list[Path] = []
     if (path / "build").is_dir():
         candidates.extend(child for child in (path / "build").rglob("*") if child.is_file())
-    for line in _lines(_git(path, "status", "--porcelain", "--untracked-files=all", check=False)):
+    for line in changes:
         candidates.append(path / line[3:].strip('"'))
     for candidate in candidates:
         try:
@@ -793,24 +800,53 @@ def _holders(path: Path) -> str:
     return ""
 
 
-def _slim(path: Path) -> list[str]:
-    """闲置又没进程在用的工作树，删掉能重装的依赖；返回删掉的目录。"""
-    removed = []
-    for relative in REBUILDABLE:
-        target = path / relative
-        if target.is_dir() and not _delete_tree(target):
-            removed.append(str(target))
-    return removed
+def _rebuildable_dependencies(path: Path) -> list[Path]:
+    """找到工作树内可重装的 npm 依赖，保留指向其他目录的安装链接。"""
+    root = path / "node_modules"
+    candidates = [path / "frontend" / "node_modules"]
+    if all(file.is_file() for file in (path / "package.json", path / "package-lock.json",
+                                       root / ".package-lock.json")):
+        candidates.append(root)
+    resolved = path.resolve()
+    present = {target.relative_to(path).as_posix(): target for target in candidates if target.is_dir() and
+               not target.is_symlink() and not target.is_junction() and
+               target.resolve() == resolved / target.relative_to(path)}
+    if not present:
+        return []
+    tracked = _git(path, "ls-files", "-z", "--", *present).stdout.split("\0")
+    return [target for relative, target in present.items() if
+            not any(file == relative or file.startswith(relative + "/") for file in tracked)]
+
+
+def _slim_dependencies(path: Path, branch: str, *, apply: bool,
+                       slimmed: list[str], failed: list[dict[str, str]]) -> None:
+    try:
+        dependencies = _rebuildable_dependencies(path)
+    except WorkspaceError as error:
+        failed.append({"path": str(path), "branch": branch,
+                       "why": t("agent_worktree.worktreeStatusUnknown", reason=str(error))})
+        return
+    if not dependencies or _holders(path):
+        return
+    for target in dependencies:
+        error = _delete_tree(target) if apply else ""
+        if error:
+            failed.append({"path": str(target), "branch": branch, "why": error})
+        else:
+            slimmed.append(str(target))
 
 
 def _archive_build(main: Path, path: Path) -> str:
     """把会话的过程文件整体移到 attic，返回落点；测试入口的产物随工作树删掉。"""
     build = path / "build"
-    destination = main.parent / BUILD_ARCHIVE / path.name
+    archive_root = main.parent / BUILD_ARCHIVE
+    if build.is_symlink() or build.is_junction() or archive_root.resolve() != main.parent.resolve() / BUILD_ARCHIVE:
+        raise WorkspaceError(t("agent_worktree.pruneLinkedArchive"))
+    destination = archive_root / path.name
     suffix = 1
-    while destination.exists():
+    while destination.exists() or destination.is_symlink():
         suffix += 1
-        destination = main.parent / BUILD_ARCHIVE / f"{path.name}-{suffix}"
+        destination = archive_root / f"{path.name}-{suffix}"
     for child in list(build.iterdir()):
         if child == path / TEST_OUTPUT:
             continue
@@ -819,7 +855,7 @@ def _archive_build(main: Path, path: Path) -> str:
     return str(destination)
 
 
-def _in_use(path: Path, *, idle: bool = False) -> str:
+def _in_use(path: Path, *, may_archive: bool = False) -> str:
     """还在用的工作树不回收：返回保留的理由，空串表示可以回收。
 
     分支已合入、工作区干净，不等于没人在用。2026-10-24 一次 `prune --apply` 回收了一个
@@ -828,9 +864,9 @@ def _in_use(path: Path, *, idle: bool = False) -> str:
     一起删了，没有备份。所以 `build/` 里有会话文件、或者还有进程在里面（会话、终端、预览
     服务），一律留着报出来。判断不了有没有进程时也留着：删错了没法撤回。
 
-    闲置满 `IDLE_DAYS` 天的例外：会话文件由 `_archive_build` 移进 attic 后再回收。
+    闲置满 `IDLE_DAYS` 天或明确收尾的工作树先归档会话文件，仍需核对进程占用。
     """
-    if not idle and _session_files(path):
+    if not may_archive and _session_files(path):
         return t("agent_worktree.sessionFiles")
     return _holders(path)
 
@@ -905,7 +941,18 @@ def _sweep_unregistered(main: Path, here: Path, *, apply: bool
 
 
 def prune(repo: Path, target_branch: str = "master", *,
-          apply: bool = False) -> dict[str, object]:
+          apply: bool = False, worker_branch: str | None = None) -> dict[str, object]:
+    main = _main_worktree(repo)
+    common = Path(_git(main, "rev-parse", "--path-format=absolute", "--git-common-dir").stdout.strip())
+    try:
+        with test_evidence.held(common / PRUNE_LOCK, scope="prune", root=str(main)) if apply else nullcontext():
+            return _prune(main, repo.resolve(), common, target_branch, apply=apply, worker_branch=worker_branch)
+    except test_evidence.Timeout as error:
+        raise WorkspaceError(t("agent_worktree.pruneBusy")) from error
+
+
+def _prune(main: Path, here: Path, common: Path, target_branch: str, *, apply: bool,
+           worker_branch: str | None = None) -> dict[str, object]:
     """回收分支已并入 target、且工作区干净的隔离工作树。
 
     这个命令存在的理由：`create` 一直有人用，回收却从来没有入口。2026-08-29 清过一次
@@ -919,12 +966,17 @@ def prune(repo: Path, target_branch: str = "master", *,
     dirty / kept 六组，整轮照样 ok。理由见 `_reclaim`。`swept` 是两个工作树落点里
     已经不登记的空目录，见 `_sweep_unregistered`。
     """
-    main = _main_worktree(repo)
+    entries = _worktree_entries(main)
+    if worker_branch is not None:
+        entries = [item for item in entries if item.get("branch") == worker_branch]
+        if len(entries) != 1:
+            raise WorkspaceError(t("agent_worktree.pruneBranchNotUnique", branch=worker_branch))
+        if Path(entries[0]["path"]).resolve() in {main.resolve(), here}:
+            raise WorkspaceError(t("agent_worktree.pruneCurrentWorktree"))
     merged = {line.strip().lstrip("+* ") for line in
               _lines(_git(main, "branch", "--merged", target_branch,
                           "--format=%(refname:short)"))}
     merged.discard(target_branch)
-    here = repo.resolve()
 
     reclaimed: list[str] = []
     residue: list[dict[str, str]] = []
@@ -937,12 +989,10 @@ def prune(repo: Path, target_branch: str = "master", *,
 
     def keep(group: list, path: Path, branch: str, why: str, idle: bool) -> None:
         group.append({"path": str(path), "branch": branch, "why": why})
-        # 留下来的闲置工作树也不该整份占着：依赖能重装，删掉不丢任何东西。
-        if idle and not _holders(path):
-            slimmed.extend(_slim(path) if apply else
-                           [str(path / rel) for rel in REBUILDABLE if (path / rel).is_dir()])
+        if idle:
+            _slim_dependencies(path, branch, apply=apply, slimmed=slimmed, failed=failed)
 
-    for item in _worktree_entries(main):
+    for item in entries:
         path = Path(item["path"])
         branch = item.get("branch", "")
         if path.resolve() == main.resolve() or path.resolve() == here:
@@ -952,28 +1002,37 @@ def prune(repo: Path, target_branch: str = "master", *,
         if lock and not expired:
             kept.append({"path": str(path), "branch": branch, "why": t("agent_worktree.manualLock")})
             continue
-        idle = path.is_dir() and _idle(path)
+        try:
+            admin, changes = _worktree_status(path, common)
+        except WorkspaceError as error:
+            failed.append({"path": str(path), "branch": branch,
+                           "why": t("agent_worktree.worktreeStatusUnknown", reason=str(error))})
+            continue
+        idle = _idle(path, admin, changes)
         if lock and not idle:
             kept.append({"path": str(path), "branch": branch, "why": t("agent_worktree.activeLock")})
             continue
         if branch not in merged:
             keep(kept, path, branch, t("agent_worktree.notMerged", branch=target_branch), idle)
             continue
-        if _git(main, "-C", str(path), "status", "--porcelain",
-                check=False).stdout.strip():
+        if changes:
             keep(dirty, path, branch, t("agent_worktree.uncommittedChanges"), idle)
             continue
-        busy = _in_use(path, idle=idle)
+        busy = _in_use(path, may_archive=idle or worker_branch is not None)
         if busy:
             kept.append({"path": str(path), "branch": branch, "why": busy})
             continue
         if not apply:
             reclaimed.append(str(path))
             continue
+        if _session_files(path):
+            try:
+                archived.append({"path": str(path), "to": _archive_build(main, path)})
+            except (OSError, WorkspaceError) as error:
+                failed.append({"path": str(path), "branch": branch, "why": str(error)})
+                continue
         if lock:
             _git(main, "worktree", "unlock", str(path), check=False)
-        if _session_files(path):
-            archived.append({"path": str(path), "to": _archive_build(main, path)})
         group, record = _reclaim(main, path, branch)
         if group == "reclaimed":
             reclaimed.append(str(path))
@@ -982,7 +1041,9 @@ def prune(repo: Path, target_branch: str = "master", *,
         else:
             failed.append(record)
 
-    swept, swept_residue, swept_kept = _sweep_unregistered(main, here, apply=apply)
+    swept, swept_residue, swept_kept = [], [], []
+    if worker_branch is None:
+        swept, swept_residue, swept_kept = _sweep_unregistered(main, here, apply=apply)
 
     return {
         "ok": True,
@@ -1017,6 +1078,7 @@ def main() -> int:
     merge.add_argument("--target", default="master")
     sweep = sub.add_parser("prune")
     sweep.add_argument("--target", default="master")
+    sweep.add_argument("--branch", help=t("agent_worktree.helpPruneBranch"))
     sweep.add_argument("--apply", action="store_true",
                        help=t("agent_worktree.helpApply"))
     sub.add_parser("processes", help=t("agent_worktree.helpProcesses"))
@@ -1029,7 +1091,7 @@ def main() -> int:
         elif args.command == "ready":
             result = ready(args.repo, args.target, ci_run=args.ci_run)
         elif args.command == "prune":
-            result = prune(args.repo, args.target, apply=args.apply)
+            result = prune(args.repo, args.target, apply=args.apply, worker_branch=args.branch)
         elif args.command == "processes":
             result = processes(args.repo)
         else:

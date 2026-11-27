@@ -918,6 +918,55 @@ class PruneTests(_WorktreeCase):
                          _git(self.repo, "branch", "--list", "agent/codex/reclaimable").stdout,
                          "已并入的分支也应一并删掉")
 
+    def test_branch_closeout_archives_session_files_and_leaves_other_worktrees(self):
+        worker = self._integrated("closeout")
+        other = self._integrated("another")
+        report_file = worker / "build" / "report.md"
+        report_file.parent.mkdir()
+        report_file.write_text("复盘报告\n", encoding="utf-8")
+        args = ["agent_worktree.py", "--repo", str(self.repo), "prune",
+                "--branch", "agent/codex/closeout", "--apply"]
+        output = io.StringIO()
+        with mock.patch.object(sys, "argv", args), redirect_stdout(output):
+            self.assertEqual(agent_worktree.main(), 0)
+        report = json.loads(output.getvalue())
+        self.assertEqual(report["reclaimed"], [str(worker)])
+        self.assertFalse(worker.exists())
+        self.assertTrue(other.is_dir())
+        archive = Path(report["archived"][0]["to"])
+        self.assertEqual((archive / report_file.name).read_text(encoding="utf-8"), "复盘报告\n")
+
+    def test_git_status_failure_keeps_the_worktree_and_its_session_files(self):
+        worker = self._integrated("status-failed")
+        report_file = worker / "build" / "report.md"
+        report_file.parent.mkdir()
+        report_file.touch()
+        git = agent_worktree._git
+
+        def fail_status(repo, *args, **kwargs):
+            if repo == worker and args[:1] == ("status",):
+                return_code = subprocess.CompletedProcess(args, 128, "", "index is unreadable")
+                if kwargs.get("check", True):
+                    raise WorkspaceError(return_code.stderr)
+                return return_code
+            return git(repo, *args, **kwargs)
+
+        with mock.patch.object(agent_worktree, "_git", side_effect=fail_status):
+            report = prune(self.repo, apply=True, worker_branch="agent/codex/status-failed")
+        self.assertEqual(report["reclaimed"], [])
+        self.assertEqual(report["archived"], [])
+        self.assertEqual([row["path"] for row in report["failed"]], [str(worker)])
+        self.assertIn("index is unreadable", report["failed"][0]["why"])
+        self.assertTrue(report_file.is_file())
+
+    def test_worktree_missing_its_git_pointer_is_reported_as_unverified(self):
+        worker = self._integrated("missing-git-pointer")
+        (worker / ".git").unlink()
+        report = prune(self.repo)
+        self.assertEqual(report["reclaimed"], [])
+        self.assertEqual([row["path"] for row in report["failed"]], [str(worker)])
+        self.assertTrue(worker.is_dir())
+
     def test_a_worktree_with_files_under_build_is_kept_even_when_clean_and_merged(self):
         """`build/` 被 Git 忽略，`status` 看不见它；里面却是会话的日志、报告和派单，删了没有备份。"""
         (self.repo / ".git" / "info").mkdir(exist_ok=True)
@@ -933,14 +982,19 @@ class PruneTests(_WorktreeCase):
     def test_a_worktree_a_process_is_working_in_is_kept(self):
         """会话、终端或预览服务还开在里面的工作树不回收：分支合入了，人还在用。"""
         worker = self._integrated("in-use")
+        report_file = worker / "build" / "session.txt"
+        report_file.parent.mkdir()
+        report_file.touch()
         process = subprocess.Popen([sys.executable, "-c", "import sys; sys.stdin.read()"],
                                    cwd=worker, stdin=subprocess.PIPE)
         try:
-            report = prune(self.repo, apply=True)
+            report = prune(self.repo, apply=True, worker_branch="agent/codex/in-use")
             pids = process_tree_ids(process)
         finally:
             process.communicate(timeout=15)
         self.assertTrue(worker.is_dir())
+        self.assertTrue(report_file.is_file())
+        self.assertEqual(report["archived"], [])
         why = next(row["why"] for row in report["kept"] if row["path"] == str(worker))
         self.assertTrue(any(f"PID {pid}" in why for pid in pids), why)
 
@@ -1150,11 +1204,41 @@ class IdleWorktreeTests(_WorktreeCase):
         modules = worker / "frontend" / "node_modules" / "left-pad"
         modules.mkdir(parents=True)
         (modules / "index.js").write_text("module.exports = 1\n", encoding="utf-8")
+        root_modules = worker / "node_modules"
+        root_modules.mkdir()
+        for manifest in (worker / "package.json", worker / "package-lock.json", root_modules / ".package-lock.json"):
+            manifest.write_text("{}", encoding="utf-8")
         self._age(worker)
         report = prune(self.repo, apply=True)
         self.assertTrue((worker / "worker.txt").is_file())
         self.assertFalse((worker / "frontend" / "node_modules").exists())
-        self.assertEqual(report["slimmed"], [str(worker / "frontend" / "node_modules")])
+        self.assertFalse(root_modules.exists())
+        self.assertEqual(report["slimmed"], [str(worker / "frontend" / "node_modules"), str(root_modules)])
+
+    def test_an_idle_worktree_keeps_root_dependencies_without_install_evidence(self):
+        worker = self._created("custom-root-deps")
+        local_modules = worker / "node_modules"
+        local_modules.mkdir()
+        (local_modules / "manual.txt").touch()
+        self._age(worker)
+        report = prune(self.repo, apply=True)
+        self.assertEqual(report["slimmed"], [])
+        self.assertTrue((local_modules / "manual.txt").is_file())
+
+    def test_an_idle_worktree_keeps_tracked_files_in_an_npm_directory(self):
+        worker = self._created("tracked-root-deps")
+        modules = worker / "node_modules"
+        modules.mkdir()
+        for manifest in (worker / "package.json", worker / "package-lock.json", modules / ".package-lock.json"):
+            manifest.write_text("{}", encoding="utf-8")
+        tracked = modules / "manual.txt"
+        tracked.touch()
+        _git(worker, "add", tracked.relative_to(worker).as_posix())
+        _git(worker, "commit", "-m", "keep local file")
+        self._age(worker)
+        report = prune(self.repo, apply=True)
+        self.assertEqual(report["slimmed"], [])
+        self.assertTrue(tracked.is_file())
 
     def test_create_prunes_at_most_once_a_day(self):
         abandoned = self._created("first")
@@ -1164,6 +1248,19 @@ class IdleWorktreeTests(_WorktreeCase):
         self.assertEqual(second["pruned"]["reclaimed"], 1)
         self.assertFalse(abandoned.exists())
         self.assertIsNone(create(self.repo, "Codex", "third", self.root / "worktrees")["pruned"])
+
+    def test_failed_daily_prune_does_not_consume_the_next_attempt(self):
+        abandoned = self._created("retry")
+        self._age(abandoned)
+        stamp = self.repo / ".git" / agent_worktree.PRUNE_STAMP
+        stamp.unlink()
+        with mock.patch.object(agent_worktree, "_prune", side_effect=RuntimeError("interrupted")):
+            second = create(self.repo, "Codex", "before-retry", self.root / "worktrees")
+        self.assertFalse(second["pruned"]["ok"])
+        self.assertFalse(stamp.exists())
+        third = create(self.repo, "Codex", "after-retry", self.root / "worktrees")
+        self.assertEqual(third["pruned"]["reclaimed"], 1)
+        self.assertTrue(stamp.is_file())
 
 
 class UnregisteredLeftoverTests(_WorktreeCase):
