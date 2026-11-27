@@ -1,6 +1,7 @@
 /* 资源查找弹层：JAV、想要与高清版目标共用搜索、作品资料和下载提交。
  * 下载配置在弹层打开时读取；已提交的任务在活动页查看。 */
 import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { ImageWithFallback } from '../components/image-with-fallback';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Heading } from 'react-aria-components';
 import { RiCloseLine } from '@remixicon/react';
@@ -122,7 +123,7 @@ function SubmitForm({ header, snapshot, prefill, close, receipt, provider: prefe
       {header}
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto p-5">
         {work?.code || metadataNotice ? <div className="flex min-w-0 items-start gap-4" data-resource-work="">
-          {work?.cover ? <img src={work.cover} alt="" referrerPolicy="no-referrer" onError={event => event.currentTarget.remove()}
+          {work?.cover ? <ImageWithFallback src={work.cover} alt="" referrerPolicy="no-referrer"
             className="w-card-cover shrink-0 rounded-2lg" /> : null}
           <div className="flex min-w-0 flex-col gap-2">
             <p className="break-words text-body-medium text-text-primary">{work ? [work.code, work.title].filter(Boolean).join(' · ') : metadataNotice}</p>

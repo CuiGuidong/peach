@@ -97,6 +97,8 @@ JAV 新作的 `code` 独立匹配番号，`column_filters.taste.range` 按 0–1
 
 在线目录的 `code` 筛选当前页的番号。`status=released` 或 `status=preOrder` 筛选当前页的已发行或预购作品。`column_filters` 保存当前页的发行日期范围和时长范围。起止日期相同则通过 `date` 查询 DMM 的单日目录。
 
+在线目录的列表使用 `tableLayouts.jav-online` 保存列宽、列顺序和列可见性。艺人、厂牌、标签、发行日期、时长和番号的表头筛选与页面上方的筛选控件共用当前条件。
+
 ## 播放上下文
 
 | 地址示例 | 上下文 |

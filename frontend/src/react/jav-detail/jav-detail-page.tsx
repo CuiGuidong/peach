@@ -102,7 +102,7 @@ function Work({ code, item, actions, readOnly, retry, retrying }: JavDetailProps
       {item.message ? <Note tone="neutral" action={<Button variant="secondary" {...busyProps(retrying)} onClick={retry}>{t('catalog:shared.retryNow')}</Button>}>{item.message}</Note> : null}
       <div data-jav-actions="">
         {item.source_url ? <ButtonLink data-button-link="" variant="secondary" trailingIcon={RiExternalLinkLine}
-          href={item.source_url} target="_blank" rel="noopener noreferrer">{t('catalog:shared.viewOnSite')}</ButtonLink> : null}
+          href={item.source_url} target="_blank" rel="noopener noreferrer"><span data-external-link-label="">{t('catalog:shared.viewOnSite')}</span></ButtonLink> : null}
         <Button variant="secondary" disabled={readOnly} aria-pressed={!!wantId} {...busyProps(!!want.busy)} onClick={toggleWant}>{wantId ? t('catalog:javWant.remove') : t('catalog:javWant.want')}</Button>
         <Button variant="primary" onClick={() => setDownload({ code: item.code, title: item.title, performers: item.performers,
           studio: item.studio, release_date: item.release_date, origin: `jav:${item.code}` })}>{t('catalog:shared.searchTorrents')}</Button>

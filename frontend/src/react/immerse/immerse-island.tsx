@@ -19,10 +19,12 @@
  * 的全局规则，样式全在 `immerse.css`，不用工具类。 */
 import { useLayoutEffect, useRef, useSyncExternalStore, type MouseEvent, type PointerEvent } from 'react';
 import { flushSync } from 'react-dom';
+import { UNSAFE_PortalProvider } from 'react-aria';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { avatarInner, representativeOf } from '@peach/card-art';
 import { fmtDur, realDuration } from '@peach/legacy/core';
+import { CastPopover } from '../components/cast-popover';
 
 import { apiSend } from '../../api';
 import {
@@ -32,7 +34,7 @@ import {
 } from '../../player';
 import { replaceCatalogItem } from '../catalog-grid/catalog-grid';
 import {
-  FEEDBACK_URL, feedbackReceipt, fetchItem, ItemGone, itemKey, type DetailItem,
+  FEEDBACK_URL, feedbackReceipt, fetchItem, identityGroups, ItemGone, itemKey, type DetailItem,
 } from '../item-detail/item-detail';
 import { queryClient } from '../query';
 import {
@@ -577,6 +579,7 @@ function onTouchCancel(): void {
 }
 
 function onWheel(event: WheelEvent): void {
+  if ((event.target as Element).closest('[data-immerse-overlays]')) return;
   const now = Date.now();
   if (now - lastWheel < WHEEL_GAP_MS) return;
   lastWheel = now;
@@ -767,6 +770,7 @@ function Caption({ shown }: { shown: Shown | null }) {
   const item = shown?.item ?? null;
   const full = useDetail(item?.id ?? null);
   const owner = full ? ownerOf(full) : null;
+  const cast = full ? identityGroups(full).cast : [];
   const helpers = immerseHost();
   /* 点作者或头像：先关掉，再进第一位出镜者（没有就是创作者）的资料页。 */
   const openOwner = (event: MouseEvent) => {
@@ -790,8 +794,12 @@ function Caption({ shown }: { shown: Shown | null }) {
       <div data-immerse-author="">
         <button type="button" data-immerse-avatar="" aria-label={t('catalog:immerse.openOwner')} onClick={openOwner}
           dangerouslySetInnerHTML={{ __html: avatar }} />
-        <a href="#" onClick={openOwner}>{owner?.who ?? ''}</a>
-        <span>{shown && item ? `· ${fmtDur(item.duration)} · ${orientLabel(item.ctx_orient)} · ${shown.index + 1}/${shown.length}` : ''}</span>
+        {owner ? <button type="button" data-immerse-owner="" data-inline-action="" onClick={openOwner}>
+          <span>{owner.who}</span>
+        </button> : null}
+        {cast.length > 1 ? <span className="peach-react" data-immerse-cast=""><CastPopover people={cast} subscribe={full?.is_jav}
+          onOpenPerson={person => { close(); helpers.openEntity('performer', person.name) }} /></span> : null}
+        <span data-immerse-meta="">{shown && item ? `· ${fmtDur(item.duration)} · ${orientLabel(item.ctx_orient)} · ${shown.index + 1}/${shown.length}` : ''}</span>
       </div>
       <button type="button" data-immerse-title="" onClick={openTitle}>{item ? helpers.displayName(item).trim() || t('catalog:immerse.untitled') : ''}</button>
     </div>
@@ -810,6 +818,7 @@ function ImmerseView({ view: at }: { view: View }) {
   const progress = useRef<HTMLElement>(null);
   const holdHint = useRef<HTMLSpanElement>(null);
   const subtitleMenu = useRef<HTMLDivElement>(null);
+  const overlays = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
     const el = frame.current!;
     dom = { root: el, track: track.current!, bar: bar.current!, progress: progress.current!, hold: holdHint.current! };
@@ -878,8 +887,11 @@ function ImmerseView({ view: at }: { view: View }) {
           onPointerUp={scrubEnd} onPointerCancel={scrubCancel} onPointerLeave={scrubLeave}>
           <i ref={progress} />
         </div>
-        <Caption shown={at.shown} />
+        <UNSAFE_PortalProvider getContainer={() => overlays.current}>
+          <Caption key={id} shown={at.shown} />
+        </UNSAFE_PortalProvider>
       </div>
+      <div ref={overlays} className="peach-react" data-immerse-overlays="" />
     </div>
   );
 }
@@ -896,8 +908,9 @@ const api: ImmerseApi = {
 function onKeyDown(event: KeyboardEvent): void {
   if (!view.open) return;
   // 输入态不抢键：搜索框、标签弹窗和任何可编辑区域里的按键归它们自己处理。
-  const target = event.target as HTMLElement | null;
-  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+  const target = event.target;
+  if (target instanceof HTMLElement && (target.isContentEditable
+    || target.closest('input, textarea, [data-immerse-cast], [data-immerse-overlays]'))) return;
   if (event.ctrlKey || event.metaKey || event.altKey) return;
   // 纵向切片，和竖屏短视频的手势方向保持一致。
   if (event.key === 'ArrowDown') void step(1);

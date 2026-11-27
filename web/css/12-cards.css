@@ -287,9 +287,9 @@ body[data-density="dense"] .card:not(.feednewcard) .meta .size{flex:none;white-s
 [data-feed-selection] [data-media-check]{pointer-events:none}
 [data-feed-selection][data-rectangle-select] .feednewcard.isread{opacity:1}
 [data-feed-selection][data-rectangle-select] .feednewcard.isread>:is(.pic,.meta){opacity:.55}
-/* 通向作品页的点击区，铺满整张卡，是一条外链。
-   资产卡的 `.pic` 与 `.meta` 压在点击区上面（z-index 2），那边的点击由卡片自己的脚本
-   接；这张卡只有这条外链，所以两块放行指针，落到下面的链接上，悬浮键自己再收回来。 */
+/* 作品链接铺满卡片；头像、署名和各自的操作键接收自己的点击。 */
+body .feednewcard:has(.meta :is(a[href],button):is(:hover,:focus-visible)){background:transparent;box-shadow:none}
+body .feednewcard:has(.meta :is(a[href],button):hover) .pic{filter:none}
 .feednewopen{position:absolute;inset:0;z-index:1;border-radius:inherit}
 .feednewcard>.pic,.feednewcard>.meta{pointer-events:none}
 /* 头像不论认没认出都收回指针：叠放头像的抬起与让位靠 `:hover`，没认出的那枚放行了指针就抬不起来，
@@ -323,7 +323,10 @@ body[data-density="dense"] .card:not(.feednewcard) .meta .size{flex:none;white-s
 .feednewcard .meta .s{display:grid;grid-auto-rows:minmax(1.35em,auto);gap:2px;
   line-height:1.35;white-space:nowrap;min-height:calc(2lh + 2px)}
 .feednewcard .meta .s>span{min-width:0}
-.feednewcard .meta .s>.feednewperformers{overflow:hidden;text-overflow:ellipsis}
+.feednewcredits{display:flex;align-items:center;gap:4px}
+.feednewcredits>[data-feed-performer-credit]{min-width:0}
+.feednewcredits :is(a[data-media-who],[data-cast-trigger]){pointer-events:auto}
+.feednewcredits>[data-cast-trigger]{position:relative;z-index:2}
 /* 占位卡直接套真卡的 `.t` 与 `.s`：标题块是两行 2.7em，下面那行放一个零宽字符，行高
    跟真卡那行字同一套规则，到货那一下整行不跳。 */
 .feednewskeleton{pointer-events:none}

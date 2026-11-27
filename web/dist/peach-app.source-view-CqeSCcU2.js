@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "3377c241-5ffa-4791-9251-cd612331ee1e", e._sentryDebugIdIdentifier = "sentry-dbid-3377c241-5ffa-4791-9251-cd612331ee1e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "05036c62-90ee-46ba-b917-e3fc96e7de84", e._sentryDebugIdIdentifier = "sentry-dbid-05036c62-90ee-46ba-b917-e3fc96e7de84");
 	} catch {}
 })();
 import { Button as e, Chip as t, ColumnFilterAvatar as n, MarkImage as r, Wt as i, __toESM as a, authorAvatar as o, authorInitial as s, authorPortrait as c, errorHeadline as l, isBroken as u, require_jsx_runtime as d, require_react as f, sourceIconUrl as p, statusText as m, t as h } from "./peach-app.js";
@@ -55,7 +55,10 @@ function S({ source: e }) {
 		rel: "noopener noreferrer",
 		title: h("follow:sourceView.openSource"),
 		className: "max-w-full min-w-0 self-start text-body-medium wrap-anywhere text-text-primary underline-offset-2 hover:underline",
-		children: [e.label, /* @__PURE__ */ (0, _.jsx)(i, {
+		children: [/* @__PURE__ */ (0, _.jsx)("span", {
+			"data-external-link-label": "",
+			children: e.label
+		}), /* @__PURE__ */ (0, _.jsx)(i, {
 			"aria-hidden": !0,
 			className: "size-(--icon-inline) shrink-0"
 		})]
@@ -93,4 +96,4 @@ function C({ text: t, prefix: n = "", tone: r = "error" }) {
 }
 export { b as AuthorAvatar, C as ErrorLine, y as FeedPageAlias, v as SourceIcon, S as SourceLink, x as StatusBadge };
 
-//# debugId=3377c241-5ffa-4791-9251-cd612331ee1e
+//# debugId=05036c62-90ee-46ba-b917-e3fc96e7de84

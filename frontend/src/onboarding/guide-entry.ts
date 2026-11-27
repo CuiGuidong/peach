@@ -31,6 +31,10 @@ export function guideEntry(step: GuideStep): GuideEntry | undefined {
     const tab = JAV_TABS.find(([id]) => id === (params.get('tab') || 'library'));
     return sidebar('JAV', tab?.[1] || JAV_TABS[0][1]);
   }
+  if (pathname === '/ai') {
+    return sidebar(ROUTE_META['/ai']!.title!, step.id === 'tools'
+      ? t('catalog:libraryAssistant.workTools') : t('onboarding:guideAi.input'));
+  }
   if (pathname === '/') {
     switch (step.id) {
       case 'search': return { path: [t('onboarding:guideEntry.pageTop'), t('onboarding:shared.search')], hint: t('onboarding:guideEntry.searchHint') };
@@ -42,6 +46,8 @@ export function guideEntry(step: GuideStep): GuideEntry | undefined {
       case 'cards': case 'detail': return { path: [t('onboarding:guideEntry.home'), t('onboarding:guideEntry.clickVideoCard'), t('onboarding:shared.videoDetails')] };
       case 'player': return { path: [t('onboarding:guideEntry.home'), t('onboarding:guideEntry.clickVideoCard'), t('onboarding:guideEntry.playButton')], hint: t('onboarding:guideEntry.playerHint') };
       case 'filter': return { path: [t('onboarding:guideEntry.home'), t('onboarding:guideEntry.filterSort')], hint: t('onboarding:guideEntry.filterHint') };
+      case 'layout': return { path: [t('onboarding:guideEntry.home'), t('onboarding:guideEntry.filterSort'), t('catalog:catalogList.viewMode')] };
+      case 'folders': return { path: [t('onboarding:guideEntry.home'), t('onboarding:guideEntry.filterSort'), t('catalog:catalogFolders.folderMode')] };
     }
     return sidebar(t('onboarding:guideEntry.home'));
   }

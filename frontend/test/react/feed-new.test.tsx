@@ -13,6 +13,8 @@ import { queryClient } from '../../src/react/query';
 import { click, mountRoot, settle } from './render';
 import { FeedNewRow } from '../../src/react/feed-new/feed-new-row';
 import { feedIdentity } from '../../src/card-art/feed-identity';
+import { wireImageFallbacks } from '../../src/card-art/image-fallback';
+import { ImageWithFallback } from '../../src/react/components/image-with-fallback';
 
 afterEach(() => { queryClient.clear() });
 notifyManager.setScheduler((notify) => notify());
@@ -37,7 +39,7 @@ function serve(...rounds: number[][]) {
 const reads = (fetcher: ReturnType<typeof serve>) =>
   fetcher.mock.calls.map(([url]) => String(url)).filter((url) => url.startsWith('/api/feeds/discoveries'));
 
-it('新作来源共演头像直接按来源图片地址加载并在忽略后可卸载', async () => {
+it('新作来源共演头像加载失败后显示首字并可卸载', async () => {
   vi.stubGlobal('IntersectionObserver', undefined);
   const fetcher = vi.fn(async (_url: string) => ({ ok: true, status: 200, json: async () => ({ ok: true }) }));
   vi.stubGlobal('fetch', fetcher);
@@ -52,9 +54,26 @@ it('新作来源共演头像直接按来源图片地址加载并在忽略后可�
   const avatars = [...mounted.host.querySelectorAll<HTMLImageElement>('.mav img')].map((img) => img.getAttribute('src')).sort();
   expect(avatars).toEqual(['/jav-image?code=EXM-001&image=actor%3AA', '/jav-image?code=EXM-001&image=actor%3AB']);
   expect(fetcher).not.toHaveBeenCalled();
-  await click(mounted.host.querySelector('[data-feed-action]'));
-  await settle();
+  wireImageFallbacks(mounted.host);
+  const failed = mounted.host.querySelector<HTMLImageElement>('.mav img[src$="actor%3AA"]')!;
+  const face = failed.parentElement!;
+  await act(async () => { failed.dispatchEvent(new Event('error')) });
+  expect(face.querySelector('img')).toBeNull();
+  expect(face.querySelector('[data-source-initial]')?.textContent).toBe('甲');
+  await mounted.unmount();
   expect(mounted.host.querySelector('[data-feed-id]')).toBeNull();
+});
+
+it('托管图片依次尝试备用地址，来源更新后可重新显示', async () => {
+  const mounted = await mountRoot(<ImageWithFallback src="/primary" fallbacks={['/backup']} alt="" />);
+  const image = () => mounted.host.querySelector('img');
+  const fail = () => act(async () => { image()!.dispatchEvent(new Event('error')) });
+  await fail();
+  expect(image()?.getAttribute('src')).toBe('/backup');
+  await fail();
+  expect(image()).toBeNull();
+  await mounted.rerender(<ImageWithFallback src="/new-primary" alt="" />);
+  expect(image()?.getAttribute('src')).toBe('/new-primary');
 });
 
 it('新作右键识别想要开关和已读状态，打开菜单不执行写入', async () => {

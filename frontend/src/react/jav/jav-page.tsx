@@ -40,6 +40,13 @@ import { columnRangeKinds, readColumnFilters, withinColumnRange, writeColumnFilt
 import { JavCodeFilter, matchesJavCode } from './jav-code-filter';
 import { countJavFacets } from './jav-facets';
 import type { Receipt } from '../components/bulk-action';
+import { CatalogDisplayControls } from '../catalog-grid/catalog-view-toggle';
+import { useCatalogView } from '../catalog-grid/catalog-view';
+import { ColumnFilterPopover } from '../components/table-column-filter';
+import { useRememberedPagination } from '../components/page-size-preferences';
+import { DataTableFooter } from '../components/table-controls';
+import { ReleaseTable } from './jav-release-table';
+import { DISCOVERY_TABLE_ID } from './release-table-columns';
 
 const MetadataStopGlyph = spriteGlyph('x');
 const MetadataRefreshGlyph = spriteGlyph('refresh-cw');
@@ -124,6 +131,9 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   const settings = appSettingsStore();
   useSyncExternalStore(settings.subscribe, settings.version, settings.version);
   const layout = javLayout();
+  const view = useCatalogView();
+  const tableTop = useRef<HTMLDivElement>(null);
+  const [listPosition, changeListPosition] = useRememberedPagination(DISCOVERY_TABLE_ID);
   const ratio = cardRatio(gridLayout({ active: true, home: false, portrait: false }));
   const direction = ascending ? 'asc' : 'desc';
   /* 推荐列表只读，自己不轮询。资料读取进行中时进度单独轮询；读到的标签与评分由全站那一处的
@@ -199,8 +209,39 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
       rangeValues={key === 'release' ? all.map(item => item.release_date) : undefined}
       onChange={value => { setRange(key, value); close() }} />,
   });
+  const rangeHeader = (key: DiscoveryRange, label: string) => {
+    const menu = rangeMenu(key, label);
+    return <ColumnFilterPopover id={`discover-column-${key}`} label={label} active={menu.active}
+      shouldCloseOnInteractOutside={menu.shouldCloseOnInteractOutside}>{menu.render}</ColumnFilterPopover>;
+  };
+  const codeMenu = (close: () => void) => <JavCodeFilter value={code} onChange={value => { setCode(value); close() }} />;
+  const facetMenus = (toolbar: boolean) => {
+    const prefix = toolbar ? 'jav-discover' : 'discover-column';
+    return {
+      people: <FilterDropdown id={`${prefix}-performers`} orderKey="performer" toolbar={toolbar} label={t('catalog:shared.performers')} active={!!performer}
+        choices={people.map(({ id, value, count }) => ({ id, count, label: entityDisplayName('performer', value.name, value.id),
+          searchTerms: [value.name], selected: performer === id, leading: <ColumnFilterAvatar person={value} /> }))}
+        onSelect={name => setPerformer(performer === name ? '' : name)} onClear={performer ? () => setPerformer('') : undefined} />,
+      studio: <FilterDropdown id={`${prefix}-studios`} orderKey="studio" toolbar={toolbar} label={t('catalog:shared.label')} active={!!studio}
+        choices={studios.map(({ id, value, count }) => ({ id, count, label: value.name, selected: studio === id,
+          leading: <ColumnFilterStudioAvatar studio={value} /> }))}
+        onSelect={name => setStudio(studio === name ? '' : name)} onClear={studio ? () => setStudio('') : undefined} />,
+      tags: <FilterDropdown id={`${prefix}-tags`} orderKey="tags" toolbar={toolbar} label={t('catalog:shared.tags')} active={!!tag}
+        choices={tagChoices} onSelect={toggleTag} onClear={tag ? () => setTag('') : undefined} />,
+    };
+  };
+  const toolbarFacets = facetMenus(true);
+  const want = (item: Discovery) => {
+    void action.run(String(item.id), signal => addWant({ code: item.code }, signal), () => {
+      receipt(t('catalog:javWant.added')); void invalidateWants(); void discoveries.refetch();
+    });
+  };
   const waiting = discoveries.isPending;
-  useVisibleJavWorks(items);
+  const lastPage = Math.max(0, Math.ceil(items.length / listPosition.pageSize) - 1);
+  const listPage = Math.min(listPosition.pageIndex, lastPage);
+  const start = listPage * listPosition.pageSize;
+  const shown = view === 'list' ? items.slice(start, start + listPosition.pageSize) : items;
+  useVisibleJavWorks(shown);
   const rectangle = useJavRectangle(!waiting);
   return <section ref={section} aria-label={t('catalog:shared.recommendedForYou')} aria-busy={waiting} className="flex min-w-0 flex-col gap-4">
     <FilterGlassRows label={t('catalog:javDiscover.filtersLabel')} topLabel={t('catalog:javDiscover.scopeLabel')} attrs={{ 'data-filter-frame': '', 'data-jav-filter': '', 'data-catalog-frame': '' }}
@@ -215,8 +256,10 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
         </div>
         <FilterTagStrip choices={tagChoices} onSelect={toggleTag} />
       </div>} bottom={<>
-        <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" /> : t('catalog:countLabel.works', { count: items.length })}</span>
-        <LibraryShortcuts currentHref={() => location.pathname + location.search} />
+        <span data-catalog-summary="">
+          <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" /> : t('catalog:countLabel.works', { count: items.length })}</span>
+          <LibraryShortcuts currentHref={() => location.pathname + location.search} />
+        </span>
         <JavGlassSearch tab="discover" />
         {filtered ? <FilterActionButton onPress={clearFilters}>{t('catalog:shared.clearFilters')}</FilterActionButton> : null}
         <FilterToolbarControls tools={<>
@@ -225,29 +268,19 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
           disabled={waiting} data-skeleton-action={waiting ? '' : undefined} busy={!!metadataAction.busy}
           icon={metadata?.status === 'running' ? MetadataStopGlyph : MetadataRefreshGlyph}
           onPress={() => updateMetadata(metadata?.status === 'running' ? 'stop' : 'update')} /> : null}
-        <Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} />
+        <CatalogDisplayControls cardLayout={<Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} />} />
         </>} fields={<>
-          <FilterDropdown id="jav-discover-performers" orderKey="performer" label={t('catalog:shared.performers')} active={!!performer}
-            choices={people.map(({ id, value, count }) => ({ id, count, label: entityDisplayName('performer', value.name, value.id),
-              searchTerms: [value.name], selected: performer === id, leading: <ColumnFilterAvatar person={value} /> }))}
-            onSelect={name => setPerformer(performer === name ? '' : name)} onClear={performer ? () => setPerformer('') : undefined} />
-          <FilterDropdown id="jav-discover-studios" orderKey="studio" label={t('catalog:shared.label')} active={!!studio}
-            choices={studios.map(({ id, value, count }) => ({ id, count, label: value.name,
-              selected: studio === id, leading: <ColumnFilterStudioAvatar studio={value} /> }))}
-            onSelect={name => setStudio(studio === name ? '' : name)} onClear={studio ? () => setStudio('') : undefined} />
-          <FilterDropdown id="jav-discover-tags" orderKey="tags" label={t('catalog:shared.tags')} active={!!tag}
-            choices={tagChoices} onSelect={toggleTag} onClear={tag ? () => setTag('') : undefined} />
+          {toolbarFacets.people}{toolbarFacets.studio}{toolbarFacets.tags}
         </>} sorts={<SortKeys group="discover" sorts={DISCOVERY_SORTS.map(([key, label, ariaLabel]) => ({ key, label, ariaLabel,
           pressed: key === sort, dir: direction }))} onSort={(key, dir) => setSort(key as DiscoverySort, dir)} filters={{
             release_date: rangeMenu('release', t('catalog:catalogList.releaseDate')),
             duration: rangeMenu('dur', t('catalog:catalogList.duration')),
             source_score: rangeMenu('score', t('catalog:javSort.siteRating')),
             taste: rangeMenu('taste', t('catalog:javSort.taste')),
-            code: { active: !!code, render: close => <JavCodeFilter value={code}
-              onChange={value => { setCode(value); close() }} /> },
+            code: { active: !!code, render: codeMenu },
           }} />} />
       </>} />
-    {waiting ? <div role="status" aria-label={t('catalog:javDiscover.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
+    {waiting && view === 'cards' ? <div role="status" aria-label={t('catalog:javDiscover.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
     {discoveries.error ? <Note tone="error" title={t('catalog:javDiscover.failed')}>{errorMessage(discoveries.error)}</Note> : null}
     {scope === 'external' && metadata?.status === 'running' ? <div data-jav-metadata="" className="min-w-0"><TaskProgress kind={activityKind('jav-discovery-metadata')}
         label={t('catalog:javMetadata.loadingProgress', { completed: metadata.completed, count: metadata.total })} value={metadata.completed} total={metadata.total} /></div> : null}
@@ -263,7 +296,22 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
       {filtered ? t('catalog:javDiscover.clearFiltersHint') : scope === 'library' ? t('catalog:javDiscover.libraryEmptyHint') : t('catalog:javDiscover.externalEmptyHint')}
     </EmptyState> : null}
     {action.error ? <Note tone="error">{action.error}</Note> : null}
-    <div data-media-grid="" className={JAV_RECOMMENDATION_GRID} style={{ '--card-ratio': ratio } as CSSProperties} {...rectangle}>
+    {view === 'list' ? waiting || items.length > 0 ? <><ReleaseTable items={shown} waiting={waiting} tableTop={tableTop}
+      discovery={{ sort, dir: direction, tag, headers: {
+        ...facetMenus(false),
+        release: rangeHeader('release', t('catalog:catalogList.releaseDate')),
+        dur: rangeHeader('dur', t('catalog:catalogList.duration')),
+        score: rangeHeader('score', t('catalog:javSort.siteRating')),
+        taste: rangeHeader('taste', t('catalog:javSort.taste')),
+        code: <ColumnFilterPopover id="discover-column-code" label={t('catalog:shared.code')} active={!!code}>{codeMenu}</ColumnFilterPopover>,
+      } }} javImage={settings.value.javImage} readOnly={readOnly} navigate={navigate}
+      onTag={toggleTag} onSort={(key, dir) => { if (key !== 'random') setSort(key, dir) }}
+      wanting={item => action.busy === String(item.id)} onWant={want} onResource={item => resource(resourcePrefill(item))} />
+      {!waiting ? <DataTableFooter label={t('catalog:javTabs.discover')} total={items.length}
+        pagination={{ pageIndex: listPage, pageSize: listPosition.pageSize }} onChange={changeListPosition} scrollTarget={tableTop}
+        stickyHeader={() => section.current?.querySelector<HTMLElement>('[data-filter-frame]') ?? null}
+        unit={t('catalog:catalogList.footerUnit')} pageUnit={t('catalog:catalogList.footerPageUnit')} /> : null}</> : null
+    : <div data-media-grid="" className={JAV_RECOMMENDATION_GRID} style={{ '--card-ratio': ratio } as CSSProperties} {...rectangle}>
       {items.map(item => {
         const recommendation = recommendationScore(item.taste_score ?? item.score);
         const scoreDetails = [recommendation.label, t('catalog:javScore.taste', { score: discoveryScore(item.taste_score ?? item.score) }),
@@ -271,15 +319,13 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
           item.source_score != null ? t('catalog:javScore.siteRating', { rating: item.source_score.toFixed(1) }) : '', ...serverLabelList(item.reasons, item.reason_codes, item.reason_params)].filter(Boolean).join(' · ');
         return <DiscoveryCard key={item.id} item={item} layout={layout} javImage={settings.value.javImage} readOnly={readOnly}
           navigate={navigate} tag={tag} onTag={setTag} wanting={action.busy === String(item.id)}
-          onWant={() => { void action.run(String(item.id), signal => addWant({ code: item.code }, signal), () => {
-            receipt(t('catalog:javWant.added')); void invalidateWants(); void discoveries.refetch();
-          }) }}
+          onWant={() => want(item)}
           onResource={() => resource(resourcePrefill(item))}
           badge={<button data-jav-taste-score="" type="button" title={scoreDetails} aria-label={t('catalog:javScore.badgeLabel', { score: recommendation.score, label: recommendation.label })}
             className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring">
             <Chip color={recommendation.color}>{recommendation.label}</Chip>
           </button>} />;
       })}
-    </div>
+    </div>}
   </section>;
 }

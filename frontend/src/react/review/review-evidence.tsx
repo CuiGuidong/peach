@@ -95,8 +95,8 @@ export function EntityHead(
         className={`relative inline-grid size-11 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-medium text-text-secondary outline-none focus-visible:ring-2 focus-visible:ring-border-focus-ring ${LEGACY_AVATAR_IMG}`}
         dangerouslySetInnerHTML={{ __html: avatar }} />
       <div className="flex min-w-0 flex-col items-start">
-        <button type="button" onClick={() => openEntity(kind, name)}
-          className="max-w-full cursor-pointer truncate text-body-medium text-text-primary underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-border-focus-ring">
+        <button type="button" onClick={() => openEntity(kind, name)} data-inline-action=""
+          className="max-w-full cursor-pointer truncate text-body-medium text-text-primary">
           {name}
         </button>
         {works
@@ -126,8 +126,8 @@ export function IdentityEvidence(
       <h5 className="text-body-medium text-text-primary">{t('manage:reviewEvidence.pendingPerson', { name: row.babepedia_name || t('manage:reviewEvidence.unlabeled') })}</h5>
       <div className="flex flex-wrap items-center gap-2">
         {profile
-          ? <ButtonLink variant="secondary" size="small" trailingIcon={RiExternalLinkLine}
-              href={profile} target="_blank" rel="noopener noreferrer">{t('manage:reviewEvidence.sourceProfile')}</ButtonLink>
+          ? <ButtonLink data-button-link="" variant="secondary" size="small" trailingIcon={RiExternalLinkLine}
+              href={profile} target="_blank" rel="noopener noreferrer"><span data-external-link-label="">{t('manage:reviewEvidence.sourceProfile')}</span></ButtonLink>
           : null}
         <Button variant="secondary" size="small"
           onClick={() => openEntity('creator', row.creator || '')}>

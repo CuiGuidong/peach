@@ -13,6 +13,7 @@
  * 「读取浏览器历史」是后台任务，关掉页面照样在跑。首屏读到的旧终态不冒充新结果：只有本次
  * 点过读取、或者本次亲眼见过它在跑，终态才发回执并让 dashboard 重取（ADR-0031）。 */
 import { createContext, useContext, useRef, useState, type ReactNode } from 'react';
+import { ImageWithFallback } from '../components/image-with-fallback';
 import type { ChangeEvent } from 'react';
 import {
   RiArrowDownSLine, RiArrowRightSLine, RiCompassLine, RiDatabase2Line, RiDeleteBinLine,
@@ -125,8 +126,7 @@ function SiteAvatar({ name, domain }: { name: string; domain: string }) {
   return (
     <span className="relative inline-grid size-8 shrink-0 place-items-center overflow-hidden rounded-lg bg-background-tertiary-default text-caption-1-medium text-text-secondary">
       {firstGrapheme(name).toUpperCase()}
-      <img src={siteMarkUrl({ domain })} alt="" loading="lazy" width={20} height={20}
-        onError={(event) => event.currentTarget.remove()}
+      <ImageWithFallback src={siteMarkUrl({ domain })} alt="" loading="lazy" width={20} height={20}
         className="absolute size-5 object-contain" />
     </span>
   );

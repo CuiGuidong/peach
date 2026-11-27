@@ -28,6 +28,18 @@ export const RELEASE_SORT_COLUMNS: Record<string, ReleaseSort> = { code: 'code',
 export const releaseColumns = ['name', 'people', 'studio', 'tags', 'release', 'dur', 'score', 'actions', 'code']
   .map(id => ({ id, label: labels[id]!, ...sizes[id]!, flex: id === 'name', required: id === 'name', visible: id !== 'code' }));
 
+export const DISCOVERY_TABLE_ID = 'jav-discover';
+export const DISCOVERY_TABLE_KEYS = { widths: 'peach.table.jav-discover.widths.v1', visibility: 'peach.table.jav-discover.visibility.v1' };
+export const discoveryColumns = [
+  ...releaseColumns.slice(0, 7),
+  { id: 'taste', label: t('catalog:javSort.taste'), ...sizes.score!, flex: false, required: false, visible: true },
+  ...releaseColumns.slice(7),
+];
+
 export function releaseTableSnapshot(): TableSnapshot {
   return tableSnapshot(releaseColumns, RELEASE_COLUMN_WIDTHS_KEY, RELEASE_COLUMN_VISIBILITY_KEY, 'jav-releases');
+}
+
+export function discoveryTableSnapshot(): TableSnapshot {
+  return tableSnapshot(discoveryColumns, DISCOVERY_TABLE_KEYS.widths, DISCOVERY_TABLE_KEYS.visibility, DISCOVERY_TABLE_ID);
 }

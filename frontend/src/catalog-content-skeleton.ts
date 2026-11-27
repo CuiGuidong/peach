@@ -23,17 +23,17 @@ function catalogListSkeletonHtml(label: string): string {
     + listTableSkeletonHtml(catalogTableSnapshot(), completionRowRemembered() ? COMPLETION_ROW_SKELETON_HTML : '') + '</div>';
 }
 
-/** 按列偏好排好的表格骨架。在线目录的固定列占满表格，筛选栏已经在表格上方。 */
-export function listTableSkeletonHtml(columns: TableSnapshot, between = '', { fixed = false, separateCode = false } = {}): string {
-  const space = !fixed && !columns.some(column => column.width === null);
+/** 按列偏好排好的表格骨架。 */
+export function listTableSkeletonHtml(columns: TableSnapshot, between = '', { separateCode = false } = {}): string {
+  const space = !columns.some(column => column.width === null);
   const minimum = columns.reduce((sum, column) => sum + (column.width ?? column.min), 0);
   const cols = columns.map(column => column.width === null ? '<col>' : `<col style="width:${column.width}px">`).join('')
     + (space ? '<col>' : '');
   const head = columns.map(column => `<th>${esc(column.label)}</th>`).join('') + (space ? '<th></th>' : '');
   const row = `<tr data-list-skeleton-row>${columns.map(column => `<td>${catalogListSkeletonCellHtml(column.id, separateCode)}</td>`).join('')}${space ? '<td></td>' : ''}</tr>`;
   return '<div data-list-skeleton aria-hidden="true">'
-    + (fixed ? '' : '<div data-list-skeleton-tools><i class="skeleton-sheen"></i></div>') + between
-    + `<div data-board-data-table${fixed ? ' data-follow-table' : ''}><div class="w-full overflow-x-auto"><table class="bui-table bui-table-sm" style="table-layout:fixed;min-width:${minimum}px">`
+    + '<div data-list-skeleton-tools><i class="skeleton-sheen"></i></div>' + between
+    + `<div data-board-data-table><div class="w-full overflow-x-auto"><table class="bui-table bui-table-sm" style="table-layout:fixed;min-width:${minimum}px">`
     + `<colgroup>${cols}</colgroup><thead><tr>${head}</tr></thead><tbody>${row.repeat(6)}</tbody></table></div></div></div>`;
 }
 

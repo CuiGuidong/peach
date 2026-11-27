@@ -8,6 +8,7 @@
  * 重新出现，并标出新加入的那几份。保留过的组在「已保留」视图里，能逐组或成批取消保留。
  * 所有成批的动作都先弹窗，回执带撤销（`components/bulk-action.ts`）。 */
 import { useState, type ReactNode } from 'react';
+import { ImageWithFallback } from '../components/image-with-fallback';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { confirmModal, MEDIA_SOURCE_ICONS } from '@peach/legacy/ui';
 import { fmtDur, fmtSize, LOC } from '@peach/legacy/core';
@@ -147,8 +148,8 @@ function FileRow({ file, reference, openItem, selected, onSelect, onTrash, busy 
       <button type="button" onClick={open} aria-label={t('cleanup:duplicates.previewFile', { name: file.name })}
         className="relative row-span-2 inline-grid aspect-16/10 w-full cursor-pointer place-items-center overflow-hidden rounded-2lg bg-media-placeholder text-text-secondary">
         <PLAY aria-hidden className="size-6" />
-        <img key={file.cover_version || thumbnail} src={file.has_cover ? coverUrl(file, 2) : thumbnail} alt="" loading="lazy"
-          data-drop="self" data-fallbacks={file.has_cover ? thumbnail : undefined}
+        <ImageWithFallback src={file.has_cover ? coverUrl(file, 2) : thumbnail} alt="" loading="lazy"
+          fallbacks={file.has_cover ? [thumbnail] : undefined}
           className="absolute inset-0 size-full object-contain" />
       </button>
       <span className="flex min-w-0 items-start gap-2 max-duplicate-narrow:col-start-2 max-duplicate-narrow:-col-end-1">

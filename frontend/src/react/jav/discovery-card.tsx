@@ -4,11 +4,11 @@ import { RiExternalLinkLine } from '@remixicon/react';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { fmtDur } from '@peach/legacy/core';
 import { relayoutCovers } from '../../card-art/framing';
-import { entityDisplayName } from '../../core/entity-names';
+import { CastPopover, castPersonName, discoveryCast } from '../components/cast-popover';
 import { textLang } from '../../core/text-lang';
 import { ArtSlot } from '../components/art-slot';
 import { busyProps, useAction } from '../settings/use-action';
-import { DiscoveryCastMore, DiscoveryFaces, DiscoveryPerformerName, type DiscoveryPerson } from './discovery-faces';
+import { DiscoveryFaces, DiscoveryPerformerName, type DiscoveryPerson } from './discovery-faces';
 import { SiteLabel } from '../components/source-label';
 import { useJavSelection } from './jav-selection';
 import { suppressShiftTextSelection } from '../components/row-click';
@@ -72,9 +72,10 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
     ? discoveryContext(item, { selection, readOnly, wanting: !!wanting, navigate, onWant, onResource }) : null;
   const selected = selection?.selected.has(item.code);
   const compact = !online && Boolean(worksSelection?.dense);
-  const performers = item.performer_refs?.length ? joinList(item.performer_refs.map(person => person.name)) : item.performers;
-  const person = item.performer_refs?.[0];
-  const name = person ? entityDisplayName('performer', person.name, person.id) : performers.split(/[,，、;/]/)[0] || '';
+  const people = discoveryCast(item.performer_refs, item.performers);
+  const performers = joinList(people.map(person => person.name));
+  const person = people[0];
+  const name = person ? castPersonName(person) : '';
   const duration = online && item.duration ? fmtDur(item.duration) : '';
   const artwork = discoveryArtwork(item, layout, javImage);
   const href = item.asset_id ? `/assets/${item.asset_id}` : item.code ? `/works/${encodeURIComponent(item.code)}` : item.link;
@@ -87,7 +88,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
     onContextMenu={menuContext ? event => context.onContextMenu(event, menuContext) : undefined}
     onKeyDown={menuContext ? event => context.onKeyDown(event, menuContext) : undefined}
     onClickCapture={event => {
-      if ((event.target as Element).closest('[data-work-context-menu]')) return;
+      if ((event.target as Element).closest('[data-work-context-menu], [data-cast-popover]')) return;
       if (selection && (selection.mode || hasSelectionModifier(event))) {
         event.preventDefault(); event.stopPropagation(); selection.toggle(item, event.shiftKey);
       }
@@ -113,10 +114,11 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
         <h3 data-jav-title="" data-media-title="" title={`${item.code} · ${item.title || t('catalog:javDiscovery.titleNotFound')}`}><b>{item.code}</b> {item.title ? <span lang={textLang(item.title)}>{item.title}</span> : t('catalog:javDiscovery.titleNotFound')}</h3>
         <div data-media-byline="">
           <DiscoveryPerformerName person={person} name={name} title={performers} onFilter={onFilterPerson} icon />
-          <DiscoveryCastMore people={item.performer_refs || []} onFilter={onFilterPerson} />
+          <CastPopover people={people} total={item.performer_total} assetId={item.asset_id ?? undefined}
+            code={item.code} subscribe onFilter={onFilterPerson} />
           {item.release_date || studioFilter && item.studio_ref ? <span data-media-facts="">
             {item.release_date ? <time data-media-release="" dateTime={item.release_date}><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-calendar" /></svg>{item.release_date}</time> : null}
-            {studioFilter && item.studio_ref ? <button data-media-who="" type="button" aria-pressed={studioFilter.selected}
+            {studioFilter && item.studio_ref ? <button data-media-who="" data-inline-action="" type="button" aria-pressed={studioFilter.selected}
               title={item.studio_ref.name} onClick={studioFilter.onPress}><StudioFilterLabel studio={item.studio_ref} /></button> : null}
           </span> : null}
         </div>
@@ -132,7 +134,7 @@ export function DiscoveryCard({ item, layout, javImage, readOnly, navigate, tag 
       {item.link ? <ButtonLink data-button-link="" data-jav-source="" variant="secondary" size={compact ? 'small' : 'medium'}
         iconOnly={compact} aria-label={t('catalog:shared.viewOnSite')} title={t('catalog:shared.viewOnSite')} leadingIcon={compact ? RiExternalLinkLine : undefined}
         trailingIcon={compact ? undefined : RiExternalLinkLine} href={item.link} target="_blank" rel="noopener noreferrer">
-        {compact ? null : online ? <SiteLabel site="dmm" label="DMM" /> : t('catalog:shared.viewOnSite')}
+        {compact ? null : online ? <SiteLabel site="dmm" label="DMM" /> : <span data-external-link-label="">{t('catalog:shared.viewOnSite')}</span>}
       </ButtonLink> : null}
       {onWant ? <Button variant="ghost" size={compact ? 'small' : 'medium'} disabled={readOnly || item.wanted || !!item.asset_id} {...busyProps(!!wanting)} onClick={onWant}>
         {item.asset_id ? t('catalog:javWant.imported') : item.wanted ? t('catalog:javWant.wanted') : t('catalog:javWant.want')}</Button> : null}

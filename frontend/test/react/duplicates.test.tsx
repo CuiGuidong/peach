@@ -4,7 +4,7 @@
 import { notifyManager, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as legacyUi from '@peach/legacy/ui';
-import { advanceImageFallback } from '../../src/card-art/image-fallback';
+import { act } from 'react';
 
 import { DuplicatesPage } from '../../src/react/duplicates/duplicates-page';
 import { ComparisonText } from '../../src/react/review/comparison-text';
@@ -72,11 +72,11 @@ it('重复副本优先显示已有封面，加载失败后依次回退抽帧和�
   const images = host.querySelectorAll<HTMLImageElement>('.duplicate-row img');
   expect(images[0]!.getAttribute('src')).toBe('/cover?code=ABC-001&thumb=2&v=cover-v1');
   expect(images[1]!.getAttribute('src')).toBe('/thumb?id=2&c=4');
-  expect(advanceImageFallback(images[0])).toBe('retry');
-  expect(images[0]!.getAttribute('src')).toBe('/thumb?id=1&c=4');
-  expect(advanceImageFallback(images[0])).toBe('drop');
-  // React 画的图不从它手里摘节点（卸载时会找不到子节点），只藏起来。
-  expect([...host.querySelectorAll<HTMLImageElement>('.duplicate-row img')].filter(image => image.style.display !== 'none')).toHaveLength(1);
+  const preview = host.querySelector('button[aria-label="预览 ABC-1.mp4"]')!;
+  await act(async () => { preview.querySelector('img')!.dispatchEvent(new Event('error')) });
+  expect(preview.querySelector('img')!.getAttribute('src')).toBe('/thumb?id=1&c=4');
+  await act(async () => { preview.querySelector('img')!.dispatchEvent(new Event('error')) });
+  expect(preview.querySelector('img')).toBeNull();
   expect(host.querySelector('button[aria-label="预览 ABC-1.mp4"]')).not.toBeNull();
 });
 

@@ -8,7 +8,6 @@ import { avatarInner } from '@peach/card-art';
 import { Button } from '@/components/base/buttons/button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Chip } from '@/components/base/badges/chip';
-import { LinkButton } from '@/components/base/buttons/link-button';
 import { cx } from '@/utils/cx';
 import { cardClass } from '../components/card';
 import { FIELDSET_FOOT } from '../components/fieldset-layout';
@@ -266,8 +265,8 @@ export function ReviewCard(props: ReviewCardProps) {
       </div>
 
       <footer className={cx(FIELDSET_FOOT.stack, 'shrink-0')}>
-        {queueView !== 'ignored' ? <LinkButton variant="secondary" size="small" className="me-auto" disabled={locked} {...busyProps(busy)}
-          onClick={() => onDecide('rejected')}>{t('manage:shared.ignore')}</LinkButton> : null}
+        {queueView !== 'ignored' ? <Button variant="ghost" size="small" className="me-auto" disabled={locked} {...busyProps(busy)}
+          onClick={() => onDecide('rejected')}>{t('manage:shared.ignore')}</Button> : null}
         {queueView === 'pending' ? <Button variant="secondary" size="small" disabled={locked} {...busyProps(busy)}
           onClick={() => onDecide('skipped')}>{t('manage:reviewDecision.later')}</Button> : <Button
           variant={queueView === 'ignored' ? 'primary' : 'secondary'} size="small" disabled={locked} {...busyProps(busy)}

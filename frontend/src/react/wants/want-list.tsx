@@ -1,5 +1,6 @@
 /* JAV 想要：按状态分组的作品卡，复用资源链接查询与查找资源弹层。 */
 import { useEffect, useState } from 'react';
+import { ImageWithFallback } from '../components/image-with-fallback';
 import { Radio } from 'react-aria-components';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -57,8 +58,8 @@ function Cover({ want }: { want: Want }) {
     <span className="relative inline-grid w-card-cover shrink-0 aspect-card-cover place-items-center overflow-hidden rounded-2lg bg-media-placeholder max-sm:w-24">
       <span className="text-caption-1-regular text-text-secondary">{t('catalog:shared.noCover')}</span>
       {want.cover ? (
-        <img src={want.cover} alt="" loading="lazy" referrerPolicy={want.remote_cover ? 'no-referrer' : undefined}
-          onError={(event) => event.currentTarget.remove()} className="absolute inset-0 size-full object-cover" />
+        <ImageWithFallback src={want.cover} alt="" loading="lazy" referrerPolicy={want.remote_cover ? 'no-referrer' : undefined}
+          className="absolute inset-0 size-full object-cover" />
       ) : null}
     </span>
   );

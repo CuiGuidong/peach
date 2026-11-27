@@ -765,7 +765,7 @@ describe('设计决定：关注详情、作品详情、播放器与侧栏', () =
           })(),
           circle: read('[data-immerse-circle]', ['width', 'height', 'border-radius', 'background-color', 'color']),
           glyph: read('[data-immerse-circle] svg', ['width', 'height', 'fill', 'stroke']),
-          author: read('[data-immerse-author]>a', ['color', 'font-weight']),
+          author: read('[data-immerse-owner]', ['color', 'font-weight']),
           title: read('[data-immerse-title]', ['font-size', 'font-weight', 'text-overflow', 'white-space', 'pointer-events']),
           caption: read('[data-immerse-ui]', ['pointer-events']),
           progress: read('[data-immerse-bar] i', ['height']),
@@ -821,7 +821,7 @@ describe('设计决定：关注详情、作品详情、播放器与侧栏', () =
       await page.evaluate(() => { document.documentElement.dataset.theme = 'light' });
       assert.deepEqual(await page.evaluate(() => [
         getComputedStyle(document.querySelector('[data-immerse]')!).backgroundColor,
-        getComputedStyle(document.querySelector('[data-immerse-author]>a')!).color,
+        getComputedStyle(document.querySelector('[data-immerse-owner]')!).color,
       ]), ['rgb(15, 15, 15)', 'rgb(241, 241, 241)']);
       assert.deepEqual(opened.problems.filter((line) => !line.includes('VIDEOJS')), []);
     } finally {

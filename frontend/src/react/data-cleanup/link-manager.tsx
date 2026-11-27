@@ -83,7 +83,8 @@ function LinkTable(
       filter: { values: item => item.entity, option: (name, item) => ({
         leading: item && <ColumnFilterAvatar person={{ ...item.face, id: item.entity_id, name }}
           kind={item.entity_kind} markId={item.entity_kind === 'studio' || item.entity_kind === 'agency' ? item.id : null} /> }) },
-      render: (item) => <a className="flex min-w-24 items-center gap-2 text-text-secondary hover:text-text-primary hover:underline"
+      render: (item) => <a className="flex min-w-24 items-center gap-2 text-text-secondary hover:text-text-primary"
+        data-inline-action={item.entity_id && item.entity_kind ? '' : undefined}
         href={item.entity_id && item.entity_kind ? entityPath(item.entity_kind, item.entity, item.entity_id) : undefined} data-link-identity="">
         <span data-link-avatar="" className={`relative flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-medium text-text-primary ${LEGACY_AVATAR_IMG}`}
           aria-hidden dangerouslySetInnerHTML={{ __html: `<span>${esc(firstGrapheme(item.entity))}</span>` + entityFaceImg({
@@ -118,7 +119,7 @@ function LinkTable(
       render: (item) => <a href={item.url} target="_blank" rel="noopener noreferrer" title={item.url} data-link-address=""
         className="flex min-w-0 items-center gap-1 text-text-secondary hover:text-text-primary">
         <SiteMark linkId={item.id} />
-        <span data-middle-truncate className="min-w-0 truncate">{item.url}</span>
+        <span data-middle-truncate data-external-link-label="" className="min-w-0 truncate">{item.url}</span>
         <RiExternalLinkLine aria-hidden className="size-(--icon-inline) shrink-0" />
       </a> },
   ];

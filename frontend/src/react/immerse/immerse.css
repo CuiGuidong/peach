@@ -79,9 +79,12 @@ body[data-immerse-open]{overflow:hidden}
 [data-immerse-bar]:hover::before,[data-immerse-bar]:hover>i,
 [data-immerse-bar][data-scrubbing]::before,[data-immerse-bar][data-scrubbing]>i{height:9px}
 [data-immerse-author]{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:var(--fs-md);line-height:1.2}
-/* 作者名单行省略、元信息不折：十几位共演时名字收成一截，「· 时长 · 横屏 · 序号」照旧排在后面。 */
-[data-immerse-author]>a{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f1f1f1;font-weight:600;text-decoration:none;pointer-events:auto}
-[data-immerse-author]>a:hover{color:var(--tungsten);text-decoration:none}[data-immerse-author]>span{flex:none;white-space:nowrap;color:#aaa;font-size:var(--fs-sm)}
+[data-immerse-owner]{--inline-action-ink:#f1f1f1;min-width:0;padding:0;border:0;background:none;color:#f1f1f1;font:inherit;font-weight:600;text-align:left;cursor:pointer;pointer-events:auto}
+[data-immerse-owner]>span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[data-immerse-meta]{flex:none;white-space:nowrap;color:#aaa;font-size:var(--fs-sm)}
+[data-immerse-cast]{flex:none;pointer-events:auto}
+[data-immerse-overlays]{position:absolute;inset:0;z-index:30;pointer-events:none}
+[data-immerse-overlays] [data-cast-popover]{pointer-events:auto}
 [data-immerse-avatar]{position:relative;width:40px;height:40px;flex:none;overflow:hidden;border:0;border-radius:50%;padding:0;
   background:#333;color:#f1f1f1;cursor:pointer;pointer-events:auto}
 [data-immerse-avatar] img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -104,7 +107,7 @@ body[data-immerse-open]{overflow:hidden}
   [data-immerse-actions]{left:auto;right:max(8px,env(safe-area-inset-right));bottom:92px;width:56px;gap:14px}
   [data-immerse-ui]{left:14px;right:82px;bottom:28px;width:auto;padding:0 0 env(safe-area-inset-bottom)}
   [data-immerse][data-wide] [data-immerse-ui]{width:auto}
-  [data-immerse-author]{margin-bottom:8px}[data-immerse-author]>span{display:none}[data-immerse-avatar]{width:36px;height:36px}
+  [data-immerse-author]{margin-bottom:8px}[data-immerse-meta]{display:none}[data-immerse-avatar]{width:36px;height:36px}
   [data-immerse-ui] [data-immerse-title]{font-size:var(--fs-md)}
   [data-immerse-close]{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}
 }
@@ -140,7 +143,7 @@ body[data-immerse-open]{overflow:hidden}
   left:auto;right:max(8px,env(safe-area-inset-right));bottom:24px;width:56px;gap:14px}
 [data-immerse]:fullscreen [data-immerse-ui]{left:14px;right:82px;bottom:20px;width:auto;padding:0 0 env(safe-area-inset-bottom)}
 [data-immerse]:fullscreen[data-wide] [data-immerse-ui]{width:auto}
-[data-immerse]:fullscreen [data-immerse-author]>span{display:none}
+[data-immerse]:fullscreen [data-immerse-meta]{display:none}
 [data-immerse]:fullscreen [data-immerse-close]{top:max(10px,env(safe-area-inset-top));right:max(10px,env(safe-area-inset-right))}
 
 /* 横置（全屏 + 横版 + 锁不上横屏的竖屏视口）：转内容层，手机横过来拿着看。全屏元素是外框本身，被浏览器

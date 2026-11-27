@@ -52,7 +52,7 @@ const columns = column.columns([
   column.display({ id: 'address', header: () => t('follow:searchResults.address'),
     cell: ({ row: { original: { url } } }) => <LinkButton href={url} target="_blank" rel="noopener noreferrer"
       size="small" trailingIcon={RiExternalLinkLine} title={url} aria-label={url} className="min-w-0 justify-start [&>span]:min-w-0">
-      <span data-middle-truncate="" className="block truncate">{url.replace(/^https?:\/\//, '')}</span>
+      <span data-middle-truncate="" data-external-link-label="" className="block truncate">{url.replace(/^https?:\/\//, '')}</span>
     </LinkButton> }),
 ]);
 

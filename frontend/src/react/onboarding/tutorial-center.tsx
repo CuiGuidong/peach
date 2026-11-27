@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal, flushSync } from 'react-dom';
 import { Button } from '@/components/base/buttons/button';
 import { RiFolderLine, RiListCheck3, RiPlayCircleLine, RiRocketLine, RiRssLine, RiBarChartLine, RiDownloadCloudLine, RiSmartphoneLine, RiCheckboxCircleLine } from '@remixicon/react';
@@ -68,6 +68,10 @@ function GettingStarted({ go }: { go(path: string): void }) {
 
 const SYNC_TOAST = 'tutorial-sync';
 
+function focusNavigationIfNeeded() {
+  if (document.activeElement === document.body) document.getElementById('filterBtn')?.focus({ preventScroll: true });
+}
+
 export function TutorialCenter({ actions }: { actions: ShellActions }) {
   const [open, setOpen] = useState(false);
   const [invitation, setInvitation] = useState(false);
@@ -83,6 +87,11 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
   const invitationSession = useRef<GuideSession | null>(null);
   const epoch = useRef(0);
   const progressRef = useRef(progress); progressRef.current = progress;
+  const centerHeader = useCallback((element: HTMLElement | null) => {
+    if (element) return () => {
+      if (progressRef.current.completed) requestAnimationFrame(focusNavigationIfNeeded);
+    };
+  }, []);
   const position = useRef(0);
   const returnFocus = useRef<HTMLElement | null>(null);
   const returnPath = useRef('');
@@ -139,9 +148,27 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
     const entry = document.getElementById('tutorialBtn');
     if (entry) entry.hidden = !syncError && progress.completed;
   }, [progress.completed, ready, syncError]);
-  const dismissInvite = () => {
+  const restoreFocus = () => {
+    const target = returnFocus.current;
+    if (target?.isConnected && target.getBoundingClientRect().width
+      && !(target.id === 'tutorialBtn' && progressRef.current.completed)) target.focus();
+    else document.getElementById('settingsBtn')?.focus();
+  };
+  const close = () => { epoch.current += 1; setLoading(false); setOpen(false); restoreFocus() };
+  const hideInvite = () => {
     invitationSession.current?.stop(); invitationSession.current = null;
-    setInvitation(false); save({ ...progressRef.current, invited: true }, { action: 'dismiss' });
+    setInvitation(false);
+  };
+  const dismissInvite = () => {
+    hideInvite();
+    save({ ...progressRef.current, invited: true }, { action: 'dismiss' });
+  };
+  const finish = () => {
+    const fromInvitation = Boolean(invitationSession.current);
+    hideInvite();
+    save({ ...progressRef.current, invited: true, completed: true }, { action: 'complete' });
+    close();
+    if (fromInvitation) requestAnimationFrame(focusNavigationIfNeeded);
   };
   useEffect(() => {
     if (!invitation || open || syncError || !ready) return;
@@ -151,7 +178,7 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
       if (cancelled) return;
       intro = createGuideSession({
         mountPopover: mountGuidePopover,
-        invitation: true, navigate: actions.navigate, previous: () => {}, close: dismissInvite,
+        invitation: true, navigate: actions.navigate, previous: () => {}, close: dismissInvite, finish,
         next: () => { dismissInvite(); setOpen(true) },
       });
       invitationSession.current = intro;
@@ -165,11 +192,6 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
       queueMicrotask(() => closing?.stop());
     };
   }, [invitation, open, syncError, ready]);
-  const restoreFocus = () => {
-    const target = returnFocus.current;
-    if (target?.isConnected && target.getBoundingClientRect().width) target.focus();
-    else document.getElementById('settingsBtn')?.focus();
-  };
   const stop = (reopen = false) => {
     epoch.current += 1; session.current?.stop(); session.current = null;
     document.body.classList.remove('peach-guiding'); setLoading(false);
@@ -220,7 +242,6 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
     };
   }, []);
   useEffect(() => { if (body.current) body.current.scrollTop = 0 }, [tab]);
-  const close = () => { epoch.current += 1; setLoading(false); setOpen(false); restoreFocus() };
   const go = (path: string) => {
     if (dirty.current && path !== location.pathname) { setNotice(t('onboarding:tutorialCenter.unsavedForm')); return }
     close(); actions.navigate(path);
@@ -282,10 +303,10 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
     finally { if (ticket === epoch.current) setLoading(false) }
   };
   startRequest.current = (chapter, resume) => { void start(chapter, resume) };
-  const context = contextualChapter(location.pathname);
+  const context = contextualChapter(location.pathname + location.search);
   return createPortal(<>
     <ModalFrame isOpen={open} onOpenChange={value => { if (!value) close() }} width="tutorial" label={t('onboarding:tutorialCenter.title')} surfaceClassName="peach-react peach-guide-center">
-      <header className="flex shrink-0 items-center justify-between gap-4 border-b border-separator-border px-6 py-4"><h2 id="guideTitle" className="text-title-2-medium text-text-primary">{t('onboarding:tutorialCenter.title')}</h2><SettingsDialogClose label={t('onboarding:tutorialCenter.close')} onPress={close} /></header>
+      <header ref={centerHeader} className="flex shrink-0 items-center justify-between gap-4 border-b border-separator-border px-6 py-4"><h2 id="guideTitle" className="text-title-2-medium text-text-primary">{t('onboarding:tutorialCenter.title')}</h2><SettingsDialogClose label={t('onboarding:tutorialCenter.close')} onPress={close} /></header>
       <div className="peach-guide-tools flex shrink-0 flex-col gap-4 px-6 pt-4 pb-3">
         <SegmentedRadioGroup aria-label={t('onboarding:tutorialCenter.pathLabel')} name="guide-path" orientation="horizontal" className={SEGMENTED_TRACK}
           value={tab} onChange={value => { setTab(value as typeof tab); setQuery(''); setNotice('') }}>
@@ -299,6 +320,10 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
         {tab === 'start' ? <GettingStarted go={go} /> : <GuideDirectory key={tab} kind={tab} query={query} setQuery={setQuery} context={context} progress={progress} loading={loading} start={(item, resume) => { void start(item, resume) }} />}
       </div>
       </div>
+      {progress.completed ? null : <footer className="flex shrink-0 flex-wrap items-center justify-between gap-2 border-t border-separator-border px-4 py-3 sm:px-6">
+        <p className="text-body-2-regular text-text-secondary">{t('onboarding:tutorialCenter.reopenHint')}</p>
+        <Button variant="secondary" size="small" className="ml-auto" disabled={!ready || Boolean(syncError)} onClick={finish}>{t('onboarding:tutorialCenter.finish')}</Button>
+      </footer>}
     </ModalFrame>
   </>, document.body);
 }

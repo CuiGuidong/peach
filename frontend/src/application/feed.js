@@ -28,8 +28,7 @@ export function feedNewCoverHtml(item){
 }
 
 export function feedNewCardHtml(item){
-  // 署名与日期各占一行，长出演名单可从悬停说明查看。
-  const label=[item.performers&&`<span class="feednewperformers" title="${esc(item.performers)}">${esc(item.performers)}</span>`,
+  const label=[(item.performers||item.performer_refs?.length)&&'<span class="feednewcredits peach-react" data-feed-credits></span>',
     item.release_date&&`<time class="feednewdate" datetime="${esc(item.release_date)}">${esc(item.release_date)}</time>`].filter(Boolean)
     .join('');
   const cover=feedNewCoverHtml(item);

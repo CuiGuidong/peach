@@ -84,7 +84,7 @@ export interface Owner {
 export function ownerOf(item: Pick<DetailItem, 'performers' | 'creator' | 'entity_refs'>): Owner {
   const cast = item.performers || [];
   const who = cast.length
-    ? joinList(cast.slice(0, 3)) + (cast.length > 3 ? t('catalog:immerse.castMore', { count: cast.length - 3, total: cast.length }) : '')
+    ? joinList(cast.slice(0, 3))
     : (item.creator || t('catalog:shared.uncredited'));
   const kind = cast.length ? 'performer' : (item.creator ? 'creator' : '');
   const name = cast.length ? cast[0]! : (item.creator || t('catalog:shared.uncredited'));

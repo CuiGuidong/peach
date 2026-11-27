@@ -22,7 +22,8 @@ import { codedText } from '../../core/server-text';
 import { EDITION_TONE } from '../../core/jav-title';
 import { Button } from '@/components/base/buttons/button';
 import { Note } from '../components/note';
-import { RiArrowDownSLine, RiPlayLine, RiSubtractLine } from '@remixicon/react';
+import { RiPlayLine, RiSubtractLine } from '@remixicon/react';
+import { CastPopover } from '../components/cast-popover';
 import type { WorkContextOperation } from '../components/work-context-menu';
 import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
 import { patchCatalogItems, replaceCatalogItem } from '../catalog-grid/catalog-grid';
@@ -606,17 +607,13 @@ function Rating({ item, write }: { item: DetailItem; write: DetailWrite }) {
    撑满。一个都没有时，「未归属」就是这条作品所属的那一类，和女优、厂牌并列：点进去看得到全部。 */
 function Identity({ item, actions }: { item: DetailItem; helpers: ItemDetailHelpers; actions: ItemDetailActions }) {
   const groups = useMemo(() => identityGroups(item), [item]);
-  const [castOpen, setCastOpen] = useState(false);
   const overflow = Math.max(0, groups.cast.length - CAST_SHOWN);
-  const cell = (kind: string, ref: DetailEntityRef, index: number) => {
-    const hide = kind === 'performer' && index >= CAST_SHOWN && !castOpen;
-    return <IdentityCell key={`${kind}:${ref.name}`} kind={kind} person={ref} onOpen={actions.openEntity}
-      hidden={hide} overflow={kind === 'performer' && index >= CAST_SHOWN} />;
-  };
+  const cell = (kind: string, ref: DetailEntityRef) =>
+    <IdentityCell key={`${kind}:${ref.name}`} kind={kind} person={ref} onOpen={actions.openEntity} />;
   const group = (label: string, kind: string, list: DetailEntityRef[], extra: ReactNode = null) => (list.length ? (
     <section key={`${kind}:${label}`} data-id-group={kind}>
       <h5 data-id-label="">{label}</h5>
-      <div data-id-row="">{list.map((ref, index) => cell(kind, ref, index))}{extra}</div>
+      <div data-id-row="">{list.map(ref => cell(kind, ref))}{extra}</div>
     </section>
   ) : null);
   const primary = [
@@ -630,9 +627,9 @@ function Identity({ item, actions }: { item: DetailItem; helpers: ItemDetailHelp
           </button>
         </div>
       </section>
-    ) : group(performerLabel(item), 'performer', groups.cast, overflow && !castOpen
-      ? <Button variant="secondary" size="small" id="castMore" data-cast-more="" trailingIcon={RiArrowDownSLine}
-        aria-expanded={false} onClick={() => setCastOpen(true)}>{t('catalog:detailCredit.showMore', { count: overflow })}</Button> : null),
+    ) : group(performerLabel(item), 'performer', groups.cast.slice(0, CAST_SHOWN), overflow
+      ? <CastPopover people={groups.cast} label={t('catalog:detailCredit.showMore', { count: overflow })} subscribe={item.is_jav} triggerButton
+        onOpenPerson={person => actions.openEntity('performer', person.name)} /> : null),
     group(t('catalog:shared.label'), 'studio', groups.studios),
     group(t('catalog:entityHero.studio'), 'studio', groups.makers),
     group(t('catalog:shared.sellers'), 'creator', groups.creators.filter(ref => ref.identity_categories?.includes('seller'))),

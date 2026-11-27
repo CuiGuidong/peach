@@ -261,7 +261,7 @@ function FollowCardView(props: FollowCardProps) {
               标签只读（卡上不筛选），另外记下来源类型。 */}
           <div data-media-byline="" data-follow-byline="">
             {identity.entityName ? (
-              <FollowAuthorLink name={identity.entityName} actions={actions} data-media-who="" data-follow-author="" title={identity.author}>
+              <FollowAuthorLink name={identity.entityName} actions={actions} data-media-who="" data-follow-author="" data-inline-action="" title={identity.author}>
                 <WhoLabel name={identity.author} />
               </FollowAuthorLink>
             ) : <span data-media-who="" data-follow-author="" title={identity.author}><WhoLabel name={identity.author} /></span>}

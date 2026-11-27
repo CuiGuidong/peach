@@ -1,4 +1,8 @@
-.peach-react [data-column-filter-avatar] { position: relative; display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; overflow: hidden; border-radius: 50%; background: var(--color-background-tertiary-default); }
+.peach-react :is([data-media-avatar], [data-column-filter-avatar]) {
+  background-color: color-mix(in srgb, var(--color-text-primary) 10%, var(--portrait-surface, var(--color-background-primary-default)));
+  color: var(--color-text-primary);
+}
+.peach-react [data-column-filter-avatar] { position: relative; display: inline-grid; place-items: center; flex: none; width: 24px; height: 24px; overflow: hidden; border-radius: 50%; }
 .peach-react [data-column-filter-avatar][data-avatar-size="medium"] { width: 32px; height: 32px; }
 .peach-react [data-column-filter-avatar] > span { grid-area: 1 / 1; }
 .peach-react [data-column-filter-options] { overflow-anchor: none; }

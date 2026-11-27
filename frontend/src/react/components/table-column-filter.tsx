@@ -16,6 +16,7 @@ import { FilterMenuScroll } from './filter-menu-scroll';
 import { Note } from './note';
 import { ActivityStatus } from './activity-motion';
 import { t } from '../../i18n';
+import './table-column-filter.css';
 
 export type ToolbarFieldDragProps = Pick<ComponentProps<'button'>, 'style' | 'aria-keyshortcuts' | 'onPointerDown'
   | 'onPointerMove' | 'onPointerUp' | 'onPointerCancel' | 'onLostPointerCapture' | 'onKeyDown' | 'onDragStart'> & {
@@ -41,8 +42,8 @@ export function TableColumnFilter(props: ColumnFilterProps) {
   </ColumnFilterPopover>;
 }
 
-export function ColumnFilterPopover({ id, label, copyKey, active, view, toolbar, shouldCloseOnInteractOutside, children }: {
-  id: string; label: string; copyKey?: string; active: boolean;
+export function ColumnFilterPopover({ id, label, triggerLabel, triggerButton, copyKey, active, view, toolbar, shouldCloseOnInteractOutside, children }: {
+  id: string; label: string; triggerLabel?: string; triggerButton?: boolean; copyKey?: string; active: boolean;
   orderKey?: string;
   toolbar?: boolean;
   view?: { anchor: boolean; onPointerEnter(event: PointerEvent<HTMLButtonElement>): void; onOpenChange(open: boolean): void };
@@ -54,15 +55,20 @@ export function ColumnFilterPopover({ id, label, copyKey, active, view, toolbar,
   const inToolbar = toolbar || !!view;
   const drag = useContext(ToolbarFieldDrag);
   const changeOpen = (next: boolean) => { setOpen(next); view?.onOpenChange(next) };
-  const Trigger = inToolbar ? 'button' : LinkButton;
-  const appearance = inToolbar ? {} : { variant: active ? 'primary' as const : 'secondary' as const, size: 'xs' as const, trailingIcon: MenuChevron };
+  const Trigger = inToolbar ? 'button' : triggerButton ? Button : LinkButton;
+  const appearance = inToolbar ? {} : {
+    variant: active ? 'primary' as const : 'secondary' as const,
+    size: triggerButton ? 'small' as const : 'xs' as const,
+    trailingIcon: MenuChevron,
+  };
   return <>
     <Trigger {...appearance} {...(inToolbar ? drag : null)} ref={trigger} type="button" data-filter-field={inToolbar ? '' : undefined}
+      data-inline-popover-trigger={!inToolbar && !triggerButton ? '' : undefined}
       data-table-column-filter={id} data-filter-active={active ? '' : undefined}
       data-catalog-view={inToolbar ? id : undefined} data-glide-anchor={view?.anchor ? '' : undefined}
       data-entity-press={inToolbar ? '' : undefined} onPointerEnter={view?.onPointerEnter}
       className={inToolbar ? undefined : 'min-w-0 max-w-full justify-start [&>span]:min-w-0'}
-      aria-label={t('catalog:columnFilter.label', { column: label })} aria-haspopup="dialog" aria-expanded={open}
+      aria-label={triggerLabel ?? t('catalog:columnFilter.label', { column: label })} aria-haspopup="dialog" aria-expanded={open}
       onKeyDown={inToolbar ? drag?.onKeyDown : event => {
         if (event.altKey || (event.key !== 'Enter' && event.key !== ' ')) return;
         // 表头的导航会处理 Enter 与空格。焦点在筛选键上时由筛选键打开自己的菜单。

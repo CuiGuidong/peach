@@ -80,7 +80,7 @@ const row = (id: number, patch: Partial<ImmerseItem> = {}): ImmerseItem => ({
 });
 
 const detail = (id: number, patch: Partial<DetailItem> = {}): DetailItem => ({
-  ...row(id), performers: ['甲'], creator: '', entity_refs: { performer: [{ id: 90 + id, has_image: true }] },
+  ...row(id), performers: ['甲'], creator: '', entity_refs: { performer: [{ id: 90 + id, name: '甲', has_image: true }] },
   feedback: undefined, o_count: 2, ...patch,
 } as DetailItem);
 
@@ -516,12 +516,15 @@ describe('动作键', () => {
 });
 
 describe('作者与标题', () => {
-  it('共演念前三位、多出来的写人数；点作者先关掉再进第一位的资料页', async () => {
-    serve({ draws: [[row(1), row(2)]], details: { 1: { performers: ['甲', '乙', '丙', '丁'] } } });
+  it('共演显示前三位和人数入口，点击署名打开首位艺人', async () => {
+    const performers = ['甲', '乙', '丙', '丁'];
+    const performer = performers.map((name, index) => ({ id: 91 + index, name, has_image: true }));
+    serve({ draws: [[row(1), row(2)]], details: { 1: { performers, entity_refs: { performer } } } });
     await open();
-    const author = q<HTMLAnchorElement>('[data-immerse-author]>a')!;
-    await until(() => Boolean(author.textContent));
-    expect(author.textContent).toBe('甲、乙、丙 等 4 人');
+    await until(() => Boolean(q('[data-immerse-owner]')?.textContent?.trim()));
+    const author = q<HTMLButtonElement>('[data-immerse-owner]')!;
+    expect(author.textContent?.trim()).toBe('甲、乙、丙');
+    expect(q('[data-immerse-cast] button')!.textContent).toMatch(/等 4 人/);
     expect(q('[data-immerse-avatar] .ini')!.textContent).toBe('甲');
     expect(q('[data-immerse-avatar] img')!.getAttribute('src')).toBe('/entity-image?kind=performer&id=91&thumb=1');
     await click(author);
@@ -532,9 +535,9 @@ describe('作者与标题', () => {
   it('没有署名人时点作者先关掉再进「未归属」', async () => {
     serve({ draws: [[row(1), row(2)]], details: { 1: { performers: [], creator: '', entity_refs: {} } } });
     await open();
-    const author = q<HTMLAnchorElement>('[data-immerse-author]>a')!;
-    await until(() => Boolean(author.textContent));
-    expect(author.textContent).toBe('未归属');
+    await until(() => Boolean(q('[data-immerse-owner]')?.textContent?.trim()));
+    const author = q<HTMLButtonElement>('[data-immerse-owner]')!;
+    expect(author.textContent?.trim()).toBe('未归属');
     await click(author);
     expect(host.closed).toHaveBeenCalledTimes(1);
     expect(host.openEntity).not.toHaveBeenCalled();
@@ -817,7 +820,8 @@ describe('常驻组件', () => {
     const frame = container.firstElementChild as HTMLElement;
     expect(frame.hasAttribute('data-immerse')).toBe(true);
     expect(frame.hidden, '第一次打开之前外框就在，藏着').toBe(true);
-    expect(container.querySelector('.peach-react')).toBeNull();
+    expect(frame.matches('.peach-react')).toBe(false);
+    expect(frame.querySelector(':scope > [data-immerse-overlays].peach-react')).not.toBeNull();
     expect(container.closest('.peach-react')).toBeNull();
     expect(handed!.isOpen()).toBe(false);
   });

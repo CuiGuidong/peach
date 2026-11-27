@@ -1,9 +1,16 @@
+import type { ReactNode } from 'react';
 import { Radio } from 'react-aria-components';
 import { RiLayoutGridLine, RiListUnordered } from '@remixicon/react';
 import { SEGMENTED_GLASS_TRACK, SEGMENT_GLASS } from '../components/segmented';
 import { GlassSegmentGroup } from '../components/glass-segments';
 import { setCatalogView, useCatalogView } from './catalog-view';
 import { t } from '../../i18n';
+
+/** 下排显示工具顺序与馆藏一致：卡片尺寸、卡片／列表、文件夹。 */
+export function CatalogDisplayControls({ cardLayout, folders }: { cardLayout?: ReactNode; folders?: ReactNode }) {
+  const view = useCatalogView();
+  return <>{view === 'cards' ? cardLayout : null}<CatalogViewToggle />{folders}</>;
+}
 
 export function CatalogViewToggle() {
   const view = useCatalogView();

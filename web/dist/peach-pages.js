@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ce921531-f611-45bc-8493-fa01d88d5866", e._sentryDebugIdIdentifier = "sentry-dbid-ce921531-f611-45bc-8493-fa01d88d5866");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "83daf38f-458f-48ee-9083-9235fed8d733", e._sentryDebugIdIdentifier = "sentry-dbid-83daf38f-458f-48ee-9083-9235fed8d733");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t, n) => () => {
@@ -5828,6 +5828,14 @@ var We = "peach.settings.v1", Ge = {
 		usageBody: "See how much space metadata, cache, and backups take up.",
 		usageTitle: "Usage breakdown"
 	},
+	guideAi: {
+		askBody: "Describe what you want to find, such as “Find recently added videos I haven’t watched.” Choose the search scope and model before sending. Open the search criteria to edit them and search again.",
+		askTitle: "Search in natural language",
+		connectBody: "Choose a provider and save the connection. Use an API key or authorize a ChatGPT subscription. You can return to the AI Assistant to view its built-in demo before connecting.",
+		input: "Message box",
+		summary: "Connect AI, search in natural language, and review results from Library tools.",
+		toolsBody: "Open Library tools below the message box to translate, suggest tags, edit metadata, or organize your collection. Review any draft changes before applying them."
+	},
 	guideAppearance: {
 		contrastBody: "Turn on for clearer separation between text and background.",
 		contrastTitle: "Increase contrast",
@@ -5994,15 +6002,16 @@ var We = "peach.settings.v1", Ge = {
 		externalBody: "Choose a local player, an M3U playlist, or a stream URL here, then click Open. Another device must be able to reach the current Peach address.",
 		filterBody: "Filters combine to narrow the results. If you can't find something, check the selected library and filters first.",
 		filterTitle: "Filter and clear",
+		foldersBody: "Use the directory icon on the right of the filter bar to browse media directories and subdirectories. Select it again to return to your video view.",
+		layoutBody: "Use the view control on the right of the filter bar to switch between cards and the list. In the list, drag a column header edge to resize it.",
+		layoutTitle: "Switch between cards and the list",
 		libraryBody: "Switch between all libraries or a single library at the top of the navigation; on a phone, open the sidebar first. A library groups several directories together.",
 		libraryTitle: "Choose a library",
 		playerBody: "The bottom control bar has play, progress, volume, and full screen. The gear on the right opens playback speed, subtitles, rotation, quality, and more.",
 		playerTitle: "Player controls",
-		searchBody: "Enter a title, code, or name, then narrow the results with filters and sorting. Set how many searches to keep in Preferences > Search.",
-		searchTitle: "Search by keyword",
 		subtitlesBody: "Open Subtitles from the player's gear menu to pick an existing subtitle, load a local subtitle file, or search for subtitles. Playback speed and quality are in the same menu.",
 		subtitlesTitle: "Subtitles and playback options",
-		summary: "Search, filters, details, editions, subtitles, and the player.",
+		summary: "Libraries, filters, folders, video details, and the player.",
 		title: "Find and play"
 	},
 	guideFollow: {
@@ -6030,11 +6039,13 @@ var We = "peach.settings.v1", Ge = {
 		libraryTitle: "JAV collection",
 		newBody: "Discover recommends videos based on your taste. Switch between your collection and external videos here, and filter by tag.",
 		newTitle: "Discover recommendations",
+		onlineBody: "Find videos by release date, performer, label, or tag. In list view, use the headers to filter and resize columns. Select the performer count to see everyone in the video.",
 		qualityBody: "Upgrade cards list the current edition's details and why it was flagged; you can view editions or search torrents. With no targets, this shows an empty state.",
 		qualityTitle: "HD upgrades",
-		summary: "Collection, new releases, want list, and HD upgrades.",
+		releasesBody: "See new releases found through your subscriptions that are still outside the collection. Filter by performer, label, or tag, and choose cards or the list.",
+		summary: "Collection, new releases, want list, recommendations, online catalog, and HD upgrades.",
 		title: "JAV and new releases",
-		wantsBody: "Add external videos you like to your want list; switch between Collection, Discover, and Want here.",
+		wantsBody: "Add videos from New releases or Discover. Track the search for sources and the import status here.",
 		wantsTitle: "View your want list"
 	},
 	guideJavSettings: {
@@ -6253,7 +6264,7 @@ var We = "peach.settings.v1", Ge = {
 		torznabUrlTitle: "Torznab URL"
 	},
 	guideTopics: {
-		browseSummary: "Search and play, people and tags, JAV new releases",
+		browseSummary: "Search and play, AI Assistant, people and tags, JAV new releases",
 		browseTitle: "Find and discover",
 		collectSummary: "Marks and playlists, creator updates, taste and stats",
 		collectTitle: "Save and follow",
@@ -6306,6 +6317,7 @@ var We = "peach.settings.v1", Ge = {
 		closeDialogFirst: "Close the open details or dialog before starting a tour.",
 		closeMiniPlayer: "Close the mini player before starting the player tour.",
 		completionNotSaved: "Tour ended, but completion wasn't saved. Reload tour progress and try again.",
+		finish: "Finish tour",
 		getStarted: "Get started",
 		interfaceTour: "Interface tour",
 		inviteBody: "Click the compass for a {{count, number}}-step intro to Peach. Explore the rest when you need it.",
@@ -6316,6 +6328,7 @@ var We = "peach.settings.v1", Ge = {
 		quickTourDone: "Quick tour complete. The tour button is now hidden on all devices; reopen it from Preferences → Settings → Maintenance → Guided tour.",
 		reload: "Reload",
 		reloadFirst: "Reload tour progress before starting a tour.",
+		reopenHint: "Finishing hides the compass. Reopen the tour in App and maintenance.",
 		saveError: "Couldn't save tour progress, so other devices won't see it. Reload to continue.",
 		settingsTour: "Settings tour",
 		title: "Guided tour",
@@ -13989,6 +14002,14 @@ var We = "peach.settings.v1", Ge = {
 		usageBody: "查看资料、缓存与备份占用的空间。",
 		usageTitle: "占用统计"
 	},
+	guideAi: {
+		askBody: "用一句话描述要找的内容，例如「找出最近入库、还没看过的视频」。发送前可以选择搜索范围和模型。展开搜索条件可以修改后重搜。",
+		askTitle: "用自然语言搜索",
+		connectBody: "选择服务并保存连接。支持使用 API Key，也可以授权 ChatGPT 订阅。接入前可以回到 AI 助手查看内置演示。",
+		input: "输入框",
+		summary: "接入 AI、用自然语言找片、复核馆藏工具的结果。",
+		toolsBody: "在输入框下方打开馆藏工具，选择翻译、标签建议、元数据或整理任务。需要修改馆藏时，先核对草稿，再确认应用。"
+	},
 	guideAppearance: {
 		contrastBody: "需要更清楚区分文字与背景时开启。",
 		contrastTitle: "增加对比度",
@@ -14152,15 +14173,16 @@ var We = "peach.settings.v1", Ge = {
 		externalBody: "在这里选择本地播放器、M3U 播放列表或网络播放地址，再点打开。另一台设备需要能访问当前 Peach 地址。",
 		filterBody: "多个筛选条件会共同缩小结果。找不到内容时先检查媒体库和筛选条件。",
 		filterTitle: "筛选与清除",
+		foldersBody: "打开筛选栏右侧的文件夹模式，按媒体目录和子文件夹浏览。再点一次返回作品视图。",
+		layoutBody: "用筛选栏右侧的显示方式切换卡片或列表。在列表中可以拖动表头边缘调整列宽。",
+		layoutTitle: "切换卡片和列表",
 		libraryBody: "导航顶部可以切换全部媒体库或某个媒体库；手机上先展开侧栏。媒体库把不同目录组织成一组。",
 		libraryTitle: "选择媒体库",
 		playerBody: "底部控制条提供播放、进度、音量和全屏。右侧齿轮打开播放速度、字幕、画面旋转和清晰度等选项。",
 		playerTitle: "播放器控件",
-		searchBody: "输入作品、番号或人物名称，结合筛选与排序定位内容。搜索记录数量可在搜索与推荐中设置。",
-		searchTitle: "按关键词找内容",
 		subtitlesBody: "从播放器齿轮菜单进入字幕，可以选择已有字幕、加载本地字幕文件或搜索字幕；播放速度和清晰度也在这个菜单中。",
 		subtitlesTitle: "字幕与播放选项",
-		summary: "搜索、筛选、详情、版本、字幕和播放器。",
+		summary: "媒体库、筛选、文件夹、作品详情和播放器。",
 		title: "找到并播放"
 	},
 	guideFollow: {
@@ -14188,11 +14210,13 @@ var We = "peach.settings.v1", Ge = {
 		libraryTitle: "JAV 馆藏",
 		newBody: "发现页按口味推荐作品。在这里切换馆藏或外部内容，并按标签筛选。",
 		newTitle: "发现推荐",
+		onlineBody: "在线目录可按发行日期、艺人、厂牌和标签查找作品。切到列表后，可以通过表头筛选和调整列宽。点「等 X 人」展开出演名单。",
 		qualityBody: "待升级卡片列出当前版本信息和判定原因，可以查看版本或查找资源；没有目标时这里显示空状态。",
 		qualityTitle: "高清版",
-		summary: "馆藏、新作、想要清单与高清版。",
+		releasesBody: "查看订阅发现的未入库新作。可以按艺人、厂牌或标签筛选，也可以在卡片和列表之间切换。",
+		summary: "馆藏、新作、想要、推荐、在线目录和高清版。",
 		title: "JAV 与追新",
-		wantsBody: "喜欢的外部作品可以加入想要清单；在这里切换馆藏、发现与想要。",
+		wantsBody: "在新作或发现中加入想要的作品，再到这里跟进资源查找和入库状态。",
 		wantsTitle: "查看想要清单"
 	},
 	guideJavSettings: {
@@ -14411,7 +14435,7 @@ var We = "peach.settings.v1", Ge = {
 		torznabUrlTitle: "Torznab 地址"
 	},
 	guideTopics: {
-		browseSummary: "搜索播放、人物标签、JAV 追新",
+		browseSummary: "搜索播放、AI 助手、人物标签、JAV 追新",
 		browseTitle: "查找与发现",
 		collectSummary: "标记列表、创作者更新、口味统计",
 		collectTitle: "收藏与关注",
@@ -14464,6 +14488,7 @@ var We = "peach.settings.v1", Ge = {
 		closeDialogFirst: "请先关闭当前详情或对话框，再开始导览。",
 		closeMiniPlayer: "请先关闭正在播放的小窗，再开始播放器导览。",
 		completionNotSaved: "导览已结束，但完成状态未保存。请重新读取教程状态后再试。",
+		finish: "结束教程",
 		getStarted: "开始使用",
 		interfaceTour: "界面导览",
 		inviteBody: "点击这个指南针，先用 {{count, number}} 步认识 Peach。其他功能用到时再看。",
@@ -14474,6 +14499,7 @@ var We = "peach.settings.v1", Ge = {
 		quickTourDone: "快速导览已完成，所有设备都会收起教程入口。需要时到设置 → Peach 配置 → 应用与维护 → 新手教程重新打开。",
 		reload: "重新读取",
 		reloadFirst: "请先重新读取教程状态，再开始导览。",
+		reopenHint: "结束后收起指南针，可在应用与维护中重新打开。",
 		saveError: "教程进度未保存，其他设备不会同步。重新读取后继续。",
 		settingsTour: "设置导览",
 		title: "新手教程",
@@ -60061,4 +60087,4 @@ Nt(), QP();
 var eF = document.getElementById("peach-page"), tF = eF ? $P[eF.dataset.page ?? ""] : void 0;
 eF && tF && (0, Ht.createRoot)(eF).render(/* @__PURE__ */ (0, G.jsx)(f3, { children: /* @__PURE__ */ (0, G.jsx)(tF, { data: { ...eF.dataset } }) }));
 
-//# debugId=ce921531-f611-45bc-8493-fa01d88d5866
+//# debugId=83daf38f-458f-48ee-9083-9235fed8d733

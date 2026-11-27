@@ -108,13 +108,15 @@
 body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] { width: calc(214px * 168 / 336); }
 /* 悬停面往卡片盒外多铺 8px：不动网格尺寸、不挤相邻卡，只让命中反馈比内容大一圈；同一时刻
  * 只有一张卡在铺，列距另一半留给邻卡。 */
-.peach-react [data-media-card]:is(:hover, :focus-within) {
-  background: var(--hover);
-  box-shadow: 0 0 0 8px var(--hover);
+.peach-react [data-media-card]:is(:hover, :has(:focus-visible)) {
+  --card-hover-surface: var(--hover);
 }
-.peach-react [data-media-card][data-library]:not([data-pending-delete], [data-variant="resource"]):is(:hover, :focus-within) {
-  background: var(--library-hover);
-  box-shadow: 0 0 0 8px var(--library-hover);
+.peach-react [data-media-card][data-library]:not([data-pending-delete], [data-variant="resource"]):is(:hover, :has(:focus-visible)) {
+  --card-hover-surface: var(--library-hover);
+}
+.peach-react [data-media-card]:is(:hover, :has(:focus-visible)):not(:has([data-media-meta] :is(a[href], button):not([data-media-title], [data-open]):is(:hover, :focus-visible))) {
+  background: var(--card-hover-surface);
+  box-shadow: 0 0 0 8px var(--card-hover-surface);
 }
 /* 稍后看与已标记是个人状态，和来源色分开：封面左下角各一枚带色图标，两枚可以同时出现。
  * 鼠标不在卡上时也一直显示；颜色之外还有字形，不靠颜色单独分辨。 */
@@ -142,7 +144,7 @@ body[data-density="dense"] .peach-react [data-media-card][data-variant="short"] 
 .peach-react [data-media-status] svg { width: 15px; height: 15px; fill: currentColor; stroke: currentColor; stroke-width: 1.5; }
 .peach-react [data-media-status] [data-status="later"] { color: var(--color-sky-500); }
 .peach-react [data-media-status] [data-status="flagged"] { color: var(--color-rose-500); }
-.peach-react [data-media-card]:hover [data-media-pic] { filter: saturate(.9) brightness(.94); }
+.peach-react [data-media-card]:hover:not(:has([data-media-meta] :is(a[href], button):not([data-media-title], [data-open]):hover)) [data-media-pic] { filter: saturate(.9) brightness(.94); }
 .peach-react [data-select-mode] [data-media-card] { cursor: default; user-select: none; }
 .peach-react [data-select-mode] :is([data-media-open], [data-media-preview], [data-media-later], [data-media-seek]),
 .peach-react [data-select-mode] :is([data-media-later], [data-media-seek]) button { pointer-events: none !important; }
@@ -566,8 +568,6 @@ body[data-density="dense"] .peach-react :is([data-media-trash-mark], [data-media
   overflow: hidden;
   border: 0;
   border-radius: 50%;
-  background: var(--media-placeholder);
-  color: inherit;
   cursor: pointer;
 }
 .peach-react :is(button, a)[data-media-avatar]:hover { box-shadow: 0 0 0 2px var(--ink-2); }
@@ -590,7 +590,7 @@ body[data-density="dense"] .peach-react :is([data-media-trash-mark], [data-media
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--muted);
+  color: inherit;
   font-family: Bahnschrift, "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", sans-serif;
   font-size: var(--fs-sm);
 }
@@ -619,7 +619,7 @@ body[data-density="dense"] .peach-react :is([data-media-trash-mark], [data-media
   transform: translate(var(--lift-x, 0), var(--lift-y, 0)) scale(var(--lift-scale, 1));
   transition: left var(--lift-motion, var(--board-motion)), transform var(--lift-motion, var(--board-motion));
 }
-.peach-react [data-media-avatars]:is(:hover, :has(:focus-visible)) > [data-media-avatar] {
+.peach-react [data-media-avatars]:not([data-list-people] [data-media-avatars]):is(:hover, :has(:focus-visible)) > [data-media-avatar] {
   left: calc(5px + 30px * var(--media-avatar-index));
 }
 .peach-react [data-media-avatars] > :nth-child(1) { z-index: 5; }
@@ -709,7 +709,8 @@ body .peach-react [data-media-card][data-pending-delete][data-jav-card] button[d
   min-width: 0;
   min-height: 1.5em;
   line-height: 1.5;
-  overflow: hidden;
+  overflow: clip;
+  overflow-clip-margin: 4px;
   white-space: nowrap;
   gap: 8px;
   color: var(--muted);
@@ -735,17 +736,20 @@ body .peach-react [data-media-card][data-pending-delete][data-jav-card] button[d
   vertical-align: bottom;
 }
 .peach-react button[data-media-who] { cursor: pointer; }
-.peach-react [data-media-who] > span { overflow: hidden; text-overflow: ellipsis; }
+.peach-react [data-media-who][data-inline-action] { overflow: visible; }
+.peach-react [data-media-who][data-inline-action]:is(:hover, :focus-visible) { color: var(--color-text-primary); }
+.peach-react [data-media-who] > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .peach-react :is([data-media-release], [data-media-size]) { display: inline-flex; flex: none; align-items: center; gap: 4px; white-space: nowrap; }
 .peach-react [data-media-facts] { display: inline-flex; flex: none; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
 .peach-react [data-media-byline] svg { width: var(--icon-inline); height: var(--icon-inline); flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .peach-react span[data-media-who] { cursor: default; }
-.peach-react [data-media-who-more] { flex: none; color: var(--muted); white-space: nowrap; }
+.peach-react [data-cast-trigger] { flex: none; white-space: nowrap; }
+.peach-react :is([data-cast-trigger] > button, [data-media-credit-action]) { color: var(--color-text-primary); }
+.peach-react [data-media-credit-action]:hover { color: var(--tungsten); }
 .peach-react [data-media-why] { min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .peach-react [data-variant="next"] [data-media-why] { color: var(--loupe); }
-.peach-react [data-variant="next"] [data-media-byline] { flex-wrap: nowrap; overflow: hidden; }
+.peach-react [data-variant="next"] [data-media-byline] { flex-wrap: nowrap; }
 .peach-react [data-variant="next"] [data-media-who] { flex: 0 1 auto; max-width: 55%; }
-.peach-react [data-variant="next"] [data-media-who-more] { flex: none; white-space: nowrap; }
 .peach-react [data-variant="next"] [data-media-why] { flex: 1 1 0; }
 .peach-react [data-variant="next"] :is([data-media-size], [data-media-release]) { display: none; }
 .peach-react [data-variant="next"] [data-media-facts] { display: none; }
@@ -781,12 +785,6 @@ body .peach-react [data-media-card][data-pending-delete][data-jav-card] button[d
   .peach-react [data-media-card][data-jav-card] [data-media-byline] { flex-wrap: wrap; row-gap: 2px; }
   .peach-react [data-media-card][data-jav-card] [data-media-facts] { flex-basis: 100%; }
 }
-@container media-meta (width < 200px) {
-  .peach-react [data-media-card]:not([data-variant="next"]) [data-media-who-more] { display: none; }
-}
-@container media-meta (width < 140px) {
-  .peach-react [data-media-who-more] { display: none; }
-}
 @container media-meta (width < 110px) {
   .peach-react [data-media-size] { display: none; }
 }
@@ -820,7 +818,7 @@ body .peach-react [data-media-card][data-pending-delete][data-jav-card] button[d
   white-space: nowrap;
   cursor: pointer;
 }
-.peach-react [data-media-tag]:hover { background: var(--hover); color: var(--ink); }
+.peach-react :is(a, button)[data-media-tag]:is(:hover, :focus-visible) { background: var(--hover); color: var(--ink); }
 /* 只读的标签（关注卡、关注来的作品）是同一张脸的文字，不接筛选：不给手形，悬停也不变色。 */
 .peach-react span[data-media-tag] { cursor: default; }
 .peach-react span[data-media-tag]:hover { background: var(--tag-fill); color: var(--ink-2); }
@@ -857,20 +855,18 @@ body[data-density="dense"] .peach-react [data-media-card] [data-media-byline] {
   height: 1.35em;
   line-height: 1.35em;
   min-height: 0;
-  overflow: hidden;
   white-space: nowrap;
 }
 body[data-density="dense"] .peach-react [data-media-card] [data-media-who] { flex: 0 1 auto; }
-body[data-density="dense"] .peach-react [data-media-card] :is([data-media-who-more], [data-media-size]) { flex: none; white-space: nowrap; }
 body[data-density="dense"] .peach-react [data-media-card] [data-media-why] { display: none; }
 body[data-density="dense"] .peach-react [data-media-card] [data-media-tags] { flex-wrap: nowrap; align-items: flex-start; height: 38px; overflow: hidden; }
 body[data-density="dense"] .peach-react [data-media-text] > [data-media-tags] { margin-top: -4px; }
 body[data-density="dense"] .peach-react [data-media-card] [data-media-tag]:nth-child(n+2) { display: none; }
 /* 密集一档的署名始终一行，窄卡也不像宽松档那样把日期折到下一行，屏外卡按标题、署名、标签
-   各一行估高。放不下时作者名先省略，再依次让出「等 N 人」、体积，最窄时日期也让出。 */
+   各一行估高。放不下时作者名先省略，再让出体积和日期。 */
 body[data-density="dense"] .peach-react [data-media-card]:not([data-variant="next"]) [data-media-facts] { flex-basis: auto; }
 @container media-meta (width < 360px) {
-  body[data-density="dense"] .peach-react [data-media-card]:not([data-variant="next"]) :is([data-media-who-more], [data-media-size]) { display: none; }
+  body[data-density="dense"] .peach-react [data-media-card]:not([data-variant="next"]) [data-media-size] { display: none; }
 }
 @container media-meta (width < 160px) {
   body[data-density="dense"] .peach-react [data-media-card]:not([data-variant="next"]) [data-media-facts] { display: none; }

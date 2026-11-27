@@ -71,6 +71,18 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
   card._hoverEvents?.abort(); card._stopHover?.(); delete card._stopHover;
   const pic = el.querySelector('[data-media-pic]'); if (!pic) return;
   const events = new AbortController(); card._hoverEvents = events;
+  const isPreviewTarget = (target: EventTarget | null) => target instanceof Element && el.contains(target)
+    && !target.closest('[data-media-meta] :is(a[href], button):not([data-media-title], [data-open])');
+  const watchHover = (start: () => void, stop: () => void) => {
+    card._stopHover = stop;
+    el.addEventListener('mouseover', event => {
+      const preview = isPreviewTarget(event.target);
+      if (preview === isPreviewTarget(event.relatedTarget)) return;
+      if (preview) start();
+      else stop();
+    }, { signal: events.signal });
+    el.addEventListener('mouseleave', stop, { signal: events.signal });
+  };
   const previewVideo = it.location === 'local' && it.cost !== 'metered';
   el.dataset.hoverMode = previewVideo ? 'video' : 'frames';
   let longTimer: ReturnType<typeof setTimeout> | undefined;
@@ -88,7 +100,7 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
        在里面居中、上下留黑，和本地视频的 `.hv` 同一个口径。 */
     if (!it.has_thumb) return;        // 没有接触印相就没有可扫的格子
     let t: ReturnType<typeof setInterval> | undefined, i = 4, layer: HTMLImageElement | null = null, loading = false;
-    el.addEventListener('mouseenter', () => {
+    const start = () => {
       if (disabled() || config.selecting() || config.censored()) return;
       if (!layer) {
         layer = document.createElement('img');
@@ -111,16 +123,16 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
         layer.src = `/poster?id=${it.id}&c=${i}`;
         pic.appendChild(layer);
       }
-    }, { signal: events.signal });
+    };
     const stop = () => {
       clearLong(); clearInterval(t); t = undefined; loading = false;
       if (layer) { layer.remove(); layer = null; } i = 4;
     };
-    card._stopHover = stop; el.addEventListener('mouseleave', stop, { signal: events.signal });
+    watchHover(start, stop);
     return;
   }
   let timer: ReturnType<typeof setTimeout> | undefined, v: HoverVideo | null = null;
-  el.addEventListener('mouseenter', () => {
+  const start = () => {
     if (disabled() || config.selecting() || config.censored() || scrolling()) return;   // 关了预览、多选、遮挡或滚动中不启动
     timer = setTimeout(() => {
       if (disabled() || scrolling() || config.censored()) return;
@@ -147,11 +159,11 @@ export function wireHover(el: HTMLElement, it: HoverItem): void {
       }, { once: true });
       pic.appendChild(video); video.play().catch(() => {});
     }, 340);                         // 340ms 防抖，鼠标划过不触发
-  }, { signal: events.signal });
+  };
   const stop = () => {
     clearLong();
     clearTimeout(timer); timer = undefined;
     if (v) { if (v._hop) clearInterval(v._hop); v.pause(); v.removeAttribute('src'); v.load(); v.remove(); v = null; }
   };
-  card._stopHover = stop; el.addEventListener('mouseleave', stop, { signal: events.signal });
+  watchHover(start, stop);
 }

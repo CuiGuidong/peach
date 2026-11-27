@@ -38,7 +38,7 @@ import { queryClient } from '../query';
 import { JavCodeFilter } from './jav-code-filter';
 import { ReleaseTable, type ReleaseRangeKey } from './jav-release-table';
 import { releaseColumns } from './release-table-columns';
-import { CatalogViewToggle } from '../catalog-grid/catalog-view-toggle';
+import { CatalogDisplayControls } from '../catalog-grid/catalog-view-toggle';
 import { useCatalogView } from '../catalog-grid/catalog-view';
 import { useJavRectangle, useVisibleJavWorks } from './jav-selection';
 import { JavGlassSearch } from './jav-header';
@@ -221,8 +221,7 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
         {filtered ? <FilterActionButton onPress={clear}>{t('catalog:shared.clearFilters')}</FilterActionButton> : null}
         <FilterToolbarControls tools={<>
           <Shuffle onPress={reshuffle} busy={filters.sort === 'random' && releases.isFetching} />
-          {view === 'cards' ? <Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} /> : null}
-          <CatalogViewToggle />
+          <CatalogDisplayControls cardLayout={<Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} />} />
         </>} fields={<>
           <FilterDropdown id="jav-release-performers" orderKey="performer" label={t('catalog:shared.performers')}
             choices={(data?.facets.performers || []).map(person => ({ id: person.name, label: person.name, count: person.count,

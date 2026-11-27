@@ -189,7 +189,9 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
               </div>
             </div>
             <div data-resource-actions="" className="flex flex-wrap gap-2">
-              <ButtonLink data-button-link="" variant="secondary" size="small" trailingIcon={RiExternalLinkLine} href={candidate.source_url} target="_blank" rel="noopener noreferrer">{t('catalog:wantMagnets.linkSource')}</ButtonLink>
+              <ButtonLink data-button-link="" variant="secondary" size="small" trailingIcon={RiExternalLinkLine} href={candidate.source_url} target="_blank" rel="noopener noreferrer">
+                <span data-external-link-label="">{t('catalog:wantMagnets.linkSource')}</span>
+              </ButtonLink>
               <Button variant="secondary" size="small" leadingIcon={RiFileCopyLine} {...busyProps(action.busy === `copy:${candidate.id}`)}
                 onClick={() => copy(candidate)}>{t('catalog:wantMagnets.copyLink')}</Button>
               {candidate.protocol === 'magnet' ?

@@ -8,6 +8,7 @@ import type { GuideStep } from './guide-catalog';
 export interface GuidePopoverProps {
   step: GuideStep; position: number; total: number; missing: boolean;
   invitation?: boolean;
+  finish?: () => void;
   next(skipped?: boolean): void; previous(): void; close(): void;
 }
 
@@ -54,6 +55,7 @@ export function createGuideSession(options: {
   mountPopover(wrapper: HTMLElement, arrow: HTMLElement, props: GuidePopoverProps): () => void;
   navigate(path: string): void; next(skipped?: boolean): void; previous(): void; close(): void; leave?(): void;
   invitation?: boolean;
+  finish?: () => void;
 }): GuideSession {
   let active: Driver | null = null;
   let controller: AbortController | null = null;

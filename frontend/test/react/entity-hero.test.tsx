@@ -145,7 +145,7 @@ describe('排版用的纯函数', () => {
     expect(classification.querySelector('use')?.getAttribute('href')).toBe('#i-user-round');
     expect(classification.hasAttribute('title')).toBe(false);
     expect(host.querySelector('[data-entity-alias]')?.firstElementChild).toBe(classification);
-    await click(host.querySelector('[data-entity-identity] button.underline'));
+    await click(host.querySelector('[data-entity-identity] button[title="关联账号：本人账号"]'));
     expect(given.actions.openEntity).toHaveBeenCalledWith('creator', '本人账号');
   });
   it('名字下面那一行：读音在最前，余下的收进「+N」；什么都没有就不出这一项', () => {

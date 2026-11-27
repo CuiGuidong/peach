@@ -1,4 +1,5 @@
 import { useContext, useEffect, useId, useLayoutEffect, useRef, useState, type ComponentProps, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react';
+import { ImageWithFallback } from '../components/image-with-fallback';
 import { VisuallyHidden } from 'react-aria-components';
 import { attachOverlayScrollbar, revealTexts, spinnerHtml, wireHorizontalScroller } from '@peach/legacy/ui';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
@@ -208,7 +209,7 @@ function ShortcutContents({ currentHref, kind, close }: { currentHref?: () => st
           ? <Button variant="secondary" size="small" onClick={() => setSorting(true)}>{t('settings:favoritesPanel.reorderFilters')}</Button> : null}
         columns={[
           { id: 'name', label: t('settings:favoritesPanel.filterName'), value: row => row.name, width: 128, min: 96,
-            render: row => <a href={row.href} onClick={close} className="block min-w-0 wrap-anywhere text-body-regular text-text-primary underline">{row.name}</a> },
+            render: row => <a href={row.href} onClick={close} data-inline-action="" className="block min-w-0 wrap-anywhere text-body-regular text-text-primary">{row.name}</a> },
           { id: 'actions', label: t('settings:favoritesPanel.filterActions'), width: 156, min: 126, required: true,
             render: row => <div className="flex flex-wrap items-center gap-1.5">
               {actions ? <Button variant="secondary" size="small" aria-label={t('settings:favoritesPanel.playFilterLabel', { name: row.name })}
@@ -230,8 +231,8 @@ function ShortcutContents({ currentHref, kind, close }: { currentHref?: () => st
 function FavoriteAvatar({ item }: { item: Favorite }) {
   const Glyph = GLYPHS[item.kind as keyof typeof GLYPHS] || Star;
   return <span data-shortcuts-avatar="" title={codedText(item, 'image_label') || item.name}>
-    {item.image_url ? <img src={item.image_url} alt="" loading="lazy" decoding="async"
-      data-drop="self" data-fallbacks={item.image_fallbacks?.join('|') || undefined} /> : null}
+    {item.image_url ? <ImageWithFallback src={item.image_url} alt="" loading="lazy" decoding="async"
+      fallbacks={item.image_fallbacks} /> : null}
     <Glyph aria-hidden className="size-5" />
   </span>;
 }

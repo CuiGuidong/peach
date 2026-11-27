@@ -12,12 +12,16 @@ import { apiSend } from '../../api';
 import { withBackoff } from '../../polling';
 import { queryClient } from '../query';
 import { invalidateWants } from '../wants/wants';
+import type { CastPerson } from '../components/cast-popover';
 
 /** `/api/feeds/discoveries` 的回话：条目与最近一轮取封面断在连接上的部数。 */
 export interface FeedDiscoveries { items?: FeedNewItem[]; cover_network?: number; error?: string }
 
 /** 一行里的一部：判有没有、哪几部的封面还在排队（这一行的一键插队只管这几部）。 */
-export interface FeedNewItem { id: number; code?: string; has_cover?: boolean; cover_url?: string | null; cover_state?: CoverState | null }
+export interface FeedNewItem {
+  id: number; code?: string; has_cover?: boolean; cover_url?: string | null; cover_state?: CoverState | null;
+  performers?: string; performer_refs?: CastPerson[];
+}
 
 /** 新作那一行取回来的样子：条目与壳拼好的整段 HTML。 */
 export interface FeedNew {

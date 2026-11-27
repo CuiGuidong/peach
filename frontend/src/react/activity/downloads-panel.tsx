@@ -19,6 +19,7 @@ import { apiGet, apiSend, errorMessage } from '../../api';
 import { javTitleParts } from '../../core/jav-title';
 import { codedText, serverLabel } from '../../core/server-text';
 import { entityDisplayName } from '../../core/entity-names';
+import { PerformerCredit } from '../components/performer-credit';
 import { useEntityNames } from '../use-entity-names';
 import type { DownloadsSnapshot, DownloadTask } from '../bundle';
 import { cardClass } from '../components/card';
@@ -32,6 +33,7 @@ import { momentText } from './tasks';
 import { withBackoff } from '../../polling';
 import { SourceLabel } from '../components/source-label';
 import { ArtSlot } from '../components/art-slot';
+import { CastPopover } from '../components/cast-popover';
 import { avatarInner, coverImage, relayoutCovers } from '@peach/card-art';
 import { entityPath } from '@peach/legacy/core';
 import { COVER_FRONT_RATIO } from '@peach/appearance';
@@ -138,6 +140,8 @@ function TaskCard({ task, writable }: { task: DownloadTask; writable: boolean })
     || (task.cancellable && task.failure_detail ? t('manage:downloadsPanel.retryLater', { detail: codedText(task, 'failure_detail') }) : '');
   const artwork = task.artwork;
   const people = artwork?.performer_entities || [];
+  const lead = people[0];
+  const castNames = joinList(people.map(person => entityDisplayName('performer', person.name, person.id)));
   const detailHref = task.state === 'ingested' && task.asset_id ? `/assets/${task.asset_id}` : undefined;
   const failed = task.state === 'failed' || task.postprocess_state === 'failed';
   const meta = [task.display_code || task.code ? '' : t('manage:downloadsPanel.codeUnrecognized'), task.target, momentText(task.submitted_at)]
@@ -192,14 +196,15 @@ function TaskCard({ task, writable }: { task: DownloadTask; writable: boolean })
           </div>
         </div>
         <div className="flex min-w-0 items-center gap-2 text-caption-1-regular text-text-secondary"><span className="flex shrink-0"><SourceLabel source={task.provider} label={task.provider_label} /></span><span className="min-w-0 truncate" title={meta}>{meta}</span></div>
-        {people.length ? <div className="flex min-w-0 items-center gap-2">
+        {lead ? <div className="flex min-w-0 items-center gap-2 text-caption-1-regular">
           <div className="flex shrink-0 items-center gap-1">
             {people.slice(0, 3).map((person) => <a key={person.id || person.name} data-media-avatar=""
               href={entityPath('performer', person.name, person.id)} aria-label={t('manage:downloadsPanel.openActress', { name: entityDisplayName('performer', person.name, person.id) })} title={entityDisplayName('performer', person.name, person.id)}
               dangerouslySetInnerHTML={{ __html: avatarInner(person.name, person, null) }} />)}
           </div>
-          <span className="min-w-0 truncate text-caption-1-regular text-text-secondary"
-            title={joinList(people.map((person) => entityDisplayName('performer', person.name, person.id)))}>{joinList(people.map((person) => entityDisplayName('performer', person.name, person.id)))}{(artwork?.performer_total || 0) > people.length ? t('manage:downloadsPanel.performerTotal', { total: artwork!.performer_total, count: artwork!.performer_total! - people.length }) : ''}</span>
+          <PerformerCredit name={entityDisplayName('performer', lead.name, lead.id)} title={castNames}
+            href={entityPath('performer', lead.name, lead.id)} />
+          <CastPopover people={people} total={artwork?.performer_total} assetId={task.asset_id ?? undefined} />
         </div> : null}
         {task.state === 'remote_running' && task.progress != null
           ? <Progress label={t('manage:downloadsPanel.remoteProgress')} value={Math.round(task.progress * 100)} max={100} />
