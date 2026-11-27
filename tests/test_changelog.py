@@ -1,5 +1,6 @@
 import contextlib
 import io
+import json
 import re
 import subprocess
 import tempfile
@@ -264,6 +265,55 @@ class SectionTests(unittest.TestCase):
         with self.assertRaisesRegex(VersionError, "0.7.0："):
             changelog.require_labeled_entries(current + older, "0.8.0")
         changelog.require_labeled_entries(current + older.replace("字", "", 1), "0.8.0")
+
+
+class ReviewTests(unittest.TestCase):
+    def setUp(self):
+        temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(temporary.cleanup)
+        self.root = Path(temporary.name)
+        self.document = promote(DOCUMENT, "0.28.0", date="2026-09-07", repo=REPO, previous="v0.27.1")
+
+    def test_same_pr_can_describe_two_distinct_changes(self):
+        first = f"- {ADDED}"
+        second = f"- {FIXED}"
+        document = self.document.replace(first, changelog.with_reference(first, "8"))
+        document = document.replace(second, changelog.with_reference(second, "8"))
+        self.assertEqual(len(changelog.review_entries(document, "0.28.0")), 2)
+
+    def test_repeating_the_same_claim_with_different_sources_is_refused(self):
+        line = f"- {ADDED}"
+        document = self.document.replace(line, "\n".join(changelog.with_reference(line, ref) for ref in ("8", "9")))
+        with self.assertRaisesRegex(VersionError, "重复条目"):
+            changelog.review_entries(document, "0.28.0")
+
+    def test_baseline_and_reviewed_text_must_match_before_publication(self):
+        old = DOCUMENT.replace("> Fourth pre-release. / 第四个预发布。", f"- {ADDED}")
+        with mock.patch.object(changelog.version_bump, "git", return_value=old) as read:
+            review = changelog.review_checklist(self.root, self.document, "0.28.0", REPO, candidate="first")
+        read.assert_called_once_with(self.root, "show", "v0.27.1:CHANGELOG.md")
+        self.assertEqual(review["entries"][0]["related"], [{"version": "0.27.1", "text": f"- {ADDED}"}])
+        path = self.root / changelog.CHANGELOG_REVIEW
+        path.parent.mkdir()
+        path.write_text(json.dumps(review), encoding="utf-8")
+        with mock.patch.object(changelog, "review_candidate", return_value="first") as candidate:
+            with self.assertRaisesRegex(VersionError, "还有条目"):
+                changelog.require_review(self.root, self.document, "0.28.0")
+            for item in review["entries"]:
+                item["change"] = "Compared final behavior with the tagged release."
+            path.write_text(json.dumps(review), encoding="utf-8")
+            changelog.require_review(self.root, self.document, "0.28.0")
+            changed = self.document.replace("desktop shortcut switch", "shortcut menu")
+            with self.assertRaisesRegex(VersionError, "已变化"):
+                changelog.require_review(self.root, changed, "0.28.0")
+            candidate.return_value = "second"
+            with self.assertRaisesRegex(VersionError, "候选提交.*已变化"):
+                changelog.require_review(self.root, self.document, "0.28.0")
+
+    def test_finalizing_the_release_keeps_the_review_candidate(self):
+        with mock.patch.object(changelog.version_bump, "git", side_effect=['__version__ = "0.28.0"', "first"]) as git:
+            self.assertEqual(changelog.review_candidate(self.root, "0.28.0", "release"), "first")
+        self.assertEqual(git.call_args.args, (self.root, "rev-parse", "release^^{commit}"))
 
 
 class NotesTests(unittest.TestCase):

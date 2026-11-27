@@ -400,6 +400,8 @@ def ship(repo: str, *, apply: bool, timeout: float = TEST_TIMEOUT) -> dict:
               "commit": bool(pending), "push": bool(pending) or remote != head}
     if not apply:
         return result
+    document = (ROOT / changelog.CHANGELOG).read_text(encoding="utf-8")
+    changelog.require_review(ROOT, document, version, revision=head)
     if pending:
         command("git", "add", *RELEASE_FILES)
         command("git", "-c", f"{MASTER_WRITER}=release", "commit",
@@ -615,6 +617,8 @@ def main(argv=None) -> int:
                 result = plan_commit(args.repo, args.release_sha)
             elif master_sha(args.repo) != result["sha"]:
                 raise ValueError(t("release_tag.masterMoved"))
+            document = command("git", "show", f"{result['sha']}:{changelog.CHANGELOG}")
+            changelog.require_review(ROOT, document, result["tag"][1:], revision=result["sha"])
             command("git", "tag", "-a", result["tag"], result["sha"],
                     "-m", f"Peach {result['tag']} Windows 测试版")
             command("git", "push", remote_url(args.repo),

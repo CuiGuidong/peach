@@ -933,6 +933,12 @@ Windows 托盘在取得单实例锁后启动独立监视器。监视器用 Win32
 - 「检查更新」只 fetch 和比较；「同步开发进度」只做 `merge --ff-only`，不 stash、不 rebase、不 `--force`：并行工作树和主检出共用同一个对象库与 reflog，任何改写历史的操作都会波及其他分支。工作区有改动或两边分叉时，原样报告交给人处理。本地不落后远端或连不上远端时，按构建身份判断打包托盘要不要重建（见「桌面入口与发布」）；这条路径不拦有改动的工作区，因为构建用的就是检出里的代码。
 - 快进涉及 `tray.py`／`menubar.py`／`versioning.py`／`certs.py`／`netwatch.py`／`config.py`／`pyproject.toml` 时，只重启子服务不够，托盘要用 `launchctl kickstart -k` 重启自己：先 `stop_owned()` 再 kickstart，前提是 launchd 报的 pid 等于自己的 pid。
 
+### 发布说明审阅
+
+汇总 `Unreleased` 时，以最后一个公开发布标签的实际行为为基准。用提交主题和 PR 找遗漏，对照上一版与候选提交核实用户看得到的变化。同一功能的新增、改法和同版修正合成最终说明。上版已有的能力只记录本版新增的行为。同一个 PR 包含多项独立变化时可分条。
+
+定版后运行 `python scripts/changelog.py --review <版本> --to build/changelog-review.json`。清单包含上一版原日志、候选与基准的差异入口，以及与每条文字或来源编号相关的历史记录。逐条在 `change` 写明相对上一版的真实变化。发现重复或误列新增时直接修订当前变更日志，再重新生成清单。正式发布和补打标签都核对候选提交、发布基准和最终日志，并拒绝本版重复条目。为较早的固定发布提交生成清单时，用 `--review-ref` 指定提交。
+
 ### 网络与服务细节
 
 - 对本机服务的 HTTP 探测必须设 `trust_env=False`：代理客户端会设置系统级 HTTP 代理，httpx 默认通过 `urllib.getproxies()` 读取它，探测 `127.0.0.1` 的请求会被送进代理、由代理返回 503，服务活着却被判为「未运行」。实现在 `peach.tray.ServiceManager.healthy`，由 `test_health_check_never_goes_through_a_proxy` 守门，新写的健康检查同样要这样做。
