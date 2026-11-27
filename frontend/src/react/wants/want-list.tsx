@@ -18,10 +18,9 @@ import { DOWNLOADS_KEY, DOWNLOADS_URL } from '../activity/downloads-panel';
 import type { BulkAction, Receipt } from '../components/bulk-action';
 import { cardClass } from '../components/card';
 import { SelectionDock } from '../components/selection-dock';
-import { JavBatchResources } from '../jav/jav-batch-resources';
+import { JavBatchResources, type BatchResourceWork } from '../jav/jav-batch-resources';
 import { useJavSelection } from '../jav/jav-selection';
 import { useRectangleSelection, type RectangleCommit } from '../components/rectangle-selection';
-import type { Discovery } from '../jav/jav';
 import { EmptyState, EmptyFocusButton } from '../components/empty-state';
 import { Note } from '../components/note';
 import { QueryErrorNote } from '../components/query-error-note';
@@ -227,7 +226,7 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
   const selection = useJavSelection();
   const selecting = Boolean(selection?.mode);
   const [picked, setPicked] = useState<ReadonlySet<number>>(new Set());
-  const [resources, setResources] = useState<Discovery[] | null>(null);
+  const [resources, setResources] = useState<BatchResourceWork[] | null>(null);
   useEffect(() => { if (!selecting) setPicked(new Set()) }, [selecting]);
   const chosen = items.filter((want) => picked.has(want.id));
   const allPicked = items.length > 0 && chosen.length === items.length;
@@ -323,8 +322,10 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
           onClick={() => setPicked(allPicked ? new Set() : new Set(items.map((want) => want.id)))}>
           {allPicked ? t('catalog:javSelection.deselectPage') : t('catalog:wants.selectAll')}</Button>}>
         <Button size="small" variant="secondary" disabled={!searchable.length}
-          onClick={() => setResources(searchable.map((want) => ({ id: want.id, code: want.code!, title: want.title || '',
-            release_date: want.release_date || undefined }) as Discovery))}>{t('catalog:shared.searchTorrents')}</Button>
+          onClick={() => setResources(searchable.map(({ id, code, title, cover, performers, studio, release_date }) => ({
+            id, code: code!, title: title || '', cover, performers, studio, release_date,
+          })))}>
+          {t('catalog:shared.searchTorrents')}</Button>
         <Button size="small" variant="ghost" onClick={() => selection?.close()}>{t('catalog:javSelection.exit')}</Button>
       </SelectionDock>
       <JavBatchResources items={resources} close={() => setResources(null)} readOnly={readOnly} receipt={toast} />

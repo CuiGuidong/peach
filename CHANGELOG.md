@@ -32,6 +32,10 @@ Entries are written for users to scan: one sentence each, saying where something
 
 - **Sourcing**: Use consistent JAV tags across languages and separate bridal roles, wedding dresses, and studio affiliations (#902). / **采集**：统一 JAV 日英来源的同类标签，区分新娘角色、婚纱服装和厂牌归属（#902）。
 - **Interface**: Show reviewed names in the JAV online catalog and make filter searches easier to see in light mode (#902). / **界面**：JAV 在线目录显示已复核的艺名，亮色下的筛选查找框更清晰（#902）。
+- **Interface**: Align empty file-browser results with the header, match the fullscreen and close buttons, and show one retry notice for a directory read error (#376). / **界面**：浏览文件的空状态与表头对齐，全屏和关闭使用同款按钮，目录读取失败时只显示一条重试提示（#376）。
+- **Interface**: Render the floating feedback button's translucent text, icon, and background independently, and use the BoardUI close button in feedback and similar dialogs (#882). / **界面**：右下角反馈按钮的半透明文字、图标和底色独立绘制，反馈等同类弹窗统一使用 BoardUI 关闭按钮（#882）。
+- **Library**: Group batch resource results by work with a cover and credits, start work AI tasks from an explicit action, and place Edit immediately before Delete in work details. / **馆藏**：批量资源按作品展示封面与出演资料，作品 AI 在选好任务后由按钮启动，详情工具把编辑放在删除前。
+
 - **Desktop**: Open Peach from the Windows tray in your default browser (#896). / **桌面**：点击 Windows 托盘时，在系统默认浏览器中打开 Peach（#896）。
 
 - **Settings**: Configure AI on the Peach host without an access password. The AI settings page stays visible and read-only when access is restricted (#393). / **配置**：Peach 主机无需访问密码即可配置 AI，受限时仍可浏览只读的 AI 接入页面（#393）。

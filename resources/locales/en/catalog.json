@@ -6,7 +6,6 @@
     "saveTranslation": "Save translation",
     "human": "Edited translation · {{language}} · {{model}}",
     "title": "AI assistant",
-    "openTranslation": "Open the AI assistant and translate the title and synopsis",
     "translating": "Preparing translation…",
     "generating": "Preparing tag suggestions…",
     "custom": "Custom task",
@@ -44,6 +43,8 @@
     "shareText": "Generating suggestions sends the work’s title and available related text to {{provider}}.",
     "originalSummary": "Original synopsis",
     "generate": "Generate suggestions",
+    "startTranslation": "Translate",
+    "translationSaved": "A translation is already saved in this language.",
     "approve": "Accept selection",
     "discard": "Discard suggestions",
     "noTags": "No new tags with supporting evidence.",
@@ -771,6 +772,7 @@
   "javBatch": {
     "close": "Close torrent search",
     "downloadSettingsFailed": "Couldn't load download settings: {{error}}",
+    "sourceWarnings": "Source notices ({{count}})",
     "title": "Search torrents for selected"
   },
   "javComments": {

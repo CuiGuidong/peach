@@ -28,6 +28,9 @@ export interface QualityGoal {
   has_thumb: boolean;
   has_cover: boolean;
   cover_version?: string;
+  performers?: string[];
+  studio?: string | null;
+  release_date?: string | null;
   /** 所属媒体库，同作品列表；不在任何媒体库里时是空串。 */
   library_id?: string;
 }

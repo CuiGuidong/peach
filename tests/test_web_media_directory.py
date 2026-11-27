@@ -67,6 +67,8 @@ class MediaDirectoryTests(unittest.TestCase):
         self.assertEqual((focused['offset'], focused['files'][0]['name']), (2, 'movie.mp4'))
         largest = self.read(root='local', relative='series', sort='size', dir='desc', limit=1, q='movie')
         self.assertEqual(largest['files'][0]['name'], 'movie-10.mp4')
+        long_search = self.read(root='local', relative='series', sort='name', q='movie' * 80)
+        self.assertEqual((long_search['state'], long_search['total'], long_search['files']), ('ready', 0, []))
         with self.assertRaises(UserValueError):
             self.read(root='local', relative='series', sort='unsupported')
 

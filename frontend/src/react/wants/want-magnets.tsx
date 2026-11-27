@@ -54,11 +54,12 @@ function ResourceFact({ icon: Icon, children, title }: { icon: ComponentType<{ c
   return <span title={title} className="inline-flex items-center gap-1"><Icon aria-hidden className="size-(--icon-inline) shrink-0" />{children}</span>;
 }
 
-export function WantMagnets({ want, readOnly, downloads, provider, toast, onSources, queryUrl, eager = false }: {
+export function WantMagnets({ want, readOnly, downloads, provider, toast, onSources, queryUrl, eager = false, compact = false }: {
   want: Pick<Want, 'id' | 'code' | 'title' | 'release_date'>; readOnly: boolean; downloads?: DownloadsSnapshot; provider: string; toast(message: string): void;
   onSources?(pages: ResourceSourcePage[]): void;
   queryUrl?: string;
   eager?: boolean;
+  compact?: boolean;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(eager || typeof IntersectionObserver === 'undefined');
@@ -148,8 +149,11 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
   const waiting = query.isFetching || query.data?.state === 'busy';
   const failure = query.error ? errorMessage(query.error) : codedText(query.data, 'error');
   const incomplete = !query.error && query.data?.error_code === 'labels.magnetChain.incomplete';
+  const result = query.data;
+  const warningCount = result?.warnings?.length || 0;
   return (
-    <div ref={root} data-want-magnets="" className="flex min-w-0 flex-col gap-3 border-t border-separator-border pt-4">
+    <div ref={root} data-want-magnets="" data-resource-compact={compact || undefined}
+      className={compact ? 'flex min-w-0 flex-col gap-3' : 'flex min-w-0 flex-col gap-3 border-t border-separator-border pt-4'}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h4 className="text-body-medium text-text-primary">{t('catalog:wantMagnets.title')}{query.data?.items.length ? ` · ${query.data.items.length}` : ''}</h4>
         <Button variant="secondary" size="small" leadingIcon={RiRefreshLine} {...busyProps(waiting)} onClick={() => {
@@ -159,7 +163,10 @@ export function WantMagnets({ want, readOnly, downloads, provider, toast, onSour
       {/* 还没有结果时是整块面板在等，动画大一档摆在正中；已有结果时换一批，等待留在行内。 */}
       {waiting ? <ActivityStatus kind="radar" size={query.data?.items.length ? 'inline' : 'block'} label={t('catalog:wantMagnets.searching')} /> : null}
       {failure && (!incomplete || !query.data?.warnings?.length) ? <Note tone="error" title={t('catalog:wantMagnets.notFound')}>{failure}</Note> : null}
-      {query.data ? <ResourceWarningNotes result={query.data} /> : null}
+      {result && warningCount > 0 ? compact && result.items.length ? <Disclosure
+        summary={t('catalog:javBatch.sourceWarnings', { count: warningCount })} contentClassName="flex flex-col gap-2">
+        <ResourceWarningNotes result={result} />
+      </Disclosure> : <ResourceWarningNotes result={result} /> : null}
       {!onSources && sourcePages.length ? <div className="flex flex-wrap gap-2">{sourcePages.map(page =>
         <ButtonLink key={page.source} data-button-link="" variant="secondary" size="small" trailingIcon={RiExternalLinkLine}
           href={page.url} target="_blank" rel="noopener noreferrer"><ScrapeSourceLabel source={page.source} label={page.label} /></ButtonLink>)}</div> : null}

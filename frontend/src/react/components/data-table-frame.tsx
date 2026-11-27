@@ -15,6 +15,7 @@ export interface DataTableFrameProps extends PropsWithChildren {
   follow?: boolean;
   preferences?: TablePreferences;
   resizable?: boolean;
+  reorderable?: boolean;
   /** 给了就是整行可选：点在某一行的空白处时以那一行的 `data-key`（React Aria 写在 `tr` 上的
    *  行 id）回调；点在行里的勾、键、链接上不算。 */
   onRowClick?(key: string, event: MouseEvent<HTMLDivElement>): void;
@@ -32,7 +33,7 @@ const noop = () => {};
 
 /** BoardUI Table 的 Data Table 外框：主表面、完整边线、圆角与选中行反馈。 */
 export function DataTableFrame({ children, follow = false, onRowClick, onRectangle, rectangleSelecting = false, onRectangleEnter,
-  preferences, resizable = Boolean(preferences), ref }: DataTableFrameProps) {
+  preferences, resizable = Boolean(preferences), reorderable = true, ref }: DataTableFrameProps) {
   const localHost = useRef<HTMLDivElement>(null);
   const host = ref ?? localHost;
   const header = useRef<HTMLElement>(null);
@@ -50,7 +51,7 @@ export function DataTableFrame({ children, follow = false, onRowClick, onRectang
   }, [resizable, setViewportWidth]);
   const reorder = useSidebarReorder(header, preferences?.columnOrder ?? [], preferences?.changeOrder ?? noop, noop, 'x', 'key', FIXED_COLUMNS, 'column');
   const reorderEvents = reorder.bindings('');
-  const canReorder = Boolean(preferences && preferences.columnOrder.filter(key => !FIXED_COLUMNS.includes(key)
+  const canReorder = Boolean(reorderable && preferences && preferences.columnOrder.filter(key => !FIXED_COLUMNS.includes(key)
     && preferences.visibility[key] !== false).length > 1);
   useLayoutEffect(() => {
     if (!reorder.picked) return;

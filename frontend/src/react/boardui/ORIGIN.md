@@ -16,6 +16,7 @@
 
 | 条目 | 注册表 JSON 的 SHA-256 | 复制的文件 |
 | --- | --- | --- |
+| `close-button`（2026-11-28） | `fe3ce18482e68a7a821a02e97a2d2bdfe848f5cb87af7de68f8b48dbc4fbda09` | `components/base/buttons/close-button.tsx` |
 | `agent-thinking`（2026-11-26） | `b75cb4fc1830b64afdd0198ad8a47efb4cb715e5b59096cacc42029d016d4991` | `components/application/agent-thinking/agent-thinking.tsx` |
 | `composer-loader`（2026-11-26） | `304c856a9b3fbeda0a74b55c71d5ff77fc1d47558be4f7c0519ba9babcd46e52` | `components/application/composer-loader/composer-loader.tsx` |
 | `agent-log`（2026-11-26） | `be74e01e367f095d7ea4a479d8e4fc2e34513df5d2fbd8bbebea7b790a805de9` | `components/application/agent-log/agent-log.tsx` |
