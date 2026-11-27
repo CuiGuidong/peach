@@ -20,6 +20,8 @@ Entries are written for users to scan: one sentence each, saying where something
 - **Playback**: Repair missing MP4 timestamp tables when only a few frames cannot be decoded (#176). / **播放**：MP4 只有极少数帧无法解码时仍可修复缺失的时间戳表（#176）。
 ### Fixed / 修复
 
+- **Desktop**: Open Peach from the Windows tray in your default browser (#896). / **桌面**：点击 Windows 托盘时，在系统默认浏览器中打开 Peach（#896）。
+
 - **Settings**: Configure AI on the Peach host without an access password. The AI settings page stays visible and read-only when access is restricted (#393). / **配置**：Peach 主机无需访问密码即可配置 AI，受限时仍可浏览只读的 AI 接入页面（#393）。
 - **Library**: Retry failed home avatar pages and keep search history visible when deletion fails. / **馆藏**：首页头像加载失败后可重试，删除搜索记录失败时保留原记录并显示原因。
 - **Settings**: Show access restrictions before feedback and cleanup actions, and show download search failures without an empty-result message. / **配置**：反馈与清理提前显示权限限制，下载查询失败时显示错误。

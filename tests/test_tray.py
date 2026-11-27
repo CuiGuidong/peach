@@ -58,22 +58,14 @@ class Response:
 
 
 class TrayTests(unittest.TestCase):
-    def test_open_application_uses_native_window_when_available(self):
+    def test_tray_open_uses_default_browser_after_setup(self):
         config = Mock(data_root=Path("sample"))
         browser = Mock()
-        with patch.object(tray_module, "normal_url", return_value="http://127.0.0.1:8900/"), \
-                patch.object(tray_module, "open_window", return_value=True) as native:
-            tray_module.open_application(config, waiting=False, open_browser=browser)
-        native.assert_called_once_with("http://127.0.0.1:8900/", config.data_root)
-        browser.assert_not_called()
-
-    def test_open_application_falls_back_to_default_browser(self):
-        config = Mock(data_root=Path("sample"))
-        browser = Mock()
-        with patch.object(tray_module, "normal_url", return_value="http://127.0.0.1:8900/"), \
-                patch.object(tray_module, "open_window", return_value=False):
-            tray_module.open_application(config, waiting=False, open_browser=browser)
-        browser.assert_called_once_with("http://127.0.0.1:8900/")
+        gate = SetupGate(Mock(), config, waiting=False, open_browser=browser)
+        tray = Mock(gate=gate)
+        with patch.object(tray_module, "normal_url", return_value="https://peach.invalid/"):
+            PeachTray.open(tray)
+        browser.assert_called_once_with("https://peach.invalid/")
 
     def test_create_icon_has_expected_size_and_alpha(self):
         icon = create_icon(64)

@@ -277,7 +277,7 @@ npm 安装沿用 Node.js 24 LTS 附带的官方 [`npm ci`](https://docs.npmjs.co
 
 GitHub 同步参考 [BugDrop 的代发与图片分支](https://github.com/bugdrophq/bugdrop#how-it-works)，复用既有 `cryptography` 完成 [GitHub App 的 RS256 签名](https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/generating-a-json-web-token-jwt-for-a-github-app)，经 `curl_cffi` 调用 [GitHub Contents REST API](https://docs.github.com/en/rest/repos/contents#create-or-update-file-contents)。Peach 先创建 Issue，随后通过评论嵌入已上传图片，以便图片失败时保留 Issue 编号。所有写入集中在 Peach 服务端。
 
-Windows 托盘「打开 Peach」复用 [Microsoft WebView2 SDK 1.0.4370.26](https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.4370.26)（BSD-3-Clause）和已安装的 Evergreen Runtime。构建入口 `scripts/build_windows_webview.ps1` 校验 NuGet 包的 SHA-256，发行包携带窗口程序、SDK DLL 与许可。主窗口只载入配置给出的本机 Peach 来源，先用 [`CapturePreviewAsync`](https://learn.microsoft.com/en-us/dotnet/api/microsoft.web.webview2.core.corewebview2.capturepreviewasync) 获取当前视口，再打开反馈表单。首次设置继续用默认浏览器，原生入口或系统运行时未取得时也打开默认浏览器。取舍见 [ADR-0179](adr/0179-native-peach-windows-with-browser-fallback.md)。
+Windows 反馈截图宿主复用 [Microsoft WebView2 SDK 1.0.4370.26](https://www.nuget.org/packages/Microsoft.Web.WebView2/1.0.4370.26)（BSD-3-Clause）和已安装的 Evergreen Runtime。构建入口 `scripts/build_windows_webview.ps1` 校验 NuGet 包的 SHA-256，发行包携带截图宿主、SDK DLL 与许可。宿主只载入配置给出的本机 Peach 来源，通过 `Page.captureScreenshot` 获取自身视口。Windows 托盘和启动器的默认入口见 [ADR-0181](adr/0181-windows-tray-opens-default-browser.md)。
 
 macOS 菜单栏复用 AppKit 的窗口生命周期和系统 WebKit。`pyobjc-framework-WebKit 13.0`（MIT，CPython 3.14 通用架构 wheel 约 50 KiB）与已用的 Cocoa 绑定同版，下载地址和摘要由 `uv.lock` 固定。窗口用 [`WKWebView.takeSnapshot`](https://developer.apple.com/documentation/webkit/wkwebview/takesnapshot(with:completionhandler:)) 取当前视口，再走共用的截图附件和灯箱。用户主动添加图片时复用 AppKit 的 `NSOpenPanel`。
 
