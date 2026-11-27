@@ -946,7 +946,7 @@ describe('设计决定：关注详情、作品详情、播放器与侧栏', () =
         return {
           toggle: [Math.round(toggle.width), Math.round(toggle.height)],
           groups: [...new Set([...drawer.querySelectorAll('[data-sidebar-group]')].map((group) => getComputedStyle(group).display))],
-          labels: [...new Set([...drawer.querySelectorAll('[data-sidebar-nav] button span')].map((span) => getComputedStyle(span).maxWidth))],
+          labels: [...new Set([...drawer.querySelectorAll('[data-sidebar-nav] [data-nav] span')].map((span) => getComputedStyle(span).maxWidth))],
         };
       });
       assert.deepEqual(rail, { toggle: [36, 20], groups: ['none'], labels: ['0px'] }, '收起的窄栏不是一列图标');

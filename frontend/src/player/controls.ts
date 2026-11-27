@@ -400,13 +400,17 @@ export function mountPlayerQualityControl(
     setOpen(open);
     if (open && event.detail === 0) menu.querySelector<HTMLElement>('button')?.focus({ preventScroll: true });
   };
+  const keepsMenuOpen = (target: Node): boolean =>
+    root.contains(target) || (target instanceof Element && Boolean(
+      root.closest('[data-player-guide]') && target.closest('.peach-guide-popover'),
+    ));
   const outside = (event: Event) => {
     const target = event.target;
-    if (target instanceof Element && !target.closest('[data-peach-feedback]') && !root.contains(target)) close();
+    if (target instanceof Element && !target.closest('[data-peach-feedback]') && !keepsMenuOpen(target)) close();
   };
   document.addEventListener('pointerdown', outside);
   root.addEventListener('focusout', (event) => {
-    if (isOpen() && event.relatedTarget instanceof Node && !root.contains(event.relatedTarget)) close();
+    if (isOpen() && event.relatedTarget instanceof Node && !keepsMenuOpen(event.relatedTarget)) close();
   });
   root.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isOpen()) { event.preventDefault(); event.stopPropagation(); close(); toggle.focus() }

@@ -149,7 +149,10 @@ describe('图片灯箱', () => {
       await imageOptions.first().waitFor({ state: 'hidden' });
       assert.equal(await imageOptions.count(), 0);
       await page.keyboard.press('Tab');
-      const tile = form.locator('[data-feedback-attachment]').filter({ has: preview });
+      const tile = form.locator('[data-feedback-attachment]').filter({
+        has: page.getByRole('button', { name: '查看lightbox.png', exact: true }),
+      });
+      await tile.waitFor();
       const attachmentButtons = await tile.getByRole('button').all();
       assert.equal(attachmentButtons.length, 2);
       for (const button of attachmentButtons) {

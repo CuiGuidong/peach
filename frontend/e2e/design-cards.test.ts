@@ -486,11 +486,12 @@ describe('设计决定：作品卡、管理页与复核', () => {
     try {
       const { page } = opened;
       await page.locator('[data-manage-crumb] [aria-current="true"]').waitFor({ timeout: 15_000 });
+      await page.locator('[data-manage-menu] a[data-manage][aria-current="page"]').waitFor();
       await settle(page);
       const [ink, muted, fill] = await Promise.all(['--ink', '--muted', '--hover'].map((token) => tokenColor(page, 'body', token)));
       const read = await page.evaluate(() => {
         const items = [...document.querySelectorAll<HTMLElement>('[data-manage-crumb] li')];
-        const pressed = document.querySelector<HTMLElement>('[data-manage][aria-pressed="true"]')!;
+        const pressed = document.querySelector<HTMLElement>('a[data-manage][aria-current="page"]')!;
         const thumb = pressed.parentElement!.querySelector('[data-pill-thumb]')!;
         const selectedBox = pressed.getBoundingClientRect(), thumbBox = thumb.getBoundingClientRect();
         return {
