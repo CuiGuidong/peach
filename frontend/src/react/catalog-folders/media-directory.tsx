@@ -5,8 +5,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { SortingState } from '@tanstack/react-table';
 import { useLocation } from 'react-router';
 import { Heading } from 'react-aria-components';
-import { RiArrowUpLine, RiDeleteBin6Line, RiFullscreenExitLine, RiFileLine, RiFolder3Line, RiFolderAddLine,
-  RiFullscreenLine, RiRefreshLine, RiSearchLine } from '@remixicon/react';
+import { RiArrowUpLine, RiCloseLine, RiDeleteBin6Line, RiFileLine, RiFolder3Line, RiFolderAddLine,
+  RiFullscreenExitLine, RiFullscreenLine, RiRefreshLine, RiSearchLine } from '@remixicon/react';
 import { Button } from '@/components/base/buttons/button';
 import { IconButton } from '@/components/base/buttons/icon-button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
@@ -34,7 +34,6 @@ import { ModalFrame } from '../components/modal-frame';
 import { overlayHost } from '../components/overlay-host';
 import { EmptyState } from '../components/empty-state';
 import { Note } from '../components/note';
-import { SettingsDialogClose } from '../components/settings-dialog-close';
 import { ShellActionsContext } from '../router/router';
 import { Disclosure, SourceMark } from '../settings/section';
 import { busyProps } from '../settings/busy-props';
@@ -237,16 +236,26 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
       row, top: scroller?.scrollTop ?? 0, left: scroller?.scrollLeft ?? 0 });
     actions.openItem(id);
   };
-  const selectedMissing = data?.state === 'ready' && data.focus_name && !data.files.some(item => item.name === data.focus_name);
+  const filtering = Boolean(term || encodedFilters !== '{}');
+  const selectedMissing = data?.state === 'ready' && !query.isPlaceholderData && !filtering
+    && data.focus_name && !data.files.some(item => item.name === data.focus_name);
   const path = data?.last_path || data?.path;
   const hasRoots = data?.state === 'roots' && data.roots.length > 0;
   const readyFiles = data?.state === 'ready';
-  const shown = preferences.columns.filter(column => preferences.visibility[column.id] !== false && (column.id !== 'select' || (selecting && !moveFrom)));
   const visibleFiles = moveFrom ? [] : (data?.files ?? []);
   const pageEntries: FileEntry[] = [
     ...(data?.directories ?? []).map(({ name }) => ({ name, directory: true })),
     ...visibleFiles.map(({ name, asset_id }) => ({ name, directory: false, asset_id })),
   ];
+  const emptyDirectory = readyFiles && !query.isPlaceholderData && !pageEntries.length;
+  const shown = preferences.columns.filter(column => preferences.visibility[column.id] !== false
+    && (column.id !== 'select' || (selecting && !moveFrom && !emptyDirectory)));
+  const emptyTitle = trashView
+    ? trash.data && !trash.isError && !trashItems.length ? 'shell:mediaDirectory.trashEmpty' : undefined
+    : data?.state === 'roots' && !hasRoots ? 'shell:serverPath.noRoots'
+      : emptyDirectory
+        ? filtering && !moveFrom ? 'shell:mediaDirectory.noMatches' : 'shell:mediaDirectory.empty'
+        : undefined;
   const picked = [...selection.values()];
   const allPage = pageEntries.length > 0 && pageEntries.every(item => selection.has(entryKey(item)));
   const pageHasSelected = pageEntries.some(item => selection.has(entryKey(item)));
@@ -284,14 +293,12 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
     setRefreshing(true); setFailure([]); setReceipt('');
     try {
       if (trashView) {
-        await trash.refetch({ throwOnError: true });
+        if ((await trash.refetch()).isError) return;
       } else {
-        const result = await query.refetch({ throwOnError: true });
-        if (!result.data || !['roots', 'ready'].includes(result.data.state)) return;
+        const result = await query.refetch();
+        if (result.isError || !result.data || !['roots', 'ready'].includes(result.data.state)) return;
       }
       setReceipt(t(trashView ? 'shell:mediaDirectory.trashRefreshed' : 'shell:mediaDirectory.refreshed'));
-    } catch (error) {
-      setFailure([errorMessage(error)]);
     } finally { setRefreshing(false) }
   };
   const toggleTrash = (open: boolean) => {
@@ -439,7 +446,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
       <div className="flex items-center gap-2">
         <IconButton size="small" icon={fullScreen ? RiFullscreenExitLine : RiFullscreenLine}
           aria-label={modeLabel} aria-pressed={fullScreen} title={modeLabel} onClick={() => setFullScreen(value => !value)} />
-        <SettingsDialogClose label={t('shell:serverPath.close')} onPress={() => { if (!busy) close() }} />
+        <IconButton size="small" icon={RiCloseLine} aria-label={t('shell:serverPath.close')} disabled={busy} onClick={close} />
       </div>
     </div>
     <div data-media-directory-toolbar="">
@@ -487,9 +494,9 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
         <IconButton size="small" icon={RiRefreshLine} disabled={busy || refreshing} aria-busy={refreshing || undefined}
           data-directory-refresh="" aria-label={t('shell:mediaDirectory.refreshTrash')}
           title={t('shell:mediaDirectory.refreshTrash')} onClick={() => void refresh()} />
-        <Button size="small" variant="secondary" disabled={busy || !canWriteLedger || !trashSelection.size || trashSelection.size > 100}
+        {availableTrash.length > 0 && canWriteLedger ? <Button size="small" variant="secondary" disabled={busy || !trashSelection.size || trashSelection.size > 100}
           title={trashSelection.size > 100 ? t('shell:mediaDirectory.batchLimit') : undefined} {...busyProps(busy)}
-          onClick={() => void restoreTrash()}>{t('shell:mediaDirectory.restore')}</Button>
+          onClick={() => void restoreTrash()}>{t('shell:mediaDirectory.restore')}</Button> : null}
       </div>
     </div> : null}
     {failure.length && !nameDialog && !confirmTrash ? <div data-directory-feedback=""><Note tone="error">{failure.join('\n')}</Note></div> : null}
@@ -497,7 +504,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
     <div data-media-directory-body="" aria-label={t('shell:mediaDirectory.entries')} aria-busy={trashView ? trash.isFetching : query.isFetching}>
       {(trashView ? trash.isPending : query.isPending) ? <div aria-label={t('shell:serverPath.reading')} data-skeleton="" className="flex flex-col gap-3 p-4">{Array.from({ length: 8 }, (_, i) => <div key={i} className="skeleton-sheen h-9 w-full rounded-lg" />)}</div> : null}
       {trashView && trash.error ? <Note tone="error" action={<Button variant="secondary" onClick={() => void trash.refetch()}>{t('shell:mediaDirectory.retry')}</Button>}>{errorMessage(trash.error)}</Note> : null}
-      {trashView && trash.data ? <DataTableFrame>
+      {trashView && trashItems.length > 0 ? <DataTableFrame>
         <Table size="sm" aria-label={t('shell:mediaDirectory.trash')}>
           <TableHeader>
             <TableColumn className="w-11"><Checkbox slot={null} aria-label={t('shell:dataTable.selectAll', { label: t('shell:mediaDirectory.trash') })}
@@ -509,7 +516,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
             <TableColumn>{t('shell:mediaDirectory.originalFolder')}</TableColumn>
             <TableColumn>{t('shell:mediaDirectory.trashedAt')}</TableColumn>
           </TableHeader>
-          <TableBody renderEmptyState={() => t('shell:mediaDirectory.trashEmpty')}>
+          <TableBody>
             {trashItems.map(item => <TableRow key={item.id} id={item.id} data-board-selected={trashSelection.has(item.id) || undefined}>
               <TableCell><Checkbox slot={null} aria-label={t('shell:dataTable.selectRow', { name: item.name })}
                 isSelected={trashSelection.has(item.id)} isDisabled={busy || !item.available} onChange={on => setTrashSelection(current => {
@@ -545,7 +552,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
           </TableBody>
         </Table>
       </DataTableFrame> : null}
-      {readyFiles ? <DataTableFrame follow preferences={preferences} rectangleSelecting={selecting}
+      {readyFiles ? <DataTableFrame follow preferences={preferences} reorderable={!emptyDirectory} rectangleSelecting={selecting}
         onRowClick={selecting && !moveFrom && !busy && !query.isPlaceholderData ? rowClick : undefined}
         onRectangleEnter={() => setSelecting(true)}
         onRectangle={!moveFrom && !busy && !query.isPlaceholderData ? (keys, add) => {
@@ -553,7 +560,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
           applySelection(pageEntries.filter(item => found.has(entryKey(item))), add);
           rangeStart.current = keys.at(-1) ?? null;
         } : undefined}>
-        <Table ref={restoreTable} size="sm" data-media-directory-entries="" aria-label={entriesLabel}
+        <Table ref={restoreTable} size="sm" data-media-directory-entries="" data-directory-empty={emptyDirectory || undefined} aria-label={entriesLabel}
           sortDescriptor={sort ? { column: sort.id, direction: sort.desc ? 'descending' : 'ascending' } : undefined}
           onSortChange={next => changeSort([{ id: String(next.column), desc: next.direction === 'descending' }])}>
           <TableHeader>
@@ -570,10 +577,16 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
                   if ((event.key === 'Enter' || event.key === ' ') && (event.target as Element).closest('button')) event.stopPropagation();
                 }}>
                 {moveFrom ? <span data-copy-key={column.copyKey}>{column.label}</span> : column.id === 'name'
-                  ? <ColumnFilterPopover id="name" label={column.label} copyKey={column.copyKey} active={Boolean(search)}>
-                    {() => <MenuDialog aria-label={t('catalog:columnFilter.label', { column: column.label })} className="p-3">
+                  ? <ColumnFilterPopover id="name" label={column.label} copyKey={column.copyKey} active={Boolean(term)}>
+                    {() => <MenuDialog aria-label={t('catalog:columnFilter.label', { column: column.label })} className="p-3 outline-none">
                       <Input aria-label={t('shell:mediaDirectory.search')} placeholder={t('shell:mediaDirectory.search')}
-                        leadingIcon={RiSearchLine} size="small" value={search} onChange={setSearch} />
+                        leadingIcon={RiSearchLine} size="small" value={search} onChange={setSearch} autoFocus
+                        onKeyDown={event => {
+                          event.continuePropagation();
+                          if (event.key === 'Escape' && !event.nativeEvent.isComposing) requestAnimationFrame(() => {
+                            dialog.current?.querySelector<HTMLElement>('[data-table-column-filter="name"]')?.focus({ preventScroll: true });
+                          });
+                        }} />
                     </MenuDialog>}
                   </ColumnFilterPopover> : filtered.header(column.id, column.label, column.copyKey)}
                 {!moveFrom ? <button type="button" data-sort-indicator="" data-direction={sortDirection || undefined}
@@ -583,19 +596,20 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
                     event.stopPropagation();
                     changeSort([{ id: column.id, desc: sortDirection === 'ascending' }]);
                   }}><ChevronSortDown /></button> : null}
-              </span><TableColumnResizer preferences={preferences} id={column.id} /></>}
+              </span>{emptyDirectory ? null : <TableColumnResizer preferences={preferences} id={column.id} />}</>}
             </TableColumn>)}
             <TableColumn id="remaining-space" aria-label={t('catalog:catalogList.rowSpacer')} data-table-space="" width={preferences.spaceWidth} minWidth={0} />
           </TableHeader>
-          <TableBody renderEmptyState={() => <div className="p-4"><EmptyState size="compact" icon={RiFolder3Line}
-            title={t(term || encodedFilters !== '{}' ? 'shell:mediaDirectory.noMatches' : 'shell:mediaDirectory.empty')}>{null}</EmptyState></div>}>
+          <TableBody>
             {data.directories.map(item => entry(item))}
             {visibleFiles.map(item => entry(item, item))}
           </TableBody>
         </Table>
       </DataTableFrame> : null}
-      {data?.state === 'roots' && !data.roots.length ? <div className="p-8"><EmptyState size="compact" icon={RiFolder3Line} title={t('shell:serverPath.noRoots')}>{null}</EmptyState></div> : null}
       </> : null}
+      {emptyTitle ? <div className="my-4 w-full shrink-0">
+        <EmptyState size="compact" icon={trashView ? RiDeleteBin6Line : RiFolder3Line} title={t(emptyTitle)}>{null}</EmptyState>
+      </div> : null}
     </div>
     {!trashView && (path || data?.read_only || data?.offset || data?.next_offset != null) ? <div data-media-directory-footer="">
       {path ? <div className="min-w-0 max-h-28 overflow-auto"><Disclosure summary={t('shell:mediaDirectory.pathDetails')}>
@@ -604,7 +618,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
       </Disclosure></div> : null}
       <div className="ms-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
         {data?.read_only ? <span className="text-caption-1-regular text-text-tertiary" title={t('shell:mediaDirectory.readOnly')}>{t('shell:mediaDirectory.readOnlyShort')}</span> : null}
-        {data?.root && data.total !== undefined ? <DataTableFooter
+        {data?.root && data.total !== undefined && data.total > 0 ? <DataTableFooter
           label={entriesLabel} total={data.total} pagination={{ pageIndex: Math.floor((data.offset ?? 0) / pageSize), pageSize }}
           onChange={next => { setPageSize(next.pageSize); change(data.root!, data.relative, next.pageIndex * next.pageSize) }}
           unit={t('shell:dataTable.recordUnit')} pageSizes={PAGE_SIZES} /> : null}

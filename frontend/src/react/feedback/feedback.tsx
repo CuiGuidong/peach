@@ -4,6 +4,7 @@ import { createPortal, flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import { DropZone } from 'react-aria-components';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
+import { CloseButton } from '@/components/base/buttons/close-button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Input } from '@/components/base/input/input';
 import { Radio, RadioGroup } from '@/components/base/radio/radio';
@@ -429,8 +430,7 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
         }}>
       <header className="flex items-center justify-between gap-3">
         <h2 className="text-title-2-medium text-text-primary">{copy('title')}</h2>
-        <Button type="button" variant="ghost" iconOnly leadingIcon={RiCloseLine} onClick={closeForm}
-          disabled={sending} aria-label={message('close')} />
+        <CloseButton size="sm" aria-label={message('close')} disabled={sending} onClick={closeForm} />
       </header>
       {accessBlocked && !sent ? <Note tone="warning">
         <span data-copy-key="server.api.feedback.accessRequired">{t('server:api.feedback.accessRequired')}</span>

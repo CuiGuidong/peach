@@ -534,12 +534,12 @@ function ItemTitle({ item, queue, helpers, actions, onStatus, deleteAction }: {
             </span>
           ) : null}
           {item.location === 'online' ? null : <SourceTools id={item.id} code={item.code || ''} actions={actions} onStatus={onStatus} />}
+          {!item.disposal && (item.medium || 'video') === 'video' ? <LibraryAIPanel key={item.id} id={item.id} code={item.code}
+            cover={coverUrl(item, 2)} onSaved={() => { void queryClient.invalidateQueries({ queryKey: itemKey(item.id) }); }} /> : null}
           <ItemEditButton item={item} helpers={helpers} onSaved={(saved) => {
             applySavedItem(saved);
             actions.toast(t('catalog:itemEdit.saved'));
           }} />
-          {!item.disposal && (item.medium || 'video') === 'video' ? <LibraryAIPanel key={item.id} id={item.id} code={item.code}
-            cover={coverUrl(item, 2)} onSaved={() => { void queryClient.invalidateQueries({ queryKey: itemKey(item.id) }); }} /> : null}
           {deleteAction}
         </>
     } />

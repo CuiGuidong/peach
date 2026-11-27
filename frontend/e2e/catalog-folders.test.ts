@@ -25,6 +25,19 @@ describe('首页文件夹浏览', () => {
     const { page } = opened;
     try {
       const dialog = page.getByRole('dialog', { name: '浏览文件', exact: true });
+      const fullscreen = dialog.getByRole('button', { name: '全屏', exact: true });
+      await fullscreen.waitFor();
+      const headerButtons = () => dialog.getByRole('button', { name: /^(全屏|退出全屏|关闭)$/ }).evaluateAll(buttons =>
+        buttons.map(button => {
+          const { offsetWidth: width, offsetHeight: height } = button as HTMLButtonElement;
+          const { borderRadius } = getComputedStyle(button);
+          const { width: iconWidth, height: iconHeight } = getComputedStyle(button.querySelector('svg')!);
+          return { width, height, borderRadius, iconWidth, iconHeight };
+        }));
+      const windowButtons = await headerButtons();
+      assert.equal(windowButtons.length, 2);
+      assert.deepEqual(windowButtons[0], { width: 32, height: 32, borderRadius: '10px', iconWidth: '16px', iconHeight: '16px' });
+      assert.deepEqual(windowButtons[1], windowButtons[0]);
       const rows = dialog.locator('[data-media-directory-row]');
       await rows.first().waitFor();
       assert.equal(await dialog.locator('thead th[data-key="select"]').count(), 0);
@@ -38,8 +51,9 @@ describe('首页文件夹浏览', () => {
       await page.mouse.move(first.x + 117, second.y + second.height - 3, { steps: 8 });
       await page.mouse.up();
       assert.equal(await dialog.locator('[data-media-directory-row][data-board-selected]').count(), 2);
-      await dialog.getByRole('button', { name: '全屏', exact: true }).click();
+      await fullscreen.click();
       assert.equal(await dialog.locator('[data-directory-fullscreen]').count(), 1);
+      assert.deepEqual(await headerButtons(), windowButtons);
       const header = dialog.locator('thead th[data-key="name"] [data-sort-indicator]');
       await header.click();
       await header.click();
@@ -53,6 +67,57 @@ describe('首页文件夹浏览', () => {
   });
 
   for (const viewport of VIEWPORTS) {
+    it(`${viewport.name} 文件搜索空状态和表头撑满可用宽度`, { timeout: 90_000 }, async () => {
+      const root = { id: 'local', name: 'Library', mount: '/media/library', icon: 'film' };
+      const opened = await visit(browser, '/?directory=1&directory_root=local', viewport, async page => {
+        await page.route('**/api/media-directory?*', route => {
+          const searching = Boolean(new URL(route.request().url()).searchParams.get('q'));
+          return route.fulfill({ json: { roots: [root], root: root.id, state: 'ready', relative: '',
+            path: root.mount, total: searching ? 0 : 1, next_offset: null, directories: [],
+            files: searching ? [] : [{ name: 'sample.txt', size: 12, asset_id: null }] } });
+        });
+      });
+      try {
+        const { page } = opened;
+        const dialog = page.getByRole('dialog', { name: '浏览文件', exact: true });
+        const nameFilter = dialog.locator('[data-table-column-filter="name"]');
+        await nameFilter.waitFor();
+        const color = await nameFilter.evaluate(button => getComputedStyle(button).color);
+        await dialog.getByRole('textbox', { name: '搜索当前目录' }).fill('no matches');
+        const empty = dialog.locator('[data-empty-state]').filter({ hasText: '没有匹配的文件或文件夹' });
+        await empty.waitFor();
+        assert.equal(await nameFilter.getAttribute('data-filter-active'), '');
+        if (!viewport.mobile) await nameFilter.hover();
+        const filtered = await nameFilter.evaluate(button => {
+          const style = getComputedStyle(button);
+          return { color: style.color, decoration: style.textDecorationLine,
+            chevron: getComputedStyle(button.querySelector('svg')!).color };
+        });
+        assert.notEqual(filtered.color, color);
+        assert.equal(filtered.color, filtered.chevron);
+        assert.equal(filtered.decoration, 'none');
+        assert.equal(await empty.evaluate(node => {
+          const table = node.closest('[data-media-directory-body]')!.querySelector('table')!;
+          const frame = table.parentElement!;
+          const header = table.getBoundingClientRect();
+          const box = node.getBoundingClientRect();
+          return !node.closest('table') && frame.scrollWidth === frame.clientWidth && frame.scrollHeight === frame.clientHeight &&
+            Math.abs(box.left - header.left) < 1 && Math.abs(box.right - header.right) < 1;
+        }), true);
+        assert.equal(await dialog.getByRole('button', { name: /每页/ }).count(), 0);
+        await nameFilter.press('Enter');
+        const filterDialog = page.getByRole('dialog', { name: '筛选名称', exact: true });
+        const filterInput = filterDialog.getByRole('textbox', { name: '搜索当前目录' });
+        await filterInput.waitFor();
+        await page.waitForFunction(() => document.activeElement?.matches('[role="dialog"] input'));
+        assert.equal(await filterInput.evaluate(input => input === document.activeElement), true);
+        assert.equal(await filterDialog.evaluate(panel => getComputedStyle(panel).outlineStyle), 'none');
+        await filterInput.press('Escape');
+        await filterDialog.waitFor({ state: 'hidden' });
+        assert.equal(await nameFilter.evaluate(button => button === document.activeElement), true);
+      } finally { await opened.close() }
+    });
+
     it(`${viewport.name} 播放详情里的文件浏览可点击且先于播放器关闭`, { timeout: 90_000 }, async () => {
       const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
       const { page } = opened;

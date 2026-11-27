@@ -58,27 +58,52 @@ describe('作品详情岛', () => {
     await browser.close();
   });
 
-  it('编辑、AI 助手与删除在桌面和手机使用同一排工具按钮', { timeout: 60_000 }, async () => {
+  it('AI 助手、编辑与删除在桌面和手机按同一顺序排列', { timeout: 60_000 }, async () => {
     for (const viewport of [DESKTOP, MOBILE]) {
       const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, viewport);
       try {
         const geometry = await opened.page.locator('[data-title-tools]').evaluate(node => {
-          const buttons = ['[aria-label="编辑资料"]', '[aria-label="AI 助手"]', '[data-item-delete]']
+          const buttons = ['[aria-label="AI 助手"]', '[aria-label="编辑资料"]', '[data-item-delete]']
             .map(selector => {
               const { x, y, width, height } = node.querySelector(selector)!.getBoundingClientRect();
               return { x, y, width, height };
             });
           return { buttons, gaps: buttons.slice(1).map((button, i) => button.x - buttons[i].x - buttons[i].width) };
         });
-        const [edit, ...neighbors] = geometry.buttons;
+        const [assistant, ...neighbors] = geometry.buttons;
         for (const button of neighbors) {
-          assert.ok(Math.abs(edit.y - button.y) <= 1, JSON.stringify(geometry));
-          assert.equal(edit.width, button.width);
-          assert.equal(edit.height, button.height);
+          assert.ok(Math.abs(assistant.y - button.y) <= 1, JSON.stringify(geometry));
+          assert.equal(assistant.width, button.width);
+          assert.equal(assistant.height, button.height);
         }
         assert.ok(geometry.gaps.every(gap => gap >= 0 && gap <= 12), JSON.stringify(geometry));
       } finally { await opened.close() }
     }
+  });
+
+  it('作品 AI 在点击开始翻译后才提交所选语言', { timeout: 30_000 }, async () => {
+    const opened = await openItemPage(browser, `/assets/${ITEM.plain}`, DESKTOP);
+    const posts: unknown[] = [];
+    try {
+      const { page } = opened;
+      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: {
+        providers: [{ id: 'openai', label: 'OpenAI', model: 'fixture-model', configured: true }],
+      } }));
+      await page.route(`**/api/ai-library/assets/${ITEM.plain}`, route => {
+        const request = route.request();
+        if (request.method() === 'GET') return route.fulfill({ json: { translations: [], official_samples: 0 } });
+        posts.push(request.postDataJSON());
+        return route.fulfill({ json: { task: 'translate', title: 'Fixture translation', token: 'fixture' } });
+      });
+      await page.locator('[data-title-tools]').getByRole('button', { name: 'AI 助手', exact: true }).click();
+      const dialog = page.getByRole('dialog', { name: 'AI 助手', exact: true });
+      await dialog.getByRole('button', { name: '译文语言' }).click();
+      await page.getByRole('option', { name: '英语', exact: true }).click();
+      assert.deepEqual(posts, []);
+      await dialog.getByRole('button', { name: '开始翻译', exact: true }).click();
+      await dialog.getByRole('textbox', { name: '译文标题', exact: true }).waitFor();
+      assert.deepEqual(posts.map(body => (body as { language: string }).language), ['en']);
+    } finally { await opened.close() }
   });
 
   it('推荐加载保持详情高度稳定，理由与悬停圆角适配默认视口', { timeout: 60_000 }, async () => {

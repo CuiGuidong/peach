@@ -6,7 +6,6 @@
     "saveTranslation": "保存译文",
     "human": "人工校订 · {{language}} · {{model}}",
     "title": "AI 助手",
-    "openTranslation": "打开 AI 助手并翻译标题和简介",
     "translating": "正在准备译文…",
     "generating": "正在生成标签候选…",
     "custom": "自定义任务",
@@ -44,6 +43,8 @@
     "shareText": "生成时将作品标题及已有相关文字发送给 {{provider}}。",
     "originalSummary": "原文简介",
     "generate": "生成候选",
+    "startTranslation": "开始翻译",
+    "translationSaved": "已保存此语言的译文。",
     "approve": "采纳所选",
     "discard": "放弃候选",
     "noTags": "没有找到有依据的新标签。",
@@ -738,6 +739,7 @@
   "javBatch": {
     "close": "关闭批量资源查找",
     "downloadSettingsFailed": "下载设置读取失败：{{error}}",
+    "sourceWarnings": "来源提示（{{count}} 条）",
     "title": "查找所选资源"
   },
   "javComments": {

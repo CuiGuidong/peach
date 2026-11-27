@@ -15,6 +15,43 @@ describe('等待反馈与文件夹模式', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
+  it('反馈入口分别绘制半透明前景与底色，悬停和键盘聚焦时恢复实色', async () => {
+    const viewport = VIEWPORTS.find(row => !row.mobile)!;
+    const opened = await visit(browser, '/', viewport);
+    try {
+      const { page } = opened;
+      const launcher = page.locator('[data-feedback-launcher] > button');
+      await launcher.waitFor();
+      const paint = () => launcher.evaluate(button => {
+        const style = getComputedStyle(button);
+        const context = document.createElement('canvas').getContext('2d')!;
+        const alpha = (color: string) => {
+          context.clearRect(0, 0, 1, 1);
+          context.fillStyle = color;
+          context.fillRect(0, 0, 1, 1);
+          return context.getImageData(0, 0, 1, 1).data[3];
+        };
+        return { opacity: style.opacity, background: alpha(style.backgroundColor),
+          text: alpha(getComputedStyle(button.querySelector('span')!).color),
+          icon: alpha(getComputedStyle(button.querySelector('svg path')!).fill) };
+      });
+      const idle = await paint();
+      assert.equal(idle.opacity, '1');
+      assert.ok(idle.background > 0 && idle.background < idle.text && idle.text < 255);
+      assert.equal(idle.text, idle.icon);
+      const solid = { opacity: '1', background: 255, text: 255, icon: 255 };
+      await launcher.hover();
+      await launcher.evaluate(button => Promise.allSettled(button.getAnimations().map(animation => animation.finished)));
+      assert.deepEqual(await paint(), solid);
+      await page.mouse.move(0, 0);
+      await page.keyboard.press('Tab');
+      await launcher.focus();
+      assert.equal(await launcher.evaluate(button => button.matches(':focus-visible')), true);
+      await launcher.evaluate(button => Promise.allSettled(button.getAnimations().map(animation => animation.finished)));
+      assert.deepEqual(await paint(), solid);
+    } finally { await opened.close(); }
+  });
+
   it('反馈访问受限时在填写前显示一条原因并禁用提交', async () => {
     const viewport = VIEWPORTS.find(row => !row.mobile)!;
     const opened = await visit(browser, '/', viewport, async page => {

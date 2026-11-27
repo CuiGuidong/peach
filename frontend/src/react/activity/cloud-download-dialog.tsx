@@ -4,9 +4,9 @@ import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ImageWithFallback } from '../components/image-with-fallback';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Heading } from 'react-aria-components';
-import { RiCloseLine } from '@remixicon/react';
 
 import { Button } from '@/components/base/buttons/button';
+import { CloseButton } from '@/components/base/buttons/close-button';
 import { Input } from '@/components/base/input/input';
 import { Select, SelectItem } from '@/components/base/select/select';
 
@@ -61,7 +61,7 @@ function Body({ prefill, close, receipt, provider }: {
   const header = (
     <div className="flex items-center justify-between gap-4 px-5 pt-5">
       <Heading slot="title" className="text-title-2-semibold text-text-primary">{t('manage:resourceSearch.searchTorrents')}</Heading>
-      <Button variant="ghost" iconOnly leadingIcon={RiCloseLine} aria-label={t('manage:cloudDownloadDialog.closePanel')} onClick={close} />
+      <CloseButton size="sm" aria-label={t('manage:cloudDownloadDialog.closePanel')} onClick={close} />
     </div>
   );
   if (data) {

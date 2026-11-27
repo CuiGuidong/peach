@@ -41,11 +41,19 @@
 }
 
 [data-feedback-launcher] > button {
-  opacity: .65;
+  background-color: color-mix(in srgb, var(--color-background-primary-default) 72%, transparent);
+  color: color-mix(in srgb, var(--color-text-primary) 88%, transparent);
 }
 
-[data-feedback-launcher] > button:is(:focus-visible, :active) {
-  opacity: 1;
+[data-feedback-launcher] > button:focus-visible {
+  background-color: var(--color-background-primary-default);
+  color: var(--color-text-primary);
+}
+
+[data-feedback-launcher] > button:active {
+  background-color: var(--color-background-primary-active);
+  color: var(--color-text-primary);
+  transform: none;
 }
 
 [data-feedback-attachment] button[data-feedback-action] {
@@ -63,12 +71,12 @@
 }
 
 @media (hover: hover) {
-  [data-feedback-launcher] > button:hover {
-    opacity: 1;
-  }
-
   [data-feedback-action]:hover:not(:active, :disabled, [aria-disabled="true"]) {
     background-color: var(--control-hover, var(--color-border-button-default));
+  }
+
+  [data-feedback-launcher] > button:hover {
+    color: var(--color-text-primary);
   }
 }
 

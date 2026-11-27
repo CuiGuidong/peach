@@ -698,7 +698,7 @@ def q_quality_goals(contract: WebContract, args):
     offset = max(int(args.get("offset", "0")), 0)
     with contract.read_connection() as connection:
         rows = [dict(row) for row in connection.execute(
-            "SELECT a.id,a.name,a.code,a.location,a.path,a.size,a.duration,a.snapshot_path,"
+            "SELECT a.id,a.name,a.code,a.location,a.path,a.size,a.duration,a.snapshot_path,a.studio,a.release_date,"
             "g.reason,g.updated_at FROM asset_quality_goal g "
             "JOIN asset a ON a.id=g.asset_id "
             "WHERE g.profile_id=? AND g.wanted=1 "
@@ -722,11 +722,20 @@ def q_quality_goals(contract: WebContract, args):
     }, ranges=MEDIA_RANGE_READERS)
     total = len(rows)
     rows = rows[offset:offset + limit]
+    cast: dict[int, list[str]] = {row["id"]: [] for row in rows}
+    if cast:
+        from .web_catalog import con_entities
+
+        ids = list(cast)
+        for asset_id, _, kind, name in con_entities(contract, ids, ",".join("?" for _ in ids)):
+            if kind == "performer":
+                cast[asset_id].append(name)
     for row in rows:
         row["cost"] = cost_for(row['location'], row.pop('path', None))
         row["has_thumb"] = contract.has_snapshot(row["snapshot_path"])
         row["has_cover"] = contract.has_cover(row.get("code"))
         row["cover_version"] = contract.cover_version(row.get("code"))
+        row["performers"] = cast[row["id"]]
         row.pop("snapshot_path", None)
     return {"total": total, "items": rows, "offset": offset, "column_facets": facets,
             "has_more": offset + len(rows) < total}

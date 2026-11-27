@@ -41,12 +41,11 @@ import { providerIcon } from '../components/source-label';
 import { useDense } from '../components/use-dense';
 import { useLibraryTints } from '../components/library-tint';
 import { ListLibrary } from '../catalog-grid/catalog-list-page';
-import { JavBatchResources } from '../jav/jav-batch-resources';
-import type { Discovery } from '../jav/jav';
+import { JavBatchResources, type BatchResourceWork } from '../jav/jav-batch-resources';
 import {
   fetchQualityGoals, previewUrl, QUALITY_GOALS_KEY, type QualityGoal,
 } from './quality-goals';
-import { t } from '../../i18n';
+import { joinList, t } from '../../i18n';
 import { useRectangleSelection } from '../components/rectangle-selection';
 import type { TableFilters } from '../components/use-table-filters';
 import { useWorkContextMenu, type WorkContextOperation } from '../components/work-context-menu';
@@ -129,7 +128,7 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
   const [download, setDownload] = useState<DownloadPrefill | null>(null);
   const [picked, setPicked] = useState<ReadonlyMap<number, QualityGoal>>(new Map());
   const selecting = usePageSelection(() => setPicked(new Map()));
-  const [resources, setResources] = useState<Discovery[] | null>(null);
+  const [resources, setResources] = useState<BatchResourceWork[] | null>(null);
   const view = useCatalogView();
   const [filters, setFilters] = useState<TableFilters>({});
   const encoded = JSON.stringify(filters);
@@ -243,8 +242,11 @@ export function QualityGoalsPage({ toast, ...props }: QualityGoalsProps) {
           </div>}
       <SelectionDock visible={chosen.length > 0} label={t('manage:hdUpgrades.dockLabel')} count={t('manage:hdUpgrades.selectedCount', { count: chosen.length })}
         actions={[]}>
-        <Button size="small" variant="secondary" disabled={!searchable.length} onClick={() => setResources(searchable.map((item) => ({ id: item.id, code: item.code!,
-          title: props.javDisplayName(item), release_date: undefined }) as unknown as Discovery))}>{t('manage:resourceSearch.searchTorrents')}</Button>
+        <Button size="small" variant="secondary" disabled={!searchable.length} onClick={() => setResources(searchable.map(item => ({
+          id: item.id, code: item.code!, title: props.javDisplayName(item), studio: item.studio, release_date: item.release_date,
+          performers: item.performers?.length ? joinList(item.performers) : undefined,
+          cover: item.has_cover || item.has_thumb ? previewUrl(item) : undefined,
+        })))}>{t('manage:resourceSearch.searchTorrents')}</Button>
         <Button size="small" variant="ghost" onClick={exitPageSelection}>{t('manage:hdUpgrades.clearSelection')}</Button>
       </SelectionDock>
       <JavBatchResources items={resources} close={() => setResources(null)} readOnly={false} receipt={toast} />

@@ -30,12 +30,33 @@
 }
 [data-media-directory-body] .bui-table { table-layout: fixed; }
 [data-directory-column] > [data-table-column-filter] { flex: 0 1 auto; }
+[data-directory-column] > [data-table-column-filter][data-filter-active] > svg {
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-accent-600) 16%, transparent);
+  color: var(--color-accent-600);
+}
+[data-directory-column] > [data-table-column-filter]:hover { text-decoration-line: none; }
 [data-directory-column] > [data-table-column-filter] > span > .truncate { display: block; }
 [data-directory-column] > [data-sort-indicator] { width: 20px; justify-content: center; }
 .peach-react [data-directory-column] > [data-sort-indicator] svg { width: 16px; height: 16px; }
 [data-media-directory-body] .bui-table :is(th, td) { height: var(--media-directory-row-height); }
 .peach-react [data-media-directory-body] [data-board-data-table] .bui-table th { position: sticky; top: 0; z-index: 1; border-bottom: 0; background: var(--color-background-tertiary-default); color: var(--color-text-secondary); }
 .peach-react [data-media-directory-body] [data-resizable-table] th:has(> [data-directory-column]) { padding-inline-end: 20px; }
+.peach-react [data-media-directory-body] [data-board-data-table]:has([data-directory-empty]) { flex: none; max-height: none; }
+[data-media-directory-body] [data-directory-empty] { display: block; width: 100% !important; }
+[data-directory-empty] > thead { display: block; }
+[data-directory-empty] > thead > tr {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 132px), 1fr));
+}
+.peach-react [data-media-directory-body] [data-directory-empty] th:has(> [data-directory-column]) {
+  /* 覆盖 React Aria 为可调列宽设置的内联尺寸。 */
+  width: auto !important;
+  display: flex;
+  align-items: center;
+  padding-inline-end: 10px;
+}
+[data-directory-empty] th[data-table-space] { display: none; }
 .peach-react [data-media-directory-body] [data-board-data-table] th .react-aria-ColumnResizer { right: 0; width: 16px; }
 .peach-react [data-media-directory-body] [data-board-data-table] th .react-aria-ColumnResizer::after { left: auto; right: 0; }
 .peach-react [data-media-directory-body] .bui-table tbody tr:not(:last-child) { border-bottom: 0; }
@@ -50,6 +71,7 @@
   [data-media-directory-toolbar] > :first-child { flex-basis: 100%; }
   [data-directory-actions] > [data-input-size] { max-width: none; flex-basis: 100%; }
   [data-media-directory-footer] { flex-wrap: wrap; }
+  [data-media-directory-body] [data-empty-state] { min-height: 10rem; }
   [data-media-directory-dialog][data-directory-fullscreen] [data-media-directory-header] {
     padding-top: max(16px, env(safe-area-inset-top));
   }

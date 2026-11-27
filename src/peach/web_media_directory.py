@@ -108,7 +108,7 @@ def directory_order(args, indexed):
         limit = int(args.get('limit', '100'))
     except (TypeError, ValueError):
         limit = 0
-    if sort not in DIRECTORY_SORTS or direction not in ('asc', 'desc') or len(term) > 255 or not 1 <= limit <= 500:
+    if sort not in DIRECTORY_SORTS or direction not in ('asc', 'desc') or not 1 <= limit <= 500:
         raise UserValueError('errors.nasDirectories.invalidOrder')
     selected = column_filters(args.get('column_filters'), DIRECTORY_CHOICES, DIRECTORY_RANGES)
     metrics = {name: (row['duration'], row['width'], row['height']) for name, row in indexed.items()}

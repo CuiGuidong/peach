@@ -1915,13 +1915,25 @@ class FastApiContractTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(decided.status_code, 200)
 
     async def test_quality_goal_queue_is_readable_from_management(self):
+        with closing(sqlite3.connect(self.db)) as connection, connection:
+            connection.execute("UPDATE asset SET release_date='2026-08-12' WHERE id=1")
+            connection.execute(
+                "INSERT INTO entity(id,kind,canonical_name,normalized_name) VALUES(3001,'performer','Cast A','cast a')"
+            )
+            connection.execute(
+                "INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(1,3001,'performer','test')"
+            )
         saved = await self.client.post(
             "/api/quality-goal?t=secret", json={"id": 1, "wanted": True},
         )
         self.assertEqual(saved.status_code, 200)
         response = await self.client.get("/api/quality-goals?t=secret&limit=20")
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["items"][0]["id"], 1)
+        item = response.json()["items"][0]
+        self.assertEqual(item["id"], 1)
+        self.assertEqual(item["performers"], ["Cast A"])
+        self.assertEqual(item["studio"], "Studio A")
+        self.assertEqual(item["release_date"], "2026-08-12")
 
     async def test_metadata_field_candidate_is_approved_through_the_http_contract(self):
         connection = sqlite3.connect(self.db)
