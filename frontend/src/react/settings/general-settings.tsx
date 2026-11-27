@@ -9,6 +9,7 @@ import { Switch } from '@/components/base/switch/switch';
 import { apiGet, apiSend, errorMessage } from '../../api';
 import { codedText } from '../../core/server-text';
 import type { StartupState } from '../bundle';
+import { Note } from '../components/note';
 import { ErrorText, Footer, Help, Rows, Section, Stack } from './section';
 import { busyProps, useAction } from './use-action';
 import { t } from '../../i18n';
@@ -27,10 +28,11 @@ export function StartupSettingsSection({ active, initial, receipt }: {
   if (query.data) return <StartupSettings startup={query.data} receipt={receipt} />;
   if (!active) return null;
   return <Section guide="startup" title={t('settings:startup.title')}>
-    {query.isError ? <Stack>
-      <ErrorText>{errorMessage(query.error)}</ErrorText>
-      <Button variant="secondary" onClick={() => void query.refetch()}>{t('settings:shared.reload')}</Button>
-    </Stack> : <div role="status" aria-busy="true" className="px-4 py-3">
+    {query.isError ? <Note tone="error" action={
+      <Button variant="secondary" size="small" {...busyProps(query.isFetching)} onClick={() => void query.refetch()}>
+        {t('settings:shared.reload')}
+      </Button>
+    }>{errorMessage(query.error)}</Note> : <div role="status" aria-busy="true" className="px-4 py-3">
       <span className="block h-4 w-36 rounded-md bg-background-tertiary-default" />
     </div>}
   </Section>;

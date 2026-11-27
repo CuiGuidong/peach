@@ -871,7 +871,7 @@ class CapacityProtectionTests(unittest.TestCase):
             with self.subTest(payload=payload), self.assertRaises(ValueError):
                 self.budget.save_policy(self.config, payload)
         (self.root / 'state' / self.budget.POLICY_NAME).write_text('{broken', encoding='utf-8')
-        with self.assertRaisesRegex(DiskSpaceDenied, '设置未取得'):
+        with self.assertRaisesRegex(DiskSpaceDenied, '设置读取失败'):
             self.budget.CapacityGuard(self.config).check(force=True)
         self.policy(data_max_gib=1)
         with patch.object(self.budget, 'data_usage', side_effect=PermissionError('denied')):

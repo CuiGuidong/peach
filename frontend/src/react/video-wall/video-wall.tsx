@@ -468,8 +468,13 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
                 {facts.length ? <dl data-wall-detail-facts="">{facts.map(fact => <div key={fact.key}><dt>{fact.label}</dt><dd>{fact.value}</dd></div>)}</dl> : null}
                 {current.studio ? <dl data-wall-detail-spec=""><dt>{t('catalog:entityHero.studio')}</dt><dd>{current.studio}</dd></dl> : null}
               </>}
-            {error || (groupRef && groupQuery.error && !group) ? <div data-wall-play-error=""><Note tone="error">{error || requestErrorMessage(groupQuery.error)}</Note>
-              {groupQuery.error && !group ? <Button size="small" variant="ghost" onClick={() => void groupQuery.refetch()}>{t('catalog:shared.retryNow')}</Button> : null}</div> : null}
+            {error ? <div data-wall-play-error=""><Note tone="error">{error}</Note></div> : null}
+            {groupRef && groupQuery.error && !group ? <div data-wall-play-error="">
+              <Note tone="error" action={<Button size="small" variant="secondary" {...busyProps(groupQuery.isFetching)}
+                onClick={() => void groupQuery.refetch()}>{t('catalog:shared.retryNow')}</Button>}>
+                {requestErrorMessage(groupQuery.error)}
+              </Note>
+            </div> : null}
           </div>
         </div>
         <WallControls item={current} playing={playing} frame={playerFrame} starting={starting} pendingGroup={!!groupRef && groupQuery.isPending}
@@ -616,7 +621,11 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
         {captionItem.duration ? <span data-wall-duration="">{fmtDur(captionItem.duration)}</span> : null}
       </span>
     </div> : null}
-    {!loading && queryError ? <div data-wall-error=""><Note tone="error">{queryError}</Note><Button size="small" variant="ghost" onClick={retry}>{t('catalog:shared.retryNow')}</Button></div> : null}
+    {!loading && queryError ? <div data-wall-error="">
+      <Note tone="error" action={<Button size="small" variant="secondary" onClick={retry}>{t('catalog:shared.retryNow')}</Button>}>
+        {queryError}
+      </Note>
+    </div> : null}
     {!loading && !queryError && !items.length ? <div data-wall-empty="" onClick={async event => {
       const control = (event.target as Element).closest('[data-wall-load-more]');
       if (!control || busy || moreFlight.current) return;
@@ -625,7 +634,12 @@ export function VideoWall({ items, finite, hasMore, busy, loading = false, error
     }} dangerouslySetInnerHTML={{ __html:emptyHtml }} /> : null}
     {hasMore && finite && items.length > 0 ? <div data-wall-footer=""><Button size="small" variant="secondary" {...busyProps(busy)} onClick={() => void more()}>
       {busy ? <span dangerouslySetInnerHTML={{ __html:spinnerHtml() }} /> : null}{t('catalog:shared.loadMore')}</Button></div> : null}
-    {moreError ? <div data-wall-error=""><Note tone="error">{moreError}</Note><Button size="small" variant="ghost" {...busyProps(busy)} onClick={() => void more()}>{t('catalog:shared.retryNow')}</Button></div> : null}
+    {moreError ? <div data-wall-error="">
+      <Note tone="error" action={<Button size="small" variant="secondary" {...busyProps(busy)} onClick={() => void more()}>
+        {t('catalog:shared.retryNow')}</Button>}>
+        {moreError}
+      </Note>
+    </div> : null}
   </div>;
   return createPortal(wall, portal);
 }

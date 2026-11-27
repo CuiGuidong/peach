@@ -67,8 +67,8 @@
       "tokens": "{{count}} token",
       "requests": "{{count}} 次请求",
       "breakdown": "输入 {{input}} · 输出 {{output}}",
-      "missing": "其中 {{count}} 次请求未取得 token 用量。",
-      "unreported": "未取得 token 用量",
+      "missing": "其中 {{count}} 次请求没有返回 Token 用量。",
+      "unreported": "未报告 Token 用量",
       "history": "Peach 历史用量",
       "range": "日期范围",
       "rangeDays": "最近 {{days}} 天",
@@ -94,7 +94,7 @@
       "organizationUsed": "组织已用 Token",
       "balance": "当前余额",
       "subscription": "订阅额度",
-      "accountUnknown": "未取得",
+      "accountUnknown": "账户用量未知",
       "accountDashboard": "查看平台账户用量",
       "planLink": "查看 ChatGPT 订阅额度"
     },
@@ -210,7 +210,7 @@
     "consent": "我已查看内容，同意按以上范围每周分享，用于复核及公共种子分发。",
     "agree": "同意并开启",
     "saved": "公开资料共建设置已保存",
-    "readFailed": "未取得资料贡献状态，可刷新重试。",
+    "readFailed": "贡献状态读取失败，可刷新重试。",
     "acceptedHelp": "接收端已接受请求；附件留存、复核与种子采纳需要另外确认。",
     "names": "本机中文名候选：待采纳 {{pending}} 项，当前版本已收录 {{adopted}} 项，已撤销 {{withdrawn}} 项。",
     "refresh": "刷新状态",
@@ -225,7 +225,7 @@
     "copyLabel": "复制{{label}}",
     "copyUrl": "复制地址",
     "lanDevices": "同一局域网的设备",
-    "lanUnavailable": "局域网连接地址未取得，请检查电脑的网络连接和服务启动配置。",
+    "lanUnavailable": "无法确定局域网地址，请检查电脑的网络连接和服务启动配置。",
     "localOnly": "当前只允许这台电脑访问，手机无法连接。",
     "localUrl": "本机地址",
     "managedByStartup": "访问范围、名称与端口由服务启动配置管理。",
@@ -474,7 +474,7 @@
     "title": "番号识别规则"
   },
   "configurationPage": {
-    "loadFailed": "未取得配置，请刷新页面重试。",
+    "loadFailed": "配置加载失败，请刷新重试。",
     "loadFailedTitle": "配置读取失败",
     "sectionsLabel": "配置分区",
     "contents": "本页目录",
@@ -510,7 +510,7 @@
     "preview": "预览分享内容",
     "previewDetails": "分享范围与数据明细",
     "previewTitle": "分享内容预览",
-    "readFailed": "未取得共建计划状态。请刷新重试。",
+    "readFailed": "共建计划状态读取失败，请刷新重试。",
     "refresh": "刷新状态",
     "saved": "共建计划设置已保存",
     "saveFailed": "部分选择未能保存。请核对当前参与状态后重试。",
@@ -856,7 +856,7 @@
     "saveFailed": "保存界面语言",
     "saved": "已保存界面语言",
     "title": "界面语言",
-    "unavailable": "未取得数据库中的界面语言，请重新打开设置。"
+    "unavailable": "界面语言读取失败，请重新打开设置。"
   },
   "javBrowser": {
     "disable": "关闭浏览器添加",
@@ -969,8 +969,8 @@
     "previewLabel": "馆藏与偏好研究预览",
     "previewSummary": "馆藏研究 · {{count, number}} 部作品 · {{uncoded, number}} 条无编号汇总 · {{size}} KiB",
     "refreshStatus": "刷新发送状态",
-    "resultUnknown": "结果未取得",
-    "resultUnknownHelp": "未取得上传结果，本周不再发送。",
+    "resultUnknown": "上传结果无法确认",
+    "resultUnknownHelp": "无法确认上传结果，本周暂停再次发送。",
     "retryPending": "待重新准备",
     "saved": "已保存馆藏与口味上传选项",
     "sendFailed": "发送失败",
@@ -978,7 +978,7 @@
     "snapshot": "本周快照",
     "snapshotId": "快照编号",
     "snapshotSizes": "原始 {{raw}} KiB，gzip 压缩后 {{compressed}} KiB。",
-    "statusUnavailable": "馆藏上传状态未取得",
+    "statusUnavailable": "馆藏上传状态查询失败",
     "truncated": "显示前 24,000 个字符，下载可查看完整内容。",
     "unavailable": "上传服务未配置",
     "setupDescription": "每周分享作品编号、评分与观看汇总、偏好和容量数据，用于研究 Peach 用户如何整理与使用馆藏。",
@@ -1056,7 +1056,7 @@
     "saveFailed": "保存名称显示偏好",
     "saved": "已保存名称显示偏好",
     "title": "女优名称",
-    "unavailable": "未取得数据库中的名称偏好，请重新打开设置。"
+    "unavailable": "名称偏好读取失败，请重新打开设置。"
   },
   "photoLayout": {
     "fixed": "固定比例",
@@ -1374,7 +1374,7 @@
     "name": "名称",
     "noLimit": "不限",
     "notEnabled": "未启用",
-    "notFound": "未取得",
+    "notFound": "未知",
     "notSaved": "没有保存",
     "notSet": "未设置",
     "officialSite": "官网",
@@ -1465,7 +1465,7 @@
     "title": "来源凭据"
   },
   "sourceSettings": {
-    "credentialsFailed": "来源凭据未取得",
+    "credentialsFailed": "来源凭据读取失败",
     "loadingCredentials": "正在读取来源凭据",
     "sourcesLink": "采集来源与登录状态"
   },
@@ -1508,7 +1508,7 @@
     "externalCacheLimitHelp": "达到上限暂停补修，留空只检查磁盘余量",
     "limitGib": "{{label}}（GiB）",
     "limitsHelp": "上限留空表示不限，进行中的任务可能超出。",
-    "loadFailed": "容量设置未取得",
+    "loadFailed": "容量设置加载失败",
     "pausedWithReasons": "{{reasons}}。调整或清理后，在任务中心重试补修。",
     "readingCloudDrive": "正在读取 CloudDrive 缓存目录…",
     "reservedSpace": "磁盘保留空间",

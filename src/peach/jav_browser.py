@@ -110,8 +110,12 @@ def _state_message(state: str) -> dict:
 
 def _message_of(row: dict) -> dict:
     """行里记下的那句与它的 code；旧版本写下的行只有原文。"""
-    return {"message": row.get("message"), "message_code": row.get("message_code"),
-            "message_params": row.get("message_params")}
+    code = row.get("message_code")
+    params = row.get("message_params")
+    if code in {'labels.javBrowser.sourcesWaiting', 'labels.javBrowser.sourcesUnfetched',
+                'labels.javBrowser.sourcesExhausted', 'labels.javBrowser.noMatchSourcesPaused'} and isinstance(params, dict):
+        return _message(Said(code, params))
+    return {"message": row.get("message"), "message_code": code, "message_params": params}
 
 
 @lru_cache(maxsize=1)
@@ -599,12 +603,16 @@ class JavBrowser:
                 detail["download"] = _download_projection(task)
                 row.update(_postprocess_retry_status(task))
             state = row.get("state", "idle")
+            recovery = row.pop("search_recovery", None)
+            if task is None and recovery and (state in {"failed", "no_match"} or (
+                    state == "queued" and row.get("retry_at"))):
+                detail["recovery"] = recovery
             if state == "queued" and (paused := self._paused(row.get("provider", ""))):
                 detail["paused"] = {**paused, **paused_text(paused["failure"], paused.get("reason"))}
                 row.update(_message(detail["paused"]["message"]))
             return {"ok": True, "code": code, **row, **detail, **self._queue_detail(code, state), "state": state,
                     "stage": "submitting" if code in self._submitting else state,
-                    **(_message_of(row) if row.get("message") else _state_message(state))}
+                    **(_message_of(row) if row.get("message") or row.get("message_code") else _state_message(state))}
 
     def _channel_pause(self, provider: str) -> dict | None:
         """渠道级失败后这个渠道处于暂停，显示最近失败与下次试探时间。"""
@@ -613,16 +621,19 @@ class JavBrowser:
             return None
         from .error_reporting import redact
         reason = redact(alert["message"])
+        recovery = {"kind": "downloads_settings"} if alert["failure"] == "config" else None
         if alert["message_code"] == "errors.downloads.remoteStorageFull":
             reason = interface_text.text("server:javBrowser.paused.storage.reason")
         elif alert["message_code"] == "errors.downloadsClouddrive.unreachable":
             details = str(alert["message_params"].get("details", "")).casefold()
             if "connection refused" in details:
                 reason = interface_text.text("server:javBrowser.paused.network.connectionRefused")
+                recovery = {"kind": "downloads_settings"}
             elif "deadline exceeded" in details:
                 reason = interface_text.text("server:javBrowser.paused.network.timeout")
         return {"failure": alert["failure"], "since": alert["since"], "reason": reason,
-                "retry_at": iso(parse_iso(alert["since"]) + PAUSE_PROBE_SECONDS)}
+                "retry_at": iso(parse_iso(alert["since"]) + PAUSE_PROBE_SECONDS),
+                **({"recovery": recovery} if recovery else {})}
 
     def _active_search_pause(self) -> dict | None:
         pause = self._search_pause
@@ -958,6 +969,7 @@ class JavBrowser:
                 return True
             row["state"] = "searching"
             row.pop('retry_at', None)
+            row.pop("search_recovery", None)
             self._save()
             provider = row["provider"]
         try:
@@ -1017,35 +1029,47 @@ class JavBrowser:
         """搜索没有正片磁力时，分别结算无命中、可恢复故障与永久故障。
 
         有直连来源没查成（JavDB 要求登录、来源冷却、连接失败）时，这一轮的「没有」不算数：
-        即使后备索引器答复了，也按来源冷却排自动重试，重试用完记成来源未取得，不记无资源。
+        即使后备索引器答复了，也按来源冷却排自动重试，重试用完保留来源故障，不记无资源。
         来源要停 `LONG_SOURCE_PAUSE` 以上时不让番号干等：按其余来源的结果记无资源并注明哪个来源没查，
         不带 `sources_complete`，等那个来源恢复（`recheck_after`）后由清扫重查。
         """
         failed = result.get('state') in {'error', 'unavailable'} or bool(result.get('error'))
         reason = (Said(result['error_code'], **(result.get('error_params') or {}))
                   if failed and isinstance(result.get('error_code'), str) else None)
+        failures = result.get('source_failures')
+        source_reason = Said('labels.javBrowser.sourceFailures', failures=failures) if failures else None
+        reason = source_reason or reason
         message = (Said('labels.javBrowser.searchFailedWith', error=reason) if reason
                    else Said('labels.javBrowser.searchUnavailable') if failed
                    else Said(NO_OTHER_MAGNET) if row.get('skip') else Said(MESSAGES['no_match']))
         after = result.get('retry_after')
         timed = type(after) in (int, float) and math.isfinite(after) and after >= 0
         unfetched = [str(value) for value in result.get('unfetched_sources') or () if value]
+        sources = ' / '.join(dict.fromkeys(unfetched))
+        row.pop("search_recovery", None)
+        if checks := result.get('connection_checks'):
+            row["search_recovery"] = {
+                "kind": "source_connection", **({"source": checks[0]} if len(checks) == 1 else {})}
+        elif failed and not sources and result.get("error_code") == "labels.resourceSearch.noIndexer":
+            row["search_recovery"] = {"kind": "indexer_settings"}
         if failed and timed:
-            sources = ' / '.join(dict.fromkeys(unfetched))
             self._schedule_retry(row, RetryableTaskError('errors.javBrowser.searchUnavailable', after=after),
-                                 sources=sources, reason=reason)
+                                 sources=sources, reason=reason, source_reason=source_reason)
             # 来源让稍后再试时，整条队列一起等，不让后面的番号各自撞一次、各自耗掉重试次数。
             # 暂停的原因点名没查成的来源，没有就用搜索报的错，排着的番号与提示框都说这一句。
             now = self.downloads.clock()
-            cause = (Said('labels.javBrowser.sourcesUnfetched', sources=sources) if sources
-                     else Said('labels.javBrowser.searchFailedWith', error=reason) if reason else None)
+            cause = (source_reason or (Said('labels.javBrowser.sourcesUnfetched', sources=sources) if sources
+                                       else Said('labels.javBrowser.searchFailedWith', error=reason) if reason else None))
             self._search_pause = {"failure": SEARCH_PAUSE, "since": iso(now),
                                   "retry_at": row.get('retry_at') or iso(now + after),
                                   **({"reason": str(cause)} if cause else {})}
+            if recovery := row.get("search_recovery"):
+                self._search_pause["recovery"] = recovery
         elif not failed and unfetched and timed and after > LONG_SOURCE_PAUSE:
             now = self.downloads.clock()
-            sources = ' / '.join(dict.fromkeys(unfetched))
-            row.update(state='no_match', **_message(Said('labels.javBrowser.noMatchSourcesPaused', sources=sources)),
+            message = (Said('labels.javBrowser.noMatchWithSourceFailure', error=source_reason) if source_reason
+                       else Said('labels.javBrowser.noMatchSourcesPaused', sources=sources))
+            row.update(state='no_match', **_message(message),
                        ended_at=iso(now), recheck_after=iso(now + after))
             for key in ('retry_at', 'retry_attempt', 'retry_limit', 'sources_complete'):
                 row.pop(key, None)
@@ -1053,26 +1077,29 @@ class JavBrowser:
             # 只是部分来源没答复，别的番号照样可能在其余来源找到，不暂停整条队列。
             self._schedule_retry(row, RetryableTaskError('errors.javBrowser.searchUnavailable',
                                                          after=after if timed else 0),
-                                 sources=' / '.join(dict.fromkeys(unfetched)))
+                                 sources=sources, source_reason=source_reason)
         else:
             row.update(state='failed' if failed else 'no_match', **_message(message), ended_at=iso(self.downloads.clock()))
             if not failed:
                 row['sources_complete'] = True
 
-    def _schedule_retry(self, row: dict, error: Exception, *, sources: str = '', reason: Said | None = None) -> None:
-        """排下一次自动重试；`sources` 是没查成的来源，等待与用完时的那句话点名它们；没有来源可点名时
-        等待那句带上搜索报的错 `reason`。"""
+    def _schedule_retry(self, row: dict, error: Exception, *, sources: str = '', reason: Said | None = None,
+                        source_reason: Said | None = None) -> None:
+        """排下一次自动重试，优先显示来源报出的故障。"""
         attempt = row.get('retry_attempt', 0)
         delay = retry_delay(error, attempt)
         if delay is None:
-            message = (Said('labels.javBrowser.sourcesExhausted', sources=sources, attempts=attempt)
+            message = (Said('labels.javBrowser.searchRetriesExhausted', error=source_reason or reason, attempts=attempt)
+                       if (source_reason or reason) and attempt == len(RETRY_DELAYS)
+                       else Said('labels.javBrowser.sourcesExhausted', sources=sources, attempts=attempt)
                        if sources and attempt == len(RETRY_DELAYS)
                        else Said('labels.javBrowser.retriesExhausted', attempts=attempt) if attempt == len(RETRY_DELAYS)
                        else Said('labels.javBrowser.submitFailed'))
             row.update(state='failed', **_message(message), ended_at=iso(self.downloads.clock()))
             row['retry_exhausted'] = attempt == len(RETRY_DELAYS)
             return
-        waiting = (Said('labels.javBrowser.sourcesWaiting', sources=sources) if sources
+        waiting = (Said('labels.javBrowser.sourceFailuresWaiting', error=source_reason) if source_reason
+                   else Said('labels.javBrowser.sourcesWaiting', sources=sources) if sources
                    else Said('labels.javBrowser.searchFailedWaiting', error=reason) if reason
                    else Said('labels.javBrowser.retryWaiting'))
         row.update(state='queued', retry_attempt=attempt + 1, retry_limit=len(RETRY_DELAYS),

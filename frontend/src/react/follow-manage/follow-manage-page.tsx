@@ -19,6 +19,7 @@ import { useQuery } from '@tanstack/react-query';
 import { RiRssLine } from '@remixicon/react';
 
 import { resolveFollowSort } from '../../follow-sort';
+import { errorMessage } from '../../api';
 import type { FollowManageProps } from '../bundle';
 import { Note } from '../components/note';
 import { EmptyState } from '../components/empty-state';
@@ -170,7 +171,9 @@ export function FollowManagePage(props: FollowManageProps) {
               setPage(1);
               savePreference({ pageSize: next });
               go({ page: 1 });
-            }} /> : follow.isError ? <Note tone="error">{t('follow:followManagePage.listFailed')}</Note>
+            }} /> : follow.isError ? <Note tone="error" title={t('follow:followManagePage.listFailed')}
+              action={<Button variant="secondary" size="small" onClick={() => void follow.refetch()}>{t('catalog:shared.retryNow')}</Button>}>
+              {errorMessage(follow.error)}</Note>
             : <div role="status" aria-label={t('follow:followManagePage.listLoading')} data-skeleton="">
               <div aria-hidden="true" inert dangerouslySetInnerHTML={{ __html: followListSurfaceSkeleton({ followLayout: layout, followSort: sort, followDir: dir, followPageSize: pageSize }) }} />
             </div>}
@@ -178,7 +181,14 @@ export function FollowManagePage(props: FollowManageProps) {
 
         {tab === 'add' ? <div role="tabpanel" id="follow-panel-add" aria-labelledby="follow-tab-add" className="flex flex-col gap-8">
           {credentials.data && follow.data ? <AddSource data={data} credentials={creds} readOnly={readOnly} toast={toast} />
-            : credentials.isError || follow.isError ? <Note tone="error">{t('follow:followManagePage.credentialsFailed')}</Note>
+            : credentials.isError || follow.isError ? <>
+              {credentials.isError ? <Note tone="error" title={t('follow:followManagePage.credentialsFailed')}
+                action={<Button variant="secondary" size="small" onClick={() => void credentials.refetch()}>{t('catalog:shared.retryNow')}</Button>}>
+                {errorMessage(credentials.error)}</Note> : null}
+              {follow.isError ? <Note tone="error" title={t('follow:followManagePage.listFailed')}
+                action={<Button variant="secondary" size="small" onClick={() => void follow.refetch()}>{t('catalog:shared.retryNow')}</Button>}>
+                {errorMessage(follow.error)}</Note> : null}
+            </>
             : <div role="status" aria-label={t('follow:followManagePage.credentialsLoading')} data-skeleton="" className="skeleton-sheen h-32 rounded-lg" />}
           <AddFeed readOnly={readOnly} toast={toast} initialName={new URLSearchParams(location.search).get('performer') || ''}
             onAdded={() => { void feeds.refetch(); setTab('list'); go({ tab: 'list' }) }} />

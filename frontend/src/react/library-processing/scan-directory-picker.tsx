@@ -2,7 +2,8 @@ import { useEffect, useState, type ReactElement } from 'react';
 import type { Key, Selection } from 'react-aria-components';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { RiFolder3Line, RiFolderOpenLine } from '@remixicon/react';
-import { LinkButton } from '@/components/base/buttons/link-button';
+import { Button } from '@/components/base/buttons/button';
+import { Note } from '../components/note';
 import { TreeView, TreeViewItem } from '@/components/base/tree-view/tree-view';
 import { errorMessage } from '../../api';
 import { t } from '../../i18n';
@@ -51,12 +52,11 @@ export function ScanDirectoryPicker({ libraryId, confirmButton, onSelect }: {
   const failed = [roots, ...results].filter(result => result.isError);
   return <div className="flex min-w-0 flex-col gap-3">
     {roots.isPending ? <p role="status" className="text-body-2-regular text-text-secondary">{t('manage:syncMenu.loadingDirectories')}</p> : null}
-    {failed.length ? <div className="flex flex-wrap items-center gap-2">
-      <p role="alert" className="text-body-2-regular text-text-secondary">{errorMessage(failed[0]?.error)}</p>
-      <LinkButton size="small" onClick={() => { failed.forEach(result => { void result.refetch() }) }}>
+    {failed.length ? <Note tone="error" action={
+      <Button size="small" variant="secondary" onClick={() => { failed.forEach(result => { void result.refetch() }) }}>
         {t('catalog:shared.retryNow')}
-      </LinkButton>
-    </div> : null}
+      </Button>
+    }>{errorMessage(failed[0]?.error)}</Note> : null}
     {roots.isSuccess ? <div className="max-h-64 min-w-0 overflow-x-hidden overflow-y-auto rounded-3xl">
       <TreeView aria-label={t('catalog:catalogFolders.mediaDirectories')} size="sm"
         expandedKeys={expanded} onExpandedChange={setExpanded} disallowEmptySelection

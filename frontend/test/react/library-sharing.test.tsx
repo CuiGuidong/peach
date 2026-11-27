@@ -34,7 +34,7 @@ describe('共建计划的明确同意', () => {
     [{ status: 'waiting-data', attempted: false }, '等待可分析的馆藏或偏好数据。'],
     [{ status: 'failed', attempted: false }, '馆藏与口味上传未完成，将自动重新准备。'],
     [{ status: 'failed', attempted: true }, '馆藏与口味上传失败，本周不再发送。'],
-    [{ status: 'unknown', attempted: true }, '未取得上传结果，本周不再发送。'],
+    [{ status: 'unknown', attempted: true }, '无法确认上传结果，本周暂停再次发送。'],
   ])('按实际发送状态显示反馈 %j', async (last_attempt, message) => {
     const host = await mount(<LibrarySharingDelivery value={{ ...initial, enabled: true, last_attempt }} />);
     expect(host.textContent).toContain(message);
@@ -82,7 +82,7 @@ describe('共建计划的明确同意', () => {
     const host = await mountPlan();
     await click(buttonNamed('刷新状态', host));
     await settle();
-    expect(host.querySelector('[role="alert"]')?.textContent).toContain('未取得共建计划状态');
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('共建计划状态读取失败');
     expect(switches(host)[0].checked).toBe(true);
   });
 });

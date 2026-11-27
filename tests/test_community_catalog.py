@@ -356,7 +356,7 @@ class VerifiedCoverTests(unittest.TestCase):
             with self.subTest(failure=failure), patch("peach.jav_cover_fetch.time.sleep"):
                 # 只剩 javdb 带水印的那张；或另两家各给一张对不上：没下到的 JavBus 那张都可能改变结论。
                 for served, answered, reason in (
-                        (pages, works, "^未取得无 JavDB 水印的封面"),
+                        (pages, works, "^没有找到无 JavDB 水印的封面"),
                         (conflicting, [*works, ("avbase", {"cover_urls": [DMM_COVER]})], "^dmm、javdb 给的封面不是同一张图")):
                     with self.assertRaisesRegex(expected, reason + ".*；另有 1 张封面没下载到$") as caught:
                         verified_cover(failing(failure, served), "ABW-358", answered)

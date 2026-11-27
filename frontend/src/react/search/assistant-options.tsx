@@ -20,7 +20,8 @@ import { TableDateBound } from '../components/table-date-bound';
 import { outsideTableDateBound } from '../components/table-column-range';
 import { aiConnectionLabel, type AIConnection, type TaskProfile } from '../settings/ai-library-settings';
 import { modelIsVisible, useAIModelVisibility, visibleAIModels } from '../settings/ai-model-visibility';
-import { ErrorText, Help } from '../settings/section';
+import { Help } from '../settings/section';
+import { Note } from '../components/note';
 import { aiModelLabel, aiSearchModelsKey, matchesAIModel, useAIConnectionModels, type AIEffort, type AIModel } from '../settings/use-ai-models';
 import { assistantCopy as copy } from './assistant-workspace';
 import { AssistantSuggestInput } from './assistant-suggest';
@@ -261,10 +262,11 @@ function SearchModelChoices({ connections, fallback, value, onChange }: {
     {catalog.isPending ? <div className="px-2 py-1.5">
       <AgentThinking variant="spin" showTimer={false} label={t('settings:aiLibrary.modelsLoading')} />
     </div> : null}
-    {catalog.error ? <div className="flex flex-wrap items-center gap-1">
-      <ErrorText>{errorMessage(catalog.error)}</ErrorText>
-      <Button type="button" size="small" variant="ghost" onClick={() => { void catalog.refetch(); }}>{copy('retryModels')}</Button>
-    </div> : null}
+    {catalog.error ? <Note tone="error" action={
+      <Button type="button" size="small" variant="secondary" isDisabled={catalog.isFetching} onClick={() => void catalog.refetch()}>
+        {copy('retryModels')}
+      </Button>
+    }>{errorMessage(catalog.error)}</Note> : null}
     {currentModel && current && efforts.length > 1 ? <SearchEffort efforts={efforts} value={activeEffort}
       onChange={effort => onChange({ ...current, effort })} /> : null}
     {currentModel?.effort_reported === false ? <Help>{t('settings:aiLibrary.effortUnreported')}</Help> : null}

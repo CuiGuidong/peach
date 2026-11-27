@@ -415,13 +415,13 @@ class PreparationTests(unittest.TestCase):
         with patch("httpx.Client", lambda **kw: Client(200, {"tag_name": "v0.17.0"})):
             self.assertEqual(metadata_amane.latest_upstream_tag({"trust_env": False}), "v0.17.0")
         with patch("httpx.Client", lambda **kw: Client(403, {"message": "rate limited"})):
-            self.assertEqual(metadata_amane.latest_upstream_tag({"trust_env": False}), "未取得")
+            self.assertEqual(metadata_amane.latest_upstream_tag({"trust_env": False}), "查询失败")
 
         def explode(**kw):
             raise OSError("no network")
 
         with patch("httpx.Client", explode):
-            self.assertEqual(metadata_amane.latest_upstream_tag({"trust_env": False}), "未取得")
+            self.assertEqual(metadata_amane.latest_upstream_tag({"trust_env": False}), "查询失败")
 
 
 class ProxyArgumentTests(unittest.TestCase):
@@ -923,7 +923,7 @@ class ProviderStageTests(unittest.TestCase):
                     with self.assertRaises(Unavailable) as caught:
                         provider.amane(code, route=("avsox",))
                 self.assertEqual(prepare.call_count, 1)
-        self.assertIn("amane 运行环境未取得", str(caught.exception))
+        self.assertIn("amane 运行环境不可用", str(caught.exception))
 
     def test_a_route_without_bridge_sites_is_not_found_without_a_subprocess(self):
         provider = self.provider(report())

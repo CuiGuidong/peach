@@ -7,7 +7,7 @@
   const originals = new WeakMap();
   const tools = core.createTools({
     reactModalHost(nativeHost) {
-      return [...nativeHost.querySelectorAll('.peach-feedback-surface [role="dialog"]')].reverse()
+      return [...nativeHost.querySelectorAll('.peach-feedback-surface [role="dialog"], [data-modal-surface] [role="dialog"]')].reverse()
         .find(dialog => dialog.getClientRects().length && !dialog.closest('[inert], [aria-hidden="true"]'));
     },
     onToggle(value) { editor.commit(); active = value; editor.hideHighlight(); },

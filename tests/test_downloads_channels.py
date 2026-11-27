@@ -42,7 +42,12 @@ class LibraryChannelTests(unittest.TestCase):
                     self.assertEqual(len(result['providers']), 1, '可用的路径映射仍应继续探测')
                 else:
                     self.assertEqual(result['providers'], [])
-                    self.assertTrue(result['problems'])
+                    problem = result['problems'][0]
+                    if operation == 'token_permissions':
+                        self.assertEqual(problem.code, 'errors.downloadsClouddrive.tokenRejected')
+                    else:
+                        self.assertEqual(problem.code, 'labels.downloadsChannels.libraryCapabilityCheckFailed')
+                        self.assertEqual(problem.params['reason']['code'], 'errors.downloadsClouddrive.tokenRejected')
 
     def test_a_broken_clouddrive_credential_keeps_a_healthy_pikpak_channel(self):
         self.credentials.load.side_effect = CredentialError(

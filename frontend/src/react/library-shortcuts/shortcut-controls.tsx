@@ -50,15 +50,18 @@ function FavoriteChoice({ item }: { item: Favorite }) {
   const selected = query.data && query.data !== initial.current
     ? isFavorite(query.data.favorites || [], item)
     : item.favorite ?? (query.data ? isFavorite(query.data.favorites || [], item) : false);
-  return <span className="inline-flex min-w-0 flex-col gap-1">
+  return <div className="inline-flex min-w-0 flex-col gap-1">
     <EntityActionButton data-favorite="" aria-pressed={!!selected}
       label={t(selected ? 'settings:favoritesPanel.unfavoriteLabel' : 'settings:favoritesPanel.favoriteLabel', { name: entityDisplayName(item.kind, item.name, item.entity_id) })}
       {...busyProps(write.isPending)} onClick={() => {
         if (!write.isPending) write.mutate({ action: 'favorite', ...item, on: !selected });
       }}>{write.isPending ? <span aria-hidden dangerouslySetInnerHTML={{ __html: spinnerHtml('') }} /> : <Star />}</EntityActionButton>
     {write.isError ? <Note tone="error">{errorMessage(write.error)}</Note> : null}
-    {query.isError ? <Button variant="secondary" size="small" aria-label={t('settings:favoritesPanel.retryLoadLabel')} onClick={() => void query.refetch()}>{t('settings:shared.retryNow')}</Button> : null}
-  </span>;
+    {query.isError ? <Note tone="error" action={
+      <Button variant="secondary" size="small" aria-label={t('settings:favoritesPanel.retryLoadLabel')}
+        {...busyProps(query.isFetching)} onClick={() => void query.refetch()}>{t('settings:shared.retryNow')}</Button>
+    }>{errorMessage(query.error)}</Note> : null}
+  </div>;
 }
 
 /** 实体收藏、作品清单与保存筛选的管理入口。 */

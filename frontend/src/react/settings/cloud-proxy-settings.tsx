@@ -71,8 +71,12 @@ export function CloudProxySettings({ receipt }: { receipt(message: string): void
     <Stack>
       <Help>{CLOUD_PROXY_HELP}</Help>
       <div className="flex min-w-0 flex-col gap-4">
-      {action.error ? <Note tone="error" title={t('settings:cloudProxy.readFailedTitle')}>{action.error} <LinkButton href="/settings/downloads" size="small">{t('settings:cloudProxy.downloadSettingsLink')}</LinkButton></Note> : null}
-      {state?.configured === false ? <Help>{t('settings:cloudProxy.notConfigured')} <LinkButton href="/settings/downloads" size="small">{t('settings:cloudProxy.downloadSettingsLink')}</LinkButton></Help>
+      {action.error ? <Note tone="error" title={t('settings:cloudProxy.readFailedTitle')} action={
+        <LinkButton href="/settings/downloads" size="small">{t('settings:cloudProxy.downloadSettingsLink')}</LinkButton>
+      }>{action.error}</Note> : null}
+      {state?.configured === false ? <Note tone="neutral" action={
+        <LinkButton href="/settings/downloads" size="small">{t('settings:cloudProxy.downloadSettingsLink')}</LinkButton>
+      }>{t('settings:cloudProxy.notConfigured')}</Note>
         : state?.accounts.length === 0 && !state.unlinked?.length ? <Help>{t('settings:cloudProxy.noLibraries')}</Help> : null}
       {state?.unlinked?.map(library => <div key={library.root} className="flex min-w-0 flex-col gap-1">
         <FieldLabel><span className="inline-flex items-center gap-2"><SourceMark mark={sourceMark(library.location)} />{library.name}</span></FieldLabel>

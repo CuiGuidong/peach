@@ -161,7 +161,7 @@
       "error": "未能取得版本信息，请重试。",
       "imageAvailable": "有新镜像可拉取。",
       "imagePending": "Peach {{version}} 的镜像尚未发布，请稍后再检查。",
-      "staleListing": "GitHub 版本信息未取得，镜像清单可能过期，请重试。",
+      "staleListing": "GitHub 版本查询失败，镜像清单可能过期，请重试。",
       "unchecked": "尚未检查"
     }
   },
@@ -781,7 +781,7 @@
     "comma": "，",
     "listComma": "、",
     "gone": "资料记录已不存在",
-    "unfetched": "未取得",
+    "unfetched": "采集失败",
     "needsReview": "待人确认",
     "registered": "已登记",
     "installed": "已保存资料图片",
@@ -808,7 +808,7 @@
     "sharedIcon": "平台通用图标",
     "portraitNotMark": "人像不是标识",
     "hasAvatar": "已有头像",
-    "galleryIndexUnfetched": "图库索引未取得",
+    "galleryIndexUnfetched": "图库索引读取失败",
     "galleryMissing": "图库里没有这个名字",
     "galleryTooSmall": "图库那张太小",
     "imageTooSmall": "图片分辨率不足",
@@ -827,7 +827,7 @@
     "sheetFacesUnconfirmed": "作品画面截到 {{count}} 张脸，凑不齐两部互证",
     "clearestSheetFace": "已是最清楚的作品画面人脸",
     "sheetCutFailed": "画面截不出这一块",
-    "offsiteUnfetched": "avwikidb 单人作品未取得：{{error}}",
+    "offsiteUnfetched": "avwikidb 单人作品查询失败：{{error}}",
     "offsiteNoWorks": "avwikidb 上没有她的单人作品",
     "offsiteNoFace": "馆外 {{count}} 部单人作品封面上没有能截的脸",
     "offsiteFacesUnconfirmed": "馆外单人作品封面只截到 {{count}} 张脸，凑不齐两部互证",
@@ -907,7 +907,7 @@
       "invalidPrompt": "请选择有效的提示词范围，或缩短提示词后再保存。",
       "credentialTransport": "请通过本机回环地址或 HTTPS 提交 API Key。",
       "privateAccess": "公网入口无法调用 Peach 保存的 AI 服务。请在 Peach 主机或已登录的局域网打开。",
-      "searchUnsupported": "未取得可用的查询条件，请补充关键词、艺人、年份或标签。",
+      "searchUnsupported": "缺少可用的查询条件，请补充关键词、艺人、年份或标签。",
       "invalid": "请检查 AI 服务、模型和任务设置。",
       "unconfigured": "请先配置这个 AI 服务的 API Key。",
       "endpoint": "请检查 API 接入点、DNS 和端口。远程接入点需要 HTTPS，本机回环地址也支持 HTTP。",
@@ -915,8 +915,8 @@
       "customLabel": "请输入服务商名称，最多 80 个字符。",
       "changed": "作品资料或配置已变化，请刷新后重试。",
       "notFound": "这部作品已不在馆藏。",
-      "noImage": "未取得所选图片，请选择另一张。",
-      "noOfficialImages": "未取得可用的官方样张，请改用时间轴预览或封面。",
+      "noImage": "所选图片不可用，请选择另一张。",
+      "noOfficialImages": "没有可用的官方样张，请改用时间轴预览或封面。",
       "invalid_output": "模型没有返回可用结果，请更换模型或重试。",
       "usageUnavailable": "无法读取 AI 用量，请刷新页面后重试。",
       "permission_required": "请在 ChatGPT 授权页允许使用订阅额度。",
@@ -1129,7 +1129,7 @@
       "taskRequired": "请选择正在处理的任务",
       "noActiveTask": "当前没有可暂停或继续的任务",
       "waitingForStop": "正在等待任务停止，请稍后重试",
-      "issuesUnavailable": "未取得完整问题记录，请导出诊断日志",
+      "issuesUnavailable": "完整问题记录不可用，请导出诊断日志",
       "issuesChanged": "问题记录已变化，请重新导出",
       "originalTaskChanged": "原任务已变化，请刷新页面后重试",
       "retryItemsInvalid": "重试项目格式无效",
@@ -1214,10 +1214,10 @@
       "coverMissing": "这个番号没有封面",
       "coverUnreadable": "这张封面读不出来",
       "invalidCropBox": "框选的区域不成立",
-      "socialAvatarUnavailable": "社媒头像未取得，来源暂不可用或仍在重试等待中",
+      "socialAvatarUnavailable": "社媒头像暂不可用，来源查询可能失败或正在等待重试",
       "mediaIndexMissing": "媒体序号不存在",
       "imageSourceUnavailable": "图片来源不可用",
-      "coverNotFound": "封面未取得",
+      "coverNotFound": "封面不可用",
       "previewPlaylistTooLarge": "预览清单过大",
       "unrecognizedImage": "这不是一张能识别的图片",
       "publicHttpsRequired": "只接受指向公网的 https 地址",
@@ -1336,7 +1336,7 @@
     "javBrowserPeople": {
       "snapshotTooLarge": "本地人物快照过大",
       "snapshotInvalid": "本地人物快照格式无效",
-      "snapshotUnavailable": "本地人物快照未取得",
+      "snapshotUnavailable": "本地人物快照不可用",
       "performersLimit": "出演者最多 10 位，每位不超过 60 个字符",
       "codesLimit": "每次最多查询 50 个番号",
       "performersNeedSingleCode": "出演者只能随单个番号查询"
@@ -1407,7 +1407,7 @@
     },
     "trayDetached": {
       "venvHomeMissing": "虚拟环境缺少基础解释器目录：{{path}}",
-      "desktopProcessMissing": "未取得当前会话的 Windows 桌面进程，请确认已登录 Windows 桌面"
+      "desktopProcessMissing": "找不到当前会话的 Windows 桌面进程，请确认已登录 Windows 桌面"
     },
     "entities": {
       "tagAliasConflict": "标签别名存在冲突，请先合并重复标签",
@@ -1417,10 +1417,14 @@
     "strm": {
       "urlInvalid": "STRM 需要不含账号密码的 HTTP 或 HTTPS 播放地址",
       "fileTooLarge": "STRM 文件超过 64 KiB",
-      "fileUnreadable": "STRM 文件未取得或不是 UTF-8 文本",
+      "fileUnreadable": "无法读取 STRM 文件",
+      "fileMissing": "找不到 STRM 文件",
+      "filePermissionDenied": "没有权限读取 STRM 文件",
+      "fileTimedOut": "读取 STRM 文件超时",
+      "fileEncodingInvalid": "STRM 文件不是 UTF-8 文本",
       "singleUrlRequired": "STRM 文件需要且只能包含一个播放地址",
       "contentUnparsable": "STRM 内容无法解析，请检查播放地址和列表格式",
-      "mediaUnavailable": "STRM 媒体未取得，请检查播放地址或在生成工具中更新 STRM"
+      "mediaUnavailable": "STRM 媒体不可用，请检查播放地址或更新 STRM"
     },
     "feeds": {
       "dmmActressIdDigits": "DMM 女优编号只认数字",
@@ -1436,15 +1440,15 @@
       "budgetExceeded": "本轮作品资料预算已用完",
       "imageSourcePaused": "图片来源暂时不可用，请稍后重试",
       "sourcePaused": "作品资料来源暂时不可用，请稍后重试",
-      "notFound": "未取得这个番号的作品资料",
+      "notFound": "JavDB 没有找到这个番号",
       "identityAmbiguous": "同番号对应多个作品，请核对来源身份：{{identities}}",
       "reviewPageOutOfRange": "评论页码必须在 1 至 8 之间",
       "performerAvatarMissing": "出演者头像不存在",
       "previewImageMissing": "预览图不存在",
-      "unavailable": "作品资料未取得，请稍后重试",
+      "unavailable": "JavDB 作品资料查询失败，请稍后重试",
       "unrecognizedFormat": "作品资料来源格式未识别",
       "identityMismatch": "来源作品身份不匹配",
-      "imageUnavailable": "图片未取得"
+      "imageUnavailable": "JavDB 图片加载失败"
     },
     "storageBudget": {
       "unsupportedField": "容量设置包含不支持的字段",
@@ -1452,20 +1456,20 @@
       "switchRequired": "{{key}} 必须是开关值",
       "externalPathNotString": "外部缓存目录必须是路径",
       "externalPathNotAbsoluteDirectory": "外部缓存目录必须是本机可读取的绝对目录",
-      "policyUnreadable": "容量设置未取得：{{error}}",
+      "policyUnreadable": "容量设置读取失败：{{error}}",
       "externalPathOverlaps": "外部缓存目录必须独立于 Peach 数据及各配置目录",
-      "hardLinkIdentityMissing": "文件系统未提供硬链接身份，分配量未取得",
+      "hardLinkIdentityMissing": "文件系统未提供硬链接身份，无法计算实际占用空间",
       "externalPathForeign": "外部缓存路径不适用于当前系统，请更新路径",
       "externalDirectoryInaccessible": "外部缓存目录不可访问",
       "cacheLayoutChanged": "缓存目录在统计期间发生变化，请重新统计",
       "dataLayoutChanged": "数据目录在统计期间发生变化，请重新统计",
       "capacityLayoutChanged": "容量目录在统计期间发生变化，请重新统计",
       "externalDirectoryMoved": "外部缓存目录不可访问，迁移后请更新容量设置中的路径",
-      "usageUnavailable": "容量统计未取得：{{errors}}",
+      "usageUnavailable": "容量统计失败：{{errors}}",
       "scanPaused": "扫描期间磁盘余量触线，已暂停当前写入，请清理或重试：{{reasons}}",
       "cacheWritesStopped": "{{reasons}}；磁盘空间不足，已停止写入缓存，请清理后重试",
       "intakeStopped": "{{reasons}}；已停止领取新项，请调整容量或清理后重试",
-      "checkUnavailable": "容量保护检查未取得，已暂停：{{error}}"
+      "checkUnavailable": "容量保护检查失败，已暂停：{{error}}"
     },
     "mediaConfiguration": {
       "smbAddressRequired": "请填写 smb://服务器/共享/目录",
@@ -1542,7 +1546,7 @@
       "historyFormatUnsupported": "浏览器历史格式不受支持，请选择包含网页访问记录的历史文件",
       "historyExUnsupported": "HistoryEx 未包含可识别的网页访问记录；115 下载记录不能用于浏览历史，请选择 History 文件",
       "historyLocked": "历史文件正在使用，请退出该浏览器后添加",
-      "historyUnreadable": "浏览器历史文件未取得，请检查资料目录",
+      "historyUnreadable": "无法读取浏览器历史文件，请检查资料目录",
       "nameAndPathRequired": "请填写浏览器名称和资料目录",
       "noHistoryFiles": "目录中未找到浏览器历史或书签文件",
       "browserMissing": "浏览器来源不存在",
@@ -1554,16 +1558,16 @@
       "runFinished": "这轮任务已经结束",
       "cancelling": "任务正在取消，不能再暂停或继续",
       "shuttingDown": "服务正在关闭，已保存的进度留待恢复",
-      "runMissing": "任务未取得，请刷新后重试"
+      "runMissing": "找不到这条任务，请刷新后重试"
     },
     "tasteHistory": {
-      "snapshotTimeout": "浏览器历史快照未取得，请退出该浏览器后重新读取",
+      "snapshotTimeout": "复制浏览器历史快照超时，请退出该浏览器后重试",
       "takeoutNoActivity": "Takeout 未包含可识别的浏览或搜索活动",
       "takeoutHistoryListMissing": "Takeout Chrome History 缺少 Browser History 列表",
       "takeoutHistoryRowInvalid": "Takeout Chrome History 含无效记录",
       "takeoutActivityUnparsed": "{{profile}} 含无法解析的活动记录：{{count}}",
       "historyInUse": "历史文件正在使用，请退出该浏览器后重新读取",
-      "historyNotRead": "浏览器历史未取得，请检查资料目录或退出浏览器后重试"
+      "historyNotRead": "浏览器历史读取失败，请检查资料目录或退出浏览器后重试"
     },
     "localPoster": {
       "unreadable": "配套图片无法读取",
@@ -1581,7 +1585,7 @@
       "sampleOutsideRoot": "认证样本不属于已声明的 PikPak 媒体根",
       "prefixNotUnique": "请在推送发现中为该 PikPak 媒体根配置唯一的 CloudDrive 路径前缀",
       "webdavResponseTooLarge": "WebDAV 响应超过预算",
-      "webdavNoResponse": "WebDAV 网络应答未取得",
+      "webdavNoResponse": "WebDAV 请求未收到响应",
       "webdavTreeTooLarge": "WebDAV 目录遍历超过预算或循环",
       "webdavTooManyFiles": "WebDAV 文件成员超过预算",
       "targetParentNotDirectory": "目标父路径不是目录",
@@ -1593,19 +1597,19 @@
       "cloudListingTooLarge": "官方目录成员超过预算",
       "moveMismatch": "官方移动来源、父目录或文件名不符",
       "renameOutsideParent": "官方改名只支持已声明来源内的同父目录",
-      "refreshFailed": "目录缓存刷新未取得：{{status}}",
-      "directLinkAuthMissing": "既有 CloudDrive 直链认证未取得",
+      "refreshFailed": "目录缓存刷新失败：{{status}}",
+      "directLinkAuthMissing": "未找到 CloudDrive 直链认证信息",
       "directLinkMismatch": "既有直链来源或路径不符",
-      "webdavAuthMissing": "既有 WebDAV 认证未取得",
-      "authSampleMissing": "既有 CloudDrive 认证样本未取得",
-      "tokenMissing": "既有 CloudDrive 令牌未取得",
-      "webdavSourceMissing": "既有 PikPak WebDAV 来源未取得",
+      "webdavAuthMissing": "未找到 WebDAV 认证信息",
+      "authSampleMissing": "未找到 CloudDrive 认证样本",
+      "tokenMissing": "未找到 CloudDrive 令牌",
+      "webdavSourceMissing": "未找到已配置的 PikPak WebDAV 来源",
       "tokenRootRestricted": "网盘整理要用根目录为 / 的 CloudDrive2 令牌，当前令牌只能访问 {{root}}",
       "accountRootMissing": "CloudDrive 未返回 WebDAV 账号根目录",
       "prefixOutsideAccountRoot": "CloudDrive 路径前缀不属于返回的账号根目录",
       "webdavUnavailable": "WebDAV 暂时不可用：{{status}}",
-      "cloudListingUnavailable": "官方完整目录未取得：{{status}}",
-      "webdavSourceNotFound": "WebDAV 来源未取得",
+      "cloudListingUnavailable": "读取官方完整目录失败：{{status}}",
+      "webdavSourceNotFound": "找不到 WebDAV 来源",
       "webdavTargetExists": "WebDAV 目标已存在",
       "cloudParentMissing": "官方父目录未列出所需目录",
       "moveUnconfirmed": "移动状态未确认，保留意图回执并停止；不重复操作、不写数据库"
@@ -1693,10 +1697,10 @@
       "notObject": "写入端返回的不是 JSON 对象",
       "curlStartFailed": "curl 启动失败：{{type}}: {{error}}",
       "curlExit": "curl 退出 {{code}}：{{detail}}",
-      "curlExitNoDetail": "curl 退出 {{code}}：未取得错误详情",
+      "curlExitNoDetail": "curl 退出码 {{code}}，未返回错误详情",
       "responseMissingKey": "写入端复核响应缺少 {{key}}",
       "queuesMissing": "写入端未提供复核状态，请更新写入端",
-      "queueMissing": "写入端的复核状态 {{key}} 未取得",
+      "queueMissing": "无法查询写入端的复核状态 {{key}}",
       "strictHttpsMissing": "未配置可严格校验的写入端 HTTPS"
     },
     "subtitleSearch": {
@@ -1706,7 +1710,7 @@
       "tooManyRedirects": "字幕下载重定向次数过多",
       "idInvalid": "字幕编号无效",
       "queryInvalid": "搜索词需为 3–200 个字符，分页位置无效时请重新搜索",
-      "searchPageMissing": "SubtitleCat 搜索页面未取得，请稍后重试",
+      "searchPageMissing": "SubtitleCat 搜索页加载失败，请稍后重试",
       "fileMissing": "字幕文件不存在",
       "fileTooLarge": "字幕文件超过 4 MiB",
       "formatUnsupported": "请选择 SRT、ASS、SSA 或 VTT 文本字幕",
@@ -1748,18 +1752,18 @@
       "redirect": "{{source}} 请求跳转到其他网站，连接已停止"
     },
     "westernArtwork": {
-      "babepediaUrlMismatch": "Babepedia 未取得：档案地址不一致",
-      "babepediaHttp": "Babepedia 未取得：HTTP {{status}}",
-      "babepediaIdentityMismatch": "Babepedia 未取得：档案身份不一致",
-      "babepediaHostMismatch": "Babepedia 未取得：来源域名不一致",
-      "officialCoverHttp": "官方封面未取得：HTTP {{status}}",
-      "officialCoverInvalid": "官方封面未取得：接口没有返回有效资料"
+      "babepediaUrlMismatch": "Babepedia 返回的档案地址不匹配",
+      "babepediaHttp": "Babepedia 请求失败（HTTP {{status}}）",
+      "babepediaIdentityMismatch": "Babepedia 返回的档案身份不匹配",
+      "babepediaHostMismatch": "Babepedia 返回了其他域名",
+      "officialCoverHttp": "官方封面请求失败（HTTP {{status}}）",
+      "officialCoverInvalid": "官方封面接口未返回有效资料"
     },
     "peachProxy": {
       "modeRequired": "请选择 Peach 代理的连接方式",
       "addressInvalid": "请填写带端口的 HTTP 或 SOCKS 代理地址",
       "conflict": "来源代理设置不同，请先在配置页选择 Peach 代理",
-      "requestFailed": "外部请求未取得（{{kind}}）"
+      "requestFailed": "外部请求失败（{{kind}}）"
     },
     "wants": {
       "codeEmpty": "认不出番号：（空）",
@@ -1800,7 +1804,7 @@
     "remoteMediaCache": {
       "capacityDenied": "{{detail}}",
       "incompleteResponse": "媒体响应长度不完整",
-      "unavailable": "媒体未取得"
+      "unavailable": "媒体缓存不可用"
     },
     "supportBundle": {
       "notWritable": "诊断报告无法写入数据目录或临时目录"
@@ -1943,14 +1947,14 @@
       "checksumMismatch": "文字检测模型校验不符：期望 {{expected}}，实际 {{actual}}"
     },
     "junkVisual": {
-      "ocrUnavailable": "画面推广识别未取得结果（{{reason}}）"
+      "ocrUnavailable": "画面推广识别失败（{{reason}}）"
     },
     "previewCache": {
-      "playlistNotFetched": "播放列表未取得",
+      "playlistNotFetched": "播放列表加载失败",
       "contentSteering": "暂不支持 Content Steering 播放列表",
       "sourceUnavailable": "预览来源不可用",
       "objectMissing": "预览对象不存在",
-      "manifestNotFetched": "预览清单未取得"
+      "manifestNotFetched": "预览清单加载失败"
     },
     "metadataRoutes": {
       "overrideFormat": "来源链覆盖要写成 `类型=来源,来源`",
@@ -2108,7 +2112,7 @@
       "invalidJson": "来源响应不是有效 JSON",
       "invalidSavedConfig": "自定义来源配置无效",
       "nameLength": "来源名称需要 1–80 个字符",
-      "proxyConfigMissing": "Peach 代理配置未取得",
+      "proxyConfigMissing": "缺少 Peach 代理配置",
       "responseTooLarge": "来源响应超过 1 MiB",
       "sourceMissing": "来源不存在，请刷新",
       "timedOut": "来源查询已超时",
@@ -2255,7 +2259,7 @@
       "noMatchingAsset": "当前 ledger 已没有匹配的可用资产",
       "performersEmpty": "演员候选为空",
       "performersNotArray": "演员候选必须是数组",
-      "r18TitleEvidenceMissing": "r18 标题原文证据未取得，请重新采集资料",
+      "r18TitleEvidenceMissing": "缺少 r18 标题原文证据，请重新采集资料",
       "releaseDateFormat": "发行日期候选必须是 YYYY-MM-DD",
       "tagsEmpty": "标签候选为空",
       "tagsNotArray": "标签候选必须是数组",
@@ -2344,8 +2348,8 @@
       "previewsNeedWriter": "生成预览图需要共享馆藏写入连接",
       "nfoCodeConflict": "文件名与 NFO 番号冲突，请复核",
       "notInLibrary": "所选影片不属于当前媒体库",
-      "deadlineRetryLater": "外部资料在预算时间内未取得，可稍后重试",
-      "deadline": "外部资料在预算时间内未取得",
+      "deadlineRetryLater": "外部资料查询超出时间上限，可稍后重试",
+      "deadline": "外部资料查询超出时间上限",
       "noAmaneSites": "这个番号的链上没有经 amane 桥问的站",
       "amaneBridgeFailed": "amane 桥：{{error}}",
       "amaneSitesSaidNo": "amane 桥问的几站都没有这个番号",
@@ -2355,7 +2359,7 @@
       "ffmpegMissing": "未找到 FFmpeg，无法生成预览图，请在诊断页检查工具状态",
       "mediaInaccessible": "媒体文件不可访问",
       "ffprobeMissing": "未找到 ffprobe，无法读取视频时长",
-      "durationUnavailable": "视频时长未取得，请检查媒体文件后重试",
+      "durationUnavailable": "无法读取视频时长，请检查媒体文件后重试",
       "sourceProblem": "{{source}}：{{problem}}",
       "coverNotImproved": "来源封面 {{width}}x{{height}} 不比本机封面好",
       "problems": "{{first}}；{{rest}}",
@@ -2363,25 +2367,25 @@
       "processingError": "处理出错（{{type}}）",
       "missMetadata": "外部来源没有这部片的资料，7 天内不再问",
       "missCover": "外部来源没有这部片的封面，7 天内不再问",
-      "offline": "外部资料未取得：连不上外网",
+      "offline": "无法连接外部资料来源",
       "interrupted": "处理被中断，可重试未完成的部分。",
       "interruptedCheckFolders": "处理被中断。核对媒体目录后重试。",
       "companionImageTimeout": "读取配套图片超时，可稍后重试",
       "companionImageUnreadable": "配套图片无法读取",
       "metadataPaused": "外部资料本趟没轮到：{{problems}}",
-      "metadataUnfetched": "外部资料未取得：{{problems}}",
-      "javdbTagsDeadline": "JavDB 标签在预算时间内未取得",
-      "javdbTagsUnfetched": "JavDB 标签未取得：{{problem}}",
-      "coverDeadline": "封面在预算时间内未取得，可稍后重试",
+      "metadataUnfetched": "外部资料采集失败：{{problems}}",
+      "javdbTagsDeadline": "JavDB 标签查询超出时间上限",
+      "javdbTagsUnfetched": "JavDB 标签采集失败：{{problem}}",
+      "coverDeadline": "封面采集超出时间上限，可稍后重试",
       "coverPaused": "封面本趟没轮到：{{problem}}",
-      "coverUnfetched": "封面未取得：{{problem}}",
+      "coverUnfetched": "封面采集失败：{{problem}}",
       "sourceRootUnreadable": "{{source}} 来源目录读取失败：{{error}}",
       "sourceRootOffline": "{{source}} 来源离线",
       "itemSkipped": "已跳过这部影片，可在任务结束后重试",
       "captureTimeout": "视频抽帧超时，可重试；反馈问题请导出诊断报告",
       "captureFfmpegFailed": "FFmpeg 抽帧失败，反馈问题请导出诊断报告",
-      "captureNoFrame": "采样位置未取得画面，反馈问题请导出诊断报告",
-      "captureUnfetched": "视频抽帧未取得，反馈问题请导出诊断报告",
+      "captureNoFrame": "采样位置没有可用画面，反馈问题时请导出诊断报告",
+      "captureUnfetched": "视频抽帧失败，反馈问题时请导出诊断报告",
       "previewTimeout": "生成预览图超时，请重试",
       "previewFailed": "生成预览图失败，请检查 FFmpeg 与目录权限后重试",
       "toolsNotPrepared": "采集工具准备失败：{{error}}",
@@ -2390,7 +2394,7 @@
     },
     "followStream": {
       "coolingDown": "{{provider}} 限流冷却中，{{seconds}} 秒后再试",
-      "recentMiss": "来源媒体刚刚未取得，稍后再试",
+      "recentMiss": "上次读取来源媒体失败，请稍后再试",
       "noSuchMedia": "媒体序号不存在",
       "badMediaEntry": "媒体条目格式不符",
       "gofileUntrustedUrl": "Gofile 返回了不受信任的媒体地址",
@@ -2404,8 +2408,8 @@
       "rule34videoDetailUrlUnavailable": "Rule34Video 详情地址不可用",
       "iwaraUrlUnavailable": "Iwara 视频地址不可用",
       "sourceFailed": "{{reason}}",
-      "rule34videoDetailNotFetched": "Rule34Video 详情页未取得",
-      "rule34videoVideoUrlNotFetched": "Rule34Video 正片地址未取得"
+      "rule34videoDetailNotFetched": "Rule34Video 详情页加载失败",
+      "rule34videoVideoUrlNotFetched": "无法解析 Rule34Video 正片地址"
     },
     "mediaIdentity": {
       "libraryNameInvalid": "媒体库名称请使用 1 到 80 个可见字符",
@@ -2510,7 +2514,7 @@
       "chooseKind": "请选择诊断报告或刮削记录",
       "alreadyRunning": "已有诊断导出正在进行，请等待完成或取消",
       "jobChanged": "导出任务已变化，请刷新后重试",
-      "jobNotFound": "导出任务未取得",
+      "jobNotFound": "找不到导出任务",
       "fileNotReady": "导出文件尚未就绪，请重新生成"
     },
     "migrations": {
@@ -2527,13 +2531,13 @@
       "invalidNode": "书签 JSON 含无效节点",
       "invalidFolder": "书签 JSON 含无效文件夹",
       "unsupportedFile": "请选择浏览器导出的 HTML 书签文件或 Chromium Bookmarks 文件",
-      "unreadable": "书签文件未取得，请检查文件格式后重新导入",
-      "browserBookmarksNotRead": "浏览器书签未取得，请检查资料目录或退出浏览器后重试"
+      "unreadable": "书签文件读取失败，请检查文件格式后重新导入",
+      "browserBookmarksNotRead": "浏览器书签读取失败，请检查资料目录或退出浏览器后重试"
     },
     "displayDimensionsRepair": {
       "notPrepared": "显示尺寸补测记录尚未准备",
-      "ffprobeMissing": "显示尺寸补测未取得 ffprobe",
-      "notMeasured": "显示尺寸未取得，保留原有测量",
+      "ffprobeMissing": "找不到 ffprobe，无法补测显示尺寸",
+      "notMeasured": "无法测量显示尺寸，已保留原有记录",
       "changedDuringRepair": "补测期间影片或测量已变化，请重试"
     },
     "fanbox": {
@@ -2551,7 +2555,7 @@
       "proxyWithCredentials": "浏览器登录不支持带凭据的代理地址，请选择系统代理或无需认证的本机代理"
     },
     "taskResources": {
-      "ownersUnavailable": "这轮任务的资源归属记录未取得",
+      "ownersUnavailable": "本轮任务的资源归属记录不可用",
       "ownersInvalid": "这轮任务的资源归属记录无效"
     },
     "genreDecisions": {
@@ -2561,7 +2565,7 @@
       "strmIsoNotProbed": "STRM 和 ISO 不执行视频探测"
     },
     "platform": {
-      "windowsDirectoryUnavailable": "未取得 Windows 系统目录"
+      "windowsDirectoryUnavailable": "无法确定 Windows 系统目录"
     },
     "seedFollowup": {
       "digestMismatch": "种子内容与排队任务的摘要不一致，请重新派发"
@@ -2580,7 +2584,7 @@
       "notPremium": "Gofile 文件列表 API 需要 Premium 账户；token 有效，但当前账户套餐不支持此接口",
       "tokenRejected": "Gofile 拒绝了 API token",
       "httpStatus": "Gofile 返回 HTTP {{status}}",
-      "listUnavailable": "Gofile 文件列表未取得",
+      "listUnavailable": "Gofile 文件列表读取失败",
       "requestFailed": "Gofile 请求失败",
       "responseTooLarge": "Gofile 响应超出大小上限"
     },
@@ -2620,22 +2624,22 @@
       "urlNotSupported": "{{provider}} 暂不支持从链接登记",
       "iwaraUrlShape": "Iwara 请粘贴作者主页，例如 https://www.iwara.tv/profile/username",
       "iwaraAccessDenied": "Iwara 拒绝访问（HTTP {{status}}）：登录凭据可能已过期，或站点要求浏览器验证，请核对来源与订阅设置",
-      "iwaraNotFound": "Iwara 作者或视频未取得：可能已删除或需要有访问权的账号",
+      "iwaraNotFound": "Iwara 未返回这个作者或视频，可能已删除或需要访问权限",
       "iwaraResponseMalformed": "Iwara 接口响应格式不符",
-      "iwaraContentUnavailable": "Iwara 内容未取得：请确认账号有访问权并更新登录凭据",
+      "iwaraContentUnavailable": "无法访问 Iwara 内容，请确认账号有访问权并更新登录凭据",
       "iwaraRequestRejected": "Iwara 接口拒绝请求，请在来源页面核对内容状态",
       "iwaraRefInvalid": "Iwara 的 ref 必须是作者用户名",
       "iwaraNegativePage": "Iwara 页码不能小于 0",
       "iwaraProfileMalformed": "Iwara 作者资料格式不符",
-      "iwaraUserIdUnavailable": "Iwara 作者 ID 未取得",
+      "iwaraUserIdUnavailable": "无法识别 Iwara 作者 ID",
       "iwaraVideoListMalformed": "Iwara 视频列表格式不符",
       "iwaraVideoEntryNoId": "Iwara 视频条目缺少有效 ID",
       "iwaraVideoIdInvalid": "Iwara 视频 ID 无效",
-      "iwaraFileUrlUnavailable": "Iwara 正片地址未取得，请打开来源页面核对访问权",
+      "iwaraFileUrlUnavailable": "Iwara 未返回正片地址，请打开来源页面核对访问权",
       "iwaraUntrustedFileUrl": "Iwara 返回了不受信任的文件接口地址",
       "iwaraFileNoExpiry": "Iwara 文件接口缺少有效期限",
       "iwaraFormatListMalformed": "Iwara 播放格式清单不符",
-      "iwaraNoFormats": "Iwara 正片格式未取得",
+      "iwaraNoFormats": "Iwara 未返回正片格式",
       "kemonoUrlShape": "{{host}} 的链接要指向某个创作者，形如 https://{{host}}/fanbox/user/30917150",
       "kemonoUnknownProvider": "未知的 kemono 系来源：{{provider}}",
       "kemonoRefInvalid": "{{provider}} 的 ref 必须形如 `service/user_id`，收到：{{ref}}",
@@ -2724,14 +2728,14 @@
     },
     "avatarOnline": {
       "notThisCreator": "这张备选图片不属于当前创作者",
-      "imageNotFound": "这张图未取得，请稍后重试",
+      "imageNotFound": "图片加载失败，请稍后重试",
       "imageOverLimit": "图片超过大小上限"
     },
     "avatarPicker": {
       "coverChanged": "这张封面刚换过，返回备选图片重新框一次",
       "codeUnrecognized": "认不出这个番号",
       "codeCoverUnrecognized": "这个番号的封面不是一张能识别的图片",
-      "addressUnusable": "这个地址未取得可用图片：{{reason}}",
+      "addressUnusable": "无法从这个地址读取可用图片：{{reason}}",
       "notCached": "这张图不在本机缓存里了",
       "fetchFailed": "取不到这张图：{{error}}",
       "fetchNoResponse": "取不到这张图：无响应",
@@ -2747,7 +2751,7 @@
       "assetCellNotLocal": "这部作品的第 {{cell}} 格还没有落在本机",
       "assetCoverUnreadable": "读不出这部作品的封面",
       "assetCellUnreadable": "读不出这部作品的第 {{cell}} 格",
-      "onlineUnavailable": "未取得在线备选头像",
+      "onlineUnavailable": "在线备选头像不可用",
       "codeCoverNotFetched": "这个番号的封面还没有取过",
       "addressNotFetched": "这个地址的图还没有取过",
       "notInIndex": "当前索引中没有这张备选图片",
@@ -2781,10 +2785,10 @@
       "offlineFailed": "远端拒绝了这个任务：115 报告离线失败，多半是资源无人做种或被拒"
     },
     "routesMedia": {
-      "imageTimedOut": "这张图未取得：请求超时",
+      "imageTimedOut": "图片请求超时",
       "coverAddressUnusable": "封面地址不可用",
       "avatarSourcesFailed": "{{reasons}}",
-      "onlineImageNotFound": "在线图片未取得",
+      "onlineImageNotFound": "找不到在线图片",
       "missingEntityId": "缺少实体 id",
       "mibNotJav": "韩国 MIB 不适用 JAV 封面来源",
       "codeCoverNotFound": "官方渠道没有这个番号的封面",
@@ -2813,7 +2817,7 @@
       "deadline": "动作预算已用尽",
       "dmmFailed": "DMM：{{error}}",
       "coolingDown": "封面来源正在冷却，请稍后重试；已有图片保留",
-      "catalogUnfinished": "官方目录查询未完成，尚未取得封面候选",
+      "catalogUnfinished": "官方目录查询未完成，封面候选仍待确认",
       "allAnimated": "官方候选都是动图",
       "downloadsFailed": "可用候选完整下载都失败",
       "sizeChanged": "尺寸变化：日志 {{expectedWidth}}x{{expectedHeight}}，当前 {{width}}x{{height}}",
@@ -2825,15 +2829,15 @@
       "downloadFailed": "社区来源的封面下载失败",
       "mismatch": "{{origins}} 给的封面不是同一张图，无法互相印证",
       "mismatchPartlyMissed": "{{origins}} 给的封面不是同一张图，无法互相印证；另有 {{count}} 张封面没下载到",
-      "noUnwatermarked": "未取得无 JavDB 水印的封面",
-      "noUnwatermarkedPartlyMissed": "未取得无 JavDB 水印的封面；另有 {{count}} 张封面没下载到",
+      "noUnwatermarked": "没有找到无 JavDB 水印的封面",
+      "noUnwatermarkedPartlyMissed": "已检查的封面中没有找到无 JavDB 水印的版本，另有 {{count}} 张下载失败",
       "noCovers": "社区来源没有这部片的封面"
     },
     "javOfficialPreview": {
-      "dmmUnavailable": "DMM 视频预览未取得，请稍后重试",
+      "dmmUnavailable": "DMM 视频预览查询失败，请稍后重试",
       "dmmUnrecognized": "DMM 给出的视频预览地址无法识别（{{host}}），重试不会好转",
-      "javdbUnavailable": "JavDB 视频预览未取得，请稍后重试",
-      "officialUnavailable": "官方视频预览未取得，请稍后重试"
+      "javdbUnavailable": "JavDB 视频预览查询失败，请稍后重试",
+      "officialUnavailable": "官方视频预览查询失败，请稍后重试"
     },
     "avbase": {
       "unrecognized": "AVBase 页面结构未识别，可能在验证访问",
@@ -2873,7 +2877,7 @@
       "loginRequired": "javdb 要求登录",
       "identityAmbiguous": "javdb 同番号对应多个作品，请核对来源身份：{{identities}}",
       "detailCodeMismatch": "javdb 详情页的番号与搜索结果不一致",
-      "budgetExceeded": "javdb 作品资料在本次预算内未取得"
+      "budgetExceeded": "JavDB 作品资料查询超出本次预算"
     },
     "onepondo": {
       "unrecognizedCode": "这个番号不是{{label}}的写法",
@@ -2882,25 +2886,26 @@
       "movieIdMismatch": "{{label}}回的作品号对不上这个番号"
     },
     "seesaa": {
-      "notInSearch": "Wiki 搜索范围内未取得精确作品表格行",
-      "notInEntries": "Wiki 搜索范围内未取得精确番号的作品条目",
+      "notInSearch": "Wiki 搜索结果里没有完全匹配的作品表格行",
+      "notInEntries": "Wiki 搜索结果里没有番号完全匹配的作品",
       "conflictingRows": "Wiki 精确番号存在冲突行，需复核原页",
       "budgetStopped": "Wiki 本批请求已停止或达到限额",
-      "networkFailed": "Wiki 网络请求未取得",
-      "httpFailed": "Wiki HTTP 请求未取得",
+      "networkFailed": "Wiki 网络请求失败",
+      "httpFailed": "Wiki 请求失败（HTTP {{status}}）",
+      "requestTimedOut": "Wiki 请求超时",
       "pageTooLarge": "Wiki 页面超过读取上限",
-      "redirectUnverified": "Wiki 重定向页面未取得身份验证",
-      "botCheckFailed": "Wiki 机器人验证未取得"
+      "redirectUnverified": "无法验证 Wiki 重定向后的页面身份",
+      "botCheckFailed": "Wiki 返回机器人验证页"
     },
     "metadataAmane": {
       "refused": "{{message}}（{{reason}}）",
       "refusedWithStatus": "{{message}}（{{reason}}，HTTP {{status}}）",
       "notFound": "{{label}} 上没有这个番号（{{reason}}）",
-      "unavailable": "{{label}} 未取得资料（{{reason}}）",
-      "unavailableWithStatus": "{{label}} 未取得资料（{{reason}}，HTTP {{status}}）",
-      "unavailableDetail": "{{label}} 未取得资料（{{reason}}）：{{detail}}",
-      "unavailableWithStatusDetail": "{{label}} 未取得资料（{{reason}}，HTTP {{status}}）：{{detail}}",
-      "runtimeUnavailable": "amane 运行环境未取得",
+      "unavailable": "{{label}} 资料查询失败（{{reason}}）",
+      "unavailableWithStatus": "{{label}} 资料查询失败（{{reason}}，HTTP {{status}}）",
+      "unavailableDetail": "{{label}} 资料查询失败（{{reason}}）：{{detail}}",
+      "unavailableWithStatusDetail": "{{label}} 资料查询失败（{{reason}}，HTTP {{status}}）：{{detail}}",
+      "runtimeUnavailable": "amane 运行环境不可用",
       "packagedRuntimeProblem": "安装包中的采集工具缺失或版本不匹配，请重新安装 Peach",
       "bridgeMissing": "amane 桥未安装：在「来源和凭证」页重建，或放到 {{python}}",
       "bridgeScriptMissing": "amane 桥脚本缺失：{{path}}",
@@ -2998,7 +3003,7 @@
       "readerFailed": "媒体读取进程未完成"
     },
     "webStats": {
-      "tasteNotFound": "口味分析未取得",
+      "tasteNotFound": "没有口味分析记录",
       "tasteReadStopped": "口味读取已停止"
     },
     "webBatch": {
@@ -3037,12 +3042,12 @@
     },
     "webScraping": {
       "candidateChecksFailed": "候选封面未通过检查。",
-      "downloadFailed": "候选封面完整下载或图片校验失败，未取得可保存的图片。",
+      "downloadFailed": "候选封面下载或校验失败，无法保存。",
       "noCoverCandidates": "来源没有返回这个番号的封面候选，无法判断是否有高清版。",
       "sourceAccessDenied": "来源拒绝访问（HTTP {{status}}），请检查登录或来源验证状态。",
       "sourceConnectionFailed": "来源连接失败，未能完成封面比较；请检查来源连接设置。",
       "sourceServerError": "来源服务异常（HTTP 5xx），请稍后重试。",
-      "unusableCandidate": "候选封面未通过检查：图片未取得、无法解码或宽度不足 700px。"
+      "unusableCandidate": "候选封面未通过检查。可能无法下载、无法解码或宽度不足 700px。"
     },
     "webWants": {
       "scrapeStopped": "想要资料任务已停止",
@@ -3070,7 +3075,7 @@
       "photoThumbnailFailed": "图片缩略图生成失败"
     },
     "metadataPerformerProfiles": {
-      "avatarUnfetched": "{{name}} 的头像未取得：{{reason}}"
+      "avatarUnfetched": "{{name}} 的头像采集失败：{{reason}}"
     },
     "cli": {
       "processingIncomplete": "资料处理未完成"
@@ -3116,7 +3121,7 @@
       "reading": "正在读取浏览器书签"
     },
     "webStats": {
-      "partialHistory": "部分浏览记录未取得",
+      "partialHistory": "部分浏览记录读取失败",
       "analysisUpdated": "口味分析已更新",
       "findingProfiles": "正在查找 Peach 主机上的浏览器资料",
       "summarizing": "正在汇总口味分布、标签与创作者排名"
@@ -3162,7 +3167,7 @@
       "sourceCooldown": "来源暂时不可用，已停止读取",
       "stopped": "已停止读取作品资料",
       "timeBudget": "本轮时间预算已用完",
-      "unfetched": "作品资料未取得"
+      "unfetched": "作品资料采集失败"
     },
     "webLinks": {
       "prunePreparing": "正在核对失效链接清单",
@@ -3254,7 +3259,7 @@
     },
     "configuration": {
       "fileManagedNotice": "这个部署由配置文件管理服务；在本机编辑下方的设置文件。",
-      "sectionUnavailable": "{{section}}未取得",
+      "sectionUnavailable": "无法读取{{section}}",
       "sectionRetry": "请重新读取；持续失败时导出诊断报告。",
       "tunnelStoppedUnsaved": "临时远程链接已停止；设置文件未能写入，请在本机检查设置文件。",
       "tunnelStopped": "已停止临时远程链接：没有访问密码时不保留公网入口。",
@@ -3288,7 +3293,7 @@
       "serviceStopped": "服务关闭，下次启动接着做"
     },
     "followScheduler": {
-      "runtimeUnavailable": "上次自动检查的运行状态未取得",
+      "runtimeUnavailable": "无法读取上次自动检查的运行状态",
       "sourcesFailed": "{{count}} 个来源检查失败"
     },
     "webAutoLandings": {
@@ -3329,8 +3334,8 @@
     },
     "webReview": {
       "commentVotes": "评论标记 {{votes}}",
-      "coverNoCandidates": "未取得：所有渠道都没有候选",
-      "coverUnfetched": "未取得：{{reason}}",
+      "coverNoCandidates": "所有已查渠道都没有封面候选",
+      "coverUnfetched": "封面采集失败：{{reason}}",
       "currentNone": "当前值：尚无",
       "currentNoneOwned": "当前值：尚无（{{owner}}）",
       "currentValue": "当前值：{{value}}",
@@ -3355,7 +3360,7 @@
         "matched": "命中",
         "needs-review": "需人工确认",
         "no-profile": "确认无档案",
-        "rate-limited": "限流未取得"
+        "rate-limited": "来源限流"
       }
     },
     "webScraping": {
@@ -3418,8 +3423,9 @@
       "clouddriveTokenUnreadable": "CloudDrive2 令牌无法读取，请重新填写。",
       "pikpakSignInUnreadable": "PikPak 登录信息无法读取，请重新登录。",
       "tokenNeedsOffline": "CloudDrive2 令牌需要提交和查看离线任务权限。",
-      "libraryCapabilityUnavailable": "{{name}}的云下载能力未取得。",
-      "clouddriveCapabilityUnavailable": "CloudDrive2 云下载能力未取得，请检查连接与令牌。",
+      "libraryCapabilityUnavailable": "无法确认「{{name}}」是否支持云下载。",
+      "libraryCapabilityCheckFailed": "「{{name}}」的云下载检查失败：{{reason}}",
+      "clouddriveCapabilityUnavailable": "无法确认 CloudDrive2 是否支持云下载，请检查连接与令牌。",
       "libraryNotMapped": "{{name}}尚未关联云端目录，请检查挂载或推送发现配置。",
       "qbittorrentCredentialsUnreadable": "qBittorrent 登录信息无法读取，请重新填写。",
       "qbittorrentCredentialsMissing": "qBittorrent 还没有填写用户名和密码。"
@@ -3493,10 +3499,10 @@
     "desktopStartup": {
       "noDesktop": "此系统未提供桌面快捷方式",
       "desktopFailed": "{{error}}",
-      "desktopUnknown": "桌面快捷方式状态未取得",
+      "desktopUnknown": "无法确认桌面快捷方式状态",
       "noLoginItem": "此系统未提供登录自启入口",
       "trayMissing": "未找到本机托盘入口",
-      "startupUnknown": "启动项状态未取得"
+      "startupUnknown": "无法确认启动项状态"
     },
     "desktopUninstall": {
       "manual": "这个系统上先退出 Peach，再手动移除程序与数据目录",
@@ -3562,7 +3568,7 @@
         "ipBanned": "出口 IP 已被站方封禁",
         "httpError": "站方拒绝了这个出口"
       },
-      "latestUnfetched": "未取得",
+      "latestUnfetched": "查询失败",
       "trafficUnmetered": "独立采集工具的网络传输未提供逐任务计量",
       "trafficUnobserved": "外部采集器流量未观测"
     },
@@ -3727,7 +3733,7 @@
       "originHeaderImage": "站点 header 里的 <img>",
       "originNamedAvatar": "人指定的社媒头像",
       "originProfileAvatar": "{{profile}} 的头像",
-      "paddedWordmark": "方形标识未取得，装的是字标：{{size}}／内容比 {{aspect}}，烤成方图",
+      "paddedWordmark": "没有可用的方形标识，已将字标补边成方图（{{size}}／内容比 {{aspect}}）",
       "sameAsIcon": "与 icon 位同一份方图（原字标 {{size}}）",
       "triedNothing": "试过 {{tried}}，一份字节都没取回来",
       "tried": "试过 {{tried}}：{{details}}",
@@ -3864,7 +3870,7 @@
     },
     "seedCorrections": {
       "anchorAmbiguous": "身份锚点未唯一命中，保留断言",
-      "anchorMissing": "身份锚点未命中，未取得可撤销实体",
+      "anchorMissing": "身份锚点未匹配，找不到可撤销的实体",
       "profileDiffers": "现有资料与精确撤销值不一致，保留断言",
       "pointerDiffers": "现有归属与精确撤销值不一致，保留断言",
       "otherWriter": "断言归其他写入者所有，保留断言"
@@ -3894,7 +3900,7 @@
       "notListing": "{{wiki}}「{{key}}」（不是作品一览）",
       "labelPage": "{{wiki}}「{{key}}」页是作品一览：{{works}} 部、出演者 {{performers}} 位；名称指向厂牌或系列，不是个人账号",
       "labelPageWithPrefix": "{{wiki}}「{{key}}」页是作品一览：{{works}} 部、出演者 {{performers}} 位，番号前缀 {{prefix}}；名称指向厂牌或系列，不是个人账号",
-      "unresolved": "公开身份来源未取得；已按页名直取 {{queried}}。同名命中不构成唯一身份依据。",
+      "unresolved": "公开来源未能确认身份，已尝试按页名 {{queried}} 查找。同名命中不构成唯一身份依据。",
       "fullCredit": "发行文件完整署名与公开出演者身份一致",
       "labelCredit": "厂牌发行文件完整署名"
     },
@@ -3905,7 +3911,7 @@
       "site": {
         "missed": "未命中",
         "gone": "未命中：档案已不存在",
-        "failed": "未取得：{{error}}",
+        "failed": "查询失败：{{error}}",
         "missedBecause": "未命中：{{note}}",
         "notInCast": "女优栏里没有她",
         "hit": "命中 {{pages}}",
@@ -3947,7 +3953,7 @@
         "write": "写入",
         "fresh": "未过期",
         "miss": "未命中",
-        "unfetched": "未取得",
+        "unfetched": "采集失败",
         "taken": "占用",
         "bind": "绑定",
         "conflict": "冲突"
@@ -3982,7 +3988,7 @@
         "boundFresh": "编号已绑，资料取回不到 30 天",
         "castMatched": "{{work}} 的出演表里对得上她",
         "refetch": "编号已绑，重取女优页",
-        "noActorPage": "{{detail}}；女优页未取得，资料留空",
+        "noActorPage": "{{detail}}。无法读取女优页，相关资料留空",
         "idTaken": "编号已属另一条实体",
         "sameNameMany": "站上同名不止一位：{{ids}}",
         "card": "演员卡 {{id}} 列着她的名字",
@@ -3990,7 +3996,7 @@
         "cardTaken": "演员 id {{id}} 已属另一条实体"
       },
       "site": {
-        "failed": "未取得：{{error}}",
+        "failed": "查询失败：{{error}}",
         "fresh": "资料未过期",
         "noSearchName": "未命中：没有能拿去检索的名字",
         "missedBecause": "未命中：{{note}}",
@@ -4020,7 +4026,7 @@
     "tunnel": {
       "stateUnreadable": "Tunnel 状态文件不可读",
       "stateInvalid": "Tunnel 状态文件格式错误",
-      "notSettled": "上一次 Tunnel 没有正常收尾，运行结果未取得",
+      "notSettled": "上次 Tunnel 运行意外中断，结果无法确认",
       "exited": "cloudflared 已退出"
     },
     "dockerUpdate": {
@@ -4079,12 +4085,12 @@
     "taskResources": {
       "ownersMissing": "这轮任务尚未登记资源归属",
       "meterMissing": "这轮任务尚未登记传输计量",
-      "cpuCounter": "任务 CPU 计数器未取得：{{error}}",
-      "cpuCapacity": "执行端 CPU 可用容量未取得：{{error}}",
-      "gpuIdentity": "GPU 进程身份未取得：{{error}}",
+      "cpuCounter": "任务 CPU 计数器读取失败：{{error}}",
+      "cpuCapacity": "执行端 CPU 可用容量读取失败：{{error}}",
+      "gpuIdentity": "无法确定 GPU 进程身份：{{error}}",
       "gpuShared": "共享服务进程的 GPU 使用无法准确归属到这一轮",
-      "readingMissing": "执行端的资源读数未取得",
-      "transferMissing": "执行端的传输读数未取得",
+      "readingMissing": "执行端没有返回资源读数",
+      "transferMissing": "执行端没有返回传输读数",
       "network": {
         "cloudMount": "网盘挂载的缓存与预读无法按任务取得实际网速",
         "smb": "SMB 的缓存与预读无法按任务取得实际网速",
@@ -4094,30 +4100,30 @@
     "gpuUsage": {
       "noCounters": "当前平台未提供逐进程 GPU 计数器",
       "macos": "当前版本尚未接入 macOS 的逐进程 GPU 计数；不能使用整机占用代替任务占用",
-      "windowsComponent": "Windows GPU 计数器组件未取得",
-      "openFailed": "GPU 计数器未取得（{{code}}）",
+      "windowsComponent": "Windows GPU 计数器组件不可用",
+      "openFailed": "无法打开 GPU 计数器（{{code}}）",
       "collectFailed": "GPU 计数器读取失败（{{code}}）",
       "waiting": "等待下一次 GPU 采样",
-      "detailMissing": "GPU 计数器明细未取得（{{code}}）",
+      "detailMissing": "GPU 计数器明细读取失败（{{code}}）",
       "detailFailed": "GPU 计数器明细读取失败（{{code}}）",
       "waitingProcesses": "等待读取任务的 GPU 进程",
       "noDrmDevice": "未发现可读取的 DRM GPU 设备；容器需映射设备，驱动需支持逐进程计数",
       "sharedClient": "多个进程共享 GPU 客户端，使用量无法准确归属",
-      "taskCounter": "任务 GPU 计数器未取得：{{error}}"
+      "taskCounter": "任务 GPU 计数器读取失败：{{error}}"
     },
     "processingTraffic": {
       "metadata": "影片资料",
       "previews": "预览与封面",
       "temporary": "临时文件",
       "mountUnobserved": "挂载缓存与预读未观测",
-      "mediaReadMissing": "媒体读取量未取得"
+      "mediaReadMissing": "媒体读取量未知"
     },
     "librarySharing": {
       "field": {
         "works": "去重后的作品编号，以及评分、喜欢、不喜欢、已看、稍后看、播放次数、观看比例与手动添加的受控内容标签；自定义备注标签不上传",
         "preferences": "出演者、创作者、厂牌、系列、手动标签、年代与时长分组的收藏、喜欢、不喜欢、观看数量和评分分布（有编号作品与无编号条目分开），以及主动收藏的实体名称",
         "counts": "馆藏文件数量、有编号作品数量与无编号条目数量",
-        "capacity": "近 7 天与 30 天已观测的容量天数、播放活跃天数及其记录覆盖天数；数据与缓存的当前占用、峰值、已观测正增长量、缓存清理量（自动与手动合计，不含备份和日志）。未取得的值为空，不补足 30 天记录",
+        "capacity": "近 7 天和 30 天的容量观测天数、播放活跃天数及其记录覆盖天数。包含数据与缓存的当前占用、峰值、已观测正增长量，以及缓存清理量（自动与手动合计，不含备份和日志）。缺失数据留空，不补足 30 天。",
         "instance": "同意后随机生成的研究实例标识，用于关联本实例的馆藏、容量和参与状态；重新开启时更换，不使用机器指纹或诊断标识",
         "participation": "启用及每日最多一次的联系状态、版本和最近联系时间，以及快照编号、字段版本、原始与压缩字节数和准备／投递状态；关闭时后台只尝试一次最小关闭状态，不附快照信息。离线、卸载和发送失败不视为关闭，实例数不等于人数",
         "version": "Peach 版本、字段版本与 UTC 自然周"
@@ -4204,7 +4210,7 @@
     },
     "updateTasks": {
       "unnamedTask": "后台任务",
-      "stateUnknown": "任务状态未取得",
+      "stateUnknown": "任务状态未知",
       "libraryProcessing": "馆藏资料与预览处理"
     },
     "storageBudget": {
@@ -4219,8 +4225,8 @@
         "external": "外部缓存"
       },
       "reasonList": "{{first}}；{{rest}}",
-      "statusUnreadable": "容量检查记录未取得：{{error}}",
-      "layoutUnreadable": "容量目录未取得：{{error}}"
+      "statusUnreadable": "容量检查记录读取失败：{{error}}",
+      "layoutUnreadable": "容量目录读取失败：{{error}}"
     },
     "diagnostics": {
       "separator": "；",
@@ -4248,7 +4254,7 @@
         "schemaCurrent": "迁移校验通过",
         "schemaPending": "存在待执行迁移",
         "schemaMismatch": "迁移记录与当前程序不一致",
-        "schemaUnavailable": "迁移校验未取得",
+        "schemaUnavailable": "无法校验数据库迁移状态",
         "toolsMissing": "未找到：{{names}}",
         "toolsUnusable": "无法执行：{{names}}",
         "av1Missing": "FFmpeg 缺少 AV1 软件解码器",
@@ -4264,11 +4270,11 @@
         "dataRootDenied": "没有权限写入数据目录",
         "dataRootUnwritable": "数据目录无法写入",
         "dataRootWritable": "临时写入与清理通过",
-        "hostNotIp": "监听地址不是 IP，端口状态未取得",
+        "hostNotIp": "监听地址不是 IP，无法检查端口状态",
         "portInUse": "端口正在使用",
-        "portUnknown": "端口状态未取得",
+        "portUnknown": "无法确认端口状态",
         "portAvailable": "端口当前可用",
-        "taskFailuresUnknown": "任务失败记录未取得",
+        "taskFailuresUnknown": "任务失败记录读取失败",
         "noTaskFailures": "没有已记录的任务失败",
         "taskFailures": "存在已记录的任务失败",
         "versions": "Peach {{peach}} · Python {{python}}",
@@ -4298,7 +4304,7 @@
       "source": {
         "proxy": "代理连接失败",
         "timeout": "来源连接超时",
-        "network": "来源连接未取得",
+        "network": "无法连接来源",
         "authRequired": "来源要求登录或拒绝当前出口",
         "challenge": "来源要求人机验证",
         "blocked": "来源拦截当前出口",
@@ -4309,10 +4315,10 @@
         "parseError": "资料解析失败",
         "notFound": "上次查询未命中",
         "cooling": "来源正在冷却",
-        "failed": "来源未取得资料",
+        "failed": "来源资料读取失败",
         "parsed": "资料解析通过",
         "parsedBefore": "曾解析成功，近期解析状态待复查",
-        "connectedOnly": "连接检查通过；解析状态未取得",
+        "connectedOnly": "连接成功，尚未检查资料解析",
         "checkedBefore": "已有检查记录，解析状态待复查",
         "unchecked": "尚无检查或解析记录，可在来源和凭证中检查连接"
       }
@@ -4461,8 +4467,8 @@
       "cooldown": "来源正在冷却，请稍后重试。",
       "proxy": "代理连接失败，请检查 Peach 代理。",
       "timeout": "来源连接超时，请稍后重试或检查连接方式。",
-      "cdnUnreachable": "连接未取得；{{hint}}",
-      "unreachable": "连接未取得；此来源可能需要代理，请检查来源连接方式。",
+      "cdnUnreachable": "无法连接来源。{{hint}}",
+      "unreachable": "无法连接来源，请检查连接方式。",
       "challenge": "来源返回人机验证页，请检查来源验证状态或更换出口。",
       "rateLimited": "来源正在限流，请稍后重试。",
       "notFound": "来源检查地址不存在，请核对站点地址。",
@@ -4488,7 +4494,7 @@
     },
     "scrapingAccess": {
       "makers": "片商官网",
-      "unreachable": "来源连接未取得，请检查该来源的网络设置"
+      "unreachable": "无法连接来源，请检查该来源的网络设置"
     },
     "feeds": {
       "kind": {
@@ -4504,7 +4510,7 @@
       "stoppedByUser": "用户停止任务"
     },
     "followStore": {
-      "evidenceUnwritable": "证据未取得（{{path}} 不可写：{{error}}）"
+      "evidenceUnwritable": "无法写入证据目录 {{path}}：{{error}}"
     },
     "timelineSheets": {
       "stoppedByUser": "已按停"
@@ -4546,9 +4552,18 @@
     },
     "seesaa": {
       "reviewCast": "社区 Wiki 的出演断言需要人工复核；人物页链接不自动合并艺名",
-      "incompleteCast": "出演栏含未识别或不确定内容，完整出演名单未取得"
+      "incompleteCast": "出演栏含未识别或不确定内容，无法确认完整出演名单"
     },
     "resourceSearch": {
+      "requestTimedOut": "请求超时",
+      "connectionFailed": "无法访问",
+      "unauthorized": "需要身份验证（HTTP 401）",
+      "accessDenied": "拒绝访问（HTTP 403）",
+      "rateLimited": "请求被限流（HTTP 429）",
+      "httpFailure": "请求失败（HTTP {{status}}）",
+      "invalidResponse": "响应格式无效",
+      "indexerRejected": "索引器返回错误",
+      "requestFailed": "请求失败",
       "reject": {
         "code": "番号不符",
         "size": "体积不在区间",
@@ -4557,16 +4572,16 @@
       },
       "rejectedCount": "{{reason}} {{count}} 条",
       "allRejected": "索引器返回了 {{total}} 条结果，都没通过筛选：{{counts}}",
-      "noIndexer": "请在本机「配置 → 下载」中添加并启用索引器",
+      "noIndexer": "没有启用备用索引器",
       "busy": "资源搜索正在进行，请稍后重试",
       "indexerFailed": "{{indexer}}：请求失败或响应格式不正确，请检查索引器",
       "indexerError": "{{indexer}}：{{error}}",
       "allFailed": "所有索引器都未能完成搜索"
     },
     "javdbPublic": {
-      "magnetsUnfetched": "JavDB 磁链区查询未完成：{{error}}",
+      "magnetsUnfetched": "JavDB 磁链区查询失败：{{error}}",
       "reviewPagesQueried": "已查询前 {{pages}} 页评论资源。",
-      "commentsUnfetched": "JavDB 评论区查询未完成：{{error}}"
+      "commentsUnfetched": "JavDB 评论区查询失败：{{error}}"
     },
     "javdb": {
       "commentSource": "JavDB 评论"
@@ -4574,14 +4589,18 @@
     "magnetChain": {
       "staleReused": "已沿用上次结果：{{error}}",
       "sourceFailed": "{{source}}：{{error}}",
-      "sourceUnfetched": "{{source}}：查询未完成",
-      "incomplete": "部分来源的查询未完成，请稍后重新查询。"
+      "sourceUnfetched": "{{source}}：搜索失败",
+      "incomplete": "部分来源搜索失败，请稍后重试。"
     },
     "wantsMagnets": {
-      "linksUnfetched": "资源链接未取得，请稍后重试或检查来源连接。",
-      "chainUnfetched": "磁力抓取链未取得，请稍后重试或检查来源连接。"
+      "linksUnfetched": "资源链接查询失败，请稍后重试。",
+      "chainUnfetched": "资源搜索失败，请稍后重试。"
     },
     "javBrowser": {
+      "sourceFailures": "{{failures}}",
+      "sourceFailuresWaiting": "{{error}}，等待自动重试",
+      "searchRetriesExhausted": "自动重试 {{attempts}} 次后搜索仍失败。{{error}}",
+      "noMatchWithSourceFailure": "其余来源没找到。{{error}}。来源恢复后自动补查",
       "idle": "可以加入 Peach 馆藏",
       "queued": "等待搜索磁力",
       "searching": "正在搜索磁力",
@@ -4590,7 +4609,7 @@
       "owned": "馆藏已有该番号影片",
       "failed": "添加失败，可重试",
       "noMatch": "未找到可自动下载的磁力，可重试",
-      "noMatchSourcesPaused": "其余来源没找到；{{sources}} 暂时访问不了，恢复后自动补查",
+      "noMatchSourcesPaused": "其余来源没找到。{{sources}} 搜索失败，恢复后自动补查",
       "searchFailedWith": "资源搜索失败：{{error}}",
       "noOtherMagnet": "没有其他可用磁力，可在 Peach 手动选择资源",
       "disabled": "浏览器添加已关闭",
@@ -4598,10 +4617,10 @@
       "retriesExhausted": "自动重试 {{attempts}} 次后仍未完成；搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试",
       "submitFailed": "搜索或云下载提交失败，请在 Peach 检查来源和下载渠道后重试",
       "retryWaiting": "暂时不可用，等待自动重试",
-      "sourcesWaiting": "{{sources}} 未取得，等待自动重试",
-      "sourcesUnfetched": "{{sources}} 未取得",
+      "sourcesWaiting": "{{sources}} 搜索失败，等待自动重试",
+      "sourcesUnfetched": "{{sources}} 搜索失败",
       "searchFailedWaiting": "资源搜索失败：{{error}}；等待自动重试",
-      "sourcesExhausted": "{{sources}} 自动重试 {{attempts}} 次后仍未取得，请在 Peach 检查来源后重试"
+      "sourcesExhausted": "{{sources}} 自动重试 {{attempts}} 次后仍无法完成搜索"
     },
     "followCreators": {
       "evidence": {
@@ -4641,7 +4660,7 @@
       "credentialsMissing": "还没有填写 qBittorrent 用户名和密码",
       "savePathMissing": "还没有填写 qBittorrent 保存目录",
       "mediaRootMissing": "还没有选择对应的媒体库目录",
-      "savePathUnavailable": "默认保存目录未取得：{{details}}",
+      "savePathUnavailable": "默认保存目录读取失败：{{details}}",
       "action": {
         "login": "登录",
         "readVersion": "读取版本",
@@ -4847,7 +4866,7 @@
       "frozen": "打包进程不加载项目 venv，依赖由重启脚本核对",
       "noLock": "没有 uv.lock：{{path}}",
       "noVenv": "没有项目 venv：{{path}}",
-      "noUv": "未取得 uv：PATH 与 winget 安装目录里都没有",
+      "noUv": "PATH 和 winget 安装目录里都找不到 uv",
       "uvFailed": "uv 没能运行：{{error}}",
       "dependenciesCurrent": "项目 venv 与 uv.lock 一致",
       "checkFailed": "核对依赖失败：{{output}}",
@@ -4865,7 +4884,7 @@
       "upgradeFailed": "执行 {{count}} 个待迁移时失败，数据库目录里有迁移前备份：{{output}}",
       "appliedVersions": "已执行迁移 {{versions}}，迁移前备份 {{backup}}",
       "appliedCount": "已执行迁移 {{count}} 个，迁移前备份 {{backup}}",
-      "notObtained": "未取得",
+      "notObtained": "未知",
       "tasksUnreadable": "拒绝重启：读不了任务表（{{error}}）；确认没有任务在跑后加 --force",
       "tasksBlocking": "拒绝重启：这些任务重启后续跑不了：{{tasks}}；等它们结束，或加 --force",
       "noTaskTable": "数据库里还没有可判的任务表：{{error}}",
@@ -4934,7 +4953,7 @@
       "menuBarRestartFailed": "代码已同步，但菜单栏项重启失败；服务已恢复。",
       "menuBarManual": "{{message}}服务已重启；菜单栏项本身要手动退出重开才会生效。",
       "noPowerShell": "代码已快进，但找不到 PowerShell，未运行测试或重启服务。",
-      "inputsKeptChanging": "测试期间代码或依赖持续变化，三次验证均未取得有效记录；请稍后重试。",
+      "inputsKeptChanging": "测试期间代码或依赖持续变化，三次验证都没有生成有效记录，请稍后重试。",
       "testsFailed": "代码已快进，但完整测试失败；服务与托盘均未重启，请查看日志。",
       "testsTimedOut": "代码已快进，但完整测试超时未结束，已终止；服务与托盘均未重启，请查看日志。",
       "testsPassed": "代码与完整测试已通过。",
@@ -4975,7 +4994,7 @@
     },
     "versions": {
       "dirty": "{{base}} · 有未提交修改",
-      "buildUnknown": "{{base}} · 托盘构建身份未取得",
+      "buildUnknown": "{{base}} · 托盘构建版本未知",
       "buildBehind": "{{base}} · 托盘构建 {{build}}，落后 {{count}} 个提交",
       "buildForeign": "{{base}} · 托盘构建 {{build}} 不在本检出历史里",
       "channelRelease": "更新通道 · GitHub 测试版",

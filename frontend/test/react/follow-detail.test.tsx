@@ -298,7 +298,7 @@ describe('侧栏', () => {
 
   it('媒体没取回来的原因画在侧栏里', async () => {
     const { host } = await show(data(item(3, { playable: false, media_kind: 'external', media_error: '附件要登录' })));
-    expect(host.querySelector('[data-follow-media-issue]:not([hidden])')?.textContent).toBe('媒体未取得：附件要登录');
+    expect(host.querySelector('[data-follow-media-issue]:not([hidden])')?.textContent).toBe('媒体加载失败：附件要登录');
   });
 });
 

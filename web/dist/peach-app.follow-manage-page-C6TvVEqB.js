@@ -1,10 +1,10 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "64a3c937-709a-4d3e-a2ec-861c965926dc", e._sentryDebugIdIdentifier = "sentry-dbid-64a3c937-709a-4d3e-a2ec-861c965926dc");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "38f78f87-d7cc-437a-b165-a4279f41f19c", e._sentryDebugIdIdentifier = "sentry-dbid-38f78f87-d7cc-437a-b165-a4279f41f19c");
 	} catch {}
 })();
-import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $76d00c5a4edb230a$export$76ccd210b9029917 as t, $76d00c5a4edb230a$export$816b5d811295e6bc as n, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as r, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as i, $76d00c5a4edb230a$export$f850895b287ef28e as a, $ea3928288112382f$export$439d29a4e110a164 as o, $l as s, Button as c, ButtonLink as l, Bx as u, COLUMN_SORT as d, Checkbox as f, ChevronSortDown as p, Chip as m, CollapseChevron as h, CollapseRegion as g, ColumnFilterAvatar as _, ColumnFilterChips as v, Ct as y, DataTableFooter as b, DataTableFrame as ee, DataTableSort as x, EmptyFocusButton as S, EmptyState as te, ErrorText as C, ExternalLink as w, FEEDS_KEY as ne, FOLLOW_CHECK_KEY as re, FOLLOW_CHECK_TASK as ie, FOLLOW_CREDENTIALS_KEY$1 as T, FOLLOW_MANAGE_KEY as E, FOLLOW_MANAGE_NAV as ae, FOLLOW_RESOLVE_KEY as oe, FieldLabel as D, FollowSearch as O, Gg as k, H7 as A, Help as j, IndexSearch as M, Input as N, LAYOUTS as se, LEGACY_AVATAR_IMG as ce, LinkButton as P, M6 as le, ModalFrame as F, Note as I, OV as ue, P7 as L, SORT_DEFAULT_DIR as R, SORT_OPTIONS as de, STAT_STRIP_SIX as z, Select as fe, SelectItem as pe, SelectionDock as me, SelectionPopover as he, SiteIcon as B, SiteLabel as ge, SortDirectionIcon as _e, SortableBoardTabs as ve, Switch as ye, Table as be, TableColumnControls as xe, TableColumnResizer as Se, TableSelectionHeader as Ce, TaskProgress as we, Un as Te, Wt as V, Xf as Ee, __toESM as H, activityKind as De, addAlias as Oe, addSource as ke, apiGet as Ae, authorGroups as je, authorName as Me, avatarInner as Ne, busyProps as U, cardClass as Pe, checkEvidenceGap as Fe, checkFailures as Ie, checkFeeds as Le, checkReceipt as Re, checkSummary as ze, checkedText as Be, clickedBlank as Ve, codedText as He, columnOrderingFeature as Ue, columnVisibilityFeature as We, confirmModal as Ge, createColumnHelper as Ke, createPaginatedRowModel as qe, createSortedRowModel as Je, credentialDone as Ye, dZ as Xe, dropSources as Ze, du as Qe, enterPageSelection as $e, errorHeadline as et, errorMessage as W, exitPageSelection as tt, feedIntervalText as nt, fetchCheckJob as rt, fetchCredentials as it, fetchFeeds as at, fetchFollow as ot, fetchResolveJob as st, fetchSuggestions as G, flexRender as ct, followFeedPages as lt, followListSurfaceSkeleton as ut, groupByAuthor as dt, isBroken as ft, isLayout as K, jobText as pt, joinList as q, keepSelected as mt, l7 as ht, localTime as gt, lookupFeedActor as _t, mapLimit as vt, markAllPending as yt, pageSizeOf as bt, pageWindow as xt, patchSource as St, queryClient as Ct, quoted as wt, reloadFollowManage as J, removeAlias as Tt, removeFeed as Et, removeSource as Dt, renameAliasGroup as Ot, require_jsx_runtime as kt, require_react as At, resolveFollowSort as jt, rowPaginationFeature as Mt, rowSelectionFeature as Nt, rowSelectionOperation as Pt, rowSortingFeature as Ft, runBulkAction as It, selectionState as Lt, serverLabel as Rt, setFeedEnabled as zt, setSourceEnabled as Bt, skeletonHtml as Vt, sortLabel as Ht, startCheck as Ut, startResolve as Wt, statusText as Gt, suggestFeedActors as Kt, t as Y, tableFeatures as qt, tableRows as Jt, th as Yt, toggleGroup as Xt, unmarkItems as Zt, useAction as Qt, useBackgroundJob as $t, useMutation as en, usePageSelection as tn, useQuery as nn, useRectangleSelection as rn, useRememberedPageSize as an, useRememberedPagination as on, useRowWorkContext as sn, useTable as cn, useTableFilters as ln, useTablePreferences as un, useTableSelection as dn, useWorkContextMenu as fn, utcDate as pn } from "./peach-app.js";
+import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $76d00c5a4edb230a$export$76ccd210b9029917 as t, $76d00c5a4edb230a$export$816b5d811295e6bc as n, $76d00c5a4edb230a$export$b59bdbef9ce70de2 as r, $76d00c5a4edb230a$export$f6f0c3fe4ec306ea as i, $76d00c5a4edb230a$export$f850895b287ef28e as a, $ea3928288112382f$export$439d29a4e110a164 as o, $l as s, Button as c, ButtonLink as l, Bx as u, COLUMN_SORT as d, Checkbox as f, ChevronSortDown as p, Chip as m, CollapseChevron as h, CollapseRegion as g, ColumnFilterAvatar as _, ColumnFilterChips as v, Ct as y, DataTableFooter as b, DataTableFrame as x, DataTableSort as S, EmptyFocusButton as C, EmptyState as ee, ErrorText as w, ExternalLink as T, FEEDS_KEY as te, FOLLOW_CHECK_KEY as ne, FOLLOW_CHECK_TASK as re, FOLLOW_CREDENTIALS_KEY$1 as E, FOLLOW_MANAGE_KEY as ie, FOLLOW_MANAGE_NAV as ae, FOLLOW_RESOLVE_KEY as oe, FieldLabel as D, FollowSearch as O, Gg as k, H7 as A, Help as j, IndexSearch as M, Input as N, LAYOUTS as se, LEGACY_AVATAR_IMG as ce, LinkButton as P, M6 as le, ModalFrame as F, Note as I, OV as ue, P7 as L, SORT_DEFAULT_DIR as R, SORT_OPTIONS as de, STAT_STRIP_SIX as fe, Select as pe, SelectItem as me, SelectionDock as he, SelectionPopover as ge, SiteIcon as z, SiteLabel as _e, SortDirectionIcon as B, SortableBoardTabs as ve, Switch as ye, Table as be, TableColumnControls as xe, TableColumnResizer as Se, TableSelectionHeader as Ce, TaskProgress as we, Un as Te, Wt as V, Xf as Ee, __toESM as H, activityKind as De, addAlias as Oe, addSource as ke, apiGet as Ae, authorGroups as je, authorName as Me, avatarInner as Ne, busyProps as U, cardClass as Pe, checkEvidenceGap as Fe, checkFailures as Ie, checkFeeds as Le, checkReceipt as Re, checkSummary as ze, checkedText as Be, clickedBlank as Ve, codedText as He, columnOrderingFeature as Ue, columnVisibilityFeature as We, confirmModal as Ge, createColumnHelper as Ke, createPaginatedRowModel as qe, createSortedRowModel as Je, credentialDone as Ye, dZ as Xe, dropSources as Ze, du as Qe, enterPageSelection as $e, errorHeadline as et, errorMessage as W, exitPageSelection as tt, feedIntervalText as nt, fetchCheckJob as rt, fetchCredentials as it, fetchFeeds as at, fetchFollow as ot, fetchResolveJob as st, fetchSuggestions as G, flexRender as ct, followFeedPages as lt, followListSurfaceSkeleton as ut, groupByAuthor as dt, isBroken as ft, isLayout as K, jobText as pt, joinList as q, keepSelected as mt, l7 as ht, localTime as gt, lookupFeedActor as _t, mapLimit as vt, markAllPending as yt, pageSizeOf as bt, pageWindow as xt, patchSource as St, queryClient as Ct, quoted as wt, reloadFollowManage as J, removeAlias as Tt, removeFeed as Et, removeSource as Dt, renameAliasGroup as Ot, require_jsx_runtime as kt, require_react as At, resolveFollowSort as jt, rowPaginationFeature as Mt, rowSelectionFeature as Nt, rowSelectionOperation as Pt, rowSortingFeature as Ft, runBulkAction as It, selectionState as Lt, serverLabel as Rt, setFeedEnabled as zt, setSourceEnabled as Bt, skeletonHtml as Vt, sortLabel as Ht, startCheck as Ut, startResolve as Wt, statusText as Gt, suggestFeedActors as Kt, t as Y, tableFeatures as qt, tableRows as Jt, th as Yt, toggleGroup as Xt, unmarkItems as Zt, useAction as Qt, useBackgroundJob as $t, useMutation as en, usePageSelection as tn, useQuery as nn, useRectangleSelection as rn, useRememberedPageSize as an, useRememberedPagination as on, useRowWorkContext as sn, useTable as cn, useTableFilters as ln, useTablePreferences as un, useTableSelection as dn, useWorkContextMenu as fn, utcDate as pn } from "./peach-app.js";
 import { Page as mn } from "./peach-app.page-QAncjzM1.js";
 import { AuthorAvatar as hn, ErrorLine as gn, FeedPageAlias as _n, SourceIcon as vn, SourceLink as yn, StatusBadge as bn } from "./peach-app.source-view-D-Xir163.js";
 // src/react/follow-manage/search-results.tsx
@@ -48,7 +48,7 @@ var X = /* @__PURE__ */ H(At(), 1), Z = kt(), xn = qt({ rowSelectionFeature: Nt 
 		header: () => Y("follow:searchResults.source"),
 		cell: ({ row: { original: e } }) => /* @__PURE__ */ (0, Z.jsxs)("span", {
 			className: "inline-flex items-center gap-1.5 whitespace-nowrap",
-			children: [e.provider === "javdb" || e.provider === "dmm" ? /* @__PURE__ */ (0, Z.jsx)(B, { site: e.provider }) : /* @__PURE__ */ (0, Z.jsx)(vn, { provider: e.provider }), e.providerLabel]
+			children: [e.provider === "javdb" || e.provider === "dmm" ? /* @__PURE__ */ (0, Z.jsx)(z, { site: e.provider }) : /* @__PURE__ */ (0, Z.jsx)(vn, { provider: e.provider }), e.providerLabel]
 		})
 	}),
 	Sn.display({
@@ -87,7 +87,7 @@ function wn({ label: e, items: o, onPick: s }) {
 			}
 		}
 	}), u = o.some((e) => e.selectable !== !1);
-	return /* @__PURE__ */ (0, Z.jsx)(ee, {
+	return /* @__PURE__ */ (0, Z.jsx)(x, {
 		follow: !0,
 		onRowClick: s ? (e) => l.getRow(e).toggleSelected() : void 0,
 		onRectangle: s && u ? (e, t) => l.setRowSelection({
@@ -136,7 +136,7 @@ function Nn({ credentials: e, hidden: t, onHidden: n }) {
 		shown: i,
 		count: r.length
 	});
-	return /* @__PURE__ */ (0, Z.jsx)(he, {
+	return /* @__PURE__ */ (0, Z.jsx)(ge, {
 		label: Y("follow:addCreatorSource.sourceFilter"),
 		triggerLabel: a,
 		leadingIcon: s,
@@ -208,7 +208,7 @@ function Pn({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
 				let n = e.failures?.[t.provider];
 				return /* @__PURE__ */ (0, Z.jsxs)("div", {
 					className: "flex flex-wrap items-center gap-2",
-					children: [/* @__PURE__ */ (0, Z.jsx)(j, { children: n ? u(t.provider, n) : He(t, "evidence") }), /* @__PURE__ */ (0, Z.jsx)(w, {
+					children: [/* @__PURE__ */ (0, Z.jsx)(j, { children: n ? u(t.provider, n) : He(t, "evidence") }), /* @__PURE__ */ (0, Z.jsx)(T, {
 						href: t.url,
 						children: Y("follow:shared.labeled", {
 							label: He(t, "label"),
@@ -225,7 +225,7 @@ function Pn({ row: e, at: t, hidden: n, unpicked: r, onPick: i }) {
 	});
 }
 function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
-	let [i, a] = (0, X.useState)(""), [o, s] = (0, X.useState)(""), [l, u] = (0, X.useState)(/* @__PURE__ */ new Set()), [d, f] = (0, X.useState)(/* @__PURE__ */ new Set()), [p, m] = (0, X.useState)(""), [h, g] = (0, X.useState)(0), { job: _, running: v, outcome: y, start: b, dismiss: ee } = $t({
+	let [i, a] = (0, X.useState)(""), [o, s] = (0, X.useState)(""), [l, u] = (0, X.useState)(/* @__PURE__ */ new Set()), [d, f] = (0, X.useState)(/* @__PURE__ */ new Set()), [p, m] = (0, X.useState)(""), [h, g] = (0, X.useState)(0), { job: _, running: v, outcome: y, start: b, dismiss: x } = $t({
 		queryKey: oe,
 		queryFn: ({ signal: e }) => st(e),
 		start: (e) => Wt([e]),
@@ -234,12 +234,12 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 		onFinish: (e) => {
 			e.status === "failed" && m(pt(e, "error") || Y("follow:addCreatorSource.searchFailed"));
 		}
-	}), x = (e) => {
+	}), S = (e) => {
 		n || v || b.isPending || (m(""), s(e), a(e), b.mutate(e));
-	}, S = y?.results || [], te = S.flatMap((e, t) => (e.candidates || []).filter((e) => !e.known && !l.has(e.provider)).map((e) => ({
+	}, C = y?.results || [], ee = C.flatMap((e, t) => (e.candidates || []).filter((e) => !e.known && !l.has(e.provider)).map((e) => ({
 		candidate: e,
 		key: jn(t, e)
-	})).filter((e) => !d.has(e.key))), C = en({
+	})).filter((e) => !d.has(e.key))), w = en({
 		mutationFn: async (e) => {
 			let t = [], n = [];
 			g(0);
@@ -266,10 +266,10 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 			};
 		},
 		onSuccess: (e) => {
-			J(), e.failures.length ? m(q(e.failures)) : (m(""), ee(), r(Y("follow:addCreatorSource.sourcesAdded", { count: e.sources.length })));
+			J(), e.failures.length ? m(q(e.failures)) : (m(""), x(), r(Y("follow:addCreatorSource.sourcesAdded", { count: e.sources.length })));
 		},
 		onError: (e) => m(W(e))
-	}), w = e.suggestions || [], ne = !o.includes("/");
+	}), T = e.suggestions || [], te = !o.includes("/");
 	return /* @__PURE__ */ (0, Z.jsxs)("section", {
 		"aria-label": En,
 		className: Pe({
@@ -287,7 +287,7 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 				suggestionsLabel: Y("follow:addCreatorSource.suggestions"),
 				value: i,
 				setValue: a,
-				search: x,
+				search: S,
 				kind: "creator",
 				suggest: Mn,
 				readOnly: n,
@@ -307,7 +307,7 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 					label: pt(_) || (_?.total ? Y("follow:addCreatorSource.searchProgress", {
 						checked: _.checked || 0,
 						count: _.total
-					}) : ne ? Dn : On),
+					}) : te ? Dn : On),
 					value: _?.checked,
 					total: _?.total
 				}) : null, p ? /* @__PURE__ */ (0, Z.jsx)(I, {
@@ -316,11 +316,11 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 					children: p
 				}) : null]
 			}),
-			S.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
+			C.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-col gap-3",
 				children: [
 					/* @__PURE__ */ (0, Z.jsx)(D, { children: Y("follow:addCreatorSource.results") }),
-					S.map((e, t) => /* @__PURE__ */ (0, Z.jsx)(Pn, {
+					C.map((e, t) => /* @__PURE__ */ (0, Z.jsx)(Pn, {
 						row: e,
 						at: t,
 						hidden: l,
@@ -336,35 +336,35 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 							/* @__PURE__ */ (0, Z.jsx)(c, {
 								variant: "secondary",
 								size: "small",
-								onClick: () => ee(),
+								onClick: () => x(),
 								children: Y("follow:shared.close")
 							}),
 							/* @__PURE__ */ (0, Z.jsx)(c, {
 								variant: "primary",
 								size: "small",
-								disabled: n || !te.length,
-								...U(C.isPending),
-								onClick: () => C.mutate(te),
-								children: Y("follow:addCreatorSource.addSelected", { count: te.length })
+								disabled: n || !ee.length,
+								...U(w.isPending),
+								onClick: () => w.mutate(ee),
+								children: Y("follow:addCreatorSource.addSelected", { count: ee.length })
 							}),
-							C.isPending ? /* @__PURE__ */ (0, Z.jsx)("span", {
+							w.isPending ? /* @__PURE__ */ (0, Z.jsx)("span", {
 								role: "status",
 								className: "text-body-2-regular text-text-secondary",
 								children: Y("follow:addCreatorSource.addingProgress", {
 									added: h,
-									count: te.length
+									count: ee.length
 								})
 							}) : null
 						]
 					})
 				]
 			}) : null,
-			w.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
+			T.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-wrap items-center gap-2",
 				children: [/* @__PURE__ */ (0, Z.jsx)("span", {
 					className: "text-body-2-regular text-text-secondary",
 					children: Y("follow:addCreatorSource.suggested")
-				}), w.map((e) => /* @__PURE__ */ (0, Z.jsx)(c, {
+				}), T.map((e) => /* @__PURE__ */ (0, Z.jsx)(c, {
 					variant: "secondary",
 					size: "small",
 					disabled: n,
@@ -372,7 +372,7 @@ function Fn({ data: e, credentials: t, readOnly: n, toast: r }) {
 						count: e.visits,
 						origin: e.origin
 					}) : Y("follow:addCreatorSource.historyVisits", { count: e.visits }),
-					onClick: () => x(e.name),
+					onClick: () => S(e.name),
 					children: e.name
 				}, e.name))]
 			}) : null
@@ -756,13 +756,13 @@ function tr({ sources: e, name: t, canonicalKey: n }) {
 	});
 }
 function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u }) {
-	let d = un("alias-suggestions", Zn), m = un("alias-saved", Qn), [h, g] = (0, X.useState)(null), [_, v] = (0, X.useState)({}), [w, ne] = (0, X.useState)({}), re = tn(() => {
-		v({}), ne({});
+	let d = un("alias-suggestions", Zn), m = un("alias-saved", Qn), [h, g] = (0, X.useState)(null), [_, v] = (0, X.useState)({}), [T, te] = (0, X.useState)({}), ne = tn(() => {
+		v({}), te({});
 	});
 	(0, X.useEffect)(() => {
-		(Object.values(_).some(Boolean) || Object.values(w).some(Boolean)) && $e();
-	}, [_, w]);
-	let ie = dn(() => v({})), T = dn(() => ne({})), [E, ae] = (0, X.useState)([]), [oe, O] = (0, X.useState)([]), [k, A] = on("alias-suggestions"), [j, M] = on("alias-saved"), se = (0, X.useRef)(null), ce = (0, X.useRef)(null), P = ln(o, {
+		(Object.values(_).some(Boolean) || Object.values(T).some(Boolean)) && $e();
+	}, [_, T]);
+	let re = dn(() => v({})), E = dn(() => te({})), [ie, ae] = (0, X.useState)([]), [oe, O] = (0, X.useState)([]), [k, A] = on("alias-suggestions"), [j, M] = on("alias-saved"), se = (0, X.useRef)(null), ce = (0, X.useRef)(null), P = ln(o, {
 		canonical: {
 			values: (e) => e.canonical,
 			option: (e) => ({ leading: () => /* @__PURE__ */ (0, Z.jsx)(hn, {
@@ -809,7 +809,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 	}, ue = {
 		...j,
 		pageIndex: Math.min(j.pageIndex, Math.max(0, Math.ceil(F.items.length / j.pageSize) - 1))
-	}, [R, de] = (0, X.useState)(""), [z, fe] = (0, X.useState)(""), [pe, he] = (0, X.useState)(""), B = en({
+	}, [R, de] = (0, X.useState)(""), [fe, pe] = (0, X.useState)(""), [me, ge] = (0, X.useState)(""), z = en({
 		mutationFn: async (e) => {
 			let t = 0;
 			for (let n of e) {
@@ -832,13 +832,13 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 			de(""), v({}), J();
 		},
 		onError: (e) => de(W(e))
-	}), ge = en({
+	}), _e = en({
 		mutationFn: (e) => Oe(e.canonical, e.alias),
 		onSuccess: () => {
-			de(""), fe(""), he(""), J(), u(Y("follow:creatorAliases.saved"));
+			de(""), pe(""), ge(""), J(), u(Y("follow:creatorAliases.saved"));
 		},
 		onError: (e) => de(W(e))
-	}), _e = en({
+	}), B = en({
 		mutationFn: async (e) => {
 			let t = typeof e == "string" ? [e] : e, n = 0;
 			try {
@@ -854,7 +854,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 			}
 		},
 		onSuccess: (e, t) => {
-			de(""), ne({}), typeof t == "string" && u(Y("follow:creatorAliases.removed"));
+			de(""), te({}), typeof t == "string" && u(Y("follow:creatorAliases.removed"));
 		},
 		onError: (e) => de(W(e))
 	}), ve = {
@@ -876,7 +876,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 			confirmLabel: Y(e ? "follow:creatorAliases.mergeAllConfirm" : "follow:creatorAliases.mergeSelectedConfirm")
 		}),
 		run: async (e) => {
-			let { done: t } = await B.mutateAsync([...e]);
+			let { done: t } = await z.mutateAsync([...e]);
 			return async () => {
 				for (let n of e.slice(0, t)) await Tt(n.alias);
 				await J();
@@ -895,7 +895,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 			items: e.map((e) => e.name),
 			confirmLabel: Y("follow:creatorAliases.removeSelectedConfirm")
 		}),
-		run: async (e) => (await _e.mutateAsync(e.map((e) => e.name)), async () => {
+		run: async (e) => (await B.mutateAsync(e.map((e) => e.name)), async () => {
 			for (let t of e) await Oe(t.canonical, t.name);
 			await J();
 		}),
@@ -904,12 +904,12 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 		title: Y("follow:creatorAliases.removeTitle"),
 		body: Kn(e),
 		confirmLabel: Y("follow:creatorAliases.removeTitle"),
-		onConfirm: () => _e.mutateAsync(e)
+		onConfirm: () => B.mutateAsync(e)
 	}), H = (0, X.useRef)({
 		sources: s,
 		readOnly: l,
-		merging: B.isPending,
-		removing: _e.isPending,
+		merging: z.isPending,
+		removing: B.isPending,
 		merge: we,
 		remove: V,
 		rename: g
@@ -917,8 +917,8 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 	H.current = {
 		sources: s,
 		readOnly: l,
-		merging: B.isPending,
-		removing: _e.isPending,
+		merging: z.isPending,
+		removing: B.isPending,
 		merge: we,
 		remove: V,
 		rename: g
@@ -1039,14 +1039,14 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 		getRowId: $n,
 		state: {
 			rowSelection: _,
-			sorting: E,
+			sorting: ie,
 			pagination: I,
 			columnOrder: d.columnOrder,
 			columnVisibility: d.visibility
 		},
 		onColumnVisibilityChange: d.change,
 		onRowSelectionChange: (e) => {
-			ie(), v(e);
+			re(), v(e);
 		},
 		onSortingChange: (e) => {
 			ae(e), A((e) => ({
@@ -1062,7 +1062,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 		columns: ke,
 		getRowId: (e) => e.canonical_key,
 		state: {
-			rowSelection: w,
+			rowSelection: T,
 			sorting: oe,
 			pagination: ue,
 			columnOrder: m.columnOrder,
@@ -1070,7 +1070,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 		},
 		onColumnVisibilityChange: m.change,
 		onRowSelectionChange: (e) => {
-			T(), ne(e);
+			E(), te(e);
 		},
 		enableRowSelection: !0,
 		onSortingChange: (e) => {
@@ -1080,7 +1080,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 			}));
 		},
 		onPaginationChange: M
-	}), Me = o.filter((e) => _[$n(e)]), Ne = e.filter((e) => w[e.canonical_key]).flatMap((e) => e.aliases.map((t) => ({
+	}), Me = o.filter((e) => _[$n(e)]), Ne = e.filter((e) => T[e.canonical_key]).flatMap((e) => e.aliases.map((t) => ({
 		name: t.name,
 		canonical: e.canonical_name
 	}))), Fe = sn((e) => o.find((t) => $n(t) === e), (e) => {
@@ -1089,7 +1089,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 			id: "merge",
 			label: Y("follow:shared.merge"),
 			icon: Yt,
-			disabled: l || B.isPending,
+			disabled: l || z.isPending,
 			run: () => we([e], !1)
 		}];
 	}), Ie = sn((t) => e.find((e) => e.canonical_key === t), (e) => {
@@ -1111,13 +1111,13 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 				label: Y("follow:creatorAliases.removeRowAliases", { count: n.length }),
 				icon: le,
 				danger: !0,
-				disabled: l || _e.isPending || !n.length,
+				disabled: l || B.isPending || !n.length,
 				run: async () => {
 					await It(Te, n, ve);
 				}
 			}
 		];
-	}), Le = U(B.isPending);
+	}), Le = U(z.isPending);
 	return /* @__PURE__ */ (0, Z.jsxs)("div", {
 		className: Pe({
 			padding: "none",
@@ -1136,33 +1136,33 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 						/* @__PURE__ */ (0, Z.jsx)(N, {
 							"aria-label": Y("follow:creatorAliases.displayName"),
 							placeholder: Y("follow:creatorAliases.displayNamePlaceholder"),
-							value: z,
-							onChange: fe,
+							value: fe,
+							onChange: pe,
 							isDisabled: l,
 							className: "w-56"
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(N, {
 							"aria-label": Y("follow:creatorAliases.platformAlias"),
 							placeholder: Y("follow:creatorAliases.platformAlias"),
-							value: pe,
-							onChange: he,
+							value: me,
+							onChange: ge,
 							isDisabled: l,
 							className: "w-56"
 						}),
 						/* @__PURE__ */ (0, Z.jsx)(c, {
 							variant: "primary",
-							disabled: l || !z.trim() || !pe.trim(),
-							...U(ge.isPending),
-							onClick: () => ge.mutate({
-								canonical: z.trim(),
-								alias: pe.trim()
+							disabled: l || !fe.trim() || !me.trim(),
+							...U(_e.isPending),
+							onClick: () => _e.mutate({
+								canonical: fe.trim(),
+								alias: me.trim()
 							}),
 							children: Y("follow:creatorAliases.saveAlias")
 						})
 					]
 				})]
 			}),
-			R ? /* @__PURE__ */ (0, Z.jsx)(C, { children: R }) : null,
+			R ? /* @__PURE__ */ (0, Z.jsx)(w, { children: R }) : null,
 			o.length ? /* @__PURE__ */ (0, Z.jsxs)("div", {
 				className: "flex flex-col gap-2",
 				onKeyDown: Fe.onKeyDown,
@@ -1187,9 +1187,9 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 									onClick: () => we(P.items, !0),
 									children: Y("follow:creatorAliases.mergeAllCount", { count: P.items.length })
 								}),
-								/* @__PURE__ */ (0, Z.jsx)(x, {
+								/* @__PURE__ */ (0, Z.jsx)(S, {
 									label: Y("follow:creatorAliases.pendingTable"),
-									sorting: E,
+									sorting: ie,
 									options: [
 										{
 											id: "canonical",
@@ -1218,7 +1218,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							]
 						})]
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(me, {
+					/* @__PURE__ */ (0, Z.jsx)(he, {
 						label: Y("follow:creatorAliases.pendingBulkActions"),
 						visible: Me.length > 0,
 						count: Y("follow:creatorAliases.groupsSelected", { count: Me.length }),
@@ -1226,7 +1226,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							action: ye(!1, Me.length),
 							items: Me,
 							host: ve,
-							disabled: l || B.isPending
+							disabled: l || z.isPending
 						}],
 						children: /* @__PURE__ */ (0, Z.jsx)(c, {
 							variant: "ghost",
@@ -1235,22 +1235,22 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							children: Y("follow:shared.clearSelection")
 						})
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(ee, {
+					/* @__PURE__ */ (0, Z.jsx)(x, {
 						ref: se,
 						follow: !0,
 						preferences: d,
 						onRowClick: (e) => Ae.getRow(e)?.toggleSelected(),
-						rectangleSelecting: re,
-						onRectangle: B.isPending ? void 0 : (e, t) => Ae.setRowSelection({
+						rectangleSelecting: ne,
+						onRectangle: z.isPending ? void 0 : (e, t) => Ae.setRowSelection({
 							...t ? _ : {},
 							...Object.fromEntries(e.map((e) => [e, !0]))
 						}),
 						children: /* @__PURE__ */ (0, Z.jsxs)(be, {
 							"aria-label": Y("follow:creatorAliases.pendingTable"),
 							size: "sm",
-							sortDescriptor: E[0] ? {
-								column: E[0].id,
-								direction: E[0].desc ? "descending" : "ascending"
+							sortDescriptor: ie[0] ? {
+								column: ie[0].id,
+								direction: ie[0].desc ? "descending" : "ascending"
 							} : void 0,
 							onSortChange: (e) => Ae.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
 							children: [/* @__PURE__ */ (0, Z.jsxs)(a, { children: [Ae.getHeaderGroups()[0].headers.map((e) => /* @__PURE__ */ (0, Z.jsx)(n, {
@@ -1312,7 +1312,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							})]
 						}), /* @__PURE__ */ (0, Z.jsxs)("div", {
 							"data-toolbar-actions": "",
-							children: [/* @__PURE__ */ (0, Z.jsx)(x, {
+							children: [/* @__PURE__ */ (0, Z.jsx)(S, {
 								label: Y("follow:creatorAliases.saved"),
 								sorting: oe,
 								options: [{
@@ -1334,7 +1334,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							})]
 						})]
 					}),
-					/* @__PURE__ */ (0, Z.jsx)(me, {
+					/* @__PURE__ */ (0, Z.jsx)(he, {
 						label: Y("follow:creatorAliases.savedBulkActions"),
 						visible: Ne.length > 0,
 						count: Y("follow:creatorAliases.aliasesSelected", { count: Ne.length }),
@@ -1345,7 +1345,7 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							},
 							items: Ne,
 							host: ve,
-							disabled: l || _e.isPending
+							disabled: l || B.isPending
 						}],
 						children: /* @__PURE__ */ (0, Z.jsx)(c, {
 							variant: "ghost",
@@ -1354,14 +1354,14 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 							children: Y("follow:shared.clearSelection")
 						})
 					}),
-					e.length ? /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [/* @__PURE__ */ (0, Z.jsx)(ee, {
+					e.length ? /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [/* @__PURE__ */ (0, Z.jsx)(x, {
 						ref: ce,
 						follow: !0,
 						preferences: m,
 						onRowClick: (e) => je.getRow(e)?.toggleSelected(),
-						rectangleSelecting: re,
-						onRectangle: _e.isPending ? void 0 : (e, t) => je.setRowSelection({
-							...t ? w : {},
+						rectangleSelecting: ne,
+						onRectangle: B.isPending ? void 0 : (e, t) => je.setRowSelection({
+							...t ? T : {},
 							...Object.fromEntries(e.map((e) => [e, !0]))
 						}),
 						children: /* @__PURE__ */ (0, Z.jsxs)(be, {
@@ -1412,11 +1412,11 @@ function nr({ groups: e, suggestions: o, sources: s = [], readOnly: l, toast: u 
 						pagination: ue,
 						onChange: M,
 						scrollTarget: ce
-					})] }) : /* @__PURE__ */ (0, Z.jsx)(te, {
+					})] }) : /* @__PURE__ */ (0, Z.jsx)(ee, {
 						size: "compact",
 						icon: Ee,
 						title: Y("follow:creatorAliases.emptyTitle"),
-						actions: l ? void 0 : /* @__PURE__ */ (0, Z.jsx)(S, {
+						actions: l ? void 0 : /* @__PURE__ */ (0, Z.jsx)(C, {
 							target: `input[aria-label="${Y("follow:creatorAliases.displayName")}"]`,
 							children: Y("follow:creatorAliases.addAlias")
 						}),
@@ -1460,7 +1460,7 @@ var rr = qt({
 	flex: e === "name",
 	required: e === "select" || e === "name"
 })), or = () => Ct.invalidateQueries({
-	queryKey: ne,
+	queryKey: te,
 	exact: !0
 }), Q = (e) => e.name || e.url, sr = (e) => e.kind.startsWith("javdb") ? "javdb" : e.kind.startsWith("dmm") ? "dmm" : cr(e.url);
 function cr(e) {
@@ -1521,9 +1521,9 @@ function pr(e, t) {
 }
 function mr({ readOnly: e, toast: o, selection: s }) {
 	let l = nn({
-		queryKey: ne,
+		queryKey: te,
 		queryFn: ({ signal: e }) => at(e)
-	}), u = Qt(), d = un("jav-feeds", ar), m = l.data, h = (0, X.useMemo)(() => m?.sources ?? [], [m]), [g, v] = (0, X.useState)(/* @__PURE__ */ new Set()), y = s?.ids ?? g, S = s?.onChange ?? v, [te, w] = (0, X.useState)(1), [re, ie] = an("jav-feeds"), [T, E] = (0, X.useState)([]), [ae, oe] = (0, X.useState)(""), D = (0, X.useMemo)(() => {
+	}), u = Qt(), d = un("jav-feeds", ar), m = l.data, h = (0, X.useMemo)(() => m?.sources ?? [], [m]), [g, v] = (0, X.useState)(/* @__PURE__ */ new Set()), y = s?.ids ?? g, C = s?.onChange ?? v, [ee, T] = (0, X.useState)(1), [ne, re] = an("jav-feeds"), [E, ie] = (0, X.useState)([]), [ae, oe] = (0, X.useState)(""), D = (0, X.useMemo)(() => {
 		let e = ae.toLocaleLowerCase();
 		return e ? h.filter((t) => [
 			Q(t),
@@ -1543,11 +1543,11 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 		},
 		kind: {
 			values: (e) => He(e, "kind_label"),
-			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(B, { site: sr(t) }) })
+			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(z, { site: sr(t) }) })
 		},
 		origin: {
 			values: (e) => cr(e.url),
-			option: (e, t) => ({ leading: /* @__PURE__ */ (0, Z.jsx)(B, { site: t ? sr(t) : e }) })
+			option: (e, t) => ({ leading: /* @__PURE__ */ (0, Z.jsx)(z, { site: t ? sr(t) : e }) })
 		},
 		status: { values: (e) => e.enabled ? e.last_error ? Y("follow:feedSources.fetchFailed") : e.last_fetched_at ? Y("follow:shared.ok") : Y("follow:feedSources.notChecked") : Y("follow:shared.paused") },
 		interval: { values: (e) => nt(e.interval_minutes) },
@@ -1559,15 +1559,15 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 			range: "count",
 			value: (e) => e.last_new_count
 		}
-	}, () => w(1)), j = xt(O.items.length, re, te);
+	}, () => T(1)), j = xt(O.items.length, ne, ee);
 	(0, X.useEffect)(() => {
-		w((e) => Math.min(e, j.pages));
+		T((e) => Math.min(e, j.pages));
 	}, [j.pages]), (0, X.useEffect)(() => {
-		S((e) => {
+		C((e) => {
 			let t = new Set(h.map((e) => e.id)), n = new Set([...e].filter((e) => t.has(e)));
 			return n.size === e.size ? e : n;
 		});
-	}, [h, S]);
+	}, [h, C]);
 	let N = en({
 		mutationFn: async (e) => {
 			let t = await vt(e.ids, 4, async (t) => {
@@ -1580,7 +1580,7 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 		},
 		onSuccess: (e) => {
 			let t = e.results.filter((e) => !e.ok);
-			if (S(/* @__PURE__ */ new Set()), or(), t.length) {
+			if (C(/* @__PURE__ */ new Set()), or(), t.length) {
 				let e = t[0];
 				u.setError(Y("follow:feedSources.writeFailed", {
 					count: t.length,
@@ -1696,7 +1696,7 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 					rel: "noopener noreferrer",
 					title: Y("follow:followDetail.viewOnSite"),
 					className: "max-w-full text-text-primary underline-offset-2 hover:underline",
-					children: [/* @__PURE__ */ (0, Z.jsx)(ge, {
+					children: [/* @__PURE__ */ (0, Z.jsx)(_e, {
 						site: sr(e.row.original),
 						label: cr(e.getValue())
 					}), /* @__PURE__ */ (0, Z.jsx)(V, {
@@ -1769,41 +1769,41 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 				})
 			})
 		]);
-	}, []), z = (0, X.useMemo)(() => Object.fromEntries([...y].map((e) => [String(e), !0])), [y]), fe = cn({
+	}, []), fe = (0, X.useMemo)(() => Object.fromEntries([...y].map((e) => [String(e), !0])), [y]), pe = cn({
 		features: rr,
 		data: O.items,
 		columns: de,
 		getRowId: (e) => String(e.id),
 		state: {
-			rowSelection: z,
-			sorting: T,
+			rowSelection: fe,
+			sorting: E,
 			pagination: {
 				pageIndex: j.page - 1,
-				pageSize: re
+				pageSize: ne
 			},
 			columnOrder: d.columnOrder,
 			columnVisibility: d.visibility
 		},
 		onColumnVisibilityChange: d.change,
 		onSortingChange: (e) => {
-			E(e), w(1);
+			ie(e), T(1);
 		},
 		enableRowSelection: !0,
 		onRowSelectionChange: (e) => {
-			let t = typeof e == "function" ? e(z) : e, n = new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e)));
-			n.size && s?.onActivate(), S(n);
+			let t = typeof e == "function" ? e(fe) : e, n = new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e)));
+			n.size && s?.onActivate(), C(n);
 		}
-	}), pe = () => void u.run("check", (e) => Le(e), () => void or()), he = (e) => {
-		s?.onActivate(), S((t) => {
+	}), me = () => void u.run("check", (e) => Le(e), () => void or()), ge = (e) => {
+		s?.onActivate(), C((t) => {
 			let n = new Set(t);
 			return n.has(e) ? n.delete(e) : n.add(e), n;
 		});
-	}, _e = h.filter((e) => y.has(e.id)), ve = h.filter((e) => e.last_error), we = sn((e) => h.find((t) => String(t.id) === e), (t) => {
+	}, B = h.filter((e) => y.has(e.id)), ve = h.filter((e) => e.last_error), we = sn((e) => h.find((t) => String(t.id) === e), (t) => {
 		let n = [{
 			id: "select",
 			label: Y(y.has(t.id) ? "follow:shared.clearSelection" : "follow:shared.selectNamed", { name: Q(t) }),
 			icon: A,
-			run: () => he(t.id)
+			run: () => ge(t.id)
 		}];
 		return t.url && n.unshift({
 			id: "open",
@@ -1864,11 +1864,11 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 								label: Y("follow:feedSources.search"),
 								value: ae,
 								onQuery: (e) => {
-									oe(e), w(1);
+									oe(e), T(1);
 								}
 							}),
 							/* @__PURE__ */ (0, Z.jsx)(c, {
-								onClick: pe,
+								onClick: me,
 								disabled: e,
 								...U(u.busy === "check"),
 								children: Y("follow:feedSources.fetchNow")
@@ -1877,11 +1877,11 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 								preferences: d,
 								label: Y("follow:feedSources.title")
 							}),
-							/* @__PURE__ */ (0, Z.jsx)(x, {
+							/* @__PURE__ */ (0, Z.jsx)(S, {
 								label: Y("follow:feedSources.title"),
-								sorting: T,
+								sorting: E,
 								onChange: (e) => {
-									E(e), w(1);
+									ie(e), T(1);
 								},
 								options: [
 									"name",
@@ -1916,19 +1916,19 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 							}, e.id))
 						}),
 						children: Y("follow:feedSources.failedBody")
-					}) : null, u.error ? /* @__PURE__ */ (0, Z.jsx)(C, { children: u.error }) : null]
+					}) : null, u.error ? /* @__PURE__ */ (0, Z.jsx)(w, { children: u.error }) : null]
 				}) : null,
-				/* @__PURE__ */ (0, Z.jsx)(me, {
-					visible: _e.length > 0,
+				/* @__PURE__ */ (0, Z.jsx)(he, {
+					visible: B.length > 0,
 					label: Y("follow:feedSources.bulkActions"),
-					count: Y("follow:feedSources.selectedCount", { count: _e.length }),
+					count: Y("follow:feedSources.selectedCount", { count: B.length }),
 					actions: [
 						ce(!0),
 						ce(!1),
 						P
 					].map((t) => ({
 						action: t,
-						items: _e,
+						items: B,
 						host: se,
 						disabled: e || N.isPending
 					})),
@@ -1939,25 +1939,25 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 						children: Y("follow:shared.clearSelection")
 					})
 				}),
-				h.length ? /* @__PURE__ */ (0, Z.jsx)(ee, {
+				h.length ? /* @__PURE__ */ (0, Z.jsx)(x, {
 					ref: L,
 					follow: !0,
 					preferences: d,
-					onRowClick: (e) => he(Number(e)),
+					onRowClick: (e) => ge(Number(e)),
 					rectangleSelecting: y.size > 0,
-					onRectangle: N.isPending ? void 0 : (e, t) => fe.setRowSelection({
-						...t ? z : {},
+					onRectangle: N.isPending ? void 0 : (e, t) => pe.setRowSelection({
+						...t ? fe : {},
 						...Object.fromEntries(e.map((e) => [e, !0]))
 					}),
 					children: /* @__PURE__ */ (0, Z.jsxs)(be, {
 						"aria-label": Y("follow:feedSources.title"),
 						size: "sm",
-						sortDescriptor: T[0] ? {
-							column: T[0].id,
-							direction: T[0].desc ? "descending" : "ascending"
+						sortDescriptor: E[0] ? {
+							column: E[0].id,
+							direction: E[0].desc ? "descending" : "ascending"
 						} : void 0,
-						onSortChange: (e) => fe.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
-						children: [/* @__PURE__ */ (0, Z.jsxs)(a, { children: [fe.getHeaderGroups()[0].headers.map((e) => {
+						onSortChange: (e) => pe.getColumn(String(e.column))?.toggleSorting(e.direction === "descending"),
+						children: [/* @__PURE__ */ (0, Z.jsxs)(a, { children: [pe.getHeaderGroups()[0].headers.map((e) => {
 							let t = ct(e.column.columnDef.header, e.getContext());
 							return /* @__PURE__ */ (0, Z.jsx)(n, {
 								id: e.id,
@@ -1984,7 +1984,7 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 							minWidth: 0
 						})] }), /* @__PURE__ */ (0, Z.jsx)(t, {
 							renderEmptyState: () => Y("shell:dataTable.empty"),
-							children: fe.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(r, {
+							children: pe.getRowModel().rows.map((e) => /* @__PURE__ */ (0, Z.jsxs)(r, {
 								id: e.id,
 								"data-follow-selected": e.getIsSelected() || void 0,
 								"data-work-context-row": e.id,
@@ -2000,11 +2000,11 @@ function mr({ readOnly: e, toast: o, selection: s }) {
 					unit: Y("follow:feedSources.unit"),
 					pagination: {
 						pageIndex: j.page - 1,
-						pageSize: re
+						pageSize: ne
 					},
 					scrollTarget: L,
 					onChange: (e) => {
-						ie(e.pageSize), w(e.pageIndex + 1);
+						re(e.pageSize), T(e.pageIndex + 1);
 					}
 				}) : null,
 				/* @__PURE__ */ (0, Z.jsx)("footer", {
@@ -2278,28 +2278,28 @@ function Tr({ group: e, name: t, open: n, selected: r, handlers: i, onOpen: a, o
 	});
 }
 function Er(e) {
-	let { data: o, sort: s, dir: l, page: m, layout: g, pageSize: _, selected: y, readOnly: x, onSort: S, onPage: C, onLayout: w, onPageSize: ne, onSelected: T, toast: E, openFollow: ae } = e, oe = (e, t) => T(/* @__PURE__ */ new Set([...t ? y : [], ...e.map(Number)])), D = rn(oe, {
+	let { data: o, sort: s, dir: l, page: m, layout: g, pageSize: _, selected: y, readOnly: S, onSort: C, onPage: w, onLayout: T, onPageSize: te, onSelected: E, toast: ie, openFollow: ae } = e, oe = (e, t) => E(/* @__PURE__ */ new Set([...t ? y : [], ...e.map(Number)])), D = rn(oe, {
 		selecting: e.selecting,
 		start: "[data-source-divider]"
-	}), O = o.sources, k = (0, X.useMemo)(() => o.author_aliases || [], [o.author_aliases]), A = o.counts || {}, [j, N] = (0, X.useState)(/* @__PURE__ */ new Set()), ce = (0, X.useRef)(null), [P, F] = vr(), [ue, L] = (0, X.useState)(""), z = (0, X.useMemo)(() => je(O, s, l, k), [
+	}), O = o.sources, k = (0, X.useMemo)(() => o.author_aliases || [], [o.author_aliases]), A = o.counts || {}, [j, N] = (0, X.useState)(/* @__PURE__ */ new Set()), ce = (0, X.useRef)(null), [P, F] = vr(), [ue, L] = (0, X.useState)(""), fe = (0, X.useMemo)(() => je(O, s, l, k), [
 		O,
 		s,
 		l,
 		k
-	]), he = (0, X.useMemo)(() => Jt(z, s, l, k), [
-		z,
+	]), ge = (0, X.useMemo)(() => Jt(fe, s, l, k), [
+		fe,
 		s,
 		l,
 		k
-	]), [B, ge] = (0, X.useState)(""), ve = (0, X.useMemo)(() => {
-		let e = B.toLocaleLowerCase();
-		return e ? he.filter((t) => [
+	]), [z, _e] = (0, X.useState)(""), ve = (0, X.useMemo)(() => {
+		let e = z.toLocaleLowerCase();
+		return e ? ge.filter((t) => [
 			t.author,
 			t.source.label,
 			t.source.provider_label,
 			t.source.url || ""
-		].join(" ").toLocaleLowerCase().includes(e)) : he;
-	}, [he, B]), V = ln(ve, {
+		].join(" ").toLocaleLowerCase().includes(e)) : ge;
+	}, [ge, z]), V = ln(ve, {
 		author: {
 			values: (e) => e.author,
 			option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, Z.jsx)(hn, {
@@ -2321,9 +2321,9 @@ function Er(e) {
 			range: xr,
 			value: (e) => e.source.last_checked_at ? pn(e.source.last_checked_at).getTime() / 1e3 : null
 		}
-	}, () => C(1)), Ee = (0, X.useMemo)(() => {
+	}, () => w(1)), Ee = (0, X.useMemo)(() => {
 		let e = new Set(V.items.map((e) => e.source.id));
-		return z.flatMap((t) => {
+		return fe.flatMap((t) => {
 			let n = t.filter((t) => e.has(t.id));
 			return n.length ? [{
 				key: String(t[0].author_key || t[0].id),
@@ -2334,22 +2334,22 @@ function Er(e) {
 	}, [
 		k,
 		V.items,
-		z
+		fe
 	]), { job: H, running: Oe, outcome: ke, start: Ae } = $t({
-		queryKey: re,
-		taskKey: ie,
+		queryKey: ne,
+		taskKey: re,
 		queryFn: ({ signal: e }) => rt(e),
 		start: (e) => Ut(e),
 		onError: (e) => L(W(e)),
 		onFinish: (e) => {
-			J(), E(e.status === "failed" ? pt(e, "error") || Y("follow:followCheck.checkFailed") : Re(e));
+			J(), ie(e.status === "failed" ? pt(e, "error") || Y("follow:followCheck.checkFailed") : Re(e));
 		}
 	}), Ne = (e) => {
 		Oe || Ae.isPending || (L(""), Ae.mutate(e));
-	}, Le = (e, t) => T(Xt(y, [e], t)), Ve = (e, t) => T(Xt(y, e, t)), Ue = en({
+	}, Le = (e, t) => E(Xt(y, [e], t)), Ve = (e, t) => E(Xt(y, e, t)), Ue = en({
 		mutationFn: (e) => Dt(e),
 		onSuccess: (e, t) => {
-			Ze([t]), T(Xt(y, [t], !1)), E(Y("follow:sourceList.unfollowed"));
+			Ze([t]), E(Xt(y, [t], !1)), ie(Y("follow:sourceList.unfollowed"));
 		},
 		onError: (e) => L(W(e))
 	}), We = en({
@@ -2379,7 +2379,7 @@ function Er(e) {
 		onSuccess: (e) => {
 			if (e.action === "remove") Ze(e.done);
 			else for (let t of e.done) St(t, { enabled: e.action === "enabled" });
-			T(Xt(y, e.done, !1));
+			E(Xt(y, e.done, !1));
 			let t = e.results.filter((e) => !e.ok);
 			t.length ? L(Y("follow:sourceList.bulkPartialFail", {
 				failed: t.length,
@@ -2399,7 +2399,7 @@ function Er(e) {
 		},
 		onError: (e) => L(W(e))
 	}), $e = {
-		receipt: E,
+		receipt: ie,
 		failure: (e) => L(W(e))
 	}, nt = (e) => ({
 		key: e ? "enable" : "pause",
@@ -2466,14 +2466,14 @@ function Er(e) {
 		toggle: ot,
 		remove: qe,
 		busy: !1,
-		readOnly: x
+		readOnly: S
 	});
 	st.current = {
 		check: Ne,
 		toggle: ot,
 		remove: qe,
 		busy: Oe || Ae.isPending,
-		readOnly: x
+		readOnly: S
 	};
 	let G = st.current, lt = sn((e) => O.find((t) => String(t.id) === e), (e) => Cr(e, y.has(e.id), (t) => Le(e.id, t), G)), ut = (0, X.useMemo)(() => {
 		let e = Ke(), t = (e) => () => yr[e] || e;
@@ -2595,18 +2595,18 @@ function Er(e) {
 			let t = (typeof e == "function" ? e(dt) : e)[0];
 			if (!t) return;
 			let n = d[t.id];
-			n && S(n, t.desc ? "desc" : "asc");
+			n && C(n, t.desc ? "desc" : "asc");
 		},
 		onRowSelectionChange: (e) => {
 			let t = typeof e == "function" ? e(ft) : e;
-			T(new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e))));
+			E(new Set(Object.entries(t).filter(([, e]) => e).map(([e]) => Number(e))));
 		},
 		onPaginationChange: (e) => {
 			let t = {
 				pageIndex: mt.page - 1,
 				pageSize: _
 			}, n = typeof e == "function" ? e(t) : e;
-			n.pageSize === _ ? n.pageIndex !== t.pageIndex && C(n.pageIndex + 1) : ne(n.pageSize);
+			n.pageSize === _ ? n.pageIndex !== t.pageIndex && w(n.pageIndex + 1) : te(n.pageSize);
 		}
 	}), gt = ht.getRowModel().rows, _t = K ? gt.map((e) => e.original.source.id) : Ee.slice(mt.start, mt.end).flatMap(({ sources: e }) => e.map((e) => e.id)), bt = Lt(y, _t), Ct = [...y], wt = Ie(ke), Tt = O.filter((e) => e.enabled && (e.last_status === "error" || e.last_status === "unauthorized")).map((e) => e.id), Et = Fe(ke), Ot = Ee.length > 0 && Ee.every(({ key: e }) => j.has(e));
 	return /* @__PURE__ */ (0, Z.jsxs)("div", {
@@ -2640,14 +2640,14 @@ function Er(e) {
 					children: [
 						/* @__PURE__ */ (0, Z.jsx)(M, {
 							label: Y("follow:sourceList.search"),
-							value: B,
+							value: z,
 							onQuery: (e) => {
-								ge(e), C(1);
+								_e(e), w(1);
 							}
 						}),
 						Tt.length ? /* @__PURE__ */ (0, Z.jsx)(c, {
 							variant: "secondary",
-							disabled: x,
+							disabled: S,
 							...U(G.busy),
 							onClick: () => Ne(Tt),
 							children: Y("follow:sourceList.checkFailed")
@@ -2655,7 +2655,7 @@ function Er(e) {
 						/* @__PURE__ */ (0, Z.jsx)(c, {
 							variant: "primary",
 							leadingIcon: Xe,
-							disabled: x,
+							disabled: S,
 							"aria-label": Y("follow:sourceList.checkAll"),
 							iconOnly: F,
 							...U(G.busy),
@@ -2676,14 +2676,14 @@ function Er(e) {
 										leadingIcon: Te,
 										"aria-label": se[0][1],
 										"aria-pressed": !K,
-										onClick: () => w("default")
+										onClick: () => T("default")
 									}), /* @__PURE__ */ (0, Z.jsx)(c, {
 										variant: "ghost",
 										iconOnly: !0,
 										leadingIcon: Qe,
 										"aria-label": se[1][1],
 										"aria-pressed": K,
-										onClick: () => w("table")
+										onClick: () => T("table")
 									})]
 								}),
 								K ? /* @__PURE__ */ (0, Z.jsx)(xe, {
@@ -2692,26 +2692,26 @@ function Er(e) {
 								}) : null,
 								/* @__PURE__ */ (0, Z.jsxs)("span", {
 									className: "flex flex-none items-center gap-2",
-									children: [/* @__PURE__ */ (0, Z.jsx)(fe, {
+									children: [/* @__PURE__ */ (0, Z.jsx)(pe, {
 										"aria-label": Y("follow:sourceList.sortLabel"),
 										prefix: Y("follow:shared.sort"),
 										selectedKey: s,
 										onSelectionChange: (e) => {
 											if (e === null) return;
 											let t = String(e);
-											S(t, R[t]);
+											C(t, R[t]);
 										},
-										children: de.map(([e, t]) => /* @__PURE__ */ (0, Z.jsx)(pe, {
+										children: de.map(([e, t]) => /* @__PURE__ */ (0, Z.jsx)(me, {
 											id: e,
 											children: t
 										}, e))
 									}), /* @__PURE__ */ (0, Z.jsx)(c, {
 										variant: "secondary",
 										iconOnly: !0,
-										leadingIcon: _e,
+										leadingIcon: B,
 										"data-icon-state": l === "asc" ? "a" : "b",
 										"aria-label": Ht(s, l),
-										onClick: () => S(s, l === "asc" ? "desc" : "asc")
+										onClick: () => C(s, l === "asc" ? "desc" : "asc")
 									})]
 								}),
 								K ? null : /* @__PURE__ */ (0, Z.jsx)(c, {
@@ -2770,7 +2770,7 @@ function Er(e) {
 					}) : null
 				]
 			}),
-			/* @__PURE__ */ (0, Z.jsx)(me, {
+			/* @__PURE__ */ (0, Z.jsx)(he, {
 				label: Y("follow:sourceList.bulkActions"),
 				visible: Ct.length > 0,
 				count: Y("follow:sourceList.selectedCount", { count: Ct.length }),
@@ -2782,12 +2782,12 @@ function Er(e) {
 					action: e,
 					items: Ct,
 					host: $e,
-					disabled: x || Je.isPending
+					disabled: S || Je.isPending
 				})),
 				leading: /* @__PURE__ */ (0, Z.jsx)(c, {
 					variant: "secondary",
 					size: "small",
-					disabled: x,
+					disabled: S,
 					...U(G.busy),
 					onClick: () => Ne(Ct),
 					children: Y("follow:sourceList.checkSelected")
@@ -2799,7 +2799,7 @@ function Er(e) {
 					children: Y("follow:shared.clearSelection")
 				})
 			}),
-			K ? /* @__PURE__ */ (0, Z.jsx)(ee, {
+			K ? /* @__PURE__ */ (0, Z.jsx)(x, {
 				ref: ce,
 				follow: !0,
 				preferences: q,
@@ -2867,7 +2867,7 @@ function Er(e) {
 					"aria-label": Y("follow:sourceList.selectPage"),
 					children: Y("follow:sourceList.selectPageShort")
 				}) : null,
-				Ee.length ? null : /* @__PURE__ */ (0, Z.jsx)(te, {
+				Ee.length ? null : /* @__PURE__ */ (0, Z.jsx)(ee, {
 					icon: u,
 					title: Y("follow:sourceList.pageEmpty"),
 					children: null
@@ -2928,7 +2928,7 @@ function Er(e) {
 						return /* @__PURE__ */ (0, Z.jsx)(c, {
 							variant: "secondary",
 							size: "small",
-							disabled: x,
+							disabled: S,
 							...U(Ye.isPending),
 							onClick: () => void It(t, [Number(A.new) || 0], $e).catch($e.failure),
 							children: t.label
@@ -4419,39 +4419,39 @@ function fc(e) {
 	let [y, b] = X.useState({
 		id: 0,
 		key: g
-	}), [ee, x] = X.useState([]), S = X.useRef(/* @__PURE__ */ new Map()).current, te = X.useRef(_);
+	}), [x, S] = X.useState([]), C = X.useRef(/* @__PURE__ */ new Map()).current, ee = X.useRef(_);
 	if (tc(() => {
-		te.current = _;
+		ee.current = _;
 	}), y.key !== g) {
 		let e = {
 			id: y.id,
-			node: te.current
+			node: ee.current
 		};
-		x((t) => t.some((t) => t.id === e.id) ? t : [...t, e]), b({
+		S((t) => t.some((t) => t.id === e.id) ? t : [...t, e]), b({
 			id: y.id + 1,
 			key: g,
 			from: y.key
 		});
 	}
-	let C = X.useRef(e.onReveal);
+	let w = X.useRef(e.onReveal);
 	tc(() => {
-		C.current = e.onReveal;
+		w.current = e.onReveal;
 	});
-	let w = y.key === "content" && y.from === "skeleton" ? () => C.current?.() : void 0, ne = (e) => x((t) => t.filter((t) => t.id !== e)), re = [...ee.map((e) => (0, Z.jsx)(uc, {
+	let T = y.key === "content" && y.from === "skeleton" ? () => w.current?.() : void 0, te = (e) => S((t) => t.filter((t) => t.id !== e)), ne = [...x.map((e) => (0, Z.jsx)(uc, {
 		id: e.id,
-		registry: S,
+		registry: C,
 		enter: !1,
 		exiting: !0,
-		onExited: () => ne(e.id),
+		onExited: () => te(e.id),
 		children: e.node
 	}, e.id)), (0, Z.jsx)(uc, {
 		id: y.id,
-		registry: S,
+		registry: C,
 		enter: y.id > 0,
 		exiting: !1,
 		onExited: () => {},
 		memory: v,
-		onEntered: w,
+		onEntered: T,
 		children: _
 	}, y.id)];
 	return (0, Z.jsxs)("div", {
@@ -4460,9 +4460,9 @@ function fc(e) {
 		className: s,
 		style: c,
 		children: [(0, Z.jsx)(ic, {}), (0, Z.jsx)(dc, {
-			exiting: ee.map((e) => e.id),
-			registry: S,
-			children: re
+			exiting: x.map((e) => e.id),
+			registry: C,
+			children: ne
 		})]
 	});
 }
@@ -4534,27 +4534,27 @@ function vc({ field: e, figure: t, total: n, failed: r = !1 }) {
 // src/react/follow-manage/follow-manage-page.tsx
 var yc = (e) => ae.some(([t]) => t === e);
 function bc(e) {
-	let { route: t, savePreference: n, toast: r, openFollow: i, readOnly: a, readOnlyMessage: o, writerUrl: s } = e, [d, f] = (0, X.useState)(yc(e.tab) ? e.tab : "list"), [p, m] = (0, X.useState)(Math.max(1, Math.floor(e.page) || 1)), [h, g] = (0, X.useState)(() => jt(e.sort, e.dir).sort), [_, v] = (0, X.useState)(() => jt(e.sort, e.dir).dir), [y, b] = (0, X.useState)(K(e.layout) ? e.layout : "default"), [ee, x] = (0, X.useState)(bt(e.pageSize)), [S, C] = (0, X.useState)(/* @__PURE__ */ new Set()), [re, ie] = (0, X.useState)(/* @__PURE__ */ new Set()), oe = tn(() => {
-		C(/* @__PURE__ */ new Set()), ie(/* @__PURE__ */ new Set());
+	let { route: t, savePreference: n, toast: r, openFollow: i, readOnly: a, readOnlyMessage: o, writerUrl: s } = e, [d, f] = (0, X.useState)(yc(e.tab) ? e.tab : "list"), [p, m] = (0, X.useState)(Math.max(1, Math.floor(e.page) || 1)), [h, g] = (0, X.useState)(() => jt(e.sort, e.dir).sort), [_, v] = (0, X.useState)(() => jt(e.sort, e.dir).dir), [y, b] = (0, X.useState)(K(e.layout) ? e.layout : "default"), [x, S] = (0, X.useState)(bt(e.pageSize)), [C, w] = (0, X.useState)(/* @__PURE__ */ new Set()), [ne, re] = (0, X.useState)(/* @__PURE__ */ new Set()), oe = tn(() => {
+		w(/* @__PURE__ */ new Set()), re(/* @__PURE__ */ new Set());
 	});
 	(0, X.useEffect)(() => {
-		(S.size || re.size) && $e();
-	}, [S, re]);
+		(C.size || ne.size) && $e();
+	}, [C, ne]);
 	let D = nn({
-		queryKey: E,
+		queryKey: ie,
 		queryFn: ({ signal: e }) => ot(e)
 	}), O = nn({
-		queryKey: T,
+		queryKey: E,
 		queryFn: ({ signal: e }) => it(e)
 	}), k = nn({
-		queryKey: ne,
+		queryKey: te,
 		queryFn: ({ signal: e }) => at(e)
 	}), A = D.data || { sources: [] }, j = O.data || {
 		root: "",
 		providers: []
 	}, M = A.sources;
 	(0, X.useEffect)(() => {
-		C((e) => {
+		w((e) => {
 			let t = mt(e, M);
 			return t.size === e.size ? e : t;
 		});
@@ -4574,7 +4574,7 @@ function bc(e) {
 			title: Y("follow:followManagePage.readOnly"),
 			extra: s ? /* @__PURE__ */ (0, Z.jsx)("p", {
 				className: "text-body-2-regular",
-				children: /* @__PURE__ */ (0, Z.jsx)(w, {
+				children: /* @__PURE__ */ (0, Z.jsx)(T, {
 					href: s,
 					children: Y("follow:followManagePage.goToPrimary")
 				})
@@ -4582,7 +4582,7 @@ function bc(e) {
 			children: o
 		}) : null,
 		/* @__PURE__ */ (0, Z.jsxs)("div", {
-			className: z,
+			className: fe,
 			"aria-label": Y("follow:followManagePage.overview"),
 			children: [
 				/* @__PURE__ */ (0, Z.jsx)(vc, {
@@ -4636,7 +4636,7 @@ function bc(e) {
 						className: "",
 						itemClassName: "cursor-pointer whitespace-nowrap",
 						onChange: (e) => {
-							C(/* @__PURE__ */ new Set()), ie(/* @__PURE__ */ new Set()), f(e), N({ tab: e });
+							w(/* @__PURE__ */ new Set()), re(/* @__PURE__ */ new Set()), f(e), N({ tab: e });
 						}
 					})
 				}),
@@ -4646,7 +4646,7 @@ function bc(e) {
 					"aria-labelledby": "follow-tab-list",
 					className: "flex flex-col gap-4",
 					children: [
-						ue ? /* @__PURE__ */ (0, Z.jsx)(te, {
+						ue ? /* @__PURE__ */ (0, Z.jsx)(ee, {
 							icon: u,
 							title: Y("follow:sourceList.empty"),
 							actions: a ? void 0 : /* @__PURE__ */ (0, Z.jsx)(c, {
@@ -4663,9 +4663,9 @@ function bc(e) {
 							readOnly: a,
 							toast: r,
 							selection: {
-								ids: re,
-								onChange: ie,
-								onActivate: () => C(/* @__PURE__ */ new Set())
+								ids: ne,
+								onChange: re,
+								onActivate: () => w(/* @__PURE__ */ new Set())
 							}
 						}) : null,
 						D.data ? M.length > 0 && /* @__PURE__ */ (0, Z.jsx)(Er, {
@@ -4674,8 +4674,8 @@ function bc(e) {
 							dir: _,
 							page: p,
 							layout: y,
-							pageSize: ee,
-							selected: S,
+							pageSize: x,
+							selected: C,
 							selecting: oe,
 							readOnly: a,
 							toast: r,
@@ -4691,17 +4691,24 @@ function bc(e) {
 								m(e), N({ page: e });
 							},
 							onSelected: (e) => {
-								C(e), ie(/* @__PURE__ */ new Set());
+								w(e), re(/* @__PURE__ */ new Set());
 							},
 							onLayout: (e) => {
 								b(e), m(1), n({ layout: e }), N({ page: 1 });
 							},
 							onPageSize: (e) => {
-								x(e), m(1), n({ pageSize: e }), N({ page: 1 });
+								S(e), m(1), n({ pageSize: e }), N({ page: 1 });
 							}
 						}) : D.isError ? /* @__PURE__ */ (0, Z.jsx)(I, {
 							tone: "error",
-							children: Y("follow:followManagePage.listFailed")
+							title: Y("follow:followManagePage.listFailed"),
+							action: /* @__PURE__ */ (0, Z.jsx)(c, {
+								variant: "secondary",
+								size: "small",
+								onClick: () => void D.refetch(),
+								children: Y("catalog:shared.retryNow")
+							}),
+							children: W(D.error)
 						}) : /* @__PURE__ */ (0, Z.jsx)("div", {
 							role: "status",
 							"aria-label": Y("follow:followManagePage.listLoading"),
@@ -4713,7 +4720,7 @@ function bc(e) {
 									followLayout: y,
 									followSort: h,
 									followDir: _,
-									followPageSize: ee
+									followPageSize: x
 								}) }
 							})
 						})
@@ -4730,10 +4737,27 @@ function bc(e) {
 							credentials: j,
 							readOnly: a,
 							toast: r
-						}) : O.isError || D.isError ? /* @__PURE__ */ (0, Z.jsx)(I, {
+						}) : O.isError || D.isError ? /* @__PURE__ */ (0, Z.jsxs)(Z.Fragment, { children: [O.isError ? /* @__PURE__ */ (0, Z.jsx)(I, {
 							tone: "error",
-							children: Y("follow:followManagePage.credentialsFailed")
-						}) : /* @__PURE__ */ (0, Z.jsx)("div", {
+							title: Y("follow:followManagePage.credentialsFailed"),
+							action: /* @__PURE__ */ (0, Z.jsx)(c, {
+								variant: "secondary",
+								size: "small",
+								onClick: () => void O.refetch(),
+								children: Y("catalog:shared.retryNow")
+							}),
+							children: W(O.error)
+						}) : null, D.isError ? /* @__PURE__ */ (0, Z.jsx)(I, {
+							tone: "error",
+							title: Y("follow:followManagePage.listFailed"),
+							action: /* @__PURE__ */ (0, Z.jsx)(c, {
+								variant: "secondary",
+								size: "small",
+								onClick: () => void D.refetch(),
+								children: Y("catalog:shared.retryNow")
+							}),
+							children: W(D.error)
+						}) : null] }) : /* @__PURE__ */ (0, Z.jsx)("div", {
 							role: "status",
 							"aria-label": Y("follow:followManagePage.credentialsLoading"),
 							"data-skeleton": "",
@@ -4767,4 +4791,4 @@ function bc(e) {
 }
 export { bc as FollowManagePage };
 
-//# debugId=64a3c937-709a-4d3e-a2ec-861c965926dc
+//# debugId=38f78f87-d7cc-437a-b165-a4279f41f19c

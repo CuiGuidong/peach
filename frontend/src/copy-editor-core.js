@@ -36,7 +36,7 @@
     let result;
     try { result = JSON.parse(raw); }
     catch {
-      const error = new Error(`未取得保存结果（HTTP ${response.status}），请刷新页面核对；服务未返回 JSON`);
+      const error = new Error(`无法确认修改是否已保存（HTTP ${response.status}）。服务未返回 JSON，请刷新页面核对。`);
       error.unconfirmed = response.ok;
       throw error;
     }
@@ -44,7 +44,7 @@
       throw new Error(result?.error || (typeof result?.detail === 'string' ? result.detail : `请求失败（HTTP ${response.status}）`));
     }
     if (result === null || typeof result !== 'object') {
-      const error = new Error(`未取得保存结果（HTTP ${response.status}），请刷新页面核对`);
+      const error = new Error(`服务没有返回有效的保存结果（HTTP ${response.status}）。请刷新页面核对。`);
       error.unconfirmed = true;
       throw error;
     }

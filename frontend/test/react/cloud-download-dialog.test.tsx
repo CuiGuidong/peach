@@ -95,7 +95,7 @@ it('提交没成功时弹层不关，原因留在表单里', async () => {
   expect([close.mock.calls.length, receipt.mock.calls.length]).toEqual([0, 0]);
 });
 
-it('查找另一番号时清空先前的磁力和作品资料，资料未取得时提交不带其他作品的标题', async () => {
+it('查找另一番号时清空先前的磁力和作品资料，馆藏没有匹配资料时提交不带其他作品的标题', async () => {
   const posts: unknown[] = [];
   vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
     if (init?.method === 'POST') posts.push(JSON.parse(String(init.body)));
@@ -110,7 +110,7 @@ it('查找另一番号时清空先前的磁力和作品资料，资料未取得�
   await type(field(page, '按番号查找资源'), 'ABC-999');
   await act(async () => field(page, '按番号查找资源')!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })));
   await settle();
-  expect(page.querySelector('[data-resource-work]')?.textContent).toContain('作品资料未取得');
+  expect(page.querySelector('[data-resource-work]')?.textContent).toContain('馆藏中没有这部作品的资料');
   expect(page.querySelector('[data-resource-work]')?.textContent).not.toContain('原作品');
   expect(field(page, '磁力链接')?.value).toBe('');
   await type(field(page, '磁力链接'), MAGNET);

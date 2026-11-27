@@ -2373,7 +2373,7 @@ class FollowContractTests(unittest.TestCase):
         outcome = result["results"][0]
         self.assertTrue(outcome["ok"])
         self.assertEqual(outcome["added"], 1)
-        self.assertIn("证据未取得", outcome["evidence_error"])
+        self.assertIn("无法写入证据目录", outcome["evidence_error"])
         self.assertEqual(self._get()["sources"][0]["last_status"], "ok")
 
     def test_one_source_evidence_conflict_does_not_abort_the_other_sources(self):

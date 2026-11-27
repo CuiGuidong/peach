@@ -69,7 +69,7 @@ class ConfigurationIsolationTests(unittest.TestCase):
                 self.assertEqual(list(result["section_errors"]), [failed])
                 issue = result["section_errors"][failed]
                 self.assertEqual(len(issue["error_id"]), 32)
-                self.assertTrue(issue["title"].endswith("未取得"))
+                self.assertTrue(issue["title"].startswith("无法读取"))
                 self.assertEqual(issue["title"], interface_text.text(f"server:{issue['title_code']}", issue["title_params"]))
                 self.assertEqual(issue["title_params"]["section"], interface_text.text(f"server:{issue['section_code']}"))
                 self.assertEqual(issue["message"], interface_text.text(f"server:{issue['message_code']}"))
