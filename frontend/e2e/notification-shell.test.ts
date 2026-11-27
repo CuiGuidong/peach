@@ -51,13 +51,29 @@ describe('通知和任务卡的共用外框', () => {
         const launcher = await feedback.boundingBox();
         assert.ok(launcher);
         assert.ok(launcher.y - (box.y + box.height) >= 8, '任务卡要给反馈入口留出间距');
-        const feedbackOpacity = () => feedback.evaluate(button => getComputedStyle(button).opacity);
-        assert.equal(await feedbackOpacity(), '0.65');
+        const feedbackColors = async () => {
+          await feedback.evaluate(button => Promise.allSettled(button.getAnimations().map(animation => animation.finished)));
+          return feedback.evaluate(button => {
+            const { opacity, color, backgroundColor } = getComputedStyle(button);
+            const canvas = document.createElement('canvas');
+            const pixel = canvas.getContext('2d')!;
+            const alpha = (value: string) => {
+              pixel.clearRect(0, 0, 1, 1);
+              pixel.fillStyle = value;
+              pixel.fillRect(0, 0, 1, 1);
+              return pixel.getImageData(0, 0, 1, 1).data[3]!;
+            };
+            return { opacity, foreground: alpha(color), background: alpha(backgroundColor) };
+          });
+        };
+        const idle = await feedbackColors();
+        assert.equal(idle.opacity, '1');
+        assert.ok(0 < idle.background && idle.background < idle.foreground && idle.foreground < 255);
         if (!viewport.mobile) {
           await feedback.hover();
-          assert.equal(await feedbackOpacity(), '1');
+          assert.deepEqual(await feedbackColors(), { opacity: '1', foreground: 255, background: 255 });
           await page.mouse.move(0, 0);
-          assert.equal(await feedbackOpacity(), '0.65');
+          assert.deepEqual(await feedbackColors(), idle);
         }
         await feedback.click({ trial: true });
         const clip = { x: Math.max(0, viewport.width - 600), y: Math.max(0, top - 20),
