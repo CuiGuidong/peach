@@ -17,6 +17,7 @@ from .clouddrive_proxy import media_remote_path
 from .push_discovery import normalise_prefix
 from .follow_secrets import CredentialError
 from .error_reporting import local_event, redact
+from .user_messages import nested_message
 
 
 def root_key(value):
@@ -129,12 +130,13 @@ class LibraryChannels:
                                     channel_errors[key] = DownloadError(
                                         "config", "errors.downloadsClouddrive.offlineUnsupported", {"target": target})
                             except DownloadError as error:
-                                channel_errors[key] = _probe_failure(error, token)
+                                safe_error = _probe_failure(error, token)
+                                channel_errors[key] = safe_error
                                 local_event('download-channel-probe', error, operation='folder_capabilities',
                                             source=source, failure=error.failure)
                                 name = names.get(root_key(root)) or SOURCES[source].name
-                                problems.append(Problem("labels.downloadsChannels.libraryCapabilityUnavailable",
-                                                        {"name": name}))
+                                problems.append(Problem("labels.downloadsChannels.libraryCapabilityCheckFailed",
+                                                        {"name": name, "reason": nested_message(safe_error)}))
                         if upgrades:
                             try:
                                 self.service.upgrade_cloud_targets(config, upgrades)
@@ -142,10 +144,11 @@ class LibraryChannels:
                                 local_event('download-channel-probe', error, operation='upgrade_targets',
                                             source='clouddrive')
             except DownloadError as error:
-                channel_errors["clouddrive"] = _probe_failure(error, token)
+                safe_error = _probe_failure(error, token)
+                channel_errors["clouddrive"] = safe_error
                 local_event('download-channel-probe', error, operation=phase,
                             source='clouddrive', failure=error.failure)
-                problems.append(Problem("labels.downloadsChannels.clouddriveCapabilityUnavailable"))
+                problems.append(Problem.of(safe_error))
         qb = self._qbittorrent(config, problems)
         if qb is not None:
             rows.append(self._row(

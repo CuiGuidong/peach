@@ -281,8 +281,8 @@ it('资源采样中和未取得分别显示，原因优先说明，不把null填
   }) })] }));
   const metrics = host.querySelector('[data-task-resources="1"]')!;
   expect(metrics.querySelector('[data-task-resource="cpu"]')?.textContent).toBe('CPU 采样中');
-  expect(metrics.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU 未取得');
-  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('网络 未取得');
+  expect(metrics.querySelector('[data-task-resource="gpu"]')?.textContent).toBe('GPU 读数不可用');
+  expect(metrics.querySelector('[data-task-resource="network"]')?.textContent).toBe('网络 读数不可用');
   expect(metrics.textContent).not.toContain('0%');
   expect(metrics.textContent).not.toContain('0 B/s');
   expect(metrics.querySelector('[data-task-resource="network"]')?.getAttribute('title')).toMatch(/^挂载盘传输无法准确归属/);
@@ -813,7 +813,7 @@ it('处理任务的成功、失败与清理结果都可读', () => {
     .toEqual(['已修复 3', '失败 2', '缺少修复工具 1', '已整理文件 8', '已还原 4',
       '已删除记录 9', '缓存清理失败 2', '已释放空间 1 KB']);
   expect(summaryItems({ result: '高清封面已保存' })).toEqual(['高清封面已保存']);
-  expect(summaryItems({ incomplete: 1 })).toEqual(['资料或封面未取得 1']);
+  expect(summaryItems({ incomplete: 1 })).toEqual(['资料或封面待补齐 1']);
   for (const result_summary of [{ incomplete: 1 }, { source_failed: 2 }, { failed: 3 },
     { missing: 1 }, { cache_blocked_count: 1 }, { warning_count: 1 }]) {
     const task = run({ status: 'succeeded', trigger: 'scheduled', result_summary });

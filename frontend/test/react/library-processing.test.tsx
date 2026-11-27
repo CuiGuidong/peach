@@ -295,7 +295,7 @@ it('补齐女优资料的读数进回执，冲突和未取得各自点名', asyn
 
   expect(served.posts()).toEqual([{incremental:true}]);
   expect(host.querySelector('[role="status"]')?.textContent).toContain(
-    '补齐女优资料：别名 5 个，头像 3 张，1 项同名人物资料需要确认是否为同一人，2 张头像未取得。');
+    '补齐女优资料：别名 5 个，头像 3 张，1 项同名人物资料需要确认是否为同一人，2 张头像采集未成功。');
 });
 
 it('首屏读到的上一趟终态不冒充这一次的回执', async () => {

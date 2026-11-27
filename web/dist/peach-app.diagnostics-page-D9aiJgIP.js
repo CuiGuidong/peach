@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "1c98e59d-ffc4-4a41-9aec-49d29e3123ed", e._sentryDebugIdIdentifier = "sentry-dbid-1c98e59d-ffc4-4a41-9aec-49d29e3123ed");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b98f68cc-8a6d-4c40-8a2a-5251d9379625", e._sentryDebugIdIdentifier = "sentry-dbid-b98f68cc-8a6d-4c40-8a2a-5251d9379625");
 	} catch {}
 })();
 import { ApiError as e, BC as t, Button as n, ButtonLink as r, Chip as i, DIAGNOSTICS_KEY as a, DataTable as o, Disclosure as s, EmptyState as c, Fact as l, FactList as u, Fieldset as d, FieldsetTitle as f, Gg as p, Input as m, ItemLibrary as h, LOC as g, LinkButton as _, Note as v, Section as y, SectionToc as b, SettingsCard as x, SiteMark as S, Stack as C, TaskProgress as w, Xt as ee, Yt as te, __toESM as T, activityKind as E, apiGet as D, apiSend as O, busyProps as k, checkText$1 as A, codedText as j, configurationSection as M, cx as N, diagnosticHeaders as P, diagnosticsSkeleton as F, errorMessage as I, fetchDiagnostics as L, fmtDur as ne, fmtSize as re, interfaceLanguage as R, queryClient as z, require_jsx_runtime as ie, require_react as ae, settingsPath as oe, stageText as B, t as V, tl as se, useAction as H, useLibraryFilterOptions as ce, useLibraryTints as le, useQuery as U, useQueryClient as ue, withBackoff as de } from "./peach-app.js";
@@ -357,6 +357,7 @@ function X({ kind: t, codes: i = "", children: a }) {
 			}) : null,
 			s.isError ? /* @__PURE__ */ (0, K.jsx)(v, {
 				tone: "error",
+				title: V("manage:diagnosticsExport.progressNotFound"),
 				action: /* @__PURE__ */ (0, K.jsx)(n, {
 					type: "button",
 					variant: "secondary",
@@ -366,7 +367,7 @@ function X({ kind: t, codes: i = "", children: a }) {
 					},
 					children: V("manage:diagnosticsExport.reload")
 				}),
-				children: V("manage:diagnosticsExport.progressNotFound")
+				children: I(s.error)
 			}) : null,
 			o.error || d?.status === "failed" ? /* @__PURE__ */ (0, K.jsx)(v, {
 				tone: "error",
@@ -687,4 +688,4 @@ function we(e) {
 }
 export { we as DiagnosticsPage };
 
-//# debugId=1c98e59d-ffc4-4a41-9aec-49d29e3123ed
+//# debugId=b98f68cc-8a6d-4c40-8a2a-5251d9379625

@@ -1417,7 +1417,11 @@
     "strm": {
       "urlInvalid": "STRM needs an HTTP or HTTPS playback URL without an account or password",
       "fileTooLarge": "STRM file exceeds 64 KiB",
-      "fileUnreadable": "STRM file could not be read or is not UTF-8 text",
+      "fileUnreadable": "Couldn't read the STRM file",
+      "fileMissing": "STRM file not found",
+      "filePermissionDenied": "Permission denied reading the STRM file",
+      "fileTimedOut": "Reading the STRM file timed out",
+      "fileEncodingInvalid": "The STRM file is not UTF-8 text",
       "singleUrlRequired": "STRM file must contain exactly one playback URL",
       "contentUnparsable": "Can't parse the STRM content. Check the playback URL and list format",
       "mediaUnavailable": "Couldn't get the STRM media. Check the playback URL or update the STRM in the tool that made it"
@@ -2887,7 +2891,8 @@
       "conflictingRows": "The wiki has conflicting rows for this exact code; review the original page",
       "budgetStopped": "Wiki requests for this batch stopped or reached the limit",
       "networkFailed": "The wiki network request failed",
-      "httpFailed": "The wiki HTTP request failed",
+      "httpFailed": "The wiki request failed (HTTP {{status}})",
+      "requestTimedOut": "The wiki request timed out",
       "pageTooLarge": "The wiki page exceeds the read limit",
       "redirectUnverified": "The wiki redirect page couldn't be verified",
       "botCheckFailed": "The wiki bot check wasn't passed"
@@ -3419,6 +3424,7 @@
       "pikpakSignInUnreadable": "Cannot read the PikPak sign-in. Sign in again.",
       "tokenNeedsOffline": "The CloudDrive2 token needs permission to submit and view cloud download tasks.",
       "libraryCapabilityUnavailable": "Could not get cloud download support for {{name}}.",
+      "libraryCapabilityCheckFailed": "Cloud download check failed for {{name}}: {{reason}}",
       "clouddriveCapabilityUnavailable": "Could not get CloudDrive2 cloud download support. Check the connection and the token.",
       "libraryNotMapped": "{{name}} is not linked to a cloud directory yet. Check the mounts or the Push discovery settings.",
       "qbittorrentCredentialsUnreadable": "Cannot read the qBittorrent sign-in. Enter it again.",
@@ -4549,6 +4555,15 @@
       "incompleteCast": "The cast field has unrecognized or uncertain entries; the full cast wasn't found"
     },
     "resourceSearch": {
+      "requestTimedOut": "Request timed out",
+      "connectionFailed": "Unable to connect",
+      "unauthorized": "Authentication required (HTTP 401)",
+      "accessDenied": "Access denied (HTTP 403)",
+      "rateLimited": "Too many requests (HTTP 429)",
+      "httpFailure": "Request failed (HTTP {{status}})",
+      "invalidResponse": "Invalid response format",
+      "indexerRejected": "The indexer returned an error",
+      "requestFailed": "Request failed",
       "reject": {
         "code": "code mismatch",
         "size": "size out of range",
@@ -4557,7 +4572,7 @@
       },
       "rejectedCount": "{{reason}}: {{count}}",
       "allRejected": "Indexers returned {{total}} results, but none passed the filters: {{counts}}",
-      "noIndexer": "Add and enable an indexer in Settings → Downloads on this device",
+      "noIndexer": "No fallback indexer is enabled",
       "busy": "A torrent search is already running. Try again later",
       "indexerFailed": "{{indexer}}: the request failed or the response format is wrong. Check the indexer",
       "indexerError": "{{indexer}}: {{error}}",
@@ -4574,14 +4589,18 @@
     "magnetChain": {
       "staleReused": "Reused the previous result: {{error}}",
       "sourceFailed": "{{source}}: {{error}}",
-      "sourceUnfetched": "{{source}}: search incomplete",
+      "sourceUnfetched": "{{source}}: Search failed",
       "incomplete": "Some source searches are incomplete. Try searching again later."
     },
     "wantsMagnets": {
-      "linksUnfetched": "Couldn't get the download links. Try again later or check the source connections.",
-      "chainUnfetched": "The magnet link search couldn't reach its sources. Try again later or check the source connections."
+      "linksUnfetched": "Download link lookup failed. Try again later.",
+      "chainUnfetched": "Resource search failed. Try again later."
     },
     "javBrowser": {
+      "sourceFailures": "{{failures}}",
+      "sourceFailuresWaiting": "{{error}}. Waiting to retry automatically",
+      "searchRetriesExhausted": "Search still failing after {{attempts}} automatic retries. {{error}}",
+      "noMatchWithSourceFailure": "No results from the other sources. {{error}}. Search will resume when the source recovers",
       "idle": "Can be added to your Peach collection",
       "queued": "Waiting to search for magnet links",
       "searching": "Searching for magnet links",
@@ -4590,7 +4609,7 @@
       "owned": "This code is already in your collection",
       "failed": "Couldn't add it. You can retry",
       "noMatch": "No magnet link to download automatically. You can retry",
-      "noMatchSourcesPaused": "Not found on the other sources; {{sources}} is unreachable for now and will be checked again when it recovers",
+      "noMatchSourcesPaused": "No results from the other sources. Search failed on {{sources}} and will be retried when available",
       "searchFailedWith": "Resource search failed: {{error}}",
       "noOtherMagnet": "No other magnet link available. Pick one manually in Peach",
       "disabled": "Adding from the browser is turned off",
@@ -4598,10 +4617,10 @@
       "retriesExhausted": "Still not done after {{attempts}} automatic retries. The search or cloud download submission failed; check the sources and download channels in Peach, then retry",
       "submitFailed": "The search or cloud download submission failed. Check the sources and download channels in Peach, then retry",
       "retryWaiting": "Temporarily unavailable. Waiting to retry automatically",
-      "sourcesWaiting": "Couldn't reach {{sources}}. Waiting to retry automatically",
-      "sourcesUnfetched": "Couldn't reach {{sources}}",
+      "sourcesWaiting": "Search failed on {{sources}}. Waiting to retry automatically",
+      "sourcesUnfetched": "Search failed on {{sources}}",
       "searchFailedWaiting": "Resource search failed: {{error}}. Waiting to retry automatically",
-      "sourcesExhausted": "Still couldn't reach {{sources}} after {{attempts}} automatic retries. Check the sources in Peach, then retry"
+      "sourcesExhausted": "Search still failed on {{sources}} after {{attempts}} automatic retries"
     },
     "followCreators": {
       "evidence": {

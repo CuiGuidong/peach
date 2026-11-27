@@ -30,6 +30,8 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ### Fixed / 修复
 
+- **Interface**: Error notices report the specific failure and include available recovery actions (#624). / **界面**：错误提示说明具体原因，可处理时在提示条内提供入口（#624）。
+
 - **Interface**: The userscript shows why downloads paused, keeps task details in sync, and uses the standard connection disclosure (peach-mitao/peach-userscript#49). / **界面**：用户脚本显示下载暂停原因，列表与详情状态一致，「Peach 连接」使用通用折叠动画（peach-mitao/peach-userscript#49）。
 - **Library**: Repair, organize and scan no longer skip the healthy file after a stalled one when the file reader is slow to start. / **馆藏**：读盘进程启动慢时，修复、整理与扫描不再把挂死文件之后的正常文件一并跳过。
 - **Interface**: Switching JAV sections keeps the title and tabs in place and slides the selected tab; loading placeholders on Wants, Follow management, Taste, Tasks, Sources and Series match the loaded pages. / **界面**：切换 JAV 分区时标题和页签原地不动、选中底板滑动；想要、关注管理、口味、任务中心、来源和系列页的加载占位与加载后的页面一致。

@@ -16,7 +16,7 @@
   },
   "artworkGap": {
     "coverFileMissing": "封面文件缺失",
-    "coverNotFound": "封面未取得",
+    "coverNotFound": "封面无法显示",
     "coverPending": "还没取到官方封面",
     "fetchCover": "抓取封面",
     "fetching": "抓取中",
@@ -35,7 +35,7 @@
     "noPreview": "无预览",
     "onlineSkipped": "在线来源不抽帧",
     "previewFailed": "生成预览图失败",
-    "previewNotFound": "预览未取得",
+    "previewNotFound": "预览无法显示",
     "previewsBusy": "当前处理任务结束后可补全",
     "previewsOff": "请先在媒体库设置中开启视频预览生成",
     "probeFailed": "探查失败，没能抽帧",
@@ -176,7 +176,7 @@
     "toolbar": "{{label}}工具栏"
   },
   "detailFailure": {
-    "title": "详情未取得"
+    "title": "详情加载失败"
   },
   "detailTags": {
     "hideTag": "从此内容隐藏该标签",
@@ -245,7 +245,7 @@
   "errorPage": {
     "conflict": "现在不能这样做",
     "forbidden": "这里不能打开",
-    "generic": "出了点问题",
+    "generic": "页面无法打开",
     "goHome": "返回首页",
     "notFound": "四〇四"
   },
@@ -800,7 +800,7 @@
     "home": "首页",
     "library": "媒体库",
     "moveToTrash": "移入回收站",
-    "notFound": "未取得",
+    "notFound": "未知",
     "off": "已关闭",
     "open": "打开",
     "processing": "正在处理",
@@ -846,7 +846,7 @@
   },
   "sourcePicture": {
     "coverAlt": "{{code}} 封面",
-    "imageNotFound": "图片未取得",
+    "imageNotFound": "图片加载失败",
     "loadingImage": "正在读取图片",
     "loadingPreview": "正在读取预览",
     "previewAlt": "{{code}} 预览 {{index}}"

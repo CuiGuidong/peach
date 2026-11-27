@@ -817,7 +817,7 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual(set(result['retryable_asset_ids']), expected)
         self.assertEqual(collect.call_count, 1)
         self.assertEqual(collect.call_args.args[1], 'FC2-PPV-1234567')
-        self.assertIn('amane 运行环境未取得', result['issue_preview'][0]['message'])
+        self.assertIn('amane 运行环境不可用', result['issue_preview'][0]['message'])
         provider = stub_provider()
         provider.query.return_value = {'id': 'SSIS-057', 'title': '作品资料'}
         provider.cover.return_value = False
@@ -1530,7 +1530,7 @@ class LibraryNfoTests(unittest.TestCase):
         self.assertEqual(sorted(result['retryable_asset_ids']), sorted([ids['ABW-358.mp4'], ids['SSIS-057.mp4']]))
         self.assertIn('holiday.mp4', ids)
         self.assertEqual({issue['message_code'] for issue in result['issue_preview']}, {OFFLINE_MESSAGE['code']})
-        self.assertEqual({issue['message'] for issue in result['issue_preview']}, {'外部资料未取得：连不上外网'})
+        self.assertEqual({issue['message'] for issue in result['issue_preview']}, {'无法连接外部资料来源'})
 
         online = NetworkReachability(check=lambda: True, retry_delay=0)
         self.addCleanup(online.stop)
@@ -2643,7 +2643,7 @@ class LibraryNfoTests(unittest.TestCase):
         first = run()
         self.assertEqual((provider.query.call_count, provider.community.call_count), (1, 1))
         self.assertEqual([row['message'] for row in first['issue_preview']],
-                         ['封面未取得：来源返回 HTTP 503'], '来源说没有只报一个数，不占问题清单')
+                         ['封面采集失败：来源返回 HTTP 503'], '来源说没有只报一个数，不占问题清单')
         self.assertEqual(first['notes'], {'querying_metadata': 1})
         recorded = json.loads(misses_path(config).read_text(encoding='utf-8'))
         self.assertEqual(list(recorded['misses']),

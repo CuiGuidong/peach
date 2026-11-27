@@ -103,7 +103,9 @@
     "magnetLink": "Magnet link",
     "minutes_one": "{{count, number}} min",
     "minutes_other": "{{count, number}} min",
-    "noMetadata": "Video metadata not found",
+    "noMetadata": "No metadata for this work in your library",
+    "loadingMetadata": "Looking up library metadata",
+    "metadataLookupFailed": "Library metadata lookup failed: {{error}}",
     "optional": "Optional",
     "primaryOnly": "Downloads are only available on the primary computer.",
     "quotaHint": "Each submission, including resubmissions, uses one offline download from your quota.",
@@ -495,6 +497,9 @@
     "videoUnit_other": "videos"
   },
   "resourceSearch": {
+    "openSourceConnection": "Check {{source}} connection",
+    "openIndexers": "Open indexer settings",
+    "noResultsFromAvailable": "The sources that responded returned no matching results.",
     "byCode": "Search torrents by code",
     "goal": "Edition goal: {{reason}}. Adjust search priorities below, and check each result for completeness and watermarks.",
     "hd": "HD",
@@ -1175,6 +1180,7 @@
     "running": "Running"
   },
   "taskSummary": {
+    "noMatch": "No match",
     "actressAliases": "Actress aliases",
     "actressAvatars": "Actress avatars",
     "actressFetchFailed": "Actress metadata fetch failed",

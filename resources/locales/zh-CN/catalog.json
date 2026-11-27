@@ -118,7 +118,7 @@
     "usageOutput": "输出 Token",
     "usageTotal": "合计 Token",
     "usagePending": "正在等待此次请求的用量。",
-    "usageIncomplete": "部分请求的 Token 用量未取得。",
+    "usageIncomplete": "部分请求没有返回 Token 用量。",
     "usageDetail": "请求明细",
     "usageAccount": "账户用量",
     "usageMeasured": "共 {{requests}} 次请求，{{measured}} 次已取得 Token 用量",
@@ -155,7 +155,7 @@
       "waiting": "等待",
       "running": "进行中",
       "done": "已完成",
-      "failed": "未取得",
+      "failed": "失败",
       "stopped": "已停止等待"
     },
     "newSearch": "新对话",
@@ -240,7 +240,7 @@
     "evidence": "公开参考链接（选填）",
     "evidenceHelp": "有出处时，可附上能核对这两个名字的公开页面。",
     "evidenceInvalid": "请输入有效的 HTTPS 链接。",
-    "noIdentity": "尚未取得可核对的来源编号与原文艺名。补齐人物资料后再贡献。",
+    "noIdentity": "缺少可核对的来源编号或原文艺名。补齐资料后再贡献。",
     "loading": "正在读取人物身份…",
     "delivery": "候选先保存在本机。参与公开资料共建后，随每周快照发送复核。",
     "saved": "中文名候选已保存。可在「公开资料共建」查看发送和采纳状态。"
@@ -278,10 +278,10 @@
     "foundByNames": "{{name}}：图库里按{{names}}找到的。",
     "foundByNamesMore": "{{name}}：图库里按{{names}}等 {{total, number}} 个名字找到的。",
     "gridCell": "第 {{number}} 格",
-    "imageNotFound": "图片未取得，点击重试",
+    "imageNotFound": "图片加载失败，点击重试",
     "imageUrl": "图片地址",
     "inUse": "在用",
-    "indexFailed": "图库索引未取得：{{error}}",
+    "indexFailed": "图库索引读取失败：{{error}}",
     "indexUpdating": "正在更新图库索引，候选图片会自动显示。",
     "noChoices": "{{name}}：还没有备选图片，可输入番号、图片地址或从本机选择。",
     "quotedNameSeparator": "",
@@ -357,7 +357,7 @@
     "lastWatched": "观看时间",
     "libraryName": "媒体库：{{name}}",
     "listLabel": "作品列表",
-    "loadFailed": "作品列表未取得",
+    "loadFailed": "作品列表加载失败",
     "noMatches": "没有符合的作品",
     "noPreview": "无预览",
     "openItem": "打开 {{name}}",
@@ -381,7 +381,7 @@
   "catalogPicture": {
     "coverAlt": "{{code}} 封面",
     "previewAlt": "{{code}} 预览 {{index}}",
-    "previewNotFound": "预览未取得"
+    "previewNotFound": "预览图加载失败"
   },
   "countLabel": {
     "videos": "{{count, number}} 个视频",
@@ -727,12 +727,12 @@
   },
   "javBatch": {
     "close": "关闭批量资源查找",
-    "downloadSettingsFailed": "下载配置未取得：{{error}}",
+    "downloadSettingsFailed": "下载设置读取失败：{{error}}",
     "title": "查找所选资源"
   },
   "javComments": {
     "empty": "暂无评论",
-    "failed": "评论未取得，请稍后重试",
+    "failed": "评论加载失败，请稍后重试",
     "loading": "正在读取评论",
     "more": "更多评论",
     "ratingLabel": "评论评分 {{score}} / 5",
@@ -748,13 +748,13 @@
     "resources": "资源",
     "retryPreview": "重新取视频预览：{{reason}}",
     "sampleVideo": "视频预览",
-    "sampleVideoFailed": "视频预览未取得"
+    "sampleVideoFailed": "视频预览加载失败"
   },
   "javDiscover": {
     "clearFiltersHint": "清除筛选后查看其他作品。",
     "external": "库外发现",
     "externalEmptyHint": "可以查找番号，或更新关注来源。",
-    "failed": "推荐未取得",
+    "failed": "推荐加载失败",
     "filter": "筛选",
     "filtersLabel": "发现筛选与排序",
     "findVideos": "查找作品",
@@ -773,7 +773,7 @@
     "noOfficialCover": "没有找到可用的官方封面",
     "openActress": "打开女优页：{{name}}",
     "select": "选择 {{code}}",
-    "titleNotFound": "标题未取得",
+    "titleNotFound": "暂无标题",
     "viewDetails": "查看 {{code}} 详情"
   },
   "javMetadata": {
@@ -790,7 +790,7 @@
     "emptyHint": "订阅女优或厂牌后，还没入库的新作会出现在这里。",
     "emptyTitle": "暂无未入库的新作",
     "facetCount": "{{name}} · {{count, number}} 部",
-    "failed": "新作未取得",
+    "failed": "新作列表加载失败",
     "filterByActress": "按女优筛选",
     "filterByLabel": "按厂牌筛选",
     "filtersLabel": "新作筛选",
@@ -806,7 +806,7 @@
     "badgeLabel": "推荐分 {{score}}，{{label}}",
     "explore": "探索",
     "highlyRecommended": "强烈推荐",
-    "noMetadata": "资料未取得",
+    "noMetadata": "暂无推荐评分",
     "ranking": "排序 {{score}}",
     "recommended": "推荐",
     "siteRating": "来源评分 {{rating}} / 5",
@@ -818,7 +818,7 @@
     "coveredCount": "本页 {{shown, number}} 部 · DMM 共 {{total, number}} 部",
     "coverUnverified": "部分作品的封面暂时无法核验",
     "facetScope": "选项与部数来自本页。选中后查找整个 DMM 目录。",
-    "failed": "在线目录未取得",
+    "failed": "在线目录加载失败",
     "filterPerformer": "筛选「{{name}}」",
     "loading": "正在查找 DMM 作品",
     "localSort": "本页排序",
@@ -1010,7 +1010,7 @@
   "playerGestures": {
     "backward": "快退 {{delta}}　{{to}} / {{total}} · 松手跳转",
     "deviceVolume": "此浏览器请用设备音量键",
-    "durationUnknown": "时长尚未取得，暂时无法跳转",
+    "durationUnknown": "时长未知，暂时无法跳转",
     "forward": "快进 {{delta}}　{{to}} / {{total}} · 松手跳转",
     "holdKey": "{{rate}}× 快进",
     "holdTouch": "{{rate}}× 倍速 · 松手恢复",
@@ -1128,7 +1128,7 @@
     "followedPosts": "关注作品",
     "history": "搜索记录",
     "lastUpdated": "最新更新于 {{time}}",
-    "latestNotFound": "最新作未取得",
+    "latestNotFound": "暂无最新作记录",
     "latestRelease": "最新作 {{code}} · {{date}}",
     "manageSubscriptions": "管理订阅",
     "noCode": "无番号",
@@ -1142,7 +1142,7 @@
     "shuffleGroup": "{{group}}换一批",
     "suggestionsFor": "{{label}}的建议",
     "tabsLabel": "按种类看补全",
-    "updateTimeNotFound": "更新时间未取得",
+    "updateTimeNotFound": "更新时间未知",
     "viewAllVideos": "查看全部 {{count, number}} 个视频",
     "viewEntity": "查看 {{name}}"
   },
@@ -1216,7 +1216,7 @@
     "seekBack": "后退 {{count, number}} 秒",
     "seekForward": "前进 {{count, number}} 秒",
     "stageHostMissing": "舞台还没有接上宿主（configureStage）",
-    "videoNotFound": "作品未取得"
+    "videoNotFound": "找不到这部作品"
   },
   "subtitleMemory": {
     "canceled": "字幕加载已取消",
@@ -1261,7 +1261,7 @@
     "chooseFile": "选择字幕文件",
     "chooseToLoad": "选择要加载的字幕",
     "fetching": "正在从 SubtitleCat 抓取字幕",
-    "fileNotFound": "字幕文件未取得",
+    "fileNotFound": "无法读取字幕文件",
     "fileRequirements": "请选择 4 MiB 以内的 SRT、ASS、SSA 或 VTT 文件",
     "foundOnline": "找到 {{count, number}} 条中文字幕",
     "loadFailed": "字幕加载失败",
@@ -1453,7 +1453,7 @@
     "cloudPrimaryOnly": "下载只在写入端可用。",
     "codePlaceholder": "输入番号，例如 SSIS-950",
     "dockLabel": "所选想要的操作",
-    "downloadSettingsFailed": "下载配置未取得",
+    "downloadSettingsFailed": "下载设置读取失败",
     "empty": "还没有想要的作品",
     "emptyHint": "输入番号，添加想看的作品。",
     "fetchingNew": "正在给刚加入的番号取资料与封面。",
@@ -1468,7 +1468,7 @@
     "loadFailed": "想要清单读取失败",
     "loading": "正在读取想要",
     "magnetFilter": "待找磁链筛选",
-    "metadataNotFound": "资料未取得：",
+    "metadataNotFound": "资料采集失败：",
     "noFilterMatches": "暂无符合条件的作品",
     "noMagnet": "没磁链",
     "noSearchMatches": "没有符合条件的作品",

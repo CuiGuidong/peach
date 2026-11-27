@@ -706,6 +706,8 @@ class SourceTransport:
         self.requests += 1
         try:
             response = self.transports[transport_key](request, timeout, max_bytes)
+        except httpx.TimeoutException:
+            raise
         except (httpx.HTTPError, browser_transport.BrowserUnavailable):
             raise httpx.TransportError(Said("labels.scrapingAccess.unreachable")) from None
         except browser_transport.ChallengeUnsolved:

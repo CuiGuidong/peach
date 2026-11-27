@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
-import { ApiError, apiGet, apiSend } from '../../api';
+import { ApiError, apiGet, apiSend, errorMessage } from '../../api';
 import { diagnosticHeaders } from '../../browser-diagnostics';
 import { withBackoff } from '../../polling';
 import { ActionSpinner } from '../components/action-spinner';
@@ -74,8 +74,10 @@ export function DiagnosticExportAction({ kind, codes = '', children }: {
     {ownState?.status === 'complete' ? <p role="status" className="text-right text-body-2-regular text-text-secondary">
       {t('manage:diagnosticsExport.completedSize', { size: ((ownState.bytes || 0) / 1024 / 1024).toFixed(2) })}</p> : null}
     {ownState?.status === 'cancelled' ? <Note tone="neutral">{t('manage:diagnosticsExport.canceled')}</Note> : null}
-    {query.isError ? <Note tone="error" action={<Button type="button" variant="secondary"
-      {...busyProps(query.isFetching)} onClick={() => { void query.refetch() }}>{t('manage:diagnosticsExport.reload')}</Button>}>{t('manage:diagnosticsExport.progressNotFound')}</Note> : null}
+    {query.isError ? <Note tone="error" title={t('manage:diagnosticsExport.progressNotFound')}
+      action={<Button type="button" variant="secondary" {...busyProps(query.isFetching)}
+        onClick={() => { void query.refetch() }}>{t('manage:diagnosticsExport.reload')}</Button>}>
+      {errorMessage(query.error)}</Note> : null}
     {action.error || ownState?.status === 'failed' ? <Note tone="error">{action.error || ownState?.error}</Note> : null}
   </div>;
 }

@@ -21,6 +21,7 @@ import { apiGet, apiSend } from '../../api';
 import { codedText } from '../../core/server-text';
 import { EDITION_TONE } from '../../core/jav-title';
 import { Button } from '@/components/base/buttons/button';
+import { Note } from '../components/note';
 import { RiArrowDownSLine, RiPlayLine, RiSubtractLine } from '@remixicon/react';
 import type { WorkContextOperation } from '../components/work-context-menu';
 import { CatalogGridPage } from '../catalog-grid/catalog-grid-page';
@@ -224,8 +225,12 @@ function MediaFrame({ item, gate, helpers, actions, autoplay, onEnded }: {
       </> : null}
       {image !== -2 && item.is_jav && item.code && !item.sample_images?.length && (source.isPending || source.error || source.data?.state === 'partial') ?
         <div data-item-samples-state="">{source.isPending ? <span data-skeleton="samples" role="status" aria-label={t('catalog:detailMedia.loadingSamples')} className="relative block h-12 w-20 skeleton-sheen" />
-          : <Button variant="secondary" {...busyProps(source.isFetching)} title={source.data?.message || requestErrorMessage(source.error)}
-            aria-label={t('catalog:detailMedia.retrySamples')} onClick={() => { refreshSamples.current = true; void source.refetch() }}>{t('catalog:shared.retryNow')}</Button>}</div> : null}
+          : <Note tone="warning" action={
+            <Button variant="secondary" size="small" {...busyProps(source.isFetching)}
+              aria-label={t('catalog:detailMedia.retrySamples')} onClick={() => { refreshSamples.current = true; void source.refetch() }}>
+              {t('catalog:shared.retryNow')}
+            </Button>
+          }>{source.error ? requestErrorMessage(source.error) : source.data?.message || t('shell:artworkGap.previewNotFound')}</Note>}</div> : null}
       {gate === 'offline' ? <OfflineGate item={item} badge={badge} helpers={helpers} actions={actions} />
         : gate === 'disc' ? (
           <div role="status" data-item-gate="disc">

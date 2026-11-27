@@ -59,6 +59,7 @@
 /* 原图太小的来源图（`data-native-size`）按原尺寸摆在格子正中，不撑满格高：拉大只是一片糊。 */
 [data-stage] [data-stage-scroll] :is([data-jav-art],[data-item-gallery])>[data-jav-picture][data-native-size]{width:auto;height:auto}
 [data-item-samples-state]{position:absolute;right:16px;bottom:44px;z-index:2}
+[data-item-samples-state]:has(>[role="note"]){inline-size:min(24rem,calc(100% - 32px))}
 [data-stage] :is([data-jav-art],[data-item-gallery])>[data-carousel-below]{grid-area:2/1;box-sizing:border-box;min-width:0;align-self:end}
 [data-stage] [data-jav-video]{display:grid;place-items:center}
 [data-stage] [data-stage-scroll] :is([data-jav-video]>[class~="video-js"],[data-item-gallery]>[class~="video-js"]){width:min(100%,calc(var(--detail-gallery-height) * 16 / 9));height:auto;max-height:var(--detail-gallery-height);aspect-ratio:16/9}

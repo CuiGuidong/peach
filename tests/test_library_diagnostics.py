@@ -181,7 +181,7 @@ class LibraryDiagnosticsTests(unittest.TestCase):
             'ok': True, 'kind': 'ok', 'reason': 'parsed', 'checked_at': 1_700_000_000, 'elapsed_s': 2.1})
         rows = {row['source']: row for row in diagnostics.sources(self.settings, self.config, now=1_700_000_100)}
         self.assertEqual(rows['airav']['status'], 'unknown')
-        self.assertIn('解析状态未取得', rows['airav']['reason'])
+        self.assertIn('尚未检查资料解析', rows['airav']['reason'])
         self.assertEqual(rows['fc2club']['status'], 'ok')
         self.assertIsNotNone(rows['fc2club']['last_success_at'])
         self.assertEqual(rows['airav']['elapsed_s'], 1.2)
