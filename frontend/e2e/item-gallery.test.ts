@@ -238,8 +238,9 @@ describe('馆藏 JAV 官方预览', () => {
       const retry = frame.getByRole('button', { name: '立即重试样图', exact: true });
       assert.equal(await retry.count(), 0);
       await frame.getByRole('button', { name: '查看图片', exact: true }).click();
-      await retry.waitFor();
-      assert.equal(await retry.getAttribute('title'), '来源暂不可用');
+      const notice = frame.getByRole('note').filter({ hasText: '来源暂不可用' });
+      await notice.getByText('来源暂不可用', { exact: true }).waitFor();
+      assert.ok(await notice.getByRole('button', { name: '立即重试样图', exact: true }).isVisible());
       assert.ok(await page.locator('[data-item-side] [data-stage-side-content]').isVisible());
       assert.ok(await frame.locator('.video-js').isHidden());
       await frame.getByRole('button', { name: '播放正片', exact: true }).click();

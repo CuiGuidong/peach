@@ -526,7 +526,7 @@ class UpgradeRepairTests(unittest.TestCase):
         from peach import artifact_rules
         from peach.jobs import DiskSpaceDenied
         sheet = self.display_sample()
-        with self.assertRaisesRegex(ValueError, '未取得'):
+        with self.assertRaisesRegex(ValueError, '无法测量显示尺寸，已保留原有记录'):
             self.run_display_probe((-1, 0, 0, None, 0, 0, None, None, None, 1))
         with self.assertRaises(DiskSpaceDenied):
             self.run_display_probe((60, 1440, 1280, None, 0, 0, None, 'landscape', '1080P', 1),
