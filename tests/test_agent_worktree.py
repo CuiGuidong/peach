@@ -1397,7 +1397,13 @@ class CoAuthorTests(unittest.TestCase):
         self.assertEqual(
             self.signed("Co-Authored-By: Codex (GPT-5.5) <noreply@openai.com>"), [])
         self.assertEqual(
-            self.signed("Co-Authored-By: opencode (GLM 5.3 Flash) <noreply@opencode.ai>"), [])
+            self.signed("Co-Authored-By: opencode (GLM 5.3 Flash) "
+                        "<219766164+opencode-agent[bot]@users.noreply.github.com>"), [])
+
+    def test_a_new_opencode_signature_uses_the_github_bot_address(self):
+        problems = self.signed("Co-Authored-By: opencode (GLM 5.3 Flash) <noreply@opencode.ai>")
+        self.assertEqual(len(problems), 1)
+        self.assertIn("219766164+opencode-agent[bot]@users.noreply.github.com", problems[0])
 
     def test_an_address_that_does_not_belong_to_the_tool_is_rejected(self):
         self.assertTrue(self.signed("Co-Authored-By: Codex (GPT-5.5) <noreply@anthropic.com>"))
@@ -1435,6 +1441,10 @@ class CoAuthorTests(unittest.TestCase):
         """工具名单约束的是本机智能体，贡献者用什么工具是他自己的事。"""
         self.assertEqual(self.contributed("Co-Authored-By: Qoder (Qwen 3) <noreply@qoder.com>"), [])
 
+    def test_a_contributor_may_keep_the_previous_opencode_signature(self):
+        self.assertEqual(
+            self.contributed("Co-Authored-By: opencode (GLM 5.3 Flash) <noreply@opencode.ai>"), [])
+
     def test_a_contributor_signature_still_has_to_be_well_formed(self):
         self.assertTrue(self.contributed("Co-Authored-By: Codex (GPT-6) <noreply@anthropic.com>"))
         self.assertTrue(co_author.problems("测试", ["Codex <someone@example.invalid>"], own=False))
@@ -1463,7 +1473,8 @@ class CoAuthorTests(unittest.TestCase):
     def test_registered_agent_and_vendor_addresses_require_model_metadata(self):
         agent = "Codex (GPT-6) <noreply@openai.com>"
         for signature in ("Codex <someone@example.invalid>",
-                          "Contributor <noreply@openai.com>"):
+                          "Contributor <noreply@openai.com>",
+                          "Contributor <noreply@opencode.ai>"):
             with self.subTest(signature=signature):
                 self.assertTrue(co_author.problems("测试", [agent, signature]))
 
