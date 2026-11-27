@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "5d2a001b-2d15-4d8e-955f-27feb4064c02", e._sentryDebugIdIdentifier = "sentry-dbid-5d2a001b-2d15-4d8e-955f-27feb4064c02");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "401a8dee-a6a3-4b65-94e3-6b97878fac3d", e._sentryDebugIdIdentifier = "sentry-dbid-401a8dee-a6a3-4b65-94e3-6b97878fac3d");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $43a3b93638fe5db9$export$b04be29aa201d4f5 as t, $49319ee1285aa241$export$2ce376c2cc3355c8 as n, $49319ee1285aa241$export$4b1545b4f2016d26 as r, $49319ee1285aa241$export$d9b273488cd8ce6f as i, $53e61d82d8b8611d$export$8b251419efc915eb as a, $542a13ca2fa5b484$export$5b6b19405a83ff9d as o, $806e559d0c2c64a0$export$105594979f116971 as s, $806e559d0c2c64a0$export$2c1b491743890dec as c, $806e559d0c2c64a0$export$472062a354075cee as l, $e28ab3efe3e87743$export$1ff3c3f08ae963c0 as u, $fe21c36db05242bb$export$a98f0dcb43a68a25 as d, $fe21c36db05242bb$export$d7b12c4107be0d61 as f, ACCOUNT_DASHBOARDS as p, AIProviderLabel as m, AIProviderLogo as h, AI_ASSET_TASKS as g, AI_CONNECTIONS_KEY as _, AI_CONNECTIONS_URL as v, ApiError as y, Button as b, ButtonLink as x, CUSTOM_TASKS_URL as S, CUSTOM_TASK_EDITOR_URL as C, Checkbox as w, ColumnFilterAvatar as ee, DUPLICATES_KEY as T, DUPLICATES_URL as E, DURATION_TAGS as D, Disclosure as O, ES as te, Ea as k, EffortFlow as A, ErrorText as j, ExternalLink as ne, HN as M, Help as N, IconButton as P, Input as re, InputBase as ie, ItemEditDialog as ae, JZ as F, K1 as I, LibraryAIPanel as L, LibraryLabel as R, LinkButton as oe, M6 as se, MEDIA_SOURCE_ICONS as ce, MENU_ITEM as le, MENU_ITEMS_CONTAINER as z, MENU_ITEM_INTERACTIVE as B, MENU_POPOVER_SURFACE as ue, MENU_POPOVER_WIDTH as de, MenuChevron as fe, MenuDialog as pe, ModalFrame as me, Note as he, Ov as ge, P7 as _e, Pf as ve, R5 as ye, RB as be, RadioDot as V, Rt as H, Select$1 as xe, SelectItem as Se, SourceMark as U, TableDateBound as Ce, Textarea as we, UB as Te, Xt as Ee, Yt as De, __toESM as Oe, aiConnectionLabel as ke, aiModelLabel as Ae, aiSearchModelsKey as je, apiGet as Me, apiSend as Ne, appSettingsStore as Pe, applySavedItem as Fe, b1 as Ie, busyProps as Le, cardClass as Re, composingKey as W, coverUrl as ze, cx as G, detailPosterUrl as Be, e0 as Ve, entityDisplayName as He, errorMessage as Ue, fetchItem as K, h2 as We, hN as Ge, iE as Ke, interfaceLanguage as qe, itemKey as Je, l5 as Ye, mM as Xe, matchesAIModel as Ze, modelIsVisible as Qe, motion as $e, o2 as et, onLibraries as tt, outsideTableDateBound as nt, p as rt, preferredAIConnection as it, publishedLibraries as at, remoteCoverUrl as ot, require_jsx_runtime as st, require_react as ct, s7 as lt, t as q, tagLabel as ut, uo as dt, useAIConnectionModels as ft, useAIModelVisibility as pt, useAccountUsage as mt, useAction as ht, useCustomTasks as gt, useEntityNames as _t, useOverlayScrollbar as vt, useQuery as yt, useQueryClient as bt, useReducedMotion as xt, validRange as St, visibleAIModels as Ct, writeColumnFilters as wt } from "./peach-app.js";
@@ -373,7 +373,7 @@ var Ft = "(prefers-reduced-motion: reduce)", It = "(hover: hover) and (pointer: 
 	}
 ];
 function Bt({ label: e }) {
-	let t = (0, J.useRef)(null), n = (0, J.useRef)(null), r = (0, J.useRef)(null), i = (0, J.useRef)(null), a = (0, J.useRef)(null), o = (0, J.useRef)(null), s = (0, J.useRef)(null), c = (0, J.useRef)(0), l = (0, J.useRef)(-Infinity), u = (0, J.useId)();
+	let t = (0, J.useRef)(null), n = (0, J.useRef)(null), r = (0, J.useRef)(null), i = (0, J.useRef)(null), a = (0, J.useRef)(null), o = (0, J.useRef)(null), s = (0, J.useRef)(null), c = (0, J.useRef)(0), l = (0, J.useRef)(-1e400), u = (0, J.useId)();
 	(0, J.useEffect)(() => {
 		let e = t.current, i = n.current, u = r.current, d = a.current;
 		if (!e || !i || !u || !d) return;
@@ -3629,4 +3629,4 @@ function hi({ recent: e, historyEnabled: t, active: n, busy: r, create: i, openR
 }
 export { fi as LibraryAssistant };
 
-//# debugId=5d2a001b-2d15-4d8e-955f-27feb4064c02
+//# debugId=401a8dee-a6a3-4b65-94e3-6b97878fac3d

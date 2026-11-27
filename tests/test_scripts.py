@@ -6021,6 +6021,9 @@ class ReleaseTagTests(unittest.TestCase):
         notice = mock.patch.object(self.release, "require_release_notice")
         notice.start()
         self.addCleanup(notice.stop)
+        review = mock.patch.object(self.release.changelog, "require_review")
+        review.start()
+        self.addCleanup(review.stop)
         readme = mock.patch.object(self.release.version_bump, "readme_link_problems", return_value=[])
         self.readme_checks = readme.start()
         self.addCleanup(readme.stop)
@@ -6209,6 +6212,9 @@ class PinnedReleaseTests(unittest.TestCase):
                                       return_value={"run_id": 9})
         self.candidate = candidate.start()
         self.addCleanup(candidate.stop)
+        review = mock.patch.object(self.release.changelog, "require_review")
+        review.start()
+        self.addCleanup(review.stop)
 
     def _shell(self, changes=None):
         answers = {
@@ -6387,6 +6393,16 @@ class ShipTests(unittest.TestCase):
                                    return_value={"readme": ["README.md"], "readme_sha": "def"})
         self.point_readme = readme.start()
         self.addCleanup(readme.stop)
+        review = mock.patch.object(self.release.changelog, "require_review")
+        self.review = review.start()
+        self.addCleanup(review.stop)
+
+    def test_unreviewed_release_stops_before_committing_or_pushing(self):
+        self.review.side_effect = self.release.version_bump.VersionError("还没审阅")
+        with (self._shell() as command, self._api(), self._version(), self._document(),
+              self.assertRaisesRegex(self.release.version_bump.VersionError, "还没审阅")):
+            self.release.ship("owner/repo", apply=True)
+        self.assertEqual(self._writes(command), [])
 
     def test_a_vulnerable_dependency_found_after_the_test_turns_green_stops_before_the_tag(self):
         """Test 绿了到打标签之间可能刚好公布了新漏洞：标签打出去就什么也发不了，所以标签前再查一次。"""

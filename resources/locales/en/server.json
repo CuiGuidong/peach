@@ -286,6 +286,27 @@
         }
       }
     },
+    "v0-63-0": {
+      "headline": "Library AI, file management, in-app feedback, and list search",
+      "items": {
+        "library-ai": {
+          "body": "Connect your own AI service in Settings to search the library, translate titles and synopses, or suggest tags",
+          "title": "Search and organize your library with AI"
+        },
+        "file-management": {
+          "body": "Open Browse files in the sidebar to search, select, and move files in full screen, or restore them from Trash",
+          "title": "Browse and manage media files"
+        },
+        "in-app-feedback": {
+          "body": "Send feedback from the bottom-right button, annotate screenshots, and choose whether to attach diagnostics and what to publish on GitHub",
+          "title": "Send feedback with screenshots in Peach"
+        },
+        "list-search": {
+          "body": "Search by keyword in the follow feed, JAV subscriptions, playlists, task history, and more",
+          "title": "Search more lists"
+        }
+      }
+    },
     "v0-62-0": {
       "headline": "Import downloads, browse server media, and drag to select",
       "items": {
