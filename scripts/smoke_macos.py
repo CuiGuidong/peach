@@ -6,6 +6,7 @@ import argparse
 import http.cookiejar
 import json
 from pathlib import Path
+import platform
 import shutil
 import socket
 import subprocess
@@ -20,8 +21,15 @@ from smoke_desktop import assert_amane_runtime, assert_requires_login, complete_
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("app", type=Path)
+    parser.add_argument("--source-archives", type=Path)
     args = parser.parse_args()
     app = args.app.resolve(strict=True)
+    if args.source_archives is not None:
+        from media_tool_bundle import validate
+
+        tools = app / "Contents/Resources/tools"
+        for tool in ("ffmpeg", "untrunc"):
+            validate(tools / tool, tool, architecture=platform.machine(), archive_root=args.source_archives)
     with tempfile.TemporaryDirectory(prefix="peach-macos-smoke-") as directory:
         root = Path(directory).resolve()
         shutil.copytree(app, root / "Peach.app", symlinks=True)
