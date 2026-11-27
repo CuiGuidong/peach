@@ -43,7 +43,6 @@ from .process_job import assign_to_job, create_kill_on_close_job
 from .tray_diagnostics import show_report as show_diagnostic_report
 from .tray_lifecycle import Lifecycle
 from .tray_detached import handoff_tray
-from .windows_webview import open_window
 from .sync import COPY_ACTIONS, SyncPlan, device_id, resolve
 from .versioning import VersionManager, VersionSnapshot
 from .windows_update import (
@@ -1005,8 +1004,7 @@ def normal_url(config) -> str:
 
 def open_application(config, *, waiting: bool, open_browser: Callable[[str], object] | None = None) -> None:
     url = setup_url(config) if waiting else normal_url(config)
-    if waiting or not open_window(url, config.data_root):
-        (open_browser or webbrowser.open)(url)
+    (open_browser or webbrowser.open)(url)
 
 
 def configured_service_specs(config) -> tuple[ServiceSpec, ...]:
