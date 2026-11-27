@@ -7,7 +7,8 @@ import { interfaceLanguage, t } from '../../i18n';
 import { CHART_COLORS, tone } from '../charts/chart-card';
 import { ChartTip } from '../charts/chart-tip';
 import { AIProviderLabel } from '../components/ai-provider-logo';
-import { ErrorText, ExternalLink, Help, Rows, Stack } from './section';
+import { Note } from '../components/note';
+import { ExternalLink, Help, Rows, Stack } from './section';
 import { aiModelLabel } from './use-ai-models';
 import { ACCOUNT_DASHBOARDS, useAccountUsage } from './ai-account-usage';
 import { SettingsRow } from '@/components/application/settings/settings-rows';
@@ -23,10 +24,10 @@ type DayRow = Counts & { day: string; provider: string };
 type Usage = { start: string; end: string; rows: UsageRow[]; daily: DayRow[] };
 type Provider = { id: string; label: string; configured: boolean };
 
-function UsageServicePicker({ label, providers, value, onChange, all = false }: {
-  label: string; providers: Provider[]; value: string | undefined; onChange(value: string): void; all?: boolean;
+function UsageServicePicker({ label, providers, value, onChange, all = false, disabled = false }: {
+  label: string; providers: Provider[]; value: string | undefined; onChange(value: string): void; all?: boolean; disabled?: boolean;
 }) {
-  return <Select size="sm" aria-label={label} selectedKey={value}
+  return <Select size="sm" aria-label={label} selectedKey={value} isDisabled={disabled}
     onSelectionChange={key => { if (key !== null) onChange(String(key)); }}>
     {all ? <SelectItem id="all">{copy('allServices')}</SelectItem> : null}
     {providers.map(provider => <SelectItem key={provider.id} id={provider.id} textValue={provider.label}>
@@ -59,7 +60,9 @@ function series(usage: Usage, scope: string) {
   return days;
 }
 
-export function AIUsageDashboard({ active, providers }: { active: boolean; providers: Provider[] }) {
+export function AIUsageDashboard({ active, available, accessRestricted, providers }: {
+  active: boolean; available: boolean; accessRestricted: boolean; providers: Provider[];
+}) {
   const [days, setDays] = useState(30);
   const [scope, setScope] = useState('all');
   const [metric, setMetric] = useState('tokens');
@@ -67,9 +70,9 @@ export function AIUsageDashboard({ active, providers }: { active: boolean; provi
   const query = useQuery({
     queryKey: ['ai-library-usage', days],
     queryFn: ({ signal }) => apiGet<Usage>('/api/ai-library/usage?days=' + days, signal),
-    enabled: active,
+    enabled: active && available,
   });
-  const usage = query.data;
+  const usage = available ? query.data : undefined;
   const accountProvider = providers.find(row => row.id === accountSelection)?.id
     ?? providers.find(row => row.configured)?.id
     ?? providers.find(row => usage?.rows.some(item => item.provider === row.id))?.id
@@ -86,18 +89,21 @@ export function AIUsageDashboard({ active, providers }: { active: boolean; provi
   return <>
     <Stack>
       <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <Select size="sm" aria-label={copy('range')} selectedKey={String(days)}
+        <Select size="sm" aria-label={copy('range')} selectedKey={String(days)} isDisabled={!available}
           onSelectionChange={key => { if (key) setDays(Number(key)); }}>
           {[7, 30, 90].map(value => <SelectItem key={value} id={String(value)}>{copy('rangeDays', { days: value })}</SelectItem>)}
         </Select>
-        <UsageServicePicker label={copy('service')} providers={providers} value={scope} onChange={setScope} all />
-        <Select size="sm" aria-label={copy('metric')} selectedKey={metric}
+        <UsageServicePicker label={copy('service')} providers={providers} value={scope} onChange={setScope} all disabled={!available} />
+        <Select size="sm" aria-label={copy('metric')} selectedKey={metric} isDisabled={!available}
           onSelectionChange={key => { if (key) setMetric(String(key)); }}>
           <SelectItem id="tokens">Token</SelectItem>
           <SelectItem id="requests">{copy('requestSeries')}</SelectItem>
         </Select>
       </div>
-      {query.isError ? <ErrorText>{errorMessage(query.error)}</ErrorText> : !usage ? <Help role="status">{copy('loading')}</Help> : <>
+      {!available ? <Help><span data-copy-key={accessRestricted ? 'settings.aiLibrary.usage.accessUnavailable' : 'settings.aiLibrary.usage.loadUnavailable'}>
+        {copy(accessRestricted ? 'accessUnavailable' : 'loadUnavailable')}
+      </span></Help>
+        : query.isError ? <Note tone="error">{errorMessage(query.error)}</Note> : !usage ? <Help role="status">{copy('loading')}</Help> : <>
         <dl className="inline-grid w-full grid-cols-2 gap-2 @min-[34rem]:grid-cols-3">
           <UsageStat label="peach" value={total.requests && !total.measured ? copy('unreported') : tokens(total.input + total.output)} />
           <UsageStat label="requestSeries" value={number.format(total.requests)} />

@@ -9,7 +9,7 @@
 import { confirmModal, MEDIA_SOURCE_ICONS } from '@peach/legacy/ui';
 import { fmtSize } from '@peach/legacy/core';
 
-import { Button } from '@/components/base/buttons/button';
+import { Button, ButtonLink } from '@/components/base/buttons/button';
 
 import { errorMessage } from '../../api';
 import { RESOURCE_SYNC_TEXT } from '../../cleanup-tool-skeletons';
@@ -24,6 +24,7 @@ import { activityKind } from '../../activity-kinds';
 import { spriteGlyph } from '../components/sprite-glyph';
 import { PlainStat, plainStatClass } from '../components/stat-card';
 import { queryClient } from '../query';
+import type { WriterAccess } from '../router/shell-actions';
 import { SourceMark } from '../settings/section';
 import { busyProps } from '../settings/use-action';
 import { TRASH_KEY } from './data-cleanup';
@@ -84,7 +85,7 @@ function ScanResult({ scan, partial = false }: { scan: ResourceScanState; partia
 }
 
 export function ResourceSyncCard(
-  { toast }: { toast(message: string, options?: { warning?: boolean }): void },
+  { toast, writeAccess }: { toast(message: string, options?: { warning?: boolean }): void; writeAccess?: WriterAccess },
 ) {
   const apply = useBackgroundJob<ResourceApplyState, string>({
     queryKey: RESOURCE_APPLY_KEY,
@@ -113,6 +114,7 @@ export function ResourceSyncCard(
   const scanning = scan.running || scan.start.isPending;
   const cleaning = apply.running || apply.start.isPending;
   const actionsReady = !!scan.job && !!apply.job;
+  const canApply = actionsReady && writeAccess?.readOnly === false;
   const scanned = state?.status === 'complete' || state?.status === 'failed';
   const label = scanning ? t('cleanup:resourceSync.scanning') : scanned ? t('cleanup:resourceSync.scanAgain') : t('cleanup:resourceSync.checkFiles');
 
@@ -171,7 +173,7 @@ export function ResourceSyncCard(
         <ScanResult scan={state} />
         {changes
           ? <Note tone="neutral" title={t('cleanup:resourceSync.toClean')} action={
-              <Button variant="danger" disabled={!actionsReady} {...busyProps(cleaning)} onClick={() => { if (actionsReady) runApply(state) }}>
+              <Button variant="danger" disabled={!canApply} {...busyProps(cleaning)} onClick={() => { if (canApply) runApply(state) }}>
                 {cleaning ? t('cleanup:resourceSync.applyingButton') : APPLY_LABEL}
               </Button>
             }>{applyPlanText(state)}</Note>
@@ -187,6 +189,9 @@ export function ResourceSyncCard(
 
   return (
     <section id="resource-sync" aria-labelledby="resource-sync-title" className="flex scroll-mt-20 flex-col gap-4">
+      {writeAccess?.readOnly ? <Note tone="warning" action={writeAccess.writerUrl
+        ? <ButtonLink variant="secondary" size="small" href={writeAccess.writerUrl}><span data-copy-key="cleanup.resourceSync.goToPrimary">{t('cleanup:resourceSync.goToPrimary')}</span></ButtonLink>
+        : undefined}>{writeAccess.readOnlyMessage}</Note> : null}
       <Fieldset layout="split" labelledBy="resource-sync-title" footer={
         <Button data-resource-scan leadingIcon={scanned && !scanning ? AGAIN : COMPARE} disabled={!actionsReady} {...busyProps(scanning)}
           onClick={() => { if (actionsReady && !scanning) scan.start.mutate() }}>{label}</Button>

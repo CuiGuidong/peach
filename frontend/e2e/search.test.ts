@@ -404,6 +404,23 @@ describe('顶栏搜索', () => {
     }
   });
 
+  it('搜索记录删除失败后保留原记录并显示原因', async () => {
+    const opened = await openSearch(browser, { history: ['保留的记录'] });
+    try {
+      const { page } = opened;
+      await page.route(/\/api\/search-history/, route => route.request().method() === 'POST'
+        ? route.fulfill({ status: 409, json: { error: 'read-only' } }) : route.fallback());
+      await page.locator('#q').click();
+      const remove = page.locator(`${MENU} [data-remove-history="保留的记录"]`);
+      await remove.click();
+      const notice = page.locator(MENU).getByRole('alert');
+      await notice.getByText('未能删除搜索记录', { exact: true }).waitFor();
+      assert.equal(await remove.isVisible(), true);
+    } finally {
+      await opened.close();
+    }
+  });
+
   it('搜索记录照设置的条数摆；删一条只摘掉这一条，下拉栏和焦点都不走；新搜的词排到最前', { timeout: 60_000 }, async () => {
     const opened = await openSearch(browser, { limit: 3, history: ['甲片', '乙片', '丙片', '丁片'] });
     try {

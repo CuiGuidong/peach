@@ -298,7 +298,7 @@
     "send": "发送",
     "sending": "发送中…",
     "sent": "反馈已发送。",
-    "signIn": "请从运行 Peach 的电脑提交，或登录后再试。",
+    "signIn": "反馈未发送。请重新打开 Peach 并输入访问密码后重试，也可以在运行 Peach 的电脑上提交。",
     "sendFailed": "未能确认反馈已发送。请检查连接后重试。",
     "issueTitle": "标题",
     "issueTitlePlaceholder": "一句话概括反馈",

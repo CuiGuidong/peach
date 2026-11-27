@@ -10,6 +10,7 @@ import { onLibraries, publishedLibraries } from '../../library-catalog';
 import { AI_CONNECTIONS_KEY, AI_CONNECTIONS_URL, type AIConnections, type TaskProfile } from '../settings/ai-library-settings';
 import { CUSTOM_TASKS_URL, useCustomTasks } from '../settings/ai-custom-tasks';
 import { cardClass } from '../components/card';
+import { Note } from '../components/note';
 import { Disclosure, ErrorText, Help } from '../settings/section';
 import { useAction } from '../settings/use-action';
 import { preferredAIConnection } from '../settings/use-ai-models';
@@ -122,21 +123,27 @@ export function LibraryAssistant() {
   const setup = useQuery({
     queryKey: AI_CONNECTIONS_KEY, queryFn: ({ signal }) => apiGet<AIConnections>(AI_CONNECTIONS_URL, signal),
   });
-  const searchProfile = setup.data?.task_profiles?.search;
-  const providers = setup.data?.providers ?? [];
+  const setupError = setup.error;
+  const available = setupError ? undefined : setup.data;
+  const canConfigure = available?.settings_editable !== false;
+  const searchProfile = available?.task_profiles?.search;
+  const providers = available?.providers ?? [];
   const connections = providers.filter(row => row.configured);
   const provider = searchProfile?.provider ? connections.find(row => row.id === searchProfile.provider)
     : preferredAIConnection(connections);
   const fallback = provider && { provider: provider.id, model: searchProfile?.model || provider.model,
     effort: searchProfile?.effort ?? provider.default_efforts?.search ?? 'default' };
   const selection = modelChoice && connections.some(row => row.id === modelChoice.provider) ? modelChoice : null;
-  const setupAction = !setup.isPending && !connections.length ? <div className="flex flex-col items-center gap-2">
-    {setup.error ? <p role="status" className="text-body-regular text-text-secondary"
-      data-copy-key={setup.error instanceof ApiError && setup.error.status === 403 ? 'api.aiLibrary.privateAccess' : undefined}>
-      {errorMessage(setup.error)}
-    </p> : null}
-    <ConfigureAIButton />
-  </div> : null;
+  const accessDenied = setupError instanceof ApiError && (setupError.status === 403 || setupError.status === 401);
+  const setupAction = setupError ? <Note tone={accessDenied ? 'warning' : 'error'} className="w-full max-w-xl text-left"
+    action={!accessDenied ? <Button type="button" size="small" variant="secondary"
+      disabled={setup.isFetching} onClick={() => void setup.refetch()}>{t('catalog:shared.retryNow')}</Button> : undefined}>
+    {errorMessage(setupError)}
+  </Note> : !setup.isPending && !connections.length
+    ? canConfigure ? <ConfigureAIButton /> : <Note tone="info" className="w-full max-w-xl text-left">
+      <span data-copy-key="settings.aiLibrary.editOnHost">{t('settings:aiLibrary.editOnHost')}</span>
+    </Note>
+    : null;
   const hasPlanner = Boolean(selection || fallback);
   const seeds = Object.fromEntries(Object.entries(conditions).filter(([, value]) => value?.trim()));
   const seedTargets = searchTargets(scope, seeds, library);
@@ -361,7 +368,9 @@ export function LibraryAssistant() {
           </div>)}
         </div> : null}
       </>} />}
-    model={fixed && !demo ? null : <SearchModelPicker providers={providers} fallback={fallback} value={selection} onChange={setModelChoice} disabled={busy || demo || setup.isPending} />}
+    model={fixed && !demo ? null : <SearchModelPicker providers={providers} fallback={fallback} value={selection}
+      onChange={setModelChoice} canConfigure={canConfigure}
+      disabled={busy || demo || setup.isPending || Boolean(setupError) || (!canConfigure && !connections.length)} />}
     status={demo ? <>
       <DemoStatus />
       <div className="ml-auto flex flex-wrap items-center gap-1">
@@ -382,7 +391,7 @@ export function LibraryAssistant() {
         <ConversationUsagePopover usage={usage} pending={planning} provider={fixed ? fixedConnection?.id : (selection ?? fallback)?.provider} />
       </div>
       {turn && setupAction ? <div className="basis-full px-1.5">{setupAction}</div> : null}
-      {fixed && !fixedConnection ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary">
+      {fixed && !fixedConnection && !setupError ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary">
         {t('settings:aiLibrary.taskConnectionMissing')}
       </p> : !fixed && hasPlanner ? <p className="basis-full px-1.5 text-caption-1-regular text-text-secondary"
         data-copy-key={scope === 'library' ? 'catalog.libraryAssistant.share' : 'catalog.libraryAssistant.shareExternal'}>

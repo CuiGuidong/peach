@@ -604,6 +604,7 @@
     "removeChip": "Remove {{label}}",
     "search": "Find in these videos",
     "shuffle": "Shuffle",
+    "moreFailed": "Could not load more avatars",
     "sourceName": "Source: {{source}}",
     "watchStatus": "Watch status"
   },
@@ -1192,6 +1193,7 @@
     "recommendedJav": "Recommended JAV",
     "recommendedVideos": "Recommended videos",
     "removeHistory": "Remove “{{query}}” from history",
+    "removeHistoryFailed": "Could not delete search history",
     "shuffleGroup": "Shuffle {{group}}",
     "suggestionsFor": "Suggestions for {{label}}",
     "tabsLabel": "Suggestions by type",

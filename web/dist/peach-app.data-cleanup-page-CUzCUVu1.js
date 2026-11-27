@@ -1,64 +1,64 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "07f10e6a-e089-4630-ad67-00bf5fdb9eac", e._sentryDebugIdIdentifier = "sentry-dbid-07f10e6a-e089-4630-ad67-00bf5fdb9eac");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "871cd976-0c1d-4c6a-b493-9a7441905ebf", e._sentryDebugIdIdentifier = "sentry-dbid-871cd976-0c1d-4c6a-b493-9a7441905ebf");
 	} catch {}
 })();
-import { AnimatedNumber as e, BATCH_DELETE_TEXT as t, BC as n, Button as r, CLEANUP_ENTRY as i, CLEANUP_ENTRY_GRID as a, CLEANUP_HASH_REDIRECTS as o, CLEANUP_TOOLS as s, Chip as c, ColumnFilterAvatar as l, DIRECTORY_TEMPLATE_ERROR as u, DUPLICATES_KEY as d, DataTable as f, Fieldset as p, FieldsetTitle as m, IDLE_REPAIR as h, IconButton as g, IndexSearch as _, Input as v, JUNK_KEY as y, LEGACY_AVATAR_IMG as b, LINKS_KEY as x, LINK_CHECK_KEY as S, LINK_KINDS as C, LINK_PRUNE_KEY as w, LOC as T, LibraryLabel as E, LibraryProcessingCard as D, M6 as O, MEDIA_REPAIR_KEY as k, MEDIA_REPAIR_URL as A, MEDIA_SOURCES_KEY as ee, MEDIA_SOURCE_ICONS as te, Note as j, ORGANIZE_KEY as ne, ORGANIZE_PARAMETER_HINT as M, ORGANIZE_SCOPE_HINT as re, ORGANIZE_TEXT as ie, ORPHAN_RECORDS_KEY as N, ORPHAN_RECORDS_TEXT as ae, PERFORMER_DELETE_KEY as oe, PLAIN_STAT_STRIP as P, PlainStat as F, Progress as I, QUALITY_GOALS_KEY as L, RECORD_LABELS as se, REPAIR_CARD_TEXT as ce, REPAIR_LIBRARIES_KEY as le, RESOURCE_APPLY_KEY as ue, RESOURCE_SCAN_KEY as de, RESOURCE_SYNC_TEXT as fe, RESULT_PANEL as pe, RESULT_SECTION as me, REVIEW_COUNTS_KEY as he, SOURCE_LABELS as R, SectionHeading as ge, Select as _e, SelectItem as ve, SiteMark as z, SourceLabel as ye, SourceMark as be, StatusLabel as xe, TRASH_KEY as Se, TaskProgress as B, Wt as Ce, __toESM as we, activityKind as V, apiSend as Te, applyConfirmText as Ee, applyLeftovers as De, applyPlanText as Oe, applyText as ke, attachOrphan as Ae, baseName as je, busyProps as H, candidateText as Me, checkLine as Ne, cleanupToolSkeletonHtml as Pe, codedText as Fe, confirmModal as Ie, cx as Le, dZ as Re, deletePerformerVideos as ze, entityDisplayName as Be, entityFaceImg as Ve, entityPath as He, errorMessage as U, esc as Ue, fetchDeletePerformers as We, fetchDeletePlan as Ge, fetchDuplicates as Ke, fetchJunkSummary as qe, fetchLinkCheck as Je, fetchLinkPrune as Ye, fetchLinkStats as Xe, fetchMediaRepair as Ze, fetchMediaSources as Qe, fetchOrganize as $e, fetchOrganizeExample as et, fetchOrphanRecords as tt, fetchQualityGoals as nt, fetchRepairLibraries as rt, fetchResourceApply as it, fetchResourceScan as at, fetchReviewCounts as ot, fetchTrashSummary as st, firstGrapheme as ct, fmtSize as W, hasChanges as lt, hasResourceRoots as ut, jobText as G, junkBreakdown as dt, ks as ft, linkLabel as pt, missingToolText as mt, organizeOutcome as ht, peachHistory$1 as gt, pickOrganizeFolder as _t, plainStatClass as K, planSummary as vt, previewOrganize as yt, pruneText as bt, purgeCount as xt, purgeOrphan as St, queryClient as q, recordsText as Ct, rememberTemplates as wt, require_jsx_runtime as Tt, require_react as Et, reviewSummary as Dt, runBulkAction as Ot, scanLine as kt, serverLabel as At, sourceMeta as jt, spriteGlyph as J, stageText as Mt, startLinkCheck as Nt, startLinkPrune as Pt, startOrganize as Ft, startResourceApply as It, startResourceScan as Lt, statusLine as Rt, t as Y, useAction as zt, useBackgroundJob as X, useEntityNames as Bt, useMutation as Vt, useOrderedLibraries as Ht, useQuery as Z, withOrganizeJob as Ut } from "./peach-app.js";
-import { Page as Wt } from "./peach-app.page-QAncjzM1.js";
-import { ErrorExcerpt as Gt } from "./peach-app.error-excerpt-Ugft6I5o.js";
-import { FolderSearchIcon as Kt } from "./peach-app.folder-rows-C3hhF_90.js";
-import { ConnectionStatus as qt } from "./peach-app.connection-status-BrXhLGSm.js";
+import { AnimatedNumber as e, BATCH_DELETE_TEXT as t, BC as n, Button as r, ButtonLink as i, CLEANUP_ENTRY as a, CLEANUP_ENTRY_GRID as o, CLEANUP_HASH_REDIRECTS as s, CLEANUP_TOOLS as c, Chip as l, ColumnFilterAvatar as u, DIRECTORY_TEMPLATE_ERROR as d, DUPLICATES_KEY as f, DataTable as p, Fieldset as m, FieldsetTitle as h, IDLE_REPAIR as g, IconButton as _, IndexSearch as v, Input as y, JUNK_KEY as b, LEGACY_AVATAR_IMG as x, LINKS_KEY as S, LINK_CHECK_KEY as ee, LINK_KINDS as C, LINK_PRUNE_KEY as te, LOC as w, LibraryLabel as T, LibraryProcessingCard as E, M6 as D, MEDIA_REPAIR_KEY as O, MEDIA_REPAIR_URL as k, MEDIA_SOURCES_KEY as A, MEDIA_SOURCE_ICONS as ne, Note as j, ORGANIZE_KEY as M, ORGANIZE_PARAMETER_HINT as re, ORGANIZE_SCOPE_HINT as ie, ORGANIZE_TEXT as N, ORPHAN_RECORDS_KEY as ae, ORPHAN_RECORDS_TEXT as oe, PERFORMER_DELETE_KEY as P, PLAIN_STAT_STRIP as F, PlainStat as I, Progress as se, QUALITY_GOALS_KEY as ce, RECORD_LABELS as L, REPAIR_CARD_TEXT as le, REPAIR_LIBRARIES_KEY as ue, RESOURCE_APPLY_KEY as de, RESOURCE_SCAN_KEY as fe, RESOURCE_SYNC_TEXT as pe, RESULT_PANEL as me, RESULT_SECTION as he, REVIEW_COUNTS_KEY as R, SOURCE_LABELS as ge, SectionHeading as z, Select as _e, SelectItem as ve, SiteMark as B, SourceLabel as ye, SourceMark as be, StatusLabel as xe, TRASH_KEY as Se, TaskProgress as V, Wt as Ce, __toESM as we, activityKind as H, apiSend as Te, applyConfirmText as Ee, applyLeftovers as De, applyPlanText as Oe, applyText as ke, attachOrphan as Ae, baseName as je, busyProps as U, candidateText as Me, checkLine as Ne, cleanupToolSkeletonHtml as Pe, codedText as Fe, confirmModal as Ie, cx as Le, dZ as Re, deletePerformerVideos as ze, entityDisplayName as Be, entityFaceImg as Ve, entityPath as He, errorMessage as W, esc as Ue, fetchDeletePerformers as We, fetchDeletePlan as Ge, fetchDuplicates as Ke, fetchJunkSummary as qe, fetchLinkCheck as Je, fetchLinkPrune as Ye, fetchLinkStats as Xe, fetchMediaRepair as Ze, fetchMediaSources as Qe, fetchOrganize as $e, fetchOrganizeExample as et, fetchOrphanRecords as tt, fetchQualityGoals as nt, fetchRepairLibraries as rt, fetchResourceApply as it, fetchResourceScan as at, fetchReviewCounts as ot, fetchTrashSummary as st, firstGrapheme as ct, fmtSize as lt, hasChanges as ut, hasResourceRoots as dt, jobText as G, junkBreakdown as ft, ks as pt, linkLabel as mt, missingToolText as ht, organizeOutcome as gt, peachHistory$1 as _t, pickOrganizeFolder as vt, plainStatClass as K, planSummary as yt, previewOrganize as bt, pruneText as xt, purgeCount as St, purgeOrphan as Ct, queryClient as q, recordsText as wt, rememberTemplates as Tt, require_jsx_runtime as Et, require_react as Dt, reviewSummary as Ot, runBulkAction as kt, scanLine as At, serverLabel as jt, sourceMeta as Mt, spriteGlyph as J, stageText as Nt, startLinkCheck as Pt, startLinkPrune as Ft, startOrganize as It, startResourceApply as Lt, startResourceScan as Rt, statusLine as zt, t as Y, useAction as Bt, useBackgroundJob as X, useEntityNames as Vt, useMutation as Ht, useOrderedLibraries as Ut, useQuery as Z, withOrganizeJob as Wt } from "./peach-app.js";
+import { Page as Gt } from "./peach-app.page-QAncjzM1.js";
+import { ErrorExcerpt as Kt } from "./peach-app.error-excerpt-Ugft6I5o.js";
+import { FolderSearchIcon as qt } from "./peach-app.folder-rows-C3hhF_90.js";
+import { ConnectionStatus as Jt } from "./peach-app.connection-status-BrXhLGSm.js";
 // src/react/data-cleanup/cleanup-entry-card.tsx
-var Q = /* @__PURE__ */ we(Et(), 1), $ = Tt(), Jt = J("chevron-right");
-function Yt({ label: e, icon: t, summary: n, detail: r, state: a, attributes: o, onOpen: s }) {
+var Q = /* @__PURE__ */ we(Dt(), 1), $ = Et(), Yt = J("chevron-right");
+function Xt({ label: e, icon: t, summary: n, detail: r, state: i, attributes: o, onOpen: s }) {
 	return /* @__PURE__ */ (0, $.jsxs)("button", {
 		type: "button",
 		...o,
-		className: i.face,
+		className: a.face,
 		onClick: s,
-		"data-entry-state": a,
-		"aria-busy": a === "loading" || void 0,
+		"data-entry-state": i,
+		"aria-busy": i === "loading" || void 0,
 		children: [
 			/* @__PURE__ */ (0, $.jsx)("span", {
 				"aria-hidden": !0,
-				className: i.icon,
+				className: a.icon,
 				children: /* @__PURE__ */ (0, $.jsx)(t, {
 					"aria-hidden": !0,
 					className: "size-5"
 				})
 			}),
 			/* @__PURE__ */ (0, $.jsxs)("span", {
-				className: i.body,
+				className: a.body,
 				children: [
 					/* @__PURE__ */ (0, $.jsx)("span", {
-						className: i.title,
+						className: a.title,
 						children: e
 					}),
 					/* @__PURE__ */ (0, $.jsx)("span", {
-						className: Le(i.summary, a === "error" && "text-text-error-primary"),
+						className: Le(a.summary, i === "error" && "text-text-error-primary"),
 						children: n
 					}),
 					r ? /* @__PURE__ */ (0, $.jsx)("span", {
-						className: i.detail,
+						className: a.detail,
 						children: r
 					}) : null
 				]
 			}),
-			/* @__PURE__ */ (0, $.jsx)(Jt, {
+			/* @__PURE__ */ (0, $.jsx)(Yt, {
 				"aria-hidden": !0,
-				className: i.arrow
+				className: a.arrow
 			})
 		]
 	});
 }
 // src/react/media-repair/media-repair-card.tsx
-var Xt = (e) => te[e] || e, Zt = (e) => q.setQueryData(k, e);
-function Qt({ toast: e = () => {} }) {
+var Zt = (e) => ne[e] || e, Qt = (e) => q.setQueryData(O, e);
+function $t({ toast: e = () => {} }) {
 	let t = X({
-		queryKey: k,
+		queryKey: O,
 		queryFn: ({ signal: e }) => Ze(e),
-		start: (e) => Te(A, {
+		start: (e) => Te(k, {
 			library: e,
 			restart: !0
 		}),
@@ -66,9 +66,9 @@ function Qt({ toast: e = () => {} }) {
 			t.status === "complete" && !t.failed && !t.missing_tool && e(t.repaired ? Y("cleanup:mediaRepair.repaired", { count: t.repaired }) : Y("cleanup:mediaRepair.nothingToRepair"));
 		}
 	}), n = Z({
-		queryKey: le,
+		queryKey: ue,
 		queryFn: ({ signal: e }) => rt(e)
-	}), [i, a] = (0, Q.useState)(""), o = zt(), s = t.job ?? h, c = Ht(n.data ?? [], (e) => e.id), l = s.status === "running", u = c.find((e) => e.id === (l ? s.library : i)) ?? c.find((e) => e.id === s.library) ?? c[0], d = () => {
+	}), [i, a] = (0, Q.useState)(""), o = Bt(), s = t.job ?? g, c = Ut(n.data ?? [], (e) => e.id), l = s.status === "running", u = c.find((e) => e.id === (l ? s.library : i)) ?? c.find((e) => e.id === s.library) ?? c[0], d = () => {
 		u && Ie({
 			title: Y("cleanup:mediaRepair.confirmTitle", { name: u.name }),
 			body: [Y("cleanup:mediaRepair.body"), ...u.metered ? [Y("cleanup:mediaRepair.meteredWarning")] : []].join(Y("cleanup:shared.sentenceGap")),
@@ -77,10 +77,10 @@ function Qt({ toast: e = () => {} }) {
 				await t.start.mutateAsync(u.id);
 			}
 		});
-	}, f = () => void o.run("stop", (e) => Te(A, { stop: !0 }, "POST", e), Zt), g = t.outcome, _ = Rt(l ? s : g ?? h), v = o.error || G(g, "error") || (t.query.error ? Y("cleanup:mediaRepair.statusUnavailable") : "");
+	}, f = () => void o.run("stop", (e) => Te(k, { stop: !0 }, "POST", e), Qt), p = t.outcome, _ = zt(l ? s : p ?? g), v = o.error || G(p, "error") || (t.query.error ? Y("cleanup:mediaRepair.statusUnavailable") : "");
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "flex flex-col gap-4",
-		children: [/* @__PURE__ */ (0, $.jsx)(p, {
+		children: [/* @__PURE__ */ (0, $.jsx)(m, {
 			layout: "split",
 			label: Y("cleanup:tools.mediaRepair"),
 			footer: /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(_e, {
@@ -96,15 +96,15 @@ function Qt({ toast: e = () => {} }) {
 				children: c.map((e) => /* @__PURE__ */ (0, $.jsx)(ve, {
 					id: e.id,
 					textValue: e.name,
-					children: /* @__PURE__ */ (0, $.jsx)(E, { library: {
+					children: /* @__PURE__ */ (0, $.jsx)(T, { library: {
 						id: e.id,
 						name: e.name,
-						icon: Xt(e.icon)
+						icon: Zt(e.icon)
 					} })
 				}, e.id))
 			}), l ? /* @__PURE__ */ (0, $.jsx)(r, {
 				onClick: f,
-				...H(o.busy === "stop"),
+				...U(o.busy === "stop"),
 				children: Y("cleanup:shared.stop")
 			}) : /* @__PURE__ */ (0, $.jsx)(r, {
 				onClick: d,
@@ -114,12 +114,12 @@ function Qt({ toast: e = () => {} }) {
 			children: /* @__PURE__ */ (0, $.jsxs)("div", {
 				className: "flex flex-col gap-2",
 				children: [
-					/* @__PURE__ */ (0, $.jsx)(m, { children: Y("cleanup:tools.mediaRepair") }),
+					/* @__PURE__ */ (0, $.jsx)(h, { children: Y("cleanup:tools.mediaRepair") }),
 					/* @__PURE__ */ (0, $.jsx)("p", {
 						className: "text-body-2-regular text-text-secondary",
-						children: ce
+						children: le
 					}),
-					l && s.total ? /* @__PURE__ */ (0, $.jsx)(I, {
+					l && s.total ? /* @__PURE__ */ (0, $.jsx)(se, {
 						label: Y("cleanup:mediaRepair.progress"),
 						value: s.checked,
 						max: s.total
@@ -135,7 +135,7 @@ function Qt({ toast: e = () => {} }) {
 			"aria-live": "polite",
 			className: "flex flex-col gap-4 empty:hidden",
 			children: [
-				g?.status === "complete" && g.missing_tool ? /* @__PURE__ */ (0, $.jsx)(j, {
+				p?.status === "complete" && p.missing_tool ? /* @__PURE__ */ (0, $.jsx)(j, {
 					tone: "warning",
 					title: Y("cleanup:mediaRepair.missingTool"),
 					action: /* @__PURE__ */ (0, $.jsx)(r, {
@@ -144,7 +144,7 @@ function Qt({ toast: e = () => {} }) {
 						onClick: t.dismiss,
 						children: Y("cleanup:mediaRepair.dismiss")
 					}),
-					children: mt(g)
+					children: ht(p)
 				}) : null,
 				n.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
 					tone: "error",
@@ -159,7 +159,7 @@ function Qt({ toast: e = () => {} }) {
 	});
 }
 // src/react/data-cleanup/link-check-icon.tsx
-function $t({ className: e }) {
+function en({ className: e }) {
 	return /* @__PURE__ */ (0, $.jsxs)("svg", {
 		"aria-hidden": !0,
 		viewBox: "0 0 24 24",
@@ -186,8 +186,8 @@ function $t({ className: e }) {
 	});
 }
 // src/react/data-cleanup/link-manager.tsx
-var en = J("rotate-cw"), tn = Y("cleanup:links.goneHint"), nn = Y("cleanup:links.unclearHint"), rn = Y("cleanup:links.pruneHint"), an = Y("cleanup:shared.reconnecting"), on = (e) => Number(e || 0).toLocaleString();
-function sn({ label: e, value: t, note: n }) {
+var tn = J("rotate-cw"), nn = Y("cleanup:links.goneHint"), rn = Y("cleanup:links.unclearHint"), an = Y("cleanup:links.pruneHint"), on = Y("cleanup:shared.reconnecting"), sn = (e) => Number(e || 0).toLocaleString();
+function cn({ label: e, value: t, note: n }) {
 	return /* @__PURE__ */ (0, $.jsxs)("div", {
 		className: "flex min-w-0 flex-col gap-0.5",
 		children: [
@@ -206,7 +206,7 @@ function sn({ label: e, value: t, note: n }) {
 		]
 	});
 }
-function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, controls: s, retry: c, retrying: u, footer: d, confirmed: p = !1 }) {
+function ln({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, controls: s, retry: c, retrying: l, footer: d, confirmed: f = !1 }) {
 	if (!t.length) return null;
 	let m = [
 		{
@@ -217,7 +217,7 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 			value: (e) => e.entity,
 			filter: {
 				values: (e) => e.entity,
-				option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, $.jsx)(l, {
+				option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, $.jsx)(u, {
 					person: {
 						...t.face,
 						id: t.entity_id,
@@ -233,7 +233,7 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 				"data-link-identity": "",
 				children: [/* @__PURE__ */ (0, $.jsx)("span", {
 					"data-link-avatar": "",
-					className: `relative flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-medium text-text-primary ${b}`,
+					className: `relative flex size-6 shrink-0 items-center justify-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-medium text-text-primary ${x}`,
 					"aria-hidden": !0,
 					dangerouslySetInnerHTML: { __html: `<span>${Ue(ct(e.entity))}</span>` + Ve({
 						kind: e.entity_kind,
@@ -265,17 +265,17 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 			id: "label",
 			label: Y("cleanup:links.columnName"),
 			min: 128,
-			value: (e) => pt(e.label),
+			value: (e) => mt(e.label),
 			filter: {
-				values: (e) => pt(e.label) || new URL(e.url).hostname,
-				option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, $.jsx)(z, { linkId: t.id }) })
+				values: (e) => mt(e.label) || new URL(e.url).hostname,
+				option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, $.jsx)(B, { linkId: t.id }) })
 			},
 			render: (e) => /* @__PURE__ */ (0, $.jsx)("span", {
 				className: "flex min-w-24 items-center gap-2",
 				"data-link-name": "",
 				children: /* @__PURE__ */ (0, $.jsx)("span", {
 					className: "min-w-0 wrap-anywhere",
-					children: pt(e.label) || new URL(e.url).hostname
+					children: mt(e.label) || new URL(e.url).hostname
 				})
 			})
 		},
@@ -285,24 +285,24 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 			width: 320,
 			min: 192,
 			value: (e) => e.note,
-			filter: { values: (e) => At(e.note_code ?? "", e.note, e.note_params) },
+			filter: { values: (e) => jt(e.note_code ?? "", e.note, e.note_params) },
 			render: (e) => /* @__PURE__ */ (0, $.jsxs)("div", {
 				className: "min-w-0 w-full",
-				"data-link-result": p ? "gone" : "unclear",
+				"data-link-result": f ? "gone" : "unclear",
 				children: [/^(?:HTTP\s+)?[1-5]\d{2}$/.test(e.note.trim()) ? /* @__PURE__ */ (0, $.jsx)(xe, {
-					tone: p || /^(?:HTTP\s+)?5\d{2}$/.test(e.note.trim()) ? "error" : "warning",
+					tone: f || /^(?:HTTP\s+)?5\d{2}$/.test(e.note.trim()) ? "error" : "warning",
 					"data-link-code": "",
 					children: e.note.trim()
 				}) : /* @__PURE__ */ (0, $.jsxs)("div", {
 					className: "flex flex-col items-start gap-1",
 					children: [/* @__PURE__ */ (0, $.jsx)(xe, {
-						tone: p ? "error" : "warning",
-						children: Y(p ? "cleanup:links.dead" : "cleanup:links.inconclusive")
-					}), /* @__PURE__ */ (0, $.jsx)(Gt, {
-						text: At(e.note_code ?? "", e.note, e.note_params),
+						tone: f ? "error" : "warning",
+						children: Y(f ? "cleanup:links.dead" : "cleanup:links.inconclusive")
+					}), /* @__PURE__ */ (0, $.jsx)(Kt, {
+						text: jt(e.note_code ?? "", e.note, e.note_params),
 						className: "tabular-nums text-text-secondary"
 					})]
-				}), !p && e.temporary && e.attempts ? /* @__PURE__ */ (0, $.jsx)("span", {
+				}), !f && e.temporary && e.attempts ? /* @__PURE__ */ (0, $.jsx)("span", {
 					"data-link-rechecked": "",
 					className: "mt-1 block text-body-2-regular text-text-secondary",
 					children: Y("cleanup:links.rechecked", { count: e.attempts })
@@ -317,7 +317,7 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 			value: (e) => e.url,
 			filter: {
 				values: (e) => new URL(e.url).hostname,
-				option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, $.jsx)(z, { linkId: t.id }) })
+				option: (e, t) => ({ leading: t && /* @__PURE__ */ (0, $.jsx)(B, { linkId: t.id }) })
 			},
 			render: (e) => /* @__PURE__ */ (0, $.jsxs)("a", {
 				href: e.url,
@@ -327,7 +327,7 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 				"data-link-address": "",
 				className: "flex min-w-0 items-center gap-1 text-text-secondary hover:text-text-primary",
 				children: [
-					/* @__PURE__ */ (0, $.jsx)(z, { linkId: e.id }),
+					/* @__PURE__ */ (0, $.jsx)(B, { linkId: e.id }),
 					/* @__PURE__ */ (0, $.jsx)("span", {
 						"data-middle-truncate": !0,
 						className: "min-w-0 truncate",
@@ -342,10 +342,10 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 		}
 	];
 	return /* @__PURE__ */ (0, $.jsx)("div", {
-		className: me,
-		"data-link-results": p ? "gone" : "unclear",
-		children: /* @__PURE__ */ (0, $.jsx)(f, {
-			preferenceId: p ? "links-dead" : "links-unreached",
+		className: he,
+		"data-link-results": f ? "gone" : "unclear",
+		children: /* @__PURE__ */ (0, $.jsx)(p, {
+			preferenceId: f ? "links-dead" : "links-unreached",
 			label: e,
 			items: t,
 			columns: m,
@@ -356,7 +356,7 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 			footerActions: d,
 			rowLabel: (e) => Y("cleanup:links.rowLabel", {
 				entity: e.entity,
-				link: pt(e.label) || e.url
+				link: mt(e.label) || e.url
 			}),
 			selected: i.map(String),
 			onSelected: (e) => a(e.map(Number)),
@@ -369,7 +369,7 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 				id: "retry",
 				label: Y("manage:shared.retryNow"),
 				icon: Re,
-				disabled: u,
+				disabled: l,
 				run: () => c(e.id)
 			}] : []],
 			actions: (e) => o?.(e) ?? [],
@@ -377,40 +377,40 @@ function cn({ title: e, items: t, hint: r, picked: i, onPick: a, actions: o, con
 		})
 	});
 }
-function ln() {
+function un() {
 	let t = Z({
-		queryKey: x,
+		queryKey: S,
 		queryFn: ({ signal: e }) => Xe(e)
 	}), [n, i] = (0, Q.useState)([]), [a, o] = (0, Q.useState)([]), s = X({
-		queryKey: w,
+		queryKey: te,
 		queryFn: ({ signal: e }) => Ye(e),
-		start: Pt,
+		start: Ft,
 		onFinish: () => {
 			q.invalidateQueries({
-				queryKey: x,
+				queryKey: S,
 				exact: !0
 			}), q.invalidateQueries({
-				queryKey: S,
+				queryKey: ee,
 				exact: !0
 			});
 		}
-	}), l = X({
-		queryKey: S,
+	}), c = X({
+		queryKey: ee,
 		queryFn: ({ signal: e }) => Je(e),
-		start: Nt,
+		start: Pt,
 		onStarted: () => {
 			s.dismiss(), i([]), o([]);
 		}
-	}), u = l.job, d = u?.check_id ?? "";
+	}), u = c.job, d = u?.check_id ?? "";
 	(0, Q.useEffect)(() => {
 		i([]), o([]);
 	}, [d]);
-	let f = l.running || l.start.isPending, h = s.running || s.start.isPending, g = s.running ? s.job : void 0, _ = !!l.job && !!s.job, v = u?.status === "complete", y = u?.gone ?? [], b = u?.unclear ?? [], T = v ? b : [], E = T.filter((e) => n.includes(e.id)).map((e) => e.id), D = t.data, k = (D?.top_hosts ?? []).slice(0, 3), A = (e) => {
-		!_ || f || e && !e.length || l.start.mutate(e ? {
+	let f = c.running || c.start.isPending, p = s.running || s.start.isPending, g = s.running ? s.job : void 0, _ = !!c.job && !!s.job, v = u?.status === "complete", y = u?.gone ?? [], b = u?.unclear ?? [], x = v ? b : [], w = x.filter((e) => n.includes(e.id)).map((e) => e.id), T = t.data, E = (T?.top_hosts ?? []).slice(0, 3), O = (e) => {
+		!_ || f || e && !e.length || c.start.mutate(e ? {
 			retry: e,
 			checkId: d
 		} : {});
-	}, ee = (e, t = !1) => ({
+	}, k = (e, t = !1) => ({
 		key: t ? "prune-all" : "prune",
 		label: e,
 		reversal: "irreversible",
@@ -428,9 +428,9 @@ function ln() {
 			});
 		},
 		receipt: () => ""
-	}), te = { receipt: () => {} }, ne = () => {
-		_ && !h && y.length && Ot(ee(Y("cleanup:links.deleteDead"), !0), y, te);
-	}, M = h || s.start.isError ? null : s.outcome, re = l.start.error ?? s.start.error, ie = null, N = null;
+	}), A = { receipt: () => {} }, ne = () => {
+		_ && !p && y.length && kt(k(Y("cleanup:links.deleteDead"), !0), y, A);
+	}, M = p || s.start.isError ? null : s.outcome, re = c.start.error ?? s.start.error, ie = null, N = null;
 	if (M?.status === "failed") N = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:links.pruneIncomplete"),
@@ -439,17 +439,17 @@ function ln() {
 	else if (M && !y.length && !b.length) N = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "success",
 		title: Y("cleanup:links.pruneDone"),
-		children: bt(M)
+		children: xt(M)
 	});
 	else if (re) N = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:links.checkFailed"),
-		children: U(re)
+		children: W(re)
 	});
-	else if (l.query.isError && u) N = /* @__PURE__ */ (0, $.jsx)(j, {
+	else if (c.query.isError && u) N = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "neutral",
 		title: Y("cleanup:shared.taskStatus"),
-		children: an
+		children: on
 	});
 	else if (u?.status === "failed") N = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
@@ -458,82 +458,82 @@ function ln() {
 	});
 	else if (u && u.status !== "idle") {
 		let t = Ne(u);
-		ie = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [u.status === "running" ? /* @__PURE__ */ (0, $.jsx)(B, {
+		ie = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [u.status === "running" ? /* @__PURE__ */ (0, $.jsx)(V, {
 			embedded: !0,
-			kind: V("link-check"),
+			kind: H("link-check"),
 			label: t,
 			labelContent: u.total ? /* @__PURE__ */ (0, $.jsx)(e, { value: t }) : t,
 			value: Math.min(u.checked || 0, u.total || 0),
 			total: u.total
-		}) : null, h ? /* @__PURE__ */ (0, $.jsx)(B, {
+		}) : null, p ? /* @__PURE__ */ (0, $.jsx)(V, {
 			embedded: !0,
-			kind: V("link-prune"),
+			kind: H("link-prune"),
 			label: G(g) || Y("cleanup:links.pruning"),
 			value: g?.checked,
 			total: g?.total
 		}) : null] });
-		let s = Y("cleanup:links.retrySelected", { count: E.length });
+		let s = Y("cleanup:links.retrySelected", { count: w.length });
 		N = v || y.length || b.length ? /* @__PURE__ */ (0, $.jsxs)("div", {
-			className: pe,
+			className: me,
 			children: [
 				M?.status === "complete" ? /* @__PURE__ */ (0, $.jsx)(j, {
 					tone: "success",
 					title: Y("cleanup:links.pruneDone"),
-					children: bt(M)
+					children: xt(M)
 				}) : null,
-				/* @__PURE__ */ (0, $.jsx)(cn, {
+				/* @__PURE__ */ (0, $.jsx)(ln, {
 					title: Y("cleanup:links.dead"),
 					items: y,
-					hint: tn,
+					hint: nn,
 					picked: a,
 					onPick: o,
 					confirmed: !0,
 					footer: v && y.length ? /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)("p", {
 						className: "mr-auto min-w-0 text-caption-1-regular text-text-secondary",
-						children: rn
+						children: an
 					}), /* @__PURE__ */ (0, $.jsx)(r, {
 						variant: "danger",
-						...H(h),
+						...U(p),
 						onClick: ne,
 						children: Y("cleanup:links.deleteDeadCount", { count: y.length })
 					})] }) : null,
 					actions: (e) => [{
-						action: ee(Y("cleanup:links.deleteSelected", { count: e.length })),
+						action: k(Y("cleanup:links.deleteSelected", { count: e.length })),
 						items: e,
-						host: te,
-						disabled: !v || h,
+						host: A,
+						disabled: !v || p,
 						rowAction: {
 							label: Y("cleanup:links.deleteDead"),
-							icon: O
+							icon: D
 						}
 					}]
 				}),
-				/* @__PURE__ */ (0, $.jsx)(cn, {
+				/* @__PURE__ */ (0, $.jsx)(ln, {
 					title: Y("cleanup:links.unreached"),
 					items: b,
-					hint: nn,
+					hint: rn,
 					picked: n,
 					onPick: i,
-					retry: v ? (e) => A([e]) : void 0,
+					retry: v ? (e) => O([e]) : void 0,
 					retrying: f,
-					footer: T.length ? /* @__PURE__ */ (0, $.jsx)(r, {
+					footer: x.length ? /* @__PURE__ */ (0, $.jsx)(r, {
 						variant: "primary",
-						leadingIcon: en,
-						...H(f),
-						onClick: () => A(T.map((e) => e.id)),
-						children: Y("cleanup:links.retryAll", { count: T.length })
+						leadingIcon: tn,
+						...U(f),
+						onClick: () => O(x.map((e) => e.id)),
+						children: Y("cleanup:links.retryAll", { count: x.length })
 					}) : null,
-					controls: T.length ? /* @__PURE__ */ (0, $.jsx)(r, {
+					controls: x.length ? /* @__PURE__ */ (0, $.jsx)(r, {
 						variant: "secondary",
-						leadingIcon: en,
-						disabled: !E.length,
-						...H(f),
-						onClick: () => A(E),
+						leadingIcon: tn,
+						disabled: !w.length,
+						...U(f),
+						onClick: () => O(w),
 						children: s
 					}) : null
 				}),
 				v && !y.length && !b.length ? /* @__PURE__ */ (0, $.jsx)("p", {
-					className: `${me} text-body-regular text-notification-success-foreground`,
+					className: `${he} text-body-regular text-notification-success-foreground`,
 					children: Y("cleanup:links.allReachable")
 				}) : null
 			]
@@ -543,19 +543,19 @@ function ln() {
 		id: "link-manager",
 		"aria-labelledby": "link-manager-title",
 		className: "flex scroll-mt-20 flex-col gap-4",
-		children: [/* @__PURE__ */ (0, $.jsxs)(p, {
+		children: [/* @__PURE__ */ (0, $.jsxs)(m, {
 			layout: "stack",
 			labelledBy: "link-manager-title",
 			footer: /* @__PURE__ */ (0, $.jsx)(r, {
 				"data-link-check": "",
-				leadingIcon: $t,
+				leadingIcon: en,
 				disabled: !_,
-				...H(f),
-				onClick: () => A(),
+				...U(f),
+				onClick: () => O(),
 				children: Y(f ? "cleanup:links.checking" : v ? "cleanup:links.checkAgain" : "cleanup:links.checkLinks")
 			}),
 			children: [
-				/* @__PURE__ */ (0, $.jsx)(m, {
+				/* @__PURE__ */ (0, $.jsx)(h, {
 					id: "link-manager-title",
 					gap: "small",
 					children: Y("cleanup:tools.links")
@@ -563,25 +563,25 @@ function ln() {
 				t.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
 					tone: "error",
 					title: Y("cleanup:links.statsLoadFailed"),
-					children: U(t.error)
-				}) : D ? /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsxs)("div", {
+					children: W(t.error)
+				}) : T ? /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsxs)("div", {
 					className: "link-stat-grid mt-4 gap-x-8 gap-y-3",
-					children: [/* @__PURE__ */ (0, $.jsx)(sn, {
+					children: [/* @__PURE__ */ (0, $.jsx)(cn, {
 						label: Y("cleanup:links.totalLinks"),
-						value: on(D.total),
-						note: Y("cleanup:links.entitySpread", { count: Number(D.entities || 0) })
-					}), Object.entries(D.by_kind ?? {}).map(([e, t]) => /* @__PURE__ */ (0, $.jsx)(sn, {
+						value: sn(T.total),
+						note: Y("cleanup:links.entitySpread", { count: Number(T.entities || 0) })
+					}), Object.entries(T.by_kind ?? {}).map(([e, t]) => /* @__PURE__ */ (0, $.jsx)(cn, {
 						label: C[e] || e,
-						value: on(t)
+						value: sn(t)
 					}, e))]
-				}), k.length ? /* @__PURE__ */ (0, $.jsxs)("div", {
+				}), E.length ? /* @__PURE__ */ (0, $.jsxs)("div", {
 					className: "mt-4 flex min-w-0 flex-col gap-0.5",
 					children: [/* @__PURE__ */ (0, $.jsx)("span", {
 						className: "text-caption-1-regular text-text-secondary",
 						children: Y("cleanup:links.topSites")
 					}), /* @__PURE__ */ (0, $.jsx)("div", {
 						className: "flex min-w-0 flex-wrap gap-x-5 gap-y-2",
-						children: k.map(([e, t]) => /* @__PURE__ */ (0, $.jsxs)("span", {
+						children: E.map(([e, t]) => /* @__PURE__ */ (0, $.jsxs)("span", {
 							"data-top-host": "",
 							className: "inline-flex min-w-0 max-w-full items-center gap-1.5",
 							children: [/* @__PURE__ */ (0, $.jsxs)("a", {
@@ -590,7 +590,7 @@ function ln() {
 								rel: "noopener noreferrer",
 								className: "inline-flex min-w-0 items-center gap-1.5 text-body-2-medium text-text-primary",
 								children: [
-									/* @__PURE__ */ (0, $.jsx)(z, { linkId: D.top_host_link_ids?.[e] }),
+									/* @__PURE__ */ (0, $.jsx)(B, { linkId: T.top_host_link_ids?.[e] }),
 									/* @__PURE__ */ (0, $.jsx)("span", {
 										className: "min-w-0 wrap-anywhere",
 										children: e
@@ -600,12 +600,12 @@ function ln() {
 										className: "size-(--icon-inline) shrink-0"
 									})
 								]
-							}), /* @__PURE__ */ (0, $.jsx)(c, {
+							}), /* @__PURE__ */ (0, $.jsx)(l, {
 								variant: "caption",
 								color: "neutral",
 								children: /* @__PURE__ */ (0, $.jsx)("span", {
 									className: "tabular-nums",
-									children: on(t)
+									children: sn(t)
 								})
 							})]
 						}, e))
@@ -625,14 +625,14 @@ function ln() {
 	});
 }
 // src/react/data-cleanup/organize-card.tsx
-var un = (e, t) => t ? Y("cleanup:organize.applyBodyPath", {
+var dn = (e, t) => t ? Y("cleanup:organize.applyBodyPath", {
 	name: e,
 	path: t
-}) : Y("cleanup:organize.applyBodyAll", { name: e }), dn = Y("cleanup:organize.rollbackBody"), fn = 8;
-function pn({ plan: e }) {
+}) : Y("cleanup:organize.applyBodyAll", { name: e }), fn = Y("cleanup:organize.rollbackBody"), pn = 8;
+function mn({ plan: e }) {
 	return /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)("ol", {
 		className: "mt-2 flex min-w-0 flex-col gap-1",
-		children: e.rows.slice(0, fn).map((e) => /* @__PURE__ */ (0, $.jsxs)("li", {
+		children: e.rows.slice(0, pn).map((e) => /* @__PURE__ */ (0, $.jsxs)("li", {
 			className: "flex min-w-0 items-center gap-2 text-caption-1-regular text-text-secondary",
 			children: [
 				/* @__PURE__ */ (0, $.jsx)("span", {
@@ -653,28 +653,28 @@ function pn({ plan: e }) {
 				})
 			]
 		}, e.current_path))
-	}), e.truncated || e.rows.length > fn ? /* @__PURE__ */ (0, $.jsx)("p", {
+	}), e.truncated || e.rows.length > pn ? /* @__PURE__ */ (0, $.jsx)("p", {
 		className: "text-caption-1-regular text-text-secondary",
 		children: Y("cleanup:organize.planTruncated")
 	}) : null] });
 }
-function mn({ toast: e, failure: t }) {
+function hn({ toast: e, failure: t }) {
 	let n = Z({
-		queryKey: ne,
+		queryKey: M,
 		queryFn: ({ signal: e }) => $e(e)
-	}), i = n.data, a = i?.locations ?? [], [o, s] = (0, Q.useState)(""), c = a.some((e) => e.location === o) ? o : a[0]?.location ?? "", l = i?.templates?.[c], [d, f] = (0, Q.useState)(null), h = d?.location === c ? d : {
+	}), i = n.data, a = i?.locations ?? [], [o, s] = (0, Q.useState)(""), c = a.some((e) => e.location === o) ? o : a[0]?.location ?? "", l = i?.templates?.[c], [u, f] = (0, Q.useState)(null), p = u?.location === c ? u : {
 		location: c,
 		file: l?.file ?? "",
 		dir: l?.dir ?? ""
-	}, _ = (e) => {
+	}, g = (e) => {
 		f({
-			...h,
+			...p,
 			...e
 		}), P.reset();
-	}, [y, b] = (0, Q.useState)({
+	}, [v, b] = (0, Q.useState)({
 		location: "",
 		path: ""
-	}), x = y.location === c ? y.path : "", S = (0, Q.useRef)({
+	}), x = v.location === c ? v.path : "", S = (0, Q.useRef)({
 		location: c,
 		path: x
 	});
@@ -682,77 +682,77 @@ function mn({ toast: e, failure: t }) {
 		location: c,
 		path: x
 	};
-	let [C, w] = (0, Q.useState)(null), E = (0, Q.useRef)(null), D = (0, Q.useRef)(null), O = (0, Q.useRef)(null), k = Z({
+	let [ee, C] = (0, Q.useState)(null), te = (0, Q.useRef)(null), T = (0, Q.useRef)(null), E = (0, Q.useRef)(null), D = Z({
 		queryKey: [
 			"organize-example",
-			h.file,
-			h.dir
+			p.file,
+			p.dir
 		],
-		queryFn: ({ signal: e }) => et(h.file, h.dir, e),
+		queryFn: ({ signal: e }) => et(p.file, p.dir, e),
 		enabled: !!i
-	}), [A, ee] = (0, Q.useState)("file"), N = (0, Q.useRef)(!1), ae = (0, Q.useRef)(null);
+	}), [O, k] = (0, Q.useState)("file"), A = (0, Q.useRef)(!1), ae = (0, Q.useRef)(null);
 	(0, Q.useLayoutEffect)(() => {
 		let e = ae.current;
 		if (!e) return;
 		ae.current = null;
-		let t = (e.field === "file" ? E : D).current;
+		let t = (e.field === "file" ? te : T).current;
 		t?.focus(), t?.setSelectionRange(e.caret, e.caret);
 	});
 	let oe = () => ({
 		location: c,
 		path: x.trim(),
-		file_template: h.file.trim(),
-		dir_template: h.dir.trim()
-	}), P = Vt({
-		mutationFn: yt,
+		file_template: p.file.trim(),
+		dir_template: p.dir.trim()
+	}), P = Ht({
+		mutationFn: bt,
 		onError: (e) => {
-			let t = /整理路径/.test(U(e)) ? "path" : u.test(U(e)) ? "dir" : "file";
-			w(t), (t === "path" ? O : t === "dir" ? D : E).current?.focus();
+			let t = /整理路径/.test(W(e)) ? "path" : d.test(W(e)) ? "dir" : "file";
+			C(t), (t === "path" ? E : t === "dir" ? T : te).current?.focus();
 		}
-	}), F = Vt({
-		mutationFn: ({ initial: e }) => _t(e),
+	}), F = Ht({
+		mutationFn: ({ initial: e }) => vt(e),
 		onSuccess: (e, t) => {
 			e.path && t.location === S.current.location && t.path === S.current.path && (b({
 				location: t.location,
 				path: e.path
-			}), w(null), P.reset(), O.current?.focus());
+			}), C(null), P.reset(), E.current?.focus());
 		}
 	}), I = X({
-		queryKey: ne,
+		queryKey: M,
 		queryFn: ({ signal: e }) => $e(e),
-		start: Ft,
+		start: It,
 		jobOf: (e) => e,
-		withJob: Ut,
+		withJob: Wt,
 		onStarted: () => P.reset(),
 		onFinish: (n) => {
 			if (q.invalidateQueries({
-				queryKey: ne,
+				queryKey: M,
 				exact: !0
 			}), n.status !== "complete") return;
-			let { text: r, failed: i } = ht(n);
+			let { text: r, failed: i } = gt(n);
 			i ? t(Y("cleanup:tools.organize"), Error(Y("cleanup:organize.rowsFailed", { count: i }))) : e(r.replace(/。$/, ""));
 		}
-	}), L = I.running || I.start.isPending, se = JSON.stringify(P.variables) === JSON.stringify(oe()), ce = se ? P.data : void 0, le = Number(ce?.counts?.change || 0), ue = T[c] || c, de = (e) => {
-		_(e), w(null), P.reset();
+	}), se = I.running || I.start.isPending, ce = JSON.stringify(P.variables) === JSON.stringify(oe()), L = ce ? P.data : void 0, le = Number(L?.counts?.change || 0), ue = w[c] || c, de = (e) => {
+		g(e), C(null), P.reset();
 	}, fe = (e) => {
-		let t = (A === "file" ? E : D).current, n = h[A], r = N.current ? t?.selectionStart ?? n.length : n.length, i = N.current ? t?.selectionEnd ?? r : r, a = `{${e}}`;
+		let t = (O === "file" ? te : T).current, n = p[O], r = A.current ? t?.selectionStart ?? n.length : n.length, i = A.current ? t?.selectionEnd ?? r : r, a = `{${e}}`;
 		ae.current = {
-			field: A,
+			field: O,
 			caret: r + a.length
-		}, de({ [A]: n.slice(0, r) + a + n.slice(i) });
+		}, de({ [O]: n.slice(0, r) + a + n.slice(i) });
 	}, pe = () => {
-		P.isPending || L || !c || (I.dismiss(), I.start.reset(), w(null), P.mutate(oe()));
+		P.isPending || se || !c || (I.dismiss(), I.start.reset(), C(null), P.mutate(oe()));
 	}, me = () => {
 		let e = P.variables;
-		e && ce && le && Ie({
+		e && L && le && Ie({
 			title: Y("cleanup:tools.organize"),
-			body: un(ue, e.path),
+			body: dn(ue, e.path),
 			confirmLabel: Y("cleanup:tools.organize"),
 			onConfirm: async () => {
 				await I.start.mutateAsync({
 					kind: "apply",
 					request: e
-				}), wt({
+				}), Tt({
 					...i?.templates ?? {},
 					[e.location]: {
 						file: e.file_template,
@@ -763,26 +763,26 @@ function mn({ toast: e, failure: t }) {
 		});
 	}, he = () => void Ie({
 		title: Y("cleanup:organize.rollbackTitle"),
-		body: dn,
+		body: fn,
 		confirmLabel: Y("cleanup:organize.rollbackConfirm"),
 		onConfirm: () => I.start.mutateAsync({ kind: "rollback" })
-	}), R = null, ge = !!le && !L && !I.outcome, z = I.job, ye = I.outcome;
+	}), R = null, ge = !!le && !se && !I.outcome, z = I.job, B = I.outcome;
 	if (z?.status === "running") {
-		let e = G(z) || Mt(z) || Y("cleanup:organize.running");
-		R = /* @__PURE__ */ (0, $.jsx)(B, {
+		let e = G(z) || Nt(z) || Y("cleanup:organize.running");
+		R = /* @__PURE__ */ (0, $.jsx)(V, {
 			embedded: !0,
-			kind: V("organize", z.stage_code),
+			kind: H("organize", z.stage_code),
 			label: e,
 			value: Math.min(z.checked || 0, z.total || 0),
 			total: z.total
 		});
-	} else if (ye?.status === "failed") R = /* @__PURE__ */ (0, $.jsx)(j, {
+	} else if (B?.status === "failed") R = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:organize.incomplete"),
-		children: G(ye, "error") || Y("cleanup:shared.checkTaskLogFiles")
+		children: G(B, "error") || Y("cleanup:shared.checkTaskLogFiles")
 	});
-	else if (ye) {
-		let { text: e, failed: t } = ht(ye);
+	else if (B) {
+		let { text: e, failed: t } = gt(B);
 		R = /* @__PURE__ */ (0, $.jsx)(j, {
 			tone: t ? "warning" : "success",
 			title: Y(t ? "cleanup:shared.partiallyCompleted" : "cleanup:organize.result"),
@@ -791,21 +791,21 @@ function mn({ toast: e, failure: t }) {
 	} else I.start.isError ? R = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:organize.failed"),
-		children: U(I.start.error)
-	}) : P.isPending ? R = /* @__PURE__ */ (0, $.jsx)(B, {
+		children: W(I.start.error)
+	}) : P.isPending ? R = /* @__PURE__ */ (0, $.jsx)(V, {
 		embedded: !0,
-		kind: V("organize", "organize.checkingPlan"),
+		kind: H("organize", "organize.checkingPlan"),
 		label: Y("cleanup:organize.checkingPlan")
-	}) : P.isError && se ? R = /* @__PURE__ */ (0, $.jsx)(j, {
+	}) : P.isError && ce ? R = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:organize.previewFailed"),
-		children: U(P.error)
-	}) : ce && (R = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(j, {
+		children: W(P.error)
+	}) : L && (R = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "neutral",
 		title: Y("cleanup:organize.previewResult"),
-		children: vt(ce)
-	}), le ? /* @__PURE__ */ (0, $.jsx)(pn, { plan: ce }) : null] }));
-	return /* @__PURE__ */ (0, $.jsxs)(p, {
+		children: yt(L)
+	}), le ? /* @__PURE__ */ (0, $.jsx)(mn, { plan: L }) : null] }));
+	return /* @__PURE__ */ (0, $.jsxs)(m, {
 		layout: "stack",
 		id: "organize",
 		labelledBy: "cleanup-organize-title",
@@ -813,14 +813,14 @@ function mn({ toast: e, failure: t }) {
 		footer: /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [
 			i?.last_batch ? /* @__PURE__ */ (0, $.jsx)(r, {
 				variant: "secondary",
-				...H(L),
+				...U(se),
 				onClick: he,
 				children: Y("cleanup:organize.rollbackLastBatch")
 			}) : null,
 			/* @__PURE__ */ (0, $.jsx)(r, {
 				variant: ge ? "secondary" : "primary",
-				disabled: !a.length || L,
-				...H(P.isPending),
+				disabled: !a.length || se,
+				...U(P.isPending),
 				onClick: pe,
 				children: Y("cleanup:organize.preview")
 			}),
@@ -831,21 +831,21 @@ function mn({ toast: e, failure: t }) {
 			}) : null
 		] }),
 		children: [
-			/* @__PURE__ */ (0, $.jsx)(m, {
+			/* @__PURE__ */ (0, $.jsx)(h, {
 				id: "cleanup-organize-title",
 				gap: "medium",
 				children: Y("cleanup:organize.title")
 			}),
 			/* @__PURE__ */ (0, $.jsx)("p", {
 				className: "text-body-regular text-text-secondary",
-				children: ie
+				children: N
 			}),
 			n.isError ? /* @__PURE__ */ (0, $.jsx)("div", {
 				className: "mt-3",
 				children: /* @__PURE__ */ (0, $.jsx)(j, {
 					tone: "error",
 					title: Y("cleanup:organize.settingsLoadFailed"),
-					children: U(n.error)
+					children: W(n.error)
 				})
 			}) : null,
 			/* @__PURE__ */ (0, $.jsxs)("div", {
@@ -863,16 +863,16 @@ function mn({ toast: e, failure: t }) {
 								e !== null && (s(String(e)), b({
 									location: String(e),
 									path: ""
-								}), w(null), P.reset(), F.reset(), N.current = !1);
+								}), C(null), P.reset(), F.reset(), A.current = !1);
 							},
 							children: a.map((e) => /* @__PURE__ */ (0, $.jsxs)(ve, {
 								id: e.location,
-								textValue: T[e.location] || e.location,
-								children: [/* @__PURE__ */ (0, $.jsx)(be, { mark: te[e.location] || "database" }), T[e.location] || e.location]
+								textValue: w[e.location] || e.location,
+								children: [/* @__PURE__ */ (0, $.jsx)(be, { mark: ne[e.location] || "database" }), w[e.location] || e.location]
 							}, e.location))
 						}) : null, /* @__PURE__ */ (0, $.jsxs)("div", {
 							className: "flex min-w-0 basis-64 flex-1 items-start gap-2",
-							children: [/* @__PURE__ */ (0, $.jsx)(v, {
+							children: [/* @__PURE__ */ (0, $.jsx)(y, {
 								"aria-label": Y("cleanup:organize.pathLabel"),
 								className: "min-w-0 flex-1",
 								placeholder: Y("cleanup:organize.pathPlaceholder"),
@@ -880,18 +880,18 @@ function mn({ toast: e, failure: t }) {
 								autoComplete: "off",
 								spellCheck: "false",
 								value: x,
-								ref: O,
-								isInvalid: C === "path",
+								ref: E,
+								isInvalid: ee === "path",
 								onChange: (e) => {
 									b({
 										location: c,
 										path: e
-									}), w(null), P.reset(), F.reset();
+									}), C(null), P.reset(), F.reset();
 								}
-							}), /* @__PURE__ */ (0, $.jsx)(g, {
-								icon: Kt,
+							}), /* @__PURE__ */ (0, $.jsx)(_, {
+								icon: qt,
 								"aria-label": Y("cleanup:organize.choosePath"),
-								...H(F.isPending),
+								...U(F.isPending),
 								onClick: () => F.mutate({
 									initial: x || a.find((e) => e.location === c)?.roots[0] || "",
 									location: c,
@@ -902,34 +902,34 @@ function mn({ toast: e, failure: t }) {
 					}),
 					/* @__PURE__ */ (0, $.jsx)("p", {
 						className: "text-caption-1-regular text-text-secondary",
-						children: re
+						children: ie
 					}),
 					F.isError ? /* @__PURE__ */ (0, $.jsxs)(j, {
 						tone: "error",
 						title: Y("cleanup:organize.pickerFailed"),
-						children: [U(F.error), Y("cleanup:organize.pickerFallback")]
+						children: [W(F.error), Y("cleanup:organize.pickerFallback")]
 					}) : null,
-					/* @__PURE__ */ (0, $.jsx)(v, {
+					/* @__PURE__ */ (0, $.jsx)(y, {
 						label: Y("cleanup:organize.fileTemplate"),
 						placeholder: "{code}[ {title}]",
-						value: h.file,
-						ref: E,
+						value: p.file,
+						ref: te,
 						spellCheck: "false",
-						isInvalid: C === "file",
+						isInvalid: ee === "file",
 						onFocus: () => {
-							ee("file"), N.current = !0;
+							k("file"), A.current = !0;
 						},
 						onChange: (e) => de({ file: e })
 					}),
-					/* @__PURE__ */ (0, $.jsx)(v, {
+					/* @__PURE__ */ (0, $.jsx)(y, {
 						label: Y("cleanup:organize.dirTemplate"),
 						placeholder: Y("cleanup:organize.dirTemplatePlaceholder"),
-						value: h.dir,
-						ref: D,
+						value: p.dir,
+						ref: T,
 						spellCheck: "false",
-						isInvalid: C === "dir",
+						isInvalid: ee === "dir",
 						onFocus: () => {
-							ee("dir"), N.current = !0;
+							k("dir"), A.current = !0;
 						},
 						onChange: (e) => de({ dir: e })
 					}),
@@ -953,7 +953,7 @@ function mn({ toast: e, failure: t }) {
 										de({
 											file: e.file,
 											dir: e.dir
-										}), N.current = !1;
+										}), A.current = !1;
 									},
 									children: /* @__PURE__ */ (0, $.jsx)("span", {
 										className: "truncate",
@@ -965,12 +965,12 @@ function mn({ toast: e, failure: t }) {
 					}) : null,
 					/* @__PURE__ */ (0, $.jsxs)("p", {
 						"aria-live": "polite",
-						"aria-busy": k.isFetching,
+						"aria-busy": D.isFetching,
 						"data-organize-example": "",
 						className: "text-caption-1-regular text-text-secondary",
 						children: [Y("cleanup:organize.examplePath"), /* @__PURE__ */ (0, $.jsx)("code", {
 							className: "wrap-anywhere",
-							children: k.data?.example || k.data?.error || (k.isError ? U(k.error) : Y("cleanup:organize.previewLoading"))
+							children: D.data?.example || D.data?.error || (D.isError ? W(D.error) : Y("cleanup:organize.previewLoading"))
 						})]
 					}),
 					i?.placeholders?.length ? /* @__PURE__ */ (0, $.jsxs)("div", {
@@ -983,11 +983,11 @@ function mn({ toast: e, failure: t }) {
 							children: [/* @__PURE__ */ (0, $.jsx)("strong", {
 								className: "text-caption-1-semibold text-text-primary",
 								children: Y("cleanup:organize.insertParameter")
-							}), Y("cleanup:organize.insertTarget", { target: Y(A === "file" ? "cleanup:organize.fileTemplate" : "cleanup:organize.dirTemplate") })]
+							}), Y("cleanup:organize.insertTarget", { target: Y(O === "file" ? "cleanup:organize.fileTemplate" : "cleanup:organize.dirTemplate") })]
 						}), /* @__PURE__ */ (0, $.jsx)("div", {
 							className: "flex flex-wrap gap-1",
 							children: i.placeholders.map((e) => {
-								let t = At(`labels.organizeTemplates.placeholder.${e.key}`, e.label);
+								let t = jt(`labels.organizeTemplates.placeholder.${e.key}`, e.label);
 								return /* @__PURE__ */ (0, $.jsx)(r, {
 									variant: "ghost",
 									size: "small",
@@ -1006,7 +1006,7 @@ function mn({ toast: e, failure: t }) {
 					}) : null,
 					/* @__PURE__ */ (0, $.jsx)("p", {
 						className: "text-caption-1-regular leading-4.5 text-text-secondary",
-						children: M
+						children: re
 					})
 				]
 			}),
@@ -1019,45 +1019,45 @@ function mn({ toast: e, failure: t }) {
 	});
 }
 // src/react/data-cleanup/orphan-records-card.tsx
-var hn = J("play"), gn = Object.fromEntries([
-	...se,
+var gn = J("play"), _n = Object.fromEntries([
+	...L,
 	["rating", Y("catalog:shared.rating")],
 	["play_count", Y("catalog:catalogList.plays")],
 	["last_played", Y("catalog:catalogList.lastWatched")],
 	["o_count", Y("catalog:catalogList.climaxCount")]
-]), _n = () => q.invalidateQueries({
-	queryKey: N,
+]), vn = () => q.invalidateQueries({
+	queryKey: ae,
 	exact: !0
 });
-function vn(e, t) {
+function yn(e, t) {
 	return Ie({
 		title: Y("cleanup:orphans.deleteRecord"),
 		holdToConfirm: !0,
-		body: Ct(e.records) ? Y("cleanup:orphans.deleteBodyWithActivity", {
+		body: wt(e.records) ? Y("cleanup:orphans.deleteBodyWithActivity", {
 			name: e.name,
-			records: Ct(e.records)
+			records: wt(e.records)
 		}) : Y("cleanup:orphans.deleteBody", { name: e.name }),
 		confirmLabel: Y("cleanup:orphans.deleteRecord"),
 		danger: !0,
 		onConfirm: t
 	});
 }
-async function yn(e, t) {
-	t((await St(e.id)).blocked.length ? Y("cleanup:orphans.fileRestored", { name: e.name }) : Y("cleanup:orphans.recordDeleted", { name: e.name })), _n();
+async function bn(e, t) {
+	t((await Ct(e.id)).blocked.length ? Y("cleanup:orphans.fileRestored", { name: e.name }) : Y("cleanup:orphans.recordDeleted", { name: e.name })), vn();
 }
-function bn({ item: e, toast: t }) {
-	let [n, i] = (0, Q.useState)(e.candidates[0]?.id ?? null), a = Vt({
+function xn({ item: e, toast: t }) {
+	let [n, i] = (0, Q.useState)(e.candidates[0]?.id ?? null), a = Ht({
 		mutationFn: () => Ae(e.id, Number(n)),
 		onSuccess: () => {
 			let r = e.candidates.find((e) => e.id === n);
 			t(Y("cleanup:orphans.attached", {
 				name: e.name,
 				target: r?.name ?? Y("cleanup:orphans.selectedFile")
-			})), _n();
+			})), vn();
 		},
-		onError: (e) => t(U(e))
-	}), o = Vt({ mutationFn: () => yn(e, t) }), s = () => {
-		vn(e, () => o.mutateAsync());
+		onError: (e) => t(W(e))
+	}), o = Ht({ mutationFn: () => bn(e, t) }), s = () => {
+		yn(e, () => o.mutateAsync());
 	}, c = a.isPending || o.isPending;
 	return /* @__PURE__ */ (0, $.jsxs)("span", {
 		className: "flex min-w-0 flex-wrap items-center gap-2",
@@ -1065,7 +1065,7 @@ function bn({ item: e, toast: t }) {
 			/* @__PURE__ */ (0, $.jsx)(r, {
 				variant: "danger",
 				size: "small",
-				...H(c),
+				...U(c),
 				onClick: s,
 				children: Y("cleanup:orphans.deleteRecord")
 			}),
@@ -1088,19 +1088,19 @@ function bn({ item: e, toast: t }) {
 				variant: "primary",
 				size: "small",
 				disabled: n === null,
-				...H(c),
+				...U(c),
 				onClick: () => a.mutate(),
 				children: Y("cleanup:orphans.moveActivity")
 			}) : null
 		]
 	});
 }
-function xn({ item: e }) {
+function Sn({ item: e }) {
 	return /* @__PURE__ */ (0, $.jsxs)("span", {
 		className: "flex min-w-0 items-center gap-3",
 		children: [/* @__PURE__ */ (0, $.jsxs)("span", {
 			className: "relative inline-grid aspect-16/10 w-24 flex-none place-items-center max-cleanup-tight:hidden overflow-hidden rounded-lg border border-separator-border bg-media-placeholder text-text-tertiary",
-			children: [/* @__PURE__ */ (0, $.jsx)(hn, {
+			children: [/* @__PURE__ */ (0, $.jsx)(gn, {
 				"aria-hidden": !0,
 				className: "size-5"
 			}), e.has_thumb ? /* @__PURE__ */ (0, $.jsx)("img", {
@@ -1129,31 +1129,31 @@ function xn({ item: e }) {
 					}) : null,
 					e.location ? /* @__PURE__ */ (0, $.jsx)(ye, {
 						source: e.location,
-						label: T[e.location] || e.location
+						label: w[e.location] || e.location
 					}) : null
 				]
 			})]
 		})]
 	});
 }
-function Sn({ toast: e }) {
+function Cn({ toast: e }) {
 	let [t, n] = (0, Q.useState)([]), r = Z({
-		queryKey: N,
+		queryKey: ae,
 		queryFn: ({ signal: e }) => tt(e)
 	}), i = r.data?.items ?? [], a = { receipt: e }, o = (t) => {
 		let n = [{
 			id: "delete",
 			label: Y("cleanup:orphans.deleteRecord"),
-			icon: O,
+			icon: D,
 			danger: !0,
 			run: () => {
-				vn(t, () => yn(t, e));
+				yn(t, () => bn(t, e));
 			}
 		}];
 		return t.candidates.length && n.unshift({
 			id: "target",
 			label: Y("cleanup:orphans.targetLabel", { name: t.name }),
-			icon: ft,
+			icon: pt,
 			run: (e) => {
 				e.querySelector("[data-orphan-target] button")?.click();
 			}
@@ -1173,7 +1173,7 @@ function Sn({ toast: e }) {
 				items: e.map((e) => e.name)
 			}),
 			run: async (e) => {
-				t = await St(e.map((e) => e.id));
+				t = await Ct(e.map((e) => e.id));
 			},
 			receipt: () => t ? Y("cleanup:orphans.purged", { count: t.purged }) + (t.blocked.length ? Y("cleanup:orphans.purgedBlocked", { count: t.blocked.length }) : "") : ""
 		};
@@ -1184,21 +1184,21 @@ function Sn({ toast: e }) {
 			width: 480,
 			min: 320,
 			value: (e) => e.name,
-			render: (e) => /* @__PURE__ */ (0, $.jsx)(xn, { item: e })
+			render: (e) => /* @__PURE__ */ (0, $.jsx)(Sn, { item: e })
 		},
 		{
 			id: "records",
 			label: Y("cleanup:orphans.columnActivity"),
 			width: 176,
 			min: 144,
-			value: (e) => Ct(e.records),
+			value: (e) => wt(e.records),
 			filter: {
 				values: (e) => Object.keys(e.records).filter((t) => e.records[t]),
-				option: (e) => ({ label: gn[e] || e })
+				option: (e) => ({ label: _n[e] || e })
 			},
 			render: (e) => /* @__PURE__ */ (0, $.jsx)("span", {
 				className: "block min-w-0 whitespace-normal wrap-anywhere",
-				children: Ct(e.records) || Y("cleanup:shared.none")
+				children: wt(e.records) || Y("cleanup:shared.none")
 			})
 		},
 		{
@@ -1207,7 +1207,7 @@ function Sn({ toast: e }) {
 			width: i.some((e) => e.candidates.length) ? 360 : 128,
 			min: 128,
 			value: (e) => e.candidates.length,
-			render: (t) => /* @__PURE__ */ (0, $.jsx)(bn, {
+			render: (t) => /* @__PURE__ */ (0, $.jsx)(xn, {
 				item: t,
 				toast: e
 			})
@@ -1217,18 +1217,18 @@ function Sn({ toast: e }) {
 		id: "orphan-records",
 		"aria-labelledby": "orphan-records-title",
 		className: "flex scroll-mt-20 flex-col gap-4",
-		children: r.isError ? /* @__PURE__ */ (0, $.jsxs)(p, {
+		children: r.isError ? /* @__PURE__ */ (0, $.jsxs)(m, {
 			layout: "stack",
 			labelledBy: "orphan-records-title",
-			children: [/* @__PURE__ */ (0, $.jsx)(m, {
+			children: [/* @__PURE__ */ (0, $.jsx)(h, {
 				id: "orphan-records-title",
 				children: Y("cleanup:tools.orphanRecords")
 			}), /* @__PURE__ */ (0, $.jsx)(j, {
 				tone: "error",
 				title: Y("cleanup:orphans.loadFailed"),
-				children: U(r.error)
+				children: W(r.error)
 			})]
-		}) : /* @__PURE__ */ (0, $.jsx)(f, {
+		}) : /* @__PURE__ */ (0, $.jsx)(p, {
 			preferenceId: "orphan-records",
 			label: Y("cleanup:orphans.tableLabel"),
 			items: i,
@@ -1237,7 +1237,7 @@ function Sn({ toast: e }) {
 			title: Y("cleanup:tools.orphanRecords"),
 			titleId: "orphan-records-title",
 			unit: Y("cleanup:orphans.unit"),
-			description: ae,
+			description: oe,
 			rowId: (e) => String(e.id),
 			rowLabel: (e) => e.name,
 			selected: t,
@@ -1247,14 +1247,14 @@ function Sn({ toast: e }) {
 				host: a,
 				action: s(e.length),
 				done: () => {
-					n([]), _n();
+					n([]), vn();
 				}
 			}]
 		})
 	});
 }
 // src/react/data-cleanup/performer-delete-card.tsx
-function Cn({ person: e }) {
+function wn({ person: e }) {
 	let t = Be("performer", e.k, e.entity_id);
 	return /* @__PURE__ */ (0, $.jsxs)("a", {
 		href: He("performer", e.k, e.entity_id),
@@ -1262,7 +1262,7 @@ function Cn({ person: e }) {
 		className: "flex min-w-0 items-center gap-3 text-text-primary",
 		children: [/* @__PURE__ */ (0, $.jsx)("span", {
 			"aria-hidden": !0,
-			className: Le("relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-medium", b),
+			className: Le("relative flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-media-placeholder text-caption-1-medium", x),
 			dangerouslySetInnerHTML: { __html: `<span>${Ue(ct(t))}</span>` + Ve({
 				kind: "performer",
 				id: e.entity_id,
@@ -1277,7 +1277,7 @@ function Cn({ person: e }) {
 		})]
 	});
 }
-function wn(e, t, n) {
+function Tn(e, t, n) {
 	let r = (e) => e.slice(0, 5).join(Y("cleanup:shared.listSeparator")), i = e.length > 5 ? Y("cleanup:performerDelete.moreNames", {
 		names: r(e),
 		total: e.length
@@ -1289,22 +1289,22 @@ function wn(e, t, n) {
 		Y("cleanup:performerDelete.bodyScope", {
 			names: i,
 			count: n.total,
-			size: W(n.bytes)
+			size: lt(n.bytes)
 		}),
 		Y("cleanup:performerDelete.bodyWarning"),
 		...n.shared ? [Y("cleanup:performerDelete.sharedFiles", { count: n.shared })] : [],
 		Y("cleanup:performerDelete.bodyExamples", { examples: a })
 	].join(Y("cleanup:shared.sentenceGap"));
 }
-function Tn({ toast: e }) {
-	Bt();
+function En({ toast: e }) {
+	Vt();
 	let n = Z({
-		queryKey: oe,
+		queryKey: P,
 		queryFn: ({ signal: e }) => We(e)
-	}), [i, a] = (0, Q.useState)([]), [o, s] = (0, Q.useState)(""), [c, u] = (0, Q.useState)(null), [d, h] = (0, Q.useState)(""), g = {
+	}), [i, a] = (0, Q.useState)([]), [o, s] = (0, Q.useState)(""), [c, l] = (0, Q.useState)(null), [d, f] = (0, Q.useState)(""), g = {
 		receipt: e,
-		failure: (e) => h(U(e))
-	}, v = (0, Q.useMemo)(() => [
+		failure: (e) => f(W(e))
+	}, _ = (0, Q.useMemo)(() => [
 		{
 			id: "name",
 			label: Y("cleanup:shared.actress"),
@@ -1316,14 +1316,14 @@ function Tn({ toast: e }) {
 				option: (e, t) => ({
 					label: Be("performer", e, t?.entity_id),
 					searchTerms: t?.aliases,
-					leading: t && /* @__PURE__ */ (0, $.jsx)(l, { person: {
+					leading: t && /* @__PURE__ */ (0, $.jsx)(u, { person: {
 						...t,
 						id: t.entity_id,
 						name: e
 					} })
 				})
 			},
-			render: (e) => /* @__PURE__ */ (0, $.jsx)(Cn, { person: e })
+			render: (e) => /* @__PURE__ */ (0, $.jsx)(wn, { person: e })
 		},
 		{
 			id: "works",
@@ -1359,7 +1359,7 @@ function Tn({ toast: e }) {
 				range: "size",
 				value: (e) => e.bytes
 			},
-			render: (e) => W(e.bytes)
+			render: (e) => lt(e.bytes)
 		}
 	], []), y = o.toLocaleLowerCase(), b = (n.data?.items || []).filter((e) => !y || [
 		e.k,
@@ -1374,7 +1374,7 @@ function Tn({ toast: e }) {
 			danger: !0,
 			holdToConfirm: !0,
 			confirm: async (t) => {
-				h("");
+				f("");
 				let n = await Ge(t.map((e) => e.entity_id));
 				if (!n.total) throw Error(Y("cleanup:performerDelete.nothingToDelete"));
 				e = n;
@@ -1383,12 +1383,12 @@ function Tn({ toast: e }) {
 					title: Y("cleanup:performerDelete.confirmTitle"),
 					confirmLabel: Y("cleanup:performerDelete.confirm"),
 					danger: !0,
-					body: wn(r, i, n)
+					body: Tn(r, i, n)
 				};
 			},
 			run: async () => {
-				t = await ze(e), u(t), await Promise.all([q.invalidateQueries({
-					queryKey: oe,
+				t = await ze(e), l(t), await Promise.all([q.invalidateQueries({
+					queryKey: P,
 					exact: !0
 				}), q.invalidateQueries({
 					queryKey: Se,
@@ -1400,7 +1400,7 @@ function Tn({ toast: e }) {
 	}, S = c ? [
 		...c.blocked.map((e) => ({
 			path: e.path,
-			reason: At(e.reason_code ?? "", e.reason, e.reason_params)
+			reason: jt(e.reason_code ?? "", e.reason, e.reason_params)
 		})),
 		...c.cleanup_pending,
 		...c.cache_blocked.map((e) => ({
@@ -1413,10 +1413,10 @@ function Tn({ toast: e }) {
 		className: "flex min-w-0 scroll-mt-20 flex-col gap-3",
 		"aria-label": Y("cleanup:tools.bulkDelete"),
 		children: [
-			n.isPending ? /* @__PURE__ */ (0, $.jsx)("div", { dangerouslySetInnerHTML: { __html: Pe("batch-delete") } }) : n.isError ? /* @__PURE__ */ (0, $.jsxs)(p, {
+			n.isPending ? /* @__PURE__ */ (0, $.jsx)("div", { dangerouslySetInnerHTML: { __html: Pe("batch-delete") } }) : n.isError ? /* @__PURE__ */ (0, $.jsxs)(m, {
 				layout: "stack",
 				labelledBy: "batch-delete-title",
-				children: [/* @__PURE__ */ (0, $.jsx)(m, {
+				children: [/* @__PURE__ */ (0, $.jsx)(h, {
 					id: "batch-delete-title",
 					children: Y("cleanup:tools.bulkDelete")
 				}), /* @__PURE__ */ (0, $.jsx)(j, {
@@ -1428,9 +1428,9 @@ function Tn({ toast: e }) {
 						onClick: () => void n.refetch(),
 						children: Y("cleanup:shared.retry")
 					}),
-					children: U(n.error)
+					children: W(n.error)
 				})]
-			}) : /* @__PURE__ */ (0, $.jsx)(f, {
+			}) : /* @__PURE__ */ (0, $.jsx)(p, {
 				preferenceId: "performer-delete",
 				label: Y("cleanup:performerDelete.tableLabel"),
 				title: Y("cleanup:tools.bulkDelete"),
@@ -1438,12 +1438,12 @@ function Tn({ toast: e }) {
 				unit: Y("cleanup:performerDelete.unit"),
 				description: t,
 				items: b,
-				columns: v,
+				columns: _,
 				rowId: (e) => String(e.entity_id),
 				rowLabel: (e) => Be("performer", e.k, e.entity_id),
 				selected: i,
 				onSelected: a,
-				toolbarActions: /* @__PURE__ */ (0, $.jsx)(_, {
+				toolbarActions: /* @__PURE__ */ (0, $.jsx)(v, {
 					label: Y("cleanup:performerDelete.search"),
 					value: o,
 					onQuery: (e) => {
@@ -1457,7 +1457,7 @@ function Tn({ toast: e }) {
 					done: t,
 					rowAction: {
 						label: Y("cleanup:performerDelete.deleteVideosForRow"),
-						icon: O
+						icon: D
 					}
 				}]
 			}),
@@ -1486,32 +1486,32 @@ function Tn({ toast: e }) {
 	});
 }
 // src/react/data-cleanup/resource-sync-card.tsx
-var En = J("git-compare"), Dn = J("rotate-cw"), On = Y("cleanup:shared.reconnecting"), kn = Y("cleanup:resourceSync.cleanUpDead"), An = "inline-grid w-full grid-flow-col auto-cols-fr gap-4 max-plain-stat-pair:grid-flow-row max-plain-stat-pair:grid-cols-2 max-plain-stat-single:grid-cols-1", jn = (e) => Number(e || 0).toLocaleString();
-function Mn({ scan: e, partial: t = !1 }) {
+var Dn = J("git-compare"), On = J("rotate-cw"), kn = Y("cleanup:shared.reconnecting"), An = Y("cleanup:resourceSync.cleanUpDead"), jn = "inline-grid w-full grid-flow-col auto-cols-fr gap-4 max-plain-stat-pair:grid-flow-row max-plain-stat-pair:grid-cols-2 max-plain-stat-single:grid-cols-1", Mn = (e) => Number(e || 0).toLocaleString();
+function Nn({ scan: e, partial: t = !1 }) {
 	let n = e.cache ?? {
 		files: 0,
 		bytes: 0
 	};
 	return /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)("div", {
-		className: An,
+		className: jn,
 		children: (e.sources ?? []).map((e) => /* @__PURE__ */ (0, $.jsxs)("article", {
 			className: K(),
-			children: [/* @__PURE__ */ (0, $.jsx)(F, {
-				label: R[e.location] || Y("cleanup:resourceSync.storageFallback"),
-				mark: /* @__PURE__ */ (0, $.jsx)(be, { mark: te[e.location] ?? "database" }),
-				aside: /* @__PURE__ */ (0, $.jsx)(qt, {
+			children: [/* @__PURE__ */ (0, $.jsx)(I, {
+				label: ge[e.location] || Y("cleanup:resourceSync.storageFallback"),
+				mark: /* @__PURE__ */ (0, $.jsx)(be, { mark: ne[e.location] ?? "database" }),
+				aside: /* @__PURE__ */ (0, $.jsx)(Jt, {
 					online: e.online,
 					children: e.online ? Y("cleanup:resourceSync.online") : Y("cleanup:resourceSync.offline")
 				}),
 				figure: e.online ? Y("cleanup:resourceSync.missingCount", { count: Number(e.missing || 0) }) : "—",
-				meta: e.online ? jt(e) : Y("cleanup:resourceSync.skipped", { summary: jt(e) }),
+				meta: e.online ? Mt(e) : Y("cleanup:resourceSync.skipped", { summary: Mt(e) }),
 				wrapMeta: !0
 			}), e.online && e.unreadable > 0 ? /* @__PURE__ */ (0, $.jsx)("span", {
 				className: "self-start",
 				children: /* @__PURE__ */ (0, $.jsxs)(xe, {
 					tone: "warning",
 					children: [
-						jn(e.unreadable),
+						Mn(e.unreadable),
 						" ",
 						Y("cleanup:resourceSync.unreadableDirs")
 					]
@@ -1519,19 +1519,19 @@ function Mn({ scan: e, partial: t = !1 }) {
 			}) : null]
 		}, e.location))
 	}), !t && /* @__PURE__ */ (0, $.jsxs)("div", {
-		className: An,
+		className: jn,
 		children: [
 			/* @__PURE__ */ (0, $.jsx)("article", {
 				className: K(),
-				children: /* @__PURE__ */ (0, $.jsx)(F, {
+				children: /* @__PURE__ */ (0, $.jsx)(I, {
 					label: Y("cleanup:resourceSync.toPurge"),
-					figure: Y("cleanup:resourceSync.purgeCount", { count: Number(xt(e) || 0) }),
+					figure: Y("cleanup:resourceSync.purgeCount", { count: Number(St(e) || 0) }),
 					meta: Y("cleanup:resourceSync.purgeHint")
 				})
 			}),
 			/* @__PURE__ */ (0, $.jsx)("article", {
 				className: K(),
-				children: /* @__PURE__ */ (0, $.jsx)(F, {
+				children: /* @__PURE__ */ (0, $.jsx)(I, {
 					label: Y("cleanup:resourceSync.toVanish"),
 					figure: Y("cleanup:resourceSync.vanishCount", { count: Number(e.vanish || 0) }),
 					meta: Y("cleanup:resourceSync.vanishHint")
@@ -1539,7 +1539,7 @@ function Mn({ scan: e, partial: t = !1 }) {
 			}),
 			/* @__PURE__ */ (0, $.jsx)("article", {
 				className: K(),
-				children: /* @__PURE__ */ (0, $.jsx)(F, {
+				children: /* @__PURE__ */ (0, $.jsx)(I, {
 					label: Y("cleanup:resourceSync.emptyDirs"),
 					figure: Y("cleanup:resourceSync.emptyDirCount", { count: Number(e.empty || 0) }),
 					meta: Y("cleanup:resourceSync.emptyDirsHint")
@@ -1547,197 +1547,216 @@ function Mn({ scan: e, partial: t = !1 }) {
 			}),
 			/* @__PURE__ */ (0, $.jsx)("article", {
 				className: K(),
-				children: /* @__PURE__ */ (0, $.jsx)(F, {
+				children: /* @__PURE__ */ (0, $.jsx)(I, {
 					label: Y("cleanup:resourceSync.cache"),
 					figure: Y("cleanup:resourceSync.cacheCount", { count: Number(n.files || 0) }),
-					meta: n.files ? W(n.bytes) : ""
+					meta: n.files ? lt(n.bytes) : ""
 				})
 			})
 		]
 	})] });
 }
-function Nn({ toast: t }) {
-	let n = X({
-		queryKey: ue,
+function Pn({ toast: t, writeAccess: n }) {
+	let a = X({
+		queryKey: de,
 		queryFn: ({ signal: e }) => it(e),
-		start: It,
+		start: Lt,
 		onFinish: (e) => {
 			if (q.invalidateQueries({
 				queryKey: Se,
 				exact: !0
 			}), q.invalidateQueries({
-				queryKey: de,
+				queryKey: fe,
 				exact: !0
 			}), e.status !== "complete") return;
 			let { done: n, left: r } = De(e);
 			r ? t(Y("cleanup:resourceSync.applyLeftovers", {
-				done: jn(n),
+				done: Mn(n),
 				count: Number(r || 0)
 			}), { warning: !0 }) : t(Y("cleanup:resourceSync.cleaned"));
 		}
-	}), i = X({
-		queryKey: de,
+	}), o = X({
+		queryKey: fe,
 		queryFn: ({ signal: e }) => at(e),
-		start: Lt,
-		onStarted: () => n.dismiss()
-	}), a = i.start.isPending ? void 0 : i.job, o = i.running || i.start.isPending, s = n.running || n.start.isPending, c = !!i.job && !!n.job, l = a?.status === "complete" || a?.status === "failed", u = Y(o ? "cleanup:resourceSync.scanning" : l ? "cleanup:resourceSync.scanAgain" : "cleanup:resourceSync.checkFiles"), d = (e) => void Ie({
+		start: Rt,
+		onStarted: () => a.dismiss()
+	}), s = o.start.isPending ? void 0 : o.job, c = o.running || o.start.isPending, l = a.running || a.start.isPending, u = !!o.job && !!a.job, d = u && n?.readOnly === !1, f = s?.status === "complete" || s?.status === "failed", p = Y(c ? "cleanup:resourceSync.scanning" : f ? "cleanup:resourceSync.scanAgain" : "cleanup:resourceSync.checkFiles"), g = (e) => void Ie({
 		holdToConfirm: !0,
-		title: kn,
+		title: An,
 		body: Ee(e),
-		confirmLabel: kn,
+		confirmLabel: An,
 		danger: !0,
-		onConfirm: () => n.start.mutateAsync(e.scan_id || "")
-	}), f = i.start.isPending || i.start.isError ? null : n.outcome, h = (e) => {
+		onConfirm: () => a.start.mutateAsync(e.scan_id || "")
+	}), _ = o.start.isPending || o.start.isError ? null : a.outcome, v = (e) => {
 		let t = De(e).left > 0;
 		return /* @__PURE__ */ (0, $.jsx)(j, {
 			tone: t ? "warning" : "success",
 			title: Y(t ? "cleanup:shared.partiallyCompleted" : "cleanup:resourceSync.cleanupResult"),
-			children: ke(e, W)
+			children: ke(e, lt)
 		});
-	}, g = null, _ = null;
-	if (f?.status === "failed") _ = /* @__PURE__ */ (0, $.jsx)(j, {
+	}, y = null, b = null;
+	if (_?.status === "failed") b = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:resourceSync.cleanupIncomplete"),
-		children: G(f, "error") || Y("cleanup:shared.checkTaskLogFiles")
+		children: G(_, "error") || Y("cleanup:shared.checkTaskLogFiles")
 	});
-	else if (f) _ = h(f);
-	else if (n.running) g = /* @__PURE__ */ (0, $.jsx)(B, {
+	else if (_) b = v(_);
+	else if (a.running) y = /* @__PURE__ */ (0, $.jsx)(V, {
 		embedded: !0,
-		kind: V("resource-apply"),
-		label: G(n.job) || Y("cleanup:resourceSync.applying")
+		kind: H("resource-apply"),
+		label: G(a.job) || Y("cleanup:resourceSync.applying")
 	});
-	else if (i.start.isError) _ = /* @__PURE__ */ (0, $.jsx)(j, {
+	else if (o.start.isError) b = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:resourceSync.scanFailed"),
-		children: U(i.start.error)
+		children: W(o.start.error)
 	});
-	else if (i.query.isError && a) _ = /* @__PURE__ */ (0, $.jsx)(j, {
+	else if (o.query.isError && s) b = /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "neutral",
 		title: Y("cleanup:shared.taskStatus"),
-		children: On
+		children: kn
 	});
-	else if (a?.status === "running") {
-		let t = kt(a);
-		g = /* @__PURE__ */ (0, $.jsx)(B, {
+	else if (s?.status === "running") {
+		let t = At(s);
+		y = /* @__PURE__ */ (0, $.jsx)(V, {
 			embedded: !0,
-			kind: V("resource-scan"),
+			kind: H("resource-scan"),
 			label: t,
-			labelContent: a.total_sources ? /* @__PURE__ */ (0, $.jsx)(e, { value: t }) : t,
-			value: a.completed_sources,
-			total: a.total_sources
-		}), a.sources?.length && (_ = /* @__PURE__ */ (0, $.jsx)(Mn, {
-			scan: a,
+			labelContent: s.total_sources ? /* @__PURE__ */ (0, $.jsx)(e, { value: t }) : t,
+			value: s.completed_sources,
+			total: s.total_sources
+		}), s.sources?.length && (b = /* @__PURE__ */ (0, $.jsx)(Nn, {
+			scan: s,
 			partial: !0
 		}));
-	} else if (a?.status === "failed") _ = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [a.sources?.length ? /* @__PURE__ */ (0, $.jsx)(Mn, {
-		scan: a,
+	} else if (s?.status === "failed") b = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [s.sources?.length ? /* @__PURE__ */ (0, $.jsx)(Nn, {
+		scan: s,
 		partial: !0
 	}) : null, /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:resourceSync.scanFailed"),
-		children: G(a, "error") || Y("cleanup:resourceSync.backgroundScanFailed")
+		children: G(s, "error") || Y("cleanup:resourceSync.backgroundScanFailed")
 	})] });
-	else if (a?.status === "complete" && a.applied) _ = n.job?.status === "complete" ? h(n.job) : /* @__PURE__ */ (0, $.jsx)(j, {
+	else if (s?.status === "complete" && s.applied) b = a.job?.status === "complete" ? v(a.job) : /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "neutral",
 		title: Y("cleanup:resourceSync.cleanupResult"),
 		children: Y("cleanup:resourceSync.alreadyCleaned")
 	});
-	else if (a?.status === "complete") {
-		let e = lt(a);
-		_ = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(Mn, { scan: a }), e ? /* @__PURE__ */ (0, $.jsx)(j, {
+	else if (s?.status === "complete") {
+		let e = ut(s);
+		b = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [/* @__PURE__ */ (0, $.jsx)(Nn, { scan: s }), e ? /* @__PURE__ */ (0, $.jsx)(j, {
 			tone: "neutral",
 			title: Y("cleanup:resourceSync.toClean"),
 			action: /* @__PURE__ */ (0, $.jsx)(r, {
 				variant: "danger",
-				disabled: !c,
-				...H(s),
+				disabled: !d,
+				...U(l),
 				onClick: () => {
-					c && d(a);
+					d && g(s);
 				},
-				children: s ? Y("cleanup:resourceSync.applyingButton") : kn
+				children: l ? Y("cleanup:resourceSync.applyingButton") : An
 			}),
-			children: Oe(a)
+			children: Oe(s)
 		}) : /* @__PURE__ */ (0, $.jsx)("p", {
 			className: "mr-auto text-body-regular text-notification-success-foreground",
 			children: Y("cleanup:resourceSync.nothingToClean")
 		})] });
 	}
-	return n.start.isError && !f && (_ = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [_, /* @__PURE__ */ (0, $.jsx)(j, {
+	return a.start.isError && !_ && (b = /* @__PURE__ */ (0, $.jsxs)($.Fragment, { children: [b, /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:resourceSync.cleanupFailed"),
-		children: U(n.start.error)
+		children: W(a.start.error)
 	})] })), /* @__PURE__ */ (0, $.jsxs)("section", {
 		id: "resource-sync",
 		"aria-labelledby": "resource-sync-title",
 		className: "flex scroll-mt-20 flex-col gap-4",
-		children: [/* @__PURE__ */ (0, $.jsxs)(p, {
-			layout: "split",
-			labelledBy: "resource-sync-title",
-			footer: /* @__PURE__ */ (0, $.jsx)(r, {
-				"data-resource-scan": !0,
-				leadingIcon: l && !o ? Dn : En,
-				disabled: !c,
-				...H(o),
-				onClick: () => {
-					c && !o && i.start.mutate();
-				},
-				children: u
+		children: [
+			n?.readOnly ? /* @__PURE__ */ (0, $.jsx)(j, {
+				tone: "warning",
+				action: n.writerUrl ? /* @__PURE__ */ (0, $.jsx)(i, {
+					variant: "secondary",
+					size: "small",
+					href: n.writerUrl,
+					children: /* @__PURE__ */ (0, $.jsx)("span", {
+						"data-copy-key": "cleanup.resourceSync.goToPrimary",
+						children: Y("cleanup:resourceSync.goToPrimary")
+					})
+				}) : void 0,
+				children: n.readOnlyMessage
+			}) : null,
+			/* @__PURE__ */ (0, $.jsxs)(m, {
+				layout: "split",
+				labelledBy: "resource-sync-title",
+				footer: /* @__PURE__ */ (0, $.jsx)(r, {
+					"data-resource-scan": !0,
+					leadingIcon: f && !c ? On : Dn,
+					disabled: !u,
+					...U(c),
+					onClick: () => {
+						u && !c && o.start.mutate();
+					},
+					children: p
+				}),
+				children: [
+					/* @__PURE__ */ (0, $.jsx)(h, {
+						id: "resource-sync-title",
+						gap: "small",
+						children: Y("cleanup:tools.resourceSync")
+					}),
+					o.query.isPending || a.query.isPending ? /* @__PURE__ */ (0, $.jsx)("div", {
+						role: "status",
+						"aria-label": Y("cleanup:resourceSync.statusLoading"),
+						"data-skeleton": "",
+						className: "skeleton-sheen h-6 rounded-md"
+					}) : null,
+					!o.job && o.query.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
+						tone: "error",
+						children: Y("cleanup:resourceSync.scanStatusUnavailable")
+					}) : null,
+					!a.job && a.query.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
+						tone: "error",
+						children: Y("cleanup:resourceSync.applyStatusUnavailable")
+					}) : null,
+					/* @__PURE__ */ (0, $.jsx)("p", {
+						className: "max-w-190 text-body-2-regular leading-5 text-text-secondary",
+						children: pe
+					}),
+					/* @__PURE__ */ (0, $.jsx)("div", {
+						"aria-live": "polite",
+						className: "mt-4 empty:hidden",
+						children: y
+					})
+				]
 			}),
-			children: [
-				/* @__PURE__ */ (0, $.jsx)(m, {
-					id: "resource-sync-title",
-					gap: "small",
-					children: Y("cleanup:tools.resourceSync")
-				}),
-				i.query.isPending || n.query.isPending ? /* @__PURE__ */ (0, $.jsx)("div", {
-					role: "status",
-					"aria-label": Y("cleanup:resourceSync.statusLoading"),
-					"data-skeleton": "",
-					className: "skeleton-sheen h-6 rounded-md"
-				}) : null,
-				!i.job && i.query.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
-					tone: "error",
-					children: Y("cleanup:resourceSync.scanStatusUnavailable")
-				}) : null,
-				!n.job && n.query.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
-					tone: "error",
-					children: Y("cleanup:resourceSync.applyStatusUnavailable")
-				}) : null,
-				/* @__PURE__ */ (0, $.jsx)("p", {
-					className: "max-w-190 text-body-2-regular leading-5 text-text-secondary",
-					children: fe
-				}),
-				/* @__PURE__ */ (0, $.jsx)("div", {
-					"aria-live": "polite",
-					className: "mt-4 empty:hidden",
-					children: g
-				})
-			]
-		}), /* @__PURE__ */ (0, $.jsx)("div", {
-			"aria-live": "polite",
-			className: "flex flex-col gap-4 empty:hidden",
-			children: _
-		})]
+			/* @__PURE__ */ (0, $.jsx)("div", {
+				"aria-live": "polite",
+				className: "flex flex-col gap-4 empty:hidden",
+				children: b
+			})
+		]
 	});
 }
 // src/react/data-cleanup/data-cleanup-tool-page.tsx
-function Pn({ toast: e }) {
-	let t = Z({
-		queryKey: ee,
+function Fn({ toast: e, writeAccess: t }) {
+	let n = Z({
+		queryKey: A,
 		queryFn: ({ signal: e }) => Qe(e)
 	});
-	return t.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
+	return n.isError ? /* @__PURE__ */ (0, $.jsx)(j, {
 		tone: "error",
 		title: Y("cleanup:resourceSync.storageLoadFailed"),
-		children: U(t.error)
-	}) : t.isPending ? /* @__PURE__ */ (0, $.jsx)("p", {
+		children: W(n.error)
+	}) : n.isPending ? /* @__PURE__ */ (0, $.jsx)("p", {
 		role: "status",
 		children: Y("cleanup:resourceSync.storageLoading")
-	}) : ut(t.data) ? /* @__PURE__ */ (0, $.jsx)(Nn, { toast: e }) : /* @__PURE__ */ (0, $.jsxs)(p, {
+	}) : dt(n.data) ? /* @__PURE__ */ (0, $.jsx)(Pn, {
+		toast: e,
+		writeAccess: t
+	}) : /* @__PURE__ */ (0, $.jsxs)(m, {
 		layout: "stack",
 		label: Y("cleanup:tools.resourceSync"),
 		children: [
-			/* @__PURE__ */ (0, $.jsx)(m, { children: Y("cleanup:tools.resourceSync") }),
+			/* @__PURE__ */ (0, $.jsx)(h, { children: Y("cleanup:tools.resourceSync") }),
 			/* @__PURE__ */ (0, $.jsx)("p", {
 				className: "text-body-regular text-text-secondary",
 				children: Y("cleanup:resourceSync.noDirectories")
@@ -1750,33 +1769,36 @@ function Pn({ toast: e }) {
 		]
 	});
 }
-function Fn({ tool: e, toast: t, failure: n }) {
-	let r = (e) => t(e), i;
+function In({ tool: e, toast: t, failure: n, writeAccess: r }) {
+	let i = (e) => t(e), a;
 	switch (e) {
 		case "organize":
-			i = /* @__PURE__ */ (0, $.jsx)(mn, {
-				toast: r,
+			a = /* @__PURE__ */ (0, $.jsx)(hn, {
+				toast: i,
 				failure: n
 			});
 			break;
 		case "resource-sync":
-			i = /* @__PURE__ */ (0, $.jsx)(Pn, { toast: t });
+			a = /* @__PURE__ */ (0, $.jsx)(Fn, {
+				toast: t,
+				writeAccess: r
+			});
 			break;
 		case "orphan-records":
-			i = /* @__PURE__ */ (0, $.jsx)(Sn, { toast: r });
+			a = /* @__PURE__ */ (0, $.jsx)(Cn, { toast: i });
 			break;
 		case "media-repair":
-			i = /* @__PURE__ */ (0, $.jsx)(Qt, { toast: r });
+			a = /* @__PURE__ */ (0, $.jsx)($t, { toast: i });
 			break;
 		case "links":
-			i = /* @__PURE__ */ (0, $.jsx)(ln, {});
+			a = /* @__PURE__ */ (0, $.jsx)(un, {});
 			break;
-		case "batch-delete": i = /* @__PURE__ */ (0, $.jsx)(Tn, { toast: r });
+		case "batch-delete": a = /* @__PURE__ */ (0, $.jsx)(En, { toast: i });
 	}
-	return /* @__PURE__ */ (0, $.jsx)(Wt, { children: i });
+	return /* @__PURE__ */ (0, $.jsx)(Gt, { children: a });
 }
 // src/react/data-cleanup/data-cleanup-page.tsx
-function In(e, t) {
+function Ln(e, t) {
 	return e.data === void 0 ? e.isError ? {
 		figure: Y("cleanup:overview.loadFailed"),
 		state: "error"
@@ -1785,7 +1807,7 @@ function In(e, t) {
 		state: "loading"
 	} : t(e.data);
 }
-function Ln({ section: e, label: t, icon: n, value: r, open: i }) {
+function Rn({ section: e, label: t, icon: n, value: r, open: i }) {
 	return /* @__PURE__ */ (0, $.jsx)("button", {
 		type: "button",
 		className: K({ interactive: !0 }),
@@ -1793,7 +1815,7 @@ function Ln({ section: e, label: t, icon: n, value: r, open: i }) {
 		"data-entry-state": r.state,
 		"aria-busy": r.state === "loading" || void 0,
 		onClick: () => i(e),
-		children: /* @__PURE__ */ (0, $.jsx)(F, {
+		children: /* @__PURE__ */ (0, $.jsx)(I, {
 			label: t,
 			icon: n,
 			figure: r.figure,
@@ -1801,9 +1823,9 @@ function Ln({ section: e, label: t, icon: n, value: r, open: i }) {
 		})
 	});
 }
-function Rn({ tool: e, navigate: t }) {
+function zn({ tool: e, navigate: t }) {
 	let n = J(e.icon);
-	return /* @__PURE__ */ (0, $.jsx)(Yt, {
+	return /* @__PURE__ */ (0, $.jsx)(Xt, {
 		label: e.title,
 		icon: n,
 		summary: e.description,
@@ -1811,92 +1833,92 @@ function Rn({ tool: e, navigate: t }) {
 		onOpen: () => t(e.path + location.search)
 	});
 }
-var zn = J("square-check-big"), Bn = J("sparkles"), Vn = J("file-stack"), Hn = J("file-archive"), Un = J("trash"), Wn = () => {
+var Bn = J("square-check-big"), Vn = J("sparkles"), Hn = J("file-stack"), Un = J("file-archive"), Wn = J("trash"), Gn = () => {
 	for (let e of [
-		he,
-		L,
-		d,
-		y
+		R,
+		ce,
+		f,
+		b
 	]) q.invalidateQueries({
 		queryKey: e,
 		exact: !0
 	});
 };
-function Gn({ toast: e, open: t, navigate: n }) {
+function Kn({ toast: e, open: t, navigate: n }) {
 	let r = Z({
-		queryKey: he,
+		queryKey: R,
 		queryFn: ({ signal: e }) => ot(e)
 	}), i = Z({
-		queryKey: L,
+		queryKey: ce,
 		queryFn: ({ signal: e }) => nt(e)
-	}), c = Z({
-		queryKey: d,
+	}), a = Z({
+		queryKey: f,
 		queryFn: ({ signal: e }) => Ke(e)
 	}), l = Z({
-		queryKey: y,
+		queryKey: b,
 		queryFn: ({ signal: e }) => qe(e)
 	}), u = Z({
 		queryKey: Se,
 		queryFn: ({ signal: e }) => st(e)
 	});
 	return (0, Q.useEffect)(() => {
-		let e = o[location.hash];
-		e && gt.replace(e + location.search);
-	}, []), /* @__PURE__ */ (0, $.jsxs)(Wt, { children: [
+		let e = s[location.hash];
+		e && _t.replace(e + location.search);
+	}, []), /* @__PURE__ */ (0, $.jsxs)(Gt, { children: [
 		/* @__PURE__ */ (0, $.jsxs)("section", {
 			"aria-labelledby": "cleanup-pending",
 			className: "flex flex-col gap-4",
-			children: [/* @__PURE__ */ (0, $.jsx)(ge, {
+			children: [/* @__PURE__ */ (0, $.jsx)(z, {
 				id: "cleanup-pending",
 				children: Y("cleanup:overview.needsAttention")
 			}), /* @__PURE__ */ (0, $.jsxs)("div", {
-				className: P,
+				className: F,
 				children: [
-					/* @__PURE__ */ (0, $.jsx)(Ln, {
+					/* @__PURE__ */ (0, $.jsx)(Rn, {
 						section: "review",
 						label: Y("cleanup:overview.review"),
-						icon: zn,
+						icon: Bn,
 						open: t,
-						value: In(r, Dt)
+						value: Ln(r, Ot)
 					}),
-					/* @__PURE__ */ (0, $.jsx)(Ln, {
+					/* @__PURE__ */ (0, $.jsx)(Rn, {
 						section: "duplicates",
 						label: Y("cleanup:overview.duplicates"),
-						icon: Vn,
+						icon: Hn,
 						open: t,
-						value: In(c, (e) => Number(e.total || 0) ? {
+						value: Ln(a, (e) => Number(e.total || 0) ? {
 							figure: Y("cleanup:overview.duplicateGroups", {
 								count: Number(e.total),
 								files: Number(e.files || 0).toLocaleString()
 							}),
-							meta: Y("cleanup:overview.reclaimable", { size: W(e.reclaimable || 0) })
+							meta: Y("cleanup:overview.reclaimable", { size: lt(e.reclaimable || 0) })
 						} : { figure: Y("cleanup:overview.noDuplicates") })
 					}),
-					/* @__PURE__ */ (0, $.jsx)(Ln, {
+					/* @__PURE__ */ (0, $.jsx)(Rn, {
 						section: "ads",
 						label: Y("cleanup:overview.junkFiles"),
-						icon: Hn,
-						open: t,
-						value: In(l, (e) => ({
-							figure: Y("cleanup:overview.junkUndecided", { count: Number(e.pending_total || 0) }),
-							meta: dt(e)
-						}))
-					}),
-					/* @__PURE__ */ (0, $.jsx)(Ln, {
-						section: "quality",
-						label: Y("cleanup:overview.hdUpgrades"),
-						icon: Bn,
-						open: t,
-						value: In(i, (e) => ({ figure: Y("cleanup:overview.upgradesPending", { count: Number(e.total || 0) }) }))
-					}),
-					/* @__PURE__ */ (0, $.jsx)(Ln, {
-						section: "trash",
-						label: Y("cleanup:overview.trash"),
 						icon: Un,
 						open: t,
-						value: In(u, (e) => ({
+						value: Ln(l, (e) => ({
+							figure: Y("cleanup:overview.junkUndecided", { count: Number(e.pending_total || 0) }),
+							meta: ft(e)
+						}))
+					}),
+					/* @__PURE__ */ (0, $.jsx)(Rn, {
+						section: "quality",
+						label: Y("cleanup:overview.hdUpgrades"),
+						icon: Vn,
+						open: t,
+						value: Ln(i, (e) => ({ figure: Y("cleanup:overview.upgradesPending", { count: Number(e.total || 0) }) }))
+					}),
+					/* @__PURE__ */ (0, $.jsx)(Rn, {
+						section: "trash",
+						label: Y("cleanup:overview.trash"),
+						icon: Wn,
+						open: t,
+						value: Ln(u, (e) => ({
 							figure: Y("cleanup:overview.trashCount", { count: Number(e.total || 0) }),
-							meta: e.total ? Y("cleanup:overview.trashSize", { size: W(e.bytes || 0) }) : Y("cleanup:overview.trashEmptyHint")
+							meta: e.total ? Y("cleanup:overview.trashSize", { size: lt(e.bytes || 0) }) : Y("cleanup:overview.trashEmptyHint")
 						}))
 					})
 				]
@@ -1905,20 +1927,20 @@ function Gn({ toast: e, open: t, navigate: n }) {
 		/* @__PURE__ */ (0, $.jsx)("div", {
 			id: "libraryProcessing",
 			className: "scroll-mt-20",
-			children: /* @__PURE__ */ (0, $.jsx)(D, {
+			children: /* @__PURE__ */ (0, $.jsx)(E, {
 				toast: (t) => e(t),
-				onComplete: Wn
+				onComplete: Gn
 			})
 		}),
 		/* @__PURE__ */ (0, $.jsxs)("section", {
 			"aria-labelledby": "cleanup-maintenance",
 			className: "flex flex-col gap-4",
-			children: [/* @__PURE__ */ (0, $.jsx)(ge, {
+			children: [/* @__PURE__ */ (0, $.jsx)(z, {
 				id: "cleanup-maintenance",
 				children: Y("cleanup:overview.maintenanceSection")
 			}), /* @__PURE__ */ (0, $.jsx)("div", {
-				className: a,
-				children: s.filter((e) => e.key !== "batch-delete").map((e) => /* @__PURE__ */ (0, $.jsx)(Rn, {
+				className: o,
+				children: c.filter((e) => e.key !== "batch-delete").map((e) => /* @__PURE__ */ (0, $.jsx)(zn, {
 					tool: e,
 					navigate: n
 				}, e.key))
@@ -1927,12 +1949,12 @@ function Gn({ toast: e, open: t, navigate: n }) {
 		/* @__PURE__ */ (0, $.jsxs)("section", {
 			"aria-labelledby": "cleanup-deletion",
 			className: "flex flex-col gap-4",
-			children: [/* @__PURE__ */ (0, $.jsx)(ge, {
+			children: [/* @__PURE__ */ (0, $.jsx)(z, {
 				id: "cleanup-deletion",
 				children: Y("cleanup:overview.deletionSection")
 			}), /* @__PURE__ */ (0, $.jsx)("div", {
-				className: a,
-				children: s.filter((e) => e.key === "batch-delete").map((e) => /* @__PURE__ */ (0, $.jsx)(Rn, {
+				className: o,
+				children: c.filter((e) => e.key === "batch-delete").map((e) => /* @__PURE__ */ (0, $.jsx)(zn, {
 					tool: e,
 					navigate: n
 				}, e.key))
@@ -1940,6 +1962,6 @@ function Gn({ toast: e, open: t, navigate: n }) {
 		})
 	] });
 }
-export { Gn as DataCleanupPage, Fn as DataCleanupToolPage };
+export { Kn as DataCleanupPage, In as DataCleanupToolPage };
 
-//# debugId=07f10e6a-e089-4630-ad67-00bf5fdb9eac
+//# debugId=871cd976-0c1d-4c6a-b493-9a7441905ebf

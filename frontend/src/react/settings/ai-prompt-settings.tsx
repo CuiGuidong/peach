@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Textarea } from '@/components/base/textarea/textarea';
 import { apiGet, apiSend, errorMessage } from '../../api';
 import { interfaceLanguage, t } from '../../i18n';
-import { ErrorText, Help, Stack } from './section';
+import { Note } from '../components/note';
+import { Help, Stack } from './section';
 
 const URL = '/api/ai-library/prompts?lang=' + interfaceLanguage;
 const QUERY = ['ai-library-prompts', interfaceLanguage];
@@ -30,15 +31,25 @@ export function useAIPromptSettings(scope: AIPromptScope, active: boolean) {
     onChange: (text: string) => setDrafts(current => ({ ...current, [scope]: text })) };
 }
 
-export function AIPromptEditor({ scope, prompt, busy, divided }: {
-  scope: AIPromptScope; prompt: ReturnType<typeof useAIPromptSettings>; busy: boolean; divided: boolean;
+export function AIPromptEditor({ scope, prompt, busy, divided, readOnly }: {
+  scope: AIPromptScope; prompt: ReturnType<typeof useAIPromptSettings>; busy: boolean; divided: boolean; readOnly: boolean;
 }) {
+  const label = promptCopy('scopes.' + scope);
   return <Stack divided={divided}>
     {scope === 'system' ? <Help><span data-copy-key="settings.aiLibrary.prompts.help">{promptCopy('help')}</span></Help> : null}
-    {prompt.limit === undefined ? prompt.error ? <ErrorText>{errorMessage(prompt.error)}</ErrorText>
+    {readOnly ? <>
+      <Help><span data-copy-key="settings.aiLibrary.prompts.builtinReadOnly">{promptCopy('builtinReadOnly')}</span></Help>
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <span className="text-body-medium text-text-primary" data-copy-key={'settings.aiLibrary.prompts.scopes.' + scope}>{label}</span>
+        <div role="region" aria-label={label} tabIndex={0}
+          className="h-44 select-none overflow-y-auto rounded-2lg bg-background-tertiary-default px-3 py-2 text-body-regular text-text-secondary whitespace-pre-wrap wrap-anywhere">
+          {promptCopy('defaults.' + scope)}
+        </div>
+      </div>
+    </> : prompt.limit === undefined ? prompt.error ? <Note tone="error">{errorMessage(prompt.error)}</Note>
       : <Help role="status">{promptCopy('loading')}</Help> : <>
       <Help><span data-copy-key={'settings.aiLibrary.prompts.descriptions.' + scope}>{promptCopy('descriptions.' + scope)}</span></Help>
-      <Textarea label={promptCopy('scopes.' + scope)} value={prompt.value} onChange={prompt.onChange} isDisabled={busy}
+      <Textarea label={label} value={prompt.value} onChange={prompt.onChange} isDisabled={busy}
         rows={8} maxLength={prompt.limit} showCount resize="vertical" />
     </>}
   </Stack>;

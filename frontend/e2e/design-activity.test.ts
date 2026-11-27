@@ -7,6 +7,21 @@ import { requiredEnv, settle, visit, VIEWPORTS } from './harness.ts';
 describe('任务页云下载布局', () => {
   let browser: Browser;
   installDesignBrowser((next) => { browser = next; });
+  it('下载任务查询失败时不显示没有匹配任务', async () => {
+    const viewport = VIEWPORTS.find(row => !row.mobile)!;
+    const opened = await visit(browser, '/tasks', viewport, async page => {
+      await page.route('**/api/downloads?*', route => route.fulfill({ status: 503, json: { error: 'unavailable' } }));
+    });
+    try {
+      const panel = opened.page.locator('#cloudDownloads');
+      await panel.getByRole('alert').waitFor();
+      const failedSearch = opened.page.waitForResponse(reply => new URL(reply.url()).searchParams.has('q') && reply.status() === 503);
+      await panel.getByRole('searchbox').fill('无结果与失败应分开');
+      await failedSearch;
+      await panel.getByRole('alert').waitFor();
+      assert.equal(await panel.getByText('没有匹配的下载任务', { exact: true }).count(), 0);
+    } finally { await opened.close(); }
+  });
   for (const viewport of VIEWPORTS) it(`${viewport.name} 资源分色并在高占用时加深，已取消使用红色标签`, async () => {
     const reading = (high: boolean) => ({
       cpu: { state: 'ready', percent: high ? 75 : 5, high },
