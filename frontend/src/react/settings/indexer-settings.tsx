@@ -5,10 +5,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/base/buttons/button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Input } from '@/components/base/input/input';
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiGet, apiSend } from '../../api';
 import { indexersSkeleton, rememberShape } from '../../configuration-skeleton';
 import { randomId } from '../../core/random-id';
 import { Disclosure, ErrorText, ExternalLink, Footer, Help, Section, SectionSkeleton, Stack } from './section';
+import { QueryErrorNote } from '../components/query-error-note';
 import { busyProps, useAction } from './use-action';
 import { t } from '../../i18n';
 
@@ -21,7 +22,7 @@ interface State { indexers: Indexer[]; max_indexers: number }
 
 export function IndexerSettings({ receipt }: { receipt(message: string): void }) {
   const query = useQuery({ queryKey: ['indexers'], queryFn: ({ signal }) => apiGet<State>(URL, signal), refetchOnMount: 'always' });
-  if (query.error) return <ErrorText>{errorMessage(query.error)}</ErrorText>;
+  if (query.error) return <QueryErrorNote titleKey="settings:indexers.loadFailed" query={query} />;
   if (query.isFetching) return <SectionSkeleton label={t('settings:indexers.loading')} html={indexersSkeleton} />;
   return query.data ? <IndexerForm initial={query.data} receipt={receipt} /> : null;
 }

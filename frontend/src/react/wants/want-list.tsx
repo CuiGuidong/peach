@@ -10,7 +10,7 @@ import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Input } from '@/components/base/input/input';
 
-import { apiGet, errorMessage } from '../../api';
+import { apiGet } from '../../api';
 import { javContentSkeleton } from '../../jav-skeleton';
 import type { DownloadsSnapshot } from '../bundle';
 import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-download-dialog';
@@ -24,6 +24,7 @@ import { useRectangleSelection, type RectangleCommit } from '../components/recta
 import type { Discovery } from '../jav/jav';
 import { EmptyState, EmptyFocusButton } from '../components/empty-state';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { DataTableFooter } from '../components/table-controls';
 import { pageWindow } from '../follow-manage/follow-manage';
 import { ErrorLine } from '../follow-manage/source-view';
@@ -274,11 +275,11 @@ export function WantList({ readOnly, toast, query = '', clearQuery }: WantListPr
         {action.error ? <Note tone="error" title={t('catalog:wants.actionFailed')}>{action.error}</Note> : null}
       </div>
 
-      {wants.error ? <Note tone="error" title={t('catalog:wants.loadFailed')}>{errorMessage(wants.error)}</Note> : null}
+      {wants.error ? <QueryErrorNote titleKey="catalog:wants.loadFailed" query={wants} /> : null}
       {wants.isPending ? <div role="status" aria-label={t('catalog:wants.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('wants') }} /> : null}
       {data?.scraping ? <TaskProgress embedded kind={activityKind('want-scrape')} label={t('catalog:wants.fetchingNew')} /> : null}
       {data?.searching ? <TaskProgress embedded kind={activityKind('want-search')} label={t('catalog:wants.searchingResources')} /> : null}
-      {downloads.error ? <Note tone="error" title={t('catalog:wants.downloadSettingsFailed')}>{errorMessage(downloads.error)}</Note> : null}
+      {downloads.error ? <QueryErrorNote titleKey="catalog:wants.downloadSettingsFailed" query={downloads} /> : null}
       {downloads.data && !configured.length ? <Note tone="neutral">{t('shell:downloadChannels.notConfigured')}{t('shell:format.sentenceGap')}<a href="/settings/downloads">{t('shell:downloadChannels.settingsLink')}</a></Note> : null}
       {downloads.data && !downloads.data.available ? <Note tone="neutral">{t('catalog:wants.cloudPrimaryOnly')}</Note> : null}
 

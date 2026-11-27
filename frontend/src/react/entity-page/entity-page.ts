@@ -10,6 +10,7 @@
  * 首屏由壳铺骨架，身份资料就绪后挂载页面；作品、照片与新作各自替换对应区域的骨架。 */
 import { api } from '@peach/legacy/core';
 import { appSettingsStore } from '@peach/appearance';
+import { errorMessage } from '../../api';
 
 import type { CatalogGridProps, MediaPage, MediaPageOptions } from '../catalog-grid/types';
 import type { EntityBodyActions, EntityBodyHelpers, EntityCodeSet, EntityLocalPhoto, PhotoLayout, PhotoSize } from '../entity-body/entity-body';
@@ -296,7 +297,7 @@ export const photosOptions = (kind: string, name: string, set: number, seed: str
     const page = await (api(photoUrl(kind, name, set, seed, pageParam?.offset || 0, pageParam?.seed || '')) as Promise<PhotoPage>)
       .catch((error: unknown) => {
         if (pageParam) throw error;
-        return { error: String(error) } as PhotoPage;
+        return { error: errorMessage(error) } as PhotoPage;
       });
     if (pageParam && page.error) throw new Error(page.error);
     return page;

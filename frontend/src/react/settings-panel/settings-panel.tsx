@@ -41,6 +41,7 @@ import { overlayHost } from '../components/overlay-host';
 import { NumberSetting } from './number-setting';
 import type { Choice, PanelSettings, SettingsPanelApi, SettingsPanelHost } from './settings-panel-api';
 import { fetchSettings, refreshPanelData, SETTINGS_KEY, useSaveSettings } from './settings-data';
+import { queryClient } from '../query';
 import { Note } from '../components/note';
 import { ShortcutSetting } from './shortcut-setting';
 import { SidebarOrder } from './sidebar-order';
@@ -379,7 +380,7 @@ function SettingsPanel({ host: current, view: shown }: { host: SettingsPanelHost
   const save = () => current.store.save();
 
   return (
-    <section data-settings-panel="" id="settingsPanel" hidden={!shown.open} aria-modal="true" role="dialog"
+    <section data-settings-panel="" data-copy-choice-host="" id="settingsPanel" hidden={!shown.open} aria-modal="true" role="dialog"
       aria-labelledby="settingsTitle" data-closing={shown.closing ? '' : undefined} ref={panel} onKeyDown={trapTab}
       onClick={(event) => { if (event.target === event.currentTarget) close() }}>
       <UNSAFE_PortalProvider getContainer={() => overlayHost(panel.current)}>
@@ -541,6 +542,7 @@ function JavGroup({ host: current, tab, epoch }: GroupProps) {
     <Group index={2} tab={tab}>
       <h4 data-settings-subheading="">{t('settings:preferencesPanel.videoDisplay')}</h4>
       <NameLanguageSetting host={current} epoch={epoch} />
+      <SourceTagSetting host={current} epoch={epoch} />
       <Row title={t('settings:preferencesPanel.defaultImage')} description={t('settings:preferencesPanel.defaultImageHelp')}>
         <IconSwitch id="javImageSetting" name="jav-image" legend={t('settings:preferencesPanel.defaultImage')} options={JAV_IMAGE_OPTIONS}
           value={settings.javImage} attr="data-jav-image-choice" variant="javimageswitch" text epoch={epoch}
@@ -597,6 +599,40 @@ function InterfaceLanguageSetting({ host: current, epoch }: { host: SettingsPane
     {query.isError ? <Note tone="error">{t('settings:interfaceLanguage.unavailable')}</Note> : null}
   </>;
 }
+function SourceTagSetting({ host: current, epoch }: { host: SettingsPanelHost; epoch: number }) {
+  const query = useQuery({ queryKey: SETTINGS_KEY, queryFn: ({ signal }) => fetchSettings(signal), staleTime: 0 });
+  const save = useSaveSettings();
+  const [pending, setPending] = useState<boolean | null>(null);
+  const original = query.data?.sourceTagsOriginal === true;
+  const title = t('settings:sourceTags.title');
+  return <>
+    <Row title={title} description={<small data-copy-key="source-tag-mode-help">{t('settings:sourceTags.help')}</small>}>
+      <SelectField id="sourceTagModeSetting" label={title} epoch={epoch}
+        options={[[ 'peach', t('settings:sourceTags.peach') ], [ 'source', t('settings:sourceTags.original') ]]}
+        value={(pending ?? original) ? 'source' : 'peach'}
+        disabled={query.isPending || query.isError || save.isPending} busy={save.isPending}
+        onPick={(value) => {
+          const next = value === 'source';
+          if (save.isPending || next === original) return;
+          setPending(next);
+          save.mutate({ sourceTagsOriginal: next }, {
+            onSuccess: () => {
+              void queryClient.invalidateQueries({ queryKey: ['jav-detail'] });
+              void queryClient.invalidateQueries({ queryKey: ['jav-discoveries', 'external'] });
+              void queryClient.invalidateQueries({ queryKey: ['jav-releases'] });
+              void queryClient.invalidateQueries({ queryKey: ['jav-release-column'] });
+              void queryClient.invalidateQueries({ queryKey: ['jav-catalog'] });
+              current.receipt(t('settings:sourceTags.saved'));
+            },
+            onError: (error) => current.failure(t('settings:sourceTags.saveFailed'), error),
+            onSettled: () => setPending(null),
+          });
+        }} />
+    </Row>
+    {query.isError ? <Note tone="error">{t('settings:sourceTags.unavailable')}</Note> : null}
+  </>;
+}
+
 function NameLanguageSetting({ host: current, epoch }: { host: SettingsPanelHost; epoch: number }) {
   const query = useQuery({ queryKey: SETTINGS_KEY, queryFn: ({ signal }) => fetchSettings(signal), staleTime: 0 });
   const save = useSaveSettings();

@@ -323,7 +323,7 @@ export interface ItemDetailActions {
   /** 盘回来了：按正常路径重开这一条，不在半路挂播放器。 */
   reopen(): void;
   /** 重新检测一个来源挂没挂上。 */
-  checkSource(location: string): Promise<boolean>;
+  checkSource(location: string): Promise<boolean | null>;
   /** 在线作品反查不到关注条目时的出口：打开关注页「已保存」那一档。 */
   openSavedFollow(): void;
   openEntity(kind: string, name: string): void;

@@ -21,7 +21,7 @@ import { TableColumnControls, TableColumnResizer } from '../components/table-col
 import { useTablePreferences } from '../components/table-column-preferences';
 import { TableToolbar } from '../components/table-toolbar';
 import { DiscoveryFaces, DiscoveryPerformerName, type DiscoveryPerson } from './discovery-faces';
-import { StudioListLabel } from './jav-facets';
+import { StudioLibraryLink, StudioListLabel } from './jav-facets';
 import { useJavSelection } from './jav-selection';
 import { ONLINE_SORTS, ONLINE_TABLE_ID, ONLINE_TABLE_KEYS, onlineColumns, type OnlineSortKey } from './online-catalog-layout';
 import type { CatalogItem } from './online-catalog';
@@ -108,15 +108,18 @@ export function OnlineCatalogTable({ items, waiting, javImage, maker, genres, so
       }
       case 'studio': {
         const studio = item.studioOption;
-        return studio ? <button type="button" data-inline-action="" className="max-w-full cursor-pointer"
-          aria-pressed={maker === studio.id} onClick={() => onStudio(studio.id)}>
-          <StudioListLabel name={item.studio} studio={studio} />
-        </button> : '—';
+        return studio ? <div className="flex min-w-0 items-center gap-1">
+          <button type="button" data-inline-action="" className="min-w-0 max-w-full cursor-pointer"
+            aria-pressed={maker === studio.id} onClick={() => onStudio(studio.id)}>
+            <StudioListLabel name={item.studio} studio={studio} />
+          </button>
+          <StudioLibraryLink studio={studio} />
+        </div> : '—';
       }
       case 'tags':
         return item.tagOptions.length ? <div data-media-tags="" data-list-tags="">
           {item.tagOptions.map(tag => <button type="button" key={tag.id} data-media-tag=""
-            aria-pressed={genres.includes(tag.id)} onClick={() => onTag(tag.id)}>{tag.source_name}</button>)}
+            aria-pressed={genres.includes(tag.id)} onClick={() => onTag(tag.id)}>{tag.name}</button>)}
         </div> : '—';
       case 'release':
         return <div className="flex flex-col gap-1">

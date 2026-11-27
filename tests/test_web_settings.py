@@ -169,7 +169,8 @@ class SettingsRoundTripTests(unittest.TestCase):
                           "feedHideSoloCompilations": False, "feedHideExcerpts": True,
                           "searchHistoryLimit": None, "performerNameLanguage": "zh-CN", "taskSpeedMode": "standard",
                           "interfaceLanguage": "auto", "systemLanguage": None, "javBrowserWantOnNoMatch": True,
-                          "javdbCoverFallback": False, "wantStaleSearchDays": 7, "wantStaleAttemptLimit": 3,
+                          "javdbCoverFallback": False, "sourceTagsOriginal": False,
+                          "wantStaleSearchDays": 7, "wantStaleAttemptLimit": 3,
                           "sourceBudgetRequests": 6000, "sourceBudgetHours": 4, "sourceBudgetGigabytes": 1})
 
     def test_table_layouts_merge_independent_tables_and_reset_one_field(self):
@@ -243,6 +244,16 @@ class SettingsRoundTripTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 w_settings(self.contract, {'performerNameLanguage': value})
             self.assertEqual(self._stored_json(), {'performerNameLanguage': 'ja'})
+
+    def test_source_tags_setting_round_trips_and_only_accepts_booleans(self):
+        w_settings(self.contract, {'performerNameLanguage': 'ja'})
+        self.assertFalse(q_settings(self.contract)['sourceTagsOriginal'])
+        self.assertTrue(w_settings(self.contract, {'sourceTagsOriginal': True})['sourceTagsOriginal'])
+        with self.assertRaises(ValueError):
+            w_settings(self.contract, {'sourceTagsOriginal': 'false'})
+        self.assertTrue(q_settings(self.contract)['sourceTagsOriginal'])
+        self.assertFalse(w_settings(self.contract, {'sourceTagsOriginal': False})['sourceTagsOriginal'])
+        self.assertEqual(self._stored_json(), {'performerNameLanguage': 'ja', 'sourceTagsOriginal': False})
 
     def test_interface_language_is_shared_and_rejects_languages_without_translations(self):
         self.assertEqual(q_settings(self.contract)['interfaceLanguage'], 'auto')

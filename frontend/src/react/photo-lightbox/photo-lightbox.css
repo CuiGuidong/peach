@@ -13,6 +13,10 @@
  * 灯箱本体只负责固定视口；主图、底部工具和缩略图条各自绝对定位。三行 grid 会和动态后载的
  * Swiper 百分比高度形成循环，超宽视口下主图行收成 0。 */
 .peach-react [data-photo-lightbox] {
+  --photo-safe-top: env(safe-area-inset-top, 0px);
+  --photo-safe-right: env(safe-area-inset-right, 0px);
+  --photo-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --photo-safe-left: env(safe-area-inset-left, 0px);
   position: fixed;
   inset: 0;
   z-index: 200;
@@ -94,10 +98,11 @@
   height: 100%;
   min-width: 0;
   min-height: 0;
-  padding: 24px 72px 76px;
+  padding: calc(24px + var(--photo-safe-top)) calc(72px + var(--photo-safe-right))
+    calc(76px + var(--photo-safe-bottom)) calc(72px + var(--photo-safe-left));
 }
 .peach-react [data-photo-lightbox][data-has-strip] [data-photo-main] .swiper-zoom-container {
-  padding-bottom: 148px;
+  padding-bottom: calc(148px + var(--photo-safe-bottom));
 }
 .peach-react [data-photo-main] img {
   display: block;
@@ -141,8 +146,8 @@
   height: 24px;
 }
 .peach-react [data-photo-close] {
-  top: 12px;
-  right: 14px;
+  top: calc(12px + var(--photo-safe-top));
+  right: calc(14px + var(--photo-safe-right));
   z-index: 5;
 }
 .peach-react [data-photo-nav] {
@@ -165,10 +170,10 @@
   height: 20px;
 }
 .peach-react [data-photo-nav="back"] {
-  left: 14px;
+  left: calc(14px + var(--photo-safe-left));
 }
 .peach-react [data-photo-nav="fwd"] {
-  right: 14px;
+  right: calc(14px + var(--photo-safe-right));
 }
 .peach-react [data-photo-nav="fwd"] svg {
   transform: rotate(180deg);
@@ -199,9 +204,9 @@
 }
 .peach-react [data-photo-bar] {
   position: absolute;
-  right: 14px;
-  bottom: 14px;
-  left: 14px;
+  right: calc(14px + var(--photo-safe-right));
+  bottom: calc(14px + var(--photo-safe-bottom));
+  left: calc(14px + var(--photo-safe-left));
   z-index: 4;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -210,7 +215,7 @@
   pointer-events: none;
 }
 .peach-react [data-photo-lightbox][data-has-strip] [data-photo-bar] {
-  bottom: 98px;
+  bottom: calc(98px + var(--photo-safe-bottom));
 }
 .peach-react [data-photo-bar] > * {
   pointer-events: auto;
@@ -479,9 +484,9 @@
 /* ── 缩略图条 ── */
 .peach-react [data-photo-strip] {
   position: absolute;
-  right: 72px;
-  bottom: 14px;
-  left: 72px;
+  right: calc(72px + var(--photo-safe-right));
+  bottom: calc(14px + var(--photo-safe-bottom));
+  left: calc(72px + var(--photo-safe-left));
   z-index: 3;
   width: auto;
   height: 72px;
@@ -519,41 +524,42 @@
     display: none;
   }
   .peach-react [data-photo-main] .swiper-zoom-container {
-    padding: 12px 12px 70px;
+    padding: calc(12px + var(--photo-safe-top)) calc(12px + var(--photo-safe-right))
+      calc(70px + var(--photo-safe-bottom)) calc(12px + var(--photo-safe-left));
   }
   .peach-react [data-photo-lightbox][data-has-strip] [data-photo-main] .swiper-zoom-container {
-    padding-bottom: 136px;
+    padding-bottom: calc(136px + var(--photo-safe-bottom));
   }
   .peach-react [data-photo-bar] {
-    right: 12px;
-    bottom: 10px;
-    left: 12px;
+    right: calc(12px + var(--photo-safe-right));
+    bottom: calc(10px + var(--photo-safe-bottom));
+    left: calc(12px + var(--photo-safe-left));
     min-height: 44px;
   }
   .peach-react [data-photo-lightbox][data-has-strip] [data-photo-bar] {
-    bottom: 80px;
+    bottom: calc(80px + var(--photo-safe-bottom));
   }
   .peach-react [data-photo-reveal] {
     min-height: 44px;
   }
   .peach-react [data-photo-strip] {
-    right: 56px;
-    bottom: 12px;
-    left: 56px;
+    right: calc(56px + var(--photo-safe-right));
+    bottom: calc(12px + var(--photo-safe-bottom));
+    left: calc(56px + var(--photo-safe-left));
   }
   .peach-react [data-photo-strip],
   .peach-react [data-photo-strip] .swiper-slide {
     height: 56px;
   }
   .peach-react [data-photo-close] {
-    top: 10px;
-    right: 10px;
+    top: calc(10px + var(--photo-safe-top));
+    right: calc(10px + var(--photo-safe-right));
   }
   .peach-react [data-photo-nav="back"] {
-    left: 8px;
+    left: calc(8px + var(--photo-safe-left));
   }
   .peach-react [data-photo-nav="fwd"] {
-    right: 8px;
+    right: calc(8px + var(--photo-safe-right));
   }
 }
 /* 手机最窄那一档放不下「1286 / 1289」加整条缩放：滑条收起，缩放只剩加减键、适应与 1:1。 */

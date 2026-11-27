@@ -8,6 +8,7 @@ import { brandIcon, foldName, linkMarkUrl, officialLinkText } from '@peach/legac
 import type { FeedNew } from '../feed-new/feed-new';
 import type { PendingWorkItem } from '../components/pending-work';
 import { t } from '../../i18n';
+import { isPersonEntity } from '../../core/entity-links';
 import { linkLabel } from '../../core/stored-values';
 
 /** 一条外链，形状同 `/api/entity` 的 `links[]`。 */
@@ -173,7 +174,6 @@ export const FACT_TAGS_SHOWN = 4;
 
 /** 公司页（厂牌、事务所）的门面是它自己的标识，方框；人是圆框，右下角有换头像的入口。 */
 export const isCompany = (kind: string) => kind === 'studio' || kind === 'agency';
-export const isPeople = (kind: string) => kind === 'performer' || kind === 'creator';
 
 export const entityFeedTip = (on: boolean) => on
   ? t('catalog:entityHero.newReleasesOnTip')
@@ -229,7 +229,7 @@ export function heroLinks(entity: EntityHeroData, kind: string): LinkView[] {
     }
     const url = x.url || '';
     if (!(x.clickable && /^https?:\/\//i.test(url))) return { type: 'private', label: linkLabel(x.label) || x.hostname || t('catalog:entityFacts.onFile') };
-    if (isPeople(kind) && x.link_kind !== 'social') {
+    if (isPersonEntity(kind) && x.link_kind !== 'social') {
       return { type: 'icon', url, title: performerLinkName(x, agency), mark: siteMark(x) };
     }
     if (x.link_kind === 'social') {

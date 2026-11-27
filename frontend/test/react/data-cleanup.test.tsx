@@ -645,6 +645,23 @@ describe('孤儿记录', () => {
 });
 
 describe('整理', () => {
+  it('文件整理状态读取失败时不展示旧进度，重新读取状态不会另起任务', async () => {
+    let unavailable = true;
+    const server = serve({ '/api/organize': () => unavailable ? failWith(503, { detail: '无法读取检查点' }) : organizeIdle });
+    queryClient.setQueryData(['organize'], { ...organizeIdle, status: 'running', message: '旧的整理进度' });
+    const host = await wrap(<OrganizeCard toast={vi.fn()} failure={vi.fn()} />);
+    await act(async () => { await queryClient.refetchQueries({ queryKey: ['organize'] }) });
+    expect(host.querySelector('[role="alert"]')?.textContent).toContain('无法读取文件整理任务的状态');
+    expect(host.textContent).not.toContain('旧的整理进度');
+    expect(buttonNamed('预览', host)?.disabled).toBe(true);
+    unavailable = false;
+    await click(buttonNamed('重试', host));
+    await settle();
+    expect(host.querySelector('[role="alert"]')).toBeNull();
+    expect(buttonNamed('预览', host)?.disabled).toBe(false);
+    expect(server.posts('/api/organize')).toEqual([]);
+  });
+
   it('每个参数都能插入模板，默认追加到文件名并把光标留在参数后', async () => {
     serve({ '/api/organize': organizeIdle });
     queryClient.setQueryData(['organize'], organizeIdle);

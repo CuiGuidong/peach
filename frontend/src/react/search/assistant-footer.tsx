@@ -11,6 +11,7 @@ import type { LibraryRow } from '../../library-catalog';
 import { AIProviderLogo } from '../components/ai-provider-logo';
 import { LibraryLabel } from '../components/library-label';
 import { MenuDialog } from '../components/menu-dialog';
+import { QueryErrorNote } from '../components/query-error-note';
 import { ACCOUNT_DASHBOARDS, useAccountUsage } from '../settings/ai-account-usage';
 import { Disclosure, ExternalLink, Help, SourceMark } from '../settings/section';
 import { assistantCopy as copy } from './assistant-workspace';
@@ -138,7 +139,7 @@ export function ConversationUsagePopover({ usage, demo = false, pending = false,
 
 function ConversationAccountUsage({ provider, enabled, format }: { provider: string; enabled: boolean; format(value: number): string }) {
   const days = 30;
-  const { organization, balance, note } = useAccountUsage(provider, days, enabled);
+  const { organization, balance, note, query, problem, canRetry } = useAccountUsage(provider, days, enabled);
   const namespace = 'settings:aiLibrary.usage.';
   return <>
     {organization !== null || balance ? <div className="flex flex-col gap-1 text-caption-1-regular text-text-secondary">
@@ -148,9 +149,10 @@ function ConversationAccountUsage({ provider, enabled, format }: { provider: str
         {organization !== null ? t(namespace + 'tokens', { count: format(organization) }) : balance}
       </strong>
     </div> : null}
-    {note !== 'organizationHelp' && note !== 'balanceHelp' ? <Help>
-      {t(namespace + note, { key: provider === 'openai' ? 'OPENAI_ADMIN_KEY' : 'ANTHROPIC_ADMIN_KEY' })}
-    </Help> : null}
+    {canRetry ? <QueryErrorNote titleKey="settings:aiLibrary.usage.accountFailed" query={query} reason={problem} />
+      : note !== 'organizationHelp' && note !== 'balanceHelp' ? <Help>
+        {problem ?? t(namespace + note, { key: provider === 'openai' ? 'OPENAI_ADMIN_KEY' : 'ANTHROPIC_ADMIN_KEY' })}
+      </Help> : null}
     <ExternalLink href={ACCOUNT_DASHBOARDS[provider]}>{t(namespace + (provider === 'openai-oauth' ? 'planLink' : 'accountDashboard'))}</ExternalLink>
   </>;
 }

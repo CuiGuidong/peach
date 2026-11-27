@@ -141,7 +141,7 @@ def _organization_usage(client, provider, url, key, days):
         if not isinstance(cursor, str) or not cursor or params.get("page") == cursor:
             break
         params["page"] = cursor
-    return {"kind": "unavailable"}
+    return {"kind": "unavailable", "reason": "incomplete"}
 
 
 def _deepseek_balance(state, record):
@@ -158,7 +158,7 @@ def _deepseek_balance(state, record):
     balances = [{"currency": row["currency"], "amount": row["total_balance"]} for row in rows
                 if row["currency"] in ("CNY", "USD") and isinstance(row["total_balance"], str)
                 and re.fullmatch(r"-?\d{1,16}(?:\.\d{1,8})?", row["total_balance"])]
-    return {"kind": "balance", "balances": balances} if balances else {"kind": "unavailable"}
+    return {"kind": "balance", "balances": balances} if balances else {"kind": "unavailable", "reason": "incomplete"}
 
 
 def account_usage(state, provider, days):
@@ -169,10 +169,10 @@ def account_usage(state, provider, days):
             record = ai_credentials.store_for(state).load(provider)
             return {"kind": "custom" if record else "unconfigured"}
         if provider != "deepseek" and provider not in _REPORTS:
-            return {"kind": "unavailable"}
+            return {"kind": "unavailable", "reason": "unsupported"}
         record = ai_credentials.store_for(state).load(provider)
         if record and record.values.get("base_url"):
-            return {"kind": "unavailable"}
+            return {"kind": "unavailable", "reason": "custom_endpoint"}
         if provider == "deepseek":
             return _deepseek_balance(state, record)
         variable, url = _REPORTS[provider]
@@ -180,5 +180,13 @@ def account_usage(state, provider, days):
         if not key:
             return {"kind": "admin_required"}
         return _organization_usage(state.http_transport.client, provider, url, key, days)
-    except (httpx.HTTPError, CredentialError, OSError, KeyError, TypeError, ValueError):
-        return {"kind": "unavailable"}
+    except httpx.TimeoutException:
+        return {"kind": "unavailable", "reason": "timeout"}
+    except httpx.HTTPStatusError as exc:
+        return {"kind": "unavailable", "reason": "status", "status": exc.response.status_code}
+    except httpx.RequestError:
+        return {"kind": "unavailable", "reason": "connection"}
+    except (CredentialError, OSError):
+        return {"kind": "unavailable", "reason": "credentials"}
+    except (KeyError, TypeError, ValueError):
+        return {"kind": "unavailable", "reason": "incomplete"}

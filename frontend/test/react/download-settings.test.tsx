@@ -193,7 +193,7 @@ it('地址留空时检查把探测到的本机地址填回表单，保存配置�
   await settle();
   expect(sentBody(fetcher)).toMatchObject({ clouddrive_address: '' });
   expect(field(host, 'CloudDrive2 地址')?.value).toBe('http://127.0.0.1:29798');
-  expect(host.textContent).toContain('探测到 http://127.0.0.1:29798，保存配置后生效');
+  expect(host.textContent).toContain('找到服务地址 http://127.0.0.1:29798，保存后生效');
   expect(fetcher).toHaveBeenCalledTimes(1);
   fetcher.mockImplementation(async () => ({ ok: true, status: 200, json: async () => blank }));
   await submit(section(host, '云下载'));

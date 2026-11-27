@@ -22,17 +22,23 @@ Entries are written for users to scan: one sentence each, saying where something
 
 - **Interface**: Learn AI Assistant, folder mode, and JAV views in the tutorial, or finish the tutorial directly (#563). / **界面**：新手教程加入 AI 助手、文件夹模式和 JAV 视图导览，并支持直接结束整套教程（#563）。
 
+- **Settings**: Choose Peach curated or original source tags for JAV scraping, online browsing, and work details (#902). / **配置**：JAV 的抓取标签可切换「Peach 优选」和「来源原文」，适用于后续采集和在线浏览（#902）。
+
 ### Changed / 变更
 
 - **Interface**: Switch JAV Discover between cards and list, use shared controls in Online Catalog, and open performer profiles directly from the new releases row (#891). / **界面**：JAV 发现支持卡片和列表，在线目录复用列表控件，新作横排的署名可直接打开艺人资料页（#891）。
 
 ### Fixed / 修复
 
+- **Sourcing**: Use consistent JAV tags across languages and separate bridal roles, wedding dresses, and studio affiliations (#902). / **采集**：统一 JAV 日英来源的同类标签，区分新娘角色、婚纱服装和厂牌归属（#902）。
+- **Interface**: Show reviewed names in the JAV online catalog and make filter searches easier to see in light mode (#902). / **界面**：JAV 在线目录显示已复核的艺名，亮色下的筛选查找框更清晰（#902）。
 - **Desktop**: Open Peach from the Windows tray in your default browser (#896). / **桌面**：点击 Windows 托盘时，在系统默认浏览器中打开 Peach（#896）。
 
 - **Settings**: Configure AI on the Peach host without an access password. The AI settings page stays visible and read-only when access is restricted (#393). / **配置**：Peach 主机无需访问密码即可配置 AI，受限时仍可浏览只读的 AI 接入页面（#393）。
-- **Library**: Retry failed home avatar pages and keep search history visible when deletion fails. / **馆藏**：首页头像加载失败后可重试，删除搜索记录失败时保留原记录并显示原因。
-- **Settings**: Show access restrictions before feedback and cleanup actions, and show download search failures without an empty-result message. / **配置**：反馈与清理提前显示权限限制，下载查询失败时显示错误。
+- **Settings**: Connect ChatGPT plans from the Peach host’s local network address and see why AI authorization or settings reads fail (#393). / **配置**：支持在 Peach 主机通过局域网地址连接 ChatGPT 订阅，并显示授权和 AI 配置读取失败的原因（#393）。
+- **Interface**: Show failure reasons and provide an in-place retry or a link to the relevant settings or task records (#886). / **界面**：任务、下载、目录、JAV 和设置等操作失败时保留原因，并提供原位重试、对应设置或任务记录入口（#886）。
+- **Library**: Retry failed home avatar pages and keep search history visible when deletion fails (#886). / **馆藏**：首页头像加载失败后可重试，删除搜索记录失败时保留原记录并显示原因（#886）。
+- **Settings**: Show access restrictions before feedback and cleanup actions, and show download search failures without an empty-result message (#886). / **配置**：反馈与清理提前显示权限限制，下载查询失败时显示错误（#886）。
 
 ## [0.63.0] - 2026-11-27
 

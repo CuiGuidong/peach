@@ -14,10 +14,12 @@
 [data-manage-bar]{display:flex;align-items:flex-start;gap:4px;margin-top:0;margin-bottom:24px}
 [data-manage-menu]{position:relative;display:flex;flex:1;min-width:0;flex-wrap:nowrap;gap:4px;margin:0;padding:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
 [data-manage-menu]::-webkit-scrollbar{display:none}
-[data-manage-menu]>button{position:relative;display:inline-flex;flex:none;align-items:center;gap:7px;margin:0;padding:8px 12px;min-height:36px;border:0;border-radius:var(--control-radius);background:none;color:var(--ink-2);font-size:14px;font-weight:400;white-space:nowrap;cursor:pointer}
-[data-manage-menu]>button svg{width:var(--icon-inline);height:var(--icon-inline);flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-[data-manage-menu]>button:hover{color:var(--ink)}
-[data-manage-menu]>button[aria-pressed="true"]{background:var(--hover);color:var(--ink)}
+[data-manage-menu]>[data-manage]{position:relative;display:inline-flex;flex:none;align-items:center;gap:7px;margin:0;padding:8px 12px;min-height:36px;border:0;border-radius:var(--control-radius);background:none;color:var(--ink-2);font-size:14px;font-weight:400;white-space:nowrap;cursor:pointer}
+[data-manage-menu]>[data-manage] svg{width:var(--icon-inline);height:var(--icon-inline);flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+[data-manage-menu]>[data-manage]:hover{color:var(--ink)}
+[data-manage-menu]>a[data-manage]{text-decoration:none}
+[data-manage-menu]>a[data-manage]:focus-visible{outline:2px solid var(--color-border-focus-ring);outline-offset:-2px}
+[data-manage-menu]>[data-manage][aria-current="page"]{background:var(--hover);color:var(--ink)}
 
 /* ── 面包屑 ──
    Geist Breadcrumbs（vercel.com/geist/breadcrumbs 实测）：上一级与分隔符 `--muted`、当前页 `--ink`，
@@ -42,16 +44,16 @@ h2[data-manage-title]{margin-top:0;margin-bottom:24px;font:var(--board-title)}
 @media(max-width:760px){
   [data-manage-bar]{margin-top:0;margin-bottom:24px}
   [data-manage-menu]{gap:0}
-  [data-manage-menu]>button{padding:10px 9px;font-size:13px}
-  [data-manage-menu]>button svg{display:none}
+  [data-manage-menu]>[data-manage]{padding:10px 9px;font-size:13px}
+  [data-manage-menu]>[data-manage] svg{display:none}
 }
 
 [data-manage-menu]{position:relative;--sidebar-reorder-ms:250}
-[data-manage-menu]>button{--navigation-nudge-x:var(--sidebar-nudge,0px)}
-[data-manage-menu][data-reordering]>button[data-dragging]{position:fixed;left:var(--manage-picked-left);top:var(--manage-picked-top);width:var(--manage-picked-width)}
+[data-manage-menu]>[data-manage]{--navigation-nudge-x:var(--sidebar-nudge,0px)}
+[data-manage-menu][data-reordering]>[data-manage][data-dragging]{position:fixed;left:var(--manage-picked-left);top:var(--manage-picked-top);width:var(--manage-picked-width)}
 [data-manage-menu][data-reordering]>[data-pill-thumb]{opacity:0}
 [data-manage-drop-line]{top:6px;bottom:6px;left:0;transform:translateX(var(--manage-line-left));width:2px}
 [data-manage-drop-line]>span{transform:scaleY(1)}
 @starting-style{[data-manage-drop-line]>span{transform:scaleY(0)}}
-@media(prefers-reduced-motion:reduce){[data-manage-menu][data-reordering]>button[data-dragging]{position:static;width:auto}}
+@media(prefers-reduced-motion:reduce){[data-manage-menu][data-reordering]>[data-manage][data-dragging]{position:static;width:auto}}
 [data-manage-order-status]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}

@@ -16,6 +16,7 @@ export interface ManageHeaderHost {
   store: SettingsStore<{ manageOrder: string[] }>;
   /** 管理条上的一项。 */
   openManage(section: string): void;
+  manageHref?(section: string): string;
   /** 面包屑的上一级。带修饰键或中键的点击不经这里，照链接自己的 href 走（新标签页、右键菜单）。 */
   openPath(path: string): void;
 }

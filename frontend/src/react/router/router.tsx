@@ -26,6 +26,8 @@ import {
 import { createPortal, flushSync } from 'react-dom';
 import type { RootOptions } from 'react-dom/client';
 import { Route, Router, Routes, useLocation, useNavigate, type NavigateFunction } from 'react-router';
+import { esc } from '../../core';
+import { t } from '../../i18n';
 
 import {
   failManagedRoute, listenManagedEntry, managedEntries, navigationBackground, OVERLAY_PATHS, peachHistory,
@@ -39,6 +41,7 @@ import { NetworkBanner } from '../network-banner';
 import { TutorialCenter } from '../onboarding/tutorial-center';
 import { ClientUpdateBanner } from '../client-updates';
 import { ReleaseNotice } from '../release-notice';
+import { showToast } from '../toaster';
 import { SettingsMatch } from './pages/settings';
 import { CatalogChrome } from './pages/catalog';
 import { MediaDirectoryBrowser } from '../catalog-folders/media-directory';
@@ -135,6 +138,11 @@ class SurfaceBoundary extends Component<{ entry: ManagedEntry; children: ReactNo
 
   override componentDidCatch(): void {
     failManagedRoute(this.props.entry.container, this.props.entry.revision);
+    showToast('managed-surface-error', {
+      html: `<span data-copy-key="shell.errorPage.surfaceFailed">${esc(t('shell:errorPage.surfaceFailed'))}</span>`,
+      alert: true, timeout: Infinity,
+      action: { label: t('shell:errorPage.surfaceReload'), run: () => window.location.reload() },
+    });
   }
 
   override render(): ReactNode {

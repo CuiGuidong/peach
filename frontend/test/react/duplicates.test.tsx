@@ -153,7 +153,7 @@ it('批量保留最大先确认，弹层点名条数与字节数；确认后进�
   await settle();
   expect(seen).toHaveLength(1);
   expect(seen[0]!.body).toContain('将 2 组里的 2 个重复文件移入回收站（共 2.0 GB）');
-  expect(seen[0]!.body).toContain('每组保留最大的一个。完成后可在回执里撤销。');
+  expect(seen[0]!.body).toContain('每组保留最大的一个。完成后可在结果提示中撤销。');
   const batch = fetcher.mock.calls.findIndex((call) => call[0] === '/api/batch');
   expect(sentBody(fetcher, batch)).toEqual({ ids: [2, 4], operation: 'dispose', disposal_reason: 'duplicate' });
   expect(toast).toHaveBeenCalledWith('已把 2 项移入回收站', expect.objectContaining({ undo: expect.any(Function) }));

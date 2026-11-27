@@ -107,7 +107,7 @@ function Navigation({ host: at, epoch, version }: { host: SidebarHost; epoch: nu
   const column = useRef<HTMLDivElement | null>(null);
   const pane = useRef<HTMLSpanElement | null>(null);
   const glideKey = `${epoch}:${version}:${items.map(([key], index) => pressed[index] ? key || HOME : '').join(',')}`;
-  const glide = useViewGlide(pane, column, '[data-nav][aria-pressed="true"]', glideKey, { axis: 'y' });
+  const glide = useViewGlide(pane, column, '[data-nav]:is([aria-current="page"],[aria-pressed="true"])', glideKey, { axis: 'y' });
   const { sync } = glide;
 
   /* 抽屉开合（桌面上宽度在 60 与 260 之间过渡）、滚动层改尺寸、标题行里品牌挪进来，都只重量、
@@ -130,23 +130,29 @@ function Navigation({ host: at, epoch, version }: { host: SidebarHost; epoch: nu
   const drawer = at.scroll.parentElement;
   return (
     <>
-      <div data-sidebar-nav="" ref={column} onPointerLeave={glide.leave}
+      <div data-sidebar-nav="" role="navigation" aria-label={t('navigation:navigationGroups.sidebar')} ref={column} onPointerLeave={glide.leave}
         data-reordering={reorder.picked ? '' : undefined} onClickCapture={reorder.clickCapture}>
         {items.map(([key, label, glyph], index) => {
           const nudge = reorder.nudge(key);
+          const href = at.navHref?.(key);
+          const Item = href ? 'a' : 'button';
           return (
-          <button type="button" key={key || HOME} data-nav={key} aria-pressed={pressed[index]} aria-label={label}
+          <Item {...(href ? { href, 'aria-current': pressed[index] ? 'page' as const : undefined }
+            : { type: 'button' as const, 'aria-pressed': pressed[index] })} key={key || HOME} data-nav={key} aria-label={label}
             data-dragging={reorder.picked?.key === key ? '' : undefined}
             aria-keyshortcuts="Alt+ArrowUp Alt+ArrowDown"
             style={{ '--sidebar-picked-top': reorder.picked?.key === key ? `${reorder.picked.offset}px` : undefined,
               '--sidebar-nudge': `${nudge.distance}px`, '--sidebar-delay': `${nudge.delay}ms` } as CSSProperties}
-            onClick={() => at.navTo(key)} onDoubleClick={() => at.navToTop()} onPointerEnter={glide.hover}
+            onClick={event => {
+              if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return;
+              event.preventDefault(); at.navTo(key);
+            }} onDoubleClick={() => at.navToTop()} onPointerEnter={glide.hover}
             {...reorder.bindings(key)}>
             {key === '' ? <img data-sidebar-home-logo="" src="/peach-logo-64.png"
               srcSet="/peach-logo-64.png 64w, /peach-logo-128.png 128w" sizes="24px" width={24} height={24} alt=""
               decoding="async" draggable={false} /> : <Icon name={glyph} />}
             <span data-copy-key={key === 'ai' ? 'catalog.libraryAssistant.title' : undefined}>{label}</span>
-          </button>
+          </Item>
         )})}
         {reorder.hint ? <span data-sidebar-drop-line="" aria-hidden="true"
           style={{ '--sidebar-line-top': `${reorder.linePosition}px` } as CSSProperties}><span /></span> : null}

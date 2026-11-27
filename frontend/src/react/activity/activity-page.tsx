@@ -19,13 +19,15 @@ import { useQuery } from '@tanstack/react-query';
 import { Chip } from '@/components/base/badges/chip';
 import { LinkButton } from '@/components/base/buttons/link-button';
 
-import { apiGet, errorMessage } from '../../api';
+import { apiGet } from '../../api';
+import { taskRunSectionsSkeleton } from '../../board-skeleton';
 import { cardClass } from '../components/card';
 import { CodeBlock } from '../components/code-block';
 import { EmptyState } from '../components/empty-state';
 import { IssueRow } from '../components/issue-row';
 import { NameLink } from '../components/name-link';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { Page } from '../components/page';
 import { TaskProgress, TaskStage } from '../components/task-progress';
 import { AnimatedNumber } from '../components/animated-number';
@@ -86,7 +88,7 @@ function StatusBadge({ run }: { run: TaskRunPayload }) {
  * 后继是独立的一轮，有自己的状态和结果，但单独摆出来就读不出「它是谁派的」——
  * 而那恰恰是这一屏上唯一需要解释的东西：用户没点过补头像，它却在跑。
  * 条间线写在每个 li 自己身上，第一条那根同时充当与卡片正文的分隔。 */
-function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
+function FollowupList({ rows, visible }: { rows: TaskRunPayload[]; visible: boolean }) {
   const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 20 });
   const { pageSize } = pagination;
   const current = Math.min(pagination.pageIndex, Math.max(0, Math.ceil(rows.length / pageSize) - 1));
@@ -108,7 +110,7 @@ function FollowupList({ rows }: { rows: TaskRunPayload[] }) {
                   ? <span className="min-w-0 break-words text-caption-1-regular text-text-secondary">{detail}</span>
                   : null}
               </div>
-              <TaskControls run={row} />
+              <TaskControls run={row} visible={visible} />
             </div>
             <TaskResources run={row} />
             {/* 排队中的那些还没有结果：空的「技术详情」展开只有一对花括号。 */}
@@ -199,11 +201,11 @@ function RunCard(
         <Disclosure row summary={t('manage:taskCenter.taskDetailsCount', { count: total })}
           contentClassName="pb-5"
           isOpen={detailOpen} onOpenChange={setDetailOpen}>
-          {detail.error ? <Note tone="error">{errorMessage(detail.error)}</Note> : null}
+          {detail.error ? <QueryErrorNote titleKey="manage:taskCenter.detailLoadFailed" query={detail} /> : null}
           {shown < total
             ? <p className="text-caption-1-regular text-text-secondary">{t('manage:taskCenter.showingCount', { count: shown })}</p>
             : null}
-          <FollowupList rows={listed} />
+          <FollowupList rows={listed} visible={detailOpen} />
         </Disclosure>
       </div> : null}
       {/* 摘要里只有开跑时写下的作品时，它已经链接在卡片上，不再单列一块技术详情。 */}
@@ -370,6 +372,16 @@ function RunList({ live = false, paginate = true, children }: { live?: boolean; 
 }
 
 export function ActivityPage() {
+  return <Page>
+    <TaskControlFeedback>
+      <BackgroundIssues />
+      <TaskRuns />
+      <DownloadsPanel />
+    </TaskControlFeedback>
+  </Page>;
+}
+
+function TaskRuns() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   // 查找只收窄「最近完成」：服务端在全部历史里找，命中的那几轮连同后继一起回来。
@@ -383,9 +395,12 @@ export function ActivityPage() {
   const [lastData, setLastData] = useState(tasks.data);
   if (tasks.data && tasks.data !== lastData) setLastData(tasks.data);
   const data = tasks.data || lastData;
-  const problem = tasks.error ? errorMessage(tasks.error) : '';
-  // 首屏就没拿到数据：只剩这一条，不画空的三段。
-  if (!data) return <Page><Note tone="error">{problem || t('manage:taskCenter.loadFailed')}</Note></Page>;
+  if (!data) {
+    if (tasks.error) return <QueryErrorNote titleKey="manage:taskCenter.loadFailed" query={tasks} />;
+    return <div role="status" aria-label={t('manage:manageSkeleton.loadingPage')} data-skeleton="">
+      <div className="flex flex-col gap-8" inert aria-hidden="true" dangerouslySetInnerHTML={{ __html: taskRunSectionsSkeleton() }} />
+    </div>;
+  }
 
   const allFinished = data.finished || [];
   const parents = data.working_parents || [];
@@ -425,14 +440,11 @@ export function ActivityPage() {
   const newest = latestOfKind(allRuns);
   const quiet = !running.length && !working.length && !skipped.length && !finished.length && !search;
   return (
-    <Page>
-      {problem ? <Note tone="error">{problem}</Note> : null}
-      <TaskControlFeedback />
+    <>
+      {tasks.error ? <QueryErrorNote titleKey="manage:taskCenter.loadFailed" query={tasks} /> : null}
       {data.available === false
         ? <Note tone="warning">{data.message || t('manage:taskCenter.tableNotReady')}</Note>
         : null}
-      {/* 后台服务此刻的问题排在最前：它们不会自己跑完，要人去处理。 */}
-      <BackgroundIssues />
       {quiet
         ? <EmptyState icon={RiHistoryLine} title={t('manage:taskCenter.emptyTitle')}>
             {t('manage:taskCenter.emptyText')}
@@ -479,8 +491,6 @@ export function ActivityPage() {
                 </Section>
               : null}
           </>}
-      {/* 离线下载跑在网盘那头，自己一张表、自己轮询；任务中心为空时它照样在。 */}
-      <DownloadsPanel />
-    </Page>
+    </>
   );
 }

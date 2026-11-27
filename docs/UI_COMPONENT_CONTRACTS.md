@@ -22,8 +22,13 @@ React 与 BoardUI 的组件、颜色和尺寸采用 [BoardUI 适配](BOARD_UI.md
 | 用户触发动作等待结果 | Spinner | 旋转原操作图标、语义动画 |
 | 后台任务仍在推进、没有分母 | 按语义选 loading.dev 动画（`activity-kinds.ts` 一张表），后台任务整体用 `TaskProgress` | Spinner、假百分比、三颗点 |
 | 整页或大区块首次等待内容结构 | Skeleton | Spinner、语义动画 |
+| 跳到有独立地址的页面 | 带 `href` 的链接，当前页用 `aria-current` | 选中按钮、缺少内容面板的 Tabs |
+| 在同一区域切换内容面板 | Tabs 与对应的 `tabpanel` | 把显示方式或筛选条件画成面板导航 |
 | 2–3 个互斥视图 | 遗留 Switch（radio）或现有分段组件 | Toggle |
 | 布尔开关 | 遗留 Toggle 或 BoardUI Switch | radio 分段器 |
+| 先选中条目，稍后一起处理 | Checkbox 或报告选中状态的卡片键 | 在多选模式仍把同一键标为打开详情 |
+| 搜索后只提交候选值 | Combobox，输入保留焦点并报告当前候选 | 把额外行内操作嵌进选项 |
+| 一排普通操作，分别 Tab 到达 | 按钮组。只有共用一个 Tab 停靠点并支持组内方向键时才用 Toolbar | 只给按钮容器加 `role="toolbar"` |
 | 无布局高度变化的菜单 | Menu／Listbox；开合走 `presentMenu`／`dismissMenu`，动效只在 Board 层那一份 | Collapse 动画、自己再写一份 150ms |
 | 带搜索语义的输入 | Search Input（搜索图标前缀；搜索中原位换 Spinner） | 无图标裸输入 |
 | 全屏命令／设置覆盖层 | 有锁定证据的 Dialog motion | 把同一动画套给普通菜单 |

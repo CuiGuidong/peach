@@ -16,7 +16,7 @@ import type { ConfigurationPath } from '@peach/history';
 import { javDisplayName, javTitleHtml } from '@peach/legacy/jav-title';
 import { tagLabel } from '@peach/legacy/tags';
 
-import { prefetchTasks } from '../activity/tasks';
+import { prefetchActivity } from '../activity/tasks';
 import { BatchDockSurface } from '../batch-dock/batch-dock-island';
 import type { DataCleanupSection, LibraryProcessingProps } from '../bundle';
 import { CatalogFilterPage } from '../catalog-filter/catalog-filter-page';
@@ -256,17 +256,15 @@ export const MANAGED_ROUTES: ManagedRouteTable = {
   },
   '/tasks': {
     element: <ManagedMatch path="/tasks" />,
-    prefetch: (_open, signal) => withPage(activityPage, prefetchTasks(signal)),
+    prefetch: (_open, signal) => withPage(activityPage, prefetchActivity(signal)),
     page: () => {
       const { ActivityPage } = activityPage.get();
       return <ActivityPage />;
     },
   },
-  /* 首屏只取来源清单与凭据状态，地址栏指着「订阅源」时连它一起取。检查更新与查找那两趟
-     后台任务的快照不在首屏里：它们常年躺着上一趟的回执，等它们只会让首屏多一个往返。 */
   '/subscriptions': {
     element: <ManagedMatch path="/subscriptions" />,
-    prefetch: (_open, signal) => withPage(followManagePage, prefetchFollowManage(signal)),
+    prefetch: (open, signal) => withPage(followManagePage, prefetchFollowManage(signal, open.tab)),
     page: (open, actions) => {
       const { FollowManagePage } = followManagePage.get();
       return <FollowManagePage {...open} route={actions.routeFollowManage} savePreference={actions.saveFollowPreference}

@@ -26,6 +26,7 @@ import { FilterGlassRows, FilterActionButton, FilterSearch, SelectAllButton } fr
 import { useQueueSort } from '../components/queue-sort';
 import { SortKeys } from '../entity-filter/entity-filter-page';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { enterPageSelection, exitPageSelection, usePageSelection } from '../components/page-selection';
 import { useRectangleSelection, type RectangleCommit } from '../components/rectangle-selection';
 import { SelectionDock } from '../components/selection-dock';
@@ -246,16 +247,16 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
   /* 浮层上的排序键：按每组可回收的体积排，在本页排，不发请求。 */
   const order = useQueueSort<DuplicateGroup>('duplicates', { size: (group) => Number(group.reclaimable || 0) });
   const keptView = view === 'kept';
-  const data = keptView ? kept.data : duplicates.data;
-  const failed = keptView ? kept.error : duplicates.error;
+  const active = keptView ? kept : duplicates;
+  const data = active.data;
   if (!data) {
     /* 第一次切到「已保留」要读一趟：沿用整页那张骨架，不让浮层连同下面的分组一起空掉。 */
-    if (keptView && kept.isPending) return <div role="status" aria-label={t('shell:spinner.loading')} aria-busy="true">
+    if (active.isPending) return <div role="status" aria-label={t('shell:spinner.loading')} aria-busy="true">
       <div aria-hidden="true" inert dangerouslySetInnerHTML={{ __html: duplicatesSkeleton() }} />
     </div>;
     return (
       <div className="mx-auto w-full max-w-board">
-        <Note tone="error" title={t('cleanup:duplicates.loadFailed')}>{failed ? errorMessage(failed) : t('cleanup:duplicates.listUnavailable')}</Note>
+        <QueryErrorNote titleKey="cleanup:duplicates.loadFailed" query={active} />
       </div>
     );
   }
@@ -335,6 +336,7 @@ export function DuplicatesPage({ openItem, toast, failure }: DuplicatesProps) {
   return (
     <div className="mx-auto w-full max-w-board pb-10.5">
       {menu.menu}
+      {active.error ? <QueryErrorNote titleKey="cleanup:duplicates.loadFailed" query={active} /> : null}
       {/* 首页那副两排玻璃浮层：上排批量动作与换视图，下排读数加「全选本页」。 */}
       <FilterGlassRows label={keptView ? t('cleanup:duplicates.keptLabel') : t('cleanup:duplicates.bulkKeep')}
         topLabel={keptView ? t('cleanup:duplicates.keptLabel') : t('cleanup:duplicates.bulkKeep')}

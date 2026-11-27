@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/base/buttons/button';
 import { StatusLabel } from '../components/status-label';
+import { QueryErrorNote } from '../components/query-error-note';
 import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Input } from '@/components/base/input/input';
 import { confirmModal, spinnerHtml } from '@peach/legacy/ui';
@@ -32,8 +33,12 @@ export function CustomSources({ receipt }: { receipt(message: string): void }) {
   const add = <Button variant="secondary" onClick={() => setEditing(blank())}>{t('manage:customSources.addSource')}</Button>;
   return <Section id="custom-sources" title={t('manage:customSources.title')}>
     {hasContent ? <Stack>
-      {query.isPending ? <div aria-busy="true" data-skeleton="" aria-label={t('manage:customSources.loading')} /> : null}
-      {query.error ? <ErrorText>{errorMessage(query.error)}</ErrorText> : null}
+      {query.isPending ? <div role="status" data-skeleton="" aria-label={t('manage:customSources.loading')}
+        className="flex min-h-9 items-center gap-3" aria-busy="true">
+        <span className="skeleton-sheen h-3.5 w-1/3 rounded-sm" aria-hidden="true" />
+        <span className="skeleton-sheen ml-auto h-8 w-24 rounded-lg" aria-hidden="true" />
+      </div> : null}
+      {query.error ? <QueryErrorNote titleKey="manage:customSources.loadFailed" query={query} /> : null}
       {query.data?.items.map((source) => <div key={source.id} className="flex flex-wrap items-center gap-3">
         <span className="min-w-0 flex-1">{source.name}</span>
         <StatusLabel tone={source.enabled ? 'success' : 'neutral'}>{source.enabled ? t('manage:customSources.enabled') : t('manage:customSources.disabled')}</StatusLabel>

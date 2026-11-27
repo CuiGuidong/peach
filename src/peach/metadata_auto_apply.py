@@ -1161,20 +1161,27 @@ def _leads_chain(field: str, candidate: dict, code: str) -> bool:
 SOURCE_RESOLUTION_TAGS = frozenset({"4K", "2K", "2160P", "1080P", "720P", "480P"})
 
 
-def _landing_tags(names) -> list[str]:
-    """候选标签按现在的词表换名（`current_tags`），再去掉来源给的分辨率。"""
-    return [tag for tag in current_tags(names) if tag not in SOURCE_RESOLUTION_TAGS]
+def _landing_tags(names, *, original=False) -> list[str]:
+    """来源原文保留写法。优选标签先按词表换名，两者都去掉来源分辨率。"""
+    tags = dict.fromkeys(names) if original else current_tags(names)
+    return [tag for tag in tags if tag not in SOURCE_RESOLUTION_TAGS]
+
+
+def _candidate_tag_name(raw, original: bool) -> str:
+    name = _approved_entity_name(raw, "tag")
+    return str(raw).strip() if original else name
 
 
 def _tag_names(candidate: dict) -> list[str]:
     """候选里按现在的词表认得出、落库时会写下的标签名。"""
     names = []
+    original = candidate.get("source_tags_original") is True
     for raw in candidate.get("value") or []:
         try:
-            names.append(_approved_entity_name(raw, "tag"))
+            names.append(_candidate_tag_name(raw, original))
         except ValueError:
             continue
-    return _landing_tags(names)
+    return _landing_tags(names, original=original)
 
 
 def _verified_tags(row: dict, evidence: list[dict], current: str) -> Verification:
@@ -1740,6 +1747,8 @@ def _landing_scope(connection, group: dict, candidate: dict,
         "raw_snapshot": candidate.get("raw_snapshot"), "review_item": group["item_key"],
         "candidate_key": candidate_key,
     }
+    if candidate.get("source_tags_original") is True:
+        metadata["source_tags_original"] = True
     return asset_ids, source, confidence, metadata
 
 
@@ -1825,7 +1834,8 @@ def _apply_metadata_candidate(
         raise UserValueError("errors.metadataAutoApply.tagsNotArray")
     # 候选文件停在抓取那一刻：那时的映射可能还给过退役名或已撤掉的粗桶，
     # 落库这一步按现在的词表换名或丢掉。
-    tags = _landing_tags(_approved_entity_name(tag, "tag") for tag in raw_tags)
+    original = metadata.get("source_tags_original") is True
+    tags = _landing_tags((_candidate_tag_name(tag, original) for tag in raw_tags), original=original)
     if not tags:
         raise UserValueError("errors.metadataAutoApply.tagsEmpty")
     # 整套换掉的时候，并集补进来的那几个（`_extend_approved_tags`）一起清：它们是
@@ -1852,7 +1862,7 @@ def _apply_metadata_candidate(
             upsert_asset_entity(
                 connection, kind="tag", name=tag, asset_id=asset_id, role="tag",
                 source=f"javinizer:{source}:tag", confidence=confidence,
-                metadata=metadata, now=now, update_entity_metadata=False,
+                metadata=metadata, now=now, update_entity_metadata=False, preserve_tag_name=original,
             )
     return len(asset_ids)
 
@@ -1880,8 +1890,9 @@ def _extend_approved_tags(connection, row: dict, candidate: dict, batch: str,
     if not isinstance(raw_tags, list):
         return None
     try:
-        written = _landing_tags(_approved_entity_name(tag, "tag") for tag in raw_tags)
         asset_ids, _source, confidence, metadata = _landing_scope(connection, row, candidate)
+        original = metadata.get("source_tags_original") is True
+        written = _landing_tags((_candidate_tag_name(tag, original) for tag in raw_tags), original=original)
     except ValueError:
         return None
     marks = ",".join("?" * len(asset_ids))
@@ -1902,7 +1913,7 @@ def _extend_approved_tags(connection, row: dict, candidate: dict, batch: str,
                 (asset_id, tag, confidence, batch))
             upsert_asset_entity(
                 connection, kind="tag", name=tag, asset_id=asset_id, role="tag",
-                source=batch, confidence=confidence, metadata=metadata, now=now)
+                source=batch, confidence=confidence, metadata=metadata, now=now, preserve_tag_name=original)
     return added
 
 

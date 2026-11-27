@@ -7,6 +7,8 @@ const kinds: Record<string, string> = {
   performers: 'performer', studios: 'studio', creators: 'creator', agencies: 'agency', tags: 'tag', series: 'series',
 };
 
+export const isPersonEntity = (kind: string): boolean => kind === 'performer' || kind === 'creator';
+
 export function registerEntityLink(kind: string, name: string, id: unknown): void {
   if (typeof id === 'number' && Number.isSafeInteger(id) && id > 0 && name) {
     links.set(`${kind}/${name}`, id);

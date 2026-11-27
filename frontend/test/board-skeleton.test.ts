@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { boardPageSkeleton, detailSkeletonBody } from '../src/board-skeleton';
 import { wireBoardSegments } from '../src/board-controls';
 import { catalogView, setCatalogView } from '../src/react/catalog-grid/catalog-view';
+import { rememberFeedSourceCount } from '../src/react/follow-manage/feed-source-layout';
 
 vi.mock('@peach/legacy/core', async importOriginal => ({
   ...await importOriginal<object>(),
@@ -54,7 +55,7 @@ describe('Board 页面骨架', () => {
     expect(root.querySelectorAll('[data-catalog-tier] [data-catalog-placeholder]').length).toBeGreaterThan(0);
     expect(root.querySelector('[data-entity-tag="external"]')).toBeNull();
     expect([...root.querySelectorAll('[data-entity-sort]')].map(node => node.textContent)).toEqual(['发行时间', '来源评分', '时长', '番号', '口味']);
-    expect(root.querySelector('[data-entity-sort][aria-pressed="true"]')?.getAttribute('data-entity-sort')).toBe('duration');
+    expect(root.querySelector('[data-entity-sort][data-sort-current="true"]')?.getAttribute('data-entity-sort')).toBe('duration');
     expect(root.querySelector('[data-entity-batch]')?.getAttribute('aria-label')).toBe('换一批');
   });
   it('统计预留四张指标卡，未知页面交给自身骨架', () => {
@@ -89,6 +90,18 @@ describe('Board 页面骨架', () => {
     root.innerHTML = boardPageSkeleton('/subscriptions', options);
     return root;
   };
+  it('有 JAV 订阅源时，先画订阅表，再画关注列表', () => {
+    try {
+      rememberFeedSourceCount(3);
+      const feeds = follow().querySelector('[data-feed-sources-skeleton]')!;
+      expect(feeds.querySelector('h3')?.textContent).toBe('JAV 订阅源');
+      expect(feeds.querySelectorAll('tbody tr')).toHaveLength(3);
+      expect(feeds.nextElementSibling?.querySelector('h3')?.textContent).toBe('关注列表');
+      expect(follow({ followTab: 'add' }).querySelector('[data-feed-sources-skeleton]')).toBeNull();
+      rememberFeedSourceCount(0);
+      expect(follow().querySelector('[data-feed-sources-skeleton]')).toBeNull();
+    } finally { localStorage.removeItem('peach.follow.feed-source-count.v1'); }
+  });
   it('关注骨架的分类使用 Pills，选中关注列表', () => {
     const root = follow();
     wireBoardSegments(root);

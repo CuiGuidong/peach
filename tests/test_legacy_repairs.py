@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch
 from peach import legacy_repairs, repair_center, upgrade_repairs
 from peach.catalog_rules import normalise_code_key
 from peach.catalog_vocabulary import current_link_label
-from peach.entities import normalize_entity_name
+from peach.entities import normalize_entity_name, upsert_asset_entity
 from peach.repository import LedgerDatabase
 from peach.social_links import canonical_url
 from peach.task_runs import TaskRunStore
@@ -175,9 +175,47 @@ class LegacyRepairTests(LedgerCase):
 
         self.assertEqual(sorted(self.rows('SELECT tag,source FROM asset_tag')),
                          [('My own shelf', 'javinizer:local_nfo:tag'), (dropped, 'pixiv_tag')])
-        receipt = self.receipt('tag-vocabulary-1')
+        receipt = self.receipt('tag-vocabulary-2')
         self.assertEqual(receipt['changed'], 2)
         self.assertEqual(receipt['nfo'], [{'old': 'Blu-ray', 'new': ''}])
+
+    def test_source_tag_upgrade_uses_snapshot_and_preserves_manual_approval(self):
+        snapshot = self.root / "genres.json"
+        snapshot.write_text(json.dumps({"result": {"genres": [
+            "Sister", "Bride", "Wedding Dress", "Orgasm", "Daydreamers", "ナンパ",
+        ]}}), encoding="utf-8")
+        source = "javinizer:r18dev:tag"
+        old_tags = ["姐弟", "婚纱", "妄想剧情", "探花"]
+        for asset_id in (1, 2, 3):
+            self.asset(asset_id)
+            item = f"test:{asset_id}:tags"
+            with self.database.write_transaction() as connection:
+                connection.execute(
+                    "INSERT INTO review_decision(category,item_key,status,note,updated_at) "
+                    "VALUES('metadata_fields',?,'approved',?,?)",
+                    (item, json.dumps({"auto_applied": asset_id != 2}), STAMP),
+                )
+                for tag in old_tags:
+                    connection.execute(
+                        "INSERT INTO asset_tag(asset_id,tag,source,confidence) VALUES(?,?,?,0.9)",
+                        (asset_id, tag, source),
+                    )
+                    upsert_asset_entity(connection, kind="tag", name=tag, asset_id=asset_id, role="tag",
+                                        source=source, confidence=0.9,
+                                        metadata={"raw_snapshot": str(snapshot if asset_id != 3 else self.root / "missing.json"),
+                                                  "review_item": item}, now=STAMP)
+
+        self.service.prepare()
+
+        self.assertEqual(set(self.rows("SELECT tag FROM asset_tag WHERE asset_id=1")),
+                         {(tag,) for tag in ("姐妹", "婚纱", "新娘", "高潮", "搭讪")})
+        self.assertEqual(set(self.rows(
+            "SELECT e.canonical_name FROM asset_entity ae JOIN entity e ON e.id=ae.entity_id "
+            "WHERE ae.asset_id=1 AND ae.role='tag'")), {(tag,) for tag in ("姐妹", "婚纱", "新娘", "高潮", "搭讪")})
+        for asset_id in (2, 3):
+            self.assertEqual(set(self.rows("SELECT tag FROM asset_tag WHERE asset_id=?", (asset_id,))),
+                             {(tag,) for tag in old_tags})
+        self.assertEqual(self.receipt("tag-vocabulary-2")["changed"], 7)
 
     def test_bluray_shell_listed_beside_its_streaming_edition_is_removed(self):
         insert = ('INSERT INTO feed_discovery(code,title,performers,discovered_at) VALUES(?,?,?,?)')

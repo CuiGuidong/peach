@@ -100,7 +100,8 @@ describe('取数', () => {
     await editTags(host);
     await click(host.querySelector('[aria-label="添加标签"]')); await settle();
     const selected = host.querySelector('[data-pick="3D"]')!;
-    expect(selected.getAttribute('aria-pressed')).toBe('true');
+    expect(selected.getAttribute('role')).toBe('option');
+    expect(selected.getAttribute('aria-selected')).toBe('true');
     expect(selected.getAttribute('data-tag-cat')).toBe('r34-general');
     expect(selected.querySelector('use')?.getAttribute('href')).toBe('#i-check');
     expect(host.querySelector('[data-pick="角色"]')?.getAttribute('data-tag-cat')).toBe('r34-character');
@@ -347,8 +348,9 @@ describe('写操作', () => {
     const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
       if (url.startsWith('/api/wants?follow=')) return { ok: true, status: 200, json: async () => ({ want }) };
       const body = JSON.parse(String(init?.body || '{}'));
+      const previous = want ? [want] : [];
       want = body.action === 'add' ? { id: 31 } : null;
-      return { ok: true, status: 200, json: async () => ({ ok: true }) };
+      return { ok: true, status: 200, json: async () => body.action === 'add' ? { created: true, want } : { previous } };
     });
     vi.stubGlobal('fetch', fetcher);
     const { host, actions: given } = await show(data(item(7)));

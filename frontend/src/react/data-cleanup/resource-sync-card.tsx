@@ -16,6 +16,7 @@ import { RESOURCE_SYNC_TEXT } from '../../cleanup-tool-skeletons';
 import { useBackgroundJob } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { ConnectionStatus } from '../components/connection-status';
 import { StatusLabel } from '../components/status-label';
 import { TaskProgress } from '../components/task-progress';
@@ -38,8 +39,8 @@ import { t } from '../../i18n';
 
 const COMPARE = spriteGlyph('git-compare');
 const AGAIN = spriteGlyph('rotate-cw');
-const DISCONNECTED = t('cleanup:shared.reconnecting');
 const APPLY_LABEL = t('cleanup:resourceSync.cleanUpDead');
+const STATUS_NOTE = 'px-6 py-3';
 
 /* 结果读数两行各自按卡数等分：来源几个都不折出半行。窄了照顶上那排读数折两列、一列。 */
 const RESULT_ROW = 'inline-grid w-full grid-flow-col auto-cols-fr gap-4 max-plain-stat-pair:grid-flow-row'
@@ -140,7 +141,11 @@ export function ResourceSyncCard(
   let progress = null;
   let result = null;
   if (done?.status === 'failed') {
-    result = <Note tone="error" title={t('cleanup:resourceSync.cleanupIncomplete')}>{jobText(done, 'error') || t('cleanup:shared.checkTaskLogFiles')}</Note>;
+    result = <Note tone="error" title={t('cleanup:resourceSync.cleanupIncomplete')} action={
+      <ButtonLink href="/tasks" size="small" variant="secondary">
+        <span data-copy-key="shell.routeTitle.tasks">{t('shell:routeTitle.tasks')}</span>
+      </ButtonLink>
+    }>{jobText(done, 'error') || t('cleanup:shared.checkTaskLogFiles')}</Note>;
   } else if (done) {
     result = receipt(done);
   } else if (apply.running) {
@@ -148,7 +153,7 @@ export function ResourceSyncCard(
   } else if (scan.start.isError) {
     result = <Note tone="error" title={t('cleanup:resourceSync.scanFailed')}>{errorMessage(scan.start.error)}</Note>;
   } else if (scan.query.isError && state) {
-    result = <Note tone="neutral" title={t('cleanup:shared.taskStatus')}>{DISCONNECTED}</Note>;
+    result = <QueryErrorNote titleKey="cleanup:resourceSync.scanStatusUnavailable" query={scan.query} className={STATUS_NOTE} />;
   } else if (state?.status === 'running') {
     const line = scanLine(state);
     progress = (
@@ -197,15 +202,19 @@ export function ResourceSyncCard(
           onClick={() => { if (actionsReady && !scanning) scan.start.mutate() }}>{label}</Button>
       }>
         <FieldsetTitle id="resource-sync-title" gap="small">{t('cleanup:tools.resourceSync')}</FieldsetTitle>
-        {scan.query.isPending || apply.query.isPending ? <div role="status" aria-label={t('cleanup:resourceSync.statusLoading')} data-skeleton="" className="skeleton-sheen h-6 rounded-md" /> : null}
-        {!scan.job && scan.query.isError ? <Note tone="error">{t('cleanup:resourceSync.scanStatusUnavailable')}</Note> : null}
-        {!apply.job && apply.query.isError ? <Note tone="error">{t('cleanup:resourceSync.applyStatusUnavailable')}</Note> : null}
         <p className="max-w-190 text-body-2-regular leading-5 text-text-secondary">
           {RESOURCE_SYNC_TEXT}
         </p>
-        <div aria-live="polite" className="mt-4 empty:hidden">{progress}</div>
+        <div aria-live="polite" className="mt-4 flex flex-col gap-2 empty:hidden">
+          {scan.query.isPending || apply.query.isPending ? <div role="status" aria-label={t('cleanup:resourceSync.statusLoading')} data-skeleton="" className="skeleton-sheen h-6 rounded-md" /> : null}
+          {progress}
+        </div>
       </Fieldset>
-      <div aria-live="polite" className="flex flex-col gap-4 empty:hidden">{result}</div>
+      <div aria-live="polite" className="flex flex-col gap-4 empty:hidden">
+        {!scan.job && scan.query.isError ? <QueryErrorNote titleKey="cleanup:resourceSync.scanStatusUnavailable" query={scan.query} className={STATUS_NOTE} /> : null}
+        {apply.query.isError ? <QueryErrorNote titleKey="cleanup:resourceSync.applyStatusUnavailable" query={apply.query} className={STATUS_NOTE} /> : null}
+        {result}
+      </div>
     </section>
   );
 }

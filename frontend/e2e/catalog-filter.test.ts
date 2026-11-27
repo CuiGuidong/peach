@@ -366,7 +366,7 @@ describe('首页筛选条', () => {
       await page.locator('[data-sort-direction-menu]').waitFor();
       assert.equal(counts.items.length, before, '打开排序菜单时不重取作品');
       await page.locator('[data-sort-direction-menu] [data-filter-option="desc"]').click();
-      await page.locator(`${FILTER} [data-entity-sort="new"][aria-pressed="true"]`).waitFor({ timeout: 2_000 });
+      await page.locator(`${FILTER} [data-entity-sort="new"][data-sort-current="true"]`).waitFor({ timeout: 2_000 });
       await until(() => counts.items.length > before, '换排序之后没有重取列表');
       await settle(page);
       assert.deepEqual(counts.items.slice(before).map((url) => url.searchParams.get('sort')), ['new'],

@@ -34,7 +34,7 @@ import { applicationEffects } from './effects';
 import { syncPhotoWalls } from './entity.js';
 export const preferencesState = { sourceOnline: undefined, sourceProblems: undefined, sourceOffline: undefined, OFFLINE_HINT: undefined, OFFLINE_REASON: undefined, offlineReason: undefined, settingsStore: undefined, appSettings: undefined, saveSettings: undefined, catalogLoadWaiters: undefined, nextCatalogLoad: undefined, handOff: undefined, settingsEffects: undefined, syncGlassOptics: undefined, placeSidebarHead: undefined, SRCICON: undefined, srcBadge: undefined, emptyState: undefined, CENSOR_KEY: undefined };
 
-export async function loadSourceStatus(){
+export async function loadSourceStatus(throwOnError=false){
   const effects=applicationEffects;
   try{
     const d=await loadMediaSources(effects.signal);
@@ -42,7 +42,10 @@ export async function loadSourceStatus(){
     const roots=(d.sources||[]).flatMap(s=>s.roots||[]).filter(r=>r.root_id);
     preferencesState.sourceOnline=Object.fromEntries([...(d.sources||[]).map(s=>[s.location,s.online]),...roots.map(r=>[r.root_id,r.online])]);
     preferencesState.sourceProblems=Object.fromEntries([...(d.sources||[]).map(s=>[s.location,s.message||'']),...roots.map(r=>[r.root_id,r.message||''])]);
-  }catch{if(!effects.isActive)return preferencesState.sourceOnline;preferencesState.sourceOnline={};preferencesState.sourceProblems={}}
+  }catch(error){
+    if(throwOnError)throw error;
+    return preferencesState.sourceOnline;
+  }
   document.body.classList.toggle('offline-source',Object.values(preferencesState.sourceOnline).includes(false));
   dropOfflineFromDefaultLoc();
   return preferencesState.sourceOnline;

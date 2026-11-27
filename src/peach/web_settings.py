@@ -79,7 +79,7 @@ SYNCED_SETTING_KEYS = frozenset({
     "feedHideExcerpts", "searchHistoryLimit", "codePatterns", "performerNameLanguage", "taskSpeedMode",
     "interfaceLanguage", "javBrowserWantOnNoMatch", "wantStaleSearchDays", "wantStaleAttemptLimit",
     "sourceBudgetRequests", "sourceBudgetHours", "sourceBudgetGigabytes",
-    "javdbCoverFallback",
+    "javdbCoverFallback", "sourceTagsOriginal",
 })
 #: 「想要」两项节奏设置的键、档位校验与报错 code。
 WANT_CADENCE_KEYS = (
@@ -389,6 +389,7 @@ def q_settings(contract: SettingsContract, _args=None) -> dict:
         "taskSpeedMode": payload.get("taskSpeedMode", "standard"),
         "javBrowserWantOnNoMatch": payload.get("javBrowserWantOnNoMatch") is not False,
         "javdbCoverFallback": payload.get("javdbCoverFallback") is True,
+        "sourceTagsOriginal": payload.get("sourceTagsOriginal") is True,
         "wantStaleSearchDays": cadence.stale_every.days,
         "wantStaleAttemptLimit": cadence.attempt_limit,
         **source_budget_settings(payload),
@@ -489,7 +490,9 @@ def w_settings(contract: SettingsContract, body) -> dict:
         if limit is None:
             raise UserValueError("api.settings.searchHistoryLimitInvalid", {"max": SEARCH_HISTORY_LIMIT_MAX})
         merged["searchHistoryLimit"] = limit
-    for key in [key for key, _kind in FEED_COMPILATION_SWITCHES] + ["javBrowserWantOnNoMatch", "javdbCoverFallback"]:
+    for key in [key for key, _kind in FEED_COMPILATION_SWITCHES] + [
+        "javBrowserWantOnNoMatch", "javdbCoverFallback", "sourceTagsOriginal",
+    ]:
         if key in body:
             if not isinstance(body[key], bool):
                 raise UserValueError("api.settings.switchNotBoolean", {"key": key})

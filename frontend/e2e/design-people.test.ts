@@ -1188,7 +1188,7 @@ describe('设计决定：人物与厂牌资料页', () => {
         await page.getByRole('region', { name: '添加创作者关注', exact: true }).getByRole('button', { name: '查找', exact: true }).click();
         const actor = page.getByRole('region', { name: '添加 JAV 订阅' });
         await actor.getByRole('combobox', { name: '女优名' }).fill('示例演员');
-        await actor.getByRole('button', { name: '查找', exact: true }).click();
+        await actor.getByRole('combobox', { name: '女优名' }).press('Enter');
         const tables = ['查找结果', 'JAV 订阅查找结果'].map(name => page.getByRole('grid', { name, exact: true }));
         const aliases = page.getByRole('grid', { name: '已保存创作者别名' });
         for (const table of [...tables, aliases]) await table.waitFor();

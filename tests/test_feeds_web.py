@@ -103,7 +103,7 @@ class FeedWebFixture(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(remove_when_released, self.temporary)
         self.db_path = fresh_ledger(self.temporary.name)
-        self.contract = WebContract(self.db_path)
+        self.contract = WebContract(self.db_path, follow_state_root=Path(self.temporary.name) / "state")
         self.addCleanup(self.contract.stop_background_jobs)
         # 后继在服务里由后台线程领走，在测试里那是一个和断言赛跑的线程：它可能在
         # assert 之后才写完，也可能在临时目录删掉之后才醒。这里关掉自动领取，
@@ -515,7 +515,7 @@ class FeedWebTest(FeedWebFixture):
                                " VALUES('NOAH-101',1,'',NULL,'2026-09-22',?)", (feeds.stamp(),))
             connection.execute("INSERT INTO feed_discovery(code,source_id,title,link,release_date,discovered_at)"
                                " VALUES('ABP-123',1,'',NULL,'2026-09-22',?)", (feeds.stamp(),))
-        expected = {"HMN-071": ("missing", "上次没取到：所有渠道都没有候选"),
+        expected = {"HMN-071": ("missing", "上次没取到：没有找到可用的封面"),
                     "NOAH-101": ("missing", "韩国 MIB 不适用 JAV 封面来源"),
                     "ABP-123": ("queued", "等下一轮订阅检查分批取图")}
         with patch("peach.jav_discovery_metadata.DiscoveryMetadata.ensure", return_value=None):
@@ -585,7 +585,7 @@ class FeedWebTest(FeedWebFixture):
         self.assertEqual(result["deferred"], 2)
         [row] = result["results"]
         self.assertFalse(row["ok"])
-        self.assertIn("其余 2 个源顺延到冷却结束后再拉", row["error"])
+        self.assertIn("其余 2 个来源将在恢复访问后检查更新", row["error"])
         until = scraping_access.paused_until(self.contract.follow_secrets_root, "javdb")
         expected = feeds.stamp(datetime.fromtimestamp(until, timezone.utc))
         rows = self._rows()
@@ -612,7 +612,7 @@ class FeedWebTest(FeedWebFixture):
         self.assertEqual(result["deferred"], 2)
         [row] = result["results"]
         self.assertIn("JavDB 不对当前出口所在的地区开放", row["error"])
-        self.assertIn("其余 2 个源顺延到冷却结束后再拉", row["error"])
+        self.assertIn("其余 2 个来源将在恢复访问后检查更新", row["error"])
         self.assertNotIn("解不出", self._rows()[first]["last_error"])
 
     def test_a_round_that_starts_in_cooldown_asks_nothing(self):
@@ -623,7 +623,7 @@ class FeedWebTest(FeedWebFixture):
         result = self._check()
         self.assertEqual(self.transport.requests, [])
         [row] = result["results"]
-        self.assertEqual(row["error"], "JavDB 正在冷却，这一轮没有拉；其余 1 个源顺延到冷却结束后再拉")
+        self.assertEqual(row["error"], "已暂时停止访问 JavDB，本次未检查更新；其余 1 个来源将在恢复访问后检查更新")
         self.assertTrue(all(row["last_fetched_at"] is None and row["last_error"] is None
                             for row in self._rows().values()))
 
@@ -639,7 +639,7 @@ class FeedWebTest(FeedWebFixture):
         result = self._check()
         reports = {row["source"]: row for row in result["results"]}
         self.assertEqual(result["deferred"], 1)
-        self.assertEqual(reports[javdb]["error"], "JavDB 正在冷却，这一轮没有拉")
+        self.assertEqual(reports[javdb]["error"], "已暂时停止访问 JavDB，本次未检查更新")
         self.assertEqual((reports[dmm]["ok"], reports[dmm]["codes"]), (True, ["MIKR-133"]))
         self.assertTrue(all(request.url == DMM_ENDPOINT for request in self.transport.requests))
 
@@ -947,7 +947,7 @@ class FeedWebTest(FeedWebFixture):
         self.cover_misses.add("HMN-071")
         missed = dispatch_api_post(self.contract, "/api/jav/cover", {"code": "hmn-071"})
         self.assertEqual((missed["code"], missed["has_cover"], missed["message"]),
-                         ("HMN-071", False, "所有渠道都没有候选"))
+                         ("HMN-071", False, "没有找到可用的封面"))
         # 取图链以外的故障不把原文给用户看，只说没处理完。
         self.cover_broken.add("IPX-001")
         broken = dispatch_api_post(self.contract, "/api/jav/cover", {"code": "IPX-001"})
@@ -1788,12 +1788,54 @@ class FeedFollowByNameTest(FeedFollowByNameFixture):
             "name": "瀬戸環奈", "provider": "JavDB", "avatar_url": "https://c0.jdbstatic.com/avatars/kn/Kn01.jpg",
         }])
 
+    def test_online_suggestions_report_source_failure_without_candidates(self):
+        from peach.user_messages import UserFacingError
+
+        self._serve(self.search, LOGIN_PAGE)
+        self.transport.responses[DMM_ENDPOINT] = HttpResponse(403, {}, b"", DMM_ENDPOINT)
+        with self.assertRaises(UserFacingError) as unavailable:
+            dispatch_api_get(self.contract, "/api/feeds/suggest", {"q": "瀬戸環奈"})
+        self.assertEqual(unavailable.exception.code, "api.feeds.javdbSearchLogin")
+
+        self._serve_dmm({"瀬戸環奈": [("1099472", "瀬戸環奈")]})
+        result = dispatch_api_get(self.contract, "/api/feeds/suggest", {"q": "瀬戸環奈"})
+        self.assertEqual([(row["provider"], row["name"]) for row in result["items"]], [("DMM", "瀬戸環奈")])
+
     def test_online_catalog_passes_day_and_actress_to_dmm_and_keeps_public_links(self):
+        from peach.seed_contributions import Claim, Reference, claim_key, identity_key
         from peach.web_jav_catalog import catalog_cover_target
         from urllib.parse import parse_qs, urlsplit
 
         date = "2026-11-21"
         cover = "https://awsimgsrc.dmm.co.jp/pics_dig/digital/video/aaa00001/aaa00001pl.jpg"
+        self._dmm_id(self.performer, "1099472")
+        facts = {}
+        for number, original, name in [
+            ("1099472", "来源姓名", "其他来源译名"),
+            ("1234567", "仅来源艺人", "已核实译名"),
+            ("1234568", "旧艺名", "旧艺名译名"),
+        ]:
+            ref = Reference(provider="dmm", kind="performer", id=number)
+            claim = Claim(subject=identity_key(ref), field="chinese-name", value=name, origin="review",
+                          source="test", original=original, language="zh-CN", refs=[ref])
+            facts[claim_key(claim)] = {"claim": claim.model_dump(mode="json"), "preferred": True,
+                                      "evidence_url": "https://example.com/names", "reason": "已核实"}
+        state = self.contract.follow_state_root
+        state.mkdir(exist_ok=True)
+        (state / "dmm-performer-names.json").write_text(json.dumps({
+            "format": 1, "revision": 1, "facts": facts, "withdrawals": {},
+        }), encoding="utf-8")
+        with self.contract.database.write_transaction() as connection:
+            studio_id = connection.execute(
+                "INSERT INTO entity(kind,canonical_name,normalized_name,created_at,updated_at)"
+                " VALUES('studio','规范厂牌',peach_normalize('规范厂牌'),?,?)",
+                (feeds.stamp(), feeds.stamp())).lastrowid
+            connection.execute("INSERT INTO entity_alias(entity_id,alias,normalized_alias,source)"
+                               " VALUES(?,'S1',peach_normalize('S1'),'test')", (studio_id,))
+            connection.execute(
+                "INSERT INTO entity(kind,canonical_name,normalized_name,created_at,updated_at,metadata_json)"
+                """ VALUES('tag','隐藏标签',peach_normalize('隐藏标签'),?,?,'{"user_tag_hidden":1}')""",
+                (feeds.stamp(), feeds.stamp()))
         def answer(request):
             payload = json.loads(request.body)
             if "query PeachCatalog(" in payload["query"]:
@@ -1805,23 +1847,58 @@ class FeedFollowByNameTest(FeedFollowByNameFixture):
                     "contents": [{"id": "aaa00001", "title": "作品", "deliveryStartAt": date + "T00:00:00+09:00",
                                   "packageImage": {"largeUrl": cover},
                                   "maker": {"id": "3152", "name": "S1"},
-                                  "actresses": [{"id": "1099472", "name": "瀬戸環奈"}]}]}}}
+                                  "actresses": [{"id": "1099472", "name": "来源姓名"},
+                                                {"id": "1234567", "name": "仅来源艺人"},
+                                                {"id": "1234568", "name": "目录新艺名"}]}]}}}
             else:
                 data = {"a0": {"id": "aaa00001", "makerContentId": "AAA-001", "duration": 3600,
-                               "genres": [{"id": "5016", "name": "潮吹き"}]}}
+                               "genres": [{"id": "5016", "name": "潮吹き"}, {"id": "4106", "name": "隐藏标签"}]}}
             return HttpResponse(200, {}, json.dumps({"data": data}).encode(), request.url)
         self.transport.responses[DMM_ENDPOINT] = answer
-        result = dispatch_api_get(self.contract, "/api/jav/catalog", {
-            "date": date, "actress": "1099472", "maker": "3152", "genre": "5016,4106",
-        })
+        focus = {"axis": "y", "pct": 12}
+        source_option = {"id": "1099472", "name": "来源姓名", "avatar_url": None}
+        other_option = {"id": "1234567", "name": "仅来源艺人", "avatar_url": None}
+        with patch.object(self.contract, "has_entity_image", return_value=True), \
+                patch.object(self.contract, "entity_image_version", return_value="image7"), \
+                patch.object(self.contract, "avatar_focus", return_value=focus), \
+                patch("peach.web_jav_catalog._catalog_actor_options", return_value=([source_option, other_option], None)):
+            result = dispatch_api_get(self.contract, "/api/jav/catalog", {
+                "date": date, "performer": "来源姓名", "actress": "1099472", "maker": "3152", "genre": "5016,4106",
+            })
+            web_settings.w_settings(self.contract, {"sourceTagsOriginal": True})
+            original = dispatch_api_get(self.contract, "/api/jav/catalog", {
+                "date": date, "performer": "来源姓名", "actress": "1099472", "maker": "3152", "genre": "5016,4106",
+            })
         self.assertEqual(result["total"], 1)
         self.assertEqual((result["page"], result["pages"]), (1, 1))
+        self.assertEqual(
+            [(row["id"], row["entity_id"], row["name"], row["source_name"], row["source_zh_cn"])
+             for row in result["performer_options"]],
+            [("1099472", self.performer, "凉森れむ", "来源姓名", "其他来源译名"),
+             ("1234567", None, "仅来源艺人", "仅来源艺人", "已核实译名")],
+        )
         [work] = result["items"]
         self.assertEqual((work["code"], work["date"], work["url"]),
                          ("AAA-001", date, "https://video.dmm.co.jp/av/content/?id=aaa00001"))
-        self.assertEqual(work["people"][0]["source_url"], feeds.dmm_actress_url("1099472"))
-        self.assertEqual(work["studio"]["id"], "3152")
-        self.assertEqual(work["tags"][0]["id"], "5016")
+        self.assertEqual(work["people"], [{
+            "id": self.performer, "name": "凉森れむ", "source_name": "来源姓名", "dmm_id": "1099472",
+            "source_zh_cn": "其他来源译名",
+            "source_url": feeds.dmm_actress_url("1099472"), "has_image": True,
+            "image_version": "image7", "avatar_focus": focus,
+        }, {
+            "name": "仅来源艺人", "source_name": "仅来源艺人", "dmm_id": "1234567", "source_zh_cn": "已核实译名",
+            "source_url": feeds.dmm_actress_url("1234567"),
+        }, {
+            "name": "目录新艺名", "source_name": "目录新艺名", "dmm_id": "1234568", "source_zh_cn": None,
+            "source_url": feeds.dmm_actress_url("1234568"),
+        }])
+        self.assertEqual((work["studio"]["id"], work["studio"]["entity_id"],
+                          work["studio"]["name"], work["studio"]["source_name"]),
+                         ("3152", studio_id, "规范厂牌", "S1"))
+        self.assertEqual(work["tags"], [{"id": "5016", "name": "潮吹", "source_name": "潮吹き"}])
+        self.assertEqual(original["items"][0]["tags"], [{"id": "5016", "name": "潮吹き", "source_name": "潮吹き"}])
+        self.assertEqual(original["items"][0]["people"], work["people"])
+        self.assertEqual(work["tags"][0]["name"], "潮吹")
         self.assertEqual(work["duration"], 3600)
         token = parse_qs(urlsplit(work["cover_url"]).query)["catalog"][0]
         self.assertEqual(catalog_cover_target(token), cover)
@@ -2314,6 +2391,8 @@ class JavDiscoveryTest(FeedWebFixture):
         result = self._discover(rankings={"peach_studios": [{"name": "示例厂牌", "score": 4}]})
         self.assertEqual(len(result["items"]), 2)
         self.assertTrue(all(row["release_date"] == "2010-01-01" for row in result["items"]))
+        self.assertTrue(all(row["studio_ref"]["name"] == "示例厂牌" for row in result["items"]))
+        self.assertTrue(all(row["studio_ref"]["has_logo"] is False for row in result["items"]))
         self.assertTrue(all(row["reasons"] == ["厂牌偏好：示例厂牌（观看与反馈）"] for row in result["items"]))
         self.assertEqual(self._discover()["items"], [])
 
@@ -2342,6 +2421,7 @@ class JavDiscoveryTest(FeedWebFixture):
                 connection.execute("INSERT INTO asset_entity(asset_id,entity_id,role,source) VALUES(?,?,'tag','test')", (aid, entity_id))
         result = self._discover("library", {"peach_tags": [{"name": "恋足", "entity_id": entity_id, "score": 4}]})
         self.assertEqual({row["asset_id"] for row in result["items"]}, {1, 2})
+        self.assertTrue(all(row["studio_ref"]["name"] == "示例厂牌" for row in result["items"]))
         self.assertTrue(all(row["tags"] == ["恋足"] for row in result["items"]))
         self.assertTrue(all(row["reasons"] == ["标签偏好：恋足（观看与反馈）"] for row in result["items"]))
 

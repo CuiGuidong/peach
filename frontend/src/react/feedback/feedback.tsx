@@ -1,4 +1,4 @@
-import { RiChat3Line, RiCloseLine, RiImageAddLine, RiLoader4Line, RiPencilLine, RiScreenshot2Line } from '@remixicon/react';
+import { RiChat3Line, RiCloseLine, RiImageAddLine, RiPencilLine, RiScreenshot2Line } from '@remixicon/react';
 import { useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, useSyncExternalStore, type FormEvent, type Ref } from 'react';
 import { createPortal, flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
@@ -12,6 +12,7 @@ import { ApiError, apiGet, apiSend } from '../../api';
 import { appSettingsStore } from '../../appearance/settings';
 import { t } from '../../i18n';
 import { pageRuntime } from '../client-updates';
+import { ActionSpinner } from '../components/action-spinner';
 import { CollapseRegion } from '../components/collapse-region';
 import { ModalFrame } from '../components/modal-frame';
 import { Note } from '../components/note';
@@ -104,7 +105,7 @@ function AttachmentTile({ item, label, disabled, publishGithub, show, remove, se
   publishGithub: boolean; selectPublic(selected: boolean): void;
 }) {
   const url = useImageUrl(item.blob);
-  return <li className="flex w-28 min-w-0 shrink-0 flex-col gap-1" data-feedback-screenshot={item.screenshot}>
+  return <li className="flex w-28 min-w-0 shrink-0 flex-col gap-1" data-feedback-attachment="" data-feedback-screenshot={item.screenshot}>
     <div className="relative h-14 overflow-hidden rounded-xl">
       <Button type="button" variant="secondary" data-feedback-action="" className="absolute inset-0 h-full w-full"
         aria-label={t('shell:feedback.viewImage', { label })} title={label} onClick={event => show(event.currentTarget)}>
@@ -514,7 +515,8 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-body-medium text-text-primary">{copy('images')}</span>
             <div className="ms-auto flex flex-wrap justify-end gap-2">
-              {offerTabCapture && <Button type="button" variant="secondary" data-feedback-action="" size="small" leadingIcon={RiScreenshot2Line}
+              {offerTabCapture && <Button type="button" variant="secondary" data-feedback-action="" size="small"
+                leadingIcon={capturingTab ? ActionSpinner : RiScreenshot2Line}
                 disabled={!roomForTab || adding || sending} aria-disabled={!!capturingTab} aria-busy={!!capturingTab}
                 onClick={event => { void replaceWithTab(event.currentTarget) }}>{copy('captureTab')}</Button>}
             </div>
@@ -528,9 +530,10 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
               )}
               remove={() => setImages(current => current.filter(candidate => candidate !== item))} />)}
           </ul>}
-          {remaining > 0 && <DropZone aria-label={message('pasteImages')} isDisabled={adding || sending}
+          {(remaining > 0 || adding) && <DropZone aria-label={message('pasteImages')} isDisabled={sending}
             className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-xl border border-dashed border-border-button-default px-3 py-2 data-[drop-target]:border-border-focus-ring data-[focus-visible]:border-border-focus-ring"
-            getDropOperation={(types, allowed) => IMAGE_TYPES.some(type => types.has(type)) && allowed.includes('copy') ? 'copy' : 'cancel'}
+            getDropOperation={(types, allowed) => !processingImages.current && IMAGE_TYPES.some(type => types.has(type))
+              && allowed.includes('copy') ? 'copy' : 'cancel'}
             onDrop={event => {
               if (processingImages.current || sending) return;
               const files = event.items.flatMap(item => item.kind === 'file' && IMAGE_TYPES.includes(item.type) ? [item] : []);
@@ -541,8 +544,10 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
               event.currentTarget.value = '';
               if (files.length > 0) void add(files);
             }} />
-            <Button type="button" variant="secondary" data-feedback-action="" size="small" leadingIcon={RiImageAddLine}
-              disabled={adding || sending} onClick={() => picker.current?.click()}>{copy('addImages')}</Button>
+            <Button type="button" variant="secondary" data-feedback-action="" size="small"
+              leadingIcon={adding ? ActionSpinner : RiImageAddLine} disabled={sending}
+              aria-disabled={adding || undefined} aria-busy={adding || undefined}
+              onClick={() => { if (!processingImages.current) picker.current?.click() }}>{copy('addImages')}</Button>
             <span className="text-caption-1-regular text-text-secondary">{copy('pasteImages')}</span>
           </DropZone>}
           {capture !== 'ready' && <div className="flex flex-wrap items-center justify-between gap-1">
@@ -555,7 +560,6 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
             }}>{copy('skipCapture')}</Button>}
           </div>}
           {capturingTab && <p role="status" className="flex items-center gap-2 text-caption-1-regular text-text-secondary">
-            <RiLoader4Line aria-hidden className="size-4 motion-safe:animate-spin" />
             {copy(capturingTab === 'permission' ? 'tabWaitingPermission' : 'tabCapturing')}
           </p>}
           {imageError && <p role="status" className="text-caption-1-regular text-text-secondary">{copy(imageError)}</p>}
@@ -569,7 +573,8 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
         {submitError && !accessBlocked ? <Note tone="error">{submitError}</Note> : null}
         <footer className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="secondary" data-feedback-action="" disabled={sending} onClick={closeForm}>{copy('cancel')}</Button>
-          <Button type="submit" disabled={!formReady || adding || !!capturingTab || capture === 'pending'} aria-disabled={sending} aria-busy={sending}>
+          <Button type="submit" leadingIcon={sending ? ActionSpinner : undefined}
+            disabled={!formReady || adding || !!capturingTab || capture === 'pending'} aria-disabled={sending} aria-busy={sending}>
             {copy(sending ? 'sending' : 'send')}
           </Button>
         </footer>

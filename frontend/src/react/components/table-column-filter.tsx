@@ -10,9 +10,10 @@ import { cx } from '@/utils/cx';
 import { errorMessage } from '../../api';
 import { columnValueSelected, toggleColumnValue, type ColumnSelection } from '../../column-filters';
 import { IndexSearch } from '../index/index-search';
+import './table-column-filter.css';
 import { MenuDialog } from './menu-dialog';
 import { FILTER_TOOLBAR_POPOVER_OFFSET } from './filter-glass';
-import { FilterMenuScroll } from './filter-menu-scroll';
+import { FilterMenuScroll, FilterOptionSkeleton } from './filter-menu-scroll';
 import { Note } from './note';
 import { ActivityStatus } from './activity-motion';
 import { t } from '../../i18n';
@@ -109,7 +110,7 @@ export function ColumnFilterFields({ id, label, values, options = [], queryKey, 
   const pending = !!load && result.isPending;
   const rowClass = cx(MENU_ITEM, !searchable && 'min-h-8 py-0.5');
   return <div className="flex flex-col gap-2">
-    {searchable ? <div className="px-3 pt-3">
+    {searchable ? <div className="px-3 pt-3" data-filter-popover-search="">
       <IndexSearch label={t('catalog:columnFilter.search', { column: label })}
         placeholder={t('catalog:columnFilter.search', { column: label })} value={search}
         onQuery={next => { setSearch(next); setVisible(24) }} />
@@ -127,9 +128,10 @@ export function ColumnFilterFields({ id, label, values, options = [], queryKey, 
           setVisible(current => current + 24);
       }}>
       <div className={cx(rowClass, MENU_ITEM_INTERACTIVE, all && MENU_ITEM_ACTIVE, 'focus-within:bg-dropdown-item-hover-background')}>
-        <Checkbox slot={null} size="sm" isSelected={all} isIndeterminate={partial} isDisabled={pending}
+        <Checkbox slot={null} size="sm" isSelected={all} isIndeterminate={partial} isDisabled={pending || (result.isError && !rows.length)}
           onChange={on => onChange(on ? undefined : [])} className="w-full">{t('shell:shared.all')}</Checkbox>
       </div>
+      {pending ? <FilterOptionSkeleton leading="checkbox" compact={!searchable} /> : null}
       {(load ? rows : rows.slice(0, visible)).map(row => <div key={row.id} title={row.title} data-column-filter-offline={row.disabled || undefined}
         className={cx(rowClass, !row.disabled && MENU_ITEM_INTERACTIVE,
           columnValueSelected(values, row.id) && MENU_ITEM_ACTIVE, !row.disabled && 'focus-within:bg-dropdown-item-hover-background')}>
@@ -144,8 +146,8 @@ export function ColumnFilterFields({ id, label, values, options = [], queryKey, 
           </span>
         </Checkbox>
       </div>)}
-      {load && (pending || result.isFetchingNextPage)
-        ? <ActivityStatus kind="linear-dots" label={t(pending ? 'shell:spinner.loading' : 'shell:spinner.loadingMore')} />
+      {load && result.isFetchingNextPage
+        ? <ActivityStatus kind="linear-dots" label={t('shell:spinner.loadingMore')} />
         : load && result.hasNextPage ? <Button variant="secondary" size="small"
         onClick={() => void result.fetchNextPage({ cancelRefetch: false })}>
         {t('catalog:shared.loadMore')}</Button> : !load && rows.length > visible

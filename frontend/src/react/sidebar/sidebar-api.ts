@@ -67,6 +67,7 @@ export interface SidebarHost {
   navCatalog: readonly (readonly [string, string, string])[];
   /** 这一项此刻亮不亮（壳的 `navOn`，读地址与目录筛选）。 */
   navOn(key: string): boolean;
+  navHref?(key: string): string;
   navTo(key: string): void;
   /** 双击导航时平滑回顶，保留该栏目内容和筛选。 */
   navToTop(): void;

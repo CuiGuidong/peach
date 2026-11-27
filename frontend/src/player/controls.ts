@@ -137,7 +137,7 @@ export function mountPlayerQualityControl(
   root.className = 'vjs-peach-settings vjs-control'; root.dataset.playerQuality = '';
   root.innerHTML = `<button type="button" class="vjs-peach-settings-toggle" aria-label="${t('catalog:playerQuality.playerSettings')}" aria-expanded="false">
     ${icon('settings')}<span data-player-quality-badge hidden></span></button>
-    <div class="vjs-peach-settings-menu" role="menu" aria-label="${t('catalog:playerQuality.playerSettings')}" aria-hidden="true"></div>`;
+    <div class="vjs-peach-settings-menu" role="menu" aria-label="${t('catalog:playerQuality.playerSettings')}" aria-hidden="true" inert></div>`;
   const fullscreen = controlBar.querySelector('.vjs-fullscreen-control');
   controlBar.insertBefore(root, fullscreen || null);
   const toggle = root.querySelector('button')!, badge = root.querySelector<HTMLElement>('[data-player-quality-badge]')!;
@@ -184,6 +184,7 @@ export function mountPlayerQualityControl(
   const isOpen = () => menu.getAttribute('aria-hidden') !== 'true';
   const setOpen = (open: boolean) => {
     menu.setAttribute('aria-hidden', String(!open)); toggle.setAttribute('aria-expanded', String(open));
+    menu.inert = !open;
     if (!open) subtitleControls?.hide();
     if (open) document.dispatchEvent(new CustomEvent(PLAYER_PANEL_EVENT, { detail: 'settings' }));
   };
@@ -207,6 +208,10 @@ export function mountPlayerQualityControl(
     menu.scrollTop = 0;
     const current = menu.querySelector<HTMLElement>('.vjs-peach-panel');
     const next = document.createElement('div'); next.className = 'vjs-peach-panel'; next.innerHTML = html;
+    if (current?.contains(document.activeElement)) queueMicrotask(() => {
+      if (run !== panelRun || !isOpen() || next.contains(document.activeElement)) return;
+      (next.querySelector<HTMLElement>('[aria-checked="true"]') ?? next.querySelector<HTMLElement>('button'))?.focus({ preventScroll: true });
+    });
     if (!current || !direction || !isOpen() || matchMedia('(prefers-reduced-motion:reduce)').matches) { menu.replaceChildren(next); menu.style.height = ''; return next }
     const from = menu.getBoundingClientRect().height;
     current.classList.add('vjs-peach-panel-leaving'); current.inert = true; current.setAttribute('aria-hidden', 'true');
@@ -229,6 +234,7 @@ export function mountPlayerQualityControl(
   /** 菜单此刻摆的是哪一面；轨道与尺寸变化只就地改这一面（`refreshPanel`）。 */
   let view: 'main' | 'speed' | 'quality' | 'subtitles' | 'rotation' = 'main';
   const showMain = (direction = 0) => {
+    const previous = view;
     view = 'main';
     const { active } = qualityRows(), speed = rememberRate.current();
     const panel = renderPanel(`<div class="vjs-peach-panel-menu"><button type="button" class="vjs-peach-menu-row" role="menuitemcheckbox" data-player-ambient aria-checked="${playerHost().settings().ambientMode}">
@@ -245,6 +251,10 @@ export function mountPlayerQualityControl(
     button(panel, '[data-player-rotation]').onclick = () => showRotation();
     button(panel, '[data-player-memory-retry]').onclick = () => { void memory.retry() };
     syncMemoryError();
+    if (direction < 0 && previous !== 'main') {
+      const selector = previous === 'quality' ? '[data-player-quality-view]' : `[data-player-${previous}]`;
+      button(panel, selector).focus({ preventScroll: true });
+    }
   };
   const syncMemoryError = () => {
     const message = menu.querySelector<HTMLElement>('[data-player-memory-error]');
@@ -339,8 +349,11 @@ export function mountPlayerQualityControl(
     const focused = list.contains(document.activeElement) ? (document.activeElement as HTMLElement).dataset.playerQualityOption : undefined;
     list.innerHTML = qualityOptionsHtml();
     bindQualityOptions(list);
-    [...list.querySelectorAll<HTMLElement>('[data-player-quality-option]')]
-      .find((option) => focused !== undefined && option.dataset.playerQualityOption === focused)?.focus();
+    if (focused !== undefined) {
+      const options = [...list.querySelectorAll<HTMLElement>('[data-player-quality-option]')];
+      (options.find(option => option.dataset.playerQualityOption === focused) ??
+        options.find(option => option.getAttribute('aria-checked') === 'true') ?? options[0])?.focus({ preventScroll: true });
+    }
   };
   const bindQualityOptions = (list: HTMLElement) => {
     list.querySelectorAll<HTMLElement>('[data-player-quality-option]').forEach((option) => {
@@ -380,19 +393,30 @@ export function mountPlayerQualityControl(
     if (angle) angle.textContent = `${rotation.angle()}°`;
     if (speed) speed.textContent = rememberRate.current() === 1 ? t('catalog:playerQuality.normalSpeed') : `${rememberRate.current()}×`;
   };
-  toggle.onclick = (event) => { event.stopPropagation(); const open = !isOpen(); if (open) showMain(); setOpen(open) };
+  toggle.onclick = (event) => {
+    event.stopPropagation();
+    const open = !isOpen();
+    if (open) showMain();
+    setOpen(open);
+    if (open && event.detail === 0) menu.querySelector<HTMLElement>('button')?.focus({ preventScroll: true });
+  };
   const outside = (event: Event) => {
     const target = event.target;
     if (target instanceof Element && !target.closest('[data-peach-feedback]') && !root.contains(target)) close();
   };
   document.addEventListener('pointerdown', outside);
+  root.addEventListener('focusout', (event) => {
+    if (isOpen() && event.relatedTarget instanceof Node && !root.contains(event.relatedTarget)) close();
+  });
   root.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && isOpen()) { event.preventDefault(); event.stopPropagation(); close(); toggle.focus() }
     if (['ArrowDown', 'ArrowUp'].includes(event.key) && isOpen() && !(event.target instanceof HTMLInputElement)) {
       event.preventDefault();
       const buttons = [...menu.querySelectorAll<HTMLElement>('button:not([disabled]),input,a[href]')].filter(node => node.offsetParent !== null && !node.closest('[inert]'));
       const current = buttons.indexOf(document.activeElement as HTMLElement);
-      buttons[(current + (event.key === 'ArrowDown' ? 1 : buttons.length - 1)) % buttons.length]?.focus();
+      const step = event.key === 'ArrowDown' ? 1 : -1;
+      const start = current < 0 ? (step > 0 ? -1 : 0) : current;
+      buttons[(start + step + buttons.length) % buttons.length]?.focus();
     }
   });
   video.addEventListener('loadedmetadata', refreshPanel);

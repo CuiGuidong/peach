@@ -133,7 +133,7 @@ export function closeSettingsRoute(){
 export function sidebarHost(){
   return {
     scroll:$('#drawerScroll'),store:preferencesState.settingsStore,navCatalog:layoutState.NAV_CATALOG,
-    navOn,navTo,navToTop:()=>{closeDrawerAfterNav();requestPageTop()},openDrawer,
+    navOn,navHref,navTo,navToTop:()=>{closeDrawerAfterNav();requestPageTop()},openDrawer,
     toggleChip:(key,value,multi)=>commitContextFilter(filters=>{
       if(multi){const cur=String(filters[key]||'').split(',').filter(Boolean);
         const i=cur.indexOf(value);if(i>=0)cur.splice(i,1);else cur.push(value);filters[key]=cur.join(',')}
@@ -154,12 +154,13 @@ export function sidebarHost(){
 export function mountSidebar(){
   const scroll=$('#drawerScroll');
   const anchors=[...(scroll.querySelector('[data-sidebar-head]')?.children||[])];
-  scroll.innerHTML=sidebarSkeletonHtml(preferencesState.appSettings.sidebarOrder,layoutState.NAV_CATALOG,navOn);
+  scroll.innerHTML=sidebarSkeletonHtml(preferencesState.appSettings.sidebarOrder,layoutState.NAV_CATALOG,navOn,navHref);
   scroll.querySelector('[data-sidebar-head]').append(...anchors);
   applicationEffects.listen(scroll, 'click', event=>{
     if(sidebarApi())return;
     const button=event.target.closest?.('[data-nav]');
-    if(button)navTo(button.dataset.nav);
+    if(!button||event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button)return;
+    event.preventDefault();navTo(button.dataset.nav);
   });
   loadSidebar(sidebarHost()).then(sidebar=>sidebar.render(layoutState.sidebarProps)).catch(()=>{});
 }
@@ -204,7 +205,7 @@ export function paintManageHeader(section=manageSection()){
   const props=manageHeaderProps(section),header=manageHeaderApi();
   if(header)header.render(props);
   else{
-    const html=manageHeaderSkeletonHtml(props);
+    const html=manageHeaderSkeletonHtml(props,manageHref);
     if(html!==layoutState.manageHeaderSkeleton){layoutState.manageHeaderSkeleton=html;layoutState.manageHeaderRoot().innerHTML=html}
   }
   /* 换了页才揭示一遍。同一页里的每一次重画（筛选、判完一批、翻页）走的也是这里，
@@ -220,13 +221,16 @@ export function mountManageHeader(){
   applicationEffects.listen(root, 'click', event=>{
     if(manageHeaderApi())return;
     const tab=event.target.closest?.('[data-manage]');
-    if(tab){openManage(tab.dataset.manage);return}
+    if(tab){
+      if(event.defaultPrevented||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button)return;
+      event.preventDefault();openManage(tab.dataset.manage);return;
+    }
     if(event.target.closest?.('[data-manage-crumb] a[href]')){
       if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.button)return;
       event.preventDefault();navigationState.navigatePath('/data-cleanup');return;
     }
   });
-  loadManageHeader({root,store:preferencesState.settingsStore,openManage,openPath:path=>navigationState.navigatePath(path)})
+  loadManageHeader({root,store:preferencesState.settingsStore,openManage,manageHref,openPath:path=>navigationState.navigatePath(path)})
     .then(()=>paintManageHeader()).catch(()=>{});
 }
 
@@ -277,6 +281,8 @@ function fitTitleWords(title){
   }
   span.textContent=parts.slice(0,best).join('')+'…';
 }
+
+const manageHref=(section='stats')=>navigationState.routePathOf('section',section)||junkPath();
 
 export function openManage(section='stats'){
   const path=navigationState.routePathOf('section',section);
@@ -375,6 +381,17 @@ export function navOn(k){
   if(STATE_ROUTES[k])return nav===k&&state.orient!==PORTRAIT;
   if(nav)return nav===k;
   return path==='/'&&state.state===k&&state.orient!==PORTRAIT;
+}
+
+function navHref(k){
+  if(k==='shorts')return '';
+  const remembered=rememberedSidebarPath(k);
+  if(remembered)return remembered;
+  if(layoutState.DIRECT_MANAGE_NAV[k])return manageHref(layoutState.DIRECT_MANAGE_NAV[k]);
+  if(k==='manage')return manageHref();
+  if(k==='jav')return '/jav';
+  if(k==='')return '/';
+  return STATE_ROUTES[k]||navigationState.routePathOf('nav',k)||'';
 }
 
 export function navTo(k){

@@ -127,6 +127,69 @@ describe('设计决定：数据管理、索引页与资料页头', () => {
     ['/data-cleanup/batch-delete', 'batch-delete'],
   ] as const;
   for (const viewport of [DESKTOP, MOBILE]) {
+    it(`资源同步的错误整行对齐，说明和检查按钮不移位（${viewport.name}）`, { timeout: 60_000 }, async () => {
+      let unavailable = false;
+      const opened = await visit(browser, '/data-cleanup/resource-sync', viewport, async page => {
+        await page.route('**/api/sources', route => route.fulfill({ json: { sources: [{
+          location: 'local', online: true, roots: ['D:\\Media'], label: '本地',
+        }] } }));
+        await page.route('**/api/resource-sync/apply', route => route.fulfill({ json: { status: 'idle' } }));
+        await page.route('**/api/resource-sync/scan', route => unavailable
+          ? route.fulfill({ status: 503, json: { detail: '目录扫描进度暂不可读' } })
+          : route.fulfill({ json: { status: 'idle' } }));
+      });
+      try {
+        const page = opened.page;
+        const panel = page.locator('#resource-sync');
+        const scan = panel.locator('[data-resource-scan]');
+        await page.waitForFunction(() => document.querySelector<HTMLButtonElement>('#resource-sync [data-resource-scan]')?.disabled === false);
+        await settle(page);
+        const geometry = () => panel.evaluate(node => {
+          const box = (element: Element) => {
+            const { left, right, top, bottom } = element.getBoundingClientRect();
+            return { left, right, top, bottom };
+          };
+          const card = node.querySelector('[aria-labelledby="resource-sync-title"]')!;
+          const cardBox = box(card);
+          const relativeToCard = (element: Element) => {
+            const { left, right, top, bottom } = box(element);
+            return [left - cardBox.left, right - cardBox.left, top - cardBox.top, bottom - cardBox.top].map(Math.round);
+          };
+          const alert = node.querySelector('[role="alert"]');
+          return {
+            card: cardBox,
+            title: relativeToCard(card.querySelector('h3')!),
+            description: relativeToCard(card.querySelector('p')!),
+            scan: relativeToCard(card.querySelector('[data-resource-scan]')!),
+            alert: alert && box(alert),
+            noteContent: alert && relativeToCard(alert.querySelector('[data-note-layout]')!),
+            retry: alert && relativeToCard(alert.querySelector('button')!),
+          };
+        });
+        const ready = await geometry();
+        unavailable = true;
+        await page.reload({ waitUntil: 'load' });
+        const alert = panel.getByRole('alert').filter({ hasText: '目录扫描进度暂不可读' });
+        await alert.waitFor();
+        await settle(page);
+        const failed = await geometry();
+        assert.deepEqual(failed.title, ready.title);
+        assert.deepEqual(failed.description, ready.description);
+        assert.deepEqual(failed.scan, ready.scan);
+        assert.ok(await scan.isDisabled());
+        assert.ok(failed.alert);
+        assert.ok(Math.abs(failed.alert.left - failed.card.left) < 1);
+        assert.ok(Math.abs(failed.alert.right - failed.card.right) < 1);
+        assert.ok(failed.alert.top - failed.card.bottom >= 12, '错误提示应在卡片下留出间距');
+        assert.equal(failed.noteContent?.[0], failed.title[0], '提示文字与卡片标题左对齐');
+        if (!viewport.mobile) assert.equal(failed.retry?.[1], failed.scan[1], '桌面操作按钮右对齐');
+        unavailable = false;
+        await alert.getByRole('button', { name: '重试', exact: true }).click();
+        await alert.waitFor({ state: 'detached' });
+        await page.waitForFunction(() => document.querySelector<HTMLButtonElement>('#resource-sync [data-resource-scan]')?.disabled === false);
+      } finally { await opened.close() }
+    });
+
     it(`维护工具二级页的骨架画在正文那一列里，首张卡与接管后同位同宽（${viewport.name}）`, { timeout: 90_000 }, async () => {
       const opened = await visit(browser, cleanupTools[0][0], viewport);
       try {
@@ -274,24 +337,28 @@ describe('设计决定：数据管理、索引页与资料页头', () => {
     }
   });
 
-  it('索引页分区使用中性填充选中态，方向键能切换', { timeout: 60_000 }, async () => {
+  it('索引导航用无下划线的链接，中性填充标记当前页面', { timeout: 60_000 }, async () => {
     const opened = await openIndexPage(browser, '/studios');
     try {
       const page = opened.page;
-      const selected = page.locator('#index [role="tab"][aria-selected="true"]');
+      const selected = page.locator('#index a[data-tab][aria-current="page"]');
       const look = await selected.evaluate((element) => {
         const style = getComputedStyle(element);
         const thumb = element.closest('[data-pill-nav]')!.querySelector('[data-pill-thumb]')!;
         return { background: style.backgroundColor, selectedSurface: getComputedStyle(thumb).backgroundColor,
-          border: style.borderBottomWidth, weight: style.fontWeight };
+          border: style.borderBottomWidth, weight: style.fontWeight, decoration: style.textDecorationLine };
       });
       assert.equal(look.background, 'rgba(0, 0, 0, 0)');
       assert.notEqual(look.selectedSurface, 'rgba(0, 0, 0, 0)');
       assert.equal(look.border, '0px');
       assert.equal(look.weight, '400');
-      await selected.focus();
-      await page.keyboard.press('ArrowRight');
-      await page.locator('#index [role="tab"][aria-selected="true"][data-tab="series"]').waitFor({ timeout: 5_000 });
+      assert.equal(look.decoration, 'none');
+      const series = page.locator('#index a[data-tab="series"]');
+      assert.equal(await series.getAttribute('href'), '/series');
+      await series.hover();
+      assert.equal(await series.evaluate(element => getComputedStyle(element).textDecorationLine), 'none');
+      await series.press('Enter');
+      await page.locator('#index a[data-tab="series"][aria-current="page"]').waitFor({ timeout: 5_000 });
       assert.deepEqual(opened.problems, []);
     } finally {
       await opened.close();

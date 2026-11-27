@@ -57,6 +57,7 @@
     "description": "查找库内外作品、翻译标题和简介、补标签、编辑元数据或整理馆藏",
     "prompt": "想查找或整理什么？",
     "fixedTasks": "自定义任务",
+    "fixedTasksLoadFailed": "无法读取自定义任务",
     "manageFixedTasks": "管理自定义任务",
     "fixedTaskInput": "补充要处理的内容（可选）",
     "clearFixedTask": "取消选择自定义任务",
@@ -219,7 +220,10 @@
     "execute": "搜索作品",
     "save": "保存为预设",
     "saved": "已保存",
-    "saveFailed": "此浏览器未保存查询预设。",
+    "presetStorageFull": "浏览器存储空间不足，查询预设未保存。移除不需要的预设后再试。",
+    "presetStorageUnavailable": "无法写入浏览器存储，查询预设未保存。请检查此站点的存储权限后再试。",
+    "librarySearchFailed": "馆藏查询失败",
+    "externalSearchFailed": "库外查询失败",
     "openLibrary": "在馆藏中打开",
     "outsideHelp": "库外搜索只将这里的关键词发给 JavDB，结果排除已入库的作品。",
     "empty": "这个范围没有符合条件的作品。",
@@ -327,6 +331,7 @@
     "openTree": "打开文件夹目录",
     "path": "文件夹路径",
     "search": "查找文件夹",
+    "searchFailed": "文件夹查找失败",
     "searching": "正在查找文件夹",
     "setPurpose": "设置目录用途",
     "subfolders": "子文件夹",
@@ -455,7 +460,9 @@
     "openSavedFollow": "打开已保存关注",
     "refreshStatus": "刷新状态",
     "startStreaming": "点此开始拉流 · {{size}}",
-    "stillUnavailable": "仍无法读取 · 刷新"
+    "stillUnavailable": "仍无法读取 · 刷新",
+    "sourceStatusFailed": "无法确认目录状态",
+    "sourceStatusUnknown": "服务未返回目录是否在线，请重新刷新状态。"
   },
   "detailMedia": {
     "fullVideo": "正片",
@@ -630,6 +637,8 @@
     "followedCreatorLinked": "已把关注里的 {{author}} 记到 {{name}} 名下",
     "linkFollowedCreator": "关联关注中的创作者",
     "loadingPhotos": "正在读取照片",
+    "shufflePhotosFailed": "未取得新的照片批次。",
+    "shufflePhotosFailure": "换一批照片失败",
     "mediaType": "媒体类型",
     "noMatchingVideos": "没有符合条件的视频",
     "noMatchingVideosHint": "清除筛选后查看名下全部视频。",
@@ -749,7 +758,11 @@
     "resources": "资源",
     "retryPreview": "重新取视频预览：{{reason}}",
     "sampleVideo": "视频预览",
-    "sampleVideoFailed": "视频预览加载失败"
+    "sampleVideoFailed": "视频预览加载失败",
+    "sampleVideoNetwork": "播放时未能从来源载入视频。请检查连接后重试。",
+    "sampleVideoDecode": "浏览器无法解码来源视频。可返回封面，或在来源页面查看。",
+    "sampleVideoUnsupported": "浏览器不支持此视频来源，或来源未返回可播放的视频。可返回封面，或在来源页面查看。",
+    "sampleVideoUnknown": "播放器未提供具体原因。可以重试，或返回封面。"
   },
   "javDiscover": {
     "clearFiltersHint": "清除筛选后查看其他作品。",
@@ -780,7 +793,8 @@
   "javMetadata": {
     "loadingProgress": "正在读取作品资料 · {{completed}} / {{count, number}} 部",
     "progress": "作品资料 {{completed}} / {{count, number}} 部",
-    "retry": "立即重试读取作品资料"
+    "retry": "立即重试读取作品资料",
+    "requestFailed": "作品资料读取请求失败"
   },
   "javReleases": {
     "addSubscription": "添加订阅",
@@ -968,7 +982,9 @@
   },
   "playerMemory": {
     "loadFailed": "播放记忆未读取，请重试",
-    "saveFailed": "播放记忆未保存，请重试"
+    "saveFailed": "播放记忆未保存，请重试",
+    "resumeSyncFailed": "续播位置尚未同步到 Peach。{{reason}}",
+    "resumeSyncUnconfirmed": "Peach 未确认保存结果。"
   },
   "playerMenu": {
     "copyFailed": "复制失败，请手动复制地址栏",
@@ -1529,7 +1545,7 @@
     "trash": "删除作品",
     "trashConfirm": "把 {{count, number}} 项名下的 {{assets, number}} 部作品移入回收站，名册与资料保留。",
     "trashDone": "已把 {{count, number}} 部作品移入回收站",
-    "trashRecovery": "完成后可在回执里撤销，也能从回收站还原。",
+    "trashRecovery": "完成后可在结果提示中撤销，也可以从回收站还原。",
     "unfollowConfirm": "取消 {{count, number}} 位的新作订阅，已发现的新作保留。",
     "unfollowDone": "已取消 {{count, number}} 位的新作订阅",
     "unhide": "恢复显示",

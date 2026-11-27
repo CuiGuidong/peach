@@ -37,6 +37,7 @@ export function AIPromptEditor({ scope, prompt, busy, divided, readOnly }: {
   const label = promptCopy('scopes.' + scope);
   return <Stack divided={divided}>
     {scope === 'system' ? <Help><span data-copy-key="settings.aiLibrary.prompts.help">{promptCopy('help')}</span></Help> : null}
+    {!readOnly && prompt.error ? <Note tone="error">{errorMessage(prompt.error)}</Note> : null}
     {readOnly ? <>
       <Help><span data-copy-key="settings.aiLibrary.prompts.builtinReadOnly">{promptCopy('builtinReadOnly')}</span></Help>
       <div className="flex min-w-0 flex-col gap-1.5">
@@ -46,8 +47,7 @@ export function AIPromptEditor({ scope, prompt, busy, divided, readOnly }: {
           {promptCopy('defaults.' + scope)}
         </div>
       </div>
-    </> : prompt.limit === undefined ? prompt.error ? <Note tone="error">{errorMessage(prompt.error)}</Note>
-      : <Help role="status">{promptCopy('loading')}</Help> : <>
+    </> : prompt.limit === undefined ? (prompt.error ? null : <Help role="status">{promptCopy('loading')}</Help>) : <>
       <Help><span data-copy-key={'settings.aiLibrary.prompts.descriptions.' + scope}>{promptCopy('descriptions.' + scope)}</span></Help>
       <Textarea label={label} value={prompt.value} onChange={prompt.onChange} isDisabled={busy}
         rows={8} maxLength={prompt.limit} showCount resize="vertical" />

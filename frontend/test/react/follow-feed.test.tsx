@@ -16,7 +16,7 @@ import { FollowFeedPage } from '../../src/react/follow-feed/follow-feed-page';
 import { FollowCard } from '../../src/react/follow-feed/follow-card';
 import { learnFollowDims } from '../../src/react/follow-feed/follow-marks';
 import { queryClient } from '../../src/react/query';
-import { chooseFilter, click, mount, mountRoot, settle } from './render';
+import { chooseFilter, click, mount, mountRoot, pending, settle } from './render';
 
 /* 回写尺寸那一批由 `follow-marks.test.ts` 量；这里只看卡片在什么时候报。 */
 vi.mock(import('../../src/react/follow-feed/follow-marks'), async (importOriginal) => ({
@@ -451,6 +451,29 @@ describe('页面', () => {
     await act(async () => { await toast.mock.calls[0]![1].undo() });
     const undo = fetcher.mock.calls.filter(([url]) => url === '/api/follow/status').at(-1);
     expect(JSON.parse(String(undo?.[1]?.body))).toEqual({ item: 1, to: 'new' });
+  });
+
+  it('同一条目的等待态只提交一次，其他条目仍可操作', async () => {
+    const reply = pending<void>();
+    const server = serve(feed([group(item(1)), group(item(2))]));
+    const fetcher = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === '/api/follow/status' && JSON.parse(String(init?.body)).item === 1) await reply.answer;
+      return server(url, init);
+    });
+    vi.stubGlobal('fetch', fetcher);
+    const host = await open(props());
+    const first = host.querySelector<HTMLButtonElement>('[data-follow-status="1"][data-to="seen"]')!;
+    first.focus();
+    await click(first);
+    expect(first.getAttribute('aria-busy')).toBe('true');
+    expect(document.activeElement).toBe(first);
+    await click(first);
+    await click(host.querySelector('[data-follow-status="1"][data-to="ignored"]'));
+    await click(host.querySelector('[data-follow-status="2"][data-to="seen"]'));
+    expect(fetcher.mock.calls.filter(([url]) => url === '/api/follow/status').map(([, init]) => JSON.parse(String(init?.body)).item))
+      .toEqual([1, 2]);
+    await reply.release(undefined);
+    await settle();
   });
 
   it('保存到数据库不给撤销；只读端写入回 409 时原因留在卡上', async () => {

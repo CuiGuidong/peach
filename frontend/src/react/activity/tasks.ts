@@ -7,12 +7,40 @@ import { fmtSize } from '@peach/legacy/core';
 import { requestErrorMessage } from '../../core/request-error';
 import { codedText, partsLabel, partsText, serverLabel, stageText, type TextPart } from '../../core/server-text';
 import { queryClient } from '../query';
+import type { DownloadsSnapshot } from '../bundle';
 import type { ProcessingSpeed } from '../library-processing/library-processing';
 import { interfaceLanguage, t } from '../../i18n';
 
 export const TASKS_URL = '/api/tasks';
 /** 整页共用这一个键：三段是同一次响应的三个字段。 */
 export const TASKS_KEY = ['tasks'] as const;
+export const BACKGROUND_ISSUES_URL = '/api/background-issues';
+export const BACKGROUND_ISSUES_KEY = ['background-issues'] as const;
+export const DOWNLOADS_URL = '/api/downloads';
+export const DOWNLOADS_KEY = ['downloads'] as const;
+
+export interface BackgroundIssue {
+  key: string;
+  title: string;
+  href: string;
+  /** 链接文案写明去处。 */
+  link_label: string;
+  /** 服务自己记下的起点；不记时为 null。 */
+  since: string | null;
+  /** 本轮服务首次读到问题的时刻。 */
+  noticed_at: string;
+  retry: string | null;
+  retry_available: boolean;
+}
+
+export const fetchBackgroundIssues = (signal?: AbortSignal) =>
+  apiGet<{ issues: BackgroundIssue[] }>(BACKGROUND_ISSUES_URL, signal);
+
+export const downloadsPageQuery = (page = 1, limit = 20, search = '') => ({
+  queryKey: [...DOWNLOADS_KEY, 'page', page, limit, search],
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    apiGet<DownloadsSnapshot>(`${DOWNLOADS_URL}?limit=${limit}&page=${page}${search ? `&q=${encodeURIComponent(search)}` : ''}`, signal),
+});
 
 export type TaskControlAction = 'pause' | 'resume' | 'cancel';
 export type TaskControlState = 'running' | 'pausing' | 'paused' | 'cancelling';
@@ -136,6 +164,15 @@ export const setTaskSpeed = (id: number, speed: ProcessingSpeed) =>
 /** 首屏：取完数才画。中止时 `fetchQuery` 把 `AbortError` 抛回给挂载方，它据此放弃这一次。 */
 export async function prefetchTasks(signal: AbortSignal): Promise<void> {
   await queryClient.fetchQuery({ queryKey: TASKS_KEY, queryFn: () => fetchTasks(signal) });
+}
+
+export async function prefetchActivity(signal: AbortSignal): Promise<void> {
+  const tasks = prefetchTasks(signal);
+  const issues = queryClient.prefetchQuery({ queryKey: BACKGROUND_ISSUES_KEY, queryFn: () => fetchBackgroundIssues(signal) });
+  const downloads = downloadsPageQuery();
+  void queryClient.prefetchQuery({ ...downloads, queryFn: () => downloads.queryFn({ signal }) });
+  // 页首告警会改变首屏布局，末尾的云下载可以独立就绪。
+  await Promise.allSettled([tasks, issues]);
 }
 
 export const TRIGGER_LABELS: Record<string, string> = {

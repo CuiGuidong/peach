@@ -20,6 +20,7 @@ import { AIPromptEditor, AI_PROMPT_SCOPES, promptCopy, useAIPromptSettings, type
 import { AIUsageDashboard } from './ai-usage-dashboard';
 import { AIModelVisibilityButton } from './ai-model-visibility';
 import { CUSTOM_TASKS_KEY, CUSTOM_TASKS_URL, customTaskCopy, useCustomTasks, type FixedTask } from './ai-custom-tasks';
+import { chatgptAuthorizationIssue } from './chatgpt-authorization';
 import { aiModelLabel, aiSearchModelsKey, preferredAIConnection, useAIModels, type AIEffort, type AITask, type ModelChoices } from './use-ai-models';
 
 export const AI_CONNECTIONS_URL = '/api/ai-library/connections';
@@ -35,6 +36,7 @@ export interface AIConnection extends ModelChoices {
   default_base_url?: string;
   key_url?: string;
   status?: OAuthStatus;
+  error?: string;
   email?: string;
   custom?: boolean;
   protocol?: 'openai' | 'anthropic';
@@ -95,7 +97,10 @@ export function AILibrarySettings({ active, receipt }: { active: boolean; receip
   const accessRestricted = requestError?.status === 401 || requestError?.status === 403;
   const errorCode = (requestError?.body as { message_code?: string } | null)?.message_code;
   return <div className="@container flex min-w-0 flex-col gap-5">
-    {query.error ? <Note tone={requestError?.status === 403 ? 'warning' : 'error'}>
+    {query.error ? <Note tone={accessRestricted ? 'warning' : 'error'} action={accessRestricted ? null
+      : <Button size="small" type="button" variant="secondary" onClick={refresh} disabled={query.isFetching}>
+        <span data-copy-key="settings.aiLibrary.retryConnections">{t('settings:aiLibrary.retryConnections')}</span>
+      </Button>}>
       <span data-copy-key={errorCode ? 'server.' + errorCode : undefined}>{errorMessage(query.error)}</span>
     </Note> : data && !editable ? <Note tone="info">
       <span data-copy-key="settings.aiLibrary.editOnHost">{t('settings:aiLibrary.editOnHost')}</span>
@@ -114,8 +119,8 @@ export function AILibrarySettings({ active, receipt }: { active: boolean; receip
         </div>}
         {listedProviders.map(value =>
           <Section key={value.id} title={value.label} icon={<AIProviderLogo provider={value.id} className="size-5" />}>
-            {value.id === 'openai' && editable
-              ? <OpenAIMethods api={value} oauth={oauth} active={active} saved={saved} refresh={refresh} />
+            {value.id === 'openai' && data
+              ? <OpenAIMethods api={value} oauth={oauth} readOnly={!editable} active={active} saved={saved} refresh={refresh} />
               : <ProviderForm key={String(editable)} value={value} active={active} saved={saved}
                 readOnly={!editable} connectionKnown={Boolean(data)} />}
           </Section>)}
@@ -384,28 +389,29 @@ function FixedTaskEditor({ task, providers, active, choose, busyChanged, receipt
   </form>;
 }
 
-function OpenAIMethods({ api, oauth, active, saved, refresh }: {
-  api: ConnectionFormValue; oauth?: AIConnection; active: boolean; saved(): void; refresh(): void;
+function OpenAIMethods({ api, oauth, readOnly, active, saved, refresh }: {
+  api: ConnectionFormValue; oauth?: AIConnection; readOnly: boolean; active: boolean; saved(): void; refresh(): void;
 }) {
   const [method, setMethod] = useState(() => {
     const direct = new URLSearchParams(window.location.search).get('connection') === 'chatgpt';
-    return oauth && (direct || (!api.configured && oauth.status !== 'disconnected')) ? 'oauth' : 'key';
+    return direct || (oauth && !api.configured && oauth.status !== 'disconnected') ? 'oauth' : 'key';
   });
-  const selectedMethod = oauth ? method : 'key';
-  return <Tabs selectedKey={selectedMethod} onSelectionChange={key => setMethod(String(key))}>
+  return <Tabs selectedKey={method} onSelectionChange={key => setMethod(String(key))}>
     <SegmentedTabList aria-label={t('settings:aiLibrary.connectionMethod')} className={SEGMENTED_TRACK + ' mt-3'}>
       <Tab id="key" className={SEGMENT}>API Key</Tab>
-      <Tab id="oauth" className={SEGMENT} isDisabled={!oauth}>
+      <Tab id="oauth" className={SEGMENT}>
         <span data-copy-key="settings.aiLibrary.oauthTitle">{t('settings:aiLibrary.oauthTitle')}</span>
       </Tab>
     </SegmentedTabList>
-    {!oauth ? <Stack><Help><span data-copy-key="settings.aiLibrary.oauthLocalAddress">{t('settings:aiLibrary.oauthLocalAddress')}</span></Help></Stack> : null}
     <TabPanel id="key" shouldForceMount className="data-inert:hidden">
-      <ProviderForm value={api} active={active && selectedMethod === 'key'} saved={saved} />
+      <ProviderForm value={api} active={active && method === 'key'} saved={saved} readOnly={readOnly} />
     </TabPanel>
-    {oauth ? <TabPanel id="oauth" shouldForceMount className="data-inert:hidden">
-      <OAuthForm value={oauth} active={active && selectedMethod === 'oauth'} saved={saved} refresh={refresh} />
-    </TabPanel> : null}
+    <TabPanel id="oauth" shouldForceMount className="data-inert:hidden">
+      {oauth ? <OAuthForm value={oauth} active={active && method === 'oauth'} saved={saved} refresh={refresh} />
+        : <Stack><Note tone="warning">
+          <span data-copy-key="settings.aiLibrary.oauthHostRequired">{t('settings:aiLibrary.oauthHostRequired')}</span>
+        </Note></Stack>}
+    </TabPanel>
   </Tabs>;
 }
 
@@ -460,6 +466,7 @@ function OAuthForm({ value, active, saved, refresh }: {
   const action = useAction();
   const status = value.status || 'disconnected';
   const pending = status === 'pending';
+  const issue = status === 'error' || status === 'permission_required' ? chatgptAuthorizationIssue(value.error ?? status) : null;
   const enabled = active && value.configured;
   const catalog = useAIModels(OAUTH_URL + '/models', value.id, '', enabled);
   const selected = pickModel(catalog, model ?? value.model);
@@ -490,7 +497,7 @@ function OAuthForm({ value, active, saved, refresh }: {
       <ModelPicker catalog={catalog} selected={selected} onChange={setModel} enabled={enabled}
         disabled={busy || pending} hint={t('settings:aiLibrary.modelsAfterAuth')} savedModel={value.configured ? value.model : undefined} />
       {action.error ? <ErrorText>{action.error}</ErrorText> : null}
-      {status === 'error' ? <ErrorText>{t('settings:aiLibrary.oauthError')}</ErrorText> : null}
+      {issue ? <ErrorText><span data-copy-key={issue.copyKey}>{issue.message}</span></ErrorText> : null}
       {revocationUnconfirmed ? <Help role="status">{t('settings:aiLibrary.oauthRevocationUnconfirmed')}</Help> : null}
     </Stack>
     <Footer>

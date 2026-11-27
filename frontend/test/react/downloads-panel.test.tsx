@@ -170,12 +170,12 @@ it('网盘空间不足时整段顶部给一条渠道提示，说明浏览器添�
   expect(host.querySelector('[data-download-state=failed]')?.textContent).toContain('网盘空间不足：扩容或清理网盘空间后再提交');
 });
 
-it('网盘配置失效的渠道提示按错误显示', async () => {
-  serve(snapshot({ tasks: [task({ id: 5, state: 'failed', failure: 'config', cancellable: false, resubmittable: true,
-    failure_label: '配置或登录有误', failure_detail: '还没有填 CloudDrive2 的 API 令牌' })],
+it('没有下载记录时也显示配置失效的渠道错误', async () => {
+  serve(snapshot({ tasks: [],
   channel_alerts: [{ provider: '115', provider_label: '115', failure: 'config', message: '还没有填 CloudDrive2 的 API 令牌',
     message_code: 'errors.downloadsClouddrive.tokenMissing', message_params: {}, since: '2026-11-13T00:00:00+00:00' }] }));
   const host = await show();
+  expect(host.querySelector('#cloudDownloads')).not.toBeNull();
   expect(host.querySelector('[role=note]')).toBeNull();
   expect(host.querySelector('[role=alert]')?.textContent).toContain('115：配置或登录有误');
 });

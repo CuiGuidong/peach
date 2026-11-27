@@ -7,11 +7,11 @@ import { RiRssLine } from '@remixicon/react';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { appSettingsStore, javLayout, storeJavLayout, JAV_LAYOUTS, cardRatio, gridLayout } from '@peach/appearance';
 import { wireHorizontalScroller } from '../../ui-kit/scroll';
-import { javContentSkeleton, javTagPlaceholdersHtml, JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID } from '../../jav-skeleton';
+import { javContentSkeleton, javTagPlaceholdersHtml, JAV_CATALOG_TIERS, JAV_RECOMMENDATION_GRID, JAV_TAG_STRIP_SKELETON } from '../../jav-skeleton';
 import { tierPlaceholdersHtml } from '../../catalog-filter-skeleton';
-import { errorMessage } from '../../api';
 import type { DownloadPrefill } from '../activity/cloud-download-dialog';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { CoverQueue } from '../components/cover-queue';
 import { TaskProgress } from '../components/task-progress';
 import { activityKind } from '../../activity-kinds';
@@ -170,15 +170,17 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
   const started = useRef('');
   const scope = JSON.stringify([filters.performer, filters.studio, filters.tag, filters.column_filters, filters.q, filters.code, filters.sort, filters.dir, filters.seed]);
   const unread = !releases.isPlaceholderData && (releases.data?.metadata_unread || 0) > 0 && !reading;
+  const metadataAction = useAction();
+  const startMetadata = () => void metadataAction.run('start', async signal => {
+    const result = await controlReleaseMetadata('start', filters, '', signal);
+    await queryClient.cancelQueries({ queryKey: DISCOVERY_METADATA_KEY });
+    return result;
+  }, result => queryClient.setQueryData(DISCOVERY_METADATA_KEY, result));
   useEffect(() => {
-    if (!unread || started.current === scope) return;
+    if (!unread || metadataAction.busy || started.current === scope) return;
     started.current = scope;
-    void controlReleaseMetadata('start', filters).then(async (result) => {
-      // 起读之前发出的进度请求晚回来会盖掉这份回执，先取消。
-      await queryClient.cancelQueries({ queryKey: DISCOVERY_METADATA_KEY });
-      queryClient.setQueryData(DISCOVERY_METADATA_KEY, result);
-    }).catch(() => {});
-  }, [unread, scope]); // eslint-disable-line react-hooks/exhaustive-deps
+    startMetadata();
+  }, [unread, scope, metadataAction.busy]); // eslint-disable-line react-hooks/exhaustive-deps
   const action = useAction();
   const want = (item: Discovery) => { void action.run(String(item.id), signal => addWant({ code: item.code }, signal), () => {
     receipt(t('catalog:javWant.added')); void invalidateWants(); void releases.refetch();
@@ -188,6 +190,9 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
     selected: releaseColumnValues(filters, 'tag').includes(row.name) }));
   useVisibleJavWorks(data?.items || []);
   const waiting = releases.isPending;
+  const facetsPending = waiting || releases.isPlaceholderData;
+  const tagsPending = facetsPending || (reading && !tagChoices.length);
+  const facetError = data ? undefined : releases.error;
   const rectangle = useJavRectangle(!waiting && !releases.isPlaceholderData);
   const filtered = !!(filters.performer || filters.studio || filters.tag || filters.column_filters || filters.q || filters.code);
   const pages = Math.max(1, Math.ceil((data?.total || 0) / filters.size));
@@ -210,8 +215,8 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
     </div> : null}
     <FilterGlassRows label={t('catalog:javReleases.filtersLabel')} topLabel={t('catalog:catalogFilter.viewsAndTags')} attrs={{ 'data-filter-frame': '', 'data-jav-filter': '', 'data-catalog-frame': '' }}
       busy={waiting} topClassName="gap-1.5 overflow-visible" bottomClassName="min-h-12"
-      top={waiting || tagChoices.length ? <div data-catalog-scroll="">
-        {waiting ? <div data-filter-tag-strip="" data-loading="" aria-hidden
+      top={tagsPending || tagChoices.length ? <div data-catalog-scroll="">
+        {tagsPending ? <div data-filter-tag-strip="" data-skeleton={JAV_TAG_STRIP_SKELETON} data-loading="" aria-hidden
           dangerouslySetInnerHTML={{ __html: javTagPlaceholdersHtml() }} />
           : <FilterTagStrip choices={tagChoices} onSelect={name => choose('tag', name)} />}
       </div> : null} bottom={<>
@@ -224,18 +229,21 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
           <CatalogDisplayControls cardLayout={<Segments label={t('catalog:entityFilter.javCardLayout')} value={layout} options={JAV_LAYOUTS} onChange={storeJavLayout} />} />
         </>} fields={<>
           <FilterDropdown id="jav-release-performers" orderKey="performer" label={t('catalog:shared.performers')}
+            pending={facetsPending} error={facetError} withAvatar
             choices={(data?.facets.performers || []).map(person => ({ id: person.name, label: person.name, count: person.count,
             selected: releaseColumnValues(filters, 'performer').includes(person.name),
             leading: <ColumnFilterAvatar person={person} /> }))} onSelect={name => choose('performer', name)}
             active={releaseColumnSelection(filters, 'performer') !== undefined}
             onClear={releaseColumnSelection(filters, 'performer') !== undefined ? () => chooseValues('performer', undefined) : undefined} />
           <FilterDropdown id="jav-release-studios" orderKey="studio" label={t('catalog:shared.label')}
+            pending={facetsPending} error={facetError} withAvatar
             choices={(data?.facets.studios || []).map(studio => ({ id: studio.name, label: studio.name, count: studio.count,
             selected: releaseColumnValues(filters, 'studio').includes(studio.name),
             leading: <ColumnFilterStudioAvatar studio={studio} /> }))} onSelect={name => choose('studio', name)}
             active={releaseColumnSelection(filters, 'studio') !== undefined}
             onClear={releaseColumnSelection(filters, 'studio') !== undefined ? () => chooseValues('studio', undefined) : undefined} />
           <FilterDropdown id="jav-release-tags" orderKey="tags" label={t('catalog:shared.tags')}
+            pending={tagsPending} error={facetError}
             choices={tagChoices} onSelect={name => choose('tag', name)}
             active={releaseColumnSelection(filters, 'tag') !== undefined}
             onClear={releaseColumnSelection(filters, 'tag') !== undefined ? () => chooseValues('tag', undefined) : undefined} />
@@ -252,7 +260,12 @@ export function Releases({ readOnly, receipt, resource, query, navigate, clearTe
     {view === 'cards' && filters.column_filters ? <CatalogColumnFilterChips encoded={filters.column_filters}
       columns={[...releaseColumns, { id: 'taste', label: t('catalog:javSort.taste') }]} onChange={changeColumns} /> : null}
     {waiting && view === 'cards' ? <div role="status" aria-label={t('catalog:javReleases.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
-    {releases.error ? <Note tone="error" title={t('catalog:javReleases.failed')}>{errorMessage(releases.error)}</Note> : null}
+    {releases.error ? <QueryErrorNote titleKey="catalog:javReleases.failed" query={releases} /> : null}
+    {unread && metadataAction.error ? <Note tone="error"
+      title={<span data-copy-key="catalog.javMetadata.requestFailed">{t('catalog:javMetadata.requestFailed')}</span>} action={
+      <Button variant="secondary" size="small" disabled={!!metadataAction.busy}
+        onClick={startMetadata}>{t('catalog:shared.retryNow')}</Button>
+    }>{metadataAction.error}</Note> : null}
     {reading && metadata ? <div data-jav-metadata="" className="min-w-0"><TaskProgress kind={activityKind('jav-discovery-metadata')}
       label={t('catalog:javMetadata.loadingProgress', { completed: metadata.completed, count: metadata.total })} value={metadata.completed} total={metadata.total} /></div> : null}
     {readOnly ? null : <CoverQueue scope={t('catalog:javReleases.coverQueueScope')} fetchOne={fetchReleaseCover}

@@ -229,7 +229,7 @@
   white-space: nowrap;
   cursor: pointer;
 }
-.peach-react :is([data-entity-sort], [data-filter-field]):is(:hover, [data-filter-active], [aria-expanded="true"], [aria-pressed="true"]) {
+.peach-react :is([data-entity-sort], [data-filter-field]):is(:hover, [data-filter-active], [aria-expanded="true"], [data-sort-current="true"], [aria-pressed="true"]) {
   color: var(--glass-text);
 }
 .peach-react [data-entity-sort] svg {

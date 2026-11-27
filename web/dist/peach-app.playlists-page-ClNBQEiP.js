@@ -1,7 +1,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "b676a1b2-30d8-4aea-ad61-31d0f2ec8b60", e._sentryDebugIdIdentifier = "sentry-dbid-b676a1b2-30d8-4aea-ad61-31d0f2ec8b60");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "d41489d2-0d91-4bd9-8d1c-9b35ddb9a375", e._sentryDebugIdIdentifier = "sentry-dbid-d41489d2-0d91-4bd9-8d1c-9b35ddb9a375");
 	} catch {}
 })();
 import { $2ec61d1d4f780267$export$a8a3e93435678ff9 as e, $542a13ca2fa5b484$export$5b6b19405a83ff9d as t, Button as n, EmptyFocusButton as r, EmptyState as i, IndexSearch as a, Input as o, MENU_ITEM as s, MENU_ITEM_INTERACTIVE as c, MENU_POPOVER_SURFACE as l, MenuDialog as u, MixCard as d, ModalFrame as f, ObjectOrderDialog as p, PLAYLISTS_KEY as m, RetryNote as h, __toESM as g, busyProps as _, confirmModal as v, createPlaylist as y, cx as b, deletePlaylist as x, errorMessage as S, fetchPlaylist as C, fetchPlaylists as w, keepPlaylist as T, posterUrl as E, recreatePlaylist as D, refreshPlaylists as O, renamePlaylist as k, reorderPlaylist as A, require_jsx_runtime as j, require_react as M, resumeAssetId as N, spriteGlyph as P, t as F, useMutation as I, useQuery as L } from "./peach-app.js";
@@ -311,48 +311,32 @@ function X({ openPlaylist: e, openEntity: t, canFlip: o, toast: s, revision: c }
 		]
 	});
 }
-function Z({ row: e, close: t, toast: r }) {
-	let i = L({
+function Z({ row: e, close: t, toast: n }) {
+	let r = L({
 		queryKey: ["playlist-order", e.id],
 		queryFn: ({ signal: t }) => C(e.id, t),
 		staleTime: 0,
 		refetchOnWindowFocus: !1,
 		refetchOnReconnect: !1
-	}), a = i.data;
-	return !a || i.isFetching ? /* @__PURE__ */ (0, z.jsx)(f, {
-		isOpen: !0,
-		onOpenChange: (e) => {
-			e || t();
-		},
-		width: "form",
-		label: F("catalog:playlistOrder.reorder"),
-		children: /* @__PURE__ */ (0, z.jsxs)("div", {
-			className: "p-5",
-			children: [i.isError ? /* @__PURE__ */ (0, z.jsx)(h, {
-				message: S(i.error),
-				onRetry: () => void i.refetch()
-			}) : /* @__PURE__ */ (0, z.jsx)("p", {
-				role: "status",
-				children: F("catalog:playlistOrder.loading")
-			}), /* @__PURE__ */ (0, z.jsx)(n, {
-				variant: "secondary",
-				onClick: t,
-				children: F("catalog:shared.cancel")
-			})]
-		})
-	}) : /* @__PURE__ */ (0, z.jsx)(p, {
+	}), i = r.data;
+	return /* @__PURE__ */ (0, z.jsx)(p, {
 		dropOnRow: !0,
 		title: F("catalog:playlistOrder.dialogTitle", { name: e.name }),
 		close: t,
-		items: a.items.map((e) => ({
+		pending: r.isFetching || r.isPending,
+		loadFailure: r.isError ? /* @__PURE__ */ (0, z.jsx)(h, {
+			message: S(r.error),
+			onRetry: () => void r.refetch()
+		}) : null,
+		items: (i?.items || []).map((e) => ({
 			id: String(e.id),
 			name: e.title || e.name || F("catalog:playlistOrder.fallbackName", { id: e.id })
 		})),
 		save: async (t) => {
-			await A(e.id, t.map(Number)), O(), r(F("catalog:playlistOrder.saved"), { undo: K(() => A(e.id, a.items.map((e) => e.id))) });
+			i && (await A(e.id, t.map(Number)), O(), n(F("catalog:playlistOrder.saved"), { undo: K(() => A(e.id, i.items.map((e) => e.id))) }));
 		}
 	});
 }
 export { X as PlaylistsPage };
 
-//# debugId=b676a1b2-30d8-4aea-ad61-31d0f2ec8b60
+//# debugId=d41489d2-0d91-4bd9-8d1c-9b35ddb9a375

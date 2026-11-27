@@ -5,10 +5,11 @@ import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Chip } from '@/components/base/badges/chip';
 import { appSettingsStore, javLayout, storeJavLayout, JAV_LAYOUTS, cardRatio, gridLayout } from '@peach/appearance';
 import { wireHorizontalScroller } from '../../ui-kit/scroll';
-import { javContentSkeleton, JAV_PAGE_BODY, JAV_RECOMMENDATION_GRID } from '../../jav-skeleton';
-import { errorMessage } from '../../api';
+import { javContentSkeleton, javFacetTiersHtml, javTagPlaceholdersHtml, JAV_CATALOG_TIERS, JAV_PAGE_BODY, JAV_RECOMMENDATION_GRID, JAV_TAG_STRIP_SKELETON } from '../../jav-skeleton';
+import { discoveryCast } from '../components/cast-popover';
 import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-download-dialog';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { EmptyState } from '../components/empty-state';
 import { WantList } from '../wants/want-list';
 import { JavSelectionProvider, useJavRectangle, useVisibleJavWorks } from './jav-selection';
@@ -29,16 +30,17 @@ import { LibraryShortcuts } from '../library-shortcuts/shortcut-controls';
 import { Segments, SortKeys } from '../entity-filter/entity-filter-page';
 import { outsideTableDateBound, TableRangeFields } from '../components/table-column-range';
 import { useViewGlide } from '../components/use-view-glide';
+import { useHorizontalScroller } from '../components/use-horizontal-scroller';
 import { TaskProgress } from '../components/task-progress';
 import { activityKind } from '../../activity-kinds';
-import { DISCOVERY_SORTS, discoveryScore, recommendationScore, type DiscoverySort } from './discovery-sorts';
+import { DISCOVERY_SORTS, discoveryOrder, discoveryScore, recommendationScore, type DiscoverySort } from './discovery-sorts';
 import { jobText, serverLabelList } from '../../core/server-text';
 import { JavGlassSearch } from './jav-header';
 import { t } from '../../i18n';
 import { entityDisplayName } from '../../core/entity-names';
 import { columnRangeKinds, readColumnFilters, withinColumnRange, writeColumnFilters, type ColumnRange, type ColumnFilters } from '../../column-filters';
 import { JavCodeFilter, matchesJavCode } from './jav-code-filter';
-import { countJavFacets } from './jav-facets';
+import { countJavFacets, PerformerFacet, StudioFacet } from './jav-facets';
 import type { Receipt } from '../components/bulk-action';
 import { CatalogDisplayControls } from '../catalog-grid/catalog-view-toggle';
 import { useCatalogView } from '../catalog-grid/catalog-view';
@@ -75,11 +77,10 @@ export function JavPage({ tab, readOnly, navigate, receipt }: {
 
 const DISCOVERY_RANGES = { release: 'release_date', dur: 'duration', score: 'source_score', taste: 'taste_score' } as const;
 type DiscoveryRange = keyof typeof DISCOVERY_RANGES;
+const DISCOVERY_TIER_LIMIT = 24;
 
 function discoverPeople(work: Discovery): (DiscoveryPerson & { avatar_code?: string })[] {
-  return work.performer_refs?.length
-    ? work.performer_refs.map(person => ({ ...person, avatar_code: work.code }))
-    : work.performers.split(/[,，、;/]/).map(name => ({ name: name.trim() })).filter(person => person.name);
+  return discoveryCast(work.performer_refs, work.performers).map(person => ({ ...person, avatar_code: work.code }));
 }
 
 function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
@@ -93,9 +94,8 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   const [code, changeCode] = useState(() => params.get('code') || '');
   const [studio, changeStudio] = useState(() => params.get('studio') || '');
   const [ranges, setRanges] = useState<ColumnFilters>(() => readColumnFilters(params.get('column_filters') || undefined));
-  const [sort, changeSort] = useState<DiscoverySort>(() => DISCOVERY_SORTS.some(([key]) => key === params.get('sort'))
-    ? params.get('sort') as DiscoverySort : 'taste');
-  const [ascending, changeAscending] = useState(() => params.get('dir') === 'asc');
+  const [sort, changeSort] = useState(() => discoveryOrder(params).sort);
+  const [ascending, changeAscending] = useState(() => discoveryOrder(params).direction === 'asc');
   const resetFacets = (patch: Record<string, string> = {}) => {
     changeTag(''); changePerformer(''); changeStudio(''); changeCode(''); setRanges({});
     writeJavQuery({ tag: '', performer: '', studio: '', code: '', column_filters: '', ...patch });
@@ -121,6 +121,8 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   };
   const scopePane = useRef<HTMLSpanElement>(null);
   const scopeRow = useRef<HTMLDivElement>(null);
+  const peopleRow = useHorizontalScroller<HTMLDivElement>();
+  const studioRow = useHorizontalScroller<HTMLDivElement>();
   const scopeGlide = useViewGlide(scopePane, scopeRow, '[aria-pressed="true"]', scope);
   const section = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -165,6 +167,7 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   }, [jobState(polled)]); // eslint-disable-line react-hooks/exhaustive-deps
   const action = useAction();
   const metadataAction = useAction();
+  const metadataCommand = useRef<'start' | 'stop' | 'update' | 'retry'>('start');
   const control = async (kind: 'start' | 'refresh' | 'cancel', signal?: AbortSignal) => {
     const result = await controlDiscoveryMetadata(kind, { sort, direction, jobId: metadata?.job_id }, signal);
     if (kind !== 'start') await discoveries.refetch({ cancelRefetch: true, throwOnError: true });
@@ -173,8 +176,10 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
     answered.current = jobState(result.metadata_job);
     queryClient.setQueryData(DISCOVERY_METADATA_KEY, result);
   };
-  const updateMetadata = (key: 'stop' | 'update' | 'retry') => {
-    void metadataAction.run(key, signal => control(key === 'stop' ? 'cancel' : 'refresh', signal), () => {});
+  const updateMetadata = (key: 'start' | 'stop' | 'update' | 'retry') => {
+    if (metadataAction.busy) return;
+    metadataCommand.current = key;
+    void metadataAction.run(key, signal => control(key === 'start' ? 'start' : key === 'stop' ? 'cancel' : 'refresh', signal), () => {});
   };
   // 打开页面时补读从没读过或已过期的那几部（停下、失败的那一轮由服务端留着，不重启）；
   // 每次挂载只问一次。
@@ -184,7 +189,7 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   useEffect(() => {
     if (!unread || autoStarted.current) return;
     autoStarted.current = true;
-    void control('start').catch(() => {});
+    updateMetadata('start');
   }, [unread]); // eslint-disable-line react-hooks/exhaustive-deps
   const all = discoveries.data?.items || [];
   const tagChoices = countJavFacets(all, item => item.tags || [], name => name, [tag])
@@ -193,6 +198,8 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   const studios = countJavFacets(all, item => item.studio_ref ? [item.studio_ref] : item.studio ? [{ name: item.studio, has_logo: false }] : [],
     studio => studio.name, [studio]);
   const toggleTag = (name: string) => setTag(tag === name ? '' : name);
+  const togglePerformer = (name: string) => setPerformer(performer === name ? '' : name);
+  const toggleStudio = (name: string) => setStudio(studio === name ? '' : name);
   const filtered = !!(query || tag || performer || studio || code || ranges.release || ranges.dur || ranges.score || ranges.taste);
   const clearFilters = () => { resetFacets(); if (query) clearText() };
   const items = all.filter(item => (!tag || item.tags?.includes(tag)) &&
@@ -215,19 +222,22 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
       shouldCloseOnInteractOutside={menu.shouldCloseOnInteractOutside}>{menu.render}</ColumnFilterPopover>;
   };
   const codeMenu = (close: () => void) => <JavCodeFilter value={code} onChange={value => { setCode(value); close() }} />;
+  const waiting = discoveries.isPending;
+  const tagsPending = waiting || (scope === 'external' && !tagChoices.length && metadata?.status === 'running');
+  const facetError = discoveries.data ? undefined : discoveries.error;
   const facetMenus = (toolbar: boolean) => {
     const prefix = toolbar ? 'jav-discover' : 'discover-column';
     return {
       people: <FilterDropdown id={`${prefix}-performers`} orderKey="performer" toolbar={toolbar} label={t('catalog:shared.performers')} active={!!performer}
-        choices={people.map(({ id, value, count }) => ({ id, count, label: entityDisplayName('performer', value.name, value.id),
+        pending={waiting} error={facetError} withAvatar choices={people.map(({ id, value, count }) => ({ id, count, label: entityDisplayName('performer', value.name, value.id),
           searchTerms: [value.name], selected: performer === id, leading: <ColumnFilterAvatar person={value} /> }))}
         onSelect={name => setPerformer(performer === name ? '' : name)} onClear={performer ? () => setPerformer('') : undefined} />,
       studio: <FilterDropdown id={`${prefix}-studios`} orderKey="studio" toolbar={toolbar} label={t('catalog:shared.label')} active={!!studio}
-        choices={studios.map(({ id, value, count }) => ({ id, count, label: value.name, selected: studio === id,
+        pending={waiting} error={facetError} withAvatar choices={studios.map(({ id, value, count }) => ({ id, count, label: value.name, selected: studio === id,
           leading: <ColumnFilterStudioAvatar studio={value} /> }))}
         onSelect={name => setStudio(studio === name ? '' : name)} onClear={studio ? () => setStudio('') : undefined} />,
       tags: <FilterDropdown id={`${prefix}-tags`} orderKey="tags" toolbar={toolbar} label={t('catalog:shared.tags')} active={!!tag}
-        choices={tagChoices} onSelect={toggleTag} onClear={tag ? () => setTag('') : undefined} />,
+        pending={tagsPending} error={facetError} choices={tagChoices} onSelect={toggleTag} onClear={tag ? () => setTag('') : undefined} />,
     };
   };
   const toolbarFacets = facetMenus(true);
@@ -236,7 +246,6 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
       receipt(t('catalog:javWant.added')); void invalidateWants(); void discoveries.refetch();
     });
   };
-  const waiting = discoveries.isPending;
   const lastPage = Math.max(0, Math.ceil(items.length / listPosition.pageSize) - 1);
   const listPage = Math.min(listPosition.pageIndex, lastPage);
   const start = listPage * listPosition.pageSize;
@@ -244,6 +253,17 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
   useVisibleJavWorks(shown);
   const rectangle = useJavRectangle(!waiting);
   return <section ref={section} aria-label={t('catalog:shared.recommendedForYou')} aria-busy={waiting} className="flex min-w-0 flex-col gap-4">
+    {waiting ? <div className="contents" dangerouslySetInnerHTML={{ __html: javFacetTiersHtml() }} />
+      : people.length || studios.length ? <div data-catalog-tiers="" data-discover-tiers="" className={JAV_CATALOG_TIERS}>
+        {people.length ? <div ref={peopleRow} data-catalog-tier="performers" role="group" aria-label={t('catalog:javReleases.filterByActress')}>
+          {people.slice(0, DISCOVERY_TIER_LIMIT).map(({ id, value, count }) => <PerformerFacet key={id}
+            person={value} count={count} pressed={performer === id} onClick={() => togglePerformer(id)} />)}
+        </div> : null}
+        {studios.length ? <div ref={studioRow} data-catalog-tier="studios" role="group" aria-label={t('catalog:javReleases.filterByLabel')}>
+          {studios.slice(0, DISCOVERY_TIER_LIMIT).map(({ id, value, count }) => <StudioFacet key={id}
+            studio={value} count={count} pressed={studio === id} onClick={() => toggleStudio(id)} />)}
+        </div> : null}
+      </div> : null}
     <FilterGlassRows label={t('catalog:javDiscover.filtersLabel')} topLabel={t('catalog:javDiscover.scopeLabel')} attrs={{ 'data-filter-frame': '', 'data-jav-filter': '', 'data-catalog-frame': '' }}
       busy={waiting} topClassName="gap-1.5 overflow-visible" bottomClassName="min-h-12"
       panes={<span ref={scopePane} data-view-glide="" aria-hidden="true" />}
@@ -252,9 +272,11 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
           {([['external', t('catalog:javDiscover.external')], ['library', t('catalog:javDiscover.library')]] as const).map(([key, label]) =>
             <button key={key} type="button" data-catalog-view={key} data-entity-press=""
               aria-pressed={scope === key} onPointerEnter={scopeGlide.hover} onClick={() => setScope(key)}>{label}</button>)}
-          {tagChoices.length ? <span data-entity-sep="" aria-hidden="true" /> : null}
+          {tagsPending || tagChoices.length ? <span data-entity-sep="" aria-hidden="true" /> : null}
         </div>
-        <FilterTagStrip choices={tagChoices} onSelect={toggleTag} />
+        {tagsPending ? <div data-filter-tag-strip="" data-skeleton={JAV_TAG_STRIP_SKELETON} data-loading="" aria-hidden
+          dangerouslySetInnerHTML={{ __html: javTagPlaceholdersHtml() }} />
+          : <FilterTagStrip choices={tagChoices} onSelect={toggleTag} />}
       </div>} bottom={<>
         <span data-catalog-summary="">
           <span data-catalog-readout="">{waiting ? <span data-skeleton="count" aria-hidden className="relative inline-block h-3.5 w-37.5 rounded-md align-middle skeleton-sheen" /> : t('catalog:countLabel.works', { count: items.length })}</span>
@@ -281,13 +303,17 @@ function Discover({ readOnly, receipt, resource, query, navigate, clearText }: {
           }} />} />
       </>} />
     {waiting && view === 'cards' ? <div role="status" aria-label={t('catalog:javDiscover.loading')} dangerouslySetInnerHTML={{ __html: javContentSkeleton('discover', layout) }} /> : null}
-    {discoveries.error ? <Note tone="error" title={t('catalog:javDiscover.failed')}>{errorMessage(discoveries.error)}</Note> : null}
+    {discoveries.error ? <QueryErrorNote titleKey="catalog:javDiscover.failed" query={discoveries} /> : null}
     {scope === 'external' && metadata?.status === 'running' ? <div data-jav-metadata="" className="min-w-0"><TaskProgress kind={activityKind('jav-discovery-metadata')}
         label={t('catalog:javMetadata.loadingProgress', { completed: metadata.completed, count: metadata.total })} value={metadata.completed} total={metadata.total} /></div> : null}
     {metadata && metadata.status !== 'running' && (metadata.status !== 'complete' || metadata.failed > 0)
       ? <Note tone="neutral" action={<Button variant="secondary" {...busyProps(metadataAction.busy === 'retry')}
         aria-label={t('catalog:javMetadata.retry')} onClick={() => updateMetadata('retry')}>{t('catalog:shared.retryNow')}</Button>}>{jobText(metadata) || t('catalog:javMetadata.progress', { completed: metadata.completed, count: metadata.total })}</Note> : null}
-    {metadataAction.error ? <Note tone="error">{metadataAction.error}</Note> : null}
+    {scope === 'external' && metadataAction.error ? <Note tone="error"
+      title={<span data-copy-key="catalog.javMetadata.requestFailed">{t('catalog:javMetadata.requestFailed')}</span>} action={
+      <Button variant="secondary" size="small" disabled={!!metadataAction.busy}
+        onClick={() => updateMetadata(metadataCommand.current)}>{t('catalog:shared.retryNow')}</Button>
+    }>{metadataAction.error}</Note> : null}
     {!waiting && !discoveries.error && !items.length ? <EmptyState icon={RiCompassLine} title={filtered ? t('catalog:javDiscover.noMatches') : t('catalog:javDiscover.noTasteMatches')}
       actions={<><ButtonLink size="small" href="/taste" variant="secondary">{t('catalog:javDiscover.viewTaste')}</ButtonLink>
         {filtered ? <Button variant="primary" size="small" onClick={clearFilters}>{t('catalog:shared.clearFilters')}</Button>

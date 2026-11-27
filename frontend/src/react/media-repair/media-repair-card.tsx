@@ -14,6 +14,7 @@ import { REPAIR_CARD_TEXT } from '../../management';
 import { useBackgroundJob } from '../background-job';
 import { Fieldset, FieldsetTitle } from '../components/fieldset';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { LibraryLabel } from '../components/library-label';
 import { useOrderedLibraries } from '../components/library-order';
 import { Progress } from '../components/progress';
@@ -99,7 +100,7 @@ export function MediaRepairCard({ toast = () => {} }: { toast?(message: string):
         {outcome?.status === 'complete' && outcome.missing_tool
           ? <Note tone="warning" title={t('cleanup:mediaRepair.missingTool')} action={<Button variant="ghost" size="small" onClick={repair.dismiss}>{t('cleanup:mediaRepair.dismiss')}</Button>}>{missingToolText(outcome)}</Note>
           : null}
-        {choices.isError ? <Note tone="error">{t('cleanup:mediaRepair.librariesUnavailable')}</Note> : null}
+        {choices.isError ? <QueryErrorNote titleKey="cleanup:mediaRepair.librariesUnavailable" query={choices} /> : null}
         {problem ? <Note tone="error">{problem}</Note> : null}
       </div>
     </div>

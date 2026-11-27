@@ -9,6 +9,7 @@ import { textLang } from '../../core/text-lang';
 import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { CloudDownloadDialog, type DownloadPrefill } from '../activity/cloud-download-dialog';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { DetailFailure } from '../components/detail-failure';
 import { IdentityCell, IdentitySeries } from '../components/identity-cell';
 import { SourceAvatar } from '../components/source-avatar';
@@ -153,9 +154,9 @@ function JavIdentity({ item, navigate }: { item: JavDetail; navigate(path: strin
 
 function PreviewVideo({ src }: { src: string }) {
   const frame = useRef<HTMLDivElement>(null);
-  const [failed, setFailed] = useState(false);
+  const [failure, setFailure] = useState('');
   useLayoutEffect(() => {
-    if (failed) return;
+    if (failure) return;
     const node = frame.current!;
     const video = document.createElement('video');
     video.className = 'video-js vjs-big-play-centered';
@@ -163,9 +164,13 @@ function PreviewVideo({ src }: { src: string }) {
     video.setAttribute('playsinline', '');
     video.setAttribute('aria-label', t('catalog:javDetail.sampleVideo'));
     node.append(video);
-    return mountPreviewPlayer(video, { src, type: /\.m3u8(?:\?|$)/i.test(src) ? 'application/x-mpegURL' : 'video/mp4' }, () => setFailed(true));
-  }, [src, failed]);
-  return <div ref={frame} data-jav-video="">{failed ? <Note tone="neutral" action={<Button variant="secondary" onClick={() => setFailed(false)}>{t('catalog:shared.retryNow')}</Button>}>{t('catalog:javDetail.sampleVideoFailed')}</Note> : null}</div>;
+    return mountPreviewPlayer(video, { src, type: /\.m3u8(?:\?|$)/i.test(src) ? 'application/x-mpegURL' : 'video/mp4' }, setFailure);
+  }, [src, failure]);
+  return <div ref={frame} data-jav-video="" className={failure ? 'p-3' : undefined}>{failure ? <Note tone="error" className="w-full max-w-md" title={
+    <span data-copy-key="catalog.javDetail.sampleVideoFailed">{t('catalog:javDetail.sampleVideoFailed')}</span>
+  } action={<Button size="small" onClick={() => setFailure('')}>
+    <span data-copy-key="catalog.shared.retryNow">{t('catalog:shared.retryNow')}</span>
+  </Button>}>{failure}</Note> : null}</div>;
 }
 
 function Reviews({ code, count, released }: { code: string; count: number; released?: string }) {
@@ -223,10 +228,12 @@ function Resources({ item, actions, readOnly }: { item: JavDetail; actions: JavD
   const [loaded, setLoaded] = useState(false);
   return <section data-jav-resources="">
     <Disclosure trailing summary={<><Glyph name="link" />{t('catalog:javDetail.resources')}</>} onOpenChange={value => { setOpened(value); if (value) setLoaded(true) }}>
-    {loaded ? <WantMagnets want={{ id: 0, code: item.code, title: item.title, release_date: item.release_date || null }}
-      queryUrl={`/api/jav/resources?code=${encodeURIComponent(item.code)}`} readOnly={readOnly}
-      downloads={downloads.data} provider={provider} toast={actions.receipt} />
-      : null}
+    {loaded ? <>
+      {downloads.error ? <QueryErrorNote titleKey="manage:cloudDownloadDialog.settingsLoadFailed" query={downloads} /> : null}
+      <WantMagnets want={{ id: 0, code: item.code, title: item.title, release_date: item.release_date || null }}
+        queryUrl={`/api/jav/resources?code=${encodeURIComponent(item.code)}`} readOnly={readOnly}
+        downloads={downloads.data} provider={provider} toast={actions.receipt} />
+    </> : null}
     </Disclosure>
   </section>;
 }

@@ -17,6 +17,8 @@ import { MenuDialog } from './menu-dialog';
 export interface CastPerson extends FaceRef {
   name: string;
   dmm_id?: string;
+  source_name?: string;
+  source_zh_cn?: string | null;
   source_actor_id?: string;
   source_avatar?: boolean;
   source_url?: string;
@@ -29,7 +31,9 @@ export function dmmPerformerName(name: string): string {
 }
 
 export function castPersonName(person: CastPerson): string {
-  return entityDisplayName('performer', person.dmm_id ? dmmPerformerName(person.name) : person.name, person.id);
+  const name = person.dmm_id ? dmmPerformerName(person.name) : person.name;
+  const source = person.source_name ? { ja: dmmPerformerName(person.source_name), zh_cn: person.source_zh_cn ?? null } : undefined;
+  return entityDisplayName('performer', name, person.id, source);
 }
 
 export function discoveryCast(people: CastPerson[] | undefined, names: string): CastPerson[] {
@@ -90,7 +94,7 @@ function CastPeople({ people, assetId, code, subscribe, onFilter, onOpenPerson, 
                 }} />
                 : person.id || !subscribe ? <ButtonLink href={entityPath('performer', person.name, person.id)}
                   variant="ghost" size="small" iconOnly leadingIcon={RiUserLine} aria-label={profile} /> : null}
-            {subscribe ? <ButtonLink href={javSubscriptionPath(person.name)} variant="ghost" size="small" iconOnly leadingIcon={RiRssLine}
+            {subscribe ? <ButtonLink href={javSubscriptionPath(person.source_name || person.name)} variant="ghost" size="small" iconOnly leadingIcon={RiRssLine}
               aria-label={`${t('catalog:entityHero.subscribeNewReleases')} · ${name}`} /> : null}
             {person.source_url ? <ButtonLink data-button-link="" href={person.source_url} target="_blank" rel="noopener noreferrer"
               variant="ghost" size="small" iconOnly leadingIcon={RiExternalLinkLine}

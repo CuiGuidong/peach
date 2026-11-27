@@ -6,6 +6,7 @@ export const NAME_LANGUAGES: readonly NameLanguage[] = ['zh-CN', 'ja', 'en', 'ja
 export interface NameWriting {
   id: number; kind: string; canonical_name: string; zh_cn: string | null; ja: string | null; en?: string | null;
 }
+type NameSpellings = Pick<NameWriting, 'zh_cn' | 'ja' | 'en'>;
 const names = new Map<string, NameWriting>();
 const identities = new Map<string, NameWriting>();
 const spellings = new Map<string, Map<number, NameWriting>>();
@@ -65,7 +66,7 @@ export function entityWriting(kind: string, name: string, id?: number | null): N
   const candidates = spellings.get(key);
   return id ? candidates?.get(id) : candidates?.size === 1 ? candidates.values().next().value : undefined;
 }
-function translated(kind: string, name: string, row: NameWriting | undefined): string {
+function translated(kind: string, name: string, row: NameSpellings | undefined): string {
   if (row?.zh_cn) return row.zh_cn;
   if ((kind !== 'performer' && kind !== 'creator') || !/^[\p{Script=Han}々\s]+$/u.test(name)) return name;
   const written: string[] = [];
@@ -74,7 +75,7 @@ function translated(kind: string, name: string, row: NameWriting | undefined): s
   return written.join('');
 }
 /** 界面语言下的写法；取不到返回空串，由调用方退回原文。 */
-function local(kind: string, name: string, row: NameWriting | undefined): string {
+function local(kind: string, name: string, row: NameSpellings | undefined): string {
   if (locale.startsWith('zh')) return translated(kind, name, row);
   if (locale === 'ja') return row?.ja || name;
   return row?.en || '';
@@ -85,8 +86,10 @@ function paired(first: string, second: string): string {
   // i18n-exempt: 中文界面并列两种写法用的全角括号是标点，不是文案
   return locale.startsWith('zh') ? `${first}（${second}）` : `${first} (${second})`;
 }
-export function entityDisplayName(kind: string, name: string, id?: number | null): string {
-  const row = entityWriting(kind, name, id);
+export function entityDisplayName(kind: string, name: string, id?: number | null, source?: NameSpellings): string {
+  const saved = entityWriting(kind, name, id);
+  const row = saved && source ? { ja: saved.ja || source.ja, zh_cn: saved.zh_cn || source.zh_cn,
+    en: saved.en || source.en || null } : saved || source;
   const original = row?.ja || name;
   if (language === 'ja') return original;
   if (language === 'en') return row?.en || original;

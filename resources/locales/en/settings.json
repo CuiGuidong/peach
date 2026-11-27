@@ -2,8 +2,12 @@
   "aiLibrary": {
     "oauthTitle": "ChatGPT plan",
     "oauthHelp": "Connect from the computer running Peach to use an eligible ChatGPT plan. Authorization opens in your browser.",
-    "oauthLocalAddress": "To authorize a ChatGPT plan, open Peach using its local address (localhost or 127.0.0.1) on the computer running it. You can set up an API key at the current address.",
-    "oauthError": "Could not connect to ChatGPT. Start authorization again.",
+    "oauthHostRequired": "Open AI Connections for this instance on the computer running Peach to connect your ChatGPT plan. The authorization callback must finish on that computer.",
+    "oauthError": "Could not complete ChatGPT authorization. Connect again.",
+    "oauthPermissionRequired": "Connect again and allow ChatGPT plan usage on the authorization page.",
+    "oauthExpired": "Authorization timed out. Connect your ChatGPT plan again.",
+    "oauthNetwork": "Peach could not reach ChatGPT. Check connectivity from the computer running Peach, then connect again.",
+    "retryConnections": "Retry loading connections",
     "oauthDisconnect": "Disconnect",
     "oauthRevocationUnconfirmed": "The local connection was removed. ChatGPT revocation could not be confirmed.",
     "oauthContinue": "Continue to ChatGPT",
@@ -63,6 +67,7 @@
       }
     },
     "usage": {
+      "historyLoadFailed": "Couldn't load Peach usage history",
       "title": "AI usage",
       "accessUnavailable": "Usage is unavailable from this entry point.",
       "loadUnavailable": "Could not load AI usage.",
@@ -91,7 +96,14 @@
       "adminKeyRequired": "Set {{key}} on the Peach server to load organization usage automatically.",
       "accountDisconnected": "Connect DeepSeek to load the account balance automatically.",
       "accountDenied": "The provider denied access to account data. Check the key’s usage permissions.",
-      "accountFailed": "The provider’s account data is temporarily unavailable.",
+      "accountFailed": "Couldn't load the provider’s account data",
+      "accountConnection": "The device running Peach couldn't reach the provider. Check that device's network or proxy.",
+      "accountCredentials": "Peach couldn't read the account credentials. Check the provider configuration on the device running Peach.",
+      "accountEndpoint": "A custom service address is configured. Check your provider dashboard for usage or balance.",
+      "accountIncomplete": "The provider returned incomplete account data. Try again or check the provider dashboard.",
+      "accountStatus": "The provider returned HTTP {{status}}. Try again or check the provider dashboard.",
+      "accountTimeout": "The provider did not return account data in time.",
+      "accountUnsupported": "This service has no supported account data endpoint.",
       "accountCustom": "Peach records its own requests for this connection. View your full account usage with the provider.",
       "accountLoading": "Loading provider account data…",
       "subscriptionHelp": "See ChatGPT’s usage page for shared subscription limits. Peach usage comes from model responses.",
@@ -308,6 +320,7 @@
     "weekly": "Weekly"
   },
   "browserAdd": {
+    "loadFailed": "Couldn't load browser add settings",
     "channel": "Download channel for adding from browser",
     "channelUnavailable": "The enabled download channel is unavailable. Choose a channel and update the token.",
     "copyPairing": "Copy pairing info",
@@ -332,7 +345,10 @@
     "help": "Other devices warn that the certificate isn't trusted the first time they open the HTTPS address. Install and trust Peach's CA certificate on that device to stop the warning. The certificate doesn't include the private key.",
     "iosDevices": "iPhone/iPad",
     "iosSteps": "Scan with the Camera app and allow the profile download in Safari. Install it in Settings → General → VPN & Device Management, then turn on full trust for this certificate in Settings → General → About → Certificate Trust Settings.",
-    "qrHelp": "The QR code refreshes every 10 minutes while this page is open. If Android can't open the .local address, open this page using the LAN IP and scan again.",
+    "qrHelp": "The QR code refreshes before it expires. If Android can't open the .local address, open this page using the LAN IP and scan again.",
+    "qrRefreshFailed": "Could not refresh the certificate download QR code",
+    "qrRetry": "Get a new QR code",
+    "qrRefreshing": "Refreshing the QR code…",
     "qrLabel": "Scan with your phone to download Peach's CA certificate",
     "title": "Trust the HTTPS certificate on other devices",
     "validUntil": "Valid until",
@@ -553,6 +569,7 @@
     "switchToSmall": "Switch to small tiles"
   },
   "deviceSessions": {
+    "loadFailed": "Couldn't load signed-in devices",
     "daysAgo_one": "{{count, number}} day ago",
     "daysAgo_other": "{{count, number}} days ago",
     "empty": "No browser has signed in with the access password yet.",
@@ -844,6 +861,7 @@
     "spot3": "Glow 3"
   },
   "indexers": {
+    "loadFailed": "Couldn't load resource search indexers",
     "add": "Add indexer",
     "apiKeyLabel": "Indexer {{index}} API key",
     "apiKeySaved": "API key saved",
@@ -1074,6 +1092,15 @@
     "title": "Actress names",
     "unavailable": "Couldn't read the name language from the database. Reopen preferences."
   },
+  "sourceTags": {
+    "help": "Peach curated combines synonyms and standardizes tags. Source original keeps the site's wording for future scraping, the online catalog, Discover, New releases, and external work details.",
+    "original": "Source original",
+    "peach": "Peach curated",
+    "saveFailed": "Save scraped tag setting",
+    "saved": "Scraped tag setting saved",
+    "title": "Scraped tags",
+    "unavailable": "Couldn't read the scraped tag setting. Reopen preferences."
+  },
   "photoLayout": {
     "fixed": "Fixed ratio",
     "masonry": "Masonry"
@@ -1289,7 +1316,7 @@
     "deferReasonCount": "{{reason}} ({{count, number}})",
     "deferReasons": {
       "mount": "directory unreadable",
-      "cooldown": "metadata source cooling down",
+      "cooldown": "metadata source temporarily unavailable",
       "cost": "metered source not confirmed",
       "retry": "waiting to retry automatically"
     },
@@ -1341,6 +1368,7 @@
     "waitingCount_other": "{{count, number}} repairs need your confirmation"
   },
   "retention": {
+    "loadFailed": "Couldn't load retention settings",
     "backups": "Automatic database backups",
     "backupsHelp": "Keeps this many recent pre-write backups; anything from the last 24 hours stays.",
     "copies_one": "{{count, number}} copy",

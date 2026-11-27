@@ -10,6 +10,7 @@
  * Escape 先关下拉再清字、空输入回车用占位里那个推荐词。 */
 import { useLayoutEffect, useReducer, useRef, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
+import { VisuallyHidden } from 'react-aria-components';
 import { ButtonLink } from '@/components/base/buttons/button';
 import { avatarInner } from '@peach/card-art';
 
@@ -168,6 +169,7 @@ export function SearchPage(props: SearchProps) {
   });
 
   const model = modelOf(s);
+  const highlighted = model.options[s.active];
   const limit = props.historyLimit;
   const option = (entry: SearchOption): ReactNode => (
     <Row key={`${entry.type}:${entry.value}:${entry.index}`} entry={entry} active={entry.index === s.active}
@@ -220,6 +222,9 @@ export function SearchPage(props: SearchProps) {
       </Note> : null}
       {model.recent ? section(model.recent) : null}
       {columns(model.left, model.right)}
+      <VisuallyHidden role="status" aria-atomic="true">
+        {highlighted?.type === 'more' ? tr('catalog:searchSuggest.viewAllVideos', { count: highlighted.total }) : highlighted?.value}
+      </VisuallyHidden>
       {model.empty ? <p data-search-empty="" role="status">{tr('catalog:searchSuggest.noResults')}</p> : null}
     </div>
   );
@@ -449,7 +454,8 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
   const move = (step: number) => {
     const list = options();
     if (!list.length) return false;
-    s.active = (s.active + step + list.length) % list.length;
+    const start = s.active < 0 ? (step > 0 ? -1 : 0) : s.active;
+    s.active = (start + step + list.length) % list.length;
     s.reveal = true;
     bump();
     return true;

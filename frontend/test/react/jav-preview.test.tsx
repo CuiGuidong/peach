@@ -6,7 +6,7 @@ import { javDetailKey, type JavDetail } from '../../src/react/jav-detail/jav-det
 import { queryClient } from '../../src/react/query';
 import { buttonNamed, click, fetchMock, mountRoot, sentBody, settle } from './render';
 
-const player = vi.hoisted(() => vi.fn((_video: HTMLVideoElement, _source: { src: string; type: string }, _failed: () => void) => vi.fn()));
+const player = vi.hoisted(() => vi.fn((_video: HTMLVideoElement, _source: { src: string; type: string }, _failed: (reason: string) => void) => vi.fn()));
 vi.mock('../../src/player', () => ({ mountPreviewPlayer: player }));
 notifyManager.setScheduler(notify => notify());
 afterEach(() => { queryClient.clear(); player.mockClear() });
@@ -45,15 +45,16 @@ it('预告失败时销毁播放器，重试重新挂载，切回图片清理实�
   try {
     await click(mounted.host.querySelector('[data-jav-preview-toggle]'));
     const first = player.mock.results[0]!.value;
-    await act(async () => player.mock.calls[0]![2]());
+    await act(async () => player.mock.calls[0]![2]('播放时未能从来源载入视频'));
     await settle();
     expect(first).toHaveBeenCalledOnce();
     expect(mounted.host.querySelector('[data-jav-video] video')).toBeNull();
-    const failure = mounted.host.querySelector('[data-jav-video] [role="note"]')!;
+    const failure = mounted.host.querySelector('[data-jav-video] [role="alert"]')!;
+    expect(failure.textContent).toContain('播放时未能从来源载入视频');
     expect(failure.textContent).toContain('视频预览加载失败');
     await click(buttonNamed('立即重试', failure));
     expect(player).toHaveBeenCalledTimes(2);
-    expect(mounted.host.querySelector('[data-jav-video] [role="note"]')).toBeNull();
+    expect(mounted.host.querySelector('[data-jav-video] [role="alert"]')).toBeNull();
     const second = player.mock.results[1]!.value;
     await click(mounted.host.querySelector('[data-jav-preview-toggle]'));
     expect(second).toHaveBeenCalledOnce();
@@ -109,7 +110,7 @@ it('没有封面而有样张时仍停在封面那格，写出取图记录的原�
   const { host, unmount } = await mountDetail({ ...missingCover, preview_count: 2,
     cover_message: '所有渠道都没有候选', cover_message_code: 'errors.javCoverFetch.noCandidates', cover_message_params: {} });
   try {
-    expect(host.querySelector('[data-jav-picture-gap] p')?.textContent).toBe('所有渠道都没有候选');
+    expect(host.querySelector('[data-jav-picture-gap] p')?.textContent).toBe('没有找到可用的封面');
     const gap = host.querySelector('[data-thumbnail-gap]');
     expect(gap?.getAttribute('aria-label')).toBe('封面无法显示');
     expect(gap?.textContent).toBe('');

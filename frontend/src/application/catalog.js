@@ -15,6 +15,7 @@ import { cardLayout, homeLayoutActive, javActive, layoutState, setHomeLayout, se
 import { selectCardRectangle, selectionState, setSelectMode, toggleSelection } from './selection.js';
 import { javDisplayName, javTitleHtml } from '../core/jav-title';
 import { tagLabel } from '../core/tags';
+import { errorMessage } from '../api';
 import { PORTRAIT } from '../core/stored-values';
 import { loadStage, stageApi } from '../react/application-residents';
 import { currentBarsContext, entityState, openEntity, pushEntityPage, routeEntityPage, sortKeys } from './entity.js';
@@ -296,17 +297,17 @@ export function tierStudio(x){
 
 export function renderBarsLoading(filterState,requestSeq){
   catalogState.barsPendingSeq=requestSeq;
-  if(catalogState.catalogFilterProps?.tiers){paintCatalogFilter({tiersPending:true,state:filterState.state||''});return}
+  if(catalogState.catalogFilterProps?.tiers){paintCatalogFilter({tiersPending:true,tiersError:'',state:filterState.state||''});return}
   catalogState.barsRendered='';
-  paintCatalogFilter({tiers:null,tiersPending:true,state:filterState.state||''});
+  paintCatalogFilter({tiers:null,tiersPending:true,tiersError:'',state:filterState.state||''});
 }
 
 /* 两排头像只在真有一趟取数在路上时挂忙态：这一趟作废（换页把序号推走了）或失败，而后来的那一趟
    没有接着取，忙态就由它撤掉；不取头像的页面（视频墙、作品页）从不挂。 */
-function releaseBarsPending(requestSeq){
+function releaseBarsPending(requestSeq,error){
   if(catalogState.barsPendingSeq!==requestSeq)return;
   catalogState.barsPendingSeq=0;
-  paintCatalogFilter({tiersPending:false});
+  paintCatalogFilter({tiersPending:false,tiersError:error?errorMessage(error):''});
 }
 
 export async function buildBars(){
@@ -324,7 +325,7 @@ export async function buildBars(){
   // 两个聚合查询互不依赖。冷启动各需约 1 秒，串行会让手机首屏白等；
   // 并行取回后再一次性绘制顶部与抽屉。
   let bars;
-  try{bars=await getBarsData(context)}catch(error){releaseBarsPending(requestSeq);throw error}
+  try{bars=await getBarsData(context)}catch(error){releaseBarsPending(requestSeq,error);throw error}
   const [facetData,tops]=bars;
   if(requestSeq!==catalogState.barsRequestSeq){releaseBarsPending(requestSeq);return}
   /* 口径和数据都和上一次一样时，画出来的是同一串 HTML。照样赋一次 innerHTML 只换来

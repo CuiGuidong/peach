@@ -135,6 +135,7 @@ export function OrganizeCard(
   });
 
   const running = job.running || job.start.isPending;
+  const statusError = job.query.error;
   const previewMatches = JSON.stringify(preview.variables) === JSON.stringify(request());
   const plan = previewMatches ? preview.data : undefined;
   const changes = Number(plan?.counts?.change || 0);
@@ -179,10 +180,17 @@ export function OrganizeCard(
 
   /* 这张卡上的结论只有一句：跑着的那一趟、这次跟完的那一趟、刚出的预览，按新旧取最新。 */
   let state = null;
-  const applicable = !!changes && !running && !job.outcome;
+  const applicable = !!changes && !running && !job.outcome && !statusError;
   const current = job.job;
   const outcome = job.outcome;
-  if (current?.status === 'running') {
+  if (statusError) {
+    state = <Note tone="error" title={
+      <span data-copy-key="cleanup.organize.statusUnavailable">{t('cleanup:organize.statusUnavailable')}</span>
+    } action={
+      <Button size="small" variant="secondary" disabled={job.query.isFetching}
+        onClick={() => void job.query.refetch()}>{t('cleanup:shared.retry')}</Button>
+    }>{errorMessage(statusError)}</Note>;
+  } else if (current?.status === 'running') {
     const line = jobText(current) || stageText(current) || t('cleanup:organize.running');
     state = <TaskProgress embedded kind={activityKind('organize', current.stage_code)} label={line} value={Math.min(current.checked || 0, current.total || 0)} total={current.total} />;
   } else if (outcome?.status === 'failed') {
@@ -206,9 +214,9 @@ export function OrganizeCard(
       footer={
         <>
           {data?.last_batch
-            ? <Button variant="secondary" {...busyProps(running)} onClick={runRollback}>{t('cleanup:organize.rollbackLastBatch')}</Button>
+            ? <Button variant="secondary" disabled={Boolean(statusError)} {...busyProps(running)} onClick={runRollback}>{t('cleanup:organize.rollbackLastBatch')}</Button>
             : null}
-          <Button variant={applicable ? 'secondary' : 'primary'} disabled={!locations.length || running}
+          <Button variant={applicable ? 'secondary' : 'primary'} disabled={!locations.length || running || Boolean(statusError)}
             {...busyProps(preview.isPending)} onClick={runPreview}>{t('cleanup:organize.preview')}</Button>
           {applicable ? <Button variant="primary" onClick={runApply}>{t('cleanup:organize.apply')}</Button> : null}
         </>
@@ -217,9 +225,6 @@ export function OrganizeCard(
       <p className="text-body-regular text-text-secondary">
         {ORGANIZE_TEXT}
       </p>
-      {organize.isError
-        ? <div className="mt-3"><Note tone="error" title={t('cleanup:organize.settingsLoadFailed')}>{errorMessage(organize.error)}</Note></div>
-        : null}
       <div className="mt-3 flex flex-col gap-3">
         <div data-organize-scope className="flex min-w-0 flex-wrap items-start gap-2">
         {locations.length

@@ -12,7 +12,7 @@ import { DOWNLOADS_URL } from '../../src/react/activity/downloads-panel';
 import { ErrorExcerpt } from '../../src/react/activity/error-excerpt';
 import { AnimatedNumber } from '../../src/react/components/animated-number';
 import {
-  elapsedText, errorHeadline, followupDetail, hasResultProblems, isRoutine, prefetchTasks, progressLabel, progressText, summaryItems, summaryText, TASKS_URL,
+  elapsedText, errorHeadline, followupDetail, hasResultProblems, isRoutine, prefetchActivity, prefetchTasks, progressLabel, progressText, summaryItems, summaryText, TASKS_URL,
 } from '../../src/react/activity/tasks';
 import type { ActivityData, TaskResourcesPayload, TaskRunPayload } from '../../src/react/activity/tasks';
 import type { DownloadsSnapshot } from '../../src/react/bundle';
@@ -204,6 +204,27 @@ it('首屏用 prefetch 落进缓存的那一份画出来，挂载时不再请求
 const issue = (overrides: Partial<BackgroundIssue> = {}): BackgroundIssue => ({
   key: 'tunnel', title: '公网入口连接失败', href: '/settings/network#tunnel', link_label: '打开公网入口设置',
   since: null, noticed_at: '2026-10-22T07:00:00Z', retry: null, retry_available: false, ...overrides,
+});
+
+it('任务列表尚未返回时已并行读取可选区块，主列表失败后仍显示后台问题', async () => {
+  const main = pending<null>();
+  const fetcher = vi.fn(async (url: string) => {
+    if (url === BACKGROUND_ISSUES_URL) return { ok: true, status: 200, json: async () => ({ issues: [issue()] }) };
+    if (url.startsWith(DOWNLOADS_URL)) return { ok: true, status: 200, json: async () => DOWNLOADS_IDLE };
+    await main.answer;
+    return { ok: false, status: 500, json: async () => ({ message: '任务记录读取失败' }) };
+  });
+  vi.stubGlobal('fetch', fetcher);
+  const initial = prefetchActivity(new AbortController().signal).catch(() => {});
+  expect(fetcher.mock.calls.map(([url]) => url)).toEqual(expect.arrayContaining([
+    TASKS_URL, BACKGROUND_ISSUES_URL, `${DOWNLOADS_URL}?limit=20&page=1`,
+  ]));
+  await main.release(null);
+  await initial;
+  const host = await mount(page());
+  expect(sections(host)).toEqual(['需要处理']);
+  expect(host.textContent).toContain('读取任务中心失败');
+  expect(host.querySelector('#cloudDownloads')).toBeNull();
 });
 
 it('后台问题排在最前，每项只写是什么、从什么时候起和写明去处的链接，能原地修的另给立即重试', async () => {
@@ -562,21 +583,29 @@ it('任务控制请求等待时保持按钮焦点并阻止重复提交', async (
 
 it('任务控制失败保留原状态和原因，可以在原位重试', async () => {
   let attempts = 0;
+  let running = true;
   const current = run({ control: { state: 'running', actions: ['pause', 'cancel'] } });
   stubFetch(async (_input, init) => {
     if (init?.method === 'POST') {
       attempts += 1;
       return { ok: false, status: 409, json: async () => ({ message: '任务已变化，请刷新后重试' }) };
     }
-    return { ok: true, status: 200, json: async () => payload({ running: [current] }) };
+    return { ok: true, status: 200, json: async () => payload(running
+      ? { running: [current] } : { finished: [run({ status: 'succeeded' })] }) };
   });
   await prefetchTasks(new AbortController().signal);
   const host = await mount(page());
   await click(controlButton('暂停', host));
-  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback] [role="alert"]')?.textContent).toContain('任务已变化'));
+  const inlineError = () => host.querySelector('[data-task-controls] [role="alert"]');
+  await vi.waitFor(() => expect(inlineError()?.textContent).toContain('任务已变化'));
+  expect(host.querySelector('[data-task-control-feedback]')).toBeNull();
   expect(controlButton('继续', host)).toBeNull();
   await click(controlButton('暂停', host));
   expect(attempts).toBe(2);
+  running = false;
+  await act(async () => { await queryClient.invalidateQueries({ queryKey: ['tasks'] }) });
+  await vi.waitFor(() => expect(host.querySelector('[data-task-control-feedback] [role="alert"]')?.textContent).toContain('任务已变化'));
+  expect(inlineError()).toBeNull();
 });
 
 it('后继任务使用自身任务号控制，服务端未提供能力的父任务没有控制按钮', async () => {
@@ -1026,7 +1055,9 @@ it('最近完成切换每页数量后从第一页读取所选条数', async () =
 
 it('翻页失败保留上一页，重试成功后显示所选页', async () => {
   let failed = true;
+  const calls: string[] = [];
   stubFetch(async (input) => {
+    calls.push(input);
     const current = input.includes('page=2') ? 2 : 1;
     if (current === 2 && failed) return { ok: false, status: 500,
       json: async () => ({ message: '数据库当前只能浏览' }) };
@@ -1040,8 +1071,10 @@ it('翻页失败保留上一页，重试成功后显示所选页', async () => {
   await vi.waitFor(() => expect(host.textContent).toContain('数据库当前只能浏览'));
   expect(shownIds(host)).toEqual([9]);
   failed = false;
-  await click(buttonNamed('下一页', host));
+  await click(buttonNamed('重试', host.querySelector('[role=alert]')!));
   await vi.waitFor(() => expect(shownIds(host)).toEqual([7]));
+  expect(calls.at(-1)).toContain('page=2');
+  expect(host.querySelector('[role=alert]')).toBeNull();
 });
 
 it('时长与摘要的折算各自成立', () => {

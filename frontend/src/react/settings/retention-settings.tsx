@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { SettingsRow } from '@/components/application/settings/settings-rows';
 import { Select, SelectItem } from '@/components/base/select/select';
 
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiGet, apiSend } from '../../api';
+import { QueryErrorNote } from '../components/query-error-note';
 import { queryClient } from '../query';
 import { ErrorText, Rows, Section, Stack } from './section';
 import { useAction } from './use-action';
@@ -26,7 +27,6 @@ export function RetentionSettings({ receipt }: { receipt(message: string): void 
   const blocked = !query.data || Boolean(action.busy);
   const choose = (patch: Partial<Retention>) => void action.run('save', (signal) => apiSend<Retention>(URL, patch, 'POST', signal),
     (saved) => { queryClient.setQueryData(KEY, saved); receipt(t('settings:shared.settingsSaved')); });
-  const error = action.error || (query.error ? errorMessage(query.error) : '');
   return (
     <Section title={t('settings:retention.title')}>
       <Rows>
@@ -47,7 +47,8 @@ export function RetentionSettings({ receipt }: { receipt(message: string): void 
           </div>
         </SettingsRow>
       </Rows>
-      {error ? <Stack divided><ErrorText>{error}</ErrorText></Stack> : null}
+      {query.error ? <Stack divided><QueryErrorNote titleKey="settings:retention.loadFailed" query={query} /></Stack> : null}
+      {action.error ? <Stack divided><ErrorText>{action.error}</ErrorText></Stack> : null}
     </Section>
   );
 }

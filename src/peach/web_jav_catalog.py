@@ -1,5 +1,6 @@
 """DMM 在线作品目录。查找不需要订阅和馆藏作品。"""
 from datetime import date
+import logging
 import re
 import secrets
 import time
@@ -8,9 +9,11 @@ from urllib.parse import urlencode
 from httpx import TransportError
 from itsdangerous import BadData, URLSafeTimedSerializer
 
-from . import feeds, web_catalog, web_feeds
+from . import entities, feeds, seed_catalog, web_catalog, web_feeds
+from .catalog_rules import canonical_tag_name
 from .genre_decisions import load_genre_decisions
 from .genre_taxonomy import resolve_genre
+from .profiles import read_settings
 from .sources.base import Session
 from .sources.dmm import ACTRESS_ID, CATALOG_MAX_OFFSET, DmmSource, PRE_ORDER, release_date
 from .user_messages import UserValueError
@@ -18,6 +21,7 @@ from .user_messages import UserValueError
 
 PAGE_SIZE = 24
 MAX_PAGES = CATALOG_MAX_OFFSET // PAGE_SIZE + 1
+_LOG = logging.getLogger(__name__)
 _COVER = URLSafeTimedSerializer(secrets.token_urlsafe(32), salt="peach-dmm-catalog-cover")
 _DMM_COVER = re.compile(
     r"https://(?:awsimgsrc|pics)\.dmm\.co\.jp/(?:pics_dig/|dig/)?"
@@ -59,14 +63,36 @@ def _facet(value: object) -> dict[str, str]:
     return {}
 
 
-def _genres(detail: dict, decisions: dict) -> list[dict]:
+def _genres(connection, detail: dict, decisions: dict, names: dict[str, str | None]) -> list[dict]:
     tags = []
     for value in detail.get("genres") or []:
         if genre := _facet(value):
             mapped = resolve_genre(genre["name"], decisions)
             if mapped is not None:
-                tags.append({**genre, "name": mapped or genre["name"], "source_name": genre["name"]})
+                name = canonical_tag_name(mapped or genre["name"])
+                if name not in names:
+                    entity = entities.resolve_entity(connection, "tag", name)
+                    canonical = entity["canonical_name"] if entity is not None else name
+                    visible = connection.execute(
+                        "SELECT " + web_catalog.tag_not_hidden("NULL", "?"),
+                        (entities.normalize_entity_name(canonical),),
+                    ).fetchone()[0]
+                    names[name] = canonical if visible else None
+                if label := names[name]:
+                    tags.append({**genre, "name": label, "source_name": genre["name"]})
     return tags
+
+
+def _studios(contract, connection, rows) -> dict[str, dict]:
+    makers = {item["id"]: item["name"] for row in rows if (item := _facet(row.get("maker")))}
+    studios = {}
+    for number, written in makers.items():
+        entity = entities.resolve_entity(connection, "studio", written)
+        name = entity["canonical_name"] if entity is not None else written
+        studios[number] = {"id": number, "name": name, "source_name": written,
+                           "entity_id": entity["id"] if entity is not None else None,
+                           "has_logo": contract.has_logo(name), "logo_version": contract.logo_version(name)}
+    return studios
 
 
 def _portraits(contract, numbers: set[str]) -> dict[str, dict]:
@@ -80,6 +106,29 @@ def _portraits(contract, numbers: set[str]) -> dict[str, dict]:
             f" AND r.external_id IN ({marks}) GROUP BY r.external_id HAVING count(DISTINCT e.id)=1", tuple(numbers))
         return {number: web_catalog.entity_ref(contract, "performer", entity_id, name)
                 for number, entity_id, name in rows}
+
+
+def _reviewed_names(state_root) -> dict[tuple[str, str], str]:
+    names = {}
+    for (provider, kind, number), facts in seed_catalog.indexes()[0].items():
+        if (provider, kind) == ("dmm", "performer"):
+            for fact in facts:
+                if fact.claim.language == "zh-CN":
+                    names[number, fact.claim.original] = fact.claim.value
+    try:
+        pack = seed_catalog.load(state_root / "dmm-performer-names.json")
+    except FileNotFoundError:
+        return names
+    except (OSError, ValueError) as error:
+        _LOG.warning("Could not load reviewed DMM performer names: %s", error)
+        return names
+    for fact in pack.facts.values():
+        claim = fact.claim
+        if fact.preferred and claim.field == "chinese-name" and claim.language == "zh-CN":
+            for ref in claim.refs:
+                if (ref.provider, ref.kind) == ("dmm", "performer"):
+                    names[ref.id, claim.original] = claim.value
+    return names
 
 
 def q_jav_catalog(contract, args):
@@ -105,8 +154,16 @@ def q_jav_catalog(contract, args):
         page = min(MAX_PAGES, max(1, int(args.get("page") or 1)))
     except (ValueError, TypeError):
         page = 1
-    return contract.cached_lru(("jav-catalog", name, number, day, page, maker, genres),
-                               lambda: _catalog(contract, name, number, day, page, maker, genres), ttl=5 * 60)
+    catalog = contract.cached_lru(("jav-catalog", name, number, day, page, maker, genres),
+                                  lambda: _catalog(contract, name, number, day, page, maker, genres), ttl=5 * 60)
+    with contract.database.read_connection() as connection:
+        original_tags = read_settings(connection).get("sourceTagsOriginal") is True
+    if not original_tags:
+        return catalog
+    return {**catalog, "items": [
+        {**row, "tags": [{**tag, "name": tag["source_name"]} for tag in row["tags"]]}
+        for row in catalog["items"]
+    ]}
 
 
 def _catalog_actor_options(contract, name: str) -> tuple[list[dict], dict | None]:
@@ -143,16 +200,19 @@ def _catalog(contract, name: str, number: str, day: str, page: int, maker: str, 
     except (OSError, TransportError) as error:
         raise UserValueError("api.feeds.catalogUnavailable", {"error": str(error)}) from error
     casts = [_cast(row) for row in rows]
-    portraits = _portraits(contract, {number for cast in casts for number in cast})
+    portraits = _portraits(contract, {number for cast in casts for number in cast} | {option["id"] for option in options})
+    reviewed = _reviewed_names(contract.follow_state_root)
+
+    def performer(number, written):
+        return {"name": written, **portraits.get(number, {}), "source_name": written,
+                "source_zh_cn": reviewed.get((number, written.strip()))}
+
     avatars = {option["id"]: option["avatar_url"] for option in options if option["avatar_url"]}
-    makers = {item["id"]: item["name"] for row in rows if (item := _facet(row.get("maker")))}
     with contract.database.read_connection() as connection:
         decisions = load_genre_decisions(connection)
-        studios = {}
-        for number, written in makers.items():
-            studio = web_feeds._studio_name(connection, written)
-            studios[number] = {"id": number, "name": studio, "source_name": written,
-                               "has_logo": contract.has_logo(studio), "logo_version": contract.logo_version(studio)}
+        tag_names = {}
+        tags_by_work = {cid: _genres(connection, detail, decisions, tag_names) for cid, detail in details.items()}
+        studios = _studios(contract, connection, rows)
     items = []
     for row, cast in zip(rows, casts):
         cid = str(row["id"])
@@ -163,13 +223,18 @@ def _catalog(contract, name: str, number: str, day: str, page: int, maker: str, 
             "title": str(row.get("title") or ""), "date": release_date(row.get("deliveryStartAt")),
             "pre_order": row.get("releaseStatus") == PRE_ORDER, "url": source.content_url(cid),
             "cover_url": _cover_url(row), "studio": studios.get(_facet(row.get("maker")).get("id")),
-            "tags": _genres(detail, decisions),
+            "tags": tags_by_work.get(cid, []),
             "duration": duration if type(duration) is int and duration > 0 else None,
             "people": [{
-                **portraits.get(number, {}), "name": written, "dmm_id": number,
+                **performer(number, written), "dmm_id": number,
                 "source_url": feeds.dmm_actress_url(number),
                 **({"source_avatar_url": avatars[number]} if number in avatars else {}),
             } for number, written in cast.items()],
         })
-    return {"total": total, "page": page, "pages": pages, "size": PAGE_SIZE, "performer_options": options,
+    performer_options = []
+    for option in options:
+        number = option["id"]
+        display = performer(number, option["name"])
+        performer_options.append({**option, **display, "id": number, "entity_id": display.get("id")})
+    return {"total": total, "page": page, "pages": pages, "size": PAGE_SIZE, "performer_options": performer_options,
             "selected_actress": selected, "items": items}

@@ -48,11 +48,11 @@ let cleanup: (() => void) | null = null;
 const mark = (svg: string, attribute: string) => attribute ? svg.replace('<svg', `<svg ${attribute}=""`) : svg;
 
 export function closePlayerMenu(): void {
+  if (cleanup) { cleanup(); cleanup = null }
   const menu = document.getElementById('playerMenu');
   if (menu?.matches(':popover-open')) menu.hidePopover();
   if (menu && menu.parentElement !== document.body) document.body.append(menu);
   if (menu) dismissMenu(menu, () => { menu.innerHTML = '' });
-  if (cleanup) { cleanup(); cleanup = null }
 }
 
 async function copyTextToClipboard(text: string): Promise<boolean> {
@@ -106,6 +106,12 @@ function playerMenuItems(player: VjsPlayer): MenuItem[] {
 export function openPlayerMenu(player: VjsPlayer, x: number, y: number): void {
   const menu = menuElement();
   closePlayerMenu();
+  const priorFocus = document.activeElement;
+  const restoreFocus = () => {
+    const target = priorFocus instanceof HTMLElement && priorFocus !== document.body && priorFocus.isConnected
+      ? priorFocus : player.el();
+    target.focus({ preventScroll: true });
+  };
   /* 舞台是模态 dialog，在顶层：菜单要进它里面才盖得住，否则落在遮罩底下。 */
   const stage = playerHost().stage();
   if (stage instanceof HTMLDialogElement && stage.open) stage.append(menu);
@@ -113,7 +119,7 @@ export function openPlayerMenu(player: VjsPlayer, x: number, y: number): void {
   const items = playerMenuItems(player);
   menu.innerHTML = items.map((item, index) => {
     const checkable = item.checked !== undefined;
-    return `<button type="button" role="${checkable ? 'menuitemcheckbox' : 'menuitem'}"${checkable ? ` aria-checked="${item.checked}"` : ''} data-player-menu="${index}">${
+    return `<button type="button" tabindex="-1" role="${checkable ? 'menuitemcheckbox' : 'menuitem'}"${checkable ? ` aria-checked="${item.checked}"` : ''} data-player-menu="${index}">${
       mark(icon(item.icon), item.fill ? 'data-player-menu-fill' : '')}<span>${esc(item.label)}</span>${checkable ? mark(icon('check'), 'data-player-menu-check') : ''}</button>`;
   }).join('');
   presentMenu(menu); menu.showPopover();
@@ -123,27 +129,38 @@ export function openPlayerMenu(player: VjsPlayer, x: number, y: number): void {
   const buttons = [...menu.querySelectorAll<HTMLElement>('[data-player-menu]')];
   buttons.forEach((button) => {
     button.onclick = (event) => {
-      event.stopPropagation(); const item = items[Number(button.dataset.playerMenu)]; closePlayerMenu(); item?.run();
+      event.stopPropagation();
+      const item = items[Number(button.dataset.playerMenu)];
+      closePlayerMenu();
+      restoreFocus();
+      item?.run();
     };
   });
   const onDown = (event: Event) => { if (!menu.contains(event.target as Node)) closePlayerMenu() };
   const onKey = (event: KeyboardEvent) => {
     /* 这一下 Escape 只关菜单：`preventDefault` 同时拦住舞台 dialog 的 `cancel`，舞台留着。 */
-    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closePlayerMenu(); return }
-    if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
-    event.preventDefault();
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); closePlayerMenu(); restoreFocus(); return }
     const current = buttons.indexOf(document.activeElement as HTMLElement);
-    buttons[(current + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus();
+    const next = event.key === 'ArrowDown' ? (current + 1) % buttons.length
+      : event.key === 'ArrowUp' ? (current < 0 ? buttons.length - 1 : (current - 1 + buttons.length) % buttons.length)
+      : event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : -1;
+    if (next < 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    buttons[next]?.focus();
+  };
+  const onFocusOut = (event: FocusEvent) => {
+    if (!(event.relatedTarget instanceof Node) || !menu.contains(event.relatedTarget)) closePlayerMenu();
   };
   const onScroll = (event: Event) => { if (scrollMovesAnchor(event, player.el())) closePlayerMenu() };
-  setTimeout(() => {
-    document.addEventListener('pointerdown', onDown, true);
-    document.addEventListener('keydown', onKey, true);
-    window.addEventListener('scroll', onScroll, { capture: true, passive: true });
-  }, 0);
+  document.addEventListener('pointerdown', onDown, true);
+  menu.addEventListener('keydown', onKey);
+  menu.addEventListener('focusout', onFocusOut);
+  window.addEventListener('scroll', onScroll, { capture: true, passive: true });
   cleanup = () => {
     document.removeEventListener('pointerdown', onDown, true);
-    document.removeEventListener('keydown', onKey, true);
+    menu.removeEventListener('keydown', onKey);
+    menu.removeEventListener('focusout', onFocusOut);
     window.removeEventListener('scroll', onScroll, true);
   };
   buttons[0]?.focus();

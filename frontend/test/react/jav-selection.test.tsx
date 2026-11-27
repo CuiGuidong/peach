@@ -50,7 +50,7 @@ it('全选本页后加入想要先确认；失败时弹窗留着写原因、保�
   const { host } = await mountRoot(view(works, receipt));
   await start(); await click(buttonNamed('全选本页'));
   await click(buttonNamed('加入想要')); await settle();
-  expect(dialog()?.textContent).toContain('将选中的 3 部加入想要。完成后可在回执里撤销。');
+  expect(dialog()?.textContent).toContain('将选中的 3 部加入想要。完成后可在结果提示中撤销。');
   await click(accept()); await settle();
   expect(dialog()?.open).toBe(true);
   expect(dialog()?.textContent).toContain('已加入 1 部；ABC-002 未完成');

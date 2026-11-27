@@ -7,7 +7,7 @@ import { coverImage, javArtwork, remoteCoverUrl } from '@peach/card-art';
 import { esc } from '@peach/legacy/core';
 import { useSyncExternalStore } from 'react';
 import { navigationBackground, peachHistory, shellNavigate } from '@peach/history';
-import { RELEASE_SORTS, type DiscoveryDirection, type DiscoverySort, type ReleaseSort } from './discovery-sorts';
+import { discoveryOrder, RELEASE_SORTS, type DiscoveryDirection, type DiscoverySort, type ReleaseSort } from './discovery-sorts';
 import { t } from '../../i18n';
 import { rememberedPageSize } from '../components/page-size-preferences';
 import { columnValueSelected, mapColumnSelection, readColumnFilters, writeColumnFilters, type ColumnFilterKey, type ColumnSelection } from '../../column-filters';
@@ -33,7 +33,8 @@ export interface Discovery extends CoverItem {
   studio: string; link: string; cover_url: string; has_cover: boolean; wanted: boolean;
   online_cover_url?: string;
   studio_ref?: Omit<ReleaseFacetStudio, 'count'>;
-  performer_refs?: (FaceRef & { name: string; source_actor_id?: string; source_avatar?: boolean; source_url?: string; dmm_id?: string })[];
+  performer_refs?: (FaceRef & { name: string; source_actor_id?: string; source_avatar?: boolean; source_url?: string; dmm_id?: string;
+    source_name?: string; source_zh_cn?: string | null })[];
   asset_id?: number | null; performer_total?: number; tags?: string[]; score?: number;
   /** 口味理由，服务端按中文渲染好的原句；`reason_codes`、`reason_params` 与它一一对应。 */
   reasons?: string[]; reason_codes?: string[]; reason_params?: Record<string, unknown>[];
@@ -239,7 +240,10 @@ export async function prefetchJav(tab: string, signal: AbortSignal) {
       staleTime: 30_000, revalidateIfStale: true }); return;
   }
   if (tab === 'discover') {
-    await queryClient.ensureQueryData({ queryKey: discoveryKey('external'), queryFn: () => fetchDiscoveries('external', signal),
+    const params = new URLSearchParams(location.search);
+    const scope = params.get('scope') === 'library' ? 'library' : 'external';
+    const order = discoveryOrder(params);
+    await queryClient.ensureQueryData({ queryKey: discoveryKey(scope, order.sort, order.direction), queryFn: () => fetchDiscoveries(scope, signal, order),
       staleTime: 30_000, revalidateIfStale: true }); return;
   }
   if (tab === 'releases') {

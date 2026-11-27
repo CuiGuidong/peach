@@ -78,7 +78,7 @@ function ManageBar({ host: at, pressed: key, menu }: Pick<ManageHeaderProps, 'me
 
   useLayoutEffect(() => {
     const group = row.current;
-    const pressed = group?.querySelector<HTMLElement>('button[aria-pressed="true"]');
+    const pressed = group?.querySelector<HTMLElement>('[data-manage][aria-current="page"]');
     if (!group || !pressed) return;
     const left = pressed.offsetLeft, right = left + pressed.offsetWidth;
     if (left < group.scrollLeft) group.scrollLeft = left;
@@ -92,19 +92,25 @@ function ManageBar({ host: at, pressed: key, menu }: Pick<ManageHeaderProps, 'me
         {items.map(([entry, label, glyph]) => {
           const on = entry === key;
           const nudge = reorder.nudge(entry);
+          const href = at.manageHref?.(entry);
+          const Item = href ? 'a' : 'button';
           return (
-            <button key={entry} type="button" data-manage={entry} aria-label={label}
+            <Item key={entry} {...(href ? { href } : { type: 'button' as const, 'aria-pressed': on })}
+              data-manage={entry} aria-label={label}
               data-dragging={reorder.picked?.key === entry ? '' : undefined}
               style={{ '--manage-picked-left': `${reorder.picked?.bounds.left || 0}px`,
                 '--manage-picked-top': `${reorder.picked?.bounds.top || 0}px`,
                 '--manage-picked-width': `${reorder.picked?.bounds.width || 0}px`,
                 '--sidebar-nudge': `${nudge.distance}px`, '--sidebar-delay': `${nudge.delay}ms` } as CSSProperties}
               aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight"
-              {...reorder.bindings(entry)} aria-pressed={on} aria-current={on ? 'page' : undefined}
+              {...reorder.bindings(entry)} aria-current={on ? 'page' : undefined}
               data-pill-selected={on ? '' : undefined} data-pill-variant="gray"
-              onClick={() => at.openManage(entry)}>
+              onClick={event => {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button) return;
+                event.preventDefault(); at.openManage(entry);
+              }}>
               <Icon name={glyph} /><span>{label}</span>
-            </button>
+            </Item>
           );
         })}
         {reorder.hint ? <span data-manage-drop-line="" aria-hidden="true"

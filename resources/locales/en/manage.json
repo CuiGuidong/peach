@@ -67,7 +67,9 @@
     "videoGone": "Video no longer exists"
   },
   "backgroundIssues": {
+    "loadFailed": "Couldn't load background service issues",
     "detectedAt": "Detected {{time}}",
+    "loadFailed": "Couldn't check for background issues",
     "retryFailed": "{{moment}}\nCouldn't retry: {{error}}",
     "since": "Since {{time}}",
     "title": "Needs attention"
@@ -93,6 +95,7 @@
     "scanText": "Find new files and fill in metadata and previews for new and unfinished videos."
   },
   "cloudDownloadDialog": {
+    "settingsLoadFailed": "Couldn't load download settings",
     "adopted": "This magnet link already has a task, so it wasn't submitted again.",
     "adoptedRemote": "The downloader already has this task. Peach is now tracking its progress.",
     "closePanel": "Close torrent search",
@@ -167,6 +170,7 @@
     "unreachableTarget": "{{target}}: unreachable"
   },
   "customSources": {
+    "loadFailed": "Couldn't load custom scraping sources",
     "addSource": "Add source",
     "codeAsIs": "As is",
     "codeFormat": "Code format in API",
@@ -275,6 +279,7 @@
     "statusNotFound": "Export status not found"
   },
   "downloadsPanel": {
+    "loadFailed": "Couldn't load download tasks",
     "cancelDownload": "Cancel download",
     "channelAlert": "{{detail}}. Browser additions are paused and resume automatically once it recovers.",
     "codeUnrecognized": "Unrecognized code",
@@ -341,6 +346,7 @@
     "viewEditions": "View editions"
   },
   "healthList": {
+    "loadFailed": "Couldn't load the issue list",
     "actions": "Actions",
     "showIgnored": "View ignored ({{count}})",
     "showActive": "Back to active issues",
@@ -897,7 +903,7 @@
     "cookieRevoked": "Cookie revoked",
     "cookieSaved": "Cookie saved",
     "cookieTooLarge": "Cookie text exceeds 256 KiB",
-    "coolingDown": "Cooling down",
+    "coolingDown": "Temporarily unavailable",
     "direct": "Direct",
     "noFileChosen": "No file chosen",
     "pasteCookie": "Paste cookie",
@@ -932,7 +938,7 @@
     "durationHours_other": "{{count, number(minimumFractionDigits: 1; maximumFractionDigits: 1)}} hours",
     "durationMinutes_one": "{{count, number}} minute",
     "durationMinutes_other": "{{count, number}} minutes",
-    "durationProbed": "Duration probed",
+    "durationProbed": "Duration read",
     "fileTypes": "File types",
     "framesExtracted": "Frames extracted",
     "hasCode": "Has code",
@@ -955,10 +961,10 @@
     "mediumOther": "Other files",
     "newFollow": "New follow",
     "noContentTagsTitle": "No content tags yet",
-    "noLengthHint": "The duration breakdown appears here after durations are probed.",
+    "noLengthHint": "The duration breakdown appears here after Peach reads the video durations.",
     "noLibraryHint": "Video counts per library appear here after you assign media directories to a library.",
     "noPlayTimeHint": "When you watch during the week appears here after you start playing videos.",
-    "noQualityHint": "The quality breakdown appears here after quality is probed.",
+    "noQualityHint": "The quality breakdown appears here after Peach reads the video resolutions.",
     "noReplayHint": "How many times each video was played appears here after you start playing videos.",
     "noStorageTitle": "No storage yet",
     "noTagHint": "Content tags appear here after you fill in metadata or add tags.",
@@ -1071,6 +1077,7 @@
     "scopePreviews": "Imported videos (data saver directories skipped)"
   },
   "taskCenter": {
+    "detailLoadFailed": "Couldn't load task details",
     "batchItems": "{{first}} and others ({{count}} total)",
     "batches_one": "{{count, number}} batch",
     "batches_other": "{{count, number}} batches",

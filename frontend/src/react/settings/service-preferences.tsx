@@ -13,6 +13,7 @@ import { FOLLOW_INITIAL_RANGE_OPTIONS } from '../../application/initial-follow-r
 import { errorMessage } from '../../api';
 import { boundedPreference } from '../../number-setting';
 import { momentText } from '../activity/tasks';
+import { ActionSpinner } from '../components/action-spinner';
 import { Note } from '../components/note';
 import {
   SCHEDULE_RUNS, SCHEDULES, SETTINGS_KEY, THUMBNAIL_JOBS_KEY, fetchSettings, fetchThumbnailJobs, schedulePollInterval,
@@ -160,6 +161,7 @@ function ScheduleRow({ kind }: { kind: keyof typeof SCHEDULES }) {
   const data = status.data;
   const storage = `peach.number.${row.id}`;
   const remembered = useRef(boundedPreference(Number(localStorage.getItem(storage)), 15, 10080, fallback));
+  const [savingFrom, setSavingFrom] = useState<'switch' | 'interval'>('switch');
   const [draft, setDraft] = useState(String(fallback));
   const [invalid, setInvalid] = useState(false);
   useEffect(() => {
@@ -176,9 +178,13 @@ function ScheduleRow({ kind }: { kind: keyof typeof SCHEDULES }) {
     if (!data?.enabled || blocked || minutes === data.interval_minutes) return;
     remembered.current = minutes;
     localStorage.setItem(storage, String(minutes));
+    setSavingFrom('interval');
     save.mutate(minutes);
   };
   const error = save.error || status.error;
+  const saving = save.isPending ? <span role="status" className="flex items-center gap-1 text-body-2-regular text-text-secondary">
+    <ActionSpinner className="size-4" />{t('settings:shared.saving')}
+  </span> : null;
   /* 只读端没有定时：说一句「只在主设备上运行」，不画开关。 */
   const description = data && !data.available ? t('settings:followSchedule.primaryOnly') : row.help();
   return (
@@ -187,25 +193,30 @@ function ScheduleRow({ kind }: { kind: keyof typeof SCHEDULES }) {
         {/* 间隔框只在开着时出现；这一行按有框的高度留位，读回状态时下面几行不跟着动。
             控件这一侧不收缩：窄屏上让左边的说明换行，不让开关与间隔框压到说明上。 */}
         <div id={row.id} className="flex min-h-9 shrink-0 flex-wrap items-center justify-end gap-2">
-          <Switch aria-label={row.label()} isSelected={data?.enabled === true} isDisabled={blocked}
+          <Switch aria-label={row.label()} isSelected={data?.enabled === true} isDisabled={!data?.available}
+            aria-disabled={blocked || undefined} aria-busy={(save.isPending && savingFrom === 'switch') || undefined}
             onChange={(on) => {
+              if (blocked) return;
               localStorage.setItem(storage, String(remembered.current));
+              setSavingFrom('switch');
               save.mutate(on ? remembered.current : 0);
             }} />
+          {savingFrom === 'switch' ? saving : null}
           {data?.enabled ? <div className="flex items-center gap-2">
             <Input type="number" inputMode="numeric" name={row.name} autoComplete="off"
               aria-label={row.input()} className="w-21 sm:w-24"
               value={draft} onChange={(value) => { setDraft(value); setInvalid(false) }} onBlur={commit}
               onKeyDown={(event) => { if (event.key === 'Enter') { event.preventDefault(); commit() } }}
-              isDisabled={blocked} isInvalid={invalid} />
+              isDisabled={!data.available} isReadOnly={status.isFetching || save.isPending} isInvalid={invalid}
+              aria-busy={(save.isPending && savingFrom === 'interval') || undefined} />
             <span className="text-body-2-regular text-text-secondary">{t('settings:numberSetting.unitMinutes')}</span>
           </div> : null}
+          {savingFrom === 'interval' ? saving : null}
         </div>
       </SettingsRow>
       {invalid ? <Stack><ErrorText>{t('settings:followSchedule.invalidInterval')}</ErrorText></Stack> : null}
-      {save.isPending || data?.running
-        ? <Stack>{save.isPending ? <TaskProgress embedded kind="gather" label={t('settings:shared.saving')} />
-          : <TaskProgress embedded kind={activityKind(row.activity)} label={row.running()} />}</Stack> : null}
+      {data?.running
+        ? <Stack><TaskProgress embedded kind={activityKind(row.activity)} label={row.running()} /></Stack> : null}
       <ScheduleFailure kind={kind} status={data} title={row.failure()} />
       {error ? <Stack><ErrorText>{errorMessage(error)}</ErrorText></Stack> : null}
     </>

@@ -13,9 +13,9 @@ import { IndexSearch } from '../index/index-search';
 import { showToast } from '../toaster';
 
 import { Chip } from '@/components/base/badges/chip';
-import { Button } from '@/components/base/buttons/button';
+import { Button, ButtonLink } from '@/components/base/buttons/button';
 
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiSend } from '../../api';
 import { javTitleParts } from '../../core/jav-title';
 import { codedText, serverLabel } from '../../core/server-text';
 import { entityDisplayName } from '../../core/entity-names';
@@ -24,12 +24,13 @@ import { useEntityNames } from '../use-entity-names';
 import type { DownloadsSnapshot, DownloadTask } from '../bundle';
 import { cardClass } from '../components/card';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { Progress } from '../components/progress';
 import { DataTableFooter } from '../components/table-controls';
 import { CollapseRegion } from '../components/collapse-region';
 import { ErrorText } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
-import { momentText } from './tasks';
+import { DOWNLOADS_KEY, DOWNLOADS_URL, downloadsPageQuery, momentText } from './tasks';
 import { withBackoff } from '../../polling';
 import { SourceLabel } from '../components/source-label';
 import { ArtSlot } from '../components/art-slot';
@@ -39,8 +40,7 @@ import { entityPath } from '@peach/legacy/core';
 import { COVER_FRONT_RATIO } from '@peach/appearance';
 import { joinList, t } from '../../i18n';
 
-export const DOWNLOADS_URL = '/api/downloads';
-export const DOWNLOADS_KEY = ['downloads'] as const;
+export { DOWNLOADS_KEY, DOWNLOADS_URL } from './tasks';
 const CANCEL_URL = '/api/downloads/cancel';
 const POSTPROCESS_URL = '/api/downloads/postprocess';
 
@@ -88,8 +88,7 @@ export function DownloadsPanel() {
   /* 按番号、标题或文件名找一次提交：服务端在全部任务里筛，翻页也在结果里翻。 */
   const [search, setSearch] = useState('');
   const query = useQuery({
-    queryKey: [...DOWNLOADS_KEY, 'page', page, pageSize, search],
-    queryFn: ({ signal }) => apiGet<DownloadsSnapshot>(`${DOWNLOADS_URL}?limit=${pageSize}&page=${page}${search ? `&q=${encodeURIComponent(search)}` : ''}`, signal),
+    ...downloadsPageQuery(page, pageSize, search),
     refetchInterval: downloadsInterval,
     placeholderData: (previous) => previous,
   });
@@ -97,17 +96,22 @@ export function DownloadsPanel() {
   if (query.data && query.data !== lastData) setLastData(query.data);
   const data = query.data || lastData;
   const tasks = data?.tasks || [];
-  if (!tasks.length && !query.error && !search) return null;
+  const alerts = data?.channel_alerts || [];
+  if (!tasks.length && !alerts.length && !query.error && !search) return null;
   return (
     <section id="cloudDownloads" aria-labelledby={id} className="flex min-w-0 flex-col gap-3">
       <div className="flex min-w-0 flex-wrap items-center gap-3">
         <h3 id={id} className="text-title-2-medium text-text-primary">{t('manage:downloadsPanel.title')}</h3>
         <IndexSearch label={t('manage:downloadsPanel.search')} value={search} onQuery={value => { setSearch(value); setPage(1) }} />
       </div>
-      {query.error ? <Note tone="error">{errorMessage(query.error)}</Note> : null}
-      {(data?.channel_alerts || []).map((alert) => (
+      {query.error ? <QueryErrorNote titleKey="manage:downloadsPanel.loadFailed" query={query} /> : null}
+      {alerts.map((alert) => (
         // 配置失效与连不上要用户动手，按错误显示；空间与额度等着腾出来，按提醒显示。
         <Note key={alert.provider} tone={alert.failure === 'config' || alert.failure === 'network' ? 'error' : 'warning'}
+          action={alert.failure === 'config' || alert.failure === 'network' ?
+            <ButtonLink href="/settings/downloads" variant="secondary" size="small">
+              <span data-copy-key="shell.downloadChannels.settingsLink">{t('shell:downloadChannels.settingsLink')}</span>
+            </ButtonLink> : undefined}
           title={t('shell:format.labelValue', { label: alert.provider_label,
             value: serverLabel(`download.failure.${alert.failure}`, alert.failure) })}>
           {t('manage:downloadsPanel.channelAlert', {

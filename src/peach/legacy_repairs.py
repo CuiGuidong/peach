@@ -250,6 +250,22 @@ def fix_tag_vocabulary(connection, found: dict) -> dict:
     return {"changed": len(tags), "tags": tags, "retired": found["retired"], "nfo": found["nfo"]}
 
 
+def find_updated_tag_vocabulary(connection) -> dict:
+    from .genre_repairs import find_source_tag_updates
+    prior_version = connection.execute(
+        "SELECT 1 FROM ledger_upgrade_repair WHERE id='tag-vocabulary-1'").fetchone()
+    vocabulary = {} if prior_version else find_tag_vocabulary(connection)
+    source_tags = find_source_tag_updates(connection)
+    return {"vocabulary": vocabulary, "source_tags": source_tags} if vocabulary or source_tags else {}
+
+
+def fix_updated_tag_vocabulary(connection, found: dict) -> dict:
+    from .genre_repairs import apply_source_tag_updates
+    vocabulary = fix_tag_vocabulary(connection, found["vocabulary"])
+    source = apply_source_tag_updates(connection, found["source_tags"], _stamp())
+    return {**vocabulary, **source, "changed": vocabulary["changed"] + source["changed"]}
+
+
 # ---- 新作：已有本机封面的蓝光版壳与配信版重复 ----
 
 def find_bluray_duplicates(connection) -> list[dict]:
@@ -696,7 +712,7 @@ RULES = (
     Rule("fc2-seller-studios-1", "fc2-studios", find_fc2_seller_studios, fix_fc2_seller_studios),
     Rule("scrape-mark-titles-1", "scrape-mark-titles", find_scrape_mark_titles, fix_scrape_mark_titles),
     Rule("alias-flat-names-1", "alias-flat-names", find_alias_flat_names, fix_alias_flat_names),
-    Rule("tag-vocabulary-1", "tag-vocabulary", find_tag_vocabulary, fix_tag_vocabulary),
+    Rule("tag-vocabulary-2", "tag-vocabulary", find_updated_tag_vocabulary, fix_updated_tag_vocabulary),
     Rule("feed-bluray-duplicates-1", "bluray-duplicates", find_bluray_duplicates, fix_bluray_duplicates),
     Rule("want-image-acquired-1", "want-acquired", find_image_acquired_wants, fix_image_acquired_wants),
     Rule("download-text-codes-1", "download-text", find_download_text_codes, fix_download_text_codes),

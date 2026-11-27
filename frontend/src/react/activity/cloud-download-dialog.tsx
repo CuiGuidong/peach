@@ -1,6 +1,6 @@
 /* 资源查找弹层：JAV、想要与高清版目标共用搜索、作品资料和下载提交。
  * 下载配置在弹层打开时读取；已提交的任务在活动页查看。 */
-import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { ImageWithFallback } from '../components/image-with-fallback';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Heading } from 'react-aria-components';
@@ -10,10 +10,11 @@ import { Button } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { Select, SelectItem } from '@/components/base/select/select';
 
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiGet, apiSend } from '../../api';
 import type { DownloadProviderKey, DownloadsSnapshot, DownloadSubmitResult } from '../bundle';
 import { ModalFrame } from '../components/modal-frame';
 import { Note } from '../components/note';
+import { QueryErrorNote } from '../components/query-error-note';
 import { ErrorText, FieldLabel, Help } from '../settings/section';
 import { busyProps, useAction } from '../settings/use-action';
 import { DOWNLOADS_KEY, DOWNLOADS_URL, downloadsInterval, failureText } from './downloads-panel';
@@ -70,7 +71,7 @@ function Body({ prefill, close, receipt, provider }: {
     <div className="flex min-h-0 flex-col">
       {header}
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto p-5">
-        {query.error ? <Note tone="error">{errorMessage(query.error)}</Note> : null}
+        {query.error ? <QueryErrorNote titleKey="manage:cloudDownloadDialog.settingsLoadFailed" query={query} /> : null}
       </div>
       <div className="flex justify-end p-3">
         <Button variant="secondary" onClick={close}>{t('manage:shared.close')}</Button>
@@ -96,6 +97,7 @@ function SubmitForm({ header, snapshot, prefill, close, receipt, provider: prefe
   const usable = snapshot.available && configured.some(row => row.key === provider);
   const action = useAction();
   const input = useRef<HTMLInputElement>(null);
+  const downloadForm = useId();
 
   const choose = (key: DownloadProviderKey) => {
     setProvider(key);
@@ -119,7 +121,7 @@ function SubmitForm({ header, snapshot, prefill, close, receipt, provider: prefe
   };
 
   return (
-    <form aria-label={t('manage:cloudDownloadDialog.submit')} noValidate onSubmit={submit} className="flex min-h-0 flex-col">
+    <div className="flex min-h-0 flex-col">
       {header}
       <div className="flex min-h-0 flex-col gap-4 overflow-y-auto p-5">
         {work?.code || metadataNotice ? <div className="flex min-w-0 items-start gap-4" data-resource-work="">
@@ -144,6 +146,8 @@ function SubmitForm({ header, snapshot, prefill, close, receipt, provider: prefe
         }} choose={(uri, selectedCode) => {
           setMagnet(uri); setCode(selectedCode); input.current?.focus();
         }} />
+        <form id={downloadForm} aria-label={t('manage:cloudDownloadDialog.submit')} noValidate onSubmit={submit}
+          className="flex flex-col gap-4">
         <Input ref={input} label={t('manage:cloudDownloadDialog.magnetLink')} placeholder="magnet:?xt=urn:btih:…" autoComplete="off" maxLength={4000}
           value={magnet} onChange={setMagnet} />
         <div className="flex flex-col gap-1">
@@ -164,11 +168,12 @@ function SubmitForm({ header, snapshot, prefill, close, receipt, provider: prefe
             setCode(value); setMetadataNotice(''); if (!sameWorkCode(value, work?.code)) setWork(null);
           }} />}
         {failure || action.error ? <ErrorText>{failure || action.error}</ErrorText> : null}
+        </form>
       </div>
       <div className="flex justify-between gap-4 p-3">
         <Button variant="secondary" onClick={close}>{t('manage:shared.cancel')}</Button>
-        <Button type="submit" disabled={!magnet.trim() || !usable} {...busyProps(action.busy === 'submit')}>{t('manage:cloudDownloadDialog.submit')}</Button>
+        <Button type="submit" form={downloadForm} disabled={!magnet.trim() || !usable} {...busyProps(action.busy === 'submit')}>{t('manage:cloudDownloadDialog.submit')}</Button>
       </div>
-    </form>
+    </div>
   );
 }

@@ -15,7 +15,7 @@ import { Breadcrumb, BreadcrumbItem } from '@/components/base/breadcrumb/breadcr
 import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@/components/base/table/table';
 import { ChevronSortDown } from '@/components/foundations/icons/chevrons';
 import { fmtDur, fmtSize } from '@peach/legacy/core';
-import { MEDIA_SOURCE_ICONS } from '@peach/legacy/ui';
+import { MEDIA_SOURCE_ICONS, spinnerHtml } from '@peach/legacy/ui';
 import { backgroundOf, isOverlayPath } from '@peach/history';
 import { apiGet, apiSend, errorMessage } from '../../api';
 import { hasSelectionModifier } from '../../selection';
@@ -133,6 +133,8 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
   const [nameDialog, setNameDialog] = useState<{ mode: 'mkdir' | 'rename'; item?: FileEntry } | null>(null);
   const [confirmTrash, setConfirmTrash] = useState(false);
   const [busy, setBusy] = useState(false);
+  const pendingWrite = useRef(false);
+  const [trashingFile, setTrashingFile] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [failure, setFailure] = useState<string[]>([]);
   const [receipt, setReceipt] = useState('');
@@ -300,6 +302,10 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
     setMoveFrom(null);
   };
   const submit = async (request: FileRequest) => {
+    if (pendingWrite.current) return;
+    pendingWrite.current = true;
+    const singleFile = request.operation === 'trash' && request.entries?.length === 1 && !request.entries[0]?.directory;
+    setTrashingFile(singleFile);
     setBusy(true); setFailure([]); setReceipt('');
     try {
       const results = await fileOperation(request);
@@ -307,7 +313,16 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
       const failed = results.filter(row => !row.ok);
       setFailure(failed.map(row => `${row.name} · ${resultError(row)}`));
       if (!succeeded.length) return;
-      setReceipt(t('shell:mediaDirectory.operationDone', { count: succeeded.length }));
+      const message = t('shell:mediaDirectory.operationDone', { count: succeeded.length });
+      const trashId = singleFile ? succeeded[0]?.id : undefined;
+      if (trashId && actions) {
+        actions.receipt(message, { undo: async () => {
+          const [restored] = await fileOperation({ operation: 'restore', root: request.root, ids: [trashId] });
+          if (!restored?.ok) throw new Error(restored ? resultError(restored) : t('shell:mediaCard.operationFailed'));
+          refreshDirectory();
+          void client.invalidateQueries({ queryKey: ['media-directory-trash'] });
+        } });
+      } else setReceipt(message);
       if (request.operation !== 'mkdir') {
         setSelection(current => new Map([...current].filter(([, item]) => !succeeded.some(row => row.name === item.name))));
       }
@@ -320,7 +335,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
       refreshDirectory();
     } catch (error) {
       setFailure([errorMessage(error)]);
-    } finally { setBusy(false) }
+    } finally { pendingWrite.current = false; setTrashingFile(false); setBusy(false) }
   };
   const restoreTrash = async () => {
     const items = availableTrash.filter(item => trashSelection.has(item.id));
@@ -441,7 +456,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
       </Breadcrumb>
       </div>
     </div>
-    {!trashView ? <div data-directory-actions="" role="toolbar" aria-label={entriesLabel}>
+    {!trashView ? <div data-directory-actions="" role="group" aria-label={entriesLabel}>
       {moveFrom ? <>
         <span className="me-auto text-body-2-regular text-text-secondary">{t('shell:mediaDirectory.chooseMoveTarget', { count: picked.length })}</span>
         <Button variant="secondary" size="small" onClick={dismissMove} disabled={busy}>{t('shell:shared.cancel')}</Button>
@@ -466,7 +481,7 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
         </div>
       </>}
     </div> : null}
-    {trashView ? <div data-directory-actions="" role="toolbar" aria-label={t('shell:mediaDirectory.trash')}>
+    {trashView ? <div data-directory-actions="" role="group" aria-label={t('shell:mediaDirectory.trash')}>
       <Button size="small" variant="secondary" disabled={busy} onClick={() => toggleTrash(false)}>{t('shell:mediaDirectory.backToFiles')}</Button>
       <div data-toolbar-actions="">
         <IconButton size="small" icon={RiRefreshLine} disabled={busy || refreshing} aria-busy={refreshing || undefined}
@@ -606,9 +621,17 @@ function DirectoryBrowser({ initial, revision }: { initial: string; revision: nu
           title={picked.length > 100 ? t('shell:mediaDirectory.batchLimit') : undefined}
           onClick={() => { setMoveFrom({ root: rootId, relative: data.relative, params }); setFailure([]); setReceipt('') }}>
           {t('shell:mediaDirectory.move')}</Button>
-        <Button variant="danger" size="small" disabled={busy || picked.length > 100}
+        <Button variant="danger" size="small" disabled={(busy && !trashingFile) || picked.length > 100} {...busyProps(trashingFile)}
           title={picked.length > 100 ? t('shell:mediaDirectory.batchLimit') : undefined}
-          onClick={() => { setFailure([]); setConfirmTrash(true) }}>{t('shell:mediaDirectory.moveToTrash')}</Button>
+          onClick={() => {
+            if (pendingWrite.current) return;
+            if (picked.length === 1 && !picked[0]?.directory && actions) {
+              void submit({ operation: 'trash', root: rootId, relative: data.relative, entries: picked });
+            } else { setFailure([]); setConfirmTrash(true) }
+          }}>
+          {trashingFile ? <span aria-hidden dangerouslySetInnerHTML={{ __html: spinnerHtml() }} /> : null}
+          {t('shell:mediaDirectory.moveToTrash')}
+        </Button>
       </> : null}
       {canWrite && picked.every(item => item.asset_id != null) && actions?.catalogFileAction ? <>
         <Button variant="secondary" size="small" onClick={event => mark('like', event.currentTarget)}>{t('manage:shared.like')}</Button>

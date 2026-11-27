@@ -2587,7 +2587,7 @@ class LibraryNfoTests(unittest.TestCase):
                                 provider_factory=Mock(return_value=provider))
         self.assertEqual([row['message'] for row in state['issue_preview']],
                          ['外部资料本趟没轮到：来源正在冷却，请稍后重试；已有图片保留',
-                          '封面本趟没轮到：本趟采集次数已用完，再跑一次接着采；已有图片保留'])
+                          '封面本趟没轮到：已达到本次查询次数上限。重新运行可继续，已有图片会保留。'])
         self.assertEqual({row['severity'] for row in state['issue_preview']}, {'paused'})
         self.assertEqual((state['issue_count'], state['paused_count']), (2, 2))
         self.assertEqual(state['error'], '2 项都卡在来源限流上，等一会儿再跑一次。')
@@ -2614,7 +2614,7 @@ class LibraryNfoTests(unittest.TestCase):
                     (describe_failure(RuntimeError('boom')), True)]
         error = _unreached(problems)
         self.assertIsInstance(error, SourcePaused)
-        self.assertEqual(str(error), '本地 NFO：本趟采集次数已用完，再跑一次接着采；已有图片保留；处理出错（RuntimeError）')
+        self.assertEqual(str(error), '本地 NFO：已达到本次查询次数上限。重新运行可继续，已有图片会保留。；处理出错（RuntimeError）')
         english = interface_text.text(f'server:{error.code}', error.params, 'en')
         self.assertIn('Local NFO', english)
         self.assertIn('Processing error (RuntimeError)', english)
@@ -3049,7 +3049,7 @@ class LibraryNfoTests(unittest.TestCase):
         # 社区那一档把各家原因连成一句转述（`_unreached`）。
         provider.community = Mock(side_effect=SourcePaused(*relayed('javdb：来源正在冷却')))
         with patch('peach.jav_cover_fetch.best_cover', side_effect=SourcePaused('errors.scrapingAccess.requestBudgetSpent')), \
-                self.assertRaisesRegex(SourcePaused, '^本趟采集次数已用完，再跑一次接着采；已有图片保留；javdb：来源正在冷却$'):
+                self.assertRaisesRegex(SourcePaused, '^已达到本次查询次数上限。重新运行可继续，已有图片会保留。；javdb：来源正在冷却$'):
             provider.cover('ORETD-703', self.root / 'covers')
         with patch('peach.jav_cover_fetch.best_cover', side_effect=Unavailable(*relayed('HTTP 503'))), \
                 self.assertRaises(Unavailable):

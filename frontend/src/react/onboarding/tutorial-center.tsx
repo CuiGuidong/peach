@@ -5,7 +5,7 @@ import { RiFolderLine, RiListCheck3, RiPlayCircleLine, RiRocketLine, RiRssLine, 
 import { Radio } from 'react-aria-components';
 import { toast } from 'sonner';
 import { SEGMENT, SEGMENTED_TRACK, SegmentedRadioGroup } from '../components/segmented';
-import { apiGet } from '../../api';
+import { apiGet, errorMessage } from '../../api';
 import { isPreferencePath, navigationBackground, peachHistory } from '../../history';
 import { GUIDE_CHAPTERS, contextualChapter, type GuideChapter } from '../../onboarding/guide-catalog';
 import { emptyProgress, guideChapterComplete, guideResumePosition, listenGuide, readGuideProgress, recordGuideStep, saveGuideProgress, type GuideAction, type GuideProgress } from '../../onboarding/guide-state';
@@ -35,7 +35,7 @@ function GettingStarted({ go }: { go(path: string): void }) {
     const controller = new AbortController();
     setError('');
     void apiGet<ProgressCounts>('/api/post-setup-tutorial', controller.signal).then(result => { if (!controller.signal.aborted) setData(result) })
-      .catch(() => { if (!controller.signal.aborted) setError(t('onboarding:gettingStarted.statusError')) });
+      .catch(cause => { if (!controller.signal.aborted) setError(errorMessage(cause)) });
     return () => controller.abort();
   }, [attempt]);
   const sources = data?.follow.sources.filter(row => row.enabled !== false) || [];
@@ -46,7 +46,8 @@ function GettingStarted({ go }: { go(path: string): void }) {
     <GuideBanner icon={RiRocketLine} title={t('onboarding:gettingStarted.title')} description={t('onboarding:gettingStarted.summary')}>
       <Button onClick={() => go('/settings/library')}>{t('onboarding:gettingStarted.connectDirectories')}</Button>
     </GuideBanner>
-    {error ? <Note tone="error" action={<Button variant="secondary" size="small" onClick={() => setAttempt(attempt + 1)}>{t('onboarding:shared.retry')}</Button>}>{error}</Note> : null}
+    {error ? <Note tone="error" title={<span data-copy-key="onboarding.gettingStarted.statusError">{t('onboarding:gettingStarted.statusError')}</span>}
+      action={<Button variant="secondary" size="small" onClick={() => setAttempt(attempt + 1)}>{t('onboarding:shared.retry')}</Button>}>{error}</Note> : null}
     <ol className="peach-guide-routes">
       <li><span className="peach-guide-topic-icon"><RiFolderLine aria-hidden className="size-5" /></span><div className="min-w-0 flex-1"><strong>{t('onboarding:gettingStarted.connectDirectories')}</strong><p>{t('onboarding:gettingStarted.connectDirectoriesHint')}</p></div><Button variant="secondary" size="small" onClick={() => go('/settings/library')}>{t('onboarding:gettingStarted.viewSettings')}</Button></li>
       <li><span className="peach-guide-topic-icon"><RiListCheck3 aria-hidden className="size-5" /></span><div className="min-w-0 flex-1"><strong>{t('onboarding:gettingStarted.firstScan')}</strong><p>{data ? data.library.total ? t('onboarding:gettingStarted.importedCount', { count: data.library.total }) : t('onboarding:gettingStarted.emptyCollection') : t('onboarding:gettingStarted.scanProgress')}</p></div><Button variant="secondary" size="small" onClick={() => go('/tasks')}>{t('onboarding:gettingStarted.tasks')}</Button></li>
@@ -111,8 +112,10 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
       if (clearError) setSyncError('');
       if (!session.current) setInvitation(!next.invited && !next.completed);
       return true;
-    } catch {
-      if (mounted.current) setSyncError(t('onboarding:tutorialCenter.loadError'));
+    } catch (cause) {
+      if (mounted.current && ticket === revision.current && clearError) {
+        setSyncError(t('onboarding:tutorialCenter.loadError', { reason: errorMessage(cause) }));
+      }
       return false;
     }
   };
@@ -124,9 +127,9 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
       try {
         const saved = await saveGuideProgress(next.campaign, action);
         if (mounted.current && ticket === revision.current) applyProgress(saved);
-      } catch {
+      } catch (cause) {
         if (mounted.current) {
-          setSyncError(t('onboarding:tutorialCenter.saveError'));
+          setSyncError(t('onboarding:tutorialCenter.saveError', { reason: errorMessage(cause) }));
           if (ticket === revision.current) await refresh(false);
         }
       } finally { pendingWrites.current -= 1 }
@@ -184,7 +187,7 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
       invitationSession.current = intro;
       void intro.show({ id: 'tutorial-entry', title: t('onboarding:tutorialCenter.inviteTitle'),
         body: t('onboarding:tutorialCenter.inviteBody', { count: GUIDE_CHAPTERS.find(item => item.id === 'basics')?.steps.length ?? 0 }), target: '#tutorialBtn' }, 0, 1);
-    }).catch(() => setSyncError(t('onboarding:tutorialCenter.inviteError')));
+    }).catch(cause => { if (!cancelled) setSyncError(t('onboarding:tutorialCenter.inviteError', { reason: errorMessage(cause) })) });
     return () => {
       cancelled = true;
       const closing = intro;
@@ -299,7 +302,9 @@ export function TutorialCenter({ actions }: { actions: ShellActions }) {
         },
       });
       show();
-    } catch { setNotice(t('onboarding:tutorialCenter.tourLoadError')) }
+    } catch (cause) {
+      if (ticket === epoch.current) setNotice(t('onboarding:tutorialCenter.tourLoadError', { reason: errorMessage(cause) }));
+    }
     finally { if (ticket === epoch.current) setLoading(false) }
   };
   startRequest.current = (chapter, resume) => { void start(chapter, resume) };

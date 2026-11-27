@@ -236,7 +236,8 @@ CONTENT_GENRES: dict[str, str] = {
     "体操着・ブルマ": "体操服", "レオタード": "体操服", "体操着": "体操服", "体操服": "体操服",
     "Bunny Girl": "兔女郎", "バニーガール": "兔女郎", "バニー": "兔女郎",
     "Chinese Dress": "旗袍汉服", "チャイナドレス": "旗袍汉服",
-    "Bride": "婚纱", "Wedding Dress": "婚纱", "花嫁": "婚纱", "ウェディングドレス": "婚纱",
+    "Bride": "新娘", "花嫁": "新娘",
+    "Wedding Dress": "婚纱", "ウェディングドレス": "婚纱", "ウエディングドレス": "婚纱",
     "Kimono": "和服浴衣", "Yukata": "和服浴衣", "着物": "和服浴衣", "浴衣": "和服浴衣",
     "和服・浴衣": "和服浴衣", "着物・浴衣": "和服浴衣",
     "Twintails": "双马尾", "Twin Tails": "双马尾", "Pigtails": "双马尾", "ツインテール": "双马尾",
@@ -278,7 +279,8 @@ CONTENT_GENRES: dict[str, str] = {
     "Private Tutor": "家庭教师", "家庭教師": "家庭教师",
     "Stewardess": "空姐", "Flight Attendant": "空姐", "スチュワーデス": "空姐",
     "キャビンアテンダント": "空姐",
-    "Picking Up Girls": "探花", "Pick up": "探花", "Pickup": "探花", "ナンパ": "探花",
+    "Picking Up Girls": "搭讪", "Pick up": "搭讪", "Pickup": "搭讪", "ナンパ": "搭讪", "Nampa": "搭讪",
+    "探花": "探花",
     "Gal": "辣妹", "ギャル": "辣妹", "黒ギャル": "辣妹",
     "Princess & Mademoiselle": "千金小姐", "お嬢様・令嬢": "千金小姐", "お嬢様": "千金小姐",
     "Idol & Celebrity": "偶像艺人", "Idol": "偶像艺人", "アイドル・芸能人": "偶像艺人",
@@ -348,8 +350,6 @@ CONTENT_GENRES: dict[str, str] = {
     "辱め": "调教", "Embarrassment": "调教", "鬼畜": "调教", "Hard Sex": "调教",
     # `羞恥` 是让她难为情的玩法，`辱め` 是折辱，前者没到调教那一步。
     "羞恥": "羞耻", "Shame": "羞耻",
-    # `妄想族` 是时间停止、隐身一类现实里做不到的设定。
-    "妄想族": "妄想剧情", "Daydreamers": "妄想剧情",
     "Bondage": "捆绑", "Ropes & Ties": "捆绑", "Restraint": "捆绑", "Shibari": "捆绑",
     "Tied Up": "捆绑",
     "拘束": "捆绑", "縛り": "捆绑", "緊縛": "捆绑", "縛り・緊縛": "捆绑", "Bind": "捆绑",
@@ -361,7 +361,9 @@ CONTENT_GENRES: dict[str, str] = {
     "寝取り・寝取られ・NTR": "绿帽NTR", "他人棒": "绿帽NTR",
     "Incest": "近亲", "近親相姦": "近亲", "近親": "近亲", "Stepfamily": "近亲",
     # 关系一格一个：`姉・妹` 是姐妹，`義母` 是继母，`女上司`／`部下・同僚` 是职场，`恋愛` 是恋人。
-    "姉・妹": "姐弟", "Sister": "姐弟", "義母": "母子设定", "Stepmom": "母子设定",
+    "姉・妹": "姐妹", "Sister": "姐妹", "姐弟": "姐弟", "義母": "母子设定", "Stepmom": "母子设定",
+    "アクメ・オーガズム": "高潮", "Orgasm": "高潮",
+    "妄想剧情": "妄想剧情",
     "女上司": "同事上司", "Female Boss": "同事上司", "部下・同僚": "同事上司", "Employee/Coworker": "同事上司",
     "恋愛": "女友", "Love": "女友", "幼なじみ": "青梅竹马", "Old Playmates": "青梅竹马",
     "Voyeur": "偷拍偷窥", "Hidden Camera": "偷拍偷窥", "盗撮・のぞき": "偷拍偷窥",
@@ -459,7 +461,7 @@ CONTENT_GENRES: dict[str, str] = {
     "跳蛋": "性玩具", "按摩棒": "性玩具", "女優按摩棒": "性玩具",
     "插入異物": "性玩具", "假陽具": "性玩具",
     "溫泉": "温泉", "洗澡": "浴室", "淋浴沐浴": "浴室", "戶外": "户外",
-    "汽車性愛": "车震", "按摩": "按摩", "搭訕": "探花",
+    "汽車性愛": "车震", "按摩": "按摩", "搭訕": "搭讪",
     "戀愛": "女友", "戲劇": "剧情", "戏剧": "剧情", "寫真": "写真映像", "局部特寫": "局部特写",
     "薄馬賽克": "薄码", "數位馬賽克": "有码",
     # 用户确认的译名；JavDB 中英文类别用同一链接核对身份。
@@ -612,7 +614,9 @@ NON_CONTENT_GENRES: frozenset[str] = frozenset({
     # 同人载体
     "同人ソフト オリジナル",
     # K-MIB 的氛围词与厂牌名：几乎每部都挂，区分不了内容
-    "Sexy", "Glamour", "Model", "Couple", "Romantic", "Caress", "Orgasm",
+    "Sexy", "Glamour", "Model", "Couple", "Romantic", "Caress",
+    # DMM 6995 的厂牌归属，作品的厂牌字段单独处理。
+    "妄想族", "Daydreamers",
     "JSmedia",
     # aventertainments 的氛围词：说的是激烈程度和叫声，不是某种行为或题材
     "Hardcore Fuck", "Scream for Joy",
@@ -632,7 +636,7 @@ NON_CONTENT_GENRES: frozenset[str] = frozenset({
     "JAPANESE", "0930", "むすめガチャ", "有名人", "女優", "モデル",
     # 泛指做爱本身，和 `All Sex` 一样每部都挂得上。
     "セックス", "SEX", "性交", "エッチ", "ハメ", "2回戦",
-    # 夸法、氛围与高潮的说法，和 `Sexy`、`Orgasm` 同档；最后几个是从标题截下来的剧情短语。
+    # 夸法、氛围和从标题截下来的剧情短语。
     "セクシー", "極上", "凄い", "気持ちいい", "超気持ちいい", "えろい", "エロ過ぎ", "ドスケベ",
     "恥ずかしい", "おしゃれ", "従順", "ご奉仕", "ご奉仕プレイ", "イキまくり", "子宮イキ", "腹イキ",
     "コンビネーション", "グリグリ", "テカテカ", "指一本", "擬似", "勝負", "我慢できない",
@@ -775,7 +779,7 @@ CONTENT_ALIASES = {
     "捆绑": "捆绑",
     "插入异物": "性玩具",
     "搔痒": "挠痒",
-    "搭讪": "探花",
+    "搭讪": "搭讪",
     "播音员": "播音员",
     "教师": "教师",
     "数位马赛克": "有码",
@@ -960,6 +964,20 @@ _CONTENT_INDEX.update({normalise_genre(value): value for value in CONTENT_GENRES
 _NON_CONTENT_INDEX = frozenset(normalise_genre(value) for value in NON_CONTENT_GENRES) | EXCLUDED_ALIASES
 
 
+# 旧投影供 tag-vocabulary-2 根据快照定向补修。
+_PREVIOUS_SOURCE_TAGS = {
+    "探花": ("ナンパ", "Picking Up Girls", "Pick up", "Pickup", "搭訕", "搭讪"),
+    "妄想剧情": ("妄想族", "Daydreamers"),
+    "婚纱": ("花嫁", "Bride"),
+    "姐弟": ("姉・妹", "Sister"),
+    None: ("アクメ・オーガズム", "Orgasm"),
+}
+PREVIOUS_SOURCE_TAG_BY_GENRE = {
+    normalise_genre(raw): tag for tag, variants in _PREVIOUS_SOURCE_TAGS.items() for raw in variants
+}
+REPAIRED_SOURCE_TAGS = ("搭讪", "新娘", "婚纱", "姐妹", "高潮", "姐弟", "探花", "妄想剧情")
+
+
 def is_non_content_genre(raw: object) -> bool:
     key = normalise_genre(raw)
     if key in _NON_CONTENT_INDEX:
@@ -1047,6 +1065,17 @@ def map_genres(genres: Iterable[object],
             seen_tags.add(tag)
             tags.append(tag)
     return tags, unmapped
+
+
+def source_genres(genres: Iterable[object], decisions: Mapping[str, str | None] | None = None) -> list[str]:
+    """保留来源标签写法与顺序，沿用已知的非内容排除规则。"""
+    labels = {}
+    for raw in genres:
+        if not isinstance(raw, str) or not (name := raw.strip()):
+            continue
+        if resolve_genre(name, decisions) is not None:
+            labels.setdefault(normalise_genre(name), name)
+    return list(labels.values())
 
 
 #: 未收录原文在候选文件里的两种存法。`unmapped_genres` 是结构化的那份，`warnings`

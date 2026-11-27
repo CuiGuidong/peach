@@ -237,15 +237,15 @@
     "connectedTitle": "已连接 ChatGPT 订阅",
     "connectedHelp": "即将返回 AI 接入，你可以在那里选择模型。",
     "permissionTitle": "未授予订阅用量权限",
-    "permissionHelp": "即将返回 AI 接入，你可以重新授权。",
     "errorTitle": "ChatGPT 授权未完成",
-    "errorHelp": "即将返回 AI 接入，你可以重试。",
     "return": "返回 Peach"
   },
   "errorPage": {
     "conflict": "现在不能这样做",
     "forbidden": "这里不能打开",
     "generic": "页面无法打开",
+    "surfaceFailed": "页面有一部分未能显示。请刷新页面重试。",
+    "surfaceReload": "刷新页面",
     "goHome": "返回首页",
     "notFound": "四〇四"
   },
@@ -355,7 +355,7 @@
   },
   "errorReport": {
     "appUnmounted": "应用已卸载",
-    "browserSnapshot": "浏览器环境快照",
+    "browserSnapshot": "浏览器环境信息",
     "cleanupIncomplete": "应用资源清理未全部完成",
     "hostMissing": "主界面宿主缺失",
     "mediaPlaybackFailed": "媒体播放失败（{{code}}）",
@@ -602,7 +602,7 @@
     "badRequest": "提交内容有误，请检查输入后重试。",
     "clientTimeout": "等待服务响应超时，请检查连接后重试。",
     "conflict": "当前状态不允许此操作，请刷新后重试。",
-    "fallback": "操作未完成，请重试；持续失败时查看 Peach 运行日志。",
+    "fallback": "未取得具体原因。请重试，持续失败时查看 Peach 运行日志。",
     "forbidden": "当前设备没有执行此操作的权限，请在运行 Peach 的设备上操作。",
     "gatewayTimeout": "等待服务响应超时，请稍后重试。",
     "notFound": "请求的内容已不存在，请刷新列表。",
@@ -1048,7 +1048,7 @@
     "relativePath": "目录内位置"
   },
   "bulkAction": {
-    "canUndo": "完成后可在回执里撤销。",
+    "canUndo": "完成后可在结果提示中撤销。",
     "cannotUndo": "不能撤销。"
   }
 }

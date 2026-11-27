@@ -31,6 +31,22 @@ it('发现已有结果即时呈现，陈旧推荐在后台更新', async () => {
   await loaded;
 });
 
+it('发现深链按实际范围、排序和方向预取首屏', async () => {
+  const address = location.href;
+  history.replaceState(null, '', '/jav?tab=discover&scope=library&sort=duration&dir=asc');
+  try {
+    const data = { items: [], candidate_total: 0, limited: false };
+    const fetcher = vi.fn(async () => ({ ok: true, status: 200, json: async () => data }));
+    vi.stubGlobal('fetch', fetcher);
+    await prefetchJav('discover', new AbortController().signal);
+    expect(fetcher).toHaveBeenCalledWith('/api/jav/discoveries?scope=library&limit=100&sort=duration&direction=asc', expect.anything());
+    expect(queryClient.getQueryData(discoveryKey('library', 'duration', 'asc'))).toEqual(data);
+    expect(queryClient.getQueryData(discoveryKey('external'))).toBeUndefined();
+  } finally {
+    history.replaceState(null, '', address);
+  }
+});
+
 it('想要已有清单立即返回，陈旧数据在后台更新', async () => {
   const cached = { items: [], counts: {}, scraping: false, searching: false };
   queryClient.setQueryData(WANTS_KEY, cached, { updatedAt: Date.now() - 60_000 });
@@ -45,6 +61,39 @@ it('想要已有清单立即返回，陈旧数据在后台更新', async () => {
   await settle();
   await prefetchJav('wants', new AbortController().signal);
   expect(fetcher).toHaveBeenCalledOnce();
+});
+
+it.each(['discover', 'releases'] as const)('%s 自动读资料失败后显示原因并允许重试', async tab => {
+  const before = location.pathname + location.search;
+  history.replaceState(null, '', `/jav?tab=${tab}`);
+  let starts = 0;
+  const job = { status: 'running', job_id: 'job-1', completed: 0, total: 1 };
+  vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+    const path = new URL(url, location.origin).pathname;
+    if ((path === '/api/jav/discoveries/metadata' || path === '/api/jav/releases/metadata') && init?.method === 'POST') {
+      if (++starts === 1) return Response.json({ detail: '资料任务入口暂不可用' }, { status: 503 });
+      return Response.json({ metadata_job: job, poll_after_ms: 3000 });
+    }
+    if (path === '/api/jav/releases' || path === '/api/jav/discoveries') {
+      return Response.json({ items: [{ id: 1, code: 'ABC-001', title: '测试作品', performers: '', metadata_state: 'pending' }],
+        metadata_job: starts >= 2 ? job : null, metadata_unread: 1, page: 1, size: 24, total: 1,
+        facets: { performers: [], studios: [], tags: [] }, candidate_total: 1 });
+    }
+    return Response.json({ metadata_job: starts >= 2 ? job : null, items: [] });
+  }));
+  try {
+    const host = await mount(<QueryClientProvider client={queryClient}>
+      <JavPage tab={tab} readOnly={false} navigate={vi.fn()} receipt={vi.fn()} />
+    </QueryClientProvider>);
+    await settle();
+    const alert = host.querySelector('[role="alert"]')!;
+    expect(alert.textContent).toContain('资料任务入口暂不可用');
+    await click(buttonNamed('立即重试', alert));
+    await settle();
+    expect(starts).toBe(2);
+    expect(host.querySelector('[role="alert"]')).toBeNull();
+    expect(host.querySelector('[data-jav-metadata]')).not.toBeNull();
+  } finally { history.replaceState(null, '', before) }
 });
 
 it('JAV 分区导航依次显示馆藏、想要、新作、发现、在线目录，馆藏使用目录搜索', async () => {
@@ -249,7 +298,7 @@ it('新作分区默认按发行时间倒序，可选排序方向，换一批按�
   await settle();
   expect(asked().get('sort')).toBe('random');
   expect(asked().get('seed')).toBeTruthy();
-  expect(host.querySelector('[data-entity-sort][aria-pressed="true"]')).toBeNull();
+  expect(host.querySelector('[data-entity-sort][data-sort-current="true"]')).toBeNull();
   history.replaceState(null, '', before);
 });
 

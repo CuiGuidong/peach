@@ -73,7 +73,7 @@ const open = (given: IndexProps) =>
 const cells = (host: ParentNode) => [...host.querySelectorAll('[data-index-cell]')];
 /** 名册的筛选框在页头；标签页有筛选浮层，查找在浮层下排。 */
 const search = (host: ParentNode) => host.querySelector<HTMLInputElement>('[data-index-search] input, [data-filter-search] input')!;
-const tab = (host: ParentNode, value: string) => host.querySelector(`[role="tab"][data-tab="${value}"]`);
+const tab = (host: ParentNode, value: string) => host.querySelector(`[data-tab="${value}"]:is(a,[role="tab"])`);
 const alphaTag = (host: ParentNode, k: string) => host.querySelector(`[data-alpha-tag][data-k="${k}"]`);
 
 describe('地址栏上的类型', () => {
@@ -207,8 +207,9 @@ describe('名册', () => {
     serve(() => ({items:[],has_more:false}));
     const given = props();
     const host = await open(given);
-    expect([...host.querySelectorAll('[role="tab"]')].map(item => item.textContent?.trim())).toEqual(['艺人','卖家','在线']);
-    expect(host.querySelectorAll('[role="tablist"]')).toHaveLength(1);
+    expect([...host.querySelectorAll('nav a[data-tab]')].map(item => item.textContent?.trim())).toEqual(['艺人','卖家','在线']);
+    expect(tab(host, 'performers')?.getAttribute('aria-current')).toBe('page');
+    expect(tab(host, 'online')?.getAttribute('href')).toBe('/performers?scope=online');
     await click(tab(host,'creators'));
     await settle();
     expect(host.querySelector('[data-index-title]')?.textContent).toBe('卖家');
@@ -282,7 +283,8 @@ describe('名册', () => {
     const host = await open(props());
     const more = host.querySelector<HTMLButtonElement>('[data-index-more]')!;
     await click(more);
-    expect(more.disabled).toBe(true);
+    expect(more.disabled).toBe(false);
+    expect(more.getAttribute('aria-disabled')).toBe('true');
     expect(more.getAttribute('aria-busy')).toBe('true');
     expect(urls(fetcher)[0]).toContain('offset=1');
     await next.release({ items: [person('乙')], has_more: false });

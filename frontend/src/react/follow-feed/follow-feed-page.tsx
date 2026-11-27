@@ -44,7 +44,7 @@ import {
   FOLLOW_AUTO_LOAD_LIMIT, FOLLOW_CREDENTIALS_KEY, FOLLOW_FEED_SORTS, FOLLOW_FILTERS, FOLLOW_TAGS_FIRST,
   FOLLOW_WORKS_FIRST,
   collectionItems, dropCondition, fetchFollowCredentials, followConditions, followFeedQuery, groupMediaKinds, itemForMedia,
-  mergedPage, randomOrder, sortAriaLabel, backfillState, withStatus,
+  mergedPage, randomOrder, sortAriaLabel, backfillState, withStatus, beginFollowItemWrite, finishFollowItemWrite,
   type FollowCondition, type FollowConditionKind, type FollowContext, type FollowDrawer, type FollowFeedProps, type FollowGroup, type FollowPage, type FollowSource,
   type FollowJobState, type FollowView, type FollowWorkRow,
 } from './follow-feed';
@@ -669,7 +669,7 @@ export function useFollowWrite(props: Pick<FollowFeedProps, 'view' | 'revision' 
       mark(id, requestErrorMessage(error), setFailures);
       actions.failure(t('follow:followDetail.updateStatusAction'), error);
     },
-    onSettled: (_result, _error, { id }) => mark(id, '', setBusy),
+    onSettled: (_result, _error, { id }) => { finishFollowItemWrite(id); mark(id, '', setBusy) },
   });
   const saveMutation = useMutation({
     mutationFn: (id: number) => apiSend('/api/follow/save', { item: id }),
@@ -682,17 +682,19 @@ export function useFollowWrite(props: Pick<FollowFeedProps, 'view' | 'revision' 
       mark(id, requestErrorMessage(error), setFailures);
       actions.failure(t('follow:followDetail.saveToDatabase'), error);
     },
-    onSettled: (_result, _error, id) => mark(id, '', setBusy),
+    onSettled: (_result, _error, id) => { finishFollowItemWrite(id); mark(id, '', setBusy) },
   });
   const latest = useRef({ statusMutation, saveMutation, before });
   latest.current = { statusMutation, saveMutation, before };
   /* 两个处理器身份不变：卡片按引用比较，每次重画都换新函数的话一屏几百张卡跟着重画。 */
   const status = useCallback((id: number, to: string) => {
+    if (!beginFollowItemWrite(id)) return;
     mark(id, to, setBusy);
     mark(id, '', setFailures);
     latest.current.statusMutation.mutate({ id, to, was: latest.current.before(id) });
   }, []);
   const save = useCallback((id: number) => {
+    if (!beginFollowItemWrite(id)) return;
     mark(id, 'save', setBusy);
     mark(id, '', setFailures);
     latest.current.saveMutation.mutate(id);

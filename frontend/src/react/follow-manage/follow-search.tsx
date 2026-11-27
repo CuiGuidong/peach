@@ -9,6 +9,7 @@ import { MENU_ITEM, MENU_ITEM_INTERACTIVE, MENU_POPOVER_SURFACE } from '@/compon
 import { cx } from '@/utils/cx';
 import type { FaceRef } from '../../card-art/markup';
 import { t } from '../../i18n';
+import { ActionSpinner } from '../components/action-spinner';
 import { ActivityStatus } from '../components/activity-motion';
 import { ColumnFilterAvatar } from '../components/column-filter-avatar';
 import { composingKey } from '../components/ime';
@@ -81,14 +82,15 @@ export function SuggestMenu(
       shouldCloseOnInteractOutside={element => !element.closest('[data-copy-editor]')}
       placement="bottom start" offset={4}
       className={cx(MENU_POPOVER_SURFACE, 'w-(--trigger-width) overscroll-contain')}>
-      {options.length ? null : busy
+      {busy && !options.length
         ? <div className="px-2 py-1.5" data-copy-key="follow.addCreatorSource.findingSuggestions">
           <ActivityStatus kind="radar" label={t('follow:addCreatorSource.findingSuggestions')} />
         </div>
-        : <p role="status" className="px-2 py-1.5 text-caption-1-regular text-text-tertiary"
+        : failed || !options.length ? <p role="status" className="px-2 py-1.5 text-caption-1-regular text-text-tertiary"
+          onMouseDown={event => event.preventDefault()}
           data-copy-key={failed ? 'follow.addCreatorSource.suggestionsFailed' : 'follow.addCreatorSource.noSuggestions'}>
           {failed ? t('follow:addCreatorSource.suggestionsFailed') : t('follow:addCreatorSource.noSuggestions')}
-        </p>}
+        </p> : null}
       <div id={id} role="listbox" aria-label={label} aria-busy={busy || undefined} className="flex flex-col gap-1">
         {groups.map((group, index) => {
           const heading = `${id}-group-${index}`;
@@ -106,11 +108,12 @@ export function SuggestMenu(
 }
 
 export function FollowSearch({ label, placeholder, suggestionsLabel, value, setValue, search, suggest, kind,
-  readOnly, busy, actions, suggestOnline }: {
+  readOnly, busy, actions, suggestOnline, lookup }: {
   label: string; placeholder: string; suggestionsLabel: string; value: string; setValue(value: string): void;
   search(value: string): void; suggest(value: string, signal: AbortSignal): Promise<SuggestOption[]>;
   kind: 'creator' | 'performer'; readOnly: boolean; busy: boolean; actions?: ReactNode;
   suggestOnline?(value: string, signal: AbortSignal): Promise<SuggestOption[]>;
+  lookup?: { pending: boolean };
 }) {
   const [composing, setComposing] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -148,6 +151,7 @@ export function FollowSearch({ label, placeholder, suggestionsLabel, value, setV
   const known = new Set(local.map(option => option.value.toLocaleLowerCase()));
   const options = current ? [...local, ...(online.data ?? []).filter(option => !known.has(option.value.toLocaleLowerCase()))] : [];
   const suggesting = !current || query.isFetching || online.isFetching;
+  const suggestionsFailed = current && (query.isError || online.isError);
   const activeIndex = menuOpen ? options.findIndex(option => optionId(menuId, option) === active) : -1;
   const activeOption = options[activeIndex];
 
@@ -182,7 +186,7 @@ export function FollowSearch({ label, placeholder, suggestionsLabel, value, setV
     }
   };
 
-  return <form aria-busy={busy || undefined} className="flex flex-wrap items-end gap-2"
+  return <form aria-busy={(lookup?.pending ?? busy) || undefined} className="flex flex-wrap items-end gap-2"
     onSubmit={event => { event.preventDefault(); submit(value) }}>
     <div ref={field} className="min-w-0 flex-1 basis-64" onFocus={() => setFocused(true)}
       onBlur={event => {
@@ -194,7 +198,7 @@ export function FollowSearch({ label, placeholder, suggestionsLabel, value, setV
       }}>
       <InputBase role="combobox" aria-label={label} aria-autocomplete="list" aria-expanded={menuOpen}
         aria-controls={menuOpen ? menuId : undefined} aria-activedescendant={activeOption ? active : undefined}
-        placeholder={placeholder} value={value} leadingIcon={RiSearchLine}
+        placeholder={placeholder} value={value} leadingIcon={lookup?.pending ? ActionSpinner : RiSearchLine}
         enterKeyHint="search" disabled={readOnly} onChange={event => {
           setActive(undefined);
           setClosedAt(null);
@@ -202,9 +206,11 @@ export function FollowSearch({ label, placeholder, suggestionsLabel, value, setV
         }} onCompositionStart={() => { setComposing(true); setActive(undefined) }}
         onCompositionEnd={event => { setComposing(false); setValue(event.currentTarget.value) }} onKeyDown={onKeyDown} />
       {menuOpen ? <SuggestMenu field={field} menu={menu} id={menuId} options={options} active={active}
-        busy={suggesting} failed={query.isError || online.isError} label={suggestionsLabel} kind={kind} onPick={submit} onClose={closeMenu} /> : null}
+        busy={suggesting} failed={suggestionsFailed} label={suggestionsLabel} kind={kind} onPick={submit} onClose={closeMenu} /> : null}
     </div>
     {actions}
-    <Button type="submit" variant="primary" disabled={readOnly || !text} {...busyProps(busy)}>{t('follow:shared.search')}</Button>
+    {lookup ? null : <Button type="submit" variant="primary" disabled={readOnly || !text} {...busyProps(busy)}>{t('follow:shared.search')}</Button>}
+    {suggestionsFailed && !menuOpen && !suggesting ? <p role="status" className="basis-full text-caption-1-regular text-text-error-primary"
+      data-copy-key="follow.addCreatorSource.suggestionsFailed">{t('follow:addCreatorSource.suggestionsFailed')}</p> : null}
   </form>;
 }

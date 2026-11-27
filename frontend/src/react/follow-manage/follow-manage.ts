@@ -24,6 +24,7 @@ import { queryClient } from '../query';
 import { localTime } from '../time';
 import { t } from '../../i18n';
 import { codedText } from '../../core/server-text';
+import { rememberFeedSourceCount } from './feed-source-layout';
 
 export const FOLLOW_URL = '/api/follow';
 export const FOLLOW_CREDENTIALS_URL = '/api/follow/credentials';
@@ -604,6 +605,7 @@ export interface FeedsData {
 export async function fetchFeeds(signal?: AbortSignal): Promise<FeedsData> {
   const payload = await apiGet<FeedsData>(FEEDS_URL, signal);
   if (!Array.isArray(payload?.sources)) throw new Error(t('follow:feedSources.readFailed'));
+  rememberFeedSourceCount(payload.sources.length);
   return payload;
 }
 
@@ -690,14 +692,12 @@ export const followFeedPages = (name: string, ids: string[], dmmIds: string[], d
     action: 'follow-pages', name, ids, dmm_ids: dmmIds, dmm_selection: dmmSelection,
   }, 'POST', signal);
 
-/** 创作者来源、JAV 订阅与凭据分别读取，页面按各区域的状态显示。
- *
- * 两趟后台任务不在首屏里：它们的快照常年躺着上一趟的回执，等它们只会让首屏多等一个
- * 往返，而它们自己的键挂上去就会读。中止时 `fetchQuery` 把 `AbortError` 抛回挂载方。 */
-export async function prefetchFollowManage(signal: AbortSignal): Promise<void> {
-  void queryClient.prefetchQuery({ queryKey: FOLLOW_CREDENTIALS_KEY, queryFn: () => fetchCredentials(signal) });
-  void queryClient.prefetchQuery({ queryKey: FEEDS_KEY, queryFn: () => fetchFeeds(signal) });
-  void queryClient.prefetchQuery({ queryKey: FOLLOW_MANAGE_KEY, queryFn: () => fetchFollow(signal) });
+/** 列表的首屏顺序同时取决于关注和订阅；添加页则需要关注和凭据。 */
+export async function prefetchFollowManage(signal: AbortSignal, tab = 'list'): Promise<void> {
+  const follow = queryClient.prefetchQuery({ queryKey: FOLLOW_MANAGE_KEY, queryFn: () => fetchFollow(signal) });
+  const credentials = queryClient.prefetchQuery({ queryKey: FOLLOW_CREDENTIALS_KEY, queryFn: () => fetchCredentials(signal) });
+  const feeds = queryClient.prefetchQuery({ queryKey: FEEDS_KEY, queryFn: () => fetchFeeds(signal) });
+  await Promise.all([follow, tab === 'add' ? credentials : feeds]);
 }
 
 /** 把改动的那一条换进缓存。整页重取会把用户正在填的表单一起重画，也会让正在读这一屏的

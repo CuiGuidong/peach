@@ -1231,6 +1231,17 @@ class DetailProjectionTests(unittest.TestCase):
                          [('淫乱真实', '淫乱真实'), ('出轨', '白天出轨'), ('剧情', '戏剧'),
                           ('深喉', '深喉'), ('巨根', '巨大阴茎')])
 
+    def test_detail_uses_source_tag_spelling_when_preference_is_enabled(self):
+        from peach.web_settings import w_settings
+
+        movie = {'id': 'Exact', 'tags': [{'name': value} for value in ('戀腿癖', '4K', '未知类别')]}
+        with patch('peach.web_jav_detail.PUBLIC_API.movie', return_value=movie):
+            self.assertEqual(q_jav_detail(self.contract, {'code': 'EXM-001'})['tag_refs'][0]['name'], '恋腿')
+            w_settings(self.contract, {'sourceTagsOriginal': True})
+            refs = q_jav_detail(self.contract, {'code': 'EXM-001'})['tag_refs']
+        self.assertEqual([(ref['name'], ref['category']) for ref in refs], [
+            ('戀腿癖', 'story'), ('未知类别', 'general')])
+
     def test_javdb_failure_still_lists_the_other_magnet_sources(self):
         from peach.magnet_chain import Fetcher, Source, _normalise
         other = _normalise({'uri': 'magnet:?xt=urn:btih:' + 'b' * 40, 'name': 'EXM-001', 'size': '3 GB'},
