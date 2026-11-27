@@ -2,7 +2,7 @@
 (function() {
 	try {
 		var e = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {}, t = new e.Error().stack;
-		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "e40f5db7-0256-43b9-a13c-a712aa76710e", e._sentryDebugIdIdentifier = "sentry-dbid-e40f5db7-0256-43b9-a13c-a712aa76710e");
+		t && (e._sentryDebugIds = e._sentryDebugIds || {}, e._sentryDebugIds[t] = "ee0fac6c-5423-491f-ae2f-8f4035170cf3", e._sentryDebugIdIdentifier = "sentry-dbid-ee0fac6c-5423-491f-ae2f-8f4035170cf3");
 	} catch {}
 })();
 var e = Object.create, t = Object.defineProperty, n = Object.getOwnPropertyDescriptor, r = Object.getOwnPropertyNames, i = Object.getPrototypeOf, a = Object.prototype.hasOwnProperty, o = (e, t, n) => () => {
@@ -8755,8 +8755,8 @@ var Ue = "peach.settings.v1", We = {
 		skipped: "Skipped ",
 		skipNoSite: "{{count}} with no official site to ask",
 		skipRecentMiss: "{{count}} the site recently reported missing",
-		skipPaused: "{{count}} skipped because the source is temporarily unavailable",
-		skipDeferred: "{{count}} left for the next round (network quota used up)",
+		skipPaused: "{{count}} because the source is temporarily unavailable",
+		skipDeferred: "{{count}} deferred until the next round after reaching the request limit",
 		remainingNext: "{{count}} left, queued for the next round",
 		remainingLater: "{{count}} left for next time",
 		seedAliases: "Aliases {{count}}",
@@ -16936,8 +16936,8 @@ var Ue = "peach.settings.v1", We = {
 		skipped: "跳过 ",
 		skipNoSite: "{{count}} 部没有可问的官方站",
 		skipRecentMiss: "{{count}} 部那一站近期说过没有",
-		skipPaused: "{{count}} 部因来源暂不可用而跳过",
-		skipDeferred: "已达到本轮查询次数上限，剩余 {{count}} 部留到下一轮",
+		skipPaused: "{{count}} 部因来源暂不可用",
+		skipDeferred: "{{count}} 部留到下一轮（已达到本轮查询次数上限）",
 		remainingNext: "还有 {{count}} 部待补，接着排下一轮",
 		remainingLater: "还有 {{count}} 部待补，等下一次处理",
 		seedAliases: "别名 {{count}}",
@@ -60182,4 +60182,4 @@ Mt(), eF();
 var nF = document.getElementById("peach-page"), rF = nF ? tF[nF.dataset.page ?? ""] : void 0;
 nF && rF && (0, Vt.createRoot)(nF).render(/* @__PURE__ */ (0, K.jsx)(f3, { children: /* @__PURE__ */ (0, K.jsx)(rF, { data: { ...nF.dataset } }) }));
 
-//# debugId=e40f5db7-0256-43b9-a13c-a712aa76710e
+//# debugId=ee0fac6c-5423-491f-ae2f-8f4035170cf3

@@ -240,7 +240,7 @@ class FetchRetryTests(unittest.TestCase):
                             patch('peach.scraping_access.client_for') as client:
                         with self.assertRaises(covers.SourcePaused) as caught:
                             covers.best_cover(transport, code, 0, prior_candidates=candidates)
-                        self.assertIn('本趟', str(caught.exception))
+                        self.assertIn('重新运行可继续', str(caught.exception))
                         self.assertEqual(covers.failure_log_row(code, caught.exception)['outcome'], 'unavailable')
                         client.assert_not_called()
 

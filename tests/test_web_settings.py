@@ -361,7 +361,8 @@ class SettingsRoundTripTests(unittest.TestCase):
                           "feedHideSoloCompilations": False, "feedHideExcerpts": True,
                           "searchHistoryLimit": None, "performerNameLanguage": "zh-CN", "taskSpeedMode": "standard",
                           "interfaceLanguage": "auto", "systemLanguage": None, "javBrowserWantOnNoMatch": True,
-                          "javdbCoverFallback": False, "wantStaleSearchDays": 7, "wantStaleAttemptLimit": 3,
+                          "javdbCoverFallback": False, "sourceTagsOriginal": False,
+                          "wantStaleSearchDays": 7, "wantStaleAttemptLimit": 3,
                           "sourceBudgetRequests": 6000, "sourceBudgetHours": 4, "sourceBudgetGigabytes": 1})
         self.assertEqual(q_settings(self.contract)["sidebarOrder"], order)
         self.assertEqual(self._stored_json()["sidebarOrder"], order)

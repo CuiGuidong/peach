@@ -431,7 +431,7 @@ class RunCheckTests(_CheckCase):
         skipped = self._run(second, connector, cooldown=cooldown)
         self.assertTrue(skipped.ok)
         self.assertEqual(skipped.status, "skipped")
-        self.assertIn("冷却", skipped.message)
+        self.assertIn("来源限制了请求频率", skipped.message)
         self.assertEqual(connector.calls, [])
         self.assertIsNone(self._row(second)["last_status"])
         clock[0] += 121

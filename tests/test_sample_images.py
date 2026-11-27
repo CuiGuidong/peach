@@ -267,7 +267,7 @@ class FollowupTests(LedgerCase):
         self.assertEqual((summary["landed"], summary["absent"]), (0, 2))
         self.assertEqual(summary["paused"], ["mgstage"])
         self.assertEqual(summary["skipped"]["paused"], 1)
-        self.assertEqual(told(summary)["outcome"], "这一轮没有补上样张；跳过 1 部因来源冷却；还有 1 部待补，接着排下一轮")
+        self.assertEqual(told(summary)["outcome"], "这一轮没有补上样张；跳过 1 部因来源暂不可用；还有 1 部待补，接着排下一轮")
         misses = sample_images.Misses(sample_images.misses_path(self.generated))
         self.assertTrue(misses.fresh("dmm", "SSIS-057"))
         self.assertFalse(misses.fresh("mgstage", "300MIUM-1000"), "冷却不是没有")
@@ -294,7 +294,7 @@ class FollowupTests(LedgerCase):
         self.assertEqual(asked, ["SSIS-058"])
         self.assertEqual((summary["landed"], summary["deferred"], summary["remaining"]), (4, 1, 1))
         self.assertTrue(summary["continue"])
-        self.assertEqual(told(summary)["outcome"], "补上 4 部的样张（4 张）；跳过 1 部联网名额用完留到下一轮；还有 1 部待补，接着排下一轮")
+        self.assertEqual(told(summary)["outcome"], "补上 4 部的样张（4 张）；跳过 1 部留到下一轮（已达到本轮查询次数上限）；还有 1 部待补，接着排下一轮")
         with mock.patch.object(sample_followup, "BATCH", 1):
             last = self.run_followup({"dmm": fetch}, run_id=8)
         self.assertEqual((last["landed"], last["remaining"], last["continue"]), (1, 0, False))
@@ -308,7 +308,7 @@ class FollowupTests(LedgerCase):
 
         summary = self.run_followup({"mgstage": mgs_fetch})
         self.assertEqual((summary["landed"], summary["remaining"], summary["continue"]), (0, 1, False))
-        self.assertEqual(told(summary)["outcome"], "这一轮没有补上样张；跳过 1 部因来源冷却；还有 1 部待补，等下一次处理")
+        self.assertEqual(told(summary)["outcome"], "这一轮没有补上样张；跳过 1 部因来源暂不可用；还有 1 部待补，等下一次处理")
 
     def test_a_snapshot_seen_without_samples_counts_as_progress_only_once(self):
         """快照看过没样张只在第一次算推进：那一站一直冷却时，第二轮不能再说接着跑，否则接续空转不停。"""
@@ -322,7 +322,7 @@ class FollowupTests(LedgerCase):
         self.assertEqual((first["remaining"], first["continue"]), (1, True))
         second = self.run_followup({"dmm": dmm_fetch}, run_id=8)
         self.assertEqual((second["remaining"], second["continue"]), (1, False))
-        self.assertEqual(told(second)["outcome"], "这一轮没有补上样张；跳过 1 部因来源冷却；还有 1 部待补，等下一次处理")
+        self.assertEqual(told(second)["outcome"], "这一轮没有补上样张；跳过 1 部因来源暂不可用；还有 1 部待补，等下一次处理")
 
     def test_codes_nobody_can_be_asked_about_are_counted_in_the_summary(self):
         """快照里没样张、又没有官方样张站的番号（FC2）不联网也不算「没有」，摘要说清跳过了几部、为什么。"""

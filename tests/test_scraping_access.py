@@ -426,7 +426,7 @@ class ScrapingAccessTests(unittest.TestCase):
         factory.assert_not_called()
 
     def test_a_spent_budget_says_what_to_do_instead_of_naming_the_counter(self):
-        """三条闸门按任务重新计数，所以话说到「再跑一次接着采」为止。
+        """三条闸门按任务重新计数，所以提示说明重新运行可继续。
 
         「请求预算」是这个类内部的词：看到它的人在问题清单里只能读出「有个数用完了」，
         既不知道那个数归谁管，也不知道自己还要不要动手。一趟任务的用量见
@@ -442,11 +442,12 @@ class ScrapingAccessTests(unittest.TestCase):
         budgets[0].requests = 1
         budgets[1].deadline = time.monotonic() - 1
         budgets[2].bytes = 1
-        for transport in budgets:
+        limits = ("本次查询次数上限", "本次查询的时间上限", "本次下载流量上限")
+        for transport, limit in zip(budgets, limits, strict=True):
             with self.assertRaises(SourcePaused) as spent:
                 transport(request, 1, 100)
-            self.assertIn("本趟", str(spent.exception))
-            self.assertIn("再跑一次接着采", str(spent.exception))
+            self.assertIn(limit, str(spent.exception))
+            self.assertIn("重新运行可继续", str(spent.exception))
             self.assertNotIn("预算", str(spent.exception))
 
     def test_a_library_scan_asks_for_enough_to_carry_a_batch_of_covers(self):
@@ -1234,7 +1235,7 @@ class SourcePreflightTests(unittest.TestCase):
         self.assertEqual({source for source, _ in seen}, set(reasons))
         self.assertTrue(all(thread is threading.current_thread() for _, thread in seen))
         self.assertEqual([row['results'][0]['outcome_label'] for row in result['sources']],
-                         ['登录或人机验证', '冷却', 'HTTP 错误'])
+                         ['登录或人机验证', '暂时停止访问', 'HTTP 错误'])
 
     def test_cooling_source_reports_cooldown_without_request(self):
         from peach.scraping_access import _pause, cooldown_path
@@ -1244,7 +1245,7 @@ class SourcePreflightTests(unittest.TestCase):
             _pause(cooldown_path(root, 'javdb'), time.time() + 600)
             with patch.object(SourceTransport, '_transport_for', side_effect=AssertionError('冷却中不应发请求')):
                 row = check_sources(root, ['javdb'])['sources'][0]['results'][0]
-        self.assertEqual((row['outcome'], row['outcome_label']), ('cooldown', '冷却'))
+        self.assertEqual((row['outcome'], row['outcome_label']), ('cooldown', '暂时停止访问'))
 
     def test_check_all_job_counts_progress_and_keeps_result(self):
         from peach.jobs import BackgroundJob

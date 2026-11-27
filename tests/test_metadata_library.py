@@ -2586,7 +2586,7 @@ class LibraryNfoTests(unittest.TestCase):
         state = process_library(config, db, self.root / 'generated', self.root / 'covers',
                                 provider_factory=Mock(return_value=provider))
         self.assertEqual([row['message'] for row in state['issue_preview']],
-                         ['外部资料本趟没轮到：来源正在冷却，请稍后重试；已有图片保留',
+                         ['外部资料本趟没轮到：已暂时停止访问来源，请稍后重试。已有图片会保留。',
                           '封面本趟没轮到：已达到本次查询次数上限。重新运行可继续，已有图片会保留。'])
         self.assertEqual({row['severity'] for row in state['issue_preview']}, {'paused'})
         self.assertEqual((state['issue_count'], state['paused_count']), (2, 2))

@@ -168,7 +168,7 @@ class TaskRunStoreTests(unittest.TestCase):
         coded, plain = (self.store.get(run_id) for run_id in queued["queued"])
         self.assertEqual((coded.progress_code, coded.progress_params), ("taskRun.progress.item", {"name": "涼森れむ"}))
         self.assertEqual((plain.progress_label, plain.progress_code), ("旧写法", ""))
-        self.assertEqual(run_error("unknownFollowup", "no-such-task")["error"], "没有登记 no-such-task 这种后继")
+        self.assertEqual(run_error("unknownFollowup", "no-such-task")["error"], "未找到已登记的后续任务 no-such-task")
 
     def test_manual_conflict_raises_with_the_blocking_run_id(self):
         first = self.store.start("demo", trigger="scheduled", mutex_key="demo")
