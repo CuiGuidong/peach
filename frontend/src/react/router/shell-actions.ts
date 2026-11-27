@@ -165,13 +165,19 @@ export type SurfaceKind = 'management' | 'index' | 'entity' | 'catalog' | 'follo
 
 /** 管理区那几页每次打开时交给页面的值，由页面元素从地址、偏好与壳的状态算（`pages/managed.tsx`），按页面分。
  *  管理区那几页画进 `#stats`。 */
+export interface WriterAccess {
+  readOnly: boolean;
+  readOnlyMessage: string;
+  writerUrl: string;
+}
+
 export interface ManagedOpenProps extends Record<ConfigurationPath, { section?: string }>,
-  Record<import('../../cleanup-tools').CleanupToolPath, Record<string, never>> {
+  Record<import('../../cleanup-tools').CleanupToolPath, { writeAccess?: WriterAccess }> {
   '/jav': { tab: string; readOnly: boolean };
   '/ai': Record<string, never>;
   '/stats': Record<string, never>;
   '/taste': { onboarding: boolean };
-  '/review': { category: string; queue?: string; readOnly: boolean; readOnlyMessage: string; writerUrl: string };
+  '/review': { category: string; queue?: string } & WriterAccess;
   '/data-cleanup': Record<string, never>;
   '/duplicates': Record<string, never>;
   '/quality-goals': Record<string, never>;
@@ -182,8 +188,7 @@ export interface ManagedOpenProps extends Record<ConfigurationPath, { section?: 
   '/tasks': Record<string, never>;
   '/subscriptions': {
     tab: string; page: number; sort: string; dir: string; pageSize: number; layout: string;
-    readOnly: boolean; readOnlyMessage: string; writerUrl: string;
-  };
+  } & WriterAccess;
 }
 
 export type ManagedPath = keyof ManagedOpenProps;

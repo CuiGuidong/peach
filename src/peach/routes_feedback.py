@@ -21,7 +21,7 @@ from . import __version__, feedback_github, feedback_r2
 from .interface_text import template
 from .remote_reporting import dsn
 from .reporting_transport import transport_class
-from .routes_auth import authenticated_client, require_authenticated_client, same_origin
+from .routes_auth import authenticated_client, same_origin
 from .reporting_identity import distribution
 from .user_messages import message_fields
 from .web_local_access import local_client, loopback_client
@@ -30,6 +30,7 @@ router = APIRouter()
 PATH = "/api/app-feedback"
 ENVIRONMENT_PATH = PATH + "/environment"
 DIAGNOSTICS_PATH = PATH + "/diagnostics"
+ACCESS_REQUIRED = "api.feedback.accessRequired"
 MAX_IMAGES = 4
 MAX_IMAGE_BYTES = 4 * 1024 * 1024
 MAX_IMAGE_EDGE = 4096
@@ -239,21 +240,19 @@ def _send(target: str, description: str, images: list[tuple[str, bytes]], catego
 
 def require_feedback_environment(request: Request) -> None:
     if not local_client(request) and not authenticated_client(request):
-        raise HTTPException(401, "unauthorized")
+        raise HTTPException(401, message_fields(ACCESS_REQUIRED))
 
 
 def require_feedback_diagnostics(request: Request) -> bool:
     can_read_logs = loopback_client(request) or authenticated_client(request)
     if not can_read_logs and not local_client(request):
-        raise HTTPException(401, "unauthorized")
+        raise HTTPException(401, message_fields(ACCESS_REQUIRED))
     return can_read_logs
 
 
 def require_feedback_submission(request: Request) -> None:
-    if local_client(request):
-        same_origin(request)
-    else:
-        require_authenticated_client(request)
+    same_origin(request)
+    require_feedback_environment(request)
 
 
 @router.get(ENVIRONMENT_PATH, dependencies=[Depends(require_feedback_environment)])

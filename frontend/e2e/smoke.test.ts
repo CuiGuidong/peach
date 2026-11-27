@@ -327,7 +327,7 @@ describe('路由冒烟', () => {
     ];
     const opened = await visit(browser, '/settings/ai', DESKTOP, async page => {
       await page.emulateMedia({ reducedMotion: 'no-preference' });
-      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { providers: [
+      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { settings_editable: true, providers: [
         { id: 'openai', label: 'OpenAI', model: 'fixture-default', configured: true, efforts, default_efforts },
         { id: 'deepseek', label: 'DeepSeek', model: 'fixture-default', configured: true, efforts, default_efforts },
       ] } }));
@@ -379,18 +379,72 @@ describe('路由冒烟', () => {
     }
   });
 
-  it('AI 助手无可用服务时在欢迎区显示配置主按钮', { timeout: 30_000 }, async () => {
+  it('AI 接入受限时保留只读配置和用量区，并只显示一条访问提示', { timeout: 30_000 }, async () => {
+    const restrictedRequests: string[] = [];
+    const opened = await visit(browser, '/settings/ai', DESKTOP, async page => {
+      page.on('request', request => {
+        const pathname = new URL(request.url()).pathname;
+        if (['/api/ai-library/prompts', '/api/ai-library/usage'].includes(pathname)
+          || pathname === '/api/ai-library/custom-tasks' && new URL(request.url()).searchParams.has('edit')) {
+          restrictedRequests.push(request.url());
+        }
+      });
+      await page.route('**/api/ai-library/connections', route => route.fulfill({
+        status: 403, json: { message_code: 'api.aiLibrary.lanSignIn' },
+      }));
+    });
+    try {
+      const page = opened.page;
+      const notice = page.getByRole('note').filter({ hasText: /运行 Peach 的电脑.*网络与访问.*访问密码/ });
+      await notice.waitFor();
+      assert.equal(await notice.count(), 1);
+      const services = page.locator('#ai-services');
+      for (const provider of ['Claude', 'OpenAI', 'DeepSeek']) {
+        const form = services.getByRole('form', { name: provider, exact: true });
+        await form.waitFor();
+        assert.equal(await form.getByLabel('API Key', { exact: true }).isDisabled(), true);
+        assert.equal(await form.getByRole('button', { name: '保存配置', exact: true }).isDisabled(), true);
+      }
+      assert.equal(await services.getByText('未配置', { exact: true }).count(), 0);
+      assert.equal(await services.getByRole('button', { name: '添加服务商' }).isDisabled(), true);
+      const prompts = page.locator('#ai-prompts');
+      const preview = prompts.getByRole('region', { name: '标题和简介翻译', exact: true });
+      await preview.scrollIntoViewIfNeeded();
+      const bounds = await preview.boundingBox();
+      assert.ok(bounds);
+      await page.mouse.move(bounds.x + 24, bounds.y + 18);
+      await page.mouse.down();
+      await page.mouse.move(bounds.x + 160, bounds.y + 55, { steps: 6 });
+      await page.mouse.up();
+      assert.equal(await page.evaluate(() => window.getSelection()?.toString()), '');
+      assert.equal(await prompts.getByRole('button', { name: '保存配置', exact: true }).isDisabled(), true);
+      await page.locator('#ai-usage').getByText('当前入口无法查看用量。', { exact: true }).waitFor();
+      assert.equal(await page.getByText('登录已失效，请刷新页面重新登录。', { exact: true }).count(), 0);
+      assert.deepEqual(restrictedRequests, []);
+    } finally {
+      await opened.close();
+    }
+  });
+
+  it('AI 助手区分未配置和当前入口受限', { timeout: 30_000 }, async () => {
     for (const status of [200, 403]) {
       const opened = await visit(browser, '/ai', DESKTOP, async page => {
         await page.route('**/api/ai-library/connections', route => route.fulfill({ status, json: status === 200
           ? { providers: [{ id: 'openai', label: 'OpenAI', configured: false }] }
-          : { detail: { message: 'AI connection access denied' } } }));
+          : { message_code: 'api.aiLibrary.lanSignIn' } }));
       });
       try {
-        const configure = opened.page.getByRole('link', { name: '配置 AI 服务', exact: true });
-        await configure.waitFor({ state: 'visible' });
-        assert.equal(await configure.getAttribute('href'), '/settings/ai');
-        assert.ok(await configure.evaluate(node => node.classList.contains('bg-button-primary')));
+        const page = opened.page;
+        const configure = page.getByRole('link', { name: '配置 AI 服务', exact: true });
+        if (status === 200) {
+          await configure.waitFor({ state: 'visible' });
+          assert.equal(await configure.getAttribute('href'), '/settings/ai');
+          assert.ok(await configure.evaluate(node => node.classList.contains('bg-button-primary')));
+        } else {
+          await page.getByRole('note').getByText(/请在运行 Peach 的电脑上修改 AI 配置/).waitFor();
+          assert.equal(await configure.count(), 0);
+          assert.equal(await page.locator('[data-ai-composer-trigger="end"]').isDisabled(), true);
+        }
       } finally {
         await opened.close();
       }
@@ -509,7 +563,7 @@ describe('路由冒烟', () => {
   it('ChatGPT 待授权的外链沿用主按钮的文字颜色、内边距和圆角', { timeout: 30_000 }, async () => {
     let status = 'disconnected';
     const opened = await visit(browser, '/settings/ai', DESKTOP, async page => {
-      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { providers: [
+      await page.route('**/api/ai-library/connections', route => route.fulfill({ json: { settings_editable: true, providers: [
         { id: 'openai', label: 'OpenAI', model: 'fixture-model', configured: false },
         { id: 'openai-oauth', label: 'ChatGPT', model: 'fixture-model', configured: false, status },
       ] } }));

@@ -898,6 +898,7 @@
   },
   "api": {
     "feedback": {
+      "accessRequired": "Open Feedback on the computer running Peach. To send feedback from this device, set an access password under Network and access on that computer, then open Peach here and enter the password.",
       "issueTemplate": {
         "bugDescription": "What happened",
         "reproduction": "Steps to reproduce",
@@ -927,7 +928,8 @@
       "customTaskConnection": "The service endpoint changed. Save the task connection settings again",
       "invalidPrompt": "Choose a valid prompt scope or shorten the prompt before saving.",
       "credentialTransport": "Submit API keys over HTTPS or through the local loopback address.",
-      "privateAccess": "Saved AI services are unavailable through public access. Open Peach on its host or sign in over a direct LAN connection.",
+      "privateAccess": "Saved AI services are unavailable over public or proxied connections. Open AI Connections on the computer running Peach.",
+      "lanSignIn": "Change AI settings on the computer running Peach. To use AI on this device, set an access password under Network and access on that computer, then open Peach here and enter the password.",
       "searchUnsupported": "No supported filters were found. Add a keyword, performer, year, or tag.",
       "invalid": "Check the AI service, model, and task settings.",
       "unconfigured": "Set up an API key for this AI service first.",
@@ -977,7 +979,7 @@
       "loginFormInvalid": "The sign-in form has too many fields.",
       "loginFormTooLarge": "The sign-in form is too large.",
       "sessionNotSaved": "Couldn't remember this device. Check that the data directory is writable, then try again.",
-      "submitFromSettings": "Submit from the Settings page.",
+      "submitFromSettings": "Peach could not verify where this request came from. Open this Peach instance directly and try the original action again.",
       "tooManyAttempts": "Too many attempts. Try again in a minute.",
       "assetTokenRequired": "?t=<access token> required"
     },

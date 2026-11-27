@@ -587,6 +587,7 @@
     "removeChip": "撤掉 {{label}}",
     "search": "在名下作品里查找",
     "shuffle": "换一批",
+    "moreFailed": "未能加载更多头像",
     "sourceName": "来源：{{source}}",
     "watchStatus": "观看状态"
   },
@@ -1139,6 +1140,7 @@
     "recommendedJav": "JAV 推荐",
     "recommendedVideos": "作品推荐",
     "removeHistory": "删除历史 {{query}}",
+    "removeHistoryFailed": "未能删除搜索记录",
     "shuffleGroup": "{{group}}换一批",
     "suggestionsFor": "{{label}}的建议",
     "tabsLabel": "按种类看补全",

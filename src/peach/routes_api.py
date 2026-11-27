@@ -39,7 +39,7 @@ from .platform import is_unmapped, translate_ledger_path
 from .providers import ProviderUnavailable
 from .routes_auth import authenticated_client, require_auth
 from .system_language import interface_language
-from .web_local_access import local_client, loopback_client, private_ai_client
+from .web_local_access import host_ai_client, local_client, loopback_client, private_ai_client
 from .task_runs import task_label
 from .task_control import Cancelled as TaskCancelled
 from .taste_history import analyze_history, import_history_exports, write_manifest
@@ -61,8 +61,8 @@ def _ai_access(request: Request):
         raise HTTPException(403, message_fields("api.auth.submitFromSettings"))
     if not private_ai_client(request):
         raise HTTPException(403, message_fields("api.aiLibrary.privateAccess"))
-    if not (site == "same-origin" and loopback_client(request)) and not authenticated_client(request):
-        raise HTTPException(401, "unauthorized")
+    if not (site == "same-origin" and host_ai_client(request)) and not authenticated_client(request):
+        raise HTTPException(403, message_fields("api.aiLibrary.lanSignIn"))
 
 
 def _ai_admin(request: Request):
@@ -95,6 +95,7 @@ def ai_connections(request: Request, response: Response, _args=Depends(require_a
     _ai_access(request)
     response.headers["Cache-Control"] = "no-store"
     result = web_ai_library.connections(request.app.state)
+    result["settings_editable"] = local_client(request)
     if loopback_client(request):
         oauth = ai_openai_oauth.status(request.app.state)
         providers = result["providers"]
@@ -108,7 +109,8 @@ def ai_connections(request: Request, response: Response, _args=Depends(require_a
 def ai_configure(request: Request, response: Response, body: Any = Body(...), _args=Depends(require_auth)):
     _ai_admin(request)
     response.headers["Cache-Control"] = "no-store"
-    return web_ai_library.configure(request.app.state, _ai_key_payload(request, body))
+    result = web_ai_library.configure(request.app.state, _ai_key_payload(request, body))
+    return {**result, "settings_editable": True}
 
 
 @router.get("/api/ai-library/prompts")

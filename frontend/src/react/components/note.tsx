@@ -15,7 +15,7 @@ type Tone = 'neutral' | 'info' | 'success' | 'warning' | 'error';
  *  正文是段落，塞不进这些块级内容。 */
 export function Note(
   { tone, title, action, extra, children, actionLayout = 'inline', className }:
-  { tone: Tone; title?: string; action?: ReactNode; extra?: ReactNode; children: ReactNode; actionLayout?: 'inline' | 'below'; className?: string },
+  { tone: Tone; title?: ReactNode; action?: ReactNode; extra?: ReactNode; children: ReactNode; actionLayout?: 'inline' | 'below'; className?: string },
 ) {
   const content = (
     <>

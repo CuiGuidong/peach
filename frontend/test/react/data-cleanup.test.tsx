@@ -212,6 +212,8 @@ describe('读数卡', () => {
 });
 
 describe('资源同步', () => {
+  const writer = { readOnly: false, readOnlyMessage: '', writerUrl: '' };
+
   it('首页不读取资源扫描，进入二级页后才按已配置根目录读取', async () => {
     expect(hasResourceRoots(withRoots)).toBe(true);
     expect(hasResourceRoots(withoutRoots)).toBe(false);
@@ -261,7 +263,7 @@ describe('资源同步', () => {
       }),
       '/api/items?state=trash&limit=1': { total: 0, bytes: 0 },
     });
-    const host = await wrap(<ResourceSyncCard toast={toast} />);
+    const host = await wrap(<ResourceSyncCard toast={toast} writeAccess={writer} />);
     await settle();
     expect(host.textContent).toContain('本地磁盘');
     expect(host.querySelector('[data-connection-tone="warning"]')?.textContent).toBe('离线');
@@ -324,7 +326,7 @@ describe('资源同步', () => {
       }),
       '/api/items?state=trash&limit=1': { total: 0, bytes: 0 },
     });
-    const host = await wrap(<ResourceSyncCard toast={vi.fn()} />);
+    const host = await wrap(<ResourceSyncCard toast={vi.fn()} writeAccess={writer} />);
     await settle();
     expect(host.textContent).toContain('将标为已消失');
     expect(host.textContent).toContain('2 项带个人记录');
@@ -349,7 +351,7 @@ describe('资源同步', () => {
       }),
       '/api/items?state=trash&limit=1': { total: 0, bytes: 0 },
     });
-    const host = await wrap(<ResourceSyncCard toast={toast} />);
+    const host = await wrap(<ResourceSyncCard toast={toast} writeAccess={writer} />);
     await settle();
     await click(buttonNamed('清理失效条目', host));
     await settle();

@@ -14,6 +14,7 @@ import { t } from '../../i18n';
 import { pageRuntime } from '../client-updates';
 import { CollapseRegion } from '../components/collapse-region';
 import { ModalFrame } from '../components/modal-frame';
+import { Note } from '../components/note';
 import { overlayHost } from '../components/overlay-host';
 import { InterfaceLocale } from '../interface-locale';
 import { Providers } from '../providers';
@@ -137,6 +138,10 @@ function DownloadGithubImage({ image, number }: { image: Attachment; number: num
   </ButtonLink>;
 }
 
+function feedbackAccessError(error: unknown) {
+  return error instanceof ApiError && (error.body as { message_code?: string } | null)?.message_code === 'api.feedback.accessRequired';
+}
+
 function FeedbackDialog({ session, open, close, exited, startTab }: {
   session: Session; open: boolean; close(): void; exited(): void; startTab: Ref<() => void>;
 }) {
@@ -163,6 +168,7 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
   const [sent, setSent] = useState(false);
   const [imageError, setImageError] = useState('');
   const [submitError, setSubmitError] = useState('');
+  const [accessBlocked, setAccessBlocked] = useState(false);
   const [preview, setPreview] = useState<Preview>();
   const [editing, setEditing] = useState<{ item: Attachment; label: string }>();
   const [editorOpen, setEditorOpen] = useState(false);
@@ -190,8 +196,10 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
         environmentPython: facts.python,
       });
       setEnvironmentStatus('ready');
-    }).catch(() => {
-      if (!load.signal.aborted) setEnvironmentStatus('failed');
+    }).catch(error => {
+      if (load.signal.aborted) return;
+      setEnvironmentStatus('failed');
+      if (feedbackAccessError(error)) setAccessBlocked(true);
     });
     return () => load.abort();
   }, []);
@@ -201,8 +209,10 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
     const load = new AbortController();
     void apiGet<FeedbackDiagnostics>('/api/app-feedback/diagnostics', load.signal).then(snapshot => {
       if (!load.signal.aborted) setDiagnostics(snapshot);
-    }).catch(() => {
-      if (!load.signal.aborted) setDiagnostics(null);
+    }).catch(error => {
+      if (load.signal.aborted) return;
+      setDiagnostics(null);
+      if (feedbackAccessError(error)) setAccessBlocked(true);
     });
     return () => load.abort();
   }, [category, diagnostics]);
@@ -265,7 +275,8 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
   const fieldValue = (field: IssueField) => fields[field] ?? prefilled[field] ?? '';
   const updateField = (field: IssueField, value: string) => setFields(current => ({ ...current, [field]: value }));
   const requiredFields = category === 'bug' ? [...ISSUE_FIELDS.bug, ...ENVIRONMENT_FIELDS] : ISSUE_FIELDS.feature;
-  const formReady = title.trim() !== '' && requiredFields.every(([field, , required]) => !required || fieldValue(field).trim() !== '');
+  const formReady = !accessBlocked && title.trim() !== '' &&
+    requiredFields.every(([field, , required]) => !required || fieldValue(field).trim() !== '');
   const remaining = IMAGE_LIMIT - images.length - Number(capture === 'pending' || (!!capturingTab && !images.some(item => item.screenshot)));
   const labels = images.map((item, index) => attachmentLabel(item, index + 1 - Number(Boolean(images[0].screenshot))));
   const offerTabCapture = !session.capture;
@@ -386,7 +397,8 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
       setSent(true);
       setImages([]);
     } catch (error) {
-      setSubmitError(error instanceof ApiError
+      if (feedbackAccessError(error)) setAccessBlocked(true);
+      else setSubmitError(error instanceof ApiError
         ? error.status === 401 ? message('signIn') : error.message
         : message('sendFailed'));
     } finally {
@@ -419,6 +431,9 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
         <Button type="button" variant="ghost" iconOnly leadingIcon={RiCloseLine} onClick={closeForm}
           disabled={sending} aria-label={message('close')} />
       </header>
+      {accessBlocked && !sent ? <Note tone="warning">
+        <span data-copy-key="server.api.feedback.accessRequired">{t('server:api.feedback.accessRequired')}</span>
+      </Note> : null}
       {sent ? <div className="flex flex-col gap-3">
         <p role="status" className="text-body-regular text-text-primary">{copy('sent')}</p>
         {github && github.status !== 'published' && <p role="status" className="text-caption-1-regular text-text-secondary">
@@ -461,7 +476,7 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
                 maxLength={limit} value={fieldValue(field)} isDisabled={sending} isRequired={required}
                 onChange={value => updateField(field, value)} />)}
             </div>
-            {environmentStatus !== 'ready' && <p role="status" className="text-caption-1-regular text-text-secondary">
+            {!accessBlocked && environmentStatus !== 'ready' && <p role="status" className="text-caption-1-regular text-text-secondary">
               {copy(environmentStatus === 'loading' ? 'environmentLoading' : 'environmentUnavailable')}
             </p>}
           </fieldset>
@@ -472,7 +487,7 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
             </Checkbox>
             <Textarea label={copy('environmentHealth')} rows={2} autoResize maxRows={5} resize="none" maxLength={500}
               isDisabled={sending} value={fieldValue('environmentHealth')}
-              hint={diagnostics === undefined ? <span role="status">{copy('diagnosticsLoading')}</span> :
+              hint={accessBlocked ? undefined : diagnostics === undefined ? <span role="status">{copy('diagnosticsLoading')}</span> :
                 diagnostics === null ? <span role="status">{copy('diagnosticsUnavailable')}</span> : undefined}
               onChange={value => updateField('environmentHealth', value)} />
             <Textarea label={copy('logs')} placeholder={message('logsPlaceholder')} rows={2} autoResize maxRows={3} resize="none" maxLength={550}
@@ -551,7 +566,7 @@ function FeedbackDialog({ session, open, close, exited, startTab }: {
             </CollapseRegion>
           </div>}
         </div>
-        {submitError && <p role="alert" className="text-body-regular text-text-error-primary">{submitError}</p>}
+        {submitError && !accessBlocked ? <Note tone="error">{submitError}</Note> : null}
         <footer className="flex flex-wrap justify-end gap-2">
           <Button type="button" variant="secondary" data-feedback-action="" disabled={sending} onClick={closeForm}>{copy('cancel')}</Button>
           <Button type="submit" disabled={!formReady || adding || !!capturingTab || capture === 'pending'} aria-disabled={sending} aria-busy={sending}>

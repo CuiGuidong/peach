@@ -7,6 +7,29 @@ describe('资源清理提示与操作', () => {
   let browser: Browser;
   before(async () => { browser = await launch(); });
   after(async () => { await browser?.close(); });
+  it('只读副本可以检查文件，清理按钮提前禁用并提示原因', async () => {
+    const viewport = VIEWPORTS.find(row => !row.mobile)!;
+    const opened = await visit(browser, '/data-cleanup/resource-sync', viewport, async page => {
+      await page.route(url => url.pathname === '/healthz', async route => {
+        const response = await route.fetch();
+        await route.fulfill({ response, json: { ...await response.json(), ledger_read_only: true,
+          ledger_read_only_message: '本机仅供浏览。', ledger_writer_origin: 'https://writer.example' } });
+      });
+      await page.route('**/api/resource-sync/scan', route => route.fulfill({ json: {
+        status: 'complete', scan_id: 'readonly-fixture', missing: 1, purge: 1,
+        sources: [{ location: 'local', online: true, total: 1, missing: 1 }],
+      } }));
+      await page.route('**/api/resource-sync/apply', route => route.fulfill({ json: { status: 'idle' } }));
+    });
+    try {
+      const card = opened.page.locator('#resource-sync');
+      await card.getByRole('note').getByText('本机仅供浏览。', { exact: true }).waitFor();
+      assert.equal(await card.getByRole('button', { name: '清理失效条目', exact: true }).isDisabled(), true);
+      assert.equal(await card.locator('[data-resource-scan]').isEnabled(), true);
+      assert.equal(await card.getByRole('link', { name: '前往写入端清理', exact: true }).getAttribute('href'),
+        'https://writer.example/data-cleanup/resource-sync');
+    } finally { await opened.close(); }
+  });
   for (const viewport of VIEWPORTS) {
     it(`清理操作位于提示内并适应容器（${viewport.name}）`, async () => {
       const opened = await visit(browser, '/resource-sync', viewport, async page => {

@@ -61,7 +61,7 @@ export async function apiGet<T>(path: string, signal?: AbortSignal): Promise<T> 
   }
   if (!response.ok) {
     noticeFailedResponse(response.status, payload);
-    throw new ApiError(serverText(payload), response.status, null, { fromServer: true });
+    throw new ApiError(serverText(payload), response.status, payload, { fromServer: true });
   }
   registerResponseEntities(path, payload);
   return payload as T;

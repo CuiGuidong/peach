@@ -100,6 +100,10 @@ async function openProps(path: ManagedPath, run: Run): Promise<object | null> {
     return { category: isReviewCategory(category) ? category : '', queue: reviewQueueOf(search().get('queue')),
       ...writerProps(runtime, '/review') } satisfies ManagedOpenProps['/review'];
   }
+  if (path === '/data-cleanup/resource-sync') {
+    const runtime = await readRuntime(run);
+    return run.live ? { writeAccess: writerProps(runtime, path) } satisfies ManagedOpenProps[typeof path] : null;
+  }
   if (path === '/subscriptions') {
     const route = followManageParams('?' + search().toString());
     const runtime = await readRuntime(run);

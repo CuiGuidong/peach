@@ -116,7 +116,7 @@ export function DownloadsPanel() {
         ? <ul aria-live="polite" className="flex min-w-0 flex-col gap-3">
             {tasks.map((task) => <TaskCard key={task.id} task={task} writable={data?.available ?? false} />)}
           </ul>
-        : search && !query.isFetching ? <p role="status" className="text-body-2-regular text-text-secondary">{t('manage:downloadsPanel.noMatches')}</p> : null}
+        : search && !query.isFetching && !query.isError ? <p role="status" className="text-body-2-regular text-text-secondary">{t('manage:downloadsPanel.noMatches')}</p> : null}
       <DataTableFooter label={t('manage:downloadsPanel.title')} total={data?.total ?? tasks.length}
         pagination={{ pageIndex: (data?.page || page) - 1, pageSize }}
         onChange={(next) => {

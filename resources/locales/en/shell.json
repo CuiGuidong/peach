@@ -332,7 +332,7 @@
     "send": "Send",
     "sending": "Sending…",
     "sent": "Feedback sent.",
-    "signIn": "Send feedback from the computer running Peach or sign in and try again.",
+    "signIn": "Feedback was not sent. Reopen Peach, enter the access password, and try again. You can also send feedback from the device running Peach.",
     "sendFailed": "Couldn't confirm your feedback was sent. Check your connection and try again.",
     "issueTitle": "Title",
     "issueTitlePlaceholder": "Summarize your feedback in one line",

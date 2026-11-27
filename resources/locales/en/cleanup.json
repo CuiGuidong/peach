@@ -367,6 +367,7 @@
     "videoCount_other": "{{count, number}} videos"
   },
   "resourceSync": {
+    "goToPrimary": "Open cleanup on the device that can make changes",
     "alreadyCleaned": "The results of this check have been cleaned up. Scan again to recheck.",
     "applyConfirm_one": "Permanently deletes {{count, number}} record whose file is gone (including the trash) and {{empty}} empty directories, and cleans up {{cache}} unused cache files.",
     "applyConfirm_other": "Permanently deletes {{count, number}} records whose files are gone (including the trash) and {{empty}} empty directories, and cleans up {{cache}} unused cache files.",

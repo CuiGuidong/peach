@@ -7,12 +7,13 @@ import { Checkbox } from '@/components/base/checkbox/checkbox';
 import { Select, SelectItem } from '@/components/base/select/select';
 import { Input } from '@/components/base/input/input';
 import { Textarea } from '@/components/base/textarea/textarea';
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { apiGet, apiSend, ApiError, errorMessage } from '../../api';
 import { interfaceLanguage, t } from '../../i18n';
 import { seekVideoBy } from '../../player/playback';
 import { aiConnectionLabel, AI_CONNECTIONS_KEY, AI_CONNECTIONS_URL, type AIConnections } from '../settings/ai-library-settings';
 import { aiModelLabel, AI_ASSET_TASKS, preferredAIConnection } from '../settings/use-ai-models';
 import { ErrorText, Help } from '../settings/section';
+import { Note } from '../components/note';
 import { busyProps, useAction } from '../settings/use-action';
 import { ModalFrame } from '../components/modal-frame';
 import { spriteGlyph } from '../components/sprite-glyph';
@@ -55,6 +56,7 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
     queryFn: ({ signal }: { signal: AbortSignal }) => apiGet<AssetAI>(path, signal) };
   const connections = useQuery({ ...connectionQuery, enabled: open });
   const source = useQuery({ ...assetQuery, enabled: open });
+  const setupError = connections.error || source.error;
   const options = connections.data?.providers.filter(row => row.configured) || [];
   const profile = connections.data?.task_profiles?.[task];
   const active = profile?.provider ? options.find(row => row.id === profile.provider) : preferredAIConnection(options);
@@ -75,7 +77,10 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
     const requestedTask = inline ? task : 'translate';
     if (requestedTask === 'vision' || autoRequested.current || action.busy || (inline && connections.data && !active)) return;
     void action.run('generate', async signal => {
-      const [setup, record] = await Promise.all([client.fetchQuery(connectionQuery), client.fetchQuery(assetQuery)]);
+      const [setupQuery, recordQuery] = await Promise.allSettled([client.fetchQuery(connectionQuery), client.fetchQuery(assetQuery)]);
+      if (setupQuery.status !== 'fulfilled' || recordQuery.status !== 'fulfilled') return null;
+      const setup = setupQuery.value;
+      const record = recordQuery.value;
       const preferred = setup.task_profiles?.[requestedTask]?.provider;
       if (!setup.providers.some(row => row.configured && (!preferred || row.id === preferred))
         || (requestedTask === 'translate' && record.translations.some(row => row.language === language))) return null;
@@ -84,7 +89,7 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
     }, result => { if (result) showCandidate(result); });
   };
   const generate = () => {
-    if (!active) return;
+    if (!active || setupError) return;
     clear();
     void action.run('generate', requestCandidate, showCandidate);
   };
@@ -103,7 +108,16 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
   const sourceHelp = isOfficial ? 'officialHelp' : 'timelineHelp';
   const sharing = isOfficial ? 'shareOfficial' : isTimeline ? 'shareTimeline' : isVision ? 'shareImage' : 'shareText';
   const alreadySaved = task === 'translate' && source.data?.translations.some(row => row.language === language);
-  const showGenerate = active && (!inline || isVision || Boolean(action.error) || (autoRequested.current && !candidate && !busy && !alreadySaved));
+  const showGenerate = !setupError && active && (!inline || isVision || Boolean(action.error) || (autoRequested.current && !candidate && !busy && !alreadySaved));
+  const accessDenied = setupError instanceof ApiError && (setupError.status === 401 || setupError.status === 403);
+  const setupMessage = setupError ? errorMessage(setupError) : '';
+  const canConfigure = connections.data?.settings_editable !== false;
+  const connectionPrompt = (missing: boolean) => canConfigure ? <div className="flex flex-wrap items-center gap-2">
+    {missing ? <Help role="status">{t('settings:aiLibrary.taskConnectionMissing')}</Help> : null}
+    <ButtonLink variant={inline ? 'primary' : 'secondary'} size="small" href="/settings/ai">{t('catalog:aiLibrary.configure')}</ButtonLink>
+  </div> : <Note tone="info">
+    <span data-copy-key="settings.aiLibrary.editOnHost">{t('settings:aiLibrary.editOnHost')}</span>
+  </Note>;
   const content = <>
     {action.busy === 'generate' && (task === 'translate' || inline) ? <Help role="status">
       {t(task === 'translate' ? 'catalog:aiLibrary.translating' : 'catalog:aiLibrary.generating')}
@@ -111,11 +125,8 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
     {source.data?.translations.filter(row => !inline || (task === 'translate' && row.language === language))
       .map(row => <TranslationResult key={row.language} row={row} />)}
     {connections.isLoading || source.isLoading ? <Help role="status">{t('settings:aiLibrary.loading')}</Help> : null}
-    {connections.error || source.error ? <ErrorText>{errorMessage(connections.error || source.error)}</ErrorText> : null}
-    {connections.data && (inline ? !active && !alreadySaved : !options.length) ? <div className="flex flex-wrap items-center gap-2">
-      {inline ? <Help role="status">{t('settings:aiLibrary.taskConnectionMissing')}</Help> : null}
-      <ButtonLink variant={inline ? 'primary' : 'secondary'} size="small" href="/settings/ai">{t('catalog:aiLibrary.configure')}</ButtonLink>
-    </div> : null}
+    {setupMessage ? <Note tone={accessDenied ? 'warning' : 'error'}>{setupMessage}</Note> : null}
+    {!setupError && connections.data && (inline ? !active && !alreadySaved : !options.length) ? connectionPrompt(inline) : null}
     {source.data && !inline ? <>
       <Select aria-label={t('catalog:aiLibrary.task')} selectedKey={task} isDisabled={busy}
         onSelectionChange={key => { setTask(key as AssetTask); clear(); }}>
@@ -123,8 +134,7 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
       </Select>
       {taskModel ? <Help>{t('catalog:aiLibrary.modelForTask', {
         model: aiModelLabel(taskModel), effort: t('settings:aiLibrary.effortOptions.' + taskEffort),
-      })}</Help> : options.length ? <div><Help>{t('settings:aiLibrary.taskConnectionMissing')}</Help>
-        <ButtonLink variant="secondary" size="small" href="/settings/ai">{t('catalog:aiLibrary.configure')}</ButtonLink></div> : null}
+      })}</Help> : !setupError && options.length ? connectionPrompt(true) : null}
     </> : null}
     {source.data ? <>
       {task === 'translate' && !inline ? <Select aria-label={t('catalog:aiLibrary.target')} selectedKey={language} isDisabled={busy}
@@ -155,7 +165,7 @@ export function LibraryAIPanel({ id, code, cover, onSaved, initialTask = 'transl
         <summary>{t('catalog:aiLibrary.originalSummary')}</summary>
         <p className="whitespace-pre-wrap">{source.data.source_summary}</p>
       </details> : null}
-      {action.error ? <ErrorText>{action.error}</ErrorText> : null}
+      {action.error && action.error !== setupMessage ? <Note tone="error">{action.error}</Note> : null}
       {showGenerate ? <div><Button size="small" disabled={busy || Boolean(alreadySaved)} onClick={generate}
         {...busyProps(action.busy === 'generate')}><span data-copy-key="catalog.aiLibrary.generate">
           {t('catalog:aiLibrary.generate')}</span></Button></div> : null}

@@ -2,6 +2,7 @@
   "aiLibrary": {
     "oauthTitle": "ChatGPT plan",
     "oauthHelp": "Connect from the computer running Peach to use an eligible ChatGPT plan. Authorization opens in your browser.",
+    "oauthLocalAddress": "To authorize a ChatGPT plan, open Peach using its local address (localhost or 127.0.0.1) on the computer running it. You can set up an API key at the current address.",
     "oauthError": "Could not connect to ChatGPT. Start authorization again.",
     "oauthDisconnect": "Disconnect",
     "oauthRevocationUnconfirmed": "The local connection was removed. ChatGPT revocation could not be confirmed.",
@@ -17,6 +18,7 @@
     },
     "help": "Choose a service and model here, then pick a connection for each task in the work details. Model discovery and connection checks only query the service's model catalog.",
     "servicesTitle": "Connections",
+    "editOnHost": "Open AI Connections on the device running Peach to manage services, tasks, and prompts.",
     "keyPrivacy": "The Peach server stores your API key. After saving, this page shows only the connection status.",
     "prompts": {
       "title": "Tasks and prompts",
@@ -25,6 +27,7 @@
       "loading": "Loading prompts…",
       "reset": "Restore default prompt",
       "resetDone": "Default prompt restored",
+      "builtinReadOnly": "Peach’s built-in default prompt is shown here.",
       "defaults": {
         "system": "You are the assistant for a private library in Peach. Prepare search filters, translation drafts, tag candidates, and catalog changes for review.\n\n• Use an explicit work code to identify a release. One work can have a source title, a library display title, translated text, and multiple files or editions. Similar titles alone do not identify duplicates.\n• Keep library records, external catalogs, publisher material, and visible footage distinct. Base observations on the evidence supplied for the current task and stay within what that evidence establishes.\n• Leave missing, conflicting, or unclear details blank. Return only the candidate or plan the task asks for. Peach handles review, saving, renaming, and deletion.",
         "search": "Turn the request into filters or work tasks that Peach can run.\n\n• For the library, use an exact work code when given. Otherwise choose a short, distinctive term. Put explicitly named performers, studios, and canonical tags in the matching fields.\n• Distinguish date added from release date, unwatched from Watch Later, and flagged from rated. For “recently added and unwatched,” sort by date added and select the unwatched state. “Find works missing English” uses a missing-translation filter. “Translate this work into English” starts a translation task.\n• For external discovery, use a short work code, Japanese title, or name. Watch state, date added, and personal marks are library-only. For both scopes, provide conditions suitable for each.\n• On a follow-up, change the fields the user mentions and retain applicable context. Treat a standalone request as new. If a required condition cannot be represented, preserve the response schema and leave the filter fields empty. Avoid broadening the scope or guessing titles.",
@@ -61,6 +64,8 @@
     },
     "usage": {
       "title": "AI usage",
+      "accessUnavailable": "Usage is unavailable from this entry point.",
+      "loadUnavailable": "Could not load AI usage.",
       "period": "Peach requests in the last {{days}} days",
       "empty": "No AI usage recorded yet.",
       "loading": "Loading AI usage…",
