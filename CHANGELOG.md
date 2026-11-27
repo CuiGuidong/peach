@@ -16,7 +16,7 @@ Entries are written for users to scan: one sentence each, saying where something
 
 ## [Unreleased]
 
-- Align the JAV New Releases avatar rows with Home and move the card and list switch to the lower filter row. / JAV 新作的艺人与厂牌横排和首页对齐，卡片与列表切换移回筛选栏下排。
+- **Interface**: Align the JAV New Releases avatar rows with Home and move the card and list switch to the lower filter row (#891). / **界面**：JAV 新作的艺人与厂牌横排和首页对齐，卡片与列表切换移回筛选栏下排（#891）。
 - **Playback**: Repair missing MP4 timestamp tables when only a few frames cannot be decoded (#176). / **播放**：MP4 只有极少数帧无法解码时仍可修复缺失的时间戳表（#176）。
 
 ## [0.63.0] - 2026-11-27
