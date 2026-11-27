@@ -309,6 +309,44 @@ class AILibraryTests(unittest.TestCase):
         restored = ai_prompts.configure(self.state, {"scope": "translate", "text": ""}, "en")
         self.assertEqual(restored["defaults"]["translate"], english["translate"])
 
+    def test_open_access_ai_settings_allow_the_host_and_reject_another_lan_device(self):
+        from fastapi import HTTPException, Request, Response
+        from ipaddress import IPv4Address
+        from peach import access, routes_api
+
+        self.state.settings.access_path = self.root / "secrets" / "access.json"
+        self.state.settings.mdns_name = "peach-fixture"
+        access.save(self.state.settings.access_path, "")
+        host_address = str(IPv4Address(bytes((192, 168, 0, 2))))
+        other_address = str(IPv4Address(bytes((192, 168, 0, 3))))
+        mdns_address = f"{self.state.settings.mdns_name}.local"
+
+        def request(peer, *, host=mdns_address, site="same-origin"):
+            return Request({
+                "type": "http", "method": "GET", "scheme": "https", "path": "/",
+                "query_string": b"",
+                "headers": [(b"host", host.encode()), (b"sec-fetch-site", site.encode())],
+                "client": (peer, 12345), "server": (host_address, 443),
+                "app": SimpleNamespace(state=self.state),
+            })
+
+        for host in (mdns_address, host_address):
+            with self.subTest(host=host):
+                local = request(host_address, host=host)
+                self.assertTrue(routes_api.ai_connections(local, Response())["settings_editable"])
+                self.assertIn("defaults", routes_api.ai_prompt_settings(local, Response()))
+                self.assertIn("tasks", routes_api.ai_fixed_tasks(local, Response(), edit=True))
+                self.assertIn("rows", routes_api.ai_usage_summary(local, days=30))
+
+        remote = request(other_address)
+        with self.assertRaises(HTTPException) as denied:
+            routes_api.ai_connections(remote, Response())
+        self.assertEqual(denied.exception.status_code, 403)
+        self.assertEqual(denied.exception.detail["message_code"], "api.aiLibrary.lanSignIn")
+        with self.assertRaises(HTTPException) as cross_site:
+            routes_api.ai_connections(request(host_address, site="cross-site"), Response())
+        self.assertEqual(cross_site.exception.detail["message_code"], "api.auth.submitFromSettings")
+
     def test_public_routes_cannot_use_saved_connections_with_a_valid_session(self):
         from fastapi import HTTPException, Request, Response
         from peach import routes_api
@@ -330,7 +368,8 @@ class AILibraryTests(unittest.TestCase):
             request(private_host, private_peer, [("x-forwarded-host", "peach.example.test")]),
             request("127.0.0.1", "127.0.0.1", [("origin", "https://peach.example.test")]),
         )
-        with patch.object(routes_api, "authenticated_client", return_value=True):
+        with (patch.dict(os.environ, {"PEACH_HEADLESS_MANAGED": "0"}),
+              patch.object(routes_api, "authenticated_client", return_value=True)):
             for public in public_requests:
                 for call in (
                     lambda public=public: routes_api.ai_connections(public, Response()),
@@ -344,7 +383,9 @@ class AILibraryTests(unittest.TestCase):
                     self.assertEqual(denied.exception.status_code, 403)
                     self.assertEqual(denied.exception.detail["message_code"], "api.aiLibrary.privateAccess")
             private = request(private_host, f"::ffff:{private_peer}")
-            self.assertTrue(routes_api.ai_connections(private, Response())["providers"])
+            result = routes_api.ai_connections(private, Response())
+            self.assertTrue(result["providers"])
+            self.assertFalse(result["settings_editable"])
 
     def test_search_plan_keeps_supported_filters_and_ignores_model_supplied_results(self):
         proposal = InferenceResult("served-model", {"tag": "眼镜,unknown,眼镜", "year": "2024",

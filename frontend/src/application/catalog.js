@@ -261,7 +261,9 @@ export function catalogFilterActions(){
        页号跟着这一份名单走，`buildBars` 换名单时从头数起。两排翻到同一页时由 `fetchTopsPage` 共用一次请求。 */
     moreTops:async kind=>{
       const pages=catalogState.catalogTopsPages;if(!pages)return [];
-      const rows=(await fetchTopsPage(catalogState.topsQueryParams(pages.context,++pages[kind]).toString()))[kind]||[];
+      const page=pages[kind]+1;
+      const rows=(await fetchTopsPage(catalogState.topsQueryParams(pages.context,page).toString()))[kind]||[];
+      pages[kind]=page;
       return kind==='performers'?rows.map(tierPerformer):rows.map(tierStudio);
     },
     emptyTrash:()=>{emptyTrash()},

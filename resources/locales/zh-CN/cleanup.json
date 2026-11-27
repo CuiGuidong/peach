@@ -308,6 +308,7 @@
     "videoCount": "{{count, number}} 部"
   },
   "resourceSync": {
+    "goToPrimary": "前往写入端清理",
     "alreadyCleaned": "这次检查的结果已经清理，重新扫描可再核对。",
     "applyConfirm": "将永久删除 {{count, number}} 条文件已不在的记录（含回收站）和 {{empty}} 个空文件夹，并清理 {{cache}} 个闲置缓存。",
     "applyDone": "已永久删除 {{count, number}} 条失效记录和 {{dirs}} 个空文件夹，清理 {{cache}} 个缓存，释放 {{size}}。",

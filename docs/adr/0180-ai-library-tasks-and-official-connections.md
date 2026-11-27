@@ -12,7 +12,7 @@
 - Claude、OpenAI 和 DeepSeek 的 API Key 连接默认使用官方端点，也可配置兼容该服务协议的 API 基础地址和端口。模型目录、验证和推理共用这个地址。改用其他地址时须重新输入 API Key，并主动读取新目录。远程地址需要 HTTPS，本机回环也可使用 HTTP。连接固定到已核验的 IP，保留原主机的 TLS 证书校验，并拒绝重定向。模型按任务选择，连接间没有自动切换。
 - 「AI 接入」独立页面按服务商组织连接，OpenAI 同一卡片内可切换 API Key 和 ChatGPT 订阅。已保存的连接、正在填写的 API Key 及新授予的订阅权限都可读取对应模型目录，模型由用户下拉选择。读取目录和验证连接均为只读请求，保存是独立操作。目录收录的模型实际推理时仍受用量和任务能力限制。
 - 用户可添加多条独立的自定义服务商连接，选择 OpenAI Chat Completions 或 Anthropic Messages 兼容协议，并配置名称、基础地址、端口及 API Key。支持读取模型目录，也可填写服务商提供的模型 ID。任务配置、助手和 Peach 用量记录使用连接的独立标识。更换地址或协议需要重新填写该连接的凭据。
-- 保存后的 API Key 仅由服务端读取，Windows 用当前用户的 DPAPI 保存，其他系统使用权限为 `0600` 的本机凭据文件。连接接口只返回状态。公网域名、公开网络地址和代理转发请求均无法调用 AI 接口，即使持有有效登录。直连私网设备须先登录，本机回环沿用同源校验。非回环地址上的 API Key 提交需要 HTTPS。以相同操作系统身份运行的程序仍拥有该身份的文件和解密能力。
+- 保存后的 API Key 仅由服务端读取，Windows 用当前用户的 DPAPI 保存，其他系统使用权限为 `0600` 的本机凭据文件。连接接口只返回状态。公网域名、公开网络地址和代理转发请求均无法调用 AI 接口，即使持有有效登录。其他直连私网设备须先登录。Peach 主机通过回环或自己的监听地址访问时校验同源。非回环地址上的 API Key 提交需要 HTTPS。以相同操作系统身份运行的程序仍拥有该身份的文件和解密能力。
 - 「任务与提示词」允许覆盖全局指导、搜索与任务识别、翻译、文本标签、封面与单帧、时间轴、官方样张、元数据计划和整理计划。默认指导随界面语言，自定义内容按原文使用。模型接收当前操作的指导与固定契约，作品资料作为单独输入传入。元数据与整理提示词由搜索规划使用，写入仍由应用执行确认流程。
 - OpenAI 另外提供 ChatGPT 订阅连接。Peach 使用 OpenAI 的开源应用注册流程，在同一台主机接收回环回调，并将用户明确授予的订阅额度用于 Responses API。这是 Peach 自己获得的授权。现有 Codex 与 Claude 登录资料由各自运行时管理。[OpenAI 授权说明](https://developers.openai.com/siwc/token-sharing-open-source/sign-in)
 - Claude 使用用户在 Claude Console 创建的 API Key。Anthropic 将个人订阅 OAuth 限定于原生应用的用途。Claude Platform OAuth 提供单独的组织计费测试版，需要登记 OAuth 应用、配置工作负载身份，并由合格 Claude 组织授权。[Claude Code 凭据政策](https://code.claude.com/docs/en/legal-and-compliance) · [Claude Platform OAuth](https://platform.claude.com/docs/en/manage-claude/oauth-apps/overview)

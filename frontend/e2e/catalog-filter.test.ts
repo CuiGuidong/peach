@@ -296,6 +296,40 @@ describe('首页筛选条', () => {
     }
   });
 
+  it('头像续页失败后提示重试同一页', { timeout: 30_000 }, async () => {
+    const opened = await openHome(browser);
+    try {
+      const { page } = opened;
+      let available = false;
+      const requests: number[] = [];
+      await page.route(url => url.pathname === '/api/tops', route => {
+        const pageNumber = Number(new URL(route.request().url()).searchParams.get('page') || 0);
+        if (!pageNumber) return route.fulfill({ json: { performers: PERFORMERS.slice(0, 40), studios: [] } });
+        requests.push(pageNumber);
+        return pageNumber === 1 && !available
+          ? route.fulfill({ status: 503, json: { error: 'unavailable' } })
+          : route.fulfill({ json: { performers: pageNumber === 1 ? PERFORMERS.slice(40) : [], studios: [] } });
+      });
+      await page.reload();
+      const row = page.locator(`${FILTER} [data-catalog-tier="performers"]`);
+      await row.locator('[data-tier-performer]').first().waitFor();
+      for (let index = 0; !requests.length && index < 12; index += 1) {
+        await row.evaluate(el => { el.scrollLeft = el.scrollWidth; });
+        await page.waitForTimeout(80);
+      }
+      const note = page.locator(FILTER).getByRole('alert').filter({ hasText: '未能加载更多头像' });
+      await note.waitFor();
+      available = true;
+      await note.getByRole('button').click();
+      await note.waitFor({ state: 'hidden' });
+      await until(() => requests.length >= 2, '没有重试首页续页');
+      assert.deepEqual(requests.slice(0, 2), [1, 1]);
+      await row.locator('[data-tier-performer]').nth(40).waitFor();
+    } finally {
+      await opened.close();
+    }
+  });
+
   it('头像条横滚到右端先把手上这页摆完，再要下一页，要到空页就停', { timeout: 60_000 }, async () => {
     const opened = await openHome(browser);
     try {

@@ -15,6 +15,24 @@ describe('等待反馈与文件夹模式', () => {
   let browser: Browser;
   before(async () => { browser = await launch() });
   after(async () => { await browser?.close() });
+  it('反馈访问受限时在填写前显示一条原因并禁用提交', async () => {
+    const viewport = VIEWPORTS.find(row => !row.mobile)!;
+    const opened = await visit(browser, '/', viewport, async page => {
+      await page.route('**/api/app-feedback/{environment,diagnostics}', route => route.fulfill({
+        status: 401, json: { message_code: 'api.feedback.accessRequired' },
+      }));
+    });
+    try {
+      const { page } = opened;
+      await page.getByRole('button', { name: '反馈', exact: true }).click();
+      const form = page.locator('[data-peach-feedback]');
+      const reason = form.getByRole('note').getByText(/请在运行 Peach 的电脑上打开「反馈」/);
+      await reason.waitFor();
+      assert.equal(await reason.count(), 1);
+      assert.equal(await form.getByText('未能读取诊断信息，可以手动补充。', { exact: true }).count(), 0);
+      assert.equal(await form.locator('button[type=submit]').isDisabled(), true);
+    } finally { await opened.close(); }
+  });
   for (const viewport of VIEWPORTS) {
     for (const [key, name, title] of sections) it(`${viewport.name} ${name} 的首屏骨架保持分区与边界`, async () => {
       let release = () => {};

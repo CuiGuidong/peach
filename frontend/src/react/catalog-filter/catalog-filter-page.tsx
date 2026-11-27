@@ -9,9 +9,11 @@
  * 详情浮窗打开期间壳不推任何东西，关掉回来还是同一批节点（`buildBars` 那段注释讲了为什么）。 */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
+import { errorMessage } from '../../api';
 import { entityDisplayName } from '../../core/entity-names';
 import { useEntityNames } from '../use-entity-names';
 import { AsyncText } from '../components/async-text';
+import { Note } from '../components/note';
 import { Button } from '@/components/base/buttons/button';
 
 import { FilterGlassRows, FilterActionButton, FilterSearch, FilterTagStrip, FilterToolbarControls, useFilterScope } from '../components/filter-glass';
@@ -141,9 +143,10 @@ function Tiers(props: CatalogFilterProps) {
   const studios = useRef<HTMLDivElement>(null);
   const more = useCallback((kind: TierKind) => () => actions.moreTops(kind), [actions]);
   /* 占位那几排没有下一页可要。 */
-  const shownPerformers = usePaged(performers, tiers.performers, tiers.key, ROW_FIRST,
+  const performerPage = usePaged(performers, tiers.performers, tiers.key, ROW_FIRST,
     empty ? undefined : more('performers'));
-  const shownStudios = usePaged(studios, tiers.studios, tiers.key, ROW_FIRST, empty ? undefined : more('studios'));
+  const studioPage = usePaged(studios, tiers.studios, tiers.key, ROW_FIRST, empty ? undefined : more('studios'));
+  const tierError = performerPage.error || studioPage.error;
   /* 取回之前照本机上次的结构画占位，壳骨架同一份记录。 */
   const shape = useMemo(() => loading ? rememberedTiers() : null, [loading]);
   const hasPerformers = shape ? shape.performers : props.empty || tiers.performers.length > 0;
@@ -160,7 +163,7 @@ function Tiers(props: CatalogFilterProps) {
       aria-busy={(loading && props.tiersPending && !props.offscreen) || undefined}>
       {hasPerformers ? (
         <div ref={performers} data-catalog-tier="performers">
-          {empty ? <Placeholders kind="performer" /> : (shownPerformers as TierPerformer[]).map((person) => (
+          {empty ? <Placeholders kind="performer" /> : (performerPage.items as TierPerformer[]).map((person) => (
             <CatalogPerformerTile key={person.name} name={entityDisplayName('performer', person.name)} entityName={person.name}
               ringHtml={person.ringHtml} busy={props.tiersPending} onClick={() => actions.openEntity('performer', person.name)} />
           ))}
@@ -168,12 +171,17 @@ function Tiers(props: CatalogFilterProps) {
       ) : null}
       {hasStudios ? (
         <div ref={studios} data-catalog-tier="studios">
-          {empty ? <Placeholders kind="studio" /> : (shownStudios as TierStudio[]).map((studio) => (
+          {empty ? <Placeholders kind="studio" /> : (studioPage.items as TierStudio[]).map((studio) => (
             <CatalogStudioTile key={studio.name} name={studio.name} entityName={studio.name} logo={studio.logo}
               fallback={studio.fallback} busy={props.tiersPending} onClick={() => actions.openEntity('studio', studio.name)} />
           ))}
         </div>
       ) : null}
+      {tierError ? <Note tone="error" title={<span data-copy-key="catalog.entityFilter.moreFailed">{t('catalog:entityFilter.moreFailed')}</span>}
+        action={<Button variant="secondary" size="small" onClick={() => {
+          if (performerPage.error) performerPage.retry();
+          if (studioPage.error) studioPage.retry();
+        }}>{t('catalog:shared.retryNow')}</Button>}>{tierError}</Note> : null}
     </div>
   );
 }
@@ -294,14 +302,14 @@ function usePortalHost(row: Element | null): HTMLElement | null {
   return host;
 }
 
-interface Page<T> { key: string; limit: number; fetched: T[]; drained: boolean }
+interface Page<T> { key: string; limit: number; fetched: T[]; drained: boolean; error: string }
 
 /** 一排先摆 `first` 枚，横滚到离右端 320px 就再续 12 枚，续到这一排真的溢出为止：宽屏上一批可能
  *  还填不满一行，而没溢出就滚不动，滚不动就再没有第二次 `scroll` 来接着续。手上这份用完再经
  *  `more` 要下一页，要回空的就是到底了。`key` 变了从头摆。 */
 function usePaged<T>(row: RefObject<HTMLElement | null>, items: T[], key: string, first: number,
-  more?: () => Promise<unknown[]>): T[] {
-  const initial = (): Page<T> => ({ key, limit: first, fetched: [], drained: !more });
+  more?: () => Promise<unknown[]>) {
+  const initial = (): Page<T> => ({ key, limit: first, fetched: [], drained: !more, error: '' });
   const [page, setPage] = useState(initial);
   const current = page.key === key ? page : initial();
   if (current !== page) setPage(current);
@@ -310,24 +318,28 @@ function usePaged<T>(row: RefObject<HTMLElement | null>, items: T[], key: string
   const fetching = useRef<string | null>(null);
   const state = useRef({ current, all, more });
   state.current = { current, all, more };
-  const fill = useCallback(() => {
+  const fill = useCallback((retry = false) => {
     const el = row.current;
     const { current: now, all: list, more: next } = state.current;
-    if (!el || !el.clientWidth || el.scrollLeft + el.clientWidth < el.scrollWidth - ROW_AHEAD) return;
+    if (!el || !el.clientWidth || (!retry && (now.error || el.scrollLeft + el.clientWidth < el.scrollWidth - ROW_AHEAD))) return;
     if (now.limit < list.length) {
       setPage((p) => (p.key === now.key ? { ...p, limit: p.limit + ROW_BATCH } : p));
       return;
     }
     if (now.drained || !next || fetching.current === now.key) return;
     fetching.current = now.key;
+    if (retry) setPage(p => p.key === now.key ? { ...p, error: '' } : p);
     /* 要下一页的这段时间里人还在滚，`fetching` 挡住同一份名单重入，免得同一页要两遍。按 `key` 记：
      * 旧名单那一页还在路上时名单换了，新名单照样续页，不然旧请求回来被丢掉后这一排就停在第一页。 */
-    void next().catch(() => []).then((rows) => {
-      if (fetching.current === now.key) fetching.current = null;
+    void next().then((rows) => {
       setPage((p) => {
         if (p.key !== now.key) return p;
         return rows.length ? { ...p, fetched: p.fetched.concat(rows as T[]) } : { ...p, drained: true };
       });
+    }, (error) => {
+      setPage(p => p.key === now.key ? { ...p, error: errorMessage(error) } : p);
+    }).finally(() => {
+      if (fetching.current === now.key) fetching.current = null;
     });
   }, [row]);
   /* 量宽度合到下一帧：提交后当场量、每个 `scroll` 事件当场量，都赶在刚写完的样式后面，
@@ -343,5 +355,5 @@ function usePaged<T>(row: RefObject<HTMLElement | null>, items: T[], key: string
     el?.addEventListener('scroll', schedule, { passive: true });
     return () => el?.removeEventListener('scroll', schedule);
   });
-  return all.slice(0, current.limit);
+  return { items: all.slice(0, current.limit), error: current.error, retry: () => fill(true) };
 }

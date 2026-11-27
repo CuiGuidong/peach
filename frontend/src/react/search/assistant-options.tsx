@@ -158,9 +158,9 @@ function ConditionRows({ scope, filters, onChange }: { scope: SearchScope; filte
 
 const effortLabel = (effort: AIEffort) => t('settings:aiLibrary.effortOptions.' + effort);
 
-export function SearchModelPicker({ providers, fallback, value, onChange, disabled }: {
+export function SearchModelPicker({ providers, fallback, value, onChange, disabled, canConfigure }: {
   providers: AIConnection[]; fallback?: TaskProfile; value: TaskProfile | null;
-  onChange(value: TaskProfile | null): void; disabled: boolean;
+  onChange(value: TaskProfile | null): void; disabled: boolean; canConfigure: boolean;
 }) {
   const current = value ?? fallback;
   const client = useQueryClient();
@@ -178,7 +178,7 @@ export function SearchModelPicker({ providers, fallback, value, onChange, disabl
           <Help><span data-copy-key="settings.aiLibrary.taskConnectFirst">{t('settings:aiLibrary.taskConnectFirst')}</span></Help>
         </div>
       </>}
-    {unconfigured.length || !connections.length ? <div data-ai-provider-setup=""
+    {unconfigured.length || (!connections.length && canConfigure) ? <div data-ai-provider-setup=""
       className="mt-1 flex min-h-8 items-center justify-between gap-2 border-t border-separator-border px-2 py-1.5">
       {unconfigured.length ? <div className="flex min-w-0 items-center gap-2 text-text-secondary">
         <span role="img" aria-label={unconfigured.map(aiConnectionLabel).join(' · ')} className="flex shrink-0 items-center gap-1">
@@ -190,9 +190,9 @@ export function SearchModelPicker({ providers, fallback, value, onChange, disabl
           {t('settings:aiLibrary.keyMissing')}
         </span>
       </div> : null}
-      <LinkButton href="/settings/ai" size="xs" variant="secondary" className="ml-auto shrink-0" data-copy-interact="">
+      {canConfigure ? <LinkButton href="/settings/ai" size="xs" variant="secondary" className="ml-auto shrink-0" data-copy-interact="">
         <span data-copy-key="catalog.aiLibrary.configure">{t('catalog:aiLibrary.configure')}</span>
-      </LinkButton>
+      </LinkButton> : null}
     </div> : null}
   </ComposerPopover>;
 }

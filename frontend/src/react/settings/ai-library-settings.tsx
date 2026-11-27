@@ -6,10 +6,11 @@ import { Button, ButtonLink } from '@/components/base/buttons/button';
 import { Input } from '@/components/base/input/input';
 import { Textarea } from '@/components/base/textarea/textarea';
 import { Select, SelectItem } from '@/components/base/select/select';
-import { apiGet, apiSend, errorMessage } from '../../api';
+import { ApiError, apiGet, apiSend, errorMessage } from '../../api';
 import { aiConnectionsSkeleton } from '../../configuration-skeleton';
 import { t } from '../../i18n';
 import { AIProviderLabel, AIProviderLogo } from '../components/ai-provider-logo';
+import { Note } from '../components/note';
 import { SectionToc } from '../components/section-toc';
 import { SEGMENT, SEGMENTED_TRACK, SegmentedTabList } from '../components/segmented';
 import { StatusLabel, type StatusTone } from '../components/status-label';
@@ -44,11 +45,18 @@ export interface TaskProfile { provider: string; model: string; effort: AIEffort
 export interface AIConnections {
   providers: AIConnection[];
   task_profiles?: Partial<Record<AITask, Partial<TaskProfile>>>;
+  settings_editable: boolean;
 }
+type ConnectionFormValue = Omit<AIConnection, keyof ModelChoices>;
 type OAuthStatus = 'disconnected' | 'pending' | 'connected' | 'permission_required' | 'error';
 
 const OAUTH_URL = '/api/ai-library/openai/oauth';
 const VERIFY_URL = AI_CONNECTIONS_URL + '/verify';
+const BUILT_IN_PROVIDERS = [
+  { id: 'anthropic', label: 'Claude', model: '', configured: false },
+  { id: 'openai', label: 'OpenAI', model: '', configured: false },
+  { id: 'deepseek', label: 'DeepSeek', model: '', configured: false },
+];
 const OAUTH_TONES: Record<OAuthStatus, StatusTone> = {
   disconnected: 'neutral', pending: 'progress', connected: 'success', permission_required: 'warning', error: 'error',
 };
@@ -75,38 +83,50 @@ export function AILibrarySettings({ active, receipt }: { active: boolean; receip
   if (!query.data && query.isPending) return active
     ? <SectionSkeleton label={t('settings:aiLibrary.loading')} html={aiConnectionsSkeleton} />
     : null;
-  const providers = query.data?.providers ?? [];
+  const data = query.error ? undefined : query.data;
+  const providers = data?.providers ?? [];
+  const editable = Boolean(data?.settings_editable);
   const oauth = providers.find(value => value.id === 'openai-oauth');
   const services = { id: 'ai-services', label: t('settings:aiLibrary.servicesTitle') };
   const prompts = { id: 'ai-prompts', label: t('settings:aiLibrary.prompts.title') };
   const usage = { id: 'ai-usage', label: t('settings:aiLibrary.usage.title') };
+  const listedProviders = data ? providers.filter(value => value.id !== 'openai-oauth') : BUILT_IN_PROVIDERS;
+  const requestError = query.error instanceof ApiError ? query.error : null;
+  const accessRestricted = requestError?.status === 401 || requestError?.status === 403;
+  const errorCode = (requestError?.body as { message_code?: string } | null)?.message_code;
   return <div className="@container flex min-w-0 flex-col gap-5">
+    {query.error ? <Note tone={requestError?.status === 403 ? 'warning' : 'error'}>
+      <span data-copy-key={errorCode ? 'server.' + errorCode : undefined}>{errorMessage(query.error)}</span>
+    </Note> : data && !editable ? <Note tone="info">
+      <span data-copy-key="settings.aiLibrary.editOnHost">{t('settings:aiLibrary.editOnHost')}</span>
+    </Note> : null}
     <SectionToc inline label={t('settings:configurationPage.contents')} entries={[services, prompts, usage]}>
       <div id={services.id} className="flex min-w-0 flex-col gap-5">
-        {query.error ? <ErrorText>{errorMessage(query.error)}</ErrorText> : null}
-        {!adding && query.data ? <div className="flex justify-end">
-          <Button size="small" type="button" variant="secondary" leadingIcon={RiAddLine} onClick={() => setAdding(true)}>
-            <span data-copy-key="settings.aiLibrary.addProvider">{t('settings:aiLibrary.addProvider')}</span>
-          </Button>
-        </div> : null}
-        {adding ? <Section title={t('settings:aiLibrary.addProvider')} icon={<AIProviderLogo provider="custom" className="size-5" />}>
+        {editable && adding ? <Section title={t('settings:aiLibrary.addProvider')} icon={<AIProviderLogo provider="custom" className="size-5" />}>
           <ProviderForm active={active} value={{ id: 'custom', label: t('settings:aiLibrary.addProvider'),
             model: '', configured: false, custom: true }} cancel={() => setAdding(false)}
             saved={() => { setAdding(false); saved(); }} />
-        </Section> : null}
-        <div className="flex min-w-0 flex-col gap-5">
-          {providers.filter(value => value.id !== 'openai-oauth').map(value =>
-            <Section key={value.id} title={value.label} icon={<AIProviderLogo provider={value.id} className="size-5" />}>
-              {value.id === 'openai' && oauth ? <OpenAIMethods api={value} oauth={oauth} active={active} saved={saved} refresh={refresh} />
-                : <ProviderForm value={value} active={active} saved={saved} />}
-            </Section>)}
-        </div>
+        </Section> : <div className="flex justify-end">
+          <Button size="small" type="button" variant="secondary" leadingIcon={RiAddLine}
+            disabled={!editable} onClick={() => setAdding(true)}>
+            <span data-copy-key="settings.aiLibrary.addProvider">{t('settings:aiLibrary.addProvider')}</span>
+          </Button>
+        </div>}
+        {listedProviders.map(value =>
+          <Section key={value.id} title={value.label} icon={<AIProviderLogo provider={value.id} className="size-5" />}>
+            {value.id === 'openai' && editable
+              ? <OpenAIMethods api={value} oauth={oauth} active={active} saved={saved} refresh={refresh} />
+              : <ProviderForm key={String(editable)} value={value} active={active} saved={saved}
+                readOnly={!editable} connectionKnown={Boolean(data)} />}
+          </Section>)}
       </div>
       <Section id={prompts.id} title={prompts.label}>
-        <AITaskSettings providers={providers} profiles={query.data?.task_profiles} active={active} receipt={receipt} />
+        <AITaskSettings key={String(editable)} providers={providers} profiles={data?.task_profiles}
+          active={active} readOnly={!editable} receipt={receipt} />
       </Section>
       <Section id={usage.id} title={usage.label}>
-        <AIUsageDashboard active={active} providers={providers.map(row => ({ id: row.id, label: aiConnectionLabel(row), configured: row.configured }))} />
+        <AIUsageDashboard active={active} available={Boolean(data)} accessRestricted={accessRestricted}
+          providers={providers.map(row => ({ id: row.id, label: aiConnectionLabel(row), configured: row.configured }))} />
       </Section>
     </SectionToc>
   </div>;
@@ -117,19 +137,20 @@ const MODEL_TASK: Record<Exclude<AIPromptScope, 'system'>, AITask> = {
   search: 'search', metadata: 'search', organize: 'search',
 };
 
-function AITaskSettings({ providers, profiles, active, receipt }: {
-  providers: AIConnection[]; profiles: AIConnections['task_profiles']; active: boolean; receipt(message: string): void;
+function AITaskSettings({ providers, profiles, active, readOnly, receipt }: {
+  providers: AIConnection[]; profiles: AIConnections['task_profiles']; active: boolean; readOnly: boolean; receipt(message: string): void;
 }) {
   const client = useQueryClient();
   const [scope, setScope] = useState<AIPromptScope>('translate');
   const [fixedId, setFixedId] = useState('');
-  const fixedTasks = useCustomTasks<FixedTask>(true, active);
-  const fixed = fixedTasks.data?.tasks.find(row => row.id === fixedId);
+  const fixedTasks = useCustomTasks<FixedTask>(true, active && !readOnly);
+  const tasks = readOnly ? [] : fixedTasks.data?.tasks ?? [];
+  const fixed = tasks.find(row => row.id === fixedId);
   const isFixed = fixedId === 'new' || Boolean(fixed);
   const [drafts, setDrafts] = useState<Partial<Record<AITask, Partial<TaskProfile>>>>({});
   const action = useAction();
-  const busy = Boolean(action.busy);
-  const prompt = useAIPromptSettings(scope, active && !isFixed);
+  const busy = readOnly || Boolean(action.busy);
+  const prompt = useAIPromptSettings(scope, active && !readOnly && !isFixed);
   const task = scope === 'system' ? undefined : MODEL_TASK[scope];
   const profile = task ? profiles?.[task] : undefined;
   const modelDraft = task ? drafts[task] : undefined;
@@ -142,7 +163,7 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
   const authorized = connection?.id === 'openai-oauth';
   const connectionRevision = connection ? JSON.stringify([connection.base_url, connection.protocol, connection.manual_model, connection.model]) : undefined;
   const catalog = useAIModels(authorized ? OAUTH_URL + '/models' : AI_CONNECTIONS_URL + '/models',
-    connection?.id ?? '', '', active && !isFixed && Boolean(connection), undefined, connectionRevision);
+    connection?.id ?? '', '', active && !readOnly && !isFixed && Boolean(connection), undefined, connectionRevision);
   const eligibleCatalog = task === 'vision' ? { ...catalog, models: catalog.models.filter(row => row.vision !== false) } : catalog;
   const prior = connection?.id === profile?.provider ? profile?.model : undefined;
   const recommendations = task ? connection?.suggested_models?.[task] ?? [] : [];
@@ -152,7 +173,7 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
     .find(Boolean) ?? capable.find(row => row.id === connection?.model) ?? capable[0];
   const selected = pickModel(eligibleCatalog, model, prior, recommended?.id, connection?.model);
   const choice = eligibleCatalog.models.find(row => row.id === selected);
-  const efforts = choice?.efforts ?? ['default'];
+  const efforts = choice?.efforts ?? (readOnly && profile?.effort ? [profile.effort] : ['default']);
   const requested = effort ?? (selected === prior ? profile?.effort : undefined);
   const chosenModelEffort = (task && choice?.default_efforts[task]) || 'default';
   const selectedEffort = requested && efforts.includes(requested) ? requested : chosenModelEffort;
@@ -193,9 +214,9 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
       <span className="text-body-medium text-text-primary" data-copy-key="settings.aiLibrary.prompts.scope">{promptCopy('scope')}</span>
       <div className="flex flex-wrap items-center gap-2">
         <Select className="min-w-0 flex-1" aria-label={promptCopy('scope')} selectedKey={isFixed ? fixedId : scope}
-          isDisabled={busy || editingBusy} onSelectionChange={next => { if (next !== null) choose(String(next)); }}>
+          isDisabled={Boolean(action.busy) || editingBusy} onSelectionChange={next => { if (next !== null) choose(String(next)); }}>
           {AI_PROMPT_SCOPES.map(name => <SelectItem key={name} id={name}>{promptCopy('scopes.' + name)}</SelectItem>)}
-          {fixedTasks.data?.tasks.map(row => <SelectItem key={row.id} id={row.id}>{row.name}</SelectItem>)}
+          {tasks.map(row => <SelectItem key={row.id} id={row.id}>{row.name}</SelectItem>)}
           {fixedId === 'new' ? <SelectItem id="new">{customTaskCopy('new')}</SelectItem> : null}
         </Select>
         <Button type="button" size="small" variant="secondary" leadingIcon={RiAddLine}
@@ -204,7 +225,7 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
           <span data-copy-key="settings.aiLibrary.customTasks.add">{customTaskCopy('add')}</span>
         </Button>
       </div>
-      {fixedTasks.error ? <ErrorText>{errorMessage(fixedTasks.error)}</ErrorText> : null}
+      {!readOnly && fixedTasks.error ? <Note tone="error">{errorMessage(fixedTasks.error)}</Note> : null}
       {!isFixed && task && scope !== task ? <Help>{t('settings:aiLibrary.sharedTaskModel', { task: promptCopy('scopes.' + task) })}</Help> : null}
     </Stack>
     {isFixed ? <FixedTaskEditor key={fixedId} task={fixed} providers={options} active={active}
@@ -214,7 +235,7 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
     }}>
     {task ? <Stack divided>
       {!connection && profile?.provider ? <Help>{t('settings:aiLibrary.taskConnectionMissing')}</Help> : null}
-      {!options.length ? <Help>{t('settings:aiLibrary.taskConnectFirst')}</Help> : null}
+      {!readOnly && !options.length ? <Help>{t('settings:aiLibrary.taskConnectFirst')}</Help> : null}
       <Select aria-label={t('catalog:aiLibrary.provider')} selectedKey={connection?.id ?? null} isDisabled={busy || !options.length}
         onSelectionChange={next => { if (next) editModel({ provider: String(next), model: undefined, effort: undefined }); }}>
         {options.map(row => {
@@ -225,7 +246,8 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
         })}
       </Select>
       <ModelPicker catalog={eligibleCatalog} selected={selected} onChange={next => editModel({ model: next, effort: undefined })}
-        enabled={Boolean(connection)} disabled={busy} hint={t('settings:aiLibrary.taskConnectFirst')} savedModel={prior} />
+        enabled={!readOnly && Boolean(connection)} disabled={busy}
+        hint={t(readOnly ? 'settings:aiLibrary.chooseModel' : 'settings:aiLibrary.taskConnectFirst')} savedModel={prior} />
       {recommended ? <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <Help>
           <span data-copy-key="settings.aiLibrary.modelRecommendation">{t('settings:aiLibrary.modelRecommendation')}</span>
@@ -239,7 +261,8 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
       </div> : null}
       <div className="flex min-w-0 flex-col gap-1.5">
         <span className="text-body-medium text-text-primary" data-copy-key="settings.aiLibrary.effort">{t('settings:aiLibrary.effort')}</span>
-        <Select aria-label={t('settings:aiLibrary.effort')} selectedKey={selectedEffort} isDisabled={busy || !choice || efforts.length === 1}
+        <Select aria-label={t('settings:aiLibrary.effort')} selectedKey={readOnly ? profile?.effort ?? null : selectedEffort}
+          isDisabled={busy || !choice || efforts.length === 1}
           onSelectionChange={next => { if (next) editModel({ effort: next as AIEffort }); }}>
           {efforts.map(level => <SelectItem key={level} id={level}>{t('settings:aiLibrary.effortOptions.' + level)}</SelectItem>)}
         </Select>
@@ -258,14 +281,14 @@ function AITaskSettings({ providers, profiles, active, receipt }: {
         {t('settings:aiLibrary.effortUnreported')}
       </span></Help> : null}
     </Stack> : null}
-    <AIPromptEditor scope={scope} prompt={prompt} busy={busy} divided />
+    <AIPromptEditor scope={scope} prompt={prompt} busy={busy} readOnly={readOnly} divided />
     {action.error ? <Stack><ErrorText>{action.error}</ErrorText></Stack> : null}
     <Footer>
       {profile?.provider ? <Button type="button" size="small" variant="secondary" disabled={busy}
         onClick={() => { void action.run('reset-model', signal => saveModel(signal, true),
           () => receipt(t('settings:aiLibrary.taskModelReset'))); }}
         {...busyProps(action.busy === 'reset-model')}>{t('settings:aiLibrary.resetTaskProfile')}</Button> : null}
-      {prompt.resettable ? <Button type="button" size="small" variant="secondary" disabled={busy}
+      {!readOnly && prompt.resettable ? <Button type="button" size="small" variant="secondary" disabled={busy}
         onClick={() => { void action.run('reset-prompt', signal => prompt.save(signal, true),
           () => receipt(promptCopy('resetDone'))); }}
         {...busyProps(action.busy === 'reset-prompt')}>{promptCopy('reset')}</Button> : null}
@@ -362,25 +385,27 @@ function FixedTaskEditor({ task, providers, active, choose, busyChanged, receipt
 }
 
 function OpenAIMethods({ api, oauth, active, saved, refresh }: {
-  api: AIConnection; oauth: AIConnection; active: boolean; saved(): void; refresh(): void;
+  api: ConnectionFormValue; oauth?: AIConnection; active: boolean; saved(): void; refresh(): void;
 }) {
   const [method, setMethod] = useState(() => {
     const direct = new URLSearchParams(window.location.search).get('connection') === 'chatgpt';
-    return direct || (!api.configured && oauth.status !== 'disconnected') ? 'oauth' : 'key';
+    return oauth && (direct || (!api.configured && oauth.status !== 'disconnected')) ? 'oauth' : 'key';
   });
-  return <Tabs selectedKey={method} onSelectionChange={key => setMethod(String(key))}>
+  const selectedMethod = oauth ? method : 'key';
+  return <Tabs selectedKey={selectedMethod} onSelectionChange={key => setMethod(String(key))}>
     <SegmentedTabList aria-label={t('settings:aiLibrary.connectionMethod')} className={SEGMENTED_TRACK + ' mt-3'}>
       <Tab id="key" className={SEGMENT}>API Key</Tab>
-      <Tab id="oauth" className={SEGMENT}>
+      <Tab id="oauth" className={SEGMENT} isDisabled={!oauth}>
         <span data-copy-key="settings.aiLibrary.oauthTitle">{t('settings:aiLibrary.oauthTitle')}</span>
       </Tab>
     </SegmentedTabList>
+    {!oauth ? <Stack><Help><span data-copy-key="settings.aiLibrary.oauthLocalAddress">{t('settings:aiLibrary.oauthLocalAddress')}</span></Help></Stack> : null}
     <TabPanel id="key" shouldForceMount className="data-inert:hidden">
-      <ProviderForm value={api} active={active && method === 'key'} saved={saved} />
+      <ProviderForm value={api} active={active && selectedMethod === 'key'} saved={saved} />
     </TabPanel>
-    <TabPanel id="oauth" shouldForceMount className="data-inert:hidden">
-      <OAuthForm value={oauth} active={active && method === 'oauth'} saved={saved} refresh={refresh} />
-    </TabPanel>
+    {oauth ? <TabPanel id="oauth" shouldForceMount className="data-inert:hidden">
+      <OAuthForm value={oauth} active={active && selectedMethod === 'oauth'} saved={saved} refresh={refresh} />
+    </TabPanel> : null}
   </Tabs>;
 }
 
@@ -490,8 +515,9 @@ const MAGPIE_BASE = 'http://127.0.0.1/v1';
 const MAGPIE_PORT = '3425';
 type EndpointMode = 'official' | 'magpie' | 'custom';
 
-function ProviderForm({ value, active, saved, cancel }: {
-  value: Omit<AIConnection, keyof ModelChoices>; active: boolean; saved(): void; cancel?(): void;
+function ProviderForm({ value, active, saved, cancel, readOnly = false, connectionKnown = true }: {
+  value: ConnectionFormValue; active: boolean; saved(): void; cancel?(): void;
+  readOnly?: boolean; connectionKnown?: boolean;
 }) {
   const queryClient = useQueryClient();
   const [model, setModel] = useState<string | null>(null);
@@ -522,13 +548,13 @@ function ProviderForm({ value, active, saved, cancel }: {
   const hasKey = Boolean(key.trim()) || (value.configured && !targetChanged);
   const hasTarget = mode === 'official' || Boolean(target.base_url || (!value.custom && target.port));
   const manualRead = targetChanged || (mode !== 'official' && Boolean(key.trim()));
-  const enabled = active && hasKey && hasTarget && !manual && (!manualRead || readRequested);
+  const enabled = active && !readOnly && hasKey && hasTarget && !manual && (!manualRead || readRequested);
   const catalog = useAIModels(AI_CONNECTIONS_URL + '/models', value.id, key.trim(), enabled, target);
   const alternatives = !value.configured && !model ? value.suggested_models?.translate ?? [] : [];
   const selected = manual ? (model ?? (targetChanged ? '' : value.model)).trim() : pickModel(catalog, model ?? value.model, ...alternatives);
   const draft = { provider: value.id, model: selected, api_key: key, ...target,
     ...(value.custom ? { label: label.trim(), manual_model: Boolean(manual) } : {}) };
-  const busy = Boolean(action.busy);
+  const busy = readOnly || Boolean(action.busy);
   const ready = active && hasKey && hasTarget && (!value.custom || Boolean(label.trim()))
     && (manual ? /^[A-Za-z0-9][A-Za-z0-9_.:/-]{0,127}$/.test(selected) : Boolean(selected) && enabled && !catalog.loading);
   const resetModel = () => {
@@ -574,13 +600,13 @@ function ProviderForm({ value, active, saved, cancel }: {
   };
   return <form aria-label={value.label} noValidate onSubmit={event => { event.preventDefault(); if (ready && !busy) update(false); }}>
     <Stack>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+      {connectionKnown ? <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <StatusLabel tone={value.configured ? 'success' : 'neutral'}>{t(value.configured
           ? 'settings:aiLibrary.keySaved' : 'settings:aiLibrary.keyMissing')}</StatusLabel>
         {value.key_url && mode === 'official' ? <ExternalLink href={value.key_url}>
           <span data-copy-key="settings.aiLibrary.getKey">{t('settings:aiLibrary.getKey')}</span>
         </ExternalLink> : null}
-      </div>
+      </div> : null}
       {value.custom ? <>
         <Input label={t('settings:aiLibrary.customLabel')} value={label} maxLength={80} autoComplete="off"
           isDisabled={busy} onChange={setLabelDraft} />
@@ -601,7 +627,7 @@ function ProviderForm({ value, active, saved, cancel }: {
         <span className="text-body-medium text-text-primary" data-copy-key="settings.aiLibrary.endpointMode">
           {t('settings:aiLibrary.endpointMode')}
         </span>
-        <Select aria-label={t('settings:aiLibrary.endpointMode')} selectedKey={mode} isDisabled={busy}
+        <Select aria-label={t('settings:aiLibrary.endpointMode')} selectedKey={connectionKnown ? mode : null} isDisabled={busy}
           onSelectionChange={next => { if (next !== null) selectEndpoint(next as EndpointMode); }}>
           <SelectItem id="official">{t('settings:aiLibrary.officialEndpoint')}</SelectItem>
           {value.id === 'openai' ? <SelectItem id="magpie">Magpie</SelectItem> : null}
@@ -626,7 +652,8 @@ function ProviderForm({ value, active, saved, cancel }: {
       {manual ? <Input label={t('settings:aiLibrary.manualModel')} value={model ?? (targetChanged ? '' : value.model)} autoComplete="off"
         maxLength={128} isDisabled={busy} onChange={setModel} hint={t('settings:aiLibrary.manualModelHelp')} />
         : <ModelPicker catalog={catalog} selected={selected} onChange={next => { setModel(next); setVerified(''); }} disabled={busy}
-        enabled={enabled} hint={t(manualRead && hasKey ? 'settings:aiLibrary.readModels' : 'settings:aiLibrary.modelsAfterKey')}
+        enabled={enabled} hint={t(readOnly ? 'settings:aiLibrary.chooseModel'
+          : manualRead && hasKey ? 'settings:aiLibrary.readModels' : 'settings:aiLibrary.modelsAfterKey')}
         action={mode !== 'official' || manualRead ? <Button variant="secondary" size="small" type="button"
           disabled={busy || !hasKey || !hasTarget || catalog.loading}
           onClick={() => enabled ? catalog.retry() : setReadRequested(true)} {...busyProps(catalog.loading)}>

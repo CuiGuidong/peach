@@ -13,12 +13,13 @@ import { createPortal } from 'react-dom';
 import { ButtonLink } from '@/components/base/buttons/button';
 import { avatarInner } from '@peach/card-art';
 
-import { apiGet, apiSend } from '../../api';
+import { apiGet, apiSend, errorMessage } from '../../api';
 import { entityDisplayName } from '../../core/entity-names';
 import { useEntityNames } from '../use-entity-names';
 import { TabCount } from '../components/board-tabs';
 import { PillTabList } from '../components/pill-tabs';
 import { composingKey } from '../components/ime';
+import { Note } from '../components/note';
 import { spriteGlyph } from '../components/sprite-glyph';
 import {
   menuModel, nextPage, shufflePicks, SUGGEST_DEBOUNCE, SUGGEST_EACH, SUGGEST_ONE_KIND, SUGGEST_PROFILE_KINDS, SUGGEST_RIGHT_KINDS, fold,
@@ -32,6 +33,7 @@ const AssistantIcon = spriteGlyph('bot-orb');
 interface Store {
   dismissed: boolean;
   history: string[];
+  historyRemovalError: string;
   pool: string[];
   poolRequest: number;
   /** 推荐栏一起带回的推荐词：还没聚焦、按筛选核过的 `pool` 还没取时，占位里轮换它。 */
@@ -70,7 +72,7 @@ interface Store {
 
 const emptyStore = (): Store => ({
   dismissed: false, history: [], pool: [], poolRequest: 0, words: [], recommendations: [], nextRecommendations: null, recommendationsFilling: false, recommendationLoading: false, recommendationRequest: 0, cancelIdle: () => {}, shuffled: {}, cancelRoll: () => {}, query: '', picks: [], suggestFor: '', groups: [], tabs: [],
-  suggestRequest: 0, asked: '', timer: 0, kind: '', active: -1, reveal: false, rewind: false,
+  suggestRequest: 0, asked: '', timer: 0, kind: '', active: -1, reveal: false, rewind: false, historyRemovalError: '',
 });
 
 const modelOf = (s: Store): MenuModel => menuModel({
@@ -213,6 +215,9 @@ export function SearchPage(props: SearchProps) {
         aiMount,
       ) : null}
       {model.tabs ? <Tabs tabs={model.tabs} kind={s.kind} onPick={op.pickKind} wire={props.helpers.wireScroller} /> : null}
+      {s.historyRemovalError ? <Note className="mx-2 my-2" tone="error" title={<span data-copy-key="catalog.searchSuggest.removeHistoryFailed">{tr('catalog:searchSuggest.removeHistoryFailed')}</span>}>
+        {s.historyRemovalError}
+      </Note> : null}
       {model.recent ? section(model.recent) : null}
       {columns(model.left, model.right)}
       {model.empty ? <p data-search-empty="" role="status">{tr('catalog:searchSuggest.noResults')}</p> : null}
@@ -485,7 +490,15 @@ function createOps(props: () => SearchProps, s: Store, menu: () => HTMLElement |
   const pick = (entry: SearchOption) => { close(); choose(entry) };
   const peek = (card: SuggestCard) => { close(); input().blur(); props().actions.openItem(card.id) };
   const remove = async (value: string) => {
-    await apiSend('/api/search-history', { operation: 'remove', query: value }).catch(() => null);
+    s.historyRemovalError = '';
+    bump();
+    try {
+      await apiSend('/api/search-history', { operation: 'remove', query: value });
+    } catch (error) {
+      s.historyRemovalError = errorMessage(error);
+      bump();
+      return;
+    }
     writeHistory(readHistory().filter((row) => fold(row) !== fold(value)));
     // 行没了，键盘选中的下标就指不回同一项，归零重来。推荐不重洗：删一条记录却换了一批推荐，看着像列表自己跳了。
     s.active = -1;

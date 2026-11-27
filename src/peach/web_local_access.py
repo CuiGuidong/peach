@@ -72,6 +72,14 @@ def private_ai_client(request: Request) -> bool:
     return True
 
 
+def host_ai_client(request: Request) -> bool:
+    """Recognize the host's own browser on either loopback or its bound LAN address."""
+    if loopback_client(request):
+        return True
+    server = request.scope.get("server")
+    return bool(request.client and server and request.client.host == server[0] and local_client(request))
+
+
 def local_client(request: Request) -> bool:
     """桌面限本机，Docker 允许本机与私有网络，拒绝代理转发。"""
     if not request.client or tunnel_forwarded(request):

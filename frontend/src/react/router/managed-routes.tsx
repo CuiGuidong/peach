@@ -141,11 +141,11 @@ const configurationRoute = (path: ConfigurationPath): ManagedRoute<ManagedOpenPr
 const cleanupRoutes = CLEANUP_TOOLS.reduce((routes, tool) => {
   routes[tool.path] = {
     element: <ManagedMatch path={tool.path} />,
-    prefetch: (_open: Record<string, never>, signal: AbortSignal) =>
+    prefetch: (_open: ManagedOpenProps[CleanupToolPath], signal: AbortSignal) =>
       withPage(dataCleanupPage, prefetchDataCleanupTool(tool.key, signal)),
-    page: (_open: Record<string, never>, actions: ShellActions) => {
+    page: (open: ManagedOpenProps[CleanupToolPath], actions: ShellActions) => {
       const { DataCleanupToolPage } = dataCleanupPage.get();
-      return <DataCleanupToolPage tool={tool.key} failure={actions.failure}
+      return <DataCleanupToolPage tool={tool.key} writeAccess={open.writeAccess} failure={actions.failure}
         toast={(message, { warning = false, undo } = {}) => (
           warning ? actions.toast({ text: message }, { sound: 'warning' }) : actions.receipt(message, undo ? { undo } : {}))} />;
     },

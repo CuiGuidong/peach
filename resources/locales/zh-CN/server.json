@@ -898,6 +898,7 @@
   },
   "api": {
     "feedback": {
+      "accessRequired": "请在运行 Peach 的电脑上打开「反馈」。要从这台设备提交，请先在那台电脑的「网络与访问」中设置访问密码，再从这台设备打开 Peach 并输入密码。",
       "issueTemplate": {
         "bugDescription": "问题描述",
         "reproduction": "复现步骤",
@@ -927,7 +928,8 @@
       "customTaskConnection": "服务接入点已更改，请重新保存任务的服务设置",
       "invalidPrompt": "请选择有效的提示词范围，或缩短提示词后再保存。",
       "credentialTransport": "请通过本机回环地址或 HTTPS 提交 API Key。",
-      "privateAccess": "公网入口无法调用 Peach 保存的 AI 服务。请在 Peach 主机或已登录的局域网打开。",
+      "privateAccess": "通过公网或代理访问时，无法使用 Peach 保存的 AI 服务。请在运行 Peach 的电脑上打开「AI 接入」。",
+      "lanSignIn": "请在运行 Peach 的电脑上修改 AI 配置。要在这台设备上使用 AI，请先在那台电脑的「网络与访问」中设置访问密码，再打开 Peach 并输入密码。",
       "searchUnsupported": "缺少可用的查询条件，请补充关键词、艺人、年份或标签。",
       "invalid": "请检查 AI 服务、模型和任务设置。",
       "unconfigured": "请先配置这个 AI 服务的 API Key。",
@@ -977,7 +979,7 @@
       "loginFormInvalid": "登录表单字段过多",
       "loginFormTooLarge": "登录表单过大",
       "sessionNotSaved": "登录设备未能记下，请检查数据目录能否写入后重试",
-      "submitFromSettings": "请从 Peach 配置页提交",
+      "submitFromSettings": "Peach 无法确认请求来自当前页面。请直接打开此 Peach 实例的页面，再重试原操作。",
       "tooManyAttempts": "尝试次数较多，请一分钟后重试",
       "assetTokenRequired": "需要 ?t=口令"
     },
