@@ -2643,7 +2643,7 @@ class LibraryNfoTests(unittest.TestCase):
         first = run()
         self.assertEqual((provider.query.call_count, provider.community.call_count), (1, 1))
         self.assertEqual([row['message'] for row in first['issue_preview']],
-                         ['封面未取得：来源返回 HTTP 503'], '来源说没有只报一个数，不占问题清单')
+                         ['封面采集失败：来源返回 HTTP 503'], '来源说没有只报一个数，不占问题清单')
         self.assertEqual(first['notes'], {'querying_metadata': 1})
         recorded = json.loads(misses_path(config).read_text(encoding='utf-8'))
         self.assertEqual(list(recorded['misses']),

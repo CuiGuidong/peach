@@ -1133,7 +1133,7 @@ class DetailProjectionTests(unittest.TestCase):
                 patch('peach.web_jav_detail.PUBLIC_API.reviews', side_effect=PublicSourceUnavailable('errors.javdbPublic.sourcePaused')):
             result = PUBLIC_API.resources('EXM-001')
         self.assertEqual(len(result['items']), 1)
-        self.assertEqual(result['warnings'], ['JavDB 评论区查询未完成：作品资料来源暂时不可用，请稍后重试'])
+        self.assertEqual(result['warnings'], ['JavDB 评论区查询失败：作品资料来源暂时不可用，请稍后重试'])
 
     def test_comment_resource_scan_has_a_page_limit(self):
         with patch('peach.web_jav_detail.PUBLIC_API.movie', return_value={'id': 'Exact'}), \
