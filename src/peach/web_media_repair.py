@@ -36,11 +36,13 @@ from .user_messages import UserInterruptedError, UserValueError
 
 #: 判定结论的落盘位置，放在边车自己的目录里：它们同生同灭，清缓存时一起走。
 SCAN_CACHE_NAME = "mp4-repair-scan.json"
+SCAN_CACHE_VERSION = 3
 
 #: 文件身份对应的判定缓存；修复产物由边车或新文件核验。
 CLEAN = "clean"
 UNAVAILABLE = "unavailable"
 LEGACY_UNAVAILABLE = "unavailable-layout-v1"
+LEGACY_HEADER_UNAVAILABLE = "unavailable-header-v2"
 
 #: 缺时间戳表，修的是边车。
 HEADER = "header"
@@ -59,6 +61,15 @@ def _cache_path(contract) -> Path:
     return Path(contract.transcode_root) / SCAN_CACHE_NAME
 
 
+def _cache_entries(entries, version) -> dict[str, str]:
+    legacy = UNAVAILABLE
+    if version == 1:
+        legacy = LEGACY_UNAVAILABLE
+    elif version == 2:
+        legacy = LEGACY_HEADER_UNAVAILABLE
+    return {str(key): legacy if value == UNAVAILABLE else str(value) for key, value in entries.items()}
+
+
 def _load_cache(contract) -> dict[str, str]:
     try:
         payload = json.loads(_cache_path(contract).read_text(encoding="utf-8"))
@@ -67,8 +78,7 @@ def _load_cache(contract) -> dict[str, str]:
     entries = payload.get("entries") if isinstance(payload, dict) else None
     if not isinstance(entries, dict):
         return {}
-    return {str(key): LEGACY_UNAVAILABLE if value == UNAVAILABLE and payload.get('version', 1) == 1
-            else str(value) for key, value in entries.items()}
+    return _cache_entries(entries, payload.get("version", 1))
 
 
 def _save_cache(contract, entries: dict[str, str]) -> None:
@@ -76,7 +86,7 @@ def _save_cache(contract, entries: dict[str, str]) -> None:
     try:
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary = path.with_name(path.name + ".tmp")
-        temporary.write_text(json.dumps({"version": 2, "entries": entries}), encoding="utf-8")
+        temporary.write_text(json.dumps({"version": SCAN_CACHE_VERSION, "entries": entries}), encoding="utf-8")
         temporary.replace(path)
     except OSError:
         # 结论缓存丢了只是下次重扫一遍，不该让整轮任务失败。
@@ -150,9 +160,16 @@ def _survey(contract, job, job_id: str, rows, cache: dict[str, str]) -> list[tup
                 continue
             boxes = _top_level(worker, source)
             kind = cache.get(key)
-            if kind == LEGACY_UNAVAILABLE:
+            if kind in (LEGACY_UNAVAILABLE, LEGACY_HEADER_UNAVAILABLE):
                 try:
-                    kind = None if mp4repair.tail_moov(boxes()) else UNAVAILABLE
+                    layout = boxes()
+                    if kind == LEGACY_UNAVAILABLE and mp4repair.tail_moov(layout):
+                        kind = None
+                    elif any(box[0] == b"moov" for box in layout):
+                        missing_timestamps = contract.transcode_service.decode_order_timestamps(source, stat=stat)
+                        kind = HEADER if missing_timestamps else UNAVAILABLE
+                    else:
+                        kind = UNAVAILABLE
                 except OSError:
                     _advance(job, job_id, index, skipped=True)
                     continue
@@ -173,7 +190,8 @@ def _survey(contract, job, job_id: str, rows, cache: dict[str, str]) -> list[tup
                 found.append((asset_id, raw, kind))
             cache[key] = kind or CLEAN
             _save_cache(contract, cache)
-            if not job.checkpoint(job_id, survey_checked=index, survey_cache=dict(cache), survey_cache_version=2):
+            if not job.checkpoint(job_id, survey_checked=index, survey_cache=dict(cache),
+                                  survey_cache_version=SCAN_CACHE_VERSION):
                 raise UserInterruptedError("errors.webMediaRepair.scanStopped")
             _advance(job, job_id, index, skipped=False)
     return found
@@ -327,11 +345,7 @@ def run_media_repair(contract, job_id: str, scope: tuple[str, list]) -> None:
     job = contract.media_repair_job
     cache = _load_cache(contract)
     previous = job.snapshot() or {}
-    resumed_cache = previous.get('survey_cache') or {}
-    if previous.get('survey_cache_version', 1) == 1:
-        resumed_cache = {key: LEGACY_UNAVAILABLE if value == UNAVAILABLE else value
-                         for key, value in resumed_cache.items()}
-    cache.update(resumed_cache)
+    cache.update(_cache_entries(previous.get('survey_cache') or {}, previous.get('survey_cache_version', 1)))
     rows = _candidates(contract, scope)
     job.update(job_id, **stage_fields('mediaRepair.scan'), total=len(rows), checked=previous.get('survey_checked', 0))
     found = _survey(contract, job, job_id, rows, cache)
